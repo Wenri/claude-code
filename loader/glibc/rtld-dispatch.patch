@@ -1,0 +1,27 @@
+--- a/elf/rtld.c	2025-07-28 20:22:55.000000000 +0200
++++ b/elf/rtld.c	2026-06-30 00:46:35.523893200 +0200
+@@ -1348,6 +1348,16 @@
+       /* Note the place where the dynamic linker actually came from.  */
+       _dl_rtld_map.l_name = rtld_progname;
+
++      /* claude-dispatch: pick the program to load from our OWN name (readlink of
++         /proc/self/exe, minus ".rtld") by rewriting _dl_argv[0], and set argv0 for
++         a bundled-tool invocation. _dl_argv isn't advanced (skip_args stays 0);
++         then skip ld.so's own option parsing.  */
++      {
++	extern _Bool claude_dispatch (char **, char **);
++	if (claude_dispatch (_dl_argv, &argv0))
++	  goto claude_loaded;
++      }
++
+       while (_dl_argc > 1)
+ 	if (! strcmp (_dl_argv[1], "--list"))
+ 	  {
+@@ -1487,6 +1497,7 @@
+       --_dl_argc;
+       ++_dl_argv;
+
++    claude_loaded:
+       /* The initialization of _dl_stack_flags done below assumes the
+ 	 executable's PT_GNU_STACK may have been honored by the kernel, and
+ 	 so a PT_GNU_STACK with PF_X set means the stack started out with

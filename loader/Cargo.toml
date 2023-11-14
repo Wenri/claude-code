@@ -1,0 +1,22 @@
+# rtld-dispatch — a nix-ld-style no_std `bin` crate whose final link cargo drives,
+# pulling in glibc's rtld objects (librtld.os) as the runtime + entry point. See
+# ../README.md and build.rs. rtld supplies _start + the libc; this crate provides
+# only the `claude_dispatch` hook that glibc's patched dl_main calls. The built binary
+# is generic — it's installed as `<prog>.rtld` and loads `<prog>` (claude, agy, …).
+[package]
+name = "rtld-dispatch"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "rtld-dispatch"
+path = "src/main.rs"
+
+[dependencies]
+# Raw syscall wrappers (no_std, inline-asm macro → zero runtime symbols). We need
+# readlink(2), which rtld doesn't export. Externally maintained; multi-arch.
+sc = "0.2"
+
+[profile.release]
+panic = "abort"
+opt-level = "s"

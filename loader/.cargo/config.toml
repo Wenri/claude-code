@@ -1,0 +1,19 @@
+# Drive the final link through gcc/bfd (matching glibc's own ld.so link), not the
+# bundled rust-lld: lld rejects glibc's `-z nomark-plt` and `ld.map` version script.
+#
+# Nightly-on-stable via RUSTC_BOOTSTRAP=1: enables the `lang_items` feature (for the
+# eh_personality lang item, as in nix-ld) and the `-Z plt=yes` codegen flag (nix-ld
+# parity — emit PLT stubs for external calls). We keep relocation-model=pic (not
+# nix-ld's `pie`): our output is a `-shared` ld.so that exports symbols, where pie
+# codegen would make wrong symbol-preemption assumptions; pie suits nix-ld's
+# static-pie executable, not us.
+[env]
+RUSTC_BOOTSTRAP = "1"
+
+[build]
+rustflags = [
+    "-C", "linker=gcc",
+    "-C", "link-self-contained=no",
+    "-C", "relocation-model=pic",
+    "-Z", "plt=yes",
+]
