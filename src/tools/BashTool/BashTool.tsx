@@ -1,6 +1,7 @@
 import { feature } from 'bun:bundle';
 import type { ToolResultBlockParam } from '@anthropic-ai/sdk/resources/index.mjs';
 import { copyFile, stat as fsStat, truncate as fsTruncate, link } from 'fs/promises';
+import { relative } from 'path';
 import * as React from 'react';
 import type { CanUseToolFn } from 'src/hooks/useCanUseTool.js';
 import type { AppState } from 'src/state/AppState.js';
@@ -18,9 +19,10 @@ import { parseForSecurity } from '../../utils/bash/ast.js';
 import { splitCommand_DEPRECATED, splitCommandWithOperators } from '../../utils/bash/commands.js';
 import { extractClaudeCodeHints } from '../../utils/claudeCodeHints.js';
 import { detectCodeIndexingFromCommand } from '../../utils/codeIndexing.js';
+import { getCwd } from '../../utils/cwd.js';
 import { isEnvTruthy } from '../../utils/envUtils.js';
 import { isENOENT, ShellError } from '../../utils/errors.js';
-import { detectFileEncoding, detectLineEndings, getFileModificationTime, writeTextContent } from '../../utils/file.js';
+import { detectFileEncoding, detectLineEndings, getFileModificationTime, getFileModificationTimeAsync, writeTextContent } from '../../utils/file.js';
 import { fileHistoryEnabled, fileHistoryTrackEdit } from '../../utils/fileHistory.js';
 import { truncate } from '../../utils/format.js';
 import { getFsImplementation } from '../../utils/fsOperations.js';
@@ -33,7 +35,7 @@ import type { ExecResult } from '../../utils/ShellCommand.js';
 import { SandboxManager } from '../../utils/sandbox/sandbox-adapter.js';
 import { semanticBoolean } from '../../utils/semanticBoolean.js';
 import { semanticNumber } from '../../utils/semanticNumber.js';
-import { EndTruncatingAccumulator } from '../../utils/stringUtils.js';
+import { EndTruncatingAccumulator, plural } from '../../utils/stringUtils.js';
 import { getTaskOutputPath } from '../../utils/task/diskOutput.js';
 import { TaskOutput } from '../../utils/task/TaskOutput.js';
 import { isOutputLineTruncated } from '../../utils/terminal.js';
@@ -42,6 +44,7 @@ import { userFacingName as fileEditUserFacingName } from '../FileEditTool/UI.js'
 import { trackGitOperations } from '../shared/gitOperationTracking.js';
 import { bashToolHasPermission, commandHasAnyCd, matchWildcardPattern, permissionRuleExtractPrefix } from './bashPermissions.js';
 import { interpretCommandResult } from './commandSemantics.js';
+import { cacheBashReads } from './fileReadState.js';
 import { getDefaultTimeoutMs, getMaxTimeoutMs, getSimplePrompt } from './prompt.js';
 import { checkReadOnlyConstraints } from './readOnlyValidation.js';
 import { parseSedEditCommand } from './sedEditParser.js';
@@ -290,8 +293,30 @@ const outputSchema = lazySchema(() => z.object({
   noOutputExpected: z.boolean().optional().describe('Whether the command is expected to produce no output on success'),
   structuredContent: z.array(z.any()).optional().describe('Structured content blocks'),
   persistedOutputPath: z.string().optional().describe('Path to the persisted full output in tool-results dir (set when output is too large for inline)'),
-  persistedOutputSize: z.number().optional().describe('Total size of the output in bytes (set when output is too large for inline)')
+  persistedOutputSize: z.number().optional().describe('Total size of the output in bytes (set when output is too large for inline)'),
+  staleReadFileStateHint: z.string().optional().describe('Model-facing note listing readFileState entries whose mtime bumped during this command (set when WRITE_COMMAND_MARKERS matches)')
 }));
+const WRITE_COMMAND_MARKERS = new RegExp([
+  '--write',
+  '--fix',
+  '--in-place',
+  '--auto-correct',
+  '\\brun\\s+format\\b',
+  '\\brun\\s+fix\\b',
+  '\\b(yarn|pnpm)\\s+format\\b',
+  '\\blint:file\\b',
+  '\\blint:fix\\b',
+  '\\bblack\\b',
+  '\\bisort\\b',
+  '\\bruff\\s+format\\b',
+  '\\bcargo\\s+(fmt|fix)\\b',
+  '\\brustfmt\\b',
+  '\\bgo\\s+fmt\\b',
+  '\\bterraform\\s+fmt\\b',
+  '\\bdprint\\s+fmt\\b',
+  '\\bswiftformat\\b',
+  '\\bphpcbf\\b'
+].join('|'));
 type OutputSchema = ReturnType<typeof outputSchema>;
 export type Out = z.infer<OutputSchema>;
 
@@ -416,6 +441,18 @@ async function applySedEdit(simulatedEdit: {
       interrupted: false
     }
   };
+}
+// Recovery note: this helper's name and local names are inferred; its
+// predicates, concurrency, error handling, and returned paths are bundle-observed.
+async function findStaleReadFileStateEntries(command: string, readFileState: ToolUseContext['readFileState'], commandStartTime: number): Promise<string[]> {
+  if (!WRITE_COMMAND_MARKERS.test(command)) return [];
+  const changed: string[] = [];
+  await Promise.all(Array.from(readFileState.entries(), ([filePath, state]) => getFileModificationTimeAsync(filePath).then(mtime => {
+    if (mtime > commandStartTime && mtime > state.timestamp) {
+      changed.push(filePath);
+    }
+  }).catch(() => {})));
+  return changed;
 }
 export const BashTool = buildTool({
   name: BASH_TOOL_NAME,
@@ -562,7 +599,8 @@ export const BashTool = buildTool({
     assistantAutoBackgrounded,
     structuredContent,
     persistedOutputPath,
-    persistedOutputSize
+    persistedOutputSize,
+    staleReadFileStateHint
   }, toolUseID): ToolResultBlockParam {
     // Handle structured content
     if (structuredContent && structuredContent.length > 0) {
@@ -617,7 +655,7 @@ export const BashTool = buildTool({
     return {
       tool_use_id: toolUseID,
       type: 'tool_result',
-      content: [processedStdout, errorMessage, backgroundInfo].filter(Boolean).join('\n'),
+      content: [processedStdout, errorMessage, backgroundInfo, staleReadFileStateHint].filter(Boolean).join('\n'),
       is_error: interrupted
     };
   },
@@ -627,6 +665,7 @@ export const BashTool = buildTool({
     if (input._simulatedSedEdit) {
       return applySedEdit(input._simulatedSedEdit, toolUseContext, parentMessage);
     }
+    const commandStartTime = Math.floor(Date.now() / 1000) * 1000;
     const {
       abortController,
       getAppState,
@@ -800,6 +839,20 @@ export const BashTool = buildTool({
         isImage = false;
       }
     }
+    let staleReadFileStateHint: string | undefined;
+    if (!wasInterrupted && !isImage && !result.backgroundTaskId) {
+      const changed = await findStaleReadFileStateEntries(input.command, toolUseContext.readFileState, commandStartTime);
+      if (changed.length > 0) {
+        const cwd = getCwd();
+        const maxPaths = 5;
+        const shown = changed.slice(0, maxPaths).map(filePath => relative(cwd, filePath) || filePath).join(', ');
+        const more = changed.length > maxPaths ? ` and ${changed.length - maxPaths} more` : '';
+        staleReadFileStateHint = `[This command modified ${changed.length} ${plural(changed.length, 'file')} you've previously read: ${shown}${more}. Call Read before editing.]`;
+      }
+    }
+    if (!wasInterrupted && !isImage && !result.backgroundTaskId) {
+      await cacheBashReads(input.command, toolUseContext.readFileState, abortController.signal);
+    }
     const data: Out = {
       stdout: compressedStdout,
       stderr: stderrForShellReset,
@@ -812,7 +865,8 @@ export const BashTool = buildTool({
       assistantAutoBackgrounded: result.assistantAutoBackgrounded,
       dangerouslyDisableSandbox: 'dangerouslyDisableSandbox' in input ? input.dangerouslyDisableSandbox as boolean | undefined : undefined,
       persistedOutputPath,
-      persistedOutputSize
+      persistedOutputSize,
+      staleReadFileStateHint
     };
     return {
       data
