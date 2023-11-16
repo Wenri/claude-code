@@ -116,15 +116,15 @@ leaked source** (the TypeScript/TSX under [`src/`](./src/)), recovered from a
 [Chaofan Shou](https://x.com/Fried_rice); originally mirrored by
 [Yasas Banu](https://www.yasasbanuka.tech)). It is study material, not a buildable
 project. The untouched files remain the exact 2.1.88 outer source-map inputs;
-four Bash/parser files now carry the verified source-facing 2.1.89 recovery
-overlay. This does not claim that the complete original 2.1.89 TypeScript tree
-is observable. A short tour of what's inside is in [`CLAUDE.md`](./CLAUDE.md).
-The evidence-first 2.1.88 → 2.1.89 recovery lives in
-[`recovery/`](./recovery/): it reconstructs the complete published 2.1.89
-bundle/package tree exactly, while keeping the necessarily partial
-authored-TypeScript reconstruction labeled separately. The
-[recovery runbook](./recovery/cases/2.1.88-to-2.1.89/RECOVERY_RUNBOOK.md)
-records every required construction, application, and verification step.
+the tree now carries cumulative, verified source-facing recovery overlays for
+2.1.89 and 2.1.90. This does not claim that either complete original authored
+TypeScript tree is observable. A short tour of what's inside is in
+[`CLAUDE.md`](./CLAUDE.md). The evidence-first adjacent recoveries live in
+[`recovery/`](./recovery/): they reconstruct the complete published bundle and
+npm package tree exactly through 2.1.90, while keeping the necessarily partial
+authored-TypeScript reconstruction labeled separately. See the current
+[2.1.90 report](./recovery/cases/2.1.89-to-2.1.90/REPORT.md) and
+[complete recovery runbook](./recovery/cases/2.1.89-to-2.1.90/RECOVERY_RUNBOOK.md).
 
 ## 📜 License & disclaimer
 

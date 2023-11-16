@@ -76,6 +76,7 @@ export const DANGEROUS_DIRECTORIES = [
   '.vscode',
   '.idea',
   '.claude',
+  '.husky',
 ] as const
 
 /**

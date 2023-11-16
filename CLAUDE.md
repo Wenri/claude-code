@@ -7,31 +7,34 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is an **archival mirror of Claude Code's leaked source** (the TypeScript/TSX
 under `src/`), recovered from a `.map` sourcemap accidentally published to npm in
 March 2026. It is **study material, not a buildable project**: there is no
-`package.json`, `tsconfig.json`, lockfile, or test suite, and `src/` will not
-compile or run as-is. The current tree is the exact 2.1.88 outer source-map
-baseline for every untouched file plus the verified source-facing 2.1.89
-Bash/parser overlay in `parser.ts`, `commands.ts`, `BashTool.tsx`, and the new
-`fileReadState.ts`. That overlay is not a claim that the complete authored
-2.1.89 TypeScript tree is recoverable. Treat `src/` as read-only reference
-unless explicitly asked to change it; all of it is Anthropic's proprietary
-property (see the README disclaimer).
+standalone `package.json`, `tsconfig.json`, lockfile, or full test suite for
+`src/`, and it will not compile or run as-is. Recovery tooling has its own
+locked dependencies and focused tests. The current tree is the exact 2.1.88 outer source-map
+baseline for every untouched file plus cumulative verified source-facing
+overlays for 2.1.89 and 2.1.90. The first changes four Bash/parser files; the
+second changes nine session, transport, query, safety/cache, rate-limit, and
+help files. These overlays are not a claim that either complete authored
+TypeScript tree is recoverable. Treat `src/` as read-only reference unless
+explicitly asked to change it; all of it is Anthropic's proprietary property
+(see the README disclaimer).
 
 A few things layered on top of the mirror ARE maintained here:
 - `loader/` — `rtld-dispatch`, a **custom glibc `ld.so`** that loads Claude Code (and other WSL1-hostile CLIs) *in place*, preserving `/proc/self/exe`; the main thing built here.
 - `recovery/` — hash-pinned tooling for comparing later published bundles
-  with the verified 2.1.88 baseline. The 2.1.89 case has an exact generated
-  bundle/package recovery, exhaustive accounting ledgers, a readable bundle
-  diff, and separately labeled partial source-like TypeScript patches. The
-  Bun-input patch set is applied to the four `src/` files named above. Its
-  case manifest and verifiers are the evidence contract; the case runbook
-  records the complete reproducible procedure.
+  with authenticated adjacent releases and a matching source-map oracle. The
+  2.1.89 and 2.1.90 cases have exact generated bundle/package recoveries,
+  exhaustive accounting ledgers, readable bundle diffs, and separately
+  labeled partial source-like TypeScript patches. Their cumulative patch sets
+  are applied to `src/`. Each case manifest and its verifiers are the evidence
+  contract; each case runbook records the complete reproducible procedure.
 - [`wsl1-exec`](https://github.com/Wenri/wsl1-exec) — **moved out entirely** (2026-07, full history preserved; Apache-2.0): the standalone repo for `wsl1-exec.so`, conventionally a sibling checkout at `../wsl1-exec`. A generic `LD_PRELOAD` `exec*` shim that retries an `ENOEXEC`-failed exec via the target's `PT_INTERP`. All sources live in its `src/`: the WSL1 `execve` **and `posix_spawn`/`posix_spawnp`** (`wsl1-exec.c`) and the `readlink`/`realpath` `/proc/self/exe` hooks (`wsl1-selfexe.c`, via `getauxval(AT_EXECFN)` — no env marker, per-process, so nothing to inherit/clean up) are ours; the `exec*` family (`src/exec-variants.c`) is **[termux-exec](https://github.com/termux-play-store/termux-exec)/bionic-derived** (Apache-2.0 — SPDX tag + attribution + local changes in its header; adapted, no longer synced) — `posix_spawn` retries at the parent (glibc returns the child's exec errno) — plus unrelated **`mmap`/`mmap64` fixes** (`wsl1-mmap.c`): the empty-file-map bogus `ENOEXEC` (rattler/pixi-build) and the `MAP_FIXED_NOREPLACE`-rejected-with-`EOPNOTSUPP` case (retry without the flag) — both libc-`mmap` only, so neither reaches agy's tcmalloc (still `patch_agy_wsl1.py`). Complements `loader/`: universal and one-line to enable, and the hooks keep `/proc/self/exe` correct **for libc readers** (Node/libuv) — but raw-syscall readers (Go `os.Executable()`), `readlinkat`, and static binaries still see the interpreter, so `loader/` remains the fix for those. Supersedes its own old `claude-preload.so`/`claude-dispatch`.
 - `pixi.toml` / `pixi.lock` — a pixi dev environment used to build them.
 
 ## Commands
 
-There is **no build / lint / test for `src/`**. The real tooling is the pixi
-workspace:
+There is **no full-tree build / lint / test for `src/`**. The recovery gate
+syntax-builds changed files and runs focused semantic tests. The real tooling
+is the pixi workspace:
 
 - `pixi install` — materialize the default env (gcc, make, rust, bison, patchelf, … + bun/nodejs/typescript).
 - `pixi run build-loader` — build the custom `ld.so` (`loader/`); output in `loader/.build/`.
@@ -41,8 +44,9 @@ workspace:
   bun + nodejs share the default env, but only because they share **icu 75**: bun pins it,
   so nodejs is held `<26` (v26 needs icu 78). Bumping nodejs to 26 would break that.
 - `pixi run node recovery/scripts/verify-complete-recovery.mjs …` — run the
-  aggregate 2.1.88 → 2.1.89 evidence, source-overlay, exact-bundle, and
-  package-tree gate; see the case runbook for its artifact arguments.
+  aggregate evidence, source-lineage, exact-bundle, and package-tree gate for
+  a recovery case; use the 2.1.89 → 2.1.90 manifest for the current tree and
+  see that case's runbook for its artifact arguments.
 
 The glibc source is committed as a **plain, unextracted source tree** (no Git LFS, no tarball —
 diffable/greppable/auditable against upstream), **rtld-minimal** (~1 MB): only what the loader

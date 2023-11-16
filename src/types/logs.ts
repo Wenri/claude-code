@@ -9,6 +9,7 @@ export type SerializedMessage = Message & {
   cwd: string
   userType: string
   entrypoint?: string // CLAUDE_CODE_ENTRYPOINT — distinguishes cli/sdk-ts/sdk-py/etc.
+  sessionKind?: 'bg' | 'daemon' | 'daemon-worker'
   sessionId: string
   timestamp: string
   version: string
@@ -30,6 +31,7 @@ export type LogOption = {
   isLite?: boolean // True for lite logs (messages not loaded)
   sessionId?: string // Session ID for lite logs
   teamName?: string // Team name if this is a spawned agent session
+  sessionKind?: 'bg' | 'daemon' | 'daemon-worker'
   agentName?: string // Agent's custom name (from /rename or swarm)
   agentColor?: string // Agent's color (from /rename or swarm)
   agentSetting?: string // Agent definition used (from --agent flag or settings.agent)

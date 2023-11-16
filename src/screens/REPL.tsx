@@ -3612,7 +3612,10 @@ export function REPL({
   // old REPL scopes can be GC'd — saves ~35MB over a 1000-turn session.
   const onSubmitRef = useRef(onSubmit);
   onSubmitRef.current = onSubmit;
+  const hasOpenedRateLimitOptionsRef = useRef(false);
   const handleOpenRateLimitOptions = useCallback(() => {
+    if (hasOpenedRateLimitOptionsRef.current) return;
+    hasOpenedRateLimitOptionsRef.current = true;
     void onSubmitRef.current('/rate-limit-options', {
       setCursorOffset: () => {},
       clearBuffer: () => {},
