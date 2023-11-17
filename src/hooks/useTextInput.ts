@@ -334,10 +334,12 @@ export function useTextInput({
       case key.rightArrow && (key.ctrl || key.meta || key.fn):
         return () => cursor.nextWord()
       case key.backspace:
+        if (key.super) return killToLineStart
         return key.meta || key.ctrl
           ? killWordBefore
           : () => cursor.deleteTokenBefore() ?? cursor.backspace()
       case key.delete:
+        if (key.super) return killToLineEnd
         return key.meta ? killToLineEnd : () => cursor.del()
       case key.ctrl:
         return handleCtrl

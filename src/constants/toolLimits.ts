@@ -13,6 +13,12 @@
 export const DEFAULT_MAX_RESULT_SIZE_CHARS = 50_000
 
 /**
+ * Maximum persistence threshold an MCP server may request through
+ * `_meta["anthropic/maxResultSizeChars"]`.
+ */
+export const MAX_MCP_RESULT_SIZE_CHARS = 500_000
+
+/**
  * Maximum size for tool results in tokens.
  * Based on analysis of tool result sizes, we set this to a reasonable upper bound
  * to prevent excessively large tool results from consuming too much context.

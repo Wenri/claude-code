@@ -6,6 +6,10 @@ import { errorMessage, MalformedCommandError, ShellError } from './errors.js'
 import type { FrontmatterShell } from './frontmatterParser.js'
 import { createAssistantMessage } from './messages.js'
 import { hasPermissionsToUseTool } from './permissions/permissions.js'
+import {
+  getSettings_DEPRECATED,
+  getSettingsForSource,
+} from './settings/settings.js'
 import { processToolResultBlock } from './toolResultStorage.js'
 
 // Narrow structural slice both BashTool and PowerShellTool satisfy. We can't
@@ -54,6 +58,37 @@ const BLOCK_PATTERN = /```!\s*\n?([\s\S]*?)\n?```/g
 // adjacent spans like `foo`!`bar`, and shell variables like $!
 // eslint-disable-next-line custom-rules/no-lookbehind-regex -- gated by text.includes('!`') below (PR#22986)
 const INLINE_PATTERN = /(?<=^|\s)!`([^`]+)`/gm
+
+const DISABLED_BLOCK_PATTERN = /```!\s*\n?[\s\S]*?\n?```/g
+// eslint-disable-next-line custom-rules/no-lookbehind-regex -- gated by text.includes('!`') below
+const DISABLED_INLINE_PATTERN = /(?<=^|\s)!`[^`]+`/gm
+export const SHELL_EXECUTION_DISABLED_MESSAGE =
+  '[shell command execution disabled by policy]'
+
+export function isSkillShellExecutionDisabled(): boolean {
+  if (
+    getSettingsForSource('policySettings')?.disableSkillShellExecution === true
+  ) {
+    return true
+  }
+  return getSettings_DEPRECATED().disableSkillShellExecution === true
+}
+
+export function replaceSkillShellCommandsWithDisabledMessage(
+  text: string,
+): string {
+  let result = text.replace(
+    DISABLED_BLOCK_PATTERN,
+    SHELL_EXECUTION_DISABLED_MESSAGE,
+  )
+  if (result.includes('!`')) {
+    result = result.replace(
+      DISABLED_INLINE_PATTERN,
+      SHELL_EXECUTION_DISABLED_MESSAGE,
+    )
+  }
+  return result
+}
 
 /**
  * Parses prompt text and executes any embedded shell commands.

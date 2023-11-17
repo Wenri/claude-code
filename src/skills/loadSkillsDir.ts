@@ -55,7 +55,11 @@ import {
   parseSlashCommandToolsFromFrontmatter,
 } from '../utils/markdownConfigLoader.js'
 import { parseUserSpecifiedModel } from '../utils/model/model.js'
-import { executeShellCommandsInPrompt } from '../utils/promptShellExecution.js'
+import {
+  executeShellCommandsInPrompt,
+  isSkillShellExecutionDisabled,
+  replaceSkillShellCommandsWithDisabledMessage,
+} from '../utils/promptShellExecution.js'
 import type { SettingSource } from '../utils/settings/constants.js'
 import { isSettingSourceEnabled } from '../utils/settings/constants.js'
 import { getManagedFilePath } from '../utils/settings/managedPath.js'
@@ -71,6 +75,18 @@ export type LoadedFrom =
   | 'managed'
   | 'bundled'
   | 'mcp'
+
+function shouldDisableSkillShellExecution(
+  loadedFrom: LoadedFrom,
+  source: PromptCommand['source'],
+): boolean {
+  if (source === 'policySettings') return false
+  return (
+    loadedFrom === 'skills' ||
+    loadedFrom === 'commands_DEPRECATED' ||
+    loadedFrom === 'plugin'
+  )
+}
 
 /**
  * Returns a claude config directory path for a given source.
@@ -371,7 +387,13 @@ export function createSkillCommand({
       // Security: MCP skills are remote and untrusted — never execute inline
       // shell commands (!`…` / ```! … ```) from their markdown body.
       // ${CLAUDE_SKILL_DIR} is meaningless for MCP skills anyway.
-      if (loadedFrom !== 'mcp') {
+      if (
+        shouldDisableSkillShellExecution(loadedFrom, source) &&
+        isSkillShellExecutionDisabled()
+      ) {
+        finalContent =
+          replaceSkillShellCommandsWithDisabledMessage(finalContent)
+      } else if (loadedFrom !== 'mcp') {
         finalContent = await executeShellCommandsInPrompt(
           finalContent,
           {
