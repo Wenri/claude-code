@@ -122,6 +122,15 @@ export function detectHomebrew(): boolean {
 }
 
 /**
+ * Returns the Homebrew cask name from the running executable path.
+ * Stable and latest channels use distinct casks.
+ */
+export function getHomebrewCaskName(): string | null {
+  const execPath = process.execPath || process.argv[0] || ''
+  return execPath.match(/\/Caskroom\/([^/]+)\//)?.[1] ?? null
+}
+
+/**
  * Detects if the currently running Claude instance was installed via winget
  * by checking if the executable path is within a WinGet directory.
  *

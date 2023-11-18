@@ -1703,6 +1703,7 @@ export type ParsedArgs = {
   sessionTimeoutMs?: number
   permissionMode?: string
   name?: string
+  sessionNamePrefix?: string
   /** Value passed to --spawn (if any); undefined if no --spawn flag was given. */
   spawnMode: SpawnMode | undefined
   /** Value passed to --capacity (if any); undefined if no --capacity flag was given. */
@@ -1741,6 +1742,7 @@ export function parseArgs(args: string[]): ParsedArgs {
   let sessionTimeoutMs: number | undefined
   let permissionMode: string | undefined
   let name: string | undefined
+  let sessionNamePrefix: string | undefined
   let help = false
   let spawnMode: SpawnMode | undefined
   let capacity: number | undefined
@@ -1775,6 +1777,15 @@ export function parseArgs(args: string[]): ParsedArgs {
       name = args[++i]!
     } else if (arg.startsWith('--name=')) {
       name = arg.slice('--name='.length)
+    } else if (
+      arg === '--remote-control-session-name-prefix' &&
+      i + 1 < args.length
+    ) {
+      sessionNamePrefix = args[++i]!
+    } else if (arg.startsWith('--remote-control-session-name-prefix=')) {
+      sessionNamePrefix = arg.slice(
+        '--remote-control-session-name-prefix='.length,
+      )
     } else if (
       feature('KAIROS') &&
       arg === '--session-id' &&
@@ -1859,6 +1870,7 @@ export function parseArgs(args: string[]): ParsedArgs {
     sessionTimeoutMs,
     permissionMode,
     name,
+    sessionNamePrefix,
     spawnMode,
     capacity,
     createSessionInDir,
@@ -1875,6 +1887,7 @@ export function parseArgs(args: string[]): ParsedArgs {
       sessionTimeoutMs,
       permissionMode,
       name,
+      sessionNamePrefix,
       spawnMode,
       capacity,
       createSessionInDir,
@@ -1924,6 +1937,10 @@ USAGE
   claude remote-control [options]
 OPTIONS
   --name <name>                    Name for the session (shown in claude.ai/code)
+  --remote-control-session-name-prefix <prefix>
+                                   Prefix for auto-generated session names
+                                   (default: hostname; env:
+                                   CLAUDE_REMOTE_CONTROL_SESSION_NAME_PREFIX)
 ${
   feature('KAIROS')
     ? `  -c, --continue                   Resume the last session in this directory
@@ -1998,12 +2015,16 @@ export async function bridgeMain(args: string[]): Promise<void> {
     sessionTimeoutMs,
     permissionMode,
     name,
+    sessionNamePrefix,
     spawnMode: parsedSpawnMode,
     capacity: parsedCapacity,
     createSessionInDir: parsedCreateSessionInDir,
     sessionId: parsedSessionId,
     continueSession,
   } = parsed
+  if (sessionNamePrefix) {
+    process.env.CLAUDE_REMOTE_CONTROL_SESSION_NAME_PREFIX = sessionNamePrefix
+  }
   // Mutable so --continue can set it from the pointer file. The #20460
   // resume flow below then treats it the same as an explicit --session-id.
   let resumeSessionId = parsedSessionId

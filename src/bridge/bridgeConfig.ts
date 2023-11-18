@@ -11,6 +11,7 @@
  * using IPC auth) use the Override getters directly.
  */
 
+import { hostname } from 'os'
 import { getOauthConfig } from '../constants/oauth.js'
 import { getClaudeAIOAuthTokens } from '../utils/auth.js'
 
@@ -45,4 +46,17 @@ export function getBridgeAccessToken(): string | undefined {
  */
 export function getBridgeBaseUrl(): string {
   return getBridgeBaseUrlOverride() ?? getOauthConfig().BASE_API_URL
+}
+
+export function getBridgeSessionNamePrefix(): string {
+  const value =
+    process.env.CLAUDE_REMOTE_CONTROL_SESSION_NAME_PREFIX || hostname()
+  return sanitizeSessionNamePrefix(value) || 'remote-control'
+}
+
+export function sanitizeSessionNamePrefix(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
 }

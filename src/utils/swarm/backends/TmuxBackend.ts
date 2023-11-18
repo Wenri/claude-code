@@ -22,9 +22,6 @@ import type { CreatePaneResult, PaneBackend, PaneId } from './types.js'
 // Track whether the first pane has been used for external swarm session
 let firstPaneUsedForExternal = false
 
-// Cached leader window target (session:window format) to avoid repeated queries
-let cachedLeaderWindowTarget: string | null = null
-
 // Lock mechanism to prevent race conditions when spawning teammates in parallel
 let paneCreationLock: Promise<void> = Promise.resolve()
 
@@ -105,6 +102,8 @@ export class TmuxBackend implements PaneBackend {
   readonly type = 'tmux' as const
   readonly displayName = 'tmux'
   readonly supportsHideShow = true
+  // A tmux window ID is stable even when other windows are killed or renumbered.
+  private cachedLeaderWindowTarget: string | null = null
 
   /**
    * Checks if tmux is installed and available.
@@ -392,15 +391,15 @@ export class TmuxBackend implements PaneBackend {
   }
 
   /**
-   * Gets the leader's window target (session:window format).
+   * Gets the leader's stable tmux window ID.
    * Uses the leader's pane ID to query for its window, ensuring we get the
    * correct window even if the user has switched to a different window.
-   * Caches the result since the leader's window won't change.
+   * The ID remains valid when numeric window indexes are renumbered.
    */
   private async getCurrentWindowTarget(): Promise<string | null> {
     // Return cached value if available
-    if (cachedLeaderWindowTarget) {
-      return cachedLeaderWindowTarget
+    if (this.cachedLeaderWindowTarget) {
+      return this.cachedLeaderWindowTarget
     }
 
     // Build the command - use -t to target the leader's pane specifically
@@ -409,7 +408,7 @@ export class TmuxBackend implements PaneBackend {
     if (leaderPane) {
       args.push('-t', leaderPane)
     }
-    args.push('-p', '#{session_name}:#{window_index}')
+    args.push('-p', '#{window_id}')
 
     const result = await execFileNoThrow(TMUX_COMMAND, args)
 
@@ -420,8 +419,8 @@ export class TmuxBackend implements PaneBackend {
       return null
     }
 
-    cachedLeaderWindowTarget = result.stdout.trim()
-    return cachedLeaderWindowTarget
+    this.cachedLeaderWindowTarget = result.stdout.trim()
+    return this.cachedLeaderWindowTarget
   }
 
   /**

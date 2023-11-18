@@ -2700,15 +2700,19 @@ export function normalizeContentFromAPI(
         if (typeof normalizedInput === 'object' && normalizedInput !== null) {
           const tool = findToolByName(tools, contentBlock.name)
           if (tool) {
+            const correctedInput = normalizeJsonEncodedToolInputFields(
+              normalizedInput,
+              tool.inputSchema,
+            )
             try {
               normalizedInput = normalizeToolInput(
                 tool,
-                normalizedInput as { [key: string]: unknown },
+                correctedInput as { [key: string]: unknown },
                 agentId,
               )
             } catch (error) {
               logError(new Error('Error normalizing tool input: ' + error))
-              // Keep the original input if normalization fails
+              normalizedInput = correctedInput
             }
           }
         }
@@ -2748,6 +2752,67 @@ export function normalizeContentFromAPI(
         return contentBlock
     }
   })
+}
+
+type ZodDefinition = {
+  type?: string
+  shape?: Record<string, { _zod?: { def?: ZodDefinition } }>
+  innerType?: { _zod?: { def?: ZodDefinition } }
+  in?: { _zod?: { def?: ZodDefinition } }
+}
+
+function normalizeJsonEncodedToolInputFields(
+  input: object,
+  schema: { _zod?: { def?: ZodDefinition } },
+): object {
+  const definition = schema._zod?.def
+  if (definition?.type !== 'object' || !definition.shape) return input
+
+  const record = input as Record<string, unknown>
+  let normalized = record
+  for (const [key, fieldSchema] of Object.entries(definition.shape)) {
+    const value = record[key]
+    if (typeof value !== 'string') continue
+
+    const fieldType = unwrapZodDefinitionType(fieldSchema._zod?.def)
+    if (fieldType !== 'array' && fieldType !== 'object') continue
+
+    const parsed = safeParseJSON(value, false)
+    const matchesSchemaShape =
+      fieldType === 'array'
+        ? Array.isArray(parsed)
+        : parsed !== null &&
+          typeof parsed === 'object' &&
+          !Array.isArray(parsed)
+    if (!matchesSchemaShape) continue
+
+    if (normalized === record) normalized = { ...record }
+    normalized[key] = parsed
+  }
+  return normalized
+}
+
+function unwrapZodDefinitionType(
+  definition: ZodDefinition | undefined,
+): string {
+  let current = definition
+  while (current) {
+    switch (current.type) {
+      case 'optional':
+      case 'nullable':
+      case 'default':
+        if (!current.innerType) return current.type
+        current = current.innerType._zod?.def
+        break
+      case 'pipe':
+        if (!current.in) return current.type
+        current = current.in._zod?.def
+        break
+      default:
+        return current.type ?? 'unknown'
+    }
+  }
+  return 'unknown'
 }
 
 export function isEmptyMessageText(text: string): boolean {

@@ -40,7 +40,7 @@ import { prefetchPassesEligibility } from './services/api/referral.js';
 import { prefetchOfficialMcpUrls } from './services/mcp/officialRegistry.js';
 import type { McpSdkServerConfig, McpServerConfig, ScopedMcpServerConfig } from './services/mcp/types.js';
 import { isPolicyAllowed, loadPolicyLimits, refreshPolicyLimits, waitForPolicyLimitsToLoad } from './services/policyLimits/index.js';
-import { loadRemoteManagedSettings, refreshRemoteManagedSettings } from './services/remoteManagedSettings/index.js';
+import { loadRemoteManagedSettings, refreshRemoteManagedSettings, validateRemoteManagedSettingsRefresh } from './services/remoteManagedSettings/index.js';
 import type { ToolInputJSONSchema } from './Tool.js';
 import { createSyntheticOutputTool, isSyntheticOutputToolEnabled } from './tools/SyntheticOutputTool/SyntheticOutputTool.js';
 import { getTools } from './tools.js';
@@ -950,11 +950,19 @@ async function run(): Promise<CommanderCommand> {
     runMigrations();
     profileCheckpoint('preAction_after_migrations');
 
-    // Load remote managed settings for enterprise customers (non-blocking)
-    // Fails open - if fetch fails, continues without remote settings
-    // Settings are applied via hot-reload when they arrive
+    // Load remote managed settings for enterprise customers.
+    // Organizations can require a fresh fetch and fail closed; all other
+    // configurations remain non-blocking and fail open.
     // Must happen after init() to ensure config reading is allowed
-    void loadRemoteManagedSettings();
+    if (getSettingsForSource('policySettings')?.forceRemoteSettingsRefresh) {
+      const result = await validateRemoteManagedSettingsRefresh(loadRemoteManagedSettings);
+      if (!result.valid) {
+        process.stderr.write(`${result.message}\n`);
+        process.exit(1);
+      }
+    } else {
+      void loadRemoteManagedSettings();
+    }
     void loadPolicyLimits();
     profileCheckpoint('preAction_after_remote_settings');
 
@@ -1272,6 +1280,13 @@ async function run(): Promise<CommanderCommand> {
     // trust is established and GrowthBook has auth headers.
     let remoteControl = false;
     const remoteControlName = typeof remoteControlOption === 'string' && remoteControlOption.length > 0 ? remoteControlOption : undefined;
+    const remoteControlSessionNamePrefix = (options as {
+      remoteControlSessionNamePrefix?: string;
+    }).remoteControlSessionNamePrefix;
+    if (remoteControlSessionNamePrefix) {
+      process.env.CLAUDE_REMOTE_CONTROL_SESSION_NAME_PREFIX =
+        remoteControlSessionNamePrefix;
+    }
 
     // Validate session ID if provided
     if (sessionId) {
@@ -2279,7 +2294,14 @@ async function run(): Promise<CommanderCommand> {
       if (onboardingShown) {
         // Refresh auth-dependent services now that the user has logged in during onboarding.
         // Keep in sync with the post-login logic in src/commands/login.tsx
-        void refreshRemoteManagedSettings();
+        if (getSettingsForSource('policySettings')?.forceRemoteSettingsRefresh) {
+          const result = await validateRemoteManagedSettingsRefresh(refreshRemoteManagedSettings);
+          if (!result.valid) {
+            return await exitWithError(root, result.message);
+          }
+        } else {
+          void refreshRemoteManagedSettings();
+        }
         void refreshPolicyLimits();
         // Clear user data cache BEFORE GrowthBook refresh so it picks up fresh credentials
         resetUserCache();
@@ -3866,6 +3888,7 @@ async function run(): Promise<CommanderCommand> {
   if (feature('BRIDGE_MODE')) {
     program.addOption(new Option('--remote-control [name]', 'Start an interactive session with Remote Control enabled (optionally named)').argParser(value => value || true).hideHelp());
     program.addOption(new Option('--rc [name]', 'Alias for --remote-control').argParser(value => value || true).hideHelp());
+    program.option('--remote-control-session-name-prefix <prefix>', 'Prefix for auto-generated Remote Control session names (default: hostname)');
   }
   if (feature('HARD_FAIL')) {
     program.addOption(new Option('--hard-fail', 'Crash on logError calls instead of silently logging').hideHelp());
