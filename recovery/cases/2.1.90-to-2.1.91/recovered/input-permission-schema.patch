@@ -1,0 +1,85 @@
+diff --git a/src/entrypoints/sdk/coreSchemas.ts b/src/entrypoints/sdk/coreSchemas.ts
+index 4d5b9d0..343604a 100644
+--- a/src/entrypoints/sdk/coreSchemas.ts
++++ b/src/entrypoints/sdk/coreSchemas.ts
+@@ -336,14 +336,22 @@ export const PermissionResultSchema = lazySchema(() =>
+
+ export const PermissionModeSchema = lazySchema(() =>
+   z
+-    .enum(['default', 'acceptEdits', 'bypassPermissions', 'plan', 'dontAsk'])
++    .enum([
++      'default',
++      'acceptEdits',
++      'bypassPermissions',
++      'plan',
++      'dontAsk',
++      'auto',
++    ])
+     .describe(
+       'Permission mode for controlling how tool executions are handled. ' +
+         "'default' - Standard behavior, prompts for dangerous operations. " +
+         "'acceptEdits' - Auto-accept file edit operations. " +
+         "'bypassPermissions' - Bypass all permission checks (requires allowDangerouslySkipPermissions). " +
+         "'plan' - Planning mode, no actual tool execution. " +
+-        "'dontAsk' - Don't prompt for permissions, deny if not pre-approved.",
++        "'dontAsk' - Don't prompt for permissions, deny if not pre-approved. " +
++        "'auto' - Use a model classifier to approve/deny permission prompts.",
+     ),
+ )
+
+diff --git a/src/hooks/useTextInput.ts b/src/hooks/useTextInput.ts
+index 90c4c4f..933616c 100644
+--- a/src/hooks/useTextInput.ts
++++ b/src/hooks/useTextInput.ts
+@@ -334,10 +334,12 @@ export function useTextInput({
+       case key.rightArrow && (key.ctrl || key.meta || key.fn):
+         return () => cursor.nextWord()
+       case key.backspace:
++        if (key.super) return killToLineStart
+         return key.meta || key.ctrl
+           ? killWordBefore
+           : () => cursor.deleteTokenBefore() ?? cursor.backspace()
+       case key.delete:
++        if (key.super) return killToLineEnd
+         return key.meta ? killToLineEnd : () => cursor.del()
+       case key.ctrl:
+         return handleCtrl
+diff --git a/src/types/permissions.ts b/src/types/permissions.ts
+index 32ef776..8408bf3 100644
+--- a/src/types/permissions.ts
++++ b/src/types/permissions.ts
+@@ -6,7 +6,6 @@
+  * to avoid circular dependencies.
+  */
+
+-import { feature } from 'bun:bundle'
+ import type { ContentBlockParam } from '@anthropic-ai/sdk/resources/messages.mjs'
+
+ // ============================================================================
+@@ -15,6 +14,7 @@ import type { ContentBlockParam } from '@anthropic-ai/sdk/resources/messages.mjs
+
+ export const EXTERNAL_PERMISSION_MODES = [
+   'acceptEdits',
++  'auto',
+   'bypassPermissions',
+   'default',
+   'dontAsk',
+@@ -23,16 +23,12 @@ export const EXTERNAL_PERMISSION_MODES = [
+
+ export type ExternalPermissionMode = (typeof EXTERNAL_PERMISSION_MODES)[number]
+
+-// Exhaustive mode union for typechecking. The user-addressable runtime set
+-// is INTERNAL_PERMISSION_MODES below.
+-export type InternalPermissionMode = ExternalPermissionMode | 'auto' | 'bubble'
++// Exhaustive mode union for typechecking. Bubble is internal-only.
++export type InternalPermissionMode = ExternalPermissionMode | 'bubble'
+ export type PermissionMode = InternalPermissionMode
+
+-// Runtime validation set: modes that are user-addressable (settings.json
+-// defaultMode, --permission-mode CLI flag, conversation recovery).
+ export const INTERNAL_PERMISSION_MODES = [
+   ...EXTERNAL_PERMISSION_MODES,
+-  ...(feature('TRANSCRIPT_CLASSIFIER') ? (['auto'] as const) : ([] as const)),
+ ] as const satisfies readonly PermissionMode[]
+
+ export const PERMISSION_MODES = INTERNAL_PERMISSION_MODES
