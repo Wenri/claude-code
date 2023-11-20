@@ -1,16 +1,78 @@
 import type { AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS } from '../../services/analytics/index.js'
 import { isEnvTruthy } from '../envUtils.js'
+import { ALL_MODEL_CONFIGS, type ModelConfig } from './configs.js'
 
-export type APIProvider = 'firstParty' | 'bedrock' | 'vertex' | 'foundry'
+export type APIProvider =
+  | 'firstParty'
+  | 'bedrock'
+  | 'vertex'
+  | 'foundry'
+  | 'mantle'
 
 export function getAPIProvider(): APIProvider {
   return isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK)
     ? 'bedrock'
-    : isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX)
-      ? 'vertex'
-      : isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY)
-        ? 'foundry'
-        : 'firstParty'
+    : isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY)
+      ? 'foundry'
+      : isEnvTruthy(process.env.CLAUDE_CODE_USE_MANTLE)
+        ? 'mantle'
+        : isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX)
+          ? 'vertex'
+          : 'firstParty'
+}
+
+export function getSecondaryAPIProvider(): APIProvider | null {
+  if (
+    getAPIProvider() === 'bedrock' &&
+    isEnvTruthy(process.env.CLAUDE_CODE_USE_MANTLE)
+  ) {
+    return 'mantle'
+  }
+  return null
+}
+
+export function isMantleModelId(model: string): boolean {
+  return (
+    model.startsWith('anthropic.') && !/-v\d+(?::\d+)?$/.test(model)
+  )
+}
+
+function findModelConfig(model: string): ModelConfig | undefined {
+  return Object.values(ALL_MODEL_CONFIGS).find(config =>
+    Object.values(config).some(modelId => modelId === model),
+  )
+}
+
+export function getAPIProviderForModel(model?: string): APIProvider {
+  const primaryProvider = getAPIProvider()
+  if (!model) return primaryProvider
+
+  const secondaryProvider = getSecondaryAPIProvider()
+  if (!secondaryProvider) return primaryProvider
+
+  if (secondaryProvider === 'mantle' && isMantleModelId(model)) {
+    return secondaryProvider
+  }
+
+  const config = findModelConfig(model)
+  if (
+    config &&
+    config[primaryProvider] === null &&
+    config[secondaryProvider] !== null
+  ) {
+    return secondaryProvider
+  }
+  return primaryProvider
+}
+
+export function isFirstPartyCompatibleAPIProvider(
+  provider: APIProvider = getAPIProvider(),
+): boolean {
+  return (
+    provider === 'firstParty' ||
+    provider === 'foundry' ||
+    provider === 'mantle'
+  )
 }
 
 export function getAPIProviderForStatsig(): AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS {

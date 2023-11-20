@@ -26,13 +26,16 @@ type SupportsHyperlinksOptions = {
 export function supportsHyperlinks(
   options?: SupportsHyperlinksOptions,
 ): boolean {
+  const env = options?.env ?? process.env
   const stdoutSupported =
-    options?.stdoutSupported ?? supportsHyperlinksLib.stdout
+    options?.stdoutSupported ??
+    supportsHyperlinksLib.supportsHyperlink(process.stdout)
+  if ('FORCE_HYPERLINK' in env) {
+    return stdoutSupported
+  }
   if (stdoutSupported) {
     return true
   }
-
-  const env = options?.env ?? process.env
 
   // Check for additional terminals not detected by supports-hyperlinks
   const termProgram = env['TERM_PROGRAM']

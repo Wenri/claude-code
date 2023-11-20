@@ -1,7 +1,7 @@
 import { c as _c } from "react/compiler-runtime";
 import type { RefObject } from 'react';
 import * as React from 'react';
-import { useCallback, useContext, useEffect, useImperativeHandle, useRef, useState, useSyncExternalStore } from 'react';
+import { useCallback, useContext, useEffect, useImperativeHandle, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { useVirtualScroll } from '../hooks/useVirtualScroll.js';
 import type { ScrollBoxHandle } from '../ink/components/ScrollBox.js';
 import type { DOMElement } from '../ink/dom.js';
@@ -305,23 +305,7 @@ export function VirtualMessageList({
   scanElement,
   setPositions
 }: Props): React.ReactNode {
-  // Incremental key array. Streaming appends one message at a time; rebuilding
-  // the full string array on every commit allocates O(n) per message (~1MB
-  // churn at 27k messages). Append-only delta push when the prefix matches;
-  // fall back to full rebuild on compaction, /clear, or itemKey change.
-  const keysRef = useRef<string[]>([]);
-  const prevMessagesRef = useRef<typeof messages>(messages);
-  const prevItemKeyRef = useRef(itemKey);
-  if (prevItemKeyRef.current !== itemKey || messages.length < keysRef.current.length || messages[0] !== prevMessagesRef.current[0]) {
-    keysRef.current = messages.map(m => itemKey(m));
-  } else {
-    for (let i = keysRef.current.length; i < messages.length; i++) {
-      keysRef.current.push(itemKey(messages[i]!));
-    }
-  }
-  prevMessagesRef.current = messages;
-  prevItemKeyRef.current = itemKey;
-  const keys = keysRef.current;
+  const keys = useMemo(() => messages.map(itemKey), [messages, itemKey]);
   const {
     range,
     topSpacer,

@@ -988,6 +988,7 @@ function renderNodeToOutput(
               // point fall through to yoga + the fine-grained check below,
               // preserving the ghost-box fix.
               let cumHeightShift = 0
+              let firstRenderedY: number | undefined
               for (const childNode of content.childNodes) {
                 const childElem = childNode as DOMElement
                 const isDirty = dirtyChildren.has(childNode)
@@ -1024,13 +1025,24 @@ function renderNodeToOutput(
                 // painted it → render.
                 if (!isDirty) {
                   const childCached = nodeCache.get(childElem)
-                  if (
-                    childCached &&
-                    Math.floor(childCached.y) - delta === screenY
-                  ) {
-                    continue
+                  if (childCached) {
+                    const shiftedOldY = Math.floor(childCached.y) - delta
+                    if (shiftedOldY === screenY) continue
+
+                    const oldTop = Math.max(shiftedOldY, hint.top)
+                    const oldBottom = Math.min(
+                      shiftedOldY + childCached.height,
+                      firstRenderedY ?? hint.bottom + 1,
+                    )
+                    if (oldTop < oldBottom) {
+                      const fill = Array(oldBottom - oldTop)
+                        .fill(spaces)
+                        .join('\n')
+                      output.write(Math.floor(x), oldTop, fill)
+                    }
                   }
                 }
+                firstRenderedY ??= screenY
                 // Wipe this child's region with spaces to overwrite stale
                 // blitted content — output.clear() only expands damage and
                 // cannot zero cells that the blit already wrote.

@@ -859,6 +859,7 @@ async function getInputPrompt(prompt: string, inputFormat: 'text' | 'stream-json
   // Input hijacking breaks MCP.
   !process.argv.includes('mcp')) {
     if (inputFormat === 'stream-json') {
+      process.stdin.setEncoding('utf8');
       return process.stdin;
     }
     process.stdin.setEncoding('utf8');

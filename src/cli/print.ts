@@ -163,6 +163,7 @@ import {
 import { TEAMMATE_MESSAGE_TAG, TICK_TAG } from 'src/constants/xml.js'
 import {
   getSettings_DEPRECATED,
+  getSettingsWithErrors,
   getSettingsWithSources,
 } from 'src/utils/settings/settings.js'
 import { settingsChangeDetector } from 'src/utils/settings/changeDetector.js'
@@ -3761,6 +3762,9 @@ function runHeadlessStreaming(
           const effort = modelSupportsEffort(model)
             ? resolveAppliedEffort(model, currentAppState.effortValue)
             : undefined
+          const errors = getSettingsWithErrors()
+            .errors.filter(error => error.severity !== 'warning')
+            .map(({ file, path, message }) => ({ file, path, message }))
           sendControlResponseSuccess(message, {
             ...getSettingsWithSources(),
             applied: {
@@ -3768,6 +3772,7 @@ function runHeadlessStreaming(
               // Numeric effort (ant-only) → null; SDK schema is string-level only.
               effort: typeof effort === 'string' ? effort : null,
             },
+            errors: errors.length > 0 ? errors : undefined,
           })
         } else if (message.request.subtype === 'stop_task') {
           const { task_id: taskId } = message.request

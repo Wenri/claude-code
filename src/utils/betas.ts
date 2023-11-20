@@ -27,7 +27,11 @@ import { has1mContext } from './context.js'
 import { isEnvDefinedFalsy, isEnvTruthy } from './envUtils.js'
 import { getCanonicalName } from './model/model.js'
 import { get3PModelCapabilityOverride } from './model/modelSupportOverrides.js'
-import { getAPIProvider } from './model/providers.js'
+import {
+  getAPIProvider,
+  getAPIProviderForModel,
+  isFirstPartyCompatibleAPIProvider,
+} from './model/providers.js'
 import { getInitialSettings } from './settings/settings.js'
 
 /**
@@ -98,12 +102,12 @@ export function modelSupportsISP(model: string): boolean {
     return supported3P
   }
   const canonical = getCanonicalName(model)
-  const provider = getAPIProvider()
+  const provider = getAPIProviderForModel(model)
   // Foundry supports interleaved thinking for all models
   if (provider === 'foundry') {
     return true
   }
-  if (provider === 'firstParty') {
+  if (isFirstPartyCompatibleAPIProvider(provider)) {
     return !canonical.includes('claude-3-')
   }
   return (
@@ -124,11 +128,11 @@ function vertexModelSupportsWebSearch(model: string): boolean {
 // Context management is supported on Claude 4+ models
 export function modelSupportsContextManagement(model: string): boolean {
   const canonical = getCanonicalName(model)
-  const provider = getAPIProvider()
+  const provider = getAPIProviderForModel(model)
   if (provider === 'foundry') {
     return true
   }
-  if (provider === 'firstParty') {
+  if (isFirstPartyCompatibleAPIProvider(provider)) {
     return !canonical.includes('claude-3-')
   }
   return (
@@ -141,9 +145,9 @@ export function modelSupportsContextManagement(model: string): boolean {
 // @[MODEL LAUNCH]: Add the new model ID to this list if it supports structured outputs.
 export function modelSupportsStructuredOutputs(model: string): boolean {
   const canonical = getCanonicalName(model)
-  const provider = getAPIProvider()
+  const provider = getAPIProviderForModel(model)
   // Structured outputs only supported on firstParty and Foundry (not Bedrock/Vertex yet)
-  if (provider !== 'firstParty' && provider !== 'foundry') {
+  if (!isFirstPartyCompatibleAPIProvider(provider)) {
     return false
   }
   return (
@@ -201,7 +205,11 @@ export function modelSupportsAutoMode(model: string): boolean {
  */
 export function getToolSearchBetaHeader(): string {
   const provider = getAPIProvider()
-  if (provider === 'vertex' || provider === 'bedrock') {
+  if (
+    provider === 'vertex' ||
+    provider === 'bedrock' ||
+    provider === 'mantle'
+  ) {
     return TOOL_SEARCH_BETA_HEADER_3P
   }
   return TOOL_SEARCH_BETA_HEADER_1P
@@ -305,7 +313,8 @@ export const getAllModelBetas = memoize((model: string): string[] => {
   const thinkingPreservationEnabled = modelSupportsContextManagement(model)
 
   if (
-    shouldIncludeFirstPartyOnlyBetas() &&
+    isFirstPartyCompatibleAPIProvider(getAPIProviderForModel(model)) &&
+    !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS) &&
     (antOptedIntoToolClearing || thinkingPreservationEnabled)
   ) {
     betaHeaders.push(CONTEXT_MANAGEMENT_BETA_HEADER)
@@ -324,7 +333,8 @@ export const getAllModelBetas = memoize((model: string): string[] => {
     !strictToolsEnabled &&
     getFeatureValue_CACHED_MAY_BE_STALE('tengu_amber_json_tools', false)
   if (
-    includeFirstPartyOnlyBetas &&
+    isFirstPartyCompatibleAPIProvider(getAPIProviderForModel(model)) &&
+    !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS) &&
     modelSupportsStructuredOutputs(model) &&
     strictToolsEnabled
   ) {
@@ -370,7 +380,7 @@ export const getAllModelBetas = memoize((model: string): string[] => {
 
 export const getModelBetas = memoize((model: string): string[] => {
   const modelBetas = getAllModelBetas(model)
-  if (getAPIProvider() === 'bedrock') {
+  if (getAPIProviderForModel(model) === 'bedrock') {
     return modelBetas.filter(b => !BEDROCK_EXTRA_PARAMS_HEADERS.has(b))
   }
   return modelBetas

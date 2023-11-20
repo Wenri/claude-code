@@ -24,8 +24,14 @@ const MODEL_KEYS = Object.keys(ALL_MODEL_CONFIGS) as ModelKey[]
 
 function getBuiltinModelStrings(provider: APIProvider): ModelStrings {
   const out = {} as ModelStrings
+  const fallbackKey = MODEL_KEYS.find(
+    key => ALL_MODEL_CONFIGS[key][provider] !== null,
+  )
   for (const key of MODEL_KEYS) {
-    out[key] = ALL_MODEL_CONFIGS[key][provider]
+    out[key] =
+      ALL_MODEL_CONFIGS[key][provider] ??
+      (fallbackKey ? ALL_MODEL_CONFIGS[fallbackKey][provider] : null) ??
+      ALL_MODEL_CONFIGS[key].firstParty
   }
   return out
 }

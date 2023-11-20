@@ -43,9 +43,13 @@ import {
   shouldDisableAllHooksIncludingManaged,
 } from './hooks/hooksConfigSnapshot.js'
 import {
+  getCurrentSessionTitle,
   getTranscriptPathForSession,
   getAgentTranscriptPath,
+  saveCustomTitle,
+  saveAgentName,
 } from './sessionStorage.js'
+import { isTeammate } from './teammate.js'
 import type { AgentId } from '../types/ids.js'
 import {
   getSettings_DEPRECATED,
@@ -345,6 +349,7 @@ export interface HookResult {
   permissionBehavior?: 'ask' | 'deny' | 'allow' | 'passthrough'
   hookPermissionDecisionReason?: string
   additionalContext?: string
+  sessionTitle?: string
   initialUserMessage?: string
   updatedInput?: Record<string, unknown>
   updatedMCPToolOutput?: unknown
@@ -365,6 +370,7 @@ export type AggregatedHookResult = {
   hookSource?: string
   permissionBehavior?: PermissionResult['behavior']
   additionalContexts?: string[]
+  sessionTitle?: string
   initialUserMessage?: string
   updatedInput?: Record<string, unknown>
   updatedMCPToolOutput?: unknown
@@ -623,6 +629,7 @@ function processHookJSONOutput({
         break
       case 'UserPromptSubmit':
         result.additionalContext = json.hookSpecificOutput.additionalContext
+        result.sessionTitle = json.hookSpecificOutput.sessionTitle
         break
       case 'SessionStart':
         result.additionalContext = json.hookSpecificOutput.additionalContext
@@ -2807,6 +2814,15 @@ async function* executeHooks({
       }
     }
 
+    if (result.sessionTitle) {
+      logForDebugging(
+        `Hook ${hookEvent} (${getHookDisplayText(result.hook)}) provided sessionTitle (${[...result.sessionTitle].length} chars)`,
+      )
+      yield {
+        sessionTitle: result.sessionTitle,
+      }
+    }
+
     // Yield updatedMCPToolOutput if provided (from PostToolUse hooks)
     if (result.updatedMCPToolOutput) {
       logForDebugging(
@@ -3842,6 +3858,7 @@ export async function* executeUserPromptSubmitHooks(
     ...createBaseHookInput(permissionMode),
     hook_event_name: 'UserPromptSubmit',
     prompt,
+    session_title: getCurrentSessionTitle(getSessionId()),
   }
 
   yield* executeHooks({
@@ -3852,6 +3869,36 @@ export async function* executeUserPromptSubmitHooks(
     toolUseContext,
     requestPrompt,
   })
+}
+
+const MAX_HOOK_SESSION_TITLE_LENGTH = 200
+
+function sanitizeHookSessionTitle(title: string): string {
+  return [...title.replace(/[\x00-\x1f\x7f-\x9f]/g, '')]
+    .slice(0, MAX_HOOK_SESSION_TITLE_LENGTH)
+    .join('')
+}
+
+export async function applyHookSessionTitle(title: string): Promise<void> {
+  if (isTeammate()) return
+
+  const sanitized = sanitizeHookSessionTitle(title)
+  if (!sanitized) return
+
+  const sessionId = getSessionId()
+  const currentTitle = getCurrentSessionTitle(sessionId)
+  if (
+    sanitized ===
+    (currentTitle && sanitizeHookSessionTitle(currentTitle))
+  ) {
+    return
+  }
+
+  logForDebugging(
+    `Applying session title from UserPromptSubmit hook (${[...sanitized].length} chars)`,
+  )
+  await saveCustomTitle(sessionId, sanitized, undefined, 'hook')
+  await saveAgentName(sessionId, sanitized, undefined, 'hook')
 }
 
 /**

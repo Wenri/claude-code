@@ -2665,7 +2665,7 @@ export async function saveCustomTitle(
   sessionId: UUID,
   customTitle: string,
   fullPath?: string,
-  source: 'user' | 'auto' = 'user',
+  source: 'user' | 'auto' | 'hook' = 'user',
 ) {
   // Fall back to computed path if fullPath is not provided
   const resolvedPath = fullPath ?? getTranscriptPathForSession(sessionId)
@@ -2867,7 +2867,7 @@ export async function saveAgentName(
   sessionId: UUID,
   agentName: string,
   fullPath?: string,
-  source: 'user' | 'auto' = 'user',
+  source: 'user' | 'auto' | 'hook' = 'user',
 ) {
   const resolvedPath = fullPath ?? getTranscriptPathForSession(sessionId)
   appendEntryToFile(resolvedPath, { type: 'agent-name', agentName, sessionId })

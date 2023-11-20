@@ -114,6 +114,7 @@ export function isAnthropicAuthEnabled(): boolean {
 
   const is3P =
     isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK) ||
+    isEnvTruthy(process.env.CLAUDE_CODE_USE_MANTLE) ||
     isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX) ||
     isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY)
 
@@ -1100,37 +1101,38 @@ export async function saveApiKey(apiKey: string): Promise<void> {
 
   // Store as primary API key
   await maybeRemoveApiKeyFromMacOSKeychain()
-  let savedToKeychain = false
-  if (process.platform === 'darwin') {
-    try {
-      // TODO: migrate to SecureStorage
-      const storageServiceName = getMacOsKeychainStorageServiceName()
-      const username = getUsername()
+  const savedToKeychain = process.platform === 'darwin'
+  if (savedToKeychain) {
+    // TODO: migrate to SecureStorage
+    const storageServiceName = getMacOsKeychainStorageServiceName()
+    const username = getUsername()
 
-      // Convert to hexadecimal to avoid any escaping issues
-      const hexValue = Buffer.from(apiKey, 'utf-8').toString('hex')
+    // Convert to hexadecimal to avoid any escaping issues
+    const hexValue = Buffer.from(apiKey, 'utf-8').toString('hex')
 
-      // Use security's interactive mode (-i) with -X (hexadecimal) option
-      // This ensures credentials never appear in process command-line arguments
-      // Process monitors only see "security -i", not the password
-      const command = `add-generic-password -U -a "${username}" -s "${storageServiceName}" -X "${hexValue}"\n`
+    // Use security's interactive mode (-i) with -X (hexadecimal) option
+    // This ensures credentials never appear in process command-line arguments
+    // Process monitors only see "security -i", not the password
+    const command = `add-generic-password -U -a "${username}" -s "${storageServiceName}" -X "${hexValue}"\n`
 
-      await execa('security', ['-i'], {
-        input: command,
-        reject: false,
-      })
-
-      logEvent('tengu_api_key_saved_to_keychain', {})
-      savedToKeychain = true
-    } catch (e) {
-      logError(e)
+    const result = await execa('security', ['-i'], {
+      input: command,
+      reject: false,
+      timeout: 5000,
+    })
+    if (result.exitCode !== 0) {
+      const detail = (result.stderr || result.stdout || '')
+        .trim()
+        .replace(/\s*\n\s*/g, '; ')
       logEvent('tengu_api_key_keychain_error', {
-        error: errorMessage(
-          e,
-        ) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        error:
+          detail as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       })
-      logEvent('tengu_api_key_saved_to_config', {})
+      throw new Error(
+        `Failed to save API key to macOS Keychain${detail ? ` (${detail})` : ''}. Run \`claude doctor\` to diagnose keychain access.`,
+      )
     }
+    logEvent('tengu_api_key_saved_to_keychain', {})
   } else {
     logEvent('tengu_api_key_saved_to_config', {})
   }
@@ -1593,6 +1595,7 @@ export function is1PApiCustomer(): boolean {
   // Exclude Vertex, Bedrock, and Foundry customers
   if (
     isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK) ||
+    isEnvTruthy(process.env.CLAUDE_CODE_USE_MANTLE) ||
     isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX) ||
     isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY)
   ) {
@@ -1732,6 +1735,7 @@ export function getSubscriptionName(): string {
 export function isUsing3PServices(): boolean {
   return !!(
     isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK) ||
+    isEnvTruthy(process.env.CLAUDE_CODE_USE_MANTLE) ||
     isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX) ||
     isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY)
   )

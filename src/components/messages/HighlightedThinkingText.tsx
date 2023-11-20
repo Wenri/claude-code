@@ -88,7 +88,7 @@ export function HighlightedThinkingText(t0) {
       if (triggers.length === 0) {
         let t2;
         if ($[19] !== pointerColor) {
-          t2 = <Text color={pointerColor}>{figures.pointer} </Text>;
+          t2 = <Box flexShrink={0}><Text color={pointerColor}>{figures.pointer} </Text></Box>;
           $[19] = pointerColor;
           $[20] = t2;
         } else {
@@ -104,7 +104,7 @@ export function HighlightedThinkingText(t0) {
         }
         let t4;
         if ($[23] !== t2 || $[24] !== t3) {
-          t4 = <Text>{t2}{t3}</Text>;
+          t4 = <Box flexDirection="row">{t2}{t3}</Box>;
           $[23] = t2;
           $[24] = t3;
           $[25] = t4;
@@ -142,7 +142,7 @@ export function HighlightedThinkingText(t0) {
   }
   let t2;
   if ($[26] !== pointerColor) {
-    t2 = <Text color={pointerColor}>{figures.pointer} </Text>;
+    t2 = <Box flexShrink={0}><Text color={pointerColor}>{figures.pointer} </Text></Box>;
     $[26] = pointerColor;
     $[27] = t2;
   } else {
@@ -150,7 +150,7 @@ export function HighlightedThinkingText(t0) {
   }
   let t3;
   if ($[28] !== parts || $[29] !== t2) {
-    t3 = <Text>{t2}{parts}</Text>;
+    t3 = <Box flexDirection="row">{t2}<Text>{parts}</Text></Box>;
     $[28] = parts;
     $[29] = t2;
     $[30] = t3;
