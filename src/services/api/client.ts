@@ -161,31 +161,43 @@ export async function getAnthropicClient({
         ? process.env.ANTHROPIC_SMALL_FAST_MODEL_AWS_REGION
         : getAWSRegion()
 
+    const skipAuth = isEnvTruthy(
+      process.env.CLAUDE_CODE_SKIP_BEDROCK_AUTH,
+    )
+    const { value: authorizationHeader, rest: headersWithoutAuthorization } =
+      extractAuthorizationHeader(ARGS.defaultHeaders)
+    const bedrockApiKey = process.env.AWS_BEARER_TOKEN_BEDROCK
+      ? `Bearer ${process.env.AWS_BEARER_TOKEN_BEDROCK}`
+      : skipAuth
+        ? authorizationHeader
+        : undefined
+    const cachedCredentials =
+      !bedrockApiKey && !skipAuth
+        ? await refreshAndGetAwsCredentials()
+        : null
+
     const bedrockArgs: ConstructorParameters<typeof AnthropicBedrock>[0] = {
       ...ARGS,
       awsRegion,
-      ...(isEnvTruthy(process.env.CLAUDE_CODE_SKIP_BEDROCK_AUTH) && {
-        skipAuth: true,
+      ...(skipAuth &&
+        !bedrockApiKey && {
+          skipAuth: true,
+        }),
+      ...(bedrockApiKey && {
+        apiKey:
+          bedrockApiKey.match(/^Bearer (.+)$/i)?.[1] ?? bedrockApiKey,
+        defaultHeaders: {
+          ...headersWithoutAuthorization,
+          Authorization: bedrockApiKey,
+        },
       }),
       ...(isDebugToStdErr() && { logger: createStderrLogger() }),
     }
 
-    // Add API key authentication if available
-    if (process.env.AWS_BEARER_TOKEN_BEDROCK) {
-      bedrockArgs.skipAuth = true
-      // Add the Bearer token for Bedrock API key authentication
-      bedrockArgs.defaultHeaders = {
-        ...bedrockArgs.defaultHeaders,
-        Authorization: `Bearer ${process.env.AWS_BEARER_TOKEN_BEDROCK}`,
-      }
-    } else if (!isEnvTruthy(process.env.CLAUDE_CODE_SKIP_BEDROCK_AUTH)) {
-      // Refresh auth and get credentials with cache clearing
-      const cachedCredentials = await refreshAndGetAwsCredentials()
-      if (cachedCredentials) {
-        bedrockArgs.awsAccessKey = cachedCredentials.accessKeyId
-        bedrockArgs.awsSecretKey = cachedCredentials.secretAccessKey
-        bedrockArgs.awsSessionToken = cachedCredentials.sessionToken
-      }
+    if (cachedCredentials) {
+      bedrockArgs.awsAccessKey = cachedCredentials.accessKeyId
+      bedrockArgs.awsSecretKey = cachedCredentials.secretAccessKey
+      bedrockArgs.awsSessionToken = cachedCredentials.sessionToken
     }
     // we have always been lying about the return type - this doesn't support batching or models
     return new AnthropicBedrock(bedrockArgs) as unknown as Anthropic
@@ -350,6 +362,22 @@ async function configureApiKeyHeaders(
   if (token) {
     headers['Authorization'] = `Bearer ${token}`
   }
+}
+
+function extractAuthorizationHeader(headers: Record<string, string>): {
+  value: string | undefined
+  rest: Record<string, string>
+} {
+  const rest: Record<string, string> = {}
+  let value: string | undefined
+  for (const [name, headerValue] of Object.entries(headers)) {
+    if (name.toLowerCase() === 'authorization') {
+      value = headerValue
+    } else {
+      rest[name] = headerValue
+    }
+  }
+  return { value, rest }
 }
 
 function getCustomHeaders(): Record<string, string> {
