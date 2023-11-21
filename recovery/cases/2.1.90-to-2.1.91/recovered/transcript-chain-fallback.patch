@@ -1,0 +1,58 @@
+diff --git a/src/utils/sessionStorage.ts b/src/utils/sessionStorage.ts
+index dbe76d3..838e34c 100644
+--- a/src/utils/sessionStorage.ts
++++ b/src/utils/sessionStorage.ts
+@@ -2096,14 +2096,50 @@ export function buildConversationChain(
+     }
+     seen.add(currentMsg.uuid)
+     transcript.push(currentMsg)
+-    currentMsg = currentMsg.parentUuid
+-      ? messages.get(currentMsg.parentUuid)
+-      : undefined
++    const parentUuid = currentMsg.parentUuid
++    if (!parentUuid) break
++    let parent = messages.get(parentUuid)
++    if (!parent) {
++      parent = findClosestTimestampParent(messages, currentMsg, seen)
++      if (parent) {
++        logEvent('tengu_chain_timestamp_fallback', {})
++      }
++    }
++    currentMsg = parent
+   }
+   transcript.reverse()
+   return recoverOrphanedParallelToolResults(messages, transcript, seen)
+ }
+
++const CHAIN_TIMESTAMP_FALLBACK_WINDOW_MS = 5000
++
++function findClosestTimestampParent(
++  messages: Map<UUID, TranscriptMessage>,
++  child: TranscriptMessage,
++  seen: Set<UUID>,
++): TranscriptMessage | undefined {
++  const childTimestamp = new Date(child.timestamp).getTime()
++  if (Number.isNaN(childTimestamp)) return undefined
++
++  let closest: TranscriptMessage | undefined
++  let closestDelta = Infinity
++  for (const candidate of messages.values()) {
++    if (seen.has(candidate.uuid)) continue
++    const candidateTimestamp = new Date(candidate.timestamp).getTime()
++    if (Number.isNaN(candidateTimestamp)) continue
++    const delta = childTimestamp - candidateTimestamp
++    if (
++      delta >= 0 &&
++      delta <= CHAIN_TIMESTAMP_FALLBACK_WINDOW_MS &&
++      delta < closestDelta
++    ) {
++      closestDelta = delta
++      closest = candidate
++    }
++  }
++  return closest
++}
++
+ /**
+  * Post-pass for buildConversationChain: recover sibling assistant blocks and
+  * tool_results that the single-parent walk orphaned.
