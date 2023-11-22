@@ -2035,28 +2035,8 @@ export class ClaudeAuthProvider implements OAuthClientProvider {
   }
 
   async discoveryState(): Promise<OAuthDiscoveryState | undefined> {
-    const storage = getSecureStorage()
-    const data = storage.read()
-    const serverKey = getServerKey(this.serverName, this.serverConfig)
-
-    const cached = data?.mcpOAuth?.[serverKey]?.discoveryState
-    if (cached?.authorizationServerUrl) {
-      logMCPDebug(
-        this.serverName,
-        `Returning cached discovery state (authServer: ${cached.authorizationServerUrl})`,
-      )
-
-      return {
-        authorizationServerUrl: cached.authorizationServerUrl,
-        resourceMetadataUrl: cached.resourceMetadataUrl,
-        resourceMetadata:
-          cached.resourceMetadata as OAuthDiscoveryState['resourceMetadata'],
-        authorizationServerMetadata:
-          cached.authorizationServerMetadata as OAuthDiscoveryState['authorizationServerMetadata'],
-      }
-    }
-
-    // Check config hint for direct metadata URL
+    // A configured metadata URL is authoritative and must not be shadowed by
+    // discovery state cached before the configuration changed.
     const metadataUrl = this.serverConfig.oauth?.authServerMetadataUrl
     if (metadataUrl) {
       logMCPDebug(
@@ -2081,6 +2061,28 @@ export class ClaudeAuthProvider implements OAuthClientProvider {
           this.serverName,
           `Failed to fetch from configured metadata URL: ${errorMessage(error)}`,
         )
+      }
+      return undefined
+    }
+
+    const storage = getSecureStorage()
+    const data = storage.read()
+    const serverKey = getServerKey(this.serverName, this.serverConfig)
+
+    const cached = data?.mcpOAuth?.[serverKey]?.discoveryState
+    if (cached?.authorizationServerUrl) {
+      logMCPDebug(
+        this.serverName,
+        `Returning cached discovery state (authServer: ${cached.authorizationServerUrl})`,
+      )
+
+      return {
+        authorizationServerUrl: cached.authorizationServerUrl,
+        resourceMetadataUrl: cached.resourceMetadataUrl,
+        resourceMetadata:
+          cached.resourceMetadata as OAuthDiscoveryState['resourceMetadata'],
+        authorizationServerMetadata:
+          cached.authorizationServerMetadata as OAuthDiscoveryState['authorizationServerMetadata'],
       }
     }
 

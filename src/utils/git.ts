@@ -232,6 +232,18 @@ export function getGitDir(cwd: string): Promise<string | null> {
   return resolveGitDir(cwd)
 }
 
+export async function getGitWorktreeName(cwd: string): Promise<string | null> {
+  const gitDir = await getGitDir(cwd)
+  if (
+    !gitDir ||
+    basename(gitDir) === '.git' ||
+    basename(dirname(gitDir)) !== 'worktrees'
+  ) {
+    return null
+  }
+  return basename(gitDir)
+}
+
 export async function isAtGitRoot(): Promise<boolean> {
   const cwd = getCwd()
   const gitRoot = findGitRoot(cwd)

@@ -57,6 +57,13 @@ import { emitTaskProgress as emitTaskProgressEvent } from '../../utils/task/sdkP
 import { isInProcessTeammate } from '../../utils/teammateContext.js'
 import { getTokenCountFromUsage } from '../../utils/tokens.js'
 import { EXIT_PLAN_MODE_V2_TOOL_NAME } from '../ExitPlanModeTool/constants.js'
+import { BASH_TOOL_NAME } from '../BashTool/toolName.js'
+import { FILE_EDIT_TOOL_NAME } from '../FileEditTool/constants.js'
+import { FILE_READ_TOOL_NAME } from '../FileReadTool/prompt.js'
+import { FILE_WRITE_TOOL_NAME } from '../FileWriteTool/prompt.js'
+import { GLOB_TOOL_NAME } from '../GlobTool/prompt.js'
+import { GREP_TOOL_NAME } from '../GrepTool/prompt.js'
+import { NOTEBOOK_EDIT_TOOL_NAME } from '../NotebookEditTool/constants.js'
 import { AGENT_TOOL_NAME, LEGACY_AGENT_TOOL_NAME } from './constants.js'
 import type { AgentDefinition } from './loadAgentsDir.js'
 export type ResolvedAgentTools = {
@@ -254,6 +261,17 @@ export const agentToolResultSchema = lazySchema(() =>
         })
         .nullable(),
     }),
+    toolStats: z
+      .object({
+        readCount: z.number(),
+        searchCount: z.number(),
+        bashCount: z.number(),
+        editFileCount: z.number(),
+        linesAdded: z.number(),
+        linesRemoved: z.number(),
+        otherToolCount: z.number(),
+      })
+      .optional(),
   }),
 )
 
@@ -271,6 +289,114 @@ export function countToolUses(messages: MessageType[]): number {
     }
   }
   return count
+}
+
+type AgentToolStats = NonNullable<AgentToolResult['toolStats']>
+
+function countNonEmptyLines(value: unknown): number {
+  return typeof value === 'string' && value.length > 0
+    ? value.split('\n').length
+    : 0
+}
+
+function getFileEditStats(
+  toolName: string,
+  input: unknown,
+): { added: number; removed: number } {
+  if (typeof input !== 'object' || input === null) {
+    return { added: 0, removed: 0 }
+  }
+  const value = input as Record<string, unknown>
+  if (toolName === FILE_EDIT_TOOL_NAME) {
+    return {
+      added: countNonEmptyLines(value.new_string),
+      removed: countNonEmptyLines(value.old_string),
+    }
+  }
+  if (toolName === FILE_WRITE_TOOL_NAME) {
+    return { added: countNonEmptyLines(value.content), removed: 0 }
+  }
+  if (toolName === NOTEBOOK_EDIT_TOOL_NAME) {
+    return { added: countNonEmptyLines(value.new_source), removed: 0 }
+  }
+  return { added: 0, removed: 0 }
+}
+
+const FILE_EDIT_TOOL_NAMES = new Set([
+  FILE_EDIT_TOOL_NAME,
+  FILE_WRITE_TOOL_NAME,
+  NOTEBOOK_EDIT_TOOL_NAME,
+])
+
+export function computeAgentToolStats(
+  messages: MessageType[],
+): AgentToolStats | undefined {
+  const stats: AgentToolStats = {
+    readCount: 0,
+    searchCount: 0,
+    bashCount: 0,
+    editFileCount: 0,
+    linesAdded: 0,
+    linesRemoved: 0,
+    otherToolCount: 0,
+  }
+
+  for (const message of messages) {
+    if (message.type === 'assistant') {
+      for (const block of message.message.content) {
+        if (block.type !== 'tool_use') continue
+        switch (block.name) {
+          case FILE_READ_TOOL_NAME:
+            stats.readCount++
+            break
+          case GREP_TOOL_NAME:
+          case GLOB_TOOL_NAME:
+            stats.searchCount++
+            break
+          case BASH_TOOL_NAME:
+            stats.bashCount++
+            break
+          case AGENT_TOOL_NAME:
+          case LEGACY_AGENT_TOOL_NAME:
+            break
+          default:
+            if (FILE_EDIT_TOOL_NAMES.has(block.name)) {
+              const { added, removed } = getFileEditStats(
+                block.name,
+                block.input,
+              )
+              stats.editFileCount++
+              stats.linesAdded += added
+              stats.linesRemoved += removed
+            } else {
+              stats.otherToolCount++
+            }
+        }
+      }
+    } else if (message.type === 'user') {
+      const nested = (
+        message.toolUseResult as { toolStats?: AgentToolStats } | undefined
+      )?.toolStats
+      if (nested) {
+        stats.readCount += nested.readCount
+        stats.searchCount += nested.searchCount
+        stats.bashCount += nested.bashCount
+        stats.editFileCount += nested.editFileCount
+        stats.linesAdded += nested.linesAdded
+        stats.linesRemoved += nested.linesRemoved
+        stats.otherToolCount += nested.otherToolCount
+      }
+    }
+  }
+
+  return stats.readCount +
+    stats.searchCount +
+    stats.bashCount +
+    stats.editFileCount +
+    stats.otherToolCount >
+    0
+    ? stats
+    : undefined
 }
 
 export function finalizeAgentTool(
@@ -353,6 +479,7 @@ export function finalizeAgentTool(
     totalTokens,
     totalToolUseCount,
     usage: lastAssistantMessage.message.usage,
+    toolStats: computeAgentToolStats(agentMessages),
   }
 }
 

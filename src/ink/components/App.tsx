@@ -12,7 +12,7 @@ import { TerminalFocusEvent } from '../events/terminal-focus-event.js';
 import { INITIAL_STATE, type ParsedInput, type ParsedKey, type ParsedMouse, parseMultipleKeypresses } from '../parse-keypress.js';
 import reconciler from '../reconciler.js';
 import { finishSelection, hasSelection, type SelectionState, startSelection } from '../selection.js';
-import { isXtermJs, setXtversionName, supportsExtendedKeys } from '../terminal.js';
+import { DECSTBM_SAFE, isXtermJs, setXtversionName, supportsExtendedKeys } from '../terminal.js';
 import { getTerminalFocused, setTerminalFocused } from '../terminal-focus-state.js';
 import { TerminalQuerier, xtversion } from '../terminal-querier.js';
 import { DISABLE_KITTY_KEYBOARD, DISABLE_MODIFY_OTHER_KEYS, ENABLE_KITTY_KEYBOARD, ENABLE_MODIFY_OTHER_KEYS, FOCUS_IN, FOCUS_OUT } from '../termio/csi.js';
@@ -270,6 +270,7 @@ export default class App extends PureComponent<Props, State> {
             } else {
               logForDebugging('XTVERSION: no reply (terminal ignored query)');
             }
+            logForDebugging(`DECSTBM: ${DECSTBM_SAFE ? 'enabled' : 'gated'} (TMUX=${process.env.TMUX ? 'set' : 'unset'} ZELLIJ=${process.env.ZELLIJ != null ? 'set' : 'unset'} TERM_PROGRAM=${process.env.TERM_PROGRAM ?? 'unset'} TERM=${process.env.TERM ?? 'unset'})`);
           });
         });
       }

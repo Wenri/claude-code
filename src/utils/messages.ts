@@ -4350,6 +4350,22 @@ You have exited auto mode. The user may now want to interact more directly. You 
   return []
 }
 
+const MAX_STORED_ORIGINAL_FILE_CHARS = 10_000
+
+export function capStoredOriginalFile(toolUseResult: unknown): unknown {
+  if (typeof toolUseResult !== 'object' || toolUseResult === null) {
+    return toolUseResult
+  }
+  const result = toolUseResult as { originalFile?: unknown }
+  if (
+    typeof result.originalFile === 'string' &&
+    result.originalFile.length > MAX_STORED_ORIGINAL_FILE_CHARS
+  ) {
+    return { ...result, originalFile: null }
+  }
+  return toolUseResult
+}
+
 function createToolResultMessage<Output>(
   tool: Tool<AnyObject, Output>,
   toolUseResult: Output,

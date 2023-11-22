@@ -20,6 +20,7 @@
 import { diffArrays } from 'diff'
 import type * as hljsNamespace from 'highlight.js'
 import { basename, extname } from 'path'
+import { registerExtraLanguages } from '../../utils/highlightLanguages/index.js'
 
 // Lazy: defers loading highlight.js until first render. The full bundle
 // registers 190+ language grammars at require time (~50MB, 100-200ms on
@@ -39,6 +40,7 @@ function hljs(): HLJSApi {
   // highlight.js uses `export =` (CJS). Under bun/ESM the interop wraps it
   // in .default; under node CJS the module IS the API. Check at runtime.
   cachedHljs = 'default' in mod && mod.default ? mod.default : mod
+  registerExtraLanguages(cachedHljs)
   return cachedHljs!
 }
 
