@@ -3,6 +3,7 @@ import { FILE_READ_TOOL_NAME } from '../tools/FileReadTool/prompt.js'
 import { GREP_TOOL_NAME } from '../tools/GrepTool/prompt.js'
 import { WEB_FETCH_TOOL_NAME } from '../tools/WebFetchTool/prompt.js'
 import type { ContextData } from './analyzeContext.js'
+import { isEnvTruthy } from './envUtils.js'
 import { getDisplayPath } from './file.js'
 import { formatTokens } from './format.js'
 
@@ -62,7 +63,9 @@ function checkNearCapacity(
       title: `Context is ${data.percentage}% full`,
       detail: data.isAutoCompactEnabled
         ? 'Autocompact will trigger soon, which discards older messages. Use /compact now to control what gets kept.'
-        : 'Autocompact is disabled. Use /compact to free space, or enable autocompact in /config.',
+        : isEnvTruthy(process.env.DISABLE_COMPACT)
+          ? 'Compaction is disabled.'
+          : 'Autocompact is disabled. Use /compact to free space, or enable autocompact in /config.',
     })
   }
 }
@@ -222,6 +225,7 @@ function checkAutoCompactDisabled(
 ): void {
   if (
     !data.isAutoCompactEnabled &&
+    !isEnvTruthy(process.env.DISABLE_COMPACT) &&
     data.percentage >= 50 &&
     data.percentage < NEAR_CAPACITY_PERCENT
   ) {

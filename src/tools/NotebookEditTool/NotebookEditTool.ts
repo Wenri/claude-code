@@ -9,7 +9,14 @@ import { buildTool, type ToolDef, type ToolUseContext } from '../../Tool.js'
 import type { NotebookCell, NotebookContent } from '../../types/notebook.js'
 import { getCwd } from '../../utils/cwd.js'
 import { isENOENT } from '../../utils/errors.js'
-import { getFileModificationTime, writeTextContent } from '../../utils/file.js'
+import {
+  getFileModificationTime,
+  isPerforceMode,
+  isPerforceReadOnly,
+  PERFORCE_READ_ONLY_ERROR,
+  writeTextContent,
+} from '../../utils/file.js'
+import { getFsImplementation } from '../../utils/fsOperations.js'
 import { readFileSyncWithMetadata } from '../../utils/fileRead.js'
 import { safeParseJSON } from '../../utils/json.js'
 import { lazySchema } from '../../utils/lazySchema.js'
@@ -225,6 +232,22 @@ export const NotebookEditTool = buildTool({
         message:
           'File has not been read yet. Read it first before writing to it.',
         errorCode: 9,
+      }
+    }
+    if (isPerforceMode()) {
+      try {
+        const { mode } = await getFsImplementation().stat(fullPath)
+        if (isPerforceReadOnly(mode)) {
+          return {
+            result: false,
+            message: PERFORCE_READ_ONLY_ERROR,
+            errorCode: 11,
+          }
+        }
+      } catch (e) {
+        if (!isENOENT(e)) {
+          throw e
+        }
       }
     }
     if (getFileModificationTime(fullPath) > readTimestamp.timestamp) {

@@ -122,6 +122,112 @@ const FD_SAFE_FLAGS: Record<string, FlagArgType> = {
   '--format': 'string',
 }
 
+// grep, egrep, and fgrep are the same executable interface (the latter two
+// select a default regexp mode). Keep their flag policy shared so aliases
+// cannot drift into a less restrictive permission path.
+const GREP_SAFE_FLAGS: Record<string, FlagArgType> = {
+  // Pattern flags
+  '-e': 'string',
+  '--regexp': 'string',
+  '-f': 'string',
+  '--file': 'string',
+  '-F': 'none',
+  '--fixed-strings': 'none',
+  '-G': 'none',
+  '--basic-regexp': 'none',
+  '-E': 'none',
+  '--extended-regexp': 'none',
+  '-P': 'none',
+  '--perl-regexp': 'none',
+
+  // Matching control
+  '-i': 'none',
+  '--ignore-case': 'none',
+  '--no-ignore-case': 'none',
+  '-v': 'none',
+  '--invert-match': 'none',
+  '-w': 'none',
+  '--word-regexp': 'none',
+  '-x': 'none',
+  '--line-regexp': 'none',
+
+  // Output control
+  '-c': 'none',
+  '--count': 'none',
+  '--color': 'string',
+  '--colour': 'string',
+  '-L': 'none',
+  '--files-without-match': 'none',
+  '-l': 'none',
+  '--files-with-matches': 'none',
+  '-m': 'number',
+  '--max-count': 'number',
+  '-o': 'none',
+  '--only-matching': 'none',
+  '-q': 'none',
+  '--quiet': 'none',
+  '--silent': 'none',
+  '-s': 'none',
+  '--no-messages': 'none',
+
+  // Output line prefix
+  '-b': 'none',
+  '--byte-offset': 'none',
+  '-H': 'none',
+  '--with-filename': 'none',
+  '-h': 'none',
+  '--no-filename': 'none',
+  '--label': 'string',
+  '-n': 'none',
+  '--line-number': 'none',
+  '-T': 'none',
+  '--initial-tab': 'none',
+  '-u': 'none',
+  '--unix-byte-offsets': 'none',
+  '-Z': 'none',
+  '--null': 'none',
+  '-z': 'none',
+  '--null-data': 'none',
+
+  // Context control
+  '-A': 'number',
+  '--after-context': 'number',
+  '-B': 'number',
+  '--before-context': 'number',
+  '-C': 'number',
+  '--context': 'number',
+  '--group-separator': 'string',
+  '--no-group-separator': 'none',
+
+  // File and directory selection
+  '-a': 'none',
+  '--text': 'none',
+  '--binary-files': 'string',
+  '-I': 'none',
+  '-D': 'string',
+  '--devices': 'string',
+  '-d': 'string',
+  '--directories': 'string',
+  '--exclude': 'string',
+  '--exclude-from': 'string',
+  '--exclude-dir': 'string',
+  '--include': 'string',
+  '-r': 'none',
+  '--recursive': 'none',
+  '-R': 'none',
+  '--dereference-recursive': 'none',
+
+  // Other options
+  '--line-buffered': 'none',
+  '-U': 'none',
+  '--binary': 'none',
+
+  // Help and version
+  '--help': 'none',
+  '-V': 'none',
+  '--version': 'none',
+}
+
 // Central configuration for allowlist-based command validation
 // All commands and flags here should only allow reading files. They should not
 // allow writing to files, executing code, or creating network requests.
@@ -454,107 +560,13 @@ const COMMAND_ALLOWLIST: Record<string, CommandConfig> = {
     },
   },
   grep: {
-    safeFlags: {
-      // Pattern flags
-      '-e': 'string', // Pattern
-      '--regexp': 'string',
-      '-f': 'string', // File with patterns
-      '--file': 'string',
-      '-F': 'none', // Fixed strings
-      '--fixed-strings': 'none',
-      '-G': 'none', // Basic regexp (default)
-      '--basic-regexp': 'none',
-      '-E': 'none', // Extended regexp
-      '--extended-regexp': 'none',
-      '-P': 'none', // Perl regexp
-      '--perl-regexp': 'none',
-
-      // Matching control
-      '-i': 'none', // Ignore case
-      '--ignore-case': 'none',
-      '--no-ignore-case': 'none',
-      '-v': 'none', // Invert match
-      '--invert-match': 'none',
-      '-w': 'none', // Word regexp
-      '--word-regexp': 'none',
-      '-x': 'none', // Line regexp
-      '--line-regexp': 'none',
-
-      // Output control
-      '-c': 'none', // Count
-      '--count': 'none',
-      '--color': 'string',
-      '--colour': 'string',
-      '-L': 'none', // Files without match
-      '--files-without-match': 'none',
-      '-l': 'none', // Files with matches
-      '--files-with-matches': 'none',
-      '-m': 'number', // Max count
-      '--max-count': 'number',
-      '-o': 'none', // Only matching
-      '--only-matching': 'none',
-      '-q': 'none', // Quiet
-      '--quiet': 'none',
-      '--silent': 'none',
-      '-s': 'none', // No messages
-      '--no-messages': 'none',
-
-      // Output line prefix
-      '-b': 'none', // Byte offset
-      '--byte-offset': 'none',
-      '-H': 'none', // With filename
-      '--with-filename': 'none',
-      '-h': 'none', // No filename
-      '--no-filename': 'none',
-      '--label': 'string',
-      '-n': 'none', // Line number
-      '--line-number': 'none',
-      '-T': 'none', // Initial tab
-      '--initial-tab': 'none',
-      '-u': 'none', // Unix byte offsets
-      '--unix-byte-offsets': 'none',
-      '-Z': 'none', // Null after filename
-      '--null': 'none',
-      '-z': 'none', // Null data
-      '--null-data': 'none',
-
-      // Context control
-      '-A': 'number', // After context
-      '--after-context': 'number',
-      '-B': 'number', // Before context
-      '--before-context': 'number',
-      '-C': 'number', // Context
-      '--context': 'number',
-      '--group-separator': 'string',
-      '--no-group-separator': 'none',
-
-      // File and directory selection
-      '-a': 'none', // Text (process binary as text)
-      '--text': 'none',
-      '--binary-files': 'string',
-      '-D': 'string', // Devices
-      '--devices': 'string',
-      '-d': 'string', // Directories
-      '--directories': 'string',
-      '--exclude': 'string',
-      '--exclude-from': 'string',
-      '--exclude-dir': 'string',
-      '--include': 'string',
-      '-r': 'none', // Recursive
-      '--recursive': 'none',
-      '-R': 'none', // Dereference-recursive
-      '--dereference-recursive': 'none',
-
-      // Other options
-      '--line-buffered': 'none',
-      '-U': 'none', // Binary
-      '--binary': 'none',
-
-      // Help and version
-      '--help': 'none',
-      '-V': 'none',
-      '--version': 'none',
-    },
+    safeFlags: GREP_SAFE_FLAGS,
+  },
+  egrep: {
+    safeFlags: GREP_SAFE_FLAGS,
+  },
+  fgrep: {
+    safeFlags: GREP_SAFE_FLAGS,
   },
   ...RIPGREP_READ_ONLY_COMMANDS,
   // Checksum commands - these only read files and compute/verify hashes
@@ -1234,6 +1246,8 @@ const SAFE_TARGET_COMMANDS_FOR_XARGS = [
   'printf', // xargs runs /usr/bin/printf (binary), not bash builtin — no -v support
   'wc', // Read-only counting, no dangerous flags
   'grep', // Read-only search, no dangerous flags
+  'egrep', // grep alias with extended regular expressions
+  'fgrep', // grep alias with fixed strings
   'head', // Read-only, no dangerous flags
   'tail', // Read-only (including -f follow), no dangerous flags
 ]
@@ -1386,10 +1400,14 @@ export function isCommandSafeViaFlagParsing(command: string): boolean {
   if (!commandConfig.regex && /`/.test(command)) {
     return false
   }
-  // Block newlines and carriage returns in grep/rg patterns as they can be used for injection
+  // Block newlines and carriage returns in grep-family/rg patterns as they
+  // can be used for injection.
   if (
     !commandConfig.regex &&
-    (tokens[0] === 'rg' || tokens[0] === 'grep') &&
+    (tokens[0] === 'rg' ||
+      tokens[0] === 'grep' ||
+      tokens[0] === 'egrep' ||
+      tokens[0] === 'fgrep') &&
     /[\n\r]/.test(command)
   ) {
     return false
@@ -1502,6 +1520,128 @@ const READONLY_COMMANDS = [
   'pr', // Paginate files for printing
 ]
 
+const FIND_DANGEROUS_PREDICATES = new Set([
+  '-delete',
+  '-exec',
+  '-execdir',
+  '-ok',
+  '-okdir',
+  '-fprint',
+  '-fprint0',
+  '-fls',
+  '-fprintf',
+])
+
+// Predicates/options whose following argv item is data. A token such as
+// "-delete" in that data position must not be mistaken for an action.
+const FIND_ARGUMENT_PREDICATES = new Set([
+  '-name',
+  '-iname',
+  '-path',
+  '-ipath',
+  '-wholename',
+  '-iwholename',
+  '-lname',
+  '-ilname',
+  '-regex',
+  '-iregex',
+  '-newer',
+  '-anewer',
+  '-cnewer',
+  '-Bnewer',
+  '-samefile',
+  '-user',
+  '-group',
+  '-uid',
+  '-gid',
+  '-perm',
+  '-type',
+  '-xtype',
+  '-size',
+  '-inum',
+  '-links',
+  '-used',
+  '-fstype',
+  '-context',
+  '-mtime',
+  '-atime',
+  '-ctime',
+  '-Btime',
+  '-mmin',
+  '-amin',
+  '-cmin',
+  '-Bmin',
+  '-flags',
+  '-f',
+  '-maxdepth',
+  '-mindepth',
+  '-regextype',
+  '-printf',
+  '-D',
+])
+
+const TEST_ARITHMETIC_COMPARISON_OPERATORS = new Set([
+  '-eq',
+  '-ne',
+  '-lt',
+  '-le',
+  '-gt',
+  '-ge',
+])
+
+/**
+ * Classify the commands whose read-only status depends on argv position.
+ * Returns null for commands handled by the normal flag/regex validators.
+ */
+function classifySpecialReadOnlyArgv(argv: string[]): boolean | null {
+  const command = argv[0]
+
+  if (command === 'printf') {
+    // Bash's printf -v writes to a shell variable. All other printf forms
+    // only write their formatted result to stdout.
+    return !argv[1]?.startsWith('-v')
+  }
+
+  if (command === '[[') {
+    for (let i = 1; i < argv.length; i++) {
+      const arg = argv[i]
+      if (
+        (arg === '-v' || arg === '-R') &&
+        argv[i + 1]?.includes('[')
+      ) {
+        return false
+      }
+      if (
+        arg &&
+        TEST_ARITHMETIC_COMPARISON_OPERATORS.has(arg) &&
+        (argv[i - 1]?.includes('[') || argv[i + 1]?.includes('['))
+      ) {
+        return false
+      }
+    }
+    return true
+  }
+
+  if (command === 'find') {
+    for (let i = 1; i < argv.length; i++) {
+      const arg = argv[i]
+      if (
+        (arg && FIND_ARGUMENT_PREDICATES.has(arg)) ||
+        (arg && /^-newer[aBcmt]{2}$/.test(arg))
+      ) {
+        i++
+        continue
+      }
+      if (arg && FIND_DANGEROUS_PREDICATES.has(arg)) {
+        return false
+      }
+    }
+    return true
+  }
+
+  return null
+}
+
 // Complex commands that require custom regex patterns
 // Warning: If possible, avoid adding new regexes here and prefer using COMMAND_ALLOWLIST
 // instead. This allowlist-based approach to CLI flags is more secure and avoids
@@ -1602,6 +1742,7 @@ function containsUnquotedExpansion(command: string): boolean {
   let inSingleQuote = false
   let inDoubleQuote = false
   let escaped = false
+  let inGlobBracket = false
 
   for (let i = 0; i < command.length; i++) {
     const currentChar = command[i]
@@ -1658,9 +1799,34 @@ function containsUnquotedExpansion(command: string): boolean {
       continue
     }
 
-    // Check for glob characters outside all quotes.
-    // These could expand to anything, including dangerous flags.
-    if (currentChar && /[?*[\]]/.test(currentChar)) {
+    // A bracket expression is a glob only when its closing bracket occurs in
+    // the same shell word. Reset at whitespace and shell operators so
+    // unrelated arguments such as `cut -d[ file ]` are not joined into a
+    // synthetic glob by this scanner.
+    if (
+      currentChar === ' ' ||
+      currentChar === '\t' ||
+      currentChar === '\n' ||
+      currentChar === '|' ||
+      currentChar === '&' ||
+      currentChar === ';' ||
+      currentChar === '(' ||
+      currentChar === ')' ||
+      currentChar === '<' ||
+      currentChar === '>'
+    ) {
+      inGlobBracket = false
+      continue
+    }
+
+    if (currentChar === '?' || currentChar === '*') {
+      return true
+    }
+    if (currentChar === '[') {
+      inGlobBracket = true
+      continue
+    }
+    if (currentChar === ']' && inGlobBracket) {
       return true
     }
   }
@@ -1705,6 +1871,18 @@ function isCommandReadOnly(command: string): boolean {
   // have no such guard. See containsUnquotedExpansion for full analysis.
   if (containsUnquotedExpansion(testCommand)) {
     return false
+  }
+
+  // The 2.1.98 classifier handles a few shell commands from parsed argv
+  // because a flat regex cannot distinguish flags from predicate arguments.
+  const parsed = tryParseShellCommand(testCommand, env => `$${env}`)
+  if (parsed.success && parsed.tokens.every(token => typeof token === 'string')) {
+    const specialResult = classifySpecialReadOnlyArgv(
+      parsed.tokens as string[],
+    )
+    if (specialResult !== null) {
+      return specialResult
+    }
   }
 
   // Tools like git allow `--upload-pack=cmd` to be abbreviated as `--up=cmd`

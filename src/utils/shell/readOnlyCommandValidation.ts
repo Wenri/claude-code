@@ -1676,7 +1676,7 @@ export function validateFlagArgument(
  * @param tokens - Pre-tokenized args (from bash shell-quote or PowerShell AST)
  * @param startIndex - Where to start validating (after command tokens)
  * @param config - The safe flags config
- * @param options.commandName - For command-specific handling (git numeric shorthand, grep/rg attached numeric)
+ * @param options.commandName - For command-specific handling (git numeric shorthand, grep-family/rg attached numeric)
  * @param options.rawCommand - For additionalCommandIsDangerousCallback
  * @param options.xargsTargetCommands - If provided, enables xargs-style target command detection
  * @returns true if all flags are valid, false otherwise
@@ -1768,9 +1768,12 @@ export function validateFlags(
         }
 
         // Handle flags with directly attached numeric arguments (e.g., -A20, -B10)
-        // Only apply this special handling to grep and rg commands
+        // Only apply this special handling to grep-family and rg commands
         if (
-          (options?.commandName === 'grep' || options?.commandName === 'rg') &&
+          (options?.commandName === 'grep' ||
+            options?.commandName === 'egrep' ||
+            options?.commandName === 'fgrep' ||
+            options?.commandName === 'rg') &&
           flag.startsWith('-') &&
           !flag.startsWith('--') &&
           flag.length > 2

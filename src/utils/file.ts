@@ -16,6 +16,7 @@ import { logEvent } from 'src/services/analytics/index.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js'
 import { getCwd } from '../utils/cwd.js'
 import { logForDebugging } from './debug.js'
+import { isEnvTruthy } from './envUtils.js'
 import { isENOENT, isFsInaccessible } from './errors.js'
 import {
   detectEncodingForResolvedPath,
@@ -80,6 +81,17 @@ export async function getFileModificationTimeAsync(
   const s = await getFsImplementation().stat(filePath)
   return Math.floor(s.mtimeMs)
 }
+
+export function isPerforceMode(): boolean {
+  return isEnvTruthy(process.env.CLAUDE_CODE_PERFORCE_MODE)
+}
+
+export function isPerforceReadOnly(mode: number): boolean {
+  return isPerforceMode() && (mode & 128) === 0
+}
+
+export const PERFORCE_READ_ONLY_ERROR =
+  'File is read-only — it has not been opened for edit in Perforce. Run `p4 edit <file>` to check it out, then retry. Do not chmod the file writable; that bypasses Perforce tracking.'
 
 export function writeTextContent(
   filePath: string,

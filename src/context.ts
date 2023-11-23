@@ -140,6 +140,10 @@ export const getSystemContext = memoize(
 
     return {
       ...(gitStatus && { gitStatus }),
+      ...(isEnvTruthy(process.env.CLAUDE_CODE_PERFORCE_MODE) && {
+        perforceMode:
+          'This is a Perforce workspace. Files not yet opened for edit are read-only; if a file is read-only, run `p4 edit <file>` via Bash to check it out before modifying. Files that are already writable have been opened and can be edited directly.',
+      }),
       ...(feature('BREAK_CACHE_COMMAND') && injection
         ? {
             cacheBreaker: `[CACHE_BREAKER: ${injection}]`,

@@ -19,7 +19,12 @@ import { logForDebugging } from '../../utils/debug.js'
 import { countLinesChanged, getPatchForDisplay } from '../../utils/diff.js'
 import { isEnvTruthy } from '../../utils/envUtils.js'
 import { isENOENT } from '../../utils/errors.js'
-import { getFileModificationTime, writeTextContent } from '../../utils/file.js'
+import {
+  getFileModificationTime,
+  isPerforceReadOnly,
+  PERFORCE_READ_ONLY_ERROR,
+  writeTextContent,
+} from '../../utils/file.js'
 import {
   fileHistoryEnabled,
   fileHistoryTrackEdit,
@@ -188,6 +193,13 @@ export const FileWriteTool = buildTool({
     try {
       const fileStat = await fs.stat(fullFilePath)
       fileMtimeMs = fileStat.mtimeMs
+      if (isPerforceReadOnly(fileStat.mode)) {
+        return {
+          result: false,
+          message: PERFORCE_READ_ONLY_ERROR,
+          errorCode: 6,
+        }
+      }
     } catch (e) {
       if (isENOENT(e)) {
         return { result: true }

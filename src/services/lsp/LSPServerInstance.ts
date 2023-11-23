@@ -166,6 +166,10 @@ export function createLSPServerInstance(
 
       const initParams: InitializeParams = {
         processId: process.pid,
+        clientInfo: {
+          name: 'Claude Code',
+          version: MACRO.VERSION,
+        },
 
         // Pass server-specific initialization options from plugin config
         // Required by vue-language-server, optional for others
