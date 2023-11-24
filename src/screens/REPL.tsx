@@ -298,6 +298,16 @@ const EMPTY_MCP_CLIENTS: MCPServerConnection[] = [];
 const HISTORY_STUB = {
   maybeLoadOlder: (_: ScrollBoxHandle) => {}
 };
+const THINKING_MILESTONES = [{
+  afterMs: 30000,
+  text: 'Thinking a bit longer… still working on it…'
+}, {
+  afterMs: 90000,
+  text: 'This is a harder one… it might take a few more minutes…'
+}, {
+  afterMs: 270000,
+  text: 'Hang tight… really working through this one…'
+}];
 // Window after a user-initiated scroll during which type-into-empty does NOT
 // repin to bottom. Josh Rosen's workflow: Claude emits long output → scroll
 // up to read the start → start typing → before this fix, snapped to bottom.
@@ -1637,6 +1647,18 @@ export function REPL({
       return () => clearTimeout(timer);
     }
   }, [toolPermissionContext.mode, setMessages]);
+
+  const [thinkingMilestoneIndex, setThinkingMilestoneIndex] = useState(-1);
+  useEffect(() => {
+    if (streamMode !== 'thinking' || !isLoading) {
+      setThinkingMilestoneIndex(-1);
+      return;
+    }
+    const timers = THINKING_MILESTONES.map((milestone, index) => setTimeout(setThinkingMilestoneIndex, milestone.afterMs, index));
+    return () => {
+      for (const timer of timers) clearTimeout(timer);
+    };
+  }, [streamMode, isLoading]);
 
   // If worktree creation was slow and sparse-checkout isn't configured,
   // nudge the user toward settings.worktree.sparsePaths.
@@ -4581,6 +4603,9 @@ export function REPL({
           text: placeholderText,
           type: 'text'
         }} addMargin={true} verbose={verbose} />}
+              {showSpinner && thinkingMilestoneIndex >= 0 && streamMode === 'thinking' && <Box marginTop={1} paddingLeft={2}>
+                    <Text dimColor>{figures.pointerSmall} {THINKING_MILESTONES[thinkingMilestoneIndex]!.text}</Text>
+                  </Box>}
               {toolJSX && !(toolJSX.isLocalJSXCommand && toolJSX.isImmediate) && !toolJsxCentered && <Box flexDirection="column" width="100%">
                     {toolJSX.jsx}
                   </Box>}
