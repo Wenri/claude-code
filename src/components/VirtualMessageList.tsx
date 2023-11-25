@@ -178,7 +178,9 @@ type VirtualItemProps = {
   onClickK: (msg: RenderableMessage, cellIsBlank: boolean) => void;
   onEnterK: (k: string) => void;
   onLeaveK: (k: string) => void;
-  renderItem: (msg: RenderableMessage, idx: number) => React.ReactNode;
+  renderItemRef: React.RefObject<
+    (msg: RenderableMessage, idx: number) => React.ReactNode
+  >;
 };
 
 // Item wrapper with stable click handlers. The per-item closures were the
@@ -190,14 +192,10 @@ type VirtualItemProps = {
 // which lets JIT inline them. The bigger win is inside: MessageRow.memo
 // bails for unchanged msgs, skipping marked.lexer + formatToken.
 //
-// NOT React.memo'd — renderItem captures changing state (cursor, selectedIdx,
-// verbose). Memoing with a comparator that ignores renderItem would use a
-// STALE closure on bail (wrong selection highlight, stale verbose). Including
-// renderItem in the comparator defeats memo since it's fresh each render.
-function VirtualItem(t0) {
-  const $ = _c(30);
-  const {
-    itemKey: k,
+// renderItem is read through a ref so compiler memoization cannot retain every
+// historical render closure (and the message arrays captured by those closures).
+function VirtualItem({
+    itemKey,
     msg,
     idx,
     measureRef,
@@ -207,84 +205,21 @@ function VirtualItem(t0) {
     onClickK,
     onEnterK,
     onLeaveK,
-    renderItem
-  } = t0;
-  let t1;
-  if ($[0] !== k || $[1] !== measureRef) {
-    t1 = measureRef(k);
-    $[0] = k;
-    $[1] = measureRef;
-    $[2] = t1;
-  } else {
-    t1 = $[2];
-  }
-  const t2 = expanded ? "userMessageBackgroundHover" : undefined;
-  const t3 = expanded ? 1 : undefined;
-  let t4;
-  if ($[3] !== clickable || $[4] !== msg || $[5] !== onClickK) {
-    t4 = clickable ? e => onClickK(msg, e.cellIsBlank) : undefined;
-    $[3] = clickable;
-    $[4] = msg;
-    $[5] = onClickK;
-    $[6] = t4;
-  } else {
-    t4 = $[6];
-  }
-  let t5;
-  if ($[7] !== clickable || $[8] !== k || $[9] !== onEnterK) {
-    t5 = clickable ? () => onEnterK(k) : undefined;
-    $[7] = clickable;
-    $[8] = k;
-    $[9] = onEnterK;
-    $[10] = t5;
-  } else {
-    t5 = $[10];
-  }
-  let t6;
-  if ($[11] !== clickable || $[12] !== k || $[13] !== onLeaveK) {
-    t6 = clickable ? () => onLeaveK(k) : undefined;
-    $[11] = clickable;
-    $[12] = k;
-    $[13] = onLeaveK;
-    $[14] = t6;
-  } else {
-    t6 = $[14];
-  }
-  const t7 = hovered && !expanded ? "text" : undefined;
-  let t8;
-  if ($[15] !== idx || $[16] !== msg || $[17] !== renderItem) {
-    t8 = renderItem(msg, idx);
-    $[15] = idx;
-    $[16] = msg;
-    $[17] = renderItem;
-    $[18] = t8;
-  } else {
-    t8 = $[18];
-  }
-  let t9;
-  if ($[19] !== t7 || $[20] !== t8) {
-    t9 = <TextHoverColorContext.Provider value={t7}>{t8}</TextHoverColorContext.Provider>;
-    $[19] = t7;
-    $[20] = t8;
-    $[21] = t9;
-  } else {
-    t9 = $[21];
-  }
-  let t10;
-  if ($[22] !== t1 || $[23] !== t2 || $[24] !== t3 || $[25] !== t4 || $[26] !== t5 || $[27] !== t6 || $[28] !== t9) {
-    t10 = <Box ref={t1} flexDirection="column" backgroundColor={t2} paddingBottom={t3} onClick={t4} onMouseEnter={t5} onMouseLeave={t6}>{t9}</Box>;
-    $[22] = t1;
-    $[23] = t2;
-    $[24] = t3;
-    $[25] = t4;
-    $[26] = t5;
-    $[27] = t6;
-    $[28] = t9;
-    $[29] = t10;
-  } else {
-    t10 = $[29];
-  }
-  return t10;
+    renderItemRef
+  }: VirtualItemProps) {
+  return <Box
+    ref={measureRef(itemKey)}
+    flexDirection="column"
+    backgroundColor={expanded ? "userMessageBackgroundHover" : undefined}
+    paddingBottom={expanded ? 1 : undefined}
+    onClick={clickable ? e => onClickK(msg, e.cellIsBlank) : undefined}
+    onMouseEnter={clickable ? () => onEnterK(itemKey) : undefined}
+    onMouseLeave={clickable ? () => onLeaveK(itemKey) : undefined}
+  >
+    <TextHoverColorContext.Provider value={hovered && !expanded ? "text" : undefined}>
+      {renderItemRef.current(msg, idx)}
+    </TextHoverColorContext.Provider>
+  </Box>;
 }
 export function VirtualMessageList({
   messages,
@@ -305,6 +240,8 @@ export function VirtualMessageList({
   scanElement,
   setPositions
 }: Props): React.ReactNode {
+  const renderItemRef = useRef(renderItem);
+  renderItemRef.current = renderItem;
   const keys = useMemo(() => messages.map(itemKey), [messages, itemKey]);
   const {
     range,
@@ -846,7 +783,7 @@ export function VirtualMessageList({
       const clickable = !!onItemClick && (isItemClickable?.(msg) ?? true);
       const hovered = clickable && hoveredKey === k;
       const expanded = isItemExpanded?.(msg);
-      return <VirtualItem key={k} itemKey={k} msg={msg} idx={idx} measureRef={measureRef} expanded={expanded} hovered={hovered} clickable={clickable} onClickK={onClickK} onEnterK={onEnterK} onLeaveK={onLeaveK} renderItem={renderItem} />;
+      return <VirtualItem key={k} itemKey={k} msg={msg} idx={idx} measureRef={measureRef} expanded={expanded} hovered={hovered} clickable={clickable} onClickK={onClickK} onEnterK={onEnterK} onLeaveK={onLeaveK} renderItemRef={renderItemRef} />;
     })}
       {bottomSpacer > 0 && <Box height={bottomSpacer} flexShrink={0} />}
       {trackStickyPrompt && <StickyTracker messages={messages} start={start} end={end} offsets={offsets} getItemTop={getItemTop} getItemElement={getItemElement} scrollRef={scrollRef} />}

@@ -60,6 +60,7 @@ import { logForDebugging } from '../utils/debug.js'
 import { loadMemoryPrompt } from '../memdir/memdir.js'
 import { isUndercover } from '../utils/undercover.js'
 import { isMcpInstructionsDeltaEnabled } from '../utils/mcpInstructionsDelta.js'
+import { getGlobalConfig } from '../utils/config.js'
 
 // Dead code elimination: conditional imports for feature-gated modules
 /* eslint-disable @typescript-eslint/no-require-imports */
@@ -524,6 +525,7 @@ ${CYBER_RISK_INSTRUCTION}`,
     ...(feature('KAIROS') || feature('KAIROS_BRIEF')
       ? [systemPromptSection('brief', () => getBriefSection())]
       : []),
+    systemPromptSection('focus_mode', () => getFocusModeSection()),
   ]
 
   const resolvedDynamicSections =
@@ -810,6 +812,26 @@ Old tool results will be automatically cleared from context to free up space. Th
 }
 
 const SUMMARIZE_TOOL_RESULTS_SECTION = `When working with tool results, write down any important information you might need later in your response, as the original tool result may be cleared later.`
+
+const FOCUS_MODE_SECTION = `# Focus mode
+The user has focus mode enabled. In focus mode, the user only sees your final text message in each response. They do not see tool calls, tool results, or any text you emit between tool calls. This overrides earlier guidance about giving short updates between tool calls — skip those updates and put everything the user needs to know in your final message. Do not assume they saw earlier progress updates.`
+
+function getFocusModeSection(): string | null {
+  if (getIsNonInteractiveSession()) return null
+  const viewMode = (
+    getInitialSettings() as {
+      viewMode?: 'default' | 'verbose' | 'focus'
+    }
+  ).viewMode
+  const briefTranscript = (
+    getGlobalConfig() as ReturnType<typeof getGlobalConfig> & {
+      briefTranscript?: boolean
+    }
+  ).briefTranscript
+  return (viewMode ? viewMode === 'focus' : (briefTranscript ?? false))
+    ? FOCUS_MODE_SECTION
+    : null
+}
 
 function getBriefSection(): string | null {
   if (!(feature('KAIROS') || feature('KAIROS_BRIEF'))) return null

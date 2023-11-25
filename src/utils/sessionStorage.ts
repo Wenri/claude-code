@@ -2137,6 +2137,7 @@ function findClosestTimestampParent(
   let closestDelta = Infinity
   for (const candidate of messages.values()) {
     if (seen.has(candidate.uuid)) continue
+    if (candidate.isSidechain !== child.isSidechain) continue
     const candidateTimestamp = new Date(candidate.timestamp).getTime()
     if (Number.isNaN(candidateTimestamp)) continue
     const delta = childTimestamp - candidateTimestamp
@@ -3575,6 +3576,7 @@ export async function loadTranscriptFile(
   const contextCollapseCommits: ContextCollapseCommitEntry[] = []
   // Last-wins — later entries supersede.
   let contextCollapseSnapshot: ContextCollapseSnapshotEntry | undefined
+  let lastWrittenNonSidechainUuid: UUID | undefined
 
   try {
     // For large transcripts, avoid materializing megabytes of stale content.
@@ -3703,6 +3705,7 @@ export async function loadTranscriptFile(
           entry.parentUuid = progressBridge.get(entry.parentUuid) ?? null
         }
         messages.set(entry.uuid, entry)
+        if (!entry.isSidechain) lastWrittenNonSidechainUuid = entry.uuid
         // Compact boundary: prior marble-origami-commit entries reference
         // messages that won't be in the post-boundary chain. The >5MB
         // backward-scan path discards them naturally by never reading the
@@ -3848,6 +3851,28 @@ export async function loadTranscriptFile(
     logEvent('tengu_transcript_parent_cycle', {})
   }
 
+  if (
+    !opts?.keepAllLeaves &&
+    leafUuids.size > 1 &&
+    lastWrittenNonSidechainUuid &&
+    messages.has(lastWrittenNonSidechainUuid)
+  ) {
+    const seen = new Set<UUID>()
+    let current = messages.get(lastWrittenNonSidechainUuid)
+    while (current) {
+      if (seen.has(current.uuid)) break
+      seen.add(current.uuid)
+      if (current.type === 'user' || current.type === 'assistant') {
+        leafUuids.clear()
+        leafUuids.add(current.uuid)
+        break
+      }
+      current = current.parentUuid
+        ? messages.get(current.parentUuid)
+        : undefined
+    }
+  }
+
   return {
     messages,
     summaries,
@@ -3886,6 +3911,7 @@ async function loadSessionFile(sessionId: UUID): Promise<{
   contentReplacements: Map<UUID, ContentReplacementRecord[]>
   contextCollapseCommits: ContextCollapseCommitEntry[]
   contextCollapseSnapshot: ContextCollapseSnapshotEntry | undefined
+  leafUuids: Set<UUID>
 }> {
   const sessionFile = join(
     getSessionProjectDir() ?? getProjectDir(getOriginalCwd()),
@@ -3941,6 +3967,7 @@ export async function getLastSessionLog(
     contentReplacements,
     contextCollapseCommits,
     contextCollapseSnapshot,
+    leafUuids,
   } = await loadSessionFile(sessionId)
   if (messages.size === 0) return null
   // Prime getSessionMessages cache so recordTranscript (called after REPL
@@ -3955,8 +3982,14 @@ export async function getLastSessionLog(
     )
   }
 
-  // Find the most recent non-sidechain message
-  const lastMessage = findLatestMessage(messages.values(), m => !m.isSidechain)
+  // Find the most recent live main-chain leaf.
+  const lastMessage = findLatestMessage(
+    messages.values(),
+    m =>
+      leafUuids.has(m.uuid) &&
+      !m.isSidechain &&
+      (m.type === 'user' || m.type === 'assistant'),
+  )
   if (!lastMessage) return null
 
   // Build the transcript chain from the last message

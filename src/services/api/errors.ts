@@ -1184,16 +1184,36 @@ export function categorizeRetryableAPIError(
 export function getErrorMessageIfRefusal(
   stopReason: BetaStopReason | null,
   model: string,
+  stopDetails?: {
+    type?: string
+    explanation?: string | null
+  } | null,
 ): AssistantMessage | undefined {
   if (stopReason !== 'refusal') {
     return
   }
 
-  logEvent('tengu_refusal_api_response', {})
+  const explanation =
+    stopDetails?.type === 'refusal'
+      ? (stopDetails.explanation?.trimEnd() ?? null)
+      : null
 
-  const baseMessage = getIsNonInteractiveSession()
-    ? `${API_ERROR_MESSAGE_PREFIX}: Claude Code is unable to respond to this request, which appears to violate our Usage Policy (https://www.anthropic.com/legal/aup). Try rephrasing the request or attempting a different approach.`
-    : `${API_ERROR_MESSAGE_PREFIX}: Claude Code is unable to respond to this request, which appears to violate our Usage Policy (https://www.anthropic.com/legal/aup). Please double press esc to edit your last message or start a new session for Claude Code to assist with a different task.`
+  logEvent('tengu_refusal_api_response', {
+    has_explanation: Boolean(explanation),
+  })
+
+  const maxExplanationLength = 400
+  const shortenedExplanation =
+    explanation && explanation.length > maxExplanationLength
+      ? explanation.slice(0, maxExplanationLength).trimEnd() + '…'
+      : explanation
+  const explanationSuffix = shortenedExplanation
+    ? ` ${shortenedExplanation}${/[.!?…]$/.test(shortenedExplanation) ? '' : '.'}`
+    : ''
+  const baseMessage = `${API_ERROR_MESSAGE_PREFIX}: Claude Code is unable to respond to this request, which appears to violate our Usage Policy (https://www.anthropic.com/legal/aup).${explanationSuffix} `
+  const interactionGuidance = getIsNonInteractiveSession()
+    ? 'Try rephrasing the request or attempting a different approach.'
+    : 'Please double press esc to edit your last message or start a new session for Claude Code to assist with a different task.'
 
   const modelSuggestion =
     model !== 'claude-sonnet-4-20250514'
@@ -1201,7 +1221,7 @@ export function getErrorMessageIfRefusal(
       : ''
 
   return createAssistantAPIErrorMessage({
-    content: baseMessage + modelSuggestion,
+    content: baseMessage + interactionGuidance + modelSuggestion,
     error: 'invalid_request',
   })
 }

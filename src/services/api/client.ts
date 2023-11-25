@@ -11,7 +11,10 @@ import {
   refreshGcpCredentialsIfNeeded,
 } from 'src/utils/auth.js'
 import { getUserAgent } from 'src/utils/http.js'
-import { getSmallFastModel } from 'src/utils/model/model.js'
+import {
+  getSmallFastModel,
+  normalizeModelStringForAPI,
+} from 'src/utils/model/model.js'
 import {
   getAPIProvider,
   getAPIProviderForModel,
@@ -154,12 +157,7 @@ export async function getAnthropicClient({
   const apiProvider = getAPIProviderForModel(model)
   if (apiProvider === 'bedrock') {
     const { AnthropicBedrock } = await import('@anthropic-ai/bedrock-sdk')
-    // Use region override for small fast model if specified
-    const awsRegion =
-      model === getSmallFastModel() &&
-      process.env.ANTHROPIC_SMALL_FAST_MODEL_AWS_REGION
-        ? process.env.ANTHROPIC_SMALL_FAST_MODEL_AWS_REGION
-        : getAWSRegion()
+    const awsRegion = getAWSRegionForModel(model)
 
     const skipAuth = isEnvTruthy(
       process.env.CLAUDE_CODE_SKIP_BEDROCK_AUTH,
@@ -178,7 +176,9 @@ export async function getAnthropicClient({
 
     const bedrockArgs: ConstructorParameters<typeof AnthropicBedrock>[0] = {
       ...ARGS,
+      defaultHeaders: headersWithoutAuthorization,
       awsRegion,
+      apiKey: null,
       ...(skipAuth &&
         !bedrockApiKey && {
           skipAuth: true,
@@ -209,14 +209,29 @@ export async function getAnthropicClient({
     const skipAuth = isEnvTruthy(
       process.env.CLAUDE_CODE_SKIP_MANTLE_AUTH,
     )
+    const { value: authorizationHeader, rest: headersWithoutAuthorization } =
+      extractAuthorizationHeader(ARGS.defaultHeaders)
+    const mantleApiKey = skipAuth ? authorizationHeader : undefined
     const cachedCredentials =
       !process.env.AWS_BEARER_TOKEN_BEDROCK && !skipAuth
         ? await refreshAndGetAwsCredentials()
         : null
     return new AnthropicBedrockMantle({
       ...ARGS,
-      awsRegion: getAWSRegion(),
-      ...(skipAuth && { skipAuth: true }),
+      defaultHeaders: headersWithoutAuthorization,
+      awsRegion: getAWSRegionForModel(model),
+      ...(skipAuth &&
+        !mantleApiKey && {
+          skipAuth: true,
+        }),
+      ...(mantleApiKey && {
+        apiKey:
+          mantleApiKey.match(/^Bearer (.+)$/i)?.[1] ?? mantleApiKey,
+        defaultHeaders: {
+          ...headersWithoutAuthorization,
+          Authorization: mantleApiKey,
+        },
+      }),
       ...(cachedCredentials && {
         awsAccessKey: cachedCredentials.accessKeyId,
         awsSecretAccessKey: cachedCredentials.secretAccessKey,
@@ -350,6 +365,20 @@ export async function getAnthropicClient({
   }
 
   return new Anthropic(clientConfig)
+}
+
+function getAWSRegionForModel(model?: string): string {
+  const smallFastModelRegion =
+    process.env.ANTHROPIC_SMALL_FAST_MODEL_AWS_REGION
+  if (
+    model &&
+    smallFastModelRegion &&
+    normalizeModelStringForAPI(model) ===
+      normalizeModelStringForAPI(getSmallFastModel())
+  ) {
+    return smallFastModelRegion
+  }
+  return getAWSRegion()
 }
 
 async function configureApiKeyHeaders(
