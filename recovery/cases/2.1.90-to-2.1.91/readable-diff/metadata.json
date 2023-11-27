@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "normalizationVersion": 1,
+  "structuralFingerprintVersion": 1,
+  "inputs": {
+    "baseline": {
+      "name": "cli.js",
+      "bytes": 13128331,
+      "sha256": "069185909d50518b8b239acc0f9ae9b062a610595299b35955fc53e6e2c2f5e9"
+    },
+    "target": {
+      "name": "cli.js",
+      "bytes": 13162543,
+      "sha256": "b4bf141f30cf8b40196295816c7a6b9d01a36e906908d73a9f9a865ce4cdf816"
+    }
+  },
+  "parser": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "statements": {
+    "baseline": 18275,
+    "target": 18329
+  },
+  "matching": {
+    "duplicateSharedFingerprints": 671,
+    "structurallyUniquePairs": 12607,
+    "uniqueBaselineFingerprints": 12925,
+    "uniqueTargetFingerprints": 12958
+  },
+  "renames": {
+    "accepted": 17702,
+    "alreadyEqual": 179,
+    "candidateTargetBindings": 22342,
+    "edits": 92709,
+    "editKinds": {
+      "exportSpecifierExpansions": 0,
+      "identifierReplacements": 92709,
+      "importSpecifierExpansions": 0,
+      "shorthandExpansions": 0
+    },
+    "rejected": 4461,
+    "rejectedByReason": {
+      "class-name-has-dual-binding": 160,
+      "inconsistent-counterparts": 16,
+      "nested-binding-capture": 12,
+      "non-bijective-counterpart": 2,
+      "occupied-destination": 4269,
+      "would-capture-unresolved-reference": 2
+    }
+  },
+  "verification": {
+    "normalizedTargetParses": true,
+    "targetComparisonInvariantHashBeforeAlphaRename": "940895b0779656ea946d37f06711497280cca25d9b4da8d01e731b87f9d7e329",
+    "targetComparisonInvariantHashAfterAlphaRename": "940895b0779656ea946d37f06711497280cca25d9b4da8d01e731b87f9d7e329",
+    "targetComparisonInvariantHashAfterStatementNormalization": "940895b0779656ea946d37f06711497280cca25d9b4da8d01e731b87f9d7e329",
+    "comparisonInvariantHashesEqual": true,
+    "note": "The normalized target is a non-executable comparison representation, not the published bytes. The invariant alpha-normalizes resolved bindings while preserving unresolved names, property keys, labels, import names, and export names. It does not prove runtime equivalence where JavaScript exposes binding spelling through eval, Function.name, or source text.",
+    "statementDescriptorFields": [
+      "type",
+      "structuralSha256"
+    ]
+  },
+  "compression": {
+    "normalized.diff.gz": {
+      "algorithm": "gzip",
+      "level": 9,
+      "mtime": 0,
+      "uncompressedArtifact": "normalized.diff"
+    }
+  },
+  "outputs": {
+    "normalized.diff.gz": {
+      "name": "normalized.diff.gz",
+      "bytes": 5302755,
+      "sha256": "21eabcf7889a385b220033ed037ce3c6fbd15a57ee03d4c95d5897680a65f951"
+    },
+    "statements.diff": {
+      "name": "statements.diff",
+      "bytes": 153936,
+      "sha256": "e3847fbc0a3cfe6f06f148ae4ca99709c033f674e705a9095ee970fc25f33b66"
+    },
+    "renames.tsv": {
+      "name": "renames.tsv",
+      "bytes": 210227,
+      "sha256": "20898c022b816d0f09e4c1505a5a2d9d0c162f5684937622690fce4a7956f9c7"
+    }
+  },
+  "reproducibleIntermediates": {
+    "baseline.normalized.js": {
+      "name": "baseline.normalized.js",
+      "bytes": 13146604,
+      "sha256": "99376776ae42b7f5c8cd9a08dec19ac265099d4773f89306a7c4bafa51fe4590"
+    },
+    "target.normalized.js": {
+      "name": "target.normalized.js",
+      "bytes": 13180827,
+      "sha256": "991bf5ae33979c45a5a5969f5c246642fc7bda8e5a103d27e2dcffb1d8a79ae2"
+    },
+    "normalized.diff": {
+      "name": "normalized.diff",
+      "bytes": 22520339,
+      "sha256": "7321f5374b7a313397efd3d4267f372774a71e998a12119fbeb3a6edf53a1143"
+    },
+    "statements.baseline.tsv": {
+      "name": "statements.baseline.tsv",
+      "bytes": 1551152,
+      "sha256": "e0a96931739918ab65d441b7ef1ecc412def3d0c2afc72405ae00fea1e3c9e7c"
+    },
+    "statements.target.tsv": {
+      "name": "statements.target.tsv",
+      "bytes": 1555738,
+      "sha256": "0c55f107c97a1ef28faf2b8aae096d295a76f11ab732b3d7ab14aad1f50aafeb"
+    }
+  }
+}
