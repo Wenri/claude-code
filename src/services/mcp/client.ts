@@ -1315,6 +1315,16 @@ export const connectToServer = memoize(
           }
         }
 
+        if (transportType === 'stdio') {
+          closeTransportAndRejectPending(
+            `stdio transport error: ${error.name || 'Error'}`,
+          )
+          if (originalOnerror) {
+            originalOnerror(error)
+          }
+          return
+        }
+
         // For HTTP transports, detect session expiry (404 + JSON-RPC -32001)
         // and close the transport so pending tool calls reject and the next
         // call reconnects with a fresh session ID.

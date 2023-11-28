@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import type { CommandResultDisplay } from 'src/commands.js';
+import { getSessionId } from 'src/bootstrap/state.js';
 import { logEvent } from 'src/services/analytics/index.js';
 import { logForDebugging } from 'src/utils/debug.js';
 import { Box, Text } from '../ink.js';
@@ -14,11 +15,19 @@ import { Spinner } from './Spinner.js';
 // Inline require breaks the cycle this file would otherwise close:
 // sessionStorage → commands → exit → ExitFlow → here. All call sites
 // are inside callbacks, so the lazy require never sees an undefined import.
-function recordWorktreeExit(): void {
+function getSessionStorage(): typeof import('../utils/sessionStorage.js') {
   /* eslint-disable @typescript-eslint/no-require-imports */
-  ;
-  (require('../utils/sessionStorage.js') as typeof import('../utils/sessionStorage.js')).saveWorktreeState(null);
+  return require('../utils/sessionStorage.js') as typeof import('../utils/sessionStorage.js');
   /* eslint-enable @typescript-eslint/no-require-imports */
+}
+function recordWorktreeExit(): void {
+  getSessionStorage().saveWorktreeState(null);
+}
+function restoreAfterWorktreeExit(originalCwd: string): void {
+  process.chdir(originalCwd);
+  setCwd(originalCwd);
+  recordWorktreeExit();
+  getPlansDirectory.cache.clear?.();
 }
 type Props = {
   onDone: (result?: string, options?: {
@@ -30,13 +39,21 @@ export function WorktreeExitDialog({
   onDone,
   onCancel
 }: Props): React.ReactNode {
-  const [status, setStatus] = useState<'loading' | 'asking' | 'keeping' | 'removing' | 'done'>('loading');
+  const [status, setStatus] = useState<'loading' | 'asking' | 'keeping' | 'removing-clean' | 'removing' | 'done'>('loading');
   const [changes, setChanges] = useState<string[]>([]);
   const [commitCount, setCommitCount] = useState<number>(0);
   const [resultMessage, setResultMessage] = useState<string | undefined>();
   const worktreeSession = getCurrentWorktreeSession();
+  const sessionTitle = getSessionStorage().getCurrentSessionTitle(getSessionId());
   useEffect(() => {
     async function loadChanges() {
+      if (worktreeSession?.enteredExisting) {
+        await keepWorktree();
+        restoreAfterWorktreeExit(worktreeSession.originalCwd);
+        setResultMessage(`Returned to ${worktreeSession.originalCwd} (worktree at ${worktreeSession.worktreePath} left in place)`);
+        setStatus('done');
+        return;
+      }
       let changeLines: string[] = [];
       const gitStatus = await execFileNoThrow('git', ['status', '--porcelain']);
       if (gitStatus.stdout) {
@@ -54,13 +71,15 @@ export function WorktreeExitDialog({
         setCommitCount(count);
 
         // If no changes and no commits, clean up silently
-        if (changeLines.length === 0 && count === 0) {
-          setStatus('removing');
+        if (changeLines.length === 0 && count === 0 && !sessionTitle) {
+          setStatus('removing-clean');
           void cleanupWorktree().then(() => {
-            process.chdir(worktreeSession.originalCwd);
-            setCwd(worktreeSession.originalCwd);
-            recordWorktreeExit();
-            getPlansDirectory.cache.clear?.();
+            logEvent('tengu_worktree_removed', {
+              source: 'exit_dialog',
+              commits: 0,
+              changed_files: 0
+            });
+            restoreAfterWorktreeExit(worktreeSession.originalCwd);
             setResultMessage('Worktree removed (no changes)');
           }).catch(error => {
             logForDebugging(`Failed to clean up worktree: ${error}`, {
@@ -79,7 +98,7 @@ export function WorktreeExitDialog({
     void loadChanges();
     // eslint-disable-next-line react-hooks/exhaustive-deps
     // biome-ignore lint/correctness/useExhaustiveDependencies: intentional
-  }, [worktreeSession]);
+  }, [worktreeSession, sessionTitle]);
   useEffect(() => {
     if (status === 'done') {
       onDone(resultMessage);
@@ -104,10 +123,7 @@ export function WorktreeExitDialog({
         changed_files: changes.length
       });
       await keepWorktree();
-      process.chdir(worktreeSession.originalCwd);
-      setCwd(worktreeSession.originalCwd);
-      recordWorktreeExit();
-      getPlansDirectory.cache.clear?.();
+      restoreAfterWorktreeExit(worktreeSession.originalCwd);
       if (hasTmux) {
         setResultMessage(`Worktree kept. Your work is saved at ${worktreeSession.worktreePath} on branch ${worktreeSession.worktreeBranch}. Reattach to tmux session with: tmux attach -t ${worktreeSession.tmuxSessionName}`);
       } else {
@@ -124,15 +140,13 @@ export function WorktreeExitDialog({
         await killTmuxSession(worktreeSession.tmuxSessionName);
       }
       await keepWorktree();
-      process.chdir(worktreeSession.originalCwd);
-      setCwd(worktreeSession.originalCwd);
-      recordWorktreeExit();
-      getPlansDirectory.cache.clear?.();
+      restoreAfterWorktreeExit(worktreeSession.originalCwd);
       setResultMessage(`Worktree kept at ${worktreeSession.worktreePath} on branch ${worktreeSession.worktreeBranch}. Tmux session terminated.`);
       setStatus('done');
     } else if (value === 'remove' || value === 'remove-with-tmux') {
       setStatus('removing');
       logEvent('tengu_worktree_removed', {
+        source: 'exit_dialog',
         commits: commitCount,
         changed_files: changes.length
       });
@@ -141,10 +155,7 @@ export function WorktreeExitDialog({
       }
       try {
         await cleanupWorktree();
-        process.chdir(worktreeSession.originalCwd);
-        setCwd(worktreeSession.originalCwd);
-        recordWorktreeExit();
-        getPlansDirectory.cache.clear?.();
+        restoreAfterWorktreeExit(worktreeSession.originalCwd);
       } catch (error) {
         logForDebugging(`Failed to clean up worktree: ${error}`, {
           level: 'error'
@@ -172,10 +183,10 @@ export function WorktreeExitDialog({
         <Text>Keeping worktree…</Text>
       </Box>;
   }
-  if (status === 'removing') {
+  if (status === 'removing-clean' || status === 'removing') {
     return <Box flexDirection="row" marginY={1}>
         <Spinner />
-        <Text>Removing worktree…</Text>
+        <Text>{status === 'removing-clean' ? 'Cleaning up worktree (no pending changes)…' : 'Removing worktree…'}</Text>
       </Box>;
   }
   const branchName = worktreeSession.worktreeBranch;
@@ -188,6 +199,8 @@ export function WorktreeExitDialog({
     subtitle = `You have ${changes.length} uncommitted ${changes.length === 1 ? 'file' : 'files'}. These will be lost if you remove the worktree.`;
   } else if (hasCommits) {
     subtitle = `You have ${commitCount} ${commitCount === 1 ? 'commit' : 'commits'} on ${branchName}. The branch will be deleted if you remove the worktree.`;
+  } else if (sessionTitle) {
+    subtitle = `This session was named "${sessionTitle}". Keep the worktree to resume it later, or remove it to clean up.`;
   } else {
     subtitle = 'You are working in a worktree. Keep it to continue working there, or remove it to clean up.';
   }

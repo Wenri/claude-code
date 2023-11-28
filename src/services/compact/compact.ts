@@ -129,6 +129,29 @@ export const POST_COMPACT_MAX_TOKENS_PER_FILE = 5_000
 export const POST_COMPACT_MAX_TOKENS_PER_SKILL = 5_000
 export const POST_COMPACT_SKILLS_TOKEN_BUDGET = 25_000
 const MAX_COMPACT_STREAMING_RETRIES = 2
+export const ERROR_MESSAGE_COMPACTION_BLOCKED =
+  'Compaction blocked by PreCompact hook'
+
+export function throwIfPreCompactBlocked(
+  hookResult: { blockedBy?: string },
+  context: Pick<ToolUseContext, 'addNotification'>,
+  options?: { suppressNotification?: boolean },
+): void {
+  if (!hookResult.blockedBy) {
+    return
+  }
+  if (!options?.suppressNotification) {
+    context.addNotification?.({
+      key: 'compaction-blocked-by-hook',
+      text: 'compaction blocked by PreCompact hook',
+      priority: 'immediate',
+      color: 'warning',
+    })
+  }
+  throw new Error(
+    `${ERROR_MESSAGE_COMPACTION_BLOCKED}: ${hookResult.blockedBy}`,
+  )
+}
 
 /**
  * Strip image blocks from user messages before sending for compaction.
@@ -417,6 +440,9 @@ export async function compactConversation(
       },
       context.abortController.signal,
     )
+    throwIfPreCompactBlocked(hookResult, context, {
+      suppressNotification: isAutoCompact,
+    })
     customInstructions = mergeHookInstructions(
       customInstructions,
       hookResult.newCustomInstructions,
@@ -822,6 +848,7 @@ export async function partialCompactConversation(
       },
       context.abortController.signal,
     )
+    throwIfPreCompactBlocked(hookResult, context)
 
     // Merge hook instructions with user feedback
     let customInstructions: string | undefined
@@ -1111,7 +1138,11 @@ function addErrorNotificationIfNeeded(
 ) {
   if (
     !hasExactErrorMessage(error, ERROR_MESSAGE_USER_ABORT) &&
-    !hasExactErrorMessage(error, ERROR_MESSAGE_NOT_ENOUGH_MESSAGES)
+    !hasExactErrorMessage(error, ERROR_MESSAGE_NOT_ENOUGH_MESSAGES) &&
+    !(
+      error instanceof Error &&
+      error.message.startsWith(ERROR_MESSAGE_COMPACTION_BLOCKED)
+    )
   ) {
     context.addNotification?.({
       key: 'error-compacting-conversation',

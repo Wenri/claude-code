@@ -12,6 +12,7 @@ import {
   ERROR_MESSAGE_NOT_ENOUGH_MESSAGES,
   ERROR_MESSAGE_USER_ABORT,
   mergeHookInstructions,
+  throwIfPreCompactBlocked,
 } from '../../services/compact/compact.js'
 import { suppressCompactWarning } from '../../services/compact/compactWarningState.js'
 import { microcompactMessages } from '../../services/compact/microCompact.js'
@@ -163,6 +164,7 @@ async function compactViaReactive(
       ),
       getCacheSharingParams(context, messages),
     ])
+    throwIfPreCompactBlocked(hookResult, context)
     const mergedInstructions = mergeHookInstructions(
       customInstructions,
       hookResult.newCustomInstructions,

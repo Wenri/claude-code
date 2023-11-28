@@ -4,8 +4,12 @@ import type { ToolProgressData } from '../../Tool.js';
 import type { ProgressMessage } from '../../types/message.js';
 import type { ThemeName } from '../../utils/theme.js';
 import type { Output } from './ExitWorktreeTool.js';
-export function renderToolUseMessage(): React.ReactNode {
-  return 'Exiting worktree…';
+export function renderToolUseMessage({
+  action
+}: Partial<{
+  action: string;
+}>): React.ReactNode {
+  return action ?? '';
 }
 export function renderToolResultMessage(output: Output, _progressMessagesForMessage: ProgressMessage<ToolProgressData>[], _options: {
   theme: ThemeName;

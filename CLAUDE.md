@@ -12,7 +12,7 @@ standalone `package.json`, `tsconfig.json`, lockfile, or full test suite for
 locked dependencies and focused tests. The current tree is the exact 2.1.88
 outer source-map baseline for every untouched file plus cumulative verified
 source-facing overlays for 2.1.89, 2.1.90, 2.1.91, 2.1.92, 2.1.94, 2.1.96,
-2.1.97, 2.1.98, 2.1.100, 2.1.101, and 2.1.104 (upstream did not publish
+2.1.97, 2.1.98, 2.1.100, 2.1.101, 2.1.104, and 2.1.105 (upstream did not publish
 2.1.93, 2.1.95, 2.1.99, 2.1.102, or 2.1.103). The first
 changes four Bash/parser files; the second changes nine session, transport,
 query, safety/cache, rate-limit, and help files; the third changes 21 existing
@@ -32,9 +32,11 @@ compact-disabled behavior, and shifted uppercase input; the ninth changes
 three existing paths for long-thinking progress notices, stalled-animation
 timing, and removal of an obsolete output-efficiency prompt owner; the tenth
 changes 16 paths for trust-store, API/refusal, permission, resume, terminal,
-focus, and runtime hardening; and the eleventh changes the API client and
+focus, and runtime hardening; the eleventh changes the API client and
 streaming query path for byte-level idle detection and partial-yield replay
-prevention. These
+prevention; and the twelfth changes 28 worktree, compaction, streaming,
+network, FileWrite, keybinding, scheduler, MCP, skill, WebFetch, and permission
+paths. These
 overlays are not a claim that any complete authored TypeScript tree is
 recoverable. Treat `src/` as read-only reference unless explicitly asked to
 change it; all of it is Anthropic's proprietary property (see the README
@@ -45,7 +47,7 @@ A few things layered on top of the mirror ARE maintained here:
 - `recovery/` — hash-pinned tooling for comparing later published bundles
   with authenticated adjacent releases and a matching source-map oracle. The
   2.1.89, 2.1.90, 2.1.91, 2.1.92, 2.1.94, 2.1.96, 2.1.97, 2.1.98, and
-  2.1.100, 2.1.101, and 2.1.104 cases have exact generated bundle/package
+  2.1.100, 2.1.101, 2.1.104, and 2.1.105 cases have exact generated bundle/package
   recoveries, exhaustive accounting ledgers, readable bundle diffs, and
   separately labeled partial source-like TypeScript patches. Their cumulative
   patch sets are applied to `src/`. Each case manifest and its verifiers are
@@ -69,7 +71,7 @@ is the pixi workspace:
   so nodejs is held `<26` (v26 needs icu 78). Bumping nodejs to 26 would break that.
 - `pixi run node recovery/scripts/verify-complete-recovery.mjs …` — run the
   aggregate evidence, source-lineage, exact-bundle, and package-tree gate for
-  a recovery case; use the 2.1.101 → 2.1.104 manifest for the current tree and
+  a recovery case; use the 2.1.104 → 2.1.105 manifest for the current tree and
   see that case's runbook for its artifact arguments.
 
 The glibc source is committed as a **plain, unextracted source tree** (no Git LFS, no tarball —

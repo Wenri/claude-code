@@ -618,7 +618,10 @@ export type Tool<
    * click-to-expand in fullscreen — only messages where verbose actually
    * shows more get a hover/click affordance. Unset means never truncated.
    */
-  isResultTruncated?(output: Output): boolean
+  isResultTruncated?(
+    output: Output,
+    context: { columns: number },
+  ): boolean
   /**
    * Renders an optional tag to display after the tool use message.
    * Used for additional metadata like timeout, model, resume ID, etc.

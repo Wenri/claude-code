@@ -26,7 +26,7 @@ export const DEFAULT_CHAR_BUDGET = 8_000 // Fallback: 1% of 200k × 4
 // full content on invoke, so verbose whenToUse strings waste turn-1 cache_creation
 // tokens without improving match rate. Applies to all entries, including bundled,
 // since the cap is generous enough to preserve the core use case.
-export const MAX_LISTING_DESC_CHARS = 250
+export const MAX_LISTING_DESC_CHARS = 1_536
 
 export function getCharBudget(contextWindowTokens?: number): number {
   if (Number(process.env.SLASH_COMMAND_TOOL_CHAR_BUDGET)) {

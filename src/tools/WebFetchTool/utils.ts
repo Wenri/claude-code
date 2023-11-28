@@ -92,7 +92,9 @@ let turndownServicePromise: Promise<InstanceType<TurndownCtor>> | undefined
 function getTurndownService(): Promise<InstanceType<TurndownCtor>> {
   return (turndownServicePromise ??= import('turndown').then(m => {
     const Turndown = (m as unknown as { default: TurndownCtor }).default
-    return new Turndown()
+    const service = new Turndown()
+    service.remove(['style', 'script', 'noscript', 'iframe'])
+    return service
   }))
 }
 

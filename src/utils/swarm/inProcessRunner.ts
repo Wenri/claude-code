@@ -27,6 +27,7 @@ import { getAutoCompactThreshold } from '../../services/compact/autoCompact.js'
 import {
   buildPostCompactMessages,
   compactConversation,
+  ERROR_MESSAGE_COMPACTION_BLOCKED,
   ERROR_MESSAGE_USER_ABORT,
 } from '../../services/compact/compact.js'
 import { resetMicrocompactState } from '../../services/compact/microCompact.js'
@@ -1087,42 +1088,58 @@ export async function runInProcessTeammate(
           onCompactProgress: undefined,
           setStreamMode: undefined,
         }
-        const compactedSummary = await compactConversation(
-          allMessages,
-          isolatedContext,
-          {
-            systemPrompt: asSystemPrompt([]),
-            userContext: {},
-            systemContext: {},
-            toolUseContext: isolatedContext,
-            forkContextMessages: [],
-          },
-          true, // suppressFollowUpQuestions
-          undefined, // customInstructions
-          true, // isAutoCompact
-        )
-        contextMessages = buildPostCompactMessages(compactedSummary)
-        // Reset microcompact state since full compact replaces all
-        // messages — old tool IDs are no longer relevant
-        resetMicrocompactState()
-        // Reset content replacement state — compact replaces all messages
-        // so old tool_use_ids are gone. Stale Map entries are harmless
-        // (UUID keys never match) but accumulate memory over long runs.
-        if (teammateReplacementState) {
-          teammateReplacementState = createContentReplacementState()
-        }
-        // Update allMessages in place with compacted version
-        allMessages.length = 0
-        allMessages.push(...contextMessages)
+        try {
+          const compactedSummary = await compactConversation(
+            allMessages,
+            isolatedContext,
+            {
+              systemPrompt: asSystemPrompt([]),
+              userContext: {},
+              systemContext: {},
+              toolUseContext: isolatedContext,
+              forkContextMessages: [],
+            },
+            true, // suppressFollowUpQuestions
+            undefined, // customInstructions
+            true, // isAutoCompact
+          )
+          contextMessages = buildPostCompactMessages(compactedSummary)
+          // Reset microcompact state since full compact replaces all
+          // messages — old tool IDs are no longer relevant
+          resetMicrocompactState()
+          // Reset content replacement state — compact replaces all messages
+          // so old tool_use_ids are gone. Stale Map entries are harmless
+          // (UUID keys never match) but accumulate memory over long runs.
+          if (teammateReplacementState) {
+            teammateReplacementState = createContentReplacementState()
+          }
+          // Update allMessages in place with compacted version
+          allMessages.length = 0
+          allMessages.push(...contextMessages)
 
-        // Mirror compaction into task.messages — otherwise the AppState
-        // mirror grows unbounded (500 turns = 500+ messages, 10-50MB).
-        // Replace with the compacted messages, matching allMessages.
-        updateTaskState(
-          taskId,
-          task => ({ ...task, messages: [...contextMessages, userMessage] }),
-          setAppState,
-        )
+          // Mirror compaction into task.messages — otherwise the AppState
+          // mirror grows unbounded (500 turns = 500+ messages, 10-50MB).
+          // Replace with the compacted messages, matching allMessages.
+          updateTaskState(
+            taskId,
+            task => ({
+              ...task,
+              messages: [...contextMessages, userMessage],
+            }),
+            setAppState,
+          )
+        } catch (error) {
+          if (
+            error instanceof Error &&
+            error.message.startsWith(ERROR_MESSAGE_COMPACTION_BLOCKED)
+          ) {
+            logForDebugging(
+              `[inProcessRunner] ${identity.agentId} compaction blocked by PreCompact hook; continuing uncompacted`,
+            )
+          } else {
+            throw error
+          }
+        }
       }
 
       // Pass previous messages as context to preserve conversation history

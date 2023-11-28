@@ -30,8 +30,10 @@ import { isDebugToStdErr, logForDebugging } from '../../utils/debug.js'
 import {
   getAWSRegion,
   getVertexRegionForModel,
+  isEnvDefinedFalsy,
   isEnvTruthy,
 } from '../../utils/envUtils.js'
+import { getFeatureValue_CACHED_MAY_BE_STALE } from '../analytics/growthbook.js'
 
 /**
  * Environment variables for different client types:
@@ -487,6 +489,19 @@ function addStreamIdleTimeout(
   )
 }
 
+function isByteWatchdogEnabled(): boolean {
+  if (isEnvDefinedFalsy(process.env.CLAUDE_ENABLE_BYTE_WATCHDOG)) {
+    return false
+  }
+  if (isEnvTruthy(process.env.CLAUDE_ENABLE_BYTE_WATCHDOG)) {
+    return true
+  }
+  return getFeatureValue_CACHED_MAY_BE_STALE(
+    'tengu_stream_watchdog_default_on',
+    true,
+  )
+}
+
 function buildFetch(
   fetchOverride: ClientOptions['fetch'],
   source: string | undefined,
@@ -523,11 +538,12 @@ function buildFetch(
     if (
       isFirstPartyRequest &&
       response.body &&
-      response.headers.get('content-type')?.includes('text/event-stream')
+      response.headers.get('content-type')?.includes('text/event-stream') &&
+      isByteWatchdogEnabled()
     ) {
       const idleMs = Math.max(
         parseInt(process.env.CLAUDE_STREAM_IDLE_TIMEOUT_MS || '', 10) || 90000,
-        15000,
+        300000,
       )
       const wrappedResponse = new Response(
         addStreamIdleTimeout(response.body, idleMs),
