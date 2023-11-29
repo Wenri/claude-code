@@ -299,19 +299,19 @@ const HISTORY_STUB = {
   maybeLoadOlder: (_: ScrollBoxHandle) => {}
 };
 const THINKING_MILESTONES = [{
-  afterMs: 30000,
+  afterMs: 10000,
   text: 'Thinking a bit longer… still working on it…'
 }, {
-  afterMs: 60000,
+  afterMs: 30000,
   text: 'Hang tight… really working through this one…'
 }, {
-  afterMs: 90000,
+  afterMs: 50000,
   text: 'This is a harder one… it might take another minute…'
 }, {
-  afterMs: 150000,
+  afterMs: 80000,
   text: 'Still going… thanks for hanging in there…'
 }, {
-  afterMs: 240000,
+  afterMs: 120000,
   text: 'Taking the time to get this right… thanks for your patience…'
 }];
 // Window after a user-initiated scroll during which type-into-empty does NOT

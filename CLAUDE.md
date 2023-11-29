@@ -12,8 +12,8 @@ standalone `package.json`, `tsconfig.json`, lockfile, or full test suite for
 locked dependencies and focused tests. The current tree is the exact 2.1.88
 outer source-map baseline for every untouched file plus cumulative verified
 source-facing overlays for 2.1.89, 2.1.90, 2.1.91, 2.1.92, 2.1.94, 2.1.96,
-2.1.97, 2.1.98, 2.1.100, 2.1.101, 2.1.104, and 2.1.105 (upstream did not publish
-2.1.93, 2.1.95, 2.1.99, 2.1.102, or 2.1.103). The first
+2.1.97, 2.1.98, 2.1.100, 2.1.101, 2.1.104, 2.1.105, and 2.1.107 (upstream did
+not publish 2.1.93, 2.1.95, 2.1.99, 2.1.102, 2.1.103, or 2.1.106). The first
 changes four Bash/parser files; the second changes nine session, transport,
 query, safety/cache, rate-limit, and help files; the third changes 21 existing
 MCP, policy, input, plugin, transcript, feedback, installer, and prompt files
@@ -36,7 +36,8 @@ focus, and runtime hardening; the eleventh changes the API client and
 streaming query path for byte-level idle detection and partial-yield replay
 prevention; and the twelfth changes 28 worktree, compaction, streaming,
 network, FileWrite, keybinding, scheduler, MCP, skill, WebFetch, and permission
-paths. These
+paths; and the thirteenth changes three paths for earlier long-thinking
+milestones and gated Opus 4.6 thinking guidance. These
 overlays are not a claim that any complete authored TypeScript tree is
 recoverable. Treat `src/` as read-only reference unless explicitly asked to
 change it; all of it is Anthropic's proprietary property (see the README
@@ -47,12 +48,12 @@ A few things layered on top of the mirror ARE maintained here:
 - `recovery/` — hash-pinned tooling for comparing later published bundles
   with authenticated adjacent releases and a matching source-map oracle. The
   2.1.89, 2.1.90, 2.1.91, 2.1.92, 2.1.94, 2.1.96, 2.1.97, 2.1.98, and
-  2.1.100, 2.1.101, 2.1.104, and 2.1.105 cases have exact generated bundle/package
-  recoveries, exhaustive accounting ledgers, readable bundle diffs, and
-  separately labeled partial source-like TypeScript patches. Their cumulative
-  patch sets are applied to `src/`. Each case manifest and its verifiers are
-  the evidence contract; each case runbook records the complete reproducible
-  procedure.
+  2.1.100, 2.1.101, 2.1.104, 2.1.105, and 2.1.107 cases have exact generated
+  bundle/package recoveries, exhaustive accounting ledgers, readable bundle
+  diffs, and separately labeled partial source-like TypeScript patches. Their
+  cumulative patch sets are applied to `src/`. Each case manifest and its
+  verifiers are the evidence contract; each case runbook records the complete
+  reproducible procedure.
 - [`wsl1-exec`](https://github.com/Wenri/wsl1-exec) — **moved out entirely** (2026-07, full history preserved; Apache-2.0): the standalone repo for `wsl1-exec.so`, conventionally a sibling checkout at `../wsl1-exec`. A generic `LD_PRELOAD` `exec*` shim that retries an `ENOEXEC`-failed exec via the target's `PT_INTERP`. All sources live in its `src/`: the WSL1 `execve` **and `posix_spawn`/`posix_spawnp`** (`wsl1-exec.c`) and the `readlink`/`realpath` `/proc/self/exe` hooks (`wsl1-selfexe.c`, via `getauxval(AT_EXECFN)` — no env marker, per-process, so nothing to inherit/clean up) are ours; the `exec*` family (`src/exec-variants.c`) is **[termux-exec](https://github.com/termux-play-store/termux-exec)/bionic-derived** (Apache-2.0 — SPDX tag + attribution + local changes in its header; adapted, no longer synced) — `posix_spawn` retries at the parent (glibc returns the child's exec errno) — plus unrelated **`mmap`/`mmap64` fixes** (`wsl1-mmap.c`): the empty-file-map bogus `ENOEXEC` (rattler/pixi-build) and the `MAP_FIXED_NOREPLACE`-rejected-with-`EOPNOTSUPP` case (retry without the flag) — both libc-`mmap` only, so neither reaches agy's tcmalloc (still `patch_agy_wsl1.py`). Complements `loader/`: universal and one-line to enable, and the hooks keep `/proc/self/exe` correct **for libc readers** (Node/libuv) — but raw-syscall readers (Go `os.Executable()`), `readlinkat`, and static binaries still see the interpreter, so `loader/` remains the fix for those. Supersedes its own old `claude-preload.so`/`claude-dispatch`.
 - `pixi.toml` / `pixi.lock` — a pixi dev environment used to build them.
 
@@ -71,7 +72,7 @@ is the pixi workspace:
   so nodejs is held `<26` (v26 needs icu 78). Bumping nodejs to 26 would break that.
 - `pixi run node recovery/scripts/verify-complete-recovery.mjs …` — run the
   aggregate evidence, source-lineage, exact-bundle, and package-tree gate for
-  a recovery case; use the 2.1.104 → 2.1.105 manifest for the current tree and
+  a recovery case; use the 2.1.105 → 2.1.107 manifest for the current tree and
   see that case's runbook for its artifact arguments.
 
 The glibc source is committed as a **plain, unextracted source tree** (no Git LFS, no tarball —
