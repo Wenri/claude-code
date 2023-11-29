@@ -1,0 +1,184 @@
+{
+  "schemaVersion": 1,
+  "kind": "generated-source-ownership-and-attribution-inventory",
+  "offsetUnit": "utf16-code-units",
+  "claim": "Exhaustive generated-offset accounting with exact baseline source ownership; target source identities are evidence-ranked and unresolved where anchors are insufficient.",
+  "artifacts": {
+    "baselineBundle": {
+      "bytes": 13047043,
+      "sha256": "75c9611929d9a770fe2e3a393219d8b98f5de17fde539b2a7355c6db3fd2795f"
+    },
+    "baselineSourceMap": {
+      "bytes": 59766257,
+      "sha256": "7965012b7a5fc9e09d8d747a04c5c32b94696924536e217f686bb1e7ee70a657"
+    },
+    "targetBundle": {
+      "bytes": 13081065,
+      "sha256": "a9950ef6407fdc750bddb673852485500387e524a99d42385cb81e7d17128e01"
+    }
+  },
+  "options": {
+    "minimumLiteralLength": 8
+  },
+  "baselineOwnership": {
+    "sourceCount": 4756,
+    "sourceKinds": {
+      "application": 1902,
+      "nodeModules": 2850,
+      "vendor": 4
+    },
+    "mappedSegmentCount": 2068722,
+    "contiguousRunCount": 4756,
+    "eachSourceHasExactlyOneContiguousRun": true,
+    "generatedHeaderUtf16": 2230
+  },
+  "literalEvidence": {
+    "uniqueCommonAnchorCount": 44221,
+    "monotoneAnchorCount": 43590,
+    "nonMonotoneAnchorCount": 631,
+    "monotoneFraction": 0.9857307614029533,
+    "partitionCount": 43591,
+    "tokenCountDelta": 8652,
+    "utf16LengthDelta": 33738,
+    "locatedSourceCount": 2635,
+    "locatedApplicationSourceCount": 1325,
+    "splitTargetClusterSourceCount": 0
+  },
+  "initializerEvidence": {
+    "baseline": {
+      "wrapperNames": {
+        "common": "m",
+        "initializer": "y"
+      },
+      "count": 4527
+    },
+    "target": {
+      "wrapperNames": {
+        "common": "p",
+        "initializer": "E"
+      },
+      "count": 4537,
+      "statuses": {
+        "unresolved-no-unique-literal": 2003,
+        "anchored-single-baseline-unit": 2527,
+        "anchored-multiple-baseline-units": 7
+      }
+    },
+    "targetNetCountDelta": 10
+  },
+  "coverage": {
+    "partitionCount": 43591,
+    "targetPartitionUtf16": 10297941,
+    "exactAnchorCount": 43590,
+    "exactAnchorTargetUtf16": 2719125,
+    "exactGeneratedPartitionCount": 23228,
+    "exactGeneratedTargetUtf16": 614674,
+    "changedHighConfidencePartitionCount": 17764,
+    "changedHighConfidenceTargetUtf16": 5115956,
+    "changedCandidatePartitionCount": 2593,
+    "changedCandidateTargetUtf16": 4565415,
+    "unresolvedPartitionCount": 6,
+    "unresolvedTargetUtf16": 1896,
+    "accountedTargetUtf16": 13017066,
+    "targetUtf16": 13017066,
+    "unaccountedTargetUtf16": 0
+  },
+  "releaseEvidence": {
+    "targetPackage": {
+      "bytes": 1242,
+      "sha256": "2cc59f27f893cbfc4dce4d8da7ea4a088d3721afeeed5e3e3438a0fcef92d109",
+      "name": "@anthropic-ai/claude-code",
+      "version": "2.1.89"
+    },
+    "targetDeclarations": {
+      "bytes": 117129,
+      "sha256": "05ecc6a51d013f5e9b8f1cc86818c467435a71187d18005d3125ed6e0c52fe2d",
+      "staleReadFileStateHint": true
+    },
+    "officialChangelog": {
+      "bytes": 477054,
+      "sha256": "9e4ad11b0443ad9db409b030481e284eb819781d94ee9f1ad28844b7759d74f5",
+      "section": "2.1.89",
+      "bulletCount": 52,
+      "bullets": [
+        "Added `\"defer\"` permission decision to `PreToolUse` hooks — headless sessions can pause at a tool call and resume with `-p --resume` to have the hook re-evaluate",
+        "Added `CLAUDE_CODE_NO_FLICKER=1` environment variable to opt into flicker-free alt-screen rendering with virtualized scrollback",
+        "Added `PermissionDenied` hook that fires after auto mode classifier denials — return `{retry: true}` to tell the model it can retry",
+        "Added named subagents to `@` mention typeahead suggestions",
+        "Added `MCP_CONNECTION_NONBLOCKING=true` for `-p` mode to skip the MCP connection wait entirely, and bounded `--mcp-config` server connections at 5s instead of blocking on the slowest server",
+        "Auto mode: denied commands now show a notification and appear in `/permissions` → Recent tab where you can retry with `r`",
+        "Fixed `Edit(//path/**)` and `Read(//path/**)` allow rules to check the resolved symlink target, not just the requested path",
+        "Fixed voice push-to-talk not activating for some modifier-combo bindings, and voice mode on Windows failing with \"WebSocket upgrade rejected with HTTP 101\"",
+        "Fixed Edit/Write tools doubling CRLF on Windows and stripping Markdown hard line breaks (two trailing spaces)",
+        "Fixed `StructuredOutput` schema cache bug causing ~50% failure rate when using multiple schemas",
+        "Fixed memory leak where large JSON inputs were retained as LRU cache keys in long-running sessions",
+        "Fixed a crash when removing a message from very large session files (over 50MB)",
+        "Fixed LSP server zombie state after crash — server now restarts on next request instead of failing until session restart",
+        "Fixed prompt history entries containing CJK or emoji being silently dropped when they fall on a 4KB boundary in `~/.claude/history.jsonl`",
+        "Fixed `/stats` undercounting tokens by excluding subagent usage, and losing historical data beyond 30 days when the stats cache format changes",
+        "Fixed `-p --resume` hangs when the deferred tool input exceeds 64KB or no deferred marker exists, and `-p --continue` not resuming deferred tools",
+        "Fixed `claude-cli://` deep links not opening on macOS",
+        "Fixed MCP tool errors truncating to only the first content block when the server returns multi-element error content",
+        "Fixed skill reminders and other system context being dropped when sending messages with images via the SDK",
+        "Fixed PreToolUse/PostToolUse hooks to receive `file_path` as an absolute path for Write/Edit/Read tools, matching the documented behavior",
+        "Fixed autocompact thrash loop — now detects when context refills to the limit immediately after compacting three times in a row and stops with an actionable error instead of burning API calls",
+        "Fixed prompt cache misses in long sessions caused by tool schema bytes changing mid-session",
+        "Fixed nested CLAUDE.md files being re-injected dozens of times in long sessions that read many files",
+        "Fixed `--resume` crash when transcript contains a tool result from an older CLI version or interrupted write",
+        "Fixed misleading \"Rate limit reached\" message when the API returned an entitlement error — now shows the actual error with actionable hints",
+        "Fixed hooks `if` condition filtering not matching compound commands (`ls && git push`) or commands with env-var prefixes (`FOO=bar git push`)",
+        "Fixed collapsed search/read group badges duplicating in terminal scrollback during heavy parallel tool use",
+        "Fixed notification `invalidates` not clearing the currently-displayed notification immediately",
+        "Fixed prompt briefly disappearing after submit when background messages arrived during processing",
+        "Fixed Devanagari and other combining-mark text being truncated in assistant output",
+        "Fixed rendering artifacts on main-screen terminals after layout shifts",
+        "Fixed voice mode failing to request microphone permission on macOS Apple Silicon",
+        "Fixed Shift+Enter submitting instead of inserting a newline on Windows Terminal Preview 1.25",
+        "Fixed periodic UI jitter during streaming in iTerm2 when running inside tmux",
+        "Fixed PowerShell tool incorrectly reporting failures when commands like `git push` wrote progress to stderr on Windows PowerShell 5.1",
+        "Fixed a potential out-of-memory crash when the Edit tool was used on very large files (>1 GiB)",
+        "Improved collapsed tool summary to show \"Listed N directories\" for `ls`/`tree`/`du` instead of \"Read N files\"",
+        "Improved Bash tool to warn when a formatter/linter command modifies files you have previously read, preventing stale-edit errors",
+        "Improved `@`-mention typeahead to rank source files above MCP resources with similar names",
+        "Improved PowerShell tool prompt with version-appropriate syntax guidance (5.1 vs 7+)",
+        "Changed `Edit` to work on files viewed via `Bash` with `sed -n` or `cat`, without requiring a separate `Read` call first",
+        "Changed hook output over 50K characters to be saved to disk with a file path + preview instead of being injected directly into context",
+        "Changed `cleanupPeriodDays: 0` in settings.json to be rejected with a validation error — it previously silently disabled transcript persistence",
+        "Changed thinking summaries to no longer be generated by default in interactive sessions — set `showThinkingSummaries: true` in settings.json to restore",
+        "Documented `TaskCreated` hook event and its blocking behavior",
+        "Preserved task notifications when backgrounding a running command with Ctrl+B",
+        "PowerShell tool on Windows: external-command arguments containing both a double-quote and whitespace now prompt instead of auto-allowing (PS 5.1 argument-splitting hardening)",
+        "`/env` now applies to PowerShell tool commands (previously only affected Bash)",
+        "`/usage` now hides redundant \"Current week (Sonnet only)\" bar for Pro and Enterprise plans",
+        "Image paste no longer inserts a trailing space",
+        "Pasting `!command` into an empty prompt now enters bash mode, matching typed `!` behavior",
+        "`/buddy` is here for April 1st — hatch a small creature that watches you code"
+      ]
+    }
+  },
+  "reportFiles": {
+    "sources": {
+      "path": "sources.jsonl.gz",
+      "bytes": 493672,
+      "sha256": "ea29e89e8cf3373e2d70ad54893c9db860c79f2ec6fe872cc605323b03d7a583"
+    },
+    "targetInitializers": {
+      "path": "target-initializers.jsonl.gz",
+      "bytes": 109919,
+      "sha256": "546cb32f52388fc8efadf076ed267fdcd8106d5ff21eed5a962f66925ef64c85"
+    },
+    "targetPartitions": {
+      "path": "target-partitions.jsonl.gz",
+      "bytes": 4196891,
+      "sha256": "b095c0f790d470c1b9d83df010dff6130692ae61dd700fe875599f5b4e1d6c03"
+    }
+  },
+  "limitations": [
+    "Exact source ownership exists only for the baseline source map.",
+    "Initializer regions are delimited by successive Bun wrapper-expression starts; they are generated units, not asserted one-to-one source modules.",
+    "A target initializer with no unique long literal is unresolved, not automatically target-only.",
+    "Candidate ranges can include moved code; non-monotone literal owners are reported separately.",
+    "Raw-different partitions include harmless minifier-name churn as well as semantic changes.",
+    "No target source text is claimed reconstructed by this inventory."
+  ]
+}
