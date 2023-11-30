@@ -2,7 +2,7 @@ import { basename } from 'path'
 import React from 'react'
 import { logError } from 'src/utils/log.js'
 import { useDebounceCallback } from 'usehooks-ts'
-import type { InputEvent, Key } from '../ink.js'
+import { InputEvent, type Key } from '../ink.js'
 import {
   getImageFromClipboard,
   isImageFilePath,
@@ -91,6 +91,31 @@ export function usePasteHandler({
     CLIPBOARD_CHECK_DEBOUNCE_MS,
   )
 
+  const dispatchPaste = React.useCallback(
+    (text: string) => {
+      if (onPaste) {
+        onPaste(text)
+        return
+      }
+
+      const event = new InputEvent({
+        kind: 'key',
+        name: undefined,
+        sequence: text,
+        raw: text,
+        ctrl: false,
+        meta: false,
+        shift: false,
+        option: false,
+        super: false,
+        fn: false,
+        isPasted: true,
+      })
+      onInput(event.input, event.key)
+    },
+    [onInput, onPaste],
+  )
+
   const resetPasteTimeout = React.useCallback(
     (currentTimeoutId: ReturnType<typeof setTimeout> | null) => {
       if (currentTimeoutId) {
@@ -100,7 +125,7 @@ export function usePasteHandler({
         (
           setPasteState,
           onImagePaste,
-          onPaste,
+          dispatchPaste,
           setIsPasting,
           checkClipboardForImage,
           isMacOS,
@@ -159,17 +184,15 @@ export function usePasteHandler({
                   const nonImageLines = lines.filter(
                     line => !isImageFilePath(line),
                   )
-                  if (nonImageLines.length > 0 && onPaste) {
-                    onPaste(nonImageLines.join('\n'))
+                  if (nonImageLines.length > 0) {
+                    dispatchPaste(nonImageLines.join('\n'))
                   }
                   setIsPasting(false)
                 } else if (isTempScreenshot && isMacOS) {
                   // For temporary screenshot files that no longer exist, try clipboard
                   checkClipboardForImage()
                 } else {
-                  if (onPaste) {
-                    onPaste(pastedText)
-                  }
+                  dispatchPaste(pastedText)
                   setIsPasting(false)
                 }
               })
@@ -184,9 +207,7 @@ export function usePasteHandler({
             }
 
             // Handle regular paste
-            if (onPaste) {
-              onPaste(pastedText)
-            }
+            dispatchPaste(pastedText)
             // Reset isPasting state after paste is complete
             setIsPasting(false)
             return { chunks: [], timeoutId: null }
@@ -195,14 +216,14 @@ export function usePasteHandler({
         PASTE_COMPLETION_TIMEOUT_MS,
         setPasteState,
         onImagePaste,
-        onPaste,
+        dispatchPaste,
         setIsPasting,
         checkClipboardForImage,
         isMacOS,
         pastePendingRef,
       )
     },
-    [checkClipboardForImage, isMacOS, onImagePaste, onPaste],
+    [checkClipboardForImage, dispatchPaste, isMacOS, onImagePaste],
   )
 
   // Paste detection is now done via the InputEvent's keypress.isPasted flag,
@@ -251,11 +272,10 @@ export function usePasteHandler({
 
     // Check if we should handle as paste (from bracketed paste, large input, or continuation)
     const shouldHandleAsPaste =
-      onPaste &&
-      (input.length > PASTE_THRESHOLD ||
-        pastePendingRef.current ||
-        hasImageFilePath ||
-        isFromPaste)
+      input.length > PASTE_THRESHOLD ||
+      pastePendingRef.current ||
+      hasImageFilePath ||
+      isFromPaste
 
     if (shouldHandleAsPaste) {
       pastePendingRef.current = true

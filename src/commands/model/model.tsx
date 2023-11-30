@@ -1,9 +1,12 @@
-import { c as _c } from "react/compiler-runtime";
 import chalk from 'chalk';
 import * as React from 'react';
+import { getTotalOutputTokens } from '../../bootstrap/state.js';
 import type { CommandResultDisplay } from '../../commands.js';
+import { Select } from '../../components/CustomSelect/index.js';
+import { Dialog } from '../../components/design-system/Dialog.js';
 import { ModelPicker } from '../../components/ModelPicker.js';
 import { COMMON_HELP_ARGS, COMMON_INFO_ARGS } from '../../constants/xml.js';
+import { Box, Text } from '../../ink.js';
 import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEvent } from '../../services/analytics/index.js';
 import { useAppState, useSetAppState } from '../../state/AppState.js';
 import type { LocalJSXCommandCall } from '../../types/command.js';
@@ -12,105 +15,132 @@ import { isBilledAsExtraUsage } from '../../utils/extraUsage.js';
 import { clearFastModeCooldown, isFastModeAvailable, isFastModeEnabled, isFastModeSupportedByModel } from '../../utils/fastMode.js';
 import { MODEL_ALIASES } from '../../utils/model/aliases.js';
 import { checkOpus1mAccess, checkSonnet1mAccess } from '../../utils/model/check1mAccess.js';
-import { getDefaultMainLoopModelSetting, isOpus1mMergeEnabled, renderDefaultModelSetting } from '../../utils/model/model.js';
+import { getCanonicalName, getDefaultMainLoopModelSetting, isOpus1mMergeEnabled, renderDefaultModelSetting } from '../../utils/model/model.js';
 import { isModelAllowed } from '../../utils/model/modelAllowlist.js';
 import { validateModel } from '../../utils/model/validateModel.js';
-function ModelPickerWrapper(t0) {
-  const $ = _c(17);
-  const {
-    onDone
-  } = t0;
-  const mainLoopModel = useAppState(_temp);
-  const mainLoopModelForSession = useAppState(_temp2);
-  const isFastMode = useAppState(_temp3);
-  const setAppState = useSetAppState();
-  let t1;
-  if ($[0] !== mainLoopModel || $[1] !== onDone) {
-    t1 = function handleCancel() {
-      logEvent("tengu_model_command_menu", {
-        action: "cancel" as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-      });
-      const displayModel = renderModelLabel(mainLoopModel);
-      onDone(`Kept model as ${chalk.bold(displayModel)}`, {
-        display: "system"
-      });
-    };
-    $[0] = mainLoopModel;
-    $[1] = onDone;
-    $[2] = t1;
-  } else {
-    t1 = $[2];
+function ModelPickerWrapper({
+  onDone,
+}: {
+  onDone: (
+    result?: string,
+    options?: { display?: CommandResultDisplay },
+  ) => void
+}): React.ReactNode {
+  const mainLoopModel = useAppState(s => s.mainLoopModel)
+  const mainLoopModelForSession = useAppState(
+    s => s.mainLoopModelForSession,
+  )
+  const isFastMode = useAppState(s => s.fastMode)
+  const setAppState = useSetAppState()
+  const [pendingSelection, setPendingSelection] = React.useState<{
+    model: string | null
+    effort: EffortLevel | undefined
+  } | null>(null)
+
+  function handleCancel(): void {
+    logEvent('tengu_model_command_menu', {
+      action:
+        'cancel' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    })
+    const displayModel = renderModelLabel(mainLoopModel)
+    onDone(`Kept model as ${chalk.bold(displayModel)}`, {
+      display: 'system',
+    })
   }
-  const handleCancel = t1;
-  let t2;
-  if ($[3] !== isFastMode || $[4] !== mainLoopModel || $[5] !== onDone || $[6] !== setAppState) {
-    t2 = function handleSelect(model, effort) {
-      logEvent("tengu_model_command_menu", {
-        action: model as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        from_model: mainLoopModel as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        to_model: model as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-      });
-      setAppState(prev => ({
-        ...prev,
-        mainLoopModel: model,
-        mainLoopModelForSession: null
-      }));
-      let message = `Set model to ${chalk.bold(renderModelLabel(model))}`;
-      if (effort !== undefined) {
-        message = message + ` with ${chalk.bold(effort)} effort`;
+
+  function handleSelect(
+    model: string | null,
+    effort: EffortLevel | undefined,
+  ): void {
+    if (
+      getTotalOutputTokens() > 0 &&
+      canonicalModel(model) !==
+        canonicalModel(mainLoopModelForSession ?? mainLoopModel)
+    ) {
+      setPendingSelection({ model, effort })
+      return
+    }
+    applySelection(model, effort)
+  }
+
+  function applySelection(
+    model: string | null,
+    effort: EffortLevel | undefined,
+  ): void {
+    logEvent('tengu_model_command_menu', {
+      action:
+        model as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      from_model:
+        mainLoopModel as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      to_model:
+        model as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    })
+    setAppState(prev => ({
+      ...prev,
+      mainLoopModel: model,
+      mainLoopModelForSession: null,
+    }))
+    let message = `Set model to ${chalk.bold(renderModelLabel(model))}`
+    if (effort !== undefined) {
+      message += ` with ${chalk.bold(effort)} effort`
+    }
+    let wasFastModeToggledOn: boolean | undefined
+    if (isFastModeEnabled()) {
+      clearFastModeCooldown()
+      if (!isFastModeSupportedByModel(model) && isFastMode) {
+        setAppState(_temp4)
+        wasFastModeToggledOn = false
+      } else if (
+        isFastModeSupportedByModel(model) &&
+        isFastModeAvailable() &&
+        isFastMode
+      ) {
+        message += ' · Fast mode ON'
+        wasFastModeToggledOn = true
       }
-      let wasFastModeToggledOn = undefined;
-      if (isFastModeEnabled()) {
-        clearFastModeCooldown();
-        if (!isFastModeSupportedByModel(model) && isFastMode) {
-          setAppState(_temp4);
-          wasFastModeToggledOn = false;
-        } else {
-          if (isFastModeSupportedByModel(model) && isFastModeAvailable() && isFastMode) {
-            message = message + " \xB7 Fast mode ON";
-            wasFastModeToggledOn = true;
-          }
+    }
+    if (
+      isBilledAsExtraUsage(
+        model,
+        wasFastModeToggledOn === true,
+        isOpus1mMergeEnabled(),
+      )
+    ) {
+      message += ' · Billed as extra usage'
+    }
+    if (wasFastModeToggledOn === false) {
+      message += ' · Fast mode OFF'
+    }
+    onDone(message)
+  }
+
+  if (pendingSelection) {
+    return (
+      <CacheMissWarningDialog
+        toModel={pendingSelection.model}
+        onConfirm={() =>
+          applySelection(pendingSelection.model, pendingSelection.effort)
         }
-      }
-      if (isBilledAsExtraUsage(model, wasFastModeToggledOn === true, isOpus1mMergeEnabled())) {
-        message = message + " \xB7 Billed as extra usage";
-      }
-      if (wasFastModeToggledOn === false) {
-        message = message + " \xB7 Fast mode OFF";
-      }
-      onDone(message);
-    };
-    $[3] = isFastMode;
-    $[4] = mainLoopModel;
-    $[5] = onDone;
-    $[6] = setAppState;
-    $[7] = t2;
-  } else {
-    t2 = $[7];
+        onCancel={() => setPendingSelection(null)}
+      />
+    )
   }
-  const handleSelect = t2;
-  let t3;
-  if ($[8] !== isFastMode || $[9] !== mainLoopModel) {
-    t3 = isFastModeEnabled() && isFastMode && isFastModeSupportedByModel(mainLoopModel) && isFastModeAvailable();
-    $[8] = isFastMode;
-    $[9] = mainLoopModel;
-    $[10] = t3;
-  } else {
-    t3 = $[10];
-  }
-  let t4;
-  if ($[11] !== handleCancel || $[12] !== handleSelect || $[13] !== mainLoopModel || $[14] !== mainLoopModelForSession || $[15] !== t3) {
-    t4 = <ModelPicker initial={mainLoopModel} sessionModel={mainLoopModelForSession} onSelect={handleSelect} onCancel={handleCancel} isStandaloneCommand={true} showFastModeNotice={t3} />;
-    $[11] = handleCancel;
-    $[12] = handleSelect;
-    $[13] = mainLoopModel;
-    $[14] = mainLoopModelForSession;
-    $[15] = t3;
-    $[16] = t4;
-  } else {
-    t4 = $[16];
-  }
-  return t4;
+
+  return (
+    <ModelPicker
+      initial={mainLoopModel}
+      sessionModel={mainLoopModelForSession}
+      onSelect={handleSelect}
+      onCancel={handleCancel}
+      isStandaloneCommand={true}
+      showFastModeNotice={
+        isFastModeEnabled() &&
+        isFastMode &&
+        isFastModeSupportedByModel(mainLoopModel) &&
+        isFastModeAvailable()
+      }
+    />
+  )
 }
 function _temp4(prev_0) {
   return {
@@ -118,15 +148,51 @@ function _temp4(prev_0) {
     fastMode: false
   };
 }
-function _temp3(s_1) {
-  return s_1.fastMode;
+
+export function CacheMissWarningDialog({
+  toModel,
+  onConfirm,
+  onCancel,
+}: {
+  toModel: string | null
+  onConfirm: () => void
+  onCancel: () => void
+}): React.ReactNode {
+  const renderedModel = renderModelLabel(toModel)
+  return (
+    <Dialog
+      title="Switch model?"
+      subtitle="Your next response will be slower and use more tokens"
+      color="warning"
+      onCancel={onCancel}
+      hideInputGuide={true}
+    >
+      <Box flexDirection="column" gap={1}>
+        <Text>
+          This conversation is cached for the current model. Switching to{' '}
+          <Text bold={true}>{renderedModel}</Text> means the full history gets
+          re-read on your next message.
+        </Text>
+        <Select
+          options={[
+            {
+              label: `Yes, switch to ${renderedModel}`,
+              value: 'yes',
+            },
+            { label: 'No, go back', value: 'no' },
+          ]}
+          onChange={value => (value === 'yes' ? onConfirm() : onCancel())}
+          onCancel={onCancel}
+        />
+      </Box>
+    </Dialog>
+  )
 }
-function _temp2(s_0) {
-  return s_0.mainLoopModelForSession;
+
+function canonicalModel(model: string | null): string {
+  return getCanonicalName(model ?? getDefaultMainLoopModelSetting())
 }
-function _temp(s) {
-  return s.mainLoopModel;
-}
+
 function SetModelAndClose({
   args,
   onDone

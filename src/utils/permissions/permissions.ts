@@ -820,6 +820,13 @@ export const hasPermissionsToUseTool: CanUseToolFn = async (
         // error, won't recover on retry. Skip iron_gate and fall back to
         // normal prompting so the user can approve/deny manually.
         if (classifierResult.transcriptTooLong) {
+          if (tool.name === AGENT_TOOL_NAME) {
+            return {
+              behavior: 'allow',
+              updatedInput: input,
+              decisionReason: { type: 'mode', mode: 'auto' },
+            }
+          }
           if (appState.toolPermissionContext.shouldAvoidPermissionPrompts) {
             // Permanent condition (transcript only grows) — deny-retry-deny
             // wastes tokens without ever hitting the denial-limit abort.

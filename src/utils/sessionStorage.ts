@@ -662,31 +662,41 @@ class Project {
         continue
       }
       const batch = queue.splice(0)
+      let resolvedCount = 0
 
-      let content = ''
-      const resolvers: Array<() => void> = []
+      try {
+        let content = ''
+        let chunkStartIndex = 0
 
-      for (const { entry, resolve } of batch) {
-        const line = jsonStringify(entry) + '\n'
+        for (let i = 0; i < batch.length; i++) {
+          const { entry } = batch[i]!
+          const line = jsonStringify(entry) + '\n'
 
-        if (content.length + line.length >= this.MAX_CHUNK_BYTES) {
-          // Flush chunk and resolve its entries before starting a new one
-          await this.appendToFile(filePath, content)
-          for (const r of resolvers) {
-            r()
+          if (content.length + line.length >= this.MAX_CHUNK_BYTES) {
+            // Flush chunk and resolve its entries before starting a new one
+            await this.appendToFile(filePath, content)
+            for (let j = chunkStartIndex; j < i; j++) {
+              batch[j]!.resolve()
+            }
+            resolvedCount = i
+            chunkStartIndex = i
+            content = ''
           }
-          resolvers.length = 0
-          content = ''
+
+          content += line
         }
 
-        content += line
-        resolvers.push(resolve)
-      }
-
-      if (content.length > 0) {
-        await this.appendToFile(filePath, content)
-        for (const r of resolvers) {
-          r()
+        if (content.length > 0) {
+          await this.appendToFile(filePath, content)
+          for (let i = chunkStartIndex; i < batch.length; i++) {
+            batch[i]!.resolve()
+          }
+          resolvedCount = batch.length
+        }
+      } catch (error) {
+        logError(error)
+        for (let i = resolvedCount; i < batch.length; i++) {
+          batch[i]!.resolve()
         }
       }
     }
@@ -1048,6 +1058,9 @@ class Project {
           message.sourceToolAssistantUUID
         ) {
           effectiveParentUuid = message.sourceToolAssistantUUID
+        }
+        if (effectiveParentUuid === message.uuid) {
+          logEvent('tengu_chain_self_reference_write', {})
         }
 
         const transcriptMessage: TranscriptMessage = {
@@ -2111,7 +2124,7 @@ export function buildConversationChain(
     const parentUuid = currentMsg.parentUuid
     if (!parentUuid) break
     let parent = messages.get(parentUuid)
-    if (!parent) {
+    if (!parent || seen.has(parent.uuid)) {
       parent = findClosestTimestampParent(messages, currentMsg, seen)
       if (parent) {
         logEvent('tengu_chain_timestamp_fallback', {})
@@ -3905,6 +3918,8 @@ async function loadSessionFile(sessionId: UUID): Promise<{
   summaries: Map<UUID, string>
   customTitles: Map<UUID, string>
   tags: Map<UUID, string>
+  agentNames: Map<UUID, string>
+  agentColors: Map<UUID, string>
   agentSettings: Map<UUID, string>
   worktreeStates: Map<UUID, PersistedWorktreeSession | null>
   fileHistorySnapshots: Map<UUID, FileHistorySnapshotMessage>
@@ -3961,6 +3976,8 @@ export async function getLastSessionLog(
     summaries,
     customTitles,
     tags,
+    agentNames,
+    agentColors,
     agentSettings,
     worktreeStates,
     fileHistorySnapshots,
@@ -4000,19 +4017,22 @@ export async function getLastSessionLog(
   const customTitle = customTitles.get(lastMessage.sessionId as UUID)
   const tag = tags.get(lastMessage.sessionId as UUID)
   const agentSetting = agentSettings.get(sessionId)
+  const log = convertToLogOption(
+    transcript,
+    0,
+    summary,
+    customTitle,
+    buildFileHistorySnapshotChain(fileHistorySnapshots, transcript),
+    tag,
+    getTranscriptPathForSession(sessionId),
+    buildAttributionSnapshotChain(attributionSnapshots, transcript),
+    agentSetting,
+    contentReplacements.get(sessionId) ?? [],
+  )
   return {
-    ...convertToLogOption(
-      transcript,
-      0,
-      summary,
-      customTitle,
-      buildFileHistorySnapshotChain(fileHistorySnapshots, transcript),
-      tag,
-      getTranscriptPathForSession(sessionId),
-      buildAttributionSnapshotChain(attributionSnapshots, transcript),
-      agentSetting,
-      contentReplacements.get(sessionId) ?? [],
-    ),
+    ...log,
+    agentName: agentNames.get(sessionId) ?? log.agentName,
+    agentColor: agentColors.get(sessionId),
     worktreeSession: worktreeStates.get(sessionId),
     contextCollapseCommits: contextCollapseCommits.filter(
       e => e.sessionId === sessionId,

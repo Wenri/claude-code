@@ -69,7 +69,7 @@ export function startCapturingEarlyInput(): void {
 /**
  * Process a chunk of input data
  */
-function processChunk(str: string): void {
+export function processChunk(str: string): void {
   let i = 0
   while (i < str.length) {
     const char = str[i]!
@@ -101,18 +101,52 @@ function processChunk(str: string): void {
       continue
     }
 
-    // Skip escape sequences (arrow keys, function keys, focus events, etc.)
-    // All escape sequences start with ESC (0x1B) and end with a byte in 0x40-0x7E
+    // Skip terminal escape sequences without consuming printable text that
+    // follows them in the same chunk.
     if (code === 27) {
-      i++ // Skip the ESC character
-      // Skip until the terminating byte (@ to ~) or end of string
-      while (
-        i < str.length &&
-        !(str.charCodeAt(i) >= 64 && str.charCodeAt(i) <= 126)
+      i++
+      const introducer = i < str.length ? str.charCodeAt(i) : -1
+
+      if (introducer === 91) {
+        // CSI: parameters/intermediates are below 0x40; the final byte is
+        // 0x40-0x7e.
+        i++
+        while (i < str.length && str.charCodeAt(i) < 64) {
+          i++
+        }
+        if (i < str.length) i++
+      } else if (
+        introducer === 93 || // OSC
+        introducer === 80 || // DCS
+        introducer === 88 || // SOS
+        introducer === 94 || // PM
+        introducer === 95 // APC
       ) {
+        // String sequences end with BEL or ST (ESC \).
+        i++
+        while (i < str.length) {
+          const sequenceCode = str.charCodeAt(i)
+          if (sequenceCode === 7) {
+            i++
+            break
+          }
+          if (
+            sequenceCode === 27 &&
+            i + 1 < str.length &&
+            str.charCodeAt(i + 1) === 92
+          ) {
+            i += 2
+            break
+          }
+          i++
+        }
+      } else if (introducer === 79) {
+        // SS3: introducer plus one final byte.
+        i += 2
+      } else if (introducer !== -1 && introducer !== 27) {
+        // Simple two-byte escape sequence.
         i++
       }
-      if (i < str.length) i++ // Skip the terminating byte
       continue
     }
 

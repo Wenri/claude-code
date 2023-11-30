@@ -120,7 +120,6 @@ import {
   getFastModeHeaderLatched,
   getLastApiCompletionTimestamp,
   getPromptCache1hAllowlist,
-  getPromptCache1hEligible,
   getSessionId,
   getThinkingClearLatched,
   setAfkModeHeaderLatched,
@@ -128,7 +127,6 @@ import {
   setFastModeHeaderLatched,
   setLastMainRequestId,
   setPromptCache1hAllowlist,
-  setPromptCache1hEligible,
   setThinkingClearLatched,
 } from 'src/bootstrap/state.js'
 import {
@@ -381,9 +379,8 @@ export function getCacheControl({
 /**
  * Determines if 1h TTL should be used for prompt caching.
  *
- * Only applied when:
- * 1. User is eligible (ant or subscriber within rate limits)
- * 2. The query source matches a pattern in the GrowthBook allowlist
+ * Environment overrides take precedence over subscription eligibility and
+ * the GrowthBook allowlist. Patterns support trailing '*' for prefix matching.
  *
  * GrowthBook config shape: { allowlist: string[] }
  * Patterns support trailing '*' for prefix matching.
@@ -392,38 +389,30 @@ export function getCacheControl({
  * - { allowlist: ["repl_main_thread*", "sdk", "agent:*"] } — also subagents
  * - { allowlist: ["*"] } — all sources
  *
- * The allowlist is cached in STATE for session stability — prevents mixed
- * TTLs when GrowthBook's disk cache updates mid-request.
+ * The allowlist is cached in STATE for session stability.
  */
 function should1hCacheTTL(querySource?: QuerySource): boolean {
-  // 3P Bedrock users get 1h TTL when opted in via env var — they manage their own billing
-  // No GrowthBook gating needed since 3P users don't have GrowthBook configured
+  if (isEnvTruthy(process.env.FORCE_PROMPT_CACHING_5M)) {
+    return false
+  }
+
   if (
-    getAPIProvider() === 'bedrock' &&
-    isEnvTruthy(process.env.ENABLE_PROMPT_CACHING_1H_BEDROCK)
+    isEnvTruthy(process.env.ENABLE_PROMPT_CACHING_1H) ||
+    (getAPIProvider() === 'bedrock' &&
+      isEnvTruthy(process.env.ENABLE_PROMPT_CACHING_1H_BEDROCK))
   ) {
     return true
   }
 
-  // Latch eligibility in bootstrap state for session stability — prevents
-  // mid-session overage flips from changing the cache_control TTL, which
-  // would bust the server-side prompt cache (~20K tokens per flip).
-  let userEligible = getPromptCache1hEligible()
-  if (userEligible === null) {
-    userEligible =
-      process.env.USER_TYPE === 'ant' ||
-      (isClaudeAISubscriber() && !currentLimits.isUsingOverage)
-    setPromptCache1hEligible(userEligible)
-  }
-  if (!userEligible) return false
+  if (!isClaudeAISubscriber() || currentLimits.isUsingOverage) return false
 
-  // Cache allowlist in bootstrap state for session stability — prevents mixed
-  // TTLs when GrowthBook's disk cache updates mid-request
   let allowlist = getPromptCache1hAllowlist()
   if (allowlist === null) {
     const config = getFeatureValue_CACHED_MAY_BE_STALE<{
       allowlist?: string[]
-    }>('tengu_prompt_cache_1h_config', {})
+    }>('tengu_prompt_cache_1h_config', {
+      allowlist: ['repl_main_thread*', 'sdk', 'auto_mode'],
+    })
     allowlist = config.allowlist ?? []
     setPromptCache1hAllowlist(allowlist)
   }
