@@ -1,0 +1,12 @@
+{
+  "name": "claude-code-release-recovery",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "acorn": "8.15.0",
+    "eslint-scope": "9.1.2"
+  }
+}
