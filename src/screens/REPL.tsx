@@ -298,22 +298,6 @@ const EMPTY_MCP_CLIENTS: MCPServerConnection[] = [];
 const HISTORY_STUB = {
   maybeLoadOlder: (_: ScrollBoxHandle) => {}
 };
-const THINKING_MILESTONES = [{
-  afterMs: 10000,
-  text: 'Thinking a bit longer… still working on it…'
-}, {
-  afterMs: 30000,
-  text: 'Hang tight… really working through this one…'
-}, {
-  afterMs: 50000,
-  text: 'This is a harder one… it might take another minute…'
-}, {
-  afterMs: 80000,
-  text: 'Still going… thanks for hanging in there…'
-}, {
-  afterMs: 120000,
-  text: 'Taking the time to get this right… thanks for your patience…'
-}];
 // Window after a user-initiated scroll during which type-into-empty does NOT
 // repin to bottom. Josh Rosen's workflow: Claude emits long output → scroll
 // up to read the start → start typing → before this fix, snapped to bottom.
@@ -1594,6 +1578,7 @@ export function REPL({
     setSpinnerMessage(null);
     setSpinnerColor(null);
     setSpinnerShimmerColor(null);
+    setStreamMode('responding');
     pickNewSpinnerTip();
     endInteractionSpan();
     // Speculative bash classifier checks are only valid for the current
@@ -1653,18 +1638,6 @@ export function REPL({
       return () => clearTimeout(timer);
     }
   }, [toolPermissionContext.mode, setMessages]);
-
-  const [thinkingMilestoneIndex, setThinkingMilestoneIndex] = useState(-1);
-  useEffect(() => {
-    if (streamMode !== 'thinking' || !isLoading) {
-      setThinkingMilestoneIndex(-1);
-      return;
-    }
-    const timers = THINKING_MILESTONES.map((milestone, index) => setTimeout(setThinkingMilestoneIndex, milestone.afterMs, index));
-    return () => {
-      for (const timer of timers) clearTimeout(timer);
-    };
-  }, [streamMode, isLoading]);
 
   // If worktree creation was slow and sparse-checkout isn't configured,
   // nudge the user toward settings.worktree.sparsePaths.
@@ -4598,7 +4571,7 @@ export function REPL({
         jumpToNew(scrollRef.current);
       }} scrollable={<>
               <TeammateViewHeader />
-              <Messages messages={displayedMessages} tools={tools} commands={commands} verbose={verbose} toolJSX={toolJSX} toolUseConfirmQueue={toolUseConfirmQueue} inProgressToolUseIDs={viewedTeammateTask ? viewedTeammateTask.inProgressToolUseIDs ?? new Set() : inProgressToolUseIDs} isMessageSelectorVisible={isMessageSelectorVisible} conversationId={conversationId} screen={screen} streamingToolUses={streamingToolUses} showAllInTranscript={showAllInTranscript} agentDefinitions={agentDefinitions} onOpenRateLimitOptions={handleOpenRateLimitOptions} isLoading={isLoading} streamingText={isLoading && !viewedAgentTask ? visibleStreamingText : null} isBriefOnly={viewedAgentTask ? false : isBriefOnly} unseenDivider={viewedAgentTask ? undefined : unseenDivider} scrollRef={isFullscreenEnvEnabled() ? scrollRef : undefined} trackStickyPrompt={isFullscreenEnvEnabled() ? true : undefined} cursor={cursor} setCursor={setCursor} cursorNavRef={cursorNavRef} />
+              <Messages messages={displayedMessages} tools={tools} commands={commands} verbose={verbose} toolJSX={toolJSX} toolUseConfirmQueue={toolUseConfirmQueue} inProgressToolUseIDs={viewedTeammateTask ? viewedTeammateTask.inProgressToolUseIDs ?? new Set() : inProgressToolUseIDs} isMessageSelectorVisible={isMessageSelectorVisible} conversationId={conversationId} screen={screen} streamingToolUses={streamingToolUses} showAllInTranscript={showAllInTranscript} agentDefinitions={agentDefinitions} onOpenRateLimitOptions={handleOpenRateLimitOptions} isLoading={isLoading} streamingText={isLoading && !viewedAgentTask ? visibleStreamingText : null} showThinkingHint={streamMode === 'thinking' && !viewedAgentTask} isBriefOnly={viewedAgentTask ? false : isBriefOnly} unseenDivider={viewedAgentTask ? undefined : unseenDivider} scrollRef={isFullscreenEnvEnabled() ? scrollRef : undefined} trackStickyPrompt={isFullscreenEnvEnabled() ? true : undefined} cursor={cursor} setCursor={setCursor} cursorNavRef={cursorNavRef} />
               <AwsAuthStatusBox />
               {/* Hide the processing placeholder while a modal is showing —
                   it would sit at the last visible transcript row right above
@@ -4609,9 +4582,6 @@ export function REPL({
           text: placeholderText,
           type: 'text'
         }} addMargin={true} verbose={verbose} />}
-              {showSpinner && thinkingMilestoneIndex >= 0 && streamMode === 'thinking' && <Box marginTop={1} paddingLeft={2}>
-                    <Text dimColor>{figures.pointerSmall} {THINKING_MILESTONES[thinkingMilestoneIndex]!.text}</Text>
-                  </Box>}
               {toolJSX && !(toolJSX.isLocalJSXCommand && toolJSX.isImmediate) && !toolJsxCentered && <Box flexDirection="column" width="100%">
                     {toolJSX.jsx}
                   </Box>}

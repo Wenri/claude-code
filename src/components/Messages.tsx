@@ -42,6 +42,7 @@ import { isNullRenderingAttachment } from './messages/nullRenderingAttachments.j
 import { OffscreenFreeze } from './OffscreenFreeze.js';
 import type { ToolUseConfirm } from './permissions/PermissionRequest.js';
 import { StatusNotices } from './StatusNotices.js';
+import { ThinkingIndicator } from './ThinkingIndicator.js';
 import type { JumpHandle } from './VirtualMessageList.js';
 
 // Memoed logo header: this box is the FIRST sibling before all MessageRows
@@ -232,6 +233,8 @@ type Props = {
   streamingThinking?: StreamingThinking | null;
   /** Streaming text preview (rendered as last item so transition to final message is positionally seamless) */
   streamingText?: string | null;
+  /** Show the rotating extended-thinking progress hint in the message stream. */
+  showThinkingHint?: boolean;
   /** When true, only show Brief tool output (hide everything else) */
   isBriefOnly?: boolean;
   /** Fullscreen-mode "─── N new ───" divider. Renders before the first
@@ -358,6 +361,7 @@ const MessagesImpl = ({
   hidePastThinking = false,
   streamingThinking,
   streamingText,
+  showThinkingHint = false,
   isBriefOnly = false,
   unseenDivider,
   scrollRef,
@@ -703,6 +707,8 @@ const MessagesImpl = ({
       {virtualScrollRuntimeGate ? <InVirtualListContext.Provider value={true}>
           <VirtualMessageList messages={renderableMessages} scrollRef={scrollRef} columns={columns} itemKey={messageKey} renderItem={renderMessageRow} onItemClick={onItemClick} isItemClickable={isItemClickable} isItemExpanded={isItemExpanded} trackStickyPrompt={trackStickyPrompt} selectedIndex={selectedIdx >= 0 ? selectedIdx : undefined} cursorNavRef={cursorNavRef} setCursor={setCursor} jumpRef={jumpRef} onSearchMatchesChange={onSearchMatchesChange} scanElement={scanElement} setPositions={setPositions} extractSearchText={extractSearchText} />
         </InVirtualListContext.Provider> : renderableMessages.flatMap(renderMessageRow)}
+
+      {showThinkingHint && <ThinkingIndicator isLoading={isLoading} />}
 
       {streamingText && !isBriefOnly && <Box alignItems="flex-start" flexDirection="row" marginTop={1} width="100%">
           <Box flexDirection="row">
