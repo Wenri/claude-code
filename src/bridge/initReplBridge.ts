@@ -14,6 +14,7 @@
  */
 
 import { feature } from 'bun:bundle'
+import type { UUID } from 'crypto'
 import { hostname } from 'os'
 import { getOriginalCwd, getSessionId } from '../bootstrap/state.js'
 import type { SDKMessage } from '../entrypoints/agentSdkTypes.js'
@@ -42,7 +43,10 @@ import {
   isSyntheticMessage,
 } from '../utils/messages.js'
 import type { PermissionMode } from '../utils/permissions/PermissionMode.js'
-import { getCurrentSessionTitle } from '../utils/sessionStorage.js'
+import {
+  getCurrentSessionTitle,
+  saveCustomTitle,
+} from '../utils/sessionStorage.js'
 import {
   extractConversationText,
   generateSessionTitle,
@@ -315,6 +319,25 @@ export async function initReplBridge(
   let genSeq = 0
   let serverTitleSessionId: string | undefined
   const locallyGeneratedTitles = new Set([title])
+  const onRenameSession = (
+    requestedTitle: string,
+  ): { ok: true } | { ok: false; error: string } => {
+    const trimmedTitle = requestedTitle.trim()
+    if (!trimmedTitle) {
+      return { ok: false, error: 'title must be non-empty' }
+    }
+    title = trimmedTitle
+    hasTitle = true
+    hasExplicitTitle = true
+    locallyGeneratedTitles.add(trimmedTitle)
+    void saveCustomTitle(
+      getSessionId() as UUID,
+      trimmedTitle,
+      undefined,
+      'remote',
+    )
+    return { ok: true }
+  }
   const patch = (
     derived: string,
     bridgeSessionId: string,
@@ -464,6 +487,7 @@ export async function initReplBridge(
       onSetModel,
       onSetMaxThinkingTokens,
       onSetPermissionMode,
+      onRenameSession,
       onStateChange,
       outboundOnly,
       tags,
@@ -558,6 +582,7 @@ export async function initReplBridge(
     onSetModel,
     onSetMaxThinkingTokens,
     onSetPermissionMode,
+    onRenameSession,
     onStateChange,
     perpetual,
   })

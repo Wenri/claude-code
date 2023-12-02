@@ -421,6 +421,24 @@ async function runPermissionRequestHooksForHeadlessAgent(
       const decision = hookResult.permissionRequestResult
       if (decision.behavior === 'allow') {
         const finalInput = decision.updatedInput ?? input
+        if (decision.updatedInput) {
+          const ruleOverride = getPermissionRequestHookRuleOverride(
+            await checkRuleBasedPermissions(tool, finalInput, context),
+            tool.name,
+          )
+          if (ruleOverride) {
+            return ruleOverride.behavior === 'ask'
+              ? {
+                  behavior: 'deny',
+                  message: ruleOverride.message,
+                  decisionReason: ruleOverride.decisionReason ?? {
+                    type: 'other',
+                    reason: 'ask rule on hook-rewritten input',
+                  },
+                }
+              : ruleOverride
+          }
+        }
         // Persist permission updates if provided
         if (decision.updatedPermissions?.length) {
           persistPermissionUpdates(decision.updatedPermissions)
@@ -1159,6 +1177,27 @@ export async function checkRuleBasedPermissions(
   }
 
   // No rule-based objection
+  return null
+}
+
+/**
+ * Return a deny/ask rule that overrides a PermissionRequest hook's approval
+ * of rewritten input. Keeping this check shared makes interactive, headless,
+ * and SDK permission paths enforce the same rule ordering.
+ */
+export function getPermissionRequestHookRuleOverride(
+  ruleCheck: PermissionAskDecision | PermissionDenyDecision | null,
+  toolName: string,
+): PermissionAskDecision | PermissionDenyDecision | null {
+  if (
+    ruleCheck?.behavior === 'deny' ||
+    ruleCheck?.behavior === 'ask'
+  ) {
+    logForDebugging(
+      `PermissionRequest hook allowed ${toolName} with updatedInput, but ${ruleCheck.behavior} rule overrides: ${ruleCheck.message}`,
+    )
+    return ruleCheck
+  }
   return null
 }
 

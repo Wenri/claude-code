@@ -3,10 +3,10 @@ import {
   formatPastedTextRef,
   getPastedTextRefNumLines,
 } from '../history.js'
+import { spawnSync } from 'child_process'
 import instances from '../ink/instances.js'
 import type { PastedContent } from './config.js'
 import { classifyGuiEditor, getExternalEditor } from './editor.js'
-import { execSync_DEPRECATED } from './execSyncWrapper.js'
 import { getFsImplementation } from './fsOperations.js'
 import { toIDEDisplayName } from './ide.js'
 import { writeFileSync_DEPRECATED } from './slowOperations.js'
@@ -17,6 +17,10 @@ const EDITOR_OVERRIDES: Record<string, string> = {
   code: 'code -w', // VS Code: wait for file to be closed
   subl: 'subl --wait', // Sublime Text: wait for file to be closed
 }
+
+const EXTERNAL_EDITOR_REPLY_MARKER =
+  '# ─── Write your reply below this line ──────────────────────────'
+const EXTERNAL_EDITOR_CONTEXT_MAX_LINES = 50
 
 function isGuiEditor(editor: string): boolean {
   return classifyGuiEditor(editor) !== undefined
@@ -66,9 +70,28 @@ export function editFileInEditor(filePath: string): EditorResult {
   try {
     // Use override command if available, otherwise use the editor as-is
     const editorCommand = EDITOR_OVERRIDES[editor] ?? editor
-    execSync_DEPRECATED(`${editorCommand} "${filePath}"`, {
-      stdio: 'inherit',
-    })
+    const commandParts = editorCommand.split(' ')
+    const executable = commandParts[0] ?? editorCommand
+    const commandArgs = commandParts.slice(1)
+    const result =
+      process.platform === 'win32'
+        ? spawnSync(`${editorCommand} "${filePath}"`, {
+            stdio: 'inherit',
+            shell: true,
+          })
+        : spawnSync(executable, [...commandArgs, filePath], {
+            stdio: 'inherit',
+          })
+
+    if (result.error || result.signal || (result.status ?? 0) !== 0) {
+      const editorName = toIDEDisplayName(editor)
+      const detail = result.error
+        ? result.error.message
+        : result.signal
+          ? `terminated by signal ${result.signal}`
+          : `exited with code ${result.status}`
+      return { content: null, error: `${editorName} ${detail}` }
+    }
 
     // Read the edited content
     const editedContent = fs.readFileSync(filePath, { encoding: 'utf-8' })
@@ -134,10 +157,32 @@ function recollapsePastedContent(
   return collapsed
 }
 
+export function formatAssistantContextForEditor(context: string): string {
+  let lines = context.split('\n')
+  if (lines.length > EXTERNAL_EDITOR_CONTEXT_MAX_LINES) {
+    lines = lines.slice(-EXTERNAL_EDITOR_CONTEXT_MAX_LINES)
+    lines.unshift('… (earlier output truncated)')
+  }
+  return (
+    "# ─── Claude's last response (for reference; removed on save) ───\n" +
+    `${lines.map(line => (line ? `# ${line}` : '#')).join('\n')}\n` +
+    `${EXTERNAL_EDITOR_REPLY_MARKER}\n\n`
+  )
+}
+
+export function stripAssistantContextFromEditor(content: string): string {
+  const markerIndex = content.indexOf(EXTERNAL_EDITOR_REPLY_MARKER)
+  if (markerIndex === -1) return content
+  return content
+    .slice(markerIndex + EXTERNAL_EDITOR_REPLY_MARKER.length)
+    .replace(/^\r?\n\r?\n?/, '')
+}
+
 // sync IO: called from sync context (React components, sync command handlers)
 export function editPromptInEditor(
   currentPrompt: string,
   pastedContents?: Record<number, PastedContent>,
+  assistantContext?: string,
 ): EditorResult {
   const fs = getFsImplementation()
   const tempFile = generateTempFilePath()
@@ -147,9 +192,12 @@ export function editPromptInEditor(
     const expandedPrompt = pastedContents
       ? expandPastedTextRefs(currentPrompt, pastedContents)
       : currentPrompt
+    const editorPrompt = assistantContext
+      ? formatAssistantContextForEditor(assistantContext) + expandedPrompt
+      : expandedPrompt
 
     // Write expanded prompt to temp file
-    writeFileSync_DEPRECATED(tempFile, expandedPrompt, {
+    writeFileSync_DEPRECATED(tempFile, editorPrompt, {
       encoding: 'utf-8',
       flush: true,
     })
@@ -162,7 +210,9 @@ export function editPromptInEditor(
     }
 
     // Trim a single trailing newline if present (common editor behavior)
-    let finalContent = result.content
+    let finalContent = assistantContext
+      ? stripAssistantContextFromEditor(result.content)
+      : result.content
     if (finalContent.endsWith('\n') && !finalContent.endsWith('\n\n')) {
       finalContent = finalContent.slice(0, -1)
     }

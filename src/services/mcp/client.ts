@@ -1229,8 +1229,11 @@ export const connectToServer = memoize(
       // The SDK's transport calls onerror on connection failures but doesn't call onclose,
       // which CC uses to trigger reconnection. We bridge this gap by tracking consecutive
       // terminal errors and manually closing after MAX_ERRORS_BEFORE_RECONNECT failures.
-      let consecutiveConnectionErrors = 0
       const MAX_ERRORS_BEFORE_RECONNECT = 3
+      const transportErrorState = {
+        lastErrorAt: 0,
+        consecutiveErrors: 0,
+      }
 
       // Guard against re-entry: close() aborts in-flight streams which may fire
       // onerror again before the close chain completes.
@@ -1269,9 +1272,39 @@ export const connectToServer = memoize(
 
       // Enhanced error handler with detailed logging
       client.onerror = (error: Error) => {
+        const transportType = serverRef.type || 'stdio'
+
+        // Some stdio servers print status lines to stdout. The MCP SDK reports
+        // those malformed JSON-RPC lines as SyntaxError; ignore them rather
+        // than tearing down an otherwise healthy child process.
+        if (transportType === 'stdio' && error instanceof SyntaxError) {
+          logMCPError(
+            name,
+            `Ignoring non-JSON line on stdout: ${error.message}`,
+          )
+          return
+        }
+
+        // A truncated JSON-RPC response on a remote stream is terminal. Record
+        // it before closing so an in-flight tool call can detect that its
+        // response was lost even if the SDK does not reject the request.
+        if (
+          (transportType === 'sse' ||
+            transportType === 'http' ||
+            transportType === 'claudeai-proxy') &&
+          error instanceof SyntaxError
+        ) {
+          hasErrorOccurred = true
+          transportErrorState.lastErrorAt = Date.now()
+          closeTransportAndRejectPending(
+            'malformed JSON-RPC message (response truncated)',
+          )
+          originalOnerror?.(error)
+          return
+        }
+
         const uptime = Date.now() - connectionStartTime
         hasErrorOccurred = true
-        const transportType = serverRef.type || 'stdio'
 
         // Log the connection drop with context
         logMCPDebug(
@@ -1363,25 +1396,43 @@ export const connectToServer = memoize(
           }
 
           if (isTerminalConnectionError(error.message)) {
-            consecutiveConnectionErrors++
+            transportErrorState.consecutiveErrors++
+            transportErrorState.lastErrorAt = Date.now()
             logMCPDebug(
               name,
-              `Terminal connection error ${consecutiveConnectionErrors}/${MAX_ERRORS_BEFORE_RECONNECT}`,
+              `Terminal connection error ${transportErrorState.consecutiveErrors}/${MAX_ERRORS_BEFORE_RECONNECT}`,
             )
 
-            if (consecutiveConnectionErrors >= MAX_ERRORS_BEFORE_RECONNECT) {
-              consecutiveConnectionErrors = 0
+            if (
+              transportErrorState.consecutiveErrors >=
+              MAX_ERRORS_BEFORE_RECONNECT
+            ) {
+              transportErrorState.consecutiveErrors = 0
               closeTransportAndRejectPending('max consecutive terminal errors')
             }
           } else {
             // Non-terminal error (e.g., transient issue), reset counter
-            consecutiveConnectionErrors = 0
+            transportErrorState.consecutiveErrors = 0
           }
         }
 
         // Call original handler
         if (originalOnerror) {
           originalOnerror(error)
+        }
+      }
+
+      // A successful message proves the transport recovered. Reset the shared
+      // state observed by in-flight tool calls before forwarding to the SDK's
+      // original handler.
+      if (client.transport) {
+        const originalOnmessage = client.transport.onmessage
+        client.transport.onmessage = (message, extra) => {
+          if (transportErrorState.lastErrorAt !== 0) {
+            transportErrorState.lastErrorAt = 0
+            transportErrorState.consecutiveErrors = 0
+          }
+          originalOnmessage?.(message, extra)
         }
       }
 
@@ -1616,6 +1667,7 @@ export const connectToServer = memoize(
         instructions,
         config: serverRef,
         cleanup: wrappedCleanup,
+        transportErrorState,
       }
     } catch (error) {
       const connectionDurationMs = Date.now() - connectStartTime
@@ -3060,7 +3112,7 @@ export async function callMCPToolWithUrlElicitationRetry({
 }
 
 async function callMCPTool({
-  client: { client, name, config },
+  client: { client, name, config, transportErrorState },
   tool,
   args,
   meta,
@@ -3084,19 +3136,37 @@ async function callMCPTool({
   try {
     logMCPDebug(name, `Calling MCP tool: ${tool}`)
 
-    // Set up progress logging for long-running tools (every 30 seconds)
-    progressInterval = setInterval(
-      (startTime, name, tool) => {
-        const elapsed = Date.now() - startTime
-        const elapsedSeconds = Math.floor(elapsed / 1000)
-        const duration = `${elapsedSeconds}s`
-        logMCPDebug(name, `Tool '${tool}' still running (${duration} elapsed)`)
-      },
-      30000, // Log every 30 seconds
-      toolStartTime,
-      name,
-      tool,
-    )
+    let rejectTransportDrop: (error: Error) => void
+    const transportDropPromise = new Promise<never>((_, reject) => {
+      rejectTransportDrop = reject
+    })
+
+    // Log long-running tools every 30 seconds. If a terminal transport error
+    // occurred after this call began and no message has arrived for 90 seconds,
+    // the response was lost; fail instead of leaving the request hung forever.
+    progressInterval = setInterval(() => {
+      const elapsedSeconds = Math.floor((Date.now() - toolStartTime) / 1000)
+      logMCPDebug(
+        name,
+        `Tool '${tool}' still running (${elapsedSeconds}s elapsed)`,
+      )
+      if (
+        transportErrorState &&
+        transportErrorState.lastErrorAt > toolStartTime &&
+        Date.now() - transportErrorState.lastErrorAt > 90000
+      ) {
+        logMCPDebug(
+          name,
+          `Tool '${tool}' aborting: transport error ${Math.floor((Date.now() - transportErrorState.lastErrorAt) / 1000)}s ago, response presumed lost`,
+        )
+        rejectTransportDrop(
+          new TelemetrySafeError_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS(
+            `MCP server "${name}" transport dropped mid-call; response for tool "${tool}" was lost`,
+            'MCP transport lost mid-call',
+          ),
+        )
+      }
+    }, 30000)
 
     // Use Promise.race with our own timeout to handle cases where SDK's
     // internal timeout doesn't work (e.g., SSE stream breaks mid-request)
@@ -3148,9 +3218,14 @@ async function callMCPTool({
         },
       ),
       timeoutPromise,
+      transportDropPromise,
     ]).finally(() => {
       if (timeoutId) {
         clearTimeout(timeoutId)
+      }
+      if (progressInterval !== undefined) {
+        clearInterval(progressInterval)
+        progressInterval = undefined
       }
     })
 

@@ -111,6 +111,21 @@ import {
 import { createBudgetTracker, checkTokenBudget } from './query/tokenBudget.js'
 import { count } from './utils/array.js'
 
+function findCurrentTurnStart(messages: Message[]): number {
+  for (let index = messages.length - 1; index >= 0; index--) {
+    const message = messages[index]
+    if (
+      message?.type === 'user' &&
+      !message.isMeta &&
+      !message.toolUseResult &&
+      !message.isCompactSummary
+    ) {
+      return index
+    }
+  }
+  return 0
+}
+
 /* eslint-disable @typescript-eslint/no-require-imports */
 const snipModule = feature('HISTORY_SNIP')
   ? (require('./services/compact/snipCompact.js') as typeof import('./services/compact/snipCompact.js'))
@@ -546,6 +561,7 @@ async function* queryLoop(
     toolUseContext = {
       ...toolUseContext,
       messages: messagesForQuery,
+      turnStartIndex: findCurrentTurnStart(messagesForQuery),
     }
 
     const assistantMessages: AssistantMessage[] = []
@@ -1589,6 +1605,23 @@ async function* queryLoop(
       toolResults.push(attachment)
     }
 
+    // Remove commands as soon as their attachments have been emitted. The
+    // memory and skill prefetches below can take long enough for the queue UI
+    // to render again; leaving consumed commands queued during those awaits
+    // briefly showed the same queued message twice.
+    const consumedCommands = queuedCommandsSnapshot.filter(
+      cmd => cmd.mode === 'prompt' || cmd.mode === 'task-notification',
+    )
+    if (consumedCommands.length > 0) {
+      for (const cmd of consumedCommands) {
+        if (cmd.uuid) {
+          consumedCommandUuids.push(cmd.uuid)
+          notifyCommandLifecycle(cmd.uuid, 'started')
+        }
+      }
+      removeFromQueue(consumedCommands)
+    }
+
     // Memory prefetch consume: only if settled and not already consumed on
     // an earlier iteration. If not settled yet, skip (zero-wait) and retry
     // next iteration — the prefetch gets as many chances as there are loop
@@ -1625,21 +1658,6 @@ async function* queryLoop(
         yield msg
         toolResults.push(msg)
       }
-    }
-
-    // Remove only commands that were actually consumed as attachments.
-    // Prompt and task-notification commands are converted to attachments above.
-    const consumedCommands = queuedCommandsSnapshot.filter(
-      cmd => cmd.mode === 'prompt' || cmd.mode === 'task-notification',
-    )
-    if (consumedCommands.length > 0) {
-      for (const cmd of consumedCommands) {
-        if (cmd.uuid) {
-          consumedCommandUuids.push(cmd.uuid)
-          notifyCommandLifecycle(cmd.uuid, 'started')
-        }
-      }
-      removeFromQueue(consumedCommands)
     }
 
     // Instrumentation: Track file change attachments after they're added

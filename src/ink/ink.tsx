@@ -55,6 +55,7 @@ const ERASE_THEN_HOME_PATCH = Object.freeze({
   type: 'stdout' as const,
   content: ERASE_SCREEN + CURSOR_HOME
 });
+const MAX_NON_TTY_LAYOUT_WIDTH = 8192;
 
 // Cached per-Ink-instance, invalidated on resize. frame.cursor.y for
 // alt-screen is always terminalRows - 1 (renderer.ts).
@@ -157,6 +158,10 @@ export default class Ink {
   // one full-render frame; steady-state frames after clear it and regain
   // the blit + narrow-damage fast path.
   private prevFrameContaminated = false;
+  // Stable identity for the selection/search overlay. An unchanged overlay
+  // may safely reuse the already-overlaid front buffer; a changed overlay
+  // needs one uncontaminated render.
+  private prevOverlaySig = '';
   // Set by handleResize: prepend ERASE_SCREEN to the next onRender's patches
   // INSIDE the BSU/ESU block so clear+paint is atomic. Writing ERASE_SCREEN
   // synchronously in handleResize would leave the screen blank for the ~80ms
@@ -245,8 +250,18 @@ export default class Ink {
       }
       if (this.rootNode.yogaNode) {
         const t0 = performance.now();
-        this.rootNode.yogaNode.setWidth(this.terminalColumns);
-        this.rootNode.yogaNode.calculateLayout(this.terminalColumns);
+        const yogaNode = this.rootNode.yogaNode;
+        if (this.options.stdout.isTTY || this.options.stdout.columns) {
+          yogaNode.setWidth(this.terminalColumns);
+          yogaNode.calculateLayout(this.terminalColumns);
+        } else {
+          yogaNode.setWidthAuto();
+          yogaNode.calculateLayout();
+          if (yogaNode.getComputedWidth() > MAX_NON_TTY_LAYOUT_WIDTH) {
+            yogaNode.setWidth(MAX_NON_TTY_LAYOUT_WIDTH);
+            yogaNode.calculateLayout(MAX_NON_TTY_LAYOUT_WIDTH);
+          }
+        }
         const ms = performance.now() - t0;
         recordYogaMs(ms);
         const c = getYogaCounters();
@@ -437,6 +452,12 @@ export default class Ink {
     const renderStart = performance.now();
     const terminalWidth = this.options.stdout.columns || 80;
     const terminalRows = this.options.stdout.rows || 24;
+    const { anchor, focus } = this.selection;
+    const searchPositions = this.searchPositions;
+    const overlaySignature = `${anchor?.row},${anchor?.col},${focus?.row},${focus?.col}|${this.searchHighlightQuery}|${searchPositions?.currentIdx},${searchPositions?.rowOffset},${searchPositions?.positions.length}`;
+    const overlayChanged = this.prevFrameContaminated || overlaySignature !== this.prevOverlaySig;
+    this.prevOverlaySig = overlaySignature;
+    const overlayActive = anchor !== null && focus !== null || !!this.searchHighlightQuery || !!searchPositions;
     const frame = this.renderer({
       frontFrame: this.frontFrame,
       backFrame: this.backFrame,
@@ -444,7 +465,8 @@ export default class Ink {
       terminalWidth,
       terminalRows,
       altScreen: this.altScreenActive,
-      prevFrameContaminated: this.prevFrameContaminated
+      prevFrameContaminated: overlayChanged,
+      overlayActive
     });
     const rendererMs = performance.now() - renderStart;
 
@@ -556,7 +578,7 @@ export default class Ink {
     // cells at sibling boundaries that per-node damage tracking misses.
     // Selection/highlight overlays write via setCellStyleId which doesn't
     // track damage. prevFrameContaminated covers the cleanup frame.
-    if (didLayoutShift() || selActive || hlActive || this.prevFrameContaminated) {
+    if (didLayoutShift() || selActive || hlActive || overlayChanged) {
       frame.screen.damage = {
         x: 0,
         y: 0,
@@ -733,14 +755,12 @@ export default class Ink {
       }
     }
     const tWrite = performance.now();
-    writeDiffToTerminal(this.terminal, optimized, this.altScreenActive && !SYNC_OUTPUT_SUPPORTED);
+    writeDiffToTerminal(this.terminal, optimized, !SYNC_OUTPUT_SUPPORTED);
     const writeMs = performance.now() - tWrite;
 
-    // Update blit safety for the NEXT frame. The frame just rendered
-    // becomes frontFrame (= next frame's prevScreen). If we applied the
-    // selection overlay, that buffer has inverted cells. selActive/hlActive
-    // are only ever true in alt-screen; in main-screen this is false→false.
-    this.prevFrameContaminated = selActive || hlActive;
+    // Explicit invalidations are consumed by this frame. Stable overlays are
+    // tracked by prevOverlaySig and can reuse their already-overlaid buffer.
+    this.prevFrameContaminated = false;
 
     // A ScrollBox has pendingScrollDelta left to drain — schedule the next
     // frame. MUST NOT call this.scheduleRender() here: we're inside a

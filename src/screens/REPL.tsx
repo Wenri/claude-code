@@ -185,6 +185,7 @@ import { fileHistoryMakeSnapshot, type FileHistoryState, fileHistoryRewind, type
 import { type AttributionState, incrementPromptCount } from '../utils/commitAttribution.js';
 import { recordAttributionSnapshot } from '../utils/sessionStorage.js';
 import { computeStandaloneAgentContext, restoreAgentFromSession, restoreSessionStateFromLog, restoreWorktreeForResume, exitRestoredWorktree } from '../utils/sessionRestore.js';
+import { restoreSessionCronTasks } from '../utils/sessionCronTasks.js';
 import { isBgSession, updateSessionName, updateSessionActivity } from '../utils/concurrentSessions.js';
 import { isInProcessTeammateTask, type InProcessTeammateTaskState } from '../tasks/InProcessTeammateTask/types.js';
 import { restoreRemoteAgentTasks } from '../tasks/RemoteAgentTask/RemoteAgentTask.js';
@@ -1256,7 +1257,8 @@ export function REPL({
   // Re-pin scroll to bottom and clear the unseen-messages baseline. Called
   // on any user-driven return-to-live action (submit, type-into-empty,
   // overlay appear/dismiss).
-  const repinScroll = useCallback(() => {
+  const repinScroll = useCallback((force = false) => {
+    if (!force && !getGlobalConfig().autoScrollEnabled) return;
     scrollRef.current?.scrollToBottom();
     onRepin();
     setCursor(null);
@@ -1884,6 +1886,7 @@ export function REPL({
           getAppState: () => store.getState(),
           setAppState
         });
+        restoreSessionCronTasks(messages);
       } else {
         // Fork: same re-persist as /clear (conversation.ts). The clear
         // above wiped currentSessionWorktree, forkLog doesn't carry it,
@@ -1988,6 +1991,7 @@ export function REPL({
         getAppState: () => store.getState(),
         setAppState
       });
+      restoreSessionCronTasks(initialMessages);
     }
     // Only run on mount - initialMessages shouldn't change during component lifetime
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -2101,7 +2105,7 @@ export function REPL({
   useLayoutEffect(() => {
     const was = prevDialogRef.current === 'tool-permission';
     const now = focusedInputDialog === 'tool-permission';
-    if (was !== now) repinScroll();
+    if (was !== now) repinScroll(true);
     prevDialogRef.current = focusedInputDialog;
   }, [focusedInputDialog, repinScroll]);
   function onCancel() {
@@ -2439,6 +2443,7 @@ export function REPL({
       getAppState: () => store.getState(),
       setAppState,
       messages,
+      turnStartIndex: 0,
       setMessages,
       updateFileHistoryState(updater: (prev: FileHistoryState) => FileHistoryState) {
         // Perf: skip the setState when the updater returns the same reference

@@ -18,6 +18,7 @@ import {
   trace,
 } from '@opentelemetry/api'
 import { AsyncLocalStorage } from 'async_hooks'
+import { getIsNonInteractiveSession } from '../../bootstrap/state.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
 import type { AssistantMessage, UserMessage } from '../../types/message.js'
 import { isEnvDefinedFalsy, isEnvTruthy } from '../envUtils.js'
@@ -219,9 +220,19 @@ export function startInteractionSpan(userPrompt: string): Span {
     'interaction.sequence': interactionSequence,
   })
 
-  const span = tracer.startSpan('claude_code.interaction', {
-    attributes,
-  })
+  const parentContext =
+    getIsNonInteractiveSession() && process.env.TRACEPARENT
+      ? propagation.extract(otelContext.active(), {
+          traceparent: process.env.TRACEPARENT,
+          tracestate: process.env.TRACESTATE,
+        })
+      : undefined
+
+  const span = tracer.startSpan(
+    'claude_code.interaction',
+    { attributes },
+    parentContext,
+  )
 
   // Add experimental attributes (new_context)
   addBetaInteractionAttributes(span, userPrompt)

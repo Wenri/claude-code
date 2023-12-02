@@ -56,6 +56,16 @@ export const SUPPORTED_SETTINGS: Record<string, SettingConfig> = {
     type: 'boolean',
     description: 'Auto-compact when context is full',
   },
+  autoScrollEnabled: {
+    source: 'global',
+    type: 'boolean',
+    description: 'Auto-scroll conversation to bottom (fullscreen mode only)',
+  },
+  externalEditorContext: {
+    source: 'global',
+    type: 'boolean',
+    description: 'Include recent assistant output in the external editor',
+  },
   autoMemoryEnabled: {
     source: 'settings',
     type: 'boolean',

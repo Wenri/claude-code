@@ -2923,6 +2923,55 @@ export function getAssistantMessageText(message: Message): string | null {
   return null
 }
 
+/**
+ * Collect the most recent contiguous assistant replies for the external
+ * editor. Tool-result and metadata user messages do not end the assistant
+ * run; an ordinary user turn does.
+ */
+export function getRecentAssistantContext(
+  messages: Message[],
+  maxMessages = 8,
+  maxBytes = 65_536,
+): { messages: string[]; capped: boolean } {
+  const result: string[] = []
+  let bytes = 0
+  let capped = false
+
+  for (let index = messages.length - 1; index >= 0; index--) {
+    const message = messages[index]!
+    if (message.type === 'assistant') {
+      const text = getAssistantMessageText(message)
+      if (!text) continue
+      const textBytes = Buffer.byteLength(text, 'utf8')
+      if (
+        result.length >= maxMessages ||
+        (result.length > 0 && bytes + textBytes > maxBytes)
+      ) {
+        capped = true
+        break
+      }
+      result.push(text)
+      bytes += textBytes
+      continue
+    }
+
+    if (message.type === 'user') {
+      const content = message.message.content
+      if (
+        Array.isArray(content) &&
+        content.some(block => block.type === 'tool_result')
+      ) {
+        continue
+      }
+      if (message.isMeta) continue
+      break
+    }
+  }
+
+  result.reverse()
+  return { messages: result, capped }
+}
+
 export function getUserMessageText(
   message: Message | NormalizedMessage,
 ): string | null {

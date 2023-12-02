@@ -52,6 +52,7 @@ import { getSubscriptionType, isClaudeAISubscriber, prefetchAwsCredentialsAndBed
 import { checkHasTrustDialogAccepted, getGlobalConfig, getRemoteControlAtStartup, isAutoUpdaterDisabled, saveGlobalConfig } from './utils/config.js';
 import { seedEarlyInput, stopCapturingEarlyInput } from './utils/earlyInput.js';
 import { getInitialEffortSetting, parseEffortValue } from './utils/effort.js';
+import { isAwaySummaryEnabled } from './utils/awaySummaryEnabled.js';
 import { getInitialFastModeSetting, isFastModeEnabled, prefetchFastModeStatus, resolveFastModeStatusFromCache } from './utils/fastMode.js';
 import { applyConfigEnvironmentVariables } from './utils/managedEnv.js';
 import { createSystemMessage, createUserMessage } from './utils/messages.js';
@@ -2959,6 +2960,9 @@ async function run(): Promise<CommanderCommand> {
       mainLoopModel: initialMainLoopModel,
       mainLoopModelForSession: null,
       isBriefOnly: initialIsBriefOnly,
+      briefTranscript: (verbose ?? false) ? false : getGlobalConfig().briefTranscript ?? false,
+      awaySummaryEnabled: isAwaySummaryEnabled(),
+      autoCompactWindow: getInitialSettings().autoCompactWindow,
       expandedView: getGlobalConfig().showSpinnerTree ? 'teammates' : getGlobalConfig().showExpandedTodos ? 'tasks' : 'none',
       showTeammateMessagePreview: isAgentSwarmsEnabled() ? false : undefined,
       selectedIPAgentIndex: -1,

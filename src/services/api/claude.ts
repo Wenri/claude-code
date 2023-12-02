@@ -110,6 +110,7 @@ const autoModeStateModule = feature('TRANSCRIPT_CLASSIFIER')
 import { feature } from 'bun:bundle'
 import type { ClientOptions } from '@anthropic-ai/sdk'
 import {
+  APIConnectionError,
   APIConnectionTimeoutError,
   APIError,
   APIUserAbortError,
@@ -254,6 +255,7 @@ import {
 import {
   CannotRetryError,
   FallbackTriggeredError,
+  getDefaultMaxRetries,
   is529Error,
   type RetryContext,
   withRetry,
@@ -798,11 +800,24 @@ function shouldDeferLspTool(tool: Tool): boolean {
  * Otherwise defaults to 300s — long enough for slow backends without
  * approaching the API's 10-minute non-streaming boundary.
  */
-function getNonstreamingFallbackTimeoutMs(): number {
+function getNonstreamingFallbackTimeoutMs(fallbackCause?: string): number {
   const override = parseInt(process.env.API_TIMEOUT_MS || '', 10)
   if (override) return override
+  if (fallbackCause === 'watchdog') return 60_000
   return isEnvTruthy(process.env.CLAUDE_CODE_REMOTE) ? 120_000 : 300_000
 }
+
+function classifyNonstreamingFallbackError(error: unknown): string {
+  if (error instanceof APIConnectionTimeoutError) return 'timeout'
+  if (error instanceof APIConnectionError) return 'connection'
+  if (is529Error(error)) return 'overloaded'
+  if (error instanceof APIError) {
+    return error.status != null ? `status_${error.status}` : 'api_error'
+  }
+  return 'other'
+}
+
+const NONSTREAMING_FALLBACK_MAX_RETRIES = 2
 
 /**
  * Helper generator for non-streaming API requests.
@@ -832,8 +847,9 @@ export async function* executeNonStreamingRequest(
    * from. Emitted in tengu_nonstreaming_fallback_error for funnel correlation.
    */
   originatingRequestId?: string | null,
+  fallbackCause?: string,
 ): AsyncGenerator<SystemAPIErrorMessage, BetaMessage> {
-  const fallbackTimeoutMs = getNonstreamingFallbackTimeoutMs()
+  const fallbackTimeoutMs = getNonstreamingFallbackTimeoutMs(fallbackCause)
   const generator = withRetry(
     () =>
       getAnthropicClient({
@@ -880,8 +896,14 @@ export async function* executeNonStreamingRequest(
             err instanceof Error
               ? (err.name as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS)
               : ('unknown' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS),
+          error_class:
+            classifyNonstreamingFallbackError(
+              err,
+            ) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
           attempt,
           timeout_ms: fallbackTimeoutMs,
+          fallback_cause: (fallbackCause ??
+            'unknown') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
           request_id: (originatingRequestId ??
             'unknown') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
         })
@@ -896,6 +918,10 @@ export async function* executeNonStreamingRequest(
       signal: retryOptions.signal,
       initialConsecutive529Errors: retryOptions.initialConsecutive529Errors,
       querySource: retryOptions.querySource,
+      maxRetries: Math.min(
+        NONSTREAMING_FALLBACK_MAX_RETRIES,
+        getDefaultMaxRetries(),
+      ),
     },
   )
 
@@ -1505,12 +1531,21 @@ async function* queryModel(
   let clientRequestId: string | undefined = undefined
   // eslint-disable-next-line eslint-plugin-n/no-unsupported-features/node-builtins -- Response is available in Node 18+ and is used by the SDK
   let streamResponse: Response | undefined = undefined
+  let slowFirstByteTimer: ReturnType<typeof setTimeout> | null = null
+
+  function clearSlowFirstByteTimer(): void {
+    if (slowFirstByteTimer !== null) {
+      clearTimeout(slowFirstByteTimer)
+      slowFirstByteTimer = null
+    }
+  }
 
   // Release all stream resources to prevent native memory leaks.
   // The Response object holds native TLS/socket buffers that live outside the
   // V8 heap (observed on the Node.js/npm path; see GH #32920), so we must
   // explicitly cancel and release it regardless of how the generator exits.
   function releaseStreamResources(): void {
+    clearSlowFirstByteTimer()
     cleanupStream(stream)
     stream = undefined
     if (streamResponse) {
@@ -1801,6 +1836,26 @@ async function* queryModel(
           headlessProfilerCheckpoint('api_request_sent')
         }
 
+        clearSlowFirstByteTimer()
+        const slowFirstByteThresholdMs =
+          parseInt(process.env.CLAUDE_SLOW_FIRST_BYTE_MS || '', 10) || 30_000
+        slowFirstByteTimer = setTimeout(() => {
+          slowFirstByteTimer = null
+          const elapsedMs = Date.now() - start
+          logForDebugging(
+            `Slow first byte: no stream chunk ${(elapsedMs / 1000).toFixed(1)}s after request sent (attempt ${attempt})`,
+            { level: 'warn' },
+          )
+          logEvent('tengu_api_slow_first_byte', {
+            model:
+              options.model as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+            provider:
+              getAPIProvider() as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+            attempt,
+            elapsed_ms: elapsedMs,
+          })
+        }, slowFirstByteThresholdMs)
+
         // Generate and track client request ID so timeouts (which return no
         // server request ID) can still be correlated with server logs.
         // First-party only — 3P providers don't log it (inc-4029 class).
@@ -1824,6 +1879,10 @@ async function* queryModel(
             },
           )
           .withResponse()
+          .catch(error => {
+            clearSlowFirstByteTimer()
+            throw error
+          })
         queryCheckpoint('query_response_headers_received')
         streamRequestId = result.request_id
         streamResponse = result.response
@@ -1962,6 +2021,7 @@ async function* queryModel(
         lastEventTime = now
 
         if (isFirstChunk) {
+          clearSlowFirstByteTimer()
           logForDebugging('Stream started - received first chunk')
           queryCheckpoint('query_first_chunk_received')
           if (!options.agentId) {
@@ -2640,6 +2700,7 @@ async function* queryModel(
         },
         params => captureAPIRequest(params, options.querySource),
         streamRequestId,
+        fallbackCause,
       )
 
       const m: AssistantMessage = {
@@ -2737,6 +2798,7 @@ async function* queryModel(
           },
           params => captureAPIRequest(params, options.querySource),
           failedRequestId,
+          '404_stream_creation',
         )
 
         const m: AssistantMessage = {

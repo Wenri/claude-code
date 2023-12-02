@@ -334,6 +334,7 @@ export const DEFAULT_BINDINGS: KeybindingBlock[] = [
     context: 'Plugin',
     bindings: {
       space: 'plugin:toggle',
+      f: 'plugin:favorite',
       i: 'plugin:install',
     },
   },

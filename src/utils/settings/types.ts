@@ -730,6 +730,14 @@ export const SettingsSchema = lazySchema(() =>
         .optional()
         .catch(undefined)
         .describe('Persisted effort level for supported models.'),
+      autoCompactWindow: z
+        .number()
+        .int()
+        .min(100_000)
+        .max(1_000_000)
+        .optional()
+        .catch(undefined)
+        .describe('Auto-compact window size'),
       advisorModel: z
         .string()
         .optional()
@@ -752,6 +760,18 @@ export const SettingsSchema = lazySchema(() =>
         .describe(
           'When false, prompt suggestions are disabled. When absent or true, ' +
             'prompt suggestions are enabled.',
+        ),
+      awaySummaryEnabled: z
+        .boolean()
+        .optional()
+        .describe(
+          '@internal When false, the session recap (shown when you return after being away for 5+ minutes) is disabled. When absent or true, recap is enabled. Hidden from public SDK types until external launch; mirrors voiceHandsfree pattern above.',
+        ),
+      tui: z
+        .enum(['default', 'fullscreen'])
+        .optional()
+        .describe(
+          'Terminal UI renderer. "fullscreen" uses the flicker-free alt-screen renderer with virtualized scrollback (equivalent to CLAUDE_CODE_NO_FLICKER=1). "default" uses the classic main-screen renderer.',
         ),
       showClearContextOnPlanAccept: z
         .boolean()

@@ -11,9 +11,16 @@
  *    unsatisfied deps (session-local, does NOT write settings)
  */
 
-import type { LoadedPlugin, PluginError } from '../../types/plugin.js'
+import * as semver from 'semver'
+import type {
+  DependencyConstraint,
+  LoadedPlugin,
+  PluginError,
+} from '../../types/plugin.js'
+import { logForDebugging } from '../debug.js'
 import type { EditableSettingSource } from '../settings/constants.js'
 import { getSettingsForSource } from '../settings/settings.js'
+import { plural } from '../stringUtils.js'
 import { parsePluginIdentifier } from './pluginIdentifier.js'
 import type { PluginId } from './schemas.js'
 
@@ -23,6 +30,53 @@ import type { PluginId } from './schemas.js'
  * these plugins cannot meaningfully inherit it.
  */
 const INLINE_MARKETPLACE = 'inline'
+
+/**
+ * Capture dependency metadata before PluginManifestSchema normalizes each
+ * dependency to a plain string. Older clients deliberately ignore these
+ * fields, while 2.1.110 uses them for install- and load-time checks.
+ */
+export function extractDependencyConstraints(
+  rawManifest: unknown,
+): Map<string, DependencyConstraint> | undefined {
+  if (
+    typeof rawManifest !== 'object' ||
+    rawManifest === null ||
+    !Array.isArray((rawManifest as { dependencies?: unknown }).dependencies)
+  ) {
+    return undefined
+  }
+
+  const constraints = new Map<string, DependencyConstraint>()
+  for (const dependency of (rawManifest as { dependencies: unknown[] })
+    .dependencies) {
+    if (typeof dependency !== 'object' || dependency === null) continue
+
+    const { name, marketplace, version, sha } = dependency as {
+      name?: unknown
+      marketplace?: unknown
+      version?: unknown
+      sha?: unknown
+    }
+    if (typeof name !== 'string' || name.length === 0) continue
+
+    const normalizedVersion =
+      typeof version === 'string' ? version : undefined
+    const normalizedSha = typeof sha === 'string' ? sha : undefined
+    if (normalizedVersion === undefined && normalizedSha === undefined) continue
+
+    const key =
+      typeof marketplace === 'string' && marketplace.length > 0
+        ? `${name}@${marketplace}`
+        : name
+    constraints.set(key, {
+      version: normalizedVersion,
+      sha: normalizedSha,
+    })
+  }
+
+  return constraints.size > 0 ? constraints : undefined
+}
 
 /**
  * Normalize a dependency reference to fully-qualified "name@marketplace" form.
@@ -43,6 +97,87 @@ export function qualifyDependency(
   const mkt = parsePluginIdentifier(declaringPluginId).marketplace
   if (!mkt || mkt === INLINE_MARKETPLACE) return dep
   return `${dep}@${mkt}`
+}
+
+const MAX_CONSTRAINT_CONJUNCTS = 1024
+
+function logConstraintExplosion(
+  count: number,
+  inputIndex: number,
+  totalInputs: number,
+): true {
+  logForDebugging(
+    `intersectConstraints: Cartesian product exceeded ${MAX_CONSTRAINT_CONJUNCTS} conjuncts (${count} after ${inputIndex}/${totalInputs} inputs) — treating as unresolvable`,
+    { level: 'warn' },
+  )
+  return true
+}
+
+/**
+ * Intersect semver ranges while preserving `||` alternatives. Semver itself
+ * has no direct range-intersection primitive, so form a bounded Cartesian
+ * product of the alternatives and discard unsatisfiable conjunctions.
+ */
+export function intersectConstraints(ranges: string[]): string | null {
+  if (ranges.length === 0) return '*'
+
+  const alternatives = ranges.map(range =>
+    range
+      .split('||')
+      .map(part => part.trim())
+      .filter(Boolean),
+  )
+  let conjuncts = alternatives[0] ?? []
+  if (
+    conjuncts.length > MAX_CONSTRAINT_CONJUNCTS &&
+    logConstraintExplosion(conjuncts.length, 1, alternatives.length)
+  ) {
+    return null
+  }
+
+  for (let i = 1; i < alternatives.length; i++) {
+    const next = alternatives[i] ?? []
+    const productSize = conjuncts.length * next.length
+    if (
+      productSize > MAX_CONSTRAINT_CONJUNCTS &&
+      logConstraintExplosion(productSize, i + 1, alternatives.length)
+    ) {
+      return null
+    }
+    conjuncts = conjuncts.flatMap(left =>
+      next.map(right => `${left} ${right}`),
+    )
+  }
+
+  const satisfiable = conjuncts.filter(conjunct => {
+    const range = semver.validRange(conjunct)
+    return range !== null && semver.minVersion(range) !== null
+  })
+  if (satisfiable.length === 0) return null
+  return semver.validRange(satisfiable.join(' || '))
+}
+
+/**
+ * Return every loaded plugin that constrains the requested dependency.
+ */
+export function findDependencyConstraints(
+  pluginId: string,
+  plugins: readonly LoadedPlugin[],
+): Array<{ plugin: LoadedPlugin; constraint: DependencyConstraint }> {
+  const matches: Array<{
+    plugin: LoadedPlugin
+    constraint: DependencyConstraint
+  }> = []
+  for (const plugin of plugins) {
+    if (!plugin.depConstraints) continue
+    for (const [rawDependency, constraint] of plugin.depConstraints) {
+      if (qualifyDependency(rawDependency, plugin.source) === pluginId) {
+        matches.push({ plugin, constraint })
+        break
+      }
+    }
+  }
+  return matches
 }
 
 /**
@@ -180,6 +315,7 @@ export function verifyAndDemote(plugins: readonly LoadedPlugin[]): {
 } {
   const known = new Set(plugins.map(p => p.source))
   const enabled = new Set(plugins.filter(p => p.enabled).map(p => p.source))
+  const loadedById = new Map(plugins.map(plugin => [plugin.source, plugin]))
   // Name-only indexes for bare deps from --plugin-dir (@inline) plugins:
   // the real marketplace is unknown, so match "B" against any enabled "B@*".
   // enabledByName is a multiset: if B@epic AND B@other are both enabled,
@@ -222,6 +358,39 @@ export function verifyAndDemote(plugins: readonly LoadedPlugin[]): {
           })
           changed = true
           break
+        }
+
+        // Version constraints only have an unambiguous installed plugin for
+        // qualified dependency IDs. Bare @inline dependencies remain
+        // presence-only because they can match more than one marketplace.
+        const required = p.depConstraints?.get(rawDep)?.version
+        if (required !== undefined && !isBare) {
+          const installedPlugin = loadedById.get(dep)
+          const installed =
+            installedPlugin?.resolvedVersion ??
+            installedPlugin?.manifest.version
+          const normalizedInstalled = installed
+            ? (semver.valid(installed) ?? semver.coerce(installed)?.version)
+            : undefined
+          if (
+            normalizedInstalled === undefined ||
+            !semver.satisfies(normalizedInstalled, required)
+          ) {
+            enabled.delete(p.source)
+            const count = enabledByName.get(p.name) ?? 0
+            if (count <= 1) enabledByName.delete(p.name)
+            else enabledByName.set(p.name, count - 1)
+            errors.push({
+              type: 'dependency-version-unsatisfied',
+              source: p.source,
+              plugin: p.name,
+              dependency: dep,
+              required,
+              installed,
+            })
+            changed = true
+            break
+          }
         }
       }
     }
@@ -289,7 +458,10 @@ export function getEnabledPluginIdsForScope(
 export function formatDependencyCountSuffix(installedDeps: string[]): string {
   if (installedDeps.length === 0) return ''
   const n = installedDeps.length
-  return ` (+ ${n} ${n === 1 ? 'dependency' : 'dependencies'})`
+  const names = installedDeps.map(id => parsePluginIdentifier(id).name)
+  const displayedNames =
+    names.length <= 5 ? names.join(', ') : `${names.slice(0, 5).join(', ')}, …`
+  return ` (+ ${n} ${plural(n, 'dependency', 'dependencies')}: ${displayedNames})`
 }
 
 /**

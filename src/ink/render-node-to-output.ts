@@ -49,6 +49,16 @@ export function didLayoutShift(): boolean {
 export type ScrollHint = { top: number; bottom: number; delta: number }
 let scrollHint: ScrollHint | null = null
 
+// Selection and search highlighting are applied after the DOM render and
+// therefore contaminate prevScreen. The ScrollBox fast path shifts pixels
+// from that buffer, which can move an overlay away from its logical cells.
+// Set once per frame by renderer.ts.
+let overlayActive = false
+
+export function setOverlayActive(active: boolean): void {
+  overlayActive = active
+}
+
 // Rects of position:absolute nodes from the PREVIOUS frame, used by
 // ScrollBox's blit+shift third-pass repair (see usage site). Recorded at
 // three paths — full-render nodeCache.set, node-level blit early-return,
@@ -913,8 +923,10 @@ function renderNodeToOutput(
           // is false the full path renders a next.screen that doesn't match
           // the DECSTBM shift — emitting DECSTBM leaves stale rows (seen as
           // content bleeding through during scroll-up + streaming). Clear it.
-          if (!safeForFastPath) scrollHint = null
-          if (hint && prevScreen && safeForFastPath) {
+          const canUseFastPath =
+            prevScreen !== undefined && safeForFastPath && !overlayActive
+          if (hint && !canUseFastPath) scrollHint = null
+          if (hint && canUseFastPath) {
             const { top, bottom, delta } = hint
             const w = Math.floor(width)
             output.blit(prevScreen, Math.floor(x), top, w, bottom - top + 1)

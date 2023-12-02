@@ -44,6 +44,7 @@ type ViewState = 'plugin-list' | 'plugin-details' | {
   type: 'plugin-options';
   plugin: LoadedPlugin;
   pluginId: string;
+  depNote: string;
 };
 export function DiscoverPlugins({
   error,
@@ -293,7 +294,8 @@ export function DiscoverPlugins({
         setViewState({
           type: 'plugin-options',
           plugin: loaded,
-          pluginId: plugin_1.pluginId
+          pluginId: plugin_1.pluginId,
+          depNote: result_0.depNote ?? ''
         });
         return;
       }
@@ -464,7 +466,8 @@ export function DiscoverPlugins({
   if (typeof viewState === 'object' && viewState.type === 'plugin-options') {
     const {
       plugin: plugin_4,
-      pluginId: pluginId_0
+      pluginId: pluginId_0,
+      depNote
     } = viewState;
     function finish(msg: string): void {
       setResult(msg);
@@ -478,10 +481,10 @@ export function DiscoverPlugins({
     return <PluginOptionsFlow plugin={plugin_4} pluginId={pluginId_0} onDone={(outcome, detail) => {
       switch (outcome) {
         case 'configured':
-          finish(`✓ Installed and configured ${plugin_4.name}. Run /reload-plugins to apply.`);
+          finish(`✓ Installed and configured ${plugin_4.name}${depNote}. Run /reload-plugins to apply.`);
           break;
         case 'skipped':
-          finish(`✓ Installed ${plugin_4.name}. Run /reload-plugins to apply.`);
+          finish(`✓ Installed ${plugin_4.name}${depNote}. Run /reload-plugins to apply.`);
           break;
         case 'error':
           finish(`Installed but failed to save config: ${detail}`);

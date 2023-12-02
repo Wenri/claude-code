@@ -12,6 +12,7 @@
  * - Can throw errors for unexpected failures
  */
 import { dirname, join } from 'path'
+import * as semver from 'semver'
 import { getOriginalCwd } from '../../bootstrap/state.js'
 import { isBuiltinPluginId } from '../../plugins/builtinPlugins.js'
 import type { LoadedPlugin, PluginManifest } from '../../types/plugin.js'
@@ -24,6 +25,7 @@ import {
   markPluginVersionOrphaned,
 } from '../../utils/plugins/cacheUtils.js'
 import {
+  findDependencyConstraints,
   findReverseDependents,
   formatReverseDependentsSuffix,
 } from '../../utils/plugins/dependencyResolver.js'
@@ -159,6 +161,8 @@ export type PluginUpdateResult = {
   newVersion?: string
   oldVersion?: string
   alreadyUpToDate?: boolean
+  skipped?: boolean
+  blockedBy?: string[]
   scope?: PluginScope
 }
 
@@ -377,6 +381,7 @@ export async function installPluginOp(
     entry,
     scope,
     marketplaceInstallLocation,
+    trigger: 'cli',
   })
 
   if (!result.ok) {
@@ -405,6 +410,16 @@ export async function installPluginOp(
         return {
           success: false,
           message: `Plugin "${result.pluginName}" depends on "${result.blockedDependency}", which is blocked by your organization's policy`,
+        }
+      case 'range-conflict':
+        return {
+          success: false,
+          message: `${result.dep === pluginId ? 'Plugin' : 'Dependency'} "${result.dep}" has conflicting version requirements: ${result.ranges.join(', ')}`,
+        }
+      case 'no-matching-tag':
+        return {
+          success: false,
+          message: `${result.dep === pluginId ? 'Plugin' : 'Dependency'} "${result.dep}" has no git tag satisfying ${result.range}`,
         }
     }
   }
@@ -926,6 +941,7 @@ async function performPluginUpdate({
   let newVersion: string
   let shouldCleanupSource = false
   let gitCommitSha: string | undefined
+  let pluginManifestVersion: string | undefined
 
   // Handle remote vs local plugins
   if (typeof entry.source !== 'string') {
@@ -936,6 +952,7 @@ async function performPluginUpdate({
     sourcePath = cacheResult.path
     shouldCleanupSource = true
     gitCommitSha = cacheResult.gitCommitSha
+    pluginManifestVersion = cacheResult.manifest.version
 
     // Calculate version from downloaded plugin. For git-subdir sources,
     // cachePlugin captured the commit SHA before discarding the ephemeral
@@ -995,13 +1012,14 @@ async function performPluginUpdate({
 
     // Try to load manifest from plugin directory (for version info)
     let pluginManifest: PluginManifest | undefined
-    const manifestPath = join(sourcePath, '.claude-plugin', 'plugin.json')
     try {
-      pluginManifest = await loadPluginManifest(
-        manifestPath,
+      const loadedManifest = await loadPluginManifest(
+        sourcePath,
         entry.name,
         entry.source,
       )
+      pluginManifest = loadedManifest.manifest
+      pluginManifestVersion = pluginManifest.version
     } catch {
       // Failed to load - will use other version sources
     }
@@ -1018,6 +1036,37 @@ async function performPluginUpdate({
 
   // Use try/finally to ensure temp directory cleanup on any error
   try {
+    const { enabled, disabled } = await loadAllPlugins()
+    const constraints = findDependencyConstraints(pluginId, [
+      ...enabled,
+      ...disabled,
+    ])
+    if (constraints.length > 0) {
+      const normalizedVersion = pluginManifestVersion
+        ? (semver.valid(pluginManifestVersion) ??
+          semver.coerce(pluginManifestVersion)?.version)
+        : undefined
+      const blockedBy = constraints
+        .filter(
+          ({ constraint }) =>
+            constraint.version !== undefined &&
+            normalizedVersion !== undefined &&
+            !semver.satisfies(normalizedVersion, constraint.version),
+        )
+        .map(({ plugin: dependent }) => dependent.source)
+      if (blockedBy.length > 0) {
+        return {
+          success: true,
+          skipped: true,
+          message: `Skipped — ${blockedBy.join(', ')} requires ${pluginName} at a version range that ${pluginManifestVersion ?? newVersion} does not satisfy`,
+          pluginId,
+          scope,
+          blockedBy,
+          oldVersion,
+        }
+      }
+    }
+
     // Check if this version already exists in cache
     let versionedPath = getVersionedCachePath(pluginId, newVersion)
 

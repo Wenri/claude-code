@@ -248,6 +248,12 @@ export type ToolUseContext = {
    *  Used by speculation for overlay file path rewriting. */
   requireCanUseTool?: boolean
   messages: Message[]
+  /**
+   * Index of the first message in the current user turn. Tool validation uses
+   * this to distinguish an explicit request in the active turn from an older
+   * slash command in transcript history.
+   */
+  turnStartIndex: number
   fileReadingLimits?: {
     maxTokens?: number
     maxSizeBytes?: number
@@ -543,6 +549,11 @@ export type Tool<
    * @returns A short string summary, or null to not display
    */
   getToolUseSummary?(input: Partial<z.infer<Input>> | undefined): string | null
+  /**
+   * Keep this tool and its result visible as a standalone row in focus view
+   * instead of folding it into the per-turn tool summary.
+   */
+  briefStandalone?: boolean
   /**
    * Returns a human-readable present-tense activity description for spinner display.
    * Example: "Reading src/foo.ts", "Running bun test", "Searching for pattern"

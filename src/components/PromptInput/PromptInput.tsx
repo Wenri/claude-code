@@ -71,6 +71,7 @@ import type { ImageDimensions } from '../../utils/imageResizer.js';
 import { cacheImagePath, storeImage } from '../../utils/imageStore.js';
 import { isMacosOptionChar, MACOS_OPTION_SPECIAL_CHARS } from '../../utils/keyboardShortcuts.js';
 import { logError } from '../../utils/log.js';
+import { getRecentAssistantContext } from '../../utils/messages.js';
 import { isOpus1mMergeEnabled, modelDisplayString } from '../../utils/model/model.js';
 import { setAutoModeActive } from '../../utils/permissions/autoModeState.js';
 import { cyclePermissionMode, getNextPermissionMode } from '../../utils/permissions/getNextPermissionMode.js';
@@ -1323,7 +1324,9 @@ function PromptInput({
     setIsExternalEditorActive(true);
     try {
       // Pass pastedContents to expand collapsed text references
-      const result = await editPromptInEditor(input, pastedContents);
+      const assistantContext = getGlobalConfig().externalEditorContext ?
+      getRecentAssistantContext(messages).messages.join('\n\n') || undefined : undefined;
+      const result = await editPromptInEditor(input, pastedContents, assistantContext);
       if (result.error) {
         addNotification({
           key: 'external-editor-error',
@@ -1351,7 +1354,7 @@ function PromptInput({
     } finally {
       setIsExternalEditorActive(false);
     }
-  }, [input, cursorOffset, pastedContents, pushToBuffer, trackAndSetInput, addNotification]);
+  }, [input, cursorOffset, pastedContents, messages, pushToBuffer, trackAndSetInput, addNotification]);
 
   // Handler for chat:stash - stash/unstash prompt
   const handleStash = useCallback(() => {

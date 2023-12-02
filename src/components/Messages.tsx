@@ -15,6 +15,7 @@ import { useTerminalNotification } from '../ink/useTerminalNotification.js';
 import { Box, Text } from '../ink.js';
 import { useShortcutDisplay } from '../keybindings/useShortcutDisplay.js';
 import type { Screen } from '../screens/REPL.js';
+import { useAppState } from '../state/AppState.js';
 import type { Tools } from '../Tool.js';
 import { findToolByName } from '../Tool.js';
 import type { AgentDefinitionsResult } from '../tools/AgentTool/loadAgentsDir.js';
@@ -205,6 +206,191 @@ export function dropTextInBriefTurns<T extends {
     return t === undefined || !turnsWithBrief.has(t);
   });
 }
+
+function isFocusTurnStart(message: any): boolean {
+  if (message.type === 'user') {
+    return message.message?.content?.[0]?.type !== 'tool_result';
+  }
+  if (message.type !== 'attachment') return false;
+  const attachment = message.attachment;
+  if (attachment?.type !== 'queued_command' || attachment.commandMode !== 'prompt') {
+    return false;
+  }
+  if (!attachment.isMeta && attachment.origin === undefined) return true;
+  return attachment.origin?.kind === 'channel';
+}
+
+function createFocusToolSummary(message: any, tools: Tools): any {
+  if (message.type === 'collapsed_read_search') {
+    return {
+      ...message,
+      messages: [...message.messages]
+    };
+  }
+
+  const toolName = message.type === 'grouped_tool_use' ? message.toolName : message.message?.content?.[0]?.name;
+  const count = message.type === 'grouped_tool_use' ? message.messages.length : 1;
+  const tool = toolName ? findToolByName(tools, toolName) : undefined;
+  const summary: any = {
+    type: 'collapsed_read_search',
+    searchCount: 0,
+    readCount: 0,
+    listCount: 0,
+    replCount: 0,
+    memorySearchCount: 0,
+    memoryReadCount: 0,
+    memoryWriteCount: 0,
+    messages: [message],
+    displayMessage: message,
+    uuid: message.uuid,
+    timestamp: message.timestamp
+  };
+  if (tool?.isMcp) {
+    summary.mcpCallCount = count;
+    if (tool.mcpInfo?.serverName) summary.mcpServerNames = [tool.mcpInfo.serverName];
+  } else if (new Set(['Edit', 'Write', 'NotebookEdit']).has(toolName)) {
+    summary.editFileCount = count;
+  } else {
+    summary.otherToolCount = count;
+  }
+  return summary;
+}
+
+function mergeFocusToolSummary(target: any, incoming: any): void {
+  for (const key of [
+    'searchCount',
+    'readCount',
+    'listCount',
+    'replCount',
+    'memorySearchCount',
+    'memoryReadCount',
+    'memoryWriteCount',
+    'mcpCallCount',
+    'bashCount',
+    'editFileCount',
+    'otherToolCount',
+    'frameCount',
+    'linesAdded',
+    'linesRemoved'
+  ]) {
+    if (incoming[key]) target[key] = (target[key] ?? 0) + incoming[key];
+  }
+  target.messages.push(...incoming.messages);
+  target.mcpServerNames = [...new Set([...(target.mcpServerNames ?? []), ...(incoming.mcpServerNames ?? [])])];
+  target.latestDisplayHint = incoming.latestDisplayHint ?? target.latestDisplayHint;
+}
+
+/**
+ * Fullscreen focus view: one real user prompt, one aggregate tool row, system
+ * status lines, and the final assistant text for each completed turn.
+ */
+export function filterForFocusView(
+  messages: RenderableMessage[],
+  tools: Tools,
+  isLoading = false
+): RenderableMessage[] {
+  const filtered: RenderableMessage[] = [];
+  let index = 0;
+  while (index < messages.length) {
+    const turnStart = messages[index] as any;
+    if (!isFocusTurnStart(turnStart)) {
+      filtered.push(turnStart);
+      index++;
+      continue;
+    }
+
+    filtered.push(turnStart);
+    index++;
+    let turnEnd = index;
+    while (turnEnd < messages.length && !isFocusTurnStart(messages[turnEnd])) {
+      turnEnd++;
+    }
+
+    const pendingTurn = isLoading && turnEnd === messages.length;
+    let finalTextIndex = -1;
+    if (!pendingTurn) {
+      for (let candidate = turnEnd - 1; candidate >= index; candidate--) {
+        const message = messages[candidate] as any;
+        const block = message.message?.content?.[0];
+        if (message.type === 'assistant' && block?.type === 'text' && block.text.trim()) {
+          finalTextIndex = candidate;
+          break;
+        }
+      }
+    }
+
+    const standalone = new Set<number>();
+    const seenStandaloneNames = new Set<string>();
+    for (let candidate = turnEnd - 1; !pendingTurn && candidate >= index; candidate--) {
+      const message = messages[candidate] as any;
+      if (message.type !== 'assistant') continue;
+      const block = message.message?.content?.[0];
+      if (block?.type !== 'tool_use' || seenStandaloneNames.has(block.name)) continue;
+      seenStandaloneNames.add(block.name);
+      if (!findToolByName(tools, block.name)?.briefStandalone) continue;
+      standalone.add(candidate);
+      for (let resultIndex = candidate + 1; resultIndex < turnEnd; resultIndex++) {
+        const result = messages[resultIndex] as any;
+        if (result.type === 'assistant') break;
+        const resultBlock = result.message?.content?.[0];
+        if (result.type === 'user' && resultBlock?.type === 'tool_result' && resultBlock.tool_use_id === block.id) {
+          standalone.add(resultIndex);
+          break;
+        }
+      }
+    }
+
+    let summary: any = null;
+    let summaryIndex = turnEnd;
+    let pendingText: string | undefined;
+    const preserved = new Set<number>(standalone);
+    for (let candidate = index; candidate < turnEnd; candidate++) {
+      if (candidate === finalTextIndex || standalone.has(candidate)) continue;
+      const message = messages[candidate] as any;
+      if (message.type === 'system') {
+        if (!(message.subtype === 'api_metrics' || message.subtype === 'informational' && message.level === 'info')) {
+          preserved.add(candidate);
+        }
+        continue;
+      }
+
+      let toolSummary: any = null;
+      if (message.type === 'collapsed_read_search' || message.type === 'grouped_tool_use') {
+        toolSummary = createFocusToolSummary(message, tools);
+      } else if (message.type === 'assistant') {
+        const block = message.message?.content?.[0];
+        if (block?.type === 'tool_use') {
+          toolSummary = createFocusToolSummary(message, tools);
+        } else if (pendingTurn && block?.type === 'text' && block.text.trim()) {
+          pendingText = block.text;
+        }
+      } else if (message.type === 'user' && summary) {
+        summary.messages.push(message);
+      }
+
+      if (toolSummary) {
+        if (summary) mergeFocusToolSummary(summary, toolSummary);
+        else {
+          summary = toolSummary;
+          summaryIndex = candidate;
+        }
+      }
+    }
+
+    if (finalTextIndex !== -1) preserved.add(finalTextIndex);
+    const ordered: Array<[number, RenderableMessage]> = [...preserved].map(candidate => [candidate, messages[candidate]!]);
+    if (summary) {
+      summary.uuid = `brief-${summary.uuid}`;
+      if (pendingText) summary.pendingText = pendingText;
+      ordered.push([summaryIndex, summary]);
+    }
+    ordered.sort((left, right) => left[0] - right[0]);
+    filtered.push(...ordered.map(([, message]) => message));
+    index = turnEnd;
+  }
+  return filtered;
+}
+
 type Props = {
   messages: MessageType[];
   tools: Tools;
@@ -380,6 +566,7 @@ const MessagesImpl = ({
     columns
   } = useTerminalSize();
   const toggleShowAllShortcut = useShortcutDisplay('transcript:toggleShowAll', 'Transcript', 'Ctrl+E');
+  const briefTranscript = useAppState(state => state.briefTranscript);
   const normalizedMessages = useMemo(() => normalizeMessages(messages).filter(isNotEmptyMessage), [messages]);
 
   // Check if streaming thinking should be visible (streaming or within 30s timeout)
@@ -521,7 +708,8 @@ const MessagesImpl = ({
     const {
       messages: groupedMessages
     } = applyGrouping(messagesToShow, tools, verbose);
-    const collapsed = collapseBackgroundBashNotifications(collapseHookSummaries(collapseTeammateShutdowns(collapseReadSearchGroups(groupedMessages, tools))), verbose);
+    const normallyCollapsed = collapseBackgroundBashNotifications(collapseHookSummaries(collapseTeammateShutdowns(collapseReadSearchGroups(groupedMessages, tools))), verbose);
+    const collapsed = isFullscreenEnvEnabled() && briefTranscript && !isTranscriptMode ? filterForFocusView(normallyCollapsed, tools, isLoading) : normallyCollapsed;
     const lookups = buildMessageLookups(normalizedMessages, messagesToShow);
     const hiddenMessageCount = messagesToShowNotTruncated.length - MAX_MESSAGES_TO_SHOW_IN_TRANSCRIPT_MODE;
     return {
@@ -530,7 +718,7 @@ const MessagesImpl = ({
       hasTruncatedMessages,
       hiddenMessageCount
     };
-  }, [verbose, normalizedMessages, isTranscriptMode, syntheticStreamingToolUseMessages, shouldTruncate, tools, isBriefOnly]);
+  }, [verbose, normalizedMessages, isTranscriptMode, syntheticStreamingToolUseMessages, shouldTruncate, tools, isBriefOnly, briefTranscript, isLoading]);
 
   // Cheap slice — only runs when scroll range or slice config changes.
   const renderableMessages = useMemo(() => {

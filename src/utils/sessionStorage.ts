@@ -580,12 +580,14 @@ class Project {
   private activeDrain: Promise<void> | null = null
   private FLUSH_INTERVAL_MS = 100
   private readonly MAX_CHUNK_BYTES = 100 * 1024 * 1024
+  private bytesSinceMetadataReAppend = 0
 
   constructor() {}
 
   /** @internal Reset flush/queue state for testing. */
   _resetFlushState(): void {
     this.pendingWriteCount = 0
+    this.bytesSinceMetadataReAppend = 0
     this.flushResolvers = []
     if (this.flushTimer) clearTimeout(this.flushTimer)
     this.flushTimer = null
@@ -654,6 +656,9 @@ class Project {
       await mkdir(dirname(filePath), { recursive: true, mode: 0o700 })
       await fsAppendFile(filePath, data, { mode: 0o600 })
     }
+    if (filePath === this.sessionFile) {
+      this.bytesSinceMetadataReAppend += Buffer.byteLength(data, 'utf8')
+    }
   }
 
   private async drainWriteQueue(): Promise<void> {
@@ -707,11 +712,22 @@ class Project {
         this.writeQueues.delete(filePath)
       }
     }
+
+    // Keep resume metadata inside the tail window even if the process exits
+    // uncleanly and the normal shutdown re-append never runs.
+    if (this.bytesSinceMetadataReAppend >= LITE_READ_BUF_SIZE / 2) {
+      try {
+        this.reAppendSessionMetadata()
+      } catch (error) {
+        logError(error as Error)
+      }
+    }
   }
 
   resetSessionFile(): void {
     this.sessionFile = null
     this.pendingEntries = []
+    this.bytesSinceMetadataReAppend = 0
   }
 
   /**
@@ -746,6 +762,7 @@ class Project {
     if (!this.sessionFile) return
     const sessionId = getSessionId() as UUID
     if (!sessionId) return
+    this.bytesSinceMetadataReAppend = 0
 
     // One sync tail read to refresh SDK-mutable fields. Same
     // LITE_READ_BUF_SIZE window readLiteMetadata uses. Empty string on
@@ -2691,7 +2708,7 @@ export async function saveCustomTitle(
   sessionId: UUID,
   customTitle: string,
   fullPath?: string,
-  source: 'user' | 'auto' | 'hook' = 'user',
+  source: 'user' | 'auto' | 'hook' | 'remote' = 'user',
 ) {
   // Fall back to computed path if fullPath is not provided
   const resolvedPath = fullPath ?? getTranscriptPathForSession(sessionId)

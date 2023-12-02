@@ -129,6 +129,21 @@ const snipProjection = feature('HISTORY_SNIP')
   : null
 /* eslint-enable @typescript-eslint/no-require-imports */
 
+function findCurrentTurnStart(messages: Message[]): number {
+  for (let index = messages.length - 1; index >= 0; index--) {
+    const message = messages[index]
+    if (
+      message?.type === 'user' &&
+      !message.isMeta &&
+      !message.toolUseResult &&
+      !message.isCompactSummary
+    ) {
+      return index
+    }
+  }
+  return 0
+}
+
 export type QueryEngineConfig = {
   cwd: string
   tools: Tools
@@ -336,6 +351,7 @@ export class QueryEngine {
 
     let processUserInputContext: ProcessUserInputContext = {
       messages: this.mutableMessages,
+      turnStartIndex: 0,
       // Slash commands that mutate the message array (e.g. /force-snip)
       // call setMessages(fn).  In interactive mode this writes back to
       // AppState; in print mode we write back to mutableMessages so the
@@ -517,6 +533,7 @@ export class QueryEngine {
     // model (from slash commands).
     processUserInputContext = {
       messages,
+      turnStartIndex: findCurrentTurnStart(messages),
       setMessages: () => {},
       onChangeAPIKey: () => {},
       handleElicitation: this.config.handleElicitation,

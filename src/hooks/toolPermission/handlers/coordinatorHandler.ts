@@ -35,7 +35,7 @@ async function handleCoordinatorPermission(
       suggestions,
       updatedInput,
     )
-    if (hookResult) return hookResult
+    if (hookResult && !('reprompted' in hookResult)) return hookResult
 
     // 2. Try classifier (slow, inference -- bash only)
     const classifierResult = feature('BASH_CLASSIFIER')

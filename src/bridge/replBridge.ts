@@ -192,6 +192,9 @@ export type BridgeCoreParams = {
   onSetPermissionMode?: (
     mode: PermissionMode,
   ) => { ok: true } | { ok: false; error: string }
+  onRenameSession?: (
+    title: string,
+  ) => { ok: true } | { ok: false; error: string }
   onStateChange?: (state: BridgeState, detail?: string) => void
   /**
    * Fires on each real user message to flow through writeMessages() until
@@ -289,6 +292,7 @@ export async function initBridgeCore(
     onSetModel,
     onSetMaxThinkingTokens,
     onSetPermissionMode,
+    onRenameSession,
     onStateChange,
     onUserMessage,
     perpetual,
@@ -1198,6 +1202,7 @@ export async function initBridgeCore(
           onSetModel,
           onSetMaxThinkingTokens,
           onSetPermissionMode,
+          onRenameSession,
         })
 
       let initialFlushDone = false

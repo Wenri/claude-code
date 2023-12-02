@@ -9,6 +9,7 @@ import renderNodeToOutput, {
   resetLayoutShifted,
   resetScrollDrainNode,
   resetScrollHint,
+  setOverlayActive,
 } from './render-node-to-output.js'
 import { createScreen, type StylePool } from './screen.js'
 
@@ -24,6 +25,9 @@ export type RenderOptions = {
   // or reset to 0×0 (forceRedraw). Blitting from such a prevScreen would
   // copy stale inverted cells, blanks, or nothing. When false, blit is safe.
   prevFrameContaminated: boolean
+  // True while selection or search overlays are active. ScrollBox's screen
+  // shift fast path must be disabled because prevScreen contains the overlay.
+  overlayActive: boolean
 }
 
 export type Renderer = (options: RenderOptions) => Frame
@@ -114,6 +118,7 @@ export default function createRenderer(
     resetLayoutShifted()
     resetScrollHint()
     resetScrollDrainNode()
+    setOverlayActive(options.overlayActive)
 
     // prevFrameContaminated: selection overlay mutated the returned screen
     // buffer post-render (in ink.tsx), resetFramesForAltScreen() replaced it

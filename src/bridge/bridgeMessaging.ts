@@ -226,6 +226,9 @@ export type ServerControlRequestHandlers = {
   onSetPermissionMode?: (
     mode: PermissionMode,
   ) => { ok: true } | { ok: false; error: string }
+  onRenameSession?: (
+    title: string,
+  ) => { ok: true } | { ok: false; error: string }
 }
 
 const OUTBOUND_ONLY_ERROR =
@@ -252,6 +255,7 @@ export function handleServerControlRequest(
     onSetModel,
     onSetMaxThinkingTokens,
     onSetPermissionMode,
+    onRenameSession,
   } = handlers
   if (!transport) {
     logForDebugging(
@@ -337,6 +341,33 @@ export function handleServerControlRequest(
         ok: false,
         error:
           'set_permission_mode is not supported in this context (onSetPermissionMode callback not registered)',
+      }
+      if (verdict.ok) {
+        response = {
+          type: 'control_response',
+          response: {
+            subtype: 'success',
+            request_id: request.request_id,
+          },
+        }
+      } else {
+        response = {
+          type: 'control_response',
+          response: {
+            subtype: 'error',
+            request_id: request.request_id,
+            error: verdict.error,
+          },
+        }
+      }
+      break
+    }
+
+    case 'rename_session': {
+      const verdict = onRenameSession?.(request.request.title) ?? {
+        ok: false,
+        error:
+          'rename_session is not supported in this context (onRenameSession callback not registered)',
       }
       if (verdict.ok) {
         response = {

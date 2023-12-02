@@ -21,6 +21,7 @@ import {
 } from '../../utils/effort.js'
 import { env } from '../../utils/env.js'
 import { cacheKeys } from '../../utils/fileStateCache.js'
+import { isFullscreenEnvEnabled } from '../../utils/fullscreen.js'
 import { getWorktreeCount } from '../../utils/git.js'
 import {
   detectRunningIDEsCached,
@@ -469,6 +470,18 @@ const externalTips: Tip[] = [
       '/mobile to use Claude Code from the Claude app on your phone',
     cooldownSessions: 15,
     isRelevant: async () => true,
+  },
+  {
+    id: 'no-flicker',
+    content: async () =>
+      'Try flicker-free rendering, now with mouse support · /tui fullscreen',
+    cooldownSessions: 10,
+    isRelevant: async () =>
+      !isFullscreenEnvEnabled() &&
+      getFeatureValue_CACHED_MAY_BE_STALE(
+        'tengu_ochre_hollow',
+        false,
+      ),
   },
   {
     id: 'opusplan-mode-reminder',

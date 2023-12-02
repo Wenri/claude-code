@@ -1,4 +1,5 @@
 import type { AppState } from '../../state/AppState.js'
+import { isAwaySummaryEnabled } from '../awaySummaryEnabled.js'
 import { logForDebugging } from '../debug.js'
 import { updateHooksConfigSnapshot } from '../hooks/hooksConfigSnapshot.js'
 import {
@@ -78,6 +79,7 @@ export function applySettingsChange(
     return {
       ...prev,
       settings: newSettings,
+      awaySummaryEnabled: isAwaySummaryEnabled(),
       toolPermissionContext: newContext,
       // Only propagate a defined new value — when the disk key is absent
       // (e.g. /effort max for non-ants writes undefined; --effort CLI flag),
