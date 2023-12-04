@@ -1,0 +1,144 @@
+{
+  "schemaVersion": 1,
+  "kind": "generated-source-ownership-and-attribution-inventory",
+  "offsetUnit": "utf16-code-units",
+  "claim": "Exhaustive generated-offset accounting with exact baseline source ownership; target source identities are evidence-ranked and unresolved where anchors are insufficient.",
+  "artifacts": {
+    "baselineBundle": {
+      "bytes": 13047043,
+      "sha256": "75c9611929d9a770fe2e3a393219d8b98f5de17fde539b2a7355c6db3fd2795f"
+    },
+    "baselineSourceMap": {
+      "bytes": 59766257,
+      "sha256": "7965012b7a5fc9e09d8d747a04c5c32b94696924536e217f686bb1e7ee70a657"
+    },
+    "targetBundle": {
+      "bytes": 13162543,
+      "sha256": "b4bf141f30cf8b40196295816c7a6b9d01a36e906908d73a9f9a865ce4cdf816"
+    }
+  },
+  "options": {
+    "minimumLiteralLength": 8
+  },
+  "baselineOwnership": {
+    "sourceCount": 4756,
+    "sourceKinds": {
+      "application": 1902,
+      "nodeModules": 2850,
+      "vendor": 4
+    },
+    "mappedSegmentCount": 2068722,
+    "contiguousRunCount": 4756,
+    "eachSourceHasExactlyOneContiguousRun": true,
+    "generatedHeaderUtf16": 2230
+  },
+  "literalEvidence": {
+    "uniqueCommonAnchorCount": 44110,
+    "monotoneAnchorCount": 43353,
+    "nonMonotoneAnchorCount": 757,
+    "monotoneFraction": 0.9828383586488325,
+    "partitionCount": 43354,
+    "tokenCountDelta": 33215,
+    "utf16LengthDelta": 114944,
+    "locatedSourceCount": 2628,
+    "locatedApplicationSourceCount": 1319,
+    "splitTargetClusterSourceCount": 4
+  },
+  "initializerEvidence": {
+    "baseline": {
+      "wrapperNames": {
+        "common": "m",
+        "initializer": "y"
+      },
+      "count": 4527
+    },
+    "target": {
+      "wrapperNames": {
+        "common": "B",
+        "initializer": "L"
+      },
+      "count": 4559,
+      "statuses": {
+        "unresolved-no-unique-literal": 2031,
+        "anchored-single-baseline-unit": 2515,
+        "anchored-multiple-baseline-units": 13
+      }
+    },
+    "targetNetCountDelta": 32
+  },
+  "coverage": {
+    "partitionCount": 43354,
+    "targetPartitionUtf16": 10677103,
+    "exactAnchorCount": 43353,
+    "exactAnchorTargetUtf16": 2421169,
+    "exactGeneratedPartitionCount": 22817,
+    "exactGeneratedTargetUtf16": 592335,
+    "changedHighConfidencePartitionCount": 17946,
+    "changedHighConfidenceTargetUtf16": 5175421,
+    "changedCandidatePartitionCount": 2585,
+    "changedCandidateTargetUtf16": 4907451,
+    "unresolvedPartitionCount": 6,
+    "unresolvedTargetUtf16": 1896,
+    "accountedTargetUtf16": 13098272,
+    "targetUtf16": 13098272,
+    "unaccountedTargetUtf16": 0
+  },
+  "releaseEvidence": {
+    "targetPackage": {
+      "bytes": 1347,
+      "sha256": "ed6cf8c242de1184021ba5028e99453c1ec753843f6926f71db0349144044273",
+      "name": "@anthropic-ai/claude-code",
+      "version": "2.1.91"
+    },
+    "targetDeclarations": {
+      "bytes": 117138,
+      "sha256": "d54800cb26dbfc3e15d0ab034ef9c77e340fb7ec76270a167f39245f7155c4b4"
+    },
+    "officialChangelog": {
+      "bytes": 194907,
+      "sha256": "daaf0388d48da9026f513aef5ef93515a556cf43e1057b0d54fb6fd1a0bec111",
+      "section": "2.1.91",
+      "bulletCount": 13,
+      "bullets": [
+        "Added MCP tool result persistence override via `_meta[\"anthropic/maxResultSizeChars\"]` annotation (up to 500K), allowing larger results like DB schemas to pass through without truncation",
+        "Added `disableSkillShellExecution` setting to disable inline shell execution in skills, custom slash commands, and plugin commands",
+        "Added support for multi-line prompts in `claude-cli://open?q=` deep links (encoded newlines `%0A` no longer rejected)",
+        "Plugins can now ship executables under `bin/` and invoke them as bare commands from the Bash tool",
+        "Fixed transcript chain breaks on `--resume` that could lose conversation history when async transcript writes fail silently",
+        "Fixed `cmd+delete` not deleting to start of line on iTerm2, kitty, WezTerm, Ghostty, and Windows Terminal",
+        "Fixed plan mode in remote sessions losing track of the plan file after a container restart, which caused permission prompts on plan edits and an empty plan-approval modal",
+        "Fixed JSON schema validation for `permissions.defaultMode: \"auto\"` in settings.json",
+        "Fixed Windows version cleanup not protecting the active version's rollback copy",
+        "`/feedback` now explains why it's unavailable instead of disappearing from the slash menu",
+        "Improved `/claude-api` skill guidance for agent design patterns including tool surface decisions, context management, and caching strategy",
+        "Improved performance: faster `stripAnsi` on Bun by routing through `Bun.stripANSI`",
+        "Edit tool now uses shorter `old_string` anchors, reducing output tokens"
+      ]
+    }
+  },
+  "reportFiles": {
+    "sources": {
+      "path": "sources.jsonl.gz",
+      "bytes": 493242,
+      "sha256": "606cf1ba269a38335dd7d03089b0ce498be1a19a7ee4fe5a3c1fccdaeb618159"
+    },
+    "targetInitializers": {
+      "path": "target-initializers.jsonl.gz",
+      "bytes": 110371,
+      "sha256": "73c8f056ac63eb68a0c144325c23e385aa874ea05901d5bb255c24d20bbbd61b"
+    },
+    "targetPartitions": {
+      "path": "target-partitions.jsonl.gz",
+      "bytes": 4189013,
+      "sha256": "b7d24394694702496ca635e48c3166e3be33cb506082eedf62a63670f69bb831"
+    }
+  },
+  "limitations": [
+    "Exact source ownership exists only for the baseline source map.",
+    "Initializer regions are delimited by successive Bun wrapper-expression starts; they are generated units, not asserted one-to-one source modules.",
+    "A target initializer with no unique long literal is unresolved, not automatically target-only.",
+    "Candidate ranges can include moved code; non-monotone literal owners are reported separately.",
+    "Raw-different partitions include harmless minifier-name churn as well as semantic changes.",
+    "No target source text is claimed reconstructed by this inventory."
+  ]
+}
