@@ -22,6 +22,15 @@ export type TerminalNotification = {
   progress: (state: Progress['state'] | null, percentage?: number) => void
 }
 
+function sanitizeTerminalNotification(value: string): string {
+  let sanitized = ''
+  for (let i = 0; i < value.length; i++) {
+    const code = value.charCodeAt(i)
+    sanitized += code < 32 || code === 127 ? ' ' : value[i]
+  }
+  return sanitized
+}
+
 export function useTerminalNotification(): TerminalNotification {
   const writeRaw = useContext(TerminalWriteContext)
   if (!writeRaw) {
@@ -32,8 +41,12 @@ export function useTerminalNotification(): TerminalNotification {
 
   const notifyITerm2 = useCallback(
     ({ message, title }: { message: string; title?: string }) => {
-      const displayString = title ? `${title}:\n${message}` : message
-      writeRaw(wrapForMultiplexer(osc(OSC.ITERM2, `\n\n${displayString}`)))
+      const displayString = title ? `${title}: ${message}` : message
+      writeRaw(
+        wrapForMultiplexer(
+          osc(OSC.ITERM2, sanitizeTerminalNotification(displayString)),
+        ),
+      )
     },
     [writeRaw],
   )
@@ -48,8 +61,24 @@ export function useTerminalNotification(): TerminalNotification {
       title: string
       id: number
     }) => {
-      writeRaw(wrapForMultiplexer(osc(OSC.KITTY, `i=${id}:d=0:p=title`, title)))
-      writeRaw(wrapForMultiplexer(osc(OSC.KITTY, `i=${id}:p=body`, message)))
+      writeRaw(
+        wrapForMultiplexer(
+          osc(
+            OSC.KITTY,
+            `i=${id}:d=0:p=title`,
+            sanitizeTerminalNotification(title),
+          ),
+        ),
+      )
+      writeRaw(
+        wrapForMultiplexer(
+          osc(
+            OSC.KITTY,
+            `i=${id}:p=body`,
+            sanitizeTerminalNotification(message),
+          ),
+        ),
+      )
       writeRaw(wrapForMultiplexer(osc(OSC.KITTY, `i=${id}:d=1:a=focus`, '')))
     },
     [writeRaw],
@@ -57,7 +86,16 @@ export function useTerminalNotification(): TerminalNotification {
 
   const notifyGhostty = useCallback(
     ({ message, title }: { message: string; title: string }) => {
-      writeRaw(wrapForMultiplexer(osc(OSC.GHOSTTY, 'notify', title, message)))
+      writeRaw(
+        wrapForMultiplexer(
+          osc(
+            OSC.GHOSTTY,
+            'notify',
+            sanitizeTerminalNotification(title),
+            sanitizeTerminalNotification(message),
+          ),
+        ),
+      )
     },
     [writeRaw],
   )

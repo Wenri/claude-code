@@ -61,6 +61,7 @@ import { modelSupportsAutoMode } from '../betas.js'
 import { logForDebugging } from '../debug.js'
 import { gracefulShutdown } from '../gracefulShutdown.js'
 import { getMainLoopModel } from '../model/model.js'
+import { getPlatform } from '../platform.js'
 import {
   CROSS_PLATFORM_CODE_EXEC,
   DANGEROUS_BASH_PATTERNS,
@@ -906,6 +907,12 @@ export async function initializeToolPermissionContext({
     const baseToolsSet = new Set(baseToolsResult.map(normalizeLegacyToolName))
     const allToolNames = getToolsForDefaultPreset()
     const toolsToDisallow = allToolNames.filter(tool => !baseToolsSet.has(tool))
+    if (
+      parseToolPreset(baseToolsCli.join(' ').trim()) === null &&
+      !baseToolsSet.has(POWERSHELL_TOOL_NAME)
+    ) {
+      toolsToDisallow.push(POWERSHELL_TOOL_NAME)
+    }
     parsedDisallowedToolsCli = [...parsedDisallowedToolsCli, ...toolsToDisallow]
   }
 
@@ -944,6 +951,43 @@ export async function initializeToolPermissionContext({
 
   // Load all permission rules from disk
   const rulesFromDisk = loadAllPermissionRulesFromDisk()
+
+  // During the Windows PowerShell rollout, preserve the intent of an existing
+  // Bash deny unless the user explicitly mentioned PowerShell anywhere. This
+  // prevents the newly surfaced shell tool from bypassing a Bash restriction.
+  const parsedDisallowedRules = parsedDisallowedToolsCli.map(
+    permissionRuleValueFromString,
+  )
+  const bashIsDenied =
+    parsedDisallowedRules.some(rule => rule.toolName === BASH_TOOL_NAME) ||
+    rulesFromDisk.some(
+      rule =>
+        rule.ruleBehavior === 'deny' &&
+        rule.ruleValue.toolName === BASH_TOOL_NAME,
+    )
+  const powerShellWasExplicitlyConfigured =
+    isEnvTruthy(process.env.CLAUDE_CODE_USE_POWERSHELL_TOOL) ||
+    parseBaseToolsFromCLI(baseToolsCli ?? [])
+      .map(normalizeLegacyToolName)
+      .includes(POWERSHELL_TOOL_NAME) ||
+    parsedAllowedToolsCli.some(
+      rule =>
+        permissionRuleValueFromString(rule).toolName === POWERSHELL_TOOL_NAME,
+    ) ||
+    parsedDisallowedRules.some(
+      rule => rule.toolName === POWERSHELL_TOOL_NAME,
+    ) ||
+    rulesFromDisk.some(rule => rule.ruleValue.toolName === POWERSHELL_TOOL_NAME)
+  if (
+    getPlatform() === 'windows' &&
+    bashIsDenied &&
+    !powerShellWasExplicitlyConfigured
+  ) {
+    parsedDisallowedToolsCli = [
+      ...parsedDisallowedToolsCli,
+      POWERSHELL_TOOL_NAME,
+    ]
+  }
 
   // Ant-only: Detect overly broad shell allow rules for all modes.
   // Bash(*) or PowerShell(*) are equivalent to YOLO mode for that shell.

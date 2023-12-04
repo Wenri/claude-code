@@ -1,96 +1,211 @@
-import { c as _c } from "react/compiler-runtime";
-import React, { useCallback, useRef, useState } from 'react';
-import { Select } from '../../components/CustomSelect/select.js';
-import { Dialog } from '../../components/design-system/Dialog.js';
-import { Box, Text } from '../../ink.js';
-type Props = {
-  onProceed: (signal: AbortSignal) => Promise<void>;
-  onCancel: () => void;
-};
-export function UltrareviewOverageDialog(t0) {
-  const $ = _c(15);
-  const {
-    onProceed,
-    onCancel
-  } = t0;
-  const [isLaunching, setIsLaunching] = useState(false);
-  let t1;
-  if ($[0] === Symbol.for("react.memo_cache_sentinel")) {
-    t1 = new AbortController();
-    $[0] = t1;
-  } else {
-    t1 = $[0];
-  }
-  const abortControllerRef = useRef(t1);
-  let t2;
-  if ($[1] !== onCancel || $[2] !== onProceed) {
-    t2 = value => {
-      if (value === "proceed") {
-        setIsLaunching(true);
-        onProceed(abortControllerRef.current.signal).catch(() => setIsLaunching(false));
-      } else {
-        onCancel();
-      }
-    };
-    $[1] = onCancel;
-    $[2] = onProceed;
-    $[3] = t2;
-  } else {
-    t2 = $[3];
-  }
-  const handleSelect = t2;
-  let t3;
-  if ($[4] !== onCancel) {
-    t3 = () => {
-      abortControllerRef.current.abort();
-      onCancel();
-    };
-    $[4] = onCancel;
-    $[5] = t3;
-  } else {
-    t3 = $[5];
-  }
-  const handleCancel = t3;
-  let t4;
-  if ($[6] === Symbol.for("react.memo_cache_sentinel")) {
-    t4 = [{
-      label: "Proceed with Extra Usage billing",
-      value: "proceed"
-    }, {
-      label: "Cancel",
-      value: "cancel"
-    }];
-    $[6] = t4;
-  } else {
-    t4 = $[6];
-  }
-  const options = t4;
-  let t5;
-  if ($[7] === Symbol.for("react.memo_cache_sentinel")) {
-    t5 = <Text>Your free ultrareviews for this organization are used. Further reviews bill as Extra Usage (pay-per-use).</Text>;
-    $[7] = t5;
-  } else {
-    t5 = $[7];
-  }
-  let t6;
-  if ($[8] !== handleCancel || $[9] !== handleSelect || $[10] !== isLaunching) {
-    t6 = <Box flexDirection="column" gap={1}>{t5}{isLaunching ? <Text color="background">Launching…</Text> : <Select options={options} onChange={handleSelect} onCancel={handleCancel} />}</Box>;
-    $[8] = handleCancel;
-    $[9] = handleSelect;
-    $[10] = isLaunching;
-    $[11] = t6;
-  } else {
-    t6 = $[11];
-  }
-  let t7;
-  if ($[12] !== handleCancel || $[13] !== t6) {
-    t7 = <Dialog title="Ultrareview billing" onCancel={handleCancel} color="background">{t6}</Dialog>;
-    $[12] = handleCancel;
-    $[13] = t6;
-    $[14] = t7;
-  } else {
-    t7 = $[14];
-  }
-  return t7;
+import React, { useCallback, useRef, useState } from 'react'
+import { Select } from '../../components/CustomSelect/select.js'
+import { Dialog } from '../../components/design-system/Dialog.js'
+import { Box, Link, Text } from '../../ink.js'
+import { checkGate_CACHED_OR_BLOCKING } from '../../services/analytics/growthbook.js'
+import {
+  checkGithubAppInstalled,
+  checkIsInGitRepo,
+} from '../../utils/background/remote/preconditions.js'
+import { getGlobalConfig, saveGlobalConfig } from '../../utils/config.js'
+import { detectCurrentRepositoryWithHost } from '../../utils/detectRepository.js'
+import { isEnvTruthy } from '../../utils/envUtils.js'
+import type { RemoteReviewScope } from './reviewRemote.js'
+import {
+  getUltrareviewCostNote,
+  getUltrareviewDurationNote,
+} from './ultrareviewEnabled.js'
+
+const CCR_TERMS_URL =
+  'https://code.claude.com/docs/en/claude-code-on-the-web'
+
+type ReviewSourceViability = {
+  cloneViable: boolean
+  bundleSeedEnabled: boolean
 }
-//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJSZWFjdCIsInVzZUNhbGxiYWNrIiwidXNlUmVmIiwidXNlU3RhdGUiLCJTZWxlY3QiLCJEaWFsb2ciLCJCb3giLCJUZXh0IiwiUHJvcHMiLCJvblByb2NlZWQiLCJzaWduYWwiLCJBYm9ydFNpZ25hbCIsIlByb21pc2UiLCJvbkNhbmNlbCIsIlVsdHJhcmV2aWV3T3ZlcmFnZURpYWxvZyIsInQwIiwiJCIsIl9jIiwiaXNMYXVuY2hpbmciLCJzZXRJc0xhdW5jaGluZyIsInQxIiwiU3ltYm9sIiwiZm9yIiwiQWJvcnRDb250cm9sbGVyIiwiYWJvcnRDb250cm9sbGVyUmVmIiwidDIiLCJ2YWx1ZSIsImN1cnJlbnQiLCJjYXRjaCIsImhhbmRsZVNlbGVjdCIsInQzIiwiYWJvcnQiLCJoYW5kbGVDYW5jZWwiLCJ0NCIsImxhYmVsIiwib3B0aW9ucyIsInQ1IiwidDYiLCJ0NyJdLCJzb3VyY2VzIjpbIlVsdHJhcmV2aWV3T3ZlcmFnZURpYWxvZy50c3giXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IFJlYWN0LCB7IHVzZUNhbGxiYWNrLCB1c2VSZWYsIHVzZVN0YXRlIH0gZnJvbSAncmVhY3QnXG5pbXBvcnQgeyBTZWxlY3QgfSBmcm9tICcuLi8uLi9jb21wb25lbnRzL0N1c3RvbVNlbGVjdC9zZWxlY3QuanMnXG5pbXBvcnQgeyBEaWFsb2cgfSBmcm9tICcuLi8uLi9jb21wb25lbnRzL2Rlc2lnbi1zeXN0ZW0vRGlhbG9nLmpzJ1xuaW1wb3J0IHsgQm94LCBUZXh0IH0gZnJvbSAnLi4vLi4vaW5rLmpzJ1xuXG50eXBlIFByb3BzID0ge1xuICBvblByb2NlZWQ6IChzaWduYWw6IEFib3J0U2lnbmFsKSA9PiBQcm9taXNlPHZvaWQ+XG4gIG9uQ2FuY2VsOiAoKSA9PiB2b2lkXG59XG5cbmV4cG9ydCBmdW5jdGlvbiBVbHRyYXJldmlld092ZXJhZ2VEaWFsb2coe1xuICBvblByb2NlZWQsXG4gIG9uQ2FuY2VsLFxufTogUHJvcHMpOiBSZWFjdC5SZWFjdE5vZGUge1xuICBjb25zdCBbaXNMYXVuY2hpbmcsIHNldElzTGF1bmNoaW5nXSA9IHVzZVN0YXRlKGZhbHNlKVxuICBjb25zdCBhYm9ydENvbnRyb2xsZXJSZWYgPSB1c2VSZWYobmV3IEFib3J0Q29udHJvbGxlcigpKVxuXG4gIGNvbnN0IGhhbmRsZVNlbGVjdCA9IHVzZUNhbGxiYWNrKFxuICAgICh2YWx1ZTogc3RyaW5nKSA9PiB7XG4gICAgICBpZiAodmFsdWUgPT09ICdwcm9jZWVkJykge1xuICAgICAgICBzZXRJc0xhdW5jaGluZyh0cnVlKVxuICAgICAgICAvLyBJZiBvblByb2NlZWQgcmVqZWN0cyAoZS5nLiBsYXVuY2hSZW1vdGVSZXZpZXcgdGhyb3dzKSwgb25Eb25lIGlzXG4gICAgICAgIC8vIG5ldmVyIGNhbGxlZCBhbmQgdGhlIGRpYWxvZyBzdGF5cyBtb3VudGVkIOKAlCByZXN0b3JlIHRoZSBTZWxlY3Qgc29cbiAgICAgICAgLy8gdGhlIHVzZXIgY2FuIHJldHJ5IG9yIGNhbmNlbCBpbnN0ZWFkIG9mIHN0YXJpbmcgYXQgXCJMYXVuY2hpbmfigKZcIi5cbiAgICAgICAgdm9pZCBvblByb2NlZWQoYWJvcnRDb250cm9sbGVyUmVmLmN1cnJlbnQuc2lnbmFsKS5jYXRjaCgoKSA9PlxuICAgICAgICAgIHNldElzTGF1bmNoaW5nKGZhbHNlKSxcbiAgICAgICAgKVxuICAgICAgfSBlbHNlIHtcbiAgICAgICAgb25DYW5jZWwoKVxuICAgICAgfVxuICAgIH0sXG4gICAgW29uUHJvY2VlZCwgb25DYW5jZWxdLFxuICApXG5cbiAgLy8gRXNjYXBlIGR1cmluZyBsYXVuY2ggYWJvcnRzIHRoZSBpbi1mbGlnaHQgb25Qcm9jZWVkIHZpYSBzaWduYWwgc28gdGhlXG4gIC8vIGNhbGxlciBjYW4gc2tpcCBzaWRlIGVmZmVjdHMgKGNvbmZpcm1PdmVyYWdlLCBvbkRvbmUpIOKAlCBvdGhlcndpc2UgYVxuICAvLyBmaXJlLWFuZC1mb3JnZXQgbGF1bmNoIHdvdWxkIGtlZXAgcnVubmluZyBhbmQgYmlsbCBkZXNwaXRlIFwiY2FuY2VsbGVkXCIuXG4gIGNvbnN0IGhhbmRsZUNhbmNlbCA9IHVzZUNhbGxiYWNrKCgpID0+IHtcbiAgICBhYm9ydENvbnRyb2xsZXJSZWYuY3VycmVudC5hYm9ydCgpXG4gICAgb25DYW5jZWwoKVxuICB9LCBbb25DYW5jZWxdKVxuXG4gIGNvbnN0IG9wdGlvbnMgPSBbXG4gICAgeyBsYWJlbDogJ1Byb2NlZWQgd2l0aCBFeHRyYSBVc2FnZSBiaWxsaW5nJywgdmFsdWU6ICdwcm9jZWVkJyB9LFxuICAgIHsgbGFiZWw6ICdDYW5jZWwnLCB2YWx1ZTogJ2NhbmNlbCcgfSxcbiAgXVxuXG4gIHJldHVybiAoXG4gICAgPERpYWxvZ1xuICAgICAgdGl0bGU9XCJVbHRyYXJldmlldyBiaWxsaW5nXCJcbiAgICAgIG9uQ2FuY2VsPXtoYW5kbGVDYW5jZWx9XG4gICAgICBjb2xvcj1cImJhY2tncm91bmRcIlxuICAgID5cbiAgICAgIDxCb3ggZmxleERpcmVjdGlvbj1cImNvbHVtblwiIGdhcD17MX0+XG4gICAgICAgIDxUZXh0PlxuICAgICAgICAgIFlvdXIgZnJlZSB1bHRyYXJldmlld3MgZm9yIHRoaXMgb3JnYW5pemF0aW9uIGFyZSB1c2VkLiBGdXJ0aGVyIHJldmlld3NcbiAgICAgICAgICBiaWxsIGFzIEV4dHJhIFVzYWdlIChwYXktcGVyLXVzZSkuXG4gICAgICAgIDwvVGV4dD5cbiAgICAgICAge2lzTGF1bmNoaW5nID8gKFxuICAgICAgICAgIDxUZXh0IGNvbG9yPVwiYmFja2dyb3VuZFwiPkxhdW5jaGluZ+KApjwvVGV4dD5cbiAgICAgICAgKSA6IChcbiAgICAgICAgICA8U2VsZWN0XG4gICAgICAgICAgICBvcHRpb25zPXtvcHRpb25zfVxuICAgICAgICAgICAgb25DaGFuZ2U9e2hhbmRsZVNlbGVjdH1cbiAgICAgICAgICAgIG9uQ2FuY2VsPXtoYW5kbGVDYW5jZWx9XG4gICAgICAgICAgLz5cbiAgICAgICAgKX1cbiAgICAgIDwvQm94PlxuICAgIDwvRGlhbG9nPlxuICAp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
+
+async function getReviewSourceViability(): Promise<ReviewSourceViability> {
+  const [repository, bundleSeedGate] = await Promise.all([
+    detectCurrentRepositoryWithHost(),
+    checkGate_CACHED_OR_BLOCKING('tengu_ccr_bundle_seed_enabled'),
+  ])
+  const bundleSeedEnabled =
+    checkIsInGitRepo() &&
+    (isEnvTruthy(process.env.CCR_ENABLE_BUNDLE) || bundleSeedGate)
+  if (!bundleSeedEnabled) {
+    return { cloneViable: false, bundleSeedEnabled }
+  }
+  return {
+    cloneViable:
+      repository !== null &&
+      (repository.host !== 'github.com' ||
+        (await checkGithubAppInstalled(repository.owner, repository.name))),
+    bundleSeedEnabled,
+  }
+}
+
+function formatReviewSourceViability(
+  source: ReviewSourceViability,
+): string | null {
+  if (!source.bundleSeedEnabled) return null
+  return source.cloneViable
+    ? 'This will try to clone your git remote and fall back to uploading this repository.'
+    : 'This will upload your repository to Claude Code on the web.'
+}
+
+type Props = {
+  subtitle?: string | null
+  body?: string
+  scope: RemoteReviewScope
+  onProceed: (signal: AbortSignal) => Promise<void>
+  onCancel: () => void
+}
+
+type ContentProps = Pick<Props, 'body' | 'scope' | 'onCancel'> & {
+  showTerms: boolean
+  sourcePromise: Promise<ReviewSourceViability | null> | null
+  isLaunching: boolean
+  onSelect: (value: string) => void
+}
+
+function UltrareviewDialogContent({
+  showTerms,
+  sourcePromise,
+  body,
+  scope,
+  isLaunching,
+  onSelect,
+  onCancel,
+}: ContentProps): React.ReactNode {
+  const source = sourcePromise ? React.use(sourcePromise) : null
+  const sourceDescription = source
+    ? formatReviewSourceViability(source)
+    : null
+  const scopeDescription =
+    scope.mode === 'pr'
+      ? `Reviewing PR #${scope.prNumber} fetched from GitHub.`
+      : `Reviewing current branch against ${scope.baseBranch}.`
+  const scopeStat =
+    scope.mode === 'branch' && scope.diffStat ? scope.diffStat : null
+  const tip =
+    scope.mode === 'pr'
+      ? 'Tip: run /ultrareview (no number) to review your current branch instead.'
+      : 'Tip: run /ultrareview <PR number> to fetch and review a specific GitHub PR instead.'
+
+  const details = showTerms ? (
+    <>
+      <Box flexDirection="column">
+        <Text dimColor>{scopeDescription}</Text>
+        {scopeStat && <Text dimColor>Scope: {scopeStat}</Text>}
+        <Text dimColor>
+          Finds and verifies bugs using a multi-agent review fleet.
+        </Text>
+        <Text dimColor>{tip}</Text>
+        {sourceDescription && <Text dimColor>{sourceDescription}</Text>}
+        {body && <Text dimColor>{body}</Text>}
+        <Text dimColor>
+          More information: <Link url={CCR_TERMS_URL}>{CCR_TERMS_URL}</Link>
+        </Text>
+      </Box>
+      <Text>Proceed?</Text>
+    </>
+  ) : (
+    <Box flexDirection="column">
+      <Text dimColor>{scopeDescription}</Text>
+      {scopeStat && <Text dimColor>Scope: {scopeStat}</Text>}
+      <Text dimColor>
+        Finds and verifies bugs using a multi-agent review fleet.
+      </Text>
+      <Text dimColor>{tip}</Text>
+      {body && <Text dimColor>{body}</Text>}
+    </Box>
+  )
+
+  return (
+    <Box flexDirection="column" gap={1}>
+      {details}
+      {isLaunching ? (
+        <Text color="background">Launching…</Text>
+      ) : (
+        <Select
+          options={[
+            {
+              label: showTerms ? 'Yes' : 'Run ultrareview',
+              value: 'proceed',
+              description: 'launch in Claude Code on the web',
+            },
+            { label: showTerms ? 'No' : 'Not now', value: 'cancel' },
+          ]}
+          onChange={onSelect}
+          onCancel={onCancel}
+        />
+      )}
+    </Box>
+  )
+}
+
+export function UltrareviewOverageDialog({
+  subtitle,
+  body,
+  scope,
+  onProceed,
+  onCancel,
+}: Props): React.ReactNode {
+  const [showTerms] = useState(
+    () => !getGlobalConfig().hasSeenUltrareviewTerms,
+  )
+  const [sourcePromise] = useState(() =>
+    showTerms ? getReviewSourceViability().catch(() => null) : null,
+  )
+  const [isLaunching, setIsLaunching] = useState(false)
+  const abortControllerRef = useRef(new AbortController())
+
+  const handleSelect = useCallback(
+    (value: string) => {
+      if (value !== 'proceed') {
+        onCancel()
+        return
+      }
+      if (showTerms) {
+        saveGlobalConfig(current =>
+          current.hasSeenUltrareviewTerms
+            ? current
+            : { ...current, hasSeenUltrareviewTerms: true },
+        )
+      }
+      setIsLaunching(true)
+      void onProceed(abortControllerRef.current.signal).catch(() =>
+        setIsLaunching(false),
+      )
+    },
+    [onCancel, onProceed, showTerms],
+  )
+
+  const handleCancel = useCallback(() => {
+    abortControllerRef.current.abort()
+    onCancel()
+  }, [onCancel])
+
+  return (
+    <Dialog
+      title="Run ultrareview in the cloud?"
+      subtitle={
+        subtitle ??
+        `${getUltrareviewDurationNote()} · Est. cost ${getUltrareviewCostNote()} USD`
+      }
+      onCancel={handleCancel}
+    >
+      <React.Suspense fallback={<Text dimColor>Loading…</Text>}>
+        <UltrareviewDialogContent
+          showTerms={showTerms}
+          sourcePromise={sourcePromise}
+          body={body}
+          scope={scope}
+          isLaunching={isLaunching}
+          onSelect={handleSelect}
+          onCancel={handleCancel}
+        />
+      </React.Suspense>
+    </Dialog>
+  )
+}

@@ -171,7 +171,7 @@ function MCPTextOutput(t0) {
         const t2 = unwrapped.extras.length > 0 && <Text dimColor={true}>{unwrapped.extras.map(_temp).join(" \xB7 ")}</Text>;
         let t3;
         if ($[3] !== unwrapped || $[4] !== verbose) {
-          t3 = <OutputLine content={unwrapped.body} verbose={verbose} linkifyUrls={true} />;
+          t3 = <OutputLine content={unwrapped.body} verbose={verbose} />;
           $[3] = unwrapped;
           $[4] = verbose;
           $[5] = t3;
@@ -241,7 +241,7 @@ function MCPTextOutput(t0) {
   }
   let t3;
   if ($[15] !== content || $[16] !== verbose) {
-    t3 = <OutputLine content={content} verbose={verbose} linkifyUrls={true} />;
+    t3 = <OutputLine content={content} verbose={verbose} />;
     $[15] = content;
     $[16] = verbose;
     $[17] = t3;

@@ -1,10 +1,11 @@
 import { randomUUID } from 'crypto';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { TranscriptShareResponse } from './TranscriptSharePrompt.js';
 import type { FeedbackSurveyResponse } from './utils.js';
 type SurveyState = 'closed' | 'open' | 'thanks' | 'transcript_prompt' | 'submitting' | 'submitted';
 type UseSurveyStateOptions = {
   hideThanksAfterMs: number;
+  otherSurveyActive?: boolean;
   onOpen: (appearanceId: string) => void | Promise<void>;
   onSelect: (appearanceId: string, selected: FeedbackSurveyResponse) => void | Promise<void>;
   shouldShowTranscriptPrompt?: (selected: FeedbackSurveyResponse) => boolean;
@@ -13,6 +14,7 @@ type UseSurveyStateOptions = {
 };
 export function useSurveyState({
   hideThanksAfterMs,
+  otherSurveyActive = false,
   onOpen,
   onSelect,
   shouldShowTranscriptPrompt,
@@ -48,6 +50,11 @@ export function useSurveyState({
     appearanceId.current = randomUUID();
     void onOpen(appearanceId.current);
   }, [state, onOpen]);
+  useEffect(() => {
+    if (otherSurveyActive && state === 'open') {
+      setState('closed');
+    }
+  }, [otherSurveyActive, state]);
   const handleSelect = useCallback((selected: FeedbackSurveyResponse): boolean => {
     setLastResponse(selected);
     lastResponseRef.current = selected;

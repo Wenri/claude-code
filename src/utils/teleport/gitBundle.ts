@@ -25,6 +25,15 @@ import { generateTempFilePath } from '../tempfile.js'
 // Tunable via tengu_ccr_bundle_max_bytes.
 const DEFAULT_BUNDLE_MAX_BYTES = 100 * 1024 * 1024
 
+function getBundleMaxBytes(): number {
+  return (
+    getFeatureValue_CACHED_MAY_BE_STALE<number | null>(
+      'tengu_ccr_bundle_max_bytes',
+      null,
+    ) ?? DEFAULT_BUNDLE_MAX_BYTES
+  )
+}
+
 type BundleScope = 'all' | 'head' | 'squashed'
 
 export type BundleUploadResult =
@@ -37,11 +46,60 @@ export type BundleUploadResult =
     }
   | { success: false; error: string; failReason?: BundleFailReason }
 
-type BundleFailReason = 'git_error' | 'too_large' | 'empty_repo'
+type BundleFailReason =
+  | 'git_error'
+  | 'too_large'
+  | 'empty_repo'
+  | 'stash_failed'
+  | 'no_changes'
 
 type BundleCreateResult =
   | { ok: true; size: number; scope: BundleScope }
   | { ok: false; error: string; failReason: BundleFailReason }
+
+async function getPackedRepositoryStats(
+  gitRoot: string,
+  signal?: AbortSignal,
+): Promise<{ sizeBytes: number | null; inPackCount: number | null }> {
+  const result = await execFileNoThrowWithCwd(
+    gitExe(),
+    ['count-objects', '-v'],
+    { cwd: gitRoot, abortSignal: signal },
+  )
+  if (result.code !== 0) {
+    return { sizeBytes: null, inPackCount: null }
+  }
+  const sizePack = result.stdout.match(/^size-pack:\s*(\d+)/m)
+  const inPack = result.stdout.match(/^in-pack:\s*(\d+)/m)
+  return {
+    sizeBytes: sizePack ? Number(sizePack[1]) * 1024 : null,
+    inPackCount: inPack ? Number(inPack[1]) : null,
+  }
+}
+
+/**
+ * Fast rejection for repositories whose packed object database is too large
+ * even for the squashed bundle fallback. Used by /ultrareview before showing
+ * a launch dialog that cannot succeed.
+ */
+export async function isRepoTooLargeForBundle(options?: {
+  cwd?: string
+  signal?: AbortSignal
+}): Promise<boolean> {
+  const gitRoot = findGitRoot(options?.cwd ?? getCwd())
+  if (!gitRoot) return false
+  const { sizeBytes, inPackCount } = await getPackedRepositoryStats(
+    gitRoot,
+    options?.signal,
+  )
+  if (sizeBytes === null) return false
+  const maxBytes = getBundleMaxBytes()
+  return (
+    sizeBytes > 3 * maxBytes &&
+    (sizeBytes > 100 * maxBytes ||
+      (inPackCount !== null && inPackCount > 5_000_000))
+  )
+}
 
 // Bundle --all → HEAD → squashed-root. HEAD drops side branches/tags but
 // keeps full current-branch history. Squashed-root is a single parentless
@@ -53,6 +111,7 @@ async function _bundleWithFallback(
   maxBytes: number,
   hasStash: boolean,
   signal: AbortSignal | undefined,
+  baseRef?: string,
 ): Promise<BundleCreateResult> {
   // --all picks up refs/seed/stash; HEAD needs it explicit.
   const extra = hasStash ? ['refs/seed/stash'] : []
@@ -63,48 +122,108 @@ async function _bundleWithFallback(
       { cwd: gitRoot, abortSignal: signal },
     )
 
-  const allResult = await mkBundle('--all')
-  if (allResult.code !== 0) {
-    return {
-      ok: false,
-      error: `git bundle create --all failed (${allResult.code}): ${allResult.stderr.slice(0, 200)}`,
-      failReason: 'git_error',
-    }
-  }
-
-  const { size: allSize } = await stat(bundlePath)
-  if (allSize <= maxBytes) {
-    return { ok: true, size: allSize, scope: 'all' }
-  }
-
-  // bundle create overwrites in place.
-  logForDebugging(
-    `[gitBundle] --all bundle is ${(allSize / 1024 / 1024).toFixed(1)}MB (> ${(maxBytes / 1024 / 1024).toFixed(0)}MB), retrying HEAD-only`,
+  const { sizeBytes, inPackCount } = await getPackedRepositoryStats(
+    gitRoot,
+    signal,
   )
-  const headResult = await mkBundle('HEAD')
-  if (headResult.code !== 0) {
-    return {
-      ok: false,
-      error: `git bundle create HEAD failed (${headResult.code}): ${headResult.stderr.slice(0, 200)}`,
-      failReason: 'git_error',
+  const skipAll = sizeBytes !== null && sizeBytes > maxBytes
+  const skipHead = sizeBytes !== null && sizeBytes > 3 * maxBytes
+  const skipSquashed =
+    sizeBytes !== null &&
+    skipHead &&
+    (sizeBytes > 100 * maxBytes ||
+      (inPackCount !== null && inPackCount > 5_000_000))
+
+  if (skipAll && sizeBytes !== null) {
+    logForDebugging(
+      `[gitBundle] size-pack ${(sizeBytes / 1024 / 1024).toFixed(0)}MB > ${(maxBytes / 1024 / 1024).toFixed(0)}MB cap; skipping --all${skipHead ? ' and HEAD' : ''}${skipSquashed ? ' and squashed' : ''}`,
+    )
+  } else {
+    const allResult = await mkBundle('--all')
+    if (allResult.code !== 0) {
+      return {
+        ok: false,
+        error: `git bundle create --all failed (${allResult.code}): ${allResult.stderr.slice(0, 200)}`,
+        failReason: 'git_error',
+      }
     }
+    const { size: allSize } = await stat(bundlePath)
+    if (allSize <= maxBytes) {
+      return { ok: true, size: allSize, scope: 'all' }
+    }
+    logForDebugging(
+      `[gitBundle] --all bundle is ${(allSize / 1024 / 1024).toFixed(1)}MB (> ${(maxBytes / 1024 / 1024).toFixed(0)}MB), retrying HEAD-only`,
+    )
   }
 
-  const { size: headSize } = await stat(bundlePath)
-  if (headSize <= maxBytes) {
-    return { ok: true, size: headSize, scope: 'head' }
+  if (!skipHead) {
+    const headResult = await mkBundle('HEAD')
+    if (headResult.code !== 0) {
+      return {
+        ok: false,
+        error: `git bundle create HEAD failed (${headResult.code}): ${headResult.stderr.slice(0, 200)}`,
+        failReason: 'git_error',
+      }
+    }
+    const { size: headSize } = await stat(bundlePath)
+    if (headSize <= maxBytes) {
+      return { ok: true, size: headSize, scope: 'head' }
+    }
+    logForDebugging(
+      `[gitBundle] HEAD bundle is ${(headSize / 1024 / 1024).toFixed(1)}MB, retrying squashed-root`,
+    )
+  }
+
+  if (skipSquashed) {
+    return {
+      ok: false,
+      error:
+        'Repo is too large to bundle. Please setup GitHub on https://claude.ai/code',
+      failReason: 'too_large',
+    }
   }
 
   // Last resort: squash to a single parentless commit. Uses the stash tree
   // when WIP exists (bakes uncommitted changes in — can't bundle the stash
   // ref separately since its parents would drag history back).
-  logForDebugging(
-    `[gitBundle] HEAD bundle is ${(headSize / 1024 / 1024).toFixed(1)}MB, retrying squashed-root`,
-  )
   const treeRef = hasStash ? 'refs/seed/stash^{tree}' : 'HEAD^{tree}'
+  const parentArgs: string[] = []
+  if (baseRef) {
+    const [treeResult, baseTreeResult] = await Promise.all(
+      [treeRef, `${baseRef}^{tree}`].map(ref =>
+        execFileNoThrowWithCwd(gitExe(), ['rev-parse', ref], {
+          cwd: gitRoot,
+          abortSignal: signal,
+        }),
+      ),
+    )
+    if (
+      treeResult?.code === 0 &&
+      treeResult.stdout.trim() === baseTreeResult?.stdout.trim()
+    ) {
+      return {
+        ok: false,
+        error:
+          "It doesn't look like you have any new commits or changes to review. Stage or commit them first?",
+        failReason: 'no_changes',
+      }
+    }
+    const baseCommit = await execFileNoThrowWithCwd(
+      gitExe(),
+      ['commit-tree', `${baseRef}^{tree}`, '-m', 'seed-base'],
+      { cwd: gitRoot, abortSignal: signal },
+    )
+    if (baseCommit.code === 0) {
+      parentArgs.push('-p', baseCommit.stdout.trim())
+    } else {
+      logForDebugging(
+        `[gitBundle] baseRef commit-tree failed (${baseCommit.code}), squashing without parent: ${baseCommit.stderr.slice(0, 200)}`,
+      )
+    }
+  }
   const commitTree = await execFileNoThrowWithCwd(
     gitExe(),
-    ['commit-tree', treeRef, '-m', 'seed'],
+    ['commit-tree', treeRef, ...parentArgs, '-m', 'seed'],
     { cwd: gitRoot, abortSignal: signal },
   )
   if (commitTree.code !== 0) {
@@ -151,7 +270,7 @@ async function _bundleWithFallback(
 // squashed tree); untracked not captured.
 export async function createAndUploadGitBundle(
   config: FilesApiConfig,
-  opts?: { cwd?: string; signal?: AbortSignal },
+  opts?: { cwd?: string; signal?: AbortSignal; baseRef?: string },
 ): Promise<BundleUploadResult> {
   const workdir = opts?.cwd ?? getCwd()
   const gitRoot = findGitRoot(workdir)
@@ -195,13 +314,30 @@ export async function createAndUploadGitBundle(
     ['stash', 'create'],
     { cwd: gitRoot, abortSignal: opts?.signal },
   )
-  // exit 0 + empty stdout = nothing to stash. Nonzero is rare; non-fatal.
+  // exit 0 + empty stdout = nothing to stash. A failure with an existing
+  // HEAD is fatal because proceeding would silently omit local changes.
   const wipStashSha = stashResult.code === 0 ? stashResult.stdout.trim() : ''
   const hasWip = wipStashSha !== ''
   if (stashResult.code !== 0) {
     logForDebugging(
-      `[gitBundle] git stash create failed (${stashResult.code}), proceeding without WIP: ${stashResult.stderr.slice(0, 200)}`,
+      `[gitBundle] git stash create failed (${stashResult.code}): ${stashResult.stderr.slice(0, 200)}`,
     )
+    const head = await execFileNoThrowWithCwd(
+      gitExe(),
+      ['rev-parse', '--verify', 'HEAD'],
+      { cwd: gitRoot },
+    )
+    if (head.code === 0) {
+      logEvent('tengu_ccr_bundle_upload', {
+        outcome:
+          'stash_failed' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      })
+      return {
+        success: false,
+        error: `Could not capture uncommitted changes (git stash create: ${stashResult.stderr.trim()}). Run \`git add .\` or commit, then retry.`,
+        failReason: 'stash_failed',
+      }
+    }
   } else if (hasWip) {
     logForDebugging(`[gitBundle] Captured WIP as stash ${wipStashSha}`)
     // env-runner reads the SHA via bundle list-heads refs/seed/stash.
@@ -216,11 +352,7 @@ export async function createAndUploadGitBundle(
 
   // git leaves a partial file on nonzero exit (e.g. empty-repo 128).
   try {
-    const maxBytes =
-      getFeatureValue_CACHED_MAY_BE_STALE<number | null>(
-        'tengu_ccr_bundle_max_bytes',
-        null,
-      ) ?? DEFAULT_BUNDLE_MAX_BYTES
+    const maxBytes = getBundleMaxBytes()
 
     const bundle = await _bundleWithFallback(
       gitRoot,
@@ -228,6 +360,7 @@ export async function createAndUploadGitBundle(
       maxBytes,
       hasWip,
       opts?.signal,
+      opts?.baseRef,
     )
 
     if (!bundle.ok) {

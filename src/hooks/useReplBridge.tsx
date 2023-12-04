@@ -315,6 +315,7 @@ export function useReplBridge(messages: Message[], setMessages: (action: React.S
                           agents: state_0.agentDefinitions.activeAgents,
                           skills,
                           plugins: [],
+                          pluginErrors: [],
                           fastMode: state_0.fastMode
                         })]);
                       } catch (err_0) {

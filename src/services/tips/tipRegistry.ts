@@ -546,7 +546,13 @@ const externalTips: Tip[] = [
       }
       if (getEffortEnvOverride() !== undefined) return false
       const persisted = getInitialSettings().effortLevel
-      if (persisted === 'high' || persisted === 'max') return false
+      if (
+        persisted === 'high' ||
+        persisted === 'xhigh' ||
+        persisted === 'max'
+      ) {
+        return false
+      }
       return (
         getFeatureValue_CACHED_MAY_BE_STALE<'off' | 'copy_a' | 'copy_b'>(
           'tengu_tide_elm',

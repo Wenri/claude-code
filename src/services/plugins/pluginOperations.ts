@@ -27,6 +27,8 @@ import {
 import {
   findDependencyConstraints,
   findReverseDependents,
+  formatConstraintIntersectionError,
+  formatNoMatchingTagError,
   formatReverseDependentsSuffix,
 } from '../../utils/plugins/dependencyResolver.js'
 import {
@@ -414,12 +416,21 @@ export async function installPluginOp(
       case 'range-conflict':
         return {
           success: false,
-          message: `${result.dep === pluginId ? 'Plugin' : 'Dependency'} "${result.dep}" has conflicting version requirements: ${result.ranges.join(', ')}`,
+          message: formatConstraintIntersectionError(
+            result.dep === pluginId ? 'Plugin' : 'Dependency',
+            result.dep,
+            result.ranges,
+            result.why,
+          ),
         }
       case 'no-matching-tag':
         return {
           success: false,
-          message: `${result.dep === pluginId ? 'Plugin' : 'Dependency'} "${result.dep}" has no git tag satisfying ${result.range}`,
+          message: formatNoMatchingTagError(
+            result.dep === pluginId ? 'Plugin' : 'Dependency',
+            result.dep,
+            result.range,
+          ),
         }
     }
   }

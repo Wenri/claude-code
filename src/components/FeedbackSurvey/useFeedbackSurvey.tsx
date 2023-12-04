@@ -40,7 +40,7 @@ const DEFAULT_FEEDBACK_SURVEY_CONFIG: FeedbackSurveyConfig = {
 const DEFAULT_TRANSCRIPT_ASK_CONFIG: TranscriptAskConfig = {
   probability: 0
 };
-export function useFeedbackSurvey(messages: Message[], isLoading: boolean, submitCount: number, surveyType: FeedbackSurveyType = 'session', hasActivePrompt: boolean = false): {
+export function useFeedbackSurvey(messages: Message[], isLoading: boolean, submitCount: number, surveyType: FeedbackSurveyType = 'session', hasActivePrompt: boolean = false, otherSurveyActive: boolean = false): {
   state: 'closed' | 'open' | 'thanks' | 'transcript_prompt' | 'submitting' | 'submitted';
   lastResponse: FeedbackSurveyResponse | null;
   handleSelect: (selected: FeedbackSurveyResponse) => boolean;
@@ -189,6 +189,7 @@ export function useFeedbackSurvey(messages: Message[], isLoading: boolean, submi
     handleSelect,
     handleTranscriptSelect
   } = useSurveyState({
+    otherSurveyActive,
     hideThanksAfterMs: config.hideThanksAfterMs,
     onOpen,
     onSelect,
@@ -216,6 +217,9 @@ export function useFeedbackSurvey(messages: Message[], isLoading: boolean, submi
 
     // Don't show survey when permission or ask question prompts are visible
     if (hasActivePrompt) {
+      return false;
+    }
+    if (otherSurveyActive) {
       return false;
     }
 
@@ -280,7 +284,7 @@ export function useFeedbackSurvey(messages: Message[], isLoading: boolean, submi
       }
     }
     return true;
-  }, [state, isLoading, hasActivePrompt, isModelAllowed, feedbackSurvey.timeLastShown, feedbackSurvey.submitCountAtLastAppearance, submitCount, config.minTimeBetweenFeedbackMs, config.minTimeBetweenGlobalFeedbackMs, config.minUserTurnsBetweenFeedback, config.minTimeBeforeFeedbackMs, config.minUserTurnsBeforeFeedback, config.probability, settingsRate]);
+  }, [state, isLoading, hasActivePrompt, otherSurveyActive, isModelAllowed, feedbackSurvey.timeLastShown, feedbackSurvey.submitCountAtLastAppearance, submitCount, config.minTimeBetweenFeedbackMs, config.minTimeBetweenGlobalFeedbackMs, config.minUserTurnsBetweenFeedback, config.minTimeBeforeFeedbackMs, config.minUserTurnsBeforeFeedback, config.probability, settingsRate]);
   useEffect(() => {
     if (shouldOpen) {
       open();

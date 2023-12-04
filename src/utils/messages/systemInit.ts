@@ -35,6 +35,11 @@ export type SystemInitInputs = {
   agents: ReadonlyArray<{ agentType: string }>
   skills: ReadonlyArray<CommandLike>
   plugins: ReadonlyArray<{ name: string; path: string; source: string }>
+  pluginErrors: ReadonlyArray<{
+    plugin: string
+    type: string
+    message: string
+  }>
   fastMode: boolean | undefined
 }
 
@@ -82,6 +87,9 @@ export function buildSystemInitMessage(inputs: SystemInitInputs): SDKMessage {
       path: plugin.path,
       source: plugin.source,
     })),
+    ...(inputs.pluginErrors.length > 0 && {
+      plugin_errors: inputs.pluginErrors.map(error => ({ ...error })),
+    }),
     uuid: randomUUID(),
   }
   // Hidden from public SDK types — ant-only UDS messaging socket path

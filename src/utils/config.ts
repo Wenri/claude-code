@@ -226,6 +226,7 @@ export type GlobalConfig = {
   hasAcknowledgedCostThreshold?: boolean
   hasSeenUndercoverAutoNotice?: boolean // ant-only: whether the one-time auto-undercover explainer has been shown
   hasSeenUltraplanTerms?: boolean // ant-only: whether the one-time CCR terms notice has been shown in the ultraplan launch dialog
+  hasSeenUltrareviewTerms?: boolean // ant-only: whether the one-time CCR terms notice has been shown in the ultrareview launch dialog
   hasResetAutoModeOptInForDefaultOffer?: boolean // ant-only: one-shot migration guard, re-prompts churned auto-mode users
   oauthAccount?: AccountInfo
   iterm2KeyBindingInstalled?: boolean // Legacy - keeping for backward compatibility
@@ -237,6 +238,7 @@ export type GlobalConfig = {
   externalEditorContext?: boolean // Include recent assistant output in the external prompt editor
   briefTranscript?: boolean // Persist the compact focus transcript view
   showTurnDuration: boolean // Controls whether to show turn duration message (e.g., "Cooked for 1m 6s")
+  unpinOpus47LaunchEffort?: boolean // Whether the user has explicitly changed Opus 4.7's launch effort
   /**
    * @deprecated Use settings.env instead.
    */

@@ -29,7 +29,10 @@ import {
   isNonCustomOpusModel,
 } from 'src/utils/model/model.js'
 import { getModelStrings } from 'src/utils/model/modelStrings.js'
-import { getAPIProvider } from 'src/utils/model/providers.js'
+import {
+  getAPIProvider,
+  isFirstPartyCompatibleAPIProvider,
+} from 'src/utils/model/providers.js'
 import { getIsNonInteractiveSession } from '../../bootstrap/state.js'
 import {
   API_PDF_MAX_PAGES,
@@ -568,8 +571,11 @@ export function getAssistantMessageFromError(
     const messagePrefix = processRateLimits
       ? 'Server is temporarily limiting requests (not your usage limit)'
       : 'Request rejected (429)'
+    const capacityMessage = isFirstPartyCompatibleAPIProvider()
+      ? `this may be a temporary capacity issue — check ${CLAUDE_STATUS_PAGE}`
+      : 'this may be a temporary capacity issue'
     return createAssistantAPIErrorMessage({
-      content: `${API_ERROR_MESSAGE_PREFIX}: ${messagePrefix} · ${detail || `this may be a temporary capacity issue — check ${CLAUDE_STATUS_PAGE}`}`,
+      content: `${API_ERROR_MESSAGE_PREFIX}: ${messagePrefix} · ${detail || capacityMessage}`,
       error: 'rate_limit',
     })
   }

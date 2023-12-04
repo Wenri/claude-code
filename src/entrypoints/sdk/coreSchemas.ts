@@ -1067,7 +1067,7 @@ export const ModelInfoSchema = lazySchema(() =>
         .optional()
         .describe('Whether this model supports effort levels'),
       supportedEffortLevels: z
-        .array(z.enum(['low', 'medium', 'high', 'max']))
+        .array(z.enum(['low', 'medium', 'high', 'xhigh', 'max']))
         .optional()
         .describe('Available effort levels for this model'),
       supportsAdaptiveThinking: z
@@ -1176,7 +1176,10 @@ export const AgentDefinitionSchema = lazySchema(() =>
           "Scope for auto-loading agent memory files. 'user' - ~/.claude/agent-memory/<agentType>/, 'project' - .claude/agent-memory/<agentType>/, 'local' - .claude/agent-memory-local/<agentType>/",
         ),
       effort: z
-        .union([z.enum(['low', 'medium', 'high', 'max']), z.number().int()])
+        .union([
+          z.enum(['low', 'medium', 'high', 'xhigh', 'max']),
+          z.number().int(),
+        ])
         .optional()
         .describe(
           'Reasoning effort level for this agent. Either a named level or an integer',
@@ -1497,6 +1500,18 @@ export const SDKSystemMessageSchema = lazySchema(() =>
           ),
       }),
     ),
+    plugin_errors: z
+      .array(
+        z.object({
+          plugin: z.string(),
+          type: z.string(),
+          message: z.string(),
+        }),
+      )
+      .optional()
+      .describe(
+        '@internal Plugin load-time errors (e.g., unsatisfied dependency version). Affected plugins are demoted and absent from `plugins[]`. The key is omitted when there are no errors; CI can fail on `(plugin_errors?.length ?? 0) > 0`.',
+      ),
     fast_mode_state: FastModeStateSchema().optional(),
     uuid: UUIDPlaceholder(),
     session_id: z.string(),

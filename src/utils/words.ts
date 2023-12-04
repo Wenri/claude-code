@@ -790,6 +790,24 @@ export function generateWordSlug(): string {
 }
 
 /**
+ * Turn the beginning of a prompt into a filesystem-safe slug prefix.
+ */
+export function slugifyPrompt(
+  prompt: string,
+  options: { words?: number; maxLen?: number } = {},
+): string {
+  const { words = 4, maxLen = 40 } = options
+  return prompt
+    .split(/\s+/)
+    .slice(0, words)
+    .join(' ')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .slice(0, maxLen)
+    .replace(/^-+|-+$/g, '')
+}
+
+/**
  * Generate a shorter random word slug in the format "adjective-noun"
  * Example: "graceful-unicorn", "cosmic-lighthouse"
  */

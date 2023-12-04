@@ -3,10 +3,16 @@ import * as React from 'react';
 import { useState } from 'react';
 import { Box, Text } from 'src/ink.js';
 import {
+  extractConnectionErrorDetails,
   formatAPIError,
   isNetworkConnectionError
 } from 'src/services/api/errorUtils.js';
+import {
+  getRateLimitDisplayName,
+  getRateLimitInfoFromError
+} from 'src/services/claudeAiLimits.js';
 import type { SystemAPIErrorMessage } from 'src/types/message.js';
+import { formatDuration, formatResetTime } from 'src/utils/format.js';
 import { useInterval } from 'usehooks-ts';
 import { CtrlOToExpand } from '../CtrlOToExpand.js';
 import { MessageResponse } from '../MessageResponse.js';
@@ -16,7 +22,7 @@ type Props = {
   verbose: boolean;
 };
 export function SystemAPIErrorMessage(t0) {
-  const $ = _c(33);
+  const $ = _c(36);
   const {
     message: t1,
     verbose
@@ -27,118 +33,140 @@ export function SystemAPIErrorMessage(t0) {
     retryInMs,
     maxRetries
   } = t1;
-  const hidden = retryAttempt < 4 && !isNetworkConnectionError(error);
+  const rateLimitInfo = getRateLimitInfoFromError(error);
+  const resetTime = rateLimitInfo?.resetsAt ? formatResetTime(rateLimitInfo.resetsAt) : undefined;
+  const suppressTransientError = retryAttempt < maxRetries && !isNetworkConnectionError(error) && !extractConnectionErrorDetails(error)?.isSSLError && !rateLimitInfo;
   const [countdownMs, setCountdownMs] = useState(0);
-  const done = countdownMs >= retryInMs;
+  const remainingMs = Math.max(0, retryInMs - countdownMs);
+  const intervalMs = remainingMs > 60000 ? 60000 : 1000;
   let t2;
-  if ($[0] === Symbol.for("react.memo_cache_sentinel")) {
-    t2 = () => setCountdownMs(_temp);
-    $[0] = t2;
+  if ($[0] !== intervalMs) {
+    t2 = () => setCountdownMs(ms => ms + intervalMs);
+    $[0] = intervalMs;
+    $[1] = t2;
   } else {
-    t2 = $[0];
+    t2 = $[1];
   }
-  useInterval(t2, hidden || done ? null : 1000);
-  if (hidden) {
-    return null;
-  }
+  useInterval(t2, remainingMs === 0 ? null : intervalMs);
   let t3;
-  if ($[1] !== countdownMs || $[2] !== retryInMs) {
-    t3 = Math.round((retryInMs - countdownMs) / 1000);
-    $[1] = countdownMs;
-    $[2] = retryInMs;
+  if ($[2] !== remainingMs) {
+    t3 = formatDuration(remainingMs, {
+      mostSignificantOnly: true
+    });
+    $[2] = remainingMs;
     $[3] = t3;
   } else {
     t3 = $[3];
   }
-  const retryInSecondsLive = Math.max(0, t3);
+  const retryDuration = t3;
+  const resetSuffix = resetTime ? ` (${resetTime})` : "";
+  let t4;
+  if ($[4] !== maxRetries || $[5] !== resetSuffix || $[6] !== retryAttempt || $[7] !== retryDuration) {
+    t4 = <Text dimColor={true}>Retrying in {retryDuration}{resetSuffix} · attempt {retryAttempt}/{maxRetries}{process.env.API_TIMEOUT_MS ? ` · API_TIMEOUT_MS=${process.env.API_TIMEOUT_MS}ms, try increasing it` : ""}</Text>;
+    $[4] = maxRetries;
+    $[5] = resetSuffix;
+    $[6] = retryAttempt;
+    $[7] = retryDuration;
+    $[8] = t4;
+  } else {
+    t4 = $[8];
+  }
+  const retryStatus = t4;
+  if (suppressTransientError) {
+    let t5;
+    if ($[9] !== retryStatus) {
+      t5 = <MessageResponse>{retryStatus}</MessageResponse>;
+      $[9] = retryStatus;
+      $[10] = t5;
+    } else {
+      t5 = $[10];
+    }
+    return t5;
+  }
+  if (rateLimitInfo) {
+    const displayName = rateLimitInfo.rateLimitType ? getRateLimitDisplayName(rateLimitInfo.rateLimitType) : "usage limit";
+    let t5;
+    if ($[11] === Symbol.for("react.memo_cache_sentinel")) {
+      t5 = false;
+      $[11] = t5;
+    } else {
+      t5 = $[11];
+    }
+    return <MessageResponse><Box flexDirection="column"><Text><Text color="error">{displayName[0]?.toUpperCase()}{displayName.slice(1)} reached</Text>{t5}</Text>{retryStatus}</Box></MessageResponse>;
+  }
   let T0;
   let T1;
   let T2;
-  let t4;
   let t5;
   let t6;
+  let t7;
   let truncated;
-  if ($[4] !== error || $[5] !== verbose) {
+  if ($[12] !== error || $[13] !== verbose) {
     const formatted = formatAPIError(error);
     truncated = !verbose && formatted.length > MAX_API_ERROR_CHARS;
     T2 = MessageResponse;
     T1 = Box;
-    t6 = "column";
+    t7 = "column";
     T0 = Text;
-    t4 = "error";
-    t5 = truncated ? formatted.slice(0, MAX_API_ERROR_CHARS) + "\u2026" : formatted;
-    $[4] = error;
-    $[5] = verbose;
-    $[6] = T0;
-    $[7] = T1;
-    $[8] = T2;
-    $[9] = t4;
-    $[10] = t5;
-    $[11] = t6;
-    $[12] = truncated;
+    t5 = "error";
+    t6 = truncated ? formatted.slice(0, MAX_API_ERROR_CHARS) + "\u2026" : formatted;
+    $[12] = error;
+    $[13] = verbose;
+    $[14] = T0;
+    $[15] = T1;
+    $[16] = T2;
+    $[17] = t5;
+    $[18] = t6;
+    $[19] = t7;
+    $[20] = truncated;
   } else {
-    T0 = $[6];
-    T1 = $[7];
-    T2 = $[8];
-    t4 = $[9];
-    t5 = $[10];
-    t6 = $[11];
-    truncated = $[12];
-  }
-  let t7;
-  if ($[13] !== T0 || $[14] !== t4 || $[15] !== t5) {
-    t7 = <T0 color={t4}>{t5}</T0>;
-    $[13] = T0;
-    $[14] = t4;
-    $[15] = t5;
-    $[16] = t7;
-  } else {
-    t7 = $[16];
+    T0 = $[14];
+    T1 = $[15];
+    T2 = $[16];
+    t5 = $[17];
+    t6 = $[18];
+    t7 = $[19];
+    truncated = $[20];
   }
   let t8;
-  if ($[17] !== truncated) {
-    t8 = truncated && <CtrlOToExpand />;
-    $[17] = truncated;
-    $[18] = t8;
+  if ($[21] !== T0 || $[22] !== t5 || $[23] !== t6) {
+    t8 = <T0 color={t5}>{t6}</T0>;
+    $[21] = T0;
+    $[22] = t5;
+    $[23] = t6;
+    $[24] = t8;
   } else {
-    t8 = $[18];
+    t8 = $[24];
   }
-  const t9 = retryInSecondsLive === 1 ? "second" : "seconds";
-  let t10;
-  if ($[19] !== maxRetries || $[20] !== retryAttempt || $[21] !== retryInSecondsLive || $[22] !== t9) {
-    t10 = <Text dimColor={true}>Retrying in {retryInSecondsLive}{" "}{t9}… (attempt{" "}{retryAttempt}/{maxRetries}){process.env.API_TIMEOUT_MS ? ` · API_TIMEOUT_MS=${process.env.API_TIMEOUT_MS}ms, try increasing it` : ""}</Text>;
-    $[19] = maxRetries;
-    $[20] = retryAttempt;
-    $[21] = retryInSecondsLive;
-    $[22] = t9;
-    $[23] = t10;
+  let t9;
+  if ($[25] !== truncated) {
+    t9 = truncated && <CtrlOToExpand />;
+    $[25] = truncated;
+    $[26] = t9;
   } else {
-    t10 = $[23];
+    t9 = $[26];
+  }
+  let t10;
+  if ($[27] !== T1 || $[28] !== retryStatus || $[29] !== t7 || $[30] !== t8 || $[31] !== t9) {
+    t10 = <T1 flexDirection={t7}>{t8}{t9}{retryStatus}</T1>;
+    $[27] = T1;
+    $[28] = retryStatus;
+    $[29] = t7;
+    $[30] = t8;
+    $[31] = t9;
+    $[32] = t10;
+  } else {
+    t10 = $[32];
   }
   let t11;
-  if ($[24] !== T1 || $[25] !== t10 || $[26] !== t6 || $[27] !== t7 || $[28] !== t8) {
-    t11 = <T1 flexDirection={t6}>{t7}{t8}{t10}</T1>;
-    $[24] = T1;
-    $[25] = t10;
-    $[26] = t6;
-    $[27] = t7;
-    $[28] = t8;
-    $[29] = t11;
+  if ($[33] !== T2 || $[34] !== t10) {
+    t11 = <T2>{t10}</T2>;
+    $[33] = T2;
+    $[34] = t10;
+    $[35] = t11;
   } else {
-    t11 = $[29];
+    t11 = $[35];
   }
-  let t12;
-  if ($[30] !== T2 || $[31] !== t11) {
-    t12 = <T2>{t11}</T2>;
-    $[30] = T2;
-    $[31] = t11;
-    $[32] = t12;
-  } else {
-    t12 = $[32];
-  }
-  return t12;
-}
-function _temp(ms) {
-  return ms + 1000;
+  return t11;
 }
 //# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJSZWFjdCIsInVzZVN0YXRlIiwiQm94IiwiVGV4dCIsImZvcm1hdEFQSUVycm9yIiwiU3lzdGVtQVBJRXJyb3JNZXNzYWdlIiwidXNlSW50ZXJ2YWwiLCJDdHJsT1RvRXhwYW5kIiwiTWVzc2FnZVJlc3BvbnNlIiwiTUFYX0FQSV9FUlJPUl9DSEFSUyIsIlByb3BzIiwibWVzc2FnZSIsInZlcmJvc2UiLCJ0MCIsIiQiLCJfYyIsInQxIiwicmV0cnlBdHRlbXB0IiwiZXJyb3IiLCJyZXRyeUluTXMiLCJtYXhSZXRyaWVzIiwiaGlkZGVuIiwiY291bnRkb3duTXMiLCJzZXRDb3VudGRvd25NcyIsImRvbmUiLCJ0MiIsIlN5bWJvbCIsImZvciIsIl90ZW1wIiwidDMiLCJNYXRoIiwicm91bmQiLCJyZXRyeUluU2Vjb25kc0xpdmUiLCJtYXgiLCJUMCIsIlQxIiwiVDIiLCJ0NCIsInQ1IiwidDYiLCJ0cnVuY2F0ZWQiLCJmb3JtYXR0ZWQiLCJsZW5ndGgiLCJzbGljZSIsInQ3IiwidDgiLCJ0OSIsInQxMCIsInByb2Nlc3MiLCJlbnYiLCJBUElfVElNRU9VVF9NUyIsInQxMSIsInQxMiIsIm1zIl0sInNvdXJjZXMiOlsiU3lzdGVtQVBJRXJyb3JNZXNzYWdlLnRzeCJdLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgKiBhcyBSZWFjdCBmcm9tICdyZWFjdCdcbmltcG9ydCB7IHVzZVN0YXRlIH0gZnJvbSAncmVhY3QnXG5pbXBvcnQgeyBCb3gsIFRleHQgfSBmcm9tICdzcmMvaW5rLmpzJ1xuaW1wb3J0IHsgZm9ybWF0QVBJRXJyb3IgfSBmcm9tICdzcmMvc2VydmljZXMvYXBpL2Vycm9yVXRpbHMuanMnXG5pbXBvcnQgdHlwZSB7IFN5c3RlbUFQSUVycm9yTWVzc2FnZSB9IGZyb20gJ3NyYy90eXBlcy9tZXNzYWdlLmpzJ1xuaW1wb3J0IHsgdXNlSW50ZXJ2YWwgfSBmcm9tICd1c2Vob29rcy10cydcbmltcG9ydCB7IEN0cmxPVG9FeHBhbmQgfSBmcm9tICcuLi9DdHJsT1RvRXhwYW5kLmpzJ1xuaW1wb3J0IHsgTWVzc2FnZVJlc3BvbnNlIH0gZnJvbSAnLi4vTWVzc2FnZVJlc3BvbnNlLmpzJ1xuXG5jb25zdCBNQVhfQVBJX0VSUk9SX0NIQVJTID0gMTAwMFxuXG50eXBlIFByb3BzID0ge1xuICBtZXNzYWdlOiBTeXN0ZW1BUElFcnJvck1lc3NhZ2VcbiAgdmVyYm9zZTogYm9vbGVhblxufVxuXG5leHBvcnQgZnVuY3Rpb24gU3lzdGVtQVBJRXJyb3JNZXNzYWdlKHtcbiAgbWVzc2FnZTogeyByZXRyeUF0dGVtcHQsIGVycm9yLCByZXRyeUluTXMsIG1heFJldHJpZXMgfSxcbiAgdmVyYm9zZSxcbn06IFByb3BzKTogUmVhY3QuUmVhY3ROb2RlIHtcbiAgLy8gSGlkZGVuIGZvciBlYXJseSByZXRyaWVzIG9uIGV4dGVybmFsIGJ1aWxkcyB0byBhdm9pZCBub2lzZS4gQ29tcHV0ZSBiZWZvcmVcbiAgLy8gdXNlSW50ZXJ2YWwgc28gd2UgbmV2ZXIgcmVnaXN0ZXIgYSB0aW1lciB0aGF0IGp1c3QgZHJpdmVzIGEgbnVsbCByZW5kZXIuXG4gIGNvbnN0IGhpZGRlbiA9IFwiZXh0ZXJuYWxcIiA9PT0gJ2V4dGVybmFsJyAmJiByZXRyeUF0dGVtcHQgPCA0XG5cbiAgY29uc3QgW2NvdW50ZG93bk1zLCBzZXRDb3VudGRvd25Nc10gPSB1c2VTdGF0ZSgwKVxuICBjb25zdCBkb25lID0gY291bnRkb3duTXMgPj0gcmV0cnlJbk1zXG4gIHVzZUludGVydmFsKFxuICAgICgpID0+IHNldENvdW50ZG93bk1zKG1zID0+IG1zICsgMTAwMCksXG4gICAgaGlkZGVuIHx8IGRvbmUgPyBudWxsIDogMTAwMCxcbiAgKVxuXG4gIGlmIChoaWRkZW4pIHtcbiAgICByZXR1cm4gbnVsbFxuICB9XG5cbiAgY29uc3QgcmV0cnlJblNlY29uZHNMaXZlID0gTWF0aC5tYXgoXG4gICAgMCxcbiAgICBNYXRoLnJvdW5kKChyZXRyeUluTXMgLSBjb3VudGRvd25NcykgLyAxMDAwKSxcbiAgKVxuXG4gIGNvbnN0IGZvcm1hdHRlZCA9IGZvcm1hdEFQSUVycm9yKGVycm9yKVxuICBjb25zdCB0cnVuY2F0ZWQgPSAhdmVyYm9zZSAmJiBmb3JtYXR0ZWQubGVuZ3RoID4gTUFYX0FQSV9FUlJPUl9DSEFSU1xuXG4gIHJldHVybiAoXG4gICAgPE1lc3NhZ2VSZXNwb25zZT5cbiAgICAgIDxCb3ggZmxleERpcmVjdGlvbj1cImNvbHVtblwiPlxuICAgICAgICA8VGV4dCBjb2xvcj1cImVycm9yXCI+XG4gICAgICAgICAge3RydW5jYXRlZFxuICAgICAgICAgICAgPyBmb3JtYXR0ZWQuc2xpY2UoMCwgTUFYX0FQSV9FUlJPUl9DSEFSUykgKyAn4oCmJ1xuICAgICAgICAgICAgOiBmb3JtYXR0ZWR9XG4gICAgICAgIDwvVGV4dD5cbiAgICAgICAge3RydW5jYXRlZCAmJiA8Q3RybE9Ub0V4cGFuZCAvPn1cbiAgICAgICAgPFRleHQgZGltQ29sb3I+XG4gICAgICAgICAgUmV0cnlpbmcgaW4ge3JldHJ5SW5TZWNvbmRzTGl2ZX17JyAnfVxuICAgICAgICAgIHtyZXRyeUluU2Vjb25kc0xpdmUgPT09IDEgPyAnc2Vjb25kJyA6ICdzZWNvbmRzJ33igKYgKGF0dGVtcHR7JyAnfVxuICAgICAgICAgIHtyZXRyeUF0dGVtcHR9L3ttYXhSZXRyaWVzfSlcbiAgICAgICAgICB7cHJvY2Vzcy5lbnYuQVBJX1RJTUVPVVRfTVNcbiAgICAgICAgICAgID8gYCDCtyBBUElfVElNRU9VVF9NUz0ke3Byb2Nlc3MuZW52LkFQSV9USU1FT1VUX01TfW1zLCB0cnkgaW5jcmVhc2luZyBpdGBcbiAgICAgICAgICAgIDogJyd9XG4gICAgICAgIDwvVGV4dD5cbiAgICAgIDwvQm94PlxuICAgIDwvTWVzc2FnZVJlc3BvbnNlPlxuICApXG59XG4iXSwibWFwcGluZ3MiOiI7QUFBQSxPQUFPLEtBQUtBLEtBQUssTUFBTSxPQUFPO0FBQzlCLFNBQVNDLFFBQVEsUUFBUSxPQUFPO0FBQ2hDLFNBQVNDLEdBQUcsRUFBRUMsSUFBSSxRQUFR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

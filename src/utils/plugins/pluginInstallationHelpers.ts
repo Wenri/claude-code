@@ -27,7 +27,9 @@ import { buildPluginTelemetryFields } from '../telemetry/pluginTelemetry.js'
 import { logOTelEvent } from '../telemetry/events.js'
 import { clearAllCaches } from './cacheUtils.js'
 import {
+  formatConstraintIntersectionError,
   formatDependencyCountSuffix,
+  formatNoMatchingTagError,
   getEnabledPluginIdsForScope,
   intersectConstraints,
   qualifyDependency,
@@ -38,6 +40,7 @@ import { installPluginDependencies } from './pluginDependencyInstaller.js'
 import {
   addInstalledPlugin,
   getGitCommitSha,
+  getInMemoryInstalledPlugins,
 } from './installedPluginsManager.js'
 import { getManagedPluginNames } from './managedPlugins.js'
 import { getMarketplaceCacheOnly, getPluginById } from './marketplaceManager.js'
@@ -357,6 +360,7 @@ export type InstallCoreResult =
       reason: 'range-conflict'
       dep: string
       ranges: string[]
+      why: 'disjoint' | 'too-complex' | 'invalid'
     }
   | {
       ok: false
@@ -531,7 +535,20 @@ export async function installResolvedPlugin({
           ?.allowCrossMarketplaceDependenciesOn
       : undefined) ?? [],
   )
-  const alreadyEnabled = getEnabledPluginIdsForScope(settingSource)
+  const projectPath = scope !== 'user' ? getCwd() : undefined
+  const installedPlugins = getInMemoryInstalledPlugins().plugins
+  const alreadyEnabled = new Set<string>()
+  for (const id of getEnabledPluginIdsForScope(settingSource)) {
+    if (
+      installedPlugins[id]?.some(
+        installation =>
+          installation.scope === scope &&
+          installation.projectPath === projectPath,
+      )
+    ) {
+      alreadyEnabled.add(id)
+    }
+  }
   const resolution = await resolveDependencyClosure(
     pluginId,
     async id => {
@@ -584,7 +601,6 @@ export async function installResolvedPlugin({
     }
   }
 
-  const projectPath = scope !== 'user' ? getCwd() : undefined
   const materialized = new Set<string>()
   const closure = resolution.closure
 
@@ -668,16 +684,22 @@ export async function installResolvedPlugin({
       let resolvedTag: ResolvedGitTag | undefined
       if (ranges.length > 0) {
         const intersection = intersectConstraints(ranges)
-        if (intersection === null) {
-          return { ok: false, reason: 'range-conflict', dep: id, ranges }
+        if (!intersection.ok) {
+          return {
+            ok: false,
+            reason: 'range-conflict',
+            dep: id,
+            ranges,
+            why: intersection.reason,
+          }
         }
-        if (intersection !== '*') {
+        if (intersection.range !== '*') {
           const gitUrl = getGitUrlForVersionResolution(info.entry.source)
           if (gitUrl !== null) {
             const resolved = await resolveVersionRange(
               gitUrl,
               info.entry.name,
-              intersection,
+              intersection.range,
               tagLookupCache,
             )
             if (resolved === null) {
@@ -685,7 +707,7 @@ export async function installResolvedPlugin({
                 ok: false,
                 reason: 'no-matching-tag',
                 dep: id,
-                range: intersection,
+                range: intersection.range,
               }
             }
             resolvedTag = resolved
@@ -893,12 +915,21 @@ export async function installPluginFromMarketplace({
         case 'range-conflict':
           return {
             success: false,
-            error: `${result.dep === pluginId ? 'Plugin' : 'Dependency'} "${result.dep}" has conflicting version requirements: ${result.ranges.join(', ')}`,
+            error: formatConstraintIntersectionError(
+              result.dep === pluginId ? 'Plugin' : 'Dependency',
+              result.dep,
+              result.ranges,
+              result.why,
+            ),
           }
         case 'no-matching-tag':
           return {
             success: false,
-            error: `${result.dep === pluginId ? 'Plugin' : 'Dependency'} "${result.dep}" has no git tag satisfying ${result.range}`,
+            error: formatNoMatchingTagError(
+              result.dep === pluginId ? 'Plugin' : 'Dependency',
+              result.dep,
+              result.range,
+            ),
           }
       }
     }

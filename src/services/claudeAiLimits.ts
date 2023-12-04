@@ -135,6 +135,46 @@ export type ClaudeAILimits = {
   surpassedThreshold?: number
 }
 
+export function getRateLimitInfoFromError(
+  error: APIError,
+): ClaudeAILimits | null {
+  const rateLimitType = error.headers?.get?.(
+    'anthropic-ratelimit-unified-representative-claim',
+  ) as RateLimitType | null | undefined
+  const overageStatus = error.headers?.get?.(
+    'anthropic-ratelimit-unified-overage-status',
+  ) as QuotaStatus | null | undefined
+
+  if (!rateLimitType && !overageStatus) return null
+
+  const limits: ClaudeAILimits = {
+    status: 'rejected',
+    unifiedRateLimitFallbackAvailable: false,
+    isUsingOverage: false,
+  }
+
+  const resetsAt = error.headers?.get?.(
+    'anthropic-ratelimit-unified-reset',
+  )
+  if (resetsAt) limits.resetsAt = Number(resetsAt)
+  if (rateLimitType) limits.rateLimitType = rateLimitType
+  if (overageStatus) limits.overageStatus = overageStatus
+
+  const overageResetsAt = error.headers?.get?.(
+    'anthropic-ratelimit-unified-overage-reset',
+  )
+  if (overageResetsAt) limits.overageResetsAt = Number(overageResetsAt)
+
+  const overageDisabledReason = error.headers?.get?.(
+    'anthropic-ratelimit-unified-overage-disabled-reason',
+  ) as OverageDisabledReason | null | undefined
+  if (overageDisabledReason) {
+    limits.overageDisabledReason = overageDisabledReason
+  }
+
+  return limits
+}
+
 // Exported for testing only
 export let currentLimits: ClaudeAILimits = {
   status: 'allowed',

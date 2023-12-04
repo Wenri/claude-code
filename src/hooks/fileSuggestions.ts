@@ -170,7 +170,7 @@ async function mergeUntrackedIntoNormalizedCache(
   normalizedUntracked: string[],
 ): Promise<void> {
   if (normalizedUntracked.length === 0) return
-  if (!fileIndex || cachedTrackedFiles.length === 0) return
+  if (!fileIndex) return
 
   const untrackedDirs = await getDirectoryNamesAsync(normalizedUntracked)
   const allPaths = [
@@ -362,7 +362,7 @@ async function getFilesUsingGit(
               `[FileIndex] background untracked fetch: ${normalizedUntracked.length} files`,
             )
             // Pass already-normalized files directly to merge function
-            void mergeUntrackedIntoNormalizedCache(normalizedUntracked)
+            await mergeUntrackedIntoNormalizedCache(normalizedUntracked)
           }
         })
         .catch(error => {
@@ -643,6 +643,10 @@ export function startBackgroundCacheRefresh(): void {
   // the rebuild when the 5s refresh finds nothing actually changed.
   const indexMtime = getGitIndexMtime()
   if (fileIndex) {
+    // A null mtime means this is a non-git directory (or a repository without
+    // a normal index). Once populated, keep that index for the session instead
+    // of re-scanning the full project every time suggestions are requested.
+    if (indexMtime === null && lastRefreshMs > 0) return
     const gitStateChanged =
       indexMtime !== null && indexMtime !== lastGitIndexMtime
     if (!gitStateChanged && Date.now() - lastRefreshMs < REFRESH_THROTTLE_MS) {

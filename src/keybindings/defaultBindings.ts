@@ -125,6 +125,8 @@ export const DEFAULT_BINDINGS: KeybindingBlock[] = [
       '/': 'settings:search',
       // Retry loading usage data (only active on error)
       r: 'settings:retry',
+      // Sort skills by estimated token cost
+      t: 'settings:sortByTokens',
     },
   },
   {

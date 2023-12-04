@@ -470,6 +470,42 @@ export const SDKControlStopTaskRequestSchema = lazySchema(() =>
     .describe('Stops a running task.'),
 )
 
+export const SDKControlUltrareviewLaunchRequestSchema = lazySchema(() =>
+  z
+    .object({
+      subtype: z.literal('ultrareview_launch'),
+      args: z.string().optional(),
+      confirm: z.boolean().optional(),
+    })
+    .describe('Launches an ultrareview remote session.'),
+)
+
+export const SDKControlUltrareviewLaunchResponseSchema = lazySchema(() =>
+  z.discriminatedUnion('status', [
+    z.object({
+      status: z.literal('error'),
+      message: z.string(),
+    }),
+    z.object({
+      status: z.literal('blocked'),
+      message: z.string(),
+      actionUrl: z.string().nullable(),
+    }),
+    z.object({
+      status: z.literal('needs-confirm'),
+      body: z.string(),
+      billingNote: z.string(),
+    }),
+    z.object({
+      status: z.literal('launched'),
+      sessionId: z.string(),
+      sessionUrl: z.string(),
+      message: z.string(),
+      billingNote: z.string(),
+    }),
+  ]),
+)
+
 export const SDKControlApplyFlagSettingsRequestSchema = lazySchema(() =>
   z
     .object({
@@ -535,7 +571,9 @@ export const SDKControlGetSettingsResponseSchema = lazySchema(() =>
           model: z.string(),
           // String levels only — numeric effort is ant-only and the
           // Zod→proto generator can't emit enum∪number unions.
-          effort: z.enum(['low', 'medium', 'high', 'max']).nullable(),
+          effort: z
+            .enum(['low', 'medium', 'high', 'xhigh', 'max'])
+            .nullable(),
         })
         .optional()
         .describe(
@@ -604,6 +642,7 @@ export const SDKControlRequestInnerSchema = lazySchema(() =>
     SDKControlMcpReconnectRequestSchema(),
     SDKControlMcpToggleRequestSchema(),
     SDKControlStopTaskRequestSchema(),
+    SDKControlUltrareviewLaunchRequestSchema(),
     SDKControlApplyFlagSettingsRequestSchema(),
     SDKControlGetSettingsRequestSchema(),
     SDKControlElicitationRequestSchema(),
