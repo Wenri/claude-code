@@ -1,0 +1,418 @@
+{
+  "schemaVersion": 1,
+  "kind": "npm-tarball-member-byte-comparison",
+  "comparisonBasis": "Exact member paths, types, modes, link targets, and uncompressed member bytes",
+  "packageName": "@anthropic-ai/claude-code",
+  "artifacts": {
+    "baseline": {
+      "version": "2.1.91",
+      "registryTarballUrl": "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.1.91.tgz",
+      "compressedBytes": 16522495,
+      "sha1": "f7c6050592b4a7c10074eacda07872f79875dc61",
+      "sha256": "4fb4dae771d6fad1e74703741148f5ee2d24837f4a04eab27041746f7a5b3e2b",
+      "sha512": "46f4a3824e3229fc2307250afabe8b5c75346972ec7b4a2695684179f8852610b234007cb1cdcd1dcdcdefeec23da04b0bfb373077f70101d262a8ba57c96db8",
+      "integrity": "sha512-RvSjgk4yKfwjByUK+r6LXHU0aXLse0omlWhBefiFJhCyNAB8sc3NHc3N7+7CPaBLC/s3MHf3AQHSYqi6V8ltuA==",
+      "uncompressedTarBytes": 43116544,
+      "memberCount": 18,
+      "metadataHeaderCount": 0,
+      "unpackedMemberBytes": 43103342,
+      "authentication": {
+        "expectedShasum": "f7c6050592b4a7c10074eacda07872f79875dc61",
+        "expectedIntegrity": "sha512-RvSjgk4yKfwjByUK+r6LXHU0aXLse0omlWhBefiFJhCyNAB8sc3NHc3N7+7CPaBLC/s3MHf3AQHSYqi6V8ltuA==",
+        "shasumVerified": true,
+        "integrityVerified": true,
+        "registrySignature": {
+          "keyId": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+          "publicKeySpkiSha256": "fb190a462123443500cbcdb6519623e7179e9f38d84ad4e9362b72d2b68b62c1",
+          "signature": "MEUCIQCQubDdTodhmZh056FJOdAiUYNEWqq9qygWlJUAhdBp8AIgKXp4FeChs8AK+zrjgED2LflP2OS13NG/ivBCIK9N2p8=",
+          "verified": true
+        }
+      }
+    },
+    "target": {
+      "version": "2.1.92",
+      "registryTarballUrl": "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.1.92.tgz",
+      "compressedBytes": 17164906,
+      "sha1": "536b5c573ae5d3ba85ace514e2e72d37c3d5e464",
+      "sha256": "fff885f916e6b3a71853559601af12abb1b64714cfc2f0635a25613b96749347",
+      "sha512": "98d1b0fc82b7fb5c87b1005e29a36d7533c2ad00e4504b8d4c9b66dce0535ece1b06451574881199eff7e199db66497654c3183e835a4efa97daa259f44752c5",
+      "integrity": "sha512-mNGw/IK3+1yHsQBeKaNtdTPCrQDkUEuNTJtm3OBTXs4bBkUVdIgRme/34ZnbZkl2VMMYPoNaTvqX2qJZ9EdSxQ==",
+      "uncompressedTarBytes": 44532224,
+      "memberCount": 20,
+      "metadataHeaderCount": 0,
+      "unpackedMemberBytes": 44517413,
+      "authentication": {
+        "expectedShasum": "536b5c573ae5d3ba85ace514e2e72d37c3d5e464",
+        "expectedIntegrity": "sha512-mNGw/IK3+1yHsQBeKaNtdTPCrQDkUEuNTJtm3OBTXs4bBkUVdIgRme/34ZnbZkl2VMMYPoNaTvqX2qJZ9EdSxQ==",
+        "shasumVerified": true,
+        "integrityVerified": true,
+        "registrySignature": {
+          "keyId": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+          "publicKeySpkiSha256": "fb190a462123443500cbcdb6519623e7179e9f38d84ad4e9362b72d2b68b62c1",
+          "signature": "MEUCIA9Pbrb5aRJaP0BIUvY7wPnYuXxf1bmtO2STf8s5CFUrAiEA5Ls/eijn2heuQIP7Mft2b0HcFrhaQgUt61c78t2tvYM=",
+          "verified": true
+        }
+      }
+    }
+  },
+  "summary": {
+    "unionMemberCount": 20,
+    "baselineMemberCount": 18,
+    "targetMemberCount": 20,
+    "unchanged": 16,
+    "changed": 2,
+    "added": 2,
+    "removed": 0,
+    "complete": true
+  },
+  "members": [
+    {
+      "path": "package/LICENSE.md",
+      "status": "unchanged",
+      "baseline": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 147,
+        "sha256": "8ce94b9478bb9868f9641f818e06cd722fbe55d4c22e2d2ed11971b20146173a"
+      },
+      "target": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 147,
+        "sha256": "8ce94b9478bb9868f9641f818e06cd722fbe55d4c22e2d2ed11971b20146173a"
+      }
+    },
+    {
+      "path": "package/README.md",
+      "status": "unchanged",
+      "baseline": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 2037,
+        "sha256": "9c121f2b01db7f62e3b75e400c8846857b4c32976083ae5a7b2cf6939876c17e"
+      },
+      "target": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 2037,
+        "sha256": "9c121f2b01db7f62e3b75e400c8846857b4c32976083ae5a7b2cf6939876c17e"
+      }
+    },
+    {
+      "path": "package/cli.js",
+      "status": "changed",
+      "baseline": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0755",
+        "bytes": 13162543,
+        "sha256": "b4bf141f30cf8b40196295816c7a6b9d01a36e906908d73a9f9a865ce4cdf816"
+      },
+      "target": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0755",
+        "bytes": 13221767,
+        "sha256": "6b0b860206b3723d70619b84dbf3a53a795d703862aa3b01d58e869685c85362"
+      }
+    },
+    {
+      "path": "package/package.json",
+      "status": "changed",
+      "baseline": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 1347,
+        "sha256": "ed6cf8c242de1184021ba5028e99453c1ec753843f6926f71db0349144044273"
+      },
+      "target": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 1370,
+        "sha256": "6114693483d9a342ce4797b3aa5351b7e9ed9005d6fcbae32ca0095ba85ce045"
+      }
+    },
+    {
+      "path": "package/sdk-tools.d.ts",
+      "status": "unchanged",
+      "baseline": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 117138,
+        "sha256": "d54800cb26dbfc3e15d0ab034ef9c77e340fb7ec76270a167f39245f7155c4b4"
+      },
+      "target": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 117138,
+        "sha256": "d54800cb26dbfc3e15d0ab034ef9c77e340fb7ec76270a167f39245f7155c4b4"
+      }
+    },
+    {
+      "path": "package/vendor/audio-capture/arm64-darwin/audio-capture.node",
+      "status": "unchanged",
+      "baseline": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 438112,
+        "sha256": "a5e6cc22c531d17e279aa7325bf6fa6f4c853009212141d98d5d02e5641c109a"
+      },
+      "target": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 438112,
+        "sha256": "a5e6cc22c531d17e279aa7325bf6fa6f4c853009212141d98d5d02e5641c109a"
+      }
+    },
+    {
+      "path": "package/vendor/audio-capture/arm64-linux/audio-capture.node",
+      "status": "unchanged",
+      "baseline": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 458648,
+        "sha256": "691c724e516c413aab5c70d7935915a74848499775cfa3d82ff33061c83a75b7"
+      },
+      "target": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 458648,
+        "sha256": "691c724e516c413aab5c70d7935915a74848499775cfa3d82ff33061c83a75b7"
+      }
+    },
+    {
+      "path": "package/vendor/audio-capture/arm64-win32/audio-capture.node",
+      "status": "unchanged",
+      "baseline": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 471040,
+        "sha256": "983860892f4b2b179c16be3f8b2f7ec07249abbdbea394ddaf178e61a1bd290c"
+      },
+      "target": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 471040,
+        "sha256": "983860892f4b2b179c16be3f8b2f7ec07249abbdbea394ddaf178e61a1bd290c"
+      }
+    },
+    {
+      "path": "package/vendor/audio-capture/x64-darwin/audio-capture.node",
+      "status": "unchanged",
+      "baseline": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 439076,
+        "sha256": "90714588603dfe9f1cddc913661cc29fe9195930840a91e6872a320c2ff2f392"
+      },
+      "target": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 439076,
+        "sha256": "90714588603dfe9f1cddc913661cc29fe9195930840a91e6872a320c2ff2f392"
+      }
+    },
+    {
+      "path": "package/vendor/audio-capture/x64-linux/audio-capture.node",
+      "status": "unchanged",
+      "baseline": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 492232,
+        "sha256": "64d636ca4accaaacbef22340b4864591c7858361066952e79e8dd618080a70d5"
+      },
+      "target": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 492232,
+        "sha256": "64d636ca4accaaacbef22340b4864591c7858361066952e79e8dd618080a70d5"
+      }
+    },
+    {
+      "path": "package/vendor/audio-capture/x64-win32/audio-capture.node",
+      "status": "unchanged",
+      "baseline": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 509440,
+        "sha256": "2a8267f4a1fc66202006269341597bcc1923a2975f95f46e8d8c3080e2e2d972"
+      },
+      "target": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 509440,
+        "sha256": "2a8267f4a1fc66202006269341597bcc1923a2975f95f46e8d8c3080e2e2d972"
+      }
+    },
+    {
+      "path": "package/vendor/ripgrep/COPYING",
+      "status": "unchanged",
+      "baseline": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 126,
+        "sha256": "01c266bced4a434da0051174d6bee16a4c82cf634e2679b6155d40d75012390f"
+      },
+      "target": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 126,
+        "sha256": "01c266bced4a434da0051174d6bee16a4c82cf634e2679b6155d40d75012390f"
+      }
+    },
+    {
+      "path": "package/vendor/ripgrep/arm64-darwin/rg",
+      "status": "unchanged",
+      "baseline": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0755",
+        "bytes": 4056528,
+        "sha256": "051d22c8d7f1139f2953c34ca82f216299f79955553158f8c5a215e99d66684f"
+      },
+      "target": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0755",
+        "bytes": 4056528,
+        "sha256": "051d22c8d7f1139f2953c34ca82f216299f79955553158f8c5a215e99d66684f"
+      }
+    },
+    {
+      "path": "package/vendor/ripgrep/arm64-linux/rg",
+      "status": "unchanged",
+      "baseline": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0755",
+        "bytes": 4658376,
+        "sha256": "fa8f640e4baec82e134c03983373833815dbaee5354f760818bb6840727a4385"
+      },
+      "target": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0755",
+        "bytes": 4658376,
+        "sha256": "fa8f640e4baec82e134c03983373833815dbaee5354f760818bb6840727a4385"
+      }
+    },
+    {
+      "path": "package/vendor/ripgrep/arm64-win32/rg.exe",
+      "status": "unchanged",
+      "baseline": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 4021248,
+        "sha256": "d0d7805e4686e991d2ff09755a492babb1d7f9fee29a6985fd797e22b1c27e73"
+      },
+      "target": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 4021248,
+        "sha256": "d0d7805e4686e991d2ff09755a492babb1d7f9fee29a6985fd797e22b1c27e73"
+      }
+    },
+    {
+      "path": "package/vendor/ripgrep/x64-darwin/rg",
+      "status": "unchanged",
+      "baseline": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0755",
+        "bytes": 4161912,
+        "sha256": "3b8b89f3afebe2d9ee6b59a217ee9892f08d1c06d3407765ff83abee78af19f3"
+      },
+      "target": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0755",
+        "bytes": 4161912,
+        "sha256": "3b8b89f3afebe2d9ee6b59a217ee9892f08d1c06d3407765ff83abee78af19f3"
+      }
+    },
+    {
+      "path": "package/vendor/ripgrep/x64-linux/rg",
+      "status": "unchanged",
+      "baseline": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0755",
+        "bytes": 5621616,
+        "sha256": "55c2b8dd910f390b06b3a7c620603489b83fdfb647665e4d4bb32f3f54f09ea1"
+      },
+      "target": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0755",
+        "bytes": 5621616,
+        "sha256": "55c2b8dd910f390b06b3a7c620603489b83fdfb647665e4d4bb32f3f54f09ea1"
+      }
+    },
+    {
+      "path": "package/vendor/ripgrep/x64-win32/rg.exe",
+      "status": "unchanged",
+      "baseline": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 4491776,
+        "sha256": "95829103224ebe12c8fc7b7da17e11ae334d303a93e4d413fbbb1e91f589d88b"
+      },
+      "target": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 4491776,
+        "sha256": "95829103224ebe12c8fc7b7da17e11ae334d303a93e4d413fbbb1e91f589d88b"
+      }
+    },
+    {
+      "path": "package/vendor/seccomp/arm64/apply-seccomp",
+      "status": "added",
+      "baseline": null,
+      "target": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 603200,
+        "sha256": "e547755917a7343619e80a00a192842e125ee00454a3ee1e11af4fae0504315e"
+      }
+    },
+    {
+      "path": "package/vendor/seccomp/x64/apply-seccomp",
+      "status": "added",
+      "baseline": null,
+      "target": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 751624,
+        "sha256": "b46118d36051d364b8857fd182251b209f8b339cb5772a0f81e814aba3c23a10"
+      }
+    }
+  ]
+}

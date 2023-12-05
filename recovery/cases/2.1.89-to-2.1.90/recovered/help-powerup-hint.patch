@@ -1,0 +1,53 @@
+diff --git a/src/components/HelpV2/General.tsx b/src/components/HelpV2/General.tsx
+index 4de10b0..df46a51 100644
+--- a/src/components/HelpV2/General.tsx
++++ b/src/components/HelpV2/General.tsx
+@@ -1,9 +1,14 @@
+ import { c as _c } from "react/compiler-runtime";
+ import * as React from 'react';
++import { useTerminalSize } from '../../hooks/useTerminalSize.js';
+ import { Box, Text } from '../../ink.js';
+ import { PromptInputHelpMenu } from '../PromptInput/PromptInputHelpMenu.js';
++const MIN_ROWS_FOR_POWERUP_HINT = 44;
+ export function General() {
+-  const $ = _c(2);
++  const $ = _c(6);
++  const {
++    rows
++  } = useTerminalSize();
+   let t0;
+   if ($[0] === Symbol.for("react.memo_cache_sentinel")) {
+     t0 = <Box><Text>Claude understands your codebase, makes edits with your permission, and executes commands — right from your terminal.</Text></Box>;
+@@ -12,11 +17,27 @@ export function General() {
+     t0 = $[0];
+   }
+   let t1;
+-  if ($[1] === Symbol.for("react.memo_cache_sentinel")) {
+-    t1 = <Box flexDirection="column" paddingY={1} gap={1}>{t0}<Box flexDirection="column"><Box><Text bold={true}>Shortcuts</Text></Box><PromptInputHelpMenu gap={2} fixedWidth={true} /></Box></Box>;
+-    $[1] = t1;
++  if ($[1] !== rows) {
++    t1 = rows >= MIN_ROWS_FOR_POWERUP_HINT && <Box><Text dimColor={true}>New here? Run <Text color="suggestion">/powerup</Text> to learn the features most people miss.</Text></Box>;
++    $[1] = rows;
++    $[2] = t1;
+   } else {
+-    t1 = $[1];
++    t1 = $[2];
+   }
+-  return t1;
++  let t2;
++  if ($[3] === Symbol.for("react.memo_cache_sentinel")) {
++    t2 = <Box flexDirection="column"><Box><Text bold={true}>Shortcuts</Text></Box><PromptInputHelpMenu gap={2} fixedWidth={true} /></Box>;
++    $[3] = t2;
++  } else {
++    t2 = $[3];
++  }
++  let t3;
++  if ($[4] !== t1) {
++    t3 = <Box flexDirection="column" paddingY={1} gap={1}>{t0}{t1}{t2}</Box>;
++    $[4] = t1;
++    $[5] = t3;
++  } else {
++    t3 = $[5];
++  }
++  return t3;
+ }

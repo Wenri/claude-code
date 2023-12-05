@@ -1,0 +1,99 @@
+diff --git a/src/ink/supports-hyperlinks.ts b/src/ink/supports-hyperlinks.ts
+index 0af3745..b142a5a 100644
+--- a/src/ink/supports-hyperlinks.ts
++++ b/src/ink/supports-hyperlinks.ts
+@@ -26,14 +26,17 @@ type SupportsHyperlinksOptions = {
+ export function supportsHyperlinks(
+   options?: SupportsHyperlinksOptions,
+ ): boolean {
++  const env = options?.env ?? process.env
+   const stdoutSupported =
+-    options?.stdoutSupported ?? supportsHyperlinksLib.stdout
++    options?.stdoutSupported ??
++    supportsHyperlinksLib.supportsHyperlink(process.stdout)
++  if ('FORCE_HYPERLINK' in env) {
++    return stdoutSupported
++  }
+   if (stdoutSupported) {
+     return true
+   }
+ 
+-  const env = options?.env ?? process.env
+-
+   // Check for additional terminals not detected by supports-hyperlinks
+   const termProgram = env['TERM_PROGRAM']
+   if (termProgram && ADDITIONAL_HYPERLINK_TERMINALS.includes(termProgram)) {
+diff --git a/src/services/api/claude.ts b/src/services/api/claude.ts
+index 89a6e66..42707b1 100644
+--- a/src/services/api/claude.ts
++++ b/src/services/api/claude.ts
+@@ -22,6 +22,7 @@ import type { Stream } from '@anthropic-ai/sdk/streaming.mjs'
+ import { randomUUID } from 'crypto'
+ import {
+   getAPIProvider,
++  getAPIProviderForModel,
+   isFirstPartyAnthropicBaseUrl,
+ } from 'src/utils/model/providers.js'
+ import {
+@@ -1548,7 +1549,7 @@ async function* queryModel(
+ 
+     // For Bedrock, include both model-based betas and dynamically-added tool search header
+     const bedrockBetas =
+-      getAPIProvider() === 'bedrock'
++      getAPIProviderForModel(retryContext.model) === 'bedrock'
+         ? [
+             ...getBedrockExtraBodyParamsBetas(retryContext.model),
+             ...(toolSearchHeader ? [toolSearchHeader] : []),
+@@ -2436,6 +2437,29 @@ async function* queryModel(
+         // If the signal is aborted, it's a user-initiated abort
+         // If not, it's likely a timeout from the SDK
+         if (signal.aborted) {
++          if (options.querySource === 'sdk') {
++            const contentBlock = contentBlocks[newMessages.length]
++            if (
++              contentBlock?.type === 'text' &&
++              contentBlock.text.trim() &&
++              partialMessage
++            ) {
++              yield {
++                message: {
++                  ...partialMessage,
++                  content: normalizeContentFromAPI(
++                    [contentBlock] as BetaContentBlock[],
++                    tools,
++                    options.agentId,
++                  ),
++                },
++                requestId: streamRequestId ?? undefined,
++                type: 'assistant',
++                uuid: randomUUID(),
++                timestamp: new Date().toISOString(),
++              }
++            }
++          }
+           // This is a real user abort (ESC key was pressed)
+           logForDebugging(
+             `Streaming aborted by user: ${errorMessage(streamingError)}`,
+diff --git a/src/utils/crossProjectResume.ts b/src/utils/crossProjectResume.ts
+index 2a5f2f2..fb57fa6 100644
+--- a/src/utils/crossProjectResume.ts
++++ b/src/utils/crossProjectResume.ts
+@@ -38,18 +38,6 @@ export function checkCrossProjectResume(
+     return { isCrossProject: false }
+   }
+ 
+-  // Gate worktree detection to ants only for staged rollout
+-  if (process.env.USER_TYPE !== 'ant') {
+-    const sessionId = getSessionIdFromLog(log)
+-    const command = `cd ${quote([log.projectPath])} && claude --resume ${sessionId}`
+-    return {
+-      isCrossProject: true,
+-      isSameRepoWorktree: false,
+-      command,
+-      projectPath: log.projectPath,
+-    }
+-  }
+-
+   // Check if log.projectPath is under a worktree of the same repo
+   const isSameRepo = worktreePaths.some(
+     wt => log.projectPath === wt || log.projectPath!.startsWith(wt + sep),
