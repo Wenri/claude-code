@@ -13,8 +13,8 @@ locked dependencies and focused tests. The current tree is the exact 2.1.88
 outer source-map baseline for every untouched file plus cumulative verified
 source-facing overlays for 2.1.89, 2.1.90, 2.1.91, 2.1.92, 2.1.94, 2.1.96,
 2.1.97, 2.1.98, 2.1.100, 2.1.101, 2.1.104, 2.1.105, 2.1.107, 2.1.108,
-2.1.109, 2.1.110, and 2.1.111 (upstream did not publish 2.1.93, 2.1.95, 2.1.99, 2.1.102, 2.1.103,
-or 2.1.106). The first
+2.1.109, 2.1.110, 2.1.111, and 2.1.112 (upstream did not publish 2.1.93,
+2.1.95, 2.1.99, 2.1.102, 2.1.103, or 2.1.106). The first
 changes four Bash/parser files; the second changes nine session, transport,
 query, safety/cache, rate-limit, and help files; the third changes 21 existing
 MCP, policy, input, plugin, transcript, feedback, installer, and prompt files
@@ -53,7 +53,11 @@ skills interactions, the `/ultrareview` command, the exact target-literal
 less-permission-prompts body, PowerShell and read-only permissions, plan
 naming, raw-body telemetry, session/UI fixes, and adjacent reliability repairs.
 Its `/setup-vertex` and `/setup-bedrock` wizard changes remain generated-only
-because that scaffold is absent from the mirror. These
+because that scaffold is absent from the mirror; and the eighteenth adds a
+shared model-temperature capability and guards the main and side-query request
+builders so Opus 4.7 requests omit unsupported explicit temperatures. The
+original helper spelling remains unobservable, and a structured-output mirror
+gap inherited from 2.1.111 is not attributed to the 2.1.112 delta. These
 overlays are not a claim that any complete authored TypeScript tree is
 recoverable. Treat `src/` as read-only reference unless explicitly asked to
 change it; all of it is Anthropic's proprietary property (see the README
@@ -64,7 +68,8 @@ A few things layered on top of the mirror ARE maintained here:
 - `recovery/` — hash-pinned tooling for comparing later published bundles
   with authenticated adjacent releases and a matching source-map oracle. The
   2.1.89, 2.1.90, 2.1.91, 2.1.92, 2.1.94, 2.1.96, 2.1.97, 2.1.98,
-  2.1.100, 2.1.101, 2.1.104, 2.1.105, 2.1.107, 2.1.108, 2.1.109, 2.1.110, and 2.1.111 cases
+  2.1.100, 2.1.101, 2.1.104, 2.1.105, 2.1.107, 2.1.108, 2.1.109, 2.1.110,
+  2.1.111, and 2.1.112 cases
   have exact generated bundle/package recoveries, exhaustive accounting ledgers, readable bundle
   diffs, and separately labeled partial source-like TypeScript patches. Their
   cumulative patch sets are applied to `src/`. Each case manifest and its
@@ -88,7 +93,7 @@ is the pixi workspace:
   so nodejs is held `<26` (v26 needs icu 78). Bumping nodejs to 26 would break that.
 - `pixi run node recovery/scripts/verify-complete-recovery.mjs …` — run the
   aggregate evidence, source-lineage, exact-bundle, and package-tree gate for
-  a recovery case; use the 2.1.110 → 2.1.111 manifest for the current tree and
+  a recovery case; use the 2.1.111 → 2.1.112 manifest for the current tree and
   see that case's runbook for its artifact arguments.
 
 The glibc source is committed as a **plain, unextracted source tree** (no Git LFS, no tarball —
