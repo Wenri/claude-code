@@ -19,6 +19,7 @@ import { hostname } from 'os'
 import { getOriginalCwd, getSessionId } from '../bootstrap/state.js'
 import type { SDKMessage } from '../entrypoints/agentSdkTypes.js'
 import type { SDKControlResponse } from '../entrypoints/sdk/controlTypes.js'
+import { generateFileSuggestions } from '../hooks/fileSuggestions.js'
 import { getFeatureValue_CACHED_WITH_REFRESH } from '../services/analytics/growthbook.js'
 import { getOrganizationUUID } from '../services/oauth/client.js'
 import {
@@ -419,6 +420,13 @@ export async function initReplBridge(
     return userMessageCount >= 3
   }
 
+  const onFileSuggestions = async (
+    query: string,
+  ): Promise<Array<{ path: string; score?: number }>> =>
+    (await generateFileSuggestions(query, true)).map(suggestion => ({
+      path: suggestion.displayText,
+    }))
+
   const initialHistoryCap = getFeatureValue_CACHED_WITH_REFRESH(
     'tengu_bridge_initial_history_cap',
     200,
@@ -488,6 +496,7 @@ export async function initReplBridge(
       onSetMaxThinkingTokens,
       onSetPermissionMode,
       onRenameSession,
+      onFileSuggestions,
       onStateChange,
       outboundOnly,
       tags,
@@ -583,6 +592,7 @@ export async function initReplBridge(
     onSetMaxThinkingTokens,
     onSetPermissionMode,
     onRenameSession,
+    onFileSuggestions,
     onStateChange,
     perpetual,
   })

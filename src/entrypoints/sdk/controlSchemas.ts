@@ -181,6 +181,32 @@ export const SDKControlMcpStatusResponseSchema = lazySchema(() =>
     ),
 )
 
+export const SDKControlFileSuggestionsRequestSchema = lazySchema(() =>
+  z
+    .object({
+      subtype: z.literal('file_suggestions'),
+      query: z.string(),
+    })
+    .describe(
+      'Requests at-mention file autocomplete suggestions for a partial path prefix. Returns the same fuzzy-matched results the TUI shows.',
+    ),
+)
+
+export const SDKControlFileSuggestionsResponseSchema = lazySchema(() =>
+  z
+    .object({
+      suggestions: z.array(
+        z.object({
+          path: z.string(),
+          score: z.number().optional(),
+        }),
+      ),
+    })
+    .describe(
+      'Response containing fuzzy-ranked file path suggestions (capped at the same limit as the TUI typeahead).',
+    ),
+)
+
 export const SDKControlGetContextUsageRequestSchema = lazySchema(() =>
   z
     .object({
@@ -631,6 +657,7 @@ export const SDKControlRequestInnerSchema = lazySchema(() =>
     SDKControlSetMaxThinkingTokensRequestSchema(),
     SDKControlRenameSessionRequestSchema(),
     SDKControlMcpStatusRequestSchema(),
+    SDKControlFileSuggestionsRequestSchema(),
     SDKControlGetContextUsageRequestSchema(),
     SDKHookCallbackRequestSchema(),
     SDKControlMcpMessageRequestSchema(),

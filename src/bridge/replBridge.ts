@@ -195,6 +195,9 @@ export type BridgeCoreParams = {
   onRenameSession?: (
     title: string,
   ) => { ok: true } | { ok: false; error: string }
+  onFileSuggestions?: (
+    query: string,
+  ) => Promise<Array<{ path: string; score?: number }>>
   onStateChange?: (state: BridgeState, detail?: string) => void
   /**
    * Fires on each real user message to flow through writeMessages() until
@@ -293,6 +296,7 @@ export async function initBridgeCore(
     onSetMaxThinkingTokens,
     onSetPermissionMode,
     onRenameSession,
+    onFileSuggestions,
     onStateChange,
     onUserMessage,
     perpetual,
@@ -1203,6 +1207,7 @@ export async function initBridgeCore(
           onSetMaxThinkingTokens,
           onSetPermissionMode,
           onRenameSession,
+          onFileSuggestions,
         })
 
       let initialFlushDone = false

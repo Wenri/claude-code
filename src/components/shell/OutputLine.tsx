@@ -41,16 +41,20 @@ export function tryJsonFormatContent(content: string): string {
 
 // Match http(s) URLs inside JSON string values. Conservative: no quotes,
 // no whitespace, no trailing comma/brace that'd be JSON structure.
-const URL_IN_JSON = /https?:\/\/[^\s"'<>\\]+/g;
+// eslint-disable-next-line no-control-regex
+const URL_IN_JSON = /https?:\/\/[^\s"'<>\\\x00-\x1f]+/g;
 const MAX_LINKIFY_LENGTH = 100_000;
 export function linkifyUrlsInText(content: string): string {
   if (content.length > MAX_LINKIFY_LENGTH) {
     return content;
   }
-  if (content.includes(OSC8_PREFIX)) {
-    return content;
-  }
-  return content.replace(URL_IN_JSON, url => createHyperlink(url));
+  const linkifyLine = (line: string): string =>
+    line.replace(URL_IN_JSON, url => createHyperlink(url));
+  if (!content.includes(OSC8_PREFIX)) return linkifyLine(content);
+  return content
+    .split('\n')
+    .map(line => (line.includes(OSC8_PREFIX) ? line : linkifyLine(line)))
+    .join('\n');
 }
 export function OutputLine(t0) {
   const $ = _c(10);
