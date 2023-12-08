@@ -1,0 +1,68 @@
+diff --git a/src/services/api/claude.ts b/src/services/api/claude.ts
+index 444e5d9..87d923c 100644
+--- a/src/services/api/claude.ts
++++ b/src/services/api/claude.ts
+@@ -158,6 +158,7 @@ import { isClaudeAISubscriber } from 'src/utils/auth.js'
+ import {
+   getToolSearchBetaHeader,
+   modelSupportsStructuredOutputs,
++  modelSupportsTemperature,
+   shouldIncludeFirstPartyOnlyBetas,
+   shouldUseGlobalCacheScope,
+ } from 'src/utils/betas.js'
+@@ -1694,9 +1695,10 @@ async function* queryModel(
+ 
+     // Only send temperature when thinking is disabled — the API requires
+     // temperature: 1 when thinking is enabled, which is already the default.
+-    const temperature = !hasThinking
+-      ? (options.temperatureOverride ?? 1)
+-      : undefined
++    const temperature =
++      !hasThinking && modelSupportsTemperature(options.model)
++        ? (options.temperatureOverride ?? 1)
++        : undefined
+ 
+     lastRequestBetas = betasParams
+ 
+diff --git a/src/utils/betas.ts b/src/utils/betas.ts
+index 936fca6..7d359ce 100644
+--- a/src/utils/betas.ts
++++ b/src/utils/betas.ts
+@@ -160,6 +160,10 @@ export function modelSupportsStructuredOutputs(model: string): boolean {
+   )
+ }
+ 
++export function modelSupportsTemperature(model: string): boolean {
++  return !getCanonicalName(model).includes('claude-opus-4-7')
++}
++
+ // @[MODEL LAUNCH]: Add the new model if it supports auto mode (specifically PI probes) — ask in #proj-claude-code-safety-research.
+ export function modelSupportsAutoMode(model: string): boolean {
+   if (feature('TRANSCRIPT_CLASSIFIER')) {
+diff --git a/src/utils/sideQuery.ts b/src/utils/sideQuery.ts
+index 4e6d4d7..0058113 100644
+--- a/src/utils/sideQuery.ts
++++ b/src/utils/sideQuery.ts
+@@ -14,7 +14,11 @@ import { logEvent } from '../services/analytics/index.js'
+ import type { AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS } from '../services/analytics/metadata.js'
+ import { getAPIMetadata } from '../services/api/claude.js'
+ import { getAnthropicClient } from '../services/api/client.js'
+-import { getModelBetas, modelSupportsStructuredOutputs } from './betas.js'
++import {
++  getModelBetas,
++  modelSupportsStructuredOutputs,
++  modelSupportsTemperature,
++} from './betas.js'
+ import { computeFingerprint } from './fingerprint.js'
+ import { normalizeModelStringForAPI } from './model/model.js'
+ 
+@@ -188,7 +192,8 @@ export async function sideQuery(opts: SideQueryOptions): Promise<BetaMessage> {
+       ...(tools && { tools }),
+       ...(tool_choice && { tool_choice }),
+       ...(output_format && { output_config: { format: output_format } }),
+-      ...(temperature !== undefined && { temperature }),
++      ...(temperature !== undefined &&
++        modelSupportsTemperature(normalizedModel) && { temperature }),
+       ...(stop_sequences && { stop_sequences }),
+       ...(thinkingConfig && { thinking: thinkingConfig }),
+       ...(betas.length > 0 && { betas }),
