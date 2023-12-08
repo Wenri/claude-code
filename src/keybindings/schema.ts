@@ -167,6 +167,8 @@ export const KEYBINDING_ACTIONS = [
   // Settings config panel actions
   'settings:search',
   'settings:retry',
+  'settings:periodDay',
+  'settings:periodWeek',
   'settings:close',
   'settings:sortByTokens',
   // Voice actions

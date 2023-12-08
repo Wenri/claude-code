@@ -78,7 +78,9 @@ export const DEFAULT_BINDINGS: KeybindingBlock[] = [
       // - ctrl+_ for legacy terminals (send \x1f control char)
       // - ctrl+shift+- for Kitty protocol (sends physical key with modifiers)
       'ctrl+_': 'chat:undo',
+      'ctrl+-': 'chat:undo',
       'ctrl+shift+-': 'chat:undo',
+      'ctrl+shift+_': 'chat:undo',
       // ctrl+x ctrl+e is the readline-native edit-and-execute-command binding.
       'ctrl+x ctrl+e': 'chat:externalEditor',
       'ctrl+g': 'chat:externalEditor',
@@ -125,6 +127,8 @@ export const DEFAULT_BINDINGS: KeybindingBlock[] = [
       '/': 'settings:search',
       // Retry loading usage data (only active on error)
       r: 'settings:retry',
+      d: 'settings:periodDay',
+      w: 'settings:periodWeek',
       // Sort skills by estimated token cost
       t: 'settings:sortByTokens',
     },

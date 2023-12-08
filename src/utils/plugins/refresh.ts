@@ -49,6 +49,7 @@ export type RefreshActivePluginsResult = {
    * manager was never initialized). */
   lsp_count: number
   error_count: number
+  errors: PluginError[]
   /** The refreshed agent definitions, for callers (e.g. print.ts) that also
    * maintain a local mutable reference outside AppState. */
   agentDefinitions: AgentDefinitionsResult
@@ -185,6 +186,7 @@ export async function refreshActivePlugins(
     mcp_count,
     lsp_count,
     error_count: errors.length + (hook_load_failed ? 1 : 0),
+    errors,
     agentDefinitions,
     pluginCommands,
   }

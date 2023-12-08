@@ -91,8 +91,9 @@ function checkDangerousRemovalPaths(
         behavior: 'ask',
         message: `Dangerous ${command} operation detected: '${absolutePath}'\n\nThis command would remove a critical system directory. This requires explicit approval and cannot be auto-allowed by permission rules.`,
         decisionReason: {
-          type: 'other',
+          type: 'safetyCheck',
           reason: `Dangerous ${command} operation on critical path: ${absolutePath}`,
+          classifierApprovable: false,
         },
         // Don't provide suggestions - we don't want to encourage saving dangerous commands
         suggestions: [],

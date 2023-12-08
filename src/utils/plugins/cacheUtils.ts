@@ -41,7 +41,8 @@ export function clearAllPluginCaches(): void {
   clearAllOutputStylesCache()
 }
 
-export function clearAllCaches(): void {
+export function clearAllCaches(reason?: string): void {
+  if (reason) logForDebugging(`Clearing plugin caches: ${reason}`)
   clearAllPluginCaches()
   clearCommandsCache()
   clearAgentDefinitionsCache()

@@ -29,6 +29,7 @@ import {
   type ListPromptsResult,
   ListPromptsResultSchema,
   ListResourcesResultSchema,
+  ListResourceTemplatesResultSchema,
   ListRootsRequestSchema,
   type ListToolsResult,
   ListToolsResultSchema,
@@ -146,6 +147,7 @@ import type {
   McpSdkServerConfig,
   ScopedMcpServerConfig,
   ServerResource,
+  ServerResourceTemplate,
 } from './types.js'
 
 /**
@@ -2121,6 +2123,82 @@ export const fetchResourcesForClient = memoizeWithLRU(
   MCP_FETCH_CACHE_SIZE,
 )
 
+export const fetchResourceTemplatesForClient = memoizeWithLRU(
+  async (client: MCPServerConnection): Promise<ServerResourceTemplate[]> => {
+    if (client.type !== 'connected' || !client.capabilities?.resources) return []
+    try {
+      const result = await client.client.request(
+        { method: 'resources/templates/list' },
+        ListResourceTemplatesResultSchema,
+        { timeout: getConnectionTimeoutMs() },
+      )
+      const resourceTemplates = result.resourceTemplates ?? []
+      logEvent('tengu_mcp_resource_templates_fetched', {
+        template_count: resourceTemplates.length,
+      })
+      return resourceTemplates.map(template => ({
+        ...template,
+        server: client.name,
+      }))
+    } catch (error) {
+      // Failed requests must be retryable when @ completion is used again.
+      fetchResourceTemplatesForClient.cache.delete(client.name)
+      logMCPDebug(
+        client.name,
+        `Failed to fetch resource templates: ${errorMessage(error)}`,
+      )
+      return []
+    }
+  },
+  (client: MCPServerConnection) => client.name,
+  MCP_FETCH_CACHE_SIZE,
+)
+
+export async function fetchMissingResourceTemplates(
+  clients: readonly MCPServerConnection[],
+  existing: Readonly<Record<string, ServerResourceTemplate[]>>,
+): Promise<Array<{ client: ConnectedMCPServer; templates: ServerResourceTemplate[] }>> {
+  const missing = clients.filter(
+    (client): client is ConnectedMCPServer =>
+      client.type === 'connected' &&
+      !(client.name in existing),
+  )
+  return Promise.all(
+    missing.map(async client => ({
+      client,
+      templates: await fetchResourceTemplatesForClient(client),
+    })),
+  )
+}
+
+export async function completeResourceTemplate(
+  client: ConnectedMCPServer,
+  uriTemplate: string,
+  argumentName: string,
+  argumentValue: string,
+  resolvedArguments: Record<string, string>,
+): Promise<string[]> {
+  if (!client.capabilities?.completions) return []
+
+  try {
+    const result = await client.client.complete({
+      ref: { type: 'ref/resource', uri: uriTemplate },
+      argument: { name: argumentName, value: argumentValue },
+      context:
+        Object.keys(resolvedArguments).length > 0
+          ? { arguments: resolvedArguments }
+          : undefined,
+    })
+    return result.completion.values
+  } catch (error) {
+    logMCPDebug(
+      client.name,
+      `Failed to complete resource template: ${errorMessage(error)}`,
+    )
+    return []
+  }
+}
+
 export const fetchCommandsForClient = memoizeWithLRU(
   async (client: MCPServerConnection): Promise<Command[]> => {
     if (client.type !== 'connected') return []
@@ -2233,6 +2311,7 @@ export async function reconnectMcpServerImpl(
   tools: Tool[]
   commands: Command[]
   resources?: ServerResource[]
+  resourceTemplates?: ServerResourceTemplate[]
 }> {
   try {
     // Invalidate the keychain cache so we read fresh credentials from disk.
@@ -2286,6 +2365,7 @@ export async function reconnectMcpServerImpl(
       tools: [...tools, ...resourceTools],
       commands,
       resources: resources.length > 0 ? resources : undefined,
+      resourceTemplates: [],
     }
   } catch (error) {
     // Handle errors gracefully - connection might have closed during fetch
@@ -2296,6 +2376,7 @@ export async function reconnectMcpServerImpl(
       client: { name, type: 'failed' as const, config },
       tools: [],
       commands: [],
+      resourceTemplates: [],
     }
   }
 }
@@ -2320,6 +2401,7 @@ export async function getMcpToolsCommandsAndResources(
     tools: Tool[]
     commands: Command[]
     resources?: ServerResource[]
+    resourceTemplates?: ServerResourceTemplate[]
   }) => void,
   mcpConfigs?: Record<string, ScopedMcpServerConfig>,
 ): Promise<void> {

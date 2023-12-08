@@ -27,7 +27,13 @@ import {
   refreshMarketplace,
 } from './marketplaceManager.js'
 import { parsePluginIdentifier } from './pluginIdentifier.js'
+import { resolveMissingDependencies } from './missingDependencyResolver.js'
+import { clearAllCaches } from './cacheUtils.js'
+import { loadAllPlugins } from './pluginLoader.js'
 import { isMarketplaceAutoUpdate, type PluginScope } from './schemas.js'
+import { sleep } from '../sleep.js'
+
+const MAX_MARKETPLACE_REFRESH_JITTER_MS = 10 * 60 * 1000
 
 /**
  * Callback type for notifying when plugins have been updated
@@ -242,6 +248,11 @@ export function autoUpdateMarketplacesAndPluginsInBackground(): void {
         return
       }
 
+      const jitterMs = Math.floor(
+        Math.random() * MAX_MARKETPLACE_REFRESH_JITTER_MS,
+      )
+      await sleep(jitterMs, undefined, { unref: true })
+
       // Refresh only marketplaces with autoUpdate enabled
       const refreshResults = await Promise.allSettled(
         Array.from(autoUpdateEnabledMarketplaces).map(async name => {
@@ -269,14 +280,34 @@ export function autoUpdateMarketplacesAndPluginsInBackground(): void {
 
       logForDebugging('Plugin autoupdate: checking installed plugins')
       const updatedPlugins = await updatePlugins(autoUpdateEnabledMarketplaces)
-
       if (updatedPlugins.length > 0) {
+        clearAllCaches('autoupdate dep-resolution')
+      }
+      const pluginLoad = await loadAllPlugins()
+      const dependencyErrors = pluginLoad.errors.filter(error => {
+        if (error.type !== 'dependency-unsatisfied') return false
+        const declaringMarketplace = parsePluginIdentifier(error.source).marketplace
+        return (
+          declaringMarketplace !== undefined &&
+          autoUpdateEnabledMarketplaces.has(declaringMarketplace.toLowerCase())
+        )
+      })
+      const { installed: resolvedDependencies } =
+        await resolveMissingDependencies(dependencyErrors)
+      if (resolvedDependencies.length > 0) {
+        logForDebugging(
+          `Plugin autoupdate: resolved ${resolvedDependencies.length} missing plugin dependencies: ${resolvedDependencies.join(', ')}`,
+        )
+      }
+
+      const changedPlugins = [...updatedPlugins, ...resolvedDependencies]
+      if (changedPlugins.length > 0) {
         if (pluginUpdateCallback) {
           // Callback is already registered, invoke it immediately
-          pluginUpdateCallback(updatedPlugins)
+          pluginUpdateCallback(changedPlugins)
         } else {
           // Callback not yet registered (REPL not mounted), store for later delivery
-          pendingNotification = updatedPlugins
+          pendingNotification = changedPlugins
         }
       }
     } catch (error) {

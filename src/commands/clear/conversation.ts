@@ -187,6 +187,7 @@ export async function clearConversation({
           tools: [],
           commands: [],
           resources: {},
+          resourceTemplates: {},
           pluginReconnectKey: prev.mcp.pluginReconnectKey,
         },
       }

@@ -15,6 +15,8 @@ import { useOptionalKeybindingContext, useRegisterKeybindingContext } from '../k
 import { useKeybindings } from '../keybindings/useKeybinding.js';
 import { useShortcutDisplay } from '../keybindings/useShortcutDisplay.js';
 import { useAppState, useAppStateStore } from '../state/AppState.js';
+import { useSetAppState } from '../state/AppState.js';
+import { fetchMissingResourceTemplates } from '../services/mcp/client.js';
 import type { AgentDefinition } from '../tools/AgentTool/loadAgentsDir.js';
 import type { InlineGhostText, PromptInputMode } from '../types/textInputTypes.js';
 import { isAgentSwarmsEnabled } from '../utils/agentSwarmsEnabled.js';
@@ -28,7 +30,7 @@ import { getShellHistoryCompletion } from '../utils/suggestions/shellHistoryComp
 import { getSlackChannelSuggestions, hasSlackMcpServer } from '../utils/suggestions/slackChannelSuggestions.js';
 import { TEAM_LEAD_NAME } from '../utils/swarm/constants.js';
 import { applyFileSuggestion, findLongestCommonPrefix, onIndexBuildComplete, startBackgroundCacheRefresh } from './fileSuggestions.js';
-import { generateUnifiedSuggestions } from './unifiedSuggestions.js';
+import { generateMcpResourceTemplateCompletions, generateUnifiedSuggestions } from './unifiedSuggestions.js';
 
 // Unicode-aware character class for file path tokens:
 // \p{L} = letters (CJK, Latin, Cyrillic, etc.)
@@ -91,15 +93,18 @@ type Props = {
     suggestions: SuggestionItem[];
     selectedSuggestion: number;
     commandArgumentHint?: string;
+    suggestionsEmptyMessage?: string;
   }) => {
     suggestions: SuggestionItem[];
     selectedSuggestion: number;
     commandArgumentHint?: string;
+    suggestionsEmptyMessage?: string;
   }) => void;
   suggestionsState: {
     suggestions: SuggestionItem[];
     selectedSuggestion: number;
     commandArgumentHint?: string;
+    suggestionsEmptyMessage?: string;
   };
   suppressSuggestions?: boolean;
   markAccepted: () => void;
@@ -111,6 +116,7 @@ type UseTypeaheadResult = {
   suggestionType: SuggestionType;
   maxColumnWidth?: number;
   commandArgumentHint?: string;
+  suggestionsEmptyMessage?: string;
   inlineGhostText?: InlineGhostText;
   handleKeyDown: (e: KeyboardEvent) => void;
 };
@@ -363,7 +369,8 @@ export function useTypeahead({
   suggestionsState: {
     suggestions,
     selectedSuggestion,
-    commandArgumentHint
+    commandArgumentHint,
+    suggestionsEmptyMessage
   },
   suppressSuggestions = false,
   markAccepted,
@@ -385,7 +392,28 @@ export function useTypeahead({
   }, [commands]);
   const [maxColumnWidth, setMaxColumnWidth] = useState<number | undefined>(undefined);
   const mcpResources = useAppState(s => s.mcp.resources);
+  const mcpResourceTemplates = useAppState(s => s.mcp.resourceTemplates);
   const store = useAppStateStore();
+  const setAppState = useSetAppState();
+  const fetchDeferredResourceTemplates = useCallback((): void => {
+    const before = store.getState();
+    void fetchMissingResourceTemplates(before.mcp.clients, before.mcp.resourceTemplates).then(fetched => {
+      if (fetched.length === 0) return;
+      let changed = false;
+      setAppState(state => {
+        let resourceTemplates = state.mcp.resourceTemplates;
+        for (const { client, templates } of fetched) {
+          if (client.name in resourceTemplates) continue;
+          if (!state.mcp.clients.some(current => current.type === 'connected' && current.client === client.client)) continue;
+          resourceTemplates = { ...resourceTemplates, [client.name]: templates };
+        }
+        if (resourceTemplates === state.mcp.resourceTemplates) return state;
+        changed = true;
+        return { ...state, mcp: { ...state.mcp, resourceTemplates } };
+      });
+      if (changed && latestSearchIsAtSymbolRef.current) latestSearchTokenRef.current = null;
+    });
+  }, [store, setAppState]);
   const promptSuggestion = useAppState(s => s.promptSuggestion);
   // PromptInput hides suggestion ghost text in teammate view — mirror that
   // gate here so Tab/rightArrow can't accept what isn't displayed.
@@ -423,6 +451,7 @@ export function useTypeahead({
 
   // Track the latest search token to discard stale results from slow async operations
   const latestSearchTokenRef = useRef<string | null>(null);
+  const latestSearchIsAtSymbolRef = useRef(false);
   // Track previous input to detect actual text changes vs. callback recreations
   const prevInputRef = useRef('');
   // Track the latest path token to discard stale results from path completion
@@ -452,7 +481,10 @@ export function useTypeahead({
   // Expensive async operation to fetch file/resource suggestions
   const fetchFileSuggestions = useCallback(async (searchToken: string, isAtSymbol = false): Promise<void> => {
     latestSearchTokenRef.current = searchToken;
-    const combinedItems = await generateUnifiedSuggestions(searchToken, mcpResources, agents, isAtSymbol);
+    latestSearchIsAtSymbolRef.current = isAtSymbol;
+    const state = store.getState();
+    const templateItems = isAtSymbol ? await generateMcpResourceTemplateCompletions(searchToken, state.mcp.resourceTemplates, state.mcp.clients) : null;
+    const combinedItems = templateItems ?? await generateUnifiedSuggestions(searchToken, state.mcp.resources, state.mcp.resourceTemplates, agents, isAtSymbol);
     // Discard stale results if a newer query was initiated while waiting
     if (latestSearchTokenRef.current !== searchToken) {
       return;
@@ -475,7 +507,7 @@ export function useTypeahead({
     }));
     setSuggestionType(combinedItems.length > 0 ? 'file' : 'none');
     setMaxColumnWidth(undefined); // No fixed width for file suggestions
-  }, [mcpResources, setSuggestionsState, setSuggestionType, setMaxColumnWidth, agents]);
+  }, [store, setSuggestionsState, setSuggestionType, setMaxColumnWidth, agents]);
 
   // Pre-warm the file index on mount so the first @-mention doesn't block.
   // The build runs in background with ~4ms event-loop yields, so it doesn't
@@ -776,9 +808,10 @@ export function useTypeahead({
       setSuggestionsState(() => ({
         commandArgumentHint,
         suggestions: commandItems,
-        selectedSuggestion: commandItems.length > 0 ? 0 : -1
+        selectedSuggestion: commandItems.length > 0 ? 0 : -1,
+        suggestionsEmptyMessage: commandItems.length === 0 && value.length > 1 ? `No commands match "${value}"` : undefined
       }));
-      setSuggestionType(commandItems.length > 0 ? 'command' : 'none');
+      setSuggestionType('command');
 
       // Use stable width from all commands (prevents layout shift when filtering)
       if (commandItems.length > 0) {
@@ -817,6 +850,7 @@ export function useTypeahead({
     // Check for @ symbol to trigger file and MCP resource suggestions
     // Skip @ autocomplete in bash mode - @ has no special meaning in shell commands
     if (hasAtSymbol && mode !== 'bash') {
+      fetchDeferredResourceTemplates();
       // Get the @ token (including the @ symbol)
       const completionToken = extractCompletionToken(value, effectiveCursorOffset, true);
       if (completionToken && completionToken.token.startsWith('@')) {
@@ -884,7 +918,7 @@ export function useTypeahead({
   }, [suggestionType, commands, setSuggestionsState, clearSuggestions, debouncedFetchFileSuggestions, debouncedFetchSlackChannels, mode, suppressSuggestions,
   // Note: using suggestionsRef instead of suggestions to avoid recreating
   // this callback when only selectedSuggestion changes (not the suggestions list)
-  allCommandsMaxWidth]);
+  allCommandsMaxWidth, fetchDeferredResourceTemplates, mcpResources, mcpResourceTemplates]);
 
   // Update suggestions when input changes
   // Note: We intentionally don't depend on cursorOffset here - cursor movement alone
@@ -1073,14 +1107,19 @@ export function useTypeahead({
           // Otherwise, apply the selected suggestion
           const suggestion = suggestions[index];
           if (suggestion) {
-            const needsQuotes = suggestion.displayText.includes(' ');
+            const metadata = suggestion.metadata as {
+              replacement?: string;
+              partial?: boolean;
+            } | undefined;
+            const displayText = metadata?.replacement ?? suggestion.displayText;
+            const needsQuotes = displayText.includes(' ');
             const replacementValue = formatReplacementValue({
-              displayText: suggestion.displayText,
+              displayText,
               mode,
               hasAtPrefix,
               needsQuotes,
               isQuoted: completionToken.isQuoted,
-              isComplete: true // complete suggestion
+              isComplete: !metadata?.partial
             });
             applyFileSuggestion(replacementValue, input, completionToken.token, completionToken.startPos, onInputChange, setCursorOffset);
             clearSuggestions();
@@ -1115,7 +1154,9 @@ export function useTypeahead({
           // If token starts with @, search without the @ prefix
           const isAtSymbol = completionInfo.token.startsWith('@');
           const searchToken = isAtSymbol ? completionInfo.token.substring(1) : completionInfo.token;
-          suggestionItems = await generateUnifiedSuggestions(searchToken, mcpResources, agents, isAtSymbol);
+          const currentMcp = store.getState().mcp;
+          const templateItems = isAtSymbol ? await generateMcpResourceTemplateCompletions(searchToken, currentMcp.resourceTemplates, store.getState().mcp.clients) : null;
+          suggestionItems = templateItems ?? await generateUnifiedSuggestions(searchToken, currentMcp.resources, currentMcp.resourceTemplates, agents, isAtSymbol);
         } else {
           suggestionItems = [];
         }
@@ -1131,7 +1172,7 @@ export function useTypeahead({
         setMaxColumnWidth(undefined);
       }
     }
-  }, [suggestions, selectedSuggestion, input, suggestionType, commands, mode, onInputChange, setCursorOffset, onSubmit, clearSuggestions, cursorOffset, updateSuggestions, mcpResources, setSuggestionsState, agents, debouncedFetchFileSuggestions, debouncedFetchSlackChannels, effectiveGhostText]);
+  }, [suggestions, selectedSuggestion, input, suggestionType, commands, mode, onInputChange, setCursorOffset, onSubmit, clearSuggestions, cursorOffset, updateSuggestions, mcpResources, mcpResourceTemplates, store, setSuggestionsState, agents, debouncedFetchFileSuggestions, debouncedFetchSlackChannels, effectiveGhostText]);
 
   // Handle enter key press - apply and execute suggestions
   const handleEnter = useCallback(() => {
@@ -1181,14 +1222,19 @@ export function useTypeahead({
       if (completionInfo) {
         if (suggestion) {
           const hasAtPrefix = completionInfo.token.startsWith('@');
-          const needsQuotes = suggestion.displayText.includes(' ');
+          const metadata = suggestion.metadata as {
+            replacement?: string;
+            partial?: boolean;
+          } | undefined;
+          const displayText = metadata?.replacement ?? suggestion.displayText;
+          const needsQuotes = displayText.includes(' ');
           const replacementValue = formatReplacementValue({
-            displayText: suggestion.displayText,
+            displayText,
             mode,
             hasAtPrefix,
             needsQuotes,
             isQuoted: completionInfo.isQuoted,
-            isComplete: true // complete suggestion
+            isComplete: !metadata?.partial
           });
           applyFileSuggestion(replacementValue, input, completionInfo.token, completionInfo.startPos, onInputChange, setCursorOffset);
           debouncedFetchFileSuggestions.cancel();
@@ -1378,6 +1424,7 @@ export function useTypeahead({
     suggestionType,
     maxColumnWidth,
     commandArgumentHint,
+    suggestionsEmptyMessage,
     inlineGhostText: effectiveGhostText,
     handleKeyDown
   };

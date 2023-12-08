@@ -75,6 +75,19 @@ export function safeParseJSONC(json: string | null | undefined): unknown {
   }
 }
 
+/** Set an object property in JSONC while preserving comments and formatting. */
+export function setJSONCProperty(
+  content: string,
+  property: string,
+  value: unknown,
+): string {
+  const cleanContent = stripBOM(content || '{}')
+  const edits = modify(cleanContent, [property], value, {
+    formattingOptions: { insertSpaces: true, tabSize: 4 },
+  })
+  return applyEdits(cleanContent, edits)
+}
+
 /**
  * Modify a jsonc string by adding a new item to an array, preserving comments and formatting.
  * @param content The jsonc string to modify

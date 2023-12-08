@@ -2,7 +2,9 @@ import Fuse from 'fuse.js'
 import { basename } from 'path'
 import type { SuggestionItem } from 'src/components/PromptInput/PromptInputFooterSuggestions.js'
 import { generateFileSuggestions } from 'src/hooks/fileSuggestions.js'
-import type { ServerResource } from 'src/services/mcp/types.js'
+import type { ServerResource, ServerResourceTemplate } from 'src/services/mcp/types.js'
+import type { MCPServerConnection } from 'src/services/mcp/types.js'
+import { completeResourceTemplate } from 'src/services/mcp/client.js'
 import { getAgentColor } from 'src/tools/AgentTool/agentColorManager.js'
 import type { AgentDefinition } from 'src/tools/AgentTool/loadAgentsDir.js'
 import { truncateToWidth } from 'src/utils/format.js'
@@ -27,6 +29,15 @@ type McpResourceSuggestionSource = {
   name: string
 }
 
+type McpResourceTemplateSuggestionSource = {
+  type: 'mcp_resource_template'
+  displayText: string
+  description: string
+  server: string
+  uriTemplate: string
+  name: string
+}
+
 type AgentSuggestionSource = {
   type: 'agent'
   displayText: string
@@ -38,6 +49,7 @@ type AgentSuggestionSource = {
 type SuggestionSource =
   | FileSuggestionSource
   | McpResourceSuggestionSource
+  | McpResourceTemplateSuggestionSource
   | AgentSuggestionSource
 
 /**
@@ -57,6 +69,13 @@ function createSuggestionFromSource(source: SuggestionSource): SuggestionItem {
         displayText: source.displayText,
         description: source.description,
       }
+    case 'mcp_resource_template':
+      return {
+        id: `mcp-template::${source.server}__${source.uriTemplate}`,
+        displayText: source.displayText,
+        description: source.description,
+        metadata: { partial: true },
+      }
     case 'agent':
       return {
         id: `agent-${source.agentType}`,
@@ -72,6 +91,243 @@ const DESCRIPTION_MAX_LENGTH = 60
 
 function truncateDescription(description: string): string {
   return truncateToWidth(description, DESCRIPTION_MAX_LENGTH)
+}
+
+function templateDisplayPrefix(uriTemplate: string): string {
+  const variableStart = uriTemplate.indexOf('{')
+  return variableStart === -1
+    ? uriTemplate
+    : uriTemplate.slice(0, variableStart)
+}
+
+type UriTemplatePart =
+  | { type: 'literal'; value: string }
+  | { type: 'variable'; name: string }
+
+type UriTemplateMatch = {
+  template: ServerResourceTemplate
+  argName: string
+  argValue: string
+  resolvedArgs: Record<string, string>
+  valueStartIndex: number
+}
+
+function parseUriTemplate(uriTemplate: string): UriTemplatePart[] {
+  const parts: UriTemplatePart[] = []
+  let cursor = 0
+  let literalStart = 0
+
+  while (cursor < uriTemplate.length) {
+    if (uriTemplate[cursor] !== '{') {
+      cursor++
+      continue
+    }
+    if (cursor > literalStart) {
+      parts.push({
+        type: 'literal',
+        value: uriTemplate.slice(literalStart, cursor),
+      })
+    }
+    const close = uriTemplate.indexOf('}', cursor)
+    if (close === -1) {
+      parts.push({ type: 'literal', value: uriTemplate.slice(cursor) })
+      return parts
+    }
+    const rawExpression = uriTemplate
+      .slice(cursor + 1, close)
+      .replace(/^[+#./;?&]/, '')
+      .replace(/\*$|:\d+$/, '')
+    const [name = rawExpression] = rawExpression.split(',')
+    parts.push({ type: 'variable', name })
+    cursor = close + 1
+    literalStart = cursor
+  }
+
+  if (literalStart < uriTemplate.length) {
+    parts.push({ type: 'literal', value: uriTemplate.slice(literalStart) })
+  }
+  return parts
+}
+
+function matchUriTemplate(
+  template: ServerResourceTemplate,
+  uri: string,
+): UriTemplateMatch | null {
+  const parts = parseUriTemplate(template.uriTemplate)
+  const resolvedArgs: Record<string, string> = {}
+  let uriOffset = 0
+
+  for (let index = 0; index < parts.length; index++) {
+    const part = parts[index]!
+    if (part.type === 'literal') {
+      const remaining = uri.slice(uriOffset)
+      if (
+        remaining.length < part.value.length ||
+        !remaining.startsWith(part.value)
+      ) {
+        return null
+      }
+      uriOffset += part.value.length
+      continue
+    }
+
+    const next = parts[index + 1]
+    const nextLiteral = next?.type === 'literal' ? next.value : null
+    const remaining = uri.slice(uriOffset)
+    if (nextLiteral) {
+      const nextLiteralOffset = remaining.indexOf(nextLiteral)
+      if (nextLiteralOffset === -1) {
+        return {
+          template,
+          argName: part.name,
+          argValue: remaining,
+          resolvedArgs,
+          valueStartIndex: uriOffset,
+        }
+      }
+      resolvedArgs[part.name] = remaining.slice(0, nextLiteralOffset)
+      uriOffset += nextLiteralOffset
+      continue
+    }
+    return {
+      template,
+      argName: part.name,
+      argValue: remaining,
+      resolvedArgs,
+      valueStartIndex: uriOffset,
+    }
+  }
+  return null
+}
+
+function findBestUriTemplateMatch(
+  uri: string,
+  templates: ServerResourceTemplate[],
+): UriTemplateMatch | null {
+  let bestMatch: UriTemplateMatch | null = null
+  let bestScore: [number, number, number] = [-1, -1, -1]
+
+  for (const template of templates) {
+    const match = matchUriTemplate(template, uri)
+    if (!match) continue
+    const score: [number, number, number] = [
+      Object.keys(match.resolvedArgs).length,
+      match.valueStartIndex,
+      template.uriTemplate.match(/\{/g)?.length ?? 0,
+    ]
+    if (
+      !bestMatch ||
+      score[0] > bestScore[0] ||
+      (score[0] === bestScore[0] && score[1] > bestScore[1]) ||
+      (score[0] === bestScore[0] &&
+        score[1] === bestScore[1] &&
+        score[2] > bestScore[2])
+    ) {
+      bestMatch = match
+      bestScore = score
+    }
+  }
+  return bestMatch
+}
+
+function replaceCurrentTemplateValue(
+  uri: string,
+  match: UriTemplateMatch,
+  completedValue: string,
+): string {
+  const prefix = uri.slice(0, match.valueStartIndex)
+  const parts = parseUriTemplate(match.template.uriTemplate)
+  const resolvedCount = Object.keys(match.resolvedArgs).length
+  let currentVariableIndex = -1
+  let variableCount = 0
+  for (let index = 0; index < parts.length; index++) {
+    if (parts[index]?.type !== 'variable') continue
+    if (variableCount === resolvedCount) {
+      currentVariableIndex = index
+      break
+    }
+    variableCount++
+  }
+  const nextPart =
+    currentVariableIndex >= 0 ? parts[currentVariableIndex + 1] : undefined
+  const nextLiteral = nextPart?.type === 'literal' ? nextPart.value : ''
+  return prefix + completedValue + nextLiteral
+}
+
+function hasMoreTemplateVariables(match: UriTemplateMatch): boolean {
+  const parts = parseUriTemplate(match.template.uriTemplate)
+  const resolvedCount = Object.keys(match.resolvedArgs).length
+  let variableCount = 0
+  for (let index = 0; index < parts.length; index++) {
+    if (parts[index]?.type !== 'variable') continue
+    if (variableCount === resolvedCount) {
+      return (
+        parts[index + 1]?.type === 'literal' &&
+        parts[index + 2]?.type === 'variable'
+      )
+    }
+    variableCount++
+  }
+  return false
+}
+
+export async function generateMcpResourceTemplateCompletions(
+  query: string,
+  templatesByServer: Record<string, ServerResourceTemplate[]>,
+  clients: readonly MCPServerConnection[],
+): Promise<SuggestionItem[] | null> {
+  const separator = query.indexOf(':')
+  if (separator === -1) return null
+
+  const serverName = query.slice(0, separator)
+  const uri = query.slice(separator + 1)
+  const templates = templatesByServer[serverName]
+  if (!templates || templates.length === 0) return null
+
+  const match = findBestUriTemplateMatch(uri, templates)
+  if (!match) {
+    if (!uri) return null
+    const suggestions = templates
+      .filter(template => template.uriTemplate.startsWith(uri))
+      .slice(0, MAX_UNIFIED_SUGGESTIONS)
+      .map(template => ({
+        id: `mcp-template::${serverName}__${template.uriTemplate}`,
+        displayText: `${serverName}:${templateDisplayPrefix(template.uriTemplate)}`,
+        description: truncateDescription(
+          template.description || template.name || template.uriTemplate,
+        ),
+        metadata: { partial: true },
+      }))
+    return suggestions.length > 0 ? suggestions : null
+  }
+
+  const client = clients.find(
+    candidate =>
+      candidate.type === 'connected' && candidate.name === serverName,
+  )
+  if (!client || client.type !== 'connected') return []
+
+  const completions = await completeResourceTemplate(
+    client,
+    match.template.uriTemplate,
+    match.argName,
+    match.argValue,
+    match.resolvedArgs,
+  )
+  const description = truncateDescription(
+    match.template.description || match.template.name || '',
+  )
+  const partial = hasMoreTemplateVariables(match)
+  return completions.slice(0, MAX_UNIFIED_SUGGESTIONS).map(value => {
+    const resolvedUri = replaceCurrentTemplateValue(uri, match, value)
+    const replacement = `${serverName}:${resolvedUri}`
+    return {
+      id: `mcp-template-value::${serverName}__${resolvedUri}`,
+      displayText: resolvedUri.slice(match.valueStartIndex),
+      description,
+      metadata: { partial, replacement },
+    }
+  })
 }
 
 function generateAgentSuggestions(
@@ -111,6 +367,7 @@ function generateAgentSuggestions(
 export async function generateUnifiedSuggestions(
   query: string,
   mcpResources: Record<string, ServerResource[]>,
+  mcpResourceTemplates: Record<string, ServerResourceTemplate[]>,
   agents: AgentDefinition[],
   showOnEmpty = false,
 ): Promise<SuggestionItem[]> {
@@ -146,15 +403,25 @@ export async function generateUnifiedSuggestions(
       uri: resource.uri,
       name: resource.name || resource.uri,
     }))
+  const mcpTemplateSources: McpResourceTemplateSuggestionSource[] = Object.values(mcpResourceTemplates)
+    .flat()
+    .map(template => ({
+      type: 'mcp_resource_template' as const,
+      displayText: `${template.server}:${templateDisplayPrefix(template.uriTemplate)}`,
+      description: truncateDescription(template.description || template.name || template.uriTemplate),
+      server: template.server,
+      uriTemplate: template.uriTemplate,
+      name: template.name || template.uriTemplate,
+    }))
 
   if (!query) {
-    const allSources = [...fileSources, ...mcpSources, ...agentSources]
+    const allSources = [...fileSources, ...mcpSources, ...mcpTemplateSources, ...agentSources]
     return allSources
       .slice(0, MAX_UNIFIED_SUGGESTIONS)
       .map(createSuggestionFromSource)
   }
 
-  const nonFileSources: SuggestionSource[] = [...mcpSources, ...agentSources]
+  const nonFileSources: SuggestionSource[] = [...mcpSources, ...mcpTemplateSources, ...agentSources]
 
   // Score non-file sources with Fuse.js
   // File sources are already scored by Rust/nucleo
@@ -180,6 +447,7 @@ export async function generateUnifiedSuggestions(
         { name: 'server', weight: 1 },
         { name: 'description', weight: 1 },
         { name: 'agentType', weight: 3 },
+        { name: 'uriTemplate', weight: 2 },
       ],
     })
 
@@ -187,7 +455,9 @@ export async function generateUnifiedSuggestions(
     for (const result of fuseResults) {
       scoredResults.push({
         source: result.item,
-        score: result.score ?? 0.5,
+        score:
+          (result.score ?? 0.5) +
+          (result.item.type === 'mcp_resource' ? 0.15 : 0),
       })
     }
   }

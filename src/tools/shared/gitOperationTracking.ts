@@ -31,6 +31,26 @@ const GIT_PUSH_RE = gitCmdRe('push')
 const GIT_CHERRY_PICK_RE = gitCmdRe('cherry-pick')
 const GIT_MERGE_RE = gitCmdRe('merge', '(?!-)')
 const GIT_REBASE_RE = gitCmdRe('rebase')
+const GH_COMMAND_RE =
+  /(?:^|[;&|]|\b(?:then|do)\b)\s*gh\s+(?!auth\b|help\b|version\b|alias\b|completion\b|config\b)/
+const RATE_LIMIT_RE = /\brate limit\b/i
+const GH_RATE_LIMIT_HINT_COOLDOWN_MS = 60_000
+let ghRateLimitHintCooldownUntil = 0
+
+export function getGhRateLimitHint(
+  command: string,
+  output: string,
+): string | undefined {
+  if (
+    !GH_COMMAND_RE.test(command) ||
+    !RATE_LIMIT_RE.test(output) ||
+    Date.now() < ghRateLimitHintCooldownUntil
+  ) {
+    return undefined
+  }
+  ghRateLimitHintCooldownUntil = Date.now() + GH_RATE_LIMIT_HINT_COOLDOWN_MS
+  return '<system-reminder>GitHub API rate limit exceeded (5,000/hr shared across all tools and agents). Run `gh api rate_limit --jq .resources` and sleep until reset before further gh calls. If polling in a loop, use ScheduleWakeup instead of retrying.</system-reminder>'
+}
 
 export type CommitKind = 'committed' | 'amended' | 'cherry-picked'
 export type BranchAction = 'merged' | 'rebased'

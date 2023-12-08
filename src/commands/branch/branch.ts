@@ -1,5 +1,9 @@
 import { randomUUID, type UUID } from 'crypto'
-import { mkdir, readFile, writeFile } from 'fs/promises'
+import { createReadStream, createWriteStream } from 'fs'
+import { mkdir, unlink } from 'fs/promises'
+import { once } from 'events'
+import { createInterface } from 'readline'
+import { finished } from 'stream/promises'
 import { getOriginalCwd, getSessionId } from '../../bootstrap/state.js'
 import type { LocalJSXCommandContext } from '../../commands.js'
 import { logEvent } from '../../services/analytics/index.js'
@@ -11,7 +15,6 @@ import type {
   SerializedMessage,
   TranscriptMessage,
 } from '../../types/logs.js'
-import { parseJSONL } from '../../utils/json.js'
 import {
   getProjectDir,
   getTranscriptPath,
@@ -20,8 +23,10 @@ import {
   saveCustomTitle,
   searchSessionsByCustomTitle,
 } from '../../utils/sessionStorage.js'
-import { jsonStringify } from '../../utils/slowOperations.js'
+import { jsonParse, jsonStringify } from '../../utils/slowOperations.js'
 import { escapeRegExp } from '../../utils/stringUtils.js'
+import { isENOENT, toError } from '../../utils/errors.js'
+import { logError } from '../../utils/log.js'
 
 type TranscriptEntry = TranscriptMessage & {
   forkedFrom?: {
@@ -58,7 +63,10 @@ export function deriveFirstPrompt(
  * Preserves all original metadata (timestamps, gitBranch, etc.) while updating
  * sessionId and adding forkedFrom traceability.
  */
-async function createFork(customTitle?: string): Promise<{
+export async function createFork(
+  customTitle?: string,
+  extraMessages?: SerializedMessage[],
+): Promise<{
   sessionId: UUID
   title: string | undefined
   forkPath: string
@@ -74,94 +82,122 @@ async function createFork(customTitle?: string): Promise<{
   // Ensure project directory exists
   await mkdir(projectDir, { recursive: true, mode: 0o700 })
 
-  // Read current transcript file
-  let transcriptContent: Buffer
-  try {
-    transcriptContent = await readFile(currentTranscriptPath)
-  } catch {
-    throw new Error('No conversation to branch')
-  }
-
-  if (transcriptContent.length === 0) {
-    throw new Error('No conversation to branch')
-  }
-
-  // Parse all transcript entries (messages + metadata entries like content-replacement)
-  const entries = parseJSONL<Entry>(transcriptContent)
-
-  // Filter to only main conversation messages (exclude sidechains and non-message entries)
-  const mainConversationEntries = entries.filter(
-    (entry): entry is TranscriptMessage =>
-      isTranscriptMessage(entry) && !entry.isSidechain,
-  )
-
-  // Content-replacement entries for the original session. These record which
-  // tool_result blocks were replaced with previews by the per-message budget.
-  // Without them in the fork JSONL, `claude -r {forkId}` reconstructs state
-  // with an empty replacements Map → previously-replaced results are classified
-  // as FROZEN and sent as full content (prompt cache miss + permanent overage).
-  // sessionId must be rewritten since loadTranscriptFile keys lookup by the
-  // session's messages' sessionId.
-  const contentReplacementRecords = entries
-    .filter(
-      (entry): entry is ContentReplacementEntry =>
-        entry.type === 'content-replacement' &&
-        entry.sessionId === originalSessionId,
-    )
-    .flatMap(entry => entry.replacements)
-
-  if (mainConversationEntries.length === 0) {
-    throw new Error('No messages to branch')
-  }
-
-  // Build forked entries with new sessionId and preserved metadata
+  // Stream the source transcript so /branch does not materialize large JSONL
+  // files. Malformed lines are ignored, matching parseJSONL's behavior.
   let parentUuid: UUID | null = null
-  const lines: string[] = []
   const serializedMessages: SerializedMessage[] = []
-
-  for (const entry of mainConversationEntries) {
-    // Create forked transcript entry preserving all original metadata
-    const forkedEntry: TranscriptEntry = {
-      ...entry,
-      sessionId: forkSessionId,
-      parentUuid,
-      isSidechain: false,
-      forkedFrom: {
-        sessionId: originalSessionId,
-        messageUuid: entry.uuid,
-      },
-    }
-
-    // Build serialized message for LogOption
-    const serialized: SerializedMessage = {
-      ...entry,
-      sessionId: forkSessionId,
-    }
-
-    serializedMessages.push(serialized)
-    lines.push(jsonStringify(forkedEntry))
-    if (entry.type !== 'progress') {
-      parentUuid = entry.uuid
-    }
+  const contentReplacementRecords: ContentReplacementEntry['replacements'] = []
+  const input = createReadStream(currentTranscriptPath, { encoding: 'utf8' })
+  try {
+    await once(input, 'open')
+  } catch (error) {
+    if (isENOENT(error)) throw new Error('No conversation to branch')
+    logError(toError(error))
+    throw error
   }
 
-  // Append content-replacement entry (if any) with the fork's sessionId.
-  // Written as a SINGLE entry (same shape as insertContentReplacement) so
-  // loadTranscriptFile's content-replacement branch picks it up.
-  if (contentReplacementRecords.length > 0) {
-    const forkedReplacementEntry: ContentReplacementEntry = {
-      type: 'content-replacement',
-      sessionId: forkSessionId,
-      replacements: contentReplacementRecords,
-    }
-    lines.push(jsonStringify(forkedReplacementEntry))
-  }
-
-  // Write the fork session file
-  await writeFile(forkSessionPath, lines.join('\n') + '\n', {
+  const output = createWriteStream(forkSessionPath, {
     encoding: 'utf8',
     mode: 0o600,
   })
+  let outputError: Error | null = null
+  output.on('error', error => {
+    outputError = toError(error)
+  })
+  const lines = createInterface({ input, crlfDelay: Infinity })
+  const cleanupOutput = async (): Promise<void> => {
+    output.destroy()
+    await unlink(forkSessionPath).catch(() => {})
+  }
+  const writeLine = async (line: string): Promise<void> => {
+    if (outputError) {
+      await cleanupOutput()
+      throw outputError
+    }
+    if (!output.write(line)) await once(output, 'drain').catch(() => {})
+  }
+  let lastMessage: SerializedMessage | null = null
+  try {
+    for await (const line of lines) {
+      if (line.length === 0) continue
+      let entry: Entry
+      try {
+        entry = jsonParse(line) as Entry
+      } catch {
+        continue
+      }
+      if (isTranscriptMessage(entry) && !entry.isSidechain) {
+        const forkedEntry: TranscriptEntry = {
+          ...entry,
+          sessionId: forkSessionId,
+          parentUuid,
+          isSidechain: false,
+          forkedFrom: {
+            sessionId: originalSessionId,
+            messageUuid: entry.uuid,
+          },
+        }
+        const serializedMessage = { ...entry, sessionId: forkSessionId }
+        serializedMessages.push(serializedMessage)
+        lastMessage = entry
+        await writeLine(`${jsonStringify(forkedEntry)}\n`)
+        if (entry.type !== 'progress') parentUuid = entry.uuid
+      } else if (
+        entry.type === 'content-replacement' &&
+        entry.sessionId === originalSessionId
+      ) {
+        contentReplacementRecords.push(...entry.replacements)
+      }
+    }
+  } catch (error) {
+    await cleanupOutput()
+    throw error
+  } finally {
+    lines.close()
+    input.destroy()
+  }
+
+  if (lastMessage === null) {
+    await cleanupOutput()
+    throw new Error('No messages to branch')
+  }
+
+  if (extraMessages?.length) {
+    for (const message of extraMessages) {
+      const serializedMessage: SerializedMessage = {
+        ...message,
+        cwd: lastMessage.cwd,
+        userType: lastMessage.userType,
+        entrypoint: lastMessage.entrypoint,
+        version: lastMessage.version,
+        gitBranch: lastMessage.gitBranch,
+        sessionId: forkSessionId,
+        timestamp: new Date().toISOString(),
+      }
+      const forkedMessage: TranscriptEntry = {
+        ...serializedMessage,
+        parentUuid,
+        isSidechain: false,
+      }
+      serializedMessages.push(serializedMessage)
+      await writeLine(`${jsonStringify(forkedMessage)}\n`)
+      if (message.type !== 'progress') parentUuid = message.uuid
+    }
+  }
+
+  if (contentReplacementRecords.length > 0) {
+    await writeLine(`${jsonStringify({
+      type: 'content-replacement',
+      sessionId: forkSessionId,
+      replacements: contentReplacementRecords,
+    } satisfies ContentReplacementEntry)}\n`)
+  }
+  output.end()
+  await finished(output).catch(() => {})
+  if (outputError) {
+    await cleanupOutput()
+    throw outputError
+  }
 
   return {
     sessionId: forkSessionId,

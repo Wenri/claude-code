@@ -448,7 +448,7 @@ export default class App extends PureComponent<Props, State> {
       process.removeListener('SIGCONT', resumeHandler);
     };
     process.on('SIGCONT', resumeHandler);
-    process.kill(process.pid, 'SIGSTOP');
+    process.kill(0, 'SIGTSTP');
   };
 }
 

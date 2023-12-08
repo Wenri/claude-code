@@ -41,7 +41,7 @@ import { TaskOutput } from '../../utils/task/TaskOutput.js';
 import { isOutputLineTruncated } from '../../utils/terminal.js';
 import { buildLargeToolResultMessage, ensureToolResultsDir, generatePreview, getToolResultPath, PREVIEW_SIZE_BYTES } from '../../utils/toolResultStorage.js';
 import { userFacingName as fileEditUserFacingName } from '../FileEditTool/UI.js';
-import { trackGitOperations } from '../shared/gitOperationTracking.js';
+import { getGhRateLimitHint, trackGitOperations } from '../shared/gitOperationTracking.js';
 import { bashToolHasPermission, commandHasAnyCd, matchWildcardPattern, permissionRuleExtractPrefix } from './bashPermissions.js';
 import { interpretCommandResult } from './commandSemantics.js';
 import { cacheBashReads } from './fileReadState.js';
@@ -294,7 +294,8 @@ const outputSchema = lazySchema(() => z.object({
   structuredContent: z.array(z.any()).optional().describe('Structured content blocks'),
   persistedOutputPath: z.string().optional().describe('Path to the persisted full output in tool-results dir (set when output is too large for inline)'),
   persistedOutputSize: z.number().optional().describe('Total size of the output in bytes (set when output is too large for inline)'),
-  staleReadFileStateHint: z.string().optional().describe('Model-facing note listing readFileState entries whose mtime bumped during this command (set when WRITE_COMMAND_MARKERS matches)')
+  staleReadFileStateHint: z.string().optional().describe('Model-facing note listing readFileState entries whose mtime bumped during this command (set when WRITE_COMMAND_MARKERS matches)'),
+  ghRateLimitHint: z.string().optional().describe('Model-facing system-reminder appended when a gh command reports a GitHub API rate-limit error')
 }));
 const WRITE_COMMAND_MARKERS = new RegExp([
   '--write',
@@ -600,7 +601,8 @@ export const BashTool = buildTool({
     structuredContent,
     persistedOutputPath,
     persistedOutputSize,
-    staleReadFileStateHint
+    staleReadFileStateHint,
+    ghRateLimitHint
   }, toolUseID): ToolResultBlockParam {
     // Handle structured content
     if (structuredContent && structuredContent.length > 0) {
@@ -655,7 +657,7 @@ export const BashTool = buildTool({
     return {
       tool_use_id: toolUseID,
       type: 'tool_result',
-      content: [processedStdout, errorMessage, backgroundInfo, staleReadFileStateHint].filter(Boolean).join('\n'),
+      content: [processedStdout, errorMessage, backgroundInfo, staleReadFileStateHint, ghRateLimitHint].filter(Boolean).join('\n'),
       is_error: interrupted
     };
   },
@@ -840,6 +842,7 @@ export const BashTool = buildTool({
       }
     }
     let staleReadFileStateHint: string | undefined;
+    const ghRateLimitHint = result.backgroundTaskId ? undefined : getGhRateLimitHint(input.command, result.stdout || '');
     if (!wasInterrupted && !isImage && !result.backgroundTaskId) {
       const changed = await findStaleReadFileStateEntries(input.command, toolUseContext.readFileState, commandStartTime);
       if (changed.length > 0) {
@@ -866,7 +869,8 @@ export const BashTool = buildTool({
       dangerouslyDisableSandbox: 'dangerouslyDisableSandbox' in input ? input.dangerouslyDisableSandbox as boolean | undefined : undefined,
       persistedOutputPath,
       persistedOutputSize,
-      staleReadFileStateHint
+      staleReadFileStateHint,
+      ghRateLimitHint
     };
     return {
       data

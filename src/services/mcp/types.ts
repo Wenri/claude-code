@@ -1,6 +1,7 @@
 import type { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import type {
   Resource,
+  ResourceTemplate,
   ServerCapabilities,
 } from '@modelcontextprotocol/sdk/types.js'
 import { z } from 'zod/v4'
@@ -235,6 +236,7 @@ export type MCPServerConnection =
 
 // Resource types
 export type ServerResource = Resource & { server: string }
+export type ServerResourceTemplate = ResourceTemplate & { server: string }
 
 // MCP CLI State types
 export interface SerializedTool {
@@ -262,5 +264,6 @@ export interface MCPCliState {
   configs: Record<string, ScopedMcpServerConfig>
   tools: SerializedTool[]
   resources: Record<string, ServerResource[]>
+  resourceTemplates: Record<string, ServerResourceTemplate[]>
   normalizedNames?: Record<string, string> // Maps normalized names to original names
 }

@@ -2,9 +2,13 @@ import { spawn, type SpawnOptions } from 'child_process'
 import { closeSync } from 'fs'
 import { stat } from 'fs/promises'
 import { constants } from 'os'
-import { join, sep } from 'path'
+import { dirname, join, sep } from 'path'
 import { isatty } from 'tty'
-import { getSessionId } from '../bootstrap/state.js'
+import {
+  getOriginalCwd,
+  getProjectRoot,
+  getSessionId,
+} from '../bootstrap/state.js'
 import { isInBundledMode } from './bundledMode.js'
 import { runCleanupFunctions } from './cleanupRegistry.js'
 import { stopCapturingEarlyInput } from './earlyInput.js'
@@ -12,7 +16,11 @@ import {
   cleanupTerminalForRelaunch,
   markShuttingDownForRelaunch,
 } from './gracefulShutdown.js'
-import { getTranscriptPath, flushSessionStorage } from './sessionStorage.js'
+import {
+  getProjectDir,
+  getTranscriptPath,
+  flushSessionStorage,
+} from './sessionStorage.js'
 import { withTimeout } from './sleep.js'
 import { getUserBinDir, getXDGDataHome } from './xdg.js'
 
@@ -23,6 +31,7 @@ export type RelaunchLauncher = {
 
 export type RelaunchOptions = {
   launcher?: RelaunchLauncher
+  args?: string[]
   env?: NodeJS.ProcessEnv
   dropEnv?: string[]
   freshIfNoTranscript?: boolean
@@ -64,6 +73,18 @@ export function severTtyInputForRelaunch(): void {
   }
 }
 
+export function getRelaunchCwd(): string {
+  const transcriptPath = getTranscriptPath()
+  const originalCwd = getOriginalCwd()
+  if (
+    transcriptPath &&
+    dirname(transcriptPath) === getProjectDir(originalCwd)
+  ) {
+    return originalCwd
+  }
+  return getProjectRoot()
+}
+
 /**
  * Relaunch Claude Code and transfer the current terminal to the child.
  * Resolves only through process exit.
@@ -71,13 +92,16 @@ export function severTtyInputForRelaunch(): void {
 export async function relaunch(options: RelaunchOptions = {}): Promise<never> {
   const { cmd, prefixArgs } = options.launcher ?? getRelaunchLauncher()
   const sessionId = getSessionId()
+  const transcriptPath = getTranscriptPath()
   let resume = true
 
   if (options.freshIfNoTranscript) {
-    resume = await stat(getTranscriptPath()).then(
-      result => result.size > 0,
-      () => false,
-    )
+    resume = transcriptPath
+      ? await stat(transcriptPath).then(
+          result => result.size > 0,
+          () => false,
+        )
+      : false
   }
 
   stopCapturingEarlyInput()
@@ -99,10 +123,13 @@ export async function relaunch(options: RelaunchOptions = {}): Promise<never> {
   Object.assign(childEnv, options.env)
   for (const key of options.dropEnv ?? []) delete childEnv[key]
 
-  const args = resume
-    ? [...prefixArgs, '--resume', sessionId]
-    : [...prefixArgs]
-  const spawnOptions: SpawnOptions = { stdio: 'inherit', env: childEnv }
+  const relaunchArgs = options.args ?? (resume ? ['--resume', sessionId] : [])
+  const args = [...prefixArgs, ...relaunchArgs]
+  const spawnOptions: SpawnOptions = {
+    stdio: 'inherit',
+    env: childEnv,
+    cwd: getRelaunchCwd(),
+  }
   const child = spawn(cmd, args, spawnOptions)
   child.ref()
   severTtyInputForRelaunch()
