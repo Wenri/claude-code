@@ -538,10 +538,11 @@ async function handleTeleportPrerequisites(root: Root, errorsToIgnore?: Set<Tele
  * @param root The existing Ink root to render dialogs into
  * @param description The description/prompt for the new session (null for no initial prompt)
  * @param signal AbortSignal for cancellation
+ * @param source Optional source label for analytics
  * @param branchName Optional branch name for the remote session to use
  * @returns Promise<TeleportToRemoteResponse | null> The created session or null if creation fails
  */
-export async function teleportToRemoteWithErrorHandling(root: Root, description: string | null, signal: AbortSignal, branchName?: string, source?: string): Promise<TeleportToRemoteResponse | null> {
+export async function teleportToRemoteWithErrorHandling(root: Root, description: string | null, signal: AbortSignal, source?: string, branchName?: string): Promise<TeleportToRemoteResponse | null> {
   const errorsToIgnore = new Set<TeleportLocalErrorType>(['needsGitStash']);
   await handleTeleportPrerequisites(root, errorsToIgnore);
   return teleportToRemote({
@@ -778,6 +779,8 @@ export async function teleportToRemote(options: {
    * capture it to include in their throw (in-REPL, Ink-rendered).
    */
   onBundleFail?: (message: string, reason: 'bundle' | 'env_create') => void;
+  /** Called with the API's user-facing error when session creation is rejected. */
+  onCreateFail?: (message: string) => void;
   /**
    * When true, disables the git-bundle fallback entirely. Use for flows like
    * autofix where CCR must push to GitHub — a bundle can't do that.
@@ -894,10 +897,15 @@ export async function teleportToRemote(options: {
       logForDebugging(`[teleportToRemote] explicit env ${options.environmentId}, ${Object.keys(envVars).length} env vars, ${seedBundleFileId ? `bundle=${seedBundleFileId}` : `source=${gitSource?.url ?? 'none'}@${options.branchName ?? 'default'}`}`);
       const response = await axios.post(url, requestBody, {
         headers,
-        signal
+        signal,
+        validateStatus: status => status < 500
       });
       if (response.status !== 200 && response.status !== 201) {
         logError(new Error(`CreateSession ${response.status}: ${jsonStringify(response.data)}`));
+        const responseData = response.data as {
+          error?: { message?: string };
+        };
+        options.onCreateFail?.(responseData?.error?.message || `${response.status} ${response.statusText || ''}`.trim());
         return null;
       }
       const sessionData = response.data as SessionResource;
@@ -1189,11 +1197,16 @@ export async function teleportToRemote(options: {
     // Make API call
     const response = await axios.post(url, requestBody, {
       headers,
-      signal
+      signal,
+      validateStatus: status => status < 500
     });
     const isSuccess = response.status === 200 || response.status === 201;
     if (!isSuccess) {
       logError(new Error(`API request failed with status ${response.status}: ${response.statusText}\n\nResponse data: ${jsonStringify(response.data, null, 2)}`));
+      const responseData = response.data as {
+        error?: { message?: string };
+      };
+      options.onCreateFail?.(responseData?.error?.message || `${response.status} ${response.statusText || ''}`.trim());
       return null;
     }
 

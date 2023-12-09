@@ -18,6 +18,7 @@ import {
 import { useSetAppState } from '../state/AppState.js'
 import type { AppState } from '../state/AppStateStore.js'
 import type { Tool } from '../Tool.js'
+import type { SDKControlRequestInner } from '../entrypoints/sdk/controlTypes.js'
 import { findToolByName } from '../Tool.js'
 import type { Message as MessageType } from '../types/message.js'
 import type { PermissionAskDecision } from '../types/permissions.js'
@@ -62,6 +63,9 @@ type UseRemoteSessionResult = {
   ) => Promise<boolean>
   cancelRequest: () => void
   disconnect: () => void
+  sendControlRequest: <Response = Record<string, unknown>>(
+    request: SDKControlRequestInner,
+  ) => Promise<Response>
 }
 
 /**
@@ -507,7 +511,8 @@ export function useRemoteSession({
         !hasUpdatedTitleRef.current &&
         config &&
         !config.hasInitialPrompt &&
-        !config.viewerOnly
+        !config.viewerOnly &&
+        !config.isAttachToExisting
       ) {
         hasUpdatedTitleRef.current = true
         const sessionId = config.sessionId
@@ -593,13 +598,42 @@ export function useRemoteSession({
     managerRef.current = null
   }, [])
 
+  const sendControlRequest = useCallback(
+    <Response = Record<string, unknown>>(
+      request: SDKControlRequestInner,
+    ): Promise<Response> => {
+      const manager = managerRef.current
+      if (!manager) {
+        return Promise.reject(
+          new Error(
+            '[useRemoteSession] Cannot send control request: no manager',
+          ),
+        )
+      }
+      return manager.sendControlRequest<Response>(request)
+    },
+    [],
+  )
+
   // All four fields are already stable (boolean derived from a prop that
   // doesn't change mid-session, three useCallbacks with stable deps). The
   // result object is consumed by REPL's onSubmit useCallback deps — without
   // memoization the fresh literal invalidates onSubmit on every REPL render,
   // which in turn churns PromptInput's props and downstream memoization.
   return useMemo(
-    () => ({ isRemoteMode, sendMessage, cancelRequest, disconnect }),
-    [isRemoteMode, sendMessage, cancelRequest, disconnect],
+    () => ({
+      isRemoteMode,
+      sendMessage,
+      cancelRequest,
+      disconnect,
+      sendControlRequest,
+    }),
+    [
+      isRemoteMode,
+      sendMessage,
+      cancelRequest,
+      disconnect,
+      sendControlRequest,
+    ],
   )
 }

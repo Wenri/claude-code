@@ -12,7 +12,10 @@ import type {
   SDKMessage,
   SDKUserMessage,
 } from 'src/entrypoints/agentSdkTypes.js'
-import { SDKControlElicitationResponseSchema } from 'src/entrypoints/sdk/controlSchemas.js'
+import {
+  SDKControlElicitationResponseSchema,
+  SDKControlOAuthTokenRefreshResponseSchema,
+} from 'src/entrypoints/sdk/controlSchemas.js'
 import type {
   SDKControlRequest,
   SDKControlResponse,
@@ -64,6 +67,7 @@ import { ndjsonSafeStringify } from './ndjsonSafeStringify.js'
  * see this as a normal tool permission prompt.
  */
 export const SANDBOX_NETWORK_ACCESS_TOOL_NAME = 'SandboxNetworkAccess'
+const OAUTH_TOKEN_REFRESH_TIMEOUT_MS = 30_000
 
 function serializeDecisionReason(
   reason: PermissionDecisionReason | undefined,
@@ -774,6 +778,15 @@ export class StructuredIO {
       }),
     )
     return response.mcp_response
+  }
+
+  async requestOAuthTokenRefresh(): Promise<string | null> {
+    const response = await this.sendRequest<{ accessToken: string | null }>(
+      { subtype: 'oauth_token_refresh' },
+      SDKControlOAuthTokenRefreshResponseSchema(),
+      AbortSignal.timeout(OAUTH_TOKEN_REFRESH_TIMEOUT_MS),
+    )
+    return response.accessToken
   }
 }
 

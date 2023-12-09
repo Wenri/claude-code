@@ -110,6 +110,8 @@ class TasksV2Store {
     this.#debounceTimer.unref()
   }
 
+  refetch = (): Promise<void> => this.#fetch()
+
   #fetch = async (): Promise<void> => {
     const taskListId = getTaskListId()
     // Task list ID can change mid-session (TeamCreateTool sets
@@ -118,9 +120,9 @@ class TasksV2Store {
     const current = (await listTasks(taskListId)).filter(
       t => !t.metadata?._internal,
     )
-    this.#tasks = current
-
     const hasIncomplete = current.some(t => t.status !== 'completed')
+    const changed = !areTaskListsEqual(this.#tasks, current)
+    if (changed) this.#tasks = current
 
     if (hasIncomplete || current.length === 0) {
       // Has unresolved tasks (open/in_progress) or empty — reset hide state
@@ -135,7 +137,7 @@ class TasksV2Store {
       this.#hideTimer.unref()
     }
 
-    this.#notify()
+    if (changed) this.#notify()
 
     // Schedule fallback poll only when there are incomplete tasks that
     // need monitoring. When all tasks are completed (or there are none),
@@ -247,4 +249,36 @@ export function useTasksV2WithCollapseEffect(): Task[] | undefined {
   }, [hidden, setAppState])
 
   return tasks
+}
+
+function areTaskListsEqual(
+  previous: Task[] | undefined,
+  current: Task[],
+): boolean {
+  if (previous === undefined || previous.length !== current.length) return false
+  for (let index = 0; index < current.length; index++) {
+    const before = previous[index]!
+    const after = current[index]!
+    if (
+      before.id !== after.id ||
+      before.status !== after.status ||
+      before.subject !== after.subject ||
+      before.activeForm !== after.activeForm ||
+      before.owner !== after.owner ||
+      before.description !== after.description ||
+      !areStringArraysEqual(before.blockedBy, after.blockedBy) ||
+      !areStringArraysEqual(before.blocks, after.blocks)
+    ) {
+      return false
+    }
+  }
+  return true
+}
+
+function areStringArraysEqual(previous: string[], current: string[]): boolean {
+  if (previous.length !== current.length) return false
+  for (let index = 0; index < current.length; index++) {
+    if (previous[index] !== current[index]) return false
+  }
+  return true
 }

@@ -693,10 +693,11 @@ export const FileReadTool = buildTool({
         let content: string
 
         if (data.file.content) {
+          const model = fileReadModels.get(data) ?? getMainLoopModel()
           content =
             memoryFileFreshnessPrefix(data) +
             formatFileLines(data.file) +
-            (shouldIncludeFileReadMitigation()
+            (shouldIncludeFileReadMitigation(model)
               ? CYBER_RISK_MITIGATION_REMINDER
               : '')
         } else {
@@ -732,10 +733,13 @@ export const CYBER_RISK_MITIGATION_REMINDER =
 // Models where cyber risk mitigation should be skipped
 const MITIGATION_EXEMPT_MODELS = new Set(['claude-opus-4-6'])
 
-function shouldIncludeFileReadMitigation(): boolean {
-  const shortName = getCanonicalName(getMainLoopModel())
+function shouldIncludeFileReadMitigation(model: string): boolean {
+  const shortName = getCanonicalName(model)
   return !MITIGATION_EXEMPT_MODELS.has(shortName)
 }
+
+/** Actual model used by the agent that produced a file read result. */
+const fileReadModels = new WeakMap<object, string>()
 
 /**
  * Side-channel from call() to mapToolResultToToolResultBlockParam: mtime
@@ -1053,6 +1057,7 @@ async function callInner(
       totalLines,
     },
   }
+  fileReadModels.set(data, context.options.mainLoopModel)
   if (isAutoMemFile(fullFilePath)) {
     memoryFileMtimes.set(data, mtimeMs)
   }

@@ -126,22 +126,22 @@ observable. A short tour of what's inside is in [`CLAUDE.md`](./CLAUDE.md).
 The evidence-first adjacent-published-release recoveries live in
 [`recovery/`](./recovery/): they reconstruct the complete published wrapper
 and every plain JavaScript entry in the authenticated Linux x64 Bun graph
-exactly through 2.1.116, while keeping the necessarily partial authored-source
+exactly through 2.1.117, while keeping the necessarily partial authored-source
 reconstruction labeled separately. The signed native executable
 itself is authenticated and container-verified; it is not claimed as
 baseline-derived source or as an ELF reconstructed from the prior release.
-The recovered 2.1.116 source-facing overlay is applied, so `src/` carries the
-cumulative 2.1.116-facing state as its twenty-first recovered overlay target.
-The exact 2.1.116 generated recovery is complete, while the authored-source
-localization remains explicitly source-partial. Its frozen 2.1.114→2.1.116
-patch touches 56 paths and remains the reversible base-to-target record; its
-three focused suites pass 15/15 from both verified orientations. This is the
-twentieth adjacent-package step after the initial source-map-to-package
-recovery.
+The exact 2.1.117 generated recovery is complete, while its authored-source
+localization remains explicitly source-partial. Its frozen 2.1.116→2.1.117
+patch records 123 changed paths (115 modifications, seven additions, and one
+deletion), and its three focused test files pass 8/8 in both base and
+applied-target orientations. The patch is applied, so `src/` now carries the
+frozen 1,957-file 2.1.117-facing state as its twenty-second recovered overlay
+target. This is the twenty-first adjacent-package step after the initial
+source-map-to-package recovery.
 See the current
-[2.1.116 report](./recovery/cases/2.1.114-to-2.1.116/REPORT.md),
-[manifest](./recovery/cases/2.1.114-to-2.1.116/manifest.json), and
-[complete recovery runbook](./recovery/cases/2.1.114-to-2.1.116/RECOVERY_RUNBOOK.md).
+[2.1.117 report](./recovery/cases/2.1.116-to-2.1.117/REPORT.md),
+[manifest](./recovery/cases/2.1.116-to-2.1.117/manifest.json), and
+[complete recovery runbook](./recovery/cases/2.1.116-to-2.1.117/RECOVERY_RUNBOOK.md).
 
 ## 📜 License & disclaimer
 

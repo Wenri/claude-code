@@ -251,6 +251,7 @@ export function logAPIError({
   llmSpan,
   fastMode,
   previousRequestId,
+  effort,
 }: {
   error: unknown
   model: string
@@ -271,6 +272,7 @@ export function logAPIError({
   llmSpan?: Span
   fastMode?: boolean
   previousRequestId?: string | null
+  effort?: EffortLevel
 }): void {
   const gateway = detectGateway({
     headers:
@@ -369,11 +371,26 @@ export function logAPIError({
   void logOTelEvent('api_error', {
     model: model,
     error: errStr,
-    status_code: String(status),
+    ...(status !== undefined && { status_code: status }),
     duration_ms: String(durationMs),
     attempt: String(attempt),
+    request_id: requestId ?? undefined,
     speed: fastMode ? 'fast' : 'normal',
+    ...(querySource && { query_source: querySource }),
+    ...(effort && { effort }),
   })
+  if (attempt > 1) {
+    void logOTelEvent('api_retries_exhausted', {
+      model,
+      error: errStr,
+      ...(status !== undefined && { status_code: status }),
+      total_attempts: String(attempt),
+      total_retry_duration_ms: String(durationMsIncludingRetries),
+      speed: fastMode ? 'fast' : 'normal',
+      ...(querySource && { query_source: querySource }),
+      ...(effort && { effort }),
+    })
+  }
 
   // Pass the span to correctly match responses to requests when beta tracing is enabled
   endLLMRequestSpan(llmSpan, {
@@ -605,6 +622,7 @@ export function logAPISuccessAndDuration({
   fastMode,
   previousRequestId,
   betas,
+  effort,
 }: {
   model: string
   preNormalizedModel: string
@@ -638,6 +656,7 @@ export function logAPISuccessAndDuration({
   /** Request ID from the previous API call in this session */
   previousRequestId?: string | null
   betas?: string[]
+  effort?: EffortLevel
 }): void {
   const gateway = detectGateway({
     headers,
@@ -724,7 +743,10 @@ export function logAPISuccessAndDuration({
     cache_creation_tokens: String(usage.cache_creation_input_tokens),
     cost_usd: String(costUSD),
     duration_ms: String(durationMs),
+    request_id: requestId ?? undefined,
     speed: fastMode ? 'fast' : 'normal',
+    query_source: querySource,
+    ...(effort && { effort }),
   })
   if (newMessages) {
     logRawAPIResponseBody(newMessages, {

@@ -3,6 +3,7 @@ import type {
   SDKControlCancelRequest,
   SDKControlPermissionRequest,
   SDKControlRequest,
+  SDKControlRequestInner,
   SDKControlResponse,
 } from '../entrypoints/sdk/controlTypes.js'
 import { logForDebugging } from '../utils/debug.js'
@@ -59,6 +60,8 @@ export type RemoteSessionConfig = {
    * session title is never updated. Used by `claude assistant`.
    */
   viewerOnly?: boolean
+  /** True when --remote attached to an already-existing session. */
+  isAttachToExisting?: boolean
 }
 
 export type RemoteSessionCallbacks = {
@@ -96,6 +99,13 @@ export class RemoteSessionManager {
   private websocket: SessionsWebSocket | null = null
   private pendingPermissionRequests: Map<string, SDKControlPermissionRequest> =
     new Map()
+  private pendingControlRequests = new Map<
+    string,
+    {
+      resolve: (value: unknown) => void
+      reject: (error: Error) => void
+    }
+  >()
 
   constructor(
     private readonly config: RemoteSessionConfig,
@@ -173,7 +183,18 @@ export class RemoteSessionManager {
 
     // Handle control responses (acknowledgments)
     if (message.type === 'control_response') {
-      logForDebugging('[RemoteSessionManager] Received control response')
+      const { request_id: requestId } = message.response
+      const pending = this.pendingControlRequests.get(requestId)
+      if (pending) {
+        this.pendingControlRequests.delete(requestId)
+        if (message.response.subtype === 'success') {
+          pending.resolve(message.response.response)
+        } else {
+          pending.reject(new Error(message.response.error))
+        }
+      } else {
+        logForDebugging('[RemoteSessionManager] Received control response')
+      }
       return
     }
 
@@ -296,6 +317,23 @@ export class RemoteSessionManager {
     this.websocket?.sendControlRequest({ subtype: 'interrupt' })
   }
 
+  sendControlRequest<Response = Record<string, unknown>>(
+    request: SDKControlRequestInner,
+  ): Promise<Response> {
+    const requestId = this.websocket?.sendControlRequest(request)
+    if (requestId == null) {
+      return Promise.reject(
+        new Error('[RemoteSessionManager] Cannot send: not connected'),
+      )
+    }
+    return new Promise<Response>((resolve, reject) => {
+      this.pendingControlRequests.set(requestId, {
+        resolve: value => resolve(value as Response),
+        reject,
+      })
+    })
+  }
+
   /**
    * Get the session ID
    */
@@ -311,6 +349,10 @@ export class RemoteSessionManager {
     this.websocket?.close()
     this.websocket = null
     this.pendingPermissionRequests.clear()
+    for (const request of this.pendingControlRequests.values()) {
+      request.reject(new Error('[RemoteSessionManager] Disconnected'))
+    }
+    this.pendingControlRequests.clear()
   }
 
   /**
@@ -332,6 +374,7 @@ export function createRemoteSessionConfig(
   orgUuid: string,
   hasInitialPrompt = false,
   viewerOnly = false,
+  isAttachToExisting = false,
 ): RemoteSessionConfig {
   return {
     sessionId,
@@ -339,5 +382,6 @@ export function createRemoteSessionConfig(
     orgUuid,
     hasInitialPrompt,
     viewerOnly,
+    isAttachToExisting,
   }
 }

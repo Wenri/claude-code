@@ -50,6 +50,8 @@ type AdvisorConfig = {
   advisorModel?: string
 }
 
+export const ADVISOR_MODEL_OPTIONS = ['opus', 'sonnet'] as const
+
 function getAdvisorConfig(): AdvisorConfig {
   return getFeatureValue_CACHED_MAY_BE_STALE<AdvisorConfig>(
     'tengu_sage_compass',

@@ -296,21 +296,46 @@ export async function resolvePluginPath(
  * Recursively copy a directory.
  * Exported for testing purposes.
  */
-export async function copyDir(src: string, dest: string): Promise<void> {
+export async function copyDir(
+  src: string,
+  dest: string,
+  rootSrc = src,
+  rootDest = dest,
+): Promise<void> {
   await getFsImplementation().mkdir(dest)
 
+  const resolvedSrc = resolve(src)
+  const resolvedDest = resolve(dest)
+  const destinationEntry = resolvedDest.startsWith(resolvedSrc + sep)
+    ? relative(resolvedSrc, resolvedDest).split(sep)[0]
+    : undefined
   const entries = await readdir(src, { withFileTypes: true })
 
   for (const entry of entries) {
+    if (destinationEntry !== undefined && entry.name === destinationEntry) {
+      continue
+    }
+
     const srcPath = join(src, entry.name)
     const destPath = join(dest, entry.name)
 
     if (entry.isDirectory()) {
-      await copyDir(srcPath, destPath)
+      await copyDir(srcPath, destPath, rootSrc, rootDest)
     } else if (entry.isFile()) {
       await copyFile(srcPath, destPath)
     } else if (entry.isSymbolicLink()) {
-      const linkTarget = await readlink(srcPath)
+      let linkTarget: string
+      try {
+        linkTarget = await readlink(srcPath)
+      } catch (error) {
+        if (getErrnoCode(error) !== 'EINVAL') {
+          logForDebugging(
+            `copyDir: readlink failed for ${srcPath}: ${errorMessage(error)}`,
+            { level: 'warn' },
+          )
+        }
+        continue
+      }
 
       // Resolve the symlink to get the actual target path
       // This prevents circular symlinks when src and dest overlap (e.g., via symlink chains)
@@ -318,36 +343,40 @@ export async function copyDir(src: string, dest: string): Promise<void> {
       try {
         resolvedTarget = await realpath(srcPath)
       } catch {
-        // Broken symlink - copy the raw link target as-is
-        await symlink(linkTarget, destPath)
+        logForDebugging(
+          `copyDir: skipping broken symlink ${srcPath} -> ${linkTarget}`,
+        )
         continue
       }
 
-      // Resolve the source directory to handle symlinked source dirs
-      let resolvedSrc: string
+      // Resolve the root source directory to handle symlinked source dirs.
+      // Internal links are mapped relative to the root destination even while
+      // recursing through a nested directory.
+      let resolvedRootSrc: string
       try {
-        resolvedSrc = await realpath(src)
+        resolvedRootSrc = await realpath(rootSrc)
       } catch {
-        resolvedSrc = src
+        resolvedRootSrc = rootSrc
       }
 
       // Check if target is within the source tree (using proper path prefix matching)
-      const srcPrefix = resolvedSrc.endsWith(sep)
-        ? resolvedSrc
-        : resolvedSrc + sep
+      const srcPrefix = resolvedRootSrc.endsWith(sep)
+        ? resolvedRootSrc
+        : resolvedRootSrc + sep
       if (
         resolvedTarget.startsWith(srcPrefix) ||
-        resolvedTarget === resolvedSrc
+        resolvedTarget === resolvedRootSrc
       ) {
         // Target is within source tree - create relative symlink that preserves
         // the same structure in the destination
-        const targetRelativeToSrc = relative(resolvedSrc, resolvedTarget)
-        const destTargetPath = join(dest, targetRelativeToSrc)
+        const targetRelativeToSrc = relative(resolvedRootSrc, resolvedTarget)
+        const destTargetPath = join(rootDest, targetRelativeToSrc)
         const relativeLinkPath = relative(dirname(destPath), destTargetPath)
         await symlink(relativeLinkPath, destPath)
       } else {
-        // Target is outside source tree - use absolute resolved path
-        await symlink(resolvedTarget, destPath)
+        logForDebugging(
+          `copyDir: skipping symlink escaping source tree: ${srcPath} -> ${resolvedTarget}`,
+        )
       }
     }
   }
@@ -551,6 +580,10 @@ export async function gitClone(
   ref?: string,
   sha?: string,
 ): Promise<void> {
+  if (sha?.startsWith('-')) {
+    throw new Error(`Invalid sha "${sha}": cannot start with "-"`)
+  }
+
   // Use --recurse-submodules to initialize submodules
   // Always start with shallow clone for efficiency
   const args = [
@@ -741,6 +774,10 @@ export async function installFromGitSubdir(
       'git-subdir plugin source requires git to be installed and on PATH. ' +
         'Install git (version 2.25 or later for sparse-checkout cone mode) and try again.',
     )
+  }
+
+  if (sha?.startsWith('-')) {
+    throw new Error(`Invalid sha "${sha}": cannot start with "-"`)
   }
 
   const gitUrl = resolveGitSubdirUrl(url)

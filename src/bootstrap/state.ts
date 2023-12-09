@@ -29,6 +29,13 @@ import { createSignal } from 'src/utils/signal.js'
 // Union type for registered hooks - can be SDK callbacks or native plugin hooks
 type RegisteredHookMatcher = HookCallbackMatcher | PluginHookMatcher
 
+export type ActiveRemoteControlTransport = {
+  kind: 'ccr' | 'direct' | 'ssh'
+  sendControlRequest: <Response = Record<string, unknown>>(
+    request: unknown,
+  ) => Promise<Response>
+}
+
 import type { SessionId } from 'src/types/ids.js'
 
 // DO NOT ADD MORE STATE HERE - BE JUDICIOUS WITH GLOBAL STATE
@@ -89,6 +96,8 @@ type State = {
   sessionIngressToken: string | null | undefined
   oauthTokenFromFd: string | null | undefined
   apiKeyFromFd: string | null | undefined
+  sdkOAuthTokenRefreshCallback: (() => Promise<string | null>) | null
+  activeRemoteControlTransport: ActiveRemoteControlTransport | null
   // Telemetry state
   meter: Meter | null
   sessionCounter: AttributedCounter | null
@@ -313,6 +322,8 @@ function getInitialState(): State {
     sessionIngressToken: undefined,
     oauthTokenFromFd: undefined,
     apiKeyFromFd: undefined,
+    sdkOAuthTokenRefreshCallback: null,
+    activeRemoteControlTransport: null,
     flagSettingsPath: undefined,
     flagSettingsInline: null,
     allowedSettingSources: [
@@ -1167,6 +1178,39 @@ export function getOauthTokenFromFd(): string | null | undefined {
 
 export function setOauthTokenFromFd(token: string | null): void {
   STATE.oauthTokenFromFd = token
+}
+
+export function getSdkOAuthTokenRefreshCallback(): (() => Promise<
+  string | null
+>) | null {
+  return STATE.sdkOAuthTokenRefreshCallback
+}
+
+export function setSdkOAuthTokenRefreshCallback(
+  callback: (() => Promise<string | null>) | null,
+): void {
+  STATE.sdkOAuthTokenRefreshCallback = callback
+}
+
+/**
+ * Source-facing bridge for the generated runtime-capabilities transport.
+ * The generated bundle owns the concrete transport module; authored callers
+ * use this bootstrap leaf to reach the active remote without importing REPL.
+ */
+export function getRuntimeCapabilities(): {
+  workspace: 'local' | 'remote'
+  remote: ActiveRemoteControlTransport | null
+} {
+  return {
+    workspace: STATE.activeRemoteControlTransport ? 'remote' : 'local',
+    remote: STATE.activeRemoteControlTransport,
+  }
+}
+
+export function setActiveRemoteControlTransport(
+  transport: ActiveRemoteControlTransport | null,
+): void {
+  STATE.activeRemoteControlTransport = transport
 }
 
 export function getApiKeyFromFd(): string | null | undefined {

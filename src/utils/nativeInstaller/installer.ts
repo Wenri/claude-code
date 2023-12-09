@@ -161,13 +161,23 @@ async function getVersionPaths(version: string) {
   const executableParentDir = dirname(dirs.executable)
   await mkdir(executableParentDir, { recursive: true })
 
+  if (
+    !/^[a-zA-Z0-9._+-]+$/.test(version) ||
+    version.includes('..') ||
+    version === '.'
+  ) {
+    throw new Error(
+      `Invalid version string "${version}": contains path-unsafe characters`,
+    )
+  }
+
   const installPath = join(dirs.versions, version)
 
-  // Create an empty file if it doesn't exist
+  // Atomically create an empty lock target if it doesn't exist.
   try {
-    await stat(installPath)
-  } catch {
-    await writeFile(installPath, '', { encoding: 'utf8' })
+    await writeFile(installPath, '', { encoding: 'utf8', flag: 'wx' })
+  } catch (error) {
+    if (getErrnoCode(error) !== 'EEXIST') throw error
   }
 
   return {

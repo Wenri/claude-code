@@ -1,6 +1,7 @@
 import { feature } from 'bun:bundle'
 import { randomUUID } from 'crypto'
 import { getSdkBetas, getSessionId } from 'src/bootstrap/state.js'
+import { consumeRemoteStartupTiming } from 'src/bridge/startupTiming.js'
 import { DEFAULT_OUTPUT_STYLE_NAME } from 'src/constants/outputStyles.js'
 import type {
   ApiKeySource,
@@ -100,5 +101,9 @@ export function buildSystemInitMessage(inputs: SystemInitInputs): SDKMessage {
     /* eslint-enable @typescript-eslint/no-require-imports */
   }
   initMessage.fast_mode_state = getFastModeState(inputs.model, inputs.fastMode)
+  const startupTiming = consumeRemoteStartupTiming()
+  if (startupTiming) {
+    Object.assign(initMessage, { startup_timing: startupTiming })
+  }
   return initMessage
 }

@@ -12,6 +12,7 @@ const statusline = {
   allowedTools: [AGENT_TOOL_NAME, 'Read(~/**)', 'Edit(~/.claude/settings.json)'],
   source: 'builtin',
   disableNonInteractive: true,
+  requires: { workspace: true },
   async getPromptForCommand(args): Promise<ContentBlockParam[]> {
     const prompt = args.trim() || 'Configure my statusLine from my shell PS1 configuration';
     return [{

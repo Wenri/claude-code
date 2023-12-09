@@ -1,4 +1,5 @@
 import { feature } from 'bun:bundle';
+import { getRuntimeCapabilities } from '../../bootstrap/state.js';
 import chalk from 'chalk';
 import * as path from 'path';
 import * as React from 'react';
@@ -750,7 +751,7 @@ function PromptInput({
     if (thinkTriggers.length && isUltrathinkEnabled()) {
       addNotification({
         key: 'ultrathink-active',
-        text: 'Effort set to high for this turn',
+        text: 'Deeper reasoning requested for this turn',
         priority: 'immediate',
         timeoutMs: 5000
       });
@@ -1388,28 +1389,41 @@ function PromptInput({
   }, [input, cursorOffset, stashedPrompt, trackAndSetInput, setStashedPrompt, pastedContents, setPastedContents]);
 
   // Handler for chat:modelPicker - toggle model picker
+  const showRemoteInferenceConfigUnavailable = useCallback(() => {
+    if (getRuntimeCapabilities().workspace !== 'remote') return false;
+    addNotification({
+      key: 'remote-inference-config-unavailable',
+      text: 'Model and effort switching in remote sessions is coming soon — set at session creation for now',
+      priority: 'medium'
+    });
+    return true;
+  }, [addNotification]);
+
   const handleModelPicker = useCallback(() => {
+    if (showRemoteInferenceConfigUnavailable()) return;
     setShowModelPicker(prev => !prev);
     if (helpOpen) {
       setHelpOpen(false);
     }
-  }, [helpOpen]);
+  }, [helpOpen, showRemoteInferenceConfigUnavailable]);
 
   // Handler for chat:fastMode - toggle fast mode picker
   const handleFastModePicker = useCallback(() => {
+    if (showRemoteInferenceConfigUnavailable()) return;
     setShowFastModePicker(prev => !prev);
     if (helpOpen) {
       setHelpOpen(false);
     }
-  }, [helpOpen]);
+  }, [helpOpen, showRemoteInferenceConfigUnavailable]);
 
   // Handler for chat:thinkingToggle - toggle thinking mode
   const handleThinkingToggle = useCallback(() => {
+    if (getRuntimeCapabilities().remote?.kind !== 'ccr' && showRemoteInferenceConfigUnavailable()) return;
     setShowThinkingToggle(prev => !prev);
     if (helpOpen) {
       setHelpOpen(false);
     }
-  }, [helpOpen]);
+  }, [helpOpen, showRemoteInferenceConfigUnavailable]);
 
   // Handler for chat:cycleMode - cycle through permission modes
   const handleCycleMode = useCallback(() => {
@@ -2096,6 +2110,12 @@ function PromptInput({
       thinkingEnabled: enabled
     }));
     setShowThinkingToggle(false);
+    getRuntimeCapabilities().remote?.sendControlRequest({
+      subtype: 'set_max_thinking_tokens',
+      max_thinking_tokens: enabled ? null : 0
+    }).catch(error => {
+      logForDebugging(`[remote] set_max_thinking_tokens failed: ${error}`);
+    });
     logEvent('tengu_thinking_toggled_hotkey', {
       enabled
     });

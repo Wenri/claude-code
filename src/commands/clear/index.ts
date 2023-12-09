@@ -13,7 +13,8 @@ const clear = {
   description:
     'Start a new session with empty context; previous session stays on disk (resumable with /resume)',
   aliases: ['reset', 'new'],
-  supportsNonInteractive: false, // Should just create a new session
+  supportsNonInteractive: true,
+  thinClientDispatch: 'post-text',
   load: () => import('./clear.js'),
 } satisfies Command
 

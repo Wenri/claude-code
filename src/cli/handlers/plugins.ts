@@ -22,9 +22,11 @@ import {
   VALID_UPDATE_SCOPES,
 } from '../../services/plugins/pluginCliCommands.js'
 import { getPluginErrorMessage } from '../../types/plugin.js'
+import { logForDebugging } from '../../utils/debug.js'
 import { errorMessage } from '../../utils/errors.js'
 import { logError } from '../../utils/log.js'
 import { clearAllCaches } from '../../utils/plugins/cacheUtils.js'
+import { formatDependencyCountSuffix } from '../../utils/plugins/dependencyResolver.js'
 import { getInstallCounts } from '../../utils/plugins/installCounts.js'
 import {
   isPluginInstalled,
@@ -49,6 +51,7 @@ import {
   scopeToSettingSource,
 } from '../../utils/plugins/pluginIdentifier.js'
 import { loadAllPlugins } from '../../utils/plugins/pluginLoader.js'
+import { resolveMissingDependencies } from '../../utils/plugins/missingDependencyResolver.js'
 import type { PluginSource } from '../../utils/plugins/schemas.js'
 import {
   type ValidationResult,
@@ -513,10 +516,23 @@ export async function marketplaceAddHandler(
         sourceType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
     })
 
+    let resolvedDependencies: string[] = []
+    try {
+      resolvedDependencies = (
+        await resolveMissingDependencies((await loadAllPlugins()).errors)
+      ).installed
+    } catch (error) {
+      logForDebugging(
+        `marketplace add: dep auto-resolve skipped: ${errorMessage(error)}`,
+        { level: 'warn' },
+      )
+    }
+    const dependencySuffix = formatDependencyCountSuffix(resolvedDependencies)
+
     cliOk(
       alreadyMaterialized
-        ? `${figures.tick} Marketplace '${name}' already on disk — declared in ${scope} settings`
-        : `${figures.tick} Successfully added marketplace: ${name} (declared in ${scope} settings)`,
+        ? `${figures.tick} Marketplace '${name}' already on disk — declared in ${scope} settings${dependencySuffix}`
+        : `${figures.tick} Successfully added marketplace: ${name} (declared in ${scope} settings)${dependencySuffix}`,
     )
   } catch (error) {
     handleMarketplaceError(error, 'add marketplace')

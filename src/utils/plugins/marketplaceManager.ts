@@ -537,6 +537,12 @@ export async function gitPull(
     : []
 
   if (ref) {
+    if (ref.startsWith('-')) {
+      return {
+        code: 1,
+        stderr: `Invalid ref "${ref}": refs cannot start with "-"`,
+      }
+    }
     const fetchResult = await execFileNoThrowWithCwd(
       gitExe(),
       [...credentialArgs, 'fetch', 'origin', ref],
@@ -2308,6 +2314,12 @@ export async function refreshAllMarketplaces(): Promise<void> {
   const config = await loadKnownMarketplacesConfig()
 
   for (const [name, entry] of Object.entries(config)) {
+    if (!isSourceAllowedByPolicy(entry.source)) {
+      logForDebugging(
+        `Skipping policy-blocked marketplace '${name}' in bulk refresh`,
+      )
+      continue
+    }
     // Seed-managed marketplaces are controlled by the seed image — refreshing
     // them is pointless (registerSeedMarketplaces overwrites on next startup).
     if (seedDirFor(entry.installLocation)) {
@@ -2384,6 +2396,12 @@ export async function refreshMarketplace(
   if (!entry) {
     throw new Error(
       `Marketplace '${name}' not found. Available marketplaces: ${Object.keys(config).join(', ')}`,
+    )
+  }
+
+  if (!isSourceAllowedByPolicy(entry.source)) {
+    throw new Error(
+      `Marketplace source '${formatSourceForDisplay(entry.source)}' is blocked by enterprise policy.`,
     )
   }
 

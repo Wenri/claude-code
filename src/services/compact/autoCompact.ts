@@ -10,8 +10,10 @@ import { logForDebugging } from '../../utils/debug.js'
 import { isEnvTruthy } from '../../utils/envUtils.js'
 import { validateBoundedIntEnvVar } from '../../utils/envValidation.js'
 import { hasExactErrorMessage } from '../../utils/errors.js'
+import { formatTokens } from '../../utils/format.js'
 import type { CacheSafeParams } from '../../utils/forkedAgent.js'
 import { logError } from '../../utils/log.js'
+import { getCanonicalName } from '../../utils/model/model.js'
 import { tokenCountWithEstimation } from '../../utils/tokens.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../analytics/growthbook.js'
 import { getMaxOutputTokensForModel } from '../api/claude.js'
@@ -32,11 +34,7 @@ import { trySessionMemoryCompaction } from './sessionMemoryCompact.js'
 const MAX_OUTPUT_TOKENS_FOR_SUMMARY = 20_000
 
 // Returns the context window size minus the max output tokens for the model
-export type AutoCompactWindowSource =
-  | 'env'
-  | 'settings'
-  | 'experiment'
-  | 'model'
+export type AutoCompactWindowSource = 'env' | 'settings' | 'auto'
 
 export type AutoCompactWindowResolution = {
   window: number
@@ -47,8 +45,11 @@ export type AutoCompactWindowResolution = {
 const MIN_AUTO_COMPACT_WINDOW = 100_000
 const MAX_AUTO_COMPACT_WINDOW = 1_000_000
 
-export function parseAutoCompactWindow(value: string): number | undefined {
+export function parseAutoCompactWindow(
+  value: string,
+): number | 'auto' | undefined {
   const normalized = value.trim().toLowerCase()
+  if (normalized === 'auto') return 'auto'
   let parsed: number
   if (normalized.endsWith('m')) {
     parsed = Number.parseFloat(normalized) * 1_000_000
@@ -67,6 +68,20 @@ export function parseAutoCompactWindow(value: string): number | undefined {
     return undefined
   }
   return Math.round(parsed)
+}
+
+function getAutoCompactExperimentWindow(model: string): number | undefined {
+  if (!isAutoCompactEnabled()) return undefined
+  if (getCanonicalName(model) !== 'claude-opus-4-7') return undefined
+
+  const experimentValue = getFeatureValue_CACHED_MAY_BE_STALE(
+    'tengu_amber_redwood2',
+    '',
+  )
+  if (!experimentValue) return undefined
+
+  const parsed = parseAutoCompactWindow(experimentValue)
+  return typeof parsed === 'number' ? parsed : undefined
 }
 
 export function resolveAutoCompactWindow(
@@ -98,20 +113,30 @@ export function resolveAutoCompactWindow(
       source: 'settings',
     }
   }
-  const experimentValue = isAutoCompactEnabled()
-    ? getFeatureValue_CACHED_MAY_BE_STALE('tengu_amber_redwood', '')
-    : ''
-  if (experimentValue) {
-    const parsed = parseAutoCompactWindow(experimentValue)
-    if (parsed !== undefined) {
-      return {
-        window: Math.min(modelWindow, parsed),
-        configured: parsed,
-        source: 'experiment',
-      }
-    }
+  const configured = getAutoCompactExperimentWindow(model) ?? modelWindow
+  return {
+    window: Math.min(modelWindow, configured),
+    configured,
+    source: 'auto',
   }
-  return { window: modelWindow, configured: modelWindow, source: 'model' }
+}
+
+function notifyAutoCompactWindowHint(
+  context: Pick<ToolUseContext, 'addNotification'>,
+  model: string,
+  setting?: number,
+): void {
+  if (getAutoCompactExperimentWindow(model) === undefined) return
+
+  const { source, configured } = resolveAutoCompactWindow(model, setting)
+  const fullWindow = getContextWindowForModel(model, getSdkBetas())
+  if (source !== 'auto' || configured >= fullWindow) return
+
+  context.addNotification?.({
+    key: 'autocompact-auto-hint',
+    text: `compacted at the auto window (${formatTokens(configured)}) · set autoCompactWindow in settings.json to configure`,
+    priority: 'medium',
+  })
 }
 
 export function getEffectiveContextWindowSize(
@@ -390,6 +415,7 @@ export async function autoCompactIfNeeded(
     recompactionInfo.autoCompactThreshold,
   )
   if (sessionMemoryResult) {
+    notifyAutoCompactWindowHint(toolUseContext, model, autoCompactWindow)
     // Reset lastSummarizedMessageId since session memory compaction prunes messages
     // and the old message UUID will no longer exist after the REPL replaces messages
     setLastSummarizedMessageId(undefined)
@@ -418,6 +444,7 @@ export async function autoCompactIfNeeded(
       true, // isAutoCompact
       recompactionInfo,
     )
+    notifyAutoCompactWindowHint(toolUseContext, model, autoCompactWindow)
 
     // Reset lastSummarizedMessageId since legacy compaction replaces all messages
     // and the old message UUID will no longer exist in the new messages array

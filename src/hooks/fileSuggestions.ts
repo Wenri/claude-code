@@ -1,6 +1,7 @@
 import { statSync } from 'fs'
 import ignore from 'ignore'
 import * as path from 'path'
+import { getRuntimeCapabilities } from '../bootstrap/state.js'
 import {
   CLAUDE_CONFIG_DIRECTORIES,
   loadMarkdownFilesForSubdir,
@@ -611,6 +612,30 @@ function createFileSuggestionItem(
   }
 }
 
+async function getRemoteFileSuggestions(
+  partialPath: string,
+): Promise<SuggestionItem[]> {
+  const remote = getRuntimeCapabilities().remote
+  if (!remote) return []
+
+  try {
+    const response = await remote.sendControlRequest<{
+      suggestions: Array<{ path: string; score?: number }>
+    }>({
+      subtype: 'file_suggestions',
+      query: partialPath,
+    })
+    return response.suggestions.map(suggestion =>
+      createFileSuggestionItem(suggestion.path, suggestion.score),
+    )
+  } catch (error) {
+    logForDebugging(
+      `[FileIndex] remote file_suggestions RPC failed: ${errorMessage(error)}`,
+    )
+    return []
+  }
+}
+
 /**
  * Find matching files and folders for a given query using the TS file index
  */
@@ -720,6 +745,11 @@ export async function generateFileSuggestions(
   partialPath: string,
   showOnEmpty = false,
 ): Promise<SuggestionItem[]> {
+  if (getRuntimeCapabilities().workspace === 'remote') {
+    if (!partialPath && !showOnEmpty) return []
+    return getRemoteFileSuggestions(partialPath)
+  }
+
   // If input is empty and we don't want to show suggestions on empty, return nothing
   if (!partialPath && !showOnEmpty) {
     return []

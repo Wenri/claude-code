@@ -5,6 +5,7 @@ import type { CommandResultDisplay } from '../../commands.js';
 import { Select } from '../../components/CustomSelect/index.js';
 import { Dialog } from '../../components/design-system/Dialog.js';
 import { ModelPicker } from '../../components/ModelPicker.js';
+import { useNotifications } from '../../context/notifications.js';
 import { COMMON_HELP_ARGS, COMMON_INFO_ARGS } from '../../constants/xml.js';
 import { Box, Text } from '../../ink.js';
 import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEvent } from '../../services/analytics/index.js';
@@ -15,9 +16,11 @@ import { isBilledAsExtraUsage } from '../../utils/extraUsage.js';
 import { clearFastModeCooldown, isFastModeAvailable, isFastModeEnabled, isFastModeSupportedByModel } from '../../utils/fastMode.js';
 import { MODEL_ALIASES } from '../../utils/model/aliases.js';
 import { checkOpus1mAccess, checkSonnet1mAccess } from '../../utils/model/check1mAccess.js';
-import { getCanonicalName, getDefaultMainLoopModelSetting, isOpus1mMergeEnabled, renderDefaultModelSetting } from '../../utils/model/model.js';
+import { getModelDeprecationWarning } from '../../utils/model/deprecation.js';
+import { getCanonicalName, getDefaultMainLoopModelSetting, isOpus1mMergeEnabled, renderDefaultModelSetting, renderModelSetting } from '../../utils/model/model.js';
 import { isModelAllowed } from '../../utils/model/modelAllowlist.js';
 import { validateModel } from '../../utils/model/validateModel.js';
+import { getRelativeSettingsFilePathForSource, getSettingsForSource, getSettingsSourceForKey } from '../../utils/settings/settings.js';
 function ModelPickerWrapper({
   onDone,
 }: {
@@ -32,6 +35,7 @@ function ModelPickerWrapper({
   )
   const isFastMode = useAppState(s => s.fastMode)
   const setAppState = useSetAppState()
+  const { addNotification } = useNotifications()
   const [pendingSelection, setPendingSelection] = React.useState<{
     model: string | null
     effort: EffortLevel | undefined
@@ -67,6 +71,7 @@ function ModelPickerWrapper({
     model: string | null,
     effort: EffortLevel | undefined,
   ): void {
+    const pinNotice = getModelPinNotice(model)
     logEvent('tengu_model_command_menu', {
       action:
         model as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -80,6 +85,16 @@ function ModelPickerWrapper({
       mainLoopModel: model,
       mainLoopModelForSession: null,
     }))
+    const deprecationWarning = getModelDeprecationWarning(model)
+    if (deprecationWarning) {
+      addNotification({
+        key: 'model-deprecation-warning',
+        text: deprecationWarning,
+        color: 'warning',
+        priority: 'immediate',
+        invalidates: ['model-deprecation-warning'],
+      })
+    }
     let message = `Set model to ${chalk.bold(renderModelLabel(model))}`
     if (effort !== undefined) {
       message += ` with ${chalk.bold(effort)} effort`
@@ -111,6 +126,7 @@ function ModelPickerWrapper({
     if (wasFastModeToggledOn === false) {
       message += ' · Fast mode OFF'
     }
+    message += pinNotice
     onDone(message)
   }
 
@@ -204,6 +220,7 @@ function SetModelAndClose({
 }): React.ReactNode {
   const isFastMode = useAppState(s => s.fastMode);
   const setAppState = useSetAppState();
+  const { addNotification } = useNotifications();
   const model = args === 'default' ? null : args;
   React.useEffect(() => {
     async function handleModelChange(): Promise<void> {
@@ -262,11 +279,22 @@ function SetModelAndClose({
       }
     }
     function setModel(modelValue: string | null): void {
+      const pinNotice = getModelPinNotice(modelValue);
       setAppState(prev => ({
         ...prev,
         mainLoopModel: modelValue,
         mainLoopModelForSession: null
       }));
+      const deprecationWarning = getModelDeprecationWarning(modelValue);
+      if (deprecationWarning) {
+        addNotification({
+          key: 'model-deprecation-warning',
+          text: deprecationWarning,
+          color: 'warning',
+          priority: 'immediate',
+          invalidates: ['model-deprecation-warning']
+        });
+      }
       let message = `Set model to ${chalk.bold(renderModelLabel(modelValue))}`;
       let wasFastModeToggledOn = undefined;
       if (isFastModeEnabled()) {
@@ -290,11 +318,45 @@ function SetModelAndClose({
         // Fast mode was toggled off, show suffix after extra usage billing
         message += ` · Fast mode OFF`;
       }
+      message += pinNotice;
       onDone(message);
     }
     void handleModelChange();
-  }, [model, onDone, setAppState]);
+  }, [model, onDone, setAppState, addNotification]);
   return null;
+}
+
+function getModelPinNotice(selected: string | null): string {
+  const source = getSettingsSourceForKey('model')
+  const pinnedModel = source
+    ? getSettingsForSource(source)?.model
+    : undefined
+  if (pinnedModel === undefined || selected === pinnedModel) return ''
+
+  const localSettings = getRelativeSettingsFilePathForSource('localSettings')
+  switch (source) {
+    case 'policySettings':
+      return chalk.dim(
+        `\n     Managed settings pin ${chalk.bold(renderModelSetting(pinnedModel))} — that applies on restart`,
+      )
+    case 'projectSettings':
+    case 'localSettings': {
+      const sourceSettings =
+        source === 'localSettings'
+          ? localSettings
+          : getRelativeSettingsFilePathForSource('projectSettings')
+      if (selected !== null) {
+        return chalk.dim(
+          `\n     Also saved to ${localSettings} to override the pin in ${sourceSettings}`,
+        )
+      }
+      return chalk.dim(
+        `\n     ${sourceSettings} pins ${chalk.bold(renderModelSetting(pinnedModel))} — that applies on restart`,
+      )
+    }
+    default:
+      return ''
+  }
 }
 function isKnownAlias(model: string): boolean {
   return (MODEL_ALIASES as readonly string[]).includes(model.toLowerCase().trim());

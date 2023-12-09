@@ -7,9 +7,13 @@ import { KeyboardShortcutHint } from '../../components/design-system/KeyboardSho
 import { Spinner } from '../../components/Spinner.js';
 import TextInput from '../../components/TextInput.js';
 import { Box, Text } from '../../ink.js';
-import { toError } from '../../utils/errors.js';
+import { errorMessage, toError } from '../../utils/errors.js';
+import { logForDebugging } from '../../utils/debug.js';
 import { logError } from '../../utils/log.js';
 import { clearAllCaches } from '../../utils/plugins/cacheUtils.js';
+import { formatDependencyCountSuffix } from '../../utils/plugins/dependencyResolver.js';
+import { loadAllPlugins } from '../../utils/plugins/pluginLoader.js';
+import { resolveMissingDependencies } from '../../utils/plugins/missingDependencyResolver.js';
 import { addMarketplaceSource, saveMarketplaceToSettings } from '../../utils/plugins/marketplaceManager.js';
 import { parseMarketplaceInput } from '../../utils/plugins/parseMarketplaceInput.js';
 import type { ViewState } from './types.js';
@@ -80,6 +84,17 @@ export function AddMarketplace({
       logEvent('tengu_marketplace_added', {
         source_type: sourceType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
       });
+      let resolvedDependencies: string[] = [];
+      try {
+        resolvedDependencies = (await resolveMissingDependencies((await loadAllPlugins()).errors)).installed;
+      } catch (dependencyError) {
+        logForDebugging(`marketplace add: dep auto-resolve skipped: ${errorMessage(dependencyError)}`, {
+          level: 'warn'
+        });
+      }
+      if (resolvedDependencies.length > 0) {
+        clearAllCaches();
+      }
       if (onAddComplete) {
         await onAddComplete();
       }
@@ -87,7 +102,7 @@ export function AddMarketplace({
       setLoading(false);
       if (cliMode) {
         // In CLI mode, set result to trigger completion
-        setResult(`Successfully added marketplace: ${name}`);
+        setResult(`Successfully added marketplace: ${name}${formatDependencyCountSuffix(resolvedDependencies)}`);
       } else {
         // In interactive mode, switch to browse view
         setViewState({

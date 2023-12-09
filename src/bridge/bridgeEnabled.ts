@@ -10,7 +10,8 @@ import {
 // deferral, but require() hits a CJS cache that diverges from the ESM
 // namespace after mock.module() (daemon/auth.test.ts), breaking spyOn.
 import * as authModule from '../utils/auth.js'
-import { isEnvTruthy } from '../utils/envUtils.js'
+import { isDebugMode } from '../utils/debug.js'
+import { isBareMode, isEnvTruthy } from '../utils/envUtils.js'
 import { lt } from '../utils/semver.js'
 
 /**
@@ -84,6 +85,44 @@ export async function getBridgeDisabledReason(): Promise<string | null> {
     return null
   }
   return 'Remote Control is not available in this build.'
+}
+
+export function getBridgeAuthDebugInfo(): string {
+  if (!isDebugMode()) return ''
+  const set = (value: unknown): 'set' | 'unset' =>
+    value ? 'set' : 'unset'
+
+  try {
+    const tokens = authModule.getClaudeAIOAuthTokens()
+    const thirdPartyEnvs = [
+      'CLAUDE_CODE_USE_BEDROCK',
+      'CLAUDE_CODE_USE_VERTEX',
+      'CLAUDE_CODE_USE_FOUNDRY',
+      'CLAUDE_CODE_USE_ANTHROPIC_AWS',
+      'CLAUDE_CODE_USE_MANTLE',
+    ].filter(key => isEnvTruthy(process.env[key]))
+
+    return [
+      '',
+      '[debug] Remote Control auth state:',
+      `  isBareMode=${isBareMode()}`,
+      `  hasOAuthAccessToken=${!!tokens?.accessToken}`,
+      `  oauthScopes=${tokens?.scopes?.join(',') ?? 'none'}`,
+      `  isAnthropicAuthEnabled=${authModule.isAnthropicAuthEnabled()}`,
+      `  isClaudeAISubscriber=${authModule.isClaudeAISubscriber()}`,
+      `  hasProfileScope=${authModule.hasProfileScope()}`,
+      `  oauthAccount.organizationUuid=${set(authModule.getOauthAccountInfo()?.organizationUuid)}`,
+      `  ANTHROPIC_API_KEY=${set(process.env.ANTHROPIC_API_KEY)}`,
+      `  ANTHROPIC_AUTH_TOKEN=${set(process.env.ANTHROPIC_AUTH_TOKEN)}`,
+      `  apiKeyHelper=${authModule.getConfiguredApiKeyHelper() ? 'set' : 'unset'}`,
+      `  CLAUDE_CODE_API_KEY_FILE_DESCRIPTOR=${set(process.env.CLAUDE_CODE_API_KEY_FILE_DESCRIPTOR)}`,
+      `  CLAUDE_CODE_OAUTH_TOKEN=${set(process.env.CLAUDE_CODE_OAUTH_TOKEN)}`,
+      `  ANTHROPIC_UNIX_SOCKET=${set(process.env.ANTHROPIC_UNIX_SOCKET)}`,
+      `  3P env=${thirdPartyEnvs.length ? thirdPartyEnvs.join(',') : 'none'}`,
+    ].join('\n')
+  } catch (error) {
+    return `\n[debug] failed to collect auth state: ${error}`
+  }
 }
 
 // try/catch: main.tsx:5698 calls isBridgeEnabled() while defining the Commander

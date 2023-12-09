@@ -12,6 +12,7 @@ import {
 import { getModelStrings } from 'src/utils/model/modelStrings.js'
 import { getAPIProvider } from 'src/utils/model/providers.js'
 import {
+  getSdkOAuthTokenRefreshCallback,
   getIsNonInteractiveSession,
   preferThirdPartyAuthentication,
 } from '../bootstrap/state.js'
@@ -1380,6 +1381,29 @@ async function handleOAuth401ErrorImpl(
   const currentTokens = await getClaudeAIOAuthTokensAsync()
 
   if (!currentTokens?.refreshToken) {
+    const sdkRefreshCallback = getSdkOAuthTokenRefreshCallback()
+    if (sdkRefreshCallback) {
+      try {
+        const accessToken = await sdkRefreshCallback()
+        if (accessToken && accessToken !== failedAccessToken) {
+          process.env.CLAUDE_CODE_OAUTH_TOKEN = accessToken
+          clearOAuthTokenCache()
+          logEvent('tengu_oauth_401_sdk_callback_refreshed', {})
+          return true
+        }
+        logForDebugging(
+          accessToken === null
+            ? 'SDK getOAuthToken callback returned null (no token available)'
+            : 'SDK getOAuthToken callback returned the same expired token; treating as no refresh',
+          { level: accessToken === null ? 'debug' : 'error' },
+        )
+      } catch (error) {
+        logForDebugging(
+          `SDK getOAuthToken callback failed: ${error instanceof Error ? error.message : String(error)}`,
+          { level: 'error' },
+        )
+      }
+    }
     return false
   }
 

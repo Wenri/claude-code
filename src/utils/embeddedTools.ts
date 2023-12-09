@@ -13,7 +13,7 @@ import { isEnvTruthy } from './envUtils.js'
  * Set as a build-time define in scripts/build-with-plugins.ts for ant-native builds.
  */
 export function hasEmbeddedSearchTools(): boolean {
-  if (!isEnvTruthy(process.env.EMBEDDED_SEARCH_TOOLS)) return false
+  if (!isEnvTruthy('true')) return false
   const e = process.env.CLAUDE_CODE_ENTRYPOINT
   return (
     e !== 'sdk-ts' && e !== 'sdk-py' && e !== 'sdk-cli' && e !== 'local-agent'

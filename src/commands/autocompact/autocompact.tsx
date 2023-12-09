@@ -47,11 +47,9 @@ function AutoCompactDialog({
       ? 'from CLAUDE_CODE_AUTO_COMPACT_WINDOW'
       : source === 'settings'
         ? 'from settings'
-        : source === 'experiment'
-          ? 'from default'
-          : 'model default'
+        : 'from default'
   const initialSelection =
-    source === 'model' || source === 'experiment'
+    source === 'auto'
       ? MODEL_DEFAULT
       : Math.min(
           MAXIMUM,

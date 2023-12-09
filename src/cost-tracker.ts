@@ -43,6 +43,7 @@ import {
 } from './utils/context.js'
 import { isFastModeEnabled } from './utils/fastMode.js'
 import { formatDuration, formatNumber } from './utils/format.js'
+import type { EffortLevel } from './utils/effort.js'
 import type { FpsMetrics } from './utils/fpsTracker.js'
 import { getCanonicalName } from './utils/model/model.js'
 import { calculateUSDCost } from './utils/modelCost.js'
@@ -279,14 +280,19 @@ export function addToTotalSessionCost(
   cost: number,
   usage: Usage,
   model: string,
+  querySource?: string,
+  effort?: EffortLevel,
 ): number {
   const modelUsage = addToTotalModelUsage(cost, usage, model)
   addToTotalCostState(cost, modelUsage, model)
 
-  const attrs =
-    isFastModeEnabled() && usage.speed === 'fast'
-      ? { model, speed: 'fast' }
-      : { model }
+  const querySourceKind = classifyQuerySource(querySource)
+  const attrs = {
+    model,
+    ...(isFastModeEnabled() && usage.speed === 'fast' && { speed: 'fast' }),
+    ...(querySourceKind && { query_source: querySourceKind }),
+    ...(effort && { effort }),
+  }
 
   getCostCounter()?.add(cost, attrs)
   getTokenCounter()?.add(usage.input_tokens, { ...attrs, type: 'input' })
@@ -317,7 +323,25 @@ export function addToTotalSessionCost(
       advisorCost,
       advisorUsage,
       advisorUsage.model,
+      querySource,
     )
   }
   return totalCost
+}
+
+function classifyQuerySource(
+  querySource: string | undefined,
+): 'main' | 'subagent' | 'auxiliary' | undefined {
+  if (querySource === undefined) return undefined
+  if (querySource.startsWith('repl_main_thread') || querySource === 'sdk') {
+    return 'main'
+  }
+  if (
+    querySource.startsWith('agent:') ||
+    querySource === 'hook_agent' ||
+    querySource === 'verification_agent'
+  ) {
+    return 'subagent'
+  }
+  return 'auxiliary'
 }

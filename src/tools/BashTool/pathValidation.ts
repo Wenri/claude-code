@@ -192,8 +192,15 @@ export const PATH_EXTRACTORS: Record<
   PathCommand,
   (args: string[]) => string[]
 > = {
-  // cd: special case - all args form one path
-  cd: args => (args.length === 0 ? [homedir()] : [args.join(' ')]),
+  // cd: validate the first positional path. Multiple positional arguments are
+  // rejected by COMMAND_VALIDATOR because zsh interprets them as OLD/NEW.
+  cd: args => {
+    const paths = filterOutFlags(args)
+    if (paths.length === 0) {
+      return args.at(-1) === '-' ? ['-'] : [homedir()]
+    }
+    return [paths[0]!]
+  },
 
   // ls: filter flags, default to current dir
   ls: args => {
@@ -599,6 +606,24 @@ const COMMAND_VALIDATOR: Partial<
 > = {
   mv: (args: string[]) => !args.some(arg => arg?.startsWith('-')),
   cp: (args: string[]) => !args.some(arg => arg?.startsWith('-')),
+  cd: (args: string[]) => {
+    let seenPositional = false
+    let positionalCount = 0
+    for (const arg of args) {
+      if (!seenPositional) {
+        if (arg === '--') {
+          seenPositional = true
+          continue
+        }
+        if (arg.startsWith('-') && arg !== '-') {
+          continue
+        }
+        seenPositional = true
+      }
+      positionalCount++
+    }
+    return positionalCount <= 1
+  },
 }
 
 function validateCommandPaths(
@@ -618,6 +643,17 @@ function validateCommandPaths(
   // so we block ALL flags for these commands to ensure security.
   const validator = COMMAND_VALIDATOR[command]
   if (validator && !validator(args)) {
+    if (command === 'cd') {
+      return {
+        behavior: 'ask',
+        message: `cd with two or more directory arguments requires manual approval. zsh's "cd OLD NEW" form substitutes OLD→NEW in $PWD, producing a target path that cannot be statically validated.`,
+        decisionReason: {
+          type: 'other',
+          reason: 'cd with two or more directory arguments',
+          bashMissKind: 'cd-multi-positional',
+        },
+      }
+    }
     return {
       behavior: 'ask',
       message: `${command} with flags requires manual approval to ensure path safety. For security, Claude Code cannot automatically validate ${command} commands that use flags, as some flags like --target-directory=PATH can bypass path validation.`,

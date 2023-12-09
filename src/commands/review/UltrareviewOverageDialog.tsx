@@ -3,13 +3,12 @@ import { Select } from '../../components/CustomSelect/select.js'
 import { Dialog } from '../../components/design-system/Dialog.js'
 import { Box, Link, Text } from '../../ink.js'
 import { checkGate_CACHED_OR_BLOCKING } from '../../services/analytics/growthbook.js'
-import {
-  checkGithubAppInstalled,
-  checkIsInGitRepo,
-} from '../../utils/background/remote/preconditions.js'
+import { checkGithubAppInstalled } from '../../utils/background/remote/preconditions.js'
 import { getGlobalConfig, saveGlobalConfig } from '../../utils/config.js'
+import { getCwd } from '../../utils/cwd.js'
 import { detectCurrentRepositoryWithHost } from '../../utils/detectRepository.js'
 import { isEnvTruthy } from '../../utils/envUtils.js'
+import { findGitRoot } from '../../utils/git.js'
 import type { RemoteReviewScope } from './reviewRemote.js'
 import {
   getUltrareviewCostNote,
@@ -30,7 +29,7 @@ async function getReviewSourceViability(): Promise<ReviewSourceViability> {
     checkGate_CACHED_OR_BLOCKING('tengu_ccr_bundle_seed_enabled'),
   ])
   const bundleSeedEnabled =
-    checkIsInGitRepo() &&
+    findGitRoot(getCwd()) !== null &&
     (isEnvTruthy(process.env.CCR_ENABLE_BUNDLE) || bundleSeedGate)
   if (!bundleSeedEnabled) {
     return { cloneViable: false, bundleSeedEnabled }
@@ -83,8 +82,10 @@ function UltrareviewDialogContent({
     : null
   const scopeDescription =
     scope.mode === 'pr'
-      ? `Reviewing PR #${scope.prNumber} fetched from GitHub.`
-      : `Reviewing current branch against ${scope.baseBranch}.`
+      ? `Reviewing ${scope.repo}#${scope.prNumber} fetched from GitHub.`
+      : scope.headBranch === scope.baseBranch
+        ? `Reviewing local changes on ${scope.baseBranch}.`
+        : `Reviewing ${scope.headBranch} against ${scope.baseBranch}.`
   const scopeStat =
     scope.mode === 'branch' && scope.diffStat ? scope.diffStat : null
   const tip =

@@ -28,6 +28,7 @@ export type {
   Color,
   CursorAction,
   CursorDirection,
+  EditAction,
   EraseAction,
   Grapheme,
   LinkAction,

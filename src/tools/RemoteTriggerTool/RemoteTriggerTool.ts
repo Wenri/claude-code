@@ -45,7 +45,7 @@ const TRIGGERS_BETA = 'ccr-triggers-2026-01-30'
 
 export const RemoteTriggerTool = buildTool({
   name: REMOTE_TRIGGER_TOOL_NAME,
-  searchHint: 'manage scheduled remote agent triggers',
+  searchHint: 'manage scheduled remote agent routines',
   maxResultSizeChars: 100_000,
   shouldDefer: true,
   get inputSchema(): InputSchema {
@@ -56,6 +56,7 @@ export const RemoteTriggerTool = buildTool({
   },
   isEnabled() {
     return (
+      !isEnvTruthy(process.env.CLAUDE_CODE_REMOTE) &&
       getFeatureValue_CACHED_MAY_BE_STALE('tengu_surreal_dali', false) &&
       isPolicyAllowed('allow_remote_sessions')
     )
@@ -128,7 +129,7 @@ export const RemoteTriggerTool = buildTool({
         if (!trigger_id) throw new Error('run requires trigger_id')
         method = 'POST'
         url = `${base}/${trigger_id}/run`
-        data = {}
+        data = { ...body, trigger_id }
         break
     }
 

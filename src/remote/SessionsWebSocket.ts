@@ -338,15 +338,16 @@ export class SessionsWebSocket {
   /**
    * Send a control request to the session (e.g., interrupt)
    */
-  sendControlRequest(request: SDKControlRequestInner): void {
+  sendControlRequest(request: SDKControlRequestInner): string | null {
     if (!this.ws || this.state !== 'connected') {
       logError(new Error('[SessionsWebSocket] Cannot send: not connected'))
-      return
+      return null
     }
 
+    const requestId = randomUUID()
     const controlRequest: SDKControlRequest = {
       type: 'control_request',
-      request_id: randomUUID(),
+      request_id: requestId,
       request,
     }
 
@@ -354,6 +355,7 @@ export class SessionsWebSocket {
       `[SessionsWebSocket] Sending control request: ${request.subtype}`,
     )
     this.ws.send(jsonStringify(controlRequest))
+    return requestId
   }
 
   /**

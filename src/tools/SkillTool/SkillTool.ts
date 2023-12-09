@@ -943,6 +943,8 @@ const SAFE_SKILL_PROPERTIES = new Set([
   'agent',
   'getPromptForCommand',
   'frontmatterKeys',
+  'createdBy',
+  'urlTemplate',
   // CommandBase properties
   'name',
   'description',

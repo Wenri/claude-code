@@ -31,20 +31,14 @@ export function parseEsc(chars: string): Action | null {
     return { type: 'cursor', action: { type: 'restore' } }
   }
 
-  // Index - move cursor down (IND)
+  // Index (IND)
   if (first === 'D') {
-    return {
-      type: 'cursor',
-      action: { type: 'move', direction: 'down', count: 1 },
-    }
+    return { type: 'scroll', action: { type: 'index' } }
   }
 
-  // Reverse index - move cursor up (RI)
+  // Reverse index (RI)
   if (first === 'M') {
-    return {
-      type: 'cursor',
-      action: { type: 'move', direction: 'up', count: 1 },
-    }
+    return { type: 'scroll', action: { type: 'reverseIndex' } }
   }
 
   // Next line (NEL)

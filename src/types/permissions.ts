@@ -317,6 +317,7 @@ export type PermissionDecisionReason =
   | {
       type: 'other'
       reason: string
+      bashMissKind?: string
     }
 
 // ============================================================================

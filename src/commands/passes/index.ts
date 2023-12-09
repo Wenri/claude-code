@@ -7,6 +7,7 @@ import {
 export default {
   type: 'local-jsx',
   name: 'passes',
+  requires: { ink: true },
   get description() {
     const reward = getCachedReferrerReward()
     if (reward) {

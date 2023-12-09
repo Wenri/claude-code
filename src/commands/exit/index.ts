@@ -3,6 +3,7 @@ import type { Command } from '../../commands.js'
 export const exit = {
   type: 'local-jsx',
   name: 'exit',
+  requires: { ink: true },
   aliases: ['quit'],
   description: 'Exit the REPL',
   immediate: true,

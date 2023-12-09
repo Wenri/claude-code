@@ -101,11 +101,13 @@ function groupBySource<T extends {
 }
 interface Props {
   data: ContextData;
+  isRemote?: boolean;
 }
-export function ContextVisualization(t0) {
-  const $ = _c(87);
+export function ContextVisualization(t0: Props) {
+  const $ = _c(89);
   const {
-    data
+    data,
+    isRemote = false
   } = t0;
   const {
     categories,
@@ -203,16 +205,20 @@ export function ContextVisualization(t0) {
     let t17;
     let t18;
     if ($[35] === Symbol.for("react.memo_cache_sentinel")) {
-      t16 = <CollapseStatus />;
       t17 = <Text> </Text>;
       t18 = <Text dimColor={true} italic={true}>Estimated usage by category</Text>;
-      $[35] = t16;
-      $[36] = t17;
-      $[37] = t18;
+      $[35] = t17;
+      $[36] = t18;
     } else {
-      t16 = $[35];
-      t17 = $[36];
-      t18 = $[37];
+      t17 = $[35];
+      t18 = $[36];
+    }
+    if ($[87] !== isRemote) {
+      t16 = !isRemote && <CollapseStatus />;
+      $[87] = isRemote;
+      $[88] = t16;
+    } else {
+      t16 = $[88];
     }
     let t19;
     if ($[38] !== rawMaxTokens) {

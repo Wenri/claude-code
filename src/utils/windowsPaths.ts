@@ -7,6 +7,8 @@ import { execSync_DEPRECATED } from './execSyncWrapper.js'
 import { memoizeWithLRU } from './memoize.js'
 import { getPlatform } from './platform.js'
 
+const executablePathCache = new Map<string, string>()
+
 /**
  * Check if a file or directory exists on Windows using the dir command
  * @param path - The path to check
@@ -27,6 +29,9 @@ function checkPathExists(path: string): boolean {
  * @returns The path to the executable or null if not found
  */
 function findExecutable(executable: string): string | null {
+  const cached = executablePathCache.get(executable)
+  if (cached) return cached
+
   // For git, check common installation locations first
   if (executable === 'git') {
     const defaultLocations = [
@@ -70,6 +75,7 @@ function findExecutable(executable: string): string | null {
       }
 
       // Return the first valid path that's not in the current directory
+      executablePathCache.set(executable, candidatePath)
       return candidatePath
     }
 

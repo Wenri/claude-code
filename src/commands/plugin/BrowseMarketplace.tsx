@@ -17,6 +17,7 @@ import { createPluginId, formatFailureDetails, formatMarketplaceLoadingErrors, g
 import { getMarketplace, loadKnownMarketplacesConfig } from '../../utils/plugins/marketplaceManager.js';
 import { OFFICIAL_MARKETPLACE_NAME } from '../../utils/plugins/officialMarketplace.js';
 import { installPluginFromMarketplace } from '../../utils/plugins/pluginInstallationHelpers.js';
+import { recoverInstalledPluginDependencies } from '../../utils/plugins/missingDependencyResolver.js';
 import { isPluginBlockedByPolicy } from '../../utils/plugins/pluginPolicy.js';
 import { plural } from '../../utils/stringUtils.js';
 import { truncateToWidth } from '../../utils/truncate.js';
@@ -214,7 +215,13 @@ export function BrowseMarketplace({
             const pluginId_0 = foundPlugin.pluginId;
             const globallyInstalled = isPluginGloballyInstalled(pluginId_0);
             if (globallyInstalled) {
-              setError(`Plugin '${pluginId_0}' is already installed globally. Use '/plugin' to manage existing plugins.`);
+              const recovery = await recoverInstalledPluginDependencies(pluginId_0);
+              if (recovery === null) {
+                setError(`Plugin '${pluginId_0}' is already installed globally. Use '/plugin' to manage existing plugins.`);
+              } else {
+                setResult(`Plugin "${pluginId_0}" is already installed${recovery.suffix}`);
+                await onInstallComplete?.();
+              }
             } else {
               // Navigate to the plugin details view
               setSelectedMarketplace(foundMarketplace);

@@ -11,7 +11,8 @@ import { getCwd } from '../../cwd.js'
 import { logForDebugging } from '../../debug.js'
 import { detectCurrentRepository } from '../../detectRepository.js'
 import { errorMessage } from '../../errors.js'
-import { findGitRoot, getIsClean } from '../../git.js'
+import { execFileNoThrow } from '../../execFileNoThrow.js'
+import { findGitRoot, getIsClean, gitExe } from '../../git.js'
 import { getOAuthHeaders } from '../../teleport/api.js'
 import { fetchEnvironments } from '../../teleport/environments.js'
 
@@ -56,8 +57,14 @@ export async function checkHasRemoteEnvironment(): Promise<boolean> {
  * Checks if current directory is inside a git repository (has .git/).
  * Distinct from checkHasGitRemote — a local-only repo passes this but not that.
  */
-export function checkIsInGitRepo(): boolean {
-  return findGitRoot(getCwd()) !== null
+export async function checkIsInGitRepo(): Promise<boolean> {
+  if (findGitRoot(getCwd()) !== null) return true
+
+  const { stdout, code } = await execFileNoThrow(
+    gitExe(),
+    ['rev-parse', '--is-inside-work-tree'],
+  )
+  return code === 0 && stdout.trim() === 'true'
 }
 
 /**

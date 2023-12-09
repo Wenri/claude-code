@@ -64,7 +64,10 @@ export const CSI = {
   CHA: 0x47, // G - Cursor Horizontal Absolute
   CUP: 0x48, // H - Cursor Position
   CHT: 0x49, // I - Cursor Horizontal Tab
+  HPA: 0x60, // ` - Horizontal Position Absolute
+  HPR: 0x61, // a - Horizontal Position Relative
   VPA: 0x64, // d - Vertical Position Absolute
+  VPR: 0x65, // e - Vertical Position Relative
   HVP: 0x66, // f - Horizontal Vertical Position
 
   // Erase

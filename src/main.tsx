@@ -24,7 +24,6 @@ import chalk from 'chalk';
 import figures from 'figures';
 import { readFileSync } from 'fs';
 import mapValues from 'lodash-es/mapValues.js';
-import pickBy from 'lodash-es/pickBy.js';
 import uniqBy from 'lodash-es/uniqBy.js';
 import React from 'react';
 import { getOauthConfig } from './constants/oauth.js';
@@ -86,6 +85,7 @@ const coordinatorModeModule = feature('COORDINATOR_MODE') ? require('./coordinat
 const assistantModule = feature('KAIROS') ? require('./assistant/index.js') as typeof import('./assistant/index.js') : null;
 const kairosGate = feature('KAIROS') ? require('./assistant/gate.js') as typeof import('./assistant/gate.js') : null;
 import { relative, resolve } from 'path';
+import { recordRemoteStartupPhase } from './bridge/startupTiming.js';
 import { isAnalyticsDisabled } from 'src/services/analytics/config.js';
 import { getFeatureValue_CACHED_MAY_BE_STALE } from 'src/services/analytics/growthbook.js';
 import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEvent } from 'src/services/analytics/index.js';
@@ -99,7 +99,9 @@ import { exitWithError, exitWithMessage, getRenderContext, renderAndRun, showSet
 import { initBuiltinPlugins } from './plugins/bundled/index.js';
 /* eslint-enable @typescript-eslint/no-require-imports */
 import { checkQuotaStatus } from './services/claudeAiLimits.js';
-import { getMcpToolsCommandsAndResources, prefetchAllMcpResources } from './services/mcp/client.js';
+import { mergeMainAgentMcpServers } from './services/mcp/agentConfig.js';
+import { prefetchAllMcpResources } from './services/mcp/client.js';
+import { createHeadlessMcpConnectionManager } from './services/mcp/headlessConnectionManager.js';
 import { VALID_INSTALLABLE_SCOPES, VALID_UPDATE_SCOPES } from './services/plugins/pluginCliCommands.js';
 import { initBundledSkills } from './skills/bundled/index.js';
 import type { AgentColorName } from './tools/AgentTool/agentColorManager.js';
@@ -148,9 +150,7 @@ import { registerMcpAddCommand } from 'src/commands/mcp/addCommand.js';
 import { registerMcpXaaIdpCommand } from 'src/commands/mcp/xaaIdpCommand.js';
 import { logPermissionContextForAnts } from 'src/services/internalLogging.js';
 import { fetchClaudeAIMcpConfigsIfEligible } from 'src/services/mcp/claudeai.js';
-import { clearServerCache } from 'src/services/mcp/client.js';
-import { areMcpConfigsAllowedWithEnterpriseMcpConfig, dedupClaudeAiMcpServers, doesEnterpriseMcpConfigExist, filterMcpServersByPolicy, getClaudeCodeMcpConfigs, getMcpServerSignature, parseMcpConfig, parseMcpConfigFromFilePath } from 'src/services/mcp/config.js';
-import { excludeCommandsByServer, excludeResourcesByServer } from 'src/services/mcp/utils.js';
+import { areMcpConfigsAllowedWithEnterpriseMcpConfig, doesEnterpriseMcpConfigExist, filterMcpServersByPolicy, getClaudeCodeMcpConfigs, parseMcpConfig, parseMcpConfigFromFilePath } from 'src/services/mcp/config.js';
 import { isXaaEnabled } from 'src/services/mcp/xaaIdpLogin.js';
 import { getRelevantTips } from 'src/services/tips/tipRegistry.js';
 import { logContextMetrics } from 'src/utils/api.js';
@@ -2439,6 +2439,10 @@ async function run(): Promise<CommanderCommand> {
       servers: existingMcpConfigs
     } = await mcpConfigPromise;
     logForDebugging(`[STARTUP] MCP configs resolved in ${mcpConfigResolvedMs}ms (awaited at +${Date.now() - mcpConfigStart}ms)`);
+    dynamicMcpConfig = mergeMainAgentMcpServers(dynamicMcpConfig, mainThreadAgentDefinition, {
+      strictMcpConfig,
+      onBlocked: blocked => writeToStderr(`Warning: agent frontmatter MCP ${plural(blocked.length, 'server')} blocked by enterprise policy: ${blocked.join(', ')}`)
+    });
     // CLI flag (--mcp-config) should override file-based configs, matching settings precedence
     const allMcpConfigs = {
       ...existingMcpConfigs,
@@ -2745,124 +2749,22 @@ async function run(): Promise<CommanderCommand> {
       // Mirrors useManageMCPConnections — push pending first (so ToolSearch's
       // pending-check at ToolSearchTool.ts:334 sees them), then replace with
       // connected/failed as each server settles.
-      const connectMcpBatch = (configs: Record<string, ScopedMcpServerConfig>, label: string): Promise<void> => {
-        if (Object.keys(configs).length === 0) return Promise.resolve();
-        headlessStore.setState(prev => ({
-          ...prev,
-          mcp: {
-            ...prev.mcp,
-            clients: [...prev.mcp.clients, ...Object.entries(configs).map(([name, config]) => ({
-              name,
-              type: 'pending' as const,
-              config
-            }))]
-          }
-        }));
-        return getMcpToolsCommandsAndResources(({
-          client,
-          tools,
-          commands
-        }) => {
-          headlessStore.setState(prev => ({
-            ...prev,
-            mcp: {
-              ...prev.mcp,
-              clients: prev.mcp.clients.some(c => c.name === client.name) ? prev.mcp.clients.map(c => c.name === client.name ? client : c) : [...prev.mcp.clients, client],
-              tools: uniqBy([...prev.mcp.tools, ...tools], 'name'),
-              commands: uniqBy([...prev.mcp.commands, ...commands], 'name')
-            }
-          }));
-        }, configs).catch(err => logForDebugging(`[MCP] ${label} connect error: ${err}`));
-      };
-      // Await all MCP configs — print mode is often single-turn, so
-      // "late-connecting servers visible next turn" doesn't help. SDK init
-      // message and turn-1 tool list both need configured MCP tools present.
-      // Zero-server case is free via the early return in connectMcpBatch.
-      // Connectors parallelize inside getMcpToolsCommandsAndResources
-      // (processBatched with Promise.all). claude.ai is awaited too — its
-      // fetch was kicked off early (line ~2558) so only residual time blocks
-      // here. --bare skips claude.ai entirely for perf-sensitive scripts.
-      profileCheckpoint('before_connectMcp');
-      await connectMcpBatch(regularMcpConfigs, 'regular');
-      profileCheckpoint('after_connectMcp');
-      // Dedup: suppress plugin MCP servers that duplicate a claude.ai
-      // connector (connector wins), then connect claude.ai servers.
-      // Bounded wait — #23725 made this blocking so single-turn -p sees
-      // connectors, but with 40+ slow connectors tengu_startup_perf p99
-      // climbed to 76s. If fetch+connect doesn't finish in time, proceed;
-      // the promise keeps running and updates headlessStore in the
-      // background so turn 2+ still sees connectors.
-      const CLAUDE_AI_MCP_TIMEOUT_MS = 5_000;
-      const claudeaiConnect = claudeaiConfigPromise.then(claudeaiConfigs => {
-        if (Object.keys(claudeaiConfigs).length > 0) {
-          const claudeaiSigs = new Set<string>();
-          for (const config of Object.values(claudeaiConfigs)) {
-            const sig = getMcpServerSignature(config);
-            if (sig) claudeaiSigs.add(sig);
-          }
-          const suppressed = new Set<string>();
-          for (const [name, config] of Object.entries(regularMcpConfigs)) {
-            if (!name.startsWith('plugin:')) continue;
-            const sig = getMcpServerSignature(config);
-            if (sig && claudeaiSigs.has(sig)) suppressed.add(name);
-          }
-          if (suppressed.size > 0) {
-            logForDebugging(`[MCP] Lazy dedup: suppressing ${suppressed.size} plugin server(s) that duplicate claude.ai connectors: ${[...suppressed].join(', ')}`);
-            // Disconnect before filtering from state. Only connected
-            // servers need cleanup — clearServerCache on a never-connected
-            // server triggers a real connect just to kill it (memoize
-            // cache-miss path, see useManageMCPConnections.ts:870).
-            for (const c of headlessStore.getState().mcp.clients) {
-              if (!suppressed.has(c.name) || c.type !== 'connected') continue;
-              c.client.onclose = undefined;
-              void clearServerCache(c.name, c.config).catch(() => {});
-            }
-            headlessStore.setState(prev => {
-              let {
-                clients,
-                tools,
-                commands,
-                resources
-              } = prev.mcp;
-              clients = clients.filter(c => !suppressed.has(c.name));
-              tools = tools.filter(t => !t.mcpInfo || !suppressed.has(t.mcpInfo.serverName));
-              for (const name of suppressed) {
-                commands = excludeCommandsByServer(commands, name);
-                resources = excludeResourcesByServer(resources, name);
-              }
-              return {
-                ...prev,
-                mcp: {
-                  ...prev.mcp,
-                  clients,
-                  tools,
-                  commands,
-                  resources
-                }
-              };
-            });
-          }
+      const headlessMcp = createHeadlessMcpConnectionManager({
+        regularMcpConfigs,
+        claudeaiConfigPromise,
+        state: {
+          getClients: () => headlessStore.getState().mcp.clients,
+          applyMcpUpdate: update =>
+            headlessStore.setState(prev => ({
+              ...prev,
+              mcp: update(prev.mcp)
+            }))
         }
-        // Suppress claude.ai connectors that duplicate an enabled
-        // manual server (URL-signature match). Plugin dedup above only
-        // handles `plugin:*` keys; this catches manual `.mcp.json` entries.
-        // plugin:* must be excluded here — step 1 already suppressed
-        // those (claude.ai wins); leaving them in suppresses the
-        // connector too, and neither survives (gh-39974).
-        const nonPluginConfigs = pickBy(regularMcpConfigs, (_, n) => !n.startsWith('plugin:'));
-        const {
-          servers: dedupedClaudeAi
-        } = dedupClaudeAiMcpServers(claudeaiConfigs, nonPluginConfigs);
-        return connectMcpBatch(dedupedClaudeAi, 'claudeai');
       });
-      let claudeaiTimer: ReturnType<typeof setTimeout> | undefined;
-      const claudeaiTimedOut = await Promise.race([claudeaiConnect.then(() => false), new Promise<boolean>(resolve => {
-        claudeaiTimer = setTimeout(r => r(true), CLAUDE_AI_MCP_TIMEOUT_MS, resolve);
-      })]);
-      if (claudeaiTimer) clearTimeout(claudeaiTimer);
-      if (claudeaiTimedOut) {
-        logForDebugging(`[MCP] claude.ai connectors not ready after ${CLAUDE_AI_MCP_TIMEOUT_MS}ms — proceeding; background connection continues`);
-      }
+      profileCheckpoint('before_connectMcp');
+      const mcpConnectStartedAt = performance.now();
+      await headlessMcp.connect();
+      recordRemoteStartupPhase('mcp_connect_ms', performance.now() - mcpConnectStartedAt);
       profileCheckpoint('after_connectMcp_claudeai');
 
       // In headless mode, start deferred prefetches immediately (no user typing delay)
@@ -2883,7 +2785,7 @@ async function run(): Promise<CommanderCommand> {
         runHeadless
       } = await import('src/cli/print.js');
       profileCheckpoint('after_print_import');
-      void runHeadless(inputPrompt, () => headlessStore.getState(), headlessStore.setState, commandsHeadless, tools, sdkMcpConfigs, agentDefinitions.activeAgents, {
+      void runHeadless(inputPrompt, () => headlessStore.getState(), headlessStore.setState, headlessStore.subscribe, commandsHeadless, tools, sdkMcpConfigs, agentDefinitions.activeAgents, {
         continue: options.continue,
         resume: options.resume,
         verbose: verbose,
@@ -2927,7 +2829,7 @@ async function run(): Promise<CommanderCommand> {
     });
 
     // Get deprecation warning for the initial model (resolvedInitialModel computed earlier for hooks parallelization)
-    const deprecationWarning = getModelDeprecationWarning(resolvedInitialModel);
+    const deprecationWarning = getModelDeprecationWarning(initialMainLoopModel ?? resolvedInitialModel);
 
     // Build initial notification queue
     const initialNotifications: Array<{
@@ -3199,6 +3101,9 @@ async function run(): Promise<CommanderCommand> {
         }, {
           ...sessionConfig,
           mainThreadAgentDefinition: loaded.restoredAgentDef ?? mainThreadAgentDefinition,
+          dynamicMcpConfig: mergeMainAgentMcpServers(dynamicMcpConfig, loaded.restoredAgentDef ?? mainThreadAgentDefinition, {
+            strictMcpConfig
+          }),
           initialMessages: loaded.messages,
           initialFileHistorySnapshots: loaded.fileHistorySnapshots,
           initialContentReplacements: loaded.contentReplacements,
@@ -3468,45 +3373,80 @@ async function run(): Promise<CommanderCommand> {
         }
       }
       if (remote !== null) {
-        // Create remote session (optionally with initial prompt)
-        const hasInitialPrompt = remote.length > 0;
+        const sessionIdPattern = /^(?:session|cse)_[A-Za-z0-9_]+$/;
+        let existingSessionId = null;
+        if (sessionIdPattern.test(remote)) {
+          existingSessionId = asSessionId(remote);
+        } else if (remote.includes('/') && !/\s/.test(remote)) {
+          for (const segment of remote.split(/[/?#]/)) {
+            if (sessionIdPattern.test(segment)) {
+              existingSessionId = asSessionId(segment);
+              break;
+            }
+          }
+        }
+        const hasInitialPrompt = !existingSessionId && remote.length > 0;
 
         // Check if TUI mode is enabled - description is only optional in TUI mode
         const isRemoteTuiEnabled = getFeatureValue_CACHED_MAY_BE_STALE('tengu_remote_backend', false);
+        if (existingSessionId && !isRemoteTuiEnabled) {
+          return await exitWithError(root, 'Error: Attaching to an existing remote session is not enabled for your account.', () => gracefulShutdown(1));
+        }
         if (!isRemoteTuiEnabled && !hasInitialPrompt) {
           return await exitWithError(root, 'Error: --remote requires a description.\nUsage: claude --remote "your task description"', () => gracefulShutdown(1));
         }
-        logEvent('tengu_remote_create_session', {
-          has_initial_prompt: String(hasInitialPrompt) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-        });
-
-        // Pass current branch so CCR clones the repo at the right revision
-        const currentBranch = await getBranch();
-        const createdSession = await teleportToRemoteWithErrorHandling(root, hasInitialPrompt ? remote : null, new AbortController().signal, currentBranch || undefined);
-        if (!createdSession) {
-          logEvent('tengu_remote_create_session_error', {
-            error: 'unable_to_create_session' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+        let remoteSessionId: string;
+        if (existingSessionId) {
+          logEvent('tengu_remote_attach_session', {
+            session_id: existingSessionId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
           });
-          return await exitWithError(root, 'Error: Unable to create remote session', () => gracefulShutdown(1));
-        }
-        logEvent('tengu_remote_create_session_success', {
-          session_id: createdSession.id as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-        });
+          try {
+            const existingSession = await fetchSession(existingSessionId);
+            if (existingSession.session_status === 'archived') {
+              logEvent('tengu_remote_attach_session_rejected', {
+                reason: 'archived' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+              });
+              return await exitWithError(root, `Error: Remote session ${existingSessionId} is archived and cannot accept new messages.\nView it at ${getRemoteSessionUrl(existingSessionId)}?m=0`, () => gracefulShutdown(1));
+            }
+          } catch (error) {
+            logEvent('tengu_remote_attach_session_rejected', {
+              reason: 'fetch_failed' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+            });
+            return await exitWithError(root, `Error: ${errorMessage(error)}`, () => gracefulShutdown(1));
+          }
+          remoteSessionId = existingSessionId;
+        } else {
+          logEvent('tengu_remote_create_session', {
+            has_initial_prompt: String(hasInitialPrompt) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+          });
 
-        // Check if new remote TUI mode is enabled via feature gate
-        if (!isRemoteTuiEnabled) {
-          // Original behavior: print session info and exit
-          process.stdout.write(`Created remote session: ${createdSession.title}\n`);
-          process.stdout.write(`View: ${getRemoteSessionUrl(createdSession.id)}?m=0\n`);
-          process.stdout.write(`Resume with: claude --teleport ${createdSession.id}\n`);
-          await gracefulShutdown(0);
-          process.exit(0);
+          // Pass current branch so CCR clones the repo at the right revision
+          const currentBranch = await getBranch();
+          const createdSession = await teleportToRemoteWithErrorHandling(root, hasInitialPrompt ? remote : null, new AbortController().signal, 'remote', currentBranch || undefined);
+          if (!createdSession) {
+            logEvent('tengu_remote_create_session_error', {
+              error: 'unable_to_create_session' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+            });
+            return await exitWithError(root, 'Error: Unable to create remote session', () => gracefulShutdown(1));
+          }
+          logEvent('tengu_remote_create_session_success', {
+            session_id: createdSession.id as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+          });
+
+          if (!isRemoteTuiEnabled) {
+            process.stdout.write(`Created remote session: ${createdSession.title}\n`);
+            process.stdout.write(`View: ${getRemoteSessionUrl(createdSession.id)}?m=0\n`);
+            process.stdout.write(`Resume with: claude --teleport ${createdSession.id}\n`);
+            await gracefulShutdown(0);
+            process.exit(0);
+          }
+          remoteSessionId = createdSession.id;
         }
 
         // New behavior: start local TUI with CCR engine
         // Mark that we're in remote mode for command visibility
         setIsRemoteMode(true);
-        switchSession(asSessionId(createdSession.id));
+        switchSession(asSessionId(remoteSessionId));
 
         // Get OAuth credentials for remote session
         let apiCreds: {
@@ -3525,11 +3465,11 @@ async function run(): Promise<CommanderCommand> {
           getClaudeAIOAuthTokens: getTokensForRemote
         } = await import('./utils/auth.js');
         const getAccessTokenForRemote = (): string => getTokensForRemote()?.accessToken ?? apiCreds.accessToken;
-        const remoteSessionConfig = createRemoteSessionConfig(createdSession.id, getAccessTokenForRemote, apiCreds.orgUUID, hasInitialPrompt);
+        const remoteSessionConfig = createRemoteSessionConfig(remoteSessionId, getAccessTokenForRemote, apiCreds.orgUUID, hasInitialPrompt, false, existingSessionId !== null);
 
         // Add remote session info as initial system message
-        const remoteSessionUrl = `${getRemoteSessionUrl(createdSession.id)}?m=0`;
-        const remoteInfoMessage = createSystemMessage(`/remote-control is active. Code in CLI or at ${remoteSessionUrl}`, 'info');
+        const remoteSessionUrl = `${getRemoteSessionUrl(remoteSessionId)}?m=0`;
+        const remoteInfoMessage = createSystemMessage(existingSessionId ? `Attached to remote session · code here or at ${remoteSessionUrl}` : `Remote session active · code here or at ${remoteSessionUrl}`, 'info');
 
         // Create initial user message from the prompt if provided (CCR echoes it back but we ignore that)
         const initialUserMessage = hasInitialPrompt ? createUserMessage({
@@ -3798,6 +3738,9 @@ async function run(): Promise<CommanderCommand> {
         }, {
           ...sessionConfig,
           mainThreadAgentDefinition: resumeData.restoredAgentDef ?? mainThreadAgentDefinition,
+          dynamicMcpConfig: mergeMainAgentMcpServers(dynamicMcpConfig, resumeData.restoredAgentDef ?? mainThreadAgentDefinition, {
+            strictMcpConfig
+          }),
           initialMessages: resumeData.messages,
           initialFileHistorySnapshots: resumeData.fileHistorySnapshots,
           initialContentReplacements: resumeData.contentReplacements,
