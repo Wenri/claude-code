@@ -1,0 +1,73 @@
+diff --git a/src/cli/print.ts b/src/cli/print.ts
+index 6047257..aa114fd 100644
+--- a/src/cli/print.ts
++++ b/src/cli/print.ts
+@@ -163,6 +163,7 @@ import {
+ import { TEAMMATE_MESSAGE_TAG, TICK_TAG } from 'src/constants/xml.js'
+ import {
+   getSettings_DEPRECATED,
++  getSettingsWithErrors,
+   getSettingsWithSources,
+ } from 'src/utils/settings/settings.js'
+ import { settingsChangeDetector } from 'src/utils/settings/changeDetector.js'
+@@ -3761,6 +3762,9 @@ function runHeadlessStreaming(
+           const effort = modelSupportsEffort(model)
+             ? resolveAppliedEffort(model, currentAppState.effortValue)
+             : undefined
++          const errors = getSettingsWithErrors()
++            .errors.filter(error => error.severity !== 'warning')
++            .map(({ file, path, message }) => ({ file, path, message }))
+           sendControlResponseSuccess(message, {
+             ...getSettingsWithSources(),
+             applied: {
+@@ -3768,6 +3772,7 @@ function runHeadlessStreaming(
+               // Numeric effort (ant-only) → null; SDK schema is string-level only.
+               effort: typeof effort === 'string' ? effort : null,
+             },
++            errors: errors.length > 0 ? errors : undefined,
+           })
+         } else if (message.request.subtype === 'stop_task') {
+           const { task_id: taskId } = message.request
+diff --git a/src/entrypoints/sdk/controlSchemas.ts b/src/entrypoints/sdk/controlSchemas.ts
+index fccf13e..b03badf 100644
+--- a/src/entrypoints/sdk/controlSchemas.ts
++++ b/src/entrypoints/sdk/controlSchemas.ts
+@@ -482,6 +482,25 @@ export const SDKControlGetSettingsRequestSchema = lazySchema(() =>
+     ),
+ )
+ 
++export const SettingsValidationErrorSchema = lazySchema(() =>
++  z
++    .object({
++      file: z
++        .string()
++        .optional()
++        .describe('Path to the settings file that failed to parse or validate.'),
++      path: z
++        .string()
++        .describe(
++          'Dot-notation path to the field with the error, or empty string for whole-file errors.',
++        ),
++      message: z.string().describe('Human-readable error message.'),
++    })
++    .describe(
++      'A settings file parse or validation error. When a settings.json file fails to parse (invalid JSON, JSON comments, schema mismatch), the file is skipped and any rules it contained — including permission allow/deny lists — are not applied.',
++    ),
++)
++
+ export const SDKControlGetSettingsResponseSchema = lazySchema(() =>
+   z
+     .object({
+@@ -513,6 +532,12 @@ export const SDKControlGetSettingsResponseSchema = lazySchema(() =>
+         .describe(
+           'Runtime-resolved values after env overrides, session state, and model-specific defaults are applied. Unlike `effective` (disk merge), these reflect what will actually be sent to the API.',
+         ),
++      errors: z
++        .array(SettingsValidationErrorSchema())
++        .optional()
++        .describe(
++          'Settings parse and validation errors. When non-empty, the listed files were skipped during the merge above — their settings are not reflected in `effective` or `sources`.',
++        ),
+     })
+     .describe(
+       'Effective merged settings plus raw per-source settings in merge order.',

@@ -1,0 +1,666 @@
+diff --git a/src/constants/system.ts b/src/constants/system.ts
+index 0cd2e76..31baf88 100644
+--- a/src/constants/system.ts
++++ b/src/constants/system.ts
+@@ -79,7 +79,13 @@ export function getAttributionHeader(fingerprint: string): string {
+   const entrypoint = process.env.CLAUDE_CODE_ENTRYPOINT ?? 'unknown'
+ 
+   // cch=00000 placeholder is overwritten by Bun's HTTP stack with attestation token
+-  const cch = feature('NATIVE_CLIENT_ATTESTATION') ? ' cch=00000;' : ''
++  const provider = getAPIProvider()
++  const cch =
++    feature('NATIVE_CLIENT_ATTESTATION') &&
++    provider !== 'bedrock' &&
++    provider !== 'mantle'
++      ? ' cch=00000;'
++      : ''
+   // cc_workload: turn-scoped hint so the API can route e.g. cron-initiated
+   // requests to a lower QoS pool. Absent = interactive default. Safe re:
+   // fingerprint (computed from msg chars + version only, line 78 above) and
+diff --git a/src/services/analytics/config.ts b/src/services/analytics/config.ts
+index 9e80601..71679e2 100644
+--- a/src/services/analytics/config.ts
++++ b/src/services/analytics/config.ts
+@@ -20,6 +20,7 @@ export function isAnalyticsDisabled(): boolean {
+   return (
+     process.env.NODE_ENV === 'test' ||
+     isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK) ||
++    isEnvTruthy(process.env.CLAUDE_CODE_USE_MANTLE) ||
+     isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX) ||
+     isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY) ||
+     isTelemetryDisabled()
+diff --git a/src/services/api/client.ts b/src/services/api/client.ts
+index 8c1feb6..7828558 100644
+--- a/src/services/api/client.ts
++++ b/src/services/api/client.ts
+@@ -14,6 +14,7 @@ import { getUserAgent } from 'src/utils/http.js'
+ import { getSmallFastModel } from 'src/utils/model/model.js'
+ import {
+   getAPIProvider,
++  getAPIProviderForModel,
+   isFirstPartyAnthropicBaseUrl,
+ } from 'src/utils/model/providers.js'
+ import { getProxyFetchOptions } from 'src/utils/proxy.js'
+@@ -150,7 +151,8 @@ export async function getAnthropicClient({
+       fetch: resolvedFetch,
+     }),
+   }
+-  if (isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK)) {
++  const apiProvider = getAPIProviderForModel(model)
++  if (apiProvider === 'bedrock') {
+     const { AnthropicBedrock } = await import('@anthropic-ai/bedrock-sdk')
+     // Use region override for small fast model if specified
+     const awsRegion =
+@@ -188,7 +190,30 @@ export async function getAnthropicClient({
+     // we have always been lying about the return type - this doesn't support batching or models
+     return new AnthropicBedrock(bedrockArgs) as unknown as Anthropic
+   }
+-  if (isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY)) {
++  if (apiProvider === 'mantle') {
++    const { AnthropicBedrockMantle } = await import(
++      '@anthropic-ai/bedrock-sdk'
++    )
++    const skipAuth = isEnvTruthy(
++      process.env.CLAUDE_CODE_SKIP_MANTLE_AUTH,
++    )
++    const cachedCredentials =
++      !process.env.AWS_BEARER_TOKEN_BEDROCK && !skipAuth
++        ? await refreshAndGetAwsCredentials()
++        : null
++    return new AnthropicBedrockMantle({
++      ...ARGS,
++      awsRegion: getAWSRegion(),
++      ...(skipAuth && { skipAuth: true }),
++      ...(cachedCredentials && {
++        awsAccessKey: cachedCredentials.accessKeyId,
++        awsSecretAccessKey: cachedCredentials.secretAccessKey,
++        awsSessionToken: cachedCredentials.sessionToken,
++      }),
++      ...(isDebugToStdErr() && { logger: createStderrLogger() }),
++    }) as unknown as Anthropic
++  }
++  if (apiProvider === 'foundry') {
+     const { AnthropicFoundry } = await import('@anthropic-ai/foundry-sdk')
+     // Determine Azure AD token provider based on configuration
+     // SDK reads ANTHROPIC_FOUNDRY_API_KEY by default
+@@ -218,7 +243,7 @@ export async function getAnthropicClient({
+     // we have always been lying about the return type - this doesn't support batching or models
+     return new AnthropicFoundry(foundryArgs) as unknown as Anthropic
+   }
+-  if (isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX)) {
++  if (apiProvider === 'vertex') {
+     // Refresh GCP credentials if gcpAuthRefresh is configured and credentials are expired
+     // This is similar to how we handle AWS credential refresh for Bedrock
+     if (!isEnvTruthy(process.env.CLAUDE_CODE_SKIP_VERTEX_AUTH)) {
+diff --git a/src/utils/apiPreconnect.ts b/src/utils/apiPreconnect.ts
+index 6a8de64..d269d07 100644
+--- a/src/utils/apiPreconnect.ts
++++ b/src/utils/apiPreconnect.ts
+@@ -20,7 +20,7 @@
+  * Skipped when:
+  * - proxy/mTLS/unix socket configured (preconnect would use wrong transport —
+  *   the SDK passes a custom dispatcher/agent that doesn't share the global pool)
+- * - Bedrock/Vertex/Foundry (different endpoints, different auth)
++ * - Bedrock/Mantle/Vertex/Foundry (different endpoints, different auth)
+  */
+ 
+ import { getOauthConfig } from '../constants/oauth.js'
+@@ -35,6 +35,7 @@ export function preconnectAnthropicApi(): void {
+   // Skip if using a cloud provider — different endpoint + auth
+   if (
+     isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK) ||
++    isEnvTruthy(process.env.CLAUDE_CODE_USE_MANTLE) ||
+     isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX) ||
+     isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY)
+   ) {
+diff --git a/src/utils/betas.ts b/src/utils/betas.ts
+index fcd7b97..936fca6 100644
+--- a/src/utils/betas.ts
++++ b/src/utils/betas.ts
+@@ -27,7 +27,11 @@ import { has1mContext } from './context.js'
+ import { isEnvDefinedFalsy, isEnvTruthy } from './envUtils.js'
+ import { getCanonicalName } from './model/model.js'
+ import { get3PModelCapabilityOverride } from './model/modelSupportOverrides.js'
+-import { getAPIProvider } from './model/providers.js'
++import {
++  getAPIProvider,
++  getAPIProviderForModel,
++  isFirstPartyCompatibleAPIProvider,
++} from './model/providers.js'
+ import { getInitialSettings } from './settings/settings.js'
+ 
+ /**
+@@ -98,12 +102,12 @@ export function modelSupportsISP(model: string): boolean {
+     return supported3P
+   }
+   const canonical = getCanonicalName(model)
+-  const provider = getAPIProvider()
++  const provider = getAPIProviderForModel(model)
+   // Foundry supports interleaved thinking for all models
+   if (provider === 'foundry') {
+     return true
+   }
+-  if (provider === 'firstParty') {
++  if (isFirstPartyCompatibleAPIProvider(provider)) {
+     return !canonical.includes('claude-3-')
+   }
+   return (
+@@ -124,11 +128,11 @@ function vertexModelSupportsWebSearch(model: string): boolean {
+ // Context management is supported on Claude 4+ models
+ export function modelSupportsContextManagement(model: string): boolean {
+   const canonical = getCanonicalName(model)
+-  const provider = getAPIProvider()
++  const provider = getAPIProviderForModel(model)
+   if (provider === 'foundry') {
+     return true
+   }
+-  if (provider === 'firstParty') {
++  if (isFirstPartyCompatibleAPIProvider(provider)) {
+     return !canonical.includes('claude-3-')
+   }
+   return (
+@@ -141,9 +145,9 @@ export function modelSupportsContextManagement(model: string): boolean {
+ // @[MODEL LAUNCH]: Add the new model ID to this list if it supports structured outputs.
+ export function modelSupportsStructuredOutputs(model: string): boolean {
+   const canonical = getCanonicalName(model)
+-  const provider = getAPIProvider()
++  const provider = getAPIProviderForModel(model)
+   // Structured outputs only supported on firstParty and Foundry (not Bedrock/Vertex yet)
+-  if (provider !== 'firstParty' && provider !== 'foundry') {
++  if (!isFirstPartyCompatibleAPIProvider(provider)) {
+     return false
+   }
+   return (
+@@ -201,7 +205,11 @@ export function modelSupportsAutoMode(model: string): boolean {
+  */
+ export function getToolSearchBetaHeader(): string {
+   const provider = getAPIProvider()
+-  if (provider === 'vertex' || provider === 'bedrock') {
++  if (
++    provider === 'vertex' ||
++    provider === 'bedrock' ||
++    provider === 'mantle'
++  ) {
+     return TOOL_SEARCH_BETA_HEADER_3P
+   }
+   return TOOL_SEARCH_BETA_HEADER_1P
+@@ -305,7 +313,8 @@ export const getAllModelBetas = memoize((model: string): string[] => {
+   const thinkingPreservationEnabled = modelSupportsContextManagement(model)
+ 
+   if (
+-    shouldIncludeFirstPartyOnlyBetas() &&
++    isFirstPartyCompatibleAPIProvider(getAPIProviderForModel(model)) &&
++    !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS) &&
+     (antOptedIntoToolClearing || thinkingPreservationEnabled)
+   ) {
+     betaHeaders.push(CONTEXT_MANAGEMENT_BETA_HEADER)
+@@ -324,7 +333,8 @@ export const getAllModelBetas = memoize((model: string): string[] => {
+     !strictToolsEnabled &&
+     getFeatureValue_CACHED_MAY_BE_STALE('tengu_amber_json_tools', false)
+   if (
+-    includeFirstPartyOnlyBetas &&
++    isFirstPartyCompatibleAPIProvider(getAPIProviderForModel(model)) &&
++    !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS) &&
+     modelSupportsStructuredOutputs(model) &&
+     strictToolsEnabled
+   ) {
+@@ -370,7 +380,7 @@ export const getAllModelBetas = memoize((model: string): string[] => {
+ 
+ export const getModelBetas = memoize((model: string): string[] => {
+   const modelBetas = getAllModelBetas(model)
+-  if (getAPIProvider() === 'bedrock') {
++  if (getAPIProviderForModel(model) === 'bedrock') {
+     return modelBetas.filter(b => !BEDROCK_EXTRA_PARAMS_HEADERS.has(b))
+   }
+   return modelBetas
+diff --git a/src/utils/log.ts b/src/utils/log.ts
+index bc4df3e..ad2b67f 100644
+--- a/src/utils/log.ts
++++ b/src/utils/log.ts
+@@ -166,8 +166,9 @@ export function logError(error: unknown): void {
+   try {
+     // Check if error reporting should be disabled
+     if (
+-      // Cloud providers (Bedrock/Vertex/Foundry) always disable features
++      // Cloud providers (Bedrock/Mantle/Vertex/Foundry) always disable features
+       isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK) ||
++      isEnvTruthy(process.env.CLAUDE_CODE_USE_MANTLE) ||
+       isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX) ||
+       isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY) ||
+       process.env.DISABLE_ERROR_REPORTING ||
+diff --git a/src/utils/managedEnvConstants.ts b/src/utils/managedEnvConstants.ts
+index 12c5656..c51decc 100644
+--- a/src/utils/managedEnvConstants.ts
++++ b/src/utils/managedEnvConstants.ts
+@@ -16,11 +16,13 @@ const PROVIDER_MANAGED_ENV_VARS = new Set([
+   'CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST',
+   // Provider selection
+   'CLAUDE_CODE_USE_BEDROCK',
++  'CLAUDE_CODE_USE_MANTLE',
+   'CLAUDE_CODE_USE_VERTEX',
+   'CLAUDE_CODE_USE_FOUNDRY',
+   // Endpoint config (base URLs, project/resource identifiers)
+   'ANTHROPIC_BASE_URL',
+   'ANTHROPIC_BEDROCK_BASE_URL',
++  'ANTHROPIC_BEDROCK_MANTLE_BASE_URL',
+   'ANTHROPIC_VERTEX_BASE_URL',
+   'ANTHROPIC_FOUNDRY_BASE_URL',
+   'ANTHROPIC_FOUNDRY_RESOURCE',
+@@ -29,11 +31,13 @@ const PROVIDER_MANAGED_ENV_VARS = new Set([
+   'CLOUD_ML_REGION',
+   // Auth
+   'ANTHROPIC_API_KEY',
++  'ANTHROPIC_BEDROCK_MANTLE_API_KEY',
+   'ANTHROPIC_AUTH_TOKEN',
+   'CLAUDE_CODE_OAUTH_TOKEN',
+   'AWS_BEARER_TOKEN_BEDROCK',
+   'ANTHROPIC_FOUNDRY_API_KEY',
+   'CLAUDE_CODE_SKIP_BEDROCK_AUTH',
++  'CLAUDE_CODE_SKIP_MANTLE_AUTH',
+   'CLAUDE_CODE_SKIP_VERTEX_AUTH',
+   'CLAUDE_CODE_SKIP_FOUNDRY_AUTH',
+   // Model defaults — often set to provider-specific ID formats
+@@ -142,10 +146,12 @@ export const SAFE_ENV_VARS = new Set([
+   'CLAUDE_CODE_IDE_SKIP_AUTO_INSTALL',
+   'CLAUDE_CODE_MAX_OUTPUT_TOKENS',
+   'CLAUDE_CODE_SKIP_BEDROCK_AUTH',
++  'CLAUDE_CODE_SKIP_MANTLE_AUTH',
+   'CLAUDE_CODE_SKIP_FOUNDRY_AUTH',
+   'CLAUDE_CODE_SKIP_VERTEX_AUTH',
+   'CLAUDE_CODE_SUBAGENT_MODEL',
+   'CLAUDE_CODE_USE_BEDROCK',
++  'CLAUDE_CODE_USE_MANTLE',
+   'CLAUDE_CODE_USE_FOUNDRY',
+   'CLAUDE_CODE_USE_VERTEX',
+   'DISABLE_AUTOUPDATER',
+diff --git a/src/utils/model/configs.ts b/src/utils/model/configs.ts
+index 89f243d..cc898da 100644
+--- a/src/utils/model/configs.ts
++++ b/src/utils/model/configs.ts
+@@ -1,7 +1,12 @@
+ import type { ModelName } from './model.js'
+ import type { APIProvider } from './providers.js'
+ 
+-export type ModelConfig = Record<APIProvider, ModelName>
++export type ModelConfig = Record<
++  Exclude<APIProvider, 'mantle'>,
++  ModelName
++> & {
++  mantle: ModelName | null
++}
+ 
+ // @[MODEL LAUNCH]: Add a new CLAUDE_*_CONFIG constant here. Double check the correct model strings
+ // here since the pattern may change.
+@@ -11,13 +16,15 @@ export const CLAUDE_3_7_SONNET_CONFIG = {
+   bedrock: 'us.anthropic.claude-3-7-sonnet-20250219-v1:0',
+   vertex: 'claude-3-7-sonnet@20250219',
+   foundry: 'claude-3-7-sonnet',
++  mantle: null,
+ } as const satisfies ModelConfig
+ 
+ export const CLAUDE_3_5_V2_SONNET_CONFIG = {
+   firstParty: 'claude-3-5-sonnet-20241022',
+-  bedrock: 'anthropic.claude-3-5-sonnet-20241022-v2:0',
++  bedrock: 'us.anthropic.claude-3-5-sonnet-20241022-v2:0',
+   vertex: 'claude-3-5-sonnet-v2@20241022',
+   foundry: 'claude-3-5-sonnet',
++  mantle: null,
+ } as const satisfies ModelConfig
+ 
+ export const CLAUDE_3_5_HAIKU_CONFIG = {
+@@ -25,6 +32,7 @@ export const CLAUDE_3_5_HAIKU_CONFIG = {
+   bedrock: 'us.anthropic.claude-3-5-haiku-20241022-v1:0',
+   vertex: 'claude-3-5-haiku@20241022',
+   foundry: 'claude-3-5-haiku',
++  mantle: null,
+ } as const satisfies ModelConfig
+ 
+ export const CLAUDE_HAIKU_4_5_CONFIG = {
+@@ -32,6 +40,7 @@ export const CLAUDE_HAIKU_4_5_CONFIG = {
+   bedrock: 'us.anthropic.claude-haiku-4-5-20251001-v1:0',
+   vertex: 'claude-haiku-4-5@20251001',
+   foundry: 'claude-haiku-4-5',
++  mantle: 'anthropic.claude-haiku-4-5',
+ } as const satisfies ModelConfig
+ 
+ export const CLAUDE_SONNET_4_CONFIG = {
+@@ -39,6 +48,7 @@ export const CLAUDE_SONNET_4_CONFIG = {
+   bedrock: 'us.anthropic.claude-sonnet-4-20250514-v1:0',
+   vertex: 'claude-sonnet-4@20250514',
+   foundry: 'claude-sonnet-4',
++  mantle: null,
+ } as const satisfies ModelConfig
+ 
+ export const CLAUDE_SONNET_4_5_CONFIG = {
+@@ -46,6 +56,7 @@ export const CLAUDE_SONNET_4_5_CONFIG = {
+   bedrock: 'us.anthropic.claude-sonnet-4-5-20250929-v1:0',
+   vertex: 'claude-sonnet-4-5@20250929',
+   foundry: 'claude-sonnet-4-5',
++  mantle: null,
+ } as const satisfies ModelConfig
+ 
+ export const CLAUDE_OPUS_4_CONFIG = {
+@@ -53,6 +64,7 @@ export const CLAUDE_OPUS_4_CONFIG = {
+   bedrock: 'us.anthropic.claude-opus-4-20250514-v1:0',
+   vertex: 'claude-opus-4@20250514',
+   foundry: 'claude-opus-4',
++  mantle: null,
+ } as const satisfies ModelConfig
+ 
+ export const CLAUDE_OPUS_4_1_CONFIG = {
+@@ -60,6 +72,7 @@ export const CLAUDE_OPUS_4_1_CONFIG = {
+   bedrock: 'us.anthropic.claude-opus-4-1-20250805-v1:0',
+   vertex: 'claude-opus-4-1@20250805',
+   foundry: 'claude-opus-4-1',
++  mantle: null,
+ } as const satisfies ModelConfig
+ 
+ export const CLAUDE_OPUS_4_5_CONFIG = {
+@@ -67,6 +80,7 @@ export const CLAUDE_OPUS_4_5_CONFIG = {
+   bedrock: 'us.anthropic.claude-opus-4-5-20251101-v1:0',
+   vertex: 'claude-opus-4-5@20251101',
+   foundry: 'claude-opus-4-5',
++  mantle: null,
+ } as const satisfies ModelConfig
+ 
+ export const CLAUDE_OPUS_4_6_CONFIG = {
+@@ -74,6 +88,7 @@ export const CLAUDE_OPUS_4_6_CONFIG = {
+   bedrock: 'us.anthropic.claude-opus-4-6-v1',
+   vertex: 'claude-opus-4-6',
+   foundry: 'claude-opus-4-6',
++  mantle: null,
+ } as const satisfies ModelConfig
+ 
+ export const CLAUDE_SONNET_4_6_CONFIG = {
+@@ -81,6 +96,7 @@ export const CLAUDE_SONNET_4_6_CONFIG = {
+   bedrock: 'us.anthropic.claude-sonnet-4-6',
+   vertex: 'claude-sonnet-4-6',
+   foundry: 'claude-sonnet-4-6',
++  mantle: null,
+ } as const satisfies ModelConfig
+ 
+ // @[MODEL LAUNCH]: Register the new config here.
+diff --git a/src/utils/model/deprecation.ts b/src/utils/model/deprecation.ts
+index a8b0ee2..7ba1459 100644
+--- a/src/utils/model/deprecation.ts
++++ b/src/utils/model/deprecation.ts
+@@ -38,6 +38,7 @@ const DEPRECATED_MODELS: Record<string, DeprecationEntry> = {
+       bedrock: 'January 15, 2026',
+       vertex: 'January 5, 2026',
+       foundry: 'January 5, 2026',
++      mantle: null,
+     },
+   },
+   'claude-3-7-sonnet': {
+@@ -47,6 +48,7 @@ const DEPRECATED_MODELS: Record<string, DeprecationEntry> = {
+       bedrock: 'April 28, 2026',
+       vertex: 'May 11, 2026',
+       foundry: 'February 19, 2026',
++      mantle: null,
+     },
+   },
+   'claude-3-5-haiku': {
+@@ -56,6 +58,7 @@ const DEPRECATED_MODELS: Record<string, DeprecationEntry> = {
+       bedrock: null,
+       vertex: null,
+       foundry: null,
++      mantle: null,
+     },
+   },
+ }
+diff --git a/src/utils/model/modelStrings.ts b/src/utils/model/modelStrings.ts
+index 5b7be10..1b5d2bd 100644
+--- a/src/utils/model/modelStrings.ts
++++ b/src/utils/model/modelStrings.ts
+@@ -24,8 +24,14 @@ const MODEL_KEYS = Object.keys(ALL_MODEL_CONFIGS) as ModelKey[]
+ 
+ function getBuiltinModelStrings(provider: APIProvider): ModelStrings {
+   const out = {} as ModelStrings
++  const fallbackKey = MODEL_KEYS.find(
++    key => ALL_MODEL_CONFIGS[key][provider] !== null,
++  )
+   for (const key of MODEL_KEYS) {
+-    out[key] = ALL_MODEL_CONFIGS[key][provider]
++    out[key] =
++      ALL_MODEL_CONFIGS[key][provider] ??
++      (fallbackKey ? ALL_MODEL_CONFIGS[fallbackKey][provider] : null) ??
++      ALL_MODEL_CONFIGS[key].firstParty
+   }
+   return out
+ }
+diff --git a/src/utils/model/providers.ts b/src/utils/model/providers.ts
+index aba9b7d..c457726 100644
+--- a/src/utils/model/providers.ts
++++ b/src/utils/model/providers.ts
+@@ -1,16 +1,78 @@
+ import type { AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS } from '../../services/analytics/index.js'
+ import { isEnvTruthy } from '../envUtils.js'
++import { ALL_MODEL_CONFIGS, type ModelConfig } from './configs.js'
+ 
+-export type APIProvider = 'firstParty' | 'bedrock' | 'vertex' | 'foundry'
++export type APIProvider =
++  | 'firstParty'
++  | 'bedrock'
++  | 'vertex'
++  | 'foundry'
++  | 'mantle'
+ 
+ export function getAPIProvider(): APIProvider {
+   return isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK)
+     ? 'bedrock'
+-    : isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX)
+-      ? 'vertex'
+-      : isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY)
+-        ? 'foundry'
+-        : 'firstParty'
++    : isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY)
++      ? 'foundry'
++      : isEnvTruthy(process.env.CLAUDE_CODE_USE_MANTLE)
++        ? 'mantle'
++        : isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX)
++          ? 'vertex'
++          : 'firstParty'
++}
++
++export function getSecondaryAPIProvider(): APIProvider | null {
++  if (
++    getAPIProvider() === 'bedrock' &&
++    isEnvTruthy(process.env.CLAUDE_CODE_USE_MANTLE)
++  ) {
++    return 'mantle'
++  }
++  return null
++}
++
++export function isMantleModelId(model: string): boolean {
++  return (
++    model.startsWith('anthropic.') && !/-v\d+(?::\d+)?$/.test(model)
++  )
++}
++
++function findModelConfig(model: string): ModelConfig | undefined {
++  return Object.values(ALL_MODEL_CONFIGS).find(config =>
++    Object.values(config).some(modelId => modelId === model),
++  )
++}
++
++export function getAPIProviderForModel(model?: string): APIProvider {
++  const primaryProvider = getAPIProvider()
++  if (!model) return primaryProvider
++
++  const secondaryProvider = getSecondaryAPIProvider()
++  if (!secondaryProvider) return primaryProvider
++
++  if (secondaryProvider === 'mantle' && isMantleModelId(model)) {
++    return secondaryProvider
++  }
++
++  const config = findModelConfig(model)
++  if (
++    config &&
++    config[primaryProvider] === null &&
++    config[secondaryProvider] !== null
++  ) {
++    return secondaryProvider
++  }
++  return primaryProvider
++}
++
++export function isFirstPartyCompatibleAPIProvider(
++  provider: APIProvider = getAPIProvider(),
++): boolean {
++  return (
++    provider === 'firstParty' ||
++    provider === 'foundry' ||
++    provider === 'mantle'
++  )
+ }
+ 
+ export function getAPIProviderForStatsig(): AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS {
+diff --git a/src/utils/status.tsx b/src/utils/status.tsx
+index 2cc221b..7bd05bf 100644
+--- a/src/utils/status.tsx
++++ b/src/utils/status.tsx
+@@ -11,7 +11,7 @@ import { getDisplayPath } from './file.js';
+ import { formatNumber } from './format.js';
+ import { getIdeClientName, type IDEExtensionInstallationStatus, isJetBrainsIde, toIDEDisplayName } from './ide.js';
+ import { getClaudeAiUserDefaultModelDescription, modelDisplayString } from './model/model.js';
+-import { getAPIProvider } from './model/providers.js';
++import { getAPIProvider, getSecondaryAPIProvider } from './model/providers.js';
+ import { getMTLSConfig } from './mtls.js';
+ import { checkInstall } from './nativeInstaller/index.js';
+ import { getProxyUrl } from './proxy.js';
+@@ -239,16 +239,18 @@ export function buildAccountProperties(): Property[] {
+ }
+ export function buildAPIProviderProperties(): Property[] {
+   const apiProvider = getAPIProvider();
++  const secondaryAPIProvider = getSecondaryAPIProvider();
+   const properties: Property[] = [];
+   if (apiProvider !== 'firstParty') {
+     const providerLabel = {
+-      bedrock: 'AWS Bedrock',
++      bedrock: 'Amazon Bedrock',
++      mantle: 'Amazon Bedrock (Mantle)',
+       vertex: 'Google Vertex AI',
+       foundry: 'Microsoft Foundry'
+     }[apiProvider];
+     properties.push({
+       label: 'API provider',
+-      value: providerLabel
++      value: secondaryAPIProvider === 'mantle' ? `${providerLabel} + Amazon Bedrock (Mantle)` : providerLabel
+     });
+   }
+   if (apiProvider === 'firstParty') {
+@@ -321,6 +323,26 @@ export function buildAPIProviderProperties(): Property[] {
+       });
+     }
+   }
++  if (apiProvider === 'mantle' || secondaryAPIProvider === 'mantle') {
++    const mantleBaseUrl = process.env.ANTHROPIC_BEDROCK_MANTLE_BASE_URL;
++    if (mantleBaseUrl) {
++      properties.push({
++        label: 'Amazon Bedrock (Mantle) base URL',
++        value: mantleBaseUrl
++      });
++    }
++    if (apiProvider === 'mantle') {
++      properties.push({
++        label: 'AWS region',
++        value: getAWSRegion()
++      });
++    }
++    if (isEnvTruthy(process.env.CLAUDE_CODE_SKIP_MANTLE_AUTH)) {
++      properties.push({
++        value: 'Amazon Bedrock (Mantle) auth skipped'
++      });
++    }
++  }
+   const proxyUrl = getProxyUrl();
+   if (proxyUrl) {
+     properties.push({
+diff --git a/src/utils/subprocessEnv.ts b/src/utils/subprocessEnv.ts
+index 4eb62c9..8e8adf2 100644
+--- a/src/utils/subprocessEnv.ts
++++ b/src/utils/subprocessEnv.ts
+@@ -18,6 +18,7 @@ const GHA_SUBPROCESS_SCRUB = [
+   'CLAUDE_CODE_OAUTH_TOKEN',
+   'ANTHROPIC_AUTH_TOKEN',
+   'ANTHROPIC_FOUNDRY_API_KEY',
++  'ANTHROPIC_BEDROCK_MANTLE_API_KEY',
+   'ANTHROPIC_CUSTOM_HEADERS',
+ 
+   // OTLP exporter headers — documented to carry Authorization=Bearer tokens
+diff --git a/src/utils/swarm/spawnUtils.ts b/src/utils/swarm/spawnUtils.ts
+index cfccdf5..e6e28a1 100644
+--- a/src/utils/swarm/spawnUtils.ts
++++ b/src/utils/swarm/spawnUtils.ts
+@@ -97,10 +97,14 @@ const TEAMMATE_ENV_VARS = [
+   // API provider selection — without these, teammates default to firstParty
+   // and send requests to the wrong endpoint (GitHub issue #23561)
+   'CLAUDE_CODE_USE_BEDROCK',
++  'CLAUDE_CODE_USE_MANTLE',
+   'CLAUDE_CODE_USE_VERTEX',
+   'CLAUDE_CODE_USE_FOUNDRY',
+   // Custom API endpoint
+   'ANTHROPIC_BASE_URL',
++  'AWS_BEARER_TOKEN_BEDROCK',
++  'ANTHROPIC_BEDROCK_MANTLE_BASE_URL',
++  'CLAUDE_CODE_SKIP_MANTLE_AUTH',
+   // Config directory override
+   'CLAUDE_CONFIG_DIR',
+   // CCR marker — teammates need this for CCR-aware code paths. Auth finds
+diff --git a/src/utils/swarm/teammateModel.ts b/src/utils/swarm/teammateModel.ts
+index 0a49009..e73ac0c 100644
+--- a/src/utils/swarm/teammateModel.ts
++++ b/src/utils/swarm/teammateModel.ts
+@@ -1,10 +1,9 @@
+-import { CLAUDE_OPUS_4_6_CONFIG } from '../model/configs.js'
+-import { getAPIProvider } from '../model/providers.js'
++import { getModelStrings } from '../model/modelStrings.js'
+ 
+ // @[MODEL LAUNCH]: Update the fallback model below.
+ // When the user has never set teammateDefaultModel in /config, new teammates
+ // use Opus 4.6. Must be provider-aware so Bedrock/Vertex/Foundry customers get
+ // the correct model ID.
+ export function getHardcodedTeammateModelFallback(): string {
+-  return CLAUDE_OPUS_4_6_CONFIG[getAPIProvider()]
++  return getModelStrings().opus46
+ }
+diff --git a/src/utils/thinking.ts b/src/utils/thinking.ts
+index b37fe42..ff687d5 100644
+--- a/src/utils/thinking.ts
++++ b/src/utils/thinking.ts
+@@ -4,7 +4,10 @@ import { feature } from 'bun:bundle'
+ import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js'
+ import { getCanonicalName } from './model/model.js'
+ import { get3PModelCapabilityOverride } from './model/modelSupportOverrides.js'
+-import { getAPIProvider } from './model/providers.js'
++import {
++  getAPIProviderForModel,
++  isFirstPartyCompatibleAPIProvider,
++} from './model/providers.js'
+ import { getSettingsWithErrors } from './settings/settings.js'
+ 
+ export type ThinkingConfig =
+@@ -100,9 +103,9 @@ export function modelSupportsThinking(model: string): boolean {
+   // IMPORTANT: Do not change thinking support without notifying the model
+   // launch DRI and research. This can greatly affect model quality and bashing.
+   const canonical = getCanonicalName(model)
+-  const provider = getAPIProvider()
++  const provider = getAPIProviderForModel(model)
+   // 1P and Foundry: all Claude 4+ models (including Haiku 4.5)
+-  if (provider === 'foundry' || provider === 'firstParty') {
++  if (isFirstPartyCompatibleAPIProvider(provider)) {
+     return !canonical.includes('claude-3-')
+   }
+   // 3P (Bedrock/Vertex): only Opus 4+ and Sonnet 4+
+@@ -139,8 +142,7 @@ export function modelSupportsAdaptiveThinking(model: string): boolean {
+   // Default to true for unknown model strings on 1P and Foundry (because Foundry
+   // is a proxy). Do not default to true for other 3P as they have different formats
+   // for their model strings.
+-  const provider = getAPIProvider()
+-  return provider === 'firstParty' || provider === 'foundry'
++  return isFirstPartyCompatibleAPIProvider(getAPIProviderForModel(model))
+ }
+ 
+ export function shouldEnableThinkingByDefault(): boolean {
