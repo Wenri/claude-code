@@ -95,6 +95,7 @@ export async function resumeAgentBackground({
     const now = new Date()
     await fsp.utimes(resumedWorktreePath, now, now)
   }
+  const resumedCwd = meta?.cwd ?? resumedWorktreePath
 
   // Skip filterDeniedAgents re-gating — original spawn already passed permission checks
   let selectedAgent: AgentDefinition
@@ -188,9 +189,12 @@ export async function resumeAgentBackground({
     // original fork. Re-supplying it would cause duplicate tool_use IDs.
     forkContextMessages: undefined,
     ...(isResumedFork && { useExactTools: true }),
+    resumePersistedCount: resumedMessages.length,
     // Re-persist so metadata survives runAgent's writeAgentMetadata overwrite
     worktreePath: resumedWorktreePath,
+    cwd: meta?.cwd,
     description: meta?.description,
+    name: meta?.name,
     contentReplacementState: resumedReplacementState,
   }
 
@@ -202,7 +206,16 @@ export async function resumeAgentBackground({
     selectedAgent,
     setAppState: rootSetAppState,
     toolUseId: toolUseContext.toolUseId,
+    cwd: resumedCwd,
   })
+
+  if (meta?.name && appState.agentNameRegistry.get(meta.name) === undefined) {
+    rootSetAppState(previous => {
+      const agentNameRegistry = new Map(previous.agentNameRegistry)
+      agentNameRegistry.set(meta.name!, asAgentId(agentId))
+      return { ...previous, agentNameRegistry }
+    })
+  }
 
   const metadata = {
     prompt,
@@ -225,22 +238,24 @@ export async function resumeAgentBackground({
   }
 
   const wrapWithCwd = <T>(fn: () => T): T =>
-    resumedWorktreePath ? runWithCwdOverride(resumedWorktreePath, fn) : fn()
+    resumedCwd ? runWithCwdOverride(resumedCwd, fn) : fn()
 
   void runWithAgentContext(asyncAgentContext, () =>
     wrapWithCwd(() =>
       runAsyncAgentLifecycle({
         taskId: agentBackgroundTask.agentId,
         abortController: agentBackgroundTask.abortController!,
-        makeStream: onCacheSafeParams =>
+        makeStream: (onCacheSafeParams, onProgress) =>
           runAgent({
             ...runAgentParams,
             override: {
               ...runAgentParams.override,
               agentId: asAgentId(agentBackgroundTask.agentId),
               abortController: agentBackgroundTask.abortController!,
+              replHydration: { kind: 'resume' },
             },
             onCacheSafeParams,
+            onQueryProgress: onProgress,
           }),
         metadata,
         description: uiDescription,

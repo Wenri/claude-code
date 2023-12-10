@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 import { KeyboardEvent } from '../ink/events/keyboard-event.js'
+import type { PasteEvent } from '../ink/events/paste-event.js'
 // eslint-disable-next-line custom-rules/prefer-use-keybindings -- backward-compat bridge until consumers wire handleKeyDown to <Box onKeyDown>
 import { useInput } from '../ink.js'
 import {
@@ -30,6 +31,10 @@ type UseSearchInputOptions = {
    *  less/vim "delete past the /" convention. Dialogs that want Esc-only
    *  cancel set this false so a held backspace doesn't eject the user. */
   backspaceExitsOnEmpty?: boolean
+  /** Accept embedded newlines when handling bracketed paste. */
+  multiline?: boolean
+  /** Transitional bridge for call sites that have not mounted DOM handlers yet. */
+  useLegacyInput?: boolean
 }
 
 type UseSearchInputReturn = {
@@ -37,6 +42,7 @@ type UseSearchInputReturn = {
   setQuery: (q: string) => void
   cursorOffset: number
   handleKeyDown: (e: KeyboardEvent) => void
+  handlePaste: (e: PasteEvent) => void
 }
 
 function isKillKey(e: KeyboardEvent): boolean {
@@ -90,6 +96,8 @@ export function useSearchInput({
   passthroughCtrlKeys = [],
   initialQuery = '',
   backspaceExitsOnEmpty = true,
+  multiline = false,
+  useLegacyInput = true,
 }: UseSearchInputOptions): UseSearchInputReturn {
   const { columns: terminalColumns } = useTerminalSize()
   const effectiveColumns = columns ?? terminalColumns
@@ -349,6 +357,18 @@ export function useSearchInput({
     }
   }
 
+  const handlePaste = (e: PasteEvent): void => {
+    if (!isActive || e.text.length === 0) return
+    e.preventDefault()
+    const text = multiline
+      ? e.text.replace(/\r\n|\r/g, '\n')
+      : e.text.split(/\r\n|\r|\n/, 1)[0] ?? ''
+    const before = query.slice(0, cursorOffset)
+    const after = query.slice(cursorOffset)
+    setQueryState(before + text + after)
+    setCursorOffset(before.length + text.length)
+  }
+
   // Backward-compat bridge: existing consumers don't yet wire handleKeyDown
   // to <Box onKeyDown>. Subscribe via useInput and adapt InputEvent →
   // KeyboardEvent until all 11 call sites are migrated (separate PRs).
@@ -357,8 +377,8 @@ export function useSearchInput({
     (_input, _key, event) => {
       handleKeyDown(new KeyboardEvent(event.keypress))
     },
-    { isActive },
+    { isActive: isActive && useLegacyInput },
   )
 
-  return { query, setQuery, cursorOffset, handleKeyDown }
+  return { query, setQuery, cursorOffset, handleKeyDown, handlePaste }
 }

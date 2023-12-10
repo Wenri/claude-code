@@ -30,6 +30,7 @@ export type PromptCommand = {
   allowedTools?: string[]
   model?: string
   source: SettingSource | 'builtin' | 'mcp' | 'plugin' | 'bundled'
+  createdBy?: 'dream-proposal'
   pluginInfo?: {
     pluginManifest: PluginManifest
     repository: string
@@ -132,6 +133,7 @@ export type LocalJSXCommandCall = (
   onDone: LocalJSXCommandOnDone,
   context: ToolUseContext & LocalJSXCommandContext,
   args: string,
+  commandName: string,
 ) => Promise<React.ReactNode>
 
 /**

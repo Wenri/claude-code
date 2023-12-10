@@ -1,6 +1,12 @@
 import { DIAMOND_FILLED, DIAMOND_OPEN } from '../constants/figures.js'
-import { count } from '../utils/array.js'
-import type { BackgroundTaskState } from './types.js'
+import { count, uniq } from '../utils/array.js'
+import { plural } from '../utils/stringUtils.js'
+import { getSessionBackgroundExitItems } from '../utils/sessionCronTasks.js'
+import {
+  isBackgroundTask,
+  type BackgroundTaskState,
+  type TaskState,
+} from './types.js'
 
 /**
  * Produces the compact footer-pill label for a set of background tasks.
@@ -9,6 +15,7 @@ import type { BackgroundTaskState } from './types.js'
  */
 export function getPillLabel(tasks: BackgroundTaskState[]): string {
   const n = tasks.length
+  if (n === 0) return ''
   const allSameType = tasks.every(t => t.type === tasks[0]!.type)
 
   if (allSameType) {
@@ -64,6 +71,37 @@ export function getPillLabel(tasks: BackgroundTaskState[]): string {
   }
 
   return `${n} background ${n === 1 ? 'task' : 'tasks'}`
+}
+
+export type BackgroundTaskSummary = {
+  count: number
+  kinds: string[]
+  summary: string
+}
+
+/** Summarize local background work and session-only cron loops together. */
+export function getBackgroundTaskSummary(
+  tasks: Record<string, TaskState>,
+): BackgroundTaskSummary {
+  const active = Object.values(tasks)
+    .filter(isBackgroundTask)
+    .filter(task => task.type !== 'remote_agent')
+  const cronItems = getSessionBackgroundExitItems()
+  const kinds: string[] = uniq(active.map(task => task.type))
+  if (cronItems.length > 0) kinds.push('session_cron')
+
+  return {
+    count: active.length + cronItems.length,
+    kinds,
+    summary: [
+      getPillLabel(active),
+      cronItems.length
+        ? `${cronItems.length} ${plural(cronItems.length, 'loop')}`
+        : '',
+    ]
+      .filter(Boolean)
+      .join(', '),
+  }
 }
 
 /**

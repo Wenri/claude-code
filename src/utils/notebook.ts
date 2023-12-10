@@ -5,6 +5,7 @@ import type {
 } from '@anthropic-ai/sdk/resources/index.mjs'
 import { BASH_TOOL_NAME } from '../tools/BashTool/toolName.js'
 import { formatOutput } from '../tools/BashTool/utils.js'
+import { POWERSHELL_TOOL_NAME } from '../tools/PowerShellTool/toolName.js'
 import type {
   NotebookCell,
   NotebookCellOutput,
@@ -16,6 +17,7 @@ import type {
 import { getFsImplementation } from './fsOperations.js'
 import { expandPath } from './path.js'
 import { jsonParse } from './slowOperations.js'
+import { isBashToolEnabled } from './shell/shellToolUtils.js'
 
 const LARGE_OUTPUT_THRESHOLD = 10000
 
@@ -102,10 +104,13 @@ function processCell(
   if (cell.cell_type === 'code' && cell.outputs?.length) {
     const outputs = cell.outputs.map(processOutput)
     if (!includeLargeOutputs && isLargeOutputs(outputs)) {
+      const useBash = isBashToolEnabled()
       cellData.outputs = [
         {
           output_type: 'stream',
-          text: `Outputs are too large to include. Use ${BASH_TOOL_NAME} with: cat <notebook_path> | jq '.cells[${index}].outputs'`,
+          text: useBash
+            ? `Outputs are too large to include. Use ${BASH_TOOL_NAME} with: cat <notebook_path> | jq '.cells[${index}].outputs'`
+            : `Outputs are too large to include. Use ${POWERSHELL_TOOL_NAME} with: Get-Content <notebook_path> | ConvertFrom-Json | Select-Object -ExpandProperty cells | Select-Object -Index ${index} | Select-Object -ExpandProperty outputs`,
         },
       ]
     } else {

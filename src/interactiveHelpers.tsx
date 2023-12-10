@@ -1,7 +1,10 @@
 import { feature } from 'bun:bundle';
 import { appendFileSync } from 'fs';
 import React from 'react';
-import { logEvent } from 'src/services/analytics/index.js';
+import {
+  type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+  logEvent,
+} from 'src/services/analytics/index.js';
 import { gracefulShutdown, gracefulShutdownSync } from 'src/utils/gracefulShutdown.js';
 import { type ChannelEntry, getAllowedChannels, setAllowedChannels, setHasDevChannels, setSessionTrustAccepted, setStatsStore } from './bootstrap/state.js';
 import type { Command } from './commands.js';
@@ -24,6 +27,9 @@ import { updateDeepLinkTerminalPreference } from './utils/deepLink/terminalPrefe
 import { isEnvTruthy, isRunningOnHomespace } from './utils/envUtils.js';
 import { type FpsMetrics, FpsTracker } from './utils/fpsTracker.js';
 import { updateGithubRepoPathMapping } from './utils/githubRepoPathMapping.js';
+import { logForDebugging } from './utils/debug.js';
+import { logError } from './utils/log.js';
+import { getAPIProvider } from './utils/model/providers.js';
 import { applyConfigEnvironmentVariables } from './utils/managedEnv.js';
 import type { PermissionMode } from './utils/permissions/PermissionMode.js';
 import { getBaseRenderOptions } from './utils/renderOptions.js';
@@ -203,7 +209,7 @@ export async function showSetupScreens(root: Root, permissionMode: PermissionMod
   // Check for custom API key
   // On homespace, ANTHROPIC_API_KEY is preserved in process.env for child
   // processes but ignored by Claude Code itself (see auth.ts).
-  if (process.env.ANTHROPIC_API_KEY && !isRunningOnHomespace()) {
+  if (process.env.ANTHROPIC_API_KEY && !isRunningOnHomespace() && getAPIProvider() === 'firstParty') {
     const customApiKeyTruncated = normalizeApiKeyForConfig(process.env.ANTHROPIC_API_KEY);
     const keyStatus = getCustomApiKeyStatus(customApiKeyTruncated);
     if (keyStatus === 'new') {
@@ -214,6 +220,26 @@ export async function showSetupScreens(root: Root, permissionMode: PermissionMod
         onChangeAppState
       });
     }
+  }
+  try {
+    await handleBedrockModelUpgrades(root);
+  } catch (error) {
+    logError(error);
+  }
+  try {
+    await handleBedrockDefaultFallbacks(root);
+  } catch (error) {
+    logError(error);
+  }
+  try {
+    await handleVertexModelUpgrades(root);
+  } catch (error) {
+    logError(error);
+  }
+  try {
+    await handleVertexDefaultFallbacks(root);
+  } catch (error) {
+    logError(error);
   }
   if ((permissionMode === 'bypassPermissions' || allowDangerouslySkipPermissions) && !hasSkipDangerousModePermissionPrompt()) {
     const {
@@ -295,6 +321,253 @@ export async function showSetupScreens(root: Root, permissionMode: PermissionMod
     await showSetupDialog(root, done => <ClaudeInChromeOnboarding onDone={done} />);
   }
   return onboardingShown;
+}
+
+const THIRD_PARTY_PROBE_DEADLINE_MS = 20_000;
+const MODEL_TIER_LABELS = {
+  sonnet: 'Sonnet',
+  opus: 'Opus',
+  haiku: 'Haiku'
+} as const;
+
+async function withProbeDeadline<T>(label: string, probe: Promise<T[]>): Promise<T[]> {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([probe, new Promise<T[]>(resolve => {
+      timeout = setTimeout((done, probeLabel) => {
+        logForDebugging(`[3p-probe] ${probeLabel} hit ${THIRD_PARTY_PROBE_DEADLINE_MS}ms deadline; proceeding without it`);
+        done([]);
+      }, THIRD_PARTY_PROBE_DEADLINE_MS, resolve, label);
+    })]);
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function handleBedrockModelUpgrades(root: Root): Promise<void> {
+  const {
+    findBedrockUpgradeCandidates,
+    upgradeKey
+  } = await import('./utils/model/bedrockUpgrade.js');
+  const candidates = await withProbeDeadline('bedrock-upgrade', findBedrockUpgradeCandidates());
+  if (candidates.length === 0) return;
+
+  const declined = getGlobalConfig().bedrockDeclinedUpgrades ?? {};
+  const pending = candidates.filter(candidate => declined[candidate.tier] !== upgradeKey(candidate));
+  if (pending.length === 0) return;
+
+  const [{
+    updateSettingsForSource
+  }, {
+    ThirdPartyModelUpgradeDialog
+  }] = await Promise.all([import('./utils/settings/settings.js'), import('./components/ThirdPartyModelUpgradeDialog.js')]);
+  let acceptedAny = false;
+
+  for (const candidate of pending) {
+    const accepted = await showSetupDialog<boolean>(root, done => <ThirdPartyModelUpgradeDialog tierLabel={MODEL_TIER_LABELS[candidate.tier]} fromName={candidate.fromMarketingName} toName={candidate.toMarketingName} toProviderId={candidate.toBedrockId} onDone={done} />);
+    if (accepted) {
+      const env = candidate.tier === 'haiku' ? {
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: candidate.toBedrockId,
+        ...(candidate.envVar === 'ANTHROPIC_SMALL_FAST_MODEL' && {
+          ANTHROPIC_SMALL_FAST_MODEL: candidate.toBedrockId
+        })
+      } : {
+        [candidate.envVar]: candidate.toBedrockId
+      };
+      const {
+        error
+      } = updateSettingsForSource('userSettings', {
+        env
+      });
+      if (error) {
+        logEvent('tengu_bedrock_upgrade_save_failed', {
+          tier: candidate.tier as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+        });
+        const {
+          Text
+        } = await import('./ink.js');
+        await showDialog(root, done => {
+          setTimeout(done, 2_000);
+          return <Text color="error">Failed to save {MODEL_TIER_LABELS[candidate.tier]} upgrade to settings.</Text>;
+        });
+      } else {
+        for (const key of Object.keys(env)) process.env[key] = candidate.toBedrockId;
+        acceptedAny = true;
+        logEvent('tengu_bedrock_upgrade_accepted', {
+          tier: candidate.tier as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+          from_key: candidate.fromKey as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+          to_key: candidate.toKey as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+        });
+      }
+    } else {
+      saveGlobalConfig(current => ({
+        ...current,
+        bedrockDeclinedUpgrades: {
+          ...current.bedrockDeclinedUpgrades,
+          [candidate.tier]: upgradeKey(candidate)
+        }
+      }));
+      logEvent('tengu_bedrock_upgrade_declined', {
+        tier: candidate.tier as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        from_key: candidate.fromKey as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        to_key: candidate.toKey as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+      });
+    }
+  }
+
+  if (acceptedAny) {
+    logEvent('tengu_bedrock_upgrade_relaunch', {});
+    await relaunchAfterModelUpgrade(root);
+  }
+}
+
+async function handleBedrockDefaultFallbacks(root: Root): Promise<void> {
+  const {
+    checkBedrockDefaultAvailability
+  } = await import('./utils/model/bedrockUpgrade.js');
+  const fallbacks = await withProbeDeadline('bedrock-fallback', checkBedrockDefaultAvailability());
+  if (fallbacks.length === 0) return;
+
+  for (const fallback of fallbacks) {
+    process.env[fallback.envVar] = fallback.fallbackBedrockId;
+    if (fallback.tier === 'haiku') process.env.ANTHROPIC_DEFAULT_HAIKU_MODEL = fallback.fallbackBedrockId;
+    logEvent('tengu_bedrock_default_fallback', {
+      tier: fallback.tier as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      default_key: fallback.defaultKey as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      fallback_key: fallback.fallbackKey as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+    });
+  }
+
+  const {
+    Box,
+    Text
+  } = await import('./ink.js');
+  const warnings = fallbacks.map(fallback => `${MODEL_TIER_LABELS[fallback.tier]}: ${fallback.defaultName} not available — using ${fallback.fallbackName} for this session`);
+  await showDialog(root, done => {
+    setTimeout(done, 1_500);
+    return <Box flexDirection="column">{warnings.map(warning => <Text key={warning} color="warning">{warning}</Text>)}</Box>;
+  });
+}
+
+async function handleVertexModelUpgrades(root: Root): Promise<void> {
+  const {
+    findVertexUpgradeCandidates,
+    vertexUpgradeKey
+  } = await import('./utils/model/vertexUpgrade.js');
+  const candidates = await withProbeDeadline('vertex-upgrade', findVertexUpgradeCandidates());
+  if (candidates.length === 0) return;
+
+  const declined = getGlobalConfig().vertexDeclinedUpgrades ?? {};
+  const pending = candidates.filter(candidate => declined[candidate.tier] !== vertexUpgradeKey(candidate));
+  if (pending.length === 0) return;
+
+  const [{
+    updateSettingsForSource
+  }, {
+    ThirdPartyModelUpgradeDialog
+  }] = await Promise.all([import('./utils/settings/settings.js'), import('./components/ThirdPartyModelUpgradeDialog.js')]);
+  let acceptedAny = false;
+
+  for (const candidate of pending) {
+    const accepted = await showSetupDialog<boolean>(root, done => <ThirdPartyModelUpgradeDialog tierLabel={MODEL_TIER_LABELS[candidate.tier]} fromName={candidate.fromMarketingName} toName={candidate.toMarketingName} toProviderId={candidate.toVertexId} onDone={done} />);
+    if (accepted) {
+      const env = candidate.tier === 'haiku' ? {
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: candidate.toVertexId,
+        ...(candidate.envVar === 'ANTHROPIC_SMALL_FAST_MODEL' && {
+          ANTHROPIC_SMALL_FAST_MODEL: candidate.toVertexId
+        })
+      } : {
+        [candidate.envVar]: candidate.toVertexId
+      };
+      const {
+        error
+      } = updateSettingsForSource('userSettings', {
+        env
+      });
+      if (error) {
+        logEvent('tengu_vertex_upgrade_save_failed', {
+          tier: candidate.tier as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+        });
+        const {
+          Text
+        } = await import('./ink.js');
+        await showDialog(root, done => {
+          setTimeout(done, 2_000);
+          return <Text color="error">Failed to save {MODEL_TIER_LABELS[candidate.tier]} upgrade to settings.</Text>;
+        });
+      } else {
+        for (const key of Object.keys(env)) process.env[key] = candidate.toVertexId;
+        acceptedAny = true;
+        logEvent('tengu_vertex_upgrade_accepted', {
+          tier: candidate.tier as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+          from_key: candidate.fromKey as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+          to_key: candidate.toKey as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+        });
+      }
+    } else {
+      saveGlobalConfig(current => ({
+        ...current,
+        vertexDeclinedUpgrades: {
+          ...current.vertexDeclinedUpgrades,
+          [candidate.tier]: vertexUpgradeKey(candidate)
+        }
+      }));
+      logEvent('tengu_vertex_upgrade_declined', {
+        tier: candidate.tier as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        from_key: candidate.fromKey as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        to_key: candidate.toKey as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+      });
+    }
+  }
+
+  if (acceptedAny) {
+    logEvent('tengu_vertex_upgrade_relaunch', {});
+    await relaunchAfterModelUpgrade(root);
+  }
+}
+
+async function handleVertexDefaultFallbacks(root: Root): Promise<void> {
+  const {
+    checkVertexDefaultAvailability
+  } = await import('./utils/model/vertexUpgrade.js');
+  const fallbacks = await withProbeDeadline('vertex-fallback', checkVertexDefaultAvailability());
+  if (fallbacks.length === 0) return;
+
+  for (const fallback of fallbacks) {
+    process.env[fallback.envVar] = fallback.fallbackVertexId;
+    if (fallback.tier === 'haiku') process.env.ANTHROPIC_DEFAULT_HAIKU_MODEL = fallback.fallbackVertexId;
+    logEvent('tengu_vertex_default_fallback', {
+      tier: fallback.tier as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      default_key: fallback.defaultKey as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      fallback_key: fallback.fallbackKey as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+    });
+  }
+
+  const {
+    Box,
+    Text
+  } = await import('./ink.js');
+  const warnings = fallbacks.map(fallback => `${MODEL_TIER_LABELS[fallback.tier]}: ${fallback.defaultName} not available — using ${fallback.fallbackName} for this session`);
+  await showDialog(root, done => {
+    setTimeout(done, 1_500);
+    return <Box flexDirection="column">{warnings.map(warning => <Text key={warning} color="warning">{warning}</Text>)}</Box>;
+  });
+}
+
+async function relaunchAfterModelUpgrade(root: Root): Promise<never> {
+  const {
+    Text
+  } = await import('./ink.js');
+  root.render(<Text dimColor>Restarting Claude Code to apply the new model…</Text>);
+  const {
+    sleep
+  } = await import('./utils/sleep.js');
+  await sleep(250);
+  root.unmount();
+  const {
+    execRelaunch
+  } = await import('./utils/relaunch.js');
+  return execRelaunch();
 }
 export function getRenderContext(exitOnCtrlC: boolean): {
   renderOptions: RenderOptions;

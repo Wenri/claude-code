@@ -1,4 +1,6 @@
 import { feature } from 'bun:bundle'
+import { getRuntimeCapabilities } from '../bootstrap/state.js'
+import { CLAUDE_AI_INFERENCE_SCOPE } from '../constants/oauth.js'
 import {
   checkGate_CACHED_OR_BLOCKING,
   getDynamicConfig_CACHED_MAY_BE_STALE,
@@ -17,10 +19,7 @@ import { lt } from '../utils/semver.js'
 /**
  * Runtime check for bridge mode entitlement.
  *
- * Remote Control requires a claude.ai subscription (the bridge auths to CCR
- * with the claude.ai OAuth token). isClaudeAISubscriber() excludes
- * Bedrock/Vertex/Foundry, apiKeyHelper/gateway deployments, env-var API keys,
- * and Console API logins — none of which have the OAuth token CCR needs.
+ * Remote Control requires a claude.ai OAuth token carrying inference scope.
  * See github.com/deshaw/anthropic-issues/issues/24.
  *
  * The `feature('BRIDGE_MODE')` guard ensures the GrowthBook string literal
@@ -31,7 +30,7 @@ export function isBridgeEnabled(): boolean {
   // Negative pattern (if (!feature(...)) return) does not eliminate
   // inline string literals from external builds.
   return feature('BRIDGE_MODE')
-    ? isClaudeAISubscriber() &&
+    ? hasClaudeAIInferenceScope() &&
         getFeatureValue_CACHED_MAY_BE_STALE('tengu_ccr_bridge', false)
     : false
 }
@@ -50,7 +49,7 @@ export function isBridgeEnabled(): boolean {
  */
 export async function isBridgeEnabledBlocking(): Promise<boolean> {
   return feature('BRIDGE_MODE')
-    ? isClaudeAISubscriber() &&
+    ? hasClaudeAIInferenceScope() &&
         (await checkGate_CACHED_OR_BLOCKING('tengu_ccr_bridge'))
     : false
 }
@@ -70,7 +69,13 @@ export async function isBridgeEnabledBlocking(): Promise<boolean> {
  */
 export async function getBridgeDisabledReason(): Promise<string | null> {
   if (feature('BRIDGE_MODE')) {
-    if (!isClaudeAISubscriber()) {
+    if (
+      isEnvTruthy(process.env.CLAUDE_CODE_REMOTE) ||
+      getRuntimeCapabilities().workspace === 'remote'
+    ) {
+      return 'Remote Control is not available inside a remote session.'
+    }
+    if (!hasClaudeAIInferenceScope()) {
       return 'Remote Control requires a claude.ai subscription. Run `claude auth login` to sign in with your claude.ai account.'
     }
     if (!hasProfileScope()) {
@@ -108,9 +113,8 @@ export function getBridgeAuthDebugInfo(): string {
       `  isBareMode=${isBareMode()}`,
       `  hasOAuthAccessToken=${!!tokens?.accessToken}`,
       `  oauthScopes=${tokens?.scopes?.join(',') ?? 'none'}`,
-      `  isAnthropicAuthEnabled=${authModule.isAnthropicAuthEnabled()}`,
-      `  isClaudeAISubscriber=${authModule.isClaudeAISubscriber()}`,
-      `  hasProfileScope=${authModule.hasProfileScope()}`,
+      `  hasClaudeAIInferenceScope=${hasClaudeAIInferenceScope()}`,
+      `  hasProfileScope=${hasProfileScope()}`,
       `  oauthAccount.organizationUuid=${set(authModule.getOauthAccountInfo()?.organizationUuid)}`,
       `  ANTHROPIC_API_KEY=${set(process.env.ANTHROPIC_API_KEY)}`,
       `  ANTHROPIC_AUTH_TOKEN=${set(process.env.ANTHROPIC_AUTH_TOKEN)}`,
@@ -126,13 +130,16 @@ export function getBridgeAuthDebugInfo(): string {
 }
 
 // try/catch: main.tsx:5698 calls isBridgeEnabled() while defining the Commander
-// program, before enableConfigs() runs. isClaudeAISubscriber() → getGlobalConfig()
-// throws "Config accessed before allowed" there. Pre-config, no OAuth token can
-// exist anyway — false is correct. Same swallow getFeatureValue_CACHED_MAY_BE_STALE
+// program, before enableConfigs() runs. Pre-config, no OAuth token can exist
+// anyway — false is correct. Same swallow getFeatureValue_CACHED_MAY_BE_STALE
 // already does at growthbook.ts:775-780.
-function isClaudeAISubscriber(): boolean {
+export function hasClaudeAIInferenceScope(): boolean {
   try {
-    return authModule.isClaudeAISubscriber()
+    return Boolean(
+      authModule
+        .getClaudeAIOAuthTokens()
+        ?.scopes?.includes(CLAUDE_AI_INFERENCE_SCOPE),
+    )
   } catch {
     return false
   }

@@ -11,8 +11,12 @@ import {
 import { getSettingsWithErrors } from './settings/settings.js'
 
 export type ThinkingConfig =
-  | { type: 'adaptive' }
-  | { type: 'enabled'; budgetTokens: number }
+  | { type: 'adaptive'; display?: 'summarized' | 'omitted' }
+  | {
+      type: 'enabled'
+      budgetTokens: number
+      display?: 'summarized' | 'omitted'
+    }
   | { type: 'disabled' }
 
 /**

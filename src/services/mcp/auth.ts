@@ -93,6 +93,31 @@ type MCPOAuthFlowErrorReason =
 
 const MAX_LOCK_RETRIES = 5
 
+// MCP OAuth can be initiated from more than one UI surface. Keep the active
+// auth-only promise available so a later callback request can await the same
+// token exchange even when it is handled by a different surface.
+const activeMcpOAuthFlows = new Map<string, Promise<void>>()
+
+export function trackMCPOAuthFlow(
+  serverName: string,
+  promise: Promise<void>,
+): void {
+  activeMcpOAuthFlows.set(serverName, promise)
+  promise
+    .finally(() => {
+      if (activeMcpOAuthFlows.get(serverName) === promise) {
+        activeMcpOAuthFlows.delete(serverName)
+      }
+    })
+    .catch(() => {})
+}
+
+export function getActiveMCPOAuthFlow(
+  serverName: string,
+): Promise<void> | undefined {
+  return activeMcpOAuthFlows.get(serverName)
+}
+
 /**
  * OAuth query parameters that should be redacted from logs.
  * These contain sensitive values that could enable CSRF or session fixation attacks.
@@ -357,9 +382,20 @@ export function hasMcpDiscoveryButNoToken(
   if (isXaaEnabled() && serverConfig.oauth?.xaa) {
     return false
   }
+  if (
+    serverConfig.headersHelper ||
+    (serverConfig.headers && Object.keys(serverConfig.headers).length > 0)
+  ) {
+    return false
+  }
   const serverKey = getServerKey(serverName, serverConfig)
   const entry = getSecureStorage().read()?.mcpOAuth?.[serverKey]
-  return entry !== undefined && !entry.accessToken && !entry.refreshToken
+  return (
+    entry !== undefined &&
+    !entry.accessToken &&
+    !entry.refreshToken &&
+    entry.discoveryState?.oauthMetadataFound === true
+  )
 }
 
 /**
@@ -593,7 +629,7 @@ export async function revokeServerTokens(
           serverName,
           serverUrl: serverConfig.url,
           accessToken: freshData.mcpOAuth?.[serverKey]?.accessToken ?? '',
-          expiresAt: freshData.mcpOAuth?.[serverKey]?.expiresAt ?? 0,
+          expiresAt: freshData.mcpOAuth?.[serverKey]?.expiresAt,
           ...(tokenData.stepUpScope
             ? { stepUpScope: tokenData.stepUpScope }
             : {}),
@@ -606,6 +642,8 @@ export async function revokeServerTokens(
                     tokenData.discoveryState.authorizationServerUrl,
                   resourceMetadataUrl:
                     tokenData.discoveryState.resourceMetadataUrl,
+                  oauthMetadataFound:
+                    tokenData.discoveryState.oauthMetadataFound,
                 },
               }
             : {}),
@@ -808,7 +846,10 @@ async function performMCPXaaAuth(
           accessToken: tokens.access_token,
           // AS may omit refresh_token on jwt-bearer — preserve any existing one
           refreshToken: tokens.refresh_token ?? prev?.refreshToken,
-          expiresAt: Date.now() + (tokens.expires_in || 3600) * 1000,
+          expiresAt:
+            tokens.expires_in != null
+              ? Date.now() + tokens.expires_in * 1000
+              : undefined,
           scope: tokens.scope,
           clientId,
           clientSecret,
@@ -1527,9 +1568,8 @@ export class ClaudeAuthProvider implements OAuthClientProvider {
           serverUrl: this.serverConfig.url,
           clientId: clientInformation.client_id,
           clientSecret: clientInformation.client_secret,
-          // Provide default values for required fields if not present
           accessToken: existingData.mcpOAuth?.[serverKey]?.accessToken || '',
-          expiresAt: existingData.mcpOAuth?.[serverKey]?.expiresAt || 0,
+          expiresAt: existingData.mcpOAuth?.[serverKey]?.expiresAt,
         },
       },
     }
@@ -1587,7 +1627,8 @@ export class ClaudeAuthProvider implements OAuthClientProvider {
       this.serverConfig.oauth?.xaa &&
       !tokenData?.refreshToken &&
       (!tokenData?.accessToken ||
-        (tokenData.expiresAt - Date.now()) / 1000 <= 300)
+        (tokenData.expiresAt != null &&
+          (tokenData.expiresAt - Date.now()) / 1000 <= 300))
     ) {
       if (!this._refreshInProgress) {
         logMCPDebug(
@@ -1619,16 +1660,21 @@ export class ClaudeAuthProvider implements OAuthClientProvider {
       return undefined
     }
 
+    if (!tokenData.accessToken) {
+      logMCPDebug(this.serverName, `No access token in storage`)
+      return undefined
+    }
+
     // Check if token is expired
-    const expiresIn = (tokenData.expiresAt - Date.now()) / 1000
+    const expiresIn =
+      tokenData.expiresAt != null
+        ? (tokenData.expiresAt - Date.now()) / 1000
+        : undefined
 
     // Step-up check: if a 403 insufficient_scope was detected and the current
     // token doesn't have the requested scope, omit refresh_token below so the
     // SDK skips refresh and falls through to the PKCE flow.
-    const currentScopes = tokenData.scope?.split(' ') ?? []
-    const needsStepUp =
-      this._pendingStepUpScope !== undefined &&
-      this._pendingStepUpScope.split(' ').some(s => !currentScopes.includes(s))
+    const needsStepUp = this._pendingStepUpScope !== undefined
     if (needsStepUp) {
       logMCPDebug(
         this.serverName,
@@ -1637,7 +1683,7 @@ export class ClaudeAuthProvider implements OAuthClientProvider {
     }
 
     // If token is expired and we don't have a refresh token, return undefined
-    if (expiresIn <= 0 && !tokenData.refreshToken) {
+    if (expiresIn != null && expiresIn <= 0 && !tokenData.refreshToken) {
       logMCPDebug(this.serverName, `Token expired without refresh token`)
       return undefined
     }
@@ -1647,7 +1693,12 @@ export class ClaudeAuthProvider implements OAuthClientProvider {
     // While MCP servers should return 401 for expired tokens (which triggers SDK-level refresh), proactively refreshing
     // before expiry provides a smoother user experience.
     // Skip when step-up is pending — refreshing can't elevate scope (RFC 6749 §6).
-    if (expiresIn <= 300 && tokenData.refreshToken && !needsStepUp) {
+    if (
+      expiresIn != null &&
+      expiresIn <= 300 &&
+      tokenData.refreshToken &&
+      !needsStepUp
+    ) {
       // Reuse existing refresh promise if one is in progress to prevent concurrent refreshes
       if (!this._refreshInProgress) {
         logMCPDebug(
@@ -1696,7 +1747,12 @@ export class ClaudeAuthProvider implements OAuthClientProvider {
     logMCPDebug(this.serverName, `Returning tokens`)
     logMCPDebug(this.serverName, `Token length: ${tokens.access_token?.length}`)
     logMCPDebug(this.serverName, `Has refresh token: ${!!tokens.refresh_token}`)
-    logMCPDebug(this.serverName, `Expires in: ${Math.floor(expiresIn)}s`)
+    logMCPDebug(
+      this.serverName,
+      expiresIn != null
+        ? `Expires in: ${Math.floor(expiresIn)}s`
+        : `No expiration specified`,
+    )
 
     return tokens
   }
@@ -1704,6 +1760,7 @@ export class ClaudeAuthProvider implements OAuthClientProvider {
   async saveTokens(tokens: OAuthTokens): Promise<void> {
     this._pendingStepUpScope = undefined
     const storage = getSecureStorage()
+    clearKeychainCache()
     const existingData = storage.read() || {}
     const serverKey = getServerKey(this.serverName, this.serverConfig)
 
@@ -1721,7 +1778,10 @@ export class ClaudeAuthProvider implements OAuthClientProvider {
           serverUrl: this.serverConfig.url,
           accessToken: tokens.access_token,
           refreshToken: tokens.refresh_token,
-          expiresAt: Date.now() + (tokens.expires_in || 3600) * 1000,
+          expiresAt:
+            tokens.expires_in != null
+              ? Date.now() + tokens.expires_in * 1000
+              : undefined,
           scope: tokens.scope,
         },
       },
@@ -1820,7 +1880,10 @@ export class ClaudeAuthProvider implements OAuthClientProvider {
             serverUrl: this.serverConfig.url,
             accessToken: tokens.access_token,
             refreshToken: tokens.refresh_token ?? prev?.refreshToken,
-            expiresAt: Date.now() + (tokens.expires_in || 3600) * 1000,
+            expiresAt:
+              tokens.expires_in != null
+                ? Date.now() + tokens.expires_in * 1000
+                : undefined,
             scope: tokens.scope,
             clientId,
             clientSecret: clientConfig.clientSecret,
@@ -2022,10 +2085,11 @@ export class ClaudeAuthProvider implements OAuthClientProvider {
           serverName: this.serverName,
           serverUrl: this.serverConfig.url,
           accessToken: existingData.mcpOAuth?.[serverKey]?.accessToken || '',
-          expiresAt: existingData.mcpOAuth?.[serverKey]?.expiresAt || 0,
+          expiresAt: existingData.mcpOAuth?.[serverKey]?.expiresAt,
           discoveryState: {
             authorizationServerUrl: state.authorizationServerUrl,
             resourceMetadataUrl: state.resourceMetadataUrl,
+            oauthMetadataFound: !!state.authorizationServerMetadata,
           },
         },
       },
@@ -2125,16 +2189,17 @@ export class ClaudeAuthProvider implements OAuthClientProvider {
         }
         logMCPDebug(
           this.serverName,
-          `Failed to acquire refresh lock: ${code}, proceeding without lock`,
+          `Failed to acquire refresh lock: ${code}; skipping refresh`,
         )
-        break
+        return undefined
       }
     }
     if (!release) {
       logMCPDebug(
         this.serverName,
-        `Could not acquire refresh lock after ${MAX_LOCK_RETRIES} retries, proceeding without lock`,
+        `Could not acquire refresh lock after ${MAX_LOCK_RETRIES} retries; skipping refresh`,
       )
+      return undefined
     }
 
     try {
@@ -2144,11 +2209,16 @@ export class ClaudeAuthProvider implements OAuthClientProvider {
       const data = storage.read()
       const tokenData = data?.mcpOAuth?.[serverKey]
       if (tokenData) {
-        const expiresIn = (tokenData.expiresAt - Date.now()) / 1000
-        if (expiresIn > 300) {
+        const expiresIn =
+          tokenData.expiresAt != null
+            ? (tokenData.expiresAt - Date.now()) / 1000
+            : undefined
+        if (tokenData.accessToken && (expiresIn == null || expiresIn > 300)) {
           logMCPDebug(
             this.serverName,
-            `Another process already refreshed tokens (expires in ${Math.floor(expiresIn)}s)`,
+            expiresIn != null
+              ? `Another process already refreshed tokens (expires in ${Math.floor(expiresIn)}s)`
+              : `Another process already refreshed tokens (no expiration)`,
           )
           return {
             access_token: tokenData.accessToken,
@@ -2299,8 +2369,14 @@ export class ClaudeAuthProvider implements OAuthClientProvider {
           const serverKey = getServerKey(this.serverName, this.serverConfig)
           const tokenData = data?.mcpOAuth?.[serverKey]
           if (tokenData) {
-            const expiresIn = (tokenData.expiresAt - Date.now()) / 1000
-            if (expiresIn > 300) {
+            const expiresIn =
+              tokenData.expiresAt != null
+                ? (tokenData.expiresAt - Date.now()) / 1000
+                : undefined
+            if (
+              tokenData.accessToken &&
+              (expiresIn == null || expiresIn > 300)
+            ) {
               logMCPDebug(
                 this.serverName,
                 `Another process refreshed tokens, using those`,

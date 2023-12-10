@@ -30,8 +30,7 @@ Send a message to another agent.
 
 | \`to\` | |
 |---|---|
-| \`"researcher"\` | Teammate by name |
-| \`"*"\` | Broadcast to all teammates — expensive (linear in team size), use only when everyone genuinely needs it |${udsRow}
+| \`"researcher"\` | Teammate by name |${udsRow}
 
 Your plain text output is NOT visible to other agents — to communicate, you MUST call this tool. Messages from teammates are delivered automatically; you don't check an inbox. Refer to teammates by name, never by UUID. When relaying, don't quote the original — it's already rendered to the user.${udsSection}
 

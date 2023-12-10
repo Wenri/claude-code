@@ -2,14 +2,14 @@ import { c as _c } from "react/compiler-runtime";
 import * as React from 'react';
 import { useExitOnCtrlCDWithKeybindings } from '../hooks/useExitOnCtrlCDWithKeybindings.js';
 import { useTerminalSize } from '../hooks/useTerminalSize.js';
-import { Box, Text, usePreviewTheme, useTheme, useThemeSetting } from '../ink.js';
+import { Box, Text, useCustomThemes, usePreviewTheme, useTheme, useThemeSetting } from '../ink.js';
 import { useRegisterKeybindingContext } from '../keybindings/KeybindingContext.js';
 import { useKeybinding } from '../keybindings/useKeybinding.js';
 import { useShortcutDisplay } from '../keybindings/useShortcutDisplay.js';
 import { useAppState, useSetAppState } from '../state/AppState.js';
 import { gracefulShutdown } from '../utils/gracefulShutdown.js';
 import { updateSettingsForSource } from '../utils/settings/settings.js';
-import type { ThemeSetting } from '../utils/theme.js';
+import type { CustomTheme, ThemeSetting } from '../utils/theme.js';
 import { Select } from './CustomSelect/index.js';
 import { Byline } from './design-system/Byline.js';
 import { KeyboardShortcutHint } from './design-system/KeyboardShortcutHint.js';
@@ -25,6 +25,7 @@ export type ThemePickerProps = {
   skipExitHandling?: boolean;
   /** Called when the user cancels (presses Escape). If skipExitHandling is true and this is provided, it will be called instead of just saving the preview. */
   onCancel?: () => void;
+  onCustomTheme?: (theme?: CustomTheme) => void;
 };
 export function ThemePicker(t0) {
   const $ = _c(59);
@@ -35,7 +36,8 @@ export function ThemePicker(t0) {
     showHelpTextBelow: t3,
     hideEscToCancel: t4,
     skipExitHandling: t5,
-    onCancel: onCancelProp
+    onCancel: onCancelProp,
+    onCustomTheme,
   } = t0;
   const showIntroText = t1 === undefined ? false : t1;
   const helpText = t2 === undefined ? "" : t2;
@@ -44,6 +46,8 @@ export function ThemePicker(t0) {
   const skipExitHandling = t5 === undefined ? false : t5;
   const [theme] = useTheme();
   const themeSetting = useThemeSetting();
+  const { customThemes } = useCustomThemes()
+  const [focusedSetting, setFocusedSetting] = React.useState<string>(themeSetting)
   const {
     columns
   } = useTerminalSize();
@@ -106,10 +110,21 @@ export function ThemePicker(t0) {
     t9 = $[6];
   }
   useKeybinding("theme:toggleSyntaxHighlighting", t8, t9);
+  useKeybinding(
+    'theme:editCustom',
+    () => {
+      if (!onCustomTheme || !focusedSetting.startsWith('custom:')) return
+      const customTheme = customThemes.find(
+        candidate => `custom:${candidate.slug}` === focusedSetting,
+      )
+      if (!customTheme) return
+      savePreview()
+      onCustomTheme(customTheme)
+    },
+    { context: 'ThemePicker' },
+  )
   const exitState = useExitOnCtrlCDWithKeybindings(skipExitHandling ? _temp2 : undefined);
-  let t10;
-  if ($[7] === Symbol.for("react.memo_cache_sentinel")) {
-    t10 = [{
+  const themeOptions: { label: string; value: string }[] = [{
       label: "Auto (match terminal)",
       value: "auto" as const
     }, {
@@ -130,12 +145,10 @@ export function ThemePicker(t0) {
     }, {
       label: "Light mode (ANSI colors only)",
       value: "light-ansi"
-    }];
-    $[7] = t10;
-  } else {
-    t10 = $[7];
-  }
-  const themeOptions = t10;
+    }, ...customThemes.map(customTheme => ({
+      label: `${customTheme.name}${customTheme.source === 'user' ? ' (custom)' : ` (from ${customTheme.source.plugin})`}`,
+      value: `custom:${customTheme.slug}`,
+    })), ...(onCustomTheme ? [{ label: 'New custom theme…', value: '__new_custom_theme__' }] : [])];
   let t11;
   if ($[8] !== showIntroText) {
     t11 = showIntroText ? <Text>Let's get started.</Text> : <Text bold={true} color="permission">Theme</Text>;
@@ -171,7 +184,9 @@ export function ThemePicker(t0) {
   let t15;
   if ($[16] !== setPreviewTheme) {
     t15 = setting => {
-      setPreviewTheme(setting as ThemeSetting);
+      setFocusedSetting(setting)
+      if (setting === '__new_custom_theme__') cancelPreview()
+      else setPreviewTheme(setting as ThemeSetting);
     };
     $[16] = setPreviewTheme;
     $[17] = t15;
@@ -181,6 +196,11 @@ export function ThemePicker(t0) {
   let t16;
   if ($[18] !== onThemeSelect || $[19] !== savePreview) {
     t16 = setting_0 => {
+      if (setting_0 === '__new_custom_theme__') {
+        cancelPreview()
+        onCustomTheme?.()
+        return
+      }
       savePreview();
       onThemeSelect(setting_0 as ThemeSetting);
     };
@@ -208,7 +228,7 @@ export function ThemePicker(t0) {
   }
   let t18;
   if ($[25] !== t15 || $[26] !== t16 || $[27] !== t17 || $[28] !== themeSetting) {
-    t18 = <Select options={themeOptions} onFocus={t15} onChange={t16} onCancel={t17} visibleOptionCount={themeOptions.length} defaultValue={themeSetting} defaultFocusValue={themeSetting} />;
+    t18 = <Select options={themeOptions} onFocus={t15} onChange={t16} onCancel={t17} visibleOptionCount={Math.min(themeOptions.length, 12)} defaultValue={themeSetting} defaultFocusValue={themeSetting} />;
     $[25] = t15;
     $[26] = t16;
     $[27] = t17;

@@ -186,8 +186,15 @@ export type GlobalConfig = {
    * @deprecated Use settings.apiKeyHelper instead.
    */
   apiKeyHelper?: string
+  bedrockDeclinedUpgrades?: Partial<
+    Record<'sonnet' | 'opus' | 'haiku', string>
+  >
+  vertexDeclinedUpgrades?: Partial<
+    Record<'sonnet' | 'opus' | 'haiku', string>
+  >
   projects?: Record<string, ProjectConfig>
   numStartups: number
+  warmResumeHintShown?: boolean
   installMethod?: InstallMethod
   autoUpdates?: boolean
   // Flag to distinguish protection-based disabling from user preference
@@ -228,6 +235,7 @@ export type GlobalConfig = {
   hasSeenUltraplanTerms?: boolean // ant-only: whether the one-time CCR terms notice has been shown in the ultraplan launch dialog
   hasSeenUltrareviewTerms?: boolean // ant-only: whether the one-time CCR terms notice has been shown in the ultrareview launch dialog
   hasResetAutoModeOptInForDefaultOffer?: boolean // ant-only: one-shot migration guard, re-prompts churned auto-mode users
+  autoModeOptInDismissed?: boolean // User declined auto mode and chose not to be prompted again
   oauthAccount?: AccountInfo
   iterm2KeyBindingInstalled?: boolean // Legacy - keeping for backward compatibility
   editorMode?: EditorMode
@@ -271,6 +279,7 @@ export type GlobalConfig = {
   tipsHistory: {
     [tipId: string]: number // Key is tipId, value is the numStartups when tip was last shown
   }
+  seenTeamArtifactPaths?: string[]
 
   // /buddy companion soul — bones regenerated from userId on read. See src/buddy/.
   companion?: import('../buddy/types.js').StoredCompanion
@@ -552,6 +561,9 @@ export type GlobalConfig = {
   // Run Remote Control at startup (requires BRIDGE_MODE)
   // undefined = use default (see getRemoteControlAtStartup() for precedence)
   remoteControlAtStartup?: boolean
+  hasUsedRemoteControl?: boolean
+  remoteControlUpsellSeenCount?: number
+  pushNotifUpsellSeenCount?: number
 
   // Cached extra usage disabled reason from the last API response
   // undefined = no cache, null = extra usage enabled, string = disabled reason.
@@ -1748,6 +1760,9 @@ export function formatAutoUpdaterDisabledReason(
 export function getAutoUpdaterDisabledReason(): AutoUpdaterDisabledReason | null {
   if (process.env.NODE_ENV === 'development') {
     return { type: 'development' }
+  }
+  if (isEnvTruthy(process.env.DISABLE_UPDATES)) {
+    return { type: 'env', envVar: 'DISABLE_UPDATES' }
   }
   if (isEnvTruthy(process.env.DISABLE_AUTOUPDATER)) {
     return { type: 'env', envVar: 'DISABLE_AUTOUPDATER' }

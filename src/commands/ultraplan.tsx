@@ -312,7 +312,7 @@ async function launchDetached(opts: {
   let sessionId: string | undefined;
   try {
     const model = getUltraplanModel();
-    const eligibility = await checkRemoteAgentEligibility();
+    const eligibility = await checkRemoteAgentEligibility({ allowBundle: true });
     if (!eligibility.eligible) {
       logEvent('tengu_ultraplan_create_failed', {
         reason: 'precondition' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -335,6 +335,7 @@ async function launchDetached(opts: {
       ultraplan: true,
       signal,
       useDefaultEnvironment: true,
+      allowBundle: true,
       onBundleFail: msg => {
         bundleFailMsg = msg;
       }

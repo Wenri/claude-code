@@ -1,5 +1,6 @@
 import { spawnSync } from 'child_process'
 import { getIsInteractive } from '../bootstrap/state.js'
+import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js'
 import { logForDebugging } from './debug.js'
 import { isEnvDefinedFalsy, isEnvTruthy } from './envUtils.js'
 import { execFileNoThrow } from './execFileNoThrow.js'
@@ -7,6 +8,8 @@ import { getInitialSettings } from './settings/settings.js'
 
 let loggedTmuxCcDisable = false
 let checkedTmuxMouseHint = false
+let checkedTmuxFocusHint = false
+let gbGateCached: boolean | undefined
 
 /**
  * Cached result from `tmux display-message -p '#{client_control_mode}'`.
@@ -105,20 +108,21 @@ export function _resetTmuxControlModeProbeForTesting(): void {
   loggedTmuxCcDisable = false
 }
 
+export function getNoFlickerEnvVar(): 'on' | 'off' | undefined {
+  if (isEnvDefinedFalsy(process.env.CLAUDE_CODE_NO_FLICKER)) return 'off'
+  if (isEnvTruthy(process.env.CLAUDE_CODE_NO_FLICKER)) return 'on'
+  return undefined
+}
+
 /**
  * Runtime env-var check only. Ants default to on (CLAUDE_CODE_NO_FLICKER=0
  * to opt out); external users default to off (CLAUDE_CODE_NO_FLICKER=1 to
  * opt in).
  */
 export function isFullscreenEnvEnabled(): boolean {
-  // Explicit user opt-out always wins.
-  if (isEnvDefinedFalsy(process.env.CLAUDE_CODE_NO_FLICKER)) return false
-  // Explicit opt-in overrides auto-detection (escape hatch).
-  if (isEnvTruthy(process.env.CLAUDE_CODE_NO_FLICKER)) return true
-  // Persisted renderer selection follows explicit environment overrides.
-  const configuredRenderer = getInitialSettings().tui
-  if (configuredRenderer === 'default') return false
-  if (configuredRenderer === 'fullscreen') return true
+  const explicit = getNoFlickerEnvVar()
+  if (explicit === 'off') return false
+  if (explicit === 'on') return true
   // Auto-disable under tmux -CC: alt-screen + mouse tracking corrupts
   // terminal state on double-click and mouse wheel is dead.
   if (isTmuxControlMode()) {
@@ -130,7 +134,39 @@ export function isFullscreenEnvEnabled(): boolean {
     }
     return false
   }
-  return process.env.USER_TYPE === 'ant'
+  const configuredRenderer = getInitialSettings().tui
+  if (configuredRenderer === 'fullscreen') return true
+  if (configuredRenderer === 'default') return false
+  if (gbGateCached === undefined) {
+    gbGateCached = getFeatureValue_CACHED_MAY_BE_STALE(
+      'tengu_pewter_brook',
+      false,
+    )
+  }
+  return gbGateCached
+}
+
+export type RendererEntryPath =
+  | 'env_off'
+  | 'env_on'
+  | 'tmux_cc_auto_off'
+  | 'settings_on'
+  | 'settings_off'
+  | 'gb_on'
+  | 'gb_off'
+
+export function getRendererEntryPath(): RendererEntryPath {
+  const explicit = getNoFlickerEnvVar()
+  if (explicit === 'off') return 'env_off'
+  if (explicit === 'on') return 'env_on'
+  if (isTmuxControlMode()) return 'tmux_cc_auto_off'
+  const configuredRenderer = getInitialSettings().tui
+  if (configuredRenderer === 'fullscreen') return 'settings_on'
+  if (configuredRenderer === 'default') return 'settings_off'
+  const gate =
+    gbGateCached ??
+    getFeatureValue_CACHED_MAY_BE_STALE('tengu_pewter_brook', false)
+  return gate ? 'gb_on' : 'gb_off'
 }
 
 /**
@@ -200,8 +236,23 @@ export async function maybeGetTmuxMouseHint(): Promise<string | null> {
   return "tmux detected · scroll with PgUp/PgDn · or add 'set -g mouse on' to ~/.tmux.conf for wheel scroll"
 }
 
+export async function maybeGetTmuxFocusHint(): Promise<string | null> {
+  if (!process.env.TMUX || isTmuxControlMode()) return null
+  if (checkedTmuxFocusHint) return null
+  checkedTmuxFocusHint = true
+  const { stdout, code } = await execFileNoThrow(
+    'tmux',
+    ['show', '-gv', 'focus-events'],
+    { useCwd: false, timeout: 2000 },
+  )
+  if (code !== 0 || stdout.trim() === 'on') return null
+  return "tmux focus-events off · add 'set -g focus-events on' to ~/.tmux.conf and reattach for focus tracking"
+}
+
 /** Test-only: reset module-level once-per-session flags. */
 export function _resetForTesting(): void {
   loggedTmuxCcDisable = false
   checkedTmuxMouseHint = false
+  checkedTmuxFocusHint = false
+  gbGateCached = undefined
 }

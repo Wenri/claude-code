@@ -38,7 +38,11 @@ import {
   tryAcquireSchedulerLock,
 } from './cronTasksLock.js'
 import { logForDebugging } from './debug.js'
-import { isProcessRunning } from './genericProcessUtils.js'
+import {
+  getCurrentProcessStartToken,
+  getProcessStartToken,
+  isProcessRunning,
+} from './genericProcessUtils.js'
 
 const CHECK_INTERVAL_MS = 1000
 const FILE_STABILITY_MS = 300
@@ -179,13 +183,37 @@ export function createCronScheduler(
   let watcher: FSWatcher | null = null
   let stopped = false
   let isOwner = false
+  const processStartTokenCache = new Map<
+    number,
+    { at: number; token: string | undefined }
+  >()
+
+  function isCreatorProcessStale(
+    pid: number,
+    expectedToken: string | undefined,
+  ): boolean {
+    if (!isProcessRunning(pid)) {
+      processStartTokenCache.delete(pid)
+      return true
+    }
+    if (expectedToken === undefined) return false
+
+    const now = Date.now()
+    let cached = processStartTokenCache.get(pid)
+    if (!cached || now - cached.at >= 60_000) {
+      cached = { at: now, token: getProcessStartToken(pid) }
+      processStartTokenCache.set(pid, cached)
+    }
+    return cached.token !== undefined && cached.token !== expectedToken
+  }
 
   function shouldProcessFileTask(task: CronTask): boolean {
     if (task.createdBySessionId === undefined) return isOwner
     if (task.createdBySessionId === ownerSessionId) return true
     return (
       isOwner &&
-      (task.createdByPid === undefined || !isProcessRunning(task.createdByPid))
+      (task.createdByPid === undefined ||
+        isCreatorProcessStale(task.createdByPid, task.createdByProcStart))
     )
   }
 
@@ -212,6 +240,7 @@ export function createCronScheduler(
         task.createdByPid !== process.pid
       ) {
         task.createdByPid = process.pid
+        task.createdByProcStart = getCurrentProcessStartToken()
         refreshedPids = true
       }
     }
@@ -480,6 +509,11 @@ export function createCronScheduler(
       awaitWriteFinish: { stabilityThreshold: FILE_STABILITY_MS },
       ignorePermissionErrors: true,
     })
+    watcher.on('error', error =>
+      logForDebugging(`[ScheduledTasks] watcher error: ${error}`, {
+        level: 'warn',
+      }),
+    )
     watcher.on('add', () => void load(false))
     watcher.on('change', () => void load(false))
     watcher.on('unlink', () => {

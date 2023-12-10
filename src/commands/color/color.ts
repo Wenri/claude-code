@@ -1,5 +1,9 @@
 import type { UUID } from 'crypto'
 import { getSessionId } from '../../bootstrap/state.js'
+import {
+  getBridgeBaseUrlOverride,
+  getBridgeTokenOverride,
+} from '../../bridge/bridgeConfig.js'
 import type { ToolUseContext } from '../../Tool.js'
 import {
   AGENT_COLORS,
@@ -22,72 +26,67 @@ export async function call(
   context: ToolUseContext & LocalJSXCommandContext,
   args: string,
 ): Promise<null> {
+  onDone(await performSetColor(args, context), { display: 'system' })
+  return null
+}
+
+export async function performSetColor(
+  args: string,
+  context: ToolUseContext & LocalJSXCommandContext,
+): Promise<string> {
   // Teammates cannot set their own color
   if (isTeammate()) {
-    onDone(
-      'Cannot set color: This session is a swarm teammate. Teammate colors are assigned by the team leader.',
-      { display: 'system' },
-    )
-    return null
+    return 'Cannot set color: This session is a swarm teammate. Teammate colors are assigned by the team leader.'
   }
 
   if (!args || args.trim() === '') {
     const colorList = AGENT_COLORS.join(', ')
-    onDone(`Please provide a color. Available colors: ${colorList}, default`, {
-      display: 'system',
-    })
-    return null
+    return `Please provide a color. Available colors: ${colorList}, default`
   }
 
   const colorArg = args.trim().toLowerCase()
 
-  // Handle reset to default (gray)
-  if (RESET_ALIASES.includes(colorArg as (typeof RESET_ALIASES)[number])) {
-    const sessionId = getSessionId() as UUID
-    const fullPath = getTranscriptPath()
-
-    // Use "default" sentinel (not empty string) so truthiness guards
-    // in sessionStorage.ts persist the reset across session restarts
-    await saveAgentColor(sessionId, 'default', fullPath)
-
-    context.setAppState(prev => ({
-      ...prev,
-      standaloneAgentContext: {
-        ...prev.standaloneAgentContext,
-        name: prev.standaloneAgentContext?.name ?? '',
-        color: undefined,
-      },
-    }))
-
-    onDone('Session color reset to default', { display: 'system' })
-    return null
-  }
-
-  if (!AGENT_COLORS.includes(colorArg as AgentColorName)) {
+  const reset = RESET_ALIASES.includes(
+    colorArg as (typeof RESET_ALIASES)[number],
+  )
+  if (!reset && !AGENT_COLORS.includes(colorArg as AgentColorName)) {
     const colorList = AGENT_COLORS.join(', ')
-    onDone(
-      `Invalid color "${colorArg}". Available colors: ${colorList}, default`,
-      { display: 'system' },
-    )
-    return null
+    return `Invalid color "${colorArg}". Available colors: ${colorList}, default`
   }
 
   const sessionId = getSessionId() as UUID
   const fullPath = getTranscriptPath()
+  const persistedColor = reset ? 'default' : colorArg
 
-  // Save to transcript for persistence across sessions
-  await saveAgentColor(sessionId, colorArg, fullPath)
+  await saveAgentColor(sessionId, persistedColor, fullPath)
 
-  // Update AppState for immediate effect
   context.setAppState(prev => ({
     ...prev,
     standaloneAgentContext: {
       ...prev.standaloneAgentContext,
       name: prev.standaloneAgentContext?.name ?? '',
-      color: colorArg as AgentColorName,
+      color: reset ? undefined : (colorArg as AgentColorName),
     },
   }))
 
-  onDone(`Session color set to: ${colorArg}`, { display: 'system' })
-  return null
+  syncRemoteColor(context, persistedColor)
+  return persistedColor === 'default'
+    ? 'Session color reset to default'
+    : `Session color set to: ${colorArg}`
+}
+
+function syncRemoteColor(
+  context: ToolUseContext & LocalJSXCommandContext,
+  color: string,
+): void {
+  const bridgeSessionId = context.getAppState().replBridgeSessionId
+  if (!bridgeSessionId) return
+  const token = getBridgeTokenOverride()
+  void import('../../bridge/createSession.js').then(
+    ({ updateBridgeSessionColorTag }) =>
+      updateBridgeSessionColorTag(bridgeSessionId, color, AGENT_COLORS, {
+        baseUrl: getBridgeBaseUrlOverride(),
+        getAccessToken: token ? () => token : undefined,
+      }).catch(() => {}),
+  )
 }

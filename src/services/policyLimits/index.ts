@@ -41,6 +41,7 @@ import { sleep } from '../../utils/sleep.js'
 import { jsonStringify } from '../../utils/slowOperations.js'
 import { getClaudeCodeUserAgent } from '../../utils/userAgent.js'
 import { getRetryDelay } from '../api/withRetry.js'
+import { getFeatureValue_CACHED_MAY_BE_STALE } from '../analytics/growthbook.js'
 import {
   type PolicyLimitsFetchResult,
   type PolicyLimitsResponse,
@@ -196,6 +197,13 @@ export function isPolicyLimitsEligible(): boolean {
   // Must have Claude.ai inference scope
   if (!tokens.scopes?.includes(CLAUDE_AI_INFERENCE_SCOPE)) {
     return false
+  }
+
+  if (
+    getFeatureValue_CACHED_MAY_BE_STALE('tengu_slate_kestrel', false) &&
+    tokens.subscriptionType === null
+  ) {
+    return true
   }
 
   // Only Team and Enterprise OAuth users are eligible — these orgs have

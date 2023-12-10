@@ -17,6 +17,7 @@ import { useShortcutDisplay } from '../keybindings/useShortcutDisplay.js';
 import { useAppState, useAppStateStore } from '../state/AppState.js';
 import { useSetAppState } from '../state/AppState.js';
 import { fetchMissingResourceTemplates } from '../services/mcp/client.js';
+import type { ServerResourceTemplate } from '../services/mcp/types.js';
 import type { AgentDefinition } from '../tools/AgentTool/loadAgentsDir.js';
 import type { InlineGhostText, PromptInputMode } from '../types/textInputTypes.js';
 import { isAgentSwarmsEnabled } from '../utils/agentSwarmsEnabled.js';
@@ -24,6 +25,7 @@ import { generateProgressiveArgumentHint, parseArguments } from '../utils/argume
 import { getShellCompletions, type ShellCompletionType } from '../utils/bash/shellCompletion.js';
 import { formatLogMetadata } from '../utils/format.js';
 import { getSessionIdFromLog, searchSessionsByCustomTitle } from '../utils/sessionStorage.js';
+import { looksLikeCommand } from '../utils/processUserInput/processSlashCommand.js';
 import { applyCommandSuggestion, findMidInputSlashCommand, generateCommandSuggestions, getBestCommandMatch, isCommandInput } from '../utils/suggestions/commandSuggestions.js';
 import { getDirectoryCompletions, getPathCompletions, isPathLikeToken } from '../utils/suggestions/directoryCompletion.js';
 import { getShellHistoryCompletion } from '../utils/suggestions/shellHistoryCompletion.js';
@@ -411,7 +413,7 @@ export function useTypeahead({
         changed = true;
         return { ...state, mcp: { ...state.mcp, resourceTemplates } };
       });
-      if (changed && latestSearchIsAtSymbolRef.current) latestSearchTokenRef.current = null;
+      if (changed && latestSearchKindRef.current === 'at') latestSearchTokenRef.current = null;
     });
   }, [store, setAppState]);
   const promptSuggestion = useAppState(s => s.promptSuggestion);
@@ -451,7 +453,7 @@ export function useTypeahead({
 
   // Track the latest search token to discard stale results from slow async operations
   const latestSearchTokenRef = useRef<string | null>(null);
-  const latestSearchIsAtSymbolRef = useRef(false);
+  const latestSearchKindRef = useRef<'file' | 'at' | 'slash-template'>('file');
   // Track previous input to detect actual text changes vs. callback recreations
   const prevInputRef = useRef('');
   // Track the latest path token to discard stale results from path completion
@@ -481,9 +483,9 @@ export function useTypeahead({
   // Expensive async operation to fetch file/resource suggestions
   const fetchFileSuggestions = useCallback(async (searchToken: string, isAtSymbol = false): Promise<void> => {
     latestSearchTokenRef.current = searchToken;
-    latestSearchIsAtSymbolRef.current = isAtSymbol;
+    latestSearchKindRef.current = isAtSymbol ? 'at' : 'file';
     const state = store.getState();
-    const templateItems = isAtSymbol ? await generateMcpResourceTemplateCompletions(searchToken, state.mcp.resourceTemplates, state.mcp.clients) : null;
+    const templateItems = isAtSymbol ? await generateMcpResourceTemplateCompletions(searchToken, state.mcp.resourceTemplates, state.mcp.clients, '@') : null;
     const combinedItems = templateItems ?? await generateUnifiedSuggestions(searchToken, state.mcp.resources, state.mcp.resourceTemplates, agents, isAtSymbol);
     // Discard stale results if a newer query was initiated while waiting
     if (latestSearchTokenRef.current !== searchToken) {
@@ -530,8 +532,10 @@ export function useTypeahead({
     return onIndexBuildComplete(() => {
       const token = latestSearchTokenRef.current;
       if (token !== null) {
+        const searchKind = latestSearchKindRef.current;
+        if (searchKind === 'slash-template') return;
         latestSearchTokenRef.current = null;
-        void fetchFileSuggestions(token, token === '');
+        void fetchFileSuggestions(token, searchKind === 'at');
       }
     });
   }, [fetchFileSuggestions]);
@@ -560,6 +564,34 @@ export function useTypeahead({
   // that share the same first-word segment hit the cache synchronously.
   const debouncedFetchSlackChannels = useDebounceCallback(fetchSlackChannels, 150);
 
+  const fetchSlashTemplateSuggestions = useCallback(async (
+    searchToken: string,
+    serverName: string,
+    templates: ServerResourceTemplate[],
+  ): Promise<void> => {
+    latestSearchTokenRef.current = searchToken;
+    latestSearchKindRef.current = 'slash-template';
+    const result = await generateMcpResourceTemplateCompletions(
+      searchToken,
+      { [serverName]: templates },
+      store.getState().mcp.clients,
+      '/',
+    );
+    if (latestSearchTokenRef.current !== searchToken) return;
+    const templateSuggestions = result ?? [];
+    setSuggestionsState(() => ({
+      commandArgumentHint: undefined,
+      suggestions: templateSuggestions,
+      selectedSuggestion: templateSuggestions.length > 0 ? 0 : -1
+    }));
+    setSuggestionType(templateSuggestions.length > 0 ? 'command' : 'none');
+    setMaxColumnWidth(undefined);
+  }, [store, setSuggestionsState]);
+  const debouncedFetchSlashTemplateSuggestions = useDebounceCallback(
+    fetchSlashTemplateSuggestions,
+    150,
+  );
+
   // Handle immediate suggestion logic (cheap operations)
   // biome-ignore lint/correctness/useExhaustiveDependencies: store is a stable context ref, read imperatively at call-time
   const updateSuggestions = useCallback(async (value: string, inputCursorOffset?: number): Promise<void> => {
@@ -567,6 +599,7 @@ export function useTypeahead({
     const effectiveCursorOffset = inputCursorOffset ?? cursorOffsetRef.current;
     if (suppressSuggestions) {
       debouncedFetchFileSuggestions.cancel();
+      debouncedFetchSlashTemplateSuggestions.cancel();
       clearSuggestions();
       return;
     }
@@ -657,6 +690,7 @@ export function useTypeahead({
       }
       if (members.length > 0) {
         debouncedFetchFileSuggestions.cancel();
+        debouncedFetchSlashTemplateSuggestions.cancel();
         setSuggestionsState(prev => ({
           commandArgumentHint: undefined,
           suggestions: members,
@@ -701,6 +735,7 @@ export function useTypeahead({
         // Clear suggestions if args end with whitespace (user is done with path)
         if (args.match(/\s+$/)) {
           debouncedFetchFileSuggestions.cancel();
+          debouncedFetchSlashTemplateSuggestions.cancel();
           clearSuggestions();
           return;
         }
@@ -717,6 +752,7 @@ export function useTypeahead({
 
         // No suggestions found - clear and return
         debouncedFetchFileSuggestions.cancel();
+        debouncedFetchSlashTemplateSuggestions.cancel();
         clearSuggestions();
         return;
       }
@@ -805,11 +841,12 @@ export function useTypeahead({
         // (set above when hasExactlyOneTrailingSpace is true)
       }
       const commandItems = generateCommandSuggestions(value, commands);
+      const commandToken = value.slice(1).split(' ')[0] ?? '';
       setSuggestionsState(() => ({
         commandArgumentHint,
         suggestions: commandItems,
         selectedSuggestion: commandItems.length > 0 ? 0 : -1,
-        suggestionsEmptyMessage: commandItems.length === 0 && value.length > 1 ? `No commands match "${value}"` : undefined
+        suggestionsEmptyMessage: commandItems.length === 0 && value.length > 1 && looksLikeCommand(commandToken) ? `No commands match "${value}"` : undefined
       }));
       setSuggestionType('command');
 
@@ -824,6 +861,7 @@ export function useTypeahead({
       // we need to clear the suggestions. However, we should not return
       // because there may be relevant @ symbol and file suggestions.
       debouncedFetchFileSuggestions.cancel();
+      debouncedFetchSlashTemplateSuggestions.cancel();
       clearSuggestions();
     } else if (isCommandInput(value) && hasCommandWithArguments(isAtEndWithWhitespace, value)) {
       // If we have a command with arguments (no trailing space), clear any stale hint
@@ -901,6 +939,7 @@ export function useTypeahead({
       } else {
         // If we had file suggestions but now there's no completion token
         debouncedFetchFileSuggestions.cancel();
+        debouncedFetchSlashTemplateSuggestions.cancel();
         clearSuggestions();
       }
     }
@@ -912,10 +951,11 @@ export function useTypeahead({
       })?.inputSnapshot;
       if (mode !== 'bash' || value !== inputSnapshot) {
         debouncedFetchFileSuggestions.cancel();
+        debouncedFetchSlashTemplateSuggestions.cancel();
         clearSuggestions();
       }
     }
-  }, [suggestionType, commands, setSuggestionsState, clearSuggestions, debouncedFetchFileSuggestions, debouncedFetchSlackChannels, mode, suppressSuggestions,
+  }, [suggestionType, commands, setSuggestionsState, clearSuggestions, debouncedFetchFileSuggestions, debouncedFetchSlashTemplateSuggestions, debouncedFetchSlackChannels, mode, suppressSuggestions,
   // Note: using suggestionsRef instead of suggestions to avoid recreating
   // this callback when only selectedSuggestion changes (not the suggestions list)
   allCommandsMaxWidth, fetchDeferredResourceTemplates, mcpResources, mcpResourceTemplates]);
@@ -972,6 +1012,7 @@ export function useTypeahead({
     if (suggestions.length > 0) {
       // Cancel any pending debounced fetches to prevent flicker when accepting
       debouncedFetchFileSuggestions.cancel();
+      debouncedFetchSlashTemplateSuggestions.cancel();
       debouncedFetchSlackChannels.cancel();
       const index = selectedSuggestion === -1 ? 0 : selectedSuggestion;
       const suggestion = suggestions[index];
@@ -1111,18 +1152,25 @@ export function useTypeahead({
               replacement?: string;
               partial?: boolean;
             } | undefined;
-            const displayText = metadata?.replacement ?? suggestion.displayText;
-            const needsQuotes = displayText.includes(' ');
-            const replacementValue = formatReplacementValue({
-              displayText,
-              mode,
-              hasAtPrefix,
-              needsQuotes,
-              isQuoted: completionToken.isQuoted,
-              isComplete: !metadata?.partial
-            });
-            applyFileSuggestion(replacementValue, input, completionToken.token, completionToken.startPos, onInputChange, setCursorOffset);
-            clearSuggestions();
+            const replacementValue = metadata?.replacement
+              ? `${metadata.replacement}${metadata.partial ? '' : ' '}`
+              : formatReplacementValue({
+                displayText: suggestion.displayText,
+                mode,
+                hasAtPrefix,
+                needsQuotes: suggestion.displayText.includes(' '),
+                isQuoted: completionToken.isQuoted,
+                isComplete: true
+              });
+            const newInput = applyFileSuggestion(replacementValue, input, completionToken.token, completionToken.startPos, onInputChange, setCursorOffset);
+            if (metadata?.partial) {
+              void updateSuggestions(
+                newInput,
+                completionToken.startPos + replacementValue.length,
+              );
+            } else {
+              clearSuggestions();
+            }
           }
         }
       }
@@ -1155,7 +1203,7 @@ export function useTypeahead({
           const isAtSymbol = completionInfo.token.startsWith('@');
           const searchToken = isAtSymbol ? completionInfo.token.substring(1) : completionInfo.token;
           const currentMcp = store.getState().mcp;
-          const templateItems = isAtSymbol ? await generateMcpResourceTemplateCompletions(searchToken, currentMcp.resourceTemplates, store.getState().mcp.clients) : null;
+          const templateItems = isAtSymbol ? await generateMcpResourceTemplateCompletions(searchToken, currentMcp.resourceTemplates, store.getState().mcp.clients, '@') : null;
           suggestionItems = templateItems ?? await generateUnifiedSuggestions(searchToken, currentMcp.resources, currentMcp.resourceTemplates, agents, isAtSymbol);
         } else {
           suggestionItems = [];
@@ -1172,7 +1220,7 @@ export function useTypeahead({
         setMaxColumnWidth(undefined);
       }
     }
-  }, [suggestions, selectedSuggestion, input, suggestionType, commands, mode, onInputChange, setCursorOffset, onSubmit, clearSuggestions, cursorOffset, updateSuggestions, mcpResources, mcpResourceTemplates, store, setSuggestionsState, agents, debouncedFetchFileSuggestions, debouncedFetchSlackChannels, effectiveGhostText]);
+  }, [suggestions, selectedSuggestion, input, suggestionType, commands, mode, onInputChange, setCursorOffset, onSubmit, clearSuggestions, cursorOffset, updateSuggestions, mcpResources, mcpResourceTemplates, store, setSuggestionsState, agents, debouncedFetchFileSuggestions, debouncedFetchSlashTemplateSuggestions, debouncedFetchSlackChannels, effectiveGhostText]);
 
   // Handle enter key press - apply and execute suggestions
   const handleEnter = useCallback(() => {
@@ -1184,6 +1232,7 @@ export function useTypeahead({
         // execute on return
         commands, onInputChange, setCursorOffset, onSubmit);
         debouncedFetchFileSuggestions.cancel();
+        debouncedFetchSlashTemplateSuggestions.cancel();
         clearSuggestions();
       }
     } else if (suggestionType === 'custom-title' && selectedSuggestion < suggestions.length) {
@@ -1194,6 +1243,7 @@ export function useTypeahead({
         setCursorOffset(newInput.length);
         onSubmit(newInput, /* isSubmittingSlashCommand */true);
         debouncedFetchFileSuggestions.cancel();
+        debouncedFetchSlashTemplateSuggestions.cancel();
         clearSuggestions();
       }
     } else if (suggestionType === 'shell' && selectedSuggestion < suggestions.length) {
@@ -1204,11 +1254,13 @@ export function useTypeahead({
         } | undefined;
         applyShellSuggestion(suggestion, input, cursorOffset, onInputChange, setCursorOffset, metadata?.completionType);
         debouncedFetchFileSuggestions.cancel();
+        debouncedFetchSlashTemplateSuggestions.cancel();
         clearSuggestions();
       }
     } else if (suggestionType === 'agent' && selectedSuggestion < suggestions.length && suggestion?.id?.startsWith('dm-')) {
       applyTriggerSuggestion(suggestion, input, cursorOffset, DM_MEMBER_RE, onInputChange, setCursorOffset);
       debouncedFetchFileSuggestions.cancel();
+      debouncedFetchSlashTemplateSuggestions.cancel();
       clearSuggestions();
     } else if (suggestionType === 'slack-channel' && selectedSuggestion < suggestions.length) {
       if (suggestion) {
@@ -1226,19 +1278,27 @@ export function useTypeahead({
             replacement?: string;
             partial?: boolean;
           } | undefined;
-          const displayText = metadata?.replacement ?? suggestion.displayText;
-          const needsQuotes = displayText.includes(' ');
-          const replacementValue = formatReplacementValue({
-            displayText,
-            mode,
-            hasAtPrefix,
-            needsQuotes,
-            isQuoted: completionInfo.isQuoted,
-            isComplete: !metadata?.partial
-          });
-          applyFileSuggestion(replacementValue, input, completionInfo.token, completionInfo.startPos, onInputChange, setCursorOffset);
+          const replacementValue = metadata?.replacement
+            ? `${metadata.replacement}${metadata.partial ? '' : ' '}`
+            : formatReplacementValue({
+              displayText: suggestion.displayText,
+              mode,
+              hasAtPrefix,
+              needsQuotes: suggestion.displayText.includes(' '),
+              isQuoted: completionInfo.isQuoted,
+              isComplete: true
+            });
+          const newInput = applyFileSuggestion(replacementValue, input, completionInfo.token, completionInfo.startPos, onInputChange, setCursorOffset);
           debouncedFetchFileSuggestions.cancel();
-          clearSuggestions();
+          debouncedFetchSlashTemplateSuggestions.cancel();
+          if (metadata?.partial) {
+            void updateSuggestions(
+              newInput,
+              completionInfo.startPos + replacementValue.length,
+            );
+          } else {
+            clearSuggestions();
+          }
         }
       }
     } else if (suggestionType === 'directory' && selectedSuggestion < suggestions.length) {
@@ -1248,6 +1308,7 @@ export function useTypeahead({
         // suggestions and let the submit handler process the current input.
         if (isCommandInput(input)) {
           debouncedFetchFileSuggestions.cancel();
+          debouncedFetchSlashTemplateSuggestions.cancel();
           clearSuggestions();
           return;
         }
@@ -1265,10 +1326,11 @@ export function useTypeahead({
         // to avoid data loss - just clear suggestions
 
         debouncedFetchFileSuggestions.cancel();
+        debouncedFetchSlashTemplateSuggestions.cancel();
         clearSuggestions();
       }
     }
-  }, [suggestions, selectedSuggestion, suggestionType, commands, input, cursorOffset, mode, onInputChange, setCursorOffset, onSubmit, clearSuggestions, debouncedFetchFileSuggestions, debouncedFetchSlackChannels]);
+  }, [suggestions, selectedSuggestion, suggestionType, commands, input, cursorOffset, mode, onInputChange, setCursorOffset, onSubmit, clearSuggestions, debouncedFetchFileSuggestions, debouncedFetchSlashTemplateSuggestions, debouncedFetchSlackChannels]);
 
   // Handler for autocomplete:accept - accepts current suggestion via Tab or Right Arrow
   const handleAutocompleteAccept = useCallback(() => {
@@ -1278,11 +1340,12 @@ export function useTypeahead({
   // Handler for autocomplete:dismiss - clears suggestions and prevents re-triggering
   const handleAutocompleteDismiss = useCallback(() => {
     debouncedFetchFileSuggestions.cancel();
+    debouncedFetchSlashTemplateSuggestions.cancel();
     debouncedFetchSlackChannels.cancel();
     clearSuggestions();
     // Remember the input when dismissed to prevent immediate re-triggering
     dismissedForInputRef.current = input;
-  }, [debouncedFetchFileSuggestions, debouncedFetchSlackChannels, clearSuggestions, input]);
+  }, [debouncedFetchFileSuggestions, debouncedFetchSlashTemplateSuggestions, debouncedFetchSlackChannels, clearSuggestions, input]);
 
   // Handler for autocomplete:previous - selects previous suggestion
   const handleAutocompletePrevious = useCallback(() => {

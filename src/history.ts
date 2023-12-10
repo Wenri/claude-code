@@ -18,6 +18,7 @@ import { jsonParse, jsonStringify } from './utils/slowOperations.js'
 
 const MAX_HISTORY_ITEMS = 100
 const MAX_PASTED_CONTENT_LENGTH = 1024
+const MAX_EXPANDABLE_PASTED_CONTENT_LENGTH = 100_000
 
 /**
  * Stored paste content - either inline content or a hash reference to paste store.
@@ -97,6 +98,30 @@ export function expandPastedTextRefs(
       expanded.slice(ref.index + ref.match.length)
   }
   return expanded
+}
+
+export function expandHighestPastedTextRef(
+  input: string,
+  pastedContents: Record<number, PastedContent>,
+): { expanded: string; id: number; cursorOffset: number } | null {
+  let highestRef: { id: number; match: string; index: number } | null = null
+  for (const ref of parseReferences(input)) {
+    if (pastedContents[ref.id]?.type !== 'text') continue
+    if (!highestRef || ref.id > highestRef.id) highestRef = ref
+  }
+  if (!highestRef) return null
+
+  const content = pastedContents[highestRef.id]!.content
+  if (content.length > MAX_EXPANDABLE_PASTED_CONTENT_LENGTH) return null
+
+  return {
+    expanded:
+      input.slice(0, highestRef.index) +
+      content +
+      input.slice(highestRef.index + highestRef.match.length),
+    id: highestRef.id,
+    cursorOffset: highestRef.index + content.length,
+  }
 }
 
 function deserializeLogEntry(line: string): LogEntry {

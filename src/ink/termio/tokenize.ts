@@ -22,6 +22,8 @@ type State =
   | 'osc'
   | 'dcs'
   | 'apc'
+  | 'pm'
+  | 'sos'
 
 export type Tokenizer = {
   /** Feed input and get resulting tokens */
@@ -41,7 +43,11 @@ type TokenizerOptions = {
    * output streams, and enabling this there swallows display text. Default false.
    */
   x10Mouse?: boolean
+  /** Preserve C0 controls inside output text for the ANSI parser. */
+  forOutput?: boolean
 }
+
+const INCOMPLETE_X10_MOUSE_RE = /^\[M[\x60-\x7f][\x20-\uffff]?$/
 
 /**
  * Create a streaming tokenizer for terminal input.
@@ -58,6 +64,7 @@ export function createTokenizer(options?: TokenizerOptions): Tokenizer {
   let currentState: State = 'ground'
   let currentBuffer = ''
   const x10Mouse = options?.x10Mouse ?? false
+  const forOutput = options?.forOutput ?? false
 
   return {
     feed(input: string): Token[] {
@@ -67,6 +74,7 @@ export function createTokenizer(options?: TokenizerOptions): Tokenizer {
         currentBuffer,
         false,
         x10Mouse,
+        forOutput,
       )
       currentState = result.state.state
       currentBuffer = result.state.buffer
@@ -74,7 +82,14 @@ export function createTokenizer(options?: TokenizerOptions): Tokenizer {
     },
 
     flush(): Token[] {
-      const result = tokenize('', currentState, currentBuffer, true, x10Mouse)
+      const result = tokenize(
+        '',
+        currentState,
+        currentBuffer,
+        true,
+        x10Mouse,
+        forOutput,
+      )
       currentState = result.state.state
       currentBuffer = result.state.buffer
       return result.tokens
@@ -102,6 +117,7 @@ function tokenize(
   initialBuffer: string,
   flush: boolean,
   x10Mouse: boolean,
+  forOutput: boolean,
 ): { tokens: Token[]; state: InternalState } {
   const tokens: Token[] = []
   const result: InternalState = {
@@ -142,6 +158,21 @@ function tokenize(
           seqStart = i
           result.state = 'escape'
           i++
+        } else if (code === C0.DEL) {
+          if (INCOMPLETE_X10_MOUSE_RE.test(data.slice(textStart, i))) {
+            i++
+          } else {
+            flushText()
+            i++
+            tokens.push({ type: 'text', value: '\x7f' })
+            textStart = i
+          }
+        } else if (!forOutput && code < 32 && data.length < 64) {
+          flushText()
+          i++
+          if (code === C0.CR && data.charCodeAt(i) === C0.LF) i++
+          tokens.push({ type: 'text', value: String.fromCharCode(code) })
+          textStart = i
         } else {
           i++
         }
@@ -157,17 +188,42 @@ function tokenize(
         } else if (code === ESC_TYPE.DCS) {
           result.state = 'dcs'
           i++
-        } else if (code === ESC_TYPE.APC) {
+        } else if (!x10Mouse && code === ESC_TYPE.APC) {
           result.state = 'apc'
+          i++
+        } else if (!x10Mouse && code === ESC_TYPE.PM) {
+          result.state = 'pm'
+          i++
+        } else if (
+          !x10Mouse &&
+          (code === ESC_TYPE.SOS || code === 0x6b /* k */)
+        ) {
+          result.state = 'sos'
           i++
         } else if (code === 0x4f) {
           // 'O' - SS3
           result.state = 'ss3'
           i++
+        } else if (
+          x10Mouse &&
+          (code === 0x20 /* space */ ||
+            code === C0.CR ||
+            code === C0.LF ||
+            code === C0.HT)
+        ) {
+          i++
+          tokens.push({ type: 'text', value: data.slice(seqStart, i) })
+          result.state = 'ground'
+          textStart = i
         } else if (isCSIIntermediate(code)) {
           // Intermediate byte (e.g., ESC ( for charset) - continue buffering
           result.state = 'escapeIntermediate'
           i++
+        } else if (code === C0.DEL) {
+          i++
+          tokens.push({ type: 'text', value: data.slice(seqStart, i) })
+          result.state = 'ground'
+          textStart = i
         } else if (isEscFinal(code)) {
           // Two-character escape sequence
           i++
@@ -178,6 +234,11 @@ function tokenize(
           seqStart = i
           result.state = 'escape'
           i++
+        } else if (code < 32) {
+          i++
+          tokens.push({ type: 'text', value: data.slice(seqStart, i) })
+          result.state = 'ground'
+          textStart = i
         } else {
           // Invalid - treat ESC as text
           result.state = 'ground'
@@ -285,15 +346,27 @@ function tokenize(
 
       case 'dcs':
       case 'apc':
-        if (code === C0.BEL) {
+      case 'pm':
+      case 'sos':
+        if (
+          code === C0.BEL &&
+          result.state !== 'pm' &&
+          result.state !== 'sos'
+        ) {
           i++
           emitSequence(data.slice(seqStart, i))
-        } else if (
-          code === C0.ESC &&
-          i + 1 < data.length &&
-          data.charCodeAt(i + 1) === ESC_TYPE.ST
-        ) {
-          i += 2
+        } else if (code === C0.ESC && i + 1 < data.length) {
+          if (data.charCodeAt(i + 1) === ESC_TYPE.ST) {
+            i += 2
+            emitSequence(data.slice(seqStart, i))
+          } else {
+            emitSequence(data.slice(seqStart, i))
+            seqStart = i
+            result.state = 'escape'
+            i++
+          }
+        } else if (code === C0.CAN || code === C0.SUB) {
+          i++
           emitSequence(data.slice(seqStart, i))
         } else {
           i++

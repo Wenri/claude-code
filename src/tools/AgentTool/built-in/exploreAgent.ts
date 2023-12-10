@@ -6,19 +6,23 @@ import { FILE_WRITE_TOOL_NAME } from 'src/tools/FileWriteTool/prompt.js'
 import { GLOB_TOOL_NAME } from 'src/tools/GlobTool/prompt.js'
 import { GREP_TOOL_NAME } from 'src/tools/GrepTool/prompt.js'
 import { NOTEBOOK_EDIT_TOOL_NAME } from 'src/tools/NotebookEditTool/constants.js'
+import { POWERSHELL_TOOL_NAME } from 'src/tools/PowerShellTool/toolName.js'
 import { hasEmbeddedSearchTools } from 'src/utils/embeddedTools.js'
+import { isBashToolEnabled } from 'src/utils/shell/shellToolUtils.js'
 import { AGENT_TOOL_NAME } from '../constants.js'
 import type { BuiltInAgentDefinition } from '../loadAgentsDir.js'
 
 function getExploreSystemPrompt(): string {
+  const useBash = isBashToolEnabled()
+  const shellToolName = useBash ? BASH_TOOL_NAME : POWERSHELL_TOOL_NAME
   // Ant-native builds alias find/grep to embedded bfs/ugrep and remove the
   // dedicated Glob/Grep tools, so point at find/grep via Bash instead.
-  const embedded = hasEmbeddedSearchTools()
+  const embedded = hasEmbeddedSearchTools() && useBash
   const globGuidance = embedded
-    ? `- Use \`find\` via ${BASH_TOOL_NAME} for broad file pattern matching`
+    ? `- Use \`find\` via ${shellToolName} for broad file pattern matching`
     : `- Use ${GLOB_TOOL_NAME} for broad file pattern matching`
   const grepGuidance = embedded
-    ? `- Use \`grep\` via ${BASH_TOOL_NAME} for searching file contents with regex`
+    ? `- Use \`grep\` via ${shellToolName} for searching file contents with regex`
     : `- Use ${GREP_TOOL_NAME} for searching file contents with regex`
 
   return `You are a file search specialist for Claude Code, Anthropic's official CLI for Claude. You excel at thoroughly navigating and exploring codebases.
@@ -44,8 +48,8 @@ Guidelines:
 ${globGuidance}
 ${grepGuidance}
 - Use ${FILE_READ_TOOL_NAME} when you know the specific file path you need to read
-- Use ${BASH_TOOL_NAME} ONLY for read-only operations (ls, git status, git log, git diff, find${embedded ? ', grep' : ''}, cat, head, tail)
-- NEVER use ${BASH_TOOL_NAME} for: mkdir, touch, rm, cp, mv, git add, git commit, npm install, pip install, or any file creation/modification
+- Use ${shellToolName} ONLY for read-only operations (${useBash ? `ls, git status, git log, git diff, find${embedded ? ', grep' : ''}, cat, head, tail` : 'Get-ChildItem, git status, git log, git diff, Get-Content, Select-Object -First/-Last'})
+- NEVER use ${shellToolName} for: ${useBash ? 'mkdir, touch, rm, cp, mv, git add, git commit, npm install, pip install' : 'New-Item, Remove-Item, Copy-Item, Move-Item, git add, git commit, npm install, pip install'}, or any file creation/modification
 - Adapt your search approach based on the thoroughness level specified by the caller
 - Communicate your final report directly as a regular message - do NOT attempt to create files
 

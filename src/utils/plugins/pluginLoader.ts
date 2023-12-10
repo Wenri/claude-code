@@ -936,9 +936,6 @@ export function generateTemporaryCacheNameForPlugin(
       case 'npm':
         prefix = 'npm'
         break
-      case 'pip':
-        prefix = 'pip'
-        break
       case 'github':
         prefix = 'github'
         break
@@ -1012,8 +1009,6 @@ export async function cachePlugin(
             source.sha,
           )
           break
-        case 'pip':
-          throw new Error('Python package plugins are not yet supported')
         default:
           throw new Error(`Unsupported plugin source type`)
       }
@@ -1369,6 +1364,7 @@ export async function createPluginFromPath(
     agentsDirExists,
     skillsDirExists,
     outputStylesDirExists,
+    themesDirExists,
   ] = await Promise.all([
     !manifest.commands ? pathExists(join(pluginPath, 'commands')) : false,
     !manifest.agents ? pathExists(join(pluginPath, 'agents')) : false,
@@ -1376,6 +1372,7 @@ export async function createPluginFromPath(
     !manifest.outputStyles
       ? pathExists(join(pluginPath, 'output-styles'))
       : false,
+    !manifest.themes ? pathExists(join(pluginPath, 'themes')) : false,
   ])
 
   const commandsPath = join(pluginPath, 'commands')
@@ -1601,6 +1598,28 @@ export async function createPluginFromPath(
     if (validPaths.length > 0) {
       plugin.outputStylesPaths = validPaths
     }
+  }
+
+  const themesPath = join(pluginPath, 'themes')
+  if (themesDirExists) {
+    plugin.themesPath = themesPath
+  }
+
+  if (manifest.themes) {
+    const themePaths = Array.isArray(manifest.themes)
+      ? manifest.themes
+      : [manifest.themes]
+    const validPaths = await validatePluginPaths(
+      themePaths,
+      pluginPath,
+      manifest.name,
+      source,
+      'themes',
+      'Theme',
+      'specified in manifest but',
+      errors,
+    )
+    if (validPaths.length > 0) plugin.themesPaths = validPaths
   }
 
   // Step 5: Load hooks configuration
@@ -2268,7 +2287,7 @@ async function loadPluginFromMarketplaceEntry(
       pluginPath = sourcePluginPath
     }
   } else {
-    // External source (npm, github, url, pip) - always use versioned cache
+    // External source (npm, github, url) - always use versioned cache
     try {
       // Calculate version with fallback order:
       // 1. No manifest yet, 2. installed_plugins.json version,
@@ -2669,6 +2688,23 @@ async function finishLoadingPluginFromPath(
       }
     }
 
+    if (entry.themes) {
+      const themePaths = Array.isArray(entry.themes)
+        ? entry.themes
+        : [entry.themes]
+      const validPaths = await validatePluginPaths(
+        themePaths,
+        pluginPath,
+        entry.name,
+        pluginId,
+        'themes',
+        'Theme',
+        'from marketplace entry',
+        errors,
+      )
+      if (validPaths.length > 0) plugin.themesPaths = validPaths
+    }
+
     // Process inline hooks from marketplace entry
     if (entry.hooks) {
       plugin.hooksConfig = entry.hooks as HooksSettings
@@ -2680,14 +2716,15 @@ async function finishLoadingPluginFromPath(
       entry.agents ||
       entry.skills ||
       entry.hooks ||
-      entry.outputStyles)
+      entry.outputStyles ||
+      entry.themes)
   ) {
-    // In non-strict mode with plugin.json, marketplace entries for commands/agents/skills/hooks/outputStyles are conflicts
+    // In non-strict mode with plugin.json, marketplace component entries conflict.
     const error = new Error(
-      `Plugin ${entry.name} has both plugin.json and marketplace manifest entries for commands/agents/skills/hooks/outputStyles. This is a conflict.`,
+      `Plugin ${entry.name} has both plugin.json and marketplace manifest entries for commands/agents/skills/hooks/outputStyles/themes. This is a conflict.`,
     )
     logForDebugging(
-      `Plugin ${entry.name} has both plugin.json and marketplace manifest entries for commands/agents/skills/hooks/outputStyles. This is a conflict.`,
+      `Plugin ${entry.name} has both plugin.json and marketplace manifest entries for commands/agents/skills/hooks/outputStyles/themes. This is a conflict.`,
       { level: 'error' },
     )
     logError(error)
@@ -2698,7 +2735,7 @@ async function finishLoadingPluginFromPath(
     })
     return null
   } else if (hasManifest) {
-    // Has plugin.json - marketplace can supplement commands/agents/skills/hooks/outputStyles
+    // Has plugin.json - marketplace can supplement component paths.
 
     // Supplement commands from marketplace entry
     if (entry.commands) {
@@ -2893,6 +2930,25 @@ async function finishLoadingPluginFromPath(
           ...(plugin.outputStylesPaths || []),
           ...validPaths,
         ]
+      }
+    }
+
+    if (entry.themes) {
+      const themePaths = Array.isArray(entry.themes)
+        ? entry.themes
+        : [entry.themes]
+      const validPaths = await validatePluginPaths(
+        themePaths,
+        pluginPath,
+        entry.name,
+        pluginId,
+        'themes',
+        'Theme',
+        'from marketplace entry',
+        errors,
+      )
+      if (validPaths.length > 0) {
+        plugin.themesPaths = [...(plugin.themesPaths || []), ...validPaths]
       }
     }
 

@@ -20,7 +20,7 @@ import {
   isAnthropicAuthEnabled,
 } from '../utils/auth.js'
 import { logForDebugging } from '../utils/debug.js'
-import { getUserAgent } from '../utils/http.js'
+import { getClientPlatform, getUserAgent } from '../utils/http.js'
 import { logError } from '../utils/log.js'
 import { getWebSocketTLSOptions } from '../utils/mtls.js'
 import { getWebSocketProxyAgent, getWebSocketProxyUrl } from '../utils/proxy.js'
@@ -180,6 +180,7 @@ export async function connectVoiceStream(
     Authorization: `Bearer ${tokens.accessToken}`,
     'User-Agent': getUserAgent(),
     'x-app': 'cli',
+    'anthropic-client-platform': getClientPlatform(),
   }
 
   const tlsOptions = getWebSocketTLSOptions()

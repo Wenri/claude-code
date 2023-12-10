@@ -74,7 +74,8 @@ export async function fetchEnvironments(): Promise<EnvironmentResource[]> {
  * Uses the public environment_providers route (same auth as fetchEnvironments).
  */
 export async function createDefaultCloudEnvironment(
-  name: string,
+  name = 'Default',
+  signal?: AbortSignal,
 ): Promise<EnvironmentResource> {
   const accessToken = getClaudeAIOAuthTokens()?.accessToken
   if (!accessToken) {
@@ -91,7 +92,7 @@ export async function createDefaultCloudEnvironment(
     {
       name,
       kind: 'anthropic_cloud',
-      description: '',
+      description: 'Default - trusted network access',
       config: {
         environment_type: 'anthropic',
         cwd: '/home/user',
@@ -114,6 +115,7 @@ export async function createDefaultCloudEnvironment(
         'x-organization-uuid': orgUUID,
       },
       timeout: 15000,
+      signal,
     },
   )
   return response.data

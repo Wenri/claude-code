@@ -13,7 +13,7 @@ import type { Command } from '../commands.js'
 import { getSystemPrompt } from '../constants/prompts.js'
 import { getSystemContext, getUserContext } from '../context.js'
 import type { MCPServerConnection } from '../services/mcp/types.js'
-import type { AppState } from '../state/AppStateStore.js'
+import { makeSetReplContext, type AppState } from '../state/AppStateStore.js'
 import type { Tools, ToolUseContext } from '../Tool.js'
 import type { AgentDefinition } from '../tools/AgentTool/loadAgentsDir.js'
 import type { Message } from '../types/message.js'
@@ -95,6 +95,7 @@ export async function buildSideQuestionFallbackParams({
   setAppState,
   customSystemPrompt,
   appendSystemPrompt,
+  planModeInstructions,
   thinkingConfig,
   agents,
 }: {
@@ -107,6 +108,7 @@ export async function buildSideQuestionFallbackParams({
   setAppState: (f: (prev: AppState) => AppState) => void
   customSystemPrompt: string | undefined
   appendSystemPrompt: string | undefined
+  planModeInstructions?: string | undefined
   thinkingConfig: ThinkingConfig | undefined
   agents: AgentDefinition[]
 }): Promise<CacheSafeParams> {
@@ -157,11 +159,13 @@ export async function buildSideQuestionFallbackParams({
       agentDefinitions: { activeAgents: agents, allAgents: [] },
       customSystemPrompt,
       appendSystemPrompt,
+      planModeInstructions,
     },
     abortController: createAbortController(),
     readFileState,
     getAppState,
     setAppState,
+    setReplContext: makeSetReplContext(setAppState),
     messages: forkContextMessages,
     turnStartIndex: 0,
     setInProgressToolUseIDs: () => {},

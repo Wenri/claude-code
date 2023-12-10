@@ -71,13 +71,33 @@ export type ReplBridgeHandle = {
   bridgeSessionId: string
   environmentId: string
   sessionIngressUrl: string
+  getLastSequenceNum(): number
   writeMessages(messages: Message[]): void
   writeSdkMessages(messages: SDKMessage[]): void
   sendControlRequest(request: SDKControlRequest): void
   sendControlResponse(response: SDKControlResponse): void
   sendControlCancelRequest(requestId: string): void
   sendResult(): void
-  teardown(): Promise<void>
+  subscribePR?(
+    repo: string,
+    prNumber: number,
+    agentId?: string,
+  ): Promise<boolean>
+  unsubscribePR?(repo: string, prNumber: number): Promise<boolean>
+  getPRWebhookTarget?(): {
+    agentId: string
+    repo: string
+    prNumber: number
+  } | null
+  subscribeSlackThread?(
+    channel: string,
+    threadTs: string,
+  ): Promise<boolean>
+  unsubscribeSlackThread?(
+    channel: string,
+    threadTs: string,
+  ): Promise<boolean>
+  teardown(options?: { skipArchive?: boolean }): Promise<void>
 }
 
 export type BridgeState = 'ready' | 'connected' | 'reconnecting' | 'failed'
@@ -195,6 +215,9 @@ export type BridgeCoreParams = {
   onRenameSession?: (
     title: string,
   ) => { ok: true } | { ok: false; error: string }
+  onSetColor?: (
+    color: string,
+  ) => { ok: true } | { ok: false; error: string }
   onFileSuggestions?: (
     query: string,
   ) => Promise<Array<{ path: string; score?: number }>>
@@ -296,6 +319,7 @@ export async function initBridgeCore(
     onSetMaxThinkingTokens,
     onSetPermissionMode,
     onRenameSession,
+    onSetColor,
     onFileSuggestions,
     onStateChange,
     onUserMessage,
@@ -1207,6 +1231,7 @@ export async function initBridgeCore(
           onSetMaxThinkingTokens,
           onSetPermissionMode,
           onRenameSession,
+          onSetColor,
           onFileSuggestions,
         })
 
@@ -1700,6 +1725,10 @@ export async function initBridgeCore(
       const live = transport?.getLastSequenceNum() ?? 0
       return Math.max(lastTransportSequenceNum, live)
     },
+    getLastSequenceNum() {
+      const live = transport?.getLastSequenceNum() ?? 0
+      return Math.max(lastTransportSequenceNum, live)
+    },
     sessionIngressUrl,
     writeMessages(messages) {
       // Filter to user/assistant messages that haven't already been sent.
@@ -1839,7 +1868,7 @@ export async function initBridgeCore(
         `[bridge:repl] Sent result for session=${currentSessionId}`,
       )
     },
-    async teardown() {
+    async teardown(_options?: { skipArchive?: boolean }) {
       unregister()
       await doTeardownImpl?.()
       logForDebugging('[bridge:repl] Torn down')

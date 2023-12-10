@@ -23,6 +23,7 @@ import {
   PermissionUpdateSchema,
   SDKMessageSchema,
   SDKPostTurnSummaryMessageSchema,
+  SDKTranscriptMirrorMessageSchema,
   SDKStreamlinedTextMessageSchema,
   SDKStreamlinedToolUseSummaryMessageSchema,
   SDKUserMessageSchema,
@@ -65,7 +66,19 @@ export const SDKControlInitializeRequestSchema = lazySchema(() =>
       jsonSchema: z.record(z.string(), z.unknown()).optional(),
       systemPrompt: z.string().optional(),
       appendSystemPrompt: z.string().optional(),
+      planModeInstructions: z
+        .string()
+        .optional()
+        .describe(
+          'Custom workflow body for the plan-mode system reminder. Replaces the default code-implementation phases; the CLI still wraps it with the read-only enforcement preamble and the ExitPlanMode protocol footer.',
+        ),
       agents: z.record(z.string(), AgentDefinitionSchema()).optional(),
+      skills: z
+        .array(z.string())
+        .optional()
+        .describe(
+          'When provided, only skills whose names match an entry are loaded into the main session system prompt, using the same rules as AgentDefinition.skills: exact name, plugin-qualified name, or ":name" suffix. Omit to load every discovered skill. Applies to the main session only; subagents use AgentDefinition.skills.',
+        ),
       promptSuggestions: z.boolean().optional(),
       agentProgressSummaries: z.boolean().optional(),
     })
@@ -163,6 +176,17 @@ export const SDKControlRenameSessionRequestSchema = lazySchema(() =>
     .describe('Sets the user-facing title for the current session.'),
 )
 
+export const SDKControlSetColorRequestSchema = lazySchema(() =>
+  z
+    .object({
+      subtype: z.literal('set_color'),
+      color: z.string(),
+    })
+    .describe(
+      'Sets the session accent color. Accepts an agent color name or "default" to reset.',
+    ),
+)
+
 export const SDKControlMcpStatusRequestSchema = lazySchema(() =>
   z
     .object({
@@ -215,6 +239,24 @@ export const SDKControlGetContextUsageRequestSchema = lazySchema(() =>
     .describe(
       'Requests a breakdown of current context window usage by category.',
     ),
+)
+
+export const SDKControlGetSessionCostRequestSchema = lazySchema(() =>
+  z
+    .object({
+      subtype: z.literal('get_session_cost'),
+    })
+    .describe(
+      'Requests the formatted session cost summary (the same text /usage prints in non-interactive mode). Used by the thin-client /usage dialog to show the remote container cost instead of the local $0.00.',
+    ),
+)
+
+export const SDKControlGetSessionCostResponseSchema = lazySchema(() =>
+  z
+    .object({
+      text: z.string(),
+    })
+    .describe('Formatted session cost text, ANSI-stripped.'),
 )
 
 const ContextCategorySchema = lazySchema(() =>
@@ -678,9 +720,11 @@ export const SDKControlRequestInnerSchema = lazySchema(() =>
     SDKControlSetModelRequestSchema(),
     SDKControlSetMaxThinkingTokensRequestSchema(),
     SDKControlRenameSessionRequestSchema(),
+    SDKControlSetColorRequestSchema(),
     SDKControlMcpStatusRequestSchema(),
     SDKControlFileSuggestionsRequestSchema(),
     SDKControlGetContextUsageRequestSchema(),
+    SDKControlGetSessionCostRequestSchema(),
     SDKHookCallbackRequestSchema(),
     SDKControlMcpMessageRequestSchema(),
     SDKControlRewindFilesRequestSchema(),
@@ -769,6 +813,7 @@ export const StdoutMessageSchema = lazySchema(() =>
     SDKStreamlinedTextMessageSchema(),
     SDKStreamlinedToolUseSummaryMessageSchema(),
     SDKPostTurnSummaryMessageSchema(),
+    SDKTranscriptMirrorMessageSchema(),
     SDKControlResponseSchema(),
     SDKControlRequestSchema(),
     SDKControlCancelRequestSchema(),

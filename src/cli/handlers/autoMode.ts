@@ -10,8 +10,10 @@ import {
 } from '../../utils/model/model.js'
 import {
   type AutoModeRules,
+  AUTO_MODE_DEFAULTS_MARKER,
   buildDefaultExternalSystemPrompt,
   getDefaultExternalAutoModeRules,
+  getEffectiveExternalAutoModeRules,
 } from '../../utils/permissions/yoloClassifier.js'
 import { getAutoModeConfig } from '../../utils/settings/settings.js'
 import { sideQuery } from '../../utils/sideQuery.js'
@@ -33,17 +35,7 @@ export function autoModeDefaultsHandler(): void {
  * falls through to defaults).
  */
 export function autoModeConfigHandler(): void {
-  const config = getAutoModeConfig()
-  const defaults = getDefaultExternalAutoModeRules()
-  writeRules({
-    allow: config?.allow?.length ? config.allow : defaults.allow,
-    soft_deny: config?.soft_deny?.length
-      ? config.soft_deny
-      : defaults.soft_deny,
-    environment: config?.environment?.length
-      ? config.environment
-      : defaults.environment,
-  })
+  writeRules(getEffectiveExternalAutoModeRules())
 }
 
 const CRITIQUE_SYSTEM_PROMPT =
@@ -74,10 +66,11 @@ export async function autoModeCritiqueHandler(options: {
   model?: string
 }): Promise<void> {
   const config = getAutoModeConfig()
-  const hasCustomRules =
-    (config?.allow?.length ?? 0) > 0 ||
-    (config?.soft_deny?.length ?? 0) > 0 ||
-    (config?.environment?.length ?? 0) > 0
+  const hasCustomRules = [
+    ...(config?.allow ?? []),
+    ...(config?.soft_deny ?? []),
+    ...(config?.environment ?? []),
+  ].some(rule => rule !== AUTO_MODE_DEFAULTS_MARKER)
 
   if (!hasCustomRules) {
     process.stdout.write(
@@ -126,7 +119,7 @@ export async function autoModeCritiqueHandler(options: {
             '<classifier_system_prompt>\n' +
             classifierPrompt +
             '\n</classifier_system_prompt>\n\n' +
-            "Here are the user's custom rules that REPLACE the corresponding default sections:\n\n" +
+            "Here are the user's custom rules (each section header notes whether they replace or extend the defaults):\n\n" +
             userRulesSummary +
             '\nPlease critique these custom rules.',
         },
@@ -153,17 +146,23 @@ function formatRulesForCritique(
   userRules: string[],
   defaultRules: string[],
 ): string {
-  if (userRules.length === 0) return ''
-  const customLines = userRules.map(r => '- ' + r).join('\n')
+  const customRules = userRules.filter(
+    rule => rule !== AUTO_MODE_DEFAULTS_MARKER,
+  )
+  if (customRules.length === 0) return ''
+  const inheritsDefaults = customRules.length !== userRules.length
+  const customLines = customRules.map(r => '- ' + r).join('\n')
   const defaultLines = defaultRules.map(r => '- ' + r).join('\n')
   return (
     '## ' +
     section +
-    ' (custom rules replacing defaults)\n' +
+    (inheritsDefaults
+      ? ' (custom rules added alongside the defaults)\n'
+      : ' (custom rules replacing defaults)\n') +
     'Custom:\n' +
     customLines +
     '\n\n' +
-    'Defaults being replaced:\n' +
+    (inheritsDefaults ? 'Defaults also in effect:\n' : 'Defaults being replaced:\n') +
     defaultLines +
     '\n\n'
   )

@@ -227,8 +227,9 @@ export class RemoteIO extends StructuredIO {
    * In bridge mode, control_request messages are always echoed to stdout so the
    * bridge parent can detect permission requests. Other messages are echoed only
    * in debug mode.
-   */
+  */
   async write(message: StdoutMessage): Promise<void> {
+    if (message.type === 'transcript_mirror') return
     if (this.ccrClient) {
       await this.ccrClient.writeEvent(message)
     } else {

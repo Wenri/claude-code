@@ -1,6 +1,6 @@
 import { c as _c } from "react/compiler-runtime";
 import * as React from 'react';
-import { handlePlanModeTransition } from '../../bootstrap/state.js';
+import { getRuntimeCapabilities, handlePlanModeTransition } from '../../bootstrap/state.js';
 import type { LocalJSXCommandContext } from '../../commands.js';
 import { Box, Text } from '../../ink.js';
 import type { LocalJSXCommandOnDone } from '../../types/command.js';
@@ -68,6 +68,27 @@ export async function call(onDone: LocalJSXCommandOnDone, context: LocalJSXComma
   } = context;
   const appState = getAppState();
   const currentMode = appState.toolPermissionContext.mode;
+  const remote = getRuntimeCapabilities().remote;
+  if (remote?.kind === 'ccr') {
+    if (currentMode !== 'plan') {
+      handlePlanModeTransition(currentMode, 'plan');
+      setAppState(prev => ({
+        ...prev,
+        toolPermissionContext: applyPermissionUpdate(
+          prepareContextForPlanMode(prev.toolPermissionContext),
+          { type: 'setMode', mode: 'plan', destination: 'session' },
+        ),
+      }));
+      void remote.sendControlRequest({
+        subtype: 'set_permission_mode',
+        mode: 'plan'
+      });
+      onDone('Enabled plan mode');
+    } else {
+      onDone('Already in plan mode.');
+    }
+    return null;
+  }
 
   // If not in plan mode, enable it
   if (currentMode !== 'plan') {

@@ -1,4 +1,5 @@
 import { randomUUID } from 'crypto'
+import { parseSSEFrames } from '../cli/transports/SSETransport.js'
 import { getOauthConfig } from '../constants/oauth.js'
 import type { SDKMessage } from '../entrypoints/agentSdkTypes.js'
 import type {
@@ -8,34 +9,20 @@ import type {
   SDKControlResponse,
 } from '../entrypoints/sdk/controlTypes.js'
 import { logForDebugging } from '../utils/debug.js'
-import { errorMessage } from '../utils/errors.js'
+import { errorMessage, toError } from '../utils/errors.js'
+import { getUserAgent } from '../utils/http.js'
 import { logError } from '../utils/log.js'
-import { getWebSocketTLSOptions } from '../utils/mtls.js'
-import { getWebSocketProxyAgent, getWebSocketProxyUrl } from '../utils/proxy.js'
+import { getProxyFetchOptions } from '../utils/proxy.js'
 import { jsonParse, jsonStringify } from '../utils/slowOperations.js'
 
-const RECONNECT_DELAY_MS = 2000
+const RECONNECT_BASE_DELAY_MS = 1000
+const RECONNECT_MAX_DELAY_MS = 30000
 const MAX_RECONNECT_ATTEMPTS = 5
-const PING_INTERVAL_MS = 30000
+const LIVENESS_TIMEOUT_MS = 45000
+const PERMANENT_HTTP_CODES = new Set([401, 403, 404])
+const STREAM_DECODE_OPTIONS: TextDecodeOptions = { stream: true }
 
-/**
- * Maximum retries for 4001 (session not found). During compaction the
- * server may briefly consider the session stale; a short retry window
- * lets the client recover without giving up permanently.
- */
-const MAX_SESSION_NOT_FOUND_RETRIES = 3
-
-/**
- * WebSocket close codes that indicate a permanent server-side rejection.
- * The client stops reconnecting immediately.
- * Note: 4001 (session not found) is handled separately with limited
- * retries since it can be transient during compaction.
- */
-const PERMANENT_CLOSE_CODES = new Set([
-  4003, // unauthorized
-])
-
-type WebSocketState = 'connecting' | 'connected' | 'closed'
+type SessionsClientState = 'idle' | 'connecting' | 'connected' | 'closed'
 
 type SessionsMessage =
   | SDKMessage
@@ -43,15 +30,23 @@ type SessionsMessage =
   | SDKControlResponse
   | SDKControlCancelRequest
 
+type ClientEvent = {
+  event_type?: string
+  sequence_num?: number | string
+  payload?: unknown
+}
+
+type EphemeralEvent = {
+  payload?: unknown
+}
+
 function isSessionsMessage(value: unknown): value is SessionsMessage {
-  if (typeof value !== 'object' || value === null || !('type' in value)) {
-    return false
-  }
-  // Accept any message with a string `type` field. Downstream handlers
-  // (sdkMessageAdapter, RemoteSessionManager) decide what to do with
-  // unknown types. A hardcoded allowlist here would silently drop new
-  // message types the backend starts sending before the client is updated.
-  return typeof value.type === 'string'
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'type' in value &&
+    typeof value.type === 'string'
+  )
 }
 
 export type SessionsWebSocketCallbacks = {
@@ -59,33 +54,21 @@ export type SessionsWebSocketCallbacks = {
   onClose?: () => void
   onError?: (error: Error) => void
   onConnected?: () => void
-  /** Fired when a transient close is detected and a reconnect is scheduled.
-   *  onClose fires only for permanent close (server ended / attempts exhausted). */
+  /** Fired when a transient stream end schedules a reconnect. */
   onReconnecting?: () => void
 }
 
-// Common interface between globalThis.WebSocket and ws.WebSocket
-type WebSocketLike = {
-  close(): void
-  send(data: string): void
-  ping?(): void // Bun & ws both support this
-}
-
 /**
- * WebSocket client for connecting to CCR sessions via /v1/sessions/ws/{id}/subscribe
- *
- * Protocol:
- * 1. Connect to wss://api.anthropic.com/v1/sessions/ws/{sessionId}/subscribe?organization_uuid=...
- * 2. Send auth message: { type: 'auth', credential: { type: 'oauth', token: '...' } }
- * 3. Receive SDKMessage stream from the session
+ * Sessions v2 client. Reads events over SSE and writes control events over
+ * HTTP while preserving the historical class/API name used by callers.
  */
 export class SessionsWebSocket {
-  private ws: WebSocketLike | null = null
-  private state: WebSocketState = 'closed'
+  private state: SessionsClientState = 'idle'
+  private abortController: AbortController | null = null
   private reconnectAttempts = 0
-  private sessionNotFoundRetries = 0
-  private pingInterval: NodeJS.Timeout | null = null
   private reconnectTimer: NodeJS.Timeout | null = null
+  private livenessTimer: NodeJS.Timeout | null = null
+  private lastSequenceNum = 0
 
   constructor(
     private readonly sessionId: string,
@@ -94,313 +77,341 @@ export class SessionsWebSocket {
     private readonly callbacks: SessionsWebSocketCallbacks,
   ) {}
 
-  /**
-   * Connect to the sessions WebSocket endpoint
-   */
   async connect(): Promise<void> {
-    if (this.state === 'connecting') {
-      logForDebugging('[SessionsWebSocket] Already connecting')
+    if (this.state === 'connecting' || this.state === 'connected') {
+      logForDebugging('[SessionsV2Client] Already connecting/connected')
       return
     }
 
     this.state = 'connecting'
-
-    const baseUrl = getOauthConfig().BASE_API_URL.replace('https://', 'wss://')
-    const url = `${baseUrl}/v1/sessions/ws/${this.sessionId}/subscribe?organization_uuid=${this.orgUuid}`
-
-    logForDebugging(`[SessionsWebSocket] Connecting to ${url}`)
-
-    // Get fresh token for each connection attempt
-    const accessToken = this.getAccessToken()
-    const headers = {
-      Authorization: `Bearer ${accessToken}`,
-      'anthropic-version': '2023-06-01',
+    const url = new URL(
+      `${getOauthConfig().BASE_API_URL}/v1/code/sessions/${this.sessionId}/events/stream`,
+    )
+    if (this.lastSequenceNum > 0) {
+      url.searchParams.set(
+        'from_sequence_num',
+        String(this.lastSequenceNum),
+      )
     }
 
-    if (typeof Bun !== 'undefined') {
-      // Bun's WebSocket supports headers/proxy options but the DOM typings don't
-      // eslint-disable-next-line eslint-plugin-n/no-unsupported-features/node-builtins
-      const ws = new globalThis.WebSocket(url, {
-        headers,
-        proxy: getWebSocketProxyUrl(url),
-        tls: getWebSocketTLSOptions() || undefined,
-      } as unknown as string[])
-      this.ws = ws
-
-      ws.addEventListener('open', () => {
-        logForDebugging(
-          '[SessionsWebSocket] Connection opened, authenticated via headers',
-        )
-        this.state = 'connected'
-        this.reconnectAttempts = 0
-        this.sessionNotFoundRetries = 0
-        this.startPingInterval()
-        this.callbacks.onConnected?.()
-      })
-
-      ws.addEventListener('message', (event: MessageEvent) => {
-        const data =
-          typeof event.data === 'string' ? event.data : String(event.data)
-        this.handleMessage(data)
-      })
-
-      ws.addEventListener('error', () => {
-        const err = new Error('[SessionsWebSocket] WebSocket error')
-        logError(err)
-        this.callbacks.onError?.(err)
-      })
-
-      // eslint-disable-next-line eslint-plugin-n/no-unsupported-features/node-builtins
-      ws.addEventListener('close', (event: CloseEvent) => {
-        logForDebugging(
-          `[SessionsWebSocket] Closed: code=${event.code} reason=${event.reason}`,
-        )
-        this.handleClose(event.code)
-      })
-
-      ws.addEventListener('pong', () => {
-        logForDebugging('[SessionsWebSocket] Pong received')
-      })
-    } else {
-      const { default: WS } = await import('ws')
-      const ws = new WS(url, {
-        headers,
-        agent: getWebSocketProxyAgent(url),
-        ...getWebSocketTLSOptions(),
-      })
-      this.ws = ws
-
-      ws.on('open', () => {
-        logForDebugging(
-          '[SessionsWebSocket] Connection opened, authenticated via headers',
-        )
-        // Auth is handled via headers, so we're immediately connected
-        this.state = 'connected'
-        this.reconnectAttempts = 0
-        this.sessionNotFoundRetries = 0
-        this.startPingInterval()
-        this.callbacks.onConnected?.()
-      })
-
-      ws.on('message', (data: Buffer) => {
-        this.handleMessage(data.toString())
-      })
-
-      ws.on('error', (err: Error) => {
-        logError(new Error(`[SessionsWebSocket] Error: ${err.message}`))
-        this.callbacks.onError?.(err)
-      })
-
-      ws.on('close', (code: number, reason: Buffer) => {
-        logForDebugging(
-          `[SessionsWebSocket] Closed: code=${code} reason=${reason.toString()}`,
-        )
-        this.handleClose(code)
-      })
-
-      ws.on('pong', () => {
-        logForDebugging('[SessionsWebSocket] Pong received')
-      })
+    const headers: Record<string, string> = {
+      ...this.authHeaders(),
+      Accept: 'text/event-stream',
     }
+    if (this.lastSequenceNum > 0) {
+      headers['Last-Event-ID'] = String(this.lastSequenceNum)
+    }
+
+    logForDebugging(
+      `[SessionsV2Client] Connecting to ${url.href} (from_sequence_num=${this.lastSequenceNum})`,
+    )
+    this.abortController = new AbortController()
+    void this.readStream(url, headers, this.abortController)
   }
 
-  /**
-   * Handle incoming WebSocket message
-   */
-  private handleMessage(data: string): void {
+  private async readStream(
+    url: URL,
+    headers: Record<string, string>,
+    abortController: AbortController,
+  ): Promise<void> {
+    let response: Response
     try {
-      const message: unknown = jsonParse(data)
-
-      // Forward SDK messages to callback
-      if (isSessionsMessage(message)) {
-        this.callbacks.onMessage(message)
-      } else {
-        logForDebugging(
-          `[SessionsWebSocket] Ignoring message type: ${typeof message === 'object' && message !== null && 'type' in message ? String(message.type) : 'unknown'}`,
-        )
-      }
+      response = await fetch(url.href, {
+        method: 'GET',
+        headers,
+        signal: abortController.signal,
+        ...getProxyFetchOptions({ url: url.href }),
+      })
     } catch (error) {
-      logError(
-        new Error(
-          `[SessionsWebSocket] Failed to parse message: ${errorMessage(error)}`,
-        ),
-      )
-    }
-  }
-
-  /**
-   * Handle WebSocket close
-   */
-  private handleClose(closeCode: number): void {
-    this.stopPingInterval()
-
-    if (this.state === 'closed') {
-      return
-    }
-
-    this.ws = null
-
-    const previousState = this.state
-    this.state = 'closed'
-
-    // Permanent codes: stop reconnecting — server has definitively ended the session
-    if (PERMANENT_CLOSE_CODES.has(closeCode)) {
+      if (abortController.signal.aborted) return
       logForDebugging(
-        `[SessionsWebSocket] Permanent close code ${closeCode}, not reconnecting`,
+        `[SessionsV2Client] Connect error: ${errorMessage(error)}`,
+        { level: 'error' },
       )
-      this.callbacks.onClose?.()
+      this.callbacks.onError?.(toError(error))
+      this.handleStreamEnd()
       return
     }
 
-    // 4001 (session not found) can be transient during compaction: the
-    // server may briefly consider the session stale while the CLI worker
-    // is busy with the compaction API call and not emitting events.
-    if (closeCode === 4001) {
-      this.sessionNotFoundRetries++
-      if (this.sessionNotFoundRetries > MAX_SESSION_NOT_FOUND_RETRIES) {
-        logForDebugging(
-          `[SessionsWebSocket] 4001 retry budget exhausted (${MAX_SESSION_NOT_FOUND_RETRIES}), not reconnecting`,
-        )
+    if (!response.ok || !response.body) {
+      logForDebugging(
+        `[SessionsV2Client] HTTP ${response.status} on SSE connect`,
+        { level: 'error' },
+      )
+      void response.body?.cancel()
+      if (PERMANENT_HTTP_CODES.has(response.status)) {
+        this.state = 'closed'
         this.callbacks.onClose?.()
         return
       }
-      this.scheduleReconnect(
-        RECONNECT_DELAY_MS * this.sessionNotFoundRetries,
-        `4001 attempt ${this.sessionNotFoundRetries}/${MAX_SESSION_NOT_FOUND_RETRIES}`,
+      this.handleStreamEnd()
+      return
+    }
+
+    this.state = 'connected'
+    this.reconnectAttempts = 0
+    this.resetLivenessTimer()
+    logForDebugging('[SessionsV2Client] Connected')
+    this.callbacks.onConnected?.()
+
+    const reader = response.body.getReader()
+    const decoder = new TextDecoder()
+    let buffer = ''
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buffer += decoder.decode(value, STREAM_DECODE_OPTIONS)
+        const { frames, remaining } = parseSSEFrames(buffer)
+        buffer = remaining
+        for (const frame of frames) {
+          this.resetLivenessTimer()
+          if (frame.event && frame.data) {
+            this.handleFrame(frame.event, frame.id, frame.data)
+          }
+        }
+      }
+    } catch (error) {
+      if (abortController.signal.aborted) return
+      logForDebugging(
+        `[SessionsV2Client] Stream read error: ${errorMessage(error)}`,
+        { level: 'error' },
+      )
+    } finally {
+      reader.releaseLock()
+    }
+
+    if (!abortController.signal.aborted) {
+      logForDebugging('[SessionsV2Client] Stream ended')
+      this.handleStreamEnd()
+    }
+  }
+
+  private handleFrame(event: string, id: string | undefined, data: string) {
+    let decoded: unknown
+    try {
+      decoded = jsonParse(data)
+    } catch (error) {
+      logError(
+        new Error(
+          `[SessionsV2Client] Failed to parse ${event} frame: ${errorMessage(error)}`,
+        ),
       )
       return
     }
 
-    // Attempt reconnection if we were connected
-    if (
-      previousState === 'connected' &&
-      this.reconnectAttempts < MAX_RECONNECT_ATTEMPTS
-    ) {
-      this.reconnectAttempts++
-      this.scheduleReconnect(
-        RECONNECT_DELAY_MS,
-        `attempt ${this.reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS}`,
-      )
-    } else {
-      logForDebugging('[SessionsWebSocket] Not reconnecting')
-      this.callbacks.onClose?.()
+    switch (event) {
+      case 'client_event': {
+        const clientEvent = decoded as ClientEvent
+        const sequenceNum = parseInt(
+          id ?? String(clientEvent.sequence_num),
+          10,
+        )
+        if (!isNaN(sequenceNum) && sequenceNum > this.lastSequenceNum) {
+          this.lastSequenceNum = sequenceNum
+        }
+        if (isSessionsMessage(clientEvent.payload)) {
+          this.callbacks.onMessage(clientEvent.payload)
+        } else {
+          logForDebugging(
+            `[SessionsV2Client] Dropping client_event with no payload.type (event_type=${clientEvent.event_type})`,
+          )
+        }
+        return
+      }
+      case 'ephemeral_event': {
+        const ephemeralEvent = decoded as EphemeralEvent
+        if (isSessionsMessage(ephemeralEvent.payload)) {
+          this.callbacks.onMessage(ephemeralEvent.payload)
+        }
+        return
+      }
+      case 'session_update':
+      case 'delivery_update':
+      case 'catch_up_truncated':
+        logForDebugging(`[SessionsV2Client] Ignoring ${event} frame`)
+        return
+      default:
+        logForDebugging(
+          `[SessionsV2Client] Unknown SSE event type '${event}'`,
+          { level: 'warn' },
+        )
+        return
     }
   }
 
-  private scheduleReconnect(delay: number, label: string): void {
-    this.callbacks.onReconnecting?.()
-    logForDebugging(
-      `[SessionsWebSocket] Scheduling reconnect (${label}) in ${delay}ms`,
+  private handleStreamEnd(): void {
+    this.clearLivenessTimer()
+    if (this.state === 'closed') return
+
+    this.abortController = null
+    if (this.reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+      logForDebugging(
+        `[SessionsV2Client] Reconnect budget exhausted (${MAX_RECONNECT_ATTEMPTS}), closing`,
+      )
+      this.state = 'closed'
+      this.callbacks.onClose?.()
+      return
+    }
+
+    this.reconnectAttempts++
+    this.state = 'idle'
+    const delay = Math.min(
+      RECONNECT_BASE_DELAY_MS * 2 ** (this.reconnectAttempts - 1),
+      RECONNECT_MAX_DELAY_MS,
     )
+    logForDebugging(
+      `[SessionsV2Client] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS}, from_sequence_num=${this.lastSequenceNum})`,
+    )
+    this.callbacks.onReconnecting?.()
     this.reconnectTimer = setTimeout(() => {
       this.reconnectTimer = null
       void this.connect()
     }, delay)
   }
 
-  private startPingInterval(): void {
-    this.stopPingInterval()
+  private onLivenessTimeout = () => {
+    this.livenessTimer = null
+    logForDebugging('[SessionsV2Client] Liveness timeout, reconnecting', {
+      level: 'warn',
+    })
+    this.abortController?.abort()
+    this.abortController = null
+    this.handleStreamEnd()
+  }
 
-    this.pingInterval = setInterval(() => {
-      if (this.ws && this.state === 'connected') {
-        try {
-          this.ws.ping?.()
-        } catch {
-          // Ignore ping errors, close handler will deal with connection issues
-        }
+  private resetLivenessTimer(): void {
+    this.clearLivenessTimer()
+    this.livenessTimer = setTimeout(
+      this.onLivenessTimeout,
+      LIVENESS_TIMEOUT_MS,
+    )
+  }
+
+  private clearLivenessTimer(): void {
+    if (this.livenessTimer) {
+      clearTimeout(this.livenessTimer)
+      this.livenessTimer = null
+    }
+  }
+
+  private async sendEvent(
+    payload: unknown,
+  ): Promise<{ sequence_num: number } | null> {
+    if (this.state === 'closed') {
+      logForDebugging('[SessionsV2Client] Cannot send: closed', {
+        level: 'warn',
+      })
+      return null
+    }
+
+    const url = `${getOauthConfig().BASE_API_URL}/v1/code/sessions/${this.sessionId}/events`
+    const body = {
+      session_id: this.sessionId,
+      events: [{ payload }],
+    }
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: this.authHeaders(),
+        body: jsonStringify(body),
+        signal: AbortSignal.timeout(30000),
+        ...getProxyFetchOptions({ url }),
+      })
+      if (!response.ok) {
+        void response.body?.cancel()
+        logForDebugging(
+          `[SessionsV2Client] POST /events returned ${response.status}`,
+          { level: 'warn' },
+        )
+        return null
       }
-    }, PING_INTERVAL_MS)
-  }
 
-  /**
-   * Stop ping interval
-   */
-  private stopPingInterval(): void {
-    if (this.pingInterval) {
-      clearInterval(this.pingInterval)
-      this.pingInterval = null
+      const result = (
+        (await response.json()) as {
+          results?: Array<{ sequence_num?: number | string }>
+        }
+      ).results?.[0]
+      const sequenceNum = result
+        ? parseInt(String(result.sequence_num), 10)
+        : NaN
+      return { sequence_num: isNaN(sequenceNum) ? 0 : sequenceNum }
+    } catch (error) {
+      logForDebugging(
+        `[SessionsV2Client] POST /events failed: ${errorMessage(error)}`,
+        { level: 'warn' },
+      )
+      return null
     }
   }
 
-  /**
-   * Send a control response back to the session
-   */
   sendControlResponse(response: SDKControlResponse): void {
-    if (!this.ws || this.state !== 'connected') {
-      logError(new Error('[SessionsWebSocket] Cannot send: not connected'))
-      return
-    }
-
-    logForDebugging('[SessionsWebSocket] Sending control response')
-    this.ws.send(jsonStringify(response))
+    logForDebugging('[SessionsV2Client] Sending control_response')
+    void this.sendEvent({ ...response, uuid: randomUUID() })
   }
 
-  /**
-   * Send a control request to the session (e.g., interrupt)
-   */
   sendControlRequest(request: SDKControlRequestInner): string | null {
-    if (!this.ws || this.state !== 'connected') {
-      logError(new Error('[SessionsWebSocket] Cannot send: not connected'))
+    if (this.state === 'closed') {
+      logForDebugging(
+        '[SessionsV2Client] Cannot send control_request: closed',
+        { level: 'warn' },
+      )
       return null
     }
 
     const requestId = randomUUID()
-    const controlRequest: SDKControlRequest = {
-      type: 'control_request',
+    const controlRequest = {
+      type: 'control_request' as const,
       request_id: requestId,
       request,
+      uuid: randomUUID(),
     }
-
     logForDebugging(
-      `[SessionsWebSocket] Sending control request: ${request.subtype}`,
+      `[SessionsV2Client] Sending control_request: ${request.subtype}`,
     )
-    this.ws.send(jsonStringify(controlRequest))
+    void this.sendEvent(controlRequest)
     return requestId
   }
 
-  /**
-   * Check if connected
-   */
   isConnected(): boolean {
     return this.state === 'connected'
   }
 
-  /**
-   * Close the WebSocket connection
-   */
   close(): void {
-    logForDebugging('[SessionsWebSocket] Closing connection')
+    logForDebugging('[SessionsV2Client] Closing')
     this.state = 'closed'
-    this.stopPingInterval()
-
+    this.clearLivenessTimer()
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer)
       this.reconnectTimer = null
     }
-
-    if (this.ws) {
-      // Null out event handlers to prevent race conditions during reconnect.
-      // Under Bun (native WebSocket), onX handlers are the clean way to detach.
-      // Under Node (ws package), the listeners were attached with .on() in connect(),
-      // but since we're about to close and null out this.ws, no cleanup is needed.
-      this.ws.close()
-      this.ws = null
-    }
+    this.abortController?.abort()
+    this.abortController = null
   }
 
-  /**
-   * Force reconnect - closes existing connection and establishes a new one.
-   * Useful when the subscription becomes stale (e.g., after container shutdown).
-   */
   reconnect(): void {
-    logForDebugging('[SessionsWebSocket] Force reconnecting')
+    logForDebugging('[SessionsV2Client] Force reconnect')
     this.reconnectAttempts = 0
-    this.sessionNotFoundRetries = 0
-    this.close()
-    // Small delay before reconnecting (stored in reconnectTimer so it can be cancelled)
-    this.reconnectTimer = setTimeout(() => {
+    this.clearLivenessTimer()
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer)
       this.reconnectTimer = null
-      void this.connect()
-    }, 500)
+    }
+    this.abortController?.abort()
+    this.abortController = null
+    this.state = 'idle'
+    void this.connect()
+  }
+
+  private authHeaders(): Record<string, string> {
+    return {
+      Authorization: `Bearer ${this.getAccessToken()}`,
+      'Content-Type': 'application/json',
+      'anthropic-version': '2023-06-01',
+      'x-organization-uuid': this.orgUuid,
+      'User-Agent': getUserAgent(),
+    }
   }
 }

@@ -15,7 +15,11 @@ import { getProjectRoot, getSessionId } from '../bootstrap/state.js'
 import { registerCleanup } from './cleanupRegistry.js'
 import { logForDebugging } from './debug.js'
 import { getErrnoCode } from './errors.js'
-import { isProcessRunning } from './genericProcessUtils.js'
+import {
+  getCurrentProcessStartToken,
+  isProcessRunning,
+  processStartTokenMatches,
+} from './genericProcessUtils.js'
 import { safeParseJSON } from './json.js'
 import { lazySchema } from './lazySchema.js'
 import { jsonStringify } from './slowOperations.js'
@@ -26,6 +30,7 @@ const schedulerLockSchema = lazySchema(() =>
   z.object({
     sessionId: z.string(),
     pid: z.number(),
+    procStart: z.string().optional(),
     acquiredAt: z.number(),
   }),
 )
@@ -119,6 +124,7 @@ export async function tryAcquireSchedulerLock(
   const lock: SchedulerLock = {
     sessionId,
     pid: process.pid,
+    procStart: getCurrentProcessStartToken(),
     acquiredAt: Date.now(),
   }
 
@@ -146,7 +152,11 @@ export async function tryAcquireSchedulerLock(
 
   // Corrupt or unparseable — treat as stale.
   // Another live session — blocked.
-  if (existing && isProcessRunning(existing.pid)) {
+  if (
+    existing &&
+    isProcessRunning(existing.pid) &&
+    (await processStartTokenMatches(existing.pid, existing.procStart))
+  ) {
     if (lastBlockedBy !== existing.sessionId) {
       lastBlockedBy = existing.sessionId
       logForDebugging(

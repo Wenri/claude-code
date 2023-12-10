@@ -43,6 +43,7 @@ import { isNullRenderingAttachment } from './messages/nullRenderingAttachments.j
 import { OffscreenFreeze } from './OffscreenFreeze.js';
 import type { ToolUseConfirm } from './permissions/PermissionRequest.js';
 import { StatusNotices } from './StatusNotices.js';
+import { WarmResumeHint } from './WarmResumeHint.js';
 import type { JumpHandle } from './VirtualMessageList.js';
 
 // Memoed logo header: this box is the FIRST sibling before all MessageRows
@@ -67,7 +68,7 @@ const LogoHeader = React.memo(function LogoHeader(t0) {
   }
   let t2;
   if ($[1] !== agentDefinitions) {
-    t2 = <OffscreenFreeze><Box flexDirection="column" gap={1}>{t1}<React.Suspense fallback={null}><StatusNotices agentDefinitions={agentDefinitions} /></React.Suspense></Box></OffscreenFreeze>;
+    t2 = <OffscreenFreeze><Box flexDirection="column" gap={1}>{t1}<WarmResumeHint /><React.Suspense fallback={null}><StatusNotices agentDefinitions={agentDefinitions} /></React.Suspense></Box></OffscreenFreeze>;
     $[1] = agentDefinitions;
     $[2] = t2;
   } else {

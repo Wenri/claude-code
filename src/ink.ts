@@ -38,6 +38,8 @@ export { default as Text } from './components/design-system/ThemedText.js'
 export {
   ThemeProvider,
   usePreviewTheme,
+  useResolvedTheme,
+  useCustomThemes,
   useTheme,
   useThemeSetting,
 } from './components/design-system/ThemeProvider.js'

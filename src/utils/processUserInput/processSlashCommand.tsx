@@ -30,6 +30,7 @@ import { getFsImplementation } from '../fsOperations.js';
 import { isFullscreenEnvEnabled } from '../fullscreen.js';
 import { toArray } from '../generators.js';
 import { registerSkillHooks } from '../hooks/registerSkillHooks.js';
+import { executeUserPromptExpansionHooks } from '../hooks.js';
 import { logError } from '../log.js';
 import { enqueuePendingNotification } from '../messageQueueManager.js';
 import { createCommandInputMessage, createSyntheticUserCaveatMessage, createSystemMessage, createUserInterruptionMessage, createUserMessage, formatCommandInputTags, isCompactBoundaryMessage, isSystemLocalCommandMessage, normalizeMessages, prepareUserContent } from '../messages.js';
@@ -44,6 +45,7 @@ import { recordSkillUsage } from '../suggestions/skillUsageTracking.js';
 import { findClosestCommand } from '../suggestions/commandSuggestions.js';
 import { logOTelEvent, redactIfDisabled } from '../telemetry/events.js';
 import { buildPluginCommandTelemetryFields } from '../telemetry/pluginTelemetry.js';
+import { getTeamArtifactAnalyticsMetadata } from '../teamArtifacts.js';
 import { getAssistantMessageContentLength } from '../tokens.js';
 import { createAgentId } from '../uuid.js';
 import { getWorkload } from '../workloadContext.js';
@@ -51,6 +53,10 @@ import type { ProcessUserInputBaseResult, ProcessUserInputContext } from './proc
 type SlashCommandResult = ProcessUserInputBaseResult & {
   command: Command;
 };
+
+export function looksLikeCommand(name: string): boolean {
+  return !/[^a-zA-Z0-9:\-_]/.test(name);
+}
 
 // Poll interval and deadline for MCP settle before launching a background
 // forked subagent. MCP servers typically connect within 1-3s of startup;
@@ -61,7 +67,7 @@ const MCP_SETTLE_TIMEOUT_MS = 10_000;
 /**
  * Executes a slash command with context: fork in a sub-agent.
  */
-async function executeForkedSlashCommand(command: CommandBase & PromptCommand, args: string, context: ProcessUserInputContext, precedingInputBlocks: ContentBlockParam[], setToolJSX: SetToolJSXFn, canUseTool: CanUseToolFn): Promise<SlashCommandResult> {
+async function executeForkedSlashCommand(command: CommandBase & PromptCommand, args: string, context: ProcessUserInputContext, precedingInputBlocks: ContentBlockParam[], setToolJSX: SetToolJSXFn, canUseTool: CanUseToolFn, hookMessages: Message[] = []): Promise<SlashCommandResult> {
   const agentId = createAgentId();
   const pluginMarketplace = command.pluginInfo ? parsePluginIdentifier(command.pluginInfo.repository).marketplace : undefined;
   logEvent('tengu_slash_command_forked', {
@@ -81,6 +87,7 @@ async function executeForkedSlashCommand(command: CommandBase & PromptCommand, a
     baseAgent,
     promptMessages
   } = await prepareForkedCommandContext(command, args, context);
+  promptMessages.push(...hookMessages);
 
   // Merge skill's effort into the agent definition so runAgent applies it
   const agentDefinition = command.effort !== undefined ? {
@@ -296,18 +303,6 @@ async function executeForkedSlashCommand(command: CommandBase & PromptCommand, a
   };
 }
 
-/**
- * Determines if a string looks like a valid command name.
- * Valid command names only contain letters, numbers, colons, hyphens, and underscores.
- *
- * @param commandName - The potential command name to check
- * @returns true if it looks like a command name, false if it contains non-command characters
- */
-export function looksLikeCommand(commandName: string): boolean {
-  // Command names should only contain [a-zA-Z0-9:_-]
-  // If it contains other characters, it's probably a file path or other input
-  return !/[^a-zA-Z0-9:\-_]/.test(commandName);
-}
 export async function processSlashCommand(inputString: string, precedingInputBlocks: ContentBlockParam[], imageContentBlocks: ContentBlockParam[], attachmentMessages: AttachmentMessage[], context: ProcessUserInputContext, setToolJSX: SetToolJSXFn, uuid?: string, isAlreadyProcessing?: boolean, canUseTool?: CanUseToolFn): Promise<ProcessUserInputBaseResult> {
   const parsed = parseSlashCommand(inputString);
   if (!parsed) {
@@ -460,6 +455,10 @@ export async function processSlashCommand(inputString: string, precedingInputBlo
     logEvent('tengu_input_command', {
       ...eventData,
       invocation_trigger: 'user-slash' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      ...getTeamArtifactAnalyticsMetadata(
+        returnedCommand.type === 'prompt' ? returnedCommand.source : '',
+        commandName,
+      ),
       ...("external" === 'ant' && {
         skill_name: commandName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
         ...(returnedCommand.type === 'prompt' && {
@@ -528,6 +527,10 @@ export async function processSlashCommand(inputString: string, precedingInputBlo
   logEvent('tengu_input_command', {
     ...eventData,
     invocation_trigger: 'user-slash' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    ...getTeamArtifactAnalyticsMetadata(
+      returnedCommand.type === 'prompt' ? returnedCommand.source : '',
+      commandName,
+    ),
     ...("external" === 'ant' && {
       skill_name: commandName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       ...(returnedCommand.type === 'prompt' && {
@@ -642,7 +645,7 @@ async function getMessagesForSlashCommand(commandName: string, args: string, set
             void command.load().then(mod => mod.call(onDone, {
               ...context,
               canUseTool
-            }, args)).then(jsx => {
+            }, args, commandName)).then(jsx => {
               if (jsx == null) return;
               if (context.options.isNonInteractiveSession) {
                 void resolve({
@@ -756,11 +759,19 @@ async function getMessagesForSlashCommand(commandName: string, args: string, set
       case 'prompt':
         {
           try {
+            const expansionHookResult = await processUserPromptExpansionHooks(
+              command,
+              args,
+              context,
+            );
+            if ('blocked' in expansionHookResult) {
+              return expansionHookResult.blocked;
+            }
             // Check if command should run as forked sub-agent
             if (command.context === 'fork') {
-              return await executeForkedSlashCommand(command, args, context, precedingInputBlocks, setToolJSX, canUseTool ?? hasPermissionsToUseTool);
+              return await executeForkedSlashCommand(command, args, context, precedingInputBlocks, setToolJSX, canUseTool ?? hasPermissionsToUseTool, expansionHookResult.hookMessages);
             }
-            return await getMessagesForPromptSlashCommand(command, args, context, precedingInputBlocks, imageContentBlocks, uuid);
+            return await getMessagesForPromptSlashCommand(command, args, context, precedingInputBlocks, imageContentBlocks, uuid, expansionHookResult.hookMessages);
           } catch (e) {
             // Handle abort errors specially to show proper "Interrupted" message
             if (e instanceof AbortError) {
@@ -847,6 +858,79 @@ function formatCommandLoadingMetadata(command: CommandBase & PromptCommand, args
   }
   return formatSlashCommandLoadingMetadata(command.name, args);
 }
+
+async function processUserPromptExpansionHooks(
+  command: CommandBase & PromptCommand,
+  args: string,
+  context: ToolUseContext,
+): Promise<{ hookMessages: Message[] } | { blocked: SlashCommandResult }> {
+  const hookMessages: Message[] = [];
+  const originalPrompt = args ? `/${command.name} ${args}` : `/${command.name}`;
+
+  for await (const hookResult of executeUserPromptExpansionHooks(
+    command.source === 'mcp' ? 'mcp_prompt' : 'slash_command',
+    command.name,
+    args,
+    command.source,
+    originalPrompt,
+    context.getAppState().toolPermissionContext.mode,
+    context,
+  )) {
+    if (hookResult.message?.type === 'progress') continue;
+    if (hookResult.blockingError) {
+      return {
+        blocked: {
+          messages: [
+            createSystemMessage(
+              `UserPromptExpansion operation blocked by hook:\n${hookResult.blockingError.blockingError}\n\nOriginal prompt: ${originalPrompt}`,
+              'warning',
+            ),
+          ],
+          shouldQuery: false,
+          command,
+        },
+      };
+    }
+    if (hookResult.preventContinuation) {
+      return {
+        blocked: {
+          messages: [
+            createUserMessage({
+              content: hookResult.stopReason
+                ? `Operation stopped by hook: ${hookResult.stopReason}`
+                : 'Operation stopped by hook',
+            }),
+          ],
+          shouldQuery: false,
+          command,
+        },
+      };
+    }
+    if (hookResult.additionalContexts?.length) {
+      hookMessages.push(
+        createAttachmentMessage({
+          type: 'hook_additional_context',
+          content: hookResult.additionalContexts,
+          hookName: 'UserPromptExpansion',
+          toolUseID: `hook-${randomUUID()}`,
+          hookEvent: 'UserPromptExpansion',
+        }),
+      );
+    }
+    if (
+      hookResult.message &&
+      !(
+        hookResult.message.type === 'attachment' &&
+        hookResult.message.attachment.type === 'hook_success' &&
+        hookResult.message.attachment.content === ''
+      )
+    ) {
+      hookMessages.push(hookResult.message);
+    }
+  }
+
+  return { hookMessages };
+}
 export async function processPromptSlashCommand(commandName: string, args: string, commands: Command[], context: ToolUseContext, imageContentBlocks: ContentBlockParam[] = []): Promise<SlashCommandResult> {
   const command = findCommand(commandName, commands);
   if (!command) {
@@ -857,7 +941,7 @@ export async function processPromptSlashCommand(commandName: string, args: strin
   }
   return getMessagesForPromptSlashCommand(command, args, context, [], imageContentBlocks);
 }
-async function getMessagesForPromptSlashCommand(command: CommandBase & PromptCommand, args: string, context: ToolUseContext, precedingInputBlocks: ContentBlockParam[] = [], imageContentBlocks: ContentBlockParam[] = [], uuid?: string): Promise<SlashCommandResult> {
+async function getMessagesForPromptSlashCommand(command: CommandBase & PromptCommand, args: string, context: ToolUseContext, precedingInputBlocks: ContentBlockParam[] = [], imageContentBlocks: ContentBlockParam[] = [], uuid?: string, hookMessages: Message[] = []): Promise<SlashCommandResult> {
   // In coordinator mode (main thread only), skip loading the full skill content
   // and permissions. The coordinator only has Agent + TaskStop tools, so the
   // skill content and allowedTools are useless. Instead, send a brief summary
@@ -939,7 +1023,7 @@ async function getMessagesForPromptSlashCommand(command: CommandBase & PromptCom
   }), createUserMessage({
     content: mainMessageContent,
     isMeta: true
-  }), ...attachmentMessages, createAttachmentMessage({
+  }), ...attachmentMessages, ...hookMessages, createAttachmentMessage({
     type: 'command_permissions',
     allowedTools: additionalAllowedTools,
     model: command.model

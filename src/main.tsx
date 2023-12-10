@@ -90,7 +90,7 @@ import { isAnalyticsDisabled } from 'src/services/analytics/config.js';
 import { getFeatureValue_CACHED_MAY_BE_STALE } from 'src/services/analytics/growthbook.js';
 import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEvent } from 'src/services/analytics/index.js';
 import { initializeAnalyticsGates } from 'src/services/analytics/sink.js';
-import { getOriginalCwd, setAdditionalDirectoriesForClaudeMd, setIsRemoteMode, setMainLoopModelOverride, setMainThreadAgentType, setTeleportedSessionInfo } from './bootstrap/state.js';
+import { getOriginalCwd, setAdditionalDirectoriesForClaudeMd, setIsRemoteMode, setMainLoopModelOverride, setMainThreadAgentType, setParentManagedSettings, setTeleportedSessionInfo } from './bootstrap/state.js';
 import { filterCommandsForRemoteMode, getCommands } from './commands.js';
 import type { StatsStore } from './context/stats.js';
 import { launchAssistantInstallWizard, launchAssistantSessionChooser, launchInvalidSettingsDialog, launchResumeChooser, launchSnapshotUpdateDialog, launchTeleportRepoMismatchDialog, launchTeleportResumeWrapper } from './dialogLaunchers.js';
@@ -138,6 +138,8 @@ import { cacheSessionTitle, getSessionIdFromLog, loadTranscriptFromFile, saveAge
 import { ensureMdmSettingsLoaded } from './utils/settings/mdm/settings.js';
 import { getInitialSettings, getManagedSettingsKeysForLogging, getSettingsForSource, getSettingsWithErrors } from './utils/settings/settings.js';
 import { resetSettingsCache } from './utils/settings/settingsCache.js';
+import { getNoFlickerEnvVar, getRendererEntryPath } from './utils/fullscreen.js';
+import type { SettingsJson } from './utils/settings/types.js';
 import type { ValidationError } from './utils/settings/validation.js';
 import { DEFAULT_TASKS_MODE_TASK_LIST_ID, TASK_STATUSES } from './utils/tasks.js';
 import { logPluginLoadErrors, logPluginsEnabledForSession } from './utils/telemetry/pluginTelemetry.js';
@@ -492,6 +494,35 @@ function loadSettingsFromFlag(settingsFile: string): void {
     process.exit(1);
   }
 }
+
+const PARENT_MANAGED_SETTINGS_ENTRYPOINTS = new Set([
+  'sdk-ts',
+  'sdk-py',
+  'claude-desktop',
+  'claude-desktop-3p',
+  'local-agent',
+  'claude-vscode'
+]);
+
+function loadParentManagedSettingsFromFlag(settingsJson: string): void {
+  if (!PARENT_MANAGED_SETTINGS_ENTRYPOINTS.has(process.env.CLAUDE_CODE_ENTRYPOINT ?? '')) {
+    logForDebugging('--managed-settings ignored: only honored when spawned by an SDK parent', {
+      level: 'warn'
+    });
+    return;
+  }
+
+  const parsedJson = safeParseJSON(settingsJson.trim());
+  if (!parsedJson || typeof parsedJson !== 'object' || Array.isArray(parsedJson)) {
+    logForDebugging('--managed-settings ignored: invalid JSON object', {
+      level: 'warn'
+    });
+    return;
+  }
+
+  setParentManagedSettings(parsedJson as SettingsJson);
+  resetSettingsCache();
+}
 function loadSettingSourcesFromFlag(settingSourcesArg: string): void {
   try {
     const sources = parseSettingSourcesFlag(settingSourcesArg);
@@ -516,6 +547,11 @@ function eagerLoadSettings(): void {
   const settingsFile = eagerParseCliFlag('--settings');
   if (settingsFile) {
     loadSettingsFromFlag(settingsFile);
+  }
+
+  const managedSettingsJson = eagerParseCliFlag('--managed-settings');
+  if (managedSettingsJson) {
+    loadParentManagedSettingsFromFlag(managedSettingsJson);
   }
 
   // Parse --setting-sources flag early to control which sources are loaded
@@ -1012,7 +1048,7 @@ async function run(): Promise<CommanderCommand> {
     // If not provided but flag is present, value will be true
     // The actual filtering is handled in debug.ts by parsing process.argv
     return true;
-  }).addOption(new Option('-d2e, --debug-to-stderr', 'Enable debug mode (to stderr)').argParser(Boolean).hideHelp()).option('--debug-file <path>', 'Write debug logs to a specific file path (implicitly enables debug mode)', () => true).option('--verbose', 'Override verbose mode setting from config', () => true).option('-p, --print', 'Print response and exit (useful for pipes). Note: The workspace trust dialog is skipped when Claude is run with the -p mode. Only use this flag in directories you trust.', () => true).option('--bare', 'Minimal mode: skip hooks, LSP, plugin sync, attribution, auto-memory, background prefetches, keychain reads, and CLAUDE.md auto-discovery. Sets CLAUDE_CODE_SIMPLE=1. Anthropic auth is strictly ANTHROPIC_API_KEY or apiKeyHelper via --settings (OAuth and keychain are never read). 3P providers (Bedrock/Vertex/Foundry) use their own credentials. Skills still resolve via /skill-name. Explicitly provide context via: --system-prompt[-file], --append-system-prompt[-file], --add-dir (CLAUDE.md dirs), --mcp-config, --settings, --agents, --plugin-dir.', () => true).addOption(new Option('--init', 'Run Setup hooks with init trigger, then continue').hideHelp()).addOption(new Option('--init-only', 'Run Setup and SessionStart:startup hooks, then exit').hideHelp()).addOption(new Option('--maintenance', 'Run Setup hooks with maintenance trigger, then continue').hideHelp()).addOption(new Option('--output-format <format>', 'Output format (only works with --print): "text" (default), "json" (single result), or "stream-json" (realtime streaming)').choices(['text', 'json', 'stream-json'])).addOption(new Option('--json-schema <schema>', 'JSON Schema for structured output validation. ' + 'Example: {"type":"object","properties":{"name":{"type":"string"}},"required":["name"]}').argParser(String)).option('--include-hook-events', 'Include all hook lifecycle events in the output stream (only works with --output-format=stream-json)', () => true).option('--include-partial-messages', 'Include partial message chunks as they arrive (only works with --print and --output-format=stream-json)', () => true).addOption(new Option('--input-format <format>', 'Input format (only works with --print): "text" (default), or "stream-json" (realtime streaming input)').choices(['text', 'stream-json'])).option('--mcp-debug', '[DEPRECATED. Use --debug instead] Enable MCP debug mode (shows MCP server errors)', () => true).option('--dangerously-skip-permissions', 'Bypass all permission checks. Recommended only for sandboxes with no internet access.', () => true).option('--allow-dangerously-skip-permissions', 'Enable bypassing all permission checks as an option, without it being enabled by default. Recommended only for sandboxes with no internet access.', () => true).addOption(new Option('--thinking <mode>', 'Thinking mode: enabled (equivalent to adaptive), disabled').choices(['enabled', 'adaptive', 'disabled']).hideHelp()).addOption(new Option('--max-thinking-tokens <tokens>', '[DEPRECATED. Use --thinking instead for newer models] Maximum number of thinking tokens (only works with --print)').argParser(Number).hideHelp()).addOption(new Option('--max-turns <turns>', 'Maximum number of agentic turns in non-interactive mode. This will early exit the conversation after the specified number of turns. (only works with --print)').argParser(Number).hideHelp()).addOption(new Option('--max-budget-usd <amount>', 'Maximum dollar amount to spend on API calls (only works with --print)').argParser(value => {
+  }).addOption(new Option('-d2e, --debug-to-stderr', '(deprecated) Enable debug mode (to stderr)').argParser(Boolean).hideHelp().implies({ debug: true })).option('--debug-file <path>', 'Write debug logs to a specific file path (implicitly enables debug mode)', () => true).option('--verbose', 'Override verbose mode setting from config', () => true).option('-p, --print', 'Print response and exit (useful for pipes). Note: The workspace trust dialog is skipped when Claude is run with the -p mode. Only use this flag in directories you trust.', () => true).option('--bare', 'Minimal mode: skip hooks, LSP, plugin sync, attribution, auto-memory, background prefetches, keychain reads, and CLAUDE.md auto-discovery. Sets CLAUDE_CODE_SIMPLE=1. Anthropic auth is strictly ANTHROPIC_API_KEY or apiKeyHelper via --settings (OAuth and keychain are never read). 3P providers (Bedrock/Vertex/Foundry) use their own credentials. Skills still resolve via /skill-name. Explicitly provide context via: --system-prompt[-file], --append-system-prompt[-file], --add-dir (CLAUDE.md dirs), --mcp-config, --settings, --agents, --plugin-dir.', () => true).addOption(new Option('--init', 'Run Setup hooks with init trigger, then continue').hideHelp()).addOption(new Option('--init-only', 'Run Setup and SessionStart:startup hooks, then exit').hideHelp()).addOption(new Option('--maintenance', 'Run Setup hooks with maintenance trigger, then continue').hideHelp()).addOption(new Option('--output-format <format>', 'Output format (only works with --print): "text" (default), "json" (single result), or "stream-json" (realtime streaming)').choices(['text', 'json', 'stream-json'])).addOption(new Option('--json-schema <schema>', 'JSON Schema for structured output validation. ' + 'Example: {"type":"object","properties":{"name":{"type":"string"}},"required":["name"]}').argParser(String)).option('--include-hook-events', 'Include all hook lifecycle events in the output stream (only works with --output-format=stream-json)', () => true).option('--include-partial-messages', 'Include partial message chunks as they arrive (only works with --print and --output-format=stream-json)', () => true).addOption(new Option('--session-mirror', 'Emit transcript_mirror frames on stdout (SDK-internal; set by ProcessTransport when sessionStore is configured)').hideHelp()).addOption(new Option('--input-format <format>', 'Input format (only works with --print): "text" (default), or "stream-json" (realtime streaming input)').choices(['text', 'stream-json'])).option('--mcp-debug', '[DEPRECATED. Use --debug instead] Enable MCP debug mode (shows MCP server errors)', () => true).option('--dangerously-skip-permissions', 'Bypass all permission checks. Recommended only for sandboxes with no internet access.', () => true).option('--allow-dangerously-skip-permissions', 'Enable bypassing all permission checks as an option, without it being enabled by default. Recommended only for sandboxes with no internet access.', () => true).addOption(new Option('--thinking <mode>', 'Thinking mode: enabled (equivalent to adaptive), disabled').choices(['enabled', 'adaptive', 'disabled']).hideHelp()).addOption(new Option('--thinking-display <display>', 'How thinking content appears in the response').choices(['summarized', 'omitted']).hideHelp()).addOption(new Option('--max-thinking-tokens <tokens>', '[DEPRECATED. Use --thinking instead for newer models] Maximum number of thinking tokens (only works with --print)').argParser(Number).hideHelp()).addOption(new Option('--max-turns <turns>', 'Maximum number of agentic turns in non-interactive mode. This will early exit the conversation after the specified number of turns. (only works with --print)').argParser(Number).hideHelp()).addOption(new Option('--max-budget-usd <amount>', 'Maximum dollar amount to spend on API calls (only works with --print)').argParser(value => {
     const amount = Number(value);
     if (isNaN(amount) || amount <= 0) {
       throw new Error('--max-budget-usd must be a positive number greater than 0');
@@ -1036,7 +1072,7 @@ async function run(): Promise<CommanderCommand> {
       throw new InvalidArgumentError(`It must be one of: ${allowed.join(', ')}`);
     }
     return value;
-  })).option('--agent <agent>', `Agent for the current session. Overrides the 'agent' setting.`).option('--betas <betas...>', 'Beta headers to include in API requests (API key users only)').option('--fallback-model <model>', 'Enable automatic fallback to specified model when default model is overloaded (only works with --print)').addOption(new Option('--workload <tag>', 'Workload tag for billing-header attribution (cc_workload). Process-scoped; set by SDK daemon callers that spawn subprocesses for cron work. (only works with --print)').hideHelp()).option('--settings <file-or-json>', 'Path to a settings JSON file or a JSON string to load additional settings from').option('--add-dir <directories...>', 'Additional directories to allow tool access to').option('--ide', 'Automatically connect to IDE on startup if exactly one valid IDE is available', () => true).option('--strict-mcp-config', 'Only use MCP servers from --mcp-config, ignoring all other MCP configurations', () => true).option('--session-id <uuid>', 'Use a specific session ID for the conversation (must be a valid UUID)').option('-n, --name <name>', 'Set a display name for this session (shown in /resume and terminal title)').option('--agents <json>', 'JSON object defining custom agents (e.g. \'{"reviewer": {"description": "Reviews code", "prompt": "You are a code reviewer"}}\')').option('--setting-sources <sources>', 'Comma-separated list of setting sources to load (user, project, local).')
+  })).option('--agent <agent>', `Agent for the current session. Overrides the 'agent' setting.`).option('--betas <betas...>', 'Beta headers to include in API requests (API key users only)').option('--fallback-model <model>', 'Enable automatic fallback to specified model when default model is overloaded (only works with --print)').addOption(new Option('--workload <tag>', 'Workload tag for billing-header attribution (cc_workload). Process-scoped; set by SDK daemon callers that spawn subprocesses for cron work. (only works with --print)').hideHelp()).option('--settings <file-or-json>', 'Path to a settings JSON file or a JSON string to load additional settings from').addOption(new Option('--managed-settings <json>', 'Policy-tier settings JSON from a spawning parent process (SDK use only)').hideHelp()).option('--add-dir <directories...>', 'Additional directories to allow tool access to').option('--ide', 'Automatically connect to IDE on startup if exactly one valid IDE is available', () => true).option('--strict-mcp-config', 'Only use MCP servers from --mcp-config, ignoring all other MCP configurations', () => true).option('--session-id <uuid>', 'Use a specific session ID for the conversation (must be a valid UUID)').option('-n, --name <name>', 'Set a display name for this session (shown in the prompt box, /resume picker, and terminal title)').option('--agents <json>', 'JSON object defining custom agents (e.g. \'{"reviewer": {"description": "Reviews code", "prompt": "You are a code reviewer"}}\')').option('--setting-sources <sources>', 'Comma-separated list of setting sources to load (user, project, local).')
   // gh-33508: <paths...> (variadic) consumed everything until the next
   // --flag. `claude --plugin-dir /path mcp add --transport http` swallowed
   // `mcp` and `add` as paths, then choked on --transport as an unknown
@@ -1145,7 +1181,8 @@ async function run(): Promise<CommanderCommand> {
       ide = false,
       sessionId,
       includeHookEvents,
-      includePartialMessages
+      includePartialMessages,
+      sessionMirror
     } = options;
     if (options.prefill) {
       seedEarlyInput(options.prefill);
@@ -1906,6 +1943,12 @@ async function run(): Promise<CommanderCommand> {
       writeToStderr(`Error: --no-session-persistence can only be used with --print mode.`);
       process.exit(1);
     }
+    if (options.planModeInstructions && !isNonInteractiveSession) {
+      writeToStderr(
+        'Error: --plan-mode-instructions can only be used with --print mode.',
+      )
+      process.exit(1)
+    }
     const effectivePrompt = prompt || '';
     let inputPrompt = await getInputPrompt(effectivePrompt, (inputFormat ?? 'text') as 'text' | 'stream-json');
     profileCheckpoint('action_after_input_prompt');
@@ -2547,6 +2590,13 @@ async function run(): Promise<CommanderCommand> {
         }
       }
     }
+    if (thinkingConfig.type !== 'disabled') {
+      if (options.thinkingDisplay === 'summarized' || options.thinkingDisplay === 'omitted') {
+        thinkingConfig.display = options.thinkingDisplay;
+      } else if (!getIsNonInteractiveSession() && getInitialSettings().showThinkingSummaries === true) {
+        thinkingConfig.display = 'summarized';
+      }
+    }
     logForDiagnosticsNoPII('info', 'started', {
       version: MACRO.VERSION,
       is_native_binary: isInBundledMode()
@@ -2801,12 +2851,14 @@ async function run(): Promise<CommanderCommand> {
         } : undefined,
         systemPrompt,
         appendSystemPrompt,
+        planModeInstructions: options.planModeInstructions,
         userSpecifiedModel: effectiveModel,
         fallbackModel: userSpecifiedFallbackModel,
         teleport,
         sdkUrl,
         replayUserMessages: effectiveReplayUserMessages,
         includePartialMessages: effectiveIncludePartialMessages,
+        sessionMirror,
         forkSession: options.forkSession || false,
         resumeSessionAt: options.resumeSessionAt || undefined,
         rewindFiles: options.rewindFiles,
@@ -3812,6 +3864,13 @@ async function run(): Promise<CommanderCommand> {
   }).version(`${MACRO.VERSION} (Claude Code)`, '-v, --version', 'Output the version number');
 
   // Worktree flags
+  program.addOption(
+    new Option(
+      '--plan-mode-instructions <instructions>',
+      'Custom workflow body for plan mode. Replaces the default code-implementation phases in the plan-mode system reminder; the read-only enforcement preamble and ExitPlanMode protocol footer are always kept.',
+    ).hideHelp(),
+  )
+
   program.option('-w, --worktree [name]', 'Create a new git worktree for this session (optionally specify a name)');
   program.option('--tmux', 'Create a tmux session for the worktree (requires --worktree). Uses iTerm2 native panes when available; use --tmux=classic for traditional tmux.');
   if (canUserConfigureAdvisor()) {
@@ -3831,7 +3890,7 @@ async function run(): Promise<CommanderCommand> {
     program.option('--agent-teams', '[ANT-ONLY] Force Claude to use multi-agent mode for solving problems', () => true);
   }
   if (feature('TRANSCRIPT_CLASSIFIER')) {
-    program.addOption(new Option('--enable-auto-mode', 'Opt in to auto mode').hideHelp());
+    program.addOption(new Option('--enable-auto-mode', '(deprecated) Opt in to auto mode').hideHelp());
   }
   if (feature('PROACTIVE') || feature('KAIROS')) {
     program.addOption(new Option('--proactive', 'Start in proactive autonomous mode'));
@@ -4158,6 +4217,21 @@ async function run(): Promise<CommanderCommand> {
       pluginValidateHandler
     } = await import('./cli/handlers/plugins.js');
     await pluginValidateHandler(manifestPath, options);
+  });
+
+  pluginCmd.command('tag [path]').description('Create a {name}--v{version} git tag for a plugin release, validating that plugin.json and any enclosing marketplace entry agree').option('--push', 'Push the tag to --remote after creating it').option('--dry-run', 'Print what would be tagged without creating it').option('-f, --force', 'Skip the dirty-working-tree and tag-already-exists checks').option('-m, --message <msg>', 'Tag annotation message (use %s for the version)').option('--remote <name>', 'Remote to push to with --push', 'origin').action(async (pluginPath: string | undefined, options: {
+    push?: boolean;
+    dryRun?: boolean;
+    force?: boolean;
+    message?: string;
+    remote?: string;
+  }) => {
+    const [{
+      pluginTagHandler
+    }, {
+      createSubcommandRoot
+    }] = await Promise.all([import('./cli/handlers/plugins.js'), import('./cli/handlers/util.js')]);
+    await pluginTagHandler(await createSubcommandRoot(), pluginPath, options);
   });
 
   // Plugin list command
@@ -4564,6 +4638,7 @@ async function logTenguInit({
   assistantActivationPath: string | undefined;
 }): Promise<void> {
   try {
+    const noFlickerEnvVar = getNoFlickerEnvVar();
     logEvent('tengu_init', {
       entrypoint: 'claude' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       hasInitialPrompt,
@@ -4594,6 +4669,10 @@ async function logTenguInit({
       ...(appendSystemPromptFlag && {
         appendSystemPromptFlag: appendSystemPromptFlag as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
       }),
+      ...(noFlickerEnvVar && {
+        noFlickerEnvVar: noFlickerEnvVar as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+      }),
+      rendererEntryPath: getRendererEntryPath() as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       is_simple: isBareMode() || undefined,
       is_coordinator: feature('COORDINATOR_MODE') && coordinatorModeModule?.isCoordinatorMode() ? true : undefined,
       ...(assistantActivationPath && {

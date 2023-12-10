@@ -24,8 +24,9 @@ function StaticKeybindingProvider({
   } = loadKeybindingsSyncWithWarnings();
   const pendingChordRef = useRef(null);
   const handlerRegistryRef = useRef(new Map());
+  const preDispatchRef = useRef(new Set());
   const activeContexts = useRef(new Set<KeybindingContextName>()).current;
-  return <KeybindingProvider bindings={bindings} pendingChordRef={pendingChordRef} pendingChord={null} setPendingChord={() => {}} activeContexts={activeContexts} registerActiveContext={() => {}} unregisterActiveContext={() => {}} handlerRegistryRef={handlerRegistryRef}>
+  return <KeybindingProvider bindings={bindings} pendingChordRef={pendingChordRef} pendingChord={null} setPendingChord={() => {}} activeContexts={activeContexts} registerActiveContext={() => {}} unregisterActiveContext={() => {}} handlerRegistryRef={handlerRegistryRef} preDispatchRef={preDispatchRef}>
       {children}
     </KeybindingProvider>;
 }

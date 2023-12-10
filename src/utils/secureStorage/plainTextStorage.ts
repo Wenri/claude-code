@@ -1,19 +1,50 @@
-import { chmodSync } from 'fs'
+import { randomBytes } from 'crypto'
+import {
+  chmodSync,
+  copyFileSync,
+  renameSync,
+  unlinkSync,
+  writeFileSync,
+} from 'fs'
 import { join } from 'path'
 import { getClaudeConfigHomeDir } from '../envUtils.js'
 import { getErrnoCode } from '../errors.js'
 import { getFsImplementation } from '../fsOperations.js'
-import {
-  jsonParse,
-  jsonStringify,
-  writeFileSync_DEPRECATED,
-} from '../slowOperations.js'
+import { jsonParse, jsonStringify } from '../slowOperations.js'
 import type { SecureStorage, SecureStorageData } from './types.js'
 
 function getStoragePath(): { storageDir: string; storagePath: string } {
   const storageDir = getClaudeConfigHomeDir()
   const storageFileName = '.credentials.json'
   return { storageDir, storagePath: join(storageDir, storageFileName) }
+}
+
+function atomicWriteFileSync(
+  target: string,
+  content: string,
+  mode: number,
+): void {
+  const temp = `${target}.tmp.${randomBytes(4).toString('hex')}`
+  try {
+    writeFileSync(temp, content, { encoding: 'utf8', mode })
+    try {
+      renameSync(temp, target)
+    } catch (error) {
+      const code = getErrnoCode(error)
+      if (code !== 'EXDEV' && code !== 'EPERM' && code !== 'EEXIST') {
+        throw error
+      }
+      copyFileSync(temp, target)
+      try {
+        unlinkSync(temp)
+      } catch {}
+    }
+  } catch (error) {
+    try {
+      unlinkSync(temp)
+    } catch {}
+    throw error
+  }
 }
 
 export const plainTextStorage = {
@@ -54,10 +85,7 @@ export const plainTextStorage = {
         }
       }
 
-      writeFileSync_DEPRECATED(storagePath, jsonStringify(data), {
-        encoding: 'utf8',
-        flush: false,
-      })
+      atomicWriteFileSync(storagePath, jsonStringify(data), 0o600)
       chmodSync(storagePath, 0o600)
       return {
         success: true,

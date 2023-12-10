@@ -70,8 +70,15 @@ export function NativeAutoUpdater({
   // repeated downloads on remount — the upstream trigger for #22413).
   const isUpdatingRef = useRef(isUpdating);
   isUpdatingRef.current = isUpdating;
+  const autoUpdaterResultRef = useRef(autoUpdaterResult);
+  useEffect(() => {
+    autoUpdaterResultRef.current = autoUpdaterResult;
+  });
   const checkForUpdates = React.useCallback(async () => {
     if (isUpdatingRef.current) {
+      return;
+    }
+    if (autoUpdaterResultRef.current?.status === 'success') {
       return;
     }
     if ("production" === 'test' || "production" === 'development') {

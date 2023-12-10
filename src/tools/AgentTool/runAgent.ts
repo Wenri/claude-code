@@ -26,6 +26,7 @@ import type {
   ScopedMcpServerConfig,
 } from '../../services/mcp/types.js'
 import type { Tool, Tools, ToolUseContext } from '../../Tool.js'
+import { hasAgentKeepalive } from '../../tasks/LocalAgentTask/LocalAgentTask.js'
 import { killShellTasksForAgent } from '../../tasks/LocalShellTask/killShellTasks.js'
 import type { Command } from '../../types/command.js'
 import type { AgentId } from '../../types/ids.js'
@@ -60,6 +61,7 @@ import { getAgentModel } from '../../utils/model/agent.js'
 import type { ModelAlias } from '../../utils/model/aliases.js'
 import {
   clearAgentTranscriptSubdir,
+  recordForkContextRef,
   recordSidechainTranscript,
   setAgentTranscriptSubdir,
   writeAgentMetadata,
@@ -264,7 +266,10 @@ export async function* runAgent({
   contentReplacementState,
   useExactTools,
   worktreePath,
+  cwd,
   description,
+  name,
+  resumePersistedCount,
   transcriptSubdir,
   onQueryProgress,
 }: {
@@ -284,6 +289,7 @@ export async function* runAgent({
     systemPrompt?: SystemPrompt
     abortController?: AbortController
     agentId?: AgentId
+    replHydration?: ToolUseContext['replHydration']
   }
   model?: ModelAlias
   maxTurns?: number
@@ -315,9 +321,15 @@ export async function* runAgent({
   /** Worktree path if the agent was spawned with isolation: "worktree".
    * Persisted to metadata so resume can restore the correct cwd. */
   worktreePath?: string
+  /** Explicit cwd override, persisted independently of worktree isolation. */
+  cwd?: string
   /** Original task description from AgentTool input. Persisted to metadata
    * so a resumed agent's notification can show the original description. */
   description?: string
+  /** Optional user-visible agent name persisted for resume routing. */
+  name?: string
+  /** Number of leading initial messages already present in the sidechain. */
+  resumePersistedCount?: number
   /** Optional subdirectory under subagents/ to group this agent's transcript
    * with related ones (e.g. workflows/<runId> for workflow subagents). */
   transcriptSubdir?: string
@@ -713,6 +725,10 @@ export async function* runAgent({
     contentReplacementState,
   })
 
+  if (override?.replHydration) {
+    agentToolUseContext.replHydration = override.replHydration
+  }
+
   // Preserve tool use results for subagents with viewable transcripts (in-process teammates)
   if (preserveToolUseResults) {
     agentToolUseContext.preserveToolUseResults = true
@@ -729,20 +745,54 @@ export async function* runAgent({
     })
   }
 
+  // Persist only the agent-owned suffix for a root fork. The shared parent
+  // prefix is restored through a compact pointer on resume.
+  let messagesToPersist = initialMessages
+  let startingParentUuid: UUID | null = null
+  if (resumePersistedCount !== undefined) {
+    messagesToPersist = initialMessages.slice(resumePersistedCount)
+    startingParentUuid = initialMessages[resumePersistedCount - 1]?.uuid ?? null
+  } else if (
+    forkContextMessages !== undefined &&
+    forkContextMessages === toolUseContext.messages &&
+    toolUseContext.agentId === undefined
+  ) {
+    const parentLastUuid = contextMessages.at(-1)?.uuid
+    if (parentLastUuid !== undefined) {
+      messagesToPersist = initialMessages.slice(contextMessages.length)
+      void recordForkContextRef({
+        agentId,
+        parentSessionId: getSessionId(),
+        parentLastUuid,
+        contextLength: contextMessages.length,
+      }).catch(err =>
+        logForDebugging(`Failed to record fork-context-ref: ${err}`),
+      )
+    }
+  }
+
   // Record initial messages before the query loop starts, plus the agentType
   // so resume can route correctly when subagent_type is omitted. Both writes
   // are fire-and-forget — persistence failure shouldn't block the agent.
-  void recordSidechainTranscript(initialMessages, agentId).catch(_err =>
+  void recordSidechainTranscript(
+    messagesToPersist,
+    agentId,
+    startingParentUuid,
+  ).catch(_err =>
     logForDebugging(`Failed to record sidechain transcript: ${_err}`),
   )
   void writeAgentMetadata(agentId, {
     agentType: agentDefinition.agentType,
     ...(worktreePath && { worktreePath }),
+    ...(cwd && { cwd }),
     ...(description && { description }),
+    ...(name && { name }),
   }).catch(_err => logForDebugging(`Failed to write agent metadata: ${_err}`))
 
   // Track the last recorded message UUID for parent chain continuity
-  let lastRecordedUuid: UUID | null = initialMessages.at(-1)?.uuid ?? null
+  let lastRecordedUuid: UUID | null =
+    messagesToPersist.at(-1)?.uuid ?? startingParentUuid
+  let completedNormally = false
 
   try {
     for await (const message of query({
@@ -805,6 +855,8 @@ export async function* runAgent({
       }
     }
 
+    completedNormally = true
+
     if (agentAbortController.signal.aborted) {
       throw new AbortError()
     }
@@ -814,6 +866,11 @@ export async function* runAgent({
       agentDefinition.callback()
     }
   } finally {
+    const preserveMonitorTasks =
+      isAsync &&
+      completedNormally &&
+      !agentAbortController.signal.aborted &&
+      hasAgentKeepalive(agentId, toolUseContext.getAppState)
     // Clean up agent-specific MCP servers (runs on normal completion, abort, or error)
     await mcpCleanup()
     // Clean up agent's session hooks
@@ -828,6 +885,8 @@ export async function* runAgent({
     agentToolUseContext.readFileState.clear()
     // Release the cloned fork context messages
     initialMessages.length = 0
+    // A hydration snapshot is only valid for the lifetime of this agent.
+    agentToolUseContext.replHydration = undefined
     // Release perfetto agent registry entry
     unregisterPerfettoAgent(agentId)
     // Release transcript subdir mapping
@@ -841,21 +900,20 @@ export async function* runAgent({
       const { [agentId]: _removed, ...todos } = prev.todos
       return { ...prev, todos }
     })
+    const replContext = toolUseContext.getAppState().replContexts[agentId]
+    if (replContext) {
+      replContext.clearAllTimers()
+      toolUseContext.setReplContext(agentId, undefined)
+    }
     // Kill any background bash tasks this agent spawned. Without this, a
     // `run_in_background` shell loop (e.g. test fixture fake-logs.sh) outlives
     // the agent as a PPID=1 zombie once the main session eventually exits.
-    killShellTasksForAgent(agentId, toolUseContext.getAppState, rootSetAppState)
-    /* eslint-disable @typescript-eslint/no-require-imports */
-    if (feature('MONITOR_TOOL')) {
-      const mcpMod =
-        require('../../tasks/MonitorMcpTask/MonitorMcpTask.js') as typeof import('../../tasks/MonitorMcpTask/MonitorMcpTask.js')
-      mcpMod.killMonitorMcpTasksForAgent(
-        agentId,
-        toolUseContext.getAppState,
-        rootSetAppState,
-      )
-    }
-    /* eslint-enable @typescript-eslint/no-require-imports */
+    killShellTasksForAgent(
+      agentId,
+      toolUseContext.getAppState,
+      rootSetAppState,
+      { skipMonitors: preserveMonitorTasks },
+    )
   }
 }
 

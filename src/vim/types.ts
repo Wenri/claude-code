@@ -36,6 +36,10 @@ export type FindType = 'f' | 'F' | 't' | 'T'
 
 export type TextObjScope = 'inner' | 'around'
 
+export type VisualKind = 'char' | 'line'
+
+export type VisualCaseOperator = 'toggle' | 'lower' | 'upper'
+
 // ============================================================================
 // State Machine Types
 // ============================================================================
@@ -49,6 +53,12 @@ export type TextObjScope = 'inner' | 'around'
 export type VimState =
   | { mode: 'INSERT'; insertedText: string }
   | { mode: 'NORMAL'; command: CommandState }
+  | {
+      mode: 'VISUAL'
+      kind: VisualKind
+      anchor: number
+      command: VisualCommandState
+    }
 
 /**
  * Command state machine for NORMAL mode.
@@ -73,6 +83,14 @@ export type CommandState =
   | { type: 'operatorG'; op: Operator; count: number }
   | { type: 'replace'; count: number }
   | { type: 'indent'; dir: '>' | '<'; count: number }
+
+export type VisualCommandState =
+  | { type: 'idle' }
+  | { type: 'count'; digits: string }
+  | { type: 'find'; find: FindType; count: number }
+  | { type: 'g'; count: number }
+  | { type: 'replace' }
+  | { type: 'textObject'; scope: TextObjScope; count: number }
 
 /**
  * Persistent state that survives across commands.
@@ -117,6 +135,42 @@ export type RecordedChange =
   | { type: 'indent'; dir: '>' | '<'; count: number }
   | { type: 'openLine'; direction: 'above' | 'below' }
   | { type: 'join'; count: number }
+  | {
+      type: 'visualOp'
+      op: Operator
+      span: number
+      linewise: boolean
+    }
+  | {
+      type: 'visualReplace'
+      char: string
+      span: number
+      linewise: boolean
+    }
+  | {
+      type: 'visualCase'
+      caseOp: VisualCaseOperator
+      span: number
+      linewise: boolean
+    }
+  | {
+      type: 'visualPaste'
+      content: string
+      span: number
+      linewise: boolean
+    }
+  | {
+      type: 'visualIndent'
+      dir: '>' | '<'
+      count: number
+      lines: number
+    }
+  | {
+      type: 'visualChange'
+      span: number
+      linewise: boolean
+      text: string
+    }
 
 // ============================================================================
 // Key Groups - Named constants, no magic strings

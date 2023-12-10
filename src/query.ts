@@ -90,7 +90,11 @@ import { ESCALATED_MAX_TOKENS } from './utils/context.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from './services/analytics/growthbook.js'
 import { SLEEP_TOOL_NAME } from './tools/SleepTool/prompt.js'
 import { executePostSamplingHooks } from './utils/hooks/postSamplingHooks.js'
-import { executeStopFailureHooks } from './utils/hooks.js'
+import {
+  executePostToolBatchHooks,
+  executeStopFailureHooks,
+  hasHookForEvent,
+} from './utils/hooks.js'
 import type { QuerySource } from './constants/querySource.js'
 import { createDumpPromptsFetch } from './services/api/dumpPrompts.js'
 import { StreamingToolExecutor } from './services/tools/StreamingToolExecutor.js'
@@ -105,6 +109,7 @@ import type { Terminal, Continue } from './query/transitions.js'
 import { feature } from 'bun:bundle'
 import {
   getCurrentTurnTokenBudget,
+  getSessionId,
   getTurnOutputTokens,
   incrementBudgetContinuationCount,
 } from './bootstrap/state.js'
@@ -1559,6 +1564,104 @@ async function* queryLoop(
       queryChainId: queryChainIdForAnalytics,
       queryDepth: queryTracking.depth,
     })
+
+    if (
+      hasHookForEvent(
+        'PostToolBatch',
+        updatedToolUseContext.getAppState(),
+        updatedToolUseContext.agentId ?? getSessionId(),
+      )
+    ) {
+      const hookBatchId = `hook-${deps.uuid()}`
+      const toolResponses = new Map<string, unknown>()
+      for (const toolResult of toolResults) {
+        if (
+          toolResult.type === 'user' &&
+          Array.isArray(toolResult.message.content)
+        ) {
+          for (const content of toolResult.message.content) {
+            if (content.type === 'tool_result') {
+              toolResponses.set(content.tool_use_id, content.content)
+            }
+          }
+        }
+      }
+
+      let shouldStopAfterBatch = false
+      let hookStopReason: string | undefined
+      for await (const result of executePostToolBatchHooks(
+        toolUseBlocks.map(block => ({
+          tool_name: block.name,
+          tool_input: block.input,
+          tool_use_id: block.id,
+          tool_response: toolResponses.get(block.id),
+        })),
+        hookBatchId,
+        updatedToolUseContext,
+        updatedToolUseContext.getAppState().toolPermissionContext.mode,
+        updatedToolUseContext.abortController.signal,
+      )) {
+        if (
+          result.message &&
+          !(
+            result.message.type === 'attachment' &&
+            result.message.attachment.type === 'hook_blocking_error'
+          )
+        ) {
+          yield result.message
+        }
+        if (result.additionalContexts?.length) {
+          const additionalContext = createAttachmentMessage({
+            type: 'hook_additional_context',
+            content: result.additionalContexts,
+            hookName: 'PostToolBatch',
+            toolUseID: hookBatchId,
+            hookEvent: 'PostToolBatch',
+          })
+          yield additionalContext
+          toolResults.push(additionalContext)
+        }
+        if (result.blockingError) {
+          shouldStopAfterBatch = true
+          hookStopReason ??= result.blockingError.blockingError
+        }
+        if (result.preventContinuation) {
+          shouldStopAfterBatch = true
+          hookStopReason ??= result.stopReason
+        }
+      }
+
+      if (updatedToolUseContext.abortController.signal.aborted) {
+        if (feature('CHICAGO_MCP') && !updatedToolUseContext.agentId) {
+          try {
+            const { cleanupComputerUseAfterTurn } = await import(
+              './utils/computerUse/cleanup.js'
+            )
+            await cleanupComputerUseAfterTurn(updatedToolUseContext)
+          } catch {
+            // Failures are silent — this is dogfooding cleanup, not critical path
+          }
+        }
+        if (
+          updatedToolUseContext.abortController.signal.reason !== 'interrupt'
+        ) {
+          yield createUserInterruptionMessage({ toolUse: false })
+        }
+        return { reason: 'aborted_tools' }
+      }
+
+      if (shouldStopAfterBatch) {
+        yield createAttachmentMessage({
+          type: 'hook_stopped_continuation',
+          message:
+            hookStopReason || 'Execution stopped by PostToolBatch hook',
+          hookName: 'PostToolBatch',
+          toolUseID: hookBatchId,
+          hookEvent: 'PostToolBatch',
+        })
+        return { reason: 'hook_stopped' }
+      }
+    }
 
     // Get queued commands snapshot before processing attachments.
     // These will be sent as attachments so Claude can respond to them in the current turn.

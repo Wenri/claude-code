@@ -1,4 +1,5 @@
 import { BASH_TOOL_NAME } from '../tools/BashTool/toolName.js'
+import { POWERSHELL_TOOL_NAME } from '../tools/PowerShellTool/toolName.js'
 import { FILE_READ_TOOL_NAME } from '../tools/FileReadTool/prompt.js'
 import { GREP_TOOL_NAME } from '../tools/GrepTool/prompt.js'
 import { WEB_FETCH_TOOL_NAME } from '../tools/WebFetchTool/prompt.js'
@@ -107,11 +108,14 @@ function getLargeToolSuggestion(
 
   switch (toolName) {
     case BASH_TOOL_NAME:
+    case POWERSHELL_TOOL_NAME:
       return {
         severity: 'warning',
-        title: `Bash results using ${tokenStr} tokens (${percent.toFixed(0)}%)`,
+        title: `${toolName} results using ${tokenStr} tokens (${percent.toFixed(0)}%)`,
         detail:
-          'Pipe output through head, tail, or grep to reduce result size. Avoid cat on large files \u2014 use Read with offset/limit instead.',
+          toolName === POWERSHELL_TOOL_NAME
+            ? 'Pipe output through Select-Object -First/-Last or Select-String to reduce result size. Avoid Get-Content on large files — use Read with offset/limit instead.'
+            : 'Pipe output through head, tail, or grep to reduce result size. Avoid cat on large files \u2014 use Read with offset/limit instead.',
         savingsTokens: Math.floor(tokens * 0.5),
       }
     case FILE_READ_TOOL_NAME:

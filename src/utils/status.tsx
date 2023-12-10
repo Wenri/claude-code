@@ -3,7 +3,8 @@ import figures from 'figures';
 import * as React from 'react';
 import { color, Text } from '../ink.js';
 import type { MCPServerConnection } from '../services/mcp/types.js';
-import { getAccountInformation, isClaudeAISubscriber } from './auth.js';
+import { getAccountInformation, isClaudeAISubscriber, shouldUseWIFAuth } from './auth.js';
+import { getWIFStatusLine } from '../services/api/workloadIdentity.js';
 import { getLargeMemoryFiles, getMemoryFiles, MAX_MEMORY_CHARACTER_COUNT } from './claudemd.js';
 import { getDoctorDiagnostic } from './doctorDiagnostic.js';
 import { getAWSRegion, getDefaultVertexRegion, isEnvTruthy } from './envUtils.js';
@@ -161,6 +162,8 @@ export function buildSettingSourcesProperties(): Property[] {
             }
             return 'Enterprise managed settings (file)';
           }
+        case 'parent':
+          return 'Enterprise managed settings (parent process)';
         case 'hkcu':
           return 'Enterprise managed settings (HKCU)';
       }
@@ -219,6 +222,12 @@ export function buildAccountProperties(): Property[] {
     properties.push({
       label: 'API key',
       value: accountInfo.apiKeySource
+    });
+  }
+  if (shouldUseWIFAuth()) {
+    properties.push({
+      label: 'Profile',
+      value: getWIFStatusLine()
     });
   }
 

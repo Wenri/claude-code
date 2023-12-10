@@ -9,7 +9,12 @@ import {
   isClaudeAISubscriber,
   refreshAndGetAwsCredentials,
   refreshGcpCredentialsIfNeeded,
+  shouldUseWIFAuth,
 } from 'src/utils/auth.js'
+import {
+  getWIFCredentials,
+  getWIFTokenCache,
+} from './workloadIdentity.js'
 import { getUserAgent } from 'src/utils/http.js'
 import {
   getSmallFastModel,
@@ -353,9 +358,31 @@ export async function getAnthropicClient({
     return new AnthropicVertex(vertexArgs) as unknown as Anthropic
   }
 
+  const resolvedApiKey = apiKey || getAnthropicApiKey()
+  if (!resolvedApiKey && shouldUseWIFAuth()) {
+    const tokenCache = await getWIFTokenCache()
+    if (tokenCache) {
+      const credentials = await getWIFCredentials()
+      const { rest: headersWithoutAuthorization } =
+        extractAuthorizationHeader(ARGS.defaultHeaders)
+      return new Anthropic({
+        apiKey: null,
+        authToken: await tokenCache.getToken(),
+        baseURL:
+          process.env.ANTHROPIC_BASE_URL || credentials?.baseURL,
+        ...ARGS,
+        defaultHeaders: {
+          ...headersWithoutAuthorization,
+          ...credentials?.extraHeaders,
+        },
+        ...(isDebugToStdErr() && { logger: createStderrLogger() }),
+      })
+    }
+  }
+
   // Determine authentication method based on available tokens
   const clientConfig: ConstructorParameters<typeof Anthropic>[0] = {
-    apiKey: isClaudeAISubscriber() ? null : apiKey || getAnthropicApiKey(),
+    apiKey: isClaudeAISubscriber() ? null : resolvedApiKey,
     authToken: isClaudeAISubscriber()
       ? getClaudeAIOAuthTokens()?.accessToken
       : undefined,
@@ -456,6 +483,17 @@ function addStreamIdleTimeout(
   idleMs: number,
 ): ReadableStream<Uint8Array> {
   let timeout: ReturnType<typeof setTimeout> | null = null
+  let partialIdleTimeout: ReturnType<typeof setTimeout> | null = null
+  let partialIdleIndex = 0
+  let bytesTotal = 0
+  const partialIdleDelays = [15_000, 30_000, 60_000, 120_000]
+
+  const clearPartialIdleTimeout = () => {
+    if (partialIdleTimeout !== null) {
+      clearTimeout(partialIdleTimeout)
+      partialIdleTimeout = null
+    }
+  }
 
   const clearIdleTimeout = () => {
     if (timeout !== null) {
@@ -464,14 +502,47 @@ function addStreamIdleTimeout(
     }
   }
 
+  const clearTimeouts = () => {
+    clearIdleTimeout()
+    clearPartialIdleTimeout()
+  }
+
+  let lastChunk = 0
+  const schedulePartialIdleWatchdog = (
+    controller: TransformStreamDefaultController<Uint8Array>,
+  ) => {
+    clearPartialIdleTimeout()
+    if (partialIdleIndex >= partialIdleDelays.length) return
+    const partialIdleMs = partialIdleDelays[partialIdleIndex]!
+    const lastChunkAgeMs = performance.now() - lastChunk
+    partialIdleTimeout = setTimeout(
+      () => {
+        partialIdleTimeout = null
+        if (controller.desiredSize === null) return
+        try {
+          logForDebugging(
+            `[Stall] stream_idle_partial lastChunkAgeMs=${Math.round(performance.now() - lastChunk)} bytesTotal=${bytesTotal} idleDeadlineMs=${idleMs}`,
+            { level: 'warn' },
+          )
+        } catch {}
+        partialIdleIndex += 1
+        schedulePartialIdleWatchdog(controller)
+      },
+      Math.max(0, partialIdleMs - lastChunkAgeMs),
+    )
+    partialIdleTimeout.unref?.()
+  }
+
   const resetIdleTimeout = (
     controller: TransformStreamDefaultController<Uint8Array>,
   ) => {
-    clearIdleTimeout()
-    const resetAt = performance.now()
+    clearTimeouts()
+    lastChunk = performance.now()
+    partialIdleIndex = 0
+    schedulePartialIdleWatchdog(controller)
     timeout = setTimeout(() => {
       timeout = null
-      const lateMs = Math.round(performance.now() - resetAt - idleMs)
+      const lateMs = Math.round(performance.now() - lastChunk - idleMs)
       const readableErrored = controller.desiredSize === null
       try {
         logForDebugging(
@@ -506,10 +577,11 @@ function addStreamIdleTimeout(
     new TransformStream<Uint8Array, Uint8Array>({
       start: resetIdleTimeout,
       transform(chunk, controller) {
+        bytesTotal += chunk.byteLength
         resetIdleTimeout(controller)
         controller.enqueue(chunk)
       },
-      flush: clearIdleTimeout,
+      flush: clearTimeouts,
     }),
   )
 }

@@ -141,6 +141,10 @@ export function setXtversionName(name: string): void {
   if (xtversionName === undefined) xtversionName = name
 }
 
+export function getXtversionName(): string | undefined {
+  return xtversionName
+}
+
 /** True if running in an xterm.js-based terminal (VS Code, Cursor, Windsurf
  *  integrated terminals). Combines TERM_PROGRAM env check (fast, sync, but
  *  not forwarded over SSH) with the XTVERSION probe result (async, survives

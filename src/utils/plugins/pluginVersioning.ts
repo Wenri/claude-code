@@ -28,6 +28,15 @@ const GIT_SSH_ARGS = [
   'core.sshCommand=ssh -o BatchMode=yes -o StrictHostKeyChecking=yes',
 ]
 
+const PLUGIN_VERSION_TAG_SEPARATOR = '--v'
+
+export function makePluginVersionTag(
+  pluginName: string,
+  version: string,
+): string {
+  return `${pluginName}${PLUGIN_VERSION_TAG_SEPARATOR}${version}`
+}
+
 export type ResolvedGitTag = {
   version: string
   ref: string
@@ -213,7 +222,7 @@ export async function resolveVersionRange(
     return null
   }
 
-  const prefix = `${pluginName}--v`
+  const prefix = `${pluginName}${PLUGIN_VERSION_TAG_SEPARATOR}`
   const tags = new Map<string, ResolvedGitTag>()
   for (const line of output.split('\n')) {
     const separator = line.indexOf('\t')

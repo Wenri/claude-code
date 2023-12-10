@@ -9,6 +9,14 @@ export type ParsedCommand =
   | { type: 'disable'; plugin?: string }
   | { type: 'validate'; path?: string }
   | {
+      type: 'tag'
+      path?: string
+      push: boolean
+      dryRun: boolean
+      force: boolean
+      unknownFlag?: string
+    }
+  | {
       type: 'marketplace'
       action?: 'add' | 'remove' | 'update' | 'list'
       target?: string
@@ -36,18 +44,21 @@ export function parsePluginArgs(args?: string): ParsedCommand {
       }
 
       // Check if it's in format plugin@marketplace
-      if (target.includes('@')) {
-        const [plugin, marketplace] = target.split('@')
+      const at = target.lastIndexOf('@')
+      if (at > 0) {
+        const plugin = target.slice(0, at)
+        const marketplace = target.slice(at + 1)
         return { type: 'install', plugin, marketplace }
       }
 
       // Check if the target looks like a marketplace (URL or path)
       const isMarketplace =
-        target.startsWith('http://') ||
-        target.startsWith('https://') ||
-        target.startsWith('file://') ||
-        target.includes('/') ||
-        target.includes('\\')
+        !target.startsWith('@') &&
+        (target.startsWith('http://') ||
+          target.startsWith('https://') ||
+          target.startsWith('file://') ||
+          target.includes('/') ||
+          target.includes('\\'))
 
       if (isMarketplace) {
         // This is a marketplace URL/path, no plugin specified
@@ -73,6 +84,23 @@ export function parsePluginArgs(args?: string): ParsedCommand {
     case 'validate': {
       const target = parts.slice(1).join(' ').trim()
       return { type: 'validate', path: target || undefined }
+    }
+
+    case 'tag': {
+      const knownFlags = new Set(['--push', '--dry-run', '--force', '-f'])
+      const rest = parts.slice(1)
+      const flags = rest.filter(part => part.startsWith('-'))
+      const positional = rest.filter(part => !part.startsWith('-'))
+      const unknownFlag =
+        flags.find(flag => !knownFlags.has(flag)) ?? positional[1]
+      return {
+        type: 'tag',
+        path: positional[0],
+        push: flags.includes('--push'),
+        dryRun: flags.includes('--dry-run'),
+        force: flags.includes('--force') || flags.includes('-f'),
+        ...(unknownFlag !== undefined && { unknownFlag }),
+      }
     }
 
     case 'marketplace':

@@ -1,5 +1,6 @@
 import type { UUID } from 'crypto'
 import { useEffect, useRef } from 'react'
+import { getRuntimeCapabilities } from '../bootstrap/state.js'
 import { useAppState } from '../state/AppState.js'
 import type { Message } from '../types/message.js'
 import { isAgentSwarmsEnabled } from '../utils/agentSwarmsEnabled.js'
@@ -32,6 +33,7 @@ export function useLogMessages(messages: Message[], ignore: boolean = false) {
   const callSeqRef = useRef(0)
 
   useEffect(() => {
+    if (getRuntimeCapabilities().remote?.kind === 'ccr') return
     if (ignore) return
 
     const currentFirstUuid = messages[0]?.uuid as UUID | undefined

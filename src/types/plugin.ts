@@ -72,6 +72,8 @@ export type LoadedPlugin = {
   skillsPaths?: string[] // Additional skill paths from manifest
   outputStylesPath?: string
   outputStylesPaths?: string[] // Additional output style paths from manifest
+  themesPath?: string
+  themesPaths?: string[] // Additional theme paths from manifest or marketplace
   hooksConfig?: HooksSettings
   mcpServers?: Record<string, McpServerConfig>
   lspServers?: Record<string, LspServerConfig>
@@ -84,6 +86,7 @@ export type PluginComponent =
   | 'skills'
   | 'hooks'
   | 'output-styles'
+  | 'themes'
 
 /**
  * Discriminated union of plugin error types.
@@ -293,6 +296,14 @@ export type PluginError =
       installPath: string
     }
   | {
+      type: 'autoupdate-blocked-by-pinner'
+      source: string
+      plugin: string
+      heldAt?: string
+      blockedBy: string[]
+      disabledPinners: string[]
+    }
+  | {
       type: 'generic-error'
       source: string
       plugin?: string
@@ -394,5 +405,14 @@ export function getPluginErrorMessage(error: PluginError): string {
       return `Requires "${error.dependency}" ${error.required}, installed ${error.installed ?? 'version unknown'}`
     case 'plugin-cache-miss':
       return `Plugin "${error.plugin}" not cached at ${error.installPath} — run /plugins to refresh`
+    case 'autoupdate-blocked-by-pinner': {
+      const heldAt = error.heldAt ? ` at ${error.heldAt}` : ''
+      const blockers = error.blockedBy.join(', ')
+      const disabled =
+        error.disabledPinners.length > 0
+          ? ` (note: ${error.disabledPinners.join(', ')} ${error.disabledPinners.length === 1 ? 'is' : 'are'} currently disabled)`
+          : ''
+      return `Autoupdate held "${error.plugin}"${heldAt} — version constraint from ${blockers}${disabled}`
+    }
   }
 }

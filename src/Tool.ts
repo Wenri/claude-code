@@ -83,6 +83,11 @@ import type {
 } from './types/hooks.js'
 import type { AgentId } from './types/ids.js'
 import type { DeepImmutable } from './types/utils.js'
+import type {
+  ReplContext,
+  ReplHydration,
+  ReplIsolationLatch,
+} from './tools/REPLTool/types.js'
 import type { AttributionState } from './utils/commitAttribution.js'
 import type { FileHistoryState } from './utils/fileHistory.js'
 import type { Theme, ThemeName } from './utils/theme.js'
@@ -172,6 +177,8 @@ export type ToolUseContext = {
     customSystemPrompt?: string
     /** Additional system prompt appended after the main system prompt */
     appendSystemPrompt?: string
+    /** Custom workflow body for plan-mode reminders. */
+    planModeInstructions?: string
     /** Override querySource for analytics tracking */
     querySource?: QuerySource
     /** Optional callback to get the latest tools (e.g., after MCP servers connect mid-query) */
@@ -180,7 +187,16 @@ export type ToolUseContext = {
   abortController: AbortController
   readFileState: FileStateCache
   getAppState(): AppState
+  getToolPermissionContext(): ToolPermissionContext
   setAppState(f: (prev: AppState) => AppState): void
+  setReplContext(agentId: string, context: ReplContext | undefined): void
+  replHydration?: ReplHydration
+  isolationLatch?: ReplIsolationLatch
+  onPermissionDenial?: (
+    tool: Tool,
+    toolUseID: string,
+    input: Record<string, unknown>,
+  ) => void
   /**
    * Always-shared setAppState for session-scoped infrastructure (background
    * tasks, session hooks). Unlike setAppState, which is no-op for async agents
@@ -326,6 +342,7 @@ export function filterToolProgressMessages(
 
 export type ToolResult<T> = {
   data: T
+  newTools?: Tool[]
   newMessages?: (
     | UserMessage
     | AssistantMessage

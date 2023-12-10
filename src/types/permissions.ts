@@ -345,6 +345,7 @@ export type YoloClassifierResult = {
   shouldBlock: boolean
   reason: string
   unavailable?: boolean
+  failureMode?: 'policy_refusal' | 'unparseable'
   /**
    * API returned "prompt is too long" — the classifier transcript exceeded
    * the context window. Deterministic (same transcript → same error), so

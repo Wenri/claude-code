@@ -70,6 +70,7 @@ export const ThinkingAdaptiveSchema = lazySchema(() =>
   z
     .object({
       type: z.literal('adaptive'),
+      display: z.enum(['summarized', 'omitted']).optional(),
     })
     .describe('Claude decides when and how much to think (Opus 4.6+).'),
 )
@@ -79,6 +80,7 @@ export const ThinkingEnabledSchema = lazySchema(() =>
     .object({
       type: z.literal('enabled'),
       budgetTokens: z.number().optional(),
+      display: z.enum(['summarized', 'omitted']).optional(),
     })
     .describe('Fixed thinking token budget (older models)'),
 )
@@ -364,8 +366,10 @@ export const HOOK_EVENTS = [
   'PreToolUse',
   'PostToolUse',
   'PostToolUseFailure',
+  'PostToolBatch',
   'Notification',
   'UserPromptSubmit',
+  'UserPromptExpansion',
   'SessionStart',
   'SessionEnd',
   'Stop',
@@ -466,6 +470,28 @@ export const PostToolUseFailureHookInputSchema = lazySchema(() =>
   ),
 )
 
+export const PostToolBatchToolCallSchema = lazySchema(() =>
+  z.object({
+    tool_name: z.string(),
+    tool_input: z.unknown(),
+    tool_use_id: z.string(),
+    tool_response: z.unknown().optional(),
+  }),
+)
+
+export const PostToolBatchHookInputSchema = lazySchema(() =>
+  BaseHookInputSchema()
+    .and(
+      z.object({
+        hook_event_name: z.literal('PostToolBatch'),
+        tool_calls: z.array(PostToolBatchToolCallSchema()),
+      }),
+    )
+    .describe(
+      'Hook input for the PostToolBatch event. Fired once after every tool call in a batch has resolved, before the next model request. PostToolUse fires per-tool and may run concurrently for parallel tool calls; PostToolBatch fires exactly once with the full batch.',
+    ),
+)
+
 export const PermissionDeniedHookInputSchema = lazySchema(() =>
   BaseHookInputSchema().and(
     z.object({
@@ -495,6 +521,19 @@ export const UserPromptSubmitHookInputSchema = lazySchema(() =>
       hook_event_name: z.literal('UserPromptSubmit'),
       prompt: z.string(),
       session_title: z.string().optional(),
+    }),
+  ),
+)
+
+export const UserPromptExpansionHookInputSchema = lazySchema(() =>
+  BaseHookInputSchema().and(
+    z.object({
+      hook_event_name: z.literal('UserPromptExpansion'),
+      expansion_type: z.enum(['slash_command', 'mcp_prompt']),
+      command_name: z.string(),
+      command_args: z.string(),
+      command_source: z.string().optional(),
+      prompt: z.string(),
     }),
   ),
 )
@@ -778,9 +817,11 @@ export const HookInputSchema = lazySchema(() =>
     PreToolUseHookInputSchema(),
     PostToolUseHookInputSchema(),
     PostToolUseFailureHookInputSchema(),
+    PostToolBatchHookInputSchema(),
     PermissionDeniedHookInputSchema(),
     NotificationHookInputSchema(),
     UserPromptSubmitHookInputSchema(),
+    UserPromptExpansionHookInputSchema(),
     SessionStartHookInputSchema(),
     SessionEndHookInputSchema(),
     StopHookInputSchema(),
@@ -830,6 +871,13 @@ export const UserPromptSubmitHookSpecificOutputSchema = lazySchema(() =>
   }),
 )
 
+export const UserPromptExpansionHookSpecificOutputSchema = lazySchema(() =>
+  z.object({
+    hookEventName: z.literal('UserPromptExpansion'),
+    additionalContext: z.string().optional(),
+  }),
+)
+
 export const SessionStartHookSpecificOutputSchema = lazySchema(() =>
   z.object({
     hookEventName: z.literal('SessionStart'),
@@ -858,6 +906,13 @@ export const PostToolUseHookSpecificOutputSchema = lazySchema(() =>
     hookEventName: z.literal('PostToolUse'),
     additionalContext: z.string().optional(),
     updatedMCPToolOutput: z.unknown().optional(),
+  }),
+)
+
+export const PostToolBatchHookSpecificOutputSchema = lazySchema(() =>
+  z.object({
+    hookEventName: z.literal('PostToolBatch'),
+    additionalContext: z.string().optional(),
   }),
 )
 
@@ -926,11 +981,13 @@ export const SyncHookJSONOutputSchema = lazySchema(() =>
       .union([
         PreToolUseHookSpecificOutputSchema(),
         UserPromptSubmitHookSpecificOutputSchema(),
+        UserPromptExpansionHookSpecificOutputSchema(),
         SessionStartHookSpecificOutputSchema(),
         SetupHookSpecificOutputSchema(),
         SubagentStartHookSpecificOutputSchema(),
         PostToolUseHookSpecificOutputSchema(),
         PostToolUseFailureHookSpecificOutputSchema(),
+        PostToolBatchHookSpecificOutputSchema(),
         PermissionDeniedHookSpecificOutputSchema(),
         NotificationHookSpecificOutputSchema(),
         PermissionRequestHookSpecificOutputSchema(),
@@ -1594,6 +1651,38 @@ export const SDKPostTurnSummaryMessageSchema = lazySchema(() =>
     ),
 )
 
+/** @internal */
+export const SDKTranscriptMirrorMessageSchema = lazySchema(() =>
+  z
+    .object({
+      type: z.literal('transcript_mirror'),
+      filePath: z.string(),
+      entries: z.array(z.unknown()),
+    })
+    .describe(
+      '@internal Emitted after each successful local transcript write. The parent peels these off the stdout stream and batches them to the SessionStore adapter. Not exposed to public SDK consumers.',
+    ),
+)
+
+export const SDKMirrorErrorMessageSchema = lazySchema(() =>
+  z
+    .object({
+      type: z.literal('system'),
+      subtype: z.literal('mirror_error'),
+      error: z.string(),
+      key: z.object({
+        projectKey: z.string(),
+        sessionId: z.string(),
+        subpath: z.string().optional(),
+      }),
+      uuid: UUIDPlaceholder(),
+      session_id: z.string(),
+    })
+    .describe(
+      'Emitted when SessionStore.append() rejects or times out for a transcript-mirror batch. The batch is dropped (at-most-once delivery); this surfaces the failure so consumers are not silent on data loss.',
+    ),
+)
+
 export const SDKAPIRetryMessageSchema = lazySchema(() =>
   z
     .object({
@@ -1622,7 +1711,7 @@ export const SDKLocalCommandOutputMessageSchema = lazySchema(() =>
       session_id: z.string(),
     })
     .describe(
-      'Output from a local slash command (e.g. /voice, /cost). Displayed as assistant-style text in the transcript.',
+      'Output from a local slash command (e.g. /voice, /usage). Displayed as assistant-style text in the transcript.',
     ),
 )
 
@@ -1902,6 +1991,7 @@ export const SDKMessageSchema = lazySchema(() =>
     SDKRateLimitEventSchema(),
     SDKElicitationCompleteMessageSchema(),
     SDKPromptSuggestionMessageSchema(),
+    SDKMirrorErrorMessageSchema(),
   ]),
 )
 

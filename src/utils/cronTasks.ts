@@ -24,6 +24,7 @@ import { computeNextCronRun, parseCronExpression } from './cron.js'
 import { logForDebugging } from './debug.js'
 import { isFsInaccessible } from './errors.js'
 import { getFsImplementation } from './fsOperations.js'
+import { getCurrentProcessStartToken } from './genericProcessUtils.js'
 import { safeParseJSON } from './json.js'
 import { logError } from './log.js'
 import { jsonStringify } from './slowOperations.js'
@@ -40,6 +41,8 @@ export type CronTask = {
   createdBySessionId?: string
   /** PID that most recently loaded this task for its creating session. */
   createdByPid?: number
+  /** OS process birth token, used to distinguish PID reuse. */
+  createdByProcStart?: string
   /**
    * Epoch ms of the most recent fire. Written back by the scheduler after
    * each recurring fire so next-fire computation survives process restarts.
@@ -145,6 +148,9 @@ export async function readCronTasks(dir?: string): Promise<CronTask[]> {
       ...(typeof t.createdByPid === 'number'
         ? { createdByPid: t.createdByPid }
         : {}),
+      ...(typeof t.createdByProcStart === 'string'
+        ? { createdByProcStart: t.createdByProcStart }
+        : {}),
     })
   }
   return out
@@ -228,6 +234,7 @@ export async function addCronTask(
     ...task,
     createdBySessionId: getSessionId(),
     createdByPid: process.pid,
+    createdByProcStart: getCurrentProcessStartToken(),
   })
   await writeCronTasks(tasks)
   return id

@@ -86,6 +86,44 @@ export function getRelaunchCwd(): string {
 }
 
 /**
+ * Re-exec the current command line without applying the session-oriented
+ * relaunch policy. Startup model upgrades use this exact path so the new
+ * process sees the same flags and provider environment.
+ */
+export async function execRelaunch(): Promise<never> {
+  await new Promise<void>(resolve => setImmediate(resolve))
+  const { cmd, prefixArgs } = getRelaunchLauncher()
+  const args = process.argv.slice(2)
+  const child = spawn(cmd, [...prefixArgs, ...args], {
+    stdio: 'inherit',
+    env: process.env,
+  })
+
+  severTtyInputForRelaunch()
+
+  for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP'] as const) {
+    process.on(signal, () => {
+      try {
+        child.kill(signal)
+      } catch {
+        // The replacement may already have exited.
+      }
+    })
+  }
+
+  return await new Promise<never>(() => {
+    child.on('close', (code, signal) => {
+      const signalCode = signal ? 128 + (constants.signals[signal] ?? 0) : 0
+      process.exit(code ?? signalCode)
+    })
+    child.on('error', error => {
+      process.stderr.write(`Failed to relaunch Claude Code: ${error.message}\n`)
+      process.exit(1)
+    })
+  })
+}
+
+/**
  * Relaunch Claude Code and transfer the current terminal to the child.
  * Resolves only through process exit.
  */
@@ -120,6 +158,8 @@ export async function relaunch(options: RelaunchOptions = {}): Promise<never> {
 
   const childEnv = { ...process.env }
   delete childEnv.CLAUDE_CODE_TUI_JUST_SWITCHED
+  delete childEnv.CLAUDE_BRIDGE_REATTACH_SESSION
+  delete childEnv.CLAUDE_BRIDGE_REATTACH_SEQ
   Object.assign(childEnv, options.env)
   for (const key of options.dropEnv ?? []) delete childEnv[key]
 

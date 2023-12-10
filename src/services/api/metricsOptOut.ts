@@ -3,7 +3,7 @@ import { hasProfileScope, isClaudeAISubscriber } from '../../utils/auth.js'
 import { getGlobalConfig, saveGlobalConfig } from '../../utils/config.js'
 import { logForDebugging } from '../../utils/debug.js'
 import { errorMessage } from '../../utils/errors.js'
-import { getAuthHeaders, withOAuth401Retry } from '../../utils/http.js'
+import { getAuthHeadersAsync, withOAuth401Retry } from '../../utils/http.js'
 import { logError } from '../../utils/log.js'
 import { memoizeWithTTLAsync } from '../../utils/memoize.js'
 import { isEssentialTrafficOnly } from '../../utils/privacyLevel.js'
@@ -31,7 +31,7 @@ const DISK_CACHE_TTL_MS = 24 * 60 * 60 * 1000
  * This is wrapped by memoizeWithTTLAsync to add caching behavior
  */
 async function _fetchMetricsEnabled(): Promise<MetricsEnabledResponse> {
-  const authResult = getAuthHeaders()
+  const authResult = await getAuthHeadersAsync()
   if (authResult.error) {
     throw new Error(`Auth error: ${authResult.error}`)
   }

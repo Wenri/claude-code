@@ -18,6 +18,7 @@ import { checkOpus1mAccess, checkSonnet1mAccess } from './check1mAccess.js'
 import {
   getAPIProvider,
   isDirectAnthropicAPIProvider,
+  isFirstPartyAnthropicBaseUrl,
 } from './providers.js'
 import { isModelAllowed } from './modelAllowlist.js'
 import {
@@ -77,8 +78,12 @@ export function getDefaultOptionForUser(fastMode = false): ModelOption {
   }
 }
 
+function shouldShowCustomModelOption(): boolean {
+  return !isDirectAnthropicAPIProvider() || !isFirstPartyAnthropicBaseUrl()
+}
+
 function getCustomSonnetOption(): ModelOption | undefined {
-  const is3P = getAPIProvider() !== 'firstParty'
+  const is3P = shouldShowCustomModelOption()
   const customSonnetModel = process.env.ANTHROPIC_DEFAULT_SONNET_MODEL
   // When a 3P user has a custom sonnet model string, show it directly
   if (is3P && customSonnetModel) {
@@ -109,7 +114,7 @@ function getSonnet46Option(): ModelOption {
 }
 
 function getCustomOpusOption(): ModelOption | undefined {
-  const is3P = getAPIProvider() !== 'firstParty'
+  const is3P = shouldShowCustomModelOption()
   const customOpusModel = process.env.ANTHROPIC_DEFAULT_OPUS_MODEL
   // When a 3P user has a custom opus model string, show it directly
   if (is3P && customOpusModel) {
@@ -190,7 +195,7 @@ export function getOpus47_1MOption(): ModelOption {
 }
 
 function getCustomHaikuOption(): ModelOption | undefined {
-  const is3P = getAPIProvider() !== 'firstParty'
+  const is3P = shouldShowCustomModelOption()
   const customHaikuModel = process.env.ANTHROPIC_DEFAULT_HAIKU_MODEL
   // When a 3P user has a custom haiku model string, show it directly
   if (is3P && customHaikuModel) {

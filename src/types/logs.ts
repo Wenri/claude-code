@@ -36,6 +36,7 @@ export type LogOption = {
   agentColor?: string // Agent's color (from /rename or swarm)
   agentSetting?: string // Agent definition used (from --agent flag or settings.agent)
   isTeammate?: boolean // Whether this session was created by a swarm teammate
+  isAlias?: boolean // Whether this session was discovered through an added-directory alias
   leafUuid?: UUID // If given, this uuid must appear in the DB
   summary?: string // Optional conversation summary
   customTitle?: string // Optional user-set custom title
@@ -188,6 +189,18 @@ export type ContentReplacementEntry = {
   replacements: ContentReplacementRecord[]
 }
 
+/**
+ * Points a forked agent transcript at the shared prefix in its parent session.
+ * The agent JSONL stores only messages added after this prefix.
+ */
+export type ForkContextRefEntry = {
+  type: 'fork-context-ref'
+  agentId: AgentId
+  parentSessionId: string
+  parentLastUuid: UUID
+  contextLength: number
+}
+
 export type FileHistorySnapshotMessage = {
   type: 'file-history-snapshot'
   messageId: UUID
@@ -316,6 +329,7 @@ export type Entry =
   | ModeEntry
   | WorktreeStateEntry
   | ContentReplacementEntry
+  | ForkContextRefEntry
   | ContextCollapseCommitEntry
   | ContextCollapseSnapshotEntry
 

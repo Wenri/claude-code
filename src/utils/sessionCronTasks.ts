@@ -9,12 +9,51 @@ import {
   isKairosCronEnabled,
 } from '../tools/ScheduleCronTool/prompt.js'
 import type { Message } from '../types/message.js'
+import { computeNextCronRun, cronToHuman, parseCronExpression } from './cron.js'
 import { getCronJitterConfig } from './cronJitterConfig.js'
 import { oneShotJitteredNextCronRunMs } from './cronTasks.js'
 import { logForDebugging } from './debug.js'
+import { formatDuration } from './format.js'
 import { logError } from './log.js'
+import { truncate } from './truncate.js'
 
 type UnknownRecord = Record<string, unknown>
+
+export type SessionBackgroundExitItem = {
+  label: string
+  detail?: string
+}
+
+const SESSION_CRON_PROMPT_WIDTH = 50
+
+function getSessionCronScheduleDetail(
+  task: ReturnType<typeof getSessionCronTasks>[number],
+): string {
+  if (task.recurring) return cronToHuman(task.cron)
+
+  const parsed = parseCronExpression(task.cron)
+  const nextRun = parsed
+    ? computeNextCronRun(parsed, new Date(task.createdAt))
+    : null
+  if (!nextRun) return cronToHuman(task.cron)
+
+  return `Runs once in ${formatDuration(
+    Math.max(0, nextRun.getTime() - Date.now()),
+    { mostSignificantOnly: true },
+  )}`
+}
+
+/** Exit/status rows for session-only scheduled work. */
+export function getSessionBackgroundExitItems(): SessionBackgroundExitItem[] {
+  return getSessionCronTasks().map(task => ({
+    label: 'scheduled task',
+    detail: `${getSessionCronScheduleDetail(task)} · ${truncate(
+      task.prompt,
+      SESSION_CRON_PROMPT_WIDTH,
+      true,
+    )}`,
+  }))
+}
 
 type ResumedCronCall = {
   toolUseId: string

@@ -383,14 +383,23 @@ export async function installPluginOp(
   const pluginId = `${entry.name}@${foundMarketplace}`
 
   if (await isPluginInstalledAtScope(pluginId, scope)) {
-    const dependencyRecovery =
-      await recoverInstalledPluginDependencies(pluginId)
-    return {
-      success: true,
-      message: `Plugin "${pluginId}" is already installed (scope: ${scope})${dependencyRecovery?.suffix ?? ''}`,
-      pluginId,
-      pluginName: entry.name,
-      scope,
+    const pluginErrors = (await loadAllPlugins()).errors.filter(
+      error => error.source === pluginId,
+    )
+    const needsReinstall = pluginErrors.some(
+      error =>
+        error.type !== 'dependency-unsatisfied' || error.reason !== 'not-found',
+    )
+    if (!needsReinstall) {
+      const dependencyRecovery =
+        await recoverInstalledPluginDependencies(pluginId)
+      return {
+        success: true,
+        message: `Plugin "${pluginId}" is already installed (scope: ${scope})${dependencyRecovery?.suffix ?? ''}`,
+        pluginId,
+        pluginName: entry.name,
+        scope,
+      }
     }
   }
 

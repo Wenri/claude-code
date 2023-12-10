@@ -2,6 +2,8 @@ import {
   execFileNoThrowWithCwd,
   execSyncWithDefaults_DEPRECATED,
 } from './execFileNoThrow.js'
+import { readFileSync } from 'fs'
+import { readFile } from 'fs/promises'
 
 // This file contains platform-agnostic implementations of common `ps` type commands.
 // When adding new code to this file, make sure to handle:
@@ -25,6 +27,69 @@ export function isProcessRunning(pid: number): boolean {
   } catch {
     return false
   }
+}
+
+/**
+ * Return an OS-provided process birth token that changes when a PID is reused.
+ * Linux exposes the starttime field in /proc; other Unix platforms use the
+ * locale-stabilized `ps lstart` representation.
+ */
+export function getProcessStartToken(pid: number): string | undefined {
+  try {
+    if (process.platform === 'linux') {
+      const stat = readFileSync(`/proc/${pid}/stat`, { encoding: 'utf8' })
+      const commandEnd = stat.lastIndexOf(')')
+      return stat.slice(commandEnd + 2).split(' ')[19]
+    }
+    const result = execSyncWithDefaults_DEPRECATED(
+      `LC_ALL=C TZ=UTC ps -o lstart= -p ${pid}`,
+      { timeout: 1000 },
+    )
+    return result ? result.trim() : undefined
+  } catch {
+    return undefined
+  }
+}
+
+export async function getProcessStartTokenAsync(
+  pid: number,
+): Promise<string | undefined> {
+  try {
+    if (process.platform === 'linux') {
+      const stat = await readFile(`/proc/${pid}/stat`, { encoding: 'utf8' })
+      const commandEnd = stat.lastIndexOf(')')
+      return stat.slice(commandEnd + 2).split(' ')[19]
+    }
+    const result = await execFileNoThrowWithCwd(
+      'ps',
+      ['-o', 'lstart=', '-p', String(pid)],
+      {
+        timeout: 1000,
+        env: { ...process.env, LC_ALL: 'C', TZ: 'UTC' },
+      },
+    )
+    return result.code === 0 && result.stdout
+      ? result.stdout.trim()
+      : undefined
+  } catch {
+    return undefined
+  }
+}
+
+/** Unknown tokens are treated conservatively as a possible live match. */
+export async function processStartTokenMatches(
+  pid: number,
+  expected: string | undefined,
+): Promise<boolean> {
+  if (expected === undefined) return true
+  const actual = await getProcessStartTokenAsync(pid)
+  return actual === undefined || actual === expected
+}
+
+let currentProcessStartToken: string | undefined
+
+export function getCurrentProcessStartToken(): string | undefined {
+  return (currentProcessStartToken ??= getProcessStartToken(process.pid))
 }
 
 /**

@@ -11,6 +11,7 @@ import { getProjectDir, getTranscriptPath } from '../../utils/sessionStorage.js'
 import { join } from 'path'
 import { logEvent } from '../../services/analytics/index.js'
 import { which } from '../../utils/which.js'
+import { getReplBridgeHandle } from '../../bridge/replBridgeHandle.js'
 
 export async function resolveLauncher(): Promise<RelaunchLauncher> {
   const installedLauncher = await which('claude')
@@ -53,12 +54,33 @@ export const call: LocalCommandCall = async (_args, context) => {
     ? teamName
     : undefined
 
+  const bridgeHandle = getReplBridgeHandle()
+  const bridgeSessionId = bridgeHandle?.bridgeSessionId
+  const bridgeSequenceNum = bridgeHandle?.getLastSequenceNum()
+  if (bridgeSessionId && bridgeHandle) {
+    context.setAppState(prev =>
+      prev.replBridgeSkipNextArchive
+        ? prev
+        : { ...prev, replBridgeSkipNextArchive: true },
+    )
+    await bridgeHandle.teardown({ skipArchive: true })
+  }
+
+  const env: NodeJS.ProcessEnv = {}
+  if (assistantTeamName) {
+    env.CLAUDE_INTERNAL_ASSISTANT_TEAM_NAME = assistantTeamName
+  }
+  if (bridgeSessionId) {
+    env.CLAUDE_BRIDGE_REATTACH_SESSION = bridgeSessionId
+    if (bridgeSequenceNum !== undefined && bridgeSequenceNum > 0) {
+      env.CLAUDE_BRIDGE_REATTACH_SEQ = String(bridgeSequenceNum)
+    }
+  }
+
   return relaunch({
     launcher: await resolveLauncher(),
     freshIfNoTranscript: true,
-    env: assistantTeamName
-      ? { CLAUDE_INTERNAL_ASSISTANT_TEAM_NAME: assistantTeamName }
-      : undefined,
+    env: Object.keys(env).length > 0 ? env : undefined,
     preSpawn: () => {
       process.stdout.write(
         chalk.dim(

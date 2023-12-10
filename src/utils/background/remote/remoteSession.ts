@@ -1,12 +1,18 @@
 import type { SDKMessage } from 'src/entrypoints/agentSdkTypes.js'
+import axios from 'axios'
 import { checkGate_CACHED_OR_BLOCKING } from '../../../services/analytics/growthbook.js'
 import { isPolicyAllowed } from '../../../services/policyLimits/index.js'
+import { getCwd } from '../../cwd.js'
+import { logForDebugging } from '../../debug.js'
 import { detectCurrentRepositoryWithHost } from '../../detectRepository.js'
 import { isEnvTruthy } from '../../envUtils.js'
+import { errorMessage } from '../../errors.js'
+import { findGitRoot } from '../../git.js'
+import { getSettings_DEPRECATED } from '../../settings/settings.js'
+import { fetchEnvironments } from '../../teleport/environments.js'
 import type { TodoList } from '../../todo/types.js'
 import {
   checkGithubAppInstalled,
-  checkHasRemoteEnvironment,
   checkIsInGitRepo,
   checkNeedsClaudeAiLogin,
 } from './preconditions.js'
@@ -30,7 +36,6 @@ export type BackgroundRemoteSession = {
  */
 export type BackgroundRemoteSessionPrecondition =
   | { type: 'not_logged_in' }
-  | { type: 'no_remote_environment' }
   | { type: 'not_in_git_repo' }
   | { type: 'no_git_remote' }
   | { type: 'github_app_not_installed' }
@@ -43,9 +48,9 @@ export type BackgroundRemoteSessionPrecondition =
  * @returns Array of failed preconditions
  */
 export async function checkBackgroundRemoteSessionEligibility({
-  skipBundle = false,
+  allowBundle = false,
 }: {
-  skipBundle?: boolean
+  allowBundle?: boolean
 } = {}): Promise<BackgroundRemoteSessionPrecondition[]> {
   const errors: BackgroundRemoteSessionPrecondition[] = []
 
@@ -55,36 +60,56 @@ export async function checkBackgroundRemoteSessionEligibility({
     return errors
   }
 
-  const [needsLogin, hasRemoteEnv, repository] = await Promise.all([
+  const [needsLogin, repository] = await Promise.all([
     checkNeedsClaudeAiLogin(),
-    checkHasRemoteEnvironment(),
     detectCurrentRepositoryWithHost(),
   ])
 
+  let environments: Awaited<ReturnType<typeof fetchEnvironments>> | null = null
+
   if (needsLogin) {
     errors.push({ type: 'not_logged_in' })
+  } else {
+    try {
+      environments = await fetchEnvironments()
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        errors.push({ type: 'not_logged_in' })
+      } else {
+        logForDebugging(
+          `fetchRemoteEnvironmentsForEligibility failed: ${errorMessage(error)}`,
+        )
+      }
+    }
   }
 
-  if (!hasRemoteEnv) {
-    errors.push({ type: 'no_remote_environment' })
-  }
+  const configuredDefaultId =
+    getSettings_DEPRECATED()?.remote?.defaultEnvironmentId
+  const configuredDefaultIsByoc =
+    configuredDefaultId !== undefined &&
+    environments !== null &&
+    environments.some(
+      environment =>
+        environment.environment_id === configuredDefaultId &&
+        environment.kind === 'byoc',
+    )
 
   // When bundle seeding is on, in-git-repo is enough — CCR can seed from
   // a local bundle. No GitHub remote or app needed. Same gate as
   // teleport.tsx bundleSeedGateOn.
   const bundleSeedGateOn =
-    !skipBundle &&
+    allowBundle &&
     (isEnvTruthy(process.env.CCR_FORCE_BUNDLE) ||
       isEnvTruthy(process.env.CCR_ENABLE_BUNDLE) ||
       (await checkGate_CACHED_OR_BLOCKING('tengu_ccr_bundle_seed_enabled')))
 
   if (!(await checkIsInGitRepo())) {
     errors.push({ type: 'not_in_git_repo' })
-  } else if (bundleSeedGateOn) {
+  } else if (bundleSeedGateOn && findGitRoot(getCwd()) !== null) {
     // has .git/, bundle will work — skip remote+app checks
   } else if (repository === null) {
     errors.push({ type: 'no_git_remote' })
-  } else if (repository.host === 'github.com') {
+  } else if (!configuredDefaultIsByoc && repository.host === 'github.com') {
     const hasGithubApp = await checkGithubAppInstalled(
       repository.owner,
       repository.name,

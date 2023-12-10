@@ -119,29 +119,32 @@ project. The untouched files remain the exact 2.1.88 outer source-map inputs;
 the tree now carries cumulative, verified source-facing recovery overlays for
 2.1.89, 2.1.90, 2.1.91, 2.1.92, 2.1.94, 2.1.96, 2.1.97, 2.1.98, 2.1.100,
 2.1.101, 2.1.104, 2.1.105, 2.1.107, 2.1.108, 2.1.109, 2.1.110, 2.1.111,
-2.1.112, 2.1.113, 2.1.114, and 2.1.116; upstream did not publish 2.1.93, 2.1.95,
-2.1.99, 2.1.102, 2.1.103, 2.1.106, or 2.1.115.
+2.1.112, 2.1.113, 2.1.114, 2.1.116, 2.1.117, and 2.1.118; upstream did not
+publish 2.1.93, 2.1.95, 2.1.99, 2.1.102, 2.1.103, 2.1.106, or 2.1.115.
 This does not claim that any complete original authored TypeScript tree is
 observable. A short tour of what's inside is in [`CLAUDE.md`](./CLAUDE.md).
 The evidence-first adjacent-published-release recoveries live in
 [`recovery/`](./recovery/): they reconstruct the complete published wrapper
 and every plain JavaScript entry in the authenticated Linux x64 Bun graph
-exactly through 2.1.117, while keeping the necessarily partial authored-source
+exactly through 2.1.118, while keeping the necessarily partial authored-source
 reconstruction labeled separately. The signed native executable
 itself is authenticated and container-verified; it is not claimed as
 baseline-derived source or as an ELF reconstructed from the prior release.
-The exact 2.1.117 generated recovery is complete, while its authored-source
-localization remains explicitly source-partial. Its frozen 2.1.116→2.1.117
-patch records 123 changed paths (115 modifications, seven additions, and one
-deletion), and its three focused test files pass 8/8 in both base and
-applied-target orientations. The patch is applied, so `src/` now carries the
-frozen 1,957-file 2.1.117-facing state as its twenty-second recovered overlay
-target. This is the twenty-first adjacent-package step after the initial
-source-map-to-package recovery.
+The exact 2.1.118 generated recovery is complete, while its authored-source
+localization remains explicitly source-partial. Its frozen 2.1.117→2.1.118
+patch records 306 changed paths (241 modifications and 65 additions), and its
+four focused test files pass 21/21 in both base and applied-target
+orientations. The applied overlay produces 2,022 files,
+31,570,676 bytes, and framed SHA-256
+`c91ebcc114cbe577e4ffe43801e6014ade8e26d27271f57b0af1ce8ce9ff3d59`.
+This twenty-second adjacent-package step after the initial
+source-map-to-package recovery is now applied: shared `src/` carries the
+frozen 2,022-file 2.1.118-facing state as its twenty-third recovered-overlay
+target. Do not apply the archived incremental patch a second time.
 See the current
-[2.1.117 report](./recovery/cases/2.1.116-to-2.1.117/REPORT.md),
-[manifest](./recovery/cases/2.1.116-to-2.1.117/manifest.json), and
-[complete recovery runbook](./recovery/cases/2.1.116-to-2.1.117/RECOVERY_RUNBOOK.md).
+[2.1.118 report](./recovery/cases/2.1.117-to-2.1.118/REPORT.md),
+[manifest](./recovery/cases/2.1.117-to-2.1.118/manifest.json), and
+[complete recovery runbook](./recovery/cases/2.1.117-to-2.1.118/RECOVERY_RUNBOOK.md).
 
 ## 📜 License & disclaimer
 

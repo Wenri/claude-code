@@ -27,7 +27,6 @@ import { safeParseJSON } from '../../json.js'
 import { profileCheckpoint } from '../../startupProfiler.js'
 import {
   getManagedFilePath,
-  getManagedSettingsDropInDir,
 } from '../managedPath.js'
 import { type SettingsJson, SettingsSchema } from '../types.js'
 import {
@@ -39,6 +38,7 @@ import {
   WINDOWS_REGISTRY_KEY_PATH_HKCU,
   WINDOWS_REGISTRY_KEY_PATH_HKLM,
   WINDOWS_REGISTRY_VALUE_NAME,
+  WSL_WINDOWS_MANAGED_SETTINGS_PATH,
 } from './constants.js'
 import {
   fireRawRead,
@@ -54,6 +54,7 @@ type MdmResult = { settings: SettingsJson; errors: ValidationError[] }
 const EMPTY_RESULT: MdmResult = Object.freeze({ settings: {}, errors: [] })
 let mdmCache: MdmResult | null = null
 let hkcuCache: MdmResult | null = null
+let wslInheritsCache = false
 let mdmLoadPromise: Promise<void> | null = null
 
 // ---------------------------------------------------------------------------
@@ -73,9 +74,10 @@ export function startMdmSettingsLoad(): void {
     // Use the startup raw read if cli.tsx fired it, otherwise fire a fresh one.
     // Both paths produce the same RawReadResult; consumeRawReadResult parses it.
     const rawPromise = getMdmRawReadPromise() ?? fireRawRead()
-    const { mdm, hkcu } = consumeRawReadResult(await rawPromise)
+    const { mdm, hkcu, wslInherits } = consumeRawReadResult(await rawPromise)
     mdmCache = mdm
     hkcuCache = hkcu
+    wslInheritsCache = wslInherits
     profileCheckpoint('mdm_load_end')
 
     const duration = Date.now() - startTime
@@ -133,6 +135,10 @@ export function getHkcuSettings(): MdmResult {
   return hkcuCache ?? EMPTY_RESULT
 }
 
+export function getWslInheritsWindowsSettings(): boolean {
+  return wslInheritsCache
+}
+
 // ---------------------------------------------------------------------------
 // Cache management
 // ---------------------------------------------------------------------------
@@ -143,15 +149,21 @@ export function getHkcuSettings(): MdmResult {
 export function clearMdmSettingsCache(): void {
   mdmCache = null
   hkcuCache = null
+  wslInheritsCache = false
   mdmLoadPromise = null
 }
 
 /**
  * Update the session caches directly. Used by the change detector poll.
  */
-export function setMdmSettingsCache(mdm: MdmResult, hkcu: MdmResult): void {
+export function setMdmSettingsCache(
+  mdm: MdmResult,
+  hkcu: MdmResult,
+  wslInherits = false,
+): void {
   mdmCache = mdm
   hkcuCache = hkcu
+  wslInheritsCache = wslInherits
 }
 
 // ---------------------------------------------------------------------------
@@ -166,6 +178,7 @@ export function setMdmSettingsCache(mdm: MdmResult, hkcu: MdmResult): void {
 export async function refreshMdmSettings(): Promise<{
   mdm: MdmResult
   hkcu: MdmResult
+  wslInherits: boolean
 }> {
   const raw = await fireRawRead()
   return consumeRawReadResult(raw)
@@ -228,33 +241,55 @@ export function parseRegQueryStdout(
 function consumeRawReadResult(raw: RawReadResult): {
   mdm: MdmResult
   hkcu: MdmResult
+  wslInherits: boolean
 } {
   // macOS: plist result (first source wins — already filtered in mdmRawRead)
   if (raw.plistStdouts && raw.plistStdouts.length > 0) {
     const { stdout, label } = raw.plistStdouts[0]!
     const result = parseCommandOutputAsSettings(stdout, label)
-    if (Object.keys(result.settings).length > 0) {
-      return { mdm: result, hkcu: EMPTY_RESULT }
+    const { wslInheritsWindowsSettings: _, ...settings } = result.settings
+    if (Object.keys(settings).length > 0) {
+      return { mdm: result, hkcu: EMPTY_RESULT, wslInherits: false }
     }
   }
 
   // Windows: HKLM result
+  let hklm: MdmResult | null = null
+  const accumulatedErrors: ValidationError[] = []
   if (raw.hklmStdout) {
     const jsonString = parseRegQueryStdout(raw.hklmStdout)
     if (jsonString) {
-      const result = parseCommandOutputAsSettings(
+      hklm = parseCommandOutputAsSettings(
         jsonString,
         `Registry: ${WINDOWS_REGISTRY_KEY_PATH_HKLM}\\${WINDOWS_REGISTRY_VALUE_NAME}`,
       )
-      if (Object.keys(result.settings).length > 0) {
-        return { mdm: result, hkcu: EMPTY_RESULT }
-      }
+    }
+  }
+  if (hklm) accumulatedErrors.push(...hklm.errors)
+  const emptyMdm =
+    accumulatedErrors.length > 0
+      ? { settings: {}, errors: accumulatedErrors }
+      : EMPTY_RESULT
+
+  const isWsl = isWslEnvironment()
+  const wslInherits = isWsl
+    ? hklm?.settings.wslInheritsWindowsSettings === true ||
+      windowsManagedFilesEnableInheritance()
+    : false
+  if (isWsl && !wslInherits) {
+    return { mdm: emptyMdm, hkcu: EMPTY_RESULT, wslInherits: false }
+  }
+
+  if (hklm) {
+    const { wslInheritsWindowsSettings: _, ...settings } = hklm.settings
+    if (Object.keys(settings).length > 0) {
+      return { mdm: hklm, hkcu: EMPTY_RESULT, wslInherits }
     }
   }
 
   // No admin MDM — check managed-settings.json before using HKCU
-  if (hasManagedSettingsFile()) {
-    return { mdm: EMPTY_RESULT, hkcu: EMPTY_RESULT }
+  if (hasManagedSettingsFile(wslInherits)) {
+    return { mdm: emptyMdm, hkcu: EMPTY_RESULT, wslInherits }
   }
 
   // Fall through to HKCU (already read in parallel)
@@ -265,11 +300,74 @@ function consumeRawReadResult(raw: RawReadResult): {
         jsonString,
         `Registry: ${WINDOWS_REGISTRY_KEY_PATH_HKCU}\\${WINDOWS_REGISTRY_VALUE_NAME}`,
       )
-      return { mdm: EMPTY_RESULT, hkcu: result }
+      if (!isWsl || result.settings.wslInheritsWindowsSettings === true) {
+        const { wslInheritsWindowsSettings: _, ...settings } = result.settings
+        return {
+          mdm: emptyMdm,
+          hkcu: { settings, errors: result.errors },
+          wslInherits,
+        }
+      }
+      if (result.errors.length > 0) {
+        return {
+          mdm: emptyMdm,
+          hkcu: { settings: {}, errors: result.errors },
+          wslInherits,
+        }
+      }
     }
   }
 
-  return { mdm: EMPTY_RESULT, hkcu: EMPTY_RESULT }
+  return { mdm: emptyMdm, hkcu: EMPTY_RESULT, wslInherits }
+}
+
+function isWslEnvironment(): boolean {
+  if (process.env.WSL_DISTRO_NAME) return true
+  try {
+    const version = require('fs')
+      .readFileSync('/proc/version', 'utf8')
+      .toLowerCase()
+    return version.includes('microsoft') || version.includes('wsl')
+  } catch {
+    return false
+  }
+}
+
+function windowsManagedFilesEnableInheritance(): boolean {
+  const hasFlag = (path: string): boolean => {
+    try {
+      const data = safeParseJSON(readFileSync(path), false)
+      return (
+        !!data &&
+        typeof data === 'object' &&
+        'wslInheritsWindowsSettings' in data &&
+        data.wslInheritsWindowsSettings === true
+      )
+    } catch {
+      return false
+    }
+  }
+  if (
+    hasFlag(join(WSL_WINDOWS_MANAGED_SETTINGS_PATH, 'managed-settings.json'))
+  ) {
+    return true
+  }
+  try {
+    const dir = join(WSL_WINDOWS_MANAGED_SETTINGS_PATH, 'managed-settings.d')
+    for (const entry of getFsImplementation().readdirSync(dir)) {
+      if (
+        (entry.isFile() || entry.isSymbolicLink()) &&
+        entry.name.endsWith('.json') &&
+        !entry.name.startsWith('.') &&
+        hasFlag(join(dir, entry.name))
+      ) {
+        return true
+      }
+    }
+  } catch {
+    // directory is optional
+  }
+  return false
 }
 
 /**
@@ -277,19 +375,29 @@ function consumeRawReadResult(raw: RawReadResult): {
  * managed-settings.d/*.json) exist and have content. Cheap sync check
  * used to skip HKCU when a higher-priority file-based source exists.
  */
-function hasManagedSettingsFile(): boolean {
+function hasManagedSettingsFile(wslInherits: boolean): boolean {
+  if (
+    wslInherits &&
+    hasManagedSettingsFileAt(WSL_WINDOWS_MANAGED_SETTINGS_PATH)
+  ) {
+    return true
+  }
+  return hasManagedSettingsFileAt(getManagedFilePath())
+}
+
+function hasManagedSettingsFileAt(root: string): boolean {
   try {
-    const filePath = join(getManagedFilePath(), 'managed-settings.json')
+    const filePath = join(root, 'managed-settings.json')
     const content = readFileSync(filePath)
     const data = safeParseJSON(content, false)
-    if (data && typeof data === 'object' && Object.keys(data).length > 0) {
+    if (settingsObjectHasPolicyContent(data)) {
       return true
     }
   } catch {
     // fall through to drop-in check
   }
   try {
-    const dropInDir = getManagedSettingsDropInDir()
+    const dropInDir = join(root, 'managed-settings.d')
     const entries = getFsImplementation().readdirSync(dropInDir)
     for (const d of entries) {
       if (
@@ -302,7 +410,7 @@ function hasManagedSettingsFile(): boolean {
       try {
         const content = readFileSync(join(dropInDir, d.name))
         const data = safeParseJSON(content, false)
-        if (data && typeof data === 'object' && Object.keys(data).length > 0) {
+        if (settingsObjectHasPolicyContent(data)) {
           return true
         }
       } catch {
@@ -313,4 +421,50 @@ function hasManagedSettingsFile(): boolean {
     // drop-in dir doesn't exist
   }
   return false
+}
+
+function settingsObjectHasPolicyContent(data: unknown): boolean {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return false
+  const { wslInheritsWindowsSettings: _, ...settings } = data as Record<
+    string,
+    unknown
+  >
+  return Object.keys(settings).length > 0
+}
+
+export function getWslWindowsManagedSettingsFingerprint(): string {
+  if (!isWslEnvironment() || !wslInheritsCache) return ''
+  const chunks: string[] = []
+  try {
+    chunks.push(
+      readFileSync(
+        join(WSL_WINDOWS_MANAGED_SETTINGS_PATH, 'managed-settings.json'),
+      ),
+    )
+  } catch {
+    chunks.push('')
+  }
+  try {
+    const dir = join(WSL_WINDOWS_MANAGED_SETTINGS_PATH, 'managed-settings.d')
+    const entries = getFsImplementation()
+      .readdirSync(dir)
+      .filter(
+        entry =>
+          (entry.isFile() || entry.isSymbolicLink()) &&
+          entry.name.endsWith('.json') &&
+          !entry.name.startsWith('.'),
+      )
+      .map(entry => entry.name)
+      .sort()
+    for (const name of entries) {
+      try {
+        chunks.push(`${name}\0${readFileSync(join(dir, name))}`)
+      } catch {
+        chunks.push(`${name}\0`)
+      }
+    }
+  } catch {
+    // directory is optional
+  }
+  return chunks.join('\x01')
 }

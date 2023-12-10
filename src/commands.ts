@@ -1,13 +1,14 @@
 // biome-ignore-all assist/source/organizeImports: ANT-ONLY import markers must not be reordered
 import addDir from './commands/add-dir/index.js'
-import autofixPr from './commands/autofix-pr/index.js'
+import autofixPrStub from './commands/autofix-pr/index.js'
+import autofixPr from './commands/autofix-pr/command.js'
 import backfillSessions from './commands/backfill-sessions/index.js'
 import btw from './commands/btw/index.js'
 import goodClaude from './commands/good-claude/index.js'
 import issue from './commands/issue/index.js'
 import feedback from './commands/feedback/index.js'
 import clear from './commands/clear/index.js'
-import color from './commands/color/index.js'
+import { color, colorNonInteractive } from './commands/color/index.js'
 import commit from './commands/commit.js'
 import copy from './commands/copy/index.js'
 import desktop from './commands/desktop/index.js'
@@ -15,7 +16,6 @@ import commitPushPr from './commands/commit-push-pr.js'
 import compact from './commands/compact/index.js'
 import config from './commands/config/index.js'
 import { context, contextNonInteractive } from './commands/context/index.js'
-import cost from './commands/cost/index.js'
 import diff from './commands/diff/index.js'
 import ctx_viz from './commands/ctx_viz/index.js'
 import doctor from './commands/doctor/index.js'
@@ -43,6 +43,8 @@ import share from './commands/share/index.js'
 import skills from './commands/skills/index.js'
 import status from './commands/status/index.js'
 import tasks from './commands/tasks/index.js'
+import recap from './commands/recap/index.js'
+import toggleMemory from './commands/toggle-memory/index.js'
 import teleport from './commands/teleport/index.js'
 /* eslint-disable @typescript-eslint/no-require-imports */
 const agentsPlatform =
@@ -53,7 +55,10 @@ const agentsPlatform =
 import securityReview from './commands/security-review.js'
 import bughunter from './commands/bughunter/index.js'
 import terminalSetup from './commands/terminalSetup/index.js'
-import usage from './commands/usage/index.js'
+import {
+  usage,
+  usageNonInteractive,
+} from './commands/usage/index.js'
 import theme from './commands/theme/index.js'
 import tui from './commands/tui/index.js'
 import update from './commands/update/index.js'
@@ -182,9 +187,9 @@ import {
   extraUsageNonInteractive,
 } from './commands/extra-usage/index.js'
 import rateLimitOptions from './commands/rate-limit-options/index.js'
+import proTrialExpired from './commands/pro-trial-expired/index.js'
 import statusline from './commands/statusline.js'
 import effort from './commands/effort/index.js'
-import stats from './commands/stats/index.js'
 // insights.ts is 113KB (3200 lines, includes diffLines/html rendering). Lazy
 // shim defers the heavy module until /insights is actually invoked.
 const usageReport: Command = {
@@ -251,7 +256,7 @@ export const INTERNAL_ONLY_COMMANDS = [
   oauthRefresh,
   debugToolCall,
   agentsPlatform,
-  autofixPr,
+  autofixPrStub,
 ].filter(Boolean)
 
 // Declared as a function so that we don't run this until getCommands is called,
@@ -265,13 +270,13 @@ const COMMANDS = memoize((): Command[] => [
   chrome,
   clear,
   color,
+  colorNonInteractive,
   compact,
   config,
   copy,
   desktop,
   context,
   contextNonInteractive,
-  cost,
   diff,
   doctor,
   effort,
@@ -299,7 +304,6 @@ const COMMANDS = memoize((): Command[] => [
   resume,
   session,
   skills,
-  stats,
   status,
   statusline,
   stickers,
@@ -316,7 +320,10 @@ const COMMANDS = memoize((): Command[] => [
   extraUsage,
   extraUsageNonInteractive,
   rateLimitOptions,
+  proTrialExpired,
+  autofixPr,
   usage,
+  usageNonInteractive,
   usageReport,
   ...(webCmd ? [webCmd] : []),
   ...(forkCmd ? [forkCmd] : []),
@@ -339,6 +346,8 @@ const COMMANDS = memoize((): Command[] => [
   passes,
   ...(peersCmd ? [peersCmd] : []),
   tasks,
+  recap,
+  toggleMemory,
   ...(workflowsCmd ? [workflowsCmd] : []),
   ...(torch ? [torch] : []),
   ...(process.env.USER_TYPE === 'ant' && !process.env.IS_DEMO
@@ -739,11 +748,27 @@ export function findCommand(
   commandName: string,
   commands: Command[],
 ): Command | undefined {
-  return commands.find(
-    _ =>
-      _.name === commandName ||
-      getCommandName(_) === commandName ||
-      _.aliases?.includes(commandName),
+  return commands.find(command => matchesCommand(command, commandName))
+}
+
+function matchesCommand(command: Command, commandName: string): boolean {
+  return (
+    command.name === commandName ||
+    getCommandName(command) === commandName ||
+    (command.aliases?.includes(commandName) ?? false)
+  )
+}
+
+export function filterCommandsBySkillAllowlist(
+  commands: Command[],
+  allowlist: string[] | undefined,
+): Command[] {
+  if (allowlist === undefined) return commands
+  return commands.filter(command =>
+    allowlist.some(
+      name =>
+        matchesCommand(command, name) || command.name.endsWith(`:${name}`),
+    ),
   )
 }
 

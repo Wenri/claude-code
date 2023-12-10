@@ -7,6 +7,14 @@ import { getPlatform } from '../platform.js'
 export const SHELL_TOOL_NAMES: string[] = [BASH_TOOL_NAME, POWERSHELL_TOOL_NAME]
 
 /**
+ * Bash remains the shell tool on non-Windows platforms. On native Windows,
+ * use Bash only when the PowerShell tool is not enabled.
+ */
+export function isBashToolEnabled(): boolean {
+  return getPlatform() !== 'windows' || !isPowerShellToolEnabled()
+}
+
+/**
  * Runtime gate for PowerShellTool. Windows uses a gradual rollout, with the
  * environment variable as an explicit opt-in or opt-out. Other platforms are
  * opt-in only and require CLAUDE_CODE_USE_POWERSHELL_TOOL=1.
@@ -21,4 +29,9 @@ export function isPowerShellToolEnabled(): boolean {
   if (isEnvTruthy(envValue)) return true
   if (isEnvDefinedFalsy(envValue)) return false
   return getFeatureValue_CACHED_MAY_BE_STALE('tengu_cobalt_ridge', false)
+}
+
+/** Selects the default shell tool while preserving Bash on non-Windows hosts. */
+export function isBashToolEnabled(): boolean {
+  return getPlatform() !== 'windows' || !isPowerShellToolEnabled()
 }

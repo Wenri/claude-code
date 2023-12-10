@@ -135,6 +135,8 @@ async function getCurrentRepoHttpsUrl(): Promise<string | null> {
 
 function buildPrompt(opts: {
   userTimezone: string
+  nowUtcIso: string
+  nowLocal: string
   connectorsInfo: string
   gitRepoUrl: string | null
   environmentsInfo: string
@@ -145,6 +147,8 @@ function buildPrompt(opts: {
 }): string {
   const {
     userTimezone,
+    nowUtcIso,
+    nowLocal,
     connectorsInfo,
     gitRepoUrl,
     environmentsInfo,
@@ -285,6 +289,12 @@ The user's local timezone is **${userTimezone}**. Cron expressions and \`run_onc
 
 Minimum interval is 1 hour. \`*/30 * * * *\` will be rejected.
 
+### Current Time (for one-off runs)
+
+When /schedule was invoked it was **${nowLocal}** (${userTimezone}) / **${nowUtcIso}** UTC. Treat this as an approximate anchor only — the conversation may have been running for a while since then.
+
+**Before computing any \`run_once_at\` value, you MUST re-check the current time** by running \`date -u +%Y-%m-%dT%H:%M:%SZ\` via the Bash tool. Do not guess or infer today's date from conversation context. Resolve relative requests ("tomorrow at 9am", "in 3 hours", "next Monday") against the freshly fetched time, then echo the resolved local time AND the UTC timestamp back to the user for confirmation before creating the routine. If the resolved time is already in the past, ask the user to clarify rather than silently rolling forward.
+
 ## Workflow
 
 ### CREATE a new routine:
@@ -294,7 +304,7 @@ Minimum interval is 1 hour. \`*/30 * * * *\` will be rejected.
    - Specific about what to do and what success looks like
    - Clear about which files/areas to focus on
    - Explicit about what actions to take (open PRs, commit, just analyze, etc.)
-3. **Set the schedule** — Ask when and how often. The user's timezone is ${userTimezone}. When they say a time (e.g., "every morning at 9am"), assume they mean their local time and convert to UTC for the cron expression. Always confirm the conversion: "9am ${userTimezone} = Xam UTC." If they want a one-time run (e.g., "once at 3pm", "tomorrow morning", "remind me to check X later"), use \`run_once_at\` instead of \`cron_expression\` — same timezone conversion applies.
+3. **Set the schedule** — Ask when and how often. The user's timezone is ${userTimezone}. When they say a time (e.g., "every morning at 9am"), assume they mean their local time and convert to UTC for the cron expression. Always confirm the conversion: "9am ${userTimezone} = Xam UTC." If they want a one-time run (e.g., "once at 3pm", "tomorrow morning", "remind me to check X later"), use \`run_once_at\` instead of \`cron_expression\` — same timezone conversion applies. **First re-check the current time with \`date -u\` via Bash** (the reference time above may be stale in a long conversation), resolve the relative phrase against that fresh value, and confirm the resulting absolute timestamp with the user.
 4. **Choose the model** — Default to \`claude-sonnet-4-6\`. Tell the user which model you're defaulting to and ask if they want a different one.
 5. **Validate connections** — Infer what services the agent will need from the user's description. For example, if they say "check Datadog and Slack me errors," the agent needs both Datadog and Slack MCP connectors. Cross-reference with the connectors list above. If any are missing, warn the user and link them to https://claude.ai/customize/connectors to connect first.${gitRepoUrl ? ` The default git repo is already set to \`${gitRepoUrl}\`. Ask the user if this is the right repo or if they need a different one.` : ' Ask which git repos the remote agent needs cloned into its environment.'}
 6. **Review and confirm** — Show the full configuration before creating. Let them adjust.
@@ -332,19 +342,28 @@ ${userArgs ? `\n## User Request\n\nThe user said: "${userArgs}"\n\nStart by unde
 }
 
 export function registerScheduleRemoteAgentsSkill(): void {
+  const oneOffEnabled = getFeatureValue_CACHED_MAY_BE_STALE(
+    'tengu_mocha_barista',
+    false,
+  )
   registerBundledSkill({
     name: 'schedule',
     aliases: ['routines'],
-    description:
-      'Create, update, list, or run scheduled remote agents (routines) on a cron schedule or once at a specific time.',
-    whenToUse:
-      'When the user wants to schedule a recurring remote agent, set up automated tasks, create a cron job for Claude Code, or manage their scheduled agents/routines. Also use when the user wants a one-time scheduled run ("run this once at 3pm", "remind me to check X tomorrow").',
+    description: `Create, update, list, or run scheduled remote agents (routines) ${oneOffEnabled ? 'on a cron schedule or once at a specific time' : 'that execute on a cron schedule'}.`,
+    whenToUse: () =>
+      getFeatureValue_CACHED_MAY_BE_STALE('tengu_orchid_mantis', false)
+        ? 'When the user wants to schedule a recurring or one-time remote agent ("run this every Monday", "open a cleanup PR for X in 2 weeks"), or to manage existing routines. ALSO OFFER PROACTIVELY: after you finish work that has a natural future follow-up, end your reply with a one-line offer to schedule a background agent to do it. Strong signals: a feature flag / gate / experiment / staged rollout was just shipped (offer a one-time agent in ~2 weeks to open a cleanup PR or evaluate results), a new alert/monitor was created (offer a recurring agent to triage it), a TODO/migration with a "remove once X" condition was left behind (offer a one-time agent to do the removal). Skip the offer for refactors, bug fixes, and anything that is done once it ships. Name a concrete action and cadence ("in 2 weeks", "every Monday") and only offer when the run just succeeded — do not pitch a schedule for something that has not happened yet.'
+        : `When the user wants to schedule a recurring remote agent, set up automated tasks, create a cron job for Claude Code, or manage their scheduled agents/routines.${oneOffEnabled ? ' Also use when the user wants a one-time scheduled run ("run this once at 3pm", "remind me to check X tomorrow").' : ''}`,
     userInvocable: true,
     isEnabled: () =>
       !isEnvTruthy(process.env.CLAUDE_CODE_REMOTE) &&
       getFeatureValue_CACHED_MAY_BE_STALE('tengu_surreal_dali', false) &&
       isPolicyAllowed('allow_remote_sessions'),
-    allowedTools: [REMOTE_TRIGGER_TOOL_NAME, ASK_USER_QUESTION_TOOL_NAME],
+    allowedTools: [
+      REMOTE_TRIGGER_TOOL_NAME,
+      ASK_USER_QUESTION_TOOL_NAME,
+      'Bash(date *)',
+    ],
     async getPromptForCommand(args: string, context: ToolUseContext) {
       if (!getClaudeAIOAuthTokens()?.accessToken) {
         return [
@@ -434,6 +453,17 @@ export function registerScheduleRemoteAgentsSkill(): void {
       }
 
       const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+      const now = new Date()
+      const nowUtcIso = now.toISOString()
+      const nowLocal = now.toLocaleString('en-US', {
+        timeZone: userTimezone,
+        weekday: 'short',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
       const connectorsInfo = formatConnectorsInfo(connectors)
       const gitRepoUrl = await getCurrentRepoHttpsUrl()
       const lines = ['Available environments:']
@@ -445,6 +475,8 @@ export function registerScheduleRemoteAgentsSkill(): void {
       const environmentsInfo = lines.join('\n')
       const prompt = buildPrompt({
         userTimezone,
+        nowUtcIso,
+        nowLocal,
         connectorsInfo,
         gitRepoUrl,
         environmentsInfo,

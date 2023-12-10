@@ -2,11 +2,20 @@ import { feature } from 'bun:bundle'
 import type { ToolPermissionContext } from '../../Tool.js'
 import { logForDebugging } from '../debug.js'
 import type { PermissionMode } from './PermissionMode.js'
+import { getGlobalConfig } from '../config.js'
 import {
   getAutoModeUnavailableReason,
+  hasAutoModeOptInAnySource,
   isAutoModeGateEnabled,
   transitionPermissionMode,
 } from './permissionSetup.js'
+
+export function isAutoModeOptInDismissed(): boolean {
+  return (
+    Boolean(getGlobalConfig().autoModeOptInDismissed) &&
+    !hasAutoModeOptInAnySource()
+  )
+}
 
 // Checks both the cached isAutoModeAvailable (set at startup by
 // verifyAutoModeGateAccess) and the live isAutoModeGateEnabled() — these can
@@ -17,10 +26,11 @@ import {
 function canCycleToAuto(ctx: ToolPermissionContext): boolean {
   if (feature('TRANSCRIPT_CLASSIFIER')) {
     const gateEnabled = isAutoModeGateEnabled()
-    const can = !!ctx.isAutoModeAvailable && gateEnabled
+    const dismissed = isAutoModeOptInDismissed()
+    const can = !!ctx.isAutoModeAvailable && gateEnabled && !dismissed
     if (!can) {
       logForDebugging(
-        `[auto-mode] canCycleToAuto=false: ctx.isAutoModeAvailable=${ctx.isAutoModeAvailable} isAutoModeGateEnabled=${gateEnabled} reason=${getAutoModeUnavailableReason()}`,
+        `[auto-mode] canCycleToAuto=false: ctx.isAutoModeAvailable=${ctx.isAutoModeAvailable} isAutoModeGateEnabled=${gateEnabled} dismissed=${dismissed} reason=${getAutoModeUnavailableReason()}`,
       )
     }
     return can

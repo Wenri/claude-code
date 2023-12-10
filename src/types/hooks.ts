@@ -85,6 +85,10 @@ export const syncHookResponseSchema = lazySchema(() =>
             .optional(),
         }),
         z.object({
+          hookEventName: z.literal('UserPromptExpansion'),
+          additionalContext: z.string().optional(),
+        }),
+        z.object({
           hookEventName: z.literal('SessionStart'),
           additionalContext: z.string().optional(),
           initialUserMessage: z.string().optional(),
@@ -111,6 +115,10 @@ export const syncHookResponseSchema = lazySchema(() =>
         }),
         z.object({
           hookEventName: z.literal('PostToolUseFailure'),
+          additionalContext: z.string().optional(),
+        }),
+        z.object({
+          hookEventName: z.literal('PostToolBatch'),
           additionalContext: z.string().optional(),
         }),
         z.object({

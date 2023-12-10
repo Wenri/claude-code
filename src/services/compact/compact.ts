@@ -1587,6 +1587,9 @@ export async function createPlanModeAttachmentIfNeeded(
     isSubAgent: !!context.agentId,
     planFilePath,
     planExists,
+    ...(context.options.planModeInstructions !== undefined
+      ? { customInstructions: context.options.planModeInstructions }
+      : {}),
   })
 }
 

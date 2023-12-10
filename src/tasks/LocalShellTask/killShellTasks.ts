@@ -54,13 +54,15 @@ export function killShellTasksForAgent(
   agentId: AgentId,
   getAppState: () => AppState,
   setAppState: SetAppStateFn,
+  options?: { skipMonitors?: boolean },
 ): void {
   const tasks = getAppState().tasks ?? {}
   for (const [taskId, task] of Object.entries(tasks)) {
     if (
       isLocalShellTask(task) &&
       task.agentId === agentId &&
-      task.status === 'running'
+      task.status === 'running' &&
+      !(options?.skipMonitors && task.kind === 'monitor')
     ) {
       logForDebugging(
         `killShellTasksForAgent: killing orphaned shell task ${taskId} (agent ${agentId} exiting)`,
@@ -72,5 +74,7 @@ export function killShellTasksForAgent(
   // has exited and won't drain them. killTask fires 'killed' notifications
   // asynchronously; drop the ones already queued and any that land later sit
   // harmlessly (no consumer matches a dead agentId).
-  dequeueAllMatching(cmd => cmd.agentId === agentId)
+  if (!options?.skipMonitors) {
+    dequeueAllMatching(cmd => cmd.agentId === agentId)
+  }
 }

@@ -6,6 +6,7 @@ import type { SetAppState, Task, TaskContext, TaskStateBase } from '../../Task.j
 import { createTaskStateBase, generateTaskId } from '../../Task.js';
 import { TodoWriteTool } from '../../tools/TodoWriteTool/TodoWriteTool.js';
 import { type BackgroundRemoteSessionPrecondition, checkBackgroundRemoteSessionEligibility } from '../../utils/background/remote/remoteSession.js';
+import { getCwd } from '../../utils/cwd.js';
 import { logForDebugging } from '../../utils/debug.js';
 import { logError } from '../../utils/log.js';
 import { enqueuePendingNotification } from '../../utils/messageQueueManager.js';
@@ -122,12 +123,12 @@ export type RemoteAgentPreconditionResult = {
  * Check eligibility for creating a remote agent session.
  */
 export async function checkRemoteAgentEligibility({
-  skipBundle = false
+  allowBundle = false
 }: {
-  skipBundle?: boolean;
+  allowBundle?: boolean;
 } = {}): Promise<RemoteAgentPreconditionResult> {
   const errors = await checkBackgroundRemoteSessionEligibility({
-    skipBundle
+    allowBundle
   });
   if (errors.length > 0) {
     return {
@@ -147,10 +148,8 @@ export function formatPreconditionError(error: BackgroundRemoteSessionPreconditi
   switch (error.type) {
     case 'not_logged_in':
       return 'Please run /login and sign in with your Claude.ai account (not Console).';
-    case 'no_remote_environment':
-      return 'No cloud environment available. Set one up at https://claude.ai/code/onboarding?magic=env-setup';
     case 'not_in_git_repo':
-      return 'Background tasks require a git repository. Initialize git or run from a git repository.';
+      return `Background tasks require a git repository (checked: ${getCwd()}). Initialize git or run from a git repository.`;
     case 'no_git_remote':
       return 'Background tasks require a GitHub remote. Add one with `git remote add origin REPO_URL`.';
     case 'github_app_not_installed':

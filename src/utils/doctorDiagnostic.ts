@@ -35,6 +35,8 @@ import { getRipgrepStatus } from './ripgrep.js'
 import { SandboxManager } from './sandbox/sandbox-adapter.js'
 import { getUsername } from './secureStorage/macOsKeychainHelpers.js'
 import { getManagedFilePath } from './settings/managedPath.js'
+import { WSL_WINDOWS_MANAGED_SETTINGS_PATH } from './settings/mdm/constants.js'
+import { getWslInheritsWindowsSettings } from './settings/mdm/settings.js'
 import { CUSTOMIZATION_SURFACES } from './settings/types.js'
 import {
   findClaudeAlias,
@@ -326,42 +328,52 @@ async function detectConfigurationIssues(
   // admins should KNOW — read the raw file and diff. Runs before the
   // development-mode early return: this is config correctness, not an
   // install-path check, and it's useful to see during dev testing.
-  try {
-    const raw = await readFile(
-      join(getManagedFilePath(), 'managed-settings.json'),
-      'utf-8',
-    )
-    const parsed: unknown = jsonParse(raw)
-    const field =
-      parsed && typeof parsed === 'object'
-        ? (parsed as Record<string, unknown>).strictPluginOnlyCustomization
-        : undefined
-    if (field !== undefined && typeof field !== 'boolean') {
-      if (!Array.isArray(field)) {
-        // .catch(undefined) in the schema silently drops this, so the rest
-        // of managed settings survive — but the admin typed something
-        // wrong (an object, a string, etc.).
-        warnings.push({
-          issue: `managed-settings.json: strictPluginOnlyCustomization has an invalid value (expected true or an array, got ${typeof field})`,
-          fix: `The field is silently ignored (schema .catch rescues it). Set it to true, or an array of: ${CUSTOMIZATION_SURFACES.join(', ')}.`,
-        })
-      } else {
-        const unknown = field.filter(
-          x =>
-            typeof x === 'string' &&
-            !(CUSTOMIZATION_SURFACES as readonly string[]).includes(x),
-        )
-        if (unknown.length > 0) {
+  const managedSettingsRoots = [getManagedFilePath()]
+  if (getPlatform() === 'wsl' && getWslInheritsWindowsSettings()) {
+    managedSettingsRoots.unshift(WSL_WINDOWS_MANAGED_SETTINGS_PATH)
+  }
+  for (const managedSettingsRoot of managedSettingsRoots) {
+    try {
+      const raw = await readFile(
+        join(managedSettingsRoot, 'managed-settings.json'),
+        'utf-8',
+      )
+      const parsed: unknown = jsonParse(raw)
+      const {
+        wslInheritsWindowsSettings: _wslInheritsWindowsSettings,
+        ...managedSettings
+      } = parsed && typeof parsed === 'object'
+        ? (parsed as Record<string, unknown>)
+        : {}
+      const field = managedSettings.strictPluginOnlyCustomization
+      if (field !== undefined && typeof field !== 'boolean') {
+        if (!Array.isArray(field)) {
+          // .catch(undefined) in the schema silently drops this, so the rest
+          // of managed settings survive — but the admin typed something
+          // wrong (an object, a string, etc.).
           warnings.push({
-            issue: `managed-settings.json: strictPluginOnlyCustomization has ${unknown.length} value(s) this client doesn't recognize: ${unknown.map(String).join(', ')}`,
-            fix: `These are silently ignored (forwards-compat). Known surfaces for this version: ${CUSTOMIZATION_SURFACES.join(', ')}. Either remove them, or this client is older than the managed-settings intended.`,
+            issue: `managed-settings.json: strictPluginOnlyCustomization has an invalid value (expected true or an array, got ${typeof field})`,
+            fix: `The field is silently ignored (schema .catch rescues it). Set it to true, or an array of: ${CUSTOMIZATION_SURFACES.join(', ')}.`,
           })
+        } else {
+          const unknown = field.filter(
+            x =>
+              typeof x === 'string' &&
+              !(CUSTOMIZATION_SURFACES as readonly string[]).includes(x),
+          )
+          if (unknown.length > 0) {
+            warnings.push({
+              issue: `managed-settings.json: strictPluginOnlyCustomization has ${unknown.length} value(s) this client doesn't recognize: ${unknown.map(String).join(', ')}`,
+              fix: `These are silently ignored (forwards-compat). Known surfaces for this version: ${CUSTOMIZATION_SURFACES.join(', ')}. Either remove them, or this client is older than the managed-settings intended.`,
+            })
+          }
         }
       }
+      if (Object.keys(managedSettings).length > 0) break
+    } catch {
+      // ENOENT (no managed settings) / parse error — not this check's concern.
+      // Parse errors are surfaced by the settings loader itself.
     }
-  } catch {
-    // ENOENT (no managed settings) / parse error — not this check's concern.
-    // Parse errors are surfaced by the settings loader itself.
   }
 
   const config = getGlobalConfig()

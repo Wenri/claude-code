@@ -5,9 +5,11 @@ import type { DOMElement } from '../../ink/dom.js';
 import type { ClickEvent } from '../../ink/events/click-event.js';
 import type { FocusEvent } from '../../ink/events/focus-event.js';
 import type { KeyboardEvent } from '../../ink/events/keyboard-event.js';
+import type { PasteEvent } from '../../ink/events/paste-event.js';
+import type { WheelEvent } from '../../ink/events/wheel-event.js';
 import type { Color, Styles } from '../../ink/styles.js';
-import { getTheme, type Theme } from '../../utils/theme.js';
-import { useTheme } from './ThemeProvider.js';
+import { type Theme } from '../../utils/theme.js';
+import { useResolvedTheme } from './ThemeProvider.js';
 
 // Color props that accept theme keys
 type ThemedColorProps = {
@@ -32,6 +34,10 @@ export type Props = BaseStylesWithoutColors & ThemedColorProps & {
   onBlurCapture?: (event: FocusEvent) => void;
   onKeyDown?: (event: KeyboardEvent) => void;
   onKeyDownCapture?: (event: KeyboardEvent) => void;
+  onPaste?: (event: PasteEvent) => void;
+  onPasteCapture?: (event: PasteEvent) => void;
+  onWheel?: (event: WheelEvent) => void;
+  onWheelCapture?: (event: WheelEvent) => void;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
 };
@@ -97,15 +103,14 @@ function ThemedBox(t0) {
     ref = $[8];
     rest = $[9];
   }
-  const [themeName] = useTheme();
+  const theme = useResolvedTheme();
   let resolvedBorderBottomColor;
   let resolvedBorderColor;
   let resolvedBorderLeftColor;
   let resolvedBorderRightColor;
   let resolvedBorderTopColor;
   let t1;
-  if ($[10] !== backgroundColor || $[11] !== borderBottomColor || $[12] !== borderColor || $[13] !== borderLeftColor || $[14] !== borderRightColor || $[15] !== borderTopColor || $[16] !== themeName) {
-    const theme = getTheme(themeName);
+  if ($[10] !== backgroundColor || $[11] !== borderBottomColor || $[12] !== borderColor || $[13] !== borderLeftColor || $[14] !== borderRightColor || $[15] !== borderTopColor || $[16] !== theme) {
     resolvedBorderColor = resolveColor(borderColor, theme);
     resolvedBorderTopColor = resolveColor(borderTopColor, theme);
     resolvedBorderBottomColor = resolveColor(borderBottomColor, theme);
@@ -118,7 +123,7 @@ function ThemedBox(t0) {
     $[13] = borderLeftColor;
     $[14] = borderRightColor;
     $[15] = borderTopColor;
-    $[16] = themeName;
+    $[16] = theme;
     $[17] = resolvedBorderBottomColor;
     $[18] = resolvedBorderColor;
     $[19] = resolvedBorderLeftColor;

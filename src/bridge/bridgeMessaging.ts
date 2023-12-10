@@ -229,6 +229,9 @@ export type ServerControlRequestHandlers = {
   onRenameSession?: (
     title: string,
   ) => { ok: true } | { ok: false; error: string }
+  onSetColor?: (
+    color: string,
+  ) => { ok: true } | { ok: false; error: string }
   onFileSuggestions?: (
     query: string,
   ) => Promise<Array<{ path: string; score?: number }>>
@@ -259,6 +262,7 @@ export function handleServerControlRequest(
     onSetMaxThinkingTokens,
     onSetPermissionMode,
     onRenameSession,
+    onSetColor,
     onFileSuggestions,
   } = handlers
   if (!transport) {
@@ -372,6 +376,33 @@ export function handleServerControlRequest(
         ok: false,
         error:
           'rename_session is not supported in this context (onRenameSession callback not registered)',
+      }
+      if (verdict.ok) {
+        response = {
+          type: 'control_response',
+          response: {
+            subtype: 'success',
+            request_id: request.request_id,
+          },
+        }
+      } else {
+        response = {
+          type: 'control_response',
+          response: {
+            subtype: 'error',
+            request_id: request.request_id,
+            error: verdict.error,
+          },
+        }
+      }
+      break
+    }
+
+    case 'set_color': {
+      const verdict = onSetColor?.(request.request.color) ?? {
+        ok: false,
+        error:
+          'set_color is not supported in this context (onSetColor callback not registered)',
       }
       if (verdict.ok) {
         response = {

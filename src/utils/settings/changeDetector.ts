@@ -18,6 +18,8 @@ import { getManagedSettingsDropInDir } from './managedPath.js'
 import {
   getHkcuSettings,
   getMdmSettings,
+  getWslInheritsWindowsSettings,
+  getWslWindowsManagedSettingsFingerprint,
   refreshMdmSettings,
   setMdmSettingsCache,
 } from './mdm/settings.js'
@@ -385,6 +387,8 @@ function startMdmPoll(): void {
   lastMdmSnapshot = jsonStringify({
     mdm: initial.settings,
     hkcu: initialHkcu.settings,
+    wslInherits: getWslInheritsWindowsSettings(),
+    wslFiles: getWslWindowsManagedSettingsFingerprint(),
   })
 
   mdmPollTimer = setInterval(() => {
@@ -392,18 +396,24 @@ function startMdmPoll(): void {
 
     void (async () => {
       try {
-        const { mdm: current, hkcu: currentHkcu } = await refreshMdmSettings()
+        const {
+          mdm: current,
+          hkcu: currentHkcu,
+          wslInherits,
+        } = await refreshMdmSettings()
         if (disposed) return
 
         const currentSnapshot = jsonStringify({
           mdm: current.settings,
           hkcu: currentHkcu.settings,
+          wslInherits,
+          wslFiles: getWslWindowsManagedSettingsFingerprint(),
         })
 
         if (currentSnapshot !== lastMdmSnapshot) {
           lastMdmSnapshot = currentSnapshot
           // Update the cache so sync readers pick up new values
-          setMdmSettingsCache(current, currentHkcu)
+          setMdmSettingsCache(current, currentHkcu, wslInherits)
           logForDebugging('Detected MDM settings change via poll')
           fanOut('policySettings')
         }

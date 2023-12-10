@@ -272,6 +272,8 @@ export type SubagentContextOverrides = {
   abortController?: AbortController
   /** Override the getAppState function */
   getAppState?: ToolUseContext['getAppState']
+  /** Share or override the session-scoped REPL isolation latch. */
+  isolationLatch?: ToolUseContext['isolationLatch']
 
   /**
    * Explicit opt-in to share parent's setAppState callback.
@@ -415,6 +417,8 @@ export function createSubagentContext(
     // are never registered and never killed (PPID=1 zombie).
     setAppStateForTasks:
       parentContext.setAppStateForTasks ?? parentContext.setAppState,
+    setReplContext: parentContext.setReplContext,
+    isolationLatch: overrides?.isolationLatch ?? parentContext.isolationLatch,
     // Async subagents whose setAppState is a no-op need local denial tracking
     // so the denial counter actually accumulates across retries.
     localDenialTracking: overrides?.shareSetAppState
@@ -528,16 +532,13 @@ export async function runForkedAgent({
   const agentId = skipTranscript ? undefined : createAgentId(forkLabel)
   let lastRecordedUuid: UUID | null = null
   if (agentId) {
-    await recordSidechainTranscript(initialMessages, agentId).catch(err =>
+    await recordSidechainTranscript(promptMessages, agentId).catch(err =>
       logForDebugging(
         `Forked agent [${forkLabel}] failed to record initial transcript: ${err}`,
       ),
     )
     // Track the last recorded message UUID for parent chain continuity
-    lastRecordedUuid =
-      initialMessages.length > 0
-        ? initialMessages[initialMessages.length - 1]!.uuid
-        : null
+    lastRecordedUuid = promptMessages.at(-1)?.uuid ?? null
   }
 
   // Run the query loop with isolated context (cache-safe params preserved)

@@ -85,6 +85,7 @@ import type {
   NotificationHookInput,
   PostToolUseHookInput,
   PostToolUseFailureHookInput,
+  PostToolBatchHookInput,
   PermissionDeniedHookInput,
   PreCompactHookInput,
   PostCompactHookInput,
@@ -104,6 +105,7 @@ import type {
   FileChangedHookInput,
   InstructionsLoadedHookInput,
   UserPromptSubmitHookInput,
+  UserPromptExpansionHookInput,
   PermissionRequestHookInput,
   ElicitationHookInput,
   ElicitationResultHookInput,
@@ -152,8 +154,12 @@ import { all } from './generators.js'
 import { findToolByName, type Tools, type ToolUseContext } from '../Tool.js'
 import { execPromptHook } from './hooks/execPromptHook.js'
 import type { Message, AssistantMessage } from '../types/message.js'
-import { execAgentHook } from './hooks/execAgentHook.js'
+import {
+  execAgentHook,
+  HOOK_AGENT_ID_PREFIX,
+} from './hooks/execAgentHook.js'
 import { execHttpHook } from './hooks/execHttpHook.js'
+import { execMcpToolHook } from './hooks/execMcpToolHook.js'
 import type { ShellCommand } from './ShellCommand.js'
 import {
   getSessionHooks,
@@ -458,8 +464,16 @@ function parseHookOutput(stdout: string): {
             hookEventName: '"UserPromptSubmit"',
             additionalContext: 'string (required)',
           },
+          'for UserPromptExpansion': {
+            hookEventName: '"UserPromptExpansion"',
+            additionalContext: 'string (optional)',
+          },
           'for PostToolUse': {
             hookEventName: '"PostToolUse"',
+            additionalContext: 'string (optional)',
+          },
+          'for PostToolBatch': {
+            hookEventName: '"PostToolBatch"',
             additionalContext: 'string (optional)',
           },
         },
@@ -650,6 +664,9 @@ function processHookJSONOutput({
         result.additionalContext = json.hookSpecificOutput.additionalContext
         result.sessionTitle = json.hookSpecificOutput.sessionTitle
         break
+      case 'UserPromptExpansion':
+        result.additionalContext = json.hookSpecificOutput.additionalContext
+        break
       case 'SessionStart':
         result.additionalContext = json.hookSpecificOutput.additionalContext
         result.initialUserMessage = json.hookSpecificOutput.initialUserMessage
@@ -675,6 +692,9 @@ function processHookJSONOutput({
         }
         break
       case 'PostToolUseFailure':
+        result.additionalContext = json.hookSpecificOutput.additionalContext
+        break
+      case 'PostToolBatch':
         result.additionalContext = json.hookSpecificOutput.additionalContext
         break
       case 'PermissionDenied':
@@ -1610,7 +1630,7 @@ function getHooksConfig(
  * and getMatchingHooks on hot paths where hooks are typically unconfigured.
  * See hasInstructionsLoadedHook / hasWorktreeCreateHook for the same pattern.
  */
-function hasHookForEvent(
+export function hasHookForEvent(
   hookEvent: HookEvent,
   appState: AppState | undefined,
   sessionId: string,
@@ -1670,6 +1690,9 @@ export async function getMatchingHooks(
         break
       case 'Notification':
         matchQuery = hookInput.notification_type
+        break
+      case 'UserPromptExpansion':
+        matchQuery = hookInput.command_name
         break
       case 'SessionEnd':
         matchQuery = hookInput.reason
@@ -2264,6 +2287,20 @@ async function* executeHooks({
             'ToolUseContext is required for prompt hooks. This is a bug.',
           )
         }
+        if (toolUseContext.agentId?.startsWith(HOOK_AGENT_ID_PREFIX)) {
+          cleanup()
+          yield {
+            message: createAttachmentMessage({
+              type: 'hook_cancelled',
+              hookName,
+              toolUseID,
+              hookEvent,
+            }),
+            outcome: 'cancelled',
+            hook,
+          }
+          return
+        }
         const promptResult = await execPromptHook(
           hook,
           hookName,
@@ -2296,10 +2333,19 @@ async function* executeHooks({
             'ToolUseContext is required for agent hooks. This is a bug.',
           )
         }
-        if (!messages) {
-          throw new Error(
-            'Messages are required for agent hooks. This is a bug.',
-          )
+        if (toolUseContext.agentId?.startsWith(HOOK_AGENT_ID_PREFIX)) {
+          cleanup()
+          yield {
+            message: createAttachmentMessage({
+              type: 'hook_cancelled',
+              hookName,
+              toolUseID,
+              hookEvent,
+            }),
+            outcome: 'cancelled',
+            hook,
+          }
+          return
         }
         const agentResult = await execAgentHook(
           hook,
@@ -2309,7 +2355,6 @@ async function* executeHooks({
           abortSignal,
           toolUseContext,
           toolUseID,
-          messages,
           'agent_type' in hookInput
             ? (hookInput.agent_type as string)
             : undefined,
@@ -2327,6 +2372,87 @@ async function* executeHooks({
         }
         yield agentResult
         cleanup?.()
+        return
+      }
+
+      if (hook.type === 'mcp_tool') {
+        emitHookStarted(hookId, hookName, hookEvent)
+        const mcpResult = await execMcpToolHook(
+          hook,
+          hookEvent,
+          hookInput,
+          toolUseContext?.getAppState().mcp.clients,
+          signal,
+        )
+        cleanup?.()
+        if (mcpResult.aborted) {
+          yield {
+            message: createAttachmentMessage({
+              type: 'hook_cancelled', hookName, toolUseID, hookEvent,
+            }),
+            outcome: 'cancelled' as const,
+            hook,
+          }
+          return
+        }
+        if (mcpResult.error || !mcpResult.ok) {
+          const stderr = mcpResult.error || 'MCP tool hook failed'
+          yield {
+            message: createAttachmentMessage({
+              type: 'hook_non_blocking_error',
+              hookName,
+              toolUseID,
+              hookEvent,
+              stderr,
+              stdout: mcpResult.body,
+              exitCode: 1,
+              command: hookCommand,
+              durationMs: Date.now() - hookStartMs,
+            }),
+            outcome: 'non_blocking_error' as const,
+            hook,
+          }
+          return
+        }
+        const { json, validationError } = parseHttpHookOutput(mcpResult.body)
+        if (validationError) {
+          yield {
+            message: createAttachmentMessage({
+              type: 'hook_non_blocking_error',
+              hookName,
+              toolUseID,
+              hookEvent,
+              stderr: `JSON validation failed: ${validationError}`,
+              stdout: mcpResult.body,
+              exitCode: 1,
+              command: hookCommand,
+              durationMs: Date.now() - hookStartMs,
+            }),
+            outcome: 'non_blocking_error' as const,
+            hook,
+          }
+          return
+        }
+        if (json && !isAsyncHookJSONOutput(json)) {
+          yield {
+            ...processHookJSONOutput({
+              json,
+              command: hookCommand,
+              hookName,
+              toolUseID,
+              hookEvent,
+              expectedHookEvent: hookEvent,
+              stdout: mcpResult.body,
+              stderr: '',
+              exitCode: 0,
+              durationMs: Date.now() - hookStartMs,
+            }),
+            outcome: 'success' as const,
+            hook,
+          }
+          return
+        }
+        yield { outcome: 'success' as const, hook }
         return
       }
 
@@ -3523,6 +3649,39 @@ export async function* executePostToolHooks<ToolInput, ToolResponse>(
 }
 
 /**
+ * Execute post-tool-batch hooks after every tool call in a batch has resolved.
+ * Unlike per-tool hook events, this event intentionally has no matcher query.
+ */
+export async function* executePostToolBatchHooks(
+  toolCalls: PostToolBatchHookInput['tool_calls'],
+  toolUseID: string,
+  toolUseContext: ToolUseContext,
+  permissionMode?: string,
+  signal?: AbortSignal,
+  timeoutMs: number = TOOL_HOOK_EXECUTION_TIMEOUT_MS,
+): AsyncGenerator<AggregatedHookResult> {
+  const appState = toolUseContext.getAppState()
+  const sessionId = toolUseContext.agentId ?? getSessionId()
+  if (!hasHookForEvent('PostToolBatch', appState, sessionId)) {
+    return
+  }
+
+  const hookInput: PostToolBatchHookInput = {
+    ...createBaseHookInput(permissionMode, undefined, toolUseContext),
+    hook_event_name: 'PostToolBatch',
+    tool_calls: toolCalls,
+  }
+
+  yield* executeHooks({
+    hookInput,
+    toolUseID,
+    signal,
+    timeoutMs,
+    toolUseContext,
+  })
+}
+
+/**
  * Execute post-tool-use-failure hooks if configured
  * @param toolName The name of the tool (e.g., 'Write', 'Edit', 'Bash')
  * @param toolUseID The ID of the tool use
@@ -3898,6 +4057,40 @@ export async function* executeUserPromptSubmitHooks(
     timeoutMs: TOOL_HOOK_EXECUTION_TIMEOUT_MS,
     toolUseContext,
     requestPrompt,
+  })
+}
+
+export async function* executeUserPromptExpansionHooks(
+  expansionType: 'slash_command' | 'mcp_prompt',
+  commandName: string,
+  commandArgs: string,
+  commandSource: string | undefined,
+  prompt: string,
+  permissionMode: string,
+  toolUseContext: ToolUseContext,
+): AsyncGenerator<AggregatedHookResult> {
+  const appState = toolUseContext.getAppState()
+  const sessionId = toolUseContext.agentId ?? getSessionId()
+  if (!hasHookForEvent('UserPromptExpansion', appState, sessionId)) {
+    return
+  }
+
+  const hookInput: UserPromptExpansionHookInput = {
+    ...createBaseHookInput(permissionMode),
+    hook_event_name: 'UserPromptExpansion',
+    expansion_type: expansionType,
+    command_name: commandName,
+    command_args: commandArgs,
+    command_source: commandSource,
+    prompt,
+  }
+
+  yield* executeHooks({
+    hookInput,
+    toolUseID: randomUUID(),
+    signal: toolUseContext.abortController.signal,
+    timeoutMs: TOOL_HOOK_EXECUTION_TIMEOUT_MS,
+    toolUseContext,
   })
 }
 
@@ -5123,3 +5316,35 @@ function getHookDefinitionsForTelemetry(
     return { type: 'unknown' }
   })
 }
+
+export const HOOK_EVENT_REGISTRY = {
+  PreToolUse: executePreToolHooks,
+  PostToolUse: executePostToolHooks,
+  PostToolUseFailure: executePostToolUseFailureHooks,
+  PostToolBatch: executePostToolBatchHooks,
+  PermissionDenied: executePermissionDeniedHooks,
+  PermissionRequest: executePermissionRequestHooks,
+  Notification: executeNotificationHooks,
+  Stop: executeStopHooks,
+  SubagentStop: executeStopHooks,
+  StopFailure: executeStopFailureHooks,
+  TeammateIdle: executeTeammateIdleHooks,
+  TaskCreated: executeTaskCreatedHooks,
+  TaskCompleted: executeTaskCompletedHooks,
+  UserPromptSubmit: executeUserPromptSubmitHooks,
+  UserPromptExpansion: executeUserPromptExpansionHooks,
+  SessionStart: executeSessionStartHooks,
+  SessionEnd: executeSessionEndHooks,
+  Setup: executeSetupHooks,
+  SubagentStart: executeSubagentStartHooks,
+  PreCompact: executePreCompactHooks,
+  PostCompact: executePostCompactHooks,
+  ConfigChange: executeConfigChangeHooks,
+  CwdChanged: executeCwdChangedHooks,
+  FileChanged: executeFileChangedHooks,
+  InstructionsLoaded: executeInstructionsLoadedHooks,
+  Elicitation: executeElicitationHooks,
+  ElicitationResult: executeElicitationResultHooks,
+  WorktreeCreate: executeWorktreeCreateHook,
+  WorktreeRemove: executeWorktreeRemoveHook,
+} as const

@@ -53,6 +53,7 @@ type PreviousState = {
   /** Cache-editing beta header presence — should NOT break cache anymore
    *  (sticky-on latched in claude.ts). Tracked to verify the fix. */
   cachedMCEnabled: boolean
+  cacheDiagnosis: boolean
   /** Resolved effort (env → options → model default). Goes into output_config
    *  or anthropic_internal.effort_override. */
   effortValue: string
@@ -79,6 +80,7 @@ type PendingChanges = {
   autoModeChanged: boolean
   overageChanged: boolean
   cachedMCChanged: boolean
+  cacheDiagnosisChanged: boolean
   effortChanged: boolean
   extraBodyChanged: boolean
   addedToolCount: number
@@ -236,6 +238,7 @@ export type PromptStateSnapshot = {
   autoModeActive?: boolean
   isUsingOverage?: boolean
   cachedMCEnabled?: boolean
+  cacheDiagnosis?: boolean
   effortValue?: string | number
   extraBodyParams?: unknown
 }
@@ -258,6 +261,7 @@ export function recordPromptState(snapshot: PromptStateSnapshot): void {
       autoModeActive = false,
       isUsingOverage = false,
       cachedMCEnabled = false,
+      cacheDiagnosis = false,
       effortValue,
       extraBodyParams,
     } = snapshot
@@ -315,6 +319,7 @@ export function recordPromptState(snapshot: PromptStateSnapshot): void {
         autoModeActive,
         isUsingOverage,
         cachedMCEnabled,
+        cacheDiagnosis,
         effortValue: effortStr,
         extraBodyHash,
         callCount: 1,
@@ -342,6 +347,7 @@ export function recordPromptState(snapshot: PromptStateSnapshot): void {
     const autoModeChanged = autoModeActive !== prev.autoModeActive
     const overageChanged = isUsingOverage !== prev.isUsingOverage
     const cachedMCChanged = cachedMCEnabled !== prev.cachedMCEnabled
+    const cacheDiagnosisChanged = cacheDiagnosis !== prev.cacheDiagnosis
     const effortChanged = effortStr !== prev.effortValue
     const extraBodyChanged = extraBodyHash !== prev.extraBodyHash
 
@@ -356,6 +362,7 @@ export function recordPromptState(snapshot: PromptStateSnapshot): void {
       autoModeChanged ||
       overageChanged ||
       cachedMCChanged ||
+      cacheDiagnosisChanged ||
       effortChanged ||
       extraBodyChanged
     ) {
@@ -387,6 +394,7 @@ export function recordPromptState(snapshot: PromptStateSnapshot): void {
         autoModeChanged,
         overageChanged,
         cachedMCChanged,
+        cacheDiagnosisChanged,
         effortChanged,
         extraBodyChanged,
         addedToolCount: addedTools.length,
@@ -421,6 +429,7 @@ export function recordPromptState(snapshot: PromptStateSnapshot): void {
     prev.autoModeActive = autoModeActive
     prev.isUsingOverage = isUsingOverage
     prev.cachedMCEnabled = cachedMCEnabled
+    prev.cacheDiagnosis = cacheDiagnosis
     prev.effortValue = effortStr
     prev.extraBodyHash = extraBodyHash
     prev.buildDiffableContent = lazyDiffableContent
@@ -552,6 +561,9 @@ export async function checkResponseForCacheBreak(
       if (changes.cachedMCChanged) {
         parts.push('cached microcompact toggled')
       }
+      if (changes.cacheDiagnosisChanged) {
+        parts.push('cache diagnosis toggled')
+      }
       if (changes.effortChanged) {
         parts.push(
           `effort changed (${changes.prevEffortValue || 'default'} → ${changes.newEffortValue || 'default'})`,
@@ -598,6 +610,7 @@ export async function checkResponseForCacheBreak(
       autoModeChanged: changes?.autoModeChanged ?? false,
       overageChanged: changes?.overageChanged ?? false,
       cachedMCChanged: changes?.cachedMCChanged ?? false,
+      cacheDiagnosisChanged: changes?.cacheDiagnosisChanged ?? false,
       effortChanged: changes?.effortChanged ?? false,
       extraBodyChanged: changes?.extraBodyChanged ?? false,
       addedToolCount: changes?.addedToolCount ?? 0,

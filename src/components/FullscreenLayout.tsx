@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import { ModalContext } from '../context/modalContext.js';
 import { PromptOverlayProvider, usePromptOverlay, usePromptOverlayDialog } from '../context/promptOverlayContext.js';
 import { useTerminalSize } from '../hooks/useTerminalSize.js';
+import { useShortcutDisplay } from '../keybindings/useShortcutDisplay.js';
 import ScrollBox, { type ScrollBoxHandle } from '../ink/components/ScrollBox.js';
 import instances from '../ink/instances.js';
 import { Box, Text } from '../ink.js';
@@ -13,6 +14,7 @@ import { openBrowser, openPath } from '../utils/browser.js';
 import { isFullscreenEnvEnabled } from '../utils/fullscreen.js';
 import { plural } from '../utils/stringUtils.js';
 import { isNullRenderingAttachment } from './messages/nullRenderingAttachments.js';
+import { Label } from './design-system/Label.js';
 import PromptInputFooterSuggestions from './PromptInput/PromptInputFooterSuggestions.js';
 import type { StickyPrompt } from './VirtualMessageList.js';
 
@@ -489,12 +491,13 @@ function _temp2(url) {
 }
 function _temp() {}
 function NewMessagesPill(t0) {
-  const $ = _c(10);
+  const $ = _c(11);
   const {
     count,
     onClick
   } = t0;
   const [hover, setHover] = useState(false);
+  const shortcut = useShortcutDisplay('scroll:bottom', 'Scroll', 'ctrl+end');
   let t1;
   let t2;
   if ($[0] === Symbol.for("react.memo_cache_sentinel")) {
@@ -516,22 +519,23 @@ function NewMessagesPill(t0) {
     t4 = $[3];
   }
   let t5;
-  if ($[4] !== t3 || $[5] !== t4) {
-    t5 = <Text backgroundColor={t3} dimColor={true}>{" "}{t4}{" "}{figures.arrowDown}{" "}</Text>;
-    $[4] = t3;
-    $[5] = t4;
-    $[6] = t5;
+  if ($[4] !== shortcut || $[5] !== t3 || $[6] !== t4) {
+    t5 = <Label color={t3} textColor="text" padded={true}>{t4}{" ("}{shortcut}{") "}{figures.arrowDown}</Label>;
+    $[4] = shortcut;
+    $[5] = t3;
+    $[6] = t4;
+    $[7] = t5;
   } else {
-    t5 = $[6];
+    t5 = $[7];
   }
   let t6;
-  if ($[7] !== onClick || $[8] !== t5) {
-    t6 = <Box position="absolute" bottom={0} left={0} right={0} justifyContent="center"><Box onClick={onClick} onMouseEnter={t1} onMouseLeave={t2}>{t5}</Box></Box>;
-    $[7] = onClick;
-    $[8] = t5;
-    $[9] = t6;
+  if ($[8] !== onClick || $[9] !== t5) {
+    t6 = <Box position="absolute" bottom={0} left={0} right={0} justifyContent="center"><Box noSelect={true} onClick={onClick} onMouseEnter={t1} onMouseLeave={t2}>{t5}</Box></Box>;
+    $[8] = onClick;
+    $[9] = t5;
+    $[10] = t6;
   } else {
-    t6 = $[9];
+    t6 = $[10];
   }
   return t6;
 }

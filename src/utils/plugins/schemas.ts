@@ -523,6 +523,24 @@ const PluginManifestOutputStylesSchema = lazySchema(() =>
   }),
 )
 
+/** Additional custom theme definitions supplied by a plugin. */
+const PluginManifestThemesSchema = lazySchema(() =>
+  z.object({
+    themes: z.union([
+      RelativePath().describe(
+        'Path to additional themes directory or file (in addition to those in the themes/ directory, if it exists), relative to the plugin root',
+      ),
+      z
+        .array(
+          RelativePath().describe(
+            'Path to additional themes directory or file (in addition to those in the themes/ directory, if it exists), relative to the plugin root',
+          ),
+        )
+        .describe('List of paths to additional themes directories or files'),
+    ]),
+  }),
+)
+
 // Helper validators for LSP config
 const nonEmptyString = lazySchema(() => z.string().min(1))
 const fileExtension = lazySchema(() =>
@@ -889,6 +907,7 @@ export const PluginManifestSchema = lazySchema(() =>
     ...PluginManifestAgentsSchema().partial().shape,
     ...PluginManifestSkillsSchema().partial().shape,
     ...PluginManifestOutputStylesSchema().partial().shape,
+    ...PluginManifestThemesSchema().partial().shape,
     ...PluginManifestChannelsSchema().partial().shape,
     ...PluginManifestMcpServerSchema().partial().shape,
     ...PluginManifestLspServerSchema().partial().shape,
@@ -1057,7 +1076,7 @@ export const gitSha = lazySchema(() =>
  * Schema for plugin source locations
  *
  * Defines various ways to reference and install plugins including
- * local paths, npm packages, Python packages, git URLs, and GitHub repos.
+ * local paths, npm packages, git URLs, and GitHub repos.
  */
 export const PluginSourceSchema = lazySchema(() =>
   z.union([
@@ -1085,25 +1104,6 @@ export const PluginSourceSchema = lazySchema(() =>
           ),
       })
       .describe('NPM package as plugin source'),
-    z
-      .object({
-        source: z.literal('pip'),
-        package: z
-          .string()
-          .describe('Python package name as it appears on PyPI'),
-        version: z
-          .string()
-          .optional()
-          .describe('Version specifier (e.g., ==1.0.0, >=2.0.0, <3.0.0)'),
-        registry: z
-          .string()
-          .url()
-          .optional()
-          .describe(
-            'Custom PyPI registry URL (defaults to using system default, likely pypi.org)',
-          ),
-      })
-      .describe('Python package as plugin source'),
     z.object({
       source: z.literal('url'),
       // See note on MarketplaceSourceSchema source:'git' re: .endsWith('.git')
@@ -1201,7 +1201,7 @@ const SettingsMarketplacePluginSchema = lazySchema(() =>
     .refine(p => typeof p.source !== 'string', {
       message:
         'Plugins in a settings-sourced marketplace must use remote sources ' +
-        '(github, git-subdir, npm, url, pip). Relative-path sources like "./foo" ' +
+        '(github, git-subdir, npm, url). Relative-path sources like "./foo" ' +
         'have no marketplace repository to resolve against.',
     }),
 )
@@ -1210,7 +1210,7 @@ const SettingsMarketplacePluginSchema = lazySchema(() =>
  * Check if a plugin source is a local path (stored in marketplace directory).
  *
  * Local plugins have their source as a string starting with './' (relative to marketplace).
- * External plugins have their source as an object (npm, pip, git, github, etc.).
+ * External plugins have their source as an object (npm, git, github, etc.).
  *
  * This function provides a semantic wrapper around the './' prefix check, making
  * the intent clear and centralizing the logic for determining plugin source type.

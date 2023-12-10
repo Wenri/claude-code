@@ -3,6 +3,7 @@ import { homedir } from 'os'
 import { isAbsolute, join, normalize, sep } from 'path'
 import {
   getIsNonInteractiveSession,
+  getMemoryToggledOff,
   getProjectRoot,
 } from '../bootstrap/state.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js'
@@ -21,13 +22,17 @@ import {
 /**
  * Whether auto-memory features are enabled (memdir, agent memory, past session search).
  * Enabled by default. Priority chain (first defined wins):
- *   1. CLAUDE_CODE_DISABLE_AUTO_MEMORY env var (1/true → OFF, 0/false → ON)
- *   2. CLAUDE_CODE_SIMPLE (--bare) → OFF
- *   3. CCR without persistent storage → OFF (no CLAUDE_CODE_REMOTE_MEMORY_DIR)
- *   4. autoMemoryEnabled in settings.json (supports project-level opt-out)
- *   5. Default: enabled
+ *   1. Session memory toggle → OFF
+ *   2. CLAUDE_CODE_DISABLE_AUTO_MEMORY env var (1/true → OFF, 0/false → ON)
+ *   3. CLAUDE_CODE_SIMPLE (--bare) → OFF
+ *   4. CCR without persistent storage → OFF (no CLAUDE_CODE_REMOTE_MEMORY_DIR)
+ *   5. autoMemoryEnabled in settings.json (supports project-level opt-out)
+ *   6. Default: enabled
  */
 export function isAutoMemoryEnabled(): boolean {
+  if (getMemoryToggledOff()) {
+    return false
+  }
   const envVal = process.env.CLAUDE_CODE_DISABLE_AUTO_MEMORY
   if (isEnvTruthy(envVal)) {
     return false
@@ -90,7 +95,19 @@ export function getMemoryBaseDir(): string {
 }
 
 const AUTO_MEM_DIRNAME = 'memory'
+const TINY_AUTO_MEM_DIRNAME = 'tiny_memory'
 const AUTO_MEM_ENTRYPOINT_NAME = 'MEMORY.md'
+
+export function isTinyMemoryEnabled(): boolean {
+  return getFeatureValue_CACHED_MAY_BE_STALE(
+    'tengu_billiard_aviary',
+    false,
+  )
+}
+
+function getAutoMemDirname(): string {
+  return isTinyMemoryEnabled() ? TINY_AUTO_MEM_DIRNAME : AUTO_MEM_DIRNAME
+}
 
 /**
  * Normalize and validate a candidate auto-memory directory path.
@@ -216,7 +233,8 @@ function getAutoMemBase(): string {
  * Memoized: render-path callers (collapseReadSearchGroups → isAutoManagedMemoryFile)
  * fire per tool-use message per Messages re-render; each miss costs
  * getSettingsForSource × 4 → parseSettingsFile (realpathSync + readFileSync).
- * Keyed on projectRoot so tests that change its mock mid-block recompute;
+ * Keyed on projectRoot and the tiny-memory gate so tests that change either
+ * mid-block recompute;
  * env vars / settings.json / CLAUDE_CONFIG_DIR are session-stable in
  * production and covered by per-test cache.clear.
  */
@@ -228,10 +246,11 @@ export const getAutoMemPath = memoize(
     }
     const projectsDir = join(getMemoryBaseDir(), 'projects')
     return (
-      join(projectsDir, sanitizePath(getAutoMemBase()), AUTO_MEM_DIRNAME) + sep
+      join(projectsDir, sanitizePath(getAutoMemBase()), getAutoMemDirname()) +
+      sep
     ).normalize('NFC')
   },
-  () => getProjectRoot(),
+  () => `${getProjectRoot()}|${isTinyMemoryEnabled()}`,
 )
 
 /**

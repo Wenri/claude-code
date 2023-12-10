@@ -93,6 +93,7 @@ export function registerTask(task: TaskState, setAppState: SetAppState): void {
             messages: existing.messages,
             diskLoaded: existing.diskLoaded,
             pendingMessages: existing.pendingMessages,
+            keepaliveReasons: existing.keepaliveReasons,
           }
         : task
     return { ...prev, tasks: { ...prev.tasks, [task.id]: merged } }
@@ -113,6 +114,8 @@ export function registerTask(task: TaskState, setAppState: SetAppState): void {
         ? (task.workflowName as string | undefined)
         : undefined,
     prompt: 'prompt' in task ? (task.prompt as string) : undefined,
+    skip_transcript: (task as TaskState & { skipTranscript?: boolean })
+      .skipTranscript,
   })
 }
 
@@ -136,6 +139,12 @@ export function evictTerminalTask(
     // that field); evictAfter is optional so 'evictAfter' in task would
     // miss tasks that haven't had it set yet.
     if ('retain' in task && (task.evictAfter ?? Infinity) > Date.now()) {
+      return prev
+    }
+    if (
+      'retain' in task &&
+      (task.keepaliveReasons?.size ?? 0) > 0
+    ) {
       return prev
     }
     const { [taskId]: _, ...remainingTasks } = prev.tasks
@@ -239,6 +248,12 @@ export function applyTaskOffsetsAndEvictions(
         continue
       }
       if ('retain' in fresh && (fresh.evictAfter ?? Infinity) > Date.now()) {
+        continue
+      }
+      if (
+        'retain' in fresh &&
+        (fresh.keepaliveReasons?.size ?? 0) > 0
+      ) {
         continue
       }
       delete newTasks[id]

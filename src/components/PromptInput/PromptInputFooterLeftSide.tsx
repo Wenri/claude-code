@@ -65,6 +65,7 @@ type Props = {
   tmuxSelected: boolean;
   teammateFooterIndex?: number;
   isPasting?: boolean;
+  showExpandPasteHint?: boolean;
   isSearching: boolean;
   historyQuery: string;
   setHistoryQuery: (query: string) => void;
@@ -138,6 +139,7 @@ export function PromptInputFooterLeftSide(t0) {
     tmuxSelected,
     teammateFooterIndex,
     isPasting,
+    showExpandPasteHint,
     isSearching,
     historyQuery,
     setHistoryQuery,
@@ -165,9 +167,12 @@ export function PromptInputFooterLeftSide(t0) {
     }
     return t1;
   }
+  if (showExpandPasteHint && !isSearching) {
+    return <Text dimColor={true} key="expand-paste-hint">paste again to expand</Text>;
+  }
   let t1;
   if ($[3] !== isSearching || $[4] !== vimMode) {
-    t1 = isVimModeEnabled() && vimMode === "INSERT" && !isSearching;
+    t1 = isVimModeEnabled() && vimMode !== "NORMAL" && !isSearching;
     $[3] = isSearching;
     $[4] = vimMode;
     $[5] = t1;
@@ -186,14 +191,7 @@ export function PromptInputFooterLeftSide(t0) {
   } else {
     t2 = $[10];
   }
-  let t3;
-  if ($[11] !== showVim) {
-    t3 = showVim ? <Text dimColor={true} key="vim-insert">-- INSERT --</Text> : null;
-    $[11] = showVim;
-    $[12] = t3;
-  } else {
-    t3 = $[12];
-  }
+  const t3 = showVim ? <Text dimColor={true} key="vim-indicator">-- {vimMode} --</Text> : null;
   const t4 = !suppressHint && !showVim;
   let t5;
   if ($[13] !== isLoading || $[14] !== mode || $[15] !== onOpenTasksDialog || $[16] !== t4 || $[17] !== tasksSelected || $[18] !== teammateFooterIndex || $[19] !== teamsSelected || $[20] !== tmuxSelected || $[21] !== toolPermissionContext) {

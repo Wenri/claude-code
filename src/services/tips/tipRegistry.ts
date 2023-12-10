@@ -7,6 +7,7 @@ import {
   getSettingsForSource,
 } from 'src/utils/settings/settings.js'
 import { shouldOfferTerminalSetup } from '../../commands/terminalSetup/terminalSetup.js'
+import { isBridgeEnabled } from '../../bridge/bridgeEnabled.js'
 import { getDesktopUpsellConfig } from '../../components/DesktopUpsell/DesktopUpsellStartup.js'
 import { color } from '../../components/design-system/color.js'
 import { shouldShowOverageCreditUpsell } from '../../components/LogoV2/OverageCreditUpsell.js'
@@ -14,15 +15,20 @@ import { getShortcutDisplay } from '../../keybindings/shortcutFormat.js'
 import { isKairosCronEnabled } from '../../tools/ScheduleCronTool/prompt.js'
 import { is1PApiCustomer } from '../../utils/auth.js'
 import { countConcurrentSessions } from '../../utils/concurrentSessions.js'
-import { getGlobalConfig } from '../../utils/config.js'
+import {
+  getGlobalConfig,
+  getRemoteControlAtStartup,
+} from '../../utils/config.js'
 import {
   getEffortEnvOverride,
   modelSupportsEffort,
 } from '../../utils/effort.js'
 import { env } from '../../utils/env.js'
+import { isEnvTruthy, isRunningOnHomespace } from '../../utils/envUtils.js'
 import { cacheKeys } from '../../utils/fileStateCache.js'
 import { isFullscreenEnvEnabled } from '../../utils/fullscreen.js'
 import { getWorktreeCount } from '../../utils/git.js'
+import { createHyperlink } from '../../utils/hyperlink.js'
 import {
   detectRunningIDEsCached,
   getSortedIdeLockfiles,
@@ -41,6 +47,12 @@ import { isPluginInstalled } from '../../utils/plugins/installedPluginsManager.j
 import { loadKnownMarketplacesConfigSafe } from '../../utils/plugins/marketplaceManager.js'
 import { OFFICIAL_MARKETPLACE_NAME } from '../../utils/plugins/officialMarketplace.js'
 import {
+  formatTeamArtifactTip,
+  getUnseenTeamArtifacts,
+  logTeamArtifactTipShown,
+  markTeamArtifactsSeen,
+} from '../../utils/teamArtifacts.js'
+import {
   getCurrentSessionAgentColor,
   isCustomTitleEnabled,
 } from '../../utils/sessionStorage.js'
@@ -56,6 +68,7 @@ import {
 } from '../api/referral.js'
 import { getSessionsSinceLastShown } from './tipHistory.js'
 import type { Tip, TipContext } from './types.js'
+import { isVoiceModeEnabled } from '../../voice/voiceModeEnabled.js'
 
 let _isOfficialMarketplaceInstalledCache: boolean | undefined
 async function isOfficialMarketplaceInstalled(): Promise<boolean> {
@@ -93,7 +106,46 @@ async function isMarketplacePluginRelevant(
   return false
 }
 
+function isPushNotificationTipRelevant(): boolean {
+  if (!isBridgeEnabled()) return false
+  if (
+    !getFeatureValue_CACHED_MAY_BE_STALE(
+      'tengu_kairos_push_notifications',
+      false,
+    )
+  ) {
+    return false
+  }
+  const config = getGlobalConfig()
+  return (
+    (config.hasUsedRemoteControl === true ||
+      getRemoteControlAtStartup()) &&
+    config.agentPushNotifEnabled !== true
+  )
+}
+
 const externalTips: Tip[] = [
+  {
+    id: 'team-artifacts',
+    content: async () => {
+      const artifacts = await getUnseenTeamArtifacts()
+      logTeamArtifactTipShown(artifacts)
+      void markTeamArtifactsSeen()
+      return formatTeamArtifactTip(artifacts)
+    },
+    cooldownSessions: 1,
+    isRelevant: async () => {
+      if (
+        !getFeatureValue_CACHED_MAY_BE_STALE(
+          'tengu_tussock_oriole',
+          false,
+        )
+      ) {
+        return false
+      }
+      return (await getUnseenTeamArtifacts()).length > 0
+    },
+  },
   {
     id: 'new-user-warmup',
     content: async () =>
@@ -465,11 +517,40 @@ const externalTips: Tip[] = [
     isRelevant: async () => true,
   },
   {
-    id: 'mobile-app',
-    content: async () =>
-      '/mobile to use Claude Code from the Claude app on your phone',
+    id: 'remote-control',
+    content: async ctx => {
+      const blue = color('suggestion', ctx.theme)
+      return `Control this session from ${createHyperlink(
+        'https://claude.com/download#mobile',
+        'the Claude mobile app',
+      )} · run ${blue('/remote-control')}`
+    },
     cooldownSessions: 15,
-    isRelevant: async () => true,
+    isRelevant: async () =>
+      isBridgeEnabled() &&
+      !getGlobalConfig().hasUsedRemoteControl &&
+      !getRemoteControlAtStartup(),
+  },
+  {
+    id: 'push-notif',
+    content: async ctx =>
+      `Get pinged on your phone when long tasks finish · enable push notifications in ${color(
+        'suggestion',
+        ctx.theme,
+      )('/config')}`,
+    cooldownSessions: 15,
+    isRelevant: async () => isPushNotificationTipRelevant(),
+  },
+  {
+    id: 'voice-mode',
+    content: async () => 'Use /voice to enable push-to-talk dictation',
+    cooldownSessions: 10,
+    isRelevant: async () =>
+      isVoiceModeEnabled() &&
+      getInitialSettings().voiceEnabled === undefined &&
+      !isRunningOnHomespace() &&
+      !isEnvTruthy(process.env.CLAUDE_CODE_REMOTE) &&
+      !env.isSSH(),
   },
   {
     id: 'no-flicker',

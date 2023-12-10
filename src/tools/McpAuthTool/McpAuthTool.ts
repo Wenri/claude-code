@@ -1,6 +1,9 @@
 import reject from 'lodash-es/reject.js'
 import { z } from 'zod/v4'
-import { performMCPOAuthFlow } from '../../services/mcp/auth.js'
+import {
+  performMCPOAuthFlow,
+  trackMCPOAuthFlow,
+} from '../../services/mcp/auth.js'
 import {
   clearMcpAuthCache,
   reconnectMcpServerImpl,
@@ -130,6 +133,7 @@ export function createMcpAuthTool(
         controller.signal,
         { skipBrowserOpen: true },
       )
+      trackMCPOAuthFlow(serverName, oauthPromise)
 
       // Background continuation: once OAuth completes, reconnect and swap
       // the real tools into appState. Prefix-based replacement removes this

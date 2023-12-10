@@ -15,6 +15,10 @@ import { getSessionMemoryContent } from './SessionMemory/sessionMemoryUtils.js'
 // large sessions. 30 messages ≈ ~15 exchanges, plenty for "where we left off."
 const RECENT_MESSAGE_WINDOW = 30
 
+export type AwaySummaryResult =
+  | { kind: 'no-turn' | 'aborted' | 'failed' }
+  | { kind: 'ok' | 'api-error'; text: string }
+
 function buildAwaySummaryPrompt(memory: string | null): string {
   const memoryBlock = memory
     ? `Session memory (broader context):\n${memory}\n\n`
@@ -24,14 +28,16 @@ function buildAwaySummaryPrompt(memory: string | null): string {
 
 /**
  * Generates a short session recap for the "while you were away" card.
- * Returns null on abort, empty transcript, or error.
+ * Distinguishes successful summaries from API errors and local cancellation so
+ * interactive callers can show the right result without rendering API errors
+ * in the automatic away card.
  */
 export async function generateAwaySummary(
   messages: readonly Message[],
   signal: AbortSignal,
-): Promise<string | null> {
+): Promise<AwaySummaryResult> {
   if (messages.length === 0) {
-    return null
+    return { kind: 'no-turn' }
   }
 
   try {
@@ -58,17 +64,18 @@ export async function generateAwaySummary(
     })
 
     if (response.isApiErrorMessage) {
+      const text = getAssistantMessageText(response)
       logForDebugging(
-        `[awaySummary] API error: ${getAssistantMessageText(response)}`,
+        `[awaySummary] API error: ${text}`,
       )
-      return null
+      return { kind: 'api-error', text }
     }
-    return getAssistantMessageText(response)
+    return { kind: 'ok', text: getAssistantMessageText(response) }
   } catch (err) {
     if (err instanceof APIUserAbortError || signal.aborted) {
-      return null
+      return { kind: 'aborted' }
     }
     logForDebugging(`[awaySummary] generation failed: ${err}`)
-    return null
+    return { kind: 'failed' }
   }
 }

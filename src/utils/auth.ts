@@ -15,6 +15,7 @@ import {
   getSdkOAuthTokenRefreshCallback,
   getIsNonInteractiveSession,
   preferThirdPartyAuthentication,
+  setOauthTokenFromFd,
 } from '../bootstrap/state.js'
 import {
   getMockSubscriptionType,
@@ -27,6 +28,10 @@ import {
 } from '../services/oauth/client.js'
 import { getOauthProfileFromOauthToken } from '../services/oauth/getOauthProfile.js'
 import type { OAuthTokens, SubscriptionType } from '../services/oauth/types.js'
+import {
+  getWIFPrecedenceSource,
+  isWIFActive,
+} from '../services/api/workloadIdentity.js'
 import {
   getApiKeyFromFileDescriptor,
   getOAuthTokenFromFileDescriptor,
@@ -96,11 +101,41 @@ function isManagedOAuthContext(): boolean {
   )
 }
 
+/**
+ * Workload-identity auth is deliberately lower priority than every explicit
+ * Claude Code credential source and every third-party provider selection.
+ */
+export function shouldUseWIFAuth(): boolean {
+  if (!isWIFActive()) return false
+  if (isBareMode() || process.env.ANTHROPIC_UNIX_SOCKET) return false
+  if (isManagedOAuthContext()) return false
+  if (
+    process.env.ANTHROPIC_AUTH_TOKEN ||
+    process.env.CLAUDE_CODE_OAUTH_TOKEN ||
+    getOAuthTokenFromFileDescriptor() ||
+    getConfiguredApiKeyHelper()
+  ) {
+    return false
+  }
+  if (
+    isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK) ||
+    isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX) ||
+    isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY) ||
+    isEnvTruthy(process.env.CLAUDE_CODE_USE_ANTHROPIC_AWS) ||
+    isEnvTruthy(process.env.CLAUDE_CODE_USE_MANTLE)
+  ) {
+    return false
+  }
+  return true
+}
+
 /** Whether we are supporting direct 1P auth. */
 // this code is closely related to getAuthTokenSource
 export function isAnthropicAuthEnabled(): boolean {
   // --bare: API-key-only, never OAuth.
   if (isBareMode()) return false
+
+  if (shouldUseWIFAuth()) return false
 
   // `claude ssh` remote: ANTHROPIC_UNIX_SOCKET tunnels API calls through a
   // local auth-injecting proxy. The launcher sets CLAUDE_CODE_OAUTH_TOKEN as a
@@ -163,6 +198,10 @@ export function getAuthTokenSource() {
     return { source: 'none' as const, hasToken: false }
   }
 
+  if (getWIFPrecedenceSource() !== null && shouldUseWIFAuth()) {
+    return { source: 'profile' as const, hasToken: true }
+  }
+
   if (process.env.ANTHROPIC_AUTH_TOKEN && !isManagedOAuthContext()) {
     return { source: 'ANTHROPIC_AUTH_TOKEN' as const, hasToken: true }
   }
@@ -205,6 +244,25 @@ export function getAuthTokenSource() {
   }
 
   return { source: 'none' as const, hasToken: false }
+}
+
+export function describeHowToDisableAuthTokenSource(
+  source: ReturnType<typeof getAuthTokenSource>['source'],
+): string {
+  switch (source) {
+    case 'claude.ai':
+      return 'claude /logout to sign out of claude.ai.'
+    case 'profile':
+      return 'Run `ant auth logout`, or remove the active profile under ~/.config/anthropic/configs/.'
+    case 'apiKeyHelper':
+      return 'Unset the apiKeyHelper setting.'
+    case 'CCR_OAUTH_TOKEN_FILE':
+      return 'This token is injected by the CCR host; check the host session.'
+    case 'none':
+      return ''
+    default:
+      return `Unset the ${source} environment variable.`
+  }
 }
 
 export type ApiKeySource =
@@ -1404,6 +1462,31 @@ async function handleOAuth401ErrorImpl(
         )
       }
     }
+    if (
+      process.env.CLAUDE_CODE_OAUTH_TOKEN ||
+      getOAuthTokenFromFileDescriptor()
+    ) {
+      try {
+        const storedTokens = (await getSecureStorage().readAsync())
+          ?.claudeAiOauth
+        if (
+          storedTokens?.accessToken &&
+          storedTokens.accessToken !== failedAccessToken
+        ) {
+          if (process.env.CLAUDE_CODE_OAUTH_TOKEN) {
+            process.env.CLAUDE_CODE_OAUTH_TOKEN = storedTokens.accessToken
+          }
+          if (getOAuthTokenFromFileDescriptor()) {
+            setOauthTokenFromFd(storedTokens.accessToken)
+          }
+          clearOAuthTokenCache()
+          logEvent('tengu_oauth_401_recovered_from_disk', {})
+          return true
+        }
+      } catch (error) {
+        logError(error)
+      }
+    }
     return false
   }
 
@@ -1414,7 +1497,7 @@ async function handleOAuth401ErrorImpl(
   }
 
   // Same token that failed - force refresh, bypassing local expiration check
-  return checkAndRefreshOAuthTokenIfNeeded(0, true)
+  return checkAndRefreshOAuthTokenIfNeeded(0, true, failedAccessToken)
 }
 
 /**
@@ -1453,6 +1536,7 @@ let pendingRefreshCheck: Promise<boolean> | null = null
 export function checkAndRefreshOAuthTokenIfNeeded(
   retryCount = 0,
   force = false,
+  failedAccessToken?: string,
 ): Promise<boolean> {
   // Deduplicate concurrent non-retry, non-force calls
   if (retryCount === 0 && !force) {
@@ -1460,19 +1544,28 @@ export function checkAndRefreshOAuthTokenIfNeeded(
       return pendingRefreshCheck
     }
 
-    const promise = checkAndRefreshOAuthTokenIfNeededImpl(retryCount, force)
+    const promise = checkAndRefreshOAuthTokenIfNeededImpl(
+      retryCount,
+      force,
+      failedAccessToken,
+    )
     pendingRefreshCheck = promise.finally(() => {
       pendingRefreshCheck = null
     })
     return pendingRefreshCheck
   }
 
-  return checkAndRefreshOAuthTokenIfNeededImpl(retryCount, force)
+  return checkAndRefreshOAuthTokenIfNeededImpl(
+    retryCount,
+    force,
+    failedAccessToken,
+  )
 }
 
 async function checkAndRefreshOAuthTokenIfNeededImpl(
   retryCount: number,
   force: boolean,
+  failedAccessToken?: string,
 ): Promise<boolean> {
   const MAX_RETRIES = 5
 
@@ -1495,17 +1588,21 @@ async function checkAndRefreshOAuthTokenIfNeededImpl(
     return false
   }
 
+  const accessTokenBeforeRefresh = failedAccessToken ?? tokens.accessToken
+
   // Re-read tokens async to check if they're still expired
   // Another process might have refreshed them
   getClaudeAIOAuthTokens.cache?.clear?.()
   clearKeychainCache()
   const freshTokens = await getClaudeAIOAuthTokensAsync()
-  if (
-    !freshTokens?.refreshToken ||
-    !isOAuthTokenExpired(freshTokens.expiresAt)
-  ) {
+  if (!freshTokens?.refreshToken) {
     return false
   }
+  if (freshTokens.accessToken !== accessTokenBeforeRefresh) {
+    logEvent('tengu_oauth_token_refresh_race_resolved', {})
+    return true
+  }
+  if (!force && !isOAuthTokenExpired(freshTokens.expiresAt)) return false
 
   // Tokens are still expired, try to acquire lock and refresh
   const claudeDir = getClaudeConfigHomeDir()
@@ -1514,7 +1611,9 @@ async function checkAndRefreshOAuthTokenIfNeededImpl(
   let release
   try {
     logEvent('tengu_oauth_token_refresh_lock_acquiring', {})
-    release = await lockfile.lock(claudeDir)
+    release = await lockfile.lock(claudeDir, {
+      onCompromised: error => logError(error),
+    })
     logEvent('tengu_oauth_token_refresh_lock_acquired', {})
   } catch (err) {
     if ((err as { code?: string }).code === 'ELOCKED') {
@@ -1525,7 +1624,11 @@ async function checkAndRefreshOAuthTokenIfNeededImpl(
         })
         // Wait a bit before retrying
         await sleep(1000 + Math.random() * 1000)
-        return checkAndRefreshOAuthTokenIfNeededImpl(retryCount + 1, force)
+        return checkAndRefreshOAuthTokenIfNeededImpl(
+          retryCount + 1,
+          force,
+          accessTokenBeforeRefresh,
+        )
       }
       logEvent('tengu_oauth_token_refresh_lock_retry_limit_reached', {
         maxRetries: MAX_RETRIES,
@@ -1545,22 +1648,25 @@ async function checkAndRefreshOAuthTokenIfNeededImpl(
     getClaudeAIOAuthTokens.cache?.clear?.()
     clearKeychainCache()
     const lockedTokens = await getClaudeAIOAuthTokensAsync()
-    if (
-      !lockedTokens?.refreshToken ||
-      !isOAuthTokenExpired(lockedTokens.expiresAt)
-    ) {
-      logEvent('tengu_oauth_token_refresh_race_resolved', {})
+    if (!lockedTokens?.refreshToken) {
       return false
     }
+    if (lockedTokens.accessToken !== accessTokenBeforeRefresh) {
+      logEvent('tengu_oauth_token_refresh_race_resolved', {})
+      return true
+    }
+    if (!force && !isOAuthTokenExpired(lockedTokens.expiresAt)) return false
 
     logEvent('tengu_oauth_token_refresh_starting', {})
     const refreshedTokens = await refreshOAuthToken(lockedTokens.refreshToken, {
       // For Claude.ai subscribers, omit scopes so the default
       // CLAUDE_AI_OAUTH_SCOPES applies — this allows scope expansion
       // (e.g. adding user:file_upload) on refresh without re-login.
-      scopes: shouldUseClaudeAIAuth(lockedTokens.scopes)
-        ? undefined
-        : lockedTokens.scopes,
+      scopes:
+        shouldUseClaudeAIAuth(lockedTokens.scopes) && !lockedTokens.clientId
+          ? undefined
+          : lockedTokens.scopes,
+      clientId: lockedTokens.clientId,
     })
     saveOAuthTokensIfNeeded(refreshedTokens)
 
@@ -1574,7 +1680,10 @@ async function checkAndRefreshOAuthTokenIfNeededImpl(
     getClaudeAIOAuthTokens.cache?.clear?.()
     clearKeychainCache()
     const currentTokens = await getClaudeAIOAuthTokensAsync()
-    if (currentTokens && !isOAuthTokenExpired(currentTokens.expiresAt)) {
+    if (
+      currentTokens &&
+      currentTokens.accessToken !== accessTokenBeforeRefresh
+    ) {
       logEvent('tengu_oauth_token_refresh_race_recovered', {})
       return true
     }
@@ -1582,8 +1691,13 @@ async function checkAndRefreshOAuthTokenIfNeededImpl(
     return false
   } finally {
     logEvent('tengu_oauth_token_refresh_lock_releasing', {})
-    await release()
-    logEvent('tengu_oauth_token_refresh_lock_released', {})
+    try {
+      await release()
+      logEvent('tengu_oauth_token_refresh_lock_released', {})
+    } catch (error) {
+      logError(error)
+      logEvent('tengu_oauth_token_refresh_lock_release_error', {})
+    }
   }
 }
 

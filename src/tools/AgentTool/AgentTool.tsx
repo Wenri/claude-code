@@ -620,7 +620,11 @@ export const AgentTool = buildTool({
       // buildAgentSystemPrompt() runs inside wrapWithCwd where getCwd()
       // returns the override path.
       override: isForkPath ? {
-        systemPrompt: forkParentSystemPrompt
+        systemPrompt: forkParentSystemPrompt,
+        replHydration: {
+          kind: 'fork',
+          log: [...(toolUseContext.getAppState().replContexts[toolUseContext.agentId ?? 'main']?.replayLog ?? [])]
+        }
       } : enhancedSystemPrompt && !worktreeInfo && !cwd ? {
         systemPrompt: asSystemPrompt(enhancedSystemPrompt)
       } : undefined,
@@ -632,7 +636,9 @@ export const AgentTool = buildTool({
         useExactTools: true
       }),
       worktreePath: worktreeInfo?.worktreePath,
-      description
+      cwd,
+      description,
+      name
     };
 
     // Helper to wrap execution with a cwd override: explicit cwd arg (KAIROS)
@@ -672,7 +678,9 @@ export const AgentTool = buildTool({
           // writeAgentMetadata handling.
           void writeAgentMetadata(asAgentId(earlyAgentId), {
             agentType: selectedAgent.agentType,
-            description
+            ...(cwd && { cwd }),
+            description,
+            ...(name && { name })
           }).catch(_err => logForDebugging(`Failed to clear worktree metadata: ${_err}`));
           return {};
         }
@@ -694,7 +702,8 @@ export const AgentTool = buildTool({
         // Don't link to parent's abort controller -- background agents should
         // survive when the user presses ESC to cancel the main thread.
         // They are killed explicitly via chat:killAgents.
-        toolUseId: toolUseContext.toolUseId
+        toolUseId: toolUseContext.toolUseId,
+        cwd: cwd ?? worktreeInfo?.worktreePath
       });
 
       // Register name → agentId for SendMessage routing. Post-registerAsyncAgent
@@ -733,14 +742,15 @@ export const AgentTool = buildTool({
       void runWithAgentContext(asyncAgentContext, () => wrapWithCwd(() => runAsyncAgentLifecycle({
         taskId: agentBackgroundTask.agentId,
         abortController: agentBackgroundTask.abortController!,
-        makeStream: onCacheSafeParams => runAgent({
+        makeStream: (onCacheSafeParams, onProgress) => runAgent({
           ...runAgentParams,
           override: {
             ...runAgentParams.override,
             agentId: asAgentId(agentBackgroundTask.agentId),
             abortController: agentBackgroundTask.abortController!
           },
-          onCacheSafeParams
+          onCacheSafeParams,
+          onQueryProgress: onProgress
         }),
         metadata,
         description,
@@ -1326,7 +1336,7 @@ The agent is now running and will receive instructions via mailbox.`
     }
     if (data.status === 'async_launched') {
       const prefix = `Async agent launched successfully.\nagentId: ${data.agentId} (internal ID - do not mention to user. Use SendMessage with to: '${data.agentId}' to continue this agent.)\nThe agent is working in the background. You will be notified automatically when it completes.`;
-      const instructions = data.canReadOutputFile ? `Do not duplicate this agent's work — avoid working with the same files or topics it is using. Work on non-overlapping tasks, or briefly tell the user what you launched and end your response.\noutput_file: ${data.outputFile}\nIf asked, you can check progress before completion by using ${FILE_READ_TOOL_NAME} or ${BASH_TOOL_NAME} tail on the output file.` : `Briefly tell the user what you launched and end your response. Do not generate any other text — agent results will arrive in a subsequent message.`;
+      const instructions = data.canReadOutputFile ? `Do not duplicate this agent's work — avoid working with the same files or topics it is using. Work on non-overlapping tasks, or briefly tell the user what you launched and end your response.\noutput_file: ${data.outputFile}\nDo NOT ${FILE_READ_TOOL_NAME} or tail this file via the shell tool — it is the full sub-agent JSONL transcript and reading it will overflow your context. If the user asks for progress, say the agent is still running; you'll get a completion notification.` : `Briefly tell the user what you launched and end your response. Do not generate any other text — agent results will arrive in a subsequent message.`;
       const text = `${prefix}\n${instructions}`;
       return {
         tool_use_id: toolUseID,

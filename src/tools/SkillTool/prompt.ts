@@ -1,10 +1,12 @@
 import { memoize } from 'lodash-es'
 import type { Command } from 'src/commands.js'
 import {
+  filterCommandsBySkillAllowlist,
   getCommandName,
   getSkillToolCommands,
   getSlashCommandToolSkills,
 } from 'src/commands.js'
+import { getSessionSkillAllowlist } from '../../bootstrap/state.js'
 import { COMMAND_NAME_TAG } from '../../constants/xml.js'
 import { stringWidth } from '../../ink/stringWidth.js'
 import {
@@ -197,18 +199,27 @@ export async function getSkillToolInfo(cwd: string): Promise<{
   includedCommands: number
 }> {
   const agentCommands = await getSkillToolCommands(cwd)
+  const includedCommands = filterCommandsBySkillAllowlist(
+    agentCommands,
+    getSessionSkillAllowlist(),
+  )
 
   return {
     totalCommands: agentCommands.length,
-    includedCommands: agentCommands.length,
+    includedCommands: includedCommands.length,
   }
 }
 
 // Returns the commands included in the SkillTool prompt.
 // All commands are always included (descriptions may be truncated to fit budget).
 // Used by analyzeContext to count skill tokens.
-export function getLimitedSkillToolCommands(cwd: string): Promise<Command[]> {
-  return getSkillToolCommands(cwd)
+export async function getLimitedSkillToolCommands(
+  cwd: string,
+): Promise<Command[]> {
+  return filterCommandsBySkillAllowlist(
+    await getSkillToolCommands(cwd),
+    getSessionSkillAllowlist(),
+  )
 }
 
 export function clearPromptCache(): void {

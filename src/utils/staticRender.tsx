@@ -15,7 +15,7 @@ import { render, useApp } from '../ink.js';
  * before exiting. This is more robust than process.nextTick() for React 19's
  * async render cycle.
  */
-function RenderOnceAndExit(t0) {
+export function RenderOnceAndExit(t0) {
   const $ = _c(5);
   const {
     children

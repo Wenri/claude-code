@@ -2266,9 +2266,14 @@ export function ManagePlugins({
       return <MCPRemoteServerMenu server={server_2} serverToolsCount={serverToolsCount} onViewTools={handleMcpViewTools} onCancel={handleMcpCancel} onComplete={handleMcpComplete} borderless />;
     }
 
-    // Fallback - shouldn't happen but handle gracefully
-    setViewState('plugin-list');
-    return null;
+    return <Box flexDirection="column" paddingX={1}>
+        <Text color="warning">
+          No details view for {client_3.name} (transport: {configType}).
+        </Text>
+        <Byline>
+          <ConfigurableShortcutHint action="confirm:no" context="Confirmation" fallback="Esc" description="back" />
+        </Byline>
+      </Box>;
   }
 
   // MCP tools view
