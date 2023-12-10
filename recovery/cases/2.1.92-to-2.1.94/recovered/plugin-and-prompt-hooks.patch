@@ -1,0 +1,378 @@
+diff --git a/src/entrypoints/sdk/coreSchemas.ts b/src/entrypoints/sdk/coreSchemas.ts
+index 343604a..5669cf2 100644
+--- a/src/entrypoints/sdk/coreSchemas.ts
++++ b/src/entrypoints/sdk/coreSchemas.ts
+@@ -494,6 +494,7 @@ export const UserPromptSubmitHookInputSchema = lazySchema(() =>
+     z.object({
+       hook_event_name: z.literal('UserPromptSubmit'),
+       prompt: z.string(),
++      session_title: z.string().optional(),
+     }),
+   ),
+ )
+@@ -825,6 +826,7 @@ export const UserPromptSubmitHookSpecificOutputSchema = lazySchema(() =>
+   z.object({
+     hookEventName: z.literal('UserPromptSubmit'),
+     additionalContext: z.string().optional(),
++    sessionTitle: z.string().optional(),
+   }),
+ )
+ 
+@@ -1095,7 +1097,7 @@ export const AccountInfoSchema = lazySchema(() =>
+       tokenSource: z.string().optional(),
+       apiKeySource: z.string().optional(),
+       apiProvider: z
+-        .enum(['firstParty', 'bedrock', 'vertex', 'foundry'])
++        .enum(['firstParty', 'bedrock', 'vertex', 'foundry', 'mantle'])
+         .optional()
+         .describe(
+           'Active API backend. Anthropic OAuth login only applies when "firstParty"; for 3P providers the other fields are absent and auth is external (AWS creds, gcloud ADC, etc.).',
+diff --git a/src/types/hooks.ts b/src/types/hooks.ts
+index a7808b5..7a8bfd2 100644
+--- a/src/types/hooks.ts
++++ b/src/types/hooks.ts
+@@ -79,6 +79,10 @@ export const syncHookResponseSchema = lazySchema(() =>
+         z.object({
+           hookEventName: z.literal('UserPromptSubmit'),
+           additionalContext: z.string().optional(),
++          sessionTitle: z
++            .string()
++            .describe('Set the session title (same effect as /rename)')
++            .optional(),
+         }),
+         z.object({
+           hookEventName: z.literal('SessionStart'),
+@@ -267,6 +271,7 @@ export type HookResult = {
+   permissionBehavior?: 'ask' | 'deny' | 'allow' | 'passthrough'
+   hookPermissionDecisionReason?: string
+   additionalContext?: string
++  sessionTitle?: string
+   initialUserMessage?: string
+   updatedInput?: Record<string, unknown>
+   updatedMCPToolOutput?: unknown
+@@ -282,6 +287,7 @@ export type AggregatedHookResult = {
+   hookPermissionDecisionReason?: string
+   permissionBehavior?: PermissionResult['behavior']
+   additionalContexts?: string[]
++  sessionTitle?: string
+   initialUserMessage?: string
+   updatedInput?: Record<string, unknown>
+   updatedMCPToolOutput?: unknown
+diff --git a/src/utils/hooks.ts b/src/utils/hooks.ts
+index 4198574..f7f2708 100644
+--- a/src/utils/hooks.ts
++++ b/src/utils/hooks.ts
+@@ -43,9 +43,13 @@ import {
+   shouldDisableAllHooksIncludingManaged,
+ } from './hooks/hooksConfigSnapshot.js'
+ import {
++  getCurrentSessionTitle,
+   getTranscriptPathForSession,
+   getAgentTranscriptPath,
++  saveCustomTitle,
++  saveAgentName,
+ } from './sessionStorage.js'
++import { isTeammate } from './teammate.js'
+ import type { AgentId } from '../types/ids.js'
+ import {
+   getSettings_DEPRECATED,
+@@ -345,6 +349,7 @@ export interface HookResult {
+   permissionBehavior?: 'ask' | 'deny' | 'allow' | 'passthrough'
+   hookPermissionDecisionReason?: string
+   additionalContext?: string
++  sessionTitle?: string
+   initialUserMessage?: string
+   updatedInput?: Record<string, unknown>
+   updatedMCPToolOutput?: unknown
+@@ -365,6 +370,7 @@ export type AggregatedHookResult = {
+   hookSource?: string
+   permissionBehavior?: PermissionResult['behavior']
+   additionalContexts?: string[]
++  sessionTitle?: string
+   initialUserMessage?: string
+   updatedInput?: Record<string, unknown>
+   updatedMCPToolOutput?: unknown
+@@ -623,6 +629,7 @@ function processHookJSONOutput({
+         break
+       case 'UserPromptSubmit':
+         result.additionalContext = json.hookSpecificOutput.additionalContext
++        result.sessionTitle = json.hookSpecificOutput.sessionTitle
+         break
+       case 'SessionStart':
+         result.additionalContext = json.hookSpecificOutput.additionalContext
+@@ -2807,6 +2814,15 @@ async function* executeHooks({
+       }
+     }
+ 
++    if (result.sessionTitle) {
++      logForDebugging(
++        `Hook ${hookEvent} (${getHookDisplayText(result.hook)}) provided sessionTitle (${[...result.sessionTitle].length} chars)`,
++      )
++      yield {
++        sessionTitle: result.sessionTitle,
++      }
++    }
++
+     // Yield updatedMCPToolOutput if provided (from PostToolUse hooks)
+     if (result.updatedMCPToolOutput) {
+       logForDebugging(
+@@ -3842,6 +3858,7 @@ export async function* executeUserPromptSubmitHooks(
+     ...createBaseHookInput(permissionMode),
+     hook_event_name: 'UserPromptSubmit',
+     prompt,
++    session_title: getCurrentSessionTitle(getSessionId()),
+   }
+ 
+   yield* executeHooks({
+@@ -3854,6 +3871,36 @@ export async function* executeUserPromptSubmitHooks(
+   })
+ }
+ 
++const MAX_HOOK_SESSION_TITLE_LENGTH = 200
++
++function sanitizeHookSessionTitle(title: string): string {
++  return [...title.replace(/[\x00-\x1f\x7f-\x9f]/g, '')]
++    .slice(0, MAX_HOOK_SESSION_TITLE_LENGTH)
++    .join('')
++}
++
++export async function applyHookSessionTitle(title: string): Promise<void> {
++  if (isTeammate()) return
++
++  const sanitized = sanitizeHookSessionTitle(title)
++  if (!sanitized) return
++
++  const sessionId = getSessionId()
++  const currentTitle = getCurrentSessionTitle(sessionId)
++  if (
++    sanitized ===
++    (currentTitle && sanitizeHookSessionTitle(currentTitle))
++  ) {
++    return
++  }
++
++  logForDebugging(
++    `Applying session title from UserPromptSubmit hook (${[...sanitized].length} chars)`,
++  )
++  await saveCustomTitle(sessionId, sanitized, undefined, 'hook')
++  await saveAgentName(sessionId, sanitized, undefined, 'hook')
++}
++
+ /**
+  * Execute session start hooks if configured
+  * @param source The source of the session start (startup, resume, clear)
+diff --git a/src/utils/plugins/loadPluginCommands.ts b/src/utils/plugins/loadPluginCommands.ts
+index 4707179..4c8807d 100644
+--- a/src/utils/plugins/loadPluginCommands.ts
++++ b/src/utils/plugins/loadPluginCommands.ts
+@@ -24,6 +24,7 @@ import {
+   parseSlashCommandToolsFromFrontmatter,
+ } from '../markdownConfigLoader.js'
+ import { parseUserSpecifiedModel } from '../model/model.js'
++import { HooksSchema, type HooksSettings } from '../settings/types.js'
+ import {
+   executeShellCommandsInPrompt,
+   isSkillShellExecutionDisabled,
+@@ -300,6 +301,17 @@ function createPluginCommand(
+         : parseBooleanFrontmatter(userInvocableValue)
+ 
+     const shell = parseShellFrontmatter(frontmatter.shell, commandName)
++    let hooks: HooksSettings | undefined
++    if ((isSkill || config.isSkillMode) && frontmatter.hooks) {
++      const result = HooksSchema().safeParse(frontmatter.hooks)
++      if (result.success) {
++        hooks = result.data
++      } else {
++        logForDebugging(
++          `Invalid hooks in plugin skill '${commandName}': ${result.error.message}`,
++        )
++      }
++    }
+ 
+     return {
+       type: 'prompt',
+@@ -318,6 +330,9 @@ function createPluginCommand(
+       contentLength: content.length,
+       source: 'plugin' as const,
+       loadedFrom: isSkill || config.isSkillMode ? 'plugin' : undefined,
++      hooks,
++      skillRoot:
++        (isSkill || config.isSkillMode) && hooks ? pluginPath : undefined,
+       pluginInfo: {
+         pluginManifest,
+         repository: sourceName,
+@@ -732,7 +747,12 @@ async function loadSkillsFromDirectory(
+         directSkillPath,
+       )
+ 
+-      const skillName = `${pluginName}:${basename(skillsPath)}`
++      const resolvedSkillName = (
++        (typeof frontmatter.name === 'string'
++          ? frontmatter.name.trim()
++          : '') || basename(skillsPath)
++      ).replace(/[^a-zA-Z0-9_-]/g, '-')
++      const skillName = `${pluginName}:${resolvedSkillName}`
+ 
+       const file: PluginMarkdownFile = {
+         filePath: directSkillPath,
+@@ -812,7 +832,7 @@ async function loadSkillsFromDirectory(
+           skillFilePath,
+         )
+ 
+-        const skillName = `${pluginName}:${entry.name}`
++        const skillName = `${pluginName}:${entry.name.replace(/[^a-zA-Z0-9_-]/g, '-')}`
+ 
+         const file: PluginMarkdownFile = {
+           filePath: skillFilePath,
+diff --git a/src/utils/plugins/loadPluginOutputStyles.ts b/src/utils/plugins/loadPluginOutputStyles.ts
+index db184d4..87acc6b 100644
+--- a/src/utils/plugins/loadPluginOutputStyles.ts
++++ b/src/utils/plugins/loadPluginOutputStyles.ts
+@@ -5,6 +5,7 @@ import { getPluginErrorMessage } from '../../types/plugin.js'
+ import { logForDebugging } from '../debug.js'
+ import {
+   coerceDescriptionToString,
++  parseBooleanFrontmatter,
+   parseFrontmatter,
+ } from '../frontmatterParser.js'
+ import { getFsImplementation, isDuplicatePath } from '../fsOperations.js'
+@@ -60,14 +61,12 @@ async function loadOutputStyleFromFile(
+         `Output style from ${pluginName} plugin`,
+       )
+ 
+-    // Parse forceForPlugin flag (supports both boolean and string values)
+-    const forceRaw = frontmatter['force-for-plugin']
+-    const forceForPlugin =
+-      forceRaw === true || forceRaw === 'true'
+-        ? true
+-        : forceRaw === false || forceRaw === 'false'
+-          ? false
+-          : undefined
++    const forceForPlugin = parseBooleanFrontmatter(
++      frontmatter['force-for-plugin'],
++    )
++    const keepCodingInstructions = parseBooleanFrontmatter(
++      frontmatter['keep-coding-instructions'],
++    )
+ 
+     return {
+       name,
+@@ -75,6 +74,7 @@ async function loadOutputStyleFromFile(
+       prompt: markdownContent.trim(),
+       source: 'plugin',
+       forceForPlugin,
++      keepCodingInstructions,
+     }
+   } catch (error) {
+     logForDebugging(`Failed to load output style from ${filePath}: ${error}`, {
+diff --git a/src/utils/plugins/pluginLoader.ts b/src/utils/plugins/pluginLoader.ts
+index dd65ffa..d2f5009 100644
+--- a/src/utils/plugins/pluginLoader.ts
++++ b/src/utils/plugins/pluginLoader.ts
+@@ -2106,25 +2106,25 @@ async function loadPluginFromMarketplaceEntryCacheOnly(
+   let pluginPath: string
+ 
+   if (typeof entry.source === 'string') {
+-    // Local relative path — read from the marketplace source dir directly.
+-    // Skip copyPluginToVersionedCache; startup doesn't need a fresh copy.
+-    let marketplaceDir: string
+-    try {
+-      marketplaceDir = (await stat(marketplaceInstallLocation)).isDirectory()
+-        ? marketplaceInstallLocation
+-        : join(marketplaceInstallLocation, '..')
+-    } catch {
+-      errorsOut.push({
+-        type: 'plugin-cache-miss',
+-        source: pluginId,
+-        plugin: entry.name,
+-        installPath: marketplaceInstallLocation,
+-      })
+-      return null
++    if (installPath && (await pathExists(installPath))) {
++      pluginPath = installPath
++    } else {
++      let marketplaceDir: string
++      try {
++        marketplaceDir = (await stat(marketplaceInstallLocation)).isDirectory()
++          ? marketplaceInstallLocation
++          : join(marketplaceInstallLocation, '..')
++      } catch {
++        errorsOut.push({
++          type: 'plugin-cache-miss',
++          source: pluginId,
++          plugin: entry.name,
++          installPath: marketplaceInstallLocation,
++        })
++        return null
++      }
++      pluginPath = join(marketplaceDir, entry.source)
+     }
+-    pluginPath = join(marketplaceDir, entry.source)
+-    // finishLoadingPluginFromPath reads pluginPath — its error handling
+-    // surfaces ENOENT as a load failure, no need to pre-check here.
+   } else {
+     // External source (npm/github/url/git-subdir) — use recorded installPath.
+     if (!installPath || !(await pathExists(installPath))) {
+diff --git a/src/utils/processUserInput/processUserInput.ts b/src/utils/processUserInput/processUserInput.ts
+index d5a68c4..3e9cdb7 100644
+--- a/src/utils/processUserInput/processUserInput.ts
++++ b/src/utils/processUserInput/processUserInput.ts
+@@ -39,6 +39,7 @@ import type { PastedContent } from '../config.js'
+ import type { EffortValue } from '../effort.js'
+ import { toArray } from '../generators.js'
+ import {
++  applyHookSessionTitle,
+   executeUserPromptSubmitHooks,
+   getUserPromptSubmitHookBlockingMessage,
+ } from '../hooks.js'
+@@ -178,6 +179,7 @@ export async function processUserInput({
+   // Execute UserPromptSubmit hooks and handle blocking
+   queryCheckpoint('query_hooks_start')
+   const inputMessage = getContentText(input) || ''
++  let hookSessionTitle: string | undefined
+ 
+   for await (const hookResult of executeUserPromptSubmitHooks(
+     inputMessage,
+@@ -190,6 +192,10 @@ export async function processUserInput({
+       continue
+     }
+ 
++    if (hookResult.sessionTitle) {
++      hookSessionTitle = hookResult.sessionTitle
++    }
++
+     // Return only a system-level error message, erasing the original user input
+     if (hookResult.blockingError) {
+       const blockingMessage = getUserPromptSubmitHookBlockingMessage(
+@@ -261,6 +267,9 @@ export async function processUserInput({
+       }
+     }
+   }
++  if (hookSessionTitle) {
++    await applyHookSessionTitle(hookSessionTitle)
++  }
+   queryCheckpoint('query_hooks_end')
+ 
+   // Happy path: onQuery will clear userInputOnProcessing via startTransition
+diff --git a/src/utils/sessionStorage.ts b/src/utils/sessionStorage.ts
+index 838e34c..e611e80 100644
+--- a/src/utils/sessionStorage.ts
++++ b/src/utils/sessionStorage.ts
+@@ -2665,7 +2665,7 @@ export async function saveCustomTitle(
+   sessionId: UUID,
+   customTitle: string,
+   fullPath?: string,
+-  source: 'user' | 'auto' = 'user',
++  source: 'user' | 'auto' | 'hook' = 'user',
+ ) {
+   // Fall back to computed path if fullPath is not provided
+   const resolvedPath = fullPath ?? getTranscriptPathForSession(sessionId)
+@@ -2867,7 +2867,7 @@ export async function saveAgentName(
+   sessionId: UUID,
+   agentName: string,
+   fullPath?: string,
+-  source: 'user' | 'auto' = 'user',
++  source: 'user' | 'auto' | 'hook' = 'user',
+ ) {
+   const resolvedPath = fullPath ?? getTranscriptPathForSession(sessionId)
+   appendEntryToFile(resolvedPath, { type: 'agent-name', agentName, sessionId })

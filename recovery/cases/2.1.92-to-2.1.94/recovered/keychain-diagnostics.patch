@@ -1,0 +1,177 @@
+diff --git a/src/screens/Doctor.tsx b/src/screens/Doctor.tsx
+index be320cc..8a1e276 100644
+--- a/src/screens/Doctor.tsx
++++ b/src/screens/Doctor.tsx
+@@ -163,7 +163,9 @@ export function Doctor(t0) {
+   let t6;
+   if ($[6] !== agentDefinitions || $[7] !== toolPermissionContext || $[8] !== tools) {
+     t5 = () => {
+-      getDoctorDiagnostic().then(setDiagnostic);
++      getDoctorDiagnostic({
++        probeKeychain: true
++      }).then(setDiagnostic);
+       (async () => {
+         const userAgentsDir = join(getClaudeConfigHomeDir(), "agents");
+         const projectAgentsDir = join(getOriginalCwd(), ".claude", "agents");
+diff --git a/src/utils/auth.ts b/src/utils/auth.ts
+index 64a6180..6f2f282 100644
+--- a/src/utils/auth.ts
++++ b/src/utils/auth.ts
+@@ -114,6 +114,7 @@ export function isAnthropicAuthEnabled(): boolean {
+ 
+   const is3P =
+     isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK) ||
++    isEnvTruthy(process.env.CLAUDE_CODE_USE_MANTLE) ||
+     isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX) ||
+     isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY)
+ 
+@@ -1100,37 +1101,38 @@ export async function saveApiKey(apiKey: string): Promise<void> {
+ 
+   // Store as primary API key
+   await maybeRemoveApiKeyFromMacOSKeychain()
+-  let savedToKeychain = false
+-  if (process.platform === 'darwin') {
+-    try {
+-      // TODO: migrate to SecureStorage
+-      const storageServiceName = getMacOsKeychainStorageServiceName()
+-      const username = getUsername()
+-
+-      // Convert to hexadecimal to avoid any escaping issues
+-      const hexValue = Buffer.from(apiKey, 'utf-8').toString('hex')
++  const savedToKeychain = process.platform === 'darwin'
++  if (savedToKeychain) {
++    // TODO: migrate to SecureStorage
++    const storageServiceName = getMacOsKeychainStorageServiceName()
++    const username = getUsername()
+ 
+-      // Use security's interactive mode (-i) with -X (hexadecimal) option
+-      // This ensures credentials never appear in process command-line arguments
+-      // Process monitors only see "security -i", not the password
+-      const command = `add-generic-password -U -a "${username}" -s "${storageServiceName}" -X "${hexValue}"\n`
++    // Convert to hexadecimal to avoid any escaping issues
++    const hexValue = Buffer.from(apiKey, 'utf-8').toString('hex')
+ 
+-      await execa('security', ['-i'], {
+-        input: command,
+-        reject: false,
+-      })
++    // Use security's interactive mode (-i) with -X (hexadecimal) option
++    // This ensures credentials never appear in process command-line arguments
++    // Process monitors only see "security -i", not the password
++    const command = `add-generic-password -U -a "${username}" -s "${storageServiceName}" -X "${hexValue}"\n`
+ 
+-      logEvent('tengu_api_key_saved_to_keychain', {})
+-      savedToKeychain = true
+-    } catch (e) {
+-      logError(e)
++    const result = await execa('security', ['-i'], {
++      input: command,
++      reject: false,
++      timeout: 5000,
++    })
++    if (result.exitCode !== 0) {
++      const detail = (result.stderr || result.stdout || '')
++        .trim()
++        .replace(/\s*\n\s*/g, '; ')
+       logEvent('tengu_api_key_keychain_error', {
+-        error: errorMessage(
+-          e,
+-        ) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
++        error:
++          detail as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+       })
+-      logEvent('tengu_api_key_saved_to_config', {})
++      throw new Error(
++        `Failed to save API key to macOS Keychain${detail ? ` (${detail})` : ''}. Run \`claude doctor\` to diagnose keychain access.`,
++      )
+     }
++    logEvent('tengu_api_key_saved_to_keychain', {})
+   } else {
+     logEvent('tengu_api_key_saved_to_config', {})
+   }
+@@ -1593,6 +1595,7 @@ export function is1PApiCustomer(): boolean {
+   // Exclude Vertex, Bedrock, and Foundry customers
+   if (
+     isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK) ||
++    isEnvTruthy(process.env.CLAUDE_CODE_USE_MANTLE) ||
+     isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX) ||
+     isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY)
+   ) {
+@@ -1732,6 +1735,7 @@ export function getSubscriptionName(): string {
+ export function isUsing3PServices(): boolean {
+   return !!(
+     isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK) ||
++    isEnvTruthy(process.env.CLAUDE_CODE_USE_MANTLE) ||
+     isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX) ||
+     isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY)
+   )
+diff --git a/src/utils/doctorDiagnostic.ts b/src/utils/doctorDiagnostic.ts
+index 065b20c..85ae881 100644
+--- a/src/utils/doctorDiagnostic.ts
++++ b/src/utils/doctorDiagnostic.ts
+@@ -33,6 +33,7 @@ import {
+ import { getPlatform } from './platform.js'
+ import { getRipgrepStatus } from './ripgrep.js'
+ import { SandboxManager } from './sandbox/sandbox-adapter.js'
++import { getUsername } from './secureStorage/macOsKeychainHelpers.js'
+ import { getManagedFilePath } from './settings/managedPath.js'
+ import { CUSTOMIZATION_SURFACES } from './settings/types.js'
+ import {
+@@ -511,7 +512,45 @@ export function detectLinuxGlobPatternWarnings(): Array<{
+   return warnings
+ }
+ 
+-export async function getDoctorDiagnostic(): Promise<DiagnosticInfo> {
++async function probeMacOsKeychain(): Promise<{
++  issue: string
++  fix: string
++} | null> {
++  if (process.platform !== 'darwin') return null
++
++  const service = 'Claude Code-doctor-probe'
++  const username = getUsername()
++  const hexValue = Buffer.from('probe', 'utf-8').toString('hex')
++  const command = `add-generic-password -U -a "${username}" -s "${service}" -X "${hexValue}"\n`
++  const result = await execa('security', ['-i'], {
++    input: command,
++    reject: false,
++    timeout: 5000,
++  })
++  if (result.exitCode === 0) {
++    void execa(
++      'security',
++      ['delete-generic-password', '-a', username, '-s', service],
++      {
++        reject: false,
++        timeout: 5000,
++      },
++    )
++    return null
++  }
++
++  const detail = (result.stderr || result.stdout || '')
++    .trim()
++    .replace(/\s*\n\s*/g, '; ')
++  return {
++    issue: `macOS Keychain is not writable${detail ? ` (${detail})` : ''}. Console login will fail to save your API key.`,
++    fix: "Run: security unlock-keychain ~/Library/Keychains/login.keychain-db — if that doesn't fix it, your login keychain password may be out of sync with your account password: open Keychain Access, select the 'login' keychain, then Edit → Change Password for Keychain 'login'.",
++  }
++}
++
++export async function getDoctorDiagnostic(
++  { probeKeychain = false }: { probeKeychain?: boolean } = {},
++): Promise<DiagnosticInfo> {
+   const installationType = await getCurrentInstallationType()
+   const version =
+     typeof MACRO !== 'undefined' && MACRO.VERSION ? MACRO.VERSION : 'unknown'
+@@ -522,6 +561,10 @@ export async function getDoctorDiagnostic(): Promise<DiagnosticInfo> {
+ 
+   // Add glob pattern warnings for Linux sandboxing
+   warnings.push(...detectLinuxGlobPatternWarnings())
++  if (probeKeychain) {
++    const keychainWarning = await probeMacOsKeychain()
++    if (keychainWarning) warnings.push(keychainWarning)
++  }
+ 
+   // Add warnings for leftover npm installations when running native
+   if (installationType === 'native') {
