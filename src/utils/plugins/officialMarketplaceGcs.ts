@@ -137,11 +137,26 @@ export async function fetchOfficialMarketplaceFromGcs(
     }
     await writeFile(join(staging, '.gcs-sha'), sha)
 
-    // Atomic swap: rm old, rename staging. Brief window where installLocation
-    // doesn't exist — acceptable for a background refresh (caller retries next
-    // startup if it crashes here).
-    await rm(installLocation, { recursive: true, force: true })
-    await rename(staging, installLocation)
+    // Atomic promotion with rollback. Keep the previous live tree until the
+    // fully-extracted staging directory has been promoted successfully.
+    const backup = `${installLocation}.backup`
+    await rm(backup, { recursive: true, force: true }).catch(() => {})
+    let movedExistingInstall = false
+    try {
+      await rename(installLocation, backup)
+      movedExistingInstall = true
+    } catch (moveError) {
+      if (getErrnoCode(moveError) !== 'ENOENT') throw moveError
+    }
+    try {
+      await rename(staging, installLocation)
+    } catch (promotionError) {
+      if (movedExistingInstall) {
+        await rename(backup, installLocation).catch(() => {})
+      }
+      throw promotionError
+    }
+    await rm(backup, { recursive: true, force: true }).catch(() => {})
 
     outcome = 'updated'
     return sha

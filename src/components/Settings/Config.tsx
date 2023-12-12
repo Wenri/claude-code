@@ -36,11 +36,21 @@ import { useIsInsideModal } from '../../context/modalContext.js';
 import { SearchBox } from '../SearchBox.js';
 import { isSupportedTerminal, hasAccessToIDEExtensionDiffFeature } from '../../utils/ide.js';
 import { getInitialSettings, getSettingsForSource, updateSettingsForSource } from '../../utils/settings/settings.js';
+import { setConfigValue } from '../../utils/settings/configSettings.js';
 import { getUserMsgOptIn, setUserMsgOptIn } from '../../bootstrap/state.js';
 import { DEFAULT_OUTPUT_STYLE_NAME } from 'src/constants/outputStyles.js';
 import { isEnvTruthy, isRunningOnHomespace } from 'src/utils/envUtils.js';
 import type { LocalJSXCommandContext, CommandResultDisplay } from '../../commands.js';
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js';
+import {
+  getPushReachability,
+  isInputNeededPushEnabled,
+  isKairosPushNotificationsEnabled,
+  subscribeToNotificationPreferencesHydration,
+  subscribeToPushReachability,
+  syncNotificationPreferences,
+  syncNotificationPreferenceValues,
+} from '../../services/notificationPreferences.js';
 import { isAgentSwarmsEnabled } from '../../utils/agentSwarmsEnabled.js';
 import { getCliTeammateModeOverride, clearCliTeammateModeOverride } from '../../utils/swarm/backends/teammateModeSnapshot.js';
 import { getHardcodedTeammateModelFallback } from '../../utils/swarm/teammateModel.js';
@@ -48,6 +58,10 @@ import { useSearchInput } from '../../hooks/useSearchInput.js';
 import { useTerminalSize } from '../../hooks/useTerminalSize.js';
 import { clearFastModeCooldown, FAST_MODE_MODEL_DISPLAY, isFastModeAvailable, isFastModeEnabled, getFastModeModel, isFastModeSupportedByModel } from '../../utils/fastMode.js';
 import { isFullscreenEnvEnabled } from '../../utils/fullscreen.js';
+import { isFgLeftArrowAgentsAvailable } from '../../utils/agentsFleet.js';
+import { getClaudeAIOAuthTokens } from '../../utils/auth.js';
+import { isEssentialTrafficOnly } from '../../utils/privacyLevel.js';
+import Link from '../../ink/components/Link.js';
 type Props = {
   onClose: (result?: string, options?: {
     display?: CommandResultDisplay;
@@ -82,6 +96,43 @@ type Setting = (SettingBase & {
   type: 'managedEnum';
 });
 type SubMenu = 'Theme' | 'Model' | 'TeammateModel' | 'ExternalIncludes' | 'OutputStyle' | 'ChannelDowngrade' | 'Language' | 'EnableAutoUpdates';
+
+function PushReachabilityWarning(): React.ReactNode {
+  const reachability = React.useSyncExternalStore(
+    subscribeToPushReachability,
+    getPushReachability,
+    () => undefined,
+  );
+  if (reachability?.has_active_channel !== false) return null;
+  return <Text color="warning" wrap="truncate-end">
+      {'  '}{figures.warning} No mobile registered ·{' '}
+      <Link url="https://claude.com/download#mobile">get the app</Link> and turn on notif
+    </Text>;
+}
+
+function getEffectiveConfig(): GlobalConfig {
+  const config = getGlobalConfig();
+  const settings = getInitialSettings();
+  return {
+    ...config,
+    theme: settings.theme ?? config.theme,
+    editorMode: settings.editorMode ?? config.editorMode,
+    verbose: settings.verbose ?? config.verbose,
+    preferredNotifChannel: settings.preferredNotifChannel ?? config.preferredNotifChannel,
+    autoCompactEnabled: settings.autoCompactEnabled ?? config.autoCompactEnabled,
+    autoScrollEnabled: settings.autoScrollEnabled ?? config.autoScrollEnabled,
+    fileCheckpointingEnabled: settings.fileCheckpointingEnabled ?? config.fileCheckpointingEnabled,
+    showTurnDuration: settings.showTurnDuration ?? config.showTurnDuration,
+    showMessageTimestamps: settings.showMessageTimestamps ?? config.showMessageTimestamps,
+    terminalProgressBarEnabled: settings.terminalProgressBarEnabled ?? config.terminalProgressBarEnabled,
+    todoFeatureEnabled: settings.todoFeatureEnabled ?? config.todoFeatureEnabled,
+    teammateMode: settings.teammateMode ?? config.teammateMode,
+    remoteControlAtStartup: settings.remoteControlAtStartup ?? config.remoteControlAtStartup,
+    autoUploadSessions: settings.autoUploadSessions ?? config.autoUploadSessions,
+    inputNeededNotifEnabled: settings.inputNeededNotifEnabled ?? config.inputNeededNotifEnabled,
+    agentPushNotifEnabled: settings.agentPushNotifEnabled ?? config.agentPushNotifEnabled
+  } as GlobalConfig;
+}
 export function Config({
   onClose,
   context,
@@ -96,8 +147,9 @@ export function Config({
   const insideModal = useIsInsideModal();
   const [, setTheme] = useTheme();
   const themeSetting = useThemeSetting();
-  const [globalConfig, setGlobalConfig] = useState(getGlobalConfig());
-  const initialConfig = React.useRef(getGlobalConfig());
+  const [globalConfig, setGlobalConfig] = useState(getEffectiveConfig);
+  const initialConfig = React.useRef(globalConfig);
+  const initialLegacyConfig = React.useRef(getGlobalConfig());
   const [settingsData, setSettingsData] = useState(getInitialSettings());
   const initialSettingsData = React.useRef(getInitialSettings());
   const [currentOutputStyle, setCurrentOutputStyle] = useState<OutputStyle>(settingsData?.outputStyle || DEFAULT_OUTPUT_STYLE_NAME);
@@ -156,6 +208,7 @@ export function Config({
       mainLoopModel: s_4.mainLoopModel,
       mainLoopModelForSession: s_4.mainLoopModelForSession,
       verbose: s_4.verbose,
+      showMessageTimestamps: s_4.showMessageTimestamps,
       thinkingEnabled: s_4.thinkingEnabled,
       fastMode: s_4.fastMode,
       promptSuggestionEnabled: s_4.promptSuggestionEnabled,
@@ -175,6 +228,13 @@ export function Config({
   // Set on first user-visible change; gates revertChanges() on Escape so
   // opening-then-closing doesn't trigger redundant disk writes.
   const isDirty = React.useRef(false);
+  const notificationPreferenceOriginals = React.useRef<{
+    inputNeededNotifEnabled?: boolean;
+    agentPushNotifEnabled?: boolean;
+  }>({});
+  React.useEffect(() => subscribeToNotificationPreferencesHydration(() => {
+    setGlobalConfig(getEffectiveConfig());
+  }), []);
   const [showThinkingWarning, setShowThinkingWarning] = useState(false);
   const [showSubmenu, setShowSubmenu] = useState<SubMenu | null>(null);
   const {
@@ -232,15 +292,11 @@ export function Config({
     });
   }
   function onChangeVerbose(value_0: boolean): void {
-    // Update the global config to persist the setting
-    saveGlobalConfig(current => ({
+    setConfigValue('verbose', value_0);
+    setGlobalConfig(current => ({
       ...current,
       verbose: value_0
     }));
-    setGlobalConfig({
-      ...getGlobalConfig(),
-      verbose: value_0
-    });
 
     // Update the app state for immediate UI feedback
     setAppState(prev_1 => ({
@@ -271,14 +327,11 @@ export function Config({
     value: globalConfig.autoCompactEnabled,
     type: 'boolean' as const,
     onChange(autoCompactEnabled: boolean) {
-      saveGlobalConfig(current_0 => ({
+      setConfigValue('autoCompactEnabled', autoCompactEnabled);
+      setGlobalConfig(current_0 => ({
         ...current_0,
         autoCompactEnabled
       }));
-      setGlobalConfig({
-        ...getGlobalConfig(),
-        autoCompactEnabled
-      });
       logEvent('tengu_auto_compact_setting_changed', {
         enabled: autoCompactEnabled
       });
@@ -406,6 +459,25 @@ export function Config({
         awaySummaryEnabled: enabled_2 ? undefined : false
       });
     }
+  }] : []), ...(isFgLeftArrowAgentsAvailable() ? [{
+    id: 'leftArrowOpensAgents',
+    label: '← opens agents',
+    value: globalConfig.leftArrowOpensAgents ?? true,
+    type: 'boolean' as const,
+    onChange(leftArrowOpensAgents: boolean) {
+      saveGlobalConfig(current => ({
+        ...current,
+        leftArrowOpensAgents
+      }));
+      setGlobalConfig({
+        ...getGlobalConfig(),
+        leftArrowOpensAgents
+      });
+      logEvent('tengu_config_changed', {
+        setting: 'leftArrowOpensAgents' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        value: String(leftArrowOpensAgents) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+      });
+    }
   }] : []),
   // Speculation toggle (ant-only)
   ...("external" === 'ant' ? [{
@@ -435,14 +507,11 @@ export function Config({
     value: globalConfig.fileCheckpointingEnabled,
     type: 'boolean' as const,
     onChange(enabled_3: boolean) {
-      saveGlobalConfig(current_2 => ({
+      setConfigValue('fileCheckpointingEnabled', enabled_3);
+      setGlobalConfig(current_2 => ({
         ...current_2,
         fileCheckpointingEnabled: enabled_3
       }));
-      setGlobalConfig({
-        ...getGlobalConfig(),
-        fileCheckpointingEnabled: enabled_3
-      });
       logEvent('tengu_file_history_snapshots_setting_changed', {
         enabled: enabled_3
       });
@@ -459,14 +528,11 @@ export function Config({
     value: globalConfig.terminalProgressBarEnabled,
     type: 'boolean' as const,
     onChange(terminalProgressBarEnabled: boolean) {
-      saveGlobalConfig(current_3 => ({
+      setConfigValue('terminalProgressBarEnabled', terminalProgressBarEnabled);
+      setGlobalConfig(current_3 => ({
         ...current_3,
         terminalProgressBarEnabled
       }));
-      setGlobalConfig({
-        ...getGlobalConfig(),
-        terminalProgressBarEnabled
-      });
       logEvent('tengu_terminal_progress_bar_setting_changed', {
         enabled: terminalProgressBarEnabled
       });
@@ -495,19 +561,35 @@ export function Config({
     value: globalConfig.showTurnDuration,
     type: 'boolean' as const,
     onChange(showTurnDuration: boolean) {
-      saveGlobalConfig(current_5 => ({
+      setConfigValue('showTurnDuration', showTurnDuration);
+      setGlobalConfig(current_5 => ({
         ...current_5,
         showTurnDuration
       }));
-      setGlobalConfig({
-        ...getGlobalConfig(),
-        showTurnDuration
-      });
       logEvent('tengu_show_turn_duration_setting_changed', {
         enabled: showTurnDuration
       });
     }
-  }, {
+  }, ...(getFeatureValue_CACHED_MAY_BE_STALE('tengu_silk_hinge', false) ? [{
+    id: 'showMessageTimestamps',
+    label: 'Show message timestamps',
+    value: globalConfig.showMessageTimestamps,
+    type: 'boolean' as const,
+    onChange(showMessageTimestamps: boolean) {
+      setConfigValue('showMessageTimestamps', showMessageTimestamps);
+      setGlobalConfig(currentTimestampConfig => ({
+        ...currentTimestampConfig,
+        showMessageTimestamps
+      }));
+      setAppState(previousState => ({
+        ...previousState,
+        showMessageTimestamps
+      }));
+      logEvent('tengu_show_message_timestamps_setting_changed', {
+        enabled: showMessageTimestamps
+      });
+    }
+  }] : []), {
     id: 'defaultPermissionMode',
     label: 'Default permission mode',
     value: settingsData?.permissions?.defaultMode || 'default',
@@ -653,14 +735,11 @@ export function Config({
     value: globalConfig.autoScrollEnabled,
     type: 'boolean' as const,
     onChange(autoScrollEnabled: boolean) {
-      saveGlobalConfig(current_9 => ({
+      setConfigValue('autoScrollEnabled', autoScrollEnabled);
+      setGlobalConfig(current_9 => ({
         ...current_9,
         autoScrollEnabled
       }));
-      setGlobalConfig({
-        ...getGlobalConfig(),
-        autoScrollEnabled
-      });
       logEvent('tengu_config_changed', {
         setting: 'autoScrollEnabled' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
         value: String(autoScrollEnabled) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
@@ -695,58 +774,50 @@ export function Config({
     options: ['auto', 'iterm2', 'terminal_bell', 'iterm2_with_bell', 'kitty', 'ghostty', 'notifications_disabled'],
     type: 'enum',
     onChange(notifChannel: GlobalConfig['preferredNotifChannel']) {
-      saveGlobalConfig(current_9 => ({
+      setConfigValue('preferredNotifChannel', notifChannel);
+      setGlobalConfig(current_9 => ({
         ...current_9,
         preferredNotifChannel: notifChannel
       }));
-      setGlobalConfig({
-        ...getGlobalConfig(),
-        preferredNotifChannel: notifChannel
-      });
     }
-  }, ...(feature('KAIROS') || feature('KAIROS_PUSH_NOTIFICATION') ? [{
-    id: 'taskCompleteNotifEnabled',
-    label: 'Push when idle',
-    value: globalConfig.taskCompleteNotifEnabled ?? false,
-    type: 'boolean' as const,
-    onChange(taskCompleteNotifEnabled: boolean) {
-      saveGlobalConfig(current_10 => ({
-        ...current_10,
-        taskCompleteNotifEnabled
-      }));
-      setGlobalConfig({
-        ...getGlobalConfig(),
-        taskCompleteNotifEnabled
-      });
-    }
-  }, {
+  }, ...(isKairosPushNotificationsEnabled() && !isEssentialTrafficOnly() && getClaudeAIOAuthTokens()?.accessToken ? [...(isInputNeededPushEnabled() ? [{
     id: 'inputNeededNotifEnabled',
-    label: 'Push when input needed',
+    label: 'Push when actions required',
     value: globalConfig.inputNeededNotifEnabled ?? false,
     type: 'boolean' as const,
     onChange(inputNeededNotifEnabled: boolean) {
-      saveGlobalConfig(current_11 => ({
+      if (!('inputNeededNotifEnabled' in notificationPreferenceOriginals.current)) {
+        notificationPreferenceOriginals.current.inputNeededNotifEnabled = getSettingsForSource('userSettings')?.inputNeededNotifEnabled;
+      }
+      setConfigValue('inputNeededNotifEnabled', inputNeededNotifEnabled);
+      setGlobalConfig(current_11 => ({
         ...current_11,
         inputNeededNotifEnabled
       }));
-      setGlobalConfig({
-        ...getGlobalConfig(),
-        inputNeededNotifEnabled
+      syncNotificationPreferences();
+      logEvent('tengu_push_notif_pref_changed', {
+        key: 'inputNeededNotifEnabled' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        value: String(inputNeededNotifEnabled) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
       });
     }
-  }, {
+  }] : []), {
     id: 'agentPushNotifEnabled',
     label: 'Push when Claude decides',
     value: globalConfig.agentPushNotifEnabled ?? false,
     type: 'boolean' as const,
     onChange(agentPushNotifEnabled: boolean) {
-      saveGlobalConfig(current_12 => ({
+      if (!('agentPushNotifEnabled' in notificationPreferenceOriginals.current)) {
+        notificationPreferenceOriginals.current.agentPushNotifEnabled = getSettingsForSource('userSettings')?.agentPushNotifEnabled;
+      }
+      setConfigValue('agentPushNotifEnabled', agentPushNotifEnabled);
+      setGlobalConfig(current_12 => ({
         ...current_12,
         agentPushNotifEnabled
       }));
-      setGlobalConfig({
-        ...getGlobalConfig(),
-        agentPushNotifEnabled
+      syncNotificationPreferences();
+      logEvent('tengu_push_notif_pref_changed', {
+        key: 'agentPushNotifEnabled' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        value: String(agentPushNotifEnabled) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
       });
     }
   }] : []), {
@@ -808,14 +879,11 @@ export function Config({
     options: ['normal', 'vim'],
     type: 'enum',
     onChange(value_1: string) {
-      saveGlobalConfig(current_13 => ({
+      setConfigValue('editorMode', value_1 as 'normal' | 'vim');
+      setGlobalConfig(current_13 => ({
         ...current_13,
         editorMode: value_1 as GlobalConfig['editorMode']
       }));
-      setGlobalConfig({
-        ...getGlobalConfig(),
-        editorMode: value_1 as GlobalConfig['editorMode']
-      });
       logEvent('tengu_editor_mode_changed', {
         mode: value_1 as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
         source: 'config_panel' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
@@ -959,14 +1027,11 @@ export function Config({
         }
         // Clear CLI override and set new mode (pass mode to avoid race condition)
         clearCliTeammateModeOverride(mode_0);
-        saveGlobalConfig(current_19 => ({
+        setConfigValue('teammateMode', mode_0);
+        setGlobalConfig(current_19 => ({
           ...current_19,
           teammateMode: mode_0
         }));
-        setGlobalConfig({
-          ...getGlobalConfig(),
-          teammateMode: mode_0
-        });
         logEvent('tengu_teammate_mode_changed', {
           mode: mode_0 as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
         });
@@ -988,32 +1053,18 @@ export function Config({
     type: 'enum' as const,
     onChange(selected_0: string) {
       if (selected_0 === 'default') {
-        // Unset the config key so it falls back to the platform default
-        saveGlobalConfig(current_20 => {
-          if (current_20.remoteControlAtStartup === undefined) return current_20;
-          const next_0 = {
-            ...current_20
-          };
-          delete next_0.remoteControlAtStartup;
-          return next_0;
-        });
-        setGlobalConfig({
-          ...getGlobalConfig(),
+        setConfigValue('remoteControlAtStartup', undefined);
+        setGlobalConfig(current_20 => ({
+          ...current_20,
           remoteControlAtStartup: undefined
-        });
+        }));
       } else {
         const enabled_6 = selected_0 === 'true';
-        saveGlobalConfig(current_21 => {
-          if (current_21.remoteControlAtStartup === enabled_6) return current_21;
-          return {
-            ...current_21,
-            remoteControlAtStartup: enabled_6
-          };
-        });
-        setGlobalConfig({
-          ...getGlobalConfig(),
+        setConfigValue('remoteControlAtStartup', enabled_6);
+        setGlobalConfig(current_21 => ({
+          ...current_21,
           remoteControlAtStartup: enabled_6
-        });
+        }));
       }
       // Sync to AppState so useReplBridge reacts immediately
       const resolved = getRemoteControlAtStartup();
@@ -1093,7 +1144,7 @@ export function Config({
         }
         return updated;
       });
-      setGlobalConfig(getGlobalConfig());
+      setGlobalConfig(getEffectiveConfig());
     }
   }] : [])];
 
@@ -1208,6 +1259,9 @@ export function Config({
     if (globalConfig.copyOnSelect !== initialConfig.current.copyOnSelect) {
       formattedChanges.push(`${globalConfig.copyOnSelect ? 'Enabled' : 'Disabled'} copy on select`);
     }
+    if (globalConfig.leftArrowOpensAgents !== initialConfig.current.leftArrowOpensAgents) {
+      formattedChanges.push(`${globalConfig.leftArrowOpensAgents ?? true ? 'Enabled' : 'Disabled'} ← opens agents`);
+    }
     if (globalConfig.terminalProgressBarEnabled !== initialConfig.current.terminalProgressBarEnabled) {
       formattedChanges.push(`${globalConfig.terminalProgressBarEnabled ? 'Enabled' : 'Disabled'} terminal progress bar`);
     }
@@ -1216,6 +1270,9 @@ export function Config({
     }
     if (globalConfig.showTurnDuration !== initialConfig.current.showTurnDuration) {
       formattedChanges.push(`${globalConfig.showTurnDuration ? 'Enabled' : 'Disabled'} turn duration`);
+    }
+    if (globalConfig.showMessageTimestamps !== initialConfig.current.showMessageTimestamps) {
+      formattedChanges.push(`${globalConfig.showMessageTimestamps ? 'Enabled' : 'Disabled'} message timestamps`);
     }
     if (globalConfig.remoteControlAtStartup !== initialConfig.current.remoteControlAtStartup) {
       const remoteLabel = globalConfig.remoteControlAtStartup === undefined ? 'Reset Remote Control to default' : `${globalConfig.remoteControlAtStartup ? 'Enabled' : 'Disabled'} Remote Control for all sessions`;
@@ -1237,16 +1294,15 @@ export function Config({
   // applied to disk/AppState immediately on toggle, so "cancel" means
   // actively writing the old values back.
   const revertChanges = useCallback(() => {
-    // Theme: restores ThemeProvider React state. Must run before the global
-    // config overwrite since setTheme internally calls saveGlobalConfig with
-    // a partial update — we want the full snapshot to be the last write.
+    // Theme restores ThemeProvider state; the user-settings snapshot below
+    // restores the persisted value (including deleting an initially absent key).
     if (themeSetting !== initialThemeSetting.current) {
       setTheme(initialThemeSetting.current);
     }
     // Global config: full overwrite from snapshot. saveGlobalConfig skips if
     // the returned ref equals current (test mode checks ref; prod writes to
     // disk but content is identical).
-    saveGlobalConfig(() => initialConfig.current);
+    saveGlobalConfig(() => initialLegacyConfig.current);
     // Settings files: restore each key Config may have touched. undefined
     // deletes the key (updateSettingsForSource customizer at settings.ts:368).
     const il = initialLocalSettings;
@@ -1258,6 +1314,22 @@ export function Config({
     });
     const iu = initialUserSettings;
     updateSettingsForSource('userSettings', {
+      theme: iu?.theme,
+      editorMode: iu?.editorMode,
+      verbose: iu?.verbose,
+      preferredNotifChannel: iu?.preferredNotifChannel,
+      autoCompactEnabled: iu?.autoCompactEnabled,
+      autoScrollEnabled: iu?.autoScrollEnabled,
+      fileCheckpointingEnabled: iu?.fileCheckpointingEnabled,
+      showTurnDuration: iu?.showTurnDuration,
+      showMessageTimestamps: iu?.showMessageTimestamps,
+      terminalProgressBarEnabled: iu?.terminalProgressBarEnabled,
+      todoFeatureEnabled: iu?.todoFeatureEnabled,
+      teammateMode: iu?.teammateMode,
+      remoteControlAtStartup: iu?.remoteControlAtStartup,
+      autoUploadSessions: iu?.autoUploadSessions,
+      inputNeededNotifEnabled: iu?.inputNeededNotifEnabled,
+      agentPushNotifEnabled: iu?.agentPushNotifEnabled,
       alwaysThinkingEnabled: iu?.alwaysThinkingEnabled,
       fastMode: iu?.fastMode,
       promptSuggestionEnabled: iu?.promptSuggestionEnabled,
@@ -1291,6 +1363,7 @@ export function Config({
       mainLoopModel: ia.mainLoopModel,
       mainLoopModelForSession: ia.mainLoopModelForSession,
       verbose: ia.verbose,
+      showMessageTimestamps: ia.showMessageTimestamps,
       thinkingEnabled: ia.thinkingEnabled,
       fastMode: ia.fastMode,
       promptSuggestionEnabled: ia.promptSuggestionEnabled,
@@ -1308,6 +1381,9 @@ export function Config({
     // exists when showDefaultViewPicker is true).
     if (getUserMsgOptIn() !== initialUserMsgOptIn) {
       setUserMsgOptIn(initialUserMsgOptIn);
+    }
+    if (Object.keys(notificationPreferenceOriginals.current).length > 0 && !isEssentialTrafficOnly()) {
+      syncNotificationPreferenceValues(notificationPreferenceOriginals.current);
     }
   }, [themeSetting, setTheme, initialLocalSettings, initialUserSettings, initialAppState, initialUserMsgOptIn, setAppState]);
 
@@ -1764,6 +1840,7 @@ export function Config({
                               </Text>}
                           </Box>
                         </Box>
+                        {(setting_2.id === 'inputNeededNotifEnabled' || setting_2.id === 'agentPushNotifEnabled') && <PushReachabilityWarning />}
                       </React.Fragment>;
           })}
                 {scrollOffset + maxVisible < filteredSettingsItems.length && <Text dimColor>

@@ -12,6 +12,7 @@ import {
   getIsGit,
   gitExe,
 } from './git.js'
+import { getRepoBaseRefs, getRepoNameForPath } from './repoCheckouts.js'
 
 export type GitDiffStats = {
   filesCount: number
@@ -488,8 +489,11 @@ function parseRawDiffToToolUseDiff(
  * 3. HEAD (fallback if merge-base fails)
  */
 async function getDiffRef(gitRoot: string): Promise<string> {
+  const repoName = getRepoNameForPath(gitRoot)
   const baseBranch =
-    process.env.CLAUDE_CODE_BASE_REF || (await getDefaultBranch())
+    (repoName !== undefined ? getRepoBaseRefs().get(repoName) : undefined) ||
+    process.env.CLAUDE_CODE_BASE_REF ||
+    (await getDefaultBranch())
   const { stdout, code } = await execFileNoThrowWithCwd(
     gitExe(),
     ['--no-optional-locks', 'merge-base', 'HEAD', baseBranch],

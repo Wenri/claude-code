@@ -580,6 +580,27 @@ export async function startSpeculation(
             'command' in input && typeof input.command === 'string'
               ? input.command
               : ''
+          if (
+            'run_in_background' in input &&
+            input.run_in_background === true
+          ) {
+            logForDebugging(
+              `[Speculation] Stopping at backgrounded ${tool.name}: ${command.slice(0, 50)}`,
+            )
+            updateActiveSpeculationState(setAppState, () => ({
+              boundary: {
+                type: 'bash',
+                toolName: tool.name,
+                command: `[backgrounded] ${command}`,
+                completedAt: Date.now(),
+              },
+            }))
+            abortController.abort()
+            return denySpeculation(
+              'Speculation paused: backgrounded shell',
+              'speculation_bash_background',
+            )
+          }
           const parsedInput = tool.inputSchema.safeParse({ command })
           const isReadOnly =
             tool.name === BASH_TOOL_NAME

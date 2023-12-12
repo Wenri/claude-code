@@ -132,6 +132,7 @@ import { AGENT_TOOL_NAME } from '../tools/AgentTool/constants.js'
 import {
   formatAgentLine,
   shouldInjectAgentListInMessages,
+  shouldSteerAgentCost,
 } from '../tools/AgentTool/prompt.js'
 import { filterDeniedAgents } from './permissions/permissions.js'
 import { getSubscriptionType } from './auth.js'
@@ -673,6 +674,13 @@ export type Attachment =
       tokenCount: number
     }
   | {
+      type: 'memory_update'
+      source: 'dream'
+      summary: string
+      paths: string[]
+      inContextPaths: string[]
+    }
+  | {
       type: 'teammate_shutdown_batch'
       count: number
     }
@@ -896,7 +904,7 @@ export async function getAttachments(
             getAutoModeAttachments(messages, toolUseContext),
           ),
           maybe('auto_mode_exit', () =>
-            getAutoModeExitAttachment(toolUseContext),
+            getAutoModeExitAttachment(messages, toolUseContext),
           ),
         ]
       : []),
@@ -973,6 +981,9 @@ export async function getAttachments(
         ),
         maybe('async_hook_responses', async () =>
           getAsyncHookResponseAttachments(),
+        ),
+        maybe('memory_update', async () =>
+          Promise.resolve(getMemoryUpdateAttachments(toolUseContext)),
         ),
         maybe('token_usage', async () =>
           Promise.resolve(
@@ -1356,11 +1367,7 @@ async function getAutoModeAttachments(
 ): Promise<Attachment[]> {
   const appState = toolUseContext.getAppState()
   const permissionContext = appState.toolPermissionContext
-  const inAuto = permissionContext.mode === 'auto'
-  const inPlanWithAuto =
-    permissionContext.mode === 'plan' &&
-    (autoModeStateModule?.isAutoModeActive() ?? false)
-  if (!inAuto && !inPlanWithAuto) {
+  if (permissionContext.mode !== 'auto') {
     return []
   }
 
@@ -1396,12 +1403,14 @@ async function getAutoModeAttachments(
  * This is a one-time notification to tell the model it's no longer in auto mode.
  */
 async function getAutoModeExitAttachment(
+  messages: Message[] | undefined,
   toolUseContext: ToolUseContext,
 ): Promise<Attachment[]> {
   if (!needsAutoModeExitAttachment()) {
     return []
   }
 
+  setNeedsAutoModeExitAttachment(false)
   const appState = toolUseContext.getAppState()
   // Suppress when auto is still active — covers both mode==='auto' and
   // plan-with-auto-active (where mode==='plan' but classifier runs).
@@ -1409,11 +1418,11 @@ async function getAutoModeExitAttachment(
     appState.toolPermissionContext.mode === 'auto' ||
     (autoModeStateModule?.isAutoModeActive() ?? false)
   ) {
-    setNeedsAutoModeExitAttachment(false)
     return []
   }
-
-  setNeedsAutoModeExitAttachment(false)
+  if (!getAutoModeAttachmentTurnCount(messages ?? []).foundAutoModeAttachment) {
+    return []
+  }
   return [{ type: 'auto_mode_exit' }]
 }
 
@@ -1568,7 +1577,8 @@ export function getAgentListingDeltaAttachment(
       addedLines: added.map(formatAgentLine),
       removedTypes: removed,
       isInitial: announced.size === 0,
-      showConcurrencyNote: getSubscriptionType() !== 'pro',
+      showConcurrencyNote:
+        getSubscriptionType() !== 'pro' && !shouldSteerAgentCost(),
     },
   ]
 }
@@ -3483,6 +3493,31 @@ async function getUnifiedTaskAttachments(
     description: taskAttachment.description,
     deltaSummary: taskAttachment.deltaSummary,
     outputFilePath: getTaskOutputPath(taskAttachment.taskId),
+  }))
+}
+
+function getMemoryUpdateAttachments(
+  toolUseContext: ToolUseContext,
+): Attachment[] {
+  const updates = toolUseContext.getAppState().pendingMemoryUpdates
+  if (updates.length === 0) return []
+
+  toolUseContext.setAppState(current =>
+    current.pendingMemoryUpdates.length === 0
+      ? current
+      : { ...current, pendingMemoryUpdates: [] },
+  )
+
+  const isInContext = (path: string): boolean =>
+    toolUseContext.readFileState.has(path) ||
+    (toolUseContext.loadedNestedMemoryPaths?.has(path) ?? false)
+
+  return updates.map(update => ({
+    type: 'memory_update',
+    source: update.source,
+    summary: update.summary,
+    paths: update.paths,
+    inContextPaths: update.paths.filter(isInContext),
   }))
 }
 

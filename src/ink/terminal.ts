@@ -120,7 +120,18 @@ export function isSynchronizedOutputSupported(): boolean {
     if (version >= 6800) return true
   }
 
+  // Capability probe performed by App after raw mode is active. This covers
+  // terminals reached through SSH where identifying environment variables
+  // are not forwarded.
+  if (synchronizedOutputProbeResult) return true
+
   return false
+}
+
+let synchronizedOutputProbeResult: boolean | undefined
+
+export function setSynchronizedOutputProbeResult(supported: boolean): void {
+  synchronizedOutputProbeResult = supported
 }
 
 // -- XTVERSION-detected terminal name (populated async at startup) --

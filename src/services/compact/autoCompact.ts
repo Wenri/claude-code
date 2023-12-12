@@ -1,10 +1,13 @@
 import { feature } from 'bun:bundle'
-import { markPostCompaction } from 'src/bootstrap/state.js'
+import {
+  getIsNonInteractiveSession,
+  markPostCompaction,
+} from 'src/bootstrap/state.js'
 import { getSdkBetas } from '../../bootstrap/state.js'
 import type { QuerySource } from '../../constants/querySource.js'
 import type { ToolUseContext } from '../../Tool.js'
 import type { Message } from '../../types/message.js'
-import { getGlobalConfig } from '../../utils/config.js'
+import { getConfigValue } from '../../utils/settings/configSettings.js'
 import { getContextWindowForModel } from '../../utils/context.js'
 import { logForDebugging } from '../../utils/debug.js'
 import { isEnvTruthy } from '../../utils/envUtils.js'
@@ -68,6 +71,11 @@ export function parseAutoCompactWindow(
     return undefined
   }
   return Math.round(parsed)
+}
+
+export function isAutoCompactConfigurationEnabled(): boolean {
+  if (getIsNonInteractiveSession()) return false
+  return !!getFeatureValue_CACHED_MAY_BE_STALE('tengu_amber_redwood2', '')
 }
 
 function getAutoCompactExperimentWindow(model: string): number | undefined {
@@ -134,7 +142,7 @@ function notifyAutoCompactWindowHint(
 
   context.addNotification?.({
     key: 'autocompact-auto-hint',
-    text: `compacted at the auto window (${formatTokens(configured)}) · set autoCompactWindow in settings.json to configure`,
+    text: `compacted at the auto window (${formatTokens(configured)}) · use /autocompact to configure`,
     priority: 'medium',
   })
 }
@@ -270,8 +278,7 @@ export function isAutoCompactEnabled(): boolean {
     return false
   }
   // Check if user has disabled auto-compact in their settings
-  const userConfig = getGlobalConfig()
-  return userConfig.autoCompactEnabled
+  return getConfigValue('autoCompactEnabled', true).value
 }
 
 export async function shouldAutoCompact(
@@ -419,7 +426,7 @@ export async function autoCompactIfNeeded(
     // Reset lastSummarizedMessageId since session memory compaction prunes messages
     // and the old message UUID will no longer exist after the REPL replaces messages
     setLastSummarizedMessageId(undefined)
-    runPostCompactCleanup(querySource)
+    runPostCompactCleanup(querySource, toolUseContext.resultDedupState)
     // Reset cache read baseline so the post-compact drop isn't flagged as a
     // break. compactConversation does this internally; SM-compact doesn't.
     // BQ 2026-03-01: missing this made 20% of tengu_prompt_cache_break events
@@ -449,7 +456,7 @@ export async function autoCompactIfNeeded(
     // Reset lastSummarizedMessageId since legacy compaction replaces all messages
     // and the old message UUID will no longer exist in the new messages array
     setLastSummarizedMessageId(undefined)
-    runPostCompactCleanup(querySource)
+    runPostCompactCleanup(querySource, toolUseContext.resultDedupState)
 
     return {
       wasCompacted: true,

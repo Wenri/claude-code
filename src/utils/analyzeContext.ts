@@ -935,7 +935,13 @@ export async function analyzeContextUsage(
   const contextWindow = getContextWindowForModel(runtimeModel, getSdkBetas())
 
   // Build the effective system prompt using the shared utility
-  const defaultSystemPrompt = await getSystemPrompt(tools, runtimeModel)
+  const defaultSystemPrompt = await getSystemPrompt(
+    tools,
+    runtimeModel,
+    undefined,
+    undefined,
+    { excludeDynamicSections: toolUseContext?.options.excludeDynamicSections },
+  )
   const effectiveSystemPrompt = buildEffectiveSystemPrompt({
     mainThreadAgentDefinition,
     toolUseContext: toolUseContext ?? {

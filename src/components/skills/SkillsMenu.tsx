@@ -35,7 +35,7 @@ type LockedOverride = {
 type Props = {
   onExit: (
     result?: string,
-    options?: { display?: CommandResultDisplay },
+    options?: { display?: CommandResultDisplay; nextInput?: string },
   ) => void
   commands: Command[]
 }
@@ -163,7 +163,7 @@ export function SkillsMenu({ onExit, commands }: Props): React.ReactNode {
   })
   const [selectedIndex, setSelectedIndex] = useState(0)
   const { rows } = useModalOrTerminalSize(useTerminalSize())
-  const visibleCount = clamp(rows - 8, 4, skills.length)
+  const visibleCount = clamp(rows - 10, 4, skills.length)
   const windowStart = clamp(
     selectedIndex - visibleCount + 1,
     0,
@@ -181,6 +181,18 @@ export function SkillsMenu({ onExit, commands }: Props): React.ReactNode {
   }
   const handleClose = (): void => {
     onExit('Skills dialog dismissed', { display: 'system' })
+  }
+  const handleUse = (): void => {
+    const selectedSkill = skills[selectedIndex]
+    if (!selectedSkill) {
+      handleClose()
+      return
+    }
+    const nextInput =
+      selectedSkill.userInvocable !== false
+        ? `/${selectedSkill.name} `
+        : `use the ${selectedSkill.name} skill `
+    onExit(undefined, { display: 'skip', nextInput })
   }
 
   const toggleShortcut = getShortcutDisplay(
@@ -215,7 +227,7 @@ export function SkillsMenu({ onExit, commands }: Props): React.ReactNode {
       'select:next': () =>
         setSelectedIndex(index => (index + 1) % skills.length),
       'select:accept': handleToggle,
-      'settings:close': handleClose,
+      'settings:close': handleUse,
       'settings:sortByTokens': () => {
         setSortByTokens(value => !value)
         setSelectedIndex(0)
@@ -246,7 +258,7 @@ export function SkillsMenu({ onExit, commands }: Props): React.ReactNode {
   return (
     <Dialog
       title="Skills"
-      subtitle={`${skills.length} ${plural(skills.length, 'skill')}${sortByTokens ? ' · sorted by tokens' : ''} · ${sortShortcut} to sort, ${closeShortcut} to close`}
+      subtitle={`${skills.length} ${plural(skills.length, 'skill')}${sortByTokens ? ' · sorted by tokens' : ''} · ${saveShortcut} to use, ${sortShortcut} to sort, ${closeShortcut} to close`}
       onCancel={handleClose}
       hideInputGuide
     >

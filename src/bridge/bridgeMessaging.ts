@@ -235,6 +235,10 @@ export type ServerControlRequestHandlers = {
   onFileSuggestions?: (
     query: string,
   ) => Promise<Array<{ path: string; score?: number }>>
+  onReadFile?: (
+    path: string,
+    maxBytes?: number,
+  ) => Promise<{ contents: string; absPath: string; truncated?: boolean }>
 }
 
 const OUTBOUND_ONLY_ERROR =
@@ -264,6 +268,7 @@ export function handleServerControlRequest(
     onRenameSession,
     onSetColor,
     onFileSuggestions,
+    onReadFile,
   } = handlers
   if (!transport) {
     logForDebugging(
@@ -470,6 +475,48 @@ export function handleServerControlRequest(
       return
     }
 
+    case 'read_file': {
+      if (!onReadFile) {
+        response = {
+          type: 'control_response',
+          response: {
+            subtype: 'error',
+            request_id: request.request_id,
+            error:
+              'read_file is not supported in this context (onReadFile callback not registered)',
+          },
+        }
+        break
+      }
+      void onReadFile(request.request.path, request.request.max_bytes)
+        .then<SDKControlResponse>(result => ({
+          type: 'control_response',
+          response: {
+            subtype: 'success',
+            request_id: request.request_id,
+            response: result,
+          },
+        }))
+        .catch(
+          (err): SDKControlResponse => ({
+            type: 'control_response',
+            response: {
+              subtype: 'error',
+              request_id: request.request_id,
+              error: errorMessage(err),
+            },
+          }),
+        )
+        .then(readFileResponse => {
+          const event = { ...readFileResponse, session_id: sessionId }
+          void transport.write(event)
+          logForDebugging(
+            `[bridge:repl] Sent control_response for read_file request_id=${request.request_id} result=${readFileResponse.response.subtype}`,
+          )
+        })
+      return
+    }
+
     case 'interrupt':
       onInterrupt?.()
       response = {
@@ -521,6 +568,30 @@ export function makeResultMessage(sessionId: string): SDKResultSuccess {
     usage: { ...EMPTY_USAGE },
     modelUsage: {},
     permission_denials: [],
+    session_id: sessionId,
+    uuid: randomUUID(),
+  }
+}
+
+export function makeSystemMessage(
+  content: string,
+  sessionId: string,
+): SDKMessage {
+  return {
+    type: 'assistant',
+    message: {
+      id: randomUUID(),
+      container: null,
+      model: '<synthetic>',
+      role: 'assistant',
+      stop_reason: 'stop_sequence',
+      stop_sequence: '',
+      type: 'message',
+      usage: { ...EMPTY_USAGE },
+      content: [{ type: 'text', text: content, citations: null }],
+      context_management: null,
+    },
+    parent_tool_use_id: null,
     session_id: sessionId,
     uuid: randomUUID(),
   }

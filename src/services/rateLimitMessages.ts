@@ -24,7 +24,21 @@ export const RATE_LIMIT_ERROR_PREFIXES = [
   "You're now using extra usage",
   "You're close to",
   "You're out of extra usage",
+  'Your org is out of usage · add funds to continue',
+  'Your org is out of usage · contact your admin',
+  "You're now using your usage allocation",
+  'Now using your usage allocation',
+  'Now using extra usage',
+  "Your seat type doesn't include extra usage",
+  "Your seat type doesn't include usage",
+  'This service is disabled for your org',
+  'Your usage allocation has been disabled by your admin',
+  "Your group's usage limit is set to $0",
 ] as const
+
+function isUsageBasedBilling(): boolean {
+  return getOauthAccountInfo()?.billingType === 'usage_based'
+}
 
 /**
  * Check if a message is a rate limit error
@@ -52,7 +66,7 @@ export function getRateLimitMessage(
     // Show warning if approaching overage spending limit
     if (limits.overageStatus === 'allowed_warning') {
       return {
-        message: "You're close to your extra usage spending limit",
+        message: `You're close to your ${isUsageBasedBilling() ? 'usage limit' : 'extra usage spending limit'}`,
         severity: 'warning',
       }
     }
@@ -141,6 +155,11 @@ export function getRateLimitWarning(
 }
 
 function getLimitReachedText(limits: ClaudeAILimits, model: string): string {
+  const isUsageBased = isUsageBasedBilling()
+  const hasBillingAccess = hasClaudeAiBillingAccess()
+  const billingAccessSuffix = hasBillingAccess
+    ? ''
+    : ' · contact your admin to increase it'
   const resetsAt = limits.resetsAt
   const resetTime = resetsAt ? formatResetTime(resetsAt, true) : undefined
   const overageResetTime = limits.overageResetsAt
@@ -166,7 +185,49 @@ function getLimitReachedText(limits: ClaudeAILimits, model: string): string {
     }
 
     if (limits.overageDisabledReason === 'out_of_credits') {
+      if (isUsageBased) {
+        return hasBillingAccess
+          ? 'Your org is out of usage · add funds to continue'
+          : 'Your org is out of usage · contact your admin'
+      }
       return `You're out of extra usage${overageResetMessage}`
+    }
+
+    if (limits.overageDisabledReason === 'org_level_disabled_until') {
+      const overageResetMessage = overageResetTime
+        ? ` · resets ${overageResetTime}`
+        : ''
+      return formatLimitReachedText(
+        "org's monthly usage limit",
+        overageResetMessage,
+        model,
+      )
+    }
+
+    if (
+      limits.overageDisabledReason === 'seat_tier_level_disabled' ||
+      limits.overageDisabledReason === 'seat_tier_zero_credit_limit'
+    ) {
+      return `Your seat type doesn't include ${isUsageBased ? 'usage' : 'extra usage'}`
+    }
+
+    if (limits.overageDisabledReason === 'org_service_level_disabled') {
+      return 'This service is disabled for your org'
+    }
+
+    if (
+      limits.overageDisabledReason === 'member_level_disabled' ||
+      limits.overageDisabledReason === 'member_zero_credit_limit'
+    ) {
+      return 'Your usage allocation has been disabled by your admin'
+    }
+
+    if (limits.overageDisabledReason === 'group_zero_credit_limit') {
+      return "Your group's usage limit is set to $0"
+    }
+
+    if (isUsageBased) {
+      return formatLimitReachedText('usage limit', billingAccessSuffix, model)
     }
 
     return formatLimitReachedText('limit', overageResetMessage, model)
@@ -193,6 +254,10 @@ function getLimitReachedText(limits: ClaudeAILimits, model: string): string {
     return formatLimitReachedText('session limit', resetMessage, model)
   }
 
+  if (isUsageBased) {
+    return formatLimitReachedText('usage limit', billingAccessSuffix, model)
+  }
+
   return formatLimitReachedText('usage limit', resetMessage, model)
 }
 
@@ -212,7 +277,7 @@ function getEarlyWarningText(limits: ClaudeAILimits): string | null {
       limitName = 'Sonnet limit'
       break
     case 'overage':
-      limitName = 'extra usage'
+      limitName = isUsageBasedBilling() ? 'usage' : 'extra usage'
       break
     case undefined:
       return null
@@ -222,7 +287,9 @@ function getEarlyWarningText(limits: ClaudeAILimits): string | null {
   const used = limits.utilization
     ? Math.floor(limits.utilization * 100)
     : undefined
-  const resetTime = limits.resetsAt
+  const isUsageBasedOverage =
+    limits.rateLimitType === 'overage' && isUsageBasedBilling()
+  const resetTime = limits.resetsAt && !isUsageBasedOverage
     ? formatResetTime(limits.resetsAt, true)
     : undefined
 
@@ -320,14 +387,17 @@ export function getUsingOverageText(limits: ClaudeAILimits): string {
     limitName = isProOrEnterprise ? 'weekly limit' : 'Sonnet limit'
   }
 
-  if (!limitName) {
-    return 'Now using extra usage'
-  }
+  const isUsageBased = isUsageBasedBilling()
+  const allocationName = isUsageBased
+    ? 'your usage allocation'
+    : 'extra usage'
 
-  const resetMessage = resetTime
+  if (!limitName) return `Now using ${allocationName}`
+
+  const resetMessage = resetTime && !isUsageBased
     ? ` · Your ${limitName} resets ${resetTime}`
     : ''
-  return `You're now using extra usage${resetMessage}`
+  return `You're now using ${allocationName}${resetMessage}`
 }
 
 function formatLimitReachedText(

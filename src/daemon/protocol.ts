@@ -5,6 +5,22 @@ export const PROTOCOL_VERSION = 1
 export const MIN_PROTOCOL_VERSION = 1
 export const SHORT_ID_RE = /^[a-f0-9]{8}$/
 export const DETACH_SEQUENCE = '\x1B_cc-daemon-detach\x1B\\'
+export const DETACH_MESSAGE_PREFIX = '\x1B_cc-detach-msg;'
+export const STRING_TERMINATOR = '\x1B\\'
+
+export function encodeDetach(message?: string): string {
+  if (!message) return DETACH_SEQUENCE
+  return `${DETACH_MESSAGE_PREFIX}${message}${STRING_TERMINATOR}${DETACH_SEQUENCE}`
+}
+
+export function parseDetachMessage(buffer: Buffer): string | undefined {
+  const prefix = buffer.indexOf(DETACH_MESSAGE_PREFIX)
+  if (prefix < 0) return undefined
+  const start = prefix + Buffer.byteLength(DETACH_MESSAGE_PREFIX)
+  const end = buffer.indexOf(STRING_TERMINATOR, start)
+  if (end < 0) return undefined
+  return buffer.subarray(start, end).toString('utf8')
+}
 
 export const DispatchSchema = lazySchema(() =>
   z.object({
@@ -92,6 +108,7 @@ export const ControlMessageSchema = lazySchema(() => {
   return z.discriminatedUnion('op', [
     z.object({ proto, op: z.literal('ping') }),
     z.object({ proto, op: z.literal('nudge') }),
+    z.object({ proto, op: z.literal('lease') }),
     z.object({
       proto,
       op: z.literal('await-ack'),

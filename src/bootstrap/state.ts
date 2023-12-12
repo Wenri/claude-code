@@ -32,6 +32,7 @@ type RegisteredHookMatcher = HookCallbackMatcher | PluginHookMatcher
 
 export type ActiveRemoteControlTransport = {
   kind: 'ccr' | 'direct' | 'ssh'
+  sessionId?: string
   viewerOnly?: boolean
   sendControlRequest: <Response = Record<string, unknown>>(
     request: unknown,
@@ -216,6 +217,9 @@ type State = {
   mainThreadAgentHooks: HooksSettings | undefined
   // Remote mode (--remote flag)
   isRemoteMode: boolean
+  // Whether the interactive Remote Control bridge is connected. Outbound-only
+  // mirrors do not count as active because they cannot deliver tool pushes.
+  replBridgeActive: boolean
   // Direct connect server URL (for display in header)
   directConnectServerUrl: string | undefined
   // System prompt section cache state
@@ -417,11 +421,7 @@ function getInitialState(): State {
     mainThreadAgentHooks: undefined,
     // Remote mode
     isRemoteMode: false,
-    ...(process.env.USER_TYPE === 'ant'
-      ? {
-          replBridgeActive: false,
-        }
-      : {}),
+    replBridgeActive: false,
     // Direct connect server URL
     directConnectServerUrl: undefined,
     // System prompt section cache state
@@ -511,6 +511,9 @@ export function switchSession(
 
 const sessionSwitched = createSignal<[id: SessionId]>()
 const interactionOccurred = createSignal<[]>()
+const terminalFocusChanged = createSignal<[]>()
+
+let terminalFocus: boolean | undefined
 
 /**
  * Register a callback that fires when switchSession changes the active
@@ -520,6 +523,7 @@ const interactionOccurred = createSignal<[]>()
  */
 export const onSessionSwitch = sessionSwitched.subscribe
 export const onInteraction = interactionOccurred.subscribe
+export const onTerminalFocusChange = terminalFocusChanged.subscribe
 
 /**
  * Project directory the current session's transcript lives in, or `null` if
@@ -816,6 +820,30 @@ export function consumePostCompaction(): boolean {
 
 export function getLastInteractionTime(): number {
   return STATE.lastInteractionTime
+}
+
+export const NOTIF_ACTIVE_THRESHOLD_MS = 60_000
+
+/**
+ * Mirror DECSET 1004 focus events into the bootstrap leaf so non-React tools
+ * can suppress attention-grabbing notifications while the user is present.
+ * `undefined` means the terminal has not reported focus, so idle time is used.
+ */
+export function setTerminalFocusForState(
+  focused: boolean | undefined,
+): void {
+  terminalFocus = focused
+  terminalFocusChanged.emit()
+}
+
+export function getTerminalFocus(): boolean | undefined {
+  return terminalFocus
+}
+
+export function isUserActiveForNotifications(): boolean {
+  const focused = getTerminalFocus()
+  if (focused !== undefined) return focused
+  return Date.now() - getLastInteractionTime() < NOTIF_ACTIVE_THRESHOLD_MS
 }
 
 // Scroll drain suspension — background intervals check this before doing work
@@ -1733,6 +1761,15 @@ export function getIsRemoteMode(): boolean {
 
 export function setIsRemoteMode(value: boolean): void {
   STATE.isRemoteMode = value
+}
+
+export function isReplBridgeActive(): boolean {
+  return STATE.replBridgeActive
+}
+
+export function setReplBridgeActive(value: boolean): void {
+  if (STATE.replBridgeActive === value) return
+  STATE.replBridgeActive = value
 }
 
 // System prompt section accessors

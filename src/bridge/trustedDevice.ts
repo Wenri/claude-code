@@ -6,6 +6,10 @@ import {
   checkGate_CACHED_OR_BLOCKING,
   getFeatureValue_CACHED_MAY_BE_STALE,
 } from '../services/analytics/growthbook.js'
+import {
+  isPolicyAllowed,
+  waitForPolicyLimitsToLoad,
+} from '../services/policyLimits/index.js'
 import { logForDebugging } from '../utils/debug.js'
 import { errorMessage } from '../utils/errors.js'
 import { isEssentialTrafficOnly } from '../utils/privacyLevel.js'
@@ -31,9 +35,13 @@ import { jsonStringify } from '../utils/slowOperations.js'
  */
 
 const TRUSTED_DEVICE_GATE = 'tengu_sessions_elevated_auth_enforcement'
+const TRUSTED_DEVICE_POLICY = 'require_trusted_devices'
 
 export function isTrustedDeviceGateEnabled(): boolean {
-  return getFeatureValue_CACHED_MAY_BE_STALE(TRUSTED_DEVICE_GATE, false)
+  return (
+    getFeatureValue_CACHED_MAY_BE_STALE(TRUSTED_DEVICE_GATE, false) &&
+    isPolicyAllowed(TRUSTED_DEVICE_POLICY)
+  )
 }
 
 // Memoized — secureStorage.read() spawns a macOS `security` subprocess (~40ms).
@@ -51,11 +59,15 @@ const readStoredToken = memoize((): string | undefined => {
   return getSecureStorage().read()?.trustedDeviceToken
 })
 
+export function readStoredTrustedDeviceToken(): string | undefined {
+  return readStoredToken()
+}
+
 export function getTrustedDeviceToken(): string | undefined {
   if (!isTrustedDeviceGateEnabled()) {
     return undefined
   }
-  return readStoredToken()
+  return readStoredTrustedDeviceToken()
 }
 
 export function clearTrustedDeviceTokenCache(): void {
@@ -70,9 +82,6 @@ export function clearTrustedDeviceTokenCache(): void {
  * enrollment completion would otherwise still read the old cached token).
  */
 export function clearTrustedDeviceToken(): void {
-  if (!isTrustedDeviceGateEnabled()) {
-    return
-  }
   const secureStorage = getSecureStorage()
   try {
     const data = secureStorage.read()
@@ -112,6 +121,13 @@ export async function enrollTrustedDevice(): Promise<void> {
     if (process.env.CLAUDE_TRUSTED_DEVICE_TOKEN) {
       logForDebugging(
         '[trusted-device] CLAUDE_TRUSTED_DEVICE_TOKEN env var is set, skipping enrollment (env var takes precedence)',
+      )
+      return
+    }
+    await waitForPolicyLimitsToLoad()
+    if (!isPolicyAllowed(TRUSTED_DEVICE_POLICY)) {
+      logForDebugging(
+        `[trusted-device] Org has not enabled ${TRUSTED_DEVICE_POLICY}, skipping enrollment`,
       )
       return
     }

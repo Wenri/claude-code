@@ -19,7 +19,7 @@ import { useTerminalSize } from '../../hooks/useTerminalSize.js';
 import type { SystemMessage, SystemStopHookSummaryMessage, SystemBridgeStatusMessage, SystemTurnDurationMessage, SystemThinkingMessage, SystemMemorySavedMessage } from '../../types/message.js';
 import { SystemAPIErrorMessage } from './SystemAPIErrorMessage.js';
 import { formatDuration, formatNumber, formatSecondsShort } from '../../utils/format.js';
-import { getGlobalConfig } from '../../utils/config.js';
+import { getConfigValue } from '../../utils/settings/configSettings.js';
 import Link from '../../ink/components/Link.js';
 import ThemedText from '../design-system/ThemedText.js';
 import { CtrlOToExpand } from '../CtrlOToExpand.js';
@@ -515,7 +515,7 @@ function TurnDurationMessage(t0) {
   const [backgroundTaskSummary] = useState(t1);
   let t2;
   if ($[2] === Symbol.for("react.memo_cache_sentinel")) {
-    t2 = getGlobalConfig().showTurnDuration ?? true;
+    t2 = getConfigValue('showTurnDuration', true).value;
     $[2] = t2;
   } else {
     t2 = $[2];

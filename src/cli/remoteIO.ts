@@ -12,8 +12,10 @@ import { errorMessage } from '../utils/errors.js'
 import { gracefulShutdown } from '../utils/gracefulShutdown.js'
 import { logError } from '../utils/log.js'
 import { writeToStdout } from '../utils/process.js'
+import { initializeRepoBranchWatcher } from '../utils/repoCheckouts.js'
 import { getSessionIngressAuthToken } from '../utils/sessionIngressAuth.js'
 import {
+  notifySessionMetadataChanged,
   setSessionMetadataChangedListener,
   setSessionStateChangedListener,
 } from '../utils/sessionState.js'
@@ -165,6 +167,7 @@ export class RemoteIO extends StructuredIO {
       setSessionMetadataChangedListener(metadata => {
         this.ccrClient?.reportMetadata(metadata)
       })
+      void initializeRepoBranchWatcher(notifySessionMetadataChanged)
     }
 
     // Start connection only after all callbacks are wired (setOnData above,

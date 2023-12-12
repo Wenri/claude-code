@@ -67,7 +67,9 @@ const SEPARATORS = /[:_-]/g
 type CommandSearchItem = {
   descriptionKey: string[]
   partKey: string[] | undefined
+  displayPartKey: string[] | undefined
   commandName: string
+  displayName: string
   command: Command
   aliasKey: string[] | undefined
 }
@@ -88,8 +90,13 @@ function getCommandFuse(commands: Command[]): Fuse<CommandSearchItem> {
   const commandData: CommandSearchItem[] = commands
     .filter(cmd => !cmd.isHidden)
     .map(cmd => {
-      const commandName = getCommandName(cmd)
+      const commandName = cmd.name
+      const displayName = getCommandName(cmd)
       const parts = commandName.split(SEPARATORS).filter(Boolean)
+      const displayParts =
+        displayName !== commandName
+          ? displayName.split(SEPARATORS).filter(Boolean)
+          : []
 
       return {
         descriptionKey: (cmd.description ?? '')
@@ -97,7 +104,10 @@ function getCommandFuse(commands: Command[]): Fuse<CommandSearchItem> {
           .map(word => cleanWord(word))
           .filter(Boolean),
         partKey: parts.length > 1 ? parts : undefined,
+        displayPartKey:
+          displayParts.length > 1 ? displayParts : undefined,
         commandName,
+        displayName,
         command: cmd,
         aliasKey: cmd.aliases,
       }
@@ -114,12 +124,20 @@ function getCommandFuse(commands: Command[]): Fuse<CommandSearchItem> {
         weight: 3, // Highest priority for command names
       },
       {
+        name: 'displayName',
+        weight: 2,
+      },
+      {
         name: 'partKey',
         weight: 2, // Next highest priority for command parts
       },
       {
         name: 'aliasKey',
         weight: 2, // Same high priority for aliases
+      },
+      {
+        name: 'displayPartKey',
+        weight: 1,
       },
       {
         name: 'descriptionKey',
@@ -318,6 +336,7 @@ function findMatchedAlias(
 function createCommandSuggestionItem(
   cmd: Command,
   matchedAlias?: string,
+  query?: string,
 ): SuggestionItem {
   const commandName = getCommandName(cmd)
   // Only show the alias if the user typed it
@@ -336,6 +355,7 @@ function createCommandSuggestionItem(
     tag: isWorkflow ? 'workflow' : undefined,
     description: fullDescription,
     metadata: cmd,
+    query,
   }
 }
 
@@ -441,14 +461,13 @@ export function generateCommandSuggestions(
   // be the user's explicit override and should win). Prepend rather than
   // early-return so visible prefix siblings (e.g. /voice-memo) still appear
   // below, and getBestCommandMatch can still find a non-empty suffix.
-  let hiddenExact = commands.find(
-    cmd => cmd.isHidden && getCommandName(cmd).toLowerCase() === query,
-  )
+  const matchesCommandName = (cmd: Command) =>
+    getCommandName(cmd).toLowerCase() === query ||
+    cmd.name.toLowerCase() === query
+  let hiddenExact = commands.find(cmd => cmd.isHidden && matchesCommandName(cmd))
   if (
     hiddenExact &&
-    commands.some(
-      cmd => !cmd.isHidden && getCommandName(cmd).toLowerCase() === query,
-    )
+    commands.some(cmd => !cmd.isHidden && matchesCommandName(cmd))
   ) {
     hiddenExact = undefined
   }
@@ -466,12 +485,13 @@ export function generateCommandSuggestions(
   // Precompute per-item values once to avoid O(n log n) recomputation in comparator
   const withMeta = searchResults.map(r => {
     const name = r.item.commandName.toLowerCase()
+    const display = r.item.displayName.toLowerCase()
     const aliases = r.item.aliasKey?.map(alias => alias.toLowerCase()) ?? []
     const usage =
       r.item.command.type === 'prompt'
         ? getSkillUsageScore(getCommandName(r.item.command))
         : 0
-    return { r, name, aliases, usage }
+    return { r, name, display, aliases, usage }
   })
 
   const sortedResults = withMeta.sort((a, b) => {
@@ -481,8 +501,8 @@ export function generateCommandSuggestions(
     const bAliases = b.aliases
 
     // Check for exact name match (highest priority)
-    const aExactName = aName === query
-    const bExactName = bName === query
+    const aExactName = aName === query || a.display === query
+    const bExactName = bName === query || b.display === query
     if (aExactName && !bExactName) return -1
     if (bExactName && !aExactName) return 1
 
@@ -493,13 +513,24 @@ export function generateCommandSuggestions(
     if (bExactAlias && !aExactAlias) return 1
 
     // Check for prefix name match
-    const aPrefixName = aName.startsWith(query)
-    const bPrefixName = bName.startsWith(query)
+    const getPrefixLength = (name: string, display: string) =>
+      Math.min(
+        name.startsWith(query) ? name.length : Infinity,
+        display.startsWith(query) ? display.length : Infinity,
+      )
+    const aPrefixLength = getPrefixLength(aName, a.display)
+    const bPrefixLength = getPrefixLength(bName, b.display)
+    const aPrefixName = aPrefixLength < Infinity
+    const bPrefixName = bPrefixLength < Infinity
     if (aPrefixName && !bPrefixName) return -1
     if (bPrefixName && !aPrefixName) return 1
     // Among prefix name matches, prefer the shorter name (closer to exact)
-    if (aPrefixName && bPrefixName && aName.length !== bName.length) {
-      return aName.length - bName.length
+    if (
+      aPrefixName &&
+      bPrefixName &&
+      aPrefixLength !== bPrefixLength
+    ) {
+      return aPrefixLength - bPrefixLength
     }
 
     // Check for prefix alias match
@@ -533,7 +564,7 @@ export function generateCommandSuggestions(
     const cmd = result.r.item.command
     // Only show alias in parentheses if the user typed an alias
     const matchedAlias = findMatchedAlias(query, cmd.aliases)
-    return createCommandSuggestionItem(cmd, matchedAlias)
+    return createCommandSuggestionItem(cmd, matchedAlias, query)
   })
   // Skip the prepend if hiddenExact is already in fuseSuggestions — this
   // happens when isHidden flips false→true mid-session (OAuth expiry,
@@ -544,7 +575,10 @@ export function generateCommandSuggestions(
   if (hiddenExact) {
     const hiddenId = getCommandId(hiddenExact)
     if (!fuseSuggestions.some(s => s.id === hiddenId)) {
-      return [createCommandSuggestionItem(hiddenExact), ...fuseSuggestions]
+      return [
+        createCommandSuggestionItem(hiddenExact, undefined, query),
+        ...fuseSuggestions,
+      ]
     }
   }
   return fuseSuggestions

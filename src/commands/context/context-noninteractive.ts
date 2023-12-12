@@ -28,6 +28,7 @@ type CollectContextDataInput = {
     agentDefinitions: AgentDefinitionsResult
     customSystemPrompt?: string
     appendSystemPrompt?: string
+    excludeDynamicSections?: boolean
   }
 }
 
@@ -43,6 +44,7 @@ export async function collectContextData(
       agentDefinitions,
       customSystemPrompt,
       appendSystemPrompt,
+      excludeDynamicSections,
     },
   } = context
 
@@ -67,7 +69,13 @@ export async function collectContextData(
     undefined, // terminalWidth
     // analyzeContextUsage only reads options.{customSystemPrompt,appendSystemPrompt}
     // but its signature declares the full Pick<ToolUseContext, 'options'>.
-    { options: { customSystemPrompt, appendSystemPrompt } } as Pick<
+    {
+      options: {
+        customSystemPrompt,
+        appendSystemPrompt,
+        excludeDynamicSections,
+      },
+    } as Pick<
       ToolUseContext,
       'options'
     >,

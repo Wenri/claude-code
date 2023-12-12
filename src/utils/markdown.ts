@@ -9,6 +9,7 @@ import type { CliHighlight } from './cliHighlight.js'
 import { logForDebugging } from './debug.js'
 import { createHyperlink } from './hyperlink.js'
 import { stripPromptXMLTags } from './messages.js'
+import { getCachedRepositoryHost } from './detectRepository.js'
 import type { ThemeName } from './theme.js'
 
 // Use \n unconditionally — os.EOL is \r\n on Windows, and the extra \r
@@ -53,6 +54,7 @@ export function formatToken(
   orderedListNumber: number | null = null,
   parent: Token | null = null,
   highlight: CliHighlight | null = null,
+  preventSentenceFinalNumberWrap = false,
 ): string {
   switch (token.type) {
     case 'blockquote': {
@@ -199,9 +201,26 @@ export function formatToken(
         return token.text
       }
       if (parent?.type === 'list_item') {
-        return `${orderedListNumber === null ? '-' : getListNumber(listDepth, orderedListNumber) + '.'} ${token.tokens ? token.tokens.map(_ => formatToken(_, theme, listDepth, orderedListNumber, token, highlight)).join('') : linkifyIssueReferences(token.text)}${EOL}`
+        const itemText = token.tokens
+          ? token.tokens
+              .map(_ =>
+                formatToken(
+                  _,
+                  theme,
+                  listDepth,
+                  orderedListNumber,
+                  token,
+                  highlight,
+                  true,
+                ),
+              )
+              .join('')
+          : preventSentenceFinalNumberWraps(linkifyIssueReferences(token.text))
+        return `${orderedListNumber === null ? '-' : getListNumber(listDepth, orderedListNumber) + '.'} ${itemText}${EOL}`
       }
-      return linkifyIssueReferences(token.text)
+      return preventSentenceFinalNumberWrap
+        ? preventSentenceFinalNumberWraps(linkifyIssueReferences(token.text))
+        : linkifyIssueReferences(token.text)
     case 'table': {
       const tableToken = token as Tokens.Table
 
@@ -292,19 +311,37 @@ const ISSUE_REF_PATTERN =
 /**
  * Replaces owner/repo#123 references with clickable hyperlinks to GitHub.
  */
+const NON_GITHUB_ISSUE_HOSTS = new Set([
+  'gitlab.com',
+  'bitbucket.org',
+  'codeberg.org',
+  'gitea.com',
+  'git.sr.ht',
+  'dev.azure.com',
+])
+
 function linkifyIssueReferences(text: string): string {
   if (!supportsHyperlinks()) {
     return text
   }
+  const cachedHost = getCachedRepositoryHost()
+  const host =
+    cachedHost && !NON_GITHUB_ISSUE_HOSTS.has(cachedHost)
+      ? cachedHost
+      : 'github.com'
   return text.replace(
     ISSUE_REF_PATTERN,
     (_match, prefix, repo, num) =>
       prefix +
       createHyperlink(
-        `https://github.com/${repo}/issues/${num}`,
+        `https://${host}/${repo}/issues/${num}`,
         `${repo}#${num}`,
       ),
   )
+}
+
+function preventSentenceFinalNumberWraps(text: string): string {
+  return text.replace(/ (\d{1,9}[.)])(?!\w)/g, '\u00a0$1')
 }
 
 function numberToLetter(n: number): string {

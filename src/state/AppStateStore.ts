@@ -97,9 +97,16 @@ export type FooterItem =
 export type AppState = DeepImmutable<{
   settings: SettingsJson
   verbose: boolean
+  showMessageTimestamps: boolean
   mainLoopModel: ModelSetting
   mainLoopModelForSession: ModelSetting
   statusLineText: string | undefined
+  /** Classifier-derived status exposed by terminal/remote surfaces. */
+  postTurnSummary?: {
+    status_category: 'blocked' | 'review_ready'
+    status_detail: string
+    needs_action: string
+  } | null
   expandedView: 'none' | 'tasks' | 'teammates'
   isBriefOnly: boolean
   briefTranscript: boolean
@@ -352,6 +359,11 @@ export type AppState = DeepImmutable<{
       summary?: string
     }>
   }
+  pendingMemoryUpdates: Array<{
+    source: 'dream'
+    summary: string
+    paths: string[]
+  }>
   // Worker sandbox permission requests (leader side) - for network access approval
   workerSandboxPermissions: {
     queue: Array<{
@@ -432,7 +444,14 @@ export type AppState = DeepImmutable<{
   ultraplanPendingChoice?: { plan: string; sessionId: string; taskId: string }
   // Pre-launch permission dialog. Set by /ultraplan (slash or keyword);
   // cleared by UltraplanLaunchDialog on choice.
-  ultraplanLaunchPending?: { blurb: string }
+  ultraplanLaunchPending?: {
+    ultraplanArg: string
+    source: 'slash' | 'keyword'
+    sourcePromise?: Promise<{
+      cloneViable: boolean
+      bundleSeedEnabled: boolean
+    } | null>
+  }
   // Remote-harness side: set via set_permission_mode control_request,
   // pushed to CCR external_metadata.is_ultraplan_mode by onChangeAppState.
   isUltraplanMode?: boolean
@@ -483,6 +502,7 @@ export function getDefaultAppState(): AppState {
     tasks: {},
     agentNameRegistry: new Map(),
     verbose: false,
+    showMessageTimestamps: false,
     mainLoopModel: null, // alias, full name (as with --model or env var), or null (default)
     mainLoopModelForSession: null,
     statusLineText: undefined,
@@ -561,6 +581,7 @@ export function getDefaultAppState(): AppState {
     inbox: {
       messages: [],
     },
+    pendingMemoryUpdates: [],
     workerSandboxPermissions: {
       queue: [],
       selectedIndex: 0,

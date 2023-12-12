@@ -4384,6 +4384,28 @@ You have exited auto mode. The user may now want to interact more directly. You 
         }),
       ])
     }
+    case 'memory_update': {
+      const sourceLabel = {
+        dream: 'Background memory consolidation',
+      }[attachment.source]
+      const lines = [
+        `${sourceLabel} updated your memory directory: ${attachment.summary}`,
+      ]
+      if (attachment.paths.length > 0) {
+        lines.push(`Files changed: ${attachment.paths.join(', ')}`)
+      }
+      if (attachment.inContextPaths.length > 0) {
+        lines.push(
+          `Your loaded copy of ${attachment.inContextPaths.join(', ')} is now stale relative to disk — Read it again if you need current contents.`,
+        )
+      }
+      lines.push(
+        'This is ambient context — do not narrate it to the user unless they ask or it is directly relevant to their request.',
+      )
+      return wrapMessagesInSystemReminder([
+        createUserMessage({ content: lines.join('\n'), isMeta: true }),
+      ])
+    }
     case 'verify_plan_reminder': {
       // Dead code elimination: CLAUDE_CODE_VERIFY_PLAN='false' in external builds, so === 'true' check allows Bun to eliminate the string
       /* eslint-disable-next-line custom-rules/no-process-env-top-level */

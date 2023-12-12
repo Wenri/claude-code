@@ -59,6 +59,7 @@ import {
 import { FILE_EDIT_TOOL_NAME } from '../../tools/FileEditTool/constants.js'
 import { FILE_WRITE_TOOL_NAME } from '../../tools/FileWriteTool/prompt.js'
 import { SHELL_TOOL_NAMES } from '../../utils/shell/shellToolUtils.js'
+import { plural } from '../../utils/stringUtils.js'
 
 /* eslint-disable @typescript-eslint/no-require-imports */
 const teamMemPaths = feature('TEAMMEM')
@@ -264,15 +265,22 @@ ${sessionIds.map(id => `- ${id}`).join('\n')}`
       // Inline completion summary in the main transcript (same surface as
       // extractMemories's "Saved N memories" message).
       const dreamState = context.toolUseContext.getAppState().tasks?.[taskId]
-      if (
-        appendSystemMessage &&
-        isDreamTask(dreamState) &&
-        dreamState.filesTouched.length > 0
-      ) {
-        appendSystemMessage({
+      if (isDreamTask(dreamState) && dreamState.filesTouched.length > 0) {
+        appendSystemMessage?.({
           ...createMemorySavedMessage(dreamState.filesTouched),
           verb: 'Improved',
         })
+        context.toolUseContext.setAppState(current => ({
+          ...current,
+          pendingMemoryUpdates: [
+            ...current.pendingMemoryUpdates,
+            {
+              source: 'dream',
+              summary: `consolidated ${dreamState.filesTouched.length} ${plural(dreamState.filesTouched.length, 'memory file')}`,
+              paths: dreamState.filesTouched,
+            },
+          ],
+        }))
       }
       logForDebugging(
         `[autoDream] completed — cache: read=${result.totalUsage.cache_read_input_tokens} created=${result.totalUsage.cache_creation_input_tokens}`,

@@ -30,7 +30,7 @@ import {
   WorkloadIdentityError,
 } from './workloadIdentity.js'
 import { isEnvTruthy } from '../../utils/envUtils.js'
-import { errorMessage } from '../../utils/errors.js'
+import { errorMessage, toError } from '../../utils/errors.js'
 import {
   type CooldownReason,
   handleFastModeOverageRejection,
@@ -154,6 +154,12 @@ interface RetryOptions {
    * the same action key again does not bypass the normal retry policy.
    */
   onError?: (error: unknown) => Promise<string | undefined>
+  onRetry?: (retry: {
+    retryInMs: number
+    attempt: number
+    maxRetries: number
+    error: Error
+  }) => void
 }
 
 export class CannotRetryError extends Error {
@@ -536,6 +542,12 @@ export async function* withRetry<T>(
           .message as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
         status: (error as APIError).status,
         provider: getAPIProviderForStatsig(),
+      })
+      options.onRetry?.({
+        retryInMs: delayMs,
+        attempt: reportedAttempt,
+        maxRetries,
+        error: toError(error),
       })
 
       if (persistent) {

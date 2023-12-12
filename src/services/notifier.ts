@@ -1,5 +1,5 @@
 import type { TerminalNotification } from '../ink/useTerminalNotification.js'
-import { getGlobalConfig } from '../utils/config.js'
+import { getConfigValue } from '../utils/settings/configSettings.js'
 import { env } from '../utils/env.js'
 import { execFileNoThrow } from '../utils/execFileNoThrow.js'
 import { executeNotificationHooks } from '../utils/hooks.js'
@@ -19,8 +19,7 @@ export async function sendNotification(
   notif: NotificationOptions,
   terminal: TerminalNotification,
 ): Promise<void> {
-  const config = getGlobalConfig()
-  const channel = config.preferredNotifChannel
+  const channel = getConfigValue('preferredNotifChannel', 'auto').value
 
   await executeNotificationHooks(notif)
 

@@ -481,6 +481,8 @@ export function endLLMRequestPerfettoSpan(
     requestSetupMs?: number
     /** Timestamps (Date.now()) of each attempt start — used to emit retry sub-spans */
     attemptStartTimes?: number[]
+    requestId?: string
+    clientRequestId?: string
   },
 ): void {
   if (!isEnabled || !spanId) return
@@ -538,6 +540,8 @@ export function endLLMRequestPerfettoSpan(
     error: metadata.error,
     duration_ms: duration / 1000,
     request_setup_ms: requestSetupMs,
+    request_id: metadata.requestId,
+    client_request_id: metadata.clientRequestId,
     // Derived metrics
     itps,
     otps,

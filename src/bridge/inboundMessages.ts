@@ -21,7 +21,11 @@ import { detectImageFormatFromBase64 } from '../utils/imageResizer.js'
 export function extractInboundMessageFields(
   msg: SDKMessage,
 ):
-  | { content: string | Array<ContentBlockParam>; uuid: UUID | undefined }
+  | {
+      content: string | Array<ContentBlockParam>
+      uuid: UUID | undefined
+      clientPlatform: string | undefined
+    }
   | undefined {
   if (msg.type !== 'user') return undefined
   const content = msg.message?.content
@@ -32,10 +36,15 @@ export function extractInboundMessageFields(
     'uuid' in msg && typeof msg.uuid === 'string'
       ? (msg.uuid as UUID)
       : undefined
+  const clientPlatform =
+    'client_platform' in msg && typeof msg.client_platform === 'string'
+      ? msg.client_platform
+      : undefined
 
   return {
     content: Array.isArray(content) ? normalizeImageBlocks(content) : content,
     uuid,
+    clientPlatform,
   }
 }
 

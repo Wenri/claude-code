@@ -452,7 +452,9 @@ export async function listTasks(taskListId: string): Promise<Task[]> {
     .filter(f => f.endsWith('.json'))
     .map(f => f.replace('.json', ''))
   const results = await Promise.all(taskIds.map(id => getTask(taskListId, id)))
-  return results.filter((t): t is Task => t !== null)
+  return results
+    .filter((t): t is Task => t !== null)
+    .sort((a, b) => Number(a.id) - Number(b.id))
 }
 
 export async function blockTask(

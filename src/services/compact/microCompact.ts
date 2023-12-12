@@ -11,6 +11,7 @@ import { WEB_FETCH_TOOL_NAME } from '../../tools/WebFetchTool/prompt.js'
 import { WEB_SEARCH_TOOL_NAME } from '../../tools/WebSearchTool/prompt.js'
 import type { Message } from '../../types/message.js'
 import { logForDebugging } from '../../utils/debug.js'
+import { isEnvTruthy } from '../../utils/envUtils.js'
 import { getMainLoopModel } from '../../utils/model/model.js'
 import { SHELL_TOOL_NAMES } from '../../utils/shell/shellToolUtils.js'
 import { jsonStringify } from '../../utils/slowOperations.js'
@@ -238,6 +239,187 @@ function collectCompactableToolIds(messages: Message[]): string[] {
     }
   }
   return ids
+}
+
+export type KeepRecentMicrocompactSelection = {
+  clearSet: Set<string>
+  keepSet: Set<string>
+  tokensSaved: number
+  candidates: ToolResultBlockParam[]
+}
+
+/**
+ * Select compactable tool results while retaining the newest N results.
+ * Shared with the server context-hint rejection path, which must decide
+ * whether enough local content can be cleared before advertising the beta.
+ */
+export function selectKeepRecentToolResults(
+  messages: Message[],
+  keepRecent: number,
+): KeepRecentMicrocompactSelection {
+  const compactableIds = collectCompactableToolIds(messages)
+  const keepCount = Math.max(1, keepRecent)
+  const keepSet = new Set(compactableIds.slice(-keepCount))
+  const clearSet = new Set(
+    compactableIds.filter(toolUseId => !keepSet.has(toolUseId)),
+  )
+  let tokensSaved = 0
+  const candidates: ToolResultBlockParam[] = []
+
+  if (clearSet.size > 0) {
+    for (const message of messages) {
+      if (message.type !== 'user' || !Array.isArray(message.message.content)) {
+        continue
+      }
+      for (const block of message.message.content) {
+        if (
+          block.type === 'tool_result' &&
+          clearSet.has(block.tool_use_id) &&
+          !isClearedToolResultContent(block.content)
+        ) {
+          tokensSaved += calculateToolResultTokens(block)
+          candidates.push(block)
+        }
+      }
+    }
+  }
+
+  return { clearSet, keepSet, tokensSaved, candidates }
+}
+
+function isClearedToolResultContent(
+  content: ToolResultBlockParam['content'],
+): boolean {
+  return (
+    typeof content === 'string' &&
+    (content === TIME_BASED_MC_CLEARED_MESSAGE ||
+      content.startsWith('<persisted-output>'))
+  )
+}
+
+/** Replace selected tool results with their persisted or cleared markers. */
+export function applyToolResultClears(
+  messages: Message[],
+  clearedIds: Set<string>,
+  clearedContent?: Map<string, string>,
+): Message[] {
+  if (clearedIds.size === 0) return [...messages]
+  return messages.map(message => {
+    if (message.type !== 'user' || !Array.isArray(message.message.content)) {
+      return message
+    }
+    let changed = false
+    const content = message.message.content.map(block => {
+      if (block.type !== 'tool_result' || !clearedIds.has(block.tool_use_id)) {
+        return block
+      }
+      const replacement =
+        clearedContent?.get(block.tool_use_id) ?? TIME_BASED_MC_CLEARED_MESSAGE
+      if (block.content === replacement) return block
+      changed = true
+      return { ...block, content: replacement }
+    })
+    return changed
+      ? { ...message, message: { ...message.message, content } }
+      : message
+  })
+}
+
+/** Return Read paths whose results are being cleared from model context. */
+export function getReadPathsForClearedToolResults(
+  messages: Message[],
+  clearedIds: Set<string>,
+): string[] {
+  const paths: string[] = []
+  for (const message of messages) {
+    if (
+      message.type !== 'assistant' ||
+      !Array.isArray(message.message.content)
+    ) {
+      continue
+    }
+    for (const block of message.message.content) {
+      if (
+        block.type === 'tool_use' &&
+        block.name === FILE_READ_TOOL_NAME &&
+        clearedIds.has(block.id)
+      ) {
+        const filePath = (block.input as { file_path?: unknown }).file_path
+        if (typeof filePath === 'string') paths.push(filePath)
+      }
+    }
+  }
+  return paths
+}
+
+export type KeepRecentMicrocompactResult = {
+  messages: Message[]
+  tokensSaved: number
+  clearedIds: Set<string>
+  clearedContent: Map<string, string>
+}
+
+/**
+ * Apply the context-hint keep-recent fallback. Large text results are first
+ * persisted so the model can recover them with Read after the server rejects
+ * the original request.
+ */
+export async function keepRecentMicrocompact(
+  messages: Message[],
+  querySource: QuerySource | undefined,
+  options: {
+    keepRecent: number
+    persist?: (
+      content: NonNullable<ToolResultBlockParam['content']>,
+      toolUseId: string,
+    ) => Promise<string | null>
+  },
+): Promise<KeepRecentMicrocompactResult | null> {
+  const { keepSet, tokensSaved, candidates } = selectKeepRecentToolResults(
+    messages,
+    options.keepRecent,
+  )
+  if (tokensSaved < 20_000) return null
+
+  const clearedIds = new Set(candidates.map(block => block.tool_use_id))
+  const clearedContent = new Map<string, string>()
+  for (const block of candidates) {
+    const persisted = block.content
+      ? await options.persist?.(block.content, block.tool_use_id)
+      : null
+    clearedContent.set(
+      block.tool_use_id,
+      persisted ?? TIME_BASED_MC_CLEARED_MESSAGE,
+    )
+  }
+
+  const compacted = applyToolResultClears(
+    messages,
+    clearedIds,
+    clearedContent,
+  )
+  logEvent('tengu_time_based_microcompact', {
+    toolsCleared: clearedIds.size,
+    toolsKept: keepSet.size,
+    keepRecent: options.keepRecent,
+    tokensSaved,
+    trigger:
+      'context_hint' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+  })
+  logForDebugging(
+    `[KEEP-RECENT MC] context_hint trigger, cleared ${clearedIds.size} tool results (~${tokensSaved} tokens), kept last ${keepSet.size}`,
+  )
+  suppressCompactWarning()
+  resetMicrocompactState()
+  if (isEnvTruthy(process.env.CLAUDE_CODE_IS_COWORK) && querySource) {
+    notifyCacheDeletion(querySource)
+  }
+  return {
+    messages: compacted,
+    tokensSaved,
+    clearedIds,
+    clearedContent,
+  }
 }
 
 // Prefix-match because promptCategory.ts sets the querySource to

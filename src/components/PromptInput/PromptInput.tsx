@@ -58,6 +58,7 @@ import { count } from '../../utils/array.js';
 import type { AutoUpdaterResult } from '../../utils/autoUpdater.js';
 import { Cursor } from '../../utils/Cursor.js';
 import { getGlobalConfig, type PastedContent, saveGlobalConfig } from '../../utils/config.js';
+import { isBgSession } from '../../utils/concurrentSessions.js';
 import { logForDebugging } from '../../utils/debug.js';
 import { parseDirectMemberMessage, sendDirectMemberMessage } from '../../utils/directMemberMessage.js';
 import type { EffortLevel } from '../../utils/effort.js';
@@ -95,6 +96,7 @@ import type { Theme } from '../../utils/theme.js';
 import { findThinkingTriggerPositions, getRainbowColor, isUltrathinkEnabled } from '../../utils/thinking.js';
 import { findTokenBudgetPositions } from '../../utils/tokenBudget.js';
 import { findUltraplanTriggerPositions, findUltrareviewTriggerPositions } from '../../utils/ultraplan/keyword.js';
+import { isUltraplanEnabled } from '../../utils/ultraplan/config.js';
 import { AutoModeOptInDialog } from '../AutoModeOptInDialog.js';
 import { BridgeDialog } from '../BridgeDialog.js';
 import { ConfigurableShortcutHint } from '../ConfigurableShortcutHint.js';
@@ -162,6 +164,7 @@ type Props = {
   showBashesDialog: string | boolean;
   setShowBashesDialog: (show: string | boolean) => void;
   onExit: () => void;
+  onLeftArrowOnEmpty?: () => void;
   getToolUseContext: (messages: Message[], newMessages: Message[], abortController: AbortController, mainLoopModel: string) => ProcessUserInputContext;
   onSubmit: (input: string, helpers: PromptInputHelpers, speculationAccept?: {
     state: ActiveSpeculationState;
@@ -223,6 +226,7 @@ function PromptInput({
   showBashesDialog,
   setShowBashesDialog,
   onExit,
+  onLeftArrowOnEmpty,
   getToolUseContext,
   onSubmit: onSubmitProp,
   onAgentSubmit,
@@ -251,6 +255,7 @@ function PromptInput({
   }>({
     show: false
   });
+  const [leftArrowPending, setLeftArrowPending] = useState(false);
   const [cursorOffset, setCursorOffset] = useState<number>(input.length);
   // Track the last input value set via internal handlers so we can detect
   // external input changes (e.g. speech-to-text injection) and move cursor to end.
@@ -528,7 +533,7 @@ function PromptInput({
   const thinkTriggers = useMemo(() => findThinkingTriggerPositions(displayedValue), [displayedValue]);
   const ultraplanSessionUrl = useAppState(s => s.ultraplanSessionUrl);
   const ultraplanLaunching = useAppState(s => s.ultraplanLaunching);
-  const ultraplanTriggers = useMemo(() => feature('ULTRAPLAN') && !ultraplanSessionUrl && !ultraplanLaunching ? findUltraplanTriggerPositions(displayedValue) : [], [displayedValue, ultraplanSessionUrl, ultraplanLaunching]);
+  const ultraplanTriggers = useMemo(() => feature('ULTRAPLAN') && isUltraplanEnabled() && !ultraplanSessionUrl && !ultraplanLaunching ? findUltraplanTriggerPositions(displayedValue) : [], [displayedValue, ultraplanSessionUrl, ultraplanLaunching]);
   const ultrareviewTriggers = useMemo(() => isUltrareviewEnabled() ? findUltrareviewTriggerPositions(displayedValue) : [], [displayedValue]);
   const btwTriggers = useMemo(() => findBtwTriggerPositions(displayedValue), [displayedValue]);
   const buddyTriggers = useMemo(() => findBuddyTriggerPositions(displayedValue), [displayedValue]);
@@ -707,7 +712,7 @@ function PromptInput({
     }
 
     // Same rainbow treatment for the ultraplan keyword
-    if (feature('ULTRAPLAN')) {
+    if (feature('ULTRAPLAN') && isUltraplanEnabled()) {
       for (const trigger of ultraplanTriggers) {
         for (let i = trigger.start; i < trigger.end; i++) {
           highlights.push({
@@ -767,7 +772,7 @@ function PromptInput({
     }
   }, [addNotification, removeNotification, thinkTriggers.length]);
   useEffect(() => {
-    if (feature('ULTRAPLAN') && ultraplanTriggers.length) {
+    if (feature('ULTRAPLAN') && isUltraplanEnabled() && ultraplanTriggers.length) {
       addNotification({
         key: 'ultraplan-active',
         text: 'This prompt will launch an ultraplan session in Claude Code on the web',
@@ -1431,41 +1436,47 @@ function PromptInput({
   }, [input, cursorOffset, stashedPrompt, trackAndSetInput, setStashedPrompt, pastedContents, setPastedContents]);
 
   // Handler for chat:modelPicker - toggle model picker
-  const showRemoteInferenceConfigUnavailable = useCallback(() => {
+  const showRemoteFastModeUnavailable = useCallback(() => {
     if (getRuntimeCapabilities().workspace !== 'remote') return false;
     addNotification({
       key: 'remote-inference-config-unavailable',
-      text: 'Model and effort switching in remote sessions is coming soon — set at session creation for now',
+      text: 'Fast mode switching in remote sessions is coming soon — set at session creation for now',
       priority: 'medium'
     });
     return true;
   }, [addNotification]);
 
   const handleModelPicker = useCallback(() => {
-    if (showRemoteInferenceConfigUnavailable()) return;
+    if (getRuntimeCapabilities().workspace === 'remote') {
+      addNotification({
+        key: 'remote-model-picker-unavailable',
+        text: 'Model picker shows local options in remote sessions — use /model <name> instead',
+        priority: 'medium'
+      });
+      return;
+    }
     setShowModelPicker(prev => !prev);
     if (helpOpen) {
       setHelpOpen(false);
     }
-  }, [helpOpen, showRemoteInferenceConfigUnavailable]);
+  }, [helpOpen, addNotification]);
 
   // Handler for chat:fastMode - toggle fast mode picker
   const handleFastModePicker = useCallback(() => {
-    if (showRemoteInferenceConfigUnavailable()) return;
     setShowFastModePicker(prev => !prev);
     if (helpOpen) {
       setHelpOpen(false);
     }
-  }, [helpOpen, showRemoteInferenceConfigUnavailable]);
+  }, [helpOpen]);
 
   // Handler for chat:thinkingToggle - toggle thinking mode
   const handleThinkingToggle = useCallback(() => {
-    if (getRuntimeCapabilities().remote?.kind !== 'ccr' && showRemoteInferenceConfigUnavailable()) return;
+    if (getRuntimeCapabilities().remote?.kind !== 'ccr' && showRemoteFastModeUnavailable()) return;
     setShowThinkingToggle(prev => !prev);
     if (helpOpen) {
       setHelpOpen(false);
     }
-  }, [helpOpen, showRemoteInferenceConfigUnavailable]);
+  }, [helpOpen, showRemoteFastModeUnavailable]);
 
   // Handler for chat:cycleMode - cycle through permission modes
   const handleCycleMode = useCallback(() => {
@@ -1581,6 +1592,30 @@ function PromptInput({
     // Now that we know this is NOT the first-time auto mode path,
     // call cyclePermissionMode to apply side effects (e.g. strip
     // dangerous permissions, activate classifier)
+    const remote = getRuntimeCapabilities().remote;
+    if (remote?.kind === 'ccr' && !remote.viewerOnly && nextMode !== 'bubble') {
+      const previousContext = toolPermissionContext;
+      remote.sendControlRequest({
+        subtype: 'set_permission_mode',
+        mode: nextMode
+      }).catch(error => {
+        logForDebugging(`[remote] set_permission_mode rejected: ${errorMessage(error)}`);
+        setAppState(prev => {
+          if (prev.toolPermissionContext.mode !== nextMode) return prev;
+          return {
+            ...prev,
+            toolPermissionContext: previousContext
+          };
+        });
+        addNotification({
+          key: 'remote-permission-mode-rejected',
+          text: `Remote session couldn't switch to ${nextMode} mode`,
+          color: 'warning',
+          priority: 'immediate'
+        });
+      });
+    }
+
     const {
       context: preparedContext
     } = cyclePermissionMode(toolPermissionContext, teamContext);
@@ -1619,13 +1654,23 @@ function PromptInput({
     if (helpOpen) {
       setHelpOpen(false);
     }
-  }, [toolPermissionContext, teamContext, viewingAgentTaskId, viewedTeammate, setAppState, setToolPermissionContext, helpOpen, showAutoModeOptIn]);
+  }, [toolPermissionContext, teamContext, viewingAgentTaskId, viewedTeammate, setAppState, setToolPermissionContext, helpOpen, showAutoModeOptIn, addNotification]);
 
   // Handler for auto mode opt-in dialog acceptance
   const handleAutoModeOptInAccept = useCallback(() => {
     if (feature('TRANSCRIPT_CLASSIFIER')) {
       setShowAutoModeOptIn(false);
       setPreviousModeBeforeAuto(null);
+
+      const remote = getRuntimeCapabilities().remote;
+      if (remote?.kind === 'ccr' && !remote.viewerOnly) {
+        remote.sendControlRequest({
+          subtype: 'set_permission_mode',
+          mode: 'auto'
+        }).catch(error => {
+          logForDebugging(`[remote] set_permission_mode auto (accept) rejected: ${errorMessage(error)}`);
+        });
+      }
 
       // Now that the user accepted, apply the full transition: activate the
       // auto mode backend (classifier, beta headers) and strip dangerous
@@ -2259,6 +2304,8 @@ function PromptInput({
       show,
       key
     }),
+    onLeftArrowOnEmpty,
+    onLeftArrowOnEmptyMessage: isBgSession() ? undefined : setLeftArrowPending,
     onImagePaste,
     columns: textInputColumns,
     maxVisibleLines,
@@ -2343,7 +2390,7 @@ function PromptInput({
             {textInputElement}
           </Box>
         </Box>}
-      <PromptInputFooter apiKeyStatus={apiKeyStatus} debug={debug} exitMessage={exitMessage} vimMode={isVimModeEnabled() ? vimMode : undefined} mode={mode} autoUpdaterResult={autoUpdaterResult} isAutoUpdating={isAutoUpdating} verbose={verbose} onAutoUpdaterResult={onAutoUpdaterResult} onChangeIsUpdating={setIsAutoUpdating} suggestions={suggestions} selectedSuggestion={selectedSuggestion} suggestionsEmptyMessage={suggestionsEmptyMessage} maxColumnWidth={maxColumnWidth} toolPermissionContext={effectiveToolPermissionContext} helpOpen={helpOpen} suppressHint={input.length > 0} isLoading={isLoading} tasksSelected={tasksSelected} teamsSelected={teamsSelected} bridgeSelected={bridgeSelected} tmuxSelected={tmuxSelected} teammateFooterIndex={teammateFooterIndex} ideSelection={ideSelection} mcpClients={mcpClients} isPasting={isPasting} showExpandPasteHint={showExpandPasteHint} isInputWrapped={isInputWrapped} messages={messages} isSearching={isSearchingHistory} historyQuery={historyQuery} setHistoryQuery={setHistoryQuery} historyFailedMatch={historyFailedMatch} onOpenTasksDialog={isFullscreenEnvEnabled() ? handleOpenTasksDialog : undefined} />
+      <PromptInputFooter apiKeyStatus={apiKeyStatus} debug={debug} exitMessage={exitMessage} leftArrowPending={leftArrowPending} vimMode={isVimModeEnabled() ? vimMode : undefined} mode={mode} autoUpdaterResult={autoUpdaterResult} isAutoUpdating={isAutoUpdating} verbose={verbose} onAutoUpdaterResult={onAutoUpdaterResult} onChangeIsUpdating={setIsAutoUpdating} suggestions={suggestions} selectedSuggestion={selectedSuggestion} suggestionsEmptyMessage={suggestionsEmptyMessage} maxColumnWidth={maxColumnWidth} toolPermissionContext={effectiveToolPermissionContext} helpOpen={helpOpen} suppressHint={input.length > 0} isLoading={isLoading} tasksSelected={tasksSelected} teamsSelected={teamsSelected} bridgeSelected={bridgeSelected} tmuxSelected={tmuxSelected} teammateFooterIndex={teammateFooterIndex} ideSelection={ideSelection} mcpClients={mcpClients} isPasting={isPasting} showExpandPasteHint={showExpandPasteHint} isInputWrapped={isInputWrapped} messages={messages} isSearching={isSearchingHistory} historyQuery={historyQuery} setHistoryQuery={setHistoryQuery} historyFailedMatch={historyFailedMatch} onOpenTasksDialog={isFullscreenEnvEnabled() ? handleOpenTasksDialog : undefined} />
       {isFullscreenEnvEnabled() ? null : autoModeOptInDialog}
       {isFullscreenEnvEnabled() ?
     // position=absolute takes zero layout height so the spinner

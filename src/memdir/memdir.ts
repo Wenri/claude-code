@@ -198,7 +198,7 @@ function logMemoryDirCounts(
  */
 export function buildMemoryLines(
   displayName: string,
-  memoryDir: string,
+  memoryDir: string | null,
   extraGuidelines?: string[],
   skipIndex = false,
 ): string[] {
@@ -236,7 +236,9 @@ export function buildMemoryLines(
   const lines: string[] = [
     `# ${displayName}`,
     '',
-    `You have a persistent, file-based memory system at \`${memoryDir}\`. ${DIR_EXISTS_GUIDANCE}`,
+    memoryDir
+      ? `You have a persistent, file-based memory system at \`${memoryDir}\`. ${DIR_EXISTS_GUIDANCE}`
+      : `You have a persistent, file-based memory system. The directory path is provided in your session context. ${DIR_EXISTS_GUIDANCE}`,
     '',
     "You should build up this memory system over time so that future conversations can have a complete picture of who the user is, how they'd like to collaborate with you, what behaviors to avoid or repeat, and the context behind the work the user gives you.",
     '',
@@ -260,7 +262,9 @@ export function buildMemoryLines(
     '',
   ]
 
-  lines.push(...buildSearchingPastContextSection(memoryDir))
+  if (memoryDir) {
+    lines.push(...buildSearchingPastContextSection(memoryDir))
+  }
 
   return lines
 }
@@ -504,4 +508,38 @@ export async function loadMemoryPrompt(): Promise<string | null> {
     logEvent('tengu_team_memdir_disabled', {})
   }
   return null
+}
+
+function canSplitMemoryPrompt(): boolean {
+  if (!isAutoMemoryEnabled()) return false
+  if (feature('KAIROS') && getKairosActive()) return false
+  if (feature('TEAMMEM') && teamMemPaths!.isTeamMemoryEnabled()) return false
+  return true
+}
+
+export function getStaticMemoryPrompt(): string | null {
+  if (!canSplitMemoryPrompt()) return null
+  return buildMemoryLines(AUTO_MEM_DISPLAY_NAME, null).join('\n')
+}
+
+export async function getDynamicMemoryPrompt(): Promise<string | null> {
+  if (!canSplitMemoryPrompt()) return loadMemoryPrompt()
+
+  const autoDir = getAutoMemPath()
+  await ensureMemoryDirExists(autoDir)
+  logMemoryDirCounts(autoDir, {
+    memory_type:
+      'auto' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+  })
+
+  const lines = [`# ${AUTO_MEM_DISPLAY_NAME}`, `Memory directory: \`${autoDir}\``]
+  const extraGuidelines = process.env.CLAUDE_COWORK_MEMORY_EXTRA_GUIDELINES
+  if (extraGuidelines && extraGuidelines.trim().length > 0) {
+    lines.push('', extraGuidelines)
+  }
+  const searchSection = buildSearchingPastContextSection(autoDir)
+  if (searchSection.length > 0) {
+    lines.push('', ...searchSection)
+  }
+  return lines.join('\n')
 }

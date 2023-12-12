@@ -172,9 +172,9 @@ export async function checkForAsyncHookResponses(): Promise<
         return { type: 'skip' as const }
       }
 
-      if (hook.responseAttachmentSent || !stdout.trim()) {
+      if (hook.responseAttachmentSent) {
         logForDebugging(
-          `Hooks: Skipping hook ${hook.processId} - already delivered/sent or no stdout`,
+          `Hooks: Skipping hook ${hook.processId} - already delivered`,
         )
         hook.stopProgressInterval()
         return { type: 'remove' as const, processId: hook.processId }
@@ -214,6 +214,17 @@ export async function checkForAsyncHookResponses(): Promise<
       hook.responseAttachmentSent = true
       await finalizeHook(hook, exitCode, exitCode === 0 ? 'success' : 'error')
 
+      if (Object.keys(response).length === 0 && exitCode === 0 && !stderr.trim()) {
+        logForDebugging(
+          `Hooks: ${hook.processId} (${hook.hookName}) produced no response payload — skipping attachment`,
+        )
+        return {
+          type: 'remove' as const,
+          processId: hook.processId,
+          isSessionStart: hook.hookEvent === 'SessionStart',
+        }
+      }
+
       return {
         type: 'response' as const,
         processId: hook.processId,
@@ -247,6 +258,9 @@ export async function checkForAsyncHookResponses(): Promise<
     const r = s.value
     if (r.type === 'remove') {
       pendingHooks.delete(r.processId)
+      if ('isSessionStart' in r && r.isSessionStart) {
+        sessionStartCompleted = true
+      }
     } else if (r.type === 'response') {
       responses.push(r.payload)
       pendingHooks.delete(r.processId)

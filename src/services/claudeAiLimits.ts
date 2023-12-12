@@ -2,7 +2,7 @@ import { APIError } from '@anthropic-ai/sdk'
 import type { MessageParam } from '@anthropic-ai/sdk/resources/index.mjs'
 import isEqual from 'lodash-es/isEqual.js'
 import { getIsNonInteractiveSession } from '../bootstrap/state.js'
-import { isClaudeAISubscriber } from '../utils/auth.js'
+import { getSubscriptionType, isClaudeAISubscriber } from '../utils/auth.js'
 import { getModelBetas } from '../utils/betas.js'
 import { getGlobalConfig, saveGlobalConfig } from '../utils/config.js'
 import { logError } from '../utils/log.js'
@@ -133,6 +133,7 @@ export type ClaudeAILimits = {
   overageDisabledReason?: OverageDisabledReason
   isUsingOverage?: boolean
   surpassedThreshold?: number
+  upgradePaths?: string[]
 }
 
 export function getRateLimitInfoFromError(
@@ -194,6 +195,7 @@ type RawWindowUtilization = {
 type RawUtilization = {
   five_hour?: RawWindowUtilization
   seven_day?: RawWindowUtilization
+  overage?: RawWindowUtilization
 }
 let rawUtilization: RawUtilization = {}
 
@@ -206,6 +208,7 @@ function extractRawUtilization(headers: globalThis.Headers): RawUtilization {
   for (const [key, abbrev] of [
     ['five_hour', '5h'],
     ['seven_day', '7d'],
+    ['overage', 'overage'],
   ] as const) {
     const util = headers.get(
       `anthropic-ratelimit-unified-${abbrev}-utilization`,
@@ -442,6 +445,12 @@ function computeNewLimitsFromHeaders(
   const overageDisabledReason = headers.get(
     'anthropic-ratelimit-unified-overage-disabled-reason',
   ) as OverageDisabledReason | null
+  const upgradePathsHeader = headers.get(
+    'anthropic-ratelimit-unified-upgrade-paths',
+  )
+  const upgradePaths = upgradePathsHeader
+    ? upgradePathsHeader.split(',').map(path => path.trim())
+    : undefined
 
   // Determine if we're using overage (standard limits rejected but overage allowed)
   const isUsingOverage =
@@ -457,7 +466,10 @@ function computeNewLimitsFromHeaders(
       unifiedRateLimitFallbackAvailable,
     )
     if (earlyWarning) {
-      return earlyWarning
+      return {
+        ...earlyWarning,
+        ...(upgradePaths && { upgradePaths }),
+      }
     }
     // No early warning threshold surpassed
     finalStatus = 'allowed'
@@ -471,6 +483,7 @@ function computeNewLimitsFromHeaders(
     ...(overageStatus && { overageStatus }),
     ...(overageResetsAt && { overageResetsAt }),
     ...(overageDisabledReason && { overageDisabledReason }),
+    ...(upgradePaths && { upgradePaths }),
     isUsingOverage,
   }
 }
@@ -533,6 +546,11 @@ export function extractQuotaStatusFromError(error: APIError): void {
   }
 
   try {
+    const { status: priorStatus, isUsingOverage: priorIsUsingOverage } =
+      currentLimits
+    const priorFiveHourUtilization = rawUtilization.five_hour?.utilization
+    const priorSevenDayUtilization = rawUtilization.seven_day?.utilization
+    const priorOverageUtilization = rawUtilization.overage?.utilization
     let newLimits = { ...currentLimits }
     if (error.headers) {
       // Process headers (applies mocks from /mock-limits command if active)
@@ -545,6 +563,46 @@ export function extractQuotaStatusFromError(error: APIError): void {
     }
     // For errors, always set status to rejected even if headers are not present.
     newLimits.status = 'rejected'
+
+    if (
+      (priorStatus !== 'rejected' || priorIsUsingOverage) &&
+      !(
+        priorStatus === 'allowed' &&
+        !priorIsUsingOverage &&
+        priorFiveHourUtilization === undefined &&
+        priorSevenDayUtilization === undefined &&
+        priorOverageUtilization === undefined
+      )
+    ) {
+      const utilization =
+        newLimits.rateLimitType === 'five_hour'
+          ? priorFiveHourUtilization
+          : newLimits.rateLimitType?.startsWith('seven_day')
+            ? priorSevenDayUtilization
+            : newLimits.rateLimitType === 'overage'
+              ? priorOverageUtilization
+              : Math.max(
+                  priorFiveHourUtilization ?? 0,
+                  priorSevenDayUtilization ?? 0,
+                  priorOverageUtilization ?? 0,
+                )
+
+      if (utilization === undefined || utilization < 0.8) {
+        logEvent('tengu_quota_mismatch', {
+          priorStatus,
+          priorIsUsingOverage,
+          priorFiveHourUtilization,
+          priorSevenDayUtilization,
+          priorOverageUtilization,
+          rateLimitType: newLimits.rateLimitType ?? undefined,
+          subscriptionType: getSubscriptionType() ?? undefined,
+          hadPriorUtilizationData:
+            priorFiveHourUtilization !== undefined ||
+            priorSevenDayUtilization !== undefined ||
+            priorOverageUtilization !== undefined,
+        })
+      }
+    }
 
     if (!isEqual(currentLimits, newLimits)) {
       emitStatusChange(newLimits)

@@ -13,25 +13,30 @@ type Props = {
   items: SessionBackgroundExitItem[]
   onExit(): void
   onCancel(): void
+  onDetach?: () => void
 }
 
 export function BackgroundExitDialog({
   items,
   onExit,
   onCancel,
+  onDetach,
 }: Props): React.ReactNode {
-  const recordChoice = (choseExit: boolean): void => {
+  const recordChoice = (choice: 'exit' | 'detach' | 'stay'): void => {
     logEvent('tengu_exit_background_work_prompt', {
       item_count: items.length,
-      chose_exit: choseExit,
+      chose_exit: choice === 'exit',
+      chose_detach: choice === 'detach',
     })
   }
-  const confirm = (): void => {
-    recordChoice(true)
-    onExit()
+  const choose = (choice: 'exit' | 'detach' | 'stay'): void => {
+    recordChoice(choice)
+    if (choice === 'exit') onExit()
+    else if (choice === 'detach') onDetach?.()
+    else onCancel()
   }
   const cancel = (): void => {
-    recordChoice(false)
+    recordChoice('stay')
     onCancel()
   }
 
@@ -65,12 +70,13 @@ export function BackgroundExitDialog({
       </Box>
       <Select
         options={[
-          { label: 'Exit anyway', value: 'confirm' },
-          { label: 'Stay', value: 'cancel' },
+          ...(onDetach
+            ? [{ label: 'Detach (keep running)', value: 'detach' }]
+            : []),
+          { label: 'Exit anyway', value: 'exit' },
+          { label: 'Stay', value: 'stay' },
         ]}
-        defaultFocusValue="confirm"
-        visibleOptionCount={2}
-        onChange={value => (value === 'confirm' ? confirm() : cancel())}
+        onChange={value => choose(value as 'exit' | 'detach' | 'stay')}
         onCancel={cancel}
       />
     </Dialog>

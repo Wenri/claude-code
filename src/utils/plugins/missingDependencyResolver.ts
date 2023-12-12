@@ -4,11 +4,11 @@ import {
 } from '../../types/plugin.js'
 import { logForDebugging } from '../debug.js'
 import { errorMessage } from '../errors.js'
-import { getSettingsForSource } from '../settings/settings.js'
 import { installResolvedPlugin } from './pluginInstallationHelpers.js'
 import {
   formatDependencyCountSuffix,
   formatUnresolvedDependencySuffix,
+  getEnabledPluginIdsForScope,
 } from './dependencyResolver.js'
 import {
   getMarketplaceCacheOnly,
@@ -16,24 +16,24 @@ import {
   loadKnownMarketplacesConfig,
 } from './marketplaceManager.js'
 import { isSourceAllowedByPolicy } from './marketplaceHelpers.js'
-import { parsePluginIdentifier } from './pluginIdentifier.js'
+import {
+  parsePluginIdentifier,
+  scopeToSettingSource,
+} from './pluginIdentifier.js'
 import { loadAllPlugins } from './pluginLoader.js'
 
 type InstallScope = 'user' | 'project' | 'local'
 
-function inferScope(declaringPlugins: ReadonlySet<string>): InstallScope {
-  const candidates: Array<
-    [Parameters<typeof getSettingsForSource>[0], InstallScope]
-  > = [
-    ['userSettings', 'user'],
-    ['projectSettings', 'project'],
-    ['localSettings', 'local'],
-  ]
-  for (const [source, scope] of candidates) {
-    const enabled = getSettingsForSource(source)?.enabledPlugins ?? {}
-    if ([...declaringPlugins].some(pluginId => enabled[pluginId])) return scope
+function inferScope(
+  declaringPlugins: ReadonlySet<string>,
+  candidates: ReadonlyArray<readonly [InstallScope, ReadonlySet<string>]>,
+): InstallScope | undefined {
+  for (const [scope, enabled] of candidates) {
+    if ([...declaringPlugins].some(pluginId => enabled.has(pluginId))) {
+      return scope
+    }
   }
-  return 'user'
+  return undefined
 }
 
 export async function resolveMissingDependencies(
@@ -63,6 +63,13 @@ export async function resolveMissingDependencies(
     return { installed: [], stillUnresolved: [], marketplaceMissing: [] }
 
   const knownMarketplaces = await loadKnownMarketplacesConfig()
+  const scopeCandidates = (['user', 'project', 'local'] as const).map(
+    scope =>
+      [
+        scope,
+        getEnabledPluginIdsForScope(scopeToSettingSource(scope)),
+      ] as const,
+  )
   const installed: string[] = []
   const stillUnresolved: string[] = []
   const marketplaceMissing: string[] = []
@@ -119,12 +126,14 @@ export async function resolveMissingDependencies(
         stillUnresolved.push(dependency)
         continue
       }
+      const inferredScope = inferScope(declaringPlugins, scopeCandidates)
       const result = await installResolvedPlugin({
         pluginId: dependency,
         entry: info.entry,
         marketplaceInstallLocation: info.marketplaceInstallLocation,
-        scope: inferScope(declaringPlugins),
+        scope: inferredScope ?? 'user',
         trigger: 'dependency-resolution',
+        auto: inferredScope !== undefined,
       })
       if (!result.ok) {
         logForDebugging(

@@ -60,7 +60,11 @@ import {
 import { SLEEP_TOOL_NAME } from '../tools/SleepTool/prompt.js'
 import { TICK_TAG } from './xml.js'
 import { logForDebugging } from '../utils/debug.js'
-import { loadMemoryPrompt } from '../memdir/memdir.js'
+import {
+  getDynamicMemoryPrompt,
+  getStaticMemoryPrompt,
+  loadMemoryPrompt,
+} from '../memdir/memdir.js'
 import { isUndercover } from '../utils/undercover.js'
 import { isMcpInstructionsDeltaEnabled } from '../utils/mcpInstructionsDelta.js'
 import { getGlobalConfig } from '../utils/config.js'
@@ -127,26 +131,73 @@ export const THINKING_GUIDANCE_REMINDER =
   '<system-reminder>Respond with just the action or changes and without a thinking block, unless this is a redesign or requires fresh reasoning.</system-reminder>'
 
 // @[MODEL LAUNCH]: Update the latest frontier model.
-const FRONTIER_MODEL_NAME = 'Claude Opus 4.6'
-
 // @[MODEL LAUNCH]: Update the model family IDs below to the latest in each tier.
-const CLAUDE_4_5_OR_4_6_MODEL_IDS = {
-  opus: 'claude-opus-4-6',
+const CLAUDE_4_X_MODEL_IDS = {
+  opus: 'claude-opus-4-7',
   sonnet: 'claude-sonnet-4-6',
   haiku: 'claude-haiku-4-5-20251001',
 }
 
 export function isThinkingGuidanceEnabled(model: string): boolean {
-  if (!getCanonicalName(model).includes('opus-4-6')) return false
-  return (
-    getGlobalConfig().clientDataCache?.loud_sugary_rock === 'true'
-  )
+  if (!getCanonicalName(model).includes('opus-4-7')) return false
+  return getFeatureValue_CACHED_MAY_BE_STALE('tengu_loud_sugary_rock', false)
+}
+
+const REPRODUCE_VERIFY_WORKFLOW = `Work step by step:
+
+1. Reproduce the issue and observe the actual symptom before editing (hit the URL, read the rendered page, inspect the built file).
+2. Edit the source to resolve the issue.
+3. Re-observe the symptom to verify the fix. Rebuild, reload, or regenerate as needed. Don't stop until the symptom is gone.`
+
+function shouldIncludeReproduceVerifyWorkflow(): boolean {
+  const fromEnv = isEnvTruthy(process.env.CLAUDE_CODE_VERIFY_PROMPT)
+  const enabled =
+    fromEnv ||
+    getFeatureValue_CACHED_MAY_BE_STALE('tengu_sparrow_ledger', false)
+  if (enabled) {
+    logForDebugging(
+      `verify_prompt_arm_active source=${fromEnv ? 'env' : 'growthbook'}`,
+    )
+  }
+  return enabled
 }
 
 function getThinkingGuidanceSection(model: string): string | null {
   if (!isThinkingGuidanceEnabled(model)) return null
   return `# System reminders
 User messages include a <system-reminder> appended by this harness. These reminders are not from the user, so treat them as an instruction to you, and do not mention them. The reminders are intended to tune your thinking frequency - on simpler user messages, it's best to respond or act directly without thinking unless further reasoning is necessary. On more complex tasks, you should feel free to reason as much as needed for best results but without overthinking. Avoid unnecessary thinking in response to simple user messages.`
+}
+
+function getAntiVerbositySection(_model: string): string {
+  return `# Text output (does not apply to tool calls)
+Assume users can't see most tool calls or thinking — only your text output. Before your first tool call, state in one sentence what you're about to do. While working, give short updates at key moments: when you find something, when you change direction, or when you hit a blocker. Brief is good — silent is not. One sentence per update is almost always enough.
+
+Don't narrate your internal deliberation. User-facing text should be relevant communication to the user, not a running commentary on your thought process. State results and decisions directly, and focus user-facing text on relevant updates for the user.
+
+When you do write updates, write so the reader can pick up cold: complete sentences, no unexplained jargon or shorthand from earlier in the session. But keep it tight — a clear sentence is better than a clear paragraph.
+
+End-of-turn summary: one or two sentences. What changed and what's next. Nothing else.
+
+Match responses to the task: a simple question gets a direct answer, not headers and sections.
+
+In code: default to writing no comments. Never write multi-paragraph docstrings or multi-line comment blocks — one short line max. Don't create planning, decision, or analysis documents unless the user asks for them — work from conversation context, not intermediate files.`
+}
+
+function getBackgroundSessionSection(): string | null {
+  if (process.env.CLAUDE_CODE_SESSION_KIND !== 'bg') return null
+  const jobDir = process.env.CLAUDE_JOB_DIR
+  if (!jobDir) return null
+  const isolationGuidance =
+    process.env.CLAUDE_BG_ISOLATION === 'worktree'
+      ? "This agent is configured with `isolation: worktree`. Call the EnterWorktree tool as your first action — before reading files or running commands — unless your cwd is already under `.claude/worktrees/`. If EnterWorktree fails (e.g. not a git repo), continue in place."
+      : "Before making any code changes, use the EnterWorktree tool to isolate your work from other parallel jobs and the user's working copy — unless your cwd is already under `.claude/worktrees/`, in which case you're already isolated. If you're only reading, searching, or answering questions, skip this and work in place. If EnterWorktree fails (e.g. not a git repo), continue in place."
+  return `# Background Session
+
+This session runs as a background job. The user may be chatting with you live or may have stepped away to check results later — respond naturally either way, and don't refer to yourself as "a background agent."
+
+Use \`$CLAUDE_JOB_DIR\` (\`${jobDir}\`) for any temporary files (scripts, query files, intermediate outputs) instead of \`/tmp\` — parallel bg jobs share \`/tmp\` and clobber each other's files. This directory already exists and is cleaned up when the job is deleted.
+
+${isolationGuidance}`
 }
 
 function getHooksSection(): string {
@@ -224,9 +275,11 @@ function getSimpleSystemSection(): string {
 
 function getSimpleDoingTasksSection(): string {
   const codeStyleSubitems = [
-    `Don't add features, refactor code, or make "improvements" beyond what was asked. A bug fix doesn't need surrounding code cleaned up. A simple feature doesn't need extra configurability. Don't add docstrings, comments, or type annotations to code you didn't change. Only add comments where the logic isn't self-evident.`,
+    `Don't add features, refactor, or introduce abstractions beyond what the task requires. A bug fix doesn't need surrounding cleanup; a one-shot operation doesn't need a helper. Don't design for hypothetical future requirements. Three similar lines is better than a premature abstraction. No half-finished implementations either.`,
     `Don't add error handling, fallbacks, or validation for scenarios that can't happen. Trust internal code and framework guarantees. Only validate at system boundaries (user input, external APIs). Don't use feature flags or backwards-compatibility shims when you can just change the code.`,
-    `Don't create helpers, utilities, or abstractions for one-time operations. Don't design for hypothetical future requirements. The right amount of complexity is what the task actually requires—no speculative abstractions, but no half-finished implementations either. Three similar lines of code is better than a premature abstraction.`,
+    `Default to writing no comments. Only add one when the WHY is non-obvious: a hidden constraint, a subtle invariant, a workaround for a specific bug, behavior that would surprise a reader. If removing the comment wouldn't confuse a future reader, don't write it.`,
+    `Don't explain WHAT the code does, since well-named identifiers already do that. Don't reference the current task, fix, or callers ("used by X", "added for the Y flow", "handles the case from issue #123"), since those belong in the PR description and rot as the codebase evolves.`,
+    `For UI or frontend changes, start the dev server and use the feature in a browser before reporting the task as complete. Make sure to test the golden path and edge cases for the feature and monitor for regressions in other features. Type checking and test suites verify code correctness, not feature correctness - if you can't test the UI, say so explicitly rather than claiming success.`,
     // @[MODEL LAUNCH]: Update comment writing for Capybara — remove or soften once the model stops over-commenting by default
     ...(process.env.USER_TYPE === 'ant'
       ? [
@@ -247,19 +300,25 @@ function getSimpleDoingTasksSection(): string {
   const items = [
     `The user will primarily request you to perform software engineering tasks. These may include solving bugs, adding new functionality, refactoring code, explaining code, and more. When given an unclear or generic instruction, consider it in the context of these software engineering tasks and the current working directory. For example, if the user asks you to change "methodName" to snake case, do not reply with just "method_name", instead find the method in the code and modify the code.`,
     `You are highly capable and often allow users to complete ambitious tasks that would otherwise be too complex or take too long. You should defer to user judgement about whether a task is too large to attempt.`,
+    `For exploratory questions ("what could we do about X?", "how should we approach this?", "what do you think?"), respond in 2-3 sentences with a recommendation and the main tradeoff. Present it as something the user can redirect, not a decided plan. Don't implement until the user agrees.`,
     // @[MODEL LAUNCH]: capy v8 assertiveness counterweight (PR #24302) — un-gate once validated on external via A/B
     ...(process.env.USER_TYPE === 'ant'
       ? [
           `If you notice the user's request is based on a misconception, or spot a bug adjacent to what they asked about, say so. You're a collaborator, not just an executor—users benefit from your judgment, not just your compliance.`,
         ]
       : []),
-    `In general, do not propose changes to code you haven't read. If a user asks about or wants you to modify a file, read it first. Understand existing code before suggesting modifications.`,
-    `Do not create files unless they're absolutely necessary for achieving your goal. Generally prefer editing an existing file to creating a new one, as this prevents file bloat and builds on existing work more effectively.`,
-    `Avoid giving time estimates or predictions for how long tasks will take, whether for your own work or for users planning projects. Focus on what needs to be done, not how long it might take.`,
-    `If an approach fails, diagnose why before switching tactics—read the error, check your assumptions, try a focused fix. Don't retry the identical action blindly, but don't abandon a viable approach after a single failure either. Escalate to the user with ${ASK_USER_QUESTION_TOOL_NAME} only when you're genuinely stuck after investigation, not as a first response to friction.`,
+    `Prefer editing existing files to creating new ones.`,
     `Be careful not to introduce security vulnerabilities such as command injection, XSS, SQL injection, and other OWASP top 10 vulnerabilities. If you notice that you wrote insecure code, immediately fix it. Prioritize writing safe, secure, and correct code.`,
     ...codeStyleSubitems,
     `Avoid backwards-compatibility hacks like renaming unused _vars, re-exporting types, adding // removed comments for removed code, etc. If you are certain that something is unused, you can delete it completely.`,
+    ...(getFeatureValue_CACHED_MAY_BE_STALE(
+      'tengu_verified_vs_assumed',
+      false,
+    )
+      ? [
+          `When reporting results, be accurate about what you verified vs. what you assumed. Distinguish between what you confirmed (ran a command, read a file) and what you believe but did not check. Do not assert assumptions as facts.`,
+        ]
+      : []),
     // @[MODEL LAUNCH]: False-claims mitigation for Capybara v8 (29-30% FC rate vs v4's 16.7%)
     ...(process.env.USER_TYPE === 'ant'
       ? [
@@ -458,18 +517,23 @@ export async function getSystemPrompt(
   model: string,
   additionalWorkingDirectories?: string[],
   mcpClients?: MCPServerConnection[],
+  options?: { excludeDynamicSections?: boolean },
 ): Promise<string[]> {
   if (isEnvTruthy(process.env.CLAUDE_CODE_SIMPLE)) {
-    return [
-      `You are Claude Code, Anthropic's official CLI for Claude.\n\nCWD: ${getCwd()}\nDate: ${getSessionStartDate()}`,
-    ]
+    return options?.excludeDynamicSections
+      ? []
+      : [
+          `CWD: ${getCwd()}\nDate: ${getSessionStartDate()}`,
+        ]
   }
 
   const cwd = getCwd()
   const [skillToolCommands, outputStyleConfig, envInfo] = await Promise.all([
     getSkillToolCommands(cwd),
     getOutputStyleConfig(),
-    computeSimpleEnvInfo(model, additionalWorkingDirectories),
+    options?.excludeDynamicSections
+      ? computeStaticEnvInfo(model)
+      : computeSimpleEnvInfo(model, additionalWorkingDirectories),
   ])
 
   const settings = getInitialSettings()
@@ -501,25 +565,35 @@ ${CYBER_RISK_INSTRUCTION}`,
   }
 
   const dynamicSections = [
+    systemPromptSection('anti_verbosity', () =>
+      getAntiVerbositySection(model),
+    ),
     systemPromptSection('thinking_guidance', () =>
       getThinkingGuidanceSection(model),
     ),
     systemPromptSection('session_guidance', () =>
       getSessionSpecificGuidanceSection(enabledTools, skillToolCommands),
     ),
-    systemPromptSection('memory', () => loadMemoryPrompt()),
+    ...(options?.excludeDynamicSections
+      ? []
+      : [systemPromptSection('memory', () => loadMemoryPrompt())]),
     systemPromptSection('ant_model_override', () =>
       getAntModelOverrideSection(),
     ),
-    systemPromptSection('env_info_simple', () =>
-      computeSimpleEnvInfo(model, additionalWorkingDirectories),
-    ),
+    ...(options?.excludeDynamicSections
+      ? [systemPromptSection('env_info_static', () => computeStaticEnvInfo(model))]
+      : [
+          systemPromptSection('env_info_simple', () =>
+            computeSimpleEnvInfo(model, additionalWorkingDirectories),
+          ),
+        ]),
     systemPromptSection('language', () =>
       getLanguageSection(settings.language),
     ),
     systemPromptSection('output_style', () =>
       getOutputStyleSection(outputStyleConfig),
     ),
+    systemPromptSection('bg-session', () => getBackgroundSessionSection()),
     // When delta enabled, instructions are announced via persisted
     // mcp_instructions_delta attachments (attachments.ts) instead of this
     // per-turn recompute, which busts the prompt cache on late MCP connect.
@@ -568,6 +642,11 @@ ${CYBER_RISK_INSTRUCTION}`,
       ? [systemPromptSection('brief', () => getBriefSection())]
       : []),
     systemPromptSection('focus_mode', () => getFocusModeSection()),
+    systemPromptSection('reproduce_verify_workflow', () =>
+      shouldIncludeReproduceVerifyWorkflow()
+        ? REPRODUCE_VERIFY_WORKFLOW
+        : null,
+    ),
   ]
 
   const resolvedDynamicSections =
@@ -584,6 +663,7 @@ ${CYBER_RISK_INSTRUCTION}`,
     getActionsSection(),
     getUsingYourToolsSection(enabledTools),
     getSimpleToneAndStyleSection(),
+    ...(options?.excludeDynamicSections ? [getStaticMemoryPrompt()] : []),
     // === BOUNDARY MARKER - DO NOT MOVE OR REMOVE ===
     ...(shouldUseGlobalCacheScope() ? [SYSTEM_PROMPT_DYNAMIC_BOUNDARY] : []),
     // --- Dynamic content (registry-managed) ---
@@ -708,13 +788,13 @@ export async function computeSimpleEnvInfo(
     knowledgeCutoffMessage,
     process.env.USER_TYPE === 'ant' && isUndercover()
       ? null
-      : `The most recent Claude model family is Claude 4.5/4.6. Model IDs — Opus 4.6: '${CLAUDE_4_5_OR_4_6_MODEL_IDS.opus}', Sonnet 4.6: '${CLAUDE_4_5_OR_4_6_MODEL_IDS.sonnet}', Haiku 4.5: '${CLAUDE_4_5_OR_4_6_MODEL_IDS.haiku}'. When building AI applications, default to the latest and most capable Claude models.`,
+      : `The most recent Claude model family is Claude 4.X. Model IDs — Opus 4.7: '${CLAUDE_4_X_MODEL_IDS.opus}', Sonnet 4.6: '${CLAUDE_4_X_MODEL_IDS.sonnet}', Haiku 4.5: '${CLAUDE_4_X_MODEL_IDS.haiku}'. When building AI applications, default to the latest and most capable Claude models.`,
     process.env.USER_TYPE === 'ant' && isUndercover()
       ? null
       : `Claude Code is available as a CLI in the terminal, desktop app (Mac/Windows), web app (claude.ai/code), and IDE extensions (VS Code, JetBrains).`,
     process.env.USER_TYPE === 'ant' && isUndercover()
       ? null
-      : `Fast mode for Claude Code uses the same ${FRONTIER_MODEL_NAME} model with faster output. It does NOT switch to a different model. It can be toggled with /fast.`,
+      : `Fast mode for Claude Code uses Claude Opus 4.6 with faster output (it does not downgrade to a smaller model). It can be toggled with /fast and is only available on Opus 4.6.`,
   ].filter(item => item !== null)
 
   return [
@@ -724,10 +804,96 @@ export async function computeSimpleEnvInfo(
   ].join(`\n`)
 }
 
+export function computeStaticEnvInfo(modelId: string): string {
+  let modelDescription: string | null = null
+  if (!(process.env.USER_TYPE === 'ant' && isUndercover())) {
+    const marketingName = getMarketingNameForModel(modelId)
+    modelDescription = marketingName
+      ? `You are powered by the model named ${marketingName}. The exact model ID is ${modelId}.`
+      : `You are powered by the model ${modelId}.`
+  }
+
+  const cutoff = getKnowledgeCutoff(modelId)
+  const items = [
+    modelDescription,
+    cutoff ? `Assistant knowledge cutoff is ${cutoff}.` : null,
+    process.env.USER_TYPE === 'ant' && isUndercover()
+      ? null
+      : `The most recent Claude model family is Claude 4.X. Model IDs — Opus 4.7: '${CLAUDE_4_X_MODEL_IDS.opus}', Sonnet 4.6: '${CLAUDE_4_X_MODEL_IDS.sonnet}', Haiku 4.5: '${CLAUDE_4_X_MODEL_IDS.haiku}'. When building AI applications, default to the latest and most capable Claude models.`,
+    process.env.USER_TYPE === 'ant' && isUndercover()
+      ? null
+      : `Claude Code is available as a CLI in the terminal, desktop app (Mac/Windows), web app (claude.ai/code), and IDE extensions (VS Code, JetBrains).`,
+    process.env.USER_TYPE === 'ant' && isUndercover()
+      ? null
+      : `Fast mode for Claude Code uses Claude Opus 4.6 with faster output (it does not downgrade to a smaller model). It can be toggled with /fast and is only available on Opus 4.6.`,
+  ].filter(item => item !== null)
+
+  return [`# Environment`, ...prependBullets(items)].join(`\n`)
+}
+
+export async function computeDynamicEnvInfo(
+  additionalWorkingDirectories?: string[],
+): Promise<string> {
+  const [isGit, unameSR] = await Promise.all([getIsGit(), getUnameSR()])
+  const cwd = getCwd()
+  const isWorktree = getCurrentWorktreeSession() !== null
+  const items = [
+    `Primary working directory: ${cwd}`,
+    isWorktree
+      ? `This is a git worktree — an isolated copy of the repository. Run all commands from this directory. Do NOT \`cd\` to the original repository root.`
+      : null,
+    [`Is a git repository: ${isGit}`],
+    additionalWorkingDirectories && additionalWorkingDirectories.length > 0
+      ? `Additional working directories:`
+      : null,
+    additionalWorkingDirectories && additionalWorkingDirectories.length > 0
+      ? additionalWorkingDirectories
+      : null,
+    `Platform: ${env.platform}`,
+    getShellInfoLine(),
+    `OS Version: ${unameSR}`,
+  ].filter(item => item !== null)
+
+  return [
+    `# Environment`,
+    `You have been invoked in the following environment: `,
+    ...prependBullets(items),
+  ].join(`\n`)
+}
+
+function splitPromptSection(section: string): [string, string] {
+  const newline = section.indexOf('\n')
+  const heading = newline === -1 ? section : section.slice(0, newline)
+  if (!heading.startsWith('# ')) {
+    throw new Error(
+      `getExcludedDynamicSectionsContent: expected section body to start with a "# <heading>" line, got "${heading}"`,
+    )
+  }
+  return [heading.slice(2), newline === -1 ? '' : section.slice(newline + 1)]
+}
+
+export async function getExcludedDynamicSectionsContent(
+  additionalWorkingDirectories?: string[],
+): Promise<Record<string, string>> {
+  const [environment, memory] = await Promise.all([
+    computeDynamicEnvInfo(additionalWorkingDirectories),
+    getDynamicMemoryPrompt(),
+  ])
+  const content: Record<string, string> = {}
+  for (const section of [environment, memory]) {
+    if (!section) continue
+    const [heading, body] = splitPromptSection(section)
+    content[heading] = body
+  }
+  return content
+}
+
 // @[MODEL LAUNCH]: Add a knowledge cutoff date for the new model.
 function getKnowledgeCutoff(modelId: string): string | null {
   const canonical = getCanonicalName(modelId)
-  if (canonical.includes('claude-sonnet-4-6')) {
+  if (canonical.includes('claude-opus-4-7')) {
+    return 'January 2026'
+  } else if (canonical.includes('claude-sonnet-4-6')) {
     return 'August 2025'
   } else if (canonical.includes('claude-opus-4-6')) {
     return 'May 2025'

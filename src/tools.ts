@@ -306,6 +306,10 @@ export const getTools = (permissionContext: ToolPermissionContext): Tools => {
 
   // Filter out tools that are denied by the deny rules
   let allowedTools = filterToolsByDenyRules(tools, permissionContext)
+  const bashAvailable =
+    allowedTools.some(tool => toolMatchesName(tool, BashTool.name)) &&
+    BashTool.isEnabled()
+  let replOwnsPrimitives = false
 
   // When REPL mode is enabled, hide primitive tools from direct use.
   // They're still accessible inside REPL via the VM context.
@@ -317,11 +321,20 @@ export const getTools = (permissionContext: ToolPermissionContext): Tools => {
       allowedTools = allowedTools.filter(
         tool => !REPL_ONLY_TOOLS.has(tool.name),
       )
+      replOwnsPrimitives = true
     }
   }
 
   const isEnabled = allowedTools.map(_ => _.isEnabled())
-  return allowedTools.filter((_, i) => isEnabled[i])
+  let enabledTools = allowedTools.filter((_, i) => isEnabled[i])
+  if (hasEmbeddedSearchTools() && !bashAvailable && !replOwnsPrimitives) {
+    const searchFallbacks = filterToolsByDenyRules(
+      [GlobTool, GrepTool].filter(tool => !enabledTools.includes(tool)),
+      permissionContext,
+    )
+    enabledTools = [...enabledTools, ...searchFallbacks]
+  }
+  return enabledTools
 }
 
 /**

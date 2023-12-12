@@ -1,16 +1,19 @@
 import { getGlobalConfig, saveGlobalConfig } from '../config.js'
+import { createSignal } from '../signal.js'
 
 const SKILL_USAGE_DEBOUNCE_MS = 60_000
 
 // Process-lifetime debounce cache — avoids lock + read + parse on debounced
 // calls. Same pattern as lastConfigStatTime / globalConfigWriteCount in config.ts.
 const lastWriteBySkill = new Map<string, number>()
+export const skillInvoked = createSignal<[skillName: string]>()
 
 /**
  * Records a skill usage for ranking purposes.
  * Updates both usage count and last used timestamp.
  */
 export function recordSkillUsage(skillName: string): void {
+  skillInvoked.emit(skillName)
   const now = Date.now()
   const lastWrite = lastWriteBySkill.get(skillName)
   // The ranking algorithm uses a 7-day half-life, so sub-minute granularity

@@ -22,6 +22,7 @@ import { AssistantToolUseMessage } from './messages/AssistantToolUseMessage.js';
 import { AttachmentMessage } from './messages/AttachmentMessage.js';
 import { CollapsedReadSearchContent } from './messages/CollapsedReadSearchContent.js';
 import { CompactBoundaryMessage } from './messages/CompactBoundaryMessage.js';
+import { Divider } from './design-system/Divider.js';
 import { GroupedToolUseContent } from './messages/GroupedToolUseContent.js';
 import { SystemTextMessage } from './messages/SystemTextMessage.js';
 import { UserImageMessage } from './messages/UserImageMessage.js';
@@ -245,6 +246,11 @@ function MessageImpl(t0) {
         }
         if (message.subtype === "microcompact_boundary") {
           return null;
+        }
+        if (message.subtype === "read_divider") {
+          return <Box marginTop={1} width="100%">
+            <Divider title={message.content} color="inactive" />
+          </Box>;
         }
         if (feature("HISTORY_SNIP")) {
           const {

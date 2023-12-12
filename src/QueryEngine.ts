@@ -39,6 +39,7 @@ import type { AppState } from './state/AppState.js'
 import { makeSetReplContext } from './state/AppStateStore.js'
 import { type Tools, type ToolUseContext, toolMatchesName } from './Tool.js'
 import type { AgentDefinition } from './tools/AgentTool/loadAgentsDir.js'
+import { createBashRerunAliases } from './tools/BashTool/rerun.js'
 import type { ReplIsolationLatch } from './tools/REPLTool/types.js'
 import { SYNTHETIC_OUTPUT_TOOL_NAME } from './tools/SyntheticOutputTool/SyntheticOutputTool.js'
 import type { Message } from './types/message.js'
@@ -49,7 +50,7 @@ import {
 } from './types/plugin.js'
 import { createAbortController } from './utils/abortController.js'
 import type { AttributionState } from './utils/commitAttribution.js'
-import { getGlobalConfig } from './utils/config.js'
+import { getConfigValue } from './utils/settings/configSettings.js'
 import { getCwd } from './utils/cwd.js'
 import { isBareMode, isEnvTruthy } from './utils/envUtils.js'
 import { getFastModeState } from './utils/fastMode.js'
@@ -156,6 +157,7 @@ export type QueryEngineConfig = {
   commands: Command[]
   mcpClients: MCPServerConnection[]
   agents: AgentDefinition[]
+  allowedAgentTypes?: string[]
   canUseTool: CanUseToolFn
   getAppState: () => AppState
   setAppState: (f: (prev: AppState) => AppState) => void
@@ -163,6 +165,7 @@ export type QueryEngineConfig = {
   readFileCache: FileStateCache
   customSystemPrompt?: string
   appendSystemPrompt?: string
+  excludeDynamicSections?: boolean
   planModeInstructions?: string
   userSpecifiedModel?: string
   fallbackModel?: string
@@ -220,6 +223,7 @@ export class QueryEngine {
   // at the start of each submitMessage to avoid unbounded growth across
   // many turns in SDK mode.
   private discoveredSkillNames = new Set<string>()
+  private bashRerunAliases = createBashRerunAliases()
   private loadedNestedMemoryPaths = new Set<string>()
   private isolationLatch: ReplIsolationLatch
 
@@ -235,7 +239,7 @@ export class QueryEngine {
 
   async *submitMessage(
     prompt: string | ContentBlockParam[],
-    options?: { uuid?: string; isMeta?: boolean },
+    options?: { uuid?: string; isMeta?: boolean; clientPlatform?: string },
   ): AsyncGenerator<SDKMessage, void, unknown> {
     const {
       cwd,
@@ -250,6 +254,7 @@ export class QueryEngine {
       canUseTool,
       customSystemPrompt,
       appendSystemPrompt,
+      excludeDynamicSections,
       planModeInstructions,
       userSpecifiedModel,
       fallbackModel,
@@ -259,6 +264,7 @@ export class QueryEngine {
       replayUserMessages = false,
       includePartialMessages = false,
       agents = [],
+      allowedAgentTypes,
       setSDKStatus,
       orphanedPermission,
     } = this.config
@@ -325,6 +331,7 @@ export class QueryEngine {
       ),
       mcpClients,
       customSystemPrompt: customPrompt,
+      excludeDynamicSections,
     })
     headlessProfilerCheckpoint('after_getSystemPrompt')
     const userContext = {
@@ -388,10 +395,16 @@ export class QueryEngine {
         isNonInteractiveSession: true,
         customSystemPrompt,
         appendSystemPrompt,
+        excludeDynamicSections,
         planModeInstructions,
-        agentDefinitions: { activeAgents: agents, allAgents: [] },
-        theme: resolveThemeSetting(getGlobalConfig().theme),
+        agentDefinitions: {
+          activeAgents: agents,
+          allAgents: [],
+          allowedAgentTypes,
+        },
+        theme: resolveThemeSetting(getConfigValue('theme', 'dark').value),
         maxBudgetUsd,
+        messageClientPlatform: options?.clientPlatform,
       },
       getAppState,
       setAppState,
@@ -403,6 +416,7 @@ export class QueryEngine {
       loadedNestedMemoryPaths: this.loadedNestedMemoryPaths,
       dynamicSkillDirTriggers: new Set<string>(),
       discoveredSkillNames: this.discoveredSkillNames,
+      bashRerunAliases: this.bashRerunAliases,
       setInProgressToolUseIDs: () => {},
       setResponseLength: () => {},
       updateFileHistoryState: (
@@ -564,10 +578,16 @@ export class QueryEngine {
         isNonInteractiveSession: true,
         customSystemPrompt,
         appendSystemPrompt,
+        excludeDynamicSections,
         planModeInstructions,
-        theme: resolveThemeSetting(getGlobalConfig().theme),
-        agentDefinitions: { activeAgents: agents, allAgents: [] },
+        theme: resolveThemeSetting(getConfigValue('theme', 'dark').value),
+        agentDefinitions: {
+          activeAgents: agents,
+          allAgents: [],
+          allowedAgentTypes,
+        },
         maxBudgetUsd,
+        messageClientPlatform: options?.clientPlatform,
       },
       getAppState,
       setAppState,
@@ -579,6 +599,7 @@ export class QueryEngine {
       loadedNestedMemoryPaths: this.loadedNestedMemoryPaths,
       dynamicSkillDirTriggers: new Set<string>(),
       discoveredSkillNames: this.discoveredSkillNames,
+      bashRerunAliases: this.bashRerunAliases,
       setInProgressToolUseIDs: () => {},
       setResponseLength: () => {},
       updateFileHistoryState: processUserInputContext.updateFileHistoryState,
@@ -1257,6 +1278,7 @@ export async function* ask({
   prompt,
   promptUuid,
   isMeta,
+  clientPlatform,
   cwd,
   tools,
   mcpClients,
@@ -1271,6 +1293,7 @@ export async function* ask({
   setReadFileCache,
   customSystemPrompt,
   appendSystemPrompt,
+  excludeDynamicSections,
   planModeInstructions,
   userSpecifiedModel,
   fallbackModel,
@@ -1283,6 +1306,7 @@ export async function* ask({
   includePartialMessages = false,
   handleElicitation,
   agents = [],
+  allowedAgentTypes,
   setSDKStatus,
   orphanedPermission,
 }: {
@@ -1290,6 +1314,7 @@ export async function* ask({
   prompt: string | Array<ContentBlockParam>
   promptUuid?: string
   isMeta?: boolean
+  clientPlatform?: string
   cwd: string
   tools: Tools
   verbose?: boolean
@@ -1302,6 +1327,7 @@ export async function* ask({
   mutableMessages?: Message[]
   customSystemPrompt?: string
   appendSystemPrompt?: string
+  excludeDynamicSections?: boolean
   planModeInstructions?: string
   userSpecifiedModel?: string
   fallbackModel?: string
@@ -1316,6 +1342,7 @@ export async function* ask({
   includePartialMessages?: boolean
   handleElicitation?: ToolUseContext['handleElicitation']
   agents?: AgentDefinition[]
+  allowedAgentTypes?: string[]
   setSDKStatus?: (status: SDKStatus) => void
   orphanedPermission?: OrphanedPermission
 }): AsyncGenerator<SDKMessage, void, unknown> {
@@ -1325,6 +1352,7 @@ export async function* ask({
     commands,
     mcpClients,
     agents,
+    allowedAgentTypes,
     canUseTool,
     getAppState,
     setAppState,
@@ -1332,6 +1360,7 @@ export async function* ask({
     readFileCache: cloneFileStateCache(getReadFileCache()),
     customSystemPrompt,
     appendSystemPrompt,
+    excludeDynamicSections,
     planModeInstructions,
     userSpecifiedModel,
     fallbackModel,
@@ -1363,6 +1392,7 @@ export async function* ask({
     yield* engine.submitMessage(prompt, {
       uuid: promptUuid,
       isMeta,
+      clientPlatform,
     })
   } finally {
     setReadFileCache(engine.getReadFileState())

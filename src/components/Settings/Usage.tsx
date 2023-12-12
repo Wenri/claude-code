@@ -109,7 +109,7 @@ function LimitBar(t0) {
     }
     let t8;
     if ($[14] !== t2 || $[15] !== t6 || $[16] !== t7) {
-      t8 = <Box flexDirection="column">{t2}{t6}{t7}</Box>;
+      t8 = <Box flexDirection="column" flexShrink={0}>{t2}{t6}{t7}</Box>;
       $[14] = t2;
       $[15] = t6;
       $[16] = t7;
@@ -164,7 +164,7 @@ function LimitBar(t0) {
     }
     let t8;
     if ($[30] !== t4 || $[31] !== t6 || $[32] !== t7) {
-      t8 = <Box flexDirection="column">{t4}{t6}{t7}</Box>;
+      t8 = <Box flexDirection="column" flexShrink={0}>{t4}{t6}{t7}</Box>;
       $[30] = t4;
       $[31] = t6;
       $[32] = t7;
@@ -180,13 +180,15 @@ export function Usage(): React.ReactNode {
   const maxWidth = Math.min(columns - 2, 80);
   const isThinClient = getRuntimeCapabilities().remote !== null;
 
-  return <Box flexDirection="column" gap={1} width="100%">
-      <SessionCost isThinClient={isThinClient} />
-      {isClaudeAISubscriber()
-        ? <UsageContent maxWidth={maxWidth} />
-        : <Text dimColor>
-            <ConfigurableShortcutHint action="confirm:no" context="Settings" fallback="Esc" description="cancel" />
-          </Text>}
+  return <Box flexDirection="column" width="100%">
+      <Box flexDirection="column" gap={1} flexShrink={0}>
+        <SessionCost isThinClient={isThinClient} />
+        {isClaudeAISubscriber()
+          ? <UsageContent maxWidth={maxWidth} />
+          : <Text dimColor>
+              <ConfigurableShortcutHint action="confirm:no" context="Settings" fallback="Esc" description="cancel" />
+            </Text>}
+      </Box>
     </Box>;
 }
 

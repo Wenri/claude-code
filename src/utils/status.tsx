@@ -99,15 +99,33 @@ export function buildMcpProperties(clients: MCPServerConnection[] = [], theme: T
     connected: 0,
     pending: 0,
     needsAuth: 0,
+    disabled: 0,
     failed: 0
   };
   for (const s of servers) {
-    if (s.type === 'connected') byState.connected++;else if (s.type === 'pending') byState.pending++;else if (s.type === 'needs-auth') byState.needsAuth++;else byState.failed++;
+    switch (s.type) {
+      case 'connected':
+        byState.connected++;
+        break;
+      case 'pending':
+        byState.pending++;
+        break;
+      case 'needs-auth':
+        byState.needsAuth++;
+        break;
+      case 'disabled':
+        byState.disabled++;
+        break;
+      case 'failed':
+        byState.failed++;
+        break;
+    }
   }
   const parts: string[] = [];
   if (byState.connected) parts.push(color('success', theme)(`${byState.connected} connected`));
   if (byState.needsAuth) parts.push(color('warning', theme)(`${byState.needsAuth} need auth`));
   if (byState.pending) parts.push(color('inactive', theme)(`${byState.pending} pending`));
+  if (byState.disabled) parts.push(color('inactive', theme)(`${byState.disabled} disabled`));
   if (byState.failed) parts.push(color('error', theme)(`${byState.failed} failed`));
   return [{
     label: 'MCP servers',

@@ -95,6 +95,14 @@ type LoadedPluginMarketplace = {
   cachePath: string
 }
 
+const marketplaceRefreshes = new Map<
+  string,
+  {
+    promise: Promise<void>
+    listeners: MarketplaceProgressCallback[]
+  }
+>()
+
 /**
  * Get the path to the known marketplaces configuration file
  * Using a function instead of a constant allows proper mocking in tests
@@ -121,6 +129,7 @@ export function getMarketplacesCacheDir(): string {
  */
 export function clearMarketplacesCache(): void {
   getMarketplace.cache?.clear?.()
+  marketplaceRefreshes.clear()
 }
 
 /**
@@ -1144,25 +1153,57 @@ async function cacheMarketplaceFromGit(
     )
   }
 
+  const backupPath = `${cachePath}.bak`
+  let movedExistingCache = false
+
+  // Recover a backup left by an interrupted previous refresh. If a complete
+  // live cache exists, prefer it and discard the stale backup. If the live
+  // cache is partial, restore the backup before continuing.
   try {
-    await fs.rm(cachePath, { recursive: true })
-    // rm succeeded — a stale or partially-cloned directory existed; log for diagnostics
+    await fs.rename(backupPath, cachePath)
+  } catch (restoreError) {
+    if (!isENOENT(restoreError)) {
+      const marketplaceJson = join(
+        cachePath,
+        '.claude-plugin',
+        'marketplace.json',
+      )
+      const liveCacheIsComplete = await fs.stat(marketplaceJson).then(
+        () => true,
+        () => false,
+      )
+      if (!liveCacheIsComplete) {
+        await fs.rm(cachePath, { recursive: true, force: true }).catch(() => {})
+        await fs.rename(backupPath, cachePath)
+      }
+    }
+  }
+
+  try {
+    await fs.rm(backupPath, { recursive: true, force: true })
+  } catch (backupCleanupError) {
+    throw new Error(
+      `Failed to clean up stale marketplace backup directory. Please manually delete the directory at ${backupPath} and try again.\n\nTechnical details: ${errorMessage(backupCleanupError)}`,
+    )
+  }
+
+  try {
+    await fs.rename(cachePath, backupPath)
+    movedExistingCache = true
     logForDebugging(
-      `Found stale marketplace directory at ${cachePath}, cleaning up to allow re-clone`,
+      `Found stale marketplace directory at ${cachePath}, moving aside to allow re-clone`,
       { level: 'warn' },
     )
     safeCallProgress(
       onProgress,
       'Found stale directory, cleaning up and re-cloning…',
     )
-  } catch (rmError) {
-    if (!isENOENT(rmError)) {
-      const rmErrorMsg = errorMessage(rmError)
+  } catch (moveError) {
+    if (!isENOENT(moveError)) {
       throw new Error(
-        `Failed to clean up existing marketplace directory. Please manually delete the directory at ${cachePath} and try again.\n\nTechnical details: ${rmErrorMsg}`,
+        `Failed to clean up existing marketplace directory. Please manually delete the directory at ${cachePath} and try again.\n\nTechnical details: ${errorMessage(moveError)}`,
       )
     }
-    // ENOENT — cachePath didn't exist, this is a fresh install, nothing to clean up
   }
 
   // Clone the repository (one attempt — no internal retry loop)
@@ -1189,7 +1230,21 @@ async function cacheMarketplaceFromGit(
     } catch {
       // ignore
     }
+    if (movedExistingCache) {
+      try {
+        await fs.rename(backupPath, cachePath)
+      } catch {
+        // ignore
+      }
+    }
     throw new Error(`Failed to clone marketplace repository: ${result.stderr}`)
+  }
+  if (movedExistingCache) {
+    try {
+      await fs.rm(backupPath, { recursive: true, force: true })
+    } catch {
+      // ignore
+    }
   }
   safeCallProgress(onProgress, 'Clone complete, validating marketplace…')
 }
@@ -1980,6 +2035,7 @@ export async function removeMarketplaceSource(name: string): Promise<void> {
   const cacheDir = getMarketplacesCacheDir()
   const cachePath = join(cacheDir, name)
   await fs.rm(cachePath, { recursive: true, force: true })
+  await fs.rm(`${cachePath}.bak`, { recursive: true, force: true })
   const jsonCachePath = join(cacheDir, `${name}.json`)
   await fs.rm(jsonCachePath, { force: true })
 
@@ -2385,10 +2441,34 @@ export async function refreshAllMarketplaces(): Promise<void> {
  * @param onProgress - Optional callback to report progress
  * @throws If marketplace not found or refresh fails
  */
-export async function refreshMarketplace(
+export function refreshMarketplace(
   name: string,
   onProgress?: MarketplaceProgressCallback,
-  options?: { disableCredentialHelper?: boolean },
+  options?: { disableCredentialHelper?: boolean; skipIfRecent?: boolean },
+): Promise<void> {
+  const key = `${name}:${options?.disableCredentialHelper ? 1 : 0}`
+  const existing = marketplaceRefreshes.get(key)
+  if (existing) {
+    if (onProgress) existing.listeners.push(onProgress)
+    return existing.promise
+  }
+
+  const listeners = onProgress ? [onProgress] : []
+  const promise = performMarketplaceRefresh(
+    name,
+    message => {
+      for (const listener of listeners) safeCallProgress(listener, message)
+    },
+    options,
+  ).finally(() => marketplaceRefreshes.delete(key))
+  marketplaceRefreshes.set(key, { promise, listeners })
+  return promise
+}
+
+async function performMarketplaceRefresh(
+  name: string,
+  onProgress?: MarketplaceProgressCallback,
+  options?: { disableCredentialHelper?: boolean; skipIfRecent?: boolean },
 ): Promise<void> {
   const config = await loadKnownMarketplacesConfig()
   const entry = config[name]
@@ -2403,6 +2483,16 @@ export async function refreshMarketplace(
     throw new Error(
       `Marketplace source '${formatSourceForDisplay(entry.source)}' is blocked by enterprise policy.`,
     )
+  }
+
+  if (options?.skipIfRecent && entry.lastUpdated) {
+    const elapsed = Date.now() - new Date(entry.lastUpdated).getTime()
+    if (elapsed >= 0 && elapsed < 30_000) {
+      logForDebugging(
+        `Skipping refresh for marketplace '${name}' — refreshed ${Math.round(elapsed / 1000)}s ago`,
+      )
+      return
+    }
   }
 
   // Clear the memoization cache for this specific marketplace

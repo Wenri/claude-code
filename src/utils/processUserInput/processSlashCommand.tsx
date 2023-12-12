@@ -548,7 +548,7 @@ export async function processSlashCommand(inputString: string, precedingInputBlo
   // Check if this is a compact result which handle their own synthetic caveat message ordering
   const isCompactResult = newMessages.length > 0 && newMessages[0] && isCompactBoundaryMessage(newMessages[0]);
   return {
-    messages: messageShouldQuery || newMessages.every(isSystemLocalCommandMessage) || isCompactResult ? newMessages : [createSyntheticUserCaveatMessage(), ...newMessages],
+    messages: messageShouldQuery || newMessages.every(message => isSystemLocalCommandMessage(message) || message.type === 'user' && message.isMeta) || isCompactResult ? newMessages : [createSyntheticUserCaveatMessage(), ...newMessages],
     shouldQuery: messageShouldQuery,
     allowedTools,
     model,

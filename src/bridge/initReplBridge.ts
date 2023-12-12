@@ -21,12 +21,17 @@ import type { SDKMessage } from '../entrypoints/agentSdkTypes.js'
 import type { SDKControlResponse } from '../entrypoints/sdk/controlTypes.js'
 import { generateFileSuggestions } from '../hooks/fileSuggestions.js'
 import { getFeatureValue_CACHED_WITH_REFRESH } from '../services/analytics/growthbook.js'
+import {
+  hydrateNotificationPreferences,
+  isKairosPushNotificationsEnabled,
+} from '../services/notificationPreferences.js'
 import { getOrganizationUUID } from '../services/oauth/client.js'
 import {
   isPolicyAllowed,
   waitForPolicyLimitsToLoad,
 } from '../services/policyLimits/index.js'
 import type { Message } from '../types/message.js'
+import { AGENT_COLORS } from '../tools/AgentTool/agentColorManager.js'
 import {
   checkAndRefreshOAuthTokenIfNeeded,
   getClaudeAIOAuthTokens,
@@ -36,6 +41,7 @@ import { getGlobalConfig, saveGlobalConfig } from '../utils/config.js'
 import { logForDebugging } from '../utils/debug.js'
 import { stripDisplayTagsAllowEmpty } from '../utils/displayTags.js'
 import { errorMessage } from '../utils/errors.js'
+import { isEssentialTrafficOnly } from '../utils/privacyLevel.js'
 import { getBranch, getRemoteUrl } from '../utils/git.js'
 import { toSDKMessages } from '../utils/messages/mappers.js'
 import {
@@ -45,8 +51,13 @@ import {
 } from '../utils/messages.js'
 import type { PermissionMode } from '../utils/permissions/PermissionMode.js'
 import {
+  clearInternalEventWriter,
+  getCurrentSessionAgentColor,
   getCurrentSessionTitle,
+  listLocalAgentIds,
   saveCustomTitle,
+  setInternalEventReader,
+  setInternalEventWriter,
 } from '../utils/sessionStorage.js'
 import {
   extractConversationText,
@@ -74,12 +85,18 @@ import {
   createBridgeSession,
   getBridgeSession,
   updateBridgeSessionTitle,
+  updateBridgeSessionColorTag,
 } from './createSession.js'
 import { logBridgeSkip } from './debugUtils.js'
 import { checkEnvLessBridgeMinVersion } from './envLessBridgeConfig.js'
 import { getPollIntervalConfig } from './pollConfig.js'
 import type { BridgeState, ReplBridgeHandle } from './replBridge.js'
 import { initBridgeCore } from './replBridge.js'
+import type {
+  InternalEventReaders,
+  InternalEventWriter,
+} from './replBridgeTransport.js'
+import { syncLocalTranscriptEvents } from './sessionPersistenceSync.js'
 import { setCseShimGate, toCompatSessionId } from './sessionIdCompat.js'
 import type { BridgeWorkerType } from './types.js'
 
@@ -105,6 +122,10 @@ export type InitBridgeOptions = {
   // Optional — print.ts's SDK enableRemoteControl path has no REPL message
   // array; count-3 falls back to the single message text when absent.
   getMessages?: () => Message[]
+  onReadFile?: (
+    path: string,
+    maxBytes?: number,
+  ) => Promise<{ contents: string; absPath: string; truncated?: boolean }>
   // UUIDs already flushed in a prior bridge session. Messages with these
   // UUIDs are excluded from the initial flush to avoid poisoning the
   // server (duplicate UUIDs across sessions cause the WS to be killed).
@@ -119,6 +140,7 @@ export type InitBridgeOptions = {
    */
   outboundOnly?: boolean
   tags?: string[]
+  enableSessionPersistence?: boolean
 }
 
 export async function initReplBridge(
@@ -140,6 +162,8 @@ export async function initReplBridge(
     perpetual,
     outboundOnly,
     tags,
+    onReadFile,
+    enableSessionPersistence,
   } = options ?? {}
 
   // /update hands the active Remote Control session to the replacement
@@ -156,6 +180,42 @@ export async function initReplBridge(
   // Wire the cse_ shim kill switch so toCompatSessionId respects the
   // GrowthBook gate. Daemon/SDK paths skip this — shim defaults to active.
   setCseShimGate(isCseShimEnabled)
+
+  let persistenceGeneration = 0
+  const persistenceCallbacks = {
+    onTransportPersistenceReady: (
+      writer: InternalEventWriter,
+      readers: InternalEventReaders,
+    ): void => {
+      const generation = ++persistenceGeneration
+      void (async () => {
+        try {
+          const agentIds = await listLocalAgentIds()
+          await syncLocalTranscriptEvents(writer, readers, agentIds)
+        } catch (error) {
+          logForDebugging(
+            `[bridge:repl] Persistence sync failed: ${errorMessage(error)}`,
+            { level: 'error' },
+          )
+        }
+        if (generation !== persistenceGeneration) {
+          logForDebugging(
+            '[bridge:repl] Transport torn down during sync — skipping writer install',
+          )
+          return
+        }
+        setInternalEventWriter(writer)
+        setInternalEventReader(readers.readMain, readers.readSubagents)
+        logForDebugging(
+          '[bridge:repl] Session persistence enabled — transcript writer + hydrate readers registered',
+        )
+      })()
+    },
+    onTransportPersistenceTeardown: (): void => {
+      persistenceGeneration++
+      clearInternalEventWriter()
+    },
+  }
 
   // 1. Runtime gate
   if (!(await isBridgeEnabledBlocking())) {
@@ -182,6 +242,15 @@ export async function initReplBridge(
     logBridgeSkip(
       'policy_denied',
       '[bridge:repl] Skipping: allow_remote_control policy not allowed',
+    )
+    onStateChange?.('failed', "disabled by your organization's policy")
+    return null
+  }
+
+  if (outboundOnly && !isPolicyAllowed('allow_remote_sessions')) {
+    logBridgeSkip(
+      'policy_denied',
+      '[bridge:repl] Skipping mirror: allow_remote_sessions policy not allowed',
     )
     onStateChange?.('failed', "disabled by your organization's policy")
     return null
@@ -463,6 +532,9 @@ export async function initReplBridge(
     return null
   }
 
+  const branch = await getBranch()
+  const gitRepoUrl = await getRemoteUrl()
+
   // ── GrowthBook gate: env-less bridge ──────────────────────────────────
   // When enabled, skips the Environments API layer entirely (no register/
   // poll/ack/heartbeat) and connects directly via POST /bridge → worker_jwt.
@@ -509,6 +581,29 @@ export async function initReplBridge(
       // session creation (replBridge.ts:768); v2 skips the param entirely.
       onInboundMessage,
       onUserMessage,
+      onSessionEstablished: sessionId => {
+        setupBridgeClientPresence(
+          toCompatSessionId(sessionId),
+          baseUrl,
+          () => {
+            const token = getBridgeAccessToken()
+            return token ? { Authorization: `Bearer ${token}` } : {}
+          },
+        )
+        if (
+          isKairosPushNotificationsEnabled() &&
+          !isEssentialTrafficOnly()
+        ) {
+          void hydrateNotificationPreferences()
+        }
+        const color = getCurrentSessionAgentColor()
+        if (color && color !== 'default') {
+          void updateBridgeSessionColorTag(sessionId, color, AGENT_COLORS, {
+            baseUrl,
+            getAccessToken: getBridgeAccessToken,
+          })
+        }
+      },
       onPermissionResponse,
       onInterrupt,
       onSetModel,
@@ -517,13 +612,17 @@ export async function initReplBridge(
       onRenameSession,
       onSetColor,
       onFileSuggestions,
+      onReadFile,
       onStateChange,
       outboundOnly,
       tags,
+      gitRepoUrl,
+      branch,
       reattachSessionId,
       reattachSequenceNum,
+      ...(enableSessionPersistence ? persistenceCallbacks : {}),
     })
-    return attachClientPresence(handle, baseUrl)
+    return attachClientPresenceCleanup(handle)
   }
 
   // ── v1 path: env-based (register/poll/ack/heartbeat) ──────────────────
@@ -537,8 +636,6 @@ export async function initReplBridge(
 
   // Gather git context — this is the bootstrap-read boundary.
   // Everything from here down is passed explicitly to bridgeCore.
-  const branch = await getBranch()
-  const gitRepoUrl = await getRemoteUrl()
   const sessionIngressUrl =
     process.env.USER_TYPE === 'ant' &&
     process.env.CLAUDE_BRIDGE_SESSION_INGRESS_URL
@@ -617,9 +714,17 @@ export async function initReplBridge(
     onRenameSession,
     onSetColor,
     onFileSuggestions,
+    onReadFile,
     onStateChange,
     perpetual,
   })
+  if (
+    handle &&
+    isKairosPushNotificationsEnabled() &&
+    !isEssentialTrafficOnly()
+  ) {
+    void hydrateNotificationPreferences()
+  }
   return attachClientPresence(handle, baseUrl)
 }
 
@@ -639,6 +744,21 @@ function attachClientPresence(
     return token ? { Authorization: `Bearer ${token}` } : {}
     },
   )
+  const teardown = handle.teardown.bind(handle)
+  handle.teardown = async options => {
+    cleanupBridgeClientPresence()
+    await teardown(options)
+  }
+  return handle
+}
+
+function attachClientPresenceCleanup(
+  handle: ReplBridgeHandle | null,
+): ReplBridgeHandle | null {
+  if (!handle) {
+    cleanupBridgeClientPresence()
+    return null
+  }
   const teardown = handle.teardown.bind(handle)
   handle.teardown = async options => {
     cleanupBridgeClientPresence()

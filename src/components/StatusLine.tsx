@@ -19,6 +19,7 @@ import { checkHasTrustDialogAccepted } from '../utils/config.js';
 import { calculateContextPercentages, getContextWindowForModel } from '../utils/context.js';
 import { getCwd } from '../utils/cwd.js';
 import { logForDebugging } from '../utils/debug.js';
+import { getDisplayedEffortLevel, modelSupportsEffort, type EffortValue } from '../utils/effort.js';
 import { isFullscreenEnvEnabled } from '../utils/fullscreen.js';
 import { getGitWorktreeName } from '../utils/git.js';
 import { createBaseHookInput, executeStatusLineCommand } from '../utils/hooks.js';
@@ -34,7 +35,7 @@ export function statusLineShouldDisplay(settings: ReadonlySettings): boolean {
   if (feature('KAIROS') && getKairosActive()) return false;
   return settings?.statusLine !== undefined;
 }
-function buildStatusLineCommandInput(permissionMode: PermissionMode, exceeds200kTokens: boolean, settings: ReadonlySettings, messages: Message[], addedDirs: string[], mainLoopModel: ModelName, gitWorktree: string | null, vimMode?: VimMode): StatusLineCommandInput {
+function buildStatusLineCommandInput(permissionMode: PermissionMode, exceeds200kTokens: boolean, settings: ReadonlySettings, messages: Message[], addedDirs: string[], mainLoopModel: ModelName, gitWorktree: string | null, vimMode?: VimMode, effortValue?: EffortValue, thinkingEnabled?: boolean): StatusLineCommandInput {
   const agentType = getMainThreadAgentType();
   const worktreeSession = getCurrentWorktreeSession();
   const runtimeModel = getRuntimeMainLoopModel({
@@ -100,6 +101,14 @@ function buildStatusLineCommandInput(permissionMode: PermissionMode, exceeds200k
       remaining_percentage: contextPercentages.remaining
     },
     exceeds_200k_tokens: exceeds200kTokens,
+    ...(modelSupportsEffort(runtimeModel) && {
+      effort: {
+        level: getDisplayedEffortLevel(runtimeModel, effortValue)
+      }
+    }),
+    thinking: {
+      enabled: thinkingEnabled !== false
+    },
     ...((rateLimits.five_hour || rateLimits.seven_day) && {
       rate_limits: rateLimits
     }),
@@ -148,6 +157,8 @@ function StatusLineInner({
   const permissionMode = useAppState(s => s.toolPermissionContext.mode);
   const additionalWorkingDirectories = useAppState(s => s.toolPermissionContext.additionalWorkingDirectories);
   const statusLineText = useAppState(s => s.statusLineText);
+  const effortValue = useAppState(s => s.effortValue);
+  const thinkingEnabled = useAppState(s => s.thinkingEnabled);
   const setAppState = useSetAppState();
   const settings = useSettings();
   const {
@@ -169,6 +180,10 @@ function StatusLineInner({
   addedDirsRef.current = additionalWorkingDirectories;
   const mainLoopModelRef = useRef(mainLoopModel);
   mainLoopModelRef.current = mainLoopModel;
+  const effortValueRef = useRef(effortValue);
+  effortValueRef.current = effortValue;
+  const thinkingEnabledRef = useRef(thinkingEnabled);
+  thinkingEnabledRef.current = thinkingEnabled;
 
   // Track previous state to detect changes and cache expensive calculations
   const previousStateRef = useRef<{
@@ -177,12 +192,16 @@ function StatusLineInner({
     permissionMode: PermissionMode;
     vimMode: VimMode | undefined;
     mainLoopModel: ModelName;
+    effortValue: EffortValue | undefined;
+    thinkingEnabled: boolean | undefined;
   }>({
     messageId: null,
     exceeds200kTokens: false,
     permissionMode,
     vimMode,
-    mainLoopModel
+    mainLoopModel,
+    effortValue,
+    thinkingEnabled
   });
 
   // Debounce timer ref
@@ -210,7 +229,7 @@ function StatusLineInner({
         previousStateRef.current.messageId = currentMessageId;
         previousStateRef.current.exceeds200kTokens = exceeds200kTokens;
       }
-      const statusInput = buildStatusLineCommandInput(permissionModeRef.current, exceeds200kTokens, settingsRef.current, msgs, Array.from(addedDirsRef.current.keys()), mainLoopModelRef.current, await getGitWorktreeName(getCwd()), vimModeRef.current);
+      const statusInput = buildStatusLineCommandInput(permissionModeRef.current, exceeds200kTokens, settingsRef.current, msgs, Array.from(addedDirsRef.current.keys()), mainLoopModelRef.current, await getGitWorktreeName(getCwd()), vimModeRef.current, effortValueRef.current, thinkingEnabledRef.current);
       const text = await executeStatusLineCommand(statusInput, controller.signal, undefined, logResult);
       if (!controller.signal.aborted) {
         setAppState(prev => {
@@ -239,15 +258,17 @@ function StatusLineInner({
 
   // Only trigger update when assistant message, permission mode, vim mode, or model actually changes
   useEffect(() => {
-    if (lastAssistantMessageId !== previousStateRef.current.messageId || permissionMode !== previousStateRef.current.permissionMode || vimMode !== previousStateRef.current.vimMode || mainLoopModel !== previousStateRef.current.mainLoopModel) {
+    if (lastAssistantMessageId !== previousStateRef.current.messageId || permissionMode !== previousStateRef.current.permissionMode || vimMode !== previousStateRef.current.vimMode || mainLoopModel !== previousStateRef.current.mainLoopModel || effortValue !== previousStateRef.current.effortValue || thinkingEnabled !== previousStateRef.current.thinkingEnabled) {
       // Don't update messageId here — let doUpdate handle it so
       // exceeds200kTokens is recalculated with the latest messages
       previousStateRef.current.permissionMode = permissionMode;
       previousStateRef.current.vimMode = vimMode;
       previousStateRef.current.mainLoopModel = mainLoopModel;
+      previousStateRef.current.effortValue = effortValue;
+      previousStateRef.current.thinkingEnabled = thinkingEnabled;
       scheduleUpdate();
     }
-  }, [lastAssistantMessageId, permissionMode, vimMode, mainLoopModel, scheduleUpdate]);
+  }, [lastAssistantMessageId, permissionMode, vimMode, mainLoopModel, effortValue, thinkingEnabled, scheduleUpdate]);
 
   const refreshInterval = settings?.statusLine?.refreshInterval;
   useEffect(() => {

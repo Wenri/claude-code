@@ -3,6 +3,8 @@
 // consumers treat 'unknown' identically to 'focused' (no throttling).
 // Subscribers are notified synchronously when focus changes, used by
 // TerminalFocusProvider to avoid polling.
+import { setTerminalFocusForState } from '../bootstrap/state.js'
+
 export type TerminalFocusState = 'focused' | 'blurred' | 'unknown'
 
 let focusState: TerminalFocusState = 'unknown'
@@ -11,6 +13,7 @@ const subscribers: Set<() => void> = new Set()
 
 export function setTerminalFocused(v: boolean): void {
   focusState = v ? 'focused' : 'blurred'
+  setTerminalFocusForState(v)
   // Notify useSyncExternalStore subscribers
   for (const cb of subscribers) {
     cb()
@@ -41,6 +44,7 @@ export function subscribeTerminalFocus(cb: () => void): () => void {
 
 export function resetTerminalFocusState(): void {
   focusState = 'unknown'
+  setTerminalFocusForState(undefined)
   for (const cb of subscribers) {
     cb()
   }

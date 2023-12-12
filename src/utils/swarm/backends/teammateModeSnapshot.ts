@@ -6,7 +6,7 @@
  * affect the teammate mode for the current session.
  */
 
-import { getGlobalConfig } from '../../../utils/config.js'
+import { getConfigValue } from '../../../utils/settings/configSettings.js'
 import { logForDebugging } from '../../../utils/debug.js'
 import { logError } from '../../../utils/log.js'
 
@@ -60,8 +60,7 @@ export function captureTeammateModeSnapshot(): void {
       `[TeammateModeSnapshot] Captured from CLI override: ${initialTeammateMode}`,
     )
   } else {
-    const config = getGlobalConfig()
-    initialTeammateMode = config.teammateMode ?? 'auto'
+    initialTeammateMode = getConfigValue('teammateMode', 'auto').value
     logForDebugging(
       `[TeammateModeSnapshot] Captured from config: ${initialTeammateMode}`,
     )

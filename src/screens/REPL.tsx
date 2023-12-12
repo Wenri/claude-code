@@ -1,7 +1,6 @@
 import { c as _c } from "react/compiler-runtime";
 // biome-ignore-all assist/source/organizeImports: ANT-ONLY import markers must not be reordered
 import { feature } from 'bun:bundle';
-import { spawnSync } from 'child_process';
 import { snapshotOutputTokensForTurn, getCurrentTurnTokenBudget, getTurnOutputTokens, getBudgetContinuationCount, getTotalInputTokens } from '../bootstrap/state.js';
 import { getRuntimeCapabilities, setActiveRemoteControlTransport, type ActiveRemoteControlTransport } from '../bootstrap/state.js';
 import { parseTokenBudget } from '../utils/tokenBudget.js';
@@ -48,7 +47,7 @@ import { registerLeaderToolUseConfirmQueue, unregisterLeaderToolUseConfirmQueue,
 import { endInteractionSpan } from '../utils/telemetry/sessionTracing.js';
 import { useLogMessages } from '../hooks/useLogMessages.js';
 import { useReplBridge } from '../hooks/useReplBridge.js';
-import { type Command, type CommandResultDisplay, type ResumeEntrypoint, getCommandName, isCommandEnabled } from '../commands.js';
+import { type Command, type CommandResultDisplay, type ResumeEntrypoint, builtInCommandNames, getCommandName, isCommandEnabled } from '../commands.js';
 import type { PromptInputMode, QueuedCommand, VimMode } from '../types/textInputTypes.js';
 import { MessageSelector, selectableUserMessagesFilter, messagesAfterAreOnlySynthetic } from '../components/MessageSelector.js';
 import { useIdeLogging } from '../hooks/useIdeLogging.js';
@@ -92,6 +91,8 @@ import { useBackgroundTaskNavigation } from '../hooks/useBackgroundTaskNavigatio
 import { useSwarmInitialization } from '../hooks/useSwarmInitialization.js';
 import { useTeammateViewAutoExit } from '../hooks/useTeammateViewAutoExit.js';
 import { errorMessage } from '../utils/errors.js';
+import { permissionBlockSignal } from '../utils/permissionBlockSignal.js';
+import { useJobStateNameSync } from '../hooks/useJobStateNameSync.js';
 import { isHumanTurn } from '../utils/messagePredicates.js';
 import { logError } from '../utils/log.js';
 // Dead code elimination: conditional imports
@@ -128,8 +129,10 @@ import { getScratchpadDir, isScratchpadEnabled } from '../utils/permissions/file
 import { WEB_FETCH_TOOL_NAME } from '../tools/WebFetchTool/prompt.js';
 import { SLEEP_TOOL_NAME } from '../tools/SleepTool/prompt.js';
 import { clearSpeculativeChecks } from '../tools/BashTool/bashPermissions.js';
+import { createBashRerunAliases } from '../tools/BashTool/rerun.js';
 import type { AutoUpdaterResult } from '../utils/autoUpdater.js';
 import { getGlobalConfig, saveGlobalConfig, getGlobalConfigWriteCount } from '../utils/config.js';
+import { getConfigValue } from '../utils/settings/configSettings.js';
 import { hasConsoleBillingAccess } from '../utils/billing.js';
 import { logEvent, type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS } from 'src/services/analytics/index.js';
 import { getFeatureValue_CACHED_MAY_BE_STALE } from 'src/services/analytics/growthbook.js';
@@ -141,6 +144,7 @@ import type { ThinkingConfig } from '../utils/thinking.js';
 import { gracefulShutdownSync } from '../utils/gracefulShutdown.js';
 import { handlePromptSubmit, type PromptInputHelpers } from '../utils/handlePromptSubmit.js';
 import { useQueueProcessor } from '../hooks/useQueueProcessor.js';
+import { useWakeRouter } from '../hooks/useWakeRouter.js';
 import { useMailboxBridge } from '../hooks/useMailboxBridge.js';
 import { queryCheckpoint, logQueryProfileReport } from '../utils/queryProfiler.js';
 import type { Message as MessageType, UserMessage, ProgressMessage, HookResultMessage, PartialCompactDirection } from '../types/message.js';
@@ -177,8 +181,10 @@ import { copyPlanForFork, copyPlanForResume, getCachedPlanSlug, setPlanSlug } fr
 import { clearSessionMetadata, resetSessionFilePointer, adoptResumedSessionFile, removeTranscriptMessage, restoreSessionMetadata, getCurrentSessionTitle, isEphemeralToolProgress, isLoggableMessage, saveWorktreeState, getAgentTranscript } from '../utils/sessionStorage.js';
 import { deserializeMessages } from '../utils/conversationRecovery.js';
 import { extractReadFilesFromMessages, extractBashToolsFromMessages } from '../utils/queryHelpers.js';
-import { resetMicrocompactState } from '../services/compact/microCompact.js';
+import { applyToolResultClears, resetMicrocompactState } from '../services/compact/microCompact.js';
 import { runPostCompactCleanup } from '../services/compact/postCompactCleanup.js';
+import { reconstructResultDedupState, resetResultDedupState } from '../services/tools/resultDedup.js';
+import { ConnectionLifecycleTracker } from '../services/api/connectionState.js';
 import { provisionContentReplacementState, reconstructContentReplacementState, type ContentReplacementRecord } from '../utils/toolResultStorage.js';
 import { partialCompactConversation } from '../services/compact/compact.js';
 import type { LogOption } from '../types/logs.js';
@@ -187,10 +193,12 @@ import { fileHistoryMakeSnapshot, type FileHistoryState, fileHistoryRewind, type
 import { type AttributionState, incrementPromptCount } from '../utils/commitAttribution.js';
 import { recordAttributionSnapshot } from '../utils/sessionStorage.js';
 import { computeStandaloneAgentContext, restoreAgentFromSession, restoreSessionStateFromLog, restoreWorktreeForResume, exitRestoredWorktree } from '../utils/sessionRestore.js';
-import { getSessionBackgroundExitItems, restoreSessionCronTasks } from '../utils/sessionCronTasks.js';
-import { getBackgroundTaskSummary } from '../tasks/pillLabel.js';
+import { restoreSessionCronTasks } from '../utils/sessionCronTasks.js';
+import { getBackgroundTaskExitItems, getBackgroundTaskSummary } from '../tasks/pillLabel.js';
 import { setBackgroundWorkState } from '../utils/backgroundWorkState.js';
 import { isBgSession, updateSessionName, updateSessionActivity } from '../utils/concurrentSessions.js';
+import { isFgLeftArrowAgentsAvailable } from '../utils/agentsFleet.js';
+import { openAgentsFromForeground } from '../cli/bg.js';
 import { isInProcessTeammateTask, type InProcessTeammateTaskState } from '../tasks/InProcessTeammateTask/types.js';
 import { restoreRemoteAgentTasks } from '../tasks/RemoteAgentTask/RemoteAgentTask.js';
 import { useInboxPoller } from '../hooks/useInboxPoller.js';
@@ -209,9 +217,10 @@ import type { SandboxAskCallback, NetworkHostPattern } from '../utils/sandbox/sa
 import { type IDEExtensionInstallationStatus, closeOpenDiffs, getConnectedIdeClient, type IdeType } from '../utils/ide.js';
 import { useIDEIntegration } from '../hooks/useIDEIntegration.js';
 import exit from '../commands/exit/index.js';
+import { detachBackgroundSession } from '../commands/exit/exit.js';
 import { ExitFlow } from '../components/ExitFlow.js';
 import { getCurrentWorktreeSession } from '../utils/worktree.js';
-import { popAllEditable, enqueue, type SetAppState, getCommandQueue, getCommandQueueLength, removeByFilter } from '../utils/messageQueueManager.js';
+import { popAllEditable, enqueue, type SetAppState, getCommandQueue, getCommandQueueLength, getMainThreadCommandQueueLength, removeByFilter } from '../utils/messageQueueManager.js';
 import { useCommandQueue } from '../hooks/useCommandQueue.js';
 import { SessionBackgroundHint } from '../components/SessionBackgroundHint.js';
 import { startBackgroundSession } from '../tasks/LocalMainSessionTask.js';
@@ -258,8 +267,12 @@ import { LspRecommendationMenu } from 'src/components/LspRecommendation/LspRecom
 import { useClaudeCodeHintRecommendation } from 'src/hooks/useClaudeCodeHintRecommendation.js';
 import { PluginHintMenu } from 'src/components/ClaudeCodeHint/PluginHintMenu.js';
 import { DesktopUpsellStartup, shouldShowDesktopUpsellStartup } from 'src/components/DesktopUpsell/DesktopUpsellStartup.js';
+import { UltraplanChoiceDialog } from '../components/UltraplanChoiceDialog.js';
+import { UltraplanLaunchDialog } from '../components/UltraplanLaunchDialog.js';
+import { launchUltraplan } from '../commands/ultraplan.js';
 import { usePluginInstallationStatus } from 'src/hooks/notifs/usePluginInstallationStatus.js';
 import { usePluginAutoupdateNotification } from 'src/hooks/notifs/usePluginAutoupdateNotification.js';
+import { usePluginMonitors } from 'src/hooks/usePluginMonitors.js';
 import { performStartupChecks } from 'src/utils/plugins/performStartupChecks.js';
 import { UserTextMessage } from 'src/components/messages/UserTextMessage.js';
 import { AwsAuthStatusBox } from '../components/AwsAuthStatusBox.js';
@@ -800,6 +813,9 @@ export function REPL({
   useManagePlugins({
     enabled: !isRemoteSession
   });
+  usePluginMonitors({
+    enabled: !isRemoteSession
+  });
   const tasksV2 = useTasksV2WithCollapseEffect();
 
   // Start background plugin installations
@@ -1123,7 +1139,32 @@ export function REPL({
     }
     setToolJSXInternal(args);
   }, []);
-  const [toolUseConfirmQueue, setToolUseConfirmQueue] = useState<ToolUseConfirm[]>([]);
+  const [toolUseConfirmQueue, setToolUseConfirmQueueRaw] = useState<ToolUseConfirm[]>([]);
+  const setToolUseConfirmQueue = useCallback<React.Dispatch<React.SetStateAction<ToolUseConfirm[]>>>(update => {
+    setToolUseConfirmQueueRaw(current => {
+      const next = typeof update === 'function' ? update(current) : update;
+      const request = next[0];
+      if (!request) {
+        permissionBlockSignal.emit(null);
+        return next;
+      }
+      const input = request.input as Record<string, unknown>;
+      let needs: string;
+      if (request.tool.name === 'AskUserQuestion') {
+        const question = Array.isArray(input.questions) ? input.questions[0] as Record<string, unknown> | undefined : undefined;
+        const text = typeof question?.question === 'string' ? question.question : typeof question?.header === 'string' ? question.header : '';
+        needs = text ? `answer: ${text.replace(/\s+/g, ' ').trim().slice(0, 160)}` : 'answer question';
+      } else if (request.tool.name === 'ExitPlanMode') {
+        needs = 'approve plan';
+      } else {
+        const label = request.tool.userFacingName(request.input as never).trim() || request.tool.name;
+        const target = typeof input.command === 'string' ? input.command : typeof input.file_path === 'string' ? input.file_path : typeof input.url === 'string' ? input.url : '';
+        needs = target && !label.includes(target) ? `approve ${label}: ${target.replace(/\s+/g, ' ').trim().slice(0, 160)}` : `approve ${label}`;
+      }
+      permissionBlockSignal.emit(needs);
+      return next;
+    });
+  }, []);
   // Sticky footer JSX registered by permission request components (currently
   // only ExitPlanModePermissionRequest). Renders in FullscreenLayout's `bottom`
   // slot so response options stay visible while the user scrolls a long plan.
@@ -1139,6 +1180,23 @@ export function REPL({
     resolve: (response: PromptResponse) => void;
     reject: (error: Error) => void;
   }>>([]);
+
+  const sandboxHost = sandboxPermissionRequestQueue[0]?.hostPattern.host;
+  const promptTitle = promptQueue[0]?.title;
+  const workerSandboxHost = workerSandboxPermissions.queue[0]?.host;
+  const elicitationServer = elicitation.queue[0]?.serverName;
+  useEffect(() => {
+    permissionBlockSignal.emit(sandboxHost ? `allow network: ${sandboxHost}` : null, 'sandbox');
+  }, [sandboxHost]);
+  useEffect(() => {
+    permissionBlockSignal.emit(promptTitle ? `respond: ${promptTitle}` : null, 'hook-prompt');
+  }, [promptTitle]);
+  useEffect(() => {
+    permissionBlockSignal.emit(workerSandboxHost ? `allow network: ${workerSandboxHost}` : null, 'worker-sandbox');
+  }, [workerSandboxHost]);
+  useEffect(() => {
+    permissionBlockSignal.emit(elicitationServer ? `MCP input: ${elicitationServer}` : null, 'elicitation');
+  }, [elicitationServer]);
 
   // Track bridge cleanup functions for sandbox permission requests so the
   // local dialog handler can cancel the remote prompt when the local user
@@ -1254,6 +1312,12 @@ export function REPL({
     }
     rawSetMessages(next);
   }, []);
+  useJobStateNameSync(useCallback(name => {
+    setMessages(previous => [...previous, createUserMessage({
+      content: `The user named this session "${name}". This may indicate the session's focus or intent.`,
+      isMeta: true
+    })]);
+  }, [setMessages]));
   // Capture the baseline message count alongside the placeholder text so
   // the render can hide it once displayedMessages grows past the baseline.
   const setUserInputOnProcessing = useCallback((input: string | undefined) => {
@@ -1277,10 +1341,6 @@ export function REPL({
     jumpToNew,
     shiftDivider
   } = useUnseenDivider(messages.length);
-  if (feature('AWAY_SUMMARY')) {
-    // biome-ignore lint/correctness/useHookAtTopLevel: feature() is a compile-time constant
-    useAwaySummary(messages, setMessages, isLoading);
-  }
   const [cursor, setCursor] = useState<MessageActionsState | null>(null);
   const cursorNavRef = useRef<MessageActionsNav | null>(null);
   // Memoized so Messages' React.memo holds.
@@ -1291,7 +1351,7 @@ export function REPL({
   // on any user-driven return-to-live action (submit, type-into-empty,
   // overlay appear/dismiss).
   const repinScroll = useCallback((force = false) => {
-    if (!force && !getGlobalConfig().autoScrollEnabled) return;
+    if (!force && !getConfigValue('autoScrollEnabled', true).value) return;
     scrollRef.current?.scrollToBottom();
     onRepin();
     setCursor(null);
@@ -1366,6 +1426,10 @@ export function REPL({
   const [inputValue, setInputValueRaw] = useState(() => consumeEarlyInput());
   const inputValueRef = useRef(inputValue);
   inputValueRef.current = inputValue;
+  if (feature('AWAY_SUMMARY')) {
+    // biome-ignore lint/correctness/useHookAtTopLevel: feature() is a compile-time constant
+    useAwaySummary(messages, setMessages, isLoading, lastUserScrollTsRef, !isRemoteSession, inputValueRef);
+  }
   const insertTextRef = useRef<{
     insert: (text: string) => void;
     setInputWithCursor: (value: string, cursor: number) => void;
@@ -1461,6 +1525,7 @@ export function REPL({
     const kind = remoteSession.isRemoteMode ? 'ccr' : sshRemote.isRemoteMode ? 'ssh' : 'direct';
     return {
       kind,
+      sessionId: kind === 'ccr' ? remoteSessionConfig?.sessionId : undefined,
       viewerOnly: kind === 'ccr' ? remoteSessionConfig?.viewerOnly : undefined,
       async sendControlRequest<Response = Record<string, unknown>>(request: unknown): Promise<Response> {
         if (kind === 'ccr') {
@@ -1469,7 +1534,7 @@ export function REPL({
         throw new Error(`sendControlRequest not yet wired for ${kind} transport`);
       }
     };
-  }, [activeRemote.isRemoteMode, remoteSession.isRemoteMode, remoteSession.sendControlRequest, remoteSessionConfig?.viewerOnly, sshRemote.isRemoteMode]);
+  }, [activeRemote.isRemoteMode, remoteSession.isRemoteMode, remoteSession.sendControlRequest, remoteSessionConfig?.sessionId, remoteSessionConfig?.viewerOnly, sshRemote.isRemoteMode]);
   useEffect(() => {
     setActiveRemoteControlTransport(activeRemoteControlTransport);
     return () => setActiveRemoteControlTransport(null);
@@ -1557,6 +1622,10 @@ export function REPL({
   const [contentReplacementStateRef] = useState(() => ({
     current: provisionContentReplacementState(initialMessages, initialContentReplacements)
   }));
+  const [resultDedupStateRef] = useState(() => ({
+    current: reconstructResultDedupState(initialMessages ?? [])
+  }));
+  const connectionRef = useRef<ConnectionLifecycleTracker | null>(null);
   const [haveShownCostDialog, setHaveShownCostDialog] = useState(getGlobalConfig().hasAcknowledgedCostThreshold);
   const [vimMode, setVimMode] = useState<VimMode>('INSERT');
   const [showBashesDialog, setShowBashesDialog] = useState<string | boolean>(false);
@@ -1732,7 +1801,7 @@ export function REPL({
   // Without this, the spinner briefly disappears between consecutive notifications
   // (e.g., multiple background agents completing in rapid succession) because
   // isLoading goes false momentarily between processing each one.
-  getCommandQueueLength() > 0) &&
+  getMainThreadCommandQueueLength() > 0) &&
   // Hide spinner when waiting for leader to approve permission request
   !pendingWorkerRequest && !onlySleepToolActive && (
   // Hide spinner when streaming text is visible (the text IS the feedback),
@@ -2019,6 +2088,7 @@ export function REPL({
   // before onQuery builds its own context, and discovery on turn N must
   // still attribute a SkillTool call on turn N+k. Cleared in clearConversation.
   const discoveredSkillNamesRef = useRef(new Set<string>());
+  const bashRerunAliasesRef = useRef(createBashRerunAliases());
   // Session-level dedup for nested_memory CLAUDE.md attachments.
   // readFileState is a 100-entry LRU; once it evicts a CLAUDE.md path,
   // the next discovery cycle re-injects it. Cleared in clearConversation.
@@ -2157,12 +2227,37 @@ export function REPL({
   // useLayoutEffect so the re-pin commits before the Ink frame renders —
   // no 1-frame flash of the wrong scroll position.
   const prevDialogRef = useRef(focusedInputDialog);
+  const prePermissionScrollTopRef = useRef<number | null>(null);
   useLayoutEffect(() => {
     const was = prevDialogRef.current === 'tool-permission';
     const now = focusedInputDialog === 'tool-permission';
-    if (was !== now) repinScroll(true);
     prevDialogRef.current = focusedInputDialog;
+    if (was === now) return;
+    const scrollHandle = scrollRef.current;
+    if (now) {
+      prePermissionScrollTopRef.current =
+        scrollHandle && !scrollHandle.isSticky()
+          ? scrollHandle.getScrollTop()
+          : null;
+      repinScroll(true);
+    } else if (prePermissionScrollTopRef.current !== null) {
+      scrollHandle?.scrollTo(prePermissionScrollTopRef.current);
+      prePermissionScrollTopRef.current = null;
+    } else {
+      repinScroll(true);
+    }
   }, [focusedInputDialog, repinScroll]);
+  const hasToolJsx = toolJSX?.jsx != null;
+  const previousHasToolJsxRef = useRef(hasToolJsx);
+  useLayoutEffect(() => {
+    if (
+      previousHasToolJsxRef.current !== hasToolJsx &&
+      (scrollRef.current?.isSticky() ?? true)
+    ) {
+      repinScroll(false);
+    }
+    previousHasToolJsxRef.current = hasToolJsx;
+  }, [hasToolJsx, repinScroll]);
   function onCancel() {
     if (focusedInputDialog === 'elicitation') {
       // Elicitation dialog handles its own Escape, and closing it shouldn't affect any loading state.
@@ -2252,6 +2347,7 @@ export function REPL({
     screen,
     abortSignal: abortController?.signal,
     popCommandFromQueue: handleQueuedCommandOnCancel,
+    getConnectionSummary: () => connectionRef.current?.summary(),
     vimMode,
     isLocalJSXCommand: toolJSX?.isLocalJSXCommand,
     isSearchingHistory,
@@ -2539,6 +2635,9 @@ export function REPL({
       setToolJSX,
       addNotification,
       appendSystemMessage: msg => setMessages(prev => [...prev, msg]),
+      applyHintClears: (clearedIds, clearedContent) => {
+        setMessages(prev => applyToolResultClears(prev, clearedIds, clearedContent));
+      },
       sendOSNotification: opts => {
         void sendNotification(opts, terminal);
       },
@@ -2548,6 +2647,7 @@ export function REPL({
       loadedNestedMemoryPaths: loadedNestedMemoryPathsRef.current,
       dynamicSkillDirTriggers: new Set<string>(),
       discoveredSkillNames: discoveredSkillNamesRef.current,
+      bashRerunAliases: bashRerunAliasesRef.current,
       setResponseLength,
       pushApiMetricsEntry: "external" === 'ant' ? (ttftMs: number) => {
         const now = Date.now();
@@ -2585,7 +2685,8 @@ export function REPL({
       resume,
       setConversationId,
       requestPrompt: feature('HOOK_PROMPTS') ? requestPrompt : undefined,
-      contentReplacementState: contentReplacementStateRef.current
+      contentReplacementState: contentReplacementStateRef.current,
+      resultDedupState: resultDedupStateRef.current
     };
   }, [commands, combinedInitialTools, mainThreadAgentDefinition, debug, initialMcpClients, ideInstallationStatus, dynamicMcpConfig, theme, allowedAgentTypes, store, setAppState, reverify, addNotification, setMessages, onChangeDynamicMcpConfig, resume, requestPrompt, disabled, customSystemPrompt, appendSystemPrompt, setConversationId]);
 
@@ -2725,7 +2826,7 @@ export function REPL({
       });
     }, onStreamingText);
   }, [setMessages, setResponseLength, setStreamMode, setStreamingToolUses, setStreamingThinking, onStreamingText]);
-  const onQueryImpl = useCallback(async (messagesIncludingNewMessages: MessageType[], newMessages: MessageType[], abortController: AbortController, shouldQuery: boolean, additionalAllowedTools: string[], mainLoopModelParam: string, effort?: EffortValue) => {
+  const onQueryImpl = useCallback(async (messagesIncludingNewMessages: MessageType[], newMessages: MessageType[], abortController: AbortController, shouldQuery: boolean, additionalAllowedTools: string[], mainLoopModelParam: string, effort?: EffortValue, clientPlatform?: string) => {
     // Prepare IDE integration for new prompt. Read mcpClients fresh from
     // store — useManageMCPConnections may have populated it since the
     // render that captured this closure (same pattern as computeTools).
@@ -2810,7 +2911,10 @@ export function REPL({
       setAbortController(null);
       return;
     }
+    connectionRef.current = new ConnectionLifecycleTracker();
     const toolUseContext = getToolUseContext(messagesIncludingNewMessages, newMessages, abortController, mainLoopModelParam);
+    toolUseContext.options.connection = connectionRef.current;
+    if (clientPlatform) toolUseContext.options.messageClientPlatform = clientPlatform;
     // getToolUseContext reads tools/mcpClients fresh from store.getState()
     // (via computeTools/mergeClients). Use those rather than the closure-
     // captured `tools`/`mcpClients` — useManageMCPConnections may have
@@ -2919,7 +3023,7 @@ export function REPL({
     // Signal that a query turn has completed successfully
     await onTurnComplete?.(messagesRef.current);
   }, [initialMcpClients, resetLoadingState, getToolUseContext, toolPermissionContext, setAppState, customSystemPrompt, onTurnComplete, appendSystemPrompt, canUseTool, mainThreadAgentDefinition, onQueryEvent, sessionTitle, titleDisabled]);
-  const onQuery = useCallback(async (newMessages: MessageType[], abortController: AbortController, shouldQuery: boolean, additionalAllowedTools: string[], mainLoopModelParam: string, onBeforeQueryCallback?: (input: string, newMessages: MessageType[]) => Promise<boolean>, input?: string, effort?: EffortValue): Promise<void> => {
+  const onQuery = useCallback(async (newMessages: MessageType[], abortController: AbortController, shouldQuery: boolean, additionalAllowedTools: string[], mainLoopModelParam: string, onBeforeQueryCallback?: (input: string, newMessages: MessageType[]) => Promise<boolean>, input?: string, effort?: EffortValue, clientPlatform?: string): Promise<void> => {
     // If this is a teammate, mark them as active when starting a turn
     if (isAgentSwarmsEnabled()) {
       const teamName = getTeamName();
@@ -2943,7 +3047,8 @@ export function REPL({
       newMessages.filter((m): m is UserMessage => m.type === 'user' && !m.isMeta).map(_ => getContentText(_.message.content)).filter(_ => _ !== null).forEach((msg, i) => {
         enqueue({
           value: msg,
-          mode: 'prompt'
+          mode: 'prompt',
+          clientPlatform
         });
         if (i === 0) {
           logEvent('tengu_concurrent_onquery_enqueued', {});
@@ -2982,7 +3087,7 @@ export function REPL({
           return;
         }
       }
-      await onQueryImpl(latestMessages, newMessages, abortController, shouldQuery, additionalAllowedTools, mainLoopModelParam, effort);
+      await onQueryImpl(latestMessages, newMessages, abortController, shouldQuery, additionalAllowedTools, mainLoopModelParam, effort, clientPlatform);
     } finally {
       // queryGuard.end() atomically checks generation and transitions
       // running→idle. Returns false if a newer query owns the guard
@@ -3115,7 +3220,8 @@ export function REPL({
           loadedNestedMemoryPaths: loadedNestedMemoryPathsRef.current,
           getAppState: () => store.getState(),
           setAppState,
-          setConversationId
+          setConversationId,
+          resultDedupState: resultDedupStateRef.current
         });
         haikuTitleAttemptedRef.current = false;
         setHaikuTitle(undefined);
@@ -3480,10 +3586,21 @@ export function REPL({
     // process — they have no remote equivalent. Let those fall through to
     // handlePromptSubmit so they execute locally. Prompt commands and
     // plain text go to the remote.
-    if (activeRemote.isRemoteMode && !(isSlashCommand && commands.find(c => {
-      const name = input.trim().slice(1).split(/\s/)[0];
-      return isCommandEnabled(c) && (c.name === name || c.aliases?.includes(name!) || getCommandName(c) === name);
-    })?.type === 'local-jsx')) {
+    const remoteSlashCommandName = activeRemote.isRemoteMode && isSlashCommand
+      ? input.trim().slice(1).split(/\s/)[0]
+      : undefined;
+    const remoteSlashCommand = remoteSlashCommandName
+      ? commands.find(c => isCommandEnabled(c) && (c.name === remoteSlashCommandName || c.aliases?.includes(remoteSlashCommandName) || getCommandName(c) === remoteSlashCommandName))
+      : undefined;
+    if (remoteSlashCommandName && !remoteSlashCommand && builtInCommandNames().has(remoteSlashCommandName)) {
+      addNotification({
+        key: 'remote-slash-command-unavailable',
+        text: `/${remoteSlashCommandName} isn't available in remote sessions yet`,
+        priority: 'medium'
+      });
+      return;
+    }
+    if (activeRemote.isRemoteMode && remoteSlashCommand?.type !== 'local-jsx') {
       // Build content blocks when there are pasted attachments (images)
       const pastedValues = Object.values(pastedContents);
       const imageContents = pastedValues.filter(c => c.type === 'image');
@@ -3689,25 +3806,44 @@ export function REPL({
       resetHistory: () => {}
     });
   }, []);
-  const handleExit = useCallback(async () => {
-    setIsExiting(true);
-    // In bg sessions, always detach instead of kill — even when a worktree is
-    // active. Without this guard, the worktree branch below short-circuits into
-    // ExitFlow (which calls gracefulShutdown) before exit.tsx is ever loaded.
-    if (feature('BG_SESSIONS') && isBgSession()) {
-      spawnSync('tmux', ['detach-client'], {
-        stdio: 'ignore'
-      });
-      setIsExiting(false);
+  const openingAgentsRef = useRef(false);
+  const handleOpenAgents = useCallback(() => {
+    if (openingAgentsRef.current) return;
+    const {
+      tasks: currentTasks,
+      effortValue
+    } = store.getState();
+    const warn = (content: string) => setMessages(previous => {
+      const last = previous.at(-1);
+      if (last?.type === 'system' && last.subtype === 'informational' && last.content === content) {
+        return previous;
+      }
+      return [...previous, createSystemMessage(content, 'warning')];
+    });
+    const summary = getBackgroundTaskSummary(currentTasks);
+    if (summary.count > 0) {
+      warn(`Cannot open agents — ${summary.count} background task(s) running. Use /background to confirm abandoning them.`);
       return;
     }
+    openingAgentsRef.current = true;
+    void openAgentsFromForeground(messages, effortValue).then(message => {
+      openingAgentsRef.current = false;
+      warn(message);
+    });
+  }, [messages, store, setMessages]);
+  const handleExit = useCallback(async () => {
+    setIsExiting(true);
     const showWorktree = getCurrentWorktreeSession() !== null;
-    const backgroundItems = getSessionBackgroundExitItems();
+    const backgroundItems = getBackgroundTaskExitItems(store.getState().tasks);
     if (showWorktree || backgroundItems.length > 0) {
-      setExitFlow(<ExitFlow showWorktree={showWorktree} backgroundItems={backgroundItems} onDone={() => {}} onCancel={() => {
+      const cancel = () => {
         setExitFlow(null);
         setIsExiting(false);
-      }} />);
+      };
+      setExitFlow(<ExitFlow showWorktree={showWorktree} backgroundItems={backgroundItems} onDone={() => {}} onCancel={cancel} onDetach={isBgSession() ? () => {
+        cancel();
+        detachBackgroundSession();
+      } : undefined} />);
       return;
     }
     const exitMod = await exit.load();
@@ -3719,7 +3855,7 @@ export function REPL({
     if (exitFlowResult === null) {
       setIsExiting(false);
     }
-  }, []);
+  }, [store]);
   const handleShowMessageSelector = useCallback(() => {
     if (getRuntimeCapabilities().workspace === 'remote') {
       addNotification({
@@ -3753,6 +3889,7 @@ export function REPL({
     // Reset cached microcompact state so stale pinned cache edits
     // don't reference tool_use_ids from truncated messages
     resetMicrocompactState();
+    resetResultDedupState(resultDedupStateRef.current);
     if (feature('CONTEXT_COLLAPSE')) {
       // Rewind truncates the REPL array. Commits whose archived span
       // was past the rewind point can't be projected anymore
@@ -3970,6 +4107,17 @@ export function REPL({
     hasActiveLocalJsxUI: isShowingLocalJSXCommand,
     queryGuard
   });
+
+  const wakeParkedAgent = useCallback(async (agentId: string, prompt: string) => {
+    const toolUseContext = getToolUseContext(messagesRef.current, [], new AbortController(), mainLoopModel);
+    await resumeAgentBackground({
+      agentId,
+      prompt,
+      toolUseContext,
+      canUseTool
+    });
+  }, [getToolUseContext, canUseTool, mainLoopModel]);
+  useWakeRouter(wakeParkedAgent);
 
   // We'll use the global lastInteractionTime from state.ts
 
@@ -4870,7 +5018,8 @@ export function REPL({
                 loadedNestedMemoryPaths: loadedNestedMemoryPathsRef.current,
                 getAppState: () => store.getState(),
                 setAppState,
-                setConversationId
+                setConversationId,
+                resultDedupState: resultDedupStateRef.current
               });
               haikuTitleAttemptedRef.current = false;
               setHaikuTitle(undefined);
@@ -4928,46 +5077,62 @@ export function REPL({
 
                 {focusedInputDialog === 'desktop-upsell' && <DesktopUpsellStartup onDone={() => setShowDesktopUpsellStartup(false)} />}
 
-                {feature('ULTRAPLAN') ? focusedInputDialog === 'ultraplan-choice' && ultraplanPendingChoice && <UltraplanChoiceDialog plan={ultraplanPendingChoice.plan} sessionId={ultraplanPendingChoice.sessionId} taskId={ultraplanPendingChoice.taskId} setMessages={setMessages} readFileState={readFileState.current} getAppState={() => store.getState()} setConversationId={setConversationId} /> : null}
+                {feature('ULTRAPLAN') ? focusedInputDialog === 'ultraplan-choice' && ultraplanPendingChoice && <UltraplanChoiceDialog plan={ultraplanPendingChoice.plan} sessionId={ultraplanPendingChoice.sessionId} taskId={ultraplanPendingChoice.taskId} setMessages={setMessages} readFileState={readFileState.current} discoveredSkillNames={discoveredSkillNamesRef.current} loadedNestedMemoryPaths={loadedNestedMemoryPathsRef.current} getAppState={() => store.getState()} setConversationId={setConversationId} resultDedupState={resultDedupStateRef.current} isolationLatch={isolationLatchRef} /> : null}
 
-                {feature('ULTRAPLAN') ? focusedInputDialog === 'ultraplan-launch' && ultraplanLaunchPending && <UltraplanLaunchDialog onChoice={(choice, opts) => {
-            const blurb = ultraplanLaunchPending.blurb;
+                {feature('ULTRAPLAN') ? focusedInputDialog === 'ultraplan-launch' && ultraplanLaunchPending && <UltraplanLaunchDialog sourcePromise={ultraplanLaunchPending.sourcePromise} onChoice={(choice, opts) => {
+            const {
+              ultraplanArg,
+              source
+            } = ultraplanLaunchPending;
             setAppState(prev => prev.ultraplanLaunchPending ? {
               ...prev,
               ultraplanLaunchPending: undefined
             } : prev);
-            if (choice === 'cancel') return;
-            // Command's onDone used display:'skip', so add the
-            // echo here — gives immediate feedback before the
-            // ~5s teleportToRemote resolves.
-            setMessages(prev => [...prev, createCommandInputMessage(formatCommandInputTags('ultraplan', blurb))]);
-            const appendStdout = (msg: string) => setMessages(prev => [...prev, createCommandInputMessage(`<${LOCAL_COMMAND_STDOUT_TAG}>${escapeXml(msg)}</${LOCAL_COMMAND_STDOUT_TAG}>`)]);
-            // Defer the second message if a query is mid-turn
-            // so it lands after the assistant reply, not
-            // between the user's prompt and the reply.
-            const appendWhenIdle = (msg: string) => {
+            if (choice === 'cancel') {
+              if (ultraplanArg) setInputValue(ultraplanArg);
+              return;
+            }
+            setMessages(prev => [...prev, createCommandInputMessage(formatCommandInputTags('ultraplan', ultraplanArg))]);
+            const createStdoutMessage = (message: string) => createCommandInputMessage(`<${LOCAL_COMMAND_STDOUT_TAG}>${escapeXml(message)}</${LOCAL_COMMAND_STDOUT_TAG}>`);
+            let previousStatusUuid: string | undefined;
+            const replaceStatusMessage = (message: string) => {
+              const next = createStdoutMessage(message);
+              const previous = previousStatusUuid;
+              previousStatusUuid = next.uuid;
+              setMessages(current => {
+                const index = previous ? current.findIndex(item => item.uuid === previous) : -1;
+                if (index === -1) return [...current, next];
+                const updated = [...current];
+                updated[index] = next;
+                return updated;
+              });
+            };
+            const appendWhenIdle = (message: string) => {
               if (!queryGuard.isActive) {
-                appendStdout(msg);
+                replaceStatusMessage(message);
                 return;
               }
               const unsub = queryGuard.subscribe(() => {
                 if (queryGuard.isActive) return;
                 unsub();
-                // Skip if the user stopped ultraplan while we
-                // were waiting — avoids a stale "Monitoring
-                // <url>" message for a session that's gone.
                 if (!store.getState().ultraplanSessionUrl) return;
-                appendStdout(msg);
+                replaceStatusMessage(message);
               });
             };
             void launchUltraplan({
-              blurb,
+              arg: ultraplanArg,
+              source,
+              promptIdentifier: opts?.promptIdentifier,
               getAppState: () => store.getState(),
               setAppState,
               signal: createAbortController().signal,
               disconnectedBridge: opts?.disconnectedBridge,
-              onSessionReady: appendWhenIdle
-            }).then(appendStdout).catch(logError);
+              onStatusMessage: appendWhenIdle
+            }).then(message => {
+              const initial = createStdoutMessage(message);
+              previousStatusUuid = initial.uuid;
+              setMessages(current => [...current, initial]);
+            }).catch(logError);
           }} /> : null}
 
                 {mrRender()}
@@ -4981,7 +5146,7 @@ export function REPL({
                       {"external" === 'ant' && skillImprovementSurvey.suggestion && <SkillImprovementSurvey isOpen={skillImprovementSurvey.isOpen} skillName={skillImprovementSurvey.suggestion.skillName} updates={skillImprovementSurvey.suggestion.updates} handleSelect={skillImprovementSurvey.handleSelect} inputValue={inputValue} setInputValue={setInputValue} />}
                       {showIssueFlagBanner && <IssueFlagBanner />}
                       {}
-                      <PromptInput debug={debug} ideSelection={ideSelection} hasSuppressedDialogs={!!hasSuppressedDialogs} isLocalJSXCommandActive={isShowingLocalJSXCommand} getToolUseContext={getToolUseContext} toolPermissionContext={toolPermissionContext} setToolPermissionContext={setToolPermissionContext} apiKeyStatus={apiKeyStatus} commands={commands} agents={agentDefinitions.activeAgents} isLoading={isLoading} onExit={handleExit} verbose={verbose} messages={messages} onAutoUpdaterResult={setAutoUpdaterResult} autoUpdaterResult={autoUpdaterResult} input={inputValue} onInputChange={setInputValue} mode={inputMode} onModeChange={setInputMode} stashedPrompt={stashedPrompt} setStashedPrompt={setStashedPrompt} submitCount={submitCount} onShowMessageSelector={handleShowMessageSelector} onMessageActionsEnter={
+                      <PromptInput debug={debug} ideSelection={ideSelection} hasSuppressedDialogs={!!hasSuppressedDialogs} isLocalJSXCommandActive={isShowingLocalJSXCommand} getToolUseContext={getToolUseContext} toolPermissionContext={toolPermissionContext} setToolPermissionContext={setToolPermissionContext} apiKeyStatus={apiKeyStatus} commands={commands} agents={agentDefinitions.activeAgents} isLoading={isLoading} onExit={handleExit} onLeftArrowOnEmpty={isBgSession() ? () => void handleExit() : !isLoading && isFgLeftArrowAgentsAvailable() && getGlobalConfig().leftArrowOpensAgents !== false ? handleOpenAgents : undefined} verbose={verbose} messages={messages} onAutoUpdaterResult={setAutoUpdaterResult} autoUpdaterResult={autoUpdaterResult} input={inputValue} onInputChange={setInputValue} mode={inputMode} onModeChange={setInputMode} stashedPrompt={stashedPrompt} setStashedPrompt={setStashedPrompt} submitCount={submitCount} onShowMessageSelector={handleShowMessageSelector} onMessageActionsEnter={
             // Works during isLoading — edit cancels first; uuid selection survives appends.
             feature('MESSAGE_ACTIONS') && isFullscreenEnvEnabled() && !disableMessageActions ? enterMessageActions : undefined} mcpClients={mcpClients} pastedContents={pastedContents} setPastedContents={setPastedContents} vimMode={vimMode} setVimMode={setVimMode} showBashesDialog={showBashesDialog} setShowBashesDialog={setShowBashesDialog} onSubmit={onSubmit} onAgentSubmit={onAgentSubmit} isSearchingHistory={isSearchingHistory} setIsSearchingHistory={setIsSearchingHistory} helpOpen={isHelpOpen} setHelpOpen={setIsHelpOpen} insertTextRef={feature('VOICE_MODE') ? insertTextRef : undefined} voiceInterimRange={voice.interimRange} />
                       <SessionBackgroundHint onBackgroundSession={handleBackgroundSession} isLoading={isLoading} />
@@ -5050,7 +5215,7 @@ export function REPL({
               proactiveModule?.setContextBlocked(false);
             }
             setConversationId(randomUUID());
-            runPostCompactCleanup(context.options.querySource);
+            runPostCompactCleanup(context.options.querySource, context.resultDedupState);
             if (direction === 'from') {
               const r = textForResubmit(message);
               if (r) {

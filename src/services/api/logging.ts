@@ -39,6 +39,7 @@ import { sanitizeToolNameForAnalytics } from '../analytics/metadata.js'
 import { EMPTY_USAGE } from './emptyUsage.js'
 import { classifyAPIError } from './errors.js'
 import { extractConnectionErrorDetails } from './errorUtils.js'
+import type { ConnectionSummary } from './connectionState.js'
 
 export type { NonNullableUsage }
 export { EMPTY_USAGE }
@@ -176,6 +177,7 @@ export function logAPIQuery({
   betas,
   permissionMode,
   querySource,
+  messageClientPlatform,
   queryTracking,
   thinkingType,
   effortValue,
@@ -188,6 +190,7 @@ export function logAPIQuery({
   betas?: string[]
   permissionMode?: PermissionMode
   querySource: string
+  messageClientPlatform?: string
   queryTracking?: QueryChainTracking
   thinkingType?: 'adaptive' | 'enabled' | 'disabled'
   effortValue?: EffortLevel | null
@@ -211,6 +214,10 @@ export function logAPIQuery({
       permissionMode as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
     querySource:
       querySource as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    ...(messageClientPlatform && {
+      messageClientPlatform:
+        messageClientPlatform as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    }),
     ...(queryTracking
       ? {
           queryChainId:
@@ -248,9 +255,11 @@ export function logAPIError({
   headers,
   queryTracking,
   querySource,
+  messageClientPlatform,
   llmSpan,
   fastMode,
   previousRequestId,
+  connectionSummary,
   effort,
 }: {
   error: unknown
@@ -268,10 +277,12 @@ export function logAPIError({
   headers?: globalThis.Headers
   queryTracking?: QueryChainTracking
   querySource?: string
+  messageClientPlatform?: string
   /** The span from startLLMRequestSpan - pass this to correctly match responses to requests */
   llmSpan?: Span
   fastMode?: boolean
   previousRequestId?: string | null
+  connectionSummary?: ConnectionSummary
   effort?: EffortLevel
 }): void {
   const gateway = detectGateway({
@@ -357,6 +368,10 @@ export function logAPIError({
             querySource as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
         }
       : {}),
+    ...(messageClientPlatform && {
+      messageClientPlatform:
+        messageClientPlatform as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    }),
     fastMode,
     ...(previousRequestId
       ? {
@@ -364,6 +379,7 @@ export function logAPIError({
             previousRequestId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
         }
       : {}),
+    ...(connectionSummary ?? {}),
     ...getAnthropicEnvMetadata(),
   })
 
@@ -398,6 +414,10 @@ export function logAPIError({
     statusCode: status ? parseInt(status) : undefined,
     error: errStr,
     attempt,
+    requestId: requestId ?? undefined,
+    clientRequestId: didFallBackToNonStreaming
+      ? undefined
+      : clientRequestId,
   })
 
   // Log first error for teleported sessions (reliability tracking)
@@ -424,10 +444,12 @@ function logAPISuccess({
   attempt,
   ttftMs,
   requestId,
+  firstAttemptRequestId,
   stopReason,
   costUSD,
   didFallBackToNonStreaming,
   querySource,
+  messageClientPlatform,
   gateway,
   queryTracking,
   permissionMode,
@@ -439,6 +461,7 @@ function logAPISuccess({
   fastMode,
   previousRequestId,
   betas,
+  connectionSummary,
 }: {
   model: string
   preNormalizedModel: string
@@ -450,10 +473,12 @@ function logAPISuccess({
   attempt: number
   ttftMs: number | null
   requestId: string | null
+  firstAttemptRequestId?: string | null
   stopReason: BetaStopReason | null
   costUSD: number
   didFallBackToNonStreaming: boolean
   querySource: string
+  messageClientPlatform?: string
   gateway?: KnownGateway
   queryTracking?: QueryChainTracking
   permissionMode?: PermissionMode
@@ -465,6 +490,7 @@ function logAPISuccess({
   fastMode?: boolean
   previousRequestId?: string | null
   betas?: string[]
+  connectionSummary?: ConnectionSummary
 }): void {
   const isNonInteractiveSession = getIsNonInteractiveSession()
   const isPostCompaction = consumePostCompaction()
@@ -508,6 +534,12 @@ function logAPISuccess({
     requestId:
       (requestId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS) ??
       undefined,
+    ...(firstAttemptRequestId &&
+      requestId &&
+      firstAttemptRequestId !== requestId && {
+        firstAttemptRequestId:
+          firstAttemptRequestId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      }),
     ...(invocation
       ? {
           invokingRequestId:
@@ -526,6 +558,10 @@ function logAPISuccess({
     isTTY: process.stdout.isTTY ?? false,
     querySource:
       querySource as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    ...(messageClientPlatform && {
+      messageClientPlatform:
+        messageClientPlatform as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    }),
     ...(gateway
       ? {
           gateway:
@@ -588,6 +624,7 @@ function logAPISuccess({
             previousRequestId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
         }
       : {}),
+    ...(connectionSummary ?? {}),
     ...(isPostCompaction ? { isPostCompaction } : {}),
     ...getAnthropicEnvMetadata(),
     timeSinceLastApiCallMs,
@@ -607,9 +644,12 @@ export function logAPISuccessAndDuration({
   messageCount,
   messageTokens,
   requestId,
+  clientRequestId,
+  firstAttemptRequestId,
   stopReason,
   didFallBackToNonStreaming,
   querySource,
+  messageClientPlatform,
   headers,
   costUSD,
   queryTracking,
@@ -622,6 +662,7 @@ export function logAPISuccessAndDuration({
   fastMode,
   previousRequestId,
   betas,
+  connectionSummary,
   effort,
 }: {
   model: string
@@ -634,9 +675,12 @@ export function logAPISuccessAndDuration({
   messageCount: number
   messageTokens: number
   requestId: string | null
+  clientRequestId?: string
+  firstAttemptRequestId?: string | null
   stopReason: BetaStopReason | null
   didFallBackToNonStreaming: boolean
   querySource: string
+  messageClientPlatform?: string
   headers?: globalThis.Headers
   costUSD: number
   queryTracking?: QueryChainTracking
@@ -656,6 +700,7 @@ export function logAPISuccessAndDuration({
   /** Request ID from the previous API call in this session */
   previousRequestId?: string | null
   betas?: string[]
+  connectionSummary?: ConnectionSummary
   effort?: EffortLevel
 }): void {
   const gateway = detectGateway({
@@ -718,10 +763,12 @@ export function logAPISuccessAndDuration({
     attempt,
     ttftMs,
     requestId,
+    firstAttemptRequestId,
     stopReason,
     costUSD,
     didFallBackToNonStreaming,
     querySource,
+    messageClientPlatform,
     gateway,
     queryTracking,
     permissionMode,
@@ -733,6 +780,7 @@ export function logAPISuccessAndDuration({
     fastMode,
     previousRequestId,
     betas,
+    connectionSummary,
   })
   // Log API request event for OTLP
   void logOTelEvent('api_request', {
@@ -804,6 +852,8 @@ export function logAPISuccessAndDuration({
     ttftMs: ttftMs ?? undefined,
     requestSetupMs,
     attemptStartTimes,
+    requestId: requestId ?? undefined,
+    clientRequestId,
   })
 
   // Log first successful message for teleported sessions (reliability tracking)

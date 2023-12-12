@@ -8,6 +8,7 @@
  */
 
 import axios from 'axios'
+import { getOriginalCwd } from '../bootstrap/state.js'
 import { logForDebugging } from '../utils/debug.js'
 import { errorMessage } from '../utils/errors.js'
 import { jsonStringify } from '../utils/slowOperations.js'
@@ -29,8 +30,34 @@ export async function createCodeSession(
   title: string,
   timeoutMs: number,
   tags?: string[],
+  gitContext?: {
+    gitRepoUrl: string
+    branch: string
+    defaultBranch?: string
+  },
+  cwd?: string,
+  model?: string,
 ): Promise<string | null> {
   const url = `${baseUrl}/v1/code/sessions`
+  const config: Record<string, unknown> = {
+    cwd: cwd ?? getOriginalCwd(),
+    ...(model && { model }),
+  }
+  if (gitContext) {
+    const { buildGitSessionContext } = await import(
+      '../utils/gitSessionContext.js'
+    )
+    const { sources, outcomes } = await buildGitSessionContext(
+      gitContext.gitRepoUrl,
+      gitContext.branch,
+      gitContext.defaultBranch,
+    )
+    if (sources.length > 0 || outcomes.length > 0) {
+      config.sources = sources
+      config.outcomes = outcomes
+      config.reuse_outcome_branches = true
+    }
+  }
   let response
   try {
     response = await axios.post(
@@ -38,7 +65,12 @@ export async function createCodeSession(
       // bridge: {} is the positive signal for the oneof runner — omitting it
       // (or sending environment_id: "") now 400s. BridgeRunner is an empty
       // message today; it's a placeholder for future bridge-specific options.
-      { title, bridge: {}, ...(tags?.length ? { tags } : {}) },
+      {
+        title,
+        bridge: {},
+        ...(tags?.length ? { tags } : {}),
+        config,
+      },
       {
         headers: oauthHeaders(accessToken),
         timeout: timeoutMs,

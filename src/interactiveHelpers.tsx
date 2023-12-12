@@ -206,6 +206,17 @@ export async function showSetupScreens(root: Root, permissionMode: PermissionMod
     }
   }
 
+  {
+    const { getProTrialState } = await import('./services/proTrial.js');
+    if (getProTrialState().status === 'not_started') {
+      const {
+        ProTrialStartScreen
+      } = await import('./components/ProTrialStartScreen.js');
+      logEvent('tengu_pro_trial_start_screen_shown', {});
+      await showSetupDialog(root, done => <ProTrialStartScreen onDone={done} />);
+    }
+  }
+
   // Check for custom API key
   // On homespace, ANTHROPIC_API_KEY is preserved in process.env for child
   // processes but ignored by Claude Code itself (see auth.ts).

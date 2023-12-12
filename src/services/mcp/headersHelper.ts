@@ -6,6 +6,7 @@ import { execFileNoThrowWithCwd } from '../../utils/execFileNoThrow.js'
 import { logError, logMCPDebug, logMCPError } from '../../utils/log.js'
 import { jsonParse } from '../../utils/slowOperations.js'
 import { logEvent } from '../analytics/index.js'
+import { expandEnvVarsInString } from './envExpansion.js'
 import type {
   McpHTTPServerConfig,
   McpSSEServerConfig,
@@ -126,7 +127,19 @@ export async function getMcpServerHeaders(
   serverName: string,
   config: McpSSEServerConfig | McpHTTPServerConfig | McpWebSocketServerConfig,
 ): Promise<Record<string, string>> {
-  const staticHeaders = config.headers || {}
+  const staticHeaders: Record<string, string> = {}
+  const missingVars: string[] = []
+  for (const [name, value] of Object.entries(config.headers ?? {})) {
+    const expanded = expandEnvVarsInString(value)
+    staticHeaders[name] = expanded.expanded
+    missingVars.push(...expanded.missingVars)
+  }
+  if (missingVars.length > 0) {
+    logMCPDebug(
+      serverName,
+      `Header values reference unset environment variables: ${[...new Set(missingVars)].join(', ')}`,
+    )
+  }
   const dynamicHeaders =
     (await getMcpHeadersFromHelper(serverName, config)) || {}
 

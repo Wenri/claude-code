@@ -13,7 +13,7 @@ import type { Color } from '../ink/styles.js';
 // eslint-disable-next-line custom-rules/prefer-use-keybindings -- raw j/k/arrow stats navigation
 import { Ansi, Box, Text, useInput } from '../ink.js';
 import { useKeybinding } from '../keybindings/useKeybinding.js';
-import { getGlobalConfig } from '../utils/config.js';
+import { getConfigValue } from '../utils/settings/configSettings.js';
 import { formatDuration, formatNumber } from '../utils/format.js';
 import { generateHeatmap } from '../utils/heatmap.js';
 import { renderModelName } from '../utils/model/model.js';
@@ -965,7 +965,7 @@ function generateTokenChart(dailyTokens: DailyModelTokens[], models: string[], t
   }
 
   // Color palette for different models - use theme colors
-  const theme = getTheme(resolveThemeSetting(getGlobalConfig().theme));
+  const theme = getTheme(resolveThemeSetting(getConfigValue('theme', 'dark').value));
   const colors = [themeColorToAnsi(theme.suggestion), themeColorToAnsi(theme.success), themeColorToAnsi(theme.warning)];
 
   // Prepare series data for each model
@@ -1094,7 +1094,7 @@ function renderStatsToAnsi(stats: ClaudeCodeStats, activeTab: 'Overview' | 'Mode
 }
 function renderOverviewToAnsi(stats: ClaudeCodeStats): string[] {
   const lines: string[] = [];
-  const theme = getTheme(resolveThemeSetting(getGlobalConfig().theme));
+  const theme = getTheme(resolveThemeSetting(getConfigValue('theme', 'dark').value));
   const h = (text: string) => applyColor(text, theme.claude as Color);
 
   // Two-column helper with fixed spacing

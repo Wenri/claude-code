@@ -12,11 +12,12 @@ import { TerminalFocusEvent } from '../events/terminal-focus-event.js';
 import { INITIAL_STATE, type ParsedInput, type ParsedKey, type ParsedMouse, parseMultipleKeypresses } from '../parse-keypress.js';
 import reconciler from '../reconciler.js';
 import { finishSelection, hasSelection, type SelectionState, startSelection } from '../selection.js';
-import { DECSTBM_SAFE, isXtermJs, setXtversionName, supportsExtendedKeys } from '../terminal.js';
+import { DECSTBM_SAFE, isXtermJs, setSynchronizedOutputProbeResult, setXtversionName, supportsExtendedKeys } from '../terminal.js';
 import { getTerminalFocused, setTerminalFocused } from '../terminal-focus-state.js';
-import { TerminalQuerier, xtversion } from '../terminal-querier.js';
+import { TerminalQuerier, decrqm, xtversion } from '../terminal-querier.js';
+import { notifyThemeChanged } from '../theme-notify.js';
 import { DISABLE_KITTY_KEYBOARD, DISABLE_MODIFY_OTHER_KEYS, ENABLE_KITTY_KEYBOARD, ENABLE_MODIFY_OTHER_KEYS, FOCUS_IN, FOCUS_OUT } from '../termio/csi.js';
-import { DBP, DFE, DISABLE_MOUSE_TRACKING, EBP, EFE, HIDE_CURSOR, SHOW_CURSOR } from '../termio/dec.js';
+import { DBP, DEC, DFE, DISABLE_MOUSE_TRACKING, DISABLE_THEME_NOTIFY, EBP, EFE, ENABLE_THEME_NOTIFY, HIDE_CURSOR, SHOW_CURSOR } from '../termio/dec.js';
 import AppContext from './AppContext.js';
 import { ClockProvider } from './ClockContext.js';
 import CursorDeclarationContext, { type CursorDeclarationSetter } from './CursorDeclarationContext.js';
@@ -27,6 +28,62 @@ import { TerminalSizeContext } from './TerminalSizeContext.js';
 
 // Platforms that support Unix-style process suspension (SIGSTOP/SIGCONT)
 const SUPPORTS_SUSPEND = process.platform !== 'win32';
+
+function supportsSuspendInCurrentSession(): boolean {
+  if (process.env.CLAUDE_CODE_SESSION_KIND === 'bg') return false
+  return SUPPORTS_SUSPEND
+}
+
+async function probeTerminalCapabilities(querier: TerminalQuerier): Promise<void> {
+  const [identity] = await Promise.all([
+    querier.send(xtversion()),
+    querier.flush(),
+  ])
+
+  if (identity) {
+    let name = identity.name
+    if (process.env.TMUX && name.startsWith('tmux ')) {
+      const { stdout } = await execFileNoThrow(
+        'tmux',
+        ['display-message', '-p', '#{client_termtype}'],
+        { timeout: 1000, useCwd: false },
+      )
+      const clientTermtype = stdout.trim()
+      if (clientTermtype) name = clientTermtype
+    }
+    setXtversionName(name)
+    logForDebugging(`XTVERSION: terminal identified as "${name}"`)
+  } else {
+    logForDebugging('XTVERSION: no reply (terminal ignored query)')
+  }
+
+  // Apple Terminal does not implement DECRQM. A missing XTVERSION response
+  // is the same signal when TERM_PROGRAM was stripped by Docker/SSH; sending
+  // CSI ? 2026 $ p there can echo the final `p` into the prompt.
+  const skipSynchronizedProbe =
+    !identity || process.env.TERM_PROGRAM === 'Apple_Terminal'
+  const [synchronized] = await Promise.all([
+    skipSynchronizedProbe
+      ? Promise.resolve(undefined)
+      : querier.send(decrqm(DEC.SYNCHRONIZED_UPDATE)),
+    skipSynchronizedProbe ? Promise.resolve() : querier.flush(),
+  ])
+  const synchronizedSupported =
+    synchronized?.status === 1 || synchronized?.status === 2
+  setSynchronizedOutputProbeResult(synchronizedSupported)
+  logForDebugging(
+    `DECRQM(2026): ${
+      skipSynchronizedProbe
+        ? `skipped (${identity ? 'Apple_Terminal' : 'no XTVERSION reply'})`
+        : synchronized
+          ? `status=${synchronized.status}`
+          : 'no reply'
+    } → sync ${synchronizedSupported ? 'supported' : 'unsupported'}`,
+  )
+  logForDebugging(
+    `DECSTBM: ${DECSTBM_SAFE ? 'enabled' : 'gated'} (TMUX=${process.env.TMUX ? 'set' : 'unset'} ZELLIJ=${process.env.ZELLIJ != null ? 'set' : 'unset'} TERM_PROGRAM=${process.env.TERM_PROGRAM ?? 'unset'} TERM=${process.env.TERM ?? 'unset'})`,
+  )
+}
 
 // After this many milliseconds of stdin silence, the next chunk triggers
 // a terminal mode re-assert (mouse tracking). Catches tmux detach→attach,
@@ -236,6 +293,7 @@ export default class App extends PureComponent<Props, State> {
         this.props.stdout.write(EBP);
         // Enable terminal focus reporting (DECSET 1004)
         this.props.stdout.write(EFE);
+        this.props.stdout.write(ENABLE_THEME_NOTIFY);
         // Enable extended key reporting so ctrl+shift+<letter> is
         // distinguishable from ctrl+<letter>. We write both the kitty stack
         // push (CSI >1u) and xterm modifyOtherKeys level 2 (CSI >4;2m) —
@@ -254,26 +312,7 @@ export default class App extends PureComponent<Props, State> {
         // init sequence completes — avoids interleaving with alt-screen/mouse
         // tracking enable writes that may happen in the same render cycle.
         setImmediate(() => {
-          void Promise.all([this.querier.send(xtversion()), this.querier.flush()]).then(async ([r]) => {
-            if (r) {
-              let name = r.name;
-              if (process.env.TMUX && name.startsWith('tmux ')) {
-                const {
-                  stdout,
-                } = await execFileNoThrow('tmux', ['display-message', '-p', '#{client_termtype}'], {
-                  timeout: 1000,
-                  useCwd: false,
-                });
-                const clientTermtype = stdout.trim();
-                if (clientTermtype) name = clientTermtype;
-              }
-              setXtversionName(name);
-              logForDebugging(`XTVERSION: terminal identified as "${name}"`);
-            } else {
-              logForDebugging('XTVERSION: no reply (terminal ignored query)');
-            }
-            logForDebugging(`DECSTBM: ${DECSTBM_SAFE ? 'enabled' : 'gated'} (TMUX=${process.env.TMUX ? 'set' : 'unset'} ZELLIJ=${process.env.ZELLIJ != null ? 'set' : 'unset'} TERM_PROGRAM=${process.env.TERM_PROGRAM ?? 'unset'} TERM=${process.env.TERM ?? 'unset'})`);
-          });
+          if (this.querier) void probeTerminalCapabilities(this.querier);
         });
       }
       this.rawModeEnabledCount++;
@@ -286,6 +325,7 @@ export default class App extends PureComponent<Props, State> {
       this.props.stdout.write(DISABLE_KITTY_KEYBOARD);
       // Disable terminal focus reporting (DECSET 1004)
       this.props.stdout.write(DFE);
+      this.props.stdout.write(DISABLE_THEME_NOTIFY);
       // Disable bracketed paste mode
       this.props.stdout.write(DBP);
       stdin.setRawMode(false);
@@ -470,6 +510,10 @@ function processKeysInBatch(app: App, items: ParsedInput[], _unused1: undefined,
     // Terminal responses (DECRPM, DA1, OSC replies, etc.) are not user
     // input — route them to the querier to resolve pending promises.
     if (item.kind === 'response') {
+      if (item.response.type === 'themeNotify') {
+        notifyThemeChanged();
+        continue;
+      }
       app.querier.onResponse(item.response);
       continue;
     }
@@ -513,7 +557,7 @@ function processKeysInBatch(app: App, items: ParsedInput[], _unused1: undefined,
 
     // Handle Ctrl+Z (suspend) using parsed key to support both raw (\x1a) and
     // CSI u format (\x1b[122;5u) from Kitty keyboard protocol terminals
-    if (item.name === 'z' && item.ctrl && SUPPORTS_SUSPEND) {
+    if (item.name === 'z' && item.ctrl && supportsSuspendInCurrentSession()) {
       app.handleSuspend();
       continue;
     }

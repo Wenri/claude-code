@@ -40,6 +40,10 @@ type MockHeaders = {
   'anthropic-ratelimit-unified-overage-surpassed-threshold'?: string
 }
 
+export type MockProTrialOverride = {
+  endsAt: string | null
+}
+
 export type MockHeaderKey =
   | 'status'
   | 'reset'
@@ -85,6 +89,7 @@ let mockHeaderless429Message: string | null = null
 let mockSubscriptionType: SubscriptionType | null = null
 let mockFastModeRateLimitDurationMs: number | null = null
 let mockFastModeRateLimitExpiresAt: number | null = null
+let mockProTrialOverride: MockProTrialOverride | null = null
 // Default subscription type for mock testing
 const DEFAULT_MOCK_SUBSCRIPTION: SubscriptionType = 'max'
 
@@ -682,8 +687,25 @@ export function clearMockHeaders(): void {
   mockFastModeRateLimitDurationMs = null
   mockFastModeRateLimitExpiresAt = null
   mockHeaderless429Message = null
+  mockProTrialOverride = null
   setMockBillingAccessOverride(null)
   mockEnabled = false
+}
+
+export function getMockProTrialOverride(): MockProTrialOverride | null {
+  if (process.env.USER_TYPE !== 'ant') {
+    return null
+  }
+  return mockProTrialOverride
+}
+
+export function setMockProTrialOverride(
+  override: MockProTrialOverride,
+): void {
+  if (process.env.USER_TYPE !== 'ant') {
+    return
+  }
+  mockProTrialOverride = override
 }
 
 export function applyMockHeaders(

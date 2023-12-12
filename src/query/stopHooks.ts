@@ -1,11 +1,13 @@
 import { feature } from 'bun:bundle'
+import { getMainThreadAgentType, getSessionId } from '../bootstrap/state.js'
+import { getReplBridgeHandle } from '../bridge/replBridgeHandle.js'
 import { getShortcutDisplay } from '../keybindings/shortcutFormat.js'
 import { isExtractModeActive } from '../memdir/paths.js'
 import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
 } from '../services/analytics/index.js'
-import type { ToolUseContext } from '../Tool.js'
+import { toolMatchesName, type ToolUseContext } from '../Tool.js'
 import type { HookProgress } from '../types/hooks.js'
 import type {
   AssistantMessage,
@@ -34,6 +36,7 @@ import {
   createUserInterruptionMessage,
   createUserMessage,
 } from '../utils/messages.js'
+import { enqueueSdkEvent } from '../utils/sdkEventQueue.js'
 import type { SystemPrompt } from '../utils/systemPromptType.js'
 import { getTaskListId, listTasks } from '../utils/tasks.js'
 import { getAgentName, getTeamName, isTeammate } from '../utils/teammate.js'
@@ -45,6 +48,17 @@ const extractMemoriesModule = feature('EXTRACT_MEMORIES')
 const jobClassifierModule = feature('TEMPLATES')
   ? (require('../jobs/classifier.js') as typeof import('../jobs/classifier.js'))
   : null
+const taskSummaryModule = feature('BG_SESSIONS')
+  ? (require('../utils/taskSummary.js') as typeof import('../utils/taskSummary.js'))
+  : null
+const briefToolModule =
+  feature('KAIROS') || feature('KAIROS_BRIEF')
+    ? (require('../tools/BriefTool/BriefTool.js') as typeof import('../tools/BriefTool/BriefTool.js'))
+    : null
+const briefPromptModule =
+  feature('KAIROS') || feature('KAIROS_BRIEF')
+    ? (require('../tools/BriefTool/prompt.js') as typeof import('../tools/BriefTool/prompt.js'))
+    : null
 
 /* eslint-enable @typescript-eslint/no-require-imports */
 
@@ -62,6 +76,38 @@ type StopHookResult = {
   preventContinuation: boolean
 }
 
+type ClassifierJobState = import('../jobs/classifier.js').ClassifierJobState
+
+const classifierTaskTypes = new Set([
+  'local_agent',
+  'remote_agent',
+  'in_process_teammate',
+  'local_workflow',
+])
+
+function hasActiveClassifierTasks(
+  tasks: Readonly<Record<string, { type: string; status: string }>>,
+): boolean {
+  for (const task of Object.values(tasks ?? {}) as Array<{
+    type: string
+    status: string
+  }>) {
+    if (
+      classifierTaskTypes.has(task.type) &&
+      task.status !== 'completed' &&
+      task.status !== 'failed' &&
+      task.status !== 'killed'
+    ) {
+      return true
+    }
+  }
+  return false
+}
+
+function isMainQuerySource(querySource: QuerySource): boolean {
+  return querySource.startsWith('repl_main_thread') || querySource === 'sdk'
+}
+
 export async function* handleStopHooks(
   messagesForQuery: Message[],
   assistantMessages: AssistantMessage[],
@@ -71,6 +117,7 @@ export async function* handleStopHooks(
   toolUseContext: ToolUseContext,
   querySource: QuerySource,
   stopHookActive?: boolean,
+  classifierState?: ClassifierJobState | null,
 ): AsyncGenerator<
   | StreamEvent
   | RequestStartEvent
@@ -93,42 +140,98 @@ export async function* handleStopHooks(
   // Outside the prompt-suggestion gate: the REPL /btw command and the
   // side_question SDK control_request both read this snapshot, and neither
   // depends on prompt suggestions being enabled.
-  if (querySource === 'repl_main_thread' || querySource === 'sdk') {
+  if (querySource.startsWith('repl_main_thread') || querySource === 'sdk') {
     saveCacheSafeParams(createCacheSafeParams(stopHookContext))
   }
 
-  // Template job classification: when running as a dispatched job, classify
-  // state after each turn. Gate on repl_main_thread so background forks
-  // (extract-memories, auto-dream) don't pollute the timeline with their own
-  // assistant messages. Await the classifier so state.json is written before
-  // the turn returns — otherwise `claude list` shows stale state for the gap.
-  // Env key hardcoded (vs importing JOB_ENV_KEY from jobs/state) to match the
-  // require()-gated jobs/ import pattern above; spawn.test.ts asserts the
-  // string matches.
+  const classifierSinks = taskSummaryModule
+    ? taskSummaryModule.sinksFor(taskSummaryModule.detectSurfaces())
+    : null
+  const classifierEngine = classifierSinks
+    ? taskSummaryModule!.engineFor(classifierSinks)
+    : null
   if (
-    feature('TEMPLATES') &&
-    process.env.CLAUDE_JOB_DIR &&
-    querySource.startsWith('repl_main_thread') &&
+    classifierState &&
+    classifierEngine &&
+    isMainQuerySource(querySource) &&
     !toolUseContext.agentId
   ) {
-    // Full turn history — assistantMessages resets each queryLoop iteration,
-    // so tool calls from earlier iterations (Agent spawn, then summary) need
-    // messagesForQuery to be visible in the tool-call summary.
+    classifierState.lastEmittedDetail = ''
+    if (classifierSinks!.has('summary')) {
+      toolUseContext.setAppState(state =>
+        state.postTurnSummary === null
+          ? state
+          : { ...state, postTurnSummary: null },
+      )
+    }
+    classifierState.onClassified = (classification, midturn) => {
+      if (midturn || !classifierSinks!.has('summary')) return
+      const summary = taskSummaryModule!.classifiedToPostTurnSummary(
+        classification,
+      )
+      toolUseContext.setAppState(state =>
+        state.postTurnSummary?.status_category === summary.status_category &&
+        state.postTurnSummary.status_detail === summary.status_detail
+          ? state
+          : { ...state, postTurnSummary: summary },
+      )
+      toolUseContext.sessionState?.notifyMetadataChanged({
+        post_turn_summary: summary,
+      })
+      getReplBridgeHandle()?.reportMetadata({ post_turn_summary: summary })
+      enqueueSdkEvent({
+        type: 'system',
+        subtype: 'post_turn_summary',
+        summarizes_uuid: assistantMessages.at(-1)?.uuid ?? '',
+        ...summary,
+      })
+    }
+    const mainThreadAgentType = getMainThreadAgentType()
+    const mainThreadAgent = mainThreadAgentType
+      ? toolUseContext.options.agentDefinitions.activeAgents.find(
+          agent => agent.agentType === mainThreadAgentType,
+        )
+      : undefined
     const turnAssistantMessages = stopHookContext.messages.filter(
       (m): m is AssistantMessage => m.type === 'assistant',
     )
-    const p = jobClassifierModule!
-      .classifyAndWriteState(process.env.CLAUDE_JOB_DIR, turnAssistantMessages)
+    const latestUserMessage = stopHookContext.messages.findLast(
+      message =>
+        message.type === 'user' &&
+        !message.isMeta &&
+        typeof message.message.content === 'string',
+    )
+    if (
+      latestUserMessage?.type === 'user' &&
+      typeof latestUserMessage.message.content === 'string'
+    ) {
+      jobClassifierModule!.captureLatestAsk(
+        classifierState,
+        latestUserMessage.message.content,
+      )
+    }
+    const classification = jobClassifierModule!
+      .classifyAndPush(
+        classifierState,
+        getSessionId().slice(0, 8),
+        mainThreadAgent?.agentType ?? 'bg',
+        '',
+        turnAssistantMessages,
+        hasActiveClassifierTasks(toolUseContext.getAppState().tasks),
+        classifierEngine,
+      )
       .catch(err => {
-        logForDebugging(`[job] classifier error: ${errorMessage(err)}`, {
+        logForDebugging(`[classifier] error: ${errorMessage(err)}`, {
           level: 'error',
         })
       })
-    await Promise.race([
-      p,
-      // eslint-disable-next-line no-restricted-syntax -- sleep() has no .unref(); timer must not block exit
-      new Promise<void>(r => setTimeout(r, 60_000).unref()),
-    ])
+    if (process.env.CLAUDE_CODE_SESSION_KIND === 'bg' || querySource === 'sdk') {
+      await Promise.race([
+        classification,
+        // eslint-disable-next-line no-restricted-syntax -- timer must not block exit
+        new Promise<void>(resolve => setTimeout(resolve, 60_000).unref()),
+      ])
+    }
   }
   // --bare / SIMPLE: skip background bookkeeping (prompt suggestion,
   // memory extraction, auto-dream). Scripted -p calls don't want auto-memory
@@ -172,8 +275,77 @@ export async function* handleStopHooks(
     }
   }
 
+  let briefEnforcementError: Message | null = null
+  if (
+    isMainQuerySource(querySource) &&
+    briefToolModule?.isBriefEnabled() &&
+    briefPromptModule &&
+    !toolUseContext.agentId &&
+    toolUseContext.options.tools.some(tool =>
+      toolMatchesName(tool, briefPromptModule.BRIEF_TOOL_NAME),
+    )
+  ) {
+    try {
+      const latestUserIndex = messagesForQuery.findLastIndex(
+        message =>
+          message.type === 'user' &&
+          !message.isMeta &&
+          !message.toolUseResult,
+      )
+      const messagesSinceLatestUser = messagesForQuery.slice(
+        latestUserIndex + 1,
+      )
+      const calledBrief =
+        messagesSinceLatestUser.some(
+          message =>
+            message.type === 'assistant' &&
+            message.message.content.some(
+              block =>
+                block.type === 'tool_use' &&
+                (block.name === briefPromptModule.BRIEF_TOOL_NAME ||
+                  block.name === briefPromptModule.LEGACY_BRIEF_TOOL_NAME),
+            ),
+        ) ||
+        assistantMessages.some(message =>
+          message.message.content.some(
+            block =>
+              block.type === 'tool_use' &&
+              (block.name === briefPromptModule.BRIEF_TOOL_NAME ||
+                block.name === briefPromptModule.LEGACY_BRIEF_TOOL_NAME),
+          ),
+        )
+      const alreadyEnforced =
+        !calledBrief &&
+        messagesSinceLatestUser.some(
+          message =>
+            message.type === 'user' &&
+            message.isMeta &&
+            typeof message.message.content === 'string' &&
+            message.message.content.includes(
+              briefPromptModule.BRIEF_ENFORCE_SENTINEL,
+            ),
+        )
+      if (!calledBrief && !alreadyEnforced) {
+        briefEnforcementError = createUserMessage({
+          content: getStopHookMessage({
+            blockingError: `You ended the turn without calling ${briefPromptModule.BRIEF_TOOL_NAME}. ${briefPromptModule.BRIEF_ENFORCE_SENTINEL}`,
+            command: 'brief-mode-enforce',
+          }),
+          isMeta: true,
+        })
+        yield briefEnforcementError
+      }
+    } catch (error) {
+      logForDebugging(
+        `Brief mode enforcement failed: ${errorMessage(error)}`,
+        { level: 'error' },
+      )
+    }
+  }
+
   try {
-    const blockingErrors = []
+    const blockingErrors: Message[] = []
+    if (briefEnforcementError) blockingErrors.push(briefEnforcementError)
     const appState = toolUseContext.getAppState()
     const permissionMode = appState.toolPermissionContext.mode
 
@@ -319,6 +491,15 @@ export async function* handleStopHooks(
           text: `Stop hook error occurred \u00b7 ${expandShortcut} to see`,
           priority: 'immediate',
         })
+        if (!(stopHookActive ?? false)) {
+          enqueueSdkEvent({
+            type: 'system',
+            subtype: 'notification',
+            key: 'stop-hook-error',
+            text: 'Stop hook error occurred',
+            priority: 'immediate',
+          })
+        }
       }
     }
 
@@ -405,6 +586,8 @@ export async function* handleStopHooks(
         teamName,
         permissionMode,
         toolUseContext.abortController.signal,
+        undefined,
+        toolUseContext,
       )
 
       for await (const result of teammateIdleGenerator) {
@@ -468,6 +651,9 @@ export async function* handleStopHooks(
       `Stop hook failed: ${errorMessage(error)}`,
       'warning',
     )
-    return { blockingErrors: [], preventContinuation: false }
+    return {
+      blockingErrors: briefEnforcementError ? [briefEnforcementError] : [],
+      preventContinuation: false,
+    }
   }
 }

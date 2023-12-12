@@ -56,7 +56,7 @@ type FirstPartyEventLoggingPayload = {
 }
 
 /**
- * Exporter for 1st-party event logging to /api/event_logging/batch.
+ * Exporter for 1st-party event logging to /api/event_logging/v2/batch.
  *
  * Export cycles are controlled by OpenTelemetry's BatchLogRecordProcessor, which
  * triggers export() when either:
@@ -117,7 +117,7 @@ export class FirstPartyEventLoggingExporter implements LogRecordExporter {
         ? 'https://api-staging.anthropic.com'
         : 'https://api.anthropic.com')
 
-    this.endpoint = `${baseUrl}${options.path || '/api/event_logging/batch'}`
+    this.endpoint = `${baseUrl}${options.path || '/api/event_logging/v2/batch'}`
 
     this.timeout = options.timeout || 10000
     this.maxBatchSize = options.maxBatchSize || 200

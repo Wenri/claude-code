@@ -17,7 +17,7 @@ import { logForDebugging } from '../../utils/debug.js';
 import { errorMessage } from '../../utils/errors.js';
 import { clearAllCaches } from '../../utils/plugins/cacheUtils.js';
 import { formatInstallCount, getInstallCounts } from '../../utils/plugins/installCounts.js';
-import { isPluginGloballyInstalled } from '../../utils/plugins/installedPluginsManager.js';
+import { isPluginGloballyInstalled, isPluginInstalled } from '../../utils/plugins/installedPluginsManager.js';
 import { createPluginId, detectEmptyMarketplaceReason, type EmptyMarketplaceReason, formatFailureDetails, formatMarketplaceLoadingErrors, loadMarketplacesWithGracefulDegradation } from '../../utils/plugins/marketplaceHelpers.js';
 import { loadKnownMarketplacesConfig } from '../../utils/plugins/marketplaceManager.js';
 import { OFFICIAL_MARKETPLACE_NAME } from '../../utils/plugins/officialMarketplace.js';
@@ -146,10 +146,7 @@ export function DiscoverPlugins({
                 entry,
                 marketplaceName: name,
                 pluginId,
-                // Only block when globally installed (user/managed scope).
-                // Project/local-scope installs don't block — user may want to
-                // promote to user scope so it's available everywhere (gh-29997).
-                isInstalled: isPluginGloballyInstalled(pluginId)
+                isInstalled: isPluginInstalled(pluginId)
               });
             }
           }
@@ -184,10 +181,13 @@ export function DiscoverPlugins({
         // Detect empty reason if no plugins available
         const configuredCount = Object.keys(config).length;
         if (uninstalledPlugins.length === 0) {
-          const reason = await detectEmptyMarketplaceReason({
+          let reason = await detectEmptyMarketplaceReason({
             configuredMarketplaceCount: configuredCount,
             failedMarketplaceCount: failures.length
           });
+          if (reason === 'all-plugins-installed' && allPlugins.length > 0 && allPlugins.every(plugin => plugin.isInstalled && !isPluginGloballyInstalled(plugin.pluginId)) && !allPlugins.some(plugin => isPluginBlockedByPolicy(plugin.pluginId))) {
+            reason = 'all-plugins-project-installed';
+          }
           setEmptyReason(reason);
         }
 
@@ -714,7 +714,7 @@ function DiscoverPluginsKeyHint(t0) {
  * Context-aware empty state message for the Discover screen
  */
 function EmptyStateMessage(t0) {
-  const $ = _c(6);
+  const $ = _c(7);
   const {
     reason
   } = t0;
@@ -774,15 +774,26 @@ function EmptyStateMessage(t0) {
         }
         return t1;
       }
+    case "all-plugins-project-installed":
+      {
+        let t1;
+        if ($[5] === Symbol.for("react.memo_cache_sentinel")) {
+          t1 = <><Text dimColor={true}>All available plugins are installed for this project.</Text><Text dimColor={true}>Use the Browse tab to install at user scope.</Text></>;
+          $[5] = t1;
+        } else {
+          t1 = $[5];
+        }
+        return t1;
+      }
     case "no-marketplaces-configured":
     default:
       {
         let t1;
-        if ($[5] === Symbol.for("react.memo_cache_sentinel")) {
+        if ($[6] === Symbol.for("react.memo_cache_sentinel")) {
           t1 = <><Text dimColor={true}>No plugins available.</Text><Text dimColor={true}>Add a marketplace first using the Marketplaces tab.</Text></>;
-          $[5] = t1;
+          $[6] = t1;
         } else {
-          t1 = $[5];
+          t1 = $[6];
         }
         return t1;
       }

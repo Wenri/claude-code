@@ -72,10 +72,15 @@ export function AgentDetail(t0) {
     if (resolvedTools.hasWildcard) {
       return <Text>All tools</Text>;
     }
-    if (!agent.tools || agent.tools.length === 0) {
+    const {
+      validTools,
+      unavailableTools,
+      invalidTools
+    } = resolvedTools;
+    if (validTools.length === 0 && unavailableTools.length === 0 && invalidTools.length === 0) {
       return <Text>None</Text>;
     }
-    return <>{resolvedTools.validTools.length > 0 && <Text>{resolvedTools.validTools.join(", ")}</Text>}{resolvedTools.invalidTools.length > 0 && <Text color="warning">{figures.warning} Unrecognized:{" "}{resolvedTools.invalidTools.join(", ")}</Text>}</>;
+    return <Box flexDirection="column">{validTools.length > 0 && <Text>{validTools.join(", ")}</Text>}{unavailableTools.length > 0 && <Text color="warning">{figures.warning} Not available to subagents:{" "}{unavailableTools.join(", ")}</Text>}{invalidTools.length > 0 && <Text color="warning">{figures.warning} Unrecognized: {invalidTools.join(", ")}</Text>}</Box>;
   };
   const T0 = Box;
   const t5 = "column";

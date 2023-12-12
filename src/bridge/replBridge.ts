@@ -72,7 +72,9 @@ export type ReplBridgeHandle = {
   environmentId: string
   sessionIngressUrl: string
   getLastSequenceNum(): number
+  flush(): Promise<void>
   writeMessages(messages: Message[]): void
+  reportMetadata(metadata: Record<string, unknown>): void
   writeSdkMessages(messages: SDKMessage[]): void
   sendControlRequest(request: SDKControlRequest): void
   sendControlResponse(response: SDKControlResponse): void
@@ -221,6 +223,10 @@ export type BridgeCoreParams = {
   onFileSuggestions?: (
     query: string,
   ) => Promise<Array<{ path: string; score?: number }>>
+  onReadFile?: (
+    path: string,
+    maxBytes?: number,
+  ) => Promise<{ contents: string; absPath: string; truncated?: boolean }>
   onStateChange?: (state: BridgeState, detail?: string) => void
   /**
    * Fires on each real user message to flow through writeMessages() until
@@ -321,6 +327,7 @@ export async function initBridgeCore(
     onRenameSession,
     onSetColor,
     onFileSuggestions,
+    onReadFile,
     onStateChange,
     onUserMessage,
     perpetual,
@@ -1233,6 +1240,7 @@ export async function initBridgeCore(
           onRenameSession,
           onSetColor,
           onFileSuggestions,
+          onReadFile,
         })
 
       let initialFlushDone = false
@@ -1728,6 +1736,9 @@ export async function initBridgeCore(
     getLastSequenceNum() {
       const live = transport?.getLastSequenceNum() ?? 0
       return Math.max(lastTransportSequenceNum, live)
+    },
+    flush() {
+      return transport?.flush() ?? Promise.resolve()
     },
     sessionIngressUrl,
     writeMessages(messages) {

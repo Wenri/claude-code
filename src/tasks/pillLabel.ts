@@ -1,7 +1,11 @@
 import { DIAMOND_FILLED, DIAMOND_OPEN } from '../constants/figures.js'
 import { count, uniq } from '../utils/array.js'
 import { plural } from '../utils/stringUtils.js'
-import { getSessionBackgroundExitItems } from '../utils/sessionCronTasks.js'
+import {
+  getSessionBackgroundExitItems,
+  type SessionBackgroundExitItem,
+} from '../utils/sessionCronTasks.js'
+import { truncate } from '../utils/truncate.js'
 import {
   isBackgroundTask,
   type BackgroundTaskState,
@@ -77,6 +81,34 @@ export type BackgroundTaskSummary = {
   count: number
   kinds: string[]
   summary: string
+}
+
+const BACKGROUND_TASK_EXIT_LABELS: Record<BackgroundTaskState['type'], string> = {
+  local_agent: 'subagent',
+  local_workflow: 'workflow',
+  local_bash: 'shell',
+  monitor_mcp: 'monitor',
+  in_process_teammate: 'teammate',
+  dream: 'dream',
+  remote_agent: 'cloud session',
+}
+
+/** Rows shown when exiting while in-process background work is active. */
+export function getBackgroundTaskExitItems(
+  tasks: Record<string, TaskState>,
+  { includeDream = false }: { includeDream?: boolean } = {},
+): SessionBackgroundExitItem[] {
+  const items: SessionBackgroundExitItem[] = []
+  for (const task of Object.values(tasks)) {
+    if (!isBackgroundTask(task) || task.type === 'remote_agent') continue
+    if (!includeDream && task.type === 'dream') continue
+    items.push({
+      label: BACKGROUND_TASK_EXIT_LABELS[task.type],
+      detail: truncate(task.description, 50, true),
+    })
+  }
+  items.push(...getSessionBackgroundExitItems())
+  return items
 }
 
 /** Summarize local background work and session-only cron loops together. */

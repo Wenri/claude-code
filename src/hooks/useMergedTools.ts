@@ -1,5 +1,6 @@
 // biome-ignore-all assist/source/organizeImports: ANT-ONLY import markers must not be reordered
 import { useMemo } from 'react'
+import { setReplBridgeActive } from '../bootstrap/state.js'
 import type { Tools, ToolPermissionContext } from '../Tool.js'
 import { assembleToolPool } from '../tools.js'
 import { useAppState } from '../state/AppState.js'
@@ -22,8 +23,11 @@ export function useMergedTools(
   mcpTools: Tools,
   toolPermissionContext: ToolPermissionContext,
 ): Tools {
-  let replBridgeEnabled = false
-  let replBridgeOutboundOnly = false
+  const replBridgeEnabled = useAppState(state => state.replBridgeEnabled)
+  const replBridgeOutboundOnly = useAppState(
+    state => state.replBridgeOutboundOnly,
+  )
+  setReplBridgeActive(replBridgeEnabled && !replBridgeOutboundOnly)
   return useMemo(() => {
     // assembleToolPool is the shared function that both REPL and runAgent use.
     // It handles: getTools() + MCP deny-rule filtering + dedup + MCP CLI exclusion.

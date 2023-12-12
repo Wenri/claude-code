@@ -5,8 +5,7 @@ import { isEnvDefinedFalsy, isEnvTruthy } from '../../utils/envUtils.js'
 import { isTeammate } from '../../utils/teammate.js'
 import { isInProcessTeammate } from '../../utils/teammateContext.js'
 import { FILE_READ_TOOL_NAME } from '../FileReadTool/prompt.js'
-import { FILE_WRITE_TOOL_NAME } from '../FileWriteTool/prompt.js'
-import { GLOB_TOOL_NAME } from '../GlobTool/prompt.js'
+import { GREP_TOOL_NAME } from '../GrepTool/prompt.js'
 import { SEND_MESSAGE_TOOL_NAME } from '../SendMessageTool/constants.js'
 import { AGENT_TOOL_NAME } from './constants.js'
 import { isForkSubagentEnabled } from './forkSubagent.js'
@@ -63,6 +62,13 @@ export function shouldInjectAgentListInMessages(): boolean {
   return getFeatureValue_CACHED_MAY_BE_STALE('tengu_agent_list_attach', false)
 }
 
+export function shouldSteerAgentCost(): boolean {
+  if (isEnvTruthy(process.env.CLAUDE_CODE_AGENT_COST_STEER)) return true
+  if (isEnvDefinedFalsy(process.env.CLAUDE_CODE_AGENT_COST_STEER)) return false
+  if (getSubscriptionType() !== 'pro') return false
+  return getFeatureValue_CACHED_MAY_BE_STALE('tengu_willow_prism', false)
+}
+
 export async function getPrompt(
   agentDefinitions: AgentDefinition[],
   isCoordinator?: boolean,
@@ -82,13 +88,11 @@ export async function getPrompt(
 
 ## When to fork
 
-Fork yourself (omit \`subagent_type\`) when the intermediate tool output isn't worth keeping in your context. The criterion is qualitative \u2014 "will I need this output again" \u2014 not task size.
-- **Research**: fork open-ended questions. If research can be broken into independent questions, launch parallel forks in one message. A fork beats a fresh subagent for this \u2014 it inherits context and shares your cache.
-- **Implementation**: prefer to fork implementation work that requires more than a couple of edits. Do research before jumping to implementation.
+Fork yourself (omit \`subagent_type\`) when the intermediate tool output isn't worth keeping in your context. The criterion is qualitative \u2014 "will I need this output again" \u2014 not task size. Fork open-ended questions. If research can be broken into independent questions, launch parallel forks in one message. A fork beats a fresh subagent for this \u2014 it inherits context and shares your cache.
 
-Forks are cheap because they share your prompt cache. Don't set \`model\` on a fork \u2014 a different model can't reuse the parent's cache. Pass a short \`name\` (one or two words, lowercase) so the user can see the fork in the teams panel and steer it mid-run.
+Forks are cheap because they share your prompt cache.
 
-**Don't peek.** The tool result includes an \`output_file\` path — do not Read or tail it unless the user explicitly asks for a progress check. You get a completion notification; trust it. Reading the transcript mid-flight pulls the fork's tool noise into your context, which defeats the point of forking.
+**Don't peek.** The tool result includes an \`output_file\` path — do not Read or tail it. You get a completion notification; trust it. Reading the transcript mid-flight pulls the fork's tool noise into your context, which defeats the point of forking.
 
 **Don't race.** After launching, you know nothing about what the fork found. Never fabricate or predict fork results in any format — not as prose, summary, or structured output. The notification arrives as a user-role message in a later turn; it is never something you write yourself. If the user asks a follow-up before the notification lands, tell them the fork is still running — give status, not a guess.
 
@@ -155,35 +159,29 @@ ${AGENT_TOOL_NAME}({
 
   const currentExamples = `Example usage:
 
-<example_agent_descriptions>
-"test-runner": use this agent after you are done writing code to run tests
-"greeting-responder": use this agent to respond to user greetings with a friendly joke
-</example_agent_descriptions>
-
 <example>
-user: "Please write a function that checks if a number is prime"
-assistant: I'm going to use the ${FILE_WRITE_TOOL_NAME} tool to write the following code:
-<code>
-function isPrime(n) {
-  if (n <= 1) return false
-  for (let i = 2; i * i <= n; i++) {
-    if (n % i === 0) return false
-  }
-  return true
-}
-</code>
+user: "What's left on this branch before we can ship?"
+assistant: <thinking>A survey question across git state, tests, and config. I'll delegate it and ask for a short report so the raw command output stays out of my context.</thinking>
+${AGENT_TOOL_NAME}({
+  description: "Branch ship-readiness audit",
+  prompt: "Audit what's left before this branch can ship. Check: uncommitted changes, commits ahead of main, whether tests exist, whether the GrowthBook gate is wired up, whether CI-relevant files changed. Report a punch list \u2014 done vs. missing. Under 200 words."
+})
 <commentary>
-Since a significant piece of code was written and the task was completed, now use the test-runner agent to run the tests
+The prompt is self-contained: it states the goal, lists what to check, and caps the response length. The agent's report comes back as the tool result; relay the findings to the user.
 </commentary>
-assistant: Uses the ${AGENT_TOOL_NAME} tool to launch the test-runner agent
 </example>
 
 <example>
-user: "Hello"
+user: "Can you get a second opinion on whether this migration is safe?"
+assistant: <thinking>I'll ask the code-reviewer agent — it won't see my analysis, so it can give an independent read.</thinking>
+${AGENT_TOOL_NAME}({
+  description: "Independent migration review",
+  subagent_type: "code-reviewer",
+  prompt: "Review migration 0042_user_schema.sql for safety. Context: we're adding a NOT NULL column to a 50M-row table. Existing rows get a backfill default. I want a second opinion on whether the backfill approach is safe under concurrent writes — I've checked locking behavior but want independent verification. Report: is this safe, and if not, what specifically breaks?"
+})
 <commentary>
-Since the user is greeting, use the greeting-responder agent to respond with a friendly joke
+The agent starts with no context from this conversation, so the prompt briefs it: what to assess, the relevant background, and what form the answer should take.
 </commentary>
-assistant: "I'm going to use the ${AGENT_TOOL_NAME} tool to launch the greeting-responder agent"
 </example>
 `
 
@@ -198,12 +196,16 @@ assistant: "I'm going to use the ${AGENT_TOOL_NAME} tool to launch the greeting-
     : `Available agent types and the tools they have access to:
 ${effectiveAgents.map(agent => formatAgentLine(agent)).join('\n')}`
 
+  const costSteering = shouldSteerAgentCost()
+    ? `
+
+**Do not spawn agents unless the user asks.** Each spawn starts cold and re-derives context you already have — it's the expensive path on this plan. A task with "multiple angles," "thorough," or several parts is not a request to spawn; handle it inline with your own tools. Only use this tool when the user explicitly says to use a subagent, or names one of the agent types above.`
+    : ''
+
   // Shared core prompt used by both coordinator and non-coordinator modes
-  const shared = `Launch a new agent to handle complex, multi-step tasks autonomously.
+  const shared = `Launch a new agent to handle complex, multi-step tasks. Each agent type has specific capabilities and tools available to it.
 
-The ${AGENT_TOOL_NAME} tool launches specialized agents (subprocesses) that autonomously handle complex tasks. Each agent type has specific capabilities and tools available to it.
-
-${agentListSection}
+${agentListSection}${costSteering}
 
 ${
   forkEnabled
@@ -217,43 +219,34 @@ ${
     return shared
   }
 
-  // Ant-native builds alias find/grep to embedded bfs/ugrep and remove the
-  // dedicated Glob/Grep tools, so point at find via Bash instead.
-  const embedded = hasEmbeddedSearchTools()
-  const fileSearchHint = embedded
-    ? '`find` via the Bash tool'
-    : `the ${GLOB_TOOL_NAME} tool`
-  // The "class Foo" example is about content search. Non-embedded stays Glob
-  // (original intent: find-the-file-containing). Embedded gets grep because
-  // find -name doesn't look at file contents.
-  const contentSearchHint = embedded
+  const contentSearchHint = hasEmbeddedSearchTools()
     ? '`grep` via the Bash tool'
-    : `the ${GLOB_TOOL_NAME} tool`
+    : `the ${GREP_TOOL_NAME} tool`
   const whenNotToUseSection = forkEnabled
     ? ''
     : `
-When NOT to use the ${AGENT_TOOL_NAME} tool:
-- If you want to read a specific file path, use the ${FILE_READ_TOOL_NAME} tool or ${fileSearchHint} instead of the ${AGENT_TOOL_NAME} tool, to find the match more quickly
-- If you are searching for a specific class definition like "class Foo", use ${contentSearchHint} instead, to find the match more quickly
-- If you are searching for code within a specific file or set of 2-3 files, use the ${FILE_READ_TOOL_NAME} tool instead of the ${AGENT_TOOL_NAME} tool, to find the match more quickly
-- Other tasks that are not related to the agent descriptions above
+## When not to use
+
+If the target is already known, use the direct tool: ${FILE_READ_TOOL_NAME} for a known path, ${contentSearchHint} for a specific symbol or string. Reserve this tool for open-ended questions that span the codebase, or tasks that match an available agent type.
 `
 
   // When listing via attachment, the "launch multiple agents" note is in the
   // attachment message (conditioned on subscription there). When inline, keep
   // the existing per-call getSubscriptionType() check.
   const concurrencyNote =
-    !listViaAttachment && getSubscriptionType() !== 'pro'
+    !listViaAttachment &&
+    getSubscriptionType() !== 'pro' &&
+    !costSteering
       ? `
-- Launch multiple agents concurrently whenever possible, to maximize performance; to do that, use a single message with multiple tool uses`
+- When you launch multiple agents for independent work, send them in a single message with multiple tool uses so they run concurrently`
       : ''
 
   // Non-coordinator gets the full prompt with all sections
   return `${shared}
 ${whenNotToUseSection}
+## Usage notes
 
-Usage notes:
-- Always include a short description (3-5 words) summarizing what the agent will do${concurrencyNote}
+- Always include a short description summarizing what the agent will do${concurrencyNote}
 - When the agent is done, it will return a single message back to you. The result returned by the agent is not visible to the user. To show the user the result, you should send a text message back to the user with a concise summary of the result.${
     // eslint-disable-next-line custom-rules/no-process-env-top-level
     !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_BACKGROUND_TASKS) &&
@@ -264,16 +257,12 @@ Usage notes:
 - **Foreground vs background**: Use foreground (default) when you need the agent's results before you can proceed — e.g., research agents whose findings inform your next steps. Use background when you have genuinely independent work to do in parallel.`
       : ''
   }
-- To continue a previously spawned agent, use ${SEND_MESSAGE_TOOL_NAME} with the agent's ID or name as the \`to\` field. The agent resumes with its full context preserved. ${forkEnabled ? 'Each fresh Agent invocation with a subagent_type starts without context — provide a complete task description.' : 'Each Agent invocation starts fresh — provide a complete task description.'}
-- The agent's outputs should generally be trusted
+- To continue a previously spawned agent, use ${SEND_MESSAGE_TOOL_NAME} with the agent's ID or name as the \`to\` field — that resumes it with full context. A new ${AGENT_TOOL_NAME} call${forkEnabled ? ' with a subagent_type' : ''} starts a fresh agent with no memory of prior runs, so the prompt must be self-contained.
+- Trust but verify: an agent's summary describes what it intended to do, not necessarily what it did. When an agent writes or edits code, check the actual changes before reporting the work as done.
 - Clearly tell the agent whether you expect it to write code or just to do research (search, file reads, web fetches, etc.)${forkEnabled ? '' : ", since it is not aware of the user's intent"}
-- If the agent description mentions that it should be used proactively, then you should try your best to use it without the user having to ask for it first. Use your judgement.
+- If the agent description mentions that it should be used proactively, then you should try your best to use it without the user having to ask for it first.
 - If the user specifies that they want you to run agents "in parallel", you MUST send a single message with multiple ${AGENT_TOOL_NAME} tool use content blocks. For example, if you need to launch both a build-validator agent and a test-runner agent in parallel, send a single message with both tool calls.
-- You can optionally set \`isolation: "worktree"\` to run the agent in a temporary git worktree, giving it an isolated copy of the repository. The worktree is automatically cleaned up if the agent makes no changes; if changes are made, the worktree path and branch are returned in the result.${
-    process.env.USER_TYPE === 'ant'
-      ? `\n- You can set \`isolation: "remote"\` to run the agent in a remote CCR environment. This is always a background task; you'll be notified when it completes. Use for long-running tasks that need a fresh sandbox.`
-      : ''
-  }${
+- With \`isolation: "worktree"\`, the worktree is automatically cleaned up if the agent makes no changes; otherwise the path and branch are returned in the result.${
     isInProcessTeammate()
       ? `
 - The run_in_background, name, team_name, and mode parameters are not available in this context. Only synchronous subagents are supported.`

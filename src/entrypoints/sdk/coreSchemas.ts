@@ -118,11 +118,23 @@ export const McpStdioServerConfigSchema = lazySchema(() =>
   }),
 )
 
+export const McpToolConfigSchema = lazySchema(() =>
+  z
+    .object({
+      name: z.string(),
+      permission_policy: z.enum(['always_allow', 'always_ask', 'always_deny']),
+    })
+    .describe(
+      'Per-tool permission policy carried on mcp_set_servers for remote servers.',
+    ),
+)
+
 export const McpSSEServerConfigSchema = lazySchema(() =>
   z.object({
     type: z.literal('sse'),
     url: z.string(),
     headers: z.record(z.string(), z.string()).optional(),
+    tools: z.array(McpToolConfigSchema()).optional(),
   }),
 )
 
@@ -131,6 +143,7 @@ export const McpHttpServerConfigSchema = lazySchema(() =>
     type: z.literal('http'),
     url: z.string(),
     headers: z.record(z.string(), z.string()).optional(),
+    tools: z.array(McpToolConfigSchema()).optional(),
   }),
 )
 
@@ -453,6 +466,12 @@ export const PostToolUseHookInputSchema = lazySchema(() =>
       tool_input: z.unknown(),
       tool_response: z.unknown(),
       tool_use_id: z.string(),
+      duration_ms: z
+        .number()
+        .optional()
+        .describe(
+          'Tool execution time in milliseconds. Excludes permission-prompt and hook time.',
+        ),
     }),
   ),
 )
@@ -466,6 +485,12 @@ export const PostToolUseFailureHookInputSchema = lazySchema(() =>
       tool_use_id: z.string(),
       error: z.string(),
       is_interrupt: z.boolean().optional(),
+      duration_ms: z
+        .number()
+        .optional()
+        .describe(
+          'Tool execution time in milliseconds. Excludes permission-prompt and hook time.',
+        ),
     }),
   ),
 )
@@ -1088,6 +1113,12 @@ export const SlashCommandSchema = lazySchema(() =>
       argumentHint: z
         .string()
         .describe('Hint for skill arguments (e.g., "<file>")'),
+      aliases: z
+        .array(z.string())
+        .optional()
+        .describe(
+          'Alternate names that resolve to this command (e.g., /cost and /stats both resolve to /usage)',
+        ),
     })
     .describe(
       'Information about an available skill (invoked via /command syntax).',
@@ -1348,6 +1379,12 @@ const SDKUserMessageContentSchema = lazySchema(() =>
     isSynthetic: z.boolean().optional(),
     tool_use_result: z.unknown().optional(),
     priority: z.enum(['now', 'next', 'later']).optional(),
+    client_platform: z
+      .string()
+      .optional()
+      .describe(
+        '@internal The `anthropic-client-platform` value of the client that sent this message (e.g. `ios`, `android`, `web_claude_ai`, `desktop_app`). Injected server-side by CCR ingress from the request header.',
+      ),
     timestamp: z
       .string()
       .optional()
@@ -1570,6 +1607,21 @@ export const SDKSystemMessageSchema = lazySchema(() =>
         '@internal Plugin load-time errors (e.g., unsatisfied dependency version). Affected plugins are demoted and absent from `plugins[]`. The key is omitted when there are no errors; CI can fail on `(plugin_errors?.length ?? 0) > 0`.',
       ),
     fast_mode_state: FastModeStateSchema().optional(),
+    analytics_disabled: z
+      .boolean()
+      .optional()
+      .describe(
+        '@internal True when the CLI has analytics/telemetry disabled (privacy level, DO_NOT_TRACK, or 3P provider). IDE clients use this to hide per-message thumbs feedback UI since the rating event would be a no-op.',
+      ),
+    memory_paths: z
+      .object({
+        auto: z.string().optional(),
+        team: z.string().optional(),
+      })
+      .optional()
+      .describe(
+        '@internal Absolute directory paths for the auto-memory and team-memory stores. Lets SDK renderers classify Read/Write/Edit tool calls on these paths as memory operations without re-implementing CLI path detection.',
+      ),
     uuid: UUIDPlaceholder(),
     session_id: z.string(),
   }),
@@ -1629,25 +1681,46 @@ export const SDKPostTurnSummaryMessageSchema = lazySchema(() =>
       type: z.literal('system'),
       subtype: z.literal('post_turn_summary'),
       summarizes_uuid: z.string(),
-      status_category: z.enum([
-        'blocked',
-        'waiting',
-        'completed',
-        'review_ready',
-        'failed',
-      ]),
+      status_category: z.string(),
       status_detail: z.string(),
-      is_noteworthy: z.boolean(),
-      title: z.string(),
-      description: z.string(),
-      recent_action: z.string(),
       needs_action: z.string(),
-      artifact_urls: z.array(z.string()),
       uuid: UUIDPlaceholder(),
       session_id: z.string(),
     })
     .describe(
       '@internal Background post-turn summary emitted after each assistant turn. summarizes_uuid points to the assistant message this summarizes.',
+    ),
+)
+
+export const SDKTaskSummaryMessageSchema = lazySchema(() =>
+  z
+    .object({
+      type: z.literal('system'),
+      subtype: z.literal('task_summary'),
+      detail: z.string().nullable(),
+      uuid: UUIDPlaceholder(),
+      session_id: z.string(),
+    })
+    .describe(
+      '@internal Mid-turn progress line from the debounced classifier. Mirrors external_metadata.task_summary so non-CCR consumers (desktop LocalSessionManager) see the same live phrase. detail is null on the idle clear.',
+    ),
+)
+
+export const SDKNotificationMessageSchema = lazySchema(() =>
+  z
+    .object({
+      type: z.literal('system'),
+      subtype: z.literal('notification'),
+      key: z.string(),
+      text: z.string(),
+      priority: z.enum(['low', 'medium', 'high', 'immediate']),
+      color: z.string().optional(),
+      timeout_ms: z.number().optional(),
+      uuid: UUIDPlaceholder(),
+      session_id: z.string(),
+    })
+    .describe(
+      'Loop-side text notification. Mirrors the interactive REPL notification queue (key/priority/timeout). JSX notifications are not emitted on this channel.',
     ),
 )
 
@@ -1679,7 +1752,7 @@ export const SDKMirrorErrorMessageSchema = lazySchema(() =>
       session_id: z.string(),
     })
     .describe(
-      'Emitted when SessionStore.append() rejects or times out for a transcript-mirror batch. The batch is dropped (at-most-once delivery); this surfaces the failure so consumers are not silent on data loss.',
+      'Emitted when SessionStore.append() rejects or times out for a transcript-mirror batch after bounded retry (3 attempts with short backoff; timeouts are not retried). The batch is then dropped; this surfaces the failure so consumers are not silent on data loss.',
     ),
 )
 
@@ -1821,6 +1894,7 @@ export const SDKTaskNotificationMessageSchema = lazySchema(() =>
         duration_ms: z.number(),
       })
       .optional(),
+    skip_transcript: z.boolean().optional(),
     uuid: UUIDPlaceholder(),
     session_id: z.string(),
   }),
@@ -1841,6 +1915,12 @@ export const SDKTaskStartedMessageSchema = lazySchema(() =>
         "meta.name from the workflow script (e.g. 'spec'). Only set when task_type is 'local_workflow'.",
       ),
     prompt: z.string().optional(),
+    skip_transcript: z
+      .boolean()
+      .optional()
+      .describe(
+        'Ambient/housekeeping task. Consumers should hide this from the inline transcript; it may still appear in a tasks panel.',
+      ),
     uuid: UUIDPlaceholder(),
     session_id: z.string(),
   }),
@@ -1975,6 +2055,9 @@ export const SDKMessageSchema = lazySchema(() =>
     SDKPartialAssistantMessageSchema(),
     SDKCompactBoundaryMessageSchema(),
     SDKStatusMessageSchema(),
+    SDKPostTurnSummaryMessageSchema(),
+    SDKTaskSummaryMessageSchema(),
+    SDKNotificationMessageSchema(),
     SDKAPIRetryMessageSchema(),
     SDKLocalCommandOutputMessageSchema(),
     SDKHookStartedMessageSchema(),

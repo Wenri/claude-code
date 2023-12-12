@@ -41,6 +41,8 @@ export type UseTextInputProps = {
   onSubmit?: (value: string) => void
   onExit?: () => void
   onExitMessage?: (show: boolean, key?: string) => void
+  onLeftArrowOnEmpty?: () => void
+  onLeftArrowOnEmptyMessage?: (show: boolean) => void
   onHistoryUp?: () => void
   onHistoryDown?: () => void
   onHistoryReset?: () => void
@@ -78,6 +80,8 @@ export function useTextInput({
   onSubmit,
   onExit,
   onExitMessage,
+  onLeftArrowOnEmpty,
+  onLeftArrowOnEmptyMessage,
   onHistoryUp,
   onHistoryDown,
   onHistoryReset,
@@ -171,6 +175,20 @@ export function useTextInput({
     },
   )
 
+  const handleEmptyLeft = useDoublePress(
+    show => onLeftArrowOnEmptyMessage?.(show),
+    () => onLeftArrowOnEmpty?.(),
+  )
+
+  function handleLeft(): Cursor {
+    if (onLeftArrowOnEmpty && cursor.text === '') {
+      if (onLeftArrowOnEmptyMessage) handleEmptyLeft()
+      else onLeftArrowOnEmpty()
+      return cursor
+    }
+    return cursor.left()
+  }
+
   function handleCtrlD(): MaybeCursor {
     if (cursor.text === '') {
       // When input is empty, handle double-press
@@ -227,7 +245,7 @@ export function useTextInput({
 
   const handleCtrl = mapInput([
     ['a', () => cursor.startOfLogicalLine()],
-    ['b', () => cursor.left()],
+    ['b', handleLeft],
     ['c', handleCtrlC],
     ['d', handleCtrlD],
     ['e', () => cursor.endOfLogicalLine()],
@@ -385,7 +403,7 @@ export function useTextInput({
       case key.downArrow && !key.shift:
         return downOrHistoryDown
       case key.leftArrow:
-        return () => cursor.left()
+        return handleLeft
       case key.rightArrow:
         return () => cursor.right()
       default: {
@@ -410,6 +428,7 @@ export function useTextInput({
               const text = stripAnsi(input)
                 // eslint-disable-next-line custom-rules/no-lookbehind-regex -- .replace(re, str) on 1-2 char keystrokes: no-match returns same string (Object.is), regex never runs
                 .replace(/(?<=[^\\\r\n])\r$/, '')
+                .replace(/\r\n/g, '\n')
                 .replace(/\r/g, '\n')
               if (cursor.isAtStart() && isInputModeCharacter(input)) {
                 return cursor.insert(text).left()

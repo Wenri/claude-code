@@ -690,9 +690,11 @@ function isSymlinkTo({
 export function initialPermissionModeFromCLI({
   permissionModeCli,
   dangerouslySkipPermissions,
+  agentPermissionMode,
 }: {
   permissionModeCli: string | undefined
   dangerouslySkipPermissions: boolean | undefined
+  agentPermissionMode?: PermissionMode
 }): { mode: PermissionMode; notification?: string } {
   const settings = getSettings_DEPRECATED() || {}
 
@@ -739,6 +741,20 @@ export function initialPermissionModeFromCLI({
       }
     } else {
       orderedModes.push(parsedMode)
+    }
+  }
+  if (agentPermissionMode) {
+    if (
+      feature('TRANSCRIPT_CLASSIFIER') &&
+      agentPermissionMode === 'auto' &&
+      autoModeCircuitBrokenSync
+    ) {
+      logForDebugging(
+        'agent frontmatter requested auto mode but circuit breaker active — falling through',
+        { level: 'warn' },
+      )
+    } else {
+      orderedModes.push(agentPermissionMode)
     }
   }
   if (settings.permissions?.defaultMode) {

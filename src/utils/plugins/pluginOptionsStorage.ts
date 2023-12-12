@@ -81,6 +81,24 @@ export function clearPluginOptionsCache(): void {
 }
 
 /**
+ * Fill values that may be omitted from persisted plugin option storage.
+ * Required fields without defaults stay absent so validation/substitution can
+ * still report that they need configuration; optional fields expand to their
+ * default, or to an empty string when no default is declared.
+ */
+export function applyPluginOptionDefaults(
+  values: PluginOptionValues,
+  schema: PluginOptionSchema,
+): PluginOptionValues {
+  const defaults: PluginOptionValues = {}
+  for (const [key, option] of Object.entries(schema)) {
+    if (option.required && option.default === undefined) continue
+    defaults[key] = option.default ?? ''
+  }
+  return { ...defaults, ...values }
+}
+
+/**
  * Save option values, splitting by `schema[key].sensitive`. Non-sensitive go
  * to userSettings; sensitive go to secureStorage. Writes are skipped if nothing
  * in that category is present.
@@ -361,8 +379,7 @@ export function substituteUserConfigVariables(
     const configValue = userConfig[key]
     if (configValue === undefined) {
       throw new Error(
-        `Missing required user configuration value: ${key}. ` +
-          `This should have been validated before variable substitution.`,
+        `Plugin option "${key}" isn't set. Open /plugin manage to configure it, or check that the plugin's userConfig schema declares "${key}".`,
       )
     }
     return String(configValue)

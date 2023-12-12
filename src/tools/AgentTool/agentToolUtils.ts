@@ -64,12 +64,18 @@ import { FILE_WRITE_TOOL_NAME } from '../FileWriteTool/prompt.js'
 import { GLOB_TOOL_NAME } from '../GlobTool/prompt.js'
 import { GREP_TOOL_NAME } from '../GrepTool/prompt.js'
 import { NOTEBOOK_EDIT_TOOL_NAME } from '../NotebookEditTool/constants.js'
+import {
+  isReplModeEnabled,
+  REPL_ONLY_TOOLS,
+  REPL_TOOL_NAME,
+} from '../REPLTool/constants.js'
 import { AGENT_TOOL_NAME, LEGACY_AGENT_TOOL_NAME } from './constants.js'
 import type { AgentDefinition } from './loadAgentsDir.js'
 export type ResolvedAgentTools = {
   hasWildcard: boolean
   validTools: string[]
   invalidTools: string[]
+  unavailableTools: string[]
   resolvedTools: Tools
   allowedAgentTypes?: string[]
 }
@@ -153,13 +159,15 @@ export function resolveAgentTools(
         permissionMode,
       })
 
-  // Create a set of disallowed tool names for quick lookup
-  const disallowedToolSet = new Set(
-    disallowedTools?.map(toolSpec => {
-      const { toolName } = permissionRuleValueFromString(toolSpec)
-      return toolName
-    }) ?? [],
-  )
+  // Track both all denied tool names and the names denied without a rule
+  // suffix. A blanket deny should not be reported as unavailable below.
+  const disallowedToolSet = new Set<string>()
+  const blanketDisallowedToolSet = new Set<string>()
+  for (const toolSpec of disallowedTools ?? []) {
+    const { toolName, ruleContent } = permissionRuleValueFromString(toolSpec)
+    disallowedToolSet.add(toolName)
+    if (!ruleContent) blanketDisallowedToolSet.add(toolName)
+  }
 
   // Filter available tools based on disallowed list
   const allowedAvailableTools = filteredAvailableTools.filter(
@@ -175,6 +183,7 @@ export function resolveAgentTools(
       hasWildcard: true,
       validTools: [],
       invalidTools: [],
+      unavailableTools: [],
       resolvedTools: allowedAvailableTools,
     }
   }
@@ -183,9 +192,17 @@ export function resolveAgentTools(
   for (const tool of allowedAvailableTools) {
     availableToolMap.set(tool.name, tool)
   }
+  const originalAvailableToolNames = new Set(
+    availableTools.map(tool => tool.name),
+  )
+  const replTool =
+    isReplModeEnabled() && !disallowedToolSet.has(REPL_TOOL_NAME)
+      ? availableToolMap.get(REPL_TOOL_NAME)
+      : undefined
 
   const validTools: string[] = []
   const invalidTools: string[] = []
+  const unavailableTools: string[] = []
   const resolved: Tool[] = []
   const resolvedToolsSet = new Set<Tool>()
   let allowedAgentTypes: string[] | undefined
@@ -217,6 +234,16 @@ export function resolveAgentTools(
         resolved.push(tool)
         resolvedToolsSet.add(tool)
       }
+    } else if (replTool && REPL_ONLY_TOOLS.has(toolName)) {
+      validTools.push(toolSpec)
+      if (!resolvedToolsSet.has(replTool)) {
+        resolved.push(replTool)
+        resolvedToolsSet.add(replTool)
+      }
+    } else if (blanketDisallowedToolSet.has(toolName)) {
+      // Explicitly denied tools are intentionally absent, not unrecognized.
+    } else if (originalAvailableToolNames.has(toolName)) {
+      unavailableTools.push(toolSpec)
     } else {
       invalidTools.push(toolSpec)
     }
@@ -226,6 +253,7 @@ export function resolveAgentTools(
     hasWildcard: false,
     validTools,
     invalidTools,
+    unavailableTools,
     resolvedTools: resolved,
     allowedAgentTypes,
   }

@@ -2,7 +2,7 @@ import { c as _c } from "react/compiler-runtime";
 import { feature } from 'bun:bundle';
 import React, { createContext, useContext, useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import useStdin from '../../ink/hooks/use-stdin.js';
-import { getGlobalConfig, saveGlobalConfig } from '../../utils/config.js';
+import { getConfigValue, setConfigValue } from '../../utils/settings/configSettings.js';
 import { getSystemThemeName, type SystemTheme } from '../../utils/systemTheme.js';
 import {
   fromCustomThemeSetting,
@@ -47,13 +47,10 @@ type Props = {
   onThemeSave?: (setting: ThemeSetting) => void;
 };
 function defaultInitialTheme(): ThemeSetting {
-  return getGlobalConfig().theme;
+  return getConfigValue('theme', 'dark').value;
 }
 function defaultSaveTheme(setting: ThemeSetting): void {
-  saveGlobalConfig(current => ({
-    ...current,
-    theme: setting
-  }));
+  setConfigValue('theme', setting);
 }
 export function ThemeProvider({
   children,

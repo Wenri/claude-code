@@ -8,6 +8,8 @@ import type {
   PermissionMode,
   SDKMessage,
 } from 'src/entrypoints/agentSdkTypes.js'
+import { getAutoMemPath, isAutoMemoryEnabled } from 'src/memdir/paths.js'
+import { isAnalyticsDisabled } from 'src/services/analytics/config.js'
 import {
   AGENT_TOOL_NAME,
   LEGACY_AGENT_TOOL_NAME,
@@ -16,6 +18,12 @@ import { getAnthropicApiKeyWithSource } from '../auth.js'
 import { getCwd } from '../cwd.js'
 import { getFastModeState } from '../fastMode.js'
 import { getSettings_DEPRECATED } from '../settings/settings.js'
+
+/* eslint-disable @typescript-eslint/no-require-imports */
+const teamMemPaths = feature('TEAMMEM')
+  ? (require('../../memdir/teamMemPaths.js') as typeof import('../../memdir/teamMemPaths.js'))
+  : null
+/* eslint-enable @typescript-eslint/no-require-imports */
 
 // TODO(next-minor): remove this translation once SDK consumers have migrated
 // to the 'Agent' tool name. The wire name was renamed Task → Agent in #19647,
@@ -91,7 +99,14 @@ export function buildSystemInitMessage(inputs: SystemInitInputs): SDKMessage {
     ...(inputs.pluginErrors.length > 0 && {
       plugin_errors: inputs.pluginErrors.map(error => ({ ...error })),
     }),
+    analytics_disabled: isAnalyticsDisabled(),
     uuid: randomUUID(),
+  }
+  if (isAutoMemoryEnabled()) {
+    initMessage.memory_paths = { auto: getAutoMemPath() }
+    if (feature('TEAMMEM') && teamMemPaths!.isTeamMemoryEnabled()) {
+      initMessage.memory_paths.team = teamMemPaths!.getTeamMemPath()
+    }
   }
   // Hidden from public SDK types — ant-only UDS messaging socket path
   if (feature('UDS_INBOX')) {

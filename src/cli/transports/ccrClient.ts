@@ -651,6 +651,8 @@ export class CCRClient {
         ? {
             tool_name: details.tool_name,
             action_description: details.action_description,
+            raw_command: details.raw_command,
+            tool_use_id: details.tool_use_id,
             request_id: details.request_id,
           }
         : null,

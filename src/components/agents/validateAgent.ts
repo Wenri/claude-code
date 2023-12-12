@@ -89,6 +89,11 @@ export function validateAgent(
     if (resolvedTools.invalidTools.length > 0) {
       errors.push(`Invalid tools: ${resolvedTools.invalidTools.join(', ')}`)
     }
+    if (resolvedTools.unavailableTools.length > 0) {
+      warnings.push(
+        `Not available to subagents: ${resolvedTools.unavailableTools.join(', ')}`,
+      )
+    }
   }
 
   // Validate system prompt

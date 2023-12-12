@@ -12,6 +12,7 @@ type TaskStartedEvent = {
   task_type?: string
   workflow_name?: string
   prompt?: string
+  skip_transcript?: boolean
 }
 
 type TaskProgressEvent = {
@@ -51,6 +52,7 @@ type TaskNotificationSdkEvent = {
     tool_uses: number
     duration_ms: number
   }
+  skip_transcript?: boolean
 }
 
 // Mirrors notifySessionStateChanged. The CCR bridge already receives this
@@ -65,11 +67,39 @@ type SessionStateChangedEvent = {
   state: 'idle' | 'running' | 'requires_action'
 }
 
+type PostTurnSummaryEvent = {
+  type: 'system'
+  subtype: 'post_turn_summary'
+  summarizes_uuid: string
+  status_category: 'blocked' | 'review_ready'
+  status_detail: string
+  needs_action: string
+}
+
+type TaskSummaryEvent = {
+  type: 'system'
+  subtype: 'task_summary'
+  detail: string | null
+}
+
+type NotificationEvent = {
+  type: 'system'
+  subtype: 'notification'
+  key: string
+  text: string
+  priority: 'immediate'
+  color?: string
+  timeout_ms?: number
+}
+
 export type SdkEvent =
   | TaskStartedEvent
   | TaskProgressEvent
   | TaskNotificationSdkEvent
   | SessionStateChangedEvent
+  | PostTurnSummaryEvent
+  | TaskSummaryEvent
+  | NotificationEvent
 
 const MAX_QUEUE_SIZE = 1000
 const queue: SdkEvent[] = []
@@ -119,6 +149,7 @@ export function emitTaskTerminatedSdk(
     summary?: string
     outputFile?: string
     usage?: { total_tokens: number; tool_uses: number; duration_ms: number }
+    skipTranscript?: boolean
   },
 ): void {
   enqueueSdkEvent({
@@ -130,5 +161,6 @@ export function emitTaskTerminatedSdk(
     output_file: opts?.outputFile ?? '',
     summary: opts?.summary ?? '',
     usage: opts?.usage,
+    skip_transcript: opts?.skipTranscript,
   })
 }

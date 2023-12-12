@@ -32,6 +32,8 @@ import { feature } from 'bun:bundle'
 import axios from 'axios'
 import {
   createV2ReplTransport,
+  type InternalEventReaders,
+  type InternalEventWriter,
   type ReplBridgeTransport,
 } from './replBridgeTransport.js'
 import { buildCCRv2SdkUrl } from './workSecret.js'
@@ -66,6 +68,7 @@ import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
 } from '../services/analytics/index.js'
+import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js'
 import type { ReplBridgeHandle, BridgeState } from './replBridge.js'
 import type { Message } from '../types/message.js'
 import type { SDKMessage } from '../entrypoints/agentSdkTypes.js'
@@ -74,6 +77,10 @@ import type {
   SDKControlResponse,
 } from '../entrypoints/sdk/controlTypes.js'
 import type { PermissionMode } from '../utils/permissions/PermissionMode.js'
+import type {
+  RequiresActionDetails,
+  SessionState,
+} from '../utils/sessionState.js'
 import {
   updatePullRequestSubscription,
   updateSlackThreadSubscription,
@@ -124,6 +131,7 @@ export type EnvLessBridgeParams = {
    * retags internally.
    */
   onUserMessage?: (text: string, sessionId: string) => boolean
+  onSessionEstablished?: (sessionId: string) => void
   onPermissionResponse?: (response: SDKControlResponse) => void
   onInterrupt?: () => void
   onSetModel?: (model: string | undefined) => void
@@ -140,6 +148,10 @@ export type EnvLessBridgeParams = {
   onFileSuggestions?: (
     query: string,
   ) => Promise<Array<{ path: string; score?: number }>>
+  onReadFile?: (
+    path: string,
+    maxBytes?: number,
+  ) => Promise<{ contents: string; absPath: string; truncated?: boolean }>
   onStateChange?: (state: BridgeState, detail?: string) => void
   /**
    * When true, skip opening the SSE read stream — only the CCRClient write
@@ -149,10 +161,17 @@ export type EnvLessBridgeParams = {
   outboundOnly?: boolean
   /** Free-form tags for session categorization (e.g. ['ccr-mirror']). */
   tags?: string[]
+  gitRepoUrl?: string | null
+  branch?: string
   /** Existing server session reused across an in-place CLI update. */
   reattachSessionId?: string
   /** SSE high-water mark captured by the process being replaced. */
   reattachSequenceNum?: number
+  onTransportPersistenceReady?: (
+    writer: InternalEventWriter,
+    readers: InternalEventReaders,
+  ) => void
+  onTransportPersistenceTeardown?: () => void
 }
 
 /**
@@ -176,6 +195,7 @@ export async function initEnvLessBridgeCore(
     initialMessages,
     onInboundMessage,
     onUserMessage,
+    onSessionEstablished,
     onPermissionResponse,
     onInterrupt,
     onSetModel,
@@ -184,11 +204,16 @@ export async function initEnvLessBridgeCore(
     onRenameSession,
     onSetColor,
     onFileSuggestions,
+    onReadFile,
     onStateChange,
     outboundOnly,
     tags,
+    gitRepoUrl = null,
+    branch = '',
     reattachSessionId,
     reattachSequenceNum,
+    onTransportPersistenceReady,
+    onTransportPersistenceTeardown,
   } = params
 
   const cfg = await getEnvLessBridgeConfig()
@@ -200,6 +225,12 @@ export async function initEnvLessBridgeCore(
     logForDebugging('[remote-bridge] No OAuth token')
     return null
   }
+
+  const [{ getOriginalCwd }, { getMainLoopModel }] = await Promise.all([
+    import('../bootstrap/state.js'),
+    import('../utils/model/model.js'),
+  ])
+  const originalCwd = getOriginalCwd()
 
   let sessionId: string
   if (reattachSessionId) {
@@ -215,6 +246,9 @@ export async function initEnvLessBridgeCore(
           title,
           cfg.http_timeout_ms,
           tags,
+          gitRepoUrl ? { gitRepoUrl, branch } : undefined,
+          originalCwd,
+          getMainLoopModel(),
         ),
       'createCodeSession',
       cfg,
@@ -267,6 +301,7 @@ export async function initEnvLessBridgeCore(
   logForDebugging(
     `[remote-bridge] Fetched bridge credentials (expires_in=${credentials.expires_in}s)`,
   )
+  onSessionEstablished?.(sessionId)
 
   // ── 3. Build v2 transport (SSETransport + CCRClient) ────────────────────
   const sessionUrl = buildCCRv2SdkUrl(credentials.api_base_url, sessionId)
@@ -342,6 +377,65 @@ export async function initEnvLessBridgeCore(
   let authRecoveryInFlight = false
   let transportRecoveryAttempts = 0
   const MAX_TRANSPORT_RECOVERY_ATTEMPTS = 3
+  let hasPendingAction = false
+  const reportState = (
+    state: SessionState,
+    details?: RequiresActionDetails,
+  ): void => {
+    transport.reportState(state, details)
+    if (state === 'requires_action' && details) {
+      hasPendingAction = true
+      transport.reportMetadata({ pending_action: details })
+    } else if (hasPendingAction) {
+      hasPendingAction = false
+      transport.reportMetadata({ pending_action: null })
+    }
+  }
+
+  let unsubscribeRepoWatcher: (() => void) | undefined
+  let resetLastBranch: (() => void) | undefined
+  let notifyBranchChange: (() => void) | undefined
+  if (gitRepoUrl) {
+    void (async () => {
+      const { parseGitRemote, parseGitHubRepository } = await import(
+        '../utils/detectRepository.js'
+      )
+      const {
+        addWatchedRepo,
+        getCachedBranchForRepo,
+        onRepoBranchChange,
+      } = await import('../utils/git/gitFilesystem.js')
+      const parsed = parseGitRemote(gitRepoUrl)
+      const repo = parsed
+        ? `${parsed.owner}/${parsed.name}`
+        : parseGitHubRepository(gitRepoUrl)
+      if (!repo) return
+
+      await addWatchedRepo(originalCwd)
+      if (tornDown) return
+
+      let lastBranch: string | null | undefined
+      const reportBranch = async (): Promise<void> => {
+        if (tornDown) return
+        const currentBranch = await getCachedBranchForRepo(originalCwd)
+        if (currentBranch === undefined || currentBranch === lastBranch) return
+        lastBranch = currentBranch
+        transport.reportMetadata({
+          current_branches: { [repo]: currentBranch },
+        })
+      }
+      resetLastBranch = () => {
+        lastBranch = undefined
+      }
+      notifyBranchChange = () => void reportBranch()
+      unsubscribeRepoWatcher = onRepoBranchChange(notifyBranchChange)
+      void reportBranch()
+    })().catch(err =>
+      logForDebugging(
+        `[remote-bridge] current_branches setup failed: ${errorMessage(err)}`,
+      ),
+    )
+  }
   // Latch for onUserMessage — flips true when the callback returns true
   // (policy says "done deriving"). sessionId is const (no re-create path —
   // rebuildTransport swaps JWT/epoch, same session), so no reset needed.
@@ -452,6 +546,13 @@ export async function initEnvLessBridgeCore(
       transportRecoveryAttempts = 0
       logForDebugging('[remote-bridge] v2 transport connected')
       logForDiagnosticsNoPII('info', 'bridge_repl_v2_transport_connected')
+      if (onTransportPersistenceReady) {
+        const writer = transport.getInternalEventWriter?.()
+        const readers = transport.getInternalEventReaders?.()
+        if (writer && readers) {
+          onTransportPersistenceReady(writer, readers)
+        }
+      }
       logEvent('tengu_bridge_repl_ws_connected', {
         v2: true,
         cause:
@@ -500,7 +601,7 @@ export async function initEnvLessBridgeCore(
         // user message or turn-end result.
         onPermissionResponse
           ? res => {
-              transport.reportState('running')
+              reportState('running')
               onPermissionResponse(res)
             }
           : undefined,
@@ -515,6 +616,7 @@ export async function initEnvLessBridgeCore(
             onRenameSession,
             onSetColor,
             onFileSuggestions,
+            onReadFile,
             outboundOnly,
           }),
       )
@@ -564,6 +666,9 @@ export async function initEnvLessBridgeCore(
     cause: Exclude<ConnectCause, 'initial'>,
   ): Promise<void> {
     connectCause = cause
+    hasPendingAction = false
+    resetLastBranch?.()
+    onTransportPersistenceTeardown?.()
     // Queue writes during rebuild — once /bridge returns, the old transport's
     // epoch is stale and its next write/heartbeat 409s. Without this gate,
     // writeMessages adds UUIDs to recentPostedUUIDs then writeBatch silently
@@ -592,6 +697,7 @@ export async function initEnvLessBridgeCore(
       }
       wireTransportCallbacks()
       transport.connect()
+      notifyBranchChange?.()
       connectDeadline = setTimeout(
         onConnectTimeout,
         cfg.connect_timeout_ms,
@@ -720,7 +826,7 @@ export async function initEnvLessBridgeCore(
       session_id: sessionId,
     }))
     if (msgs.some(m => m.type === 'user')) {
-      transport.reportState('running')
+      reportState('running')
     }
     logForDebugging(
       `[remote-bridge] Drained ${msgs.length} queued message(s) after flush`,
@@ -756,7 +862,7 @@ export async function initEnvLessBridgeCore(
     // cap), not capped: the cap may truncate to a user message even when the
     // actual trailing message is assistant.
     if (eligible.at(-1)?.type === 'user') {
-      transport.reportState('running')
+      reportState('running')
     }
     logForDebugging(`[remote-bridge] Flushing ${events.length} history events`)
     await transport.writeBatch(events)
@@ -785,6 +891,8 @@ export async function initEnvLessBridgeCore(
   }
 
   async function performTeardown(): Promise<void> {
+    unsubscribeRepoWatcher?.()
+    onTransportPersistenceTeardown?.()
     refresh.cancelAll()
     clearTimeout(connectDeadline)
     flushGate.drop()
@@ -795,7 +903,7 @@ export async function initEnvLessBridgeCore(
     // window (typical archive ≈ 100-500ms) to POST the result without an
     // explicit sleep. close() sets closed=true which interrupts drain at the
     // next while-check, so close-before-archive drops the result.
-    transport.reportState('idle')
+    reportState('idle')
     void transport.write(makeResultMessage(sessionId))
 
     if (skipArchive) {
@@ -906,6 +1014,7 @@ export async function initEnvLessBridgeCore(
     environmentId: '',
     sessionIngressUrl: credentials.api_base_url,
     getLastSequenceNum: () => transport.getLastSequenceNum(),
+    flush: () => transport.flush(),
     writeMessages(messages) {
       const filtered = messages.filter(
         m =>
@@ -947,7 +1056,7 @@ export async function initEnvLessBridgeCore(
       // message in the batch marks turn start. CCRClient.reportState dedupes
       // consecutive same-state pushes.
       if (filtered.some(m => m.type === 'user')) {
-        transport.reportState('running')
+        reportState('running')
       }
       logForDebugging(`[remote-bridge] Sending ${filtered.length} message(s)`)
       void transport.writeBatch(events)
@@ -972,7 +1081,33 @@ export async function initEnvLessBridgeCore(
       }
       const event = { ...request, session_id: sessionId }
       if (request.request.subtype === 'can_use_tool') {
-        transport.reportState('requires_action')
+        let details: RequiresActionDetails | undefined
+        if (
+          getFeatureValue_CACHED_MAY_BE_STALE(
+            'tengu_bridge_requires_action_details',
+            false,
+          )
+        ) {
+          const command = request.request.input?.command
+          details = {
+            tool_name:
+              request.request.display_name || request.request.tool_name,
+            action_description:
+              request.request.description ||
+              request.request.display_name ||
+              request.request.tool_name,
+            raw_command:
+              (request.request.tool_name === 'Bash' ||
+                request.request.tool_name === 'PowerShell') &&
+              typeof command === 'string'
+                ? command
+                : undefined,
+            tool_use_id: request.request.tool_use_id,
+            request_id: request.request_id,
+            input: request.request.input,
+          }
+        }
+        reportState('requires_action', details)
       }
       void transport.write(event)
       logForDebugging(
@@ -987,7 +1122,7 @@ export async function initEnvLessBridgeCore(
         return
       }
       const event = { ...response, session_id: sessionId }
-      transport.reportState('running')
+      reportState('running')
       void transport.write(event)
       logForDebugging('[remote-bridge] Sent control_response')
     },
@@ -1006,7 +1141,7 @@ export async function initEnvLessBridgeCore(
       // Hook/classifier/channel/recheck resolved the permission locally —
       // interactiveHandler calls only cancelRequest (no sendResponse) on
       // those paths, so without this the server stays on requires_action.
-      transport.reportState('running')
+      reportState('running')
       void transport.write(event)
       logForDebugging(
         `[remote-bridge] Sent control_cancel_request request_id=${requestId}`,
@@ -1017,7 +1152,7 @@ export async function initEnvLessBridgeCore(
         logForDebugging('[remote-bridge] Dropping result during 401 recovery')
         return
       }
-      transport.reportState('idle')
+      reportState('idle')
       void transport.write(makeResultMessage(sessionId))
       logForDebugging(`[remote-bridge] Sent result`)
     },
@@ -1059,6 +1194,9 @@ export async function initEnvLessBridgeCore(
     },
     getPRWebhookTarget() {
       return prWebhookTarget
+    },
+    reportMetadata(metadata) {
+      transport.reportMetadata(metadata)
     },
     subscribeSlackThread(channel, threadTs) {
       return updateSlackThreadSubscription(

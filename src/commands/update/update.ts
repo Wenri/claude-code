@@ -11,7 +11,9 @@ import { getProjectDir, getTranscriptPath } from '../../utils/sessionStorage.js'
 import { join } from 'path'
 import { logEvent } from '../../services/analytics/index.js'
 import { which } from '../../utils/which.js'
+import { makeSystemMessage } from '../../bridge/bridgeMessaging.js'
 import { getReplBridgeHandle } from '../../bridge/replBridgeHandle.js'
+import { withTimeout } from '../../utils/sleep.js'
 
 export async function resolveLauncher(): Promise<RelaunchLauncher> {
   const installedLauncher = await which('claude')
@@ -62,6 +64,15 @@ export const call: LocalCommandCall = async (_args, context) => {
       prev.replBridgeSkipNextArchive
         ? prev
         : { ...prev, replBridgeSkipNextArchive: true },
+    )
+    bridgeHandle.writeSdkMessages([
+      makeSystemMessage(
+        'Switching to latest Claude Code… reconnecting',
+        getSessionId(),
+      ),
+    ])
+    await withTimeout(bridgeHandle.flush(), 2_000, 'bridge flush').catch(
+      () => {},
     )
     await bridgeHandle.teardown({ skipArchive: true })
   }

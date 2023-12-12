@@ -8,6 +8,10 @@ import { resetGetMemoryFilesCache } from '../../utils/claudemd.js'
 import { clearSessionMessagesCache } from '../../utils/sessionStorage.js'
 import { clearBetaTracingState } from '../../utils/telemetry/betaSessionTracing.js'
 import { resetMicrocompactState } from './microCompact.js'
+import {
+  resetResultDedupState,
+  type ResultDedupState,
+} from '../tools/resultDedup.js'
 
 /**
  * Run cleanup of caches and tracking state after compaction.
@@ -28,7 +32,11 @@ import { resetMicrocompactState } from './microCompact.js'
  * pass querySource — undefined is only safe for callers that are
  * genuinely main-thread-only (/compact, /clear).
  */
-export function runPostCompactCleanup(querySource?: QuerySource): void {
+export function runPostCompactCleanup(
+  querySource?: QuerySource,
+  resultDedupState?: ResultDedupState,
+): void {
+  if (resultDedupState) resetResultDedupState(resultDedupState)
   // Subagents (agent:*) run in the same process and share module-level
   // state with the main thread. Only reset main-thread module-level state
   // (context-collapse, memory file cache) for main-thread compacts.

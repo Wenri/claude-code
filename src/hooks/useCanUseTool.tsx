@@ -11,7 +11,7 @@ import type { ToolPermissionContext, Tool as ToolType, ToolUseContext } from '..
 import { consumeSpeculativeClassifierCheck, peekSpeculativeClassifierCheck } from '../tools/BashTool/bashPermissions.js';
 import { BASH_TOOL_NAME } from '../tools/BashTool/toolName.js';
 import type { AssistantMessage } from '../types/message.js';
-import { recordAutoModeDenial } from '../utils/autoModeDenials.js';
+import { getAutoModeDenials, recordAutoModeDenial, removeAutoModeDenial } from '../utils/autoModeDenials.js';
 import { clearClassifierChecking, setClassifierApproval, setYoloClassifierApproval } from '../utils/classifierApprovals.js';
 import { logForDebugging } from '../utils/debug.js';
 import { AbortError } from '../utils/errors.js';
@@ -29,7 +29,10 @@ function useCanUseTool(setToolUseConfirmQueue, setToolPermissionContext) {
   const $ = _c(3);
   let t0;
   if ($[0] !== setToolPermissionContext || $[1] !== setToolUseConfirmQueue) {
-    t0 = async (tool, input, toolUseContext, assistantMessage, toolUseID, forceDecision) => new Promise(resolve => {
+    t0 = async (tool, input, toolUseContext, assistantMessage, toolUseID, forceDecision) => {
+      const inputKey = tool.name === BASH_TOOL_NAME ? jsonStringify({ command: input.command }) : jsonStringify(input);
+      const previousDenial = getAutoModeDenials().find(denial => denial.toolName === tool.name && denial.inputKey === inputKey);
+      const decision = new Promise(resolve => {
       const ctx = createPermissionContext(tool, input, toolUseContext, assistantMessage, toolUseID, setToolPermissionContext, createPermissionQueueOps(setToolUseConfirmQueue));
       if (ctx.resolveIfAborted(resolve)) {
         return;
@@ -78,6 +81,7 @@ function useCanUseTool(setToolUseConfirmQueue, setToolPermissionContext) {
                 recordAutoModeDenial({
                   toolName: tool.name,
                   display: description,
+                  inputKey,
                   reason: result.decisionReason.reason ?? "",
                   timestamp: Date.now()
                 });
@@ -180,7 +184,20 @@ function useCanUseTool(setToolUseConfirmQueue, setToolPermissionContext) {
       }).finally(() => {
         clearClassifierChecking(toolUseID);
       });
-    });
+      });
+      if (previousDenial) {
+        void decision.then(result => {
+          if (result.behavior !== 'allow') return;
+          logEvent('tengu_auto_mode_subsequent_approval', {
+            toolName: sanitizeToolNameForAnalytics(tool.name),
+            msSinceDeny: Date.now() - previousDenial.timestamp,
+            allowReasonType: result.decisionReason?.type,
+          });
+          removeAutoModeDenial(previousDenial);
+        });
+      }
+      return decision;
+    };
     $[0] = setToolPermissionContext;
     $[1] = setToolUseConfirmQueue;
     $[2] = t0;

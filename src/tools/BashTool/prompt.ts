@@ -1,5 +1,6 @@
 import { feature } from 'bun:bundle'
 import { prependBullets } from '../../constants/prompts.js'
+import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
 import { getAttributionTexts } from '../../utils/attribution.js'
 import { hasEmbeddedSearchTools } from '../../utils/embeddedTools.js'
 import { isEnvTruthy } from '../../utils/envUtils.js'
@@ -22,6 +23,7 @@ import { FILE_WRITE_TOOL_NAME } from '../FileWriteTool/prompt.js'
 import { GLOB_TOOL_NAME } from '../GlobTool/prompt.js'
 import { GREP_TOOL_NAME } from '../GrepTool/prompt.js'
 import { TodoWriteTool } from '../TodoWriteTool/TodoWriteTool.js'
+import { isBashRerunEnabled } from './rerun.js'
 import { BASH_TOOL_NAME } from './toolName.js'
 
 export function getDefaultTimeoutMs(): number {
@@ -300,6 +302,12 @@ export function getSimplePrompt(): string {
     "Use ';' only when you need to run commands sequentially but don't care if earlier commands fail.",
     'DO NOT use newlines to separate commands (newlines are ok in quoted strings).',
   ]
+  const multipleCommandsItems = getFeatureValue_CACHED_MAY_BE_STALE(
+    'tengu_relay_chain_v1',
+    false,
+  )
+    ? []
+    : ['When issuing multiple commands:', multipleCommandsSubitems]
 
   const gitSubitems = [
     'Prefer to create a new commit rather than amending an existing commit.',
@@ -319,23 +327,26 @@ export function getSimplePrompt(): string {
     'If waiting for a background task you started with `run_in_background`, you will be notified when it completes — do not poll.',
     ...(feature('MONITOR_TOOL')
       ? [
-          '`sleep N` as the first command with N ≥ 2 is blocked. If you need a delay (rate limiting, deliberate pacing), keep it under 2 seconds.',
+          'Long leading `sleep` commands are blocked. To poll until a condition is met, use Monitor with an until-loop (e.g. `until <check>; do sleep 2; done`) — you get a notification when the loop exits. Do not chain shorter sleeps to work around the block.',
         ]
       : [
           'If you must poll an external process, use a check command (e.g. `gh run view`) rather than sleeping first.',
-          'If you must sleep, keep the duration short (1-5 seconds) to avoid blocking the user.',
+          'If you must sleep, keep the duration short to avoid blocking the user.',
         ]),
   ]
   const backgroundNote = getBackgroundUsageNote()
+  const rerunNote = isBashRerunEnabled()
+    ? "To rerun a prior command exactly, emit {rerun:'bN'} from the result footer instead of retyping the command."
+    : null
 
   const instructionItems: Array<string | string[]> = [
+    ...(rerunNote !== null ? [rerunNote] : []),
     'If your command will create new directories or files, first use this tool to run `ls` to verify the parent directory exists and is the correct location.',
     'Always quote file paths that contain spaces with double quotes in your command (e.g., cd "path with spaces/file.txt")',
-    'Try to maintain your current working directory throughout the session by using absolute paths and avoiding usage of `cd`. You may use `cd` if the User explicitly requests it.',
+    'Try to maintain your current working directory throughout the session by using absolute paths and avoiding usage of `cd`. You may use `cd` if the User explicitly requests it. In particular, never prepend `cd <current-directory>` to a `git` command — `git` already operates on the current working tree, and the compound triggers a permission prompt.',
     `You may specify an optional timeout in milliseconds (up to ${getMaxTimeoutMs()}ms / ${getMaxTimeoutMs() / 60000} minutes). By default, your command will timeout after ${getDefaultTimeoutMs()}ms (${getDefaultTimeoutMs() / 60000} minutes).`,
     ...(backgroundNote !== null ? [backgroundNote] : []),
-    'When issuing multiple commands:',
-    multipleCommandsSubitems,
+    ...multipleCommandsItems,
     'For git commands:',
     gitSubitems,
     'Avoid unnecessary `sleep` commands:',

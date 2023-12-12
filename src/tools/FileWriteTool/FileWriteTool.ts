@@ -49,6 +49,10 @@ import {
 import type { PermissionDecision } from '../../utils/permissions/PermissionResult.js'
 import { matchWildcardPattern } from '../../utils/permissions/shellRuleMatching.js'
 import { FILE_UNEXPECTEDLY_MODIFIED_ERROR } from '../FileEditTool/constants.js'
+import {
+  FILE_STATE_CURRENT_HINT,
+  isNoRereadEnabled,
+} from '../FileReadTool/prompt.js'
 import { gitDiffSchema, hunkSchema } from '../FileEditTool/types.js'
 import { FILE_WRITE_TOOL_NAME, getWriteToolDescription } from './prompt.js'
 import {
@@ -452,18 +456,20 @@ export const FileWriteTool = buildTool({
     const userModifiedNote = userModified
       ? ' The user modified your proposed content before accepting it.'
       : ''
+    const fileStateHint =
+      isNoRereadEnabled() && !userModified ? FILE_STATE_CURRENT_HINT : ''
     switch (type) {
       case 'create':
         return {
           tool_use_id: toolUseID,
           type: 'tool_result',
-          content: `File created successfully at: ${filePath}${userModifiedNote}`,
+          content: `File created successfully at: ${filePath}${userModifiedNote}${fileStateHint}`,
         }
       case 'update':
         return {
           tool_use_id: toolUseID,
           type: 'tool_result',
-          content: `The file ${filePath} has been updated successfully.${userModifiedNote}`,
+          content: `The file ${filePath} has been updated successfully.${userModifiedNote}${fileStateHint}`,
         }
     }
   },

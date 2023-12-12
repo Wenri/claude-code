@@ -10,7 +10,10 @@
  */
 
 import type { Command } from '../commands.js'
-import { getSystemPrompt } from '../constants/prompts.js'
+import {
+  getExcludedDynamicSectionsContent,
+  getSystemPrompt,
+} from '../constants/prompts.js'
 import { getSystemContext, getUserContext } from '../context.js'
 import type { MCPServerConnection } from '../services/mcp/types.js'
 import { makeSetReplContext, type AppState } from '../state/AppStateStore.js'
@@ -47,18 +50,21 @@ export async function fetchSystemPromptParts({
   additionalWorkingDirectories,
   mcpClients,
   customSystemPrompt,
+  excludeDynamicSections,
 }: {
   tools: Tools
   mainLoopModel: string
   additionalWorkingDirectories: string[]
   mcpClients: MCPServerConnection[]
   customSystemPrompt: string | undefined
+  excludeDynamicSections?: boolean
 }): Promise<{
   defaultSystemPrompt: string[]
   userContext: { [k: string]: string }
   systemContext: { [k: string]: string }
 }> {
-  const [defaultSystemPrompt, userContext, systemContext] = await Promise.all([
+  const [defaultSystemPrompt, userContext, systemContext, excludedSections] =
+    await Promise.all([
     customSystemPrompt !== undefined
       ? Promise.resolve([])
       : getSystemPrompt(
@@ -66,10 +72,21 @@ export async function fetchSystemPromptParts({
           mainLoopModel,
           additionalWorkingDirectories,
           mcpClients,
+          { excludeDynamicSections },
         ),
     getUserContext(),
     customSystemPrompt !== undefined ? Promise.resolve({}) : getSystemContext(),
+    excludeDynamicSections && customSystemPrompt === undefined
+      ? getExcludedDynamicSectionsContent(additionalWorkingDirectories)
+      : Promise.resolve({}),
   ])
+  if (excludeDynamicSections && customSystemPrompt === undefined) {
+    return {
+      defaultSystemPrompt,
+      userContext: { ...systemContext, ...userContext, ...excludedSections },
+      systemContext: {},
+    }
+  }
   return { defaultSystemPrompt, userContext, systemContext }
 }
 
@@ -98,6 +115,7 @@ export async function buildSideQuestionFallbackParams({
   planModeInstructions,
   thinkingConfig,
   agents,
+  excludeDynamicSections,
 }: {
   tools: Tools
   commands: Command[]
@@ -111,6 +129,7 @@ export async function buildSideQuestionFallbackParams({
   planModeInstructions?: string | undefined
   thinkingConfig: ThinkingConfig | undefined
   agents: AgentDefinition[]
+  excludeDynamicSections?: boolean
 }): Promise<CacheSafeParams> {
   const mainLoopModel = getMainLoopModel()
   const appState = getAppState()
@@ -124,6 +143,7 @@ export async function buildSideQuestionFallbackParams({
       ),
       mcpClients,
       customSystemPrompt,
+      excludeDynamicSections,
     })
 
   const systemPrompt = asSystemPrompt([
@@ -159,6 +179,7 @@ export async function buildSideQuestionFallbackParams({
       agentDefinitions: { activeAgents: agents, allAgents: [] },
       customSystemPrompt,
       appendSystemPrompt,
+      excludeDynamicSections,
       planModeInstructions,
     },
     abortController: createAbortController(),

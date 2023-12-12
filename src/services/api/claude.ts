@@ -73,7 +73,7 @@ import {
   resolveAppliedEffort,
 } from '../../utils/effort.js'
 import { isEnvTruthy } from '../../utils/envUtils.js'
-import { errorMessage } from '../../utils/errors.js'
+import { errorMessage, toError } from '../../utils/errors.js'
 import { computeFingerprintFromMessages } from '../../utils/fingerprint.js'
 import { captureAPIRequest, logError } from '../../utils/log.js'
 import {
@@ -104,6 +104,8 @@ import {
   extractQuotaStatusFromHeaders,
 } from '../claudeAiLimits.js'
 import { getAPIContextManagement } from '../compact/apiMicrocompact.js'
+import { createContextHintController } from '../compact/contextHint.js'
+import type { ConnectionLifecycleTracker } from './connectionState.js'
 
 /* eslint-disable @typescript-eslint/no-require-imports */
 const autoModeStateModule = feature('TRANSCRIPT_CLASSIFIER')
@@ -218,6 +220,7 @@ import {
 import { jsonStringify } from '../../utils/slowOperations.js'
 import {
   isBetaTracingEnabled,
+  recordLLMRequestAttempt,
   type LLMRequestNewContext,
   startLLMRequestSpan,
 } from '../../utils/telemetry/sessionTracing.js'
@@ -689,6 +692,10 @@ export type Options = {
   maxOutputTokensOverride?: number
   fallbackModel?: string
   onStreamingFallback?: () => void
+  onHintCleared?: (
+    clearedIds: Set<string>,
+    clearedContent: Map<string, string>,
+  ) => void
   querySource: QuerySource
   agents: AgentDefinition[]
   allowedAgentTypes?: string[]
@@ -702,10 +709,12 @@ export type Options = {
   hasPendingMcpServers?: boolean
   queryTracking?: QueryChainTracking
   agentId?: AgentId // Only set for subagents
+  messageClientPlatform?: string
   outputFormat?: BetaJSONOutputFormat
   fastMode?: boolean
   advisorModel?: string
   addNotification?: (notif: Notification) => void
+  connection?: ConnectionLifecycleTracker
   // API-side task budget (output_config.task_budget). Distinct from the
   // tokenBudget.ts +500k auto-continue feature — this one is sent to the API
   // so the model can pace itself. `remaining` is computed by the caller
@@ -858,7 +867,10 @@ export async function* executeNonStreamingRequest(
    * from. Emitted in tengu_nonstreaming_fallback_error for funnel correlation.
    */
   originatingRequestId?: string | null,
-): AsyncGenerator<SystemAPIErrorMessage, BetaMessage> {
+): AsyncGenerator<
+  SystemAPIErrorMessage,
+  { message: BetaMessage; requestId: string | null }
+> {
   const fallbackTimeoutMs = getNonstreamingFallbackTimeoutMs()
   const generator = withRetry(
     () =>
@@ -898,7 +910,7 @@ export async function* executeNonStreamingRequest(
             `API returned an empty or malformed response (HTTP ${result.response.status}) — check for a proxy or gateway intercepting the request`,
           )
         }
-        return result.data
+        return { message: result.data, requestId: result.request_id }
       } catch (err) {
         // User aborts are not errors — re-throw immediately without logging
         if (err instanceof APIUserAbortError) throw err
@@ -941,7 +953,7 @@ export async function* executeNonStreamingRequest(
     }
   } while (!e.done)
 
-  return e.value as BetaMessage
+  return e.value as { message: BetaMessage; requestId: string | null }
 }
 
 /**
@@ -1521,6 +1533,12 @@ async function* queryModel(
     setCacheDiagnosisHeaderLatched(true)
   }
 
+  const contextHintController = createContextHintController({
+    querySource: options.querySource,
+    includeFirstPartyBetas: shouldIncludeFirstPartyOnlyBetas(),
+    is529Error,
+  })
+
   // Only latch from agentic queries so a classifier call doesn't flip the
   // main thread's context_management mid-turn.
   let thinkingClearLatched = getThinkingClearLatched() === true
@@ -1593,6 +1611,7 @@ async function* queryModel(
   const attemptStartTimes: number[] = []
   let stream: Stream<BetaRawMessageStreamEvent> | undefined = undefined
   let streamRequestId: string | null | undefined = undefined
+  let firstAttemptRequestId: string | null | undefined = undefined
   let clientRequestId: string | undefined = undefined
   // eslint-disable-next-line eslint-plugin-n/no-unsupported-features/node-builtins -- Response is available in Node 18+ and is used by the SDK
   let streamResponse: Response | undefined = undefined
@@ -1783,6 +1802,16 @@ async function* queryModel(
       )
     }
 
+    let contextHintBody: {
+      context_hint: { enabled: true; target_tokens_saved?: number }
+    } | null = null
+    const contextHintParams =
+      contextHintController?.buildRequestParams(messagesForAPI)
+    if (contextHintParams) {
+      betasParams.push(contextHintParams.betaHeader)
+      contextHintBody = contextHintParams.body
+    }
+
 
     if (
       cacheDiagnosis &&
@@ -1833,6 +1862,7 @@ async function* queryModel(
         betasParams.includes(CONTEXT_MANAGEMENT_BETA_HEADER) && {
           context_management: contextManagement,
         }),
+      ...(!simulateProxyUsage && contextHintBody ? contextHintBody : {}),
       ...extraBodyParams,
       ...(Object.keys(outputConfig).length > 0 && {
         output_config: outputConfig,
@@ -1869,6 +1899,7 @@ async function* queryModel(
         betas: logBetas,
         permissionMode: permissionContext.mode,
         querySource: options.querySource,
+        messageClientPlatform: options.messageClientPlatform,
         queryTracking: options.queryTracking,
         thinkingType: logThinkingType,
         effortValue: logEffortValue,
@@ -1927,6 +1958,7 @@ async function* queryModel(
         if (!options.agentId) {
           headlessProfilerCheckpoint('api_request_sent')
         }
+        options.connection?.push({ type: 'sending' })
 
         clearSlowFirstByteTimer()
         const slowFirstByteThresholdMs =
@@ -1951,10 +1983,18 @@ async function* queryModel(
         // Generate and track client request ID so timeouts (which return no
         // server request ID) can still be correlated with server logs.
         // First-party only — 3P providers don't log it (inc-4029 class).
+        const provider = getAPIProvider()
         clientRequestId =
-          getAPIProvider() === 'firstParty' && isFirstPartyAnthropicBaseUrl()
+          (provider === 'firstParty' && isFirstPartyAnthropicBaseUrl()) ||
+          (provider === 'anthropicAws' &&
+            !process.env.ANTHROPIC_AWS_BASE_URL)
             ? randomUUID()
             : undefined
+
+        recordLLMRequestAttempt(llmSpan, {
+          attempt: attemptStartTimes.length,
+          clientRequestId,
+        })
 
         // Use raw stream instead of BetaMessageStream to avoid O(n²) partial JSON parsing
         // BetaMessageStream calls partialParse() on every input_json_delta, which we don't need
@@ -2012,8 +2052,26 @@ async function* queryModel(
             )
             return 'retry:cache-diagnosis-beta'
           }
+          const hintResult = await contextHintController?.onRequestError(
+            error,
+            messagesForAPI,
+          )
+          if (hintResult) {
+            messagesForAPI = hintResult.messages
+            consumedCacheEdits = null
+            if (hintResult.clearedIds.size > 0) {
+              options.onHintCleared?.(
+                hintResult.clearedIds,
+                hintResult.clearedContent,
+              )
+            }
+            return 'retry:context-hint'
+          }
           return undefined
         },
+        onRetry: options.connection
+          ? retry => options.connection?.push({ type: 'retrying', ...retry })
+          : undefined,
       },
     )
 
@@ -2148,6 +2206,14 @@ async function* queryModel(
           }
           endQueryProfile()
           isFirstChunk = false
+        }
+
+        if (options.connection) {
+          let bytes = 0
+          try {
+            bytes = JSON.stringify(part).length
+          } catch {}
+          options.connection.push({ type: 'receiving', bytes })
         }
 
         switch (part.type) {
@@ -2693,7 +2759,10 @@ async function* queryModel(
       // execution when streaming tool execution is active: the partial stream
       // starts a tool, then the non-streaming retry produces the same tool_use
       // and runs it again. See inc-4258.
-      const fallbackCause = streamIdleAborted ? 'watchdog' : 'other'
+      let fallbackCause = streamIdleAborted ? 'watchdog' : 'other'
+      if (contextHintController?.classifyStreamError(streamingError)) {
+        fallbackCause = 'context_hint_sse'
+      }
       const disableFallback =
         isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_NONSTREAMING_FALLBACK) ||
         getFeatureValue_CACHED_MAY_BE_STALE(
@@ -2763,6 +2832,20 @@ async function* queryModel(
         { level: 'error' },
       )
       didFallBackToNonStreaming = true
+      const hintResult = await contextHintController?.onStreamFallback(
+        messagesForAPI,
+        streamRequestId ?? undefined,
+      )
+      if (hintResult) {
+        messagesForAPI = hintResult.messages
+        consumedCacheEdits = null
+        if (hintResult.clearedIds.size > 0) {
+          options.onHintCleared?.(
+            hintResult.clearedIds,
+            hintResult.clearedContent,
+          )
+        }
+      }
       if (options.onStreamingFallback) {
         options.onStreamingFallback()
       }
@@ -2803,7 +2886,9 @@ async function* queryModel(
         fallback_cause:
           fallbackCause as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       })
-      const result = yield* executeNonStreamingRequest(
+      firstAttemptRequestId = streamRequestId
+      const { message: result, requestId } =
+        yield* executeNonStreamingRequest(
         { model: options.model, source: options.querySource },
         {
           model: options.model,
@@ -2825,6 +2910,7 @@ async function* queryModel(
         },
         streamRequestId,
       )
+      streamRequestId = requestId
 
       const m: AssistantMessage = {
         message: {
@@ -2884,6 +2970,7 @@ async function* queryModel(
         { level: 'warn' },
       )
       didFallBackToNonStreaming = true
+      contextHintController?.strip()
       if (options.onStreamingFallback) {
         options.onStreamingFallback()
       }
@@ -2905,7 +2992,10 @@ async function* queryModel(
 
       try {
         // Fall back to non-streaming mode
-        const result = yield* executeNonStreamingRequest(
+        firstAttemptRequestId =
+          streamRequestId ?? (failedRequestId !== 'unknown' ? failedRequestId : null)
+        const { message: result, requestId } =
+          yield* executeNonStreamingRequest(
           { model: options.model, source: options.querySource },
           {
             model: options.model,
@@ -2925,6 +3015,7 @@ async function* queryModel(
           },
           failedRequestId,
         )
+        streamRequestId = requestId
 
         const m: AssistantMessage = {
           message: {
@@ -2991,9 +3082,11 @@ async function* queryModel(
           didFallBackToNonStreaming,
           queryTracking: options.queryTracking,
           querySource: options.querySource,
+          messageClientPlatform: options.messageClientPlatform,
           llmSpan,
           fastMode: isFastModeRequest,
           previousRequestId,
+          connectionSummary: options.connection?.summary(),
           effort: telemetryEffort,
         })
 
@@ -3048,9 +3141,11 @@ async function* queryModel(
         didFallBackToNonStreaming,
         queryTracking: options.queryTracking,
         querySource: options.querySource,
+        messageClientPlatform: options.messageClientPlatform,
         llmSpan,
         fastMode: isFastModeRequest,
         previousRequestId,
+        connectionSummary: options.connection?.summary(),
         effort: telemetryEffort,
       })
 
@@ -3061,6 +3156,7 @@ async function* queryModel(
         return
       }
 
+      options.connection?.push({ type: 'failed', error: toError(error) })
       yield getAssistantMessageFromError(error, errorModel, {
         messages,
         messagesForAPI,
@@ -3114,6 +3210,8 @@ async function* queryModel(
     setLastMainRequestId(streamRequestId)
   }
 
+  options.connection?.push({ type: 'completed' })
+
   // Precompute scalars so the fire-and-forget .then() closure doesn't pin the
   // full messagesForAPI array (the entire conversation up to the context window
   // limit) until getToolPermissionContext() resolves.
@@ -3131,10 +3229,15 @@ async function* queryModel(
       messageCount: logMessageCount,
       messageTokens: logMessageTokens,
       requestId: streamRequestId ?? null,
+      clientRequestId: didFallBackToNonStreaming
+        ? undefined
+        : clientRequestId,
+      firstAttemptRequestId: firstAttemptRequestId ?? null,
       stopReason,
       ttftMs,
       didFallBackToNonStreaming,
       querySource: options.querySource,
+      messageClientPlatform: options.messageClientPlatform,
       headers: responseHeaders,
       costUSD,
       queryTracking: options.queryTracking,
@@ -3149,6 +3252,7 @@ async function* queryModel(
       fastMode: isFastModeRequest,
       previousRequestId,
       betas: lastRequestBetas,
+      connectionSummary: options.connection?.summary(),
       effort: telemetryEffort,
     })
   })

@@ -4,8 +4,37 @@ import { MCPServerMultiselectDialog } from '../components/MCPServerMultiselectDi
 import type { Root } from '../ink.js';
 import { KeybindingSetup } from '../keybindings/KeybindingProviderSetup.js';
 import { AppStateProvider } from '../state/AppState.js';
+import { readJobState, writeJobState } from '../daemon/jobs.js';
+import { isBgSession } from '../utils/concurrentSessions.js';
+import { logError } from '../utils/log.js';
 import { getMcpConfigsByScope } from './mcp/config.js';
 import { getProjectMcpServerStatus } from './mcp/utils.js';
+
+async function markBackgroundMcpApprovalBlocked(
+  pendingServers: string[],
+): Promise<void> {
+  if (!isBgSession()) return;
+  const jobDir = process.env.CLAUDE_JOB_DIR;
+  if (!jobDir) return;
+
+  const state = await readJobState(jobDir);
+  if (!state) return;
+  const count = pendingServers.length;
+  const serverWord = count === 1 ? 'server' : 'servers';
+  const needWord = count === 1 ? 'needs' : 'need';
+  try {
+    await writeJobState(jobDir, {
+      ...state,
+      state: 'blocked',
+      detail: `${count} new MCP ${serverWord} ${needWord} approval`,
+      tempo: 'blocked',
+      needs: `approve ${count} new MCP ${serverWord} in .mcp.json (${pendingServers.join(', ')}) — attach to respond`,
+      updatedAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    logError(error);
+  }
+}
 
 /**
  * Show MCP server approval dialogs for pending project servers.
@@ -20,6 +49,7 @@ export async function handleMcpjsonServerApprovals(root: Root): Promise<void> {
   if (pendingServers.length === 0) {
     return;
   }
+  await markBackgroundMcpApprovalBlocked(pendingServers);
   await new Promise<void>(resolve => {
     const done = (): void => void resolve();
     if (pendingServers.length === 1 && pendingServers[0] !== undefined) {

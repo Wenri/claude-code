@@ -17,6 +17,7 @@ import { execFileNoThrowWithCwd } from './execFileNoThrow.js'
 import { getFsImplementation } from './fsOperations.js'
 import { gracefulShutdownSync } from './gracefulShutdown.js'
 import { logError } from './log.js'
+import { isEssentialTrafficOnly } from './privacyLevel.js'
 import { gte, lt } from './semver.js'
 import { getInitialSettings } from './settings/settings.js'
 import {
@@ -384,6 +385,7 @@ export async function getNpmDistTags(): Promise<NpmDistTags> {
 export async function getLatestVersionFromGcs(
   channel: ReleaseChannel,
 ): Promise<string | null> {
+  if (isEssentialTrafficOnly()) return null
   try {
     const response = await axios.get(`${GCS_BUCKET_URL}/${channel}`, {
       timeout: 5000,
@@ -394,6 +396,36 @@ export async function getLatestVersionFromGcs(
     logForDebugging(`Failed to fetch ${channel} from GCS: ${error}`)
     return null
   }
+}
+
+async function getHomebrewCaskVersion(
+  caskName: string,
+): Promise<string | null> {
+  if (isEssentialTrafficOnly()) return null
+  try {
+    const response = await axios.get(
+      `https://formulae.brew.sh/api/cask/${caskName}.json`,
+      { timeout: 5000, responseType: 'json' },
+    )
+    const version = response.data?.version
+    return typeof version === 'string' ? version : null
+  } catch (error) {
+    logForDebugging(
+      `Failed to fetch ${caskName} from formulae.brew.sh: ${error}`,
+    )
+    return null
+  }
+}
+
+export async function getLatestHomebrewVersion(
+  caskName: string,
+  channel: ReleaseChannel,
+): Promise<string | null> {
+  const [homebrewVersion, gcsVersion] = await Promise.all([
+    getHomebrewCaskVersion(caskName),
+    getLatestVersionFromGcs(channel),
+  ])
+  return homebrewVersion ?? gcsVersion
 }
 
 /**

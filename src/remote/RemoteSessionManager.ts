@@ -14,6 +14,7 @@ import {
 } from '../utils/teleport/api.js'
 import {
   SessionsWebSocket,
+  type SessionsAuth401Handler,
   type SessionsWebSocketCallbacks,
 } from './SessionsWebSocket.js'
 
@@ -24,7 +25,7 @@ type RemoteStreamMessage =
   | SDKControlCancelRequest
   | { type: 'keep_alive' }
   | { type: 'transcript_mirror'; filePath: string; entries: unknown[] }
-  | { type: 'system'; subtype: 'post_turn_summary' }
+  | { type: 'system'; subtype: 'task_summary' }
 
 /**
  * Type guard to check if a message is an SDKMessage (not a control message)
@@ -38,7 +39,7 @@ function isSDKMessage(
     message.type !== 'keep_alive' &&
     message.type !== 'control_cancel_request' &&
     message.type !== 'transcript_mirror' &&
-    !(message.type === 'system' && message.subtype === 'post_turn_summary')
+    !(message.type === 'system' && message.subtype === 'task_summary')
   )
 }
 
@@ -70,6 +71,10 @@ export type RemoteSessionConfig = {
   viewerOnly?: boolean
   /** True when --remote attached to an already-existing session. */
   isAttachToExisting?: boolean
+  /** Validates an attached session after the UI starts. */
+  preflightCheck?: Promise<void>
+  /** Refreshes a stale OAuth token after a 401 response. */
+  onAuth401?: SessionsAuth401Handler
 }
 
 export type RemoteSessionCallbacks = {
@@ -139,7 +144,7 @@ export class RemoteSessionManager {
         this.callbacks.onDisconnected?.()
       },
       onReconnecting: () => {
-        logForDebugging('[RemoteSessionManager] Reconnecting SSE stream')
+        logForDebugging('[RemoteSessionManager] Reconnecting')
         this.callbacks.onReconnecting?.()
       },
       onError: error => {
@@ -153,6 +158,7 @@ export class RemoteSessionManager {
       this.config.orgUuid,
       this.config.getAccessToken,
       clientCallbacks,
+      this.config.onAuth401,
     )
 
     void this.client.connect()
@@ -242,26 +248,26 @@ export class RemoteSessionManager {
   async sendMessage(
     content: RemoteMessageContent,
     opts?: { uuid?: string },
-  ): Promise<boolean> {
+  ): Promise<{ ok: true } | { ok: false; reason: string }> {
     logForDebugging(
       `[RemoteSessionManager] Sending message to session ${this.config.sessionId}`,
     )
 
-    const success = await sendEventToRemoteSession(
+    const result = await sendEventToRemoteSession(
       this.config.sessionId,
       content,
       opts,
     )
 
-    if (!success) {
+    if (!result.ok) {
       logError(
         new Error(
-          `[RemoteSessionManager] Failed to send message to session ${this.config.sessionId}`,
+          `[RemoteSessionManager] Failed to send message to session ${this.config.sessionId}: ${result.reason}`,
         ),
       )
     }
 
-    return success
+    return result
   }
 
   /**
@@ -377,6 +383,8 @@ export function createRemoteSessionConfig(
   hasInitialPrompt = false,
   viewerOnly = false,
   isAttachToExisting = false,
+  preflightCheck?: Promise<void>,
+  onAuth401?: SessionsAuth401Handler,
 ): RemoteSessionConfig {
   return {
     sessionId,
@@ -385,5 +393,7 @@ export function createRemoteSessionConfig(
     hasInitialPrompt,
     viewerOnly,
     isAttachToExisting,
+    preflightCheck,
+    onAuth401,
   }
 }

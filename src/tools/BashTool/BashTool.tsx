@@ -28,7 +28,7 @@ import { truncate } from '../../utils/format.js';
 import { getFsImplementation } from '../../utils/fsOperations.js';
 import { lazySchema } from '../../utils/lazySchema.js';
 import { expandPath } from '../../utils/path.js';
-import type { PermissionResult } from '../../utils/permissions/PermissionResult.js';
+import type { PermissionDecisionReason, PermissionResult } from '../../utils/permissions/PermissionResult.js';
 import { maybeRecordPluginHint } from '../../utils/plugins/hintRecommendation.js';
 import { exec } from '../../utils/Shell.js';
 import type { ExecResult } from '../../utils/ShellCommand.js';
@@ -47,6 +47,7 @@ import { interpretCommandResult } from './commandSemantics.js';
 import { cacheBashReads } from './fileReadState.js';
 import { getDefaultTimeoutMs, getMaxTimeoutMs, getSimplePrompt } from './prompt.js';
 import { checkReadOnlyConstraints } from './readOnlyValidation.js';
+import { isBashRerunEnabled } from './rerun.js';
 import { parseSedEditCommand } from './sedEditParser.js';
 import { shouldUseSandbox } from './shouldUseSandbox.js';
 import { BASH_TOOL_NAME } from './toolName.js';
@@ -58,6 +59,7 @@ const EOL = '\n';
 const PROGRESS_THRESHOLD_MS = 2000; // Show progress after 2 seconds
 // In assistant mode, blocking bash auto-backgrounds after this many ms in the main agent
 const ASSISTANT_BLOCKING_BUDGET_MS = 15_000;
+const BLOCKED_SLEEP_THRESHOLD_SECONDS = 25;
 
 // Search commands for collapsible display (grep, find, etc.)
 const BASH_SEARCH_COMMANDS = new Set(['find', 'grep', 'rg', 'ag', 'ack', 'locate', 'which', 'whereis']);
@@ -243,6 +245,7 @@ For commands that are harder to parse at a glance (piped commands, obscure flags
 - curl -s url | jq '.data[]' → "Fetch JSON from URL and extract data array elements"`),
   run_in_background: semanticBoolean(z.boolean().optional()).describe(`Set to true to run this command in the background. Use Read to read the output later.`),
   dangerouslyDisableSandbox: semanticBoolean(z.boolean().optional()).describe('Set this to true to dangerously override sandbox mode and run commands without sandboxing.'),
+  rerun: z.string().optional().describe("Rerun a prior command exactly by passing the alias from a previous result's [rerun: bN] footer (e.g. 'b3'). Mutually exclusive with 'command'."),
   _simulatedSedEdit: z.object({
     filePath: z.string(),
     newContent: z.string()
@@ -254,11 +257,18 @@ For commands that are harder to parse at a glance (piped commands, obscure flags
 // Exposing it in the schema would let the model bypass permission checks and the
 // sandbox by pairing an innocuous command with an arbitrary file write.
 // Also conditionally remove run_in_background when background tasks are disabled.
-const inputSchema = lazySchema(() => isBackgroundTasksDisabled ? fullInputSchema().omit({
+const inputSchema = lazySchema(() => isBackgroundTasksDisabled ? isBashRerunEnabled() ? fullInputSchema().omit({
   run_in_background: true,
   _simulatedSedEdit: true
 }) : fullInputSchema().omit({
+  run_in_background: true,
+  _simulatedSedEdit: true,
+  rerun: true
+}) : isBashRerunEnabled() ? fullInputSchema().omit({
   _simulatedSedEdit: true
+}) : fullInputSchema().omit({
+  _simulatedSedEdit: true,
+  rerun: true
 }));
 type InputSchema = ReturnType<typeof inputSchema>;
 
@@ -350,11 +360,10 @@ export function detectBlockedSleepPattern(command: string): string | null {
   if (parts.length === 0) return null;
   const first = parts[0]?.trim() ?? '';
   // Bare `sleep N` or `sleep N.N` as the first subcommand.
-  // Float durations (sleep 0.5) are allowed — those are legit pacing, not polls.
-  const m = /^sleep\s+(\d+)\s*$/.exec(first);
+  const m = /^sleep\s+(\d+(?:\.\d*)?)\s*$/.exec(first);
   if (!m) return null;
-  const secs = parseInt(m[1]!, 10);
-  if (secs < 2) return null; // sub-2s sleeps are fine (rate limiting, pacing)
+  const secs = parseFloat(m[1]!);
+  if (secs < BLOCKED_SLEEP_THRESHOLD_SECONDS) return null;
 
   // `sleep N` alone → "what are you waiting for?"
   // `sleep N && check` → "use Monitor { command: check }"
@@ -377,6 +386,18 @@ type SimulatedSedEditResult = {
   data: Out;
 };
 type SimulatedSedEditContext = Pick<ToolUseContext, 'readFileState' | 'updateFileHistoryState'>;
+
+function isRuleBasedPermissionDecision(
+  reason: PermissionDecisionReason | undefined,
+): boolean {
+  if (reason?.type === 'rule') return true;
+  if (reason?.type === 'subcommandResults') {
+    return [...reason.reasons.values()].every(result =>
+      isRuleBasedPermissionDecision(result.decisionReason)
+    );
+  }
+  return false;
+}
 
 /**
  * Applies a simulated sed edit directly instead of running sed.
@@ -478,6 +499,9 @@ export const BashTool = buildTool({
     return result.behavior === 'allow';
   },
   toAutoClassifierInput(input) {
+    if ('rerun' in input && typeof input.rerun === 'string' && !input.command) {
+      return `rerun ${input.rerun}`;
+    }
     return input.command;
   },
   async preparePermissionMatcher({
@@ -498,9 +522,9 @@ export const BashTool = buildTool({
       const prefix = permissionRuleExtractPrefix(pattern);
       return subcommands.some(cmd => {
         if (prefix !== null) {
-          return cmd === prefix || cmd.startsWith(`${prefix} `);
+          return cmd === prefix || cmd.startsWith(`${prefix} `) || cmd === `xargs ${prefix}` || cmd.startsWith(`xargs ${prefix} `);
         }
-        return matchWildcardPattern(pattern, cmd);
+        return matchWildcardPattern(pattern, cmd) || matchWildcardPattern(`xargs ${pattern}`, cmd);
       });
     };
   },
@@ -565,7 +589,7 @@ export const BashTool = buildTool({
       if (sleepPattern !== null) {
         return {
           result: false,
-          message: `Blocked: ${sleepPattern}. Run blocking commands in the background with run_in_background: true — you'll get a completion notification when done. For streaming events (watching logs, polling APIs), use the Monitor tool. If you genuinely need a delay (rate limiting, deliberate pacing), keep it under 2 seconds.`,
+          message: `Blocked: ${sleepPattern}. To wait for a condition, use Monitor with an until-loop (e.g. \`until <check>; do sleep 2; done\`). To wait for a command you started, use run_in_background: true. Do not chain shorter sleeps to work around this block.`,
           errorCode: 10
         };
       }
@@ -575,7 +599,25 @@ export const BashTool = buildTool({
     };
   },
   async checkPermissions(input, context): Promise<PermissionResult> {
-    return bashToolHasPermission(input, context);
+    const result = await bashToolHasPermission(input, context);
+    if (
+      input.dangerouslyDisableSandbox &&
+      result.behavior !== 'deny' &&
+      result.behavior !== 'ask' &&
+      !isRuleBasedPermissionDecision(result.decisionReason) &&
+      !shouldUseSandbox(input) &&
+      shouldUseSandbox({ ...input, dangerouslyDisableSandbox: false })
+    ) {
+      return {
+        behavior: 'ask',
+        decisionReason: {
+          type: 'sandboxOverride',
+          reason: 'dangerouslyDisableSandbox',
+        },
+        message: 'Run outside of the sandbox',
+      };
+    }
+    return result;
   },
   renderToolUseMessage,
   renderToolUseProgressMessage,

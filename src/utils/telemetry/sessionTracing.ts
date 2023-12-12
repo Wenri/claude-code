@@ -15,6 +15,7 @@ import {
   context as otelContext,
   propagation,
   type Span,
+  SpanStatusCode,
   trace,
 } from '@opentelemetry/api'
 import { AsyncLocalStorage } from 'async_hooks'
@@ -34,6 +35,7 @@ import {
   truncateContent,
 } from './betaSessionTracing.js'
 import {
+  emitPerfettoInstant,
   endInteractionPerfettoSpan,
   endLLMRequestPerfettoSpan,
   endToolPerfettoSpan,
@@ -160,6 +162,27 @@ function getTracer() {
   return trace.getTracer('com.anthropic.claude_code.tracing', '1.0.0')
 }
 
+function getActiveInteractionContext(): SpanContext | undefined {
+  const current = interactionContext.getStore()
+  if (current && !current.ended) return current
+
+  return Array.from(activeSpans.values())
+    .findLast(ref => {
+      const spanContext = ref.deref()
+      return (
+        !!spanContext &&
+        !spanContext.ended &&
+        spanContext.attributes['span.type'] === 'interaction'
+      )
+    })
+    ?.deref()
+}
+
+function getActiveToolContext(): SpanContext | undefined {
+  const current = toolContext.getStore()
+  return current && !current.ended ? current : undefined
+}
+
 function createSpanAttributes(
   spanType: SpanType,
   customAttributes: Record<string, string | number | boolean> = {},
@@ -252,7 +275,7 @@ export function startInteractionSpan(userPrompt: string): Span {
 }
 
 export function endInteractionSpan(): void {
-  const spanContext = interactionContext.getStore()
+  const spanContext = getActiveInteractionContext()
   if (!spanContext) {
     return
   }
@@ -322,11 +345,18 @@ export function startLLMRequestSpan(
   }
 
   const tracer = getTracer()
-  const parentSpanCtx = interactionContext.getStore()
+  const toolSpanCtx = getActiveToolContext()
+  const parentSpanCtx = toolSpanCtx ?? getActiveInteractionContext()
 
   const attributes = createSpanAttributes('llm_request', {
     model: model,
-    'llm_request.context': parentSpanCtx ? 'interaction' : 'standalone',
+    'gen_ai.system': 'anthropic',
+    'gen_ai.request.model': model,
+    'llm_request.context': toolSpanCtx
+      ? 'tool'
+      : parentSpanCtx
+        ? 'interaction'
+        : 'standalone',
     speed: fastMode ? 'fast' : 'normal',
   })
 
@@ -354,6 +384,23 @@ export function startLLMRequestSpan(
   strongSpans.set(spanId, spanContextObj)
 
   return span
+}
+
+export function recordLLMRequestAttempt(
+  span: Span | undefined,
+  {
+    attempt,
+    clientRequestId,
+  }: { attempt: number; clientRequestId?: string },
+): void {
+  const attributes: Record<string, string | number | boolean> = { attempt }
+  if (clientRequestId !== undefined) {
+    attributes['client_request_id'] = clientRequestId
+  }
+  if (span && isAnyTracingEnabled()) {
+    span.addEvent('gen_ai.request.attempt', attributes)
+  }
+  emitPerfettoInstant('LLM Attempt', 'api,attempt', attributes)
 }
 
 /**
@@ -391,6 +438,8 @@ export function endLLMRequestSpan(
     requestSetupMs?: number
     /** Timestamps (Date.now()) of each attempt start — used to emit retry sub-spans */
     attemptStartTimes?: number[]
+    requestId?: string
+    clientRequestId?: string
   },
 ): void {
   let llmSpanContext: SpanContext | undefined
@@ -433,6 +482,8 @@ export function endLLMRequestSpan(
       error: metadata?.error,
       requestSetupMs: metadata?.requestSetupMs,
       attemptStartTimes: metadata?.attemptStartTimes,
+      requestId: metadata?.requestId,
+      clientRequestId: metadata?.clientRequestId,
     })
   }
 
@@ -465,6 +516,12 @@ export function endLLMRequestSpan(
       endAttributes['attempt'] = metadata.attempt
     if (metadata.hasToolCall !== undefined)
       endAttributes['response.has_tool_call'] = metadata.hasToolCall
+    if (metadata.requestId !== undefined) {
+      endAttributes['request_id'] = metadata.requestId
+      endAttributes['gen_ai.response.id'] = metadata.requestId
+    }
+    if (metadata.clientRequestId !== undefined)
+      endAttributes['client_request_id'] = metadata.clientRequestId
     if (metadata.ttftMs !== undefined)
       endAttributes['ttft_ms'] = metadata.ttftMs
 
@@ -473,6 +530,12 @@ export function endLLMRequestSpan(
   }
 
   llmSpanContext.span.setAttributes(endAttributes)
+  if (metadata?.success === false) {
+    llmSpanContext.span.setStatus({
+      code: SpanStatusCode.ERROR,
+      message: metadata.error,
+    })
+  }
   llmSpanContext.span.end()
 
   const spanId = getSpanId(llmSpanContext.span)

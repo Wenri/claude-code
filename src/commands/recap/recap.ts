@@ -2,10 +2,7 @@ import { generateAwaySummary } from '../../services/awaySummary.js'
 import type { LocalCommandCall } from '../../types/command.js'
 
 export const call: LocalCommandCall = async (_args, context) => {
-  const result = await generateAwaySummary(
-    context.messages,
-    context.abortController.signal,
-  )
+  const result = await generateAwaySummary(context.abortController.signal)
 
   switch (result.kind) {
     case 'ok':

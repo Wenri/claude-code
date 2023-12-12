@@ -25,7 +25,7 @@ function describeAutoCompactWindow(
       ? ' (from CLAUDE_CODE_AUTO_COMPACT_WINDOW)'
       : source === 'settings'
         ? ' (from settings)'
-        : ' (from default)'
+        : ' (auto)'
   const capped =
     configured > window
       ? ` · capped to ${formatTokens(window)} by model`
@@ -37,8 +37,14 @@ function describeAutoCompactWindow(
     lines.push('Auto-compact is currently disabled (see /config)')
   }
   lines.push(
-    'Auto-compact summarizes the conversation when context usage approaches this limit. The actual threshold is the minimum of this setting and your model\'s context window.',
+    "Auto-compact summarizes the conversation when context usage approaches this limit. The actual threshold is the minimum of this setting and your model's maximum context window.",
+    'The auto setting picks a window tuned for your model and is strongly recommended for the best cost and performance.',
   )
+  if (source !== 'auto') {
+    lines.push(
+      'Overriding auto may result in high token usage, especially when resuming long sessions.',
+    )
+  }
   return lines.join('\n')
 }
 
@@ -46,45 +52,46 @@ export function applyAutoCompactWindow(
   rawValue: string,
   context: ToolUseContext,
 ): string {
-  if (process.env.CLAUDE_CODE_AUTO_COMPACT_WINDOW) {
+  const model = context.options.mainLoopModel
+  if (resolveAutoCompactWindow(model, undefined).source === 'env') {
     return 'CLAUDE_CODE_AUTO_COMPACT_WINDOW is set and takes precedence. Unset it to change this setting.'
   }
 
   const normalized = rawValue.trim().toLowerCase()
-  const reset =
+  const parsed =
     normalized === 'reset' ||
     normalized === 'unset' ||
     normalized === 'default'
-  const parsed = reset ? undefined : parseAutoCompactWindow(normalized)
-  const value = typeof parsed === 'number' ? parsed : undefined
-  if (!reset && value === undefined) {
-    return `Invalid argument: ${rawValue}. Expected 100k–1M tokens (e.g. 500k, 200000, or 200 as shorthand) or 'reset'`
+      ? 'auto'
+      : parseAutoCompactWindow(normalized)
+  if (parsed === undefined) {
+    return `Couldn't parse '${rawValue}'. Expected 'auto' or 100k–1M tokens (e.g. 500k, 200000, or 200 as shorthand)`
   }
+  const value = parsed === 'auto' ? undefined : parsed
 
   const { error } = updateSettingsForSource('userSettings', {
     autoCompactWindow: value,
   })
-  if (error) return `Failed to update auto-compact window: ${error.message}`
+  if (error) return `Couldn't save setting: ${error.message}`
 
   const mergedValue = getInitialSettings().autoCompactWindow
+  const { window, source } = resolveAutoCompactWindow(model, mergedValue)
+  const overrideActive = source === 'env' || mergedValue !== value
+  const appStateValue = overrideActive ? mergedValue : value
   context.setAppState(previous =>
-    previous.autoCompactWindow === value
+    previous.autoCompactWindow === appStateValue
       ? previous
-      : { ...previous, autoCompactWindow: value },
+      : { ...previous, autoCompactWindow: appStateValue },
   )
   logEvent('tengu_autocompact_command', {
-    action: reset ? 'reset' : 'set',
+    action: parsed === 'auto' ? 'auto' : 'set',
     ...(value !== undefined ? { tokens: value } : {}),
   })
 
-  const model = context.options.mainLoopModel
-  const { window, source } = resolveAutoCompactWindow(model, mergedValue)
-  const overrideActive =
-    source === 'env' || mergedValue !== value
-  if (reset) {
+  if (parsed === 'auto') {
     return overrideActive
-      ? `Auto-compact window reset in settings, but a higher-priority override is active (${formatTokens(window)} tokens)`
-      : 'Auto-compact window reset to model default'
+      ? `Auto-compact window set to auto in settings, but a higher-priority override is active (${formatTokens(window)} tokens)`
+      : 'Auto-compact window set to auto'
   }
 
   let suffix = ''
@@ -93,7 +100,7 @@ export function applyAutoCompactWindow(
   } else if (window < value!) {
     suffix = ` (capped to model limit of ${formatTokens(window)})`
   }
-  return `Auto-compact window set to ${formatTokens(value!)} tokens${suffix}`
+  return `Auto-compact window set to ${formatTokens(parsed)} tokens${suffix}`
 }
 
 export async function call(

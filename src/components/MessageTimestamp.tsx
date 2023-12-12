@@ -6,14 +6,16 @@ import type { NormalizedMessage } from '../types/message.js';
 type Props = {
   message: NormalizedMessage;
   isTranscriptMode: boolean;
+  showMessageTimestamps?: boolean;
 };
 export function MessageTimestamp(t0) {
   const $ = _c(10);
   const {
     message,
-    isTranscriptMode
+    isTranscriptMode,
+    showMessageTimestamps = false
   } = t0;
-  const shouldShowTimestamp = isTranscriptMode && message.timestamp && message.type === "assistant" && message.message.content.some(_temp);
+  const shouldShowTimestamp = message.timestamp && message.type === "assistant" && (showMessageTimestamps || isTranscriptMode && message.message.content.some(_temp));
   if (!shouldShowTimestamp) {
     return null;
   }

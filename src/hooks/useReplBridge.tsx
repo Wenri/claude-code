@@ -184,7 +184,8 @@ export function useReplBridge(messages: Message[], setMessages: (action: React.S
               const fields = extractInboundMessageFields(msg);
               if (!fields) return;
               const {
-                uuid
+                uuid,
+                clientPlatform
               } = fields;
 
               // Dynamic import keeps the bridge code out of non-BRIDGE_MODE builds.
@@ -213,7 +214,8 @@ export function useReplBridge(messages: Message[], setMessages: (action: React.S
                 // This keeps exit-word suppression and immediate-command blocks
                 // intact for any code path that checks skipSlashCommands directly.
                 skipSlashCommands: true,
-                bridgeOrigin: true
+                bridgeOrigin: true,
+                clientPlatform
               });
             } catch (e) {
               logForDebugging(`[bridge:repl] handleInboundMessage failed: ${e}`, {
@@ -389,7 +391,18 @@ export function useReplBridge(messages: Message[], setMessages: (action: React.S
           }
           const handle_0 = await initReplBridge({
             outboundOnly,
+            enableSessionPersistence: outboundOnly || feature('KAIROS'),
             tags: outboundOnly ? ['ccr-mirror'] : undefined,
+            onReadFile: async (path, maxBytes) => {
+              const { readFileForRemote } = await import(
+                '../bridge/readFileForRemote.js'
+              );
+              return readFileForRemote(
+                path,
+                maxBytes,
+                store.getState().toolPermissionContext,
+              );
+            },
             onInboundMessage: handleInboundMessage,
             onPermissionResponse: handlePermissionResponse,
             onInterrupt() {

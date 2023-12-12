@@ -7,6 +7,7 @@ import {
   readdir,
   readFile,
   realpath,
+  rm,
   stat,
   symlink,
   utimes,
@@ -14,6 +15,7 @@ import {
 import ignore from 'ignore'
 import { basename, dirname, join, resolve } from 'path'
 import { saveCurrentProjectConfig } from './config.js'
+import { logEvent } from '../services/analytics/index.js'
 import { getCwd } from './cwd.js'
 import { logForDebugging } from './debug.js'
 import { errorMessage, getErrnoCode } from './errors.js'
@@ -1047,6 +1049,22 @@ export async function createAgentWorktree(slug: string): Promise<{
       `Created agent worktree at: ${worktreePath} on branch: ${worktreeBranch}`,
     )
     await performPostCreationSetup(gitRoot, worktreePath)
+    const lockResult = await execFileNoThrowWithCwd(
+      gitExe(),
+      [
+        'worktree',
+        'lock',
+        '--reason',
+        `claude agent ${slug} (pid ${process.pid})`,
+        worktreePath,
+      ],
+      { cwd: gitRoot },
+    )
+    if (lockResult.code !== 0) {
+      logForDebugging(
+        `[worktree] failed to lock ${worktreePath}: ${lockResult.stderr.trim()}`,
+      )
+    }
   } else {
     // Bump mtime so the periodic stale-worktree cleanup doesn't consider this
     // worktree stale — the fast-resume path is read-only and leaves the original
@@ -1057,6 +1075,10 @@ export async function createAgentWorktree(slug: string): Promise<{
   }
 
   return { worktreePath, worktreeBranch, headCommit, gitRoot }
+}
+
+export function agentWorktreeSlug(agentId: string): string {
+  return `agent-${agentId}`
 }
 
 /**
@@ -1071,14 +1093,21 @@ export async function removeAgentWorktree(
   worktreeBranch?: string,
   gitRoot?: string,
   hookBased?: boolean,
+  source = 'unknown',
 ): Promise<boolean> {
   if (hookBased) {
     const hookRan = await executeWorktreeRemoveHook(worktreePath)
     if (hookRan) {
+      logEvent('tengu_worktree_removed', {
+        source,
+        changed_files: 0,
+        commits: 0,
+        hook_based: true,
+      })
       logForDebugging(`Removed hook-based agent worktree at: ${worktreePath}`)
     } else {
       logForDebugging(
-        `No WorktreeRemove hook configured, hook-based agent worktree left at: ${worktreePath}`,
+        `WorktreeRemove hook did not remove agent worktree, left at: ${worktreePath}`,
         { level: 'warn' },
       )
     }
@@ -1092,7 +1121,22 @@ export async function removeAgentWorktree(
     return false
   }
 
+  const status = await execFileNoThrowWithCwd(
+    gitExe(),
+    ['status', '--porcelain'],
+    { cwd: worktreePath },
+  )
+  const changedFiles =
+    status.code === 0 && status.stdout.trim()
+      ? status.stdout.trim().split('\n').length
+      : 0
+
   // Run from the main repo root, not the worktree (which we're about to delete)
+  await execFileNoThrowWithCwd(
+    gitExe(),
+    ['worktree', 'unlock', worktreePath],
+    { cwd: gitRoot },
+  )
   const { code: removeCode, stderr: removeError } =
     await execFileNoThrowWithCwd(
       gitExe(),
@@ -1100,13 +1144,34 @@ export async function removeAgentWorktree(
       { cwd: gitRoot },
     )
 
-  if (removeCode !== 0) {
-    logForDebugging(`Failed to remove agent worktree: ${removeError}`, {
-      level: 'error',
-    })
-    return false
+  let directoryRemoved = true
+  try {
+    await rm(worktreePath, { recursive: true, force: true })
+  } catch (error) {
+    directoryRemoved = false
+    logForDebugging(
+      `[worktree] residual dir cleanup failed for ${worktreePath}: ${error}`,
+    )
   }
-  logForDebugging(`Removed agent worktree at: ${worktreePath}`)
+
+  if (removeCode !== 0) {
+    logForDebugging(
+      directoryRemoved
+        ? `git worktree remove failed (${removeError.trim()}); rm sweep cleared ${worktreePath}`
+        : `Failed to remove agent worktree: ${removeError}`,
+      { level: directoryRemoved ? 'debug' : 'error' },
+    )
+    if (!directoryRemoved) return false
+  } else {
+    logForDebugging(`Removed agent worktree at: ${worktreePath}`)
+  }
+
+  logEvent('tengu_worktree_removed', {
+    source,
+    changed_files: changedFiles,
+    commits: 0,
+    hook_based: false,
+  })
 
   if (!worktreeBranch) {
     return true
@@ -1128,14 +1193,16 @@ export async function removeAgentWorktree(
 }
 
 /**
- * Slug patterns for throwaway worktrees created by AgentTool (`agent-a<7hex>`,
- * from earlyAgentId.slice(0,8)), WorkflowTool (`wf_<runId>-<idx>` where runId
+ * Slug patterns for throwaway worktrees created by AgentTool (`agent-a<16hex>`),
+ * WorkflowTool (`wf_<runId>-<idx>` where runId
  * is randomUUID().slice(0,12) = 8 hex + `-` + 3 hex), and bridgeMain
  * (`bridge-<safeFilenameId>`). These leak when the parent process is killed
  * (Ctrl+C, ESC, crash) before their in-process cleanup runs. Exact-shape
  * patterns avoid sweeping user-named EnterWorktree slugs like `wf-myfeature`.
  */
 const EPHEMERAL_WORKTREE_PATTERNS = [
+  /^agent-a[0-9a-f]{16}$/,
+  // Legacy truncated IDs from older releases.
   /^agent-a[0-9a-f]{7}$/,
   /^wf_[0-9a-f]{8}-[0-9a-f]{3}-\d+$/,
   // Legacy wf-<idx> slugs from before workflowRunId disambiguation — kept so
@@ -1147,6 +1214,62 @@ const EPHEMERAL_WORKTREE_PATTERNS = [
   // from user-named EnterWorktree slugs that happen to end in 8 hex.
   /^job-[a-zA-Z0-9._-]{1,55}-[0-9a-f]{8}$/,
 ]
+
+async function hasGoneUpstreamWithoutUniqueCommits(
+  worktreePath: string,
+  defaultRemoteBranch: string,
+): Promise<boolean> {
+  const symbolicRef = await execFileNoThrowWithCwd(
+    gitExe(),
+    ['symbolic-ref', '-q', 'HEAD'],
+    { cwd: worktreePath },
+  )
+  const branchRef = symbolicRef.stdout.trim()
+  if (symbolicRef.code !== 0 || !branchRef) return false
+
+  const tracking = await execFileNoThrowWithCwd(
+    gitExe(),
+    ['for-each-ref', '--format=%(upstream:track,nobracket)', branchRef],
+    { cwd: worktreePath },
+  )
+  if (tracking.code !== 0 || tracking.stdout.trim() !== 'gone') return false
+
+  const uniqueCommits = await execFileNoThrowWithCwd(
+    gitExe(),
+    [
+      'rev-list',
+      '--cherry-pick',
+      '--right-only',
+      '--no-merges',
+      '--max-count=1',
+      `${defaultRemoteBranch}...HEAD`,
+    ],
+    { cwd: worktreePath },
+  )
+  return uniqueCommits.code === 0 && uniqueCommits.stdout.trim().length === 0
+}
+
+async function findDefaultRemoteBranchForCleanup(
+  gitRoot: string,
+): Promise<string | null> {
+  const symbolicRef = await execFileNoThrowWithCwd(
+    gitExe(),
+    ['symbolic-ref', '-q', '--short', 'refs/remotes/origin/HEAD'],
+    { cwd: gitRoot },
+  )
+  if (symbolicRef.code === 0 && symbolicRef.stdout.trim()) {
+    return symbolicRef.stdout.trim()
+  }
+  for (const candidate of ['origin/main', 'origin/master']) {
+    const result = await execFileNoThrowWithCwd(
+      gitExe(),
+      ['rev-parse', '--verify', '-q', candidate],
+      { cwd: gitRoot },
+    )
+    if (result.code === 0) return candidate
+  }
+  return null
+}
 
 /**
  * Remove stale agent/workflow worktrees older than cutoffDate.
@@ -1181,6 +1304,7 @@ export async function cleanupStaleAgentWorktrees(
 
   const cutoffMs = cutoffDate.getTime()
   const currentPath = currentWorktreeSession?.worktreePath
+  const defaultRemoteBranch = await findDefaultRemoteBranchForCleanup(gitRoot)
   let removed = 0
 
   for (const slug of entries) {
@@ -1209,7 +1333,7 @@ export async function cleanupStaleAgentWorktrees(
     const [status, unpushed] = await Promise.all([
       execFileNoThrowWithCwd(
         gitExe(),
-        ['--no-optional-locks', 'status', '--porcelain', '-uno'],
+        ['--no-optional-locks', 'status', '--porcelain'],
         { cwd: worktreePath },
       ),
       execFileNoThrowWithCwd(
@@ -1221,12 +1345,25 @@ export async function cleanupStaleAgentWorktrees(
     if (status.code !== 0 || status.stdout.trim().length > 0) {
       continue
     }
-    if (unpushed.code !== 0 || unpushed.stdout.trim().length > 0) {
+    if (unpushed.code !== 0) continue
+    if (
+      unpushed.stdout.trim().length > 0 &&
+      (defaultRemoteBranch === null ||
+        !(await hasGoneUpstreamWithoutUniqueCommits(
+          worktreePath,
+          defaultRemoteBranch,
+        )))
+    )
       continue
-    }
 
     if (
-      await removeAgentWorktree(worktreePath, worktreeBranchName(slug), gitRoot)
+      await removeAgentWorktree(
+        worktreePath,
+        worktreeBranchName(slug),
+        gitRoot,
+        false,
+        'stale_cleanup',
+      )
     ) {
       removed++
     }

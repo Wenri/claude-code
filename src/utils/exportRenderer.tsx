@@ -5,8 +5,10 @@ import { KeybindingProvider } from '../keybindings/KeybindingContext.js';
 import { loadKeybindingsSyncWithWarnings } from '../keybindings/loadUserBindings.js';
 import type { KeybindingContextName } from '../keybindings/types.js';
 import { AppStateProvider } from '../state/AppState.js';
+import { getDefaultAppState } from '../state/AppStateStore.js';
 import type { Tools } from '../Tool.js';
 import type { Message } from '../types/message.js';
+import { SYNTHETIC_MODEL } from './messages.js';
 import { renderToAnsiString } from './staticRender.js';
 
 /**
@@ -41,6 +43,16 @@ function normalizedUpperBound(m: Message): number {
   return Array.isArray(c) ? c.length : 1;
 }
 
+function getConversationModel(messages: Message[]): string | undefined {
+  for (const message of messages) {
+    if (message.type === 'assistant') {
+      const model = message.message.model
+      if (model && model !== SYNTHETIC_MODEL) return model
+    }
+  }
+  return undefined
+}
+
 /**
  * Streams rendered messages in chunks, ANSI codes preserved. Each chunk is a
  * fresh renderToAnsiString — yoga layout tree + Ink's screen buffer are sized
@@ -64,9 +76,13 @@ export async function streamRenderedMessages(messages: Message[], tools: Tools, 
   chunkSize?: number;
   onProgress?: (rendered: number) => void;
 } = {}): Promise<void> {
-  const renderChunk = (range: readonly [number, number]) => renderToAnsiString(<AppStateProvider>
+  const conversationModel = getConversationModel(messages)
+  const initialState = conversationModel
+    ? { ...getDefaultAppState(), mainLoopModel: conversationModel }
+    : undefined
+  const renderChunk = (range: readonly [number, number]) => renderToAnsiString(<AppStateProvider initialState={initialState}>
         <StaticKeybindingProvider>
-          <Messages messages={messages} tools={tools} commands={[]} verbose={verbose} toolJSX={null} toolUseConfirmQueue={[]} inProgressToolUseIDs={new Set()} isMessageSelectorVisible={false} conversationId="export" screen="prompt" streamingToolUses={[]} showAllInTranscript={true} isLoading={false} renderRange={range} />
+          <Messages messages={messages} tools={tools} commands={[]} verbose={verbose} toolJSX={null} toolUseConfirmQueue={[]} inProgressToolUseIDs={new Set()} isMessageSelectorVisible={false} conversationId="export" screen="prompt" streamingToolUses={[]} showAllInTranscript={true} isLoading={false} renderRange={range} disableRenderCap={true} />
         </StaticKeybindingProvider>
       </AppStateProvider>, columns);
 
