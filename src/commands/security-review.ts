@@ -3,8 +3,16 @@ import { parseSlashCommandToolsFromFrontmatter } from '../utils/markdownConfigLo
 import { executeShellCommandsInPrompt } from '../utils/promptShellExecution.js'
 import { createMovedToPluginCommand } from './createMovedToPluginCommand.js'
 
+const SECURITY_REVIEW_GIT_COMMANDS = [
+  'git diff *',
+  'git status *',
+  'git log *',
+  'git show *',
+  'git remote show *',
+]
+
 const SECURITY_REVIEW_MARKDOWN = `---
-allowed-tools: Bash(git diff:*), Bash(git status:*), Bash(git log:*), Bash(git show:*), Bash(git remote show:*), Read, Glob, Grep, LS, Task
+allowed-tools: ${SECURITY_REVIEW_GIT_COMMANDS.flatMap(command => [`Bash(${command})`, `PowerShell(${command})`]).join(', ')}, Read, Glob, Grep, LS, Task
 description: Complete a security review of the pending changes on the current branch
 ---
 

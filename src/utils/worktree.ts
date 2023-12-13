@@ -1131,6 +1131,20 @@ export async function removeAgentWorktree(
       ? status.stdout.trim().split('\n').length
       : 0
 
+  if (changedFiles > 0 && source !== 'exit_tool' && source !== 'exit_dialog') {
+    logForDebugging(
+      `removeAgentWorktree: aborted ${source} removal — ${changedFiles} changed file(s) would be lost, kept ${worktreePath}`,
+      { level: 'warn' },
+    )
+    logEvent('tengu_worktree_removed', {
+      source,
+      changed_files: changedFiles,
+      commits: 0,
+      aborted: 1,
+    })
+    return false
+  }
+
   // Run from the main repo root, not the worktree (which we're about to delete)
   await execFileNoThrowWithCwd(
     gitExe(),
@@ -1386,20 +1400,20 @@ export async function cleanupStaleAgentWorktrees(
  * were made on the worktree branch since `headCommit`, or if git commands fail
  * — callers use this to decide whether to remove a worktree, so fail-closed.
  */
-export async function hasWorktreeChanges(
+export async function getAgentWorktreeChanges(
   worktreePath: string,
-  headCommit: string,
-): Promise<boolean> {
+  headCommit?: string,
+): Promise<{ dirty: boolean; commitsAhead: number; gitError?: boolean }> {
   const { code: statusCode, stdout: statusOutput } =
     await execFileNoThrowWithCwd(gitExe(), ['status', '--porcelain'], {
       cwd: worktreePath,
     })
   if (statusCode !== 0) {
-    return true
+    return { dirty: true, commitsAhead: 0, gitError: true }
   }
-  if (statusOutput.trim().length > 0) {
-    return true
-  }
+
+  const dirty = statusOutput.trim().length > 0
+  if (!headCommit) return { dirty, commitsAhead: 0 }
 
   const { code: revListCode, stdout: revListOutput } =
     await execFileNoThrowWithCwd(
@@ -1408,13 +1422,23 @@ export async function hasWorktreeChanges(
       { cwd: worktreePath },
     )
   if (revListCode !== 0) {
-    return true
+    return { dirty: true, commitsAhead: 0, gitError: true }
   }
-  if (parseInt(revListOutput.trim(), 10) > 0) {
-    return true
+  return {
+    dirty,
+    commitsAhead: parseInt(revListOutput.trim(), 10) || 0,
   }
+}
 
-  return false
+export async function hasWorktreeChanges(
+  worktreePath: string,
+  headCommit: string,
+): Promise<boolean> {
+  const { dirty, commitsAhead } = await getAgentWorktreeChanges(
+    worktreePath,
+    headCommit,
+  )
+  return dirty || commitsAhead > 0
 }
 
 /**

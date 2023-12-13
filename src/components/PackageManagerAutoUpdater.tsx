@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useState } from 'react';
 import { useInterval } from 'usehooks-ts';
 import { Text } from '../ink.js';
-import { type AutoUpdaterResult, getLatestVersionFromGcs, getMaxVersion, shouldSkipVersion } from '../utils/autoUpdater.js';
+import { getLatestHomebrewVersion, getLatestVersionFromGcs, getMaxVersion, shouldSkipVersion } from '../utils/autoUpdater.js';
 import { isAutoUpdaterDisabled } from '../utils/config.js';
 import { logForDebugging } from '../utils/debug.js';
 import { getHomebrewCaskName, getPackageManager, type PackageManager } from '../utils/nativeInstaller/packageManagers.js';
@@ -12,8 +12,6 @@ import { getInitialSettings } from '../utils/settings/settings.js';
 type Props = {
   isUpdating: boolean;
   onChangeIsUpdating: (isUpdating: boolean) => void;
-  onAutoUpdaterResult: (autoUpdaterResult: AutoUpdaterResult) => void;
-  autoUpdaterResult: AutoUpdaterResult | null;
   showSuccessMessage: boolean;
   verbose: boolean;
 };
@@ -35,12 +33,13 @@ export function PackageManagerAutoUpdater(t0) {
       const [channel, pm] = await Promise.all([Promise.resolve(getInitialSettings()?.autoUpdatesChannel ?? "latest"), getPackageManager()]);
       setPackageManager(pm);
       let effectiveChannel = channel;
+      let caskName: string | null = null;
       if (pm === "homebrew") {
-        const caskName = getHomebrewCaskName();
+        caskName = getHomebrewCaskName();
         setHomebrewCaskName(caskName);
         effectiveChannel = caskName === "claude-code@latest" ? "latest" : "stable";
       }
-      let latest = await getLatestVersionFromGcs(effectiveChannel);
+      let latest = pm === "homebrew" ? await getLatestHomebrewVersion(caskName ?? "claude-code", effectiveChannel) : await getLatestVersionFromGcs(effectiveChannel);
       const maxVersion = await getMaxVersion();
       if (maxVersion && latest && gt(latest, maxVersion)) {
         logForDebugging(`PackageManagerAutoUpdater: maxVersion ${maxVersion} is set, capping update from ${latest} to ${maxVersion}`);

@@ -1,5 +1,7 @@
 import sample from 'lodash-es/sample.js';
 import React from 'react';
+import { stopBackgroundSession } from '../commands/exit/exit.js';
+import { isBgSession } from '../utils/concurrentSessions.js';
 import { gracefulShutdown } from '../utils/gracefulShutdown.js';
 import type { SessionBackgroundExitItem } from '../utils/sessionCronTasks.js';
 import { BackgroundExitDialog } from './BackgroundExitDialog.js';
@@ -24,6 +26,7 @@ export function ExitFlow({
 }: Props): React.ReactNode {
   async function onExit(resultMessage?: string): Promise<void> {
     onDone(resultMessage ?? getRandomGoodbyeMessage());
+    if (isBgSession()) return stopBackgroundSession('keybind_exit');
     await gracefulShutdown(0, 'prompt_input_exit');
   }
 

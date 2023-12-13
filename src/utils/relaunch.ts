@@ -1,4 +1,4 @@
-import { spawn, type SpawnOptions } from 'child_process'
+import { spawn, spawnSync, type SpawnOptions } from 'child_process'
 import { closeSync } from 'fs'
 import { stat } from 'fs/promises'
 import { constants } from 'os'
@@ -11,7 +11,6 @@ import {
 } from '../bootstrap/state.js'
 import { isInBundledMode } from './bundledMode.js'
 import { runCleanupFunctions } from './cleanupRegistry.js'
-import { stopCapturingEarlyInput } from './earlyInput.js'
 import {
   cleanupTerminalForRelaunch,
   markShuttingDownForRelaunch,
@@ -131,29 +130,31 @@ export async function relaunch(options: RelaunchOptions = {}): Promise<never> {
   const { cmd, prefixArgs } = options.launcher ?? getRelaunchLauncher()
   const sessionId = getSessionId()
   const transcriptPath = getTranscriptPath()
-  let resume = true
+  let relaunchArgs: string[]
 
-  if (options.freshIfNoTranscript) {
-    resume = transcriptPath
-      ? await stat(transcriptPath).then(
-          result => result.size > 0,
-          () => false,
-        )
-      : false
+  if (options.args) {
+    relaunchArgs = options.args
+  } else if (
+    options.freshIfNoTranscript &&
+    (!transcriptPath ||
+      !(await stat(transcriptPath).then(
+        result => result.size > 0,
+        () => false,
+      )))
+  ) {
+    relaunchArgs = []
+  } else {
+    relaunchArgs = ['--resume', sessionId]
   }
 
-  stopCapturingEarlyInput()
   markShuttingDownForRelaunch()
-  // Keep the parent alive until the replacement exits.
-  setInterval(() => {}, 1_073_741_824)
-
-  await withTimeout(flushSessionStorage(), 2_000, 'flush timeout').catch(
-    () => {},
-  )
   cleanupTerminalForRelaunch()
-  await withTimeout(runCleanupFunctions(), 2_000, 'cleanup timeout').catch(
-    () => {},
-  )
+  await Promise.all([
+    flushSessionStorage().catch(() => {}),
+    withTimeout(runCleanupFunctions(), 2_000, 'cleanup timeout').catch(
+      () => {},
+    ),
+  ])
   options.preSpawn?.()
 
   const childEnv = { ...process.env }
@@ -163,30 +164,29 @@ export async function relaunch(options: RelaunchOptions = {}): Promise<never> {
   Object.assign(childEnv, options.env)
   for (const key of options.dropEnv ?? []) delete childEnv[key]
 
-  const relaunchArgs = options.args ?? (resume ? ['--resume', sessionId] : [])
   const args = [...prefixArgs, ...relaunchArgs]
-  const spawnOptions: SpawnOptions = {
-    stdio: 'inherit',
-    env: childEnv,
-    cwd: getRelaunchCwd(),
-  }
-  const child = spawn(cmd, args, spawnOptions)
-  child.ref()
-  severTtyInputForRelaunch()
-
   for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP'] as const) {
     process.removeAllListeners(signal)
     process.on(signal, () => {})
   }
 
-  return await new Promise<never>(() => {
-    child.on('close', (code, signal) => {
-      const signalCode = signal ? 128 + (constants.signals[signal] ?? 0) : 0
-      process.exit(code ?? signalCode)
-    })
-    child.on('error', error => {
-      process.stderr.write(`Failed to relaunch Claude Code: ${error.message}\n`)
-      process.exit(1)
-    })
+  const result = spawnSync(cmd, args, {
+    stdio: 'inherit',
+    env: childEnv,
+    cwd: getRelaunchCwd(),
   })
+
+  process.removeAllListeners('beforeExit')
+  process.removeAllListeners('exit')
+
+  if (result.error) {
+    process.stderr.write(`Failed to relaunch Claude Code: ${result.error.message}\n`)
+    process.exit(1)
+  }
+  if (result.signal) {
+    process.removeAllListeners(result.signal)
+    process.kill(process.pid, result.signal)
+    process.exit(128 + (constants.signals[result.signal] ?? 0))
+  }
+  process.exit(result.status ?? (result.signal ? 1 : 0))
 }

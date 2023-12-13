@@ -25,6 +25,7 @@ import {
 import { getTaskOutputDir } from './task/diskOutput.js'
 import { TaskOutput } from './task/TaskOutput.js'
 import { getCurrentTraceparent } from './telemetry/sessionTracing.js'
+import { getClaudeCodeAgentUserAgent } from './userAgent.js'
 import { which } from './which.js'
 
 export type { ExecResult } from './ShellCommand.js'
@@ -145,6 +146,45 @@ async function getShellConfigImpl(): Promise<ShellConfig> {
 
 // Memoize the entire shell config so it only happens once per session
 export const getShellConfig = memoize(getShellConfigImpl)
+
+const KNOWN_SHELL_EXECUTABLES = new Set([
+  'zsh',
+  'bash',
+  'fish',
+  'sh',
+  'dash',
+  'ash',
+  'ksh',
+  'tcsh',
+  'csh',
+  'nu',
+  'nushell',
+  'pwsh',
+  'powershell',
+  'cmd',
+  'elvish',
+  'xonsh',
+  'ion',
+])
+
+export function classifyShellExecutable(shellPath?: string): string {
+  if (!shellPath) return 'none'
+  const executable = shellPath
+    .split(/[/\\]/)
+    .pop()!
+    .toLowerCase()
+    .replace(/\.exe$/, '')
+  return KNOWN_SHELL_EXECUTABLES.has(executable) ? executable : 'other'
+}
+
+export async function getExecutorShell(): Promise<string> {
+  try {
+    const { provider } = await getShellConfig()
+    return classifyShellExecutable(provider.shellPath)
+  } catch {
+    return 'none'
+  }
+}
 
 export const getPsProvider = memoize(async (): Promise<ShellProvider> => {
   const psPath = await getCachedPowerShellPath()
@@ -321,6 +361,7 @@ export async function exec(
         SHELL: shellType === 'bash' ? binShell : undefined,
         GIT_EDITOR: 'true',
         CLAUDECODE: '1',
+        AI_AGENT: getClaudeCodeAgentUserAgent('agent'),
         ...envOverrides,
         ...(traceparent && { TRACEPARENT: traceparent }),
         ...(process.env.USER_TYPE === 'ant'

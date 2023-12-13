@@ -650,6 +650,7 @@ export class CCRClient {
       requires_action_details: details
         ? {
             tool_name: details.tool_name,
+            display_tool_name: details.display_tool_name,
             action_description: details.action_description,
             raw_command: details.raw_command,
             tool_use_id: details.tool_use_id,
@@ -661,7 +662,22 @@ export class CCRClient {
 
   /** Report external metadata to CCR via PUT /worker. */
   reportMetadata(metadata: Record<string, unknown>): void {
-    this.workerState.enqueue({ external_metadata: metadata })
+    const postTurnSummary = metadata.post_turn_summary
+    const externalMetadata =
+      postTurnSummary !== null &&
+      typeof postTurnSummary === 'object' &&
+      typeof (postTurnSummary as Record<string, unknown>).status_category ===
+        'string' &&
+      (postTurnSummary as Record<string, unknown>).status_category === 'blocked'
+        ? {
+            ...metadata,
+            post_turn_summary: {
+              ...(postTurnSummary as Record<string, unknown>),
+              status_category: 'need_input',
+            },
+          }
+        : metadata
+    this.workerState.enqueue({ external_metadata: externalMetadata })
   }
 
   /**

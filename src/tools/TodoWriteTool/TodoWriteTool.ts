@@ -8,7 +8,7 @@ import { isTodoV2Enabled } from '../../utils/tasks.js'
 import { TodoListSchema } from '../../utils/todo/types.js'
 import { VERIFICATION_AGENT_TYPE } from '../AgentTool/constants.js'
 import { TODO_WRITE_TOOL_NAME } from './constants.js'
-import { DESCRIPTION, PROMPT } from './prompt.js'
+import { DESCRIPTION, getPrompt } from './prompt.js'
 
 const inputSchema = lazySchema(() =>
   z.strictObject({
@@ -36,8 +36,8 @@ export const TodoWriteTool = buildTool({
   async description() {
     return DESCRIPTION
   },
-  async prompt() {
-    return PROMPT
+  async prompt({ model }) {
+    return getPrompt(model)
   },
   get inputSchema(): InputSchema {
     return inputSchema()

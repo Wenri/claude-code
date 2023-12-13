@@ -21,8 +21,10 @@ import type { AgentDefinitionsResult } from '../tools/AgentTool/loadAgentsDir.js
 import type { AllowedPrompt } from '../tools/ExitPlanModeTool/ExitPlanModeV2Tool.js'
 import type { AgentId } from '../types/ids.js'
 import type { Message, UserMessage } from '../types/message.js'
+import type { MemoryWriteSurveyRecord } from '../memdir/memoryWriteSurvey.js'
 import type { LoadedPlugin, PluginError } from '../types/plugin.js'
 import type { DeepImmutable } from '../types/utils.js'
+import type { AutoUpdaterResult } from '../utils/autoUpdater.js'
 import {
   type AttributionState,
   createEmptyAttributionState,
@@ -178,6 +180,8 @@ export type AppState = DeepImmutable<{
 }> & {
   // Unified task state - excluded from DeepImmutable because TaskState contains function types
   tasks: { [taskId: string]: TaskState }
+  // Output from the configured per-subagent status-line command, keyed by task id.
+  taskDecorations: Record<string, { content: string }>
   // Name → AgentId registry populated by Agent tool when `name` is provided.
   // Latest-wins on collision. Used by SendMessage to route by name.
   agentNameRegistry: Map<string, AgentId>
@@ -244,6 +248,7 @@ export type AppState = DeepImmutable<{
     current: Notification | null
     queue: Notification[]
   }
+  autoUpdaterResult: AutoUpdaterResult | null
   elicitation: {
     queue: ElicitationRequestEvent[]
   }
@@ -364,6 +369,7 @@ export type AppState = DeepImmutable<{
     summary: string
     paths: string[]
   }>
+  memoryWriteQueue: MemoryWriteSurveyRecord[]
   // Worker sandbox permission requests (leader side) - for network access approval
   workerSandboxPermissions: {
     queue: Array<{
@@ -500,6 +506,7 @@ export function getDefaultAppState(): AppState {
   return {
     settings: getInitialSettings(),
     tasks: {},
+    taskDecorations: {},
     agentNameRegistry: new Map(),
     verbose: false,
     showMessageTimestamps: false,
@@ -572,6 +579,7 @@ export function getDefaultAppState(): AppState {
       current: null,
       queue: [],
     },
+    autoUpdaterResult: null,
     elicitation: {
       queue: [],
     },
@@ -582,6 +590,7 @@ export function getDefaultAppState(): AppState {
       messages: [],
     },
     pendingMemoryUpdates: [],
+    memoryWriteQueue: [],
     workerSandboxPermissions: {
       queue: [],
       selectedIndex: 0,

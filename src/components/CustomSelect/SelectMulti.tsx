@@ -8,6 +8,7 @@ import type { OptionWithDescription } from './select.js';
 import { SelectInputOption } from './select-input-option.js';
 import { SelectOption } from './select-option.js';
 import { useMultiSelectState } from './use-multi-select-state.js';
+import { useVisibleOptionCount } from './use-visible-option-count.js';
 export type SelectMultiProps<T> = {
   readonly isDisabled?: boolean;
   readonly visibleOptionCount?: number;
@@ -78,7 +79,12 @@ export function SelectMulti(t0) {
     onRemoveImage
   } = t0;
   const isDisabled = t1 === undefined ? false : t1;
-  const visibleOptionCount = t2 === undefined ? 5 : t2;
+  const requestedVisibleOptionCount = t2 === undefined ? 5 : t2;
+  const optionsHaveDescription = options.some(option => option.description);
+  const visibleOptionCount = useVisibleOptionCount(
+    requestedVisibleOptionCount,
+    optionsHaveDescription ? 'compact-vertical' : 'compact'
+  );
   let t5;
   if ($[0] !== t3) {
     t5 = t3 === undefined ? [] : t3;

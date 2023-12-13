@@ -5,7 +5,7 @@ import type { KeyboardEvent } from '../../../ink/events/keyboard-event.js';
 import { Box, Text } from '../../../ink.js';
 import { useKeybinding, useKeybindings } from '../../../keybindings/useKeybinding.js';
 import { useAppState } from '../../../state/AppState.js';
-import type { Question } from '../../../tools/AskUserQuestionTool/AskUserQuestionTool.js';
+import { NOTES_ONLY_ANSWER, type Question } from '../../../tools/AskUserQuestionTool/AskUserQuestionTool.js';
 import { getExternalEditor } from '../../../utils/editor.js';
 import { toIDEDisplayName } from '../../../utils/ide.js';
 import { editPromptInEditor } from '../../../utils/promptEditor.js';
@@ -141,8 +141,10 @@ export function PreviewQuestionView({
     onTextInputFocus(false);
     if (selectedValue) {
       onAnswer(questionText, selectedValue);
+    } else if (notesValue.trim()) {
+      onAnswer(questionText, NOTES_ONLY_ANSWER);
     }
-  }, [selectedValue, questionText, onAnswer, onTextInputFocus]);
+  }, [selectedValue, notesValue, questionText, onAnswer, onTextInputFocus]);
   const handleDownFromPreview = useCallback(() => {
     setIsFooterFocused(true);
   }, []);

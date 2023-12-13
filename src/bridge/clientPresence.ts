@@ -1,11 +1,7 @@
 import axios from 'axios'
 import { randomUUID } from 'crypto'
-import { onInteraction } from '../bootstrap/state.js'
-import {
-  getTerminalFocusState,
-  subscribeTerminalFocus,
-} from '../ink/terminal-focus-state.js'
-import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js'
+import { getTerminalFocus, onInteraction } from '../bootstrap/state.js'
+import { subscribeTerminalFocus } from '../ink/terminal-focus-state.js'
 import { logForDebugging } from '../utils/debug.js'
 import { getClientPlatform } from '../utils/http.js'
 import { isNonessentialTrafficDisabled } from '../utils/privacyLevel.js'
@@ -32,22 +28,15 @@ export function setupBridgeClientPresence(
 ): void {
   cleanupBridgeClientPresence()
   if (isNonessentialTrafficDisabled()) return
-  if (
-    !getFeatureValue_CACHED_MAY_BE_STALE(
-      'tengu_bridge_client_presence_enabled',
-      false,
-    )
-  ) {
-    return
-  }
-
   presence = { sessionId, baseUrl, getAuthHeaders }
   lastPulseAt = 0
   unsubscribeInteraction = onInteraction(pulseBridgeClientPresence)
   unsubscribeTerminalFocus = subscribeTerminalFocus(() => {
-    const focus = getTerminalFocusState()
-    logForDebugging(`[presence] terminal focus → ${focus}`)
-    if (focus === 'focused') pulseBridgeClientPresence()
+    const focus = getTerminalFocus()
+    logForDebugging(
+      `[presence] terminal focus → ${focus === undefined ? 'unknown' : focus ? 'focused' : 'blurred'}`,
+    )
+    if (focus === true) pulseBridgeClientPresence()
   })
   logForDebugging(`[presence] wired for session ${sessionId}`)
   pulseBridgeClientPresence()
@@ -64,6 +53,10 @@ export function cleanupBridgeClientPresence(): void {
 
 function pulseBridgeClientPresence(): void {
   if (!presence) return
+  if (getTerminalFocus() === false) {
+    logForDebugging('[presence] pulse skipped (terminal blurred)')
+    return
+  }
   const now = Date.now()
   if (now - lastPulseAt < PRESENCE_THROTTLE_MS) return
   lastPulseAt = now

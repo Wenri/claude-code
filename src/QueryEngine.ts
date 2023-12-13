@@ -350,7 +350,7 @@ export class QueryEngine {
     // The caller can layer their own policy text via appendSystemPrompt.
     const memoryMechanicsPrompt =
       customPrompt !== undefined && hasAutoMemPathOverride()
-        ? await loadMemoryPrompt()
+        ? await loadMemoryPrompt(initialMainLoopModel)
         : null
 
     const systemPrompt = asSystemPrompt([

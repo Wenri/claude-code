@@ -1,7 +1,8 @@
 import { feature } from 'bun:bundle'
 import { randomBytes } from 'crypto'
 import { execa } from 'execa'
-import { basename, extname, isAbsolute, join } from 'path'
+import { tmpdir } from 'os'
+import { basename, dirname, extname, isAbsolute, join } from 'path'
 import {
   IMAGE_MAX_HEIGHT,
   IMAGE_MAX_WIDTH,
@@ -28,14 +29,34 @@ type SupportedPlatform = 'darwin' | 'linux' | 'win32'
 
 // Threshold in characters for when to consider text a "large paste"
 export const PASTE_THRESHOLD = 800
+
+type ClipboardCommand = string | string[]
+
+function quotePosixArgs(args: string[]): string {
+  return args
+    .map(value => {
+      if (value === '') return "''"
+      if (/^[A-Za-z0-9_./:=@+,-]+$/.test(value)) return value
+      return `'${value.replaceAll("'", `'"'"'`)}'`
+    })
+    .join(' ')
+}
+
+async function runClipboardCommand(command: ClipboardCommand) {
+  if (typeof command === 'string') {
+    return execa(command, { shell: true, reject: false })
+  }
+  const [file, ...args] = command
+  return execa(file!, args, { reject: false })
+}
+
 function getClipboardCommands() {
   const platform = process.platform as SupportedPlatform
 
-  // Platform-specific temporary file paths
-  // Use CLAUDE_CODE_TMPDIR if set, otherwise fall back to platform defaults
-  const baseTmpDir =
-    process.env.CLAUDE_CODE_TMPDIR ||
-    (platform === 'win32' ? process.env.TEMP || 'C:\\Temp' : '/tmp')
+  const baseTmpDir = join(
+    process.env.CLAUDE_CODE_TMPDIR || tmpdir(),
+    `claude-${process.getuid?.() ?? 0}`,
+  )
   const screenshotFilename = 'claude_cli_latest_screenshot.png'
   const tempPaths: Record<SupportedPlatform, string> = {
     darwin: join(baseTmpDir, screenshotFilename),
@@ -44,37 +65,57 @@ function getClipboardCommands() {
   }
 
   const screenshotPath = tempPaths[platform] || tempPaths.linux
+  const posixPath = quotePosixArgs([screenshotPath])
+  const appleScriptPath = `"${screenshotPath
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')}"`
+  const openAppleScript = `set fp to open for access POSIX file ${appleScriptPath} with write permission`
+  const powershellPath = `'${screenshotPath.replace(/'/g, "''")}'`
 
   // Platform-specific clipboard commands
   const commands: Record<
     SupportedPlatform,
     {
-      checkImage: string
-      saveImage: string
-      getPath: string
-      deleteFile: string
+      checkImage: ClipboardCommand
+      saveImage: ClipboardCommand
+      getPath: ClipboardCommand
+      deleteFile: ClipboardCommand
     }
   > = {
     darwin: {
       checkImage: `osascript -e 'the clipboard as «class PNGf»'`,
-      saveImage: `osascript -e 'set png_data to (the clipboard as «class PNGf»)' -e 'set fp to open for access POSIX file "${screenshotPath}" with write permission' -e 'write png_data to fp' -e 'close access fp'`,
+      saveImage: `osascript -e 'set png_data to (the clipboard as «class PNGf»)' -e ${quotePosixArgs([openAppleScript])} -e 'write png_data to fp' -e 'close access fp'`,
       getPath: `osascript -e 'get POSIX path of (the clipboard as «class furl»)'`,
-      deleteFile: `rm -f "${screenshotPath}"`,
+      deleteFile: `rm -f -- ${posixPath}`,
     },
     linux: {
       checkImage:
         'xclip -selection clipboard -t TARGETS -o 2>/dev/null | grep -E "image/(png|jpeg|jpg|gif|webp|bmp)" || wl-paste -l 2>/dev/null | grep -E "image/(png|jpeg|jpg|gif|webp|bmp)"',
-      saveImage: `xclip -selection clipboard -t image/png -o > "${screenshotPath}" 2>/dev/null || wl-paste --type image/png > "${screenshotPath}" 2>/dev/null || xclip -selection clipboard -t image/bmp -o > "${screenshotPath}" 2>/dev/null || wl-paste --type image/bmp > "${screenshotPath}"`,
+      saveImage: `xclip -selection clipboard -t image/png -o > ${posixPath} 2>/dev/null || wl-paste --type image/png > ${posixPath} 2>/dev/null || xclip -selection clipboard -t image/bmp -o > ${posixPath} 2>/dev/null || wl-paste --type image/bmp > ${posixPath}`,
       getPath:
         'xclip -selection clipboard -t text/plain -o 2>/dev/null || wl-paste 2>/dev/null',
-      deleteFile: `rm -f "${screenshotPath}"`,
+      deleteFile: `rm -f -- ${posixPath}`,
     },
     win32: {
-      checkImage:
-        'powershell -NoProfile -Command "(Get-Clipboard -Format Image) -ne $null"',
-      saveImage: `powershell -NoProfile -Command "$img = Get-Clipboard -Format Image; if ($img) { $img.Save('${screenshotPath.replace(/\\/g, '\\\\')}', [System.Drawing.Imaging.ImageFormat]::Png) }"`,
-      getPath: 'powershell -NoProfile -Command "Get-Clipboard"',
-      deleteFile: `del /f "${screenshotPath}"`,
+      checkImage: [
+        'powershell',
+        '-NoProfile',
+        '-Command',
+        '(Get-Clipboard -Format Image) -ne $null',
+      ],
+      saveImage: [
+        'powershell',
+        '-NoProfile',
+        '-Command',
+        `$img = Get-Clipboard -Format Image; if ($img) { $img.Save(${powershellPath}, [System.Drawing.Imaging.ImageFormat]::Png) }`,
+      ],
+      getPath: ['powershell', '-NoProfile', '-Command', 'Get-Clipboard'],
+      deleteFile: [
+        'powershell',
+        '-NoProfile',
+        '-Command',
+        `Remove-Item -Force -LiteralPath ${powershellPath}`,
+      ],
     },
   }
 
@@ -186,19 +227,14 @@ export async function getImageFromClipboard(): Promise<ImageWithDimensions | nul
   const { commands, screenshotPath } = getClipboardCommands()
   try {
     // Check if clipboard has image
-    const checkResult = await execa(commands.checkImage, {
-      shell: true,
-      reject: false,
-    })
+    const checkResult = await runClipboardCommand(commands.checkImage)
     if (checkResult.exitCode !== 0) {
       return null
     }
 
     // Save the image
-    const saveResult = await execa(commands.saveImage, {
-      shell: true,
-      reject: false,
-    })
+    await getFsImplementation().mkdir(dirname(screenshotPath), { mode: 0o700 })
+    const saveResult = await runClipboardCommand(commands.saveImage)
     if (saveResult.exitCode !== 0) {
       return null
     }
@@ -229,7 +265,7 @@ export async function getImageFromClipboard(): Promise<ImageWithDimensions | nul
     const mediaType = detectImageFormatFromBase64(base64Image)
 
     // Cleanup (fire-and-forget, don't await)
-    void execa(commands.deleteFile, { shell: true, reject: false })
+    void runClipboardCommand(commands.deleteFile)
 
     return {
       base64: base64Image,
@@ -246,10 +282,7 @@ export async function getImagePathFromClipboard(): Promise<string | null> {
 
   try {
     // Try to get text from clipboard
-    const result = await execa(commands.getPath, {
-      shell: true,
-      reject: false,
-    })
+    const result = await runClipboardCommand(commands.getPath)
     if (result.exitCode !== 0 || !result.stdout) {
       return null
     }

@@ -136,7 +136,9 @@ export class LogUpdate {
       prev.cursor.y >= prev.screen.height &&
       prev.screen.height >= prev.viewport.height
     const previousVisibleStart = prevHadScrollback
-      ? prev.screen.height - prev.viewport.height + 1
+      ? prev.screen.height -
+        Math.min(prev.viewport.height, next.viewport.height) +
+        1
       : 0
 
     // Since we assume the cursor is at the bottom on the screen, we only need
@@ -511,7 +513,7 @@ function fullResetSequence_CAUSES_FLICKER(
   previousVisibleStart: number,
   debug?: { triggerY: number; prevLine: string; nextLine: string },
 ): Diff {
-  // In the main screen, clearTerminal clears the viewport and scrollback;
+  // In the main screen, the terminal writer erases the viewport in place;
   // render only the previously visible tail instead of replaying the whole frame.
   const startY = altScreen
     ? 0
@@ -522,7 +524,13 @@ function fullResetSequence_CAUSES_FLICKER(
   const screen = new VirtualScreen({ x: 0, y: startY }, frame.viewport.width)
   renderFrameSlice(screen, frame, startY, frame.screen.height, stylePool)
   return [
-    { type: 'clearTerminal', reason, altScreen, debug },
+    {
+      type: 'clearTerminal',
+      reason,
+      altScreen,
+      viewportRows: frame.viewport.height,
+      debug,
+    },
     ...screen.diff,
   ]
 }

@@ -218,6 +218,7 @@ async function executeForkedSkill(
     ...getTeamArtifactAnalyticsMetadata(command.source, commandName),
     attribution_shown:
       getTeamArtifactAuthor(command.source, commandName) !== null,
+    skill_content_chars: command.contentLength,
     ...(process.env.USER_TYPE === 'ant' && {
       skill_name:
         commandName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -781,6 +782,9 @@ export const SkillTool: Tool<InputSchema, Output, Progress> = buildTool({
           command?.type === 'prompt' ? command.source : '',
           commandName,
         ) !== null,
+      ...(command?.type === 'prompt' && {
+        skill_content_chars: command.contentLength,
+      }),
       ...(process.env.USER_TYPE === 'ant' && {
         skill_name:
           commandName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,

@@ -40,6 +40,49 @@ export type TaskAttachment = {
 
 type SetAppState = (updater: (prev: AppState) => AppState) => void
 
+type TaskStatePatch = {
+  status?: TaskStatus
+  description?: string
+  end_time?: number
+  total_paused_ms?: number
+  error?: string
+  is_backgrounded?: boolean
+}
+
+function diffTaskState(
+  previous: TaskState,
+  updated: TaskState,
+): TaskStatePatch | null {
+  const patch: TaskStatePatch = {}
+  if (updated.status !== previous.status) patch.status = updated.status
+  if (updated.description !== previous.description) {
+    patch.description = updated.description
+  }
+  if (updated.endTime !== previous.endTime) patch.end_time = updated.endTime
+  if (updated.totalPausedMs !== previous.totalPausedMs) {
+    patch.total_paused_ms = updated.totalPausedMs
+  }
+
+  const previousError = 'error' in previous ? previous.error : undefined
+  const updatedError = 'error' in updated ? updated.error : undefined
+  if (updatedError !== previousError && updatedError !== undefined) {
+    patch.error = updatedError
+  }
+
+  const previousBackgrounded =
+    'isBackgrounded' in previous ? previous.isBackgrounded : undefined
+  const updatedBackgrounded =
+    'isBackgrounded' in updated ? updated.isBackgrounded : undefined
+  if (
+    updatedBackgrounded !== previousBackgrounded &&
+    updatedBackgrounded !== undefined
+  ) {
+    patch.is_backgrounded = updatedBackgrounded
+  }
+
+  return Object.keys(patch).length > 0 ? patch : null
+}
+
 /**
  * Update a task's state in AppState.
  * Helper function for task implementations.
@@ -50,6 +93,7 @@ export function updateTaskState<T extends TaskState>(
   setAppState: SetAppState,
   updater: (task: T) => T,
 ): void {
+  let patch: TaskStatePatch | null = null
   setAppState(prev => {
     const task = prev.tasks?.[taskId] as T | undefined
     if (!task) {
@@ -61,6 +105,7 @@ export function updateTaskState<T extends TaskState>(
       // spread so s.tasks subscribers don't re-render on unchanged state.
       return prev
     }
+    patch = diffTaskState(task, updated)
     return {
       ...prev,
       tasks: {
@@ -69,6 +114,14 @@ export function updateTaskState<T extends TaskState>(
       },
     }
   })
+  if (patch !== null) {
+    enqueueSdkEvent({
+      type: 'system',
+      subtype: 'task_updated',
+      task_id: taskId,
+      patch,
+    })
+  }
 }
 
 /**

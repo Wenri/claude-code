@@ -170,6 +170,25 @@ function markClassifierApiFailure(
   )
 }
 
+function markClassifierTurnAborted(
+  toolUseContext: ToolUseContext,
+  querySource: QuerySource,
+): void {
+  if (
+    !jobClassifier ||
+    !classifierJobState ||
+    !isBgSession() ||
+    !querySource.startsWith('repl_main_thread') ||
+    toolUseContext.agentId
+  ) {
+    return
+  }
+  jobClassifier.markTurnAborted(
+    classifierJobState,
+    getSessionId().slice(0, 8),
+  )
+}
+
 function* yieldMissingToolResultBlocks(
   assistantMessages: AssistantMessage[],
   errorMessage: string,
@@ -1125,6 +1144,7 @@ async function* queryLoop(
           toolUse: false,
         })
       }
+      markClassifierTurnAborted(toolUseContext, querySource)
       return { reason: 'aborted_streaming' }
     }
 
@@ -1616,11 +1636,13 @@ async function* queryLoop(
           turnCount: nextTurnCountOnAbort,
         })
       }
+      markClassifierTurnAborted(toolUseContext, querySource)
       return { reason: 'aborted_tools' }
     }
 
     // If a hook indicated to prevent continuation, stop here
     if (shouldPreventContinuation) {
+      markClassifierTurnAborted(toolUseContext, querySource)
       return { reason: 'hook_stopped' }
     }
 
@@ -1730,6 +1752,7 @@ async function* queryLoop(
         ) {
           yield createUserInterruptionMessage({ toolUse: false })
         }
+        markClassifierTurnAborted(updatedToolUseContext, querySource)
         return { reason: 'aborted_tools' }
       }
 
@@ -1742,6 +1765,7 @@ async function* queryLoop(
           toolUseID: hookBatchId,
           hookEvent: 'PostToolBatch',
         })
+        markClassifierTurnAborted(updatedToolUseContext, querySource)
         return { reason: 'hook_stopped' }
       }
     }

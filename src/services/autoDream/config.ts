@@ -3,7 +3,26 @@
 // agent / task registry / message builder chain that autoDream.ts pulls in.
 
 import { getInitialSettings } from '../../utils/settings/settings.js'
+import { isTeamMemoryActiveForCwd } from '../../memdir/teamMemPaths.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../analytics/growthbook.js'
+
+type AutoDreamFeatureConfig = {
+  enabled?: unknown
+  available?: unknown
+}
+
+function getAutoDreamFeatureConfig(): AutoDreamFeatureConfig | null {
+  return getFeatureValue_CACHED_MAY_BE_STALE<AutoDreamFeatureConfig | null>(
+    'tengu_onyx_plover',
+    null,
+  )
+}
+
+export function isAutoDreamAvailable(): boolean {
+  const config = getAutoDreamFeatureConfig()
+  if (config?.enabled === true || config?.available === true) return true
+  return isTeamMemoryActiveForCwd()
+}
 
 /**
  * Whether background memory consolidation should run. User setting
@@ -11,11 +30,9 @@ import { getFeatureValue_CACHED_MAY_BE_STALE } from '../analytics/growthbook.js'
  * when explicitly set; otherwise falls through to tengu_onyx_plover.
  */
 export function isAutoDreamEnabled(): boolean {
+  if (!isAutoDreamAvailable()) return false
   const setting = getInitialSettings().autoDreamEnabled
   if (setting !== undefined) return setting
-  const gb = getFeatureValue_CACHED_MAY_BE_STALE<{ enabled?: unknown } | null>(
-    'tengu_onyx_plover',
-    null,
-  )
-  return gb?.enabled === true
+  if (getAutoDreamFeatureConfig()?.enabled === true) return true
+  return isTeamMemoryActiveForCwd()
 }

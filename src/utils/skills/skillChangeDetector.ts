@@ -17,6 +17,7 @@ import {
 import { resetSentSkillNames } from '../attachments.js'
 import { registerCleanup } from '../cleanupRegistry.js'
 import { logForDebugging } from '../debug.js'
+import { errorMessage } from '../errors.js'
 import { getFsImplementation } from '../fsOperations.js'
 import { executeConfigChangeHooks, hasBlockingResult } from '../hooks.js'
 import { createSignal } from '../signal.js'
@@ -133,6 +134,11 @@ export async function initialize(): Promise<void> {
   watcher.on('add', handleChange)
   watcher.on('change', handleChange)
   watcher.on('unlink', handleChange)
+  watcher.on('error', error =>
+    logForDebugging(`[skills] watcher error: ${errorMessage(error)}`, {
+      level: 'warn',
+    }),
+  )
 
   // Register cleanup to properly dispose of the file watcher during graceful shutdown
   unregisterCleanup = registerCleanup(async () => {

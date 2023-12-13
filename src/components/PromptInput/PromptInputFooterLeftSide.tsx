@@ -27,6 +27,7 @@ import { useAppState, useAppStateStore } from 'src/state/AppState.js';
 import { getIsRemoteMode } from '../../bootstrap/state.js';
 import HistorySearchInput from './HistorySearchInput.js';
 import { usePrStatus } from '../../hooks/usePrStatus.js';
+import { useBgSessionPr } from '../../hooks/useBgSessionPr.js';
 import { KeyboardShortcutHint } from '../design-system/KeyboardShortcutHint.js';
 import { Byline } from '../design-system/Byline.js';
 import { useTerminalSize } from '../../hooks/useTerminalSize.js';
@@ -43,6 +44,9 @@ import { getPlatform } from '../../utils/platform.js';
 import { PrBadge } from '../PrBadge.js';
 import { isBgSession } from '../../utils/concurrentSessions.js';
 import { isFgLeftArrowAgentsAvailable } from '../../utils/agentsFleet.js';
+import { getCurrentWorktreeSession } from '../../utils/worktree.js';
+import { useSubagentStatusLine } from '../../hooks/useSubagentStatusLine.js';
+import { isForkSubagentEnabled } from '../../tools/AgentTool/forkSubagent.js';
 
 // Dead code elimination: conditional import for proactive mode
 /* eslint-disable @typescript-eslint/no-require-imports */
@@ -58,9 +62,11 @@ type Props = {
   };
   leftArrowPending: boolean;
   vimMode: VimMode | undefined;
+  hideVimModeIndicator: boolean;
   mode: PromptInputMode;
   toolPermissionContext: ToolPermissionContext;
   suppressHint: boolean;
+  isInputEmpty: boolean;
   isLoading: boolean;
   showMemoryTypeSelector?: boolean;
   tasksSelected: boolean;
@@ -134,9 +140,11 @@ export function PromptInputFooterLeftSide(t0) {
     exitMessage,
     leftArrowPending,
     vimMode,
+    hideVimModeIndicator,
     mode,
     toolPermissionContext,
     suppressHint,
+    isInputEmpty,
     isLoading,
     tasksSelected,
     teamsSelected,
@@ -150,16 +158,19 @@ export function PromptInputFooterLeftSide(t0) {
     historyFailedMatch,
     onOpenTasksDialog
   } = t0;
+  useSubagentStatusLine();
+  const appStateStore = useAppStateStore();
   if (exitMessage.show) {
-    let t1;
-    if ($[0] !== exitMessage.key) {
-      t1 = <Text dimColor={true} key="exit-message">Press {exitMessage.key} again to exit</Text>;
-      $[0] = exitMessage.key;
-      $[1] = t1;
-    } else {
-      t1 = $[1];
-    }
-    return t1;
+    const canDetach =
+      isBgSession() &&
+      getCurrentWorktreeSession() === null &&
+      count(Object.values(appStateStore.getState().tasks), isBackgroundTask) > 0;
+    const exitAction = !isBgSession()
+      ? 'exit'
+      : canDetach
+        ? 'detach (session keeps running)'
+        : 'stop session';
+    return <Text dimColor={true} key="exit-message">Press {exitMessage.key} again to {exitAction}</Text>;
   }
   if (isPasting) {
     let t1;
@@ -174,16 +185,11 @@ export function PromptInputFooterLeftSide(t0) {
   if (showExpandPasteHint && !isSearching) {
     return <Text dimColor={true} key="expand-paste-hint">paste again to expand</Text>;
   }
-  let t1;
-  if ($[3] !== isSearching || $[4] !== vimMode) {
-    t1 = isVimModeEnabled() && vimMode !== "NORMAL" && !isSearching;
-    $[3] = isSearching;
-    $[4] = vimMode;
-    $[5] = t1;
-  } else {
-    t1 = $[5];
-  }
-  const showVim = t1;
+  const showVim =
+    isVimModeEnabled() &&
+    !hideVimModeIndicator &&
+    vimMode !== "NORMAL" &&
+    !isSearching;
   let t2;
   if ($[6] !== historyFailedMatch || $[7] !== historyQuery || $[8] !== isSearching || $[9] !== setHistoryQuery) {
     t2 = isSearching && <HistorySearchInput value={historyQuery} onChange={setHistoryQuery} historyFailedMatch={historyFailedMatch} />;
@@ -198,8 +204,8 @@ export function PromptInputFooterLeftSide(t0) {
   const t3 = showVim ? <Text dimColor={true} key="vim-indicator">-- {vimMode} --</Text> : null;
   const t4 = !suppressHint && !showVim;
   let t5;
-  if ($[13] !== isLoading || $[14] !== mode || $[15] !== onOpenTasksDialog || $[16] !== t4 || $[17] !== tasksSelected || $[18] !== teammateFooterIndex || $[19] !== teamsSelected || $[20] !== tmuxSelected || $[21] !== toolPermissionContext || $[27] !== leftArrowPending || $[28] !== suppressHint) {
-    t5 = <ModeIndicator mode={mode} toolPermissionContext={toolPermissionContext} showHint={t4} isInputEmpty={!suppressHint} isLoading={isLoading} leftArrowPending={leftArrowPending} tasksSelected={tasksSelected} teamsSelected={teamsSelected} teammateFooterIndex={teammateFooterIndex} tmuxSelected={tmuxSelected} onOpenTasksDialog={onOpenTasksDialog} />;
+  if ($[13] !== isLoading || $[14] !== mode || $[15] !== onOpenTasksDialog || $[16] !== t4 || $[17] !== tasksSelected || $[18] !== teammateFooterIndex || $[19] !== teamsSelected || $[20] !== tmuxSelected || $[21] !== toolPermissionContext || $[27] !== leftArrowPending || $[28] !== isInputEmpty) {
+    t5 = <ModeIndicator mode={mode} toolPermissionContext={toolPermissionContext} showHint={t4} isInputEmpty={isInputEmpty} isLoading={isLoading} leftArrowPending={leftArrowPending} tasksSelected={tasksSelected} teamsSelected={teamsSelected} teammateFooterIndex={teammateFooterIndex} tmuxSelected={tmuxSelected} onOpenTasksDialog={onOpenTasksDialog} />;
     $[13] = isLoading;
     $[14] = mode;
     $[15] = onOpenTasksDialog;
@@ -210,7 +216,7 @@ export function PromptInputFooterLeftSide(t0) {
     $[20] = tmuxSelected;
     $[21] = toolPermissionContext;
     $[27] = leftArrowPending;
-    $[28] = suppressHint;
+    $[28] = isInputEmpty;
     $[22] = t5;
   } else {
     t5 = $[22];
@@ -258,7 +264,8 @@ function ModeIndicator({
   } = useTerminalSize();
   const modeCycleShortcut = useShortcutDisplay('chat:cycleMode', 'Chat', 'shift+tab');
   const tasks = useAppState(s => s.tasks);
-  const teamContext = useAppState(s_0 => s_0.teamContext);
+  const taskDecorations = useAppState(s_0 => s_0.taskDecorations);
+  const teamContext = useAppState(s_1 => s_1.teamContext);
   // Set once in initialState (main.tsx --remote mode) and never mutated — lazy
   // init captures the immutable value without a subscription.
   const store = useAppStateStore();
@@ -268,6 +275,7 @@ function ModeIndicator({
   const expandedView = useAppState(s_3 => s_3.expandedView);
   const showSpinnerTree = expandedView === 'teammates';
   const prStatus = usePrStatus(isLoading, isPrStatusEnabled());
+  const bgSessionPr = useBgSessionPr();
   const hasTmuxSession = useAppState(s_4 => "external" === 'ant' && s_4.tungstenActiveSession !== undefined);
   const nextTickAt = useSyncExternalStore(proactiveModule?.subscribeToProactiveChanges ?? NO_OP_SUBSCRIBE, proactiveModule?.getNextTickAt ?? NULL, NULL);
   // biome-ignore lint/correctness/useHookAtTopLevel: feature() is a compile-time constant
@@ -282,7 +290,7 @@ function ModeIndicator({
   const selGetState = useSelection().getState;
   const hasNextTick = nextTickAt !== null;
   const isCoordinator = feature('COORDINATOR_MODE') ? coordinatorModule?.isCoordinatorMode() === true : false;
-  const runningTaskCount = useMemo(() => count(Object.values(tasks), t => isBackgroundTask(t) && !("external" === 'ant' && isPanelAgentTask(t))), [tasks]);
+  const runningTaskCount = useMemo(() => count(Object.values(tasks), t => isBackgroundTask(t) && !(isForkSubagentEnabled() && isPanelAgentTask(t))), [tasks]);
   const tasksV2 = useTasksV2();
   const hasTaskItems = tasksV2 !== undefined && tasksV2.length > 0;
   const escShortcut = useShortcutDisplay('chat:cancel', 'Chat', 'esc').toLowerCase();
@@ -323,7 +331,7 @@ function ModeIndicator({
   // In-process mode uses Shift+Down/Up navigation, not footer teams menu
   const hasTeams = isAgentSwarmsEnabled() && !isInProcessEnabled() && teamContext !== undefined && count(Object.values(teamContext.teammates), t_0 => t_0.name !== 'team-lead') > 0;
   if (mode === 'bash') {
-    return <Text color="bashBorder">! for bash mode</Text>;
+    return <Text color="bashBorder">! for shell mode</Text>;
   }
   const currentMode = toolPermissionContext?.mode;
   const hasActiveMode = !isDefaultMode(currentMode);
@@ -339,10 +347,10 @@ function ModeIndicator({
   // >=100 threshold was tuned for. Now that auto mode is effectively the
   // baseline, primaryItemCount is ≥1 for most sessions; keep the threshold
   // low enough to show PR status on standard 80-col terminals.
-  const shouldShowPrStatus = isPrStatusEnabled() && prStatus.number !== null && prStatus.reviewState !== null && prStatus.url !== null && primaryItemCount < 2 && (primaryItemCount === 0 || columns >= 80);
+  const prBadge = isPrStatusEnabled() && prStatus.number !== null && prStatus.reviewState !== null && prStatus.url !== null ? <PrBadge key="pr-status" number={prStatus.number} url={prStatus.url} reviewState={prStatus.reviewState} /> : bgSessionPr ? <PrBadge key="pr-status" number={bgSessionPr.number} url={bgSessionPr.url} /> : null;
 
   // Hide the shift+tab hint when there are 2 primary items
-  const shouldShowModeHint = primaryItemCount < 2;
+  const shouldShowModeHint = primaryItemCount < 2 && !(prBadge && columns < 60);
 
   // Check if we have in-process teammates (showing pills)
   // In spinner-tree mode, pills are disabled - teammates appear in the spinner tree instead
@@ -373,7 +381,7 @@ function ModeIndicator({
   // its click-target Box isn't nested inside the <Text wrap="truncate">
   // wrapper (reconciler throws on Box-in-Text).
   // Tmux pill (ant-only) — appears right after tasks in nav order
-  ...("external" === 'ant' && hasTmuxSession ? [<TungstenPill key="tmux" selected={tmuxSelected} />] : []), ...(isAgentSwarmsEnabled() && hasTeams ? [<TeamStatus key="teams" teamsSelected={teamsSelected} showHint={showHint && !hasBackgroundTasks} />] : []), ...(shouldShowPrStatus ? [<PrBadge key="pr-status" number={prStatus.number!} url={prStatus.url!} reviewState={prStatus.reviewState!} />] : [])];
+  ...("external" === 'ant' && hasTmuxSession ? [<TungstenPill key="tmux" selected={tmuxSelected} />] : []), ...(isAgentSwarmsEnabled() && hasTeams ? [<TeamStatus key="teams" teamsSelected={teamsSelected} showHint={showHint && !hasBackgroundTasks} />] : []), ...(prBadge ? [prBadge] : [])];
 
   // Check if any in-process teammates exist (for hint text cycling)
   const hasAnyInProcessTeammates = Object.values(tasks).some(t_2 => t_2.type === 'in_process_teammate' && t_2.status === 'running');
@@ -407,7 +415,7 @@ function ModeIndicator({
   }
 
   // Add "↓ to manage tasks" hint when panel has visible rows
-  const hasCoordinatorTasks = "external" === 'ant' && getVisibleAgentTasks(tasks).length > 0;
+  const hasCoordinatorTasks = isForkSubagentEnabled() && getVisibleAgentTasks(tasks, taskDecorations).length > 0;
 
   // Tasks pill renders as a Box sibling (not a parts entry) so its
   // click-target Box isn't nested inside <Text wrap="truncate"> — the

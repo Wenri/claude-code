@@ -151,6 +151,8 @@ type Props = {
 // position tolerance allows for trackpad jitter between clicks.
 const MULTI_CLICK_TIMEOUT_MS = 500;
 const MULTI_CLICK_DISTANCE = 1;
+const ARROW_BURST_WINDOW_MS = 100;
+const ARROW_BURST_THRESHOLD = 8;
 type State = {
   readonly error?: Error;
 };
@@ -206,6 +208,8 @@ export default class App extends PureComponent<Props, State> {
   // ssh reconnect, laptop wake) and trigger terminal mode re-assert.
   // Initialized to now so startup doesn't false-trigger.
   lastStdinTime = Date.now();
+  arrowWindow: Array<{ t: number; n: number }> = [];
+  arrowWindowDir = '';
 
   // Determines if TTY is supported on the provided stdin
   isRawModeSupported(): boolean {
@@ -506,6 +510,7 @@ function processKeysInBatch(app: App, items: ParsedInput[], _unused1: undefined,
   if (items.some(i => i.kind === 'key' || i.kind === 'mouse' && !((i.button & 0x20) !== 0 && (i.button & 0x03) === 3))) {
     updateLastInteractionTime();
   }
+  detectArrowBurst(app, items);
   for (const item of items) {
     // Terminal responses (DECRPM, DA1, OSC replies, etc.) are not user
     // input — route them to the querier to resolve pending promises.
@@ -577,6 +582,35 @@ function processKeysInBatch(app: App, items: ParsedInput[], _unused1: undefined,
       // Also dispatch through the DOM tree so onKeyDown handlers fire.
       app.props.dispatchKeyboardEvent(item);
     }
+  }
+}
+
+function detectArrowBurst(app: App, items: ParsedInput[]): void {
+  const first = items[0];
+  if (first?.kind !== 'key' || first.name !== 'up' && first.name !== 'down' || first.ctrl || first.meta || first.shift || first.isPasted || !items.every(item => item.kind === 'key' && item.name === first.name && !item.ctrl && !item.meta && !item.shift)) {
+    app.arrowWindow.length = 0;
+    return;
+  }
+
+  if (app.arrowWindowDir !== first.name) {
+    app.arrowWindow.length = 0;
+    app.arrowWindowDir = first.name;
+  }
+
+  const now = performance.now();
+  const window = app.arrowWindow;
+  window.push({ t: now, n: items.length });
+  while (window.length > 0 && now - window[0]!.t > ARROW_BURST_WINDOW_MS) {
+    window.shift();
+  }
+  let count = 0;
+  for (const entry of window) count += entry.n;
+  if (count >= ARROW_BURST_THRESHOLD) {
+    app.internal_eventEmitter.emit('arrow-burst', {
+      direction: first.name,
+      count,
+    });
+    window.length = 0;
   }
 }
 

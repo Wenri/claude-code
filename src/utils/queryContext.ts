@@ -77,7 +77,10 @@ export async function fetchSystemPromptParts({
     getUserContext(),
     customSystemPrompt !== undefined ? Promise.resolve({}) : getSystemContext(),
     excludeDynamicSections && customSystemPrompt === undefined
-      ? getExcludedDynamicSectionsContent(additionalWorkingDirectories)
+      ? getExcludedDynamicSectionsContent(
+          mainLoopModel,
+          additionalWorkingDirectories,
+        )
       : Promise.resolve({}),
   ])
   if (excludeDynamicSections && customSystemPrompt === undefined) {

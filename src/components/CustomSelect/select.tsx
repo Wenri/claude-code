@@ -11,6 +11,7 @@ import { SelectInputOption } from './select-input-option.js';
 import { SelectOption } from './select-option.js';
 import { useSelectInput } from './use-select-input.js';
 import { useSelectState } from './use-select-state.js';
+import { useVisibleOptionCount } from './use-visible-option-count.js';
 
 // Extract text content from ReactNode for width calculation
 function getTextContent(node: ReactNode): string {
@@ -215,10 +216,19 @@ export function Select(t0) {
   } = t0;
   const isDisabled = t1 === undefined ? false : t1;
   const hideIndexes = t2 === undefined ? false : t2;
-  const visibleOptionCount = t3 === undefined ? 5 : t3;
+  const requestedVisibleOptionCount = t3 === undefined ? 5 : t3;
   const layout = t4 === undefined ? "compact" : t4;
   const disableSelection = t5 === undefined ? false : t5;
   const inlineDescriptions = t6 === undefined ? false : t6;
+  const usesVerticalCompactLayout =
+    layout === 'compact' &&
+    !inlineDescriptions &&
+    !options.some(option => option.type === 'input') &&
+    options.some(option => option.description);
+  const visibleOptionCount = useVisibleOptionCount(
+    requestedVisibleOptionCount,
+    usesVerticalCompactLayout ? 'compact-vertical' : layout
+  );
   const [imagesSelected, setImagesSelected] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   let t7;

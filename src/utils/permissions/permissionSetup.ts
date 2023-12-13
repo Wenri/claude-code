@@ -62,6 +62,7 @@ import { logForDebugging } from '../debug.js'
 import { gracefulShutdown } from '../gracefulShutdown.js'
 import { getMainLoopModel } from '../model/model.js'
 import { getPlatform } from '../platform.js'
+import { isBashToolEnabled } from '../shell/shellToolUtils.js'
 import {
   CROSS_PLATFORM_CODE_EXEC,
   DANGEROUS_BASH_PATTERNS,
@@ -996,6 +997,7 @@ export async function initializeToolPermissionContext({
     rulesFromDisk.some(rule => rule.ruleValue.toolName === POWERSHELL_TOOL_NAME)
   if (
     getPlatform() === 'windows' &&
+    isBashToolEnabled() &&
     bashIsDenied &&
     !powerShellWasExplicitlyConfigured
   ) {

@@ -223,7 +223,7 @@ export function createBridgeApiClient(deps: BridgeApiDeps): BridgeApiClient {
         },
       )
 
-      handleErrorStatus(response.status, response.data, 'Poll')
+      handleErrorStatus(response.status, response.data, 'Poll', response.headers)
 
       // Empty body or null = no work available
       if (!response.data) {
@@ -455,6 +455,7 @@ function handleErrorStatus(
   status: number,
   data: unknown,
   context: string,
+  headers?: unknown,
 ): void {
   if (status === 200 || status === 204) {
     return
@@ -490,13 +491,45 @@ function handleErrorStatus(
         410,
         errorType ?? 'environment_expired',
       )
-    case 429:
-      throw new Error(`${context}: Rate limited (429). Polling too frequently.`)
+    case 429: {
+      const retryAfterHeader =
+        headers &&
+        typeof headers === 'object' &&
+        'retry-after' in headers &&
+        typeof headers['retry-after'] === 'string'
+          ? headers['retry-after']
+          : undefined
+      const retryAfterMs = parseRetryAfter(retryAfterHeader)
+      throw Object.assign(
+        new Error(`${context}: Rate limited (429). Polling too frequently.`),
+        retryAfterMs === undefined
+          ? { status }
+          : { status, retryAfterMs },
+      )
+    }
     default:
-      throw new Error(
-        `${context}: Failed with status ${status}${detail ? `: ${detail}` : ''}`,
+      throw Object.assign(
+        new Error(
+          `${context}: Failed with status ${status}${detail ? `: ${detail}` : ''}`,
+        ),
+        { status },
       )
   }
+}
+
+export function parseRetryAfter(
+  value: string | undefined,
+  now = Date.now(),
+): number | undefined {
+  if (!value) return undefined
+  const seconds = Number(value)
+  if (Number.isFinite(seconds) && seconds >= 0) return seconds * 1000
+  const date = Date.parse(value)
+  if (Number.isFinite(date)) {
+    const delay = date - now
+    return delay > 0 ? delay : undefined
+  }
+  return undefined
 }
 
 /** Check whether an error type string indicates a session/environment expiry. */

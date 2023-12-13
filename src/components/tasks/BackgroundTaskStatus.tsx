@@ -12,6 +12,7 @@ import { type BackgroundTaskState, isBackgroundTask, type TaskState } from 'src/
 import { calculateHorizontalScrollWindow } from 'src/utils/horizontalScroll.js';
 import { Box, Text } from '../../ink.js';
 import { AGENT_COLOR_TO_THEME_COLOR, AGENT_COLORS, type AgentColorName } from '../../tools/AgentTool/agentColorManager.js';
+import { isForkSubagentEnabled } from '../../tools/AgentTool/forkSubagent.js';
 import type { Theme } from '../../utils/theme.js';
 import { KeyboardShortcutHint } from '../design-system/KeyboardShortcutHint.js';
 import { shouldHideTasksFooter } from './taskStatusUtils.js';
@@ -269,7 +270,7 @@ function _temp4(s_1) {
   return s_1.expandedView;
 }
 function _temp3(t) {
-  return isBackgroundTask(t) && !(false && isPanelAgentTask(t));
+  return isBackgroundTask(t) && !(isForkSubagentEnabled() && isPanelAgentTask(t));
 }
 function _temp2(s_0) {
   return s_0.viewingAgentTaskId;

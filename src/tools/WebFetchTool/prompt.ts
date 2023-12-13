@@ -1,3 +1,5 @@
+import { isLeanPromptEnabled } from '../../utils/leanPrompt.js'
+
 export const WEB_FETCH_TOOL_NAME = 'WebFetch'
 
 export const DESCRIPTION = `
@@ -19,6 +21,18 @@ Usage notes:
   - When a URL redirects to a different host, the tool will inform you and provide the redirect URL in a special format. You should then make a new WebFetch request with the redirect URL to fetch the content.
   - For GitHub URLs, prefer using the gh CLI via Bash instead (e.g., gh pr view, gh issue view, gh api).
 `
+
+export function getWebFetchPrompt(model?: string): string {
+  if (isLeanPromptEnabled(model)) {
+    return `Fetches a URL, converts the page to markdown, and answers \`prompt\` against it using a small fast model.
+
+- Fails on authenticated/private URLs — use an authenticated MCP tool or \`gh\` for those instead.
+- HTTP is upgraded to HTTPS. Cross-host redirects are returned to you rather than followed; call again with the redirect URL.
+- Responses are cached for 15 minutes per URL.`
+  }
+  return `IMPORTANT: WebFetch WILL FAIL for authenticated or private URLs. Before using this tool, check if the URL points to an authenticated service (e.g. Google Docs, Confluence, Jira, GitHub). If so, look for a specialized MCP tool that provides authenticated access.
+${DESCRIPTION}`
+}
 
 export function makeSecondaryModelPrompt(
   markdownContent: string,

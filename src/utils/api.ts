@@ -4,7 +4,10 @@ import type {
   BetaToolUnion,
 } from '@anthropic-ai/sdk/resources/beta/messages/messages.mjs'
 import { createHash } from 'crypto'
-import { SYSTEM_PROMPT_DYNAMIC_BOUNDARY } from 'src/constants/prompts.js'
+import {
+  isSimpleSystemPrompt,
+  SYSTEM_PROMPT_DYNAMIC_BOUNDARY,
+} from 'src/constants/prompts.js'
 import { getSystemContext, getUserContext } from 'src/context.js'
 import { isAnalyticsDisabled } from 'src/services/analytics/config.js'
 import {
@@ -43,6 +46,7 @@ import {
 import { getCwd } from './cwd.js'
 import { logForDebugging } from './debug.js'
 import { isEnvTruthy } from './envUtils.js'
+import { isLeanPromptEnabled } from './leanPrompt.js'
 import { createUserMessage } from './messages.js'
 import {
   getAPIProvider,
@@ -116,6 +120,22 @@ function filterSwarmFieldsFromSchema(
   return filtered
 }
 
+async function getToolPrompt(
+  tool: Tool,
+  options: {
+    getToolPermissionContext: () => Promise<ToolPermissionContext>
+    tools: Tools
+    agents: AgentDefinition[]
+    allowedAgentTypes?: string[]
+    model?: string
+  },
+): Promise<string> {
+  if (!isSimpleSystemPrompt()) return tool.prompt(options)
+  if (tool.searchHint) return tool.searchHint
+  const prompt = await tool.prompt(options)
+  return prompt.split('\n\n', 1)[0]?.trim() || prompt
+}
+
 export async function toolToAPISchema(
   tool: Tool,
   options: {
@@ -144,10 +164,11 @@ export async function toolToAPISchema(
   // call — name-only keying returned a stale schema (5.4% → 51% err rate, see
   // PR#25424). MCP tools also set inputJSONSchema but each has a stable schema,
   // so including it preserves their GB-flip cache stability.
-  const cacheKey =
+  const cacheKey = `${isLeanPromptEnabled(options.model) ? 'L:' : ''}${
     'inputJSONSchema' in tool && tool.inputJSONSchema
       ? `${tool.name}:${jsonStringify(tool.inputJSONSchema)}`
       : tool.name
+  }`
   const cache = getToolSchemaCache()
   let base = cache.get(cacheKey)
   if (!base) {
@@ -168,11 +189,12 @@ export async function toolToAPISchema(
 
     base = {
       name: tool.name,
-      description: await tool.prompt({
+      description: await getToolPrompt(tool, {
         getToolPermissionContext: options.getToolPermissionContext,
         tools: options.tools,
         agents: options.agents,
         allowedAgentTypes: options.allowedAgentTypes,
+        model: options.model,
       }),
       input_schema,
     }

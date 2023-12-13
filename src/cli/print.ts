@@ -15,6 +15,8 @@ import {
   getCommandName,
 } from 'src/commands.js'
 import { launchUltrareview } from 'src/commands/review/reviewRemote.js'
+import { getFeedbackUnavailableReason } from 'src/commands/feedback/feedback.js'
+import { submitFeedbackReport } from 'src/components/Feedback.js'
 import { createStreamlinedTransformer } from 'src/utils/streamlinedTransform.js'
 import { installStreamJsonStdoutGuard } from 'src/utils/streamJsonStdoutGuard.js'
 import type { ToolPermissionContext } from 'src/Tool.js'
@@ -2063,6 +2065,7 @@ function runHeadlessStreaming(
     try {
       let command: QueuedCommand | undefined
       let waitingForAgents = false
+      let shouldPrewaitForMcp = true
 
       // Extract command processing into a named function for the do-while pattern.
       // Drains the queue, batching consecutive prompt-mode commands into one
@@ -2119,6 +2122,11 @@ function runHeadlessStreaming(
                 } satisfies SDKUserMessageReplay)
               }
             }
+          }
+
+          if (shouldPrewaitForMcp) {
+            shouldPrewaitForMcp = false
+            await prewaitForHeadlessMcp(getAppState)
           }
 
           // Combine all MCP clients. appState.mcp is populated incrementally
@@ -4009,6 +4017,39 @@ function runHeadlessStreaming(
               sendControlResponseError(message, errorMessage(e))
             }
           })()
+        } else if (message.request.subtype === 'submit_feedback') {
+          const { description, surface } = message.request
+          void (async () => {
+            try {
+              const unavailableReason = getFeedbackUnavailableReason()
+              if (unavailableReason) {
+                sendControlResponseSuccess(message, {
+                  feedback_id: null,
+                  unavailable_reason: unavailableReason,
+                })
+                return
+              }
+              const result = await submitFeedbackReport({
+                messages: mutableMessages,
+                description,
+                surface: surface ?? 'sdk',
+              })
+              if (result.success) {
+                sendControlResponseSuccess(message, {
+                  feedback_id: result.feedbackId,
+                })
+              } else {
+                sendControlResponseSuccess(message, {
+                  feedback_id: null,
+                  is_zdr_org: result.isZdrOrg,
+                  failure_reason: result.failureReason,
+                  status_code: result.statusCode,
+                })
+              }
+            } catch (error) {
+              sendControlResponseError(message, errorMessage(error))
+            }
+          })()
         } else if (message.request.subtype === 'side_question') {
           // Same fire-and-forget pattern as generate_session_title above —
           // the forked agent's API roundtrip must not block the stdin loop.
@@ -4434,6 +4475,45 @@ function runHeadlessStreaming(
   })()
 
   return output
+}
+
+async function prewaitForHeadlessMcp(
+  getState: () => AppState,
+  timeoutMs = 2000,
+): Promise<void> {
+  const localOnly = process.env.CLAUDE_CODE_ENTRYPOINT === 'remote_baku'
+  const shouldWait = (connection: MCPServerConnection) =>
+    connection.type === 'pending' &&
+    (!localOnly || isLocalMcpServer(connection.config))
+  const initial = getState().mcp
+  const pendingBefore = initial.clients.filter(
+    connection => connection.type === 'pending',
+  ).length
+  const pendingWaitedBefore = initial.clients.filter(shouldWait).length
+  const toolsBefore = initial.tools.length
+  if (pendingWaitedBefore === 0) return
+
+  const startedAt = Date.now()
+  const deadline = startedAt + timeoutMs
+  while (Date.now() < deadline) {
+    if (!getState().mcp.clients.some(shouldWait)) break
+    await sleep(50)
+  }
+
+  const current = getState().mcp
+  logEvent('tengu_headless_mcp_prewait', {
+    localOnly,
+    pendingBefore,
+    pendingWaitedBefore,
+    toolsBefore,
+    waitedMs: Date.now() - startedAt,
+    pendingAfter: current.clients.filter(
+      connection => connection.type === 'pending',
+    ).length,
+    pendingWaitedAfter: current.clients.filter(shouldWait).length,
+    toolsAfter: current.tools.length,
+    mcpNonBlocking: isEnvTruthy(process.env.MCP_CONNECTION_NONBLOCKING),
+  })
 }
 
 /**

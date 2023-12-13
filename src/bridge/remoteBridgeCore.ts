@@ -63,6 +63,7 @@ import { logForDiagnosticsNoPII } from '../utils/diagLogs.js'
 import { isInProtectedNamespace } from '../utils/envUtils.js'
 import { errorMessage } from '../utils/errors.js'
 import { sleep } from '../utils/sleep.js'
+import { truncate } from '../utils/truncate.js'
 import { registerCleanup } from '../utils/cleanupRegistry.js'
 import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -1088,22 +1089,55 @@ export async function initEnvLessBridgeCore(
             false,
           )
         ) {
+          const isShellTool =
+            request.request.tool_name === 'Bash' ||
+            request.request.tool_name === 'PowerShell'
+          let interactionDescription:
+            | { label: string; body: string }
+            | undefined
+          if (request.request.tool_name === 'AskUserQuestion') {
+            const questions = Array.isArray(request.request.input?.questions)
+              ? request.request.input.questions
+              : []
+            const first = questions[0] as
+              | { header?: string; question?: string }
+              | undefined
+            const summary = first?.header || first?.question
+            interactionDescription = {
+              label: 'Question',
+              body: summary
+                ? summary +
+                  (questions.length > 1
+                    ? ` (+${questions.length - 1} more)`
+                    : '')
+                : 'Tap to answer',
+            }
+          } else if (request.request.tool_name === 'ExitPlanMode') {
+            interactionDescription = {
+              label: 'Plan',
+              body: 'Plan ready for review',
+            }
+          }
           const command = request.request.input?.command
+          const rawCommand =
+            isShellTool && typeof command === 'string' ? command : undefined
+          const inputDescription = request.request.input?.description
           details = {
-            tool_name:
-              request.request.display_name || request.request.tool_name,
-            action_description:
-              request.request.description ||
-              request.request.display_name ||
+            tool_name: request.request.tool_name,
+            display_tool_name:
+              interactionDescription?.label ??
+              request.request.display_name ??
               request.request.tool_name,
-            raw_command:
-              (request.request.tool_name === 'Bash' ||
-                request.request.tool_name === 'PowerShell') &&
-              typeof command === 'string'
-                ? command
-                : undefined,
+            action_description:
+              interactionDescription?.body ??
+              (request.request.description ||
+                (isShellTool && typeof inputDescription === 'string'
+                  ? inputDescription
+                  : undefined) ||
+                (rawCommand ? truncate(rawCommand, 120) : '')),
+            raw_command: interactionDescription ? undefined : rawCommand,
             tool_use_id: request.request.tool_use_id,
-            request_id: request.request_id,
+            request_id: interactionDescription ? '' : request.request_id,
             input: request.request.input,
           }
         }

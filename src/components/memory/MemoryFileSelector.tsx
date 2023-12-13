@@ -9,9 +9,10 @@ import { getOriginalCwd } from '../../bootstrap/state.js';
 import { useExitOnCtrlCDWithKeybindings } from '../../hooks/useExitOnCtrlCDWithKeybindings.js';
 import { Box, Text } from '../../ink.js';
 import { useKeybinding } from '../../keybindings/useKeybinding.js';
-import { getAutoMemPath, isAutoMemoryEnabled } from '../../memdir/paths.js';
+import { getAutoMemPath, isAutoMemoryEnabled, isAutoMemoryUnavailableForModel } from '../../memdir/paths.js';
+import { onGrowthBookRefresh } from '../../services/analytics/growthbook.js';
 import { logEvent } from '../../services/analytics/index.js';
-import { isAutoDreamEnabled } from '../../services/autoDream/config.js';
+import { isAutoDreamAvailable, isAutoDreamEnabled } from '../../services/autoDream/config.js';
 import { readLastConsolidatedAt } from '../../services/autoDream/consolidationLock.js';
 import { useAppState } from '../../state/AppState.js';
 import { getAgentMemoryDir } from '../../tools/AgentTool/agentMemory.js';
@@ -21,7 +22,7 @@ import { getClaudeConfigHomeDir } from '../../utils/envUtils.js';
 import { getDisplayPath } from '../../utils/file.js';
 import { formatRelativeTimeAgo } from '../../utils/format.js';
 import { projectIsInGitRepo } from '../../utils/memory/versions.js';
-import { updateSettingsForSource } from '../../utils/settings/settings.js';
+import { getInitialSettings, updateSettingsForSource } from '../../utils/settings/settings.js';
 import { Select } from '../CustomSelect/index.js';
 import { ListItem } from '../design-system/ListItem.js';
 
@@ -161,7 +162,26 @@ export function MemoryFileSelector(t0) {
   const initialPath = t1;
   const [autoMemoryOn, setAutoMemoryOn] = useState(isAutoMemoryEnabled);
   const [autoDreamOn, setAutoDreamOn] = useState(isAutoDreamEnabled);
-  const [showDreamRow] = useState(isAutoMemoryEnabled);
+  const [modelUnavailable, setModelUnavailable] = useState(isAutoMemoryUnavailableForModel);
+  useEffect(() => onGrowthBookRefresh(() => {
+    const nextUnavailable = isAutoMemoryUnavailableForModel();
+    if (nextUnavailable !== modelUnavailable) {
+      setModelUnavailable(nextUnavailable);
+      setAutoMemoryOn(isAutoMemoryEnabled());
+    }
+  }), [modelUnavailable]);
+  const [autoDreamAvailable, setAutoDreamAvailable] = useState(isAutoDreamAvailable);
+  useEffect(() => {
+    if (autoDreamAvailable) return;
+    return onGrowthBookRefresh(() => {
+      if (isAutoDreamAvailable()) {
+        setAutoDreamAvailable(true);
+        setAutoDreamOn(isAutoDreamEnabled());
+      }
+    });
+  }, [autoDreamAvailable]);
+  const autoMemoryUnavailable = modelUnavailable && !autoMemoryOn;
+  const showDreamRow = autoMemoryOn && autoDreamAvailable;
   const isDreamRunning = useAppState(_temp6);
   const [lastDreamAt, setLastDreamAt] = useState(null);
   let t2;
@@ -200,42 +220,30 @@ export function MemoryFileSelector(t0) {
   const [focusedToggle, setFocusedToggle] = useState(null);
   const toggleFocused = focusedToggle !== null;
   const lastToggleIndex = showDreamRow ? 1 : 0;
-  let t5;
-  if ($[12] !== autoMemoryOn) {
-    t5 = function handleToggleAutoMemory() {
-      const newValue = !autoMemoryOn;
-      updateSettingsForSource("userSettings", {
-        autoMemoryEnabled: newValue
-      });
-      setAutoMemoryOn(newValue);
-      logEvent("tengu_auto_memory_toggled", {
-        enabled: newValue
-      });
-    };
-    $[12] = autoMemoryOn;
-    $[13] = t5;
-  } else {
-    t5 = $[13];
+  function handleToggleAutoMemory() {
+    if (modelUnavailable) return;
+    const newValue = !autoMemoryOn;
+    updateSettingsForSource("userSettings", {
+      autoMemoryEnabled: newValue
+    });
+    setAutoMemoryOn(newValue);
+    logEvent("tengu_auto_memory_toggled", {
+      enabled: newValue
+    });
   }
-  const handleToggleAutoMemory = t5;
-  let t6;
-  if ($[14] !== autoDreamOn) {
-    t6 = function handleToggleAutoDream() {
-      const newValue_0 = !autoDreamOn;
-      updateSettingsForSource("userSettings", {
-        autoDreamEnabled: newValue_0
-      });
-      setAutoDreamOn(newValue_0);
-      logEvent("tengu_auto_dream_toggled", {
-        enabled: newValue_0
-      });
-    };
-    $[14] = autoDreamOn;
-    $[15] = t6;
-  } else {
-    t6 = $[15];
+  function handleToggleAutoDream() {
+    if (!showDreamRow) return;
+    const newValue = !autoDreamOn;
+    const isFirstEnable = newValue && getInitialSettings().autoDreamEnabled === undefined;
+    updateSettingsForSource("userSettings", {
+      autoDreamEnabled: newValue
+    });
+    setAutoDreamOn(newValue);
+    logEvent("tengu_auto_dream_toggled", {
+      enabled: newValue,
+      is_first_enable: isFirstEnable
+    });
   }
-  const handleToggleAutoDream = t6;
   useExitOnCtrlCDWithKeybindings();
   let t7;
   if ($[16] === Symbol.for("react.memo_cache_sentinel")) {
@@ -321,7 +329,7 @@ export function MemoryFileSelector(t0) {
   }
   useKeybinding("select:previous", t12, t13);
   const t14 = focusedToggle === 0;
-  const t15 = autoMemoryOn ? "on" : "off";
+  const t15 = autoMemoryUnavailable ? <Text dimColor={true}>unavailable for current model</Text> : autoMemoryOn ? "on" : "off";
   let t16;
   if ($[30] !== t15) {
     t16 = <Text>Auto-memory: {t15}</Text>;

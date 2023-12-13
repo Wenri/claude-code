@@ -704,7 +704,7 @@ export function getAssistantMessageFromError(
   ) {
     // Log to Statsig if we have the message context
     if (options?.messages && options?.messagesForAPI) {
-      const toolUseIdMatch = error.message.match(/toolu_[a-zA-Z0-9]+/)
+      const toolUseIdMatch = error.message.match(/toolu_[A-Za-z0-9_]+/)
       const toolUseId = toolUseIdMatch ? toolUseIdMatch[0] : null
       if (toolUseId) {
         logToolUseToolResultMismatch(

@@ -262,6 +262,7 @@ import { getClaudeConfigHomeDir } from '../../utils/envUtils.js'
 import { jsonParse, jsonStringify } from '../../utils/slowOperations.js'
 
 const MCP_AUTH_CACHE_TTL_MS = 15 * 60 * 1000 // 15 min
+const CLAUDE_AI_MCP_AUTH_CACHE_TTL_MS = 4 * 60 * 60 * 1000 // 4 hours
 
 type McpAuthCacheData = Record<string, { timestamp: number }>
 
@@ -284,13 +285,20 @@ function getMcpAuthCache(): Promise<McpAuthCacheData> {
   return authCachePromise
 }
 
-async function isMcpAuthCached(serverId: string): Promise<boolean> {
+async function isMcpAuthCached(
+  serverId: string,
+  transportType: ScopedMcpServerConfig['type'],
+): Promise<boolean> {
   const cache = await getMcpAuthCache()
   const entry = cache[serverId]
   if (!entry) {
     return false
   }
-  return Date.now() - entry.timestamp < MCP_AUTH_CACHE_TTL_MS
+  const ttl =
+    transportType === 'claudeai-proxy'
+      ? CLAUDE_AI_MCP_AUTH_CACHE_TTL_MS
+      : MCP_AUTH_CACHE_TTL_MS
+  return Date.now() - entry.timestamp < ttl
 }
 
 // Serialize cache writes through a promise chain to prevent concurrent
@@ -308,6 +316,20 @@ function setMcpAuthCacheEntry(serverId: string): void {
       // Invalidate the read cache so subsequent reads see the new entry.
       // Safe because writeChain serializes writes: the next write's
       // getMcpAuthCache() call will re-read the file with this entry present.
+      authCachePromise = null
+    })
+    .catch(() => {
+      // Best-effort cache write
+    })
+}
+
+function clearMcpAuthCacheEntry(serverId: string): void {
+  writeChain = writeChain
+    .then(async () => {
+      const cache = await getMcpAuthCache()
+      if (!(serverId in cache)) return
+      delete cache[serverId]
+      await writeFile(getMcpAuthCachePath(), jsonStringify(cache))
       authCachePromise = null
     })
     .catch(() => {
@@ -1373,16 +1395,6 @@ export const connectToServer = memoize(
           }
         }
 
-        if (transportType === 'stdio') {
-          closeTransportAndRejectPending(
-            `stdio transport error: ${error.name || 'Error'}`,
-          )
-          if (originalOnerror) {
-            originalOnerror(error)
-          }
-          return
-        }
-
         // For HTTP transports, detect session expiry (404 + JSON-RPC -32001)
         // and close the transport so pending tool calls reject and the next
         // call reconnects with a fresh session ID.
@@ -2357,6 +2369,8 @@ export async function reconnectMcpServerImpl(
       }
     }
 
+    clearMcpAuthCacheEntry(name)
+
     if (config.type === 'claudeai-proxy') {
       markClaudeAiMcpConnected(name)
     }
@@ -2506,7 +2520,7 @@ export async function getMcpToolsCommandsAndResources(
         (config.type === 'claudeai-proxy' ||
           config.type === 'http' ||
           config.type === 'sse') &&
-        ((await isMcpAuthCached(name)) ||
+        ((await isMcpAuthCached(name, config.type)) ||
           ((config.type === 'http' || config.type === 'sse') &&
             hasMcpDiscoveryButNoToken(name, config)))
       ) {
@@ -2532,6 +2546,8 @@ export async function getMcpToolsCommandsAndResources(
         })
         return
       }
+
+      clearMcpAuthCacheEntry(name)
 
       if (config.type === 'claudeai-proxy') {
         markClaudeAiMcpConnected(name)

@@ -30,6 +30,20 @@ import {
   SlashCommandSchema,
 } from './coreSchemas.js'
 
+const PERMISSION_DECISION_REASON_TYPES = [
+  'rule',
+  'mode',
+  'subcommandResults',
+  'permissionPromptTool',
+  'hook',
+  'asyncAgent',
+  'sandboxOverride',
+  'workingDir',
+  'safetyCheck',
+  'classifier',
+  'other',
+] as const
+
 // ============================================================================
 // External Type Placeholders
 // ============================================================================
@@ -131,6 +145,18 @@ export const SDKControlPermissionRequestSchema = lazySchema(() =>
       permission_suggestions: z.array(PermissionUpdateSchema()).optional(),
       blocked_path: z.string().optional(),
       decision_reason: z.string().optional(),
+      decision_reason_type: z
+        .enum(PERMISSION_DECISION_REASON_TYPES)
+        .optional()
+        .describe(
+          'Structured discriminator for why auto-mode escalated. Lets SDK hosts make policy (e.g. auto-deny safetyCheck) without parsing decision_reason text. For compound bash commands this is "subcommandResults" even when a safetyCheck is nested inside — check classifier_approvable for that case.',
+        ),
+      classifier_approvable: z
+        .boolean()
+        .optional()
+        .describe(
+          'Set when a safetyCheck is present anywhere in the decision reason (including nested inside subcommandResults for compound bash). false = at least one safety check requires manual approval (e.g. Windows path bypass, dangerous rm); true = all safety checks MAY be classifier-approved (e.g. sensitive-file paths). Absent when no safetyCheck is involved.',
+        ),
       title: z.string().optional(),
       display_name: z.string().optional(),
       tool_use_id: z.string(),
@@ -727,6 +753,42 @@ export const SDKControlOAuthTokenRefreshResponseSchema = lazySchema(() =>
     ),
 )
 
+export const SDKControlSubmitFeedbackRequestSchema = lazySchema(() =>
+  z
+    .object({
+      subtype: z.literal('submit_feedback'),
+      description: z.string(),
+      surface: z
+        .enum(['cli', 'ccd', 'ccw', 'sdk'])
+        .optional()
+        .describe(
+          "Where the feedback flow was initiated. Stamped into the POST body and tengu_bug_report_* analytics so the triage pipeline can distinguish CCD/CCW reports from terminal reports landing in the same claude_cli_feedback table. Defaults to 'sdk'.",
+        ),
+    })
+    .describe(
+      "@internal Submits a /feedback report (description + current session transcript + sanitized error log) to api.anthropic.com/api/claude_cli_feedback using the CLI's auth and redaction. Runs the same getFeedbackUnavailableReason() policy checks as the terminal /feedback command — when feedback is disabled (3P provider, org policy, env kill-switch) the response carries unavailable_reason instead of an error.",
+    ),
+)
+
+export const SDKControlSubmitFeedbackResponseSchema = lazySchema(() =>
+  z
+    .object({
+      feedback_id: z.string().nullable(),
+      unavailable_reason: z
+        .string()
+        .optional()
+        .describe(
+          'Human-readable reason /feedback is disabled in this session (3P provider, org policy, env var). When set, no submission was attempted.',
+        ),
+      is_zdr_org: z.boolean().optional(),
+      failure_reason: z.string().optional(),
+      status_code: z.number().optional(),
+    })
+    .describe(
+      '@internal Result of a submit_feedback request. feedback_id is set on success; otherwise one of unavailable_reason / failure_reason explains why.',
+    ),
+)
+
 
 // ============================================================================
 // Control Request/Response Wrappers
@@ -761,6 +823,7 @@ export const SDKControlRequestInnerSchema = lazySchema(() =>
     SDKControlApplyFlagSettingsRequestSchema(),
     SDKControlGetSettingsRequestSchema(),
     SDKControlElicitationRequestSchema(),
+    SDKControlSubmitFeedbackRequestSchema(),
     SDKControlOAuthTokenRefreshRequestSchema(),
   ]),
 )

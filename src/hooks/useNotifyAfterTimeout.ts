@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import {
   getLastInteractionTime,
-  updateLastInteractionTime,
+  resetInteractionBaseline,
 } from '../bootstrap/state.js'
 import { useTerminalNotification } from '../ink/useTerminalNotification.js'
 import { sendNotification } from '../services/notifier.js'
@@ -47,7 +47,7 @@ export function useNotifyAfterTimeout(
   // already flushed; without it the timestamp stays stale and a premature
   // notification fires if the user is idle (no subsequent renders to flush).
   useEffect(() => {
-    updateLastInteractionTime(true)
+    resetInteractionBaseline()
   }, [])
 
   useEffect(() => {

@@ -33,7 +33,6 @@ import {
 } from '../bootstrap/state.js'
 import { builtInCommandNames } from '../commands.js'
 import { COMMAND_NAME_TAG, TICK_TAG } from '../constants/xml.js'
-import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js'
 import * as sessionIngress from '../services/api/sessionIngress.js'
 import { REPL_TOOL_NAME } from '../tools/REPLTool/constants.js'
 import {
@@ -65,6 +64,7 @@ import type {
   UserMessage,
 } from '../types/message.js'
 import type { QueueOperationMessage } from '../types/messageQueueTypes.js'
+import type { PermissionMode } from '../types/permissions.js'
 import { uniq } from './array.js'
 import { registerCleanup } from './cleanupRegistry.js'
 import { createSignal } from './signal.js'
@@ -238,6 +238,10 @@ export function getTranscriptPathForSession(sessionId: string): string {
 // 50 MB — session JSONL can grow to multiple GB (inc-3930). Callers that
 // read the raw transcript must bail out above this threshold to avoid OOM.
 export const MAX_TRANSCRIPT_READ_BYTES = 50 * 1024 * 1024
+export const INDEX_HEAD_SCAN_BYTES = 256
+export const INDEX_BOUNDARY_SCAN_BYTES = 4096
+export const INDEX_LAST_PROMPT_SCAN_BYTES = 1024
+export const LAST_PROMPT_PREFIX_SCAN_BYTES = 64
 
 // In-memory map of agentId → subdirectory for grouping related subagent
 // transcripts (e.g. workflow runs write to subagents/workflows/<runId>/).
@@ -269,8 +273,7 @@ export function getAgentTranscriptPath(agentId: AgentId): string {
 }
 
 export async function listLocalAgentIds(): Promise<string[]> {
-  const projectDir =
-    getSessionProjectDir() ?? getProjectDir(getOriginalCwd())
+  const projectDir = getSessionProjectDir() ?? getProjectDir(getOriginalCwd())
   const subagentsDir = join(projectDir, getSessionId(), 'subagents')
   let entries: Dirent[]
   try {
@@ -536,10 +539,7 @@ export async function recordSessionAlias(addedDir: string): Promise<void> {
 }
 
 async function getSessionAliases(projectPath: string): Promise<string[]> {
-  const aliasesPath = join(
-    getProjectDir(projectPath),
-    SESSION_ALIASES_FILENAME,
-  )
+  const aliasesPath = join(getProjectDir(projectPath), SESSION_ALIASES_FILENAME)
   try {
     const contents = await readFile(aliasesPath, 'utf8')
     return uniq(contents.split('\n').filter(alias => alias.length > 0))
@@ -668,19 +668,13 @@ export function setRemoteIngressUrlForTesting(url: string): void {
   getProject().setRemoteIngressUrl(url)
 }
 
-export type SessionMirror = (
-  filePath: string,
-  entries: unknown[],
-) => void
+export type SessionMirror = (filePath: string, entries: unknown[]) => void
 
 export function registerSessionMirror(mirror: SessionMirror): void {
   getProject().addMirror(mirror)
 }
 
-export function fireSessionMirror(
-  filePath: string,
-  entries: unknown[],
-): void {
+export function fireSessionMirror(filePath: string, entries: unknown[]): void {
   getProject().fireMirror(filePath, entries)
 }
 
@@ -693,8 +687,11 @@ class Project {
   currentSessionAgentName: string | undefined
   currentSessionAgentColor: string | undefined
   currentSessionLastPrompt: string | undefined
+  currentSessionLeafUuid: UUID | undefined
+  currentSessionLeafTs: string | undefined
   currentSessionAgentSetting: string | undefined
   currentSessionMode: 'coordinator' | 'normal' | undefined
+  currentSessionPermissionMode: PermissionMode | undefined
   // Tri-state: undefined = never touched (don't write), null = exited worktree,
   // object = currently in worktree. reAppendSessionMetadata writes null so
   // --resume knows the session exited (vs. crashed while inside).
@@ -976,10 +973,18 @@ class Project {
     // lastPrompt is re-appended so readLiteMetadata can show what the
     // user was most recently doing. Written first so customTitle/tag/etc
     // land closer to EOF (they're the more critical fields for tail reads).
-    if (this.currentSessionLastPrompt) {
+    if (
+      this.currentSessionLastPrompt !== undefined ||
+      this.currentSessionLeafUuid !== undefined
+    ) {
       appendEntryToFile(this.sessionFile, {
         type: 'last-prompt',
-        lastPrompt: this.currentSessionLastPrompt,
+        ...(this.currentSessionLastPrompt && {
+          lastPrompt: this.currentSessionLastPrompt,
+        }),
+        ...(this.currentSessionLeafUuid && {
+          leafUuid: this.currentSessionLeafUuid,
+        }),
         sessionId,
       })
     }
@@ -1024,6 +1029,13 @@ class Project {
       appendEntryToFile(this.sessionFile, {
         type: 'mode',
         mode: this.currentSessionMode,
+        sessionId,
+      })
+    }
+    if (this.currentSessionPermissionMode) {
+      appendEntryToFile(this.sessionFile, {
+        type: 'permission-mode',
+        permissionMode: this.currentSessionPermissionMode,
         sessionId,
       })
     }
@@ -1206,6 +1218,7 @@ class Project {
   ) {
     return this.trackWrite(async () => {
       let parentUuid: UUID | null = startingParentUuid ?? null
+      let leafTimestamp: string | undefined
 
       // First user/assistant message materializes the session file.
       // Hook progress/attachment messages alone stay buffered.
@@ -1285,6 +1298,7 @@ class Project {
         await this.appendEntry(transcriptMessage)
         if (isChainParticipant(message)) {
           parentUuid = message.uuid
+          leafTimestamp = message.timestamp
         }
       }
 
@@ -1292,6 +1306,15 @@ class Project {
       // the --resume picker shows what the user was last doing.
       // Overwritten every turn by design.
       if (!isSidechain) {
+        if (
+          parentUuid &&
+          leafTimestamp &&
+          (!this.currentSessionLeafTs ||
+            leafTimestamp >= this.currentSessionLeafTs)
+        ) {
+          this.currentSessionLeafUuid = parentUuid
+          this.currentSessionLeafTs = leafTimestamp
+        }
         const text = getFirstMeaningfulUserMessageTextContent(messages)
         if (text) {
           const flat = text.replace(/\n/g, ' ').trim()
@@ -1414,6 +1437,8 @@ class Project {
       void this.enqueueWrite(sessionFile, entry)
     } else if (entry.type === 'mode') {
       // Mode entries can always be appended
+      void this.enqueueWrite(sessionFile, entry)
+    } else if (entry.type === 'permission-mode') {
       void this.enqueueWrite(sessionFile, entry)
     } else if (entry.type === 'worktree-state') {
       void this.enqueueWrite(sessionFile, entry)
@@ -1677,6 +1702,21 @@ export async function recordTranscript(
   return (lastRecorded?.uuid as UUID | undefined) ?? startingParentUuid ?? null
 }
 
+export async function persistLeafCheckpoint(leafUuid: UUID): Promise<void> {
+  const project = getProject()
+  project.currentSessionLeafUuid = leafUuid
+  project.currentSessionLeafTs = new Date().toISOString()
+  await project.appendEntry({
+    type: 'last-prompt',
+    ...(project.currentSessionLastPrompt && {
+      lastPrompt: project.currentSessionLastPrompt,
+    }),
+    leafUuid,
+    explicit: true,
+    sessionId: getSessionId(),
+  })
+}
+
 export async function recordSidechainTranscript(
   messages: Message[],
   agentId?: string,
@@ -1720,8 +1760,9 @@ async function resolveForkContextRef(
 
   const prefix: Message[] = buildConversationChain(messages, leaf)
     .filter(message => !message.isSidechain)
-    .map(({ isSidechain: _isSidechain, parentUuid: _parentUuid, ...message }) =>
-      message,
+    .map(
+      ({ isSidechain: _isSidechain, parentUuid: _parentUuid, ...message }) =>
+        message,
     )
 
   if (forkContextCache.size >= FORK_CONTEXT_CACHE_SIZE) {
@@ -2109,7 +2150,7 @@ export function removeExtraFields(
  */
 function applyPreservedSegmentRelinks(
   messages: Map<UUID, TranscriptMessage>,
-): void {
+): UUID | undefined {
   type Seg = NonNullable<
     SystemCompactBoundaryMessage['compactMetadata']['preservedSegment']
   >
@@ -2224,6 +2265,7 @@ function applyPreservedSegmentRelinks(
     }
   }
   for (const uuid of toDelete) messages.delete(uuid)
+  return segIsLive ? lastSeg.tailUuid : undefined
 }
 
 /**
@@ -2930,8 +2972,7 @@ export async function saveCustomTitle(
   source: 'user' | 'auto' | 'hook' | 'remote' = 'user',
 ) {
   // Fall back to computed path if fullPath is not provided
-  const resolvedPath =
-    fullPath ?? getTranscriptPathForSession(sessionId)
+  const resolvedPath = fullPath ?? getTranscriptPathForSession(sessionId)
   appendEntryToFile(resolvedPath, {
     type: 'custom-title',
     customTitle,
@@ -3079,6 +3120,7 @@ export function restoreSessionMetadata(meta: {
   agentColor?: string
   agentSetting?: string
   mode?: 'coordinator' | 'normal'
+  permissionMode?: PermissionMode
   worktreeSession?: PersistedWorktreeSession | null
   prNumber?: number
   prUrl?: string
@@ -3089,10 +3131,12 @@ export function restoreSessionMetadata(meta: {
   // session's title. REPL.tsx clears before calling, so /resume is unaffected.
   if (meta.customTitle) project.currentSessionTitle ??= meta.customTitle
   if (meta.tag !== undefined) project.currentSessionTag = meta.tag || undefined
-  if (meta.agentName) project.currentSessionAgentName = meta.agentName
-  if (meta.agentColor) project.currentSessionAgentColor = meta.agentColor
+  if (meta.agentName) project.currentSessionAgentName ??= meta.agentName
+  if (meta.agentColor) project.currentSessionAgentColor ??= meta.agentColor
   if (meta.agentSetting) project.currentSessionAgentSetting = meta.agentSetting
   if (meta.mode) project.currentSessionMode = meta.mode
+  if (meta.permissionMode)
+    project.currentSessionPermissionMode = meta.permissionMode
   if (meta.worktreeSession !== undefined)
     project.currentSessionWorktree = meta.worktreeSession
   if (meta.prNumber !== undefined)
@@ -3113,8 +3157,11 @@ export function clearSessionMetadata(): void {
   project.currentSessionAgentName = undefined
   project.currentSessionAgentColor = undefined
   project.currentSessionLastPrompt = undefined
+  project.currentSessionLeafUuid = undefined
+  project.currentSessionLeafTs = undefined
   project.currentSessionAgentSetting = undefined
   project.currentSessionMode = undefined
+  project.currentSessionPermissionMode = undefined
   project.currentSessionWorktree = undefined
   project.currentSessionPrNumber = undefined
   project.currentSessionPrUrl = undefined
@@ -3195,6 +3242,10 @@ export function cacheSessionTitle(customTitle: string): void {
  */
 export function saveMode(mode: 'coordinator' | 'normal'): void {
   getProject().currentSessionMode = mode
+}
+
+export function savePermissionMode(mode: PermissionMode): void {
+  getProject().currentSessionPermissionMode = mode
 }
 
 /** Emits the stripped worktree ownership snapshot written to the transcript. */
@@ -3294,6 +3345,7 @@ export async function loadFullLog(log: LogOption): Promise<LogOption> {
       prUrls,
       prRepositories,
       modes,
+      permissionModes,
       worktreeStates,
       fileHistorySnapshots,
       attributionSnapshots,
@@ -3337,6 +3389,9 @@ export async function loadFullLog(log: LogOption): Promise<LogOption> {
       agentColor: sessionId ? agentColors.get(sessionId) : log.agentColor,
       agentSetting: sessionId ? agentSettings.get(sessionId) : log.agentSetting,
       mode: sessionId ? (modes.get(sessionId) as LogOption['mode']) : log.mode,
+      permissionMode: sessionId
+        ? permissionModes.get(sessionId)
+        : log.permissionMode,
       worktreeSession:
         sessionId && worktreeStates.has(sessionId)
           ? worktreeStates.get(sessionId)
@@ -3711,8 +3766,6 @@ function walkChainBeforeParse(buf: Buffer): Buffer {
 }
 
 const TRANSCRIPT_SCAN_CHUNK_SIZE = 1024 * 1024
-const SIDECHAIN_PROBE_BYTES = 256
-const COMPACT_BOUNDARY_PROBE_BYTES = 4096
 
 type TranscriptLineVisitor = (
   buf: Buffer,
@@ -3751,6 +3804,7 @@ function scanLargeTranscript(
   const TIMESTAMP_SUFFIX = Buffer.from('","timestamp":"')
   const SIDECHAIN_TRUE = Buffer.from('"isSidechain":true')
   const COMPACT_BOUNDARY = Buffer.from('"compact_boundary"')
+  const LAST_PROMPT = Buffer.from('"type":"last-prompt"')
   const UUID_LENGTH = 36
 
   const chunk = Buffer.allocUnsafe(TRANSCRIPT_SCAN_CHUNK_SIZE)
@@ -3764,6 +3818,7 @@ function scanLargeTranscript(
   let hasPreservedSegment = false
   let lastAttributionOffset = -1
   let lastAttributionLength = 0
+  let lastCheckpointLeafUuid: UUID | undefined
 
   function findUuidKey(line: Buffer, lineLength: number): number {
     let firstAny = -1
@@ -3826,10 +3881,29 @@ function scanLargeTranscript(
       return
     }
 
+    if (
+      length < INDEX_LAST_PROMPT_SCAN_BYTES &&
+      line
+        .subarray(0, Math.min(length, LAST_PROMPT_PREFIX_SCAN_BYTES))
+        .includes(LAST_PROMPT)
+    ) {
+      let entry: Entry
+      try {
+        entry = parseTranscriptLine(line, 0, length)
+      } catch {
+        return
+      }
+      if (entry?.type === 'last-prompt') {
+        if (entry.leafUuid) lastCheckpointLeafUuid = entry.leafUuid
+        unclassifiedOffsets.push(fileOffset)
+        return
+      }
+    }
+
     const boundaryProbe =
-      length <= COMPACT_BOUNDARY_PROBE_BYTES
+      length <= INDEX_BOUNDARY_SCAN_BYTES
         ? line
-        : line.subarray(0, COMPACT_BOUNDARY_PROBE_BYTES)
+        : line.subarray(0, INDEX_BOUNDARY_SCAN_BYTES)
     if (boundaryProbe.includes(COMPACT_BOUNDARY)) {
       const entry = parseTranscriptLine(line, 0, length)
       if (entry?.type === 'system' && entry.subtype === 'compact_boundary') {
@@ -3844,6 +3918,7 @@ function scanLargeTranscript(
           hasPreservedSegment = false
           lastAttributionOffset = -1
           lastAttributionLength = 0
+          lastCheckpointLeafUuid = undefined
         }
       }
     }
@@ -3888,9 +3963,9 @@ function scanLargeTranscript(
       uuidKeyOffset + UUID_KEY.length + UUID_LENGTH,
     )
     const sidechainProbe =
-      length <= SIDECHAIN_PROBE_BYTES
+      length <= INDEX_HEAD_SCAN_BYTES
         ? line
-        : line.subarray(0, SIDECHAIN_PROBE_BYTES)
+        : line.subarray(0, INDEX_HEAD_SCAN_BYTES)
 
     uuidToMessageIndex.set(uuid, messageOffsets.length)
     messageOffsets.push(fileOffset)
@@ -3924,28 +3999,14 @@ function scanLargeTranscript(
             if (length > longLineBuffer.length) {
               longLineBuffer = Buffer.allocUnsafe(length)
             }
-            readSync(
-              fd,
-              longLineBuffer,
-              0,
-              length,
-              spanningLineOffset,
-            )
+            readSync(fd, longLineBuffer, 0, length, spanningLineOffset)
             visit(longLineBuffer, 0, length, spanningLineOffset)
           }
           spanningLineOffset = -1
         } else if (i > lineStart) {
           const absoluteLineOffset = chunkOffset + lineStart
-          if (
-            shouldVisit === undefined ||
-            shouldVisit(absoluteLineOffset)
-          ) {
-            visit(
-              chunk,
-              lineStart,
-              i - lineStart,
-              absoluteLineOffset,
-            )
+          if (shouldVisit === undefined || shouldVisit(absoluteLineOffset)) {
+            visit(chunk, lineStart, i - lineStart, absoluteLineOffset)
           }
         }
         lineStart = i + 1
@@ -3985,14 +4046,22 @@ function scanLargeTranscript(
 
       selectedOffsets = new Set<number>()
       const seen = new Set<number>()
-      let messageIndex = leafIndex >= 0 ? leafIndex : undefined
-      while (messageIndex !== undefined && !seen.has(messageIndex)) {
-        seen.add(messageIndex)
-        selectedOffsets.add(messageOffsets[messageIndex]!)
-        const parentUuid = parentUuids[messageIndex]
-        messageIndex =
-          parentUuid === null ? undefined : uuidToMessageIndex.get(parentUuid)
+      const addChain = (startIndex: number | undefined): void => {
+        let messageIndex = startIndex
+        while (messageIndex !== undefined && !seen.has(messageIndex)) {
+          seen.add(messageIndex)
+          selectedOffsets!.add(messageOffsets[messageIndex]!)
+          const parentUuid = parentUuids[messageIndex]
+          messageIndex =
+            parentUuid === null ? undefined : uuidToMessageIndex.get(parentUuid)
+        }
       }
+      addChain(leafIndex >= 0 ? leafIndex : undefined)
+      addChain(
+        lastCheckpointLeafUuid
+          ? uuidToMessageIndex.get(lastCheckpointLeafUuid)
+          : undefined,
+      )
     }
 
     const offsetsToParse = selectedOffsets ?? new Set(messageOffsets)
@@ -4048,6 +4117,7 @@ export async function loadTranscriptFile(
   prUrls: Map<UUID, string>
   prRepositories: Map<UUID, string>
   modes: Map<UUID, string>
+  permissionModes: Map<UUID, PermissionMode>
   worktreeStates: Map<UUID, PersistedWorktreeSession | null>
   fileHistorySnapshots: Map<UUID, FileHistorySnapshotMessage>
   attributionSnapshots: Map<UUID, AttributionSnapshotMessage>
@@ -4069,6 +4139,7 @@ export async function loadTranscriptFile(
   const prUrls = new Map<UUID, string>()
   const prRepositories = new Map<UUID, string>()
   const modes = new Map<UUID, string>()
+  const permissionModes = new Map<UUID, PermissionMode>()
   const worktreeStates = new Map<UUID, PersistedWorktreeSession | null>()
   const fileHistorySnapshots = new Map<UUID, FileHistorySnapshotMessage>()
   const attributionSnapshots = new Map<UUID, AttributionSnapshotMessage>()
@@ -4083,6 +4154,8 @@ export async function loadTranscriptFile(
   // Last-wins — later entries supersede.
   let contextCollapseSnapshot: ContextCollapseSnapshotEntry | undefined
   let lastWrittenNonSidechainUuid: UUID | undefined
+  let checkpointLeafUuid: UUID | undefined
+  let checkpointIsExplicit = false
 
   try {
     let largeFileSize: number | undefined
@@ -4133,7 +4206,10 @@ export async function loadTranscriptFile(
           entry.parentUuid = progressBridge.get(entry.parentUuid) ?? null
         }
         messages.set(entry.uuid, entry)
-        if (!entry.isSidechain) lastWrittenNonSidechainUuid = entry.uuid
+        if (!entry.isSidechain) {
+          lastWrittenNonSidechainUuid = entry.uuid
+          checkpointIsExplicit = false
+        }
         // Compact boundary: prior marble-origami-commit entries reference
         // messages that won't be in the post-boundary chain. The >5MB
         // backward-scan path discards them naturally by never reading the
@@ -4144,9 +4220,18 @@ export async function loadTranscriptFile(
         if (isCompactBoundaryMessage(entry)) {
           contextCollapseCommits.length = 0
           contextCollapseSnapshot = undefined
+          checkpointLeafUuid = undefined
+          checkpointIsExplicit = false
         }
       } else if (entry.type === 'summary' && entry.leafUuid) {
         summaries.set(entry.leafUuid, entry.summary)
+      } else if (entry.type === 'last-prompt') {
+        if (entry.leafUuid) {
+          checkpointIsExplicit =
+            entry.explicit === true ||
+            (checkpointIsExplicit && entry.leafUuid === checkpointLeafUuid)
+          checkpointLeafUuid = entry.leafUuid
+        }
       } else if (entry.type === 'custom-title' && entry.sessionId) {
         customTitles.set(entry.sessionId, entry.customTitle)
       } else if (entry.type === 'tag' && entry.sessionId) {
@@ -4159,6 +4244,8 @@ export async function loadTranscriptFile(
         agentSettings.set(entry.sessionId, entry.agentSetting)
       } else if (entry.type === 'mode' && entry.sessionId) {
         modes.set(entry.sessionId, entry.mode)
+      } else if (entry.type === 'permission-mode' && entry.sessionId) {
+        permissionModes.set(entry.sessionId, entry.permissionMode)
       } else if (entry.type === 'worktree-state' && entry.sessionId) {
         worktreeStates.set(entry.sessionId, entry.worktreeSession)
       } else if (entry.type === 'pr-link' && entry.sessionId) {
@@ -4209,10 +4296,7 @@ export async function loadTranscriptFile(
         scan.lastAttributionLength,
       )
       if (lastAttribution?.type === 'attribution-snapshot') {
-        attributionSnapshots.set(
-          lastAttribution.messageId,
-          lastAttribution,
-        )
+        attributionSnapshots.set(lastAttribution.messageId, lastAttribution)
       }
     } else {
       for (const entry of entries ?? []) processEntry(entry)
@@ -4224,8 +4308,94 @@ export async function loadTranscriptFile(
     }
   }
 
-  applyPreservedSegmentRelinks(messages)
+  const preservedTailUuid = applyPreservedSegmentRelinks(messages)
   applySnipRemovals(messages)
+
+  const buildResult = (leafUuids: Set<UUID>) => ({
+    messages,
+    summaries,
+    customTitles,
+    tags,
+    agentNames,
+    agentColors,
+    agentSettings,
+    prNumbers,
+    prUrls,
+    prRepositories,
+    modes,
+    permissionModes,
+    worktreeStates,
+    fileHistorySnapshots,
+    attributionSnapshots,
+    contentReplacements,
+    agentContentReplacements,
+    forkContextRefs,
+    contextCollapseCommits,
+    contextCollapseSnapshot,
+    leafUuids,
+  })
+
+  const explicitCheckpointIsValid =
+    checkpointIsExplicit &&
+    checkpointLeafUuid !== undefined &&
+    messages.has(checkpointLeafUuid) &&
+    !messages.get(checkpointLeafUuid)?.isSidechain
+
+  if (
+    !opts?.keepAllLeaves &&
+    (!preservedTailUuid || explicitCheckpointIsValid)
+  ) {
+    let preferredLeaf =
+      checkpointLeafUuid && messages.has(checkpointLeafUuid)
+        ? checkpointLeafUuid
+        : undefined
+
+    // A generated checkpoint can be followed by newer messages before its
+    // next metadata re-append. If it is an ancestor of the last written
+    // message, the latter is the actual live leaf.
+    if (
+      preferredLeaf &&
+      !checkpointIsExplicit &&
+      lastWrittenNonSidechainUuid &&
+      messages.has(lastWrittenNonSidechainUuid) &&
+      lastWrittenNonSidechainUuid !== preferredLeaf
+    ) {
+      let current: UUID | undefined = lastWrittenNonSidechainUuid
+      const seen = new Set<UUID>()
+      while (current && !seen.has(current)) {
+        if (current === preferredLeaf) {
+          preferredLeaf = lastWrittenNonSidechainUuid
+          break
+        }
+        seen.add(current)
+        current = messages.get(current)?.parentUuid ?? undefined
+      }
+    }
+
+    if (!preservedTailUuid) {
+      preferredLeaf ??= lastWrittenNonSidechainUuid
+    }
+    if (preferredLeaf && messages.has(preferredLeaf)) {
+      const leafUuids = new Set<UUID>()
+      const seen = new Set<UUID>()
+      let current = messages.get(preferredLeaf)
+      while (current) {
+        if (seen.has(current.uuid)) {
+          logEvent('tengu_transcript_parent_cycle', {})
+          break
+        }
+        seen.add(current.uuid)
+        if (current.type === 'user' || current.type === 'assistant') {
+          leafUuids.add(current.uuid)
+          break
+        }
+        current = current.parentUuid
+          ? messages.get(current.parentUuid)
+          : undefined
+      }
+      if (leafUuids.size === 1) return buildResult(leafUuids)
+    }
+  }
 
   // Compute leaf UUIDs once at load time
   // Only user/assistant messages should be considered as leaves for anchoring resume.
@@ -4251,60 +4421,37 @@ export async function loadTranscriptFile(
   const leafUuids = new Set<UUID>()
   let hasCycle = false
 
-  if (getFeatureValue_CACHED_MAY_BE_STALE('tengu_pebble_leaf_prune', false)) {
-    // Build a set of UUIDs that have user/assistant children
-    // (these are mid-conversation nodes, not dead ends)
-    const hasUserAssistantChild = new Set<UUID>()
-    for (const msg of allMessages) {
-      if (msg.parentUuid && (msg.type === 'user' || msg.type === 'assistant')) {
-        hasUserAssistantChild.add(msg.parentUuid)
-      }
+  // Build a set of UUIDs that have user/assistant children
+  // (these are mid-conversation nodes, not dead ends)
+  const hasUserAssistantChild = new Set<UUID>()
+  for (const msg of allMessages) {
+    if (msg.parentUuid && (msg.type === 'user' || msg.type === 'assistant')) {
+      hasUserAssistantChild.add(msg.parentUuid)
     }
+  }
 
-    // For each terminal message, walk back to find the nearest user/assistant ancestor.
-    // Skip ancestors that already have user/assistant children - those are mid-conversation
-    // nodes where the conversation continued (e.g., an assistant tool_use message whose
-    // progress child is terminal, but whose tool_result child continues the conversation).
-    for (const terminal of terminalMessages) {
-      const seen = new Set<UUID>()
-      let current: TranscriptMessage | undefined = terminal
-      while (current) {
-        if (seen.has(current.uuid)) {
-          hasCycle = true
-          break
-        }
-        seen.add(current.uuid)
-        if (current.type === 'user' || current.type === 'assistant') {
-          if (!hasUserAssistantChild.has(current.uuid)) {
-            leafUuids.add(current.uuid)
-          }
-          break
-        }
-        current = current.parentUuid
-          ? messages.get(current.parentUuid)
-          : undefined
+  // For each terminal message, walk back to find the nearest user/assistant ancestor.
+  // Skip ancestors that already have user/assistant children - those are mid-conversation
+  // nodes where the conversation continued (e.g., an assistant tool_use message whose
+  // progress child is terminal, but whose tool_result child continues the conversation).
+  for (const terminal of terminalMessages) {
+    const seen = new Set<UUID>()
+    let current: TranscriptMessage | undefined = terminal
+    while (current) {
+      if (seen.has(current.uuid)) {
+        hasCycle = true
+        break
       }
-    }
-  } else {
-    // Original leaf computation: walk back from terminal messages to find
-    // the nearest user/assistant ancestor unconditionally
-    for (const terminal of terminalMessages) {
-      const seen = new Set<UUID>()
-      let current: TranscriptMessage | undefined = terminal
-      while (current) {
-        if (seen.has(current.uuid)) {
-          hasCycle = true
-          break
-        }
-        seen.add(current.uuid)
-        if (current.type === 'user' || current.type === 'assistant') {
+      seen.add(current.uuid)
+      if (current.type === 'user' || current.type === 'assistant') {
+        if (!hasUserAssistantChild.has(current.uuid)) {
           leafUuids.add(current.uuid)
-          break
         }
-        current = current.parentUuid
-          ? messages.get(current.parentUuid)
-          : undefined
+        break
       }
+      current = current.parentUuid
+        ? messages.get(current.parentUuid)
+        : undefined
     }
   }
 
@@ -4315,11 +4462,17 @@ export async function loadTranscriptFile(
   if (
     !opts?.keepAllLeaves &&
     leafUuids.size > 1 &&
-    lastWrittenNonSidechainUuid &&
-    messages.has(lastWrittenNonSidechainUuid)
+    (checkpointLeafUuid || lastWrittenNonSidechainUuid)
   ) {
+    const selectedLeaf =
+      checkpointLeafUuid && leafUuids.has(checkpointLeafUuid)
+        ? checkpointLeafUuid
+        : lastWrittenNonSidechainUuid
+    if (!selectedLeaf || !messages.has(selectedLeaf)) {
+      return buildResult(leafUuids)
+    }
     const seen = new Set<UUID>()
-    let current = messages.get(lastWrittenNonSidechainUuid)
+    let current = messages.get(selectedLeaf)
     while (current) {
       if (seen.has(current.uuid)) break
       seen.add(current.uuid)
@@ -4334,28 +4487,7 @@ export async function loadTranscriptFile(
     }
   }
 
-  return {
-    messages,
-    summaries,
-    customTitles,
-    tags,
-    agentNames,
-    agentColors,
-    agentSettings,
-    prNumbers,
-    prUrls,
-    prRepositories,
-    modes,
-    worktreeStates,
-    fileHistorySnapshots,
-    attributionSnapshots,
-    contentReplacements,
-    agentContentReplacements,
-    forkContextRefs,
-    contextCollapseCommits,
-    contextCollapseSnapshot,
-    leafUuids,
-  }
+  return buildResult(leafUuids)
 }
 
 /**
@@ -4369,6 +4501,11 @@ async function loadSessionFile(sessionId: UUID): Promise<{
   agentNames: Map<UUID, string>
   agentColors: Map<UUID, string>
   agentSettings: Map<UUID, string>
+  prNumbers: Map<UUID, number>
+  prUrls: Map<UUID, string>
+  prRepositories: Map<UUID, string>
+  modes: Map<UUID, string>
+  permissionModes: Map<UUID, PermissionMode>
   worktreeStates: Map<UUID, PersistedWorktreeSession | null>
   fileHistorySnapshots: Map<UUID, FileHistorySnapshotMessage>
   attributionSnapshots: Map<UUID, AttributionSnapshotMessage>
@@ -4427,6 +4564,11 @@ export async function getLastSessionLog(
     agentNames,
     agentColors,
     agentSettings,
+    prNumbers,
+    prUrls,
+    prRepositories,
+    modes,
+    permissionModes,
     worktreeStates,
     fileHistorySnapshots,
     attributionSnapshots,
@@ -4481,6 +4623,11 @@ export async function getLastSessionLog(
     ...log,
     agentName: agentNames.get(sessionId) ?? log.agentName,
     agentColor: agentColors.get(sessionId),
+    mode: modes.get(sessionId) as LogOption['mode'],
+    permissionMode: permissionModes.get(sessionId),
+    prNumber: prNumbers.get(sessionId),
+    prUrl: prUrls.get(sessionId),
+    prRepository: prRepositories.get(sessionId),
     worktreeSession: worktreeStates.get(sessionId),
     contextCollapseCommits: contextCollapseCommits.filter(
       e => e.sessionId === sessionId,
@@ -4702,7 +4849,9 @@ async function getStatOnlyLogsForWorktrees(
   )
   const aliasLogs = (
     await Promise.all(
-      aliasProjectDirs.map(projectDir => getSessionFilesLite(projectDir, limit)),
+      aliasProjectDirs.map(projectDir =>
+        getSessionFilesLite(projectDir, limit),
+      ),
     )
   )
     .flat()
@@ -5234,6 +5383,7 @@ export async function loadAllLogsFromSessionFile(
     prUrls,
     prRepositories,
     modes,
+    permissionModes,
     fileHistorySnapshots,
     attributionSnapshots,
     contentReplacements,
@@ -5296,6 +5446,7 @@ export async function loadAllLogsFromSessionFile(
       agentColor: agentColors.get(sessionId),
       agentSetting: agentSettings.get(sessionId),
       mode: modes.get(sessionId) as LogOption['mode'],
+      permissionMode: permissionModes.get(sessionId),
       prNumber: prNumbers.get(sessionId),
       prUrl: prUrls.get(sessionId),
       prRepository: prRepositories.get(sessionId),
@@ -5382,9 +5533,7 @@ async function readLiteMetadata(
       : undefined
   const agentSetting = extractJsonStringField(head, 'agentSetting')
   const entrypoint = extractJsonStringField(head, 'entrypoint')
-  const isLoopSession = head.includes(
-    '<command-name>/loop</command-name>',
-  )
+  const isLoopSession = head.includes('<command-name>/loop</command-name>')
 
   // Prefer the last-prompt tail entry — captured by extractFirstPrompt at
   // write time (filtered, authoritative) and shows what the user was most

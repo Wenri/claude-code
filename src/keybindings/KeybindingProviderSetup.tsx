@@ -21,6 +21,7 @@ import {
   type HandlerRegistration,
   KeybindingProvider,
   type PreDispatchHandler,
+  useOptionalKeybindingContext,
 } from './KeybindingContext.js'
 import { logKeybindingFired } from './keybindingTelemetry.js'
 import { isKeybindingsDomEnabled } from './keybindingsDom.js'
@@ -73,6 +74,11 @@ function useKeybindingWarnings(
 }
 
 export function KeybindingSetup({ children }: Props): React.ReactNode {
+  if (useOptionalKeybindingContext()) return children
+  return <KeybindingSetupInner>{children}</KeybindingSetupInner>
+}
+
+function KeybindingSetupInner({ children }: Props): React.ReactNode {
   const [{ bindings, warnings }, setLoadResult] =
     useState<KeybindingsLoadResult>(() => {
       const result = loadKeybindingsSyncWithWarnings()

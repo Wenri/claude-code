@@ -55,6 +55,12 @@ export type AttributedCounter = {
   add(value: number, additionalAttributes?: Attributes): void
 }
 
+export type TeamMemoryServerStatus =
+  | 'not-available'
+  | 'empty'
+  | 'has-content'
+  | undefined
+
 type State = {
   originalCwd: string
   // Stable project root - set once at startup (including by --worktree flag),
@@ -91,6 +97,7 @@ type State = {
   sdkAgentProgressSummariesEnabled: boolean
   userMsgOptIn: boolean
   memoryToggledOff: boolean
+  teamMemoryServerStatus: TeamMemoryServerStatus
   sessionSkillAllowlist: string[] | undefined
   clientType: string
   sessionSource: string | undefined
@@ -330,6 +337,7 @@ function getInitialState(): State {
     sdkAgentProgressSummariesEnabled: false,
     userMsgOptIn: false,
     memoryToggledOff: false,
+    teamMemoryServerStatus: undefined,
     sessionSkillAllowlist: undefined,
     clientType: 'cli',
     sessionSource: undefined,
@@ -709,6 +717,11 @@ export function updateLastInteractionTime(immediate?: boolean): void {
   }
 }
 
+export function resetInteractionBaseline(): void {
+  STATE.lastInteractionTime = Date.now()
+  interactionTimeDirty = false
+}
+
 /**
  * If an interaction was recorded since the last flush, update the timestamp
  * now. Called by Ink before each render cycle so we batch many keypresses into
@@ -721,8 +734,7 @@ export function flushInteractionTime(): void {
 }
 
 function flushInteractionTime_inner(): void {
-  STATE.lastInteractionTime = Date.now()
-  interactionTimeDirty = false
+  resetInteractionBaseline()
   interactionOccurred.emit()
 }
 
@@ -1177,6 +1189,16 @@ export function getMemoryToggledOff(): boolean {
 
 export function setMemoryToggledOff(value: boolean): void {
   STATE.memoryToggledOff = value
+}
+
+export function getTeamMemoryServerStatus(): TeamMemoryServerStatus {
+  return STATE.teamMemoryServerStatus
+}
+
+export function setTeamMemoryServerStatus(
+  value: TeamMemoryServerStatus,
+): void {
+  STATE.teamMemoryServerStatus = value
 }
 
 export function getSessionSkillAllowlist(): string[] | undefined {

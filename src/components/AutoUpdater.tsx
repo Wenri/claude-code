@@ -4,10 +4,12 @@ import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEve
 import { useInterval } from 'usehooks-ts';
 import { useUpdateNotification } from '../hooks/useUpdateNotification.js';
 import { Box, Text } from '../ink.js';
-import { type AutoUpdaterResult, getLatestVersion, getMaxVersion, type InstallStatus, installGlobalPackage, shouldSkipVersion } from '../utils/autoUpdater.js';
+import { useAppState, useSetAppState } from '../state/AppState.js';
+import { getLatestVersion, getMaxVersion, type InstallStatus, installGlobalPackage, shouldSkipVersion } from '../utils/autoUpdater.js';
 import { getGlobalConfig, isAutoUpdaterDisabled } from '../utils/config.js';
 import { logForDebugging } from '../utils/debug.js';
 import { getCurrentInstallationType } from '../utils/doctorDiagnostic.js';
+import { isEnvTruthy } from '../utils/envUtils.js';
 import { installOrUpdateClaudePackage, localInstallationExists } from '../utils/localInstaller.js';
 import { removeInstalledSymlink } from '../utils/nativeInstaller/index.js';
 import { gt, gte } from '../utils/semver.js';
@@ -15,19 +17,17 @@ import { getInitialSettings } from '../utils/settings/settings.js';
 type Props = {
   isUpdating: boolean;
   onChangeIsUpdating: (isUpdating: boolean) => void;
-  onAutoUpdaterResult: (autoUpdaterResult: AutoUpdaterResult) => void;
-  autoUpdaterResult: AutoUpdaterResult | null;
   showSuccessMessage: boolean;
   verbose: boolean;
 };
 export function AutoUpdater({
   isUpdating,
   onChangeIsUpdating,
-  onAutoUpdaterResult,
-  autoUpdaterResult,
   showSuccessMessage,
   verbose
 }: Props): React.ReactNode {
+  const autoUpdaterResult = useAppState(state => state.autoUpdaterResult);
+  const setAppState = useSetAppState();
   const [versions, setVersions] = useState<{
     global?: string | null;
     latest?: string | null;
@@ -44,7 +44,9 @@ export function AutoUpdater({
   // a concurrent installGlobalPackage() to run while one is already in
   // progress.
   const isUpdatingRef = useRef(isUpdating);
-  isUpdatingRef.current = isUpdating;
+  useEffect(() => {
+    isUpdatingRef.current = isUpdating;
+  });
   const checkForUpdates = React.useCallback(async () => {
     if (isUpdatingRef.current) {
       return;
@@ -85,7 +87,10 @@ export function AutoUpdater({
       // Remove native installer symlink since we're using JS-based updates
       // But only if user hasn't migrated to native installation
       const config = getGlobalConfig();
-      if (config.installMethod !== 'native') {
+      if (
+        config.installMethod !== 'native' &&
+        !isEnvTruthy(process.env.DISABLE_INSTALLATION_CHECKS)
+      ) {
         await removeInstalledSymlink();
       }
 
@@ -148,9 +153,18 @@ export function AutoUpdater({
           installationType: installationType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
         });
       }
-      onAutoUpdaterResult({
-        version: latestVersion,
-        status: installStatus
+      setAppState(previous => {
+        const current = previous.autoUpdaterResult;
+        if (current?.version === latestVersion && current?.status === installStatus) {
+          return previous;
+        }
+        return {
+          ...previous,
+          autoUpdaterResult: {
+            version: latestVersion,
+            status: installStatus
+          }
+        };
       });
     }
     // isUpdating intentionally omitted from deps; we read isUpdatingRef
@@ -158,7 +172,7 @@ export function AutoUpdater({
     // identity (which would re-trigger the initial-check useEffect below).
     // eslint-disable-next-line react-hooks/exhaustive-deps
     // biome-ignore lint/correctness/useExhaustiveDependencies: isUpdating read via ref
-  }, [onAutoUpdaterResult]);
+  }, [setAppState]);
 
   // Initial check
   useEffect(() => {

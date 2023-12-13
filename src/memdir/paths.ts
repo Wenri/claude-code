@@ -42,24 +42,6 @@ export function isAutoMemoryEnabled(): boolean {
   if (isEnvDefinedFalsy(envVal)) {
     return true
   }
-  const disabledModels = getFeatureValue_CACHED_MAY_BE_STALE(
-    'tengu_sepia_cormorant',
-    null,
-  )
-  if (Array.isArray(disabledModels) && disabledModels.length > 0) {
-    const model = getMainLoopModelOverride() ?? getInitialMainLoopModel()
-    if (
-      typeof model === 'string' &&
-      disabledModels.some(
-        value =>
-          typeof value === 'string' &&
-          value.length > 0 &&
-          model.toLowerCase().includes(value.toLowerCase()),
-      )
-    ) {
-      return false
-    }
-  }
   // --bare / SIMPLE: prompts.ts already drops the memory section from the
   // system prompt via its SIMPLE early-return; this gate stops the other half
   // (extractMemories turn-end fork, autoDream, /remember, /dream, team sync).
@@ -72,11 +54,38 @@ export function isAutoMemoryEnabled(): boolean {
   ) {
     return false
   }
+  if (isAutoMemoryUnavailableForModel()) {
+    return false
+  }
   const settings = getInitialSettings()
   if (settings.autoMemoryEnabled !== undefined) {
     return settings.autoMemoryEnabled
   }
   return true
+}
+
+/** Whether auto-memory is unavailable for the currently selected model. */
+export function isAutoMemoryUnavailableForModel(): boolean {
+  const disabledModels = getFeatureValue_CACHED_MAY_BE_STALE(
+    'tengu_sepia_cormorant',
+    null,
+  )
+  if (!Array.isArray(disabledModels) || disabledModels.length === 0) {
+    return false
+  }
+  const model = getMainLoopModelOverride() ?? getInitialMainLoopModel()
+  if (
+    typeof model !== 'string' ||
+    !disabledModels.some(
+      value =>
+        typeof value === 'string' &&
+        value.length > 0 &&
+        model.toLowerCase().includes(value.toLowerCase()),
+    )
+  ) {
+    return false
+  }
+  return getFeatureValue_CACHED_MAY_BE_STALE('tengu_umber_petrel', false)
 }
 
 /**

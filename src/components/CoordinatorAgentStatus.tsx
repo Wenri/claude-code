@@ -12,13 +12,15 @@ import * as React from 'react';
 import { BLACK_CIRCLE, PAUSE_ICON, PLAY_ICON } from '../constants/figures.js';
 import { useTerminalSize } from '../hooks/useTerminalSize.js';
 import { stringWidth } from '../ink/stringWidth.js';
-import { Box, Text, wrapText } from '../ink.js';
+import { Ansi, Box, Text, wrapText } from '../ink.js';
 import { type AppState, useAppState, useSetAppState } from '../state/AppState.js';
 import { enterTeammateView, exitTeammateView } from '../state/teammateViewHelpers.js';
 import { isPanelAgentTask, type LocalAgentTaskState } from '../tasks/LocalAgentTask/LocalAgentTask.js';
 import { formatDuration, formatNumber } from '../utils/format.js';
 import { evictTerminalTask } from '../utils/task/framework.js';
 import { isTerminalStatus } from './tasks/taskStatusUtils.js';
+import { isForkSubagentEnabled } from '../tools/AgentTool/forkSubagent.js';
+import type { SubagentTaskDecoration, SubagentTaskDecorations } from '../utils/subagentStatusLine.js';
 
 /**
  * Which panel-managed tasks currently have a visible row.
@@ -28,18 +30,22 @@ import { isTerminalStatus } from './tasks/taskStatusUtils.js';
  * the filter time-dependent. Shared by panel render, useCoordinatorTaskCount,
  * and index resolvers so the math can't drift.
  */
-export function getVisibleAgentTasks(tasks: AppState['tasks']): LocalAgentTaskState[] {
+export function getPanelAgentTasks(tasks: AppState['tasks']): LocalAgentTaskState[] {
   return Object.values(tasks).filter((t): t is LocalAgentTaskState => isPanelAgentTask(t) && t.evictAfter !== 0).sort((a, b) => a.startTime - b.startTime);
+}
+export function getVisibleAgentTasks(tasks: AppState['tasks'], decorations: SubagentTaskDecorations = {}): LocalAgentTaskState[] {
+  return getPanelAgentTasks(tasks).filter(task => decorations[task.id]?.content !== '');
 }
 export function CoordinatorTaskPanel(): React.ReactNode {
   const tasks = useAppState(s => s.tasks);
-  const viewingAgentTaskId = useAppState(s_0 => s_0.viewingAgentTaskId);
-  const agentNameRegistry = useAppState(s_1 => s_1.agentNameRegistry);
-  const coordinatorTaskIndex = useAppState(s_2 => s_2.coordinatorTaskIndex);
-  const tasksSelected = useAppState(s_3 => s_3.footerSelection === 'tasks');
+  const taskDecorations = useAppState(s_0 => s_0.taskDecorations);
+  const viewingAgentTaskId = useAppState(s_1 => s_1.viewingAgentTaskId);
+  const agentNameRegistry = useAppState(s_2 => s_2.agentNameRegistry);
+  const coordinatorTaskIndex = useAppState(s_3 => s_3.coordinatorTaskIndex);
+  const tasksSelected = useAppState(s_4 => s_4.footerSelection === 'tasks');
   const selectedIndex = tasksSelected ? coordinatorTaskIndex : undefined;
   const setAppState = useSetAppState();
-  const visibleTasks = getVisibleAgentTasks(tasks);
+  const visibleTasks = getVisibleAgentTasks(tasks, taskDecorations);
   const hasTasks = Object.values(tasks).some(isPanelAgentTask);
 
   // 1s tick: re-render for elapsed time + evict tasks past their deadline.
@@ -71,7 +77,7 @@ export function CoordinatorTaskPanel(): React.ReactNode {
   }
   return <Box flexDirection="column" marginTop={1}>
       <MainLine isSelected={selectedIndex === 0} isViewed={viewingAgentTaskId === undefined} onClick={() => exitTeammateView(setAppState)} />
-      {visibleTasks.map((task, i) => <AgentLine key={task.id} task={task} name={nameByAgentId.get(task.id)} isSelected={selectedIndex === i + 1} isViewed={viewingAgentTaskId === task.id} onClick={() => enterTeammateView(task.id, setAppState)} />)}
+      {visibleTasks.map((task, i) => <AgentLine key={task.id} task={task} name={nameByAgentId.get(task.id)} decoration={taskDecorations[task.id]} isSelected={selectedIndex === i + 1} isViewed={viewingAgentTaskId === task.id} onClick={() => enterTeammateView(task.id, setAppState)} />)}
     </Box>;
 }
 
@@ -82,12 +88,28 @@ export function CoordinatorTaskPanel(): React.ReactNode {
  */
 export function useCoordinatorTaskCount() {
   const tasks = useAppState(_temp);
-  let t0;
-  t0 = 0;
-  return t0;
+  const taskDecorations = useAppState(_tempDecorations);
+  if (!isForkSubagentEnabled()) return 0;
+  const count = getVisibleAgentTasks(tasks, taskDecorations).length;
+  return count > 0 ? count + 1 : 0;
 }
 function _temp(s) {
   return s.tasks;
+}
+function _tempDecorations(s) {
+  return s.taskDecorations;
+}
+function getAgentStatusColor(status: LocalAgentTaskState['status']): 'success' | 'error' | 'inactive' | undefined {
+  switch (status) {
+    case 'completed':
+      return 'success';
+    case 'failed':
+      return 'error';
+    case 'killed':
+      return 'inactive';
+    default:
+      return undefined;
+  }
 }
 function MainLine(t0) {
   const $ = _c(10);
@@ -136,6 +158,7 @@ function MainLine(t0) {
 type AgentLineProps = {
   task: LocalAgentTaskState;
   name?: string;
+  decoration?: SubagentTaskDecoration;
   isSelected?: boolean;
   isViewed?: boolean;
   onClick?: () => void;
@@ -145,6 +168,7 @@ function AgentLine(t0) {
   const {
     task,
     name,
+    decoration,
     isSelected,
     isViewed,
     onClick
@@ -185,6 +209,16 @@ function AgentLine(t0) {
   const prefix = highlighted ? figures.pointer + " " : "  ";
   const bullet = isViewed ? BLACK_CIRCLE : figures.circle;
   const dim = !highlighted && !isViewed;
+  if (decoration?.content !== undefined) {
+    const statusColor = getAgentStatusColor(task.status);
+    const customLine = <><Box width={4} flexShrink={0}>
+        <Text dimColor={dim} bold={isViewed}>{prefix}</Text><Text color={statusColor} dimColor={!statusColor && dim} bold={isViewed}>{bullet}{' '}</Text>
+      </Box><Box flexGrow={1} width={0}>
+        <Text dimColor={dim} bold={isViewed} wrap="truncate"><Ansi>{decoration.content}</Ansi></Text>
+      </Box></>;
+    if (!onClick) return customLine;
+    return <Box onClick={onClick} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>{customLine}</Box>;
+  }
   const sep = isRunning ? PLAY_ICON : PAUSE_ICON;
   const namePart = name ? `${name}: ` : "";
   const hintPart = isSelected && !isViewed ? ` · x to ${isRunning ? "stop" : "clear"}` : "";

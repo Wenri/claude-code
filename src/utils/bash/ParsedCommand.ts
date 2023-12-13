@@ -222,7 +222,11 @@ class TreeSitterParsedCommand implements IParsedCommand {
         result.subarray(redir.endIndex),
       ])
     }
-    return result.toString('utf8').trim().replace(/\s+/g, ' ')
+    return result
+      .toString('utf8')
+      .replace(/[ \t]+/g, ' ')
+      .replace(/[ \t]*\n[ \t]*/g, '\n')
+      .trim()
   }
 
   getOutputRedirections(): OutputRedirection[] {

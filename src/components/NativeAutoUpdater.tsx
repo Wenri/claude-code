@@ -6,7 +6,7 @@ import { logError } from 'src/utils/log.js';
 import { useInterval } from 'usehooks-ts';
 import { useUpdateNotification } from '../hooks/useUpdateNotification.js';
 import { Box, Text } from '../ink.js';
-import type { AutoUpdaterResult } from '../utils/autoUpdater.js';
+import { useAppState, useSetAppState } from '../state/AppState.js';
 import { getMaxVersion, getMaxVersionMessage } from '../utils/autoUpdater.js';
 import { isAutoUpdaterDisabled } from '../utils/config.js';
 import { installLatest } from '../utils/nativeInstaller/index.js';
@@ -43,19 +43,17 @@ function getErrorType(errorMessage: string): string {
 type Props = {
   isUpdating: boolean;
   onChangeIsUpdating: (isUpdating: boolean) => void;
-  onAutoUpdaterResult: (autoUpdaterResult: AutoUpdaterResult) => void;
-  autoUpdaterResult: AutoUpdaterResult | null;
   showSuccessMessage: boolean;
   verbose: boolean;
 };
 export function NativeAutoUpdater({
   isUpdating,
   onChangeIsUpdating,
-  onAutoUpdaterResult,
-  autoUpdaterResult,
   showSuccessMessage,
   verbose
 }: Props): React.ReactNode {
+  const autoUpdaterResult = useAppState(state => state.autoUpdaterResult);
+  const setAppState = useSetAppState();
   const [versions, setVersions] = useState<{
     current?: string | null;
     latest?: string | null;
@@ -69,7 +67,9 @@ export function NativeAutoUpdater({
   // (which would re-trigger the initial-check useEffect below and cause
   // repeated downloads on remount — the upstream trigger for #22413).
   const isUpdatingRef = useRef(isUpdating);
-  isUpdatingRef.current = isUpdating;
+  useEffect(() => {
+    isUpdatingRef.current = isUpdating;
+  });
   const autoUpdaterResultRef = useRef(autoUpdaterResult);
   useEffect(() => {
     autoUpdaterResultRef.current = autoUpdaterResult;
@@ -121,9 +121,18 @@ export function NativeAutoUpdater({
         logEvent('tengu_native_auto_updater_success', {
           latency_ms: latencyMs
         });
-        onAutoUpdaterResult({
-          version: result.latestVersion,
-          status: 'success'
+        setAppState(previous => {
+          const current = previous.autoUpdaterResult;
+          if (current?.version === result.latestVersion && current?.status === 'success') {
+            return previous;
+          }
+          return {
+            ...previous,
+            autoUpdaterResult: {
+              version: result.latestVersion,
+              status: 'success'
+            }
+          };
         });
       } else {
         // Already up to date
@@ -146,9 +155,18 @@ export function NativeAutoUpdater({
         error_npm: errorType === 'npm_error',
         error_network: errorType === 'network_error'
       });
-      onAutoUpdaterResult({
-        version: null,
-        status: 'install_failed'
+      setAppState(previous => {
+        const current = previous.autoUpdaterResult;
+        if (current?.version === null && current?.status === 'install_failed') {
+          return previous;
+        }
+        return {
+          ...previous,
+          autoUpdaterResult: {
+            version: null,
+            status: 'install_failed'
+          }
+        };
       });
     } finally {
       onChangeIsUpdating(false);
@@ -158,7 +176,7 @@ export function NativeAutoUpdater({
     // identity (which would re-trigger the initial-check useEffect below).
     // eslint-disable-next-line react-hooks/exhaustive-deps
     // biome-ignore lint/correctness/useExhaustiveDependencies: isUpdating read via ref
-  }, [onAutoUpdaterResult, channel]);
+  }, [setAppState, channel]);
 
   // Initial check
   useEffect(() => {

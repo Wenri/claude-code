@@ -45,6 +45,12 @@ import {
 // ~400KB of OpenTelemetry + protobuf modules until telemetry is actually initialized.
 // gRPC exporters (~700KB via @grpc/grpc-js) are further lazy-loaded within instrumentation.ts.
 import { configureGlobalAgents } from '../utils/proxy.js'
+import { getPlatform } from '../utils/platform.js'
+import { getCachedPowerShellPath } from '../utils/shell/powershellDetection.js'
+import {
+  isBashToolEnabled,
+  isPowerShellToolEnabled,
+} from '../utils/shell/shellToolUtils.js'
 import { isBetaTracingEnabled } from '../utils/telemetry/betaSessionTracing.js'
 import { getTelemetryAttributes } from '../utils/telemetryAttributes.js'
 import { setShellIfWindows } from '../utils/windowsPaths.js'
@@ -184,6 +190,25 @@ export const init = memoize(async (): Promise<void> => {
 
     // Set up git-bash if relevant
     setShellIfWindows()
+    if (getPlatform() === 'windows' && !isBashToolEnabled()) {
+      if (!isPowerShellToolEnabled()) {
+        // biome-ignore lint/suspicious/noConsole:: intentional console output
+        console.error(`Claude Code on Windows requires a shell tool. Git Bash was not found and the PowerShell tool is disabled (CLAUDE_CODE_USE_POWERSHELL_TOOL=0).
+  - Install Git for Windows: https://git-scm.com/downloads/win, or
+  - Remove CLAUDE_CODE_USE_POWERSHELL_TOOL from your environment or settings.`)
+        // eslint-disable-next-line custom-rules/no-process-exit
+        process.exit(1)
+      }
+      if ((await getCachedPowerShellPath()) === null) {
+        // biome-ignore lint/suspicious/noConsole:: intentional console output
+        console.error(`Claude Code on Windows requires either Git for Windows (for bash) or PowerShell. Install one of:
+  - Git for Windows: https://git-scm.com/downloads/win
+  - PowerShell 7: https://aka.ms/powershell
+Or set CLAUDE_CODE_GIT_BASH_PATH to your bash.exe location.`)
+        // eslint-disable-next-line custom-rules/no-process-exit
+        process.exit(1)
+      }
+    }
 
     // Register LSP manager cleanup (initialization happens in main.tsx after --plugin-dir is processed)
     registerCleanup(shutdownLspServerManager)

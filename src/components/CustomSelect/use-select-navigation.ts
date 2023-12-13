@@ -453,12 +453,24 @@ const createDefaultState = <T>({
         focusedIndex >= currentViewport.visibleFromIndex &&
         focusedIndex < currentViewport.visibleToIndex
       ) {
-        // Keep the same viewport if it's valid
         visibleFromIndex = currentViewport.visibleFromIndex
         visibleToIndex = Math.min(
           optionMap.size,
-          currentViewport.visibleToIndex,
+          visibleFromIndex + visibleOptionCount,
         )
+        if (focusedIndex >= visibleToIndex) {
+          visibleToIndex = Math.min(optionMap.size, focusedIndex + 1)
+          visibleFromIndex = Math.max(
+            0,
+            visibleToIndex - visibleOptionCount,
+          )
+        }
+        if (visibleToIndex - visibleFromIndex < visibleOptionCount) {
+          visibleFromIndex = Math.max(
+            0,
+            visibleToIndex - visibleOptionCount,
+          )
+        }
       } else {
         // Need to adjust viewport to show focused item
         // Use minimal scrolling - put item at edge of viewport
@@ -524,15 +536,24 @@ export function useSelectNavigation<T>({
   onFocusRef.current = onFocus
 
   const [lastOptions, setLastOptions] = useState(options)
+  const [lastVisibleOptionCount, setLastVisibleOptionCount] =
+    useState(visibleOptionCount)
 
-  if (options !== lastOptions && !isDeepStrictEqual(options, lastOptions)) {
+  const optionsChanged =
+    options !== lastOptions && !isDeepStrictEqual(options, lastOptions)
+  const visibleOptionCountChanged =
+    visibleOptionCount !== lastVisibleOptionCount
+
+  if (optionsChanged || visibleOptionCountChanged) {
     dispatch({
       type: 'reset',
       state: createDefaultState({
         visibleOptionCount,
         options,
         initialFocusValue:
-          focusValue ?? state.focusedValue ?? initialFocusValue,
+          optionsChanged
+            ? (focusValue ?? state.focusedValue ?? initialFocusValue)
+            : (state.focusedValue ?? focusValue ?? initialFocusValue),
         currentViewport: {
           visibleFromIndex: state.visibleFromIndex,
           visibleToIndex: state.visibleToIndex,
@@ -540,7 +561,10 @@ export function useSelectNavigation<T>({
       }),
     })
 
-    setLastOptions(options)
+    if (optionsChanged) setLastOptions(options)
+    if (visibleOptionCountChanged) {
+      setLastVisibleOptionCount(visibleOptionCount)
+    }
   }
 
   const focusNextOption = useCallback(() => {

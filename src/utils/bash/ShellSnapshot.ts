@@ -117,6 +117,9 @@ const VCS_DIRECTORIES_TO_EXCLUDE = [
  * so they're tuned to match those tools' semantics, not GNU find/grep.
  *
  * `find` ↔ GlobTool:
+ * - Inject `-S dfs`: bfs's default breadth-first traversal keeps a file
+ *   descriptor open for every directory on the frontier. Depth-first search
+ *   bounds descriptor use on large trees.
  * - Inject `-regextype findutils-default`: bfs defaults to POSIX BRE for
  *   -regex, but GNU find defaults to emacs-flavor (which supports `\|`
  *   alternation). Without this, `find . -regex '.*\.\(js\|ts\)'` silently
@@ -167,6 +170,8 @@ export function createFindGrepShellIntegration(): string | null {
     'unalias find 2>/dev/null || true',
     'unalias grep 2>/dev/null || true',
     createArgv0ShellFunction('find', 'bfs', binaryPath, [
+      '-S',
+      'dfs',
       '-regextype',
       'findutils-default',
     ]),

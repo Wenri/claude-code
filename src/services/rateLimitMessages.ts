@@ -10,6 +10,10 @@ import {
 } from '../utils/auth.js'
 import { hasClaudeAiBillingAccess } from '../utils/billing.js'
 import { formatResetTime } from '../utils/format.js'
+import {
+  getDisplayedEffortLevel,
+  type EffortValue,
+} from '../utils/effort.js'
 import type { ClaudeAILimits } from './claudeAiLimits.js'
 
 const FEEDBACK_CHANNEL_ANT = '#briarpatch-cc'
@@ -151,6 +155,33 @@ export function getRateLimitWarning(
   }
 
   // Don't show errors in the footer
+  return null
+}
+
+export type RateLimitLeverHint = {
+  lever: 'model' | 'effort'
+  text: string
+}
+
+/**
+ * Suggest the single highest-impact quota lever for Pro users approaching
+ * their weekly limit. This is deliberately ungated in 2.1.120.
+ */
+export function getRateLimitLeverHint(
+  limits: ClaudeAILimits,
+  model: string,
+  effortValue: EffortValue | undefined,
+): RateLimitLeverHint | null {
+  if (getSubscriptionType() !== 'pro') return null
+  if (limits.rateLimitType !== 'seven_day') return null
+  if (model.includes('opus')) {
+    return { lever: 'model', text: 'try /model sonnet · ~2× runway' }
+  }
+
+  const effort = getDisplayedEffortLevel(model, effortValue)
+  if (effort === 'high' || effort === 'xhigh' || effort === 'max') {
+    return { lever: 'effort', text: 'try /effort medium' }
+  }
   return null
 }
 

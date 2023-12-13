@@ -31,7 +31,9 @@ function describeAutoCompactWindow(
       ? ` · capped to ${formatTokens(window)} by model`
       : ''
   const lines = [
-    `Auto-compact window: ${formatTokens(configured)} tokens${sourceText}${capped}`,
+    source === 'auto'
+      ? 'Auto-compact window: auto'
+      : `Auto-compact window: ${formatTokens(configured)} tokens${sourceText}${capped}`,
   ]
   if (!isAutoCompactEnabled()) {
     lines.push('Auto-compact is currently disabled (see /config)')

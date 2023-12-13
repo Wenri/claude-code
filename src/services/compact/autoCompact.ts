@@ -142,8 +142,10 @@ function notifyAutoCompactWindowHint(
 
   context.addNotification?.({
     key: 'autocompact-auto-hint',
-    text: `compacted at the auto window (${formatTokens(configured)}) · use /autocompact to configure`,
-    priority: 'medium',
+    text: `compacting at the auto ${formatTokens(configured)} window · configure with /autocompact`,
+    priority: 'immediate',
+    color: 'suggestion',
+    timeoutMs: 12_000,
   })
 }
 
@@ -415,6 +417,8 @@ export async function autoCompactIfNeeded(
     querySource,
   }
 
+  notifyAutoCompactWindowHint(toolUseContext, model, autoCompactWindow)
+
   // EXPERIMENT: Try session memory compaction first
   const sessionMemoryResult = await trySessionMemoryCompaction(
     messages,
@@ -422,7 +426,6 @@ export async function autoCompactIfNeeded(
     recompactionInfo.autoCompactThreshold,
   )
   if (sessionMemoryResult) {
-    notifyAutoCompactWindowHint(toolUseContext, model, autoCompactWindow)
     // Reset lastSummarizedMessageId since session memory compaction prunes messages
     // and the old message UUID will no longer exist after the REPL replaces messages
     setLastSummarizedMessageId(undefined)
@@ -451,8 +454,6 @@ export async function autoCompactIfNeeded(
       true, // isAutoCompact
       recompactionInfo,
     )
-    notifyAutoCompactWindowHint(toolUseContext, model, autoCompactWindow)
-
     // Reset lastSummarizedMessageId since legacy compaction replaces all messages
     // and the old message UUID will no longer exist in the new messages array
     setLastSummarizedMessageId(undefined)

@@ -4,6 +4,7 @@ import * as pathWin32 from 'path/win32'
 import { getCwd } from './cwd.js'
 import { logForDebugging } from './debug.js'
 import { execSync_DEPRECATED } from './execSyncWrapper.js'
+import { getFsImplementation } from './fsOperations.js'
 import { memoizeWithLRU } from './memoize.js'
 import { getPlatform } from './platform.js'
 
@@ -93,17 +94,24 @@ function findExecutable(executable: string): string | null {
 export function setShellIfWindows(): void {
   if (getPlatform() === 'windows') {
     const gitBashPath = findGitBashPath()
-    process.env.SHELL = gitBashPath
-    logForDebugging(`Using bash path: "${gitBashPath}"`)
+    if (gitBashPath) {
+      process.env.SHELL = gitBashPath
+      logForDebugging(`Using bash path: "${gitBashPath}"`)
+    } else {
+      logForDebugging('Git Bash not found; BashTool will be unavailable')
+    }
   }
 }
 
 /**
- * Find the path where `bash.exe` included with git-bash exists, exiting the process if not found.
+ * Find the path where `bash.exe` included with Git for Windows exists.
+ * An invalid explicit override is fatal; an ordinary missing installation
+ * returns null so callers can fall back to PowerShell where appropriate.
  */
-export const findGitBashPath = memoize((): string => {
+export const findGitBashPath = memoize((): string | null => {
+  const { existsSync } = getFsImplementation()
   if (process.env.CLAUDE_CODE_GIT_BASH_PATH) {
-    if (checkPathExists(process.env.CLAUDE_CODE_GIT_BASH_PATH)) {
+    if (existsSync(process.env.CLAUDE_CODE_GIT_BASH_PATH)) {
       return process.env.CLAUDE_CODE_GIT_BASH_PATH
     }
     // biome-ignore lint/suspicious/noConsole:: intentional console output
@@ -114,20 +122,23 @@ export const findGitBashPath = memoize((): string => {
     process.exit(1)
   }
 
+  const defaultLocations = [
+    'C:\\Program Files\\Git\\bin\\bash.exe',
+    'C:\\Program Files (x86)\\Git\\bin\\bash.exe',
+  ]
+  for (const location of defaultLocations) {
+    if (existsSync(location)) return location
+  }
+
   const gitPath = findExecutable('git')
   if (gitPath) {
     const bashPath = pathWin32.join(gitPath, '..', '..', 'bin', 'bash.exe')
-    if (checkPathExists(bashPath)) {
+    if (existsSync(bashPath)) {
       return bashPath
     }
   }
 
-  // biome-ignore lint/suspicious/noConsole:: intentional console output
-  console.error(
-    'Claude Code on Windows requires git-bash (https://git-scm.com/downloads/win). If installed but not in PATH, set environment variable pointing to your bash.exe, similar to: CLAUDE_CODE_GIT_BASH_PATH=C:\\Program Files\\Git\\bin\\bash.exe',
-  )
-  // eslint-disable-next-line custom-rules/no-process-exit
-  process.exit(1)
+  return null
 })
 
 /** Convert a Windows path to a POSIX path using pure JS. */

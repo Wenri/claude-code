@@ -69,6 +69,7 @@ import { findClosestCommand } from './utils/suggestions/commandSuggestions.js';
 import { jsonParse, writeFileSync_DEPRECATED } from './utils/slowOperations.js';
 import { computeInitialTeamContext } from './utils/swarm/reconnection.js';
 import { initializeWarningHandler } from './utils/warningHandler.js';
+import { initializeAiAgentEnvironment } from './utils/userAgent.js';
 import { isWorktreeModeEnabled } from './utils/worktreeModeEnabled.js';
 
 // Lazy require to avoid circular dependency: teammate.ts -> AppState.tsx -> ... -> main.tsx
@@ -864,6 +865,7 @@ export async function main() {
 
   // Initialize entrypoint based on mode - needs to be set before any event is logged
   initializeEntrypoint(isNonInteractive);
+  initializeAiAgentEnvironment();
 
   // Determine client type
   const clientType = (() => {
@@ -2949,6 +2951,7 @@ async function run(): Promise<CommanderCommand> {
     const initialState: AppState = {
       settings: getInitialSettings(),
       tasks: {},
+      taskDecorations: {},
       agentNameRegistry: new Map(),
       verbose: verbose ?? getConfigValue('verbose', false).value,
       showMessageTimestamps: getConfigValue('showMessageTimestamps', false).value,
@@ -3008,6 +3011,7 @@ async function run(): Promise<CommanderCommand> {
         current: null,
         queue: initialNotifications
       },
+      autoUpdaterResult: null,
       elicitation: {
         queue: []
       },
@@ -4376,6 +4380,16 @@ async function run(): Promise<CommanderCommand> {
       agentsHandler
     } = await import('./cli/handlers/agents.js');
     await agentsHandler();
+    process.exit(0);
+  });
+  program.command('ultrareview [target]').description('Run a cloud-hosted multi-agent code review of the current branch (or a PR number / base branch) and print the findings').option('--json', 'Print the raw bugs.json payload instead of formatted findings').option('--timeout <minutes>', 'Maximum minutes to wait for the review to finish (default: 30)').action(async (target: string | undefined, options: {
+    json?: boolean;
+    timeout?: string;
+  }) => {
+    const {
+      ultrareviewHandler
+    } = await import('./cli/handlers/ultrareview.js');
+    await ultrareviewHandler(target ?? '', options);
     process.exit(0);
   });
   if (feature('TRANSCRIPT_CLASSIFIER')) {

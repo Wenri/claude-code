@@ -344,7 +344,7 @@ export const FileReadTool = buildTool({
   async description() {
     return DESCRIPTION
   },
-  async prompt() {
+  async prompt({ model }) {
     const limits = getDefaultFileReadingLimits()
     const maxSizeInstruction = limits.includeMaxSizeInPrompt
       ? `. Files larger than ${formatFileSize(limits.maxSizeBytes)} will return an error; use offset and limit for larger files`
@@ -353,6 +353,7 @@ export const FileReadTool = buildTool({
       ? OFFSET_INSTRUCTION_TARGETED
       : OFFSET_INSTRUCTION_DEFAULT
     return renderPromptTemplate(
+      model,
       pickLineFormatInstruction(),
       maxSizeInstruction,
       offsetInstruction,

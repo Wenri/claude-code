@@ -84,6 +84,11 @@ function startWatching(paths: string[]): void {
   watcher.on('change', p => handleFileEvent(p, 'change'))
   watcher.on('add', p => handleFileEvent(p, 'add'))
   watcher.on('unlink', p => handleFileEvent(p, 'unlink'))
+  watcher.on('error', error =>
+    logForDebugging(`FileChanged: watcher error: ${errorMessage(error)}`, {
+      level: 'warn',
+    }),
+  )
 }
 
 function handleFileEvent(
