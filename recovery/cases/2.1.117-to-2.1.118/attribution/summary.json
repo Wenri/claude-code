@@ -1,0 +1,172 @@
+{
+  "schemaVersion": 1,
+  "kind": "generated-source-ownership-and-attribution-inventory",
+  "offsetUnit": "utf16-code-units",
+  "claim": "Exhaustive generated-offset accounting with exact baseline source ownership; target source identities are evidence-ranked and unresolved where anchors are insufficient.",
+  "artifacts": {
+    "baselineBundle": {
+      "bytes": 13047043,
+      "sha256": "75c9611929d9a770fe2e3a393219d8b98f5de17fde539b2a7355c6db3fd2795f"
+    },
+    "baselineSourceMap": {
+      "bytes": 59766257,
+      "sha256": "7965012b7a5fc9e09d8d747a04c5c32b94696924536e217f686bb1e7ee70a657"
+    },
+    "targetBundle": {
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    }
+  },
+  "options": {
+    "minimumLiteralLength": 8
+  },
+  "baselineOwnership": {
+    "sourceCount": 4756,
+    "sourceKinds": {
+      "application": 1902,
+      "nodeModules": 2850,
+      "vendor": 4
+    },
+    "mappedSegmentCount": 2068722,
+    "contiguousRunCount": 4756,
+    "eachSourceHasExactlyOneContiguousRun": true,
+    "generatedHeaderUtf16": 2230
+  },
+  "literalEvidence": {
+    "uniqueCommonAnchorCount": 38079,
+    "monotoneAnchorCount": 29640,
+    "nonMonotoneAnchorCount": 8439,
+    "monotoneFraction": 0.7783817852359568,
+    "partitionCount": 29641,
+    "tokenCountDelta": -45830,
+    "utf16LengthDelta": 251290,
+    "locatedSourceCount": 2350,
+    "locatedApplicationSourceCount": 1224,
+    "splitTargetClusterSourceCount": 22
+  },
+  "initializerEvidence": {
+    "baseline": {
+      "wrapperNames": {
+        "common": "m",
+        "initializer": "y"
+      },
+      "count": 4527
+    },
+    "target": {
+      "wrapperNames": {
+        "common": "d",
+        "initializer": "v"
+      },
+      "count": 5055,
+      "statuses": {
+        "unresolved-no-unique-literal": 2595,
+        "anchored-single-baseline-unit": 2356,
+        "anchored-multiple-baseline-units": 104
+      }
+    },
+    "targetNetCountDelta": 528
+  },
+  "coverage": {
+    "partitionCount": 29641,
+    "targetPartitionUtf16": 11854670,
+    "exactAnchorCount": 29640,
+    "exactAnchorTargetUtf16": 1379948,
+    "exactGeneratedPartitionCount": 12963,
+    "exactGeneratedTargetUtf16": 156433,
+    "changedHighConfidencePartitionCount": 14592,
+    "changedHighConfidenceTargetUtf16": 4064230,
+    "changedCandidatePartitionCount": 2083,
+    "changedCandidateTargetUtf16": 7631826,
+    "unresolvedPartitionCount": 3,
+    "unresolvedTargetUtf16": 2181,
+    "accountedTargetUtf16": 13234618,
+    "targetUtf16": 13234618,
+    "unaccountedTargetUtf16": 0,
+    "targetRangeCount": 59281,
+    "targetRangeUtf16": 13234618
+  },
+  "releaseEvidence": {
+    "targetPackage": {
+      "bytes": 1476,
+      "sha256": "fd9eba95cb868d4c06c42fca9707a51139b6b0b4aa8e1c1826b356b58d09befc",
+      "name": "@anthropic-ai/claude-code",
+      "version": "2.1.118"
+    },
+    "targetDeclarations": {
+      "bytes": 117452,
+      "sha256": "8f907e0e9fd160b857d25881375f73f1bddd3642d372ad52ea71d7ff441f3ddf"
+    },
+    "officialChangelog": {
+      "bytes": 250079,
+      "sha256": "16b8c952c057d9ad82090afb659f3ad116a583211994faf67fc47b61efa5df2b",
+      "section": "2.1.118",
+      "bulletCount": 34,
+      "bullets": [
+        "Added vim visual mode (`v`) and visual-line mode (`V`) with selection, operators, and visual feedback",
+        "Merged `/cost` and `/stats` into `/usage` — both remain as typing shortcuts that open the relevant tab",
+        "Create and switch between named custom themes from `/theme`, or hand-edit JSON files in `~/.claude/themes/`; plugins can also ship themes via a `themes/` directory",
+        "Hooks can now invoke MCP tools directly via `type: \"mcp_tool\"`",
+        "Added `DISABLE_UPDATES` env var to completely block all update paths including manual `claude update` — stricter than `DISABLE_AUTOUPDATER`",
+        "WSL on Windows can now inherit Windows-side managed settings via the `wslInheritsWindowsSettings` policy key",
+        "Auto mode: include `\"$defaults\"` in `autoMode.allow`, `autoMode.soft_deny`, or `autoMode.environment` to add custom rules alongside the built-in list instead of replacing it",
+        "Added a \"Don't ask again\" option to the auto mode opt-in prompt",
+        "Added `claude plugin tag` to create release git tags for plugins with version validation",
+        "`--continue`/`--resume` now find sessions that added the current directory via `/add-dir`",
+        "`/color` now syncs the session accent color to claude.ai/code when Remote Control is connected",
+        "The `/model` picker now honors `ANTHROPIC_DEFAULT_*_MODEL_NAME`/`_DESCRIPTION` overrides when using a custom `ANTHROPIC_BASE_URL` gateway",
+        "When auto-update skips a plugin due to another plugin's version constraint, the skip now appears in `/doctor` and the `/plugin` Errors tab",
+        "Fixed `/mcp` menu hiding OAuth Authenticate/Re-authenticate actions for servers configured with `headersHelper`, and HTTP/SSE MCP servers with custom headers being stuck in \"needs authentication\" after a transient 401",
+        "Fixed MCP servers whose OAuth token response omits `expires_in` requiring re-authentication every hour",
+        "Fixed MCP step-up authorization silently refreshing instead of prompting for re-consent when the server's `insufficient_scope` 403 names a scope the current token already has",
+        "Fixed an unhandled promise rejection when an MCP server's OAuth flow times out or is cancelled",
+        "Fixed MCP OAuth refresh proceeding without its cross-process lock under contention",
+        "Fixed macOS keychain race where a concurrent MCP token refresh could overwrite a freshly-refreshed OAuth token, causing unexpected \"Please run /login\" prompts",
+        "Fixed OAuth token refresh failing when the server revokes a token before its local expiry time",
+        "Fixed credential save crash on Linux/Windows corrupting `~/.claude/.credentials.json`",
+        "Fixed `/login` having no effect in a session launched with `CLAUDE_CODE_OAUTH_TOKEN` — the env token is now cleared so disk credentials take effect",
+        "Fixed unreadable text in the \"new messages\" scroll pill and `/plugin` badges",
+        "Fixed plan acceptance dialog offering \"auto mode\" instead of \"bypass permissions\" when running with `--dangerously-skip-permissions`",
+        "Fixed agent-type hooks failing with \"Messages are required for agent hooks\" when configured for events other than `Stop` or `SubagentStop`",
+        "Fixed `prompt` hooks re-firing on tool calls made by an agent-hook verifier subagent",
+        "Fixed `/fork` writing the full parent conversation to disk per fork — now writes a pointer and hydrates on read",
+        "Fixed Alt+K / Alt+X / Alt+^ / Alt+_ freezing keyboard input",
+        "Fixed connecting to a remote session overwriting your local `model` setting in `~/.claude/settings.json`",
+        "Fixed typeahead showing \"No commands match\" error when pasting file paths that start with `/`",
+        "Fixed `plugin install` on an already-installed plugin not re-resolving a dependency installed at the wrong version",
+        "Fixed unhandled errors from file watcher on invalid paths or fd exhaustion",
+        "Fixed Remote Control sessions getting archived on transient CCR initialization blips during JWT refresh",
+        "Fixed subagents resumed via `SendMessage` not restoring the explicit `cwd` they were spawned with"
+      ]
+    }
+  },
+  "reportFiles": {
+    "sources": {
+      "path": "sources.jsonl.gz",
+      "bytes": 466949,
+      "sha256": "79abad7b0b3cf874000c4f66b8c59a5b3ba53374e799e72eceb112be73a8d21d"
+    },
+    "targetInitializers": {
+      "path": "target-initializers.jsonl.gz",
+      "bytes": 117410,
+      "sha256": "58cfa9e98f54ea8e5f5bce14a9c01eb94fac6d6b5fbf4de70bf134b7d3e7aa36"
+    },
+    "targetPartitions": {
+      "path": "target-partitions.jsonl.gz",
+      "bytes": 2982957,
+      "sha256": "03f9d81eb9d08411a9897da5378a25f9174f3d7b38e889adb519113c21ace86e"
+    },
+    "targetRanges": {
+      "path": "target-ranges.jsonl.gz",
+      "bytes": 3489288,
+      "sha256": "7e07682dc807ef2e8f28ca334b23761ee29e920abad582640d9a81afdf09a15d"
+    }
+  },
+  "limitations": [
+    "Exact source ownership exists only for the baseline source map.",
+    "Initializer regions are delimited by successive Bun wrapper-expression starts; they are generated units, not asserted one-to-one source modules.",
+    "A target initializer with no unique long literal is unresolved, not automatically target-only.",
+    "Candidate ranges can include moved code; non-monotone literal owners are reported separately.",
+    "Raw-different partitions include harmless minifier-name churn as well as semantic changes.",
+    "No target source text is claimed reconstructed by this inventory."
+  ]
+}

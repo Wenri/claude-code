@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "kind": "generated-source-ownership-and-attribution-inventory",
+  "offsetUnit": "utf16-code-units",
+  "claim": "Exhaustive generated-offset accounting with exact baseline source ownership; target source identities are evidence-ranked and unresolved where anchors are insufficient.",
+  "artifacts": {
+    "baselineBundle": {
+      "bytes": 13047043,
+      "sha256": "75c9611929d9a770fe2e3a393219d8b98f5de17fde539b2a7355c6db3fd2795f"
+    },
+    "baselineSourceMap": {
+      "bytes": 59766257,
+      "sha256": "7965012b7a5fc9e09d8d747a04c5c32b94696924536e217f686bb1e7ee70a657"
+    },
+    "targetBundle": {
+      "bytes": 13128331,
+      "sha256": "069185909d50518b8b239acc0f9ae9b062a610595299b35955fc53e6e2c2f5e9"
+    }
+  },
+  "options": {
+    "minimumLiteralLength": 8
+  },
+  "baselineOwnership": {
+    "sourceCount": 4756,
+    "sourceKinds": {
+      "application": 1902,
+      "nodeModules": 2850,
+      "vendor": 4
+    },
+    "mappedSegmentCount": 2068722,
+    "contiguousRunCount": 4756,
+    "eachSourceHasExactlyOneContiguousRun": true,
+    "generatedHeaderUtf16": 2230
+  },
+  "literalEvidence": {
+    "uniqueCommonAnchorCount": 44158,
+    "monotoneAnchorCount": 43529,
+    "nonMonotoneAnchorCount": 629,
+    "monotoneFraction": 0.9857556954572217,
+    "partitionCount": 43530,
+    "tokenCountDelta": 24630,
+    "utf16LengthDelta": 80813,
+    "locatedSourceCount": 2634,
+    "locatedApplicationSourceCount": 1324,
+    "splitTargetClusterSourceCount": 0
+  },
+  "initializerEvidence": {
+    "baseline": {
+      "wrapperNames": {
+        "common": "m",
+        "initializer": "y"
+      },
+      "count": 4527
+    },
+    "target": {
+      "wrapperNames": {
+        "common": "p",
+        "initializer": "E"
+      },
+      "count": 4552,
+      "statuses": {
+        "unresolved-no-unique-literal": 2020,
+        "anchored-single-baseline-unit": 2524,
+        "anchored-multiple-baseline-units": 8
+      }
+    },
+    "targetNetCountDelta": 25
+  },
+  "coverage": {
+    "partitionCount": 43530,
+    "targetPartitionUtf16": 10378759,
+    "exactAnchorCount": 43529,
+    "exactAnchorTargetUtf16": 2685382,
+    "exactGeneratedPartitionCount": 22850,
+    "exactGeneratedTargetUtf16": 593495,
+    "changedHighConfidencePartitionCount": 18077,
+    "changedHighConfidenceTargetUtf16": 5143365,
+    "changedCandidatePartitionCount": 2597,
+    "changedCandidateTargetUtf16": 4640003,
+    "unresolvedPartitionCount": 6,
+    "unresolvedTargetUtf16": 1896,
+    "accountedTargetUtf16": 13064141,
+    "targetUtf16": 13064141,
+    "unaccountedTargetUtf16": 0
+  },
+  "releaseEvidence": {
+    "targetPackage": {
+      "bytes": 1242,
+      "sha256": "c5903b5167075dcfce58df0df30e7b5249d633d9ef4dda6ba1c716ec98856d8a",
+      "name": "@anthropic-ai/claude-code",
+      "version": "2.1.90"
+    },
+    "targetDeclarations": {
+      "bytes": 117129,
+      "sha256": "05ecc6a51d013f5e9b8f1cc86818c467435a71187d18005d3125ed6e0c52fe2d"
+    },
+    "officialChangelog": {
+      "bytes": 193386,
+      "sha256": "9ade5a1962402a246bb71772946b1f28bb03974672ee5ba41a6920d054856bd8",
+      "section": "2.1.90",
+      "bulletCount": 19,
+      "bullets": [
+        "Added `/powerup` — interactive lessons teaching Claude Code features with animated demos",
+        "Added `CLAUDE_CODE_PLUGIN_KEEP_MARKETPLACE_ON_FAILURE` env var to keep the existing marketplace cache when `git pull` fails, useful in offline environments",
+        "Added `.husky` to protected directories (acceptEdits mode)",
+        "Fixed an infinite loop where the rate-limit options dialog would repeatedly auto-open after hitting your usage limit, eventually crashing the session",
+        "Fixed `--resume` causing a full prompt-cache miss on the first request for users with deferred tools, MCP servers, or custom agents (regression since v2.1.69)",
+        "Fixed `Edit`/`Write` failing with \"File content has changed\" when a PostToolUse format-on-save hook rewrites the file between consecutive edits",
+        "Fixed `PreToolUse` hooks that emit JSON to stdout and exit with code 2 not correctly blocking the tool call",
+        "Fixed collapsed search/read summary badge appearing multiple times in fullscreen scrollback when a CLAUDE.md file auto-loads during a tool call",
+        "Fixed auto mode not respecting explicit user boundaries (\"don't push\", \"wait for X before Y\") even when the action would otherwise be allowed",
+        "Fixed click-to-expand hover text being nearly invisible on light terminal themes",
+        "Fixed UI crash when malformed tool input reached the permission dialog",
+        "Fixed headers disappearing when scrolling `/model`, `/config`, and other selection screens",
+        "Hardened PowerShell tool permission checks: fixed trailing `&` background job bypass, `-ErrorAction Break` debugger hang, archive-extraction TOCTOU, and parse-fail fallback deny-rule degradation",
+        "Improved performance: eliminated per-turn JSON.stringify of MCP tool schemas on cache-key lookup",
+        "Improved performance: SSE transport now handles large streamed frames in linear time (was quadratic)",
+        "Improved performance: SDK sessions with long conversations no longer slow down quadratically on transcript writes",
+        "Improved `/resume` all-projects view to load project sessions in parallel, improving load times for users with many projects",
+        "Changed `--resume` picker to no longer show sessions created by `claude -p` or SDK invocations",
+        "Removed `Get-DnsClientCache` and `ipconfig /displaydns` from auto-allow (DNS cache privacy)"
+      ]
+    }
+  },
+  "reportFiles": {
+    "sources": {
+      "path": "sources.jsonl.gz",
+      "bytes": 493366,
+      "sha256": "eafb470ae7f65f6bf0efbfa861724cd5652f91ef48e8d3e286dedd5ec6bdf8be"
+    },
+    "targetInitializers": {
+      "path": "target-initializers.jsonl.gz",
+      "bytes": 110148,
+      "sha256": "40a328122cc7778c6b47e75855137470a0e8d6aa9a936458e0bf1502b699089d"
+    },
+    "targetPartitions": {
+      "path": "target-partitions.jsonl.gz",
+      "bytes": 4204969,
+      "sha256": "8766ffb6e249caa77188f90daca706f5f57f0a740a7e1288381e43274fbda1cc"
+    }
+  },
+  "limitations": [
+    "Exact source ownership exists only for the baseline source map.",
+    "Initializer regions are delimited by successive Bun wrapper-expression starts; they are generated units, not asserted one-to-one source modules.",
+    "A target initializer with no unique long literal is unresolved, not automatically target-only.",
+    "Candidate ranges can include moved code; non-monotone literal owners are reported separately.",
+    "Raw-different partitions include harmless minifier-name churn as well as semantic changes.",
+    "No target source text is claimed reconstructed by this inventory."
+  ]
+}

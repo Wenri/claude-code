@@ -1,0 +1,223 @@
+diff --git a/src/components/VirtualMessageList.tsx b/src/components/VirtualMessageList.tsx
+index b9a8d7a..d3a4339 100644
+--- a/src/components/VirtualMessageList.tsx
++++ b/src/components/VirtualMessageList.tsx
+@@ -1,7 +1,7 @@
+ import { c as _c } from "react/compiler-runtime";
+ import type { RefObject } from 'react';
+ import * as React from 'react';
+-import { useCallback, useContext, useEffect, useImperativeHandle, useRef, useState, useSyncExternalStore } from 'react';
++import { useCallback, useContext, useEffect, useImperativeHandle, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+ import { useVirtualScroll } from '../hooks/useVirtualScroll.js';
+ import type { ScrollBoxHandle } from '../ink/components/ScrollBox.js';
+ import type { DOMElement } from '../ink/dom.js';
+@@ -305,23 +305,7 @@ export function VirtualMessageList({
+   scanElement,
+   setPositions
+ }: Props): React.ReactNode {
+-  // Incremental key array. Streaming appends one message at a time; rebuilding
+-  // the full string array on every commit allocates O(n) per message (~1MB
+-  // churn at 27k messages). Append-only delta push when the prefix matches;
+-  // fall back to full rebuild on compaction, /clear, or itemKey change.
+-  const keysRef = useRef<string[]>([]);
+-  const prevMessagesRef = useRef<typeof messages>(messages);
+-  const prevItemKeyRef = useRef(itemKey);
+-  if (prevItemKeyRef.current !== itemKey || messages.length < keysRef.current.length || messages[0] !== prevMessagesRef.current[0]) {
+-    keysRef.current = messages.map(m => itemKey(m));
+-  } else {
+-    for (let i = keysRef.current.length; i < messages.length; i++) {
+-      keysRef.current.push(itemKey(messages[i]!));
+-    }
+-  }
+-  prevMessagesRef.current = messages;
+-  prevItemKeyRef.current = itemKey;
+-  const keys = keysRef.current;
++  const keys = useMemo(() => messages.map(itemKey), [messages, itemKey]);
+   const {
+     range,
+     topSpacer,
+diff --git a/src/components/design-system/Tabs.tsx b/src/components/design-system/Tabs.tsx
+index e161836..34179c0 100644
+--- a/src/components/design-system/Tabs.tsx
++++ b/src/components/design-system/Tabs.tsx
+@@ -4,6 +4,7 @@ import { useIsInsideModal, useModalScrollRef } from '../../context/modalContext.
+ import { useTerminalSize } from '../../hooks/useTerminalSize.js';
+ import ScrollBox from '../../ink/components/ScrollBox.js';
+ import type { KeyboardEvent } from '../../ink/events/keyboard-event.js';
++import { useDeclaredCursor } from '../../ink/hooks/use-declared-cursor.js';
+ import { stringWidth } from '../../ink/stringWidth.js';
+ import { Box, Text } from '../../ink.js';
+ import { useKeybindings } from '../../keybindings/useKeybinding.js';
+@@ -200,10 +201,9 @@ export function Tabs(t0) {
+   const t13 = true;
+   const t14 = modalScrollRef ? 0 : undefined;
+   const t15 = !hidden && <Box flexDirection="row" gap={1} flexShrink={modalScrollRef ? 0 : undefined}>{title !== undefined && <Text bold={true} color={color}>{title}</Text>}{tabs.map((t16, i) => {
+-      const [id, title_0] = t16;
+-      const isCurrent = selectedTabIndex === i;
+-      const hasColorCursor = color && isCurrent && headerFocused;
+-      return <Text key={id} backgroundColor={hasColorCursor ? color : undefined} color={hasColorCursor ? "inverseText" : undefined} inverse={isCurrent && !hasColorCursor} bold={isCurrent}>{" "}{title_0}{" "}</Text>;
++    const [id, title_0] = t16;
++    const isCurrent = selectedTabIndex === i;
++    return <TabHeader key={id} title={title_0} isCurrent={isCurrent} headerFocused={headerFocused} color={color} />;
+     })}{spacerWidth > 0 && <Text>{" ".repeat(spacerWidth)}</Text>}</Box>;
+   let t17;
+   if ($[11] !== children || $[12] !== contentHeight || $[13] !== contentWidth || $[14] !== hidden || $[15] !== modalScrollRef || $[16] !== selectedTabIndex) {
+@@ -253,6 +253,26 @@ function _temp2(n) {
+ function _temp(child) {
+   return [child.props.id ?? child.props.title, child.props.title];
+ }
++type TabHeaderProps = {
++  title: string;
++  isCurrent: boolean;
++  headerFocused: boolean;
++  color: keyof Theme | undefined;
++};
++function TabHeader({
++  title,
++  isCurrent,
++  headerFocused,
++  color
++}: TabHeaderProps): React.ReactNode {
++  const cursorRef = useDeclaredCursor({
++    line: 0,
++    column: 1,
++    active: isCurrent && headerFocused
++  });
++  const hasColorCursor = color && isCurrent && headerFocused;
++  return <Box ref={cursorRef}><Text backgroundColor={hasColorCursor ? color : undefined} color={hasColorCursor ? "inverseText" : undefined} inverse={isCurrent && !hasColorCursor} bold={isCurrent}>{" "}{title}{" "}</Text></Box>;
++}
+ type TabProps = {
+   title: string;
+   id?: string;
+diff --git a/src/components/messages/HighlightedThinkingText.tsx b/src/components/messages/HighlightedThinkingText.tsx
+index 8de7407..7f45f46 100644
+--- a/src/components/messages/HighlightedThinkingText.tsx
++++ b/src/components/messages/HighlightedThinkingText.tsx
+@@ -88,7 +88,7 @@ export function HighlightedThinkingText(t0) {
+       if (triggers.length === 0) {
+         let t2;
+         if ($[19] !== pointerColor) {
+-          t2 = <Text color={pointerColor}>{figures.pointer} </Text>;
++          t2 = <Box flexShrink={0}><Text color={pointerColor}>{figures.pointer} </Text></Box>;
+           $[19] = pointerColor;
+           $[20] = t2;
+         } else {
+@@ -104,7 +104,7 @@ export function HighlightedThinkingText(t0) {
+         }
+         let t4;
+         if ($[23] !== t2 || $[24] !== t3) {
+-          t4 = <Text>{t2}{t3}</Text>;
++          t4 = <Box flexDirection="row">{t2}{t3}</Box>;
+           $[23] = t2;
+           $[24] = t3;
+           $[25] = t4;
+@@ -142,7 +142,7 @@ export function HighlightedThinkingText(t0) {
+   }
+   let t2;
+   if ($[26] !== pointerColor) {
+-    t2 = <Text color={pointerColor}>{figures.pointer} </Text>;
++    t2 = <Box flexShrink={0}><Text color={pointerColor}>{figures.pointer} </Text></Box>;
+     $[26] = pointerColor;
+     $[27] = t2;
+   } else {
+@@ -150,7 +150,7 @@ export function HighlightedThinkingText(t0) {
+   }
+   let t3;
+   if ($[28] !== parts || $[29] !== t2) {
+-    t3 = <Text>{t2}{parts}</Text>;
++    t3 = <Box flexDirection="row">{t2}<Text>{parts}</Text></Box>;
+     $[28] = parts;
+     $[29] = t2;
+     $[30] = t3;
+diff --git a/src/ink/components/App.tsx b/src/ink/components/App.tsx
+index f9d248d..d3e7c3e 100644
+--- a/src/ink/components/App.tsx
++++ b/src/ink/components/App.tsx
+@@ -5,6 +5,7 @@ import { stopCapturingEarlyInput } from '../../utils/earlyInput.js';
+ import { isEnvTruthy } from '../../utils/envUtils.js';
+ import { isMouseClicksDisabled } from '../../utils/fullscreen.js';
+ import { logError } from '../../utils/log.js';
++import { execFileNoThrow } from '../../utils/execFileNoThrow.js';
+ import { EventEmitter } from '../events/emitter.js';
+ import { InputEvent } from '../events/input-event.js';
+ import { TerminalFocusEvent } from '../events/terminal-focus-event.js';
+@@ -251,10 +252,21 @@ export default class App extends PureComponent<Props, State> {
+         // init sequence completes — avoids interleaving with alt-screen/mouse
+         // tracking enable writes that may happen in the same render cycle.
+         setImmediate(() => {
+-          void Promise.all([this.querier.send(xtversion()), this.querier.flush()]).then(([r]) => {
++          void Promise.all([this.querier.send(xtversion()), this.querier.flush()]).then(async ([r]) => {
+             if (r) {
+-              setXtversionName(r.name);
+-              logForDebugging(`XTVERSION: terminal identified as "${r.name}"`);
++              let name = r.name;
++              if (process.env.TMUX && name.startsWith('tmux ')) {
++                const {
++                  stdout,
++                } = await execFileNoThrow('tmux', ['display-message', '-p', '#{client_termtype}'], {
++                  timeout: 1000,
++                  useCwd: false,
++                });
++                const clientTermtype = stdout.trim();
++                if (clientTermtype) name = clientTermtype;
++              }
++              setXtversionName(name);
++              logForDebugging(`XTVERSION: terminal identified as "${name}"`);
+             } else {
+               logForDebugging('XTVERSION: no reply (terminal ignored query)');
+             }
+diff --git a/src/ink/events/keyboard-event.ts b/src/ink/events/keyboard-event.ts
+index 1210efd..179f0d8 100644
+--- a/src/ink/events/keyboard-event.ts
++++ b/src/ink/events/keyboard-event.ts
+@@ -33,6 +33,8 @@ function keyFromParsed(parsed: ParsedKey): string {
+   const seq = parsed.sequence ?? ''
+   const name = parsed.name ?? ''
+ 
++  if (name === 'space') return ' '
++
+   // Ctrl combos: sequence is a control byte (\x03 for ctrl+c), name is the
+   // letter. Browsers report e.key === 'c' with e.ctrlKey === true.
+   if (parsed.ctrl) return name
+diff --git a/src/ink/render-node-to-output.ts b/src/ink/render-node-to-output.ts
+index 73bbbbe..486073d 100644
+--- a/src/ink/render-node-to-output.ts
++++ b/src/ink/render-node-to-output.ts
+@@ -988,6 +988,7 @@ function renderNodeToOutput(
+               // point fall through to yoga + the fine-grained check below,
+               // preserving the ghost-box fix.
+               let cumHeightShift = 0
++              let firstRenderedY: number | undefined
+               for (const childNode of content.childNodes) {
+                 const childElem = childNode as DOMElement
+                 const isDirty = dirtyChildren.has(childNode)
+@@ -1024,13 +1025,24 @@ function renderNodeToOutput(
+                 // painted it → render.
+                 if (!isDirty) {
+                   const childCached = nodeCache.get(childElem)
+-                  if (
+-                    childCached &&
+-                    Math.floor(childCached.y) - delta === screenY
+-                  ) {
+-                    continue
++                  if (childCached) {
++                    const shiftedOldY = Math.floor(childCached.y) - delta
++                    if (shiftedOldY === screenY) continue
++
++                    const oldTop = Math.max(shiftedOldY, hint.top)
++                    const oldBottom = Math.min(
++                      shiftedOldY + childCached.height,
++                      firstRenderedY ?? hint.bottom + 1,
++                    )
++                    if (oldTop < oldBottom) {
++                      const fill = Array(oldBottom - oldTop)
++                        .fill(spaces)
++                        .join('\n')
++                      output.write(Math.floor(x), oldTop, fill)
++                    }
+                   }
+                 }
++                firstRenderedY ??= screenY
+                 // Wipe this child's region with spaces to overwrite stale
+                 // blitted content — output.clear() only expands damage and
+                 // cannot zero cells that the blit already wrote.

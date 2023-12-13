@@ -1,0 +1,1146 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "scope": "hidden, adjacent, and inherited Linux-x64 semantic obligations outside the 51 release-note bullets",
+  "artifacts": {
+    "baseline": {
+      "path": "/home/coder/.cache/claude-code-recovery/preflight-2.1.118-to-2.1.119/artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "target": {
+      "path": "/home/coder/.cache/claude-code-recovery/preflight-2.1.118-to-2.1.119/2.1.119-linux-x64/canonical/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "normalizedTarget": "/home/coder/.cache/claude-code-recovery/preflight-2.1.118-to-2.1.119/generated/readable-diff/target.normalized.js"
+  },
+  "testSuites": {
+    "hidden.bundle": "recovery/test/recovery-2.1.119-hidden-tracing-remote-updater.test.mjs :: hidden, tracing, remote, and updater witnesses use authenticated bundles",
+    "hidden.tracing": "recovery/test/recovery-2.1.119-hidden-tracing-remote-updater.test.mjs :: recovers tracing attempts, request IDs, and streaming fallback boundaries",
+    "hidden.trustedTeleport": "recovery/test/recovery-2.1.119-hidden-tracing-remote-updater.test.mjs :: recovers fail-closed trusted-device and teleport behavior",
+    "hidden.remoteUpdater": "recovery/test/recovery-2.1.119-hidden-tracing-remote-updater.test.mjs :: recovers remote policy, metadata, SDK status, and updater coordination",
+    "hidden.metadataNotifMemory": "recovery/test/recovery-2.1.119-hidden-tracing-remote-updater.test.mjs :: recovers repo checkout metadata, notification preferences, and ambient memory",
+    "hidden.assets": "recovery/test/recovery-2.1.119-hidden-tracing-remote-updater.test.mjs :: recovers push, monitor, memory, classifier, editor, and remote-model assets",
+    "daemon.authenticated": "recovery/test/recovery-2.1.119-daemon-fleet-query.test.mjs :: 2.1.119 daemon, Fleet, query, and assistant fragments are authenticated",
+    "daemon.telemetry": "recovery/test/recovery-2.1.119-daemon-fleet-query.test.mjs :: daemon and background telemetry call sites match authenticated target counts",
+    "daemon.runtime": "recovery/test/recovery-2.1.119-daemon-fleet-query.test.mjs :: recovers daemon auth, worker runtime, scheduling, UDS, and hub mutation",
+    "daemon.fleet": "recovery/test/recovery-2.1.119-daemon-fleet-query.test.mjs :: recovers Fleet activation, persistence guards, name sync, and remote version",
+    "daemon.query": "recovery/test/recovery-2.1.119-daemon-fleet-query.test.mjs :: recovers classifier summaries, context clears, result dedup, and connection lifecycle",
+    "daemon.assistantAssets": "recovery/test/recovery-2.1.119-daemon-fleet-query.test.mjs :: assistant scaffold template bytes match the authenticated bundle exactly",
+    "official.pluginBundle": "recovery/test/recovery-2.1.119-official-prompts-plugins.test.mjs :: authenticates all plugin, prompt, and Bash dependency fragments",
+    "official.pluginRuntime": "recovery/test/recovery-2.1.119-official-prompts-plugins.test.mjs :: recovers plugin monitors, path hardening, and managed hooks",
+    "official.pluginRegistry": "recovery/test/recovery-2.1.119-official-prompts-plugins.test.mjs :: recovers registry, atomic promotion, refresh, and plugin UI semantics",
+    "official.promptRuntime": "recovery/test/recovery-2.1.119-official-prompts-plugins.test.mjs :: recovers insights, Bash, Read, Agent, and core prompt semantics",
+    "official.pluginDependency": "recovery/test/recovery-2.1.119-official-prompts-plugins.test.mjs :: recovers full Bash rerun and authenticated dependency behavior",
+    "hidden.platformBundle": "recovery/test/recovery-2.1.119-platform-persistence.test.mjs :: authenticates messageClientPlatform, request-ID, persistence, and reconnect witnesses",
+    "hidden.platformTelemetry": "recovery/test/recovery-2.1.119-platform-persistence.test.mjs :: binds client-platform and fallback request-ID telemetry plumbing",
+    "hidden.platformPersistence": "recovery/test/recovery-2.1.119-platform-persistence.test.mjs :: binds transport persistence sync, generation guards, and teardown",
+    "hidden.updateReconnect": "recovery/test/recovery-2.1.119-platform-persistence.test.mjs :: binds update reconnect notice, bounded flush, and teardown",
+    "hidden.ultraplan": "recovery/test/recovery-2.1.119-ultraplan-dialogs.test.mjs :: authenticates and binds the reachable Ultraplan gate, dialogs, state transitions, cleanup, and archive flow",
+    "hidden.backgroundStop": "recovery/test/recovery-2.1.119-background-stop.test.mjs :: authenticates and binds /background, /bg, background-only /stop, worktree handoff, graceful detach, and exit-dialog behavior"
+  },
+  "obligations": [
+    {
+      "id": "HID-001-notification-preferences",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "/api/claude_code/notification/preferences",
+        "baselineCount": 1,
+        "targetCount": 1,
+        "normalized": "21382-21384; BF7/FF7/Jv1/Ph7/jw6/Wh7/Gh7"
+      },
+      "source": [
+        { "path": "src/services/notificationPreferences.ts", "fragment": "hydrateNotificationPreferences / syncNotificationPreferences" },
+        { "path": "src/components/Settings/Config.tsx", "fragment": "inputNeededNotifEnabled and agentPushNotifEnabled eager PATCH plus revert originals" },
+        { "path": "src/state/AppStateStore.ts", "fragment": "push reachability state" }
+      ],
+      "testIds": ["hidden.bundle", "hidden.metadataNotifMemory"]
+    },
+    {
+      "id": "HID-002-push-notification-tool",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "tengu_push_notification_send / config_off / user_present / no_transport",
+        "baselineCounts": [1, 0],
+        "targetCounts": [1, 5],
+        "normalized": "17767-17774"
+      },
+      "source": [
+        { "path": "src/tools/PushNotificationTool/PushNotificationTool.ts", "fragment": "schema, config/user-presence/transport branches, local and push send telemetry" },
+        { "path": "src/tools/PushNotificationTool/UI.tsx", "fragment": "disabled-reason UI" },
+        { "path": "src/tools/PushNotificationTool/prompt.ts", "fragment": "tool prompt" },
+        { "path": "src/tools.ts", "fragment": "PushNotificationTool registration" }
+      ],
+      "testIds": ["hidden.bundle", "hidden.assets"]
+    },
+    {
+      "id": "HID-003-ambient-memory-update",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "memory_update",
+        "baselineCount": 0,
+        "targetCount": 4,
+        "normalized": "attachment schema/renderer and pendingMemoryUpdates drain"
+      },
+      "source": [
+        { "path": "src/utils/attachments.ts", "fragment": "memory_update attachment and pending-memory drain" },
+        { "path": "src/components/messages/nullRenderingAttachments.ts", "fragment": "ambient attachment filtering" },
+        { "path": "src/state/AppStateStore.ts", "fragment": "pendingMemoryUpdates" }
+      ],
+      "testIds": ["hidden.bundle", "hidden.metadataNotifMemory"]
+    },
+    {
+      "id": "HID-004-memory-consolidation-reconciliation",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "Reconcile memories against CLAUDE.md",
+        "baselineCount": 0,
+        "targetCount": 1,
+        "normalized": "auto-dream consolidation prompt"
+      },
+      "source": [
+        { "path": "src/services/autoDream/consolidationPrompt.ts", "fragment": "RECONCILE_MEMORIES_AGAINST_CLAUDE_MD" }
+      ],
+      "testIds": ["hidden.bundle", "hidden.assets"]
+    },
+    {
+      "id": "HID-005-yolo-classifier-assets",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "ENCODED COMMANDS: / pwsh -EncodedCommand / unverifiable — block it",
+        "normalized": "permission classifier embedded prompt assets; permissions_anthropic is DCE-empty"
+      },
+      "source": [
+        { "path": "src/utils/permissions/yolo-classifier-prompts/auto_mode_system_prompt.txt", "fragment": "encoded-command and PowerShell rules" },
+        { "path": "src/utils/permissions/yolo-classifier-prompts/permissions_external.txt", "fragment": "external classifier prompt" },
+        { "path": "src/utils/permissions/yolo-classifier-prompts/permissions_anthropic.txt", "fragment": "zero-byte authenticated DCE boundary" }
+      ],
+      "testIds": ["hidden.assets"]
+    },
+    {
+      "id": "HID-006-monitor-tool-prompt",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "Start a background monitor that streams events from a long-running script.",
+        "baselineCount": 1,
+        "targetCount": 1,
+        "normalized": "9779; wH6 full prompt"
+      },
+      "source": [
+        { "path": "src/tools/MonitorTool/prompt.ts", "fragment": "three-way notification guidance, CI example, unbounded warning, failure coverage" }
+      ],
+      "testIds": ["hidden.bundle", "hidden.assets"]
+    },
+    {
+      "id": "HID-007-prompt-editor-exit-wording",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "closed unexpectedly ( / quit unexpectedly (exit code ",
+        "baselineCounts": [0, 0],
+        "targetCounts": [1, 1]
+      },
+      "source": [
+        { "path": "src/utils/promptEditor.ts", "fragment": "signal and numeric-exit error wording" }
+      ],
+      "testIds": ["hidden.bundle", "hidden.assets"]
+    },
+    {
+      "id": "HID-008-remote-model-control",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "subtype:\"set_model\"",
+        "baselineCount": 0,
+        "targetCount": 2
+      },
+      "source": [
+        { "path": "src/commands/model/model.tsx", "fragment": "remote set_model request and rejection" },
+        { "path": "src/entrypoints/sdk/controlSchemas.ts", "fragment": "set_model control schema" }
+      ],
+      "testIds": ["hidden.bundle", "hidden.assets"]
+    },
+    {
+      "id": "HID-009-plugin-auto-install-metadata",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "auto marker / marked as manually installed",
+        "normalized": "10510 cache/register; 18745 Io8; 18746 vI7; 22845 install response"
+      },
+      "source": [
+        { "path": "src/utils/plugins/schemas.ts", "fragment": "optional auto in v1/v2 installed metadata" },
+        { "path": "src/utils/plugins/installedPluginsManager.ts", "fragment": "manual entries dominate auto and markPluginInstalledManually" },
+        { "path": "src/utils/plugins/pluginInstallationHelpers.ts", "fragment": "dependency materialization passes auto=true" },
+        { "path": "src/services/plugins/pluginOperations.ts", "fragment": "already-installed manual promotion result" }
+      ],
+      "notes": "The canonical target reads the marker for persistence/manual promotion. No active orphan-sweep reader is present in the Linux artifact; the orphan-sweep statement occurs only in schema prose, so no invented removal call was added.",
+      "testIds": ["official.pluginDependency"]
+    },
+    {
+      "id": "HID-010-bridge-dialog-key-event",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "event.key===\"d\"&&!event.ctrl&&!event.meta / preventDefault",
+        "normalized": "BridgeDialog confirmation handler"
+      },
+      "source": [
+        { "path": "src/components/BridgeDialog.tsx", "fragment": "modified-key guard and preventDefault" }
+      ],
+      "testIds": ["hidden.bundle"]
+    },
+    {
+      "id": "HID-011-session-tracing-attempts",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "gen_ai.request.attempt",
+        "baselineCount": 1,
+        "targetCount": 1,
+        "normalized": "12436-12437 and 28157"
+      },
+      "source": [
+        { "path": "src/utils/telemetry/sessionTracing.ts", "fragment": "gen_ai parent/context/attempt/end attributes and error status" },
+        { "path": "src/utils/telemetry/perfettoTracing.ts", "fragment": "LLM Attempt instant" },
+        { "path": "src/services/api/claude.ts", "fragment": "attempt recording and direct/AWS client request-ID branches" },
+        { "path": "src/services/api/logging.ts", "fragment": "request IDs and fallback-cleared clientRequestId" }
+      ],
+      "testIds": ["hidden.bundle", "hidden.tracing"]
+    },
+    {
+      "id": "HID-012-trusted-device-policy",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "require_trusted_devices",
+        "baselineCount": 1,
+        "targetCount": 1,
+        "normalized": "13596-13607"
+      },
+      "source": [
+        { "path": "src/bridge/trustedDevice.ts", "fragment": "growthbook plus org-policy fail-closed gate, policy wait, stored-token export" }
+      ],
+      "testIds": ["hidden.bundle", "hidden.trustedTeleport"]
+    },
+    {
+      "id": "HID-013-teleport-trusted-token",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "X-Trusted-Device-Token / teleport_events_forbidden / untrusted_device",
+        "targetCounts": [3, 1, 2],
+        "normalized": "14885 and callers"
+      },
+      "source": [
+        { "path": "src/services/api/sessionIngress.ts", "fragment": "trusted token header and typed 403 handling" },
+        { "path": "src/utils/teleport.tsx", "fragment": "KAIROS-only stored-token read, TeleportOperationError preservation, /status 404 hint" },
+        { "path": "src/utils/teleport/api.ts", "fragment": "trusted token caller plumbing" }
+      ],
+      "testIds": ["hidden.bundle", "hidden.trustedTeleport"]
+    },
+    {
+      "id": "HID-014-outbound-mirror-org-policy",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "Skipping mirror: allow_remote_sessions policy not allowed",
+        "baselineCount": 1,
+        "targetCount": 1,
+        "normalized": "28689"
+      },
+      "source": [
+        { "path": "src/bridge/initReplBridge.ts", "fragment": "outboundOnly allow_remote_sessions fail-closed branch" }
+      ],
+      "testIds": ["hidden.bundle", "hidden.remoteUpdater"]
+    },
+    {
+      "id": "HID-015-remote-pending-action-and-repo-metadata",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "external_metadata.pending_action / current_branches / tengu_bridge_requires_action_details",
+        "normalized": "28680 and remoteBridgeCore active lifecycle"
+      },
+      "source": [
+        { "path": "src/bridge/remoteBridgeCore.ts", "fragment": "pending-action set/clear, gated action detail, git repo/branch watcher and cleanup" },
+        { "path": "src/bridge/initReplBridge.ts", "fragment": "gitRepoUrl and branch caller plumbing" },
+        { "path": "src/bridge/replBridge.ts", "fragment": "single reportMetadata surface" }
+      ],
+      "testIds": ["hidden.remoteUpdater"]
+    },
+    {
+      "id": "HID-016-remote-sdk-adapter-status",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "stream_request_start / Ready for review / post_turn_summary",
+        "baselineCounts": [8, 0, 4],
+        "targetCounts": [8, 2, 9],
+        "normalized": "29608-29618"
+      },
+      "source": [
+        { "path": "src/remote/sdkMessageAdapter.ts", "fragment": "requesting event and post-turn category/level mapping" }
+      ],
+      "testIds": ["hidden.bundle", "hidden.remoteUpdater"]
+    },
+    {
+      "id": "HID-017-updater-channel-minimum-daemon",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "minimumVersion setting / Claude daemon will restart for the upgrade once background jobs finish",
+        "baselineCounts": [2, 2],
+        "targetCounts": [2, 2],
+        "normalized": "40455-40550"
+      },
+      "source": [
+        { "path": "src/cli/update.ts", "fragment": "rc display, native/npm minimum guard, daemonVersionDiffers coordination" },
+        { "path": "src/daemon/lock.ts", "fragment": "daemonVersionDiffers" }
+      ],
+      "testIds": ["hidden.bundle", "hidden.remoteUpdater"]
+    },
+    {
+      "id": "HID-018-repo-checkouts-metadata-watcher",
+      "classification": "inherited",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "CLAUDE_CODE_REPO_CHECKOUTS / CLAUDE_CODE_BASE_REFS / current_branches",
+        "baselineCounts": [1, 1, 3],
+        "targetCounts": [1, 1, 3],
+        "normalized": "7249 and RemoteIO metadata callbacks"
+      },
+      "source": [
+        { "path": "src/utils/repoCheckouts.ts", "fragment": "env parsing, checkout watcher, current_branches and cleanup" },
+        { "path": "src/cli/remoteIO.ts", "fragment": "CCR-v2 notifyMetadataChanged listener and watcher lifecycle" }
+      ],
+      "testIds": ["hidden.bundle", "hidden.metadataNotifMemory"]
+    },
+    {
+      "id": "HID-019-sdk-ambient-task-lifecycle",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "skip_transcript",
+        "baselineCount": 4,
+        "targetCount": 4,
+        "normalized": "9449, 11935, 12197, 16803-16808"
+      },
+      "source": [
+        { "path": "src/utils/sdkEventQueue.ts", "fragment": "skipTranscript option mapped to skip_transcript" },
+        { "path": "src/tasks/DreamTask/DreamTask.ts", "fragment": "registration and completed/failed/stopped terminal events with skipTranscript true" },
+        { "path": "src/entrypoints/sdk/coreSchemas.ts", "fragment": "optional skip_transcript schemas and ambient description" }
+      ],
+      "testIds": ["hidden.bundle", "hidden.assets"]
+    },
+    {
+      "id": "HID-020-daemon-config-hot-reload-self-restart",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "tengu_daemon_config_reload / tengu_daemon_self_restart_on_upgrade",
+        "baselineCounts": [0, 0],
+        "targetCounts": [2, 2],
+        "normalized": "28266 and daemon main"
+      },
+      "source": [
+        { "path": "src/daemon/main.ts", "fragment": "last-good config diff/watch, 60s executable identity poll, upgradeDetected respawn policy" },
+        { "path": "src/daemon/lock.ts", "fragment": "binary-version comparison" },
+        { "path": "src/daemon/service.ts", "fragment": "daemon executable resolution" }
+      ],
+      "testIds": ["daemon.telemetry", "daemon.runtime"]
+    },
+    {
+      "id": "HID-021-pro-trial-start-flow",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "tengu_pro_trial_start_screen_shown / pressed / ok / error",
+        "baselineCounts": [0, 0, 0, 0],
+        "targetCounts": [1, 1, 1, 1],
+        "normalized": "23356, 30454-30455, 30516"
+      },
+      "source": [
+        { "path": "src/services/proTrial.ts", "fragment": "trial state, duration, start API, expired-auto-open helpers" },
+        { "path": "src/components/ProTrialStartScreen.tsx", "fragment": "start/ok/error UI and telemetry" },
+        { "path": "src/interactiveHelpers.tsx", "fragment": "not_started startup gate and screen_shown telemetry" }
+      ],
+      "testIds": ["hidden.bundle"]
+    },
+    {
+      "id": "HID-022-usage-based-limits",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "usage_based",
+        "baselineCount": 0,
+        "targetCount": 2,
+        "normalized": "9045-9072 and 25121"
+      },
+      "source": [
+        { "path": "src/services/rateLimitMessages.ts", "fragment": "usage-based billing copy and options" },
+        { "path": "src/services/claudeAiLimits.ts", "fragment": "Claude AI limit surfaces" },
+        { "path": "src/components/Settings/Usage.tsx", "fragment": "usage-based quota display" }
+      ],
+      "testIds": ["hidden.bundle"]
+    },
+    {
+      "id": "HID-023-spinner-stall-telemetry",
+      "classification": "adjacent",
+      "status": "audited_closed",
+      "target": {
+        "fragment": "tengu_spinner_stalled_ui",
+        "baselineCount": 0,
+        "targetCount": 1,
+        "normalized": "14726"
+      },
+      "source": [
+        { "path": "src/components/Spinner/SpinnerAnimationRow.tsx", "fragment": "per-threshold once-only stalled UI event" },
+        { "path": "src/components/Spinner/useStalledAnimation.ts", "fragment": "stalled intensity and last-token timing" }
+      ],
+      "testIds": ["hidden.bundle"]
+    },
+    {
+      "id": "HID-024-speculation-background-boundary",
+      "classification": "adjacent",
+      "status": "audited_closed",
+      "target": {
+        "fragment": "speculation_bash_background",
+        "baselineCount": 0,
+        "targetCount": 1,
+        "normalized": "13767"
+      },
+      "source": [
+        { "path": "src/services/PromptSuggestion/speculation.ts", "fragment": "run_in_background abort and [backgrounded] Bash boundary" }
+      ],
+      "testIds": ["hidden.bundle"]
+    },
+    {
+      "id": "HID-025-remote-trigger-tool",
+      "classification": "adjacent",
+      "status": "audited_closed",
+      "target": {
+        "fragment": "tengu_remote_trigger",
+        "baselineCount": 0,
+        "targetCount": 1,
+        "normalized": "17745"
+      },
+      "source": [
+        { "path": "src/tools/RemoteTriggerTool/RemoteTriggerTool.ts", "fragment": "list/get/create/update/run REST tool and create/update telemetry" },
+        { "path": "src/tools.ts", "fragment": "RemoteTriggerTool registration" }
+      ],
+      "testIds": ["hidden.bundle"]
+    },
+    {
+      "id": "HID-026-mark-session-read",
+      "classification": "adjacent",
+      "status": "audited_closed",
+      "target": {
+        "fragment": "markSessionRead",
+        "baselineCount": 0,
+        "targetCount": 3,
+        "normalized": "13548, 13559 and remote-session caller"
+      },
+      "source": [
+        { "path": "src/utils/teleport/api.ts", "fragment": "best-effort mark_read request with status/error diagnostics" },
+        { "path": "src/hooks/useRemoteSession.ts", "fragment": "markSessionRead caller" }
+      ],
+      "testIds": ["hidden.bundle", "hidden.trustedTeleport"]
+    },
+    {
+      "id": "HID-027-cross-session-uds-envelope",
+      "classification": "adjacent",
+      "status": "audited_closed",
+      "target": {
+        "fragment": "cross-session-message",
+        "baselineCount": 0,
+        "targetCount": 1,
+        "normalized": "2229 and UDS client 14920"
+      },
+      "source": [
+        { "path": "src/utils/udsClient.ts", "fragment": "5s send timeout, exact cross-session-message envelope, control/list helpers and logs" }
+      ],
+      "testIds": ["daemon.runtime"]
+    },
+    {
+      "id": "HID-028-read-divider-rendering",
+      "classification": "adjacent",
+      "status": "audited_closed",
+      "target": {
+        "fragment": "read_divider",
+        "baselineCount": 0,
+        "targetCount": 2,
+        "normalized": "9621 filter and 15906 renderer"
+      },
+      "source": [
+        { "path": "src/components/Message.tsx", "fragment": "inactive divider renderer" },
+        { "path": "src/components/messageActions.tsx", "fragment": "non-selectable system subtype" }
+      ],
+      "notes": "The canonical Linux target contains renderer/filter ownership only and no constructor call site.",
+      "testIds": ["hidden.bundle"]
+    },
+    {
+      "id": "HID-029-job-state-name-sync",
+      "classification": "adjacent",
+      "status": "audited_closed",
+      "target": {
+        "fragment": "jobStateNameSync",
+        "baselineCount": 0,
+        "targetCount": 1,
+        "normalized": "30028"
+      },
+      "source": [
+        { "path": "src/hooks/useJobStateNameSync.ts", "fragment": "state.json watch, local/remote/daemon name propagation, cleanup" },
+        { "path": "src/screens/REPL.tsx", "fragment": "hook installation" }
+      ],
+      "testIds": ["daemon.authenticated", "daemon.fleet"]
+    },
+    {
+      "id": "HID-030-managed-agents-memory-doc",
+      "classification": "adjacent",
+      "status": "audited_closed",
+      "target": {
+        "fragments": [
+          { "value": "# Managed Agents \\u2014 Memory Stores", "baselineCount": 0, "targetCount": 1 },
+          { "value": "Memory stores ship under the `managed-agents-2026-04-01` beta header", "baselineCount": 0, "targetCount": 1 }
+        ],
+        "normalized": "embedded claude-api skill asset"
+      },
+      "source": [
+        { "path": "src/skills/bundled/claude-api/shared/managed-agents-memory.md", "fragment": "memory store CRUD/version/redaction reference" },
+        { "path": "src/skills/bundled/claudeApiContent.ts", "fragment": "shared/managed-agents-memory.md import and asset-map registration" }
+      ],
+      "testIds": ["hidden.bundle", "hidden.assets"]
+    },
+    {
+      "id": "HID-031-autocompact-command-hint",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "use /autocompact to configure",
+        "baselineCount": 0,
+        "targetCount": 1,
+        "normalized": "19383"
+      },
+      "source": [
+        { "path": "src/services/compact/autoCompact.ts", "fragment": "autocompact-auto-hint points to /autocompact" }
+      ],
+      "testIds": ["hidden.bundle", "hidden.assets"]
+    },
+    {
+      "id": "HID-032-background-mcp-approval-state",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "attach to respond",
+        "baselineCount": 0,
+        "targetCount": 1,
+        "normalized": "30379-30380"
+      },
+      "source": [
+        { "path": "src/services/mcpServerApproval.tsx", "fragment": "pending project MCP approval writes blocked background job state before rendering" }
+      ],
+      "testIds": ["hidden.bundle", "hidden.assets"]
+    },
+    {
+      "id": "HID-033-background-wake-router",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "[wakeRouter] dispatch for / Manage background and configured agents",
+        "baselineCounts": [0, 0],
+        "targetCounts": [1, 1],
+        "normalized": "30035 and REPL mount at 30336"
+      },
+      "source": [
+        { "path": "src/hooks/useWakeRouter.ts", "fragment": "parked-agent notification grouping, atomic consumption, in-flight dispatch reservation and timeout release" },
+        { "path": "src/screens/REPL.tsx", "fragment": "unconditional isolated-context wake dispatch mount" },
+        { "path": "src/main.tsx", "fragment": "background/configured agents command description" }
+      ],
+      "testIds": ["hidden.bundle", "hidden.assets"]
+    },
+    {
+      "id": "AUD-001-daemon-telemetry-call-counts",
+      "classification": "adjacent",
+      "status": "audited_closed",
+      "target": {
+        "fragment": "all active tengu_bg_* and tengu_daemon_* call sites",
+        "normalized": "allowlist 7172 plus active daemon/Fleet/bg functions",
+        "counts": "28 event names; exact per-event source runtime-call counts encoded in daemon.telemetry"
+      },
+      "source": [
+        { "path": "src/daemon", "fragment": "daemon, client, PTY, and supervisor runtime event calls" },
+        { "path": "src/jobs", "fragment": "classifier/background event calls" },
+        { "path": "src/cli", "fragment": "background CLI and template-job event calls" },
+        { "path": "src/commands/exit", "fragment": "background exit event calls" },
+        { "path": "src/components/FleetView.tsx", "fragment": "Fleet action event calls" }
+      ],
+      "testIds": ["daemon.telemetry"]
+    },
+    {
+      "id": "AUD-002-daemon-allowlist-only-events",
+      "classification": "adjacent",
+      "status": "audited_noise",
+      "target": {
+        "fragment": "tengu_daemon_auto_uninstall / tengu_daemon_lease",
+        "baselineCounts": [0, 0],
+        "targetCounts": [1, 1],
+        "normalized": "7172 allowlist only; zero active log-event calls"
+      },
+      "source": [
+        { "path": "recovery/test/recovery-2.1.119-daemon-fleet-query.test.mjs", "fragment": "negative runtime-call assertions prove both allowlist-only events have zero active source calls" }
+      ],
+      "notes": "Generated telemetry allowlist strings, not missing application call sites.",
+      "testIds": ["daemon.telemetry"]
+    },
+    {
+      "id": "AUD-003-connection-lifecycle",
+      "classification": "adjacent",
+      "status": "audited_closed",
+      "target": {
+        "fragment": "ms_in_connecting / offline_entries",
+        "baselineCounts": [0, 0],
+        "targetCounts": [1, 1],
+        "normalized": "29954"
+      },
+      "source": [
+        { "path": "src/services/api/connectionState.ts", "fragment": "ConnectionLifecycleTracker" },
+        { "path": "src/services/api/claude.ts", "fragment": "sending/receiving/failed/completed lifecycle and summary" },
+        { "path": "src/screens/REPL.tsx", "fragment": "tracker construction" }
+      ],
+      "testIds": ["daemon.authenticated", "daemon.query"]
+    },
+    {
+      "id": "AUD-004-task-summary-classifier-flow",
+      "classification": "adjacent",
+      "status": "audited_closed",
+      "target": {
+        "fragment": "post_turn_summary / subtype:\"task_summary\"",
+        "baselineCounts": [4, 0],
+        "targetCounts": [9, 1],
+        "normalized": "taskSummary.pretty.js; classifier stop-hook and SDK state flow"
+      },
+      "source": [
+        { "path": "src/utils/taskSummary.ts", "fragment": "surface detection, sinks, engine, blocked summaries" },
+        { "path": "src/query/stopHooks.ts", "fragment": "classifier engine and post-turn emissions" },
+        { "path": "src/utils/sessionState.ts", "fragment": "summary metadata lifecycle" },
+        { "path": "src/cli/print.ts", "fragment": "blocked and task-summary output" }
+      ],
+      "testIds": ["daemon.query"]
+    },
+    {
+      "id": "AUD-005-assistant-scaffold-assets",
+      "classification": "adjacent",
+      "status": "audited_closed",
+      "target": {
+        "fragments": [
+          { "value": "# Claude \\u2014 voice and values", "baselineCount": 0, "targetCount": 1 }
+        ],
+        "normalized": "assistant install fragment; exact target byte slices"
+      },
+      "source": [
+        { "path": "src/assistant/install.ts", "fragment": "six exact template literals and install lifecycle" }
+      ],
+      "testIds": ["daemon.assistantAssets"]
+    },
+    {
+      "id": "AUD-006-fleet-routine-cache-inert",
+      "classification": "adjacent",
+      "status": "audited_noise",
+      "target": {
+        "fragments": [
+          { "value": "$34=new Map", "baselineCount": 0, "targetCount": 1 },
+          { "value": "function Iz5(){gY8.clear(),PE6.clear(),WE6.clear(),$34.clear()}", "baselineCount": 0, "targetCount": 1 },
+          { "value": "AH=B.get(NH)??B.get(Z)??dY4", "baselineCount": 0, "targetCount": 1 }
+        ],
+        "absenceFragments": [
+          { "value": "$34.set(", "baselineCount": 0, "targetCount": 0 }
+        ],
+        "normalized": "fleet artifact has clear/init/state read only; no writer/loader; lookups resolve []"
+      },
+      "source": [
+        { "path": "src/components/FleetView.tsx", "fragment": "runtime-equivalent empty routine memo" }
+      ],
+      "notes": "Authenticated Linux target contains no routine-map writer; no source loader obligation.",
+      "testIds": ["daemon.authenticated", "daemon.fleet"]
+    },
+    {
+      "id": "AUD-008-supervisor-idle-respawn-race",
+      "classification": "adjacent",
+      "status": "audited_closed",
+      "target": {
+        "fragments": [
+          { "value": "if(this.upgrading||!this.pty||this.record.pid===0)return{respawned:!1,reason:\"in-progress\"}", "baselineCount": 0, "targetCount": 2 }
+        ],
+        "normalized": "28221"
+      },
+      "source": [
+        { "path": "src/daemon/supervisor.ts", "fragment": "respawnIfIdleStale repeats the PTY/upgrading/PID convergence guard after the awaited state read" }
+      ],
+      "testIds": ["daemon.authenticated", "daemon.fleet"]
+    },
+    {
+      "id": "AUD-009-dispatch-watcher-readiness-errors",
+      "classification": "adjacent",
+      "status": "audited_closed",
+      "target": {
+        "fragments": [
+          { "value": "[bg-dispatch] rejected ", "baselineCount": 0, "targetCount": 1 },
+          { "value": "[bg-dispatch] watcher error: ", "baselineCount": 0, "targetCount": 1 },
+          { "value": "[bg-dispatch] watcher ready wait: ", "baselineCount": 0, "targetCount": 1 },
+          { "value": "[bg-dispatch] cold-start drain: ", "baselineCount": 0, "targetCount": 1 },
+          { "value": "chokidar ready", "baselineCount": 0, "targetCount": 1 }
+        ],
+        "normalized": "28234"
+      },
+      "source": [
+        { "path": "src/daemon/supervisor.ts", "fragment": "schema rejection, add/read/watcher error logs, bounded ready wait, then cold-start drain" }
+      ],
+      "testIds": ["daemon.authenticated", "daemon.fleet"]
+    },
+    {
+      "id": "AUD-011-fleet-remount-terminal-providers",
+      "classification": "adjacent",
+      "status": "audited_closed",
+      "target": {
+        "fragments": [
+          { "value": "R$.createElement(zY5,null,R$.createElement(ww", "baselineCount": 0, "targetCount": 1 },
+          { "value": "R$.createElement(Lj,null,R$.createElement(O34", "baselineCount": 0, "targetCount": 1 }
+        ],
+        "normalized": "28438; fleet.pretty.js 3300-3400"
+      },
+      "source": [
+        { "path": "src/components/FleetView.tsx", "fragment": "every render/remount preserves AppStateProvider -> ThemeProvider -> FleetView inside the optional AlternateScreen terminal frame" }
+      ],
+      "testIds": ["daemon.fleet"]
+    },
+    {
+      "id": "AUD-010-bg-attach-terminal-lifecycle",
+      "classification": "adjacent",
+      "status": "audited_closed",
+      "target": {
+        "fragments": [
+          { "value": "[PERF:bg-attach-start]", "baselineCount": 0, "targetCount": 1 },
+          { "value": "[PERF:bg-attach-end]", "baselineCount": 0, "targetCount": 1 }
+        ],
+        "normalized": "7800-7810 and oa at 26305"
+      },
+      "source": [
+        { "path": "src/cli/bg.ts", "fragment": "attachTerminal enter/leave, extended-key, cursor, alt-screen, and shrink-clear lifecycle" },
+        { "path": "src/ink/termio/dec.ts", "fragment": "alt-screen/cursor sequences" }
+      ],
+      "testIds": ["daemon.authenticated", "daemon.fleet"]
+    },
+    {
+      "id": "AUD-012-daemon-startup-ordering",
+      "classification": "adjacent",
+      "status": "audited_closed",
+      "target": {
+        "fragments": [
+          { "value": "P.ready.then(()=>_Y4", "baselineCount": 0, "targetCount": 1 },
+          { "value": "await P.ready;let m=0;for(let i of Object.keys(Hc))", "baselineCount": 0, "targetCount": 1 },
+          { "value": "k.manager=i,I()", "baselineCount": 0, "targetCount": 1 }
+        ],
+        "normalized": "28266"
+      },
+      "source": [
+        { "path": "src/daemon/main.ts", "fragment": "supervisorStart begins before loadWorkerConfigDetails; configured workers begin after await auth.ready; manager assignment calls updateKeepAlive" }
+      ],
+      "testIds": ["daemon.runtime"]
+    },
+    {
+      "id": "AUD-007-daemon-status-hint-gate",
+      "classification": "adjacent",
+      "status": "audited_inert",
+      "target": {
+        "fragments": [
+          { "value": "function qqH(){return!1}", "baselineCount": 0, "targetCount": 1 },
+          { "value": "function AM$(H){return qqH()?", "baselineCount": 0, "targetCount": 1 },
+          { "value": "AM$(\"status\")", "baselineCount": 0, "targetCount": 3 }
+        ],
+        "normalized": "21382, 26377, 26391, 26400; isDaemonCliEnabled returns false in canonical Linux bundle"
+      },
+      "source": [
+        { "path": "src/utils/agentsFleet.ts", "fragment": "hard-false isDaemonCliEnabled gate" },
+        { "path": "src/cli/bg.ts", "fragment": "daemonHint helper and three status-hint call sites" }
+      ],
+      "notes": "No canonical runtime output delta because the target helper is gated to the empty string; this is an authenticated inert boundary rather than an application-semantic obligation.",
+      "testIds": ["daemon.authenticated", "daemon.fleet"]
+    },
+    {
+      "id": "INH-013-usage-safe-command-identity",
+      "classification": "inherited",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "name:\"usage\",aliases:[\"cost\",\"stats\"]",
+        "baselineCount": 2,
+        "targetCount": 2,
+        "normalized": "24183"
+      },
+      "source": [
+        { "path": "src/commands.ts", "fragment": "REMOTE_SAFE_COMMANDS references usage and BRIDGE_SAFE_COMMANDS references usageNonInteractive, never the removed cost binding" },
+        { "path": "src/commands/usage/index.ts", "fragment": "usage command with cost and stats aliases" }
+      ],
+      "notes": "The authenticated bundles expose a single usage command identity. Referencing an unbound legacy cost command during safe-set construction would throw at module initialization.",
+      "testIds": ["hidden.bundle", "hidden.remoteUpdater"]
+    },
+    {
+      "id": "INH-014-sdk-permission-rewritten-input",
+      "classification": "inherited",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "ask rule on hook-rewritten input",
+        "baselineCount": 2,
+        "targetCount": 2,
+        "normalized": "30097-30099"
+      },
+      "source": [
+        { "path": "src/cli/structuredIO.ts", "fragment": "the permission hook receives the full Tool, rechecks rewritten input against that Tool, and applies permission updates from the latest state" }
+      ],
+      "notes": "Passing only tool.name left an active undefined tool dereference on hook-rewritten input and the stale-state update could discard concurrent permission changes.",
+      "testIds": ["hidden.bundle", "hidden.remoteUpdater"]
+    },
+    {
+      "id": "INH-015-model-capability-output-cap",
+      "classification": "inherited",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "if(_?.max_tokens&&_.max_tokens>=4096)q=_.max_tokens,$=Math.min($,q);return{default:$,upperLimit:q}",
+        "baselineCount": 1,
+        "targetCount": 1,
+        "normalized": "4934"
+      },
+      "source": [
+        { "path": "src/utils/context.ts", "fragment": "getModelCapability(model) caps default and upper output tokens" },
+        { "path": "src/utils/model/modelCapabilities.ts", "fragment": "getModelCapability export" }
+      ],
+      "notes": "The capability lookup is unconditional in the authenticated external bundle; the missing import was an active ReferenceError rather than an Ant-only source gap.",
+      "testIds": ["hidden.bundle", "hidden.remoteUpdater"]
+    },
+    {
+      "id": "HID-034-ultraplan-dialogs-and-handoff",
+      "classification": "inherited",
+      "status": "implemented_verified",
+      "target": {
+        "fragments": [
+          { "value": "Run ultraplan in the cloud?", "baselineCount": 1, "targetCount": 1 }
+        ],
+        "baselineCount": 1,
+        "targetCount": 1,
+        "normalized": "23666-23787, 29936, 30341"
+      },
+      "source": [
+        { "path": "src/utils/ultraplan/config.ts", "fragment": "authenticated feature configuration and local subscriber gate" },
+        { "path": "src/commands/ultraplan.tsx", "fragment": "canonical launch payload, polling telemetry, remote metadata cleanup, and conditional archive" },
+        { "path": "src/components/UltraplanLaunchDialog.tsx", "fragment": "launch choice, first-run acknowledgement, and bridge-disconnect flow" },
+        { "path": "src/components/UltraplanChoiceDialog.tsx", "fragment": "implement-here, fresh-session, and save/cancel handoff" },
+        { "path": "src/screens/REPL.tsx", "fragment": "reachable launch and choice dialog dispatch with complete cache and conversation state" }
+      ],
+      "notes": "The recovered source had an active equal-count Ultraplan surface but omitted its reachable dialogs and used a noncanonical gate and state payload. The focused suite authenticates fifteen exact bundle witnesses and binds the full recovered flow.",
+      "testIds": ["hidden.ultraplan"]
+    },
+    {
+      "id": "HID-035-background-stop-and-detach",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragments": [
+          { "value": "Background anyway (tasks will be abandoned)", "baselineCount": 0, "targetCount": 1 }
+        ],
+        "baselineCount": 0,
+        "targetCount": 1,
+        "normalized": "24969-25000, 26427-26440"
+      },
+      "source": [
+        { "path": "src/commands/background/background.tsx", "fragment": "persistence and no-turn guards, active-task confirmation, fork telemetry, and graceful background exit" },
+        { "path": "src/cli/bg.ts", "fragment": "materialized transcript fork, title generation, and owned-worktree transfer" },
+        { "path": "src/commands/stop/stop.tsx", "fragment": "interactive background-session stop confirmation" },
+        { "path": "src/commands/stop/stop-noninteractive.ts", "fragment": "noninteractive bridge stop" },
+        { "path": "src/components/BackgroundExitDialog.tsx", "fragment": "detach choice and chose_detach telemetry" },
+        { "path": "src/screens/REPL.tsx", "fragment": "background exit rows and detach callback" }
+      ],
+      "notes": "This active target-only command cluster was recovered after the original hidden ledger was assembled. Its focused suite authenticates twenty-two exact bundle witnesses and binds the complete command, worktree, stop, and detach flow.",
+      "testIds": ["hidden.backgroundStop"]
+    },
+    {
+      "id": "INH-019-plugin-monitor-runtime",
+      "classification": "inherited",
+      "status": "implemented_verified",
+      "target": {
+        "fragments": [
+          { "value": "Monitor names must be unique within a plugin", "baselineCount": 1, "targetCount": 1 }
+        ],
+        "normalized": "authenticated plugin monitor schema and runtime"
+      },
+      "source": [
+        { "path": "src/utils/plugins/schemas.ts", "fragment": "PluginMonitorSchema and unique-name validation" },
+        { "path": "src/utils/plugins/pluginLoader.ts", "fragment": "loadPluginMonitors" },
+        { "path": "src/hooks/usePluginMonitors.ts", "fragment": "always and on-skill-invoke monitor execution" },
+        { "path": "src/utils/suggestions/skillUsageTracking.ts", "fragment": "skillInvoked event" }
+      ],
+      "testIds": ["official.pluginBundle", "official.pluginRuntime"]
+    },
+    {
+      "id": "INH-020-plugin-path-containment",
+      "classification": "inherited",
+      "status": "implemented_verified",
+      "target": {
+        "fragments": [
+          { "value": "Paths in plugin.json must not use \"..\" to reference files outside the plugin directory", "baselineCount": 1, "targetCount": 1 },
+          { "value": "Package reference cannot contain \"..\" path segments", "baselineCount": 1, "targetCount": 1 }
+        ],
+        "normalized": "plugin component and package-reference traversal rejection"
+      },
+      "source": [
+        { "path": "src/utils/plugins/schemas.ts", "fragment": "package traversal rejection" },
+        { "path": "src/utils/plugins/pluginLoader.ts", "fragment": "resolvePluginComponentPath path-traversal result" },
+        { "path": "src/commands/plugin/PluginErrors.tsx", "fragment": "path-traversal diagnostic" }
+      ],
+      "testIds": ["official.pluginBundle", "official.pluginRuntime", "official.pluginRegistry"]
+    },
+    {
+      "id": "INH-021-managed-plugin-hooks-and-registry",
+      "classification": "inherited",
+      "status": "implemented_verified",
+      "target": {
+        "fragments": [
+          { "value": "Skipping plugin hooks - allowManagedHooksOnly is enabled and no managed plugins", "baselineCount": 2, "targetCount": 2 },
+          { "value": "Dropped orphaned managed entry for ", "baselineCount": 1, "targetCount": 1 }
+        ],
+        "normalized": "managed hook gate and installed-registry reconciliation"
+      },
+      "source": [
+        { "path": "src/utils/sessionStart.ts", "fragment": "managed-only hook gate" },
+        { "path": "src/utils/plugins/installedPluginsManager.ts", "fragment": "managed entry reconciliation and collapse" }
+      ],
+      "testIds": ["official.pluginBundle", "official.pluginRuntime", "official.pluginRegistry"]
+    },
+    {
+      "id": "INH-022-marketplace-atomic-promotion-and-refresh",
+      "classification": "inherited",
+      "status": "implemented_verified",
+      "target": {
+        "fragments": [
+          { "value": "Failed to clean up stale marketplace backup directory.", "baselineCount": 1, "targetCount": 1 },
+          { "value": "Skipping refresh for marketplace", "baselineCount": 1, "targetCount": 1 }
+        ],
+        "normalized": "transactional marketplace promotion/rollback and refresh cooldown"
+      },
+      "source": [
+        { "path": "src/utils/plugins/marketplaceManager.ts", "fragment": "backup promotion, rollback, and 30-second refresh guard" },
+        { "path": "src/utils/plugins/officialMarketplaceGcs.ts", "fragment": "atomic staging/backup promotion" },
+        { "path": "src/services/plugins/pluginOperations.ts", "fragment": "skipIfRecent refresh behavior" }
+      ],
+      "testIds": ["official.pluginBundle", "official.pluginRegistry"]
+    },
+    {
+      "id": "INH-023-plugin-project-scope-ux",
+      "classification": "inherited",
+      "status": "implemented_verified",
+      "target": {
+        "fragments": [
+          { "value": "All available plugins are installed for this project.", "baselineCount": 1, "targetCount": 1 },
+          { "value": "Path escapes plugin directory:", "baselineCount": 1, "targetCount": 1 }
+        ],
+        "normalized": "project-only discovery state and containment diagnostics"
+      },
+      "source": [
+        { "path": "src/commands/plugin/DiscoverPlugins.tsx", "fragment": "all-plugins-project-installed state and user-scope guidance" },
+        { "path": "src/commands/plugin/PluginErrors.tsx", "fragment": "path-traversal UI" }
+      ],
+      "testIds": ["official.pluginBundle", "official.pluginRegistry"]
+    },
+    {
+      "id": "INH-024-insights-verbatim-handoff",
+      "classification": "inherited",
+      "status": "implemented_verified",
+      "target": {
+        "fragments": [
+          { "value": "Output the text between <message> tags verbatim as your entire response. Do not omit any line:", "baselineCount": 1, "targetCount": 1 }
+        ],
+        "normalized": "insights context and verbatim user-facing handoff"
+      },
+      "source": [
+        { "path": "src/commands/insights.ts", "fragment": "at-a-glance context plus verbatim message handoff" }
+      ],
+      "testIds": ["official.pluginBundle", "official.promptRuntime"]
+    },
+    {
+      "id": "INH-025-bash-cwd-guidance",
+      "classification": "inherited",
+      "status": "implemented_verified",
+      "target": {
+        "fragments": [
+          { "value": "never prepend `cd <current-directory>` to a `git` command", "baselineCount": 1, "targetCount": 1 }
+        ],
+        "normalized": "Bash current-directory and git command guidance"
+      },
+      "source": [
+        { "path": "src/tools/BashTool/prompt.ts", "fragment": "tengu_relay_chain_v1 current-directory guidance" }
+      ],
+      "testIds": ["official.pluginBundle", "official.promptRuntime"]
+    },
+    {
+      "id": "INH-026-bash-rerun-sleep-and-sandbox",
+      "classification": "inherited",
+      "status": "implemented_verified",
+      "target": {
+        "fragments": [
+          { "value": "Rerun a prior command exactly by passing the alias from a previous result's [rerun: bN] footer", "baselineCount": 1, "targetCount": 1 },
+          { "value": "tengu_bash_rerun_used", "baselineCount": 2, "targetCount": 2 },
+          { "value": "Run outside of the sandbox", "baselineCount": 2, "targetCount": 2 }
+        ],
+        "normalized": "rerun schema/state/footer/dispatch plus blocked sleep and sandbox override"
+      },
+      "source": [
+        { "path": "src/tools/BashTool/rerun.ts", "fragment": "alias creation, lookup, and result footer" },
+        { "path": "src/tools/BashTool/BashTool.tsx", "fragment": "rerun schema, blocked sleep threshold, xargs matching, and sandbox override" },
+        { "path": "src/services/tools/toolExecution.ts", "fragment": "rerun validation, resolution, telemetry, and footer dispatch" },
+        { "path": "src/QueryEngine.ts", "fragment": "query-engine alias state" },
+        { "path": "src/screens/REPL.tsx", "fragment": "interactive alias state" },
+        { "path": "src/utils/forkedAgent.ts", "fragment": "forked-agent alias state" }
+      ],
+      "testIds": ["official.pluginBundle", "official.pluginDependency"]
+    },
+    {
+      "id": "INH-027-read-no-reread",
+      "classification": "inherited",
+      "status": "implemented_verified",
+      "target": {
+        "fragments": [
+          { "value": "Wasted call \\u2014 file unchanged since your last Read.", "baselineCount": 1, "targetCount": 1 },
+          { "value": "tengu_noreread_q7m_velvet", "baselineCount": 1, "targetCount": 1 }
+        ],
+        "normalized": "unchanged-file Read stub and edit/write/dedup/compact consumers"
+      },
+      "source": [
+        { "path": "src/tools/FileReadTool/prompt.ts", "fragment": "tengu_noreread_q7m_velvet and unchanged-file stub" },
+        { "path": "src/tools/FileEditTool/FileEditTool.ts", "fragment": "no-reread user-modification guard" },
+        { "path": "src/tools/FileWriteTool/FileWriteTool.ts", "fragment": "no-reread user-modification guard" },
+        { "path": "src/utils/queryHelpers.ts", "fragment": "stub exclusion" },
+        { "path": "src/services/compact/compact.ts", "fragment": "stub exclusion" }
+      ],
+      "testIds": ["official.pluginBundle", "official.promptRuntime"]
+    },
+    {
+      "id": "INH-028-agent-steering-and-result-verification",
+      "classification": "inherited",
+      "status": "implemented_verified",
+      "target": {
+        "fragments": [
+          { "value": "**Do not spawn agents unless the user asks.**", "baselineCount": 1, "targetCount": 1 },
+          { "value": "Trust but verify: an agent's summary describes what it intended to do, not necessarily what it did.", "baselineCount": 1, "targetCount": 1 }
+        ],
+        "normalized": "Agent cost steering, when-not-to-use guidance, and result verification"
+      },
+      "source": [
+        { "path": "src/tools/AgentTool/prompt.ts", "fragment": "tengu_willow_prism steering and Trust but verify guidance" },
+        { "path": "src/utils/attachments.ts", "fragment": "subscription-aware agent-cost steering" }
+      ],
+      "testIds": ["official.pluginBundle", "official.promptRuntime"]
+    },
+    {
+      "id": "INH-029-core-exploratory-and-verification-prompt",
+      "classification": "inherited",
+      "status": "implemented_verified",
+      "target": {
+        "fragments": [
+          { "value": "For exploratory questions (\"what could we do about X?\", \"how should we approach this?\", \"what do you think?\"), respond in 2-3 sentences", "baselineCount": 1, "targetCount": 1 }
+        ],
+        "normalized": "core exploratory-answer calibration and verified-vs-assumed reporting"
+      },
+      "source": [
+        { "path": "src/constants/prompts.ts", "fragment": "exploratory answer and tengu_verified_vs_assumed guidance" }
+      ],
+      "testIds": ["official.pluginBundle", "official.promptRuntime"]
+    },
+    {
+      "id": "INH-030-message-client-platform-telemetry",
+      "classification": "inherited",
+      "status": "implemented_verified",
+      "target": {
+        "fragments": [
+          { "value": "messageClientPlatform", "baselineCount": 41, "targetCount": 41 },
+          { "value": "Injected server-side by CCR ingress from the request header.", "baselineCount": 1, "targetCount": 1 }
+        ],
+        "normalized": "CCR input through prompt, model, Agent, and tool telemetry"
+      },
+      "source": [
+        { "path": "src/entrypoints/sdk/coreSchemas.ts", "fragment": "client_platform schema" },
+        { "path": "src/bridge/inboundMessages.ts", "fragment": "client-platform extraction" },
+        { "path": "src/utils/handlePromptSubmit.ts", "fragment": "command client platform propagation" },
+        { "path": "src/screens/REPL.tsx", "fragment": "interactive telemetry context" },
+        { "path": "src/cli/print.ts", "fragment": "SDK/print client platform propagation" },
+        { "path": "src/query.ts", "fragment": "model telemetry context" },
+        { "path": "src/tools/AgentTool/runAgent.ts", "fragment": "Agent telemetry context" },
+        { "path": "src/services/tools/toolExecution.ts", "fragment": "six tool telemetry call sites" }
+      ],
+      "testIds": ["hidden.platformBundle", "hidden.platformTelemetry"]
+    },
+    {
+      "id": "INH-031-first-attempt-request-id",
+      "classification": "inherited",
+      "status": "implemented_verified",
+      "target": {
+        "fragments": [
+          { "value": "firstAttemptRequestId", "baselineCount": 5, "targetCount": 5 }
+        ],
+        "normalized": "preserve streaming request ID through non-streaming fallback telemetry"
+      },
+      "source": [
+        { "path": "src/services/api/claude.ts", "fragment": "stream/non-stream request-ID capture and first-attempt metadata" },
+        { "path": "src/services/api/logging.ts", "fragment": "fallback-aware request-ID telemetry" }
+      ],
+      "testIds": ["hidden.platformBundle", "hidden.platformTelemetry"]
+    },
+    {
+      "id": "INH-032-env-less-bridge-session-persistence",
+      "classification": "inherited",
+      "status": "implemented_verified",
+      "target": {
+        "fragments": [
+          { "value": "enableSessionPersistence", "baselineCount": 2, "targetCount": 2 },
+          { "value": "onTransportPersistenceReady", "baselineCount": 2, "targetCount": 2 },
+          { "value": "getInternalEventWriter", "baselineCount": 2, "targetCount": 2 },
+          { "value": "CCR v2 internal event writer cleared", "baselineCount": 1, "targetCount": 1 }
+        ],
+        "normalized": "session establishment, local sync, generation-safe writer install, teardown, and flush"
+      },
+      "source": [
+        { "path": "src/bridge/replBridgeTransport.ts", "fragment": "transport writer/readers and flush" },
+        { "path": "src/bridge/remoteBridgeCore.ts", "fragment": "session and persistence lifecycle callbacks" },
+        { "path": "src/bridge/sessionPersistenceSync.ts", "fragment": "main/subagent reconciliation and upload" },
+        { "path": "src/bridge/initReplBridge.ts", "fragment": "generation guards, writer install, and teardown" },
+        { "path": "src/hooks/useReplBridge.tsx", "fragment": "environment-less persistence enable gate" },
+        { "path": "src/bridge/replBridge.ts", "fragment": "bridge flush handle" },
+        { "path": "src/utils/sessionStorage.ts", "fragment": "CCR v2 internal event writer cleared" }
+      ],
+      "testIds": ["hidden.platformBundle", "hidden.platformPersistence"]
+    },
+    {
+      "id": "HID-036-update-reconnect-flush",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragments": [
+          { "value": "Switching to latest Claude Code\\u2026 reconnecting", "baselineCount": 0, "targetCount": 1 },
+          { "value": "bridge flush", "baselineCount": 0, "targetCount": 1 }
+        ],
+        "normalized": "synthetic reconnect notice, bounded two-second bridge flush, and skip-archive teardown"
+      },
+      "source": [
+        { "path": "src/bridge/replBridge.ts", "fragment": "flush handle" },
+        { "path": "src/bridge/bridgeMessaging.ts", "fragment": "synthetic assistant message" },
+        { "path": "src/commands/update/update.ts", "fragment": "reconnect notice, 2-second flush timeout, and skipArchive teardown" }
+      ],
+      "testIds": ["hidden.platformBundle", "hidden.updateReconnect"]
+    }
+  ]
+}
