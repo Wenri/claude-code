@@ -7,19 +7,19 @@ import type { CanUseToolFn } from './hooks/useCanUseTool.js'
 import { FallbackTriggeredError } from './services/api/withRetry.js'
 import {
   calculateTokenWarningState,
+  getNextConsecutiveRapidRefills,
   isAutoCompactEnabled,
+  RAPID_REFILL_BREAKER_ERROR,
   type AutoCompactTrackingState,
 } from './services/compact/autoCompact.js'
 import { buildPostCompactMessages } from './services/compact/compact.js'
+import * as reactiveCompact from './services/compact/reactiveCompact.js'
 import {
   applyToolResultClears,
   getReadPathsForClearedToolResults,
 } from './services/compact/microCompact.js'
 import { resetResultDedupState } from './services/tools/resultDedup.js'
 /* eslint-disable @typescript-eslint/no-require-imports */
-const reactiveCompact = feature('REACTIVE_COMPACT')
-  ? (require('./services/compact/reactiveCompact.js') as typeof import('./services/compact/reactiveCompact.js'))
-  : null
 const contextCollapse = feature('CONTEXT_COLLAPSE')
   ? (require('./services/contextCollapse/index.js') as typeof import('./services/contextCollapse/index.js'))
   : null
@@ -122,6 +122,20 @@ import { createBudgetTracker, checkTokenBudget } from './query/tokenBudget.js'
 import { count } from './utils/array.js'
 import { isBgSession } from './utils/concurrentSessions.js'
 import { expandPath } from './utils/path.js'
+import { isBetaTracingEnabled } from './utils/telemetry/sessionTracing.js'
+
+function combineUserSystemPrompt(
+  customSystemPrompt: string | string[] | undefined,
+  appendSystemPrompt: string | undefined,
+): string | undefined {
+  const prompts = [
+    ...(typeof customSystemPrompt === 'string'
+      ? [customSystemPrompt]
+      : (customSystemPrompt ?? [])),
+    appendSystemPrompt,
+  ].filter((prompt): prompt is string => Boolean(prompt))
+  return prompts.length > 0 ? prompts.join('\n\n') : undefined
+}
 
 function findCurrentTurnStart(messages: Message[]): number {
   for (let index = messages.length - 1; index >= 0; index--) {
@@ -148,11 +162,17 @@ const classifierJobState = jobClassifier
   ? jobClassifier.createClassifierJobState()
   : null
 
+function sanitizeQuerySourceForAnalytics(querySource: QuerySource): string {
+  return querySource.startsWith('agent:custom:')
+    ? 'agent:custom'
+    : querySource
+}
+
 function markClassifierApiFailure(
   toolUseContext: ToolUseContext,
   querySource: QuerySource,
   message: AssistantMessage,
-): Promise<void> | undefined {
+): void {
   if (
     !jobClassifier ||
     !classifierJobState ||
@@ -160,14 +180,16 @@ function markClassifierApiFailure(
     !querySource.startsWith('repl_main_thread') ||
     toolUseContext.agentId
   ) {
-    return undefined
+    return
   }
-  return jobClassifier.markApiFailure(
-    classifierJobState,
-    getSessionId().slice(0, 8),
-    message.error,
-    getAssistantMessageText(message) ?? message.errorDetails ?? '',
-  )
+  void jobClassifier
+    .markApiFailure(
+      classifierJobState,
+      getSessionId().slice(0, 8),
+      message.error,
+      getAssistantMessageText(message) ?? message.errorDetails ?? '',
+    )
+    .catch(() => {})
 }
 
 function markClassifierTurnAborted(
@@ -520,7 +542,12 @@ async function* queryLoop(
     )
 
     queryCheckpoint('query_autocompact_start')
-    const { compactionResult, consecutiveFailures } = await deps.autocompact(
+    const {
+      compactionResult,
+      consecutiveFailures,
+      consecutiveRapidRefills,
+      rapidRefillBreakerTripped,
+    } = await deps.autocompact(
       messagesForQuery,
       toolUseContext,
       {
@@ -535,6 +562,20 @@ async function* queryLoop(
       snipTokensFreed,
     )
     queryCheckpoint('query_autocompact_end')
+
+    if (rapidRefillBreakerTripped) {
+      logEvent('tengu_auto_compact_rapid_refill_breaker', {
+        consecutiveRapidRefills: tracking?.consecutiveRapidRefills ?? 0,
+        turnsSincePreviousCompact: tracking?.turnCounter ?? -1,
+        queryChainId: queryChainIdForAnalytics,
+        queryDepth: queryTracking.depth,
+      })
+      yield createAssistantAPIErrorMessage({
+        content: RAPID_REFILL_BREAKER_ERROR,
+        error: 'invalid_request',
+      })
+      return { reason: 'rapid_refill_breaker' }
+    }
 
     if (compactionResult) {
       const {
@@ -592,6 +633,7 @@ async function* queryLoop(
         turnId: deps.uuid(),
         turnCounter: 0,
         consecutiveFailures: 0,
+        consecutiveRapidRefills,
       }
 
       const postCompactMessages = buildPostCompactMessages(compactionResult)
@@ -626,6 +668,7 @@ async function* queryLoop(
     // loop-exit signal. If false after streaming, we're done (modulo stop-hook retry).
     const toolUseBlocks: ToolUseBlock[] = []
     let needsFollowUp = false
+    let lastStopReason: string | null = null
 
     queryCheckpoint('query_setup_start')
     const useStreamingToolExecution = config.gates.streamingToolExecution
@@ -693,14 +736,17 @@ async function* queryLoop(
     // flip during the 5-30s stream, and withhold-without-recover would eat
     // the message. PTL doesn't hoist because its withholding is ungated —
     // it predates the experiment and is already the control-arm baseline.
-    const mediaRecoveryEnabled =
-      reactiveCompact?.isReactiveCompactEnabled() ?? false
+    const mediaRecoveryEnabled = reactiveCompact.isReactiveCompactEnabled(
+      toolUseContext.options.mainLoopModel,
+    )
     if (
       !compactionResult &&
       querySource !== 'compact' &&
       querySource !== 'session_memory' &&
       !(
-        reactiveCompact?.isReactiveCompactEnabled() && isAutoCompactEnabled()
+        reactiveCompact.isReactiveCompactEnabled(
+          toolUseContext.options.mainLoopModel,
+        ) && isAutoCompactEnabled()
       ) &&
       !collapseOwnsIt
     ) {
@@ -709,6 +755,11 @@ async function* queryLoop(
         toolUseContext.options.mainLoopModel,
       )
       if (isAtBlockingLimit) {
+        logEvent('tengu_ptl_surfaced_to_user', {
+          reason: 'blocking_limit',
+          querySource: sanitizeQuerySourceForAnalytics(querySource),
+          wasGatedByPriorAttempt: false,
+        })
         yield createAssistantAPIErrorMessage({
           content: PROMPT_TOO_LONG_ERROR_MESSAGE,
           error: 'invalid_request',
@@ -780,6 +831,13 @@ async function* queryLoop(
                 toolUseContext.options.agentDefinitions.allowedAgentTypes,
               hasAppendSystemPrompt:
                 !!toolUseContext.options.appendSystemPrompt,
+              userSystemPrompt:
+                !toolUseContext.agentId && isBetaTracingEnabled()
+                  ? combineUserSystemPrompt(
+                      toolUseContext.options.customSystemPrompt,
+                      toolUseContext.options.appendSystemPrompt,
+                    )
+                  : undefined,
               maxOutputTokensOverride,
               fetchOverride: dumpPromptsFetch,
               mcpTools: appState.mcp.tools,
@@ -904,12 +962,12 @@ async function* queryLoop(
                 withheld = true
               }
             }
-            if (reactiveCompact?.isWithheldPromptTooLong(message)) {
+            if (reactiveCompact.isWithheldPromptTooLong(message)) {
               withheld = true
             }
             if (
               mediaRecoveryEnabled &&
-              reactiveCompact?.isWithheldMediaSizeError(message)
+              reactiveCompact.isWithheldMediaSizeError(message)
             ) {
               withheld = true
             }
@@ -939,6 +997,12 @@ async function* queryLoop(
                 }
               }
             }
+            if (
+              message.type === 'stream_event' &&
+              message.event.type === 'message_delta'
+            ) {
+              lastStopReason = message.event.delta.stop_reason
+            }
 
             if (
               streamingToolExecutor &&
@@ -951,6 +1015,7 @@ async function* queryLoop(
                     ...normalizeMessagesForAPI(
                       [result.message],
                       toolUseContext.options.tools,
+                      toolUseContext.options.mainLoopModel,
                     ).filter(_ => _.type === 'user'),
                   )
                 }
@@ -1201,7 +1266,30 @@ async function* queryLoop(
       // prevents a spiral and the error surfaces.
       const isWithheldMedia =
         mediaRecoveryEnabled &&
-        reactiveCompact?.isWithheldMediaSizeError(lastMessage)
+        reactiveCompact.isWithheldMediaSizeError(lastMessage)
+
+      const nextConsecutiveRapidRefills =
+        getNextConsecutiveRapidRefills(tracking)
+
+      if (
+        (isWithheld413 || isWithheldMedia) &&
+        !hasAttemptedReactiveCompact &&
+        nextConsecutiveRapidRefills >= 3
+      ) {
+        logEvent('tengu_auto_compact_rapid_refill_breaker', {
+          consecutiveRapidRefills: tracking?.consecutiveRapidRefills ?? 0,
+          turnsSincePreviousCompact: tracking?.turnCounter ?? -1,
+          queryChainId: queryChainIdForAnalytics,
+          queryDepth: queryTracking.depth,
+          reactive: true,
+        })
+        yield createAssistantAPIErrorMessage({
+          content: RAPID_REFILL_BREAKER_ERROR,
+          error: 'invalid_request',
+        })
+        return { reason: 'rapid_refill_breaker' }
+      }
+
       if (isWithheld413) {
         // First: drain all staged context-collapses. Gated on the PREVIOUS
         // transition not being collapse_drain_retry — if we already drained
@@ -1236,7 +1324,7 @@ async function* queryLoop(
           }
         }
       }
-      if ((isWithheld413 || isWithheldMedia) && reactiveCompact) {
+      if (isWithheld413 || isWithheldMedia) {
         const compacted = await reactiveCompact.tryReactiveCompact({
           hasAttempted: hasAttemptedReactiveCompact,
           querySource,
@@ -1272,7 +1360,13 @@ async function* queryLoop(
           const next: State = {
             messages: postCompactMessages,
             toolUseContext,
-            autoCompactTracking: undefined,
+            autoCompactTracking: {
+              compacted: true,
+              turnId: deps.uuid(),
+              turnCounter: 0,
+              consecutiveFailures: 0,
+              consecutiveRapidRefills: nextConsecutiveRapidRefills,
+            },
             maxOutputTokensRecoveryCount,
             hasAttemptedReactiveCompact: true,
             maxOutputTokensOverride: undefined,
@@ -1290,14 +1384,28 @@ async function* queryLoop(
         // so hooks have nothing meaningful to evaluate. Running stop hooks
         // on prompt-too-long creates a death spiral: error → hook blocking
         // → retry → error → … (the hook injects more tokens each cycle).
+        if (!toolUseContext.abortController.signal.aborted) {
+          logEvent('tengu_ptl_surfaced_to_user', {
+            reason: isWithheldMedia ? 'image_error' : 'prompt_too_long',
+            querySource: sanitizeQuerySourceForAnalytics(querySource),
+            wasGatedByPriorAttempt: hasAttemptedReactiveCompact,
+          })
+        }
         yield lastMessage
         void executeStopFailureHooks(lastMessage, toolUseContext)
         void markClassifierApiFailure(toolUseContext, querySource, lastMessage)
         return { reason: isWithheldMedia ? 'image_error' : 'prompt_too_long' }
       } else if (feature('CONTEXT_COLLAPSE') && isWithheld413) {
-        // reactiveCompact compiled out but contextCollapse withheld and
-        // couldn't recover (staged queue empty/stale). Surface. Same
+        // Context collapse withheld the error but couldn't recover (its
+        // staged queue was empty or stale). Surface it. Same
         // early-return rationale — don't fall through to stop hooks.
+        if (!toolUseContext.abortController.signal.aborted) {
+          logEvent('tengu_ptl_surfaced_to_user', {
+            reason: 'prompt_too_long',
+            querySource: sanitizeQuerySourceForAnalytics(querySource),
+            wasGatedByPriorAttempt: hasAttemptedReactiveCompact,
+          })
+        }
         yield lastMessage
         void executeStopFailureHooks(lastMessage, toolUseContext)
         void markClassifierApiFailure(toolUseContext, querySource, lastMessage)
@@ -1377,13 +1485,60 @@ async function* queryLoop(
         yield lastMessage
       }
 
+      if (
+        (lastMessage?.message.stop_reason ?? lastStopReason) === 'tool_use' &&
+        toolUseBlocks.length === 0 &&
+        !lastMessage?.isApiErrorMessage
+      ) {
+        const willRetry = state.transition?.reason !== 'malformed_tool_use_retry'
+        logEvent('tengu_malformed_tool_use_response', {
+          will_retry: willRetry,
+          model:
+            currentModel as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        })
+        if (willRetry) {
+          const recoveryMessage = createUserMessage({
+            content:
+              'Your tool call was malformed and could not be parsed. Please retry.',
+            isMeta: true,
+          })
+          yield recoveryMessage
+          const next: State = {
+            messages: [
+              ...messagesForQuery,
+              ...assistantMessages,
+              recoveryMessage,
+            ],
+            toolUseContext,
+            autoCompactTracking: tracking,
+            maxOutputTokensRecoveryCount: 0,
+            hasAttemptedReactiveCompact: false,
+            maxOutputTokensOverride: undefined,
+            pendingToolUseSummary: undefined,
+            stopHookActive,
+            turnCount,
+            transition: { reason: 'malformed_tool_use_retry' },
+          }
+          state = next
+          continue
+        }
+        const retryFailed = createAssistantAPIErrorMessage({
+          content:
+            "The model's tool call could not be parsed (retry also failed).",
+        })
+        yield retryFailed
+        void executeStopFailureHooks(retryFailed, toolUseContext)
+        void markClassifierApiFailure(toolUseContext, querySource, retryFailed)
+        return { reason: 'completed' }
+      }
+
       // Skip stop hooks when the last message is an API error (rate limit,
       // prompt-too-long, auth failure, etc.). The model never produced a
       // real response — hooks evaluating it create a death spiral:
       // error → hook blocking → retry → error → …
       if (lastMessage?.isApiErrorMessage) {
         void executeStopFailureHooks(lastMessage, toolUseContext)
-        await markClassifierApiFailure(toolUseContext, querySource, lastMessage)
+        void markClassifierApiFailure(toolUseContext, querySource, lastMessage)
         return { reason: 'completed' }
       }
 
@@ -1482,6 +1637,7 @@ async function* queryLoop(
     }
 
     let shouldPreventContinuation = false
+    let shouldDeferTool = false
     let updatedToolUseContext = toolUseContext
 
     queryCheckpoint('query_tool_execution_start')
@@ -1515,11 +1671,18 @@ async function* queryLoop(
         ) {
           shouldPreventContinuation = true
         }
+        if (
+          update.message.type === 'attachment' &&
+          update.message.attachment.type === 'hook_deferred_tool'
+        ) {
+          shouldDeferTool = true
+        }
 
         toolResults.push(
           ...normalizeMessagesForAPI(
             [update.message],
             toolUseContext.options.tools,
+            toolUseContext.options.mainLoopModel,
           ).filter(_ => _.type === 'user'),
         )
       }
@@ -1638,6 +1801,10 @@ async function* queryLoop(
       }
       markClassifierTurnAborted(toolUseContext, querySource)
       return { reason: 'aborted_tools' }
+    }
+
+    if (shouldDeferTool) {
+      return { reason: 'tool_deferred' }
     }
 
     // If a hook indicated to prevent continuation, stop here
@@ -1881,6 +2048,18 @@ async function* queryLoop(
     if (updatedToolUseContext.options.refreshTools) {
       const refreshedTools = updatedToolUseContext.options.refreshTools()
       if (refreshedTools !== updatedToolUseContext.options.tools) {
+        const oldMcpCount = count(
+          updatedToolUseContext.options.tools,
+          tool => Boolean(tool.mcpInfo),
+        )
+        const newMcpCount = count(refreshedTools, tool => Boolean(tool.mcpInfo))
+        if (oldMcpCount !== newMcpCount) {
+          logEvent('tengu_mcp_tools_refreshed_mid_turn', {
+            oldMcpCount,
+            newMcpCount,
+            recovered: oldMcpCount === 0 && newMcpCount > 0,
+          })
+        }
         updatedToolUseContext = {
           ...updatedToolUseContext,
           options: {

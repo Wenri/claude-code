@@ -841,25 +841,23 @@ export default class Ink {
    * was cleared externally (macOS Cmd+K) and Ink's diff engine thinks
    * unchanged cells don't need repainting. Scrollback is preserved.
    */
-  forceRedraw(): void {
-    if (!this.options.stdout.isTTY || this.isUnmounted || this.isPaused) return;
+  forceRedraw(): boolean {
+    if (!this.options.stdout.isTTY || this.isUnmounted || this.isPaused) return false;
     const cols = this.options.stdout.columns || 80;
     const rows = this.options.stdout.rows || 24;
     if (cols !== this.terminalColumns || rows !== this.terminalRows) {
       this.handleResize();
-      return;
+      return true;
     }
-    this.options.stdout.write(ERASE_SCREEN + CURSOR_HOME);
     if (this.altScreenActive) {
+      this.options.stdout.write(ERASE_SCREEN + CURSOR_HOME);
       this.resetFramesForAltScreen();
     } else {
-      this.repaint();
-      // repaint() resets frontFrame to 0×0. Without this flag the next
-      // frame's blit optimization copies from that empty screen and the
-      // diff sees no content. onRender resets the flag at frame end.
+      this.log.forceFullReset();
       this.prevFrameContaminated = true;
     }
     this.onRender();
+    return true;
   }
 
   /**
@@ -1483,7 +1481,7 @@ export default class Ink {
   };
   render(node: ReactNode): void {
     this.currentNode = node;
-    const tree = <App stdin={this.options.stdin} stdout={this.options.stdout} stderr={this.options.stderr} exitOnCtrlC={this.options.exitOnCtrlC} onExit={this.unmount} terminalColumns={this.terminalColumns} terminalRows={this.terminalRows} selection={this.selection} onSelectionChange={this.notifySelectionChange} onClickAt={this.dispatchClick} onHoverAt={this.dispatchHover} getHyperlinkAt={this.getHyperlinkAt} onOpenHyperlink={this.openHyperlink} onMultiClick={this.handleMultiClick} onSelectionDrag={this.handleSelectionDrag} onStdinResume={this.reassertTerminalModes} onCursorDeclaration={this.setCursorDeclaration} dispatchKeyboardEvent={this.dispatchKeyboardEvent} dispatchPasteEvent={this.dispatchPasteEvent} dispatchWheelEvent={this.dispatchWheelEvent}>
+    const tree = <App stdin={this.options.stdin} stdout={this.options.stdout} stderr={this.options.stderr} exitOnCtrlC={this.options.exitOnCtrlC} onExit={this.unmount} terminalColumns={this.terminalColumns} terminalRows={this.terminalRows} selection={this.selection} onSelectionChange={this.notifySelectionChange} onClickAt={this.dispatchClick} onHoverAt={this.dispatchHover} getHyperlinkAt={this.getHyperlinkAt} onOpenHyperlink={this.openHyperlink} onMultiClick={this.handleMultiClick} onSelectionDrag={this.handleSelectionDrag} onStdinResume={this.reassertTerminalModes} onRawModeEnter={this.ensureInteractive} onCursorDeclaration={this.setCursorDeclaration} dispatchKeyboardEvent={this.dispatchKeyboardEvent} dispatchPasteEvent={this.dispatchPasteEvent} dispatchWheelEvent={this.dispatchWheelEvent} focusManager={this.focusManager} rootNode={this.rootNode}>
         <TerminalWriteProvider value={this.writeRaw}>
           {node}
         </TerminalWriteProvider>

@@ -10,7 +10,6 @@ import { isENOENT } from '../utils/errors.js'
 import { getUserBinDir } from '../utils/xdg.js'
 
 export const DAEMON_SERVICE_ID = 'com.anthropic.claude-daemon'
-export const DAEMON_SERVICE_MARKER = 'claude-managed: v1'
 
 const execFileAsync = promisify(execFile)
 
@@ -23,8 +22,10 @@ export function getDefaultDaemonLogPath(): string {
 }
 
 export function isServiceInstallSupported(): boolean {
+  const runtimeDir =
+    process.env.XDG_RUNTIME_DIR || `/run/user/${process.getuid?.() ?? 0}`
   try {
-    return statSync('/run/systemd/system').isDirectory()
+    return statSync(join(runtimeDir, 'systemd')).isDirectory()
   } catch {
     return false
   }
@@ -93,7 +94,6 @@ export async function installDaemonService(options: {
   const serviceName = `${DAEMON_SERVICE_ID}.service`
   const path = process.env.PATH || '/usr/local/bin:/usr/bin:/bin'
   const unit = `[Unit]
-# ${DAEMON_SERVICE_MARKER}
 Description=Claude Daemon
 After=network-online.target
 StartLimitIntervalSec=60

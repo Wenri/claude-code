@@ -1,7 +1,10 @@
 import type { DOMElement } from './dom.js'
 import { FocusEvent } from './events/focus-event.js'
+import { nodeCache } from './node-cache.js'
 
 const MAX_FOCUS_STACK = 32
+
+export type FocusDirection = 'left' | 'right' | 'up' | 'down'
 
 /**
  * DOM-like focus manager for the Ink terminal UI.
@@ -121,6 +124,34 @@ export class FocusManager {
     this.moveFocus(-1, root)
   }
 
+  focusDirection(direction: FocusDirection, root: DOMElement): boolean {
+    if (!this.enabled) return false
+    if (!this.activeElement) {
+      this.moveFocus(1, root)
+      return true
+    }
+
+    const currentLayout = getLayout(this.activeElement)
+    if (!currentLayout) return false
+
+    let best: DOMElement | null = null
+    let bestScore = Number.POSITIVE_INFINITY
+    for (const candidate of collectTabbable(root)) {
+      if (candidate === this.activeElement) continue
+      const candidateLayout = getLayout(candidate)
+      if (!candidateLayout) continue
+      const score = directionalScore(currentLayout, candidateLayout, direction)
+      if (score < bestScore) {
+        best = candidate
+        bestScore = score
+      }
+    }
+
+    if (!best) return false
+    this.focus(best)
+    return true
+  }
+
   private moveFocus(direction: 1 | -1, root: DOMElement): void {
     if (!this.enabled) return
 
@@ -143,6 +174,77 @@ export class FocusManager {
       this.focus(next)
     }
   }
+}
+
+type LayoutRect = { x: number; y: number; width: number; height: number }
+
+function distanceToSpan(point: number, start: number, length: number): number {
+  if (point < start) return start - point
+  if (point > start + length) return point - (start + length)
+  return 0
+}
+
+function overlap(
+  firstStart: number,
+  firstLength: number,
+  secondStart: number,
+  secondLength: number,
+): number {
+  return Math.max(
+    0,
+    Math.min(firstStart + firstLength, secondStart + secondLength) -
+      Math.max(firstStart, secondStart),
+  )
+}
+
+function directionalScore(
+  current: LayoutRect,
+  candidate: LayoutRect,
+  direction: FocusDirection,
+): number {
+  const currentX = current.x + current.width / 2
+  const currentY = current.y + current.height / 2
+  const candidateX = candidate.x + candidate.width / 2
+  const candidateY = candidate.y + candidate.height / 2
+  const horizontal = direction === 'left' || direction === 'right'
+  const sign = direction === 'right' || direction === 'down' ? 1 : -1
+  const major = (horizontal ? candidateX - currentX : candidateY - currentY) * sign
+  if (major <= 0) return Number.POSITIVE_INFINITY
+  const minor = horizontal
+    ? distanceToSpan(currentY, candidate.y, candidate.height)
+    : distanceToSpan(currentX, candidate.x, candidate.width)
+  const shared = horizontal
+    ? overlap(current.y, current.height, candidate.y, candidate.height)
+    : overlap(current.x, current.width, candidate.x, candidate.width)
+  return major + (horizontal ? 2 : 0.5) * minor - shared
+}
+
+function getLayout(node: DOMElement): LayoutRect | undefined {
+  const cached = nodeCache.get(node)
+  if (cached) return cached
+  const yogaNode = node.yogaNode
+  if (!yogaNode) return undefined
+
+  let x = yogaNode.getComputedLeft()
+  let y = yogaNode.getComputedTop()
+  let parent = node.parentNode
+  while (parent) {
+    const parentCached = nodeCache.get(parent)
+    if (parentCached) {
+      return {
+        x: parentCached.x + x,
+        y: parentCached.y + y,
+        width: yogaNode.getComputedWidth(),
+        height: yogaNode.getComputedHeight(),
+      }
+    }
+    if (parent.yogaNode) {
+      x += parent.yogaNode.getComputedLeft()
+      y += parent.yogaNode.getComputedTop()
+    }
+    parent = parent.parentNode
+  }
+  return undefined
 }
 
 function collectTabbable(root: DOMElement): DOMElement[] {

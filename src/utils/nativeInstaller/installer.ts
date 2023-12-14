@@ -35,6 +35,7 @@ import {
   logEvent,
 } from 'src/services/analytics/index.js'
 import { getMaxVersion, shouldSkipVersion } from '../autoUpdater.js'
+import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
 import { registerCleanup } from '../cleanupRegistry.js'
 import { getGlobalConfig, saveGlobalConfig } from '../config.js'
 import { logForDebugging } from '../debug.js'
@@ -48,6 +49,7 @@ import { getShellType } from '../localInstaller.js'
 import * as lockfile from '../lockfile.js'
 import { logError } from '../log.js'
 import { gt, gte } from '../semver.js'
+import * as semver from 'semver'
 import {
   filterClaudeAliases,
   getShellConfigPaths,
@@ -502,12 +504,27 @@ async function versionIsAvailable(version: string): Promise<boolean> {
   return isPossibleClaudeBinary(installPath)
 }
 
+function getCanaryVersion(): string | null {
+  try {
+    const canary = getFeatureValue_CACHED_MAY_BE_STALE('tengu_canary', {})
+    return typeof canary.external === 'string' && semver.valid(canary.external)
+      ? canary.external
+      : null
+  } catch (error) {
+    logForDebugging(
+      `getCanaryVersion: GB read failed, falling through: ${errorMessage(error)}`,
+    )
+    return null
+  }
+}
+
 async function updateLatest(
   channelOrVersion: string,
   forceReinstall: boolean = false,
 ): Promise<{
   success: boolean
   latestVersion: string
+  wasSkipped?: boolean
   lockFailed?: boolean
   lockHolderPid?: number
 }> {
@@ -517,9 +534,25 @@ async function updateLatest(
 
   logForDebugging(`Checking for native installer update to version ${version}`)
 
+  const maxVersion = await getMaxVersion()
+  if (channelOrVersion === 'latest') {
+    const canaryVersion = getCanaryVersion()
+    const canaryExceedsMax =
+      canaryVersion && maxVersion && gt(canaryVersion, maxVersion)
+    if (canaryVersion && gt(canaryVersion, version) && !canaryExceedsMax) {
+      logForDebugging(
+        `Native installer: canary ${canaryVersion} active, overriding ${version}`,
+      )
+      version = canaryVersion
+    } else if (canaryExceedsMax) {
+      logForDebugging(
+        `Native installer: canary ${canaryVersion} exceeds maxVersion ${maxVersion}, not applying`,
+      )
+    }
+  }
+
   // Check if max version is set (server-side kill switch for auto-updates)
   if (!forceReinstall) {
-    const maxVersion = await getMaxVersion()
     if (maxVersion && gt(version, maxVersion)) {
       logForDebugging(
         `Native installer: maxVersion ${maxVersion} is set, capping update from ${version} to ${maxVersion}`,
@@ -536,7 +569,7 @@ async function updateLatest(
           available_version:
             version as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
         })
-        return { success: true, latestVersion: version }
+        return { success: true, wasSkipped: true, latestVersion: version }
       }
       version = maxVersion
     }
@@ -558,7 +591,7 @@ async function updateLatest(
       was_force_reinstall: false,
       was_already_running: true,
     })
-    return { success: true, latestVersion: version }
+    return { success: true, wasSkipped: true, latestVersion: version }
   }
 
   // Check if this version should be skipped due to minimumVersion setting
@@ -568,7 +601,7 @@ async function updateLatest(
       target_version:
         version as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
     })
-    return { success: true, latestVersion: version }
+    return { success: true, wasSkipped: true, latestVersion: version }
   }
 
   // Track if we're actually installing or just symlinking
@@ -952,6 +985,7 @@ export async function checkInstall(
 type InstallLatestResult = {
   latestVersion: string | null
   wasUpdated: boolean
+  wasSkipped?: boolean
   lockFailed?: boolean
   lockHolderPid?: number
 }
@@ -1020,7 +1054,8 @@ async function installLatestImpl(
 
   return {
     latestVersion: updateResult.latestVersion,
-    wasUpdated: updateResult.success,
+    wasUpdated: updateResult.success && !updateResult.wasSkipped,
+    wasSkipped: updateResult.wasSkipped,
     lockFailed: false,
   }
 }

@@ -10,6 +10,14 @@ import { getBaseRenderOptions } from '../../utils/renderOptions.js';
 import type { SettingsJson } from '../../utils/settings/types.js';
 import { logEvent } from '../analytics/index.js';
 export type SecurityCheckResult = 'approved' | 'rejected' | 'no_check_needed';
+type SecurityPromptResult = Exclude<SecurityCheckResult, 'no_check_needed'>;
+type SecurityPromptHandler = (settings: SettingsJson) => Promise<SecurityPromptResult>;
+
+let securityPromptHandler: SecurityPromptHandler | null = null;
+
+export function setManagedSettingsSecurityPromptHandler(handler: SecurityPromptHandler | null): void {
+  securityPromptHandler = handler;
+}
 
 /**
  * Check if new remote managed settings contain dangerous settings that require user approval.
@@ -37,6 +45,15 @@ export async function checkManagedSettingsSecurity(cachedSettings: SettingsJson 
 
   // Log that dialog is being shown
   logEvent('tengu_managed_settings_security_dialog_shown', {});
+
+  // When the REPL is mounted, render this dialog inside its existing Ink
+  // tree. A nested render/unmount would otherwise tear down the active
+  // session after the user accepts the settings.
+  if (securityPromptHandler) {
+    const result = await securityPromptHandler(newSettings);
+    logEvent(result === 'approved' ? 'tengu_managed_settings_security_dialog_accepted' : 'tengu_managed_settings_security_dialog_rejected', {});
+    return result;
+  }
 
   // Show blocking dialog
   return new Promise<SecurityCheckResult>(resolve => {

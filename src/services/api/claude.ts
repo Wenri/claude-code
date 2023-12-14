@@ -128,6 +128,7 @@ import {
   getPromptCache1hAllowlist,
   getSessionId,
   getThinkingClearLatched,
+  getThinkingTypeOverride,
   setAfkModeHeaderLatched,
   setCacheDiagnosisHeaderLatched,
   setCacheEditingHeaderLatched,
@@ -135,6 +136,7 @@ import {
   setLastMainRequestId,
   setPromptCache1hAllowlist,
   setThinkingClearLatched,
+  setThinkingTypeOverride,
 } from 'src/bootstrap/state.js'
 import {
   AFK_MODE_BETA_HEADER,
@@ -210,6 +212,7 @@ import { validateBoundedIntEnvVar } from '../../utils/envValidation.js'
 import { safeParseJSON } from '../../utils/json.js'
 import { getInferenceProfileBackingModel } from '../../utils/model/bedrock.js'
 import {
+  getCanonicalName,
   normalizeModelStringForAPI,
   parseUserSpecifiedModel,
 } from '../../utils/model/model.js'
@@ -260,7 +263,10 @@ import {
 import {
   CACHE_TTL_1HOUR_MS,
   checkResponseForCacheBreak,
+  type CacheMissReason,
+  logPromptCacheDiagnosis,
   recordPromptState,
+  shouldTrackPromptCacheBreaks,
 } from './promptCacheBreakDetection.js'
 import {
   CannotRetryError,
@@ -700,6 +706,8 @@ export type Options = {
   agents: AgentDefinition[]
   allowedAgentTypes?: string[]
   hasAppendSystemPrompt: boolean
+  /** User-provided system prompt content for opt-in OTel prompt tracing. */
+  userSystemPrompt?: string
   fetchOverride?: ClientOptions['fetch']
   enablePromptCaching?: boolean
   skipCacheWrite?: boolean
@@ -1013,6 +1021,27 @@ function isCacheDiagnosisBetaRejected(error: unknown): boolean {
     error.message.includes(CACHE_DIAGNOSIS_BETA_HEADER) &&
     error.message.includes('anthropic-beta')
   )
+}
+
+function isAfkModeBetaRejected(error: unknown): boolean {
+  return (
+    error instanceof APIError &&
+    error.status === 400 &&
+    error.message.includes(AFK_MODE_BETA_HEADER) &&
+    error.message.includes('anthropic-beta')
+  )
+}
+
+function getRejectedThinkingType(
+  error: unknown,
+): 'adaptive' | 'enabled' | null {
+  if (!(error instanceof APIError) || error.status !== 400) return null
+  const match =
+    /thinking\.type[^a-z]{1,8}(enabled|adaptive)[^]*?not supported/i.exec(
+      error.message,
+    )
+  const type = match?.[1]?.toLowerCase()
+  return type === 'adaptive' || type === 'enabled' ? type : null
 }
 
 function isMedia(
@@ -1342,7 +1371,11 @@ async function* queryModel(
   })
 
   queryCheckpoint('query_message_normalization_start')
-  let messagesForAPI = normalizeMessagesForAPI(messages, filteredTools)
+  let messagesForAPI = normalizeMessagesForAPI(
+    messages,
+    filteredTools,
+    options.model,
+  )
   queryCheckpoint('query_message_normalization_end')
 
   // Model-specific post-processing: strip tool-search-specific fields if the
@@ -1559,7 +1592,7 @@ async function* queryModel(
       ? convertEffortValueToLevel(effort)
       : undefined
 
-  if (feature('PROMPT_CACHE_BREAK_DETECTION')) {
+  if (shouldTrackPromptCacheBreaks()) {
     // Exclude defer_loading tools from the hash -- the API strips them from the
     // prompt, so they never affect the actual cache key. Including them creates
     // false-positive "tool schemas changed" breaks when tools are discovered or
@@ -1581,16 +1614,20 @@ async function* queryModel(
       betas,
       autoModeActive: afkHeaderLatched,
       isUsingOverage: currentLimits.isUsingOverage ?? false,
+      is1hCacheTTL: cacheTtl === '1h',
+      queryDepth: options.queryTracking?.depth,
       cachedMCEnabled: cacheEditingHeaderLatched,
       cacheDiagnosis,
       effortValue: effort,
       extraBodyParams: getExtraBodyParams(),
+      messagesForAPI,
     })
   }
 
   const newContext: LLMRequestNewContext | undefined = isBetaTracingEnabled()
     ? {
         systemPrompt: systemPrompt.join('\n\n'),
+        userSystemPrompt: options.userSystemPrompt,
         querySource: options.querySource,
         tools: jsonStringify(allTools),
       }
@@ -1715,15 +1752,24 @@ async function* queryModel(
     // IMPORTANT: Do not change the adaptive-vs-budget thinking selection below
     // without notifying the model launch DRI and research. This is a sensitive
     // setting that can greatly affect model quality and bashing.
-    if (hasThinking && modelSupportsThinking(options.model)) {
+    if (hasThinking && modelSupportsThinking(resolvedModel)) {
+      const canonicalModel = getCanonicalName(resolvedModel)
+      const adaptiveThinkingDisabled =
+        isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING) &&
+        (canonicalModel.includes('opus-4-6') ||
+          canonicalModel.includes('sonnet-4-6'))
+      const thinkingTypeOverride = getThinkingTypeOverride(options.model)
       if (
-        !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING) &&
-        modelSupportsAdaptiveThinking(options.model)
+        thinkingTypeOverride !== undefined
+          ? thinkingTypeOverride === 'adaptive'
+          : modelSupportsAdaptiveThinking(resolvedModel) &&
+            !adaptiveThinkingDisabled
       ) {
         // For models that support adaptive thinking, always use adaptive
         // thinking without a budget.
         thinking = {
           type: 'adaptive',
+          ...(thinkingConfig.display && { display: thinkingConfig.display }),
         } satisfies BetaMessageStreamParams['thinking']
       } else {
         // For models that do not support adaptive thinking, use the default
@@ -1739,6 +1785,7 @@ async function* queryModel(
         thinking = {
           budget_tokens: thinkingBudget,
           type: 'enabled',
+          ...(thinkingConfig.display && { display: thinkingConfig.display }),
         } satisfies BetaMessageStreamParams['thinking']
       }
     }
@@ -1870,10 +1917,9 @@ async function* queryModel(
       ...(speed !== undefined && { speed }),
       ...(cacheDiagnosis &&
         isAgenticQuery &&
-        previousMessageId &&
         useBetas &&
         !simulateProxyUsage && {
-          diagnostics: { previous_message_id: previousMessageId },
+          diagnostics: { previous_message_id: previousMessageId ?? null },
         }),
     }
   }
@@ -1921,6 +1967,7 @@ async function* queryModel(
   let maxOutputTokens = 0
   let responseHeaders: globalThis.Headers | undefined = undefined
   let research: unknown = undefined
+  let cacheMissReason: CacheMissReason | undefined
   let isFastModeRequest = isFastMode // Keep separate state as it may change if falling back
   let isAdvisorInProgress = false
 
@@ -2028,6 +2075,17 @@ async function* queryModel(
         signal,
         querySource: options.querySource,
         onError: async error => {
+          if (afkHeaderLatched && isAfkModeBetaRejected(error)) {
+            afkHeaderLatched = false
+            setAfkModeHeaderLatched(false)
+            autoModeStateModule?.setAutoModeActive(false)
+            autoModeStateModule?.setAutoModeCircuitBroken(true)
+            logForDebugging(
+              '[auto-mode] server rejected afk-mode beta — dropping header and circuit-breaking auto for this session',
+              { level: 'warn' },
+            )
+            return 'retry:afk-beta'
+          }
           if (
             error instanceof APIError &&
             error.status === 400 &&
@@ -2051,6 +2109,17 @@ async function* queryModel(
               { level: 'warn' },
             )
             return 'retry:cache-diagnosis-beta'
+          }
+          const rejectedThinkingType = getRejectedThinkingType(error)
+          if (rejectedThinkingType) {
+            const fallbackThinkingType =
+              rejectedThinkingType === 'enabled' ? 'adaptive' : 'enabled'
+            setThinkingTypeOverride(options.model, fallbackThinkingType)
+            logForDebugging(
+              `[thinking] model rejected thinking.type=${rejectedThinkingType}; retrying with ${fallbackThinkingType}. For Bedrock application-inference-profile ARNs with bearer-token auth, granting bedrock:GetInferenceProfile to the token avoids this round-trip.`,
+              { level: 'warn' },
+            )
+            return 'retry:thinking-type'
           }
           const hintResult = await contextHintController?.onRequestError(
             error,
@@ -2221,6 +2290,11 @@ async function* queryModel(
             partialMessage = part.message
             ttftMs = Date.now() - start
             usage = updateUsage(usage, part.message?.usage)
+            cacheMissReason = (
+              part.message as typeof part.message & {
+                diagnostics?: { cache_miss_reason?: CacheMissReason }
+              }
+            ).diagnostics?.cache_miss_reason
             // Capture research from message_start if available (internal only).
             // Always overwrite with the latest value.
             if (
@@ -2484,6 +2558,11 @@ async function* queryModel(
                 type?: string
                 explanation?: string | null
               } | null
+              diagnostics?: { cache_miss_reason?: CacheMissReason }
+            }
+            if (deltaWithStopDetails.diagnostics?.cache_miss_reason) {
+              cacheMissReason =
+                deltaWithStopDetails.diagnostics.cache_miss_reason
             }
             stopReason = deltaWithStopDetails.stop_reason
 
@@ -2629,7 +2708,7 @@ async function* queryModel(
       }
 
       // Check if the cache actually broke based on response tokens
-      if (feature('PROMPT_CACHE_BREAK_DETECTION')) {
+      if (shouldTrackPromptCacheBreaks()) {
         void checkResponseForCacheBreak(
           options.querySource,
           usage.cache_read_input_tokens,
@@ -2637,6 +2716,7 @@ async function* queryModel(
           messages,
           options.agentId,
           streamRequestId,
+          previousMessageId,
         )
       }
 
@@ -2911,6 +2991,11 @@ async function* queryModel(
         streamRequestId,
       )
       streamRequestId = requestId
+      cacheMissReason = (
+        result as typeof result & {
+          diagnostics?: { cache_miss_reason?: CacheMissReason }
+        }
+      ).diagnostics?.cache_miss_reason
 
       const m: AssistantMessage = {
         message: {
@@ -3016,6 +3101,11 @@ async function* queryModel(
           failedRequestId,
         )
         streamRequestId = requestId
+        cacheMissReason = (
+          result as typeof result & {
+            diagnostics?: { cache_miss_reason?: CacheMissReason }
+          }
+        ).diagnostics?.cache_miss_reason
 
         const m: AssistantMessage = {
           message: {
@@ -3211,6 +3301,17 @@ async function* queryModel(
   }
 
   options.connection?.push({ type: 'completed' })
+
+  if (cacheDiagnosis && cacheMissReason) {
+    logPromptCacheDiagnosis(cacheMissReason, {
+      requestId: streamRequestId,
+      previousMessageId,
+      model: options.model,
+      is1hCacheTTL: cacheTtl === '1h',
+      querySource: options.querySource,
+      queryDepth: options.queryTracking?.depth,
+    })
+  }
 
   // Precompute scalars so the fire-and-forget .then() closure doesn't pin the
   // full messagesForAPI array (the entire conversation up to the context window

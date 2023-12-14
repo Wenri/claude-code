@@ -36,8 +36,17 @@ export async function processBashCommand(inputString: string, precedingInputBloc
 
   // ctrl+b to background indicator
   let jsx: React.ReactNode;
+  const progressToolUseId = randomUUID();
+  const { emitToolProgress } = context;
 
   // Just show initial UI
+  emitToolProgress?.({
+    kind: 'bash_mode_progress',
+    toolUseId: progressToolUseId,
+    input: inputString,
+    progress: null,
+    verbose: context.options.verbose,
+  });
   setToolJSX({
     jsx: <BashModeProgress input={inputString} progress={null} verbose={context.options.verbose} />,
     shouldHidePromptInput: false
@@ -45,6 +54,7 @@ export async function processBashCommand(inputString: string, precedingInputBloc
   try {
     const bashModeContext: ProcessUserInputContext = {
       ...context,
+      toolUseId: `${progressToolUseId}:inner`,
       // TODO: Clean up this hack
       setToolJSX: _ => {
         jsx = _?.jsx;
@@ -55,6 +65,13 @@ export async function processBashCommand(inputString: string, precedingInputBloc
     const onProgress = (progress: {
       data: ShellProgress;
     }) => {
+      emitToolProgress?.({
+        kind: 'bash_mode_progress',
+        toolUseId: progressToolUseId,
+        input: inputString,
+        progress: progress.data,
+        verbose: context.options.verbose,
+      });
       setToolJSX({
         jsx: <>
             <BashModeProgress input={inputString!} progress={progress.data} verbose={context.options.verbose} />
@@ -134,6 +151,7 @@ export async function processBashCommand(inputString: string, precedingInputBloc
       shouldQuery: false
     };
   } finally {
+    emitToolProgress?.({ kind: 'clear', toolUseId: progressToolUseId });
     setToolJSX(null);
   }
 }

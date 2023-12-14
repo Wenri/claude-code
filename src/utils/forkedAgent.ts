@@ -45,6 +45,8 @@ import {
 } from './toolResultStorage.js'
 import { createAgentId } from './uuid.js'
 
+const DEFAULT_FORKED_AGENT_MAX_TURNS = 50
+
 /**
  * Parameters that must be identical between the fork and parent API requests
  * to share the parent's prompt cache. The Anthropic API cache key is composed of:
@@ -510,6 +512,8 @@ export async function runForkedAgent({
   const startTime = Date.now()
   const outputMessages: Message[] = []
   let totalUsage: NonNullableUsage = { ...EMPTY_USAGE }
+  const effectiveMaxTurns = maxTurns ?? DEFAULT_FORKED_AGENT_MAX_TURNS
+  let assistantTurns = 0
 
   const {
     systemPrompt,
@@ -556,7 +560,7 @@ export async function runForkedAgent({
       toolUseContext: isolatedToolUseContext,
       querySource,
       maxOutputTokensOverride: maxOutputTokens,
-      maxTurns,
+      maxTurns: effectiveMaxTurns,
       skipCacheWrite,
     })) {
       // Extract real usage from message_delta stream events (final usage per API call)
@@ -573,6 +577,9 @@ export async function runForkedAgent({
       }
       if (message.type === 'stream_request_start') {
         continue
+      }
+      if (message.type === 'assistant') {
+        assistantTurns++
       }
 
       logForDebugging(
@@ -613,6 +620,19 @@ export async function runForkedAgent({
   )
 
   const durationMs = Date.now() - startTime
+
+  if (
+    maxTurns === undefined &&
+    assistantTurns >= DEFAULT_FORKED_AGENT_MAX_TURNS
+  ) {
+    logEvent('tengu_forked_agent_default_turns_exceeded', {
+      forkLabel:
+        forkLabel as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      querySource:
+        querySource as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      turnCount: assistantTurns,
+    })
+  }
 
   // Log the fork query metrics with full NonNullableUsage
   logForkAgentQueryEvent({

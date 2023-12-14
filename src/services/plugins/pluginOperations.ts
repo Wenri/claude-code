@@ -632,6 +632,59 @@ export async function uninstallPluginOp(
   }
 }
 
+/** Remove a precomputed set of orphaned auto-installed dependencies. */
+export async function pruneOrphanedAutoDependencies(
+  orphanIds: ReadonlySet<string>,
+  scope: InstallableScope,
+  projectPath: string | undefined,
+  { deleteDataDir = true }: { deleteDataDir?: boolean } = {},
+): Promise<string[]> {
+  if (orphanIds.size === 0) return []
+
+  const installed = loadInstalledPluginsV2().plugins
+  const lastScopeInstallations: Array<{ id: string; installPath: string }> = []
+  const removed: string[] = []
+  for (const pluginId of orphanIds) {
+    const installations = installed[pluginId]
+    const installation = installations?.find(
+      entry => entry.scope === scope && entry.projectPath === projectPath,
+    )
+    if (!installation) continue
+    removePluginInstallation(pluginId, scope, projectPath)
+    removed.push(pluginId)
+    if ((installations?.length ?? 0) <= 1) {
+      lastScopeInstallations.push({
+        id: pluginId,
+        installPath: installation.installPath,
+      })
+    }
+  }
+  if (removed.length === 0) return []
+
+  const settingSource = scopeToSettingSource(scope)
+  const enabledPlugins: Record<
+    string,
+    boolean | string[] | undefined
+  > = {
+    ...getSettingsForSource(settingSource)?.enabledPlugins,
+  }
+  for (const pluginId of removed) enabledPlugins[pluginId] = undefined
+  const { error } = updateSettingsForSource(settingSource, { enabledPlugins })
+  if (error) {
+    logForDebugging(
+      `pruneOrphanedAutoDeps: settings write failed at ${scope}: ${error.message}`,
+    )
+  }
+  clearAllCaches()
+
+  for (const { id, installPath } of lastScopeInstallations) {
+    await markPluginVersionOrphaned(installPath)
+    deletePluginOptions(id)
+    if (deleteDataDir) await deletePluginDataDir(id)
+  }
+  return removed
+}
+
 /**
  * Set plugin enabled/disabled status (settings-first).
  *

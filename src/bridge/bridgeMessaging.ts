@@ -238,7 +238,23 @@ export type ServerControlRequestHandlers = {
   onReadFile?: (
     path: string,
     maxBytes?: number,
-  ) => Promise<{ contents: string; absPath: string; truncated?: boolean }>
+    encoding?: 'utf-8' | 'base64',
+  ) => Promise<{
+    contents: string
+    absPath: string
+    truncated?: boolean
+    encoding?: 'base64'
+  }>
+  onMcpAuthenticate?: (
+    serverName: string,
+    redirectUri?: string,
+  ) => Promise<unknown>
+  onMcpOauthCallbackUrl?: (
+    serverName: string,
+    callbackUrl: string,
+  ) => Promise<unknown>
+  onMcpReconnect?: (serverName: string) => Promise<unknown>
+  onMcpStatus?: () => unknown[]
 }
 
 const OUTBOUND_ONLY_ERROR =
@@ -269,6 +285,10 @@ export function handleServerControlRequest(
     onSetColor,
     onFileSuggestions,
     onReadFile,
+    onMcpAuthenticate,
+    onMcpOauthCallbackUrl,
+    onMcpReconnect,
+    onMcpStatus,
   } = handlers
   if (!transport) {
     logForDebugging(
@@ -488,7 +508,11 @@ export function handleServerControlRequest(
         }
         break
       }
-      void onReadFile(request.request.path, request.request.max_bytes)
+      void onReadFile(
+        request.request.path,
+        request.request.max_bytes,
+        request.request.encoding,
+      )
         .then<SDKControlResponse>(result => ({
           type: 'control_response',
           response: {
@@ -512,6 +536,71 @@ export function handleServerControlRequest(
           void transport.write(event)
           logForDebugging(
             `[bridge:repl] Sent control_response for read_file request_id=${request.request_id} result=${readFileResponse.response.subtype}`,
+          )
+        })
+      return
+    }
+
+    case 'mcp_status':
+      response = {
+        type: 'control_response',
+        response: {
+          subtype: 'success',
+          request_id: request.request_id,
+          response: { mcpServers: onMcpStatus?.() ?? [] },
+        },
+      }
+      break
+
+    case 'mcp_authenticate':
+    case 'mcp_oauth_callback_url':
+    case 'mcp_reconnect': {
+      const inner = request.request
+      const { subtype, serverName } = inner
+      const callback =
+        inner.subtype === 'mcp_authenticate'
+          ? onMcpAuthenticate &&
+            ((name: string) => onMcpAuthenticate(name, inner.redirectUri))
+          : inner.subtype === 'mcp_oauth_callback_url'
+            ? onMcpOauthCallbackUrl &&
+              ((name: string) =>
+                onMcpOauthCallbackUrl(name, inner.callbackUrl))
+            : onMcpReconnect
+      if (!callback) {
+        response = {
+          type: 'control_response',
+          response: {
+            subtype: 'error',
+            request_id: request.request_id,
+            error: `${subtype} is not supported in this context (callback not registered)`,
+          },
+        }
+        break
+      }
+      void callback(serverName)
+        .then<SDKControlResponse>(result => ({
+          type: 'control_response',
+          response: {
+            subtype: 'success',
+            request_id: request.request_id,
+            response: result ?? {},
+          },
+        }))
+        .catch(
+          (err): SDKControlResponse => ({
+            type: 'control_response',
+            response: {
+              subtype: 'error',
+              request_id: request.request_id,
+              error: errorMessage(err),
+            },
+          }),
+        )
+        .then(mcpResponse => {
+          const event = { ...mcpResponse, session_id: sessionId }
+          void transport.write(event)
+          logForDebugging(
+            `[bridge:repl] Sent control_response for ${subtype} request_id=${request.request_id} result=${mcpResponse.response.subtype}`,
           )
         })
       return

@@ -83,6 +83,10 @@ export type DOMElement = {
   // Only set on ink-root. The document owns focus — any node can
   // reach it by walking parentNode, like browser getRootNode().
   focusManager?: FocusManager
+  // Raw-mode requests can occur before the root App component mounts. The
+  // reconciler records the delta here and App drains it on mount.
+  setRawMode?: (enabled: boolean) => void
+  _pendingRawModeDelta?: number
   // React component stack captured at createInstance time (reconciler.ts),
   // e.g. ['ToolUseLoader', 'Messages', 'REPL']. Only populated when
   // CLAUDE_CODE_DEBUG_REPAINTS is set. Used by findOwnerChainAtRow to

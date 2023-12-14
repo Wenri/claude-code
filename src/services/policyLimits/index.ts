@@ -533,6 +533,11 @@ export function isPolicyAllowed(policy: string): boolean {
   return restriction.allowed
 }
 
+/** True only when a loaded policy explicitly enables the named restriction. */
+export function isPolicyEnforced(policy: string): boolean {
+  return getRestrictionsFromCache()?.[policy]?.allowed === true
+}
+
 /**
  * Get restrictions synchronously from session cache or file
  */

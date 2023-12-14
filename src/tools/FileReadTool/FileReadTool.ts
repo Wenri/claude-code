@@ -44,6 +44,8 @@ import {
   compressImageBufferWithTokenLimit,
   createImageMetadataText,
   detectImageFormatFromBuffer,
+  getImageLimits,
+  type ImageLimits,
   type ImageDimensions,
   ImageResizeError,
   maybeResizeAndDownsampleImageBuffer,
@@ -228,10 +230,14 @@ const inputSchema = lazySchema(() =>
   z.strictObject({
     file_path: z.string().describe('The absolute path to the file to read'),
     offset: semanticNumber(z.number().int().nonnegative().optional()).describe(
-      'The line number to start reading from. Only provide if the file is too large to read at once',
+      getFeatureValue_CACHED_MAY_BE_STALE('tengu_slate_reef', false)
+        ? 'The line number to start reading from. Provide with `limit` to read a specific line range, or alone when the file is too large to read at once.'
+        : 'The line number to start reading from. Only provide if the file is too large to read at once',
     ),
     limit: semanticNumber(z.number().int().positive().optional()).describe(
-      'The number of lines to read. Only provide if the file is too large to read at once.',
+      getFeatureValue_CACHED_MAY_BE_STALE('tengu_slate_reef', false)
+        ? 'ONLY include with offset to read a specific slice. OMIT to read the whole file (harness truncates oversized files automatically).'
+        : 'The number of lines to read. Only provide if the file is too large to read at once.',
     ),
     pages: z
       .string()
@@ -520,6 +526,14 @@ export const FileReadTool = buildTool({
     // Use expandPath for consistent path normalization with FileEditTool/FileWriteTool
     // (especially handles whitespace trimming and Windows path separators)
     const fullFilePath = expandPath(file_path)
+    const priorReadState = readFileState.get(fullFilePath)
+    if (priorReadState) {
+      logEvent('tengu_file_read_reread', {
+        priorOp: (priorReadState.offset === undefined
+          ? 'edit_write'
+          : 'read') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      })
+    }
 
     // Dedup: if we've already read this exact range and the file hasn't
     // changed on disk, return a stub instead of re-sending the full content.
@@ -871,7 +885,12 @@ async function callInner(
   if (IMAGE_EXTENSIONS.has(ext)) {
     // Images have their own size limits (token budget + compression) —
     // don't apply the text maxSizeBytes cap.
-    const data = await readImageWithTokenBudget(resolvedFilePath, maxTokens)
+    const data = await readImageWithTokenBudget(
+      resolvedFilePath,
+      maxTokens,
+      undefined,
+      getImageLimits(context.options.mainLoopModel),
+    )
     context.nestedMemoryAttachmentTriggers?.add(fullFilePath)
 
     logFileOperation({
@@ -928,6 +947,7 @@ async function callInner(
             imgBuffer,
             imgBuffer.length,
             'jpeg',
+            getImageLimits(context.options.mainLoopModel),
           )
           return {
             type: 'image' as const,
@@ -1104,6 +1124,7 @@ export async function readImageWithTokenBudget(
   filePath: string,
   maxTokens: number = getDefaultFileReadingLimits().maxTokens,
   maxBytes?: number,
+  imageLimits: ImageLimits = getImageLimits(getMainLoopModel()),
 ): Promise<ImageResult> {
   // Read file ONCE — capped to maxBytes to avoid OOM on huge files
   const imageBuffer = await getFsImplementation().readFileBytes(
@@ -1126,6 +1147,7 @@ export async function readImageWithTokenBudget(
       imageBuffer,
       originalSize,
       detectedFormat,
+      imageLimits,
     )
     result = createImageResponse(
       resized.buffer,

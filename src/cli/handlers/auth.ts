@@ -155,7 +155,10 @@ export async function authLogin({
   const loginWithClaudeAi = settings.forceLoginMethod
     ? settings.forceLoginMethod === 'claudeai'
     : !useConsole
-  const orgUUID = settings.forceLoginOrgUUID
+  const orgUUID =
+    typeof settings.forceLoginOrgUUID === 'string'
+      ? settings.forceLoginOrgUUID
+      : undefined
 
   // Fast path: if a refresh token is provided via env var, skip the browser
   // OAuth flow and exchange it directly for tokens.

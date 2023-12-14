@@ -11,6 +11,20 @@ export function getDaemonDir(): string {
   return join(getClaudeConfigHomeDir(), 'daemon')
 }
 
+export async function ensureDaemonDir(): Promise<void> {
+  if (process.platform === 'win32') return
+  const daemonDir = getDaemonDir()
+  await mkdir(daemonDir, { recursive: true, mode: 0o700 })
+  const uid = process.getuid?.()
+  const stat = await lstat(daemonDir)
+  if (uid !== undefined && stat.uid !== uid) {
+    throw new Error(
+      `refusing to use daemon dir: ${daemonDir} is owned by uid ${stat.uid}`,
+    )
+  }
+  if ((stat.mode & 0o777) !== 0o700) await chmod(daemonDir, 0o700)
+}
+
 export const getConfigDirHash = memoize(
   () =>
     createHash('sha256')
@@ -42,9 +56,9 @@ export const getPipeKey = memoize(
     }
 
     const key = randomBytes(8).toString('hex')
-    mkdirSync(getDaemonDir(), { recursive: true })
+    mkdirSync(getDaemonDir(), { recursive: true, mode: 0o700 })
     try {
-      writeFileSync(path, key, { flag: 'wx' })
+      writeFileSync(path, key, { flag: 'wx', mode: 0o600 })
       return key
     } catch (error) {
       if (getErrnoCode(error) !== 'EEXIST') throw error
@@ -111,8 +125,9 @@ export function cleanupStaleRuntimeDirs(): void {
         if (!stat || Date.now() - stat.mtimeMs < 10_000) continue
         const rendezvous = await readdir(join(candidate, 'rv')).catch(() => [])
         const ptys = await readdir(join(candidate, 'pty')).catch(() => [])
-        if (rendezvous.length || ptys.length) continue
-        await rm(candidate, { recursive: true, force: true }).catch(() => {})
+        const spares = await readdir(join(candidate, 'spare')).catch(() => [])
+        if (rendezvous.length || ptys.length || spares.length) continue
+        await rm(candidate, { recursive: true, force: false }).catch(() => {})
       }
     })
     .catch(() => {})
@@ -148,21 +163,36 @@ export function getPtySocketPath(short: string): string {
   return join(getPtyDir(), `${short}.sock`)
 }
 
+export function getSpareDir(): string {
+  return join(getDaemonRuntimeDir(), 'spare')
+}
+
+export function getSparePtySocketPath(id: string): string {
+  return join(getSpareDir(), `${id}.pty.sock`)
+}
+
+export function getSpareClaimSocketPath(id: string): string {
+  return join(getSpareDir(), `${id}.claim.sock`)
+}
+
+export function getPtyPidDir(): string {
+  return join(getDaemonDir(), 'pty-pids')
+}
+
+export function getPtyPidPath(short: string): string {
+  return join(getPtyPidDir(), `${short}.pid`)
+}
+
 export function getPtyErrorPath(socketPath: string): string {
+  if (process.platform === 'win32') {
+    return join(getPtyPidDir(), `${socketPath.split('\\').pop()}.err`)
+  }
   return `${socketPath}.err`
 }
 
 export function getControlSocketPath(): string {
   if (process.platform === 'win32') return getNamedPipe('control')
   return join(getDaemonRuntimeDir(), 'control.sock')
-}
-
-export function getSettledDir(): string {
-  return join(getClaudeConfigHomeDir(), 'jobs', 'settled')
-}
-
-export function getSettledPath(short: string): string {
-  return join(getSettledDir(), `${short}.json`)
 }
 
 /** Last-known execution state for the daemon's scheduled worker. */

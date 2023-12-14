@@ -140,6 +140,7 @@ import {
   runPostToolUseHooks,
   runPreToolUseHooks,
 } from './toolHooks.js'
+import { checkToolIsolation } from './toolIsolation.js'
 
 /** Minimum total hook duration (ms) to show inline timing summary */
 export const HOOK_TIMING_DISPLAY_THRESHOLD_MS = 500
@@ -462,6 +463,55 @@ export async function* runToolUse(
         message: createUserMessage({
           content: [content],
           toolUseResult: CANCEL_MESSAGE,
+          sourceToolAssistantUUID: assistantMessage.uuid,
+        }),
+      }
+      return
+    }
+
+    const isolation = checkToolIsolation(tool, toolUseContext)
+    if (isolation.denyMessage) {
+      logEvent('tengu_tool_use_isolation_latch_denied', {
+        toolName: sanitizeToolNameForAnalytics(tool.name),
+        toolUseID:
+          toolUse.id as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        isMcp: tool.isMcp ?? false,
+        isolationLatch:
+          isolation.activeLatch as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        isolationClassifiedAs:
+          isolation.classifiedAs as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        queryChainId: toolUseContext.queryTracking
+          ?.chainId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        queryDepth: toolUseContext.queryTracking?.depth,
+        ...(mcpServerType && {
+          mcpServerType:
+            mcpServerType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        }),
+        ...(mcpServerBaseUrl && {
+          mcpServerBaseUrl:
+            mcpServerBaseUrl as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        }),
+        ...(requestId && {
+          requestId:
+            requestId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        }),
+        ...mcpToolDetailsForAnalytics(
+          tool.name,
+          mcpServerType,
+          mcpServerBaseUrl,
+        ),
+      })
+      yield {
+        message: createUserMessage({
+          content: [
+            {
+              type: 'tool_result',
+              content: `<tool_use_error>${isolation.denyMessage}</tool_use_error>`,
+              is_error: true,
+              tool_use_id: toolUse.id,
+            },
+          ],
+          toolUseResult: `Error: ${isolation.denyMessage}`,
           sourceToolAssistantUUID: assistantMessage.uuid,
         }),
       }
@@ -931,6 +981,51 @@ async function checkPermissionsAndCallTool(
       case 'additionalContext':
         resultingMessages.push(result.message)
         break
+      case 'defer': {
+        getStatsStore()?.observe(
+          'pre_tool_hook_duration_ms',
+          Date.now() - preToolHookStart,
+        )
+        const appState = toolUseContext.getAppState()
+        if (!toolUseContext.options.isNonInteractiveSession) {
+          logForDebugging(
+            `Hook ${result.hookName} returned permissionDecision=defer in interactive mode; ignoring (defer is print-mode only)`,
+            { level: 'warn' },
+          )
+          break
+        }
+        const toolCallCount = Array.isArray(assistantMessage.message.content)
+          ? count(
+              assistantMessage.message.content,
+              block => block.type === 'tool_use',
+            )
+          : 1
+        if (toolCallCount > 1) {
+          logForDebugging(
+            `Hook ${result.hookName} returned permissionDecision=defer but ${toolCallCount} tool calls are in this batch; ignoring (defer is solo-only — siblings would be orphaned on resume)`,
+            { level: 'warn' },
+          )
+          break
+        }
+        logEvent('tengu_pre_tool_hook_deferred', {
+          toolName: sanitizeToolNameForAnalytics(tool.name),
+          queryChainId: toolUseContext.queryTracking
+            ?.chainId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+          queryDepth: toolUseContext.queryTracking?.depth,
+        })
+        resultingMessages.push({
+          message: createAttachmentMessage({
+            type: 'hook_deferred_tool',
+            toolUseID,
+            toolName: tool.name,
+            toolInput: processedInput,
+            hookName: result.hookName,
+            hookEvent: 'PreToolUse',
+            permissionMode: appState.toolPermissionContext.mode,
+          }),
+        })
+        return resultingMessages
+      }
       case 'stop':
         getStatsStore()?.observe(
           'pre_tool_hook_duration_ms',
@@ -1446,26 +1541,6 @@ async function checkPermissionsAndCallTool(
       result.data,
       toolUseID,
     )
-    if (bashRerunAlias !== undefined) {
-      const footer = formatBashRerunFooter(bashRerunAlias)
-      if (typeof mappedToolResultBlock.content === 'string') {
-        mappedToolResultBlock.content +=
-          (mappedToolResultBlock.content ? '\n' : '') + footer
-      } else if (Array.isArray(mappedToolResultBlock.content)) {
-        mappedToolResultBlock.content = [
-          ...mappedToolResultBlock.content,
-          { type: 'text', text: footer },
-        ]
-      }
-    }
-    const deduplicatedMappedToolResultBlock = isMcpTool(tool)
-      ? mappedToolResultBlock
-      : deduplicateToolResult(
-          mappedToolResultBlock,
-          tool.name,
-          toolUseContext.resultDedupState,
-          tool.maxResultSizeChars,
-        )
     const mappedContent = mappedToolResultBlock.content
     const toolResultSizeBytes = !mappedContent
       ? 0
@@ -1668,13 +1743,9 @@ async function checkPermissionsAndCallTool(
       })
     }
 
-    // TOOD(hackyon): refactor so we don't have different experiences for MCP tools
-    if (!isMcpTool(tool)) {
-      await addToolResult(toolOutput, deduplicatedMappedToolResultBlock)
-    }
-
     const postToolHookInfos: StopHookInfo[] = []
     const postToolHookStart = Date.now()
+    let toolOutputWasUpdated = false
     for await (const hookResult of runPostToolUseHooks(
       toolUseContext,
       tool,
@@ -1687,28 +1758,11 @@ async function checkPermissionsAndCallTool(
       mcpServerBaseUrl,
       durationMs,
     )) {
-      if ('updatedMCPToolOutput' in hookResult) {
-        if (isMcpTool(tool)) {
-          toolOutput = hookResult.updatedMCPToolOutput
-        }
-      } else if (isMcpTool(tool)) {
-        hookResults.push(hookResult)
-        if (hookResult.message.type === 'attachment') {
-          const att = hookResult.message.attachment
-          if (
-            'command' in att &&
-            att.command !== undefined &&
-            'durationMs' in att &&
-            att.durationMs !== undefined
-          ) {
-            postToolHookInfos.push({
-              command: att.command,
-              durationMs: att.durationMs,
-            })
-          }
-        }
+      if ('updatedToolOutput' in hookResult) {
+        toolOutput = hookResult.updatedToolOutput
+        toolOutputWasUpdated = true
       } else {
-        resultingMessages.push(hookResult)
+        hookResults.push(hookResult)
         if (hookResult.message.type === 'attachment') {
           const att = hookResult.message.attachment
           if (
@@ -1735,6 +1789,63 @@ async function checkPermissionsAndCallTool(
 
     if (isMcpTool(tool)) {
       await addToolResult(toolOutput)
+    } else {
+      let finalMappedToolResultBlock = mappedToolResultBlock
+      if (toolOutputWasUpdated) {
+        const parsedOutput = tool.outputSchema?.safeParse(toolOutput)
+        const rejectUpdatedOutput = (reason: string) => {
+          logForDebugging(
+            `PostToolUse hook returned updatedToolOutput that does not match ${tool.name}'s output shape: ${reason}`,
+            { level: 'error' },
+          )
+          toolOutput = result.data
+          hookResults.push({
+            message: createAttachmentMessage({
+              type: 'hook_error_during_execution',
+              content: `PostToolUse hook returned updatedToolOutput that does not match ${tool.name}'s output shape; using original output. ${reason}`,
+              hookName: `PostToolUse:${tool.name}`,
+              toolUseID: toolUseID,
+              hookEvent: 'PostToolUse',
+            }),
+          })
+        }
+
+        if (parsedOutput && !parsedOutput.success) {
+          rejectUpdatedOutput(parsedOutput.error.message)
+        } else {
+          try {
+            const updatedMappedToolResultBlock =
+              tool.mapToolResultToToolResultBlockParam(toolOutput, toolUseID)
+            if (updatedMappedToolResultBlock === undefined) {
+              rejectUpdatedOutput('mapper returned undefined')
+            } else {
+              finalMappedToolResultBlock = updatedMappedToolResultBlock
+            }
+          } catch (error) {
+            rejectUpdatedOutput(errorMessage(error))
+          }
+        }
+      }
+
+      const deduplicatedMappedToolResultBlock = deduplicateToolResult(
+        finalMappedToolResultBlock,
+        tool.name,
+        toolUseContext.resultDedupState,
+        tool.maxResultSizeChars,
+      )
+      if (bashRerunAlias !== undefined) {
+        const footer = formatBashRerunFooter(bashRerunAlias)
+        if (typeof deduplicatedMappedToolResultBlock.content === 'string') {
+          deduplicatedMappedToolResultBlock.content +=
+            (deduplicatedMappedToolResultBlock.content ? '\n' : '') + footer
+        } else if (Array.isArray(deduplicatedMappedToolResultBlock.content)) {
+          deduplicatedMappedToolResultBlock.content = [
+            ...deduplicatedMappedToolResultBlock.content,
+            { type: 'text', text: footer },
+          ]
+        }
+      }
+      await addToolResult(toolOutput, deduplicatedMappedToolResultBlock)
     }
 
     // Show PostToolUse hook timing inline below tool result when > 500ms.

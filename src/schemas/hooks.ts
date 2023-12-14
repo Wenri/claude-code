@@ -62,6 +62,20 @@ function buildHookSchemas() {
       .describe(
         'If true, hook runs in background and wakes the model on exit code 2 (blocking error). Implies async.',
       ),
+    rewakeMessage: z
+      .string()
+      .min(1)
+      .optional()
+      .describe(
+        '@internal Custom prefix for the system-reminder shown to the model when an asyncRewake hook exits with code 2. The hook output is appended after this prefix.',
+      ),
+    rewakeSummary: z
+      .string()
+      .min(1)
+      .optional()
+      .describe(
+        '@internal One-line summary shown to the user in the terminal when an asyncRewake hook exits with code 2. Defaults to "Stop hook feedback".',
+      ),
   })
 
   const PromptHookSchema = z.object({

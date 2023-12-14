@@ -34,7 +34,7 @@ import type { McpServerType, MessageUpdateLazy } from './toolExecution.js'
 
 export type PostToolUseHooksResult<Output> =
   | MessageUpdateLazy<AttachmentMessage | ProgressMessage<HookProgress>>
-  | { updatedMCPToolOutput: Output }
+  | { updatedToolOutput: Output }
 
 export async function* runPostToolUseHooks<Input extends AnyObject, Output>(
   toolUseContext: ToolUseContext,
@@ -145,11 +145,18 @@ export async function* runPostToolUseHooks<Input extends AnyObject, Output>(
           }
         }
 
-        // If hooks provided updatedMCPToolOutput, yield it if this is an MCP tool
-        if (result.updatedMCPToolOutput && isMcpTool(tool)) {
+        if (result.updatedToolOutput !== undefined) {
+          toolOutput = result.updatedToolOutput as Output
+          yield {
+            updatedToolOutput: toolOutput,
+          }
+        }
+
+        // Continue accepting the deprecated MCP-only replacement.
+        if (result.updatedMCPToolOutput !== undefined && isMcpTool(tool)) {
           toolOutput = result.updatedMCPToolOutput as Output
           yield {
-            updatedMCPToolOutput: toolOutput,
+            updatedToolOutput: toolOutput,
           }
         }
       } catch (error) {
@@ -468,10 +475,13 @@ export async function* runPreToolUseHooks(
       type: 'additionalContext'
       message: MessageUpdateLazy<AttachmentMessage>
     }
+  | { type: 'defer'; hookName: string }
   // stop execution
   | { type: 'stop' }
 > {
   const hookStartTime = Date.now()
+  let deferredHookName: string | undefined
+  let hasDeny = false
   try {
     const appState = toolUseContext.getAppState()
 
@@ -491,6 +501,7 @@ export async function* runPreToolUseHooks(
           yield { type: 'message', message: { message: result.message } }
         }
         if (result.blockingError) {
+          hasDeny = true
           const denialMessage = getPreToolHookBlockingMessage(
             `PreToolUse:${tool.name}`,
             result.blockingError,
@@ -523,6 +534,14 @@ export async function* runPreToolUseHooks(
           logForDebugging(
             `Hook result has permissionBehavior=${result.permissionBehavior}`,
           )
+          if (result.permissionBehavior === 'defer') {
+            deferredHookName =
+              result.hookSource || `PreToolUse:${tool.name}`
+            continue
+          }
+          if (result.permissionBehavior === 'deny') {
+            hasDeny = true
+          }
           const decisionReason: PermissionDecisionReason = {
             type: 'hook',
             hookName: `PreToolUse:${tool.name}`,
@@ -658,5 +677,8 @@ export async function* runPreToolUseHooks(
     logError(error)
     yield { type: 'stop' }
     return
+  }
+  if (deferredHookName && !hasDeny) {
+    yield { type: 'defer', hookName: deferredHookName }
   }
 }

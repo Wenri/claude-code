@@ -2,8 +2,6 @@ import { spawnSync } from 'child_process';
 import sample from 'lodash-es/sample.js';
 import * as React from 'react';
 import { ExitFlow } from '../../components/ExitFlow.js';
-import { Dialog } from '../../components/design-system/Dialog.js';
-import { Select } from '../../components/CustomSelect/select.js';
 import { getSessionId } from '../../bootstrap/state.js';
 import { isSettledJob, readJobState, writeJobState } from '../../daemon/jobs.js';
 import { encodeDetach } from '../../daemon/protocol.js';
@@ -68,55 +66,11 @@ export function detachBackgroundSession(): void {
   }
 }
 
-function BackgroundSessionExitDialog({
-  onDetach,
-  onCancel,
-}: {
-  onDetach(): void;
-  onCancel(): void;
-}): React.ReactNode {
-  return (
-    <Dialog
-      title="Leave background session"
-      subtitle="This session keeps running after you detach."
-      onCancel={onCancel}
-    >
-      <Select
-        defaultFocusValue="detach"
-        options={[
-          {
-            label: 'Detach',
-            value: 'detach',
-            description: 'Return to agents · reattach anytime',
-          },
-          {
-            label: 'Stop session',
-            value: 'stop',
-            description: 'Ends the process · restart from agents anytime',
-          },
-        ]}
-        onChange={value => {
-          if (value === 'stop') {
-            void stopBackgroundSession('exit_dialog');
-          } else {
-            onDetach();
-          }
-        }}
-      />
-    </Dialog>
-  );
-}
 export async function call(onDone: LocalJSXCommandOnDone): Promise<React.ReactNode> {
   if (isBgSession()) {
-    return (
-      <BackgroundSessionExitDialog
-        onDetach={() => {
-          onDone();
-          detachBackgroundSession();
-        }}
-        onCancel={() => onDone()}
-      />
-    );
+    onDone();
+    detachBackgroundSession();
+    return null;
   }
   const showWorktree = getCurrentWorktreeSession() !== null;
   const backgroundItems = getSessionBackgroundExitItems();

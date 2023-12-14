@@ -223,6 +223,31 @@ const SECRET_RULES: SecretRule[] = [
   },
 ]
 
+// Debug logs need broader protection than the high-confidence team-memory
+// scanner. These patterns are intentionally redaction-only: their higher
+// false-positive rate must not reject team-memory writes.
+const LOOSE_REDACTION_RULES: SecretRule[] = [
+  {
+    id: 'loose-sk-ant',
+    source: '(sk-ant-[A-Za-z0-9_-]{20,})',
+  },
+  {
+    id: 'loose-bearer',
+    source: '\\bBearer\\s+([A-Za-z0-9._~+/=-]{20,})',
+    flags: 'i',
+  },
+  {
+    id: 'loose-env-assign',
+    source:
+      '(?<=\\b[A-Z0-9_]*(?:TOKEN|KEY|SECRET|PASSWORD|PASSWD|CREDENTIAL)[A-Z0-9_]*=)(\\S+)',
+  },
+  {
+    id: 'loose-jwt',
+    source:
+      '\\b(eyJ[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]{10,})',
+  },
+]
+
 // Lazily compiled pattern cache — compile once on first scan.
 let compiledRules: Array<{ id: string; re: RegExp }> | null = null
 
@@ -310,7 +335,7 @@ export function getSecretLabel(ruleId: string): string {
 let redactRules: RegExp[] | null = null
 
 export function redactSecrets(content: string): string {
-  redactRules ??= SECRET_RULES.map(
+  redactRules ??= [...SECRET_RULES, ...LOOSE_REDACTION_RULES].map(
     r => new RegExp(r.source, (r.flags ?? '').replace('g', '') + 'g'),
   )
   for (const re of redactRules) {

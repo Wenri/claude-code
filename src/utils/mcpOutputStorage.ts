@@ -1,10 +1,13 @@
 import { writeFile } from 'fs/promises'
 import { join } from 'path'
+import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js'
 import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
 } from '../services/analytics/index.js'
 import type { MCPResultType } from '../services/mcp/client.js'
+import { AGENT_TOOL_NAME } from '../tools/AgentTool/constants.js'
+import { getDefaultFileReadingLimits } from '../tools/FileReadTool/limits.js'
 import { toError } from './errors.js'
 import { formatFileSize } from './format.js'
 import { logError } from './log.js'
@@ -27,6 +30,18 @@ export function getFormatDescription(
   }
 }
 
+export function isMcpSubagentPromptEnabled(): boolean {
+  const override = process.env.MCP_TRUNCATION_PROMPT_OVERRIDE
+  return override
+    ? override !== 'legacy'
+    : getFeatureValue_CACHED_MAY_BE_STALE('tengu_mcp_subagent_prompt', false)
+}
+
+export type PersistedOutputLineStats = {
+  count: number
+  maxLen: number
+}
+
 /**
  * Generates instruction text for Claude to read from a saved output file.
  *
@@ -41,13 +56,67 @@ export function getLargeOutputInstructions(
   contentLength: number,
   formatDescription: string,
   maxReadLength?: number,
+  lineStats?: PersistedOutputLineStats,
 ): string {
+  const sizeDescription =
+    lineStats !== undefined
+      ? `${contentLength.toLocaleString()} characters across ${lineStats.count.toLocaleString()} ${lineStats.count === 1 ? 'line' : 'lines'}`
+      : `${contentLength.toLocaleString()} characters`
   const baseInstructions =
-    `Error: result (${contentLength.toLocaleString()} characters) exceeds maximum allowed tokens. Output has been saved to ${rawOutputPath}.\n` +
-    `Format: ${formatDescription}\n` +
-    `Use offset and limit parameters to read specific portions of the file, search within it for specific content, and jq to make structured queries.\n` +
-    `REQUIREMENTS FOR SUMMARIZATION/ANALYSIS/REVIEW:\n` +
-    `- You MUST read the content from the file at ${rawOutputPath} in sequential chunks until 100% of the content has been read.\n`
+    `Error: result (${sizeDescription}) exceeds maximum allowed tokens. Output has been saved to ${rawOutputPath}.\n` +
+    `Format: ${formatDescription}\n`
+
+  if (!isMcpSubagentPromptEnabled()) {
+    return (
+      baseInstructions +
+      `Use offset and limit parameters to read specific portions of the file, search within it for specific content, and jq to make structured queries.\n` +
+      `REQUIREMENTS FOR SUMMARIZATION/ANALYSIS/REVIEW:\n` +
+      getLegacyLargeOutputRequirements(rawOutputPath, maxReadLength)
+    )
+  }
+
+  const safeReadChars = Math.floor(
+    getDefaultFileReadingLimits().maxTokens * 4 * 0.8,
+  )
+  const canReadByLine =
+    lineStats !== undefined &&
+    lineStats.count > 1 &&
+    lineStats.maxLen <= safeReadChars
+  const linesPerChunk = canReadByLine
+    ? Math.max(1, Math.floor(safeReadChars / (lineStats.maxLen + 8)))
+    : undefined
+
+  let targetedInstruction: string
+  let fullReadInstruction: string
+  let subagentExample: string
+  if (lineStats === undefined) {
+    targetedInstruction = `- For targeted queries (find a value, filter by field): use jq on the file directly.\n`
+    fullReadInstruction = `first probe the structure (e.g., jq 'type, length, keys?' ${rawOutputPath}), then extract slices with jq or python — Read's line-based offset/limit will not chunk this file.`
+    subagentExample = `${rawOutputPath} is ${formatDescription}; probe the structure with jq (type/length/keys), then extract and read the content in full with jq or python, then summarize and quote any key findings verbatim.`
+  } else if (!canReadByLine) {
+    const chunkSize = safeReadChars.toLocaleString()
+    targetedInstruction = `- For targeted searches (find a string): use grep on the file directly.\n`
+    fullReadInstruction = `the file's lines are too long for Read's offset/limit. Slice by character range via Bash instead — e.g. python3 -c "print(open('${rawOutputPath}').read()[A:B])" in ~${chunkSize}-char spans until you have read 100% of it.`
+    subagentExample = `Slice ${rawOutputPath} in ~${chunkSize}-char spans via python (read()[A:B]) until you have read all ${contentLength.toLocaleString()} characters, then summarize and quote any key findings verbatim.`
+  } else {
+    targetedInstruction = `- For targeted searches (find a line, locate a string): use grep on the file directly.\n`
+    fullReadInstruction = `read ${rawOutputPath} in chunks of ~${linesPerChunk} lines using offset/limit until you have read 100% of it.`
+    subagentExample = `Read ${rawOutputPath} in chunks of ~${linesPerChunk} lines using offset/limit until you have read all ${lineStats.count.toLocaleString()} lines, then summarize and quote any key findings verbatim.`
+  }
+
+  return (
+    baseInstructions +
+    targetedInstruction +
+    `- For analysis or summarization that requires reading the full content: ${fullReadInstruction}\n` +
+    `- If the ${AGENT_TOOL_NAME} tool is available, do this inside a subagent so the full output stays out of your main context. Give it the instruction above verbatim, and be explicit about what it must return — e.g. "${subagentExample}" A vague "summarize this" may lose detail.\n`
+  )
+}
+
+function getLegacyLargeOutputRequirements(
+  rawOutputPath: string,
+  maxReadLength?: number,
+): string {
+  const baseInstructions = `- You MUST read the content from the file at ${rawOutputPath} in sequential chunks until 100% of the content has been read.\n`
 
   const truncationWarning = maxReadLength
     ? `- If you receive truncation warnings when reading the file ("[N lines truncated]"), reduce the chunk size until you have read 100% of the content without truncation ***DO NOT PROCEED UNTIL YOU HAVE DONE THIS***. Bash output is limited to ${maxReadLength.toLocaleString()} chars.\n`

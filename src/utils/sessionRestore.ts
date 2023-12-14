@@ -39,6 +39,7 @@ import {
 import { updateSessionName } from './concurrentSessions.js'
 import { getCwd } from './cwd.js'
 import { logForDebugging } from './debug.js'
+import { isEnvTruthy } from './envUtils.js'
 import type { FileHistorySnapshot } from './fileHistory.js'
 import { fileHistoryRestoreStateFromLog } from './fileHistory.js'
 import { createSystemMessage } from './messages.js'
@@ -61,6 +62,10 @@ import { isTodoV2Enabled } from './tasks.js'
 import type { TodoList } from './todo/types.js'
 import { TodoListSchema } from './todo/types.js'
 import type { ContentReplacementRecord } from './toolResultStorage.js'
+import {
+  removeInterruptedMessage,
+  type TurnInterruptionState,
+} from './conversationRecovery.js'
 import {
   getCurrentWorktreeSession,
   restoreWorktreeSession,
@@ -319,6 +324,7 @@ type CoordinatorModeApi = {
  */
 type ResumeLoadResult = {
   messages: Message[]
+  turnInterruptionState?: TurnInterruptionState
   fileHistorySnapshots?: FileHistorySnapshot[]
   attributionSnapshots?: AttributionSnapshotMessage[]
   contentReplacements?: ContentReplacementRecord[]
@@ -554,6 +560,21 @@ export async function processResumedConversation(
     context.agentDefinitions,
   )
 
+  let initialMessage = context.initialState.initialMessage
+  if (
+    isEnvTruthy(process.env.CLAUDE_CODE_RESUME_INTERRUPTED_TURN) &&
+    result.turnInterruptionState?.kind === 'interrupted_prompt'
+  ) {
+    logForDebugging(
+      '[sessionRestore] Auto-resuming interrupted turn for bg crash-respawn',
+    )
+    removeInterruptedMessage(
+      result.messages,
+      result.turnInterruptionState.message,
+    )
+    initialMessage = { message: result.turnInterruptionState.message }
+  }
+
   return {
     messages: result.messages,
     fileHistorySnapshots: result.fileHistorySnapshots,
@@ -565,6 +586,7 @@ export async function processResumedConversation(
     restoredAgentDef: restoredAgent,
     initialState: {
       ...context.initialState,
+      initialMessage,
       ...(resumedAgentType && { agent: resumedAgentType }),
       ...(restoredAttribution && { attribution: restoredAttribution }),
       ...(standaloneAgentContext && { standaloneAgentContext }),

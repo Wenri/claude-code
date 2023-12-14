@@ -345,14 +345,19 @@ export async function probeBedrockModel(
         import('../proxy.js'),
       ])
 
+    const region =
+      tier === 'haiku' && process.env.ANTHROPIC_SMALL_FAST_MODEL_AWS_REGION
+        ? process.env.ANTHROPIC_SMALL_FAST_MODEL_AWS_REGION
+        : getAWSRegion()
     const baseOptions = {
-      awsRegion:
-        tier === 'haiku' && process.env.ANTHROPIC_SMALL_FAST_MODEL_AWS_REGION
-          ? process.env.ANTHROPIC_SMALL_FAST_MODEL_AWS_REGION
-          : getAWSRegion(),
+      awsRegion: region,
       maxRetries: 0,
       timeout: 8_000,
-      fetchOptions: getFetchOptions(),
+      fetchOptions: getFetchOptions({
+        url:
+          process.env.ANTHROPIC_BEDROCK_BASE_URL ||
+          `https://bedrock-runtime.${region}.amazonaws.com`,
+      }),
     }
 
     let client: InstanceType<typeof AnthropicBedrock>

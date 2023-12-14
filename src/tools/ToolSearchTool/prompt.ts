@@ -17,6 +17,11 @@ const SEND_USER_FILE_TOOL_NAME: string | null = feature('KAIROS')
       require('../SendUserFileTool/prompt.js') as typeof import('../SendUserFileTool/prompt.js')
     ).SEND_USER_FILE_TOOL_NAME
   : null
+const SCHEDULE_WAKEUP_TOOL_NAME: string | null = feature('AGENT_TRIGGERS')
+  ? (
+      require('../ScheduleWakeupTool/prompt.js') as typeof import('../ScheduleWakeupTool/prompt.js')
+    ).SCHEDULE_WAKEUP_TOOL_NAME
+  : null
 
 /* eslint-enable @typescript-eslint/no-require-imports */
 
@@ -91,6 +96,20 @@ export function isDeferredTool(tool: Tool): boolean {
     tool.name === BRIEF_TOOL_NAME
   ) {
     return false
+  }
+
+  // Dynamic /loop must be able to schedule its next tick on the first turn.
+  // Keep the tool deferred while the runtime gate is off, but load it eagerly
+  // whenever dynamic pacing is active.
+  if (
+    feature('AGENT_TRIGGERS') &&
+    SCHEDULE_WAKEUP_TOOL_NAME &&
+    tool.name === SCHEDULE_WAKEUP_TOOL_NAME
+  ) {
+    type LoopDynamicModule = typeof import('../../utils/loopDynamic.js')
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const loopDynamic = require('../../utils/loopDynamic.js') as LoopDynamicModule
+    if (loopDynamic.isLoopDynamicEnabled()) return false
   }
 
   // SendUserFile is a file-delivery communication channel (sibling of Brief).

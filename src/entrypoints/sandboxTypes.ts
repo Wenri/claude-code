@@ -41,6 +41,23 @@ export const SandboxNetworkConfigSchema = lazySchema(() =>
           'If true, allow all Unix sockets (disables blocking on both platforms).',
         ),
       allowLocalBinding: z.boolean().optional(),
+      allowMachLookup: z
+        .array(
+          z.string().refine(
+            value =>
+              !(value.endsWith('*') ? value.slice(0, -1) : value).includes(
+                '*',
+              ),
+            {
+              message:
+                'Wildcards are only allowed as a single trailing "*" (e.g., "com.example.*" or "*" for all services).',
+            },
+          ),
+        )
+        .optional()
+        .describe(
+          'macOS only: Additional XPC/Mach service names to allow looking up. Supports trailing-wildcard prefix matching (e.g., "com.apple.coresimulator.*"). Needed for tools that communicate via XPC such as the iOS Simulator or Playwright.',
+        ),
       httpProxyPort: z.number().optional(),
       socksProxyPort: z.number().optional(),
     })

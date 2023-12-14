@@ -150,7 +150,11 @@ export async function relaunch(options: RelaunchOptions = {}): Promise<never> {
   markShuttingDownForRelaunch()
   cleanupTerminalForRelaunch()
   await Promise.all([
-    flushSessionStorage().catch(() => {}),
+    withTimeout(
+      flushSessionStorage(),
+      30_000,
+      'flush timeout (relaunch)',
+    ).catch(() => {}),
     withTimeout(runCleanupFunctions(), 2_000, 'cleanup timeout').catch(
       () => {},
     ),

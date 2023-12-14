@@ -32,6 +32,8 @@ import installSlackApp from './commands/install-slack-app/index.js'
 import breakCache from './commands/break-cache/index.js'
 import mcp from './commands/mcp/index.js'
 import mobile from './commands/mobile/index.js'
+import powerup from './commands/powerup/index.js'
+import teamOnboarding from './commands/team-onboarding/index.js'
 import onboarding from './commands/onboarding/index.js'
 import pr_comments from './commands/pr_comments/index.js'
 import releaseNotes from './commands/release-notes/index.js'
@@ -351,6 +353,7 @@ const COMMANDS = memoize((): Command[] => [
   thinkbackPlay,
   permissions,
   plan,
+  powerup,
   privacySettings,
   hooks,
   exportCommand,
@@ -363,6 +366,7 @@ const COMMANDS = memoize((): Command[] => [
   toggleMemory,
   ...(workflowsCmd ? [workflowsCmd] : []),
   ...(torch ? [torch] : []),
+  teamOnboarding,
   ...(process.env.USER_TYPE === 'ant' && !process.env.IS_DEMO
     ? INTERNAL_ONLY_COMMANDS
     : []),
@@ -648,6 +652,7 @@ export const REMOTE_SAFE_COMMANDS: Set<Command> = new Set([
   btw, // Quick note
   feedback, // Send feedback
   plan, // Plan mode toggle
+  powerup, // Interactive feature lessons
   keybindings, // Keybinding management
   statusline, // Status line toggle
   stickers, // Stickers

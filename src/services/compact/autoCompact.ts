@@ -1,6 +1,7 @@
 import { feature } from 'bun:bundle'
 import {
   getIsNonInteractiveSession,
+  getLastInteractionTime,
   markPostCompaction,
 } from 'src/bootstrap/state.js'
 import { getSdkBetas } from '../../bootstrap/state.js'
@@ -20,7 +21,10 @@ import { getCanonicalName } from '../../utils/model/model.js'
 import { tokenCountWithEstimation } from '../../utils/tokens.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../analytics/growthbook.js'
 import { getMaxOutputTokensForModel } from '../api/claude.js'
-import { notifyCompaction } from '../api/promptCacheBreakDetection.js'
+import {
+  notifyCompaction,
+  shouldTrackPromptCacheBreaks,
+} from '../api/promptCacheBreakDetection.js'
 import { setLastSummarizedMessageId } from '../SessionMemory/sessionMemoryUtils.js'
 import {
   type CompactionResult,
@@ -35,6 +39,7 @@ import { trySessionMemoryCompaction } from './sessionMemoryCompact.js'
 // Reserve this many tokens for output during compaction
 // Based on p99.99 of compact summary output being 17,387 tokens.
 const MAX_OUTPUT_TOKENS_FOR_SUMMARY = 20_000
+const COLD_COMPACT_IDLE_MS = 5_400_000
 
 // Returns the context window size minus the max output tokens for the model
 export type AutoCompactWindowSource = 'env' | 'settings' | 'auto'
@@ -43,6 +48,10 @@ export type AutoCompactWindowResolution = {
   window: number
   configured: number
   source: AutoCompactWindowSource
+}
+
+export function isColdCompact(): boolean {
+  return Date.now() - getLastInteractionTime() >= COLD_COMPACT_IDLE_MS
 }
 
 const MIN_AUTO_COMPACT_WINDOW = 100_000
@@ -78,7 +87,9 @@ export function isAutoCompactConfigurationEnabled(): boolean {
   return !!getFeatureValue_CACHED_MAY_BE_STALE('tengu_amber_redwood2', '')
 }
 
-function getAutoCompactExperimentWindow(model: string): number | undefined {
+export function getAutoCompactExperimentWindow(
+  model: string,
+): number | undefined {
   if (!isAutoCompactEnabled()) return undefined
   if (getCanonicalName(model) !== 'claude-opus-4-7') return undefined
 
@@ -90,6 +101,31 @@ function getAutoCompactExperimentWindow(model: string): number | undefined {
 
   const parsed = parseAutoCompactWindow(experimentValue)
   return typeof parsed === 'number' ? parsed : undefined
+}
+
+/**
+ * Reactive compaction is deliberately restricted to interactive sessions on
+ * the full 1M context window. The auto-window experiment owns the same Opus
+ * cohort, so do not let the two context-management experiments overlap.
+ */
+export function isReactiveCompactEligible(model: string): boolean {
+  if (getIsNonInteractiveSession()) return false
+  if (getContextWindowForModel(model, getSdkBetas()) !== 1_000_000) return false
+  if (getAutoCompactExperimentWindow(getCanonicalName(model)) !== undefined) {
+    return false
+  }
+  return getFeatureValue_CACHED_MAY_BE_STALE(
+    'tengu_cobalt_raccoon',
+    false,
+  )
+}
+
+export function isAutoCompactWindowOverridden(
+  model: string,
+  setting?: number,
+): boolean {
+  const { source } = resolveAutoCompactWindow(model, setting)
+  return source === 'env' || source === 'settings'
 }
 
 export function resolveAutoCompactWindow(
@@ -129,24 +165,17 @@ export function resolveAutoCompactWindow(
   }
 }
 
-function notifyAutoCompactWindowHint(
-  context: Pick<ToolUseContext, 'addNotification'>,
+function getAutoCompactWindowHint(
   model: string,
   setting?: number,
-): void {
-  if (getAutoCompactExperimentWindow(model) === undefined) return
+): string | null {
+  if (getAutoCompactExperimentWindow(model) === undefined) return null
 
   const { source, configured } = resolveAutoCompactWindow(model, setting)
   const fullWindow = getContextWindowForModel(model, getSdkBetas())
-  if (source !== 'auto' || configured >= fullWindow) return
+  if (source !== 'auto' || configured >= fullWindow) return null
 
-  context.addNotification?.({
-    key: 'autocompact-auto-hint',
-    text: `compacting at the auto ${formatTokens(configured)} window · configure with /autocompact`,
-    priority: 'immediate',
-    color: 'suggestion',
-    timeoutMs: 12_000,
-  })
+  return `Compacting at auto window (${formatTokens(configured)} tokens) · /autocompact to configure`
 }
 
 export function getEffectiveContextWindowSize(
@@ -174,6 +203,9 @@ export type AutoCompactTrackingState = {
   // Used as a circuit breaker to stop retrying when the context is
   // irrecoverably over the limit (e.g., prompt_too_long).
   consecutiveFailures?: number
+  // Number of consecutive compactions whose context refilled in fewer than
+  // RAPID_REFILL_TURN_THRESHOLD turns.
+  consecutiveRapidRefills?: number
 }
 
 export const AUTOCOMPACT_BUFFER_TOKENS = 13_000
@@ -185,6 +217,20 @@ export const MANUAL_COMPACT_BUFFER_TOKENS = 3_000
 // BQ 2026-03-10: 1,279 sessions had 50+ consecutive failures (up to 3,272)
 // in a single session, wasting ~250K API calls/day globally.
 const MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES = 3
+const RAPID_REFILL_TURN_THRESHOLD = 3
+const MAX_CONSECUTIVE_RAPID_REFILLS = 3
+
+export const RAPID_REFILL_BREAKER_ERROR =
+  `Autocompact is thrashing: the context refilled to the limit within ${RAPID_REFILL_TURN_THRESHOLD} turns of the previous compact, ${MAX_CONSECUTIVE_RAPID_REFILLS} times in a row. A file being read or a tool output is likely too large for the context window. Try reading in smaller chunks, or use /clear to start fresh.`
+
+export function getNextConsecutiveRapidRefills(
+  tracking: AutoCompactTrackingState | undefined,
+): number {
+  return tracking?.compacted === true &&
+    tracking.turnCounter < RAPID_REFILL_TURN_THRESHOLD
+    ? (tracking.consecutiveRapidRefills ?? 0) + 1
+    : 0
+}
 
 export function getAutoCompactThreshold(
   model: string,
@@ -313,16 +359,14 @@ export async function shouldAutoCompact(
     return false
   }
 
-  // Reactive-only mode: suppress proactive autocompact, let reactive compact
-  // catch the API's prompt-too-long. feature() wrapper keeps the flag string
-  // out of external builds (REACTIVE_COMPACT is ant-only).
-  // Note: returning false here also means autoCompactIfNeeded never reaches
-  // trySessionMemoryCompaction in the query loop — the /compact call site
-  // still tries session memory first. Revisit if reactive-only graduates.
-  if (feature('REACTIVE_COMPACT')) {
-    if (getFeatureValue_CACHED_MAY_BE_STALE('tengu_cobalt_raccoon', false)) {
-      return false
-    }
+  // Reactive-only mode: suppress proactive autocompact and let the API's
+  // prompt-too-long response drive compaction. Explicit env/settings windows
+  // continue to use proactive compaction; they are user-owned overrides.
+  if (
+    isReactiveCompactEligible(model) &&
+    !isAutoCompactWindowOverridden(model, autoCompactWindow)
+  ) {
+    return false
   }
 
   // Context-collapse mode: same suppression. Collapse IS the context
@@ -380,6 +424,8 @@ export async function autoCompactIfNeeded(
   wasCompacted: boolean
   compactionResult?: CompactionResult
   consecutiveFailures?: number
+  consecutiveRapidRefills?: number
+  rapidRefillBreakerTripped?: boolean
 }> {
   if (isEnvTruthy(process.env.DISABLE_COMPACT)) {
     return { wasCompacted: false }
@@ -409,6 +455,15 @@ export async function autoCompactIfNeeded(
     return { wasCompacted: false }
   }
 
+  const consecutiveRapidRefills = getNextConsecutiveRapidRefills(tracking)
+  if (consecutiveRapidRefills >= MAX_CONSECUTIVE_RAPID_REFILLS) {
+    logForDebugging(
+      `autocompact: rapid-refill breaker tripped — ${consecutiveRapidRefills} consecutive refills within <${RAPID_REFILL_TURN_THRESHOLD} turns each (last was ${tracking?.turnCounter} turns)`,
+      { level: 'warn' },
+    )
+    return { wasCompacted: false, rapidRefillBreakerTripped: true }
+  }
+
   const recompactionInfo: RecompactionInfo = {
     isRecompactionInChain: tracking?.compacted === true,
     turnsSincePreviousCompact: tracking?.turnCounter ?? -1,
@@ -417,7 +472,14 @@ export async function autoCompactIfNeeded(
     querySource,
   }
 
-  notifyAutoCompactWindowHint(toolUseContext, model, autoCompactWindow)
+  const stripNonEssential =
+    isColdCompact() &&
+    getFeatureValue_CACHED_MAY_BE_STALE('tengu_cold_compact', false)
+
+  const compactingHintText = getAutoCompactWindowHint(
+    model,
+    autoCompactWindow,
+  )
 
   // EXPERIMENT: Try session memory compaction first
   const sessionMemoryResult = await trySessionMemoryCompaction(
@@ -434,13 +496,15 @@ export async function autoCompactIfNeeded(
     // break. compactConversation does this internally; SM-compact doesn't.
     // BQ 2026-03-01: missing this made 20% of tengu_prompt_cache_break events
     // false positives (systemPromptChanged=true, timeSinceLastAssistantMsg=-1).
-    if (feature('PROMPT_CACHE_BREAK_DETECTION')) {
+    if (shouldTrackPromptCacheBreaks()) {
       notifyCompaction(querySource ?? 'compact', toolUseContext.agentId)
     }
     markPostCompaction()
     return {
       wasCompacted: true,
       compactionResult: sessionMemoryResult,
+      consecutiveFailures: 0,
+      consecutiveRapidRefills,
     }
   }
 
@@ -453,6 +517,8 @@ export async function autoCompactIfNeeded(
       undefined, // No custom instructions for autocompact
       true, // isAutoCompact
       recompactionInfo,
+      stripNonEssential,
+      compactingHintText,
     )
     // Reset lastSummarizedMessageId since legacy compaction replaces all messages
     // and the old message UUID will no longer exist in the new messages array
@@ -464,6 +530,7 @@ export async function autoCompactIfNeeded(
       compactionResult,
       // Reset failure count on success
       consecutiveFailures: 0,
+      consecutiveRapidRefills,
     }
   } catch (error) {
     if (

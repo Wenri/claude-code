@@ -43,7 +43,8 @@ import {
   parseAgentsFromJson,
 } from 'src/tools/AgentTool/loadAgentsDir.js'
 import { resolveAgentTools } from 'src/tools/AgentTool/agentToolUtils.js'
-import type { Message, NormalizedUserMessage } from 'src/types/message.js'
+import type { Message } from 'src/types/message.js'
+import type { HookDeferredToolAttachment } from 'src/utils/attachments.js'
 import type { QueuedCommand } from 'src/types/textInputTypes.js'
 import {
   dequeue,
@@ -60,11 +61,15 @@ import {
   notifySessionStateChanged,
   notifySessionMetadataChanged,
   setPermissionModeChangedListener,
+  notifySessionInternalMetadataChanged,
   type RequiresActionDetails,
-  type SessionExternalMetadata,
+  type RestoredWorkerState,
 } from 'src/utils/sessionState.js'
 import { runClassifierSummaryForBlocked } from 'src/utils/taskSummary.js'
-import { externalMetadataToAppState } from 'src/state/onChangeAppState.js'
+import {
+  externalMetadataToAppState,
+  internalMetadataToAppState,
+} from 'src/state/onChangeAppState.js'
 import { getInMemoryErrors, logError, logMCPDebug } from 'src/utils/log.js'
 import {
   writeToStdout,
@@ -74,6 +79,7 @@ import type { Stream } from 'src/utils/stream.js'
 import { EMPTY_USAGE } from 'src/services/api/logging.js'
 import {
   loadConversationForResume,
+  removeInterruptedMessage,
   type TurnInterruptionState,
 } from 'src/utils/conversationRecovery.js'
 import type {
@@ -95,6 +101,10 @@ import { parsePluginIdentifier } from 'src/utils/plugins/pluginIdentifier.js'
 import { validateUuid } from 'src/utils/uuid.js'
 import { fromArray } from 'src/utils/generators.js'
 import { ask } from 'src/QueryEngine.js'
+import {
+  createToolIsolationLatch,
+  getIsolationClassFromMessages,
+} from 'src/services/tools/toolIsolation.js'
 import type { PermissionPromptTool } from 'src/utils/queryHelpers.js'
 import {
   createFileStateCacheWithSizeLimit,
@@ -233,7 +243,10 @@ import {
   saveAgentSetting,
   saveMode,
   saveAiGeneratedTitle,
+  cacheSessionTitle,
   getCurrentSessionTitle,
+  getSessionIdFromLog,
+  searchSessionsByCustomTitle,
   restoreSessionMetadata,
   registerSessionMirror,
   flushSessionStorage,
@@ -251,6 +264,9 @@ import {
   isLocalMcpServer,
   areMcpConfigsEqual,
   reconnectMcpServerImpl,
+  callMCPToolWithUrlElicitationRetry,
+  McpAuthError,
+  McpSessionExpiredError,
 } from 'src/services/mcp/client.js'
 import {
   filterMcpServersByPolicy,
@@ -260,10 +276,12 @@ import {
 } from 'src/services/mcp/config.js'
 import {
   getActiveMCPOAuthFlow,
+  getMcpOAuthCallbackSubmitter,
   performMCPOAuthFlow,
   revokeServerTokens,
   trackMCPOAuthFlow,
 } from 'src/services/mcp/auth.js'
+import { buildClaudeAiMcpAuthUrl } from 'src/services/mcp/claudeai.js'
 import {
   runElicitationHooks,
   runElicitationResultHooks,
@@ -272,11 +290,15 @@ import { executeNotificationHooks } from 'src/utils/hooks.js'
 import {
   ElicitRequestSchema,
   ElicitationCompleteNotificationSchema,
+  ErrorCode,
+  McpError,
 } from '@modelcontextprotocol/sdk/types.js'
 import {
   buildMcpToolName,
   getMcpPrefix,
+  mcpInfoFromString,
 } from 'src/services/mcp/mcpStringUtils.js'
+import { normalizeNameForMCP } from 'src/services/mcp/normalization.js'
 import {
   commandBelongsToServer,
   filterToolsByServer,
@@ -411,6 +433,9 @@ const cronJitterConfigModule = feature('AGENT_TRIGGERS')
 const cronGate = feature('AGENT_TRIGGERS')
   ? (require('../tools/ScheduleCronTool/prompt.js') as typeof import('../tools/ScheduleCronTool/prompt.js'))
   : null
+const loopDefaultModule = feature('AGENT_TRIGGERS')
+  ? (require('../utils/loopDefault.js') as typeof import('../utils/loopDefault.js'))
+  : null
 const extractMemoriesModule = feature('EXTRACT_MEMORIES')
   ? (require('../services/extractMemories/extractMemories.js') as typeof import('../services/extractMemories/extractMemories.js'))
   : null
@@ -506,6 +531,61 @@ function isSyntheticSessionTitleInput(text: string): boolean {
   )
 }
 
+const PERMISSION_DISPLAY_META_KEY = 'anthropic/permissionDisplay'
+
+function getPermissionDisplay(meta?: Record<string, unknown>):
+  | { title?: string; displayName?: string; description?: string }
+  | undefined {
+  const value = meta?.[PERMISSION_DISPLAY_META_KEY]
+  if (value === null || typeof value !== 'object') return undefined
+  const display = value as Record<string, unknown>
+  const getString = (key: string) =>
+    typeof display[key] === 'string' ? display[key] : undefined
+  return {
+    title: getString('title'),
+    displayName: getString('displayName'),
+    description: getString('description'),
+  }
+}
+
+function getUrlElicitationUrls(error: McpError): string[] {
+  const data = error.data
+  if (data === null || typeof data !== 'object') return []
+  const elicitations = (data as Record<string, unknown>).elicitations
+  if (!Array.isArray(elicitations)) return []
+  return elicitations.flatMap(value => {
+    if (value === null || typeof value !== 'object') return []
+    const elicitation = value as Record<string, unknown>
+    return elicitation.mode === 'url' &&
+      typeof elicitation.url === 'string' &&
+      typeof elicitation.elicitationId === 'string' &&
+      typeof elicitation.message === 'string'
+      ? [elicitation.url]
+      : []
+  })
+}
+
+function markMcpServerNeedsAuth(
+  serverName: string,
+  setAppState: (f: (prev: AppState) => AppState) => void,
+): void {
+  setAppState(prevState => {
+    const existingClientIndex = prevState.mcp.clients.findIndex(
+      client => client.name === serverName,
+    )
+    if (existingClientIndex === -1) return prevState
+    const existingClient = prevState.mcp.clients[existingClientIndex]
+    if (!existingClient || existingClient.type !== 'connected') return prevState
+    const clients = [...prevState.mcp.clients]
+    clients[existingClientIndex] = {
+      name: serverName,
+      type: 'needs-auth',
+      config: existingClient.config,
+    }
+    return { ...prevState, mcp: { ...prevState.mcp, clients } }
+  })
+}
+
 export async function runHeadless(
   inputPrompt: string | AsyncIterable<string>,
   getAppState: () => AppState,
@@ -528,8 +608,10 @@ export async function runHeadless(
     maxTurns: number | undefined
     maxBudgetUsd: number | undefined
     taskBudget: { total: number } | undefined
-    systemPrompt: string | undefined
+    systemPrompt: string | string[] | undefined
     appendSystemPrompt: string | undefined
+    appendSubagentSystemPrompt?: string | undefined
+    forwardSubagentText?: boolean | undefined
     excludeDynamicSections: boolean | undefined
     planModeInstructions: string | undefined
     userSpecifiedModel: string | undefined
@@ -752,6 +834,7 @@ export async function runHeadless(
     messages: initialMessages,
     turnInterruptionState,
     agentSetting: resumedAgentSetting,
+    deferredToolUse,
   } = await loadInitialMessages(setAppState, {
     continue: options.continue,
     teleport: options.teleport,
@@ -907,6 +990,32 @@ export async function runHeadless(
     )
   }
 
+  if (isEnvTruthy(process.env.CLAUDE_CODE_RESUME_INTERRUPTED_TURN)) {
+    const runningBackgroundTasks = (await structuredIO.restoredWorkerState)
+      ?.internal?.running_background_tasks
+    if (runningBackgroundTasks && runningBackgroundTasks.length > 0) {
+      logForDebugging(
+        `[print.ts] ${runningBackgroundTasks.length} orphaned background task(s) after restart`,
+      )
+      initialMessages.push(
+        createUserMessage({
+          content: `<system-reminder>
+The container was restarted. The following background tasks were running and are now stopped:
+${runningBackgroundTasks
+  .map(
+    task =>
+      `- ${task.description || '(no description)'} (task ${task.task_id})`,
+  )
+  .join('\n')}
+Re-create them if still needed.
+</system-reminder>`,
+          isMeta: true,
+        }),
+      )
+      notifySessionInternalMetadataChanged({ running_background_tasks: [] })
+    }
+  }
+
   // Install errors handlers to gracefully handle broken pipes (e.g., when parent process dies)
   registerProcessOutputErrorHandlers()
 
@@ -951,6 +1060,7 @@ export async function runHeadless(
     agents,
     options,
     turnInterruptionState,
+    deferredToolUse,
   )) {
     if (transformToStreamlined) {
       // Streamlined mode: transform messages and stream immediately
@@ -1075,8 +1185,10 @@ function runHeadlessStreaming(
     maxTurns: number | undefined
     maxBudgetUsd: number | undefined
     taskBudget: { total: number } | undefined
-    systemPrompt: string | undefined
+    systemPrompt: string | string[] | undefined
     appendSystemPrompt: string | undefined
+    appendSubagentSystemPrompt?: string | undefined
+    forwardSubagentText?: boolean | undefined
     excludeDynamicSections: boolean | undefined
     planModeInstructions: string | undefined
     userSpecifiedModel: string | undefined
@@ -1092,6 +1204,7 @@ function runHeadlessStreaming(
     workload?: string | undefined
   },
   turnInterruptionState?: TurnInterruptionState,
+  deferredToolUse?: HookDeferredToolAttachment,
 ): AsyncIterable<StdoutMessage> {
   let running = false
   let runPhase:
@@ -1104,6 +1217,7 @@ function runHeadlessStreaming(
   let shutdownPromptInjected = false
   let heldBackResult: StdoutMessage | null = null
   let abortController: AbortController | undefined
+  const controlRequestAbortController = createAbortController(500)
   // Same queue sendRequest() enqueues to — one FIFO for everything.
   const output = structuredIO.outbound
 
@@ -1125,6 +1239,7 @@ function runHeadlessStreaming(
     if (abortController && !abortController.signal.aborted) {
       abortController.abort()
     }
+    controlRequestAbortController.abort()
     void gracefulShutdown(0)
   }
   process.on('SIGINT', sigintHandler)
@@ -1239,6 +1354,9 @@ function runHeadlessStreaming(
   // include Assistant, User, Attachment, and Progress messages.
   // TODO: Clean up this code to avoid passing around a mutable array.
   const mutableMessages: Message[] = initialMessages
+  const isolationLatch = createToolIsolationLatch(
+    getIsolationClassFromMessages(initialMessages, tools),
+  )
 
   // Seed the readFileState cache from the transcript (content the model saw,
   // with message timestamps) so getChangedFiles can detect external edits.
@@ -1264,12 +1382,10 @@ function runHeadlessStreaming(
 
   // Auto-resume interrupted turns on restart so CC continues from where it
   // left off without requiring the SDK to re-send the prompt.
-  const resumeInterruptedTurnEnv =
-    process.env.CLAUDE_CODE_RESUME_INTERRUPTED_TURN
   if (
     turnInterruptionState &&
     turnInterruptionState.kind !== 'none' &&
-    resumeInterruptedTurnEnv
+    isEnvTruthy(process.env.CLAUDE_CODE_RESUME_INTERRUPTED_TURN)
   ) {
     logForDebugging(
       `[print.ts] Auto-resuming interrupted turn (kind: ${turnInterruptionState.kind})`,
@@ -1440,6 +1556,7 @@ function runHeadlessStreaming(
               mode,
               url,
               elicitationId,
+              getPermissionDisplay(request.params._meta),
             )
 
             const result = await runElicitationResultHooks(
@@ -1582,6 +1699,29 @@ function runHeadlessStreaming(
     configs: {},
     policyRules: new Set(),
   }
+  let preservedRemoteDynamicMcpConfigs: Record<
+    string,
+    McpServerConfigForProcessTransport
+  > = isEnvTruthy(process.env.CLAUDE_CODE_REMOTE)
+    ? (Object.fromEntries(
+        getAppState()
+          .mcp.clients.filter(connection => {
+            const type = connection.config.type
+            return (
+              connection.config.scope === 'dynamic' &&
+              !('pluginSource' in connection.config) &&
+              (type === undefined ||
+                type === 'stdio' ||
+                type === 'sse' ||
+                type === 'http')
+            )
+          })
+          .map(connection => {
+            const { scope: _scope, ...config } = connection.config
+            return [connection.name, config]
+          }),
+      ) as Record<string, McpServerConfigForProcessTransport>)
+    : {}
 
   // Shared tool assembly for ask() and the get_context_usage control request.
   // Closes over the mutable sdkTools/dynamicMcpState bindings so both call
@@ -1680,6 +1820,7 @@ function runHeadlessStreaming(
 
   function applyMcpServerChanges(
     servers: Record<string, McpServerConfigForProcessTransport>,
+    options: { authoritative: boolean; caller: string },
   ): Promise<{
     response: SDKControlMcpSetServersResponse
     sdkServersChanged: boolean
@@ -1691,13 +1832,45 @@ function runHeadlessStreaming(
       sdkServersChanged: boolean
     }> => {
       const oldSdkClientNames = new Set(sdkClients.map(c => c.name))
+      const currentDynamicState: DynamicMcpState = {
+        ...dynamicMcpState,
+        configs: {
+          ...Object.fromEntries(
+            Object.entries(preservedRemoteDynamicMcpConfigs).map(
+              ([name, config]) => [name, toScopedConfig(config)],
+            ),
+          ),
+          ...dynamicMcpState.configs,
+        },
+      }
+      const desiredServers = options.authoritative
+        ? servers
+        : {
+            ...Object.fromEntries(
+              Object.entries(preservedRemoteDynamicMcpConfigs).filter(
+                ([name]) => !(name in servers),
+              ),
+            ),
+            ...servers,
+          }
 
       const result = await handleMcpSetServers(
-        servers,
+        desiredServers,
         { configs: sdkMcpConfigs, clients: sdkClients, tools: sdkTools },
-        dynamicMcpState,
+        currentDynamicState,
         setAppState,
+        getAppState,
+        options.caller,
       )
+
+      if (options.authoritative) {
+        const retainedNames = new Set(
+          Object.keys(result.newDynamicState.configs),
+        )
+        preservedRemoteDynamicMcpConfigs = Object.fromEntries(
+          Object.entries(servers).filter(([name]) => retainedNames.has(name)),
+        )
+      }
 
       // Update SDK state (need to mutate sdkMcpConfigs since it's shared)
       for (const key of Object.keys(sdkMcpConfigs)) {
@@ -1857,7 +2030,10 @@ function runHeadlessStreaming(
       const pluginsInstalled = await installPluginsForHeadless()
 
       if (pluginsInstalled) {
-        await applyPluginMcpDiff(existingMcpServerNames)
+        await applyPluginMcpDiff(
+          existingMcpServerNames,
+          'plugin_install_diff',
+        )
       }
     } catch (error) {
       logError(error)
@@ -1927,6 +2103,7 @@ function runHeadlessStreaming(
   // updateSdkMcp.
   async function applyPluginMcpDiff(
     existingMcpServerNames?: Set<string>,
+    caller = 'unknown',
   ): Promise<void> {
     const { servers: newConfigs } = await getAllMcpConfigs()
     const supportedConfigs: Record<string, McpServerConfigForProcessTransport> =
@@ -1950,7 +2127,10 @@ function runHeadlessStreaming(
       }
     }
     const { response, sdkServersChanged } =
-      await applyMcpServerChanges(supportedConfigs)
+      await applyMcpServerChanges(supportedConfigs, {
+        authoritative: false,
+        caller,
+      })
     if (sdkServersChanged) {
       void updateSdkMcp()
     }
@@ -2009,6 +2189,7 @@ function runHeadlessStreaming(
     running = true
     runPhase = undefined
     notifySessionStateChanged('running')
+    structuredIO.resetStallWatchdog()
     idleTimeout.stop()
 
     headlessProfilerCheckpoint('run_entry')
@@ -2330,11 +2511,14 @@ function runHeadlessStreaming(
               },
               customSystemPrompt: options.systemPrompt,
               appendSystemPrompt: options.appendSystemPrompt,
+              appendSubagentSystemPrompt: options.appendSubagentSystemPrompt,
+              forwardSubagentText: options.forwardSubagentText,
               excludeDynamicSections: options.excludeDynamicSections,
               planModeInstructions: options.planModeInstructions,
               getAppState,
               setAppState,
               abortController,
+              isolationLatch,
               replayUserMessages: options.replayUserMessages,
               includePartialMessages: options.includePartialMessages,
               handleElicitation: (serverName, params, elicitSignal) =>
@@ -2346,10 +2530,12 @@ function runHeadlessStreaming(
                   params.mode,
                   params.url,
                   'elicitationId' in params ? params.elicitationId : undefined,
+                  getPermissionDisplay(params._meta),
                 ),
               agents: currentAgents,
               allowedAgentTypes,
               orphanedPermission: cmd.orphanedPermission,
+              deferredToolUse,
               setSDKStatus: status => {
                 output.enqueue({
                   type: 'system',
@@ -2360,6 +2546,7 @@ function runHeadlessStreaming(
                 })
               },
             })) {
+              deferredToolUse = undefined
               // Forward messages to bridge incrementally (mid-turn) so
               // claude.ai sees progress and the connection stays alive
               // while blocked on permission requests.
@@ -2870,9 +3057,11 @@ function runHeadlessStreaming(
     cronScheduler = cronSchedulerModule.createCronScheduler({
       onFire: prompt => {
         if (inputClosed) return
+        const resolvedPrompt =
+          loopDefaultModule?.resolveLoopDefaultFire(prompt) ?? prompt
         enqueue({
           mode: 'prompt',
-          value: prompt,
+          value: resolvedPrompt,
           uuid: randomUUID(),
           priority: 'later',
           // System-generated — matches useScheduledTasks.ts REPL equivalent.
@@ -2941,12 +3130,6 @@ function runHeadlessStreaming(
   // Track active OAuth flows per server so we can abort a previous flow
   // when a new mcp_authenticate request arrives for the same server.
   const activeOAuthFlows = new Map<string, AbortController>()
-  // Track manual callback URL submit functions for active OAuth flows.
-  // Used when localhost is not reachable (e.g., browser-based IDEs).
-  const oauthCallbackSubmitters = new Map<
-    string,
-    (callbackUrl: string) => void
-  >()
   // Track servers where the manual callback was actually invoked (so the
   // automatic reconnect path knows to skip — the extension will reconnect).
   const oauthManualCallbackUsed = new Set<string>()
@@ -3017,6 +3200,7 @@ function runHeadlessStreaming(
           if (abortController) {
             abortController.abort()
           }
+          controlRequestAbortController.abort()
           suggestionState.abortController?.abort()
           suggestionState.abortController = null
           suggestionState.lastEmitted = null
@@ -3024,6 +3208,15 @@ function runHeadlessStreaming(
           sendControlResponseSuccess(message)
           break // exits for-await → falls through to inputClosed=true drain below
         } else if (message.request.subtype === 'initialize') {
+          const requestedTitle =
+            typeof message.request.title === 'string'
+              ? message.request.title.trim()
+              : undefined
+          if (requestedTitle) {
+            autoTitleAttempted = true
+            cacheSessionTitle(requestedTitle)
+          }
+
           // SDK MCP server names from the initialize message
           // Populated by both browser and ProcessTransport sessions
           if (
@@ -3126,6 +3319,110 @@ function runHeadlessStreaming(
             version: MACRO.VERSION,
             buildTime: MACRO.BUILD_TIME,
           })
+        } else if (message.request.subtype === 'mcp_call') {
+          const { tool, arguments: args } = message.request
+          const mcpInfo = mcpInfoFromString(tool)
+          if (!mcpInfo || !mcpInfo.toolName) {
+            sendControlResponseError(
+              message,
+              `Not a fully-qualified MCP tool name: ${tool}`,
+            )
+          } else {
+            const connectedClient = [
+              ...getAppState().mcp.clients,
+              ...sdkClients,
+              ...dynamicMcpState.clients,
+            ].find(
+              client =>
+                client.type === 'connected' &&
+                normalizeNameForMCP(client.name) === mcpInfo.serverName,
+            )
+            if (!connectedClient || connectedClient.type !== 'connected') {
+              sendControlResponseError(
+                message,
+                `MCP server not connected: ${mcpInfo.serverName}`,
+              )
+            } else if (connectedClient.config.type === 'sdk') {
+              sendControlResponseError(
+                message,
+                'mcp_call does not support SDK MCP servers. ' +
+                  `SDK servers are caller-provided — invoke ${mcpInfo.serverName} directly.`,
+              )
+            } else {
+              const actualToolName =
+                [
+                  ...getAppState().mcp.tools,
+                  ...dynamicMcpState.tools,
+                ].find(candidate => toolMatchesName(candidate, tool))?.mcpInfo
+                  ?.toolName ?? mcpInfo.toolName
+
+              void (async () => {
+                if (controlRequestAbortController.signal.aborted) return
+                const callAbortController = createAbortController()
+                const onParentAbort = () =>
+                  callAbortController.abort(
+                    controlRequestAbortController.signal.reason,
+                  )
+                controlRequestAbortController.signal.addEventListener(
+                  'abort',
+                  onParentAbort,
+                  { once: true },
+                )
+                try {
+                  const result = await callMCPToolWithUrlElicitationRetry({
+                    client: connectedClient,
+                    clientConnection: connectedClient,
+                    tool: actualToolName,
+                    args: args ?? {},
+                    signal: callAbortController.signal,
+                    setAppState,
+                    handleElicitation: async () => ({ action: 'cancel' }),
+                  })
+                  if (controlRequestAbortController.signal.aborted) return
+                  if (result.urlElicitationDeclined) {
+                    sendControlResponseError(
+                      message,
+                      `URL elicitation required (open URL, then retry mcp_call): ${result.urlElicitationDeclined.url}` +
+                        (typeof result.content === 'string'
+                          ? ` — ${result.content}`
+                          : ''),
+                    )
+                  } else {
+                    sendControlResponseSuccess(message, {
+                      content: result.content,
+                      structuredContent: result.structuredContent,
+                      _meta: result._meta,
+                    })
+                  }
+                } catch (error) {
+                  if (controlRequestAbortController.signal.aborted) return
+                  if (error instanceof McpAuthError) {
+                    markMcpServerNeedsAuth(error.serverName, setAppState)
+                  }
+                  let messageText =
+                    error instanceof Error ? error.message : String(error)
+                  if (error instanceof McpSessionExpiredError) {
+                    messageText = `MCP session expired for ${mcpInfo.serverName} — send mcp_reconnect and retry mcp_call: ${messageText}`
+                  } else if (
+                    error instanceof McpError &&
+                    error.code === ErrorCode.UrlElicitationRequired
+                  ) {
+                    const urls = getUrlElicitationUrls(error)
+                    messageText =
+                      urls.length > 0
+                        ? `URL elicitation required (open URL, then retry mcp_call): ${urls.join(', ')} — ${messageText}`
+                        : `URL elicitation required (no URL in error data): ${messageText}`
+                  }
+                  sendControlResponseError(message, messageText)
+                } finally {
+                  controlRequestAbortController.signal.removeEventListener(
+                    'abort',
+                    onParentAbort,
+                  )
+                }
+              })()
+            }
+          }
         } else if (message.request.subtype === 'get_context_usage') {
           try {
             const appState = getAppState()
@@ -3196,6 +3493,7 @@ function runHeadlessStreaming(
               message.request.path,
               message.request.max_bytes,
               getAppState().toolPermissionContext,
+              message.request.encoding,
             )
             sendControlResponseSuccess(message, result)
           } catch (error) {
@@ -3242,6 +3540,7 @@ function runHeadlessStreaming(
         } else if (message.request.subtype === 'mcp_set_servers') {
           const { response, sdkServersChanged } = await applyMcpServerChanges(
             message.request.servers,
+            { authoritative: true, caller: 'mcp_set_servers' },
           )
           sendControlResponseSuccess(message, response)
 
@@ -3286,7 +3585,10 @@ function runHeadlessStreaming(
             )
             const [cmdsR, mcpR, pluginsR] = await Promise.allSettled([
               getCommands(cwd()),
-              applyPluginMcpDiff(existingUserMcpServerNames),
+              applyPluginMcpDiff(
+                existingUserMcpServerNames,
+                'reload_plugins',
+              ),
               loadAllPluginsCacheOnly(),
             ])
             if (cmdsR.status === 'fulfilled') {
@@ -3503,7 +3805,10 @@ function runHeadlessStreaming(
             output,
           )
         } else if (message.request.subtype === 'mcp_authenticate') {
-          const { serverName } = message.request
+          const { serverName, redirectUri } =
+            message.request as typeof message.request & {
+              redirectUri?: string
+            }
           const currentAppState = getAppState()
           const config =
             getMcpConfigByName(serverName) ??
@@ -3513,6 +3818,21 @@ function runHeadlessStreaming(
             null
           if (!config) {
             sendControlResponseError(message, `Server not found: ${serverName}`)
+          } else if (config.type === 'claudeai-proxy') {
+            const authUrl = buildClaudeAiMcpAuthUrl(config)
+            if (!authUrl) {
+              sendControlResponseError(
+                message,
+                `Unable to build authentication URL for ${serverName}`,
+              )
+            } else {
+              sendControlResponseSuccess(message, {
+                authUrl,
+                requiresUserAction: true,
+                callbackExpected: false,
+              })
+              logEvent('tengu_claudeai_mcp_auth_started', {})
+            }
           } else if (config.type !== 'sse' && config.type !== 'http') {
             sendControlResponseError(
               message,
@@ -3525,40 +3845,69 @@ function runHeadlessStreaming(
               const controller = new AbortController()
               activeOAuthFlows.set(serverName, controller)
 
-              // Capture the auth URL from the callback
-              let resolveAuthUrl: (url: string) => void
-              const authUrlPromise = new Promise<string>(resolve => {
-                resolveAuthUrl = resolve
-              })
-
-              // Start the OAuth flow in the background
-              const oauthPromise = performMCPOAuthFlow(
-                serverName,
-                config,
-                url => resolveAuthUrl!(url),
-                controller.signal,
-                {
-                  skipBrowserOpen: true,
-                  onWaitingForCallback: submit => {
-                    oauthCallbackSubmitters.set(serverName, submit)
+              const startFlow = (customRedirectUri?: string) => {
+                let resolveAuthUrl: (url: string) => void
+                const authUrlPromise = new Promise<string>(resolve => {
+                  resolveAuthUrl = resolve
+                })
+                let callbackPort: number | undefined
+                let state: string | undefined
+                const oauthPromise = performMCPOAuthFlow(
+                  serverName,
+                  config,
+                  url => resolveAuthUrl!(url),
+                  controller.signal,
+                  {
+                    skipBrowserOpen: true,
+                    redirectUri: customRedirectUri,
+                    onWaitingForCallback: (_submit, port, oauthState) => {
+                      callbackPort = port
+                      state = oauthState
+                    },
                   },
-                },
-              )
+                )
+                return {
+                  oauthPromise,
+                  raced: Promise.race([
+                    authUrlPromise,
+                    oauthPromise.then(() => null as string | null),
+                  ]).then(authUrl => ({ authUrl, callbackPort, state })),
+                }
+              }
 
-              // Wait for the auth URL (or the flow to complete without needing redirect)
-              const authUrl = await Promise.race([
-                authUrlPromise,
-                oauthPromise.then(() => null as string | null),
-              ])
+              let redirectScheme: 'custom' | 'localhost' = 'localhost'
+              let flow = startFlow(redirectUri)
+              let authResult: Awaited<typeof flow.raced>
+              if (redirectUri) {
+                try {
+                  authResult = await flow.raced
+                  redirectScheme = 'custom'
+                } catch (error) {
+                  logForDebugging(
+                    `[mcp_authenticate] AS rejected custom redirectUri for ${serverName}; falling back to localhost: ${errorMessage(error)}`,
+                  )
+                  flow = startFlow()
+                  authResult = await flow.raced
+                }
+              } else {
+                authResult = await flow.raced
+              }
+              const oauthPromise = flow.oauthPromise
+              const { authUrl, callbackPort, state } = authResult
 
               if (authUrl) {
                 sendControlResponseSuccess(message, {
                   authUrl,
                   requiresUserAction: true,
+                  callbackExpected: false,
+                  redirectScheme,
+                  state,
+                  ...(redirectScheme === 'localhost' && { callbackPort }),
                 })
               } else {
                 sendControlResponseSuccess(message, {
                   requiresUserAction: false,
+                  callbackExpected: true,
                 })
               }
 
@@ -3646,7 +3995,6 @@ function runHeadlessStreaming(
                   // Clean up only if this is still the active flow
                   if (activeOAuthFlows.get(serverName) === controller) {
                     activeOAuthFlows.delete(serverName)
-                    oauthCallbackSubmitters.delete(serverName)
                     oauthManualCallbackUsed.delete(serverName)
                     oauthAuthPromises.delete(serverName)
                   }
@@ -3658,7 +4006,7 @@ function runHeadlessStreaming(
           }
         } else if (message.request.subtype === 'mcp_oauth_callback_url') {
           const { serverName, callbackUrl } = message.request
-          const submit = oauthCallbackSubmitters.get(serverName)
+          const submit = getMcpOAuthCallbackSubmitter(serverName)
           if (submit) {
             // Validate the callback URL before submitting. The submit
             // callback in auth.ts silently ignores URLs missing a code
@@ -4050,6 +4398,20 @@ function runHeadlessStreaming(
               sendControlResponseError(message, errorMessage(error))
             }
           })()
+        } else if (message.request.subtype === 'message_rated') {
+          const {
+            messageUuid,
+            sentiment,
+            surface = 'tool_use',
+            cleared = false,
+          } = message.request
+          logEvent('tengu_message_rated', {
+            message_uuid: messageUuid,
+            sentiment,
+            surface,
+            cleared,
+          })
+          sendControlResponseSuccess(message, {})
         } else if (message.request.subtype === 'side_question') {
           // Same fire-and-forget pattern as generate_session_title above —
           // the forked agent's API roundtrip must not block the stdin loop.
@@ -4199,16 +4561,8 @@ function runHeadlessStreaming(
                   'src/bridge/initReplBridge.js'
                 )
                 const handle = await initReplBridge({
-                  onReadFile: async (path, maxBytes) => {
-                    const { readFileForRemote } = await import(
-                      'src/bridge/readFileForRemote.js'
-                    )
-                    return readFileForRemote(
-                      path,
-                      maxBytes,
-                      getAppState().toolPermissionContext,
-                    )
-                  },
+                  getToolPermissionContext: () =>
+                    getAppState().toolPermissionContext,
                   onInboundMessage(msg) {
                     const fields = extractInboundMessageFields(msg)
                     if (!fields) return
@@ -4457,6 +4811,7 @@ function runHeadlessStreaming(
       void run()
     }
     inputClosed = true
+    controlRequestAbortController.abort()
     cronScheduler?.stop()
     if (!running) {
       // If a push-suggestion is in-flight, wait for it to emit before closing
@@ -4707,6 +5062,14 @@ export function getCanUseToolFn(
   }
 }
 
+function isEmptySystemPrompt(systemPrompt: unknown): boolean {
+  return (
+    Array.isArray(systemPrompt) &&
+    systemPrompt.length === 1 &&
+    systemPrompt[0] === ''
+  )
+}
+
 async function handleInitializeRequest(
   request: SDKControlInitializeRequest,
   requestId: string,
@@ -4717,8 +5080,10 @@ async function handleInitializeRequest(
   structuredIO: StructuredIO,
   enableAuthStatus: boolean,
   options: {
-    systemPrompt: string | undefined
+    systemPrompt: string | string[] | undefined
     appendSystemPrompt: string | undefined
+    appendSubagentSystemPrompt?: string | undefined
+    forwardSubagentText?: boolean | undefined
     excludeDynamicSections?: boolean | undefined
     agent?: string | undefined
     userSpecifiedModel?: string | undefined
@@ -4743,7 +5108,9 @@ async function handleInitializeRequest(
 
   // Apply systemPrompt/appendSystemPrompt from stdin to avoid ARG_MAX limits
   if (request.systemPrompt !== undefined) {
-    options.systemPrompt = request.systemPrompt
+    options.systemPrompt = isEmptySystemPrompt(request.systemPrompt)
+      ? ''
+      : request.systemPrompt
   }
   if (request.appendSystemPrompt !== undefined) {
     options.appendSystemPrompt = request.appendSystemPrompt
@@ -4754,8 +5121,14 @@ async function handleInitializeRequest(
   if (request.planModeInstructions !== undefined) {
     options.planModeInstructions = request.planModeInstructions
   }
+  if (request.appendSubagentSystemPrompt !== undefined) {
+    options.appendSubagentSystemPrompt = request.appendSubagentSystemPrompt
+  }
   if (request.promptSuggestions !== undefined) {
     options.promptSuggestions = request.promptSuggestions
+  }
+  if (request.forwardSubagentText !== undefined) {
+    options.forwardSubagentText = request.forwardSubagentText
   }
   if (request.skills !== undefined) {
     setSessionSkillAllowlist(request.skills)
@@ -5250,29 +5623,11 @@ function emitLoadError(
   }
 }
 
-/**
- * Removes an interrupted user message and its synthetic assistant sentinel
- * from the message array. Used during gateway-triggered restarts to clean up
- * the message history before re-enqueuing the interrupted prompt.
- *
- * @internal Exported for testing
- */
-export function removeInterruptedMessage(
-  messages: Message[],
-  interruptedUserMessage: NormalizedUserMessage,
-): void {
-  const idx = messages.findIndex(m => m.uuid === interruptedUserMessage.uuid)
-  if (idx !== -1) {
-    // Remove the user message and the sentinel that immediately follows it.
-    // splice safely handles the case where idx is the last element.
-    messages.splice(idx, 2)
-  }
-}
-
 type LoadInitialMessagesResult = {
   messages: Message[]
   turnInterruptionState?: TurnInterruptionState
   agentSetting?: string
+  deferredToolUse?: HookDeferredToolAttachment
 }
 
 async function loadInitialMessages(
@@ -5285,7 +5640,7 @@ async function loadInitialMessages(
     forkSession: boolean | undefined
     outputFormat: string | undefined
     sessionStartHooksPromise?: ReturnType<typeof processSessionStartHooks>
-    restoredWorkerState: Promise<SessionExternalMetadata | null>
+    restoredWorkerState: Promise<RestoredWorkerState | null>
   },
 ): Promise<LoadInitialMessagesResult> {
   const persistSession = !isSessionPersistenceDisabled()
@@ -5361,6 +5716,7 @@ async function loadInitialMessages(
           messages: result.messages,
           turnInterruptionState: result.turnInterruptionState,
           agentSetting: result.agentSetting,
+          deferredToolUse: result.deferredToolUse,
         }
       }
     } catch (error) {
@@ -5412,19 +5768,55 @@ async function loadInitialMessages(
   // Handle resume in print mode (accepts session ID or URL)
   // URLs are [ANT-ONLY]
   if (options.resume) {
+    let failureReason = 'load_error'
+    const resumeStart = performance.now()
     try {
       logEvent('tengu_resume_print', {})
 
-      // In print mode - we require a valid session ID, JSONL file or URL
-      const parsedSessionId = parseSessionIdentifier(
-        typeof options.resume === 'string' ? options.resume : '',
-      )
+      // In print mode, accept a session ID, exact custom title, JSONL file, or URL.
+      const resumeValue =
+        typeof options.resume === 'string' ? options.resume.trim() : ''
+      let parsedSessionId = parseSessionIdentifier(resumeValue)
+      if (!parsedSessionId && resumeValue) {
+        const titleMatches = await searchSessionsByCustomTitle(resumeValue, {
+          exact: true,
+        })
+        if (titleMatches.length === 1) {
+          const matchedSessionId = getSessionIdFromLog(titleMatches[0]!)
+          if (matchedSessionId) {
+            parsedSessionId = parseSessionIdentifier(matchedSessionId)
+          }
+        } else if (titleMatches.length > 1) {
+          const choices = titleMatches
+            .map(
+              match =>
+                `  ${getSessionIdFromLog(match) ?? '(unknown)'}  (modified ${match.modified.toISOString()})`,
+            )
+            .join('\n')
+          logEvent('tengu_session_resumed', {
+            entrypoint: 'print',
+            success: false,
+            failure_reason: 'not_found_explicit_id',
+          })
+          emitLoadError(
+            `Error: --resume "${resumeValue}" matches ${titleMatches.length} sessions. Pass one of these session IDs to disambiguate:\n${choices}`,
+            options.outputFormat,
+          )
+          gracefulShutdownSync(1)
+          return { messages: [] }
+        }
+      }
       if (!parsedSessionId) {
         let errorMessage =
-          'Error: --resume requires a valid session ID when used with --print. Usage: claude -p --resume <session-id>'
-        if (typeof options.resume === 'string') {
-          errorMessage += `. Session IDs must be in UUID format (e.g., 550e8400-e29b-41d4-a716-446655440000). Provided value "${options.resume}" is not a valid UUID`
+          'Error: --resume requires a valid session ID or session title when used with --print. Usage: claude -p --resume <session-id|title>'
+        if (resumeValue) {
+          errorMessage += `. Provided value "${resumeValue}" is not a UUID and does not match any session title.`
         }
+        logEvent('tengu_session_resumed', {
+          entrypoint: 'print',
+          success: false,
+          failure_reason: 'not_found_explicit_id',
+        })
         emitLoadError(errorMessage, options.outputFormat)
         gracefulShutdownSync(1)
         return { messages: [] }
@@ -5438,10 +5830,14 @@ async function loadInitialMessages(
           hydrateFromCCRv2InternalEvents(parsedSessionId.sessionId),
           options.restoredWorkerState,
         ])
-        if (metadata) {
-          setAppState(externalMetadataToAppState(metadata))
-          if (typeof metadata.model === 'string') {
-            setMainLoopModelOverride(metadata.model)
+        if (metadata?.external || metadata?.internal) {
+          setAppState(prev =>
+            internalMetadataToAppState(metadata.internal ?? {})(
+              externalMetadataToAppState(metadata.external ?? {})(prev),
+            ),
+          )
+          if (typeof metadata.external?.model === 'string') {
+            setMainLoopModelOverride(metadata.external.model)
           }
         }
       } else if (
@@ -5461,6 +5857,7 @@ async function loadInitialMessages(
         parsedSessionId.sessionId,
         parsedSessionId.jsonlFile || undefined,
       )
+      failureReason = 'processing_error'
 
       // hydrateFromCCRv2InternalEvents writes an empty transcript file for
       // fresh sessions (writeFile(sessionFile, '') with zero events), so
@@ -5478,6 +5875,11 @@ async function loadInitialMessages(
               processSessionStartHooks('startup')),
           }
         } else {
+          logEvent('tengu_session_resumed', {
+            entrypoint: 'print',
+            success: false,
+            failure_reason: 'not_found_explicit_id',
+          })
           emitLoadError(
             `No conversation found with session ID: ${parsedSessionId.sessionId}`,
             options.outputFormat,
@@ -5493,6 +5895,11 @@ async function loadInitialMessages(
           m => m.uuid === options.resumeSessionAt,
         )
         if (index < 0) {
+          logEvent('tengu_session_resumed', {
+            entrypoint: 'print',
+            success: false,
+            failure_reason: 'processing_error',
+          })
           emitLoadError(
             `No message found with message.uuid of: ${options.resumeSessionAt}`,
             options.outputFormat,
@@ -5555,12 +5962,24 @@ async function loadInitialMessages(
         )
       }
 
+      logEvent('tengu_session_resumed', {
+        entrypoint: 'print',
+        success: true,
+        resume_duration_ms: Math.round(performance.now() - resumeStart),
+      })
       return {
         messages: result.messages,
         turnInterruptionState: result.turnInterruptionState,
         agentSetting: result.agentSetting,
+        deferredToolUse: result.deferredToolUse,
       }
     } catch (error) {
+      logEvent('tengu_session_resumed', {
+        entrypoint: 'print',
+        success: false,
+        failure_reason: failureReason,
+        error_name: error instanceof Error ? error.name : 'Error',
+      })
       logError(error)
       const errorMessage =
         error instanceof Error
@@ -5741,6 +6160,8 @@ export async function handleMcpSetServers(
   sdkState: SdkMcpState,
   dynamicState: DynamicMcpState,
   setAppState: (f: (prev: AppState) => AppState) => void,
+  getAppState?: () => AppState,
+  caller = 'unknown',
 ): Promise<McpSetServersResult> {
   // Enforce enterprise MCP policy on process-based servers (stdio/http/sse).
   // Mirrors the --mcp-config filter in main.tsx — both user-controlled injection
@@ -5811,6 +6232,8 @@ export async function handleMcpSetServers(
     processServers,
     dynamicState,
     setAppState,
+    getAppState,
+    caller,
   )
 
   return {
@@ -5837,6 +6260,8 @@ export async function reconcileMcpServers(
   desiredConfigs: Record<string, McpServerConfigForProcessTransport>,
   currentState: DynamicMcpState,
   setAppState: (f: (prev: AppState) => AppState) => void,
+  getAppState?: () => AppState,
+  caller = 'unknown',
 ): Promise<{
   response: SDKControlMcpSetServersResponse
   newState: DynamicMcpState
@@ -5857,6 +6282,16 @@ export async function reconcileMcpServers(
     return !areMcpConfigsEqual(currentConfig, desiredConfig)
   })
 
+  logEvent('tengu_mcp_reconcile', {
+    caller:
+      caller as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    desiredCount: desiredNames.size,
+    currentCount: currentNames.size,
+    toRemoveCount: toRemove.length,
+    toAddCount: toAdd.length,
+    toReplaceCount: toReplace.length,
+  })
+
   const removed: string[] = []
   const added: string[] = []
   const errors: Record<string, string> = {}
@@ -5866,7 +6301,9 @@ export async function reconcileMcpServers(
 
   // Remove old servers (including ones being replaced)
   for (const name of [...toRemove, ...toReplace]) {
-    const client = newClients.find(c => c.name === name)
+    const client =
+      newClients.find(c => c.name === name) ??
+      getAppState?.().mcp.clients.find(c => c.name === name)
     const config = currentState.configs[name]
     if (client && config) {
       if (client.type === 'connected') {

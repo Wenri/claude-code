@@ -206,7 +206,7 @@ Hooks can return JSON to control behavior:
 - \`reason\` - Explanation for decision
 - \`hookSpecificOutput\` - Event-specific output (must include \`hookEventName\`):
   - \`additionalContext\` - Text injected into model context
-  - \`permissionDecision\` - "allow", "deny", or "ask" (PreToolUse only)
+- \`permissionDecision\` - "allow", "deny", "ask", or "defer" (PreToolUse only; defer pauses print mode for a later \`-p --resume\`)
   - \`permissionDecisionReason\` - Reason for the permission decision (PreToolUse only)
   - \`updatedInput\` - Modified tool input (PreToolUse only)
 

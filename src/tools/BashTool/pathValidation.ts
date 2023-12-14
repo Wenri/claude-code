@@ -139,6 +139,30 @@ function filterOutFlags(args: string[]): string[] {
   return result
 }
 
+/** Filter flags which consume their following argument, retaining only paths. */
+function filterOutFlagsWithArguments(
+  flagsWithArguments: Set<string>,
+): (args: string[]) => string[] {
+  return args => {
+    const paths: string[] = []
+    let afterDoubleDash = false
+    for (let i = 0; i < args.length; i++) {
+      const arg = args[i]
+      if (arg === undefined || arg === null) continue
+      if (afterDoubleDash) {
+        paths.push(arg)
+      } else if (arg === '--') {
+        afterDoubleDash = true
+      } else if (arg.startsWith('-')) {
+        if (flagsWithArguments.has(arg)) i++
+      } else {
+        paths.push(arg)
+      }
+    }
+    return paths
+  }
+}
+
 // Helper: Parse grep/rg style commands (pattern then paths)
 function parsePatternCommand(
   args: string[],
@@ -289,9 +313,30 @@ export const PATH_EXTRACTORS: Record<
   sort: filterOutFlags,
   uniq: filterOutFlags,
   wc: filterOutFlags,
-  cut: filterOutFlags,
-  paste: filterOutFlags,
-  column: filterOutFlags,
+  cut: filterOutFlagsWithArguments(
+    new Set([
+      '-d',
+      '--delimiter',
+      '-f',
+      '--fields',
+      '-b',
+      '--bytes',
+      '-c',
+      '--characters',
+      '--output-delimiter',
+    ]),
+  ),
+  paste: filterOutFlagsWithArguments(new Set(['-d', '--delimiters'])),
+  column: filterOutFlagsWithArguments(
+    new Set([
+      '-s',
+      '--separator',
+      '-o',
+      '--output-separator',
+      '-c',
+      '--output-width',
+    ]),
+  ),
   file: filterOutFlags,
   stat: filterOutFlags,
   diff: filterOutFlags,
@@ -660,6 +705,7 @@ function validateCommandPaths(
       decisionReason: {
         type: 'other',
         reason: `${command} command with flags requires manual approval`,
+        bashMissKind: 'flag-validation',
       },
     }
   }
@@ -687,6 +733,7 @@ function validateCommandPaths(
         type: 'other',
         reason:
           'Compound command contains cd with write operation - manual approval required to prevent path resolution bypass',
+        bashMissKind: 'cd-compound-write',
       },
     }
   }
@@ -986,6 +1033,7 @@ function validateOutputRedirections(
         type: 'other',
         reason:
           'Compound command contains cd with output redirection - manual approval required to prevent path resolution bypass',
+        bashMissKind: 'cd-compound-redirect',
       },
     }
   }
@@ -1079,6 +1127,7 @@ export function checkPathConstraints(
       decisionReason: {
         type: 'other',
         reason: 'Process substitution requires manual approval',
+        bashMissKind: 'process-substitution',
       },
     }
   }
@@ -1089,19 +1138,31 @@ export function checkPathConstraints(
   // garbled tokens on a successful parse (not a parse failure, so the
   // fail-closed guard doesn't help). The AST already resolved targets
   // correctly and checkSemantics validated them.
-  const { redirections, hasDangerousRedirection } = astRedirects
+  const {
+    redirections,
+    hasDangerousRedirection,
+    dangerousRedirectionReason,
+  } = astRedirects
     ? astRedirectsToOutputRedirections(astRedirects)
     : extractOutputRedirections(input.command)
 
   // SECURITY: If we found a redirection operator with a target containing shell expansion
   // syntax ($VAR or %VAR%), require manual approval since the target can't be safely validated.
   if (hasDangerousRedirection) {
+    const message =
+      dangerousRedirectionReason === 'network_device'
+        ? 'Redirect involving /dev/tcp or /dev/udp opens a network connection'
+        : 'Shell expansion syntax in paths requires manual approval'
     return {
       behavior: 'ask',
-      message: 'Shell expansion syntax in paths requires manual approval',
+      message,
       decisionReason: {
         type: 'other',
-        reason: 'Shell expansion syntax in paths requires manual approval',
+        reason: message,
+        bashMissKind:
+          dangerousRedirectionReason === 'network_device'
+            ? 'net-redirect'
+            : 'shell-expansion',
       },
     }
   }
@@ -1162,9 +1223,17 @@ export function checkPathConstraints(
 function astRedirectsToOutputRedirections(redirects: Redirect[]): {
   redirections: Array<{ target: string; operator: '>' | '>>' }>
   hasDangerousRedirection: boolean
+  dangerousRedirectionReason?: 'network_device'
 } {
   const redirections: Array<{ target: string; operator: '>' | '>>' }> = []
   for (const r of redirects) {
+    if (/^\/dev\/(tcp|udp)\//.test(r.target)) {
+      return {
+        redirections,
+        hasDangerousRedirection: true,
+        dangerousRedirectionReason: 'network_device',
+      }
+    }
     switch (r.op) {
       case '>':
       case '>|':

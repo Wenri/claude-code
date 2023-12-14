@@ -34,7 +34,18 @@ import { gte } from 'src/utils/semver.js'
 import { getInitialSettings } from 'src/utils/settings/settings.js'
 import { isEnvTruthy } from 'src/utils/envUtils.js'
 import { daemonVersionDiffers } from 'src/daemon/lock.js'
+import { bgSupervisorNounCap } from 'src/utils/agentsFleet.js'
 import { getLatestVersion as getLatestNativeVersion } from 'src/utils/nativeInstaller/download.js'
+
+async function printDaemonUpgradeNotice(version: string): Promise<void> {
+  if (await daemonVersionDiffers(version)) {
+    writeToStdout(
+      chalk.dim(
+        `${bgSupervisorNounCap()} will restart on the new version shortly; background jobs continue uninterrupted`,
+      ) + '\n',
+    )
+  }
+}
 
 export async function update() {
   if (isEnvTruthy(process.env.DISABLE_UPDATES)) {
@@ -305,13 +316,7 @@ export async function update() {
           ) + '\n',
         )
         await regenerateCompletionCache()
-        if (await daemonVersionDiffers(result.latestVersion)) {
-          writeToStdout(
-            chalk.dim(
-              'Claude daemon will restart for the upgrade once background jobs finish',
-            ) + '\n',
-          )
-        }
+        await printDaemonUpgradeNotice(result.latestVersion)
       } else {
         writeToStdout(
           chalk.green(`Claude Code is up to date (${MACRO.VERSION})`) + '\n',
@@ -457,13 +462,7 @@ export async function update() {
         ) + '\n',
       )
       await regenerateCompletionCache()
-      if (await daemonVersionDiffers(latestVersion)) {
-        writeToStdout(
-          chalk.dim(
-            'Claude daemon will restart for the upgrade once background jobs finish',
-          ) + '\n',
-        )
-      }
+      await printDaemonUpgradeNotice(latestVersion)
       break
     case 'no_permissions':
       process.stderr.write(

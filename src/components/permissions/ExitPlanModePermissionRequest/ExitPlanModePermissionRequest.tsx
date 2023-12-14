@@ -3,6 +3,7 @@ import type { UUID } from 'crypto';
 import figures from 'figures';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useNotifications } from 'src/context/notifications.js';
+import { useMainLoopModel } from '../../../hooks/useMainLoopModel.js';
 import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEvent } from 'src/services/analytics/index.js';
 import { useAppState, useAppStateStore, useSetAppState } from 'src/state/AppState.js';
 import { getSdkBetas, getSessionId, isSessionPersistenceDisabled, setHasExitedPlanMode, setNeedsAutoModeExitAttachment, setNeedsPlanModeExitAttachment } from '../../../bootstrap/state.js';
@@ -47,8 +48,7 @@ const autoModeStateModule = feature('TRANSCRIPT_CLASSIFIER') ? require('../../..
 import type { Base64ImageSource, ImageBlockParam } from '@anthropic-ai/sdk/resources/messages.mjs';
 /* eslint-enable @typescript-eslint/no-require-imports */
 import type { PastedContent } from '../../../utils/config.js';
-import type { ImageDimensions } from '../../../utils/imageResizer.js';
-import { maybeResizeAndDownsampleImageBlock } from '../../../utils/imageResizer.js';
+import { getImageLimits, type ImageDimensions, maybeResizeAndDownsampleImageBlock } from '../../../utils/imageResizer.js';
 import { cacheImagePath, storeImage } from '../../../utils/imageStore.js';
 type ResponseValue = 'yes-bypass-permissions' | 'yes-accept-edits' | 'yes-accept-edits-keep-context' | 'yes-default-keep-context' | 'yes-resume-auto-mode' | 'yes-auto-clear-context' | 'ultraplan' | 'no';
 
@@ -125,6 +125,9 @@ export function ExitPlanModePermissionRequest({
   workerBadge,
   setStickyFooter
 }: PermissionRequestProps): React.ReactNode {
+  const imageModel = useMainLoopModel();
+  const imageLimitsRef = useRef(getImageLimits(imageModel));
+  imageLimitsRef.current = getImageLimits(imageModel);
   const toolPermissionContext = useAppState(s => s.toolPermissionContext);
   const setAppState = useSetAppState();
   const store = useAppStateStore();
@@ -504,7 +507,10 @@ export function ExitPlanModePermissionRequest({
               data: img.content
             }
           };
-          const resized = await maybeResizeAndDownsampleImageBlock(block);
+          const resized = await maybeResizeAndDownsampleImageBlock(
+            block,
+            imageLimitsRef.current,
+          );
           return resized.block;
         }));
       }

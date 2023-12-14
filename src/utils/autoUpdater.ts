@@ -270,7 +270,7 @@ async function releaseLock(): Promise<void> {
 
 async function getInstallationPrefix(): Promise<string | null> {
   // Run from home directory to avoid reading project-level .npmrc/.bunfig.toml
-  const isBun = env.isRunningWithBun()
+  const isBun = getGlobalPackageManager() === 'bun'
   let prefixResult = null
   if (isBun) {
     prefixResult = await execFileNoThrowWithCwd('bun', ['pm', 'bin', '-g'], {
@@ -288,6 +288,22 @@ async function getInstallationPrefix(): Promise<string | null> {
     return null
   }
   return prefixResult.stdout.trim()
+}
+
+function getGlobalPackageManager(): 'bun' | 'npm' {
+  const executable = process.execPath.replace(/\\/g, '/')
+  const bunInstall = (process.env.BUN_INSTALL ?? '')
+    .replace(/\\/g, '/')
+    .replace(/\/+$/, '')
+  if (
+    executable.includes('/.bun/install/global/') ||
+    (bunInstall !== '' && executable.startsWith(`${bunInstall}/install/global/`))
+  ) {
+    return 'bun'
+  }
+  return env.isRunningWithBun() && !env.isNpmFromWindowsPath()
+    ? 'bun'
+    : 'npm'
 }
 
 export async function checkGlobalInstallPermissions(): Promise<{
@@ -504,7 +520,8 @@ export async function installGlobalPackage(
   try {
     await removeClaudeAliasesFromShellConfigs()
     // Check if we're using npm from Windows path in WSL
-    if (!env.isRunningWithBun() && env.isNpmFromWindowsPath()) {
+    const packageManager = getGlobalPackageManager()
+    if (packageManager === 'npm' && env.isNpmFromWindowsPath()) {
       logError(new Error('Windows NPM detected in WSL environment'))
       logEvent('tengu_auto_updater_windows_npm_in_wsl', {
         currentVersion:
@@ -537,7 +554,6 @@ To fix this issue:
 
     // Run from home directory to avoid reading project-level .npmrc/.bunfig.toml
     // which could be maliciously crafted to redirect to an attacker's registry
-    const packageManager = env.isRunningWithBun() ? 'bun' : 'npm'
     const installResult = await execFileNoThrowWithCwd(
       packageManager,
       ['install', '-g', packageSpec],

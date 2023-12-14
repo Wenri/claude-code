@@ -440,6 +440,7 @@ export function endLLMRequestSpan(
     attemptStartTimes?: number[]
     requestId?: string
     clientRequestId?: string
+    stopReason?: string
   },
 ): void {
   let llmSpanContext: SpanContext | undefined
@@ -530,6 +531,12 @@ export function endLLMRequestSpan(
   }
 
   llmSpanContext.span.setAttributes(endAttributes)
+  if (metadata?.stopReason !== undefined) {
+    llmSpanContext.span.setAttribute('stop_reason', metadata.stopReason)
+    llmSpanContext.span.setAttribute('gen_ai.response.finish_reasons', [
+      metadata.stopReason,
+    ])
+  }
   if (metadata?.success === false) {
     llmSpanContext.span.setStatus({
       code: SpanStatusCode.ERROR,

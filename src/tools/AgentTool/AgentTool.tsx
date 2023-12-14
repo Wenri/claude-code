@@ -889,6 +889,12 @@ export const AgentTool = buildTool({
                 shouldContinueAnimation: true,
                 showSpinner: true
               });
+              if (toolUseContext.toolUseId) {
+                toolUseContext.emitToolProgress?.({
+                  kind: 'background_hint',
+                  toolUseId: toolUseContext.toolUseId,
+                });
+              }
             }
 
             // Race between next message and background signal
@@ -1113,26 +1119,23 @@ export const AgentTool = buildTool({
             }
             const normalizedNew = normalizeMessages([message]);
             for (const m of normalizedNew) {
-              for (const content of m.message.content) {
-                if (content.type !== 'tool_use' && content.type !== 'tool_result') {
-                  continue;
-                }
-
-                // Forward progress updates
-                if (onProgress) {
-                  onProgress({
-                    toolUseID: `agent_${assistantMessage.message.id}`,
-                    data: {
-                      message: m,
-                      type: 'agent_progress',
-                      // prompt only needed on first progress message (UI.tsx:624
-                      // reads progressMessages[0]). Omit here to avoid duplication.
-                      prompt: '',
-                      agentId: syncAgentId
-                    }
-                  });
-                }
+              if (!onProgress) continue;
+              const content = m.message.content[0];
+              if (!toolUseContext.options.forwardSubagentText && content?.type !== 'tool_use' && content?.type !== 'tool_result') {
+                continue;
               }
+
+              onProgress({
+                toolUseID: `agent_${assistantMessage.message.id}`,
+                data: {
+                  message: m,
+                  type: 'agent_progress',
+                  // prompt only needed on first progress message (UI.tsx:624
+                  // reads progressMessages[0]). Omit here to avoid duplication.
+                  prompt: '',
+                  agentId: syncAgentId
+                }
+              });
             }
           }
         } catch (error) {
@@ -1162,6 +1165,12 @@ export const AgentTool = buildTool({
           // Clear the background hint UI
           if (toolUseContext.setToolJSX) {
             toolUseContext.setToolJSX(null);
+          }
+          if (toolUseContext.toolUseId) {
+            toolUseContext.emitToolProgress?.({
+              kind: 'clear',
+              toolUseId: toolUseContext.toolUseId,
+            });
           }
 
           // Stop foreground summarization. Idempotent — if already stopped at

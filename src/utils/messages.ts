@@ -151,6 +151,7 @@ import { stripIdeContextTags } from './displayTags.js'
 import { hasEmbeddedSearchTools } from './embeddedTools.js'
 import { formatFileSize } from './format.js'
 import { validateImagesForAPI } from './imageValidation.js'
+import { getImageLimits } from './imageResizer.js'
 import { safeParseJSON } from './json.js'
 import { logError, logMCPDebug } from './log.js'
 import { normalizeLegacyToolName } from './permissions/permissionRuleParser.js'
@@ -1908,6 +1909,7 @@ function sanitizeErrorToolResultContent(
 export function normalizeMessagesForAPI(
   messages: Message[],
   tools: Tools = [],
+  model?: string,
 ): (UserMessage | AssistantMessage)[] {
   // Build set of available tool names for filtering unavailable tool references
   const availableToolNames = new Set(tools.map(t => t.name))
@@ -2258,7 +2260,7 @@ export function normalizeMessagesForAPI(
   }
 
   // Validate all images are within API size limits before sending
-  validateImagesForAPI(sanitized)
+  validateImagesForAPI(sanitized, getImageLimits(model))
 
   return sanitized
 }
@@ -2751,7 +2753,10 @@ export function getToolUseID(message: NormalizedMessage): string | null {
   }
 }
 
-export function filterUnresolvedToolUses(messages: Message[]): Message[] {
+export function filterUnresolvedToolUses(
+  messages: Message[],
+  preservedUnresolvedIds: Set<string> = new Set(),
+): Message[] {
   // Collect all tool_use IDs and tool_result IDs directly from message content blocks.
   // This avoids calling normalizeMessages() which generates new UUIDs — if those
   // normalized messages were returned and later recorded to the transcript JSONL,
@@ -2775,7 +2780,9 @@ export function filterUnresolvedToolUses(messages: Message[]): Message[] {
   }
 
   const unresolvedIds = new Set(
-    [...toolUseIds].filter(id => !toolResultIds.has(id)),
+    [...toolUseIds].filter(
+      id => !toolResultIds.has(id) && !preservedUnresolvedIds.has(id),
+    ),
   )
 
   if (unresolvedIds.size === 0) {
@@ -4319,6 +4326,7 @@ You have exited auto mode. The user may now want to interact more directly. You 
     case 'hook_error_during_execution':
     case 'hook_non_blocking_error':
     case 'hook_system_message':
+    case 'hook_deferred_tool':
     case 'structured_output':
     case 'hook_permission_decision':
       return []

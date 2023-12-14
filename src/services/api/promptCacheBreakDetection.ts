@@ -1,29 +1,25 @@
 import type { BetaToolUnion } from '@anthropic-ai/sdk/resources/beta/messages/messages.mjs'
 import type { TextBlockParam } from '@anthropic-ai/sdk/resources/index.mjs'
-import { createPatch } from 'diff'
+import { readFileSync } from 'fs'
 import { mkdir, writeFile } from 'fs/promises'
 import { join } from 'path'
+import { getSessionId } from 'src/bootstrap/state.js'
 import type { AgentId } from 'src/types/ids.js'
 import type { Message } from 'src/types/message.js'
+import { COMPUTER_USE_MCP_SERVER_NAME } from 'src/utils/computerUse/common.js'
 import { logForDebugging } from 'src/utils/debug.js'
+import { isEnvTruthy } from 'src/utils/envUtils.js'
 import { djb2Hash } from 'src/utils/hash.js'
+import { lazySchema } from 'src/utils/lazySchema.js'
 import { logError } from 'src/utils/log.js'
 import { getClaudeTempDir } from 'src/utils/permissions/filesystem.js'
-import { jsonStringify } from 'src/utils/slowOperations.js'
+import { jsonParse, jsonStringify } from 'src/utils/slowOperations.js'
+import { z } from 'zod'
 import type { QuerySource } from '../../constants/querySource.js'
 import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
 } from '../analytics/index.js'
-
-function getCacheBreakDiffPath(): string {
-  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
-  let suffix = ''
-  for (let i = 0; i < 4; i++) {
-    suffix += chars[Math.floor(Math.random() * chars.length)]
-  }
-  return join(getClaudeTempDir(), `cache-break-${suffix}.diff`)
-}
 
 type PreviousState = {
   systemHash: number
@@ -36,6 +32,8 @@ type PreviousState = {
    *  when toolSchemasChanged but added=removed=0 (77% of tool breaks per
    *  BQ 2026-03-22). AgentTool/SkillTool embed dynamic agent/command lists. */
   perToolHashes: Record<string, number>
+  perBlockHashes: number[]
+  perBlockLengths: number[]
   systemCharCount: number
   model: string
   fastMode: boolean
@@ -50,6 +48,8 @@ type PreviousState = {
   /** Overage state flip — should NOT break cache anymore (eligibility is
    *  latched session-stable in should1hCacheTTL). Tracked to verify the fix. */
   isUsingOverage: boolean
+  is1hCacheTTL: boolean
+  queryDepth?: number
   /** Cache-editing beta header presence — should NOT break cache anymore
    *  (sticky-on latched in claude.ts). Tracked to verify the fix. */
   cachedMCEnabled: boolean
@@ -66,6 +66,7 @@ type PreviousState = {
   /** Set when cached microcompact sends cache_edits deletions. Cache reads
    *  will legitimately drop — this is expected, not a break. */
   cacheDeletionsPending: boolean
+  messageHashes: number[]
   buildDiffableContent: () => string
 }
 
@@ -83,12 +84,19 @@ type PendingChanges = {
   cacheDiagnosisChanged: boolean
   effortChanged: boolean
   extraBodyChanged: boolean
+  messagesHistoryChanged: boolean
+  firstChangedMessageIndex: number
+  prevMessageCount: number
   addedToolCount: number
   removedToolCount: number
   systemCharDelta: number
   addedTools: string[]
   removedTools: string[]
   changedToolSchemas: string[]
+  prevBlockCount: number
+  newBlockCount: number
+  changedBlockIndices: number[]
+  changedBlockLengthDeltas: number[]
   previousModel: string
   newModel: string
   prevGlobalCacheStrategy: string
@@ -101,6 +109,107 @@ type PendingChanges = {
 }
 
 const previousStateBySource = new Map<string, PreviousState>()
+let persistentStateLoaded = false
+let persistentStateWrite = Promise.resolve()
+
+/** Prompt-cache diagnostics are active for Cowork and Claude Desktop. */
+export function shouldTrackPromptCacheBreaks(): boolean {
+  return (
+    isEnvTruthy(process.env.CLAUDE_CODE_IS_COWORK) ||
+    process.env.CLAUDE_CODE_ENTRYPOINT === 'claude-desktop'
+  )
+}
+
+// State survives Cowork worker restarts. Desktop participates in diagnostics,
+// but its cache state is intentionally process-local.
+function shouldPersistPromptCacheState(): boolean {
+  return isEnvTruthy(process.env.CLAUDE_CODE_IS_COWORK)
+}
+
+function getPromptCacheStatePath(): string {
+  return join(getClaudeTempDir(), `cache-break-state-${getSessionId()}.json`)
+}
+
+type PersistedPreviousState = Omit<
+  PreviousState,
+  'pendingChanges' | 'buildDiffableContent'
+>
+
+const persistedStateSchema = lazySchema(() =>
+  z.record(
+    z.string(),
+    z.object({
+      systemHash: z.number(),
+      toolsHash: z.number(),
+      cacheControlHash: z.number(),
+      toolNames: z.array(z.string()),
+      perToolHashes: z.record(z.string(), z.number()),
+      perBlockHashes: z.array(z.number()),
+      perBlockLengths: z.array(z.number()),
+      systemCharCount: z.number(),
+      model: z.string(),
+      fastMode: z.boolean(),
+      globalCacheStrategy: z.string(),
+      betas: z.array(z.string()),
+      autoModeActive: z.boolean(),
+      isUsingOverage: z.boolean(),
+      is1hCacheTTL: z.boolean().default(false),
+      queryDepth: z.number().optional(),
+      cachedMCEnabled: z.boolean(),
+      cacheDiagnosis: z.boolean().default(false),
+      effortValue: z.string(),
+      extraBodyHash: z.number(),
+      callCount: z.number(),
+      prevCacheReadTokens: z.number().nullable(),
+      cacheDeletionsPending: z.boolean(),
+      messageHashes: z.array(z.number()),
+    }),
+  ),
+)
+
+function loadPersistentState(): void {
+  if (persistentStateLoaded || !shouldPersistPromptCacheState()) return
+  persistentStateLoaded = true
+  try {
+    const parsed = persistedStateSchema().safeParse(
+      jsonParse(readFileSync(getPromptCacheStatePath(), 'utf8')),
+    )
+    if (!parsed.success) return
+    for (const [key, value] of Object.entries(parsed.data)) {
+      if (previousStateBySource.has(key)) continue
+      previousStateBySource.set(key, {
+        ...(value as PersistedPreviousState),
+        pendingChanges: null,
+        buildDiffableContent: () => '',
+      })
+    }
+  } catch {
+    // Missing, stale, or corrupt state should never affect a query.
+  }
+}
+
+function persistState(): void {
+  if (!shouldPersistPromptCacheState()) return
+  try {
+    const serializable: Record<string, PersistedPreviousState> = {}
+    for (const [key, state] of previousStateBySource) {
+      const {
+        buildDiffableContent: _buildDiffableContent,
+        pendingChanges: _pendingChanges,
+        ...persisted
+      } = state
+      serializable[key] = persisted
+    }
+    const path = getPromptCacheStatePath()
+    const contents = jsonStringify(serializable)
+    persistentStateWrite = persistentStateWrite
+      .then(() => mkdir(getClaudeTempDir(), { recursive: true, mode: 0o700 }))
+      .then(() => writeFile(path, contents))
+      .catch(() => {})
+  } catch {
+    // Cache diagnostics are best effort.
+  }
+}
 
 // Cap the number of tracked sources to prevent unbounded memory growth.
 // Each entry stores a ~300KB+ diffableContent string (serialized system prompt
@@ -169,6 +278,18 @@ function stripCacheControl(
   })
 }
 
+function getTextBlockText(block: unknown): string | undefined {
+  if (!block || typeof block !== 'object') return undefined
+  const text = (block as { text?: unknown }).text
+  return typeof text === 'string' ? text : undefined
+}
+
+const BILLING_HEADER_PREFIX = 'x-anthropic-billing-header:'
+
+function isBillingHeaderBlock(block: unknown): boolean {
+  return getTextBlockText(block)?.startsWith(BILLING_HEADER_PREFIX) ?? false
+}
+
 function computeHash(data: unknown): number {
   const str = jsonStringify(data)
   if (typeof Bun !== 'undefined') {
@@ -183,7 +304,64 @@ function computeHash(data: unknown): number {
 /** MCP tool names are user-controlled (server config) and may leak filepaths.
  *  Collapse them to 'mcp'; built-in names are a fixed vocabulary. */
 function sanitizeToolName(name: string): string {
-  return name.startsWith('mcp__') ? 'mcp' : name
+  if (!name.startsWith('mcp__')) return name
+  const serverName = name.split('__')[1]
+  if (!serverName) return 'mcp'
+  if (
+    process.env.CLAUDE_CODE_ENTRYPOINT === 'local-agent' ||
+    serverName === COMPUTER_USE_MCP_SERVER_NAME
+  ) {
+    return `mcp__${serverName}`
+  }
+  return 'mcp'
+}
+
+function sanitizeQuerySource(querySource: QuerySource): string {
+  return querySource.startsWith('agent:custom:')
+    ? 'agent:custom'
+    : querySource
+}
+
+function stripMessageCacheData(value: unknown): unknown {
+  if (!value || typeof value !== 'object') return value
+  const { cache_control: _cacheControl, ...rest } = value as Record<
+    string,
+    unknown
+  >
+  const source = rest.source
+  if (source && typeof source === 'object') {
+    const sourceObject = source as Record<string, unknown>
+    if (
+      typeof sourceObject.data === 'string' &&
+      sourceObject.data.length > 256
+    ) {
+      return {
+        ...rest,
+        source: { ...sourceObject, data: sourceObject.data.length },
+      }
+    }
+  }
+  if (Array.isArray(rest.content)) {
+    return { ...rest, content: rest.content.map(stripMessageCacheData) }
+  }
+  return rest
+}
+
+function computeMessageHashes(messages: ReadonlyArray<unknown>): number[] {
+  return messages.map(message => {
+    const value = message as {
+      role?: unknown
+      content?: unknown
+      message?: { role?: unknown; content?: unknown }
+    }
+    const payload = value.message ?? value
+    return computeHash({
+      role: payload.role,
+      content: Array.isArray(payload.content)
+        ? payload.content.map(stripMessageCacheData)
+        : payload.content,
+    })
+  })
 }
 
 function computePerToolHashes(
@@ -200,7 +378,7 @@ function computePerToolHashes(
 function getSystemCharCount(system: TextBlockParam[]): number {
   let total = 0
   for (const block of system) {
-    total += block.text.length
+    total += getTextBlockText(block)?.length ?? 0
   }
   return total
 }
@@ -237,10 +415,52 @@ export type PromptStateSnapshot = {
   betas?: readonly string[]
   autoModeActive?: boolean
   isUsingOverage?: boolean
+  is1hCacheTTL?: boolean
+  queryDepth?: number
   cachedMCEnabled?: boolean
   cacheDiagnosis?: boolean
   effortValue?: string | number
   extraBodyParams?: unknown
+  messagesForAPI?: ReadonlyArray<unknown>
+}
+
+export type CacheMissReason = {
+  type: string
+  cache_missed_input_tokens?: number
+}
+
+export function logPromptCacheDiagnosis(
+  reason: CacheMissReason,
+  context: {
+    requestId?: string
+    previousMessageId?: string
+    model: string
+    is1hCacheTTL: boolean
+    querySource: QuerySource
+    queryDepth?: number
+  },
+): void {
+  try {
+    logEvent('tengu_prompt_cache_diagnosis_received', {
+      diagnosisType:
+        reason.type as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      tokensMissed: reason.cache_missed_input_tokens ?? -1,
+      requestId: (context.requestId ??
+        '') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      previousMessageId: (context.previousMessageId ??
+        '') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      model:
+        context.model as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      isCowork: isEnvTruthy(process.env.CLAUDE_CODE_IS_COWORK),
+      is1hCacheTTL: context.is1hCacheTTL,
+      querySource: sanitizeQuerySource(
+        context.querySource,
+      ) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      queryDepth: context.queryDepth,
+    })
+  } catch (error) {
+    logError(error)
+  }
 }
 
 /**
@@ -260,17 +480,20 @@ export function recordPromptState(snapshot: PromptStateSnapshot): void {
       betas = [],
       autoModeActive = false,
       isUsingOverage = false,
+      is1hCacheTTL = false,
+      queryDepth,
       cachedMCEnabled = false,
       cacheDiagnosis = false,
       effortValue,
       extraBodyParams,
+      messagesForAPI,
     } = snapshot
     const key = getTrackingKey(querySource, agentId)
     if (!key) return
 
     const strippedSystem = stripCacheControl(
       system as unknown as ReadonlyArray<Record<string, unknown>>,
-    )
+    ).filter(block => !isBillingHeaderBlock(block))
     const strippedTools = stripCacheControl(
       toolSchemas as unknown as ReadonlyArray<Record<string, unknown>>,
     )
@@ -281,14 +504,21 @@ export function recordPromptState(snapshot: PromptStateSnapshot): void {
     // scope flips (global↔org/none) and TTL flips (1h↔5m) that the stripped
     // hash can't see because the text content is identical.
     const cacheControlHash = computeHash(
-      system.map(b => ('cache_control' in b ? b.cache_control : null)),
+      system
+        .filter(block => !isBillingHeaderBlock(block))
+        .map(b => ('cache_control' in b ? b.cache_control : null)),
     )
     const toolNames = toolSchemas.map(t => ('name' in t ? t.name : 'unknown'))
     // Only compute per-tool hashes when the aggregate changed — common case
     // (tools unchanged) skips N extra jsonStringify calls.
     const computeToolHashes = () =>
       computePerToolHashes(strippedTools, toolNames)
-    const systemCharCount = getSystemCharCount(system)
+    const computeBlockHashes = () => strippedSystem.map(computeHash)
+    const computeBlockLengths = () =>
+      strippedSystem.map(block => getTextBlockText(block)?.length ?? 0)
+    const systemCharCount = getSystemCharCount(
+      system.filter(block => !isBillingHeaderBlock(block)),
+    )
     const lazyDiffableContent = () =>
       buildDiffableContent(system, toolSchemas, model)
     const isFastMode = fastMode ?? false
@@ -296,7 +526,11 @@ export function recordPromptState(snapshot: PromptStateSnapshot): void {
     const effortStr = effortValue === undefined ? '' : String(effortValue)
     const extraBodyHash =
       extraBodyParams === undefined ? 0 : computeHash(extraBodyParams)
+    const messageHashes = messagesForAPI
+      ? computeMessageHashes(messagesForAPI)
+      : []
 
+    loadPersistentState()
     const prev = previousStateBySource.get(key)
 
     if (!prev) {
@@ -318,6 +552,8 @@ export function recordPromptState(snapshot: PromptStateSnapshot): void {
         betas: sortedBetas,
         autoModeActive,
         isUsingOverage,
+        is1hCacheTTL,
+        queryDepth,
         cachedMCEnabled,
         cacheDiagnosis,
         effortValue: effortStr,
@@ -326,9 +562,13 @@ export function recordPromptState(snapshot: PromptStateSnapshot): void {
         pendingChanges: null,
         prevCacheReadTokens: null,
         cacheDeletionsPending: false,
+        messageHashes,
         buildDiffableContent: lazyDiffableContent,
         perToolHashes: computeToolHashes(),
+        perBlockHashes: computeBlockHashes(),
+        perBlockLengths: computeBlockLengths(),
       })
+      persistState()
       return
     }
 
@@ -350,6 +590,10 @@ export function recordPromptState(snapshot: PromptStateSnapshot): void {
     const cacheDiagnosisChanged = cacheDiagnosis !== prev.cacheDiagnosis
     const effortChanged = effortStr !== prev.effortValue
     const extraBodyChanged = extraBodyHash !== prev.extraBodyHash
+    const firstChangedMessageIndex = prev.messageHashes.findIndex(
+      (hash, index) => messageHashes[index] !== hash,
+    )
+    const messagesHistoryChanged = firstChangedMessageIndex !== -1
 
     if (
       systemPromptChanged ||
@@ -364,7 +608,8 @@ export function recordPromptState(snapshot: PromptStateSnapshot): void {
       cachedMCChanged ||
       cacheDiagnosisChanged ||
       effortChanged ||
-      extraBodyChanged
+      extraBodyChanged ||
+      messagesHistoryChanged
     ) {
       const prevToolSet = new Set(prev.toolNames)
       const newToolSet = new Set(toolNames)
@@ -383,6 +628,26 @@ export function recordPromptState(snapshot: PromptStateSnapshot): void {
         }
         prev.perToolHashes = newHashes
       }
+      const prevBlockCount = prev.perBlockHashes.length
+      const newBlockCount = strippedSystem.length
+      const changedBlockIndices: number[] = []
+      const changedBlockLengthDeltas: number[] = []
+      if (systemPromptChanged) {
+        const newBlockHashes = computeBlockHashes()
+        const newBlockLengths = computeBlockLengths()
+        if (newBlockCount === prevBlockCount) {
+          for (let i = 0; i < newBlockCount; i++) {
+            if (newBlockHashes[i] !== prev.perBlockHashes[i]) {
+              changedBlockIndices.push(i)
+              changedBlockLengthDeltas.push(
+                (newBlockLengths[i] ?? 0) - (prev.perBlockLengths[i] ?? 0),
+              )
+            }
+          }
+        }
+        prev.perBlockHashes = newBlockHashes
+        prev.perBlockLengths = newBlockLengths
+      }
       prev.pendingChanges = {
         systemPromptChanged,
         toolSchemasChanged,
@@ -397,11 +662,18 @@ export function recordPromptState(snapshot: PromptStateSnapshot): void {
         cacheDiagnosisChanged,
         effortChanged,
         extraBodyChanged,
+        messagesHistoryChanged,
+        firstChangedMessageIndex,
+        prevMessageCount: prev.messageHashes.length,
         addedToolCount: addedTools.length,
         removedToolCount: removedTools.length,
         addedTools,
         removedTools,
         changedToolSchemas,
+        prevBlockCount,
+        newBlockCount,
+        changedBlockIndices,
+        changedBlockLengthDeltas,
         systemCharDelta: systemCharCount - prev.systemCharCount,
         previousModel: prev.model,
         newModel: model,
@@ -428,11 +700,15 @@ export function recordPromptState(snapshot: PromptStateSnapshot): void {
     prev.betas = sortedBetas
     prev.autoModeActive = autoModeActive
     prev.isUsingOverage = isUsingOverage
+    prev.is1hCacheTTL = is1hCacheTTL
+    prev.queryDepth = queryDepth
     prev.cachedMCEnabled = cachedMCEnabled
     prev.cacheDiagnosis = cacheDiagnosis
     prev.effortValue = effortStr
     prev.extraBodyHash = extraBodyHash
+    prev.messageHashes = messageHashes
     prev.buildDiffableContent = lazyDiffableContent
+    persistState()
   } catch (e: unknown) {
     logError(e)
   }
@@ -450,6 +726,7 @@ export async function checkResponseForCacheBreak(
   messages: Message[],
   agentId?: AgentId,
   requestId?: string | null,
+  previousMessageId?: string,
 ): Promise<void> {
   try {
     const key = getTrackingKey(querySource, agentId)
@@ -556,7 +833,7 @@ export async function checkResponseForCacheBreak(
         parts.push('auto mode toggled')
       }
       if (changes.overageChanged) {
-        parts.push('overage state changed (TTL latched, no flip)')
+        parts.push('overage state changed (TTL flip expected)')
       }
       if (changes.cachedMCChanged) {
         parts.push('cached microcompact toggled')
@@ -571,6 +848,11 @@ export async function checkResponseForCacheBreak(
       }
       if (changes.extraBodyChanged) {
         parts.push('extra body params changed')
+      }
+      if (changes.messagesHistoryChanged) {
+        parts.push(
+          `message history mutated at index ${changes.firstChangedMessageIndex}/${changes.prevMessageCount}`,
+        )
       }
     }
 
@@ -613,9 +895,17 @@ export async function checkResponseForCacheBreak(
       cacheDiagnosisChanged: changes?.cacheDiagnosisChanged ?? false,
       effortChanged: changes?.effortChanged ?? false,
       extraBodyChanged: changes?.extraBodyChanged ?? false,
+      messagesHistoryChanged: changes?.messagesHistoryChanged ?? false,
+      firstChangedMessageIndex: changes?.firstChangedMessageIndex ?? -1,
       addedToolCount: changes?.addedToolCount ?? 0,
       removedToolCount: changes?.removedToolCount ?? 0,
       systemCharDelta: changes?.systemCharDelta ?? 0,
+      prevBlockCount: changes?.prevBlockCount ?? 0,
+      newBlockCount: changes?.newBlockCount ?? 0,
+      changedBlockIndices: (changes?.changedBlockIndices ?? []).join(','),
+      changedBlockLengthDeltas: (
+        changes?.changedBlockLengthDeltas ?? []
+      ).join(','),
       // Tool names are sanitized: built-in names are a fixed vocabulary,
       // MCP tools collapse to 'mcp' (user-configured, could leak paths).
       addedTools: (changes?.addedTools ?? [])
@@ -645,6 +935,17 @@ export async function checkResponseForCacheBreak(
         '') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       newGlobalCacheStrategy: (changes?.newGlobalCacheStrategy ??
         '') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      systemHash: state.systemHash,
+      toolsHash: state.toolsHash,
+      is1hCacheTTL: state.is1hCacheTTL,
+      queryDepth: state.queryDepth,
+      querySource: sanitizeQuerySource(
+        querySource,
+      ) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      model:
+        state.model as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      globalCacheStrategy:
+        state.globalCacheStrategy as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       callNumber: state.callCount,
       prevCacheReadTokens: prevCacheRead,
       cacheReadTokens,
@@ -652,29 +953,23 @@ export async function checkResponseForCacheBreak(
       timeSinceLastAssistantMsg: timeSinceLastAssistantMsg ?? -1,
       lastAssistantMsgOver5minAgo,
       lastAssistantMsgOver1hAgo,
+      isCowork: isEnvTruthy(process.env.CLAUDE_CODE_IS_COWORK),
+      isDesktop: process.env.CLAUDE_CODE_ENTRYPOINT === 'claude-desktop',
       requestId: (requestId ??
+        '') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      previousMessageId: (previousMessageId ??
         '') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
     })
 
-    // Write diff file for ant debugging via --debug. The path is included in
-    // the summary log so ants can find it (DevBar UI removed — event data
-    // flows reliably to BQ for analytics).
-    let diffPath: string | undefined
-    if (changes?.buildPrevDiffableContent) {
-      diffPath = await writeCacheBreakDiff(
-        changes.buildPrevDiffableContent(),
-        state.buildDiffableContent(),
-      )
-    }
-
-    const diffSuffix = diffPath ? `, diff: ${diffPath}` : ''
-    const summary = `[PROMPT CACHE BREAK] ${reason} [source=${querySource}, call #${state.callCount}, cache read: ${prevCacheRead} → ${cacheReadTokens}, creation: ${cacheCreationTokens}${diffSuffix}]`
+    const summary = `[PROMPT CACHE BREAK] ${reason} [source=${querySource}, call #${state.callCount}, cache read: ${prevCacheRead} → ${cacheReadTokens}, creation: ${cacheCreationTokens}]`
 
     logForDebugging(summary, { level: 'warn' })
 
     state.pendingChanges = null
   } catch (e: unknown) {
     logError(e)
+  } finally {
+    persistState()
   }
 }
 
@@ -691,6 +986,7 @@ export function notifyCacheDeletion(
   const state = key ? previousStateBySource.get(key) : undefined
   if (state) {
     state.cacheDeletionsPending = true
+    persistState()
   }
 }
 
@@ -707,34 +1003,17 @@ export function notifyCompaction(
   const state = key ? previousStateBySource.get(key) : undefined
   if (state) {
     state.prevCacheReadTokens = null
+    persistState()
   }
 }
 
 export function cleanupAgentTracking(agentId: AgentId): void {
   previousStateBySource.delete(agentId)
+  persistState()
 }
 
 export function resetPromptCacheBreakDetection(): void {
   previousStateBySource.clear()
-}
-
-async function writeCacheBreakDiff(
-  prevContent: string,
-  newContent: string,
-): Promise<string | undefined> {
-  try {
-    const diffPath = getCacheBreakDiffPath()
-    await mkdir(getClaudeTempDir(), { recursive: true })
-    const patch = createPatch(
-      'prompt-state',
-      prevContent,
-      newContent,
-      'before',
-      'after',
-    )
-    await writeFile(diffPath, patch)
-    return diffPath
-  } catch {
-    return undefined
-  }
+  persistentStateLoaded = false
+  persistState()
 }

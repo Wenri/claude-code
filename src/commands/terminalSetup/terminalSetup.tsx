@@ -143,6 +143,20 @@ export function markBackslashReturnUsed(): void {
   }
 }
 export async function call(onDone: LocalJSXCommandOnDone, context: ToolUseContext & LocalJSXCommandContext, _args: string): Promise<null> {
+  if (
+    platform() === 'darwin' &&
+    process.env.__CFBundleIdentifier === 'com.googlecode.iterm2' &&
+    (env.terminal === 'iTerm.app' ||
+      env.terminal === 'tmux' ||
+      env.terminal === 'screen' ||
+      env.terminal === null)
+  ) {
+    const message = `${await enableITerm2ClipboardAccess(context.options.theme)}Shift+Enter is natively supported in iTerm2.
+
+No configuration needed. Just use Shift+Enter to add newlines.`
+    onDone(message)
+    return null
+  }
   if (env.terminal && env.terminal in NATIVE_CSIU_TERMINALS) {
     const message = `Shift+Enter is natively supported in ${NATIVE_CSIU_TERMINALS[env.terminal]}.
 
@@ -163,6 +177,10 @@ No configuration needed. Just use Shift+Enter to add newlines.`;
     } else if (currentPlatform === 'windows') {
       platformTerminals = '   • Windows: Windows Terminal\n';
     }
+    const remoteITermHint =
+      process.env.LC_TERMINAL === 'iTerm2'
+        ? `${EOL}${EOL}You appear to be connected from iTerm2 on another machine. For /copy to reach your local clipboard, on that machine open:${EOL}${chalk.dim(ITERM2_CLIPBOARD_INSTRUCTION)}`
+        : ''
     // For Linux and other platforms, we don't show native terminal options
     // since they're not currently supported
 
@@ -178,7 +196,7 @@ ${platformTerminals}   • IDE: VSCode, Cursor, Windsurf, Zed
    • Other: Alacritty
 3. Return to tmux/screen - settings will persist
 
-${chalk.dim('Note: iTerm2, WezTerm, Ghostty, Kitty, and Warp support Shift+Enter natively.')}`;
+${chalk.dim('Note: iTerm2, WezTerm, Ghostty, Kitty, and Warp support Shift+Enter natively.')}${remoteITermHint}`;
     onDone(message);
     return null;
   }
@@ -196,6 +214,38 @@ type VSCodeKeybinding = {
 };
 const TERMINAL_SCROLL_SENSITIVITY_SETTING = 'terminal.integrated.mouseWheelScrollSensitivity';
 const TERMINAL_SCROLL_SENSITIVITY = 3;
+const ITERM2_CLIPBOARD_INSTRUCTION =
+  'iTerm2 → Settings → General → Selection → check "Applications in terminal may access clipboard"'
+
+export async function enableITerm2ClipboardAccess(
+  theme: ThemeName,
+): Promise<string> {
+  const manualInstruction = chalk.dim(ITERM2_CLIPBOARD_INSTRUCTION)
+  try {
+    const { stdout, code } = await execFileNoThrow('defaults', [
+      'read',
+      'com.googlecode.iterm2',
+      'AllowClipboardAccess',
+    ])
+    if (code === 0 && stdout.trim() === '1') {
+      return `${color('success', theme)('iTerm2 clipboard access already enabled')}${EOL}${EOL}`
+    }
+    const { code: writeCode } = await execFileNoThrow('defaults', [
+      'write',
+      'com.googlecode.iterm2',
+      'AllowClipboardAccess',
+      '-bool',
+      'true',
+    ])
+    if (writeCode !== 0) {
+      return `${color('warning', theme)("Couldn't update iTerm2 clipboard setting.")}${EOL}${manualInstruction}${EOL}${EOL}`
+    }
+    return `${color('success', theme)('Enabled "Applications in terminal may access clipboard" in iTerm2')}${EOL}${chalk.dim('Restart iTerm2 for this to take effect. Undo: defaults write com.googlecode.iterm2 AllowClipboardAccess -bool false')}${EOL}${EOL}`
+  } catch (error) {
+    logError(error)
+    return `${color('warning', theme)("Couldn't update iTerm2 clipboard setting.")}${EOL}${manualInstruction}${EOL}${EOL}`
+  }
+}
 
 async function installScrollSensitivityForVSCodeTerminal(editor: 'VSCode' | 'Cursor' | 'Windsurf', theme: ThemeName): Promise<string> {
   const manualInstruction = chalk.dim(`For smoother scrolling, set "${TERMINAL_SCROLL_SENSITIVITY_SETTING}": ${TERMINAL_SCROLL_SENSITIVITY} in ${editor} settings.`);

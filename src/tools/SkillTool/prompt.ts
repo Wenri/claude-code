@@ -18,6 +18,7 @@ import { logForDebugging } from '../../utils/debug.js'
 import { toError } from '../../utils/errors.js'
 import { truncate } from '../../utils/format.js'
 import { logError } from '../../utils/log.js'
+import { getInitialSettings } from '../../utils/settings/settings.js'
 
 // Skill listing gets 1% of the context window (in characters)
 export const SKILL_BUDGET_CONTEXT_PERCENT = 0.01
@@ -30,24 +31,37 @@ export const DEFAULT_CHAR_BUDGET = 8_000 // Fallback: 1% of 200k × 4
 // since the cap is generous enough to preserve the core use case.
 export const MAX_LISTING_DESC_CHARS = 1_536
 
+function getSkillListingMaxDescChars(): number {
+  return (
+    getInitialSettings().skillListingMaxDescChars ?? MAX_LISTING_DESC_CHARS
+  )
+}
+
+function getSkillListingBudgetFraction(): number {
+  return (
+    getInitialSettings().skillListingBudgetFraction ??
+    SKILL_BUDGET_CONTEXT_PERCENT
+  )
+}
+
 export function getCharBudget(contextWindowTokens?: number): number {
   if (Number(process.env.SLASH_COMMAND_TOOL_CHAR_BUDGET)) {
     return Number(process.env.SLASH_COMMAND_TOOL_CHAR_BUDGET)
   }
-  if (contextWindowTokens) {
-    return Math.floor(
-      contextWindowTokens * CHARS_PER_TOKEN * SKILL_BUDGET_CONTEXT_PERCENT,
-    )
-  }
-  return DEFAULT_CHAR_BUDGET
+  const fraction = getSkillListingBudgetFraction()
+  const chars = contextWindowTokens
+    ? contextWindowTokens * CHARS_PER_TOKEN * fraction
+    : DEFAULT_CHAR_BUDGET * (fraction / SKILL_BUDGET_CONTEXT_PERCENT)
+  return Math.max(1, Math.floor(chars))
 }
 
 function getCommandDescription(cmd: Command): string {
   const desc = cmd.whenToUse
     ? `${cmd.description} - ${cmd.whenToUse}`
     : cmd.description
-  return desc.length > MAX_LISTING_DESC_CHARS
-    ? desc.slice(0, MAX_LISTING_DESC_CHARS - 1) + '\u2026'
+  const maxDescChars = getSkillListingMaxDescChars()
+  return desc.length > maxDescChars
+    ? desc.slice(0, maxDescChars - 1) + '\u2026'
     : desc
 }
 

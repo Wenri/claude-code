@@ -3,6 +3,10 @@ import { which } from './which.js'
 
 // Session cache to avoid repeated checks
 const binaryCache = new Map<string, boolean>()
+const SAFE_COMMAND_NAME =
+  process.platform === 'win32'
+    ? /^[A-Za-z0-9/\\][A-Za-z0-9_.+:\\?/-]*$/
+    : /^[A-Za-z0-9/][A-Za-z0-9_.+/-]*$/
 
 /**
  * Check if a binary/command is installed and available on the system.
@@ -20,6 +24,12 @@ export async function isBinaryInstalled(command: string): Promise<boolean> {
 
   // Trim the command to handle whitespace
   const trimmedCommand = command.trim()
+  if (!SAFE_COMMAND_NAME.test(trimmedCommand)) {
+    logForDebugging(
+      `[binaryCheck] Rejected command with unsafe characters: '${trimmedCommand}'`,
+    )
+    return false
+  }
 
   // Check cache first
   const cached = binaryCache.get(trimmedCommand)

@@ -1,6 +1,5 @@
-import { getDirectConnectServerUrl, getSessionId } from '../bootstrap/state.js'
+import { getDirectConnectServerUrl } from '../bootstrap/state.js'
 import { stringWidth } from '../ink/stringWidth.js'
-import type { LogOption } from '../types/logs.js'
 import { getSubscriptionName, isClaudeAISubscriber } from './auth.js'
 import { getCwd } from './cwd.js'
 import { isEnvTruthy } from './envUtils.js'
@@ -12,7 +11,6 @@ import {
 } from './format.js'
 import { getStoredChangelogFromMemory, parseChangelog } from './releaseNotes.js'
 import { gt } from './semver.js'
-import { loadMessageLogs } from './sessionStorage.js'
 import { getInitialSettings } from './settings/settings.js'
 
 // Layout constants
@@ -178,52 +176,6 @@ export function truncatePath(path: string, maxLength: number): string {
   }
 
   return `${first}${separator}${ellipsis}${separator}${middleParts.join(separator)}${separator}${last}`
-}
-
-// Simple cache for preloaded activity
-let cachedActivity: LogOption[] = []
-let cachePromise: Promise<LogOption[]> | null = null
-
-/**
- * Preloads recent conversations for display in Logo v2
- */
-export async function getRecentActivity(): Promise<LogOption[]> {
-  // Return existing promise if already loading
-  if (cachePromise) {
-    return cachePromise
-  }
-
-  const currentSessionId = getSessionId()
-  cachePromise = loadMessageLogs(10)
-    .then(logs => {
-      cachedActivity = logs
-        .filter(log => {
-          if (log.isSidechain) return false
-          if (log.sessionId === currentSessionId) return false
-          if (log.summary?.includes('I apologize')) return false
-
-          // Filter out sessions where both summary and firstPrompt are "No prompt" or missing
-          const hasSummary = log.summary && log.summary !== 'No prompt'
-          const hasFirstPrompt =
-            log.firstPrompt && log.firstPrompt !== 'No prompt'
-          return hasSummary || hasFirstPrompt
-        })
-        .slice(0, 3)
-      return cachedActivity
-    })
-    .catch(() => {
-      cachedActivity = []
-      return cachedActivity
-    })
-
-  return cachePromise
-}
-
-/**
- * Gets cached activity synchronously
- */
-export function getRecentActivitySync(): LogOption[] {
-  return cachedActivity
 }
 
 /**

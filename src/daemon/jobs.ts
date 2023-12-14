@@ -40,6 +40,7 @@ export const JobStateSchema = lazySchema(() =>
           z.object({
             id: z.string(),
             href: z.string(),
+            kind: z.enum(['pr', 'frame']).optional(),
           }),
         )
         .nullable()
@@ -48,9 +49,11 @@ export const JobStateSchema = lazySchema(() =>
       linkScanPath: z.string().optional(),
       template: z.string(),
       routine: z.string().optional(),
+      respawnFlags: z.array(z.string()).default([]),
       intent: z.string(),
       initialPrompt: z.string().optional(),
       name: z.string().optional(),
+      nameSource: z.enum(['user', 'auto']).optional(),
       sessionId: z.string(),
       cliVersion: z.string().optional(),
       cwd: z.string(),
@@ -61,10 +64,13 @@ export const JobStateSchema = lazySchema(() =>
       worktreeBranch: z.string().optional(),
       worktreeHookBased: z.boolean().optional(),
       originCwd: z.string().optional(),
-      backend: z.enum(['daemon', 'peer']).default('daemon'),
+      bridgeSessionId: z.string().optional(),
+      bridgeSessionSeq: z.number().optional(),
+      backend: z.enum(['daemon', 'peer']).catch('daemon').default('daemon'),
       sock: z.string().optional(),
       pid: z.number().optional(),
       sortOrder: z.number().optional(),
+      stateSortOrder: z.number().optional(),
       pinned: z.boolean().optional(),
     })
     .transform(({ needs_you, ...rest }) => ({
@@ -88,7 +94,9 @@ export interface InitialJobStateOptions {
   detail?: string
   tempo?: 'active' | 'idle' | 'blocked'
   routine?: string
+  respawnFlags?: string[]
   name?: string
+  nameSource?: 'user' | 'auto'
   worktreePath?: string
   worktreeBranch?: string
   worktreeHookBased?: boolean
@@ -101,6 +109,51 @@ export function getJobsDir(): string {
 
 export function getJobDir(id: string): string {
   return join(getJobsDir(), id)
+}
+
+const jobStateCache = new Map<string, JobState | null>()
+let jobsWatcher: ReturnType<typeof watch> | null = null
+let watchedJobsDir: string | null = null
+let jobsWatcherFailed = false
+
+function firstPathSegment(path: string, separator: string): string {
+  const index = path.indexOf(separator)
+  return index === -1 ? path : path.slice(0, index)
+}
+
+function ensureJobsWatcher(): void {
+  const jobsDir = getJobsDir()
+  if (watchedJobsDir === jobsDir) return
+
+  try {
+    jobsWatcher?.close()
+  } catch {}
+  jobsWatcher = null
+  jobStateCache.clear()
+  jobsWatcherFailed = false
+  watchedJobsDir = jobsDir
+
+  try {
+    jobsWatcher = watch(jobsDir, { recursive: true }, (_event, filename) => {
+      if (!filename) return
+      const path = firstPathSegment(
+        firstPathSegment(filename.toString(), '\\'),
+        '/',
+      )
+      jobStateCache.delete(join(jobsDir, path))
+    })
+    jobsWatcher.on('error', () => {
+      jobsWatcherFailed = true
+      jobStateCache.clear()
+    })
+    jobsWatcher.unref?.()
+  } catch {
+    jobsWatcherFailed = true
+  }
+}
+
+function invalidateJobState(jobDir: string): void {
+  jobStateCache.delete(jobDir)
 }
 
 /** Watch a job until state.json changes. The watcher is deliberately one-shot. */
@@ -158,15 +211,29 @@ export async function writeJobState(
   jobDir: string,
   state: JobState,
 ): Promise<void> {
-  const { pinned: _pinned, sortOrder: _sortOrder, ...persisted } = state
+  const {
+    pinned: _pinned,
+    sortOrder: _sortOrder,
+    stateSortOrder: _stateSortOrder,
+    ...persisted
+  } = state
   await atomicWrite(join(jobDir, STATE_FILE), JSON.stringify(persisted, null, 2))
+  invalidateJobState(jobDir)
 }
 
 export async function readJobState(jobDir: string): Promise<JobState | null> {
+  ensureJobsWatcher()
+  const cacheable =
+    !jobsWatcherFailed && dirname(jobDir) === watchedJobsDir
+  if (cacheable && jobStateCache.has(jobDir)) {
+    return jobStateCache.get(jobDir) ?? null
+  }
+
   try {
-    const [rawState, rawOrder] = await Promise.all([
+    const [rawState, rawOrder, rawStateOrder] = await Promise.all([
       readFile(join(jobDir, STATE_FILE), 'utf-8'),
       readFile(join(jobDir, 'order'), 'utf-8').catch(() => null),
+      readFile(join(jobDir, 'stateOrder'), 'utf-8').catch(() => null),
     ])
     const result = JobStateSchema().safeParse(safeParseJSON(rawState))
     if (!result.success) {
@@ -174,12 +241,22 @@ export async function readJobState(jobDir: string): Promise<JobState | null> {
         `[jobs] skipping ${basename(jobDir)}: state.json schema validation failed — ${result.error.message}`,
         { level: 'warn' },
       )
+      if (cacheable) jobStateCache.set(jobDir, null)
       return null
     }
 
     const order = rawOrder !== null ? Number(rawOrder) : undefined
+    const stateOrder =
+      rawStateOrder !== null ? Number(rawStateOrder) : undefined
     let state = result.data
     if (Number.isFinite(order)) state = { ...state, sortOrder: order }
+    if (Number.isFinite(stateOrder)) {
+      state = { ...state, stateSortOrder: stateOrder }
+    }
+    if (cacheable) {
+      if (jobStateCache.size > 1_000) jobStateCache.clear()
+      jobStateCache.set(jobDir, state)
+    }
     return state
   } catch (error) {
     if (!isENOENT(error)) {
@@ -188,6 +265,7 @@ export async function readJobState(jobDir: string): Promise<JobState | null> {
         { level: 'warn' },
       )
     }
+    if (cacheable) jobStateCache.set(jobDir, null)
     return null
   }
 }
@@ -254,15 +332,19 @@ export function setJobPinned(id: string, pinned: boolean): Promise<void> {
 export async function renameJob(
   sessionId: string,
   name: string,
+  source: 'user' | 'auto' = 'user',
 ): Promise<void> {
   const jobDir = getJobDir(sessionId.slice(0, 8))
   const first = await readJobState(jobDir)
   if (!first || first.sessionId !== sessionId || first.name === name) return
+  invalidateJobState(jobDir)
   const latest = (await readJobState(jobDir)) ?? first
   if (latest.sessionId !== sessionId || latest.name === name) return
+  if (source === 'auto' && latest.name) return
   await writeJobState(jobDir, {
     ...latest,
     name,
+    nameSource: source,
     updatedAt: new Date().toISOString(),
   }).catch(() => {})
 }
@@ -272,6 +354,15 @@ export async function writeJobOrder(
   order: number,
 ): Promise<void> {
   await writeFile(join(jobDir, 'order'), String(order), 'utf-8')
+  invalidateJobState(jobDir)
+}
+
+export async function writeJobStateOrder(
+  jobDir: string,
+  order: number,
+): Promise<void> {
+  await writeFile(join(jobDir, 'stateOrder'), String(order), 'utf-8')
+  invalidateJobState(jobDir)
 }
 
 export function terminalStateActivity(
@@ -292,6 +383,9 @@ export function isSettledJob(state: JobState): boolean {
 }
 
 function markStale(state: JobState): JobState {
+  if (state.state === 'blocked') {
+    return { ...state, tempo: 'blocked', inFlight: undefined }
+  }
   return {
     ...state,
     state: 'failed',
@@ -361,8 +455,10 @@ export function createInitialJobState(
     linkScanOffset: 0,
     template: options.template.name,
     routine: options.routine,
+    respawnFlags: options.respawnFlags ?? [],
     intent: options.intent,
     name: options.name,
+    nameSource: options.nameSource,
     initialPrompt: options.template.initialPrompt,
     sessionId: options.sessionId,
     cwd: options.cwd,

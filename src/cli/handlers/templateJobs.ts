@@ -8,11 +8,17 @@ import {
   writeJobState,
   type JobState,
 } from '../../daemon/jobs.js'
-import { requestControl } from '../../daemon/client.js'
-import { listLiveJobs } from '../../daemon/client.js'
+import {
+  killJob,
+  requestControl,
+} from '../../daemon/client.js'
 import { PROTOCOL_VERSION } from '../../daemon/protocol.js'
 import { logEvent } from '../../services/analytics/index.js'
 import { logForDebugging } from '../../utils/debug.js'
+import { errorMessage } from '../../utils/errors.js'
+import { bgSupervisorNoun } from '../../utils/agentsFleet.js'
+import { canonicalizePath } from '../../utils/sessionStoragePortable.js'
+import { sendToUdsSocket } from '../../utils/udsClient.js'
 import {
   deleteBgJob,
   respawnBgJob,
@@ -57,7 +63,7 @@ export async function dispatchTemplateJob(
       }),
     )
   } catch (error) {
-    await rm(jobDir, { recursive: true, force: true }).catch(() => {})
+    await rm(jobDir, { recursive: true, force: false }).catch(() => {})
     return { ok: false, error: `Couldn't create the job — ${String(error)}` }
   }
   const selector = routine
@@ -70,7 +76,8 @@ export async function dispatchTemplateJob(
     cwd,
   )
   if (!result.ok) {
-    await deleteBgJob(short)
+    await killJob(short).catch(() => {})
+    await rm(jobDir, { recursive: true, force: false }).catch(() => {})
     return result
   }
   logForDebugging('[PERF:bg-dispatch-end]')
@@ -82,6 +89,17 @@ export async function sendJobReply(
   text: string,
   knownState?: JobState,
 ): Promise<string | null> {
+  if (knownState?.backend === 'peer') {
+    if (!knownState.sock) {
+      return "Can't send — that session is running in another terminal"
+    }
+    try {
+      await sendToUdsSocket(knownState.sock, text)
+      return null
+    } catch (error) {
+      return `Couldn't send to that session — ${errorMessage(error)}`
+    }
+  }
   const jobDir = getJobDir(short)
   const state = knownState ?? (await readJobState(jobDir))
   if (state) {
@@ -94,12 +112,25 @@ export async function sendJobReply(
       updatedAt: new Date().toISOString(),
     }).catch(() => {})
   }
-  const response = await requestControl({
+  let response = await requestControl({
     proto: PROTOCOL_VERSION,
     op: 'reply',
     short,
     text,
   })
+  for (
+    let attempt = 0;
+    !response.ok && response.code === 'ESTARTING' && attempt < 10;
+    attempt++
+  ) {
+    await new Promise(resolve => setTimeout(resolve, 200))
+    response = await requestControl({
+      proto: PROTOCOL_VERSION,
+      op: 'reply',
+      short,
+      text,
+    })
+  }
   if (response.ok) {
     logEvent('tengu_bg_agent_action', {
       action: 'reply',
@@ -113,8 +144,8 @@ export async function sendJobReply(
   if (response.code === 'ENOJOB') {
     return "That session isn't running — respawn it first"
   }
-  if (response.code === 'ENOCONN') {
-    return "Couldn't reach the daemon — it may be restarting. Press Enter to retry"
+  if (response.code === 'ENOCONN' || response.code === 'ETIMEOUT') {
+    return `Couldn't reach the ${bgSupervisorNoun()} — it may be restarting. Press Enter to retry`
   }
   return `Couldn't send your message — ${response.error}`
 }
@@ -128,34 +159,15 @@ export async function respawnTemplateJob(
     initialPrompt?: string
   },
 ) {
-  if (options?.knownAlive && options.knownState && !options.force) {
-    return {
-      ok: false as const,
-      alive: true,
-      state: options.knownState,
-      error: `Session ${short} is already running`,
-    }
-  }
-  const state = options?.knownState ?? (await readJobState(getJobDir(short)))
-  if (!state) {
-    return {
-      ok: false as const,
-      alive: false,
-      error: "Can't respawn — that job's saved state is missing",
-    }
-  }
-  if (!options?.force && (await listLiveJobs()).has(short)) {
-    return {
-      ok: false as const,
-      alive: true,
-      state,
-      error: `Session ${short} is already running`,
-    }
-  }
-  const result = await respawnBgJob(short, state, options?.initialPrompt)
+  const result = await respawnBgJob(short, options)
   return result.ok
     ? { ok: true as const, state: result.state }
-    : { ok: false as const, alive: false, error: result.error }
+    : {
+        ok: false as const,
+        alive: result.alive ?? false,
+        state: result.state,
+        error: result.error,
+      }
 }
 
 export { deleteBgJob as deleteTemplateJob }
@@ -190,24 +202,25 @@ export async function prewarmTemplateJob(
   logForDebugging(`[PERF:bg-spare-start] ${short}`)
   spawningSpare = (async () => {
     try {
+      const canonicalCwd = await canonicalizePath(cwd)
       const result = await spawnBgSession(
         ['--agent', 'general-purpose'],
         sessionId,
         'fleet',
-        cwd,
+        canonicalCwd,
       )
       if (!result.ok) {
-        await rm(getJobDir(short), { recursive: true, force: true }).catch(
-          () => {},
-        )
+        await deleteBgJob(short).catch(() => {})
         return
       }
       if (spareDisabled) {
         await deleteBgJob(short)
         return
       }
-      spare = { jobId: short, sessionId, cwd, ready: false }
+      spare = { jobId: short, sessionId, cwd: canonicalCwd, ready: false }
       logForDebugging(`[PERF:bg-spare-spawned] ${short}`)
+    } catch {
+      await deleteBgJob(short).catch(() => {})
     } finally {
       spawningSpare = null
     }
@@ -235,19 +248,32 @@ export async function claimPrewarmedJob(
     cwd: claimed.cwd,
     originCwd: claimed.cwd,
   })
-  await writeJobState(getJobDir(claimed.jobId), state).catch(async (error) => {
-    await deleteBgJob(claimed.jobId)
-    throw error
-  })
-  const error = await sendJobReply(claimed.jobId, intent, state)
-  if (error) {
+  try {
+    await writeJobState(getJobDir(claimed.jobId), state)
+  } catch (error) {
     await deleteBgJob(claimed.jobId)
     return {
       ok: false,
-      error:
-        error === "That session isn't running — respawn it first"
-          ? "The pre-warmed session wasn't ready — press Enter to try again"
-          : error,
+      error: `Couldn't create the job — ${errorMessage(error)}`,
+    }
+  }
+  try {
+    const error = await sendJobReply(claimed.jobId, intent, state)
+    if (error) {
+      await deleteBgJob(claimed.jobId)
+      return {
+        ok: false,
+        error:
+          error === "That session isn't running — respawn it first"
+            ? "The pre-warmed session wasn't ready — press Enter to try again"
+            : error,
+      }
+    }
+  } catch (error) {
+    await deleteBgJob(claimed.jobId)
+    return {
+      ok: false,
+      error: `Couldn't send your message — ${errorMessage(error)}`,
     }
   }
   logForDebugging('[PERF:bg-claim-end]')

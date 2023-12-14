@@ -11,7 +11,10 @@ import { getCwd } from 'src/utils/cwd.js'
 import { pathInAllowedWorkingPath } from 'src/utils/permissions/filesystem.js'
 import { setCwd } from 'src/utils/Shell.js'
 import { shouldMaintainProjectWorkingDir } from '../../utils/envUtils.js'
-import { maybeResizeAndDownsampleImageBuffer } from '../../utils/imageResizer.js'
+import {
+  getImageLimits,
+  maybeResizeAndDownsampleImageBuffer,
+} from '../../utils/imageResizer.js'
 import { getMaxOutputLength } from '../../utils/shell/outputLimits.js'
 import { countCharInString, plural } from '../../utils/stringUtils.js'
 /**
@@ -111,6 +114,7 @@ export async function resizeShellImageOutput(
   stdout: string,
   outputFilePath: string | undefined,
   outputFileSize: number | undefined,
+  model?: string,
 ): Promise<string | null> {
   let source = stdout
   if (outputFilePath) {
@@ -126,6 +130,7 @@ export async function resizeShellImageOutput(
     buf,
     buf.length,
     ext,
+    getImageLimits(model),
   )
   return `data:image/${resized.mediaType};base64,${resized.buffer.toString('base64')}`
 }

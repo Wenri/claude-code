@@ -61,8 +61,7 @@ export function extractDependencyConstraints(
     }
     if (typeof name !== 'string' || name.length === 0) continue
 
-    const normalizedVersion =
-      typeof version === 'string' ? version : undefined
+    const normalizedVersion = typeof version === 'string' ? version : undefined
     const normalizedSha = typeof sha === 'string' ? sha : undefined
     if (normalizedVersion === undefined && normalizedSha === undefined) continue
 
@@ -113,10 +112,9 @@ export type ConstraintIntersection =
     }
 
 function constraintTooComplex(reason: string): ConstraintIntersection {
-  logForDebugging(
-    `intersectConstraints: ${reason} — treating as too complex`,
-    { level: 'warn' },
-  )
+  logForDebugging(`intersectConstraints: ${reason} — treating as too complex`, {
+    level: 'warn',
+  })
   return { ok: false, reason: 'too-complex' }
 }
 
@@ -510,6 +508,81 @@ export function getEnabledPluginIdsForScope(
       .filter(([, v]) => v === true || Array.isArray(v))
       .map(([k]) => k),
   )
+}
+
+export type OrphanedAutoDependencyScan = {
+  orphans: Set<string>
+  unloadable: string[]
+  autoCount: number
+}
+
+/**
+ * Find apt-style auto-installed dependencies no longer reachable from any
+ * manually installed plugin at one installation scope.
+ */
+export function findOrphanedAutoDependencies(
+  installed: Record<
+    string,
+    Array<{ scope: string; projectPath?: string; auto?: boolean }>
+  >,
+  plugins: readonly LoadedPlugin[],
+  scope: string,
+  projectPath?: string,
+): OrphanedAutoDependencyScan {
+  const manual = new Set<string>()
+  const automatic = new Set<string>()
+  for (const [pluginId, installations] of Object.entries(installed)) {
+    const installation = installations.find(
+      entry => entry.scope === scope && entry.projectPath === projectPath,
+    )
+    if (!installation) continue
+    if (installation.auto === true) automatic.add(pluginId)
+    else manual.add(pluginId)
+  }
+
+  if (automatic.size === 0) {
+    return { orphans: new Set(), unloadable: [], autoCount: 0 }
+  }
+
+  const loadedById = new Map(plugins.map(plugin => [plugin.source, plugin]))
+  const unloadable = [...manual, ...automatic].filter(
+    pluginId => !loadedById.has(pluginId),
+  )
+  if (unloadable.length > 0) {
+    return { orphans: new Set(), unloadable, autoCount: automatic.size }
+  }
+
+  const reachable = new Set<string>()
+  function visit(pluginId: string): void {
+    if (reachable.has(pluginId)) return
+    reachable.add(pluginId)
+    const plugin = loadedById.get(pluginId)
+    if (!plugin) return
+    for (const dependency of plugin.manifest.dependencies ?? []) {
+      visit(qualifyDependency(dependency, plugin.source))
+    }
+  }
+  for (const pluginId of manual) visit(pluginId)
+
+  return {
+    orphans: new Set(
+      [...automatic].filter(pluginId => !reachable.has(pluginId)),
+    ),
+    unloadable: [],
+    autoCount: automatic.size,
+  }
+}
+
+export function formatOrphanedAutoDependenciesHint(
+  orphans: ReadonlySet<string>,
+  scope: string,
+): string {
+  if (orphans.size === 0) return ''
+  const names = [...orphans].map(id => parsePluginIdentifier(id).name)
+  const displayedNames =
+    names.length <= 5 ? names.join(', ') : `${names.slice(0, 5).join(', ')}, …`
+  const scopeOption = scope === 'user' ? '' : ` --scope ${scope}`
+  return `\n${orphans.size} auto-installed ${plural(orphans.size, 'dependency', 'dependencies')} no longer needed: ${displayedNames}. Run \`claude plugin prune${scopeOption}\` to remove.`
 }
 
 /**

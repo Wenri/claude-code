@@ -166,6 +166,10 @@ type State = {
   // SessionCronTask below (not importing from cronTasks.ts keeps
   // bootstrap a leaf of the import DAG).
   sessionCronTasks: SessionCronTask[]
+  // Per-prompt chain lifetime for dynamically paced /loop wakeups. A
+  // null-prototype record keeps arbitrary user prompts (including
+  // "__proto__") safe as keys while keeping bootstrap state serial-free.
+  loopChainStartedAt: Record<string, LoopChainState>
   // Teams created this session via TeamCreate. cleanupSessionTeams()
   // removes these on gracefulShutdown so subagent-created teams don't
   // persist on disk forever (gh-32730). TeamDelete removes entries to
@@ -268,6 +272,11 @@ type State = {
   // Session latch for prompt-cache diagnostics. Null means the eligibility
   // gate has not been evaluated for this conversation yet.
   cacheDiagnosisHeaderLatched: boolean | null
+  // Per-model fallback selected after the provider rejects one of the two
+  // supported thinking modes. Application inference profile ARNs can hide
+  // the backing model capability, so remember the successful mode for the
+  // remainder of the process and avoid repeating the failed round trip.
+  thinkingTypeOverrides: Map<string, 'adaptive' | 'enabled'>
   // Sticky-on latch for clearing thinking from prior tool loops. Triggered
   // when >1h since last API call (confirmed cache miss — no cache-hit
   // benefit to keeping thinking). Once latched, stays on so the newly-warmed
@@ -398,6 +407,7 @@ function getInitialState(): State {
     // Scheduled tasks disabled until flag or dialog enables them
     scheduledTasksEnabled: false,
     sessionCronTasks: [],
+    loopChainStartedAt: Object.create(null) as Record<string, LoopChainState>,
     sessionCreatedTeams: new Set(),
     // Session-only trust flag (not persisted to disk)
     sessionTrustAccepted: false,
@@ -452,6 +462,7 @@ function getInitialState(): State {
     fastModeHeaderLatched: null,
     cacheEditingHeaderLatched: null,
     cacheDiagnosisHeaderLatched: null,
+    thinkingTypeOverrides: new Map(),
     thinkingClearLatched: null,
     // Current prompt ID
     promptId: null,
@@ -1424,6 +1435,7 @@ export type SessionCronTask = {
   prompt: string
   createdAt: number
   recurring?: boolean
+  kind?: 'loop'
   /**
    * When set, the task was created by an in-process teammate (not the team lead).
    * The scheduler routes fires to that teammate's pendingUserMessages queue
@@ -1432,12 +1444,35 @@ export type SessionCronTask = {
   agentId?: string
 }
 
+export type LoopChainState = {
+  startedAt: number
+  lastScheduledFor: number
+  agedOut?: boolean
+}
+
 export function getSessionCronTasks(): SessionCronTask[] {
   return STATE.sessionCronTasks
 }
 
 export function addSessionCronTask(task: SessionCronTask): void {
   STATE.sessionCronTasks.push(task)
+}
+
+export function getLoopChainStartedAt(
+  prompt: string,
+): LoopChainState | undefined {
+  return STATE.loopChainStartedAt[prompt]
+}
+
+export function setLoopChainStartedAt(
+  prompt: string,
+  value: LoopChainState,
+): void {
+  STATE.loopChainStartedAt[prompt] = value
+}
+
+export function deleteLoopChainStartedAt(prompt: string): void {
+  delete STATE.loopChainStartedAt[prompt]
 }
 
 /**
@@ -1893,6 +1928,19 @@ export function getCacheDiagnosisHeaderLatched(): boolean | null {
 
 export function setCacheDiagnosisHeaderLatched(v: boolean): void {
   STATE.cacheDiagnosisHeaderLatched = v
+}
+
+export function getThinkingTypeOverride(
+  model: string,
+): 'adaptive' | 'enabled' | undefined {
+  return STATE.thinkingTypeOverrides.get(model)
+}
+
+export function setThinkingTypeOverride(
+  model: string,
+  type: 'adaptive' | 'enabled',
+): void {
+  STATE.thinkingTypeOverrides.set(model, type)
 }
 
 export function getThinkingClearLatched(): boolean | null {

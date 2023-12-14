@@ -112,6 +112,7 @@ export type EnvLessBridgeParams = {
   title: string
   getAccessToken: () => string | undefined
   onAuth401?: (staleAccessToken: string) => Promise<boolean>
+  onProactiveRefresh?: () => Promise<void>
   /**
    * Converts internal Message[] → SDKMessage[] for writeMessages() and the
    * initial-flush/drain paths. Injected rather than imported — mappers.ts
@@ -152,7 +153,23 @@ export type EnvLessBridgeParams = {
   onReadFile?: (
     path: string,
     maxBytes?: number,
-  ) => Promise<{ contents: string; absPath: string; truncated?: boolean }>
+    encoding?: 'utf-8' | 'base64',
+  ) => Promise<{
+    contents: string
+    absPath: string
+    truncated?: boolean
+    encoding?: 'base64'
+  }>
+  onMcpAuthenticate?: (
+    serverName: string,
+    redirectUri?: string,
+  ) => Promise<unknown>
+  onMcpOauthCallbackUrl?: (
+    serverName: string,
+    callbackUrl: string,
+  ) => Promise<unknown>
+  onMcpReconnect?: (serverName: string) => Promise<unknown>
+  onMcpStatus?: () => unknown[]
   onStateChange?: (state: BridgeState, detail?: string) => void
   /**
    * When true, skip opening the SSE read stream — only the CCRClient write
@@ -191,6 +208,7 @@ export async function initEnvLessBridgeCore(
     title,
     getAccessToken,
     onAuth401,
+    onProactiveRefresh,
     toSDKMessages,
     initialHistoryCap,
     initialMessages,
@@ -206,6 +224,10 @@ export async function initEnvLessBridgeCore(
     onSetColor,
     onFileSuggestions,
     onReadFile,
+    onMcpAuthenticate,
+    onMcpOauthCallbackUrl,
+    onMcpReconnect,
+    onMcpStatus,
     onStateChange,
     outboundOnly,
     tags,
@@ -218,7 +240,7 @@ export async function initEnvLessBridgeCore(
   } = params
 
   const cfg = await getEnvLessBridgeConfig()
-  const isReattach = reattachSessionId !== undefined
+  let isReattach = !!reattachSessionId
 
   // ── 1. Create session (POST /v1/code/sessions, no env_id) ───────────────
   const accessToken = getAccessToken()
@@ -233,12 +255,7 @@ export async function initEnvLessBridgeCore(
   ])
   const originalCwd = getOriginalCwd()
 
-  let sessionId: string
-  if (reattachSessionId) {
-    sessionId = reattachSessionId
-    logForDebugging(`[remote-bridge] Reattaching to session ${sessionId}`)
-    logForDiagnosticsNoPII('info', 'bridge_repl_v2_session_reattached')
-  } else {
+  async function createFreshSession(): Promise<string | null> {
     const createdSessionId = await withRetry(
       () =>
         createCodeSession(
@@ -254,18 +271,30 @@ export async function initEnvLessBridgeCore(
       'createCodeSession',
       cfg,
     )
+    if (createdSessionId) {
+      logForDebugging(`[remote-bridge] Created session ${createdSessionId}`)
+      logForDiagnosticsNoPII('info', 'bridge_repl_v2_session_created')
+    }
+    return createdSessionId
+  }
+
+  let sessionId: string
+  if (reattachSessionId) {
+    sessionId = reattachSessionId
+    logForDebugging(`[remote-bridge] Reattaching to session ${sessionId}`)
+    logForDiagnosticsNoPII('info', 'bridge_repl_v2_session_reattached')
+  } else {
+    const createdSessionId = await createFreshSession()
     if (!createdSessionId) {
       onStateChange?.('failed', 'Session creation failed — see debug log')
       logBridgeSkip('v2_session_create_failed', undefined, true)
       return null
     }
     sessionId = createdSessionId
-    logForDebugging(`[remote-bridge] Created session ${sessionId}`)
-    logForDiagnosticsNoPII('info', 'bridge_repl_v2_session_created')
   }
 
   // ── 2. Fetch bridge credentials (POST /bridge → worker_jwt, expires_in, api_base_url) ──
-  const credentials = await withRetry(
+  let credentials = await withRetry(
     () =>
       fetchRemoteCredentials(
         sessionId,
@@ -276,10 +305,35 @@ export async function initEnvLessBridgeCore(
     'fetchRemoteCredentials',
     cfg,
   )
+  if (isReattach && credentials === null) {
+    logForDebugging(
+      `[remote-bridge] Reattach to ${sessionId} failed; falling back to fresh session`,
+    )
+    logForDiagnosticsNoPII('info', 'bridge_repl_v2_reattach_fallback')
+    const freshSessionId = await createFreshSession()
+    if (freshSessionId) {
+      sessionId = freshSessionId
+      isReattach = false
+      credentials = await withRetry(
+        () =>
+          fetchRemoteCredentials(
+            sessionId,
+            baseUrl,
+            accessToken,
+            cfg.http_timeout_ms,
+          ),
+        'fetchRemoteCredentials (post-fallback)',
+        cfg,
+      )
+    }
+  }
   if (!credentials || isRemoteCredentialsTerminal(credentials)) {
     const detail = credentials
       ? getRemoteCredentialsFailureDetail(credentials)
       : 'Remote credentials fetch failed — see debug log'
+    logForDebugging(
+      `[remote-bridge] Creds failed; onStateChange ${onStateChange ? 'set' : 'UNSET'}, msg="${detail}"`,
+    )
     onStateChange?.('failed', detail)
     logBridgeSkip(
       credentials
@@ -317,7 +371,7 @@ export async function initEnvLessBridgeCore(
       epoch: credentials.worker_epoch,
       heartbeatIntervalMs: cfg.heartbeat_interval_ms,
       heartbeatJitterFraction: cfg.heartbeat_jitter_fraction,
-      initialSequenceNum: reattachSequenceNum,
+      initialSequenceNum: isReattach ? reattachSequenceNum : undefined,
       // Per-instance closure — keeps the worker JWT out of
       // process.env.CLAUDE_CODE_SESSION_ACCESS_TOKEN, which mcp/client.ts
       // reads ungatedly and would otherwise send to user-configured ws/http
@@ -477,7 +531,7 @@ export async function initEnvLessBridgeCore(
       // so truthiness doesn't mean valid. Pass the stale token to onAuth401
       // so handleOAuth401Error's keychain-comparison can detect parallel refresh.
       const stale = getAccessToken()
-      if (onAuth401) await onAuth401(stale ?? '')
+      if (onProactiveRefresh) await onProactiveRefresh()
       return getAccessToken() ?? stale
     },
     onRefresh: (sid, oauthToken) => {
@@ -618,6 +672,10 @@ export async function initEnvLessBridgeCore(
             onSetColor,
             onFileSuggestions,
             onReadFile,
+            onMcpAuthenticate,
+            onMcpOauthCallbackUrl,
+            onMcpReconnect,
+            onMcpStatus,
             outboundOnly,
           }),
       )
@@ -775,7 +833,7 @@ export async function initEnvLessBridgeCore(
       // before our setOnClose callback). Reset so the new onConnect re-flushes.
       // (v1 scopes initialFlushDone inside the per-transport closure at
       // replBridge.ts:1027 so it resets naturally; v2 has it at outer scope.)
-      initialFlushDone = false
+      initialFlushDone = isReattach
       await rebuildTransport(
         fresh,
         code === 401 ? 'auth_401_recovery' : 'init_4091_recovery',
@@ -807,7 +865,7 @@ export async function initEnvLessBridgeCore(
 
   // Start flushGate BEFORE connect so writeMessages() during handshake
   // queues instead of racing the history POST.
-  if (initialMessages && initialMessages.length > 0) {
+  if (!isReattach && initialMessages && initialMessages.length > 0) {
     flushGate.start()
   }
   transport.connect()

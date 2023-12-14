@@ -270,6 +270,12 @@ export const SettingsSchema = lazySchema(() =>
         .string()
         .optional()
         .describe('Path to a script that outputs authentication values'),
+      proxyAuthHelper: z
+        .string()
+        .optional()
+        .describe(
+          'Shell command that outputs a Proxy-Authorization header value (EAP)',
+        ),
       awsCredentialExport: z
         .string()
         .optional()
@@ -337,11 +343,27 @@ export const SettingsSchema = lazySchema(() =>
         ),
       cleanupPeriodDays: z
         .number()
-        .nonnegative()
         .int()
+        .positive()
         .optional()
         .describe(
-          'Number of days to retain chat transcripts (default: 30). Setting to 0 disables session persistence entirely: no transcripts are written and existing transcripts are deleted at startup.',
+          'Number of days to retain chat transcripts before automatic cleanup (default: 30). Minimum 1. Use a large value for long retention; use --no-session-persistence to disable transcript writes entirely.',
+        ),
+      skillListingMaxDescChars: z
+        .number()
+        .int()
+        .positive()
+        .optional()
+        .describe(
+          'Per-skill description character cap in the skill listing sent to Claude (default: 1536). Descriptions longer than this are truncated. Raise to opt in to higher per-turn context cost.',
+        ),
+      skillListingBudgetFraction: z
+        .number()
+        .gt(0)
+        .lte(1)
+        .optional()
+        .describe(
+          'Fraction of the context window (in characters) reserved for the skill listing sent to Claude (default: 0.01 = 1%). When the listing exceeds this, descriptions are shortened to fit. Raise to opt in to higher per-turn context cost.',
         ),
       env: EnvironmentVariablesSchema()
         .optional()
@@ -426,6 +448,15 @@ export const SettingsSchema = lazySchema(() =>
         .array(z.string())
         .optional()
         .describe('List of rejected MCP servers from .mcp.json'),
+      skillOverrides: z
+        .record(
+          z.string(),
+          z.enum(['on', 'name-only', 'user-invocable-only', 'off']),
+        )
+        .optional()
+        .describe(
+          'Per-skill listing overrides keyed by skill name. "name-only" lists the skill without its description; "user-invocable-only" hides it from the model but keeps /name; "off" hides it from both. Absent = on.',
+        ),
       // Enterprise allowlist of MCP servers
       allowedMcpServers: z
         .array(AllowedMcpServerEntrySchema())
@@ -473,6 +504,12 @@ export const SettingsSchema = lazySchema(() =>
         .boolean()
         .optional()
         .describe('Disable all hooks and statusLine execution'),
+      disableBackgroundAgents: z
+        .boolean()
+        .optional()
+        .describe(
+          'Disable the background-agents fleet (`claude agents`, `--bg`, /background, the on-demand daemon). Typically set in managed settings. Equivalent to CLAUDE_CODE_DISABLE_AGENTS_FLEET=1.',
+        ),
       disableSkillShellExecution: z
         .boolean()
         .optional()
@@ -680,9 +717,11 @@ export const SettingsSchema = lazySchema(() =>
         ),
       // Organization UUID to use for OAuth login (will be added as URL param to authorization URL)
       forceLoginOrgUUID: z
-        .string()
+        .union([z.string(), z.array(z.string())])
         .optional()
-        .describe('Organization UUID to use for OAuth login'),
+        .describe(
+          'Organization UUID to require for OAuth login. Accepts a single UUID string or an array of UUIDs (any one is permitted). When set in managed settings, login fails if the authenticated account does not belong to a listed organization.',
+        ),
       forceRemoteSettingsRefresh: z
         .boolean()
         .optional()
@@ -697,6 +736,11 @@ export const SettingsSchema = lazySchema(() =>
         .string()
         .optional()
         .describe('Controls the output style for assistant responses'),
+      viewMode: z
+        .enum(['default', 'verbose', 'focus'])
+        .optional()
+        .catch(undefined)
+        .describe('Default transcript view mode on startup'),
       language: z
         .string()
         .optional()
@@ -942,6 +986,24 @@ export const SettingsSchema = lazySchema(() =>
               .describe('Enable voice mode (hold-to-talk dictation)'),
           }
         : {}),
+      voice: z
+        .object({
+          enabled: z.boolean().optional(),
+          mode: z
+            .enum(['hold', 'tap'])
+            .optional()
+            .describe(
+              "'hold' (default): hold to talk. 'tap': tap to start, tap to stop+submit.",
+            ),
+          autoSubmit: z
+            .boolean()
+            .optional()
+            .describe(
+              'Submit the prompt when hold-to-talk is released (hold mode only)',
+            ),
+        })
+        .optional()
+        .describe('Voice mode settings (hold-to-talk / tap-to-toggle dictation)'),
       ...(feature('KAIROS')
         ? {
             assistant: z
@@ -1167,6 +1229,7 @@ export const SettingsSchema = lazySchema(() =>
       preferredNotifChannel: z
         .enum(NOTIFICATION_CHANNELS)
         .optional()
+        .catch(undefined)
         .describe('Preferred OS notification channel'),
       autoCompactEnabled: z
         .boolean()
@@ -1201,6 +1264,7 @@ export const SettingsSchema = lazySchema(() =>
       teammateMode: z
         .enum(TEAMMATE_MODES)
         .optional()
+        .catch(undefined)
         .describe('How spawned teammates execute (tmux, in-process, auto)'),
       remoteControlAtStartup: z
         .boolean()
@@ -1210,7 +1274,7 @@ export const SettingsSchema = lazySchema(() =>
         .enum(['transient', 'ask'])
         .optional()
         .describe(
-          "When no background daemon is running: 'transient' spawns one for this login session; 'ask' offers to install a persistent service",
+          "When no background service is running: 'transient' spawns one for this login session; 'ask' offers to install it persistently",
         ),
       autoUploadSessions: z
         .boolean()

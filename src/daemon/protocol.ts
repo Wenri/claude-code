@@ -44,6 +44,7 @@ export const DispatchSchema = lazySchema(() =>
       }),
     ]),
     env: z.record(z.string(), z.string()).default({}),
+    reattachEnv: z.record(z.string(), z.string()).optional(),
     worktree: z
       .object({
         path: z.string(),
@@ -108,7 +109,19 @@ export const ControlMessageSchema = lazySchema(() => {
   return z.discriminatedUnion('op', [
     z.object({ proto, op: z.literal('ping') }),
     z.object({ proto, op: z.literal('nudge') }),
-    z.object({ proto, op: z.literal('lease') }),
+    z.object({ proto, op: z.literal('yield') }),
+    z.object({
+      proto,
+      op: z.literal('lease'),
+      client: z
+        .object({
+          label: z.string(),
+          cwd: z.string(),
+          pid: z.number(),
+        })
+        .optional(),
+    }),
+    z.object({ proto, op: z.literal('leases') }),
     z.object({
       proto,
       op: z.literal('await-ack'),
@@ -162,24 +175,12 @@ export const ControlMessageSchema = lazySchema(() => {
       allow: z.boolean(),
     }),
     z.object({ proto, op: z.literal('respawn-stale'), short }),
+    z.object({
+      proto,
+      op: z.literal('shutdown'),
+      reapWorkers: z.boolean().optional(),
+    }),
   ])
 })
 
 export type ControlMessage = z.infer<ReturnType<typeof ControlMessageSchema>>
-
-export const SettledJobSchema = lazySchema(() =>
-  z.object({
-    short: z.string().regex(SHORT_ID_RE),
-    sessionId: z.string(),
-    name: z.string().optional(),
-    intent: z.string(),
-    outcome: z.enum(['done', 'failed', 'crashed', 'killed']),
-    cwd: z.string(),
-    worktreePath: z.string().optional(),
-    startedAt: z.number(),
-    settledAt: z.number(),
-    attempts: z.number(),
-  }),
-)
-
-export type SettledJob = z.infer<ReturnType<typeof SettledJobSchema>>

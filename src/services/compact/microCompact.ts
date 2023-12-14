@@ -19,7 +19,10 @@ import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
 } from '../analytics/index.js'
-import { notifyCacheDeletion } from '../api/promptCacheBreakDetection.js'
+import {
+  notifyCacheDeletion,
+  shouldTrackPromptCacheBreaks,
+} from '../api/promptCacheBreakDetection.js'
 import { roughTokenCountEstimation } from '../tokenEstimation.js'
 import {
   clearCompactWarningSuppression,
@@ -541,7 +544,7 @@ async function cachedMicrocompactPath(
     suppressCompactWarning()
 
     // Notify cache break detection that cache reads will legitimately drop
-    if (feature('PROMPT_CACHE_BREAK_DETECTION')) {
+    if (shouldTrackPromptCacheBreaks()) {
       // Pass the actual querySource — isMainThreadSource now prefix-matches
       // so output-style variants enter here, and getTrackingKey keys on the
       // full source string, not the 'repl_main_thread' prefix.
@@ -704,7 +707,7 @@ function maybeTimeBasedMicrocompact(
   // symbol to the import was flagged by the circular-deps check.
   // Pass the actual querySource: getTrackingKey returns the full source string
   // (e.g. 'repl_main_thread:outputStyle:custom'), not just the prefix.
-  if (feature('PROMPT_CACHE_BREAK_DETECTION') && querySource) {
+  if (shouldTrackPromptCacheBreaks() && querySource) {
     notifyCacheDeletion(querySource)
   }
 

@@ -48,6 +48,29 @@ export function getMaxMcpOutputTokens(): number {
 
 export type MCPToolResult = string | ContentBlockParam[] | undefined
 
+/**
+ * Remove MCP-private metadata from text blocks before returning or persisting
+ * model-visible content. Preserve the original array when no rewrite is needed.
+ */
+export function stripMcpTextBlockMeta(
+  content: MCPToolResult,
+): MCPToolResult {
+  if (!content || typeof content === 'string' || !Array.isArray(content)) {
+    return content
+  }
+  const hasTextMeta = content.some(
+    block => block.type === 'text' && '_meta' in block && block._meta,
+  )
+  if (!hasTextMeta) return content
+  return content.map(block => {
+    if (block.type === 'text' && '_meta' in block && block._meta) {
+      const { _meta: _, ...withoutMeta } = block
+      return withoutMeta
+    }
+    return block
+  })
+}
+
 function isTextBlock(block: ContentBlockParam): block is TextBlockParam {
   return block.type === 'text'
 }

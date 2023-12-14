@@ -3,6 +3,7 @@ import chalk from 'chalk'
 import { spawnSync } from 'child_process'
 import {
   copyFile,
+  lstat,
   mkdir,
   readdir,
   readFile,
@@ -11,9 +12,10 @@ import {
   stat,
   symlink,
   utimes,
+  writeFile,
 } from 'fs/promises'
 import ignore from 'ignore'
-import { basename, dirname, join, resolve } from 'path'
+import { basename, dirname, isAbsolute, join, resolve } from 'path'
 import { saveCurrentProjectConfig } from './config.js'
 import { logEvent } from '../services/analytics/index.js'
 import { getCwd } from './cwd.js'
@@ -23,6 +25,7 @@ import { execFileNoThrow, execFileNoThrowWithCwd } from './execFileNoThrow.js'
 import { parseGitConfigValue } from './git/gitConfigParser.js'
 import {
   getCommonDir,
+  isValidGitSha,
   readWorktreeHeadSha,
   resolveGitDir,
   resolveRef,
@@ -50,6 +53,7 @@ import { isInITerm2 } from './swarm/backends/detection.js'
 
 const VALID_WORKTREE_SLUG_SEGMENT = /^[a-zA-Z0-9._-]+$/
 const MAX_WORKTREE_SLUG_LENGTH = 64
+const WORKTREE_BASELINE_FILE = 'CLAUDE_BASE'
 
 /**
  * Validates a worktree slug to prevent path traversal and directory escape.
@@ -109,9 +113,13 @@ async function symlinkDirectories(
 ): Promise<void> {
   for (const dir of dirsToSymlink) {
     // Validate directory doesn't escape repository boundaries
-    if (containsPathTraversal(dir)) {
+    if (
+      containsPathTraversal(dir) ||
+      isAbsolute(dir) ||
+      dir.split(/[/\\]/).some(segment => /^\.\.[ .]*$/.test(segment))
+    ) {
       logForDebugging(
-        `Skipping symlink for "${dir}": path traversal detected`,
+        `Skipping symlink for "${dir}": path traversal or absolute path`,
         { level: 'warn' },
       )
       continue
@@ -239,6 +247,124 @@ function worktreePathFor(repoRoot: string, slug: string): string {
   return join(worktreesDir(repoRoot), flattenSlug(slug))
 }
 
+async function resolveWorktreeGitDir(
+  worktreePath: string,
+): Promise<string | null> {
+  try {
+    const pointer = (await readFile(join(worktreePath, '.git'), 'utf8')).trim()
+    if (!pointer.startsWith('gitdir:')) return null
+    return resolve(worktreePath, pointer.slice('gitdir:'.length).trim())
+  } catch {
+    return null
+  }
+}
+
+async function writeWorktreeBaseline(
+  worktreePath: string,
+  baselineSha: string,
+): Promise<void> {
+  const gitDir = await resolveWorktreeGitDir(worktreePath)
+  if (!gitDir) {
+    logForDebugging(
+      `[worktree] cannot write baseline: gitdir unresolvable for ${worktreePath}`,
+    )
+    return
+  }
+  try {
+    await writeFile(join(gitDir, WORKTREE_BASELINE_FILE), baselineSha, 'utf8')
+  } catch (error) {
+    logForDebugging(
+      `[worktree] failed to write baseline to ${gitDir}: ${error}`,
+    )
+  }
+}
+
+async function readWorktreeBaseline(
+  worktreePath: string,
+): Promise<string | null> {
+  const gitDir = await resolveWorktreeGitDir(worktreePath)
+  if (!gitDir) return null
+  try {
+    const baseline = (
+      await readFile(join(gitDir, WORKTREE_BASELINE_FILE), 'utf8')
+    ).trim()
+    return isValidGitSha(baseline) ? baseline : null
+  } catch {
+    return null
+  }
+}
+
+async function removeSafeOrphanedWorktree(
+  repoRoot: string,
+  worktreePath: string,
+  worktreeBranch: string,
+): Promise<void> {
+  const gitDir = await resolveWorktreeGitDir(worktreePath)
+  if (!gitDir) return
+
+  try {
+    await readdir(gitDir)
+    return
+  } catch (error) {
+    if (getErrnoCode(error) !== 'ENOENT') return
+  }
+
+  const remoteResult = await execFileNoThrowWithCwd(gitExe(), ['remote'], {
+    cwd: repoRoot,
+  })
+  if (remoteResult.code !== 0) {
+    throw new Error(
+      `Orphaned worktree dir at ${worktreePath} but \`git remote\` failed (${remoteResult.stderr.trim()}) — refusing to self-heal. Remove ${worktreePath} manually if it has no work to keep.`,
+    )
+  }
+
+  const branchResult = await execFileNoThrowWithCwd(
+    gitExe(),
+    ['rev-parse', '--verify', '--quiet', worktreeBranch],
+    { cwd: repoRoot },
+  )
+  if (branchResult.code !== 0 && branchResult.stderr.trim().length > 0) {
+    throw new Error(
+      `Orphaned worktree dir at ${worktreePath} but rev-parse on ${worktreeBranch} failed (${branchResult.stderr.trim()}) — refusing to self-heal. Remove ${worktreePath} manually if it has no work to keep.`,
+    )
+  }
+
+  if (remoteResult.stdout.trim().length > 0 && branchResult.code === 0) {
+    const unpushedResult = await execFileNoThrowWithCwd(
+      gitExe(),
+      [
+        'rev-list',
+        '--max-count=1',
+        worktreeBranch,
+        '--not',
+        '--remotes',
+      ],
+      { cwd: repoRoot },
+    )
+    if (unpushedResult.code !== 0) {
+      throw new Error(
+        `Orphaned worktree dir at ${worktreePath} but rev-list on ${worktreeBranch} failed (${unpushedResult.stderr.trim()}) — refusing to self-heal. Remove ${worktreePath} manually if it has no work to keep.`,
+      )
+    }
+    if (unpushedResult.stdout.trim().length > 0) {
+      throw new Error(
+        `Orphaned worktree dir at ${worktreePath} but branch ${worktreeBranch} has unpushed commits — refusing to self-heal. Push or delete the branch, then retry.`,
+      )
+    }
+  }
+
+  try {
+    await rm(worktreePath, { recursive: true, force: true })
+    logForDebugging(
+      `[worktree] removed orphaned worktree directory at ${worktreePath}`,
+    )
+  } catch (error) {
+    throw new Error(
+      `Cannot self-heal orphaned worktree at ${worktreePath}: ${errorMessage(error)}. Remove manually to proceed.`,
+    )
+  }
+}
+
 /**
  * Creates a new git worktree for the given slug, or resumes it if it already exists.
  * Named worktrees reuse the same path across invocations, so the existence check
@@ -248,7 +374,7 @@ function worktreePathFor(repoRoot: string, slug: string): string {
 async function getOrCreateWorktree(
   repoRoot: string,
   slug: string,
-  options?: { prNumber?: number },
+  options?: { prNumber?: number; fromHead?: boolean },
 ): Promise<WorktreeCreateResult> {
   const worktreePath = worktreePathFor(repoRoot, slug)
   const worktreeBranch = worktreeBranchName(slug)
@@ -259,13 +385,16 @@ async function getOrCreateWorktree(
   // task, and the await yield lets background spawnSyncs pile on (seen at 55ms).
   const existingHead = await readWorktreeHeadSha(worktreePath)
   if (existingHead) {
+    const baseline = await readWorktreeBaseline(worktreePath)
     return {
       worktreePath,
       worktreeBranch,
-      headCommit: existingHead,
+      headCommit: baseline ?? existingHead,
       existed: true,
     }
   }
+
+  await removeSafeOrphanedWorktree(repoRoot, worktreePath, worktreeBranch)
 
   // New worktree: fetch base branch then add
   await mkdir(worktreesDir(repoRoot), { recursive: true })
@@ -274,7 +403,9 @@ async function getOrCreateWorktree(
 
   let baseBranch: string
   let baseSha: string | null = null
-  if (options?.prNumber) {
+  if (options?.fromHead) {
+    baseBranch = 'HEAD'
+  } else if (options?.prNumber) {
     const { code: prFetchCode, stderr: prFetchStderr } =
       await execFileNoThrowWithCwd(
         gitExe(),
@@ -298,9 +429,11 @@ async function getOrCreateWorktree(
       getDefaultBranch(),
       resolveGitDir(repoRoot),
     ])
-    const originRef = `origin/${defaultBranch}`
+    const safeDefaultBranch =
+      defaultBranch && !defaultBranch.startsWith('-') ? defaultBranch : 'HEAD'
+    const originRef = `origin/${safeDefaultBranch}`
     const originSha = gitDir
-      ? await resolveRef(gitDir, `refs/remotes/origin/${defaultBranch}`)
+      ? await resolveRef(gitDir, `refs/remotes/origin/${safeDefaultBranch}`)
       : null
     if (originSha) {
       baseBranch = originRef
@@ -308,7 +441,7 @@ async function getOrCreateWorktree(
     } else {
       const { code: fetchCode } = await execFileNoThrowWithCwd(
         gitExe(),
-        ['fetch', 'origin', defaultBranch],
+        ['fetch', 'origin', safeDefaultBranch],
         { cwd: repoRoot, stdin: 'ignore', env: fetchEnv },
       )
       baseBranch = fetchCode === 0 ? originRef : 'HEAD'
@@ -338,7 +471,7 @@ async function getOrCreateWorktree(
   }
   // -B (not -b): reset any orphan branch left behind by a removed worktree dir.
   // Saves a `git branch -D` subprocess (~15ms spawn overhead) on every create.
-  addArgs.push('-B', worktreeBranch, worktreePath, baseBranch)
+  addArgs.push('--no-track', '-B', worktreeBranch, worktreePath, baseBranch)
 
   const { code: createCode, stderr: createStderr } =
     await execFileNoThrowWithCwd(gitExe(), addArgs, { cwd: repoRoot })
@@ -377,6 +510,8 @@ async function getOrCreateWorktree(
       await tearDown(`Failed to checkout sparse worktree: ${coErr}`)
     }
   }
+
+  await writeWorktreeBaseline(worktreePath, baseSha)
 
   return {
     worktreePath,
@@ -496,6 +631,13 @@ export async function copyWorktreeIncludeFiles(
     const srcPath = join(repoRoot, relativePath)
     const destPath = join(worktreePath, relativePath)
     try {
+      if ((await lstat(srcPath)).isSymbolicLink()) {
+        logForDebugging(
+          `Skipping symlink in .worktreeinclude: ${relativePath}`,
+          { level: 'warn' },
+        )
+        continue
+      }
       await mkdir(dirname(destPath), { recursive: true })
       await copyFile(srcPath, destPath)
       copied.push(relativePath)
@@ -530,12 +672,19 @@ async function performPostCreationSetup(
     getRelativeSettingsFilePathForSource('localSettings')
   const sourceSettingsLocal = join(repoRoot, localSettingsRelativePath)
   try {
-    const destSettingsLocal = join(worktreePath, localSettingsRelativePath)
-    await mkdirRecursive(dirname(destSettingsLocal))
-    await copyFile(sourceSettingsLocal, destSettingsLocal)
-    logForDebugging(
-      `Copied settings.local.json to worktree: ${destSettingsLocal}`,
-    )
+    if ((await lstat(sourceSettingsLocal)).isSymbolicLink()) {
+      logForDebugging(
+        `Skipping symlinked settings.local.json: ${sourceSettingsLocal}`,
+        { level: 'warn' },
+      )
+    } else {
+      const destSettingsLocal = join(worktreePath, localSettingsRelativePath)
+      await mkdirRecursive(dirname(destSettingsLocal))
+      await copyFile(sourceSettingsLocal, destSettingsLocal)
+      logForDebugging(
+        `Copied settings.local.json to worktree: ${destSettingsLocal}`,
+      )
+    }
   } catch (e: unknown) {
     const code = getErrnoCode(e)
     if (code !== 'ENOENT') {
@@ -716,7 +865,7 @@ export async function createWorktreeForSession(
   sessionId: string,
   slug: string,
   tmuxSessionName?: string,
-  options?: { prNumber?: number },
+  options?: { prNumber?: number; fromHead?: boolean },
 ): Promise<WorktreeSession> {
   // Must run before the hook branch below — hooks receive the raw slug as an
   // argument, and the git branch builds a path from it via path.join.
@@ -1009,7 +1158,10 @@ export async function cleanupWorktree(): Promise<void> {
  * global session state (currentWorktreeSession, process.chdir, project config).
  * Falls back to hook-based creation if not in a git repository.
  */
-export async function createAgentWorktree(slug: string): Promise<{
+export async function createAgentWorktree(
+  slug: string,
+  options?: { fromCwd?: string; fromHead?: boolean },
+): Promise<{
   worktreePath: string
   worktreeBranch?: string
   headCommit?: string
@@ -1033,7 +1185,7 @@ export async function createAgentWorktree(slug: string): Promise<{
   // the main repo's .claude/worktrees/ even when spawned from inside a session
   // worktree — otherwise they nest at <worktree>/.claude/worktrees/ and the
   // periodic cleanup (which scans the canonical root) never finds them.
-  const gitRoot = findCanonicalGitRoot(getCwd())
+  const gitRoot = findCanonicalGitRoot(options?.fromCwd ?? getCwd())
   if (!gitRoot) {
     throw new Error(
       'Cannot create agent worktree: not in a git repository and no WorktreeCreate hooks are configured. ' +
@@ -1042,7 +1194,7 @@ export async function createAgentWorktree(slug: string): Promise<{
   }
 
   const { worktreePath, worktreeBranch, headCommit, existed } =
-    await getOrCreateWorktree(gitRoot, slug)
+    await getOrCreateWorktree(gitRoot, slug, options)
 
   if (!existed) {
     logForDebugging(

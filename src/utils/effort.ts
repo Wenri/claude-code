@@ -9,6 +9,7 @@ import {
 import { get3PModelCapabilityOverride } from './model/modelSupportOverrides.js'
 import { isEnvTruthy } from './envUtils.js'
 import { getCanonicalName } from './model/model.js'
+import { getSubscriptionType } from './auth.js'
 import type { EffortLevel } from 'src/entrypoints/sdk/runtimeTypes.js'
 
 export type { EffortLevel }
@@ -286,7 +287,15 @@ export function getEffortLevelDescription(level: EffortLevel): string {
  */
 export function getEffortValueDescription(value: EffortValue): string {
   if (typeof value === 'string') {
-    return getEffortLevelDescription(value)
+    const description = getEffortLevelDescription(value)
+    if (
+      value === 'high' &&
+      getSubscriptionType() === 'pro' &&
+      getFeatureValue_CACHED_MAY_BE_STALE('tengu_slate_finch', false)
+    ) {
+      return `${description} · burns fastest — medium handles most tasks`
+    }
+    return description
   }
   return 'Balanced approach with standard implementation and testing'
 }

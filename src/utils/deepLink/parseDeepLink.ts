@@ -49,6 +49,9 @@ function containsControlChars(
   return false
 }
 
+const INVISIBLE_OR_BIDI_CONTROL =
+  /(?![\u200C\u200D\uFE00-\uFE0F\u{E0100}-\u{E01EF}])[\p{Default_Ignorable_Code_Point}\u2028\u2029\u2800\uFFF9-\uFFFB\u{1D173}-\u{1D17A}]/u
+
 /**
  * GitHub owner/repo slug: alphanumerics, dots, hyphens, underscores,
  * exactly one slash. Keeps this from becoming a path traversal vector.
@@ -81,6 +84,45 @@ const MAX_QUERY_LENGTH = 5000
  * malicious.
  */
 const MAX_CWD_LENGTH = 4096
+
+export function validateDeepLinkCwd(cwd: string): void {
+  if (/^[/\\]{2}/.test(cwd)) {
+    throw new Error(
+      `Invalid cwd in deep link: UNC / network paths are not supported, got "${cwd}"`,
+    )
+  }
+  if (!cwd.startsWith('/') && !/^[a-zA-Z]:[/\\]/.test(cwd)) {
+    throw new Error(
+      `Invalid cwd in deep link: must be an absolute path, got "${cwd}"`,
+    )
+  }
+  if (containsControlChars(cwd)) {
+    throw new Error('Deep link cwd contains disallowed control characters')
+  }
+  if (INVISIBLE_OR_BIDI_CONTROL.test(cwd)) {
+    throw new Error(
+      'Deep link cwd contains invisible or bidirectional control characters',
+    )
+  }
+  if (cwd.length > MAX_CWD_LENGTH) {
+    throw new Error(
+      `Deep link cwd exceeds ${MAX_CWD_LENGTH} characters (got ${cwd.length})`,
+    )
+  }
+}
+
+export function validateDeepLinkQuery(query: string): string {
+  const normalized = partiallySanitizeUnicode(query).replace(/\r\n?/g, '\n')
+  if (containsControlChars(normalized, { allowNewlineAndTab: true })) {
+    throw new Error('Deep link query contains disallowed control characters')
+  }
+  if (normalized.length > MAX_QUERY_LENGTH) {
+    throw new Error(
+      `Deep link query exceeds ${MAX_QUERY_LENGTH} characters (got ${normalized.length})`,
+    )
+  }
+  return normalized
+}
 
 /**
  * Parse a claude-cli:// URI into a structured action.
@@ -117,21 +159,7 @@ export function parseDeepLink(uri: string): DeepLinkAction {
   const rawQuery = url.searchParams.get('q')
 
   // Validate cwd if present — must be an absolute path
-  if (cwd && !cwd.startsWith('/') && !/^[a-zA-Z]:[/\\]/.test(cwd)) {
-    throw new Error(
-      `Invalid cwd in deep link: must be an absolute path, got "${cwd}"`,
-    )
-  }
-
-  // Reject control characters in cwd (newlines, etc.) but allow path chars like backslash.
-  if (cwd && containsControlChars(cwd)) {
-    throw new Error('Deep link cwd contains disallowed control characters')
-  }
-  if (cwd && cwd.length > MAX_CWD_LENGTH) {
-    throw new Error(
-      `Deep link cwd exceeds ${MAX_CWD_LENGTH} characters (got ${cwd.length})`,
-    )
-  }
+  if (cwd) validateDeepLinkCwd(cwd)
 
   // Validate repo slug format. Resolution happens later (protocolHandler.ts) —
   // this parser stays pure with no config/filesystem access.
@@ -144,15 +172,7 @@ export function parseDeepLink(uri: string): DeepLinkAction {
   let query: string | undefined
   if (rawQuery && rawQuery.trim().length > 0) {
     // Strip hidden Unicode characters (ASCII smuggling / hidden prompt injection)
-    query = partiallySanitizeUnicode(rawQuery.trim()).replace(/\r\n?/g, '\n')
-    if (containsControlChars(query, { allowNewlineAndTab: true })) {
-      throw new Error('Deep link query contains disallowed control characters')
-    }
-    if (query.length > MAX_QUERY_LENGTH) {
-      throw new Error(
-        `Deep link query exceeds ${MAX_QUERY_LENGTH} characters (got ${query.length})`,
-      )
-    }
+    query = validateDeepLinkQuery(rawQuery.trim())
   }
 
   return { query, cwd, repo }

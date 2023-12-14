@@ -439,6 +439,13 @@ export const call: LocalJSXCommandCall = async (onDone, _context, args) => {
     });
     return <SetModelAndClose args={args} onDone={onDone} />;
   }
+  if (getRuntimeCapabilities().workspace === 'remote') {
+    onDone(
+      'Model picker shows local options in remote sessions — pass a model name, e.g. /model sonnet',
+      { display: 'system' },
+    )
+    return
+  }
   return <ModelPickerWrapper onDone={onDone} />;
 };
 function renderModelLabel(model: string | null): string {

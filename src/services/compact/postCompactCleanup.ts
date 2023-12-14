@@ -13,6 +13,12 @@ import {
   type ResultDedupState,
 } from '../tools/resultDedup.js'
 
+/* eslint-disable @typescript-eslint/no-require-imports */
+const loopDefaultModule = feature('AGENT_TRIGGERS')
+  ? (require('../../utils/loopDefault.js') as typeof import('../../utils/loopDefault.js'))
+  : null
+/* eslint-enable @typescript-eslint/no-require-imports */
+
 /**
  * Run cleanup of caches and tracking state after compaction.
  * Call this after both auto-compact and manual /compact to free memory
@@ -76,6 +82,9 @@ export function runPostCompactCleanup(
   // skills, and dynamic additions are handled by skillChangeDetector /
   // cacheUtils resets. See compactConversation() for full rationale.
   clearBetaTracingState()
+  if (isMainThreadCompact) {
+    loopDefaultModule?.resetAutonomousLoopDelivered()
+  }
   if (feature('COMMIT_ATTRIBUTION')) {
     void import('../../utils/attributionHooks.js').then(m =>
       m.sweepFileContentCache(),

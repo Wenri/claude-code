@@ -8,6 +8,7 @@
  */
 
 import { z } from 'zod/v4'
+import { QUERY_TERMINAL_REASONS } from '../../query/transitions.js'
 import { lazySchema } from '../../utils/lazySchema.js'
 
 // ============================================================================
@@ -115,6 +116,12 @@ export const McpStdioServerConfigSchema = lazySchema(() =>
     command: z.string(),
     args: z.array(z.string()).optional(),
     env: z.record(z.string(), z.string()).optional(),
+    alwaysLoad: z
+      .boolean()
+      .describe(
+        'When true, all tools from this server are always included in the prompt and never deferred behind tool search. Equivalent to setting defer_loading: false on the API. Default: tools are deferred when tool search is enabled.',
+      )
+      .optional(),
   }),
 )
 
@@ -135,6 +142,12 @@ export const McpSSEServerConfigSchema = lazySchema(() =>
     url: z.string(),
     headers: z.record(z.string(), z.string()).optional(),
     tools: z.array(McpToolConfigSchema()).optional(),
+    alwaysLoad: z
+      .boolean()
+      .describe(
+        'When true, all tools from this server are always included in the prompt and never deferred behind tool search. Equivalent to setting defer_loading: false on the API. Default: tools are deferred when tool search is enabled.',
+      )
+      .optional(),
   }),
 )
 
@@ -144,6 +157,12 @@ export const McpHttpServerConfigSchema = lazySchema(() =>
     url: z.string(),
     headers: z.record(z.string(), z.string()).optional(),
     tools: z.array(McpToolConfigSchema()).optional(),
+    alwaysLoad: z
+      .boolean()
+      .describe(
+        'When true, all tools from this server are always included in the prompt and never deferred behind tool search. Equivalent to setting defer_loading: false on the API. Default: tools are deferred when tool search is enabled.',
+      )
+      .optional(),
   }),
 )
 
@@ -880,7 +899,9 @@ export const AsyncHookJSONOutputSchema = lazySchema(() =>
 export const PreToolUseHookSpecificOutputSchema = lazySchema(() =>
   z.object({
     hookEventName: z.literal('PreToolUse'),
-    permissionDecision: PermissionBehaviorSchema().optional(),
+    permissionDecision: PermissionBehaviorSchema()
+      .or(z.literal('defer'))
+      .optional(),
     permissionDecisionReason: z.string().optional(),
     updatedInput: z.record(z.string(), z.unknown()).optional(),
     additionalContext: z.string().optional(),
@@ -929,7 +950,16 @@ export const PostToolUseHookSpecificOutputSchema = lazySchema(() =>
   z.object({
     hookEventName: z.literal('PostToolUse'),
     additionalContext: z.string().optional(),
-    updatedMCPToolOutput: z.unknown().optional(),
+    updatedToolOutput: z
+      .unknown()
+      .describe('Replaces the tool output before it is sent to the model')
+      .optional(),
+    updatedMCPToolOutput: z
+      .unknown()
+      .describe(
+        'Replaces the output for MCP tools only. Prefer updatedToolOutput, which works for all tools',
+      )
+      .optional(),
   }),
 )
 
@@ -1510,6 +1540,20 @@ export const SDKPermissionDenialSchema = lazySchema(() =>
   }),
 )
 
+export const SDKDeferredToolUseSchema = lazySchema(() =>
+  z.object({
+    id: z.string(),
+    name: z.string(),
+    input: z.record(z.string(), z.unknown()),
+  }),
+)
+
+export const SDKQueryTerminalReasonSchema = lazySchema(() =>
+  z.enum(QUERY_TERMINAL_REASONS).describe(
+    'Why the query loop terminated. Unset when the loop was bypassed (local slash command) or interrupted externally (budget/retry limits checked between yields).',
+  ),
+)
+
 export const SDKResultSuccessSchema = lazySchema(() =>
   z.object({
     type: z.literal('result'),
@@ -1517,6 +1561,7 @@ export const SDKResultSuccessSchema = lazySchema(() =>
     duration_ms: z.number(),
     duration_api_ms: z.number(),
     is_error: z.boolean(),
+    api_error_status: z.number().nullable().optional(),
     num_turns: z.number(),
     result: z.string(),
     stop_reason: z.string().nullable(),
@@ -1525,6 +1570,8 @@ export const SDKResultSuccessSchema = lazySchema(() =>
     modelUsage: z.record(z.string(), ModelUsageSchema()),
     permission_denials: z.array(SDKPermissionDenialSchema()),
     structured_output: z.unknown().optional(),
+    deferred_tool_use: SDKDeferredToolUseSchema().optional(),
+    terminal_reason: SDKQueryTerminalReasonSchema().optional(),
     fast_mode_state: FastModeStateSchema().optional(),
     uuid: UUIDPlaceholder(),
     session_id: z.string(),
@@ -1550,6 +1597,7 @@ export const SDKResultErrorSchema = lazySchema(() =>
     modelUsage: z.record(z.string(), ModelUsageSchema()),
     permission_denials: z.array(SDKPermissionDenialSchema()),
     errors: z.array(z.string()),
+    terminal_reason: SDKQueryTerminalReasonSchema().optional(),
     fast_mode_state: FastModeStateSchema().optional(),
     uuid: UUIDPlaceholder(),
     session_id: z.string(),

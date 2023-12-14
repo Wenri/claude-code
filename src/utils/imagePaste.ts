@@ -3,11 +3,6 @@ import { randomBytes } from 'crypto'
 import { execa } from 'execa'
 import { tmpdir } from 'os'
 import { basename, dirname, extname, isAbsolute, join } from 'path'
-import {
-  IMAGE_MAX_HEIGHT,
-  IMAGE_MAX_WIDTH,
-  IMAGE_TARGET_RAW_SIZE,
-} from '../constants/apiLimits.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js'
 import { getImageProcessor } from '../tools/FileReadTool/imageProcessor.js'
 import { logForDebugging } from './debug.js'
@@ -15,10 +10,12 @@ import { execFileNoThrowWithCwd } from './execFileNoThrow.js'
 import { getFsImplementation } from './fsOperations.js'
 import {
   detectImageFormatFromBase64,
+  getImageLimits,
   type ImageDimensions,
   maybeResizeAndDownsampleImageBuffer,
 } from './imageResizer.js'
 import { logError } from './log.js'
+import { getMainLoopModel } from './model/model.js'
 
 // Native NSPasteboard reader. GrowthBook gate tengu_collage_kaleidoscope is
 // a kill switch (default on). Falls through to osascript when off.
@@ -163,6 +160,7 @@ export async function hasImageInClipboard(): Promise<boolean> {
 }
 
 export async function getImageFromClipboard(): Promise<ImageWithDimensions | null> {
+  const imageLimits = getImageLimits(getMainLoopModel())
   // Fast path: native NSPasteboard reader (macOS only). Reads PNG bytes
   // directly in-process and downsamples via CoreGraphics if over the
   // dimension cap. ~5ms cold, sub-ms warm — vs. ~1.5s for the osascript
@@ -180,7 +178,7 @@ export async function getImageFromClipboard(): Promise<ImageWithDimensions | nul
       if (!readClipboard) {
         throw new Error('native clipboard reader unavailable')
       }
-      const native = readClipboard(IMAGE_MAX_WIDTH, IMAGE_MAX_HEIGHT)
+      const native = readClipboard(imageLimits.maxWidth, imageLimits.maxHeight)
       if (!native) {
         return null
       }
@@ -190,11 +188,12 @@ export async function getImageFromClipboard(): Promise<ImageWithDimensions | nul
       // the osascript path uses (degrades to JPEG if needed). Cheap if
       // already under: just a sharp metadata read.
       const buffer: Buffer = native.png
-      if (buffer.length > IMAGE_TARGET_RAW_SIZE) {
+      if (buffer.length > imageLimits.targetRawSize) {
         const resized = await maybeResizeAndDownsampleImageBuffer(
           buffer,
           buffer.length,
           'png',
+          imageLimits,
         )
         return {
           base64: resized.buffer.toString('base64'),
@@ -258,6 +257,7 @@ export async function getImageFromClipboard(): Promise<ImageWithDimensions | nul
       imageBuffer,
       imageBuffer.length,
       'png',
+      imageLimits,
     )
     const base64Image = resized.buffer.toString('base64')
 
@@ -384,6 +384,7 @@ export function asImageFilePath(text: string): string | null {
 export async function tryReadImageFromPath(
   text: string,
 ): Promise<(ImageWithDimensions & { path: string }) | null> {
+  const imageLimits = getImageLimits(getMainLoopModel())
   // Strip terminal added spaces or quotes to dragged in paths
   const cleanedPath = asImageFilePath(text)
 
@@ -435,6 +436,7 @@ export async function tryReadImageFromPath(
     imageBuffer,
     imageBuffer.length,
     ext,
+    imageLimits,
   )
   const base64Image = resized.buffer.toString('base64')
 

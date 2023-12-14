@@ -37,7 +37,12 @@ import { categorizeRetryableAPIError } from './services/api/errors.js'
 import type { MCPServerConnection } from './services/mcp/types.js'
 import type { AppState } from './state/AppState.js'
 import { makeSetReplContext } from './state/AppStateStore.js'
-import { type Tools, type ToolUseContext, toolMatchesName } from './Tool.js'
+import {
+  findToolByName,
+  type Tools,
+  type ToolUseContext,
+  toolMatchesName,
+} from './Tool.js'
 import type { AgentDefinition } from './tools/AgentTool/loadAgentsDir.js'
 import { createBashRerunAliases } from './tools/BashTool/rerun.js'
 import type { ReplIsolationLatch } from './tools/REPLTool/types.js'
@@ -49,9 +54,11 @@ import {
   isPluginDependencyError,
 } from './types/plugin.js'
 import { createAbortController } from './utils/abortController.js'
+import type { HookDeferredToolAttachment } from './utils/attachments.js'
 import type { AttributionState } from './utils/commitAttribution.js'
 import { getConfigValue } from './utils/settings/configSettings.js'
 import { getCwd } from './utils/cwd.js'
+import { logForDebugging } from './utils/debug.js'
 import { isBareMode, isEnvTruthy } from './utils/envUtils.js'
 import { getFastModeState } from './utils/fastMode.js'
 import {
@@ -111,6 +118,7 @@ import {
 } from './utils/permissions/filesystem.js'
 /* eslint-enable @typescript-eslint/no-require-imports */
 import {
+  handleDeferredToolResume,
   handleOrphanedPermission,
   isResultSuccessful,
   normalizeMessage,
@@ -151,6 +159,13 @@ function findCurrentTurnStart(messages: Message[]): number {
   return 0
 }
 
+async function* captureGeneratorReturn<Yield, Return>(
+  generator: AsyncGenerator<Yield, Return, unknown>,
+  state: { value?: Return },
+): AsyncGenerator<Yield, void, unknown> {
+  state.value = yield* generator
+}
+
 export type QueryEngineConfig = {
   cwd: string
   tools: Tools
@@ -163,8 +178,10 @@ export type QueryEngineConfig = {
   setAppState: (f: (prev: AppState) => AppState) => void
   initialMessages?: Message[]
   readFileCache: FileStateCache
-  customSystemPrompt?: string
+  customSystemPrompt?: string | string[]
   appendSystemPrompt?: string
+  appendSubagentSystemPrompt?: string
+  forwardSubagentText?: boolean
   excludeDynamicSections?: boolean
   planModeInstructions?: string
   userSpecifiedModel?: string
@@ -183,6 +200,7 @@ export type QueryEngineConfig = {
   abortController?: AbortController
   isolationLatch?: ReplIsolationLatch
   orphanedPermission?: OrphanedPermission
+  deferredToolUse?: HookDeferredToolAttachment
   /**
    * Snip-boundary handler: receives each yielded system message plus the
    * current mutableMessages store. Returns undefined if the message is not a
@@ -216,6 +234,7 @@ export class QueryEngine {
   private permissionDenials: SDKPermissionDenial[]
   private totalUsage: NonNullableUsage
   private hasHandledOrphanedPermission = false
+  private hasHandledDeferredToolResume = false
   private readFileState: FileStateCache
   // Turn-scoped skill discovery tracking (feeds was_discovered on
   // tengu_skill_tool_invocation). Must persist across the two
@@ -254,6 +273,8 @@ export class QueryEngine {
       canUseTool,
       customSystemPrompt,
       appendSystemPrompt,
+      appendSubagentSystemPrompt,
+      forwardSubagentText = false,
       excludeDynamicSections,
       planModeInstructions,
       userSpecifiedModel,
@@ -267,6 +288,7 @@ export class QueryEngine {
       allowedAgentTypes,
       setSDKStatus,
       orphanedPermission,
+      deferredToolUse,
     } = this.config
 
     this.discoveredSkillNames.clear()
@@ -316,9 +338,6 @@ export class QueryEngine {
         : { type: 'disabled' }
 
     headlessProfilerCheckpoint('before_getSystemPrompt')
-    // Narrow once so TS tracks the type through the conditionals below.
-    const customPrompt =
-      typeof customSystemPrompt === 'string' ? customSystemPrompt : undefined
     const {
       defaultSystemPrompt,
       userContext: baseUserContext,
@@ -330,7 +349,7 @@ export class QueryEngine {
         initialAppState.toolPermissionContext.additionalWorkingDirectories.keys(),
       ),
       mcpClients,
-      customSystemPrompt: customPrompt,
+      customSystemPrompt,
       excludeDynamicSections,
     })
     headlessProfilerCheckpoint('after_getSystemPrompt')
@@ -349,12 +368,16 @@ export class QueryEngine {
     // Write/Edit tools to call, MEMORY.md filename, loading semantics).
     // The caller can layer their own policy text via appendSystemPrompt.
     const memoryMechanicsPrompt =
-      customPrompt !== undefined && hasAutoMemPathOverride()
+      customSystemPrompt !== undefined && hasAutoMemPathOverride()
         ? await loadMemoryPrompt(initialMainLoopModel)
         : null
 
     const systemPrompt = asSystemPrompt([
-      ...(customPrompt !== undefined ? [customPrompt] : defaultSystemPrompt),
+      ...(typeof customSystemPrompt === 'string'
+        ? [customSystemPrompt]
+        : Array.isArray(customSystemPrompt)
+          ? customSystemPrompt
+          : defaultSystemPrompt),
       ...(memoryMechanicsPrompt ? [memoryMechanicsPrompt] : []),
       ...(appendSystemPrompt ? [appendSystemPrompt] : []),
     ])
@@ -395,6 +418,8 @@ export class QueryEngine {
         isNonInteractiveSession: true,
         customSystemPrompt,
         appendSystemPrompt,
+        appendSubagentSystemPrompt,
+        forwardSubagentText,
         excludeDynamicSections,
         planModeInstructions,
         agentDefinitions: {
@@ -407,6 +432,7 @@ export class QueryEngine {
         messageClientPlatform: options?.clientPlatform,
       },
       getAppState,
+      getToolPermissionContext: () => getAppState().toolPermissionContext,
       setAppState,
       setReplContext: makeSetReplContext(setAppState),
       isolationLatch: this.isolationLatch,
@@ -450,6 +476,86 @@ export class QueryEngine {
         processUserInputContext,
       )) {
         yield message
+      }
+    }
+
+    if (deferredToolUse && !this.hasHandledDeferredToolResume) {
+      this.hasHandledDeferredToolResume = true
+      if (!findToolByName(tools, deferredToolUse.toolName)) {
+        logForDebugging(
+          `Deferred tool resume: tool '${deferredToolUse.toolName}' is no longer available (MCP server disconnected or tool removed)`,
+          { level: 'warn' },
+        )
+        yield {
+          type: 'result',
+          subtype: 'success',
+          is_error: true,
+          duration_ms: Date.now() - startTime,
+          duration_api_ms: getTotalAPIDuration(),
+          num_turns: this.mutableMessages.length,
+          result: '',
+          stop_reason: 'tool_deferred_unavailable',
+          session_id: getSessionId(),
+          total_cost_usd: getTotalCost(),
+          usage: this.totalUsage,
+          modelUsage: getModelUsage(),
+          permission_denials: this.permissionDenials,
+          deferred_tool_use: {
+            id: deferredToolUse.toolUseID,
+            name: deferredToolUse.toolName,
+            input: deferredToolUse.toolInput,
+          },
+          fast_mode_state: getFastModeState(
+            initialMainLoopModel,
+            initialAppState.fastMode,
+          ),
+          uuid: randomUUID(),
+        } as SDKMessage
+        return
+      }
+
+      let redeferredToolUse: HookDeferredToolAttachment | undefined
+      for await (const message of handleDeferredToolResume(
+        deferredToolUse,
+        wrappedCanUseTool,
+        this.mutableMessages,
+        processUserInputContext,
+      )) {
+        const attachment =
+          'attachment' in message ? message.attachment : undefined
+        if (attachment?.type === 'hook_deferred_tool') {
+          redeferredToolUse = attachment
+        }
+        yield message
+      }
+      if (redeferredToolUse) {
+        if (persistSession) await recordTranscript(this.mutableMessages)
+        yield {
+          type: 'result',
+          subtype: 'success',
+          is_error: false,
+          duration_ms: Date.now() - startTime,
+          duration_api_ms: getTotalAPIDuration(),
+          num_turns: this.mutableMessages.length,
+          result: '',
+          stop_reason: 'tool_deferred',
+          session_id: getSessionId(),
+          total_cost_usd: getTotalCost(),
+          usage: this.totalUsage,
+          modelUsage: getModelUsage(),
+          permission_denials: this.permissionDenials,
+          deferred_tool_use: {
+            id: redeferredToolUse.toolUseID,
+            name: redeferredToolUse.toolName,
+            input: redeferredToolUse.toolInput,
+          },
+          fast_mode_state: getFastModeState(
+            initialMainLoopModel,
+            initialAppState.fastMode,
+          ),
+          uuid: randomUUID(),
+        } as SDKMessage
+        return
       }
     }
 
@@ -578,6 +684,8 @@ export class QueryEngine {
         isNonInteractiveSession: true,
         customSystemPrompt,
         appendSystemPrompt,
+        appendSubagentSystemPrompt,
+        forwardSubagentText,
         excludeDynamicSections,
         planModeInstructions,
         theme: resolveThemeSetting(getConfigValue('theme', 'dark').value),
@@ -590,6 +698,7 @@ export class QueryEngine {
         messageClientPlatform: options?.clientPlatform,
       },
       getAppState,
+      getToolPermissionContext: () => getAppState().toolPermissionContext,
       setAppState,
       setReplContext: makeSetReplContext(setAppState),
       isolationLatch: this.isolationLatch,
@@ -747,6 +856,12 @@ export class QueryEngine {
     let hasAcknowledgedInitialMessages = false
     // Track structured output from StructuredOutput tool calls
     let structuredOutputFromTool: unknown
+    let deferredToolResult:
+      | { id: string; name: string; input: Record<string, unknown> }
+      | undefined
+    let maxTurnsResult:
+      | { turnCount: number; maxTurns: number }
+      | undefined
     // Track the last stop_reason from assistant messages
     let lastStopReason: string | null = null
     // Reference-based watermark so error_during_execution's errors[] is
@@ -758,19 +873,23 @@ export class QueryEngine {
     const initialStructuredOutputCalls = jsonSchema
       ? countToolCalls(this.mutableMessages, SYNTHETIC_OUTPUT_TOOL_NAME)
       : 0
+    const queryTerminalState: { value?: { reason: string } } = {}
 
-    for await (const message of query({
-      messages,
-      systemPrompt,
-      userContext,
-      systemContext,
-      canUseTool: wrappedCanUseTool,
-      toolUseContext: processUserInputContext,
-      fallbackModel,
-      querySource: 'sdk',
-      maxTurns,
-      taskBudget,
-    })) {
+    for await (const message of captureGeneratorReturn(
+      query({
+        messages,
+        systemPrompt,
+        userContext,
+        systemContext,
+        canUseTool: wrappedCanUseTool,
+        toolUseContext: processUserInputContext,
+        fallbackModel,
+        querySource: 'sdk',
+        maxTurns,
+        taskBudget,
+      }),
+      queryTerminalState,
+    )) {
       // Record assistant, user, and compact boundary messages
       if (
         message.type === 'assistant' ||
@@ -926,40 +1045,20 @@ export class QueryEngine {
           // Extract structured output from StructuredOutput tool calls
           if (message.attachment.type === 'structured_output') {
             structuredOutputFromTool = message.attachment.data
+          } else if (message.attachment.type === 'hook_deferred_tool') {
+            deferredToolResult = {
+              id: message.attachment.toolUseID,
+              name: message.attachment.toolName,
+              input: message.attachment.toolInput,
+            }
           }
           // Handle max turns reached signal from query.ts
           else if (message.attachment.type === 'max_turns_reached') {
-            if (persistSession) {
-              if (
-                isEnvTruthy(process.env.CLAUDE_CODE_EAGER_FLUSH) ||
-                isEnvTruthy(process.env.CLAUDE_CODE_IS_COWORK)
-              ) {
-                await flushSessionStorage()
-              }
+            maxTurnsResult = {
+              turnCount: message.attachment.turnCount,
+              maxTurns: message.attachment.maxTurns,
             }
-            yield {
-              type: 'result',
-              subtype: 'error_max_turns',
-              duration_ms: Date.now() - startTime,
-              duration_api_ms: getTotalAPIDuration(),
-              is_error: true,
-              num_turns: message.attachment.turnCount,
-              stop_reason: lastStopReason,
-              session_id: getSessionId(),
-              total_cost_usd: getTotalCost(),
-              usage: this.totalUsage,
-              modelUsage: getModelUsage(),
-              permission_denials: this.permissionDenials,
-              fast_mode_state: getFastModeState(
-                mainLoopModel,
-                initialAppState.fastMode,
-              ),
-              uuid: randomUUID(),
-              errors: [
-                `Reached maximum number of turns (${message.attachment.maxTurns})`,
-              ],
-            }
-            return
+            continue
           }
           // Yield queued_command attachments as SDK user message replays
           else if (
@@ -1169,6 +1268,59 @@ export class QueryEngine {
       }
     }
 
+    if (deferredToolResult) {
+      yield {
+        type: 'result',
+        subtype: 'success',
+        is_error: false,
+        duration_ms: Date.now() - startTime,
+        duration_api_ms: getTotalAPIDuration(),
+        num_turns: turnCount,
+        result: '',
+        stop_reason: 'tool_deferred',
+        session_id: getSessionId(),
+        total_cost_usd: getTotalCost(),
+        usage: this.totalUsage,
+        modelUsage: getModelUsage(),
+        permission_denials: this.permissionDenials,
+        deferred_tool_use: deferredToolResult,
+        terminal_reason: queryTerminalState.value?.reason,
+        fast_mode_state: getFastModeState(
+          mainLoopModel,
+          initialAppState.fastMode,
+        ),
+        uuid: randomUUID(),
+      } as SDKMessage
+      return
+    }
+
+    if (maxTurnsResult) {
+      yield {
+        type: 'result',
+        subtype: 'error_max_turns',
+        duration_ms: Date.now() - startTime,
+        duration_api_ms: getTotalAPIDuration(),
+        is_error: true,
+        num_turns: maxTurnsResult.turnCount,
+        stop_reason: lastStopReason,
+        session_id: getSessionId(),
+        total_cost_usd: getTotalCost(),
+        usage: this.totalUsage,
+        modelUsage: getModelUsage(),
+        permission_denials: this.permissionDenials,
+        terminal_reason: queryTerminalState.value?.reason,
+        fast_mode_state: getFastModeState(
+          mainLoopModel,
+          initialAppState.fastMode,
+        ),
+        uuid: randomUUID(),
+        errors: [
+          `Reached maximum number of turns (${maxTurnsResult.maxTurns})`,
+        ],
+      } as SDKMessage
+      return
+    }
+
     if (!isResultSuccessful(result, lastStopReason)) {
       yield {
         type: 'result',
@@ -1183,6 +1335,7 @@ export class QueryEngine {
         usage: this.totalUsage,
         modelUsage: getModelUsage(),
         permission_denials: this.permissionDenials,
+        terminal_reason: queryTerminalState.value?.reason,
         fast_mode_state: getFastModeState(
           mainLoopModel,
           initialAppState.fastMode,
@@ -1210,6 +1363,7 @@ export class QueryEngine {
     // Extract the text result based on message type
     let textResult = ''
     let isApiError = false
+    let apiErrorStatus: number | null = null
 
     if (result.type === 'assistant') {
       const lastContent = last(result.message.content)
@@ -1220,12 +1374,19 @@ export class QueryEngine {
         textResult = lastContent.text
       }
       isApiError = Boolean(result.isApiErrorMessage)
+      apiErrorStatus =
+        (
+          result as typeof result & {
+            apiErrorStatus?: number
+          }
+        ).apiErrorStatus ?? null
     }
 
     yield {
       type: 'result',
       subtype: 'success',
       is_error: isApiError,
+      api_error_status: apiErrorStatus,
       duration_ms: Date.now() - startTime,
       duration_api_ms: getTotalAPIDuration(),
       num_turns: turnCount,
@@ -1237,6 +1398,7 @@ export class QueryEngine {
       modelUsage: getModelUsage(),
       permission_denials: this.permissionDenials,
       structured_output: structuredOutputFromTool,
+      terminal_reason: queryTerminalState.value?.reason,
       fast_mode_state: getFastModeState(
         mainLoopModel,
         initialAppState.fastMode,
@@ -1293,6 +1455,8 @@ export async function* ask({
   setReadFileCache,
   customSystemPrompt,
   appendSystemPrompt,
+  appendSubagentSystemPrompt,
+  forwardSubagentText,
   excludeDynamicSections,
   planModeInstructions,
   userSpecifiedModel,
@@ -1309,6 +1473,7 @@ export async function* ask({
   allowedAgentTypes,
   setSDKStatus,
   orphanedPermission,
+  deferredToolUse,
 }: {
   commands: Command[]
   prompt: string | Array<ContentBlockParam>
@@ -1325,8 +1490,10 @@ export async function* ask({
   taskBudget?: { total: number }
   canUseTool: CanUseToolFn
   mutableMessages?: Message[]
-  customSystemPrompt?: string
+  customSystemPrompt?: string | string[]
   appendSystemPrompt?: string
+  appendSubagentSystemPrompt?: string
+  forwardSubagentText?: boolean
   excludeDynamicSections?: boolean
   planModeInstructions?: string
   userSpecifiedModel?: string
@@ -1345,6 +1512,7 @@ export async function* ask({
   allowedAgentTypes?: string[]
   setSDKStatus?: (status: SDKStatus) => void
   orphanedPermission?: OrphanedPermission
+  deferredToolUse?: HookDeferredToolAttachment
 }): AsyncGenerator<SDKMessage, void, unknown> {
   const engine = new QueryEngine({
     cwd,
@@ -1360,6 +1528,8 @@ export async function* ask({
     readFileCache: cloneFileStateCache(getReadFileCache()),
     customSystemPrompt,
     appendSystemPrompt,
+    appendSubagentSystemPrompt,
+    forwardSubagentText,
     excludeDynamicSections,
     planModeInstructions,
     userSpecifiedModel,
@@ -1377,6 +1547,7 @@ export async function* ask({
     abortController,
     isolationLatch,
     orphanedPermission,
+    deferredToolUse,
     ...(feature('HISTORY_SNIP')
       ? {
           snipReplay: (yielded: Message, store: Message[]) => {

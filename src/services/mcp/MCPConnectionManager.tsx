@@ -1,5 +1,5 @@
 import { c as _c } from "react/compiler-runtime";
-import React, { createContext, type ReactNode, useContext, useMemo } from 'react';
+import React, { createContext, type ReactNode, useContext, useEffect, useMemo } from 'react';
 import type { Command } from '../../commands.js';
 import type { Tool } from '../../Tool.js';
 import type { MCPServerConnection, ScopedMcpServerConfig, ServerResource } from './types.js';
@@ -14,6 +14,11 @@ interface MCPConnectionContextValue {
   toggleMcpServer: (serverName: string) => Promise<void>;
 }
 const MCPConnectionContext = createContext<MCPConnectionContextValue | null>(null);
+let activeMcpReconnect: MCPConnectionContextValue['reconnectMcpServer'] | null = null;
+
+export function getMcpReconnect(): MCPConnectionContextValue['reconnectMcpServer'] | null {
+  return activeMcpReconnect;
+}
 export function useMcpReconnect() {
   const context = useContext(MCPConnectionContext);
   if (!context) {
@@ -59,6 +64,12 @@ export function MCPConnectionManager(t0) {
     t1 = $[2];
   }
   const value = t1;
+  useEffect(() => {
+    activeMcpReconnect = reconnectMcpServer;
+    return () => {
+      activeMcpReconnect = null;
+    };
+  }, [reconnectMcpServer]);
   let t2;
   if ($[3] !== children || $[4] !== value) {
     t2 = <MCPConnectionContext.Provider value={value}>{children}</MCPConnectionContext.Provider>;

@@ -156,13 +156,13 @@ export function is1PEventLoggingEnabled(): boolean {
 async function logEventTo1PAsync(
   firstPartyEventLogger: Logger,
   eventName: string,
-  metadata: Record<string, number | boolean | undefined> = {},
+  metadata: Record<string, string | number | boolean | undefined> = {},
 ): Promise<void> {
   try {
     // Enrich with core metadata at log time (similar to Statsig pattern)
     const coreMetadata = await getEventMetadata({
-      model: metadata.model,
-      betas: metadata.betas,
+      model: typeof metadata.model === 'string' ? metadata.model : undefined,
+      betas: typeof metadata.betas === 'string' ? metadata.betas : undefined,
     })
 
     // Build attributes - OTel supports nested objects natively via AnyValueMap
@@ -236,7 +236,7 @@ export function logEventTo1P(
  */
 export async function logEventTo1PAwaitable(
   eventName: string,
-  metadata: Record<string, number | boolean | undefined> = {},
+  metadata: Record<string, string | number | boolean | undefined> = {},
 ): Promise<void> {
   if (
     !is1PEventLoggingEnabled() ||

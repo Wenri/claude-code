@@ -1,3 +1,4 @@
+import axios from 'axios'
 import {
   checkAdminRequestEligibility,
   createAdminRequest,
@@ -15,16 +16,40 @@ type ExtraUsageResult =
   | { type: 'message'; value: string }
   | { type: 'browser-opened'; url: string; opened: boolean }
 
-export async function runExtraUsage(
-  { openInBrowser = true }: { openInBrowser?: boolean } = {},
-): Promise<ExtraUsageResult> {
+function extractAdminRequestError(error: unknown): string | null {
+  if (!axios.isAxiosError(error)) return null
+  const status = error.response?.status
+  if (typeof status !== 'number' || status >= 500) return null
+  const data = error.response?.data
+  if (!data || typeof data !== 'object') return null
+
+  const body = data as Record<string, unknown>
+  const nestedError = body.error
+  if (nestedError && typeof nestedError === 'object') {
+    const message = (nestedError as Record<string, unknown>).message
+    if (typeof message === 'string' && message.length > 0) return message
+  }
+  for (const key of ['message', 'detail']) {
+    const message = body[key]
+    if (typeof message === 'string' && message.length > 0) return message
+  }
+  return null
+}
+
+export function prepareExtraUsageVisit(): void {
   if (!getGlobalConfig().hasVisitedExtraUsage) {
     saveGlobalConfig(prev => ({ ...prev, hasVisitedExtraUsage: true }))
   }
+  invalidateOverageCreditGrantCache()
+}
+
+export async function runExtraUsage(
+  { openInBrowser = true }: { openInBrowser?: boolean } = {},
+): Promise<ExtraUsageResult> {
   // Invalidate only the current org's entry so a follow-up read refetches
   // the granted state. Separate from the visited flag since users may run
   // /extra-usage more than once while iterating on the claim flow.
-  invalidateOverageCreditGrantCache()
+  prepareExtraUsageVisit()
 
   const subscriptionType = getSubscriptionType()
   const isTeamOrEnterprise =
@@ -94,7 +119,8 @@ export async function runExtraUsage(
       }
     } catch (error) {
       logError(error as Error)
-      // Fall through to generic message below
+      const message = extractAdminRequestError(error)
+      if (message) return { type: 'message', value: message }
     }
 
     return {

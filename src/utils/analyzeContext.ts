@@ -7,7 +7,7 @@ import {
 import { microcompactMessages } from 'src/services/compact/microCompact.js'
 import { getSdkBetas } from '../bootstrap/state.js'
 import { getCommandName } from '../commands.js'
-import { getSystemContext } from '../context.js'
+import { getSystemContext, getUserContext } from '../context.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js'
 import {
   AUTOCOMPACT_BUFFER_TOKENS,
@@ -215,6 +215,8 @@ export interface ContextData {
     attachmentTokens: number
     assistantMessageTokens: number
     userMessageTokens: number
+    redirectedContextTokens: number
+    unattributedTokens: number
     toolCallsByType: Array<{
       name: string
       callTokens: number
@@ -271,12 +273,15 @@ function extractSectionName(content: string): string {
 
 async function countSystemTokens(
   effectiveSystemPrompt: readonly string[],
+  redirectDynamicContext: boolean,
 ): Promise<{
   systemPromptTokens: number
   systemPromptSections: SystemPromptSectionDetail[]
+  redirectedContextTokens: number
 }> {
   // Get system context (gitStatus, etc.) which is always included
   const systemContext = await getSystemContext()
+  const includedSystemContext = redirectDynamicContext ? {} : systemContext
 
   // Build named entries: system prompt parts + system context values
   // Skip empty strings and the global-cache boundary marker
@@ -287,13 +292,35 @@ async function countSystemTokens(
           content.length > 0 && content !== SYSTEM_PROMPT_DYNAMIC_BOUNDARY,
       )
       .map(content => ({ name: extractSectionName(content), content })),
-    ...Object.entries(systemContext)
+    ...Object.entries(includedSystemContext)
       .filter(([, content]) => content.length > 0)
       .map(([name, content]) => ({ name, content })),
   ]
 
+  let redirectedContextTokens = 0
+  if (redirectDynamicContext) {
+    const userContext = await getUserContext()
+    const redirectedContext = [
+      ...Object.values(systemContext),
+      ...Object.values(userContext),
+    ]
+      .filter(content => content.length > 0)
+      .join('\n')
+    if (redirectedContext.length > 0) {
+      redirectedContextTokens =
+        (await countTokensWithFallback(
+          [{ role: 'user', content: redirectedContext }],
+          [],
+        )) || 0
+    }
+  }
+
   if (namedEntries.length < 1) {
-    return { systemPromptTokens: 0, systemPromptSections: [] }
+    return {
+      systemPromptTokens: 0,
+      systemPromptSections: [],
+      redirectedContextTokens,
+    }
   }
 
   const systemTokenCounts = await Promise.all(
@@ -314,7 +341,11 @@ async function countSystemTokens(
     0,
   )
 
-  return { systemPromptTokens, systemPromptSections }
+  return {
+    systemPromptTokens,
+    systemPromptSections,
+    redirectedContextTokens,
+  }
 }
 
 async function countMemoryFileTokens(): Promise<{
@@ -954,7 +985,11 @@ export async function analyzeContextUsage(
 
   // Critical operations that should not fail due to skills
   const [
-    { systemPromptTokens, systemPromptSections },
+    {
+      systemPromptTokens,
+      systemPromptSections,
+      redirectedContextTokens,
+    },
     { claudeMdTokens, memoryFileDetails },
     {
       builtInToolTokens,
@@ -967,7 +1002,13 @@ export async function analyzeContextUsage(
     { slashCommandTokens, commandInfo },
     messageBreakdown,
   ] = await Promise.all([
-    countSystemTokens(effectiveSystemPrompt),
+    countSystemTokens(
+      effectiveSystemPrompt,
+      Boolean(
+        toolUseContext?.options.excludeDynamicSections &&
+          toolUseContext.options.customSystemPrompt === undefined,
+      ),
+    ),
     countMemoryFileTokens(),
     countBuiltInToolTokens(
       tools,
@@ -1002,7 +1043,8 @@ export async function analyzeContextUsage(
     0,
   )
 
-  const messageTokens = messageBreakdown.totalTokens
+  let messageTokens =
+    messageBreakdown.totalTokens + redirectedContextTokens
 
   // Check if autocompact is enabled and calculate threshold
   const isAutoCompact = isAutoCompactEnabled()
@@ -1093,21 +1135,6 @@ export async function analyzeContextUsage(
     })
   }
 
-  if (messageTokens !== null && messageTokens > 0) {
-    cats.push({
-      name: 'Messages',
-      tokens: messageTokens,
-      color: 'purple_FOR_SUBAGENTS_ONLY',
-    })
-  }
-
-  // Calculate actual content usage (before adding reserved buffers)
-  // Exclude deferred categories from the usage calculation
-  const actualUsage = cats.reduce(
-    (sum, cat) => sum + (cat.isDeferred ? 0 : cat.tokens),
-    0,
-  )
-
   // Reserved space after messages (not counted in actualUsage shown to user).
   // Under reactive-only mode (cobalt_raccoon), proactive autocompact never
   // fires and the reserved buffer is a lie — skip it entirely and let Free
@@ -1116,6 +1143,7 @@ export async function analyzeContextUsage(
   // owns the threshold ladder and autocompact is suppressed in
   // shouldAutoCompact, so the 33k buffer shown here would be a lie too.
   let reservedTokens = 0
+  let reservedCategoryName: string | undefined
   let skipReservedBuffer = false
   if (feature('REACTIVE_COMPACT')) {
     if (getFeatureValue_CACHED_MAY_BE_STALE('tengu_cobalt_raccoon', false)) {
@@ -1137,16 +1165,64 @@ export async function analyzeContextUsage(
   } else if (isAutoCompact && autoCompactThreshold !== undefined) {
     // Autocompact buffer (from effective context)
     reservedTokens = contextWindow - autoCompactThreshold
-    cats.push({
-      name: RESERVED_CATEGORY_NAME,
-      tokens: reservedTokens,
-      color: 'inactive',
-    })
+    reservedCategoryName = RESERVED_CATEGORY_NAME
   } else if (!isAutoCompact) {
     // Compact buffer reserve (3k from actual context limit)
     reservedTokens = MANUAL_COMPACT_BUFFER_TOKENS
+    reservedCategoryName = MANUAL_COMPACT_BUFFER_NAME
+  }
+
+  // Extract API usage from original messages (if provided) to match status line
+  // This uses the same source of truth as the status line for consistency.
+  const apiUsage = getCurrentUsage(originalMessages ?? messages)
+  const totalFromAPI = apiUsage
+    ? apiUsage.input_tokens +
+      apiUsage.cache_creation_input_tokens +
+      apiUsage.cache_read_input_tokens
+    : null
+
+  // The API total includes every fixed category. Attribute any estimate gap to
+  // Messages without allowing it to consume the reserved compaction buffer.
+  if (totalFromAPI !== null) {
+    const fixedTokens = cats.reduce(
+      (sum, cat) => sum + (cat.isDeferred ? 0 : cat.tokens),
+      0,
+    )
+    const maxMessageTokens = contextWindow - fixedTokens - reservedTokens
+    messageTokens = Math.max(
+      messageTokens,
+      Math.min(totalFromAPI - fixedTokens, maxMessageTokens),
+    )
+  }
+
+  const unattributedTokens = Math.max(
+    0,
+    messageTokens -
+      messageBreakdown.toolCallTokens -
+      messageBreakdown.toolResultTokens -
+      messageBreakdown.attachmentTokens -
+      messageBreakdown.assistantMessageTokens -
+      messageBreakdown.userMessageTokens -
+      redirectedContextTokens,
+  )
+
+  if (messageTokens > 0) {
     cats.push({
-      name: MANUAL_COMPACT_BUFFER_NAME,
+      name: 'Messages',
+      tokens: messageTokens,
+      color: 'purple_FOR_SUBAGENTS_ONLY',
+    })
+  }
+
+  // Calculate actual content usage before adding the reserved buffer.
+  const actualUsage = cats.reduce(
+    (sum, cat) => sum + (cat.isDeferred ? 0 : cat.tokens),
+    0,
+  )
+
+  if (reservedCategoryName) {
+    cats.push({
+      name: reservedCategoryName,
       tokens: reservedTokens,
       color: 'inactive',
     })
@@ -1163,18 +1239,6 @@ export async function analyzeContextUsage(
 
   // Total for display (everything except free space)
   const totalIncludingReserved = actualUsage
-
-  // Extract API usage from original messages (if provided) to match status line
-  // This uses the same source of truth as the status line for consistency
-  const apiUsage = getCurrentUsage(originalMessages ?? messages)
-
-  // When API usage is available, use it for total to match status line calculation
-  // Status line uses: input_tokens + cache_creation_input_tokens + cache_read_input_tokens
-  const totalFromAPI = apiUsage
-    ? apiUsage.input_tokens +
-      apiUsage.cache_creation_input_tokens +
-      apiUsage.cache_read_input_tokens
-    : null
 
   // Use API total if available, otherwise fall back to estimated total
   const finalTotalTokens = totalFromAPI ?? totalIncludingReserved
@@ -1342,6 +1406,8 @@ export async function analyzeContextUsage(
     attachmentTokens: messageBreakdown.attachmentTokens,
     assistantMessageTokens: messageBreakdown.assistantMessageTokens,
     userMessageTokens: messageBreakdown.userMessageTokens,
+    redirectedContextTokens,
+    unattributedTokens,
     toolCallsByType: toolsByTypeArray,
     attachmentsByType: attachmentsByTypeArray,
   }

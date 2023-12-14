@@ -53,6 +53,7 @@ import type {
   MCPProgress,
   REPLToolProgress,
   SkillToolProgress,
+  ShellProgress,
   TaskOutputProgress,
   ToolProgressData,
   WebSearchProgress,
@@ -160,8 +161,32 @@ export type CompactProgressEvent =
       type: 'hooks_start'
       hookType: 'pre_compact' | 'post_compact' | 'session_start'
     }
-  | { type: 'compact_start' }
+  | { type: 'compact_start'; hintText?: string | null }
   | { type: 'compact_end' }
+
+/**
+ * Transient progress rendered outside the transcript while a tool or a
+ * forked slash command is running. These entries are deliberately keyed by
+ * tool-use ID so a terminal `clear` event can release both the UI and the
+ * retained progress payload.
+ */
+export type ToolProgressEvent =
+  | { kind: 'clear'; toolUseId: string }
+  | { kind: 'background_hint'; toolUseId: string }
+  | {
+      kind: 'bash_mode_progress'
+      toolUseId: string
+      input: string
+      progress: ShellProgress | null
+      verbose: boolean
+    }
+  | {
+      kind: 'agent_progress'
+      toolUseId: string
+      progressMessages: ProgressMessage[]
+    }
+  | { kind: 'it2_setup_prompt'; toolUseId: string }
+  | { kind: 'computer_use_approval'; toolUseId: string }
 
 export type ToolUseContext = {
   options: {
@@ -177,9 +202,13 @@ export type ToolUseContext = {
     agentDefinitions: AgentDefinitionsResult
     maxBudgetUsd?: number
     /** Custom system prompt that replaces the default system prompt */
-    customSystemPrompt?: string
+    customSystemPrompt?: string | string[]
     /** Additional system prompt appended after the main system prompt */
     appendSystemPrompt?: string
+    /** Additional prompt propagated to Task-tool subagents. */
+    appendSubagentSystemPrompt?: string
+    /** Forward subagent text messages in addition to tool progress. */
+    forwardSubagentText?: boolean
     /** Move per-machine default-prompt sections into the first user context. */
     excludeDynamicSections?: boolean
     /** Custom workflow body for plan-mode reminders. */
@@ -229,6 +258,7 @@ export type ToolUseContext = {
     signal: AbortSignal,
   ) => Promise<ElicitResult>
   setToolJSX?: SetToolJSXFn
+  emitToolProgress?: (event: ToolProgressEvent) => void
   addNotification?: (notif: Notification) => void
   /** Append a UI-only system message to the REPL message list. Stripped at the
    *  normalizeMessagesForAPI boundary — the Exclude<> makes that type-enforced. */

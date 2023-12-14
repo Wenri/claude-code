@@ -27,6 +27,7 @@ export type BgDaemonStatus = {
   logSizeBytes: number | null
   serviceInstalled: boolean
   configuredWorkers: number
+  leaseClients: Array<{ label: string; cwd: string; pid: number }>
 }
 
 async function rosterWorkerCount(): Promise<number> {
@@ -76,11 +77,19 @@ export async function getBgDaemonStatus(): Promise<BgDaemonStatus> {
     ])
   let workersLive: number | null = null
   let workersSkewed: number | null = null
+  let leaseClients: Array<{ label: string; cwd: string; pid: number }> = []
   if (ping.ok) {
-    const listed = await requestControl(
-      { op: 'list', proto: PROTOCOL_VERSION },
-      { timeoutMs: 1_000 },
-    ).catch(() => null)
+    const failed = { ok: false as const, code: 'ENOCONN', error: '' }
+    const [listed, leases] = await Promise.all([
+      requestControl(
+        { op: 'list', proto: PROTOCOL_VERSION },
+        { timeoutMs: 1_000 },
+      ).catch(() => failed),
+      requestControl(
+        { op: 'leases', proto: PROTOCOL_VERSION },
+        { timeoutMs: 1_000 },
+      ).catch(() => failed),
+    ])
     if (listed?.ok && Array.isArray(listed.jobs)) {
       const jobs = listed.jobs.filter(
         job => job && typeof job === 'object' && !('outcome' in job && job.outcome),
@@ -89,6 +98,18 @@ export async function getBgDaemonStatus(): Promise<BgDaemonStatus> {
       workersSkewed = jobs.filter(
         job => job.cliVersion !== undefined && job.cliVersion !== MACRO.VERSION,
       ).length
+    }
+    if (leases.ok && Array.isArray(leases.clients)) {
+      leaseClients = leases.clients.filter(
+        (client): client is { label: string; cwd: string; pid: number } =>
+          Boolean(
+            client &&
+              typeof client === 'object' &&
+              typeof (client as { label?: unknown }).label === 'string' &&
+              typeof (client as { cwd?: unknown }).cwd === 'string' &&
+              typeof (client as { pid?: unknown }).pid === 'number',
+          ),
+      )
     }
   }
   return {
@@ -116,6 +137,7 @@ export async function getBgDaemonStatus(): Promise<BgDaemonStatus> {
     logSizeBytes: logStat?.size ?? null,
     serviceInstalled,
     configuredWorkers,
+    leaseClients,
   }
 }
 
@@ -126,22 +148,23 @@ function formatBytes(bytes: number): string {
 }
 
 export function formatBgDaemonStatus(status: BgDaemonStatus): string {
-  const lines = ['', 'bg daemon:']
+  const lines = ['', 'bg sessions:']
   lines.push(`  sock dir:     ${status.sockDir}`)
   lines.push(
     `  control.sock: ${status.controlReachable ? 'reachable' : `unreachable (${status.controlError ?? 'unknown'})`}`,
   )
   if (status.workersLive !== null) {
-    const skew =
-      status.workersSkewed && status.workersSkewed > 0
-        ? ` — ${status.workersSkewed} on different binary`
-        : ''
     lines.push(
-      `  bg workers:   ${status.workersLive} live (control), ${status.workersRoster} in roster${skew}`,
+      `  bg workers:   ${status.workersLive} running (control.sock), ${status.workersRoster} in roster.json`,
     )
+    if (status.workersSkewed && status.workersSkewed > 0) {
+      lines.push(
+        `                ${status.workersSkewed} from a different CLI version`,
+      )
+    }
   } else {
     lines.push(
-      `  bg workers:   ${status.workersRoster} in roster (${status.controlReachable ? 'live count unavailable' : 'control unreachable'})`,
+      `  bg workers:   ${status.workersRoster} in roster.json (${status.controlReachable ? 'live count unavailable' : 'control unreachable'})`,
     )
   }
   lines.push(
@@ -150,5 +173,14 @@ export function formatBgDaemonStatus(status: BgDaemonStatus): string {
   lines.push(
     `  daemon.log:   ${status.logSizeBytes === null ? 'absent' : `${formatBytes(status.logSizeBytes)} at ${status.logPath}`}`,
   )
+  if (
+    !status.supervisor &&
+    !status.controlReachable &&
+    status.workersRoster > 0
+  ) {
+    lines.push(
+      `  warning:      supervisor not running but ${status.workersRoster} ${status.workersRoster === 1 ? 'worker' : 'workers'} in roster — run \`claude daemon stop\` to reap them`,
+    )
+  }
   return lines.join('\n')
 }

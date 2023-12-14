@@ -38,6 +38,7 @@ import {
   tryAcquireSchedulerLock,
 } from './cronTasksLock.js'
 import { logForDebugging } from './debug.js'
+import { isLoopDefaultSentinel } from './loopDefault.js'
 import {
   getCurrentProcessStartToken,
   getProcessStartToken,
@@ -354,6 +355,7 @@ export function createCronScheduler(
         recurring: t.recurring ?? false,
         taskId:
           t.id as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        autonomousLoopDefault: isLoopDefaultSentinel(t.prompt),
       })
       if (onFireTask) {
         onFireTask(t)

@@ -6,6 +6,7 @@ import { StringDecoder } from 'string_decoder'
 import { setTimeout as delay } from 'timers/promises'
 import { logEvent } from '../services/analytics/index.js'
 import {
+  bgSupervisorNoun,
   isDaemonCliEnabled,
   isDaemonServiceInstallEnabled,
 } from '../utils/agentsFleet.js'
@@ -15,6 +16,7 @@ import {
   saveGlobalConfig,
 } from '../utils/config.js'
 import { env } from '../utils/env.js'
+import { getCwd } from '../utils/cwd.js'
 import { logForDebugging } from '../utils/debug.js'
 import { errorMessage, getErrnoCode } from '../utils/errors.js'
 import { getPlatform } from '../utils/platform.js'
@@ -25,15 +27,29 @@ import {
   isProcessRunning,
   processStartTokenMatches,
 } from '../utils/genericProcessUtils.js'
-import { getControlSocketPath, getRosterPath } from './paths.js'
+import {
+  getControlSocketPath,
+  getPtySocketPath,
+  getRosterPath,
+} from './paths.js'
 import { PROTOCOL_VERSION, type ControlMessage } from './protocol.js'
-import { getRunningDaemon } from './lock.js'
+import {
+  getRunningDaemon,
+  stopRunningDaemon,
+  terminateDaemonProcess,
+} from './lock.js'
 import {
   getDefaultDaemonConfigPath,
   getDefaultDaemonLogPath,
+  controlDaemonService,
   installDaemonService,
+  isDaemonServiceInstalled,
   isServiceInstallSupported,
 } from './service.js'
+import {
+  killWorkerThroughPty,
+  readRosterSilently,
+} from './orphanReaper.js'
 
 export type ControlResponse =
   | ({ ok: true; op?: string } & Record<string, unknown>)
@@ -94,7 +110,7 @@ export async function requestControl(
       resolve(value)
     }
     socket.setTimeout(timeoutMs, () =>
-      finish({ ok: false, code: 'ENOCONN', error: 'control socket timeout' }),
+      finish({ ok: false, code: 'ETIMEOUT', error: 'control socket timeout' }),
     )
     socket.on('error', (error) =>
       finish({ ok: false, code: 'ENOCONN', error: String(error) }),
@@ -119,15 +135,15 @@ export async function requestControl(
         finish({
           ok: false,
           code: 'ENOCONN',
-          error:
-            'daemon connection dropped mid-request — it may have restarted; retry',
+          error: 'connection dropped mid-request — it may have restarted; retry',
         })
       }
     })
   })
 }
 
-export function maintainDaemonLease(): () => void {
+export function maintainDaemonLease(label: string): () => void {
+  const client = { label, cwd: getCwd(), pid: process.pid }
   let stopped = false
   let socket: Socket | null = null
   let reconnect: NodeJS.Timeout | null = null
@@ -137,7 +153,7 @@ export function maintainDaemonLease(): () => void {
     socket.on('error', () => socket?.destroy())
     socket.once('connect', () =>
       socket?.write(
-        `${JSON.stringify({ proto: PROTOCOL_VERSION, op: 'lease' })}\n`,
+        `${JSON.stringify({ proto: PROTOCOL_VERSION, op: 'lease', client })}\n`,
       ),
     )
     socket.on('data', () => {})
@@ -219,6 +235,95 @@ async function waitUntilReachable(timeoutMs: number): Promise<boolean> {
   return false
 }
 
+async function nudgeDaemon(): Promise<'up' | 'down'> {
+  const startedAt = Date.now()
+  let connected = false
+  let lastFailure: 'restarting' | 'etimeout' | 'enoconn' = 'restarting'
+  const deadline = Date.now() + 10_000
+  while (Date.now() < deadline) {
+    const response = await requestControl({
+      proto: PROTOCOL_VERSION,
+      op: 'nudge',
+    })
+    if (response.ok && response.op === 'nudge') {
+      connected = true
+      if (!response.restarting) {
+        if (Date.now() - startedAt > 200) {
+          logEvent('tengu_bg_skew_nudge', {
+            converged: true,
+            duration_ms: Date.now() - startedAt,
+          })
+        }
+        return 'up'
+      }
+      lastFailure = 'restarting'
+      await delay(100)
+      continue
+    }
+    if (!response.ok && response.code === 'ETIMEOUT') {
+      connected = true
+      lastFailure = 'etimeout'
+      await delay(100)
+      continue
+    }
+    if (!response.ok && response.code === 'ENOCONN') {
+      if (!connected) return 'down'
+      lastFailure = 'enoconn'
+      await delay(100)
+      continue
+    }
+    return 'up'
+  }
+  logEvent('tengu_bg_skew_nudge', {
+    converged: false,
+    restarting: lastFailure === 'restarting',
+    etimeout: lastFailure === 'etimeout',
+    enoconn: lastFailure === 'enoconn',
+  })
+  return 'down'
+}
+
+async function stopUnreachableDaemon(): Promise<string | null> {
+  const running = await getRunningDaemon().catch(() => null)
+  if (!running || Date.now() - running.startedAt <= 5_000) return null
+  logForDebugging(
+    `bg: supervisor pid ${running.pid} alive but control socket unreachable — signalling restart`,
+    { level: 'warn' },
+  )
+  if ((await terminateDaemonProcess(running.pid)) === 'eperm') {
+    return `${bgSupervisorNoun()} socket missing; could not restart supervisor (EPERM)`
+  }
+  logEvent('tengu_bg_daemon_zombie_restart', { pid: running.pid })
+  return null
+}
+
+async function shouldUseInstalledService(): Promise<boolean> {
+  if (process.env.CLAUDE_CONFIG_DIR || !isServiceInstallSupported()) {
+    return false
+  }
+  return isDaemonServiceInstalled().catch(() => false)
+}
+
+function daemonClientLabel(): string {
+  const args = process.argv.slice(2)
+  if (args[0] === 'agents') return 'claude agents'
+  if (args.includes('--bg')) return 'claude --bg'
+  return 'claude'
+}
+
+async function warnAboutLogind(): Promise<void> {
+  const platform = getPlatform()
+  if (platform !== 'linux' && platform !== 'wsl') return
+  const config = await readFile('/etc/systemd/logind.conf', 'utf8').catch(
+    () => '',
+  )
+  if (!/^\s*KillUserProcesses\s*=\s*yes\b/im.test(config)) return
+  logForDebugging(
+    'logind KillUserProcesses=yes — SSH disconnect will kill the transient daemon and its background jobs. Run `loginctl enable-linger $USER` or `claude daemon install` to keep it alive across logout.',
+    { level: 'warn' },
+  )
+}
+
 export type EnsureDaemonResult =
   | { ok: true }
   | { ok: false; reason: string; askInstall?: true }
@@ -227,39 +332,38 @@ export async function ensureDaemon(
   options: { forceTransient?: boolean; onStarting?: () => void } = {},
 ): Promise<EnsureDaemonResult> {
   const startedAt = Date.now()
-  const nudgeDeadline = Date.now() + 10_000
-  let sawNudge = false
-  while (Date.now() < nudgeDeadline) {
-    const response = await requestControl({ proto: PROTOCOL_VERSION, op: 'nudge' })
-    if (response.ok && response.op === 'nudge') {
-      sawNudge = true
-      if (!response.restarting) {
-        if (Date.now() - startedAt > 200) {
-          logEvent('tengu_bg_skew_nudge', {
-            converged: true,
-            duration_ms: Date.now() - startedAt,
-          })
-        }
-        return { ok: true }
-      }
-      await delay(100)
-      continue
+  if ((await nudgeDaemon()) === 'up') return { ok: true }
+
+  if (await shouldUseInstalledService()) {
+    options.onStarting?.()
+    const zombieError = await stopUnreachableDaemon()
+    if (zombieError) return { ok: false, reason: zombieError }
+    const started = await controlDaemonService('start')
+    const reachable = await waitUntilReachable(5_000)
+    const platform = getPlatform()
+    logEvent('tengu_bg_daemon_install', {
+      outcome_ok: reachable,
+      via_service: true,
+      fresh_install: false,
+      duration_ms: Date.now() - startedAt,
+      platform_darwin: platform === 'macos',
+      platform_linux: platform === 'linux',
+      platform_windows: platform === 'windows',
+    })
+    if (reachable) return { ok: true }
+    return {
+      ok: false,
+      reason: started.ok
+        ? "service is installed but the daemon did not become reachable within 5s — check 'claude daemon logs'"
+        : `service is installed but could not start it (${started.error}) — try 'claude daemon install' to repair`,
     }
-    if (!response.ok && response.code === 'ENOCONN' && !sawNudge) break
-    if (!response.ok && response.code === 'ENOCONN') {
-      await delay(100)
-      continue
-    }
-    return { ok: true }
-  }
-  if (sawNudge) {
-    logEvent('tengu_bg_skew_nudge', { converged: false, restarting: true })
   }
 
   if (
     !options.forceTransient &&
     getDaemonColdStart() === 'ask' &&
-    canOfferServiceInstall()
+    canOfferServiceInstall() &&
+    !getGlobalConfig().daemonInstallPromptDismissed
   ) {
     logEvent('tengu_bg_daemon_cold_start_ask', {})
     return {
@@ -271,43 +375,38 @@ export async function ensureDaemon(
   }
 
   options.onStarting?.()
-  const running = await getRunningDaemon().catch(() => null)
-  if (running && Date.now() - running.startedAt > 5_000) {
-    logForDebugging(
-      `bg: supervisor pid ${running.pid} alive but control socket unreachable — signalling restart`,
-      { level: 'warn' },
-    )
-    try {
-      process.kill(running.pid, 'SIGTERM')
-    } catch (error) {
-      if (getErrnoCode(error) === 'EPERM') {
-        return {
-          ok: false,
-          reason: `daemon socket missing; could not restart supervisor (${errorMessage(error)})`,
-        }
-      }
-    }
-    logEvent('tengu_bg_daemon_zombie_restart', { pid: running.pid })
-    const deadline = Date.now() + 2_000
-    while (Date.now() < deadline) {
-      try {
-        process.kill(running.pid, 0)
-      } catch {
-        break
-      }
-      await delay(50)
-    }
-  }
+  const zombieError = await stopUnreachableDaemon()
+  if (zombieError) return { ok: false, reason: zombieError }
   const { cmd, prefixArgs } = getRelaunchLauncher()
+  const spawnedBy = JSON.stringify({
+    label: daemonClientLabel(),
+    cwd: getCwd(),
+    pid: process.pid,
+  })
   try {
-    spawn(cmd, [...prefixArgs, 'daemon', 'run', '--origin', 'auto'], {
+    spawn(cmd, [
+      ...prefixArgs,
+      'daemon',
+      'run',
+      '--origin',
+      'transient',
+      '--spawned-by',
+      spawnedBy,
+    ], {
       detached: true,
       stdio: 'ignore',
       windowsHide: true,
       env: daemonSpawnEnv(),
     }).unref()
   } catch (error) {
-    return { ok: false, reason: `spawn daemon: ${errorMessage(error)}` }
+    logEvent('tengu_bg_daemon_spawn_failed', {
+      errno_enoent: getErrnoCode(error) === 'ENOENT',
+      errno_eacces: getErrnoCode(error) === 'EACCES',
+    })
+    return {
+      ok: false,
+      reason: `spawn ${bgSupervisorNoun()}: ${errorMessage(error)}`,
+    }
   }
   const reachable = await waitUntilReachable(5_000)
   const platform = getPlatform()
@@ -320,9 +419,14 @@ export async function ensureDaemon(
     platform_linux: platform === 'linux',
     platform_windows: platform === 'windows',
   })
-  return reachable
-    ? { ok: true }
-    : { ok: false, reason: 'daemon did not become reachable within 5s' }
+  if (reachable) {
+    void warnAboutLogind()
+    return { ok: true }
+  }
+  return {
+    ok: false,
+    reason: `${bgSupervisorNoun()} did not become reachable within 5s`,
+  }
 }
 
 function canOfferServiceInstall(): boolean {
@@ -350,7 +454,7 @@ async function readInstallAnswer(
     )
       .trim()
       .toLowerCase()
-    if (answer === '' || answer === 'y' || answer === 'yes') return 'yes'
+    if (answer === 'y' || answer === 'yes') return 'yes'
     if (answer === 'once' || answer === 'o') return 'once'
     if (answer === 'never') return 'never'
     return 'no'
@@ -368,14 +472,14 @@ export async function ensureDaemonInteractive(): Promise<EnsureDaemonResult> {
       onStarting: announceDaemonStarting,
     })
   }
-  if (!process.stdin.isTTY || env.isCI) return initial
+  if (!process.stdin.isTTY || !process.stderr.isTTY || env.isCI) return initial
 
   process.stderr.write(
     'No background daemon is running.\n' +
-      'Installing it as a service keeps scheduled and remote-control workers running across reboot.\n',
+      "Installing it as a service keeps the background daemon running across reboot so 'claude agents' stays available.\n",
   )
   const answer = await readInstallAnswer(
-    "Install as a service now? [Y/n/never, or 'once' for this login session] ",
+    "Install as a service now? [y/N/never, or 'once' just for now] ",
   )
   logEvent('tengu_bg_daemon_cold_start_ask_answer', {
     answer_yes: answer === 'yes',
@@ -384,20 +488,23 @@ export async function ensureDaemonInteractive(): Promise<EnsureDaemonResult> {
   })
   switch (answer) {
     case 'yes': {
+      await stopRunningDaemon()
       const installed = await installDaemonService({
         jsonPath: getDefaultDaemonConfigPath(),
         logPath: getDefaultDaemonLogPath(),
       })
       if (!installed.ok) {
         process.stderr.write(
-          `Service install failed (${installed.error}). Falling back to a transient daemon for this session.\n`,
+          `Service install failed (${installed.error}). Falling back to a transient ${bgSupervisorNoun()} for now.\n`,
         )
         return ensureDaemon({
           forceTransient: true,
           onStarting: announceDaemonStarting,
         })
       }
-      process.stderr.write(`Installed: ${installed.servicePath}\n`)
+      process.stderr.write(
+        `Installed: ${installed.servicePath}\nRun 'claude daemon uninstall' to undo.\n`,
+      )
       return (await waitUntilReachable(5_000))
         ? { ok: true }
         : {
@@ -472,13 +579,40 @@ export async function listLiveJobs(): Promise<Set<string>> {
   return new Set(entries.filter((_, index) => live[index]).map(([short]) => short))
 }
 
-/** Exact common background kill path, including orphan-process fallback. */
+async function backgroundProcessIsAlive(
+  pid: number,
+  procStart?: string,
+): Promise<boolean> {
+  try {
+    process.kill(pid, 0)
+  } catch (error) {
+    const code = getErrnoCode(error)
+    return code !== 'ESRCH' && code !== 'EPERM'
+  }
+  return processStartTokenMatches(pid, procStart)
+}
+
+export async function isBackgroundJobAlive(short: string): Promise<boolean> {
+  const response = await requestControl({
+    proto: PROTOCOL_VERSION,
+    op: 'has',
+    short,
+  })
+  if (response.ok && response.op === 'has') return Boolean(response.alive)
+  const worker = (await readRosterSilently()).workers[short]
+  return (
+    worker !== undefined &&
+    (await backgroundProcessIsAlive(worker.pid, worker.procStart))
+  )
+}
+
+/** Exact common background stop path, including orphan-process fallback. */
 export async function killJob(
   short: string,
   state?: { backend?: string },
-): Promise<ControlResponse> {
+): Promise<{ confirmed: boolean; error?: string }> {
   if (state?.backend === 'peer') {
-    return { ok: true, op: 'kill' }
+    return { confirmed: true }
   }
   let response = await requestControl({
     proto: PROTOCOL_VERSION,
@@ -497,18 +631,59 @@ export async function killJob(
       short,
     })
   }
-  if (!response.ok && response.code === 'ENOJOB') {
+  if (response.ok) return { confirmed: true }
+  if (
+    response.code === 'ENOJOB' ||
+    response.code === 'ENOCONN' ||
+    response.code === 'ETIMEOUT'
+  ) {
+    const controlSent = await killWorkerThroughPty(getPtySocketPath(short))
+    let foundSession = false
+    let allStopped = true
     const sessions = await listAllLiveSessions().catch(() => [])
     for (const session of sessions) {
       if (session.kind !== 'bg' || !session.sessionId?.startsWith(short)) continue
-      try {
-        process.kill(session.pid, 'SIGTERM')
-      } catch {}
+      foundSession = true
+      if (!controlSent) {
+        try {
+          process.kill(session.pid, 'SIGTERM')
+        } catch {}
+      }
       const deadline = Date.now() + 3_000
-      while (isProcessRunning(session.pid) && Date.now() < deadline) {
+      let alive = true
+      while (
+        (alive = await backgroundProcessIsAlive(session.pid)) &&
+        Date.now() < deadline
+      ) {
         await delay(100)
       }
+      if (alive) {
+        logEvent('tengu_bg_killjob_ctrl_fallback', {
+          ctrlSent: controlSent,
+        })
+        try {
+          process.kill(session.pid, 'SIGTERM')
+        } catch {}
+        const fallbackDeadline = Date.now() + 500
+        while (
+          (alive = await backgroundProcessIsAlive(session.pid)) &&
+          Date.now() < fallbackDeadline
+        ) {
+          await delay(100)
+        }
+      }
+      if (alive) allStopped = false
     }
+    if (foundSession) return { confirmed: allStopped }
+    if (response.code === 'ENOCONN' || response.code === 'ETIMEOUT') {
+      const worker = (await readRosterSilently()).workers[short]
+      return {
+        confirmed:
+          worker !== undefined &&
+          !(await backgroundProcessIsAlive(worker.pid, worker.procStart)),
+      }
+    }
+    return { confirmed: true }
   }
-  return response
+  return { confirmed: false, error: response.error }
 }

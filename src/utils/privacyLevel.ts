@@ -12,8 +12,10 @@
  *
  * The resolved level is the most restrictive signal from:
  *   CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC  →  essential-traffic
- *   DISABLE_TELEMETRY                         →  no-telemetry
+ *   DISABLE_TELEMETRY or truthy DO_NOT_TRACK  →  no-telemetry
  */
+
+import { isEnvTruthy } from './envUtils.js'
 
 type PrivacyLevel = 'default' | 'no-telemetry' | 'essential-traffic'
 
@@ -21,7 +23,10 @@ export function getPrivacyLevel(): PrivacyLevel {
   if (process.env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC) {
     return 'essential-traffic'
   }
-  if (process.env.DISABLE_TELEMETRY) {
+  if (
+    process.env.DISABLE_TELEMETRY ||
+    isEnvTruthy(process.env.DO_NOT_TRACK)
+  ) {
     return 'no-telemetry'
   }
   return 'default'

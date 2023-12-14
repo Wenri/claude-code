@@ -123,6 +123,16 @@ async function main(): Promise<void> {
     return;
   }
 
+  // Warm daemon worker. It waits for a claim before loading a project and
+  // entering the normal CLI main path.
+  if (feature('DAEMON') && args[0] === '--bg-spare') {
+    const {
+      runBgSpare
+    } = await import('../daemon/spare.js');
+    await runBgSpare(args.slice(1));
+    return;
+  }
+
   // Fast-path for `claude remote-control` (also accepts legacy `claude remote` / `claude sync` / `claude bridge`):
   // serve local machine as bridge environment.
   // feature() must stay inline for build-time dead code elimination;
@@ -187,6 +197,10 @@ async function main(): Promise<void> {
     } = await import('../utils/config.js');
     enableConfigs();
     const {
+      applySafeConfigEnvironmentVariables
+    } = await import('../utils/managedEnv.js');
+    applySafeConfigEnvironmentVariables();
+    const {
       initSinks
     } = await import('../utils/sinks.js');
     initSinks();
@@ -198,15 +212,20 @@ async function main(): Promise<void> {
   }
 
   // Fast-path for background-agent management and --bg dispatch.
-  if (feature('BG_SESSIONS') && (args[0] === 'logs' || args[0] === 'attach' || args[0] === 'kill' || args[0] === 'respawn' || args[0] === 'rm' || args.includes('--bg') || args.includes('--background'))) {
+  if (feature('BG_SESSIONS') && (args[0] === 'logs' || args[0] === 'attach' || args[0] === 'stop' || args[0] === 'kill' || args[0] === 'respawn' || args[0] === 'rm' || args.includes('--bg') || args.includes('--background'))) {
     profileCheckpoint('cli_bg_path');
     const {
       enableConfigs
     } = await import('../utils/config.js');
     enableConfigs();
+    const {
+      applySafeConfigEnvironmentVariables
+    } = await import('../utils/managedEnv.js');
+    applySafeConfigEnvironmentVariables();
     const fleet = await import('../utils/agentsFleet.js');
+    await fleet.ensureFleetGateHydrated();
     if (!fleet.isAgentsFleetEnabled()) {
-      const operation = args[0] !== undefined && ['logs', 'attach', 'kill', 'respawn', 'rm'].includes(args[0])
+      const operation = args[0] !== undefined && ['logs', 'attach', 'stop', 'kill', 'respawn', 'rm'].includes(args[0])
         ? args[0]
         : (args.find(arg => arg === '--bg' || arg === '--background' || arg === '--routine' || arg.startsWith('--routine=')) ?? '--bg');
       return fleet.fleetGateRejected(operation);
@@ -219,9 +238,8 @@ async function main(): Promise<void> {
       case 'attach':
         await bg.attachHandler(args[1]);
         break;
+      case 'stop':
       case 'kill':
-        await bg.killHandler(args[1]);
-        break;
       case 'respawn':
       case 'rm': {
         const [
@@ -238,7 +256,8 @@ async function main(): Promise<void> {
         initializeAnalyticsSink();
         initialize1PEventLogging();
         if (args[0] === 'respawn') await bg.respawnHandler(args[1]);
-        else await bg.rmHandler(args[1]);
+        else if (args[0] === 'rm') await bg.rmHandler(args[1]);
+        else await bg.stopHandler(args[1]);
         await Promise.race([
           Promise.all([shutdown1PEventLogging(), shutdownDatadog()]),
           sleep(500, undefined, { unref: true }),

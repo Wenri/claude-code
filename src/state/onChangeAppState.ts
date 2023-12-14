@@ -14,9 +14,12 @@ import {
 } from '../utils/permissions/PermissionMode.js'
 import {
   notifyPermissionModeChanged,
+  notifySessionInternalMetadataChanged,
   notifySessionMetadataChanged,
   type SessionExternalMetadata,
+  type SessionInternalMetadata,
 } from '../utils/sessionState.js'
+import { isBackgroundTask, type TaskState } from '../tasks/types.js'
 import {
   getSettingsForSource,
   updateSettingsForSource,
@@ -44,6 +47,39 @@ export function externalMetadataToAppState(
   })
 }
 
+export function internalMetadataToAppState(
+  metadata: SessionInternalMetadata,
+): (prev: AppState) => AppState {
+  if (!Array.isArray(metadata.session_allow_rules)) return prev => prev
+  const sessionAllowRules = metadata.session_allow_rules.filter(
+    (rule): rule is string =>
+      typeof rule === 'string' && !rule.startsWith('mcp__'),
+  )
+  if (sessionAllowRules.length === 0) return prev => prev
+  return prev => ({
+    ...prev,
+    toolPermissionContext: {
+      ...prev.toolPermissionContext,
+      alwaysAllowRules: {
+        ...prev.toolPermissionContext.alwaysAllowRules,
+        session: sessionAllowRules,
+      },
+    },
+  })
+}
+
+function runningBackgroundTasks(state: AppState): Array<{
+  task_id: string
+  description?: string
+}> {
+  return (Object.values(state.tasks) as unknown as TaskState[])
+    .filter(
+      task =>
+        isBackgroundTask(task) &&
+        (task.type === 'local_bash' || task.type === 'monitor_mcp'),
+    )
+    .map(task => ({ task_id: task.id, description: task.description }))
+}
 export function onChangeAppState({
   newState,
   oldState,
@@ -51,6 +87,33 @@ export function onChangeAppState({
   newState: AppState
   oldState: AppState
 }) {
+  if (newState.tasks !== oldState.tasks) {
+    const previousTasks = runningBackgroundTasks(oldState)
+    const nextTasks = runningBackgroundTasks(newState)
+    if (
+      previousTasks.length !== nextTasks.length ||
+      nextTasks.some(
+        (task, index) => task.task_id !== previousTasks[index]?.task_id,
+      )
+    ) {
+      notifySessionInternalMetadataChanged({
+        running_background_tasks: nextTasks,
+      })
+    }
+  }
+
+  const previousSessionRules =
+    oldState.toolPermissionContext.alwaysAllowRules.session
+  const nextSessionRules = newState.toolPermissionContext.alwaysAllowRules.session
+  if (previousSessionRules !== nextSessionRules) {
+    const safeRules = nextSessionRules?.filter(
+      rule => !rule.startsWith('mcp__'),
+    )
+    notifySessionInternalMetadataChanged({
+      session_allow_rules: safeRules?.length ? [...safeRules] : null,
+    })
+  }
+
   // toolPermissionContext.mode — single choke point for CCR/SDK mode sync.
   //
   // Prior to this block, mode changes were relayed to CCR by only 2 of 8+
@@ -93,6 +156,19 @@ export function onChangeAppState({
       })
     }
     notifyPermissionModeChanged(newMode)
+  }
+
+  const prevSessionAllowRules =
+    oldState.toolPermissionContext.alwaysAllowRules.session
+  const newSessionAllowRules =
+    newState.toolPermissionContext.alwaysAllowRules.session
+  if (prevSessionAllowRules !== newSessionAllowRules) {
+    const builtInRules = newSessionAllowRules?.filter(
+      rule => !rule.startsWith('mcp__'),
+    )
+    notifySessionInternalMetadataChanged({
+      session_allow_rules: builtInRules?.length ? builtInRules : null,
+    })
   }
 
   if (newState.mainLoopModel !== oldState.mainLoopModel) {

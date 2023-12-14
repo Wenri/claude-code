@@ -147,11 +147,13 @@ type UseVoiceOptions = {
   onError?: (message: string) => void
   enabled: boolean
   focusMode: boolean
+  mode?: 'hold' | 'tap'
 }
 
 type UseVoiceReturn = {
   state: VoiceState
   handleKeyEvent: (fallbackMs?: number) => void
+  cancelRecording: () => void
 }
 
 // Gap (ms) between auto-repeat key events that signals key release.
@@ -175,6 +177,8 @@ export const FIRST_PRESS_FALLBACK_MS = 2000
 // before tearing it down to free the WebSocket connection. Re-arms on
 // the next focus cycle (blur → refocus).
 const FOCUS_SILENCE_TIMEOUT_MS = 5_000
+const TOGGLE_SILENCE_TIMEOUT_MS = 15_000
+const TOGGLE_MAX_DURATION_MS = 120_000
 
 // Number of bars shown in the recording waveform visualizer.
 const AUDIO_LEVEL_BARS = 16
@@ -201,6 +205,7 @@ export function useVoice({
   onError,
   enabled,
   focusMode,
+  mode = 'hold',
 }: UseVoiceOptions): UseVoiceReturn {
   const [state, setState] = useState<VoiceState>('idle')
   const stateRef = useRef<VoiceState>('idle')
@@ -223,6 +228,13 @@ export function useVoice({
   const focusTriggeredRef = useRef(false)
   // Timer that tears down the session after prolonged silence in focus mode.
   const focusSilenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  )
+  const toggleTriggeredRef = useRef(false)
+  const toggleSilenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  )
+  const toggleMaxDurationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   )
   // Set when a focus-mode session is torn down due to silence. Prevents
@@ -303,6 +315,15 @@ export function useVoice({
       clearTimeout(focusSilenceTimerRef.current)
       focusSilenceTimerRef.current = null
     }
+    if (toggleSilenceTimerRef.current) {
+      clearTimeout(toggleSilenceTimerRef.current)
+      toggleSilenceTimerRef.current = null
+    }
+    if (toggleMaxDurationTimerRef.current) {
+      clearTimeout(toggleMaxDurationTimerRef.current)
+      toggleMaxDurationTimerRef.current = null
+    }
+    toggleTriggeredRef.current = false
     silenceTimedOutRef.current = false
     voiceModule?.stopRecording()
     if (connectionRef.current) {
@@ -327,6 +348,15 @@ export function useVoice({
     // (conn 2 responding after user released key) doesn't double-fire on
     // top of the "check network" message below.
     attemptGenRef.current++
+    toggleTriggeredRef.current = false
+    if (toggleSilenceTimerRef.current) {
+      clearTimeout(toggleSilenceTimerRef.current)
+      toggleSilenceTimerRef.current = null
+    }
+    if (toggleMaxDurationTimerRef.current) {
+      clearTimeout(toggleMaxDurationTimerRef.current)
+      toggleMaxDurationTimerRef.current = null
+    }
     // Capture focusTriggered BEFORE clearing it — needed as an event dimension
     // so BigQuery can filter out passive focus-mode auto-recordings (user focused
     // terminal without speaking → ambient noise sets hadAudioSignal=true → false
@@ -539,6 +569,58 @@ export function useVoice({
   // Arms (or resets) a timer that tears down the focus-mode session
   // after FOCUS_SILENCE_TIMEOUT_MS of no speech. Called when a session
   // starts and after each flushed transcript.
+  function armToggleSilenceTimer(): void {
+    if (toggleSilenceTimerRef.current) {
+      clearTimeout(toggleSilenceTimerRef.current)
+    }
+    toggleSilenceTimerRef.current = setTimeout(
+      (
+        toggleSilenceTimerRef,
+        stateRef,
+        toggleTriggeredRef,
+        finishRecording,
+      ) => {
+        toggleSilenceTimerRef.current = null
+        if (stateRef.current === 'recording' && toggleTriggeredRef.current) {
+          logForDebugging('[voice] Toggle silence timeout — auto-finishing')
+          finishRecording()
+        }
+      },
+      TOGGLE_SILENCE_TIMEOUT_MS,
+      toggleSilenceTimerRef,
+      stateRef,
+      toggleTriggeredRef,
+      finishRecording,
+    )
+  }
+
+  function armToggleMaxDurationTimer(): void {
+    if (toggleMaxDurationTimerRef.current) {
+      clearTimeout(toggleMaxDurationTimerRef.current)
+    }
+    toggleMaxDurationTimerRef.current = setTimeout(
+      (
+        toggleMaxDurationTimerRef,
+        stateRef,
+        toggleTriggeredRef,
+        finishRecording,
+      ) => {
+        toggleMaxDurationTimerRef.current = null
+        if (stateRef.current === 'recording' && toggleTriggeredRef.current) {
+          logForDebugging(
+            '[voice] Toggle max-duration cap — auto-finishing',
+          )
+          finishRecording()
+        }
+      },
+      TOGGLE_MAX_DURATION_MS,
+      toggleMaxDurationTimerRef,
+      stateRef,
+      toggleTriggeredRef,
+      finishRecording,
+    )
+  }
+
   function armFocusSilenceTimer(): void {
     if (focusSilenceTimerRef.current) {
       clearTimeout(focusSilenceTimerRef.current)
@@ -786,6 +868,9 @@ export function useVoice({
             logForDebugging(
               `[voice] onTranscript: isFinal=${String(isFinal)} text="${text}"`,
             )
+            if (toggleTriggeredRef.current) {
+              armToggleSilenceTimer()
+            }
             if (isFinal && text.trim()) {
               if (focusTriggeredRef.current) {
                 // Focus mode: flush each final transcript immediately and
@@ -1049,6 +1134,20 @@ export function useVoice({
         return
       }
 
+      if (mode === 'tap') {
+        if (currentState === 'idle') {
+          logForDebugging('[voice] toggle: starting recording')
+          toggleTriggeredRef.current = true
+          void startRecordingSession()
+          armToggleSilenceTimer()
+          armToggleMaxDurationTimer()
+        } else if (currentState === 'recording') {
+          logForDebugging('[voice] toggle: finishing recording')
+          finishRecording()
+        }
+        return
+      }
+
       if (currentState === 'idle') {
         logForDebugging(
           '[voice] handleKeyEvent: idle, starting recording session immediately',
@@ -1123,8 +1222,15 @@ export function useVoice({
         )
       }
     },
-    [enabled, focusMode, cleanup],
+    [enabled, focusMode, mode, cleanup],
   )
+
+  const cancelRecording = useCallback((): void => {
+    if (stateRef.current === 'idle') return
+    logForDebugging('[voice] cancelRecording: discarding without submit')
+    cleanup()
+    updateState('idle')
+  }, [cleanup])
 
   // Cleanup only when disabled or unmounted - NOT on state changes
   useEffect(() => {
@@ -1140,5 +1246,6 @@ export function useVoice({
   return {
     state,
     handleKeyEvent,
+    cancelRecording,
   }
 }

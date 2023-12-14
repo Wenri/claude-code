@@ -2,6 +2,7 @@ import { readFile, rename, unlink, writeFile } from 'fs/promises'
 import { join } from 'path'
 import { getClaudeConfigHomeDir } from '../utils/envUtils.js'
 import { isENOENT } from '../utils/errors.js'
+import { processStartTokenMatches } from '../utils/genericProcessUtils.js'
 
 export interface DaemonLock {
   pid: number
@@ -10,6 +11,8 @@ export interface DaemonLock {
   jsonPath: string
   logPath: string
   origin?: string
+  spawnedBy?: { label: string; cwd: string; pid: number }
+  procStart?: string
 }
 
 export function getDaemonLockPath(): string {
@@ -99,6 +102,28 @@ export async function processLooksLikeDaemon(pid: number): Promise<boolean> {
   }
 }
 
+export async function terminateDaemonProcess(
+  pid: number,
+  options: { gracefulMs?: number } = {},
+): Promise<'eperm' | 'exited' | 'timed-out'> {
+  try {
+    process.kill(pid, 'SIGTERM')
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'EPERM') return 'eperm'
+    return 'exited'
+  }
+  const deadline = Date.now() + (options.gracefulMs ?? 2_000)
+  while (Date.now() < deadline) {
+    try {
+      process.kill(pid, 0)
+    } catch {
+      return 'exited'
+    }
+    await new Promise(resolve => setTimeout(resolve, 50))
+  }
+  return 'timed-out'
+}
+
 export async function getRunningDaemon(): Promise<DaemonLock | null> {
   const lock = await readDaemonLock()
   if (!lock) return null
@@ -107,7 +132,16 @@ export async function getRunningDaemon(): Promise<DaemonLock | null> {
   } catch {
     return null
   }
-  return (await processLooksLikeDaemon(lock.pid)) ? lock : null
+  if (!(await processLooksLikeDaemon(lock.pid))) return null
+  if (!(await processStartTokenMatches(lock.pid, lock.procStart))) return null
+  return lock
+}
+
+export async function stopRunningDaemon(): Promise<number | null> {
+  const lock = await getRunningDaemon().catch(() => null)
+  if (!lock) return null
+  await terminateDaemonProcess(lock.pid)
+  return lock.pid
 }
 
 export async function daemonVersionDiffers(version: string): Promise<boolean> {

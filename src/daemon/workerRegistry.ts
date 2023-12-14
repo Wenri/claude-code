@@ -4,6 +4,7 @@ import { dirname } from 'path'
 import { setTimeout as delay } from 'timers/promises'
 import { z } from 'zod/v4'
 import { parseCronExpression } from '../utils/cron.js'
+import { isDaemonWorkerRegistryEnabled } from '../utils/agentsFleet.js'
 import {
   DEFAULT_CRON_JITTER_CONFIG,
   jitteredNextCronRunMs,
@@ -469,6 +470,11 @@ export function startParentWatchdog(
 export async function runDaemonWorker(kind: string | undefined): Promise<void> {
   if (!kind || !(kind in WORKER_KINDS)) {
     process.stderr.write(`unknown worker kind: ${kind}\n`)
+    process.exit(2)
+    return
+  }
+  if (kind !== 'heartbeat' && !isDaemonWorkerRegistryEnabled()) {
+    process.stderr.write(`worker kind '${kind}' is not available.\n`)
     process.exit(2)
     return
   }

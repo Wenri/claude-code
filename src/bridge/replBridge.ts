@@ -226,7 +226,23 @@ export type BridgeCoreParams = {
   onReadFile?: (
     path: string,
     maxBytes?: number,
-  ) => Promise<{ contents: string; absPath: string; truncated?: boolean }>
+    encoding?: 'utf-8' | 'base64',
+  ) => Promise<{
+    contents: string
+    absPath: string
+    truncated?: boolean
+    encoding?: 'base64'
+  }>
+  onMcpAuthenticate?: (
+    serverName: string,
+    redirectUri?: string,
+  ) => Promise<unknown>
+  onMcpOauthCallbackUrl?: (
+    serverName: string,
+    callbackUrl: string,
+  ) => Promise<unknown>
+  onMcpReconnect?: (serverName: string) => Promise<unknown>
+  onMcpStatus?: () => unknown[]
   onStateChange?: (state: BridgeState, detail?: string) => void
   /**
    * Fires on each real user message to flow through writeMessages() until
@@ -328,6 +344,10 @@ export async function initBridgeCore(
     onSetColor,
     onFileSuggestions,
     onReadFile,
+    onMcpAuthenticate,
+    onMcpOauthCallbackUrl,
+    onMcpReconnect,
+    onMcpStatus,
     onStateChange,
     onUserMessage,
     perpetual,
@@ -1241,6 +1261,10 @@ export async function initBridgeCore(
           onSetColor,
           onFileSuggestions,
           onReadFile,
+          onMcpAuthenticate,
+          onMcpOauthCallbackUrl,
+          onMcpReconnect,
+          onMcpStatus,
         })
 
       let initialFlushDone = false

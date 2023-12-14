@@ -271,6 +271,55 @@ function isUrlChar(c: string): boolean {
   return code >= 0x21 && code <= 0x7e && !URL_BOUNDARY.has(c)
 }
 
+function urlCharAt(screen: Screen, col: number, row: number): string | null {
+  if (screen.noSelect[row * screen.width + col] === 1) return null
+  const cell = cellAt(screen, col, row)
+  return cell && cell.width === CellWidth.Narrow && isUrlChar(cell.char)
+    ? cell.char
+    : null
+}
+
+function urlRunAt(
+  screen: Screen,
+  row: number,
+  col: number,
+  minCol: number,
+  maxCol: number,
+): { lo: number; hi: number; text: string } | null {
+  if (col < minCol || col > maxCol) return null
+  const current = urlCharAt(screen, col, row)
+  if (current === null) return null
+  let lo = col
+  let before = ''
+  while (lo > minCol) {
+    const char = urlCharAt(screen, lo - 1, row)
+    if (char === null) break
+    before = char + before
+    lo--
+  }
+  let hi = col
+  let after = ''
+  while (hi < maxCol) {
+    const char = urlCharAt(screen, hi + 1, row)
+    if (char === null) break
+    after += char
+    hi++
+  }
+  return { lo, hi, text: before + current + after }
+}
+
+function softWrapBounds(screen: Screen, row: number): {
+  start: number
+  end: number
+} {
+  const current = screen.softWrap[row]!
+  const next = row + 1 < screen.height ? screen.softWrap[row + 1]! : 0
+  return {
+    start: current !== 0 ? current & 0xffff : 0,
+    end: next !== 0 ? next >>> 16 : screen.width,
+  }
+}
+
 /**
  * Scan the screen buffer for a plain-text URL at (col, row). Mirrors the
  * terminal's native Cmd+Click URL detection, which fullscreen mode's mouse
@@ -284,47 +333,82 @@ export function findPlainTextUrlAt(
 ): string | undefined {
   if (row < 0 || row >= screen.height) return undefined
   const width = screen.width
-  const noSelect = screen.noSelect
-  const rowOff = row * width
-
   let c = col
   if (c > 0) {
     const cell = cellAt(screen, c, row)
     if (cell && cell.width === CellWidth.SpacerTail) c -= 1
   }
-  if (c < 0 || c >= width || noSelect[rowOff + c] === 1) return undefined
+  if (c < 0 || c >= width) return undefined
 
-  const startCell = cellAt(screen, c, row)
-  if (!startCell || !isUrlChar(startCell.char)) return undefined
-
-  // Expand left/right to the bounds of the URL-char run. URLs are ASCII
-  // (CellWidth.Narrow, 1 codeunit), so hitting a non-ASCII/wide/spacer
-  // cell is a boundary — no need to step over spacers like wordBoundsAt.
-  let lo = c
-  while (lo > 0) {
-    const prev = lo - 1
-    if (noSelect[rowOff + prev] === 1) break
-    const pc = cellAt(screen, prev, row)
-    if (!pc || pc.width !== CellWidth.Narrow || !isUrlChar(pc.char)) break
-    lo = prev
-  }
-  let hi = c
-  while (hi < width - 1) {
-    const next = hi + 1
-    if (noSelect[rowOff + next] === 1) break
-    const nc = cellAt(screen, next, row)
-    if (!nc || nc.width !== CellWidth.Narrow || !isUrlChar(nc.char)) break
-    hi = next
+  const softWrap = screen.softWrap
+  const bounds = softWrapBounds(screen, row)
+  let minCol: number
+  let maxCol: number
+  const inWrappedContent = c >= bounds.start && c < bounds.end
+  if (inWrappedContent) {
+    minCol = bounds.start
+    maxCol = bounds.end - 1
+  } else if (c >= bounds.end) {
+    minCol = bounds.end
+    maxCol = width - 1
+  } else {
+    minCol = 0
+    maxCol = bounds.start - 1
   }
 
-  let token = ''
-  for (let i = lo; i <= hi; i++) token += cellAt(screen, i, row)!.char
+  const run = urlRunAt(screen, row, c, minCol, maxCol)
+  if (!run) return undefined
+
+  let token = run.text
+  let clickIdx = c - run.lo
+  let lastRow = row
+  let lastCol = run.hi
+  let firstRow = row
+  let firstCol = run.lo
+
+  if (inWrappedContent) {
+    while (lastRow + 1 < screen.height) {
+      const marker = softWrap[lastRow + 1]!
+      if (marker === 0 || lastCol + 1 !== marker >>> 16) break
+      const nextBounds = softWrapBounds(screen, lastRow + 1)
+      const nextRun = urlRunAt(
+        screen,
+        lastRow + 1,
+        nextBounds.start,
+        nextBounds.start,
+        nextBounds.end - 1,
+      )
+      if (!nextRun) break
+      token += nextRun.text
+      lastRow++
+      lastCol = nextRun.hi
+    }
+    while (firstRow > 0) {
+      const marker = softWrap[firstRow]!
+      const previousEnd = marker >>> 16
+      if (marker === 0 || firstCol !== (marker & 0xffff) || previousEnd === 0) {
+        break
+      }
+      const previousBounds = softWrapBounds(screen, firstRow - 1)
+      const previousRun = urlRunAt(
+        screen,
+        firstRow - 1,
+        previousEnd - 1,
+        previousBounds.start,
+        previousEnd - 1,
+      )
+      if (!previousRun) break
+      token = previousRun.text + token
+      clickIdx += previousRun.text.length
+      firstRow--
+      firstCol = previousRun.lo
+    }
+  }
 
   // 1 cell = 1 char across [lo, hi] (ASCII-only run), so string index =
   // column offset. Find the last scheme anchor at or before the click —
   // a run like `https://a.com,https://b.com` has two, and clicking the
   // second should return the second URL, not the greedy match of both.
-  const clickIdx = c - lo
   const schemeRe = /(?:https?|file):\/\//g
   let urlStart = -1
   let urlEnd = token.length
@@ -336,6 +420,9 @@ export function findPlainTextUrlAt(
     urlStart = m.index
   }
   if (urlStart < 0) return undefined
+  if (urlEnd === token.length && lastCol + 1 < width) {
+    if (cellAt(screen, lastCol + 1, lastRow)?.char === '…') return undefined
+  }
   let url = token.slice(urlStart, urlEnd)
 
   // Strip trailing sentence punctuation. For closers () ] }, only strip
@@ -779,7 +866,10 @@ function extractRowText(
 ): string {
   const noSelect = screen.noSelect
   const rowOff = row * screen.width
-  const contentEnd = row + 1 < screen.height ? screen.softWrap[row + 1]! : 0
+  const currentWrap = screen.softWrap[row]!
+  const contentEnd =
+    row + 1 < screen.height ? screen.softWrap[row + 1]! >>> 16 : 0
+  colStart = currentWrap !== 0 ? Math.max(colStart, currentWrap & 0xffff) : colStart
   const lastCol = contentEnd > 0 ? Math.min(colEnd, contentEnd - 1) : colEnd
   let line = ''
   for (let col = colStart; col <= lastCol; col++) {

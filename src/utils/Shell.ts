@@ -2,6 +2,7 @@ import { execFileSync, spawn } from 'child_process'
 import { constants as fsConstants, readFileSync, unlinkSync } from 'fs'
 import { type FileHandle, mkdir, open, realpath } from 'fs/promises'
 import memoize from 'lodash-es/memoize.js'
+import { homedir, tmpdir } from 'os'
 import { isAbsolute, resolve } from 'path'
 import { join as posixJoin } from 'path/posix'
 import { logEvent } from 'src/services/analytics/index.js'
@@ -263,19 +264,37 @@ export async function exec(
   try {
     await realpath(cwd)
   } catch {
-    const fallback = getOriginalCwd()
-    logForDebugging(
-      `Shell CWD "${cwd}" no longer exists, recovering to "${fallback}"`,
-    )
-    try {
-      await realpath(fallback)
-      setCwdState(fallback)
-      cwd = fallback
-    } catch {
+    const candidates = [
+      getOriginalCwd(),
+      homedir(),
+      process.env.CLAUDE_CODE_TMPDIR || tmpdir(),
+    ]
+    let fallback: string | null = null
+    let fallbackIndex = -1
+    for (const [index, candidate] of candidates.entries()) {
+      try {
+        fallback = await realpath(candidate)
+        fallbackIndex = index
+        break
+      } catch {
+        // Try the next stable directory.
+      }
+    }
+    if (fallback === null) {
       return createFailedCommand(
         `Working directory "${cwd}" no longer exists. Please restart Claude from an existing directory.`,
       )
     }
+    logForDebugging(
+      `Shell CWD "${cwd}" no longer exists, recovering to "${fallback}"`,
+    )
+    setCwdState(fallback)
+    if (fallbackIndex > 0) {
+      return createFailedCommand(
+        `Working directory "${cwd}" was deleted; shell cwd recovered to "${fallback}". Re-issue your command (it will run from the recovered directory).`,
+      )
+    }
+    cwd = fallback
   }
 
   // If already aborted, don't spawn the process at all

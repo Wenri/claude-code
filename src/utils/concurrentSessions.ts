@@ -2,11 +2,16 @@ import { feature } from 'bun:bundle'
 import { statSync } from 'fs'
 import { chmod, mkdir, readdir, readFile, unlink, writeFile } from 'fs/promises'
 import { join } from 'path'
+import { z } from 'zod/v4'
 import {
   getOriginalCwd,
   getSessionId,
   onSessionSwitch,
 } from '../bootstrap/state.js'
+import {
+  type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+  logEvent,
+} from '../services/analytics/index.js'
 import { registerCleanup } from './cleanupRegistry.js'
 import { logForDebugging } from './debug.js'
 import { getClaudeConfigHomeDir } from './envUtils.js'
@@ -16,6 +21,7 @@ import {
   isProcessRunning,
   processStartTokenMatches,
 } from './genericProcessUtils.js'
+import { lazySchema } from './lazySchema.js'
 import { getPlatform } from './platform.js'
 import { jsonParse, jsonStringify } from './slowOperations.js'
 import { getAgentId } from './teammate.js'
@@ -45,6 +51,25 @@ export interface ConcurrentSession {
   messagingSocketPath?: string
   procStart?: string
 }
+
+const ConcurrentSessionSchema = lazySchema(() =>
+  z.object({
+    pid: z.number(),
+    sessionId: z.string(),
+    cwd: z.string().optional(),
+    startedAt: z.number(),
+    version: z.string().optional(),
+    kind: z.enum(['interactive', 'bg', 'daemon', 'daemon-worker']),
+  }),
+)
+
+type PriorUncleanSession = z.infer<ReturnType<typeof ConcurrentSessionSchema>>
+
+// Crash details are collected only on the first complete registry scan. Later
+// scans still sweep dead PID files, but do not repeatedly attribute the same
+// startup's stale-session set while concurrent-session telemetry is polled.
+const priorUncleanSessions: PriorUncleanSession[] = []
+let hasScannedPriorUncleanSessions = false
 
 function getSessionsDir(): string {
   return join(getClaudeConfigHomeDir(), 'sessions')
@@ -264,8 +289,45 @@ export async function countConcurrentSessions(): Promise<number> {
       // or CLAUDE_CONFIG_DIR), a Windows PID won't be probeable from WSL
       // and we'd falsely delete a live session's file. This is just
       // telemetry so conservative undercount is acceptable.
-      void unlink(join(dir, file)).catch(() => {})
+      const stalePath = join(dir, file)
+      const parsed = hasScannedPriorUncleanSessions
+        ? null
+        : await readFile(stalePath, 'utf8')
+            .then(contents =>
+              ConcurrentSessionSchema().safeParse(jsonParse(contents)),
+            )
+            .catch(() => null)
+      const removed = await unlink(stalePath).then(
+        () => true,
+        () => false,
+      )
+      if (
+        removed &&
+        parsed?.success &&
+        parsed.data.kind === 'interactive'
+      ) {
+        priorUncleanSessions.push(parsed.data)
+        logForDebugging(
+          `Prior session exited uncleanly: ${parsed.data.sessionId} (v${parsed.data.version ?? '?'})`,
+        )
+        logEvent('tengu_unclean_exit', {
+          session_age_sec: Math.round(
+            (Date.now() - parsed.data.startedAt) / 1000,
+          ),
+          prior_version: (parsed.data.version ??
+            'unknown') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+          on_current_version: parsed.data.version === MACRO.VERSION,
+          prior_session_id:
+            parsed.data.sessionId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        })
+      }
     }
+  }
+  if (!hasScannedPriorUncleanSessions) {
+    priorUncleanSessions.sort(
+      (left, right) => right.startedAt - left.startedAt,
+    )
+    hasScannedPriorUncleanSessions = true
   }
   return count
 }

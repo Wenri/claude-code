@@ -1,12 +1,12 @@
 import { c as _c } from "react/compiler-runtime";
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
-import { useIsInsideModal, useModalScrollRef } from '../../context/modalContext.js';
+import React, { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { ModalContext, useIsInsideModal, useModalClaimScrollBox, useModalOrTerminalSize, useModalScrollRef } from '../../context/modalContext.js';
 import { useTerminalSize } from '../../hooks/useTerminalSize.js';
 import ScrollBox from '../../ink/components/ScrollBox.js';
 import type { KeyboardEvent } from '../../ink/events/keyboard-event.js';
 import { useDeclaredCursor } from '../../ink/hooks/use-declared-cursor.js';
 import { stringWidth } from '../../ink/stringWidth.js';
-import { Box, Text } from '../../ink.js';
+import { Box, type DOMElement, measureElement, Text } from '../../ink.js';
 import { useKeybindings } from '../../keybindings/useKeybinding.js';
 import type { Theme } from '../../utils/theme.js';
 type TabsProps = {
@@ -92,7 +92,27 @@ export function Tabs(t0) {
   const [internalSelectedTab, setInternalSelectedTab] = useState(defaultTabIndex !== -1 ? defaultTabIndex : 0);
   const controlledTabIndex = isControlled ? tabs.findIndex(tab_0 => tab_0[0] === controlledSelectedTab) : -1;
   const selectedTabIndex = isControlled ? controlledTabIndex !== -1 ? controlledTabIndex : 0 : internalSelectedTab;
+  const modalContext = useContext(ModalContext);
   const modalScrollRef = useModalScrollRef();
+  const claimScrollBox = useModalClaimScrollBox();
+  const bannerRef = useRef<DOMElement>(null);
+  const [bannerRows, setBannerRows] = useState(0);
+  useLayoutEffect(() => {
+    const next = bannerRef.current ? measureElement(bannerRef.current).height : 0;
+    if (next !== bannerRows) setBannerRows(next);
+  });
+  const headerRows = (hidden ? 0 : 2) + bannerRows;
+  useLayoutEffect(() => {
+    if (!claimScrollBox) return;
+    claimScrollBox(headerRows);
+    return () => claimScrollBox(null);
+  }, [claimScrollBox, headerRows]);
+  const modalSize = useModalOrTerminalSize({ rows: 0, columns: 0 });
+  const ownsModalScroll = claimScrollBox !== null && modalScrollRef !== null;
+  const modalBodyRows = ownsModalScroll ? modalSize.rows - headerRows : undefined;
+  const nestedModalContext = modalContext && ownsModalScroll
+    ? { ...modalContext, claimScrollBox: null }
+    : null;
   const [headerFocused, setHeaderFocused] = useState(initialHeaderFocused);
   let t3;
   if ($[0] === Symbol.for("react.memo_cache_sentinel")) {
@@ -195,42 +215,24 @@ export function Tabs(t0) {
   const usedWidth = titleWidth + tabsWidth;
   const spacerWidth = useFullWidth ? Math.max(0, terminalWidth - usedWidth) : 0;
   const contentWidth = useFullWidth ? terminalWidth : undefined;
-  const T0 = Box;
-  const t11 = "column";
-  const t12 = 0;
-  const t13 = true;
   const t14 = modalScrollRef ? 0 : undefined;
   const t15 = !hidden && <Box flexDirection="row" gap={1} flexShrink={modalScrollRef ? 0 : undefined}>{title !== undefined && <Text bold={true} color={color}>{title}</Text>}{tabs.map((t16, i) => {
     const [id, title_0] = t16;
     const isCurrent = selectedTabIndex === i;
     return <TabHeader key={id} title={title_0} isCurrent={isCurrent} headerFocused={headerFocused} color={color} />;
     })}{spacerWidth > 0 && <Text>{" ".repeat(spacerWidth)}</Text>}</Box>;
-  let t17;
-  if ($[11] !== children || $[12] !== contentHeight || $[13] !== contentWidth || $[14] !== hidden || $[15] !== modalScrollRef || $[16] !== selectedTabIndex) {
-    t17 = modalScrollRef ? <Box width={contentWidth} marginTop={hidden ? 0 : 1} flexShrink={0}><ScrollBox key={selectedTabIndex} ref={modalScrollRef} flexDirection="column" flexShrink={0}>{children}</ScrollBox></Box> : <Box width={contentWidth} marginTop={hidden ? 0 : 1} height={contentHeight} overflowY={contentHeight !== undefined ? "hidden" : undefined}>{children}</Box>;
-    $[11] = children;
-    $[12] = contentHeight;
-    $[13] = contentWidth;
-    $[14] = hidden;
-    $[15] = modalScrollRef;
-    $[16] = selectedTabIndex;
-    $[17] = t17;
-  } else {
-    t17 = $[17];
-  }
-  let t18;
-  if ($[18] !== T0 || $[19] !== banner || $[20] !== handleKeyDown || $[21] !== t14 || $[22] !== t15 || $[23] !== t17) {
-    t18 = <T0 flexDirection={t11} tabIndex={t12} autoFocus={t13} onKeyDown={handleKeyDown} flexShrink={t14}>{t15}{banner}{t17}</T0>;
-    $[18] = T0;
-    $[19] = banner;
-    $[20] = handleKeyDown;
-    $[21] = t14;
-    $[22] = t15;
-    $[23] = t17;
-    $[24] = t18;
-  } else {
-    t18 = $[24];
-  }
+  const t17 = ownsModalScroll
+    ? <Box width={contentWidth} marginTop={hidden ? 0 : 1} flexShrink={0}>
+        <ScrollBox key={selectedTabIndex} ref={modalScrollRef!} flexDirection="column" flexShrink={0} maxHeight={modalBodyRows} stickyScroll={false}>
+          <ModalContext value={nestedModalContext}>{children}</ModalContext>
+        </ScrollBox>
+      </Box>
+    : <Box width={contentWidth} marginTop={hidden ? 0 : 1} height={contentHeight} overflowY={contentHeight !== undefined ? "hidden" : undefined} flexShrink={modalScrollRef ? 0 : undefined}>{children}</Box>;
+  const t18 = <Box flexDirection="column" tabIndex={0} autoFocus={true} onKeyDown={handleKeyDown} flexShrink={t14}>
+    {t15}
+    {banner != null && <Box ref={bannerRef} flexDirection="column" flexShrink={0}>{banner}</Box>}
+    {t17}
+  </Box>;
   return <TabsContext.Provider value={{
     selectedTab: tabs[selectedTabIndex][0],
     width: contentWidth,

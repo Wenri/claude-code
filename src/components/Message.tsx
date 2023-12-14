@@ -83,18 +83,7 @@ function MessageImpl(t0) {
   switch (message.type) {
     case "attachment":
       {
-        let t2;
-        if ($[0] !== addMargin || $[1] !== isTranscriptMode || $[2] !== message.attachment || $[3] !== verbose) {
-          t2 = <AttachmentMessage addMargin={addMargin} attachment={message.attachment} verbose={verbose} isTranscriptMode={isTranscriptMode} />;
-          $[0] = addMargin;
-          $[1] = isTranscriptMode;
-          $[2] = message.attachment;
-          $[3] = verbose;
-          $[4] = t2;
-        } else {
-          t2 = $[4];
-        }
-        return t2;
+        return <AttachmentMessage addMargin={addMargin} attachment={message.attachment} messageUuid={message.uuid} verbose={verbose} isTranscriptMode={isTranscriptMode} />;
       }
     case "assistant":
       {

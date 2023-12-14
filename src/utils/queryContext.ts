@@ -56,7 +56,7 @@ export async function fetchSystemPromptParts({
   mainLoopModel: string
   additionalWorkingDirectories: string[]
   mcpClients: MCPServerConnection[]
-  customSystemPrompt: string | undefined
+  customSystemPrompt: string | string[] | undefined
   excludeDynamicSections?: boolean
 }): Promise<{
   defaultSystemPrompt: string[]
@@ -127,7 +127,7 @@ export async function buildSideQuestionFallbackParams({
   readFileState: FileStateCache
   getAppState: () => AppState
   setAppState: (f: (prev: AppState) => AppState) => void
-  customSystemPrompt: string | undefined
+  customSystemPrompt: string | string[] | undefined
   appendSystemPrompt: string | undefined
   planModeInstructions?: string | undefined
   thinkingConfig: ThinkingConfig | undefined
@@ -151,7 +151,9 @@ export async function buildSideQuestionFallbackParams({
 
   const systemPrompt = asSystemPrompt([
     ...(customSystemPrompt !== undefined
-      ? [customSystemPrompt]
+      ? typeof customSystemPrompt === 'string'
+        ? [customSystemPrompt]
+        : customSystemPrompt
       : defaultSystemPrompt),
     ...(appendSystemPrompt ? [appendSystemPrompt] : []),
   ])

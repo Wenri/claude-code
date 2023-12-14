@@ -226,6 +226,48 @@ function formatModelUsage(): string {
   return result
 }
 
+/** Compact per-model/cache summary used by `/usage` for subscription users. */
+export function formatSessionCostBreakdown(): string | null {
+  const modelUsage = getModelUsage()
+  const entries = Object.entries(modelUsage)
+  if (entries.length === 0) return null
+
+  const costsByModel: Record<string, number> = {}
+  let totalCost = 0
+  let inputTokens = 0
+  let cacheReadTokens = 0
+  let cacheCreationTokens = 0
+
+  for (const [model, usage] of entries) {
+    const canonicalName = getCanonicalName(model)
+    costsByModel[canonicalName] =
+      (costsByModel[canonicalName] ?? 0) + usage.costUSD
+    totalCost += usage.costUSD
+    inputTokens += usage.inputTokens
+    cacheReadTokens += usage.cacheReadInputTokens
+    cacheCreationTokens += usage.cacheCreationInputTokens
+  }
+
+  const parts: string[] = []
+  if (totalCost > 0) {
+    for (const [model, cost] of Object.entries(costsByModel).sort(
+      ([, left], [, right]) => right - left,
+    )) {
+      parts.push(`${model}: ${Math.round((cost / totalCost) * 100)}%`)
+    }
+  }
+
+  const totalInputTokens =
+    inputTokens + cacheReadTokens + cacheCreationTokens
+  if (totalInputTokens > 0) {
+    parts.push(
+      `cache hit: ${Math.round((cacheReadTokens / totalInputTokens) * 100)}%`,
+    )
+  }
+
+  return parts.length > 0 ? `breakdown · ${parts.join(' · ')}` : null
+}
+
 export function formatTotalCost(): string {
   const costDisplay =
     formatCost(getTotalCostUSD()) +

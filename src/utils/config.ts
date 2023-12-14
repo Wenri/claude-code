@@ -52,6 +52,7 @@ import { jsonParse, jsonStringify } from './slowOperations.js'
 // infinite recursion when the config file is corrupted. logEvent's sampling check
 // reads GrowthBook features from the global config, which calls getConfig again.
 let insideGetConfig = false
+let generatedUserID: string | undefined
 
 // Image dimension info for coordinate mapping (only set when image was resized)
 export type PastedContent = {
@@ -205,6 +206,11 @@ export type GlobalConfig = {
   projects?: Record<string, ProjectConfig>
   numStartups: number
   warmResumeHintShown?: boolean
+  lastHintSessionId?: string
+  lastSessionModified?: number
+  lastSessionFirstPrompt?: string
+  opus47LaunchSeenCount?: number
+  resumeReturnDismissed?: boolean
   installMethod?: InstallMethod
   autoUpdates?: boolean
   // Flag to distinguish protection-based disabling from user preference
@@ -214,6 +220,7 @@ export type GlobalConfig = {
   userID?: string
   theme: ThemeSetting
   hasCompletedOnboarding?: boolean
+  powerupsUnlocked?: string[]
   // Tracks the last version that reset onboarding, used with MIN_VERSION_REQUIRING_ONBOARDING_RESET
   lastOnboardingVersion?: string
   // Tracks the last version for which release notes were seen, used for managing release notes
@@ -1845,8 +1852,20 @@ export function getOrCreateUserID(): string {
     return config.userID
   }
 
+  if (generatedUserID) {
+    return generatedUserID
+  }
+
   const userID = randomBytes(32).toString('hex')
-  saveGlobalConfig(current => ({ ...current, userID }))
+  generatedUserID = userID
+  try {
+    saveGlobalConfig(current => ({ ...current, userID }))
+  } catch (error) {
+    logForDebugging(
+      `getOrCreateUserID: could not persist userID: ${String(error)}`,
+      { level: 'error' },
+    )
+  }
   return userID
 }
 

@@ -13,7 +13,7 @@ import {
 } from './hooks/hooksConfigSnapshot.js'
 import { getPlatform } from './platform.js'
 import {
-  getSettings_DEPRECATED,
+  getSettingsAfterPluginLoad,
   getSettingsForSource,
 } from './settings/settings.js'
 import { buildPowerShellArgs } from './shell/powershellProvider.js'
@@ -108,7 +108,7 @@ function getTaskLabel(task: TaskState): string | undefined {
 function getSubagentStatusLineCommand(): string | undefined {
   const statusLine = shouldAllowManagedHooksOnly()
     ? getSettingsForSource('policySettings')?.subagentStatusLine
-    : getSettings_DEPRECATED()?.subagentStatusLine
+    : getSettingsAfterPluginLoad('subagentStatusLine')
   return statusLine?.type === 'command' ? statusLine.command : undefined
 }
 

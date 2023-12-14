@@ -471,6 +471,17 @@ const CMDLET_PATH_CONFIG: Record<string, CmdletPathConfig> = {
     knownSwitches: ['-audit', '-allcentralaccesspolicies', '-usetransaction'],
     knownValueParams: ['-inputobject', '-filter', '-include', '-exclude'],
   },
+  'get-module': {
+    operationType: 'read',
+    pathParams: ['-name', '-fullyqualifiedname'],
+    knownSwitches: [
+      '-listavailable',
+      '-all',
+      '-refresh',
+      '-skipeditioncheck',
+    ],
+    knownValueParams: ['-psedition', '-pssession', '-cimsession'],
+  },
   'format-hex': {
     operationType: 'read',
     pathParams: ['-path', '-literalpath', '-pspath', '-lp'],
@@ -1632,6 +1643,11 @@ function checkPathConstraintsForStatement(
   // feed the pipeline-source text through checkDenyRuleForGuessedPath so
   // explicit Edit(.git/**) deny rules still fire.
   let pipelineSourceText: string | undefined
+  // Once an upstream command with arbitrary output appears, a downstream
+  // filesystem cmdlet may receive a path through normal CommandAst piping.
+  // The small allowlist below contains commands whose path-shaped output was
+  // itself statically validated by this module.
+  let hasPotentialPathOutput = false
 
   for (const cmd of statement.commands) {
     if (cmd.elementType !== 'CommandAst') {
@@ -1642,6 +1658,12 @@ function checkPathConstraintsForStatement(
 
     const { paths, operationType, hasUnvalidatablePathArg, optionalWrite } =
       extractPathsFromCommand(cmd)
+    const canonical = resolveToCanonical(cmd.name)
+    const acceptsPaths = CMDLET_PATH_CONFIG[canonical] !== undefined
+    const upstreamMayProducePath = hasPotentialPathOutput
+    if (!STATICALLY_VALIDATED_PATH_OUTPUT_COMMANDS.has(canonical)) {
+      hasPotentialPathOutput = true
+    }
 
     // SECURITY: Cmdlet receiving piped path from expression source.
     // `'/etc/shadow' | Get-Content` — Get-Content extracts zero paths
@@ -1650,7 +1672,6 @@ function checkPathConstraintsForStatement(
     // but that was a bypass (review comment 2885739292): reads from
     // unvalidatable paths are still a security risk. Ask regardless of op type.
     if (hasExpressionPipelineSource) {
-      const canonical = resolveToCanonical(cmd.name)
       // SECURITY (finding #23): Before falling back to ask, check if the
       // pipeline-source text matches a deny rule. `'.git/hooks/pre-commit' |
       // Remove-Item` should DENY (not ask) when Edit(.git/**) is configured.
@@ -1686,7 +1707,6 @@ function checkPathConstraintsForStatement(
     // element whose combined text may resolve within CWD while
     // PowerShell actually writes to ALL paths in the array.
     if (hasUnvalidatablePathArg) {
-      const canonical = resolveToCanonical(cmd.name)
       firstAsk ??= {
         behavior: 'ask',
         message: `${canonical} uses a parameter or complex path expression (array literal, subexpression, unknown parameter, etc.) that cannot be statically validated and requires manual approval`,
@@ -1712,12 +1732,18 @@ function checkPathConstraintsForStatement(
       paths.length === 0 &&
       CMDLET_PATH_CONFIG[resolveToCanonical(cmd.name)]
     ) {
-      const canonical = resolveToCanonical(cmd.name)
       firstAsk ??= {
         behavior: 'ask',
         message: `${canonical} is a write operation but no target path could be determined; requires manual approval`,
       }
       continue
+    }
+
+    if (upstreamMayProducePath && acceptsPaths) {
+      firstAsk ??= {
+        behavior: 'ask',
+        message: `${canonical} may receive a path from an upstream pipeline command whose output cannot be statically validated and requires manual approval`,
+      }
     }
 
     // SECURITY: bash-parity hard-deny for removal cmdlets on
@@ -2047,3 +2073,14 @@ function checkPathConstraintsForStatement(
     }
   )
 }
+
+const STATICALLY_VALIDATED_PATH_OUTPUT_COMMANDS = new Set([
+  'get-childitem',
+  'get-item',
+  'get-itemproperty',
+  'resolve-path',
+  'convert-path',
+  'get-filehash',
+  'get-acl',
+  'test-path',
+])

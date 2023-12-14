@@ -13,26 +13,22 @@ type Props = {
   items: SessionBackgroundExitItem[]
   onExit(): void
   onCancel(): void
-  onDetach?: () => void
 }
 
 export function BackgroundExitDialog({
   items,
   onExit,
   onCancel,
-  onDetach,
 }: Props): React.ReactNode {
-  const recordChoice = (choice: 'exit' | 'detach' | 'stay'): void => {
+  const recordChoice = (choice: 'exit' | 'stay'): void => {
     logEvent('tengu_exit_background_work_prompt', {
       item_count: items.length,
       chose_exit: choice === 'exit',
-      chose_detach: choice === 'detach',
     })
   }
-  const choose = (choice: 'exit' | 'detach' | 'stay'): void => {
+  const choose = (choice: 'exit' | 'stay'): void => {
     recordChoice(choice)
     if (choice === 'exit') onExit()
-    else if (choice === 'detach') onDetach?.()
     else onCancel()
   }
   const cancel = (): void => {
@@ -70,13 +66,10 @@ export function BackgroundExitDialog({
       </Box>
       <Select
         options={[
-          ...(onDetach
-            ? [{ label: 'Detach (keep running)', value: 'detach' }]
-            : []),
           { label: 'Exit anyway', value: 'exit' },
           { label: 'Stay', value: 'stay' },
         ]}
-        onChange={value => choose(value as 'exit' | 'detach' | 'stay')}
+        onChange={value => choose(value as 'exit' | 'stay')}
         onCancel={cancel}
       />
     </Dialog>

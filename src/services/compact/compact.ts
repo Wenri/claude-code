@@ -105,7 +105,10 @@ import {
   PROMPT_TOO_LONG_ERROR_MESSAGE,
   startsWithApiErrorPrefix,
 } from '../api/errors.js'
-import { notifyCompaction } from '../api/promptCacheBreakDetection.js'
+import {
+  notifyCompaction,
+  shouldTrackPromptCacheBreaks,
+} from '../api/promptCacheBreakDetection.js'
 import { getRetryDelay } from '../api/withRetry.js'
 import { logPermissionContextForAnts } from '../internalLogging.js'
 import {
@@ -243,6 +246,103 @@ export function stripReinjectedAttachments(messages: Message[]): Message[] {
     )
   }
   return messages
+}
+
+const COLD_COMPACT_FIELD_MAX_CHARS = 100
+
+function truncateColdCompactString(value: string): string {
+  if (value.length <= COLD_COMPACT_FIELD_MAX_CHARS) return value
+  let end = COLD_COMPACT_FIELD_MAX_CHARS
+  const finalCodeUnit = value.charCodeAt(end - 1)
+  if (finalCodeUnit >= 0xd800 && finalCodeUnit <= 0xdbff) end--
+  return `${value.slice(0, end)}…[truncated, original ${value.length} chars]`
+}
+
+function truncateColdCompactValue(value: unknown): unknown {
+  if (typeof value === 'string') return truncateColdCompactString(value)
+  if (Array.isArray(value)) {
+    const next = value.map(truncateColdCompactValue)
+    return next.some((item, index) => item !== value[index]) ? next : value
+  }
+  if (typeof value === 'object' && value !== null) {
+    let changed = false
+    const next: Record<string, unknown> = {}
+    for (const [key, item] of Object.entries(value)) {
+      const truncated = truncateColdCompactValue(item)
+      if (truncated !== item) changed = true
+      next[key] = truncated
+    }
+    return changed ? next : value
+  }
+  return value
+}
+
+/** Keep only transcript-bearing content for a cold automatic compaction. */
+export function stripNonEssentialCompactContent(
+  messages: Message[],
+): Message[] {
+  return messages.map(message => {
+    if (message.type === 'assistant') {
+      const content = message.message.content
+      if (!Array.isArray(content)) return message
+      let changed = content.some(
+        block =>
+          block.type === 'thinking' || block.type === 'redacted_thinking',
+      )
+      const nextContent = (changed
+        ? content.filter(
+            block =>
+              block.type !== 'thinking' && block.type !== 'redacted_thinking',
+          )
+        : content
+      ).map(block => {
+        if (block.type !== 'tool_use') return block
+        const input = truncateColdCompactValue(block.input)
+        if (input === block.input) return block
+        changed = true
+        return { ...block, input }
+      })
+      if (!changed) return message
+      return {
+        ...message,
+        message: { ...message.message, content: nextContent },
+      } as Message
+    }
+    if (message.type === 'user') {
+      const content = message.message.content
+      if (!Array.isArray(content)) return message
+      let changed = false
+      const nextContent = content.map(block => {
+        if (block.type !== 'tool_result') return block
+        const text =
+          typeof block.content === 'string'
+            ? block.content
+            : Array.isArray(block.content)
+              ? block.content
+                  .map(item => (item.type === 'text' ? item.text : ''))
+                  .join('')
+              : ''
+        const truncated = truncateColdCompactString(text)
+        if (block.content === truncated) return block
+        changed = true
+        return { ...block, content: truncated }
+      })
+      if (!changed) return message
+      return {
+        ...message,
+        message: { ...message.message, content: nextContent },
+      } as Message
+    }
+    return message
+  })
+}
+
+export function filterColdCompactAttachments(messages: Message[]): Message[] {
+  return messages.filter(
+    message =>
+      message.type !== 'attachment' ||
+      message.attachment.type === 'queued_command',
+  )
 }
 
 export const ERROR_MESSAGE_NOT_ENOUGH_MESSAGES =
@@ -415,6 +515,8 @@ export async function compactConversation(
   customInstructions?: string,
   isAutoCompact: boolean = false,
   recompactionInfo?: RecompactionInfo,
+  stripNonEssential: boolean = false,
+  compactingHintText?: string | null,
 ): Promise<CompactionResult> {
   try {
     if (messages.length === 0) {
@@ -452,16 +554,18 @@ export async function compactConversation(
     // Show requesting mode with up arrow and custom message
     context.setStreamMode?.('requesting')
     context.setResponseLength?.(() => 0)
-    context.onCompactProgress?.({ type: 'compact_start' })
+    context.onCompactProgress?.({
+      type: 'compact_start',
+      hintText: compactingHintText,
+    })
 
     // 3P default: true — forked-agent path reuses main conversation's prompt cache.
     // Experiment (Jan 2026) confirmed: false path is 98% cache miss, costs ~0.76% of
     // fleet cache_creation (~38B tok/day), concentrated in ephemeral envs (CCR/GHA/SDK)
     // with cold GB cache and 3P providers where GB is disabled. GB gate kept as kill-switch.
-    const promptCacheSharingEnabled = getFeatureValue_CACHED_MAY_BE_STALE(
-      'tengu_compact_cache_prefix',
-      true,
-    )
+    const promptCacheSharingEnabled =
+      !stripNonEssential &&
+      getFeatureValue_CACHED_MAY_BE_STALE('tengu_compact_cache_prefix', true)
 
     const compactPrompt = getCompactPrompt(customInstructions)
     const summaryRequest = createUserMessage({
@@ -481,6 +585,7 @@ export async function compactConversation(
         context,
         preCompactTokenCount,
         cacheSafeParams: retryCacheSafeParams,
+        stripNonEssential,
       })
       summary = getAssistantMessageText(summaryResponse)
       if (!summary?.startsWith(PROMPT_TOO_LONG_ERROR_MESSAGE)) break
@@ -675,6 +780,7 @@ export async function compactConversation(
 
     logEvent('tengu_compact', {
       preCompactTokenCount,
+      stripNonEssential,
       // Kept for continuity — semantically the compact API call's total usage
       postCompactTokenCount: compactionCallTotalTokens,
       truePostCompactTokenCount,
@@ -721,7 +827,7 @@ export async function compactConversation(
     })
 
     // Reset cache read baseline so the post-compact drop isn't flagged as a break
-    if (feature('PROMPT_CACHE_BREAK_DETECTION')) {
+    if (shouldTrackPromptCacheBreaks()) {
       notifyCompaction(
         context.options.querySource ?? 'compact',
         context.agentId,
@@ -1071,7 +1177,7 @@ export async function partialCompactConversation(
       }),
     ]
 
-    if (feature('PROMPT_CACHE_BREAK_DETECTION')) {
+    if (shouldTrackPromptCacheBreaks()) {
       notifyCompaction(
         context.options.querySource ?? 'compact',
         context.agentId,
@@ -1171,6 +1277,7 @@ async function streamCompactSummary({
   context,
   preCompactTokenCount,
   cacheSafeParams,
+  stripNonEssential = false,
 }: {
   messages: Message[]
   summaryRequest: UserMessage
@@ -1178,15 +1285,15 @@ async function streamCompactSummary({
   context: ToolUseContext
   preCompactTokenCount: number
   cacheSafeParams: CacheSafeParams
+  stripNonEssential?: boolean
 }): Promise<AssistantMessage> {
   // When prompt cache sharing is enabled, use forked agent to reuse the
   // main conversation's cached prefix (system prompt, tools, context messages).
   // Falls back to regular streaming path on failure.
   // 3P default: true — see comment at the other tengu_compact_cache_prefix read above.
-  const promptCacheSharingEnabled = getFeatureValue_CACHED_MAY_BE_STALE(
-    'tengu_compact_cache_prefix',
-    true,
-  )
+  const promptCacheSharingEnabled =
+    !stripNonEssential &&
+    getFeatureValue_CACHED_MAY_BE_STALE('tengu_compact_cache_prefix', true)
   // Send keep-alive signals during compaction to prevent remote session
   // WebSocket idle timeouts from dropping bridge connections. Compaction
   // API calls can take 5-10+ seconds, during which no other messages
@@ -1293,13 +1400,15 @@ async function streamCompactSummary({
 
       // Check if tool search is enabled using the main loop's tools list.
       // context.options.tools includes MCP tools merged via useMergedTools.
-      const useToolSearch = await isToolSearchEnabled(
-        context.options.mainLoopModel,
-        context.options.tools,
-        async () => appState.toolPermissionContext,
-        context.options.agentDefinitions.activeAgents,
-        'compact',
-      )
+      const useToolSearch =
+        !stripNonEssential &&
+        (await isToolSearchEnabled(
+          context.options.mainLoopModel,
+          context.options.tools,
+          async () => appState.toolPermissionContext,
+          context.options.agentDefinitions.activeAgents,
+          'compact',
+        ))
 
       // When tool search is enabled, include ToolSearchTool and MCP tools. They get
       // defer_loading: true and don't count against context - the API filters them out
@@ -1309,26 +1418,37 @@ async function streamCompactSummary({
       // get the permission-filtered set from useMergedTools — same source used for
       // isToolSearchEnabled above and normalizeMessagesForAPI below.
       // Deduplicate by name to avoid API errors when MCP tools share names with built-in tools.
-      const tools: Tool[] = useToolSearch
-        ? uniqBy(
-            [
-              FileReadTool,
-              ToolSearchTool,
-              ...context.options.tools.filter(t => t.isMcp),
-            ],
-            'name',
-          )
-        : [FileReadTool]
+      const tools: Tool[] = stripNonEssential
+        ? []
+        : useToolSearch
+          ? uniqBy(
+              [
+                FileReadTool,
+                ToolSearchTool,
+                ...context.options.tools.filter(t => t.isMcp),
+              ],
+              'name',
+            )
+          : [FileReadTool]
+
+      const sourceMessages = [
+        ...getMessagesAfterCompactBoundary(messages),
+        summaryRequest,
+      ]
+      const attachmentFiltered = stripNonEssential
+        ? filterColdCompactAttachments(sourceMessages)
+        : sourceMessages
+      const mediaStripped = stripImagesFromMessages(
+        stripReinjectedAttachments(attachmentFiltered),
+      )
+      const compactMessages = stripNonEssential
+        ? stripNonEssentialCompactContent(mediaStripped)
+        : mediaStripped
 
       const streamingGen = queryModelWithStreaming({
         messages: normalizeMessagesForAPI(
-          stripImagesFromMessages(
-            stripReinjectedAttachments([
-              ...getMessagesAfterCompactBoundary(messages),
-              summaryRequest,
-            ]),
-          ),
-          context.options.tools,
+          compactMessages,
+          stripNonEssential ? [] : context.options.tools,
         ),
         systemPrompt: asSystemPrompt([
           'You are a helpful AI assistant tasked with summarizing conversations.',

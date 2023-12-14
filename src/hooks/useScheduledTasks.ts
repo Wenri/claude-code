@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { getIsRemoteMode } from '../bootstrap/state.js'
 import { useAppStateStore, useSetAppState } from '../state/AppState.js'
 import { isTerminalTaskStatus } from '../Task.js'
 import {
@@ -11,6 +12,7 @@ import { getCronJitterConfig } from '../utils/cronJitterConfig.js'
 import { createCronScheduler } from '../utils/cronScheduler.js'
 import { removeCronTasks } from '../utils/cronTasks.js'
 import { logForDebugging } from '../utils/debug.js'
+import { resolveLoopDefaultFire } from '../utils/loopDefault.js'
 import { enqueuePendingNotification } from '../utils/messageQueueManager.js'
 import { createScheduledTaskFireMessage } from '../utils/messages.js'
 import { WORKLOAD_CRON } from '../utils/workloadContext.js'
@@ -58,7 +60,7 @@ export function useScheduledTasks({
     // effect won't re-run on value flip (assistantMode is the only dep),
     // so this guard alone is launch-grain. The mid-session killswitch is
     // the isKilled option below — check() polls it every tick.
-    if (!isKairosCronEnabled()) return
+    if (!isKairosCronEnabled() || getIsRemoteMode()) return
 
     // System-generated — hidden from queue preview and transcript UI.
     // In brief mode, executeForkedSlashCommand runs as a background
@@ -70,7 +72,7 @@ export function useScheduledTasks({
     // primary use case for scheduled tasks.
     const enqueueForLead = (prompt: string) =>
       enqueuePendingNotification({
-        value: prompt,
+        value: resolveLoopDefaultFire(prompt),
         mode: 'prompt',
         priority: 'later',
         isMeta: true,
@@ -108,7 +110,9 @@ export function useScheduledTasks({
           return
         }
         const msg = createScheduledTaskFireMessage(
-          `Running scheduled task (${formatCronFireTime(new Date())})`,
+          task.kind === 'loop'
+            ? `Claude resuming /loop wakeup (${formatCronFireTime(new Date())})`
+            : `Running scheduled task (${formatCronFireTime(new Date())})`,
         )
         setMessages(prev => [...prev, msg])
         enqueueForLead(task.prompt)

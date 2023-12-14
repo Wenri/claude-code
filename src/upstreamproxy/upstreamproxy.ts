@@ -26,6 +26,7 @@ import { registerCleanup } from '../utils/cleanupRegistry.js'
 import { logForDebugging } from '../utils/debug.js'
 import { isEnvTruthy } from '../utils/envUtils.js'
 import { isENOENT } from '../utils/errors.js'
+import { getSessionIngressAuthToken } from '../utils/sessionIngressAuth.js'
 import { startUpstreamProxyRelay } from './relay.js'
 
 export const SESSION_TOKEN_PATH = '/run/ccr/session_token'
@@ -51,11 +52,9 @@ const NO_PROXY_LIST = [
   'anthropic.com',
   '.anthropic.com',
   '*.anthropic.com',
-  'github.com',
-  'api.github.com',
-  '*.github.com',
-  '*.githubusercontent.com',
   'registry.npmjs.org',
+  'jsr.io',
+  'npm.jsr.io',
   'pypi.org',
   'files.pythonhosted.org',
   'index.crates.io',
@@ -81,6 +80,7 @@ export async function initUpstreamProxy(opts?: {
   systemCaPath?: string
   caBundlePath?: string
   ccrBaseUrl?: string
+  awsConfigPath?: string
 }): Promise<UpstreamProxyState> {
   if (!isEnvTruthy(process.env.CLAUDE_CODE_REMOTE)) {
     return state
@@ -103,11 +103,16 @@ export async function initUpstreamProxy(opts?: {
   }
 
   const tokenPath = opts?.tokenPath ?? SESSION_TOKEN_PATH
-  const token = await readToken(tokenPath)
+  const tokenResult = await readToken(tokenPath)
+  const tokenFileExisted = tokenResult.existed
+  const token = tokenResult.token ?? getSessionIngressAuthToken()
   if (!token) {
-    logForDebugging('[upstreamproxy] no session token file; proxy disabled')
+    logForDebugging('[upstreamproxy] no session token; proxy disabled')
     return state
   }
+  logForDebugging(
+    `[upstreamproxy] token via ${tokenFileExisted ? tokenPath : 'sessionIngressAuth'}`,
+  )
 
   setNonDumpable()
 
@@ -129,6 +134,10 @@ export async function initUpstreamProxy(opts?: {
   )
   if (!caOk) return state
 
+  await ensureAwsConfig(
+    opts?.awsConfigPath ?? join(homedir(), '.aws', 'config'),
+  )
+
   try {
     const wsUrl = baseUrl.replace(/^http/, 'ws') + '/v1/code/upstreamproxy/ws'
     const relay = await startUpstreamProxyRelay({ wsUrl, sessionId, token })
@@ -137,11 +146,13 @@ export async function initUpstreamProxy(opts?: {
     logForDebugging(`[upstreamproxy] enabled on 127.0.0.1:${relay.port}`)
     // Only unlink after the listener is up: if CA download or listen()
     // fails, a supervisor restart can retry with the token still on disk.
-    await unlink(tokenPath).catch(() => {
-      logForDebugging('[upstreamproxy] token file unlink failed', {
-        level: 'warn',
+    if (tokenFileExisted) {
+      await unlink(tokenPath).catch(() => {
+        logForDebugging('[upstreamproxy] token file unlink failed', {
+          level: 'warn',
+        })
       })
-    })
+    }
   } catch (err) {
     logForDebugging(
       `[upstreamproxy] relay start failed: ${err instanceof Error ? err.message : String(err)}; proxy disabled`,
@@ -175,6 +186,10 @@ export function getUpstreamProxyEnv(): Record<string, string> {
         'NODE_EXTRA_CA_CERTS',
         'REQUESTS_CA_BUNDLE',
         'CURL_CA_BUNDLE',
+        'AWS_ACCESS_KEY_ID',
+        'AWS_SECRET_ACCESS_KEY',
+        'GH_TOKEN',
+        'GITHUB_TOKEN',
       ]) {
         if (process.env[key]) inherited[key] = process.env[key]
       }
@@ -195,6 +210,10 @@ export function getUpstreamProxyEnv(): Record<string, string> {
     NODE_EXTRA_CA_CERTS: state.caBundlePath,
     REQUESTS_CA_BUNDLE: state.caBundlePath,
     CURL_CA_BUNDLE: state.caBundlePath,
+    AWS_ACCESS_KEY_ID: 'proxy-injected',
+    AWS_SECRET_ACCESS_KEY: 'proxy-injected',
+    GH_TOKEN: 'proxy-injected',
+    GITHUB_TOKEN: 'proxy-injected',
   }
 }
 
@@ -203,17 +222,19 @@ export function resetUpstreamProxyForTests(): void {
   state = { enabled: false }
 }
 
-async function readToken(path: string): Promise<string | null> {
+async function readToken(
+  path: string,
+): Promise<{ existed: boolean; token: string | null }> {
   try {
     const raw = await readFile(path, 'utf8')
-    return raw.trim() || null
+    return { existed: true, token: raw.trim() || null }
   } catch (err) {
-    if (isENOENT(err)) return null
+    if (isENOENT(err)) return { existed: false, token: null }
     logForDebugging(
       `[upstreamproxy] token read failed: ${err instanceof Error ? err.message : String(err)}`,
       { level: 'warn' },
     )
-    return null
+    return { existed: false, token: null }
   }
 }
 
@@ -281,5 +302,25 @@ async function downloadCaBundle(
       { level: 'warn' },
     )
     return false
+  }
+}
+
+async function ensureAwsConfig(path: string): Promise<void> {
+  try {
+    await mkdir(join(path, '..'), { recursive: true, mode: 0o700 })
+    await writeFile(
+      path,
+      `[default]
+s3 =
+  payload_signing_enabled = false
+`,
+      { flag: 'wx', mode: 0o600 },
+    )
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'EEXIST') return
+    logForDebugging(
+      `[upstreamproxy] aws config write failed: ${error instanceof Error ? error.message : String(error)}`,
+      { level: 'warn' },
+    )
   }
 }

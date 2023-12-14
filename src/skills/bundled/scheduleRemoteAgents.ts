@@ -97,7 +97,7 @@ function sanitizeConnectorName(name: string): string {
 
 function formatConnectorsInfo(connectors: ConnectorInfo[]): string {
   if (connectors.length === 0) {
-    return 'No connected MCP connectors found. The user may need to connect servers at https://claude.ai/settings/connectors'
+    return 'No connected MCP connectors found. The user may need to connect servers at https://claude.ai/customize/connectors'
   }
   const lines = ['Connected connectors (available for routines):']
   for (const c of connectors) {
@@ -448,7 +448,7 @@ export function registerScheduleRemoteAgentsSkill(): void {
       )
       if (connectors.length === 0) {
         setupNotes.push(
-          `No MCP connectors — connect at https://claude.ai/settings/connectors if needed.`,
+          `No MCP connectors — connect at https://claude.ai/customize/connectors if needed.`,
         )
       }
 

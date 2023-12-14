@@ -1,23 +1,41 @@
 import { spawn, type ChildProcess } from 'child_process'
-import { createWriteStream } from 'fs'
-import { readFile, readdir, realpath, rename, stat, unlink, writeFile } from 'fs/promises'
+import { createWriteStream, type WriteStream } from 'fs'
+import {
+  open,
+  readFile,
+  readdir,
+  realpath,
+  rename,
+  stat,
+  unlink,
+  writeFile,
+} from 'fs/promises'
 import { basename, dirname, join, normalize } from 'path'
 import { createInterface } from 'readline'
 import { isDeepStrictEqual } from 'util'
 import chokidar from 'chokidar'
 import { logEvent } from '../services/analytics/index.js'
+import { initializeGrowthBook } from '../services/analytics/growthbook.js'
 import { logEventTo1PAwaitable } from '../services/analytics/firstPartyEventLogger.js'
 import {
   fleetGateRejected,
+  ensureFleetGateHydrated,
+  isAgentsFleetEnabled,
   isDaemonCliEnabled,
   isDaemonServiceInstallEnabled,
+  isDaemonServiceRecalled,
   isDaemonWorkerRegistryEnabled,
 } from '../utils/agentsFleet.js'
 import { isInBundledMode } from '../utils/bundledMode.js'
 import { logForDebugging } from '../utils/debug.js'
 import { errorMessage, getErrnoCode, isENOENT } from '../utils/errors.js'
 import { logError } from '../utils/log.js'
-import { getRelaunchLauncher } from '../utils/relaunch.js'
+import {
+  getRelaunchLauncher,
+  type RelaunchLauncher,
+} from '../utils/relaunch.js'
+import { sleep } from '../utils/sleep.js'
+import { getProcessStartTokenAsync } from '../utils/genericProcessUtils.js'
 import { getXDGDataHome } from '../utils/xdg.js'
 import {
   createDaemonLock,
@@ -26,20 +44,20 @@ import {
   removeDaemonLock,
   replaceDaemonLock,
   processLooksLikeDaemon,
+  stopRunningDaemon,
   type DaemonLock,
 } from './lock.js'
-import { requestControl } from './client.js'
+import { daemonSpawnEnv, requestControl } from './client.js'
 import { createDaemonAuthManager } from './auth.js'
 import {
   controlDaemonService,
-  DAEMON_SERVICE_MARKER,
   getDaemonExecutablePath,
   getDefaultDaemonConfigPath,
   getDefaultDaemonLogPath,
   installDaemonService,
   isDaemonServiceInstalled,
   isServiceInstallSupported,
-  getSystemdServicePath,
+  serviceExecutableIsMissing,
   uninstallDaemonService,
 } from './service.js'
 import { runBackgroundSupervisor } from './supervisor.js'
@@ -47,8 +65,11 @@ import { WORKER_KINDS } from './workerRegistry.js'
 import { handleCliKind, handleListAllKinds } from './cli.js'
 import { getDaemonStatusPath } from './paths.js'
 import { formatBgDaemonStatus, getBgDaemonStatus } from './status.js'
+import { reapOrphanWorkers } from './orphanReaper.js'
 
-const SERVICE_HELP = `  install, i        Install as a launchctl/systemd service (persists across reboot)
+const SERVICE_HELP = `  install           Install as a launchctl/systemd service (persists across reboot)
+  start             Start the installed service
+  restart           Restart the installed service
 `
 const SERVICE_DISABLED_HELP = `
   Service install is disabled in this version — the daemon runs on demand
@@ -62,15 +83,15 @@ Listing:
   remote-control [--json]                   List remote-control servers
 
 Mutation (require the service to be installed):
-  scheduled -a --cron "<expr>" --prompt "<text>" [--dir <path>]
+  scheduled add --cron "<expr>" --prompt "<text>" [--dir <path>]
             [--permission-mode <mode>] [--model <id>] [--id <task-id>]
-  scheduled -r <task-id>
-  assistant -a [--dir <path>] [--name <n>] [--model <id>]
+  scheduled remove <task-id>
+  assistant add [--dir <path>] [--name <n>] [--model <id>]
             [--permission-mode <mode>]
-  assistant -r <name-or-dir>
-  remote-control -a [--dir <path>] [--name <n>]
+  assistant remove <name-or-dir>
+  remote-control add [--dir <path>] [--name <n>]
                  [--spawn-mode same-dir|worktree]
-  remote-control -r <name-or-dir>
+  remote-control remove <name-or-dir>
 `
 
 function daemonHelp(): string {
@@ -79,9 +100,11 @@ function daemonHelp(): string {
 Service lifecycle:
   run [json-path]   Run the supervisor in the foreground (default when piped)
   status            Show daemon pid, version, uptime
-  log               Tail the daemon log (Ctrl-C to stop)
+  logs              Tail the daemon log (Ctrl-C to stop)
   uninstall         Remove the background service (launchctl/systemd)
-  stop [--any]      Stop the background service (--any: also stop a transient daemon)
+  stop              Shut down the supervisor and terminate background sessions
+                      --any           also stop a transient (non-service) daemon
+                      --keep-workers  leave detached sessions running
 ${isDaemonServiceInstallEnabled() ? SERVICE_HELP : SERVICE_DISABLED_HELP}${isDaemonWorkerRegistryEnabled() ? REGISTRY_HELP : ''}
 Options:
   --json-path <p>   Config file (default: ~/.claude/daemon.json)
@@ -93,7 +116,6 @@ Options:
 type DaemonSubcommand =
   | 'run'
   | 'install'
-  | 'i'
   | 'uninstall'
   | 'start'
   | 'stop'
@@ -111,19 +133,34 @@ export interface ParsedDaemonArgs {
   sub: string
   jsonPath: string
   logPath: string
-  origin?: 'foreground' | 'service' | 'cli' | 'auto'
+  origin?: 'foreground' | 'service' | 'transient'
+  spawnedBy?: { label: string; cwd: string; pid: number }
   rest: string[]
 }
 
 function parseOrigin(value: string): ParsedDaemonArgs['origin'] {
-  if (
-    value === 'foreground' ||
-    value === 'service' ||
-    value === 'cli' ||
-    value === 'auto'
-  ) {
+  if (value === 'foreground' || value === 'service' || value === 'transient') {
     return value
   }
+  if (value === 'auto') return 'transient'
+  return undefined
+}
+
+function parseSpawnedBy(
+  value: string,
+): ParsedDaemonArgs['spawnedBy'] {
+  try {
+    const parsed = JSON.parse(value) as Record<string, unknown>
+    if (
+      parsed &&
+      typeof parsed === 'object' &&
+      typeof parsed.label === 'string' &&
+      typeof parsed.cwd === 'string' &&
+      typeof parsed.pid === 'number'
+    ) {
+      return { label: parsed.label, cwd: parsed.cwd, pid: parsed.pid }
+    }
+  } catch {}
   return undefined
 }
 
@@ -132,6 +169,7 @@ export function parseArgs(args: string[]): ParsedDaemonArgs {
   let explicitJsonPath = false
   let logPath = getDefaultDaemonLogPath()
   let origin: ParsedDaemonArgs['origin']
+  let spawnedBy: ParsedDaemonArgs['spawnedBy']
   const consumed = new Set<number>()
   for (let index = 0; index < args.length; index++) {
     const arg = args[index]
@@ -158,13 +196,16 @@ export function parseArgs(args: string[]): ParsedDaemonArgs {
     } else if (arg.startsWith('--origin=')) {
       consumed.add(index)
       origin = parseOrigin(arg.slice(9))
+    } else if (arg === '--spawned-by' && args[index + 1]) {
+      consumed.add(index)
+      consumed.add(++index)
+      spawnedBy = parseSpawnedBy(args[index])
     }
   }
   const rest = args.filter((_arg, index) => !consumed.has(index))
   const commands = new Set<string>([
     'run',
     'install',
-    'i',
     'uninstall',
     'start',
     'stop',
@@ -181,18 +222,19 @@ export function parseArgs(args: string[]): ParsedDaemonArgs {
   const defaultSub: DaemonSubcommand = process.stdin.isTTY ? 'hub' : 'run'
   const positional = rest.findIndex((arg) => !arg.startsWith('-'))
   if (positional === -1) {
-    return { sub: defaultSub, jsonPath, logPath, origin, rest }
+    return { sub: defaultSub, jsonPath, logPath, origin, spawnedBy, rest }
   }
   const candidate = rest[positional]
   if (!commands.has(candidate)) {
     if (!/[./\\~]/.test(candidate)) {
-      return { sub: candidate, jsonPath, logPath, origin, rest: [] }
+      return { sub: candidate, jsonPath, logPath, origin, spawnedBy, rest: [] }
     }
     return {
       sub: 'run',
       jsonPath: explicitJsonPath ? jsonPath : candidate,
       logPath,
       origin,
+      spawnedBy,
       rest: [],
     }
   }
@@ -209,6 +251,7 @@ export function parseArgs(args: string[]): ParsedDaemonArgs {
     jsonPath,
     logPath,
     origin,
+    spawnedBy,
     rest: remaining,
   }
 }
@@ -241,6 +284,95 @@ type ExecutableIdentity = {
 
 const BINARY_IDENTITY_POLL_INTERVAL_MS = 60_000
 const CONFIGURED_WORKER_START_STAGGER_MS = 2_000
+const DAEMON_LOG_ROTATION_BYTES = 10 * 1024 * 1024
+
+type DaemonLogger = {
+  write(scope: string, message: string): void
+  close(): Promise<void>
+}
+
+function openDaemonLog(path: string): WriteStream {
+  const stream = createWriteStream(path, { flags: 'a' })
+  // A logging failure must never crash the daemon. The next write/rotation
+  // will get another chance to establish the sink.
+  stream.on('error', () => {})
+  return stream
+}
+
+function closeDaemonLog(stream: WriteStream): Promise<void> {
+  return new Promise(resolve => stream.end(resolve))
+}
+
+async function rotateDaemonLog(path: string): Promise<void> {
+  const rotated = `${path}.1`
+  try {
+    await rename(path, rotated)
+  } catch (error) {
+    if (isENOENT(error)) return
+    await unlink(rotated).catch(() => {})
+    await rename(path, rotated).catch(() => unlink(path).catch(() => {}))
+  }
+}
+
+async function createDaemonLogger(path: string): Promise<DaemonLogger> {
+  const mirrorToStdout = process.stdout.isTTY
+  let size = await stat(path).then(value => value.size).catch(() => 0)
+  if (size > DAEMON_LOG_ROTATION_BYTES) {
+    await rotateDaemonLog(path)
+    size = 0
+  }
+  let stream = openDaemonLog(path)
+  let rotating = false
+  return {
+    write(scope, message) {
+      const line = `[${new Date().toISOString()}] [${scope}] ${String(message)}\n`
+      size += Buffer.byteLength(line)
+      stream.write(line)
+      if (mirrorToStdout) process.stdout.write(line)
+      if (size > DAEMON_LOG_ROTATION_BYTES && !rotating) {
+        rotating = true
+        const previous = stream
+        void (async () => {
+          // Windows cannot rename an open file. On Unix, opening the new file
+          // before closing the old descriptor avoids dropping concurrent logs.
+          if (process.platform === 'win32') {
+            await closeDaemonLog(previous)
+            await rotateDaemonLog(path)
+            stream = openDaemonLog(path)
+          } else {
+            await rotateDaemonLog(path)
+            stream = openDaemonLog(path)
+            await closeDaemonLog(previous)
+          }
+          size = 0
+          rotating = false
+        })().catch(() => {
+          rotating = false
+        })
+      }
+    },
+    close: () => closeDaemonLog(stream),
+  }
+}
+
+function workerKindEnabled(kind: string): boolean {
+  return kind === 'heartbeat' || isDaemonWorkerRegistryEnabled()
+}
+
+function configuredWorkerCount(config: WorkerConfig): number {
+  let count = 0
+  for (const kind of Object.keys(WORKER_KINDS)) {
+    count += (config[kind] ?? []).length
+  }
+  return count
+}
+
+function daemonWorkerInvocation(): RelaunchLauncher {
+  // Daemon children must remain pinned to the daemon's version. A normal
+  // interactive relaunch intentionally follows the stable installer symlink.
+  if (isInBundledMode()) return { cmd: process.execPath, prefixArgs: [] }
+  return getRelaunchLauncher()
+}
 
 async function loadWorkerConfigDetails(
   path: string,
@@ -371,7 +503,7 @@ class ManagedWorker {
     readonly id: string,
     readonly kind: string,
     private config: unknown,
-    private execPath: string,
+    private invocation: RelaunchLauncher,
     private readonly log: (scope: string, message: string) => void,
     private readonly auth: ReturnType<typeof createDaemonAuthManager>,
     private readonly onStateChange?: () => void,
@@ -417,10 +549,14 @@ class ManagedWorker {
   private spawn(): void {
     const started = Date.now()
     this.spawnedAt = started
-    const child = spawn(this.execPath, ['--daemon-worker', this.kind], {
+    const child = spawn(
+      this.invocation.cmd,
+      [...this.invocation.prefixArgs, '--daemon-worker', this.kind],
+      {
       stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
       windowsHide: true,
-    })
+      },
+    )
     this.child = child
     this.onStateChange?.()
     child.stdin?.on('error', error => {
@@ -462,12 +598,12 @@ class ManagedWorker {
           return
         }
         void resolveLatestNativeExecutable().then(next => {
-          if (next && next !== this.execPath) {
+          if (next && next !== this.invocation.cmd) {
             this.log(
               this.id,
               `execPath gone (version GC?) — re-resolved to ${next}`,
             )
-            this.execPath = next
+            this.invocation = { cmd: next, prefixArgs: [] }
             this.crashes = 0
           }
           finish(null, null)
@@ -536,10 +672,6 @@ class ManagedWorker {
   }
 }
 
-function launchExecutable(): string {
-  return isInBundledMode() ? process.execPath : (process.argv[1] ?? process.execPath)
-}
-
 async function resolveLatestNativeExecutable(): Promise<string | null> {
   if (!isInBundledMode()) return null
   const versions = join(getXDGDataHome(), 'claude', 'versions')
@@ -586,29 +718,78 @@ async function runDaemon(options: {
   jsonPath: string
   logPath: string
   origin: string
+  spawnedBy?: { label: string; cwd: string; pid: number }
   signal: AbortSignal
   watch?: typeof watchDaemonConfig
+  createAuth?: typeof createDaemonAuthManager
+  staleCheckIntervalMs?: number
+  /** @deprecated retained for recovery tests from 2.1.120. */
   binaryIdentityPollIntervalMs?: number
   idleGraceMs?: number
-}): Promise<{ upgradeDetected: boolean }> {
-  const stream = createWriteStream(options.logPath, { flags: 'a' })
-  const log = (scope: string, message: string) => {
-    const line = `[${new Date().toISOString()}] [${scope}] ${message}\n`
-    stream.write(line)
-    if (process.stdout.isTTY) process.stdout.write(line)
-  }
+}): Promise<{ upgradeDetected: boolean; exitCode: number }> {
+  const logger = await createDaemonLogger(options.logPath)
+  const log = (scope: string, message: string) => logger.write(scope, message)
   log(
     'supervisor',
     `─── daemon start ─── version=${MACRO.VERSION} pid=${process.pid} origin=${options.origin}`,
   )
-  const running = await getRunningDaemon()
-  if (running) {
+  void initializeGrowthBook()
+  let running = await getRunningDaemon()
+  let attemptedTakeover = false
+  if (
+    running?.origin === 'transient' &&
+    options.origin !== 'transient'
+  ) {
+    attemptedTakeover = true
     log(
       'supervisor',
-      `another daemon is already running (pid=${running.pid}, version=${running.version}) — exiting`,
+      `transient daemon running (pid=${running.pid}, origin=transient) — asking it to yield to origin=${options.origin}`,
     )
-    stream.end()
-    process.exit(1)
+    const response = await requestControl({
+      proto: 1,
+      op: 'yield',
+    })
+    if (response.ok && response.op === 'yield' && response.yielding) {
+      const deadline = Date.now() + 5_000
+      while (running && Date.now() < deadline) {
+        await sleep(100)
+        running = await getRunningDaemon()
+      }
+      logEvent('tengu_daemon_yield_takeover', {
+        ok: !running,
+        new_origin: options.origin,
+      })
+      if (running) {
+        log(
+          'supervisor',
+          'yield acked but lock still held after 5s — refusing to start',
+        )
+      }
+    } else {
+      log(
+        'supervisor',
+        response.ok
+          ? 'existing daemon refused to yield (it reports origin!=transient)'
+          : `existing daemon unreachable on control socket (${response.error}); not taking over`,
+      )
+    }
+  }
+  if (running) {
+    const reason = attemptedTakeover
+      ? `origin=${running.origin ?? 'unknown'}; asked it to yield but the handover failed (see above)`
+      : options.origin === 'transient'
+        ? `origin=${running.origin ?? 'unknown'}; an on-demand daemon never displaces a running one`
+        : `origin=${running.origin ?? 'unknown'}; only a transient daemon can be displaced`
+    const recovery =
+      process.platform === 'win32'
+        ? `Stop it with \`taskkill /PID ${running.pid}\`, then retry.`
+        : 'Run `claude daemon stop` to stop it, then retry.'
+    log(
+      'supervisor',
+      `another daemon is already running (pid=${running.pid}, version=${running.version}, ${reason}). ${recovery}`,
+    )
+    await logger.close()
+    return { upgradeDetected: false, exitCode: 1 }
   }
   const lock: DaemonLock = {
     pid: process.pid,
@@ -617,8 +798,11 @@ async function runDaemon(options: {
     logPath: options.logPath,
     startedAt: Date.now(),
     origin: options.origin,
+    spawnedBy: options.spawnedBy,
+    procStart: await getProcessStartTokenAsync(process.pid),
   }
-  if (!(await createDaemonLock(lock))) {
+  let acquired = await createDaemonLock(lock)
+  if (!acquired) {
     const contender = await readDaemonLock()
     if (contender) {
       let isDaemon = false
@@ -630,42 +814,64 @@ async function runDaemon(options: {
       }
       if (isDaemon) {
         log('supervisor', `another daemon won the lock race (pid=${contender.pid}) — exiting`)
-        stream.end()
-        process.exit(1)
+        await logger.close()
+        return { upgradeDetected: false, exitCode: 1 }
       }
     }
+    acquired = await replaceDaemonLock(lock)
   }
-  if (!(await replaceDaemonLock(lock))) {
+  if (!acquired) {
     log('supervisor', 'another daemon won the lock race — exiting')
-    stream.end()
-    process.exit(1)
+    await logger.close()
+    return { upgradeDetected: false, exitCode: 1 }
   }
 
   const executablePath = getDaemonExecutablePath()
   const initialExecutableIdentity = await getExecutableIdentity(executablePath)
   let upgradeDetected = false
+  let shutdownRequested = false
+  let serviceRecall = false
+  let yielding = false
   let resolveRun: (() => void) | null = null
+  const yieldToPersistentDaemon = (): boolean => {
+    if (options.origin !== 'transient') return false
+    if (!yielding) {
+      yielding = true
+      log(
+        'supervisor',
+        'yielding to a foreground/service daemon — bg workers will be re-adopted',
+      )
+      logEvent('tengu_daemon_yield', {})
+      resolveRun?.()
+    }
+    return true
+  }
   const checkForExecutableUpgrade = async (): Promise<boolean> => {
     if (upgradeDetected || !initialExecutableIdentity) return upgradeDetected
     const currentIdentity = await getExecutableIdentity(executablePath)
     if (
       options.signal.aborted ||
+      serviceRecall ||
       !currentIdentity ||
       !executableIdentityChanged(initialExecutableIdentity, currentIdentity)
     ) {
       return false
     }
     upgradeDetected = true
+    const change =
+      initialExecutableIdentity.target === currentIdentity.target
+        ? 'mtime changed'
+        : `${initialExecutableIdentity.target} → ${currentIdentity.target}`
     log(
       'supervisor',
-      `binary at ${executablePath} changed (${initialExecutableIdentity.target} → ${currentIdentity.target}) — self-restarting for upgrade`,
+      `binary at ${executablePath} changed (${change}) — self-restarting for upgrade`,
     )
     resolveRun?.()
     return true
   }
 
   const workers = new Map<string, ManagedWorker>()
-  const workerExecutable = launchExecutable()
+  const workerInvocation = daemonWorkerInvocation()
   const persistWorkerStatus = (): void => {
     const live: Record<string, { pid: number; startedAt: number }> = {}
     for (const [id, worker] of workers) {
@@ -674,7 +880,7 @@ async function runDaemon(options: {
     }
     void writeDaemonStatus(live)
   }
-  const auth = createDaemonAuthManager(
+  const auth = (options.createAuth ?? createDaemonAuthManager)(
     options.signal,
     message => log('supervisor', message),
     () =>
@@ -683,6 +889,7 @@ async function runDaemon(options: {
       ),
   )
   const idleGraceMs = options.idleGraceMs ?? 5_000
+  let lastGoodConfig: WorkerConfig = {}
   let idleTimer: NodeJS.Timeout | undefined
   let idleExit = false
   let supervisor: Awaited<ReturnType<typeof runBackgroundSupervisor>> | null =
@@ -691,7 +898,16 @@ async function runDaemon(options: {
     (supervisor?.leaseCount() ?? 0) +
     (supervisor?.liveHandleCount() ?? 0)
   const updateKeepAlive = () => {
-    if (idleExit || upgradeDetected || options.signal.aborted) return
+    if (options.origin === 'service') return
+    if (
+      idleExit ||
+      upgradeDetected ||
+      shutdownRequested ||
+      yielding ||
+      options.signal.aborted
+    ) {
+      return
+    }
     if (liveKeepAliveCount() > 0) {
       if (idleTimer) clearTimeout(idleTimer)
       idleTimer = undefined
@@ -708,19 +924,17 @@ async function runDaemon(options: {
         return
       }
       idleExit = true
-      const bgHandles = supervisor?.liveHandleCount() ?? 0
-      const configuredWorkers = workers.size
+      const configuredWorkers = configuredWorkerCount(lastGoodConfig)
       log(
         'supervisor',
         `idle ${Math.round(idleGraceMs / 1_000)}s with no clients — exiting${
-          bgHandles + configuredWorkers > 0
-            ? ` (terminating ${bgHandles} bg + ${configuredWorkers} configured workers)`
+          configuredWorkers > 0
+            ? ` (stopping ${configuredWorkers} configured workers)`
             : ''
         }`,
       )
       logEvent('tengu_daemon_idle_exit', {
         grace_ms: idleGraceMs,
-        bg_handles: bgHandles,
         cfg_workers: configuredWorkers,
       })
       resolveRun?.()
@@ -734,6 +948,12 @@ async function runDaemon(options: {
         log: (message) => log('bg', message),
         getAuthSnapshot: () => auth.getAuthSnapshot(),
         onNudge: checkForExecutableUpgrade,
+        onShutdown: () => {
+          shutdownRequested = true
+          log('supervisor', 'shutdown requested via control socket')
+          resolveRun?.()
+        },
+        onYield: yieldToPersistentDaemon,
         onKeepAliveChange: updateKeepAlive,
       }),
     )
@@ -752,7 +972,7 @@ async function runDaemon(options: {
     })
 
   let initialUnknownKeys: string[] = []
-  let lastGoodConfig = await loadWorkerConfigDetails(options.jsonPath)
+  lastGoodConfig = await loadWorkerConfigDetails(options.jsonPath)
     .then((loaded) => {
       initialUnknownKeys = loaded.unknownKeys
       return loaded.config
@@ -767,6 +987,7 @@ async function runDaemon(options: {
   await auth.ready
   let workerIndex = 0
   for (const kind of Object.keys(WORKER_KINDS)) {
+    if (!workerKindEnabled(kind)) continue
     const entries = lastGoodConfig[kind] ?? []
     for (let index = 0; index < entries.length; index++) {
       const workerConfig = entries[index]
@@ -775,7 +996,7 @@ async function runDaemon(options: {
         id,
         kind,
         workerConfig,
-        workerExecutable,
+        workerInvocation,
         log,
         auth,
         persistWorkerStatus,
@@ -786,8 +1007,9 @@ async function runDaemon(options: {
     }
   }
   persistWorkerStatus()
-  log('supervisor', `workers=${workers.size}`)
-  if (workers.size) {
+  const initialWorkerCount = configuredWorkerCount(lastGoodConfig)
+  log('supervisor', `workers=${initialWorkerCount}`)
+  if (initialWorkerCount) {
     log(
       'supervisor',
       'daemon.json has configured workers but they do not pin the supervisor — they stop when the last client lease and bg job are gone',
@@ -795,7 +1017,8 @@ async function runDaemon(options: {
   }
   logEvent('tengu_daemon_start', {
     worker_kinds: Object.keys(WORKER_KINDS).length,
-    worker_count: workers.size,
+    worker_count: initialWorkerCount,
+    origin: options.origin,
   })
   updateKeepAlive()
 
@@ -833,11 +1056,12 @@ async function runDaemon(options: {
     }
     let startIndex = 0
     for (const { id, kind, config } of diff.start) {
+      if (!workerKindEnabled(kind)) continue
       const worker = new ManagedWorker(
         id,
         kind,
         config,
-        workerExecutable,
+        workerInvocation,
         log,
         auth,
         persistWorkerStatus,
@@ -877,7 +1101,13 @@ async function runDaemon(options: {
   const onAbort = () => resolveRun?.()
   await new Promise<void>((resolve) => {
     resolveRun = resolve
-    if (options.signal.aborted || upgradeDetected) {
+    if (
+      options.signal.aborted ||
+      upgradeDetected ||
+      idleExit ||
+      shutdownRequested ||
+      yielding
+    ) {
       resolve()
       return
     }
@@ -891,8 +1121,26 @@ async function runDaemon(options: {
       return
     }
     binaryIdentityPoll = setInterval(
-      () => void checkForExecutableUpgrade(),
-      options.binaryIdentityPollIntervalMs ??
+      () => {
+        if (options.signal.aborted || upgradeDetected || serviceRecall) {
+          if (binaryIdentityPoll) clearInterval(binaryIdentityPoll)
+          return
+        }
+        void checkForExecutableUpgrade()
+        if (
+          options.origin === 'service' &&
+          isDaemonServiceRecalled()
+        ) {
+          serviceRecall = true
+          log(
+            'supervisor',
+            'service recall flag set — draining workers and uninstalling service',
+          )
+          resolveRun?.()
+        }
+      },
+      options.staleCheckIntervalMs ??
+        options.binaryIdentityPollIntervalMs ??
         BINARY_IDENTITY_POLL_INTERVAL_MS,
     )
     binaryIdentityPoll.unref()
@@ -904,6 +1152,7 @@ async function runDaemon(options: {
   if (upgradeDetected) {
     logEvent('tengu_daemon_self_restart_on_upgrade', {})
   }
+  if (serviceRecall) logEvent('tengu_copper_lantern', {})
   log('supervisor', 'shutting down')
   stopWatchingConfig()
   await reloadChain
@@ -916,18 +1165,25 @@ async function runDaemon(options: {
       await removeDaemonLock()
     }
   }
-  if (idleExit) {
-    await removeOwnLock()
-    supervisor?.killAll('SIGTERM')
+  if (yielding) {
+    await supervisor?.close()
+    supervisor = null
   }
-  await supervisor?.close()
-  await Promise.all([...workers.values()].map((worker) => worker.stop()))
+  if (idleExit || serviceRecall || yielding) {
+    await removeOwnLock()
+    if (serviceRecall) supervisor?.killAll('SIGTERM')
+  }
+  await Promise.all([
+    supervisor?.close(),
+    ...[...workers.values()].map((worker) => worker.stop()),
+  ])
   await removeDaemonStatus()
   await removeOwnLock()
-  await new Promise<void>((resolve) => stream.end(resolve))
+  if (serviceRecall) await uninstallDaemonService()
+  await logger.close()
   auth.dispose()
   void supervisorStart
-  return { upgradeDetected }
+  return { upgradeDetected, exitCode: 0 }
 }
 
 async function showStatus(): Promise<void> {
@@ -941,51 +1197,99 @@ async function showStatus(): Promise<void> {
   output(`pid:     ${running.pid}`)
   output(`version: ${running.version}`)
   output(`uptime:  ${Math.floor((Date.now() - running.startedAt) / 1_000)}s`)
-  output(`origin:  ${running.origin ?? 'unknown'}`)
+  const origin = running.origin ?? 'unknown'
+  const originDisplay =
+    origin !== 'transient' && origin !== 'auto'
+      ? origin
+      : running.spawnedBy
+        ? `transient — started on-demand by \`${running.spawnedBy.label}\` (pid ${running.spawnedBy.pid}) in ${running.spawnedBy.cwd}`
+        : 'transient — started on-demand by a client'
+  output(`origin:  ${originDisplay}`)
   output(`config:  ${running.jsonPath}`)
   output(`log:     ${running.logPath}`)
-  output(formatBgDaemonStatus(await getBgDaemonStatus()))
+  const status = await getBgDaemonStatus()
+  output(formatBgDaemonStatus(status))
+  if (origin === 'transient' || origin === 'auto') {
+    output('')
+    const workers = status.workersLive ?? 0
+    if (workers > 0 || status.leaseClients.length > 0) {
+      output('holding this daemon open:')
+      if (workers > 0) {
+        output(
+          `  ${workers} ${workers === 1 ? 'bg worker' : 'bg workers'} running (daemon waits for them to settle)`,
+        )
+      }
+      for (const client of status.leaseClients) {
+        output(`  \`${client.label}\` (pid ${client.pid}) in ${client.cwd}`)
+      }
+      output('')
+      output(
+        'to let it idle-exit: wait for (or cancel) bg workers and close any `claude agents`',
+      )
+    } else if (status.workersLive === 0) {
+      output('nothing holding this daemon open — will idle-exit shortly')
+    }
+  }
   if (running.version !== MACRO.VERSION) {
     output('')
     output(
       `warning: running daemon is ${running.version}, but this claude is ${MACRO.VERSION}`,
     )
-    output('  run `claude daemon restart` to pick up the new version')
+    const stopCommand = (await isDaemonServiceInstalled())
+      ? 'claude daemon stop'
+      : 'claude daemon stop --any'
+    output(`  run \`${stopCommand}\` to pick up the new version`)
   }
 }
 
 async function tailLog(path: string): Promise<void> {
+  if (process.platform !== 'win32') {
+    const child = spawn('tail', ['-f', path], { stdio: 'inherit' })
+    await new Promise<void>(resolve => {
+      child.on('exit', code => {
+        if (code) process.exitCode = code
+        resolve()
+      })
+      child.on('error', error => {
+        outputError(`tail failed: ${error.message}`)
+        process.exitCode = 1
+        resolve()
+      })
+    })
+    return
+  }
+  let file
   try {
-    const raw = await readFile(path, 'utf8')
-    process.stdout.write(raw.split('\n').slice(-200).join('\n'))
+    file = await open(path, 'r')
   } catch (error) {
-    outputError(String(error))
+    outputError(`cannot open ${path}: ${errorMessage(error)}`)
     process.exitCode = 1
+    return
   }
-}
-
-async function daemonInvocationHasExternalRestartPolicy(): Promise<boolean> {
-  if (process.env.CLAUDE_CONFIG_DIR) return false
-  if (!isServiceInstallSupported()) return false
-  if (process.platform === 'linux') return Boolean(process.env.INVOCATION_ID)
-  return isDaemonServiceInstalled()
-}
-
-async function removeLegacyDaemonService(): Promise<void> {
-  if (process.env.CLAUDE_CONFIG_DIR || !isServiceInstallSupported()) return
-  try {
-    if (!(await isDaemonServiceInstalled())) return
-    const unit = await readFile(getSystemdServicePath(), 'utf8').catch(() => '')
-    if (unit.includes(DAEMON_SERVICE_MARKER)) return
-    const result = await uninstallDaemonService()
-    logEvent('tengu_daemon_auto_uninstall', { ok: result.ok })
-  } catch (error) {
-    logError(error)
-    logEvent('tengu_daemon_auto_uninstall', { ok: false, threw: true })
+  let position = (await file.stat()).size
+  const buffer = Buffer.alloc(65_536)
+  let stopped = false
+  process.on('SIGINT', () => {
+    stopped = true
+  })
+  while (!stopped) {
+    if ((await file.stat()).size < position) position = 0
+    const { bytesRead } = await file.read(
+      buffer,
+      0,
+      buffer.length,
+      position,
+    )
+    if (bytesRead > 0) {
+      process.stdout.write(buffer.subarray(0, bytesRead))
+      position += bytesRead
+    } else await sleep(500)
   }
+  await file.close()
 }
 
 export async function daemonMain(args: string[]): Promise<void> {
+  await ensureFleetGateHydrated()
   if (args.includes('--help') || args.includes('-h')) {
     if (!isDaemonCliEnabled()) fleetGateRejected('daemon')
     output(daemonHelp().trimEnd())
@@ -996,7 +1300,10 @@ export async function daemonMain(args: string[]): Promise<void> {
     parsed.sub === 'hub' && !isDaemonWorkerRegistryEnabled()
       ? 'status'
       : parsed.sub
-  if (sub !== 'run' && !isDaemonCliEnabled()) {
+  if (
+    !new Set(['run', 'status', 'stop', 'uninstall']).has(sub) &&
+    !isDaemonCliEnabled()
+  ) {
     fleetGateRejected('daemon')
   }
   if (
@@ -1011,12 +1318,20 @@ export async function daemonMain(args: string[]): Promise<void> {
   }
   switch (sub) {
     case 'run': {
+      if (!isAgentsFleetEnabled()) {
+        outputError(
+          'claude daemon: background agents disabled (ZDR/3P/opt-out)',
+        )
+        return
+      }
       process.title = 'claude daemon'
-      await removeLegacyDaemonService()
       const controller = new AbortController()
       let signaled = false
       const shutdown = () => {
-        if (signaled) process.exit(1)
+        if (signaled) {
+          outputError('forced shutdown')
+          process.exit(1)
+        }
         signaled = true
         controller.abort()
       }
@@ -1024,11 +1339,13 @@ export async function daemonMain(args: string[]): Promise<void> {
       process.on('SIGTERM', shutdown)
       const origin = parsed.origin ?? 'foreground'
       let upgradeDetected: boolean
+      let exitCode: number
       try {
-        ;({ upgradeDetected } = await runDaemon({
+        ;({ upgradeDetected, exitCode } = await runDaemon({
           jsonPath: parsed.jsonPath,
           logPath: parsed.logPath,
           origin,
+          spawnedBy: parsed.spawnedBy,
           signal: controller.signal,
         }))
       } catch (error) {
@@ -1037,10 +1354,11 @@ export async function daemonMain(args: string[]): Promise<void> {
         process.exitCode = 1
         return
       }
-      if (
-        upgradeDetected &&
-        !(await daemonInvocationHasExternalRestartPolicy())
-      ) {
+      if (upgradeDetected && origin === 'service') {
+        process.exitCode = 70
+        return
+      }
+      if (upgradeDetected) {
         const { cmd, prefixArgs } = getRelaunchLauncher()
         spawn(
           cmd,
@@ -1054,19 +1372,22 @@ export async function daemonMain(args: string[]): Promise<void> {
             parsed.logPath,
             '--origin',
             origin,
+            ...(parsed.spawnedBy
+              ? ['--spawned-by', JSON.stringify(parsed.spawnedBy)]
+              : []),
           ],
           {
             detached: true,
             stdio: 'ignore',
             windowsHide: true,
-            env: { ...process.env, INVOCATION_ID: '' },
+            env: daemonSpawnEnv(),
           },
         ).unref()
       }
+      process.exitCode = exitCode
       return
     }
-    case 'install':
-    case 'i': {
+    case 'install': {
       if (!isDaemonServiceInstallEnabled()) {
         outputError(
           `\`claude daemon ${sub}\` is disabled in this version — the daemon runs on demand and exits when the last client disconnects.`,
@@ -1087,29 +1408,38 @@ export async function daemonMain(args: string[]): Promise<void> {
         process.exitCode = 1
         return
       }
-      const detached = await getRunningDaemon().catch(() => null)
-      if (detached) {
-        output(`stopping detached daemon (pid ${detached.pid})`)
-        try {
-          process.kill(detached.pid, 'SIGTERM')
-        } catch {}
-        const deadline = Date.now() + 2_000
-        while (Date.now() < deadline) {
-          try {
-            process.kill(detached.pid, 0)
-          } catch {
-            break
-          }
-          await new Promise(resolve => setTimeout(resolve, 50))
-        }
-      }
+      const detached = await stopRunningDaemon()
+      if (detached !== null) output(`stopped detached daemon (pid ${detached})`)
       const result = await installDaemonService(parsed)
-      logEvent('tengu_daemon_install', { ok: result.ok })
-      if (result.ok) output(`installed: ${result.servicePath}`)
-      else {
+      if (!result.ok) {
+        await logEventTo1PAwaitable('tengu_daemon_install', { ok: false })
         outputError(`install failed: ${result.error}`)
         outputError(`  (service file was written to ${result.servicePath})`)
         process.exitCode = 1
+        return
+      }
+      output(`installed: ${result.servicePath}`)
+      const reachable = await (async () => {
+        const deadline = Date.now() + 5_000
+        while (Date.now() < deadline) {
+          if ((await requestControl({ proto: 1, op: 'ping' })).ok) return true
+          await sleep(100)
+        }
+        return false
+      })()
+      await logEventTo1PAwaitable('tengu_daemon_install', {
+        ok: true,
+        reachable,
+      })
+      if (reachable) {
+        const daemon = await getRunningDaemon().catch(() => null)
+        output(
+          `running: pid=${daemon?.pid ?? '?'} origin=${daemon?.origin ?? '?'} (managed by ${process.platform === 'darwin' ? 'launchd' : 'systemd'})`,
+        )
+      } else {
+        outputError(
+          'warning: service installed but daemon not reachable within 5s — check `claude daemon logs`',
+        )
       }
       return
     }
@@ -1127,41 +1457,129 @@ export async function daemonMain(args: string[]): Promise<void> {
       return
     }
     case 'start':
-    case 'restart':
-      outputError(
-        `\`claude daemon ${sub}\` is disabled in this version — the daemon runs on demand and exits when the last client disconnects.`,
-      )
-      await logEventTo1PAwaitable('tengu_daemon_install', {
-        ok: false,
-        disabled: true,
-      })
-      process.exitCode = 1
-      return
-    case 'stop': {
+    case 'restart': {
+      if (!isDaemonServiceInstallEnabled()) {
+        outputError(
+          `\`claude daemon ${sub}\` is disabled in this version — the daemon runs on demand and exits when the last client disconnects.`,
+        )
+        await logEventTo1PAwaitable('tengu_daemon_install', {
+          ok: false,
+          disabled: true,
+        })
+        process.exitCode = 1
+        return
+      }
+      if (!isServiceInstallSupported()) {
+        outputError(`service ${sub} not supported on linux`)
+        process.exitCode = 1
+        return
+      }
+      if (process.env.CLAUDE_CONFIG_DIR) {
+        outputError(
+          'the launchd/systemd unit is a per-user singleton for the default config dir',
+        )
+        process.exitCode = 1
+        return
+      }
       if (!(await isDaemonServiceInstalled())) {
-        const running = await getRunningDaemon()
-        if (!running) {
-          output('no daemon running')
-          return
+        outputError('service not installed — run `claude daemon install` first')
+        process.exitCode = 1
+        return
+      }
+      let result
+      let regenerated = false
+      if (await serviceExecutableIsMissing()) {
+        regenerated = true
+        output('service binary missing — regenerating service file')
+        const detached = await stopRunningDaemon()
+        if (detached !== null) {
+          output(`stopped detached daemon (pid ${detached})`)
         }
-        if (!parsed.rest.includes('--any')) {
-          outputError(
-            `no background service is installed, but a daemon is running (pid=${running.pid}, origin=${running.origin ?? 'unknown'}). Run \`claude daemon stop --any\` to stop it.`,
+        result = await installDaemonService(parsed)
+      } else {
+        result = await controlDaemonService(sub)
+      }
+      await logEventTo1PAwaitable('tengu_daemon_control', {
+        op_start: sub === 'start',
+        op_restart: sub === 'restart',
+        ok: result.ok,
+        ...(regenerated ? { regenerated: true } : {}),
+      })
+      if (result.ok) output(sub === 'start' ? 'started' : 'restarted')
+      else {
+        outputError(
+          `${regenerated ? 'regenerate' : sub} failed: ${result.error}`,
+        )
+        process.exitCode = 1
+      }
+      return
+    }
+    case 'stop': {
+      const keepWorkers = parsed.rest.includes('--keep-workers')
+      const installed = await isDaemonServiceInstalled()
+      const running = await getRunningDaemon()
+      if (!installed && running && !parsed.rest.includes('--any')) {
+        outputError(
+          `no background service is installed, but a daemon is running (pid=${running.pid}, origin=${running.origin ?? 'unknown'}). Run \`claude daemon stop --any\` to stop it.`,
+        )
+        process.exitCode = 1
+        return
+      }
+      const response = await requestControl({
+        proto: 1,
+        op: 'shutdown',
+        reapWorkers: !keepWorkers,
+      })
+      let reaped =
+        response.ok && response.op === 'shutdown' && !keepWorkers
+          ? Number(response.reaped) || 0
+          : 0
+      if (response.ok && response.op === 'shutdown') {
+        if (!keepWorkers) {
+          reaped = Math.max(reaped, (await reapOrphanWorkers()).reaped)
+        }
+        if (installed) {
+          const result = await controlDaemonService('stop')
+          if (!result.ok) {
+            outputError(`stop failed: ${result.error}`)
+            process.exitCode = 1
+            return
+          }
+        }
+        output(
+          keepWorkers || reaped === 0
+            ? 'stopped'
+            : `stopped (terminated ${reaped} ${reaped === 1 ? 'background session' : 'background sessions'})`,
+        )
+        if (!installed) {
+          output(
+            'note: the next `claude agents` or `claude --bg` will start a new one',
           )
+        }
+        await logEventTo1PAwaitable('tengu_daemon_control', {
+          op_stop: true,
+          ok: true,
+          reaped,
+        })
+        return
+      }
+      let supervisorStopped = false
+      if (installed) {
+        const result = await controlDaemonService('stop')
+        if (!result.ok) {
+          outputError(`stop failed: ${result.error}`)
           process.exitCode = 1
           return
         }
-        if (process.platform === 'win32') {
-          outputError(
-            `daemon running (pid=${running.pid}) but Windows has no graceful signal — stop it with \`taskkill /PID ${running.pid}\` or close the terminal it was started in.`,
-          )
-          process.exitCode = 1
-          return
-        }
+        supervisorStopped = true
+      } else if (running && process.platform !== 'win32') {
         try {
           process.kill(running.pid, 'SIGTERM')
+          supervisorStopped = true
         } catch (error) {
-          if (getErrnoCode(error) !== 'ESRCH') {
+          if (getErrnoCode(error) === 'ESRCH') {
+            supervisorStopped = true
+          } else {
             const suffix =
               getErrnoCode(error) === 'EPERM'
                 ? ' (running as another user — try with elevated privileges)'
@@ -1173,28 +1591,33 @@ export async function daemonMain(args: string[]): Promise<void> {
             return
           }
         }
-        output(`stopped (pid=${running.pid})`)
+      }
+      reaped = keepWorkers ? 0 : (await reapOrphanWorkers()).reaped
+      if (running && !supervisorStopped && process.platform === 'win32') {
+        outputError(
+          `${reaped > 0 ? `terminated ${reaped} background session(s); ` : ''}supervisor (pid=${running.pid}) is still running — stop it with \`taskkill /PID ${running.pid}\` or close the terminal it was started in.`,
+        )
+        process.exitCode = 1
+        return
+      } else if (!running && !installed && reaped === 0) {
+        output('no daemon running')
+        return
+      }
+      output(
+        keepWorkers || reaped === 0
+          ? 'stopped'
+          : `stopped (terminated ${reaped} ${reaped === 1 ? 'background session' : 'background sessions'})`,
+      )
+      if (!installed && running) {
         output(
           'note: the next `claude agents` or `claude --bg` will start a new one',
         )
-        await logEventTo1PAwaitable('tengu_daemon_control', {
-          op_start: false,
-          op_stop: true,
-          op_restart: false,
-          ok: true,
-        })
-        return
       }
-      const result = await controlDaemonService('stop')
       await logEventTo1PAwaitable('tengu_daemon_control', {
         op_stop: true,
-        ok: result.ok,
+        ok: true,
+        reaped,
       })
-      if (result.ok) output('stopped')
-      else {
-        outputError(`stop failed: ${result.error}`)
-        process.exitCode = 1
-      }
       return
     }
     case 'status':
@@ -1221,6 +1644,12 @@ export async function daemonMain(args: string[]): Promise<void> {
     case 'assistant':
     case 'remote-control':
       await handleCliKind(parsed.sub, parsed.rest, parsed.jsonPath)
+      return
+    default:
+      outputError(`unknown subcommand: ${sub}`)
+      outputError('')
+      outputError(daemonHelp().trimEnd())
+      process.exitCode = 1
       return
   }
 }

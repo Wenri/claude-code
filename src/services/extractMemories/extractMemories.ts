@@ -113,6 +113,54 @@ function countModelVisibleMessagesSince(
   return n
 }
 
+const MIN_USER_PROSE_WORDS = 3
+
+function countWords(text: string): number {
+  return count(text.split(/\s+/), Boolean)
+}
+
+function isSubstantiveUserProse(message: Message): boolean {
+  if (message.type !== 'user' || message.isMeta) {
+    return false
+  }
+  const content = message.message.content
+  if (typeof content === 'string') {
+    return countWords(content) >= MIN_USER_PROSE_WORDS
+  }
+  if (!Array.isArray(content)) {
+    return false
+  }
+  return content.some(
+    block =>
+      block.type === 'text' &&
+      countWords(block.text) >= MIN_USER_PROSE_WORDS,
+  )
+}
+
+function hasUserProseSince(
+  messages: Message[],
+  sinceUuid: string | undefined,
+): boolean {
+  let foundStart = sinceUuid === undefined
+  for (const message of messages) {
+    if (!foundStart) {
+      if (message.uuid === sinceUuid) {
+        foundStart = true
+      }
+      continue
+    }
+    if (isSubstantiveUserProse(message)) {
+      return true
+    }
+  }
+  // A compaction can remove the cursor message. Fall back to the full current
+  // transcript so extraction does not remain permanently disabled afterward.
+  if (!foundStart) {
+    return messages.some(isSubstantiveUserProse)
+  }
+  return false
+}
+
 /**
  * Returns true if any assistant message after the cursor UUID contains a
  * Write/Edit tool_use block targeting an auto-memory path.
@@ -453,6 +501,20 @@ export function initExtractMemories(): void {
         lastMemoryMessageUuid = lastMessage.uuid
       }
       logEvent('tengu_extract_memories_skipped_direct_write', {
+        message_count: newMessageCount,
+      })
+      return
+    }
+
+    if (!hasUserProseSince(messages, lastMemoryMessageUuid)) {
+      logForDebugging(
+        '[extractMemories] skipping — no user prose since last extraction',
+      )
+      const lastMessage = messages.at(-1)
+      if (lastMessage?.uuid) {
+        lastMemoryMessageUuid = lastMessage.uuid
+      }
+      logEvent('tengu_extract_memories_skipped_no_prose', {
         message_count: newMessageCount,
       })
       return

@@ -73,18 +73,25 @@ import {
 } from '../../utils/errors.js'
 import { getMCPUserAgent } from '../../utils/http.js'
 import { maybeNotifyIDEConnected } from '../../utils/ide.js'
-import { maybeResizeAndDownsampleImageBuffer } from '../../utils/imageResizer.js'
+import {
+  getImageLimits,
+  type ImageLimits,
+  maybeResizeAndDownsampleImageBuffer,
+} from '../../utils/imageResizer.js'
 import { logMCPDebug, logMCPError } from '../../utils/log.js'
+import { getMainLoopModel } from '../../utils/model/model.js'
 import {
   getBinaryBlobSavedMessage,
   getFormatDescription,
   getLargeOutputInstructions,
+  isMcpSubagentPromptEnabled,
   persistBinaryContent,
 } from '../../utils/mcpOutputStorage.js'
 import {
   getContentSizeEstimate,
   type MCPToolResult,
   mcpContentNeedsTruncation,
+  stripMcpTextBlockMeta,
   truncateMcpContentIfNeeded,
 } from '../../utils/mcpValidation.js'
 import { WebSocketTransport } from '../../utils/mcpWebSocketTransport.js'
@@ -110,6 +117,7 @@ import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
 } from '../analytics/index.js'
+import { isAnalyticsToolDetailsLoggingEnabled } from '../analytics/metadata.js'
 import {
   type ElicitationWaitingState,
   runElicitationHooks,
@@ -169,7 +177,7 @@ export class McpAuthError extends Error {
  * Thrown when an MCP session has expired and the connection cache has been cleared.
  * The caller should get a fresh client via ensureConnectedClient and retry.
  */
-class McpSessionExpiredError extends Error {
+export class McpSessionExpiredError extends Error {
   constructor(serverName: string) {
     super(`MCP server "${serverName}" session expired`)
     this.name = 'McpSessionExpiredError'
@@ -680,6 +688,7 @@ export const connectToServer = memoize(
           requestInit: {
             headers: {
               'User-Agent': getMCPUserAgent(),
+              'Accept-Encoding': 'identity',
               ...combinedHeaders,
             },
           },
@@ -699,13 +708,14 @@ export const connectToServer = memoize(
               authHeaders.Authorization = `Bearer ${tokens.access_token}`
             }
 
-            const proxyOptions = getProxyFetchOptions()
+            const proxyOptions = getProxyFetchOptions({ url: String(url) })
             // eslint-disable-next-line eslint-plugin-n/no-unsupported-features/node-builtins
             return fetch(url, {
               ...init,
               ...proxyOptions,
               headers: {
                 'User-Agent': getMCPUserAgent(),
+                'Accept-Encoding': 'identity',
                 ...authHeaders,
                 ...init?.headers,
                 ...combinedHeaders,
@@ -724,31 +734,35 @@ export const connectToServer = memoize(
         logMCPDebug(name, `Setting up SSE-IDE transport to ${serverRef.url}`)
         // IDE servers don't need authentication
         // TODO: Use the auth token provided in the lockfile
-        const proxyOptions = getProxyFetchOptions()
-        const transportOptions: SSEClientTransportOptions =
-          proxyOptions.dispatcher
-            ? {
-                eventSourceInit: {
-                  fetch: async (url: string | URL, init?: RequestInit) => {
-                    // eslint-disable-next-line eslint-plugin-n/no-unsupported-features/node-builtins
-                    return fetch(url, {
-                      ...init,
-                      ...proxyOptions,
-                      headers: {
-                        'User-Agent': getMCPUserAgent(),
-                        ...init?.headers,
-                      },
-                    })
+        const proxyOptions = getProxyFetchOptions({ url: serverRef.url })
+        const transportOptions: SSEClientTransportOptions = {
+          requestInit: {
+            headers: {
+              'User-Agent': getMCPUserAgent(),
+              'Accept-Encoding': 'identity',
+            },
+          },
+          ...(proxyOptions.dispatcher && {
+            eventSourceInit: {
+              fetch: async (url: string | URL, init?: RequestInit) => {
+                // eslint-disable-next-line eslint-plugin-n/no-unsupported-features/node-builtins
+                return fetch(url, {
+                  ...init,
+                  ...proxyOptions,
+                  headers: {
+                    'User-Agent': getMCPUserAgent(),
+                    'Accept-Encoding': 'identity',
+                    ...init?.headers,
                   },
-                },
-              }
-            : {}
+                })
+              },
+            },
+          }),
+        }
 
         transport = new SSEClientTransport(
           new URL(serverRef.url),
-          Object.keys(transportOptions).length > 0
-            ? transportOptions
-            : undefined,
+          transportOptions,
         )
       } else if (serverRef.type === 'ws-ide') {
         const tlsOptions = getWebSocketTLSOptions()
@@ -857,7 +871,7 @@ export const connectToServer = memoize(
         const hasOAuthTokens = !!(await authProvider.tokens())
 
         // Use the auth provider with StreamableHTTPClientTransport
-        const proxyOptions = getProxyFetchOptions()
+        const proxyOptions = getProxyFetchOptions({ url: serverRef.url })
         logMCPDebug(
           name,
           `Proxy options: ${proxyOptions.dispatcher ? 'custom dispatcher' : 'default'}`,
@@ -875,6 +889,7 @@ export const connectToServer = memoize(
             ...proxyOptions,
             headers: {
               'User-Agent': getMCPUserAgent(),
+              'Accept-Encoding': 'identity',
               ...(sessionIngressToken &&
                 !hasOAuthTokens && {
                   Authorization: `Bearer ${sessionIngressToken}`,
@@ -929,7 +944,7 @@ export const connectToServer = memoize(
         // eslint-disable-next-line eslint-plugin-n/no-unsupported-features/node-builtins
         const fetchWithAuth = createClaudeAiProxyFetch(globalThis.fetch)
 
-        const proxyOptions = getProxyFetchOptions()
+        const proxyOptions = getProxyFetchOptions({ url: proxyUrl })
         const transportOptions: StreamableHTTPClientTransportOptions = {
           // Wrap fetchWithAuth with fresh timeout per request
           fetch: wrapFetchWithTimeout(fetchWithAuth),
@@ -937,6 +952,7 @@ export const connectToServer = memoize(
             ...proxyOptions,
             headers: {
               'User-Agent': getMCPUserAgent(),
+              'Accept-Encoding': 'identity',
               'X-Mcp-Client-Session-Id': getSessionId(),
             },
           },
@@ -1707,8 +1723,16 @@ export const connectToServer = memoize(
       }
     } catch (error) {
       const connectionDurationMs = Date.now() - connectStartTime
+      const errorCode =
+        error &&
+        typeof error === 'object' &&
+        'code' in error &&
+        error.code !== undefined
+          ? String(error.code)
+          : undefined
       logEvent('tengu_mcp_server_connection_failed', {
         connectionDurationMs,
+        errorCode,
         totalServers: serverStats?.totalServers || 1,
         stdioCount:
           serverStats?.stdioCount || (serverRef.type === 'stdio' ? 1 : 0),
@@ -1737,6 +1761,7 @@ export const connectToServer = memoize(
         type: 'failed' as const,
         config: serverRef,
         error: errorMessage(error),
+        errorCode,
       }
     }
   },
@@ -1852,6 +1877,7 @@ export const fetchToolsForClient = memoizeWithLRU(
         return []
       }
 
+      const startTime = Date.now()
       const result = (await client.client.request(
         { method: 'tools/list' },
         ListToolsResultSchema,
@@ -1875,7 +1901,7 @@ export const fetchToolsForClient = memoizeWithLRU(
         isEnvTruthy(process.env.CLAUDE_AGENT_SDK_MCP_NO_PREFIX)
 
       // Convert MCP tools to our Tool format
-      return toolsToProcess
+      const tools = toolsToProcess
         .map((tool): Tool => {
           const fullyQualifiedName = buildMcpToolName(client.name, tool.name)
           const requestedMaxResultSizeChars =
@@ -1900,7 +1926,9 @@ export const fetchToolsForClient = memoizeWithLRU(
                     .replace(/\s+/g, ' ')
                     .trim() || undefined
                 : undefined,
-            alwaysLoad: tool._meta?.['anthropic/alwaysLoad'] === true,
+            alwaysLoad:
+              client.config.alwaysLoad === true ||
+              tool._meta?.['anthropic/alwaysLoad'] === true,
             async description() {
               return tool.description ?? ''
             },
@@ -2005,6 +2033,7 @@ export const fetchToolsForClient = memoizeWithLRU(
                           }
                         : undefined,
                     handleElicitation: context.handleElicitation,
+                    imageLimits: getImageLimits(context.options.mainLoopModel),
                   })
 
                   // Emit progress when tool completes successfully
@@ -2118,6 +2147,25 @@ export const fetchToolsForClient = memoizeWithLRU(
           }
         })
         .filter(isIncludedMcpTool)
+      const baseUrlMetadata = mcpBaseUrlAnalytics(client.config)
+      logEvent('tengu_mcp_tools_listed', {
+        transportType: (client.config.type ??
+          'stdio') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        listDurationMs: Date.now() - startTime,
+        toolCount: tools.length,
+        alwaysLoadCount: count(tools, tool => tool.alwaysLoad === true),
+        ...baseUrlMetadata,
+        ...(isAnalyticsToolDetailsLoggingEnabled(
+          client.config.type,
+          baseUrlMetadata.mcpServerBaseUrl,
+        ) && {
+          mcpServerName:
+            normalizeNameForMCP(
+              client.name,
+            ) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        }),
+      })
+      return tools
     } catch (error) {
       logMCPError(client.name, `Failed to fetch tools: ${errorMessage(error)}`)
       return []
@@ -2286,7 +2334,11 @@ export const fetchCommandsForClient = memoizeWithLRU(
               })
               const transformed = await Promise.all(
                 result.messages.map(message =>
-                  transformResultContent(message.content, connectedClient.name),
+                  transformResultContent(
+                    message.content,
+                    connectedClient.name,
+                    getImageLimits(getMainLoopModel()),
+                  ),
                 ),
               )
               return transformed.flat()
@@ -2692,6 +2744,7 @@ export function prefetchAllMcpResources(
 export async function transformResultContent(
   resultContent: PromptMessage['content'],
   serverName: string,
+  imageLimits: ImageLimits = getImageLimits(),
 ): Promise<Array<ContentBlockParam>> {
   switch (resultContent.type) {
     case 'text':
@@ -2722,6 +2775,7 @@ export async function transformResultContent(
         imageBuffer,
         imageBuffer.length,
         ext,
+        imageLimits,
       )
       return [
         {
@@ -2757,6 +2811,7 @@ export async function transformResultContent(
             imageBuffer,
             imageBuffer.length,
             ext,
+            imageLimits,
           )
           const content: MessageParam['content'] = []
           if (prefix) {
@@ -2877,6 +2932,7 @@ export async function transformMCPResult(
   result: unknown,
   tool: string, // Tool name for validation (e.g., "search")
   name: string, // Server name for transformation (e.g., "slack")
+  imageLimits: ImageLimits = getImageLimits(),
 ): Promise<TransformedMCPResult> {
   if (result && typeof result === 'object') {
     if ('toolResult' in result) {
@@ -2900,13 +2956,15 @@ export async function transformMCPResult(
     if ('content' in result && Array.isArray(result.content)) {
       const transformedContent = (
         await Promise.all(
-          result.content.map(item => transformResultContent(item, name)),
+          result.content.map(item =>
+            transformResultContent(item, name, imageLimits),
+          ),
         )
       ).flat()
       return {
         content: transformedContent,
         type: 'contentArray',
-        schema: inferCompactSchema(transformedContent),
+        schema: inferCompactSchema(stripMcpTextBlockMeta(transformedContent)),
       }
     }
   }
@@ -2935,8 +2993,14 @@ export async function processMCPResult(
   result: unknown,
   tool: string, // Tool name for validation (e.g., "search")
   name: string, // Server name for IDE check and transformation (e.g., "slack")
+  imageLimits: ImageLimits = getImageLimits(),
 ): Promise<MCPToolResult> {
-  const { content, type, schema } = await transformMCPResult(result, tool, name)
+  const { content, type, schema } = await transformMCPResult(
+    result,
+    tool,
+    name,
+    imageLimits,
+  )
 
   // IDE tools are not going to the model directly, so we don't need to
   // handle large output.
@@ -2981,9 +3045,37 @@ export async function processMCPResult(
   // Generate a unique ID for the persisted file (server__tool-timestamp)
   const timestamp = Date.now()
   const persistId = `mcp-${normalizeNameForMCP(name)}-${normalizeNameForMCP(tool)}-${timestamp}`
+  const persistedContent = stripMcpTextBlockMeta(content)
+  const useSubagentPrompt = isMcpSubagentPromptEnabled()
+  const blockCount = Array.isArray(persistedContent)
+    ? persistedContent.length
+    : undefined
+  const singlePlainText =
+    useSubagentPrompt &&
+    Array.isArray(persistedContent) &&
+    persistedContent.length === 1 &&
+    persistedContent[0]?.type === 'text' &&
+    !('annotations' in persistedContent[0]) &&
+    !('_meta' in persistedContent[0])
+      ? persistedContent[0].text
+      : undefined
   // Convert to string for persistence (persistToolResult expects string or specific block types)
   const contentStr =
-    typeof content === 'string' ? content : jsonStringify(content, null, 2)
+    typeof persistedContent === 'string'
+      ? persistedContent
+      : (singlePlainText ?? jsonStringify(persistedContent, null, 2))
+  const isPlainText = type === 'toolResult' || singlePlainText !== undefined
+  const persistedAs = isPlainText ? 'text' : 'json'
+  let lineStats: { count: number; maxLen: number } | undefined
+  if (useSubagentPrompt && isPlainText) {
+    const lines = contentStr.split('\n')
+    if (lines.length > 1 && lines.at(-1) === '') lines.pop()
+    let maxLen = 0
+    for (const line of lines) {
+      if (line.length > maxLen) maxLen = line.length
+    }
+    lineStats = { count: lines.length, maxLen }
+  }
   const persistResult = await persistToolResult(contentStr, persistId)
 
   if (isPersistError(persistResult)) {
@@ -3002,13 +3094,23 @@ export async function processMCPResult(
     reason: 'file_saved',
     sizeEstimateTokens,
     persistedSizeChars: persistResult.originalSize,
+    resultType:
+      type as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    blockCount,
+    persistedAs:
+      persistedAs as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   } as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS)
 
-  const formatDescription = getFormatDescription(type, schema)
+  const formatDescription = getFormatDescription(
+    singlePlainText !== undefined ? 'toolResult' : type,
+    schema,
+  )
   return getLargeOutputInstructions(
     persistResult.filepath,
     persistResult.originalSize,
     formatDescription,
+    undefined,
+    lineStats,
   )
 }
 
@@ -3021,6 +3123,7 @@ type MCPToolCallResult = {
   content: MCPToolResult
   _meta?: Record<string, unknown>
   structuredContent?: Record<string, unknown>
+  urlElicitationDeclined?: { url: string }
 }
 
 /** @internal Exported for testing. */
@@ -3033,6 +3136,7 @@ export async function callMCPToolWithUrlElicitationRetry({
   signal,
   setAppState,
   onProgress,
+  imageLimits,
   callToolFn = callMCPTool,
   handleElicitation,
 }: {
@@ -3044,6 +3148,7 @@ export async function callMCPToolWithUrlElicitationRetry({
   signal: AbortSignal
   setAppState: (f: (prev: AppState) => AppState) => void
   onProgress?: (data: MCPProgress) => void
+  imageLimits?: ImageLimits
   /** Injectable for testing. Defaults to callMCPTool. */
   callToolFn?: (opts: {
     client: ConnectedMCPServer
@@ -3052,6 +3157,7 @@ export async function callMCPToolWithUrlElicitationRetry({
     meta?: Record<string, unknown>
     signal: AbortSignal
     onProgress?: (data: MCPProgress) => void
+    imageLimits?: ImageLimits
   }) => Promise<MCPToolCallResult>
   /** Handler for URL elicitations when no hook handles them.
    * In print/SDK mode, delegates to structuredIO. In REPL, falls back to queue. */
@@ -3071,6 +3177,7 @@ export async function callMCPToolWithUrlElicitationRetry({
         meta,
         signal,
         onProgress,
+        imageLimits,
       })
     } catch (error) {
       // The MCP SDK's Protocol creates plain McpError (not UrlElicitationRequiredError)
@@ -3148,6 +3255,7 @@ export async function callMCPToolWithUrlElicitationRetry({
           if (hookResponse.action !== 'accept') {
             return {
               content: `URL elicitation was ${hookResponse.action === 'decline' ? 'declined' : hookResponse.action + 'ed'} by a hook. The tool "${tool}" could not complete because it requires the user to open a URL.`,
+              urlElicitationDeclined: { url: elicitation.url },
             }
           }
           // Hook accepted — skip the UI and proceed to retry
@@ -3226,6 +3334,7 @@ export async function callMCPToolWithUrlElicitationRetry({
           )
           return {
             content: `URL elicitation was ${finalResult.action === 'decline' ? 'declined' : finalResult.action + 'ed'} by the user. The tool "${tool}" could not complete because it requires the user to open a URL.`,
+            urlElicitationDeclined: { url: elicitation.url },
           }
         }
 
@@ -3247,6 +3356,7 @@ async function callMCPTool({
   meta,
   signal,
   onProgress,
+  imageLimits,
 }: {
   client: ConnectedMCPServer
   tool: string
@@ -3254,6 +3364,7 @@ async function callMCPTool({
   meta?: Record<string, unknown>
   signal: AbortSignal
   onProgress?: (data: MCPProgress) => void
+  imageLimits?: ImageLimits
 }): Promise<{
   content: MCPToolResult
   _meta?: Record<string, unknown>
@@ -3408,7 +3519,7 @@ async function callMCPTool({
       })
     }
 
-    const content = await processMCPResult(result, tool, name)
+    const content = await processMCPResult(result, tool, name, imageLimits)
     return {
       content,
       _meta: result._meta as Record<string, unknown> | undefined,

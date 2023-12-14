@@ -7,13 +7,22 @@
  * For the core operations (without CLI side effects), see pluginOperations.ts
  */
 import figures from 'figures'
+import { createInterface } from 'readline'
 import { errorMessage } from '../../utils/errors.js'
 import { gracefulShutdown } from '../../utils/gracefulShutdown.js'
 import { logError } from '../../utils/log.js'
 import { getManagedPluginNames } from '../../utils/plugins/managedPlugins.js'
+import {
+  findOrphanedAutoDependencies,
+  formatOrphanedAutoDependenciesHint,
+  type OrphanedAutoDependencyScan,
+} from '../../utils/plugins/dependencyResolver.js'
+import { loadInstalledPluginsV2 } from '../../utils/plugins/installedPluginsManager.js'
 import { parsePluginIdentifier } from '../../utils/plugins/pluginIdentifier.js'
 import type { PluginScope } from '../../utils/plugins/schemas.js'
+import { loadAllPlugins } from '../../utils/plugins/pluginLoader.js'
 import { writeToStdout } from '../../utils/process.js'
+import { plural } from '../../utils/stringUtils.js'
 import {
   buildPluginTelemetryFields,
   classifyPluginCommandError,
@@ -29,6 +38,8 @@ import {
   enablePluginOp,
   type InstallableScope,
   installPluginOp,
+  getProjectPathForScope,
+  pruneOrphanedAutoDependencies,
   uninstallPluginOp,
   updatePluginOp,
   VALID_INSTALLABLE_SCOPES,
@@ -43,6 +54,7 @@ type PluginCliCommand =
   | 'enable'
   | 'disable'
   | 'disable-all'
+  | 'prune'
   | 'update'
 
 /**
@@ -154,6 +166,8 @@ export async function uninstallPlugin(
   plugin: string,
   scope: InstallableScope = 'user',
   keepData = false,
+  prune = false,
+  yes = false,
 ): Promise<void> {
   try {
     const result = await uninstallPluginOp(plugin, scope, !keepData)
@@ -161,9 +175,6 @@ export async function uninstallPlugin(
     if (!result.success) {
       throw new Error(result.message)
     }
-
-    // biome-ignore lint/suspicious/noConsole:: intentional console output
-    console.log(`${figures.tick} ${result.message}`)
 
     const { name, marketplace } = parsePluginIdentifier(
       result.pluginId || plugin,
@@ -180,10 +191,125 @@ export async function uninstallPlugin(
       ...buildPluginTelemetryFields(name, marketplace, getManagedPluginNames()),
     })
 
+    let uninstallPrinted = false
+    try {
+      const scan = await scanOrphanedAutoDependencies(scope)
+      if (prune) {
+        writeToStdout(`${figures.tick} ${result.message}\n`)
+        uninstallPrinted = true
+        const pruneResult = await formatAndPruneAutoDependencies(scan, scope, {
+          dryRun: false,
+          yes,
+          deleteDataDir: !keepData,
+        })
+        writeToStdout(`${pruneResult}\n`)
+      } else {
+        writeToStdout(
+          `${figures.tick} ${result.message}${formatOrphanedAutoDependenciesHint(scan.orphans, scope)}\n`,
+        )
+      }
+    } catch (error) {
+      logError(error)
+      writeToStdout(
+        `${uninstallPrinted ? '' : `${figures.tick} ${result.message}\n`}(${prune ? 'prune' : 'orphan scan'} failed: ${errorMessage(error)})\n`,
+      )
+    }
+
     // eslint-disable-next-line custom-rules/no-process-exit
     process.exit(0)
   } catch (error) {
     handlePluginCommandError(error, 'uninstall', plugin)
+  }
+}
+
+async function scanOrphanedAutoDependencies(
+  scope: InstallableScope,
+): Promise<OrphanedAutoDependencyScan> {
+  const projectPath = getProjectPathForScope(scope)
+  const { enabled, disabled } = await loadAllPlugins()
+  return findOrphanedAutoDependencies(
+    loadInstalledPluginsV2().plugins,
+    [...enabled, ...disabled],
+    scope,
+    projectPath,
+  )
+}
+
+async function confirmPrune(): Promise<boolean> {
+  const readline = createInterface({ input: process.stdin })
+  try {
+    for await (const line of readline) {
+      return /^y(es)?$/i.test(line.trim())
+    }
+    return false
+  } finally {
+    readline.close()
+  }
+}
+
+async function formatAndPruneAutoDependencies(
+  scan: OrphanedAutoDependencyScan,
+  scope: InstallableScope,
+  options: { dryRun: boolean; yes: boolean; deleteDataDir: boolean },
+): Promise<string> {
+  if (scan.unloadable.length > 0) {
+    return `Skipped — cannot determine orphans: ${scan.unloadable.join(', ')} failed to load. Fix or uninstall, then retry.`
+  }
+  if (scan.orphans.size === 0) {
+    return scan.autoCount === 0
+      ? `Nothing to prune (no auto-installed plugins at ${scope} scope).`
+      : `Nothing to prune (${scan.autoCount} auto-installed ${plural(scan.autoCount, 'plugin', 'plugins')} at ${scope} scope, all still needed).`
+  }
+
+  const installed = loadInstalledPluginsV2().plugins
+  const projectPath = getProjectPathForScope(scope)
+  const entries = [...scan.orphans].map(pluginId => {
+    const installation = installed[pluginId]?.find(
+      entry => entry.scope === scope && entry.projectPath === projectPath,
+    )
+    return `  ${pluginId}${installation?.version ? ` (${installation.version})` : ''}`
+  })
+  const description = `${scan.orphans.size} auto-installed ${plural(scan.orphans.size, 'plugin', 'plugins')} no longer needed at ${scope} scope:\n${entries.join('\n')}`
+  if (options.dryRun) return `${description}\n(dry run — nothing removed)`
+
+  if (!options.yes) {
+    if (!process.stdin.isTTY || !process.stdout.isTTY) {
+      const scopeOption = scope === 'user' ? '' : ` --scope ${scope}`
+      return `${description}\nNot a TTY — run \`claude plugin prune${scopeOption} -y\` to remove.`
+    }
+    writeToStdout(`${description}\nRemove? [y/N] `)
+    if (!(await confirmPrune())) return 'Aborted.'
+  }
+
+  const removed = await pruneOrphanedAutoDependencies(
+    scan.orphans,
+    scope,
+    projectPath,
+    { deleteDataDir: options.deleteDataDir },
+  )
+  logEvent('tengu_plugin_prune_cli', {
+    scope: scope as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    removed_count: removed.length,
+  })
+  return `Removed ${removed.length} auto-installed ${plural(removed.length, 'plugin', 'plugins')}: ${removed.map(id => parsePluginIdentifier(id).name).join(', ')}`
+}
+
+export async function prunePlugins(
+  scope: InstallableScope = 'user',
+  { dryRun = false, yes = false }: { dryRun?: boolean; yes?: boolean } = {},
+): Promise<void> {
+  try {
+    const scan = await scanOrphanedAutoDependencies(scope)
+    const result = await formatAndPruneAutoDependencies(scan, scope, {
+      dryRun,
+      yes,
+      deleteDataDir: true,
+    })
+    writeToStdout(`${result}\n`)
+    // eslint-disable-next-line custom-rules/no-process-exit
+    process.exit(0)
+  } catch (error) {
+    handlePluginCommandError(error, 'prune')
   }
 }
 

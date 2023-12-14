@@ -854,6 +854,7 @@ export function logAPISuccessAndDuration({
     attemptStartTimes,
     requestId: requestId ?? undefined,
     clientRequestId,
+    stopReason: stopReason ?? undefined,
   })
 
   // Log first successful message for teleported sessions (reliability tracking)

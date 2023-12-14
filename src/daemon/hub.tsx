@@ -10,6 +10,7 @@ import { isPathTrusted, setPathTrusted } from '../utils/config.js'
 import { computeNextCronRun, cronToHuman, parseCronExpression } from '../utils/cron.js'
 import { getCwd } from '../utils/cwd.js'
 import { logForDebugging } from '../utils/debug.js'
+import { bgSupervisorNoun } from '../utils/agentsFleet.js'
 import { formatRelativeTime } from '../utils/format.js'
 import { getModelOptions } from '../utils/model/modelOptions.js'
 import { getBaseRenderOptions } from '../utils/renderOptions.js'
@@ -582,7 +583,7 @@ function RemoteForm({ configPath, onBack, onSaved }: { configPath: string; onBac
     }
   }, { isActive: trustDir !== null })
   if (trustDir && pending) return <Box flexDirection="column" paddingX={1}><Text bold color="permission">Trust this directory?</Text><Text dimColor>{trustDir} hasn't been trusted yet. Trusting allows Claude to read and execute files there.</Text><Text bold={trustChoice === 'cancel'} color={trustChoice === 'cancel' ? 'suggestion' : undefined}>{trustChoice === 'cancel' ? '❯ ' : '  '}No, go back</Text><Text bold={trustChoice === 'confirm'} color={trustChoice === 'confirm' ? 'permission' : undefined}>{trustChoice === 'confirm' ? '❯ ' : '  '}Yes, trust and add server</Text></Box>
-  return <Form title="New Remote Control Server" subtitle="Serve a directory to claude.ai" fields={[{ key: 'dir', label: 'Directory', placeholder: defaultDir, required: true, hint: value => isPathTrusted(resolveUserPath(value.trim() || defaultDir)) ? 'Exposed to claude.ai/code via the daemon.' : `${resolveUserPath(value.trim() || defaultDir)} is not yet trusted — you'll be asked to trust it on submit.` }, { key: 'name', label: 'Name', hint: () => nameDirty ? 'Shown in the claude.ai session picker.' : 'Auto-generated from the directory name.' }, { key: 'spawnMode', label: 'Spawn mode', options: ['same-dir', 'worktree'], hint: value => value === 'worktree' ? 'Each session gets its own git worktree (requires a git repo).' : 'All sessions share the directory.' }]} initial={formValues} submitLabel="Add server" externalBusyLabel={adding ? 'Adding…' : undefined} onCancel={onBack} onValueChange={(key, value, values) => {
+  return <Form title="New Remote Control Server" subtitle="Serve a directory to claude.ai" fields={[{ key: 'dir', label: 'Directory', placeholder: defaultDir, required: true, hint: value => isPathTrusted(resolveUserPath(value.trim() || defaultDir)) ? `Exposed to claude.ai/code via the ${bgSupervisorNoun()}.` : `${resolveUserPath(value.trim() || defaultDir)} is not yet trusted — you'll be asked to trust it on submit.` }, { key: 'name', label: 'Name', hint: () => nameDirty ? 'Shown in the claude.ai session picker.' : 'Auto-generated from the directory name.' }, { key: 'spawnMode', label: 'Spawn mode', options: ['same-dir', 'worktree'], hint: value => value === 'worktree' ? 'Each session gets its own git worktree (requires a git repo).' : 'All sessions share the directory.' }]} initial={formValues} submitLabel="Add server" externalBusyLabel={adding ? 'Adding…' : undefined} onCancel={onBack} onValueChange={(key, value, values) => {
     const next = { ...values, [key]: value }
     if (key === 'name') setNameDirty(true)
     else if (key === 'dir' && !nameDirty) {
@@ -659,7 +660,7 @@ function RemoteDetail({ server, configPath, isRunning, onBack, refresh, onDone }
     setConfirmRemove(true)
   })
   if (confirmRemove) {
-    return <Box flexDirection="column" paddingX={1}><Text bold color="error">Remove server?</Text><Text dimColor>Stop serving {server.dir} to claude.ai. The daemon will stop the worker on its next reconcile.</Text><Text bold={confirmFocus === 'cancel'} color={confirmFocus === 'cancel' ? 'suggestion' : undefined}>{confirmFocus === 'cancel' ? '❯ ' : '  '}No, cancel</Text><Text bold={confirmFocus === 'confirm'} color={confirmFocus === 'confirm' ? 'error' : undefined}>{confirmFocus === 'confirm' ? '❯ ' : '  '}Yes, remove</Text></Box>
+    return <Box flexDirection="column" paddingX={1}><Text bold color="error">Remove server?</Text><Text dimColor>Stop serving {server.dir} to claude.ai. The {bgSupervisorNoun()} will stop the worker on its next reconcile.</Text><Text bold={confirmFocus === 'cancel'} color={confirmFocus === 'cancel' ? 'suggestion' : undefined}>{confirmFocus === 'cancel' ? '❯ ' : '  '}No, cancel</Text><Text bold={confirmFocus === 'confirm'} color={confirmFocus === 'confirm' ? 'error' : undefined}>{confirmFocus === 'confirm' ? '❯ ' : '  '}Yes, remove</Text></Box>
   }
   return <Box flexDirection="column" paddingX={1}><Text bold color="permission">{server.name ?? basename(server.dir)}</Text><Text dimColor>Directory {server.dir}</Text><Text dimColor>Spawn mode {server.spawnMode ?? 'same-dir'}</Text><Text dimColor>Status     {isRunning ? 'running' : 'not running'}</Text>{actions.map((action, index) => <Text key={action} color={focus === index ? (action === 'Remove' ? 'error' : 'suggestion') : undefined} bold={focus === index}>{focus === index ? '❯' : ' '} {action}</Text>)}</Box>
 }

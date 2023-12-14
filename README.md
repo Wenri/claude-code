@@ -116,34 +116,32 @@ leaked source** (the TypeScript/TSX under [`src/`](./src/)), recovered from a
 [Chaofan Shou](https://x.com/Fried_rice); originally mirrored by
 [Yasas Banu](https://www.yasasbanuka.tech)). It is study material, not a buildable
 project. The untouched files remain the exact 2.1.88 outer source-map inputs;
-the tree now carries cumulative, verified source-facing recovery overlays for
+the shared tree now carries cumulative, verified source-facing recovery content for
 2.1.89, 2.1.90, 2.1.91, 2.1.92, 2.1.94, 2.1.96, 2.1.97, 2.1.98, 2.1.100,
 2.1.101, 2.1.104, 2.1.105, 2.1.107, 2.1.108, 2.1.109, 2.1.110, 2.1.111,
-2.1.112, 2.1.113, 2.1.114, 2.1.116, 2.1.117, 2.1.118, and 2.1.119; upstream did not
-publish 2.1.93, 2.1.95, 2.1.99, 2.1.102, 2.1.103, 2.1.106, or 2.1.115.
+2.1.112, 2.1.113, 2.1.114, 2.1.116, 2.1.117, 2.1.118, 2.1.119, 2.1.120,
+2.1.121, 2.1.122, 2.1.123, 2.1.124, and 2.1.126; upstream did not publish
+2.1.93, 2.1.95, 2.1.99, 2.1.102, 2.1.103, 2.1.106, 2.1.115, or 2.1.125.
 This does not claim that any complete original authored TypeScript tree is
 observable. A short tour of what's inside is in [`CLAUDE.md`](./CLAUDE.md).
 The evidence-first adjacent-published-release recoveries live in
 [`recovery/`](./recovery/): they reconstruct the complete published wrapper
 and every plain JavaScript entry in the authenticated Linux x64 Bun graph
-exactly through 2.1.119, while keeping the necessarily partial authored-source
+exactly through 2.1.126, while keeping the necessarily partial authored-source
 reconstruction labeled separately. The signed native executable
 itself is authenticated and container-verified; it is not claimed as
 baseline-derived source or as an ELF reconstructed from the prior release.
-The exact 2.1.119 generated recovery is complete, while its authored-source
-localization remains explicitly source-partial. Its frozen 2.1.118→2.1.119
-patch records 290 changed paths (224 modifications and 66 additions), and its
-eight focused test files pass 86/86. The applied overlay produces 2,088 files,
-32,357,579 bytes, and framed SHA-256
-`5b91f7f3ddcdf440a8ef22b7e43eec769402aa54c3f1995ee508adb0c9157882`.
-This twenty-third adjacent-package step after the initial
-source-map-to-package recovery is now applied: shared `src/` carries the
-frozen 2,088-file 2.1.119-facing state as its twenty-fourth recovered-overlay
-target. Do not apply the archived incremental patch a second time.
-See the current
-[2.1.119 report](./recovery/cases/2.1.118-to-2.1.119/REPORT.md),
-[manifest](./recovery/cases/2.1.118-to-2.1.119/manifest.json), and
-[complete recovery runbook](./recovery/cases/2.1.118-to-2.1.119/RECOVERY_RUNBOOK.md).
+The current frozen release case is 2.1.124→2.1.126. Its release-local source
+target contains 2,166 files and 32,823,496 bytes at Git tree
+`9c7c4f699cd0cc740dcb5e5341aeb026d4bc2263`; its focused tests pass 10/10,
+all five changed non-deleted source paths syntax-build, and its structural
+ledger closes 4,405,944 tokens across 22,358 units with zero residue. Shared
+main is a selective cumulative merge guarded by
+`recovery/test/cumulative-2.1.126-merged-source-retention.test.mjs`; it is
+intentionally not byte-identical to that frozen release-local source tree.
+See the current [2.1.126 report](./recovery/cases/2.1.124-to-2.1.126/REPORT.md),
+[manifest](./recovery/cases/2.1.124-to-2.1.126/manifest.json), and
+[complete recovery runbook](./recovery/cases/2.1.124-to-2.1.126/RECOVERY_RUNBOOK.md).
 
 ## 📜 License & disclaimer
 

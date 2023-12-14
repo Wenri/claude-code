@@ -25,7 +25,11 @@ import { isAgentSwarmsEnabled } from './utils/agentSwarmsEnabled.js'
 import { checkAndRestoreTerminalBackup } from './utils/appleTerminalBackup.js'
 import { prefetchApiKeyFromApiKeyHelperIfSafe } from './utils/auth.js'
 import { clearMemoryFileCaches } from './utils/claudemd.js'
-import { getCurrentProjectConfig, getGlobalConfig } from './utils/config.js'
+import {
+  checkHasTrustDialogAccepted,
+  getCurrentProjectConfig,
+  getGlobalConfig,
+} from './utils/config.js'
 import { logForDiagnosticsNoPII } from './utils/diagLogs.js'
 import { env } from './utils/env.js'
 import { envDynamic } from './utils/envDynamic.js'
@@ -40,11 +44,18 @@ import {
 import { hasWorktreeCreateHook } from './utils/hooks.js'
 import { checkAndRestoreITerm2Backup } from './utils/iTermBackup.js'
 import { logError } from './utils/log.js'
-import { getRecentActivity } from './utils/logoV2Utils.js'
 import { lockCurrentVersion } from './utils/nativeInstaller/index.js'
 import type { PermissionMode } from './utils/permissions/PermissionMode.js'
 import { getPlanSlug } from './utils/plans.js'
+import {
+  _setProxyAuthHelperConfig,
+  prefetchProxyAuthFromHelperIfSafe,
+} from './utils/proxy.js'
 import { saveWorktreeState } from './utils/sessionStorage.js'
+import {
+  getSettings_DEPRECATED,
+  getSettingsForSource,
+} from './utils/settings/settings.js'
 import { profileCheckpoint } from './utils/startupProfiler.js'
 import {
   createTmuxSessionForWorktree,
@@ -378,18 +389,23 @@ export async function setup(
   logEvent('tengu_started', {})
 
   void prefetchApiKeyFromApiKeyHelperIfSafe(getIsNonInteractiveSession()) // Prefetch safely - only executes if trust already confirmed
+  const proxyAuthHelper = (getSettings_DEPRECATED() || {}).proxyAuthHelper
+  _setProxyAuthHelperConfig({
+    helper: proxyAuthHelper,
+    fromProjectOrLocal:
+      getSettingsForSource('projectSettings')?.proxyAuthHelper ===
+        proxyAuthHelper ||
+      getSettingsForSource('localSettings')?.proxyAuthHelper ===
+        proxyAuthHelper,
+    trustAccepted: checkHasTrustDialogAccepted,
+  })
+  prefetchProxyAuthFromHelperIfSafe()
   profileCheckpoint('setup_after_prefetch')
 
-  // Pre-fetch data for Logo v2 - await to ensure it's ready before logo renders.
-  // --bare / SIMPLE: skip — release notes are interactive-UI display data,
-  // and getRecentActivity() reads up to 10 session JSONL files.
+  // Fetch release notes for the interactive startup UI. Warm-resume metadata
+  // is read synchronously from global config and no longer scans transcripts.
   if (!isBareMode()) {
-    const { hasReleaseNotes } = await checkForReleaseNotes(
-      getGlobalConfig().lastReleaseNotesSeen,
-    )
-    if (hasReleaseNotes) {
-      await getRecentActivity()
-    }
+    await checkForReleaseNotes(getGlobalConfig().lastReleaseNotesSeen)
   }
 
   // If permission mode is set to bypass, verify we're in a safe environment

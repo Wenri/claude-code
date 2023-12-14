@@ -55,6 +55,8 @@ export type CronTask = {
   lastFiredAt?: number
   /** When true, the task reschedules after firing instead of being deleted. */
   recurring?: boolean
+  /** Runtime-only marker for a dynamically paced /loop wakeup. */
+  kind?: 'loop'
   /**
    * When true, the task is exempt from recurringMaxAgeMs auto-expiry.
    * System escape hatch for assistant mode's built-in tasks (catch-up/
@@ -365,15 +367,24 @@ export type CronJitterConfig = {
    * `0` = unlimited (tasks never auto-expire).
    */
   recurringMaxAgeMs: number
+  /**
+   * Lead time used to keep near-five-minute recurring work inside the
+   * Anthropic prompt-cache window. 0 disables cache-aware leading.
+   */
+  cacheLeadMs: number
 }
 
+export const PROMPT_CACHE_TTL_MS = 5 * 60 * 1000
+const EVERY_N_MINUTES_CRON = /^\*\/\d+ \* \* \* \*$/
+
 export const DEFAULT_CRON_JITTER_CONFIG: CronJitterConfig = {
-  recurringFrac: 0.1,
-  recurringCapMs: 15 * 60 * 1000,
+  recurringFrac: 0.5,
+  recurringCapMs: 30 * 60 * 1000,
   oneShotMaxMs: 90 * 1000,
   oneShotFloorMs: 0,
   oneShotMinuteMod: 30,
   recurringMaxAgeMs: 7 * 24 * 60 * 60 * 1000,
+  cacheLeadMs: 15 * 1000,
 }
 
 /**
@@ -412,8 +423,18 @@ export function jitteredNextCronRunMs(
   // No second match in the next year (e.g. pinned date) → nothing to
   // proportion against, and near-certainly not a herd risk. Fire on t1.
   if (t2 === null) return t1
+  const interval = t2 - t1
+  if (
+    EVERY_N_MINUTES_CRON.test(cron) &&
+    cfg.cacheLeadMs > 0 &&
+    cfg.cacheLeadMs < interval &&
+    interval >= PROMPT_CACHE_TTL_MS &&
+    interval - cfg.cacheLeadMs < PROMPT_CACHE_TTL_MS
+  ) {
+    return fromMs + interval - cfg.cacheLeadMs
+  }
   const jitter = Math.min(
-    jitterFrac(taskId) * cfg.recurringFrac * (t2 - t1),
+    jitterFrac(taskId) * cfg.recurringFrac * interval,
     cfg.recurringCapMs,
   )
   return t1 + jitter

@@ -1,4 +1,3 @@
-import { c as _c } from "react/compiler-runtime";
 import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { Box } from '../../ink.js';
@@ -37,11 +36,25 @@ const JUMP_WAVE: readonly Frame[] = [...hold('default', 1, 2),
 
 // Click animation: glance right, then left, then back.
 const LOOK_AROUND: readonly Frame[] = [...hold('look-right', 0, 5), ...hold('look-left', 0, 5), ...hold('default', 0, 1)];
+const AUTOPLAY: readonly Frame[] = [
+  ...hold('default', 0, 12),
+  ...hold('look-right', 0, 5),
+  ...hold('look-left', 0, 5),
+]
 const CLICK_ANIMATIONS: readonly (readonly Frame[])[] = [JUMP_WAVE, LOOK_AROUND];
 const IDLE: Frame = {
   pose: 'default',
   offset: 0
 };
+const CELEBRATE: readonly Frame[] = [
+  ...JUMP_WAVE,
+  ...hold('default', 1, 3),
+]
+const NAMED_SEQUENCES = {
+  jump: JUMP_WAVE,
+  look: LOOK_AROUND,
+  celebrate: CELEBRATE,
+} as const
 const FRAME_MS = 60;
 const incrementFrame = (i: number) => i + 1;
 const CLAWD_HEIGHT = 3;
@@ -54,42 +67,34 @@ const CLAWD_HEIGHT = 3;
  * mouse tracking is enabled (i.e. inside `<AlternateScreen>` / fullscreen);
  * elsewhere this renders and behaves identically to plain `<Clawd />`.
  */
-export function AnimatedClawd() {
-  const $ = _c(8);
-  const {
-    pose,
-    bounceOffset,
-    onClick
-  } = useClawdAnimation();
-  let t0;
-  if ($[0] !== pose) {
-    t0 = <Clawd pose={pose} />;
-    $[0] = pose;
-    $[1] = t0;
-  } else {
-    t0 = $[1];
-  }
-  let t1;
-  if ($[2] !== bounceOffset || $[3] !== t0) {
-    t1 = <Box marginTop={bounceOffset} flexShrink={0}>{t0}</Box>;
-    $[2] = bounceOffset;
-    $[3] = t0;
-    $[4] = t1;
-  } else {
-    t1 = $[4];
-  }
-  let t2;
-  if ($[5] !== onClick || $[6] !== t1) {
-    t2 = <Box height={CLAWD_HEIGHT} flexDirection="column" onClick={onClick}>{t1}</Box>;
-    $[5] = onClick;
-    $[6] = t1;
-    $[7] = t2;
-  } else {
-    t2 = $[7];
-  }
-  return t2;
+export function AnimatedClawd({
+  autoplay = false,
+  sequence,
+  onComplete,
+}: {
+  autoplay?: boolean
+  sequence?: keyof typeof NAMED_SEQUENCES
+  onComplete?: () => void
+} = {}): React.ReactNode {
+  const { pose, bounceOffset, onClick } = useClawdAnimation(
+    autoplay,
+    sequence,
+    onComplete,
+  )
+  return (
+    <Box height={CLAWD_HEIGHT} flexDirection="column" onClick={onClick}>
+      <Box marginTop={bounceOffset} flexShrink={0}>
+        <Clawd pose={pose} />
+      </Box>
+    </Box>
+  )
 }
-function useClawdAnimation(): {
+
+function useClawdAnimation(
+  autoplay: boolean,
+  sequence: keyof typeof NAMED_SEQUENCES | undefined,
+  onComplete: (() => void) | undefined,
+): {
   pose: ClawdPose;
   bounceOffset: number;
   onClick: () => void;
@@ -97,24 +102,36 @@ function useClawdAnimation(): {
   // Read once at mount — no useSettings() subscription, since that would
   // re-render on any settings change.
   const [reducedMotion] = useState(() => getInitialSettings().prefersReducedMotion ?? false);
-  const [frameIndex, setFrameIndex] = useState(-1);
-  const sequenceRef = useRef<readonly Frame[]>(JUMP_WAVE);
+  const shouldAnimate = (autoplay || sequence !== undefined) && !reducedMotion
+  const [frameIndex, setFrameIndex] = useState(shouldAnimate ? 0 : -1)
+  const sequenceRef = useRef<readonly Frame[]>(
+    sequence ? NAMED_SEQUENCES[sequence] : autoplay ? AUTOPLAY : JUMP_WAVE,
+  )
+  const onCompleteRef = useRef(onComplete)
+  onCompleteRef.current = onComplete
+
+  useEffect(() => {
+    if (reducedMotion) onCompleteRef.current?.()
+  }, [reducedMotion])
+
   const onClick = () => {
-    if (reducedMotion || frameIndex !== -1) return;
+    if (autoplay || sequence || reducedMotion || frameIndex !== -1) return;
     sequenceRef.current = CLICK_ANIMATIONS[Math.floor(Math.random() * CLICK_ANIMATIONS.length)]!;
     setFrameIndex(0);
   };
   useEffect(() => {
     if (frameIndex === -1) return;
     if (frameIndex >= sequenceRef.current.length) {
-      setFrameIndex(-1);
+      onCompleteRef.current?.()
+      setFrameIndex(autoplay && !sequence ? 0 : -1)
       return;
     }
     const timer = setTimeout(setFrameIndex, FRAME_MS, incrementFrame);
     return () => clearTimeout(timer);
-  }, [frameIndex]);
+  }, [autoplay, frameIndex, sequence]);
   const seq = sequenceRef.current;
-  const current = frameIndex >= 0 && frameIndex < seq.length ? seq[frameIndex]! : IDLE;
+  const fallback = sequence ? seq.at(-1)! : IDLE
+  const current = frameIndex >= 0 && frameIndex < seq.length ? seq[frameIndex]! : fallback;
   return {
     pose: current.pose,
     bounceOffset: current.offset,
