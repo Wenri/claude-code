@@ -1,0 +1,459 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "auditConclusion": "Target121 u22106 retains the exact identifier-normalized Target120 manager/store/runHeadless binding graph for sessionState. Recovered Target121 source owns the corresponding headless-store boundary but implements session metadata through process-global notification functions and has no SessionStateManager instance. A source edit cannot be row-only without creating a mixed or unresolved graph, so this case statically admits only the sessionState property after the two allowed rows and numeric 300. The pluginPruneHandler/createSubcommandRoot lane remains explicitly outside this case.",
+  "evidenceIds": [
+    "target121-main-run-session-state-prior-static-order",
+    "target121-main-run-session-state-authenticated-compiled-lineage",
+    "target121-main-run-session-state-authored-owner-graph",
+    "target121-main-run-session-state-row-only-scope",
+    "target121-main-run-session-state-post-dangerous-partition"
+  ],
+  "caseFiles": {
+    "helper": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/recovered/main-run-session-state-owner-evidence.mjs",
+      "bytes": 2085,
+      "sha256": "bd602fc269d7f359caceffaffa91d42699d8997e81218c8592d49caa10e7bb1e"
+    }
+  },
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "frozenSnapshot": {
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25390987,
+        "sha256": "42f65dcc82a571f02ac59c9ec86858b6adbe2be3158c2d8a17ac4d6d1b9e4bd7"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 345319,
+        "sha256": "c6547d4d59a31aa2b68230d848ad7cd55d9498051e376389040e8738c14030b2",
+        "rawBytes": 2965690,
+        "rawSha256": "d35578e7e08e0a53a4020a5347d4ff8c4a1bc4e98a30ea8b9cbe4913b14f9592"
+      }
+    },
+    "postPruneSnapshot": {
+      "typedReport": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25396455,"sha256":"f63079907d813bffaf98cb89d28b8b2e183df9fe2e1c72b21f10fa2fd5c0a3f4"},
+      "sourceCoverage": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":345989,"sha256":"05ac9243d7cee276bc51c8eb0c8e4e3678f96d941560cae620d05af240d7cdd4","rawBytes":2968244,"rawSha256":"7be9d68b6144e09290d58e3dae17f21df9536852b5f8415e777c9f7dd3ad1c06"},
+      "u22106Counts": {"owner":199,"added":15,"strict":8},
+      "global": {"ownerRows":35669,"addedRows":1155,"strictRows":1228}
+    },
+    "postDaemonOwnerSnapshot": {
+      "typedReport": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25369097,"sha256":"2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3"},
+      "sourceCoverage": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":347677,"sha256":"91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83","rawBytes":2974761,"rawSha256":"8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f"},
+      "global": {"ownerRows":35634,"addedRows":1118,"strictRows":1275}
+    },
+    "knownRejectedReportStates": [
+      {
+        "name": "post-view-mode-pre-dangerous",
+        "bytes": 25395103,
+        "sha256": "87c3acd81441f040757b5c6cc85f1b13722d9883a4d17d91dddcbcddf16922de"
+      }
+    ],
+    "priorStaticProofs": [
+      {
+        "name": "first-allowed",
+        "fixture": {
+          "path": "recovery/test/recovery-2.1.121-main-run-first-allowed-owner-proof.json",
+          "bytes": 28289,
+          "sha256": "0bf69e223d2058c326d224131b1c7ca9a4441de31e36fa101e448647bb5d86d7"
+        },
+        "helper": {
+          "path": "recovery/cases/2.1.120-to-2.1.121/recovered/main-run-first-allowed-owner-evidence.mjs",
+          "bytes": 1426,
+          "sha256": "8e002317743c7b048f22dbb5f2554a90966f15c7699482699118e742cb8972fc"
+        },
+        "residue": ["property", "allowed", 13797608, 13797615, 65, 68, true]
+      },
+      {
+        "name": "second-allowed",
+        "fixture": {
+          "path": "recovery/test/recovery-2.1.121-main-run-second-allowed-owner-proof.json",
+          "bytes": 25966,
+          "sha256": "af9a73a9635ec8702bab82ddfa9e909b8e517553471e8534c59bf72fee023332"
+        },
+        "helper": {
+          "path": "recovery/cases/2.1.120-to-2.1.121/recovered/main-run-second-allowed-owner-evidence.mjs",
+          "bytes": 1498,
+          "sha256": "6db36f512a04582272568af71e474afc276c1a42df9c647609f0d836dbfb82af"
+        },
+        "residue": ["property", "allowed", 13800348, 13800355, 65, 69, true]
+      },
+      {
+        "name": "growthbook-timeout-300",
+        "fixture": {
+          "path": "recovery/test/recovery-2.1.121-main-run-growthbook-timeout-owner-proof.json",
+          "bytes": 24258,
+          "sha256": "b0af67816cc1098186158b62315788408419d0f9cb1e4527411d4b5835f1b0dd"
+        },
+        "helper": {
+          "path": "recovery/cases/2.1.120-to-2.1.121/recovered/main-run-growthbook-timeout-owner-evidence.mjs",
+          "bytes": 1866,
+          "sha256": "ec4fbefaa1fa4f6756fd8162de01e394a39037783535a003c3667157d6f7694d"
+        },
+        "residue": ["number", "300", 13802998, 13803001, 60, 67, true]
+      }
+    ],
+    "sourceFile": {
+      "path": "src/main.tsx",
+      "auditedPackageSourceRoot": "/tmp/target121-dangerous-final.WeP2Nu/2.1.121/src",
+      "postPruneAuditedPackageSourceRoot": "/tmp/target121-prune-final.QAqOlk/2.1.121/src",
+      "acceptedStates": {
+        "repositoryRaw": {
+          "file": {
+            "bytes": 816314,
+            "sha256": "c4e91aae36588101d8280ac6375cdae4f7981361480ad53b93a4dfb19b87ed33"
+          },
+          "run": {
+            "start": 50530,
+            "end": 238967,
+            "bytes": 188609,
+            "sha256": "cd625ff130da4c44f430dc952e22f6ee2b5bf4838b0740c55813b7d676955891"
+          },
+          "imports": {
+            "onChangeAppState": {
+              "start": 17425,
+              "end": 17488,
+              "bytes": 63,
+              "sha256": "2a1e1c0e3290d6e4e55c8612b88e1b78fa42f80556a85d0b498f15708e6a616d"
+            },
+            "createStore": {
+              "start": 17489,
+              "end": 17536,
+              "bytes": 47,
+              "sha256": "3af4e64a50fe3e9a41f12a55902f89fa32b4c75276fbae6a1a56f4858335852f"
+            }
+          },
+          "headlessStore": {
+            "start": 151858,
+            "end": 151932,
+            "bytes": 74,
+            "sha256": "39f012e19612168e45ba10c59c74f19dd743dc08e3f69b5837af86265dee40ea"
+          },
+          "runHeadlessCall": {
+            "start": 155198,
+            "end": 156661,
+            "bytes": 1463,
+            "sha256": "df0a2ac758e590bdbdbb19501538e3559a0ab5f683b713913a861e5e8898b7f1"
+          },
+          "options": {
+            "start": 155375,
+            "end": 156660,
+            "bytes": 1285,
+            "sha256": "8688224542951fe53dcd8ff7ea8326f1fd59c0a882123393f32190fb5433ef6c"
+          },
+          "lastOption": {
+            "start": 156628,
+            "end": 156652,
+            "bytes": 24,
+            "sha256": "bcf5211fadb6249064abb753380abdd00d4308f1483a06ebdd39feaea4e180bc"
+          }
+        },
+        "postDangerousPackage": {
+          "file": {
+            "bytes": 816786,
+            "sha256": "ecc8aa7337fb3f4bebaee045db279d1330367d9e2b9449b2f3cccf31b19a88fc"
+          },
+          "run": {
+            "start": 50568,
+            "end": 239352,
+            "bytes": 188956,
+            "sha256": "182548866a9e70349f677944468c6f500b36339fb2e99b92691ca193db6af775"
+          },
+          "imports": {
+            "onChangeAppState": {
+              "start": 17463,
+              "end": 17526,
+              "bytes": 63,
+              "sha256": "2a1e1c0e3290d6e4e55c8612b88e1b78fa42f80556a85d0b498f15708e6a616d"
+            },
+            "createStore": {
+              "start": 17527,
+              "end": 17574,
+              "bytes": 47,
+              "sha256": "3af4e64a50fe3e9a41f12a55902f89fa32b4c75276fbae6a1a56f4858335852f"
+            }
+          },
+          "headlessStore": {
+            "start": 152263,
+            "end": 152337,
+            "bytes": 74,
+            "sha256": "39f012e19612168e45ba10c59c74f19dd743dc08e3f69b5837af86265dee40ea"
+          },
+          "runHeadlessCall": {
+            "start": 155603,
+            "end": 157066,
+            "bytes": 1463,
+            "sha256": "df0a2ac758e590bdbdbb19501538e3559a0ab5f683b713913a861e5e8898b7f1"
+          },
+          "options": {
+            "start": 155780,
+            "end": 157065,
+            "bytes": 1285,
+            "sha256": "8688224542951fe53dcd8ff7ea8326f1fd59c0a882123393f32190fb5433ef6c"
+          },
+          "lastOption": {
+            "start": 157033,
+            "end": 157057,
+            "bytes": 24,
+            "sha256": "bcf5211fadb6249064abb753380abdd00d4308f1483a06ebdd39feaea4e180bc"
+          }
+        }
+      },
+      "postPruneSourceState": {
+        "file": {
+          "bytes": 816903,
+          "sha256": "75171059e457d263cd9bdbfbaeed0a2c4786f9a1854b1c4fdf799273399b92f3"
+        },
+        "run": {
+          "start": 50568,
+          "end": 239469,
+          "bytes": 189073,
+          "sha256": "044bac3a6f53bd31c78b2b1b0a7de0ba06a54700ea5c869c6c196da34c453f13"
+        },
+        "projection": "postDangerousPackage"
+      },
+      "sharedGraph": {
+        "headlessStoreInitializer": {
+          "callee": "createStore",
+          "arguments": ["headlessInitialState", "onChangeAppState"],
+          "bytes": 51,
+          "sha256": "d830155dac1367e386207c3c74cfff0359ba226d5d33f84283c158143c8ab48e"
+        },
+        "runHeadlessArgumentCount": 9,
+        "optionsPropertyCount": 30,
+        "lastOptionName": "sessionStartHooksPromise",
+        "forbiddenOptionName": "sessionState"
+      }
+    },
+    "packageSupport": {
+      "root": "/tmp/target121-dangerous-final.WeP2Nu/2.1.121/src",
+      "files": {
+        "utils/sessionState.ts": {
+          "bytes": 6792,
+          "sha256": "93297f1ec18da551ec62e92010abfa88c56e210d8a6352e6922b1fbdd750ec80",
+          "setInternalListener": {
+            "start": 3328,
+            "end": 3483,
+            "bytes": 155,
+            "sha256": "84624c03161ac90e0a6fd59f3b943524fc3f20ca8c30970ca0a80ab06742e991"
+          },
+          "notifyInternal": {
+            "start": 6269,
+            "end": 6410,
+            "bytes": 141,
+            "sha256": "f06bcb786b61c703bf4b2eaf86ee8dae3a2ba225863ec11181d91b1ccce06787"
+          }
+        },
+        "state/onChangeAppState.ts": {
+          "bytes": 8782,
+          "sha256": "0a21160aa27abd88734ffbe9e6d53477934c8c5c64f829a3637590e1317a5a34",
+          "onChangeAppState": {
+            "start": 2636,
+            "end": 8761,
+            "bytes": 6143,
+            "sha256": "dde56f8691d02cc2e7a310db93e826402567627f1521deb2d1519e14d0f90180"
+          },
+          "notifyInternalCallCount": 3
+        },
+        "cli/print.ts": {
+          "bytes": 248102,
+          "sha256": "0b838a6f74645f962c29709e71824310bf08f8a327727c2af577c58d75e4f3f0",
+          "notifyInternalCall": {
+            "start": 36350,
+            "end": 36420,
+            "bytes": 70,
+            "sha256": "6234ef27df054b3f54ae3cd75c2f74f4a90d67d758b0e76996a5d963d1efb060"
+          }
+        },
+        "cli/structuredIO.ts": {
+          "bytes": 36081,
+          "sha256": "16cc92166234bb03bc92e3e37e4b8aaca6752f598502ca5b3a88845fe1075f47"
+        }
+      },
+      "forbiddenArchitectureTokens": ["SessionStateManager", "new SessionStateManager"]
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 22106,
+    "classification": "unresolved",
+    "unknownFreeIdentifierCount": 42,
+    "name": "WS5",
+    "nodeType": "FunctionDeclaration",
+    "parseStatus": "parsed",
+    "async": true,
+    "start": 13779080,
+    "end": 13841990,
+    "bytes": 62910,
+    "tokenCount": 16656,
+    "topDefinitionCount": 1,
+    "sha256": "75e9d33fb5c6729b0943f31165d52ca331d0403c10ce4acb323d17a809ec197b",
+    "coarseHash": "c4e17d2ff16eb01e31964b80158abc8e5dba5d7c04a7b3469575e83593e228c1"
+  },
+  "baselineSemanticCounterpart": {
+    "baselineUnitIndex": 22004,
+    "name": "Zh5",
+    "nodeType": "FunctionDeclaration",
+    "parseStatus": "parsed",
+    "async": true,
+    "start": 13711458,
+    "end": 13773044,
+    "bytes": 61586,
+    "tokenCount": 16389,
+    "topDefinitionCount": 1,
+    "sha256": "779475eaefa28539b1ec352cc59fe574e13cc76fb5a72cb1e8d195ffee3802f0",
+    "coarseHash": "4bbcd6b9794a243d0de489dcc39212cdaff16319293fe2292891f29aac9924c0"
+  },
+  "compiledSessionStateGraph": {
+    "sharedNormalized": {
+      "manager": {"count": 4, "bytes": 55, "sha256": "b8c021bc3a5b049b8a0be461017f6cd064f6f1babf6e46b45c714e4af28d29d0"},
+      "store": {"count": 17, "bytes": 216, "sha256": "207334e2ae7f1c14f1c54585d9e60bc1e9473c46ce33b36a70b1d82e8c4c26f3"},
+      "callback": {"count": 10, "bytes": 128, "sha256": "8a51458950ebe54dbac945294208a1d4e61416a7c89e18167bfef42d75baae75"},
+      "property": {"count": 3, "bytes": 42, "sha256": "53639656ed62ede28627103c2c95c340c4856b77ad1fec50728b53e8d32ceaac"},
+      "key": {"count": 1, "bytes": 16, "sha256": "e8ca4f5f6b44144f2c77cda1e050aa577128e2faf5de25bdb3294a09391f1e51"}
+    },
+    "sharedShape": {
+      "managerInitializer": "NewExpression",
+      "storeInitializer": "CallExpression",
+      "storeArgumentCount": 2,
+      "callbackType": "ArrowFunctionExpression",
+      "callbackArgumentRoles": ["callback-parameter", "manager-binding"],
+      "propertyValueRole": "manager-binding",
+      "headlessOptionsArgumentIndex": 8,
+      "propertyIndex": 31,
+      "propertyCount": 32
+    },
+    "baseline": {
+      "manager": {"localStart": 31063, "localEnd": 31073, "start": 13742521, "end": 13742531, "bytes": 10, "sha256": "e86e5a59ad16f3d9a246379d56931a576e95ba642d7d668f6940443ae687959c"},
+      "store": {"localStart": 31074, "localEnd": 31100, "start": 13742532, "end": 13742558, "bytes": 26, "sha256": "69d165efc0a3afb47ad7d035184ed6e6160bcec4a3c8545f9680e5438c14d2e9"},
+      "callback": {"localStart": 31083, "localEnd": 31099, "start": 13742541, "end": 13742557, "bytes": 16, "sha256": "a4d9f6e40b4ab260e2093b4fb017662fb58e924770da057f5e65129a713d3e70"},
+      "property": {"localStart": 32825, "localEnd": 32840, "start": 13744283, "end": 13744298, "bytes": 15, "sha256": "18daaad6f561ccfe85c063ca3857aa9d5058f8f5fa110fe6b134e556973d90a3"},
+      "key": {"localStart": 32825, "localEnd": 32837, "start": 13744283, "end": 13744295, "bytes": 12, "sha256": "421b5beb555c6d2b703b7433bfd0584e577eac34fbb5cf03cf1213285aae5fdc"}
+    },
+    "target": {
+      "manager": {"localStart": 31610, "localEnd": 31620, "start": 13810690, "end": 13810700, "bytes": 10, "sha256": "d8bbf537ca73900704b693053517d81e5b5f90630f1e800e02917e99039a7102"},
+      "store": {"localStart": 31621, "localEnd": 31647, "start": 13810701, "end": 13810727, "bytes": 26, "sha256": "5c5ef9b471ab31b3765af4220060f773af8a694e9002b28abb79c555abfc4e9f"},
+      "callback": {"localStart": 31630, "localEnd": 31646, "start": 13810710, "end": 13810726, "bytes": 16, "sha256": "15d8bf904b30da0d71657eb21c8d90abb1f8e480ed99fde0c6950f1327c16705"},
+      "property": {"localStart": 33372, "localEnd": 33387, "start": 13812452, "end": 13812467, "bytes": 15, "sha256": "cc4b61679a3b0ffb3399440d5adc447066038975f980385c93562e6fe91e9c9c"},
+      "key": {"localStart": 33372, "localEnd": 33384, "start": 13812452, "end": 13812464, "bytes": 12, "sha256": "421b5beb555c6d2b703b7433bfd0584e577eac34fbb5cf03cf1213285aae5fdc"}
+    }
+  },
+  "postDaemonOwnerReportSnapshot": {
+    "ownerRows": {"count":202,"full":{"bytes":82282,"sha256":"12667e8e660ac9d2922044a635480cabfaebf9c4dfab21c4c1c9e70e73d2d9a6"},"identities":{"bytes":13602,"sha256":"34c010ba52ab4f198005aa949999c1a9fa505e13a36b8dbf86ae1aa2f41a5b26"},"attributionIdentities":{"bytes":16834,"sha256":"e2e8255d90e0f2e763cd7dfd014c7912056de908a0fd1fd701fdc2d5d2717064"}},
+    "addedRows": {"count":18,"full":{"bytes":15716,"sha256":"593670e825fbcc41f6d3f61292701a24d95b4f8382ee73fea180f5e92ba37326"},"identities":{"bytes":1065,"sha256":"3c8e691f746c6a26d6174ba0a97caf0c142ac35fefae4cae1827cb8bbd79437f"}},
+    "strictRows": {"count":9,"full":{"bytes":4548,"sha256":"4418da70a455e83e5e8d3dc3328eea4b5d7be81636fb8d05d5e9b2b52e073746"},"identities":{"bytes":587,"sha256":"70de4fe1fcd792572f45084e3e72d3c03e0bbd9250eab28cfe7f53788fa5f109"}},
+    "restoredAddedRowsExact": [["property","viewMode",13792763,13792771,3,4,true],["string","focus",13792780,13792787,16,17,true],["property","skipDangerousModePromptSetPreDialog",13809436,13809471,0,1,true]],
+    "restoredStrictRowsExact": [[22106,"property","skipDangerousModePromptSetPreDialog",13809436,13809471,1]]
+  },
+  "reportSnapshot": {
+    "global": {"ownerRows": 35665, "addedRows": 1151, "strictRows": 1228},
+    "targetIndex": 22106,
+    "ownerRows": {
+      "count": 199,
+      "full": {"bytes": 81085, "sha256": "13cace3be55665334e303e43c341e5859b589845e474f80cbe5d1e143867e76c"},
+      "identities": {"bytes": 13425, "sha256": "f00a23d93b511d06d290bd4f9b3ae4fe1d4043f168a5271d647ca430a5eb8562"},
+      "attributionIdentities": {"bytes": 16609, "sha256": "700747539e464bd2a8825188794ded7398f60f62bdcac7488d797e121a388fbd"}
+    },
+    "addedRows": {
+      "count": 15,
+      "full": {"bytes": 13193, "sha256": "bd2b89b6f681184cad0d7216e2e5aeb23f9408261f66d6bfa95e9cab865b77ba"},
+      "identities": {"bytes": 888, "sha256": "20432f175c6adaa772965d5cfb4771182166021aa931b502893fd98fe1988d38"},
+      "exact": [
+        ["property", "allowed", 13797608, 13797615, 65, 68, true],
+        ["property", "allowed", 13800348, 13800355, 65, 69, true],
+        ["number", "300", 13802998, 13803001, 60, 67, true],
+        ["string", "2.1.121", 13808731, 13808740, 0, 150, true],
+        ["string", "2026-04-27T01:32:27Z", 13808820, 13808842, 0, 150, true],
+        ["string", "16ffea721a0a39bc787a236dc19fb62307180b75", 13808851, 13808893, 0, 150, true],
+        ["property", "sessionState", 13812452, 13812464, 28, 30, true],
+        ["property", "index", 13815572, 13815577, 296, 297, true],
+        ["property", "isAbsolute", 13822198, 13822208, 74, 75, true],
+        ["property", "error_name", 13823208, 13823218, 13, 14, true],
+        ["string", "2.1.121", 13825108, 13825117, 0, 151, true],
+        ["string", "2026-04-27T01:32:27Z", 13825197, 13825219, 0, 151, true],
+        ["string", "16ffea721a0a39bc787a236dc19fb62307180b75", 13825228, 13825270, 0, 151, true],
+        ["property", "pluginPruneHandler", 13837077, 13837095, 0, 2, true],
+        ["property", "createSubcommandRoot", 13840517, 13840537, 23, 24, true]
+      ]
+    },
+    "strictRows": {
+      "count": 8,
+      "full": {"bytes": 4031, "sha256": "59c0f3f3dabcc32279a43bb2564f5ddbacff960557ae688dd16eb6db8f32cfca"},
+      "identities": {"bytes": 510, "sha256": "2aecbae5c355ac1faa832d5bdff219e003fab8da75f91fd8466b496cf477f378"},
+      "exact": [
+        [22106, "string", "2.1.121", 13808731, 13808740, 150],
+        [22106, "string", "2026-04-27T01:32:27Z", 13808820, 13808842, 150],
+        [22106, "string", "16ffea721a0a39bc787a236dc19fb62307180b75", 13808851, 13808893, 150],
+        [22106, "string", "2.1.121", 13825108, 13825117, 151],
+        [22106, "string", "2026-04-27T01:32:27Z", 13825197, 13825219, 151],
+        [22106, "string", "16ffea721a0a39bc787a236dc19fb62307180b75", 13825228, 13825270, 151],
+        [22106, "property", "pluginPruneHandler", 13837077, 13837095, 2],
+        [22106, "property", "createSubcommandRoot", 13840517, 13840537, 24]
+      ]
+    },
+    "sessionStateRow": {
+      "identity": ["property", "sessionState", 13812452, 13812464, 28, 30, true],
+      "full": {"bytes": 535, "sha256": "eac833210f178452de654cae55fb80fcd5c20bd849194910b259f14e110f17a6"},
+      "disposition": "source-runtime-covered",
+      "ownerPaths": ["main.tsx"],
+      "ownerSourceMatches": []
+    }
+  },
+  "staticAdmission": {
+    "sourceOwner": "src/main.tsx::run",
+    "mode": "static-row-proof-replay-rejected",
+    "priorResidues": [
+      ["property", "allowed", 13797608, 13797615, 65, 68, true],
+      ["property", "allowed", 13800348, 13800355, 65, 69, true],
+      ["number", "300", 13802998, 13803001, 60, 67, true]
+    ],
+    "ownerResidue": ["property", "sessionState", 13812452, 13812464, 28, 30, true],
+    "classification": {
+      "priorStaticOrdinals": [0, 1, 2],
+      "ownedStaticOrdinals": [6],
+      "cumulativeStaticOrdinals": [0, 1, 2, 6],
+      "separatelyHandledBuildMacroOrdinals": [3, 4, 5, 10, 11, 12],
+      "outOfScopeProductionOrdinals": [7, 8, 9, 13, 14],
+      "explicitlyDisjointLaneValues": ["pluginPruneHandler", "createSubcommandRoot"]
+    },
+    "predictedImpact": {
+      "rawOwnerRows": 199,
+      "rawAddedRows": 15,
+      "priorStaticOwnerAddedRows": 3,
+      "ownedByThisProofOwnerAddedRows": 1,
+      "cumulativeAdmittedOwnerAddedRows": 4,
+      "remainingOutOfScopeProductionRows": 5,
+      "separatelyHandledBuildMacroRows": 6,
+      "rawStrictRowsRemoved": 0,
+      "coverageRowsAddedOrReplaced": 0,
+      "predictedOwnerRows": 195,
+      "predictedAddedRows": 11,
+      "predictedStrictRows": 8,
+      "predictedCoverageRows": 1
+    }
+  },
+  "sourceReplayDecision": {
+    "selectedProof": "smallest-row-only-static-proof",
+    "replayRequired": false,
+    "reason": "The authored graph already implements session metadata propagation through process-global functions. main.tsx has no SessionStateManager binding and its runHeadless options end at sessionStartHooksPromise. Adding only sessionState would reference a nonexistent value; recreating the instance graph would overlap recovered global behavior and would not be a row-scoped edit."
+  },
+  "coverageRowsDescriptor": {
+    "count": 1,
+    "bytes": 504,
+    "sha256": "e486a23cc17516c26a7c03d6ee6a8188534bed98501e230dd9a2af7d61f34502"
+  }
+}

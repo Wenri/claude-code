@@ -1,0 +1,177 @@
+{
+  "schemaVersion": 1,
+  "kind": "generated-source-ownership-and-attribution-inventory",
+  "offsetUnit": "utf16-code-units",
+  "claim": "Exhaustive generated-offset accounting with exact baseline source ownership; target source identities are evidence-ranked and unresolved where anchors are insufficient.",
+  "artifacts": {
+    "baselineBundle": {
+      "bytes": 13047043,
+      "sha256": "75c9611929d9a770fe2e3a393219d8b98f5de17fde539b2a7355c6db3fd2795f"
+    },
+    "baselineSourceMap": {
+      "bytes": 59766257,
+      "sha256": "7965012b7a5fc9e09d8d747a04c5c32b94696924536e217f686bb1e7ee70a657"
+    },
+    "targetBundle": {
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    }
+  },
+  "options": {
+    "minimumLiteralLength": 8
+  },
+  "baselineOwnership": {
+    "sourceCount": 4756,
+    "sourceKinds": {
+      "application": 1902,
+      "nodeModules": 2850,
+      "vendor": 4
+    },
+    "mappedSegmentCount": 2068722,
+    "contiguousRunCount": 4756,
+    "eachSourceHasExactlyOneContiguousRun": true,
+    "generatedHeaderUtf16": 2230
+  },
+  "literalEvidence": {
+    "uniqueCommonAnchorCount": 37778,
+    "monotoneAnchorCount": 29050,
+    "nonMonotoneAnchorCount": 8728,
+    "monotoneFraction": 0.7689660649055006,
+    "partitionCount": 29051,
+    "tokenCountDelta": 189559,
+    "utf16LengthDelta": 924860,
+    "locatedSourceCount": 2349,
+    "locatedApplicationSourceCount": 1222,
+    "splitTargetClusterSourceCount": 28
+  },
+  "initializerEvidence": {
+    "baseline": {
+      "wrapperNames": {
+        "common": "m",
+        "initializer": "y"
+      },
+      "count": 4527
+    },
+    "target": {
+      "wrapperNames": {
+        "common": "n",
+        "initializer": "T"
+      },
+      "count": 5148,
+      "statuses": {
+        "unresolved-no-unique-literal": 2680,
+        "anchored-single-baseline-unit": 2364,
+        "anchored-multiple-baseline-units": 104
+      }
+    },
+    "targetNetCountDelta": 621
+  },
+  "coverage": {
+    "partitionCount": 29051,
+    "targetPartitionUtf16": 12550337,
+    "exactAnchorCount": 29050,
+    "exactAnchorTargetUtf16": 1357851,
+    "exactGeneratedPartitionCount": 12779,
+    "exactGeneratedTargetUtf16": 152874,
+    "changedHighConfidencePartitionCount": 14198,
+    "changedHighConfidenceTargetUtf16": 4076981,
+    "changedCandidatePartitionCount": 2074,
+    "changedCandidateTargetUtf16": 8320482,
+    "unresolvedPartitionCount": 0,
+    "unresolvedTargetUtf16": 0,
+    "accountedTargetUtf16": 13908188,
+    "targetUtf16": 13908188,
+    "unaccountedTargetUtf16": 0,
+    "targetRangeCount": 58101,
+    "targetRangeUtf16": 13908188
+  },
+  "releaseEvidence": {
+    "targetPackage": {
+      "bytes": 1476,
+      "sha256": "83eb99fd29fb46e03642f2ca2481c5f2eb5c7141607d407a7b06069362ddd6bd",
+      "name": "@anthropic-ai/claude-code",
+      "version": "2.1.121"
+    },
+    "targetDeclarations": {
+      "bytes": 117452,
+      "sha256": "8f907e0e9fd160b857d25881375f73f1bddd3642d372ad52ea71d7ff441f3ddf"
+    },
+    "officialChangelog": {
+      "bytes": 262246,
+      "sha256": "fdb8520ed27409773cfc82a75502e35c69b523e5bb425e9ab3b456abf401e2a6",
+      "section": "2.1.121",
+      "bulletCount": 39,
+      "bullets": [
+        "Added `alwaysLoad` option to MCP server config — when `true`, all tools from that server skip tool-search deferral and are always available",
+        "Added `claude plugin prune` to remove orphaned auto-installed plugin dependencies; `plugin uninstall --prune` cascades",
+        "Added a type-to-filter search box to `/skills` so you can find a skill in long lists without scrolling",
+        "PostToolUse hooks can now replace tool output for all tools via `hookSpecificOutput.updatedToolOutput` (previously MCP-only)",
+        "Fullscreen mode: typing into the prompt no longer jumps scroll back to the bottom after you've scrolled up to read earlier output",
+        "Dialogs that overflow the terminal are now scrollable with arrow keys, PgUp/PgDn, home/end, and mouse wheel in both fullscreen and non-fullscreen modes",
+        "Clicking any line of a long URL that wraps across rows in fullscreen mode now opens the full URL",
+        "SDK and `claude -p`: `CLAUDE_CODE_FORK_SUBAGENT=1` now works in non-interactive sessions",
+        "`--dangerously-skip-permissions` no longer prompts for writes to `.claude/skills/`, `.claude/agents/`, and `.claude/commands/`",
+        "`/terminal-setup` now enables iTerm2's \"Applications in terminal may access clipboard\" setting so `/copy` works, including from tmux",
+        "MCP servers that hit a transient error during startup now auto-retry up to 3 times instead of staying disconnected",
+        "The terminal tab session title is now generated in your configured `language` setting",
+        "Claude.ai connectors with the same upstream URL are now deduplicated instead of appearing as duplicates",
+        "Vertex AI: support X.509 certificate-based Workload Identity Federation (mTLS ADC)",
+        "Faster startup after upgrading: removed the Recent Activity panel from the release-notes splash",
+        "LSP diagnostic summaries now expand on click/ctrl+o and show the expand hint",
+        "SDK: `mcp_authenticate` now supports `redirectUri` for custom scheme completion and claude.ai connectors",
+        "OpenTelemetry: added `stop_reason`, `gen_ai.response.finish_reasons`, and `user_system_prompt` (gated behind `OTEL_LOG_USER_PROMPTS`) to LLM request spans",
+        "[VSCode] Voice dictation now respects the `accessibility.voice.speechLanguage` setting when no Claude Code language is configured",
+        "[VSCode] `/context` now opens a native token usage dialog",
+        "Fixed unbounded memory growth (multi-GB RSS) when processing many images in a session",
+        "Fixed `/usage` leaking up to ~2GB of memory on machines with large transcript histories",
+        "Fixed memory leak when long-running tools fail to emit a clear progress event",
+        "Fixed Bash tool becoming permanently unusable when the directory Claude was started in is deleted or moved mid-session",
+        "Fixed `--resume` crashing on startup in external builds",
+        "Fixed `--resume` failing on large sessions when a transcript line was corrupted by an unclean shutdown — the corrupt line is now skipped",
+        "Fixed `thinking.type.enabled is not supported` error when using Bedrock application inference profile ARNs",
+        "Fixed Microsoft 365 MCP OAuth failing with duplicate or unsupported `prompt` parameter",
+        "Fixed scrollback duplication when pressing Ctrl+L or triggering a redraw in non-fullscreen mode on tmux, GNOME Terminal, Windows Terminal, and Konsole",
+        "Fixed claude.ai MCP connectors silently disappearing when the connector-list fetch hits a transient auth error at startup",
+        "Fixed \"Always allow\" rules for built-in tools in remote sessions not surviving worker restarts",
+        "Fixed `NO_PROXY` not being respected for all HTTP clients when set via `managed-settings.json` under the native build",
+        "Fixed managed settings approval prompt exiting the session even when accepted — now applies settings and continues",
+        "Fixed `/usage` returning \"rate limited\" after a stale OAuth token — now refreshes automatically",
+        "Fixed invalid legacy enum values in `settings.json` invalidating the entire settings file",
+        "Fixed `/usage` dialog content being clipped when no-flicker mode is off",
+        "Fixed `/focus` showing \"Unknown command\" when the fullscreen renderer is off — now explains how to enable it",
+        "Fixed embedded grep/find/rg shell wrappers failing when the running binary is deleted mid-session — now falls back to installed tools",
+        "Reduced peak file descriptor usage during `find` in the Bash tool on large directory trees"
+      ]
+    }
+  },
+  "reportFiles": {
+    "sources": {
+      "path": "sources.jsonl.gz",
+      "bytes": 467645,
+      "sha256": "78e59330a67243c2102ff2af065f321f7eb206641726d6d0596f7a7a3605e4f9"
+    },
+    "targetInitializers": {
+      "path": "target-initializers.jsonl.gz",
+      "bytes": 119358,
+      "sha256": "ac648cc47e84814d6e0b219c032f8cb16899e2e61e78254896ef5795e6de02da"
+    },
+    "targetPartitions": {
+      "path": "target-partitions.jsonl.gz",
+      "bytes": 2919134,
+      "sha256": "d326227c4ad61e1ab337f09a009dd9a5f730882c2733ab900de80b0091e43f83"
+    },
+    "targetRanges": {
+      "path": "target-ranges.jsonl.gz",
+      "bytes": 3413379,
+      "sha256": "e1fc9325752b1518023d2392b607bbd0462c99cba7e3756538db36beb63359dd"
+    }
+  },
+  "limitations": [
+    "Exact source ownership exists only for the baseline source map.",
+    "Initializer regions are delimited by successive Bun wrapper-expression starts; they are generated units, not asserted one-to-one source modules.",
+    "A target initializer with no unique long literal is unresolved, not automatically target-only.",
+    "Candidate ranges can include moved code; non-monotone literal owners are reported separately.",
+    "Raw-different partitions include harmless minifier-name churn as well as semantic changes.",
+    "No target source text is claimed reconstructed by this inventory."
+  ]
+}

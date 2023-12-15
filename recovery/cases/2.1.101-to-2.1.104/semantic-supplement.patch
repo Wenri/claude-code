@@ -1,0 +1,274 @@
+diff --git a/src/constants/prompts.ts b/src/constants/prompts.ts
+index da7fb8d87deebcc266a5659fe0cfd6446d864962..2094873d3b4820c5a62a2f211642892244031f8d 100644
+--- a/src/constants/prompts.ts
++++ b/src/constants/prompts.ts
+@@ -1,2 +1,3 @@
+ // biome-ignore-all assist/source/organizeImports: ANT-ONLY import markers must not be reordered
++import { getGlobalConfig } from '../utils/config.js'
+ import { type as osType, version as osVersion, release as osRelease } from 'os'
+@@ -199,7 +200,43 @@ function getSimpleSystemSection(): string {
+ 
+-function getSimpleDoingTasksSection(): string {
++export function isCommunicationStyleEnabled(model: string): boolean {
++  if (!getCanonicalName(model).includes('opus-4-6')) return false
++  return getGlobalConfig().clientDataCache?.quiet_salted_ember === 'true'
++}
++
++export function getCommunicationStyleSection(model: string): string | null {
++  if (!isCommunicationStyleEnabled(model)) return null
++  return `# Text output (does not apply to tool calls)
++Assume users can't see most tool calls or thinking — only your text output. Before your first tool call, state in one sentence what you're about to do. While working, give short updates at key moments: when you find something, when you change direction, or when you hit a blocker. Brief is good — silent is not. One sentence per update is almost always enough.
++
++Don't narrate your internal deliberation. User-facing text should be relevant communication to the user, not a running commentary on your thought process. State results and decisions directly, and focus user-facing text on relevant updates for the user.
++
++When you do write updates, write so the reader can pick up cold: complete sentences, no unexplained jargon or shorthand from earlier in the session. But keep it tight — a clear sentence is better than a clear paragraph.
++
++End-of-turn summary: one or two sentences. What changed and what's next. Nothing else.
++
++Match responses to the task: a simple question gets a direct answer, not headers and sections.
++
++In code: default to writing no comments. Never write multi-paragraph docstrings or multi-line comment blocks — one short line max. Don't create planning, decision, or analysis documents unless the user asks for them — work from conversation context, not intermediate files.`
++}
++
++function buildSimpleDoingTasksSection(model: string): string {
++  const communicationStyle = isCommunicationStyleEnabled(model)
+   const codeStyleSubitems = [
+-    `Don't add features, refactor code, or make "improvements" beyond what was asked. A bug fix doesn't need surrounding code cleaned up. A simple feature doesn't need extra configurability. Don't add docstrings, comments, or type annotations to code you didn't change. Only add comments where the logic isn't self-evident.`,
+-    `Don't add error handling, fallbacks, or validation for scenarios that can't happen. Trust internal code and framework guarantees. Only validate at system boundaries (user input, external APIs). Don't use feature flags or backwards-compatibility shims when you can just change the code.`,
+-    `Don't create helpers, utilities, or abstractions for one-time operations. Don't design for hypothetical future requirements. The right amount of complexity is what the task actually requires—no speculative abstractions, but no half-finished implementations either. Three similar lines of code is better than a premature abstraction.`,
++    ...(communicationStyle
++      ? [
++          `Don't add features, refactor, or introduce abstractions beyond what the task requires. A bug fix doesn't need surrounding cleanup; a one-shot operation doesn't need a helper. Don't design for hypothetical future requirements. Three similar lines is better than a premature abstraction. No half-finished implementations either.`,
++          `Don't add error handling, fallbacks, or validation for scenarios that can't happen. Trust internal code and framework guarantees. Only validate at system boundaries (user input, external APIs). Don't use feature flags or backwards-compatibility shims when you can just change the code.`,
++        ]
++      : [
++          `Don't add features, refactor code, or make "improvements" beyond what was asked. A bug fix doesn't need surrounding code cleaned up. A simple feature doesn't need extra configurability. Don't add docstrings, comments, or type annotations to code you didn't change. Only add comments where the logic isn't self-evident.`,
++          `Don't add error handling, fallbacks, or validation for scenarios that can't happen. Trust internal code and framework guarantees. Only validate at system boundaries (user input, external APIs). Don't use feature flags or backwards-compatibility shims when you can just change the code.`,
++          `Don't create helpers, utilities, or abstractions for one-time operations. Don't design for hypothetical future requirements. The right amount of complexity is what the task actually requires—no speculative abstractions, but no half-finished implementations either. Three similar lines of code is better than a premature abstraction.`,
++        ]),
++    ...(communicationStyle
++      ? [
++          `Default to writing no comments. Only add one when the WHY is non-obvious: a hidden constraint, a subtle invariant, a workaround for a specific bug, behavior that would surprise a reader. If removing the comment wouldn't confuse a future reader, don't write it.`,
++          `Don't explain WHAT the code does, since well-named identifiers already do that. Don't reference the current task, fix, or callers ("used by X", "added for the Y flow", "handles the case from issue #123"), since those belong in the PR description and rot as the codebase evolves.`,
++        ]
++      : []),
++    `For UI or frontend changes, start the dev server and use the feature in a browser before reporting the task as complete. Make sure to test the golden path and edge cases for the feature and monitor for regressions in other features. Type checking and test suites verify code correctness, not feature correctness - if you can't test the UI, say so explicitly rather than claiming success.`,
+     // @[MODEL LAUNCH]: Update comment writing for Capybara — remove or soften once the model stops over-commenting by default
+@@ -224,2 +261,7 @@ function getSimpleDoingTasksSection(): string {
+     `You are highly capable and often allow users to complete ambitious tasks that would otherwise be too complex or take too long. You should defer to user judgement about whether a task is too large to attempt.`,
++    ...(communicationStyle
++      ? [
++          `For exploratory questions ("what could we do about X?", "how should we approach this?", "what do you think?"), respond in 2-3 sentences with a recommendation and the main tradeoff. Present it as something the user can redirect, not a decided plan. Don't implement until the user agrees.`,
++        ]
++      : []),
+     // @[MODEL LAUNCH]: capy v8 assertiveness counterweight (PR #24302) — un-gate once validated on external via A/B
+@@ -230,6 +272,16 @@ function getSimpleDoingTasksSection(): string {
+       : []),
+-    `In general, do not propose changes to code you haven't read. If a user asks about or wants you to modify a file, read it first. Understand existing code before suggesting modifications.`,
+-    `Do not create files unless they're absolutely necessary for achieving your goal. Generally prefer editing an existing file to creating a new one, as this prevents file bloat and builds on existing work more effectively.`,
+-    `Avoid giving time estimates or predictions for how long tasks will take, whether for your own work or for users planning projects. Focus on what needs to be done, not how long it might take.`,
+-    `If an approach fails, diagnose why before switching tactics—read the error, check your assumptions, try a focused fix. Don't retry the identical action blindly, but don't abandon a viable approach after a single failure either. Escalate to the user with ${ASK_USER_QUESTION_TOOL_NAME} only when you're genuinely stuck after investigation, not as a first response to friction.`,
++    ...(communicationStyle
++      ? []
++      : [
++          `In general, do not propose changes to code you haven't read. If a user asks about or wants you to modify a file, read it first. Understand existing code before suggesting modifications.`,
++        ]),
++    communicationStyle
++      ? `Prefer editing existing files to creating new ones.`
++      : `Do not create files unless they're absolutely necessary for achieving your goal. Generally prefer editing an existing file to creating a new one, as this prevents file bloat and builds on existing work more effectively.`,
++    ...(communicationStyle
++      ? []
++      : [
++          `Avoid giving time estimates or predictions for how long tasks will take, whether for your own work or for users planning projects. Focus on what needs to be done, not how long it might take.`,
++          `If an approach fails, diagnose why before switching tactics—read the error, check your assumptions, try a focused fix. Don't retry the identical action blindly, but don't abandon a viable approach after a single failure either. Escalate to the user with ${ASK_USER_QUESTION_TOOL_NAME} only when you're genuinely stuck after investigation, not as a first response to friction.`,
++        ]),
+     `Be careful not to introduce security vulnerabilities such as command injection, XSS, SQL injection, and other OWASP top 10 vulnerabilities. If you notice that you wrote insecure code, immediately fix it. Prioritize writing safe, secure, and correct code.`,
+@@ -237,2 +289,10 @@ function getSimpleDoingTasksSection(): string {
+     `Avoid backwards-compatibility hacks like renaming unused _vars, re-exporting types, adding // removed comments for removed code, etc. If you are certain that something is unused, you can delete it completely.`,
++    ...(getFeatureValue_CACHED_MAY_BE_STALE(
++      'tengu_verified_vs_assumed',
++      false,
++    )
++      ? [
++          `When reporting results, be accurate about what you verified vs. what you assumed. Distinguish between what you confirmed (ran a command, read a file) and what you believe but did not check. Do not assert assumptions as facts.`,
++        ]
++      : []),
+     // @[MODEL LAUNCH]: False-claims mitigation for Capybara v8 (29-30% FC rate vs v4's 16.7%)
+@@ -269,3 +329,6 @@ When you encounter an obstacle, do not use destructive actions as a shortcut to
+ 
+-function getUsingYourToolsSection(enabledTools: Set<string>): string {
++function buildUsingYourToolsSection(
++  enabledTools: Set<string>,
++  model: string,
++): string {
+   const taskToolName = [TASK_CREATE_TOOL_NAME, TODO_WRITE_TOOL_NAME].find(n =>
+@@ -291,2 +354,19 @@ function getUsingYourToolsSection(enabledTools: Set<string>): string {
+ 
++  if (isCommunicationStyleEnabled(model)) {
++    const dedicatedTools = [
++      FILE_READ_TOOL_NAME,
++      FILE_EDIT_TOOL_NAME,
++      FILE_WRITE_TOOL_NAME,
++      ...(embedded ? [] : [GLOB_TOOL_NAME, GREP_TOOL_NAME]),
++    ].join(', ')
++    const items = [
++      `Prefer dedicated tools over ${BASH_TOOL_NAME} when one fits (${dedicatedTools}) — reserve ${BASH_TOOL_NAME} for shell-only operations.`,
++      taskToolName
++        ? `Use ${taskToolName} to plan and track work. Mark each task completed as soon as it's done; don't batch.`
++        : null,
++      `You can call multiple tools in a single response. If you intend to call multiple tools and there are no dependencies between them, make all independent tool calls in parallel. Maximize use of parallel tool calls where possible to increase efficiency. However, if some tool calls depend on previous calls to inform dependent values, do NOT call these tools in parallel and instead call them sequentially. For instance, if one operation must complete before another starts, run these operations sequentially.`,
++    ].filter(item => item !== null)
++    return [`# Using your tools`, ...prependBullets(items)].join(`\n`)
++  }
++
+   const providedToolSubitems = [
+@@ -355,6 +435,11 @@ function getSessionSpecificGuidanceSection(
+   skillToolCommands: Command[],
++  model: string,
+ ): string | null {
++  const communicationStyle = isCommunicationStyleEnabled(model)
+   const hasAskUserQuestionTool = enabledTools.has(ASK_USER_QUESTION_TOOL_NAME)
++  const sessionSkillAllowlist = getSessionSkillAllowlist()
+   const hasSkills =
+-    skillToolCommands.length > 0 && enabledTools.has(SKILL_TOOL_NAME)
++    (sessionSkillAllowlist === undefined
++      ? skillToolCommands.length > 0
++      : sessionSkillAllowlist.length > 0) && enabledTools.has(SKILL_TOOL_NAME)
+   const hasAgentTool = enabledTools.has(AGENT_TOOL_NAME)
+@@ -365,3 +450,3 @@ function getSessionSpecificGuidanceSection(
+   const items = [
+-    hasAskUserQuestionTool
++    !communicationStyle && hasAskUserQuestionTool
+       ? `If you do not understand why the user has denied a tool call, use the ${ASK_USER_QUESTION_TOOL_NAME} to ask them.`
+@@ -383,3 +468,3 @@ function getSessionSpecificGuidanceSection(
+     hasSkills
+-      ? `/<skill-name> (e.g., /commit) is shorthand for users to invoke a user-invocable skill. When executed, the skill gets expanded to a full prompt. Use the ${SKILL_TOOL_NAME} tool to execute them. IMPORTANT: Only use ${SKILL_TOOL_NAME} for skills listed in its user-invocable skills section - do not guess or use built-in CLI commands.`
++      ? `When the user types \`/<skill-name>\`, invoke it via ${SKILL_TOOL_NAME}. Only use skills listed in the user-invocable skills section — don't guess.`
+       : null,
+@@ -402,3 +487,3 @@ function getSessionSpecificGuidanceSection(
+ 
+-function getSimpleToneAndStyleSection(): string {
++function buildSimpleToneAndStyleSection(model: string): string {
+   const items = [
+@@ -409,3 +494,5 @@ function getSimpleToneAndStyleSection(): string {
+     `When referencing specific functions or pieces of code include the pattern file_path:line_number to allow the user to easily navigate to the source code location.`,
+-    `When referencing GitHub issues or pull requests, use the owner/repo#123 format (e.g. anthropics/claude-code#100) so they render as clickable links.`,
++    isCommunicationStyleEnabled(model)
++      ? null
++      : `When referencing GitHub issues or pull requests, use the owner/repo#123 format (e.g. anthropics/claude-code#100) so they render as clickable links.`,
+     `Do not use a colon before tool calls. Your tool calls may not be shown directly in the output, so text like "Let me read the file:" followed by a read tool call should just be "Let me read the file." with a period.`,
+@@ -416,2 +503,13 @@ function getSimpleToneAndStyleSection(): string {
+ 
++/**
++ * Reserved prompt-cache slot for background-session guidance.
++ *
++ * The bundled runtime has carried this named (currently empty) section since
++ * 2.1.101. Keeping the null-valued slot is observable through the section
++ * cache even though it contributes no prompt text.
++ */
++function getBackgroundSessionSection(): null {
++  return null
++}
++
+ export async function getSystemPrompt(
+@@ -421,2 +519,3 @@ export async function getSystemPrompt(
+   mcpClients?: MCPServerConnection[],
++  options?: { excludeDynamicSections?: boolean },
+ ): Promise<string[]> {
+@@ -424,3 +523,5 @@ export async function getSystemPrompt(
+     return [
+-      `You are Claude Code, Anthropic's official CLI for Claude.\n\nCWD: ${getCwd()}\nDate: ${getSessionStartDate()}`,
++      options?.excludeDynamicSections
++        ? `You are Claude Code, Anthropic's official CLI for Claude.`
++        : `You are Claude Code, Anthropic's official CLI for Claude.\n\nCWD: ${getCwd()}\nDate: ${getSessionStartDate()}`,
+     ]
+@@ -464,5 +565,18 @@ ${CYBER_RISK_INSTRUCTION}`,
++    ...(isCommunicationStyleEnabled(model)
++      ? [
++          systemPromptSection('anti_verbosity', () =>
++            getCommunicationStyleSection(model),
++          ),
++        ]
++      : []),
+     systemPromptSection('session_guidance', () =>
+-      getSessionSpecificGuidanceSection(enabledTools, skillToolCommands),
++      getSessionSpecificGuidanceSection(
++        enabledTools,
++        skillToolCommands,
++        model,
++      ),
+     ),
+-    systemPromptSection('memory', () => loadMemoryPrompt()),
++    ...(options?.excludeDynamicSections
++      ? []
++      : [systemPromptSection('memory', () => loadMemoryPrompt())]),
+     systemPromptSection('ant_model_override', () =>
+@@ -471,5 +585,9 @@ ${CYBER_RISK_INSTRUCTION}`,
+     ),
+-    systemPromptSection('env_info_simple', () =>
+-      computeSimpleEnvInfo(model, additionalWorkingDirectories),
+-    ),
++    ...(options?.excludeDynamicSections
++      ? []
++      : [
++          systemPromptSection('env_info_simple', () =>
++            computeSimpleEnvInfo(model, additionalWorkingDirectories),
++          ),
++        ]),
+     systemPromptSection('language', () =>
+@@ -501,3 +619,3 @@ ${CYBER_RISK_INSTRUCTION}`,
+     // qualitative "be concise". Ant-only to measure quality impact first.
+-    ...(process.env.USER_TYPE === 'ant'
++    ...(isCommunicationStyleEnabled(model)
+       ? [
+@@ -533,2 +651,9 @@ ${CYBER_RISK_INSTRUCTION}`,
+ 
++  const getSimpleDoingTasksSection = () =>
++    buildSimpleDoingTasksSection(model)
++  const getUsingYourToolsSection = (tools: Set<string>) =>
++    buildUsingYourToolsSection(tools, model)
++  const getSimpleToneAndStyleSection = () =>
++    buildSimpleToneAndStyleSection(model)
++
+   return [
+@@ -551,2 +676,40 @@ ${CYBER_RISK_INSTRUCTION}`,
+ 
++/**
++ * Build the machine-specific sections omitted by excludeDynamicSections so
++ * callers can re-inject them into the first user message.
++ */
++export async function getExcludedDynamicSectionsContent(
++  model: string,
++  additionalWorkingDirectories?: string[],
++): Promise<Record<string, string>> {
++  const [envInfo, memory] = await Promise.all([
++    computeSimpleEnvInfo(model, additionalWorkingDirectories),
++    loadMemoryPrompt(),
++  ])
++  const result: Record<string, string> = {}
++  if (envInfo) {
++    const [heading, body] = splitPromptHeading(envInfo)
++    result[heading] = body
++  }
++  if (memory) {
++    const [heading, body] = splitPromptHeading(memory)
++    result[heading] = body
++  }
++  return result
++}
++
++function splitPromptHeading(section: string): [string, string] {
++  const newline = section.indexOf('\n')
++  const heading = newline === -1 ? section : section.slice(0, newline)
++  if (!heading.startsWith('# ')) {
++    throw new Error(
++      `getExcludedDynamicSectionsContent: expected section body to start with a "# <heading>" line, got "${heading}"`,
++    )
++  }
++  return [
++    heading.slice(2),
++    newline === -1 ? '' : section.slice(newline + 1),
++  ]
++}
++
+ function getMcpInstructions(mcpClients: MCPServerConnection[]): string | null {

@@ -1,0 +1,256 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "authenticated-bounded-later-donor-runtime-source-replay",
+  "criterion": "exact-target119-unit-and-residue-with-exact-target121-source-postimage",
+  "evidenceIds": [
+    "target119-later-donor-runtime-source-gap-target-fragment",
+    "target119-later-donor-runtime-source-gap-source-replay-test"
+  ],
+  "inputs": {
+    "targetBundle": {
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "sourceFiles": [
+      {
+        "path": "src/utils/env.ts",
+        "before": {
+          "bytes": 10943,
+          "sha256": "534a837cd1771d6c74ccadee08c7c01511f8f9630c906cc812326ff6d970e4b0"
+        },
+        "intermediate": {
+          "bytes": 10943,
+          "sha256": "534a837cd1771d6c74ccadee08c7c01511f8f9630c906cc812326ff6d970e4b0"
+        },
+        "authenticatedDonor": {
+          "release": "2.1.121",
+          "bytes": 11344,
+          "sha256": "01bebed0e2bcdf2a4f691f4888e5569b86d7f27da4c8c1293732aecf75a26f50"
+        },
+        "after": {
+          "bytes": 11344,
+          "sha256": "01bebed0e2bcdf2a4f691f4888e5569b86d7f27da4c8c1293732aecf75a26f50"
+        }
+      },
+      {
+        "path": "src/tools/AgentTool/AgentTool.tsx",
+        "before": {
+          "bytes": 234266,
+          "sha256": "deee654d87ed313a1c713123195a2a22a7fa9877fcc70041cbb330d9dfb08b02"
+        },
+        "intermediate": {
+          "bytes": 234284,
+          "sha256": "86dd8c768d8ccabaab49c56104754bfc0d618a7906a890771cdb2454815a04a8"
+        },
+        "authenticatedDonor": {
+          "release": "2.1.121",
+          "bytes": 234637,
+          "sha256": "ba2652cc9a221f39753b4e5bb86aee1c05c2351ab77d8aaffcb8f59dacf3f4f4"
+        },
+        "after": {
+          "bytes": 234637,
+          "sha256": "ba2652cc9a221f39753b4e5bb86aee1c05c2351ab77d8aaffcb8f59dacf3f4f4"
+        }
+      },
+      {
+        "path": "src/utils/ShellCommand.ts",
+        "before": {
+          "bytes": 14138,
+          "sha256": "4536b15583b60a9d667c1da365ff4d7fb1dd3d3aa25e94998526cb0c540c6cf3"
+        },
+        "intermediate": {
+          "bytes": 14138,
+          "sha256": "4536b15583b60a9d667c1da365ff4d7fb1dd3d3aa25e94998526cb0c540c6cf3"
+        },
+        "authenticatedDonor": {
+          "release": "2.1.121",
+          "bytes": 14246,
+          "sha256": "31141fd7db162dcdbfa5bd62453226313cac1b33a65834ed118be9f890fdcad8"
+        },
+        "after": {
+          "bytes": 14246,
+          "sha256": "31141fd7db162dcdbfa5bd62453226313cac1b33a65834ed118be9f890fdcad8"
+        }
+      }
+    ]
+  },
+  "sourceDiffs": [
+    {
+      "path": "src/utils/env.ts",
+      "boundedChanges": [
+        "Coder, DevPod, Daytona, Google Cloud Workstations, and AWS Cloud9 detection branches"
+      ]
+    },
+    {
+      "path": "src/tools/AgentTool/AgentTool.tsx",
+      "boundedChanges": [
+        "prompt model forwarding",
+        "background-hint progress event",
+        "optional subagent-text progress forwarding",
+        "clear progress event"
+      ]
+    },
+    {
+      "path": "src/utils/ShellCommand.ts",
+      "boundedChanges": [
+        "skipSpill interface option",
+        "skipSpill implementation option",
+        "pipe spill guard"
+      ]
+    }
+  ],
+  "ownerOverrides": [
+    {
+      "key": "2.1.118-to-2.1.119:2565",
+      "targetIndex": 2565,
+      "paths": [
+        "src/utils/env.ts"
+      ],
+      "evidenceIds": [
+        "target119-later-donor-runtime-source-gap-target-fragment",
+        "target119-later-donor-runtime-source-gap-source-replay-test"
+      ],
+      "behavior": "The authenticated Target119 deployment detector recognizes Coder, DevPod, Daytona, Google Cloud Workstations, and AWS Cloud9 environments before the existing Replit and Glitch branches."
+    },
+    {
+      "key": "2.1.118-to-2.1.119:12841",
+      "targetIndex": 12841,
+      "paths": [
+        "src/tools/AgentTool/AgentTool.tsx"
+      ],
+      "evidenceIds": [
+        "target119-later-donor-runtime-source-gap-target-fragment",
+        "target119-later-donor-runtime-source-gap-source-replay-test"
+      ],
+      "behavior": "The authenticated Target119 Agent tool forwards its selected model into the prompt, emits background-hint and clear progress events, and optionally forwards subagent text alongside tool progress."
+    },
+    {
+      "key": "2.1.118-to-2.1.119:19046",
+      "targetIndex": 19046,
+      "paths": [
+        "src/utils/ShellCommand.ts"
+      ],
+      "evidenceIds": [
+        "target119-later-donor-runtime-source-gap-target-fragment",
+        "target119-later-donor-runtime-source-gap-source-replay-test"
+      ],
+      "behavior": "The authenticated Target119 ShellCommand background transition accepts skipSpill and preserves the in-memory pipe buffer when that option is enabled."
+    }
+  ],
+  "summary": {
+    "units": 3,
+    "residues": 3,
+    "sourceFiles": 3,
+    "targetIndicesSha256": "6886bc68331582c83321d459f0dd946a96b70259a6f641edf4182e6be448801f",
+    "residueIdentitiesSha256": "f9c05067c9ea3808543954a1e367b10744378480a7bc2d1772bf2a7d55fbea1b"
+  },
+  "rows": [
+    {
+      "targetIndex": 2565,
+      "ownerPath": "src/utils/env.ts",
+      "behavior": "The authenticated Target119 deployment detector recognizes Coder, DevPod, Daytona, Google Cloud Workstations, and AWS Cloud9 environments before the existing Replit and Glitch branches.",
+      "evidenceIds": [
+        "target119-later-donor-runtime-source-gap-target-fragment",
+        "target119-later-donor-runtime-source-gap-source-replay-test"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "VariableDeclaration",
+        "start": 1033543,
+        "end": 1037183,
+        "bytes": 3640,
+        "sourceHash": "d43f8b523ea3034fd2336e42a82ae0309663b3d84561c2b24b5757aaef217092",
+        "tokenCount": 1068
+      },
+      "targetMarkers": [
+        "CODER_WORKSPACE_NAME",
+        "DEVPOD_WORKSPACE_UID",
+        "DAYTONA_WS_ID",
+        "GOOGLE_CLOUD_WORKSTATIONS",
+        "gcp-cloud-workstations",
+        "C9_PID",
+        "aws-cloud9"
+      ],
+      "residues": [
+        {
+          "kind": "property",
+          "value": "GOOGLE_CLOUD_WORKSTATIONS",
+          "start": 1034992,
+          "end": 1035017,
+          "baselineCount": 0,
+          "targetOrdinal": 1
+        }
+      ]
+    },
+    {
+      "targetIndex": 12841,
+      "ownerPath": "src/tools/AgentTool/AgentTool.tsx",
+      "behavior": "The authenticated Target119 Agent tool forwards its selected model into the prompt, emits background-hint and clear progress events, and optionally forwards subagent text alongside tool progress.",
+      "evidenceIds": [
+        "target119-later-donor-runtime-source-gap-target-fragment",
+        "target119-later-donor-runtime-source-gap-source-replay-test"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "VariableDeclaration",
+        "start": 7965216,
+        "end": 7983034,
+        "bytes": 17818,
+        "sourceHash": "c22f9a9a39a8ebbe5a2db943819a177444528c895f22a3074052c60ba275781b",
+        "tokenCount": 5621
+      },
+      "targetMarkers": [
+        "forwardSubagentText",
+        "background_hint"
+      ],
+      "residues": [
+        {
+          "kind": "property",
+          "value": "forwardSubagentText",
+          "start": 7978212,
+          "end": 7978231,
+          "baselineCount": 0,
+          "targetOrdinal": 1
+        }
+      ]
+    },
+    {
+      "targetIndex": 19046,
+      "ownerPath": "src/utils/ShellCommand.ts",
+      "behavior": "The authenticated Target119 ShellCommand background transition accepts skipSpill and preserves the in-memory pipe buffer when that option is enabled.",
+      "evidenceIds": [
+        "target119-later-donor-runtime-source-gap-target-fragment",
+        "target119-later-donor-runtime-source-gap-source-replay-test"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "ClassDeclaration",
+        "start": 11603521,
+        "end": 11605999,
+        "bytes": 2478,
+        "sourceHash": "f10c69c32aecfdc3ce527d1336faefe5c41cf62428ba6dac152148beca57c467",
+        "tokenCount": 1054
+      },
+      "targetMarkers": [
+        "skipSpill"
+      ],
+      "residues": [
+        {
+          "kind": "property",
+          "value": "skipSpill",
+          "start": 11605817,
+          "end": 11605826,
+          "baselineCount": 0,
+          "targetOrdinal": 1
+        }
+      ]
+    }
+  ]
+}

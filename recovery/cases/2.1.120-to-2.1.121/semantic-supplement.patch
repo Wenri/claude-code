@@ -1,0 +1,893 @@
+diff --git a/src/bootstrap/state.ts b/src/bootstrap/state.ts
+index 9c6f00d..54531ec 100644
+--- a/src/bootstrap/state.ts
++++ b/src/bootstrap/state.ts
+@@ -590,2 +590,6 @@ export function setCwdState(cwd: string): void {
+ 
++export function resetStartTime(): void {
++  STATE.startTime = Date.now()
++}
++
+ export function getDirectConnectServerUrl(): string | undefined {
+diff --git a/src/cli/handlers/plugins.ts b/src/cli/handlers/plugins.ts
+index dd20bac..e905397 100644
+--- a/src/cli/handlers/plugins.ts
++++ b/src/cli/handlers/plugins.ts
+@@ -855,8 +855,11 @@ export async function pluginUninstallHandler(
+ 
+-export async function pluginPruneHandler(options: {
+-  scope?: string
+-  cowork?: boolean
+-  dryRun?: boolean
+-  yes?: boolean
+-}): Promise<void> {
++export async function pluginPruneHandler(
++  root: Root,
++  options: {
++    scope?: string
++    cowork?: boolean
++    dryRun?: boolean
++    yes?: boolean
++  },
++): Promise<void> {
+   if (options.cowork) setUseCoworkPlugins(true)
+@@ -879,3 +882,3 @@ export async function pluginPruneHandler(options: {
+   })
+-  await prunePlugins(scope as 'user' | 'project' | 'local', {
++  const message = await prunePlugins(scope as 'user' | 'project' | 'local', {
+     dryRun: options.dryRun,
+@@ -883,2 +886,11 @@ export async function pluginPruneHandler(options: {
+   })
++  root.render(
++    React.createElement(
++      RenderOnceAndExit,
++      null,
++      React.createElement(Text, null, message),
++    ),
++  )
++  await root.waitUntilExit()
++  process.exit(0)
+ }
+diff --git a/src/cli/handlers/ultrareview.ts b/src/cli/handlers/ultrareview.ts
+index b7b86c1..b6d733d 100644
+--- a/src/cli/handlers/ultrareview.ts
++++ b/src/cli/handlers/ultrareview.ts
+@@ -13,2 +13,3 @@ import { exitWithError } from '../../utils/process.js'
+ import { sleep } from '../../utils/sleep.js'
++import { NOOP_TASK_REGISTRY } from '../../utils/task/framework.js'
+ import { isTransientNetworkError } from '../../utils/teleport/api.js'
+@@ -206,3 +207,3 @@ export async function ultrareviewHandler(
+     skipTaskRegistration: true,
+-    context: { abortController },
++    context: { abortController, taskRegistry: NOOP_TASK_REGISTRY },
+   })
+diff --git a/src/commands/rename/rename.ts b/src/commands/rename/rename.ts
+index 432b022..84fbc4d 100644
+--- a/src/commands/rename/rename.ts
++++ b/src/commands/rename/rename.ts
+@@ -37,3 +37,3 @@ export async function performRename(
+   context: ToolUseContext & LocalJSXCommandContext,
+-): Promise<{ message: string; newName?: string }> {
++): Promise<{ message: string; newName?: string; isGenerated?: boolean }> {
+   // Prevent teammates from renaming - their names are set by team leader
+@@ -46,4 +46,5 @@ export async function performRename(
+ 
++  const isGenerated = !args || args.trim() === ''
+   let newName: string
+-  if (!args || args.trim() === '') {
++  if (isGenerated) {
+     const generated = await generateSessionName(
+@@ -102,6 +103,6 @@ export async function performRename(
+   }
+-  await renameJob(sessionId, newName)
++  await renameJob(sessionId, newName, 'user')
+   await updateSessionName(newName)
+ 
+-  return { message: `Session renamed to: ${newName}`, newName }
++  return { message: `Session renamed to: ${newName}`, newName, isGenerated }
+ }
+@@ -113,6 +114,7 @@ export async function call(
+ ): Promise<null> {
+-  const { message, newName } = await performRename(args, context)
++  const { message, newName, isGenerated } = await performRename(args, context)
+   onDone(message, {
+     display: 'system',
+-    metaMessages: newName ? [renameSystemReminder(newName)] : undefined,
++    metaMessages:
++      newName && !isGenerated ? [renameSystemReminder(newName)] : undefined,
+   })
+diff --git a/src/components/DiagnosticsDisplay.tsx b/src/components/DiagnosticsDisplay.tsx
+index 6e8a8b8..9f2dabf 100644
+--- a/src/components/DiagnosticsDisplay.tsx
++++ b/src/components/DiagnosticsDisplay.tsx
+@@ -7,3 +7,2 @@ import type { Attachment } from '../utils/attachments.js';
+ import { getCwd } from '../utils/cwd.js';
+-import { CtrlOToExpand } from './CtrlOToExpand.js';
+ import { MessageResponse } from './MessageResponse.js';
+@@ -18,3 +17,3 @@ type DiagnosticsDisplayProps = {
+ export function DiagnosticsDisplay(t0) {
+-  const $ = _c(14);
++  const $ = _c(13);
+   const {
+@@ -67,20 +66,13 @@ export function DiagnosticsDisplay(t0) {
+     let t5;
+-    if ($[8] === Symbol.for("react.memo_cache_sentinel")) {
+-      t5 = <CtrlOToExpand />;
+-      $[8] = t5;
++    if ($[8] !== fileCount || $[9] !== t2 || $[10] !== t3 || $[11] !== t4) {
++      t5 = <MessageResponse><Text dimColor={true} wrap="wrap">Found {t2} new diagnostic{" "}{t3} in {fileCount}{" "}{t4} (ctrl+o to expand)</Text></MessageResponse>;
++      $[8] = fileCount;
++      $[9] = t2;
++      $[10] = t3;
++      $[11] = t4;
++      $[12] = t5;
+     } else {
+-      t5 = $[8];
++      t5 = $[12];
+     }
+-    let t6;
+-    if ($[9] !== fileCount || $[10] !== t2 || $[11] !== t3 || $[12] !== t4) {
+-      t6 = <MessageResponse><Text dimColor={true} wrap="wrap">Found {t2} new diagnostic{" "}{t3} in {fileCount}{" "}{t4} {t5}</Text></MessageResponse>;
+-      $[9] = fileCount;
+-      $[10] = t2;
+-      $[11] = t3;
+-      $[12] = t4;
+-      $[13] = t6;
+-    } else {
+-      t6 = $[13];
+-    }
+-    return t6;
++    return t5;
+   }
+diff --git a/src/components/WarmResumeHint.tsx b/src/components/WarmResumeHint.tsx
+index e78c6c8..81a3b69 100644
+--- a/src/components/WarmResumeHint.tsx
++++ b/src/components/WarmResumeHint.tsx
+@@ -6,3 +6,2 @@ import { Box, Text } from '../ink.js'
+ import {
+-  getAllGrowthBookFeatures,
+   getFeatureValue_CACHED_MAY_BE_STALE,
+@@ -10,2 +9,3 @@ import {
+   hasGrowthBookEnvOverride,
++  isFeatureFromExperiment,
+ } from '../services/analytics/growthbook.js'
+@@ -82,5 +82,5 @@ function isGateRegistered(): boolean {
+   return (
++    isFeatureFromExperiment(WARM_RESUME_GATE) ||
+     hasGrowthBookEnvOverride(WARM_RESUME_GATE) ||
+-    WARM_RESUME_GATE in getGrowthBookConfigOverrides() ||
+-    WARM_RESUME_GATE in getAllGrowthBookFeatures()
++    WARM_RESUME_GATE in getGrowthBookConfigOverrides()
+   )
+diff --git a/src/daemon/hub.tsx b/src/daemon/hub.tsx
+index b0a9261..7919304 100644
+--- a/src/daemon/hub.tsx
++++ b/src/daemon/hub.tsx
+@@ -12,2 +12,4 @@ import { getCwd } from '../utils/cwd.js'
+ import { logForDebugging } from '../utils/debug.js'
++import { processStartTokenMatches } from '../utils/genericProcessUtils.js'
++import { safeParseJSON } from '../utils/json.js'
+ import { bgSupervisorNoun } from '../utils/agentsFleet.js'
+@@ -59,2 +61,3 @@ type DaemonWorkerStatus = {
+   supervisorPid: number
++  supervisorProcStart?: string
+   workers: Record<string, { pid: number; startedAt: number }>
+@@ -83,16 +86,5 @@ async function readBackgroundCount(): Promise<number> {
+ async function readDaemonWorkerStatus(): Promise<DaemonWorkerStatus | null> {
++  let raw: string
+   try {
+-    const parsed = JSON.parse(
+-      await readFile(getDaemonStatusPath(), 'utf8'),
+-    ) as Partial<DaemonWorkerStatus>
+-    if (
+-      typeof parsed.supervisorPid !== 'number' ||
+-      !parsed.workers ||
+-      typeof parsed.workers !== 'object' ||
+-      Array.isArray(parsed.workers)
+-    ) {
+-      return null
+-    }
+-    process.kill(parsed.supervisorPid, 0)
+-    return parsed as DaemonWorkerStatus
++    raw = await readFile(getDaemonStatusPath(), 'utf8')
+   } catch {
+@@ -100,2 +92,30 @@ async function readDaemonWorkerStatus(): Promise<DaemonWorkerStatus | null> {
+   }
++  const parsed = safeParseJSON(raw, false)
++  if (!parsed || typeof parsed !== 'object') return null
++  const status = parsed as Partial<DaemonWorkerStatus>
++  if (
++    typeof status.supervisorPid !== 'number' ||
++    typeof status.workers !== 'object' ||
++    status.workers === null
++  ) {
++    return null
++  }
++  try {
++    process.kill(status.supervisorPid, 0)
++  } catch {
++    return null
++  }
++  const supervisorProcStart =
++    typeof status.supervisorProcStart === 'string'
++      ? status.supervisorProcStart
++      : undefined
++  if (
++    !(await processStartTokenMatches(
++      status.supervisorPid,
++      supervisorProcStart,
++    ))
++  ) {
++    return null
++  }
++  return parsed as DaemonWorkerStatus
+ }
+@@ -113,3 +133,3 @@ export async function loadDaemonHubData(
+       getRunningDaemon().catch(() => null),
+-      readDaemonWorkerStatus(),
++      readDaemonWorkerStatus().catch(() => null),
+       readScheduledStatus().catch(() => null),
+diff --git a/src/daemon/main.ts b/src/daemon/main.ts
+index 258b2e2..9a03d7a 100644
+--- a/src/daemon/main.ts
++++ b/src/daemon/main.ts
+@@ -37,3 +37,6 @@ import {
+ import { sleep } from '../utils/sleep.js'
+-import { getProcessStartTokenAsync } from '../utils/genericProcessUtils.js'
++import {
++  getCurrentProcessStartToken,
++  getProcessStartTokenAsync,
++} from '../utils/genericProcessUtils.js'
+ import { getXDGDataHome } from '../utils/xdg.js'
+@@ -690,6 +693,5 @@ async function writeDaemonStatus(
+ ): Promise<void> {
+-  const path = getDaemonStatusPath()
+-  const temporary = `${path}.tmp.${process.pid}`
+   const status = {
+     supervisorPid: process.pid,
++    supervisorProcStart: getCurrentProcessStartToken(),
+     writtenAt: Date.now(),
+@@ -698,14 +700,4 @@ async function writeDaemonStatus(
+   try {
+-    await writeFile(temporary, JSON.stringify(status, null, 2), 'utf8')
+-    try {
+-      await rename(temporary, path)
+-    } catch (error) {
+-      const code = (error as NodeJS.ErrnoException).code
+-      if (code !== 'EEXIST' && code !== 'EPERM' && code !== 'EXDEV') throw error
+-      await unlink(path).catch(() => {})
+-      await rename(temporary, path)
+-    }
+-  } catch {
+-    await unlink(temporary).catch(() => {})
+-  }
++    await writeFile(getDaemonStatusPath(), JSON.stringify(status, null, 2))
++  } catch {}
+ }
+diff --git a/src/ink/ink.tsx b/src/ink/ink.tsx
+index bda6c0b..187a530 100644
+--- a/src/ink/ink.tsx
++++ b/src/ink/ink.tsx
+@@ -69,2 +69,37 @@ function makeAltScreenParkPatch(terminalRows: number) {
+ }
++type FiberNode = {
++  child: FiberNode | null;
++  sibling: FiberNode | null;
++  alternate: FiberNode | null;
++};
++
++function countFiberNodes(root: FiberNode | null): number {
++  if (!root) return 0;
++  const seen = new Set<FiberNode>();
++  const stack = [root];
++  while (stack.length > 0) {
++    const node = stack.pop()!;
++    if (seen.has(node)) continue;
++    seen.add(node);
++    if (node.child) stack.push(node.child);
++    if (node.sibling) stack.push(node.sibling);
++    if (node.alternate) stack.push(node.alternate);
++  }
++  return seen.size;
++}
++
++function countDOMNodes(root: dom.DOMNode | null): number {
++  if (!root) return 0;
++  let count = 0;
++  const stack = [root];
++  while (stack.length > 0) {
++    const node = stack.pop()!;
++    count++;
++    if ('childNodes' in node) {
++      for (const child of node.childNodes) stack.push(child);
++    }
++  }
++  return count;
++}
++
+ export type Options = {
+@@ -803,3 +838,7 @@ export default class Ink {
+         yogaCacheHits: yc.cacheHits,
+-        yogaLive: yc.live
++        yogaLive: yc.live,
++        ...(process.env.CLAUDE_CODE_FRAME_TIMING_LOG && {
++          domLive: countDOMNodes(this.rootNode),
++          fiberLive: countFiberNodes(this.container.current)
++        })
+       },
+diff --git a/src/main.tsx b/src/main.tsx
+index daf2559..76da6f2 100644
+--- a/src/main.tsx
++++ b/src/main.tsx
+@@ -146,3 +146,3 @@ import { cacheSessionTitle, getSessionIdFromLog, loadTranscriptFromFile, saveAge
+ import { ensureMdmSettingsLoaded } from './utils/settings/mdm/settings.js';
+-import { getInitialSettings, getManagedSettingsKeysForLogging, getSettingsAfterPluginLoad, getSettingsForSource, getSettingsWithErrors } from './utils/settings/settings.js';
++import { getInitialSettings, getManagedSettingsKeysForLogging, getSettingsAfterPluginLoad, getSettingsForSource, getSettingsWithErrors, hasSkipDangerousModePermissionPrompt } from './utils/settings/settings.js';
+ import { resetSettingsCache } from './utils/settings/settingsCache.js';
+@@ -1287,3 +1287,5 @@ async function run(): Promise<CommanderCommand> {
+     let inputFormat = options.inputFormat;
+-    let verbose = options.verbose ?? getConfigValue('verbose', false).value;
++    const viewMode = getInitialSettings().viewMode;
++    const initialBriefTranscript = viewMode ? viewMode === 'focus' : getGlobalConfig().briefTranscript ?? false;
++    let verbose = options.verbose ?? (viewMode ? viewMode === 'verbose' : initialBriefTranscript ? false : getConfigValue('verbose', false).value);
+     let print = options.print;
+@@ -2421,2 +2423,3 @@ async function run(): Promise<CommanderCommand> {
+     let stats!: StatsStore;
++    const skipDangerousModePromptSetPreDialog = hasSkipDangerousModePermissionPrompt();
+ 
+@@ -2738,2 +2741,3 @@ async function run(): Promise<CommanderCommand> {
+       allowDangerouslySkipPermissionsPassed: allowDangerouslySkipPermissions,
++      skipDangerousModePromptSetPreDialog,
+       systemPromptFlag: systemPrompt ? options.systemPromptFile ? 'file' : 'flag' : undefined,
+@@ -3061,3 +3065,3 @@ async function run(): Promise<CommanderCommand> {
+       isBriefOnly: initialIsBriefOnly,
+-      briefTranscript: (verbose ?? false) ? false : getGlobalConfig().briefTranscript ?? false,
++      briefTranscript: (verbose ?? false) ? false : initialBriefTranscript,
+       awaySummaryEnabled: isAwaySummaryEnabled(),
+@@ -4442,6 +4446,8 @@ async function run(): Promise<CommanderCommand> {
+   }) => {
+-    const {
++    const [{
+       pluginPruneHandler
+-    } = await import('./cli/handlers/plugins.js');
+-    await pluginPruneHandler(options);
++    }, {
++      createSubcommandRoot
++    }] = await Promise.all([import('./cli/handlers/plugins.js'), import('./cli/handlers/util.js')]);
++    await pluginPruneHandler(await createSubcommandRoot(), options);
+   });
+@@ -4760,2 +4766,3 @@ async function logTenguInit({
+   allowDangerouslySkipPermissionsPassed,
++  skipDangerousModePromptSetPreDialog,
+   systemPromptFlag,
+@@ -4783,2 +4790,3 @@ async function logTenguInit({
+   allowDangerouslySkipPermissionsPassed: boolean;
++  skipDangerousModePromptSetPreDialog: boolean;
+   systemPromptFlag: 'file' | 'flag' | undefined;
+diff --git a/src/memdir/memoryWriteSurvey.ts b/src/memdir/memoryWriteSurvey.ts
+index 6a69f58..348cd64 100644
+--- a/src/memdir/memoryWriteSurvey.ts
++++ b/src/memdir/memoryWriteSurvey.ts
+@@ -5,2 +5,5 @@ import type { StructuredPatchHunk } from 'diff'
+ import { z } from 'zod/v4'
++import { stringWidth } from '../ink/stringWidth.js'
++import { wrapAnsi } from '../ink/wrapAnsi.js'
++import sliceAnsi from '../utils/sliceAnsi.js'
+ import { getIsRemoteMode } from '../bootstrap/state.js'
+@@ -130,2 +133,120 @@ export function countMemoryWriteLines(record: MemoryWriteSurveyRecord): number {
+ 
++const DIFF_GUTTER_WIDTH = 6
++
++function countVisualRows(text: string, width: number): number {
++  const unbounded = width <= 0 || !Number.isFinite(width)
++  let rows = 0
++  let start = 0
++  while (start <= text.length) {
++    const newline = text.indexOf('\n', start)
++    const line =
++      newline === -1 ? text.substring(start) : text.substring(start, newline)
++    if (unbounded) {
++      rows++
++    } else {
++      const lineWidth = stringWidth(line)
++      rows += lineWidth === 0 ? 1 : Math.ceil(lineWidth / width)
++    }
++    if (newline === -1) break
++    start = newline + 1
++  }
++  return rows
++}
++
++function getDiffContentWidth(width: number): number {
++  return width > DIFF_GUTTER_WIDTH ? width - DIFF_GUTTER_WIDTH : width
++}
++
++function countHunkSeparators(hunks: StructuredPatchHunk[]): number {
++  return Math.max(0, hunks.length - 1)
++}
++
++export function truncateMemoryWriteText(
++  text: string,
++  width: number,
++  maxRows: number,
++): { text: string; hiddenRows: number } {
++  if (text === '') return { text: '', hiddenRows: 0 }
++  if (maxRows <= 0) return { text: '', hiddenRows: countVisualRows(text, width) }
++  if (width <= 0) {
++    const lines = text.split('\n')
++    const visible = lines.slice(0, maxRows)
++    return {
++      text: visible.join('\n'),
++      hiddenRows: lines.length - visible.length,
++    }
++  }
++  if (countVisualRows(text, width) <= maxRows) {
++    return { text, hiddenRows: 0 }
++  }
++  const visible: string[] = []
++  let totalRows = 0
++  for (const line of text.split('\n')) {
++    if (visible.length < maxRows) {
++      const wrapped = wrapLine(line, width)
++      totalRows += wrapped.length
++      for (let i = 0; i < wrapped.length && visible.length < maxRows; i++) {
++        visible.push(wrapped[i]!)
++      }
++    } else {
++      totalRows += countVisualRows(line, width)
++    }
++  }
++  return {
++    text: visible.join('\n'),
++    hiddenRows: totalRows - visible.length,
++  }
++}
++
++export function truncateMemoryWriteHunks(
++  hunks: StructuredPatchHunk[],
++  width: number,
++  maxRows: number,
++): { hunks: StructuredPatchHunk[]; hiddenRows: number } {
++  const contentWidth = getDiffContentWidth(width)
++  const separators = countHunkSeparators(hunks)
++  const countRows = (values: StructuredPatchHunk[]): number => {
++    let count = 0
++    for (const hunk of values) {
++      count += countVisualRows(hunk.lines.join('\n'), contentWidth)
++    }
++    return count
++  }
++  if (maxRows <= 0) {
++    return { hunks: [], hiddenRows: countRows(hunks) + separators }
++  }
++  const totalRows = countRows(hunks) + separators
++  if (totalRows <= maxRows) return { hunks, hiddenRows: 0 }
++  const visible: StructuredPatchHunk[] = []
++  let remaining = maxRows
++  for (const hunk of hunks) {
++    if (remaining <= 0) break
++    if (visible.length > 0) {
++      if (remaining <= 1) break
++      remaining--
++    }
++    const lines: string[] = []
++    for (const line of hunk.lines) {
++      if (remaining <= 0) break
++      const rows = countVisualRows(line, contentWidth)
++      if (rows <= remaining) {
++        lines.push(line)
++        remaining -= rows
++        continue
++      }
++      lines.push(sliceAnsi(line, 0, remaining * contentWidth))
++      remaining = 0
++    }
++    if (lines.length > 0) visible.push({ ...hunk, lines })
++  }
++  return { hunks: visible, hiddenRows: totalRows - maxRows }
++}
++
++function wrapLine(line: string, width: number): string[] {
++  if (line === '') return ['']
++  return wrapAnsi(line, width, { hard: true, wordWrap: false, trim: false }).split(
++    '\n',
++  )
++}
++
+ export function describeMemoryWrite(record: MemoryWriteSurveyRecord): string {
+diff --git a/src/services/analytics/datadog.ts b/src/services/analytics/datadog.ts
+index 2f8bdf3..27e1b1c 100644
+--- a/src/services/analytics/datadog.ts
++++ b/src/services/analytics/datadog.ts
+@@ -28,2 +28,12 @@ const DATADOG_ALLOWED_EVENTS = new Set([
+   'tengu_api_success',
++  'tengu_auto_mode_decision',
++  'tengu_auto_mode_denial_limit_exceeded',
++  'tengu_auto_mode_malformed_tool_input',
++  'tengu_auto_mode_opt_in_dialog_accept',
++  'tengu_auto_mode_opt_in_dialog_accept_default',
++  'tengu_auto_mode_opt_in_dialog_decline',
++  'tengu_auto_mode_opt_in_dialog_decline_dont_ask',
++  'tengu_auto_mode_opt_in_dialog_shown',
++  'tengu_auto_mode_outcome',
++  'tengu_auto_mode_subsequent_approval',
+   'tengu_brief_mode_enabled',
+@@ -33,5 +43,8 @@ const DATADOG_ALLOWED_EVENTS = new Set([
+   'tengu_compact_failed',
++  'tengu_copper_lantern',
+   'tengu_exit',
+   'tengu_flicker',
++  'tengu_headless_mcp_prewait',
+   'tengu_init',
++  'tengu_mcp_tools_refreshed_mid_turn',
+   'tengu_model_fallback_triggered',
+@@ -48,2 +61,9 @@ const DATADOG_ALLOWED_EVENTS = new Set([
+   'tengu_query_error',
++  'tengu_sdk_control_roundtrip',
++  'tengu_sdk_init_handshake',
++  'tengu_sdk_result',
++  'tengu_sdk_schema_violation',
++  'tengu_sdk_session_crash',
++  'tengu_sdk_stall',
++  'tengu_sdk_ttft',
+   'tengu_session_file_read',
+@@ -59,2 +79,3 @@ const DATADOG_ALLOWED_EVENTS = new Set([
+   'tengu_voice_toggled',
++  'tengu_vscode_sdk_stream_ended_no_result',
+   'tengu_team_mem_sync_pull',
+@@ -63,2 +84,47 @@ const DATADOG_ALLOWED_EVENTS = new Set([
+   'tengu_team_mem_entries_capped',
++  'tengu_timer',
++  'tengu_bg_adopt',
++  'tengu_bg_agent_action',
++  'tengu_bg_agent_dispatch',
++  'tengu_bg_agent_terminal',
++  'tengu_bg_attach',
++  'tengu_bg_attach_first_frame',
++  'tengu_bg_attach_legacy_autorespawn',
++  'tengu_bg_classify',
++  'tengu_bg_daemon_cold_start_ask',
++  'tengu_bg_daemon_cold_start_ask_answer',
++  'tengu_bg_daemon_install',
++  'tengu_bg_daemon_spawn_failed',
++  'tengu_bg_daemon_zombie_restart',
++  'tengu_bg_dispatch',
++  'tengu_bg_dispatch_fallback',
++  'tengu_bg_dispatch_sigkill_escalate',
++  'tengu_bg_killjob_ctrl_fallback',
++  'tengu_bg_orphan_reap',
++  'tengu_bg_proto_mismatch',
++  'tengu_bg_pty_unavailable',
++  'tengu_bg_respawn_exhausted',
++  'tengu_bg_respawn_stale',
++  'tengu_bg_respawn_unconfirmed_bail',
++  'tengu_bg_retired',
++  'tengu_bg_roster_parse_failed',
++  'tengu_bg_skew_nudge',
++  'tengu_bg_spare_claim',
++  'tengu_bg_spare_claim_fail',
++  'tengu_bg_spare_spawn',
++  'tengu_bg_worker_exit',
++  'tengu_bg_worker_spawn',
++  'tengu_daemon_cold_start_prompt',
++  'tengu_daemon_config_reload',
++  'tengu_daemon_idle_exit',
++  'tengu_daemon_install_prompt_answer',
++  'tengu_daemon_lease',
++  'tengu_daemon_peer_uid_reject',
++  'tengu_daemon_self_restart_on_upgrade',
++  'tengu_daemon_start',
++  'tengu_daemon_startup_crash',
++  'tengu_daemon_worker_crash',
++  'tengu_daemon_worker_permanent_exit',
++  'tengu_daemon_yield',
++  'tengu_daemon_yield_takeover',
+ ])
+@@ -68,3 +134,6 @@ const TAG_FIELDS = [
+   'clientType',
++  'decision',
++  'entrypoint',
+   'errorType',
++  'sessionKind',
+   'http_status_range',
+@@ -73,2 +142,4 @@ const TAG_FIELDS = [
+   'model',
++  'op',
++  'outcome',
+   'platform',
+@@ -76,2 +147,4 @@ const TAG_FIELDS = [
+   'skillMode',
++  'coachMode',
++  'source',
+   'subscriptionType',
+diff --git a/src/services/analytics/growthbook.ts b/src/services/analytics/growthbook.ts
+index c71bba8..7416d63 100644
+--- a/src/services/analytics/growthbook.ts
++++ b/src/services/analytics/growthbook.ts
+@@ -203,2 +203,12 @@ export function hasGrowthBookEnvOverride(feature: string): boolean {
+ 
++export function hasGrowthBookCachedValue(feature: string): boolean {
++  return getGlobalConfig().cachedGrowthBookFeatures?.[feature] !== undefined
++}
++
++export function isFeatureFromExperiment(feature: string): boolean {
++  if (experimentDataByFeature.has(feature)) return true
++  if (!isGrowthBookEnabled()) return false
++  return (getGlobalConfig().cachedExperimentFeatures ?? []).includes(feature)
++}
++
+ /**
+@@ -408,4 +418,8 @@ function syncRemoteEvalToDisk(): void {
+   const fresh = Object.fromEntries(remoteEvalFeatureValues)
++  const experimentFeatures = Array.from(experimentDataByFeature.keys()).sort()
+   const config = getGlobalConfig()
+-  if (isEqual(config.cachedGrowthBookFeatures, fresh)) {
++  if (
++    isEqual(config.cachedGrowthBookFeatures, fresh) &&
++    isEqual(config.cachedExperimentFeatures ?? [], experimentFeatures)
++  ) {
+     return
+@@ -415,2 +429,3 @@ function syncRemoteEvalToDisk(): void {
+     cachedGrowthBookFeatures: fresh,
++    cachedExperimentFeatures: experimentFeatures,
+   }))
+diff --git a/src/tools/FileEditTool/utils.ts b/src/tools/FileEditTool/utils.ts
+index 717db6c..de8976d 100644
+--- a/src/tools/FileEditTool/utils.ts
++++ b/src/tools/FileEditTool/utils.ts
+@@ -3,3 +3,3 @@ import { logError } from 'src/utils/log.js'
+ import { expandPath } from 'src/utils/path.js'
+-import { countCharInString } from 'src/utils/stringUtils.js'
++import { countCharInString, escapeRegExp } from 'src/utils/stringUtils.js'
+ import {
+@@ -78,6 +78,17 @@ export function decodeUnicodeEscapes(value: string): string {
+ 
+-export function encodeUnicodeCharacters(value: string): string {
+-  return value.replace(/[\u0080-\uffff]/g, character =>
+-    `\\u${character.charCodeAt(0).toString(16).padStart(4, '0')}`,
+-  )
++function unicodeStringToRegex(value: string): string {
++  let regex = ''
++  for (let index = 0; index < value.length; index++) {
++    const charCode = value.charCodeAt(index)
++    if (charCode >= 128) {
++      regex += '\\\\u'
++      for (const digit of charCode.toString(16).padStart(4, '0')) {
++        regex +=
++          digit >= 'a' ? `[${digit}${digit.toUpperCase()}]` : digit
++      }
++    } else {
++      regex += escapeRegExp(value[index]!)
++    }
++  }
++  return regex
+ }
+@@ -96,5 +107,37 @@ export function preserveUnicodeRepresentation(
+     UNICODE_CHARACTER_REGEX.test(oldString) &&
+-    encodeUnicodeCharacters(oldString) === actualOldString
++    new RegExp(`^${unicodeStringToRegex(oldString)}$`).test(actualOldString)
+   ) {
+-    return encodeUnicodeCharacters(newString)
++    const encodings = new Map<number, string>()
++    let uppercaseCount = 0
++    let lowercaseCount = 0
++    for (
++      let stringIndex = 0, encodedIndex = 0;
++      stringIndex < oldString.length;
++      stringIndex++
++    ) {
++      const charCode = oldString.charCodeAt(stringIndex)
++      if (charCode >= 128) {
++        const encoding = actualOldString.slice(
++          encodedIndex + 2,
++          encodedIndex + 6,
++        )
++        encodings.set(charCode, encoding)
++        for (const digit of encoding) {
++          if (digit >= 'a' && digit <= 'f') lowercaseCount++
++          else if (digit >= 'A' && digit <= 'F') uppercaseCount++
++        }
++        encodedIndex += 6
++      } else {
++        encodedIndex += 1
++      }
++    }
++    return newString.replace(/[\u0080-\uffff]/g, character => {
++      const charCode = character.charCodeAt(0)
++      const existingEncoding = encodings.get(charCode)
++      if (existingEncoding !== undefined) return `\\u${existingEncoding}`
++      const encoding = charCode.toString(16).padStart(4, '0')
++      return `\\u${
++        uppercaseCount > lowercaseCount ? encoding.toUpperCase() : encoding
++      }`
++    })
+   }
+@@ -146,9 +189,6 @@ export function findActualString(
+   if (UNICODE_CHARACTER_REGEX.test(searchString)) {
+-    const encodedSearch = encodeUnicodeCharacters(searchString)
+-    if (
+-      encodedSearch !== searchString &&
+-      fileContent.includes(encodedSearch)
+-    ) {
+-      return encodedSearch
+-    }
++    const match = fileContent.match(
++      new RegExp(unicodeStringToRegex(searchString)),
++    )
++    if (match) return match[0]
+   }
+diff --git a/src/tools/PowerShellTool/powershellPermissions.ts b/src/tools/PowerShellTool/powershellPermissions.ts
+index 942991e..5166729 100644
+--- a/src/tools/PowerShellTool/powershellPermissions.ts
++++ b/src/tools/PowerShellTool/powershellPermissions.ts
+@@ -13,2 +13,3 @@ import { getCwd } from '../../utils/cwd.js'
+ import { isCurrentDirectoryBareGitRepo } from '../../utils/git.js'
++import { getPlatform } from '../../utils/platform.js'
+ import type { PermissionRule } from '../../utils/permissions/PermissionRule.js'
+@@ -991,5 +992,11 @@ export async function powershellToolHasPermission(
+     let s = arg
+-    if (s.length > 0 && PS_TOKENIZER_DASH_CHARS.has(s[0]!)) {
++    if (
++      s.length > 0 &&
++      (PS_TOKENIZER_DASH_CHARS.has(s[0]!) || s[0] === '/')
++    ) {
+       const colonIdx = s.indexOf(':', 1) // skip the leading dash
+-      if (colonIdx > 0) {
++      if (
++        colonIdx > 0 &&
++        (s[0] !== '/' || /^\/[A-Za-z]{1,2}:/.test(s))
++      ) {
+         s = s.substring(colonIdx + 1)
+@@ -1016,2 +1023,12 @@ export async function powershellToolHasPermission(
+     }
++    if (
++      getPlatform() === 'windows' &&
++      // eslint-disable-next-line custom-rules/no-lookbehind-regex -- .test() on a short resolved argument
++      /(?<!:)[\\/]{2,}[^\s\\/]/.test(value)
++    ) {
++      return {
++        behavior: 'ask',
++        message: `Command argument '${arg}' contains a UNC path that could trigger network requests`,
++      }
++    }
+     return null
+diff --git a/src/utils/agentsFleet.ts b/src/utils/agentsFleet.ts
+index 9ea17c7..252e0b1 100644
+--- a/src/utils/agentsFleet.ts
++++ b/src/utils/agentsFleet.ts
+@@ -2,3 +2,3 @@ import {
+   getFeatureValue_CACHED_MAY_BE_STALE,
+-  getGrowthBookConfigOverrides,
++  hasGrowthBookCachedValue,
+   hasGrowthBookEnvOverride,
+@@ -54,3 +54,3 @@ export async function ensureFleetGateHydrated(): Promise<void> {
+     hasGrowthBookEnvOverride('tengu_slate_meadow') ||
+-    'tengu_slate_meadow' in getGrowthBookConfigOverrides()
++    hasGrowthBookCachedValue('tengu_slate_meadow')
+   ) {
+diff --git a/src/utils/claudemd.ts b/src/utils/claudemd.ts
+index 5ea8ab6..3f26155 100644
+--- a/src/utils/claudemd.ts
++++ b/src/utils/claudemd.ts
+@@ -980,11 +980,13 @@ export const getMemoryFiles = memoize(
+     if (isAutoMemoryEnabled()) {
+-      const { info: memdirEntry } = await safelyReadMemoryFileAsync(
+-        getAutoMemEntrypoint(),
+-        'AutoMem',
+-      )
+-      if (memdirEntry) {
+-        const normalizedPath = normalizePathForComparison(memdirEntry.path)
+-        if (!processedPaths.has(normalizedPath)) {
+-          processedPaths.add(normalizedPath)
+-          result.push(memdirEntry)
++      if (!process.env.CLAUDE_COWORK_MEMORY_SKIP_DEFAULT_ENTRYPOINT) {
++        const { info: memdirEntry } = await safelyReadMemoryFileAsync(
++          getAutoMemEntrypoint(),
++          'AutoMem',
++        )
++        if (memdirEntry) {
++          const normalizedPath = normalizePathForComparison(memdirEntry.path)
++          if (!processedPaths.has(normalizedPath)) {
++            processedPaths.add(normalizedPath)
++            result.push(memdirEntry)
++          }
+         }
+diff --git a/src/utils/commitAttribution.ts b/src/utils/commitAttribution.ts
+index 6cf8c4d..8953116 100644
+--- a/src/utils/commitAttribution.ts
++++ b/src/utils/commitAttribution.ts
+@@ -76,2 +76,26 @@ const INTERNAL_MODEL_REPOS = [
+ 
++function isInternalModelRepoUrl(remoteUrl: string): boolean {
++  if (
++    !/^https?:\/\//.test(remoteUrl) &&
++    !/^ssh:\/\//.test(remoteUrl) &&
++    !/^git@/.test(remoteUrl)
++  ) {
++    return false
++  }
++
++  const normalized = remoteUrl
++    .replace(/^https?:\/\//, '')
++    .replace(/^ssh:\/\//, '')
++    .replace(/^[^@/]+@/, '')
++    .replace(/\/$/, '')
++
++  if (normalized.split('/').includes('..')) return false
++
++  return INTERNAL_MODEL_REPOS.some(repo => {
++    if (!normalized.startsWith(repo)) return false
++    const suffix = normalized.slice(repo.length)
++    return suffix === '' || suffix === '.git' || suffix.startsWith('/')
++  })
++}
++
+ /**
+@@ -125,3 +149,3 @@ export const isInternalModelRepo = sequential(async (): Promise<boolean> => {
+   }
+-  const isInternal = INTERNAL_MODEL_REPOS.some(repo => remoteUrl.includes(repo))
++  const isInternal = isInternalModelRepoUrl(remoteUrl)
+   repoClassCache = isInternal ? 'internal' : 'external'
+diff --git a/src/utils/config.ts b/src/utils/config.ts
+index a0374e6..2f7e17d 100644
+--- a/src/utils/config.ts
++++ b/src/utils/config.ts
+@@ -486,2 +486,5 @@ export type GlobalConfig = {
+ 
++  // Cached names backed by GrowthBook experiments
++  cachedExperimentFeatures?: string[]
++
+   // Local GrowthBook overrides (ant-only, set via /config Gates tab).
+diff --git a/src/utils/relaunch.ts b/src/utils/relaunch.ts
+index 4944f7e..903faec 100644
+--- a/src/utils/relaunch.ts
++++ b/src/utils/relaunch.ts
+@@ -39,2 +39,8 @@ export type RelaunchOptions = {
+ 
++export function isRunningFromVersionsDirectory(): boolean {
++  if (!isInBundledMode()) return false
++  const versionsPrefix = join(getXDGDataHome(), 'claude', 'versions') + sep
++  return process.execPath.startsWith(versionsPrefix)
++}
++
+ /**
+@@ -43,11 +49,10 @@ export type RelaunchOptions = {
+  */
+-export function getRelaunchLauncher(): RelaunchLauncher {
+-  if (isInBundledMode()) {
+-    const versionsPrefix = join(getXDGDataHome(), 'claude', 'versions') + sep
+-    if (process.execPath.startsWith(versionsPrefix)) {
+-      const executable = process.platform === 'win32' ? 'claude.exe' : 'claude'
+-      return { cmd: join(getUserBinDir(), executable), prefixArgs: [] }
+-    }
+-    return { cmd: process.execPath, prefixArgs: [] }
++export function getRelaunchLauncher(
++  options: { pinToCurrentBinary?: boolean } = {},
++): RelaunchLauncher {
++  if (!options.pinToCurrentBinary && isRunningFromVersionsDirectory()) {
++    const executable = process.platform === 'win32' ? 'claude.exe' : 'claude'
++    return { cmd: join(getUserBinDir(), executable), prefixArgs: [] }
+   }
++  if (isInBundledMode()) return { cmd: process.execPath, prefixArgs: [] }
+ 
+diff --git a/src/utils/task/framework.ts b/src/utils/task/framework.ts
+index 548e976..b0b39b5 100644
+--- a/src/utils/task/framework.ts
++++ b/src/utils/task/framework.ts
+@@ -126,2 +126,16 @@ export function updateTaskState<T extends TaskState>(
+ 
++export const NOOP_TASK_REGISTRY = {
++  register() {},
++  update() {},
++  remove() {},
++  evictTerminal() {},
++  applyOffsetsAndEvict() {},
++  get() {
++    return undefined
++  },
++  all() {
++    return {}
++  },
++}
++
+ /**

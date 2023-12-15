@@ -1,0 +1,733 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "authenticated-matched-static-coverage-absent-strict-property-proof",
+  "criterion": "whole-unit-predecessor-import-source-caller-and-nonmatched-ledger-exclusion-v1",
+  "evidenceIds": [
+    "target119-iterm-copy-file-authenticated-whole-unit-proof",
+    "target119-iterm-copy-file-exact-predecessor-proof",
+    "target119-iterm-copy-file-import-lowering-proof",
+    "target119-iterm-copy-file-source-graph-semantic-test",
+    "target119-iterm-copy-file-caller-boundary-proof",
+    "target119-iterm-copy-file-static-no-replay-proof"
+  ],
+  "inputs": {
+    "typedAudit": {
+      "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+      "bytes": 24701325,
+      "sha256": "e4fc8b6cc60092ba5bd3b451cefcd1bc1834bc988cb7b4f062e57cb1767cbe0b"
+    },
+    "sourceCoverage": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+      "bytes": 377500,
+      "sha256": "69b05794654d35c242fef43ae7f1844ca947c677c1f2de72d9b1d34f9972ab03"
+    },
+    "allOwnerInput": {
+      "path": ".recovery-tmp/generator-inputs/2.1.118-to-2.1.119.all-owners.json",
+      "bytes": 10041641,
+      "sha256": "b6f39561b683e547ddbfc55bf34ea86103c5bf93df827192205b23a7db744b16"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "targetBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "sourceFiles": {
+      "itermBaseline": {
+        "version": "2.1.118",
+        "path": "src/utils/iTermBackup.ts",
+        "bytes": 1608,
+        "sha256": "ec034e63238940356f2754ce3fa757b2071b4aefffec022e4ac48b72c511e613",
+        "gitBlobSha1": "10c6bbfaa9ee8d781d50b82bed4a311e45eb7fa6"
+      },
+      "itermTarget": {
+        "version": "2.1.119",
+        "path": "src/utils/iTermBackup.ts",
+        "bytes": 1608,
+        "sha256": "ec034e63238940356f2754ce3fa757b2071b4aefffec022e4ac48b72c511e613",
+        "gitBlobSha1": "10c6bbfaa9ee8d781d50b82bed4a311e45eb7fa6"
+      },
+      "itermRetained": [
+        {
+          "version": "2.1.120",
+          "path": "src/utils/iTermBackup.ts",
+          "bytes": 1608,
+          "sha256": "ec034e63238940356f2754ce3fa757b2071b4aefffec022e4ac48b72c511e613",
+          "gitBlobSha1": "10c6bbfaa9ee8d781d50b82bed4a311e45eb7fa6"
+        },
+        {
+          "version": "2.1.121",
+          "path": "src/utils/iTermBackup.ts",
+          "bytes": 1608,
+          "sha256": "ec034e63238940356f2754ce3fa757b2071b4aefffec022e4ac48b72c511e613",
+          "gitBlobSha1": "10c6bbfaa9ee8d781d50b82bed4a311e45eb7fa6"
+        }
+      ],
+      "setupBaseline": {
+        "version": "2.1.118",
+        "path": "src/setup.ts",
+        "bytes": 20646,
+        "sha256": "43a7f88331f6136e5bb096c63a33ce99bbbdb5108696a97f017d3c1eb8ef1e35",
+        "gitBlobSha1": "985e8577a6bd69992cd6ad7827e3d3d9e294527d"
+      },
+      "setupTarget": {
+        "version": "2.1.119",
+        "path": "src/setup.ts",
+        "bytes": 20646,
+        "sha256": "43a7f88331f6136e5bb096c63a33ce99bbbdb5108696a97f017d3c1eb8ef1e35",
+        "gitBlobSha1": "985e8577a6bd69992cd6ad7827e3d3d9e294527d"
+      },
+      "setupTargetRecovered": {
+        "version": "2.1.119-post-rendezvous",
+        "path": "src/setup.ts",
+        "bytes": 20808,
+        "sha256": "ab632bbf567fb24436d7448980c51bd8caeb577ab9d13dc24ed50661933c5348"
+      }
+    }
+  },
+  "artifactPhasePolicy": {
+    "pairing": "exact-report-and-coverage-descriptor-pair",
+    "rejectHybridPairs": true,
+    "rejectUnknownPairs": true,
+    "acceptedPairs": [
+      {
+        "phase": "pre-u21367",
+        "typedAudit": {
+          "bytes": 24701325,
+          "sha256": "e4fc8b6cc60092ba5bd3b451cefcd1bc1834bc988cb7b4f062e57cb1767cbe0b"
+        },
+        "sourceCoverage": {
+          "bytes": 377500,
+          "sha256": "69b05794654d35c242fef43ae7f1844ca947c677c1f2de72d9b1d34f9972ab03"
+        }
+      },
+      {
+        "phase": "post-rendezvous",
+        "typedAudit": {
+          "bytes": 24697305,
+          "sha256": "1b156d078208c9df0baea3430dc58387f14d3535cd6052724f0847bd83d4d4f7"
+        },
+        "sourceCoverage": {
+          "bytes": 378822,
+          "sha256": "355c431cda776c760ac1d1e5098dc03f322087bd2deb67a4ab53dd50aa6f2f4d"
+        }
+      },
+      {
+        "phase": "post-streaming",
+        "typedAudit": {
+          "bytes": 24991569,
+          "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"
+        },
+        "sourceCoverage": {
+          "bytes": 380714,
+          "sha256": "ad2d435743921b83fb784ff6baf34e1651fc83dc2e31f7680997a3bfd6241654"
+        },
+        "sourceCoverageRaw": {
+          "bytes": 3283017,
+          "sha256": "1b47544fc4464cbc437b27133fe03438a2fecb384d4e607118d1a57cb014cc55"
+        }
+      }
+    ]
+  },
+  "partitionSnapshot": {
+    "productionStrictRows": 1,
+    "ownerResidueRows": 0,
+    "addedOwnerResidueRows": 0,
+    "unclassifiedAddedOccurrenceRows": 0,
+    "coverageTargetRowPresent": false,
+    "allOwnerInputTargetRowPresent": false,
+    "coverageRows": 5139,
+    "allOwnerInputRows": 5139,
+    "byStructuralClass": {
+      "changed": 732,
+      "moved": 2035,
+      "unresolved": 2372
+    },
+    "byStructuralClassJsonBytes": 46,
+    "byStructuralClassSha256": "ecb12776bc70ed421a5ea7b18cdfa4928c9a3cba940950ec99220cced8dba306"
+  },
+  "postRendezvous": {
+    "typedResiduesDescriptor": {
+      "rows": 1,
+      "jsonBytes": 472,
+      "sha256": "22d479e4871b9e0cc4546c88704d0a3a7983e54e1700c2d24df66f9b5fd82f42"
+    },
+    "coverageTargetRowsDescriptor": {
+      "rows": 0,
+      "jsonBytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "typedResiduesUnchangedFromSnapshot": true,
+    "coverageTargetRowsUnchangedFromSnapshot": true,
+    "matchedStatic": true
+  },
+  "postStreaming": {
+    "typedResiduesDescriptor": {
+      "rows": 1,
+      "jsonBytes": 472,
+      "sha256": "22d479e4871b9e0cc4546c88704d0a3a7983e54e1700c2d24df66f9b5fd82f42"
+    },
+    "coverageTargetRowsDescriptor": {
+      "rows": 0,
+      "jsonBytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "coverageGraphDescriptor": {
+      "rows": 3,
+      "jsonBytes": 2566,
+      "sha256": "dd70b8cc4ad7cda40485e99659435612f09ee975a9b42833982a705215f76045"
+    },
+    "typedResiduesUnchangedFromPostRendezvous": true,
+    "coverageTargetRowsUnchangedFromPostRendezvous": true,
+    "matchedStatic": true
+  },
+  "snapshotPartitions": {
+    "coverageTargetRowsDescriptor": {
+      "rows": 0,
+      "jsonBytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "coverageTargetRows": [],
+    "allOwnerInputTargetRowsDescriptor": {
+      "rows": 0,
+      "jsonBytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "allOwnerInputTargetRows": [],
+    "typedResiduesDescriptor": {
+      "rows": 1,
+      "jsonBytes": 472,
+      "sha256": "22d479e4871b9e0cc4546c88704d0a3a7983e54e1700c2d24df66f9b5fd82f42"
+    },
+    "typedResidues": [
+      {
+        "baselineOccurrenceCount": 26,
+        "literalKind": "property",
+        "targetAdded": true,
+        "targetOccurrenceNumber": 30,
+        "value": "copyFile",
+        "target": {
+          "start": 13464067,
+          "end": 13464075
+        },
+        "structural": {
+          "index": 21680,
+          "classification": "matched",
+          "sourceHash": "88cf3985bcd9b6155bfceaf638eeee6f3d7718a27f69639e905b284af85fce8d"
+        },
+        "disposition": null,
+        "ownerPaths": [],
+        "ownerSourceMatches": [],
+        "candidates": [
+          "../src/utils/iTermBackup.ts"
+        ],
+        "cookedSourceMatches": [],
+        "rawSourceMatches": [],
+        "sourceMatches": []
+      }
+    ],
+    "coverageGraphDescriptor": {
+      "rows": 3,
+      "jsonBytes": 1780,
+      "sha256": "11891142c47307a612e3ebb37143a46f4e9c7d73c8e028ec35016b0ccecf9d3a"
+    },
+    "coverageGraph": [
+      {
+        "targetIndex": 21678,
+        "start": 13463644,
+        "end": 13463753,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "5ec0fee83c2195bc31c2f3fe12023870f21a5e27ac7c5c4855430524ad62be29",
+        "structuralClass": "changed",
+        "disposition": "source-runtime-covered",
+        "ownerIds": [
+          "owner-src-utils-iTermBackup-ts",
+          "owner-src-services-SessionMemory-sessionMemory-ts"
+        ],
+        "evidenceIds": [
+          "late-exact-owner-correction-target-fragment",
+          "late-exact-owner-correction-semantic-test"
+        ],
+        "behavior": "The authenticated coalesced target unit retains its existing attributed owners and adds src/services/SessionMemory/sessionMemory.ts, the sole source-map candidate containing every previously unsupported owner-local typed residue; the fail-closed cross-release proof verifies the complete owner union."
+      },
+      {
+        "targetIndex": 21682,
+        "start": 13464239,
+        "end": 13464331,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "15c01ea132ee4d0427dc03f435d2dd4bbc0f8917aae64baa69c7b528b14fe9bf",
+        "structuralClass": "changed",
+        "disposition": "source-runtime-covered",
+        "ownerIds": [
+          "owner-src-utils-iTermBackup-ts"
+        ],
+        "evidenceIds": [
+          "source-map-attribution",
+          "semantic-test"
+        ],
+        "behavior": "Compiled target unit is attributed to src/utils/iTermBackup.ts; its authored runtime owner and call path are present in the target semantic tree and current cumulative src/."
+      },
+      {
+        "targetIndex": 21685,
+        "start": 13464366,
+        "end": 13468915,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "27d6fef3e9c43329c53dc1873e717d142eccba49a460cbcb0cc1633e8929c40f",
+        "structuralClass": "unresolved",
+        "disposition": "source-runtime-covered",
+        "ownerIds": [
+          "owner-src-setup-ts"
+        ],
+        "evidenceIds": [
+          "source-map-attribution",
+          "semantic-test"
+        ],
+        "behavior": "Compiled target unit is attributed to src/setup.ts; its authored runtime owner and call path are present in the target semantic tree and current cumulative src/."
+      }
+    ]
+  },
+  "target": {
+    "units": [
+      {
+        "role": "mark-setup-complete",
+        "targetIndex": 21677,
+        "classification": "matched",
+        "baselineUnitIndex": 20771,
+        "pairReason": "exact-scope-normalized-token-hash",
+        "nodeType": "FunctionDeclaration",
+        "start": 13463586,
+        "end": 13463644,
+        "bytes": 58,
+        "tokenCount": 24,
+        "sha256": "2d8050c329ca1911367e45379c0d93e6a385a7ccb61c1b6510a97b9923fb3b7d",
+        "coarseHash": "2eb1ddb43f2d152b98007f7cafd3da4e701c2c172c360fc90cb16d266dc879d3"
+      },
+      {
+        "role": "recovery-info",
+        "targetIndex": 21678,
+        "classification": "changed",
+        "baselineUnitIndex": 20772,
+        "pairReason": "unique-coarse-structural-hash",
+        "nodeType": "FunctionDeclaration",
+        "start": 13463644,
+        "end": 13463753,
+        "bytes": 109,
+        "tokenCount": 32,
+        "sha256": "5ec0fee83c2195bc31c2f3fe12023870f21a5e27ac7c5c4855430524ad62be29",
+        "coarseHash": "0ddcc4ff62d061789ed9c069c82ec01fb32b870e491c99c11e6e077c42041017"
+      },
+      {
+        "role": "plist-path",
+        "targetIndex": 21679,
+        "classification": "matched",
+        "baselineUnitIndex": 20773,
+        "pairReason": "exact-scope-normalized-token-hash",
+        "nodeType": "FunctionDeclaration",
+        "start": 13463753,
+        "end": 13463853,
+        "bytes": 100,
+        "tokenCount": 23,
+        "sha256": "de2e0904757c65e8f995dbe7491f5851905ace239c56e2774b19505a132fc573",
+        "coarseHash": "2e07bf9b7264a16cb8dc647441f03769fa6216058ea0abd1a7fea2a6aca6df5e"
+      },
+      {
+        "role": "check-and-restore",
+        "targetIndex": 21680,
+        "classification": "matched",
+        "baselineUnitIndex": 20774,
+        "pairReason": "exact-scope-normalized-token-hash",
+        "nodeType": "FunctionDeclaration",
+        "start": 13463853,
+        "end": 13464223,
+        "bytes": 370,
+        "tokenCount": 132,
+        "sha256": "88cf3985bcd9b6155bfceaf638eeee6f3d7718a27f69639e905b284af85fce8d",
+        "coarseHash": "484b5e70f350784fbb65f60ca3a1554d19fc40239cf42c5e14db111beb588d4d"
+      },
+      {
+        "role": "import-bindings",
+        "targetIndex": 21681,
+        "classification": "unresolved",
+        "manualPredecessorUnitIndex": 20775,
+        "nodeType": "VariableDeclaration",
+        "start": 13464223,
+        "end": 13464239,
+        "bytes": 16,
+        "tokenCount": 7,
+        "sha256": "4b9701e90021cdac113dca6da555770c488c2b1cdc1f1cdf12c0682eeda4a54e",
+        "coarseHash": "f01cd597bd3633d1bebd07d15c2a2b1ddbc1cf9bf23063af95e902d5b68e0e6d"
+      },
+      {
+        "role": "module-initializer",
+        "targetIndex": 21682,
+        "classification": "changed",
+        "baselineUnitIndex": 20776,
+        "pairReason": "unique-coarse-structural-hash",
+        "nodeType": "VariableDeclaration",
+        "start": 13464239,
+        "end": 13464331,
+        "bytes": 92,
+        "tokenCount": 40,
+        "sha256": "15c01ea132ee4d0427dc03f435d2dd4bbc0f8917aae64baa69c7b528b14fe9bf",
+        "coarseHash": "cadb36aca2f3ef57ef91c5b37a458245fe7bb9377420394aaa58c6ac30665944"
+      },
+      {
+        "role": "setup-caller",
+        "targetIndex": 21685,
+        "classification": "unresolved",
+        "manualPredecessorUnitIndex": 20779,
+        "nodeType": "FunctionDeclaration",
+        "start": 13464366,
+        "end": 13468915,
+        "bytes": 4549,
+        "tokenCount": 1271,
+        "sha256": "27d6fef3e9c43329c53dc1873e717d142eccba49a460cbcb0cc1633e8929c40f",
+        "coarseHash": "ec2098501bc55965f3017d104e559fc342e34c0ddf242d782006b4832996795f"
+      }
+    ],
+    "mainText": "async function $E4(){let{inProgress:H,backupPath:$}=rv5();if(!H)return{status:\"no_backup\"};if(!$)return HD8(),{status:\"no_backup\"};try{await $D8.stat($)}catch{return HD8(),{status:\"no_backup\"}}try{return await $D8.copyFile($,ov5()),HD8(),{status:\"restored\"}}catch(q){return OH(Error(`Failed to restore iTerm2 settings with: ${q}`)),HD8(),{status:\"failed\",backupPath:$}}}",
+    "canonicalProgram": {
+      "jsonBytes": 4698,
+      "sha256": "f03fb59c68e92864af270f028cd08e2e36ea47f04eb64cfc24955678a478b4f7"
+    },
+    "bindings": {
+      "function": "$E4",
+      "recoveryInfo": "rv5",
+      "markComplete": "HD8",
+      "fsPromisesNamespace": "$D8",
+      "plistPath": "ov5",
+      "logError": "OH"
+    },
+    "copyFileProperty": {
+      "start": 13464067,
+      "end": 13464075,
+      "bytes": 8,
+      "sha256": "59f69895a2e0e7d2b7f35e10acd843c4572c53da9a9260f859dcc82c668bf08e"
+    },
+    "callerFragment": {
+      "start": 13464894,
+      "end": 13464905,
+      "bytes": 11,
+      "sha256": "8bf8a1167e2f7d82d939d941b41032890e0900ac93c7280424ffb934f79cb665",
+      "text": "await $E4()"
+    }
+  },
+  "baseline": {
+    "units": [
+      {
+        "role": "mark-setup-complete",
+        "baselineUnitIndex": 20771,
+        "nodeType": "FunctionDeclaration",
+        "start": 12984962,
+        "end": 12985020,
+        "bytes": 58,
+        "tokenCount": 24,
+        "sha256": "b51bbf67a0f7055dc1b36ba48fe0b7ccf3024677d40f00a91a98764af0b8efc1",
+        "coarseHash": "2eb1ddb43f2d152b98007f7cafd3da4e701c2c172c360fc90cb16d266dc879d3"
+      },
+      {
+        "role": "recovery-info",
+        "baselineUnitIndex": 20772,
+        "nodeType": "FunctionDeclaration",
+        "start": 12985020,
+        "end": 12985129,
+        "bytes": 109,
+        "tokenCount": 32,
+        "sha256": "d81b17f101ad478e8e70024d9b9abf728b4cebaf8cf55886644d53672fafaeb0",
+        "coarseHash": "0ddcc4ff62d061789ed9c069c82ec01fb32b870e491c99c11e6e077c42041017"
+      },
+      {
+        "role": "plist-path",
+        "baselineUnitIndex": 20773,
+        "nodeType": "FunctionDeclaration",
+        "start": 12985129,
+        "end": 12985229,
+        "bytes": 100,
+        "tokenCount": 23,
+        "sha256": "08c378e6c46732948f6a7c703a59209c6507b8c8e67c682c1ab897b40513db16",
+        "coarseHash": "2e07bf9b7264a16cb8dc647441f03769fa6216058ea0abd1a7fea2a6aca6df5e"
+      },
+      {
+        "role": "check-and-restore",
+        "baselineUnitIndex": 20774,
+        "nodeType": "FunctionDeclaration",
+        "start": 12985229,
+        "end": 12985599,
+        "bytes": 370,
+        "tokenCount": 132,
+        "sha256": "bba0e60784c64dae2a10df660d1b16cf95e4bd225283dfddb6c182ff92f378b7",
+        "coarseHash": "484b5e70f350784fbb65f60ca3a1554d19fc40239cf42c5e14db111beb588d4d"
+      },
+      {
+        "role": "import-bindings",
+        "baselineUnitIndex": 20775,
+        "nodeType": "VariableDeclaration",
+        "start": 12985599,
+        "end": 12985615,
+        "bytes": 16,
+        "tokenCount": 7,
+        "sha256": "5748c89c727a62fb02088546f3f2176f9a63f40c7dcd75fdc83368370715c7f5",
+        "coarseHash": "f01cd597bd3633d1bebd07d15c2a2b1ddbc1cf9bf23063af95e902d5b68e0e6d"
+      },
+      {
+        "role": "module-initializer",
+        "baselineUnitIndex": 20776,
+        "nodeType": "VariableDeclaration",
+        "start": 12985615,
+        "end": 12985707,
+        "bytes": 92,
+        "tokenCount": 40,
+        "sha256": "448af58fe03077cc69c6821ade9d3b81c5f161e5ea940956e1140ff7f0532daf",
+        "coarseHash": "cadb36aca2f3ef57ef91c5b37a458245fe7bb9377420394aaa58c6ac30665944"
+      },
+      {
+        "role": "setup-caller",
+        "baselineUnitIndex": 20779,
+        "nodeType": "FunctionDeclaration",
+        "start": 12985742,
+        "end": 12990165,
+        "bytes": 4423,
+        "tokenCount": 1228,
+        "sha256": "03c20e9dcb5b56ed44eae6b5684aad98cc3cf70a0501c2e87fd5f8031eda220c",
+        "coarseHash": "a50bd33649e809a50fc6848459eca134b8b8673a1308cdf0215f2b831fd2bd75"
+      }
+    ],
+    "mainText": "async function rw4(){let{inProgress:H,backupPath:$}=n15();if(!H)return{status:\"no_backup\"};if(!$)return c18(),{status:\"no_backup\"};try{await l18.stat($)}catch{return c18(),{status:\"no_backup\"}}try{return await l18.copyFile($,i15()),c18(),{status:\"restored\"}}catch(q){return MH(Error(`Failed to restore iTerm2 settings with: ${q}`)),c18(),{status:\"failed\",backupPath:$}}}",
+    "canonicalProgram": {
+      "jsonBytes": 4698,
+      "sha256": "f03fb59c68e92864af270f028cd08e2e36ea47f04eb64cfc24955678a478b4f7"
+    },
+    "bindings": {
+      "function": "rw4",
+      "recoveryInfo": "n15",
+      "markComplete": "c18",
+      "fsPromisesNamespace": "l18",
+      "plistPath": "i15",
+      "logError": "MH"
+    },
+    "copyFileProperty": {
+      "start": 12985443,
+      "end": 12985451,
+      "bytes": 8,
+      "sha256": "59f69895a2e0e7d2b7f35e10acd843c4572c53da9a9260f859dcc82c668bf08e"
+    },
+    "callerFragment": {
+      "start": 12986144,
+      "end": 12986155,
+      "bytes": 11,
+      "sha256": "6d0ca71b32ea04a2eeef18aa16498bac6619d6387551d9847ec7ab1182d929be",
+      "text": "await rw4()"
+    }
+  },
+  "source": {
+    "ownerPath": "src/utils/iTermBackup.ts",
+    "declarationName": "checkAndRestoreITerm2Backup",
+    "fsPromisesImport": {
+      "start": 0,
+      "end": 44,
+      "bytes": 44,
+      "sha256": "9bffb47c0948beab5b6ba26534582b39e94cc646bc9d0e1eef7e8610b6ba7735",
+      "module": "fs/promises",
+      "names": [
+        "copyFile",
+        "stat"
+      ]
+    },
+    "declarations": [
+      {
+        "name": "markITerm2SetupComplete",
+        "start": 203,
+        "end": 343,
+        "bytes": 140,
+        "sha256": "3bcd049a19b6542098b7b8d1d891b41bb4bf7d015a96b4f2a1287ee66efd13e5"
+      },
+      {
+        "name": "getIterm2RecoveryInfo",
+        "start": 345,
+        "end": 590,
+        "bytes": 245,
+        "sha256": "4bd49b1461a2599f75dfe4dc11bdfc7d6534c3561db272df67b0d93e679ca70a"
+      },
+      {
+        "name": "getITerm2PlistPath",
+        "start": 592,
+        "end": 736,
+        "bytes": 144,
+        "sha256": "ca485c62f2a5450b1e3603b5ba68f9a54222900a14b96e6b8960b2684dda1ec2"
+      },
+      {
+        "name": "checkAndRestoreITerm2Backup",
+        "start": 871,
+        "end": 1607,
+        "bytes": 736,
+        "sha256": "f35464a545f54e974181acf2b24503f6ea8748d0cabed21b4edebc01d885ece8"
+      }
+    ],
+    "copyFileIdentifiers": [
+      {
+        "role": "import-specifier",
+        "start": 9,
+        "end": 17,
+        "bytes": 8,
+        "sha256": "59f69895a2e0e7d2b7f35e10acd843c4572c53da9a9260f859dcc82c668bf08e"
+      },
+      {
+        "role": "restore-call",
+        "start": 1297,
+        "end": 1305,
+        "bytes": 8,
+        "sha256": "59f69895a2e0e7d2b7f35e10acd843c4572c53da9a9260f859dcc82c668bf08e"
+      }
+    ],
+    "setupImport": {
+      "start": 1711,
+      "end": 1779,
+      "bytes": 68,
+      "sha256": "728d1704cdb1d6ef24d346be82534030de54fa265d9574b8b3b78a763328f858"
+    },
+    "setupCallerStatement": {
+      "start": 4722,
+      "end": 4786,
+      "bytes": 64,
+      "sha256": "185826bf89b7b4c1be569c31fc0fb56f753107edc5841a9833fb73df13a337f1"
+    },
+    "setupCallerCall": {
+      "start": 4757,
+      "end": 4786,
+      "bytes": 29,
+      "sha256": "4fb6896f41dd54506f556b785c70e0958dc92dee1fd878284442c94fffb4d8b6"
+    },
+    "setupCallerStatementPostRendezvous": {
+      "start": 4884,
+      "end": 4948,
+      "bytes": 64,
+      "sha256": "185826bf89b7b4c1be569c31fc0fb56f753107edc5841a9833fb73df13a337f1"
+    },
+    "setupCallerCallPostRendezvous": {
+      "start": 4919,
+      "end": 4948,
+      "bytes": 29,
+      "sha256": "4fb6896f41dd54506f556b785c70e0958dc92dee1fd878284442c94fffb4d8b6"
+    },
+    "semanticScenarios": [
+      {
+        "name": "not-in-progress",
+        "inProgress": false,
+        "backupPath": "/backup.plist",
+        "expectedResult": {
+          "status": "no_backup"
+        },
+        "expectedEvents": [
+          "recovery-info"
+        ]
+      },
+      {
+        "name": "missing-backup-path",
+        "inProgress": true,
+        "backupPath": null,
+        "expectedResult": {
+          "status": "no_backup"
+        },
+        "expectedEvents": [
+          "recovery-info",
+          "mark-complete"
+        ]
+      },
+      {
+        "name": "missing-backup-file",
+        "inProgress": true,
+        "backupPath": "/backup.plist",
+        "statError": "missing",
+        "expectedResult": {
+          "status": "no_backup"
+        },
+        "expectedEvents": [
+          "recovery-info",
+          "stat:/backup.plist",
+          "mark-complete"
+        ]
+      },
+      {
+        "name": "successful-restore",
+        "inProgress": true,
+        "backupPath": "/backup.plist",
+        "expectedResult": {
+          "status": "restored"
+        },
+        "expectedEvents": [
+          "recovery-info",
+          "stat:/backup.plist",
+          "plist-path",
+          "copy:/backup.plist->/iterm.plist",
+          "mark-complete"
+        ]
+      },
+      {
+        "name": "failed-copy",
+        "inProgress": true,
+        "backupPath": "/backup.plist",
+        "copyError": "copy denied",
+        "expectedResult": {
+          "status": "failed",
+          "backupPath": "/backup.plist"
+        },
+        "expectedEvents": [
+          "recovery-info",
+          "stat:/backup.plist",
+          "plist-path",
+          "copy:/backup.plist->/iterm.plist",
+          "log:Failed to restore iTerm2 settings with: Error: copy denied",
+          "mark-complete"
+        ]
+      }
+    ]
+  },
+  "override": {
+    "targetIndex": 21680,
+    "ownerPaths": [
+      "src/utils/iTermBackup.ts"
+    ],
+    "declarations": [
+      "checkAndRestoreITerm2Backup"
+    ],
+    "dependencyTargetIndices": [
+      21677,
+      21678,
+      21679,
+      21681,
+      21682,
+      21685
+    ],
+    "disposition": "matched-static-proof",
+    "replayAuthorized": false,
+    "coverageGeneratorWiringAuthorized": false,
+    "synthesizedCorrectionAccepted": false
+  },
+  "impact": {
+    "provenUnits": 1,
+    "provenStrictResidues": 1,
+    "synthesizedCoverageCorrections": 0,
+    "synthesizedOwnerRows": 0,
+    "beforeOwnerPaths": [],
+    "staticProofOwnerPaths": [
+      "src/utils/iTermBackup.ts"
+    ],
+    "property": "copyFile",
+    "baselineOccurrenceCount": 26,
+    "targetOccurrenceNumber": 30,
+    "globalOrdinalDelta": 4,
+    "productionRuntime": true,
+    "macroOnly": false
+  }
+}

@@ -1,0 +1,317 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "authenticated-uds-client-declaration-and-module-owner-proof",
+  "criterion": "exact-authenticated-module-window-plus-complete-target-unit-plus-closed-source-declaration-binding-v1",
+  "evidenceIds": [
+    "target119-uds-client-owner-target-fragment",
+    "target119-uds-client-owner-source-binding-test"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "frozenAnalysis": {
+      "path": "recovery/test/recovery-2.1.119-owner-residue-analysis.json",
+      "bytes": 751734,
+      "sha256": "2f724f6eeb76b532bb76c264887e78fce4c4435f073992d2cc539ca12890edc7"
+    },
+    "sourceFiles": [
+      {
+        "path": "src/utils/udsClient.ts",
+        "bytes": 7441,
+        "sha256": "9dcee42c4c88b9e63c4888c0005f6f7a65732a1e8c8a481e8e3558581bb350cc"
+      }
+    ]
+  },
+  "targetModule": {
+    "start": 7653227,
+    "end": 7656232,
+    "bytes": 3005,
+    "sha256": "aaacc8025656fe51d3450ed16e70b88cb18473d04bd657755fc0b97f7c0e6a43",
+    "exportTable": {
+      "start": 7653227,
+      "end": 7653360,
+      "bytes": 133,
+      "sha256": "2297c01fa914b25723e524221e425816390393614e57e098cc065f63da1dbf34"
+    },
+    "identifierOffsets": {
+      "GO7": [
+        7653231,
+        7653241
+      ],
+      "TM1": [
+        7653369,
+        7654678
+      ],
+      "VM1": [
+        7653417,
+        7654814
+      ],
+      "kM1": [
+        7654054,
+        7655842
+      ],
+      "Qf$": [
+        7653354,
+        7655467
+      ],
+      "q88": [
+        7656043
+      ],
+      "ZM1": [
+        7653383,
+        7656031,
+        7656150
+      ],
+      "vM1": [
+        7653431,
+        7656035,
+        7656200
+      ]
+    },
+    "validatorAssignments": {
+      "ZM1": [
+        "interactive",
+        "bg",
+        "daemon",
+        "daemon-worker"
+      ],
+      "vM1": [
+        "busy",
+        "idle",
+        "waiting"
+      ]
+    }
+  },
+  "summary": {
+    "units": 3,
+    "residues": 4,
+    "sourceFiles": 1,
+    "representations": {
+      "closed-validator-set-hoisting": 2,
+      "complete-declaration-lowering": 2
+    },
+    "targetIndicesSha256": "7e021b4a203aa49d61b40cc235d3ddacf0cdc5eef4af2a2e68e8a0d69e457a09",
+    "residueIdentitiesSha256": "64f9678a2333ec049f8ffb9436cb8ef1453b85d1d8ada3778af876eff7c861d6"
+  },
+  "ownerOverrides": [
+    {
+      "key": "2.1.118-to-2.1.119:12160",
+      "targetIndex": 12160,
+      "paths": [
+        "src/utils/udsClient.ts"
+      ],
+      "evidenceIds": [
+        "target119-uds-client-owner-target-fragment",
+        "target119-uds-client-owner-source-binding-test"
+      ],
+      "behavior": "The authenticated Target119 UDS module contains the complete probeSocket lowering between the same module-private sendPayload and readRegistry declarations, and its connect/error/timeout control flow is pinned to src/utils/udsClient.ts#probeSocket; the prior fileHistory owner is unrelated."
+    },
+    {
+      "key": "2.1.118-to-2.1.119:12162",
+      "targetIndex": 12162,
+      "paths": [
+        "src/utils/udsClient.ts"
+      ],
+      "evidenceIds": [
+        "target119-uds-client-owner-target-fragment",
+        "target119-uds-client-owner-source-binding-test"
+      ],
+      "behavior": "The authenticated Target119 UDS module contains the complete exported listAllLiveSessions lowering, including the procStart birth-token check and destructuring omission pinned to src/utils/udsClient.ts#listAllLiveSessions; the prior fileHistory owner is unrelated."
+    },
+    {
+      "key": "2.1.118-to-2.1.119:12165",
+      "targetIndex": 12165,
+      "paths": [
+        "src/utils/udsClient.ts"
+      ],
+      "evidenceIds": [
+        "target119-uds-client-owner-target-fragment",
+        "target119-uds-client-owner-source-binding-test"
+      ],
+      "behavior": "The authenticated Target119 UDS module initializer hoists the exact closed LiveSessionKind and LiveSessionStatus validator literal sets used only by the adjacent validator bindings; those bindings and their complete source declarations are pinned to src/utils/udsClient.ts."
+    }
+  ],
+  "rows": [
+    {
+      "targetIndex": 12160,
+      "ownerPath": "src/utils/udsClient.ts",
+      "priorOwnerPaths": [
+        "src/utils/fileHistory.ts"
+      ],
+      "behavior": "The authenticated Target119 UDS module contains the complete probeSocket lowering between the same module-private sendPayload and readRegistry declarations, and its connect/error/timeout control flow is pinned to src/utils/udsClient.ts#probeSocket; the prior fileHistory owner is unrelated.",
+      "evidenceIds": [
+        "target119-uds-client-owner-target-fragment",
+        "target119-uds-client-owner-source-binding-test"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 7654045,
+        "end": 7654220,
+        "bytes": 175,
+        "sourceHash": "d9ca9e403aeef9424efca31bcf86f8039423889806507006d5a25e270b154322"
+      },
+      "source": {
+        "path": "src/utils/udsClient.ts",
+        "bytes": 7441,
+        "sha256": "9dcee42c4c88b9e63c4888c0005f6f7a65732a1e8c8a481e8e3558581bb350cc"
+      },
+      "sourceScopes": [
+        {
+          "name": "probeSocket",
+          "kind": "FunctionDeclaration",
+          "start": 2421,
+          "end": 2799,
+          "bytes": 378,
+          "sha256": "825ed0386d3f2249d80f41797e5784df31b9cb0de35b8591c5d67f384bd5a167"
+        }
+      ],
+      "representation": "complete-declaration-lowering",
+      "residues": [
+        {
+          "kind": "string",
+          "value": "connect",
+          "start": 7654145,
+          "end": 7654154,
+          "baselineCount": 20,
+          "targetOrdinal": 21
+        }
+      ],
+      "frozenAnalysis": {
+        "residues": 1,
+        "residueIdentitiesSha256": "07808102af6f4b43abf023c696675d591291b23a16b224affc2a84fe1bf3e234"
+      }
+    },
+    {
+      "targetIndex": 12162,
+      "ownerPath": "src/utils/udsClient.ts",
+      "priorOwnerPaths": [
+        "src/utils/fileHistory.ts"
+      ],
+      "behavior": "The authenticated Target119 UDS module contains the complete exported listAllLiveSessions lowering, including the procStart birth-token check and destructuring omission pinned to src/utils/udsClient.ts#listAllLiveSessions; the prior fileHistory owner is unrelated.",
+      "evidenceIds": [
+        "target119-uds-client-owner-target-fragment",
+        "target119-uds-client-owner-source-binding-test"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 7655452,
+        "end": 7655733,
+        "bytes": 281,
+        "sourceHash": "e95d415c1712017e9cc13d10973260cc969f4325ee06812011ed0e0e8b072de1"
+      },
+      "source": {
+        "path": "src/utils/udsClient.ts",
+        "bytes": 7441,
+        "sha256": "9dcee42c4c88b9e63c4888c0005f6f7a65732a1e8c8a481e8e3558581bb350cc"
+      },
+      "sourceScopes": [
+        {
+          "name": "listAllLiveSessions",
+          "kind": "FunctionDeclaration",
+          "start": 6004,
+          "end": 6790,
+          "bytes": 786,
+          "sha256": "6f6b0585decc8b6af06c15a08460018d9226b97c15bd0217f1b2fe9af29561b1"
+        }
+      ],
+      "representation": "complete-declaration-lowering",
+      "residues": [
+        {
+          "kind": "property",
+          "value": "procStart",
+          "start": 7655638,
+          "end": 7655647,
+          "baselineCount": 5,
+          "targetOrdinal": 6
+        }
+      ],
+      "frozenAnalysis": {
+        "residues": 1,
+        "residueIdentitiesSha256": "81d0be60f9c5ef6d24dd8736b4d858ee1cc88e56265339f8095261600cae96d6"
+      }
+    },
+    {
+      "targetIndex": 12165,
+      "ownerPath": "src/utils/udsClient.ts",
+      "priorOwnerPaths": [
+        "src/utils/fileHistory.ts"
+      ],
+      "behavior": "The authenticated Target119 UDS module initializer hoists the exact closed LiveSessionKind and LiveSessionStatus validator literal sets used only by the adjacent validator bindings; those bindings and their complete source declarations are pinned to src/utils/udsClient.ts.",
+      "evidenceIds": [
+        "target119-uds-client-owner-target-fragment",
+        "target119-uds-client-owner-source-binding-test"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "VariableDeclaration",
+        "start": 7656039,
+        "end": 7656232,
+        "bytes": 193,
+        "sourceHash": "f612678987468aa8fd48c9d78bb41091eaaae2713b7a0d5e831e0568f1982d66"
+      },
+      "source": {
+        "path": "src/utils/udsClient.ts",
+        "bytes": 7441,
+        "sha256": "9dcee42c4c88b9e63c4888c0005f6f7a65732a1e8c8a481e8e3558581bb350cc"
+      },
+      "sourceScopes": [
+        {
+          "name": "sessionKind",
+          "kind": "FunctionDeclaration",
+          "start": 2894,
+          "end": 3105,
+          "bytes": 211,
+          "sha256": "076fb19bb240cfa9dc95f11ebd5bd63ebc4fb039163d5a8d6c0e895018aa7503"
+        },
+        {
+          "name": "sessionStatus",
+          "kind": "FunctionDeclaration",
+          "start": 3107,
+          "end": 3277,
+          "bytes": 170,
+          "sha256": "5b66969c137d05b11277270f64186f43d080f46be29c2e9e1f5d5174a1c7720c"
+        }
+      ],
+      "representation": "closed-validator-set-hoisting",
+      "residues": [
+        {
+          "kind": "string",
+          "value": "bg",
+          "start": 7656169,
+          "end": 7656173,
+          "baselineCount": 4,
+          "targetOrdinal": 6
+        },
+        {
+          "kind": "string",
+          "value": "daemon-worker",
+          "start": 7656183,
+          "end": 7656198,
+          "baselineCount": 2,
+          "targetOrdinal": 3
+        }
+      ],
+      "frozenAnalysis": {
+        "residues": 2,
+        "residueIdentitiesSha256": "fff096d1124b4afc31a23af78d063dbfb4d0a8f49e28c0a724df9179ec49ad3f"
+      }
+    }
+  ]
+}

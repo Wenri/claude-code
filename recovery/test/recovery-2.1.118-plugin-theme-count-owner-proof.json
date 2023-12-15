@@ -1,0 +1,191 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "targetVersion": "2.1.118",
+  "criterion": "target118-plugin-theme-count-static-whole-unit-v1",
+  "status": "static-whole-unit-proof-no-replay",
+  "evidenceIds": [
+    "target118-plugin-theme-count-authenticated-whole-unit",
+    "target118-plugin-theme-count-complete-semantic-delta",
+    "target118-plugin-theme-count-source-lineage-replay-blocker"
+  ],
+  "inputs": {
+    "override": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/recovered/plugin-theme-count-owner-overrides.mjs",
+      "bytes": 1362,
+      "sha256": "8b042ee0baf85fcd94dbb632c6f41de83558d41ebf3e91319ed8747e2bb1ea23"
+    },
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.117-linux-x64/cli.inner.js",
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "target119Bundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "target119StructuralLedger": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    }
+  },
+  "baselineUnit": {
+    "targetIndex": 19584,
+    "nodeType": "FunctionDeclaration",
+    "start": 11927724,
+    "end": 11930942,
+    "bytes": 3218,
+    "tokens": 1218,
+    "sha256": "0fade276f3727cc7d3fd190211137e47da53a142dc48fbc388ae01e565a53d7b"
+  },
+  "targetUnit": {
+    "targetIndex": 19784,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 12030245,
+    "end": 12033511,
+    "bytes": 3266,
+    "tokens": 1236,
+    "sha256": "8536951ca268e8a1998d27ab19847e5ef59b257d60daa4e899d2ea2af8ab4e37",
+    "coarseHash": "c9fe580300819e6c123155320f7a0dd1674e014ff8ce38642b88d86dc7522ab8",
+    "residues": [
+      ["property", "theme_count", 12032497, 12032508, 0, 1],
+      ["property", "theme_count", 12033006, 12033017, 0, 2]
+    ]
+  },
+  "themeRuntimeDependencies": [
+    {
+      "targetIndex": 19778,
+      "start": 12029041,
+      "end": 12029279,
+      "bytes": 238,
+      "sha256": "ca4d99f197bcabaaa8b523193257a81272de0e48a5cc1d15594b60e96c9f19fb"
+    },
+    {
+      "targetIndex": 19779,
+      "start": 12029279,
+      "end": 12029337,
+      "bytes": 58,
+      "sha256": "7cf3b3beb754885f1d7f5e7dc8d0dfd5d5274bcf8231ec958703614fa850eae9"
+    }
+  ],
+  "semanticDelta": {
+    "operations": [
+      {
+        "label": "publish enabled-plugin themes and count them",
+        "text": "let J=H14(A).length;",
+        "localStart": 1252,
+        "localEnd": 1272,
+        "start": 12031497,
+        "end": 12031517,
+        "bytes": 20,
+        "sha256": "d7b6af20646c968cbb974c2f5902d2485442cffceba4873d2f0b23db6b6c8fe3"
+      },
+      {
+        "label": "successful theme count metric",
+        "text": "theme_count:J,",
+        "localStart": 2252,
+        "localEnd": 2266,
+        "start": 12032497,
+        "end": 12032511,
+        "bytes": 14,
+        "sha256": "f6ae1816f164778ef6c25b7b942a7a0d5bf9cdfb6025245bd7c82c171c3f0394"
+      },
+      {
+        "label": "failed-load zero theme count metric",
+        "text": "theme_count:0,",
+        "localStart": 2761,
+        "localEnd": 2775,
+        "start": 12033006,
+        "end": 12033020,
+        "bytes": 14,
+        "sha256": "ce26d3598cd8bd5c77d49a5491f817689c09b83f4080f0a3a3c2e8b257a6cb17"
+      }
+    ],
+    "strippedTarget": {
+      "bytes": 3218,
+      "sha256": "b8cfd057e15a79b64d04582229e720df9a0c89816ad1b765784ed621e5406a82"
+    },
+    "canonicalBaselineAndStrippedTarget": {
+      "bytes": 45495,
+      "sha256": "d9c65718b1e64ff93d29f42f6aba5b372958c6088e7aa3a8f19f0d67be827e46"
+    },
+    "canonicalTarget": {
+      "bytes": 46202,
+      "sha256": "e76ce55c3af26481903337427fca76bb3f80d1d980f918f700fce5a1abca2eb6"
+    }
+  },
+  "target119Retention": {
+    "targetIndex": 20720,
+    "classification": "matched",
+    "baselineUnitIndex": 19784,
+    "pairReason": "exact-scope-normalized-token-hash",
+    "start": 12494586,
+    "end": 12497852,
+    "bytes": 3266,
+    "tokens": 1236,
+    "sha256": "fcfe0cdd4a13fd98424909a78ff8837e02ae06a624167c935c393805e3cf050a"
+  },
+  "sourceState": {
+    "useManagePlugins": {
+      "path": "src/hooks/useManagePlugins.ts",
+      "file": {
+        "bytes": 11888,
+        "sha256": "e992eb80551cc9c6c2c5be971cf772c91fde213761e5ffdb7f40645a8ba3bbf7"
+      },
+      "declaration": {
+        "name": "useManagePlugins",
+        "start": 1942,
+        "end": 11873,
+        "bytes": 9943,
+        "sha256": "c43157c621a2ea13bedc05b189f568996a2f6ad92178db38648a6b60ea4a8be4"
+      },
+      "requiredAbsent": ["theme_count", "loadPluginThemes"]
+    },
+    "loadPluginThemes": {
+      "path": "src/utils/plugins/loadPluginThemes.ts",
+      "file": {
+        "bytes": 866,
+        "sha256": "f3c2dcb41ae14c4984bcf9bcf116543ce85fa5f3ad4e3dddd637849c8e9dcc5b"
+      },
+      "declaration": {
+        "name": "loadPluginThemes",
+        "start": 254,
+        "end": 865,
+        "bytes": 611,
+        "sha256": "f0bdac951ce7b5572348c3839d89477d7e9d72399a0b65dee3ee4df705a24a21"
+      },
+      "requiredFragments": [
+        "export async function loadPluginThemes(): Promise<CustomTheme[]>",
+        "await loadAllPluginsCacheOnly()",
+        "registerPluginThemeBases(themes)"
+      ]
+    },
+    "replayBlockedReason": "The recovered loader is asynchronous and reads a cache internally, while the authenticated Target118 hook synchronously publishes themes from the exact enabled array returned by its current load. No recovered or historical source snapshot exposes that complete direct-call API, so adding only theme_count would invent a type- and call-graph-inconsistent replay."
+  },
+  "ownerOverride": {
+    "paths": [
+      "src/hooks/useManagePlugins.ts",
+      "src/utils/plugins/loadPluginThemes.ts"
+    ],
+    "declarations": ["useManagePlugins", "loadPluginThemes"]
+  },
+  "summary": {
+    "units": 1,
+    "residues": 2,
+    "targetIndicesSha256": "1b979407d54b9d2e2dc65e2b44cc588c5ae6dc3e3397c27b44cb9d44ce725b0f",
+    "residueIdentitiesSha256": "453fd733b870fabe0d76a95e8568b988de3ea3cf70e7f42ad79b33b7242d0058"
+  }
+}

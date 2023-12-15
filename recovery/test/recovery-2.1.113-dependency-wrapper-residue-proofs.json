@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.112-to-2.1.113",
+  "artifact": {
+    "baselineSha256": "bc3358282800e3e99daa8e71ac5b7b1566bd0d7ca7eb94f714a7859365d3163f",
+    "targetInnerSha256": "4a3c3636c8cb19ef42d6319e5c6ef9b029f5de148b84f22315d159052d6c5eba",
+    "targetWrapperSha256": "dda4d89e787fa455706e4f41beffc8e58d42b9094c4d155fcbf62e3f19036681",
+    "targetWrapperPrefixLength": 87,
+    "targetWrapperSuffixLength": 3,
+    "structuralGzipSha256": "383448923995bb86060ce91beac2bc5adac35817a0cdff35b533135c7d24345f",
+    "partitionsGzipSha256": "45e368b3796910ee5d23a2f3e9e28ddc3aa36a807255f5525861ec187ca572e2"
+  },
+  "rows": [
+    {
+      "targetIndex": 8708,
+      "package": "picomatch",
+      "sourceIndex": 2382,
+      "source": "../node_modules/picomatch/lib/parse.js",
+      "target": [
+        "unresolved",
+        4159103,
+        4173990,
+        "VariableDeclaration",
+        "6524325cf267bea0a2bcd356c06e9ccfb478064f7c091c19229139c3f1fe2c25"
+      ],
+      "anchor": "\\\" - use \\\\\\\\",
+      "residues": [
+        ["regexp", {"flags": "", "pattern": "[?*+@!()[\\]{}]"}, 4159980, 4159996, 0, 1],
+        ["regexp", {"flags": "", "pattern": "^@\\([^\\\\()[\\]{}|]+\\)$"}, 4160075, 4160098, 0, 1],
+        ["regexp", {"flags": "g", "pattern": "\\\\(.)"}, 4160163, 4160171, 4, 5],
+        ["property", "maxExtglobRecursion", 4161286, 4161305, 0, 1],
+        ["property", "risky", 4161318, 4161323, 0, 1],
+        ["property", "maxExtglobRecursion", 4161343, 4161362, 0, 2],
+        ["property", "maxExtglobRecursion", 4161376, 4161395, 0, 3],
+        ["property", "DEFAULT_MAX_EXTGLOB_RECURSION", 4161400, 4161429, 0, 2],
+        ["regexp", {"flags": "", "pattern": "^[*?]+$"}, 4161509, 4161518, 0, 1],
+        ["property", "risky", 4161543, 4161548, 0, 2],
+        ["property", "risky", 4161594, 4161599, 0, 3],
+        ["property", "safeOutput", 4161603, 4161613, 0, 1],
+        ["property", "risky", 4161636, 4161641, 0, 4],
+        ["property", "risky", 4161653, 4161658, 0, 5],
+        ["property", "risky", 4163962, 4163967, 0, 6],
+        ["property", "safeOutput", 4163979, 4163989, 0, 2],
+        ["property", "safeOutput", 4164025, 4164035, 0, 3],
+        ["property", "safeOutput", 4164042, 4164052, 0, 4],
+        ["property", "escapeRegex", 4164125, 4164136, 5, 6],
+        ["property", "tokensIndex", 4164154, 4164165, 2, 3],
+        ["property", "posix", 4165837, 4165842, 7, 8],
+        ["property", "posix", 4166155, 4166160, 7, 9],
+        ["property", "escapeRegex", 4166261, 4166272, 5, 7],
+        ["property", "posix", 4167203, 4167208, 7, 10],
+        ["property", "escapeRegex", 4167345, 4167356, 5, 8],
+        ["property", "tokensIndex", 4167637, 4167648, 2, 4],
+        ["property", "tokensIndex", 4168070, 4168081, 2, 5],
+        ["string", "plus", 4169756, 4169762, 6, 7],
+        ["property", "extglob", 4169852, 4169859, 4, 5],
+        ["string", "paren", 4171987, 4171994, 16, 17],
+        ["string", "parens", 4172504, 4172512, 5, 6],
+        ["property", "backtrack", 4172761, 4172770, 5, 6]
+      ]
+    },
+    {
+      "targetIndex": 10184,
+      "package": "@ant/computer-use-swift",
+      "sourceIndex": 2879,
+      "source": "../node_modules/@ant/computer-use-swift/js/index.js",
+      "target": [
+        "unresolved",
+        5104694,
+        5105061,
+        "VariableDeclaration",
+        "8cca271d4fecef0f763d08842834327f35bfb70bbcc7e7a1566d25f06c51f5d0"
+      ],
+      "anchor": "@ant/computer-use-swift is only available on macOS",
+      "residues": [
+        ["string", "/home/runner/work/claude-cli-internal/claude-cli-internal/node_modules/@ant/computer-use-swift/js", 5104730, 5104829, 0, 1]
+      ]
+    },
+    {
+      "targetIndex": 15317,
+      "package": "asciichart",
+      "sourceIndex": 4275,
+      "source": "../node_modules/asciichart/asciichart.js",
+      "target": [
+        "unresolved",
+        9519961,
+        9521853,
+        "VariableDeclaration",
+        "dba990fe1c301e3be7f040bc3fd3baa78766bc7b0080a002b561983df5692442"
+      ],
+      "anchor": "\\x1B[91m",
+      "residues": [
+        ["property", "join", 9521789, 9521793, 1619, 1643],
+        ["property", "join", 9521800, 9521804, 1619, 1644]
+      ]
+    }
+  ],
+  "summary": {
+    "units": 3,
+    "residues": 35
+  }
+}

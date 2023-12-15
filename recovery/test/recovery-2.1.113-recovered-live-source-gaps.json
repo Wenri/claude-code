@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.112-to-2.1.113",
+  "artifact": {
+    "targetInnerSha256": "4a3c3636c8cb19ef42d6319e5c6ef9b029f5de148b84f22315d159052d6c5eba",
+    "targetWrapperSha256": "dda4d89e787fa455706e4f41beffc8e58d42b9094c4d155fcbf62e3f19036681",
+    "targetWrapperPrefixLength": 87,
+    "targetWrapperSuffixLength": 3,
+    "structuralGzipSha256": "383448923995bb86060ce91beac2bc5adac35817a0cdff35b533135c7d24345f"
+  },
+  "proof": {
+    "target": "complete authenticated target unit, exact residue AST occurrence, and executable behavior",
+    "source": "exact recovered named declaration SHA and runtime imports",
+    "historical": "explicit pre-regeneration source-root absence"
+  },
+  "summary": {
+    "units": 3,
+    "residues": 3
+  },
+  "rows": [
+    {
+      "targetIndex": 8711,
+      "priorOwnerIds": [
+        "owner-src-utils-fileStateCache-ts"
+      ],
+      "recoveredOwner": "src/utils/fileStateCache.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 4176474,
+        "end": 4176600,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "903aceedf64a8606b16ffab123184da5cbe7907823add066d348f26ed2605781"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "createHash",
+          "start": 4176551,
+          "end": 4176561
+        }
+      ],
+      "source": {
+        "declaration": "hashFileStateContent",
+        "declarationKind": "FunctionDeclaration",
+        "declarationSha256": "53e4075a75e67481038247cb5c000adc083c51b8d3fcd226fada371a372ed27e",
+        "imports": [
+          {
+            "module": "crypto",
+            "imported": "createHash",
+            "local": "createHash"
+          }
+        ]
+      },
+      "historicalGap": "named-declaration-and-runtime-import-absent"
+    },
+    {
+      "targetIndex": 10147,
+      "priorOwnerIds": [
+        "owner-src-utils-contextAnalysis-ts"
+      ],
+      "recoveredOwner": "src/utils/loopSentinels.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 5094980,
+        "end": 5095254,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "9d77d210bfa926437bfa8384004bd972e2eef45d141a57d46e9d31623148864d"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "readFileSync",
+          "start": 5095095,
+          "end": 5095107
+        }
+      ],
+      "source": {
+        "declaration": "readLoopFile",
+        "declarationKind": "FunctionDeclaration",
+        "declarationSha256": "c8839f3678265eee5f602189a56021d2c0eafa9847dde650f7b95f2a8fec9554",
+        "imports": [
+          {
+            "module": "node:fs",
+            "imported": "readFileSync",
+            "local": "readFileSync"
+          },
+          {
+            "module": "node:path",
+            "imported": "join",
+            "local": "join"
+          }
+        ]
+      },
+      "historicalGap": "owner-file-absent"
+    },
+    {
+      "targetIndex": 20261,
+      "priorOwnerIds": [
+        "owner-src-utils-streamJsonStdoutGuard-ts"
+      ],
+      "recoveredOwner": "src/QueryEngine.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 12775736,
+        "end": 12776038,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "28c6d4dcf7e751258b71eafe1eab557137408b4bdefe3b11559213db1d6da8c6"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "randomUUID",
+          "start": 12776008,
+          "end": 12776018
+        }
+      ],
+      "source": {
+        "declaration": "getSdkMemoryRecallEvent",
+        "declarationKind": "FunctionDeclaration",
+        "declarationSha256": "444e4248b398c0d1e0a9aca957e2b8acd271239f011803961cfd8af0741e200d",
+        "imports": [
+          {
+            "module": "crypto",
+            "imported": "randomUUID",
+            "local": "randomUUID"
+          }
+        ]
+      },
+      "historicalGap": "named-declaration-absent"
+    }
+  ]
+}

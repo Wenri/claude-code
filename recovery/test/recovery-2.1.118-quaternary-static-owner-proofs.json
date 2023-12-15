@@ -1,0 +1,415 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "status": "authenticated-quaternary-static-source-owner",
+  "evidenceIds": [
+    "target118-quaternary-static-owner-target-fragment",
+    "target118-quaternary-static-owner-source-ast-test"
+  ],
+  "inputs": {
+    "targetBundle": {
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "sourceFiles": [
+      {
+        "sourcePath": "src/utils/fullscreen.ts",
+        "bytes": 10517,
+        "sha256": "b41a04867b3a5d0da44a30d13657af589d16f54e55ef2c4a9e879e54ad467aa6"
+      },
+      {
+        "sourcePath": "src/components/ThemePicker.tsx",
+        "bytes": 36639,
+        "sha256": "ddc750de8b19fbaf828edba5e03a1276f4bc550f100f0806903b489fdac52cdd"
+      },
+      {
+        "sourcePath": "src/bridge/bridgeMessaging.ts",
+        "bytes": 18803,
+        "sha256": "ad1b190b500d3df4ca1dbcc6ef6787bf9bfe6c1a08e4b13e9d625b6d6ac10395"
+      },
+      {
+        "sourcePath": "src/interactiveHelpers.tsx",
+        "bytes": 68094,
+        "sha256": "19726cae9ae9d779938091469f8044e617f593abf5a6c3fbddc2fac129717d70"
+      },
+      {
+        "sourcePath": "src/skills/bundled/updateConfig.ts",
+        "bytes": 17497,
+        "sha256": "a3a28f68bf5c26a53f011e306aa4db4db798621542cb80d8eb5c70cc0bff2433"
+      },
+      {
+        "sourcePath": "src/commands/install.tsx",
+        "bytes": 39068,
+        "sha256": "d492c8fa81903aa8bee6a929aebe714c2151f16fba06deafdf3e5179a3f4af2b"
+      },
+      {
+        "sourcePath": "src/cli/handlers/util.tsx",
+        "bytes": 14985,
+        "sha256": "dc4c4f81c1658e6d859ccbd79040266f984265be7e2077e26c2d45375fe4ab02"
+      },
+      {
+        "sourcePath": "src/cli/handlers/plugins.ts",
+        "bytes": 34378,
+        "sha256": "81b2772c1914784bad1f03c19cc1162933fc2fdda9b19af65e41c2dc55de1a33"
+      }
+    ]
+  },
+  "summary": {
+    "units": 10,
+    "residues": 11,
+    "indicesSha256": "b9b6e4b8c9403e7e92510ef458d67fa0243793bb9f77f18c9558ef9b5ab2b0de",
+    "residueIdentitiesSha256": "92b1a5250f1f8f69c08cd61f1e6e87b7d31a002f0117efa944ed2fedd1f0631f"
+  },
+  "rows": [
+    {
+      "targetIndex": 6796,
+      "ownerPath": "src/utils/fullscreen.ts",
+      "behavior": "The authenticated Target118 renderer-path function reads the module-scoped gbGateCached state; the bundle lowers that shared module state into its generated state object while preserving the source nullish fallback and result branches.",
+      "target": {
+        "start": 3110087,
+        "end": 3110413,
+        "bytes": 326,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "8db899e65252801a027758260402a7a371e0b22e30da8ebe23de9284db543610",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "property",
+          "gbGateCached",
+          3110354,
+          3110366,
+          3,
+          4
+        ]
+      ],
+      "sourceProof": {
+        "declaration": "getRendererEntryPath",
+        "role": "module-state-object-lowering",
+        "identifiers": [
+          "gbGateCached"
+        ],
+        "sourceMarkers": [
+          "gbGateCached ??",
+          "getFeatureValue_CACHED_MAY_BE_STALE('tengu_pewter_brook', false)"
+        ]
+      }
+    },
+    {
+      "targetIndex": 15447,
+      "ownerPath": "src/components/ThemePicker.tsx",
+      "behavior": "The authenticated Target118 ThemePicker destructures onCustomTheme and customThemes and uses both throughout the exact historical component; the two property residues are binding/property lowering, not missing behavior.",
+      "target": {
+        "start": 9537712,
+        "end": 9543525,
+        "bytes": 5813,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "c27a9a81d149ed5ad6ac519fb866713ef3f6bc07011d2c318cbf0039ab0c93cc",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "property",
+          "onCustomTheme",
+          9537856,
+          9537869,
+          0,
+          1
+        ],
+        [
+          "property",
+          "customThemes",
+          9538700,
+          9538712,
+          0,
+          5
+        ]
+      ],
+      "sourceProof": {
+        "declaration": "ThemePicker",
+        "role": "binding-elements",
+        "identifiers": [
+          "onCustomTheme",
+          "customThemes"
+        ],
+        "sourceMarkers": [
+          "onCustomTheme,",
+          "const { customThemes } = useCustomThemes()",
+          "label: 'New custom theme…'"
+        ]
+      }
+    },
+    {
+      "targetIndex": 18758,
+      "ownerPath": "src/bridge/bridgeMessaging.ts",
+      "behavior": "The authenticated Target118 control-request handler destructures onSetColor and invokes it in the set_color branch with the exact unsupported-callback fallback response.",
+      "target": {
+        "start": 11512234,
+        "end": 11516046,
+        "bytes": 3812,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "4d00315a82965a1cb9f2618098a11d6b4a42cd278edb0959fbb6a280cbf07ee2",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "property",
+          "onSetColor",
+          11512387,
+          11512397,
+          0,
+          1
+        ]
+      ],
+      "sourceProof": {
+        "declaration": "handleServerControlRequest",
+        "role": "binding-and-optional-call",
+        "identifiers": [
+          "onSetColor"
+        ],
+        "sourceMarkers": [
+          "onSetColor,",
+          "case 'set_color'",
+          "onSetColor?.(request.request.color)"
+        ]
+      }
+    },
+    {
+      "targetIndex": 20441,
+      "ownerPath": "src/interactiveHelpers.tsx",
+      "behavior": "The authenticated Target118 Bedrock fallback dialog maps warnings to keyed Text elements; the key residue is the JSX property emitted from the exact historical handleBedrockDefaultFallbacks declaration.",
+      "target": {
+        "start": 12360281,
+        "end": 12361031,
+        "bytes": 750,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "df86761affde77c01c79b48e9295f87c53df2b77d1e30361a973f8399174f613",
+        "structuralClass": "changed"
+      },
+      "residues": [
+        [
+          "property",
+          "key",
+          12361001,
+          12361004,
+          1285,
+          1288
+        ]
+      ],
+      "sourceProof": {
+        "declaration": "handleBedrockDefaultFallbacks",
+        "role": "jsx-key-lowering",
+        "identifiers": [
+          "key"
+        ],
+        "sourceMarkers": [
+          "withProbeDeadline('bedrock-fallback'",
+          "<Text key={warning} color=\"warning\">"
+        ]
+      }
+    },
+    {
+      "targetIndex": 20443,
+      "ownerPath": "src/interactiveHelpers.tsx",
+      "behavior": "The authenticated Target118 Vertex fallback dialog maps warnings to keyed Text elements; the key residue is the JSX property emitted from the exact historical handleVertexDefaultFallbacks declaration.",
+      "target": {
+        "start": 12362503,
+        "end": 12363248,
+        "bytes": 745,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "71327a5a1ebb959ffb417af4d0204e744ac33a183ac5537818732c045324c053",
+        "structuralClass": "changed"
+      },
+      "residues": [
+        [
+          "property",
+          "key",
+          12363218,
+          12363221,
+          1285,
+          1289
+        ]
+      ],
+      "sourceProof": {
+        "declaration": "handleVertexDefaultFallbacks",
+        "role": "jsx-key-lowering",
+        "identifiers": [
+          "key"
+        ],
+        "sourceMarkers": [
+          "withProbeDeadline('vertex-fallback'",
+          "<Text key={warning} color=\"warning\">"
+        ]
+      }
+    },
+    {
+      "targetIndex": 20523,
+      "ownerPath": "src/skills/bundled/updateConfig.ts",
+      "behavior": "The authenticated Target118 update-config skill strips the twelve-character hooks-only prefix; the emitted numeric residue is the constant fold of the exact source string length.",
+      "target": {
+        "start": 12418264,
+        "end": 12419349,
+        "bytes": 1085,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "38161ad30ab34cabd1b1779ee158fe891c37201bb26fbb444352673a055ba7dd",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "number",
+          "12",
+          12419124,
+          12419126,
+          900,
+          908
+        ]
+      ],
+      "sourceProof": {
+        "declaration": "registerUpdateConfigSkill",
+        "role": "static-string-length-fold",
+        "staticString": "[hooks-only]",
+        "foldedValue": 12,
+        "sourceMarkers": [
+          "args.startsWith('[hooks-only]')",
+          "args.slice('[hooks-only]'.length).trim()"
+        ]
+      }
+    },
+    {
+      "targetIndex": 20897,
+      "ownerPath": "src/commands/install.tsx",
+      "behavior": "The authenticated Target118 SetupNotes component uses the React compiler memo cache; the generated c property is the lowering of the exact historical _c(5) cache call.",
+      "target": {
+        "start": 13117253,
+        "end": 13117815,
+        "bytes": 562,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "de51ee04f8360307b1ece940df5c94a4c837023830a5f0bb61b2202363491be3",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "property",
+          "c",
+          13117279,
+          13117280,
+          797,
+          804
+        ]
+      ],
+      "sourceProof": {
+        "declaration": "SetupNotes",
+        "role": "react-compiler-cache-call",
+        "identifiers": [
+          "_c"
+        ],
+        "cacheSlots": 5,
+        "sourceMarkers": [
+          "const $ = _c(5);",
+          "messages.map(_temp)"
+        ]
+      }
+    },
+    {
+      "targetIndex": 20898,
+      "ownerPath": "src/commands/install.tsx",
+      "behavior": "The authenticated Target118 setup-note row uses its map index as the JSX key; the generated key property is owned by the exact historical _temp renderer declaration.",
+      "target": {
+        "start": 13117815,
+        "end": 13117921,
+        "bytes": 106,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "61c2ca92ef68bce4401a15360c6949bf3f0d13e8e67dd8f58b6421ccb829a861",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "property",
+          "key",
+          13117869,
+          13117872,
+          1285,
+          1300
+        ]
+      ],
+      "sourceProof": {
+        "declaration": "_temp",
+        "role": "jsx-key-lowering",
+        "identifiers": [
+          "key"
+        ],
+        "sourceMarkers": [
+          "<Box key={index} marginLeft={2}>"
+        ]
+      }
+    },
+    {
+      "targetIndex": 20908,
+      "ownerPath": "src/cli/handlers/util.tsx",
+      "behavior": "The authenticated Target118 install handler passes process.cwd() to setup; the generated cwd property access is the lowering of the exact named import and call in installHandler.",
+      "target": {
+        "start": 13124167,
+        "end": 13124670,
+        "bytes": 503,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "61833f1c65ca1417c526215a1bc4d75625603544610d039cd10b2da2f35d1ffa",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "property",
+          "cwd",
+          13124432,
+          13124435,
+          309,
+          319
+        ]
+      ],
+      "sourceProof": {
+        "declaration": "installHandler",
+        "role": "named-import-call-lowering",
+        "identifiers": [
+          "cwd"
+        ],
+        "importModule": "process",
+        "sourceMarkers": [
+          "await setup(cwd(), 'default', false, false, undefined, false);"
+        ]
+      }
+    },
+    {
+      "targetIndex": 20916,
+      "ownerPath": "src/cli/handlers/plugins.ts",
+      "behavior": "The authenticated Target118 plugin-tag handler destructures the validated release plan before rendering and executing it; the plan residue is owned by that exact binding.",
+      "target": {
+        "start": 13126682,
+        "end": 13127766,
+        "bytes": 1084,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "bae5e9d26df79f76fa91440287ac6c78af64047d38eb97b8ec52edbbe534d116",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "property",
+          "plan",
+          13126871,
+          13126875,
+          31,
+          34
+        ]
+      ],
+      "sourceProof": {
+        "declaration": "pluginTagHandler",
+        "role": "binding-elements",
+        "identifiers": [
+          "plan"
+        ],
+        "sourceMarkers": [
+          "const { plan } = result",
+          "getPluginTagMessage(plan, options.message)"
+        ]
+      }
+    }
+  ]
+}
