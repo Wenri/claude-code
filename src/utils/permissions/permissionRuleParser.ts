@@ -28,6 +28,17 @@ const LEGACY_TOOL_NAME_ALIASES: Record<string, string> = {
     : {}),
 }
 
+// Built-in tools that may be implemented by the workspace MCP proxy. Rules
+// and hooks written against the built-in name must continue to cover the
+// corresponding proxied tool.
+export const WORKSPACE_BASH_TOOL_NAME = 'mcp__workspace__bash'
+export const WORKSPACE_WEB_FETCH_TOOL_NAME = 'mcp__workspace__web_fetch'
+
+const TOOL_PROXY_ALIASES: Record<string, string[]> = {
+  Bash: [WORKSPACE_BASH_TOOL_NAME],
+  WebFetch: [WORKSPACE_WEB_FETCH_TOOL_NAME],
+}
+
 export function normalizeLegacyToolName(name: string): string {
   return Object.hasOwn(LEGACY_TOOL_NAME_ALIASES, name)
     ? LEGACY_TOOL_NAME_ALIASES[name]!
@@ -38,6 +49,21 @@ export function getLegacyToolNames(canonicalName: string): string[] {
   const result: string[] = []
   for (const [legacy, canonical] of Object.entries(LEGACY_TOOL_NAME_ALIASES)) {
     if (canonical === canonicalName) result.push(legacy)
+  }
+  return result
+}
+
+export function getToolNameWithProxyAliases(toolName: string): string[] {
+  const aliases = Object.hasOwn(TOOL_PROXY_ALIASES, toolName)
+    ? TOOL_PROXY_ALIASES[toolName]
+    : undefined
+  return aliases ? [toolName, ...aliases] : [toolName]
+}
+
+export function getToolNamesForProxyAlias(proxyName: string): string[] {
+  const result: string[] = []
+  for (const [toolName, aliases] of Object.entries(TOOL_PROXY_ALIASES)) {
+    if (aliases.includes(proxyName)) result.push(toolName)
   }
   return result
 }

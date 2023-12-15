@@ -18,7 +18,9 @@ let bypassPermissionsCheckRan = false
 
 export async function checkAndDisableBypassPermissionsIfNeeded(
   toolPermissionContext: ToolPermissionContext,
-  setAppState: (f: (prev: AppState) => AppState) => void,
+  setToolPermissionContext: (
+    updater: (prev: ToolPermissionContext) => ToolPermissionContext,
+  ) => void,
 ): Promise<void> {
   // Check if bypassPermissions should be disabled based on Statsig gate
   // Do this only once, before the first query, to ensure we have the latest gate value
@@ -36,14 +38,7 @@ export async function checkAndDisableBypassPermissionsIfNeeded(
     return
   }
 
-  setAppState(prev => {
-    return {
-      ...prev,
-      toolPermissionContext: createDisabledBypassPermissionsContext(
-        prev.toolPermissionContext,
-      ),
-    }
-  })
+  setToolPermissionContext(createDisabledBypassPermissionsContext)
 }
 
 /**
@@ -63,7 +58,13 @@ export function useKickOffCheckAndDisableBypassPermissionsIfNeeded(): void {
     if (getIsRemoteMode()) return
     void checkAndDisableBypassPermissionsIfNeeded(
       toolPermissionContext,
-      setAppState,
+      updater =>
+        setAppState(prev => {
+          const next = updater(prev.toolPermissionContext)
+          return next === prev.toolPermissionContext
+            ? prev
+            : { ...prev, toolPermissionContext: next }
+        }),
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

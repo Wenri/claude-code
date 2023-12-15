@@ -1,4 +1,5 @@
 import memoize from 'lodash-es/memoize.js'
+import { setInferenceProfileBackingModel } from '../../bootstrap/state.js'
 import { refreshAndGetAwsCredentials } from '../auth.js'
 import { getAWSRegion, isEnvTruthy } from '../envUtils.js'
 import { logError } from '../log.js'
@@ -147,8 +148,10 @@ export async function createBedrockRuntimeClient() {
 }
 
 export const getInferenceProfileBackingModel = memoize(async function (
-  profileId: string,
+  profileIdOrArn: string,
 ): Promise<string | null> {
+  const profileId = extractModelIdFromArn(profileIdOrArn)
+  let backingModel: string | null = null
   try {
     const [client, { GetInferenceProfileCommand }] = await Promise.all([
       createBedrockClient(),
@@ -157,31 +160,30 @@ export const getInferenceProfileBackingModel = memoize(async function (
     const command = new GetInferenceProfileCommand({
       inferenceProfileIdentifier: profileId,
     })
-    const response = await client.send(command)
-
-    if (!response.models || response.models.length === 0) {
-      return null
-    }
+    const response = await client.send(command, {
+      abortSignal: AbortSignal.timeout(8000),
+    })
 
     // Use the first model as the primary backing model for cost calculation
     // In practice, application inference profiles typically load balance between
     // similar models with the same cost structure
-    const primaryModel = response.models[0]
-    if (!primaryModel?.modelArn) {
-      return null
-    }
+    const primaryModel = response.models?.[0]
 
     // Extract model name from ARN
     // ARN format: arn:aws:bedrock:region:account:foundation-model/model-name
-    const lastSlashIndex = primaryModel.modelArn.lastIndexOf('/')
-    return lastSlashIndex >= 0
-      ? primaryModel.modelArn.substring(lastSlashIndex + 1)
-      : primaryModel.modelArn
+    if (primaryModel?.modelArn) {
+      const lastSlashIndex = primaryModel.modelArn.lastIndexOf('/')
+      backingModel =
+        lastSlashIndex >= 0
+          ? primaryModel.modelArn.substring(lastSlashIndex + 1)
+          : primaryModel.modelArn
+    }
   } catch (error) {
     logError(error as Error)
-    return null
   }
-})
+  setInferenceProfileBackingModel(profileId, backingModel)
+  return backingModel
+}, extractModelIdFromArn)
 
 /**
  * Check if a model ID is a foundation model (e.g., "anthropic.claude-sonnet-4-5-20250929-v1:0")

@@ -1,6 +1,14 @@
 import type { Command } from '../commands.js'
 import { maybeMarkProjectOnboardingComplete } from '../projectOnboardingState.js'
+import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js'
 import { isEnvTruthy } from '../utils/envUtils.js'
+
+function isNewInitEnabled(): boolean {
+  return (
+    isEnvTruthy(process.env.CLAUDE_CODE_NEW_INIT) ||
+    getFeatureValue_CACHED_MAY_BE_STALE('tengu_new_init', false)
+  )
+}
 
 const OLD_INIT_PROMPT = `Please analyze this codebase and create a CLAUDE.md file, which will be given to future instances of Claude Code to operate in this repository.
 
@@ -252,7 +260,7 @@ const command = {
   type: 'prompt',
   name: 'init',
   get description() {
-    return isEnvTruthy(process.env.CLAUDE_CODE_NEW_INIT)
+    return isNewInitEnabled()
       ? 'Initialize new CLAUDE.md file(s) and optional skills/hooks with codebase documentation'
       : 'Initialize a new CLAUDE.md file with codebase documentation'
   },
@@ -265,7 +273,7 @@ const command = {
     return [
       {
         type: 'text',
-        text: isEnvTruthy(process.env.CLAUDE_CODE_NEW_INIT)
+        text: isNewInitEnabled()
           ? NEW_INIT_PROMPT
           : OLD_INIT_PROMPT,
       },

@@ -45,6 +45,7 @@ import type {
   PermissionUpdateDestination,
 } from './PermissionUpdateSchema.js'
 import {
+  getToolNameWithProxyAliases,
   permissionRuleValueFromString,
   permissionRuleValueToString,
 } from './permissionRuleParser.js'
@@ -240,6 +241,7 @@ export function getAskRules(context: ToolPermissionContext): PermissionRule[] {
 function toolMatchesRule(
   tool: Pick<Tool, 'name' | 'mcpInfo'>,
   rule: PermissionRule,
+  { proxyExpansion = false }: { proxyExpansion?: boolean } = {},
 ): boolean {
   // Rule must not have content to match the entire tool
   if (rule.ruleValue.ruleContent !== undefined) {
@@ -254,6 +256,15 @@ function toolMatchesRule(
 
   // Direct tool name match
   if (rule.ruleValue.toolName === nameForRuleMatch) {
+    return true
+  }
+
+  if (
+    proxyExpansion &&
+    getToolNameWithProxyAliases(rule.ruleValue.toolName).includes(
+      nameForRuleMatch,
+    )
+  ) {
     return true
   }
 
@@ -290,7 +301,11 @@ export function getDenyRuleForTool(
   context: ToolPermissionContext,
   tool: Pick<Tool, 'name' | 'mcpInfo'>,
 ): PermissionRule | null {
-  return getDenyRules(context).find(rule => toolMatchesRule(tool, rule)) || null
+  return (
+    getDenyRules(context).find(rule =>
+      toolMatchesRule(tool, rule, { proxyExpansion: true }),
+    ) || null
+  )
 }
 
 /**
@@ -300,7 +315,11 @@ export function getAskRuleForTool(
   context: ToolPermissionContext,
   tool: Pick<Tool, 'name' | 'mcpInfo'>,
 ): PermissionRule | null {
-  return getAskRules(context).find(rule => toolMatchesRule(tool, rule)) || null
+  return (
+    getAskRules(context).find(rule =>
+      toolMatchesRule(tool, rule, { proxyExpansion: true }),
+    ) || null
+  )
 }
 
 /**
@@ -444,13 +463,9 @@ async function runPermissionRequestHooksForHeadlessAgent(
         // Persist permission updates if provided
         if (decision.updatedPermissions?.length) {
           persistPermissionUpdates(decision.updatedPermissions)
-          context.setAppState(prev => ({
-            ...prev,
-            toolPermissionContext: applyPermissionUpdates(
-              prev.toolPermissionContext,
-              decision.updatedPermissions!,
-            ),
-          }))
+          context.setToolPermissionContext(previous =>
+            applyPermissionUpdates(previous, decision.updatedPermissions!),
+          )
         }
         return {
           behavior: 'allow',
@@ -674,7 +689,7 @@ export const hasPermissionsToUseTool: CanUseToolFn = async (
 
       // Run the auto mode classifier
       const action = formatActionForClassifier(tool.name, input)
-      setClassifierChecking(toolUseID)
+      setClassifierChecking(context.setClassifierApprovals, toolUseID)
       let classifierResult
       try {
         classifierResult = await classifyYoloAction(
@@ -685,7 +700,7 @@ export const hasPermissionsToUseTool: CanUseToolFn = async (
           context.abortController.signal,
         )
       } finally {
-        clearClassifierChecking(toolUseID)
+        clearClassifierChecking(context.setClassifierApprovals, toolUseID)
       }
 
       // Notify ants when classifier error dumped prompts (will be in /share)
@@ -726,6 +741,7 @@ export const hasPermissionsToUseTool: CanUseToolFn = async (
           'tengu_bash_allowlist_strip_all',
           false,
         ),
+        originalDecisionReasonType: result.decisionReason?.type,
         // msg_id of the agent completion that produced this tool_use —
         // the action at the bottom of the classifier transcript.
         agentMsgId: assistantMessage.message

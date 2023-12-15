@@ -30,7 +30,7 @@ const UNHIDE_TIMEOUT_MS = 5000
 export async function cleanupComputerUseAfterTurn(
   ctx: Pick<
     ToolUseContext,
-    'getAppState' | 'setAppState' | 'sendOSNotification'
+    'getAppState' | 'setComputerUseMcpState' | 'sendOSNotification'
   >,
 ): Promise<void> {
   const appState = ctx.getAppState()
@@ -48,16 +48,10 @@ export async function cleanupComputerUseAfterTurn(
     await Promise.race([unhide, timeout.promise]).finally(() =>
       clearTimeout(timer),
     )
-    ctx.setAppState(prev =>
-      prev.computerUseMcpState?.hiddenDuringTurn === undefined
-        ? prev
-        : {
-            ...prev,
-            computerUseMcpState: {
-              ...prev.computerUseMcpState,
-              hiddenDuringTurn: undefined,
-            },
-          },
+    ctx.setComputerUseMcpState?.(previous =>
+      previous?.hiddenDuringTurn === undefined
+        ? previous
+        : { ...previous, hiddenDuringTurn: undefined },
     )
   }
 

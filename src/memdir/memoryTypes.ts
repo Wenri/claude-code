@@ -12,7 +12,7 @@
  */
 
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js'
-import { isEnvTruthy } from '../utils/envUtils.js'
+import { isEnvDefinedFalsy, isEnvTruthy } from '../utils/envUtils.js'
 
 export const MEMORY_TYPES = [
   'user',
@@ -36,7 +36,10 @@ export const MEMORY_TYPE_SUMMARIES: Record<MemoryType, string> = {
 }
 
 export function isLeanMemoryPromptEnabled(): boolean {
-  if (isEnvTruthy(process.env.CLAUDE_CODE_LEAN_PROMPT)) return true
+  if (isEnvTruthy(process.env.CLAUDE_CODE_SIMPLE_SYSTEM_PROMPT)) return true
+  if (isEnvDefinedFalsy(process.env.CLAUDE_CODE_SIMPLE_SYSTEM_PROMPT)) {
+    return false
+  }
   return getFeatureValue_CACHED_MAY_BE_STALE('tengu_ochre_finch', false)
 }
 
@@ -261,7 +264,7 @@ export const WHEN_TO_ACCESS_SECTION: readonly string[] = [
   '## When to access memories',
   '- When memories seem relevant, or the user references prior-conversation work.',
   '- You MUST access memory when the user explicitly asks you to check, recall, or remember.',
-  '- If the user says to *ignore* or *not use* memory: proceed as if MEMORY.md were empty. Do not apply remembered facts, cite, compare against, or mention memory content.',
+  '- If the user says to *ignore* or *not use* memory: Do not apply remembered facts, cite, compare against, or mention memory content.',
   MEMORY_DRIFT_CAVEAT,
 ]
 

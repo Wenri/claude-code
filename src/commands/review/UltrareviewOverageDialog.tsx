@@ -1,6 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react'
 import { Select } from '../../components/CustomSelect/select.js'
 import { Dialog } from '../../components/design-system/Dialog.js'
+import { useRegisterOverlay } from '../../context/overlayContext.js'
 import { Box, Link, Text } from '../../ink.js'
 import { checkGate_CACHED_OR_BLOCKING } from '../../services/analytics/growthbook.js'
 import { checkGithubAppInstalled } from '../../utils/background/remote/preconditions.js'
@@ -152,6 +153,7 @@ export function UltrareviewOverageDialog({
   onProceed,
   onCancel,
 }: Props): React.ReactNode {
+  useRegisterOverlay('ultrareview-launch')
   const [showTerms] = useState(
     () => !getGlobalConfig().hasSeenUltrareviewTerms,
   )

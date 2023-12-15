@@ -1,6 +1,7 @@
 import { feature } from 'bun:bundle'
-import { getMainThreadAgentType, getSessionId } from '../bootstrap/state.js'
+import { getMainThreadAgentType } from '../bootstrap/state.js'
 import { getReplBridgeHandle } from '../bridge/replBridgeHandle.js'
+import { getCurrentJobShort } from '../daemon/jobs.js'
 import { getShortcutDisplay } from '../keybindings/shortcutFormat.js'
 import { isExtractModeActive } from '../memdir/paths.js'
 import {
@@ -65,7 +66,11 @@ const briefPromptModule =
 import type { QuerySource } from '../constants/querySource.js'
 import { executeAutoDream } from '../services/autoDream/autoDream.js'
 import { executePromptSuggestion } from '../services/PromptSuggestion/promptSuggestion.js'
-import { isBareMode, isEnvDefinedFalsy } from '../utils/envUtils.js'
+import {
+  isBareMode,
+  isEnvDefinedFalsy,
+  isEnvTruthy,
+} from '../utils/envUtils.js'
 import {
   createCacheSafeParams,
   saveCacheSafeParams,
@@ -213,7 +218,7 @@ export async function* handleStopHooks(
     const classification = jobClassifierModule!
       .classifyAndPush(
         classifierState,
-        getSessionId().slice(0, 8),
+        getCurrentJobShort(),
         mainThreadAgent?.agentType ?? 'bg',
         '',
         turnAssistantMessages,
@@ -279,6 +284,7 @@ export async function* handleStopHooks(
   if (
     isMainQuerySource(querySource) &&
     briefToolModule?.isBriefEnabled() &&
+    !isEnvTruthy(process.env.DISABLE_BRIEF_MODE_STOP_HOOK) &&
     briefPromptModule &&
     !toolUseContext.agentId &&
     toolUseContext.options.tools.some(tool =>

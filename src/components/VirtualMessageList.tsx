@@ -14,6 +14,7 @@ import { ScrollChromeContext } from './FullscreenLayout.js';
 // Rows of breathing room above the target when we scrollTo.
 const HEADROOM = 3;
 import { logForDebugging } from '../utils/debug.js';
+import { logError } from '../utils/log.js';
 import { sleep } from '../utils/sleep.js';
 import { renderableSearchText } from '../utils/transcriptSearch.js';
 import { isNavigableMessage, type MessageActionsNav, type MessageActionsState, type NavigableMessage, stripSystemReminders, toolCallOf } from './messageActions.js';
@@ -221,6 +222,68 @@ function VirtualItem({
     </TextHoverColorContext.Provider>
   </Box>;
 }
+
+type UniqueKeyState = {
+  keys: string[];
+  uuids: Array<RenderableMessage['uuid']>;
+  seen: Map<string, number>;
+  itemKey: (msg: RenderableMessage) => string;
+};
+
+function buildUniqueKeys(
+  messages: RenderableMessage[],
+  itemKey: (msg: RenderableMessage) => string,
+  state: UniqueKeyState,
+): string[] {
+  let index = 0;
+  if (state.itemKey === itemKey && messages.length >= state.keys.length) {
+    const existingLength = state.keys.length;
+    while (
+      index < existingLength &&
+      messages[index]!.uuid === state.uuids[index]
+    ) {
+      index++;
+    }
+  }
+
+  if (index < state.keys.length) {
+    state.keys = [];
+    state.uuids = [];
+    state.seen = new Map();
+    index = 0;
+  }
+  state.itemKey = itemKey;
+
+  let duplicateKeys: Set<string> | null = null;
+  for (; index < messages.length; index++) {
+    const message = messages[index]!;
+    const key = itemKey(message);
+    const seenCount = state.seen.get(key);
+    if (seenCount === undefined) {
+      state.seen.set(key, 1);
+      state.keys.push(key);
+    } else {
+      state.seen.set(key, seenCount + 1);
+      state.keys.push(`${key}#${seenCount}`);
+      (duplicateKeys ??= new Set()).add(key);
+    }
+    state.uuids.push(message.uuid);
+  }
+
+  if (duplicateKeys) {
+    const details = [...duplicateKeys]
+      .slice(0, 3)
+      .map(key => `${key} ×${state.seen.get(key)}`);
+    logError(
+      new Error(
+        `VirtualMessageList: duplicate sibling keys (leaks DOM nodes via mapRemainingChildren overwrite): ${details.join(', ')}`,
+      ),
+    );
+  }
+
+  return state.keys;
+}
+
 export function VirtualMessageList({
   messages,
   scrollRef,
@@ -239,10 +302,19 @@ export function VirtualMessageList({
   onSearchMatchesChange,
   scanElement,
   setPositions
-}: Props): React.ReactNode {
+  }: Props): React.ReactNode {
   const renderItemRef = useRef(renderItem);
   renderItemRef.current = renderItem;
-  const keys = useMemo(() => messages.map(itemKey), [messages, itemKey]);
+  const keyState = useRef<UniqueKeyState>({
+    keys: [],
+    uuids: [],
+    seen: new Map(),
+    itemKey,
+  });
+  const keys = useMemo(
+    () => buildUniqueKeys(messages, itemKey, keyState.current),
+    [messages, itemKey],
+  );
   const {
     range,
     topSpacer,

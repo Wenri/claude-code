@@ -27,11 +27,14 @@ export function useMergedTools(
   const replBridgeOutboundOnly = useAppState(
     state => state.replBridgeOutboundOnly,
   )
+  const skillTools = useAppState(state => state.skillTools)
   setReplBridgeActive(replBridgeEnabled && !replBridgeOutboundOnly)
   return useMemo(() => {
     // assembleToolPool is the shared function that both REPL and runAgent use.
     // It handles: getTools() + MCP deny-rule filtering + dedup + MCP CLI exclusion.
-    const assembled = assembleToolPool(toolPermissionContext, mcpTools)
+    const assembled = assembleToolPool(toolPermissionContext, mcpTools, {
+      skillTools,
+    })
 
     return mergeAndFilterTools(
       initialTools,
@@ -41,6 +44,7 @@ export function useMergedTools(
   }, [
     initialTools,
     mcpTools,
+    skillTools,
     toolPermissionContext,
     replBridgeEnabled,
     replBridgeOutboundOnly,

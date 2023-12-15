@@ -385,7 +385,7 @@ export function detectBlockedSleepPattern(command: string): string | null {
 type SimulatedSedEditResult = {
   data: Out;
 };
-type SimulatedSedEditContext = Pick<ToolUseContext, 'readFileState' | 'updateFileHistoryState'>;
+type SimulatedSedEditContext = Pick<ToolUseContext, 'readFileState' | 'getFileHistoryState' | 'applyFileHistoryOp'>;
 
 function isRuleBasedPermissionDecision(
   reason: PermissionDecisionReason | undefined,
@@ -437,7 +437,7 @@ async function applySedEdit(simulatedEdit: {
 
   // Track file history before making changes (for undo support)
   if (fileHistoryEnabled() && parentMessage) {
-    await fileHistoryTrackEdit(toolUseContext.updateFileHistoryState, absoluteFilePath, parentMessage.uuid);
+    await fileHistoryTrackEdit(toolUseContext.getFileHistoryState, toolUseContext.applyFileHistoryOp, absoluteFilePath, parentMessage.uuid);
   }
 
   // Detect line endings and write new content
@@ -738,7 +738,9 @@ export const BashTool = buildTool({
         preventCwdChanges,
         isMainThread,
         toolUseId: toolUseContext.toolUseId,
-        agentId: toolUseContext.agentId
+        agentId: toolUseContext.agentId,
+        sessionEnvVars: toolUseContext.sessionEnvVars,
+        tmuxSocket: toolUseContext.tmuxSocket
       });
 
       // Consume the generator and capture the return value
@@ -767,6 +769,7 @@ export const BashTool = buildTool({
       result = generatorResult.value;
       trackGitOperations(input.command, result.code, result.stdout);
       const isInterrupt = result.interrupted && abortController.signal.reason === 'interrupt';
+      const isUserCancel = result.interrupted && (abortController.signal.reason === 'interrupt' || abortController.signal.reason === 'user-cancel');
 
       // stderr is interleaved in stdout (merged fd) — result.stdout has both
       stdoutAccumulator.append((result.stdout || '').trimEnd() + EOL);
@@ -792,7 +795,8 @@ export const BashTool = buildTool({
       }
 
       // Annotate output with sandbox violations if any (stderr is in stdout)
-      const outputWithSbFailures = SandboxManager.annotateStderrWithSandboxFailures(input.command, result.stdout || '');
+      const rawOutput = result.stdout || '';
+      const outputWithSbFailures = SandboxManager.annotateStderrWithSandboxFailures(input.command, rawOutput);
       if (result.preSpawnError) {
         throw new Error(result.preSpawnError);
       }
@@ -800,7 +804,7 @@ export const BashTool = buildTool({
         // stderr is merged into stdout (merged fd); outputWithSbFailures
         // already has the full output. Pass '' for stdout to avoid
         // duplication in getErrorParts() and processBashCommand.
-        throw new ShellError('', outputWithSbFailures, result.code, result.interrupted);
+        throw new ShellError('', outputWithSbFailures, result.code, isUserCancel, outputWithSbFailures !== rawOutput);
       }
       wasInterrupted = result.interrupted;
     } finally {
@@ -947,7 +951,9 @@ async function* runShellCommand({
   preventCwdChanges,
   isMainThread,
   toolUseId,
-  agentId
+  agentId,
+  sessionEnvVars,
+  tmuxSocket
 }: {
   input: BashToolInput;
   abortController: AbortController;
@@ -958,6 +964,8 @@ async function* runShellCommand({
   isMainThread?: boolean;
   toolUseId?: string;
   agentId?: AgentId;
+  sessionEnvVars?: ToolUseContext['sessionEnvVars'];
+  tmuxSocket?: ToolUseContext['tmuxSocket'];
 }): AsyncGenerator<{
   type: 'progress';
   output: string;
@@ -1011,7 +1019,9 @@ async function* runShellCommand({
     },
     preventCwdChanges,
     shouldUseSandbox: shouldUseSandbox(input),
-    shouldAutoBackground
+    shouldAutoBackground,
+    sessionEnvVars,
+    tmuxSocket
   });
 
   // Start the command execution

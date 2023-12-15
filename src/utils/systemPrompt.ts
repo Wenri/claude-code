@@ -96,6 +96,18 @@ export function buildEffectiveSystemPrompt({
     })
   }
 
+  if (agentSystemPrompt && mainThreadAgentDefinition?.appendSystemPrompt) {
+    return asSystemPrompt([
+      ...(typeof customSystemPrompt === 'string'
+        ? [customSystemPrompt]
+        : Array.isArray(customSystemPrompt)
+          ? customSystemPrompt
+          : defaultSystemPrompt),
+      agentSystemPrompt,
+      ...(appendSystemPrompt ? [appendSystemPrompt] : []),
+    ])
+  }
+
   // In proactive mode, agent instructions are appended to the default prompt
   // rather than replacing it. The proactive default prompt is already lean
   // (autonomous agent identity + memory + env + proactive section), and agents

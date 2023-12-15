@@ -20,6 +20,10 @@ export type ToolInputJSONSchema = {
   }
 }
 
+export type ApiMetricsEvent =
+  | { type: 'start'; ttftMs: number; id?: string }
+  | { type: 'end'; outputTokens: number; id?: string }
+
 import type { Notification } from './context/notifications.js'
 import type {
   MCPServerConnection,
@@ -59,11 +63,19 @@ import type {
   WebSearchProgress,
 } from './types/tools.js'
 import type { FileStateCache } from './utils/fileStateCache.js'
+import type { EffortValue } from './utils/effort.js'
+import type { MemorySelector } from './memdir/findRelevantMemories.js'
 import type { DenialTrackingState } from './utils/permissions/denialTracking.js'
 import type { ResultDedupState } from './services/tools/resultDedup.js'
 import type { ConnectionLifecycleTracker } from './services/api/connectionState.js'
 import type { SystemPrompt } from './utils/systemPromptType.js'
 import type { ContentReplacementState } from './utils/toolResultStorage.js'
+import type { SessionStateManager } from './utils/sessionState.js'
+import type { AgentLifecycle } from './utils/agentLifecycle.js'
+import type { SetClassifierApprovals } from './utils/classifierApprovals.js'
+import type { TaskRegistry } from './utils/task/framework.js'
+import type { TeammateColors } from './utils/swarm/teammateLayoutManager.js'
+import type { SessionHooksRegistry } from './utils/hooks/sessionHooks.js'
 
 // Re-export progress types for backwards compatibility
 export type {
@@ -92,9 +104,18 @@ import type {
   ReplHydration,
   ReplIsolationLatch,
 } from './tools/REPLTool/types.js'
-import type { AttributionState } from './utils/commitAttribution.js'
-import type { FileHistoryState } from './utils/fileHistory.js'
+import type { AttributionOp } from './utils/commitAttribution.js'
+import type { FileHistoryOp, FileHistoryState } from './utils/fileHistory.js'
 import type { Theme, ThemeName } from './utils/theme.js'
+import type { SetWebBrowserSlice } from './utils/webBrowserState.js'
+
+export type SetSDKStatus = (
+  status: SDKStatus,
+  metadata?: {
+    compactResult?: 'success' | 'failed'
+    compactError?: string
+  },
+) => void
 
 export type QueryChainTracking = {
   chainId: string
@@ -215,6 +236,10 @@ export type ToolUseContext = {
     planModeInstructions?: string
     /** Override querySource for analytics tracking */
     querySource?: QuerySource
+    /** Skill that spawned this agent, retained for message attribution. */
+    spawnedBySkill?: string
+    /** Skill active for the current main-thread turn. */
+    activeSkill?: string
     messageClientPlatform?: string
     /** Optional callback to get the latest tools (e.g., after MCP servers connect mid-query) */
     refreshTools?: () => Tools
@@ -225,12 +250,39 @@ export type ToolUseContext = {
   readFileState: FileStateCache
   getAppState(): AppState
   getToolPermissionContext(): ToolPermissionContext
+  getEffortValue(): EffortValue | undefined
+  getAutoCompactWindow(): number | undefined
+  getFastMode(): boolean | undefined
+  getCacheBreakerPhrase(): string | undefined
+  /** Per-session environment overrides inherited by child shell processes. */
+  sessionEnvVars?: ReadonlyMap<string, string>
+  /** Injectable facade for the session's isolated tmux socket. */
+  tmuxSocket?: { getTmuxEnv(): string | null }
   setAppState(f: (prev: AppState) => AppState): void
+  setToolPermissionContext(
+    context:
+      | ToolPermissionContext
+      | ((previous: ToolPermissionContext) => ToolPermissionContext),
+  ): void
+  setClassifierApprovals: SetClassifierApprovals
   /** Per-session metadata transport used by SDK/CCR entrypoints. */
-  sessionState?: {
-    notifyMetadataChanged(metadata: Record<string, unknown>): void
-  }
+  sessionState?: SessionStateManager
+  /** Reports command delivery progress to the owning SDK/CCR transport. */
+  onCommandLifecycle?: (
+    uuid: string,
+    state: 'started' | 'completed',
+  ) => void
   setReplContext(agentId: string, context: ReplContext | undefined): void
+  agentLifecycle: AgentLifecycle
+  teammateColors: TeammateColors
+  taskRegistry: TaskRegistry
+  sessionHooksRegistry: SessionHooksRegistry
+  setWebBrowserSlice: SetWebBrowserSlice
+  setComputerUseMcpState?: (
+    updater: (
+      previous: AppState['computerUseMcpState'],
+    ) => AppState['computerUseMcpState'],
+  ) => void
   replHydration?: ReplHydration
   isolationLatch?: ReplIsolationLatch
   onPermissionDenial?: (
@@ -281,26 +333,27 @@ export type ToolUseContext = {
   dynamicSkillDirTriggers?: Set<string>
   /** Skill names surfaced via skill_discovery this session. Telemetry only (feeds was_discovered). */
   discoveredSkillNames?: Set<string>
+  /** Remote skills discovered for this conversation. */
+  discoveredRemoteSkills?: Map<string, unknown>
+  /** Per-conversation persistent-memory selector cache and usage state. */
+  memorySelector?: MemorySelector
   /** Session-local aliases for exact Bash command reruns. */
   bashRerunAliases?: BashRerunAliases
   userModified?: boolean
   setInProgressToolUseIDs: (f: (prev: Set<string>) => Set<string>) => void
   /** Only wired in interactive (REPL) contexts; SDK/QueryEngine don't set this. */
   setHasInterruptibleToolInProgress?: (v: boolean) => void
-  setResponseLength: (f: (prev: number) => number) => void
-  /** Ant-only: push a new API metrics entry for OTPS tracking.
-   *  Called by subagent streaming when a new API request starts. */
-  pushApiMetricsEntry?: (ttftMs: number) => void
+  addResponseLength: (length: number) => void
+  resetResponseLength: () => void
+  /** Ant-only: record an API request lifecycle event for OTPS tracking. */
+  pushApiMetricsEntry?: (event: ApiMetricsEvent) => void
   setStreamMode?: (mode: SpinnerMode) => void
   onCompactProgress?: (event: CompactProgressEvent) => void
-  setSDKStatus?: (status: SDKStatus) => void
+  setSDKStatus?: SetSDKStatus
   openMessageSelector?: () => void
-  updateFileHistoryState: (
-    updater: (prev: FileHistoryState) => FileHistoryState,
-  ) => void
-  updateAttributionState: (
-    updater: (prev: AttributionState) => AttributionState,
-  ) => void
+  getFileHistoryState: () => FileHistoryState | undefined
+  applyFileHistoryOp: (operation: FileHistoryOp) => void
+  applyAttributionOp: (operation: AttributionOp) => void
   setConversationId?: (id: UUID) => void
   agentId?: AgentId // Only set for subagents; use getSessionId() for session ID. Hooks use this to distinguish subagent calls.
   agentType?: string // Subagent type name. For the main thread's --agent type, hooks fall back to getMainThreadAgentType().
@@ -472,6 +525,8 @@ export type Tool<
   // Optional because TungstenTool doesn't define this. TODO: Make it required.
   // When we do that, we can also go through and make this a bit more type-safe.
   outputSchema?: z.ZodType<unknown>
+  /** Remove bulky fields from old transcript-only tool results. */
+  stripForStorage?(output: Output): Output
   inputsEquivalent?(a: z.infer<Input>, b: z.infer<Input>): boolean
   isConcurrencySafe(input: z.infer<Input>): boolean
   isEnabled(): boolean

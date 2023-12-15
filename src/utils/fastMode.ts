@@ -39,6 +39,10 @@ export function isFastModeEnabled(): boolean {
   return !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_FAST_MODE)
 }
 
+function shouldSkipFastModeOrgCheck(): boolean {
+  return isEnvTruthy(process.env.CLAUDE_CODE_SKIP_FAST_MODE_ORG_CHECK)
+}
+
 export function isFastModeAvailable(): boolean {
   if (!isFastModeEnabled()) {
     return false
@@ -117,7 +121,7 @@ export function getFastModeUnavailableReason(): string | null {
     return reason
   }
 
-  if (orgStatus.status === 'disabled') {
+  if (orgStatus.status === 'disabled' && !shouldSkipFastModeOrgCheck()) {
     if (
       orgStatus.reason === 'network_error' ||
       orgStatus.reason === 'unknown'
@@ -397,6 +401,10 @@ export function resolveFastModeStatusFromCache(): void {
   if (orgStatus.status !== 'pending') {
     return
   }
+  if (shouldSkipFastModeOrgCheck()) {
+    orgStatus = { status: 'enabled' }
+    return
+  }
   const isAnt = process.env.USER_TYPE === 'ant'
   const cachedEnabled = getGlobalConfig().penguinModeOrgEnabled === true
   orgStatus =
@@ -412,6 +420,11 @@ export async function prefetchFastModeStatus(): Promise<void> {
   }
 
   if (!isFastModeEnabled()) {
+    return
+  }
+
+  if (shouldSkipFastModeOrgCheck()) {
+    orgStatus = { status: 'enabled' }
     return
   }
 

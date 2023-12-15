@@ -12,6 +12,7 @@ import { getGlobalConfig, saveGlobalConfig } from '../utils/config.js';
 import { convertEffortValueToLevel, type EffortLevel, getDefaultEffortForModel, modelSupportsEffort, modelSupportsMaxEffort, modelSupportsXHighEffort, resolvePickerEffortPersistence, toPersistableEffort } from '../utils/effort.js';
 import { getCanonicalName, getDefaultMainLoopModel, type ModelSetting, modelDisplayString, parseUserSpecifiedModel } from '../utils/model/model.js';
 import { getModelOptions } from '../utils/model/modelOptions.js';
+import { getInferenceProfileBackingModel } from '../utils/model/bedrock.js';
 import { getSettingsForSource, updateSettingsForSource } from '../utils/settings/settings.js';
 import { ConfigurableShortcutHint } from './ConfigurableShortcutHint.js';
 import { Select } from './CustomSelect/index.js';
@@ -38,7 +39,7 @@ export type Props = {
 };
 const NO_PREFERENCE = '__NO_PREFERENCE__';
 export function ModelPicker(t0) {
-  const $ = _c(82);
+  const $ = _c(83);
   const {
     initial,
     sessionModel,
@@ -145,21 +146,32 @@ export function ModelPicker(t0) {
     t7 = $[19];
   }
   const focusedModelName = t7;
+  const focusedModel = resolveOptionModel(focusedValue);
+  const [inferenceProfileVersion, refreshInferenceProfile] = React.useReducer(value => value + 1, 0);
+  React.useEffect(() => {
+    if (!focusedModel?.includes('application-inference-profile')) return;
+    let cancelled = false;
+    void getInferenceProfileBackingModel(focusedModel).then(() => {
+      if (!cancelled) refreshInferenceProfile();
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [focusedModel]);
   let focusedSupportsEffort;
   let t8;
-  if ($[20] !== focusedValue) {
-    const focusedModel = resolveOptionModel(focusedValue);
+  if ($[20] !== focusedValue || $[82] !== inferenceProfileVersion) {
     focusedSupportsEffort = focusedModel ? modelSupportsEffort(focusedModel) : false;
     t8 = focusedModel ? modelSupportsMaxEffort(focusedModel) : false;
     $[20] = focusedValue;
     $[21] = focusedSupportsEffort;
     $[22] = t8;
+    $[82] = inferenceProfileVersion;
   } else {
     focusedSupportsEffort = $[21];
     t8 = $[22];
   }
   const focusedSupportsMax = t8;
-  const focusedModel = resolveOptionModel(focusedValue);
   const focusedSupportsXHigh = focusedModel ? modelSupportsXHighEffort(focusedModel) : false;
   let t9;
   if ($[23] !== focusedValue) {
@@ -273,7 +285,7 @@ export function ModelPicker(t0) {
   }
   let t18;
   if ($[44] !== sessionModel) {
-    t18 = sessionModel && <Text dimColor={true}>Currently using {modelDisplayString(sessionModel)} for this session (set by plan mode). Selecting a model will undo this.</Text>;
+    t18 = sessionModel && <Text dimColor={true}>Currently using {modelDisplayString(sessionModel)} for this session only. Selecting a model will undo this.</Text>;
     $[44] = sessionModel;
     $[45] = t18;
   } else {

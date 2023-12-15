@@ -22,9 +22,11 @@ import {
 } from '../utils/inProcessTeammateHelpers.js'
 import { createAssistantMessage } from '../utils/messages.js'
 import {
+  getSandboxPermissionBehavior,
   permissionModeFromString,
   toExternalPermissionMode,
 } from '../utils/permissions/PermissionMode.js'
+import { classifySandboxNetworkAccess } from '../utils/permissions/yoloClassifier.js'
 import { applyPermissionUpdate } from '../utils/permissions/PermissionUpdate.js'
 import { jsonStringify } from '../utils/slowOperations.js'
 import { isInsideTmux } from '../utils/swarm/backends/detection.js'
@@ -35,7 +37,10 @@ import {
 import type { PaneBackendType } from '../utils/swarm/backends/types.js'
 import { TEAM_LEAD_NAME } from '../utils/swarm/constants.js'
 import { getLeaderToolUseConfirmQueue } from '../utils/swarm/leaderPermissionBridge.js'
-import { sendPermissionResponseViaMailbox } from '../utils/swarm/permissionSync.js'
+import {
+  sendPermissionResponseViaMailbox,
+  sendSandboxPermissionResponseViaMailbox,
+} from '../utils/swarm/permissionSync.js'
 import {
   removeTeammateFromTeamFile,
   setMemberMode,
@@ -405,6 +410,36 @@ export function useInboxPoller({
         `[InboxPoller] Found ${sandboxPermissionRequests.length} sandbox permission request(s)`,
       )
 
+      const { mode, isBypassPermissionsModeAvailable } =
+        currentAppState.toolPermissionContext
+      const sandboxPermissionBehavior = getSandboxPermissionBehavior(
+        mode,
+        isBypassPermissionsModeAvailable,
+      )
+      const teamName = currentAppState.teamContext?.teamName
+
+      async function resolveSandboxRequest(
+        host: string,
+      ): Promise<boolean | null> {
+        switch (sandboxPermissionBehavior) {
+          case 'allow':
+            return true
+          case 'deny':
+            return false
+          case 'classify':
+            return classifySandboxNetworkAccess(
+              host,
+              undefined,
+              [],
+              getAllBaseTools(),
+              currentAppState.toolPermissionContext,
+              new AbortController().signal,
+            )
+          case 'ask':
+            return null
+        }
+      }
+
       const newSandboxRequests: Array<{
         requestId: string
         workerId: string
@@ -422,6 +457,21 @@ export function useInboxPoller({
         if (!parsed.hostPattern?.host) {
           logForDebugging(
             `[InboxPoller] Invalid sandbox permission request: missing hostPattern.host`,
+          )
+          continue
+        }
+
+        const allow = await resolveSandboxRequest(parsed.hostPattern.host)
+        if (allow !== null) {
+          logForDebugging(
+            `[InboxPoller] Auto-resolving sandbox request ${parsed.requestId} (mode=${mode}, allow=${allow})`,
+          )
+          void sendSandboxPermissionResponseViaMailbox(
+            parsed.workerName,
+            parsed.requestId,
+            parsed.hostPattern.host,
+            allow,
+            teamName,
           )
           continue
         }

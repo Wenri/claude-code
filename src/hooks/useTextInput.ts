@@ -1,22 +1,20 @@
 import { isInputModeCharacter } from 'src/components/PromptInput/inputModes.js'
 import { useNotifications } from 'src/context/notifications.js'
-import stripAnsi from 'strip-ansi'
 import { markBackslashReturnUsed } from '../commands/terminalSetup/terminalSetup.js'
+import {
+  getLatestKill,
+  getNextYank,
+  type KillRingStore,
+  useKillRing,
+} from '../context/killRing.js'
 import { addToHistory } from '../history.js'
-import type { Key } from '../ink.js'
+import type { KeyboardEvent } from '../ink/events/keyboard-event.js'
 import type {
   InlineGhostText,
   TextInputState,
 } from '../types/textInputTypes.js'
 import {
   Cursor,
-  getLastKill,
-  pushToKillRing,
-  recordYank,
-  resetKillAccumulation,
-  resetYankState,
-  updateYankLength,
-  yankPop,
 } from '../utils/Cursor.js'
 import { env } from '../utils/env.js'
 import { isFullscreenEnvEnabled } from '../utils/fullscreen.js'
@@ -28,6 +26,26 @@ type MaybeCursor = void | Cursor
 type InputHandler = (input: string) => MaybeCursor
 type InputMapper = (input: string) => MaybeCursor
 const NOOP_HANDLER: InputHandler = () => {}
+const IGNORED_KEY_NAMES = new Set([
+  'insert',
+  'clear',
+  'enter',
+  'center',
+  'undefined',
+  'mouse',
+  'f1',
+  'f2',
+  'f3',
+  'f4',
+  'f5',
+  'f6',
+  'f7',
+  'f8',
+  'f9',
+  'f10',
+  'f11',
+  'f12',
+])
 function mapInput(input_map: Array<[string, InputHandler]>): InputMapper {
   const map = new Map(input_map)
   return function (input: string): MaybeCursor {
@@ -67,11 +85,12 @@ export type UseTextInputProps = {
   maxVisibleLines?: number
   externalOffset: number
   onOffsetChange: (offset: number) => void
-  inputFilter?: (input: string, key: Key) => string
+  inputFilter?: (input: string, event: KeyboardEvent) => string
   inlineGhostText?: InlineGhostText
   dim?: (text: string) => string
   selectionAnchor?: number | null
   selectionLinewise?: boolean
+  killRing?: KillRingStore
 }
 
 export function useTextInput({
@@ -102,7 +121,10 @@ export function useTextInput({
   dim,
   selectionAnchor,
   selectionLinewise = false,
+  killRing: killRingOverride,
 }: UseTextInputProps): TextInputState {
+  const defaultKillRing = useKillRing()
+  const killRing = killRingOverride ?? defaultKillRing
   // Pre-warm the modifiers module for Apple Terminal (has internal guard, safe to call multiple times)
   if (env.terminal === 'Apple_Terminal') {
     prewarmModifiers()
@@ -110,7 +132,8 @@ export function useTextInput({
 
   const offset = externalOffset
   const setOffset = onOffsetChange
-  const cursor = Cursor.fromText(originalValue, columns, offset)
+  let cursor = Cursor.fromText(originalValue, columns, offset)
+  let submitted = false
   const { addNotification, removeNotification } = useNotifications()
 
   const handleCtrlC = useDoublePress(
@@ -180,15 +203,6 @@ export function useTextInput({
     () => onLeftArrowOnEmpty?.(),
   )
 
-  function handleLeft(): Cursor {
-    if (onLeftArrowOnEmpty && cursor.text === '') {
-      if (onLeftArrowOnEmptyMessage) handleEmptyLeft()
-      else onLeftArrowOnEmpty()
-      return cursor
-    }
-    return cursor.left()
-  }
-
   function handleCtrlD(): MaybeCursor {
     if (cursor.text === '') {
       // When input is empty, handle double-press
@@ -201,52 +215,64 @@ export function useTextInput({
 
   function killToLineEnd(): Cursor {
     const { cursor: newCursor, killed } = cursor.deleteToLineEnd()
-    pushToKillRing(killed, 'append')
+    killRing.dispatch({ type: 'kill', text: killed, direction: 'append' })
     return newCursor
   }
 
   function killToLineStart(): Cursor {
     const { cursor: newCursor, killed } = cursor.deleteToLineStart()
-    pushToKillRing(killed, 'prepend')
+    killRing.dispatch({ type: 'kill', text: killed, direction: 'prepend' })
+    if (killed.length >= 3) {
+      addNotification({
+        key: 'kill-paste-hint',
+        text: 'Ctrl+Y to paste deleted text',
+        priority: 'immediate',
+        timeoutMs: 5000,
+      })
+    }
     return newCursor
   }
 
   function killWordBefore(): Cursor {
     const { cursor: newCursor, killed } = cursor.deleteWordBefore()
-    pushToKillRing(killed, 'prepend')
+    killRing.dispatch({ type: 'kill', text: killed, direction: 'prepend' })
     return newCursor
   }
 
   function yank(): Cursor {
-    const text = getLastKill()
+    const text = getLatestKill(killRing.state)
     if (text.length > 0) {
       const startOffset = cursor.offset
       const newCursor = cursor.insert(text)
-      recordYank(startOffset, text.length)
+      killRing.dispatch({ type: 'yank', start: startOffset, length: text.length })
       return newCursor
     }
     return cursor
   }
 
   function handleYankPop(): Cursor {
-    const popResult = yankPop()
+    const popResult = getNextYank(killRing.state)
     if (!popResult) {
       return cursor
     }
     const { text, start, length } = popResult
+    killRing.dispatch({ type: 'yankPop' })
     // Replace the previously yanked text with the new one
     const before = cursor.text.slice(0, start)
     const after = cursor.text.slice(start + length)
     const newText = before + text + after
     const newOffset = start + text.length
-    updateYankLength(text.length)
+    killRing.dispatch({ type: 'updateYankLength', length: text.length })
     return Cursor.fromText(newText, columns, newOffset)
   }
 
   const handleCtrl = mapInput([
     ['a', () => cursor.startOfLogicalLine()],
-    ['b', handleLeft],
-    ['c', handleCtrlC],
+    ['b', () => cursor.left()],
+    ['c', () => {
+      handleCtrlC()
+      return cursor
+    }],
     ['d', handleCtrlD],
     ['e', () => cursor.endOfLogicalLine()],
     ['f', () => cursor.right()],
@@ -266,7 +292,7 @@ export function useTextInput({
     ['y', handleYankPop],
   ])
 
-  function handleEnter(key: Key) {
+  function handleEnter(event: KeyboardEvent) {
     if (
       multiline &&
       cursor.offset > 0 &&
@@ -277,7 +303,7 @@ export function useTextInput({
       return cursor.backspace().insert('\n')
     }
     // Meta+Enter or Shift+Enter inserts a newline
-    if (key.meta || key.shift) {
+    if (event.meta || event.shift) {
       return cursor.insert('\n')
     }
     // Apple Terminal doesn't support custom Shift+Enter keybindings,
@@ -285,7 +311,11 @@ export function useTextInput({
     if (env.terminal === 'Apple_Terminal' && isModifierPressed('shift')) {
       return cursor.insert('\n')
     }
-    onSubmit?.(originalValue)
+    if (onSubmit) {
+      onSubmit(cursor.text)
+      submitted = true
+    }
+    return cursor
   }
 
   function upOrHistoryUp() {
@@ -337,195 +367,130 @@ export function useTextInput({
     return cursor
   }
 
-  function mapKey(key: Key): InputMapper {
-    switch (true) {
-      case key.escape:
+  function mapKey(event: KeyboardEvent): InputMapper {
+    switch (event.name) {
+      case 'escape':
         return () => {
-          // Skip when a keybinding context (e.g. Autocomplete) owns escape.
-          // useKeybindings can't shield us via stopImmediatePropagation —
-          // BaseTextInput's useInput registers first (child effects fire
-          // before parent effects), so this handler has already run by the
-          // time the keybinding's handler stops propagation.
-          if (disableEscapeDoublePress) return cursor
+          if (disableEscapeDoublePress) return
           handleEscape()
-          // Return the current cursor unchanged - handleEscape manages state internally
           return cursor
         }
-      case key.leftArrow && key.super:
-        return () => cursor.startOfLine()
-      case key.rightArrow && key.super:
-        return () => cursor.endOfLine()
-      case key.leftArrow && (key.ctrl || key.meta || key.fn):
-        return () => cursor.prevWord()
-      case key.rightArrow && (key.ctrl || key.meta || key.fn):
-        return () => cursor.nextWord()
-      case key.backspace:
-        if (key.super) return killToLineStart
-        return key.meta || key.ctrl
-          ? killWordBefore
-          : () => cursor.deleteTokenBefore() ?? cursor.backspace()
-      case key.delete:
-        if (key.super) return killToLineEnd
-        return key.meta ? killToLineEnd : () => cursor.del()
-      case key.ctrl:
-        return handleCtrl
-      case key.home:
-        return () => cursor.startOfLine()
-      case key.end:
-        return () => cursor.endOfLine()
-      case key.pageDown:
-        // In fullscreen mode, PgUp/PgDn scroll the message viewport instead
-        // of moving the cursor — no-op here, ScrollKeybindingHandler handles it.
-        if (isFullscreenEnvEnabled()) {
-          return NOOP_HANDLER
+      case 'left':
+        if (event.superKey) return () => cursor.startOfLine()
+        if (event.ctrl || event.meta || event.fn) {
+          return () => cursor.prevWord()
         }
-        return () => cursor.endOfLine()
-      case key.pageUp:
-        if (isFullscreenEnvEnabled()) {
-          return NOOP_HANDLER
-        }
-        return () => cursor.startOfLine()
-      case key.wheelUp:
-      case key.wheelDown:
-        // Mouse wheel events only exist when fullscreen mouse tracking is on.
-        // ScrollKeybindingHandler handles them; no-op here to avoid inserting
-        // the raw SGR sequence as text.
-        return NOOP_HANDLER
-      case key.return:
-        // Must come before key.meta so Option+Return inserts newline
-        return () => handleEnter(key)
-      case key.meta:
-        return handleMeta
-      case key.tab:
-        return () => cursor
-      case key.upArrow && !key.shift:
-        return upOrHistoryUp
-      case key.downArrow && !key.shift:
-        return downOrHistoryDown
-      case key.leftArrow:
-        return handleLeft
-      case key.rightArrow:
-        return () => cursor.right()
-      default: {
-        return function (input: string) {
-          switch (true) {
-            // Home key
-            case input === '\x1b[H' || input === '\x1b[1~':
-              return cursor.startOfLine()
-            // End key
-            case input === '\x1b[F' || input === '\x1b[4~':
-              return cursor.endOfLine()
-            default: {
-              // Trailing \r after text is SSH-coalesced Enter ("o\r") —
-              // strip it so the Enter isn't inserted as content. Lone \r
-              // here is Alt+Enter leaking through (META_KEY_CODE_RE doesn't
-              // match \x1b\r) — leave it for the \r→\n below. Embedded \r
-              // is multi-line paste from a terminal without bracketed
-              // paste — convert to \n. Backslash+\r is a stale VS Code
-              // Shift+Enter binding (pre-#8991 /terminal-setup wrote
-              // args.text "\\\r\n" to keybindings.json); keep the \r so
-              // it becomes \n below (anthropics/claude-code#31316).
-              const text = stripAnsi(input)
-                // eslint-disable-next-line custom-rules/no-lookbehind-regex -- .replace(re, str) on 1-2 char keystrokes: no-match returns same string (Object.is), regex never runs
-                .replace(/(?<=[^\\\r\n])\r$/, '')
-                .replace(/\r\n/g, '\n')
-                .replace(/\r/g, '\n')
-              if (cursor.isAtStart() && isInputModeCharacter(input)) {
-                return cursor.insert(text).left()
-              }
-              return cursor.insert(text)
-            }
+        if (onLeftArrowOnEmpty && !event.shift && cursor.text === '') {
+          return () => {
+            if (onLeftArrowOnEmptyMessage) handleEmptyLeft()
+            else onLeftArrowOnEmpty()
+            return cursor
           }
         }
+        return () => cursor.left()
+      case 'right':
+        if (event.superKey) return () => cursor.endOfLine()
+        if (event.ctrl || event.meta || event.fn) {
+          return () => cursor.nextWord()
+        }
+        return () => cursor.right()
+      case 'up':
+        if (event.shift || event.ctrl || event.meta) return NOOP_HANDLER
+        return upOrHistoryUp
+      case 'down':
+        if (event.shift || event.ctrl || event.meta) return NOOP_HANDLER
+        return downOrHistoryDown
+      case 'backspace':
+        if (event.superKey) return killToLineStart
+        return event.meta || event.ctrl
+          ? killWordBefore
+          : () => cursor.deleteTokenBefore() ?? cursor.backspace()
+      case 'delete':
+        if (event.superKey || event.meta) return killToLineEnd
+        return () => cursor.del()
+      case 'home':
+        if (event.ctrl) return NOOP_HANDLER
+        return () => cursor.startOfLine()
+      case 'end':
+        if (event.ctrl) return NOOP_HANDLER
+        return () => cursor.endOfLine()
+      case 'pagedown':
+        if (isFullscreenEnvEnabled() || event.ctrl) return NOOP_HANDLER
+        return () => cursor.endOfLine()
+      case 'pageup':
+        if (isFullscreenEnvEnabled() || event.ctrl) return NOOP_HANDLER
+        return () => cursor.startOfLine()
+      case 'return':
+        if (event.ctrl) return NOOP_HANDLER
+        return () => handleEnter(event)
+      case 'enter':
+        return () => cursor.insert('\n')
+      case 'tab':
+        return NOOP_HANDLER
+    }
+
+    if (event.ctrl) return handleCtrl
+    if (event.meta) return handleMeta
+    if (IGNORED_KEY_NAMES.has(event.name)) return NOOP_HANDLER
+    return function (input: string) {
+      if (input.length === 0) return
+      if (cursor.isAtStart() && isInputModeCharacter(input)) {
+        return cursor.insert(input).left()
       }
+      return cursor.insert(input)
     }
   }
 
   // Check if this is a kill command (Ctrl+K, Ctrl+U, Ctrl+W, or Meta+Backspace/Delete)
-  function isKillKey(key: Key, input: string): boolean {
-    if (key.ctrl && (input === 'k' || input === 'u' || input === 'w')) {
+  function isKillKey(event: KeyboardEvent): boolean {
+    if (
+      event.ctrl &&
+      (event.key === 'k' || event.key === 'u' || event.key === 'w')
+    ) {
       return true
     }
-    if (key.meta && (key.backspace || key.delete)) {
-      return true
-    }
-    return false
+    if (
+      event.name === 'backspace' &&
+      (event.meta || event.superKey || event.ctrl)
+    ) return true
+    return event.name === 'delete' && (event.meta || event.superKey)
   }
 
   // Check if this is a yank command (Ctrl+Y or Alt+Y)
-  function isYankKey(key: Key, input: string): boolean {
-    return (key.ctrl || key.meta) && input === 'y'
+  function isYankKey(event: KeyboardEvent): boolean {
+    return (event.ctrl || event.meta) && event.key === 'y'
   }
 
-  function onInput(input: string, key: Key): void {
+  function handleKeyDown(event: KeyboardEvent): void {
     // Note: Image paste shortcut (chat:imagePaste) is handled via useKeybindings in PromptInput
 
     // Apply filter if provided
-    const filteredInput = inputFilter ? inputFilter(input, key) : input
+    const input = event.key
+    const filteredInput = inputFilter ? inputFilter(input, event) : input
 
     // If the input was filtered out, do nothing
     if (filteredInput === '' && input !== '') {
+      event.preventDefault()
       return
     }
 
-    // Fix Issue #1853: Filter DEL characters that interfere with backspace in SSH/tmux
-    // In SSH/tmux environments, backspace generates both key events and raw DEL chars
-    if (!key.backspace && !key.delete && input.includes('\x7f')) {
-      const delCount = (input.match(/\x7f/g) || []).length
-
-      // Apply all DEL characters as backspace operations synchronously
-      // Try to delete tokens first, fall back to character backspace
-      let currentCursor = cursor
-      for (let i = 0; i < delCount; i++) {
-        currentCursor =
-          currentCursor.deleteTokenBefore() ?? currentCursor.backspace()
-      }
-
-      // Update state once with the final result
-      if (!cursor.equals(currentCursor)) {
-        if (cursor.text !== currentCursor.text) {
-          onChange(currentCursor.text)
-        }
-        setOffset(currentCursor.offset)
-      }
-      resetKillAccumulation()
-      resetYankState()
-      return
+    if (!isKillKey(event) && !isYankKey(event)) {
+      killRing.dispatch({ type: 'interrupt' })
     }
 
-    // Reset kill accumulation for non-kill keys
-    if (!isKillKey(key, filteredInput)) {
-      resetKillAccumulation()
-    }
-
-    // Reset yank state for non-yank keys (breaks yank-pop chain)
-    if (!isYankKey(key, filteredInput)) {
-      resetYankState()
-    }
-
-    const nextCursor = mapKey(key)(filteredInput)
+    const nextCursor = mapKey(event)(filteredInput)
     if (nextCursor) {
+      event.preventDefault()
       if (!cursor.equals(nextCursor)) {
         if (cursor.text !== nextCursor.text) {
           onChange(nextCursor.text)
         }
         setOffset(nextCursor.offset)
       }
-      // SSH-coalesced Enter: on slow links, "o" + Enter can arrive as one
-      // chunk "o\r". parseKeypress only matches s === '\r', so it hit the
-      // default handler above (which stripped the trailing \r). Text with
-      // exactly one trailing \r is coalesced Enter; lone \r is Alt+Enter
-      // (newline); embedded \r is multi-line paste.
-      if (
-        filteredInput.length > 1 &&
-        filteredInput.endsWith('\r') &&
-        !filteredInput.slice(0, -1).includes('\r') &&
-        // Backslash+CR is a stale VS Code Shift+Enter binding, not
-        // coalesced Enter. See default handler above.
-        filteredInput[filteredInput.length - 2] !== '\\'
-      ) {
-        onSubmit?.(nextCursor.text)
-      }
+    }
+    if (submitted) {
+      submitted = false
+      cursor = Cursor.fromText('', columns, 0)
     }
   }
 
@@ -540,7 +505,7 @@ export function useTextInput({
   const cursorPos = cursor.getPosition()
 
   return {
-    onInput,
+    handleKeyDown,
     renderedValue: cursor.render(
       cursorChar,
       mask,

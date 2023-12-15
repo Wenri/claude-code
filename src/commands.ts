@@ -3,6 +3,10 @@ import addDir from './commands/add-dir/index.js'
 import autofixPrStub from './commands/autofix-pr/index.js'
 import autofixPr from './commands/autofix-pr/command.js'
 import backfillSessions from './commands/backfill-sessions/index.js'
+import {
+  autocompact,
+  autocompactNonInteractive,
+} from './commands/autocompact/index.js'
 import btw from './commands/btw/index.js'
 import goodClaude from './commands/good-claude/index.js'
 import issue from './commands/issue/index.js'
@@ -41,6 +45,8 @@ import rename, {
   renameNonInteractive,
 } from './commands/rename/index.js'
 import resume from './commands/resume/index.js'
+import setupBedrock from './commands/setup-bedrock/index.js'
+import setupVertex from './commands/setup-vertex/index.js'
 import review, { ultrareview } from './commands/review.js'
 import session from './commands/session/index.js'
 import share from './commands/share/index.js'
@@ -134,11 +140,9 @@ const buddy = feature('BUDDY')
     ).default
   : null
 /* eslint-enable @typescript-eslint/no-require-imports */
-import thinkback from './commands/thinkback/index.js'
-import thinkbackPlay from './commands/thinkback-play/index.js'
 import permissions from './commands/permissions/index.js'
 import plan from './commands/plan/index.js'
-import fast from './commands/fast/index.js'
+import fast, { fastNonInteractive } from './commands/fast/index.js'
 import focus from './commands/focus.js'
 import passes from './commands/passes/index.js'
 import privacySettings from './commands/privacy-settings/index.js'
@@ -187,8 +191,7 @@ import exit, { exitNonInteractive } from './commands/exit/index.js'
 import background from './commands/background/index.js'
 import stop, { stopNonInteractive } from './commands/stop/index.js'
 import exportCommand from './commands/export/index.js'
-import model from './commands/model/index.js'
-import outputStyle from './commands/output-style/index.js'
+import model, { modelNonInteractive } from './commands/model/index.js'
 import remoteEnv from './commands/remote-env/index.js'
 import upgrade from './commands/upgrade/index.js'
 import {
@@ -198,7 +201,7 @@ import {
 import rateLimitOptions from './commands/rate-limit-options/index.js'
 import proTrialExpired from './commands/pro-trial-expired/index.js'
 import statusline from './commands/statusline.js'
-import effort from './commands/effort/index.js'
+import effort, { effortNonInteractive } from './commands/effort/index.js'
 import { isAgentsFleetEnabled } from './utils/agentsFleet.js'
 // insights.ts is 113KB (3200 lines, includes diffLines/html rendering). Lazy
 // shim defers the heavy module until /insights is actually invoked.
@@ -253,7 +256,6 @@ export const INTERNAL_ONLY_COMMANDS = [
   bridgeKick,
   version,
   versionNonInteractive,
-  ...(ultraplan ? [ultraplan] : []),
   ...(subscribePr ? [subscribePr] : []),
   resetLimits,
   resetLimitsNonInteractive,
@@ -276,12 +278,12 @@ const COMMANDS = memoize((): Command[] => [
   addDir,
   advisor,
   agents,
+  autocompact,
   branch,
   btw,
   chrome,
   clear,
   color,
-  colorNonInteractive,
   compact,
   config,
   copy,
@@ -306,16 +308,17 @@ const COMMANDS = memoize((): Command[] => [
   mcp,
   memory,
   mobile,
+  toggleMemory,
   model,
-  outputStyle,
   remoteEnv,
   plugin,
   pr_comments,
   releaseNotes,
   reloadPlugins,
   rename,
-  renameNonInteractive,
   resume,
+  setupBedrock,
+  setupVertex,
   session,
   skills,
   status,
@@ -327,6 +330,7 @@ const COMMANDS = memoize((): Command[] => [
   feedback,
   review,
   ultrareview,
+  ...(ultraplan ? [ultraplan] : []),
   rewind,
   securityReview,
   terminalSetup,
@@ -349,8 +353,6 @@ const COMMANDS = memoize((): Command[] => [
   ...(remoteControlServerCommand ? [remoteControlServerCommand] : []),
   ...(daemonCommand ? [daemonCommand] : []),
   ...(voiceCommand ? [voiceCommand] : []),
-  thinkback,
-  thinkbackPlay,
   permissions,
   plan,
   powerup,
@@ -363,7 +365,6 @@ const COMMANDS = memoize((): Command[] => [
   ...(peersCmd ? [peersCmd] : []),
   tasks,
   recap,
-  toggleMemory,
   ...(workflowsCmd ? [workflowsCmd] : []),
   ...(torch ? [torch] : []),
   teamOnboarding,
@@ -643,20 +644,38 @@ export const getSlashCommandToolSkills = memoize(
 export const REMOTE_SAFE_COMMANDS: Set<Command> = new Set([
   session, // Shows QR code / URL for remote session
   exit, // Exit the TUI
-  clear, // Clear screen
   help, // Show help
   theme, // Change terminal theme
   color, // Change agent color
   usage, // Show usage info (including the /cost and /stats aliases)
   copy, // Copy last message
-  btw, // Quick note
   feedback, // Send feedback
-  plan, // Plan mode toggle
-  powerup, // Interactive feature lessons
-  keybindings, // Keybinding management
-  statusline, // Status line toggle
-  stickers, // Stickers
   mobile, // Mobile QR code
+  releaseNotes, // Show changelog
+  exportCommand, // Export the conversation
+  doctor, // Diagnose installation and configuration
+  terminalSetup, // Configure terminal integration
+  privacySettings, // Manage privacy settings
+  focus, // Enter focus mode
+  powerup, // Interactive feature lessons
+  passes, // Manage passes
+  extraUsage, // Manage extra usage
+  ...(daemonCommand ? [daemonCommand] : []),
+  rename, // Rename the session
+  btw, // Quick note
+  context, // Show context usage
+  plan, // Plan mode toggle
+  effort, // Change reasoning effort
+  fast, // Toggle fast mode
+  model, // Change model
+  version, // Show the CLI version
+  clear, // Clear screen
+  compact, // Compact the conversation
+  summary, // DCE-compatible internal stub
+  stickers, // Stickers
+  toggleMemory, // Toggle memory
+  reloadPlugins, // Reload plugins
+  recap, // Generate a session recap
 ])
 
 /**
@@ -674,14 +693,23 @@ export const REMOTE_SAFE_COMMANDS: Set<Command> = new Set([
 export const BRIDGE_SAFE_COMMANDS: Set<Command> = new Set(
   [
     compact, // Shrink context — useful mid-session from a phone
+    autocompactNonInteractive, // Configure auto-compact window
     clear, // Wipe transcript
     usageNonInteractive, // Show usage and session cost
     contextNonInteractive,
     summary, // Summarize conversation
-    releaseNotes, // Show changelog
-    reloadPlugins,
     exitNonInteractive,
     stopNonInteractive,
+    versionNonInteractive,
+    extraUsageNonInteractive,
+    renameNonInteractive,
+    colorNonInteractive,
+    effortNonInteractive,
+    fastNonInteractive,
+    modelNonInteractive,
+    recap,
+    reloadPlugins,
+    update,
   ].filter((c): c is Command => c !== null),
 )
 

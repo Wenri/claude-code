@@ -8,9 +8,7 @@ import { type Command, getCommandName } from '../commands.js';
 import { getModeFromInput, getValueFromInput } from '../components/PromptInput/inputModes.js';
 import type { SuggestionItem, SuggestionType } from '../components/PromptInput/PromptInputFooterSuggestions.js';
 import { useIsModalOverlayActive, useRegisterOverlay } from '../context/overlayContext.js';
-import { KeyboardEvent } from '../ink/events/keyboard-event.js';
-// eslint-disable-next-line custom-rules/prefer-use-keybindings -- backward-compat bridge until consumers wire handleKeyDown to <Box onKeyDown>
-import { useInput } from '../ink.js';
+import type { KeyboardEvent } from '../ink/events/keyboard-event.js';
 import { useOptionalKeybindingContext, useRegisterKeybindingContext } from '../keybindings/KeybindingContext.js';
 import { useKeybindings } from '../keybindings/useKeybinding.js';
 import { useShortcutDisplay } from '../keybindings/useShortcutDisplay.js';
@@ -130,6 +128,7 @@ type Props = {
   suppressSuggestions?: boolean;
   markAccepted: () => void;
   onModeChange?: (mode: PromptInputMode) => void;
+  sessionEnvVars?: ReadonlyMap<string, string>;
 };
 type UseTypeaheadResult = {
   suggestions: SuggestionItem[];
@@ -235,13 +234,22 @@ let currentShellCompletionAbortController: AbortController | null = null;
 /**
  * Generate bash shell completion suggestions
  */
-async function generateBashSuggestions(input: string, cursorOffset: number): Promise<SuggestionItem[]> {
+async function generateBashSuggestions(
+  input: string,
+  cursorOffset: number,
+  sessionEnvVars?: ReadonlyMap<string, string>,
+): Promise<SuggestionItem[]> {
   try {
     if (currentShellCompletionAbortController) {
       currentShellCompletionAbortController.abort();
     }
     currentShellCompletionAbortController = new AbortController();
-    const suggestions = await getShellCompletions(input, cursorOffset, currentShellCompletionAbortController.signal);
+    const suggestions = await getShellCompletions(
+      input,
+      cursorOffset,
+      currentShellCompletionAbortController.signal,
+      sessionEnvVars,
+    );
     return suggestions;
   } catch {
     // Silent failure - don't break UX
@@ -395,7 +403,8 @@ export function useTypeahead({
   },
   suppressSuggestions = false,
   markAccepted,
-  onModeChange
+  onModeChange,
+  sessionEnvVars
 }: Props): UseTypeaheadResult {
   const {
     addNotification
@@ -795,7 +804,7 @@ export function useTypeahead({
           const sessionId = getSessionIdFromLog(log);
           return {
             id: `resume-title-${sessionId}`,
-            displayText: log.customTitle!,
+            displayText: (log.customTitle ?? log.aiTitle)!,
             description: formatLogMetadata(log),
             metadata: {
               sessionId
@@ -1208,7 +1217,11 @@ export function useTypeahead({
       if (mode === 'bash') {
         suggestionType = 'shell';
         // This should be very fast, taking <10ms
-        const bashSuggestions = await generateBashSuggestions(input, cursorOffset);
+        const bashSuggestions = await generateBashSuggestions(
+          input,
+          cursorOffset,
+          sessionEnvVars,
+        );
         if (bashSuggestions.length === 1) {
           // If single suggestion, apply it immediately
           const suggestion = bashSuggestions[0];
@@ -1248,7 +1261,7 @@ export function useTypeahead({
         setMaxColumnWidth(undefined);
       }
     }
-  }, [suggestions, selectedSuggestion, input, suggestionType, commands, mode, onInputChange, setCursorOffset, onSubmit, clearSuggestions, cursorOffset, updateSuggestions, mcpResources, mcpResourceTemplates, store, setSuggestionsState, agents, debouncedFetchFileSuggestions, debouncedFetchSlashTemplateSuggestions, debouncedFetchSlackChannels, effectiveGhostText]);
+  }, [suggestions, selectedSuggestion, input, suggestionType, commands, mode, onInputChange, setCursorOffset, onSubmit, clearSuggestions, cursorOffset, updateSuggestions, mcpResources, mcpResourceTemplates, store, setSuggestionsState, agents, debouncedFetchFileSuggestions, debouncedFetchSlashTemplateSuggestions, debouncedFetchSlackChannels, effectiveGhostText, sessionEnvVars]);
 
   // Handle enter key press - apply and execute suggestions
   const handleEnter = useCallback(() => {
@@ -1495,17 +1508,6 @@ export function useTypeahead({
     }
   };
 
-  // Backward-compat bridge: PromptInput doesn't yet wire handleKeyDown to
-  // <Box onKeyDown>. Subscribe via useInput and adapt InputEvent →
-  // KeyboardEvent until the consumer is migrated (separate PR).
-  // TODO(onKeyDown-migration): remove once PromptInput passes handleKeyDown.
-  useInput((_input, _key, event) => {
-    const kbEvent = new KeyboardEvent(event.keypress);
-    handleKeyDown(kbEvent);
-    if (kbEvent.didStopImmediatePropagation()) {
-      event.stopImmediatePropagation();
-    }
-  });
   return {
     suggestions,
     selectedSuggestion,

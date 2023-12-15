@@ -46,6 +46,7 @@ import {
   getConfiguredProxyAuthHelper,
 } from '../../utils/proxy.js'
 import { sleep } from '../../utils/sleep.js'
+import { getPlatform } from '../../utils/platform.js'
 import type { ThinkingConfig } from '../../utils/thinking.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../analytics/growthbook.js'
 import {
@@ -112,6 +113,13 @@ const HEARTBEAT_INTERVAL_MS = 30_000
 const MAX_RETRY_AFTER_MS = 60_000
 
 function isPersistentRetryEnabled(): boolean {
+  if (
+    getPlatform() === 'linux' &&
+    process.env.CLAUDE_CODE_ENTRYPOINT === 'remote' &&
+    isEnvTruthy(process.env.CLAUDE_CODE_RETRY_WATCHDOG)
+  ) {
+    return true
+  }
   return feature('UNATTENDED_RETRY')
     ? isEnvTruthy(process.env.CLAUDE_CODE_UNATTENDED_RETRY)
     : false
@@ -217,6 +225,7 @@ export async function* withRetry<T>(
     if (options.signal?.aborted) {
       throw new APIUserAbortError()
     }
+    const attemptStartedAt = Date.now()
 
     // Capture whether fast mode is active before this attempt
     // (fallback may change the state mid-loop)
@@ -527,7 +536,7 @@ export async function* withRetry<T>(
         delayMs = getRetryDelay(attempt, retryAfter)
       }
 
-      if (!persistent && delayMs > MAX_RETRY_AFTER_MS) {
+      if (!isPersistentRetryEnabled() && delayMs > MAX_RETRY_AFTER_MS) {
         logEvent('tengu_api_retry_after_too_long', {
           delayMs,
           status: (error as APIError).status,
@@ -546,6 +555,7 @@ export async function* withRetry<T>(
           .message as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
         status: (error as APIError).status,
         provider: getAPIProviderForStatsig(),
+        attempt_duration_ms: Date.now() - attemptStartedAt,
       })
       options.onRetry?.({
         retryInMs: delayMs,

@@ -2,6 +2,8 @@ import { c as _c } from "react/compiler-runtime";
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEvent } from 'src/services/analytics/index.js';
 import { installOAuthTokens } from '../cli/handlers/auth.js';
+import { LONG_LIVED_OAUTH_TOKEN_TTL_SECONDS } from '../constants/oauth.js';
+import { useIsInsideModal } from '../context/modalContext.js';
 import { useTerminalSize } from '../hooks/useTerminalSize.js';
 import { setClipboard } from '../ink/termio/osc.js';
 import { useTerminalNotification } from '../ink/useTerminalNotification.js';
@@ -25,6 +27,7 @@ type Props = {
   startingMessage?: string;
   mode?: 'login' | 'setup-token';
   forceLoginMethod?: 'claudeai' | 'console';
+  urlOutdent?: number;
 };
 type OAuthStatus = {
   state: 'idle';
@@ -69,8 +72,10 @@ export function ConsoleOAuthFlow({
   onDone,
   startingMessage,
   mode = 'login',
-  forceLoginMethod: forceLoginMethodProp
+  forceLoginMethod: forceLoginMethodProp,
+  urlOutdent = 0
 }: Props): React.ReactNode {
+  const totalUrlOutdent = (useIsInsideModal() ? 2 : 0) + urlOutdent;
   const { exit } = useApp();
   const settings = getSettings_DEPRECATED() || {};
   const forceLoginMethod = forceLoginMethodProp ?? settings.forceLoginMethod;
@@ -220,7 +225,7 @@ export function ConsoleOAuthFlow({
       }, {
         loginWithClaudeAi,
         inferenceOnly: mode === 'setup-token',
-        expiresIn: mode === 'setup-token' ? 365 * 24 * 60 * 60 : undefined,
+        expiresIn: mode === 'setup-token' ? LONG_LIVED_OAUTH_TOKEN_TTL_SECONDS : undefined,
         // 1 year for setup-token
         orgUUID
       }).catch(err_1 => {
@@ -323,9 +328,11 @@ export function ConsoleOAuthFlow({
                 <KeyboardShortcutHint shortcut="c" action="copy" parens />
               </Text>}
           </Box>
-          <Link url={oauthStatus.url}>
-            <Text dimColor>{oauthStatus.url}</Text>
-          </Link>
+          <Box marginX={totalUrlOutdent ? -totalUrlOutdent : undefined}>
+            <Link url={oauthStatus.url}>
+              <Text dimColor>{oauthStatus.url}</Text>
+            </Link>
+          </Box>
         </Box>}
       {mode === 'setup-token' && oauthStatus.state === 'success' && oauthStatus.token && <Box key="tokenOutput" flexDirection="column" gap={1} paddingTop={1}>
             <Text color="success">

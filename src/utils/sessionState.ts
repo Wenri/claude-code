@@ -35,6 +35,7 @@ export type SessionExternalMetadata = {
   permission_mode?: string | null
   is_ultraplan_mode?: boolean | null
   model?: string | null
+  effort_level?: string | null
   pending_action?: RequiresActionDetails | null
   // Opaque — typed at the emit site. Importing PostTurnSummaryOutput here
   // would leak the import path string into sdk.d.ts via agentSdkBridge's
@@ -74,125 +75,87 @@ type SessionInternalMetadataChangedListener = (
 ) => void
 type PermissionModeChangedListener = (mode: PermissionMode) => void
 
-let stateListener: SessionStateChangedListener | null = null
-let metadataListener: SessionMetadataChangedListener | null = null
-let internalMetadataListener: SessionInternalMetadataChangedListener | null =
-  null
-let permissionModeListener: PermissionModeChangedListener | null = null
+export class SessionStateManager {
+  onStateChanged?: SessionStateChangedListener
+  onMetadataChanged?: SessionMetadataChangedListener
+  onInternalMetadataChanged?: SessionInternalMetadataChangedListener
+  onPermissionModeChanged?: PermissionModeChangedListener
 
-export function setSessionStateChangedListener(
-  cb: SessionStateChangedListener | null,
-): void {
-  stateListener = cb
-}
+  private currentState: SessionState = 'idle'
+  private hasPendingAction = false
+  private hasTaskSummary = false
 
-export function setSessionMetadataChangedListener(
-  cb: SessionMetadataChangedListener | null,
-): void {
-  metadataListener = cb
-}
-
-export function setSessionInternalMetadataChangedListener(
-  cb: SessionInternalMetadataChangedListener | null,
-): void {
-  internalMetadataListener = cb
-}
-
-/**
- * Register a listener for permission-mode changes from onChangeAppState.
- * Wired by print.ts to emit an SDK system:status message so CCR/IDE clients
- * see mode transitions in real time — regardless of which code path mutated
- * toolPermissionContext.mode (Shift+Tab, ExitPlanMode dialog, slash command,
- * bridge set_permission_mode, etc.).
- */
-export function setPermissionModeChangedListener(
-  cb: PermissionModeChangedListener | null,
-): void {
-  permissionModeListener = cb
-}
-
-let hasPendingAction = false
-let hasTaskSummary = false
-let currentState: SessionState = 'idle'
-
-export function getSessionState(): SessionState {
-  return currentState
-}
-
-export function notifySessionStateChanged(
-  state: SessionState,
-  details?: RequiresActionDetails,
-): void {
-  currentState = state
-  stateListener?.(state, details)
-
-  // Mirror details into external_metadata so GetSession carries the
-  // pending-action context without proto changes. Cleared via RFC 7396
-  // null on the next non-blocked transition.
-  if (state === 'requires_action' && details) {
-    hasPendingAction = true
-    metadataListener?.({
-      pending_action: details,
-    })
-  } else if (hasPendingAction) {
-    hasPendingAction = false
-    metadataListener?.({ pending_action: null })
+  getState(): SessionState {
+    return this.currentState
   }
 
-  if (state === 'running') metadataListener?.({ post_turn_summary: null })
+  notifyStateChanged(
+    state: SessionState,
+    details?: RequiresActionDetails,
+  ): void {
+    this.currentState = state
+    this.onStateChanged?.(state, details)
 
-  // Only emit the idle clear when a summary was actually published. Besides
-  // avoiding redundant metadata writes, routing it through the normal
-  // metadata path emits the matching SDK task_summary event.
-  if (state === 'idle' && hasTaskSummary) {
-    hasTaskSummary = false
-    notifySessionMetadataChanged({ task_summary: null })
+    // Mirror details into external_metadata so GetSession carries the
+    // pending-action context without proto changes. Cleared via RFC 7396
+    // null on the next non-blocked transition.
+    if (state === 'requires_action' && details) {
+      this.hasPendingAction = true
+      this.onMetadataChanged?.({
+        pending_action: details,
+      })
+    } else if (this.hasPendingAction) {
+      this.hasPendingAction = false
+      this.onMetadataChanged?.({ pending_action: null })
+    }
+
+    if (state === 'running') {
+      this.onMetadataChanged?.({ post_turn_summary: null })
+    }
+
+    // Only emit the idle clear when a summary was actually published. Besides
+    // avoiding redundant metadata writes, routing it through the normal
+    // metadata path emits the matching SDK task_summary event.
+    if (state === 'idle' && this.hasTaskSummary) {
+      this.hasTaskSummary = false
+      this.notifyMetadataChanged({ task_summary: null })
+    }
+
+    // Mirror to the SDK event stream so non-CCR consumers (scmuxd, VS Code)
+    // see the same authoritative idle/running signal the CCR bridge does.
+    // 'idle' fires after heldBackResult flushes — lets scmuxd flip IDLE and
+    // show the bg-task dot instead of a stuck generating spinner.
+    //
+    // Opt-in until CCR web + mobile clients learn to ignore this subtype in
+    // their isWorking() last-message heuristics — the trailing idle event
+    // currently pins them at "Running...".
+    // https://anthropic.slack.com/archives/C093BJBD1CP/p1774152406752229
+    if (isEnvTruthy(process.env.CLAUDE_CODE_EMIT_SESSION_STATE_EVENTS)) {
+      enqueueSdkEvent({
+        type: 'system',
+        subtype: 'session_state_changed',
+        state,
+      })
+    }
   }
 
-  // Mirror to the SDK event stream so non-CCR consumers (scmuxd, VS Code)
-  // see the same authoritative idle/running signal the CCR bridge does.
-  // 'idle' fires after heldBackResult flushes — lets scmuxd flip IDLE and
-  // show the bg-task dot instead of a stuck generating spinner.
-  //
-  // Opt-in until CCR web + mobile clients learn to ignore this subtype in
-  // their isWorking() last-message heuristics — the trailing idle event
-  // currently pins them at "Running...".
-  // https://anthropic.slack.com/archives/C093BJBD1CP/p1774152406752229
-  if (isEnvTruthy(process.env.CLAUDE_CODE_EMIT_SESSION_STATE_EVENTS)) {
-    enqueueSdkEvent({
-      type: 'system',
-      subtype: 'session_state_changed',
-      state,
-    })
+  notifyMetadataChanged(metadata: SessionExternalMetadata): void {
+    this.onMetadataChanged?.(metadata)
+    if ('task_summary' in metadata) {
+      if (metadata.task_summary != null) this.hasTaskSummary = true
+      enqueueSdkEvent({
+        type: 'system',
+        subtype: 'task_summary',
+        detail: metadata.task_summary ?? null,
+      })
+    }
   }
-}
 
-export function notifySessionMetadataChanged(
-  metadata: SessionExternalMetadata,
-): void {
-  metadataListener?.(metadata)
-  if ('task_summary' in metadata) {
-    if (metadata.task_summary != null) hasTaskSummary = true
-    enqueueSdkEvent({
-      type: 'system',
-      subtype: 'task_summary',
-      detail: metadata.task_summary ?? null,
-    })
+  notifyInternalMetadataChanged(metadata: SessionInternalMetadata): void {
+    this.onInternalMetadataChanged?.(metadata)
   }
-}
 
-export function notifySessionInternalMetadataChanged(
-  metadata: SessionInternalMetadata,
-): void {
-  internalMetadataListener?.(metadata)
-}
-
-/**
- * Fired by onChangeAppState when toolPermissionContext.mode changes.
- * Downstream listeners (CCR external_metadata PUT, SDK status stream) are
- * both wired through this single choke point so no mode-mutation path can
- * silently bypass them.
- */
-export function notifyPermissionModeChanged(mode: PermissionMode): void {
-  permissionModeListener?.(mode)
+  notifyPermissionModeChanged(mode: PermissionMode): void {
+    this.onPermissionModeChanged?.(mode)
+  }
 }

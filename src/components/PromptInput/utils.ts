@@ -2,9 +2,43 @@ import {
   hasUsedBackslashReturn,
   isShiftEnterKeyBindingInstalled,
 } from '../../commands/terminalSetup/terminalSetup.js'
-import type { Key } from '../../ink.js'
+import type { KeyboardEvent } from '../../ink/events/keyboard-event.js'
 import { env } from '../../utils/env.js'
 import { getConfigValue } from '../../utils/settings/configSettings.js'
+
+const NON_PRINTABLE_INPUT_KEYS = new Set([
+  'escape',
+  'return',
+  'enter',
+  'tab',
+  'backspace',
+  'delete',
+  'up',
+  'down',
+  'left',
+  'right',
+  'pageup',
+  'pagedown',
+  'home',
+  'end',
+  'insert',
+  'clear',
+  'center',
+  'undefined',
+  'mouse',
+  'f1',
+  'f2',
+  'f3',
+  'f4',
+  'f5',
+  'f6',
+  'f7',
+  'f8',
+  'f9',
+  'f10',
+  'f11',
+  'f12',
+])
 /**
  * Helper function to check if vim mode is currently enabled
  * @returns boolean indicating if vim mode is active
@@ -35,25 +69,11 @@ export function getNewlineInstructions(): string {
  * with whitespace — i.e., a normal letter/digit/symbol the user typed.
  * Used to gate the lazy space inserted after an image pill.
  */
-export function isNonSpacePrintable(input: string, key: Key): boolean {
-  if (
-    key.ctrl ||
-    key.meta ||
-    key.escape ||
-    key.return ||
-    key.tab ||
-    key.backspace ||
-    key.delete ||
-    key.upArrow ||
-    key.downArrow ||
-    key.leftArrow ||
-    key.rightArrow ||
-    key.pageUp ||
-    key.pageDown ||
-    key.home ||
-    key.end
-  ) {
-    return false
-  }
-  return input.length > 0 && !/^\s/.test(input) && !input.startsWith('\x1b')
+export function isNonSpacePrintable(
+  input: string,
+  event: KeyboardEvent,
+): boolean {
+  if (event.ctrl || event.meta) return false
+  if (NON_PRINTABLE_INPUT_KEYS.has(input)) return false
+  return input.length > 0 && !/^\s/.test(input)
 }

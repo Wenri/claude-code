@@ -8,7 +8,7 @@ import { execFileNoThrow } from './execFileNoThrow.js'
 import { pathExists } from './file.js'
 import { gte as semverGte } from './semver.js'
 
-const MIN_DESKTOP_VERSION = '1.1.2396'
+export const MIN_DESKTOP_VERSION = '1.1.9669'
 
 function isDevMode(): boolean {
   if ((process.env.NODE_ENV as string) === 'development') {

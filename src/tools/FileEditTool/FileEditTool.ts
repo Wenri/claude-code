@@ -1,6 +1,7 @@
 import { dirname, isAbsolute, sep } from 'path'
 import { logEvent } from 'src/services/analytics/index.js'
 import { captureMemoryWrite } from '../../memdir/memoryWriteSurvey.js'
+import { prepareAutoMemoryContent } from '../../memdir/tinyMemoryStamps.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
 import { diagnosticTracker } from '../../services/diagnosticTracking.js'
 import {
@@ -19,7 +20,7 @@ import type { ToolUseContext } from '../../Tool.js'
 import { buildTool, type ToolDef } from '../../Tool.js'
 import { getCwd } from '../../utils/cwd.js'
 import { logForDebugging } from '../../utils/debug.js'
-import { countLinesChanged } from '../../utils/diff.js'
+import { countLinesChanged, getPatchForDisplay } from '../../utils/diff.js'
 import { isEnvTruthy } from '../../utils/envUtils.js'
 import { isENOENT } from '../../utils/errors.js'
 import {
@@ -42,6 +43,7 @@ import {
 } from '../../utils/fileRead.js'
 import { formatFileSize } from '../../utils/format.js'
 import { getFsImplementation } from '../../utils/fsOperations.js'
+import { fileStateMatchesContent } from '../../utils/fileStateCache.js'
 import {
   fetchSingleFileGitDiff,
   type ToolUseDiff,
@@ -117,6 +119,11 @@ export const FileEditTool = buildTool({
   },
   get outputSchema() {
     return outputSchema()
+  },
+  stripForStorage(output) {
+    if (typeof output !== 'object' || output === null) return output
+    if ((output.originalFile ?? '') === '') return output
+    return { ...output, originalFile: '' }
   },
   toAutoClassifierInput(input) {
     return `${input.file_path}: ${input.new_string}`
@@ -314,9 +321,9 @@ export const FileEditTool = buildTool({
         // without content changes (cloud sync, antivirus, etc.). For full reads,
         // compare content as a fallback to avoid false positives.
         const isFullRead =
-          readTimestamp.offset === undefined &&
+          (readTimestamp.offset ?? 1) <= 1 &&
           readTimestamp.limit === undefined
-        if (isFullRead && fileContent === readTimestamp.content) {
+        if (isFullRead && fileStateMatchesContent(readTimestamp, fileContent)) {
           // Content unchanged, safe to proceed
         } else {
           return {
@@ -412,7 +419,8 @@ export const FileEditTool = buildTool({
     {
       readFileState,
       userModified,
-      updateFileHistoryState,
+      getFileHistoryState,
+      applyFileHistoryOp,
       dynamicSkillDirTriggers,
       setAppState,
       agentId,
@@ -458,7 +466,8 @@ export const FileEditTool = buildTool({
       // check (idempotent v1 backup keyed on content hash; if staleness fails
       // later we just have an unused backup, not corrupt state).
       await fileHistoryTrackEdit(
-        updateFileHistoryState,
+        getFileHistoryState,
+        applyFileHistoryOp,
         absoluteFilePath,
         parentMessage.uuid,
       )
@@ -476,16 +485,17 @@ export const FileEditTool = buildTool({
     if (fileExists) {
       const lastWriteTime = getFileModificationTime(absoluteFilePath)
       const lastRead = readFileState.get(absoluteFilePath)
-      if (!lastRead || lastWriteTime > lastRead.timestamp) {
+      if (!lastRead) throw new Error(FILE_UNEXPECTEDLY_MODIFIED_ERROR)
+      if (lastWriteTime > lastRead.timestamp) {
         // Timestamp indicates modification, but on Windows timestamps can change
         // without content changes (cloud sync, antivirus, etc.). For full reads,
         // compare content as a fallback to avoid false positives.
         const isFullRead =
-          lastRead &&
-          lastRead.offset === undefined &&
+          (lastRead.offset ?? 1) <= 1 &&
           lastRead.limit === undefined
         const contentUnchanged =
-          isFullRead && originalFileContents === lastRead.content
+          isFullRead &&
+          fileStateMatchesContent(lastRead, originalFileContents)
         if (!contentUnchanged) {
           throw new Error(FILE_UNEXPECTEDLY_MODIFIED_ERROR)
         }
@@ -504,13 +514,31 @@ export const FileEditTool = buildTool({
     )
 
     // 4. Generate patch
-    const { patch, updatedFile } = getPatchForEdit({
+    const editResult = getPatchForEdit({
       filePath: absoluteFilePath,
       fileContents: originalFileContents,
       oldString: actualOldString,
       newString: actualNewString,
       replaceAll: replace_all,
     })
+    const updatedFile = prepareAutoMemoryContent(
+      absoluteFilePath,
+      editResult.updatedFile,
+    )
+    const patch =
+      updatedFile === editResult.updatedFile
+        ? editResult.patch
+        : getPatchForDisplay({
+            filePath: absoluteFilePath,
+            fileContents: originalFileContents,
+            edits: [
+              {
+                old_string: originalFileContents,
+                new_string: updatedFile,
+                replace_all: false,
+              },
+            ],
+          })
 
     // 5. Write to disk
     writeTextContent(absoluteFilePath, updatedFile, encoding, endings)

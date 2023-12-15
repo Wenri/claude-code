@@ -4,7 +4,6 @@ import { URL } from 'url'
 import { getSessionId } from '../bootstrap/state.js'
 import { getPollIntervalConfig } from '../bridge/pollConfig.js'
 import { registerCleanup } from '../utils/cleanupRegistry.js'
-import { setCommandLifecycleListener } from '../utils/commandLifecycle.js'
 import { isDebugMode, logForDebugging } from '../utils/debug.js'
 import { logForDiagnosticsNoPII } from '../utils/diagLogs.js'
 import { isEnvTruthy } from '../utils/envUtils.js'
@@ -14,12 +13,7 @@ import { logError } from '../utils/log.js'
 import { writeToStdout } from '../utils/process.js'
 import { initializeRepoBranchWatcher } from '../utils/repoCheckouts.js'
 import { getSessionIngressAuthToken } from '../utils/sessionIngressAuth.js'
-import {
-  notifySessionMetadataChanged,
-  setSessionInternalMetadataChangedListener,
-  setSessionMetadataChangedListener,
-  setSessionStateChangedListener,
-} from '../utils/sessionState.js'
+import type { SessionStateManager } from '../utils/sessionState.js'
 import {
   setInternalEventReader,
   setInternalEventWriter,
@@ -48,9 +42,10 @@ export class RemoteIO extends StructuredIO {
     streamUrl: string,
     initialPrompt?: AsyncIterable<string>,
     replayUserMessages?: boolean,
+    sessionState?: SessionStateManager,
   ) {
     const inputStream = new PassThrough({ encoding: 'utf8' })
-    super(inputStream, replayUserMessages)
+    super(inputStream, replayUserMessages, sessionState)
     this.inputStream = inputStream
     this.url = new URL(streamUrl)
 
@@ -159,19 +154,21 @@ export class RemoteIO extends StructuredIO {
         started: 'processing',
         completed: 'processed',
       } as const
-      setCommandLifecycleListener((uuid, state) => {
+      this.onCommandLifecycle = (uuid, state) => {
         this.ccrClient?.reportDelivery(uuid, LIFECYCLE_TO_DELIVERY[state])
-      })
-      setSessionStateChangedListener((state, details) => {
+      }
+      this.sessionState.onStateChanged = (state, details) => {
         this.ccrClient?.reportState(state, details)
-      })
-      setSessionMetadataChangedListener(metadata => {
+      }
+      this.sessionState.onMetadataChanged = metadata => {
         this.ccrClient?.reportMetadata(metadata)
-      })
-      setSessionInternalMetadataChangedListener(metadata => {
+      }
+      this.sessionState.onInternalMetadataChanged = metadata => {
         this.ccrClient?.reportInternalMetadata(metadata)
-      })
-      void initializeRepoBranchWatcher(notifySessionMetadataChanged)
+      }
+      void initializeRepoBranchWatcher(metadata =>
+        this.sessionState.notifyMetadataChanged(metadata),
+      )
     }
 
     // Start connection only after all callbacks are wired (setOnData above,
@@ -223,6 +220,10 @@ export class RemoteIO extends StructuredIO {
 
   override flushInternalEvents(): Promise<void> {
     return this.ccrClient?.flushInternalEvents() ?? Promise.resolve()
+  }
+
+  override flushDeliveryAcks(): Promise<void> {
+    return this.ccrClient?.flushDeliveryAcks() ?? Promise.resolve()
   }
 
   override get internalEventsPending(): number {

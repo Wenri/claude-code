@@ -104,7 +104,7 @@ interface Props {
   isRemote?: boolean;
 }
 export function ContextVisualization(t0: Props) {
-  const $ = _c(89);
+  const $ = _c(90);
   const {
     data,
     isRemote = false
@@ -113,6 +113,7 @@ export function ContextVisualization(t0: Props) {
     categories,
     totalTokens,
     rawMaxTokens,
+    autocompactSource,
     percentage,
     gridRows,
     model,
@@ -348,9 +349,10 @@ export function ContextVisualization(t0: Props) {
   } else {
     t14 = $[63];
   }
+  const autoCompactWindow = autocompactSource !== "auto" && <Box marginTop={1}><Text bold={true}>Auto-compact window: </Text><Text dimColor={true}>{formatTokens(rawMaxTokens)} tokens</Text></Box>;
   let t15;
-  if ($[64] !== T0 || $[65] !== t10 || $[66] !== t11 || $[67] !== t12 || $[68] !== t13 || $[69] !== t14 || $[70] !== t2 || $[71] !== t3 || $[72] !== t4 || $[73] !== t5) {
-    t15 = <T0 flexDirection={t2} marginLeft={t3}>{t4}{t5}{t10}{t11}{t12}{t13}{t14}</T0>;
+  if ($[64] !== T0 || $[65] !== t10 || $[66] !== t11 || $[67] !== t12 || $[68] !== t13 || $[69] !== t14 || $[70] !== t2 || $[71] !== t3 || $[72] !== t4 || $[73] !== t5 || $[89] !== autoCompactWindow) {
+    t15 = <T0 flexDirection={t2} marginLeft={t3}>{autoCompactWindow}{t4}{t5}{t10}{t11}{t12}{t13}{t14}</T0>;
     $[64] = T0;
     $[65] = t10;
     $[66] = t11;
@@ -361,6 +363,7 @@ export function ContextVisualization(t0: Props) {
     $[71] = t3;
     $[72] = t4;
     $[73] = t5;
+    $[89] = autoCompactWindow;
     $[74] = t15;
   } else {
     t15 = $[74];

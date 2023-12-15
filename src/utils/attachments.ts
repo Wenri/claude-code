@@ -44,14 +44,18 @@ import {
   getConditionalRulesForCwdLevelDirectory,
   type MemoryFileInfo,
 } from './claudemd.js'
-import { dirname, parse, relative, resolve } from 'path'
+import { dirname, join, parse, relative, resolve } from 'path'
 import { getCwd } from 'src/utils/cwd.js'
 import { getViewedTeammateTask } from '../state/selectors.js'
 import { logError } from './log.js'
+import { logAtMention } from './telemetry/events.js'
 import { logAntError } from './debug.js'
 import { isENOENT, toError } from './errors.js'
-import type { DiagnosticFile } from '../services/diagnosticTracking.js'
-import { diagnosticTracker } from '../services/diagnosticTracking.js'
+import {
+  type DiagnosticFile,
+  DiagnosticTrackingService,
+  diagnosticTracker,
+} from '../services/diagnosticTracking.js'
 import type {
   AttachmentMessage,
   Message,
@@ -108,6 +112,12 @@ const skillSearchModules = feature('EXPERIMENTAL_SKILL_SEARCH')
         require('../services/skillSearch/prefetch.js') as typeof import('../services/skillSearch/prefetch.js'),
     }
   : null
+const skillToolsModule = feature('SKILLS_AS_TOOLS')
+  ? (require('../tools/SkillTool/SkillTool.js') as Pick<
+      typeof import('../tools/SkillTool/SkillTool.js'),
+      'isSkillsAsToolsEnabled'
+    >)
+  : null
 const autoModeStateModule = feature('TRANSCRIPT_CLASSIFIER')
   ? (require('./permissions/autoModeState.js') as typeof import('./permissions/autoModeState.js'))
   : null
@@ -117,7 +127,11 @@ import {
   FILE_READ_TOOL_NAME,
 } from 'src/tools/FileReadTool/prompt.js'
 import { getDefaultFileReadingLimits } from 'src/tools/FileReadTool/limits.js'
-import { cacheKeys, type FileStateCache } from './fileStateCache.js'
+import {
+  cacheKeys,
+  fileStateMatchesContent,
+  type FileStateCache,
+} from './fileStateCache.js'
 import {
   createAbortController,
   createChildAbortController,
@@ -238,9 +252,18 @@ import { getLocalISODate } from '../constants/common.js'
 import { getPDFPageCount } from './pdf.js'
 import { PDF_AT_MENTION_INLINE_THRESHOLD } from '../constants/apiLimits.js'
 import { isAgentSwarmsEnabled } from './agentSwarmsEnabled.js'
-import { findRelevantMemories } from '../memdir/findRelevantMemories.js'
-import { memoryAge, memoryFreshnessText } from '../memdir/memoryAge.js'
-import { getAutoMemPath, isAutoMemoryEnabled } from '../memdir/paths.js'
+import {
+  findRelevantMemories,
+  synthesizeRelevantMemories,
+  type MemorySelector,
+} from '../memdir/findRelevantMemories.js'
+import { memoryFreshnessText } from '../memdir/memoryAge.js'
+import {
+  getAutoMemPath,
+  isAutoMemoryEnabled,
+  isTinyMemoryEnabled,
+} from '../memdir/paths.js'
+import { markTinyMemoryRead } from '../memdir/tinyMemoryStamps.js'
 import { getAgentMemoryDir } from '../tools/AgentTool/agentMemory.js'
 import {
   readUnreadMessages,
@@ -296,6 +319,14 @@ export const RELEVANT_MEMORIES_CONFIG = {
   // re-surfacing is valid.
   MAX_SESSION_BYTES: 60 * 1024,
 } as const
+
+const MEMORY_PREFETCH_EXCLUDED_QUERY_SOURCES = new Set<string>([
+  'extract_memories',
+  'auto_dream',
+  'prompt_suggestion',
+  'speculation',
+  'compact',
+])
 
 export const VERIFY_PLAN_REMINDER_CONFIG = {
   TURNS_BETWEEN_REMINDERS: 10,
@@ -569,6 +600,8 @@ export type Attachment =
       commandMode?: string
       /** Provenance carried from QueuedCommand so mid-turn drains preserve it */
       origin?: MessageOrigin
+      /** Inbound remote attachments preserved for SDK replay output */
+      fileAttachments?: unknown[]
       /** Carried from QueuedCommand.isMeta — distinguishes human-typed from system-injected */
       isMeta?: boolean
     }
@@ -1107,6 +1140,7 @@ export async function getQueuedCommandAttachments(
         prompt,
         source_uuid: _.uuid,
         imagePasteIds: getImagePasteIds(_.pastedContents),
+        fileAttachments: _.fileAttachments,
         commandMode: _.mode,
         origin: _.origin,
         isMeta: _.isMeta,
@@ -1549,7 +1583,7 @@ export function getAgentListingDeltaAttachment(
     const info = mcpInfoFromString(tool.name)
     if (info) mcpServers.add(info.serverName)
   }
-  const permissionContext = toolUseContext.getAppState().toolPermissionContext
+  const permissionContext = toolUseContext.getToolPermissionContext()
   let filtered = filterDeniedAgents(
     filterAgentsByMcpRequirements(activeAgents, [...mcpServers]),
     permissionContext,
@@ -1787,6 +1821,7 @@ export function memoryFilesToAttachments(
         offset: undefined,
         limit: undefined,
         isPartialView: memoryFile.contentDiffersFromDisk,
+        keepContent: true,
       })
 
 
@@ -1969,6 +2004,7 @@ async function processAtMentionedFiles(
               }
               const stdout = names.join('\n')
               logEvent('tengu_at_mention_extracting_directory_success', {})
+              logAtMention({ mentionType: 'directory', success: true })
 
               return {
                 type: 'directory' as const,
@@ -1977,6 +2013,7 @@ async function processAtMentionedFiles(
                 displayPath: relative(getCwd(), absoluteFilename),
               }
             } catch {
+              logEvent('tengu_at_mention_extracting_directory_error', {})
               return null
             }
           }
@@ -1997,6 +2034,7 @@ async function processAtMentionedFiles(
         )
       } catch {
         logEvent('tengu_at_mention_extracting_filename_error', {})
+        logAtMention({ mentionType: 'file', success: false })
       }
     }),
   )
@@ -2016,10 +2054,12 @@ function processAgentMentions(
 
     if (!agentDef) {
       logEvent('tengu_at_mention_agent_not_found', {})
+      logAtMention({ mentionType: 'agent', success: false })
       return null
     }
 
     logEvent('tengu_at_mention_agent_success', {})
+    logAtMention({ mentionType: 'agent', success: true })
 
     return {
       type: 'agent_mention' as const,
@@ -2049,6 +2089,7 @@ async function processMcpResourceAttachments(
 
         if (!serverName || !uri) {
           logEvent('tengu_at_mention_mcp_resource_error', {})
+          logAtMention({ mentionType: 'mcp_resource', success: false })
           return null
         }
 
@@ -2056,6 +2097,7 @@ async function processMcpResourceAttachments(
         const client = mcpClients.find(c => c.name === serverName)
         if (!client || client.type !== 'connected') {
           logEvent('tengu_at_mention_mcp_resource_error', {})
+          logAtMention({ mentionType: 'mcp_resource', success: false })
           return null
         }
 
@@ -2065,6 +2107,7 @@ async function processMcpResourceAttachments(
         const resourceInfo = serverResources.find(r => r.uri === uri)
         if (!resourceInfo) {
           logEvent('tengu_at_mention_mcp_resource_error', {})
+          logAtMention({ mentionType: 'mcp_resource', success: false })
           return null
         }
 
@@ -2074,6 +2117,7 @@ async function processMcpResourceAttachments(
           })
 
           logEvent('tengu_at_mention_mcp_resource_success', {})
+          logAtMention({ mentionType: 'mcp_resource', success: true })
 
           return {
             type: 'mcp_resource' as const,
@@ -2085,11 +2129,13 @@ async function processMcpResourceAttachments(
           }
         } catch (error) {
           logEvent('tengu_at_mention_mcp_resource_error', {})
+          logAtMention({ mentionType: 'mcp_resource', success: false })
           logError(error)
           return null
         }
       } catch {
         logEvent('tengu_at_mention_mcp_resource_error', {})
+        logAtMention({ mentionType: 'mcp_resource', success: false })
         return null
       }
     }),
@@ -2144,6 +2190,9 @@ export async function getChangedFiles(
         const result = await FileReadTool.call(fileInput, toolUseContext)
         // Extract only the changed section
         if (result.data.type === 'text') {
+          if (fileStateMatchesContent(fileState, result.data.file.content)) {
+            return null
+          }
           const snippet = getSnippetForTwoFileDiff(
             fileState.content,
             result.data.file.content,
@@ -2236,8 +2285,8 @@ async function getNestedMemoryAttachments(
 async function getRelevantMemoryAttachments(
   input: string,
   agents: AgentDefinition[],
+  selector: MemorySelector,
   readFileState: FileStateCache,
-  recentTools: readonly string[],
   signal: AbortSignal,
   alreadySurfaced: ReadonlySet<string>,
 ): Promise<Attachment[]> {
@@ -2252,13 +2301,46 @@ async function getRelevantMemoryAttachments(
   })
   const dirs = memoryDirs.length > 0 ? memoryDirs : [getAutoMemPath()]
 
+  if (isTinyMemoryEnabled()) {
+    const memories = (
+      await Promise.all(
+        dirs.map(dir =>
+          synthesizeRelevantMemories(input, dir, selector, signal).catch(
+            () => null,
+          ),
+        ),
+      )
+    )
+      .map((result, index) => {
+        if (result === null) return null
+        const dir = dirs[index]
+        if (dir === undefined) return null
+        for (const filename of result.citedMemories) {
+          void markTinyMemoryRead(join(dir, filename))
+        }
+        const sources = result.citedMemories.join(', ')
+        return {
+          path: `<synthesis:${dir}>`,
+          content: sources
+            ? `${result.synthesis}\n\nSources: ${sources}`
+            : result.synthesis,
+          mtimeMs: Date.now(),
+          header: 'Recalled from your persistent memory system:',
+        }
+      })
+      .filter(memory => memory !== null)
+
+    if (memories.length === 0) return []
+    return [{ type: 'relevant_memories' as const, memories }]
+  }
+
   const allResults = await Promise.all(
     dirs.map(dir =>
       findRelevantMemories(
         input,
         dir,
+        selector,
         signal,
-        recentTools,
         alreadySurfaced,
       ).catch(() => []),
     ),
@@ -2368,7 +2450,7 @@ export function memoryHeader(path: string, mtimeMs: number): string {
   const staleness = memoryFreshnessText(mtimeMs)
   return staleness
     ? `${staleness}\n\nMemory: ${path}:`
-    : `Memory (saved ${memoryAge(mtimeMs)}): ${path}:`
+    : `Memory: ${path}:`
 }
 
 /**
@@ -2401,10 +2483,15 @@ export type MemoryPrefetch = {
 export function startRelevantMemoryPrefetch(
   messages: ReadonlyArray<Message>,
   toolUseContext: ToolUseContext,
+  querySource: QuerySource,
 ): MemoryPrefetch | undefined {
+  const selector = toolUseContext.memorySelector
   if (
+    !selector ||
+    toolUseContext.agentId ||
     !isAutoMemoryEnabled() ||
-    !getFeatureValue_CACHED_MAY_BE_STALE('tengu_moth_copse', false)
+    !getFeatureValue_CACHED_MAY_BE_STALE('tengu_moth_copse', false) ||
+    MEMORY_PREFETCH_EXCLUDED_QUERY_SOURCES.has(querySource)
   ) {
     return undefined
   }
@@ -2432,8 +2519,8 @@ export function startRelevantMemoryPrefetch(
   const promise = getRelevantMemoryAttachments(
     input,
     toolUseContext.options.agentDefinitions.activeAgents,
+    selector,
     toolUseContext.readFileState,
-    collectRecentSuccessfulTools(messages, lastUserMessage),
     controller.signal,
     surfaced.paths,
   ).catch(e => {
@@ -2449,11 +2536,15 @@ export function startRelevantMemoryPrefetch(
     consumedOnIteration: -1,
     [Symbol.dispose]() {
       controller.abort()
+      const usage = selector.lastUsage
       logEvent('tengu_memdir_prefetch_collected', {
         hidden_by_first_iteration:
           handle.settledAt !== null && handle.consumedOnIteration === 0,
         consumed_on_iteration: handle.consumedOnIteration,
         latency_ms: (handle.settledAt ?? Date.now()) - firedAt,
+        cache_read_input_tokens: usage?.cacheReadInputTokens,
+        cache_creation_input_tokens: usage?.cacheCreationInputTokens,
+        selector_turn_count: usage?.turnCount,
       })
     },
   }
@@ -2701,6 +2792,10 @@ export function filterToBundledAndMcp(commands: Command[]): Command[] {
 async function getSkillListingAttachments(
   toolUseContext: ToolUseContext,
 ): Promise<Attachment[]> {
+  if (skillToolsModule?.isSkillsAsToolsEnabled()) {
+    return []
+  }
+
   if (process.env.NODE_ENV === 'test') {
     return []
   }
@@ -2898,6 +2993,22 @@ export function parseAtMentionedFileLines(
   return { filename: filename ?? mention, lineStart, lineEnd }
 }
 
+function logLSPDiagnosticsInjected(
+  files: DiagnosticFile[],
+  source: 'ide-mcp' | 'lsp',
+): void {
+  logEvent('tengu_lsp_diagnostics_injected', {
+    diagnostics_chars:
+      DiagnosticTrackingService.formatDiagnosticsBlock(files).length,
+    diagnostic_count: files.reduce(
+      (total, file) => total + file.diagnostics.length,
+      0,
+    ),
+    file_count: files.length,
+    source,
+  })
+}
+
 async function getDiagnosticAttachments(
   toolUseContext: ToolUseContext,
 ): Promise<Attachment[]> {
@@ -2914,6 +3025,7 @@ async function getDiagnosticAttachments(
     return []
   }
 
+  logLSPDiagnosticsInjected(newDiagnostics, 'ide-mcp')
   return [
     {
       type: 'diagnostics',
@@ -2951,11 +3063,14 @@ async function getLSPDiagnosticAttachments(
     )
 
     // Convert each diagnostic set to an attachment
-    const attachments: Attachment[] = diagnosticSets.map(({ files }) => ({
-      type: 'diagnostics' as const,
-      files,
-      isNew: true,
-    }))
+    const attachments: Attachment[] = diagnosticSets.map(({ files }) => {
+      logLSPDiagnosticsInjected(files, 'lsp')
+      return {
+        type: 'diagnostics' as const,
+        files,
+        isNew: true,
+      }
+    })
 
     // Clear delivered diagnostics from registry to prevent memory leak
     // Follows same pattern as removeDeliveredAsyncHooks
@@ -3138,11 +3253,16 @@ export async function generateFileAttachment(
 
       if (
         existingFileState.timestamp <= mtimeMs &&
-        mtimeMs === existingFileState.timestamp
+        mtimeMs === existingFileState.timestamp &&
+        (existingFileState.content !== '' ||
+          (existingFileState.contentLength ?? 0) === 0)
       ) {
         // File hasn't been modified, return already_read_file attachment
         // This tells the system the file is already in context and doesn't need to be sent to API
         logEvent(successEventName, {})
+        if (mode === 'at-mention') {
+          logAtMention({ mentionType: 'file', success: true })
+        }
         return {
           type: 'already_read_file',
           filename,
@@ -3201,6 +3321,7 @@ export async function generateFileAttachment(
         }
         const result = await FileReadTool.call(truncatedInput, toolUseContext)
         logEvent(successEventName, {})
+        logAtMention({ mentionType: 'file', success: true })
 
         return {
           type: 'file' as const,
@@ -3211,6 +3332,7 @@ export async function generateFileAttachment(
         }
       } catch {
         logEvent(errorEventName, {})
+        logAtMention({ mentionType: 'file', success: false })
         return null
       }
     }
@@ -3224,6 +3346,9 @@ export async function generateFileAttachment(
     try {
       const result = await FileReadTool.call(fileInput, toolUseContext)
       logEvent(successEventName, {})
+      if (mode === 'at-mention') {
+        logAtMention({ mentionType: 'file', success: true })
+      }
       return {
         type: 'file',
         filename,
@@ -3241,6 +3366,9 @@ export async function generateFileAttachment(
     }
   } catch {
     logEvent(errorEventName, {})
+    if (mode === 'at-mention') {
+      logAtMention({ mentionType: 'file', success: false })
+    }
     return null
   }
 }

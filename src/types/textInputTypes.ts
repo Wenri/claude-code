@@ -2,7 +2,7 @@ import type { ContentBlockParam } from '@anthropic-ai/sdk/resources/messages.mjs
 import type { UUID } from 'crypto'
 import type React from 'react'
 import type { PermissionResult } from '../entrypoints/agentSdkTypes.js'
-import type { Key } from '../ink.js'
+import type { KeyboardEvent } from '../ink/events/keyboard-event.js'
 import type { PastedContent } from '../utils/config.js'
 import type { ImageDimensions } from '../utils/imageResizer.js'
 import type { TextHighlight } from '../utils/textHighlighting.js'
@@ -25,6 +25,13 @@ export type InlineGhostText = {
  * Base props for text input components
  */
 export type BaseTextInputProps = {
+  /**
+   * Optional handler invoked before the text input processes a key event.
+   * Calling preventDefault() or stopImmediatePropagation() skips the input's
+   * default editing behavior.
+   */
+  readonly onKeyDownBefore?: (event: KeyboardEvent) => void
+
   /**
    * Optional callback for handling history navigation on up arrow at start of input
    */
@@ -208,7 +215,7 @@ export type BaseTextInputProps = {
    * (possibly transformed) input string; returning '' for a non-empty
    * input drops the event.
    */
-  readonly inputFilter?: (input: string, key: Key) => string
+  readonly inputFilter?: (input: string, event: KeyboardEvent) => string
 }
 
 /**
@@ -235,7 +242,7 @@ export type VimMode = 'INSERT' | 'NORMAL' | 'VISUAL' | 'VISUAL LINE'
  * Common properties for input hook results
  */
 export type BaseInputState = {
-  onInput: (input: string, key: Key) => void
+  handleKeyDown: (event: KeyboardEvent) => void
   renderedValue: string
   offset: number
   setOffset: (offset: number) => void
@@ -248,12 +255,6 @@ export type BaseInputState = {
   /** Character offset in the full text where the viewport ends (text.length when no windowing). */
   viewportCharEnd: number
 
-  // For paste handling
-  isPasting?: boolean
-  pasteState?: {
-    chunks: string[]
-    timeoutId: ReturnType<typeof setTimeout> | null
-  }
 }
 
 /**
@@ -312,6 +313,12 @@ export type QueuedCommand = {
   /** Defaults to the priority implied by `mode` when enqueued. */
   priority?: QueuePriority
   clientPlatform?: string
+  /** Append this message without starting a model turn. */
+  shouldQuery?: boolean
+  /** Inbound remote attachments echoed with SDK replay messages. */
+  fileAttachments?: unknown[]
+  /** Preserve the stop-hook latch when an async stop-hook response is queued. */
+  stopHookActive?: boolean
   uuid?: UUID
   orphanedPermission?: OrphanedPermission
   /** Raw pasted contents including images. Images are resized at execution time. */

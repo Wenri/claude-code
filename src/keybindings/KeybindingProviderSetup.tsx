@@ -260,7 +260,7 @@ function stopDOMEvent(event: KeyboardEvent | WheelEvent): void {
   event.stopImmediatePropagation()
 }
 
-function ChordInterceptor({
+export function ChordInterceptor({
   bindings,
   pendingChordRef,
   setPendingChord,

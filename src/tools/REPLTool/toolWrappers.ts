@@ -5,6 +5,7 @@ import {
   logEvent,
 } from '../../services/analytics/index.js'
 import { sanitizeToolNameForAnalytics } from '../../services/analytics/metadata.js'
+import { BASH_TOOL_NAME } from '../BashTool/toolName.js'
 import {
   resolveHookPermissionDecision,
   runPostToolUseFailureHooks,
@@ -12,6 +13,7 @@ import {
   runPreToolUseHooks,
 } from '../../services/tools/toolHooks.js'
 import { checkToolIsolation } from '../../services/tools/toolIsolation.js'
+import { resyncReadFileStateAfterPostToolUse } from '../../services/tools/postToolUseFileSync.js'
 import type {
   AssistantMessage,
   Message,
@@ -21,8 +23,10 @@ import type {
   ToolCallProgress,
   ToolUseContext,
 } from '../../Tool.js'
-import { isAbortError } from '../../utils/errors.js'
+import { isAbortError, ShellError } from '../../utils/errors.js'
+import { logForDebugging } from '../../utils/debug.js'
 import { createAssistantMessage } from '../../utils/messages.js'
+import { SandboxManager } from '../../utils/sandbox/sandbox-adapter.js'
 import { formatError } from '../../utils/toolErrors.js'
 import type {
   ReplProgressEvent,
@@ -95,7 +99,10 @@ export function createToolWrappers(
   > = {}
 
   for (const tool of tools) {
-    wrappers[tool.name] = async (input, options) => {
+    const callTool = async (
+      input: Record<string, unknown>,
+      options?: { toolUseID?: string },
+    ): Promise<unknown> => {
       const toolUseID = options?.toolUseID ?? `repl_${randomUUID()}`
       let processedInput: Record<string, unknown> = input
       const fail = (message: string): { error: string } => {
@@ -239,6 +246,7 @@ export function createToolWrappers(
         const durationMs = Date.now() - toolStartTime
 
         let output: unknown = result.data
+        let postToolUseHooksRan = false
         for await (const hookResult of runPostToolUseHooks(
           context,
           tool,
@@ -251,6 +259,7 @@ export function createToolWrappers(
           undefined,
           durationMs,
         )) {
+          postToolUseHooksRan = true
           if (
             'updatedToolOutput' in hookResult &&
             tool.outputSchema?.safeParse(hookResult.updatedToolOutput)
@@ -258,6 +267,14 @@ export function createToolWrappers(
           ) {
             output = hookResult.updatedToolOutput
           }
+        }
+        if (postToolUseHooksRan) {
+          resyncReadFileStateAfterPostToolUse(
+            tool.name,
+            toolUseID,
+            processedInput,
+            context.readFileState,
+          )
         }
 
         if (tool.isMcp && Array.isArray(output)) {
@@ -280,7 +297,6 @@ export function createToolWrappers(
           }
         }
 
-        innerCalls.push({ id: toolUseID, name: tool.name, input: processedInput })
         onProgress?.({
           toolUseID,
           data: {
@@ -292,6 +308,29 @@ export function createToolWrappers(
             result: output,
           },
         })
+        const imageResult = output as {
+          type?: unknown
+          file?: { base64?: unknown; type?: unknown }
+        }
+        if (
+          output !== null &&
+          typeof output === 'object' &&
+          imageResult.type === 'image' &&
+          imageResult.file !== null &&
+          typeof imageResult.file === 'object' &&
+          typeof imageResult.file.base64 === 'string' &&
+          imageResult.file.base64.length > 0 &&
+          typeof imageResult.file.type === 'string'
+        ) {
+          const base64Length = imageResult.file.base64.length
+          return {
+            ...output,
+            file: {
+              ...imageResult.file,
+              base64: `[${base64Length} base64 chars — rendered as image in REPL result]`,
+            },
+          }
+        }
         return output
       } catch (error) {
         const message = formatError(error)
@@ -324,9 +363,27 @@ export function createToolWrappers(
             error: message,
           },
         })
+        if (
+          tool.name === BASH_TOOL_NAME &&
+          error instanceof ShellError &&
+          error.hadSandboxViolation &&
+          input.dangerouslyDisableSandbox !== true &&
+          SandboxManager.isSandboxingEnabled() &&
+          SandboxManager.areUnsandboxedCommandsAllowed()
+        ) {
+          logForDebugging(
+            'REPL Bash sandbox violation — auto-retrying unsandboxed',
+          )
+          return callTool(
+            { ...input, dangerouslyDisableSandbox: true },
+            { toolUseID },
+          )
+        }
+        innerCalls.push({ id: toolUseID, name: tool.name, input: processedInput })
         return errorResult(message)
       }
     }
+    wrappers[tool.name] = callTool
   }
 
   return wrappers

@@ -1214,7 +1214,14 @@ export const AccountInfoSchema = lazySchema(() =>
       tokenSource: z.string().optional(),
       apiKeySource: z.string().optional(),
       apiProvider: z
-        .enum(['firstParty', 'bedrock', 'vertex', 'foundry', 'mantle'])
+        .enum([
+          'firstParty',
+          'bedrock',
+          'vertex',
+          'foundry',
+          'anthropicAws',
+          'mantle',
+        ])
         .optional()
         .describe(
           'Active API backend. Anthropic OAuth login only applies when "firstParty"; for 3P providers the other fields are absent and auth is external (AWS creds, gcloud ADC, etc.).',
@@ -1396,7 +1403,25 @@ export const SDKAssistantMessageErrorSchema = lazySchema(() =>
 )
 
 export const SDKStatusSchema = lazySchema(() =>
-  z.union([z.literal('compacting'), z.null()]),
+  z.union([z.literal('compacting'), z.literal('requesting'), z.null()]),
+)
+
+export const SDKMessageOriginSchema = lazySchema(() =>
+  z
+    .discriminatedUnion('kind', [
+      z.object({ kind: z.literal('human') }),
+      z.object({ kind: z.literal('channel'), server: z.string() }),
+      z.object({
+        kind: z.literal('peer'),
+        from: z.string(),
+        name: z.string().optional(),
+      }),
+      z.object({ kind: z.literal('task-notification') }),
+      z.object({ kind: z.literal('coordinator') }),
+    ])
+    .describe(
+      'Provenance of a user-role message (peer session, team lead, channel). Absent or `human` means keyboard input from the user.',
+    ),
 )
 
 // SDKUserMessage content without uuid/session_id
@@ -1408,11 +1433,18 @@ const SDKUserMessageContentSchema = lazySchema(() =>
     isSynthetic: z.boolean().optional(),
     tool_use_result: z.unknown().optional(),
     priority: z.enum(['now', 'next', 'later']).optional(),
+    origin: SDKMessageOriginSchema().optional(),
     client_platform: z
       .string()
       .optional()
       .describe(
         '@internal The `anthropic-client-platform` value of the client that sent this message (e.g. `ios`, `android`, `web_claude_ai`, `desktop_app`). Injected server-side by CCR ingress from the request header.',
+      ),
+    shouldQuery: z
+      .boolean()
+      .optional()
+      .describe(
+        'When false, the message is appended to the transcript without triggering an assistant turn. It will be merged into the next user message that does query.',
       ),
     timestamp: z
       .string()
@@ -1435,7 +1467,31 @@ export const SDKUserMessageReplaySchema = lazySchema(() =>
     uuid: UUIDPlaceholder(),
     session_id: z.string(),
     isReplay: z.literal(true),
+    file_attachments: z.array(z.unknown()).optional(),
   }),
+)
+
+export const SDKBashCommandSchema = lazySchema(() =>
+  z
+    .object({
+      type: z.literal('bash_command'),
+      command: z
+        .string()
+        .describe(
+          'Shell command to execute verbatim via a one-shot `/bin/sh -c` (or `pwsh`) subprocess, bypassing the model. Trust model matches the local TUI `!cmd` path (no sandbox, no per-command prompt); unlike `!cmd`, output is not appended to the conversation transcript and there is no persistent shell state across calls.',
+        ),
+      cwd: z
+        .string()
+        .optional()
+        .describe(
+          'Working directory for the command. Falls back to the session cwd when omitted.',
+        ),
+      uuid: UUIDPlaceholder().optional(),
+      session_id: z.string().optional(),
+    })
+    .describe(
+      '@internal A user-initiated shell command dispatched to a one-shot shell subprocess with no model turn. Input-only — sent by CCR clients that surface a dedicated terminal UI; never emitted on stdout.',
+    ),
 )
 
 export const SDKRateLimitInfoSchema = lazySchema(() =>
@@ -1469,8 +1525,8 @@ export const SDKRateLimitInfoSchema = lazySchema(() =>
           'group_zero_credit_limit',
           'member_zero_credit_limit',
           'org_service_level_disabled',
-          'org_service_zero_credit_limit',
           'no_limits_configured',
+          'fetch_error',
           'unknown',
         ])
         .optional(),
@@ -1717,6 +1773,8 @@ export const SDKStatusMessageSchema = lazySchema(() =>
     subtype: z.literal('status'),
     status: SDKStatusSchema(),
     permissionMode: PermissionModeSchema().optional(),
+    compact_result: z.enum(['success', 'failed']).optional(),
+    compact_error: z.string().optional(),
     uuid: UUIDPlaceholder(),
     session_id: z.string(),
   }),
@@ -1877,6 +1935,22 @@ export const SDKHookResponseMessageSchema = lazySchema(() =>
     uuid: UUIDPlaceholder(),
     session_id: z.string(),
   }),
+)
+
+export const SDKPluginInstallMessageSchema = lazySchema(() =>
+  z
+    .object({
+      type: z.literal('system'),
+      subtype: z.literal('plugin_install'),
+      status: z.enum(['started', 'installed', 'failed', 'completed']),
+      name: z.string().optional(),
+      error: z.string().optional(),
+      uuid: UUIDPlaceholder(),
+      session_id: z.string(),
+    })
+    .describe(
+      'Headless plugin installation progress (CLAUDE_CODE_SYNC_PLUGIN_INSTALL). started/completed bracket the whole install; installed/failed carry a per-marketplace name.',
+    ),
 )
 
 export const SDKToolProgressMessageSchema = lazySchema(() =>
@@ -2040,6 +2114,40 @@ export const SDKToolUseSummaryMessageSchema = lazySchema(() =>
   }),
 )
 
+export const SDKMemoryRecallMessageSchema = lazySchema(() =>
+  z
+    .object({
+      type: z.literal('system'),
+      subtype: z.literal('memory_recall'),
+      mode: z
+        .enum(['select', 'synthesize'])
+        .describe(
+          "How memories were surfaced: 'select' returns full file bodies chosen by the parallel selector; 'synthesize' returns a Sonnet-authored paragraph distilled from many tiny memories.",
+        ),
+      memories: z.array(
+        z.object({
+          path: z
+            .string()
+            .describe(
+              "Absolute path to the memory file, or a synthesis sentinel of the form `<synthesis:DIR>` when mode is 'synthesize'.",
+            ),
+          scope: z.enum(['personal', 'team']),
+          content: z
+            .string()
+            .optional()
+            .describe(
+              "Synthesis paragraph. Only present when mode is 'synthesize'; always absent for 'select' (renderers lazy-load from path).",
+            ),
+        }),
+      ),
+      uuid: UUIDPlaceholder(),
+      session_id: z.string(),
+    })
+    .describe(
+      'Emitted when the memory recall supervisor surfaces relevant memories into the turn. Mirrors the CLI relevant_memories attachment so SDK renderers can show "Recalled from memory" inline.',
+    ),
+)
+
 export const SDKElicitationCompleteMessageSchema = lazySchema(() =>
   z
     .object({
@@ -2133,6 +2241,7 @@ export const SDKMessageSchema = lazySchema(() =>
     SDKHookStartedMessageSchema(),
     SDKHookProgressMessageSchema(),
     SDKHookResponseMessageSchema(),
+    SDKPluginInstallMessageSchema(),
     SDKToolProgressMessageSchema(),
     SDKAuthStatusMessageSchema(),
     SDKTaskNotificationMessageSchema(),
@@ -2142,6 +2251,7 @@ export const SDKMessageSchema = lazySchema(() =>
     SDKSessionStateChangedMessageSchema(),
     SDKFilesPersistedEventSchema(),
     SDKToolUseSummaryMessageSchema(),
+    SDKMemoryRecallMessageSchema(),
     SDKRateLimitEventSchema(),
     SDKElicitationCompleteMessageSchema(),
     SDKPromptSuggestionMessageSchema(),

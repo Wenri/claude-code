@@ -30,6 +30,11 @@ export const NON_REBINDABLE: ReservedShortcut[] = [
       'Cannot be rebound - identical to Enter in terminals (both send CR)',
     severity: 'error',
   },
+  {
+    key: 'capslock',
+    reason: 'Caps Lock is not delivered to terminal applications',
+    severity: 'error',
+  },
 ]
 
 /**
@@ -118,10 +123,23 @@ function normalizeStep(step: string): string {
       else if (lower === 'command' || lower === 'cmd') modifiers.push('cmd')
       else modifiers.push(lower)
     } else {
-      mainKey = lower
+      mainKey = KEY_ALIASES[lower] ?? lower
     }
   }
 
   modifiers.sort()
   return [...modifiers, mainKey].join('+')
+}
+
+const KEY_ALIASES: Record<string, string> = {
+  esc: 'escape',
+  return: 'enter',
+  del: 'delete',
+  '↑': 'up',
+  '↓': 'down',
+  '←': 'left',
+  '→': 'right',
+  caps: 'capslock',
+  'caps-lock': 'capslock',
+  caps_lock: 'capslock',
 }

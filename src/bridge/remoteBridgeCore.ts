@@ -46,7 +46,7 @@ import {
   isTrustedDeviceGateEnabled,
 } from './trustedDevice.js'
 import {
-  getEnvLessBridgeConfig,
+  getReplBridgeConfig,
   type EnvLessBridgeConfig,
 } from './envLessBridgeConfig.js'
 import {
@@ -239,7 +239,7 @@ export async function initEnvLessBridgeCore(
     onTransportPersistenceTeardown,
   } = params
 
-  const cfg = await getEnvLessBridgeConfig()
+  const cfg = await getReplBridgeConfig()
   let isReattach = !!reattachSessionId
 
   // ── 1. Create session (POST /v1/code/sessions, no env_id) ───────────────

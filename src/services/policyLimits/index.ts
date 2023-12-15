@@ -562,6 +562,15 @@ function getRestrictionsFromCache():
 }
 
 /**
+ * Start loading after GrowthBook initializes if eligibility changed since the
+ * early startup check. A loading promise means initialization already began.
+ */
+export function maybeLoadPolicyLimitsAfterGrowthBookInit(): void {
+  if (loadingCompletePromise !== null || !isPolicyLimitsEligible()) return
+  void loadPolicyLimits()
+}
+
+/**
  * Load policy limits during CLI initialization
  * Fails open - if fetch fails, continues without restrictions
  * Also starts background polling to pick up changes mid-session

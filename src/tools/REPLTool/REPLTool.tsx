@@ -53,6 +53,7 @@ import {
 
 const DEFAULT_TIMEOUT_MS = 30_000
 const MAX_TIMEOUT_MS = 600_000
+const MAX_REPL_IMAGES = 8
 const STRING_OBJECT_RESERVED_KEYS = new Set([
   'stdout',
   'stderr',
@@ -108,6 +109,12 @@ const outputSchema = lazySchema(() =>
       .describe(
         'File-mutating inner tool calls — consumed by verificationInterceptor',
       ),
+    images: z
+      .array(z.object({ base64: z.string(), mediaType: z.string() }))
+      .optional()
+      .describe(
+        'Images returned by inner Read calls — surfaced as image content blocks',
+      ),
   }),
 )
 
@@ -162,6 +169,36 @@ function replayCalls(records: Map<string, ReplProgressRecord>): ReplCallResult[]
             result: record.result,
           },
     )
+}
+
+function collectImages(
+  records: Map<string, ReplProgressRecord>,
+): { base64: string; mediaType: string }[] {
+  const images: { base64: string; mediaType: string }[] = []
+  for (const record of records.values()) {
+    if (record.phase !== 'complete') continue
+    const result = record.result
+    const imageResult = result as {
+      type?: unknown
+      file?: { base64?: unknown; type?: unknown }
+    }
+    if (
+      result !== null &&
+      typeof result === 'object' &&
+      imageResult.type === 'image' &&
+      imageResult.file !== null &&
+      typeof imageResult.file === 'object' &&
+      typeof imageResult.file.base64 === 'string' &&
+      imageResult.file.base64.length > 0 &&
+      typeof imageResult.file.type === 'string'
+    ) {
+      images.push({
+        base64: imageResult.file.base64,
+        mediaType: imageResult.file.type,
+      })
+    }
+  }
+  return images.slice(0, MAX_REPL_IMAGES)
 }
 
 function virtualMessages(records: Map<string, ReplProgressRecord>): Message[] {
@@ -459,6 +496,7 @@ async function executeRepl(
     const newRegistered = [...registeredTools.keys()].filter(
       name => !initialRegistered.has(name),
     )
+    const images = collectImages(progress)
     const output: Output = {
       code: input.code,
       result,
@@ -467,6 +505,7 @@ async function executeRepl(
       ...(newRegistered.length > 0
         ? { registeredTools: newRegistered }
         : {}),
+      ...(images.length > 0 ? { images } : {}),
     }
     replContext.replayLog.push({
       code: input.code,
@@ -602,10 +641,34 @@ export const REPLTool = buildTool({
     )
   },
   mapToolResultToToolResultBlockParam(output, toolUseID) {
+    const text = formatOutput(output)
+    if (output.images?.length) {
+      const maxResultSizeChars = getMaxResultSizeChars()
+      const boundedText =
+        text.length > maxResultSizeChars
+          ? text.slice(0, maxResultSizeChars) +
+            `\n[… ${text.length - maxResultSizeChars} more chars truncated — image-bearing REPL results are capped at ${maxResultSizeChars} chars of text]`
+          : text || '(no text output)'
+      return {
+        tool_use_id: toolUseID,
+        type: 'tool_result',
+        content: [
+          { type: 'text', text: boundedText },
+          ...output.images.map(image => ({
+            type: 'image' as const,
+            source: {
+              type: 'base64' as const,
+              media_type: image.mediaType,
+              data: image.base64,
+            },
+          })),
+        ],
+      }
+    }
     return {
       tool_use_id: toolUseID,
       type: 'tool_result',
-      content: formatOutput(output),
+      content: text,
       is_error: !!output.error,
     }
   },

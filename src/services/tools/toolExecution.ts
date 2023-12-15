@@ -27,6 +27,8 @@ import {
   buildCodeEditToolAttributes,
   isCodeEditingTool,
 } from '../../hooks/toolPermission/permissionLogging.js'
+import { ASK_USER_QUESTION_TOOL_NAME } from '../../tools/AskUserQuestionTool/prompt.js'
+import { AGENT_TOOL_NAME } from '../../tools/AgentTool/constants.js'
 import type { CanUseToolFn } from '../../hooks/useCanUseTool.js'
 import {
   findToolByName,
@@ -48,8 +50,15 @@ import { FILE_EDIT_TOOL_NAME } from '../../tools/FileEditTool/constants.js'
 import { FILE_READ_TOOL_NAME } from '../../tools/FileReadTool/prompt.js'
 import { FILE_WRITE_TOOL_NAME } from '../../tools/FileWriteTool/prompt.js'
 import { EXIT_PLAN_MODE_V2_TOOL_NAME } from '../../tools/ExitPlanModeTool/constants.js'
+import { ENTER_PLAN_MODE_TOOL_NAME } from '../../tools/EnterPlanModeTool/constants.js'
 import { NOTEBOOK_EDIT_TOOL_NAME } from '../../tools/NotebookEditTool/constants.js'
 import { POWERSHELL_TOOL_NAME } from '../../tools/PowerShellTool/toolName.js'
+import {
+  isReplModeEnabled,
+  REPL_ONLY_TOOLS,
+  REPL_TOOL_NAME,
+} from '../../tools/REPLTool/constants.js'
+import { TASK_OUTPUT_TOOL_NAME } from '../../tools/TaskOutputTool/constants.js'
 import { TodoWriteTool } from '../../tools/TodoWriteTool/TodoWriteTool.js'
 import { parseGitCommitId } from '../../tools/shared/gitOperationTracking.js'
 import {
@@ -71,14 +80,14 @@ import { logForDebugging } from '../../utils/debug.js'
 import {
   AbortError,
   errorMessage,
-  getErrnoCode,
+  classifyTelemetryError,
   ShellError,
-  TelemetrySafeError_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
 } from '../../utils/errors.js'
 import { executePermissionDeniedHooks } from '../../utils/hooks.js'
 import { logError } from '../../utils/log.js'
 import { expandPath } from '../../utils/path.js'
 import { checkEditableInternalPath } from '../../utils/permissions/filesystem.js'
+import { WORKSPACE_BASH_TOOL_NAME } from '../../utils/permissions/permissionRuleParser.js'
 import {
   CANCEL_MESSAGE,
   createProgressMessage,
@@ -141,12 +150,44 @@ import {
   runPreToolUseHooks,
 } from './toolHooks.js'
 import { checkToolIsolation } from './toolIsolation.js'
+import { resyncReadFileStateAfterPostToolUse } from './postToolUseFileSync.js'
 
 /** Minimum total hook duration (ms) to show inline timing summary */
 export const HOOK_TIMING_DISPLAY_THRESHOLD_MS = 500
 /** Log a debug warning when hooks/permission-decision block for this long. Matches
  * BashTool's PROGRESS_THRESHOLD_MS — the collapsed view feels stuck past this. */
 const SLOW_PHASE_LOG_THRESHOLD_MS = 2000
+
+const SUBAGENT_UNAVAILABLE_TOOLS = new Set([
+  TASK_OUTPUT_TOOL_NAME,
+  EXIT_PLAN_MODE_V2_TOOL_NAME,
+  ENTER_PLAN_MODE_TOOL_NAME,
+  AGENT_TOOL_NAME,
+  ASK_USER_QUESTION_TOOL_NAME,
+])
+
+function getUnknownToolRecoveryGuidance(
+  toolName: string,
+  availableTools: readonly Tool[],
+  agentId: string | undefined,
+): string {
+  if (
+    isReplModeEnabled() &&
+    REPL_ONLY_TOOLS.has(toolName) &&
+    findToolByName(availableTools, REPL_TOOL_NAME)
+  ) {
+    return `. ${toolName} is only available inside ${REPL_TOOL_NAME}. Use ${REPL_TOOL_NAME} with code: await ${toolName}({...}).`
+  }
+
+  const knownTool = findToolByName(getAllBaseTools(), toolName)
+  if (agentId && knownTool && SUBAGENT_UNAVAILABLE_TOOLS.has(knownTool.name)) {
+    return `. ${toolName} is not available inside subagents. Complete the task with the tools provided and return findings to the orchestrator.`
+  }
+  if (knownTool) {
+    return `. ${toolName} exists but is not enabled in this context. Use one of the available tools instead.`
+  }
+  return ''
+}
 
 /**
  * Classify a tool execution error into a telemetry-safe string.
@@ -160,26 +201,7 @@ const SLOW_PHASE_LOG_THRESHOLD_MS = 2000
  * - Fallback: "Error" (better than a mangled 3-char identifier)
  */
 export function classifyToolError(error: unknown): string {
-  if (
-    error instanceof TelemetrySafeError_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-  ) {
-    return error.telemetryMessage.slice(0, 200)
-  }
-  if (error instanceof Error) {
-    // Node.js filesystem errors have a `code` property (ENOENT, EACCES, etc.)
-    // These are safe to log and much more useful than the constructor name.
-    const errnoCode = getErrnoCode(error)
-    if (typeof errnoCode === 'string') {
-      return `Error:${errnoCode}`
-    }
-    // ShellError, ImageSizeError, etc. have stable `.name` properties
-    // that survive minification (they're set in the constructor).
-    if (error.name && error.name !== 'Error' && error.name.length > 3) {
-      return error.name.slice(0, 60)
-    }
-    return 'Error'
-  }
-  return 'UnknownError'
+  return classifyTelemetryError(error)
 }
 
 /**
@@ -380,6 +402,11 @@ export async function* runToolUse(
   // Check if the tool exists
   if (!tool) {
     const sanitizedToolName = sanitizeToolNameForAnalytics(toolName)
+    const recoveryGuidance = getUnknownToolRecoveryGuidance(
+      toolName,
+      toolUseContext.options.tools,
+      toolUseContext.agentId,
+    )
     logForDebugging(`Unknown tool ${toolName}: ${toolUse.id}`)
     logEvent('tengu_tool_use_error', {
       error:
@@ -415,12 +442,12 @@ export async function* runToolUse(
         content: [
           {
             type: 'tool_result',
-            content: `<tool_use_error>Error: No such tool available: ${toolName}</tool_use_error>`,
+            content: `<tool_use_error>Error: No such tool available: ${toolName}${recoveryGuidance}</tool_use_error>`,
             is_error: true,
             tool_use_id: toolUse.id,
           },
         ],
-        toolUseResult: `Error: No such tool available: ${toolName}`,
+        toolUseResult: `Error: No such tool available: ${toolName}${recoveryGuidance}`,
         sourceToolAssistantUUID: assistantMessage.uuid,
       }),
     }
@@ -1096,7 +1123,7 @@ async function checkPermissionsAndCallTool(
 
   // Check whether we have permission to use the tool,
   // and ask the user for permission if we don't
-  const permissionMode = toolUseContext.getAppState().toolPermissionContext.mode
+  const permissionMode = toolUseContext.getToolPermissionContext().mode
   const permissionStart = Date.now()
 
   const resolved = await resolveHookPermissionDecision(
@@ -1110,6 +1137,9 @@ async function checkPermissionsAndCallTool(
   )
   const permissionDecision = resolved.decision
   processedInput = resolved.input
+  if (permissionDecision.behavior !== 'allow') {
+    toolUseContext.onPermissionDenial?.(tool, toolUseID, processedInput)
+  }
   const permissionDurationMs = Date.now() - permissionStart
   // In auto mode, canUseTool awaits the classifier (side_query) — if that's
   // slow the collapsed view shows "Running…" with no (Ns) tick since
@@ -1378,6 +1408,25 @@ async function checkPermissionsAndCallTool(
         }),
         ...('dangerouslyDisableSandbox' in bashInput && {
           dangerouslyDisableSandbox: bashInput.dangerouslyDisableSandbox,
+        }),
+      }
+    } else if (
+      tool.name === WORKSPACE_BASH_TOOL_NAME &&
+      'command' in processedInput &&
+      typeof processedInput.command === 'string'
+    ) {
+      const workspaceBashInput = processedInput as {
+        command: string
+        timeout_ms?: number
+      }
+      const commandParts = workspaceBashInput.command.trim().split(/\s+/)
+      const bashCommand = commandParts[0] || ''
+
+      toolParameters = {
+        bash_command: bashCommand,
+        full_command: workspaceBashInput.command,
+        ...(workspaceBashInput.timeout_ms !== undefined && {
+          timeout: workspaceBashInput.timeout_ms,
         }),
       }
     }
@@ -1745,6 +1794,7 @@ async function checkPermissionsAndCallTool(
 
     const postToolHookInfos: StopHookInfo[] = []
     const postToolHookStart = Date.now()
+    let postToolUseHooksRan = false
     let toolOutputWasUpdated = false
     for await (const hookResult of runPostToolUseHooks(
       toolUseContext,
@@ -1758,6 +1808,7 @@ async function checkPermissionsAndCallTool(
       mcpServerBaseUrl,
       durationMs,
     )) {
+      postToolUseHooksRan = true
       if ('updatedToolOutput' in hookResult) {
         toolOutput = hookResult.updatedToolOutput
         toolOutputWasUpdated = true
@@ -1780,6 +1831,15 @@ async function checkPermissionsAndCallTool(
       }
     }
     const postToolHookDurationMs = Date.now() - postToolHookStart
+    if (postToolUseHooksRan) {
+      const fileSyncMessage = resyncReadFileStateAfterPostToolUse(
+        tool.name,
+        toolUseID,
+        processedInput,
+        toolUseContext.readFileState,
+      )
+      if (fileSyncMessage) hookResults.push({ message: fileSyncMessage })
+    }
     if (postToolHookDurationMs >= SLOW_PHASE_LOG_THRESHOLD_MS) {
       logForDebugging(
         `Slow PostToolUse hooks: ${postToolHookDurationMs}ms for ${tool.name} (${postToolHookInfos.length} hooks)`,

@@ -12,6 +12,7 @@ import { isBridgeEnabled } from '../../bridge/bridgeEnabled.js'
 import { getDesktopUpsellConfig } from '../../components/DesktopUpsell/DesktopUpsellStartup.js'
 import { color } from '../../components/design-system/color.js'
 import { shouldShowOverageCreditUpsell } from '../../components/LogoV2/OverageCreditUpsell.js'
+import { shouldExcludeDefaultSpinnerTips } from '../../components/Spinner.js'
 import { getShortcutDisplay } from '../../keybindings/shortcutFormat.js'
 import { isKairosCronEnabled } from '../../tools/ScheduleCronTool/prompt.js'
 import { is1PApiCustomer } from '../../utils/auth.js'
@@ -787,7 +788,7 @@ export async function getRelevantTips(context?: TipContext): Promise<Tip[]> {
   const customTips = getCustomTips()
 
   // If excludeDefault is true and there are custom tips, skip built-in tips entirely
-  if (override?.excludeDefault && customTips.length > 0) {
+  if (shouldExcludeDefaultSpinnerTips(override)) {
     return customTips
   }
 

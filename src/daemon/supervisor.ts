@@ -15,6 +15,7 @@ import chokidar, { type FSWatcher } from 'chokidar'
 import { logEvent } from '../services/analytics/index.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js'
 import { bgSupervisorNoun } from '../utils/agentsFleet.js'
+import { atomicWriteFile } from '../utils/atomicWrite.js'
 import { logForDebugging } from '../utils/debug.js'
 import { getErrnoCode, isENOENT } from '../utils/errors.js'
 import {
@@ -69,9 +70,8 @@ import { connectPtyHost, type PtyClient } from './ptyClient.js'
 import { killWorkerThroughPty } from './orphanReaper.js'
 import { controlPeerMatchesCurrentUser } from './peerCredentials.js'
 import {
-  killSparePty,
+  claimSpare,
   reapOrphanSpares,
-  sendSpareClaim,
   spawnSpare,
   type SpareProcess,
 } from './spare.js'
@@ -242,9 +242,11 @@ function launchArgs(
   dispatch: Dispatch,
   attempt: number,
   currentTranscriptValid: boolean,
+  resumeSessionId: string,
+  respawnFlags: string[],
 ): string[] {
   if (attempt > 1 && currentTranscriptValid) {
-    return ['--resume', dispatch.sessionId, ...dispatch.respawnFlags]
+    return ['--resume', resumeSessionId, ...respawnFlags]
   }
   if (dispatch.launch.mode === 'resume') {
     return [
@@ -402,7 +404,8 @@ function connectRendezvous(
       try {
         socket.write(`${JSON.stringify(message)}\n`)
         return true
-      } catch {
+      } catch (error) {
+        logForDebugging(`[bg-rv] send failed: ${String(error)}`)
         return false
       }
     },
@@ -513,19 +516,18 @@ export class BackgroundHandle {
     handle.attempt = 1
     handle.ptySocket = options.ptySockPath
     handle.rendezvousSocket = getRendezvousSocketPath(dispatch.short)
-    handle.cols = 0
     handle.wirePty(connectPtyHost(options.ptySockPath, options.pid))
+    handle.resize(dispatch.cols ?? 200, dispatch.rows ?? 50)
     handle.connectRendezvous()
     void getProcessStartTokenAsync(options.pid).then((token) => {
       if (
-        !token ||
         handle.record.pid !== options.pid ||
         handle.isDetached ||
         handle.record.outcome
       ) {
         return
       }
-      handle.procStart = token
+      if (token) handle.procStart = token
       handle.patch({ pid: options.pid })
     })
     return handle
@@ -536,14 +538,22 @@ export class BackgroundHandle {
     auth?: AuthSnapshot,
   ): { env: NodeJS.ProcessEnv; argv: string[] } {
     const jobDir = getJobDir(dispatch.short)
+    const env = jobEnvironment(
+      dispatch,
+      jobDir,
+      getRendezvousSocketPath(dispatch.short),
+      auth,
+    )
+    if (dispatch.reattachEnv) Object.assign(env, dispatch.reattachEnv)
     return {
-      env: jobEnvironment(
+      env,
+      argv: launchArgs(
         dispatch,
-        jobDir,
-        getRendezvousSocketPath(dispatch.short),
-        auth,
+        1,
+        false,
+        dispatch.sessionId,
+        dispatch.respawnFlags,
       ),
-      argv: launchArgs(dispatch, 1, false),
     }
   }
 
@@ -876,11 +886,16 @@ export class BackgroundHandle {
       dispatch.launch.mode === 'resume' ? dispatch.launch.sessionId : undefined
     let currentTranscriptValid = false
     let sourceTranscriptMissing = false
+    let resumeSessionId = dispatch.sessionId
+    let respawnFlags = dispatch.respawnFlags
     if (this.attempt > 1) {
+      const state = await readJobState(jobDir)
+      resumeSessionId = state?.resumeSessionId ?? dispatch.sessionId
+      respawnFlags = state?.respawnFlags ?? dispatch.respawnFlags
       const cwd = await canonicalizePath(dispatch.cwd)
       const currentTranscript = join(
         getProjectDir(cwd),
-        `${dispatch.sessionId}.jsonl`,
+        `${resumeSessionId}.jsonl`,
       )
       currentTranscriptValid = await hasTranscriptMessages(currentTranscript)
       sourceTranscriptMissing =
@@ -918,7 +933,13 @@ export class BackgroundHandle {
       return
     }
     const launcher = pinnedWorkerLauncher()
-    const args = launchArgs(dispatch, this.attempt, currentTranscriptValid)
+    const args = launchArgs(
+      dispatch,
+      this.attempt,
+      currentTranscriptValid,
+      resumeSessionId,
+      respawnFlags,
+    )
     const env = jobEnvironment(
       dispatch,
       jobDir,
@@ -1161,6 +1182,9 @@ export class BackgroundHandle {
       detail: `${detail}; respawning`,
     })
     this.procStart = undefined
+    const notice = `\r\n\x1b[2m[worker crashed (${detail}) — respawning…]\x1b[0m\r\n`
+    this.pushRing(notice)
+    this.stream.emit(notice)
     this.respawnTimer = setTimeout(() => {
       this.respawnTimer = undefined
       if (this.phase.kind !== 'retiring' && this.phase.kind !== 'retired') {
@@ -1257,12 +1281,11 @@ function writeRoster(handles: Map<string, BackgroundHandle>): Promise<void> {
       workers,
     }
     await mkdir(dirname(getRosterPath()), { recursive: true, mode: 0o700 })
-    const temporary = `${getRosterPath()}.tmp.${process.pid}`
-    await writeFile(temporary, JSON.stringify(manifest, null, 2), {
-      encoding: 'utf8',
-      mode: 0o600,
-    })
-    await rename(temporary, getRosterPath())
+    await atomicWriteFile(
+      getRosterPath(),
+      JSON.stringify(manifest, null, 2),
+      0o600,
+    )
   })
   rosterWrite = next.catch(() => {})
   return next
@@ -2245,27 +2268,12 @@ export async function runBackgroundSupervisor(options?: {
       const claimed = spare
       spare = null
       try {
-        handle = BackgroundHandle.claim(value, {
-          pid: claimed.hostPid,
-          ptySockPath: claimed.ptySock,
-          spawnPty,
-          getAuthSnapshot: options?.getAuthSnapshot,
-        })
-        const frame = BackgroundHandle.buildClaimFrame(
+        handle = claimSpare(
           value,
-          options?.getAuthSnapshot?.(),
+          claimed,
+          spawnPty,
+          options?.getAuthSnapshot,
         )
-        void sendSpareClaim(claimed.claimSock, {
-          cwd: value.cwd,
-          env: frame.env,
-          argv: frame.argv,
-          sessionId: value.sessionId,
-        }).catch((error) => {
-          logForDebugging(`[bg-spare] send-claim failed: ${String(error)}`, {
-            level: 'warn',
-          })
-          killSparePty(claimed.ptySock)
-        })
         logEvent('tengu_bg_spare_claim', {
           age_ms: Date.now() - claimed.startedAt,
         })

@@ -30,7 +30,7 @@ function hasMessageAfterBoundary(messages: Message[], boundaryUuid: string): boo
   return false;
 }
 export function usePostCompactSurvey(messages, isLoading, t0, t1) {
-  const $ = _c(23);
+  const $ = _c(24);
   const hasActivePrompt = t0 === undefined ? false : t0;
   let t2;
   if ($[0] !== t1) {
@@ -71,7 +71,8 @@ export function usePostCompactSurvey(messages, isLoading, t0, t1) {
     state,
     lastResponse,
     open,
-    handleSelect
+    handleSelect,
+    handleUndo
   } = useSurveyState(t5);
   let t6;
   let t7;
@@ -154,18 +155,20 @@ export function usePostCompactSurvey(messages, isLoading, t0, t1) {
   }
   useEffect(t9, t10);
   let t11;
-  if ($[19] !== handleSelect || $[20] !== lastResponse || $[21] !== state) {
+  if ($[19] !== handleSelect || $[20] !== handleUndo || $[21] !== lastResponse || $[22] !== state) {
     t11 = {
       state,
       lastResponse,
-      handleSelect
+      handleSelect,
+      handleUndo
     };
     $[19] = handleSelect;
-    $[20] = lastResponse;
-    $[21] = state;
-    $[22] = t11;
+    $[20] = handleUndo;
+    $[21] = lastResponse;
+    $[22] = state;
+    $[23] = t11;
   } else {
-    t11 = $[22];
+    t11 = $[23];
   }
   return t11;
 }

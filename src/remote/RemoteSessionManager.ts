@@ -9,7 +9,9 @@ import type {
 import { logForDebugging } from '../utils/debug.js'
 import { logError } from '../utils/log.js'
 import {
+  type RemoteBashCommand,
   type RemoteMessageContent,
+  sendBashCommandToRemoteSession,
   sendEventToRemoteSession,
 } from '../utils/teleport/api.js'
 import {
@@ -263,6 +265,31 @@ export class RemoteSessionManager {
       logError(
         new Error(
           `[RemoteSessionManager] Failed to send message to session ${this.config.sessionId}: ${result.reason}`,
+        ),
+      )
+    }
+
+    return result
+  }
+
+  async sendBashCommand(
+    command: RemoteBashCommand,
+    opts?: { uuid?: string },
+  ): Promise<{ ok: true } | { ok: false; reason: string }> {
+    logForDebugging(
+      `[RemoteSessionManager] Sending bash_command to session ${this.config.sessionId}`,
+    )
+
+    const result = await sendBashCommandToRemoteSession(
+      this.config.sessionId,
+      command,
+      opts,
+    )
+
+    if (!result.ok) {
+      logError(
+        new Error(
+          `[RemoteSessionManager] Failed to send bash_command to session ${this.config.sessionId}: ${result.reason}`,
         ),
       )
     }

@@ -21,10 +21,16 @@ import type { Tools, ToolUseContext } from '../Tool.js'
 import type { AgentDefinition } from '../tools/AgentTool/loadAgentsDir.js'
 import type { Message } from '../types/message.js'
 import { createAbortController } from './abortController.js'
+import { createAgentLifecycle } from './agentLifecycle.js'
+import { makeSetClassifierApprovals } from './classifierApprovals.js'
+import { createTeammateColors } from './swarm/teammateLayoutManager.js'
 import type { FileStateCache } from './fileStateCache.js'
 import type { CacheSafeParams } from './forkedAgent.js'
 import { getMainLoopModel } from './model/model.js'
 import { asSystemPrompt } from './systemPromptType.js'
+import { createTaskRegistry } from './task/framework.js'
+import { makeSessionHooksRegistry } from './hooks/sessionHooks.js'
+import { makeSetWebBrowserSlice } from './webBrowserState.js'
 import {
   shouldEnableThinkingByDefault,
   type ThinkingConfig,
@@ -51,6 +57,7 @@ export async function fetchSystemPromptParts({
   mcpClients,
   customSystemPrompt,
   excludeDynamicSections,
+  cacheBreakerPhrase,
 }: {
   tools: Tools
   mainLoopModel: string
@@ -58,6 +65,7 @@ export async function fetchSystemPromptParts({
   mcpClients: MCPServerConnection[]
   customSystemPrompt: string | string[] | undefined
   excludeDynamicSections?: boolean
+  cacheBreakerPhrase?: string
 }): Promise<{
   defaultSystemPrompt: string[]
   userContext: { [k: string]: string }
@@ -75,7 +83,9 @@ export async function fetchSystemPromptParts({
           { excludeDynamicSections },
         ),
     getUserContext(),
-    customSystemPrompt !== undefined ? Promise.resolve({}) : getSystemContext(),
+    customSystemPrompt !== undefined
+      ? Promise.resolve({})
+      : getSystemContext(cacheBreakerPhrase),
     excludeDynamicSections && customSystemPrompt === undefined
       ? getExcludedDynamicSectionsContent(
           mainLoopModel,
@@ -147,6 +157,7 @@ export async function buildSideQuestionFallbackParams({
       mcpClients,
       customSystemPrompt,
       excludeDynamicSections,
+      cacheBreakerPhrase: appState.cacheBreakerPhrase,
     })
 
   const systemPrompt = asSystemPrompt([
@@ -190,14 +201,37 @@ export async function buildSideQuestionFallbackParams({
     abortController: createAbortController(),
     readFileState,
     getAppState,
+    getToolPermissionContext: () => getAppState().toolPermissionContext,
+    getEffortValue: () => getAppState().effortValue,
+    getAutoCompactWindow: () => getAppState().autoCompactWindow,
+    getFastMode: () => getAppState().fastMode,
+    getCacheBreakerPhrase: () => getAppState().cacheBreakerPhrase,
     setAppState,
+    setToolPermissionContext: value =>
+      setAppState(previous => {
+        const next =
+          typeof value === 'function'
+            ? value(previous.toolPermissionContext)
+            : value
+        return next === previous.toolPermissionContext
+          ? previous
+          : { ...previous, toolPermissionContext: next }
+      }),
+    setClassifierApprovals: makeSetClassifierApprovals(setAppState),
     setReplContext: makeSetReplContext(setAppState),
+    setWebBrowserSlice: makeSetWebBrowserSlice(setAppState),
+    agentLifecycle: createAgentLifecycle(setAppState),
+    teammateColors: createTeammateColors(getAppState, setAppState),
+    taskRegistry: createTaskRegistry(getAppState, setAppState),
+    sessionHooksRegistry: makeSessionHooksRegistry(setAppState),
     messages: forkContextMessages,
     turnStartIndex: 0,
     setInProgressToolUseIDs: () => {},
-    setResponseLength: () => {},
-    updateFileHistoryState: () => {},
-    updateAttributionState: () => {},
+    addResponseLength: () => {},
+    resetResponseLength: () => {},
+    getFileHistoryState: () => undefined,
+    applyFileHistoryOp: () => {},
+    applyAttributionOp: () => {},
   }
 
   return {

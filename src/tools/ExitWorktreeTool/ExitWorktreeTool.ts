@@ -11,6 +11,7 @@ import type { Tool } from '../../Tool.js'
 import { buildTool, type ToolDef } from '../../Tool.js'
 import { count } from '../../utils/array.js'
 import { clearMemoryFileCaches } from '../../utils/claudemd.js'
+import { hasCwdOverride } from '../../utils/cwd.js'
 import { execFileNoThrow } from '../../utils/execFileNoThrow.js'
 import { updateHooksConfigSnapshot } from '../../utils/hooks/hooksConfigSnapshot.js'
 import { lazySchema } from '../../utils/lazySchema.js'
@@ -161,8 +162,10 @@ export const ExitWorktreeTool: Tool<InputSchema, Output> = buildTool({
   get outputSchema(): OutputSchema {
     return outputSchema()
   },
-  userFacingName() {
-    return 'Exiting worktree'
+  userFacingName(input) {
+    return input?.action === 'remove'
+      ? 'Cleaning up worktree'
+      : 'Exiting worktree'
   },
   shouldDefer: true,
   isDestructive(input) {
@@ -172,6 +175,14 @@ export const ExitWorktreeTool: Tool<InputSchema, Output> = buildTool({
     return input.action
   },
   async validateInput(input) {
+    if (hasCwdOverride()) {
+      return {
+        result: false,
+        message:
+          'ExitWorktree cannot be called from a subagent with a cwd override (isolation: "worktree" or explicit cwd) — it would mutate the parent session\'s process-wide working directory. This agent is already isolated; use Bash with `cd` for directory changes within it.',
+        errorCode: 5,
+      }
+    }
     // Scope guard: getCurrentWorktreeSession() is null unless EnterWorktree
     // (specifically createWorktreeForSession) ran in THIS session. Worktrees
     // created by `git worktree add`, or by EnterWorktree in a previous

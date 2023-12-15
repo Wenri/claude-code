@@ -399,6 +399,17 @@ function parseMemoryFileContent(
   }
 }
 
+function createInjectedAutoMemoryFile(rawContent: string): MemoryFileInfo {
+  const { content } = truncateEntrypointContent(rawContent)
+  return {
+    path: getAutoMemEntrypoint(),
+    type: 'AutoMem',
+    content,
+    contentDiffersFromDisk: true,
+    rawContent,
+  }
+}
+
 function handleMemoryFileReadError(error: unknown, filePath: string): void {
   const code = getErrnoCode(error)
   // ENOENT = file doesn't exist, EISDIR = is a directory — both expected
@@ -978,15 +989,24 @@ export const getMemoryFiles = memoize(
 
     // Memdir entrypoint (memory.md) - only if feature is on and file exists
     if (isAutoMemoryEnabled()) {
-      const { info: memdirEntry } = await safelyReadMemoryFileAsync(
-        getAutoMemEntrypoint(),
-        'AutoMem',
-      )
-      if (memdirEntry) {
-        const normalizedPath = normalizePathForComparison(memdirEntry.path)
-        if (!processedPaths.has(normalizedPath)) {
-          processedPaths.add(normalizedPath)
-          result.push(memdirEntry)
+      const injectedContent =
+        process.env.CLAUDE_COWORK_MEMORY_INDEX_CONTENT
+      if (injectedContent !== '') {
+        const memdirEntry =
+          injectedContent !== undefined
+            ? createInjectedAutoMemoryFile(injectedContent)
+            : (
+                await safelyReadMemoryFileAsync(
+                  getAutoMemEntrypoint(),
+                  'AutoMem',
+                )
+              ).info
+        if (memdirEntry) {
+          const normalizedPath = normalizePathForComparison(memdirEntry.path)
+          if (!processedPaths.has(normalizedPath)) {
+            processedPaths.add(normalizedPath)
+            result.push(memdirEntry)
+          }
         }
       }
     }

@@ -62,6 +62,10 @@ export type FrameEvent = {
     yogaCacheHits: number
     /** total yoga Node instances alive (create - free). Growth = leak. */
     yogaLive: number
+    /** live nodes in Ink's retained DOM tree */
+    domLive?: number
+    /** live React Fiber nodes, including alternate trees */
+    fiberLive?: number
   }
   flickers: Array<{
     desiredHeight: number

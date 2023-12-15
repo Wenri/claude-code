@@ -10,6 +10,7 @@ import {
 } from '../../constants/apiLimits.js'
 import { hasBinaryExtension } from '../../constants/files.js'
 import { memoryFreshnessNote } from '../../memdir/memoryAge.js'
+import { markTinyMemoryRead } from '../../memdir/tinyMemoryStamps.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
 import { logEvent } from '../../services/analytics/index.js'
 import {
@@ -420,6 +421,30 @@ export const FileReadTool = buildTool({
   // the render-fidelity test when this initially claimed file.content.
   extractSearchText() {
     return ''
+  },
+  stripForStorage(output) {
+    if (typeof output !== 'object' || output === null) return output
+    switch (output.type) {
+      case 'text':
+        if (output.file.content === '') return output
+        return { ...output, file: { ...output.file, content: '' } }
+      case 'image':
+        if (output.file.base64 === '') return output
+        return { ...output, file: { ...output.file, base64: '' } }
+      case 'pdf':
+        if (output.file.base64 === '') return output
+        return { ...output, file: { ...output.file, base64: '' } }
+      case 'notebook': {
+        const { cells } = output.file
+        if (cells.length === 0 || cells[0] == null) return output
+        return {
+          ...output,
+          file: { ...output.file, cells: Array(cells.length) },
+        }
+      }
+      default:
+        return output
+    }
   },
   renderToolUseErrorMessage,
   async validateInput({ file_path, pages }, toolUseContext: ToolUseContext) {
@@ -1061,6 +1086,7 @@ async function callInner(
     limit,
   })
   context.nestedMemoryAttachmentTriggers?.add(fullFilePath)
+  void markTinyMemoryRead(fullFilePath)
 
   // Snapshot before iterating — a listener that unsubscribes mid-callback
   // would splice the live array and skip the next listener.

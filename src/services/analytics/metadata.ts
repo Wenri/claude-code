@@ -492,7 +492,9 @@ export type EventMetadata = {
   rh?: string // Hashed repo remote URL (first 16 chars of SHA256), for joining with server-side data
   kairosActive?: true // KAIROS assistant mode active (ant-only; set in main.tsx after gate check)
   skillMode?: 'discovery' | 'coach' | 'discovery_and_coach' // Which skill surfacing mechanism(s) are gated on (ant-only; for BQ session segmentation)
+  coachMode?: string
   observerMode?: 'backseat' | 'skillcoach' | 'both' // Which observer classifiers are gated on (ant-only; for BQ cohort splits on tengu_backseat_* events)
+  sessionKind?: 'bg' | 'daemon' | 'daemon-worker'
 }
 
 /**
@@ -681,6 +683,16 @@ function buildProcessMetrics(): ProcessMetrics | undefined {
   }
 }
 
+function getSessionKind(): EventMetadata['sessionKind'] {
+  if (feature('BG_SESSIONS')) {
+    const kind = process.env.CLAUDE_CODE_SESSION_KIND
+    if (kind === 'bg' || kind === 'daemon' || kind === 'daemon-worker') {
+      return kind
+    }
+  }
+  return undefined
+}
+
 /**
  * Get core event metadata shared across all analytics systems.
  *
@@ -703,6 +715,7 @@ export async function getEventMetadata(
     getRepoRemoteHash(),
   ])
   const processMetrics = buildProcessMetrics()
+  const sessionKind = getSessionKind()
 
   const metadata: EventMetadata = {
     model,
@@ -713,6 +726,7 @@ export async function getEventMetadata(
     ...(process.env.CLAUDE_CODE_ENTRYPOINT && {
       entrypoint: process.env.CLAUDE_CODE_ENTRYPOINT,
     }),
+    ...(sessionKind && { sessionKind }),
     ...(process.env.CLAUDE_AGENT_SDK_VERSION && {
       agentSdkVersion: process.env.CLAUDE_AGENT_SDK_VERSION,
     }),
@@ -804,7 +818,9 @@ export function to1PEventFormat(
     rh,
     kairosActive,
     skillMode,
+    coachMode,
     observerMode,
+    sessionKind,
     ...coreFields
   } = metadata
 
@@ -966,7 +982,9 @@ export function to1PEventFormat(
       ...(rh && { rh }),
       ...(kairosActive && { is_assistant_mode: true }),
       ...(skillMode && { skill_mode: skillMode }),
+      ...(coachMode && { coach_mode: coachMode }),
       ...(observerMode && { observer_mode: observerMode }),
+      ...(sessionKind && { session_kind: sessionKind }),
       ...additionalMetadata,
     },
   }

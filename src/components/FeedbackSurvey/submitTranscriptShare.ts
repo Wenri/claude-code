@@ -1,9 +1,11 @@
 import axios from 'axios'
 import { readFile, stat } from 'fs/promises'
+import { isPolicyAllowed } from '../../services/policyLimits/index.js'
 import type { Message } from '../../types/message.js'
 import { checkAndRefreshOAuthTokenIfNeeded } from '../../utils/auth.js'
 import { logForDebugging } from '../../utils/debug.js'
 import { errorMessage } from '../../utils/errors.js'
+import { buildFeedbackPayload } from '../../utils/feedbackPayload.js'
 import { getAuthHeaders, getUserAgent } from '../../utils/http.js'
 import { normalizeMessagesForAPI } from '../../utils/messages.js'
 import {
@@ -12,8 +14,8 @@ import {
   loadSubagentTranscripts,
   MAX_TRANSCRIPT_READ_BYTES,
 } from '../../utils/sessionStorage.js'
-import { jsonStringify } from '../../utils/slowOperations.js'
-import { redactSensitiveInfo } from '../Feedback.js'
+import { jsonParse, jsonStringify } from '../../utils/slowOperations.js'
+import { redactSensitiveInfo, redactSensitiveValue } from '../Feedback.js'
 
 type TranscriptShareResult = {
   success: boolean
@@ -26,11 +28,18 @@ export type TranscriptShareTrigger =
   | 'frustration'
   | 'memory_survey'
 
+const TRANSCRIPT_ARRAY_FIELDS = new Set(['transcript'])
+const TRANSCRIPT_NESTED_ARRAY_FIELDS = new Set(['subagentTranscripts'])
+
 export async function submitTranscriptShare(
   messages: Message[],
   trigger: TranscriptShareTrigger,
   appearanceId: string,
 ): Promise<TranscriptShareResult> {
+  if (!isPolicyAllowed('allow_product_feedback')) {
+    return { success: false }
+  }
+
   try {
     logForDebugging('Collecting transcript for sharing', { level: 'info' })
 
@@ -57,19 +66,38 @@ export async function submitTranscriptShare(
       // File may not exist
     }
 
+    const redactedRawTranscriptJsonl = rawTranscriptJsonl
+      ?.split('\n')
+      .map(line => {
+        if (!line) return line
+        try {
+          return jsonStringify(redactSensitiveValue(jsonParse(line)))
+        } catch {
+          return redactSensitiveInfo(line)
+        }
+      })
+      .join('\n')
+
     const data = {
-      trigger,
-      version: MACRO.VERSION,
-      platform: process.platform,
-      transcript,
-      subagentTranscripts:
-        Object.keys(subagentTranscripts).length > 0
-          ? subagentTranscripts
-          : undefined,
-      rawTranscriptJsonl,
+      ...(redactSensitiveValue({
+        trigger,
+        version: MACRO.VERSION,
+        platform: process.platform,
+        transcript,
+        subagentTranscripts:
+          Object.keys(subagentTranscripts).length > 0
+            ? subagentTranscripts
+            : undefined,
+      }) as Record<string, unknown>),
+      rawTranscriptJsonl: redactedRawTranscriptJsonl,
     }
 
-    const content = redactSensitiveInfo(jsonStringify(data))
+    const payload = buildFeedbackPayload(
+      data,
+      TRANSCRIPT_ARRAY_FIELDS,
+      TRANSCRIPT_NESTED_ARRAY_FIELDS,
+      { extraOuterFields: { appearance_id: appearanceId } },
+    )
 
     await checkAndRefreshOAuthTokenIfNeeded()
 
@@ -86,7 +114,7 @@ export async function submitTranscriptShare(
 
     const response = await axios.post(
       'https://api.anthropic.com/api/claude_code_shared_session_transcripts',
-      { content, appearance_id: appearanceId },
+      payload,
       {
         headers,
         timeout: 30000,

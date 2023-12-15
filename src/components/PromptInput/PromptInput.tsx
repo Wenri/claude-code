@@ -3,8 +3,9 @@ import { getRuntimeCapabilities } from '../../bootstrap/state.js';
 import chalk from 'chalk';
 import * as path from 'path';
 import * as React from 'react';
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { useNotifications } from 'src/context/notifications.js';
+import { useSelectionDelete } from 'src/context/selectionDelete.js';
 import { useCommandQueue } from 'src/hooks/useCommandQueue.js';
 import { type IDEAtMentioned, useIdeAtMentioned } from 'src/hooks/useIdeAtMentioned.js';
 import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEvent } from 'src/services/analytics/index.js';
@@ -33,8 +34,13 @@ import { usePromptSuggestion } from '../../hooks/usePromptSuggestion.js';
 import { useTerminalSize } from '../../hooks/useTerminalSize.js';
 import { useTypeahead } from '../../hooks/useTypeahead.js';
 import type { BorderTextOptions } from '../../ink/render-border.js';
+import type { DOMElement } from '../../ink/dom.js';
+import type { KeyboardEvent } from '../../ink/events/keyboard-event.js';
+import instances from '../../ink/instances.js';
+import { nodeCache } from '../../ink/node-cache.js';
+import { selectionBounds, type SelectionState } from '../../ink/selection.js';
 import { stringWidth } from '../../ink/stringWidth.js';
-import { Box, type ClickEvent, type Key, Text, useInput } from '../../ink.js';
+import { Box, type ClickEvent, Text } from '../../ink.js';
 import { useOptionalKeybindingContext } from '../../keybindings/KeybindingContext.js';
 import { getShortcutDisplay } from '../../keybindings/shortcutFormat.js';
 import { useKeybinding, useKeybindings } from '../../keybindings/useKeybinding.js';
@@ -121,6 +127,7 @@ import { PromptInputModeIndicator } from './PromptInputModeIndicator.js';
 import { PromptInputQueuedCommands } from './PromptInputQueuedCommands.js';
 import { PromptInputStashNotice } from './PromptInputStashNotice.js';
 import { useMaybeTruncateInput } from './useMaybeTruncateInput.js';
+import { useExternalClearDetection } from './useExternalClearDetection.js';
 import { usePromptInputPlaceholder } from './usePromptInputPlaceholder.js';
 import { useShowFastIconHint } from './useShowFastIconHint.js';
 import { useSwarmBanner } from './useSwarmBanner.js';
@@ -157,8 +164,9 @@ type Props = {
   mcpClients: MCPServerConnection[];
   pastedContents: Record<number, PastedContent>;
   setPastedContents: React.Dispatch<React.SetStateAction<Record<number, PastedContent>>>;
-  vimMode: VimMode;
-  setVimMode: (mode: VimMode) => void;
+  initialVimMode?: VimMode;
+  onVimModeChange?: (mode: VimMode) => void;
+  onInputOverlayActiveChange: (active: boolean) => void;
   showBashesDialog: string | boolean;
   setShowBashesDialog: (show: string | boolean) => void;
   onExit: () => void;
@@ -172,12 +180,8 @@ type Props = {
     fromKeybinding?: boolean;
   }) => Promise<void>;
   onAgentSubmit?: (input: string, task: InProcessTeammateTaskState | LocalAgentTaskState, helpers: PromptInputHelpers) => Promise<void>;
-  isSearchingHistory: boolean;
-  setIsSearchingHistory: (isSearching: boolean) => void;
   onDismissSideQuestion?: () => void;
   isSideQuestionVisible?: boolean;
-  helpOpen: boolean;
-  setHelpOpen: React.Dispatch<React.SetStateAction<boolean>>;
   hasSuppressedDialogs?: boolean;
   isLocalJSXCommandActive?: boolean;
   insertTextRef?: React.MutableRefObject<{
@@ -190,6 +194,7 @@ type Props = {
     start: number;
     end: number;
   } | null;
+  sessionEnvVars?: ReadonlyMap<string, string>;
 };
 
 // Bottom slot has maxHeight="50%"; reserve lines for footer, border, status.
@@ -226,8 +231,9 @@ function PromptInput({
   mcpClients,
   pastedContents,
   setPastedContents,
-  vimMode,
-  setVimMode,
+  initialVimMode,
+  onVimModeChange,
+  onInputOverlayActiveChange,
   showBashesDialog,
   setShowBashesDialog,
   onExit,
@@ -235,16 +241,13 @@ function PromptInput({
   getToolUseContext,
   onSubmit: onSubmitProp,
   onAgentSubmit,
-  isSearchingHistory,
-  setIsSearchingHistory,
   onDismissSideQuestion,
   isSideQuestionVisible,
-  helpOpen,
-  setHelpOpen,
   hasSuppressedDialogs,
   isLocalJSXCommandActive = false,
   insertTextRef,
-  voiceInterimRange
+  voiceInterimRange,
+  sessionEnvVars
 }: Props): React.ReactNode {
   const mainLoopModel = useMainLoopModel();
   // A local-jsx command (e.g., /mcp while agent is running) renders a full-
@@ -253,10 +256,20 @@ function PromptInput({
   // system, so treat them as a modal overlay here to stop navigation keys from
   // leaking into TextInput/footer handlers and stacking a second dialog.
   const isModalOverlayActive = useIsModalOverlayActive() || isLocalJSXCommandActive;
+  const [vimMode, setVimMode] = useState<VimMode>(initialVimMode ?? 'INSERT');
+  useEffect(() => onVimModeChange?.(vimMode), [vimMode, onVimModeChange]);
+  const [isSearchingHistory, setIsSearchingHistory] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const isInputOverlayActive = isSearchingHistory || helpOpen || isVimModeEnabled() && vimMode !== 'NORMAL';
+  useEffect(() => {
+    onInputOverlayActiveChange(isInputOverlayActive);
+    return () => onInputOverlayActiveChange(false);
+  }, [isInputOverlayActive, onInputOverlayActiveChange]);
   const [isAutoUpdating, setIsAutoUpdating] = useState(false);
   const [exitMessage, setExitMessage] = useState<{
     show: boolean;
     key?: string;
+    action?: 'clear';
   }>({
     show: false
   });
@@ -367,7 +380,8 @@ function PromptInput({
     historyQuery,
     setHistoryQuery,
     historyMatch,
-    historyFailedMatch
+    historyFailedMatch,
+    handleKeyDown: handleHistoryKeyDown
   } = useHistorySearch(entry => {
     setPastedContents(entry.pastedContents);
     void onSubmit(entry.display);
@@ -1026,8 +1040,8 @@ function PromptInput({
     }
 
     // Enter in selection modes confirms selection (useBackgroundTaskNavigation).
-    // BaseTextInput's useInput registers before that hook (child effects fire first),
-    // so without this guard Enter would double-fire and auto-submit the suggestion.
+    // Keep selection-mode Enter from auto-submitting the suggestion after the
+    // navigation handler confirms the selection.
     if (state.viewSelectionMode === 'selecting-agent') {
       return;
     }
@@ -1141,7 +1155,8 @@ function PromptInput({
     commandArgumentHint,
     suggestionsEmptyMessage,
     inlineGhostText,
-    maxColumnWidth
+    maxColumnWidth,
+    handleKeyDown: handleTypeaheadKeyDown
   } = useTypeahead({
     commands,
     onInputChange: trackAndSetInput,
@@ -1155,7 +1170,8 @@ function PromptInput({
     suggestionsState,
     suppressSuggestions: isSearchingHistory || historyIndex > 0,
     markAccepted,
-    onModeChange
+    onModeChange,
+    sessionEnvVars
   });
 
   // Track if prompt suggestion should be shown (computed later with terminal width).
@@ -1197,10 +1213,10 @@ function PromptInput({
     };
 
     // Cache path immediately (fast) so links work on render
-    cacheImagePath(newContent);
+    cacheImagePath(newContent, setAppState);
 
     // Store image to disk in background
-    void storeImage(newContent);
+    void storeImage(newContent, setAppState);
 
     // Update UI
     setPastedContents(prev => ({
@@ -1306,10 +1322,10 @@ function PromptInput({
       insertTextAtCursor(text);
     }
   }
-  const lazySpaceInputFilter = useCallback((input: string, key: Key): string => {
+  const lazySpaceInputFilter = useCallback((input: string, event: KeyboardEvent): string => {
     if (!pendingSpaceAfterPillRef.current) return input;
     pendingSpaceAfterPillRef.current = false;
-    if (isNonSpacePrintable(input, key)) return ' ' + input;
+    if (isNonSpacePrintable(input, event)) return ' ' + input;
     return input;
   }, []);
   function insertTextAtCursor(text: string) {
@@ -1451,6 +1467,50 @@ function PromptInput({
       });
     }
   }, [input, cursorOffset, stashedPrompt, trackAndSetInput, setStashedPrompt, pastedContents, setPastedContents]);
+
+  const [redrawVersion, setRedrawVersion] = useState(0);
+  useLayoutEffect(() => {
+    if (redrawVersion === 0) return;
+    instances.get(process.stdout)?.forceRedraw();
+  }, [redrawVersion]);
+  const clearScreenShortcut = getShortcutDisplay('chat:clearScreen', 'Chat', 'cmd+k');
+  const clearInputShortcut = getShortcutDisplay('chat:clearInput', 'Chat', 'ctrl+l');
+  const clearActionShortcutRef = useRef(clearScreenShortcut);
+  const setClearPending = useCallback((pending: boolean) => {
+    if (!isFullscreenEnvEnabled()) return;
+    if (pending) {
+      setExitMessage({
+        show: true,
+        key: clearActionShortcutRef.current,
+        action: 'clear'
+      });
+    } else {
+      setExitMessage(previous => previous.action === 'clear' ? {
+        show: false
+      } : previous);
+    }
+  }, []);
+  const submitClear = useCallback(() => {
+    if (!isFullscreenEnvEnabled()) return;
+    submitRef.current?.('/clear', true);
+  }, []);
+  const clearDoublePress = useDoublePress(setClearPending, submitClear, undefined, 2000);
+  const handleClearScreen = useCallback(() => {
+    clearActionShortcutRef.current = clearScreenShortcut;
+    clearDoublePress();
+  }, [clearScreenShortcut, clearDoublePress]);
+  useExternalClearDetection(handleClearScreen);
+  const handleClearInput = useCallback(() => {
+    trackAndSetInput('');
+    setCursorOffset(0);
+    clearBuffer();
+    resetHistory();
+    onModeChange('prompt');
+    setPastedContents({});
+    setRedrawVersion(version => version + 1);
+    clearActionShortcutRef.current = clearInputShortcut;
+    clearDoublePress();
+  }, [trackAndSetInput, clearBuffer, resetHistory, onModeChange, setPastedContents, clearInputShortcut, clearDoublePress]);
 
   // Handler for chat:modelPicker - toggle model picker
   const showRemoteFastModeUnavailable = useCallback(() => {
@@ -1647,7 +1707,7 @@ function PromptInput({
 
     const {
       context: preparedContext
-    } = cyclePermissionMode(toolPermissionContext, teamContext);
+    } = cyclePermissionMode(toolPermissionContext, teamContext, 'shift_tab');
     logEvent('tengu_mode_cycle', {
       to: nextMode as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
     });
@@ -1704,7 +1764,7 @@ function PromptInput({
       // Now that the user accepted, apply the full transition: activate the
       // auto mode backend (classifier, beta headers) and strip dangerous
       // permissions (e.g. Bash(*) always-allow rules).
-      const strippedContext = transitionPermissionMode(previousModeBeforeAuto ?? toolPermissionContext.mode, 'auto', toolPermissionContext);
+      const strippedContext = transitionPermissionMode(previousModeBeforeAuto ?? toolPermissionContext.mode, 'auto', toolPermissionContext, 'auto_opt_in');
       setAppState(prev => ({
         ...prev,
         toolPermissionContext: {
@@ -1800,16 +1860,18 @@ function PromptInput({
   const chatHandlers = useMemo(() => ({
     'chat:undo': handleUndo,
     'chat:newline': handleNewline,
+    'chat:clearScreen': handleClearScreen,
     'chat:externalEditor': handleExternalEditor,
     'chat:stash': handleStash,
+    'chat:clearInput': handleClearInput,
     'chat:modelPicker': handleModelPicker,
     'chat:thinkingToggle': handleThinkingToggle,
     'chat:cycleMode': handleCycleMode,
     'chat:imagePaste': handleImagePaste
-  }), [handleUndo, handleNewline, handleExternalEditor, handleStash, handleModelPicker, handleThinkingToggle, handleCycleMode, handleImagePaste]);
+  }), [handleUndo, handleNewline, handleClearScreen, handleExternalEditor, handleStash, handleClearInput, handleModelPicker, handleThinkingToggle, handleCycleMode, handleImagePaste]);
   useKeybindings(chatHandlers, {
     context: 'Chat',
-    isActive: !isModalOverlayActive
+    isActive: !isModalOverlayActive && !isSearchingHistory
   });
 
   // Shift+↑ enters message-actions cursor. Separate isActive so ctrl+r search
@@ -1878,7 +1940,7 @@ function PromptInput({
 
   // Footer indicator navigation keybindings. ↑/↓ live here (not in
   // handleHistoryUp/Down) because TextInput focus=false when a pill is
-  // selected — its useInput is inactive, so this is the only path.
+  // selected, so this is the only path.
   useKeybindings({
     'footer:up': () => {
       // ↑ scrolls within the coordinator task list before leaving the pill
@@ -2002,13 +2064,20 @@ function PromptInput({
     context: 'Footer',
     isActive: !!footerItemSelected && !isModalOverlayActive
   });
-  useInput((char, key) => {
+  function handleKeyDownBefore(event: KeyboardEvent): void {
     // Skip all input handling when a full-screen dialog is open. These dialogs
     // render via early return, but hooks run unconditionally — so without this
     // guard, Escape inside a dialog leaks to the double-press message-selector.
     if (showTeamsDialog || showQuickOpen || showGlobalSearch || showHistoryPicker) {
       return;
     }
+
+    handleHistoryKeyDown(event);
+    if (event.defaultPrevented || event.didStopImmediatePropagation()) return;
+    handleTypeaheadKeyDown(event);
+    if (event.defaultPrevented || event.didStopImmediatePropagation()) return;
+
+    const char = event.key;
 
     // Detect failed Alt shortcuts on macOS (Option key produces special characters)
     if (getPlatform() === 'macos' && isMacosOptionChar(char)) {
@@ -2035,20 +2104,20 @@ function PromptInput({
     // the input and type the char. Nav keys are captured by useKeybindings
     // above, so anything reaching here is genuinely not a footer action.
     // onChange clears footerSelection, so no explicit deselect.
-    if (footerItemSelected && char && !key.ctrl && !key.meta && !key.escape && !key.return) {
+    if (footerItemSelected && char && !event.ctrl && !event.meta && event.name !== 'escape' && event.name !== 'return') {
       onChange(input.slice(0, cursorOffset) + char + input.slice(cursorOffset));
       setCursorOffset(cursorOffset + char.length);
       return;
     }
 
     // Exit special modes when backspace/escape/delete/ctrl+u is pressed at cursor position 0
-    if (cursorOffset === 0 && (key.escape || key.backspace || key.delete || key.ctrl && char === 'u')) {
+    if (cursorOffset === 0 && (event.name === 'escape' || event.name === 'backspace' || event.name === 'delete' || event.ctrl && char === 'u')) {
       onModeChange('prompt');
       setHelpOpen(false);
     }
 
     // Exit help mode when backspace is pressed and input is empty
-    if (helpOpen && input === '' && (key.backspace || key.delete)) {
+    if (helpOpen && input === '' && (event.name === 'backspace' || event.name === 'delete')) {
       setHelpOpen(false);
     }
 
@@ -2059,7 +2128,7 @@ function PromptInput({
     // - when input is empty, pop from command queue
 
     // Handle ESC key press
-    if (key.escape) {
+    if (event.name === 'escape') {
       // Abort active speculation
       if (speculation.status === 'active') {
         abortSpeculation(setAppState);
@@ -2095,14 +2164,15 @@ function PromptInput({
         doublePressEscFromEmpty();
       }
     }
-    if (key.return && helpOpen) {
+    if (event.name === 'return' && helpOpen) {
       setHelpOpen(false);
     }
-  });
+  }
   const swarmBanner = useSwarmBanner();
   const fastModeCooldown = isFastModeEnabled() ? isFastModeCooldown() : false;
   const showFastIcon = isFastModeEnabled() ? isFastMode && (isFastModeAvailable() || fastModeCooldown) : false;
   const showFastIconHint = useShowFastIconHint(showFastIcon ?? false);
+  const fastModeTag = showFastIcon ? showFastIconHint ? `${getFastIconString(true, fastModeCooldown)} ${chalk.dim('/fast')}` : getFastIconString(true, fastModeCooldown) : undefined;
 
   // Show effort notification on startup and when effort changes.
   // Suppressed in brief/assistant mode — the value reflects the local
@@ -2150,6 +2220,38 @@ function PromptInput({
     });
     setCursorOffset(offset);
   }, [input, textInputColumns, isSearchingHistory, cursorOffset, maxVisibleLines]);
+  const inputContainerRef = useRef<DOMElement | null>(null);
+  const deleteSelectionRef = useRef<((selection: SelectionState) => boolean) | null>(null);
+  deleteSelectionRef.current = selection => {
+    if (!input || isSearchingHistory || isModalOverlayActive) return false;
+    const inputContainer = inputContainerRef.current;
+    const bounds = inputContainer ? nodeCache.get(inputContainer) : undefined;
+    const selected = selectionBounds(selection);
+    if (!bounds || !selected) return false;
+    const {
+      start,
+      end
+    } = selected;
+    if (start.row < bounds.y || end.row < bounds.y || start.row >= bounds.y + bounds.height || end.row >= bounds.y + bounds.height) return false;
+    const cursor = Cursor.fromText(input, textInputColumns, cursorOffset);
+    const viewportStart = cursor.getViewportStartLine(maxVisibleLines);
+    const toOffset = (row: number, column: number) => cursor.measuredText.getOffsetFromPosition({
+      line: row - bounds.y + viewportStart,
+      column: Math.max(0, column - bounds.x)
+    });
+    const startOffset = Math.max(0, toOffset(start.row, start.col));
+    const endOffset = Math.min(input.length, toOffset(end.row, end.col + 1));
+    if (endOffset <= startOffset) return false;
+    pushToBuffer(input, cursorOffset, pastedContents);
+    trackAndSetInput(input.slice(0, startOffset) + input.slice(endOffset));
+    setCursorOffset(startOffset);
+    return true;
+  };
+  const selectionDelete = useSelectionDelete();
+  useEffect(() => {
+    selectionDelete.setHandler(selection => deleteSelectionRef.current?.(selection) ?? false);
+    return () => selectionDelete.setHandler(null);
+  }, [selectionDelete]);
   const handleOpenTasksDialog = useCallback((taskId?: string) => setShowBashesDialog(taskId ?? true), [setShowBashesDialog]);
   const placeholder = showPromptSuggestion && promptSuggestion ? promptSuggestion : defaultPlaceholder;
 
@@ -2317,6 +2419,7 @@ function PromptInput({
   }
   const baseProps: BaseTextInputProps = {
     multiline: true,
+    onKeyDownBefore: handleKeyDownBefore,
     onSubmit,
     onChange,
     value: historyMatch ? getValueFromInput(typeof historyMatch === 'string' ? historyMatch : historyMatch.display) : input,
@@ -2329,9 +2432,11 @@ function PromptInput({
     onHistoryReset: resetHistory,
     placeholder,
     onExit,
-    onExitMessage: (show, key) => setExitMessage({
+    onExitMessage: (show, key) => setExitMessage(previous => show ? {
       show,
       key
+    } : previous.action === 'clear' ? previous : {
+      show: false
     }),
     onLeftArrowOnEmpty,
     onLeftArrowOnEmptyMessage: isBgSession() ? undefined : setLeftArrowPending,
@@ -2389,6 +2494,9 @@ function PromptInput({
       </Box>;
   }
   const textInputElement = isVimModeEnabled() ? <VimTextInput {...baseProps} initialMode={vimMode} onModeChange={setVimMode} /> : <TextInput {...baseProps} />;
+  const fastModeTagWidth = fastModeTag ? stringWidth(fastModeTag) + 2 : 0;
+  const swarmBannerTextWidth = swarmBanner?.text ? stringWidth(swarmBanner.text) + 2 : 0;
+  const swarmBannerSuffix = fastModeTagWidth || swarmBannerTextWidth ? '──' : '';
   return <Box flexDirection="column" marginTop={briefOwnsGap ? 0 : 1}>
       {!isFullscreenEnvEnabled() && <PromptInputQueuedCommands />}
       {hasSuppressedDialogs && <Box marginTop={1} marginLeft={2}>
@@ -2397,25 +2505,26 @@ function PromptInput({
       <PromptInputStashNotice hasStash={stashedPrompt !== undefined} />
       {swarmBanner ? <>
           <Text color={swarmBanner.bgColor}>
+            {'─'.repeat(Math.max(0, columns - fastModeTagWidth - swarmBannerTextWidth - swarmBannerSuffix.length))}
+            {fastModeTag ? ` ${fastModeTag} ` : null}
             {swarmBanner.text ? <>
-                {'─'.repeat(Math.max(0, columns - stringWidth(swarmBanner.text) - 4))}
                 <Text backgroundColor={swarmBanner.bgColor} color="inverseText">
                   {' '}
                   {swarmBanner.text}{' '}
                 </Text>
-                {'──'}
-              </> : '─'.repeat(columns)}
+              </> : null}
+            {swarmBannerSuffix}
           </Text>
           <Box flexDirection="row" width="100%">
             <PromptInputModeIndicator mode={mode} isLoading={isLoading} viewingAgentName={viewingAgentName} viewingAgentColor={viewingAgentColor} />
-            <Box flexGrow={1} flexShrink={1} onClick={handleInputClick}>
+            <Box ref={inputContainerRef} flexGrow={1} flexShrink={1} tabIndex={-1} onClick={handleInputClick}>
               {textInputElement}
             </Box>
           </Box>
           <Text color={swarmBanner.bgColor}>{'─'.repeat(columns)}</Text>
-        </> : <Box flexDirection="row" alignItems="flex-start" justifyContent="flex-start" borderColor={getBorderColor()} borderStyle="round" borderLeft={false} borderRight={false} borderBottom width="100%" borderText={buildBorderText(showFastIcon ?? false, showFastIconHint, fastModeCooldown)}>
+        </> : <Box flexDirection="row" alignItems="flex-start" justifyContent="flex-start" borderColor={getBorderColor()} borderStyle="round" borderLeft={false} borderRight={false} borderBottom width="100%" borderText={buildBorderText(fastModeTag)}>
           <PromptInputModeIndicator mode={mode} isLoading={isLoading} viewingAgentName={viewingAgentName} viewingAgentColor={viewingAgentColor} />
-          <Box flexGrow={1} flexShrink={1} onClick={handleInputClick}>
+          <Box ref={inputContainerRef} flexGrow={1} flexShrink={1} tabIndex={-1} onClick={handleInputClick}>
             {textInputElement}
           </Box>
         </Box>}
@@ -2473,11 +2582,10 @@ function getInitialPasteId(messages: Message[]): number {
   }
   return maxId + 1;
 }
-function buildBorderText(showFastIcon: boolean, showFastIconHint: boolean, fastModeCooldown: boolean): BorderTextOptions | undefined {
-  if (!showFastIcon) return undefined;
-  const fastSeg = showFastIconHint ? `${getFastIconString(true, fastModeCooldown)} ${chalk.dim('/fast')}` : getFastIconString(true, fastModeCooldown);
+function buildBorderText(fastModeTag: string | undefined): BorderTextOptions | undefined {
+  if (!fastModeTag) return undefined;
   return {
-    content: ` ${fastSeg} `,
+    content: ` ${fastModeTag} `,
     position: 'top',
     align: 'end',
     offset: 0

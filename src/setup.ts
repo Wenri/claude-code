@@ -482,6 +482,8 @@ export async function setup(
         projectConfig.lastTotalCacheReadInputTokens,
       last_session_fps_average: projectConfig.lastFpsAverage,
       last_session_fps_low_1_pct: projectConfig.lastFpsLow1Pct,
+      last_session_graceful_shutdown:
+        projectConfig.lastGracefulShutdown ?? false,
       last_session_id:
         projectConfig.lastSessionId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       ...projectConfig.lastSessionMetrics,

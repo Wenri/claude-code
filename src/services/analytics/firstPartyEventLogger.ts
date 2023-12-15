@@ -153,7 +153,7 @@ export function is1PEventLoggingEnabled(): boolean {
  * @param eventName - Name of the event (e.g., 'tengu_api_query')
  * @param metadata - Additional metadata for the event (intentionally no strings, to avoid accidentally logging code/filepaths)
  */
-async function logEventTo1PAsync(
+export async function logEventTo1PAsync(
   firstPartyEventLogger: Logger,
   eventName: string,
   metadata: Record<string, string | number | boolean | undefined> = {},

@@ -138,7 +138,7 @@ export const DreamTask: Task = {
   name: 'DreamTask',
   type: 'dream',
 
-  async kill(taskId, setAppState) {
+  async kill(taskId, _taskRegistry, setAppState) {
     let priorMtime: number | undefined
     updateTaskState<DreamTaskState>(taskId, setAppState, task => {
       if (task.status !== 'running') return task

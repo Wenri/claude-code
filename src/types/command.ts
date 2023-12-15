@@ -6,6 +6,7 @@ import type { ScopedMcpServerConfig } from '../services/mcp/types.js'
 import type { ToolUseContext } from '../Tool.js'
 import type { EffortValue } from '../utils/effort.js'
 import type { IDEExtensionInstallationStatus, IdeType } from '../utils/ide.js'
+import type { MessageOperation } from '../utils/messageOperations.js'
 import type { SettingSource } from '../utils/settings/constants.js'
 import type { HooksSettings } from '../utils/settings/types.js'
 import type { ThemeName } from '../utils/theme.js'
@@ -81,6 +82,7 @@ type LocalCommand = {
 export type LocalJSXCommandContext = ToolUseContext & {
   canUseTool?: CanUseToolFn
   setMessages: (updater: (prev: Message[]) => Message[]) => void
+  applyMessageOp: (operation: MessageOperation) => void
   options: {
     dynamicMcpConfig?: Record<string, ScopedMcpServerConfig>
     ideInstallationStatus: IDEExtensionInstallationStatus | null

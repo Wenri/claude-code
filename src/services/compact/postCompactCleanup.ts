@@ -3,7 +3,11 @@ import type { QuerySource } from '../../constants/querySource.js'
 import { clearSystemPromptSections } from '../../constants/systemPromptSections.js'
 import { getUserContext } from '../../context.js'
 import { clearSpeculativeChecks } from '../../tools/BashTool/bashPermissions.js'
-import { clearClassifierApprovals } from '../../utils/classifierApprovals.js'
+import {
+  clearClassifierApprovals,
+  makeSetClassifierApprovals,
+} from '../../utils/classifierApprovals.js'
+import type { AppState } from '../../state/AppStateStore.js'
 import { resetGetMemoryFilesCache } from '../../utils/claudemd.js'
 import { clearSessionMessagesCache } from '../../utils/sessionStorage.js'
 import { clearBetaTracingState } from '../../utils/telemetry/betaSessionTracing.js'
@@ -40,6 +44,7 @@ const loopDefaultModule = feature('AGENT_TRIGGERS')
  */
 export function runPostCompactCleanup(
   querySource?: QuerySource,
+  setAppState?: (updater: (prev: AppState) => AppState) => void,
   resultDedupState?: ResultDedupState,
 ): void {
   if (resultDedupState) resetResultDedupState(resultDedupState)
@@ -74,7 +79,9 @@ export function runPostCompactCleanup(
     resetGetMemoryFilesCache('compact')
   }
   clearSystemPromptSections()
-  clearClassifierApprovals()
+  clearClassifierApprovals(
+    setAppState ? makeSetClassifierApprovals(setAppState) : undefined,
+  )
   clearSpeculativeChecks()
   // Intentionally NOT calling resetSentSkillNames(): re-injecting the full
   // skill_listing (~4K tokens) post-compact is pure cache_creation. The

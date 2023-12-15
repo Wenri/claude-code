@@ -63,6 +63,9 @@ import { gracefulShutdown } from '../gracefulShutdown.js'
 import { getMainLoopModel } from '../model/model.js'
 import { getPlatform } from '../platform.js'
 import { isBashToolEnabled } from '../shell/shellToolUtils.js'
+import { isScrubEnabled } from '../subprocessEnv.js'
+import { getLeaderToolUseConfirmQueue } from '../swarm/leaderPermissionBridge.js'
+import { logPermissionModeChanged } from '../telemetry/events.js'
 import {
   CROSS_PLATFORM_CODE_EXEC,
   DANGEROUS_BASH_PATTERNS,
@@ -595,15 +598,18 @@ export function restoreDangerousPermissions(
  * @param fromMode The current permission mode
  * @param toMode The target permission mode
  * @param context The current tool permission context
+ * @param trigger Optional source of the transition for telemetry
  */
 export function transitionPermissionMode(
   fromMode: string,
   toMode: string,
   context: ToolPermissionContext,
+  trigger?: string,
 ): ToolPermissionContext {
   // plan→plan (SDK set_permission_mode) would wrongly hit the leave branch below
   if (fromMode === toMode) return context
 
+  logPermissionModeChanged({ from: fromMode, to: toMode, trigger })
   handlePlanModeTransition(fromMode, toMode)
   handleAutoModeTransition(fromMode, toMode)
 
@@ -645,6 +651,69 @@ export function transitionPermissionMode(
   }
 
   return context
+}
+
+export type SetPermissionModeWithGuardsResult =
+  | { ok: true; mode: PermissionMode }
+  | { ok: false; error: string }
+
+/**
+ * Validate and apply an externally requested permission-mode transition.
+ * The context setter is injectable so non-React entrypoints can retain the
+ * same policy guards and queued-permission refresh behavior.
+ */
+export function setPermissionModeWithGuards(
+  mode: PermissionMode,
+  initialContext: ToolPermissionContext,
+  setToolPermissionContext: (
+    updater: (context: ToolPermissionContext) => ToolPermissionContext,
+  ) => void,
+): SetPermissionModeWithGuardsResult {
+  if (mode === 'bypassPermissions') {
+    if (isBypassPermissionsModeDisabled()) {
+      return {
+        ok: false,
+        error:
+          'Cannot set permission mode to bypassPermissions because it is disabled by settings or configuration',
+      }
+    }
+    if (!initialContext.isBypassPermissionsModeAvailable) {
+      return {
+        ok: false,
+        error:
+          'Cannot set permission mode to bypassPermissions because the session was not launched with --dangerously-skip-permissions',
+      }
+    }
+  }
+
+  if (mode === 'auto' && !isAutoModeGateEnabled()) {
+    const reason = getAutoModeUnavailableReason()
+    return {
+      ok: false,
+      error: reason
+        ? `Cannot set permission mode to auto: ${getAutoModeUnavailableNotification(reason)}`
+        : 'Cannot set permission mode to auto',
+    }
+  }
+
+  setToolPermissionContext(context => {
+    if (context.mode === mode) return context
+    return {
+      ...transitionPermissionMode(context.mode, mode, context),
+      mode,
+    }
+  })
+
+  setImmediate(() => {
+    getLeaderToolUseConfirmQueue()?.(queue => {
+      queue.forEach(item => {
+        void item.recheckPermission()
+      })
+      return queue
+    })
+  })
+
+  return { ok: true, mode }
 }
 
 /**
@@ -697,6 +766,24 @@ export function initialPermissionModeFromCLI({
   dangerouslySkipPermissions: boolean | undefined
   agentPermissionMode?: PermissionMode
 }): { mode: PermissionMode; notification?: string } {
+  if (isScrubEnabled()) {
+    const requestedNonDefault = Boolean(
+      dangerouslySkipPermissions ||
+        (permissionModeCli && permissionModeCli !== 'default') ||
+        (agentPermissionMode && agentPermissionMode !== 'default'),
+    )
+    const warning =
+      'Permission mode forced to default — CLAUDE_CODE_SUBPROCESS_ENV_SCRUB is set ' +
+      '(allowed_non_write_users hardening). Declare allowedTools explicitly, or set CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=0 to opt out.'
+    if (requestedNonDefault) {
+      process.stderr.write(`⚠ ${warning}\n`)
+    }
+    return {
+      mode: 'default',
+      notification: requestedNonDefault ? warning : undefined,
+    }
+  }
+
   const settings = getSettings_DEPRECATED() || {}
 
   // Check GrowthBook gate first - highest precedence
@@ -795,7 +882,7 @@ export function initialPermissionModeFromCLI({
   for (const mode of orderedModes) {
     if (mode === 'bypassPermissions' && disableBypassPermissionsMode) {
       if (growthBookDisableBypassPermissionsMode) {
-        logForDebugging('bypassPermissions mode is disabled by Statsig gate', {
+        logForDebugging('bypassPermissions mode is disabled by feature gate', {
           level: 'warn',
         })
         notification =
@@ -1267,6 +1354,11 @@ export async function verifyAutoModeGateAccess(
     if (inAuto) {
       autoModeStateModule?.setAutoModeActive(false)
       setNeedsAutoModeExitAttachment(true)
+      logPermissionModeChanged({
+        from: 'auto',
+        to: 'default',
+        trigger: 'auto_gate_denied',
+      })
       return {
         ...applyPermissionUpdate(restoreDangerousPermissions(ctx), {
           type: 'setMode',
@@ -1485,7 +1577,7 @@ export async function checkAndDisableBypassPermissions(
 
   // Gate is enabled, need to disable bypassPermissions mode
   logForDebugging(
-    'bypassPermissions mode is being disabled by Statsig gate (async check)',
+    'bypassPermissions mode is being disabled by feature gate (async check)',
     { level: 'warn' },
   )
 

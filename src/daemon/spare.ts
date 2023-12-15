@@ -8,6 +8,7 @@ import {
   setOriginalCwd,
   setProjectRoot,
   switchSession,
+  resetStartTime,
 } from '../bootstrap/state.js'
 import { isInBundledMode } from '../utils/bundledMode.js'
 import { logForDebugging } from '../utils/debug.js'
@@ -16,13 +17,18 @@ import { canonicalizePath } from '../utils/sessionStoragePortable.js'
 import { resetSettingsCache } from '../utils/settings/settingsCache.js'
 import { sleep } from '../utils/sleep.js'
 import { encodeControlFrame } from './framing.js'
+import type { Dispatch } from './protocol.js'
 import {
   getPtyErrorPath,
   getSpareClaimSocketPath,
   getSpareDir,
   getSparePtySocketPath,
 } from './paths.js'
-import type { BackgroundHandle } from './supervisor.js'
+import {
+  BackgroundHandle,
+  type AuthSnapshot,
+  type SpawnPty,
+} from './supervisor.js'
 
 const STRIPPED_SPARE_ENV = [
   'CLAUDE_CODE_QUESTION_PREVIEW_FORMAT',
@@ -167,6 +173,46 @@ export async function sendSpareClaim(
   }
 }
 
+export function claimSpare(
+  dispatch: Dispatch,
+  spare: SpareProcess,
+  spawnPty: SpawnPty | undefined,
+  getAuthSnapshot?: () => AuthSnapshot | undefined,
+): BackgroundHandle {
+  const handle = BackgroundHandle.claim(dispatch, {
+    pid: spare.hostPid,
+    ptySockPath: spare.ptySock,
+    spawnPty,
+    getAuthSnapshot,
+  })
+  void sendSpareClaim(
+    spare.claimSock,
+    buildSpareClaimFrame(dispatch, getAuthSnapshot),
+  ).catch(error => {
+    logForDebugging(`[bg-spare] send-claim failed: ${String(error)}`, {
+      level: 'warn',
+    })
+    killSparePty(spare.ptySock)
+  })
+  return handle
+}
+
+function buildSpareClaimFrame(
+  dispatch: Dispatch,
+  getAuthSnapshot?: () => AuthSnapshot | undefined,
+): ClaimFrame {
+  const frame = BackgroundHandle.buildClaimFrame(
+    dispatch,
+    getAuthSnapshot?.(),
+  )
+  return {
+    cwd: dispatch.cwd,
+    env: frame.env,
+    argv: frame.argv,
+    sessionId: dispatch.sessionId,
+  }
+}
+
 function receiveClaim(path: string): Promise<ClaimFrame> {
   return new Promise((resolve, reject) => {
     const server = createServer((socket) => {
@@ -246,6 +292,7 @@ export async function runBgSpare(args: string[]): Promise<void> {
   setProjectRoot(cwd)
   setCwdState(cwd)
   switchSession(frame.sessionId as never)
+  resetStartTime()
   resetSettingsCache()
   Object.assign(process.env, frame.env)
   process.argv = [process.argv[0]!, process.argv[1]!, ...frame.argv]

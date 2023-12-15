@@ -292,7 +292,8 @@ export function logAPIError({
   })
 
   const errStr = getErrorMessage(error)
-  const status = error instanceof APIError ? String(error.status) : undefined
+  const numericStatus = error instanceof APIError ? error.status : undefined
+  const status = numericStatus !== undefined ? String(numericStatus) : undefined
   const errorType = classifyAPIError(error)
 
   // Log detailed connection error info to debug logs (visible via --debug)
@@ -387,9 +388,9 @@ export function logAPIError({
   void logOTelEvent('api_error', {
     model: model,
     error: errStr,
-    ...(status !== undefined && { status_code: status }),
-    duration_ms: String(durationMs),
-    attempt: String(attempt),
+    ...(numericStatus !== undefined && { status_code: numericStatus }),
+    duration_ms: durationMs,
+    attempt,
     request_id: requestId ?? undefined,
     speed: fastMode ? 'fast' : 'normal',
     ...(querySource && { query_source: querySource }),
@@ -399,9 +400,9 @@ export function logAPIError({
     void logOTelEvent('api_retries_exhausted', {
       model,
       error: errStr,
-      ...(status !== undefined && { status_code: status }),
-      total_attempts: String(attempt),
-      total_retry_duration_ms: String(durationMsIncludingRetries),
+      ...(numericStatus !== undefined && { status_code: numericStatus }),
+      total_attempts: attempt,
+      total_retry_duration_ms: durationMsIncludingRetries,
       speed: fastMode ? 'fast' : 'normal',
       ...(querySource && { query_source: querySource }),
       ...(effort && { effort }),
@@ -785,12 +786,12 @@ export function logAPISuccessAndDuration({
   // Log API request event for OTLP
   void logOTelEvent('api_request', {
     model,
-    input_tokens: String(usage.input_tokens),
-    output_tokens: String(usage.output_tokens),
-    cache_read_tokens: String(usage.cache_read_input_tokens),
-    cache_creation_tokens: String(usage.cache_creation_input_tokens),
-    cost_usd: String(costUSD),
-    duration_ms: String(durationMs),
+    input_tokens: usage.input_tokens,
+    output_tokens: usage.output_tokens,
+    cache_read_tokens: usage.cache_read_input_tokens,
+    cache_creation_tokens: usage.cache_creation_input_tokens,
+    cost_usd: costUSD,
+    duration_ms: durationMs,
     request_id: requestId ?? undefined,
     speed: fastMode ? 'fast' : 'normal',
     query_source: querySource,

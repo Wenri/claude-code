@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react'
-import type { Key } from '../ink.js'
+import type { KeyboardEvent } from '../ink/events/keyboard-event.js'
 import type { VimInputState, VimMode } from '../types/textInputTypes.js'
 import { Cursor } from '../utils/Cursor.js'
 import { lastGrapheme } from '../utils/intl.js'
@@ -48,6 +48,34 @@ type UseVimInputProps = Omit<UseTextInputProps, 'inputFilter'> & {
   inputFilter?: UseTextInputProps['inputFilter']
 }
 
+const IGNORED_VIM_KEY_NAMES = new Set([
+  'backspace',
+  'delete',
+  'tab',
+  'home',
+  'end',
+  'pageup',
+  'pagedown',
+  'insert',
+  'clear',
+  'enter',
+  'center',
+  'undefined',
+  'mouse',
+  'f1',
+  'f2',
+  'f3',
+  'f4',
+  'f5',
+  'f6',
+  'f7',
+  'f8',
+  'f9',
+  'f10',
+  'f11',
+  'f12',
+])
+
 export function useVimInput(props: UseVimInputProps): VimInputState {
   const vimStateRef = React.useRef<VimState>(createInitialVimState())
   const [mode, setMode] = useState<VimMode>('INSERT')
@@ -57,17 +85,28 @@ export function useVimInput(props: UseVimInputProps): VimInputState {
     createInitialPersistentState(),
   )
 
-  // inputFilter is applied once at the top of handleVimInput (not here) so
-  // vim-handled paths that return without calling textInput.onInput still
-  // run the filter — otherwise a stateful filter (e.g. lazy-space-after-
-  // pill) stays armed across an Escape → NORMAL → INSERT round-trip.
+  const { onModeChange, inputFilter } = props
   const textInput = useTextInput({
     ...props,
     selectionAnchor,
     selectionLinewise: mode === 'VISUAL LINE',
-    inputFilter: undefined,
+    inputFilter: (input, event) => {
+      const filtered = inputFilter ? inputFilter(input, event) : input
+      const state = vimStateRef.current
+      if (
+        state.mode === 'INSERT' &&
+        !event.ctrl &&
+        !event.meta &&
+        [...input].length === 1
+      ) {
+        vimStateRef.current = {
+          mode: 'INSERT',
+          insertedText: state.insertedText + filtered,
+        }
+      }
+      return filtered
+    },
   })
-  const { onModeChange, inputFilter } = props
 
   const switchToInsertMode = useCallback(
     (offset?: number): void => {
@@ -325,56 +364,63 @@ export function useVimInput(props: UseVimInputProps): VimInputState {
     }
   }
 
-  function handleVimInput(rawInput: string, key: Key): void {
+  function handleVimInput(event: KeyboardEvent): void {
     const state = vimStateRef.current
-    // Run inputFilter in all modes so stateful filters disarm on any key,
-    // but only apply the transformed input in INSERT — NORMAL-mode command
-    // lookups expect single chars and a prepended space would break them.
-    const filtered = inputFilter ? inputFilter(rawInput, key) : rawInput
-    const input = state.mode === 'INSERT' ? filtered : rawInput
+    const input = event.key
     const cursor = Cursor.fromText(props.value, props.columns, textInput.offset)
+    const applyInputFilter = (): void => {
+      inputFilter?.(event.key, event)
+    }
 
-    if (key.ctrl || key.meta) {
+    if (event.ctrl || event.meta) {
       if (state.mode === 'VISUAL') {
+        applyInputFilter()
         switchToNormalMode()
+        event.preventDefault()
         return
       }
-      textInput.onInput(input, key)
+      textInput.handleKeyDown(event)
       return
     }
 
     // NOTE(keybindings): This escape handler is intentionally NOT migrated to the keybindings system.
     // It's vim's standard INSERT->NORMAL mode switch - a vim-specific behavior that should not be
     // configurable via keybindings. Vim users expect Esc to always exit INSERT mode.
-    if (key.escape && state.mode === 'INSERT') {
+    if (event.name === 'escape' && state.mode === 'INSERT') {
+      applyInputFilter()
       switchToNormalMode()
+      if (!props.disableEscapeDoublePress) event.preventDefault()
       return
     }
 
     // Escape in NORMAL mode cancels any pending command (replace, operator, etc.)
-    if (key.escape && state.mode === 'NORMAL') {
+    if (event.name === 'escape' && state.mode === 'NORMAL') {
+      applyInputFilter()
       vimStateRef.current = { mode: 'NORMAL', command: { type: 'idle' } }
+      if (!props.disableEscapeDoublePress) event.preventDefault()
       return
     }
 
-    if (key.escape && state.mode === 'VISUAL') {
+    if (event.name === 'escape' && state.mode === 'VISUAL') {
+      applyInputFilter()
       if (state.command.type !== 'idle') {
         vimStateRef.current = { ...state, command: { type: 'idle' } }
       } else {
         switchToNormalMode()
       }
+      if (!props.disableEscapeDoublePress) event.preventDefault()
       return
     }
 
     // Pass Enter to base handler outside visual mode (allows submission from NORMAL)
-    if (key.return && state.mode !== 'VISUAL') {
-      textInput.onInput(input, key)
+    if (event.name === 'return' && state.mode !== 'VISUAL') {
+      textInput.handleKeyDown(event)
       return
     }
 
     if (state.mode === 'INSERT') {
       // Track inserted text for dot-repeat
-      if (key.backspace || key.delete) {
+      if (event.name === 'backspace' || event.name === 'delete') {
         if (state.insertedText.length > 0) {
           vimStateRef.current = {
             mode: 'INSERT',
@@ -384,13 +430,8 @@ export function useVimInput(props: UseVimInputProps): VimInputState {
             ),
           }
         }
-      } else {
-        vimStateRef.current = {
-          mode: 'INSERT',
-          insertedText: state.insertedText + input,
-        }
       }
-      textInput.onInput(input, key)
+      textInput.handleKeyDown(event)
       return
     }
 
@@ -404,19 +445,24 @@ export function useVimInput(props: UseVimInputProps): VimInputState {
         state.command.type === 'idle' || state.command.type === 'count'
 
       let vimInput = input
-      if (key.leftArrow) vimInput = expectsMotion ? 'h' : ''
-      else if (key.rightArrow) vimInput = expectsMotion ? 'l' : ''
-      else if (key.upArrow) vimInput = expectsMotion ? 'k' : ''
-      else if (key.downArrow) vimInput = expectsMotion ? 'j' : ''
-      else if (key.return) vimInput = expectsMotion ? 'j' : '\n'
-      else if (key.backspace) vimInput = expectsMotion ? 'h' : ''
-      else if (key.delete) {
+      if (event.name === 'left') vimInput = expectsMotion ? 'h' : ''
+      else if (event.name === 'right') vimInput = expectsMotion ? 'l' : ''
+      else if (event.name === 'up') vimInput = expectsMotion ? 'k' : ''
+      else if (event.name === 'down') vimInput = expectsMotion ? 'j' : ''
+      else if (event.name === 'return') vimInput = expectsMotion ? 'j' : '\n'
+      else if (event.name === 'backspace') vimInput = expectsMotion ? 'h' : ''
+      else if (event.name === 'delete') {
         vimInput =
           expectsMotion && state.command.type !== 'count' ? 'x' : ''
-      } else if (input === '' || [...input].length > 1) {
+      } else if (input === '' || IGNORED_VIM_KEY_NAMES.has(event.name)) {
+        event.preventDefault()
+        return
+      } else if ([...input].length > 1) {
+        event.preventDefault()
         return
       }
 
+      applyInputFilter()
       const result = transitionVisual(state.command, vimInput, ctx)
       const linewise = state.kind === 'line'
       if ('next' in result) {
@@ -478,6 +524,7 @@ export function useVimInput(props: UseVimInputProps): VimInputState {
         if (nextKind === state.kind) switchToNormalMode()
         else switchToVisualMode(state.anchor, nextKind)
       }
+      event.preventDefault()
       return
     }
 
@@ -487,13 +534,14 @@ export function useVimInput(props: UseVimInputProps): VimInputState {
     // and history fallback (upOrHistoryUp / downOrHistoryDown)
     if (
       state.command.type === 'idle' &&
-      (key.upArrow || key.downArrow) &&
-      !key.shift
+      (event.name === 'up' || event.name === 'down') &&
+      !event.shift
     ) {
-      textInput.onInput(input, key)
+      textInput.handleKeyDown(event)
       return
     }
 
+    applyInputFilter()
     const ctx: TransitionContext = {
       ...createOperatorContext(cursor, false),
       onUndo: props.onUndo,
@@ -504,12 +552,14 @@ export function useVimInput(props: UseVimInputProps): VimInputState {
       if (input === 'j' && cursor.down().equals(cursor)) {
         if (!props.multiline || cursor.downLogicalLine().equals(cursor)) {
           props.onHistoryDown?.()
+          event.preventDefault()
           return
         }
       }
       if (input === 'k' && cursor.up().equals(cursor)) {
         if (!props.multiline || cursor.upLogicalLine().equals(cursor)) {
           props.onHistoryUp?.()
+          event.preventDefault()
           return
         }
       }
@@ -529,16 +579,21 @@ export function useVimInput(props: UseVimInputProps): VimInputState {
 
     // Map arrow keys to vim motions in NORMAL mode
     let vimInput = input
-    if (key.leftArrow) vimInput = 'h'
-    else if (key.rightArrow) vimInput = 'l'
-    else if (key.upArrow) vimInput = 'k'
-    else if (key.downArrow) vimInput = 'j'
-    else if (expectsMotion && key.backspace) vimInput = 'h'
-    else if (expectsMotion && state.command.type !== 'count' && key.delete)
+    if (event.name === 'left') vimInput = 'h'
+    else if (event.name === 'right') vimInput = 'l'
+    else if (event.name === 'up') vimInput = 'k'
+    else if (event.name === 'down') vimInput = 'j'
+    else if (expectsMotion && event.name === 'backspace') vimInput = 'h'
+    else if (
+      expectsMotion &&
+      state.command.type !== 'count' &&
+      event.name === 'delete'
+    )
       vimInput = 'x'
-    else if (input === '') return
+    else if (input === '' || IGNORED_VIM_KEY_NAMES.has(event.name)) return
     else if ([...input].length > 1) {
       processNormalSequence(input)
+      event.preventDefault()
       return
     }
 
@@ -575,6 +630,7 @@ export function useVimInput(props: UseVimInputProps): VimInputState {
     ) {
       props.onChange('?')
     }
+    event.preventDefault()
   }
 
   const setModeExternal = useCallback(
@@ -604,7 +660,7 @@ export function useVimInput(props: UseVimInputProps): VimInputState {
 
   return {
     ...textInput,
-    onInput: handleVimInput,
+    handleKeyDown: handleVimInput,
     mode,
     setMode: setModeExternal,
   }

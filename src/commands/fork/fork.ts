@@ -102,11 +102,7 @@ async function spawnFork(
     toolUseId: context.toolUseId,
   })
 
-  rootSetAppState(previous => {
-    const agentNameRegistry = new Map(previous.agentNameRegistry)
-    agentNameRegistry.set(name, asAgentId(agentId))
-    return { ...previous, agentNameRegistry }
-  })
+  context.agentLifecycle.registerName(name, asAgentId(agentId))
 
   const metadata = {
     prompt: directive,
@@ -151,6 +147,8 @@ async function spawnFork(
             canUseTool: context.canUseTool ?? hasPermissionsToUseTool,
             isAsync: false,
             querySource: getQuerySourceForAgent(FORK_AGENT.agentType, true),
+            spawnedBySkill:
+              context.options.spawnedBySkill ?? context.options.activeSkill,
             model: undefined,
             override: {
               systemPrompt,

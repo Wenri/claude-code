@@ -17,16 +17,29 @@ import {
 } from './prompt.js'
 import { renderToolResultMessage, renderToolUseMessage } from './UI.js'
 
+const preResolvedAttachmentSchema = lazySchema(() =>
+  z
+    .strictObject({
+      file_uuid: z.string(),
+      file_name: z.string(),
+      size: z.number(),
+      is_image: z.boolean(),
+    })
+    .describe(
+      'A file already uploaded to the filestore (e.g. by the device attach_file tool). Passed through without local stat or upload.',
+    ),
+)
+
 const inputSchema = lazySchema(() =>
   z.strictObject({
     message: z
       .string()
       .describe('The message for the user. Supports markdown formatting.'),
     attachments: z
-      .array(z.string())
+      .array(z.union([z.string(), preResolvedAttachmentSchema()]))
       .optional()
       .describe(
-        'Optional file paths (absolute or relative to cwd) to attach. Use for photos, screenshots, diffs, logs, or any file the user should see alongside your message.',
+        'Optional attachments for the user to see alongside your message. Each entry is either a file path (absolute or relative to cwd) for a file you can read locally, or a pre-resolved {file_uuid, file_name, size, is_image} object you obtained from a device tool such as attach_file.',
       ),
     status: z
       .enum(['normal', 'proactive'])

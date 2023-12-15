@@ -1,15 +1,21 @@
 import React, { type RefObject, useEffect, useRef } from 'react';
 import { useNotifications } from '../context/notifications.js';
+import { useSelectionDelete } from '../context/selectionDelete.js';
 import { useCopyOnSelect, useSelectionBgColor } from '../hooks/useCopyOnSelect.js';
 import type { ScrollBoxHandle } from '../ink/components/ScrollBox.js';
 import { useSelection } from '../ink/hooks/use-selection.js';
 import type { FocusMove, SelectionState } from '../ink/selection.js';
-import { isXtermJs } from '../ink/terminal.js';
+import { getScrollConfig } from '../ink/scroll-config.js';
 import { getClipboardPath } from '../ink/termio/osc.js';
 // eslint-disable-next-line custom-rules/prefer-use-keybindings -- Esc needs conditional propagation based on selection state
 import { type Key, useInput, useStdin } from '../ink.js';
 import { useKeybindings } from '../keybindings/useKeybinding.js';
 import { logEvent } from '../services/analytics/index.js';
+import {
+  getSessionsSinceLastShown,
+  recordTipShown,
+} from '../services/tips/tipHistory.js'
+import { getGlobalConfig } from '../utils/config.js'
 import { logForDebugging } from '../utils/debug.js';
 type Props = {
   scrollRef: RefObject<ScrollBoxHandle | null>;
@@ -68,6 +74,9 @@ const WHEEL_BOUNCE_GAP_MAX_MS = 200; // flip-back must arrive within this
 // compensate. At gap=100ms (m≈0.63): one click gives 1+15*0.63≈10.5.
 const WHEEL_MODE_STEP = 15;
 const WHEEL_MODE_CAP = 15;
+const AUTO_COPY_CONFIG_HINT_ID = 'auto-copy-config-hint'
+const AUTO_COPY_CONFIG_HINT_SESSION_GAP = 10
+const AUTO_COPY_CONFIG_HINT_MAX_USES = 5
 // Max mult growth per event. Without this, the +STEP*m term jumps mult
 // from 1→10 in one event when wheelMode engages mid-scroll (bounce
 // detected after N events in trackpad mode at mult=1). User sees scroll
@@ -144,7 +153,7 @@ export type WheelAccelState = {
   time: number;
   mult: number;
   dir: 0 | 1 | -1;
-  xtermJs: boolean;
+  useDecayCurve: boolean;
   /** Carried fractional scroll (xterm.js only). scrollBy floors, so without
    *  this a mult of 1.5 gives 1 row every time. Carrying the remainder gives
    *  1,2,1,2 on average for mult=1.5 — correct throughput over time. */
@@ -175,7 +184,7 @@ export type WheelAccelState = {
  *  step=0 (scrollBy(0) is a no-op, onScroll(false) is idempotent). Exported
  *  for tests. */
 export function computeWheelStep(state: WheelAccelState, dir: 1 | -1, now: number): number {
-  if (!state.xtermJs) {
+  if (!state.useDecayCurve) {
     // Device-switch guard ①: idle disengage. Runs BEFORE pendingFlip resolve
     // so a pending bounce (28% of last-mouse-events) doesn't bypass it via
     // the real-reversal early return. state.time is either the last committed
@@ -297,27 +306,14 @@ export function computeWheelStep(state: WheelAccelState, dir: 1 | -1, now: numbe
   return rows;
 }
 
-/** Read CLAUDE_CODE_SCROLL_SPEED, default 1, clamp (0, 20].
- *  Some terminals pre-multiply wheel events (ghostty discrete=3, iTerm2
- *  "faster scroll") — base=1 is correct there. Others send 1 event/notch —
- *  set CLAUDE_CODE_SCROLL_SPEED=3 to match vim/nvim/opencode. We can't
- *  detect which kind of terminal we're in, hence the knob. Called lazily
- *  from initAndLogWheelAccel so globalSettings.env has loaded. */
-export function readScrollSpeedBase(): number {
-  const raw = process.env.CLAUDE_CODE_SCROLL_SPEED;
-  if (!raw) return 1;
-  const n = parseFloat(raw);
-  return Number.isNaN(n) || n <= 0 ? 1 : Math.min(n, 20);
-}
-
-/** Initial wheel accel state. xtermJs=true selects the decay curve.
+/** Initial wheel accel state. useDecayCurve=true selects the decay curve.
  *  base is the native-path baseline rows/event (default 1). */
-export function initWheelAccel(xtermJs = false, base = 1): WheelAccelState {
+export function initWheelAccel(useDecayCurve = false, base = 1): WheelAccelState {
   return {
     time: 0,
     mult: base,
     dir: 0,
-    xtermJs,
+    useDecayCurve,
     frac: 0,
     base,
     pendingFlip: false,
@@ -326,17 +322,11 @@ export function initWheelAccel(xtermJs = false, base = 1): WheelAccelState {
   };
 }
 
-// Lazy-init helper. isXtermJs() combines the TERM_PROGRAM env check + async
-// XTVERSION probe — the probe may not have resolved at render time, so this
-// is called on the first wheel event (>>50ms after startup) when it's settled.
-// Logs detected mode once so --debug users can verify SSH detection worked.
-// The renderer also calls isXtermJsHost() (in render-node-to-output) to
-// select the drain algorithm — no state to pass through.
+// Lazy-init after settings env and the async XTVERSION probe have settled.
 function initAndLogWheelAccel(): WheelAccelState {
-  const xtermJs = isXtermJs();
-  const base = readScrollSpeedBase();
-  logForDebugging(`wheel accel: ${xtermJs ? 'decay (xterm.js)' : 'window (native)'} · base=${base} · TERM_PROGRAM=${process.env.TERM_PROGRAM ?? 'unset'}`);
-  return initWheelAccel(xtermJs, base);
+  const config = getScrollConfig();
+  logForDebugging(`wheel accel: ${config.useDecayCurve ? 'decay' : 'window (native)'} · base=${config.base} · platform=${config.platform} · TERM_PROGRAM=${config.termProgram}`);
+  return initWheelAccel(config.useDecayCurve, config.base);
 }
 
 // Drag-to-scroll: when dragging past the viewport edge, scroll by this many
@@ -399,6 +389,7 @@ export function ScrollKeybindingHandler({
   isModal = false
 }: Props): React.ReactNode {
   const selection = useSelection();
+  const selectionDelete = useSelectionDelete();
   const {
     addNotification
   } = useNotifications();
@@ -407,30 +398,55 @@ export function ScrollKeybindingHandler({
   // raw-mode-enable time) has resolved by then — initializing in useRef()
   // would read getWheelBase() before the probe reply arrives over SSH.
   const wheelAccel = useRef<WheelAccelState | null>(null);
-  function showCopiedToast(text: string): void {
+  const autoCopyHintUses = useRef(-1)
+  function showCopiedToast(text: string, isAutoCopy = false): void {
     // getClipboardPath reads env synchronously — predicts what setClipboard
     // did (native pbcopy / tmux load-buffer / raw OSC 52) so we can tell
     // the user whether paste will Just Work or needs prefix+].
     const path = getClipboardPath();
     const n = text.length;
+    const unit = n === 1 ? 'char' : 'chars'
     let msg: string;
     switch (path) {
       case 'native':
-        msg = `copied ${n} chars to clipboard`;
+        msg = `copied ${n} ${unit} to clipboard`;
         break;
       case 'tmux-buffer':
-        msg = `copied ${n} chars to tmux buffer · paste with prefix + ]`;
+        msg = `copied ${n} ${unit} to tmux buffer · paste with prefix + ]`;
         break;
       case 'osc52':
-        msg = `sent ${n} chars via OSC 52 · check terminal clipboard settings if paste fails`;
+        msg = `sent ${n} ${unit} via OSC 52 · check terminal clipboard settings if paste fails`;
         break;
+    }
+    let timeoutMs = path === 'native' ? 2000 : 4000
+    if (
+      isAutoCopy &&
+      path === 'native' &&
+      getGlobalConfig().copyOnSelect === undefined
+    ) {
+      if (autoCopyHintUses.current === -1) {
+        if (
+          getSessionsSinceLastShown(AUTO_COPY_CONFIG_HINT_ID) >=
+          AUTO_COPY_CONFIG_HINT_SESSION_GAP
+        ) {
+          recordTipShown(AUTO_COPY_CONFIG_HINT_ID)
+          autoCopyHintUses.current = 0
+        } else {
+          autoCopyHintUses.current = AUTO_COPY_CONFIG_HINT_MAX_USES
+        }
+      }
+      if (autoCopyHintUses.current < AUTO_COPY_CONFIG_HINT_MAX_USES) {
+        autoCopyHintUses.current++
+        msg += ' · disable auto-copy in /config'
+        timeoutMs = 4000
+      }
     }
     addNotification({
       key: 'selection-copied',
       text: msg,
       color: 'suggestion',
       priority: 'immediate',
-      timeoutMs: path === 'native' ? 2000 : 4000
+      timeoutMs
     });
   }
   function copyAndToast(): void {
@@ -641,6 +657,14 @@ export function ScrollKeybindingHandler({
       event_0.stopImmediatePropagation();
       return;
     }
+    if (!isModal && (key_0.backspace || key_0.delete) && !key_0.ctrl && !key_0.meta && !key_0.shift && !key_0.super) {
+      const state = selection.getState();
+      if (state && selectionDelete.tryDelete(state)) {
+        selection.clearSelection();
+        event_0.stopImmediatePropagation();
+        return;
+      }
+    }
     const move = selectionFocusMoveForKey(key_0);
     if (move) {
       selection.moveFocus(move);
@@ -654,7 +678,7 @@ export function ScrollKeybindingHandler({
     isActive
   });
   useDragToScroll(scrollRef, selection, isActive, onScroll);
-  useCopyOnSelect(selection, isActive, showCopiedToast);
+  useCopyOnSelect(selection, isActive, text => showCopiedToast(text, true));
   useSelectionBgColor(selection);
   return null;
 }

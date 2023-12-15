@@ -26,7 +26,7 @@ import { getGitWorktreeName } from '../utils/git.js';
 import { createBaseHookInput, executeStatusLineCommand } from '../utils/hooks.js';
 import { getLastAssistantMessage } from '../utils/messages.js';
 import { getRuntimeMainLoopModel, type ModelName, renderModelName } from '../utils/model/model.js';
-import { getCurrentSessionTitle } from '../utils/sessionStorage.js';
+import { getCurrentSessionAiTitle, getCurrentSessionTitle } from '../utils/sessionStorage.js';
 import { doesMostRecentAssistantMessageExceed200k, getCurrentUsage } from '../utils/tokens.js';
 import { getCurrentWorktreeSession } from '../utils/worktree.js';
 import { isVimModeEnabled } from './PromptInput/utils.js';
@@ -49,7 +49,7 @@ function buildStatusLineCommandInput(permissionMode: PermissionMode, exceeds200k
   const contextWindowSize = getContextWindowForModel(runtimeModel, getSdkBetas());
   const contextPercentages = calculateContextPercentages(currentUsage, contextWindowSize);
   const sessionId = getSessionId();
-  const sessionName = getCurrentSessionTitle(sessionId);
+  const sessionName = getCurrentSessionTitle(sessionId) ?? getCurrentSessionAiTitle(sessionId);
   const rawUtil = getRawUtilization();
   const rateLimits: StatusLineCommandInput['rate_limits'] = {
     ...(rawUtil.five_hour && {

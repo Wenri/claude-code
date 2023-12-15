@@ -58,6 +58,7 @@ import {
 } from '../../utils/api.js'
 import { getOauthAccountInfo } from '../../utils/auth.js'
 import {
+  filterBetasForProvider,
   getBedrockExtraBodyParamsBetas,
   getMergedBetas,
   getModelBetas,
@@ -153,7 +154,11 @@ import {
 import type { QuerySource } from 'src/constants/querySource.js'
 import { logRawAPIRequestBody } from 'src/utils/telemetry/apiBodyLogging.js'
 import type { Notification } from 'src/context/notifications.js'
-import { addToTotalSessionCost } from 'src/cost-tracker.js'
+import {
+  addToTotalSessionCost,
+  classifyQuerySource,
+  getPluginNameFromSkillName,
+} from 'src/cost-tracker.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from 'src/services/analytics/growthbook.js'
 import type { AgentId } from 'src/types/ids.js'
 import {
@@ -175,7 +180,7 @@ import {
 import { CLAUDE_IN_CHROME_MCP_SERVER_NAME } from 'src/utils/claudeInChrome/common.js'
 import { CHROME_TOOL_SEARCH_INSTRUCTIONS } from 'src/utils/claudeInChrome/prompt.js'
 import { getMaxThinkingTokensForModel } from 'src/utils/context.js'
-import { logForDebugging } from 'src/utils/debug.js'
+import { getMinDebugLogLevel, logForDebugging } from 'src/utils/debug.js'
 import { logForDiagnosticsNoPII } from 'src/utils/diagLogs.js'
 import { type EffortValue, modelSupportsEffort } from 'src/utils/effort.js'
 import {
@@ -516,6 +521,25 @@ export function configureTaskBudgetParams(
   }
 }
 
+function configureOutputFormatParams(
+  outputFormat: BetaJSONOutputFormat | undefined,
+  outputConfig: BetaOutputConfig,
+  betas: string[],
+  model: string,
+): void {
+  if (
+    !outputFormat ||
+    'format' in outputConfig ||
+    !modelSupportsStructuredOutputs(model)
+  ) {
+    return
+  }
+  outputConfig.format = outputFormat
+  if (!betas.includes(STRUCTURED_OUTPUTS_BETA_HEADER)) {
+    betas.push(STRUCTURED_OUTPUTS_BETA_HEADER)
+  }
+}
+
 export function getAPIMetadata() {
   // https://docs.google.com/document/d/1dURO9ycXXQCBS0V4Vhl4poDBRgkelFc5t2BNPoEgH5Q/edit?tab=t.0#heading=h.5g7nec5b09w5
   let extra: JsonObject = {}
@@ -703,6 +727,8 @@ export type Options = {
     clearedContent: Map<string, string>,
   ) => void
   querySource: QuerySource
+  spawnedBySkill?: string
+  activeSkill?: string
   agents: AgentDefinition[]
   allowedAgentTypes?: string[]
   hasAppendSystemPrompt: boolean
@@ -728,6 +754,45 @@ export type Options = {
   // so the model can pace itself. `remaining` is computed by the caller
   // (query.ts decrements across the agentic loop).
   taskBudget?: { total: number; remaining?: number }
+}
+
+function getMessageAttribution(
+  querySource: QuerySource | undefined,
+  spawnedBySkill: string | undefined,
+  activeSkill: string | undefined,
+): {
+  attributionAgent?: string
+  attributionSkill?: string
+  attributionPlugin?: string
+} {
+  if (!querySource) return {}
+  if (querySource.startsWith('agent:builtin:')) {
+    return {
+      attributionAgent: querySource.slice(14),
+      attributionSkill: spawnedBySkill,
+      attributionPlugin: spawnedBySkill
+        ? getPluginNameFromSkillName(spawnedBySkill)
+        : undefined,
+    }
+  }
+  if (querySource.startsWith('agent:custom:')) {
+    const agent = querySource.slice(13)
+    return {
+      attributionAgent: agent,
+      attributionSkill: spawnedBySkill,
+      attributionPlugin:
+        (spawnedBySkill
+          ? getPluginNameFromSkillName(spawnedBySkill)
+          : undefined) ?? getPluginNameFromSkillName(agent),
+    }
+  }
+  if (classifyQuerySource(querySource) === 'main' && activeSkill) {
+    return {
+      attributionSkill: activeSkill,
+      attributionPlugin: getPluginNameFromSkillName(activeSkill),
+    }
+  }
+  return {}
 }
 
 export async function queryModelWithoutStreaming({
@@ -834,6 +899,23 @@ function getNonstreamingFallbackTimeoutMs(): number {
   return isEnvTruthy(process.env.CLAUDE_CODE_REMOTE) ? 120_000 : 300_000
 }
 
+function logAPIRequestDetail(
+  params: BetaMessageStreamParams & { anthropic_beta?: unknown },
+): void {
+  if (getMinDebugLogLevel() !== 'verbose') return
+  logForDebugging(
+    `[API REQUEST DETAIL] ${jsonStringify({
+      model: params.model,
+      thinking: params.thinking,
+      output_config: params.output_config,
+      temperature: params.temperature,
+      betas: params.betas ?? [],
+      anthropic_beta: params.anthropic_beta,
+    })}`,
+    { level: 'verbose' },
+  )
+}
+
 function isValidNonStreamingMessage(value: unknown): value is BetaMessage {
   return (
     typeof value === 'object' &&
@@ -891,13 +973,14 @@ export async function* executeNonStreamingRequest(
     async (anthropic, attempt, context) => {
       const start = Date.now()
       const retryParams = paramsFromContext(context)
-      captureRequest(retryParams)
       onAttempt(attempt, start, retryParams.max_tokens)
 
       const adjustedParams = adjustParamsForNonStreaming(
         retryParams,
         MAX_NON_STREAMING_TOKENS,
       )
+      logAPIRequestDetail(adjustedParams)
+      captureRequest(adjustedParams)
 
       try {
         // biome-ignore lint/plugin: non-streaming API call
@@ -1716,7 +1799,7 @@ async function* queryModel(
       outputConfig,
       extraBodyParams,
       betasParams,
-      options.model,
+      resolvedModel,
     )
 
     configureTaskBudgetParams(
@@ -1727,16 +1810,12 @@ async function* queryModel(
 
     // Merge outputFormat into extraBodyParams.output_config alongside effort
     // Requires structured-outputs beta header per SDK (see parse() in messages.mjs)
-    if (options.outputFormat && !('format' in outputConfig)) {
-      outputConfig.format = options.outputFormat as BetaJSONOutputFormat
-      // Add beta header if not already present and provider supports it
-      if (
-        modelSupportsStructuredOutputs(options.model) &&
-        !betasParams.includes(STRUCTURED_OUTPUTS_BETA_HEADER)
-      ) {
-        betasParams.push(STRUCTURED_OUTPUTS_BETA_HEADER)
-      }
-    }
+    configureOutputFormatParams(
+      options.outputFormat as BetaJSONOutputFormat | undefined,
+      outputConfig,
+      betasParams,
+      options.model,
+    )
 
     // Retry context gets preference because it tries to course correct if we exceed the context window limit
     const maxOutputTokens =
@@ -1899,7 +1978,10 @@ async function* queryModel(
       system,
       tools: allTools,
       tool_choice: options.toolChoice,
-      ...(useBetas && !simulateProxyUsage && { betas: betasParams }),
+      ...(useBetas &&
+        !simulateProxyUsage && {
+          betas: filterBetasForProvider(betasParams),
+        }),
       metadata: getAPIMetadata(),
       max_tokens: maxOutputTokens,
       thinking,
@@ -1993,6 +2075,7 @@ async function* queryModel(
         queryCheckpoint('query_client_creation_end')
 
         const params = paramsFromContext(context)
+        logAPIRequestDetail(params)
         captureAPIRequest(params, options.querySource) // Capture for bug reports
         logRawAPIRequestBody(params, options.querySource)
 
@@ -2513,6 +2596,11 @@ async function* queryModel(
                 ),
               },
               requestId: streamRequestId ?? undefined,
+              ...getMessageAttribution(
+                options.querySource,
+                options.spawnedBySkill,
+                options.activeSkill,
+              ),
               type: 'assistant',
               uuid: randomUUID(),
               timestamp: new Date().toISOString(),
@@ -2803,6 +2891,11 @@ async function* queryModel(
                   ),
                 },
                 requestId: streamRequestId ?? undefined,
+                ...getMessageAttribution(
+                  options.querySource,
+                  options.spawnedBySkill,
+                  options.activeSkill,
+                ),
                 type: 'assistant',
                 uuid: randomUUID(),
                 timestamp: new Date().toISOString(),
@@ -3007,6 +3100,11 @@ async function* queryModel(
           ),
         },
         requestId: streamRequestId ?? undefined,
+        ...getMessageAttribution(
+          options.querySource,
+          options.spawnedBySkill,
+          options.activeSkill,
+        ),
         type: 'assistant',
         uuid: randomUUID(),
         timestamp: new Date().toISOString(),
@@ -3117,6 +3215,11 @@ async function* queryModel(
             ),
           },
           requestId: streamRequestId ?? undefined,
+          ...getMessageAttribution(
+            options.querySource,
+            options.spawnedBySkill,
+            options.activeSkill,
+          ),
           type: 'assistant',
           uuid: randomUUID(),
           timestamp: new Date().toISOString(),

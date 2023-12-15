@@ -24,7 +24,7 @@ import { normalizeApiKeyForConfig } from './utils/authPortable.js';
 import { getExternalClaudeMdIncludes, getMemoryFiles, shouldShowClaudeMdExternalIncludesWarning } from './utils/claudemd.js';
 import { checkHasTrustDialogAccepted, getCustomApiKeyStatus, getGlobalConfig, saveGlobalConfig } from './utils/config.js';
 import { updateDeepLinkTerminalPreference } from './utils/deepLink/terminalPreference.js';
-import { isEnvTruthy, isRunningOnHomespace } from './utils/envUtils.js';
+import { isBareMode, isEnvTruthy, isRunningOnHomespace } from './utils/envUtils.js';
 import { type FpsMetrics, FpsTracker } from './utils/fpsTracker.js';
 import { updateGithubRepoPathMapping } from './utils/githubRepoPathMapping.js';
 import { logForDebugging } from './utils/debug.js';
@@ -194,6 +194,17 @@ export async function showSetupScreens(root: Root, permissionMode: PermissionMod
   // Defer to next tick so the OTel dynamic import resolves after first render
   // instead of during the pre-render microtask queue.
   setImmediate(() => initializeTelemetryAfterTrust());
+
+  if (
+    onboardingShown &&
+    !isEnvTruthy(process.env.CLAUBBIT) &&
+    !isBareMode()
+  ) {
+    void import('./services/teamMemorySync/watcher.js').then(m =>
+      m.startTeamMemoryWatcher(),
+    )
+  }
+
   if (await isQualifiedForGrove()) {
     const {
       GroveDialog

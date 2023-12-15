@@ -19,7 +19,7 @@ type Props = {
   }) => void;
 };
 export function MCPSettings(t0) {
-  const $ = _c(66);
+  const $ = _c(70);
   const {
     onComplete
   } = t0;
@@ -141,22 +141,23 @@ export function MCPSettings(t0) {
   React.useEffect(t5, t6);
   let t7;
   let t8;
-  if ($[10] !== agentMcpServers.length || $[11] !== filteredClients.length || $[12] !== onComplete || $[13] !== servers.length) {
+  if ($[10] !== agentMcpServers.length || $[11] !== filteredClients.length || $[12] !== onComplete || $[13] !== servers.length || $[66] !== mcp.suppressedClaudeAiConnectors.length) {
     t7 = () => {
       if (servers.length === 0 && filteredClients.length > 0) {
         return;
       }
-      if (servers.length === 0 && agentMcpServers.length === 0) {
+      if (servers.length === 0 && agentMcpServers.length === 0 && mcp.suppressedClaudeAiConnectors.length === 0) {
         onComplete("No MCP servers configured. Please run /doctor if this is unexpected. Otherwise, run `claude mcp --help` or visit https://code.claude.com/docs/en/mcp to learn more.");
       }
     };
-    t8 = [servers.length, filteredClients.length, agentMcpServers.length, onComplete];
+    t8 = [servers.length, filteredClients.length, agentMcpServers.length, mcp.suppressedClaudeAiConnectors.length, onComplete];
     $[10] = agentMcpServers.length;
     $[11] = filteredClients.length;
     $[12] = onComplete;
     $[13] = servers.length;
     $[14] = t7;
     $[15] = t8;
+    $[66] = mcp.suppressedClaudeAiConnectors.length;
   } else {
     t7 = $[14];
     t8 = $[15];
@@ -183,13 +184,14 @@ export function MCPSettings(t0) {
           t9 = $[17];
         }
         let t11;
-        if ($[18] !== agentMcpServers || $[19] !== onComplete || $[20] !== servers || $[21] !== viewState.defaultTab) {
-          t11 = <MCPListPanel servers={servers} agentServers={agentMcpServers} onSelectServer={t9} onSelectAgentServer={t10} onComplete={onComplete} defaultTab={viewState.defaultTab} />;
+        if ($[18] !== agentMcpServers || $[19] !== onComplete || $[20] !== servers || $[21] !== viewState.defaultTab || $[68] !== mcp.suppressedClaudeAiConnectors) {
+          t11 = <MCPListPanel servers={servers} suppressedClaudeAiConnectors={mcp.suppressedClaudeAiConnectors} agentServers={agentMcpServers} onSelectServer={t9} onSelectAgentServer={t10} onComplete={onComplete} defaultTab={viewState.defaultTab} />;
           $[18] = agentMcpServers;
           $[19] = onComplete;
           $[20] = servers;
           $[21] = viewState.defaultTab;
           $[22] = t11;
+          $[68] = mcp.suppressedClaudeAiConnectors;
         } else {
           t11 = $[22];
         }

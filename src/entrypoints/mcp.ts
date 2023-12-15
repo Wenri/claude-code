@@ -17,6 +17,10 @@ import {
 } from '../Tool.js'
 import { getTools } from '../tools.js'
 import { createAbortController } from '../utils/abortController.js'
+import { NOOP_AGENT_LIFECYCLE } from '../utils/agentLifecycle.js'
+import { NOOP_SET_CLASSIFIER_APPROVALS } from '../utils/classifierApprovals.js'
+import { NOOP_TEAMMATE_COLORS } from '../utils/swarm/teammateLayoutManager.js'
+import { NOOP_SESSION_HOOKS_REGISTRY } from '../utils/hooks/sessionHooks.js'
 import { createFileStateCacheWithSizeLimit } from '../utils/fileStateCache.js'
 import { logError } from '../utils/log.js'
 import { createAssistantMessage } from '../utils/messages.js'
@@ -24,6 +28,7 @@ import { getMainLoopModel } from '../utils/model/model.js'
 import { hasPermissionsToUseTool } from '../utils/permissions/permissions.js'
 import { setCwd } from '../utils/Shell.js'
 import { jsonStringify } from '../utils/slowOperations.js'
+import { createTaskRegistry } from '../utils/task/framework.js'
 import { getErrorParts } from '../utils/toolErrors.js'
 import { zodToJsonSchema } from '../utils/zodToJsonSchema.js'
 
@@ -37,13 +42,19 @@ export async function startMCPServer(
   debug: boolean,
   verbose: boolean,
 ): Promise<void> {
+  setCwd(cwd)
+  const server = createMCPServer(debug, verbose)
+  const transport = new StdioServerTransport()
+  await server.connect(transport)
+}
+
+export function createMCPServer(debug: boolean, verbose: boolean): Server {
   // Use size-limited LRU cache for readFileState to prevent unbounded memory growth
   // 100 files and 25MB limit should be sufficient for MCP server operations
   const READ_FILE_STATE_CACHE_SIZE = 100
   const readFileStateCache = createFileStateCacheWithSizeLimit(
     READ_FILE_STATE_CACHE_SIZE,
   )
-  setCwd(cwd)
   const server = new Server(
     {
       name: 'claude/tengu',
@@ -124,15 +135,30 @@ export async function startMCPServer(
           agentDefinitions: { activeAgents: [], allAgents: [] },
         },
         getAppState: () => getDefaultAppState(),
+        getToolPermissionContext: () =>
+          getDefaultAppState().toolPermissionContext,
+        getEffortValue: () => undefined,
+        getAutoCompactWindow: () => undefined,
+        getFastMode: () => false,
+        getCacheBreakerPhrase: () => undefined,
         setAppState: () => {},
+        setToolPermissionContext: () => {},
+        setClassifierApprovals: NOOP_SET_CLASSIFIER_APPROVALS,
         setReplContext: () => {},
+        setWebBrowserSlice: () => {},
+        agentLifecycle: NOOP_AGENT_LIFECYCLE,
+        teammateColors: NOOP_TEAMMATE_COLORS,
+        taskRegistry: createTaskRegistry(() => getDefaultAppState(), () => {}),
+        sessionHooksRegistry: NOOP_SESSION_HOOKS_REGISTRY,
         messages: [],
         turnStartIndex: 0,
         readFileState: readFileStateCache,
         setInProgressToolUseIDs: () => {},
-        setResponseLength: () => {},
-        updateFileHistoryState: () => {},
-        updateAttributionState: () => {},
+        addResponseLength: () => {},
+        resetResponseLength: () => {},
+        getFileHistoryState: () => undefined,
+        applyFileHistoryOp: () => {},
+        applyAttributionOp: () => {},
       }
 
       // TODO: validate input types with zod
@@ -189,10 +215,5 @@ export async function startMCPServer(
     },
   )
 
-  async function runServer() {
-    const transport = new StdioServerTransport()
-    await server.connect(transport)
-  }
-
-  return await runServer()
+  return server
 }

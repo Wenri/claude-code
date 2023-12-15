@@ -5,7 +5,10 @@ import memoize from 'lodash-es/memoize.js'
 import { dirname, join, parse } from 'path'
 import type { PluginError } from '../../types/plugin.js'
 import { getPluginErrorMessage } from '../../types/plugin.js'
-import { isClaudeInChromeMCPServer } from '../../utils/claudeInChrome/common.js'
+import {
+  CLAUDE_IN_CHROME_MCP_SERVER_NAME,
+  isClaudeInChromeMCPServer,
+} from '../../utils/claudeInChrome/common.js'
 import {
   getCurrentProjectConfig,
   getGlobalConfig,
@@ -35,6 +38,7 @@ import {
 } from '../../utils/settings/types.js'
 import type { ValidationError } from '../../utils/settings/validation.js'
 import { jsonStringify } from '../../utils/slowOperations.js'
+import { urlMatchesPattern } from '../../utils/urlPattern.js'
 import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
@@ -355,54 +359,47 @@ export function dedupClaudeAiMcpServers(
   manualServers: Record<string, ScopedMcpServerConfig>,
 ): {
   servers: Record<string, ScopedMcpServerConfig>
-  suppressed: Array<{ name: string; duplicateOf: string }>
+  suppressed: Array<{
+    name: string
+    duplicateOf: string
+    duplicateOfScope: ConfigScope
+  }>
 } {
-  const manualSigs = new Map<string, string>()
+  const manualSigs = new Map<
+    string,
+    { name: string; scope: ConfigScope }
+  >()
   for (const [name, config] of Object.entries(manualServers)) {
     if (isMcpServerDisabled(name)) continue
     const sig = getMcpServerSignature(config)
-    if (sig && !manualSigs.has(sig)) manualSigs.set(sig, name)
+    if (sig && !manualSigs.has(sig)) {
+      manualSigs.set(sig, { name, scope: config.scope })
+    }
   }
 
   const servers: Record<string, ScopedMcpServerConfig> = {}
-  const suppressed: Array<{ name: string; duplicateOf: string }> = []
+  const suppressed: Array<{
+    name: string
+    duplicateOf: string
+    duplicateOfScope: ConfigScope
+  }> = []
   for (const [name, config] of Object.entries(claudeAiServers)) {
     const sig = getMcpServerSignature(config)
     const manualDup = sig !== null ? manualSigs.get(sig) : undefined
     if (manualDup !== undefined) {
       logForDebugging(
-        `Suppressing claude.ai connector "${name}": duplicates manually-configured "${manualDup}"`,
+        `Suppressing claude.ai connector "${name}": duplicates manually-configured "${manualDup.name}"`,
       )
-      suppressed.push({ name, duplicateOf: manualDup })
+      suppressed.push({
+        name,
+        duplicateOf: manualDup.name,
+        duplicateOfScope: manualDup.scope,
+      })
       continue
     }
     servers[name] = config
   }
   return { servers, suppressed }
-}
-
-/**
- * Convert a URL pattern with wildcards to a RegExp
- * Supports * as wildcard matching any characters
- * Examples:
- *   "https://example.com/*" matches "https://example.com/api/v1"
- *   "https://*.example.com/*" matches "https://api.example.com/path"
- *   "https://example.com:*\/*" matches any port
- */
-function urlPatternToRegex(pattern: string): RegExp {
-  // Escape regex special characters except *
-  const escaped = pattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&')
-  // Replace * with regex equivalent (match any characters)
-  const regexStr = escaped.replace(/\*/g, '.*')
-  return new RegExp(`^${regexStr}$`)
-}
-
-/**
- * Check if a URL matches a pattern with wildcard support
- */
-function urlMatchesPattern(url: string, pattern: string): boolean {
-  const regex = urlPatternToRegex(pattern)
-  return regex.test(url)
 }
 
 /**
@@ -927,6 +924,7 @@ export function getProjectMcpConfigsFromCwd(): {
     filePath: mcpJsonPath,
     expandVars: true,
     scope: 'project',
+    filterReservedNames: false,
   })
 
   // Missing .mcp.json is expected, but malformed files should report errors
@@ -1330,10 +1328,16 @@ export async function getClaudeCodeMcpConfigs(
 export async function getAllMcpConfigs(): Promise<{
   servers: Record<string, ScopedMcpServerConfig>
   errors: PluginError[]
+  suppressedClaudeAiConnectors: Array<{
+    name: string
+    duplicateOf: string
+    duplicateOfScope: ConfigScope
+  }>
 }> {
   // In enterprise mode, don't load claude.ai servers (enterprise has exclusive control)
   if (doesEnterpriseMcpConfigExist()) {
-    return getClaudeCodeMcpConfigs()
+    const result = await getClaudeCodeMcpConfigs()
+    return { ...result, suppressedClaudeAiConnectors: [] }
   }
 
   // Kick off the claude.ai fetch before getClaudeCodeMcpConfigs so it overlaps
@@ -1350,7 +1354,10 @@ export async function getAllMcpConfigs(): Promise<{
   // Suppress claude.ai connectors that duplicate an enabled manual server.
   // Keys never collide (`slack` vs `claude.ai Slack`) so the merge below
   // won't catch this — need content-based dedup by URL signature.
-  const { servers: dedupedClaudeAi } = dedupClaudeAiMcpServers(
+  const {
+    servers: dedupedClaudeAi,
+    suppressed: suppressedClaudeAiConnectors,
+  } = dedupClaudeAiMcpServers(
     claudeaiMcpServers,
     claudeCodeServers,
   )
@@ -1358,7 +1365,7 @@ export async function getAllMcpConfigs(): Promise<{
   // Merge with claude.ai having lowest precedence
   const servers = Object.assign({}, dedupedClaudeAi, claudeCodeServers)
 
-  return { servers, errors }
+  return { servers, errors, suppressedClaudeAiConnectors }
 }
 
 /**
@@ -1371,11 +1378,18 @@ export function parseMcpConfig(params: {
   expandVars: boolean
   scope: ConfigScope
   filePath?: string
+  filterReservedNames?: boolean
 }): {
   config: McpJsonConfig | null
   errors: ValidationError[]
 } {
-  const { configObject, expandVars, scope, filePath } = params
+  const {
+    configObject,
+    expandVars,
+    scope,
+    filePath,
+    filterReservedNames = true,
+  } = params
   const schemaResult = McpJsonConfigSchema().safeParse(configObject)
   if (!schemaResult.success) {
     return {
@@ -1397,6 +1411,24 @@ export function parseMcpConfig(params: {
   const validatedServers: Record<string, McpServerConfig> = {}
 
   for (const [name, config] of Object.entries(schemaResult.data.mcpServers)) {
+    if (
+      filterReservedNames &&
+      name === CLAUDE_IN_CHROME_MCP_SERVER_NAME &&
+      config.type !== 'sdk'
+    ) {
+      errors.push({
+        ...(filePath && { file: filePath }),
+        path: `mcpServers.${name}`,
+        message: `"${name}" is a reserved MCP name`,
+        mcpErrorMetadata: {
+          scope,
+          serverName: name,
+          severity: 'warning',
+        },
+      })
+      continue
+    }
+
     let configToCheck = config
 
     if (expandVars) {
@@ -1436,11 +1468,12 @@ export function parseMcpConfigFromFilePath(params: {
   filePath: string
   expandVars: boolean
   scope: ConfigScope
+  filterReservedNames?: boolean
 }): {
   config: McpJsonConfig | null
   errors: ValidationError[]
 } {
-  const { filePath, expandVars, scope } = params
+  const { filePath, expandVars, scope, filterReservedNames } = params
   const fs = getFsImplementation()
 
   let configContent: string
@@ -1515,6 +1548,7 @@ export function parseMcpConfigFromFilePath(params: {
     expandVars,
     scope,
     filePath,
+    filterReservedNames,
   })
 }
 

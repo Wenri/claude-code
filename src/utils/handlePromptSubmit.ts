@@ -21,7 +21,6 @@ import { createAbortController } from './abortController.js'
 import type { PastedContent } from './config.js'
 import { logForDebugging } from './debug.js'
 import type { EffortValue } from './effort.js'
-import type { FileHistoryState } from './fileHistory.js'
 import { fileHistoryEnabled, fileHistoryMakeSnapshot } from './fileHistory.js'
 import { gracefulShutdownSync } from './gracefulShutdown.js'
 import { enqueue } from './messageQueueManager.js'
@@ -70,6 +69,7 @@ type BaseExecutionParams = {
     input?: string,
     effort?: EffortValue,
     clientPlatform?: string,
+    activeSkill?: string,
   ) => Promise<void>
   setAppState: (updater: (prev: AppState) => AppState) => void
   onBeforeQuery?: (input: string, newMessages: Message[]) => Promise<boolean>
@@ -193,6 +193,7 @@ export async function handlePromptSubmit(
   // Handle exit commands by triggering the exit command instead of direct process.exit
   // Skip for remote bridge messages — "exit" typed on iOS shouldn't kill the local session
   if (
+    mode !== 'bash' &&
     !skipSlashCommands &&
     ['exit', 'quit', ':q', ':q!', ':wq', ':wq!'].includes(input.trim())
   ) {
@@ -471,6 +472,7 @@ async function executeUserInput(params: ExecuteUserInputParams): Promise<void> {
     // mutable slot would be clobbered at the detached closure's first
     // await by this function's synchronous return path. See state.ts.
     await runWithWorkload(turnWorkload, async () => {
+      const processContext = makeContext()
       for (let i = 0; i < commands.length; i++) {
         const cmd = commands[i]!
         const isFirst = i === 0
@@ -479,7 +481,7 @@ async function executeUserInput(params: ExecuteUserInputParams): Promise<void> {
           preExpansionInput: cmd.preExpansionValue,
           mode: cmd.mode,
           setToolJSX,
-          context: makeContext(),
+          context: processContext,
           pastedContents: isFirst ? cmd.pastedContents : undefined,
           messages,
           setUserInputOnProcessing: isFirst
@@ -527,12 +529,8 @@ async function executeUserInput(params: ExecuteUserInputParams): Promise<void> {
         queryCheckpoint('query_file_history_snapshot_start')
         newMessages.filter(selectableUserMessagesFilter).forEach(message => {
           void fileHistoryMakeSnapshot(
-            (updater: (prev: FileHistoryState) => FileHistoryState) => {
-              setAppState(prev => ({
-                ...prev,
-                fileHistory: updater(prev.fileHistory),
-              }))
-            },
+            processContext.getFileHistoryState,
+            processContext.applyFileHistoryOp,
             message.uuid,
           )
         })
@@ -573,6 +571,7 @@ async function executeUserInput(params: ExecuteUserInputParams): Promise<void> {
           primaryInput,
           effort,
           clientPlatform,
+          processContext.options.activeSkill,
         )
       } else {
         // Local slash commands that skip messages (e.g., /model, /theme).

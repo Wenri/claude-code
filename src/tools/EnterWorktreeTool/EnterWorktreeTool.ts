@@ -5,7 +5,7 @@ import { logEvent } from '../../services/analytics/index.js'
 import type { Tool } from '../../Tool.js'
 import { buildTool, type ToolDef } from '../../Tool.js'
 import { clearMemoryFileCaches } from '../../utils/claudemd.js'
-import { getCwd } from '../../utils/cwd.js'
+import { getCwd, hasCwdOverride } from '../../utils/cwd.js'
 import { findCanonicalGitRoot } from '../../utils/git.js'
 import { lazySchema } from '../../utils/lazySchema.js'
 import { getPlanSlug, getPlansDirectory } from '../../utils/plans.js'
@@ -80,6 +80,25 @@ export const EnterWorktreeTool: Tool<InputSchema, Output> = buildTool({
   shouldDefer: true,
   toAutoClassifierInput(input) {
     return input.path ?? input.name ?? ''
+  },
+  async validateInput() {
+    if (hasCwdOverride()) {
+      return {
+        result: false,
+        message:
+          'EnterWorktree cannot be called from a subagent with a cwd override (isolation: "worktree" or explicit cwd) — it would mutate the parent session\'s process-wide working directory. This agent is already isolated in its own working copy.',
+        errorCode: 1,
+      }
+    }
+    if (getCurrentWorktreeSession()) {
+      return {
+        result: false,
+        message:
+          'Already in a worktree session. Use ExitWorktree to leave it before entering another.',
+        errorCode: 2,
+      }
+    }
+    return { result: true }
   },
   renderToolUseMessage,
   renderToolResultMessage,

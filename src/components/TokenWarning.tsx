@@ -3,9 +3,9 @@ import { feature } from 'bun:bundle';
 import * as React from 'react';
 import { useSyncExternalStore } from 'react';
 import { Box, Text } from '../ink.js';
-import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js';
-import { calculateTokenWarningState, getEffectiveContextWindowSize, isAutoCompactEnabled } from '../services/compact/autoCompact.js';
+import { calculateTokenWarningState, getEffectiveContextWindowSize, isAutoCompactEnabled, isAutoCompactWindowOverridden, isReactiveCompactEligible } from '../services/compact/autoCompact.js';
 import { useCompactWarningSuppression } from '../services/compact/compactWarningHook.js';
+import { useAppState } from '../state/AppState.js';
 import { isEnvTruthy } from '../utils/envUtils.js';
 import { getUpgradeMessage } from '../utils/model/contextWindowUpgradeCheck.js';
 type Props = {
@@ -91,24 +91,13 @@ export function TokenWarning(t0) {
     tokenUsage,
     model
   } = t0;
-  let t1;
-  if ($[0] !== model || $[1] !== tokenUsage) {
-    t1 = calculateTokenWarningState(tokenUsage, model);
-    $[0] = model;
-    $[1] = tokenUsage;
-    $[2] = t1;
-  } else {
-    t1 = $[2];
-  }
-  const {
-    percentLeft,
-    isAboveWarningThreshold,
-    isAboveErrorThreshold
-  } = t1;
+  const autoCompactWindow = useAppState(state => state.autoCompactWindow);
+  const pressure = calculateTokenWarningState(tokenUsage, model, autoCompactWindow);
   const suppressWarning = useCompactWarningSuppression();
-  if (!isAboveWarningThreshold || suppressWarning) {
+  if (pressure.level === 'ok' || suppressWarning) {
     return null;
   }
+  const percentLeft = pressure.pctLeft;
   let t2;
   if ($[3] === Symbol.for("react.memo_cache_sentinel")) {
     t2 = isAutoCompactEnabled();
@@ -126,13 +115,8 @@ export function TokenWarning(t0) {
   }
   const upgradeMessage = t3;
   let displayPercentLeft = percentLeft;
-  let reactiveOnlyMode = false;
+  const reactiveOnlyMode = isReactiveCompactEligible(model) && !isAutoCompactWindowOverridden(model, autoCompactWindow);
   let collapseMode = false;
-  if (feature("REACTIVE_COMPACT")) {
-    if (getFeatureValue_CACHED_MAY_BE_STALE("tengu_cobalt_raccoon", false)) {
-      reactiveOnlyMode = true;
-    }
-  }
   if (feature("CONTEXT_COLLAPSE")) {
     const {
       isContextCollapseEnabled
@@ -142,7 +126,7 @@ export function TokenWarning(t0) {
     }
   }
   if (reactiveOnlyMode || collapseMode) {
-    const effectiveWindow = getEffectiveContextWindowSize(model);
+    const effectiveWindow = getEffectiveContextWindowSize(model, autoCompactWindow);
     let t4;
     if ($[5] !== effectiveWindow || $[6] !== tokenUsage) {
       t4 = Math.round((effectiveWindow - tokenUsage) / effectiveWindow * 100);
@@ -166,10 +150,9 @@ export function TokenWarning(t0) {
   }
   const autocompactLabel = reactiveOnlyMode ? `${100 - displayPercentLeft}% context used` : `${displayPercentLeft}% until auto-compact`;
   let t4;
-  if ($[9] !== autocompactLabel || $[10] !== isAboveErrorThreshold || $[11] !== percentLeft) {
-    t4 = <Box flexDirection="row">{showAutoCompactWarning ? <Text dimColor={true} wrap="truncate">{upgradeMessage ? `${autocompactLabel} \u00b7 ${upgradeMessage}` : autocompactLabel}</Text> : <Text color={isAboveErrorThreshold ? "error" : "warning"} wrap="truncate">{upgradeMessage ? `Context low (${percentLeft}% remaining) \u00b7 ${upgradeMessage}` : isEnvTruthy(process.env.DISABLE_COMPACT) ? `Context low (${percentLeft}% remaining)` : `Context low (${percentLeft}% remaining) \u00b7 Run /compact to compact & continue`}</Text>}</Box>;
+  if ($[9] !== autocompactLabel || $[11] !== percentLeft) {
+    t4 = <Box flexDirection="row">{showAutoCompactWarning ? <Text dimColor={true} wrap="truncate">{upgradeMessage ? `${autocompactLabel} \u00b7 ${upgradeMessage}` : autocompactLabel}</Text> : <Text color="error" wrap="truncate">{upgradeMessage ? `Context low (${percentLeft}% remaining) \u00b7 ${upgradeMessage}` : isEnvTruthy(process.env.DISABLE_COMPACT) ? `Context low (${percentLeft}% remaining)` : `Context low (${percentLeft}% remaining) \u00b7 Run /compact to compact & continue`}</Text>}</Box>;
     $[9] = autocompactLabel;
-    $[10] = isAboveErrorThreshold;
     $[11] = percentLeft;
     $[12] = t4;
   } else {

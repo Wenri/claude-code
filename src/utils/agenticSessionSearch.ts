@@ -7,6 +7,10 @@ import type { ToolUseContext } from '../Tool.js'
 import { FileReadTool } from '../tools/FileReadTool/FileReadTool.js'
 import { GrepTool } from '../tools/GrepTool/GrepTool.js'
 import { createAbortController } from './abortController.js'
+import { NOOP_AGENT_LIFECYCLE } from './agentLifecycle.js'
+import { NOOP_SET_CLASSIFIER_APPROVALS } from './classifierApprovals.js'
+import { NOOP_TEAMMATE_COLORS } from './swarm/teammateLayoutManager.js'
+import { NOOP_SESSION_HOOKS_REGISTRY } from './hooks/sessionHooks.js'
 import { createFileStateCacheWithSizeLimit } from './fileStateCache.js'
 import { logForDebugging } from './debug.js'
 import { getLogDisplayTitle, logError } from './log.js'
@@ -17,6 +21,7 @@ import { expandPath } from './path.js'
 import { getSessionIdFromLog } from './sessionStorage.js'
 import { jsonParse } from './slowOperations.js'
 import { asSystemPrompt } from './systemPromptType.js'
+import { createTaskRegistry } from './task/framework.js'
 import type { CanUseToolFn } from '../hooks/useCanUseTool.js'
 
 const MAX_TURNS = 20
@@ -83,15 +88,28 @@ function createSearchContext(
     abortController,
     readFileState: createFileStateCacheWithSizeLimit(100),
     getAppState: () => appState,
-    setAppState: () => {},
     getToolPermissionContext: () => appState.toolPermissionContext,
+    getEffortValue: () => appState.effortValue,
+    getAutoCompactWindow: () => appState.autoCompactWindow,
+    getFastMode: () => appState.fastMode,
+    getCacheBreakerPhrase: () => appState.cacheBreakerPhrase,
+    setAppState: () => {},
+    setToolPermissionContext: () => {},
+    setClassifierApprovals: NOOP_SET_CLASSIFIER_APPROVALS,
     setReplContext: () => {},
+    setWebBrowserSlice: () => {},
+    agentLifecycle: NOOP_AGENT_LIFECYCLE,
+    teammateColors: NOOP_TEAMMATE_COLORS,
+    taskRegistry: createTaskRegistry(() => appState, () => {}),
+    sessionHooksRegistry: NOOP_SESSION_HOOKS_REGISTRY,
     messages: initialMessages,
     turnStartIndex: 0,
     setInProgressToolUseIDs: () => {},
-    setResponseLength: () => {},
-    updateFileHistoryState: () => {},
-    updateAttributionState: () => {},
+    addResponseLength: () => {},
+    resetResponseLength: () => {},
+    getFileHistoryState: () => undefined,
+    applyFileHistoryOp: () => {},
+    applyAttributionOp: () => {},
   }
 }
 

@@ -31,11 +31,12 @@ import { type PermissionMode, toExternalPermissionMode } from '../../../utils/pe
 import { isAutoModeOptInDismissed } from '../../../utils/permissions/getNextPermissionMode.js';
 import type { PermissionUpdate } from '../../../utils/permissions/PermissionUpdateSchema.js';
 import { isAutoModeGateEnabled, restoreDangerousPermissions, stripDangerousPermissionsForAutoMode } from '../../../utils/permissions/permissionSetup.js';
-import { getPewterLedgerVariant, isPlanModeInterviewPhaseEnabled } from '../../../utils/planModeV2.js';
+import { isPlanModeInterviewPhaseEnabled } from '../../../utils/planModeV2.js';
 import { getPlan, getPlanFilePath } from '../../../utils/plans.js';
 import { editFileInEditor, editPromptInEditor } from '../../../utils/promptEditor.js';
 import { getCurrentSessionTitle, getTranscriptPath, saveAgentName, saveCustomTitle } from '../../../utils/sessionStorage.js';
 import { getSettings_DEPRECATED } from '../../../utils/settings/settings.js';
+import { logPermissionModeChanged } from '../../../utils/telemetry/events.js';
 import { isUltraplanEnabled } from '../../../utils/ultraplan/config.js';
 import { type OptionWithDescription, Select } from '../../CustomSelect/index.js';
 import { Markdown } from '../../Markdown.js';
@@ -172,8 +173,8 @@ export function ExitPlanModePermissionRequest({
       filename: filename || 'Pasted image',
       dimensions
     };
-    cacheImagePath(newContent);
-    void storeImage(newContent);
+    cacheImagePath(newContent, setAppState);
+    void storeImage(newContent, setAppState);
     setPastedContents(prev => ({
       ...prev,
       [pasteId]: newContent
@@ -206,11 +207,6 @@ export function ExitPlanModePermissionRequest({
   const rawPlan = inputPlan ?? getPlan();
   const isEmpty = !rawPlan || rawPlan.trim() === '';
 
-  // Capture the variant once on mount. GrowthBook reads from a disk cache
-  // so the value is stable across a single planning session. undefined =
-  // control arm. The variant is a fixed 3-value enum of short literals,
-  // not user input.
-  const [planStructureVariant] = useState(() => (getPewterLedgerVariant() ?? undefined) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS);
   const [currentPlan, setCurrentPlan] = useState(() => {
     if (inputPlan) return inputPlan;
     const plan = getPlan();
@@ -288,8 +284,7 @@ export function ExitPlanModePermissionRequest({
       logEvent('tengu_plan_exit', {
         planLengthChars: currentPlan.length,
         outcome: 'ultraplan' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled(),
-        planStructureVariant
+        interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled()
       });
       onDone();
       onReject();
@@ -367,8 +362,12 @@ export function ExitPlanModePermissionRequest({
         outcome: value as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
         clearContext: true,
         interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled(),
-        planStructureVariant,
         hasFeedback: !!acceptFeedback
+      });
+      logPermissionModeChanged({
+        from: 'plan',
+        to: mode,
+        trigger: 'exit_plan_mode'
       });
 
       // Set initial message - REPL will handle context clear and fresh query
@@ -413,12 +412,16 @@ export function ExitPlanModePermissionRequest({
         outcome: value as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
         clearContext: false,
         interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled(),
-        planStructureVariant,
         hasFeedback: !!acceptFeedback
       });
       setHasExitedPlanMode(true);
       setNeedsPlanModeExitAttachment(true);
       autoModeStateModule?.setAutoModeActive(true);
+      logPermissionModeChanged({
+        from: 'plan',
+        to: 'auto',
+        trigger: 'exit_plan_mode'
+      });
       setAppState(prev => ({
         ...prev,
         toolPermissionContext: stripDangerousPermissionsForAutoMode({
@@ -446,12 +449,16 @@ export function ExitPlanModePermissionRequest({
     };
     const keepContextMode = keepContextModes[value];
     if (keepContextMode) {
+      logPermissionModeChanged({
+        from: 'plan',
+        to: keepContextMode,
+        trigger: 'exit_plan_mode'
+      });
       logEvent('tengu_plan_exit', {
         planLengthChars: currentPlan.length,
         outcome: value as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
         clearContext: false,
         interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled(),
-        planStructureVariant,
         hasFeedback: !!acceptFeedback
       });
       setHasExitedPlanMode(true);
@@ -468,11 +475,15 @@ export function ExitPlanModePermissionRequest({
     };
     const standardMode = standardModes[value];
     if (standardMode) {
+      logPermissionModeChanged({
+        from: 'plan',
+        to: standardMode,
+        trigger: 'exit_plan_mode'
+      });
       logEvent('tengu_plan_exit', {
         planLengthChars: currentPlan.length,
         outcome: value as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
         interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled(),
-        planStructureVariant,
         hasFeedback: !!acceptFeedback
       });
       setHasExitedPlanMode(true);
@@ -491,8 +502,7 @@ export function ExitPlanModePermissionRequest({
       logEvent('tengu_plan_exit', {
         planLengthChars: currentPlan.length,
         outcome: 'no' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled(),
-        planStructureVariant
+        interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled()
       });
 
       // Convert pasted images to ImageBlockParam[] with resizing
@@ -535,8 +545,7 @@ export function ExitPlanModePermissionRequest({
     logEvent('tengu_plan_exit', {
       planLengthChars: currentPlan.length,
       outcome: 'no' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled(),
-      planStructureVariant
+      interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled()
     });
     onDone();
     onReject();
@@ -574,8 +583,7 @@ export function ExitPlanModePermissionRequest({
         logEvent('tengu_plan_exit', {
           planLengthChars: 0,
           outcome: 'yes-default' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled(),
-          planStructureVariant
+          interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled()
         });
         if (feature('TRANSCRIPT_CLASSIFIER')) {
           const autoWasUsedDuringPlan = autoModeStateModule?.isAutoModeActive() ?? false;
@@ -603,8 +611,7 @@ export function ExitPlanModePermissionRequest({
         logEvent('tengu_plan_exit', {
           planLengthChars: 0,
           outcome: 'no' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled(),
-          planStructureVariant
+          interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled()
         });
         onDone();
         onReject();
@@ -625,8 +632,7 @@ export function ExitPlanModePermissionRequest({
             logEvent('tengu_plan_exit', {
               planLengthChars: 0,
               outcome: 'no' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-              interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled(),
-              planStructureVariant
+              interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled()
             });
             onDone();
             onReject();

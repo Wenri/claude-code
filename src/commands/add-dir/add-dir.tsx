@@ -6,6 +6,7 @@ import { getAdditionalDirectoriesForClaudeMd, setAdditionalDirectoriesForClaudeM
 import type { LocalJSXCommandContext } from '../../commands.js';
 import { MessageResponse } from '../../components/MessageResponse.js';
 import { AddWorkspaceDirectory } from '../../components/permissions/rules/AddWorkspaceDirectory.js';
+import { appendCurrentJobRespawnFlag } from '../../daemon/jobs.js';
 import { Box, Text } from '../../ink.js';
 import type { LocalJSXCommandOnDone } from '../../types/command.js';
 import { applyPermissionUpdate, persistPermissionUpdate } from '../../utils/permissions/PermissionUpdate.js';
@@ -77,12 +78,9 @@ export async function call(onDone: LocalJSXCommandOnDone, context: LocalJSXComma
     };
 
     // Apply to session context
-    const latestAppState = context.getAppState();
-    const updatedContext = applyPermissionUpdate(latestAppState.toolPermissionContext, permissionUpdate);
-    context.setAppState(prev => ({
-      ...prev,
-      toolPermissionContext: updatedContext
-    }));
+    context.setToolPermissionContext(previous =>
+      applyPermissionUpdate(previous, permissionUpdate),
+    );
 
     // Update sandbox config so Bash commands can access the new directory.
     // Bootstrap state is the source of truth for session-only dirs; persisted
@@ -94,6 +92,7 @@ export async function call(onDone: LocalJSXCommandOnDone, context: LocalJSXComma
     }
     SandboxManager.refreshConfig();
     void recordSessionAlias(path);
+    void appendCurrentJobRespawnFlag('--add-dir', path);
     let message: string;
     if (remember) {
       try {

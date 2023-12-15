@@ -22,6 +22,7 @@ import {
   shouldUseMockSubscription,
 } from '../services/mockRateLimits.js'
 import {
+  isInvalidGrantError,
   isOAuthTokenExpired,
   refreshOAuthToken,
   shouldUseClaudeAIAuth,
@@ -85,6 +86,12 @@ import { clearToolSchemaCache } from './toolSchemaCache.js'
 
 /** Default TTL for API key helper cache in milliseconds (5 minutes) */
 const DEFAULT_API_KEY_HELPER_TTL = 5 * 60 * 1000
+
+export const SDK_OAUTH_REFRESH_ENTRYPOINTS = new Set([
+  'claude-desktop',
+  'local-agent',
+  'claude-vscode',
+])
 
 /**
  * CCR and Claude Desktop spawn the CLI with OAuth and should never fall back
@@ -671,6 +678,7 @@ const DEFAULT_AWS_STS_TTL = 60 * 60 * 1000
  */
 async function runAwsAuthRefresh(): Promise<boolean> {
   const awsAuthRefresh = getConfiguredAwsAuthRefresh()
+  const refreshEpoch = awsAuthRefreshEpoch
 
   if (!awsAuthRefresh) {
     return false // Not configured, treat as success
@@ -690,6 +698,8 @@ async function runAwsAuthRefresh(): Promise<boolean> {
     }
   }
 
+  if (awsAuthRefreshInFlight) return awsAuthRefreshInFlight
+
   try {
     logForDebugging('Fetching AWS caller identity for AWS auth refresh command')
     await checkStsCallerIdentity()
@@ -698,14 +708,42 @@ async function runAwsAuthRefresh(): Promise<boolean> {
     )
     return false
   } catch {
-    // only actually do the refresh if caller-identity calls
-    return refreshAwsAuth(awsAuthRefresh)
+    // Only actually run the refresh if caller-identity fails. Concurrent
+    // callers share one refresh, and a short cooldown prevents repeated
+    // browser/SSO prompts while credentials propagate.
+    if (awsAuthRefreshInFlight) return awsAuthRefreshInFlight
+    if (
+      lastAwsAuthRefreshAt !== null &&
+      Date.now() - lastAwsAuthRefreshAt < AWS_AUTH_REFRESH_COOLDOWN_MS
+    ) {
+      return false
+    }
+    awsAuthRefreshInFlight = (async () => {
+      try {
+        return await refreshAwsAuth(awsAuthRefresh)
+      } finally {
+        if (refreshEpoch === awsAuthRefreshEpoch) {
+          lastAwsAuthRefreshAt = Date.now()
+        }
+        awsAuthRefreshInFlight = null
+      }
+    })()
+    return awsAuthRefreshInFlight
   }
 }
 
 // Timeout for AWS auth refresh command (3 minutes).
 // Long enough for browser-based SSO flows, short enough to prevent indefinite hangs.
 const AWS_AUTH_REFRESH_TIMEOUT_MS = 3 * 60 * 1000
+const AWS_AUTH_REFRESH_COOLDOWN_MS = 30 * 1000
+let lastAwsAuthRefreshAt: number | null = null
+let awsAuthRefreshInFlight: Promise<boolean> | null = null
+let awsAuthRefreshEpoch = 0
+
+export function resetAwsAuthRefreshCooldown(): void {
+  lastAwsAuthRefreshAt = null
+  awsAuthRefreshEpoch++
+}
 
 export function refreshAwsAuth(awsAuthRefresh: string): Promise<boolean> {
   logForDebugging('Running AWS auth refresh command')
@@ -1313,6 +1351,22 @@ export function saveOAuthTokensIfNeeded(tokens: OAuthTokens): {
   }
 }
 
+function clearRejectedOAuthRefreshToken(refreshToken: string): void {
+  try {
+    const secureStorage = getSecureStorage()
+    clearKeychainCache()
+    const storageData = secureStorage.read() || {}
+    const oauthData = storageData.claudeAiOauth
+    if (!oauthData || oauthData.refreshToken !== refreshToken) return
+    storageData.claudeAiOauth = { ...oauthData, refreshToken: '' }
+    secureStorage.update(storageData)
+    getClaudeAIOAuthTokens.cache?.clear?.()
+    logEvent('tengu_oauth_refresh_token_cleared_invalid_grant', {})
+  } catch (error) {
+    logError(error)
+  }
+}
+
 export const getClaudeAIOAuthTokens = memoize((): OAuthTokens | null => {
   // --bare: API-key-only. No OAuth env tokens, no keychain, no credentials file.
   if (isBareMode()) return null
@@ -1688,6 +1742,10 @@ async function checkAndRefreshOAuthTokenIfNeededImpl(
       return true
     }
 
+    if (isInvalidGrantError(error) && currentTokens?.refreshToken) {
+      clearRejectedOAuthRefreshToken(currentTokens.refreshToken)
+    }
+
     return false
   } finally {
     logEvent('tengu_oauth_token_refresh_lock_releasing', {})
@@ -1850,6 +1908,10 @@ export function getRateLimitTier(): string | null {
   }
 
   return oauthTokens.rateLimitTier ?? null
+}
+
+export function getSeatTier(): string | null {
+  return getOauthAccountInfo()?.seatTier ?? null
 }
 
 export function getSubscriptionName(): string {

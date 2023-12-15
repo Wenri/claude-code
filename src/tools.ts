@@ -271,13 +271,23 @@ export function filterToolsByDenyRules<
   return tools.filter(tool => !getDenyRuleForTool(permissionContext, tool))
 }
 
-export const getTools = (permissionContext: ToolPermissionContext): Tools => {
+export type ToolPoolOptions = {
+  /** Keep primitive tools available when assembling a worker tool pool. */
+  skipReplFilter?: boolean
+  /** Per-skill tools built by the experimental skills-as-tools adapter. */
+  skillTools?: Tools
+}
+
+export const getTools = (
+  permissionContext: ToolPermissionContext,
+  options?: Pick<ToolPoolOptions, 'skipReplFilter'>,
+): Tools => {
   // Simple mode: only Bash, Read, and Edit tools
   if (isEnvTruthy(process.env.CLAUDE_CODE_SIMPLE)) {
     // --bare + REPL mode: REPL wraps Bash/Read/Edit/etc inside the VM, so
     // return REPL instead of the raw primitives. Matches the non-bare path
     // below which also hides REPL_ONLY_TOOLS when REPL is enabled.
-    if (isReplModeEnabled() && REPLTool) {
+    if (isReplModeEnabled() && !options?.skipReplFilter && REPLTool) {
       const replSimple: Tool[] = [REPLTool]
       if (
         feature('COORDINATOR_MODE') &&
@@ -318,7 +328,7 @@ export const getTools = (permissionContext: ToolPermissionContext): Tools => {
 
   // When REPL mode is enabled, hide primitive tools from direct use.
   // They're still accessible inside REPL via the VM context.
-  if (isReplModeEnabled()) {
+  if (isReplModeEnabled() && !options?.skipReplFilter) {
     const replEnabled = allowedTools.some(tool =>
       toolMatchesName(tool, REPL_TOOL_NAME),
     )
@@ -361,8 +371,9 @@ export const getTools = (permissionContext: ToolPermissionContext): Tools => {
 export function assembleToolPool(
   permissionContext: ToolPermissionContext,
   mcpTools: Tools,
+  options?: ToolPoolOptions,
 ): Tools {
-  const builtInTools = getTools(permissionContext)
+  const builtInTools = getTools(permissionContext, options)
 
   // Filter out MCP tools that are in the deny list
   const allowedMcpTools = filterToolsByDenyRules(mcpTools, permissionContext)
@@ -376,8 +387,15 @@ export function assembleToolPool(
   // Avoid Array.toSorted (Node 20+) — we support Node 18. builtInTools is
   // readonly so copy-then-sort; allowedMcpTools is a fresh .filter() result.
   const byName = (a: Tool, b: Tool) => a.name.localeCompare(b.name)
+  const skillTools = options?.skillTools ?? []
+  const allowedDynamicTools =
+    skillTools.length > 0
+      ? allowedMcpTools
+          .concat(filterToolsByDenyRules(skillTools, permissionContext))
+          .sort(byName)
+      : allowedMcpTools.sort(byName)
   return uniqBy(
-    [...builtInTools].sort(byName).concat(allowedMcpTools.sort(byName)),
+    [...builtInTools].sort(byName).concat(allowedDynamicTools),
     'name',
   )
 }

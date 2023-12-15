@@ -5,6 +5,10 @@
 import { feature } from 'bun:bundle'
 import { randomUUID, type UUID } from 'crypto'
 import {
+  resetMemorySelector,
+  type MemorySelector,
+} from '../../memdir/findRelevantMemories.js'
+import {
   getLastMainRequestId,
   getOriginalCwd,
   getSessionId,
@@ -57,7 +61,9 @@ export async function clearConversation({
   setMessages,
   readFileState,
   discoveredSkillNames,
+  discoveredRemoteSkills,
   loadedNestedMemoryPaths,
+  memorySelector,
   getAppState,
   setAppState,
   setConversationId,
@@ -67,7 +73,9 @@ export async function clearConversation({
   setMessages: (updater: (prev: Message[]) => Message[]) => void
   readFileState: FileStateCache
   discoveredSkillNames?: Set<string>
+  discoveredRemoteSkills?: Map<string, unknown>
   loadedNestedMemoryPaths?: Set<string>
+  memorySelector?: MemorySelector
   getAppState?: () => AppState
   setAppState?: (f: (prev: AppState) => AppState) => void
   setConversationId?: (id: UUID) => void
@@ -135,12 +143,14 @@ export async function clearConversation({
   // Clear all session-related caches. Per-agent state for preserved background
   // tasks (invoked skills, pending permission callbacks, dump state, cache-break
   // tracking) is retained so those agents keep functioning.
-  clearSessionCaches(preservedAgentIds)
+  clearSessionCaches(preservedAgentIds, setAppState)
 
   setCwd(getOriginalCwd())
   readFileState.clear()
   discoveredSkillNames?.clear()
+  discoveredRemoteSkills?.clear()
   loadedNestedMemoryPaths?.clear()
+  resetMemorySelector(memorySelector)
   if (resultDedupState) clearResultDedupState(resultDedupState)
   if (isolationLatch) isolationLatch.current = null
 
@@ -182,6 +192,7 @@ export async function clearConversation({
         ...prev,
         tasks: nextTasks,
         attribution: createEmptyAttributionState(),
+        cacheBreakerPhrase: undefined,
         // Clear standalone agent context (name/color set by /rename, /color)
         // so the new session doesn't display the old session's identity badge
         standaloneAgentContext: undefined,
@@ -199,6 +210,7 @@ export async function clearConversation({
           commands: [],
           resources: {},
           resourceTemplates: {},
+          suppressedClaudeAiConnectors: [],
           pluginReconnectKey: prev.mcp.pluginReconnectKey,
         },
       }

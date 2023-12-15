@@ -11,6 +11,7 @@ import { startAgentSummarization } from '../../services/AgentSummary/agentSummar
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js';
 import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEvent } from '../../services/analytics/index.js';
 import { clearDumpState } from '../../services/api/dumpPrompts.js';
+import { isMcpTool } from '../../services/mcp/utils.js';
 import { completeAgentTask as completeAsyncAgent, createActivityDescriptionResolver, createProgressTracker, enqueueAgentNotification, failAgentTask as failAsyncAgent, getProgressUpdate, getTokenCountFromTracker, isLocalAgentTask, killAsyncAgent, registerAgentForeground, registerAsyncAgent, unregisterAgentForeground, updateAgentProgress as updateAsyncAgentProgress, updateProgressFromMessage } from '../../tasks/LocalAgentTask/LocalAgentTask.js';
 import { checkRemoteAgentEligibility, formatPreconditionError, getRemoteTaskSessionUrl, registerRemoteAgentTask } from '../../tasks/RemoteAgentTask/RemoteAgentTask.js';
 import { assembleToolPool } from '../../tools.js';
@@ -366,6 +367,7 @@ export const AgentTool = buildTool({
     // Capture for type narrowing — `let selectedAgent` prevents TS from
     // narrowing property types across the if-else assignment above.
     const requiredMcpServers = selectedAgent.requiredMcpServers;
+    const sdkMcpTools = toolUseContext.options.tools.filter(isMcpTool);
 
     // Check if required MCP servers have tools available
     // A server that's connected but not authenticated won't have any tools
@@ -394,7 +396,7 @@ export const AgentTool = buildTool({
 
       // Get servers that actually have tools (meaning they're connected AND authenticated)
       const serversWithTools: string[] = [];
-      for (const tool of currentAppState.mcp.tools) {
+      for (const tool of currentAppState.mcp.tools.concat(sdkMcpTools)) {
         if (tool.name?.startsWith('mcp__')) {
           // Extract server name from tool name (format: mcp__serverName__toolName)
           const parts = tool.name.split('__');
@@ -417,6 +419,10 @@ export const AgentTool = buildTool({
 
     // Resolve agent params for logging (these are already resolved in runAgent)
     const resolvedAgentModel = getAgentModel(selectedAgent.model, toolUseContext.options.mainLoopModel, isForkPath ? undefined : model, permissionMode);
+    toolUseContext.agentLifecycle.markTypeInvoked(selectedAgent.agentType);
+    const agentSystemPrompt = selectedAgent.getSystemPrompt({
+      toolUseContext
+    });
     logEvent('tengu_agent_tool_selected', {
       agent_type: selectedAgent.agentType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       model: resolvedAgentModel as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -425,7 +431,8 @@ export const AgentTool = buildTool({
       is_built_in_agent: isBuiltInAgent(selectedAgent),
       is_resume: false,
       is_async: (run_in_background === true || selectedAgent.background === true) && !isBackgroundTasksDisabled,
-      is_fork: isForkPath
+      is_fork: isForkPath,
+      agent_system_prompt_chars: agentSystemPrompt.length
     });
 
     // Resolve effective isolation mode (explicit param overrides agent def)
@@ -516,9 +523,7 @@ export const AgentTool = buildTool({
         const additionalWorkingDirectories = Array.from(appState.toolPermissionContext.additionalWorkingDirectories.keys());
 
         // All agents have getSystemPrompt - pass toolUseContext to all
-        const agentPrompt = selectedAgent.getSystemPrompt({
-          toolUseContext
-        });
+        const agentPrompt = agentSystemPrompt;
 
         // Log agent memory loaded event for subagents
         if (selectedAgent.memory) {
@@ -575,7 +580,11 @@ export const AgentTool = buildTool({
       ...appState.toolPermissionContext,
       mode: selectedAgent.permissionMode ?? 'acceptEdits'
     };
-    const workerTools = assembleToolPool(workerPermissionContext, appState.mcp.tools);
+    const currentAppState = toolUseContext.getAppState();
+    const workerTools = assembleToolPool(workerPermissionContext, currentAppState.mcp.tools.concat(sdkMcpTools), {
+      skipReplFilter: true,
+      skillTools: currentAppState.skillTools
+    });
 
     // Create a stable agent ID early so it can be used for worktree slug
     const earlyAgentId = createAgentId();
@@ -608,6 +617,7 @@ export const AgentTool = buildTool({
       canUseTool,
       isAsync: shouldRunAsync,
       querySource: toolUseContext.options.querySource ?? getQuerySourceForAgent(selectedAgent.agentType, isBuiltInAgent(selectedAgent)),
+      spawnedBySkill: toolUseContext.options.spawnedBySkill ?? toolUseContext.options.activeSkill,
       model: isForkPath ? undefined : model,
       // Fork path: pass parent's system prompt AND parent's exact tool
       // array (cache-identical prefix). workerTools is rebuilt under
@@ -632,7 +642,13 @@ export const AgentTool = buildTool({
       availableTools: isForkPath ? toolUseContext.options.tools : workerTools,
       // Pass parent conversation when the fork-subagent path needs full
       // context. useExactTools inherits thinkingConfig (runAgent.ts:624).
-      forkContextMessages: isForkPath ? toolUseContext.messages : undefined,
+      forkContextMessages: isForkPath
+        ? toolUseContext.messages
+        : selectedAgent.forksParentContext === 'turn'
+          ? toolUseContext.messages.slice(toolUseContext.turnStartIndex)
+          : selectedAgent.forksParentContext === true
+            ? toolUseContext.messages
+            : undefined,
       ...(isForkPath && {
         useExactTools: true
       }),
@@ -642,10 +658,10 @@ export const AgentTool = buildTool({
       name
     };
 
-    // Helper to wrap execution with a cwd override: explicit cwd arg (KAIROS)
-    // takes precedence over worktree isolation path.
+    // Explicit cwd (KAIROS) takes precedence over worktree isolation. The
+    // wrapper still installs an isolated cwd when neither is present, so a
+    // regular subagent's `cd` cannot mutate the parent session.
     const cwdOverridePath = cwd ?? worktreeInfo?.worktreePath;
-    const wrapWithCwd = <T,>(fn: () => T): T => cwdOverridePath ? runWithCwdOverride(cwdOverridePath, fn) : fn();
 
     // Helper to clean up worktree after agent completes
     const cleanupWorktreeIfNeeded = async (): Promise<{
@@ -711,14 +727,10 @@ export const AgentTool = buildTool({
       // so we don't leave a stale entry if spawn fails. Sync agents skipped —
       // coordinator is blocked, so SendMessage routing doesn't apply.
       if (name) {
-        rootSetAppState(prev => {
-          const next = new Map(prev.agentNameRegistry);
-          next.set(name, asAgentId(asyncAgentId));
-          return {
-            ...prev,
-            agentNameRegistry: next
-          };
-        });
+        toolUseContext.agentLifecycle.registerName(
+          name,
+          asAgentId(asyncAgentId),
+        );
       }
 
       // Wrap async agent execution in agent context for analytics attribution
@@ -740,7 +752,7 @@ export const AgentTool = buildTool({
       // invocation time — when this `void` fires — and survives every await
       // inside. No capture/restore needed; the detached closure sees the
       // parent turn's workload automatically, isolated from its finally.
-      void runWithAgentContext(asyncAgentContext, () => wrapWithCwd(() => runAsyncAgentLifecycle({
+      void runWithAgentContext(asyncAgentContext, () => runWithCwdOverride(cwdOverridePath, () => runAsyncAgentLifecycle({
         taskId: agentBackgroundTask.agentId,
         abortController: agentBackgroundTask.abortController!,
         makeStream: (onCacheSafeParams, onProgress) => runAgent({
@@ -793,7 +805,7 @@ export const AgentTool = buildTool({
 
       // Wrap entire sync agent execution in context for analytics attribution
       // and optionally in a worktree cwd override for filesystem isolation
-      return runWithAgentContext(syncAgentContext, () => wrapWithCwd(async () => {
+      return runWithAgentContext(syncAgentContext, () => runWithCwdOverride(cwdOverridePath, async () => {
         const agentMessages: MessageType[] = [];
         const agentStartTime = Date.now();
         const syncTracker = createProgressTracker();
@@ -976,11 +988,10 @@ export const AgentTool = buildTool({
                     // Extract text from agent result content for the notification
                     let finalMessage = extractTextContent(agentResult.content, '\n');
                     if (feature('TRANSCRIPT_CLASSIFIER')) {
-                      const backgroundedAppState = toolUseContext.getAppState();
                       const handoffWarning = await classifyHandoffIfNeeded({
                         agentMessages,
                         tools: toolUseContext.options.tools,
-                        toolPermissionContext: backgroundedAppState.toolPermissionContext,
+                        toolPermissionContext: toolUseContext.getToolPermissionContext(),
                         abortSignal: task.abortController!.signal,
                         subagentType: selectedAgent.agentType,
                         totalToolUseCount: agentResult.totalToolUseCount
@@ -1114,7 +1125,7 @@ export const AgentTool = buildTool({
             if (message.type === 'assistant') {
               const contentLength = getAssistantMessageContentLength(message);
               if (contentLength > 0) {
-                toolUseContext.setResponseLength(len => len + contentLength);
+                toolUseContext.addResponseLength(contentLength);
               }
             }
             const normalizedNew = normalizeMessages([message]);
@@ -1254,11 +1265,10 @@ export const AgentTool = buildTool({
         }
         const agentResult = finalizeAgentTool(agentMessages, syncAgentId, metadata);
         if (feature('TRANSCRIPT_CLASSIFIER')) {
-          const currentAppState = toolUseContext.getAppState();
           const handoffWarning = await classifyHandoffIfNeeded({
             agentMessages,
             tools: toolUseContext.options.tools,
-            toolPermissionContext: currentAppState.toolPermissionContext,
+            toolPermissionContext: toolUseContext.getToolPermissionContext(),
             abortSignal: toolUseContext.abortController.signal,
             subagentType: selectedAgent.agentType,
             totalToolUseCount: agentResult.totalToolUseCount

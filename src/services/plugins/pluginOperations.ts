@@ -449,7 +449,7 @@ export async function installPluginOp(
       case 'marketplace-blocked-by-policy':
         return {
           success: false,
-          message: `Plugin "${result.pluginName}" comes from marketplace "${result.marketplaceName}", which is blocked by your organization's policy`,
+          message: `Plugin "${result.pluginName}" is from marketplace "${result.marketplaceName}", which is blocked by your organization's policy`,
         }
       case 'dependency-blocked-by-policy':
         return {
@@ -469,6 +469,7 @@ export async function installPluginOp(
             result.dep,
             result.ranges,
             result.why,
+            result.installed,
           ),
         }
       case 'no-matching-tag':

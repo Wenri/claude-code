@@ -11,6 +11,7 @@ import { Pane } from '../design-system/Pane.js';
 import { Tab, Tabs } from '../design-system/Tabs.js';
 import { Commands } from './Commands.js';
 import { General } from './General.js';
+const MIN_ROWS_FOR_FEEDBACK_HINT = 44;
 type Props = {
   onClose: (result?: string, options?: {
     display?: CommandResultDisplay;
@@ -18,7 +19,7 @@ type Props = {
   commands: Command[];
 };
 export function HelpV2(t0) {
-  const $ = _c(44);
+  const $ = _c(45);
   const {
     onClose,
     commands
@@ -28,6 +29,7 @@ export function HelpV2(t0) {
     columns
   } = useTerminalSize();
   const maxHeight = Math.floor(rows / 2);
+  const hasEnoughRowsForFeedbackHint = rows >= MIN_ROWS_FOR_FEEDBACK_HINT;
   const insideModal = useIsInsideModal();
   let t1;
   if ($[0] !== onClose) {
@@ -161,12 +163,14 @@ export function HelpV2(t0) {
   } else {
     t8 = $[37];
   }
+  const feedbackHint = hasEnoughRowsForFeedbackHint && <Box marginTop={1} flexShrink={0}><Text dimColor={true}>Something else? Use /feedback to report bugs or request features.</Text></Box>;
   let t9;
-  if ($[38] !== t6 || $[39] !== t8) {
-    t9 = <Pane color="professionalBlue">{t6}{t7}{t8}</Pane>;
+  if ($[38] !== t6 || $[39] !== t8 || $[44] !== feedbackHint) {
+    t9 = <Pane color="professionalBlue">{t6}{t7}{feedbackHint}{t8}</Pane>;
     $[38] = t6;
     $[39] = t8;
     $[40] = t9;
+    $[44] = feedbackHint;
   } else {
     t9 = $[40];
   }

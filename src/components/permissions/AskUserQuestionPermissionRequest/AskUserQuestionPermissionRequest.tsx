@@ -8,7 +8,7 @@ import { stringWidth } from '../../../ink/stringWidth.js';
 import { useTheme } from '../../../ink.js';
 import { useKeybindings } from '../../../keybindings/useKeybinding.js';
 import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEvent } from '../../../services/analytics/index.js';
-import { useAppState } from '../../../state/AppState.js';
+import { useAppState, useSetAppState } from '../../../state/AppState.js';
 import type { Question } from '../../../tools/AskUserQuestionTool/AskUserQuestionTool.js';
 import { AskUserQuestionTool } from '../../../tools/AskUserQuestionTool/AskUserQuestionTool.js';
 import { type CliHighlight, getCliHighlightPromise } from '../../../utils/cliHighlight.js';
@@ -80,6 +80,7 @@ function AskUserQuestionPermissionRequestBody(t0) {
     onReject,
     highlight
   } = t0;
+  const setAppState = useSetAppState();
   let t1;
   if ($[0] !== toolUseConfirm.input) {
     t1 = AskUserQuestionTool.inputSchema.safeParse(toolUseConfirm.input);
@@ -173,9 +174,7 @@ function AskUserQuestionPermissionRequestBody(t0) {
   }
   const [pastedContentsByQuestion, setPastedContentsByQuestion] = useState(t6);
   const nextPasteIdRef = useRef(0);
-  let t7;
-  if ($[16] === Symbol.for("react.memo_cache_sentinel")) {
-    t7 = function onImagePaste(questionText, base64Image, mediaType, filename, dimensions, _sourcePath) {
+  const onImagePaste = useCallback(function onImagePaste(questionText, base64Image, mediaType, filename, dimensions, _sourcePath) {
       nextPasteIdRef.current = nextPasteIdRef.current + 1;
       const pasteId = nextPasteIdRef.current;
       const newContent = {
@@ -186,8 +185,8 @@ function AskUserQuestionPermissionRequestBody(t0) {
         filename: filename || "Pasted image",
         dimensions
       };
-      cacheImagePath(newContent);
-      storeImage(newContent);
+      cacheImagePath(newContent, setAppState);
+      storeImage(newContent, setAppState);
       setPastedContentsByQuestion(prev => ({
         ...prev,
         [questionText]: {
@@ -195,12 +194,7 @@ function AskUserQuestionPermissionRequestBody(t0) {
           [pasteId]: newContent
         }
       }));
-    };
-    $[16] = t7;
-  } else {
-    t7 = $[16];
-  }
-  const onImagePaste = t7;
+    }, [setAppState]);
   let t8;
   if ($[17] === Symbol.for("react.memo_cache_sentinel")) {
     t8 = (questionText_0, id) => {

@@ -16,6 +16,7 @@ import { spawnShellTask } from '../../tasks/LocalShellTask/LocalShellTask.js'
 import { killTask } from '../../tasks/LocalShellTask/killShellTasks.js'
 import { asAgentId, type AgentId } from '../../types/ids.js'
 import { getAgentContext } from '../../utils/agentContext.js'
+import { isEnvTruthy } from '../../utils/envUtils.js'
 import { enqueuePendingNotification } from '../../utils/messageQueueManager.js'
 import { exec } from '../../utils/Shell.js'
 import { escapeXml } from '../../utils/xml.js'
@@ -39,6 +40,7 @@ import {
 export const MONITOR_TOOL_NAME = 'Monitor'
 
 const MAX_TIMEOUT_MS = 3_600_000
+const CCR_MAX_TIMEOUT_MS = 1_800_000
 const DEFAULT_TIMEOUT_MS = 300_000
 
 const baseInputFields = () => ({
@@ -81,6 +83,20 @@ const inputSchema = lazySchema(() =>
 )
 type InputSchema = ReturnType<typeof inputSchema>
 export type Input = z.infer<InputSchema>
+
+export function applyCcrTimeoutCap(
+  input: Pick<Input, 'timeout_ms' | 'persistent'>,
+): Pick<Input, 'timeout_ms' | 'persistent'> {
+  if (!isEnvTruthy(process.env.CLAUDE_CODE_REMOTE)) {
+    return { timeout_ms: input.timeout_ms, persistent: input.persistent }
+  }
+  return {
+    timeout_ms: input.persistent
+      ? CCR_MAX_TIMEOUT_MS
+      : Math.min(input.timeout_ms, CCR_MAX_TIMEOUT_MS),
+    persistent: false,
+  }
+}
 
 const outputSchema = lazySchema(() =>
   z.object({
@@ -142,7 +158,8 @@ async function runMonitor(
   input: Input,
   context: ToolUseContext,
 ): Promise<{ data: Output }> {
-  const { description, timeout_ms: timeoutMs, persistent } = input
+  const { description } = input
+  const { timeout_ms: timeoutMs, persistent } = applyCcrTimeoutCap(input)
   const { abortController, toolUseId } = context
   const setTaskState = context.setAppStateForTasks ?? context.setAppState
   const ownerAgentId = getOwnerAgentId(context)
@@ -196,6 +213,8 @@ async function runMonitor(
     preventCwdChanges: true,
     shouldUseSandbox: shouldUseSandbox({ command }),
     onStdout: batcher.onData,
+    sessionEnvVars: context.sessionEnvVars,
+    tmuxSocket: context.tmuxSocket,
   })
   const handle = await spawnShellTask(
     {

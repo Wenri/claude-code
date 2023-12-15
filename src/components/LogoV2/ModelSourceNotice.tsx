@@ -2,13 +2,13 @@ import * as React from 'react'
 import { useMainLoopModel } from '../../hooks/useMainLoopModel.js'
 import { Box, Text } from '../../ink.js'
 import {
-  getModelSourceSuffix,
+  getModelSourceAnnotation,
   renderModelSetting,
 } from '../../utils/model/model.js'
 
 export function ModelSourceNotice(): React.ReactNode {
   const model = useMainLoopModel()
-  const sourceSuffix = React.useMemo(getModelSourceSuffix, [model])
+  const sourceSuffix = React.useMemo(getModelSourceAnnotation, [model])
   if (!sourceSuffix) return null
   return (
     <Box paddingLeft={2}>

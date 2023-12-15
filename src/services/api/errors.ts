@@ -962,15 +962,16 @@ function getAssistantMessageFromErrorInternal(
     })
   }
 
-  const statusHint =
-    getAPIProvider() === 'firstParty' ? ` · check ${CLAUDE_STATUS_PAGE}` : ''
+  const statusHint = isFirstPartyCompatibleAPIProvider()
+    ? ` If it persists, check ${CLAUDE_STATUS_PAGE}.`
+    : ''
 
   if (
     error instanceof Error &&
     error.message.includes(REPEATED_529_ERROR_MESSAGE)
   ) {
     return createAssistantAPIErrorMessage({
-      content: `${API_ERROR_MESSAGE_PREFIX}: ${REPEATED_529_ERROR_MESSAGE}${statusHint}`,
+      content: `${API_ERROR_MESSAGE_PREFIX}: ${REPEATED_529_ERROR_MESSAGE}. The API is at capacity — this is usually temporary. Try again in a moment.${statusHint}`,
       error: 'server_error',
     })
   }
@@ -980,8 +981,9 @@ function getAssistantMessageFromErrorInternal(
     typeof error.status === 'number' &&
     error.status >= 500
   ) {
+    const detail = formatAPIError(error).replace(/[.!?…]+$/, '')
     return createAssistantAPIErrorMessage({
-      content: `${API_ERROR_MESSAGE_PREFIX}: ${formatAPIError(error)}${statusHint}`,
+      content: `${API_ERROR_MESSAGE_PREFIX}: ${detail}. This is a server-side issue, usually temporary — try again in a moment.${statusHint}`,
       error: 'server_error',
     })
   }

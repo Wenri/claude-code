@@ -41,9 +41,10 @@ const DEFAULT_TRANSCRIPT_ASK_CONFIG: TranscriptAskConfig = {
   probability: 0
 };
 export function useFeedbackSurvey(messages: Message[], isLoading: boolean, submitCount: number, surveyType: FeedbackSurveyType = 'session', hasActivePrompt: boolean = false, otherSurveyActive: boolean = false): {
-  state: 'closed' | 'open' | 'thanks' | 'transcript_prompt' | 'submitting' | 'submitted';
+  state: 'closed' | 'open' | 'pending' | 'thanks' | 'transcript_prompt' | 'submitting' | 'submitted';
   lastResponse: FeedbackSurveyResponse | null;
-  handleSelect: (selected: FeedbackSurveyResponse) => boolean;
+  handleSelect: (selected: FeedbackSurveyResponse) => void;
+  handleUndo: () => void;
   handleTranscriptSelect: (selected: TranscriptShareResponse) => void;
 } {
   const lastAssistantMessageIdRef = useRef('unknown');
@@ -187,6 +188,7 @@ export function useFeedbackSurvey(messages: Message[], isLoading: boolean, submi
     lastResponse,
     open,
     handleSelect,
+    handleUndo,
     handleTranscriptSelect
   } = useSurveyState({
     otherSurveyActive,
@@ -294,6 +296,7 @@ export function useFeedbackSurvey(messages: Message[], isLoading: boolean, submi
     state,
     lastResponse,
     handleSelect,
+    handleUndo,
     handleTranscriptSelect
   };
 }

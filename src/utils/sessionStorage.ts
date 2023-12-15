@@ -118,12 +118,41 @@ type Transcript = (
   | SystemMessage
 )[]
 
+export const ENTRY_APPEND_POLICY = {
+  user: 'dedup-transcript',
+  assistant: 'dedup-transcript',
+  attachment: 'dedup-transcript',
+  system: 'dedup-transcript',
+  progress: 'dedup-transcript',
+  summary: 'always',
+  'custom-title': 'always',
+  'ai-title': 'always',
+  'last-prompt': 'always',
+  tag: 'always',
+  'agent-name': 'always',
+  'agent-color': 'always',
+  'agent-setting': 'always',
+  'pr-link': 'always',
+  'frame-link': 'always',
+  'file-history-snapshot': 'always',
+  'attribution-snapshot': 'always',
+  'speculation-accept': 'always',
+  mode: 'always',
+  'permission-mode': 'always',
+  'worktree-state': 'always',
+  'queue-operation': 'always',
+  'marble-origami-commit': 'always',
+  'marble-origami-snapshot': 'always',
+  'content-replacement': 'route-by-agent',
+  'fork-context-ref': 'route-by-agent',
+} as const
+
 /**
  * Finds the most recent deferred tool call that has not subsequently received
  * a tool_result. Only the final MiB is inspected because the marker and its
  * potential result are both at the active transcript tail.
  */
-export async function findLastDeferredToolUse(
+export async function findDeferredToolMarkerInTranscript(
   transcriptPath: string,
 ): Promise<HookDeferredToolAttachment | null> {
   try {
@@ -163,6 +192,8 @@ export async function findLastDeferredToolUse(
     return null
   }
 }
+
+export const findLastDeferredToolUse = findDeferredToolMarkerInTranscript
 
 // Use getOriginalCwd() at each call site instead of capturing at module load
 // time. getCwd() at import time may run before bootstrap resolves symlinks via
@@ -216,6 +247,24 @@ export function isTranscriptMessage(entry: Entry): entry is TranscriptMessage {
  */
 export function isChainParticipant(m: Pick<Message, 'type'>): boolean {
   return m.type !== 'progress'
+}
+
+export function transcriptCursorEnd(
+  messages: Message[],
+  start: number,
+  deferIncompleteAssistant: boolean,
+): number {
+  if (!deferIncompleteAssistant) return messages.length
+  for (let index = start; index < messages.length; index++) {
+    const message = messages[index]!
+    if (
+      message.type === 'assistant' &&
+      message.message.stop_reason === null
+    ) {
+      return index
+    }
+  }
+  return messages.length
 }
 
 type LegacyProgressEntry = {
@@ -324,7 +373,7 @@ export function getAgentTranscriptPath(agentId: AgentId): string {
   return join(base, `agent-${agentId}.jsonl`)
 }
 
-export async function listLocalAgentIds(): Promise<string[]> {
+export async function listSubagentIdsFromDisk(): Promise<string[]> {
   const projectDir = getSessionProjectDir() ?? getProjectDir(getOriginalCwd())
   const subagentsDir = join(projectDir, getSessionId(), 'subagents')
   let entries: Dirent[]
@@ -342,6 +391,8 @@ export async function listLocalAgentIds(): Promise<string[]> {
     )
     .map(entry => entry.name.slice(6, -6))
 }
+
+export const listLocalAgentIds = listSubagentIdsFromDisk
 
 function getAgentMetadataPath(agentId: AgentId): string {
   return getAgentTranscriptPath(agentId).replace(/\.jsonl$/, '.meta.json')
@@ -722,20 +773,32 @@ export function setRemoteIngressUrlForTesting(url: string): void {
 
 export type SessionMirror = (filePath: string, entries: unknown[]) => void
 
-export function registerSessionMirror(mirror: SessionMirror): void {
+export function addSessionMirror(mirror: SessionMirror): void {
   getProject().addMirror(mirror)
 }
+
+export const registerSessionMirror = addSessionMirror
 
 export function fireSessionMirror(filePath: string, entries: unknown[]): void {
   getProject().fireMirror(filePath, entries)
 }
 
+export function trackSessionWrite<T>(write: () => Promise<T>): Promise<T> {
+  return getProject().trackExternalWrite(write)
+}
+
 const REMOTE_FLUSH_INTERVAL_MS = 10
+const sessionAgentNameChanged = createSignal()
+export const subscribeSessionAgentNameChanged =
+  sessionAgentNameChanged.subscribe
+const sessionTitleChanged = createSignal()
+export const subscribeSessionTitleChanged = sessionTitleChanged.subscribe
 
 class Project {
   // Minimal cache for current session only (not all sessions)
   currentSessionTag: string | undefined
   currentSessionTitle: string | undefined
+  currentSessionAiTitle: string | undefined
   currentSessionAgentName: string | undefined
   currentSessionAgentColor: string | undefined
   currentSessionLastPrompt: string | undefined
@@ -828,6 +891,10 @@ class Project {
     } finally {
       this.decrementPendingWrites()
     }
+  }
+
+  trackExternalWrite<T>(write: () => Promise<T>): Promise<T> {
+    return this.trackWrite(write)
   }
 
   private enqueueWrite(filePath: string, entry: Entry): Promise<void> {
@@ -1044,6 +1111,15 @@ class Project {
           this.currentSessionTitle = tailTitle || undefined
         }
       }
+      const aiTitleLine = tailLines.findLast(l =>
+        l.startsWith('{"type":"ai-title"'),
+      )
+      if (aiTitleLine) {
+        const tailAiTitle = extractLastJsonStringField(aiTitleLine, 'aiTitle')
+        if (tailAiTitle !== undefined) {
+          this.currentSessionAiTitle = tailAiTitle || undefined
+        }
+      }
     }
     const tagLine = tailLines.findLast(l => l.startsWith('{"type":"tag"'))
     if (tagLine) {
@@ -1074,6 +1150,13 @@ class Project {
       entries.push({
         type: 'custom-title',
         customTitle: this.currentSessionTitle,
+        sessionId,
+      })
+    }
+    if (this.currentSessionAiTitle) {
+      entries.push({
+        type: 'ai-title',
+        aiTitle: this.currentSessionAiTitle,
         sessionId,
       })
     }
@@ -1323,6 +1406,10 @@ class Project {
       void refreshRepoBranches()
       const sessionId = getSessionId()
       const slug = getPlanSlugCache().get(sessionId)
+      const persistedMessageUuids =
+        isSidechain || this.shouldSkipPersistence()
+          ? null
+          : await getSessionMessages(sessionId)
 
       for (const message of messages) {
         const isCompactBoundary = isCompactBoundaryMessage(message)
@@ -1335,7 +1422,15 @@ class Project {
           'sourceToolAssistantUUID' in message &&
           message.sourceToolAssistantUUID
         ) {
-          effectiveParentUuid = message.sourceToolAssistantUUID
+          const sourceToolAssistantUuid = message.sourceToolAssistantUUID
+          if (
+            persistedMessageUuids === null ||
+            persistedMessageUuids.has(sourceToolAssistantUuid)
+          ) {
+            effectiveParentUuid = sourceToolAssistantUuid
+          } else {
+            logEvent('tengu_phantom_parent_write', {})
+          }
         }
         if (effectiveParentUuid === message.uuid) {
           logEvent('tengu_chain_self_reference_write', {})
@@ -1478,120 +1573,68 @@ class Project {
       sessionFile = existing
     }
 
-    // Only load current session messages if needed
-    if (entry.type === 'summary') {
-      // Summaries can always be appended
+    // Compatibility-only source extension; authenticated releases do not
+    // include task-summary in their append policy.
+    if (entry.type === 'task-summary') {
       void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'custom-title') {
-      // Custom titles can always be appended
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'ai-title') {
-      // AI titles can always be appended
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'last-prompt') {
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'task-summary') {
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'tag') {
-      // Tags can always be appended
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'agent-name') {
-      // Agent names can always be appended
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'agent-color') {
-      // Agent colors can always be appended
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'agent-setting') {
-      // Agent settings can always be appended
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'pr-link') {
-      // PR links can always be appended
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'frame-link') {
-      // Forward-compatible frame relationships are always preserved verbatim.
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'file-history-snapshot') {
-      // File history snapshots can always be appended
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'attribution-snapshot') {
-      // Attribution snapshots can always be appended
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'speculation-accept') {
-      // Speculation accept entries can always be appended
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'mode') {
-      // Mode entries can always be appended
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'permission-mode') {
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'worktree-state') {
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'content-replacement') {
-      // Content replacement records can always be appended. Subagent records
-      // go to the sidechain file (for AgentTool resume); main-thread
-      // records go to the session file (for /resume).
-      const targetFile = entry.agentId
-        ? getAgentTranscriptPath(entry.agentId)
-        : sessionFile
-      void this.enqueueWrite(targetFile, entry)
-    } else if (entry.type === 'fork-context-ref') {
-      // Fork pointers belong beside the agent's own transcript entries.
-      void this.enqueueWrite(getAgentTranscriptPath(entry.agentId), entry)
-    } else if (entry.type === 'marble-origami-commit') {
-      // Always append. Commit order matters for restore (later commits may
-      // reference earlier commits' summary messages), so these must be
-      // written in the order received and read back sequentially.
-      void this.enqueueWrite(sessionFile, entry)
-    } else if (entry.type === 'marble-origami-snapshot') {
-      // Always append. Last-wins on restore — later entries supersede.
-      void this.enqueueWrite(sessionFile, entry)
-    } else {
-      const messageSet = await getSessionMessages(sessionId)
-      if (entry.type === 'queue-operation') {
-        // Queue operations are always appended to the session file
+      return
+    }
+
+    switch (
+      ENTRY_APPEND_POLICY[
+        entry.type as keyof typeof ENTRY_APPEND_POLICY
+      ]
+    ) {
+      case 'always': {
         void this.enqueueWrite(sessionFile, entry)
-      } else {
-        // At this point, entry must be a TranscriptMessage (user/assistant/attachment/system)
-        // All other entry types have been handled above
+        return
+      }
+      case 'route-by-agent': {
+        const targetFile =
+          (entry.type === 'content-replacement' ||
+            entry.type === 'fork-context-ref') &&
+          entry.agentId
+            ? getAgentTranscriptPath(entry.agentId)
+            : sessionFile
+        void this.enqueueWrite(targetFile, entry)
+        return
+      }
+      case 'dedup-transcript': {
+        if (
+          (entry as { type: string }).type !== 'progress' &&
+          !isTranscriptMessage(entry)
+        ) {
+          logError(
+            new Error(
+              `appendEntry invariant: dedup-transcript policy on non-transcript type '${entry.type}'`,
+            ),
+          )
+          return
+        }
+
+        const transcriptEntry = entry as TranscriptMessage
+        const messageSet = await getSessionMessages(sessionId)
         const isAgentSidechain =
-          entry.isSidechain && entry.agentId !== undefined
+          transcriptEntry.isSidechain && transcriptEntry.agentId !== undefined
         const targetFile = isAgentSidechain
-          ? getAgentTranscriptPath(asAgentId(entry.agentId!))
+          ? getAgentTranscriptPath(asAgentId(transcriptEntry.agentId!))
           : sessionFile
-
-        // For message entries, check if UUID already exists in current session.
-        // Skip dedup for agent sidechain LOCAL writes — they go to a separate
-        // file, and fork-inherited parent messages share UUIDs with the main
-        // session transcript. Deduping against the main session's set would
-        // drop them, leaving the persisted sidechain transcript incomplete
-        // (resume-of-fork loads a 10KB file instead of the full 85KB inherited
-        // context).
-        //
-        // The sidechain bypass applies ONLY to the local file write — remote
-        // persistence (session-ingress) uses a single Last-Uuid chain per
-        // sessionId, so re-POSTing a UUID it already has 409s and eventually
-        // exhausts retries → gracefulShutdownSync(1). See inc-4718.
-        const isNewUuid = !messageSet.has(entry.uuid)
+        const isNewUuid = !messageSet.has(transcriptEntry.uuid)
         if (isAgentSidechain || isNewUuid) {
-          // Enqueue write — appendToFile handles ENOENT by creating directories
           void this.enqueueWrite(targetFile, entry)
-
           if (!isAgentSidechain) {
-            // messageSet is main-file-authoritative. Sidechain entries go to a
-            // separate agent file — adding their UUIDs here causes recordTranscript
-            // to skip them on the main thread (line ~1270), so the message is never
-            // written to the main session file. The next main-thread message then
-            // chains its parentUuid to a UUID that only exists in the agent file,
-            // and --resume's buildConversationChain terminates at the dangling ref.
-            // Same constraint for remote (inc-4718 above): sidechain persisting a
-            // UUID the main thread hasn't written yet → 409 when main writes it.
-            messageSet.add(entry.uuid)
-
+            messageSet.add(transcriptEntry.uuid)
             if (isTranscriptMessage(entry)) {
               await this.persistToRemote(sessionId, entry)
             }
+          } else if (
+            this.internalEventWriter &&
+            isTranscriptMessage(entry)
+          ) {
+            void this.persistToRemote(sessionId, entry)
           }
         }
+        return
       }
     }
   }
@@ -1754,6 +1797,13 @@ export async function recordTranscript(
   const messageSet = await getSessionMessages(sessionId)
   const newMessages: typeof cleanedMessages = []
   let startingParentUuid: UUID | undefined = startingParentUuidHint
+  if (
+    startingParentUuid &&
+    !isTranscriptPersistenceDisabled() &&
+    !messageSet.has(startingParentUuid)
+  ) {
+    logEvent('tengu_phantom_parent_hint', {})
+  }
   let seenNewMessage = false
   for (const m of cleanedMessages) {
     if (messageSet.has(m.uuid as UUID)) {
@@ -2733,6 +2783,7 @@ export async function loadTranscriptFromFile(
       messages,
       summaries,
       customTitles,
+      aiTitles,
       tags,
       fileHistorySnapshots,
       attributionSnapshots,
@@ -2776,6 +2827,7 @@ export async function loadTranscriptFromFile(
         undefined,
         contentReplacements.get(sessionId) ?? [],
       ),
+      aiTitle: aiTitles.get(sessionId),
       contextCollapseCommits: contextCollapseCommits.filter(
         e => e.sessionId === sessionId,
       ),
@@ -2812,6 +2864,10 @@ export async function loadTranscriptFromFile(
     throw new Error(
       'Transcript must be an array of messages or an object with a messages array',
     )
+  }
+
+  if (messages.length === 0) {
+    throw new Error('No messages found in JSON file')
   }
 
   return convertToLogOption(
@@ -3018,6 +3074,20 @@ function appendEntryToFile(
   fireSessionMirror(fullPath, [entry])
 }
 
+export async function appendEntryToFileAsync(
+  fullPath: string,
+  entry: Record<string, unknown>,
+): Promise<void> {
+  const line = jsonStringify(entry) + '\n'
+  try {
+    await fsAppendFile(fullPath, line, { mode: 0o600 })
+  } catch {
+    await mkdir(dirname(fullPath), { recursive: true, mode: 0o700 })
+    await fsAppendFile(fullPath, line, { mode: 0o600 })
+  }
+  fireSessionMirror(fullPath, [entry])
+}
+
 /**
  * Sync tail read for reAppendSessionMetadata's external-writer check.
  * fstat on the already-open fd (no extra path lookup); reads the same
@@ -3089,6 +3159,7 @@ export async function saveCustomTitle(
   // Cache for current session only (for immediate visibility)
   if (sessionId === getSessionId()) {
     getProject().currentSessionTitle = customTitle
+    sessionTitleChanged.emit()
   }
   logEvent('tengu_session_renamed', {
     source:
@@ -3102,21 +3173,15 @@ export async function saveCustomTitle(
  * Writing a separate entry type (vs. reusing `custom-title`) is load-bearing:
  * - Read preference: readers prefer `customTitle` field over `aiTitle`, so
  *   a user rename always wins regardless of append order.
- * - Resume safety: `loadTranscriptFile` only populates the `customTitles`
- *   Map from `custom-title` entries, so `restoreSessionMetadata` never
- *   caches an AI title and `reAppendSessionMetadata` never re-appends one
- *   at EOF — avoiding the clobber-on-resume bug where a stale AI title
- *   overwrites a mid-session user rename.
+ * - Resume safety: AI titles remain separate from custom titles throughout
+ *   loading and caching, so a user rename always retains precedence.
  * - CAS semantics: VS Code's `onlyIfNoCustomTitle` check scans for the
  *   `customTitle` field only, so AI can overwrite its own previous AI
  *   title but never a user title.
  * - Metrics: `tengu_session_renamed` is not fired for AI titles.
  *
- * Because the entry is never re-appended, it scrolls out of the 64KB tail
- * window once enough messages accumulate. Readers (`readLiteMetadata`,
- * `listSessionsImpl`, VS Code `fetchSessions`) fall back to scanning the
- * head buffer for `aiTitle` in that case. Both head and tail reads are
- * bounded (64KB each via `extractLastJsonStringField`), never a full scan.
+ * The current session caches and re-appends this entry so it stays within the
+ * bounded tail window used by session readers.
  *
  * Callers with a stale-write guard (e.g., VS Code client) should prefer
  * passing `persist: false` to the SDK control request and persisting
@@ -3129,6 +3194,10 @@ export function saveAiGeneratedTitle(sessionId: UUID, aiTitle: string): void {
     aiTitle,
     sessionId,
   })
+  if (sessionId === getSessionId()) {
+    getProject().currentSessionAiTitle = aiTitle
+    sessionTitleChanged.emit()
+  }
 }
 
 /**
@@ -3208,6 +3277,15 @@ export function getCurrentSessionTitle(
   return undefined
 }
 
+export function getCurrentSessionAiTitle(
+  sessionId: SessionId,
+): string | undefined {
+  if (sessionId === getSessionId()) {
+    return getProject().currentSessionAiTitle
+  }
+  return undefined
+}
+
 export function getCurrentSessionAgentColor(): string | undefined {
   return getProject().currentSessionAgentColor
 }
@@ -3223,6 +3301,7 @@ export function getCurrentSessionAgentName(): string | undefined {
  */
 export function restoreSessionMetadata(meta: {
   customTitle?: string
+  aiTitle?: string
   tag?: string
   agentName?: string
   agentColor?: string
@@ -3238,6 +3317,7 @@ export function restoreSessionMetadata(meta: {
   // ??= so --name (cacheSessionTitle) wins over the resumed
   // session's title. REPL.tsx clears before calling, so /resume is unaffected.
   if (meta.customTitle) project.currentSessionTitle ??= meta.customTitle
+  if (meta.aiTitle) project.currentSessionAiTitle ??= meta.aiTitle
   if (meta.tag !== undefined) project.currentSessionTag = meta.tag || undefined
   if (meta.agentName) project.currentSessionAgentName ??= meta.agentName
   if (meta.agentColor) project.currentSessionAgentColor ??= meta.agentColor
@@ -3261,6 +3341,7 @@ export function restoreSessionMetadata(meta: {
 export function clearSessionMetadata(): void {
   const project = getProject()
   project.currentSessionTitle = undefined
+  project.currentSessionAiTitle = undefined
   project.currentSessionTag = undefined
   project.currentSessionAgentName = undefined
   project.currentSessionAgentColor = undefined
@@ -3300,6 +3381,7 @@ export async function saveAgentName(
   if (sessionId === getSessionId()) {
     getProject().currentSessionAgentName = agentName
     void updateSessionName(agentName)
+    sessionAgentNameChanged.emit()
   }
   logEvent('tengu_agent_name_set', {
     source:
@@ -3341,6 +3423,17 @@ export function saveAgentSetting(agentSetting: string): void {
  */
 export function cacheSessionTitle(customTitle: string): void {
   getProject().currentSessionTitle = customTitle
+  sessionTitleChanged.emit()
+}
+
+export function cacheAiTitle(aiTitle: string): void {
+  getProject().currentSessionAiTitle = aiTitle
+  sessionTitleChanged.emit()
+}
+
+export function cacheAgentName(agentName: string): void {
+  getProject().currentSessionAgentName = agentName
+  sessionAgentNameChanged.emit()
 }
 
 /**
@@ -3445,6 +3538,7 @@ export async function loadFullLog(log: LogOption): Promise<LogOption> {
       messages,
       summaries,
       customTitles,
+      aiTitles,
       tags,
       agentNames,
       agentColors,
@@ -3492,6 +3586,7 @@ export async function loadFullLog(log: LogOption): Promise<LogOption> {
         ? summaries.get(mostRecentLeaf.uuid)
         : log.summary,
       customTitle: sessionId ? customTitles.get(sessionId) : log.customTitle,
+      aiTitle: sessionId ? aiTitles.get(sessionId) : log.aiTitle,
       tag: sessionId ? tags.get(sessionId) : log.tag,
       agentName: sessionId ? agentNames.get(sessionId) : log.agentName,
       agentColor: sessionId ? agentColors.get(sessionId) : log.agentColor,
@@ -3562,7 +3657,7 @@ export async function searchSessionsByCustomTitle(
   const normalizedQuery = query.toLowerCase().trim()
 
   const matchingLogs = logs.filter(log => {
-    const title = log.customTitle?.toLowerCase().trim()
+    const title = (log.customTitle ?? log.aiTitle)?.toLowerCase().trim()
     if (!title) return false
     return exact ? title === normalizedQuery : title.includes(normalizedQuery)
   })
@@ -4154,14 +4249,23 @@ function scanLargeTranscript(
 
       selectedOffsets = new Set<number>()
       const seen = new Set<number>()
+      let hasPhantomParent = false
       const addChain = (startIndex: number | undefined): void => {
         let messageIndex = startIndex
         while (messageIndex !== undefined && !seen.has(messageIndex)) {
           seen.add(messageIndex)
           selectedOffsets!.add(messageOffsets[messageIndex]!)
           const parentUuid = parentUuids[messageIndex]
-          messageIndex =
-            parentUuid === null ? undefined : uuidToMessageIndex.get(parentUuid)
+          if (parentUuid === null) {
+            messageIndex = undefined
+            break
+          }
+          const parentIndex = uuidToMessageIndex.get(parentUuid)
+          if (parentIndex === undefined) {
+            hasPhantomParent = true
+            break
+          }
+          messageIndex = parentIndex
         }
       }
       addChain(leafIndex >= 0 ? leafIndex : undefined)
@@ -4170,6 +4274,13 @@ function scanLargeTranscript(
           ? uuidToMessageIndex.get(lastCheckpointLeafUuid)
           : undefined,
       )
+      if (hasPhantomParent) {
+        logEvent('tengu_transcript_phantom_parent', {
+          total_offsets: messageOffsets.length,
+          walked_slots: selectedOffsets.size,
+        })
+        selectedOffsets = null
+      }
     }
 
     const offsetsToParse = selectedOffsets ?? new Set(messageOffsets)
@@ -4217,6 +4328,7 @@ export async function loadTranscriptFile(
   messages: Map<UUID, TranscriptMessage>
   summaries: Map<UUID, string>
   customTitles: Map<UUID, string>
+  aiTitles: Map<UUID, string>
   tags: Map<UUID, string>
   agentNames: Map<UUID, string>
   agentColors: Map<UUID, string>
@@ -4239,6 +4351,7 @@ export async function loadTranscriptFile(
   const messages = new Map<UUID, TranscriptMessage>()
   const summaries = new Map<UUID, string>()
   const customTitles = new Map<UUID, string>()
+  const aiTitles = new Map<UUID, string>()
   const tags = new Map<UUID, string>()
   const agentNames = new Map<UUID, string>()
   const agentColors = new Map<UUID, string>()
@@ -4342,6 +4455,8 @@ export async function loadTranscriptFile(
         }
       } else if (entry.type === 'custom-title' && entry.sessionId) {
         customTitles.set(entry.sessionId, entry.customTitle)
+      } else if (entry.type === 'ai-title' && entry.sessionId) {
+        aiTitles.set(entry.sessionId, entry.aiTitle)
       } else if (entry.type === 'tag' && entry.sessionId) {
         tags.set(entry.sessionId, entry.tag)
       } else if (entry.type === 'agent-name' && entry.sessionId) {
@@ -4423,6 +4538,7 @@ export async function loadTranscriptFile(
     messages,
     summaries,
     customTitles,
+    aiTitles,
     tags,
     agentNames,
     agentColors,
@@ -4605,6 +4721,7 @@ async function loadSessionFile(sessionId: UUID): Promise<{
   messages: Map<UUID, TranscriptMessage>
   summaries: Map<UUID, string>
   customTitles: Map<UUID, string>
+  aiTitles: Map<UUID, string>
   tags: Map<UUID, string>
   agentNames: Map<UUID, string>
   agentColors: Map<UUID, string>
@@ -4668,6 +4785,7 @@ export async function getLastSessionLog(
     messages,
     summaries,
     customTitles,
+    aiTitles,
     tags,
     agentNames,
     agentColors,
@@ -4729,6 +4847,7 @@ export async function getLastSessionLog(
   )
   return {
     ...log,
+    aiTitle: aiTitles.get(sessionId),
     agentName: agentNames.get(sessionId) ?? log.agentName,
     agentColor: agentColors.get(sessionId),
     mode: modes.get(sessionId) as LogOption['mode'],
@@ -5191,25 +5310,7 @@ export async function loadSubagentTranscripts(
 export async function loadAllSubagentTranscriptsFromDisk(): Promise<{
   [agentId: string]: Message[]
 }> {
-  const subagentsDir = join(
-    getSessionProjectDir() ?? getProjectDir(getOriginalCwd()),
-    getSessionId(),
-    'subagents',
-  )
-  let entries: Dirent[]
-  try {
-    entries = await readdir(subagentsDir, { withFileTypes: true })
-  } catch {
-    return {}
-  }
-  // Filename format is the inverse of getAgentTranscriptPath() — keep in sync.
-  const agentIds = entries
-    .filter(
-      d =>
-        d.isFile() && d.name.startsWith('agent-') && d.name.endsWith('.jsonl'),
-    )
-    .map(d => d.name.slice('agent-'.length, -'.jsonl'.length))
-  return loadSubagentTranscripts(agentIds)
+  return loadSubagentTranscripts(await listSubagentIdsFromDisk())
 }
 
 // Exported so useLogMessages can sync-compute the last loggable uuid
@@ -5243,7 +5344,7 @@ export function isLoggableMessage(m: Message): boolean {
   return true
 }
 
-function collectReplIds(messages: readonly Message[]): Set<string> {
+export function collectReplIds(messages: readonly Message[]): Set<string> {
   const ids = new Set<string>()
   for (const m of messages) {
     if (m.type === 'assistant' && Array.isArray(m.message.content)) {
@@ -5463,6 +5564,7 @@ type LiteMetadata = {
   entrypoint?: string
   isLoopSession?: boolean
   customTitle?: string
+  aiTitle?: string
   summary?: string
   tag?: string
   agentSetting?: string
@@ -5483,6 +5585,7 @@ export async function loadAllLogsFromSessionFile(
     messages,
     summaries,
     customTitles,
+    aiTitles,
     tags,
     agentNames,
     agentColors,
@@ -5549,6 +5652,7 @@ export async function loadAllLogsFromSessionFile(
       leafUuid: leafMessage.uuid,
       summary: summaries.get(leafMessage.uuid),
       customTitle: customTitles.get(sessionId),
+      aiTitle: aiTitles.get(sessionId),
       tag: tags.get(sessionId),
       agentName: agentNames.get(sessionId),
       agentColor: agentColors.get(sessionId),
@@ -5614,7 +5718,7 @@ async function getLogsWithoutIndex(
  * Reads the first and last ~64KB of a JSONL file and extracts lite metadata.
  *
  * Head (first 64KB): isSidechain, projectPath, teamName, firstPrompt.
- * Tail (last 64KB): customTitle, tag, PR link, latest gitBranch.
+ * Tail (last 64KB): customTitle, aiTitle, tag, PR link, latest gitBranch.
  *
  * Accepts a shared buffer to avoid per-file allocation overhead.
  */
@@ -5656,12 +5760,10 @@ async function readLiteMetadata(
     ''
 
   // Extract tail metadata via string search (last occurrence wins).
-  // User titles (customTitle field, from custom-title entries) win over
-  // AI titles (aiTitle field, from ai-title entries). The distinct field
-  // names mean extractLastJsonStringField naturally disambiguates.
   const customTitle =
     extractLastJsonStringField(tail, 'customTitle') ??
-    extractLastJsonStringField(head, 'customTitle') ??
+    extractLastJsonStringField(head, 'customTitle')
+  const aiTitle =
     extractLastJsonStringField(tail, 'aiTitle') ??
     extractLastJsonStringField(head, 'aiTitle')
   const summary = extractLastJsonStringField(tail, 'summary')
@@ -5697,6 +5799,7 @@ async function readLiteMetadata(
     entrypoint,
     isLoopSession,
     customTitle,
+    aiTitle,
     summary,
     tag,
     agentSetting,
@@ -5912,7 +6015,7 @@ export async function getSessionFilesLite(
 /**
  * Enriches a lite log with metadata from its JSONL file.
  * Returns the enriched log, or null if the log has no meaningful content
- * (no firstPrompt, no customTitle — e.g., metadata-only session files).
+ * (no firstPrompt or title — e.g., metadata-only session files).
  */
 async function enrichLog(
   log: LogOption,
@@ -5931,6 +6034,7 @@ async function enrichLog(
     teamName: meta.teamName,
     sessionKind: meta.sessionKind,
     customTitle: meta.customTitle,
+    aiTitle: meta.aiTitle,
     summary: meta.summary,
     tag: meta.tag,
     agentSetting: meta.agentSetting,
@@ -5944,7 +6048,7 @@ async function enrichLog(
   // prompt (e.g., large first messages that exceed the 16KB read buffer).
   // Previously these sessions were silently dropped, making them inaccessible
   // via /resume after crashes or large-context sessions.
-  if (!enriched.firstPrompt && !enriched.customTitle) {
+  if (!enriched.firstPrompt && !enriched.customTitle && !enriched.aiTitle) {
     enriched.firstPrompt = '(session)'
   }
   // Filter: skip sidechains and agent sessions

@@ -20,6 +20,7 @@ import { openBrowser } from '../utils/browser.js';
 import { logForDebugging } from '../utils/debug.js';
 import { env } from '../utils/env.js';
 import { errorMessage } from '../utils/errors.js';
+import { buildFeedbackPayload } from '../utils/feedbackPayload.js';
 import { type GitRepoState, getGitState, getIsGit } from '../utils/git.js';
 import { getAuthHeaders, getUserAgent } from '../utils/http.js';
 import { getInMemoryErrors, logError } from '../utils/log.js';
@@ -123,6 +124,32 @@ export function redactSensitiveInfo(text: string): string {
   redacted = redacted.replace(/((API[-_]?KEY|TOKEN|SECRET|PASSWORD)\s*[=:]\s*)["']?[^"',\s)}\]]+["']?/gi, '$1[REDACTED]');
   return redacted;
 }
+
+export function redactSensitiveValue(value: unknown): unknown {
+  if (typeof value === 'string') {
+    return redactSensitiveInfo(value);
+  }
+  if (Array.isArray(value)) {
+    return value.map(redactSensitiveValue);
+  }
+  if (value !== null && typeof value === 'object') {
+    const redacted: Record<string, unknown> = {};
+    for (const [key, nestedValue] of Object.entries(value)) {
+      if (typeof nestedValue === 'string') {
+        const prefix = `${key}: `;
+        const withContext = redactSensitiveInfo(prefix + nestedValue);
+        redacted[key] = withContext.startsWith(prefix) ? withContext.slice(prefix.length) : redactSensitiveInfo(nestedValue);
+      } else {
+        redacted[key] = redactSensitiveValue(nestedValue);
+      }
+    }
+    return redacted;
+  }
+  return value;
+}
+
+const FEEDBACK_ARRAY_FIELDS = new Set(['transcript']);
+const FEEDBACK_NESTED_ARRAY_FIELDS = new Set(['subagentTranscripts']);
 
 // Get sanitized error logs with sensitive information redacted
 function getSanitizedErrorLogs(): Array<{
@@ -522,10 +549,8 @@ async function submitFeedback(data: FeedbackData, signal?: AbortSignal): Promise
   }
   let payloadLength = 0;
   try {
-    const payload = jsonStringify({
-      content: jsonStringify(data)
-    });
-    payloadLength = Buffer.byteLength(payload);
+    const payload = buildFeedbackPayload(data, FEEDBACK_ARRAY_FIELDS, FEEDBACK_NESTED_ARRAY_FIELDS);
+    payloadLength = payload.length;
     if (payloadLength > 8 * 1024 * 1024) {
       return {
         success: false,

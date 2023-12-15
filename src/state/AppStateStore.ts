@@ -5,6 +5,7 @@ import type { Command } from '../commands.js'
 import type { ChannelPermissionCallbacks } from '../services/mcp/channelPermissions.js'
 import type { ElicitationRequestEvent } from '../services/mcp/elicitationHandler.js'
 import type {
+  ConfigScope,
   MCPServerConnection,
   ServerResource,
   ServerResourceTemplate,
@@ -25,12 +26,16 @@ import type { MemoryWriteSurveyRecord } from '../memdir/memoryWriteSurvey.js'
 import type { LoadedPlugin, PluginError } from '../types/plugin.js'
 import type { DeepImmutable } from '../types/utils.js'
 import type { AutoUpdaterResult } from '../utils/autoUpdater.js'
+import type { ClassifierApprovalsState } from '../utils/classifierApprovals.js'
+import type { WebBrowserState } from '../utils/webBrowserState.js'
+import type { TeammateColorsState } from '../utils/swarm/teammateLayoutManager.js'
 import {
   type AttributionState,
   createEmptyAttributionState,
 } from '../utils/commitAttribution.js'
 import type { EffortValue } from '../utils/effort.js'
 import { isAwaySummaryEnabled } from '../utils/awaySummaryEnabled.js'
+import { getDefaultWebBrowserState } from '../utils/webBrowserState.js'
 import type { FileHistoryState } from '../utils/fileHistory.js'
 import type { REPLHookContext } from '../utils/hooks/postSamplingHooks.js'
 import type { SessionHooksState } from '../utils/hooks/sessionHooks.js'
@@ -88,6 +93,17 @@ export type SpeculationState =
 
 export const IDLE_SPECULATION_STATE: SpeculationState = { status: 'idle' }
 
+export type MemoryEvaluation = {
+  classification: 'helped' | 'harmed' | 'neutral' | string
+  evidence_type?: string
+  memory_impact_summary?: string | null
+}
+
+export type LastMemoryEvaluation = {
+  assistantUuid: string
+  evaluation: MemoryEvaluation
+}
+
 export type FooterItem =
   | 'tasks'
   | 'tmux'
@@ -114,6 +130,8 @@ export type AppState = DeepImmutable<{
   briefTranscript: boolean
   awaySummaryEnabled: boolean
   autoCompactWindow: number | undefined
+  /** Ant-only cache-busting phrase threaded through per-query context. */
+  cacheBreakerPhrase?: string
   // Optional - only present when ENABLE_AGENT_SWARMS is true (for dead code elimination)
   showTeammateMessagePreview?: boolean
   selectedIPAgentIndex: number
@@ -185,6 +203,9 @@ export type AppState = DeepImmutable<{
   // Name → AgentId registry populated by Agent tool when `name` is provided.
   // Latest-wins on collision. Used by SendMessage to route by name.
   agentNameRegistry: Map<string, AgentId>
+  // Agent types used during this session. /agents uses this to keep recently
+  // invoked definitions at the top of the Library tab.
+  agentTypesInvokedThisSession: Set<string>
   // Task ID that has been foregrounded - its messages are shown in main view
   foregroundedTaskId?: string
   // Task ID of in-process teammate whose transcript is being viewed (undefined = leader's view)
@@ -200,6 +221,11 @@ export type AppState = DeepImmutable<{
     commands: Command[]
     resources: Record<string, ServerResource[]>
     resourceTemplates: Record<string, ServerResourceTemplate[]>
+    suppressedClaudeAiConnectors: Array<{
+      name: string
+      duplicateOf: string
+      duplicateOfScope: ConfigScope
+    }>
     /**
      * Incremented by /reload-plugins to trigger MCP effects to re-run
      * and pick up newly-enabled plugin MCP servers. Effects read this
@@ -240,6 +266,13 @@ export type AppState = DeepImmutable<{
     needsRefresh: boolean
   }
   agentDefinitions: AgentDefinitionsResult
+  // Retained external-build state surface. The producer and notification body
+  // are internal-only, so authenticated external bundles initialize this to
+  // null while still selecting it from the REPL notification hook.
+  skillTruncationStats: unknown | null
+  // Per-skill tools assembled by the skills-as-tools experiment. Empty in
+  // builds where the experiment module is compiled out.
+  skillTools: Tool[]
   fileHistory: FileHistoryState
   attribution: AttributionState
   todos: { [agentId: string]: TodoList }
@@ -277,6 +310,9 @@ export type AppState = DeepImmutable<{
   bagelUrl?: string
   // WebBrowser tool: sticky panel visibility toggle
   bagelPanelVisible?: boolean
+  // Retained browser-view state surface. Its external-build producer is absent,
+  // but injected stores and the bundled updater facade still carry the slice.
+  webBrowser: WebBrowserState
   // chicago MCP session state. Types inlined (not imported from
   // @ant/computer-use-mcp/types) so external typecheck passes without the
   // ant-scoped dep resolved. Shapes match `AppGrant`/`CuGrantFlags`
@@ -325,6 +361,12 @@ export type AppState = DeepImmutable<{
   }
   // REPL tool VM contexts persist independently for the main thread and agents.
   replContexts: Record<string, ReplContext>
+  // Image paths are kept in AppState so renderers update immediately when a
+  // background disk write finishes and injected stores preserve the same view.
+  storedImagePaths: Map<number, string>
+  imageDescriptions: Map<number, string>
+  classifierApprovals: ClassifierApprovalsState
+  teammateColors: TeammateColorsState
   teamContext?: {
     teamName: string
     teamFilePath: string
@@ -369,6 +411,7 @@ export type AppState = DeepImmutable<{
     summary: string
     paths: string[]
   }>
+  lastMemoryEvaluation?: LastMemoryEvaluation | null
   memoryWriteQueue: MemoryWriteSurveyRecord[]
   // Worker sandbox permission requests (leader side) - for network access approval
   workerSandboxPermissions: {
@@ -508,6 +551,7 @@ export function getDefaultAppState(): AppState {
     tasks: {},
     taskDecorations: {},
     agentNameRegistry: new Map(),
+    agentTypesInvokedThisSession: new Set(),
     verbose: false,
     showMessageTimestamps: false,
     mainLoopModel: null, // alias, full name (as with --model or env var), or null (default)
@@ -541,6 +585,11 @@ export function getDefaultAppState(): AppState {
     replBridgeInitialName: undefined,
     replBridgeSkipNextArchive: false,
     replContexts: {},
+    storedImagePaths: new Map(),
+    imageDescriptions: new Map(),
+    classifierApprovals: { approvals: new Map(), checking: new Set() },
+    teammateColors: { assignments: new Map(), index: 0 },
+    webBrowser: getDefaultWebBrowserState(),
     showRemoteCallout: false,
     toolPermissionContext: {
       ...getEmptyToolPermissionContext(),
@@ -548,6 +597,8 @@ export function getDefaultAppState(): AppState {
     },
     agent: undefined,
     agentDefinitions: { activeAgents: [], allAgents: [] },
+    skillTruncationStats: null,
+    skillTools: [],
     fileHistory: {
       snapshots: [],
       trackedFiles: new Set(),
@@ -560,6 +611,7 @@ export function getDefaultAppState(): AppState {
       commands: [],
       resources: {},
       resourceTemplates: {},
+      suppressedClaudeAiConnectors: [],
       pluginReconnectKey: 0,
     },
     plugins: {

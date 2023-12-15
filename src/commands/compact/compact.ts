@@ -62,7 +62,11 @@ export const call: LocalCommandCall = async (args, context) => {
       )
       if (sessionMemoryResult) {
         getUserContext.cache.clear?.()
-        runPostCompactCleanup(undefined, context.resultDedupState)
+        runPostCompactCleanup(
+          undefined,
+          context.setAppState,
+          context.resultDedupState,
+        )
         // Reset cache read baseline so the post-compact drop isn't flagged
         // as a break. compactConversation does this internally; SM-compact doesn't.
         if (shouldTrackPromptCacheBreaks()) {
@@ -118,7 +122,11 @@ export const call: LocalCommandCall = async (args, context) => {
     suppressCompactWarning()
 
     getUserContext.cache.clear?.()
-    runPostCompactCleanup(undefined, context.resultDedupState)
+    runPostCompactCleanup(
+      undefined,
+      context.setAppState,
+      context.resultDedupState,
+    )
 
     return {
       type: 'compact',
@@ -126,6 +134,10 @@ export const call: LocalCommandCall = async (args, context) => {
       displayText: buildDisplayText(context, result.userDisplayMessage),
     }
   } catch (error) {
+    context.setSDKStatus?.(null, {
+      compactResult: 'failed',
+      compactError: error instanceof Error ? error.message : String(error),
+    })
     if (abortController.signal.aborted) {
       throw new Error('Compaction canceled.')
     } else if (hasExactErrorMessage(error, ERROR_MESSAGE_NOT_ENOUGH_MESSAGES)) {
@@ -180,7 +192,7 @@ async function compactViaReactive(
     )
 
     context.setStreamMode?.('requesting')
-    context.setResponseLength?.(() => 0)
+    context.resetResponseLength?.()
     context.onCompactProgress?.({ type: 'compact_start' })
 
     const outcome = await reactive.reactiveCompactOnPromptTooLong(
@@ -217,7 +229,11 @@ async function compactViaReactive(
     // resetMicrocompactState — processSlashCommand calls that for all
     // type:'compact' results.
     setLastSummarizedMessageId(undefined)
-    runPostCompactCleanup(undefined, context.resultDedupState)
+    runPostCompactCleanup(
+      undefined,
+      context.setAppState,
+      context.resultDedupState,
+    )
     suppressCompactWarning()
     getUserContext.cache.clear?.()
 
@@ -247,17 +263,20 @@ async function compactViaReactive(
     throw error
   } finally {
     context.setStreamMode?.('requesting')
-    context.setResponseLength?.(() => 0)
+    context.resetResponseLength?.()
     context.onCompactProgress?.({ type: 'compact_end' })
     reactive.recordCompactionTelemetry({
       trigger: 'manual',
-      success: compactError === undefined,
+      success: !compactError,
       durationMs: performance.now() - startTime,
       preTokens,
       postTokens,
       error: compactError,
     })
-    context.setSDKStatus?.(null)
+    context.setSDKStatus?.(null, {
+      compactResult: compactError ? 'failed' : 'success',
+      ...(compactError && { compactError }),
+    })
   }
 }
 
@@ -309,7 +328,7 @@ async function getCacheSharingParams(
   })
   const [userContext, systemContext] = await Promise.all([
     getUserContext(),
-    getSystemContext(),
+    getSystemContext(appState.cacheBreakerPhrase),
   ])
   return {
     systemPrompt,

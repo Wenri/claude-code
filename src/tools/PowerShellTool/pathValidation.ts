@@ -1036,6 +1036,18 @@ function validatePath(
   // are correctly detected.
   const normalizedPath = cleanPath.replace(/\\/g, '/')
 
+  if (/^~[^/]/.test(normalizedPath)) {
+    return {
+      allowed: false,
+      resolvedPath: normalizedPath,
+      decisionReason: {
+        type: 'other',
+        reason:
+          'Paths beginning with ~user cannot be statically validated and require manual approval',
+      },
+    }
+  }
+
   // SECURITY: Backtick (`) is PowerShell's escape character. It is a no-op in
   // many positions (e.g., `/ === /) but defeats Node.js path checks like
   // isAbsolute(). Redirection targets use raw .Extent.Text which preserves
@@ -1752,6 +1764,42 @@ function checkPathConstraintsForStatement(
     // Port: remove-item (and aliases rm/del/ri/rd/rmdir/erase → resolveToCanonical)
     // on a dangerous path → deny (not ask). User cannot approve system32 deletion.
     const isRemoval = resolveToCanonical(cmd.name) === 'remove-item'
+
+    // `Remove-Item -Recurse ..` can erase the working directory itself (and
+    // therefore its .git/.claude state) without naming one of the globally
+    // protected system paths below. PowerShell accepts every unambiguous
+    // prefix of -Recurse, as well as colon-bound switch syntax, so recognize
+    // those forms exactly before validating each extracted path.
+    if (
+      isRemoval &&
+      cmd.args.some(arg => {
+        const normalized = (
+          arg.length > 0 ? `-${arg.slice(1)}` : arg
+        ).toLowerCase()
+        const colon = normalized.indexOf(':')
+        const flag = colon > 0 ? normalized.slice(0, colon) : normalized
+        return flag.length >= 2 && '-recurse'.startsWith(flag)
+      })
+    ) {
+      const normalizedCwd = cwd.toLowerCase()
+      for (const filePath of paths) {
+        const absolutePath = isAbsolute(filePath)
+          ? resolve(filePath)
+          : resolve(cwd, filePath)
+        const normalizedPath = absolutePath.toLowerCase()
+        if (
+          normalizedPath === normalizedCwd ||
+          normalizedCwd.startsWith(`${normalizedPath}/`) ||
+          normalizedCwd.startsWith(`${normalizedPath}\\`)
+        ) {
+          firstAsk ??= {
+            behavior: 'ask',
+            message: `Remove-Item -Recurse targeting '${filePath}' would delete the working directory including .git and .claude — requires manual approval`,
+          }
+          break
+        }
+      }
+    }
 
     for (const filePath of paths) {
       // Hard-deny removal of dangerous system paths (/, ~, /etc, etc.).

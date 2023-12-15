@@ -5,11 +5,11 @@
  * This component renders nothing - it just registers the keybinding handlers.
  */
 import { feature } from 'bun:bundle';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import instances from '../ink/instances.js';
 import { useKeybinding } from '../keybindings/useKeybinding.js';
 import type { Screen } from '../screens/REPL.js';
-import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js';
+import { getFeatureValue_CACHED_MAY_BE_STALE, onGrowthBookRefresh } from '../services/analytics/growthbook.js';
 import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEvent } from '../services/analytics/index.js';
 import { useAppState, useSetAppState } from '../state/AppState.js';
 import { count } from '../utils/array.js';
@@ -92,6 +92,26 @@ export function GlobalKeybindingHandlers({
   const isBriefOnly = feature('KAIROS') || feature('KAIROS_BRIEF') ?
   // biome-ignore lint/correctness/useHookAtTopLevel: feature() is a compile-time constant
   useAppState(s_0 => s_0.isBriefOnly) : false;
+  useEffect(() => {
+    if (!(feature('KAIROS') || feature('KAIROS_BRIEF'))) return;
+    /* eslint-disable @typescript-eslint/no-require-imports */
+    const {
+      isBriefEnabled
+    } = require('../tools/BriefTool/BriefTool.js') as typeof import('../tools/BriefTool/BriefTool.js');
+    /* eslint-enable @typescript-eslint/no-require-imports */
+    const clearStaleBriefView = () => {
+      if (isBriefEnabled()) return;
+      setAppState(prev_0 => {
+        if (!prev_0.isBriefOnly) return prev_0;
+        return {
+          ...prev_0,
+          isBriefOnly: false
+        };
+      });
+    };
+    clearStaleBriefView();
+    return onGrowthBookRefresh(clearStaleBriefView);
+  }, [setAppState]);
   const handleToggleTranscript = useCallback(() => {
     if (feature('KAIROS') || feature('KAIROS_BRIEF')) {
       // Escape hatch: GB kill-switch while defaultView=chat was persisted

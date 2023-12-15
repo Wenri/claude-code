@@ -45,6 +45,7 @@ import { recordSkillUsage } from '../suggestions/skillUsageTracking.js';
 import { findClosestCommand } from '../suggestions/commandSuggestions.js';
 import { logOTelEvent, redactIfDisabled } from '../telemetry/events.js';
 import { buildPluginCommandTelemetryFields } from '../telemetry/pluginTelemetry.js';
+import { buildSkillTelemetryFields } from '../telemetry/skillLoadedEvent.js';
 import { getTeamArtifactAnalyticsMetadata } from '../teamArtifacts.js';
 import { getAssistantMessageContentLength } from '../tokens.js';
 import { createAgentId } from '../uuid.js';
@@ -72,7 +73,10 @@ async function executeForkedSlashCommand(command: CommandBase & PromptCommand, a
   const pluginMarketplace = command.pluginInfo ? parsePluginIdentifier(command.pluginInfo.repository).marketplace : undefined;
   logEvent('tengu_slash_command_forked', {
     command_name: command.name as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    _PROTO_skill_name: command.name as AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
     invocation_trigger: 'user-slash' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    ...buildSkillTelemetryFields(command.source, command.loadedFrom, command.kind, command.createdBy),
+    ...getTeamArtifactAnalyticsMetadata(command.source, command.name),
     ...(command.pluginInfo && {
       _PROTO_plugin_name: command.pluginInfo.pluginManifest.name as AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
       ...(pluginMarketplace && {
@@ -84,6 +88,7 @@ async function executeForkedSlashCommand(command: CommandBase & PromptCommand, a
   const {
     skillContent,
     modifiedGetAppState,
+    modifiedGetToolPermissionContext,
     baseAgent,
     promptMessages
   } = await prepareForkedCommandContext(command, args, context);
@@ -161,6 +166,7 @@ async function executeForkedSlashCommand(command: CommandBase & PromptCommand, a
         toolUseContext: {
           ...context,
           getAppState: modifiedGetAppState,
+          getToolPermissionContext: modifiedGetToolPermissionContext,
           abortController: bgAbortController
         },
         canUseTool,
@@ -245,7 +251,8 @@ async function executeForkedSlashCommand(command: CommandBase & PromptCommand, a
       promptMessages,
       toolUseContext: {
         ...context,
-        getAppState: modifiedGetAppState
+        getAppState: modifiedGetAppState,
+        getToolPermissionContext: modifiedGetToolPermissionContext
       },
       canUseTool,
       isAsync: false,
@@ -261,7 +268,7 @@ async function executeForkedSlashCommand(command: CommandBase & PromptCommand, a
         // Increment token count in spinner for assistant messages
         const contentLength = getAssistantMessageContentLength(message);
         if (contentLength > 0) {
-          context.setResponseLength(len => len + contentLength);
+          context.addResponseLength(contentLength);
         }
         const normalizedMsg = normalizedNew[0];
         if (normalizedMsg && normalizedMsg.type === 'assistant') {
@@ -461,22 +468,21 @@ export async function processSlashCommand(inputString: string, precedingInputBlo
     logEvent('tengu_input_command', {
       ...eventData,
       invocation_trigger: 'user-slash' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      ...buildSkillTelemetryFields(
+        returnedCommand.type === 'prompt' ? returnedCommand.source : undefined,
+        returnedCommand.loadedFrom,
+        returnedCommand.kind,
+        returnedCommand.type === 'prompt' ? returnedCommand.createdBy : undefined,
+      ),
       ...getTeamArtifactAnalyticsMetadata(
         returnedCommand.type === 'prompt' ? returnedCommand.source : '',
         commandName,
       ),
-      ...("external" === 'ant' && {
-        skill_name: commandName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        ...(returnedCommand.type === 'prompt' && {
-          skill_source: returnedCommand.source as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-        }),
-        ...(returnedCommand.loadedFrom && {
-          skill_loaded_from: returnedCommand.loadedFrom as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-        }),
-        ...(returnedCommand.kind && {
-          skill_kind: returnedCommand.kind as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-        })
-      })
+      ...(returnedCommand.type === 'prompt' && {
+        _PROTO_skill_name:
+          returnedCommand.name as AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
+        command_content_chars: returnedCommand.contentLength,
+      }),
     });
     return {
       messages: [],
@@ -533,22 +539,21 @@ export async function processSlashCommand(inputString: string, precedingInputBlo
   logEvent('tengu_input_command', {
     ...eventData,
     invocation_trigger: 'user-slash' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    ...buildSkillTelemetryFields(
+      returnedCommand.type === 'prompt' ? returnedCommand.source : undefined,
+      returnedCommand.loadedFrom,
+      returnedCommand.kind,
+      returnedCommand.type === 'prompt' ? returnedCommand.createdBy : undefined,
+    ),
     ...getTeamArtifactAnalyticsMetadata(
       returnedCommand.type === 'prompt' ? returnedCommand.source : '',
       commandName,
     ),
-    ...("external" === 'ant' && {
-      skill_name: commandName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      ...(returnedCommand.type === 'prompt' && {
-        skill_source: returnedCommand.source as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-      }),
-      ...(returnedCommand.loadedFrom && {
-        skill_loaded_from: returnedCommand.loadedFrom as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-      }),
-      ...(returnedCommand.kind && {
-        skill_kind: returnedCommand.kind as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-      })
-    })
+    ...(returnedCommand.type === 'prompt' && {
+      _PROTO_skill_name:
+        returnedCommand.name as AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
+      command_content_chars: returnedCommand.contentLength,
+    }),
   });
 
   // Check if this is a compact result which handle their own synthetic caveat message ordering
@@ -765,7 +770,7 @@ async function getMessagesForSlashCommand(commandName: string, args: string, set
       case 'prompt':
         {
           try {
-            const expansionHookResult = await processUserPromptExpansionHooks(
+            const expansionHookResult = await runUserPromptExpansionHook(
               command,
               args,
               context,
@@ -865,7 +870,7 @@ function formatCommandLoadingMetadata(command: CommandBase & PromptCommand, args
   return formatSlashCommandLoadingMetadata(command.name, args);
 }
 
-async function processUserPromptExpansionHooks(
+export async function runUserPromptExpansionHook(
   command: CommandBase & PromptCommand,
   args: string,
   context: ToolUseContext,
@@ -1006,6 +1011,7 @@ async function getMessagesForPromptSlashCommand(command: CommandBase & PromptCom
   const skillPath = command.source ? `${command.source}:${command.name}` : command.name;
   const skillContent = result.filter((b): b is TextBlockParam => b.type === 'text').map(b => b.text).join('\n\n');
   addInvokedSkill(command.name, skillPath, skillContent, getAgentContext()?.agentId ?? null);
+  context.options.activeSkill = command.name;
   const metadata = formatCommandLoadingMetadata(command, args);
   const additionalAllowedTools = parseToolListFromCLI(command.allowedTools ?? []);
 

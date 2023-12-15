@@ -12,8 +12,7 @@ export async function call(): Promise<{ type: 'text'; value: string }> {
   if (!isKeybindingCustomizationEnabled()) {
     return {
       type: 'text',
-      value:
-        'Keybinding customization is not enabled. This feature is currently in preview.',
+      value: 'Keybinding customization is disabled in this environment.',
     }
   }
 
@@ -41,7 +40,7 @@ export async function call(): Promise<{ type: 'text'; value: string }> {
   if (result.error) {
     return {
       type: 'text',
-      value: `${fileExists ? 'Opened' : 'Created'} ${keybindingsPath}. Could not open in editor: ${result.error}`,
+      value: `${fileExists ? 'Opened' : 'Created'} ${keybindingsPath}. ${result.error}`,
     }
   }
   return {

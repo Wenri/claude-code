@@ -401,6 +401,30 @@ export function getScratchpadDir(): string {
 }
 
 /**
+ * Directory containing generated workflow scripts for the current session.
+ * These scripts live beside the session transcript rather than in the
+ * working tree, so normal project-path permissions do not cover them.
+ */
+function getWorkflowScriptsDir(): string {
+  return (
+    join(
+      getProjectDir(getCwd()),
+      getSessionId(),
+      'workflows',
+      'scripts',
+    ) + sep
+  )
+}
+
+function isWorkflowScriptPath(filePath: string): boolean {
+  const normalizedPath = normalize(filePath)
+  return (
+    normalizedPath.startsWith(getWorkflowScriptsDir()) &&
+    normalizedPath.endsWith('.js')
+  )
+}
+
+/**
  * Ensures the scratchpad directory exists for the current session.
  * Creates the directory with secure permissions (0o700) if it doesn't exist.
  * Returns the path to the scratchpad directory.
@@ -1507,6 +1531,19 @@ export function checkEditableInternalPath(
       decisionReason: {
         type: 'other',
         reason: 'Plan files for current session are allowed for writing',
+      },
+    }
+  }
+
+  // Generated workflow scripts for the current session
+  if (isWorkflowScriptPath(normalizedPath)) {
+    return {
+      behavior: 'allow',
+      updatedInput: input,
+      decisionReason: {
+        type: 'other',
+        reason:
+          'Workflow script files for current session are allowed for writing',
       },
     }
   }

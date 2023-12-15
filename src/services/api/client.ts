@@ -35,7 +35,12 @@ import {
   getSessionId,
 } from '../../bootstrap/state.js'
 import { getOauthConfig } from '../../constants/oauth.js'
-import { isDebugToStdErr, logForDebugging } from '../../utils/debug.js'
+import {
+  getMinDebugLogLevel,
+  isDebugToStdErr,
+  logForDebugging,
+} from '../../utils/debug.js'
+import { jsonStringify } from '../../utils/slowOperations.js'
 import {
   getAWSRegion,
   getVertexRegionForModel,
@@ -179,8 +184,16 @@ export async function getAnthropicClient({
     const skipAuth = isEnvTruthy(
       process.env.CLAUDE_CODE_SKIP_BEDROCK_AUTH,
     )
-    const { value: authorizationHeader, rest: headersWithoutAuthorization } =
+    const { value: authorizationHeader, rest } =
       extractAuthorizationHeader(ARGS.defaultHeaders)
+    const headersWithoutAuthorization = process.env
+      .ANTHROPIC_BEDROCK_SERVICE_TIER
+      ? {
+          ...rest,
+          'X-Amzn-Bedrock-Service-Tier':
+            process.env.ANTHROPIC_BEDROCK_SERVICE_TIER,
+        }
+      : rest
     const bedrockApiKey = process.env.AWS_BEARER_TOKEN_BEDROCK
       ? `Bearer ${process.env.AWS_BEARER_TOKEN_BEDROCK}`
       : skipAuth
@@ -286,6 +299,43 @@ export async function getAnthropicClient({
     }
     // we have always been lying about the return type - this doesn't support batching or models
     return new AnthropicFoundry(foundryArgs) as unknown as Anthropic
+  }
+  if (apiProvider === 'anthropicAws') {
+    const { AnthropicAws } = await import('@anthropic-ai/aws-sdk')
+    const skipAuth = isEnvTruthy(
+      process.env.CLAUDE_CODE_SKIP_ANTHROPIC_AWS_AUTH,
+    )
+    const { value: authorizationHeader, rest: headersWithoutAuthorization } =
+      extractAuthorizationHeader(ARGS.defaultHeaders)
+    const anthropicAwsApiKey = skipAuth ? authorizationHeader : undefined
+    const anthropicAwsArgs: ConstructorParameters<typeof AnthropicAws>[0] = {
+      ...ARGS,
+      defaultHeaders: headersWithoutAuthorization,
+      ...(skipAuth &&
+        !anthropicAwsApiKey && {
+          skipAuth: true,
+        }),
+      ...(anthropicAwsApiKey && {
+        apiKey:
+          anthropicAwsApiKey.match(/^Bearer (.+)$/i)?.[1] ??
+          anthropicAwsApiKey,
+        defaultHeaders: {
+          ...headersWithoutAuthorization,
+          Authorization: anthropicAwsApiKey,
+        },
+      }),
+      ...(isDebugToStdErr() && { logger: createStderrLogger() }),
+    }
+
+    if (!process.env.ANTHROPIC_AWS_API_KEY && !skipAuth) {
+      const cachedCredentials = await refreshAndGetAwsCredentials()
+      if (cachedCredentials) {
+        anthropicAwsArgs.awsAccessKey = cachedCredentials.accessKeyId
+        anthropicAwsArgs.awsSecretAccessKey = cachedCredentials.secretAccessKey
+        anthropicAwsArgs.awsSessionToken = cachedCredentials.sessionToken
+      }
+    }
+    return new AnthropicAws(anthropicAwsArgs) as unknown as Anthropic
   }
   if (apiProvider === 'vertex') {
     // Refresh GCP credentials if gcpAuthRefresh is configured and credentials are expired
@@ -508,6 +558,23 @@ export class StreamIdleTimeoutError extends Error {
   }
 }
 
+function getVerboseRequestAuthDetails(headers: Headers): {
+  auth: string
+  headers: Record<string, string>
+} {
+  const authorization = headers.get('authorization')
+  const auth = authorization
+    ? `${authorization.includes(' ') ? authorization.slice(0, authorization.indexOf(' ')) : '<opaque>'} ***`
+    : 'none'
+  const selectedHeaders: Record<string, string> = {}
+  headers.forEach((value, name) => {
+    if (name === 'anthropic-beta' || name.startsWith('x-anthropic-')) {
+      selectedHeaders[name] = value
+    }
+  })
+  return { auth, headers: selectedHeaders }
+}
+
 function addStreamIdleTimeout(
   body: ReadableStream<Uint8Array>,
   idleMs: number,
@@ -658,6 +725,12 @@ function buildFetch(
       logForDebugging(
         `[API REQUEST] ${new URL(url).pathname}${id ? ` ${CLIENT_REQUEST_ID_HEADER}=${id}` : ''} source=${source ?? 'unknown'}`,
       )
+      if (getMinDebugLogLevel() === 'verbose') {
+        logForDebugging(
+          `[API REQUEST AUTH] ${jsonStringify(getVerboseRequestAuthDetails(headers))}`,
+          { level: 'verbose' },
+        )
+      }
     } catch {
       // never let logging crash the fetch
     }

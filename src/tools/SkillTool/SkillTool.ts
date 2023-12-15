@@ -35,6 +35,7 @@ import {
   parsePluginIdentifier,
 } from 'src/utils/plugins/pluginIdentifier.js'
 import { buildPluginCommandTelemetryFields } from 'src/utils/telemetry/pluginTelemetry.js'
+import { buildSkillTelemetryFields } from 'src/utils/telemetry/skillLoadedEvent.js'
 import { z } from 'zod/v4'
 import {
   addInvokedSkill,
@@ -49,6 +50,7 @@ import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
   logEvent,
 } from '../../services/analytics/index.js'
+import { isToolDetailsLoggingEnabled } from '../../services/analytics/metadata.js'
 import { getAgentContext } from '../../utils/agentContext.js'
 import { errorMessage } from '../../utils/errors.js'
 import {
@@ -67,6 +69,7 @@ import { resolveSkillModelOverride } from '../../utils/model/model.js'
 import { recordSkillUsage } from '../../utils/suggestions/skillUsageTracking.js'
 import { escapeRegExp } from '../../utils/stringUtils.js'
 import { findClosestCommand } from '../../utils/suggestions/commandSuggestions.js'
+import { logOTelEvent } from '../../utils/telemetry/events.js'
 import {
   getTeamArtifactAnalyticsMetadata,
   getTeamArtifactAuthor,
@@ -86,6 +89,16 @@ import {
   renderToolUseProgressMessage,
   renderToolUseRejectedMessage,
 } from './UI.js'
+
+/**
+ * Build-time gate for exposing each skill as its own model tool. The external
+ * release compiles this to false; callers use it alongside a conditional
+ * module import so the experimental builder is eliminated completely.
+ */
+export function isSkillsAsToolsEnabled(): boolean {
+  if (feature('SKILLS_AS_TOOLS')) return true
+  return false
+}
 
 /**
  * Gets all commands including MCP skills/prompts from AppState.
@@ -215,24 +228,16 @@ async function executeForkedSkill(
         parentAgentId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
     }),
     ...wasDiscoveredField,
+    ...buildSkillTelemetryFields(
+      command.source,
+      command.loadedFrom,
+      command.kind,
+      command.createdBy,
+    ),
     ...getTeamArtifactAnalyticsMetadata(command.source, commandName),
     attribution_shown:
       getTeamArtifactAuthor(command.source, commandName) !== null,
     skill_content_chars: command.contentLength,
-    ...(process.env.USER_TYPE === 'ant' && {
-      skill_name:
-        commandName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      skill_source:
-        command.source as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      ...(command.loadedFrom && {
-        skill_loaded_from:
-          command.loadedFrom as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      }),
-      ...(command.kind && {
-        skill_kind:
-          command.kind as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      }),
-    }),
     ...(command.pluginInfo && {
       // _PROTO_* routes to PII-tagged plugin_name/marketplace_name BQ columns
       // (unredacted, all users); plugin_name/plugin_repository stay in
@@ -252,9 +257,15 @@ async function executeForkedSkill(
       ...buildPluginCommandTelemetryFields(command.pluginInfo),
     }),
   })
+  logSkillActivated(commandName, command)
 
-  const { modifiedGetAppState, baseAgent, promptMessages, skillContent } =
-    await prepareForkedCommandContext(command, args || '', context)
+  const {
+    modifiedGetAppState,
+    modifiedGetToolPermissionContext,
+    baseAgent,
+    promptMessages,
+    skillContent,
+  } = await prepareForkedCommandContext(command, args || '', context)
 
   // Merge skill's effort into the agent definition so runAgent applies it
   const agentDefinition =
@@ -277,6 +288,7 @@ async function executeForkedSkill(
       toolUseContext: {
         ...context,
         getAppState: modifiedGetAppState,
+        getToolPermissionContext: modifiedGetToolPermissionContext,
       },
       canUseTool,
       isAsync: false,
@@ -343,7 +355,9 @@ export const inputSchema = lazySchema(() =>
   z.object({
     skill: z
       .string()
-      .describe('The skill name. E.g., "commit", "review-pr", or "pdf"'),
+      .describe(
+        'The name of a skill from the available-skills list. Do not guess names.',
+      ),
     args: z.string().optional().describe('Optional arguments for the skill'),
   }),
 )
@@ -678,6 +692,7 @@ export const SkillTool: Tool<InputSchema, Output, Progress> = buildTool({
 
     // Remove leading slash if present (for compatibility)
     const commandName = trimmed.startsWith('/') ? trimmed.substring(1) : trimmed
+    context.options.activeSkill = commandName
 
     // Remote canonical skill execution (ant-only experimental). Intercepts
     // `_canonical_<slug>` before local command lookup — loads SKILL.md from
@@ -773,6 +788,12 @@ export const SkillTool: Tool<InputSchema, Output, Progress> = buildTool({
           parentAgentId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       }),
       ...wasDiscoveredField,
+      ...buildSkillTelemetryFields(
+        command?.type === 'prompt' ? command.source : undefined,
+        command?.loadedFrom,
+        command?.kind,
+        command?.type === 'prompt' ? command.createdBy : undefined,
+      ),
       ...getTeamArtifactAnalyticsMetadata(
         command?.type === 'prompt' ? command.source : '',
         commandName,
@@ -784,22 +805,6 @@ export const SkillTool: Tool<InputSchema, Output, Progress> = buildTool({
         ) !== null,
       ...(command?.type === 'prompt' && {
         skill_content_chars: command.contentLength,
-      }),
-      ...(process.env.USER_TYPE === 'ant' && {
-        skill_name:
-          commandName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        ...(command?.type === 'prompt' && {
-          skill_source:
-            command.source as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        }),
-        ...(command?.loadedFrom && {
-          skill_loaded_from:
-            command.loadedFrom as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        }),
-        ...(command?.kind && {
-          skill_kind:
-            command.kind as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        }),
       }),
       ...(command?.type === 'prompt' &&
         command.pluginInfo && {
@@ -818,6 +823,7 @@ export const SkillTool: Tool<InputSchema, Output, Progress> = buildTool({
           ...buildPluginCommandTelemetryFields(command.pluginInfo),
         }),
     })
+    logSkillActivated(commandName, command)
 
     // Get the tool use ID from the parent message for linking newMessages
     const toolUseID = getToolUseIDFromParentMessage(
@@ -1035,6 +1041,32 @@ function isOfficialMarketplaceSkill(command: PromptCommand): boolean {
   return isOfficialMarketplaceName(
     parsePluginIdentifier(command.pluginInfo.repository).marketplace,
   )
+}
+
+function logSkillActivated(
+  commandName: string,
+  command: Command | undefined,
+): void {
+  const source = command?.type === 'prompt' ? command.source : undefined
+  const pluginInfo =
+    command?.type === 'prompt' ? command.pluginInfo : undefined
+  const marketplace = pluginInfo
+    ? parsePluginIdentifier(pluginInfo.repository).marketplace
+    : undefined
+  const canLogNames =
+    source === 'builtin' ||
+    source === 'bundled' ||
+    (source === 'plugin' && isOfficialMarketplaceName(marketplace)) ||
+    isToolDetailsLoggingEnabled()
+
+  void logOTelEvent('skill_activated', {
+    'skill.name': canLogNames ? commandName : 'custom_skill',
+    ...(source && { 'skill.source': source }),
+    ...(command?.kind && { 'skill.kind': command.kind }),
+    ...(canLogNames &&
+      pluginInfo && { 'plugin.name': pluginInfo.pluginManifest.name }),
+    ...(canLogNames && marketplace && { 'marketplace.name': marketplace }),
+  })
 }
 
 /**

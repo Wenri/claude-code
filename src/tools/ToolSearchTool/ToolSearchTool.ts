@@ -347,10 +347,11 @@ export const ToolSearchTool = buildTool({
   get outputSchema(): OutputSchema {
     return outputSchema()
   },
-  async call(input, { options: { tools }, getAppState }) {
+  async call(input, { options: { tools, refreshTools }, getAppState }) {
     const { query, max_results = 5 } = input
 
-    const deferredTools = tools.filter(isDeferredTool)
+    const currentTools = refreshTools?.() ?? tools
+    const deferredTools = currentTools.filter(isDeferredTool)
     maybeInvalidateCache(deferredTools)
 
     // Check for MCP servers still connecting
@@ -365,6 +366,7 @@ export const ToolSearchTool = buildTool({
       matches: string[],
       queryType: 'select' | 'keyword',
     ): void {
+      const mcp = getAppState().mcp
       logEvent('tengu_tool_search_outcome', {
         query:
           query as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -374,6 +376,15 @@ export const ToolSearchTool = buildTool({
         totalDeferredTools: deferredTools.length,
         maxResults: max_results,
         hasMatches: matches.length > 0,
+        mcpServersConfigured: mcp.clients.length,
+        mcpServersConnected: mcp.clients.filter(
+          client => client.type === 'connected',
+        ).length,
+        mcpServersPending: mcp.clients.filter(
+          client => client.type === 'pending',
+        ).length,
+        mcpToolsInPool: currentTools.filter(tool => Boolean(tool.mcpInfo))
+          .length,
       })
     }
 
@@ -394,7 +405,7 @@ export const ToolSearchTool = buildTool({
       for (const toolName of requested) {
         const tool =
           findToolByName(deferredTools, toolName) ??
-          findToolByName(tools, toolName)
+          findToolByName(currentTools, toolName)
         if (tool) {
           if (!found.includes(tool.name)) found.push(tool.name)
         } else {
@@ -431,7 +442,7 @@ export const ToolSearchTool = buildTool({
     const matches = await searchToolsWithKeywords(
       query,
       deferredTools,
-      tools,
+      currentTools,
       max_results,
     )
 

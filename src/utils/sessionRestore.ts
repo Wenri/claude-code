@@ -44,6 +44,12 @@ import type { FileHistorySnapshot } from './fileHistory.js'
 import { fileHistoryRestoreStateFromLog } from './fileHistory.js'
 import { createSystemMessage } from './messages.js'
 import { parseUserSpecifiedModel } from './model/model.js'
+import { setAutoModeActive } from './permissions/autoModeState.js'
+import {
+  permissionModeFromString,
+  type PermissionMode,
+} from './permissions/PermissionMode.js'
+import { isAutoModeGateEnabled } from './permissions/permissionSetup.js'
 import { getPlansDirectory } from './plans.js'
 import { setCwd } from './Shell.js'
 import {
@@ -335,8 +341,10 @@ type ResumeLoadResult = {
   agentColor?: string
   agentSetting?: string
   customTitle?: string
+  aiTitle?: string
   tag?: string
   mode?: 'coordinator' | 'normal'
+  permissionMode?: string
   worktreeSession?: PersistedWorktreeSession | null
   prNumber?: number
   prUrl?: string
@@ -428,6 +436,25 @@ export function exitRestoredWorktree(): void {
   setOriginalCwd(getCwd())
 }
 
+function getResumePermissionMode(
+  permissionMode: string | undefined,
+  permissionModeCliSet: boolean,
+): PermissionMode | undefined {
+  if (permissionModeCliSet || !permissionMode) return undefined
+
+  const parsedMode = permissionModeFromString(permissionMode)
+  if (parsedMode === 'default' && permissionMode !== 'default') return undefined
+  if (parsedMode === 'plan' || parsedMode === 'bypassPermissions') {
+    return undefined
+  }
+  if (parsedMode === 'default') return undefined
+  if (parsedMode === 'auto') {
+    if (!isAutoModeGateEnabled()) return undefined
+    setAutoModeActive(true)
+  }
+  return parsedMode
+}
+
 /**
  * Process a loaded conversation for resume/continue.
  *
@@ -450,6 +477,7 @@ export async function processResumedConversation(
     currentCwd: string
     cliAgents: AgentDefinition[]
     initialState: AppState
+    permissionModeCliSet: boolean
   },
 ): Promise<ProcessedResume> {
   // Match coordinator/normal mode to the resumed session
@@ -538,6 +566,10 @@ export async function processResumedConversation(
       context.mainThreadAgentDefinition,
       context.agentDefinitions,
     )
+  const resumedPermissionMode = getResumePermissionMode(
+    result.permissionMode,
+    context.permissionModeCliSet,
+  )
 
   // Persist the current mode so future resumes know what mode this session was in
   if (feature('COORDINATOR_MODE')) {
@@ -590,6 +622,12 @@ export async function processResumedConversation(
       ...(resumedAgentType && { agent: resumedAgentType }),
       ...(restoredAttribution && { attribution: restoredAttribution }),
       ...(standaloneAgentContext && { standaloneAgentContext }),
+      ...(resumedPermissionMode && {
+        toolPermissionContext: {
+          ...context.initialState.toolPermissionContext,
+          mode: resumedPermissionMode,
+        },
+      }),
       agentDefinitions: refreshedAgentDefs,
     },
   }

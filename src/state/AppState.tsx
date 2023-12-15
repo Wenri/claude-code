@@ -3,11 +3,14 @@ import { feature } from 'bun:bundle';
 import React, { useContext, useEffect, useEffectEvent, useState, useSyncExternalStore } from 'react';
 import { MailboxProvider } from '../context/mailbox.js';
 import { useSettingsChange } from '../hooks/useSettingsChange.js';
+import { killAllRunningTasks } from '../tasks/cleanup.js';
+import { registerCleanup } from '../utils/cleanupRegistry.js';
 import { logForDebugging } from '../utils/debug.js';
 import { createDisabledBypassPermissionsContext, isBypassPermissionsModeDisabled } from '../utils/permissions/permissionSetup.js';
 import { applySettingsChange } from '../utils/settings/applySettingsChange.js';
 import type { SettingSource } from '../utils/settings/constants.js';
 import { createStore } from './store.js';
+import { setMcpClientsAccessor } from '../bootstrap/state.js';
 
 // DCE: voice context is ant-only. External builds get a passthrough.
 /* eslint-disable @typescript-eslint/no-require-imports */
@@ -47,7 +50,13 @@ export function AppStateProvider(t0) {
   }
   let t1;
   if ($[0] !== initialState || $[1] !== onChangeAppState) {
-    t1 = () => createStore(initialState ?? getDefaultAppState(), onChangeAppState);
+    t1 = () => {
+      const store = createStore(initialState ?? getDefaultAppState(), onChangeAppState);
+      registerCleanup(() => {
+        killAllRunningTasks(store.getState().tasks);
+      });
+      return store;
+    };
     $[0] = initialState;
     $[1] = onChangeAppState;
     $[2] = t1;
@@ -55,6 +64,10 @@ export function AppStateProvider(t0) {
     t1 = $[2];
   }
   const [store] = useState(t1);
+  useEffect(() => {
+    setMcpClientsAccessor(() => store.getState().mcp.clients)
+    return () => setMcpClientsAccessor(undefined)
+  }, [store])
   let t2;
   if ($[3] !== store) {
     t2 = () => {

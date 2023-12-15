@@ -45,7 +45,7 @@ const MODEL_IMAGE_LIMIT_OVERRIDES: Record<
   string,
   Partial<ImageLimits>
 > = {
-  'claude-opus-4-7': { maxWidth: 2576, maxHeight: 2576 },
+  'claude-opus-4-7': { maxWidth: 2000, maxHeight: 2000 },
 }
 
 /** Resolve the image envelope for the request model and current API endpoint. */
@@ -244,6 +244,11 @@ export async function maybeResizeAndDownsampleImageBuffer(
     // If dimensions aren't available from metadata
     if (!metadata.width || !metadata.height) {
       if (originalSize > limits.targetRawSize) {
+        logEvent('tengu_image_resize', {
+          over_byte_limit: true,
+          over_dimension_limit: false,
+          original_size_bytes: originalSize,
+        })
         // Create fresh sharp instance for compression
         const compressedBuffer = await sharp(imageBuffer)
           .jpeg({ quality: 80 })
@@ -283,6 +288,13 @@ export async function maybeResizeAndDownsampleImageBuffer(
     const needsDimensionResize =
       width > limits.maxWidth || height > limits.maxHeight
     const isPng = normalizedMediaType === 'png'
+    logEvent('tengu_image_resize', {
+      over_byte_limit: originalSize > limits.targetRawSize,
+      over_dimension_limit: needsDimensionResize,
+      original_size_bytes: originalSize,
+      original_width: originalWidth,
+      original_height: originalHeight,
+    })
 
     // If dimensions are within limits but file is too large, try compression first
     // This preserves full resolution when possible

@@ -61,6 +61,83 @@ export type SessionStore = {
  */
 export type SessionHooksState = Map<string, SessionStore>
 
+export type SessionHooksRegistry = {
+  add(
+    sessionId: string,
+    event: HookEvent,
+    matcher: string,
+    hook: HookCommand,
+    skillRoot?: string,
+  ): void
+  addFunction(
+    sessionId: string,
+    event: HookEvent,
+    matcher: string,
+    callback: FunctionHookCallback,
+    errorMessage: string,
+    options?: { timeout?: number; id?: string },
+  ): string
+  remove(sessionId: string, event: HookEvent, hook: HookCommand): void
+  removeFunction(sessionId: string, event: HookEvent, hookId: string): void
+  clear(sessionId: string): void
+}
+
+/** Session-hook mutation facade shared by every ToolUseContext. */
+export function makeSessionHooksRegistry(
+  setAppState: (updater: (prev: AppState) => AppState) => void,
+): SessionHooksRegistry {
+  return {
+    add(sessionId, event, matcher, hook, skillRoot) {
+      addSessionHook(
+        setAppState,
+        sessionId,
+        event,
+        matcher,
+        hook,
+        undefined,
+        skillRoot,
+      )
+    },
+    addFunction(
+      sessionId,
+      event,
+      matcher,
+      callback,
+      errorMessage,
+      options,
+    ) {
+      return addFunctionHook(
+        setAppState,
+        sessionId,
+        event,
+        matcher,
+        callback,
+        errorMessage,
+        options,
+      )
+    },
+    remove(sessionId, event, hook) {
+      removeSessionHook(setAppState, sessionId, event, hook)
+    },
+    removeFunction(sessionId, event, hookId) {
+      removeFunctionHook(setAppState, sessionId, event, hookId)
+    },
+    clear(sessionId) {
+      clearSessionHooks(setAppState, sessionId)
+    },
+  }
+}
+
+export const NOOP_SESSION_HOOKS_REGISTRY: SessionHooksRegistry = {
+  add() {},
+  addFunction() {
+    return ''
+  },
+  remove() {},
+  removeFunction() {},
+  clear() {},
+}
+
 /**
  * Add a command or prompt hook to the session.
  * Session hooks are temporary, in-memory only, and cleared when session ends.

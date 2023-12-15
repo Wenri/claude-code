@@ -66,6 +66,7 @@ export function Notifications(t0) {
   } = t0;
   const isInputWrapped = t1 === undefined ? false : t1;
   const autoUpdaterStatus = useAppState(state => state.autoUpdaterResult?.status);
+  const autoCompactWindow = useAppState(state => state.autoCompactWindow);
   let t3;
   if ($[0] !== messages) {
     const messagesForTokenCount = getMessagesAfterCompactBoundary(messages);
@@ -77,16 +78,7 @@ export function Notifications(t0) {
   }
   const tokenUsage = t3;
   const mainLoopModel = useMainLoopModel();
-  let t4;
-  if ($[2] !== mainLoopModel || $[3] !== tokenUsage) {
-    t4 = calculateTokenWarningState(tokenUsage, mainLoopModel);
-    $[2] = mainLoopModel;
-    $[3] = tokenUsage;
-    $[4] = t4;
-  } else {
-    t4 = $[4];
-  }
-  const isShowingCompactMessage = t4.isAboveWarningThreshold;
+  const isShowingCompactMessage = calculateTokenWarningState(tokenUsage, mainLoopModel, autoCompactWindow).level !== 'ok';
   const suppressTokenWarning = useCompactWarningSuppression();
   const isBriefOnly = useAppState(state => state.isBriefOnly);
   const {

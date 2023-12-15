@@ -81,7 +81,6 @@ import {
   getCommandsByMaxPriority,
   isSlashCommand,
 } from './utils/messageQueueManager.js'
-import { notifyCommandLifecycle } from './utils/commandLifecycle.js'
 import { headlessProfilerCheckpoint } from './utils/headlessProfiler.js'
 import {
   getRuntimeMainLoopModel,
@@ -121,6 +120,7 @@ import {
 import { createBudgetTracker, checkTokenBudget } from './query/tokenBudget.js'
 import { count } from './utils/array.js'
 import { isBgSession } from './utils/concurrentSessions.js'
+import { getCurrentJobShort } from './daemon/jobs.js'
 import { expandPath } from './utils/path.js'
 import { isBetaTracingEnabled } from './utils/telemetry/sessionTracing.js'
 
@@ -185,7 +185,7 @@ function markClassifierApiFailure(
   void jobClassifier
     .markApiFailure(
       classifierJobState,
-      getSessionId().slice(0, 8),
+      getCurrentJobShort(),
       message.error,
       getAssistantMessageText(message) ?? message.errorDetails ?? '',
     )
@@ -207,7 +207,7 @@ function markClassifierTurnAborted(
   }
   jobClassifier.markTurnAborted(
     classifierJobState,
-    getSessionId().slice(0, 8),
+    getCurrentJobShort(),
   )
 }
 
@@ -278,6 +278,7 @@ export type QueryParams = {
   toolUseContext: ToolUseContext
   fallbackModel?: string
   querySource: QuerySource
+  spawnedBySkill?: string
   maxOutputTokensOverride?: number
   maxTurns?: number
   skipCacheWrite?: boolean
@@ -324,7 +325,7 @@ export async function* query(
   // both generators). This gives the same asymmetric started-without-completed
   // signal as print.ts's drainCommandQueue when the turn fails.
   for (const uuid of consumedCommandUuids) {
-    notifyCommandLifecycle(uuid, 'completed')
+    params.toolUseContext.onCommandLifecycle?.(uuid, 'completed')
   }
   return terminal
 }
@@ -348,6 +349,7 @@ async function* queryLoop(
     canUseTool,
     fallbackModel,
     querySource,
+    spawnedBySkill,
     maxTurns,
     skipCacheWrite,
   } = params
@@ -392,6 +394,7 @@ async function* queryLoop(
   using pendingMemoryPrefetch = startRelevantMemoryPrefetch(
     state.messages,
     state.toolUseContext,
+    querySource,
   )
 
   // eslint-disable-next-line no-constant-condition
@@ -677,11 +680,11 @@ async function* queryLoop(
           toolUseContext.options.tools,
           canUseTool,
           toolUseContext,
-        )
+    )
       : null
 
     const appState = toolUseContext.getAppState()
-    const permissionMode = appState.toolPermissionContext.mode
+    const permissionMode = toolUseContext.getToolPermissionContext().mode
     let currentModel = getRuntimeMainLoopModel({
       permissionMode,
       mainLoopModel: toolUseContext.options.mainLoopModel,
@@ -750,11 +753,12 @@ async function* queryLoop(
       ) &&
       !collapseOwnsIt
     ) {
-      const { isAtBlockingLimit } = calculateTokenWarningState(
+      const pressure = calculateTokenWarningState(
         tokenCountWithEstimation(messagesForQuery) - snipTokensFreed,
         toolUseContext.options.mainLoopModel,
+        toolUseContext.getAutoCompactWindow(),
       )
-      if (isAtBlockingLimit) {
+      if (pressure.level === 'blocked') {
         logEvent('tengu_ptl_surfaced_to_user', {
           reason: 'blocking_limit',
           querySource: sanitizeQuerySourceForAnalytics(querySource),
@@ -785,12 +789,11 @@ async function* queryLoop(
             signal: toolUseContext.abortController.signal,
             options: {
               async getToolPermissionContext() {
-                const appState = toolUseContext.getAppState()
-                return appState.toolPermissionContext
+                return toolUseContext.getToolPermissionContext()
               },
               model: currentModel,
               ...(config.gates.fastModeEnabled && {
-                fastMode: appState.fastMode,
+                fastMode: toolUseContext.getFastMode(),
               }),
               toolChoice: undefined,
               isNonInteractiveSession:
@@ -823,6 +826,8 @@ async function* queryLoop(
                 )
               },
               querySource,
+              spawnedBySkill,
+              activeSkill: toolUseContext.options.activeSkill,
               connection: toolUseContext.options.connection,
               messageClientPlatform:
                 toolUseContext.options.messageClientPlatform,
@@ -845,7 +850,7 @@ async function* queryLoop(
                 c => c.type === 'pending',
               ),
               queryTracking,
-              effortValue: appState.effortValue,
+              effortValue: toolUseContext.getEffortValue(),
               advisorModel: appState.advisorModel,
               skipCacheWrite,
               agentId: toolUseContext.agentId,
@@ -1236,7 +1241,7 @@ async function* queryLoop(
       )
       void jobClassifier.markTurnActive(
         classifierJobState,
-        getSessionId().slice(0, 8),
+        getCurrentJobShort(),
         lastUserMessage?.type === 'user' &&
           typeof lastUserMessage.message.content === 'string'
           ? lastUserMessage.message.content
@@ -1537,6 +1542,20 @@ async function* queryLoop(
       // real response — hooks evaluating it create a death spiral:
       // error → hook blocking → retry → error → …
       if (lastMessage?.isApiErrorMessage) {
+        if (
+          jobClassifier &&
+          classifierJobState &&
+          isBgSession() &&
+          querySource.startsWith('repl_main_thread') &&
+          !toolUseContext.agentId
+        ) {
+          await jobClassifier.markApiFailure(
+            classifierJobState,
+            getCurrentJobShort(),
+            lastMessage.error,
+            getAssistantMessageText(lastMessage) ?? '',
+          )
+        }
         void executeStopFailureHooks(lastMessage, toolUseContext)
         void markClassifierApiFailure(toolUseContext, querySource, lastMessage)
         return { reason: 'completed' }
@@ -1986,7 +2005,7 @@ async function* queryLoop(
       for (const cmd of consumedCommands) {
         if (cmd.uuid) {
           consumedCommandUuids.push(cmd.uuid)
-          notifyCommandLifecycle(cmd.uuid, 'started')
+          toolUseContext.onCommandLifecycle?.(cmd.uuid, 'started')
         }
       }
       removeFromQueue(consumedCommands)

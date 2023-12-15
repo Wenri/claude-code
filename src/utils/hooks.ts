@@ -36,7 +36,9 @@ import {
   getOriginalCwd,
   getMainThreadAgentHooks,
   getMainThreadAgentType,
+  getHasStreamingInput,
 } from '../bootstrap/state.js'
+import { renameJob } from '../daemon/jobs.js'
 import { checkHasTrustDialogAccepted } from './config.js'
 import {
   getHooksConfigFromSnapshot,
@@ -131,6 +133,8 @@ import { logForDebugging } from './debug.js'
 import { logForDiagnosticsNoPII } from './diagLogs.js'
 import { firstLineOf } from './stringUtils.js'
 import {
+  getToolNameWithProxyAliases,
+  getToolNamesForProxyAlias,
   normalizeLegacyToolName,
   getLegacyToolNames,
   permissionRuleValueFromString,
@@ -192,7 +196,7 @@ const HOOK_OUTPUT_PERSIST_THRESHOLD_CHARS = 10_000
  * parallel, so one value suffices). Overridable via env var for users whose
  * teardown scripts need more time.
  */
-const SESSION_END_HOOK_TIMEOUT_MS_DEFAULT = 1500
+export const SESSION_END_HOOK_TIMEOUT_MS_DEFAULT = 1500
 export function getSessionEndHookTimeoutMs(): number {
   const raw = process.env.CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS
   const parsed = raw ? parseInt(raw, 10) : NaN
@@ -434,11 +438,31 @@ function validateHookJson(
     logForDebugging('Successfully parsed and validated hook JSON output')
     return { json: validation.data }
   }
-  const errors = validation.error.issues
-    .map(err => `  - ${err.path.join('.')}: ${err.message}`)
+  const issues = validation.error.issues
+  const firstIssue = issues[0]
+  let firstError = firstIssue
+    ? `${firstIssue.path.join('.') || '(root)'}: ${firstIssue.message}`
+    : 'unknown error'
+
+  if (
+    parsed &&
+    typeof parsed === 'object' &&
+    'hookSpecificOutput' in parsed &&
+    parsed.hookSpecificOutput &&
+    typeof parsed.hookSpecificOutput === 'object' &&
+    !Array.isArray(parsed.hookSpecificOutput) &&
+    !('hookEventName' in parsed.hookSpecificOutput)
+  ) {
+    firstError =
+      'hookSpecificOutput is missing required field "hookEventName"'
+  }
+
+  const additionalErrors = issues
+    .slice(1)
+    .map(err => `  - ${err.path.join('.') || '(root)'}: ${err.message}`)
     .join('\n')
   return {
-    validationError: `Hook JSON output validation failed:\n${errors}\n\nThe hook's output was: ${jsonStringify(parsed, null, 2)}`,
+    validationError: `Hook JSON output validation failed \u2014 ${firstError}${additionalErrors ? `\n${additionalErrors}` : ''}\n\nThe hook's output was: ${jsonStringify(parsed, null, 2)}`,
   }
 }
 
@@ -891,6 +915,17 @@ async function execCommandHook(
   // entered value containing the literal text ${CLAUDE_PLUGIN_ROOT} is treated
   // as opaque — not re-interpreted as a template.
   let command = hook.command
+  for (const [name, resolvedPath] of [
+    ['CLAUDE_PLUGIN_ROOT', pluginRoot || skillRoot],
+    ['CLAUDE_PLUGIN_DATA', pluginRoot],
+  ] as const) {
+    if (resolvedPath || !command.includes('${' + name + '}')) continue
+    throw new Error(
+      skillRoot
+        ? `Hook command references \${${name}} but only \${CLAUDE_PLUGIN_ROOT} is available for skill hooks (\${CLAUDE_PLUGIN_DATA} is plugin-only). Command: ${command}`
+        : `Hook command references \${${name}} but the hook is not associated with a plugin. This variable is only available in hooks defined in a plugin's hooks/hooks.json file, not in settings.json. Command: ${command}`,
+    )
+  }
   let pluginOpts: ReturnType<typeof loadPluginOptions> | undefined
   if (pluginRoot) {
     // Plugin directory gone (orphan GC race, concurrent session deleted it):
@@ -1064,7 +1099,12 @@ async function execCommandHook(
   // Track whether stdin has already been written (to avoid "write after end" errors)
   let stdinWritten = false
 
-  if ((hook.async || hook.asyncRewake) && !forceSyncExecution) {
+  const canAsyncRewake =
+    !getIsNonInteractiveSession() || getHasStreamingInput()
+  if (
+    (hook.async || (hook.asyncRewake && canAsyncRewake)) &&
+    !forceSyncExecution
+  ) {
     const processId = `async_hook_${child.pid}`
     logForDebugging(
       `Hooks: Config-based async hook, backgrounding process ${processId}`,
@@ -1427,11 +1467,15 @@ function matchesPattern(matchQuery: string, matcher: string): boolean {
     if (matcher.includes('|')) {
       const patterns = matcher
         .split('|')
-        .map(p => normalizeLegacyToolName(p.trim()))
+        .flatMap(p =>
+          getToolNameWithProxyAliases(normalizeLegacyToolName(p.trim())),
+        )
       return patterns.includes(matchQuery)
     }
     // Simple exact match
-    return matchQuery === normalizeLegacyToolName(matcher)
+    return getToolNameWithProxyAliases(
+      normalizeLegacyToolName(matcher),
+    ).includes(matchQuery)
   }
 
   // Otherwise treat as regex
@@ -1443,6 +1487,11 @@ function matchesPattern(matchQuery: string, matcher: string): boolean {
     // Also test against legacy names so patterns like "^Task$" still match
     for (const legacyName of getLegacyToolNames(matchQuery)) {
       if (regex.test(legacyName)) {
+        return true
+      }
+    }
+    for (const toolName of getToolNamesForProxyAlias(matchQuery)) {
+      if (regex.test(toolName)) {
         return true
       }
     }
@@ -1532,7 +1581,7 @@ function hookDedupKey(m: MatchedHook, payload: string): string {
  * Build a map of {sanitizedPluginName: hookCount} from matched hooks.
  * Only logs actual names for official marketplace plugins; others become 'third-party'.
  */
-function getPluginHookCounts(
+export function getPluginHookCounts(
   hooks: MatchedHook[],
 ): Record<string, number> | undefined {
   const pluginHooks = hooks.filter(h => h.pluginId)
@@ -2026,6 +2075,33 @@ export function getUserPromptSubmitHookBlockingMessage(
 ): string {
   return `UserPromptSubmit operation blocked by hook:\n${blockingError.blockingError}`
 }
+
+export function getTelemetryHookName(
+  hookEvent: HookEvent,
+  matchQuery?: string,
+): string {
+  if (!matchQuery) return hookEvent
+  if (isEnvTruthy(process.env.OTEL_LOG_TOOL_DETAILS)) {
+    return `${hookEvent}:${matchQuery}`
+  }
+
+  switch (hookEvent) {
+    case 'PreToolUse':
+    case 'PostToolUse':
+    case 'PostToolUseFailure':
+    case 'PermissionRequest':
+    case 'PermissionDenied':
+      return `${hookEvent}:${normalizeLegacyToolName(matchQuery)}`
+    case 'Elicitation':
+    case 'ElicitationResult':
+      return `${hookEvent}:mcp_server`
+    case 'SubagentStart':
+      return hookEvent
+    default:
+      return `${hookEvent}:${matchQuery}`
+  }
+}
+
 /**
  * Common logic for executing hooks
  * @param hookInput The structured hook input that will be validated and converted to JSON
@@ -2037,7 +2113,7 @@ export function getUserPromptSubmitHookBlockingMessage(
  * @param messages Optional conversation history for prompt/function hooks
  * @returns Async generator that yields progress messages and hook results
  */
-async function* executeHooks({
+export async function* executeHooks({
   hookInput,
   toolUseID,
   matchQuery,
@@ -2130,7 +2206,7 @@ async function* executeHooks({
     const context = toolUseContext
       ? {
           getAppState: toolUseContext.getAppState,
-          updateAttributionState: toolUseContext.updateAttributionState,
+          applyAttributionOp: toolUseContext.applyAttributionOp,
         }
       : undefined
     for (const [i, { hook }] of matchingHooks.entries()) {
@@ -2154,27 +2230,28 @@ async function* executeHooks({
     return
   }
 
-  // Collect hook definitions for beta tracing telemetry
-  const hookDefinitionsJson = isBetaTracingEnabled()
+  const includeHookDefinitions =
+    isBetaTracingEnabled() &&
+    isEnvTruthy(process.env.OTEL_LOG_TOOL_DETAILS)
+  const hookDefinitionsJson = includeHookDefinitions
     ? jsonStringify(getHookDefinitionsForTelemetry(matchingHooks))
     : '[]'
+  const telemetryHookName = getTelemetryHookName(hookEvent, matchQuery)
 
-  // Log hook execution start to OTEL (only for beta tracing)
-  if (isBetaTracingEnabled()) {
-    void logOTelEvent('hook_execution_start', {
-      hook_event: hookEvent,
-      hook_name: hookName,
-      num_hooks: String(matchingHooks.length),
-      managed_only: String(shouldAllowManagedHooksOnly()),
+  void logOTelEvent('hook_execution_start', {
+    hook_event: hookEvent,
+    hook_name: telemetryHookName,
+    num_hooks: String(matchingHooks.length),
+    managed_only: String(shouldAllowManagedHooksOnly()),
+    hook_source: shouldAllowManagedHooksOnly() ? 'policySettings' : 'merged',
+    ...(includeHookDefinitions && {
       hook_definitions: hookDefinitionsJson,
-      hook_source: shouldAllowManagedHooksOnly() ? 'policySettings' : 'merged',
-    })
-  }
+    }),
+  })
 
-  // Start hook span for beta tracing
   const hookSpan = startHookSpan(
     hookEvent,
-    hookName,
+    telemetryHookName,
     matchingHooks.length,
     hookDefinitionsJson,
   )
@@ -3266,26 +3343,22 @@ async function* executeHooks({
     ...injectedContentChars,
   })
 
-  // Log hook execution completion to OTEL (only for beta tracing)
-  if (isBetaTracingEnabled()) {
-    const hookDefinitionsComplete =
-      getHookDefinitionsForTelemetry(matchingHooks)
+  void logOTelEvent('hook_execution_complete', {
+    hook_event: hookEvent,
+    hook_name: telemetryHookName,
+    num_hooks: String(matchingHooks.length),
+    num_success: String(outcomes.success),
+    num_blocking: String(outcomes.blocking),
+    num_non_blocking_error: String(outcomes.non_blocking_error),
+    num_cancelled: String(outcomes.cancelled),
+    total_duration_ms: String(totalDurationMs),
+    managed_only: String(shouldAllowManagedHooksOnly()),
+    hook_source: shouldAllowManagedHooksOnly() ? 'policySettings' : 'merged',
+    ...(includeHookDefinitions && {
+      hook_definitions: hookDefinitionsJson,
+    }),
+  })
 
-    void logOTelEvent('hook_execution_complete', {
-      hook_event: hookEvent,
-      hook_name: hookName,
-      num_hooks: String(matchingHooks.length),
-      num_success: String(outcomes.success),
-      num_blocking: String(outcomes.blocking),
-      num_non_blocking_error: String(outcomes.non_blocking_error),
-      num_cancelled: String(outcomes.cancelled),
-      managed_only: String(shouldAllowManagedHooksOnly()),
-      hook_definitions: jsonStringify(hookDefinitionsComplete),
-      hook_source: shouldAllowManagedHooksOnly() ? 'policySettings' : 'merged',
-    })
-  }
-
-  // End hook span for beta tracing
   endHookSpan(hookSpan, {
     numSuccess: outcomes.success,
     numBlocking: outcomes.blocking,
@@ -3352,7 +3425,7 @@ export function hasBlockingResult(results: HookOutsideReplResult[]): boolean {
  * @param timeoutMs Optional timeout in milliseconds for hook execution
  * @returns Array of HookOutsideReplResult objects containing command, succeeded, and output
  */
-async function executeHooksOutsideREPL({
+export async function executeHooksOutsideREPL({
   getAppState,
   hookInput,
   matchQuery,
@@ -4305,10 +4378,11 @@ export async function applyHookSessionTitle(title: string): Promise<void> {
   }
 
   logForDebugging(
-    `Applying session title from UserPromptSubmit hook (${[...sanitized].length} chars)`,
+    `Hook sessionTitle applied (${[...sanitized].length} chars)`,
   )
   await saveCustomTitle(sessionId, sanitized, undefined, 'hook')
   await saveAgentName(sessionId, sanitized, undefined, 'hook')
+  await renameJob(sessionId, sanitized, 'user')
 }
 
 /**
@@ -4861,7 +4935,7 @@ export type ElicitationResultHookResult = {
  * Mirrors the relevant branches of processHookJSONOutput for Elicitation
  * and ElicitationResult hook events.
  */
-function parseElicitationHookOutput(
+export function parseElicitationHookOutput(
   result: HookOutsideReplResult,
   expectedEventName: 'Elicitation' | 'ElicitationResult',
 ): {
@@ -5334,7 +5408,7 @@ async function executeHookCallback({
   const context = toolUseContext
     ? {
         getAppState: toolUseContext.getAppState,
-        updateAttributionState: toolUseContext.updateAttributionState,
+        applyAttributionOp: toolUseContext.applyAttributionOp,
       }
     : undefined
   const json = await hook.callback(

@@ -5,12 +5,17 @@ import type { Attributes, MetricOptions } from '@opentelemetry/api'
 import memoize from 'lodash-es/memoize.js'
 import { getIsNonInteractiveSession } from 'src/bootstrap/state.js'
 import type { AttributedCounter } from '../bootstrap/state.js'
-import { getSessionCounter, setMeter } from '../bootstrap/state.js'
+import {
+  getSessionCounter,
+  getSessionStartType,
+  setMeter,
+} from '../bootstrap/state.js'
 import { shutdownLspServerManager } from '../services/lsp/manager.js'
 import { populateOAuthAccountInfoIfNeeded } from '../services/oauth/client.js'
 import {
   initializePolicyLimitsLoadingPromise,
   isPolicyLimitsEligible,
+  maybeLoadPolicyLimitsAfterGrowthBookInit,
 } from '../services/policyLimits/index.js'
 import {
   initializeRemoteManagedSettingsLoadingPromise,
@@ -51,6 +56,7 @@ import {
   isBashToolEnabled,
   isPowerShellToolEnabled,
 } from '../utils/shell/shellToolUtils.js'
+import { assertScrubSandboxAvailable } from '../utils/subprocessEnv.js'
 import { isBetaTracingEnabled } from '../utils/telemetry/betaSessionTracing.js'
 import { getTelemetryAttributes } from '../utils/telemetryAttributes.js'
 import { setShellIfWindows } from '../utils/windowsPaths.js'
@@ -78,6 +84,7 @@ export const init = memoize(async (): Promise<void> => {
     // Full environment variables are applied after trust is established
     const envVarsStart = Date.now()
     applySafeConfigEnvironmentVariables()
+    await assertScrubSandboxAvailable()
 
     // Apply NODE_EXTRA_CA_CERTS from settings.json to process.env early,
     // before any TLS connections. Bun caches the TLS cert store at boot
@@ -107,6 +114,7 @@ export const init = memoize(async (): Promise<void> => {
       // unchanged refreshes are no-ops.
       gb.onGrowthBookRefresh(() => {
         void fp.reinitialize1PEventLoggingIfConfigChanged()
+        maybeLoadPolicyLimitsAfterGrowthBookInit()
       })
     })
     profileCheckpoint('init_after_1p_event_logging')
@@ -360,6 +368,6 @@ async function setMeterState(): Promise<void> {
     // Increment session counter here because the startup telemetry path
     // runs before this async initialization completes, so the counter
     // would be null there.
-    getSessionCounter()?.add(1)
+    getSessionCounter()?.add(1, { start_type: getSessionStartType() })
   }
 }

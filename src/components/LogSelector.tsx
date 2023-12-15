@@ -13,6 +13,7 @@ import type { Color } from '../ink/styles.js';
 import { Box, Text, useInput, useTerminalFocus, useTheme } from '../ink.js';
 import { useKeybinding } from '../keybindings/useKeybinding.js';
 import { logEvent } from '../services/analytics/index.js';
+import { parsePrUrl, PR_URL_RE } from '../tools/shared/gitOperationTracking.js';
 import type { LogOption, SerializedMessage } from '../types/logs.js';
 import { formatLogMetadata, truncateToWidth } from '../utils/format.js';
 import { getWorktreePaths } from '../utils/getWorktreePaths.js';
@@ -52,6 +53,7 @@ export type LogSelectorProps = {
   onLogsChanged?: () => void;
   onLoadMore?: (count: number) => void;
   initialSearchQuery?: string;
+  reloadGeneration?: number;
   showAllProjects?: boolean;
   onToggleAllProjects?: () => void;
   onAgenticSearch?: (query: string, logs: LogOption[], signal?: AbortSignal) => Promise<LogOption[]>;
@@ -64,6 +66,12 @@ type LogTreeNode = TreeNode<{
 function normalizeAndTruncateToWidth(text: string, maxWidth: number): string {
   const normalized = text.replace(/\s+/g, ' ').trim();
   return truncateToWidth(normalized, maxWidth);
+}
+function normalizePrUrls(query: string): string {
+  return query.replace(new RegExp(`${PR_URL_RE.source}[^,\\s"]*`, 'g'), url => {
+    const pr = parsePrUrl(url);
+    return pr ? `PR #${pr.prNumber} ${pr.prRepository}` : url;
+  });
 }
 
 // Width of prefixes that TreeSelect will add
@@ -153,6 +161,7 @@ export function LogSelector(t0) {
     onLogsChanged,
     onLoadMore,
     initialSearchQuery,
+    reloadGeneration = 0,
     showAllProjects: t2,
     onToggleAllProjects,
     onAgenticSearch,
@@ -234,6 +243,15 @@ export function LogSelector(t0) {
   const [agenticSearchState, setAgenticSearchState] = React.useState(t8);
   const [isAgenticSearchOptionFocused, setIsAgenticSearchOptionFocused] = React.useState(false);
   const agenticSearchAbortRef = React.useRef(null);
+  React.useEffect(() => {
+    if (reloadGeneration === 0) return;
+    agenticSearchAbortRef.current?.abort();
+    setAgenticSearchState(previous => previous.status === 'idle' ? previous : {
+      status: 'idle'
+    });
+    setIsAgenticSearchOptionFocused(false);
+    setPreviewLog(null);
+  }, [reloadGeneration]);
   const t9 = viewMode === "search" && agenticSearchState.status !== "searching";
   let t10;
   let t11;
@@ -281,7 +299,8 @@ export function LogSelector(t0) {
     setQuery: setSearchQuery,
     cursorOffset: searchCursorOffset
   } = useSearchInput(t14);
-  const deferredSearchQuery = React.useDeferredValue(searchQuery);
+  const normalizedSearchQuery = normalizePrUrls(searchQuery);
+  const deferredSearchQuery = React.useDeferredValue(normalizedSearchQuery);
   const [debouncedDeepSearchQuery, setDebouncedDeepSearchQuery] = React.useState("");
   let t15;
   let t16;
@@ -422,13 +441,13 @@ export function LogSelector(t0) {
   const baseFilteredLogs = filtered;
   let t22;
   bb0: {
-    if (!searchQuery) {
+    if (!normalizedSearchQuery) {
       t22 = baseFilteredLogs;
       break bb0;
     }
     let t23;
-    if ($[39] !== baseFilteredLogs || $[40] !== searchQuery) {
-      const query = searchQuery.toLowerCase();
+    if ($[39] !== baseFilteredLogs || $[40] !== normalizedSearchQuery) {
+      const query = normalizedSearchQuery.toLowerCase();
       t23 = baseFilteredLogs.filter(log_5 => {
         const displayedTitle = getLogDisplayTitle(log_5).toLowerCase();
         const branch_0 = (log_5.gitBranch || "").toLowerCase();
@@ -437,7 +456,7 @@ export function LogSelector(t0) {
         return displayedTitle.includes(query) || branch_0.includes(query) || tag.includes(query) || prInfo.includes(query);
       });
       $[39] = baseFilteredLogs;
-      $[40] = searchQuery;
+      $[40] = normalizedSearchQuery;
       $[41] = t23;
     } else {
       t23 = $[41];
@@ -807,7 +826,7 @@ export function LogSelector(t0) {
       });
       ;
       try {
-        const results_0 = await onAgenticSearch(searchQuery, logs, abortController.signal);
+        const results_0 = await onAgenticSearch(normalizedSearchQuery, logs, abortController.signal);
         if (abortController.signal.aborted) {
           return;
         }
@@ -1387,7 +1406,7 @@ export function LogSelector(t0) {
   } else {
     t70 = $[221];
   }
-  const t71 = <Box paddingLeft={2}>{exitState.pending ? <Text dimColor={true}>Press {exitState.keyName} again to exit</Text> : viewMode === "rename" ? <Text dimColor={true}><Byline><KeyboardShortcutHint shortcut="Enter" action="save" /><ConfigurableShortcutHint action="confirm:no" context="Confirmation" fallback="Esc" description="cancel" /></Byline></Text> : agenticSearchState.status === "searching" ? <Text dimColor={true}><Byline><Text>Searching with Claude…</Text><ConfigurableShortcutHint action="confirm:no" context="Confirmation" fallback="Esc" description="cancel" /></Byline></Text> : isAgenticSearchOptionFocused ? <Text dimColor={true}><Byline><KeyboardShortcutHint shortcut="Enter" action="search" /><KeyboardShortcutHint shortcut={"\u2193"} action="skip" /><ConfigurableShortcutHint action="confirm:no" context="Confirmation" fallback="Esc" description="cancel" /></Byline></Text> : viewMode === "search" ? <Text dimColor={true}><Byline><Text>{isSearching && false ? "Searching\u2026" : "Type to Search"}</Text><KeyboardShortcutHint shortcut="Enter" action="select" /><ConfigurableShortcutHint action="confirm:no" context="Confirmation" fallback="Esc" description="clear" /></Byline></Text> : <Text dimColor={true}><Byline>{onToggleAllProjects && <KeyboardShortcutHint shortcut="Ctrl+A" action={showAllProjects ? "only show current repo" : "show all projects"} />}{currentBranch && <KeyboardShortcutHint shortcut="Ctrl+B" action={branchFilterEnabled ? "only show current branch" : "show all branches"} />}{hasMultipleWorktrees && <KeyboardShortcutHint shortcut="Ctrl+W" action={`show ${showAllWorktrees ? "current worktree" : "all worktrees"}`} />}<KeyboardShortcutHint shortcut="Ctrl+V" action="preview" /><KeyboardShortcutHint shortcut="Ctrl+R" action="rename" /><Text>Type to search</Text><ConfigurableShortcutHint action="confirm:no" context="Confirmation" fallback="Esc" description="cancel" />{getExpandCollapseHint() && <Text>{getExpandCollapseHint()}</Text>}</Byline></Text>}</Box>;
+  const t71 = <Box paddingLeft={2}>{exitState.pending ? <Text dimColor={true}>Press {exitState.keyName} again to exit</Text> : viewMode === "rename" ? <Text dimColor={true}><Byline><KeyboardShortcutHint shortcut="Enter" action="save" /><ConfigurableShortcutHint action="confirm:no" context="Confirmation" fallback="Esc" description="cancel" /></Byline></Text> : agenticSearchState.status === "searching" ? <Text dimColor={true}><Byline><Text>Searching with Claude…</Text><ConfigurableShortcutHint action="confirm:no" context="Confirmation" fallback="Esc" description="cancel" /></Byline></Text> : isAgenticSearchOptionFocused ? <Text dimColor={true}><Byline><KeyboardShortcutHint shortcut="Enter" action="search" /><KeyboardShortcutHint shortcut={"\u2193"} action="skip" /><ConfigurableShortcutHint action="confirm:no" context="Confirmation" fallback="Esc" description="cancel" /></Byline></Text> : viewMode === "search" ? <Text dimColor={true}><Byline><Text>{isSearching && false ? "Searching\u2026" : "Type to Search"}</Text><KeyboardShortcutHint shortcut="Enter" action="select" /><ConfigurableShortcutHint action="confirm:no" context="Confirmation" fallback="Esc" description="clear" /></Byline></Text> : <Text dimColor={true}><Byline>{onToggleAllProjects && <KeyboardShortcutHint shortcut="Ctrl+A" action={showAllProjects ? "only show current repo" : "show all projects"} />}{currentBranch && <KeyboardShortcutHint shortcut="Ctrl+B" action={branchFilterEnabled ? "only show current branch" : "show all branches"} />}{hasMultipleWorktrees && <KeyboardShortcutHint shortcut="Ctrl+W" action={showAllWorktrees ? "only show current worktree" : "show all worktrees"} />}<KeyboardShortcutHint shortcut="Space" action="preview" /><KeyboardShortcutHint shortcut="Ctrl+R" action="rename" /><Text>Type to search</Text><ConfigurableShortcutHint action="confirm:no" context="Confirmation" fallback="Esc" description="cancel" />{getExpandCollapseHint() && <Text>{getExpandCollapseHint()}</Text>}</Byline></Text>}</Box>;
   let t72;
   if ($[235] !== t57 || $[236] !== t60 || $[237] !== t62 || $[238] !== t63 || $[239] !== t65 || $[240] !== t66 || $[241] !== t67 || $[242] !== t68 || $[243] !== t69 || $[244] !== t70 || $[245] !== t71) {
     t72 = <Box flexDirection="column" height={t57}><Pane color="suggestion">{t60}{t62}{t63}{t64}{t65}{t66}{t67}{t68}{t69}{t70}{t71}</Pane></Box>;
@@ -1451,14 +1470,14 @@ function _temp2(log_1) {
   if (isCurrentSession) {
     return true;
   }
-  if (log_1.customTitle) {
+  if (log_1.customTitle ?? log_1.aiTitle) {
     return true;
   }
   const fromMessages = getFirstMeaningfulUserMessageTextContent(log_1.messages);
   if (fromMessages) {
     return true;
   }
-  if (log_1.firstPrompt || log_1.customTitle) {
+  if (log_1.firstPrompt || log_1.customTitle || log_1.aiTitle) {
     return true;
   }
   return false;
@@ -1499,7 +1518,7 @@ function extractSearchableText(message: SerializedMessage): string {
 function buildSearchableText(log: LogOption): string {
   const searchableMessages = log.messages.length <= DEEP_SEARCH_MAX_MESSAGES ? log.messages : [...log.messages.slice(0, DEEP_SEARCH_CROP_SIZE), ...log.messages.slice(-DEEP_SEARCH_CROP_SIZE)];
   const messageText = searchableMessages.map(extractSearchableText).filter(Boolean).join(' ');
-  const metadata = [log.customTitle, log.summary, log.firstPrompt, log.gitBranch, log.tag, log.prNumber ? `PR #${log.prNumber}` : undefined, log.prRepository].filter(Boolean).join(' ');
+  const metadata = [log.customTitle, log.aiTitle, log.summary, log.firstPrompt, log.gitBranch, log.tag, log.prNumber ? `PR #${log.prNumber}` : undefined, log.prRepository].filter(Boolean).join(' ');
   const fullText = `${metadata} ${messageText}`.trim();
   return fullText.length > DEEP_SEARCH_MAX_TEXT_LENGTH ? fullText.slice(0, DEEP_SEARCH_MAX_TEXT_LENGTH) : fullText;
 }

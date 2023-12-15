@@ -77,6 +77,7 @@ export type ReplHydration =
 
 export type ReplIsolationLatch = {
   current: 'web' | 'connectors' | null
+  exemptServers?: Set<string>
 }
 
 export type ReplToolSet = readonly Tool[]

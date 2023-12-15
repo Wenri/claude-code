@@ -1,5 +1,6 @@
 import { CallToolResultSchema } from '@modelcontextprotocol/sdk/types.js'
 import type { HookEvent } from 'src/entrypoints/agentSdkTypes.js'
+import { getMcpClientsFromAccessor } from '../../bootstrap/state.js'
 import type { MCPServerConnection } from '../../services/mcp/types.js'
 import { createCombinedAbortSignal } from '../combinedAbortSignal.js'
 import { logForDebugging } from '../debug.js'
@@ -42,12 +43,13 @@ export async function execMcpToolHook(
   clients: MCPServerConnection[] | undefined,
   signal?: AbortSignal,
 ): Promise<{ ok: boolean; body: string; error?: string; aborted?: boolean }> {
-  if (clients === undefined) {
+  const effectiveClients = clients ?? getMcpClientsFromAccessor()
+  if (effectiveClients === undefined) {
     const error = `mcp_tool hooks are not available for the '${hookEvent}' hook event (no MCP client context)`
     logForDebugging(`Hooks: mcp_tool hook skipped — ${error}`, { level: 'warn' })
     return { ok: false, body: '', error }
   }
-  const server = clients.find(client => client.name === hook.server)
+  const server = effectiveClients.find(client => client.name === hook.server)
   if (!server || server.type !== 'connected') {
     const error = `MCP server '${hook.server}' not connected`
     logForDebugging(`Hooks: mcp_tool hook skipped — ${error}`, { level: 'warn' })
