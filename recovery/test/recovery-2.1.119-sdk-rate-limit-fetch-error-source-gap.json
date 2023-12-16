@@ -1,0 +1,549 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "authenticated-paired-owner-and-source-gap-replay",
+  "criterion": "exact-target-units-and-residues-plus-sole-source-marker-candidates-and-atomic-paired-source-postimages",
+  "evidenceIds": [
+    "target119-sdk-rate-limit-fetch-error-target-fragment",
+    "target119-sdk-rate-limit-fetch-error-source-replay-test"
+  ],
+  "artifactPhasePolicy": {
+    "pairing": "exact-report-and-coverage-descriptor-pair",
+    "rejectHybridPairs": true,
+    "rejectUnknownPairs": true,
+    "acceptedPairs": [
+      {
+        "phase": "post-rate-owner",
+        "projection": "preSourceGap",
+        "typedAudit": {
+          "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+          "bytes": 24727372,
+          "sha256": "44893d07b612b3b5d6589da39ede97a02f57031e124875fad8b80cbc384d8e96"
+        },
+        "sourceCoverage": {
+          "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+          "bytes": 375767,
+          "sha256": "9298be0f62522e31e3c47a898e650837f8099efda1eff0470db154ef74ab1020"
+        },
+        "sourceCoverageRaw": {
+          "bytes": 3264637,
+          "sha256": "098a0759188bdf750bfd06c6bc87e616b16b398e4bc104fdffcf49f8e08688e9"
+        }
+      },
+      {
+        "phase": "post-streaming",
+        "projection": "finalSourceGap",
+        "typedAudit": {
+          "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+          "bytes": 24991569,
+          "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"
+        },
+        "sourceCoverage": {
+          "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+          "bytes": 380714,
+          "sha256": "ad2d435743921b83fb784ff6baf34e1651fc83dc2e31f7680997a3bfd6241654"
+        },
+        "sourceCoverageRaw": {
+          "bytes": 3283017,
+          "sha256": "1b47544fc4464cbc437b27133fe03438a2fecb384d4e607118d1a57cb014cc55"
+        }
+      },
+      {
+        "phase": "post-u21759",
+        "projection": "finalSourceGap",
+        "typedAudit": {
+          "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+          "bytes": 24991569,
+          "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"
+        },
+        "sourceCoverage": {
+          "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+          "bytes": 382108,
+          "sha256": "09d6075beeb3174217b97555ddbf67593b72fb5ba9c67e1e143154bd955af810"
+        },
+        "sourceCoverageRaw": {
+          "bytes": 3290710,
+          "sha256": "858d4a5dcfb37ce36a43078351ed68dd76c1e565e883617ff451974c2fde1071"
+        }
+      },
+      {
+        "phase": "post-u21878",
+        "projection": "finalSourceGap",
+        "typedAudit": {
+          "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+          "bytes": 24991569,
+          "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"
+        },
+        "sourceCoverage": {
+          "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+          "bytes": 383456,
+          "sha256": "874421d61f40166898113e0967be904859cda7c00493ee57303b97164bbb0015"
+        },
+        "sourceCoverageRaw": {
+          "bytes": 3297173,
+          "sha256": "0facb150b84243148609b0e5562484d5d9e5c29f895d03c3a3566484b347b08e"
+        }
+      }
+    ]
+  },
+  "inputs": {
+    "baselineBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "sourceUniverse": {
+      "release": "2.1.119",
+      "rejectUnknownProfiles": true,
+      "acceptedProfiles": [
+        {
+          "profile": "historical-raw",
+          "files": 2023,
+          "jsonBytes": 67032,
+          "sha256": "756cb7c544c9c0b244d2d9bfe9af732f99c0acdc8b0ca3cccfb17e2c138d820d"
+        },
+        {
+          "profile": "post-background-agent-replay",
+          "files": 2024,
+          "jsonBytes": 67081,
+          "sha256": "4ec8f0bf56068881b800e4fbd29915f07caf9f2ed1be9f94deda10ed25faba2e"
+        }
+      ]
+    },
+    "sourceFiles": [
+      {
+        "path": "src/entrypoints/sdk/coreSchemas.ts",
+        "markerCandidates": [
+          "src/entrypoints/sdk/coreSchemas.ts"
+        ],
+        "before": {
+          "path": "src/entrypoints/sdk/coreSchemas.ts",
+          "bytes": 63375,
+          "sha256": "ad2b52db89980335b1c6fd1567c1e3ca73f95f9c0781c6299910112c14b556ff"
+        },
+        "after": {
+          "path": "src/entrypoints/sdk/coreSchemas.ts",
+          "bytes": 63357,
+          "sha256": "3f9380f601878c388d993875f8e0d1560407e0fac759d716d9bea30d3ed39e3d"
+        }
+      },
+      {
+        "path": "src/utils/model/check1mAccess.ts",
+        "markerCandidates": [
+          "src/utils/model/check1mAccess.ts"
+        ],
+        "before": {
+          "path": "src/utils/model/check1mAccess.ts",
+          "bytes": 2215,
+          "sha256": "f4974b7147bea87d6797efe39e8207fdb8a89c74973056567438560d57a02c4a"
+        },
+        "after": {
+          "path": "src/utils/model/check1mAccess.ts",
+          "bytes": 2197,
+          "sha256": "22534a038104fcb636f30d2d9fee3e508259c0f8ed8a6f3cc2630576e8febd64"
+        }
+      }
+    ]
+  },
+  "artifactProjections": {
+    "coverageTupleSchema": [
+      "targetIndex",
+      "start",
+      "end",
+      "nodeType",
+      "sourceHash",
+      "structuralClass",
+      "disposition",
+      "ownerIds",
+      "evidenceIds",
+      "behavior"
+    ],
+    "preSourceGap": {
+      "reportUnits": {
+        "10175": {
+          "owner": {
+            "rows": 67,
+            "jsonBytes": 31292,
+            "sha256": "eac7e5b379a1258b3c685a94b71e8dc15969eca49d112efa1484073d05329ba5"
+          },
+          "added": {
+            "rows": 0,
+            "jsonBytes": 2,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "strict": {
+            "rows": 0,
+            "jsonBytes": 2,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        },
+        "12489": {
+          "owner": {
+            "rows": 6,
+            "jsonBytes": 2455,
+            "sha256": "260128ceecd32b648e8d02224146ba24263932af0420329215894e649d2ef30d"
+          },
+          "added": {
+            "rows": 0,
+            "jsonBytes": 2,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "strict": {
+            "rows": 0,
+            "jsonBytes": 2,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        }
+      }
+    },
+    "finalSourceGap": {
+      "reportUnits": {
+        "10175": {
+          "owner": {
+            "rows": 68,
+            "jsonBytes": 31704,
+            "sha256": "56490139cc3edcd041f1e25b85de6410d364124a382ae665ab03234b4a386dcd"
+          },
+          "added": {
+            "rows": 1,
+            "jsonBytes": 3530,
+            "sha256": "765218fef08200d51cb3b0c17018175ce6d05a369cf93c67ffdaf34ae096abdb"
+          },
+          "strict": {
+            "rows": 1,
+            "jsonBytes": 3530,
+            "sha256": "765218fef08200d51cb3b0c17018175ce6d05a369cf93c67ffdaf34ae096abdb"
+          }
+        },
+        "12489": {
+          "owner": {
+            "rows": 7,
+            "jsonBytes": 2865,
+            "sha256": "c47f1e435eed884d0bb5f8fa0531c438e5053cbf25ba319cc403b7168db74fd1"
+          },
+          "added": {
+            "rows": 1,
+            "jsonBytes": 3634,
+            "sha256": "2dc83dea71ca8a7c6f1ef79a94ac8d66b8bedbc372fb5d6a6cc6b2a405b19871"
+          },
+          "strict": {
+            "rows": 1,
+            "jsonBytes": 3634,
+            "sha256": "2dc83dea71ca8a7c6f1ef79a94ac8d66b8bedbc372fb5d6a6cc6b2a405b19871"
+          }
+        }
+      }
+    },
+    "coverageRows": {
+      "rows": 2,
+      "jsonBytes": 1461,
+      "sha256": "b0bb953d3bc3241791e6fd5261c10ea5b2bc2dbc94cb6e954f6050b9e31b3d21"
+    },
+    "coverageTuples": {
+      "rows": 2,
+      "jsonBytes": 1221,
+      "sha256": "6a65de3bde81d30b96430ac8721ae3155d7fa0221d5d6c6f7aef0688cb3d555e"
+    }
+  },
+  "summary": {
+    "units": 2,
+    "residues": 22,
+    "targetIndicesSha256": "a9e5b0e79679b8b0141e526169349c7248cc4832ca03def146c47f66f230a288",
+    "residueIdentitiesSha256": "76c912dfc14cdb4864a13bdd74226dd861e2ccd2f5be52e7e3d478d1b5f26fbf",
+    "representationCounts": {
+      "source-file-ast": 20,
+      "source-gap-replay": 2
+    }
+  },
+  "sourceReplay": [
+    {
+      "path": "src/entrypoints/sdk/coreSchemas.ts",
+      "before": "          'org_service_level_disabled',\n          'org_service_zero_credit_limit',\n          'no_limits_configured',\n          'unknown',",
+      "after": "          'org_service_level_disabled',\n          'no_limits_configured',\n          'fetch_error',\n          'unknown',"
+    },
+    {
+      "path": "src/utils/model/check1mAccess.ts",
+      "before": "    case 'org_service_level_disabled':\n    case 'org_service_zero_credit_limit':\n    case 'no_limits_configured':\n    case 'unknown':",
+      "after": "    case 'org_service_level_disabled':\n    case 'no_limits_configured':\n    case 'fetch_error':\n    case 'unknown':"
+    }
+  ],
+  "rows": [
+    {
+      "targetIndex": 10175,
+      "priorOwnerPaths": [
+        "src/tools/SkillTool/prompt.ts"
+      ],
+      "sourceOwner": "src/entrypoints/sdk/coreSchemas.ts",
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "VariableDeclaration",
+        "start": 5075792,
+        "end": 5116129,
+        "bytes": 40337,
+        "sourceHash": "2ead5838ae049ef26b221835561b3c4ab7471aae344aa9c20bac079a10be3b23"
+      },
+      "behavior": "The complete authenticated Target119 SDK schema module is authored by src/entrypoints/sdk/coreSchemas.ts; the recovered rate-limit schema replaces the source-only org_service_zero_credit_limit reason with the target-authenticated fetch_error reason while preserving the exact surrounding enum.",
+      "evidenceIds": [
+        "target119-sdk-rate-limit-fetch-error-target-fragment",
+        "target119-sdk-rate-limit-fetch-error-source-replay-test"
+      ],
+      "sourceMarkers": [
+        "Config scope for settings.",
+        "Tool execution time in milliseconds. Excludes permission-prompt and hook time.",
+        "Alternate names that resolve to this command (e.g., /cost and /stats both resolve to /usage)"
+      ],
+      "targetMarkers": [
+        "Config scope for settings.",
+        "Tool execution time in milliseconds. Excludes permission-prompt and hook time.",
+        "Alternate names that resolve to this command (e.g., /cost and /stats both resolve to /usage)",
+        "org_service_level_disabled",
+        "no_limits_configured",
+        "fetch_error"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "Tool execution time in milliseconds. Excludes permission-prompt and hook time.",
+          "start": 5083607,
+          "end": 5083687,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "string",
+          "value": "Tool execution time in milliseconds. Excludes permission-prompt and hook time.",
+          "start": 5083934,
+          "end": 5084014,
+          "baselineCount": 0,
+          "targetOrdinal": 2,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "string",
+          "value": "Alternate names that resolve to this command (e.g., /cost and /stats both resolve to /usage)",
+          "start": 5094086,
+          "end": 5094180,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "property",
+          "value": "rateLimitType",
+          "start": 5100705,
+          "end": 5100718,
+          "baselineCount": 25,
+          "targetOrdinal": 26,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "string",
+          "value": "five_hour",
+          "start": 5100727,
+          "end": 5100738,
+          "baselineCount": 8,
+          "targetOrdinal": 9,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "string",
+          "value": "seven_day",
+          "start": 5100739,
+          "end": 5100750,
+          "baselineCount": 8,
+          "targetOrdinal": 9,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "string",
+          "value": "overage",
+          "start": 5100787,
+          "end": 5100796,
+          "baselineCount": 8,
+          "targetOrdinal": 9,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "string",
+          "value": "fetch_error",
+          "start": 5101263,
+          "end": 5101276,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "source-gap-replay"
+        },
+        {
+          "kind": "property",
+          "value": "analytics_disabled",
+          "start": 5104927,
+          "end": 5104945,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "string",
+          "value": "@internal True when the CLI has analytics/telemetry disabled (privacy level, DO_NOT_TRACK, or 3P provider). IDE clients use this to hide per-message thumbs feedback UI since the rating event would be a no-op.",
+          "start": 5104978,
+          "end": 5105188,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "string",
+          "value": "task_summary",
+          "start": 5107033,
+          "end": 5107047,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "string",
+          "value": "@internal Mid-turn progress line from the debounced classifier. Mirrors external_metadata.task_summary so non-CCR consumers (desktop LocalSessionManager) see the same live phrase. detail is null on the idle clear.",
+          "start": 5107121,
+          "end": 5107336,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "property",
+          "value": "projectKey",
+          "start": 5107763,
+          "end": 5107773,
+          "baselineCount": 1,
+          "targetOrdinal": 6,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "property",
+          "value": "subpath",
+          "start": 5107806,
+          "end": 5107813,
+          "baselineCount": 1,
+          "targetOrdinal": 5,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "string",
+          "value": "Emitted when SessionStore.append() rejects or times out for a transcript-mirror batch after bounded retry (3 attempts with short backoff; timeouts are not retried). The batch is then dropped; this surfaces the failure so consumers are not silent on data loss.",
+          "start": 5107881,
+          "end": 5108142,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "source-file-ast"
+        }
+      ]
+    },
+    {
+      "targetIndex": 12489,
+      "priorOwnerPaths": [
+        "src/tasks/RemoteAgentTask/RemoteAgentTask.tsx"
+      ],
+      "sourceOwner": "src/utils/model/check1mAccess.ts",
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 7828822,
+        "end": 7829322,
+        "bytes": 500,
+        "sourceHash": "84781cda2930e4baea2abbef01fea3ce5d5cc87475569ed3b30a8577cafc20f5"
+      },
+      "behavior": "The complete authenticated Target119 extra-usage access function is authored by src/utils/model/check1mAccess.ts; its recovered disabled-reason switch replaces the source-only org_service_zero_credit_limit case with the target-authenticated fetch_error case in lockstep with the SDK rate-limit schema.",
+      "evidenceIds": [
+        "target119-sdk-rate-limit-fetch-error-target-fragment",
+        "target119-sdk-rate-limit-fetch-error-source-replay-test"
+      ],
+      "sourceMarkers": [
+        "Check if extra usage is enabled based on the cached disabled reason.",
+        "cachedExtraUsageDisabledReason",
+        "checkOpus1mAccess"
+      ],
+      "targetMarkers": [
+        "out_of_credits",
+        "org_service_level_disabled",
+        "no_limits_configured",
+        "fetch_error"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "seat_tier_level_disabled",
+          "start": 7829053,
+          "end": 7829079,
+          "baselineCount": 3,
+          "targetOrdinal": 4,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "string",
+          "value": "member_level_disabled",
+          "start": 7829084,
+          "end": 7829107,
+          "baselineCount": 3,
+          "targetOrdinal": 4,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "string",
+          "value": "seat_tier_zero_credit_limit",
+          "start": 7829112,
+          "end": 7829141,
+          "baselineCount": 3,
+          "targetOrdinal": 4,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "string",
+          "value": "group_zero_credit_limit",
+          "start": 7829146,
+          "end": 7829171,
+          "baselineCount": 2,
+          "targetOrdinal": 3,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "string",
+          "value": "member_zero_credit_limit",
+          "start": 7829176,
+          "end": 7829202,
+          "baselineCount": 3,
+          "targetOrdinal": 4,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "string",
+          "value": "org_service_level_disabled",
+          "start": 7829207,
+          "end": 7829235,
+          "baselineCount": 3,
+          "targetOrdinal": 4,
+          "representation": "source-file-ast"
+        },
+        {
+          "kind": "string",
+          "value": "fetch_error",
+          "start": 7829267,
+          "end": 7829280,
+          "baselineCount": 0,
+          "targetOrdinal": 2,
+          "representation": "source-gap-replay"
+        }
+      ]
+    }
+  ]
+}

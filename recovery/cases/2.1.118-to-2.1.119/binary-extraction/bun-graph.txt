@@ -1,0 +1,62 @@
+.bun section: file_offset=0x67a8000 size=0x8235185 (136532357 bytes)
+trailer magic: OK ('\n---- Bun! ----\n')
+
+--- footer (Offsets struct) ---
+  byte_count      : 0x823514d (136532301)
+  modules_ptr     : {off=0x08235048, len=0x00000104} (260 bytes)
+  entry_point_id  : 0
+  exec_argv       : {off=0x0823514c, len=0x00000000}
+  flags           : 0x0000000f
+
+--- directory records ---
+module_count: 5 (260 bytes / 52 per record, 0 remainder)
+
+idx  path                                               name_off     name_len   content_off  content_len bc_off       bc_len     kind
+0    /$bunfs/root/src/entrypoints/cli.js                0x000734192c 35         0x0007341950 13721077   0x0000000078 120854672  js+jsc
+1    /$bunfs/root/image-processor.js                    0x0008057746 31         0x0008057766 2564       -            -          js
+2    /$bunfs/root/audio-capture.js                      0x000805816b 29         0x0008058189 2562       -            -          js
+3    /$bunfs/root/image-processor.node                  0x0008058b8c 33         0x0008058bae 1458656    -            -          elf
+4    /$bunfs/root/audio-capture.node                    0x00081bcd8f 31         0x00081bcdaf 492184     -            -          elf
+
+total entries: 5 (1 with JSC bytecode)
+
+--- entry details ---
+
+[0] /$bunfs/root/src/entrypoints/cli.js
+  encoding:             1
+  loader:               1 (js)
+  module_format:        2 (none)
+  side:                 0 (client)
+  bytecode_origin_path: /$bunfs/root/src/entrypoints/cli.js
+
+[1] /$bunfs/root/image-processor.js
+  encoding:             1
+  loader:               1 (js)
+  module_format:        2 (none)
+  side:                 0 (client)
+
+[2] /$bunfs/root/audio-capture.js
+  encoding:             1
+  loader:               1 (js)
+  module_format:        2 (none)
+  side:                 0 (client)
+
+[3] /$bunfs/root/image-processor.node
+  encoding:             0
+  loader:               10 (base64)
+  module_format:        0 (esm)
+  side:                 1 (server)
+
+[4] /$bunfs/root/audio-capture.node
+  encoding:             0
+  loader:               10 (base64)
+  module_format:        0 (esm)
+  side:                 1 (server)
+
+--- embedded native tools (statically linked, argv[0]-dispatched) ---
+  ripgrep        argv0: rg               [linked]  version: 14.1.10 (rev aa3dbc9ae+)
+  ugrep          argv0: ug, ugrep        [linked]  version: 7.5.0
+  bfs            argv0: bfs              [linked]
+  apply-seccomp  argv0: apply-seccomp    [linked]
+total: 4/4 known embedded tools linked in
+  (signature scan of .rodata; argv[0] keys are this Bun fork's applet classifier)

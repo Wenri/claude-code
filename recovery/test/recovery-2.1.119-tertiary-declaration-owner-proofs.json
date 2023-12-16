@@ -1,0 +1,608 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "complete-unit-tertiary-declaration-owner-proof-ready",
+  "criterion": "authenticated-target-unit-plus-sole-exact-historical-source-declaration-v1",
+  "evidenceIds": [
+    "target119-tertiary-declaration-owner-target-fragment",
+    "target119-tertiary-declaration-owner-source-ast-test"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "sourceUniverse": {
+      "root": ".recovery-tmp/semantic-trees/2.1.119/src",
+      "files": 2023
+    },
+    "sourceFiles": [
+      {
+        "path": "src/utils/prStatus.ts",
+        "bytes": 12275,
+        "sha256": "0c6aae10ef5f29a4d4b2bcf24d05a5a2ad9dc80908d4dfe22ff2bd5fffcd8d79"
+      },
+      {
+        "path": "src/services/proTrial.ts",
+        "bytes": 3749,
+        "sha256": "6f432078921e7899ee50f060b9d46d9059a6c10ed573e02ec6a4f8cdcf39a088"
+      },
+      {
+        "path": "src/commands/exit/exit.tsx",
+        "bytes": 8206,
+        "sha256": "456279dfa542cc17e88696cec31064c943f7f5487a4b380bf7dff503e57bd488"
+      },
+      {
+        "path": "src/commands/exit/exit-noninteractive.ts",
+        "bytes": 448,
+        "sha256": "4c6d789f17a41de6f3f488bbcd14ecc40be924e89a960380015b68c8c7dea66d"
+      },
+      {
+        "path": "src/services/mcp/headlessConnectionManager.ts",
+        "bytes": 9614,
+        "sha256": "10dfe87ff1962566a78f700b254f0725b385bb8d94881fe4b502ae0c1dadc2c7"
+      }
+    ]
+  },
+  "selection": {
+    "requireCompleteUnitResidueRepresentation": true,
+    "requireSoleExactDeclarationCandidate": true,
+    "representation": "source-declaration-ast"
+  },
+  "summary": {
+    "units": 6,
+    "residues": 9,
+    "sourceFiles": 5,
+    "targetIndicesSha256": "bb484709ce512d20e80316346fefe42017b36b5be6802a8311deae8788a6e338",
+    "residueIdentitiesSha256": "0475138acce33e2532be134ffa8bb6053c00e2aa656f7abddaf80a06148e0d0e"
+  },
+  "ownerOverrides": [
+    {
+      "key": "2.1.118-to-2.1.119:12736",
+      "targetIndex": 12736,
+      "paths": [
+        "src/utils/prStatus.ts"
+      ],
+      "evidenceIds": [
+        "target119-tertiary-declaration-owner-target-fragment",
+        "target119-tertiary-declaration-owner-source-ast-test"
+      ],
+      "declarationName": "persistCache",
+      "sourceMarkers": [
+        "JSON.stringify(value)",
+        "json === '{}'",
+        "lastCacheJson = json"
+      ],
+      "targetMarkers": [
+        "let $={}",
+        "===\"{}\"",
+        ".catch("
+      ],
+      "behavior": "The complete authenticated Target119 unit is the authored persistCache declaration: it serializes the pull-request cache, suppresses empty or unchanged writes, and persists through a temporary file in src/utils/prStatus.ts; the provisional utils/ghPrStatus.ts owner is rejected."
+    },
+    {
+      "key": "2.1.118-to-2.1.119:16919",
+      "targetIndex": 16919,
+      "paths": [
+        "src/services/proTrial.ts"
+      ],
+      "evidenceIds": [
+        "target119-tertiary-declaration-owner-target-fragment",
+        "target119-tertiary-declaration-owner-source-ast-test"
+      ],
+      "declarationName": "getProTrialDurationDays",
+      "sourceMarkers": [
+        "getOauthAccountInfo()?.claudeCodeTrialDurationDays",
+        "?? null"
+      ],
+      "targetMarkers": [
+        "claudeCodeTrialDurationDays",
+        "??null"
+      ],
+      "behavior": "The complete authenticated Target119 unit is the authored getProTrialDurationDays declaration, which reads the nullable trial-duration field from OAuth account state in src/services/proTrial.ts; the provisional Logo feed-config owner is rejected."
+    },
+    {
+      "key": "2.1.118-to-2.1.119:16925",
+      "targetIndex": 16925,
+      "paths": [
+        "src/services/proTrial.ts"
+      ],
+      "evidenceIds": [
+        "target119-tertiary-declaration-owner-target-fragment",
+        "target119-tertiary-declaration-owner-source-ast-test"
+      ],
+      "declarationName": "persistTrialEndsAt",
+      "sourceMarkers": [
+        "saveGlobalConfig(current =>",
+        "claudeCodeTrialEndsAt: endsAt"
+      ],
+      "targetMarkers": [
+        "claudeCodeTrialEndsAt===",
+        "claudeCodeTrialEndsAt:"
+      ],
+      "behavior": "The complete authenticated Target119 unit is the authored persistTrialEndsAt declaration, which idempotently updates the OAuth trial end in global configuration in src/services/proTrial.ts; the provisional Logo feed-config owner is rejected."
+    },
+    {
+      "key": "2.1.118-to-2.1.119:17980",
+      "targetIndex": 17980,
+      "paths": [
+        "src/commands/exit/exit.tsx"
+      ],
+      "evidenceIds": [
+        "target119-tertiary-declaration-owner-target-fragment",
+        "target119-tertiary-declaration-owner-source-ast-test"
+      ],
+      "declarationName": "call",
+      "sourceMarkers": [
+        "<BackgroundSessionExitDialog",
+        "gracefulShutdown(0, 'prompt_input_exit')"
+      ],
+      "targetMarkers": [
+        "onDetach:",
+        "\"prompt_input_exit\""
+      ],
+      "behavior": "The complete authenticated Target119 unit is the authored interactive exit call declaration: it handles background detach, worktree/background exit flow, and prompt-input shutdown in src/commands/exit/exit.tsx; the provisional WorktreeExitDialog owner is rejected."
+    },
+    {
+      "key": "2.1.118-to-2.1.119:17985",
+      "targetIndex": 17985,
+      "paths": [
+        "src/commands/exit/exit-noninteractive.ts"
+      ],
+      "evidenceIds": [
+        "target119-tertiary-declaration-owner-target-fragment",
+        "target119-tertiary-declaration-owner-source-ast-test"
+      ],
+      "declarationName": "call",
+      "sourceMarkers": [
+        "stopBackgroundSession('bridge')",
+        "gracefulShutdown(0, 'prompt_input_exit')"
+      ],
+      "targetMarkers": [
+        "(\"bridge\")",
+        "\"prompt_input_exit\""
+      ],
+      "behavior": "The complete authenticated Target119 unit is the authored noninteractive exit call declaration, which stops a background bridge session or performs prompt-input shutdown in src/commands/exit/exit-noninteractive.ts; the provisional WorktreeExitDialog owner is rejected."
+    },
+    {
+      "key": "2.1.118-to-2.1.119:21591",
+      "targetIndex": 21591,
+      "paths": [
+        "src/services/mcp/headlessConnectionManager.ts"
+      ],
+      "evidenceIds": [
+        "target119-tertiary-declaration-owner-target-fragment",
+        "target119-tertiary-declaration-owner-source-ast-test"
+      ],
+      "declarationName": "RETRY_DELAYS_MS",
+      "sourceMarkers": [
+        "const RETRY_DELAYS_MS = [500, 1_500, 4_000]"
+      ],
+      "targetMarkers": [
+        "[500,1500,4000]"
+      ],
+      "behavior": "The complete authenticated Target119 module-initializer unit contains the authored RETRY_DELAYS_MS declaration [500, 1500, 4000] from src/services/mcp/headlessConnectionManager.ts; the provisional main.tsx owner is rejected."
+    }
+  ],
+  "rows": [
+    {
+      "targetIndex": 12736,
+      "sourceOwner": "src/utils/prStatus.ts",
+      "priorOwnerPaths": [
+        "src/utils/ghPrStatus.ts"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 7906645,
+        "end": 7906796,
+        "bytes": 151,
+        "sourceHash": "30b5e4a10aed3cd920fc4400271b0126373e751adcf8c6d7ba22f535b81fce4f"
+      },
+      "source": {
+        "path": "src/utils/prStatus.ts",
+        "bytes": 12275,
+        "sha256": "0c6aae10ef5f29a4d4b2bcf24d05a5a2ad9dc80908d4dfe22ff2bd5fffcd8d79"
+      },
+      "declaration": {
+        "statementIndex": 27,
+        "kind": "FunctionDeclaration",
+        "name": "persistCache",
+        "start": 7509,
+        "end": 8012,
+        "bytes": 503,
+        "sourceHash": "3404419c99f29406f076cf7df5959f2bc4fa4dd4dc54ef9f1f3dec18b820b63e"
+      },
+      "sourceMarkers": [
+        "JSON.stringify(value)",
+        "json === '{}'",
+        "lastCacheJson = json"
+      ],
+      "targetMarkers": [
+        "let $={}",
+        "===\"{}\"",
+        ".catch("
+      ],
+      "soleExactDeclarationCandidate": {
+        "sourcePath": "src/utils/prStatus.ts",
+        "declarationName": "persistCache",
+        "matches": 1
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "{}",
+          "start": 7906718,
+          "end": 7906722,
+          "baselineCount": 19,
+          "targetOrdinal": 20,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "StringLiteral"
+          ],
+          "targetKinds": [
+            "Literal"
+          ]
+        }
+      ],
+      "behavior": "The complete authenticated Target119 unit is the authored persistCache declaration: it serializes the pull-request cache, suppresses empty or unchanged writes, and persists through a temporary file in src/utils/prStatus.ts; the provisional utils/ghPrStatus.ts owner is rejected."
+    },
+    {
+      "targetIndex": 16919,
+      "sourceOwner": "src/services/proTrial.ts",
+      "priorOwnerPaths": [
+        "src/components/LogoV2/feedConfigs.tsx"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 10553926,
+        "end": 10553988,
+        "bytes": 62,
+        "sourceHash": "620b026f1995ab72f07bc9887032b20decb41574ff09ccba950eb47de42ecd62"
+      },
+      "source": {
+        "path": "src/services/proTrial.ts",
+        "bytes": 3749,
+        "sha256": "6f432078921e7899ee50f060b9d46d9059a6c10ed573e02ec6a4f8cdcf39a088"
+      },
+      "declaration": {
+        "statementIndex": 11,
+        "kind": "FunctionDeclaration",
+        "name": "getProTrialDurationDays",
+        "start": 861,
+        "end": 989,
+        "bytes": 128,
+        "sourceHash": "abfa958be55b7b9d23e17d2853adacbf109f273154450a191dc4af0a60fd2a79"
+      },
+      "sourceMarkers": [
+        "getOauthAccountInfo()?.claudeCodeTrialDurationDays",
+        "?? null"
+      ],
+      "targetMarkers": [
+        "claudeCodeTrialDurationDays",
+        "??null"
+      ],
+      "soleExactDeclarationCandidate": {
+        "sourcePath": "src/services/proTrial.ts",
+        "declarationName": "getProTrialDurationDays",
+        "matches": 1
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "claudeCodeTrialDurationDays",
+          "start": 10553954,
+          "end": 10553981,
+          "baselineCount": 9,
+          "targetOrdinal": 10,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAccessExpression"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ]
+        }
+      ],
+      "behavior": "The complete authenticated Target119 unit is the authored getProTrialDurationDays declaration, which reads the nullable trial-duration field from OAuth account state in src/services/proTrial.ts; the provisional Logo feed-config owner is rejected."
+    },
+    {
+      "targetIndex": 16925,
+      "sourceOwner": "src/services/proTrial.ts",
+      "priorOwnerPaths": [
+        "src/components/LogoV2/feedConfigs.tsx"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 10555169,
+        "end": 10555336,
+        "bytes": 167,
+        "sourceHash": "f435442d46d129e596297adf6edbb8d0de882917a546743164a27bc0d677c8b3"
+      },
+      "source": {
+        "path": "src/services/proTrial.ts",
+        "bytes": 3749,
+        "sha256": "6f432078921e7899ee50f060b9d46d9059a6c10ed573e02ec6a4f8cdcf39a088"
+      },
+      "declaration": {
+        "statementIndex": 17,
+        "kind": "FunctionDeclaration",
+        "name": "persistTrialEndsAt",
+        "start": 3383,
+        "end": 3748,
+        "bytes": 365,
+        "sourceHash": "bdb6debac26dc8cb9e6a22d2c9999cb9d4063d5c46469a5faf704867e762c42d"
+      },
+      "sourceMarkers": [
+        "saveGlobalConfig(current =>",
+        "claudeCodeTrialEndsAt: endsAt"
+      ],
+      "targetMarkers": [
+        "claudeCodeTrialEndsAt===",
+        "claudeCodeTrialEndsAt:"
+      ],
+      "soleExactDeclarationCandidate": {
+        "sourcePath": "src/services/proTrial.ts",
+        "declarationName": "persistTrialEndsAt",
+        "matches": 1
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "claudeCodeTrialEndsAt",
+          "start": 10555229,
+          "end": 10555250,
+          "baselineCount": 9,
+          "targetOrdinal": 11,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAccessExpression",
+            "PropertyAssignment"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ]
+        },
+        {
+          "kind": "property",
+          "value": "claudeCodeTrialEndsAt",
+          "start": 10555308,
+          "end": 10555329,
+          "baselineCount": 9,
+          "targetOrdinal": 12,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAccessExpression",
+            "PropertyAssignment"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ]
+        }
+      ],
+      "behavior": "The complete authenticated Target119 unit is the authored persistTrialEndsAt declaration, which idempotently updates the OAuth trial end in global configuration in src/services/proTrial.ts; the provisional Logo feed-config owner is rejected."
+    },
+    {
+      "targetIndex": 17980,
+      "sourceOwner": "src/commands/exit/exit.tsx",
+      "priorOwnerPaths": [
+        "src/components/WorktreeExitDialog.tsx"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 11082110,
+        "end": 11082401,
+        "bytes": 291,
+        "sourceHash": "380681beee167c490aba1027594025f275f40fcf510aa381f80394f7f352caa7"
+      },
+      "source": {
+        "path": "src/commands/exit/exit.tsx",
+        "bytes": 8206,
+        "sha256": "456279dfa542cc17e88696cec31064c943f7f5487a4b380bf7dff503e57bd488"
+      },
+      "declaration": {
+        "statementIndex": 24,
+        "kind": "FunctionDeclaration",
+        "name": "call",
+        "start": 3619,
+        "end": 4332,
+        "bytes": 713,
+        "sourceHash": "ced7b42a14ac9ab9676c0975bf04a0389f58dd29d41aa7e2f609f0d09814bc43"
+      },
+      "sourceMarkers": [
+        "<BackgroundSessionExitDialog",
+        "gracefulShutdown(0, 'prompt_input_exit')"
+      ],
+      "targetMarkers": [
+        "onDetach:",
+        "\"prompt_input_exit\""
+      ],
+      "soleExactDeclarationCandidate": {
+        "sourcePath": "src/commands/exit/exit.tsx",
+        "declarationName": "call",
+        "matches": 1
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "onDetach",
+          "start": 11082170,
+          "end": 11082178,
+          "baselineCount": 0,
+          "targetOrdinal": 5,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "JsxAttribute"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ]
+        },
+        {
+          "kind": "string",
+          "value": "prompt_input_exit",
+          "start": 11082375,
+          "end": 11082394,
+          "baselineCount": 5,
+          "targetOrdinal": 6,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "StringLiteral"
+          ],
+          "targetKinds": [
+            "Literal"
+          ]
+        }
+      ],
+      "behavior": "The complete authenticated Target119 unit is the authored interactive exit call declaration: it handles background detach, worktree/background exit flow, and prompt-input shutdown in src/commands/exit/exit.tsx; the provisional WorktreeExitDialog owner is rejected."
+    },
+    {
+      "targetIndex": 17985,
+      "sourceOwner": "src/commands/exit/exit-noninteractive.ts",
+      "priorOwnerPaths": [
+        "src/components/WorktreeExitDialog.tsx"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 11082575,
+        "end": 11082681,
+        "bytes": 106,
+        "sourceHash": "da9bf66993d16b0ba1ab27f5fbf9c9ae1deaddb4181405b605a5f7dc167b20c7"
+      },
+      "source": {
+        "path": "src/commands/exit/exit-noninteractive.ts",
+        "bytes": 448,
+        "sha256": "4c6d789f17a41de6f3f488bbcd14ecc40be924e89a960380015b68c8c7dea66d"
+      },
+      "declaration": {
+        "statementIndex": 4,
+        "kind": "FunctionDeclaration",
+        "name": "call",
+        "start": 247,
+        "end": 447,
+        "bytes": 200,
+        "sourceHash": "7c38b78a1a52ef4436ed5f2859433514a60dabb2476230907c06c614c8018d5d"
+      },
+      "sourceMarkers": [
+        "stopBackgroundSession('bridge')",
+        "gracefulShutdown(0, 'prompt_input_exit')"
+      ],
+      "targetMarkers": [
+        "(\"bridge\")",
+        "\"prompt_input_exit\""
+      ],
+      "soleExactDeclarationCandidate": {
+        "sourcePath": "src/commands/exit/exit-noninteractive.ts",
+        "declarationName": "call",
+        "matches": 1
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "prompt_input_exit",
+          "start": 11082640,
+          "end": 11082659,
+          "baselineCount": 5,
+          "targetOrdinal": 7,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "StringLiteral"
+          ],
+          "targetKinds": [
+            "Literal"
+          ]
+        }
+      ],
+      "behavior": "The complete authenticated Target119 unit is the authored noninteractive exit call declaration, which stops a background bridge session or performs prompt-input shutdown in src/commands/exit/exit-noninteractive.ts; the provisional WorktreeExitDialog owner is rejected."
+    },
+    {
+      "targetIndex": 21591,
+      "sourceOwner": "src/services/mcp/headlessConnectionManager.ts",
+      "priorOwnerPaths": [
+        "src/main.tsx"
+      ],
+      "target": {
+        "classification": "changed",
+        "nodeType": "VariableDeclaration",
+        "start": 13438738,
+        "end": 13438861,
+        "bytes": 123,
+        "sourceHash": "541817c83ed50267a6f3efd11930c51a384bdd5d474e5644daf5a124121aed35"
+      },
+      "source": {
+        "path": "src/services/mcp/headlessConnectionManager.ts",
+        "bytes": 9614,
+        "sha256": "10dfe87ff1962566a78f700b254f0725b385bb8d94881fe4b502ae0c1dadc2c7"
+      },
+      "declaration": {
+        "statementIndex": 22,
+        "kind": "FirstStatement",
+        "name": "RETRY_DELAYS_MS",
+        "start": 9497,
+        "end": 9540,
+        "bytes": 43,
+        "sourceHash": "6ad01680bd3348a86478589fa58524e9d2febd66015d8d095c72d04bbd0362f3"
+      },
+      "sourceMarkers": [
+        "const RETRY_DELAYS_MS = [500, 1_500, 4_000]"
+      ],
+      "targetMarkers": [
+        "[500,1500,4000]"
+      ],
+      "soleExactDeclarationCandidate": {
+        "sourcePath": "src/services/mcp/headlessConnectionManager.ts",
+        "declarationName": "RETRY_DELAYS_MS",
+        "matches": 1
+      },
+      "residues": [
+        {
+          "kind": "number",
+          "value": "1500",
+          "start": 13438803,
+          "end": 13438807,
+          "baselineCount": 12,
+          "targetOrdinal": 13,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "FirstLiteralToken"
+          ],
+          "targetKinds": [
+            "Literal"
+          ]
+        },
+        {
+          "kind": "number",
+          "value": "4000",
+          "start": 13438808,
+          "end": 13438812,
+          "baselineCount": 13,
+          "targetOrdinal": 14,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "FirstLiteralToken"
+          ],
+          "targetKinds": [
+            "Literal"
+          ]
+        }
+      ],
+      "behavior": "The complete authenticated Target119 module-initializer unit contains the authored RETRY_DELAYS_MS declaration [500, 1500, 4000] from src/services/mcp/headlessConnectionManager.ts; the provisional main.tsx owner is rejected."
+    }
+  ]
+}

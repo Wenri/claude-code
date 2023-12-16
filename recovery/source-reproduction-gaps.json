@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 2,
+  "criterion": "compiled-ast-function-semantics-v1",
+  "description": "Inventory for the case-local, pinned semantic source-coverage ledgers. Runtime behavior is compared at compiled AST/function semantics: identifier spelling, independent declaration/function order, comments, formatting, and erased TypeScript spelling are ignored; observable strings and property keys, branches, calls and call paths, state, rendering, prompts, and side effects are not. First-party source equivalence, whole-bundle dependency/build-input equivalence, and exact generated-byte replay are three separate results.",
+  "cases": [
+    { "case": "2.1.88-to-2.1.89", "status": "derived-from-pinned-case-ledger" },
+    { "case": "2.1.89-to-2.1.90", "status": "derived-from-pinned-case-ledger" },
+    { "case": "2.1.90-to-2.1.91", "status": "derived-from-pinned-case-ledger" },
+    { "case": "2.1.91-to-2.1.92", "status": "derived-from-pinned-case-ledger" },
+    { "case": "2.1.92-to-2.1.94", "status": "derived-from-pinned-case-ledger" },
+    { "case": "2.1.94-to-2.1.96", "status": "derived-from-pinned-case-ledger" },
+    { "case": "2.1.96-to-2.1.97", "status": "derived-from-pinned-case-ledger" },
+    { "case": "2.1.97-to-2.1.98", "status": "derived-from-pinned-case-ledger" },
+    { "case": "2.1.98-to-2.1.100", "status": "derived-from-pinned-case-ledger" },
+    { "case": "2.1.100-to-2.1.101", "status": "derived-from-pinned-case-ledger" },
+    { "case": "2.1.101-to-2.1.104", "status": "derived-from-pinned-case-ledger" },
+    { "case": "2.1.104-to-2.1.105", "status": "derived-from-pinned-case-ledger" },
+    { "case": "2.1.105-to-2.1.107", "status": "derived-from-pinned-case-ledger" },
+    { "case": "2.1.107-to-2.1.108", "status": "derived-from-pinned-case-ledger" },
+    { "case": "2.1.108-to-2.1.109", "status": "derived-from-pinned-case-ledger" },
+    { "case": "2.1.109-to-2.1.110", "status": "derived-from-pinned-case-ledger" },
+    { "case": "2.1.110-to-2.1.111", "status": "derived-from-pinned-case-ledger" },
+    { "case": "2.1.111-to-2.1.112", "status": "derived-from-pinned-case-ledger" },
+    { "case": "2.1.112-to-2.1.113", "status": "derived-from-pinned-case-ledger" },
+    { "case": "2.1.113-to-2.1.114", "status": "derived-from-pinned-case-ledger" },
+    { "case": "2.1.114-to-2.1.116", "status": "derived-from-pinned-case-ledger" }
+  ]
+}

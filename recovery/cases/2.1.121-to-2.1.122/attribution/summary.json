@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "kind": "generated-source-ownership-and-attribution-inventory",
+  "offsetUnit": "utf16-code-units",
+  "claim": "Exhaustive generated-offset accounting with exact baseline source ownership; target source identities are evidence-ranked and unresolved where anchors are insufficient.",
+  "artifacts": {
+    "baselineBundle": {
+      "bytes": 13047043,
+      "sha256": "75c9611929d9a770fe2e3a393219d8b98f5de17fde539b2a7355c6db3fd2795f"
+    },
+    "baselineSourceMap": {
+      "bytes": 59766257,
+      "sha256": "7965012b7a5fc9e09d8d747a04c5c32b94696924536e217f686bb1e7ee70a657"
+    },
+    "targetBundle": {
+      "bytes": 13949544,
+      "sha256": "b4266d7ac18a537d67e3a503c572386f3f8bd11ae75f9485d4505cea10f6833c"
+    }
+  },
+  "options": {
+    "minimumLiteralLength": 8
+  },
+  "baselineOwnership": {
+    "sourceCount": 4756,
+    "sourceKinds": {
+      "application": 1902,
+      "nodeModules": 2850,
+      "vendor": 4
+    },
+    "mappedSegmentCount": 2068722,
+    "contiguousRunCount": 4756,
+    "eachSourceHasExactlyOneContiguousRun": true,
+    "generatedHeaderUtf16": 2230
+  },
+  "literalEvidence": {
+    "uniqueCommonAnchorCount": 37755,
+    "monotoneAnchorCount": 29032,
+    "nonMonotoneAnchorCount": 8723,
+    "monotoneFraction": 0.7689577539398755,
+    "partitionCount": 29033,
+    "tokenCountDelta": 205341,
+    "utf16LengthDelta": 966216,
+    "locatedSourceCount": 2349,
+    "locatedApplicationSourceCount": 1222,
+    "splitTargetClusterSourceCount": 29
+  },
+  "initializerEvidence": {
+    "baseline": {
+      "wrapperNames": {
+        "common": "m",
+        "initializer": "y"
+      },
+      "count": 4527
+    },
+    "target": {
+      "wrapperNames": {
+        "common": "n",
+        "initializer": "T"
+      },
+      "count": 5155,
+      "statuses": {
+        "unresolved-no-unique-literal": 2686,
+        "anchored-single-baseline-unit": 2364,
+        "anchored-multiple-baseline-units": 105
+      }
+    },
+    "targetNetCountDelta": 628
+  },
+  "coverage": {
+    "partitionCount": 29033,
+    "targetPartitionUtf16": 12593114,
+    "exactAnchorCount": 29032,
+    "exactAnchorTargetUtf16": 1356430,
+    "exactGeneratedPartitionCount": 12779,
+    "exactGeneratedTargetUtf16": 152895,
+    "changedHighConfidencePartitionCount": 14180,
+    "changedHighConfidenceTargetUtf16": 4088341,
+    "changedCandidatePartitionCount": 2074,
+    "changedCandidateTargetUtf16": 8351878,
+    "unresolvedPartitionCount": 0,
+    "unresolvedTargetUtf16": 0,
+    "accountedTargetUtf16": 13949544,
+    "targetUtf16": 13949544,
+    "unaccountedTargetUtf16": 0,
+    "targetRangeCount": 58065,
+    "targetRangeUtf16": 13949544
+  },
+  "releaseEvidence": {
+    "targetPackage": {
+      "bytes": 1476,
+      "sha256": "7c9d9463e7b1b24acd61ccb2c0e5694de00fb64a68135d63d9b8ab4f70e850ad",
+      "name": "@anthropic-ai/claude-code",
+      "version": "2.1.122"
+    },
+    "targetDeclarations": {
+      "bytes": 117452,
+      "sha256": "8f907e0e9fd160b857d25881375f73f1bddd3642d372ad52ea71d7ff441f3ddf"
+    },
+    "officialChangelog": {
+      "bytes": 264424,
+      "sha256": "933a29f870291c6ba1b4e569400126f708c5df0c77fe832c820ba7ac2d76d277",
+      "section": "2.1.122",
+      "bulletCount": 18,
+      "bullets": [
+        "Added `ANTHROPIC_BEDROCK_SERVICE_TIER` environment variable to select a Bedrock service tier (`default`, `flex`, or `priority`), sent as the `X-Amzn-Bedrock-Service-Tier` header",
+        "Pasting a PR URL into the `/resume` search box now finds the session that created that PR (GitHub, GitHub Enterprise, GitLab, and Bitbucket)",
+        "`/mcp` now shows claude.ai connectors hidden by a manually-added server with the same URL, with a hint to remove the duplicate",
+        "Clarified the `/mcp` message shown when an MCP server is still unauthorized after the browser sign-in flow",
+        "OpenTelemetry: numeric attributes on `api_request`/`api_error` log events are now emitted as numbers, not strings",
+        "OpenTelemetry: added `claude_code.at_mention` log event for `@`-mention resolution",
+        "Fixed `/branch` producing forks that fail with \"tool_use ids were found without tool_result blocks\" when the source session contained entries from rewound timelines",
+        "Fixed `/model` not showing the Effort option for Bedrock application inference profile ARNs, and those ARNs not receiving `output_config.effort`",
+        "Fixed Vertex AI / Bedrock returning `invalid_request_error: output_config: Extra inputs are not permitted` on session-title generation and other structured-output queries",
+        "Fixed Vertex AI `count_tokens` endpoint returning 400 errors for users behind proxy gateways",
+        "Fixed `spinnerTipsOverride.excludeDefault` not suppressing the time-based spinner tips",
+        "Fixed ToolSearch missing MCP tools that connected after session start in nonblocking mode",
+        "Fixed `!exit` / `!quit` in bash mode terminating the CLI instead of running as a shell command",
+        "Fixed images sent to newer models being resized to 2576px per side instead of the correct 2000px maximum",
+        "Fixed remote control session idle status redrawing twice per second, which could flood `tmux -CC` control pipes and pause the terminal",
+        "Fixed assistant messages appearing blank in some sessions due to a stale view preference",
+        "Fixed a malformed hooks entry in `settings.json` no longer invalidating the entire file",
+        "Voice mode: keybindings bound to Caps Lock now show an error since terminals don't deliver Caps Lock as a key event"
+      ]
+    }
+  },
+  "reportFiles": {
+    "sources": {
+      "path": "sources.jsonl.gz",
+      "bytes": 467803,
+      "sha256": "10b1706cc013f53ffedd7e01522ec637778cec88ba619054f9e1097b43e9870e"
+    },
+    "targetInitializers": {
+      "path": "target-initializers.jsonl.gz",
+      "bytes": 119534,
+      "sha256": "69ad459d991d3f69656bf8015e821fcb88d4d08ec392551fde85d167ee0a89c6"
+    },
+    "targetPartitions": {
+      "path": "target-partitions.jsonl.gz",
+      "bytes": 2916070,
+      "sha256": "5c92d746c71434836797f713ee7168f00c7d971ef0f0e6dea554a57efbd0d125"
+    },
+    "targetRanges": {
+      "path": "target-ranges.jsonl.gz",
+      "bytes": 3415051,
+      "sha256": "493012533b86da39ad83da956b6ac40be1c7f127bbaa15eb487e47c453fdace0"
+    }
+  },
+  "limitations": [
+    "Exact source ownership exists only for the baseline source map.",
+    "Initializer regions are delimited by successive Bun wrapper-expression starts; they are generated units, not asserted one-to-one source modules.",
+    "A target initializer with no unique long literal is unresolved, not automatically target-only.",
+    "Candidate ranges can include moved code; non-monotone literal owners are reported separately.",
+    "Raw-different partitions include harmless minifier-name churn as well as semantic changes.",
+    "No target source text is claimed reconstructed by this inventory."
+  ]
+}

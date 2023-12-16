@@ -1,0 +1,2212 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.119-to-2.1.120",
+  "versions": {
+    "baseline": "2.1.119",
+    "target": "2.1.120"
+  },
+  "artifact": {
+    "baselineInner": {
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "targetInner": {
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "structuralGzip": {
+      "bytes": 2490663,
+      "sha256": "181e0be57cbb6e8d438b5ed0d3f54aa22ac3222d70dbc429b663d13d341729a3"
+    },
+    "semanticCorrespondenceGzip": {
+      "bytes": 728492,
+      "sha256": "dd3eac9de213f2003e9c9c91e1136137e77b0e2346e231376749acaa6a7ed30e"
+    },
+    "directEvidence": {
+      "bytes": 198027,
+      "sha256": "80c2ec3c22e48a9d0cc412113637e3a12cc062e668c05d5834417fb398ef967e"
+    }
+  },
+  "derivation": {
+    "typedAudit": {
+      "bytes": 24833862,
+      "sha256": "7bff51e428acfaabfea6b655ca91e246c1fff4400ac9469240c6a35c08af7a7b"
+    },
+    "buildMetadataFixture": {
+      "bytes": 119071,
+      "sha256": "a0e8314a2903384793deb0f5e43072345d78c4eb7b28b569c0ff687a654adac5",
+      "units": 71,
+      "residues": 396
+    },
+    "exactOwnerFixture": {
+      "bytes": 66052,
+      "sha256": "093af3565913bb0c32a6b7b9aae125018e7a52d5066f7ba7c3972470bd7abee3",
+      "units": 24,
+      "residues": 59
+    },
+    "policy": "Admit only complete target units not already decided by the disjoint build-metadata or exact-owner fixtures and whose every provisional owner-local target-added typed residue has an exact direct/candidate source AST role, runtime-import role, paired-local invariant, or row-scoped authenticated semantic-correspondence oracle; every other unit remains explicitly excluded and fail closed."
+  },
+  "excludedUnsupportedTargetIndices": [
+    370,
+    371,
+    2576,
+    2578,
+    2626,
+    4124,
+    4128,
+    4130,
+    4131,
+    6763,
+    7665,
+    8100,
+    8710,
+    8713,
+    8715,
+    8716,
+    8717,
+    8721,
+    8723,
+    11081,
+    11890,
+    12439,
+    12459,
+    13763,
+    13939,
+    14042,
+    14056,
+    14060,
+    14093,
+    15768,
+    15896,
+    15911,
+    16005,
+    16185,
+    16238,
+    16301,
+    18046,
+    18296,
+    18299,
+    18593,
+    18690,
+    18695,
+    18696,
+    18705,
+    18874,
+    19022,
+    19447,
+    19449,
+    19467,
+    19480,
+    19492,
+    19498,
+    19500,
+    19509,
+    19526,
+    19531,
+    19534,
+    19536,
+    19537,
+    19572,
+    19579,
+    19588,
+    19608,
+    19627,
+    19629,
+    19633,
+    19637,
+    19776,
+    19781,
+    19809,
+    20088,
+    20543,
+    20665,
+    20717,
+    20794,
+    20813,
+    20919,
+    20920,
+    20921,
+    20922,
+    20931,
+    20935,
+    20952,
+    20953,
+    20954,
+    20955,
+    20956,
+    20957,
+    20958,
+    21029,
+    21043,
+    21277,
+    21318,
+    21528,
+    21529,
+    21588,
+    21627,
+    21824,
+    21858,
+    21892,
+    21966,
+    21967,
+    21968,
+    21969,
+    21970,
+    21972,
+    21973,
+    22004,
+    22018
+  ],
+  "summary": {
+    "categories": {
+      "semantic-correspondence": {
+        "residues": 50,
+        "units": 28
+      },
+      "compiler-import-lowering": {
+        "residues": 3,
+        "units": 3
+      },
+      "paired-local-invariant": {
+        "residues": 21,
+        "units": 13
+      },
+      "exact-candidate-owner-cover": {
+        "residues": 6,
+        "units": 2
+      }
+    },
+    "proofs": {
+      "semantic-source": 49,
+      "runtime-import": 3,
+      "paired-local": 21,
+      "semantic-target-fragment": 1,
+      "exact-candidate-source": 6
+    },
+    "residues": 80,
+    "units": 46,
+    "excludedUnits": 109,
+    "excludedResidues": 631,
+    "macroUnits": 71,
+    "macroResidues": 396,
+    "exactOwnerUnits": 24,
+    "exactOwnerResidues": 59,
+    "inputUnits": 250,
+    "inputResidues": 1166
+  },
+  "rows": [
+    {
+      "targetIndex": 2086,
+      "category": "semantic-correspondence",
+      "sourceMapOwners": [
+        "src/constants/keys.ts"
+      ],
+      "coverageOwners": [
+        "src/cli/print.ts"
+      ],
+      "target": [
+        "unresolved",
+        893605,
+        893872,
+        "VariableDeclaration",
+        "e144f64a91acdec7142c2d18c1918568aead8ccefa9efb58bba0decabf41cec2"
+      ],
+      "residues": [
+        [
+          "string",
+          "remote_baku",
+          893770,
+          893783,
+          0,
+          1,
+          "semantic-source",
+          [
+            "src/cli/print.ts"
+          ]
+        ]
+      ],
+      "witnessIds": [
+        "residual-r10"
+      ]
+    },
+    {
+      "targetIndex": 6364,
+      "category": "semantic-correspondence",
+      "sourceMapOwners": [
+        "src/utils/http.ts"
+      ],
+      "coverageOwners": [
+        "src/cli/print.ts"
+      ],
+      "target": [
+        "unresolved",
+        2878007,
+        2878514,
+        "FunctionDeclaration",
+        "8dd4a07fa36c81aa05d81586c6df0883bc083627221fbe89ef23190654bb23da"
+      ],
+      "residues": [
+        [
+          "string",
+          "remote_baku",
+          2878129,
+          2878142,
+          0,
+          2,
+          "semantic-source",
+          [
+            "src/cli/print.ts"
+          ]
+        ]
+      ],
+      "witnessIds": [
+        "residual-r10"
+      ]
+    },
+    {
+      "targetIndex": 6707,
+      "category": "semantic-correspondence",
+      "sourceMapOwners": [
+        "src/memdir/paths.ts"
+      ],
+      "coverageOwners": [
+        "src/utils/agentsFleet.ts"
+      ],
+      "target": [
+        "unresolved",
+        3082789,
+        3082839,
+        "FunctionDeclaration",
+        "606e916faf51270effda5b7ccd9241bb4d55231b44c02c49da139c76d5e3171f"
+      ],
+      "residues": [
+        [
+          "string",
+          "tengu_amber_anchor",
+          3082814,
+          3082834,
+          0,
+          1,
+          "semantic-source",
+          [
+            "src/utils/agentsFleet.ts"
+          ]
+        ]
+      ],
+      "witnessIds": [
+        "daemon-d01"
+      ]
+    },
+    {
+      "targetIndex": 6708,
+      "category": "semantic-correspondence",
+      "sourceMapOwners": [
+        "src/memdir/paths.ts"
+      ],
+      "coverageOwners": [
+        "src/utils/agentsFleet.ts"
+      ],
+      "target": [
+        "unresolved",
+        3082839,
+        3082907,
+        "FunctionDeclaration",
+        "934db218654c22397037f9f9f62e85a3bd940350cc575ecdca02eeaf40703525"
+      ],
+      "residues": [
+        [
+          "string",
+          "tengu_quiet_harbor",
+          3082864,
+          3082884,
+          0,
+          1,
+          "semantic-source",
+          [
+            "src/utils/agentsFleet.ts"
+          ]
+        ]
+      ],
+      "witnessIds": [
+        "daemon-d01"
+      ]
+    },
+    {
+      "targetIndex": 6732,
+      "category": "compiler-import-lowering",
+      "sourceMapOwners": [
+        "src/utils/config.ts"
+      ],
+      "coverageOwners": [
+        "src/utils/config.ts"
+      ],
+      "target": [
+        "unresolved",
+        3088045,
+        3088260,
+        "FunctionDeclaration",
+        "3230c56025b02f7944af815a075fffdb5c2247ab35c76e842f67e9923e05efc7"
+      ],
+      "residues": [
+        [
+          "property",
+          "daemonColdStartGbDefault",
+          3088220,
+          3088244,
+          0,
+          2,
+          "runtime-import",
+          [
+            "src/utils/config.ts"
+          ]
+        ]
+      ]
+    },
+    {
+      "targetIndex": 8091,
+      "category": "semantic-correspondence",
+      "sourceMapOwners": [
+        "src/context/voice.tsx"
+      ],
+      "coverageOwners": [
+        "src/components/PromptInput/PromptInputFooterSuggestions.tsx"
+      ],
+      "target": [
+        "unresolved",
+        3844350,
+        3845077,
+        "FunctionDeclaration",
+        "26c5c5c80ab15c0a0f99c143c902fa2ad1796d82ea4566ba29b8e907446d3d25"
+      ],
+      "residues": [
+        [
+          "property",
+          "contiguousOnly",
+          3844417,
+          3844431,
+          0,
+          1,
+          "semantic-source",
+          [
+            "src/components/PromptInput/PromptInputFooterSuggestions.tsx"
+          ]
+        ]
+      ],
+      "witnessIds": [
+        "official-2-1-120-b18"
+      ]
+    },
+    {
+      "targetIndex": 8722,
+      "category": "semantic-correspondence",
+      "sourceMapOwners": [
+        "src/utils/permissions/pathValidation.ts"
+      ],
+      "coverageOwners": [
+        "src/memdir/memoryWriteSurvey.ts"
+      ],
+      "target": [
+        "unresolved",
+        4129024,
+        4129073,
+        "VariableDeclaration",
+        "aea6b1b675ec007d5f88a118332967ece56bc7e15a5a46ab7eee4a595cb1dc86"
+      ],
+      "residues": [
+        [
+          "string",
+          "tengu_slate_siskin",
+          4129044,
+          4129064,
+          0,
+          1,
+          "semantic-source",
+          [
+            "src/memdir/memoryWriteSurvey.ts"
+          ]
+        ]
+      ],
+      "witnessIds": [
+        "hidden-h02"
+      ]
+    },
+    {
+      "targetIndex": 11250,
+      "category": "semantic-correspondence",
+      "sourceMapOwners": [
+        "src/services/PromptSuggestion/speculation.ts"
+      ],
+      "coverageOwners": [
+        "src/state/AppStateStore.ts"
+      ],
+      "target": [
+        "unresolved",
+        6487822,
+        6490047,
+        "FunctionDeclaration",
+        "59f5b70a4f8ec644a0a2358f0387afa9ebe05037a2663ccdca1b26b12ac8acc7"
+      ],
+      "residues": [
+        [
+          "property",
+          "memoryWriteQueue",
+          6489690,
+          6489706,
+          0,
+          1,
+          "semantic-source",
+          [
+            "src/state/AppStateStore.ts"
+          ]
+        ]
+      ],
+      "witnessIds": [
+        "residual-r22"
+      ]
+    },
+    {
+      "targetIndex": 13579,
+      "category": "paired-local-invariant",
+      "sourceMapOwners": [
+        "src/tools/BriefTool/BriefTool.ts"
+      ],
+      "coverageOwners": [
+        "src/tools/BriefTool/BriefTool.ts"
+      ],
+      "target": [
+        "changed",
+        8537232,
+        8539410,
+        "FunctionDeclaration",
+        "c79720720265c273dfbb5e2d64f31c596b4feb1bb2a48e184e3bcac3f1379651"
+      ],
+      "residues": [
+        [
+          "regexp",
+          {
+            "flags": "g",
+            "pattern": "'"
+          },
+          8537767,
+          8537771,
+          4,
+          5,
+          "paired-local",
+          []
+        ]
+      ],
+      "baseline": [
+        13505,
+        8511000,
+        8513178,
+        "FunctionDeclaration",
+        "4a31deaab02a56608347c090f4412059a23e0d88bfd0fe0edeaf1b24dda576bf",
+        "unique-coarse-structural-hash"
+      ]
+    },
+    {
+      "targetIndex": 15031,
+      "category": "semantic-correspondence",
+      "sourceMapOwners": [
+        "src/utils/collapseReadSearch.ts"
+      ],
+      "coverageOwners": [
+        "src/components/Messages.tsx",
+        "src/components/messages/SystemTextMessage.tsx"
+      ],
+      "target": [
+        "unresolved",
+        9344764,
+        9347214,
+        "FunctionDeclaration",
+        "75e2fb8d948d47750e175ddada69943bf5654f7ac323cf03034b8ab4bdbc173e"
+      ],
+      "residues": [
+        [
+          "string",
+          "turn_duration",
+          9347156,
+          9347171,
+          4,
+          5,
+          "semantic-source",
+          [
+            "src/components/Messages.tsx",
+            "src/components/messages/SystemTextMessage.tsx"
+          ]
+        ],
+        [
+          "property",
+          "briefHiddenCount",
+          9347178,
+          9347194,
+          0,
+          4,
+          "semantic-source",
+          [
+            "src/components/Messages.tsx",
+            "src/components/messages/SystemTextMessage.tsx"
+          ]
+        ]
+      ],
+      "witnessIds": [
+        "residual-r06"
+      ]
+    },
+    {
+      "targetIndex": 15189,
+      "category": "semantic-correspondence",
+      "sourceMapOwners": [
+        "src/tools/BashTool/BashTool.tsx"
+      ],
+      "coverageOwners": [
+        "src/utils/bash/ParsedCommand.ts"
+      ],
+      "target": [
+        "unresolved",
+        9426492,
+        9427586,
+        "ClassDeclaration",
+        "5da8976eaad31c33900b383a87239845d4b8a86d023039b43a48682743e01cd4"
+      ],
+      "residues": [
+        [
+          "regexp",
+          {
+            "flags": "g",
+            "pattern": "[ \\t]*\\n[ \\t]*"
+          },
+          9427393,
+          9427410,
+          0,
+          1,
+          "semantic-source",
+          [
+            "src/utils/bash/ParsedCommand.ts"
+          ]
+        ]
+      ],
+      "witnessIds": [
+        "official-2-1-120-b15"
+      ]
+    },
+    {
+      "targetIndex": 15754,
+      "category": "paired-local-invariant",
+      "sourceMapOwners": [
+        "src/commands/commit-push-pr.ts"
+      ],
+      "coverageOwners": [
+        "src/commands/commit-push-pr.ts"
+      ],
+      "target": [
+        "changed",
+        9663926,
+        9667344,
+        "FunctionDeclaration",
+        "b00102173eebfbd1909d4a85b91247b1020383459deaefc6974caad16d2fca2b"
+      ],
+      "residues": [
+        [
+          "property",
+          "commit",
+          9663950,
+          9663956,
+          14,
+          15,
+          "paired-local",
+          []
+        ]
+      ],
+      "baseline": [
+        15670,
+        9630964,
+        9634382,
+        "FunctionDeclaration",
+        "f546d3322f54ae44a74e5dabd27fbccbd5a81980db943dad5e3760d4f5428321",
+        "unique-coarse-structural-hash"
+      ]
+    },
+    {
+      "targetIndex": 16190,
+      "category": "semantic-correspondence",
+      "sourceMapOwners": [
+        "src/components/mcp/McpParsingWarnings.tsx"
+      ],
+      "coverageOwners": [
+        "src/daemon/service.ts"
+      ],
+      "target": [
+        "unresolved",
+        10077434,
+        10077513,
+        "VariableDeclaration",
+        "f934a7202577235b5b38f42e082d5eaa5023f1eea13ad25ada7851d0d48cc18e"
+      ],
+      "residues": [
+        [
+          "string",
+          "claude-managed: v1",
+          10077492,
+          10077512,
+          0,
+          1,
+          "semantic-source",
+          [
+            "src/daemon/service.ts"
+          ]
+        ]
+      ],
+      "witnessIds": [
+        "daemon-d01",
+        "hidden-h10"
+      ]
+    },
+    {
+      "targetIndex": 16354,
+      "category": "semantic-correspondence",
+      "sourceMapOwners": [
+        "src/components/PromptInput/PromptInputHelpMenu.tsx"
+      ],
+      "coverageOwners": [
+        "src/components/PromptInput/PromptInputFooterLeftSide.tsx"
+      ],
+      "target": [
+        "unresolved",
+        10128190,
+        10133200,
+        "FunctionDeclaration",
+        "38c3c765ef69ef4612279fec4cd492a468dfb52fa18f3b1728bdbfc402f16f1d"
+      ],
+      "residues": [
+        [
+          "string",
+          "! for shell mode",
+          10128945,
+          10128963,
+          0,
+          1,
+          "semantic-source",
+          [
+            "src/components/PromptInput/PromptInputFooterLeftSide.tsx"
+          ]
+        ]
+      ],
+      "witnessIds": [
+        "residual-r04"
+      ]
+    },
+    {
+      "targetIndex": 17499,
+      "category": "semantic-correspondence",
+      "sourceMapOwners": [
+        "src/commands/theme/index.ts"
+      ],
+      "coverageOwners": [
+        "src/utils/relaunch.ts"
+      ],
+      "target": [
+        "unresolved",
+        10862761,
+        10863802,
+        "FunctionDeclaration",
+        "b565b0ab4df76e4748ea102ec0dc142dc6058f603632fdb1944d556787cf8444"
+      ],
+      "residues": [
+        [
+          "property",
+          "removeAllListeners",
+          10863497,
+          10863515,
+          21,
+          22,
+          "semantic-source",
+          [
+            "src/utils/relaunch.ts"
+          ]
+        ],
+        [
+          "property",
+          "removeAllListeners",
+          10863644,
+          10863662,
+          21,
+          23,
+          "semantic-source",
+          [
+            "src/utils/relaunch.ts"
+          ]
+        ]
+      ],
+      "witnessIds": [
+        "fleet-f02"
+      ]
+    },
+    {
+      "targetIndex": 18328,
+      "category": "paired-local-invariant",
+      "sourceMapOwners": [
+        "src/commands/bridge/index.ts"
+      ],
+      "coverageOwners": [
+        "src/commands/bridge/index.ts"
+      ],
+      "target": [
+        "changed",
+        11213776,
+        11214067,
+        "FunctionDeclaration",
+        "3067c72f36f7e0348b544e7b08d77a1380ad718bede18ced7c968e1bb7c4b5b2"
+      ],
+      "residues": [
+        [
+          "string",
+          "ENOTDIR",
+          11213917,
+          11213926,
+          23,
+          24,
+          "paired-local",
+          []
+        ]
+      ],
+      "baseline": [
+        18252,
+        11179625,
+        11179916,
+        "FunctionDeclaration",
+        "8aeb25de548e6350fbf05c52cacfb3475e3cb41f05331c621b795dfcbdc674a1",
+        "unique-coarse-structural-hash"
+      ]
+    },
+    {
+      "targetIndex": 18470,
+      "category": "semantic-correspondence",
+      "sourceMapOwners": [
+        "src/commands/bridge/index.ts"
+      ],
+      "coverageOwners": [
+        "src/daemon/auth.ts"
+      ],
+      "target": [
+        "unresolved",
+        11290092,
+        11295043,
+        "FunctionDeclaration",
+        "a48f7667a9bca99ff756acda068de8fb6166a8c01f9c53329660caed5df311d8"
+      ],
+      "residues": [
+        [
+          "string",
+          "auth: proactive refresh failed, retrying in ~60s (token still valid)",
+          11291805,
+          11291875,
+          0,
+          1,
+          "semantic-source",
+          [
+            "src/daemon/auth.ts"
+          ]
+        ]
+      ],
+      "witnessIds": [
+        "residual-r02"
+      ]
+    },
+    {
+      "targetIndex": 18559,
+      "category": "paired-local-invariant",
+      "sourceMapOwners": [
+        "src/commands/bridge/index.ts"
+      ],
+      "coverageOwners": [
+        "src/commands/bridge/index.ts"
+      ],
+      "target": [
+        "changed",
+        11354847,
+        11355055,
+        "VariableDeclaration",
+        "2c799cd03acd9c1e582408e84e5ebe42ad977cbed7bcce3c6a1de4b9648a715e"
+      ],
+      "residues": [
+        [
+          "property",
+          "$schema",
+          11355014,
+          11355021,
+          16,
+          17,
+          "paired-local",
+          []
+        ]
+      ],
+      "baseline": [
+        18484,
+        11321185,
+        11321393,
+        "VariableDeclaration",
+        "14fd95d26e14d4629114b5de5d0d9532710b461a4d16af07df5eaa1063cb6f3a",
+        "unique-coarse-structural-hash"
+      ]
+    },
+    {
+      "targetIndex": 18685,
+      "category": "semantic-correspondence",
+      "sourceMapOwners": [
+        "src/commands/remote-setup/index.ts"
+      ],
+      "coverageOwners": [
+        "src/cli/bg.ts",
+        "src/daemon/supervisor.ts"
+      ],
+      "target": [
+        "unresolved",
+        11412673,
+        11414869,
+        "FunctionDeclaration",
+        "504576d31d19589b2cead286b43ba32c13ddb4dc2ce01048ecd813cbfac7ecf2"
+      ],
+      "residues": [
+        [
+          "property",
+          "holdScreenOnDisconnect",
+          11413013,
+          11413035,
+          0,
+          1,
+          "semantic-source",
+          [
+            "src/cli/bg.ts"
+          ]
+        ],
+        [
+          "property",
+          "decModes",
+          11414458,
+          11414466,
+          0,
+          1,
+          "semantic-source",
+          [
+            "src/cli/bg.ts",
+            "src/daemon/supervisor.ts"
+          ]
+        ]
+      ],
+      "witnessIds": [
+        "daemon-d02"
+      ]
+    },
+    {
+      "targetIndex": 18706,
+      "category": "semantic-correspondence",
+      "sourceMapOwners": [
+        "src/commands/remote-setup/index.ts"
+      ],
+      "coverageOwners": [
+        "src/cli/bg.ts"
+      ],
+      "target": [
+        "unresolved",
+        11422666,
+        11423106,
+        "FunctionDeclaration",
+        "c15d1de5e35ec8a68c00c5e775fde9f240fb32da91fa7752d74f4074c3b7ae45"
+      ],
+      "residues": [
+        [
+          "string",
+          "deleteJob: worktree has uncommitted changes, kept ",
+          11422828,
+          11422878,
+          0,
+          1,
+          "semantic-source",
+          [
+            "src/cli/bg.ts"
+          ]
+        ]
+      ],
+      "witnessIds": [
+        "residual-r38"
+      ]
+    },
+    {
+      "targetIndex": 18718,
+      "category": "semantic-correspondence",
+      "sourceMapOwners": [
+        "src/commands/remote-setup/index.ts"
+      ],
+      "coverageOwners": [
+        "src/cli/bg.ts"
+      ],
+      "target": [
+        "unresolved",
+        11425900,
+        11427162,
+        "FunctionDeclaration",
+        "36b0b0d2156fdb3d50c9b47b2eb1e54081f79dae97773abf9b06b02d2601d601"
+      ],
+      "residues": [
+        [
+          "property",
+          "wasSettled",
+          11426858,
+          11426868,
+          0,
+          1,
+          "semantic-source",
+          [
+            "src/cli/bg.ts"
+          ]
+        ]
+      ],
+      "witnessIds": [
+        "residual-r39"
+      ]
+    },
+    {
+      "targetIndex": 18722,
+      "category": "paired-local-invariant",
+      "sourceMapOwners": [
+        "src/commands/remote-setup/index.ts"
+      ],
+      "coverageOwners": [
+        "src/commands/remote-setup/index.ts"
+      ],
+      "target": [
+        "changed",
+        11427638,
+        11428474,
+        "FunctionDeclaration",
+        "60f1ac2a227aa30c4a05e059ed070fc294a4fdf2a2ad7332593d56a09c2aeb57"
+      ],
+      "residues": [
+        [
+          "string",
+          "ref",
+          11427978,
+          11427983,
+          53,
+          54,
+          "paired-local",
+          []
+        ],
+        [
+          "property",
+          "paths",
+          11428015,
+          11428020,
+          34,
+          35,
+          "paired-local",
+          []
+        ],
+        [
+          "string",
+          "paths",
+          11428050,
+          11428057,
+          2,
+          3,
+          "paired-local",
+          []
+        ]
+      ],
+      "baseline": [
+        18654,
+        11404266,
+        11405102,
+        "FunctionDeclaration",
+        "f2b39ac92d39b9a9aa01d515480df5615d29f42dbf15115522769234cbfe8e88",
+        "unique-coarse-structural-hash"
+      ]
+    },
+    {
+      "targetIndex": 18982,
+      "category": "compiler-import-lowering",
+      "sourceMapOwners": [
+        "src/utils/sessionStorage.ts"
+      ],
+      "coverageOwners": [
+        "src/utils/sessionStorage.ts"
+      ],
+      "target": [
+        "unresolved",
+        11572306,
+        11574916,
+        "FunctionDeclaration",
+        "a5ac90c0c0f3a614bcd4d80b141c48f83a0d6604d559d747ad4911e003167719"
+      ],
+      "residues": [
+        [
+          "property",
+          "closeSync",
+          11574847,
+          11574856,
+          17,
+          18,
+          "runtime-import",
+          [
+            "src/utils/sessionStorage.ts"
+          ]
+        ]
+      ]
+    },
+    {
+      "targetIndex": 19477,
+      "category": "semantic-correspondence",
+      "sourceMapOwners": [
+        "src/utils/claudeInChrome/chromeNativeHost.ts"
+      ],
+      "coverageOwners": [
+        "src/daemon/supervisor.ts"
+      ],
+      "target": [
+        "unresolved",
+        11845974,
+        11847969,
+        "FunctionDeclaration",
+        "b5af4398a0dea15936ed718954f160a705e051051fabacb4ca0aa5adde665326"
+      ],
+      "residues": [
+        [
+          "property",
+          "isRetiring",
+          11846152,
+          11846162,
+          0,
+          5,
+          "semantic-source",
+          [
+            "src/daemon/supervisor.ts"
+          ]
+        ],
+        [
+          "property",
+          "retireIfSettled",
+          11847387,
+          11847402,
+          0,
+          2,
+          "semantic-source",
+          [
+            "src/daemon/supervisor.ts"
+          ]
+        ],
+        [
+          "property",
+          "dispatch",
+          11847482,
+          11847490,
+          54,
+          55,
+          "semantic-source",
+          [
+            "src/daemon/supervisor.ts"
+          ]
+        ]
+      ],
+      "witnessIds": [
+        "daemon-d02"
+      ]
+    },
+    {
+      "targetIndex": 19478,
+      "category": "semantic-correspondence",
+      "sourceMapOwners": [
+        "src/utils/claudeInChrome/chromeNativeHost.ts"
+      ],
+      "coverageOwners": [
+        "src/jobs/classifier.ts"
+      ],
+      "target": [
+        "unresolved",
+        11847969,
+        11849108,
+        "FunctionDeclaration",
+        "700540eabd39f3f60ef1a09d7c6983982d7b7cf631c6211410f89c17ec42b021"
+      ],
+      "residues": [
+        [
+          "property",
+          "inFlight",
+          11848347,
+          11848355,
+          18,
+          21,
+          "semantic-source",
+          [
+            "src/jobs/classifier.ts"
+          ]
+        ],
+        [
+          "property",
+          "inFlight",
+          11849032,
+          11849040,
+          18,
+          22,
+          "semantic-source",
+          [
+            "src/jobs/classifier.ts"
+          ]
+        ]
+      ],
+      "witnessIds": [
+        "residual-r34"
+      ]
+    },
+    {
+      "targetIndex": 19621,
+      "category": "semantic-correspondence",
+      "sourceMapOwners": [
+        "src/utils/claudeInChrome/chromeNativeHost.ts"
+      ],
+      "coverageOwners": [
+        "src/components/PromptInput/PromptInputFooterLeftSide.tsx"
+      ],
+      "target": [
+        "unresolved",
+        11904643,
+        11911074,
+        "FunctionDeclaration",
+        "493915816f89ed9bd9bba7486106e05bac66daa8094263c9eabd679272b0d0d5"
+      ],
+      "residues": [
+        [
+          "string",
+          "! for shell mode",
+          11910552,
+          11910570,
+          0,
+          2,
+          "semantic-source",
+          [
+            "src/components/PromptInput/PromptInputFooterLeftSide.tsx"
+          ]
+        ]
+      ],
+      "witnessIds": [
+        "residual-r04"
+      ]
+    },
+    {
+      "targetIndex": 19630,
+      "category": "semantic-correspondence",
+      "sourceMapOwners": [
+        "src/utils/claudeInChrome/chromeNativeHost.ts"
+      ],
+      "coverageOwners": [
+        "src/components/FleetView.tsx"
+      ],
+      "target": [
+        "unresolved",
+        11943983,
+        11944522,
+        "FunctionDeclaration",
+        "1b820a6edfc09d6196a5f3bd84fd98079f6306259268b5b9826f1f7c6f8e4f47"
+      ],
+      "residues": [
+        [
+          "property",
+          "canPin",
+          11944056,
+          11944062,
+          0,
+          2,
+          "semantic-target-fragment",
+          []
+        ]
+      ],
+      "witnessIds": [
+        "residual-r40"
+      ]
+    },
+    {
+      "targetIndex": 19635,
+      "category": "semantic-correspondence",
+      "sourceMapOwners": [
+        "src/utils/claudeInChrome/chromeNativeHost.ts"
+      ],
+      "coverageOwners": [
+        "src/components/FleetView.tsx"
+      ],
+      "target": [
+        "unresolved",
+        11948283,
+        11949964,
+        "FunctionDeclaration",
+        "4e77a56c19564df73a344bba4f24c454347150e37e11181ecc11e01439dec892"
+      ],
+      "residues": [
+        [
+          "string",
+          "tengu_bg_agent_action",
+          11948307,
+          11948330,
+          9,
+          10,
+          "semantic-source",
+          [
+            "src/components/FleetView.tsx"
+          ]
+        ],
+        [
+          "string",
+          "done",
+          11948797,
+          11948803,
+          60,
+          63,
+          "semantic-source",
+          [
+            "src/components/FleetView.tsx"
+          ]
+        ],
+        [
+          "property",
+          "respawnResult",
+          11949089,
+          11949102,
+          0,
+          2,
+          "semantic-source",
+          [
+            "src/components/FleetView.tsx"
+          ]
+        ],
+        [
+          "property",
+          "knownState",
+          11949147,
+          11949157,
+          7,
+          8,
+          "semantic-source",
+          [
+            "src/components/FleetView.tsx"
+          ]
+        ],
+        [
+          "property",
+          "knownAlive",
+          11949170,
+          11949180,
+          2,
+          3,
+          "semantic-source",
+          [
+            "src/components/FleetView.tsx"
+          ]
+        ],
+        [
+          "property",
+          "knownState",
+          11949588,
+          11949598,
+          7,
+          9,
+          "semantic-source",
+          [
+            "src/components/FleetView.tsx"
+          ]
+        ]
+      ],
+      "witnessIds": [
+        "residual-r40"
+      ]
+    },
+    {
+      "targetIndex": 19636,
+      "category": "semantic-correspondence",
+      "sourceMapOwners": [
+        "src/utils/claudeInChrome/chromeNativeHost.ts"
+      ],
+      "coverageOwners": [
+        "src/components/FleetView.tsx"
+      ],
+      "target": [
+        "unresolved",
+        11949964,
+        11950172,
+        "VariableDeclaration",
+        "3cb0f9f03cc1baa3ec7162b31bc8e3630edde7b1c96877c5d2a46a9b85b02070"
+      ],
+      "residues": [
+        [
+          "number",
+          "21600000",
+          11950036,
+          11950044,
+          2,
+          3,
+          "semantic-source",
+          [
+            "src/components/FleetView.tsx"
+          ]
+        ],
+        [
+          "string",
+          "CLAUDE_AGENTS_AUTO_RELAUNCHED_AT",
+          11950049,
+          11950083,
+          0,
+          1,
+          "semantic-source",
+          [
+            "src/components/FleetView.tsx"
+          ]
+        ]
+      ],
+      "witnessIds": [
+        "fleet-f01"
+      ]
+    },
+    {
+      "targetIndex": 20357,
+      "category": "semantic-correspondence",
+      "sourceMapOwners": [
+        "src/components/BridgeDialog.tsx"
+      ],
+      "coverageOwners": [
+        "src/utils/subagentStatusLine.ts"
+      ],
+      "target": [
+        "unresolved",
+        12331914,
+        12333060,
+        "FunctionDeclaration",
+        "2b369c141210ec7dee70eb246387890fbe0124de7fc860b66882f1da9eb62bad"
+      ],
+      "residues": [
+        [
+          "property",
+          "shell",
+          12332588,
+          12332593,
+          29,
+          41,
+          "semantic-source",
+          [
+            "src/utils/subagentStatusLine.ts"
+          ]
+        ]
+      ],
+      "witnessIds": [
+        "residual-r22"
+      ]
+    },
+    {
+      "targetIndex": 20537,
+      "category": "semantic-correspondence",
+      "sourceMapOwners": [
+        "src/components/PromptInput/HistorySearchInput.tsx"
+      ],
+      "coverageOwners": [
+        "src/hooks/useBgSessionPr.ts"
+      ],
+      "target": [
+        "unresolved",
+        12400079,
+        12400603,
+        "FunctionDeclaration",
+        "f925736589620a60dd23ae84f4e3a8a445480043d77ac36e47fee5ada9a3bc90"
+      ],
+      "residues": [
+        [
+          "property",
+          "isFinite",
+          12400281,
+          12400289,
+          62,
+          63,
+          "semantic-source",
+          [
+            "src/hooks/useBgSessionPr.ts"
+          ]
+        ],
+        [
+          "string",
+          "[useBgSessionPr] watcher error: ",
+          12400446,
+          12400478,
+          0,
+          1,
+          "semantic-source",
+          [
+            "src/hooks/useBgSessionPr.ts"
+          ]
+        ],
+        [
+          "string",
+          "[useBgSessionPr] watch skipped: ",
+          12400527,
+          12400559,
+          0,
+          1,
+          "semantic-source",
+          [
+            "src/hooks/useBgSessionPr.ts"
+          ]
+        ]
+      ],
+      "witnessIds": [
+        "residual-r04"
+      ]
+    },
+    {
+      "targetIndex": 20544,
+      "category": "semantic-correspondence",
+      "sourceMapOwners": [
+        "src/components/PromptInput/PromptInputFooterLeftSide.tsx"
+      ],
+      "coverageOwners": [
+        "src/hooks/useBgSessionPr.ts",
+        "src/utils/settings/types.ts"
+      ],
+      "target": [
+        "unresolved",
+        12403555,
+        12408651,
+        "FunctionDeclaration",
+        "e6e5fdd4e36de2b1b91f9fb899703ee02b0a78ce8760883dce6508a7e106bd7e"
+      ],
+      "residues": [
+        [
+          "property",
+          "pr",
+          12405310,
+          12405312,
+          26,
+          27,
+          "semantic-source",
+          [
+            "src/hooks/useBgSessionPr.ts",
+            "src/utils/settings/types.ts"
+          ]
+        ]
+      ],
+      "witnessIds": [
+        "residual-r04",
+        "residual-r22"
+      ]
+    },
+    {
+      "targetIndex": 20754,
+      "category": "exact-candidate-owner-cover",
+      "sourceMapOwners": [
+        "src/utils/userPromptKeywords.ts"
+      ],
+      "coverageOwners": [
+        "src/utils/processUserInput/processBashCommand.tsx",
+        "src/utils/shell/resolveDefaultShell.ts"
+      ],
+      "target": [
+        "unresolved",
+        12513756,
+        12513912,
+        "FunctionDeclaration",
+        "4fa1a7cc35ae1c9f71051259d4dae701193db3632d01a380b32081de5e47cf22"
+      ],
+      "residues": [
+        [
+          "string",
+          "powershell",
+          12513822,
+          12513834,
+          23,
+          29,
+          "exact-candidate-source",
+          [
+            "src/utils/processUserInput/processBashCommand.tsx",
+            "src/utils/shell/resolveDefaultShell.ts"
+          ]
+        ],
+        [
+          "string",
+          "powershell",
+          12513842,
+          12513854,
+          23,
+          30,
+          "exact-candidate-source",
+          [
+            "src/utils/processUserInput/processBashCommand.tsx",
+            "src/utils/shell/resolveDefaultShell.ts"
+          ]
+        ],
+        [
+          "string",
+          "powershell",
+          12513898,
+          12513910,
+          23,
+          31,
+          "exact-candidate-source",
+          [
+            "src/utils/processUserInput/processBashCommand.tsx",
+            "src/utils/shell/resolveDefaultShell.ts"
+          ]
+        ]
+      ],
+      "alternateCandidateUniverse": [
+        "src/components/BashModeProgress.tsx",
+        "src/utils/processUserInput/processBashCommand.tsx",
+        "src/utils/processUserInput/processTextPrompt.ts",
+        "src/utils/shell/resolveDefaultShell.ts",
+        "src/utils/userPromptKeywords.ts"
+      ]
+    },
+    {
+      "targetIndex": 20980,
+      "category": "semantic-correspondence",
+      "sourceMapOwners": [
+        "src/hooks/notifs/useInstallMessages.tsx"
+      ],
+      "coverageOwners": [
+        "src/hooks/useJobStateNameSync.ts"
+      ],
+      "target": [
+        "unresolved",
+        12606131,
+        12606729,
+        "FunctionDeclaration",
+        "58f0b734d70613b6d94572c41a48eb46740777ec1457da27642652047adaee1d"
+      ],
+      "residues": [
+        [
+          "string",
+          "state.json",
+          12606382,
+          12606394,
+          2,
+          3,
+          "semantic-source",
+          [
+            "src/hooks/useJobStateNameSync.ts"
+          ]
+        ],
+        [
+          "string",
+          "[jobStateNameSync] watcher error: ",
+          12606429,
+          12606463,
+          0,
+          1,
+          "semantic-source",
+          [
+            "src/hooks/useJobStateNameSync.ts"
+          ]
+        ]
+      ],
+      "witnessIds": [
+        "residual-r05"
+      ]
+    },
+    {
+      "targetIndex": 20993,
+      "category": "paired-local-invariant",
+      "sourceMapOwners": [
+        "src/utils/plugins/officialMarketplaceStartupCheck.ts"
+      ],
+      "coverageOwners": [
+        "src/utils/plugins/officialMarketplaceStartupCheck.ts"
+      ],
+      "target": [
+        "changed",
+        12613205,
+        12613396,
+        "VariableDeclaration",
+        "90678486cf1b588d5fb718f50c1ad764f1769ed93dfc9ed24f075b24ba741c6e"
+      ],
+      "residues": [
+        [
+          "number",
+          "3600000",
+          12613341,
+          12613348,
+          27,
+          29,
+          "paired-local",
+          []
+        ]
+      ],
+      "baseline": [
+        20893,
+        12568216,
+        12568407,
+        "VariableDeclaration",
+        "39b48d876a23c4673d572a64a0c38ba1fbffcfcb3c49a84f3fa5e4b3195a1665",
+        "unique-coarse-structural-hash"
+      ]
+    },
+    {
+      "targetIndex": 21076,
+      "category": "paired-local-invariant",
+      "sourceMapOwners": [
+        "src/utils/binaryCheck.ts"
+      ],
+      "coverageOwners": [
+        "src/utils/binaryCheck.ts"
+      ],
+      "target": [
+        "changed",
+        12674416,
+        12674555,
+        "VariableDeclaration",
+        "07f6e7dc43c9c49c0482114839ee0d4fe09aa15565049960428cbdc8b7ae56d8"
+      ],
+      "residues": [
+        [
+          "string",
+          "windows",
+          12674469,
+          12674478,
+          100,
+          102,
+          "paired-local",
+          []
+        ]
+      ],
+      "baseline": [
+        20977,
+        12627722,
+        12627861,
+        "VariableDeclaration",
+        "49414731c6d13d196b2a43064b555a3c5c21b55838a8d2a500e270973cb3a9df",
+        "unique-coarse-structural-hash"
+      ]
+    },
+    {
+      "targetIndex": 21213,
+      "category": "semantic-correspondence",
+      "sourceMapOwners": [
+        "src/components/ScrollKeybindingHandler.tsx"
+      ],
+      "coverageOwners": [
+        "src/ink/selection.ts"
+      ],
+      "target": [
+        "unresolved",
+        12709532,
+        12713241,
+        "FunctionDeclaration",
+        "b52ea33477715e0fc3e79b46b857d1c555cfefcc6907829126aaafbf12679e12"
+      ],
+      "residues": [
+        [
+          "property",
+          "virtualFocusRow",
+          12712451,
+          12712466,
+          9,
+          11,
+          "semantic-source",
+          [
+            "src/ink/selection.ts"
+          ]
+        ],
+        [
+          "property",
+          "virtualFocusCol",
+          12712479,
+          12712494,
+          0,
+          6,
+          "semantic-source",
+          [
+            "src/ink/selection.ts"
+          ]
+        ]
+      ],
+      "witnessIds": [
+        "selection-s01"
+      ]
+    },
+    {
+      "targetIndex": 21694,
+      "category": "semantic-correspondence",
+      "sourceMapOwners": [
+        "src/utils/telemetry/skillLoadedEvent.ts"
+      ],
+      "coverageOwners": [
+        "src/tools/SkillTool/SkillTool.ts"
+      ],
+      "target": [
+        "unresolved",
+        13485812,
+        13486292,
+        "FunctionDeclaration",
+        "3640839f31fecdc9559de2e4272cb3cb818c2fbc9b38c209274f08b31e32a161"
+      ],
+      "residues": [
+        [
+          "property",
+          "pluginInfo",
+          13485950,
+          13485960,
+          32,
+          33,
+          "semantic-source",
+          [
+            "src/tools/SkillTool/SkillTool.ts"
+          ]
+        ],
+        [
+          "property",
+          "pluginInfo",
+          13485966,
+          13485976,
+          32,
+          34,
+          "semantic-source",
+          [
+            "src/tools/SkillTool/SkillTool.ts"
+          ]
+        ],
+        [
+          "property",
+          "repository",
+          13485977,
+          13485987,
+          56,
+          57,
+          "semantic-source",
+          [
+            "src/tools/SkillTool/SkillTool.ts"
+          ]
+        ],
+        [
+          "property",
+          "pluginInfo",
+          13486168,
+          13486178,
+          32,
+          35,
+          "semantic-source",
+          [
+            "src/tools/SkillTool/SkillTool.ts"
+          ]
+        ],
+        [
+          "property",
+          "pluginInfo",
+          13486202,
+          13486212,
+          32,
+          36,
+          "semantic-source",
+          [
+            "src/tools/SkillTool/SkillTool.ts"
+          ]
+        ],
+        [
+          "property",
+          "pluginManifest",
+          13486213,
+          13486227,
+          11,
+          12,
+          "semantic-source",
+          [
+            "src/tools/SkillTool/SkillTool.ts"
+          ]
+        ],
+        [
+          "property",
+          "pluginInfo",
+          13486276,
+          13486286,
+          32,
+          37,
+          "semantic-source",
+          [
+            "src/tools/SkillTool/SkillTool.ts"
+          ]
+        ]
+      ],
+      "witnessIds": [
+        "residual-r09"
+      ]
+    },
+    {
+      "targetIndex": 21707,
+      "category": "paired-local-invariant",
+      "sourceMapOwners": [
+        "src/main.tsx"
+      ],
+      "coverageOwners": [
+        "src/main.tsx"
+      ],
+      "target": [
+        "changed",
+        13497955,
+        13498078,
+        "VariableDeclaration",
+        "d569d5b3e055629f37e4dfb15e8ca8fd2a4f7da9d390d1a7019b7ce16220149e"
+      ],
+      "residues": [
+        [
+          "number",
+          "1500",
+          13498020,
+          13498024,
+          13,
+          14,
+          "paired-local",
+          []
+        ]
+      ],
+      "baseline": [
+        21591,
+        13438738,
+        13438861,
+        "VariableDeclaration",
+        "541817c83ed50267a6f3efd11930c51a384bdd5d474e5644daf5a124121aed35",
+        "unique-coarse-structural-hash"
+      ]
+    },
+    {
+      "targetIndex": 21801,
+      "category": "paired-local-invariant",
+      "sourceMapOwners": [
+        "src/setup.ts"
+      ],
+      "coverageOwners": [
+        "src/setup.ts"
+      ],
+      "target": [
+        "changed",
+        13523583,
+        13528132,
+        "FunctionDeclaration",
+        "63ecd49610941ae67ebc7002bbabfb70d4dc48898e5f2e37a9de9c78f3c58408"
+      ],
+      "residues": [
+        [
+          "property",
+          "CLAUDE_BG_BACKEND",
+          13523872,
+          13523889,
+          7,
+          8,
+          "paired-local",
+          []
+        ],
+        [
+          "string",
+          "daemon",
+          13523892,
+          13523900,
+          24,
+          25,
+          "paired-local",
+          []
+        ]
+      ],
+      "baseline": [
+        21685,
+        13464366,
+        13468915,
+        "FunctionDeclaration",
+        "27d6fef3e9c43329c53dc1873e717d142eccba49a460cbcb0cc1633e8929c40f",
+        "unique-coarse-structural-hash"
+      ]
+    },
+    {
+      "targetIndex": 21804,
+      "category": "paired-local-invariant",
+      "sourceMapOwners": [
+        "src/cli/transports/WebSocketTransport.ts"
+      ],
+      "coverageOwners": [
+        "src/cli/transports/WebSocketTransport.ts"
+      ],
+      "target": [
+        "changed",
+        13528430,
+        13538999,
+        "VariableDeclaration",
+        "195efdf85dc5c7237b3c734946960cfa257c9aedf04f323e7fb44aa9fcc4fd81"
+      ],
+      "residues": [
+        [
+          "property",
+          "dispose",
+          13535905,
+          13535912,
+          87,
+          92,
+          "paired-local",
+          []
+        ]
+      ],
+      "baseline": [
+        21688,
+        13469213,
+        13479782,
+        "VariableDeclaration",
+        "df7da0cee83ba0e44552c00c9820c6af31ffb4d598fcf935ee83d3af14a48f1d",
+        "unique-coarse-structural-hash"
+      ]
+    },
+    {
+      "targetIndex": 21807,
+      "category": "paired-local-invariant",
+      "sourceMapOwners": [
+        "src/cli/transports/WebSocketTransport.ts"
+      ],
+      "coverageOwners": [
+        "src/cli/transports/WebSocketTransport.ts"
+      ],
+      "target": [
+        "changed",
+        13539244,
+        13541765,
+        "VariableDeclaration",
+        "06425dcb8753314a27162a6fb857fb04342bbd8b8b79e644818693202f3c6a28"
+      ],
+      "residues": [
+        [
+          "property",
+          "constructor",
+          13539382,
+          13539393,
+          1288,
+          1289,
+          "paired-local",
+          []
+        ],
+        [
+          "number",
+          "8000",
+          13539582,
+          13539586,
+          18,
+          19,
+          "paired-local",
+          []
+        ],
+        [
+          "string",
+          "warn",
+          13541009,
+          13541015,
+          300,
+          306,
+          "paired-local",
+          []
+        ],
+        [
+          "string",
+          "warn",
+          13541275,
+          13541281,
+          300,
+          307,
+          "paired-local",
+          []
+        ],
+        [
+          "string",
+          "warn",
+          13541530,
+          13541536,
+          300,
+          308,
+          "paired-local",
+          []
+        ],
+        [
+          "string",
+          "warn",
+          13541663,
+          13541669,
+          300,
+          309,
+          "paired-local",
+          []
+        ]
+      ],
+      "baseline": [
+        21691,
+        13480027,
+        13482548,
+        "VariableDeclaration",
+        "c2b4857c0eba24baae11614c82e57fff3f3c53917f6d1d84258a5488bb68822a",
+        "unique-coarse-structural-hash"
+      ]
+    },
+    {
+      "targetIndex": 21812,
+      "category": "paired-local-invariant",
+      "sourceMapOwners": [
+        "src/cli/remoteIO.ts"
+      ],
+      "coverageOwners": [
+        "src/cli/remoteIO.ts"
+      ],
+      "target": [
+        "changed",
+        13542326,
+        13545408,
+        "VariableDeclaration",
+        "9c975da892bbcc27ef9a89d65005a27dd355373c56071da993bf1ae56d44a963"
+      ],
+      "residues": [
+        [
+          "property",
+          "constructor",
+          13542584,
+          13542595,
+          1288,
+          1290,
+          "paired-local",
+          []
+        ]
+      ],
+      "baseline": [
+        21696,
+        13483109,
+        13486191,
+        "VariableDeclaration",
+        "724b1ebea5d3d9905420a8b66b219db1a43881a0e645b765b37a25c5c1da8824",
+        "unique-coarse-structural-hash"
+      ]
+    },
+    {
+      "targetIndex": 21818,
+      "category": "exact-candidate-owner-cover",
+      "sourceMapOwners": [
+        "src/utils/streamJsonStdoutGuard.ts"
+      ],
+      "coverageOwners": [
+        "src/QueryEngine.ts",
+        "src/utils/queryContext.ts"
+      ],
+      "target": [
+        "unresolved",
+        13546707,
+        13548630,
+        "FunctionDeclaration",
+        "f958fca87405704ea1625ac453597615570610eb5c868bac5a593070f4c4bd73"
+      ],
+      "residues": [
+        [
+          "property",
+          "mainLoopModel",
+          13547063,
+          13547076,
+          124,
+          125,
+          "exact-candidate-source",
+          [
+            "src/QueryEngine.ts",
+            "src/utils/queryContext.ts"
+          ]
+        ],
+        [
+          "property",
+          "options",
+          13547420,
+          13547427,
+          1741,
+          1747,
+          "exact-candidate-source",
+          [
+            "src/QueryEngine.ts",
+            "src/utils/queryContext.ts"
+          ]
+        ],
+        [
+          "property",
+          "mainLoopModel",
+          13547449,
+          13547462,
+          124,
+          126,
+          "exact-candidate-source",
+          [
+            "src/QueryEngine.ts",
+            "src/utils/queryContext.ts"
+          ]
+        ]
+      ],
+      "alternateCandidateUniverse": [
+        "src/QueryEngine.ts",
+        "src/utils/queryContext.ts",
+        "src/utils/streamJsonStdoutGuard.ts"
+      ]
+    },
+    {
+      "targetIndex": 21904,
+      "category": "compiler-import-lowering",
+      "sourceMapOwners": [
+        "src/cli/handlers/mcp.tsx"
+      ],
+      "coverageOwners": [
+        "src/cli/handlers/mcp.tsx"
+      ],
+      "target": [
+        "changed",
+        13652203,
+        13652625,
+        "FunctionDeclaration",
+        "a617052bf1b2b6b4794fe8f7f6b0b1fb7c968884f2d4e267808609c2f27234f8"
+      ],
+      "residues": [
+        [
+          "property",
+          "stat",
+          13652297,
+          13652301,
+          206,
+          207,
+          "runtime-import",
+          [
+            "src/cli/handlers/mcp.tsx"
+          ]
+        ]
+      ]
+    },
+    {
+      "targetIndex": 21997,
+      "category": "paired-local-invariant",
+      "sourceMapOwners": [
+        "src/main.tsx"
+      ],
+      "coverageOwners": [
+        "src/main.tsx"
+      ],
+      "target": [
+        "changed",
+        13707399,
+        13708029,
+        "FunctionDeclaration",
+        "a04ca9022a7db7203cff6f6c1ced9990c4c0211a05b2cc5d1c47c0e915939cfa"
+      ],
+      "residues": [
+        [
+          "property",
+          "CLAUDE_CODE_USE_ANTHROPIC_AWS",
+          13707620,
+          13707649,
+          10,
+          11,
+          "paired-local",
+          []
+        ]
+      ],
+      "baseline": [
+        21871,
+        13644184,
+        13644814,
+        "FunctionDeclaration",
+        "7f972cf890744b0684e6c2a4bdfa949d657f2e8f1f1eb88e5b0a9f7f0c1a94aa",
+        "unique-coarse-structural-hash"
+      ]
+    }
+  ]
+}

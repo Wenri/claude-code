@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "kind": "npm-tarball-member-byte-comparison",
+  "comparisonBasis": "Exact member paths, types, modes, link targets, and uncompressed member bytes",
+  "packageName": "@anthropic-ai/claude-code-linux-x64",
+  "artifacts": {
+    "baseline": {
+      "version": "2.1.114",
+      "registryTarballUrl": "https://registry.npmjs.org/@anthropic-ai/claude-code-linux-x64/-/claude-code-linux-x64-2.1.114.tgz",
+      "compressedBytes": 73850665,
+      "sha1": "c505e20dfeaef08d36d67ea5e8a6f9526e0366a0",
+      "sha256": "c1123db5ac5003185686866f7431cc9c831e92c286bba2104382ca4403230195",
+      "sha512": "e185f46ad6841aab60997a187fded84276f3874c707a01f86453f97792d70652485c0076e9c48804d04f13e1259fc7af82e189f50ce61d006149374e9740d003",
+      "integrity": "sha512-4YX0ataEGqtgmXoYf97YQnbzh0xwegH4ZFP5d5LXBlJIXAB26cSIBNBPE+Eln8evguGJ9QzmHQBhSTdOl0DQAw==",
+      "uncompressedTarBytes": 236416512,
+      "memberCount": 4,
+      "metadataHeaderCount": 0,
+      "unpackedMemberBytes": 236412106,
+      "authentication": {
+        "expectedShasum": "c505e20dfeaef08d36d67ea5e8a6f9526e0366a0",
+        "expectedIntegrity": "sha512-4YX0ataEGqtgmXoYf97YQnbzh0xwegH4ZFP5d5LXBlJIXAB26cSIBNBPE+Eln8evguGJ9QzmHQBhSTdOl0DQAw==",
+        "shasumVerified": true,
+        "integrityVerified": true,
+        "registrySignature": {
+          "keyId": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+          "publicKeySpkiSha256": "fb190a462123443500cbcdb6519623e7179e9f38d84ad4e9362b72d2b68b62c1",
+          "signature": "MEQCIBUc5n0113sX+OaDURxEpDV6GrFo1vEbpCUK/v2BKty4AiB4vU61pMKtPlnenvic+PaOXdfySrw2pNTBvgbmTudNug==",
+          "verified": true
+        }
+      }
+    },
+    "target": {
+      "version": "2.1.116",
+      "registryTarballUrl": "https://registry.npmjs.org/@anthropic-ai/claude-code-linux-x64/-/claude-code-linux-x64-2.1.116.tgz",
+      "compressedBytes": 74153663,
+      "sha1": "70fc945e30491431f44e546f12e300bdc2c8c902",
+      "sha256": "0dde548c698cee7174751a92426123e90a95f56bf09271423681dd883d8bf0ea",
+      "sha512": "5cb960208b7176386be03a52371ede5a636d556782a91b5a5e8972e7c94539ba7253516adc701b63fffe9e6a958ab58a14ad818d55cb6bf8aaf72eb8f9267892",
+      "integrity": "sha512-XLlgIItxdjhr4DpSNx7eWmNtVWeCqRtaXoly58lFObpyU1Fq3HAbY//+nmqVirWKFK2BjVXLa/iq9y64+SZ4kg==",
+      "uncompressedTarBytes": 237657600,
+      "memberCount": 4,
+      "metadataHeaderCount": 0,
+      "unpackedMemberBytes": 237653194,
+      "authentication": {
+        "expectedShasum": "70fc945e30491431f44e546f12e300bdc2c8c902",
+        "expectedIntegrity": "sha512-XLlgIItxdjhr4DpSNx7eWmNtVWeCqRtaXoly58lFObpyU1Fq3HAbY//+nmqVirWKFK2BjVXLa/iq9y64+SZ4kg==",
+        "shasumVerified": true,
+        "integrityVerified": true,
+        "registrySignature": {
+          "keyId": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+          "publicKeySpkiSha256": "fb190a462123443500cbcdb6519623e7179e9f38d84ad4e9362b72d2b68b62c1",
+          "signature": "MEUCIQDvTHFfWSO9iE5GbTsSrC3IrbuZffbJpU8P64f0E0avWgIgW3V4nNrUETut7o2s9T6EkuYUEiV776iXLHOTX2b+l+w=",
+          "verified": true
+        }
+      }
+    }
+  },
+  "summary": {
+    "unionMemberCount": 4,
+    "baselineMemberCount": 4,
+    "targetMemberCount": 4,
+    "unchanged": 2,
+    "changed": 2,
+    "added": 0,
+    "removed": 0,
+    "complete": true
+  },
+  "members": [
+    {
+      "path": "package/LICENSE.md",
+      "status": "unchanged",
+      "baseline": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 147,
+        "sha256": "8ce94b9478bb9868f9641f818e06cd722fbe55d4c22e2d2ed11971b20146173a"
+      },
+      "target": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 147,
+        "sha256": "8ce94b9478bb9868f9641f818e06cd722fbe55d4c22e2d2ed11971b20146173a"
+      }
+    },
+    {
+      "path": "package/README.md",
+      "status": "unchanged",
+      "baseline": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 150,
+        "sha256": "ab4b9d72c3aa1ac7357e8eeb8b77c62e308e9af01ac0ecdb181f3bf1e57e25d5"
+      },
+      "target": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 150,
+        "sha256": "ab4b9d72c3aa1ac7357e8eeb8b77c62e308e9af01ac0ecdb181f3bf1e57e25d5"
+      }
+    },
+    {
+      "path": "package/claude",
+      "status": "changed",
+      "baseline": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0755",
+        "bytes": 236411520,
+        "sha256": "12bd4b0916deb06be17ffc7b2f0485e140bf00b2db3dcb78469d66723d73c27f"
+      },
+      "target": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0755",
+        "bytes": 237652608,
+        "sha256": "0d1aea5ce056a5ce491da7e9bbe63f992585e5c24852f023a07c8f18cf292cc5"
+      }
+    },
+    {
+      "path": "package/package.json",
+      "status": "changed",
+      "baseline": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 289,
+        "sha256": "f30dfd65beff0d8a74e89143d78b83cce28ac0b2d83eacb80339b8f231aef40e"
+      },
+      "target": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 289,
+        "sha256": "2f60a96f157b85f3ec9f34ef466b1f68450ac7acdd4f282a4ae382b1b8de3984"
+      }
+    }
+  ]
+}

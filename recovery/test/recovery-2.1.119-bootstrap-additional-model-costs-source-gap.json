@@ -1,0 +1,302 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "status": "authenticated-source-gap-replay",
+  "targetIndex": 21176,
+  "evidenceIds": [
+    "target119-bootstrap-additional-model-costs-target-fragment",
+    "target119-bootstrap-additional-model-costs-source-replay-test"
+  ],
+  "ownerOverride": {
+    "key": "2.1.118-to-2.1.119:21176",
+    "targetIndex": 21176,
+    "paths": [
+      "src/services/api/bootstrap.ts"
+    ],
+    "evidenceIds": [
+      "target119-bootstrap-additional-model-costs-target-fragment",
+      "target119-bootstrap-additional-model-costs-source-replay-test"
+    ],
+    "behavior": "The authenticated Target119 bootstrap schema accepts additional per-model token and web-search costs and transforms their wire-format field names into the runtime cache shape."
+  },
+  "inputs": {
+    "targetBundle": {
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "frozenScannerSnapshot": {
+      "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+      "bytes": 24991569,
+      "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"
+    },
+    "sourcePreimage": {
+      "path": "src/services/api/bootstrap.ts",
+      "bytes": 4634,
+      "sha256": "947aee6acdef6f1cb6310b3953063ad7c7985757bff7f57df6679a9bb440a7d5"
+    },
+    "sourcePostimage": {
+      "path": "src/services/api/bootstrap.ts",
+      "bytes": 5323,
+      "sha256": "652ce2e8c95a2b46e6dad10170e5e580b3ea138fad2da20e59df21130b3692a4"
+    },
+    "authenticatedDonor": {
+      "path": "src/services/api/bootstrap.ts",
+      "release": "2.1.120",
+      "bytes": 7368,
+      "sha256": "a3373ca1b67fcb2a65e4bcd76b158f945c54b0395c91356917fbc1489acbfa6d",
+      "blockBytes": 689,
+      "blockSha256": "4a0dd60c91117bfd6bbe00f311b504b5a6dbd2bf27ca09f96056a5ab63160295"
+    }
+  },
+  "target": {
+    "classification": "changed",
+    "nodeType": "VariableDeclaration",
+    "start": 12753716,
+    "end": 12754502,
+    "bytes": 786,
+    "sourceHash": "65e20f7453f2ee0bdf6f8c2d16d339aa614e1e13fba1c4f6448c3be70eb3b53f",
+    "tokenCount": 269
+  },
+  "summary": {
+    "units": 1,
+    "residues": 11,
+    "targetIndicesSha256": "8c3e78f3e368a7cdaced706b949ec90bac5adbdefd60dc930bcf1d6b56122982",
+    "residueIdentitiesSha256": "c0a69e69d4d315bcd887b6ec0265039cc95be19a7aa79bae1186688af7afec79",
+    "sourceBlockBytes": 689,
+    "sourceBlockSha256": "4a0dd60c91117bfd6bbe00f311b504b5a6dbd2bf27ca09f96056a5ab63160295"
+  },
+  "residues": [
+    [
+      "property",
+      "input_tokens",
+      12754094,
+      12754106,
+      77,
+      78
+    ],
+    [
+      "property",
+      "number",
+      12754110,
+      12754116,
+      476,
+      486
+    ],
+    [
+      "property",
+      "output_tokens",
+      12754119,
+      12754132,
+      73,
+      74
+    ],
+    [
+      "property",
+      "number",
+      12754136,
+      12754142,
+      476,
+      487
+    ],
+    [
+      "property",
+      "number",
+      12754174,
+      12754180,
+      476,
+      488
+    ],
+    [
+      "property",
+      "number",
+      12754211,
+      12754217,
+      476,
+      489
+    ],
+    [
+      "property",
+      "number",
+      12754243,
+      12754249,
+      476,
+      490
+    ],
+    [
+      "property",
+      "inputTokens",
+      12754281,
+      12754292,
+      69,
+      70
+    ],
+    [
+      "property",
+      "input_tokens",
+      12754295,
+      12754307,
+      77,
+      79
+    ],
+    [
+      "property",
+      "outputTokens",
+      12754308,
+      12754320,
+      72,
+      73
+    ],
+    [
+      "property",
+      "output_tokens",
+      12754323,
+      12754336,
+      73,
+      75
+    ]
+  ],
+  "targetMarkers": [
+    "additional_model_costs",
+    "input_tokens",
+    "output_tokens",
+    "prompt_cache_write_tokens",
+    "prompt_cache_read_tokens",
+    "web_search_requests",
+    "inputTokens",
+    "outputTokens",
+    "promptCacheWriteTokens",
+    "promptCacheReadTokens",
+    "webSearchRequests"
+  ],
+  "sourceMarkers": [
+    "additional_model_costs: z",
+    "input_tokens: z.number()",
+    "output_tokens: z.number()",
+    "prompt_cache_write_tokens: z.number()",
+    "prompt_cache_read_tokens: z.number()",
+    "web_search_requests: z.number().nullish()",
+    "inputTokens: costs.input_tokens",
+    "outputTokens: costs.output_tokens",
+    "promptCacheWriteTokens: costs.prompt_cache_write_tokens",
+    "promptCacheReadTokens: costs.prompt_cache_read_tokens",
+    "webSearchRequests: costs.web_search_requests ?? 0.01"
+  ],
+  "artifactPhasePolicy": {
+    "pairing": "exact-report-and-coverage-descriptor-pair",
+    "rejectHybridPairs": true,
+    "rejectUnknownPairs": true,
+    "acceptedPairs": [
+      {
+        "phase": "post-u21759",
+        "typedAudit": {
+          "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+          "bytes": 24991569,
+          "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"
+        },
+        "sourceCoverage": {
+          "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+          "bytes": 382108,
+          "sha256": "09d6075beeb3174217b97555ddbf67593b72fb5ba9c67e1e143154bd955af810"
+        },
+        "sourceCoverageRaw": {
+          "bytes": 3290710,
+          "sha256": "858d4a5dcfb37ce36a43078351ed68dd76c1e565e883617ff451974c2fde1071"
+        }
+      },
+      {
+        "phase": "post-u21878",
+        "typedAudit": {
+          "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+          "bytes": 24991569,
+          "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"
+        },
+        "sourceCoverage": {
+          "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+          "bytes": 383456,
+          "sha256": "874421d61f40166898113e0967be904859cda7c00493ee57303b97164bbb0015"
+        },
+        "sourceCoverageRaw": {
+          "bytes": 3297173,
+          "sha256": "0facb150b84243148609b0e5562484d5d9e5c29f895d03c3a3566484b347b08e"
+        }
+      }
+    ]
+  },
+  "latestArtifactProjection": {
+    "phases": [
+      "post-u21759",
+      "post-u21878"
+    ],
+    "units": [
+      {
+        "targetIndex": 21176,
+        "partitions": {
+          "sourceRuntimeOwnerResidueRows": {
+            "full": {
+              "rows": 22,
+              "jsonBytes": 9109,
+              "sha256": "2f48b0f08653da53a459c68dbed1ad362598f2a55c8233ec9990cc290ebb0d12"
+            },
+            "identities": {
+              "rows": 22,
+              "jsonBytes": 1453,
+              "sha256": "5414ee3a4181bf09c4c72e019d8ccec15ea4655bcb68d0ab42682073aeb2ade8"
+            }
+          },
+          "sourceRuntimeAddedOwnerResidueRows": {
+            "full": {
+              "rows": 11,
+              "jsonBytes": 33180,
+              "sha256": "17584d94dc1ed7f763bd53e9e9cdd775881b1c9a4ac2802c83f111cd3dbdab12"
+            },
+            "identities": {
+              "rows": 11,
+              "jsonBytes": 675,
+              "sha256": "eb3d55e5d55c37fd0aebd3b8762fa6f973494a0a736e96ac26b7f68f47eeeebd"
+            }
+          },
+          "rows": {
+            "full": {
+              "rows": 0,
+              "jsonBytes": 2,
+              "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+            },
+            "identities": {
+              "rows": 0,
+              "jsonBytes": 2,
+              "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+            }
+          },
+          "unclassifiedAddedOccurrenceRows": {
+            "full": {
+              "rows": 0,
+              "jsonBytes": 2,
+              "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+            },
+            "identities": {
+              "rows": 0,
+              "jsonBytes": 2,
+              "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+            }
+          }
+        },
+        "coverageRows": {
+          "rows": 1,
+          "jsonBytes": 616,
+          "sha256": "692277891802a3f62ec42cd587b7f90f75559b597e6330a885f48346f12a42bb"
+        },
+        "ownerCatalog": [
+          {
+            "id": "owner-src-services-api-bootstrap-ts",
+            "path": "src/services/api/bootstrap.ts"
+          }
+        ]
+      }
+    ]
+  }
+}

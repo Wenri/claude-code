@@ -1,0 +1,210 @@
+diff --git a/src/types/logs.ts b/src/types/logs.ts
+index 1515932..46221e5 100644
+--- a/src/types/logs.ts
++++ b/src/types/logs.ts
+@@ -9,6 +9,7 @@ export type SerializedMessage = Message & {
+   cwd: string
+   userType: string
+   entrypoint?: string // CLAUDE_CODE_ENTRYPOINT — distinguishes cli/sdk-ts/sdk-py/etc.
++  sessionKind?: 'bg' | 'daemon' | 'daemon-worker'
+   sessionId: string
+   timestamp: string
+   version: string
+@@ -30,6 +31,7 @@ export type LogOption = {
+   isLite?: boolean // True for lite logs (messages not loaded)
+   sessionId?: string // Session ID for lite logs
+   teamName?: string // Team name if this is a spawned agent session
++  sessionKind?: 'bg' | 'daemon' | 'daemon-worker'
+   agentName?: string // Agent's custom name (from /rename or swarm)
+   agentColor?: string // Agent's color (from /rename or swarm)
+   agentSetting?: string // Agent definition used (from --agent flag or settings.agent)
+diff --git a/src/utils/sessionStorage.ts b/src/utils/sessionStorage.ts
+index 6d775d6..dbe76d3 100644
+--- a/src/utils/sessionStorage.ts
++++ b/src/utils/sessionStorage.ts
+@@ -424,6 +424,16 @@ function getEntrypoint(): string | undefined {
+   return process.env.CLAUDE_CODE_ENTRYPOINT
+ }
+
++function getSessionKind(): SerializedMessage['sessionKind'] {
++  if (feature('BG_SESSIONS')) {
++    const kind = process.env.CLAUDE_CODE_SESSION_KIND
++    if (kind === 'bg' || kind === 'daemon' || kind === 'daemon-worker') {
++      return kind
++    }
++  }
++  return undefined
++}
++
+ export function isCustomTitleEnabled(): boolean {
+   return true
+ }
+@@ -1054,6 +1064,7 @@ class Project {
+           // stamped sessionId=FRESH (from insertContentReplacement), and
+           // loadFullLog's sessionId-keyed contentReplacements lookup misses →
+           // replacement records lost → FROZEN misclassification.
++          sessionKind: getSessionKind(),
+           userType: getUserType(),
+           entrypoint: getEntrypoint(),
+           cwd: getCwd(),
+@@ -4032,10 +4043,10 @@ export async function loadAllProjectsMessageLogsProgressive(
+     .filter(dirent => dirent.isDirectory())
+     .map(dirent => join(projectsDir, dirent.name))
+
+-  const rawLogs: LogOption[] = []
+-  for (const projectDir of projectDirs) {
+-    rawLogs.push(...(await getSessionFilesLite(projectDir, limit)))
+-  }
++  const logsPerProject = await Promise.all(
++    projectDirs.map(projectDir => getSessionFilesLite(projectDir, limit)),
++  )
++  const rawLogs = logsPerProject.flat()
+   // Deduplicate — same session can appear in multiple project dirs
+   const sorted = deduplicateLogsBySessionId(rawLogs)
+
+@@ -4140,7 +4151,6 @@ async function getStatOnlyLogsForWorktrees(
+   })
+   indexed.sort((a, b) => b.prefix.length - a.prefix.length)
+
+-  const allLogs: LogOption[] = []
+   const seenDirs = new Set<string>()
+
+   let allDirents: Dirent[]
+@@ -4155,6 +4165,10 @@ async function getStatOnlyLogsForWorktrees(
+     return getSessionFilesLite(projectDir, limit, getOriginalCwd())
+   }
+
++  const projectCandidates: Array<{
++    projectDir: string
++    worktreePath: string
++  }> = []
+   for (const dirent of allDirents) {
+     if (!dirent.isDirectory()) continue
+     const dirName = caseInsensitive ? dirent.name.toLowerCase() : dirent.name
+@@ -4163,21 +4177,24 @@ async function getStatOnlyLogsForWorktrees(
+     for (const { path: wtPath, prefix } of indexed) {
+       if (dirName === prefix || dirName.startsWith(prefix + '-')) {
+         seenDirs.add(dirName)
+-        allLogs.push(
+-          ...(await getSessionFilesLite(
+-            join(projectsDir, dirent.name),
+-            undefined,
+-            wtPath,
+-          )),
+-        )
++        projectCandidates.push({
++          projectDir: join(projectsDir, dirent.name),
++          worktreePath: wtPath,
++        })
+         break
+       }
+     }
+   }
+
++  const logsPerProject = await Promise.all(
++    projectCandidates.map(({ projectDir, worktreePath }) =>
++      getSessionFilesLite(projectDir, undefined, worktreePath),
++    ),
++  )
++
+   // Deduplicate by sessionId — the same session can appear in multiple
+   // worktree project dirs. Keep the entry with the newest modified time.
+-  return deduplicateLogsBySessionId(allLogs)
++  return deduplicateLogsBySessionId(logsPerProject.flat())
+ }
+
+ /**
+@@ -4361,6 +4378,17 @@ export function isLoggableMessage(m: Message): boolean {
+     ) {
+       return true
+     }
++    if (m.attachment.type === 'hook_deferred_tool') {
++      return true
++    }
++    if (
++      m.attachment.type === 'deferred_tools_delta' ||
++      m.attachment.type === 'mcp_instructions_delta' ||
++      m.attachment.type === 'agent_listing_delta' ||
++      m.attachment.type === 'companion_intro'
++    ) {
++      return true
++    }
+     return false
+   }
+   return true
+@@ -4582,6 +4610,9 @@ type LiteMetadata = {
+   isSidechain: boolean
+   projectPath?: string
+   teamName?: string
++  sessionKind?: 'bg' | 'daemon' | 'daemon-worker'
++  entrypoint?: string
++  isLoopSession?: boolean
+   customTitle?: string
+   summary?: string
+   tag?: string
+@@ -4750,7 +4781,18 @@ async function readLiteMetadata(
+     head.includes('"isSidechain":true') || head.includes('"isSidechain": true')
+   const projectPath = extractJsonStringField(head, 'cwd')
+   const teamName = extractJsonStringField(head, 'teamName')
++  const rawSessionKind = extractJsonStringField(head, 'sessionKind')
++  const sessionKind =
++    rawSessionKind === 'bg' ||
++    rawSessionKind === 'daemon' ||
++    rawSessionKind === 'daemon-worker'
++      ? rawSessionKind
++      : undefined
+   const agentSetting = extractJsonStringField(head, 'agentSetting')
++  const entrypoint = extractJsonStringField(head, 'entrypoint')
++  const isLoopSession = head.includes(
++    '<command-name>/loop</command-name>',
++  )
+
+   // Prefer the last-prompt tail entry — captured by extractFirstPrompt at
+   // write time (filtered, authoritative) and shows what the user was most
+@@ -4802,6 +4844,9 @@ async function readLiteMetadata(
+     isSidechain,
+     projectPath,
+     teamName,
++    sessionKind,
++    entrypoint,
++    isLoopSession,
+     customTitle,
+     summary,
+     tag,
+@@ -5035,6 +5080,7 @@ async function enrichLog(
+     gitBranch: meta.gitBranch,
+     isSidechain: meta.isSidechain,
+     teamName: meta.teamName,
++    sessionKind: meta.sessionKind,
+     customTitle: meta.customTitle,
+     summary: meta.summary,
+     tag: meta.tag,
+@@ -5065,6 +5111,28 @@ async function enrichLog(
+     )
+     return null
+   }
++  if (enriched.sessionKind) {
++    logForDebugging(
++      `Session ${log.sessionId} filtered from /resume: sessionKind=${enriched.sessionKind}`,
++    )
++    return null
++  }
++  if (
++    meta.entrypoint === 'sdk-cli' ||
++    meta.entrypoint === 'sdk-ts' ||
++    meta.entrypoint === 'sdk-py'
++  ) {
++    logForDebugging(
++      `Session ${log.sessionId} filtered from /resume: entrypoint=${meta.entrypoint}`,
++    )
++    return null
++  }
++  if (meta.isLoopSession) {
++    logForDebugging(
++      `Session ${log.sessionId} filtered from /resume: /loop session`,
++    )
++    return null
++  }
+
+   return enriched
+ }

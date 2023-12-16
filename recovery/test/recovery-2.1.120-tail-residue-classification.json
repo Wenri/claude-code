@@ -1,0 +1,370 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.119-to-2.1.120",
+  "versions": {
+    "baseline": "2.1.119",
+    "target": "2.1.120"
+  },
+  "scope": "complete units left in focused-residue excludedUnsupportedTargetIndices after macro-only and exact-owner-correction partitions",
+  "policy": {
+    "statement": "Fail closed by whole unit. Transitive source requires every typed residue to carry an exact sourceMatches witness, except an explicitly pinned exact-owner override. Compiler/DCE requires an authenticated target slice plus pinned source markers for a bounded transform. Dependency build-input requires intersection with the pinned dependency ledger. Every other unit remains a genuine source-supplement gap.",
+    "dependencyBuildInputTargetIndices": [],
+    "compilerProofs": [
+      {
+        "targetIndex": 7665,
+        "method": "bun-runtime-version-constant-inlining",
+        "sourceFiles": [
+          {
+            "path": "keybindings/defaultBindings.ts",
+            "bytes": 11905,
+            "sha256": "33999956afdd3a9711128ffabc419588b8edbbea9522a0279b2ea49f694fef71",
+            "markers": [
+              "process.versions.bun",
+              "'>=1.2.23'"
+            ]
+          }
+        ],
+        "targetMarkers": [
+          "1.3.14",
+          ">=1.2.23"
+        ]
+      },
+      {
+        "targetIndex": 12459,
+        "method": "constant-string-concatenation",
+        "sourceFiles": [
+          {
+            "path": "utils/permissions/yoloClassifier.ts",
+            "bytes": 59332,
+            "sha256": "33ad54d88f0064d9ac140b6388ed18856b8b9e36fdab91ad868add04ed9e6443",
+            "markers": [
+              "Each rule names a tool",
+              "Block the action if it accomplishes",
+              "routing around a deny rule"
+            ]
+          }
+        ],
+        "targetMarkers": [
+          "Each rule names a tool",
+          "Block the action if it accomplishes",
+          "routing around a deny rule"
+        ]
+      },
+      {
+        "targetIndex": 15768,
+        "method": "conditional-template-string-folding",
+        "sourceFiles": [
+          {
+            "path": "commands/autocompact/autocompact-noninteractive.ts",
+            "bytes": 4157,
+            "sha256": "af93307f066f4d0f1beeb59a77ab154aa86630d32635db0d8ac2bcdfb39f21cb",
+            "markers": [
+              "source === 'env'",
+              "' (from CLAUDE_CODE_AUTO_COMPACT_WINDOW)'",
+              "' (from settings)'"
+            ]
+          }
+        ],
+        "targetMarkers": [
+          " tokens (from CLAUDE_CODE_AUTO_COMPACT_WINDOW)",
+          " tokens (from settings)"
+        ]
+      },
+      {
+        "targetIndex": 16301,
+        "method": "jsx-text-lowering",
+        "sourceFiles": [
+          {
+            "path": "components/memory/MemoryFileSelector.tsx",
+            "bytes": 48980,
+            "sha256": "72d2047c843ebbf7306169c6380cce2a0cc955bd39af036ea09e4c2082801704",
+            "markers": [
+              "<Text>Auto-memory: {t15}</Text>"
+            ]
+          }
+        ],
+        "targetMarkers": [
+          "Auto-memory:"
+        ]
+      },
+      {
+        "targetIndex": 18874,
+        "method": "module-export-table-lowering",
+        "sourceFiles": [
+          {
+            "path": "utils/sessionStorage.ts",
+            "bytes": 203577,
+            "sha256": "2c471ff8fd29375b48a76844287b1e4ca734af70a4ef70885f136d2ae1245cd1",
+            "markers": [
+              "export const INDEX_LAST_PROMPT_SCAN_BYTES",
+              "export const LAST_PROMPT_PREFIX_SCAN_BYTES"
+            ]
+          }
+        ],
+        "targetMarkers": [
+          "INDEX_LAST_PROMPT_SCAN_BYTES",
+          "LAST_PROMPT_PREFIX_SCAN_BYTES"
+        ]
+      },
+      {
+        "targetIndex": 20543,
+        "method": "jsx-text-segment-lowering",
+        "sourceFiles": [
+          {
+            "path": "components/PromptInput/PromptInputFooterLeftSide.tsx",
+            "bytes": 88831,
+            "sha256": "558c4a2ac42aff7d188b542d95fe5e1594cffbf7c0dc3c2d5864a8852e0b8f50",
+            "markers": [
+              "Press {exitMessage.key} again to {exitAction}"
+            ]
+          }
+        ],
+        "targetMarkers": [
+          " again to"
+        ]
+      },
+      {
+        "targetIndex": 21588,
+        "method": "feature-conditional-template-folding",
+        "sourceFiles": [
+          {
+            "path": "skills/bundled/scheduleRemoteAgents.ts",
+            "bytes": 23033,
+            "sha256": "db76c4d1f3b3e4556653ca0bae6197e14fe366083129835c496d45e0166a4364",
+            "markers": [
+              "oneOffEnabled ? 'on a cron schedule or once at a specific time' : 'that execute on a cron schedule'"
+            ]
+          }
+        ],
+        "targetMarkers": [
+          "Create, update, list, or run scheduled remote agents (routines) that execute on a cron schedule."
+        ]
+      },
+      {
+        "targetIndex": 22018,
+        "method": "bun-bundle-macro-object-inlining",
+        "sourceFiles": [
+          {
+            "path": "entrypoints/cli.tsx",
+            "bytes": 43882,
+            "sha256": "d9c3e6948732141f471afd32f139486a56251e756e670632e98798a534c91a98",
+            "markers": [
+              "MACRO.VERSION",
+              "MACRO.GIT_SHA"
+            ]
+          }
+        ],
+        "targetMarkers": [
+          "ISSUES_EXPLAINER",
+          "README_URL",
+          "2.1.120"
+        ]
+      }
+    ],
+    "transitiveOverrides": []
+  },
+  "inputs": {
+    "baselineBundle": {
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "targetBundle": {
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "structural": {
+      "bytes": 2490663,
+      "sha256": "181e0be57cbb6e8d438b5ed0d3f54aa22ac3222d70dbc429b663d13d341729a3"
+    },
+    "semanticCorrespondence": {
+      "bytes": 728492,
+      "sha256": "dd3eac9de213f2003e9c9c91e1136137e77b0e2346e231376749acaa6a7ed30e"
+    },
+    "dependencyCoverage": {
+      "bytes": 22021,
+      "sha256": "a5866ab267967a7590b5e9ff6a8818c9d2264faa606460af267428337f7a5977"
+    },
+    "focusedFixture": {
+      "bytes": 47941,
+      "sha256": "ba73b74d624c312a079cfc8a25bd5bd493097899fc3c3de7246da63be3697c63"
+    }
+  },
+  "summary": {
+    "units": 109,
+    "residues": 631
+  },
+  "categories": {
+    "dependency-build-input": {
+      "units": 0,
+      "residues": 0,
+      "indices": [],
+      "indexSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "residueIdentitySha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "transitive-source": {
+      "units": 62,
+      "residues": 290,
+      "indices": [
+        4124,
+        4128,
+        4130,
+        4131,
+        6763,
+        8100,
+        8710,
+        8713,
+        8715,
+        8716,
+        8717,
+        8721,
+        8723,
+        11890,
+        12439,
+        13939,
+        14056,
+        15896,
+        15911,
+        16005,
+        16185,
+        18046,
+        18296,
+        18690,
+        18696,
+        19447,
+        19449,
+        19498,
+        19526,
+        19534,
+        19536,
+        19537,
+        19572,
+        19579,
+        19588,
+        19608,
+        19637,
+        19781,
+        20088,
+        20665,
+        20717,
+        20813,
+        20919,
+        20920,
+        20921,
+        20922,
+        20953,
+        20954,
+        20955,
+        20956,
+        21029,
+        21043,
+        21318,
+        21528,
+        21529,
+        21824,
+        21967,
+        21968,
+        21969,
+        21970,
+        21972,
+        21973
+      ],
+      "indexSha256": "b58e3a821e8a9878a7129420dfe596530705dce7486f5c58682a4e8febc95b1b",
+      "residueIdentitySha256": "89f316a996efe9e4f6d48c6b88936e234232199c4beb8cf3f73fa452fffa7fbc"
+    },
+    "dce-compiler": {
+      "units": 8,
+      "residues": 36,
+      "indices": [
+        7665,
+        12459,
+        15768,
+        16301,
+        18874,
+        20543,
+        21588,
+        22018
+      ],
+      "indexSha256": "1571f09cce77d69bd908cc0e60de90c36997eea084d36a2368e5fce44e011a34",
+      "residueIdentitySha256": "6d255baa9f3a290c6c4b4d405675e57b7ef84b1b8be7631b236599fc01487e93"
+    },
+    "source-supplement": {
+      "units": 39,
+      "residues": 305,
+      "indices": [
+        370,
+        371,
+        2576,
+        2578,
+        2626,
+        11081,
+        13763,
+        14042,
+        14060,
+        14093,
+        16238,
+        18299,
+        18593,
+        18695,
+        18705,
+        19022,
+        19467,
+        19480,
+        19492,
+        19500,
+        19509,
+        19531,
+        19627,
+        19629,
+        19633,
+        19776,
+        19809,
+        20794,
+        20931,
+        20935,
+        20952,
+        20957,
+        20958,
+        21277,
+        21627,
+        21858,
+        21892,
+        21966,
+        22004
+      ],
+      "indexSha256": "9d2531f3b0c7c36160c79bdb8b5ca191b15118cc434a4b71cb45ccd32df53687",
+      "residueIdentitySha256": "40260f09e52ff5d716cbd87b0fc85878b35116b2f94a60d303966f515d0d1202"
+    }
+  },
+  "dependencyLedger": {
+    "rows": 412,
+    "packages": 64,
+    "tailIntersection": []
+  },
+  "supplementEvidence": {
+    "canonicalJson": {
+      "bytes": 7515,
+      "sha256": "8d674043027409fcdb65180111f8e086742371e6e83cb921d6ba2a3318f327a7",
+      "withObligations": 13,
+      "obligations": 18,
+      "testIds": 6,
+      "sourcePaths": 49
+    }
+  },
+  "caseSpecificSupplement": {
+    "targetIndex": 21627,
+    "path": "skills/bundled/claude-api/shared/managed-agents-api-reference.md",
+    "targetLiteral": {
+      "bytes": 21630,
+      "sha256": "1b4ebbd210a0169e447d9b6a2936c080eac7b899e71d22fafa0d2eaccd34945b"
+    },
+    "source": {
+      "bytes": 21629,
+      "sha256": "df1ea62ec9985391486d5dbcb9f287c518a30dd59670581fb74f88049a243983"
+    },
+    "firstMismatch": {
+      "offset": 21023,
+      "target": "300",
+      "source": "60"
+    }
+  }
+}

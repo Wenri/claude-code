@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "authenticated-direct-owner-and-compiler-normalization-proof",
+  "criterion": "complete-target-fragment-plus-exact-source-ast-v1",
+  "evidenceIds": [
+    "target119-agent-detail-relay-authenticated-target-fragment",
+    "target119-agent-detail-relay-source-ast-test",
+    "target119-agent-detail-relay-compiler-normalization-test"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "typedReport": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json"
+  },
+  "sources": {
+    "agentDetail": {
+      "path": "src/components/agents/AgentDetail.tsx",
+      "bytes": 23818,
+      "sha256": "b127bcefb9cedbe6c86179b0c88dc3046f7e01704ca2cf01370b3a487d87cede",
+      "declarations": {
+        "AgentDetail": {
+          "start": 961,
+          "end": 6616,
+          "chars": 5655,
+          "sha256": "8594ffe9cc90ef836aa291b279cc44a0eac64ddc211135f4148e118d8ae05142"
+        },
+        "renderToolsList": {
+          "start": 1936,
+          "end": 2663,
+          "chars": 727,
+          "sha256": "7b755cd9d71563fccfbadc007b91ae22b801f1a754757d64c66f9ffa8b83f79d"
+        }
+      }
+    },
+    "relay": {
+      "path": "src/upstreamproxy/relay.ts",
+      "bytes": 14937,
+      "sha256": "f08e9cec87d252afc6a4edadd5c4e9b6a1ed137b1025328158e56e23b13282b6",
+      "declarations": {
+        "nodeNetImport": {
+          "start": 880,
+          "end": 946,
+          "chars": 66,
+          "sha256": "d1ab950d033f27f666a19a348ae1f937baac0a9f6b55a9348ab4cd907767e9d7"
+        },
+        "startUpstreamProxyRelay": {
+          "start": 5446,
+          "end": 6226,
+          "chars": 780,
+          "sha256": "604099e9b16e5ce31aaf2a05ad37deed00df8f4736b7b8d1e07788fe5b145a9a"
+        }
+      }
+    },
+    "rejectedCoarseOwner": {
+      "path": "src/components/agents/agentFileUtils.ts",
+      "bytes": 7487,
+      "sha256": "38f0c9c8d51b36289cb10d4643783f009849210020e8991d274011ab6721089f"
+    }
+  },
+  "rows": [
+    {
+      "targetIndex": 17642,
+      "classification": "unresolved",
+      "ownerPaths": ["src/components/agents/AgentDetail.tsx"],
+      "declarations": ["AgentDetail", "renderToolsList"],
+      "target": {
+        "nodeType": "FunctionDeclaration",
+        "start": 10930222,
+        "end": 10931165,
+        "bytes": 943,
+        "sha256": "280c5201a98c2581bf530856ab6372eff08d3ae36559764d2155a7dde5df4ffa",
+        "coarseHash": "a62c306e53fc42fd8fd453d95d2488cb5f06456290845edc08b714af1b3b4626"
+      },
+      "residues": [
+        {"kind":"property","value":"unavailableTools","start":10930432,"end":10930448,"baselineCount":0,"targetOrdinal":3},
+        {"kind":"string","value":" Not available to subagents:","start":10930808,"end":10930838,"baselineCount":0,"targetOrdinal":1},
+        {"kind":"string","value":" Unrecognized: ","start":10930963,"end":10930980,"baselineCount":0,"targetOrdinal":1}
+      ]
+    },
+    {
+      "targetIndex": 19600,
+      "classification": "changed",
+      "pairReason": "unique-coarse-structural-hash",
+      "ownerPaths": ["src/upstreamproxy/relay.ts"],
+      "declarations": ["node:net import", "startUpstreamProxyRelay"],
+      "baseline": {
+        "targetIndex": 18633,
+        "nodeType": "VariableDeclaration",
+        "start": 11478399,
+        "end": 11478450,
+        "bytes": 51,
+        "sha256": "2a51649ea8cabc08cd9b18a7c0ad1d1f21d2997f938e4fa1e1bc140d0c1a1366",
+        "coarseHash": "679ae5c229e3cc9e5c257b30acd845d819164f026a79fb50e82d0e3b6e26399f"
+      },
+      "target": {
+        "nodeType": "VariableDeclaration",
+        "start": 11959373,
+        "end": 11959424,
+        "bytes": 51,
+        "sha256": "aa4501519dadeaf9e50c0b0442834a14104c183e7cf164293e6378a8caab4d63",
+        "coarseHash": "679ae5c229e3cc9e5c257b30acd845d819164f026a79fb50e82d0e3b6e26399f"
+      },
+      "residues": [
+        {"kind":"string","value":"net","start":11959415,"end":11959420,"baselineCount":21,"targetOrdinal":31}
+      ]
+    }
+  ],
+  "summary": {
+    "units": 2,
+    "residues": 4,
+    "targetIndicesSha256": "5333702ea43495a2cb4bb4b96efa499d09bb28fb79890a3689ab01fa49bc23b7",
+    "residueIdentitiesSha256": "060f606ccedee3812d159f5724fd29d527d2f5ed1d7750d05359a65ddb8a960d"
+  }
+}

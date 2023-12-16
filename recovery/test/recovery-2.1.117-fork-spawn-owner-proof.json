@@ -1,0 +1,200 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "targetVersion": "2.1.117",
+  "criterion": "target117-fork-spawn-static-whole-unit-owner-v1",
+  "status": "case-owned-static-owner-proof-source-replay-blocked",
+  "evidenceIds": [
+    "target117-fork-spawn-authenticated-whole-unit",
+    "target117-fork-spawn-target118-temporal-lineage",
+    "target117-fork-spawn-stale-lifecycle-graph-blocker"
+  ],
+  "baselineBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.116-linux-x64/cli.inner.js",
+    "bytes": 13102272,
+    "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+  },
+  "targetBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.117-linux-x64/cli.inner.js",
+    "bytes": 13114118,
+    "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+  },
+  "target118Bundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+    "bytes": 13234618,
+    "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+  },
+  "structuralLedger": {
+    "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+    "bytes": 2392225,
+    "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+  },
+  "target118StructuralLedger": {
+    "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+    "bytes": 2429007,
+    "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+  },
+  "baselineAbsence": {
+    "baselineUnitIndex": null,
+    "targetForkUsageString": "Usage: /fork",
+    "baselineOccurrenceCount": 0,
+    "targetOccurrenceCount": 1
+  },
+  "targetUnit": {
+    "targetIndex": 17725,
+    "classification": "unresolved",
+    "baselineUnitIndex": null,
+    "nodeType": "FunctionDeclaration",
+    "async": true,
+    "start": 10945395,
+    "end": 10946845,
+    "tokenCount": 508,
+    "topDefinitionCount": 1,
+    "unknownFreeIdentifierCount": 2,
+    "bytes": 1450,
+    "sha256": "1ebc2a4ea20777bf27605d5ad4c9e3af51609d6f2c83176487128c6698860ee7",
+    "coarseHash": "70280c9462e11869496914c223b64f292d587daa11582fcd6dbcb62a5d34270d"
+  },
+  "ownerResidues": {
+    "generatedOwner": "commands/remote-setup/index.ts",
+    "correctedOwner": "commands/fork/fork.ts",
+    "totalRows": 23,
+    "trueOwnerSourceMatchedRows": 22,
+    "strictRows": 1,
+    "unclassifiedRows": 0,
+    "rows": [
+      { "literalKind": "property", "value": "replayLog", "baselineOccurrenceCount": 5, "targetOccurrenceNumber": 6, "start": 10945575, "end": 10945584, "trueOwnerSourceMatch": true },
+      { "literalKind": "property", "value": "replHydration", "baselineOccurrenceCount": 6, "targetOccurrenceNumber": 7, "start": 10945608, "end": 10945621, "trueOwnerSourceMatch": true },
+      { "literalKind": "property", "value": "selectedAgent", "baselineOccurrenceCount": 12, "targetOccurrenceNumber": 13, "start": 10945804, "end": 10945817, "trueOwnerSourceMatch": true },
+      { "literalKind": "property", "value": "registerName", "baselineOccurrenceCount": 3, "targetOccurrenceNumber": 4, "start": 10945897, "end": 10945909, "trueOwnerSourceMatch": false, "strict": true },
+      { "literalKind": "property", "value": "resolvedAgentModel", "baselineOccurrenceCount": 7, "targetOccurrenceNumber": 8, "start": 10945935, "end": 10945953, "trueOwnerSourceMatch": true },
+      { "literalKind": "property", "value": "isBuiltInAgent", "baselineOccurrenceCount": 8, "targetOccurrenceNumber": 9, "start": 10946033, "end": 10946047, "trueOwnerSourceMatch": true },
+      { "literalKind": "property", "value": "isAsync", "baselineOccurrenceCount": 21, "targetOccurrenceNumber": 22, "start": 10946086, "end": 10946093, "trueOwnerSourceMatch": true },
+      { "literalKind": "string", "value": "subagent", "baselineOccurrenceCount": 8, "targetOccurrenceNumber": 9, "start": 10946150, "end": 10946160, "trueOwnerSourceMatch": true },
+      { "literalKind": "property", "value": "subagentName", "baselineOccurrenceCount": 6, "targetOccurrenceNumber": 7, "start": 10946161, "end": 10946173, "trueOwnerSourceMatch": true },
+      { "literalKind": "property", "value": "isBuiltIn", "baselineOccurrenceCount": 8, "targetOccurrenceNumber": 9, "start": 10946187, "end": 10946196, "trueOwnerSourceMatch": true },
+      { "literalKind": "property", "value": "invocationKind", "baselineOccurrenceCount": 10, "targetOccurrenceNumber": 11, "start": 10946200, "end": 10946214, "trueOwnerSourceMatch": true },
+      { "literalKind": "property", "value": "invocationEmitted", "baselineOccurrenceCount": 6, "targetOccurrenceNumber": 7, "start": 10946223, "end": 10946240, "trueOwnerSourceMatch": true },
+      { "literalKind": "property", "value": "makeStream", "baselineOccurrenceCount": 3, "targetOccurrenceNumber": 4, "start": 10946289, "end": 10946299, "trueOwnerSourceMatch": true },
+      { "literalKind": "property", "value": "onQueryProgress", "baselineOccurrenceCount": 3, "targetOccurrenceNumber": 4, "start": 10946311, "end": 10946326, "trueOwnerSourceMatch": true },
+      { "literalKind": "property", "value": "isAsync", "baselineOccurrenceCount": 21, "targetOccurrenceNumber": 23, "start": 10946437, "end": 10946444, "trueOwnerSourceMatch": true },
+      { "literalKind": "property", "value": "override", "baselineOccurrenceCount": 38, "targetOccurrenceNumber": 39, "start": 10946494, "end": 10946502, "trueOwnerSourceMatch": true },
+      { "literalKind": "property", "value": "replHydration", "baselineOccurrenceCount": 6, "targetOccurrenceNumber": 8, "start": 10946559, "end": 10946572, "trueOwnerSourceMatch": true },
+      { "literalKind": "property", "value": "availableTools", "baselineOccurrenceCount": 6, "targetOccurrenceNumber": 7, "start": 10946576, "end": 10946590, "trueOwnerSourceMatch": true },
+      { "literalKind": "property", "value": "useExactTools", "baselineOccurrenceCount": 3, "targetOccurrenceNumber": 4, "start": 10946638, "end": 10946651, "trueOwnerSourceMatch": true },
+      { "literalKind": "property", "value": "onCacheSafeParams", "baselineOccurrenceCount": 5, "targetOccurrenceNumber": 6, "start": 10946655, "end": 10946672, "trueOwnerSourceMatch": true },
+      { "literalKind": "property", "value": "agentIdForCleanup", "baselineOccurrenceCount": 3, "targetOccurrenceNumber": 4, "start": 10946748, "end": 10946765, "trueOwnerSourceMatch": true },
+      { "literalKind": "property", "value": "enableSummarization", "baselineOccurrenceCount": 3, "targetOccurrenceNumber": 4, "start": 10946768, "end": 10946787, "trueOwnerSourceMatch": true },
+      { "literalKind": "property", "value": "getWorktreeResult", "baselineOccurrenceCount": 3, "targetOccurrenceNumber": 4, "start": 10946791, "end": 10946808, "trueOwnerSourceMatch": true }
+    ]
+  },
+  "strictCall": {
+    "start": 10945880,
+    "end": 10945918,
+    "bytes": 38,
+    "sha256": "ee5a25d8db5a33a216f8c43a5f881825f1d157a2fd556cbeec120e26c3d34e80",
+    "exact": "$.agentLifecycle.registerName(A,l5(z))"
+  },
+  "adjacentTargetUnits": [
+    { "targetIndex": 17726, "role": "getRenderedSystemPrompt", "nodeType": "FunctionDeclaration", "start": 10946845, "end": 10947275, "tokenCount": 117, "bytes": 430, "sha256": "a9d57adf6ccd323572b2ac8542f92a1d6bc37c0d3998c3f1196f08b0f3ebfafc" },
+    { "targetIndex": 17727, "role": "getForkName", "nodeType": "FunctionDeclaration", "start": 10947275, "end": 10947441, "tokenCount": 64, "bytes": 166, "sha256": "fcc916ebd02576176961f9db35f54c2c2cf93ba48a169effb3973dee0960c05e" },
+    { "targetIndex": 17728, "role": "fork-module-initializer", "nodeType": "VariableDeclaration", "start": 10947441, "end": 10947539, "tokenCount": 71, "bytes": 98, "sha256": "8af1a7d0b875c2c04c649a99f453bac5db91b8a119c66bc5be0d759203cb08ae" },
+    { "targetIndex": 17731, "role": "exported-call", "nodeType": "VariableDeclaration", "start": 10947573, "end": 10947895, "tokenCount": 116, "bytes": 322, "sha256": "ce0ca84523034dac57e9055c4e0d722a245459ec6eade698e7941cdeb1e3a2c1" },
+    { "targetIndex": 17732, "role": "call-initializer", "nodeType": "VariableDeclaration", "start": 10947895, "end": 10947928, "tokenCount": 23, "bytes": 33, "sha256": "9080866175ea6396c3d3142facadecc90983e26f45fd4517166355b89e04a5d9" },
+    { "targetIndex": 17736, "role": "fork-command-index-initializer", "nodeType": "VariableDeclaration", "start": 10947973, "end": 10948197, "tokenCount": 64, "bytes": 224, "sha256": "f5e8298d443bc47f35d4193f7b97a01704fb5906cc8b6485c33fba28b7a90887" }
+  ],
+  "exportedInvocation": {
+    "start": 10947688,
+    "end": 10947719,
+    "bytes": 31,
+    "sha256": "3c65d356ed6c2830cd139e9a1678ca6467f0b6d813175625a046d6df11b460a2",
+    "exact": "await _n7(K,$,$.canUseTool??Ow)"
+  },
+  "retainedRuntimeDependencies": [
+    { "targetIndex": 14704, "baselineUnitIndex": 14637, "role": "registerAsyncAgent", "pairReason": "exact-scope-normalized-token-hash", "nodeType": "FunctionDeclaration", "start": 9196449, "end": 9196967, "bytes": 518, "sha256": "e8e118eb995f91216521d166e9cd637e21653fa17b7fc115115c55c5b0125295" },
+    { "targetIndex": 12189, "baselineUnitIndex": 12148, "role": "runAsyncAgentLifecycle", "pairReason": "exact-scope-normalized-token-hash", "nodeType": "FunctionDeclaration", "start": 7707300, "end": 7709914, "bytes": 2614, "sha256": "31dc083df014b93b7deec8dffcb7f650127d27517674f06accca260316d63dc2" },
+    { "targetIndex": 16643, "baselineUnitIndex": 16575, "role": "agentLifecycleRegistry", "pairReason": "exact-scope-normalized-token-hash", "nodeType": "FunctionDeclaration", "start": 10474138, "end": 10474563, "bytes": 425, "sha256": "61168562c5d35f6ae6708ba1b09ed70446cc429ebae0d85f5d25d73ab85797d2" }
+  ],
+  "target118TemporalLineage": {
+    "targetIndex": 17881,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 11022572,
+    "end": 11024029,
+    "tokenCount": 512,
+    "unknownFreeIdentifierCount": 3,
+    "bytes": 1457,
+    "sha256": "d5178cc573150b53a91ab192a796db3ed3e09f218e29dbd6620963257f89afa9",
+    "coarseHash": "c386d7970da5ee5f35ebc11a9ca0c01dfbf6bf43d39e39b5c3ad75ad1a36bda7",
+    "laterOnlyFragment": {
+      "localStart": 1293,
+      "localEnd": 1300,
+      "start": 11023865,
+      "end": 11023872,
+      "bytes": 7,
+      "sha256": "d4817f84b96f78ddc1886841ae10b79a5149d2b013f01dff522ca8eabef2c1cc",
+      "exact": ",name:A",
+      "target117OccurrenceCount": 1,
+      "target118OccurrenceCount": 2,
+      "derivedOccurrenceCount": 1
+    },
+    "derivedTarget117Shape": {
+      "bytes": 1450,
+      "sha256": "78fbcbcfe5b58dcf6f5a23ae6f7a5a3c41ae4edf3467191bc91070122ec9bb8f",
+      "tokenCount": 508,
+      "coarseHash": "70280c9462e11869496914c223b64f292d587daa11582fcd6dbcb62a5d34270d"
+    },
+    "canonicalAstEquivalence": {
+      "method": "remove the exact Target118-only name property, parse each unit, strip positions/raw, alpha-normalize identifiers while retaining noncomputed property/member/method keys",
+      "normalizedChars": 20610,
+      "normalizedBytes": 20612,
+      "sha256": "4acec2a2096b19bb85f1e9fe2613c777e1f17ff284757e58e4d630d2313392fd"
+    }
+  },
+  "legacyOwnerSource": {
+    "path": "src/commands/fork/fork.ts",
+    "state": "absent in raw ff0339 tree or exact stale semantic owner in packaged tree",
+    "bytes": 6480,
+    "chars": 6478,
+    "sha256": "c618b48cc2e75030886c1b7957d2c0cc46271ab8b5887a279700c36b261cc1ff",
+    "getForkName": { "start": 1336, "end": 1627, "chars": 291, "bytes": 291, "sha256": "0c2b5295996db262ac71f2d44b9cd9fea923d801a54f3113519be867ba5d5d8a" },
+    "getRenderedSystemPrompt": { "start": 1629, "end": 2572, "chars": 943, "bytes": 943, "sha256": "40d32272003d6e1047c894955d6dbd9202dcaad186a44805797b105bcd98df9d" },
+    "spawnFork": { "start": 2574, "end": 5887, "chars": 3313, "bytes": 3315, "sha256": "33fbb8609cfc860a6170099895224bfa6c27c1f1f32337e08d4ad0c094ee4f08" },
+    "call": { "start": 5889, "end": 6477, "chars": 588, "bytes": 588, "sha256": "e0f254976882297ad8aa3b3eafccc3fdc6185bf0a45d12a36fab7a61723b4b84" },
+    "index": {
+      "path": "src/commands/fork/index.ts",
+      "bytes": 402,
+      "chars": 402,
+      "sha256": "05fa1d580380b7b1aa340307a568facc41c487cd5e7211e756bc81a496202d0b",
+      "declaration": { "start": 128, "end": 380, "chars": 252, "bytes": 252, "sha256": "4770cccf3326975e2dde965bfafcc4814905a874928ae603b4b78bcbbb2ec255" }
+    },
+    "boundedSemanticCandidate": {
+      "provenance": "runtime-constrained semantic candidate only; not accepted as a source replay",
+      "bytes": 6264,
+      "chars": 6262,
+      "sha256": "694c82fdc2f71f3bbf3102c81656fcec4950cb55076d2649b82c3134997d4919",
+      "spawnFork": { "start": 2574, "end": 5671, "chars": 3097, "bytes": 3099, "sha256": "bd393e63f18f32898cb37f04ea9c27dde921f2250d53ee6d982a8b0b665dd343" },
+      "call": { "start": 5673, "end": 6261, "chars": 588, "bytes": 588, "sha256": "e0f254976882297ad8aa3b3eafccc3fdc6185bf0a45d12a36fab7a61723b4b84" },
+      "transforms": [
+        { "name": "task-registry-destructure", "raw": { "start": 3372, "end": 3448, "bytes": 76, "sha256": "af9fe908087762b31bf2ebb886d46a1a2472480285ecdff53ddcd9ee2d430f10" }, "candidate": { "start": 3372, "end": 3406, "bytes": 34, "sha256": "1e10815c2752f08c27b3bdeefd66b5ac7215e32601a8f32c417b7580bc7a5707" } },
+        { "name": "register-async-task-registry", "raw": { "start": 3600, "end": 3633, "bytes": 33, "sha256": "5a258976ab7dfed09c458f541c19d8de938ef9d279c56ccbcb2a8dad54844b76" }, "candidate": { "start": 3558, "end": 3575, "bytes": 17, "sha256": "de22c11e1b5475f43ff0145dcd5de31448aed322cd77ed15cc54b8d136fb1059" } },
+        { "name": "agent-lifecycle-register-name", "raw": { "start": 3674, "end": 3875, "bytes": 201, "sha256": "ff8b3b22674432506a58cf364854163a295af8f4892d74c45813c47e7d75a21f" }, "candidate": { "start": 3616, "end": 3680, "bytes": 64, "sha256": "0f7ca3c0b30b8d8b5bbcc2fcfd4c31346afecaf8a257798a20858677ec7aca49" } },
+        { "name": "remove-run-agent-name", "raw": { "start": 5573, "end": 5615, "bytes": 42, "sha256": "99a2773cec8147ab4903d5fe9c7e68104ed20eb4f9b68af06e688cbc8eb1e42a" }, "candidate": { "start": 5378, "end": 5402, "bytes": 24, "sha256": "03efd149f2ea8191489940ec4125b8ccdd1642ecabcdb6b9ec288af2a1003aa4" } },
+        { "name": "lifecycle-task-registry", "raw": { "start": 5702, "end": 5726, "bytes": 24, "sha256": "05a03df98fd1195327e6851da80a430873058c4214cdf0d8bb4e96485fcd72d6" }, "candidate": { "start": 5489, "end": 5510, "bytes": 21, "sha256": "a3e9bb62cfb14a0e9266669260b2da423cb9f9b7254c090f45ff1ec581659f5c" } }
+      ]
+    }
+  },
+  "sourceReplayBlocker": {
+    "decision": "static whole-unit owner proof only; no helper export and no source writes",
+    "staleFiles": [
+      { "path": "src/Tool.ts", "bytes": 30209, "sha256": "3543c14f3551f55c78347bfc4478cf928d98954bcc08c559fcfc966b0c16b266", "declaration": { "start": 4843, "end": 11343, "chars": 6500, "bytes": 6512, "sha256": "70da00e6b5417e8c49040719f3c6bfb9c58e4580af34e0a1a2b522160394561b" }, "requiresAbsent": ["agentLifecycle", "taskRegistry"] },
+      { "path": "src/tasks/LocalAgentTask/LocalAgentTask.tsx", "bytes": 82910, "sha256": "3417b3655d7e071af386cbd6ba8978e4d65ec2c340eb89d4ff7a7cc64560ea3c", "declaration": { "start": 17152, "end": 18622, "chars": 1470, "bytes": 1470, "sha256": "9f35e24bf643dd3b22bc46663c339b32e961ce909f849f1d31b255a9554a9081" }, "requiresPresent": ["setAppState"], "requiresAbsent": ["taskRegistry"] },
+      { "path": "src/tools/AgentTool/agentToolUtils.ts", "bytes": 28496, "sha256": "2c27009fed23261dee3c4749468020ea883e9d1012f6fae0419cd1ef281417a3", "declaration": { "start": 20729, "end": 28475, "chars": 7746, "bytes": 7752, "sha256": "1eeb9c596e735c55a62f6ad35ba4bc58d7e6c4c015cba10dd91f829b0804e1d6" }, "requiresPresent": ["rootSetAppState"], "requiresAbsent": ["taskRegistry"] }
+    ]
+  },
+  "generatorWiring": {
+    "ownerOverrideModule": "recovery/cases/2.1.116-to-2.1.117/recovered/fork-spawn-owner-overrides.mjs",
+    "ownerOverrideExport": "TARGET117_FORK_SPAWN_OWNER_OVERRIDES",
+    "replayHelper": null
+  }
+}

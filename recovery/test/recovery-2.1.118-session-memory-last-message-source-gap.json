@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "status": "authenticated-session-memory-last-message-source-replay",
+  "evidenceIds": [
+    "target118-session-memory-last-message-target-fragment",
+    "target118-session-memory-last-message-source-replay-test"
+  ],
+  "inputs": {
+    "targetBundle": {
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "sourceInput": {
+      "path": "src/services/SessionMemory/sessionMemory.ts",
+      "bytes": 16561,
+      "sha256": "44919a725fc87d7f375cf35ba4ddfe9158c8acaa4d8e0b17055605fa6135e6d1"
+    },
+    "sourceOutput": {
+      "path": "src/services/SessionMemory/sessionMemory.ts",
+      "bytes": 16547,
+      "sha256": "b1cd7740e752757018eba5e68d5d67280f90ae7f5daa051845291e1da12c0c27"
+    }
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "indicesSha256": "bd47ea40fa66422f5a31480184864c5a2f0a65d7ff5937cb591e9fa439670fc8",
+    "residueIdentitiesSha256": "a6a069c93668d91e30a462833a510212ca90aac17ef3d4620160339caaa6357e"
+  },
+  "row": {
+    "targetIndex": 20770,
+    "ownerPath": "src/services/SessionMemory/sessionMemory.ts",
+    "behavior": "The authenticated Target118 session-memory extraction hook reads the last message with Array.prototype.at(-1) before recording usage telemetry; the historical semantic owner is recovered from the stale length-index expression to that exact target behavior.",
+    "target": {
+      "start": 12983476,
+      "end": 12984962,
+      "bytes": 1486,
+      "nodeType": "VariableDeclaration",
+      "sourceHash": "1d4a91bb734f4034b946cf509374dd523dc44e7974a61d196ae3d31cddfb00f8",
+      "structuralClass": "changed"
+    },
+    "residues": [
+      [
+        "property",
+        "at",
+        12984492,
+        12984494,
+        221,
+        226
+      ]
+    ],
+    "targetMarkers": [
+      "tengu_session_memory_extraction",
+      "session_memory",
+      ".at(-1)"
+    ],
+    "sourceProof": {
+      "declaration": "extractSessionMemory",
+      "before": {
+        "start": 9154,
+        "end": 12087,
+        "bytes": 2933,
+        "sha256": "5638b74152da1e38b05205bb79a3d1262a10fd22f1a9170bfd22164764d05c43"
+      },
+      "after": {
+        "start": 9154,
+        "end": 12073,
+        "bytes": 2919,
+        "sha256": "410c7166a1ef9ec2ae6fa5dd06f677ac8ac8503b6297640488923e6ba6ed0d4b"
+      },
+      "invariantMarkers": [
+        "querySource !== 'repl_main_thread'",
+        "querySource: 'session_memory'",
+        "logEvent('tengu_session_memory_extraction'",
+        "recordExtractionTokenCount(tokenCountWithEstimation(messages))"
+      ],
+      "beforeMarker": "const lastMessage = messages[messages.length - 1]",
+      "afterMarker": "const lastMessage = messages.at(-1)"
+    }
+  }
+}

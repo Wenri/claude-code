@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "authenticated-paired-unit-and-source-ast-proof",
+  "criterion": "complete-paired-target-unit-plus-exact-source-declaration-v1",
+  "evidenceIds": [
+    "target119-migration-session-memory-authenticated-target-fragment",
+    "target119-migration-session-memory-source-ast-test",
+    "target119-migration-session-memory-retained-compiler-test"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    }
+  },
+  "sources": {
+    "bypassMigration": {
+      "path": "src/migrations/migrateBypassPermissionsAcceptedToSettings.ts",
+      "bytes": 1262,
+      "sha256": "77c23cde7b7fa615fc43dc85f87d96e6dd2b8856f55ef7d5d54668d7b81d4038",
+      "declaration": {
+        "name": "migrateBypassPermissionsAcceptedToSettings",
+        "start": 508,
+        "end": 1261,
+        "chars": 753,
+        "sha256": "62db3d92d298bb7877f6e2a3f383b6459ada32c4dcddbb1b31bdb9c6836d7ca0"
+      }
+    },
+    "sonnetMigration": {
+      "path": "src/migrations/migrateSonnet1mToSonnet45.ts",
+      "bytes": 1582,
+      "sha256": "68b455c4dcb6d560a2df78355c3cafb65637d8e28db1e7405c835a6a75f0ba7a",
+      "declaration": {
+        "name": "migrateSonnet1mToSonnet45",
+        "start": 951,
+        "end": 1581,
+        "chars": 630,
+        "sha256": "97adfeda4bdf8334d1b3904c7103111830ad9e31de1ce411a7d3a9be8a4be6dc"
+      }
+    },
+    "rejectedOpusMigration": {
+      "path": "src/migrations/migrateOpusToOpus1m.ts",
+      "bytes": 1347,
+      "sha256": "0e8768a3dd8214e3996394e2f0ccc65de0ce64606d69d5793dd0763d723db151"
+    },
+    "sessionMemory": {
+      "path": "src/services/SessionMemory/sessionMemory.ts",
+      "bytes": 16561,
+      "sha256": "44919a725fc87d7f375cf35ba4ddfe9158c8acaa4d8e0b17055605fa6135e6d1",
+      "declaration": {
+        "name": "extractSessionMemory",
+        "start": 9160,
+        "end": 12087,
+        "chars": 2927,
+        "sha256": "3cacc2e1c8d1a3ee89eb1c6b4c5ba32d0b72c006d53bf143051e29292903e3c8"
+      }
+    }
+  },
+  "rows": [
+    {
+      "targetIndex": 21594,
+      "classification": "changed",
+      "pairReason": "unique-coarse-structural-hash",
+      "ownerPaths": ["src/migrations/migrateBypassPermissionsAcceptedToSettings.ts"],
+      "declarations": ["migrateBypassPermissionsAcceptedToSettings"],
+      "baseline": {"targetIndex":20690,"nodeType":"FunctionDeclaration","start":12961224,"end":12961597,"bytes":373,"sha256":"1900088aa1f83a58a5cc61a7685ddbbe4c13dbf76a1c685141fcda42d445c0f7","coarseHash":"706141891114958e6b4eccb1f2b1ee7e722de12aa1a511c20b6004b1c9af9118"},
+      "target": {"nodeType":"FunctionDeclaration","start":13439432,"end":13439805,"bytes":373,"sha256":"be3ee5a3c1da4fc3bcce35e2f4ec9a7cd1b0ff3f7ce95860ddd87ee7004a39ed","coarseHash":"706141891114958e6b4eccb1f2b1ee7e722de12aa1a511c20b6004b1c9af9118"},
+      "residues": [
+        {"kind":"number","value":"0","start":13439561,"end":13439562,"baselineCount":43986,"targetOrdinal":44839,"targetAdded":true}
+      ]
+    },
+    {
+      "targetIndex": 21605,
+      "classification": "changed",
+      "pairReason": "unique-coarse-structural-hash",
+      "ownerPaths": ["src/migrations/migrateSonnet1mToSonnet45.ts"],
+      "declarations": ["migrateSonnet1mToSonnet45"],
+      "baseline": {"targetIndex":20701,"nodeType":"FunctionDeclaration","start":12963729,"end":12963986,"bytes":257,"sha256":"55354f6652fde5b5d2224c4f30314c615fcb95248851fd982dc15a4289b1952a","coarseHash":"5d5d04292d0d100882fb3f3ca968327ef864110115b1570ebe001f783c1923d4"},
+      "target": {"nodeType":"FunctionDeclaration","start":13441937,"end":13442194,"bytes":257,"sha256":"7a81feb6aeac1659adbc2c530ec925ccd5acd5981e68629c1cc7e58b4079b6e0","coarseHash":"5d5d04292d0d100882fb3f3ca968327ef864110115b1570ebe001f783c1923d4"},
+      "residues": [
+        {"kind":"property","value":"sonnet1m45MigrationComplete","start":13441960,"end":13441987,"baselineCount":2,"targetOrdinal":1,"targetAdded":false},
+        {"kind":"string","value":"sonnet[1m]","start":13442026,"end":13442038,"baselineCount":8,"targetOrdinal":6,"targetAdded":false},
+        {"kind":"string","value":"sonnet-4-5-20250929[1m]","start":13442064,"end":13442089,"baselineCount":3,"targetOrdinal":1,"targetAdded":false},
+        {"kind":"string","value":"sonnet[1m]","start":13442102,"end":13442114,"baselineCount":8,"targetOrdinal":7,"targetAdded":false},
+        {"kind":"string","value":"sonnet-4-5-20250929[1m]","start":13442118,"end":13442143,"baselineCount":3,"targetOrdinal":2,"targetAdded":false},
+        {"kind":"property","value":"sonnet1m45MigrationComplete","start":13442160,"end":13442187,"baselineCount":2,"targetOrdinal":2,"targetAdded":false},
+        {"kind":"number","value":"0","start":13442189,"end":13442190,"baselineCount":43986,"targetOrdinal":44848,"targetAdded":true}
+      ]
+    },
+    {
+      "targetIndex": 21676,
+      "classification": "changed",
+      "pairReason": "unique-coarse-structural-hash",
+      "ownerPaths": ["src/services/SessionMemory/sessionMemory.ts"],
+      "declarations": ["extractSessionMemory"],
+      "baseline": {"targetIndex":20770,"nodeType":"VariableDeclaration","start":12983476,"end":12984962,"bytes":1486,"sha256":"1d4a91bb734f4034b946cf509374dd523dc44e7974a61d196ae3d31cddfb00f8","coarseHash":"4f900414528e28e20f1e20b756b92279cec2534f5d19f3c82555d9cc0eb5b72d"},
+      "target": {"nodeType":"VariableDeclaration","start":13462100,"end":13463586,"bytes":1486,"sha256":"3751dfd354296e2542149b400f5cc6dd711dea40d57c6d05c9c3740b13424685","coarseHash":"4f900414528e28e20f1e20b756b92279cec2534f5d19f3c82555d9cc0eb5b72d"},
+      "residues": [
+        {"kind":"property","value":"messages","start":13462726,"end":13462734,"baselineCount":560,"targetOrdinal":530,"targetAdded":false},
+        {"kind":"property","value":"at","start":13463116,"end":13463118,"baselineCount":228,"targetOrdinal":243,"targetAdded":true}
+      ]
+    }
+  ],
+  "summary": {
+    "units": 3,
+    "residues": 10,
+    "strictResidues": 3,
+    "targetIndicesSha256": "0e3ef3b2d5709325c5865515767cd916eb2a90ca9f73b9010d52b5757dfa7ae3",
+    "residueIdentitiesSha256": "c129d6fa32d571ee5e9b16bac6dd8e17cd798e91246c3cbaa6685d91660216a6"
+  }
+}
