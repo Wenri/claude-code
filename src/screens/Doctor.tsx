@@ -23,6 +23,7 @@ import {
   getCachedKeybindingWarnings,
   getKeybindingsPath,
 } from '../keybindings/loadUserBindings.js'
+import type { KeybindingWarning } from '../keybindings/validate.js'
 import { useKeybindings } from '../keybindings/useKeybinding.js'
 import { useAppState } from '../state/AppState.js'
 import type { LocalJSXCommandOnDone } from '../types/command.js'
@@ -204,6 +205,16 @@ function ContextWarningNode({
   )
 }
 
+function getSandboxDependencyErrors(): string[] {
+  return (
+    SandboxManager.isSupportedPlatform() &&
+    SandboxManager.isSandboxEnabledInSettings() &&
+    SandboxManager.isPlatformInEnabledList()
+      ? SandboxManager.checkDependencies().errors
+      : []
+  )
+}
+
 export function buildFixPrompt(
   diagnostic: DiagnosticInfo | null,
   agentInfo: AgentInfo | null,
@@ -211,13 +222,15 @@ export function buildFixPrompt(
   pluginErrors: PluginError[],
   contextWarnings: ContextWarnings | null,
   envValidationErrors: EnvValidation[],
+  keybindingWarnings: KeybindingWarning[] = getCachedKeybindingWarnings(),
+  sandboxErrors: string[] = getSandboxDependencyErrors(),
 ): string | null {
   const issues: string[] = []
 
   for (const warning of diagnostic?.warnings ?? []) {
     issues.push(`- ${warning.issue}\n  Suggested fix: ${warning.fix}`)
   }
-  for (const warning of getCachedKeybindingWarnings()) {
+  for (const warning of keybindingWarnings) {
     issues.push(
       `- Keybinding (${getKeybindingsPath()}): ${warning.message}${
         warning.suggestion
@@ -250,16 +263,10 @@ export function buildFixPrompt(
       `- Plugin${location ? ` (${location})` : ''}: ${getPluginErrorMessage(error)}`,
     )
   }
-  if (
-    SandboxManager.isSupportedPlatform() &&
-    SandboxManager.isSandboxEnabledInSettings() &&
-    SandboxManager.isPlatformInEnabledList()
-  ) {
-    for (const error of SandboxManager.checkDependencies().errors) {
-      issues.push(
-        `- Sandbox: ${error}\n  (See /sandbox for install instructions)`,
-      )
-    }
+  for (const error of sandboxErrors) {
+    issues.push(
+      `- Sandbox: ${error}\n  (See /sandbox for install instructions)`,
+    )
   }
   for (const warning of [
     contextWarnings?.claudeMdWarning,

@@ -44,6 +44,7 @@ import {
   getCurrentSessionTitle,
   resetSessionFilePointer,
   saveCustomTitle,
+  saveIsolationLatch,
   saveWorktreeState,
 } from '../../utils/sessionStorage.js'
 import {
@@ -152,7 +153,9 @@ export async function clearConversation({
   loadedNestedMemoryPaths?.clear()
   resetMemorySelector(memorySelector)
   if (resultDedupState) clearResultDedupState(resultDedupState)
-  if (isolationLatch) isolationLatch.current = null
+  if (isolationLatch && preservedAgentIds.size === 0) {
+    isolationLatch.current = null
+  }
 
   // Clean out necessary items from App State
   if (setAppState) {
@@ -270,6 +273,9 @@ export async function clearConversation({
   const worktreeSession = getCurrentWorktreeSession()
   if (worktreeSession) {
     saveWorktreeState(worktreeSession)
+  }
+  if (isolationLatch?.current) {
+    saveIsolationLatch(isolationLatch.current)
   }
 
   // Execute SessionStart hooks after clearing

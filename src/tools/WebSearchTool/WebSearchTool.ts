@@ -283,6 +283,7 @@ export const WebSearchTool = buildTool({
         hasAppendSystemPrompt: !!context.options.appendSystemPrompt,
         extraToolSchemas: [toolSchema],
         querySource: 'web_search_tool',
+        enablePromptCaching: false,
         agents: context.options.agentDefinitions.activeAgents,
         mcpTools: [],
         agentId: context.agentId,

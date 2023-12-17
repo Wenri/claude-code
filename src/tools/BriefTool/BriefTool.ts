@@ -1,7 +1,10 @@
 import { feature } from 'bun:bundle'
 import { z } from 'zod/v4'
 import { getKairosActive, getUserMsgOptIn } from '../../bootstrap/state.js'
-import { getFeatureValue_CACHED_WITH_REFRESH } from '../../services/analytics/growthbook.js'
+import {
+  getFeatureValue_CACHED_MAY_BE_STALE,
+  getFeatureValue_CACHED_WITH_REFRESH,
+} from '../../services/analytics/growthbook.js'
 import { logEvent } from '../../services/analytics/index.js'
 import type { ValidationResult } from '../../Tool.js'
 import { buildTool, type ToolDef } from '../../Tool.js'
@@ -78,6 +81,7 @@ type OutputSchema = ReturnType<typeof outputSchema>
 export type Output = z.infer<OutputSchema>
 
 const KAIROS_BRIEF_REFRESH_MS = 5 * 60 * 1000
+const DEFAULT_BRIEF_ENFORCE_TEXT = `In brief mode, plain assistant text is hidden from the user — only ${BRIEF_TOOL_NAME} reaches them. Call it now with your substantive reply for this turn. Do not mention this reminder; the message should read as if you wrote it unprompted, addressing only what the user actually asked. If you genuinely have nothing useful to tell the user, you may end the turn without calling it.`
 
 /**
  * Entitlement check — is the user ALLOWED to use Brief? Combines build-time
@@ -144,6 +148,16 @@ export function isBriefEnabled(): boolean {
   return feature('KAIROS') || feature('KAIROS_BRIEF')
     ? (getKairosActive() || getUserMsgOptIn()) && isBriefEntitled()
     : false
+}
+
+export function getBriefEnforceText(): string {
+  const configured = getFeatureValue_CACHED_MAY_BE_STALE(
+    'tengu_kairos_brief_stop_hook_text',
+    '',
+  )
+  return typeof configured === 'string' && configured.length > 0
+    ? configured
+    : DEFAULT_BRIEF_ENFORCE_TEXT
 }
 
 export const BriefTool = buildTool({

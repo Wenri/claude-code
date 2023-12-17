@@ -175,6 +175,7 @@ import { errorMessage, getErrnoCode, isENOENT, TeleportOperationError, toError }
 import { getFsImplementation, safeResolvePath } from 'src/utils/fsOperations.js';
 import { gracefulShutdown, gracefulShutdownSync } from 'src/utils/gracefulShutdown.js';
 import { setAllHookEventsEnabled } from 'src/utils/hooks/hookEvents.js';
+import { refreshGatewayModels } from 'src/utils/model/gatewayModelDiscovery.js';
 import { refreshModelCapabilities } from 'src/utils/model/modelCapabilities.js';
 import { peekForStdinData, writeToStderr } from 'src/utils/process.js';
 import { setCwd } from 'src/utils/Shell.js';
@@ -192,6 +193,7 @@ import { migrateBypassPermissionsAcceptedToSettings } from './migrations/migrate
 import { migrateEnableAllProjectMcpServersToSettings } from './migrations/migrateEnableAllProjectMcpServersToSettings.js';
 import { migrateFennecToOpus } from './migrations/migrateFennecToOpus.js';
 import { migrateLegacyOpusToCurrent } from './migrations/migrateLegacyOpusToCurrent.js';
+import { migrateNotificationImpressions } from './migrations/migrateNotificationImpressions.js';
 import { migrateOpusToOpus1m } from './migrations/migrateOpusToOpus1m.js';
 import { migrateReplBridgeEnabledToRemoteControlAtStartup } from './migrations/migrateReplBridgeEnabledToRemoteControlAtStartup.js';
 import { migrateUserIntentToSettings } from './migrations/migrateUserIntentToSettings.js';
@@ -435,7 +437,7 @@ async function logStartupTelemetry(
 
 // @[MODEL LAUNCH]: Consider any migrations you may need for model strings. See migrateSonnet1mToSonnet45.ts for an example.
 // Bump this when adding a new sync migration so existing users re-run the set.
-const CURRENT_MIGRATION_VERSION = 12;
+const CURRENT_MIGRATION_VERSION = 13;
 function runMigrations(): void {
   if (getGlobalConfig().migrationVersion !== CURRENT_MIGRATION_VERSION) {
     migrateAutoUpdatesToSettings();
@@ -448,6 +450,7 @@ function runMigrations(): void {
     migrateOpusToOpus1m();
     migrateReplBridgeEnabledToRemoteControlAtStartup();
     migrateUserIntentToSettings();
+    migrateNotificationImpressions();
     if (feature('TRANSCRIPT_CLASSIFIER')) {
       resetAutoModeOptInForDefaultOffer();
     }
@@ -531,6 +534,7 @@ export function startDeferredPrefetches(): void {
   void initializeAnalyticsGates();
   void prefetchOfficialMcpUrls();
   void refreshModelCapabilities();
+  void refreshGatewayModels();
 
   // File change detectors deferred from init() to unblock first render
   void settingsChangeDetector.initialize();
@@ -2674,10 +2678,19 @@ async function run(): Promise<CommanderCommand> {
       } = getSettingsWithErrors();
       const nonMcpErrors = errors.filter(e => !e.mcpErrorMetadata);
       if (nonMcpErrors.length > 0) {
-        await launchInvalidSettingsDialog(root, {
+        const invalidSettingsResult = await launchInvalidSettingsDialog(root, {
           settingsErrors: nonMcpErrors,
           onExit: () => gracefulShutdownSync(1)
         });
+        if (invalidSettingsResult === 'fix') {
+          const {
+            buildFixPrompt
+          } = await import('./screens/Doctor.js');
+          const fixPrompt = buildFixPrompt(null, null, nonMcpErrors, [], null, [], [], []);
+          if (fixPrompt) {
+            inputPrompt = inputPrompt ? `${fixPrompt}\n\n${inputPrompt}` : fixPrompt;
+          }
+        }
       }
     }
 
@@ -4491,6 +4504,18 @@ async function run(): Promise<CommanderCommand> {
       authLogout
     } = await import('./cli/handlers/auth.js');
     await authLogout();
+  });
+
+  program.command('project').description('Manage Claude Code project state').configureHelp(createSortedHelpConfig()).command('purge [path]').description('Delete all Claude Code state for a project (transcripts, tasks, file history, config entry)').option('--dry-run', 'List what would be deleted without deleting anything').option('-y, --yes', 'Skip confirmation prompt').option('-i, --interactive', 'Prompt for each item before deleting').option('--all', 'Purge state for every project (mutually exclusive with [path])').action(async (projectPath: string | undefined, options: {
+    dryRun?: boolean;
+    yes?: boolean;
+    interactive?: boolean;
+    all?: boolean;
+  }) => {
+    const {
+      purgeProjectHandler
+    } = await import('./cli/handlers/project.js');
+    await purgeProjectHandler(projectPath, options);
   });
 
   /**

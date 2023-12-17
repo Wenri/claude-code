@@ -14,7 +14,6 @@ import { useAppState } from '../../state/AppState.js';
 import type { ToolPermissionContext } from '../../Tool.js';
 import type { Message } from '../../types/message.js';
 import type { PromptInputMode, VimMode } from '../../types/textInputTypes.js';
-import { isBgSession } from '../../utils/concurrentSessions.js';
 import { isFullscreenEnvEnabled } from '../../utils/fullscreen.js';
 import { isUndercover } from '../../utils/undercover.js';
 import { isForkSubagentEnabled } from '../../tools/AgentTool/forkSubagent.js';
@@ -114,7 +113,6 @@ function PromptInputFooter({
   const isShort = isFullscreen && rows < 24;
   const modeLabels = [
     "external" === 'ant' && isUndercover() && 'undercover',
-    isBgSession() && 'background',
     isFullscreen && briefTranscript && 'focus',
   ].filter(isTruthy);
 
@@ -201,9 +199,11 @@ function BridgeStatusIndicator({
   const reconnecting = useAppState(s_2 => s_2.replBridgeReconnecting);
   // biome-ignore lint/correctness/useHookAtTopLevel: feature() is a compile-time constant
   const explicit = useAppState(s_3 => s_3.replBridgeExplicit);
+  // biome-ignore lint/correctness/useHookAtTopLevel: feature() is a compile-time constant
+  const error = useAppState(s_4 => s_4.replBridgeError);
 
   // Failed state is surfaced via notification (useReplBridge), not a footer pill.
-  if (!isBridgeEnabled() || !enabled) return null;
+  if (!isBridgeEnabled() || !enabled || error) return null;
   const status = getBridgeStatus({
     error: undefined,
     connected,

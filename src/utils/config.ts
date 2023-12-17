@@ -397,6 +397,7 @@ export type GlobalConfig = {
 
   // Subscription notice tracking
   subscriptionNoticeCount?: number // Number of times the subscription notice has been shown
+  seenNotifications?: Record<string, number>
   hasAvailableSubscription?: boolean // Cached result of whether user has a subscription available
   subscriptionUpsellShownCount?: number // Number of times the subscription upsell has been shown (deprecated)
   recommendedSubscription?: string // Cached config value from Statsig (deprecated)
@@ -1796,6 +1797,54 @@ export function saveCurrentProjectConfig(
         [absolutePath]: newProjectConfig,
       },
     }
+    saveConfig(getGlobalClaudeFile(), written, DEFAULT_GLOBAL_CONFIG)
+    writeThroughGlobalConfigCache(written)
+  }
+}
+
+export function deleteProjectConfig(projectPath: string): void {
+  let written: GlobalConfig | null = null
+  try {
+    const didWrite = saveConfigWithLock(
+      getGlobalClaudeFile(),
+      createDefaultGlobalConfig,
+      current => {
+        if (!current.projects?.[projectPath]) {
+          return current
+        }
+        const { [projectPath]: _, ...remainingProjects } = current.projects
+        written = migrateConfigFields({
+          ...current,
+          projects: remainingProjects,
+        })
+        return written
+      },
+    )
+    if (didWrite && written) {
+      writeThroughGlobalConfigCache(written)
+    }
+  } catch (error) {
+    logForDebugging(`Failed to save config with lock: ${error}`, {
+      level: 'error',
+    })
+
+    const config = getConfig(getGlobalClaudeFile(), createDefaultGlobalConfig)
+    if (wouldLoseAuthState(config)) {
+      logForDebugging(
+        'deleteProjectConfig fallback: re-read config is missing auth that cache has; refusing to write. See GH #3117.',
+        { level: 'error' },
+      )
+      logEvent('tengu_config_auth_loss_prevented', {})
+      return
+    }
+    if (!config.projects?.[projectPath]) {
+      return
+    }
+    const { [projectPath]: _, ...remainingProjects } = config.projects
+    written = migrateConfigFields({
+      ...config,
+      projects: remainingProjects,
+    })
     saveConfig(getGlobalClaudeFile(), written, DEFAULT_GLOBAL_CONFIG)
     writeThroughGlobalConfigCache(written)
   }

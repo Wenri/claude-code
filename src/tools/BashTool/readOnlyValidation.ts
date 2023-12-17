@@ -4,6 +4,7 @@ import {
   extractOutputRedirections,
   splitCommand_DEPRECATED,
 } from '../../utils/bash/commands.js'
+import { containsAnyPlaceholder } from '../../utils/bash/ast.js'
 import { tryParseShellCommand } from '../../utils/bash/shellQuote.js'
 import { getCwd } from '../../utils/cwd.js'
 import { isCurrentDirectoryBareGitRepo } from '../../utils/git.js'
@@ -1599,9 +1600,40 @@ function classifySpecialReadOnlyArgv(argv: string[]): boolean | null {
   const command = argv[0]
 
   if (command === 'printf') {
-    // Bash's printf -v writes to a shell variable. All other printf forms
-    // only write their formatted result to stdout.
-    return !argv[1]?.startsWith('-v')
+    if (argv[1]?.startsWith('-') && argv[1] !== '--') return false
+    const formatIndex = argv[1] === '--' ? 2 : 1
+    const format = argv[formatIndex] ?? ''
+    if (containsAnyPlaceholder(format)) return false
+    if (format.includes('$')) return false
+    const withoutEscapedPercents = format.replace(/%%/g, '')
+    if (
+      /%[^%a-zA-Z]*(?:hh|ll|[lLhqjzZt])?\\[0-7xX]/.test(
+        withoutEscapedPercents,
+      ) || /\\[uU]/.test(withoutEscapedPercents)
+    ) {
+      return false
+    }
+    if (
+      /%[-+ 0#']*[0-9.*]*(?:hh|ll|[lLhqjzZt])?[diouxXeEfFgGaAn]/.test(
+        withoutEscapedPercents,
+      ) || /%[^%a-zA-Z]*\*/.test(withoutEscapedPercents)
+    ) {
+      const numericArgument =
+        /^[-+]?(0[xX][0-9a-fA-F]+|[0-9]+#[0-9a-zA-Z]+|[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?)$/
+      for (let index = formatIndex + 1; index < argv.length; index++) {
+        const argument = argv[index]!
+        if (
+          argument.includes('[') ||
+          argument.includes('`') ||
+          argument.includes('$(') ||
+          containsAnyPlaceholder(argument) ||
+          !numericArgument.test(argument)
+        ) {
+          return false
+        }
+      }
+    }
+    return true
   }
 
   if (command === '[[') {

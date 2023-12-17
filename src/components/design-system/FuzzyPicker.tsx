@@ -18,7 +18,7 @@ type PickerAction<T> = {
 }
 
 type Props<T> = {
-  title: string
+  title: React.ReactNode
   placeholder?: string
   initialQuery?: string
   items: readonly T[]
@@ -35,6 +35,7 @@ type Props<T> = {
   onShiftTab?: PickerAction<T>
   onFocus?: (item: T | undefined) => void
   onCancel: () => void
+  resetKey?: unknown
   emptyMessage?: string | ((query: string) => string)
   matchLabel?: string
   selectAction?: string
@@ -64,6 +65,7 @@ export function FuzzyPicker<T>({
   onShiftTab,
   onFocus,
   onCancel,
+  resetKey,
   emptyMessage = 'No results',
   matchLabel,
   selectAction = 'select',
@@ -201,6 +203,12 @@ export function FuzzyPicker<T>({
     }))
     setHovered(undefined)
   }, [items.length, maxWindowStart])
+
+  useEffect(() => {
+    if (resetKey === undefined) return
+    setPosition({ focus: 0, window: 0 })
+    setHovered(undefined)
+  }, [resetKey])
 
   const keyboardFocused = items[focusedIndex]
   const previewFocused = hovered ?? keyboardFocused

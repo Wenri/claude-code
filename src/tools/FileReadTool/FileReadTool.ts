@@ -231,14 +231,10 @@ const inputSchema = lazySchema(() =>
   z.strictObject({
     file_path: z.string().describe('The absolute path to the file to read'),
     offset: semanticNumber(z.number().int().nonnegative().optional()).describe(
-      getFeatureValue_CACHED_MAY_BE_STALE('tengu_slate_reef', false)
-        ? 'The line number to start reading from. Provide with `limit` to read a specific line range, or alone when the file is too large to read at once.'
-        : 'The line number to start reading from. Only provide if the file is too large to read at once',
+      'The line number to start reading from. Only provide if the file is too large to read at once',
     ),
     limit: semanticNumber(z.number().int().positive().optional()).describe(
-      getFeatureValue_CACHED_MAY_BE_STALE('tengu_slate_reef', false)
-        ? 'ONLY include with offset to read a specific slice. OMIT to read the whole file (harness truncates oversized files automatically).'
-        : 'The number of lines to read. Only provide if the file is too large to read at once.',
+      'The number of lines to read. Only provide if the file is too large to read at once.',
     ),
     pages: z
       .string()

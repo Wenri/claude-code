@@ -89,14 +89,15 @@ import { VirtualMessageList } from './VirtualMessageList.js';
 
 /**
  * In brief-only mode, filter messages to show ONLY Brief tool_use blocks,
- * their tool_results, and real user input. All assistant text is dropped —
- * if the model forgets to call Brief, the user sees nothing for that turn.
- * That's on the model to get right; the filter does not second-guess it.
+ * their tool_results, and real user input. Assistant text is dropped only in
+ * turns where a replacement-text tool was called; if the model forgets to
+ * call Brief, its text remains visible instead of leaving a blank turn.
  */
 export function filterForBriefTool<T extends {
   type: string;
   subtype?: string;
   isMeta?: boolean;
+  origin?: unknown;
   isApiErrorMessage?: boolean;
   message?: {
     content: Array<{
@@ -111,12 +112,48 @@ export function filterForBriefTool<T extends {
     origin?: unknown;
     commandMode?: string;
   };
-}>(messages: T[], briefToolNames: string[]): T[] {
+}>(
+  messages: T[],
+  briefToolNames: string[],
+  textSuppressingToolNames: string[],
+): T[] {
   const nameSet = new Set(briefToolNames);
+  const textSuppressingNameSet = new Set(textSuppressingToolNames);
+  const turnsWithReplacementText = new Set<number>();
+  const messageTurns: number[] = [];
+  let turn = 0;
+  for (let index = 0; index < messages.length; index++) {
+    const message = messages[index]!;
+    const block = message.message?.content[0];
+    if (
+      message.type === 'user' &&
+      block?.type !== 'tool_result' &&
+      (!message.isMeta || isChannelOrigin(message.origin))
+    ) {
+      turn++;
+    } else if (
+      message.type === 'attachment' &&
+      message.attachment?.type === 'queued_command' &&
+      message.attachment.commandMode === 'prompt' &&
+      (isChannelOrigin(message.attachment.origin) ||
+        (!message.attachment.isMeta &&
+          message.attachment.origin === undefined))
+    ) {
+      turn++;
+    } else if (
+      message.type === 'assistant' &&
+      block?.type === 'tool_use' &&
+      block.name &&
+      textSuppressingNameSet.has(block.name)
+    ) {
+      turnsWithReplacementText.add(turn);
+    }
+    messageTurns[index] = turn;
+  }
   // tool_use always precedes its tool_result in the array, so we can collect
   // IDs and match against them in a single pass.
   const briefToolUseIDs = new Set<string>();
-  return messages.filter(msg => {
+  return messages.filter((msg, index) => {
     // System messages (attach confirmation, remote errors, compact boundaries)
     // must stay visible — dropping them leaves the viewer with no feedback.
     // Exception: api_metrics is per-turn debug noise (TTFT, config writes,
@@ -137,6 +174,12 @@ export function filterForBriefTool<T extends {
         }
         return true;
       }
+      if (
+        block?.type === 'text' &&
+        !turnsWithReplacementText.has(messageTurns[index]!)
+      ) {
+        return true;
+      }
       return false;
     }
     if (msg.type === 'user') {
@@ -144,7 +187,7 @@ export function filterForBriefTool<T extends {
         return block.tool_use_id !== undefined && briefToolUseIDs.has(block.tool_use_id);
       }
       // Real user input only — drop meta/tick messages.
-      return !msg.isMeta;
+      return !msg.isMeta || isChannelOrigin(msg.origin);
     }
     if (msg.type === 'attachment') {
       // Human input drained mid-turn arrives as a queued_command attachment
@@ -154,10 +197,19 @@ export function filterForBriefTool<T extends {
       // mode: 'task-notification' but not origin/isMeta, so the positive
       // commandMode check is required to exclude them.
       const att = msg.attachment;
-      return att?.type === 'queued_command' && att.commandMode === 'prompt' && !att.isMeta && att.origin === undefined;
+      return att?.type === 'queued_command' && att.commandMode === 'prompt' && (isChannelOrigin(att.origin) || !att.isMeta && att.origin === undefined);
     }
     return false;
   });
+}
+
+function isChannelOrigin(origin: unknown): boolean {
+  return (
+    typeof origin === 'object' &&
+    origin !== null &&
+    'kind' in origin &&
+    origin.kind === 'channel'
+  );
 }
 
 /**
@@ -717,7 +769,7 @@ const MessagesImpl = ({
     // SendUserFile delivers a file without replacement text, so dropping
     // assistant text for file-only turns would leave the user with no context.
     const dropTextToolNames = [BRIEF_TOOL_NAME].filter((n_0): n_0 is string => n_0 !== null);
-    const briefFiltered = briefToolNames.length > 0 && !isTranscriptMode ? isBriefOnly ? filterForBriefTool(messagesToShowNotTruncated, briefToolNames) : dropTextToolNames.length > 0 ? dropTextInBriefTurns(messagesToShowNotTruncated, dropTextToolNames) : messagesToShowNotTruncated : messagesToShowNotTruncated;
+    const briefFiltered = briefToolNames.length > 0 && !isTranscriptMode ? isBriefOnly ? filterForBriefTool(messagesToShowNotTruncated, briefToolNames, dropTextToolNames) : dropTextToolNames.length > 0 ? dropTextInBriefTurns(messagesToShowNotTruncated, dropTextToolNames) : messagesToShowNotTruncated : messagesToShowNotTruncated;
     const messagesToShow = shouldTruncate ? briefFiltered.slice(-MAX_MESSAGES_TO_SHOW_IN_TRANSCRIPT_MODE) : briefFiltered;
     const hasTruncatedMessages = shouldTruncate && briefFiltered.length > MAX_MESSAGES_TO_SHOW_IN_TRANSCRIPT_MODE;
     const {

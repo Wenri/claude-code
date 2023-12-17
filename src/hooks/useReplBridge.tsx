@@ -267,7 +267,7 @@ export function useReplBridge(messages: Message[], setMessages: (action: React.S
                 Remote Control {wasConnected ? 'disconnected' : 'failed'}
               </Text>
               <Text dimColor>
-                {' '}· {wasConnected && detail ? detail : '/remote-control'}
+                {' '}· {detail || '/remote-control'}
               </Text>
             </>,
           priority: 'immediate'

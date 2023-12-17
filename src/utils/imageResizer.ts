@@ -11,6 +11,7 @@ import {
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js'
 import { logEvent } from '../services/analytics/index.js'
 import {
+  getImageDimensionsFromBuffer,
   getImageProcessor,
   type SharpFunction,
   type SharpInstance,
@@ -464,17 +465,14 @@ export async function maybeResizeAndDownsampleImageBuffer(
     // Calculate the base64 size (API limit is on base64-encoded length)
     const base64Size = Math.ceil((originalSize * 4) / 3)
 
-    // Size-under-5MB does not imply dimensions-under-cap. Don't return the
-    // raw buffer if the PNG header says it's oversized — fall through to
-    // ImageResizeError instead. PNG sig is 8 bytes, IHDR dims at 16-24.
+    // Size-under-limit does not imply dimensions-under-cap. When native
+    // processing fails, inspect common container headers before returning the
+    // raw image.
+    const fallbackDimensions = getImageDimensionsFromBuffer(imageBuffer)
     const overDim =
-      imageBuffer.length >= 24 &&
-      imageBuffer[0] === 0x89 &&
-      imageBuffer[1] === 0x50 &&
-      imageBuffer[2] === 0x4e &&
-      imageBuffer[3] === 0x47 &&
-      (imageBuffer.readUInt32BE(16) > limits.maxWidth ||
-        imageBuffer.readUInt32BE(20) > limits.maxHeight)
+      fallbackDimensions !== null &&
+      (fallbackDimensions.width > limits.maxWidth ||
+        fallbackDimensions.height > limits.maxHeight)
 
     // If original image's base64 encoding is within API limit, allow it through uncompressed
     if (base64Size <= limits.maxBase64Size && !overDim) {

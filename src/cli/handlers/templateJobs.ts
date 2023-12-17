@@ -112,7 +112,6 @@ export async function sendJobReply(
   if (state) {
     await writeJobState(jobDir, {
       ...state,
-      detail: text.replace(/[\r\n]+/g, ' ').slice(0, 80),
       tempo: 'active',
       needs: undefined,
       output: null,
@@ -252,9 +251,12 @@ export async function claimPrewarmedJob(
     )
     logEvent('tengu_bg_spare_claim_fail', { reason })
     if (claimed) {
-      const { removed } = await deleteBgJob(claimed.jobId)
+      const { removed, error } = await deleteBgJob(claimed.jobId)
       if (!removed) {
-        return { ok: false, error: detail ?? 'Background service unreachable' }
+        return {
+          ok: false,
+          error: error ?? detail ?? 'Background service unreachable',
+        }
       }
     }
     return dispatchTemplateJob(

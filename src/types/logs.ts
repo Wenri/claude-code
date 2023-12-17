@@ -54,6 +54,7 @@ export type LogOption = {
   prRepository?: string // Repository in "owner/repo" format
   mode?: 'coordinator' | 'normal' // Session mode for coordinator/normal detection
   permissionMode?: PermissionMode // Permission mode active at the end of the session
+  isolationLatch?: 'web' | 'connectors'
   worktreeSession?: PersistedWorktreeSession | null // Worktree state at session end (null = exited, undefined = never entered)
   contentReplacements?: ContentReplacementRecord[] // Replacement decisions for resume reconstruction
 }
@@ -161,6 +162,12 @@ export type PermissionModeEntry = {
   type: 'permission-mode'
   sessionId: UUID
   permissionMode: PermissionMode
+}
+
+export type IsolationLatchEntry = {
+  type: 'isolation-latch'
+  sessionId: UUID
+  side: 'web' | 'connectors'
 }
 
 /**
@@ -349,6 +356,7 @@ export type Entry =
   | SpeculationAcceptMessage
   | ModeEntry
   | PermissionModeEntry
+  | IsolationLatchEntry
   | WorktreeStateEntry
   | ContentReplacementEntry
   | ForkContextRefEntry

@@ -29,7 +29,7 @@ import { getDirectoryCompletions, getPathCompletions, isPathLikeToken } from '..
 import { getShellHistoryCompletion } from '../utils/suggestions/shellHistoryCompletion.js';
 import { getSlackChannelSuggestions, hasSlackMcpServer } from '../utils/suggestions/slackChannelSuggestions.js';
 import { TEAM_LEAD_NAME } from '../utils/swarm/constants.js';
-import { applyFileSuggestion, findLongestCommonPrefix, onIndexBuildComplete, startBackgroundCacheRefresh } from './fileSuggestions.js';
+import { applyFileSuggestion, findLongestCommonPrefix, globalFileIndexCache, startBackgroundCacheRefresh } from './fileSuggestions.js';
 import { generateMcpResourceTemplateCompletions, generateUnifiedSuggestions } from './unifiedSuggestions.js';
 
 // Unicode-aware character class for file path tokens:
@@ -518,7 +518,7 @@ export function useTypeahead({
     latestSearchKindRef.current = isAtSymbol ? 'at' : 'file';
     const state = store.getState();
     const templateItems = isAtSymbol ? await generateMcpResourceTemplateCompletions(searchToken, state.mcp.resourceTemplates, state.mcp.clients, '@') : null;
-    const combinedItems = templateItems ?? await generateUnifiedSuggestions(searchToken, state.mcp.resources, state.mcp.resourceTemplates, agents, isAtSymbol);
+    const combinedItems = templateItems ?? await generateUnifiedSuggestions(globalFileIndexCache, searchToken, state.mcp.resources, state.mcp.resourceTemplates, agents, isAtSymbol);
     // Discard stale results if a newer query was initiated while waiting
     if (latestSearchTokenRef.current !== searchToken) {
       return;
@@ -559,9 +559,9 @@ export function useTypeahead({
   // fileSuggestions tests that trigger a refresh directly work correctly.
   useEffect(() => {
     if ("production" !== 'test') {
-      startBackgroundCacheRefresh();
+      startBackgroundCacheRefresh(globalFileIndexCache);
     }
-    return onIndexBuildComplete(() => {
+    return globalFileIndexCache.indexBuildComplete.subscribe(() => {
       const token = latestSearchTokenRef.current;
       if (token !== null) {
         const searchKind = latestSearchKindRef.current;
@@ -1245,7 +1245,7 @@ export function useTypeahead({
           const searchToken = isAtSymbol ? completionInfo.token.substring(1) : completionInfo.token;
           const currentMcp = store.getState().mcp;
           const templateItems = isAtSymbol ? await generateMcpResourceTemplateCompletions(searchToken, currentMcp.resourceTemplates, store.getState().mcp.clients, '@') : null;
-          suggestionItems = templateItems ?? await generateUnifiedSuggestions(searchToken, currentMcp.resources, currentMcp.resourceTemplates, agents, isAtSymbol);
+          suggestionItems = templateItems ?? await generateUnifiedSuggestions(globalFileIndexCache, searchToken, currentMcp.resources, currentMcp.resourceTemplates, agents, isAtSymbol);
         } else {
           suggestionItems = [];
         }
@@ -1348,6 +1348,7 @@ export function useTypeahead({
           debouncedFetchFileSuggestions.cancel();
           debouncedFetchSlashTemplateSuggestions.cancel();
           clearSuggestions();
+          onSubmit(input, true);
           return;
         }
 

@@ -35,6 +35,7 @@ import { builtInCommandNames } from '../commands.js'
 import { COMMAND_NAME_TAG, TICK_TAG } from '../constants/xml.js'
 import * as sessionIngress from '../services/api/sessionIngress.js'
 import { REPL_TOOL_NAME } from '../tools/REPLTool/constants.js'
+import type { ReplIsolationLatch } from '../tools/REPLTool/types.js'
 import {
   type AgentId,
   asAgentId,
@@ -139,6 +140,7 @@ export const ENTRY_APPEND_POLICY = {
   'speculation-accept': 'always',
   mode: 'always',
   'permission-mode': 'always',
+  'isolation-latch': 'always',
   'worktree-state': 'always',
   'queue-operation': 'always',
   'marble-origami-commit': 'always',
@@ -807,6 +809,7 @@ class Project {
   currentSessionAgentSetting: string | undefined
   currentSessionMode: 'coordinator' | 'normal' | undefined
   currentSessionPermissionMode: PermissionMode | undefined
+  currentSessionIsolationLatch: ReplIsolationLatch['current'] | undefined
   // Tri-state: undefined = never touched (don't write), null = exited worktree,
   // object = currently in worktree. reAppendSessionMetadata writes null so
   // --resume knows the session exited (vs. crashed while inside).
@@ -1199,6 +1202,13 @@ class Project {
       entries.push({
         type: 'permission-mode',
         permissionMode: this.currentSessionPermissionMode,
+        sessionId,
+      })
+    }
+    if (this.currentSessionIsolationLatch) {
+      entries.push({
+        type: 'isolation-latch',
+        side: this.currentSessionIsolationLatch,
         sessionId,
       })
     }
@@ -2791,6 +2801,7 @@ export async function loadTranscriptFromFile(
       contextCollapseSnapshot,
       leafUuids,
       contentReplacements,
+      isolationLatches,
       worktreeStates,
     } = await loadTranscriptFile(filePath)
 
@@ -2828,6 +2839,7 @@ export async function loadTranscriptFromFile(
         contentReplacements.get(sessionId) ?? [],
       ),
       aiTitle: aiTitles.get(sessionId),
+      isolationLatch: isolationLatches.get(sessionId),
       contextCollapseCommits: contextCollapseCommits.filter(
         e => e.sessionId === sessionId,
       ),
@@ -3308,6 +3320,7 @@ export function restoreSessionMetadata(meta: {
   agentSetting?: string
   mode?: 'coordinator' | 'normal'
   permissionMode?: PermissionMode
+  isolationLatch?: ReplIsolationLatch['current']
   worktreeSession?: PersistedWorktreeSession | null
   prNumber?: number
   prUrl?: string
@@ -3325,6 +3338,8 @@ export function restoreSessionMetadata(meta: {
   if (meta.mode) project.currentSessionMode = meta.mode
   if (meta.permissionMode)
     project.currentSessionPermissionMode = meta.permissionMode
+  if (meta.isolationLatch)
+    project.currentSessionIsolationLatch = meta.isolationLatch
   if (meta.worktreeSession !== undefined)
     project.currentSessionWorktree = meta.worktreeSession
   if (meta.prNumber !== undefined)
@@ -3351,6 +3366,7 @@ export function clearSessionMetadata(): void {
   project.currentSessionAgentSetting = undefined
   project.currentSessionMode = undefined
   project.currentSessionPermissionMode = undefined
+  project.currentSessionIsolationLatch = undefined
   project.currentSessionWorktree = undefined
   project.currentSessionPrNumber = undefined
   project.currentSessionPrUrl = undefined
@@ -3367,6 +3383,27 @@ export function clearSessionMetadata(): void {
  */
 export function reAppendSessionMetadata(): void {
   getProject().reAppendSessionMetadata()
+}
+
+export function saveIsolationLatch(
+  side: NonNullable<ReplIsolationLatch['current']>,
+): void {
+  const project = getProject()
+  if (project.currentSessionIsolationLatch === side) return
+  project.currentSessionIsolationLatch = side
+  if (project.sessionFile) {
+    void appendEntryToFileAsync(project.sessionFile, {
+      type: 'isolation-latch',
+      side,
+      sessionId: getSessionId(),
+    })
+  }
+}
+
+export function getCurrentSessionIsolationLatch():
+  | ReplIsolationLatch['current']
+  | undefined {
+  return getProject().currentSessionIsolationLatch
 }
 
 export async function saveAgentName(
@@ -3548,6 +3585,7 @@ export async function loadFullLog(log: LogOption): Promise<LogOption> {
       prRepositories,
       modes,
       permissionModes,
+      isolationLatches,
       worktreeStates,
       fileHistorySnapshots,
       attributionSnapshots,
@@ -3595,6 +3633,9 @@ export async function loadFullLog(log: LogOption): Promise<LogOption> {
       permissionMode: sessionId
         ? permissionModes.get(sessionId)
         : log.permissionMode,
+      isolationLatch: sessionId
+        ? isolationLatches.get(sessionId)
+        : log.isolationLatch,
       worktreeSession:
         sessionId && worktreeStates.has(sessionId)
           ? worktreeStates.get(sessionId)
@@ -4338,6 +4379,7 @@ export async function loadTranscriptFile(
   prRepositories: Map<UUID, string>
   modes: Map<UUID, string>
   permissionModes: Map<UUID, PermissionMode>
+  isolationLatches: Map<UUID, NonNullable<ReplIsolationLatch['current']>>
   worktreeStates: Map<UUID, PersistedWorktreeSession | null>
   fileHistorySnapshots: Map<UUID, FileHistorySnapshotMessage>
   attributionSnapshots: Map<UUID, AttributionSnapshotMessage>
@@ -4361,6 +4403,10 @@ export async function loadTranscriptFile(
   const prRepositories = new Map<UUID, string>()
   const modes = new Map<UUID, string>()
   const permissionModes = new Map<UUID, PermissionMode>()
+  const isolationLatches = new Map<
+    UUID,
+    NonNullable<ReplIsolationLatch['current']>
+  >()
   const worktreeStates = new Map<UUID, PersistedWorktreeSession | null>()
   const fileHistorySnapshots = new Map<UUID, FileHistorySnapshotMessage>()
   const attributionSnapshots = new Map<UUID, AttributionSnapshotMessage>()
@@ -4469,6 +4515,8 @@ export async function loadTranscriptFile(
         modes.set(entry.sessionId, entry.mode)
       } else if (entry.type === 'permission-mode' && entry.sessionId) {
         permissionModes.set(entry.sessionId, entry.permissionMode)
+      } else if (entry.type === 'isolation-latch' && entry.sessionId) {
+        isolationLatches.set(entry.sessionId, entry.side)
       } else if (entry.type === 'worktree-state' && entry.sessionId) {
         worktreeStates.set(entry.sessionId, entry.worktreeSession)
       } else if (entry.type === 'pr-link' && entry.sessionId) {
@@ -4548,6 +4596,7 @@ export async function loadTranscriptFile(
     prRepositories,
     modes,
     permissionModes,
+    isolationLatches,
     worktreeStates,
     fileHistorySnapshots,
     attributionSnapshots,
@@ -4731,6 +4780,7 @@ async function loadSessionFile(sessionId: UUID): Promise<{
   prRepositories: Map<UUID, string>
   modes: Map<UUID, string>
   permissionModes: Map<UUID, PermissionMode>
+  isolationLatches: Map<UUID, NonNullable<ReplIsolationLatch['current']>>
   worktreeStates: Map<UUID, PersistedWorktreeSession | null>
   fileHistorySnapshots: Map<UUID, FileHistorySnapshotMessage>
   attributionSnapshots: Map<UUID, AttributionSnapshotMessage>
@@ -4795,6 +4845,7 @@ export async function getLastSessionLog(
     prRepositories,
     modes,
     permissionModes,
+    isolationLatches,
     worktreeStates,
     fileHistorySnapshots,
     attributionSnapshots,
@@ -4852,6 +4903,7 @@ export async function getLastSessionLog(
     agentColor: agentColors.get(sessionId),
     mode: modes.get(sessionId) as LogOption['mode'],
     permissionMode: permissionModes.get(sessionId),
+    isolationLatch: isolationLatches.get(sessionId),
     prNumber: prNumbers.get(sessionId),
     prUrl: prUrls.get(sessionId),
     prRepository: prRepositories.get(sessionId),
@@ -5595,6 +5647,7 @@ export async function loadAllLogsFromSessionFile(
     prRepositories,
     modes,
     permissionModes,
+    isolationLatches,
     fileHistorySnapshots,
     attributionSnapshots,
     contentReplacements,
@@ -5659,6 +5712,7 @@ export async function loadAllLogsFromSessionFile(
       agentSetting: agentSettings.get(sessionId),
       mode: modes.get(sessionId) as LogOption['mode'],
       permissionMode: permissionModes.get(sessionId),
+      isolationLatch: isolationLatches.get(sessionId),
       prNumber: prNumbers.get(sessionId),
       prUrl: prUrls.get(sessionId),
       prRepository: prRepositories.get(sessionId),

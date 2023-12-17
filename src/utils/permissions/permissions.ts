@@ -564,9 +564,13 @@ export const hasPermissionsToUseTool: CanUseToolFn = async (
       // auto. classifierApprovable safetyChecks (sensitive-file paths) fall
       // through to the classifier — the fast-paths below naturally don't fire
       // because the tool's own checkPermissions still returns 'ask'.
+      const safetyReason = findSafetyReason(
+        result.decisionReason,
+        reason => !reason.classifierApprovable,
+      )
       if (
-        result.decisionReason?.type === 'safetyCheck' &&
-        !result.decisionReason.classifierApprovable
+        safetyReason ||
+        result.decisionReason?.type === 'sandboxOverride'
       ) {
         if (appState.toolPermissionContext.shouldAvoidPermissionPrompts) {
           return {
@@ -1151,8 +1155,7 @@ export async function checkRuleBasedPermissions(
   // (e.g. Bash(npm publish:*) → {ask, type:'rule', ruleBehavior:'ask'})
   if (
     toolPermissionResult?.behavior === 'ask' &&
-    toolPermissionResult.decisionReason?.type === 'rule' &&
-    toolPermissionResult.decisionReason.rule.ruleBehavior === 'ask'
+    hasAskRule(toolPermissionResult.decisionReason)
   ) {
     return toolPermissionResult
   }
@@ -1162,7 +1165,8 @@ export async function checkRuleBasedPermissions(
   // allow. checkPathSafetyForAutoEdit returns {type:'safetyCheck'} for these.
   if (
     toolPermissionResult?.behavior === 'ask' &&
-    toolPermissionResult.decisionReason?.type === 'safetyCheck'
+    (findSafetyReason(toolPermissionResult.decisionReason) ||
+      toolPermissionResult.decisionReason?.type === 'sandboxOverride')
   ) {
     return toolPermissionResult
   }
@@ -1190,6 +1194,39 @@ export function getPermissionRequestHookRuleOverride(
     return ruleCheck
   }
   return null
+}
+
+function hasAskRule(reason: PermissionDecisionReason | undefined): boolean {
+  if (reason?.type === 'rule' && reason.rule.ruleBehavior === 'ask') {
+    return true
+  }
+  if (reason?.type === 'subcommandResults') {
+    for (const result of reason.reasons.values()) {
+      if (result.behavior === 'ask' && hasAskRule(result.decisionReason)) {
+        return true
+      }
+    }
+  }
+  return false
+}
+
+function findSafetyReason(
+  reason: PermissionDecisionReason | undefined,
+  predicate: (
+    reason: Extract<PermissionDecisionReason, { type: 'safetyCheck' }>,
+  ) => boolean = () => true,
+): Extract<PermissionDecisionReason, { type: 'safetyCheck' }> | undefined {
+  if (!reason) return undefined
+  if (reason.type === 'safetyCheck') {
+    return predicate(reason) ? reason : undefined
+  }
+  if (reason.type === 'subcommandResults') {
+    for (const result of reason.reasons.values()) {
+      const nested = findSafetyReason(result.decisionReason, predicate)
+      if (nested) return nested
+    }
+  }
+  return undefined
 }
 
 async function hasPermissionsToUseToolInner(
@@ -1280,18 +1317,7 @@ async function hasPermissionsToUseToolInner(
   // just as deny rules are respected at step 1d.
   if (
     toolPermissionResult?.behavior === 'ask' &&
-    toolPermissionResult.decisionReason?.type === 'rule' &&
-    toolPermissionResult.decisionReason.rule.ruleBehavior === 'ask'
-  ) {
-    return toolPermissionResult
-  }
-
-  // 1g. Safety checks (e.g. .git/, .claude/, .vscode/, shell configs) are
-  // bypass-immune — they must prompt even in bypassPermissions mode.
-  // checkPathSafetyForAutoEdit returns {type:'safetyCheck'} for these paths.
-  if (
-    toolPermissionResult?.behavior === 'ask' &&
-    toolPermissionResult.decisionReason?.type === 'safetyCheck'
+    hasAskRule(toolPermissionResult.decisionReason)
   ) {
     return toolPermissionResult
   }
@@ -1306,6 +1332,27 @@ async function hasPermissionsToUseToolInner(
     appState.toolPermissionContext.mode === 'bypassPermissions' ||
     (appState.toolPermissionContext.mode === 'plan' &&
       appState.toolPermissionContext.isBypassPermissionsModeAvailable)
+
+  const bypassSafetyReason =
+    shouldBypassPermissions && toolPermissionResult?.behavior === 'ask'
+      ? findSafetyReason(
+          toolPermissionResult.decisionReason,
+          reason =>
+            reason.reason.startsWith('Dangerous rm operation') ||
+            reason.reason.startsWith('Dangerous rmdir operation'),
+        )
+      : undefined
+
+  if (
+    toolPermissionResult?.behavior === 'ask' &&
+    (bypassSafetyReason ||
+      (!shouldBypassPermissions &&
+        (findSafetyReason(toolPermissionResult.decisionReason) ||
+          toolPermissionResult.decisionReason?.type === 'sandboxOverride')))
+  ) {
+    return toolPermissionResult
+  }
+
   if (shouldBypassPermissions) {
     return {
       behavior: 'allow',

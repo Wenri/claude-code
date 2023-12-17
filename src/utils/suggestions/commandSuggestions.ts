@@ -548,8 +548,10 @@ export function generateCommandSuggestions(
     }
 
     // For similar match types, use Fuse score with usage as tiebreaker
-    const scoreDiff = (a.r.score ?? 0) - (b.r.score ?? 0)
-    if (Math.abs(scoreDiff) > 0.1) {
+    const scoreDiff =
+      Math.floor((a.r.score ?? 0) * 10) -
+      Math.floor((b.r.score ?? 0) * 10)
+    if (scoreDiff !== 0) {
       return scoreDiff
     }
     // For similar Fuse scores, prefer more frequently used skills

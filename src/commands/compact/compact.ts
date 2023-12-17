@@ -16,6 +16,7 @@ import {
   mergeHookInstructions,
   throwIfPreCompactBlocked,
 } from '../../services/compact/compact.js'
+import { shouldUseColdCompact } from '../../services/compact/autoCompact.js'
 import * as reactiveCompact from '../../services/compact/reactiveCompact.js'
 import { suppressCompactWarning } from '../../services/compact/compactWarningState.js'
 import { microcompactMessages } from '../../services/compact/microCompact.js'
@@ -112,6 +113,8 @@ export const call: LocalCommandCall = async (args, context) => {
       false,
       customInstructions,
       false,
+      undefined,
+      shouldUseColdCompact(),
     )
 
     // Reset lastSummarizedMessageId since legacy compaction replaces all messages

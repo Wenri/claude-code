@@ -186,14 +186,14 @@ export async function getAnthropicClient({
     )
     const { value: authorizationHeader, rest } =
       extractAuthorizationHeader(ARGS.defaultHeaders)
-    const headersWithoutAuthorization = process.env
-      .ANTHROPIC_BEDROCK_SERVICE_TIER
-      ? {
-          ...rest,
-          'X-Amzn-Bedrock-Service-Tier':
-            process.env.ANTHROPIC_BEDROCK_SERVICE_TIER,
-        }
-      : rest
+    const headersWithoutAuthorization = {
+      ...rest,
+      Authorization: null,
+      ...(process.env.ANTHROPIC_BEDROCK_SERVICE_TIER && {
+        'X-Amzn-Bedrock-Service-Tier':
+          process.env.ANTHROPIC_BEDROCK_SERVICE_TIER,
+      }),
+    }
     const bedrockApiKey = process.env.AWS_BEARER_TOKEN_BEDROCK
       ? `Bearer ${process.env.AWS_BEARER_TOKEN_BEDROCK}`
       : skipAuth
@@ -248,7 +248,10 @@ export async function getAnthropicClient({
         : null
     return new AnthropicBedrockMantle({
       ...ARGS,
-      defaultHeaders: headersWithoutAuthorization,
+      defaultHeaders: {
+        ...headersWithoutAuthorization,
+        Authorization: null,
+      },
       awsRegion: getAWSRegionForModel(model),
       ...(skipAuth &&
         !mantleApiKey && {
@@ -310,7 +313,10 @@ export async function getAnthropicClient({
     const anthropicAwsApiKey = skipAuth ? authorizationHeader : undefined
     const anthropicAwsArgs: ConstructorParameters<typeof AnthropicAws>[0] = {
       ...ARGS,
-      defaultHeaders: headersWithoutAuthorization,
+      defaultHeaders: {
+        ...headersWithoutAuthorization,
+        Authorization: null,
+      },
       ...(skipAuth &&
         !anthropicAwsApiKey && {
           skipAuth: true,
@@ -405,14 +411,16 @@ export async function getAnthropicClient({
       const credentials = await getWIFCredentials()
       const { rest: headersWithoutAuthorization } =
         extractAuthorizationHeader(ARGS.defaultHeaders)
+      const authToken = await tokenCache.getToken()
       return new Anthropic({
         apiKey: null,
-        authToken: await tokenCache.getToken(),
+        authToken,
         baseURL:
           process.env.ANTHROPIC_BASE_URL || credentials?.baseURL,
         ...ARGS,
         defaultHeaders: {
           ...headersWithoutAuthorization,
+          Authorization: `Bearer ${authToken}`,
           ...credentials?.extraHeaders,
         },
         ...(isDebugToStdErr() && { logger: createStderrLogger() }),
@@ -616,6 +624,10 @@ function addStreamIdleTimeout(
       () => {
         partialIdleTimeout = null
         if (controller.desiredSize === null) return
+        if (performance.now() - lastChunk < partialIdleMs / 2) {
+          schedulePartialIdleWatchdog(controller)
+          return
+        }
         try {
           logForDebugging(
             `[Stall] stream_idle_partial lastChunkAgeMs=${Math.round(performance.now() - lastChunk)} bytesTotal=${bytesTotal} idleDeadlineMs=${idleMs}`,
@@ -641,6 +653,13 @@ function addStreamIdleTimeout(
       timeout = null
       const lateMs = Math.round(performance.now() - lastChunk - idleMs)
       const readableErrored = controller.desiredSize === null
+      if (lateMs < -idleMs / 2) {
+        logForDebugging(
+          `[byte-watchdog] suppressed: late=${lateMs}ms (sleep/suspend), re-arming`,
+        )
+        resetIdleTimeout(controller)
+        return
+      }
       try {
         logForDebugging(
           `[byte-watchdog] firing: idle=${idleMs}ms late=${lateMs}ms errored=${readableErrored}`,

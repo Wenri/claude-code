@@ -6,7 +6,7 @@ import { truncateToLines } from '../../utils/stringUtils.js'
 import { FeedbackSurveyView } from './FeedbackSurveyView.js'
 import type { FeedbackSurveyResponse } from './utils.js'
 
-const FOLLOW_UP_MESSAGE = 'Did this help? (optional)'
+const FOLLOW_UP_MESSAGE = 'Did this memory help? (optional)'
 const MAX_SUMMARY_LINES = 4
 
 export function MemoryEvaluationSurveyView({

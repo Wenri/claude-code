@@ -393,6 +393,14 @@ export function getServerKey(
 }
 
 /**
+ * Read the persisted OAuth entries once so callers that inspect several MCP
+ * servers can use a consistent storage snapshot.
+ */
+export function getMcpOAuthEntries(): SecureStorageData['mcpOAuth'] | undefined {
+  return getSecureStorage().read()?.mcpOAuth
+}
+
+/**
  * True when we have probed this server before (OAuth discovery state is
  * stored) but hold no credentials to try. A connection attempt in this
  * state is guaranteed to 401 — the only way out is the user running
@@ -401,6 +409,7 @@ export function getServerKey(
 export function hasMcpDiscoveryButNoToken(
   serverName: string,
   serverConfig: McpSSEServerConfig | McpHTTPServerConfig,
+  oauthEntries?: SecureStorageData['mcpOAuth'],
 ): boolean {
   // XAA servers can silently re-auth via cached id_token even without an
   // access/refresh token — tokens() fires the xaaRefresh path. Skipping the
@@ -416,12 +425,44 @@ export function hasMcpDiscoveryButNoToken(
     return false
   }
   const serverKey = getServerKey(serverName, serverConfig)
-  const entry = getSecureStorage().read()?.mcpOAuth?.[serverKey]
+  const entry = (oauthEntries ?? getMcpOAuthEntries())?.[serverKey]
   return (
     entry !== undefined &&
     !entry.accessToken &&
     !entry.refreshToken &&
     entry.discoveryState?.oauthMetadataFound === true
+  )
+}
+
+/**
+ * True when the only credential available for this server is an expired
+ * access token. Without a refresh token, connecting cannot recover and would
+ * only repeat a known authentication failure.
+ */
+export function hasExpiredMcpAccessTokenWithoutRefresh(
+  serverName: string,
+  serverConfig: McpSSEServerConfig | McpHTTPServerConfig,
+  oauthEntries?: SecureStorageData['mcpOAuth'],
+): boolean {
+  // XAA servers can silently re-auth via their cached id_token.
+  if (isXaaEnabled() && serverConfig.oauth?.xaa) {
+    return false
+  }
+  // Explicit headers and header helpers may independently provide valid auth.
+  if (
+    serverConfig.headersHelper ||
+    (serverConfig.headers && Object.keys(serverConfig.headers).length > 0)
+  ) {
+    return false
+  }
+  const serverKey = getServerKey(serverName, serverConfig)
+  const entry = (oauthEntries ?? getMcpOAuthEntries())?.[serverKey]
+  return (
+    entry !== undefined &&
+    !!entry.accessToken &&
+    !entry.refreshToken &&
+    entry.expiresAt !== undefined &&
+    entry.expiresAt < Date.now()
   )
 }
 

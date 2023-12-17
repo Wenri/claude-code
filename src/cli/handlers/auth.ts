@@ -1,5 +1,7 @@
 /* eslint-disable custom-rules/no-process-exit -- CLI subcommand handler intentionally exits */
 
+import { createInterface } from 'readline'
+
 import {
   getOauthTokenFromFd,
   setOauthTokenFromFd,
@@ -218,6 +220,18 @@ export async function authLogin({
   const resolvedLoginMethod = sso ? 'sso' : undefined
 
   const oauthService = new OAuthService()
+  const reader = createInterface({ input: process.stdin })
+  reader.on('line', line => {
+    const [authorizationCode, state] = line.trim().split('#')
+    if (!authorizationCode || !state) {
+      process.stderr.write(
+        'Invalid code. Please make sure the full code was copied.\n',
+      )
+      return
+    }
+    logEvent('tengu_oauth_manual_entry', {})
+    oauthService.handleManualAuthCodeInput({ authorizationCode, state })
+  })
 
   try {
     logEvent('tengu_oauth_flow_start', { loginWithClaudeAi })
@@ -226,6 +240,7 @@ export async function authLogin({
       async url => {
         process.stdout.write('Opening browser to sign in…\n')
         process.stdout.write(`If the browser didn't open, visit: ${url}\n`)
+        process.stdout.write('Paste code here if prompted > ')
       },
       {
         loginWithClaudeAi,
@@ -255,6 +270,7 @@ export async function authLogin({
     )
     process.exit(1)
   } finally {
+    reader.close()
     oauthService.cleanup()
   }
 }

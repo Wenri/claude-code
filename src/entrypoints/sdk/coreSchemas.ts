@@ -1393,6 +1393,7 @@ export const NonNullableUsagePlaceholder = lazySchema(() => z.unknown())
 export const SDKAssistantMessageErrorSchema = lazySchema(() =>
   z.enum([
     'authentication_failed',
+    'oauth_org_not_allowed',
     'billing_error',
     'rate_limit',
     'invalid_request',
@@ -1629,6 +1630,7 @@ export const SDKResultSuccessSchema = lazySchema(() =>
     deferred_tool_use: SDKDeferredToolUseSchema().optional(),
     terminal_reason: SDKQueryTerminalReasonSchema().optional(),
     fast_mode_state: FastModeStateSchema().optional(),
+    origin: SDKMessageOriginSchema().optional(),
     uuid: UUIDPlaceholder(),
     session_id: z.string(),
   }),
@@ -1655,6 +1657,7 @@ export const SDKResultErrorSchema = lazySchema(() =>
     errors: z.array(z.string()),
     terminal_reason: SDKQueryTerminalReasonSchema().optional(),
     fast_mode_state: FastModeStateSchema().optional(),
+    origin: SDKMessageOriginSchema().optional(),
     uuid: UUIDPlaceholder(),
     session_id: z.string(),
   }),

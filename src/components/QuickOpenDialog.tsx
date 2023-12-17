@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { useRegisterOverlay } from '../context/overlayContext.js';
-import { generateFileSuggestions } from '../hooks/fileSuggestions.js';
+import { generateFileSuggestions, globalFileIndexCache } from '../hooks/fileSuggestions.js';
 import { useTerminalSize } from '../hooks/useTerminalSize.js';
 import { Text } from '../ink.js';
 import { logEvent } from '../services/analytics/index.js';
@@ -75,7 +75,7 @@ export function QuickOpenDialog(t0) {
         setResults([]);
         return;
       }
-      generateFileSuggestions(q, true).then(items => {
+      generateFileSuggestions(globalFileIndexCache, q, true).then(items => {
         if (gen !== queryGenRef.current) {
           return;
         }

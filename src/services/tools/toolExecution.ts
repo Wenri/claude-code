@@ -1490,6 +1490,9 @@ async function checkPermissionsAndCallTool(
       processedInput.command,
     )
   }
+  toolUseContext.setInProgressToolUseIDs(previous =>
+    new Set(previous).add(toolUseID),
+  )
   logForDebugging(
     `[Stall] tool_dispatch_start tool=${tool.name} toolUseId=${toolUseID} permissionDecisionMs=${permissionDurationMs}`,
     { level: 'info' },

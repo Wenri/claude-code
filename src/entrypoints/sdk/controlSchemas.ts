@@ -916,6 +916,12 @@ export const SDKControlSubmitFeedbackResponseSchema = lazySchema(() =>
   z
     .object({
       feedback_id: z.string().nullable(),
+      ccshare_url: z
+        .string()
+        .optional()
+        .describe(
+          'Internal share URL for the conversation. Only set in internal builds when the upload succeeded; absent otherwise.',
+        ),
       unavailable_reason: z
         .string()
         .optional()

@@ -124,9 +124,6 @@ async function* runToolsSerially(
   let currentContext = toolUseContext
 
   for (const toolUse of toolUseMessages) {
-    toolUseContext.setInProgressToolUseIDs(prev =>
-      new Set(prev).add(toolUse.id),
-    )
     for await (const update of runToolUse(
       toolUse,
       assistantMessages.find(_ =>
@@ -157,9 +154,6 @@ async function* runToolsConcurrently(
 ): AsyncGenerator<MessageUpdateLazy, void> {
   yield* all(
     toolUseMessages.map(async function* (toolUse) {
-      toolUseContext.setInProgressToolUseIDs(prev =>
-        new Set(prev).add(toolUse.id),
-      )
       yield* runToolUse(
         toolUse,
         assistantMessages.find(_ =>

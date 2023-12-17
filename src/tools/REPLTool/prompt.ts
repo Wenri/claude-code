@@ -36,7 +36,7 @@ for(const f of (await rgf('X','src')).slice(0,5)) o[f]=cat(f,1,300)
 o
 \`\`\`
 
-\`o\` is pre-declared \`{}\`; assign results directly to \`o.key\` (no \`const x=\` then repack). Promise values on \`o\` are auto-awaited — drop \`await\` unless you branch on the value. **End the script with bare \`o\`** (or a statement) to return the full object; ending on \`o.x=...\` returns just that one value. Relative paths resolve against cwd. No \`//\` comments — the \`description\` param is your comment. No blank lines, single-char vars.
+\`o\` is pre-declared \`{}\`; assign results directly to \`o.key\` (no \`const x=\` then repack). Thenable \`o.*\` values are auto-awaited **at return only** — \`o.x=sh(c)\` needs no await, but a shorthand result used inline (concat, template, arg to another call) does: \`const c=await cat(f); put(f,c+s)\`, never \`put(f,cat(f)+s)\`. **End the script with bare \`o\`** (or a statement) to return the full object; ending on \`o.x=...\` returns just that one value. Relative paths resolve against cwd. No \`//\` comments — the \`description\` param is your comment. No blank lines, single-char vars.
 
 ## API
 - \`sh(cmd,ms?)\` → stdout+stderr (merged — never write \`2>&1\` or \`2>/dev/null\`)

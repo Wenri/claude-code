@@ -546,7 +546,14 @@ function getLeanSystemPromptSection(
   _model: string,
   outputStyleConfig: OutputStyleConfig | null,
 ): string {
-  return `${getSimpleIntroSection(outputStyleConfig)}
+  const identity =
+    outputStyleConfig === null
+      ? 'You are an interactive agent that helps users with software engineering tasks.'
+      : 'You are an interactive agent that helps users according to your "Output Style" below, which describes how you should respond to user queries.'
+  return `
+${identity}
+
+${CYBER_RISK_INSTRUCTION}
 
 # Harness
  - Text you output outside of tool use is displayed to the user as Github-flavored markdown in a terminal.
@@ -987,10 +994,10 @@ function getShellInfoLine(): string {
     if (!isBashToolEnabled()) {
       return 'Shell: PowerShell (use PowerShell syntax — e.g., $null not /dev/null, $env:VAR not $VAR, backtick for line continuation)'
     }
-    const powershellSuffix = isPowerShellToolEnabled()
-      ? '. PowerShell is also available via the PowerShell tool.'
-      : ''
-    return `Shell: ${shellName} (use Unix shell syntax, not Windows — e.g., /dev/null not NUL, forward slashes in paths)${powershellSuffix}`
+    if (isPowerShellToolEnabled()) {
+      return 'Shell: PowerShell (use PowerShell syntax — e.g., $null not /dev/null, $env:VAR not $VAR, backtick for line continuation). Bash is also available via the Bash tool for POSIX scripts.'
+    }
+    return `Shell: ${shellName} (use Unix shell syntax, not Windows — e.g., /dev/null not NUL, forward slashes in paths)`
   }
   return `Shell: ${shellName}`
 }

@@ -63,6 +63,7 @@ import {
 
 const MAX_SPECULATION_TURNS = 20
 const MAX_SPECULATION_MESSAGES = 100
+export const SPECULATION_STALE_TIMEOUT_MS = 30_000
 
 const WRITE_TOOLS = new Set(['Edit', 'Write', 'NotebookEdit'])
 const SAFE_READ_ONLY_TOOLS = new Set([
@@ -898,7 +899,10 @@ export async function acceptSpeculation(
   return { messages, boundary, timeSavedMs }
 }
 
-export function abortSpeculation(setAppState: SetAppState): void {
+export function abortSpeculation(
+  setAppState: SetAppState,
+  reason = 'user_typed',
+): void {
   setAppState(prev => {
     if (prev.speculation.status !== 'active') return prev
 
@@ -912,7 +916,7 @@ export function abortSpeculation(setAppState: SetAppState): void {
       isPipelined,
     } = prev.speculation
 
-    logForDebugging(`[Speculation] Aborting ${id}`)
+    logForDebugging(`[Speculation] Aborting ${id} (${reason})`)
 
     logSpeculation(
       id,
@@ -921,7 +925,7 @@ export function abortSpeculation(setAppState: SetAppState): void {
       suggestionLength,
       messagesRef.current,
       boundary,
-      { abort_reason: 'user_typed', is_pipelined: isPipelined },
+      { abort_reason: reason, is_pipelined: isPipelined },
     )
 
     abort()

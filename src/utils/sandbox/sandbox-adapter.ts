@@ -37,6 +37,7 @@ import { SETTING_SOURCES, type SettingSource } from '../settings/constants.js'
 import { getManagedSettingsDropInDir } from '../settings/managedPath.js'
 import { WSL_WINDOWS_MANAGED_SETTINGS_PATH } from '../settings/mdm/constants.js'
 import {
+  getAllPolicyTierSettings,
   getInitialSettings,
   getSettings_DEPRECATED,
   getSettingsFilePathForSource,
@@ -155,16 +156,9 @@ export function resolveSandboxFilesystemPath(
  * This is true when policySettings has sandbox.network.allowManagedDomainsOnly: true
  */
 export function shouldAllowManagedSandboxDomainsOnly(): boolean {
-  return (
-    getSettingsForSource('policySettings')?.sandbox?.network
-      ?.allowManagedDomainsOnly === true
-  )
-}
-
-function shouldAllowManagedReadPathsOnly(): boolean {
-  return (
-    getSettingsForSource('policySettings')?.sandbox?.filesystem
-      ?.allowManagedReadPathsOnly === true
+  return getAllPolicyTierSettings().some(
+    settings =>
+      settings.sandbox?.network?.allowManagedDomainsOnly === true,
   )
 }
 
@@ -178,25 +172,33 @@ export function convertToSandboxRuntimeConfig(
   settings: SettingsJson,
 ): SandboxRuntimeConfig {
   const permissions = settings.permissions || {}
+  const policyTiers = getAllPolicyTierSettings()
+  const allowManagedDomainsOnly = policyTiers.some(
+    tier => tier.sandbox?.network?.allowManagedDomainsOnly === true,
+  )
+  const allowManagedReadPathsOnly = policyTiers.some(
+    tier => tier.sandbox?.filesystem?.allowManagedReadPathsOnly === true,
+  )
 
   // Extract network domains from WebFetch rules
   const allowedDomains: string[] = []
   const deniedDomains: string[] = []
 
   // When allowManagedSandboxDomainsOnly is enabled, only use domains from policy settings
-  if (shouldAllowManagedSandboxDomainsOnly()) {
-    const policySettings = getSettingsForSource('policySettings')
-    for (const domain of policySettings?.sandbox?.network?.allowedDomains ||
-      []) {
-      allowedDomains.push(domain)
-    }
-    for (const ruleString of policySettings?.permissions?.allow || []) {
-      const rule = permissionRuleValueFromString(ruleString)
-      if (
-        rule.toolName === WEB_FETCH_TOOL_NAME &&
-        rule.ruleContent?.startsWith('domain:')
-      ) {
-        allowedDomains.push(rule.ruleContent.substring('domain:'.length))
+  if (allowManagedDomainsOnly) {
+    for (const policySettings of policyTiers) {
+      for (const domain of policySettings.sandbox?.network?.allowedDomains ||
+        []) {
+        allowedDomains.push(domain)
+      }
+      for (const ruleString of policySettings.permissions?.allow || []) {
+        const rule = permissionRuleValueFromString(ruleString)
+        if (
+          rule.toolName === WEB_FETCH_TOOL_NAME &&
+          rule.ruleContent?.startsWith('domain:')
+        ) {
+          allowedDomains.push(rule.ruleContent.substring('domain:'.length))
+        }
       }
     }
   } else {
@@ -355,10 +357,17 @@ export function convertToSandboxRuntimeConfig(
       for (const p of fs.denyRead || []) {
         denyRead.push(resolveSandboxFilesystemPath(p, source))
       }
-      if (!shouldAllowManagedReadPathsOnly() || source === 'policySettings') {
+      if (!allowManagedReadPathsOnly) {
         for (const p of fs.allowRead || []) {
           allowRead.push(resolveSandboxFilesystemPath(p, source))
         }
+      }
+    }
+  }
+  if (allowManagedReadPathsOnly) {
+    for (const policySettings of policyTiers) {
+      for (const p of policySettings.sandbox?.filesystem?.allowRead || []) {
+        allowRead.push(resolveSandboxFilesystemPath(p, 'policySettings'))
       }
     }
   }

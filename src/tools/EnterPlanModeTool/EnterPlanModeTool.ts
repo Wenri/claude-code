@@ -2,6 +2,7 @@ import { feature } from 'bun:bundle'
 import { z } from 'zod/v4'
 import {
   getAllowedChannels,
+  getIsNonInteractiveSession,
   handlePlanModeTransition,
 } from '../../bootstrap/state.js'
 import type { Tool } from '../../Tool.js'
@@ -59,7 +60,8 @@ export const EnterPlanModeTool: Tool<InputSchema, Output> = buildTool({
     // trap the model can enter but never leave.
     if (
       (feature('KAIROS') || feature('KAIROS_CHANNELS')) &&
-      getAllowedChannels().length > 0
+      getAllowedChannels().length > 0 &&
+      getIsNonInteractiveSession()
     ) {
       return false
     }

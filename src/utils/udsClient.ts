@@ -45,8 +45,24 @@ export interface UdsControlMessage {
   [key: string]: unknown
 }
 
-export function sendToUdsSocket(socketPath: string, message: string): Promise<void> {
-  const content = `<cross-session-message>\n${message}\n</cross-session-message>`
+export function buildCrossSessionAttrs(
+  from?: string,
+  fromName?: string,
+): string {
+  const attrs: string[] = []
+  if (from) attrs.push(`from="${from}"`)
+  const sanitizedName = fromName?.replace(/["\n\r<>]/g, '').trim()
+  if (sanitizedName) attrs.push(`from-name="${sanitizedName}"`)
+  return attrs.length > 0 ? ` ${attrs.join(' ')}` : ''
+}
+
+export function sendToUdsSocket(
+  socketPath: string,
+  message: string,
+  fromName?: string,
+): Promise<void> {
+  const attrs = buildCrossSessionAttrs(undefined, fromName)
+  const content = `<cross-session-message${attrs}>\n${message}\n</cross-session-message>`
   logForDebugging(
     `[uds-client] Sending ${message.length} chars to ${socketPath}`,
   )

@@ -44,7 +44,7 @@ import { sleep } from '../sleep.js';
 import { recordSkillUsage } from '../suggestions/skillUsageTracking.js';
 import { findClosestCommand } from '../suggestions/commandSuggestions.js';
 import { logOTelEvent, redactIfDisabled } from '../telemetry/events.js';
-import { buildPluginCommandTelemetryFields } from '../telemetry/pluginTelemetry.js';
+import { buildPluginCommandTelemetryFields, recordSkillActivated } from '../telemetry/pluginTelemetry.js';
 import { buildSkillTelemetryFields } from '../telemetry/skillLoadedEvent.js';
 import { getTeamArtifactAnalyticsMetadata } from '../teamArtifacts.js';
 import { getAssistantMessageContentLength } from '../tokens.js';
@@ -769,6 +769,9 @@ async function getMessagesForSlashCommand(commandName: string, args: string, set
         }
       case 'prompt':
         {
+          if (!(command.isMcp && command.loadedFrom !== 'mcp')) {
+            recordSkillActivated(command.name, command, 'user-slash');
+          }
           try {
             const expansionHookResult = await runUserPromptExpansionHook(
               command,

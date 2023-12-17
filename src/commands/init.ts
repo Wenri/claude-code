@@ -6,7 +6,10 @@ import { isEnvTruthy } from '../utils/envUtils.js'
 function isNewInitEnabled(): boolean {
   return (
     isEnvTruthy(process.env.CLAUDE_CODE_NEW_INIT) ||
-    getFeatureValue_CACHED_MAY_BE_STALE('tengu_new_init', false)
+    getFeatureValue_CACHED_MAY_BE_STALE(
+      'tengu_slate_harbor_experiment',
+      false,
+    )
   )
 }
 
@@ -260,7 +263,7 @@ const command = {
   type: 'prompt',
   name: 'init',
   get description() {
-    return isNewInitEnabled()
+    return isEnvTruthy(process.env.CLAUDE_CODE_NEW_INIT)
       ? 'Initialize new CLAUDE.md file(s) and optional skills/hooks with codebase documentation'
       : 'Initialize a new CLAUDE.md file with codebase documentation'
   },

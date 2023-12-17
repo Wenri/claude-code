@@ -44,11 +44,11 @@ export async function launchSnapshotUpdateDialog(root: Root, props: {
 export async function launchInvalidSettingsDialog(root: Root, props: {
   settingsErrors: ValidationError[];
   onExit: () => void;
-}): Promise<void> {
+}): Promise<void | 'fix'> {
   const {
     InvalidSettingsDialog
   } = await import('./components/InvalidSettingsDialog.js');
-  return showSetupDialog(root, done => <InvalidSettingsDialog settingsErrors={props.settingsErrors} onContinue={done} onExit={props.onExit} />);
+  return showSetupDialog<void | 'fix'>(root, done => <InvalidSettingsDialog settingsErrors={props.settingsErrors} onContinue={() => done(undefined)} onFix={() => done('fix')} onExit={props.onExit} />);
 }
 
 /**

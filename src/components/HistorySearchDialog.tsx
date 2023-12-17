@@ -1,15 +1,23 @@
 import * as React from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRegisterOverlay } from '../context/overlayContext.js';
-import { getTimestampedHistory, type TimestampedHistoryEntry } from '../history.js';
+import {
+  getTimestampedHistory,
+  HISTORY_SCOPES,
+  type HistoryScope,
+  type TimestampedHistoryEntry
+} from '../history.js';
 import { useTerminalSize } from '../hooks/useTerminalSize.js';
 import { stringWidth } from '../ink/stringWidth.js';
 import { wrapAnsi } from '../ink/wrapAnsi.js';
 import { Box, Text } from '../ink.js';
+import { useKeybinding } from '../keybindings/useKeybinding.js';
+import { useShortcutDisplay } from '../keybindings/useShortcutDisplay.js';
 import { logEvent } from '../services/analytics/index.js';
 import type { HistoryEntry } from '../utils/config.js';
 import { formatRelativeTimeAgo, truncateToWidth } from '../utils/format.js';
 import { FuzzyPicker } from './design-system/FuzzyPicker.js';
+import { KeyboardShortcutHint } from './design-system/KeyboardShortcutHint.js';
 type Props = {
   initialQuery?: string;
   onSelect: (entry: HistoryEntry) => void;
@@ -33,12 +41,20 @@ export function HistorySearchDialog({
   const {
     columns
   } = useTerminalSize();
+  const [scope, setScope] = useState<HistoryScope>('project');
   const [items, setItems] = useState<Item[] | null>(null);
   const [query, setQuery] = useState(initialQuery ?? '');
+  const cache = useRef<Partial<Record<HistoryScope, Item[]>>>({});
   useEffect(() => {
+    const cached = cache.current[scope];
+    if (cached) {
+      setItems(cached);
+      return;
+    }
+    setItems(null);
     let cancelled = false;
     void (async () => {
-      const reader = getTimestampedHistory();
+      const reader = getTimestampedHistory(scope);
       const loaded: Item[] = [];
       for await (const entry of reader) {
         if (cancelled) {
@@ -56,12 +72,27 @@ export function HistorySearchDialog({
           age: age + ' '.repeat(Math.max(0, AGE_WIDTH - stringWidth(age)))
         });
       }
-      if (!cancelled) setItems(loaded);
+      if (!cancelled) {
+        cache.current[scope] = loaded;
+        setItems(loaded);
+      }
     })();
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [scope]);
+  const cycleScopeShortcut = useShortcutDisplay('historySearch:cycleScope', 'HistorySearch', 'ctrl+s');
+  useKeybinding('historySearch:cycleScope', () => {
+    const currentIndex = HISTORY_SCOPES.indexOf(scope);
+    const nextScope = HISTORY_SCOPES[(currentIndex + 1) % HISTORY_SCOPES.length];
+    setScope(nextScope);
+    logEvent('tengu_history_picker_scope', {
+      from: scope,
+      to: nextScope
+    });
+  }, {
+    context: 'HistorySearch'
+  });
   const filtered = useMemo(() => {
     if (!items) return [];
     const q = query.trim().toLowerCase();
@@ -81,13 +112,13 @@ export function HistorySearchDialog({
   const listWidth = previewOnRight ? Math.floor((columns - 6) * 0.5) : columns - 6;
   const rowWidth = Math.max(20, listWidth - AGE_WIDTH - 1);
   const previewWidth = previewOnRight ? Math.max(20, columns - listWidth - 12) : Math.max(20, columns - 10);
-  return <FuzzyPicker title="Search prompts" placeholder="Filter history…" initialQuery={initialQuery} items={filtered} getKey={item_0 => String(item_0.entry.timestamp)} onQueryChange={setQuery} onSelect={item_1 => {
+  return <FuzzyPicker title={<Text>Search prompts <Text color="suggestion">· {scope}</Text></Text>} placeholder="Filter history…" initialQuery={initialQuery} items={filtered} getKey={item_0 => String(item_0.entry.timestamp)} onQueryChange={setQuery} onSelect={item_1 => {
     logEvent('tengu_history_picker_select', {
       result_count: filtered.length,
       query_length: query.length
     });
     void item_1.entry.resolve().then(onSelect);
-  }} onCancel={onCancel} emptyMessage={q_0 => items === null ? 'Loading…' : q_0 ? 'No matching prompts' : 'No history yet'} selectAction="use" direction="up" previewPosition={previewOnRight ? 'right' : 'bottom'} renderItem={(item_2, isFocused) => <Text>
+  }} onCancel={onCancel} resetKey={scope} extraHints={<KeyboardShortcutHint shortcut={cycleScopeShortcut} action="scope" />} emptyMessage={q_0 => items === null ? 'Loading…' : q_0 ? 'No matching prompts' : 'No history yet'} selectAction="use" direction="up" previewPosition={previewOnRight ? 'right' : 'bottom'} renderItem={(item_2, isFocused) => <Text>
           <Text dimColor>{item_2.age}</Text>
           <Text color={isFocused ? 'suggestion' : undefined}>
             {' '}

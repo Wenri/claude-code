@@ -1,5 +1,5 @@
 import { feature } from 'bun:bundle';
-import { getRuntimeCapabilities } from '../../bootstrap/state.js';
+import { getIsRemoteMode, getRuntimeCapabilities } from '../../bootstrap/state.js';
 import chalk from 'chalk';
 import * as path from 'path';
 import * as React from 'react';
@@ -46,7 +46,7 @@ import { getShortcutDisplay } from '../../keybindings/shortcutFormat.js';
 import { useKeybinding, useKeybindings } from '../../keybindings/useKeybinding.js';
 import type { MCPServerConnection } from '../../services/mcp/types.js';
 import { abortPromptSuggestion, logSuggestionSuppressed } from '../../services/PromptSuggestion/promptSuggestion.js';
-import { type ActiveSpeculationState, abortSpeculation } from '../../services/PromptSuggestion/speculation.js';
+import { type ActiveSpeculationState, abortSpeculation, SPECULATION_STALE_TIMEOUT_MS } from '../../services/PromptSuggestion/speculation.js';
 import { getActiveAgentForInput, getViewedTeammateTask } from '../../state/selectors.js';
 import { enterTeammateView, exitTeammateView, stopOrDismissAgent } from '../../state/teammateViewHelpers.js';
 import type { ToolPermissionContext } from '../../Tool.js';
@@ -111,6 +111,7 @@ import { getEffortNotificationText } from '../EffortIndicator.js';
 import { getFastIconString } from '../FastIcon.js';
 import { GlobalSearchDialog } from '../GlobalSearchDialog.js';
 import { HistorySearchDialog } from '../HistorySearchDialog.js';
+import { Label } from '../design-system/Label.js';
 import { ModelPicker } from '../ModelPicker.js';
 import { QuickOpenDialog } from '../QuickOpenDialog.js';
 import TextInput from '../TextInput.js';
@@ -1058,21 +1059,25 @@ function PromptInput({
     if (inputMatchesSuggestion && suggestionText && !hasImages && !state.viewingAgentTaskId) {
       // If speculation is active, inject messages immediately as they stream
       if (speculation.status === 'active') {
-        markAccepted();
-        // skipReset: resetSuggestion would abort the speculation before we accept it
-        logOutcomeAtSubmission(suggestionText, {
-          skipReset: true
-        });
-        void onSubmitProp(suggestionText, {
-          setCursorOffset,
-          clearBuffer,
-          resetHistory
-        }, {
-          state: speculation,
-          speculationSessionTimeSavedMs: speculationSessionTimeSavedMs,
-          setAppState
-        });
-        return; // Skip normal query - speculation handled it
+        if (Date.now() - speculation.startTime > SPECULATION_STALE_TIMEOUT_MS) {
+          abortSpeculation(setAppState, 'stale');
+        } else {
+          markAccepted();
+          // skipReset: resetSuggestion would abort the speculation before we accept it
+          logOutcomeAtSubmission(suggestionText, {
+            skipReset: true
+          });
+          void onSubmitProp(suggestionText, {
+            setCursorOffset,
+            clearBuffer,
+            resetHistory
+          }, {
+            state: speculation,
+            speculationSessionTimeSavedMs: speculationSessionTimeSavedMs,
+            setAppState
+          });
+          return; // Skip normal query - speculation handled it
+        }
       }
 
       // Regular suggestion acceptance (requires shownAt > 0)
@@ -1921,6 +1926,14 @@ function PromptInput({
   });
   useKeybinding('history:search', () => {
     if (feature('HISTORY_PICKER')) {
+      if (getIsRemoteMode()) {
+        addNotification({
+          key: 'remote-history-search-unavailable',
+          text: "History search isn't available in remote sessions yet",
+          priority: 'medium'
+        });
+        return;
+      }
       setShowHistoryPicker(true);
       setHelpOpen(false);
     }
@@ -2504,24 +2517,14 @@ function PromptInput({
         </Box>}
       <PromptInputStashNotice hasStash={stashedPrompt !== undefined} />
       {swarmBanner ? <>
-          <Text color={swarmBanner.bgColor}>
-            {'─'.repeat(Math.max(0, columns - fastModeTagWidth - swarmBannerTextWidth - swarmBannerSuffix.length))}
-            {fastModeTag ? ` ${fastModeTag} ` : null}
-            {swarmBanner.text ? <>
-                <Text backgroundColor={swarmBanner.bgColor} color="inverseText">
-                  {' '}
-                  {swarmBanner.text}{' '}
-                </Text>
-              </> : null}
-            {swarmBannerSuffix}
-          </Text>
+          <SwarmBannerBorder banner={swarmBanner} columns={columns} fastModeTag={fastModeTag} />
           <Box flexDirection="row" width="100%">
             <PromptInputModeIndicator mode={mode} isLoading={isLoading} viewingAgentName={viewingAgentName} viewingAgentColor={viewingAgentColor} />
             <Box ref={inputContainerRef} flexGrow={1} flexShrink={1} tabIndex={-1} onClick={handleInputClick}>
               {textInputElement}
             </Box>
           </Box>
-          <Text color={swarmBanner.bgColor}>{'─'.repeat(columns)}</Text>
+          <SwarmBannerBorder banner={swarmBanner} columns={columns} fastModeTag={fastModeTag} borderOnly />
         </> : <Box flexDirection="row" alignItems="flex-start" justifyContent="flex-start" borderColor={getBorderColor()} borderStyle="round" borderLeft={false} borderRight={false} borderBottom width="100%" borderText={buildBorderText(fastModeTag)}>
           <PromptInputModeIndicator mode={mode} isLoading={isLoading} viewingAgentName={viewingAgentName} viewingAgentColor={viewingAgentColor} />
           <Box ref={inputContainerRef} flexGrow={1} flexShrink={1} tabIndex={-1} onClick={handleInputClick}>
@@ -2551,6 +2554,73 @@ function PromptInput({
           <Notifications apiKeyStatus={apiKeyStatus} debug={debug} isAutoUpdating={isAutoUpdating} verbose={verbose} messages={messages} onChangeIsUpdating={setIsAutoUpdating} ideSelection={ideSelection} mcpClients={mcpClients} isInputWrapped={isInputWrapped} />
         </Box> : null}
     </Box>;
+}
+
+function SwarmBannerBorder({
+  banner,
+  columns,
+  fastModeTag,
+  borderOnly = false,
+}: {
+  banner: NonNullable<ReturnType<typeof useSwarmBanner>>
+  columns: number
+  fastModeTag?: string
+  borderOnly?: boolean
+}): React.ReactNode {
+  const fastModeTagWidth = fastModeTag ? stringWidth(fastModeTag) + 2 : 0
+  const bannerTextWidth = banner.text ? stringWidth(banner.text) + 2 : 0
+  const suffix = fastModeTagWidth || bannerTextWidth ? '──' : ''
+  const dashCount = Math.max(
+    0,
+    columns - fastModeTagWidth - bannerTextWidth - suffix.length,
+  )
+  const gradient = banner.gradient
+  const borderColor = gradient?.at(-1) ?? banner.bgColor
+  const dashes = gradient ? (
+    <GradientDashes count={dashCount} colors={gradient} />
+  ) : (
+    '─'.repeat(dashCount)
+  )
+  const suffixContent = borderOnly ? (
+    '─'.repeat(fastModeTagWidth + bannerTextWidth + suffix.length)
+  ) : (
+    <>
+      {fastModeTag ? ` ${fastModeTag} ` : null}
+      {banner.text ? (
+        <Label color={banner.bgColor} padded>
+          {banner.text}
+        </Label>
+      ) : null}
+      {suffix}
+    </>
+  )
+  return (
+    <Text color={borderColor}>
+      {dashes}
+      {suffixContent}
+    </Text>
+  )
+}
+
+function GradientDashes({
+  count,
+  colors,
+}: {
+  count: number
+  colors: Array<keyof Theme>
+}): React.ReactNode {
+  if (count <= 0 || colors.length === 0) return null
+  const colorCount = Math.min(colors.length, count)
+  const segmentWidth = Math.floor(count / colorCount)
+  let remainder = count - segmentWidth * colorCount
+  return colors.slice(0, colorCount).map((color, index) => {
+    const width = segmentWidth + (remainder-- > 0 ? 1 : 0)
+    return (
+      <Text key={index} color={color}>
+        {'─'.repeat(width)}
+      </Text>
+    )
+  })
 }
 
 /**

@@ -325,7 +325,7 @@ export function initWheelAccel(useDecayCurve = false, base = 1): WheelAccelState
 // Lazy-init after settings env and the async XTVERSION probe have settled.
 function initAndLogWheelAccel(): WheelAccelState {
   const config = getScrollConfig();
-  logForDebugging(`wheel accel: ${config.useDecayCurve ? 'decay' : 'window (native)'} · base=${config.base} · platform=${config.platform} · TERM_PROGRAM=${config.termProgram}`);
+  logForDebugging(`wheel accel: ${config.useDecayCurve ? 'decay' : 'window (native)'} · base=${config.base} · platform=${config.platform} · TERM_PROGRAM=${config.termProgram}${config.wheelFlood ? ' · wheelFlood' : ''}`);
   return initWheelAccel(config.useDecayCurve, config.base);
 }
 

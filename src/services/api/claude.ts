@@ -121,30 +121,30 @@ import {
   APIUserAbortError,
 } from '@anthropic-ai/sdk/error'
 import {
-  getAfkModeHeaderLatched,
-  getCacheDiagnosisHeaderLatched,
-  getCacheEditingHeaderLatched,
-  getFastModeHeaderLatched,
+  getStickyBetas,
   getLastApiCompletionTimestamp,
   getPromptCache1hAllowlist,
   getSessionId,
   getThinkingClearLatched,
   getThinkingTypeOverride,
-  setAfkModeHeaderLatched,
-  setCacheDiagnosisHeaderLatched,
-  setCacheEditingHeaderLatched,
-  setFastModeHeaderLatched,
+  isStickyBetaLatched,
+  latchStickyBeta,
+  rejectStickyBeta,
   setLastMainRequestId,
   setPromptCache1hAllowlist,
   setThinkingClearLatched,
   setThinkingTypeOverride,
 } from 'src/bootstrap/state.js'
 import {
+  AFK_MODE_BETA,
   AFK_MODE_BETA_HEADER,
+  CACHE_DIAGNOSIS_BETA,
   CACHE_DIAGNOSIS_BETA_HEADER,
+  CACHE_EDITING_BETA,
   CONTEXT_1M_BETA_HEADER,
   CONTEXT_MANAGEMENT_BETA_HEADER,
   EFFORT_BETA_HEADER,
+  FAST_MODE_BETA,
   FAST_MODE_BETA_HEADER,
   PROMPT_CACHING_SCOPE_BETA_HEADER,
   REDACT_THINKING_BETA_HEADER,
@@ -256,6 +256,7 @@ import {
   CUSTOM_OFF_SWITCH_MESSAGE,
   getAssistantMessageFromError,
   getErrorMessageIfRefusal,
+  parseImageDimensionApiError,
 } from './errors.js'
 import {
   EMPTY_USAGE,
@@ -1204,6 +1205,36 @@ export function stripExcessMediaItems(
   }) as (UserMessage | AssistantMessage)[]
 }
 
+function replaceOversizedImageWithPlaceholder(
+  messages: (UserMessage | AssistantMessage)[],
+  location: { messageIdx: number; contentIdx: number },
+): (UserMessage | AssistantMessage)[] {
+  const message = messages[location.messageIdx]
+  if (message?.type !== 'user' || !Array.isArray(message.message.content)) {
+    return messages
+  }
+  if (message.message.content[location.contentIdx]?.type !== 'image') {
+    return messages
+  }
+  const replacement: UserMessage = {
+    ...message,
+    message: {
+      ...message.message,
+      content: message.message.content.map((block, index) =>
+        index === location.contentIdx
+          ? {
+              type: 'text',
+              text: '[Image removed: dimensions exceeded the 2000px limit for requests with many images]',
+            }
+          : block,
+      ),
+    },
+  }
+  return messages.map((candidate, index) =>
+    index === location.messageIdx ? replacement : candidate,
+  )
+}
+
 async function* queryModel(
   messages: Message[],
   systemPrompt: SystemPrompt,
@@ -1377,15 +1408,12 @@ async function* queryModel(
   // The beta header is also captured here to avoid a top-level import of the
   // ant-only CACHE_EDITING_BETA_HEADER constant.
   let cachedMCEnabled = false
-  let cacheEditingBetaHeader = ''
   if (feature('CACHED_MICROCOMPACT')) {
     const {
       isCachedMicrocompactEnabled,
       isModelSupportedForCacheEditing,
       getCachedMCConfig,
     } = await import('../compact/cachedMicrocompact.js')
-    const betas = await import('src/constants/betas.js')
-    cacheEditingBetaHeader = betas.CACHE_EDITING_BETA_HEADER
     const featureEnabled = isCachedMicrocompactEnabled()
     const modelSupported = isModelSupportedForCacheEditing(options.model)
     cachedMCEnabled = featureEnabled && modelSupported
@@ -1608,46 +1636,49 @@ async function* queryModel(
   // Per-call gates (isAgenticQuery, querySource===repl_main_thread) stay
   // per-call so non-agentic queries keep their own stable header set.
 
-  let afkHeaderLatched = getAfkModeHeaderLatched() === true
+  const stickyBetas = getStickyBetas()
+  let afkHeaderLatched = false
   if (feature('TRANSCRIPT_CLASSIFIER')) {
     if (
-      !afkHeaderLatched &&
+      AFK_MODE_BETA &&
       isAgenticQuery &&
       shouldIncludeFirstPartyOnlyBetas() &&
       (autoModeStateModule?.isAutoModeActive() ?? false)
     ) {
-      afkHeaderLatched = true
-      setAfkModeHeaderLatched(true)
+      latchStickyBeta(stickyBetas, AFK_MODE_BETA)
     }
+    afkHeaderLatched = AFK_MODE_BETA
+      ? isStickyBetaLatched(stickyBetas, AFK_MODE_BETA)
+      : false
   }
 
-  let fastModeHeaderLatched = getFastModeHeaderLatched() === true
-  if (!fastModeHeaderLatched && isFastMode) {
-    fastModeHeaderLatched = true
-    setFastModeHeaderLatched(true)
-  }
+  if (isFastMode) latchStickyBeta(stickyBetas, FAST_MODE_BETA)
+  const fastModeHeaderLatched = isStickyBetaLatched(
+    stickyBetas,
+    FAST_MODE_BETA,
+  )
 
-  let cacheEditingHeaderLatched = getCacheEditingHeaderLatched() === true
   if (feature('CACHED_MICROCOMPACT')) {
     if (
-      !cacheEditingHeaderLatched &&
+      CACHE_EDITING_BETA &&
       cachedMCEnabled &&
       getAPIProvider() === 'firstParty' &&
       options.querySource === 'repl_main_thread'
     ) {
-      cacheEditingHeaderLatched = true
-      setCacheEditingHeaderLatched(true)
+      latchStickyBeta(stickyBetas, CACHE_EDITING_BETA)
     }
   }
+  const cacheEditingHeaderLatched = CACHE_EDITING_BETA
+    ? isStickyBetaLatched(stickyBetas, CACHE_EDITING_BETA)
+    : false
 
-  let cacheDiagnosis = getCacheDiagnosisHeaderLatched() === true
-  if (
-    getCacheDiagnosisHeaderLatched() === null &&
-    shouldEnableCacheDiagnosis()
-  ) {
-    cacheDiagnosis = true
-    setCacheDiagnosisHeaderLatched(true)
+  if (shouldEnableCacheDiagnosis()) {
+    latchStickyBeta(stickyBetas, CACHE_DIAGNOSIS_BETA)
   }
+  let cacheDiagnosis = isStickyBetaLatched(
+    stickyBetas,
+    CACHE_DIAGNOSIS_BETA,
+  )
 
   const contextHintController = createContextHintController({
     querySource: options.querySource,
@@ -1920,9 +1951,10 @@ async function* queryModel(
       cacheEditingHeaderLatched &&
       getAPIProvider() === 'firstParty' &&
       options.querySource === 'repl_main_thread' &&
-      !betasParams.includes(cacheEditingBetaHeader)
+      CACHE_EDITING_BETA &&
+      !betasParams.includes(CACHE_EDITING_BETA.header)
     ) {
-      betasParams.push(cacheEditingBetaHeader)
+      betasParams.push(CACHE_EDITING_BETA.header)
       logForDebugging(
         'Cache editing beta header enabled for cached microcompact',
       )
@@ -2160,7 +2192,7 @@ async function* queryModel(
         onError: async error => {
           if (afkHeaderLatched && isAfkModeBetaRejected(error)) {
             afkHeaderLatched = false
-            setAfkModeHeaderLatched(false)
+            if (AFK_MODE_BETA) rejectStickyBeta(stickyBetas, AFK_MODE_BETA)
             autoModeStateModule?.setAutoModeActive(false)
             autoModeStateModule?.setAutoModeCircuitBroken(true)
             logForDebugging(
@@ -2184,9 +2216,29 @@ async function* queryModel(
             })
             return 'retry:advisor-strip'
           }
+          const oversizedImage = parseImageDimensionApiError(error)
+          if (oversizedImage) {
+            const stripped = replaceOversizedImageWithPlaceholder(
+              messagesForAPI,
+              oversizedImage,
+            )
+            if (stripped !== messagesForAPI) {
+              messagesForAPI = stripped
+              consumedCacheEdits = null
+              logForDebugging(
+                `Removed oversized image at messages.${oversizedImage.messageIdx}.content.${oversizedImage.contentIdx} (exceeded 2000px many-image limit); retrying.`,
+                { level: 'warn' },
+              )
+              logEvent('tengu_image_dimension_strip_retry', {
+                message_idx: oversizedImage.messageIdx,
+                content_idx: oversizedImage.contentIdx,
+              })
+              return `retry:image-dimension:${oversizedImage.messageIdx}.${oversizedImage.contentIdx}`
+            }
+          }
           if (cacheDiagnosis && isCacheDiagnosisBetaRejected(error)) {
             cacheDiagnosis = false
-            setCacheDiagnosisHeaderLatched(false)
+            rejectStickyBeta(stickyBetas, CACHE_DIAGNOSIS_BETA)
             logForDebugging(
               '[cache-diagnosis] server rejected beta — dropping header latch',
               { level: 'warn' },

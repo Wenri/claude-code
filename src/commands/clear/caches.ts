@@ -15,7 +15,10 @@ import {
   getUserContext,
   setSystemPromptInjection,
 } from '../../context.js'
-import { clearFileSuggestionCaches } from '../../hooks/fileSuggestions.js'
+import {
+  globalFileIndexCache,
+  resetFileIndexCache,
+} from '../../hooks/fileSuggestions.js'
 import { clearAllPendingCallbacks } from '../../hooks/useSwarmPermissionPoller.js'
 import { clearAllDumpState } from '../../services/api/dumpPrompts.js'
 import { resetPromptCacheBreakDetection } from '../../services/api/promptCacheBreakDetection.js'
@@ -55,7 +58,7 @@ export function clearSessionCaches(
   getGitStatus.cache.clear?.()
   getSessionStartDate.cache.clear?.()
   // Clear file suggestion caches (for @ mentions)
-  clearFileSuggestionCaches()
+  resetFileIndexCache(globalFileIndexCache)
 
   // Clear commands/skills cache
   clearCommandsCache()

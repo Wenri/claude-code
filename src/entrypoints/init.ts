@@ -180,17 +180,17 @@ export const init = memoize(async (): Promise<void> => {
     // inject proxy vars without a static import of the upstreamproxy module.
     if (isEnvTruthy(process.env.CLAUDE_CODE_REMOTE)) {
       try {
-        const { initUpstreamProxy, getUpstreamProxyEnv } = await import(
+        const { initEgressGateway, getEgressGatewayEnv } = await import(
           '../upstreamproxy/upstreamproxy.js'
         )
-        const { registerUpstreamProxyEnvFn } = await import(
+        const { registerEgressGatewayEnvFn } = await import(
           '../utils/subprocessEnv.js'
         )
-        registerUpstreamProxyEnvFn(getUpstreamProxyEnv)
-        await initUpstreamProxy()
+        registerEgressGatewayEnvFn(getEgressGatewayEnv)
+        await initEgressGateway()
       } catch (err) {
         logForDebugging(
-          `[init] upstreamproxy init failed: ${err instanceof Error ? err.message : String(err)}; continuing without proxy`,
+          `[init] egress gateway init failed: ${err instanceof Error ? err.message : String(err)}; continuing without proxy`,
           { level: 'warn' },
         )
       }

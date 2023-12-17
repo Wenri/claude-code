@@ -605,6 +605,7 @@ export class QueryEngine {
             initialMainLoopModel,
             initialAppState.fastMode,
           ),
+          origin: options?.origin,
           uuid: randomUUID(),
         } as SDKMessage
         return
@@ -649,6 +650,7 @@ export class QueryEngine {
             initialMainLoopModel,
             initialAppState.fastMode,
           ),
+          origin: options?.origin,
           uuid: randomUUID(),
         } as SDKMessage
         return
@@ -999,6 +1001,7 @@ export class QueryEngine {
           mainLoopModel,
           initialAppState.fastMode,
         ),
+        origin: options?.origin,
         uuid: randomUUID(),
       }
       return
@@ -1382,6 +1385,7 @@ export class QueryEngine {
             mainLoopModel,
             initialAppState.fastMode,
           ),
+          origin: options?.origin,
           uuid: randomUUID(),
           errors: [`Reached maximum budget ($${maxBudgetUsd})`],
         }
@@ -1426,6 +1430,7 @@ export class QueryEngine {
               mainLoopModel,
               initialAppState.fastMode,
             ),
+            origin: options?.origin,
             uuid: randomUUID(),
             errors: [
               `Failed to provide valid structured output after ${maxRetries} attempts`,
@@ -1489,6 +1494,7 @@ export class QueryEngine {
           mainLoopModel,
           initialAppState.fastMode,
         ),
+        origin: options?.origin,
         uuid: randomUUID(),
       } as SDKMessage
       return
@@ -1513,6 +1519,7 @@ export class QueryEngine {
           mainLoopModel,
           initialAppState.fastMode,
         ),
+        origin: options?.origin,
         uuid: randomUUID(),
         errors: [
           `Reached maximum number of turns (${maxTurnsResult.maxTurns})`,
@@ -1540,6 +1547,7 @@ export class QueryEngine {
           mainLoopModel,
           initialAppState.fastMode,
         ),
+        origin: options?.origin,
         uuid: randomUUID(),
         // Diagnostic prefix: these are what isResultSuccessful() checks — if
         // the result type isn't assistant-with-text/thinking or user-with-
@@ -1610,6 +1618,7 @@ export class QueryEngine {
         mainLoopModel,
         initialAppState.fastMode,
       ),
+      origin: options?.origin,
       uuid: randomUUID(),
     }
   }

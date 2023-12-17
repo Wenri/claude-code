@@ -92,7 +92,7 @@ const VAR_PLACEHOLDER = '__TRACKED_VAR__'
  * Also catches user-typed literals that collide with placeholder strings:
  * `VAR=__TRACKED_VAR__ && rm $VAR` — treated as non-literal (conservative).
  */
-function containsAnyPlaceholder(value: string): boolean {
+export function containsAnyPlaceholder(value: string): boolean {
   return value.includes(CMDSUB_PLACEHOLDER) || value.includes(VAR_PLACEHOLDER)
 }
 
@@ -288,7 +288,8 @@ const UNICODE_WHITESPACE_RE =
  * by whitespace (e.g. `foo && \<NL>bar`), there's no word to join — both
  * parsers agree, so we allow it.
  */
-const BACKSLASH_WHITESPACE_RE = /\\[ \t]|[^ \t\n\\]\\\n/
+const BACKSLASH_WHITESPACE_RE =
+  /\\[ \t]|(?:^|[^ \t\\])(?:\\\\)*\\\n|[ \t](?:\\\\)+\\\n/
 
 /**
  * Zsh dynamic named directory expansion: ~[name]. In zsh this invokes the
@@ -1676,8 +1677,21 @@ function walkString(
     // the Fix C check below catch it as too-complex instead of mis-filling
     // with `\n` and diverging from bash.
     if (cursor !== -1 && child.startIndex > cursor && child.type !== '"') {
-      result += '\n'.repeat(child.startIndex - cursor)
-      sawLiteralContent = true
+      const gap = Buffer.from(node.text, 'utf8')
+        .subarray(cursor - node.startIndex, child.startIndex - node.startIndex)
+        .toString('utf8')
+      if (gap.includes('`')) {
+        return {
+          kind: 'too-complex',
+          reason:
+            'Unanalyzable backtick body in double-quoted string gap — shell-evaluated value unknown',
+          nodeType: 'string',
+        }
+      }
+      if (gap.length > 0) {
+        result += gap
+        sawLiteralContent = true
+      }
     }
     cursor = child.endIndex
     switch (child.type) {
@@ -1693,7 +1707,9 @@ function walkString(
         // `"fix \"bug\""` → `fix "bug"`, but `"a\nb"` → `a\nb` (backslash
         // kept). tree-sitter preserves the raw escapes in .text; we resolve
         // them here so argv matches what bash actually passes.
-        result += child.text.replace(/\\([$`"\\])/g, '$1')
+        result += child.text
+          .replace(/\\\n/g, '')
+          .replace(/\\([$`"\\])/g, '$1')
         sawLiteralContent = true
         break
       case DOLLAR:
@@ -1741,6 +1757,7 @@ function walkString(
           // downstream path validation sees the real target.
           const trimmed = heredocBody.replace(/\n+$/, '')
           if (trimmed.includes('\n')) {
+            result += '\n' + CMDSUB_PLACEHOLDER
             sawLiteralContent = true
             break
           }
@@ -1804,7 +1821,15 @@ function walkString(
   // `"$V"` with V="" doesn't hit this — the simple_expansion child sets
   // sawLiteralContent via the `else` branch even when v is empty.
   if (!sawLiteralContent && !sawDynamicPlaceholder && node.text.length > 2) {
-    return tooComplex(node)
+    const inner = node.text.slice(1, -1)
+    if (inner.includes('`') || inner.includes('$(')) {
+      return {
+        kind: 'too-complex',
+        reason: 'Delimiters-only string node contains unparsed command substitution',
+        nodeType: 'string',
+      }
+    }
+    return inner
   }
   return result
 }
@@ -2497,6 +2522,10 @@ export type SemanticCheckResult =
  * content. Returns the first failure or {ok: true}.
  */
 export function checkSemantics(commands: SimpleCommand[]): SemanticCheckResult {
+  let deferredNewlineHash: Extract<
+    SemanticCheckResult,
+    { ok: false }
+  > | null = null
   for (const cmd of commands) {
     // Strip safe wrapper commands (nohup, time, timeout N, nice -n N) so
     // `nohup eval "..."` and `timeout 5 jq 'system(...)'` are checked
@@ -2752,7 +2781,11 @@ export function checkSemantics(commands: SimpleCommand[]): SemanticCheckResult {
         ) {
           for (const flag of dangerFlags) {
             if (flag.length === 2 && arg.includes(flag[1]!)) {
-              if (a[i + 1]?.includes('[')) {
+              if (
+                a[i + 1] !== undefined &&
+                (a[i + 1]!.includes('[') ||
+                  containsAnyPlaceholder(a[i + 1]!))
+              ) {
                 return {
                   ok: false,
                   reason: `'${name} ${flag}' (combined in '${arg}') operand contains array subscript — bash evaluates $(cmd) in subscripts`,
@@ -2768,7 +2801,7 @@ export function checkSemantics(commands: SimpleCommand[]): SemanticCheckResult {
             flag.length === 2 &&
             arg.startsWith(flag) &&
             arg.length > 2 &&
-            arg.includes('[')
+            (arg.includes('[') || containsAnyPlaceholder(arg))
           ) {
             return {
               ok: false,
@@ -2799,7 +2832,7 @@ export function checkSemantics(commands: SimpleCommand[]): SemanticCheckResult {
           ) {
             return {
               ok: false,
-              reason: `'${name} ... ${a[i]} ...' operand is non-numeric — bash arithmetically evaluates identifiers/subscripts (may run $(cmd))`,
+              reason: `'${name} ... ${a[i]} ...' operand is non-numeric — \`[[\` arithmetically evaluates identifiers/subscripts (may run $(cmd))`,
             }
           }
         }
@@ -2841,10 +2874,10 @@ export function checkSemantics(commands: SimpleCommand[]): SemanticCheckResult {
           }
           continue
         }
-        if (arg.includes('[')) {
+        if (arg.includes('[') || containsAnyPlaceholder(arg)) {
           return {
             ok: false,
-            reason: `'${name}' positional NAME '${arg}' contains array subscript — bash evaluates $(cmd) in subscripts`,
+            reason: `'${name}' positional NAME '${arg}' contains array subscript or runtime-determined value — bash evaluates $(cmd) in subscripts`,
           }
         }
       }
@@ -2859,43 +2892,6 @@ export function checkSemantics(commands: SimpleCommand[]): SemanticCheckResult {
       return {
         ok: false,
         reason: `Shell keyword '${name}' as command name — tree-sitter mis-parse`,
-      }
-    }
-
-    // Check argv (not .text) to catch both single-quote (`'\n#'`) and
-    // double-quote (`"\n#"`) variants. Env vars and redirects are also
-    // part of the .text span so the same downstream bug applies.
-    // Heredoc bodies are excluded from argv so markdown `##` headers
-    // don't trigger this.
-    // TODO: remove once downstream path validation operates on argv.
-    for (const arg of cmd.argv) {
-      if (arg.includes('\n') && NEWLINE_HASH_RE.test(arg)) {
-        return {
-          ok: false,
-          kind: 'newline-hash',
-          reason:
-            'Newline followed by # inside a quoted argument can hide arguments from path validation',
-        }
-      }
-    }
-    for (const ev of cmd.envVars) {
-      if (ev.value.includes('\n') && NEWLINE_HASH_RE.test(ev.value)) {
-        return {
-          ok: false,
-          kind: 'newline-hash',
-          reason:
-            'Newline followed by # inside an env var value can hide arguments from path validation',
-        }
-      }
-    }
-    for (const r of cmd.redirects) {
-      if (r.target.includes('\n') && NEWLINE_HASH_RE.test(r.target)) {
-        return {
-          ok: false,
-          kind: 'newline-hash',
-          reason:
-            'Newline followed by # inside a redirect target can hide arguments from path validation',
-        }
       }
     }
 
@@ -3021,6 +3017,39 @@ export function checkSemantics(commands: SimpleCommand[]): SemanticCheckResult {
         }
       }
     }
+
+    // Preserve this lower-priority diagnostic while continuing through all
+    // commands so a later code-execution or secret-reading hazard wins.
+    for (const arg of cmd.argv) {
+      if (arg.includes('\n') && NEWLINE_HASH_RE.test(arg)) {
+        deferredNewlineHash ??= {
+          ok: false,
+          kind: 'newline-hash',
+          reason:
+            'Newline followed by # inside a quoted argument can hide arguments from path validation',
+        }
+      }
+    }
+    for (const ev of cmd.envVars) {
+      if (ev.value.includes('\n') && NEWLINE_HASH_RE.test(ev.value)) {
+        deferredNewlineHash ??= {
+          ok: false,
+          kind: 'newline-hash',
+          reason:
+            'Newline followed by # inside an env var value can hide arguments from path validation',
+        }
+      }
+    }
+    for (const r of cmd.redirects) {
+      if (r.target.includes('\n') && NEWLINE_HASH_RE.test(r.target)) {
+        deferredNewlineHash ??= {
+          ok: false,
+          kind: 'newline-hash',
+          reason:
+            'Newline followed by # inside a redirect target can hide arguments from path validation',
+        }
+      }
+    }
   }
-  return { ok: true }
+  return deferredNewlineHash ?? { ok: true }
 }

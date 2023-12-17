@@ -129,6 +129,7 @@ export const KEYBINDING_ACTIONS = [
   'historySearch:accept',
   'historySearch:cancel',
   'historySearch:execute',
+  'historySearch:cycleScope',
   // Task/agent actions
   'task:background',
   // Theme picker actions

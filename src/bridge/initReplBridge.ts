@@ -17,7 +17,10 @@ import type { UUID } from 'crypto'
 import { getSessionId } from '../bootstrap/state.js'
 import type { SDKMessage } from '../entrypoints/agentSdkTypes.js'
 import type { SDKControlResponse } from '../entrypoints/sdk/controlTypes.js'
-import { generateFileSuggestions } from '../hooks/fileSuggestions.js'
+import {
+  generateFileSuggestions,
+  globalFileIndexCache,
+} from '../hooks/fileSuggestions.js'
 import {
   hydrateNotificationPreferences,
   isKairosPushNotificationsEnabled,
@@ -514,7 +517,9 @@ export async function initReplBridge(
   const onFileSuggestions = async (
     query: string,
   ): Promise<Array<{ path: string; score?: number }>> =>
-    (await generateFileSuggestions(query, true)).map(suggestion => ({
+    (
+      await generateFileSuggestions(globalFileIndexCache, query, true)
+    ).map(suggestion => ({
       path: suggestion.displayText,
     }))
 

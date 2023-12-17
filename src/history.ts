@@ -20,6 +20,9 @@ const MAX_HISTORY_ITEMS = 100
 const MAX_PASTED_CONTENT_LENGTH = 1024
 const MAX_EXPANDABLE_PASTED_CONTENT_LENGTH = 100_000
 
+export const HISTORY_SCOPES = ['session', 'project', 'everywhere'] as const
+export type HistoryScope = (typeof HISTORY_SCOPES)[number]
+
 /**
  * Stored paste content - either inline content or a hash reference to paste store.
  */
@@ -180,17 +183,21 @@ export type TimestampedHistoryEntry = {
 }
 
 /**
- * Current-project history for the ctrl+r picker: deduped by display text,
- * newest first, with timestamps. Paste contents are resolved lazily via
- * `resolve()` — the picker only reads display+timestamp for the list.
+ * Scoped history for the ctrl+r picker: deduped by display text, newest first,
+ * with timestamps. Paste contents are resolved lazily via `resolve()` — the
+ * picker only reads display+timestamp for the list.
  */
-export async function* getTimestampedHistory(): AsyncGenerator<TimestampedHistoryEntry> {
+export async function* getTimestampedHistory(
+  scope: HistoryScope = 'project',
+): AsyncGenerator<TimestampedHistoryEntry> {
   const currentProject = getProjectRoot()
+  const currentSession = getSessionId()
   const seen = new Set<string>()
 
   for await (const entry of makeLogEntryReader()) {
     if (!entry || typeof entry.project !== 'string') continue
-    if (entry.project !== currentProject) continue
+    if (scope === 'project' && entry.project !== currentProject) continue
+    if (scope === 'session' && entry.sessionId !== currentSession) continue
     if (seen.has(entry.display)) continue
     seen.add(entry.display)
 

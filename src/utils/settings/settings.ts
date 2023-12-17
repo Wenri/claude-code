@@ -38,6 +38,7 @@ import { getHkcuSettings, getMdmSettings } from './mdm/settings.js'
 import { getWslInheritsWindowsSettings } from './mdm/settings.js'
 import { WSL_WINDOWS_MANAGED_SETTINGS_PATH } from './mdm/constants.js'
 import {
+  getCachedPolicyTierSettings,
   getCachedParsedFile,
   getCachedSettingsForSource,
   getPluginSettingsBase,
@@ -45,6 +46,7 @@ import {
   getSessionSettingsCache,
   resetSettingsCache,
   setCachedParsedFile,
+  setCachedPolicyTierSettings,
   setCachedSettingsForSource,
   setSessionSettingsCache,
 } from './settingsCache.js'
@@ -429,35 +431,39 @@ export function getSettingsForSource(
   return result
 }
 
+export function getAllPolicyTierSettings(): SettingsJson[] {
+  const cached = getCachedPolicyTierSettings()
+  if (cached !== undefined) return cached
+
+  const tiers: SettingsJson[] = []
+  const remoteSettings = parseRemoteManagedSettingsFromCache()
+  if (remoteSettings) tiers.push(remoteSettings)
+
+  const mdmResult = getMdmSettings()
+  if (Object.keys(mdmResult.settings).length > 0) {
+    tiers.push(mdmResult.settings)
+  }
+
+  const { settings: fileSettings } = loadManagedFileSettings()
+  if (fileSettings) tiers.push(fileSettings)
+
+  const { settings: parentSettings } = parseParentManagedSettings()
+  if (parentSettings) tiers.push(parentSettings)
+
+  setCachedPolicyTierSettings(tiers)
+  return tiers
+}
+
 function getSettingsForSourceUncached(
   source: SettingSource,
 ): SettingsJson | null {
   // For policySettings: first source wins (remote > HKLM/plist > file > parent > HKCU)
   if (source === 'policySettings') {
-    const remoteSettings = parseRemoteManagedSettingsFromCache()
-    if (remoteSettings) return remoteSettings
-
-    const mdmResult = getMdmSettings()
-    if (Object.keys(mdmResult.settings).length > 0) {
-      return mdmResult.settings
-    }
-
-    const { settings: fileSettings } = loadManagedFileSettings()
-    if (fileSettings) {
-      return fileSettings
-    }
-
-    const { settings: parentSettings } = parseParentManagedSettings()
-    if (parentSettings) {
-      return parentSettings
-    }
-
     const hkcu = getHkcuSettings()
-    if (Object.keys(hkcu.settings).length > 0) {
-      return hkcu.settings
-    }
-
-    return null
+    return (
+      getAllPolicyTierSettings()[0] ??
+      (Object.keys(hkcu.settings).length > 0 ? hkcu.settings : null)
+    )
   }
 
   const settingsFilePath = getSettingsFilePathForSource(source)
@@ -1103,6 +1109,12 @@ export function getUseAutoModeDuringPlan(): boolean {
     )
   }
   return true
+}
+
+export function hasIsolatePeerMachines(): boolean {
+  return getEnabledSettingSources().some(
+    source => getSettingsForSource(source)?.isolatePeerMachines === true,
+  )
 }
 
 /**

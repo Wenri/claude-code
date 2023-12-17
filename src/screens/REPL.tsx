@@ -195,14 +195,14 @@ import type { ContentBlockParam, ImageBlockParam } from '@anthropic-ai/sdk/resou
 import type { ProcessUserInputContext } from '../utils/processUserInput/processUserInput.js';
 import type { PastedContent } from '../utils/config.js';
 import { copyPlanForFork, copyPlanForResume, getCachedPlanSlug, setPlanSlug } from '../utils/plans.js';
-import { clearSessionMetadata, resetSessionFilePointer, adoptResumedSessionFile, removeTranscriptMessage, restoreSessionMetadata, getCurrentSessionAiTitle, getCurrentSessionAgentName, getCurrentSessionTitle, subscribeSessionAgentNameChanged, subscribeSessionTitleChanged, isEphemeralToolProgress, isLoggableMessage, saveWorktreeState, getAgentTranscript, savePermissionMode } from '../utils/sessionStorage.js';
+import { clearSessionMetadata, resetSessionFilePointer, adoptResumedSessionFile, removeTranscriptMessage, restoreSessionMetadata, getCurrentSessionAiTitle, getCurrentSessionAgentName, getCurrentSessionTitle, subscribeSessionAgentNameChanged, subscribeSessionTitleChanged, isEphemeralToolProgress, isLoggableMessage, saveWorktreeState, getAgentTranscript, savePermissionMode, getCurrentSessionIsolationLatch, saveIsolationLatch } from '../utils/sessionStorage.js';
 import { deserializeMessages } from '../utils/conversationRecovery.js';
 import { extractReadFilesFromMessages, extractBashToolsFromMessages } from '../utils/queryHelpers.js';
 import { applyToolResultClears, resetMicrocompactState } from '../services/compact/microCompact.js';
 import { getResumeReturnInfo } from '../utils/resumeReturn.js';
 import { runPostCompactCleanup } from '../services/compact/postCompactCleanup.js';
 import { reconstructResultDedupState, resetResultDedupState } from '../services/tools/resultDedup.js';
-import { getIsolationClassFromMessages } from '../services/tools/toolIsolation.js';
+import { createToolIsolationLatch, getIsolationClassFromMessages } from '../services/tools/toolIsolation.js';
 import { ConnectionLifecycleTracker } from '../services/api/connectionState.js';
 import { provisionContentReplacementState, reconstructContentReplacementState, type ContentReplacementRecord } from '../utils/toolResultStorage.js';
 import { partialCompactConversation } from '../services/compact/compact.js';
@@ -265,11 +265,9 @@ import { usePostCompactSurvey } from 'src/components/FeedbackSurvey/usePostCompa
 import { FeedbackSurvey } from 'src/components/FeedbackSurvey/FeedbackSurvey.js';
 import { MemoryWriteSurvey } from 'src/components/FeedbackSurvey/MemoryWriteSurvey.js';
 import { useMemoryWriteSurvey } from 'src/components/FeedbackSurvey/useMemoryWriteSurvey.js';
-import { useInstallMessages } from 'src/hooks/notifs/useInstallMessages.js';
+import { useStartupNotifications } from 'src/hooks/notifs/useStartupNotifications.js';
 import { useRemoteControlIdleUpsell } from '../hooks/useRemoteControlIdleUpsell.js';
 import { useAwaySummary } from 'src/hooks/useAwaySummary.js';
-import { useChromeExtensionNotification } from 'src/hooks/useChromeExtensionNotification.js';
-import { useOfficialMarketplaceNotification } from 'src/hooks/useOfficialMarketplaceNotification.js';
 import { usePromptsFromClaudeInChrome } from 'src/hooks/usePromptsFromClaudeInChrome.js';
 import { getTipToShowOnSpinner, recordShownTip } from 'src/services/tips/tipScheduler.js';
 import type { Theme } from 'src/utils/theme.js';
@@ -302,10 +300,7 @@ import { UserTextMessage } from 'src/components/messages/UserTextMessage.js';
 import { AwsAuthStatusBox } from '../components/AwsAuthStatusBox.js';
 import { useRateLimitWarningNotification } from 'src/hooks/notifs/useRateLimitWarningNotification.js';
 import { useDeprecationWarningNotification } from 'src/hooks/notifs/useDeprecationWarningNotification.js';
-import { useNpmDeprecationNotification } from 'src/hooks/notifs/useNpmDeprecationNotification.js';
 import { useIDEStatusIndicator } from 'src/hooks/notifs/useIDEStatusIndicator.js';
-import { useModelMigrationNotifications } from 'src/hooks/notifs/useModelMigrationNotifications.js';
-import { useCanSwitchToExistingSubscription } from 'src/hooks/notifs/useCanSwitchToExistingSubscription.js';
 import { useTeammateLifecycleNotification } from 'src/hooks/notifs/useTeammateShutdownNotification.js';
 import { useFastModeNotification } from 'src/hooks/notifs/useFastModeNotification.js';
 import { useSkillTruncationNotification } from 'src/hooks/notifs/useSkillTruncationNotification.js';
@@ -826,8 +821,7 @@ export function REPL({
   const showRemoteCallout = useAppState(s => s.showRemoteCallout);
   const [showDesktopUpsellStartup, setShowDesktopUpsellStartup] = useState(() => shouldShowDesktopUpsellStartup());
   // notifications
-  useModelMigrationNotifications();
-  useCanSwitchToExistingSubscription();
+  useStartupNotifications();
   useIDEStatusIndicator({
     ideSelection,
     mcpClients,
@@ -844,13 +838,9 @@ export function REPL({
   useFastModeNotification();
   useAdvisorNotification();
   useDeprecationWarningNotification(mainLoopModel);
-  useNpmDeprecationNotification();
   useSkillTools();
   useSkillTruncationNotification();
   useAntOrgWarningNotification();
-  useInstallMessages();
-  useChromeExtensionNotification();
-  useOfficialMarketplaceNotification();
   useLspInitializationNotification();
   useTeammateLifecycleNotification();
   const {
@@ -2081,10 +2071,6 @@ export function REPL({
 
       // Restore read file state from the message history
       restoreReadFileState(messages, log.projectPath ?? getOriginalCwd());
-      if (entrypoint !== 'fork') {
-        isolationLatchRef.current = getIsolationClassFromMessages(messages, tools);
-      }
-
       // Clear any active loading state (no queryId since we're not in a query)
       resetLoadingState();
       setAbortController(null);
@@ -2138,6 +2124,8 @@ export function REPL({
         exitRestoredWorktree();
         restoreWorktreeForResume(log.worktreeSession);
         adoptResumedSessionFile();
+        isolationLatchRef.current.onLatch = undefined;
+        isolationLatchRef.current = createToolIsolationLatch(log.isolationLatch ?? getIsolationClassFromMessages(messages, tools), saveIsolationLatch);
         void restoreRemoteAgentTasks({
           abortController: new AbortController(),
           getAppState: () => store.getState(),
@@ -2150,6 +2138,9 @@ export function REPL({
         // and the process is still in the same worktree.
         const ws = getCurrentWorktreeSession();
         if (ws) saveWorktreeState(ws);
+        if (isolationLatchRef.current.current) {
+          saveIsolationLatch(isolationLatchRef.current.current);
+        }
       }
 
       // Persist the current mode so future resumes know what mode this session was in
@@ -2234,7 +2225,7 @@ export function REPL({
   const memorySelectorRef = useRef(createMemorySelector());
   const sessionEnvVarsRef = useRef(getSessionEnvVars());
   const tmuxSocketRef = useRef(DEFAULT_TMUX_SOCKET);
-  const isolationLatchRef = useRef<'web' | 'connectors' | null>(null);
+  const isolationLatchRef = useRef(createToolIsolationLatch(null, saveIsolationLatch));
 
   // Helper to restore read file state from messages (used for resume flows)
   // This allows Claude to edit files that were read in previous sessions
@@ -2252,7 +2243,7 @@ export function REPL({
   useEffect(() => {
     if (initialMessages && initialMessages.length > 0) {
       restoreReadFileState(initialMessages, getOriginalCwd());
-      isolationLatchRef.current = getIsolationClassFromMessages(initialMessages, tools);
+      isolationLatchRef.current = createToolIsolationLatch(getCurrentSessionIsolationLatch() ?? getIsolationClassFromMessages(initialMessages, tools), saveIsolationLatch);
       setResumeReturnPending(getResumeReturnInfo(initialMessages));
       void restoreRemoteAgentTasks({
         abortController: new AbortController(),
@@ -2775,7 +2766,7 @@ export function REPL({
       replHydration: {
         kind: 'resume'
       },
-      isolationLatch: isolationLatchRef,
+      isolationLatch: isolationLatchRef.current,
       messages,
       turnStartIndex: 0,
       setMessages,
@@ -3411,7 +3402,8 @@ export function REPL({
           getAppState: () => store.getState(),
           setAppState,
           setConversationId,
-          resultDedupState: resultDedupStateRef.current
+          resultDedupState: resultDedupStateRef.current,
+          isolationLatch: isolationLatchRef.current
         });
         haikuTitleAttemptedRef.current = false;
         setHaikuTitle(undefined);
@@ -5294,7 +5286,8 @@ export function REPL({
                 getAppState: () => store.getState(),
                 setAppState,
                 setConversationId,
-                resultDedupState: resultDedupStateRef.current
+                resultDedupState: resultDedupStateRef.current,
+                isolationLatch: isolationLatchRef.current
               });
               haikuTitleAttemptedRef.current = false;
               setHaikuTitle(undefined);
@@ -5352,7 +5345,7 @@ export function REPL({
 
                 {focusedInputDialog === 'desktop-upsell' && <DesktopUpsellStartup onDone={() => setShowDesktopUpsellStartup(false)} />}
 
-                {feature('ULTRAPLAN') ? focusedInputDialog === 'ultraplan-choice' && ultraplanPendingChoice && <UltraplanChoiceDialog plan={ultraplanPendingChoice.plan} sessionId={ultraplanPendingChoice.sessionId} taskId={ultraplanPendingChoice.taskId} setMessages={setMessages} readFileState={readFileState.current} discoveredSkillNames={discoveredSkillNamesRef.current} loadedNestedMemoryPaths={loadedNestedMemoryPathsRef.current} memorySelector={memorySelectorRef.current} getAppState={() => store.getState()} setConversationId={setConversationId} resultDedupState={resultDedupStateRef.current} isolationLatch={isolationLatchRef} /> : null}
+                {feature('ULTRAPLAN') ? focusedInputDialog === 'ultraplan-choice' && ultraplanPendingChoice && <UltraplanChoiceDialog plan={ultraplanPendingChoice.plan} sessionId={ultraplanPendingChoice.sessionId} taskId={ultraplanPendingChoice.taskId} setMessages={setMessages} readFileState={readFileState.current} discoveredSkillNames={discoveredSkillNamesRef.current} loadedNestedMemoryPaths={loadedNestedMemoryPathsRef.current} memorySelector={memorySelectorRef.current} getAppState={() => store.getState()} setConversationId={setConversationId} resultDedupState={resultDedupStateRef.current} isolationLatch={isolationLatchRef.current} /> : null}
 
                 {feature('ULTRAPLAN') ? focusedInputDialog === 'ultraplan-launch' && ultraplanLaunchPending && <UltraplanLaunchDialog sourcePromise={ultraplanLaunchPending.sourcePromise} onChoice={(choice, opts) => {
             const {

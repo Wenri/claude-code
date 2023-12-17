@@ -1,7 +1,10 @@
 import Fuse from 'fuse.js'
 import { basename } from 'path'
 import type { SuggestionItem } from 'src/components/PromptInput/PromptInputFooterSuggestions.js'
-import { generateFileSuggestions } from 'src/hooks/fileSuggestions.js'
+import {
+  type FileIndexCache,
+  generateFileSuggestions,
+} from 'src/hooks/fileSuggestions.js'
 import type { ServerResource, ServerResourceTemplate } from 'src/services/mcp/types.js'
 import type { MCPServerConnection } from 'src/services/mcp/types.js'
 import { completeResourceTemplate } from 'src/services/mcp/client.js'
@@ -415,6 +418,7 @@ function generateAgentSuggestions(
 }
 
 export async function generateUnifiedSuggestions(
+  fileIndexCache: FileIndexCache,
   query: string,
   mcpResources: Record<string, ServerResource[]>,
   mcpResourceTemplates: Record<string, ServerResourceTemplate[]>,
@@ -426,7 +430,7 @@ export async function generateUnifiedSuggestions(
   }
 
   const [fileSuggestions, agentSources] = await Promise.all([
-    generateFileSuggestions(query, showOnEmpty),
+    generateFileSuggestions(fileIndexCache, query, showOnEmpty),
     Promise.resolve(generateAgentSuggestions(agents, query, showOnEmpty)),
   ])
 

@@ -18,6 +18,7 @@ export function setSessionSettingsCache(value: SettingsWithErrors): void {
  * (settings write, --add-dir, plugin init, hooks refresh).
  */
 const perSourceCache = new Map<SettingSource, SettingsJson | null>()
+let policyTierSettingsCache: SettingsJson[] | undefined
 
 export function getCachedSettingsForSource(
   source: SettingSource,
@@ -31,6 +32,14 @@ export function setCachedSettingsForSource(
   value: SettingsJson | null,
 ): void {
   perSourceCache.set(source, value)
+}
+
+export function getCachedPolicyTierSettings(): SettingsJson[] | undefined {
+  return policyTierSettingsCache
+}
+
+export function setCachedPolicyTierSettings(value: SettingsJson[]): void {
+  policyTierSettingsCache = value
 }
 
 /**
@@ -55,6 +64,7 @@ export function setCachedParsedFile(path: string, value: ParsedSettings): void {
 export function resetSettingsCache(): void {
   sessionSettingsCache = null
   perSourceCache.clear()
+  policyTierSettingsCache = undefined
   parseFileCache.clear()
 }
 

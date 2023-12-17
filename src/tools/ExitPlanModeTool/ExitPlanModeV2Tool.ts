@@ -3,6 +3,7 @@ import { writeFile } from 'fs/promises'
 import { z } from 'zod/v4'
 import {
   getAllowedChannels,
+  getIsNonInteractiveSession,
   hasExitedPlanModeInSession,
   setHasExitedPlanMode,
   setNeedsAutoModeExitAttachment,
@@ -171,7 +172,8 @@ export const ExitPlanModeV2Tool: Tool<InputSchema, Output> = buildTool({
     // same gate on EnterPlanMode so plan mode isn't a trap.
     if (
       (feature('KAIROS') || feature('KAIROS_CHANNELS')) &&
-      getAllowedChannels().length > 0
+      getAllowedChannels().length > 0 &&
+      getIsNonInteractiveSession()
     ) {
       return false
     }

@@ -46,6 +46,7 @@ import {
 } from './claudemd.js'
 import { dirname, join, parse, relative, resolve } from 'path'
 import { getCwd } from 'src/utils/cwd.js'
+import { isLeanPromptEnabled } from './leanPrompt.js'
 import { getViewedTeammateTask } from '../state/selectors.js'
 import { logError } from './log.js'
 import { logAtMention } from './telemetry/events.js'
@@ -307,6 +308,7 @@ const MAX_MEMORY_LINES = 200
 // most-relevant memory still surfaces: the frontmatter + opening context
 // is usually what matters.
 const MAX_MEMORY_BYTES = 4096
+const MAX_EDITED_TEXT_FILE_SNIPPET_BUDGET = 16_384
 
 export const RELEVANT_MEMORIES_CONFIG = {
   // Per-turn cap (5 × 4KB = 20KB) bounds a single injection, but over a
@@ -633,7 +635,7 @@ export type Attachment =
     }
   | {
       type: 'auto_mode'
-      reminderType: 'full' | 'sparse'
+      reminderType: 'full' | 'sparse' | 'once'
     }
   | {
       type: 'auto_mode_exit'
@@ -1417,10 +1419,22 @@ async function getAutoModeAttachments(
     return []
   }
 
+  if (isLeanPromptEnabled(toolUseContext.options.mainLoopModel)) {
+    return []
+  }
+
+  const { turnCount, foundAutoModeAttachment } =
+    getAutoModeAttachmentTurnCount(messages ?? [])
+
+  if (
+    getFeatureValue_CACHED_MAY_BE_STALE('tengu_auto_notice_once', false)
+  ) {
+    if (foundAutoModeAttachment) return []
+    return [{ type: 'auto_mode', reminderType: 'once' }]
+  }
+
   // Check if we should attach based on turn count (except for first turn)
   if (messages && messages.length > 0) {
-    const { turnCount, foundAutoModeAttachment } =
-      getAutoModeAttachmentTurnCount(messages)
     // Only throttle if we've already sent an auto_mode attachment before
     // On first turn in auto mode, always attach
     if (
@@ -2246,7 +2260,17 @@ export async function getChangedFiles(
       }
     }),
   )
-  return results.filter(result => result != null) as Attachment[]
+  const attachments = results.filter(result => result != null) as Attachment[]
+  let snippetBytes = 0
+  for (const attachment of attachments) {
+    if (attachment.type !== 'edited_text_file') continue
+    if (snippetBytes >= MAX_EDITED_TEXT_FILE_SNIPPET_BUDGET) {
+      attachment.snippet = ''
+    } else {
+      snippetBytes += attachment.snippet.length
+    }
+  }
+  return attachments
 }
 
 /**

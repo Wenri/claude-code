@@ -19,7 +19,6 @@ import {
   isEffortLevel,
   toPersistableEffort,
 } from '../../utils/effort.js'
-import { updateSettingsForSource } from '../../utils/settings/settings.js'
 import { getRainbowColor } from '../../utils/thinking.js'
 import { logError } from '../../utils/log.js'
 
@@ -70,16 +69,6 @@ function setEffortValue(effortValue: EffortValue): EffortCommandResult {
     }
   }
   const remoteSuffix = applyRemoteEffort(persistable)
-  if (persistable !== undefined) {
-    const result = updateSettingsForSource('userSettings', {
-      effortLevel: persistable,
-    })
-    if (result.error) {
-      return {
-        message: `Failed to set effort level: ${result.error.message}`,
-      }
-    }
-  }
   logEvent('tengu_effort_command', {
     effort:
       effortValue as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -129,12 +118,6 @@ export function showCurrentEffort(
 
 function unsetEffortLevel(): EffortCommandResult {
   const remoteSuffix = applyRemoteEffort(undefined)
-  const result = updateSettingsForSource('userSettings', {
-    effortLevel: undefined,
-  })
-  if (result.error) {
-    return { message: `Failed to set effort level: ${result.error.message}` }
-  }
   logEvent('tengu_effort_command', {
     effort:
       'auto' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
