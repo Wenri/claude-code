@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "authenticated-template-quasi-segmentation-owner-proof",
+  "criterion": "baseline-target-byte-identical-suffix-plus-source-template-runtime-parity-v1",
+  "evidenceIds": [
+    "target119-consolidation-prompt-template-target-fragment",
+    "target119-consolidation-prompt-template-source-ast-test",
+    "target119-consolidation-prompt-template-semantic-test"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "source": {
+      "path": "src/services/autoDream/consolidationPrompt.ts",
+      "bytes": 7727,
+      "sha256": "778812645d419f684b0ea2cf5d07d6b27a7f7f5c2e2ca6b3e39fc8ad8835c8a5"
+    }
+  },
+  "baseline": {
+    "unit": {
+      "name": "i5$",
+      "nodeType": "FunctionDeclaration",
+      "start": 8676381,
+      "end": 8679364,
+      "bytes": 2983,
+      "sha256": "806d63a708ee45189670400086c03b536f7e5a66539cb3779be1e69b29723827"
+    },
+    "suffix": {
+      "start": 8679192,
+      "end": 8679323,
+      "bytes": 131,
+      "sha256": "9d152023015daf6c13bcd6919fe346964b25a1a4002c51c317c708d4facd4c5b"
+    }
+  },
+  "target": {
+    "unit": {
+      "targetIndex": 13902,
+      "name": "J3$",
+      "nodeType": "FunctionDeclaration",
+      "start": 8746352,
+      "end": 8749351,
+      "bytes": 2999,
+      "sha256": "2cc2e79b04f6e7213bf60ef6347ffcc3b558149305a79fa7a42ef741e77de31f",
+      "coarseHash": "20458514e9156a81687460773fd40663e7b2e4074949b11481972e44322c7ab3"
+    },
+    "suffix": {
+      "start": 8749179,
+      "end": 8749310,
+      "bytes": 131,
+      "sha256": "9d152023015daf6c13bcd6919fe346964b25a1a4002c51c317c708d4facd4c5b"
+    },
+    "disabledHelpers": [
+      {
+        "targetIndex": 13894,
+        "name": "DV1",
+        "role": "qE7-gate",
+        "start": 8746102,
+        "end": 8746126,
+        "bytes": 24,
+        "sha256": "3a73d46a5fafc2a4c27eb1bf26c9594335de704ad7fbfa272df59298942c702e"
+      },
+      {
+        "targetIndex": 13895,
+        "name": "qE7",
+        "role": "pre-phase-three-disabled-append",
+        "start": 8746126,
+        "end": 8746187,
+        "bytes": 61,
+        "sha256": "38a438889df5ff1a239d5ee58d282f3e25a5cc0ce611952b1933db95c230fbdf"
+      },
+      {
+        "targetIndex": 13898,
+        "name": "XV1",
+        "role": "KE7-gate",
+        "start": 8746224,
+        "end": 8746248,
+        "bytes": 24,
+        "sha256": "e972f50484b5793d0c62d5753d24b5d605cfc1d4f57819542c6fe49fe5f617c9"
+      },
+      {
+        "targetIndex": 13899,
+        "name": "KE7",
+        "role": "pre-summary-disabled-append",
+        "start": 8746248,
+        "end": 8746309,
+        "bytes": 61,
+        "sha256": "fcb033a4e0673522657c4fda33eae7dc8c88551539a3039df69aec9fe94eac02"
+      }
+    ]
+  },
+  "source": {
+    "declaration": {
+      "name": "buildConsolidationPrompt",
+      "start": 4458,
+      "end": 7662,
+      "bytes": 3238,
+      "sha256": "d61615bd8c7bb65a6902a367daa5abb66517ca4bbea0adf55aca1a6209c8b213"
+    },
+    "precedingExpression": "RECONCILE_MEMORIES_AGAINST_CLAUDE_MD",
+    "suffix": {
+      "start": 7473,
+      "end": 7604,
+      "bytes": 131,
+      "sha256": "9d152023015daf6c13bcd6919fe346964b25a1a4002c51c317c708d4facd4c5b"
+    }
+  },
+  "row": {
+    "targetIndex": 13902,
+    "ownerPaths": [
+      "src/services/autoDream/consolidationPrompt.ts"
+    ],
+    "declarations": [
+      "buildConsolidationPrompt",
+      "RECONCILE_MEMORIES_AGAINST_CLAUDE_MD"
+    ],
+    "residues": [
+      {
+        "kind": "string",
+        "value": "\n---\n\nReturn a brief summary of what you consolidated, updated, or pruned. If nothing changed (memories are already tight), say so.",
+        "start": 8749179,
+        "end": 8749310,
+        "baselineCount": 0,
+        "targetOrdinal": 1
+      }
+    ]
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "targetIndicesSha256": "5a7c7448d110c9509571b80f139f6fc86b2778572a06fff3721836053b5cf939",
+    "residueIdentitiesSha256": "cdfd10610515da78200acdd928d0f6eb8d212edc700171d4f5544bb9ddbba5f0"
+  }
+}

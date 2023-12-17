@@ -1,0 +1,36 @@
+diff --git a/src/utils/model/agent.ts b/src/utils/model/agent.ts
+index 7bccfeba9da0d576a633f828e7d757e96ecb6512..4e6724d00fcacf1f6bdf5f532658c5892557f263 100644
+--- a/src/utils/model/agent.ts
++++ b/src/utils/model/agent.ts
+@@ -1,2 +1,3 @@
+ import type { PermissionMode } from '../permissions/PermissionMode.js'
++import { has1mContext } from '../context.js'
+ import { capitalize } from '../stringUtils.js'
+@@ -7,2 +8,3 @@ import {
+   getRuntimeMainLoopModel,
++  isOpus1mMergeEnabled,
+   parseUserSpecifiedModel,
+@@ -28,2 +30,13 @@ export function getDefaultSubagentModel(): string {
+ 
++function applyMergedOpus46Context(model: string): string {
++  if (
++    isOpus1mMergeEnabled() &&
++    !has1mContext(model) &&
++    getCanonicalName(model).includes('opus-4-6')
++  ) {
++    return `${model}[1m]`
++  }
++  return model
++}
++
+ /**
+@@ -73,3 +86,3 @@ export function getAgentModel(
+     }
+-    const model = parseUserSpecifiedModel(toolSpecifiedModel)
++    const model = applyMergedOpus46Context(parseUserSpecifiedModel(toolSpecifiedModel))
+     return applyParentRegionPrefix(model, toolSpecifiedModel)
+@@ -92,3 +105,3 @@ export function getAgentModel(
+   }
+-  const model = parseUserSpecifiedModel(agentModelWithExp)
++  const model = applyMergedOpus46Context(parseUserSpecifiedModel(agentModelWithExp))
+   return applyParentRegionPrefix(model, agentModelWithExp)

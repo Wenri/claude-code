@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "release": "2.1.121",
+  "scope": "owned Vertex, remote-persistence, settings, usage, and embedded-shell cluster",
+  "authenticated_baseline": {
+    "artifact": "2.1.120-linux-x64/cli.inner.js",
+    "bytes": 13784743,
+    "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+  },
+  "authenticated_target": {
+    "artifact": "2.1.121-linux-x64/cli.inner.js",
+    "bytes": 13908188,
+    "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+  },
+  "tag": {
+    "name": "v2.1.121",
+    "commit": "158620419486e3d2d696351d5a71fbd6b8f58653",
+    "direct_parent": "v2.1.120"
+  },
+  "owned_bullets": [14, 31, 32, 33, 34, 35, 38, 39],
+  "rows": [
+    {
+      "bullet": 14,
+      "test_id": "official-2.1.121-b14",
+      "changelog": "Vertex AI: support X.509 certificate-based Workload Identity Federation (mTLS ADC)",
+      "classification": "active-source-external-boundary",
+      "normalized_witness": "target normalized statements 6631-6633 export buildVertexGoogleAuth/vertexAuthFetch, install the GoogleAuth transporter fetch implementation, read cert/key/ca from the gaxios agent, and select Bun TLS or undici Agent/ProxyAgent",
+      "boundary_note": "google-auth-library discovers and supplies the external-account certificate; recovered source transports that certificate on every ADC request.",
+      "artifact_fragments": [
+        { "fragment": "vertexAuthFetch", "baseline_count": 0, "target_count": 1 },
+        { "fragment": "clientOptions:{transporterOptions:{fetchImplementation:", "baseline_count": 0, "target_count": 1 },
+        { "fragment": "requestTls:K", "baseline_count": 0, "target_count": 1 }
+      ],
+      "source": [
+        { "path": "src/services/api/vertexAuth.ts", "includes": ["buildVertexGoogleAuth", "fetchImplementation: vertexAuthFetch", "init?.agent?.options", "new ProxyAgent({ uri: proxyUrl, requestTls: tls })", "new Agent({ connect: tls })"] },
+        { "path": "src/services/api/client.ts", "includes": ["await buildVertexGoogleAuth("] },
+        { "path": "src/utils/model/vertexUpgrade.ts", "includes": ["await buildVertexGoogleAuth("] }
+      ]
+    },
+    {
+      "bullet": 31,
+      "test_id": "official-2.1.121-b31",
+      "changelog": "Fixed \"Always allow\" rules for built-in tools in remote sessions not surviving worker restarts",
+      "classification": "active-source",
+      "normalized_witness": "target normalized statements 28645-28646 filter mcp__ rules while restoring/reporting session_allow_rules; 28741/28748 coalesce and round-trip internal_metadata; 40561 applies internal state after external state on resume",
+      "artifact_fragments": [
+        { "fragment": "session_allow_rules", "baseline_count": 0, "target_count": 2 },
+        { "fragment": "internal_metadata", "baseline_count": 1, "target_count": 3 }
+      ],
+      "source": [
+        { "path": "src/state/onChangeAppState.ts", "includes": ["internalMetadataToAppState", "!rule.startsWith('mcp__')", "notifySessionInternalMetadataChanged({", "session_allow_rules:"] },
+        { "path": "src/cli/transports/ccrClient.ts", "includes": ["internal_metadata?: SessionInternalMetadata", "reportInternalMetadata", "internal: data?.worker?.internal_metadata ?? null"] },
+        { "path": "src/cli/remoteIO.ts", "includes": ["setSessionInternalMetadataChangedListener", "reportInternalMetadata(metadata)"] },
+        { "path": "src/cli/print.ts", "includes": ["internalMetadataToAppState(metadata.internal ?? {})"] },
+        { "path": "src/utils/sessionState.ts", "includes": ["RestoredWorkerState", "notifySessionInternalMetadataChanged"] }
+      ]
+    },
+    {
+      "bullet": 32,
+      "test_id": "official-2.1.121-b32",
+      "changelog": "Fixed NO_PROXY not being respected for all HTTP clients when set via managed-settings.json under the native build",
+      "classification": "active-source",
+      "normalized_witness": "target normalized statements 6637-6639 resolve the active provider before constructing fetch options and pass its concrete endpoint URL to getProxyFetchOptions; statement 651 supplies Vertex regional endpoints",
+      "artifact_fragments": [
+        { "fragment": "forAnthropicAPI:!0,url:", "baseline_count": 0, "target_count": 2 },
+        { "fragment": "https://aws-external-anthropic.", "baseline_count": 1, "target_count": 2 },
+        { "fragment": "https://bedrock-mantle.", "baseline_count": 1, "target_count": 2 }
+      ],
+      "source": [
+        { "path": "src/services/api/client.ts", "includes": ["url: getApiEndpointForProxy(apiProvider, model)", "function getApiEndpointForProxy(", "getVertexApiBaseUrl(getVertexRegionForModel(model))"] },
+        { "path": "src/utils/model/vertexUpgrade.ts", "includes": ["getProxyFetchOptions({", "getVertexApiBaseUrl(region)"] },
+        { "path": "src/utils/proxy.ts", "includes": ["opts?.url && shouldBypassProxy(opts.url)"] }
+      ]
+    },
+    {
+      "bullet": 33,
+      "test_id": "official-2.1.121-b33",
+      "changelog": "Fixed managed settings approval prompt exiting the session even when accepted — now applies settings and continues",
+      "classification": "active-source",
+      "normalized_witness": "target normalized statement 14008 delegates to a registered in-tree prompt handler before the standalone Ink fallback; 29153 owns pending prompt state; the REPL selects and renders managed-settings-security ahead of cost dialogs",
+      "artifact_fragments": [
+        { "fragment": "managed-settings-security", "baseline_count": 0, "target_count": 2 }
+      ],
+      "source": [
+        { "path": "src/services/remoteManagedSettings/securityCheck.tsx", "includes": ["setManagedSettingsSecurityPromptHandler", "if (securityPromptHandler)", "const result = await securityPromptHandler(newSettings)"] },
+        { "path": "src/hooks/useManagedSettingsSecurityPrompt.ts", "includes": ["useManagedSettingsSecurityPrompt", "setManagedSettingsSecurityPromptHandler(", "setPending(null)"] },
+        { "path": "src/screens/REPL.tsx", "includes": ["'managed-settings-security'", "managedSettingsSecurityPrompt.resolve('approved')", "managedSettingsSecurityPrompt.resolve('rejected')"] }
+      ]
+    },
+    {
+      "bullet": 34,
+      "test_id": "official-2.1.121-b34",
+      "changelog": "Fixed /usage returning \"rate limited\" after a stale OAuth token — now refreshes automatically",
+      "classification": "active-source",
+      "normalized_witness": "target normalized statement 15772 wraps the usage GET in withOAuth401Retry, rebuilds auth headers inside the retry closure, and records successful 401-refresh-retry attempts",
+      "artifact_fragments": [
+        { "fragment": "fetchUtilization: GET ", "baseline_count": 0, "target_count": 1 },
+        { "fragment": "401\\u2192refresh\\u2192retry succeeded", "baseline_count": 0, "target_count": 1 }
+      ],
+      "source": [
+        { "path": "src/services/api/usage.ts", "includes": ["withOAuth401Retry(() =>", "const authResult = getAuthHeaders()", "401→refresh→retry succeeded"] }
+      ]
+    },
+    {
+      "bullet": 35,
+      "test_id": "official-2.1.121-b35",
+      "changelog": "Fixed invalid legacy enum values in settings.json invalidating the entire settings file",
+      "classification": "active-source",
+      "normalized_witness": "target normalized settings schema statement 2890 adds optional().catch(void 0) to the legacy preferredNotifChannel and teammateMode enums while retaining the rest of the settings object",
+      "artifact_fragments": [
+        { "fragment": ".optional().catch(void 0).describe(\"Preferred OS notification channel\")", "baseline_count": 0, "target_count": 1 },
+        { "fragment": ".optional().catch(void 0).describe(\"How spawned teammates execute", "baseline_count": 0, "target_count": 1 }
+      ],
+      "source": [
+        { "path": "src/utils/settings/types.ts", "includes": ["preferredNotifChannel: z", ".catch(undefined)", "teammateMode: z"] }
+      ]
+    },
+    {
+      "bullet": 38,
+      "test_id": "official-2.1.121-b38",
+      "changelog": "Fixed embedded grep/find/rg shell wrappers failing when the running binary is deleted mid-session — now falls back to installed tools",
+      "classification": "active-source",
+      "normalized_witness": "target normalized statement 16576 resolves CLAUDE_CODE_EXECPATH, then the stable config-home claude executable, then the installed system command; baseline statement 16465 used command -v claude as its intermediate fallback",
+      "artifact_fragments": [
+        { "fragment": "command -v claude 2>/dev/null", "baseline_count": 1, "target_count": 0 },
+        { "fragment": "[[ -x $_cc_bin ]] || _cc_bin=", "baseline_count": 1, "target_count": 1 }
+      ],
+      "source": [
+        { "path": "src/utils/bash/ShellSnapshot.ts", "includes": ["CLAUDE_CODE_EXECPATH_ENV_VAR", "isWindows ? 'claude.exe' : 'claude'", "if [[ ! -x $_cc_bin ]]; then command ${funcName}", "ARGV0=${argv0} \"$_cc_bin\""] },
+        { "path": "src/utils/embeddedTools.ts", "excludes": ["embeddedSearchToolsBinaryPath"] }
+      ]
+    },
+    {
+      "bullet": 39,
+      "test_id": "official-2.1.121-b39",
+      "changelog": "Reduced peak file descriptor usage during find in the Bash tool on large directory trees",
+      "classification": "retained-native-boundary",
+      "normalized_witness": "target statement 16579 and baseline statement 16468 both invoke embedded bfs with [-S, dfs, -regextype, findutils-default] exactly once",
+      "boundary_note": "The JS wrapper already selected bfs depth-first traversal in 2.1.120 and is byte-semantically retained in 2.1.121. The additional peak-FD reduction is in the embedded native bfs/runtime payload, outside cli.inner.js and the TypeScript source overlay.",
+      "artifact_fragments": [
+        { "fragment": "[\"-S\",\"dfs\",\"-regextype\",\"findutils-default\"]", "baseline_count": 1, "target_count": 1 }
+      ],
+      "source": [
+        { "path": "src/utils/bash/ShellSnapshot.ts", "includes": ["'-S',", "'dfs',", "'findutils-default',"] }
+      ]
+    }
+  ]
+}

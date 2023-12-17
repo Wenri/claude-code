@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.112-to-2.1.113",
+  "artifact": {
+    "targetInnerSha256": "4a3c3636c8cb19ef42d6319e5c6ef9b029f5de148b84f22315d159052d6c5eba",
+    "targetWrapperSha256": "dda4d89e787fa455706e4f41beffc8e58d42b9094c4d155fcbf62e3f19036681",
+    "targetWrapperPrefixLength": 87,
+    "targetWrapperSuffixLength": 3,
+    "structuralGzipSha256": "383448923995bb86060ce91beac2bc5adac35817a0cdff35b533135c7d24345f"
+  },
+  "summary": {
+    "units": 9,
+    "residues": 14
+  },
+  "rows": [
+    {
+      "targetIndex": 13654,
+      "priorOwnerPaths": ["utils/swarm/teamHelpers.ts"],
+      "correctedOwner": "src/utils/swarm/teamHelpers.ts",
+      "sourceDeclaration": "TEAM_FILE_LOCK_OPTIONS",
+      "category": "direct-source-representation",
+      "target": {"classification":"unresolved","start":8678407,"end":8679131,"nodeType":"VariableDeclaration","sourceHash":"fa4537030dbd2ed2889765e94a45335bb7ad32729cb960494cca89311066343d"},
+      "residues": [
+        {"kind":"property","value":"realpath","start":8679067,"end":8679075,"baselineOccurrenceCount":17,"targetOccurrenceNumber":35}
+      ]
+    },
+    {
+      "targetIndex": 13698,
+      "priorOwnerPaths": ["utils/attachments.ts"],
+      "correctedOwner": "src/utils/attachments.ts",
+      "sourceDeclaration": "extractAtMentionedFiles",
+      "category": "recovered-source-gap",
+      "target": {"classification":"unresolved","start":8696342,"end":8696666,"nodeType":"FunctionDeclaration","sourceHash":"2bcc7bdfa07df787dd199dc75ff7312d2b80b8fc9bff6de21dd49c2ff8b9adc8"},
+      "residues": [
+        {"kind":"regexp","value":{"flags":"g","pattern":"(^|[\\s\\u3002\\u3001\\uFF1F\\uFF01])@\"([^\"]+)\""},"start":8696364,"end":8696409,"baselineOccurrenceCount":0,"targetOccurrenceNumber":1},
+        {"kind":"regexp","value":{"flags":"g","pattern":"(^|[\\s\\u3002\\u3001\\uFF1F\\uFF01])@([^\\s]+)\\b"},"start":8696412,"end":8696458,"baselineOccurrenceCount":0,"targetOccurrenceNumber":1}
+      ]
+    },
+    {
+      "targetIndex": 13699,
+      "priorOwnerPaths": ["utils/attachments.ts"],
+      "correctedOwner": "src/utils/attachments.ts",
+      "sourceDeclaration": "extractMcpResourceMentions",
+      "category": "recovered-source-gap",
+      "target": {"classification":"unresolved","start":8696666,"end":8696808,"nodeType":"FunctionDeclaration","sourceHash":"9065b95942d4ae062e3458548d91386ef9277837cb0bf9da43ec024134cfba99"},
+      "residues": [
+        {"kind":"regexp","value":{"flags":"g","pattern":"(^|[\\s\\u3002\\u3001\\uFF1F\\uFF01])@([^\\s]+:[^\\s]+)\\b"},"start":8696688,"end":8696741,"baselineOccurrenceCount":0,"targetOccurrenceNumber":1}
+      ]
+    },
+    {
+      "targetIndex": 13700,
+      "priorOwnerPaths": ["utils/attachments.ts"],
+      "correctedOwner": "src/utils/attachments.ts",
+      "sourceDeclaration": "extractAgentMentions",
+      "category": "recovered-source-gap",
+      "target": {"classification":"unresolved","start":8696808,"end":8697084,"nodeType":"FunctionDeclaration","sourceHash":"79ac86191f7ad72abcfc7b443d5d0bce1ad4f95b129642656f54ac909b126b62"},
+      "residues": [
+        {"kind":"regexp","value":{"flags":"g","pattern":"(^|[\\s\\u3002\\u3001\\uFF1F\\uFF01])@\"([\\w:.@-]+) \\(agent\\)\""},"start":8696835,"end":8696894,"baselineOccurrenceCount":0,"targetOccurrenceNumber":1},
+        {"kind":"regexp","value":{"flags":"g","pattern":"(^|[\\s\\u3002\\u3001\\uFF1F\\uFF01])@(agent-[\\w:.@-]+)"},"start":8696951,"end":8697004,"baselineOccurrenceCount":0,"targetOccurrenceNumber":1}
+      ]
+    },
+    {
+      "targetIndex": 13868,
+      "priorOwnerPaths": ["utils/powershell/parser.ts"],
+      "correctedOwner": "src/tools/PowerShellTool/gitSafety.ts",
+      "sourceDeclaration": "normalizeGitPathArg",
+      "category": "exact-owner-correction",
+      "target": {"classification":"unresolved","start":8778971,"end":8779511,"nodeType":"FunctionDeclaration","sourceHash":"2f4c9315c7b2c8091ba22bf2314877176f894e88d59613b44a5e58b6a9730f33"},
+      "residues": [
+        {"kind":"property","value":"normalize","start":8779443,"end":8779452,"baselineOccurrenceCount":74,"targetOccurrenceNumber":78},
+        {"kind":"property","value":"posix","start":8779437,"end":8779442,"baselineOccurrenceCount":7,"targetOccurrenceNumber":21}
+      ]
+    },
+    {
+      "targetIndex": 13995,
+      "priorOwnerPaths": ["tools/PowerShellTool/PowerShellTool.tsx"],
+      "correctedOwner": "src/utils/promptShellExecution.ts",
+      "sourceDeclaration": "executeShellCommandsInPrompt",
+      "category": "exact-owner-correction",
+      "target": {"classification":"unresolved","start":8869600,"end":8870298,"nodeType":"FunctionDeclaration","sourceHash":"c65b9b1a681027d1bf6c6f01727085b6865534347f868b1aa006ea622a62be61"},
+      "residues": [
+        {"kind":"property","value":"randomUUID","start":8870143,"end":8870153,"baselineOccurrenceCount":20,"targetOccurrenceNumber":54}
+      ]
+    },
+    {
+      "targetIndex": 14029,
+      "priorOwnerPaths": ["skills/loadSkillsDir.ts"],
+      "correctedOwner": "src/utils/memoryFileDetection.ts",
+      "sourceDeclaration": "toPosix",
+      "category": "exact-owner-correction",
+      "target": {"classification":"unresolved","start":8880847,"end":8880913,"nodeType":"FunctionDeclaration","sourceHash":"4ce67d604f19e63fdbf9506898264027dbe4050a6f46e169b77762b716f067e2"},
+      "residues": [
+        {"kind":"property","value":"win32","start":8880882,"end":8880887,"baselineOccurrenceCount":8,"targetOccurrenceNumber":14},
+        {"kind":"property","value":"posix","start":8880902,"end":8880907,"baselineOccurrenceCount":7,"targetOccurrenceNumber":22}
+      ]
+    },
+    {
+      "targetIndex": 14032,
+      "priorOwnerPaths": ["skills/loadSkillsDir.ts"],
+      "correctedOwner": "src/utils/memoryFileDetection.ts",
+      "sourceDeclaration": "detectSessionPatternType",
+      "category": "exact-owner-correction",
+      "target": {"classification":"unresolved","start":8881210,"end":8881478,"nodeType":"FunctionDeclaration","sourceHash":"bbaf8597dda7b223d13d65b57627eed132b3ba587d3fdee4817e2c9ceaeb3a9a"},
+      "residues": [
+        {"kind":"property","value":"win32","start":8881244,"end":8881249,"baselineOccurrenceCount":8,"targetOccurrenceNumber":15},
+        {"kind":"property","value":"posix","start":8881264,"end":8881269,"baselineOccurrenceCount":7,"targetOccurrenceNumber":23}
+      ]
+    },
+    {
+      "targetIndex": 14037,
+      "priorOwnerPaths": ["skills/loadSkillsDir.ts"],
+      "correctedOwner": "src/utils/memoryFileDetection.ts",
+      "sourceDeclaration": "isMemoryDirectory",
+      "category": "exact-owner-correction",
+      "target": {"classification":"unresolved","start":8881785,"end":8882285,"nodeType":"FunctionDeclaration","sourceHash":"8afaf19a108cc3183a7f685282fafee10e5cee1143ccf211bb81373416d6099c"},
+      "residues": [
+        {"kind":"property","value":"normalize","start":8881811,"end":8881820,"baselineOccurrenceCount":74,"targetOccurrenceNumber":79}
+      ]
+    }
+  ]
+}

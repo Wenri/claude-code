@@ -1,0 +1,1145 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "complete-unit-direct-declaration-owner-proof-ready",
+  "criterion": "target119-unique-whole-unit-owner-and-named-declaration-with-import-lowering-v1",
+  "evidenceIds": [
+    "target119-direct-declaration-owner-target-fragment",
+    "target119-direct-declaration-owner-source-ast-test"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "sourceFiles": [
+      {
+        "path": "src/cli/bg.ts",
+        "bytes": 40736,
+        "sha256": "f45bab0e53ce6e4b38785e3ced40c50a6838750d5439587314593f713f53330e"
+      },
+      {
+        "path": "src/hooks/useAwaySummary.ts",
+        "bytes": 9773,
+        "sha256": "453414c09758a5dbcda0158b4411086c9126e1657a950798d1a5df8ebbc13a46"
+      },
+      {
+        "path": "src/hooks/useJobStateNameSync.ts",
+        "bytes": 2053,
+        "sha256": "8a2f64b8100aa0b19fafcdb6fb2bb54dde9950dbf31908ff668534f5ca87a490"
+      }
+    ]
+  },
+  "selection": {
+    "sourceUniverseFiles": 2023,
+    "minimumRareIdentities": 1,
+    "requireUniqueWholeUnitOwner": true,
+    "requireUniqueTopLevelDeclaration": true,
+    "allowedRepresentations": [
+      "named-import-call-lowering",
+      "source-declaration-ast"
+    ]
+  },
+  "summary": {
+    "units": 3,
+    "residues": 51,
+    "sourceFiles": 3,
+    "representationKinds": {
+      "named-import-call-lowering": 3,
+      "source-declaration-ast": 48
+    },
+    "correctedScannerUnits": 3,
+    "correctedScannerResidues": 3,
+    "targetIndicesSha256": "104ac9286f768585d97b4de28ed04f13bc9f959e16944fbd832bc7168292c569",
+    "residueIdentitiesSha256": "e377afdd4d2ed9a8b4aa693f3004d896146f0bd534aa3725277ed88af23f3ebc",
+    "correctedScannerResidueIdentitiesSha256": "99ab50721d622d51bb728385e7315861a400941fea61d48074659326f9435ddf"
+  },
+  "ownerOverrides": [
+    {
+      "key": "2.1.118-to-2.1.119:20776",
+      "targetIndex": 20776,
+      "paths": [
+        "src/cli/bg.ts"
+      ],
+      "evidenceIds": [
+        "target119-direct-declaration-owner-target-fragment",
+        "target119-direct-declaration-owner-source-ast-test"
+      ],
+      "declarationName": "openAgentsFromForeground",
+      "behavior": "The complete authenticated Target119 unit is the authored openAgentsFromForeground declaration: its background-session persistence guard, worktree seed, left-arrow spawn, in-process fleet mount, and relaunch fallback uniquely bind src/cli/bg.ts; the generated rm property is the named fs/promises import call lowering."
+    },
+    {
+      "key": "2.1.118-to-2.1.119:20874",
+      "targetIndex": 20874,
+      "paths": [
+        "src/hooks/useAwaySummary.ts"
+      ],
+      "evidenceIds": [
+        "target119-direct-declaration-owner-target-fragment",
+        "target119-direct-declaration-owner-source-ast-test"
+      ],
+      "declarationName": "useAwaySummary",
+      "behavior": "The complete authenticated Target119 unit is the authored useAwaySummary declaration: its cache-age gate, recap generation, terminal-focus timers, return telemetry, and background recap trigger uniquely bind src/hooks/useAwaySummary.ts; the generated join property is the named path import call lowering."
+    },
+    {
+      "key": "2.1.118-to-2.1.119:20880",
+      "targetIndex": 20880,
+      "paths": [
+        "src/hooks/useJobStateNameSync.ts"
+      ],
+      "evidenceIds": [
+        "target119-direct-declaration-owner-target-fragment",
+        "target119-direct-declaration-owner-source-ast-test"
+      ],
+      "declarationName": "useJobStateNameSync",
+      "behavior": "The complete authenticated Target119 unit is the authored useJobStateNameSync declaration: its job-state watcher, state.json filter, synchronization, unref, close, and handler lifecycle uniquely bind src/hooks/useJobStateNameSync.ts; the generated watch property is the named fs import call lowering."
+    }
+  ],
+  "rows": [
+    {
+      "targetIndex": 20776,
+      "sourceOwner": "src/cli/bg.ts",
+      "priorOwnerPaths": [
+        "src/utils/sessionRestore.ts"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 12509684,
+        "end": 12510592,
+        "bytes": 908,
+        "sourceHash": "db71e556a96a02504c15b4ce0bd39990e7a228bb6b833e2be175c00bef374804",
+        "tokenCount": 319
+      },
+      "source": {
+        "path": "src/cli/bg.ts",
+        "bytes": 40736,
+        "sha256": "f45bab0e53ce6e4b38785e3ced40c50a6838750d5439587314593f713f53330e"
+      },
+      "declaration": {
+        "statementIndex": 62,
+        "kind": "FunctionDeclaration",
+        "name": "openAgentsFromForeground",
+        "start": 21813,
+        "end": 23887,
+        "bytes": 2074,
+        "sourceHash": "11e92cc617ba990cb38dba5e942c59695b5ee8e9b0c21687a4fe7d305235055a",
+        "targetIdentityMatches": 33,
+        "runnerUpStatementIndex": 57,
+        "runnerUpTargetIdentityMatches": 22
+      },
+      "binding": {
+        "targetIdentities": 37,
+        "targetIdentitiesSha256": "782c937697ff7d63db40470220edb72d170ef42cffa0db72e861d480d8ea5e1b",
+        "matches": 37,
+        "rare": 10,
+        "weighted": 11.309627511032,
+        "margin": 7.867456640137,
+        "runnerUp": "jobs/classifier.ts",
+        "runnerUpWeighted": 3.442170870894
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "[PERF:bg-leftarrow-start]",
+          "start": 12509710,
+          "end": 12509737,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "StringLiteral"
+          ],
+          "targetKinds": [
+            "Literal"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "string",
+          "value": "Cannot open agents — session persistence is disabled, so this conversation cannot be backgrounded.",
+          "start": 12509780,
+          "end": 12509885,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "StringLiteral"
+          ],
+          "targetKinds": [
+            "Literal"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "intent",
+          "start": 12509896,
+          "end": 12509902,
+          "baselineCount": 3,
+          "targetOrdinal": 38,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAssignment"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "enteredExisting",
+          "start": 12509957,
+          "end": 12509972,
+          "baselineCount": 8,
+          "targetOrdinal": 11,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAccessExpression"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "short",
+          "start": 12509984,
+          "end": 12509989,
+          "baselineCount": 32,
+          "targetOrdinal": 93,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "ShorthandPropertyAssignment"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "jobDir",
+          "start": 12509992,
+          "end": 12509998,
+          "baselineCount": 0,
+          "targetOrdinal": 4,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "ShorthandPropertyAssignment"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "cwd",
+          "start": 12510020,
+          "end": 12510023,
+          "baselineCount": 321,
+          "targetOrdinal": 370,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAssignment"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "worktree",
+          "start": 12510046,
+          "end": 12510054,
+          "baselineCount": 8,
+          "targetOrdinal": 24,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAssignment"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "branch",
+          "start": 12510078,
+          "end": 12510084,
+          "baselineCount": 33,
+          "targetOrdinal": 57,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAssignment"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "worktreeBranch",
+          "start": 12510087,
+          "end": 12510101,
+          "baselineCount": 41,
+          "targetOrdinal": 55,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAccessExpression"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "hookBased",
+          "start": 12510102,
+          "end": 12510111,
+          "baselineCount": 10,
+          "targetOrdinal": 16,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAccessExpression",
+            "PropertyAssignment"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "hookBased",
+          "start": 12510114,
+          "end": 12510123,
+          "baselineCount": 10,
+          "targetOrdinal": 17,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAccessExpression",
+            "PropertyAssignment"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "originCwd",
+          "start": 12510128,
+          "end": 12510137,
+          "baselineCount": 1,
+          "targetOrdinal": 17,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAssignment"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "string",
+          "value": "Cannot open agents — ",
+          "start": 12510179,
+          "end": 12510205,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "TemplateHead"
+          ],
+          "targetKinds": [
+            "TemplateElement"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "string",
+          "value": "left_arrow",
+          "start": 12510264,
+          "end": 12510276,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "StringLiteral"
+          ],
+          "targetKinds": [
+            "Literal"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "ok",
+          "start": 12510299,
+          "end": 12510301,
+          "baselineCount": 305,
+          "targetOrdinal": 457,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAccessExpression"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "catch",
+          "start": 12510336,
+          "end": 12510341,
+          "baselineCount": 431,
+          "targetOrdinal": 552,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAccessExpression"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "rm",
+          "start": 12510306,
+          "end": 12510308,
+          "baselineCount": 60,
+          "targetOrdinal": 79,
+          "representation": "named-import-call-lowering",
+          "sourceKinds": [],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": {
+            "importedName": "rm",
+            "module": "fs/promises",
+            "sourceImport": {
+              "start": 108,
+              "end": 110,
+              "sourceHash": "58466ebdd352f801198118e294e38715f864985fd87977f348bfcd7db62e7c76"
+            },
+            "sourceDeclarationCalls": 1,
+            "targetNamespaceNodeType": "Identifier"
+          },
+          "scannerRetainedAfterCorrection": true
+        },
+        {
+          "kind": "property",
+          "value": "recursive",
+          "start": 12510312,
+          "end": 12510321,
+          "baselineCount": 170,
+          "targetOrdinal": 209,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAssignment"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "force",
+          "start": 12510325,
+          "end": 12510330,
+          "baselineCount": 91,
+          "targetOrdinal": 105,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAssignment"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "error",
+          "start": 12510389,
+          "end": 12510394,
+          "baselineCount": 1774,
+          "targetOrdinal": 1808,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAccessExpression"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "string",
+          "value": "background spawn failed: ",
+          "start": 12510360,
+          "end": 12510385,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "TemplateHead"
+          ],
+          "targetKinds": [
+            "TemplateElement"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "string",
+          "value": "tengu_open_agents_via_left",
+          "start": 12510403,
+          "end": 12510431,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "StringLiteral"
+          ],
+          "targetKinds": [
+            "Literal"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "was_empty",
+          "start": 12510433,
+          "end": 12510442,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAssignment"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "string",
+          "value": "tengu_bg_leftarrow_inprocess",
+          "start": 12510457,
+          "end": 12510487,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "StringLiteral"
+          ],
+          "targetKinds": [
+            "Literal"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "string",
+          "value": "agents",
+          "start": 12510551,
+          "end": 12510559,
+          "baselineCount": 25,
+          "targetOrdinal": 26,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "StringLiteral"
+          ],
+          "targetKinds": [
+            "Literal"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "CLAUDE_AGENTS_SELECT",
+          "start": 12510566,
+          "end": 12510586,
+          "baselineCount": 0,
+          "targetOrdinal": 4,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAssignment"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        }
+      ],
+      "behavior": "The complete authenticated Target119 unit is the authored openAgentsFromForeground declaration: its background-session persistence guard, worktree seed, left-arrow spawn, in-process fleet mount, and relaunch fallback uniquely bind src/cli/bg.ts; the generated rm property is the named fs/promises import call lowering."
+    },
+    {
+      "targetIndex": 20874,
+      "sourceOwner": "src/hooks/useAwaySummary.ts",
+      "priorOwnerPaths": [
+        "src/hooks/notifs/useInstallMessages.tsx"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 12558380,
+        "end": 12560944,
+        "bytes": 2564,
+        "sourceHash": "1a275ce0db7961e449e6e926cbd484fa158e7b0fc57b648866f06ba0a6112567",
+        "tokenCount": 1144
+      },
+      "source": {
+        "path": "src/hooks/useAwaySummary.ts",
+        "bytes": 9773,
+        "sha256": "453414c09758a5dbcda0158b4411086c9126e1657a950798d1a5df8ebbc13a46"
+      },
+      "declaration": {
+        "statementIndex": 29,
+        "kind": "FunctionDeclaration",
+        "name": "useAwaySummary",
+        "start": 2912,
+        "end": 9772,
+        "bytes": 6860,
+        "sourceHash": "8d4e75a69206abb882b2eaba9f926a68d3375998cb0fc93bebcb34ea43000690",
+        "targetIdentityMatches": 43,
+        "runnerUpStatementIndex": 27,
+        "runnerUpTargetIdentityMatches": 6
+      },
+      "binding": {
+        "targetIdentities": 49,
+        "targetIdentitiesSha256": "e8c240ff3eed36712264fb8445b88560504cd8c32d4fc7bd13d315bfc17a6a2b",
+        "matches": 49,
+        "rare": 14,
+        "weighted": 14.766168935978,
+        "margin": 11.86055233722,
+        "runnerUp": "screens/REPL.tsx",
+        "runnerUpWeighted": 2.905616598758
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "repl_main_thread",
+          "start": 12558695,
+          "end": 12558713,
+          "baselineCount": 20,
+          "targetOrdinal": 22,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "StringLiteral"
+          ],
+          "targetKinds": [
+            "Literal"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "string",
+          "value": "number",
+          "start": 12558864,
+          "end": 12558872,
+          "baselineCount": 878,
+          "targetOrdinal": 899,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "StringLiteral"
+          ],
+          "targetKinds": [
+            "Literal"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "isFinite",
+          "start": 12558881,
+          "end": 12558889,
+          "baselineCount": 60,
+          "targetOrdinal": 61,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAccessExpression"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "min",
+          "start": 12559119,
+          "end": 12559122,
+          "baselineCount": 633,
+          "targetOrdinal": 644,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAccessExpression"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "force",
+          "start": 12559539,
+          "end": 12559544,
+          "baselineCount": 91,
+          "targetOrdinal": 107,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAccessExpression",
+            "PropertyAssignment"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "force",
+          "start": 12559620,
+          "end": 12559625,
+          "baselineCount": 91,
+          "targetOrdinal": 108,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAccessExpression",
+            "PropertyAssignment"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "aborted",
+          "start": 12559755,
+          "end": 12559762,
+          "baselineCount": 208,
+          "targetOrdinal": 227,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAccessExpression"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "kind",
+          "start": 12559766,
+          "end": 12559770,
+          "baselineCount": 692,
+          "targetOrdinal": 754,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAccessExpression"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "string",
+          "value": "ok",
+          "start": 12559773,
+          "end": 12559777,
+          "baselineCount": 30,
+          "targetOrdinal": 37,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "StringLiteral"
+          ],
+          "targetKinds": [
+            "Literal"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "at",
+          "start": 12559886,
+          "end": 12559888,
+          "baselineCount": 228,
+          "targetOrdinal": 230,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAccessExpression"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "slice",
+          "start": 12559954,
+          "end": 12559959,
+          "baselineCount": 1827,
+          "targetOrdinal": 1873,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAccessExpression"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "min",
+          "start": 12560243,
+          "end": 12560246,
+          "baselineCount": 633,
+          "targetOrdinal": 645,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAccessExpression"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "number",
+          "value": "0.8",
+          "start": 12560259,
+          "end": 12560262,
+          "baselineCount": 9,
+          "targetOrdinal": 10,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "FirstLiteralToken"
+          ],
+          "targetKinds": [
+            "Literal"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "max",
+          "start": 12560271,
+          "end": 12560274,
+          "baselineCount": 757,
+          "targetOrdinal": 758,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAccessExpression"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "at",
+          "start": 12560466,
+          "end": 12560468,
+          "baselineCount": 228,
+          "targetOrdinal": 231,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAccessExpression"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "CLAUDE_JOB_DIR",
+          "start": 12560831,
+          "end": 12560845,
+          "baselineCount": 0,
+          "targetOrdinal": 4,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAccessExpression"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "join",
+          "start": 12560869,
+          "end": 12560873,
+          "baselineCount": 2305,
+          "targetOrdinal": 2376,
+          "representation": "named-import-call-lowering",
+          "sourceKinds": [],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": {
+            "importedName": "join",
+            "module": "path",
+            "sourceImport": {
+              "start": 83,
+              "end": 87,
+              "sourceHash": "58393216032be6257784ac0c6a73efb2a084e27b4cfff1e6acee7b7e6ab93b10"
+            },
+            "sourceDeclarationCalls": 1,
+            "targetNamespaceNodeType": "Identifier"
+          },
+          "scannerRetainedAfterCorrection": true
+        }
+      ],
+      "behavior": "The complete authenticated Target119 unit is the authored useAwaySummary declaration: its cache-age gate, recap generation, terminal-focus timers, return telemetry, and background recap trigger uniquely bind src/hooks/useAwaySummary.ts; the generated join property is the named path import call lowering."
+    },
+    {
+      "targetIndex": 20880,
+      "sourceOwner": "src/hooks/useJobStateNameSync.ts",
+      "priorOwnerPaths": [
+        "src/hooks/notifs/useInstallMessages.tsx"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 12561229,
+        "end": 12561745,
+        "bytes": 516,
+        "sourceHash": "f17cca58db54b91353fa321add47e2029eb17b59960495074b1409c9a05ba131",
+        "tokenCount": 280
+      },
+      "source": {
+        "path": "src/hooks/useJobStateNameSync.ts",
+        "bytes": 2053,
+        "sha256": "8a2f64b8100aa0b19fafcdb6fb2bb54dde9950dbf31908ff668534f5ca87a490"
+      },
+      "declaration": {
+        "statementIndex": 11,
+        "kind": "FunctionDeclaration",
+        "name": "useJobStateNameSync",
+        "start": 1016,
+        "end": 2052,
+        "bytes": 1036,
+        "sourceHash": "27ac67d5740372da5608440274ee9d68f338334721715325c7d2b58b25644d8c",
+        "targetIdentityMatches": 10,
+        "runnerUpStatementIndex": 0,
+        "runnerUpTargetIdentityMatches": 1
+      },
+      "binding": {
+        "targetIdentities": 12,
+        "targetIdentitiesSha256": "85b2711a7c97f99ffe6f168f161d7c0751025f0cfb2758c86669d73653c1f6fb",
+        "matches": 12,
+        "rare": 2,
+        "weighted": 2.537587388926,
+        "margin": 0.930245665565,
+        "runnerUp": "daemon/jobs.ts",
+        "runnerUpWeighted": 1.607341723361
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "slice",
+          "start": 12561297,
+          "end": 12561302,
+          "baselineCount": 1827,
+          "targetOrdinal": 1874,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAccessExpression"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "sessionId",
+          "start": 12561350,
+          "end": 12561359,
+          "baselineCount": 335,
+          "targetOrdinal": 457,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAccessExpression"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "watch",
+          "start": 12561454,
+          "end": 12561459,
+          "baselineCount": 12,
+          "targetOrdinal": 16,
+          "representation": "named-import-call-lowering",
+          "sourceKinds": [],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": {
+            "importedName": "watch",
+            "module": "fs",
+            "sourceImport": {
+              "start": 9,
+              "end": 14,
+              "sourceHash": "baed831623943be39ebf0ef44ae1e9c8fc3eeab51b5f89c113ca410d76a34c1d"
+            },
+            "sourceDeclarationCalls": 1,
+            "targetNamespaceNodeType": "Identifier"
+          },
+          "scannerRetainedAfterCorrection": true
+        },
+        {
+          "kind": "string",
+          "value": "state.json",
+          "start": 12561480,
+          "end": 12561492,
+          "baselineCount": 1,
+          "targetOrdinal": 2,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "StringLiteral"
+          ],
+          "targetKinds": [
+            "Literal"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "unref",
+          "start": 12561508,
+          "end": 12561513,
+          "baselineCount": 135,
+          "targetOrdinal": 158,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAccessExpression"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "string",
+          "value": "[jobStateNameSync] watch skipped: ",
+          "start": 12561528,
+          "end": 12561562,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "TemplateHead"
+          ],
+          "targetKinds": [
+            "TemplateElement"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        },
+        {
+          "kind": "property",
+          "value": "close",
+          "start": 12561594,
+          "end": 12561599,
+          "baselineCount": 216,
+          "targetOrdinal": 260,
+          "representation": "source-declaration-ast",
+          "sourceKinds": [
+            "PropertyAccessExpression"
+          ],
+          "targetKinds": [
+            "Identifier"
+          ],
+          "importLowering": null,
+          "scannerRetainedAfterCorrection": false
+        }
+      ],
+      "behavior": "The complete authenticated Target119 unit is the authored useJobStateNameSync declaration: its job-state watcher, state.json filter, synchronization, unref, close, and handler lifecycle uniquely bind src/hooks/useJobStateNameSync.ts; the generated watch property is the named fs import call lowering."
+    }
+  ]
+}

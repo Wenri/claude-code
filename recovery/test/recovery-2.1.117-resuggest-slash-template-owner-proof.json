@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "targetVersion": "2.1.117",
+  "criterion": "target117-resuggest-slash-template-static-whole-unit-owner-v1",
+  "status": "case-owned-static-owner-proof-source-replay-blocked",
+  "evidenceIds": [
+    "target117-command-suggestion-resuggest-authenticated-whole-unit",
+    "target117-typeahead-slash-template-authenticated-whole-unit",
+    "target117-resuggest-stale-four-file-source-graph-blocker"
+  ],
+  "baselineBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.116-linux-x64/cli.inner.js",
+    "bytes": 13102272,
+    "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+  },
+  "targetBundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.117-linux-x64/cli.inner.js",
+    "bytes": 13114118,
+    "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+  },
+  "target118Bundle": {
+    "path": ".recovery-tmp/authenticated-artifacts/2.1.118-linux-x64/cli.inner.js",
+    "bytes": 13234618,
+    "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+  },
+  "structuralLedger": {
+    "path": "recovery/cases/2.1.116-to-2.1.117/structural/generated-delta.json.gz",
+    "bytes": 2392225,
+    "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+  },
+  "target118StructuralLedger": {
+    "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+    "bytes": 2429007,
+    "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+  },
+  "units": {
+    "applyCommandSuggestion": {
+      "ownerPath": "src/utils/suggestions/commandSuggestions.ts",
+      "declaration": "applyCommandSuggestion",
+      "baseline": {
+        "baselineIndex": 19023,
+        "nodeType": "FunctionDeclaration",
+        "start": 11691364,
+        "end": 11691606,
+        "tokenCount": 131,
+        "topDefinitionCount": 1,
+        "bytes": 242,
+        "sha256": "996080515db7b23736379af695cfb5c1b3c6e7223314b82e2f37003838a0fd03",
+        "coarseHash": "f6579f97bfa77d91396b7bf1dc8d255ad2cb7f21b296bd03c4753b2fa50aa5b5"
+      },
+      "target": {
+        "targetIndex": 19089,
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 11711877,
+        "end": 11712316,
+        "tokenCount": 220,
+        "topDefinitionCount": 1,
+        "unknownFreeIdentifierCount": 1,
+        "bytes": 439,
+        "sha256": "da3bb41dd949f0689c1f4f9f533ec3999b83a12ee1174faae5c2e0606987734d",
+        "coarseHash": "21a330e3095f9c7aaa855f433fa515de782ad6390d78751e7a3d22f97b6202fb"
+      },
+      "semanticRegions": {
+        "targetPartialTemplateBranch": { "start": 11711903, "end": 11712064, "bytes": 161, "sha256": "182691c70f0d9a5d8823ceba14804e14b63d050e8727df300debdfd8941c9e02" },
+        "baselineInvalidMetadataReturn": { "start": 11691470, "end": 11691477, "bytes": 7, "sha256": "8beaabe25ab7e0a80d1e25bada55a2f5a227101c2210eadf0b368d3c2be4a83f" },
+        "targetInvalidMetadataReturn": { "start": 11712144, "end": 11712155, "bytes": 11, "sha256": "1db9c51cff7835f4463bbb3181565560dcb56c26a197923db2fe0e389a521897" },
+        "targetFinalResult": { "start": 11712284, "end": 11712315, "bytes": 31, "sha256": "3ad6932a6b18ae633db37e799a7a890676d141e6860f252e60696379ab12bb2d" }
+      },
+      "preservedBaselineCore": {
+        "method": "remove the exact target partial-template branch, rewrite target `return null` to baseline `return`, remove the exact final result, then parse and alpha-normalize identifiers while retaining property/member keys",
+        "strippedTargetBytes": 242,
+        "strippedTargetSha256": "fa9dc578649439681d5b17e9a6d25be20998daf13938bfaccbd92564101ebeb7",
+        "normalizedChars": 4834,
+        "normalizedBytes": 4834,
+        "normalizedSha256": "66a19399edfd327a69357a078da2cb1d0f35c66fe467729af74b71268d40ab0b"
+      }
+    },
+    "useTypeahead": {
+      "ownerPath": "src/hooks/useTypeahead.tsx",
+      "declaration": "useTypeahead",
+      "semanticParameterKeys": ["commands", "onInputChange", "onSubmit", "setCursorOffset", "input", "cursorOffset", "mode", "agents", "setSuggestionsState", "suggestionsState", "suppressSuggestions", "markAccepted", "onModeChange", "sessionEnvVars"],
+      "suggestionsStateKeys": ["suggestions", "selectedSuggestion", "commandArgumentHint", "suggestionsEmptyMessage"],
+      "baseline": {
+        "baselineIndex": 19071,
+        "nodeType": "FunctionDeclaration",
+        "start": 11701858,
+        "end": 11714506,
+        "tokenCount": 5585,
+        "topDefinitionCount": 1,
+        "bytes": 12648,
+        "sha256": "3c5c07ea6fa424ea26ec532f1841cb7b3c24efcabd487c4f1d1daed583edcfce",
+        "coarseHash": "74c4a9e279fe0515def077bde9738186cc8c462eb7d65b4736c31b72a547d8b0",
+        "parameter": { "start": 11701871, "end": 11702160, "bytes": 289, "sha256": "0356ed063f1a7a103bf577735a5a1127be5e4e3a74cad25aa2660ffee588696d" }
+      },
+      "target": {
+        "targetIndex": 19131,
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 11721213,
+        "end": 11734217,
+        "tokenCount": 5730,
+        "topDefinitionCount": 1,
+        "unknownFreeIdentifierCount": 13,
+        "bytes": 13004,
+        "sha256": "8d18a5ad7f9f7734fbf8a57559a45536d73fb0690a4b28bc244bb42a8440c00e",
+        "coarseHash": "55568fe9f31ae0b7d44ce2b6b48122b89cba8aa83a58a698f2a966d52aee4311",
+        "parameter": { "start": 11721226, "end": 11721515, "bytes": 289, "sha256": "cb12ae17dd2791fafe09f77c1d05ff341335d65038bcdf35cfc1103be5405f09" }
+      },
+      "semanticRegions": {
+        "baselineIndexCompletion": { "start": 11704224, "end": 11704378, "bytes": 154, "sha256": "bd5670f14294aa384aa413a17a12ef78a98833ba63c985d1d95db78bdfe0f65a" },
+        "targetIndexCompletion": { "start": 11723611, "end": 11723820, "bytes": 209, "sha256": "4c049baccbbe4d5f62fa86e452b05f56f9598644dc03f4127e65c072ce902485" },
+        "baselineTabCommandArm": { "start": 11709184, "end": 11709244, "bytes": 60, "sha256": "8d56d10adba62440af1d47f94e279e3325c790fed3e4fe4edd0802142df736ab" },
+        "targetTabCommandArm": { "start": 11728624, "end": 11728750, "bytes": 126, "sha256": "6a448f311bd84d17e9f2d596f3bfb45173744bfb95c345c58283dbf489a22cdc" },
+        "baselineEnterCommandArm": { "start": 11711767, "end": 11711838, "bytes": 71, "sha256": "88b7991622b0c98c89886ff9a864febd6a4f7fa9dc57fc179e8471cdcc2fa792" },
+        "targetEnterCommandArm": { "start": 11731337, "end": 11731474, "bytes": 137, "sha256": "f5a527c2dcc1a923c1f491e160549ba9c1bee5fd3a38dc0d5342188d580e31be" }
+      }
+    }
+  },
+  "ownerResidues": {
+    "totalRows": 8,
+    "strictRows": 5,
+    "unclassifiedRows": 0,
+    "rows": [
+      { "targetIndex": 19089, "literalKind": "property", "value": "reSuggest", "baselineOccurrenceCount": 0, "targetOccurrenceNumber": 1, "start": 11712042, "end": 11712051, "strict": true },
+      { "targetIndex": 19089, "literalKind": "property", "value": "reSuggest", "baselineOccurrenceCount": 0, "targetOccurrenceNumber": 2, "start": 11712302, "end": 11712311, "strict": true },
+      { "targetIndex": 19131, "literalKind": "string", "value": "at", "baselineOccurrenceCount": 4, "targetOccurrenceNumber": 5, "start": 11723097, "end": 11723101, "strict": false },
+      { "targetIndex": 19131, "literalKind": "string", "value": "slash-template", "baselineOccurrenceCount": 0, "targetOccurrenceNumber": 1, "start": 11723754, "end": 11723770, "strict": true },
+      { "targetIndex": 19131, "literalKind": "string", "value": "at", "baselineOccurrenceCount": 4, "targetOccurrenceNumber": 6, "start": 11723805, "end": 11723809, "strict": false },
+      { "targetIndex": 19131, "literalKind": "property", "value": "reSuggest", "baselineOccurrenceCount": 0, "targetOccurrenceNumber": 3, "start": 11728695, "end": 11728704, "strict": true },
+      { "targetIndex": 19131, "literalKind": "string", "value": "at", "baselineOccurrenceCount": 4, "targetOccurrenceNumber": 7, "start": 11730849, "end": 11730853, "strict": false },
+      { "targetIndex": 19131, "literalKind": "property", "value": "reSuggest", "baselineOccurrenceCount": 0, "targetOccurrenceNumber": 4, "start": 11731419, "end": 11731428, "strict": true }
+    ]
+  },
+  "completionMetadataRuntimeHelper": {
+    "inferredOwnerPath": "src/hooks/unifiedSuggestions.ts",
+    "authoredDeclarationName": null,
+    "targetIndex": 12603,
+    "classification": "unresolved",
+    "nodeType": "FunctionDeclaration",
+    "start": 7883553,
+    "end": 7883763,
+    "tokenCount": 57,
+    "bytes": 210,
+    "sha256": "82ee0ae001f2fa9e3b68087f42fc4b3bb8aa9ac5a387a68dd0de32367e9b2dd9",
+    "target118Lineage": {
+      "targetIndex": 12697,
+      "baselineUnitIndex": 12603,
+      "pairReason": "exact-scope-normalized-token-hash",
+      "nodeType": "FunctionDeclaration",
+      "start": 7922009,
+      "end": 7922219,
+      "tokenCount": 57,
+      "bytes": 210,
+      "sha256": "1adc561a0243ac7d3ae66c84d01ef8553dc7aca75ee21d4216f441b4ecad4707"
+    }
+  },
+  "target118TemporalLineage": {
+    "applyCommandSuggestion": { "targetIndex": 19259, "classification": "unresolved", "nodeType": "FunctionDeclaration", "start": 11801175, "end": 11801661, "tokenCount": 242, "bytes": 486, "sha256": "d15a9977111365dde80be8fb75165a7a565b30586c1a04e8d298941b4d8657f8", "reSuggestOccurrenceCount": 2 },
+    "useTypeahead": { "targetIndex": 19301, "classification": "unresolved", "nodeType": "FunctionDeclaration", "start": 11810558, "end": 11824120, "tokenCount": 5994, "bytes": 13562, "sha256": "61ce32c5419ae4a9f5d582b31770103f18e80ef22b9630d1fed39185e1592792", "reSuggestOccurrenceCount": 2, "slashTemplateOccurrenceCount": 2 }
+  },
+  "sourceReplayBlocker": {
+    "decision": "static whole-unit owner proof only; no helper export and no source writes",
+    "files": {
+      "commandSuggestions": {
+        "path": "src/utils/suggestions/commandSuggestions.ts",
+        "bytes": 20041,
+        "chars": 20033,
+        "sha256": "717ee7941db01777413d47d49d0bb40f60456b07c11bc771ec0cbe32d5a049cf",
+        "declaration": { "name": "applyCommandSuggestion", "start": 17788, "end": 19021, "chars": 1233, "bytes": 1233, "sha256": "d576289ec0652d78866a9a8a803c3c5369d26f879f114d1d8db46356fafa477e" },
+        "staleFacts": ["returns void", "does not recognize partial replacement metadata", "does not return reSuggest"]
+      },
+      "useTypeahead": {
+        "path": "src/hooks/useTypeahead.tsx",
+        "bytes": 215359,
+        "chars": 215342,
+        "sha256": "f8b1818bf9543c7e7f939d3fb8f7b8325ebcfe739fcd086959aff3e2539f6c39",
+        "declaration": { "name": "useTypeahead", "start": 14874, "end": 64056, "chars": 49182, "bytes": 49197, "sha256": "761712d98b48505a39169e071d224b064280c84109ef71650b19d88803f6d462" },
+        "staleFacts": ["contains no slash-template state", "contains no reSuggest branch"]
+      },
+      "unifiedSuggestions": {
+        "path": "src/hooks/unifiedSuggestions.ts",
+        "raw": { "bytes": 14245, "chars": 14245, "sha256": "0a18ce1984177ba2467d5b2ccd186a34fbc4693123d9b04c85baaba6c0b56136", "declarationStart": 7650 },
+        "packaged": { "bytes": 14551, "chars": 14551, "sha256": "b16aed849d9079d91afd8e67f050c8a59af2a2a8c092812afd6abb2400a2f61d", "declarationStart": 7956 },
+        "sharedDeclaration": { "name": "generateMcpResourceTemplateCompletions", "chars": 2053, "bytes": 2053, "sha256": "6935f2f0515ee57408343e7d8569e695ca2659c5ef85f0ffa47d3b4a4816993e" },
+        "staleFacts": ["emits partial and replacement metadata", "contains no authenticated metadata-validator source declaration"]
+      },
+      "suggestionType": {
+        "path": "src/components/PromptInput/PromptInputFooterSuggestions.tsx",
+        "bytes": 34368,
+        "chars": 34362,
+        "sha256": "b7b2e6a76a2c5758c8027f9ae5719f33c6b997004e443d23bc6b11f30c670e75",
+        "declaration": { "name": "SuggestionType", "start": 576, "end": 702, "chars": 126, "bytes": 126, "sha256": "3c8bbedc652924c7f50b8e93516bb5221a74b9ddc6f178569c6167ce3c8399b2" },
+        "staleFacts": ["union omits slash-template"]
+      }
+    }
+  },
+  "generatorWiring": {
+    "ownerOverrideModule": "recovery/cases/2.1.116-to-2.1.117/recovered/resuggest-slash-template-owner-overrides.mjs",
+    "ownerOverrideExport": "TARGET117_RESUGGEST_SLASH_TEMPLATE_OWNER_OVERRIDES",
+    "replayHelper": null
+  }
+}

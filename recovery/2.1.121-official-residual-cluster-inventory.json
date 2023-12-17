@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "release": "2.1.121",
+  "scope": "authenticated residuals for plugin, hook, terminal setup, and MCP OAuth rows",
+  "authenticated_baseline": {
+    "artifact": "2.1.120-linux-x64/cli.inner.js",
+    "bytes": 13784743,
+    "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+  },
+  "authenticated_target": {
+    "artifact": "2.1.121-linux-x64/cli.inner.js",
+    "bytes": 13908188,
+    "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+  },
+  "tag": {
+    "name": "v2.1.121",
+    "commit": "158620419486e3d2d696351d5a71fbd6b8f58653",
+    "direct_parent": "v2.1.120"
+  },
+  "owned_bullets": [2, 4, 10, 17],
+  "rows": [
+    {
+      "bullet": 2,
+      "test_id": "official-2.1.121-b02-residual",
+      "changelog": "Added `claude plugin prune` to remove orphaned auto-installed plugin dependencies; `plugin uninstall --prune` cascades",
+      "classification": "active-source-supplement",
+      "normalized_witness": "target normalized statement 28166 attributes content injected by each plugin hook after a hook batch; this supplements the recovered dependency-prune lifecycle with its target-only plugin observability path",
+      "artifact_fragments": [
+        { "fragment": "tengu_hook_plugin_injected", "baseline_count": 0, "target_count": 1 }
+      ],
+      "source": [
+        {
+          "path": "src/utils/hooks.ts",
+          "includes": [
+            "pluginInjectedContentChars",
+            "recordInjectedContent(",
+            "tengu_hook_plugin_injected",
+            "buildPluginTelemetryFields(name, marketplace)"
+          ]
+        }
+      ]
+    },
+    {
+      "bullet": 4,
+      "test_id": "official-2.1.121-b04-residual",
+      "changelog": "PostToolUse hooks can now replace tool output for all tools via `hookSpecificOutput.updatedToolOutput` (previously MCP-only)",
+      "classification": "active-source-supplement",
+      "normalized_witness": "target normalized statements 40537 and 40566 reconcile MCP state after background plugin installation with caller plugin_install_diff and emit target-only reconcile cardinality telemetry",
+      "artifact_fragments": [
+        { "fragment": "plugin_install_diff", "baseline_count": 0, "target_count": 1 },
+        { "fragment": "tengu_mcp_reconcile", "baseline_count": 0, "target_count": 1 }
+      ],
+      "source": [
+        {
+          "path": "src/cli/print.ts",
+          "includes": [
+            "'plugin_install_diff'",
+            "authoritative: false",
+            "caller: 'mcp_set_servers'",
+            "tengu_mcp_reconcile",
+            "toReplaceCount: toReplace.length"
+          ]
+        }
+      ]
+    },
+    {
+      "bullet": 10,
+      "test_id": "official-2.1.121-b10-residual",
+      "changelog": "/terminal-setup now enables iTerm2's \"Applications in terminal may access clipboard\" setting so `/copy` works, including from tmux",
+      "classification": "active-source-registration",
+      "normalized_witness": "target normalized statement 24437 removes iTerm.app from the native-hidden registration map and dynamically exposes the command in direct iTerm2, tmux, screen, and null-terminal bundle contexts",
+      "artifact_fragments": [
+        { "fragment": "Enable iTerm2 clipboard access for /copy", "baseline_count": 0, "target_count": 1 },
+        { "fragment": "AllowClipboardAccess", "baseline_count": 0, "target_count": 3 }
+      ],
+      "source": [
+        {
+          "path": "src/commands/terminalSetup/index.ts",
+          "includes": [
+            "get description()",
+            "process.env.__CFBundleIdentifier === 'com.googlecode.iterm2'",
+            "Enable iTerm2 clipboard access for /copy"
+          ],
+          "excludes": ["'iTerm.app': 'iTerm2'"]
+        }
+      ]
+    },
+    {
+      "bullet": 17,
+      "test_id": "official-2.1.121-b17-residual",
+      "changelog": "SDK: `mcp_authenticate` now supports `redirectUri` for custom scheme completion and claude.ai connectors",
+      "classification": "active-source",
+      "normalized_witness": "target normalized statements 19791 and 19804 normalize cached/current redirect origins, force dynamic client re-registration on mismatch, and persist the redirect URI with the registered client",
+      "artifact_fragments": [
+        { "fragment": "Cached client_id was registered for", "baseline_count": 0, "target_count": 1 },
+        { "fragment": "redirectUri:this.redirectUri", "baseline_count": 0, "target_count": 1 }
+      ],
+      "source": [
+        {
+          "path": "src/services/mcp/auth.ts",
+          "includes": [
+            "normalizeRedirectOrigin",
+            "Cached client_id was registered for",
+            "forcing re-DCR",
+            "redirectUri: this.redirectUri"
+          ]
+        }
+      ]
+    }
+  ]
+}

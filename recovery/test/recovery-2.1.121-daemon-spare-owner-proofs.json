@@ -1,0 +1,450 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-daemon-spare-exact-owner-and-build-proof-v1",
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "typedReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+      "bytes": 31092432,
+      "sha256": "f76cfab38ea9cf241a60562c7e697b0db3fbbacd7bda281737a37e052502c929"
+    }
+  },
+  "targetIndices": [
+    22119
+  ],
+  "targetIndicesSha256": "9f7cf261fbb4cf1de44f2d6a3c0f40510b7ad69fda1e47e9a85cbb6b2c7a3702",
+  "units": [
+    {
+      "targetIndex": 22119,
+      "start": 13847556,
+      "end": 13848650,
+      "nodeType": "FunctionDeclaration",
+      "sourceHash": "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082",
+      "bytes": 1094,
+      "sha256": "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082",
+      "correctedOwner": "src/daemon/spare.ts"
+    }
+  ],
+  "residues": [
+    [
+      22119,
+      "number",
+      "4",
+      13847662,
+      13847663,
+      2433,
+      2455,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ],
+    [
+      22119,
+      "number",
+      "448",
+      13847739,
+      13847742,
+      34,
+      39,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ],
+    [
+      22119,
+      "string",
+      "200",
+      13847881,
+      13847886,
+      0,
+      1,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ],
+    [
+      22119,
+      "string",
+      "50",
+      13847887,
+      13847891,
+      0,
+      1,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ],
+    [
+      22119,
+      "string",
+      "--",
+      13847892,
+      13847896,
+      111,
+      115,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ],
+    [
+      22119,
+      "string",
+      "--bg-spare",
+      13847904,
+      13847916,
+      0,
+      1,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ],
+    [
+      22119,
+      "string",
+      "ignore",
+      13847957,
+      13847965,
+      66,
+      67,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ],
+    [
+      22119,
+      "string",
+      "ignore",
+      13847966,
+      13847974,
+      66,
+      68,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ],
+    [
+      22119,
+      "property",
+      "hostPid",
+      13848007,
+      13848014,
+      0,
+      1,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ],
+    [
+      22119,
+      "property",
+      "claimSock",
+      13848031,
+      13848040,
+      0,
+      1,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ],
+    [
+      22119,
+      "property",
+      "cliVersion",
+      13848064,
+      13848074,
+      19,
+      21,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ],
+    [
+      22119,
+      "string",
+      "2.1.121",
+      13848266,
+      13848275,
+      0,
+      152,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ],
+    [
+      22119,
+      "string",
+      "2026-04-27T01:32:27Z",
+      13848355,
+      13848377,
+      0,
+      152,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ],
+    [
+      22119,
+      "string",
+      "16ffea721a0a39bc787a236dc19fb62307180b75",
+      13848386,
+      13848428,
+      0,
+      152,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ],
+    [
+      22119,
+      "property",
+      "dispose",
+      13848438,
+      13848445,
+      92,
+      94,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ],
+    [
+      22119,
+      "property",
+      "exited",
+      13848489,
+      13848495,
+      4,
+      5,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ],
+    [
+      22119,
+      "string",
+      "bg spare spawned host pid=",
+      13848611,
+      13848637,
+      0,
+      1,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ]
+  ],
+  "directOwnerResidues": [
+    [
+      22119,
+      "number",
+      "4",
+      13847662,
+      13847663,
+      2433,
+      2455,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ],
+    [
+      22119,
+      "number",
+      "448",
+      13847739,
+      13847742,
+      34,
+      39,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ],
+    [
+      22119,
+      "string",
+      "200",
+      13847881,
+      13847886,
+      0,
+      1,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ],
+    [
+      22119,
+      "string",
+      "50",
+      13847887,
+      13847891,
+      0,
+      1,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ],
+    [
+      22119,
+      "string",
+      "--",
+      13847892,
+      13847896,
+      111,
+      115,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ],
+    [
+      22119,
+      "string",
+      "--bg-spare",
+      13847904,
+      13847916,
+      0,
+      1,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ],
+    [
+      22119,
+      "string",
+      "ignore",
+      13847957,
+      13847965,
+      66,
+      67,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ],
+    [
+      22119,
+      "string",
+      "ignore",
+      13847966,
+      13847974,
+      66,
+      68,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ],
+    [
+      22119,
+      "property",
+      "hostPid",
+      13848007,
+      13848014,
+      0,
+      1,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ],
+    [
+      22119,
+      "property",
+      "claimSock",
+      13848031,
+      13848040,
+      0,
+      1,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ],
+    [
+      22119,
+      "property",
+      "cliVersion",
+      13848064,
+      13848074,
+      19,
+      21,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ],
+    [
+      22119,
+      "property",
+      "dispose",
+      13848438,
+      13848445,
+      92,
+      94,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ],
+    [
+      22119,
+      "property",
+      "exited",
+      13848489,
+      13848495,
+      4,
+      5,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ],
+    [
+      22119,
+      "string",
+      "bg spare spawned host pid=",
+      13848611,
+      13848637,
+      0,
+      1,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ]
+  ],
+  "buildMacroResidues": [
+    [
+      22119,
+      "string",
+      "2.1.121",
+      13848266,
+      13848275,
+      0,
+      152,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ],
+    [
+      22119,
+      "string",
+      "2026-04-27T01:32:27Z",
+      13848355,
+      13848377,
+      0,
+      152,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ],
+    [
+      22119,
+      "string",
+      "16ffea721a0a39bc787a236dc19fb62307180b75",
+      13848386,
+      13848428,
+      0,
+      152,
+      "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082"
+    ]
+  ],
+  "summary": {
+    "units": 1,
+    "residues": 17,
+    "directOwnerResidues": 14,
+    "buildMacroResidues": 3,
+    "correctedResidualResidues": 3,
+    "residueIdentitiesSha256": "ea3a1a145e06de6c2c658ea6d91b322c20c8c7a66ed7ec8be94762a4f821a066",
+    "correctedResidualIdentitiesSha256": "4af57ff638371dd29d1e8ccdf28ad5656f0ba05a922b4e9b697b0084c8f7541c"
+  },
+  "buildMacros": {
+    "values": [
+      "2.1.121",
+      "2026-04-27T01:32:27Z",
+      "16ffea721a0a39bc787a236dc19fb62307180b75"
+    ],
+    "countsByUnit": {
+      "22119": 3
+    },
+    "sourceDeclaration": "spawnSpare",
+    "sourceMarkers": [
+      "cliVersion: MACRO.VERSION"
+    ]
+  },
+  "sourceFiles": [
+    {
+      "path": "src/daemon/spare.ts",
+      "bytes": 8255,
+      "sha256": "3e84edd0e5c5bfa745319723943159c5128581203374bd49f5e3fb701f4541cf",
+      "declarations": [
+        {
+          "name": "spawnSpare",
+          "kind": "FunctionDeclaration",
+          "start": 1961,
+          "end": 3411,
+          "bytes": 1450,
+          "sha256": "bbcce1e50e15252cc366bd2ee5fd837b491784618bf1367b07783782a532e649"
+        }
+      ]
+    }
+  ],
+  "evidenceIds": [
+    "target121-daemon-spare-authenticated-target-fragment",
+    "target121-daemon-spare-exact-source-owner-test",
+    "target121-daemon-spare-build-macro-test"
+  ],
+  "ownerOverrides": [
+    {
+      "key": "2.1.120-to-2.1.121:22119",
+      "targetIndex": 22119,
+      "paths": [
+        "src/daemon/spare.ts"
+      ],
+      "evidenceIds": [
+        "target121-daemon-spare-authenticated-target-fragment",
+        "target121-daemon-spare-exact-source-owner-test",
+        "target121-daemon-spare-build-macro-test"
+      ],
+      "behavior": "The authenticated unit is the complete prewarmed spare-worker launcher: it creates private claim and PTY sockets, spawns the detached background PTY host with the spare protocol, exposes its pinned CLI version and lifecycle, removes socket artifacts on exit, and reports the spawned PID. Its authored owner is daemon/spare.ts, not the top-level CLI main entrypoint."
+    }
+  ]
+}

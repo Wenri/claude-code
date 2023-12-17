@@ -1,0 +1,297 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.112-to-2.1.113",
+  "artifact": {
+    "baselineSha256": "bc3358282800e3e99daa8e71ac5b7b1566bd0d7ca7eb94f714a7859365d3163f",
+    "targetInnerSha256": "4a3c3636c8cb19ef42d6319e5c6ef9b029f5de148b84f22315d159052d6c5eba",
+    "targetWrapperSha256": "dda4d89e787fa455706e4f41beffc8e58d42b9094c4d155fcbf62e3f19036681",
+    "targetWrapperPrefixLength": 87,
+    "targetWrapperSuffixLength": 3,
+    "structuralGzipSha256": "383448923995bb86060ce91beac2bc5adac35817a0cdff35b533135c7d24345f"
+  },
+  "proof": {
+    "target": "complete authenticated target unit and exact target-added residue range/ordinal",
+    "source": "dual-root exact runtime import or explicit build-folding AST relation"
+  },
+  "summary": {
+    "units": 7,
+    "residues": 16
+  },
+  "rows": [
+    {
+      "targetIndex": 7981,
+      "owner": "src/utils/ripgrep.ts",
+      "category": "mixed-build-import-lowering",
+      "target": {
+        "start": 3827786,
+        "end": 3829663,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "f79bdaf52885b91ccd274ff595876003017e521931b52f66813c35f2b81cfd2c",
+        "coarseHash": "751f9e3d9530404551481afb0ddaa309265e1e0c1e191a28b4ea705b8948f3e0"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "fileURLToPath",
+          "start": 3827948,
+          "end": 3827961,
+          "baselineCount": 0,
+          "targetOrdinal": 5,
+          "proof": "runtime-import",
+          "import": {
+            "module": "url",
+            "imported": "fileURLToPath",
+            "local": "fileURLToPath"
+          }
+        },
+        {
+          "kind": "string",
+          "value": "file:///home/runner/work/claude-cli-internal/claude-cli-internal/src/utils/ripgrep.ts",
+          "start": 3827962,
+          "end": 3828049,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "proof": "import-meta-url-build-path"
+        },
+        {
+          "kind": "string",
+          "value": "x64-linux",
+          "start": 3828497,
+          "end": 3828508,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "proof": "platform-build-folding",
+          "arch": "x64",
+          "platform": "linux"
+        },
+        {
+          "kind": "property",
+          "value": "homedir",
+          "start": 3828712,
+          "end": 3828719,
+          "baselineCount": 10,
+          "targetOrdinal": 27,
+          "proof": "runtime-import",
+          "import": {
+            "module": "os",
+            "imported": "homedir",
+            "local": "homedir"
+          }
+        }
+      ]
+    },
+    {
+      "targetIndex": 10310,
+      "owner": "src/utils/computerUse/executor.ts",
+      "category": "platform-build-folding",
+      "target": {
+        "start": 5175142,
+        "end": 5175240,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "41ffd0890680e0f758d60767f1f00d96c8a2d66780889ed8bc08ef1ef9bfb7f0",
+        "coarseHash": "73d15983e0264460d26f45ed4169b7ba9a0a469df8cc7d1f186a9f31f3ea77af"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "createCliExecutor called on linux. Computer control is macOS-only.",
+          "start": 5175170,
+          "end": 5175238,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "proof": "platform-build-folding",
+          "platform": "linux"
+        }
+      ]
+    },
+    {
+      "targetIndex": 11336,
+      "owner": "src/utils/nativeInstaller/installer.ts",
+      "category": "platform-build-folding",
+      "target": {
+        "start": 7171777,
+        "end": 7172048,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "04b92ae636e09fdbfe2c486272fd8d7ec23aeb2c34c3f00e5e6dc143da9b940c",
+        "coarseHash": "fd0077ed310a857b1838ae941963f26ad5d1b312b5a6e060c007475eb79471c5"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "Unsupported architecture: x64",
+          "start": 7171836,
+          "end": 7171867,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "proof": "platform-build-folding",
+          "arch": "x64"
+        },
+        {
+          "kind": "string",
+          "value": "Native installer does not support architecture: x64",
+          "start": 7171877,
+          "end": 7171930,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "proof": "platform-build-folding",
+          "arch": "x64"
+        }
+      ]
+    },
+    {
+      "targetIndex": 13292,
+      "owner": "src/services/voice.ts",
+      "category": "platform-build-folding",
+      "target": {
+        "start": 8457476,
+        "end": 8457861,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "2ebabf10d4e8add1175cd877637ded47be054e6d5046435619826e5fd86ddb5d",
+        "coarseHash": "5346f6a1dce489e4feff4b2f66a169efbbcc54ce767cf12a2ee040376386e3eb"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "[voice] startRecording called, platform=linux",
+          "start": 8457504,
+          "end": 8457551,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "proof": "platform-build-folding",
+          "platform": "linux"
+        }
+      ]
+    },
+    {
+      "targetIndex": 14415,
+      "owner": "src/services/mcp/client.ts",
+      "category": "mixed-build-metadata",
+      "target": {
+        "start": 9069549,
+        "end": 9088267,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "4d2882d0e53814b97c35b6f8cafa604744de3a8e085a1f390a041449802eb645",
+        "coarseHash": "8b9ca8d29306732d12337cb2ca75c639124047a8453db655191e7673e58de414"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": ", Platform: linux",
+          "start": 9072346,
+          "end": 9072363,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "proof": "platform-build-folding",
+          "platform": "linux"
+        },
+        {
+          "kind": "string",
+          "value": "2.1.113",
+          "start": 9075207,
+          "end": 9075216,
+          "baselineCount": 0,
+          "targetOrdinal": 56,
+          "proof": "build-macro"
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-17T18:18:28Z",
+          "start": 9075296,
+          "end": 9075318,
+          "baselineCount": 0,
+          "targetOrdinal": 56,
+          "proof": "build-macro"
+        }
+      ]
+    },
+    {
+      "targetIndex": 17189,
+      "owner": "src/utils/claudeInChrome/setup.ts",
+      "category": "mixed-build-import-lowering",
+      "target": {
+        "start": 10758613,
+        "end": 10759630,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "6ff9338f368a3460c6344dd9a64008246173ad2cd3271d55f91fd9e13fb082fb",
+        "coarseHash": "39a63ae5990f671f9ffa9f9862cd9ee45004ca96ca8025e4b470876e5454ff60"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "fileURLToPath",
+          "start": 10759141,
+          "end": 10759154,
+          "baselineCount": 0,
+          "targetOrdinal": 8,
+          "proof": "runtime-import",
+          "import": {
+            "module": "url",
+            "imported": "fileURLToPath",
+            "local": "fileURLToPath"
+          }
+        },
+        {
+          "kind": "string",
+          "value": "file:///home/runner/work/claude-cli-internal/claude-cli-internal/src/utils/claudeInChrome/setup.ts",
+          "start": 10759155,
+          "end": 10759255,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "proof": "import-meta-url-build-path"
+        },
+        {
+          "kind": "property",
+          "value": "join",
+          "start": 10759262,
+          "end": 10759266,
+          "baselineCount": 1619,
+          "targetOrdinal": 1832,
+          "proof": "runtime-import",
+          "import": {
+            "module": "path",
+            "imported": "join",
+            "local": "join"
+          }
+        },
+        {
+          "kind": "property",
+          "value": "join",
+          "start": 10759280,
+          "end": 10759284,
+          "baselineCount": 1619,
+          "targetOrdinal": 1833,
+          "proof": "runtime-import",
+          "import": {
+            "module": "path",
+            "imported": "join",
+            "local": "join"
+          }
+        }
+      ]
+    },
+    {
+      "targetIndex": 19159,
+      "owner": "src/utils/deepLink/registerProtocol.ts",
+      "category": "platform-build-folding",
+      "target": {
+        "start": 11775580,
+        "end": 11775785,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "772eea4b9928943dd0b1b9ed1217f1522d3b9d062e0e3cb6e98f07ec0d5855af",
+        "coarseHash": "a8bb4c0be61ee94df2daa3f0e0b37bd19647bb4a43fb243c5b6e4b5badbed488"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "Unsupported platform: linux",
+          "start": 11775753,
+          "end": 11775782,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "proof": "platform-build-folding",
+          "platform": "linux"
+        }
+      ]
+    }
+  ]
+}
