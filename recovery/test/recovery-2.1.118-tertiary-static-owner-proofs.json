@@ -1,0 +1,175 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "status": "authenticated-tertiary-static-source-owner",
+  "evidenceIds": [
+    "target118-tertiary-static-owner-target-fragment",
+    "target118-tertiary-static-owner-source-ast-test"
+  ],
+  "inputs": {
+    "targetBundle": {
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "sourceFiles": [
+      {
+        "sourcePath": "src/utils/plugins/schemas.ts",
+        "bytes": 59460,
+        "sha256": "9d5b48fc5c33e380b77c880bc3ce0cc014097594a9c3a2c286ecf0da841948f4"
+      },
+      {
+        "sourcePath": "src/utils/http.ts",
+        "bytes": 6486,
+        "sha256": "3eeb4ba1c5856031ec8bd4a0fc8cb543352c22fa1aa7d5279f0b44d1bc644157"
+      },
+      {
+        "sourcePath": "src/commands/color/color.ts",
+        "bytes": 2865,
+        "sha256": "a25158cd7de9fc756463288161fae5459ceb86c99d153fff9c64c3e930c761f8"
+      },
+      {
+        "sourcePath": "src/services/tips/tipRegistry.ts",
+        "bytes": 25930,
+        "sha256": "cd02a4e52bab668e3da047ba569937e78b0779d12f94ac0ca501aa5b335727b5"
+      }
+    ]
+  },
+  "summary": {
+    "units": 4,
+    "residues": 4,
+    "indicesSha256": "9bd9069b92c74fe00ac31ddc0472e0f4048841d7c30686779d34008e13c134af",
+    "residueIdentitiesSha256": "533605dbb69adb67c46713b9f20eb557850d4f20a258c0214e3a77b87f684559"
+  },
+  "rows": [
+    {
+      "targetIndex": 2523,
+      "ownerPath": "src/utils/plugins/schemas.ts",
+      "behavior": "The authenticated Target118 marketplace schema unit is authored by SettingsMarketplacePluginSchema; its single compiled validation string is the exact fold of three adjacent source string literals in the refine message.",
+      "target": {
+        "start": 1019900,
+        "end": 1045459,
+        "bytes": 25559,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "0345e5a7784cf0b4d4d1571caeefec558986655ab27719c578c2226e0187a146",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "string",
+          "Plugins in a settings-sourced marketplace must use remote sources (github, git-subdir, npm, url). Relative-path sources like \"./foo\" have no marketplace repository to resolve against.",
+          1040948,
+          1041133,
+          0,
+          1
+        ]
+      ],
+      "sourceProof": {
+        "declaration": "SettingsMarketplacePluginSchema",
+        "role": "folded-string-property",
+        "property": "message",
+        "sourceMarkers": [
+          "Plugins in a settings-sourced marketplace must use remote sources ",
+          "(github, git-subdir, npm, url). Relative-path sources like \"./foo\" ",
+          "have no marketplace repository to resolve against."
+        ]
+      }
+    },
+    {
+      "targetIndex": 6249,
+      "ownerPath": "src/utils/http.ts",
+      "behavior": "The authenticated Target118 WIF authentication function is authored by getAuthHeadersAsync; its second getWIFCredentials property occurrence is the named dynamic-import binding that is invoked inside the function.",
+      "target": {
+        "start": 2818287,
+        "end": 2818660,
+        "bytes": 373,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "46abc40e40ed651f4e18b05132462113d079e42fa398a389f1611f5466059366",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "property",
+          "getWIFCredentials",
+          2818331,
+          2818348,
+          1,
+          2
+        ]
+      ],
+      "sourceProof": {
+        "declaration": "getAuthHeadersAsync",
+        "role": "dynamic-import-binding-and-call",
+        "identifier": "getWIFCredentials",
+        "sourceMarkers": [
+          "const { getWIFCredentials, getWIFTokenCache } = await import(",
+          "getWIFCredentials(),"
+        ]
+      }
+    },
+    {
+      "targetIndex": 15337,
+      "ownerPath": "src/commands/color/color.ts",
+      "behavior": "The authenticated Target118 remote color synchronizer is authored by syncRemoteColor; updateBridgeSessionColorTag is the exact dynamic-import binding called with the bridge session and color.",
+      "target": {
+        "start": 9500795,
+        "end": 9501032,
+        "bytes": 237,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "c7576495fa289e2d89f6b5d68dad349bf331cd33ddd6ac7b613733c5e37512dd",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "property",
+          "updateBridgeSessionColorTag",
+          9500929,
+          9500956,
+          0,
+          2
+        ]
+      ],
+      "sourceProof": {
+        "declaration": "syncRemoteColor",
+        "role": "dynamic-import-binding-and-call",
+        "identifier": "updateBridgeSessionColorTag",
+        "sourceMarkers": [
+          "({ updateBridgeSessionColorTag }) =>",
+          "updateBridgeSessionColorTag(bridgeSessionId, color, AGENT_COLORS, {"
+        ]
+      }
+    },
+    {
+      "targetIndex": 20013,
+      "ownerPath": "src/services/tips/tipRegistry.ts",
+      "behavior": "The authenticated Target118 guest-passes tip is authored inside externalTips; its eligibility callback destructures and returns the exact eligible field from checkCachedPassesEligibility.",
+      "target": {
+        "start": 12113261,
+        "end": 12125205,
+        "bytes": 11944,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "09891cf37d053f3a3fb62945f0b71699ddf4498f660b1030870d408e167673f9",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "property",
+          "eligible",
+          12124779,
+          12124787,
+          17,
+          21
+        ]
+      ],
+      "sourceProof": {
+        "declaration": "externalTips",
+        "role": "binding-and-return",
+        "identifier": "eligible",
+        "sourceMarkers": [
+          "id: 'guest-passes'",
+          "const { eligible } = checkCachedPassesEligibility()",
+          "return eligible"
+        ]
+      }
+    }
+  ]
+}

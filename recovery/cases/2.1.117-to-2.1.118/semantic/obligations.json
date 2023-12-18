@@ -1,0 +1,3090 @@
+{
+  "schemaVersion": 1,
+  "releaseBulletCount": 34,
+  "releaseBulletEvidence": [
+    {
+      "number": 1,
+      "text": "Added vim visual mode (`v`) and visual-line mode (`V`) with selection, operators, and visual feedback",
+      "sha256": "189a0fae76273b2348278931c891aca30968ad84bb92d827a0a6f24220135640"
+    },
+    {
+      "number": 2,
+      "text": "Merged `/cost` and `/stats` into `/usage` — both remain as typing shortcuts that open the relevant tab",
+      "sha256": "655a874d13e648d12cd7ba1c11b4d52494952a55c849fc7efadcc7eb965ddee9"
+    },
+    {
+      "number": 3,
+      "text": "Create and switch between named custom themes from `/theme`, or hand-edit JSON files in `~/.claude/themes/`; plugins can also ship themes via a `themes/` directory",
+      "sha256": "34d168228278e87ef2af4e4d1df212103905f486e7db5b682124f7a052cda08c"
+    },
+    {
+      "number": 4,
+      "text": "Hooks can now invoke MCP tools directly via `type: \"mcp_tool\"`",
+      "sha256": "12cf5f03323ade3ad66da53d5e83c73e16bd87a644e4b06e39afecfc42a506f3"
+    },
+    {
+      "number": 5,
+      "text": "Added `DISABLE_UPDATES` env var to completely block all update paths including manual `claude update` — stricter than `DISABLE_AUTOUPDATER`",
+      "sha256": "33710e532a00299a3d8d20c5c561e1ae9e618bfc1b3f5b3a15aeeeb315ff2364"
+    },
+    {
+      "number": 6,
+      "text": "WSL on Windows can now inherit Windows-side managed settings via the `wslInheritsWindowsSettings` policy key",
+      "sha256": "709f70b47eccf6151e38ebd5124602a6eef5c108180f7f1fecce149b563bc031"
+    },
+    {
+      "number": 7,
+      "text": "Auto mode: include `\"$defaults\"` in `autoMode.allow`, `autoMode.soft_deny`, or `autoMode.environment` to add custom rules alongside the built-in list instead of replacing it",
+      "sha256": "5244a1bf276863534fa7c087a941858677b74b5fe0b8fd503e299dcaa6077b4a"
+    },
+    {
+      "number": 8,
+      "text": "Added a \"Don't ask again\" option to the auto mode opt-in prompt",
+      "sha256": "0f80ea4f80618d725ca45f1b6cb300b2beea068bbcc33fccfdfbae6955864cc5"
+    },
+    {
+      "number": 9,
+      "text": "Added `claude plugin tag` to create release git tags for plugins with version validation",
+      "sha256": "536afd22e91238ed19a853b667a7b59adeba741420bf3a8d6edf8322e787e263"
+    },
+    {
+      "number": 10,
+      "text": "`--continue`/`--resume` now find sessions that added the current directory via `/add-dir`",
+      "sha256": "c9a48af6ff7e3cf87fc4101eaab1a4a510d5ea5aff176169d8fd48b037a7af6b"
+    },
+    {
+      "number": 11,
+      "text": "`/color` now syncs the session accent color to claude.ai/code when Remote Control is connected",
+      "sha256": "708a040b41b2b1f8a2c91686bf41c872ba832cfc8b2db51bdd4af92d6083cdf6"
+    },
+    {
+      "number": 12,
+      "text": "The `/model` picker now honors `ANTHROPIC_DEFAULT_*_MODEL_NAME`/`_DESCRIPTION` overrides when using a custom `ANTHROPIC_BASE_URL` gateway",
+      "sha256": "e04a814e99db02281f1efcb5bd92aec802a05bf274075b87076d9b30e14e82e4"
+    },
+    {
+      "number": 13,
+      "text": "When auto-update skips a plugin due to another plugin's version constraint, the skip now appears in `/doctor` and the `/plugin` Errors tab",
+      "sha256": "9534432719ec734f8ea79a7b3e5b2dabc4cafee546296e24ac5b8e076752fbdb"
+    },
+    {
+      "number": 14,
+      "text": "Fixed `/mcp` menu hiding OAuth Authenticate/Re-authenticate actions for servers configured with `headersHelper`, and HTTP/SSE MCP servers with custom headers being stuck in \"needs authentication\" after a transient 401",
+      "sha256": "d56940ebec0c95d192cec0000f43bdfeff4ee3b8487e25b7f8b3303ac5cd5ba1"
+    },
+    {
+      "number": 15,
+      "text": "Fixed MCP servers whose OAuth token response omits `expires_in` requiring re-authentication every hour",
+      "sha256": "a02472f98aed1a92776678d9c5603dbd50f8a9dbfb26811676cfb2cb1743f834"
+    },
+    {
+      "number": 16,
+      "text": "Fixed MCP step-up authorization silently refreshing instead of prompting for re-consent when the server's `insufficient_scope` 403 names a scope the current token already has",
+      "sha256": "1f1469e2156455589b71467bb27c10bebd14d3176ec5e75d8caf9400b9610421"
+    },
+    {
+      "number": 17,
+      "text": "Fixed an unhandled promise rejection when an MCP server's OAuth flow times out or is cancelled",
+      "sha256": "45c9846fe3c106de3d45de069beafc92d48678504bcaf7a72c65683a48b6af4b"
+    },
+    {
+      "number": 18,
+      "text": "Fixed MCP OAuth refresh proceeding without its cross-process lock under contention",
+      "sha256": "2e69eb009b48c5ce004d7140389eb66427519d05a9550d1dc05c524702591b7c"
+    },
+    {
+      "number": 19,
+      "text": "Fixed macOS keychain race where a concurrent MCP token refresh could overwrite a freshly-refreshed OAuth token, causing unexpected \"Please run /login\" prompts",
+      "sha256": "e3926fbcd69a074cf64bf1fa4ed3140ce01a4091777db8a28e0f7e7818c8176a"
+    },
+    {
+      "number": 20,
+      "text": "Fixed OAuth token refresh failing when the server revokes a token before its local expiry time",
+      "sha256": "2e5b69fb21f7aa5f37e4b4c35081536821fe489d5a215f71cc67c730da280f6f"
+    },
+    {
+      "number": 21,
+      "text": "Fixed credential save crash on Linux/Windows corrupting `~/.claude/.credentials.json`",
+      "sha256": "1d994776288f487cbfd026916d3d7799c951d3fc6ba644ca0dcbab433c482e16"
+    },
+    {
+      "number": 22,
+      "text": "Fixed `/login` having no effect in a session launched with `CLAUDE_CODE_OAUTH_TOKEN` — the env token is now cleared so disk credentials take effect",
+      "sha256": "593b6af28c1e01e0c94b564f1d2b848bc419edcdd39e5d12b629f19454c7c076"
+    },
+    {
+      "number": 23,
+      "text": "Fixed unreadable text in the \"new messages\" scroll pill and `/plugin` badges",
+      "sha256": "260de4006c9eebc0bf896eff8c4b051de91660d7bbf701077ca963ade955b4da"
+    },
+    {
+      "number": 24,
+      "text": "Fixed plan acceptance dialog offering \"auto mode\" instead of \"bypass permissions\" when running with `--dangerously-skip-permissions`",
+      "sha256": "53d57508822f779d2a03bc9fb3a107a6e19a842d3cddc1340cf9bf5e3f9b3603"
+    },
+    {
+      "number": 25,
+      "text": "Fixed agent-type hooks failing with \"Messages are required for agent hooks\" when configured for events other than `Stop` or `SubagentStop`",
+      "sha256": "dba78ae49de17155f1187b14398cf2c6997ad5c0285e63340bca9fa99a965ba3"
+    },
+    {
+      "number": 26,
+      "text": "Fixed `prompt` hooks re-firing on tool calls made by an agent-hook verifier subagent",
+      "sha256": "f1dff461a78780af071488d8d80c0c948a5fc4cd1ae8d37625984064e5f0383f"
+    },
+    {
+      "number": 27,
+      "text": "Fixed `/fork` writing the full parent conversation to disk per fork — now writes a pointer and hydrates on read",
+      "sha256": "dfacb74646072b743b3be0732365b84c9492c25a9c2cd005ab79df11d074778e"
+    },
+    {
+      "number": 28,
+      "text": "Fixed Alt+K / Alt+X / Alt+^ / Alt+_ freezing keyboard input",
+      "sha256": "e8c1c9493465399df5fc388f637536e7dad6f596a6a983797bd5a18719a62260"
+    },
+    {
+      "number": 29,
+      "text": "Fixed connecting to a remote session overwriting your local `model` setting in `~/.claude/settings.json`",
+      "sha256": "e560ed0a5ba2ae21249734174450d1c8a4c73f06b54852e6ddc935720594e2d9"
+    },
+    {
+      "number": 30,
+      "text": "Fixed typeahead showing \"No commands match\" error when pasting file paths that start with `/`",
+      "sha256": "31c5cafcf1955b4d3d728e20abaa935dcd63febad320c0cc95f4870512436b74"
+    },
+    {
+      "number": 31,
+      "text": "Fixed `plugin install` on an already-installed plugin not re-resolving a dependency installed at the wrong version",
+      "sha256": "842f901ae5842f6370fd2f9d11493db12cd8363475452172c382191d79e0afa7"
+    },
+    {
+      "number": 32,
+      "text": "Fixed unhandled errors from file watcher on invalid paths or fd exhaustion",
+      "sha256": "5e47c10f17ce1e4dc7ceeccbe1d70ef0b6ee525df937ad32b1c18fb639b90685"
+    },
+    {
+      "number": 33,
+      "text": "Fixed Remote Control sessions getting archived on transient CCR initialization blips during JWT refresh",
+      "sha256": "ac1ebb96e6838b43ab9301c91bb3cbf53859df6a857f23a7dd632a0963c9d657"
+    },
+    {
+      "number": 34,
+      "text": "Fixed subagents resumed via `SendMessage` not restoring the explicit `cwd` they were spawned with",
+      "sha256": "4d065d249abb292849ce529152a03e209292efdbf8492bcbb1fdca011e0a8c14"
+    }
+  ],
+  "testCatalog": [
+    {
+      "id": "recovery-2-1-118-auth-settings",
+      "path": "recovery/test/recovery-2.1.118-auth-settings.test.mjs",
+      "bytes": 8446,
+      "sha256": "04d966488aa98959bf8d1f94e4053afb20d19892670ecfc4690e994c8b8c066a"
+    },
+    {
+      "id": "recovery-2-1-118-editor-hooks",
+      "path": "recovery/test/recovery-2.1.118-editor-hooks.test.mjs",
+      "bytes": 9538,
+      "sha256": "1d506eaefc219a78670f4c5aa703747b6501a63325135a4faebfbc189bd00934"
+    },
+    {
+      "id": "recovery-2-1-118-plugins-themes",
+      "path": "recovery/test/recovery-2.1.118-plugins-themes.test.mjs",
+      "bytes": 6254,
+      "sha256": "2bba3251ee7ad0e4e73a1fe9745dc2707d75378676afd4ec72aee0b1757c0f32"
+    },
+    {
+      "id": "recovery-2-1-118-runtime-session",
+      "path": "recovery/test/recovery-2.1.118-runtime-session.test.mjs",
+      "bytes": 22226,
+      "sha256": "1e463969f9bb90232e06dcb8ca5c805365443c502cc19d6d332a40db77c3de5a"
+    }
+  ],
+  "sourceAliases": {
+    "src/commands/advisor.ts": "src/commands/advisor/advisor.tsx"
+  },
+  "obligations": [
+    {
+      "id": "vim-visual-modes",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        1
+      ],
+      "rationale": "Official release bullet 1 partition vim-visual-modes is recovered in the source-facing overlay and bound to authenticated bundle evidence and a focused regression suite.",
+      "targetFragments": [
+        {
+          "text": "VISUAL LINE",
+          "bytes": 11,
+          "sha256": "8f4bb4aae4c558cb3b2c5d76b24f5dfe916a2487838917c19bd2dae05e900dc7",
+          "baselineCount": 0,
+          "targetCount": 4
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/hooks/useVimInput.ts",
+          "fragment": "VISUAL LINE",
+          "sha256": "8f4bb4aae4c558cb3b2c5d76b24f5dfe916a2487838917c19bd2dae05e900dc7",
+          "count": 3
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-editor-hooks"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "usage-command-merge",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        2
+      ],
+      "rationale": "Official release bullet 2 is directly witnessed by the merged usage command aliases for both legacy spellings and the invoked-name branch that selects the Stats tab.",
+      "targetFragments": [
+        {
+          "text": "name:\"usage\",aliases:[\"cost\",\"stats\"]",
+          "bytes": 37,
+          "sha256": "e07e6b48a402bc4226f0502ba33db8c5ce92a7d9905d8a62fdc22be988566c74",
+          "baselineCount": 0,
+          "targetCount": 2
+        },
+        {
+          "text": "===\"stats\"?\"Stats\":\"Usage\"",
+          "bytes": 26,
+          "sha256": "945b46d80674e17da3c3e70c0a80590f0020dbc1f6be8ee07e760754455d58d4",
+          "baselineCount": 0,
+          "targetCount": 1
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/commands/usage/index.ts",
+          "fragment": "aliases: ['cost', 'stats']",
+          "sha256": "e8b3b015ba8f5deaaa4943fe5174e82aad4070ef47a3126e2e1268e57df47654",
+          "count": 2
+        },
+        {
+          "path": "src/commands/usage/usage.tsx",
+          "fragment": "defaultTab={commandName === 'stats' ? 'Stats' : 'Usage'}",
+          "sha256": "35f3df76383b5c86a6f54fd85735a3db2af2fab2b4f7db21f21ab3c87c594dbd",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "custom-themes",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        3
+      ],
+      "rationale": "Official release bullet 3 partition custom-themes is recovered in the source-facing overlay and bound to authenticated bundle evidence and a focused regression suite.",
+      "targetFragments": [
+        {
+          "text": "New custom theme",
+          "bytes": 16,
+          "sha256": "065207e0e6af9dd09d1817293ab0f8c63e9ede810e360a7474359d49a21f20c1",
+          "baselineCount": 0,
+          "targetCount": 2
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/ThemePicker.tsx",
+          "fragment": "__new_custom_theme__",
+          "sha256": "aef083f278047ab70b98daedf95ad856e03723515a190246ba0c994c517c5e54",
+          "count": 3
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-plugins-themes"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "mcp-tool-hooks",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        4
+      ],
+      "rationale": "Official release bullet 4 is directly witnessed by the new MCP-tool hook type and its explicit unavailable-context failure.",
+      "targetFragments": [
+        {
+          "text": "mcp_tool",
+          "bytes": 8,
+          "sha256": "6f670195cea2128659c1af51763430c254632d77a3bf70f59868210769d5e57c",
+          "baselineCount": 41,
+          "targetCount": 59
+        },
+        {
+          "text": "mcp_tool hooks are not available",
+          "bytes": 32,
+          "sha256": "94f15d42d6a493936af62717ef43c27d6f850f13966636057057c9df9a4fcb72",
+          "baselineCount": 0,
+          "targetCount": 1
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/schemas/hooks.ts",
+          "fragment": "type: z.literal('mcp_tool')",
+          "sha256": "afcd07cbce28306b77371cc73b795c545ab38cd1e9527d46e55b33846bde1a9a",
+          "count": 1
+        },
+        {
+          "path": "src/utils/hooks/execMcpToolHook.ts",
+          "fragment": "mcp_tool hooks are not available",
+          "sha256": "94f15d42d6a493936af62717ef43c27d6f850f13966636057057c9df9a4fcb72",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-editor-hooks"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "disable-updates",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        5
+      ],
+      "rationale": "Official release bullet 5 partition disable-updates is recovered in the source-facing overlay and bound to authenticated bundle evidence and a focused regression suite.",
+      "targetFragments": [
+        {
+          "text": "DISABLE_UPDATES",
+          "bytes": 15,
+          "sha256": "aca7a42a698fb7e70272f69e201b542d6874dfa4a0c7ffc7a1fc0a1b183ac2f6",
+          "baselineCount": 0,
+          "targetCount": 5
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/cli/update.ts",
+          "fragment": "DISABLE_UPDATES",
+          "sha256": "aca7a42a698fb7e70272f69e201b542d6874dfa4a0c7ffc7a1fc0a1b183ac2f6",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-auth-settings"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "wsl-managed-settings",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        6
+      ],
+      "rationale": "Official release bullet 6 partition wsl-managed-settings is recovered in the source-facing overlay and bound to authenticated bundle evidence and a focused regression suite.",
+      "targetFragments": [
+        {
+          "text": "wslInheritsWindowsSettings",
+          "bytes": 26,
+          "sha256": "2322008ab221aa16c752f05d74419d34415ce5704591a1b892789df4d7a1f549",
+          "baselineCount": 0,
+          "targetCount": 13
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/settings/settings.ts",
+          "fragment": "wslInheritsWindowsSettings",
+          "sha256": "2322008ab221aa16c752f05d74419d34415ce5704591a1b892789df4d7a1f549",
+          "count": 3
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-auth-settings"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "auto-mode-defaults-marker",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        7
+      ],
+      "rationale": "Official release bullet 7 partition auto-mode-defaults-marker is recovered in the source-facing overlay and bound to authenticated bundle evidence and a focused regression suite.",
+      "targetFragments": [
+        {
+          "text": "$defaults",
+          "bytes": 9,
+          "sha256": "58a5e1c94f9ab95ee954ed7430667f08e7057db479ce67056c8169a15d3b6158",
+          "baselineCount": 0,
+          "targetCount": 4
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/permissions/yoloClassifier.ts",
+          "fragment": "$defaults",
+          "sha256": "58a5e1c94f9ab95ee954ed7430667f08e7057db479ce67056c8169a15d3b6158",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-auth-settings"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "auto-mode-dont-ask",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        8
+      ],
+      "rationale": "Official release bullet 8 partition auto-mode-dont-ask is recovered in the source-facing overlay and bound to authenticated bundle evidence and a focused regression suite.",
+      "targetFragments": [
+        {
+          "text": "decline-dont-ask",
+          "bytes": 16,
+          "sha256": "95bf090796eb7b7b7267296eecd6545c9c8b838b108e7e48018432133e90b1be",
+          "baselineCount": 0,
+          "targetCount": 2
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/AutoModeOptInDialog.tsx",
+          "fragment": "decline-dont-ask",
+          "sha256": "95bf090796eb7b7b7267296eecd6545c9c8b838b108e7e48018432133e90b1be",
+          "count": 3
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-auth-settings"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "plugin-tag",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        9
+      ],
+      "rationale": "Official release bullet 9 is witnessed by the new tag-success output and recovered CLI/tag execution surfaces.",
+      "targetFragments": [
+        {
+          "text": "Created tag ",
+          "bytes": 12,
+          "sha256": "2eb154dd26874d44316a3afe7f4a4855d65e1b3ac1cdfb745fd0f5c041475843",
+          "baselineCount": 0,
+          "targetCount": 2
+        },
+        {
+          "text": "/plugin tag [path] [--push] [--dry-run] [-f]",
+          "bytes": 44,
+          "sha256": "2ce9b01c64bba9e34dbc5aab5eda0190e13a3aea98701b914e6f5eba83a390b3",
+          "baselineCount": 0,
+          "targetCount": 1
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/cli/handlers/plugins.ts",
+          "fragment": "executePluginTag",
+          "sha256": "47e2368a5feb35504b0d9cd1f535c4ae6cf3075dadb69e7bf228f364fe6ac213",
+          "count": 2
+        },
+        {
+          "path": "src/commands/plugin/TagPlugin.tsx",
+          "fragment": "Created tag ",
+          "sha256": "2eb154dd26874d44316a3afe7f4a4855d65e1b3ac1cdfb745fd0f5c041475843",
+          "count": 1
+        },
+        {
+          "path": "src/commands/plugin/PluginSettings.tsx",
+          "fragment": "/plugin tag [path] [--push] [--dry-run] [-f]",
+          "sha256": "2ce9b01c64bba9e34dbc5aab5eda0190e13a3aea98701b914e6f5eba83a390b3",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-plugins-themes"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "resume-add-dir",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        10
+      ],
+      "rationale": "Official release bullet 10 is witnessed by the expanded alias-session inventory used to discover sessions from /add-dir paths.",
+      "targetFragments": [
+        {
+          "text": "isAlias",
+          "bytes": 7,
+          "sha256": "baa8fc38dd51c70518f96db16cec6d82ec9660035434c0f89854b51ab0689b99",
+          "baselineCount": 3,
+          "targetCount": 6
+        },
+        {
+          "text": "additionalDirectories",
+          "bytes": 21,
+          "sha256": "568e92fd16b01199d2f633899c72a3b814e7955f7cce738af4c4588660180f42",
+          "baselineCount": 15,
+          "targetCount": 15
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/sessionStorage.ts",
+          "fragment": "isAlias: true",
+          "sha256": "fb5ff0c602363e9912d48fde870b105817f59b1a4fec65a38b7ac15981a263d9",
+          "count": 1
+        },
+        {
+          "path": "src/utils/sessionStorage.ts",
+          "fragment": "getSessionAliases",
+          "sha256": "d425cdacb343d64dbf82645ded3d140feaf5cc7d3b90e032e8ed7f9c6fef9931",
+          "count": 2
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-auth-settings"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "remote-color-sync",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        11
+      ],
+      "rationale": "Official release bullet 11 partition remote-color-sync is recovered in the source-facing overlay and bound to authenticated bundle evidence and a focused regression suite.",
+      "targetFragments": [
+        {
+          "text": "set_color",
+          "bytes": 9,
+          "sha256": "f9f261b862a9857a877a68217422d64c434c28b957a79480c75d7fb72268867f",
+          "baselineCount": 4,
+          "targetCount": 7
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/bridge/bridgeMessaging.ts",
+          "fragment": "set_color",
+          "sha256": "f9f261b862a9857a877a68217422d64c434c28b957a79480c75d7fb72268867f",
+          "count": 2
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "gateway-model-overrides",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        12
+      ],
+      "rationale": "Official release bullet 12 is bound to the expanded custom-gateway branch and the exact custom model name/description inputs it consumes.",
+      "targetFragments": [
+        {
+          "text": "ANTHROPIC_BASE_URL",
+          "bytes": 18,
+          "sha256": "5d5eb8ae6f2ba5588dfcf30547864ae0e082a95c17f3ae05767e3f361e8f8670",
+          "baselineCount": 24,
+          "targetCount": 27
+        },
+        {
+          "text": "ANTHROPIC_DEFAULT_SONNET_MODEL_NAME",
+          "bytes": 35,
+          "sha256": "78889f560b53488efaa78215c0697be0d196965acebd61e74fe0646fb1b42263",
+          "baselineCount": 3,
+          "targetCount": 3
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/model/modelOptions.ts",
+          "fragment": "ANTHROPIC_DEFAULT_SONNET_MODEL_NAME",
+          "sha256": "78889f560b53488efaa78215c0697be0d196965acebd61e74fe0646fb1b42263",
+          "count": 1
+        },
+        {
+          "path": "src/utils/model/modelOptions.ts",
+          "fragment": "ANTHROPIC_DEFAULT_SONNET_MODEL_DESCRIPTION",
+          "sha256": "bf66f5c211c716d6a2bf97f35db5249ac3fa801ac870128b0ecb7f9d4c39265d",
+          "count": 2
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-auth-settings"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "plugin-pinner-diagnostics",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        13
+      ],
+      "rationale": "Official release bullet 13 partition plugin-pinner-diagnostics is recovered in the source-facing overlay and bound to authenticated bundle evidence and a focused regression suite.",
+      "targetFragments": [
+        {
+          "text": "autoupdate-blocked-by-pinner",
+          "bytes": 28,
+          "sha256": "b9db5eb5bc49fe25c623210c69a7a4f2b6b493d038dd8781f78c183b8f0cc30b",
+          "baselineCount": 0,
+          "targetCount": 5
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/plugins/pluginAutoupdate.ts",
+          "fragment": "autoupdate-blocked-by-pinner",
+          "sha256": "b9db5eb5bc49fe25c623210c69a7a4f2b6b493d038dd8781f78c183b8f0cc30b",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-plugins-themes"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "mcp-auth-menu-and-401",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        14
+      ],
+      "rationale": "Official release bullet 14 is witnessed by the new MCP error-code header path and the stable headersHelper menu discriminator.",
+      "targetFragments": [
+        {
+          "text": "X-Mcp-Error-Code",
+          "bytes": 16,
+          "sha256": "91181a490cbe0d63af5284349930a1eb1d01c90cdab81225a7f0fc87cc7faebb",
+          "baselineCount": 0,
+          "targetCount": 1
+        },
+        {
+          "text": "hasHeadersHelper",
+          "bytes": 16,
+          "sha256": "5dafcee9007f187ca5d4ef415e21e3e5f5cdb13e1805a4b507f8f1a11d20aff2",
+          "baselineCount": 2,
+          "targetCount": 2
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/mcp/client.ts",
+          "fragment": "response.headers.get('X-Mcp-Error-Code')",
+          "sha256": "b3839954e040dea02ca8d21a123ef6f7dce27083ee6b1f5cb6ef9b9cb6f66009",
+          "count": 1
+        },
+        {
+          "path": "src/components/mcp/MCPRemoteServerMenu.tsx",
+          "fragment": "hasHeadersHelper",
+          "sha256": "5dafcee9007f187ca5d4ef415e21e3e5f5cdb13e1805a4b507f8f1a11d20aff2",
+          "count": 3
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "mcp-token-no-expiry",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        15
+      ],
+      "rationale": "Official release bullet 15 is witnessed by the explicit no-expiry token state and its null-aware expires_in handling.",
+      "targetFragments": [
+        {
+          "text": "No expiration specified",
+          "bytes": 23,
+          "sha256": "dbc244d5b88694dedd1ebdb21c85729cbc1ad4faba190766ca6374114709c8da",
+          "baselineCount": 0,
+          "targetCount": 1
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/mcp/auth.ts",
+          "fragment": "tokens.expires_in != null",
+          "sha256": "ce6bce21897619068fcbd4b74b608cccb3c972f281b129a4124da848bf996279",
+          "count": 3
+        },
+        {
+          "path": "src/services/mcp/auth.ts",
+          "fragment": "No expiration specified",
+          "sha256": "dbc244d5b88694dedd1ebdb21c85729cbc1ad4faba190766ca6374114709c8da",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-auth-settings"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "mcp-step-up-reconsent",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        16
+      ],
+      "rationale": "Official release bullet 16 is bound to insufficient_scope step-up state and the recovered omission of refresh_token while re-consent is pending.",
+      "targetFragments": [
+        {
+          "text": "insufficient_scope",
+          "bytes": 18,
+          "sha256": "58da241d046df4f625ce02ca86760d7ee4f49e4cfc2f31c5692d783c4beb74c8",
+          "baselineCount": 3,
+          "targetCount": 3
+        },
+        {
+          "text": "_pendingStepUpScope",
+          "bytes": 19,
+          "sha256": "cc14b46437f75b4424ac6d677287e5bcff320e01fd856625b1db9bfb65503fb8",
+          "baselineCount": 8,
+          "targetCount": 7
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/mcp/auth.ts",
+          "fragment": "wrapFetchWithStepUpDetection",
+          "sha256": "5d1b5a88661ce080f33f966e37b3a960ccf0d0effde418e9ff73ee2406d254b3",
+          "count": 1
+        },
+        {
+          "path": "src/services/mcp/auth.ts",
+          "fragment": "omitting refresh_token",
+          "sha256": "0e8968567665cfee1b97298fb39826a6608a95e15214408e697365fb27bcddb2",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-auth-settings"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "mcp-oauth-flow-rejection",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        17
+      ],
+      "rationale": "Official release bullet 17 is witnessed by the added rejection-swallowing continuation and recovered active MCP OAuth flow cleanup.",
+      "targetFragments": [
+        {
+          "text": ").catch(()=>{})",
+          "bytes": 15,
+          "sha256": "f1aff3638f7a7ea773bdb2a2bfbd23f14dad08d873d4f51d105b3dbaabfabac7",
+          "baselineCount": 93,
+          "targetCount": 96
+        },
+        {
+          "text": "OAuth flow",
+          "bytes": 10,
+          "sha256": "e554388dd0d6d63e4769d5c972c50c0b06768c89fb38b69b6a88e9eb8e9d86dc",
+          "baselineCount": 8,
+          "targetCount": 8
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/mcp/auth.ts",
+          "fragment": "trackMCPOAuthFlow",
+          "sha256": "7d85a6681268ee85af4e945f4f54df26e3f2eea14e5a9663a6f8aab656bfe662",
+          "count": 1
+        },
+        {
+          "path": "src/services/mcp/auth.ts",
+          "fragment": ".catch(() => {})",
+          "sha256": "82e914fd4d9928e09a73d83faddcfc11f30dcef2e58e4f045ca54d012fda4936",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-auth-settings"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "mcp-refresh-lock-contention",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        18
+      ],
+      "rationale": "Official release bullet 18 is witnessed by the new fail-closed “skipping refresh” outcomes and lock-acquisition retry implementation.",
+      "targetFragments": [
+        {
+          "text": "skipping refresh",
+          "bytes": 16,
+          "sha256": "cffb604d0612f83a327b6b3b5cab96140d9c8212ac27816dec2757a67064696e",
+          "baselineCount": 0,
+          "targetCount": 2
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/mcp/auth.ts",
+          "fragment": "Refresh lock held by another process",
+          "sha256": "ccadc3218a3de6bd2844c37873e8b11099bcc90540f24fdef213672051a35adf",
+          "count": 1
+        },
+        {
+          "path": "src/services/mcp/auth.ts",
+          "fragment": "Could not acquire refresh lock",
+          "sha256": "04314838a16295cf48f4988813598d17b70d50568c29be9bff7e0eb6cad6ea64",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-auth-settings"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "mcp-keychain-refresh-race",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        19
+      ],
+      "rationale": "Official release bullet 19 partition mcp-keychain-refresh-race is recovered in the source-facing overlay and bound to authenticated bundle evidence and a focused regression suite.",
+      "targetFragments": [
+        {
+          "text": "already refreshed",
+          "bytes": 17,
+          "sha256": "6fdc39f20c7347d50a02d07e98ebc1580b1604bcbf997c8a02e6098140900514",
+          "baselineCount": 1,
+          "targetCount": 2
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/mcp/auth.ts",
+          "fragment": "Another process already refreshed tokens",
+          "sha256": "83ad081126fe803ebea5fefa82b6c4a36d079bc99daf51d6c5ca698b43ca6e31",
+          "count": 2
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-auth-settings"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "oauth-revoked-token-refresh",
+      "classification": "source-localized-inherited",
+      "releaseBullets": [
+        20
+      ],
+      "rationale": "Official release bullet 20 documents behavior already present in both authenticated bundles; the recovered source preserves revoked-token detection and 403 retry handling.",
+      "targetFragments": [
+        {
+          "text": "OAuth token has been revoked",
+          "bytes": 28,
+          "sha256": "d6d0feb90f3498fd223ce7b330d9dfc1430e9712f062264ce3c664811a3e4456",
+          "baselineCount": 5,
+          "targetCount": 5
+        },
+        {
+          "text": "also403Revoked",
+          "bytes": 14,
+          "sha256": "a053c06317e576b1b9f006eded47281f27f6cc1b661e70e1cfcee50ee8c0850f",
+          "baselineCount": 2,
+          "targetCount": 2
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/api/withRetry.ts",
+          "fragment": "isOAuthTokenRevokedError(lastError)",
+          "sha256": "2d27317419dec043849f987cff7894c09104b24c513917103fa951baa8962b12",
+          "count": 2
+        },
+        {
+          "path": "src/utils/http.ts",
+          "fragment": "also403Revoked",
+          "sha256": "a053c06317e576b1b9f006eded47281f27f6cc1b661e70e1cfcee50ee8c0850f",
+          "count": 3
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-auth-settings"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "atomic-credential-save",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        21
+      ],
+      "rationale": "Official release bullet 21 is witnessed by the target-only atomic temp-write/rename fallback sequence, including cross-device and Windows rename failures.",
+      "targetFragments": [
+        {
+          "text": "A===\"EXDEV\"||A===\"EPERM\"||A===\"EEXIST\"",
+          "bytes": 38,
+          "sha256": "fdd1fe037a509704d867667891ed00b2dcc62ae30c4b3efdff516c70cf4e07e8",
+          "baselineCount": 0,
+          "targetCount": 1
+        },
+        {
+          "text": "writeFileSync(K,$,{encoding:\"utf8\",mode:q})",
+          "bytes": 43,
+          "sha256": "fb483b790644c58ca0f66e1e68db76d037069bdffd7f3a5464a9110d8cdf49d5",
+          "baselineCount": 0,
+          "targetCount": 1
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/secureStorage/plainTextStorage.ts",
+          "fragment": "function atomicWriteFileSync(",
+          "sha256": "a747c81191f1e61a52b3690a50ee4981cdc09b4b5cb32975ffdd9ec65fb9423e",
+          "count": 1
+        },
+        {
+          "path": "src/utils/secureStorage/plainTextStorage.ts",
+          "fragment": "code !== 'EXDEV' && code !== 'EPERM' && code !== 'EEXIST'",
+          "sha256": "589ac53c8f0504ce4033131b0517c6bb6a5c17e4274d3acc635bdf2170e8b1b1",
+          "count": 1
+        },
+        {
+          "path": "src/utils/secureStorage/plainTextStorage.ts",
+          "fragment": "copyFileSync(temp, target)",
+          "sha256": "cfe725d3db5c31a65ace7fe7bfefb7afe8f234c9c78a39c2f47591a054aff4ae",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-auth-settings"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "login-env-token-clear",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        22
+      ],
+      "rationale": "Official release bullet 22 partition login-env-token-clear is recovered in the source-facing overlay and bound to authenticated bundle evidence and a focused regression suite.",
+      "targetFragments": [
+        {
+          "text": "CLAUDE_CODE_OAUTH_TOKEN",
+          "bytes": 23,
+          "sha256": "4262c6858742f9f0523d83323529d13401cb15727d84f91d02fb902486903651",
+          "baselineCount": 35,
+          "targetCount": 41
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/cli/handlers/auth.ts",
+          "fragment": "delete process.env.CLAUDE_CODE_OAUTH_TOKEN",
+          "sha256": "6c5df5de9425e6d931c2523bd8632ab1e7f517db64ccafd9f59f06f494bd2791",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-auth-settings"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "readable-pill-and-badges",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        23
+      ],
+      "rationale": "Official release bullet 23 is directly witnessed by the new explicit text foreground on the status pill and installed-plugin badges.",
+      "targetFragments": [
+        {
+          "text": "color:O,textColor:\"text\",padded:!0},M,\" \",\"(\",f,\") \"",
+          "bytes": 52,
+          "sha256": "989b389b0aba3bb78235c842a911ef45112a5557b087230c32b2e04e4cbd7361",
+          "baselineCount": 0,
+          "targetCount": 1
+        },
+        {
+          "text": "color:\"userMessageBackground\",textColor:\"text\"},\"Plugin\"",
+          "bytes": 56,
+          "sha256": "6436497ad089e35723fb5bda26d101158df2f1f46c9b686d02036864c3109cc0",
+          "baselineCount": 0,
+          "targetCount": 3
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/design-system/Label.tsx",
+          "fragment": "textColor",
+          "sha256": "c3ee33dab161f357105d3b7e53acfdda82871a4dd9fb71fabbf9d29caba9e5a5",
+          "count": 3
+        },
+        {
+          "path": "src/commands/plugin/UnifiedInstalledCell.tsx",
+          "fragment": "textColor=\"text\"",
+          "sha256": "b9d0c38cf4ff6fefcd1185e7865fcfe922766994bc7dda3ddb6c1df3ec02c1e8",
+          "count": 5
+        },
+        {
+          "path": "src/components/FullscreenLayout.tsx",
+          "fragment": "<Label color={t3} textColor=\"text\" padded={true}>",
+          "sha256": "02e1c75f45dac56d22e148d04e437114840061367b56cccdbca064e8ec47b08e",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-plugins-themes"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "plan-bypass-choice",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        24
+      ],
+      "rationale": "Official release bullet 24 is witnessed by the target-only bypass-permissions branch and its exact recovered choice label.",
+      "targetFragments": [
+        {
+          "text": "if(H)if(_)f.push({label:`Yes, clear context${z} and bypass permissions`",
+          "bytes": 71,
+          "sha256": "30c7f030872ea8c7fe59dd948e2274e1e538ce72f2cc885d78d8e7769dd479d1",
+          "baselineCount": 0,
+          "targetCount": 1
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/permissions/ExitPlanModePermissionRequest/ExitPlanModePermissionRequest.tsx",
+          "fragment": "Yes, clear context${usedLabel} and bypass permissions",
+          "sha256": "2988a03349082fa6b40b7ee60171b6433f570f01c580ef497a3a606293c6bdfe",
+          "count": 1
+        },
+        {
+          "path": "src/components/permissions/ExitPlanModePermissionRequest/ExitPlanModePermissionRequest.tsx",
+          "fragment": "value: 'yes-bypass-permissions'",
+          "sha256": "885e54d0696cacad1244631172aa53cf7803ad73364a92cc97aa6e4565f927e8",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-auth-settings"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "agent-hook-event-input",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        25
+      ],
+      "rationale": "Official release bullet 25 is directly witnessed by the new event-aware verifier task description, which lets non-stop agent hook events run without the former messages-only precondition.",
+      "targetFragments": [
+        {
+          "text": "You are evaluating a ",
+          "bytes": 21,
+          "sha256": "1ef284ff69b5a10410f24771ba08af61b404bfa8ea130d491451d92555ae25f1",
+          "baselineCount": 2,
+          "targetCount": 3
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/hooks/execAgentHook.ts",
+          "fragment": "const taskDescription =",
+          "sha256": "cc919c4d76b74f864fa18107b3bbaad93033afe7b7e0c282808269563fda3629",
+          "count": 1
+        },
+        {
+          "path": "src/utils/hooks/execAgentHook.ts",
+          "fragment": "hookEvent === 'Stop' || hookEvent === 'SubagentStop'",
+          "sha256": "cc8fff37e3e6c78ec67af4e6e73f3ffbc5b3e23ffe852f189412ce1ac4f14928",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-editor-hooks"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "verifier-prompt-hook-suppression",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        26
+      ],
+      "rationale": "Official release bullet 26 is witnessed by the new verifier-agent ID checks that suppress recursive prompt and agent hooks while preserving the stable hook-agent prefix contract.",
+      "targetFragments": [
+        {
+          "text": "agentId?.startsWith(K48)",
+          "bytes": 24,
+          "sha256": "fc7fbbde26ea5db011abd6be8660462e744f6cd5ab1cc92869906b079ea0431f",
+          "baselineCount": 0,
+          "targetCount": 2
+        },
+        {
+          "text": "hook-agent-",
+          "bytes": 11,
+          "sha256": "51f3635458e4fb405252430ae3f1999bb07c92d53717a837547f39f8755afcab",
+          "baselineCount": 1,
+          "targetCount": 1
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/hooks.ts",
+          "fragment": "toolUseContext.agentId?.startsWith(HOOK_AGENT_ID_PREFIX)",
+          "sha256": "3fe2b79b3188ece34c355e52fd26cad6de68e3cc0b1253125c6c0ba5b17b3341",
+          "count": 2
+        },
+        {
+          "path": "src/utils/hooks/execAgentHook.ts",
+          "fragment": "HOOK_AGENT_ID_PREFIX = 'hook-agent-'",
+          "sha256": "83ace388556038cbe2c8982418a4757afd040636d525dc25ca8128e493818016",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-editor-hooks"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "fork-context-pointer",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        27
+      ],
+      "rationale": "Official release bullet 27 is directly witnessed by the new fork-context-ref records and parent pointer fields.",
+      "targetFragments": [
+        {
+          "text": "fork-context-ref",
+          "bytes": 16,
+          "sha256": "0b83d1f084c483b0620093b07d335dc8354802b51f783887cce59ab45292434b",
+          "baselineCount": 0,
+          "targetCount": 6
+        },
+        {
+          "text": "parentLastUuid",
+          "bytes": 14,
+          "sha256": "bac2d499885658f79b768a84fad8af5a228579549308fbd31097bc50db43b3dd",
+          "baselineCount": 0,
+          "targetCount": 7
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/types/logs.ts",
+          "fragment": "type: 'fork-context-ref'",
+          "sha256": "ecac86287e25a593588352aa39a015158af10af976d7ec6bdcd0528197cc82b6",
+          "count": 1
+        },
+        {
+          "path": "src/utils/sessionStorage.ts",
+          "fragment": "recordForkContextRef",
+          "sha256": "0d8b1b01ca57b8df4e35bbfe2c7880fbbdbcde75d750792eedd92d99149355c2",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-editor-hooks"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "terminal-alt-key-parser",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        28
+      ],
+      "rationale": "Official release bullet 28 is bound to the new output-aware tokenizer behavior that prevents control sequences from wedging the input parser.",
+      "targetFragments": [
+        {
+          "text": "forOutput",
+          "bytes": 9,
+          "sha256": "56c17087c44a4f9041cbfe24b5dba95f65a2960346f24c4905d50c20ea01487c",
+          "baselineCount": 0,
+          "targetCount": 7
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/ink/termio/tokenize.ts",
+          "fragment": "forOutput?: boolean",
+          "sha256": "cbeda1043c7cc8e76eaec734364ad32f61a1db47b1e0055ba7aa066dbc1f0fe6",
+          "count": 1
+        },
+        {
+          "path": "src/ink/termio/parser.ts",
+          "fragment": "createTokenizer({ forOutput: true })",
+          "sha256": "08de2a58b087110edfb4092bee38ae810b0097aa2a273f0124fe5015e868ff69",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-editor-hooks"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "remote-model-setting-preservation",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        29
+      ],
+      "rationale": "Official release bullet 29 is directly witnessed by propagating the selected remote-session model in the teleport creation envelope instead of allowing remote initialization to overwrite local settings.",
+      "targetFragments": [
+        {
+          "text": "environment_variables:U,...H.model&&{model:H.model}",
+          "bytes": 51,
+          "sha256": "711314622e8785872099118a668c3b38009d345612233a43ac4573eb40f1f805",
+          "baselineCount": 0,
+          "targetCount": 1
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/teleport.tsx",
+          "fragment": "...(options.model && { model: options.model })",
+          "sha256": "90190ceb22a9c5bdde97ea136adc3e70ed91efb759af560ff1a4fe036d9bbee5",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "allowCandidateOwnership": false
+    },
+    {
+      "id": "slash-path-command-error",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        30
+      ],
+      "rationale": "Official release bullet 30 is recovered by distinguishing slash-template requests from ordinary command parsing and applying slash-prefixed template replacements without the false “No commands match” state.",
+      "targetFragments": [
+        {
+          "text": "slash-template",
+          "bytes": 14,
+          "sha256": "2d8187e1ef4179fb734a3bdecad663c9291e74032917a89b919bc57c071d7fbf",
+          "baselineCount": 1,
+          "targetCount": 2
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/hooks/useTypeahead.tsx",
+          "fragment": "latestSearchKindRef.current = 'slash-template'",
+          "sha256": "0f26b24d9c6d940772ec60d5fcd9b6da18e94855a4c6bf99a1504fd59f97e729",
+          "count": 1
+        },
+        {
+          "path": "src/hooks/unifiedSuggestions.ts",
+          "fragment": "if (prefix === '/') return",
+          "sha256": "23b81d0d61298984c513dd3c7265c363f885ab730c95d5be99ca5143867844c5",
+          "count": 1
+        },
+        {
+          "path": "src/utils/processUserInput/processSlashCommand.tsx",
+          "fragment": "looksLikeCommand",
+          "sha256": "eb036998a6df37b14f94bd11c1500fb73fd1f82407ddf480daea11cdfbe9cb26",
+          "count": 2
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-editor-hooks"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "plugin-dependency-reresolution",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        31
+      ],
+      "rationale": "Official release bullet 31 is witnessed by the additional dependency-unsatisfied path and the recovered reinstall decision for wrong-version dependencies.",
+      "targetFragments": [
+        {
+          "text": "dependency-unsatisfied",
+          "bytes": 22,
+          "sha256": "01cd576128125f0fcac4ec71a788e2bb14121d7c67bac6b5d14a92e5029443b5",
+          "baselineCount": 7,
+          "targetCount": 8
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/plugins/pluginOperations.ts",
+          "fragment": "error.type !== 'dependency-unsatisfied'",
+          "sha256": "85f6404f69c3d4fc5da6cafc9d0129a49922ab2aaf27e0a558c5fa58c15056a5",
+          "count": 1
+        },
+        {
+          "path": "src/services/plugins/pluginOperations.ts",
+          "fragment": "error.reason !== 'not-found'",
+          "sha256": "96d6e48c65f0978ab26ff37f90eaed7b0cc93e0501e852c236bf2aaa2d7d4d8d",
+          "count": 1
+        },
+        {
+          "path": "src/utils/plugins/pluginInstallationHelpers.ts",
+          "fragment": "installPluginDependencies(finalPath)",
+          "sha256": "e62ad07b0079748cfecb4fe5607a06a03f469a9bc5224d064d1acb1fce2d84b9",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-plugins-themes"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "watcher-error-safety",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        32
+      ],
+      "rationale": "Official release bullet 32 is directly witnessed by guarded keybinding and scheduled-task watcher error handlers plus the settings watcher exclusion for non-filesystem flag settings.",
+      "targetFragments": [
+        {
+          "text": "[keybindings] watcher error: ",
+          "bytes": 29,
+          "sha256": "68890777e2cec59dfee03265b265d0541daa3cd564fc1fdd70e23515a80b5e36",
+          "baselineCount": 0,
+          "targetCount": 1
+        },
+        {
+          "text": "[ScheduledTasks] watcher error: ",
+          "bytes": 32,
+          "sha256": "66db853f4279b76740bb7d07d1c6fc89d68cd96a8b68231fea6100d301c0cfcc",
+          "baselineCount": 0,
+          "targetCount": 1
+        },
+        {
+          "text": "for(let A of Tv){if(A===\"flagSettings\")continue;let f=BY(A);",
+          "bytes": 60,
+          "sha256": "4f387e964977444d1d56fa11ce7fd0e636d24798b8315a7166098cc357a648cd",
+          "baselineCount": 0,
+          "targetCount": 1
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/keybindings/loadUserBindings.ts",
+          "fragment": "[keybindings] watcher error: ",
+          "sha256": "68890777e2cec59dfee03265b265d0541daa3cd564fc1fdd70e23515a80b5e36",
+          "count": 1
+        },
+        {
+          "path": "src/utils/cronScheduler.ts",
+          "fragment": "[ScheduledTasks] watcher error: ",
+          "sha256": "66db853f4279b76740bb7d07d1c6fc89d68cd96a8b68231fea6100d301c0cfcc",
+          "count": 1
+        },
+        {
+          "path": "src/utils/settings/changeDetector.ts",
+          "fragment": "if (source === 'flagSettings')",
+          "sha256": "fbf889cdd1662dddd0951cb15cfd20a4b1dbe4b16c7f11cda080b6a2de067858",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-editor-hooks"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "remote-bridge-archive-safety",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        33
+      ],
+      "rationale": "Official release bullet 33 partition remote-bridge-archive-safety is recovered in the source-facing overlay and bound to authenticated bundle evidence and a focused regression suite.",
+      "targetFragments": [
+        {
+          "text": "skipArchive",
+          "bytes": 11,
+          "sha256": "091638cb319d2c8f4c8a0efd0b8b80e68409f1348832281ef461e98cd1fcc348",
+          "baselineCount": 3,
+          "targetCount": 5
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/bridge/remoteBridgeCore.ts",
+          "fragment": "skipArchive",
+          "sha256": "091638cb319d2c8f4c8a0efd0b8b80e68409f1348832281ef461e98cd1fcc348",
+          "count": 7
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "resumed-subagent-cwd",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        34
+      ],
+      "rationale": "Official release bullet 34 is witnessed by the new persisted-resume boundary and explicit resumed cwd restoration.",
+      "targetFragments": [
+        {
+          "text": "resumePersistedCount",
+          "bytes": 20,
+          "sha256": "9fe8a0bec22deaefae5982bfd084df55417955082ab5a5c3871654824f87f8e0",
+          "baselineCount": 0,
+          "targetCount": 2
+        },
+        {
+          "text": "explicit cwd",
+          "bytes": 12,
+          "sha256": "666e91447acc4094cc5e4e835e33e189ec1a0b0bb63011e7a94a7acfaa82f556",
+          "baselineCount": 2,
+          "targetCount": 2
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/tools/AgentTool/resumeAgent.ts",
+          "fragment": "resumePersistedCount",
+          "sha256": "9fe8a0bec22deaefae5982bfd084df55417955082ab5a5c3871654824f87f8e0",
+          "count": 1
+        },
+        {
+          "path": "src/tools/AgentTool/resumeAgent.ts",
+          "fragment": "resumedCwd",
+          "sha256": "eb1a3c67e7039452246f5ad5c296a5e2a7ded313f4740a5ea9f1665ba5d70c76",
+          "count": 4
+        },
+        {
+          "path": "src/tools/AgentTool/AgentTool.tsx",
+          "fragment": "explicit cwd",
+          "sha256": "666e91447acc4094cc5e4e835e33e189ec1a0b0bb63011e7a94a7acfaa82f556",
+          "count": 2
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "config-tool-unregister",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "The Config tool’s user-facing command surface is absent from the target runtime; the retained source module is authenticated while src/tools.ts proves it is no longer registered.",
+      "targetFragments": [
+        {
+          "text": "Get or set Claude Code configuration settings.",
+          "bytes": 46,
+          "sha256": "7869fd2027aa4eecf33514ed6fbb9c6355291e3b7a3d7d6c10a889168afe4795",
+          "baselineCount": 2,
+          "targetCount": 0
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/tools/ConfigTool/prompt.ts",
+          "fragment": "Get or set Claude Code configuration settings.",
+          "sha256": "7869fd2027aa4eecf33514ed6fbb9c6355291e3b7a3d7d6c10a889168afe4795",
+          "count": 2
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-plugins-themes"
+      ],
+      "localizationBasis": "authenticated-behavior-test",
+      "localizationBoundary": "The removed Config runtime literals are baseline-owned outside the retained source-module envelope, so attribution cannot honestly connect them to the active registry deletion.",
+      "retainedSourcePaths": [
+        "src/tools/ConfigTool/prompt.ts"
+      ],
+      "sourceRemovals": [
+        {
+          "path": "src/tools.ts",
+          "fragment": "ConfigTool",
+          "sha256": "dbd1b2258d9e6769f719bc7eba13af08bc6d28408046d57bf5f32f9af205bc01"
+        }
+      ]
+    },
+    {
+      "id": "post-tool-batch-hooks",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "PostToolBatch schemas, configuration, plugin loading, dispatch, and matcher-free batch execution are recovered.",
+      "targetFragments": [
+        {
+          "text": "PostToolBatch",
+          "bytes": 13,
+          "sha256": "f7fbd9859efb4aff305541176ed676adb406e78f880a0e0bdcaa0599ee19af43",
+          "baselineCount": 0,
+          "targetCount": 24
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/hooks.ts",
+          "fragment": "PostToolBatch",
+          "sha256": "f7fbd9859efb4aff305541176ed676adb406e78f880a0e0bdcaa0599ee19af43",
+          "count": 11
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-editor-hooks"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "user-prompt-expansion-hooks",
+      "classification": "source-localized-inherited",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "The inherited UserPromptExpansion hook event schema, configuration, matching, and slash-expansion dispatch surface are restored.",
+      "targetFragments": [
+        {
+          "text": "UserPromptExpansion",
+          "bytes": 19,
+          "sha256": "c4ca603eaa1cb458d740e735ae5832ebbf331d1480d157d237e8498b83e80e63",
+          "baselineCount": 21,
+          "targetCount": 21
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/hooks.ts",
+          "fragment": "UserPromptExpansion",
+          "sha256": "c4ca603eaa1cb458d740e735ae5832ebbf331d1480d157d237e8498b83e80e63",
+          "count": 11
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-editor-hooks"
+      ],
+      "allowCandidateOwnership": false
+    },
+    {
+      "id": "managed-agents-skill-corpus",
+      "classification": "source-localized-inherited",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "The managed-agents corpus is byte-stable application content in both authenticated bundles and is restored into its authored markdown and content-map modules.",
+      "targetFragments": [
+        {
+          "text": "# Managed Agents \\u2014 Core Concepts",
+          "bytes": 37,
+          "sha256": "53768dbe41088beb50d824d1dcf439c4716cc8bfea6e31f66007b7d9c844721a",
+          "baselineCount": 1,
+          "targetCount": 1
+        },
+        {
+          "text": "Managed Agents provisions a container per session as the agent",
+          "bytes": 62,
+          "sha256": "3c158070c7f0ff916e6e563395038a26e60012ba4f38c157747e7aaa5b7b3d1e",
+          "baselineCount": 1,
+          "targetCount": 1
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/skills/bundled/claude-api/shared/managed-agents-core.md",
+          "fragment": "# Managed Agents — Core Concepts",
+          "sha256": "bb7809d8270e1b55105c7bd5e7649c7ea27baca5906e0aec99700d741e218013",
+          "count": 1
+        },
+        {
+          "path": "src/skills/bundled/claudeApiContent.ts",
+          "fragment": "managed-agents-core.md",
+          "sha256": "764b249ab593d55b7d848c1d1adac69a131e6112f8e6c2ca5018fb38c4c40f89",
+          "count": 2
+        },
+        {
+          "path": "src/skills/bundled/claude-api/shared/managed-agents-overview.md",
+          "fragment": "Managed Agents provisions a container per session as the agent",
+          "sha256": "3c158070c7f0ff916e6e563395038a26e60012ba4f38c157747e7aaa5b7b3d1e",
+          "count": 1
+        },
+        {
+          "path": "src/skills/bundled/claudeApiContent.ts",
+          "fragment": "managed-agents-overview.md",
+          "sha256": "b7e42684a159cbca6894240d85d18dc76eb65c457c9436586ad62e0d9241f6fc",
+          "count": 2
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "tool-dispatch-and-speculation-stalls",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "The adjacent runtime adds explicit [Stall] watchdog instrumentation around tool execution and speculation boundaries.",
+      "targetFragments": [
+        {
+          "text": "[Stall] agent_completion",
+          "bytes": 24,
+          "sha256": "bf6d8071759cf2cca41ce39c701eae78cec8489aabea886ddc8b8fdac15a07ea",
+          "baselineCount": 0,
+          "targetCount": 1
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/tools/toolExecution.ts",
+          "fragment": "[Stall]",
+          "sha256": "48d4cc4dcc528c10e4380862ed2b9de483846d13c6321ba406e8b172486db429",
+          "count": 4
+        },
+        {
+          "path": "src/services/PromptSuggestion/speculation.ts",
+          "fragment": "CompletionBoundary",
+          "sha256": "3d09f0800c48d22c1b11071cd2f29aefae26f58684418c6a2228d74c01a025c7",
+          "count": 6
+        },
+        {
+          "path": "src/tools/AgentTool/agentToolUtils.ts",
+          "fragment": "[Stall] agent_completion",
+          "sha256": "bf6d8071759cf2cca41ce39c701eae78cec8489aabea886ddc8b8fdac15a07ea",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "sessions-v2-sse",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "SessionsV2 restores SSE parsing, per-frame liveness, reconnect backoff, POST control, and local echo reconciliation.",
+      "targetFragments": [
+        {
+          "text": "SessionsV2Client",
+          "bytes": 16,
+          "sha256": "32f253b184a2537671fb21f4683442a1c3a8aea0127f11a58f4f50553ff7776e",
+          "baselineCount": 0,
+          "targetCount": 22
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/remote/SessionsWebSocket.ts",
+          "fragment": "[SessionsV2Client]",
+          "sha256": "ddc11b628c460212a3ede6efe539a290500f605d5d9a0af00feaf4d719c592db",
+          "count": 22
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "parent-managed-settings",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "Parent-managed settings are allowlisted, validated, prioritized, exposed in status, and gated by the authenticated CLI option.",
+      "targetFragments": [
+        {
+          "text": "parent managed settings",
+          "bytes": 23,
+          "sha256": "53470268384001855fc1e786656b9ec505db80a8d8e3fa88def6aa979547776a",
+          "baselineCount": 0,
+          "targetCount": 2
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/settings/settings.ts",
+          "fragment": "parent managed settings",
+          "sha256": "53470268384001855fc1e786656b9ec505db80a8d8e3fa88def6aa979547776a",
+          "count": 2
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-auth-settings"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "custom-plan-mode-instructions",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "Custom plan-mode instructions flow through CLI, query, compact, attachment, SDK schema, and control surfaces.",
+      "targetFragments": [
+        {
+          "text": "planModeInstructions",
+          "bytes": 20,
+          "sha256": "1ac8148f7467ca0ccbe382b9650e9de9c8985ba1e655955f8ca51c3ab98b7493",
+          "baselineCount": 0,
+          "targetCount": 16
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/entrypoints/sdk/controlSchemas.ts",
+          "fragment": "planModeInstructions",
+          "sha256": "1ac8148f7467ca0ccbe382b9650e9de9c8985ba1e655955f8ca51c3ab98b7493",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-auth-settings"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "cache-diagnosis-retry",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "The adjacent runtime adds the prompt-cache diagnostics experiment and recovered retry/cache-diagnosis state transitions.",
+      "targetFragments": [
+        {
+          "text": "tengu_prompt_cache_diagnostics",
+          "bytes": 30,
+          "sha256": "5b59fdae862a3210bfc4e17d96682ba4dcbeecca5a2227333696c3fd8f4fa73a",
+          "baselineCount": 0,
+          "targetCount": 1
+        },
+        {
+          "text": "cache diagnosis toggled",
+          "bytes": 23,
+          "sha256": "2ee67fbf8a73eb9ea79ec88c8bda6743b0a277e75ac45fd1cdd61bbc3c7e8756",
+          "baselineCount": 0,
+          "targetCount": 1
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/api/claude.ts",
+          "fragment": "tengu_prompt_cache_diagnostics",
+          "sha256": "5b59fdae862a3210bfc4e17d96682ba4dcbeecca5a2227333696c3fd8f4fa73a",
+          "count": 1
+        },
+        {
+          "path": "src/services/api/promptCacheBreakDetection.ts",
+          "fragment": "cache diagnosis toggled",
+          "sha256": "2ee67fbf8a73eb9ea79ec88c8bda6743b0a277e75ac45fd1cdd61bbc3c7e8756",
+          "count": 1
+        },
+        {
+          "path": "src/services/api/withRetry.ts",
+          "fragment": "preserve prompt cache",
+          "sha256": "2ebef5ae82d3b718eb604617acefa82fd334a507f43827a949f9fda54008764c",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "workload-identity-profiles",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "The adjacent runtime adds workload-identity lock telemetry while preserving the WIF cache contract consumed by API clients and retries.",
+      "targetFragments": [
+        {
+          "text": "tengu_wif_user_oauth_lock_acquired",
+          "bytes": 34,
+          "sha256": "894cd457b9131605ab67846c1fe6d7dcbbd9569e7a5e09b5f9034784e1f39817",
+          "baselineCount": 0,
+          "targetCount": 1
+        },
+        {
+          "text": "getWIFTokenCache",
+          "bytes": 16,
+          "sha256": "9177a7bebdf081fecd1dd9a52203e7c5a1db8b5e3c2d19b5c886a0be4bfeb4cf",
+          "baselineCount": 2,
+          "targetCount": 2
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/api/workloadIdentity.ts",
+          "fragment": "tengu_wif_user_oauth_lock_acquired",
+          "sha256": "894cd457b9131605ab67846c1fe6d7dcbbd9569e7a5e09b5f9034784e1f39817",
+          "count": 1
+        },
+        {
+          "path": "src/services/api/workloadIdentity.ts",
+          "fragment": "getWIFTokenCache",
+          "sha256": "9177a7bebdf081fecd1dd9a52203e7c5a1db8b5e3c2d19b5c886a0be4bfeb4cf",
+          "count": 1
+        },
+        {
+          "path": "src/services/api/withRetry.ts",
+          "fragment": "getWIFTokenCache",
+          "sha256": "9177a7bebdf081fecd1dd9a52203e7c5a1db8b5e3c2d19b5c886a0be4bfeb4cf",
+          "count": 3
+        },
+        {
+          "path": "src/utils/http.ts",
+          "fragment": "getWIFTokenCache",
+          "sha256": "9177a7bebdf081fecd1dd9a52203e7c5a1db8b5e3c2d19b5c886a0be4bfeb4cf",
+          "count": 2
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-auth-settings"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "remote-controls-and-cost",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "The adjacent runtime expands remote session source metadata, archive safety, flag application, plugin reload, and session-cost controls.",
+      "targetFragments": [
+        {
+          "text": "get_session_cost",
+          "bytes": 16,
+          "sha256": "e74ef6c73f8ef036da98a38b312bb118b2b08e4ef3b54617949111d73914ad9d",
+          "baselineCount": 0,
+          "targetCount": 3
+        },
+        {
+          "text": "sourceUrl",
+          "bytes": 9,
+          "sha256": "ae314e7e57fb6014ec267735be2e721ed0347f4028fe8460b1e634bc6cdfa392",
+          "baselineCount": 1,
+          "targetCount": 6
+        },
+        {
+          "text": "skipArchive",
+          "bytes": 11,
+          "sha256": "091638cb319d2c8f4c8a0efd0b8b80e68409f1348832281ef461e98cd1fcc348",
+          "baselineCount": 3,
+          "targetCount": 5
+        },
+        {
+          "text": "apply_flag_settings",
+          "bytes": 19,
+          "sha256": "42db3c18bf89666d95cfc026948b34cb6f633f2129409afd8ef45c60623d9778",
+          "baselineCount": 2,
+          "targetCount": 4
+        },
+        {
+          "text": "reload_plugins",
+          "bytes": 14,
+          "sha256": "299523c130c9f92e522226de24fe09beb3ff0ec202a9fa38a043b49d651084c7",
+          "baselineCount": 2,
+          "targetCount": 3
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/entrypoints/sdk/controlSchemas.ts",
+          "fragment": "get_session_cost",
+          "sha256": "e74ef6c73f8ef036da98a38b312bb118b2b08e4ef3b54617949111d73914ad9d",
+          "count": 1
+        },
+        {
+          "path": "src/utils/teleport.tsx",
+          "fragment": "sourceUrl",
+          "sha256": "ae314e7e57fb6014ec267735be2e721ed0347f4028fe8460b1e634bc6cdfa392",
+          "count": 6
+        },
+        {
+          "path": "src/bridge/remoteBridgeCore.ts",
+          "fragment": "skipArchive",
+          "sha256": "091638cb319d2c8f4c8a0efd0b8b80e68409f1348832281ef461e98cd1fcc348",
+          "count": 7
+        },
+        {
+          "path": "src/cli/print.ts",
+          "fragment": "apply_flag_settings",
+          "sha256": "42db3c18bf89666d95cfc026948b34cb6f633f2129409afd8ef45c60623d9778",
+          "count": 1
+        },
+        {
+          "path": "src/cli/print.ts",
+          "fragment": "reload_plugins",
+          "sha256": "299523c130c9f92e522226de24fe09beb3ff0ec202a9fa38a043b49d651084c7",
+          "count": 2
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "tiny-memory-hardening",
+      "classification": "source-localized-inherited",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "Tiny immutable memory mode and its pruning contract are stable in both authenticated bundles and restored into authored memory services.",
+      "targetFragments": [
+        {
+          "text": "tiny memory mode",
+          "bytes": 16,
+          "sha256": "346b18f39d757bd689202ccc64ffa73c0cd599813e3736f4382aa90950ca9ceb",
+          "baselineCount": 1,
+          "targetCount": 1
+        },
+        {
+          "text": "# Dream: Memory Pruning",
+          "bytes": 23,
+          "sha256": "18c49735244ecd13838cf81e978b5c297a5cd463a7e183d0b6aea995f40d8cab",
+          "baselineCount": 1,
+          "targetCount": 1
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/extractMemories/extractMemories.ts",
+          "fragment": "tiny memory mode",
+          "sha256": "346b18f39d757bd689202ccc64ffa73c0cd599813e3736f4382aa90950ca9ceb",
+          "count": 1
+        },
+        {
+          "path": "src/services/autoDream/consolidationPrompt.ts",
+          "fragment": "# Dream: Memory Pruning",
+          "sha256": "18c49735244ecd13838cf81e978b5c297a5cd463a7e183d0b6aea995f40d8cab",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "memory-powershell-hardening",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "The adjacent runtime adds PowerShell-aware deletion, read-only guidance, and immutable-memory rewrite instructions.",
+      "targetFragments": [
+        {
+          "text": "PowerShell Remove-Item",
+          "bytes": 22,
+          "sha256": "b145613351b137b6d50043456ada32312df65bb5fa8b8d6efe5a3fcfc8675f47",
+          "baselineCount": 0,
+          "targetCount": 1
+        },
+        {
+          "text": "Get-ChildItem, Get-Content",
+          "bytes": 26,
+          "sha256": "31dee7f347d2bd1d07da7b10887a8db16338e97e26e2f190443d7d0ac750d191",
+          "baselineCount": 0,
+          "targetCount": 1
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/extractMemories/extractMemories.ts",
+          "fragment": "PowerShell Remove-Item",
+          "sha256": "b145613351b137b6d50043456ada32312df65bb5fa8b8d6efe5a3fcfc8675f47",
+          "count": 1
+        },
+        {
+          "path": "src/services/extractMemories/prompts.ts",
+          "fragment": "Remove-Item",
+          "sha256": "df423aee8c96a3416d5887db130bab36f8f4fc9d84d8ee9d806b9ba5e992aa3e",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "team-artifacts-inherited",
+      "classification": "source-localized-inherited",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "The authenticated bundles already contain team-artifact discovery and delivery; the recovered source restores the tip registry and artifact helper implementation.",
+      "targetFragments": [
+        {
+          "text": "team-artifacts",
+          "bytes": 14,
+          "sha256": "ffecc22717b632fc610bc712ee3fcd827a0dea199e75ecc9e59c26c4b12ca9c1",
+          "baselineCount": 1,
+          "targetCount": 1
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/tips/tipRegistry.ts",
+          "fragment": "id: 'team-artifacts'",
+          "sha256": "b418173575f27deed85942bb7a958db3ccd7d5ec50a96c1e3493f3bd1602bab4",
+          "count": 1
+        },
+        {
+          "path": "src/utils/teamArtifacts.ts",
+          "fragment": "getUnseenTeamArtifacts",
+          "sha256": "705e79a2657a348f752c8a1b2fc7beed9faf138f7f7cc36dcdeb2a2b070aed10",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-plugins-themes"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "push-notification-tips-and-homebrew-copy",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "The adjacent runtime adds the push-notification tip and the Homebrew latest-cask update hint.",
+      "targetFragments": [
+        {
+          "text": "push-notif",
+          "bytes": 10,
+          "sha256": "47d95dcac54f94339843a5f66281b5233b984d56583a323d2023973b0fd972a6",
+          "baselineCount": 0,
+          "targetCount": 1
+        },
+        {
+          "text": "Get pinged on your phone when long tasks finish",
+          "bytes": 47,
+          "sha256": "71b2c38fd5f7102c4382eeb2988b01c41490e1055739c0e04d45ec783c26a7b7",
+          "baselineCount": 0,
+          "targetCount": 1
+        },
+        {
+          "text": "Tip: For more frequent updates, use the claude-code@latest cask:",
+          "bytes": 64,
+          "sha256": "7283ca1f1b99d386d279fdd6c17909591b1b080d79597a9732865b65cb0dbb05",
+          "baselineCount": 0,
+          "targetCount": 1
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/tips/tipRegistry.ts",
+          "fragment": "id: 'push-notif'",
+          "sha256": "c823491b3160e6e54dceaa3af6fb19c3ba93dffec689fcb3d800a43d35a7b7b2",
+          "count": 1
+        },
+        {
+          "path": "src/services/tips/tipRegistry.ts",
+          "fragment": "Get pinged on your phone when long tasks finish",
+          "sha256": "71b2c38fd5f7102c4382eeb2988b01c41490e1055739c0e04d45ec783c26a7b7",
+          "count": 1
+        },
+        {
+          "path": "src/cli/update.ts",
+          "fragment": "Tip: For more frequent updates, use the claude-code@latest cask:",
+          "sha256": "7283ca1f1b99d386d279fdd6c17909591b1b080d79597a9732865b65cb0dbb05",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "plugin-frontmatter-and-source-hardening",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "The plugin/output-style partition adds frontmatter shadow telemetry and removes the obsolete Python package source surface.",
+      "targetFragments": [
+        {
+          "text": "tengu_frontmatter_shadow_unknown_key",
+          "bytes": 36,
+          "sha256": "a2b670de41da6a429fc7ce84e1e90b03c50d583275e3283097c8f8e4a7fbc234",
+          "baselineCount": 0,
+          "targetCount": 1
+        },
+        {
+          "text": "tengu_frontmatter_shadow_mismatch",
+          "bytes": 33,
+          "sha256": "39d9c9e79f29f3842ddc30b75ccbc21a17524c27489a120bc788b153da4f1fe1",
+          "baselineCount": 0,
+          "targetCount": 1
+        },
+        {
+          "text": "Python package as plugin source",
+          "bytes": 31,
+          "sha256": "381bfd31ed931927bf8640390e4bc9f8d546cb99aaa8d190011f9b58ed41b041",
+          "baselineCount": 1,
+          "targetCount": 0
+        },
+        {
+          "text": "Python package plugins are not yet supported",
+          "bytes": 44,
+          "sha256": "34305e0574babc2d05f2b898a615859188dcfafb6d53c49ce5faf01b7f6e62ca",
+          "baselineCount": 1,
+          "targetCount": 0
+        },
+        {
+          "text": "frontmatter",
+          "bytes": 11,
+          "sha256": "11bb4a85269952e2c3ff88a836c71588c1bf29268af5bf92fc96af542ccab27c",
+          "baselineCount": 67,
+          "targetCount": 69
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/frontmatterShadowValidation.ts",
+          "fragment": "tengu_frontmatter_shadow_unknown_key",
+          "sha256": "a2b670de41da6a429fc7ce84e1e90b03c50d583275e3283097c8f8e4a7fbc234",
+          "count": 1
+        },
+        {
+          "path": "src/utils/plugins/schemas.ts",
+          "fragment": "source: z.literal('npm')",
+          "sha256": "0ebc6da36cbeaf1d4901fef5e26cd9a32722c4cfaa106b8692d4d8e62b9a6229",
+          "count": 2
+        },
+        {
+          "path": "src/utils/plugins/pluginLoader.ts",
+          "fragment": "case 'npm':",
+          "sha256": "5888e3a7dca8c484667dc5943266ceb82a979619d124c2fd629e9bf6b8ea8b25",
+          "count": 2
+        },
+        {
+          "path": "src/tools/AgentTool/loadAgentsDir.ts",
+          "fragment": "shadowValidateFrontmatter('agent', frontmatter)",
+          "sha256": "d5cacbb32f2dfba565973716a327af3d4b8a730be84f93a1c08b5ee96463a0b4",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-plugins-themes"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "send-message-routing-safety",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "The adjacent runtime removes wildcard broadcasts and adds an explicit no-addressable-agent failure instead of silently routing stale teammate names.",
+      "targetFragments": [
+        {
+          "text": "broadcast (to: \"*\") is no longer supported",
+          "bytes": 42,
+          "sha256": "07e3b7ea7ae25284b0cf8598baee2c386c8a996bbfae5760b59e026ded4f4bda",
+          "baselineCount": 0,
+          "targetCount": 1
+        },
+        {
+          "text": "No agent named",
+          "bytes": 14,
+          "sha256": "3257900cd222234444f77308d4e1b2e03d1afca4399d2c9ff975d30a0ae32b78",
+          "baselineCount": 0,
+          "targetCount": 1
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/tools/SendMessageTool/SendMessageTool.ts",
+          "fragment": "broadcast (to: \"*\") is no longer supported",
+          "sha256": "07e3b7ea7ae25284b0cf8598baee2c386c8a996bbfae5760b59e026ded4f4bda",
+          "count": 1
+        },
+        {
+          "path": "src/tools/SendMessageTool/SendMessageTool.ts",
+          "fragment": "No agent named",
+          "sha256": "3257900cd222234444f77308d4e1b2e03d1afca4399d2c9ff975d30a0ae32b78",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "allowCandidateOwnership": false
+    },
+    {
+      "id": "teleport-and-remote-task-envelope",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "Teleport and remote-agent envelopes preserve cursor, metadata errors, environment, model, source URL, and archive behavior.",
+      "targetFragments": [
+        {
+          "text": "metadataFetchError",
+          "bytes": 18,
+          "sha256": "f828f2e292d4637ee340d2757800d3d48e782de806d419080c1f15e2bbf080f8",
+          "baselineCount": 0,
+          "targetCount": 2
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/teleport.tsx",
+          "fragment": "metadataFetchError",
+          "sha256": "f828f2e292d4637ee340d2757800d3d48e782de806d419080c1f15e2bbf080f8",
+          "count": 5
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "ccr-transcript-persistence",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "The adjacent runtime introduces explicit ccr-api transcript provenance and suppresses persistence for CCR-originated log messages.",
+      "targetFragments": [
+        {
+          "text": "ccr-api",
+          "bytes": 7,
+          "sha256": "5ebac14c238eb9f30a5aaedf8293c13d472aa49412e83a8ee07e13bb0394ea58",
+          "baselineCount": 0,
+          "targetCount": 2
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/hooks/useLogMessages.ts",
+          "fragment": "kind === 'ccr'",
+          "sha256": "d81c8d9b0fcb9cea834c3f4b56ead9edc1ce829d41e011521a266f13f80b6bec",
+          "count": 1
+        },
+        {
+          "path": "src/screens/REPL.tsx",
+          "fragment": "kind === 'ccr'",
+          "sha256": "d81c8d9b0fcb9cea834c3f4b56ead9edc1ce829d41e011521a266f13f80b6bec",
+          "count": 2
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "pid-reuse-scheduler-hardening",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "Scheduled-task PID ownership is hardened with process-start tokens, lock stamps, caching, and stale-owner detection.",
+      "targetFragments": [
+        {
+          "text": "createdByProcStart",
+          "bytes": 18,
+          "sha256": "704278405df483b8daa1c12ff099d6c67df5f4a240e833e9776ce5eb204e6862",
+          "baselineCount": 0,
+          "targetCount": 6
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/cronScheduler.ts",
+          "fragment": "createdByProcStart",
+          "sha256": "704278405df483b8daa1c12ff099d6c67df5f4a240e833e9776ce5eb204e6862",
+          "count": 2
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "autofix-pr-subscriptions",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "The adjacent runtime expands autofix-pr into an active command backed by remote PR/Slack session subscriptions; the retained disabled index stub is included only as the authenticated namespace attribution bridge.",
+      "targetFragments": [
+        {
+          "text": "autofix-pr",
+          "bytes": 10,
+          "sha256": "22cfb20aec6fd7a31cd4ed0fd0dfb83cafa4ec4ab0472e72ef6e8de9be6a2300",
+          "baselineCount": 4,
+          "targetCount": 7
+        },
+        {
+          "text": "autofix-pr: monitoring",
+          "bytes": 22,
+          "sha256": "508d9cfe9b3db50bb35ea0993973aff29d844637bde325e0559fac569931bf0a",
+          "baselineCount": 0,
+          "targetCount": 1
+        },
+        {
+          "text": "Monitor and autofix any issues with the current PR",
+          "bytes": 50,
+          "sha256": "f39025e988fce82f330acb9744b20684fa6863ad316a586e28a215007266b4e9",
+          "baselineCount": 0,
+          "targetCount": 2
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/commands/autofix-pr/command.ts",
+          "fragment": "name: 'autofix-pr'",
+          "sha256": "3e236204934bf0717d0fd2d9ac8ef9b139062f33d7ac192a5750a1f48d74c1af",
+          "count": 1
+        },
+        {
+          "path": "src/commands/autofix-pr/autofix-pr.tsx",
+          "fragment": "autofix-pr: monitoring",
+          "sha256": "508d9cfe9b3db50bb35ea0993973aff29d844637bde325e0559fac569931bf0a",
+          "count": 1
+        },
+        {
+          "path": "src/bridge/sessionSubscriptions.ts",
+          "fragment": "updatePullRequestSubscription",
+          "sha256": "d7ea34668ecc35d1f6db226ce144f67259c1555b9da1e2d8a638fd3b209ea55c",
+          "count": 1
+        },
+        {
+          "path": "src/commands/autofix-pr/index.js",
+          "fragment": "isEnabled: () => false",
+          "sha256": "34e662c29fd523f948015ce53cbb5c11aa9b9eac5545ea9bb693059eb66b88d3",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "terminal-renderer-probe",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "The adjacent runtime adds the tmux control-mode opt-out classifier and terminal probe telemetry.",
+      "targetFragments": [
+        {
+          "text": "tmux_cc_auto_off",
+          "bytes": 16,
+          "sha256": "91d1529a489cd4300232681f0e3a48fd89839f51b6b484bf439459a9612a83cc",
+          "baselineCount": 0,
+          "targetCount": 1
+        },
+        {
+          "text": "tmux focus-events off \\xB7 add 'set -g focus-events on' to ~/.tmux.conf and reattach for focus tracking",
+          "bytes": 103,
+          "sha256": "47e6ce3f125ed9c8271a8e0f9eaff096453eb49b9ab2bef82fb832d452ab73c8",
+          "baselineCount": 1,
+          "targetCount": 1
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/fullscreen.ts",
+          "fragment": "tmux_cc_auto_off",
+          "sha256": "91d1529a489cd4300232681f0e3a48fd89839f51b6b484bf439459a9612a83cc",
+          "count": 2
+        },
+        {
+          "path": "src/utils/fullscreen.ts",
+          "fragment": "tmux focus-events off · add 'set -g focus-events on' to ~/.tmux.conf and reattach for focus tracking",
+          "sha256": "552a3c95d5f8b879b4b6eb5188854e19ce58bdee074abc7b27dae816edfca7a2",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "warm-resume-hint",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "The adjacent runtime adds warm-resume eligibility telemetry and mounts the recovered WarmResumeHint in Messages; the opaque Messages-owned fragment is retained only as the authenticated importer bridge.",
+      "targetFragments": [
+        {
+          "text": "tengu_warm_resume_hint_eligible",
+          "bytes": 31,
+          "sha256": "0d1bd4ed91b6ffc3bc2a9e7cb768ad173fe5d8b6c07be6669f085edc51cde1ef",
+          "baselineCount": 0,
+          "targetCount": 1
+        },
+        {
+          "text": "`:S_,dimDescription:!0}}let CA=zK.length-1,n9=zK.slice(1).map((S_,Oz)=>{let i9=R$.indexOf(S_),Kf=F$.get(S_),$J=Kf?xJ6(Kf,Z):null,M5=mJ6(S_,{isChild:!0,showProjectPath:M});return{id:`",
+          "bytes": 182,
+          "sha256": "2e58def4f54f4c64ce6959124f92659ac439c62552e4578f7c17aeaf8f4a630b",
+          "baselineCount": 0,
+          "targetCount": 1
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/WarmResumeHint.tsx",
+          "fragment": "tengu_warm_resume_hint_eligible",
+          "sha256": "0d1bd4ed91b6ffc3bc2a9e7cb768ad173fe5d8b6c07be6669f085edc51cde1ef",
+          "count": 1
+        },
+        {
+          "path": "src/components/Messages.tsx",
+          "fragment": "WarmResumeHint",
+          "sha256": "bc4b7c2e1d004637bfd30403579c019148f75331e656fac93580fde9811b3d72",
+          "count": 3
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "fuzzy-picker-multiselect",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "The adjacent picker adds multi-selection and explicit cancel-action handling used by custom-theme editing; the opaque Fuzzy-owned initializer is retained only as the authenticated ownership bridge.",
+      "targetFragments": [
+        {
+          "text": "onSelectMany",
+          "bytes": 12,
+          "sha256": "ef86548e91f9faef3b5189fffe9446e634c8d5b0efdda5c8ac46f607d719fcb2",
+          "baselineCount": 0,
+          "targetCount": 1
+        },
+        {
+          "text": "cancelAction",
+          "bytes": 12,
+          "sha256": "44af4c67781da8f90611b631d8da481561fb7ec1482eb8245e3f221768d5cf8a",
+          "baselineCount": 0,
+          "targetCount": 2
+        },
+        {
+          "text": "\"))D=()=>Y(!0),w=()=>Y(!1),$[0]=D,$[1]=w;else D=$[0],w=$[1];let j=A+TUH,X=!q&&!K&&!z,J;if($[2]!==M||$[3]!==K||$[4]!==O||$[5]!==X)J=p7.createElement(k,{dimColor:X,bold:K},O,M,\"",
+          "bytes": 175,
+          "sha256": "bf90c05b8c4c0a34b357d928ce3c5a40e26a96f028d914fa236e3690505cc3e2",
+          "baselineCount": 0,
+          "targetCount": 1
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/design-system/FuzzyPicker.tsx",
+          "fragment": "onSelectMany",
+          "sha256": "ef86548e91f9faef3b5189fffe9446e634c8d5b0efdda5c8ac46f607d719fcb2",
+          "count": 4
+        },
+        {
+          "path": "src/components/design-system/FuzzyPicker.tsx",
+          "fragment": "cancelAction",
+          "sha256": "44af4c67781da8f90611b631d8da481561fb7ec1482eb8245e3f221768d5cf8a",
+          "count": 3
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-plugins-themes"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "keybinding-dom-events",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "The adjacent runtime adds the DOM-dispatched keybinding feature gate and capture path.",
+      "targetFragments": [
+        {
+          "text": "tengu_keybindings_dom",
+          "bytes": 21,
+          "sha256": "2c2def135a8912c66e34afd7a780a59486c9a4074968ebd46bb29a593ea4d12e",
+          "baselineCount": 0,
+          "targetCount": 1
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/keybindings/keybindingsDom.ts",
+          "fragment": "tengu_keybindings_dom",
+          "sha256": "2c2def135a8912c66e34afd7a780a59486c9a4074968ebd46bb29a593ea4d12e",
+          "count": 1
+        },
+        {
+          "path": "src/keybindings/KeybindingProviderSetup.tsx",
+          "fragment": "onKeyDownCapture={handleKeyDown}",
+          "sha256": "af813ac99b9bf529724440b981457bf8917563074ef115c12aedbbb844a04026",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-editor-hooks"
+      ],
+      "localizationBasis": "authenticated-behavior-test",
+      "localizationBoundary": "The generated attribution map assigns the new DOM gate outside its recovered keybinding modules, so a hash-bound behavior/source test is used instead of a false ownership bridge."
+    },
+    {
+      "id": "classifier-and-agent-stall-safety",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "The adjacent classifier fails closed on policy refusals and unparseable classifier output instead of treating an invalid decision as permission.",
+      "targetFragments": [
+        {
+          "text": "policy_refusal",
+          "bytes": 14,
+          "sha256": "e54e0c8c5bc2e9a4a0e23bd5e8756f70056724c8f72f40e7ec94a6d3380ec3f9",
+          "baselineCount": 0,
+          "targetCount": 5
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/permissions/yoloClassifier.ts",
+          "fragment": "type ClassifierFailureMode = 'policy_refusal' | 'unparseable'",
+          "sha256": "2b4b6a18ed39666ecde2a4ae1a18a58128b132d35d69952f4d6edd2d3519b5f8",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "paste-history-expansion",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "The adjacent editor adds repeated-paste expansion state while preserving the paste-again hint.",
+      "targetFragments": [
+        {
+          "text": "[Oz,i9]=o6.useState(!1),Kf=o6.useRef(null)",
+          "bytes": 42,
+          "sha256": "edb3d7bb3026ef4efccfed4e4647cabbf031cf417209ad2ca3c9e52a55559318",
+          "baselineCount": 0,
+          "targetCount": 1
+        },
+        {
+          "text": "paste again to expand",
+          "bytes": 21,
+          "sha256": "d6b1c95a9c87e34b653a5a009fa3c1a8065883788df5b784a20ebe1cac5a1e37",
+          "baselineCount": 1,
+          "targetCount": 1
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/PromptInput/PromptInput.tsx",
+          "fragment": "expandHighestPastedTextRef",
+          "sha256": "03d9780a9e71ea20005e9905f59df77920065081b057b71adcd0e7f06c1769fa",
+          "count": 2
+        },
+        {
+          "path": "src/components/PromptInput/PromptInputFooterLeftSide.tsx",
+          "fragment": "paste again to expand",
+          "sha256": "d6b1c95a9c87e34b653a5a009fa3c1a8065883788df5b784a20ebe1cac5a1e37",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-editor-hooks"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "native-updater-success-guard",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "The adjacent native updater refuses to launch a second check after a successful result.",
+      "targetFragments": [
+        {
+          "text": "j.current?.status===\"success\"",
+          "bytes": 29,
+          "sha256": "f8fcce55edf3803e71e37b93f17205537abd8a2b5a0a7333a31c86bb9db8eec9",
+          "baselineCount": 0,
+          "targetCount": 1
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/NativeAutoUpdater.tsx",
+          "fragment": "autoUpdaterResultRef.current?.status === 'success'",
+          "sha256": "ab1c133070969091215ba535a14110b5cdac949c6ab589317b9f4733aafd14c7",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-editor-hooks"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "repl-runtime-inherited",
+      "classification": "source-localized-inherited",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "The authenticated bundles already contain the REPL runtime context contract; the recovered source restores its QueryEngine integration and per-agent state.",
+      "targetFragments": [
+        {
+          "text": "setReplContext",
+          "bytes": 14,
+          "sha256": "569ecc378d548e1f26350e15e5cbff889641c5f784f323a35e01c16ba789ccbd",
+          "baselineCount": 10,
+          "targetCount": 10
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/QueryEngine.ts",
+          "fragment": "setReplContext",
+          "sha256": "569ecc378d548e1f26350e15e5cbff889641c5f784f323a35e01c16ba789ccbd",
+          "count": 2
+        },
+        {
+          "path": "src/state/AppStateStore.ts",
+          "fragment": "replContexts",
+          "sha256": "a67cacbdd08ccaceeaf82f5974247d7636718e3d6a78ac9e2c835b15707a3a67",
+          "count": 8
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "allowCandidateOwnership": false
+    },
+    {
+      "id": "fork-command-inherited",
+      "classification": "source-localized-inherited",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "The authenticated bundles already expose /fork; the recovered authored command is paired with fork-context pointer persistence and hydration.",
+      "targetFragments": [
+        {
+          "text": "/fork",
+          "bytes": 5,
+          "sha256": "6e737de1396ec8b6829f6df6ac485f8438df86f8c79bbe41b7db07ffe996badb",
+          "baselineCount": 1,
+          "targetCount": 1
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/commands/fork/fork.ts",
+          "fragment": "/fork",
+          "sha256": "6e737de1396ec8b6829f6df6ac485f8438df86f8c79bbe41b7db07ffe996badb",
+          "count": 2
+        },
+        {
+          "path": "src/utils/sessionStorage.ts",
+          "fragment": "recordForkContextRef",
+          "sha256": "0d8b1b01ca57b8df4e35bbfe2c7880fbbdbcde75d750792eedd92d99149355c2",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "third-party-model-upgrades",
+      "classification": "source-localized-inherited",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "Inherited Bedrock and Vertex model probes, upgrades, fallbacks, dialogs, region mapping, and relaunch are restored.",
+      "targetFragments": [
+        {
+          "text": "[3p-probe] ",
+          "bytes": 11,
+          "sha256": "7dd885d8f087b3fdd344cead12da14a3e1d36bb2175a29f4714c0b83d9a4211f",
+          "baselineCount": 1,
+          "targetCount": 1
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/interactiveHelpers.tsx",
+          "fragment": "[3p-probe] ",
+          "sha256": "7dd885d8f087b3fdd344cead12da14a3e1d36bb2175a29f4714c0b83d9a4211f",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "allowCandidateOwnership": false
+    },
+    {
+      "id": "daemon-protocol-schemas",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "The adjacent runtime adds authenticated daemon job/path/protocol contracts, including a private pipe key and stale-worker respawn operation; daemon lifecycle remains feature-stripped.",
+      "targetFragments": [
+        {
+          "text": "pipe.key",
+          "bytes": 8,
+          "sha256": "f7fd02ae06953f5d732feddeae123857ed97b127fcbde5033316ce70b488e7a1",
+          "baselineCount": 0,
+          "targetCount": 1
+        },
+        {
+          "text": "respawn-stale",
+          "bytes": 13,
+          "sha256": "f8db28b0895003945376d5993815111d2a92d5692bd8b0cd0c753e0c4c01696d",
+          "baselineCount": 0,
+          "targetCount": 1
+        },
+        {
+          "text": "inFlight",
+          "bytes": 8,
+          "sha256": "78b5a409d614e817e782fbc7cda44607068c32e107caed46ddead552633293b5",
+          "baselineCount": 0,
+          "targetCount": 1
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/daemon/jobs.ts",
+          "fragment": "inFlight:",
+          "sha256": "a3e070580f6937e5649a3b5f2f7a459e5d52cf0bf702e1e1c2118f2e0664ec00",
+          "count": 1
+        },
+        {
+          "path": "src/daemon/paths.ts",
+          "fragment": "join(getDaemonDir(), 'pipe.key')",
+          "sha256": "93248d12a7a52e71ae43e001363db1bf77873bb9b4e6db8782e4a5e088a5599b",
+          "count": 1
+        },
+        {
+          "path": "src/daemon/protocol.ts",
+          "fragment": "op: z.literal('respawn-stale')",
+          "sha256": "7b13317de14a15f00c5e70dc9d9b3678ff83d387cb5e555030d07876de3856a5",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "localizationBasis": "authenticated-behavior-test",
+      "localizationBoundary": "The authenticated daemon modules are absent from the generated source map, so their strong runtime literals cannot be attributed to their recovered authored paths without inventing ownership."
+    },
+    {
+      "id": "session-cron-background-exit",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "The adjacent runtime adds session_cron background work classification and an explicit background-work exit confirmation flow.",
+      "targetFragments": [
+        {
+          "text": "session_cron",
+          "bytes": 12,
+          "sha256": "cfb264f7ec6fd5697fd965bcd380f0f1f23e7c647a3f3b8c8982e49bad7d9a62",
+          "baselineCount": 0,
+          "targetCount": 1
+        },
+        {
+          "text": "scheduled task",
+          "bytes": 14,
+          "sha256": "7892cb81321704272c44ea894fdc3610d2891b5413f5d009721b15df47d86d58",
+          "baselineCount": 7,
+          "targetCount": 7
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/tasks/pillLabel.ts",
+          "fragment": "kinds.push('session_cron')",
+          "sha256": "906564861b5fd5fa6980b5c011bb05479f5f0c6006459ca8a152d7e369599635",
+          "count": 1
+        },
+        {
+          "path": "src/utils/sessionCronTasks.ts",
+          "fragment": "getSessionCronTasks",
+          "sha256": "678637cf05c5485144d632cdca3241bb3103e0f0d23b016dcfeedd907d076301",
+          "count": 4
+        },
+        {
+          "path": "src/components/BackgroundExitDialog.tsx",
+          "fragment": "Background work is running",
+          "sha256": "3a4a53a4cc02119b74ab79ecbcc2c7cc82359576cdf497f38c1b896ebe301435",
+          "count": 1
+        },
+        {
+          "path": "src/utils/cronScheduler.ts",
+          "fragment": "scheduled task",
+          "sha256": "7892cb81321704272c44ea894fdc3610d2891b5413f5d009721b15df47d86d58",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "monitor-tool-keepalive",
+      "classification": "source-localized-inherited",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "The authenticated bundles already contain the Monitor tool’s live-notification contract; the recovered source restores its prompt, registration, and keepalive implementation, with monitor: retained only as the authenticated cleanup/ownership bridge.",
+      "targetFragments": [
+        {
+          "text": "stream events from a background script as live notifications",
+          "bytes": 60,
+          "sha256": "a22632b340da29749de60a8a51563e0b5293434e390a501c4d0e86047b99ec9d",
+          "baselineCount": 1,
+          "targetCount": 1
+        },
+        {
+          "text": "monitor:",
+          "bytes": 8,
+          "sha256": "5800f68801eb37a2988daf9bfd5dbe103e32df4d8871e1553e3081304f46e558",
+          "baselineCount": 0,
+          "targetCount": 2
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/tasks/LocalAgentTask/LocalAgentTask.tsx",
+          "fragment": "keepaliveReasons",
+          "sha256": "810ff7f414b02cdfeb26fcc110273cd0b9bba653daf2cd97b7ca0c9472ec353a",
+          "count": 9
+        },
+        {
+          "path": "src/tools/MonitorTool/MonitorTool.tsx",
+          "fragment": "stream events from a background script as live notifications",
+          "sha256": "a22632b340da29749de60a8a51563e0b5293434e390a501c4d0e86047b99ec9d",
+          "count": 1
+        },
+        {
+          "path": "src/tools.ts",
+          "fragment": "MonitorTool",
+          "sha256": "672778649bb458b6f5a74b51be22074cc5f1ed11406c6da6c05b97d00d3edecc",
+          "count": 6
+        },
+        {
+          "path": "src/tasks/LocalShellTask/killShellTasks.ts",
+          "fragment": "skipMonitors",
+          "sha256": "2788ec9c1817074a163778e8b5dc87784f27806c0513a04026af89a4c96a0310",
+          "count": 3
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "session-mirror-and-thinking-display",
+      "classification": "source-localized-inherited",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "Inherited session transcript mirroring and thinking-display controls are restored with ordered flushes.",
+      "targetFragments": [
+        {
+          "text": "transcript_mirror",
+          "bytes": 17,
+          "sha256": "588661104e955c488e5d93f33ae54c0580ef2731dc8f4cdb0cf25af2d499c358",
+          "baselineCount": 6,
+          "targetCount": 6
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/cli/print.ts",
+          "fragment": "transcript_mirror",
+          "sha256": "588661104e955c488e5d93f33ae54c0580ef2731dc8f4cdb0cf25af2d499c358",
+          "count": 2
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "allowCandidateOwnership": false
+    },
+    {
+      "id": "pro-trial-expired-flow",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "The adjacent runtime adds the pro-trial-expired command and its explicit trial-ended UI/action surface; existing upgrade/rate-limit option modules are included only as authenticated action-surface ownership bridges.",
+      "targetFragments": [
+        {
+          "text": "pro-trial-expired",
+          "bytes": 17,
+          "sha256": "a15f84a896a8322285ea085334738cff7f78d896eab1f8562e765f55ceb16f0d",
+          "baselineCount": 0,
+          "targetCount": 1
+        },
+        {
+          "text": "trial has ended",
+          "bytes": 15,
+          "sha256": "66742fff0eb757a44e710d76571ffcb0ded73404fe746d21f0d96be589ff4c95",
+          "baselineCount": 0,
+          "targetCount": 2
+        },
+        {
+          "text": "Upgrade to Max",
+          "bytes": 14,
+          "sha256": "fdf3a23671315d14db62cfec1850f68d3066ebd002f3b417d7d23f6e8936797e",
+          "baselineCount": 1,
+          "targetCount": 2
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/commands/pro-trial-expired/index.ts",
+          "fragment": "name: 'pro-trial-expired'",
+          "sha256": "df9f750cb72290955437395fd92690d5505dff10ff35bdc7b1582aaae5a8cd81",
+          "count": 1
+        },
+        {
+          "path": "src/commands/pro-trial-expired/pro-trial-expired.tsx",
+          "fragment": "trial has ended",
+          "sha256": "66742fff0eb757a44e710d76571ffcb0ded73404fe746d21f0d96be589ff4c95",
+          "count": 1
+        },
+        {
+          "path": "src/commands/upgrade/index.ts",
+          "fragment": "Upgrade to Max for higher rate limits and more Opus",
+          "sha256": "7d8adc4a11ca1ec50ba2b348d3ff053216720cb7a3f4caebd84d7a86a2f04277",
+          "count": 1
+        },
+        {
+          "path": "src/commands/rate-limit-options/index.ts",
+          "fragment": "Show options when rate limit is reached",
+          "sha256": "75109b8094456418f6c6d40f87500a2f59357e3b48c6188d88ca8eee0e7fe11c",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "remote-control-idle-upsell",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "The adjacent runtime adds the push-idle-upsell state key, notification copy, and shown telemetry, mounted from the REPL idle path; the opaque REPL-owned fragment is retained only as the authenticated importer bridge.",
+      "targetFragments": [
+        {
+          "text": "tengu_push_notif_upsell_notification_shown",
+          "bytes": 42,
+          "sha256": "70375c18abc8aa0012c02e4fbe5499fa5756c5e2959cdf6b14de690ddbd53124",
+          "baselineCount": 0,
+          "targetCount": 1
+        },
+        {
+          "text": "push-idle-upsell",
+          "bytes": 16,
+          "sha256": "cdca97c6af0e779ba4232aa034c250c7377d2feb2c974a8df637a8cb367b14dc",
+          "baselineCount": 0,
+          "targetCount": 1
+        },
+        {
+          "text": "get pinged when Claude finishes",
+          "bytes": 31,
+          "sha256": "179e62dee7955ea3f59b6f0cacd3e3cf3c2381cc676ef9be5617ca43eff5250c",
+          "baselineCount": 0,
+          "targetCount": 1
+        },
+        {
+          "text": "\",Mp,Z?.viewerOnly??!1,Z?.sessionId):GD6,[Q8H,Dp,Mp,Z?.viewerOnly,Z?.sessionId]);i$.useEffect(()=>{let O$=jL.isRemoteMode?jL:null,g$=jL.isRemoteMode&&jL.kind===\"",
+          "bytes": 161,
+          "sha256": "44f9e0bd4509c9ce6e2b560c534237fb21aa701e1380967a76399c47a0411737",
+          "baselineCount": 0,
+          "targetCount": 1
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/hooks/useRemoteControlIdleUpsell.tsx",
+          "fragment": "tengu_push_notif_upsell_notification_shown",
+          "sha256": "70375c18abc8aa0012c02e4fbe5499fa5756c5e2959cdf6b14de690ddbd53124",
+          "count": 1
+        },
+        {
+          "path": "src/hooks/useRemoteControlIdleUpsell.tsx",
+          "fragment": "push-idle-upsell",
+          "sha256": "cdca97c6af0e779ba4232aa034c250c7377d2feb2c974a8df637a8cb367b14dc",
+          "count": 1
+        },
+        {
+          "path": "src/screens/REPL.tsx",
+          "fragment": "useRemoteControlIdleUpsell",
+          "sha256": "e5eb26d0ad289ddfd6f9e55922aec802e356f03efd618058e99ed60aad413066",
+          "count": 3
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "schedule-fresh-time-safety",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "The adjacent scheduler prompt permits only the fresh-time Bash(date *) call and recovers the corresponding schedule safety guidance.",
+      "targetFragments": [
+        {
+          "text": "Bash(date *)",
+          "bytes": 12,
+          "sha256": "d4817c540b6840b02d450298df184c156f912d94c714e31750ca42e45cf0c50a",
+          "baselineCount": 0,
+          "targetCount": 1
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/skills/bundled/scheduleRemoteAgents.ts",
+          "fragment": "Bash(date *)",
+          "sha256": "d4817c540b6840b02d450298df184c156f912d94c714e31750ca42e45cf0c50a",
+          "count": 1
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "allowCandidateOwnership": true
+    },
+    {
+      "id": "ultrareview-remote-launch",
+      "classification": "source-localized-inherited",
+      "releaseBullets": [],
+      "hidden": true,
+      "rationale": "Inherited ultrareview remote launch validates repository and branch, confirms launch, preserves task metadata, and replays transcript history.",
+      "targetFragments": [
+        {
+          "text": "ultrareview",
+          "bytes": 11,
+          "sha256": "058c2a4acf9b7ac3c7ce63e097f6cbb78c973afdc752ff69f0f9ba6bca535b29",
+          "baselineCount": 45,
+          "targetCount": 45
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/commands/review/reviewRemote.ts",
+          "fragment": "ultrareview",
+          "sha256": "058c2a4acf9b7ac3c7ce63e097f6cbb78c973afdc752ff69f0f9ba6bca535b29",
+          "count": 22
+        }
+      ],
+      "testIds": [
+        "recovery-2-1-118-runtime-session"
+      ],
+      "allowCandidateOwnership": false
+    }
+  ]
+}

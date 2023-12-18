@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 1,
+  "releaseBulletCount": 1,
+  "officialReleaseEvidence": {
+    "provenance": {
+      "path": "recovery/cases/2.1.122-to-2.1.123/evidence/provenance.json",
+      "bytes": 4900,
+      "sha256": "38688380029e563fcad62b7121e9f8cd77c27e670e271d1b4e159e83a0a06672"
+    },
+    "fullChangelog": {
+      "path": "recovery/cases/2.1.122-to-2.1.123/evidence/claude-code-CHANGELOG-e512ec99.md",
+      "bytes": 264551,
+      "sha256": "10565504230aa417ecd21163e559d8d17e45e4c016a950d16fdfba4a5be9d531"
+    },
+    "sectionArtifact": {
+      "path": "recovery/cases/2.1.122-to-2.1.123/evidence/CHANGELOG-2.1.123.md",
+      "bytes": 127,
+      "sha256": "7268a65de1722072c17c0241e5b74e6f02ca1d3335a4d8a7bd9497daef17ab4c"
+    },
+    "section": "2.1.123",
+    "bulletCount": 1,
+    "bullets": [
+      "Fixed OAuth authentication failing with a 401 retry loop when `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` is set"
+    ]
+  },
+  "releaseBulletEvidence": [
+    {
+      "number": 1,
+      "text": "Fixed OAuth authentication failing with a 401 retry loop when `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` is set",
+      "sha256": "4fd97b6f5c196a5254b3b910b8c1294ec3c34518efae677969063b5730023db4"
+    }
+  ],
+  "sourceAliases": {
+    "src/commands/advisor.ts": "src/commands/advisor/advisor.tsx",
+    "src/utils/autoModeDenials.ts": "src/context/recentDenials.tsx"
+  },
+  "directEvidenceCatalog": {
+    "path": "recovery/cases/2.1.122-to-2.1.123/semantic/direct-evidence.json",
+    "bytes": 5366,
+    "sha256": "621070c2d8b306a563b018bc58b931b88f15eb2fecefcf7ff0614fa79f70e628",
+    "rowCount": 1,
+    "rowIdsSha256": "3d5e712f6c3ef607e349f828c58fd3ef52e005cc85537b920c2e0ea7b154e961"
+  },
+  "testCatalog": [
+    {
+      "id": "adjacent",
+      "path": "recovery/test/recovery-2.1.123-direct-evidence.test.mjs",
+      "bytes": 8835,
+      "sha256": "9d203d9d9f846fea81b5a16f87404cf08c4628861bd64e7023e0f4b8cce1fdfd",
+      "evidence": [
+        {
+          "path": "recovery/cases/2.1.122-to-2.1.123/semantic/direct-evidence.json",
+          "bytes": 5366,
+          "sha256": "621070c2d8b306a563b018bc58b931b88f15eb2fecefcf7ff0614fa79f70e628",
+          "rowCount": 1,
+          "testPinsIdentity": true,
+          "relation": "loaded-and-exactly-verified-by-this-test"
+        }
+      ]
+    },
+    {
+      "id": "oauth-beta-disable-experimental",
+      "path": "recovery/test/recovery-2.1.123-oauth-beta-disable-experimental.test.mjs",
+      "bytes": 6466,
+      "sha256": "19468d795800435fd1fa0e5f0c55accf766043b41c84534d134edd31f409a495"
+    },
+    {
+      "id": "semantic-delta",
+      "path": "recovery/test/recovery-2.1.123-semantic-delta.test.mjs",
+      "bytes": 4400,
+      "sha256": "a93a16a709f8bde780fc1c3fa339be45c7c6ae7f38ff35b1891b4c210dd1c126"
+    }
+  ],
+  "obligations": [
+    {
+      "id": "official-2-1-123-b01",
+      "classification": "source-localized-adjacent",
+      "releaseBullets": [
+        1
+      ],
+      "category": "official",
+      "rationale": "B01: The authenticated target splits first-party beta-provider compatibility from the experimental-beta kill switch: OAuth/WIF selection and provider filtering use the provider-only predicate, while experimental beta inclusion remains kill-switch gated.",
+      "targetFragments": [
+        {
+          "text": "function an8(){let H=qK();return H===\"firstParty\"||H===\"anthropicAws\"||H===\"foundry\"}",
+          "bytes": 85,
+          "sha256": "2f5a5d66fb2a75ebceac10fb1113c8a94bc41dad7fe94f34fe3185c69e603d86",
+          "baselineCount": 0,
+          "targetCount": 1
+        },
+        {
+          "text": "function bp(){return an8()&&!IH(process.env.CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS)}",
+          "bytes": 84,
+          "sha256": "1c0dac7880f360d384fd1c70fe65925f5a3b8c5314a064dd9537aba152660679",
+          "baselineCount": 0,
+          "targetCount": 1
+        },
+        {
+          "text": "if(Iq()||an8()&&!eL()&&oI())$.push(Lw);",
+          "bytes": 39,
+          "sha256": "b1f2f4120db7e2afca4a56ee6d4e36b5804e6d21ba27ca286f8e006f10cd626e",
+          "baselineCount": 0,
+          "targetCount": 1
+        },
+        {
+          "text": "function eqK(H){if(an8())return H;return H.filter(($)=>tqK.has($))}",
+          "bytes": 67,
+          "sha256": "fe762ab7c6ec7e91341e58afb1daa3b5a3b842f2d0efdb1a1f2d01dff6876351",
+          "baselineCount": 0,
+          "targetCount": 1
+        },
+        {
+          "text": "function Tb(){let H=qK();return(H===\"firstParty\"||H===\"anthropicAws\"||H===\"foundry\")&&!IH(process.env.CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS)}",
+          "bytes": 142,
+          "sha256": "427f9782618293253302a1f6ef03077d67b20f456505e8fe391b60cfb4145abb",
+          "baselineCount": 1,
+          "targetCount": 0
+        }
+      ],
+      "targetAbsences": [
+        {
+          "text": "function Tb(){let H=qK();return(H===\"firstParty\"||H===\"anthropicAws\"||H===\"foundry\")&&!IH(process.env.CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS)}",
+          "bytes": 142,
+          "sha256": "427f9782618293253302a1f6ef03077d67b20f456505e8fe391b60cfb4145abb",
+          "baselineCount": 1,
+          "targetCount": 0
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/betas.ts",
+          "fragment": "function isFirstPartyBetaProvider(): boolean {",
+          "bytes": 46,
+          "sha256": "76a2d67a94a08d624f8c2d4317cf4c38b0f6bbcd56123f861e2f2660bc7c4e11",
+          "count": 1
+        },
+        {
+          "path": "src/utils/betas.ts",
+          "fragment": "provider === 'firstParty' ||\n    provider === 'anthropicAws' ||\n    provider === 'foundry'",
+          "bytes": 90,
+          "sha256": "3ca88cd124c5a5655da6d67bebf4ce751bd4c2e0313720918354141742c95227",
+          "count": 1
+        },
+        {
+          "path": "src/utils/betas.ts",
+          "fragment": "isFirstPartyBetaProvider() &&\n    !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS)",
+          "bytes": 98,
+          "sha256": "5adde199c1cc90f93ee3b9795b8400b4ac26f6f5ab668658cb338fc71b1abd63",
+          "count": 1
+        },
+        {
+          "path": "src/utils/betas.ts",
+          "fragment": "isClaudeAISubscriber() ||\n    (isFirstPartyBetaProvider() &&\n      !getAnthropicApiKey() &&\n      shouldUseWIFAuth())",
+          "bytes": 117,
+          "sha256": "41c963acb963d6bf56b0d9c0d03bf6b3908599753b53fd1d399cb458b60f2e88",
+          "count": 1
+        },
+        {
+          "path": "src/utils/betas.ts",
+          "fragment": "if (isFirstPartyBetaProvider()) return betas",
+          "bytes": 44,
+          "sha256": "3d521643a41b6d712f71b935ed85365f347a08ff4e7ea0ae92f0e0850baecad8",
+          "count": 1
+        }
+      ],
+      "sourceAbsences": [],
+      "testIds": [
+        "adjacent",
+        "oauth-beta-disable-experimental",
+        "semantic-delta"
+      ],
+      "catalogBinding": {
+        "path": "recovery/cases/2.1.122-to-2.1.123/semantic/direct-evidence.json",
+        "bytes": 5366,
+        "sha256": "621070c2d8b306a563b018bc58b931b88f15eb2fecefcf7ff0614fa79f70e628",
+        "rawId": "B01",
+        "rowSha256": "eda83bf53de21e1d29fb5bd6ed55c28b8740637bfbce68935969512db3083782",
+        "kind": "reviewed-row-scoped-direct-evidence"
+      },
+      "localizationBasis": "authenticated-behavior-test",
+      "localizationBoundary": "The pinned direct-evidence test loads this exact catalog identity and verifies this row’s authenticated adjacent-bundle counts, exact source fragment hashes and counts, row-scoped fragment absences, and authenticated deleted-file identities.",
+      "retainedSourcePaths": []
+    }
+  ]
+}

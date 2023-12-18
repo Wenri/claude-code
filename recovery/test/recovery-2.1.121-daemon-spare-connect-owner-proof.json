@@ -1,0 +1,226 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-daemon-spare-connect-row-scoped-source-owner-v1",
+  "status": "case-owned-row-scoped-static-source-owner-evidence",
+  "claim": "The u22124 and u22125 connect-event rows form one Target121 spare-lifecycle source cluster. Complete u22124 is sendClaimOnce and complete u22125 is reapOrphanSpares; both are authored in the newly added src/daemon/spare.ts, share its sole net connect import, and are imported together by the Target121 supervisor. The raw and packaged Target121 source graphs are byte-identical. Target120 has no daemon/spare.ts or spare supervisor imports/calls. This proof corrects only the two connect rows, rejects the coarse client.ts and ManagePlugins.tsx candidates, and performs no whole-unit override or replay.",
+  "evidenceIds": [
+    "target121-daemon-spare-connect-authenticated-target-units",
+    "target121-daemon-spare-connect-source-owner-graph",
+    "target121-daemon-spare-connect-supervisor-callers",
+    "target121-daemon-spare-connect-row-partition"
+  ],
+  "caseFiles": {
+    "helper": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/recovered/daemon-spare-connect-owner-evidence.mjs",
+      "bytes": 2087,
+      "sha256": "7f18980014cc75d300c6a219e18c7b6c4408e287cc5c2f2578ad09994671dd2c"
+    }
+  },
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "frozenPostDangerousSnapshot": {
+      "method": "The typed report and source coverage were read exactly once before case edits. This fixture preserves the selected row identities and coverage state; the proof tests never reopen either shared artifact.",
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25390987,
+        "sha256": "42f65dcc82a571f02ac59c9ec86858b6adbe2be3158c2d8a17ac4d6d1b9e4bd7"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 345319,
+        "sha256": "c6547d4d59a31aa2b68230d848ad7cd55d9498051e376389040e8738c14030b2",
+        "rawBytes": 2965690,
+        "rawSha256": "d35578e7e08e0a53a4020a5347d4ff8c4a1bc4e98a30ea8b9cbe4913b14f9592"
+      },
+      "selectedRows": [
+        [22124, "string", "connect", 13849686, 13849695, 30, 32, true],
+        [22125, "string", "connect", 13850089, 13850098, 30, 33, true]
+      ],
+      "selectedRowDescriptors": [
+        {"bytes":55,"sha256":"61d3cef03f0ea16fdd1d8bba434cbce4f836447b875e1236eff54c03cd532267"},
+        {"bytes":55,"sha256":"3eb7702aed83e58393a2104c79fccea7941e37e3acf88a8df9b7839e0143c4fa"}
+      ],
+      "aggregateRowDescriptor": {"bytes":113,"sha256":"2280374ef9a9eed190c5098e2d786f8ff2de5786381f0c3e91d05c15fefbe620"},
+      "partitions": {"owner":true,"added":true,"strict":false,"unclassified":false},
+      "coverageRows": [
+        {
+          "targetIndex": 22124,
+          "start": 13849595,
+          "end": 13849730,
+          "nodeType": "FunctionDeclaration",
+          "sourceHash": "b7bbf9b03bd6f9ccf932756fae7f4933268749c12f272d017cd474d718b033f9",
+          "structuralClass": "unresolved",
+          "disposition": "source-runtime-covered",
+          "ownerIds": ["owner-src-daemon-client-ts"],
+          "evidenceIds": ["target2-1-121-tail-authenticated-target-occurrence-test","target2-1-121-tail-transitive-source-ast-test"]
+        },
+        {
+          "targetIndex": 22125,
+          "start": 13849730,
+          "end": 13850445,
+          "nodeType": "FunctionDeclaration",
+          "sourceHash": "340ce54c7f6285c36cb5f828f3cc230f39eb24fa41cdb156cfafab2aa9e75c69",
+          "structuralClass": "unresolved",
+          "disposition": "source-runtime-covered",
+          "ownerIds": ["owner-src-commands-plugin-ManagePlugins-tsx","owner-src-daemon-spare-ts"],
+          "evidenceIds": ["target2-1-121-tail-authenticated-target-occurrence-test","target2-1-121-tail-transitive-source-ast-test"]
+        }
+      ]
+    },
+    "frozenPostPruneSnapshot": {
+      "typedReport": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25396455,"sha256":"f63079907d813bffaf98cb89d28b8b2e183df9fe2e1c72b21f10fa2fd5c0a3f4"},
+      "sourceCoverage": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":345989,"sha256":"05ac9243d7cee276bc51c8eb0c8e4e3678f96d941560cae620d05af240d7cdd4","rawBytes":2968244,"rawSha256":"7be9d68b6144e09290d58e3dae17f21df9536852b5f8415e777c9f7dd3ad1c06"},
+      "localCounts": {"u22124":{"owner":1,"added":1,"strict":0},"u22125":{"owner":5,"added":1,"strict":0}},
+      "selectedRowsPresent": []
+    },
+    "frozenPostDaemonOwnerSnapshot": {
+      "typedReport": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25369097,"sha256":"2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3"},
+      "sourceCoverage": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":347677,"sha256":"91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83","rawBytes":2974761,"rawSha256":"8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f"},
+      "localCounts": {"u22124":{"owner":1,"added":1,"strict":0},"u22125":{"owner":5,"added":1,"strict":0}},
+      "selectedRowsPresent": [],
+      "projection": "postPrune local partitions with exact post-daemon-owner artifact descriptors"
+    },
+    "sourceRoots": {
+      "baseline": ".recovery-tmp/semantic-trees/2.1.120/src",
+      "raw": ".recovery-tmp/semantic-trees/2.1.121/src",
+      "package": "/tmp/target121-dangerous-final.WeP2Nu/2.1.121/src",
+      "postPrunePackage": "/tmp/target121-prune-final.QAqOlk/2.1.121/src"
+    }
+  },
+  "connectLiteralLineage": {
+    "baseline": {
+      "count": 30,
+      "coordinatesDescriptor": {"bytes":547,"sha256":"d37290f2ad28bc0605272751680f543b31fd146e75386973dc3eecf9b87dcb05"},
+      "tail": [[11167932,11167941],[11414777,11414786],[11821868,11821877],[11823601,11823610],[11849892,11849901]]
+    },
+    "target": {
+      "count": 33,
+      "coordinatesDescriptor": {"bytes":607,"sha256":"ba48a82332ab9112573de86c9e790dd4395584cad67126f20ad9ff8961092734"},
+      "tail": [[11902647,11902656],[11904361,11904370],[13849157,13849166],[13849686,13849695],[13850089,13850098]]
+    },
+    "selectedTargetOrdinals": [32,33],
+    "selectedTargetCoordinates": [[13849686,13849695],[13850089,13850098]]
+  },
+  "targetUnits": [
+    {
+      "targetIndex": 22124,
+      "name": "hS5",
+      "nodeType": "FunctionDeclaration",
+      "parseStatus": "parsed",
+      "classification": "unresolved",
+      "unknownFreeIdentifierCount": 1,
+      "start": 13849595,
+      "end": 13849730,
+      "bytes": 135,
+      "tokenCount": 73,
+      "sha256": "b7bbf9b03bd6f9ccf932756fae7f4933268749c12f272d017cd474d718b033f9",
+      "coarseHash": "b9ed332b78cbe86f6f1f5a8a05d6072add49db33c0ce5662fc437c93f9e14ba3",
+      "sourceDeclaration": "sendClaimOnce"
+    },
+    {
+      "targetIndex": 22125,
+      "name": "Du6",
+      "nodeType": "FunctionDeclaration",
+      "parseStatus": "parsed",
+      "classification": "unresolved",
+      "unknownFreeIdentifierCount": 12,
+      "start": 13849730,
+      "end": 13850445,
+      "bytes": 715,
+      "tokenCount": 349,
+      "sha256": "340ce54c7f6285c36cb5f828f3cc230f39eb24fa41cdb156cfafab2aa9e75c69",
+      "coarseHash": "b7f63b915cd7ad551256ddc4fb8cf215f07581266ec7a71d2d278dd4bcfc0398",
+      "sourceDeclaration": "reapOrphanSpares"
+    }
+  ],
+  "compiledCallers": {
+    "sendClaimOnceCaller": {
+      "targetIndex": 22123,
+      "name": "ES5",
+      "start": 13849341,
+      "end": 13849595,
+      "bytes": 254,
+      "tokenCount": 112,
+      "sha256": "a5f589ff6b7d86a2e88833ad182e09382ba09f2d28d91ae603ba8649ecdbcb7d",
+      "callIdentifier": {"start":13849472,"end":13849475}
+    },
+    "reapOrphanSparesCaller": {
+      "targetIndex": 22151,
+      "name": "Gb4",
+      "start": 13862719,
+      "end": 13866298,
+      "bytes": 3579,
+      "tokenCount": 1571,
+      "sha256": "c297101ebf74a02d6dd3a71b7b212f6a7eb4004cd96baa8fdcc9ab8975c36825",
+      "callIdentifier": {"start":13865561,"end":13865564}
+    }
+  },
+  "sourceGraph": {
+    "baseline": {
+      "spareFile": null,
+      "supervisorFile": {"bytes":53198,"sha256":"2cf2b91d2a7153af5cbb69eeb04c570821f4ec93789e1117dee6eaa74c2132e1"},
+      "spareImportCount": 0,
+      "sendSpareClaimIdentifierCount": 0,
+      "reapOrphanSparesIdentifierCount": 0
+    },
+    "targetStates": [
+      {
+        "name": "raw",
+        "spareFile": {"bytes":8255,"sha256":"3e84edd0e5c5bfa745319723943159c5128581203374bd49f5e3fb701f4541cf"},
+        "supervisorFile": {"bytes":71160,"sha256":"980a6ad10a274f9703ef8ed5a664702bee0af1ad6b2d12b90fd187c7baa66979"}
+      },
+      {
+        "name": "package",
+        "spareFile": {"bytes":8255,"sha256":"3e84edd0e5c5bfa745319723943159c5128581203374bd49f5e3fb701f4541cf"},
+        "supervisorFile": {"bytes":71160,"sha256":"980a6ad10a274f9703ef8ed5a664702bee0af1ad6b2d12b90fd187c7baa66979"}
+      }
+    ],
+    "netImport": {"start":122,"end":165,"chars":43,"bytes":43,"sha256":"19a09cd3d73b6cd87b83da52188fafbfab00c05cad2aa3318ac00d5230383190"},
+    "declarations": [
+      {"name":"sendClaimOnce","start":3413,"end":3700,"chars":287,"bytes":287,"sha256":"e454bc586e8ad2f39b929a6e51f6cd33e3c6413d1fff1b6e43ea56e3d828ac27","connectCall":{"start":3549,"end":3562,"bytes":13,"sha256":"6139ceb96d589eba09e1cfeaca05df9d2723ee8f8067967b9f9bf0fc84e23321"},"connectLiteral":{"start":3612,"end":3621,"bytes":9,"sha256":"0b8ae8b373966c167e55dae22771440bee5a2e8da1b0d7af9412d2437351151f"}},
+      {"name":"sendSpareClaim","start":3702,"end":4330,"chars":628,"bytes":628,"sha256":"8af2b3bd2eb26a6b1a11862625474b3ce4faa6e2fe7220aef4724ad935f2362f","sendClaimOnceCall":{"start":4034,"end":4060,"bytes":26,"sha256":"484367e791fcb88e47bd3568d15403bf4f495e9dcbc5a26543812c95663f2e2f"}},
+      {"name":"reapOrphanSpares","start":6698,"end":8015,"chars":1317,"bytes":1317,"sha256":"4b96a98235cf016bf8ec8d8244ade6e8c3cb45cd9d6904f8f7bc3092a28b18c0","connectCall":{"start":7315,"end":7328,"bytes":13,"sha256":"6139ceb96d589eba09e1cfeaca05df9d2723ee8f8067967b9f9bf0fc84e23321"},"connectLiteral":{"start":7409,"end":7418,"bytes":9,"sha256":"0b8ae8b373966c167e55dae22771440bee5a2e8da1b0d7af9412d2437351151f"}}
+    ],
+    "supervisor": {
+      "spareImport": {"start":1958,"end":2075,"chars":117,"bytes":117,"sha256":"e2f44529817a56f0e15f82682c6af805de80e84a37c3a35fb8d4055839944016"},
+      "sendSpareClaimCall": {"start":65791,"end":65955,"chars":164,"bytes":164,"sha256":"728cc7bdaa5d2b9d98a9c1539059e28576c680e3575cca9521608ea57bff71ec"},
+      "reapOrphanSparesCall": {"start":69757,"end":69787,"chars":30,"bytes":30,"sha256":"3450ae8b98fe9c26cb7409244e9026d6231aa20965024c9199990ec46910e6cb"}
+    },
+    "decision": "static-row-scoped-source-authored-no-replay"
+  },
+  "rowBoundary": {
+    "admittedRows": [
+      [22124, "string", "connect", 13849686, 13849695, 30, 32, true],
+      [22125, "string", "connect", 13850089, 13850098, 30, 33, true]
+    ],
+    "correctedOwnerPaths": ["src/daemon/spare.ts"],
+    "rejectedOwnerPaths": ["src/daemon/client.ts","src/commands/plugin/ManagePlugins.tsx"],
+    "wholeUnitOverride": false,
+    "sourceReplay": false,
+    "impact": {"owner":-2,"added":-2,"strict":0,"coverage":0}
+  },
+  "summary": {
+    "units": 2,
+    "residues": 2,
+    "sourceFiles": 2,
+    "wholeUnitOverride": false,
+    "sourceReplay": false,
+    "rawStrictRowsRemoved": 0
+  }
+}

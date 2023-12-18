@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.112-to-2.1.113",
+  "artifact": {
+    "baselineSha256": "bc3358282800e3e99daa8e71ac5b7b1566bd0d7ca7eb94f714a7859365d3163f",
+    "targetInnerSha256": "4a3c3636c8cb19ef42d6319e5c6ef9b029f5de148b84f22315d159052d6c5eba",
+    "targetWrapperSha256": "dda4d89e787fa455706e4f41beffc8e58d42b9094c4d155fcbf62e3f19036681",
+    "targetWrapperPrefixLength": 87,
+    "targetWrapperSuffixLength": 3,
+    "structuralGzipSha256": "383448923995bb86060ce91beac2bc5adac35817a0cdff35b533135c7d24345f",
+    "partitionsGzipSha256": "45e368b3796910ee5d23a2f3e9e28ddc3aa36a807255f5525861ec187ca572e2",
+    "sourcesGzipSha256": "712903263b5e794a73af21ede024ebff4bf1981524bda64fe687201597fec118"
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1
+  },
+  "row": {
+    "targetIndex": 13269,
+    "disposition": "dependency-runtime",
+    "category": "first-party-vendored-build-input-unpinned",
+    "classification": "material-or-unresolved-delta-unpinned",
+    "package": "audio-capture-napi",
+    "sourceBuildInputPinned": false,
+    "coverageOwners": [],
+    "sourceAttribution": {
+      "sourceIndex": 3648,
+      "source": "../vendor/audio-capture-src/index.ts",
+      "mappedSegmentCount": 222,
+      "envelopeStart": 9150954,
+      "envelopeEnd": 9152230,
+      "targetAnchorStart": 8453557,
+      "targetAnchorEnd": 8453623,
+      "targetAnchorCount": 2,
+      "targetAnchorSampleSha256": "7f582939dff1fe7794cfc3e2d7f13c29a4a39696fa511709c6002cd08601a58d"
+    },
+    "integrationConsumer": {
+      "sourceIndex": 3649,
+      "source": "../src/services/voice.ts",
+      "targetAnchorStart": 8454710,
+      "targetAnchorEnd": 8458033,
+      "sourcePath": "src/services/voice.ts",
+      "module": "audio-capture-napi",
+      "availabilityExport": "isNativeAudioAvailable"
+    },
+    "baseline": {
+      "index": 12143,
+      "start": 9172850,
+      "end": 9173255,
+      "nodeType": "FunctionDeclaration",
+      "tokenCount": 130,
+      "sourceHash": "a17ff3f142b1abd910f2821dae994c462f21a33d94d5cacb352a661586c4040b",
+      "coarseHash": "9f7ff86007722f53c6a3693b1368127aa99e631f9529fdf3d953e8530ed802bc"
+    },
+    "target": {
+      "classification": "unresolved",
+      "index": 13269,
+      "start": 8453397,
+      "end": 8453713,
+      "nodeType": "FunctionDeclaration",
+      "tokenCount": 109,
+      "sourceHash": "67a0658da770c4606b030935a735ef31ff4e1d121f0155f6cec283f28c7992e0",
+      "coarseHash": "a1d3347a807465b2ca47f5c513add1763f96cfaf7cc49a7ee4618db7576f5534"
+    },
+    "residue": {
+      "kind": "string",
+      "value": "x64-",
+      "start": 8453543,
+      "end": 8453547,
+      "baselineCount": 0,
+      "targetOrdinal": 1,
+      "proof": "native-platform-build-folding",
+      "arch": "x64",
+      "platform": "linux"
+    },
+    "vendorImplementation": {
+      "baselineArchExpression": "process.arch",
+      "baselinePlatformExpression": "process.platform",
+      "targetArch": "x64",
+      "targetPlatform": "linux",
+      "fallbacks": [
+        "./vendor/audio-capture/${platformDir}/audio-capture.node",
+        "../audio-capture/${platformDir}/audio-capture.node"
+      ]
+    },
+    "targetReachability": [
+      {
+        "role": "vendor-export",
+        "targetIndex": 13268,
+        "start": 8453118,
+        "end": 8453397,
+        "nodeType": "ExpressionStatement",
+        "sourceHash": "a254dd2afdd214a03c2dedd3c58675310d7078c60b0f24900f79f536a3b5b904"
+      },
+      {
+        "role": "availability-adapter",
+        "targetIndex": 13270,
+        "start": 8453713,
+        "end": 8453747,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "68913a5318d75cd33c799e881e035884bf23b2b873d6cb540c0693f604c76638"
+      },
+      {
+        "role": "voice-service-consumer",
+        "targetIndex": 13282,
+        "start": 8454569,
+        "end": 8454777,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "8bec0b03e5867961996d037f5c0c21bc008c582abbfd0738c258278b736a1566"
+      }
+    ]
+  }
+}

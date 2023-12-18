@@ -1,0 +1,524 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "status": "authenticated-complete-unit-static-owner-proof-no-replay",
+  "claim": "Target119 u21878 is the evolved complete run entrypoint descended from Target118 u20972 and owned by src/main.tsx::run. Fifty-four of its fifty-nine added rows retain unique 121-token Target118 predecessor windows after exact build-macro normalization. The five remaining rows are closed by the exact CCR and ccshare/file-resume source and compiled graph. The source is already complete, so only owner/evidence strengthening is authorized and replay is forbidden.",
+  "artifactPhasePolicy": {
+    "pairing": "exact-report-and-coverage-descriptor-pair",
+    "rejectHybridPairs": true,
+    "rejectUnknownPairs": true,
+    "acceptedPairs": [
+      {
+        "phase": "post-u21759",
+        "typedAudit": {
+          "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+          "bytes": 24991569,
+          "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"
+        },
+        "sourceCoverage": {
+          "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+          "bytes": 382108,
+          "sha256": "09d6075beeb3174217b97555ddbf67593b72fb5ba9c67e1e143154bd955af810"
+        },
+        "sourceCoverageRaw": {
+          "bytes": 3290710,
+          "sha256": "858d4a5dcfb37ce36a43078351ed68dd76c1e565e883617ff451974c2fde1071"
+        }
+      },
+      {
+        "phase": "post-u21878",
+        "typedAudit": {
+          "path": ".recovery-tmp/residue-audits/2.1.118-to-2.1.119.typed-audit.json",
+          "bytes": 24991569,
+          "sha256": "c4ab243f3937141db7984b0d4d9cdde7900805369a74a8b9b7589b13fbd1e78d"
+        },
+        "sourceCoverage": {
+          "path": "recovery/cases/2.1.118-to-2.1.119/semantic/source-coverage.json.gz",
+          "bytes": 383456,
+          "sha256": "874421d61f40166898113e0967be904859cda7c00493ee57303b97164bbb0015"
+        },
+        "sourceCoverageRaw": {
+          "bytes": 3297173,
+          "sha256": "0facb150b84243148609b0e5562484d5d9e5c29f895d03c3a3566484b347b08e"
+        }
+      }
+    ]
+  },
+  "inputs": {
+    "helper": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/recovered/main-run-build-profile-owner-overrides.mjs",
+      "bytes": 1742,
+      "sha256": "49b3ef98ee4f0a60485033672764ddc7ed0a0627296a02c78a256ac5641f8ae4"
+    },
+    "baselineBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "target118Proof": {
+      "path": "recovery/test/recovery-2.1.118-main-entrypoint-inherited-owner-proof.json",
+      "bytes": 11003,
+      "sha256": "755ae14e868d04ca4a84c73e5f24c2353c3fcc4a15564f343cf229110e3e71d4"
+    },
+    "target118HistoricalSource": {
+      "path": ".recovery-tmp/semantic-trees/2.1.118/src/main.tsx",
+      "bytes": 808444,
+      "sha256": "9edfedd84c9154bdd800ca72cc879049e4c7a8fbf0b185a42adfe874cd3fa0bb",
+      "declaration": {
+        "name": "run",
+        "characterStart": 48362,
+        "characterEnd": 231097,
+        "byteStart": 48394,
+        "byteEnd": 231301,
+        "bytes": 182907,
+        "sha256": "e4da6252bd3ad1e7fa70ba63e96d16e9e3f2a4895d8ee4bcfddcc52a327c0a6b"
+      }
+    },
+    "target119HistoricalSource": {
+      "path": ".recovery-tmp/semantic-trees/2.1.119/src/main.tsx",
+      "bytes": 810059,
+      "sha256": "27f42341f13a7a3708d02105d813f42ec9d95487d9dda26a70a553dc3874d0cc",
+      "declaration": {
+        "name": "run",
+        "characterStart": 48628,
+        "characterEnd": 232712,
+        "byteStart": 48660,
+        "byteEnd": 232916,
+        "bytes": 184256,
+        "sha256": "97a745faada1459ad2a8ec60eac4acf5e81ceadf3a1df8e4354c5c7d78608b5e"
+      }
+    },
+    "target119SourceVariants": [
+      {
+        "kind": "historical-or-raw",
+        "file": {
+          "bytes": 810059,
+          "sha256": "27f42341f13a7a3708d02105d813f42ec9d95487d9dda26a70a553dc3874d0cc"
+        },
+        "declaration": {
+          "characterStart": 48628,
+          "characterEnd": 232712,
+          "byteStart": 48660,
+          "byteEnd": 232916,
+          "bytes": 184256,
+          "sha256": "97a745faada1459ad2a8ec60eac4acf5e81ceadf3a1df8e4354c5c7d78608b5e"
+        }
+      },
+      {
+        "kind": "package",
+        "file": {
+          "bytes": 809321,
+          "sha256": "1700d785a42f5383f7167e71c6eb937c3d1342df5b82fbbc841a55ef5a97cb0c"
+        },
+        "declaration": {
+          "characterStart": 47890,
+          "characterEnd": 231974,
+          "byteStart": 47922,
+          "byteEnd": 232178,
+          "bytes": 184256,
+          "sha256": "97a745faada1459ad2a8ec60eac4acf5e81ceadf3a1df8e4354c5c7d78608b5e"
+        }
+      }
+    ]
+  },
+  "evidenceIds": [
+    "target119-main-run-authenticated-complete-units",
+    "target119-main-run-canonical-predecessor-windows",
+    "target119-main-run-build-macro-normalization",
+    "target119-main-run-source-ccr-ccshare-graph",
+    "target119-main-run-strict-residue-partition"
+  ],
+  "ownerOverride": {
+    "key": "2.1.118-to-2.1.119:21878",
+    "targetIndex": 21878,
+    "paths": [
+      "src/main.tsx"
+    ],
+    "declarations": [
+      "run"
+    ],
+    "evidenceIds": [
+      "target119-main-run-authenticated-complete-units",
+      "target119-main-run-canonical-predecessor-windows",
+      "target119-main-run-build-macro-normalization",
+      "target119-main-run-source-ccr-ccshare-graph",
+      "target119-main-run-strict-residue-partition"
+    ],
+    "behavior": "The complete authenticated Target118 u20972 and Target119 u21878 FunctionDeclaration run units establish one src/main.tsx implementation boundary. Fifty-four of fifty-nine Target119 added-owner rows have a unique 121-token Target118 predecessor window, including six exact VERSION, BUILD_TIME, and GIT_SHA normalizations. The five context exceptions are confined to the authenticated CCR and ccshare/file-resume graph: Target119 source adds handleOAuth401Error to the CCR configuration, while the exact Target118 and Target119 source blocks already share includeHookEvents and the ccshare/file-resume flow that the Target119 build profile materializes. Of twenty-two strict rows, thirteen are raw predecessor occurrences, six are macro-normalized, two are retained not_found_explicit_id/failure_reason graph occurrences, and only parseCcshareId is a newly materialized strict occurrence. Exact historical, raw, and packaged run declarations close the source boundary. This is a complete-unit static proof and authorizes no replay."
+  },
+  "units": {
+    "baselineRun": {
+      "index": 20972,
+      "classification": "unmatched-baseline",
+      "nodeType": "FunctionDeclaration",
+      "start": 13166596,
+      "end": 13226366,
+      "bytes": 59770,
+      "tokenCount": 15865,
+      "sourceHash": "24cabb3ede118da6eacd67a7ccf9ed6a8d292e25367f0043ffcad1fbe1427a46",
+      "coarseHash": "a2031c94771853b84fa1002e4c6fdb5687ac7eb5bd50e3470455f358715d9dbd"
+    },
+    "targetRun": {
+      "index": 21878,
+      "classification": "unresolved",
+      "nodeType": "FunctionDeclaration",
+      "start": 13648239,
+      "end": 13709317,
+      "bytes": 61078,
+      "tokenCount": 16287,
+      "sourceHash": "948c3520eb82ca37ee71a4784c7ee0982d1bd53f774ff294a28af6d766546ea6",
+      "coarseHash": "af4df22700a53e86977f37ee5d6a783ebc37352fe188d6eca9b73f52e4a74eb5",
+      "unknownFreeIdentifierCount": 41
+    }
+  },
+  "snapshotPartitions": {
+    "tupleSchema": [
+      "value",
+      "literalKind",
+      "targetAdded",
+      "baselineOccurrenceCount",
+      "targetOccurrenceNumber",
+      "target.start",
+      "target.end",
+      "structural.index",
+      "structural.classification",
+      "structural.sourceHash",
+      "disposition",
+      "ownerPaths"
+    ],
+    "residueTupleSchema": [
+      "literalKind",
+      "value",
+      "target.start",
+      "target.end",
+      "baselineOccurrenceCount",
+      "targetOccurrenceNumber"
+    ],
+    "counts": {
+      "owner": 220,
+      "added": 59,
+      "strict": 22,
+      "retainedOwner": 161
+    },
+    "ownerDescriptor": {
+      "rows": 220,
+      "jsonBytes": 89382,
+      "sha256": "fd48656b075192c5898b7c66c4ea754987a55267de5b50fcdfa8584c5a64472b"
+    },
+    "ownerTupleDescriptor": {
+      "rows": 220,
+      "jsonBytes": 41862,
+      "sha256": "69147cb41df66dcc102c1cef94becfb034c1386298841f22740244828bbeb3f7"
+    },
+    "addedDescriptor": {
+      "rows": 59,
+      "jsonBytes": 80308,
+      "sha256": "f79d72ff331a512bfbc565c4f28ff43bea7dcd2928afbade2ac61299592c7842"
+    },
+    "addedTupleDescriptor": {
+      "rows": 59,
+      "jsonBytes": 10953,
+      "sha256": "6fcfee8ce049e0c5b616ce4548415e6afd943c411a61d82cb86b1f87d9c97959"
+    },
+    "addedResidueTupleDescriptor": {
+      "rows": 59,
+      "jsonBytes": 3342,
+      "sha256": "04917f5ac5a539a33d9f243ea82131767927dc5009e59e4c4dabeaf414470e82"
+    },
+    "strictDescriptor": {
+      "rows": 22,
+      "jsonBytes": 11121,
+      "sha256": "fbd83a47f9167a1c7b42923f9f209b227ebf91b61ddd6dc5f230b4bc1a18f212"
+    },
+    "strictTupleDescriptor": {
+      "rows": 22,
+      "jsonBytes": 4164,
+      "sha256": "c19750af58396d41be3d81fdb87769744fd12e207f767474e42554b0e8cd935e"
+    },
+    "retainedOwnerDescriptor": {
+      "rows": 161,
+      "jsonBytes": 65686,
+      "sha256": "f78e7488b0a2792638f578ef92e269d7524ec778613d188ccc67680f043da45b"
+    },
+    "retainedOwnerTupleDescriptor": {
+      "rows": 161,
+      "jsonBytes": 30910,
+      "sha256": "84bc428c7afed52acca7920da8f62a68181e6382b495f4398e4d9950190ee8b4"
+    }
+  },
+  "canonicalTokenProof": {
+    "windowRadius": 60,
+    "windowTokens": 121,
+    "baselineCanonicalStream": {
+      "tokens": 15865,
+      "bytes": 96885,
+      "sha256": "012b7521cb1548197823d0d1a8c6f855804109a7e31579a55e2193a96645bf88"
+    },
+    "targetCanonicalStream": {
+      "tokens": 16287,
+      "bytes": 99147,
+      "sha256": "52a2826ddf66aa0f2c2c7a55a6be462ec26e6cf8594fc03cdb17aea7bf36b4ea"
+    },
+    "macroValues": {
+      "baseline": [
+        "2.1.118",
+        "2026-04-22T21:04:38Z",
+        "ef88b5f0a79aac989f53fd18178939a54a48624a"
+      ],
+      "target": [
+        "2.1.119",
+        "2026-04-23T19:08:52Z",
+        "6f68554839756189e277b8285a18fe47acd9a5a1"
+      ],
+      "canonical": [
+        "BUILD:VERSION",
+        "BUILD:TIME",
+        "BUILD:SHA"
+      ]
+    },
+    "mappingProjectionSchema": [
+      "addedRowIndex",
+      "targetTokenIndex",
+      "baselineTokenIndex",
+      "relativeOffsetWithinWindow",
+      "targetWindowStartTokenIndex",
+      "baselineWindowStartTokenIndex",
+      "baselineTokenStart",
+      "baselineTokenEnd",
+      "baselineRaw",
+      "canonicalWindowSha256"
+    ],
+    "mappedRowIndexes": [
+      0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+      16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
+      31, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50,
+      51, 52, 53, 54, 55, 56, 57, 58
+    ],
+    "mappingDescriptor": {
+      "rows": 54,
+      "jsonBytes": 7328,
+      "sha256": "197e8c50773942466b59b61ed75e391aa0aaa108c0b2f94aa63aa93630aa6e21"
+    },
+    "exceptionProjectionSchema": [
+      "addedRowIndex",
+      "targetTokenIndex",
+      "targetRaw",
+      "targetStart",
+      "targetEnd"
+    ],
+    "exceptionRows": [
+      [32, 10645, "handleOAuth401Error", 13688271, 13688290],
+      [33, 11308, "parseCcshareId", 13690212, 13690226],
+      [34, 11492, "isAbsolute", 13690776, 13690786],
+      [35, 11515, "\"not_found_explicit_id\"", 13690868, 13690891],
+      [36, 11538, "failure_reason", 13690960, 13690974]
+    ],
+    "exceptionDescriptor": {
+      "rows": 5,
+      "jsonBytes": 243,
+      "sha256": "961a43e60c649e0fa7104f0202eaf76bdc637dfcbf153c062c6a89f985aa77e2"
+    }
+  },
+  "strictProof": {
+    "strictRowIndexes": [
+      6, 16, 19, 21, 25, 27, 28, 33, 35, 36, 37, 38, 39, 40, 41,
+      44, 47, 49, 53, 55, 56, 57
+    ],
+    "rawPredecessorRowIndexes": [
+      6, 16, 19, 28, 37, 38, 39, 40, 41, 44, 47, 56, 57
+    ],
+    "macroNormalizedRowIndexes": [
+      21, 25, 27, 49, 53, 55
+    ],
+    "retainedGraphOccurrenceRowIndexes": [
+      35, 36
+    ],
+    "buildProfileMaterializedRowIndexes": [
+      33
+    ],
+    "counts": {
+      "rawPredecessor": 13,
+      "macroNormalized": 6,
+      "retainedGraphOccurrence": 2,
+      "buildProfileMaterialized": 1,
+      "total": 22
+    }
+  },
+  "sourceGraph": {
+    "target118IncludeHookGraph": {
+      "characterStart": 26161,
+      "characterEnd": 26492,
+      "byteStart": 26181,
+      "byteEnd": 26512,
+      "bytes": 331,
+      "sha256": "23814a6436e422cbe851d9127a63eb55f010996712b607179d5e8023891d95a4"
+    },
+    "target119IncludeHookGraph": {
+      "characterStart": 26794,
+      "characterEnd": 27125,
+      "byteStart": 26814,
+      "byteEnd": 27145,
+      "bytes": 331,
+      "sha256": "23814a6436e422cbe851d9127a63eb55f010996712b607179d5e8023891d95a4"
+    },
+    "target118CcrGraph": {
+      "characterStart": 129695,
+      "characterEnd": 130150,
+      "byteStart": 129827,
+      "byteEnd": 130282,
+      "bytes": 455,
+      "sha256": "bc1585d7735791b81a79108db09271a56c7d4094154cf9b55233a12de72a4603",
+      "handleOAuth401ErrorOccurrences": 0
+    },
+    "target119CcrGraph": {
+      "characterStart": 130845,
+      "characterEnd": 131368,
+      "byteStart": 130977,
+      "byteEnd": 131500,
+      "bytes": 523,
+      "sha256": "1c66a95a61a88394a2dd196cdf6c308feef63dd2b30ef4bb537099e29c09669b",
+      "handleOAuth401ErrorOccurrences": 2
+    },
+    "target118CcshareGraph": {
+      "characterStart": 135404,
+      "characterEnd": 139450,
+      "byteStart": 135538,
+      "byteEnd": 139586,
+      "bytes": 4048,
+      "sha256": "46b3a5356addfa969c400292d83753662f6b2b2c4ae7617380823c2b191fed7c",
+      "parseCcshareIdOccurrences": 2,
+      "loadCcshareOccurrences": 2
+    },
+    "target119CcshareGraph": {
+      "characterStart": 136736,
+      "characterEnd": 140782,
+      "byteStart": 136870,
+      "byteEnd": 140918,
+      "bytes": 4048,
+      "sha256": "46b3a5356addfa969c400292d83753662f6b2b2c4ae7617380823c2b191fed7c",
+      "parseCcshareIdOccurrences": 2,
+      "loadCcshareOccurrences": 2
+    },
+    "targetBuildProfileGraph": {
+      "start": 13690153,
+      "end": 13691086,
+      "bytes": 933,
+      "sha256": "f6e723882575c4c02ed2236b8ec86ed3bc58bddf8061daf03cca2868f92732af",
+      "tokenCount": 298,
+      "canonicalDescriptor": {
+        "bytes": 1625,
+        "sha256": "30230ede4986cb7cee854cee7c0c4fe7f2d97d2f72192aaccbdc0e35e0e6c20d"
+      },
+      "parseCcshareId": [[13690212, 13690226]],
+      "isAbsolute": [[13690776, 13690786]],
+      "notFoundExplicitId": [[13690738, 13690761], [13690868, 13690891]],
+      "failureReason": [[13690723, 13690737], [13690853, 13690867], [13690960, 13690974]]
+    },
+    "baselineCliResumeGraph": {
+      "start": 13208242,
+      "end": 13208460,
+      "bytes": 218,
+      "sha256": "fe63235109452471ace9c6f65ad9948a14ce34947d626b7ae2bdf26d8341a5e8",
+      "tokenCount": 65,
+      "canonicalDescriptor": {
+        "bytes": 382,
+        "sha256": "e98396f19685c24a97b34712e665d5c76e94eed5213f8faedaf97581d7937358"
+      },
+      "notFoundExplicitId": [[13208325, 13208348]],
+      "failureReason": [[13208310, 13208324]]
+    },
+    "targetCliResumeGraph": {
+      "start": 13691176,
+      "end": 13691394,
+      "bytes": 218,
+      "sha256": "44539c78b15d14bd051eecfc88374330b395dcb614065aa096307c77535c8e64",
+      "tokenCount": 65,
+      "canonicalDescriptor": {
+        "bytes": 382,
+        "sha256": "e98396f19685c24a97b34712e665d5c76e94eed5213f8faedaf97581d7937358"
+      },
+      "notFoundExplicitId": [[13691259, 13691282]],
+      "failureReason": [[13691244, 13691258]]
+    }
+  },
+  "coverageSnapshot": {
+    "targetDescriptor": {
+      "rows": 1,
+      "jsonBytes": 504,
+      "sha256": "b667cd26116c723c14581b92772b9f01ce45c4375a3871310d34d0823d87c52f"
+    },
+    "target": [
+      {
+        "targetIndex": 21878,
+        "start": 13648239,
+        "end": 13709317,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "948c3520eb82ca37ee71a4784c7ee0982d1bd53f774ff294a28af6d766546ea6",
+        "structuralClass": "unresolved",
+        "disposition": "source-runtime-covered",
+        "ownerIds": ["owner-src-main-tsx"],
+        "evidenceIds": ["source-map-attribution", "semantic-test"],
+        "behavior": "Compiled target unit is attributed to src/main.tsx; its authored runtime owner and call path are present in the target semantic tree and current cumulative src/."
+      }
+    ],
+    "postU21878": {
+      "targetDescriptor": {
+        "rows": 1,
+        "jsonBytes": 1572,
+        "sha256": "fb57fcd2abb1f2cd90cfb85c7e30c912684c0a358c9053e75d3d99078737a0d5"
+      },
+      "target": [
+        {
+          "targetIndex": 21878,
+          "start": 13648239,
+          "end": 13709317,
+          "nodeType": "FunctionDeclaration",
+          "sourceHash": "948c3520eb82ca37ee71a4784c7ee0982d1bd53f774ff294a28af6d766546ea6",
+          "structuralClass": "unresolved",
+          "disposition": "source-runtime-covered",
+          "ownerIds": ["owner-src-main-tsx"],
+          "evidenceIds": [
+            "target119-main-run-authenticated-complete-units",
+            "target119-main-run-canonical-predecessor-windows",
+            "target119-main-run-build-macro-normalization",
+            "target119-main-run-source-ccr-ccshare-graph",
+            "target119-main-run-strict-residue-partition"
+          ],
+          "behavior": "The complete authenticated Target118 u20972 and Target119 u21878 FunctionDeclaration run units establish one src/main.tsx implementation boundary. Fifty-four of fifty-nine Target119 added-owner rows have a unique 121-token Target118 predecessor window, including six exact VERSION, BUILD_TIME, and GIT_SHA normalizations. The five context exceptions are confined to the authenticated CCR and ccshare/file-resume graph: Target119 source adds handleOAuth401Error to the CCR configuration, while the exact Target118 and Target119 source blocks already share includeHookEvents and the ccshare/file-resume flow that the Target119 build profile materializes. Of twenty-two strict rows, thirteen are raw predecessor occurrences, six are macro-normalized, two are retained not_found_explicit_id/failure_reason graph occurrences, and only parseCcshareId is a newly materialized strict occurrence. Exact historical, raw, and packaged run declarations close the source boundary. This is a complete-unit static proof and authorizes no replay."
+        }
+      ]
+    },
+    "ownerCatalogDescriptor": {
+      "rows": 1,
+      "jsonBytes": 51,
+      "sha256": "5f727a50dcc47ca4f3b92468c19c69eeea5b0cb37a59096ca21a197705fb2f5d"
+    },
+    "ownerCatalog": [
+      {
+        "id": "owner-src-main-tsx",
+        "path": "src/main.tsx"
+      }
+    ]
+  },
+  "expectedImpact": {
+    "ownerPathChanges": 0,
+    "ownerRowsChanged": 0,
+    "addedRowsChanged": 0,
+    "strictRowsChanged": 0,
+    "coverageRowsStrengthened": 1,
+    "coverageOwnerIdChanges": 0,
+    "newSourceFiles": 0,
+    "replayHelpers": 0
+  },
+  "replay": null
+}

@@ -1,0 +1,285 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "authenticated-uds-registry-source-replay",
+  "criterion": "exact-authenticated-target-unit-plus-closed-registry-field-semantics-plus-idempotent-source-replay-v1",
+  "evidenceIds": [
+    "target119-uds-registry-target-fragment",
+    "target119-uds-registry-source-replay-test"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "frozenAnalysis": {
+      "path": "recovery/test/recovery-2.1.119-owner-residue-analysis.json",
+      "bytes": 751734,
+      "sha256": "2f724f6eeb76b532bb76c264887e78fce4c4435f073992d2cc539ca12890edc7"
+    },
+    "sourcePreimage": {
+      "path": "src/utils/udsClient.ts",
+      "bytes": 7441,
+      "sha256": "9dcee42c4c88b9e63c4888c0005f6f7a65732a1e8c8a481e8e3558581bb350cc"
+    },
+    "sourcePostimage": {
+      "path": "src/utils/udsClient.ts",
+      "bytes": 7275,
+      "sha256": "af64419e15b607cce8e1eb3aaab6683d29cf4a958433630bd0f29bc83c23dfec"
+    },
+    "sourcePreimageScope": {
+      "name": "readRegistry",
+      "kind": "FunctionDeclaration",
+      "start": 3279,
+      "end": 6002,
+      "bytes": 2723,
+      "sha256": "cd2f1ebb85fb2c31f3c7354a17718005383ee41584fcb369c04d1d6545b96ea9"
+    },
+    "sourcePostimageScope": {
+      "name": "readRegistry",
+      "kind": "FunctionDeclaration",
+      "start": 3279,
+      "end": 5836,
+      "bytes": 2557,
+      "sha256": "1bb7bba6126c8725ac349b30988b10e319ecde763fbc6c8bc05e313369f23063"
+    }
+  },
+  "targetModule": {
+    "start": 7653227,
+    "end": 7656232,
+    "bytes": 3005,
+    "sha256": "aaacc8025656fe51d3450ed16e70b88cb18473d04bd657755fc0b97f7c0e6a43"
+  },
+  "summary": {
+    "units": 1,
+    "residues": 18,
+    "targetIndicesSha256": "b7e37458c2ae5f09c5e13619f7fb76b3621beef147181199947981453dbe09fe",
+    "residueIdentitiesSha256": "2cf15bc8f2bcfe781acf43d43b91380e80586777200ee430ead752505f54617a"
+  },
+  "ownerOverrides": [
+    {
+      "key": "2.1.118-to-2.1.119:12161",
+      "targetIndex": 12161,
+      "paths": [
+        "src/utils/udsClient.ts"
+      ],
+      "evidenceIds": [
+        "target119-uds-registry-target-fragment",
+        "target119-uds-registry-source-replay-test"
+      ],
+      "behavior": "The complete authenticated Target119 UDS readRegistry unit is owned by src/utils/udsClient.ts; the replay restores its exact filename parser and preserves the target-observed nullish/default versus guarded registry-field behavior before owner attribution is admitted."
+    }
+  ],
+  "rows": [
+    {
+      "targetIndex": 12161,
+      "ownerPath": "src/utils/udsClient.ts",
+      "priorOwnerPaths": [
+        "src/utils/fileHistory.ts"
+      ],
+      "evidenceIds": [
+        "target119-uds-registry-target-fragment",
+        "target119-uds-registry-source-replay-test"
+      ],
+      "behavior": "The complete authenticated Target119 UDS readRegistry unit is owned by src/utils/udsClient.ts; the replay restores its exact filename parser and preserves the target-observed nullish/default versus guarded registry-field behavior before owner attribution is admitted.",
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 7654220,
+        "end": 7655452,
+        "bytes": 1232,
+        "sourceHash": "41d5d438a23e045ffeaf64580f8bd88bbff305ae00b696e5f4311c8d2a879f6d"
+      },
+      "sourcePreimageScope": {
+        "name": "readRegistry",
+        "kind": "FunctionDeclaration",
+        "start": 3279,
+        "end": 6002,
+        "bytes": 2723,
+        "sha256": "cd2f1ebb85fb2c31f3c7354a17718005383ee41584fcb369c04d1d6545b96ea9"
+      },
+      "sourcePostimageScope": {
+        "name": "readRegistry",
+        "kind": "FunctionDeclaration",
+        "start": 3279,
+        "end": 5836,
+        "bytes": 2557,
+        "sha256": "1bb7bba6126c8725ac349b30988b10e319ecde763fbc6c8bc05e313369f23063"
+      },
+      "representation": "authenticated-source-replay",
+      "residues": [
+        {
+          "kind": "regexp",
+          "value": {
+            "flags": "",
+            "pattern": "^\\d+\\.json$"
+          },
+          "start": 7654356,
+          "end": 7654369,
+          "baselineCount": 1,
+          "targetOrdinal": 2
+        },
+        {
+          "kind": "regexp",
+          "value": {
+            "flags": "",
+            "pattern": "\\.json$"
+          },
+          "start": 7654423,
+          "end": 7654432,
+          "baselineCount": 0,
+          "targetOrdinal": 1
+        },
+        {
+          "kind": "property",
+          "value": "messagingSocketPath",
+          "start": 7654538,
+          "end": 7654557,
+          "baselineCount": 0,
+          "targetOrdinal": 1
+        },
+        {
+          "kind": "property",
+          "value": "logPath",
+          "start": 7654789,
+          "end": 7654796,
+          "baselineCount": 0,
+          "targetOrdinal": 2
+        },
+        {
+          "kind": "property",
+          "value": "logPath",
+          "start": 7654799,
+          "end": 7654806,
+          "baselineCount": 0,
+          "targetOrdinal": 3
+        },
+        {
+          "kind": "property",
+          "value": "waitingFor",
+          "start": 7654828,
+          "end": 7654838,
+          "baselineCount": 0,
+          "targetOrdinal": 1
+        },
+        {
+          "kind": "property",
+          "value": "waitingFor",
+          "start": 7654848,
+          "end": 7654858,
+          "baselineCount": 0,
+          "targetOrdinal": 2
+        },
+        {
+          "kind": "property",
+          "value": "waitingFor",
+          "start": 7654872,
+          "end": 7654882,
+          "baselineCount": 0,
+          "targetOrdinal": 3
+        },
+        {
+          "kind": "property",
+          "value": "updatedAt",
+          "start": 7654909,
+          "end": 7654918,
+          "baselineCount": 4,
+          "targetOrdinal": 5
+        },
+        {
+          "kind": "property",
+          "value": "updatedAt",
+          "start": 7654932,
+          "end": 7654941,
+          "baselineCount": 4,
+          "targetOrdinal": 6
+        },
+        {
+          "kind": "property",
+          "value": "tempo",
+          "start": 7655201,
+          "end": 7655206,
+          "baselineCount": 3,
+          "targetOrdinal": 4
+        },
+        {
+          "kind": "property",
+          "value": "tempo",
+          "start": 7655221,
+          "end": 7655226,
+          "baselineCount": 3,
+          "targetOrdinal": 5
+        },
+        {
+          "kind": "property",
+          "value": "needs",
+          "start": 7655249,
+          "end": 7655254,
+          "baselineCount": 1,
+          "targetOrdinal": 2
+        },
+        {
+          "kind": "property",
+          "value": "needs",
+          "start": 7655268,
+          "end": 7655273,
+          "baselineCount": 1,
+          "targetOrdinal": 3
+        },
+        {
+          "kind": "property",
+          "value": "peerProtocol",
+          "start": 7655281,
+          "end": 7655293,
+          "baselineCount": 1,
+          "targetOrdinal": 2
+        },
+        {
+          "kind": "property",
+          "value": "peerProtocol",
+          "start": 7655303,
+          "end": 7655315,
+          "baselineCount": 1,
+          "targetOrdinal": 3
+        },
+        {
+          "kind": "property",
+          "value": "peerProtocol",
+          "start": 7655329,
+          "end": 7655341,
+          "baselineCount": 1,
+          "targetOrdinal": 4
+        },
+        {
+          "kind": "property",
+          "value": "tmux",
+          "start": 7655381,
+          "end": 7655385,
+          "baselineCount": 2,
+          "targetOrdinal": 3
+        }
+      ]
+    }
+  ],
+  "replay": {
+    "helper": "recovery/cases/2.1.118-to-2.1.119/recovered/replay-uds-registry-source-gap.mjs",
+    "sourcePath": "src/utils/udsClient.ts",
+    "edits": [
+      "restore parseInt(file.replace(/\\.json$/, ''), 10) filename parsing",
+      "restore target nullish defaults for messagingSocketPath, cwd, and startedAt",
+      "restore target direct optional reads for name, sessionId, and logPath"
+    ]
+  }
+}

@@ -1,0 +1,319 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.119-to-2.1.120",
+  "status": "authenticated-direct-owner-with-compiler-and-dce-residue-proof",
+  "criterion": "target120-compiler-tail-whole-unit-owner-v1",
+  "evidenceIds": [
+    "target2-1-120-compiler-tail-authenticated-target-fragment-test",
+    "target2-1-120-compiler-tail-source-ast-test",
+    "target2-1-120-compiler-tail-normalization-and-dce-test"
+  ],
+  "inputs": {
+    "targetBundle": {
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.119-to-2.1.120/structural/generated-delta.json.gz",
+      "bytes": 2490663,
+      "sha256": "181e0be57cbb6e8d438b5ed0d3f54aa22ac3222d70dbc429b663d13d341729a3"
+    },
+    "typedAudit": {
+      "path": ".recovery-tmp/residue-audits/2.1.119-to-2.1.120.typed-audit.json",
+      "bytes": 20999065,
+      "sha256": "30843cd34174a5c7c4f59defa92d7dc25b62d30a34dd11e01d5d5e08b5f15187"
+    },
+    "sourceFiles": [
+      {
+        "path": "src/components/FleetView.tsx",
+        "bytes": 82350,
+        "sha256": "dc4b63eb534e2a2923c6667430db1b241873939b9ff10bcf853b772707249314"
+      },
+      {
+        "path": "src/query.ts",
+        "bytes": 74778,
+        "sha256": "c942b265f87fa617f1305b6bf971b40eaaff232b552e90a828b5a0bd363c3bbc"
+      },
+      {
+        "path": "src/screens/Doctor.tsx",
+        "bytes": 75394,
+        "sha256": "f4399da6befe625a09739c7429b1633f3f8a04911e5c1ad7bfd7f8f6f89ed913"
+      },
+      {
+        "path": "src/utils/messages/systemInit.ts",
+        "bytes": 4873,
+        "sha256": "39ad8a69b48472e8a98e020d125280d29d4c7b9a29c74a8d0ada9b7d9e0799f1"
+      },
+      {
+        "path": "src/utils/plugins/schemas.ts",
+        "bytes": 64882,
+        "sha256": "d374920a031ea206cc65165e6e0fa244cb873ad957c82ab57e0da4158d4c723a"
+      },
+      {
+        "path": "src/utils/sessionStorage.ts",
+        "bytes": 203577,
+        "sha256": "2c471ff8fd29375b48a76844287b1e4ca734af70a4ef70885f136d2ae1245cd1"
+      }
+    ]
+  },
+  "summary": {
+    "units": 6,
+    "ownerCorrections": 3,
+    "residues": 30,
+    "sourceAstResidues": 6,
+    "compilerResidues": 24,
+    "representationCounts": {
+      "build-metadata-object-expansion": 18,
+      "control-table-lowering": 1,
+      "dead-feature-guard": 1,
+      "regexp-ignore-case-expansion": 4
+    },
+    "indicesSha256": "cbf75e8fed3144e1375447230c9edec78b19da4acab4fd68b8e7b6dd6acd9a1b",
+    "residueIdentitiesSha256": "1cce6d361eeb47bd3eb3a4a0df9ec62e2ad8b49b299eb0084d8eea6cf8723df0"
+  },
+  "bundleAssertions": [
+    {
+      "needle": "eI7",
+      "count": 3
+    },
+    {
+      "needle": "var eI7=null,oJ6=null",
+      "count": 1
+    }
+  ],
+  "rows": [
+    {
+      "targetIndex": 2626,
+      "ownerPath": "src/utils/plugins/schemas.ts",
+      "priorOwnerPaths": [
+        "src/utils/plugins/schemas.ts"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "VariableDeclaration",
+        "start": 1060292,
+        "end": 1087232,
+        "bytes": 26940,
+        "sourceHash": "02bb1eeb990147b5f50b5e567a17e4ea6da266d4aa16695055b3794e886b470b"
+      },
+      "residues": 4,
+      "sourceAstResidues": 0,
+      "compilerGroups": [
+        {
+          "representation": "regexp-ignore-case-expansion",
+          "targetStarts": [
+            1084086,
+            1084200,
+            1084470,
+            1084538
+          ],
+          "sourceMarkers": [
+            "/^[a-z0-9][-a-z0-9._]*@[a-z0-9][-a-z0-9._]*$/i",
+            "const DEP_REF_REGEX =",
+            ".regex(/^[a-z0-9][-a-z0-9._]*$/i)"
+          ],
+          "targetMarkers": [
+            "/^[A-Za-z0-9][-A-Za-z0-9._]*@[A-Za-z0-9][-A-Za-z0-9._]*$/",
+            "/^[A-Za-z0-9][-A-Za-z0-9._]*(@[A-Za-z0-9][-A-Za-z0-9._]*)?(@\\^[^@]*)?$/"
+          ]
+        }
+      ],
+      "behavior": "Plugin manifest schemas own the case-insensitive plugin-id and dependency-reference regular expressions expanded by the compiler."
+    },
+    {
+      "targetIndex": 14093,
+      "ownerPath": "src/query.ts",
+      "priorOwnerPaths": [
+        "src/query.ts"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 8831137,
+        "end": 8848139,
+        "bytes": 17002,
+        "sourceHash": "c23aa028b6fd87afc6b726640b24466f5bfb2e2d3d46c649adef042e1fcabaf9"
+      },
+      "residues": 1,
+      "sourceAstResidues": 0,
+      "compilerGroups": [
+        {
+          "representation": "dead-feature-guard",
+          "targetStarts": [
+            8839470
+          ],
+          "sourceMarkers": [
+            "if (!needsFollowUp) {",
+            "const isWithheld413 =",
+            "reactiveCompact?.isWithheldMediaSizeError(lastMessage)"
+          ],
+          "targetMarkers": [
+            "eI7!==null",
+            "eI7.isToolUseDeniedMessage(xH)"
+          ]
+        }
+      ],
+      "behavior": "The query loop owns the no-tool recovery branch containing the statically disabled tool-denial extension guard."
+    },
+    {
+      "targetIndex": 16238,
+      "ownerPath": "src/screens/Doctor.tsx",
+      "priorOwnerPaths": [
+        "src/components/mcp/McpParsingWarnings.tsx"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 10089369,
+        "end": 10092054,
+        "bytes": 2685,
+        "sourceHash": "68e656efa6c1324f54e84166138851b16d6481bd0a78dfcd2e5ecec802f7c219"
+      },
+      "residues": 7,
+      "sourceAstResidues": 1,
+      "compilerGroups": [
+        {
+          "representation": "build-metadata-object-expansion",
+          "targetStarts": [
+            10090219,
+            10090308,
+            10090339,
+            10090690,
+            10090779,
+            10090810
+          ],
+          "sourceMarkers": [
+            "function BackgroundServerDetails",
+            "supervisor.version !== MACRO.VERSION"
+          ],
+          "targetMarkers": [
+            "VERSION:\"2.1.120\"",
+            "BUILD_TIME:\"2026-04-24T19:00:49Z\""
+          ]
+        }
+      ],
+      "behavior": "Doctor owns the background-server version, lifecycle mode, and configured-worker warning rendered by the authenticated target unit."
+    },
+    {
+      "targetIndex": 19022,
+      "ownerPath": "src/utils/sessionStorage.ts",
+      "priorOwnerPaths": [
+        "src/utils/sessionStorage.ts"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "VariableDeclaration",
+        "start": 11593415,
+        "end": 11595133,
+        "bytes": 1718,
+        "sourceHash": "42cde86f82d071acb0d8dfe71f66ccee33474481693f4a60a8a8e06ad2dd45d8"
+      },
+      "residues": 4,
+      "sourceAstResidues": 0,
+      "compilerGroups": [
+        {
+          "representation": "build-metadata-object-expansion",
+          "targetStarts": [
+            11593834,
+            11593923,
+            11593954
+          ],
+          "sourceMarkers": [
+            "const VERSION = typeof MACRO !== 'undefined' ? MACRO.VERSION : 'unknown'"
+          ],
+          "targetMarkers": [
+            "VERSION:\"2.1.120\"",
+            "BUILD_TIME:\"2026-04-24T19:00:49Z\""
+          ]
+        },
+        {
+          "representation": "control-table-lowering",
+          "targetStarts": [
+            11594081
+          ],
+          "sourceMarkers": [
+            "entry.type === 'user' ||",
+            "const isNewUuid = !messageSet.has(entry.uuid)"
+          ],
+          "targetMarkers": [
+            "dz4={user:\"dedup-transcript\""
+          ]
+        }
+      ],
+      "behavior": "Session storage owns the append-policy dispatch table and compile-time version constant emitted by the authenticated module initializer."
+    },
+    {
+      "targetIndex": 19633,
+      "ownerPath": "src/components/FleetView.tsx",
+      "priorOwnerPaths": [
+        "src/utils/claudeInChrome/chromeNativeHost.ts"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 11944674,
+        "end": 11948038,
+        "bytes": 3364,
+        "sourceHash": "be09bc391f6d43cde7cadba2cd5f0291ecc08549c2fab93e73048eb718cfd5bf"
+      },
+      "residues": 9,
+      "sourceAstResidues": 3,
+      "compilerGroups": [
+        {
+          "representation": "build-metadata-object-expansion",
+          "targetStarts": [
+            11946620,
+            11946709,
+            11946740,
+            11947131,
+            11947220,
+            11947251
+          ],
+          "sourceMarkers": [
+            "MACRO.VERSION"
+          ],
+          "targetMarkers": [
+            "VERSION:\"2.1.120\"",
+            "BUILD_TIME:\"2026-04-24T19:00:49Z\""
+          ]
+        }
+      ],
+      "behavior": "FleetView owns the extracted focused-job details component and its version/update presentation."
+    },
+    {
+      "targetIndex": 19776,
+      "ownerPath": "src/utils/messages/systemInit.ts",
+      "priorOwnerPaths": [
+        "src/bridge/bridgePermissionCallbacks.ts"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 12021857,
+        "end": 12023128,
+        "bytes": 1271,
+        "sourceHash": "201bf0aee29d4315c787199f07f5a0797c09fb9f77ae19ecf889d3b051b99bf1"
+      },
+      "residues": 5,
+      "sourceAstResidues": 2,
+      "compilerGroups": [
+        {
+          "representation": "build-metadata-object-expansion",
+          "targetStarts": [
+            12022429,
+            12022518,
+            12022549
+          ],
+          "sourceMarkers": [
+            "claude_code_version: MACRO.VERSION"
+          ],
+          "targetMarkers": [
+            "VERSION:\"2.1.120\"",
+            "BUILD_TIME:\"2026-04-24T19:00:49Z\""
+          ]
+        }
+      ],
+      "behavior": "The SDK system-init builder owns version, skills, plugins, and team-memory path fields in the authenticated target unit."
+    }
+  ]
+}

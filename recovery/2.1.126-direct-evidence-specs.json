@@ -1,0 +1,2037 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.124-to-2.1.126",
+  "release": "2.1.126",
+  "complete": true,
+  "inputs": [
+    {
+      "path": "recovery/cases/2.1.124-to-2.1.126/evidence/CHANGELOG-2.1.126.md",
+      "bytes": 4218,
+      "sha256": "fe059e6e6e8b301550c6ffe594a3f4dcc79c4529446e7e2909f32c771bea2d05"
+    },
+    {
+      "path": "recovery/cases/2.1.124-to-2.1.126/evidence/RELEASE-2.1.126.json",
+      "bytes": 1355,
+      "sha256": "54ceff9a4e1a3c276b751c5ca61ade0781b78cba7657cb01c6350c8a641973d4"
+    },
+    {
+      "path": "recovery/cases/2.1.124-to-2.1.126/evidence/REGISTRY-2.1.125-ABSENCE.json",
+      "bytes": 2531,
+      "sha256": "b16a2f4b5040eb1d6b3036e3611df953b44a0e10363516c74d830ce945405d14"
+    },
+    {
+      "path": "recovery/2.1.126-reviewed-official-evidence.json",
+      "bytes": 29667,
+      "sha256": "52ec63ae95ae68cd61319f68156da971d2bf9df93412c9064b908d31446422ce"
+    },
+    {
+      "path": "recovery/scripts/build-2.1.126-reviewed-official-evidence.mjs",
+      "bytes": 19182,
+      "sha256": "1f77fa3265f1ecbfd445c8d49c3f87ab2d6992165d1372031ddc800a5bde4799"
+    },
+    {
+      "path": "recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json",
+      "bytes": 360116,
+      "sha256": "55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3"
+    },
+    {
+      "path": "recovery/cases/2.1.124-to-2.1.126/structural/known-delta-proof.json",
+      "bytes": 29247,
+      "sha256": "4783b90aa281abc386f968ccdba1022a2f08a547a05c7aa7c09a9f517f76308f"
+    }
+  ],
+  "officialCoverage": {
+    "bulletCount": 33,
+    "activeAdjacent": 3,
+    "retainedInherited": 29,
+    "targetRetainedSourceRepair": 1,
+    "nonActiveTotal": 30,
+    "complete": true,
+    "releaseBulletClassification": {
+      "total": 33,
+      "activeAdjacent": [
+        10,
+        17,
+        18
+      ],
+      "baselineRetained": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33
+      ],
+      "hiddenAdjacentRows": [
+        "effort-settings-persistence"
+      ],
+      "retainedSourceRepairRows": [
+        "ctrl-l-redraw"
+      ]
+    }
+  },
+  "clusterInventory": {
+    "proof": {
+      "path": "recovery/cases/2.1.124-to-2.1.126/structural/known-delta-proof.json",
+      "bytes": 29247,
+      "sha256": "4783b90aa281abc386f968ccdba1022a2f08a547a05c7aa7c09a9f517f76308f"
+    },
+    "totalClusters": 6,
+    "directGroups": 3,
+    "directClusters": 5,
+    "accountingOnlyGroups": 1,
+    "accountingOnlyClusters": 1,
+    "clusterBindingCount": 5,
+    "clusterBindingsSha256": "aa4ab4839105accfcfdb5672b05973307f4112b2afc70956192eb965b7e15c6b",
+    "supportBindingCount": 0,
+    "supportSourcePathCount": 0,
+    "supportBindingsSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "targetRetainedRepairCount": 1,
+    "targetRetainedRepairsSha256": "5092777824c1fc06b6c3c16a71fb71b56383b7113742c6746ee292fb6c014709",
+    "partitionSha256": "289e50189df7f33b9d4ec7d81e7f282dc1a06a64dbcae91a71ade279fa145c1f"
+  },
+  "sourceRepairInventory": {
+    "rowCount": 1,
+    "pathCount": 1,
+    "paths": [
+      "src/components/PromptInput/PromptInput.tsx"
+    ],
+    "bindingsSha256": "01c37631d7439838dcbccc2ca4fb90a169dd6173b2716feacfab11e45fe430e1"
+  },
+  "changedSourceRows": [
+    {
+      "status": "M",
+      "path": "src/commands/effort/effort.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/components/PromptInput/PromptInput.tsx"
+    },
+    {
+      "status": "M",
+      "path": "src/services/api/claude.ts"
+    },
+    {
+      "status": "M",
+      "path": "src/services/api/client.ts"
+    },
+    {
+      "status": "M",
+      "path": "src/tools/FileReadTool/FileReadTool.ts"
+    }
+  ],
+  "coverageDeclarations": {
+    "officialRowsEnumerated": true,
+    "hiddenInventoryComplete": true,
+    "daemonInventoryComplete": true,
+    "residualAuditComplete": true,
+    "clusterInventoryFullyBound": true,
+    "sourceSupportFullyBound": true,
+    "changedSourcePathsFullyBound": true,
+    "focusedTestsFullyBound": true
+  },
+  "rows": [
+    {
+      "id": "B01",
+      "obligationId": "official-2-1-126-b01",
+      "category": "official",
+      "releaseBullet": 1,
+      "title": "The `/model` picker now lists models from your gateway's `/v1/models` endpoint when `ANTHROPIC_BASE_URL` points at an Anthropic-compatible gateway",
+      "status": "verified",
+      "targetFragments": [
+        "[gatewayDiscovery] 0 usable models after filter"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/model/gatewayModelDiscovery.ts",
+          "fragment": "const url = `${baseUrl.replace(/\\/+$/, '')}/v1/models?limit=1000`",
+          "count": 1
+        },
+        {
+          "path": "src/utils/model/modelOptions.ts",
+          "fragment": "for (const opt of getGatewayModelOptions()) {",
+          "count": 1
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [],
+      "rationale": "The sealed gateway discovery row retains both the authenticated model-list sentinel and the source path that adds discovered models to the picker.",
+      "retained": true,
+      "inheritedBaselineEvidence": {
+        "catalog": {
+          "path": "recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json",
+          "bytes": 360116,
+          "sha256": "55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3"
+        },
+        "rowIds": [
+          "gateway-doctor-plugins"
+        ],
+        "rowBindings": [
+          {
+            "id": "gateway-doctor-plugins",
+            "rowSha256": "73f3d52655160507833ba3c3ef0ab0fc8f855b3b12cfdfd3da7ae0e5608bc9a7"
+          }
+        ],
+        "focusedTests": [
+          "gateway-doctor-plugins",
+          "semantic-delta",
+          "ui-command-semantics"
+        ]
+      }
+    },
+    {
+      "id": "B02",
+      "obligationId": "official-2-1-126-b02",
+      "category": "official",
+      "releaseBullet": 2,
+      "title": "- Added `claude project purge [path]` to delete all Claude Code state for a project (transcripts, tasks, file history, config entry) — supports `--dry-run`, `-y/--yes`, `-i/--interactive`, and `--all`",
+      "status": "verified",
+      "targetFragments": [
+        "purge [path]"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/cli/exit.ts",
+          "fragment": "export function cliWarn(msg: string): void {",
+          "count": 1
+        },
+        {
+          "path": "src/cli/handlers/project.tsx",
+          "fragment": "export async function purgeProjectHandler(",
+          "count": 1
+        },
+        {
+          "path": "src/main.tsx",
+          "fragment": "program.command('project').description('Manage Claude Code project state')",
+          "count": 1
+        },
+        {
+          "path": "src/utils/sessionStoragePortable.ts",
+          "fragment": "export async function findProjectDirs(projectPath: string): Promise<string[]> {",
+          "count": 1
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [],
+      "rationale": "The sealed purge command, directory enumeration, and warning-helper rows retain the command surface and its reviewed deletion-support source.",
+      "retained": true,
+      "inheritedBaselineEvidence": {
+        "catalog": {
+          "path": "recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json",
+          "bytes": 360116,
+          "sha256": "55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3"
+        },
+        "rowIds": [
+          "cli-project-warning-helper",
+          "project-purge",
+          "project-purge-directory-enumeration"
+        ],
+        "rowBindings": [
+          {
+            "id": "cli-project-warning-helper",
+            "rowSha256": "7dce47668d44867dc420c7463d763d8faeaa7e08c59229da2b9a9ed0c5304805"
+          },
+          {
+            "id": "project-purge",
+            "rowSha256": "c22fa42c3f77ebd95d67d8fb4de1c0d8e9b070a56013a322dc5c15ccb102bd1c"
+          },
+          {
+            "id": "project-purge-directory-enumeration",
+            "rowSha256": "80c3b28018ccaf481d9016eb23dac7b556035c25c0d41f55418636f9f1cd1987"
+          }
+        ],
+        "focusedTests": [
+          "project-purge",
+          "semantic-delta"
+        ]
+      }
+    },
+    {
+      "id": "B03",
+      "obligationId": "official-2-1-126-b03",
+      "category": "official",
+      "releaseBullet": 3,
+      "title": "`--dangerously-skip-permissions` now bypasses prompts for writes to `.claude/`, `.git/`, `.vscode/`, shell config files, and other previously-protected paths (catastrophic removal commands still prompt as a safety net)",
+      "status": "verified",
+      "targetFragments": [
+        "setInProgressToolUseIDs({action:\"add\""
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/permissions/permissions.ts",
+          "fragment": "reason.reason.startsWith('Dangerous rmdir operation'),",
+          "count": 1
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [],
+      "rationale": "The sealed permission row retains the bypass safety-net witness that continues to require approval for catastrophic recursive directory removal.",
+      "retained": true,
+      "inheritedBaselineEvidence": {
+        "catalog": {
+          "path": "recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json",
+          "bytes": 360116,
+          "sha256": "55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3"
+        },
+        "rowIds": [
+          "tool-execution-classifier"
+        ],
+        "rowBindings": [
+          {
+            "id": "tool-execution-classifier",
+            "rowSha256": "933f361ea642cba788d58be5923ab112ff2eaa27eb069c7867feda5cbef110ef"
+          }
+        ],
+        "focusedTests": [
+          "runtime-tail",
+          "semantic-delta"
+        ]
+      }
+    },
+    {
+      "id": "B04",
+      "obligationId": "official-2-1-126-b04",
+      "category": "official",
+      "releaseBullet": 4,
+      "title": "`claude auth login` now accepts the OAuth code pasted into the terminal when the browser callback can't reach localhost (WSL2, SSH, containers)",
+      "status": "verified",
+      "targetFragments": [
+        "/v2/session_ingress/mcp/ws/"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/cli/handlers/auth.ts",
+          "fragment": "process.stdout.write('Paste code here if prompted > ')",
+          "count": 1
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [],
+      "rationale": "The sealed OAuth row retains the terminal paste fallback used when the localhost browser callback cannot complete.",
+      "retained": true,
+      "inheritedBaselineEvidence": {
+        "catalog": {
+          "path": "recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json",
+          "bytes": 360116,
+          "sha256": "55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3"
+        },
+        "rowIds": [
+          "oauth-mcp-auth"
+        ],
+        "rowBindings": [
+          {
+            "id": "oauth-mcp-auth",
+            "rowSha256": "e74c015dd9393dbf6bc46e48e39257750dc9d19ad88a94121f66e8429bb1ddc7"
+          }
+        ],
+        "focusedTests": [
+          "gateway-doctor-plugins",
+          "mcp-oauth-dedup",
+          "runtime-tail",
+          "semantic-delta"
+        ]
+      }
+    },
+    {
+      "id": "B05",
+      "obligationId": "official-2-1-126-b05",
+      "category": "official",
+      "releaseBullet": 5,
+      "title": "`claude_code.skill_activated` OpenTelemetry event now fires for user-typed slash commands and carries a new `invocation_trigger` attribute (`\"user-slash\"`, `\"claude-proactive\"`, or `\"nested-skill\"`)",
+      "status": "verified",
+      "targetFragments": [
+        "invocation_trigger"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/tools/SkillTool/SkillTool.ts",
+          "fragment": "recordSkillActivated(commandName, command, invocationTrigger)",
+          "count": 2
+        },
+        {
+          "path": "src/utils/processUserInput/processSlashCommand.tsx",
+          "fragment": "if (!(command.isMcp && command.loadedFrom !== 'mcp')) {",
+          "count": 1
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [],
+      "rationale": "The sealed skill telemetry row retains the invocation-trigger bundle sentinel and the reviewed activation-recording callsite.",
+      "retained": true,
+      "inheritedBaselineEvidence": {
+        "catalog": {
+          "path": "recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json",
+          "bytes": 360116,
+          "sha256": "55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3"
+        },
+        "rowIds": [
+          "brief-skill-telemetry"
+        ],
+        "rowBindings": [
+          {
+            "id": "brief-skill-telemetry",
+            "rowSha256": "98dd65046928bc3f0d82301e1eab2ca6cedceb6e66ebe49fa83f0abca13849cb"
+          }
+        ],
+        "focusedTests": [
+          "semantic-delta",
+          "skill-activation-telemetry",
+          "ui-command-semantics"
+        ]
+      }
+    },
+    {
+      "id": "B06",
+      "obligationId": "official-2-1-126-b06",
+      "category": "official",
+      "releaseBullet": 6,
+      "title": "Auto mode: the spinner now turns red when a permission check stalls, instead of looking like the tool is running",
+      "status": "verified",
+      "targetFragments": [
+        "setInProgressToolUseIDs({action:\"add\""
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/tools/toolExecution.ts",
+          "fragment": "toolUseContext.setInProgressToolUseIDs(previous =>",
+          "count": 1
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [],
+      "rationale": "The sealed tool-execution row retains the post-permission in-progress transition that keeps a stalled permission check out of the running-tool state.",
+      "retained": true,
+      "inheritedBaselineEvidence": {
+        "catalog": {
+          "path": "recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json",
+          "bytes": 360116,
+          "sha256": "55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3"
+        },
+        "rowIds": [
+          "tool-execution-classifier"
+        ],
+        "rowBindings": [
+          {
+            "id": "tool-execution-classifier",
+            "rowSha256": "933f361ea642cba788d58be5923ab112ff2eaa27eb069c7867feda5cbef110ef"
+          }
+        ],
+        "focusedTests": [
+          "runtime-tail",
+          "semantic-delta"
+        ]
+      }
+    },
+    {
+      "id": "B07",
+      "obligationId": "official-2-1-126-b07",
+      "category": "official",
+      "releaseBullet": 7,
+      "title": "Host-managed deployments (`CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST`) no longer auto-disable analytics on Bedrock/Vertex/Foundry",
+      "status": "verified",
+      "targetFragments": [
+        "token-efficient-tools-2026-03-28"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/analytics/growthbook.ts",
+          "fragment": "!isEnvTruthy(process.env.DISABLE_GROWTHBOOK) &&",
+          "count": 1
+        },
+        {
+          "path": "src/utils/auth.ts",
+          "fragment": "if (isEnvTruthy(process.env.CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST)) {",
+          "count": 1
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [],
+      "rationale": "The sealed settings/runtime row retains the host-managed provider branch used to preserve deployment-controlled analytics behavior.",
+      "retained": true,
+      "inheritedBaselineEvidence": {
+        "catalog": {
+          "path": "recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json",
+          "bytes": 360116,
+          "sha256": "55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3"
+        },
+        "rowIds": [
+          "settings-runtime"
+        ],
+        "rowBindings": [
+          {
+            "id": "settings-runtime",
+            "rowSha256": "69c6847c561308e58521c5901d8bdff71f857e937f3a46d6e23d599acaca7b38"
+          }
+        ],
+        "focusedTests": [
+          "gateway-doctor-plugins",
+          "runtime-tail",
+          "semantic-delta"
+        ]
+      }
+    },
+    {
+      "id": "B08",
+      "obligationId": "official-2-1-126-b08",
+      "category": "official",
+      "releaseBullet": 8,
+      "title": "Windows: PowerShell 7 installed via the Microsoft Store, MSI without PATH, or `.NET global tool` is now detected",
+      "status": "verified",
+      "targetFragments": [
+        " \\xB7 wheelFlood"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/shell/powershellDetection.ts",
+          "fragment": "? await probePath(join(userProfile, '.dotnet', 'tools', 'pwsh.exe'))",
+          "count": 1
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [],
+      "rationale": "The sealed Windows terminal row retains the reviewed PowerShell probing path for installations outside the ordinary PATH search.",
+      "retained": true,
+      "inheritedBaselineEvidence": {
+        "catalog": {
+          "path": "recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json",
+          "bytes": 360116,
+          "sha256": "55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3"
+        },
+        "rowIds": [
+          "terminal-bash-scroll"
+        ],
+        "rowBindings": [
+          {
+            "id": "terminal-bash-scroll",
+            "rowSha256": "dac6a4ee7fcf9436a504138a54557e221517becc5f3fbb6812c5498ef159c46b"
+          }
+        ],
+        "focusedTests": [
+          "runtime-tail",
+          "semantic-delta",
+          "ui-command-semantics",
+          "ui-sdk-tail"
+        ]
+      }
+    },
+    {
+      "id": "B09",
+      "obligationId": "official-2-1-126-b09",
+      "category": "official",
+      "releaseBullet": 9,
+      "title": "Windows: when the PowerShell tool is enabled, Claude now treats PowerShell as the primary shell instead of defaulting to Bash",
+      "status": "verified",
+      "targetFragments": [
+        "Fix with Claude"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/constants/prompts.ts",
+          "fragment": "return 'Shell: PowerShell (use PowerShell syntax — e.g., $null not /dev/null, $env:VAR not $VAR, backtick for line continuation). Bash is also available via the Bash tool for POSIX scripts.'",
+          "count": 1
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [],
+      "rationale": "The sealed command/UI row retains the system prompt that identifies PowerShell as the primary Windows shell while keeping Bash available.",
+      "retained": true,
+      "inheritedBaselineEvidence": {
+        "catalog": {
+          "path": "recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json",
+          "bytes": 360116,
+          "sha256": "55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3"
+        },
+        "rowIds": [
+          "commands-ui"
+        ],
+        "rowBindings": [
+          {
+            "id": "commands-ui",
+            "rowSha256": "4d300c6c5ebbd4afc7416d804170f3faee57f6eebeb0817c0375e6e8588a4ce1"
+          }
+        ],
+        "focusedTests": [
+          "runtime-tail",
+          "semantic-delta",
+          "ui-command-semantics",
+          "ui-sdk-tail"
+        ]
+      }
+    },
+    {
+      "id": "B10",
+      "obligationId": "official-2-1-126-b10",
+      "category": "official",
+      "releaseBullets": [
+        10
+      ],
+      "semanticRowId": "file-read-malware-reminder-removal",
+      "title": "Read tool: removed the per-file malware-assessment reminder that could cause spurious refusals and \"this is not malware\" commentary on legacy models",
+      "status": "verified",
+      "semanticClusterIds": [
+        2,
+        3
+      ],
+      "semanticClusterBindings": [
+        {
+          "clusterId": 2,
+          "targetWitness": {
+            "kind": "raw-statement",
+            "side": "baseline",
+            "statementIndex": 14805,
+            "start": 9226235,
+            "end": 9226273,
+            "bytes": 38,
+            "sha256": "00ef67e6791e11c5b45986223405f3d1ec135a27b4b2cd32b5fdd08e6885bba7",
+            "normalizedSha256": "00ef67e6791e11c5b45986223405f3d1ec135a27b4b2cd32b5fdd08e6885bba7",
+            "count": 1,
+            "otherSideCount": 0
+          },
+          "sourceWitnesses": [],
+          "sourceAbsences": [
+            {
+              "path": "src/tools/FileReadTool/FileReadTool.ts",
+              "fragment": "function shouldIncludeFileReadMitigation(model: string): boolean {"
+            },
+            {
+              "path": "src/tools/FileReadTool/FileReadTool.ts",
+              "fragment": "const MITIGATION_EXEMPT_MODELS = new Set(['claude-opus-4-6'])"
+            }
+          ],
+          "testIds": [
+            "active-semantics",
+            "semantic-delta"
+          ]
+        },
+        {
+          "clusterId": 3,
+          "targetWitness": {
+            "kind": "raw-statement",
+            "side": "target",
+            "statementIndex": 14812,
+            "start": 9231431,
+            "end": 9239771,
+            "bytes": 8340,
+            "sha256": "0ee987f052c1a875e79a356f36e0d19e1f0dadf35e54a6eac7a415b5bfd51b10",
+            "normalizedSha256": "81ff77f45a9b31e8b613cf76c9d05cbf5b4b8e2fcdc7a930778b5a7b05a96f2a",
+            "count": 1,
+            "otherSideCount": 0
+          },
+          "additionalTargetWitnesses": [
+            {
+              "kind": "raw-statement",
+              "side": "target",
+              "statementIndex": 14809,
+              "start": 9226575,
+              "end": 9230734,
+              "bytes": 4159,
+              "sha256": "b396555bbaf648919a0081adb3b070f9b9fd5fbf054f63b8935c1e11a5d8cec1",
+              "normalizedSha256": "e4e64fe81aa3dbe5e2fcf264e0707ab4373015043b078aa946531dc39d432191",
+              "count": 1,
+              "otherSideCount": 0
+            },
+            {
+              "kind": "raw-statement",
+              "side": "target",
+              "statementIndex": 14811,
+              "start": 9231384,
+              "end": 9231431,
+              "bytes": 47,
+              "sha256": "69b77d354765bfde3b5e1898de1cf5e9a759f3bed1e63c5f7f43db5bce11d72e",
+              "normalizedSha256": "69b77d354765bfde3b5e1898de1cf5e9a759f3bed1e63c5f7f43db5bce11d72e",
+              "count": 1,
+              "otherSideCount": 0
+            }
+          ],
+          "sourceWitnesses": [
+            {
+              "path": "src/tools/FileReadTool/FileReadTool.ts",
+              "fragment": "memoryFileFreshnessPrefix(data) + formatFileLines(data.file)",
+              "count": 1,
+              "matchedSemanticTerms": [],
+              "reviewed": true
+            }
+          ],
+          "sourceAbsences": [
+            {
+              "path": "src/tools/FileReadTool/FileReadTool.ts",
+              "fragment": "export const CYBER_RISK_MITIGATION_REMINDER ="
+            },
+            {
+              "path": "src/tools/FileReadTool/FileReadTool.ts",
+              "fragment": "const fileReadModels = new WeakMap<object, string>()"
+            },
+            {
+              "path": "src/tools/FileReadTool/FileReadTool.ts",
+              "fragment": "fileReadModels.set(data, context.options.mainLoopModel)"
+            }
+          ],
+          "testIds": [
+            "active-semantics",
+            "semantic-delta"
+          ]
+        }
+      ],
+      "semanticTargetWitnesses": [
+        {
+          "kind": "literal",
+          "value": "Whenever you read a file, you should consider whether it would be considered malware.",
+          "count": 0
+        }
+      ],
+      "targetFragments": [
+        "Whenever you read a file, you should consider whether it would be considered malware."
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/tools/FileReadTool/FileReadTool.ts",
+          "fragment": "memoryFileFreshnessPrefix(data) + formatFileLines(data.file)",
+          "count": 1,
+          "matchedSemanticTerms": [],
+          "reviewed": true
+        }
+      ],
+      "sourcePathAbsences": [
+        {
+          "paths": [
+            "src/tools/FileReadTool/FileReadTool.ts"
+          ],
+          "fragment": "const fileReadModels = new WeakMap<object, string>()"
+        },
+        {
+          "paths": [
+            "src/tools/FileReadTool/FileReadTool.ts"
+          ],
+          "fragment": "const MITIGATION_EXEMPT_MODELS = new Set(['claude-opus-4-6'])"
+        },
+        {
+          "paths": [
+            "src/tools/FileReadTool/FileReadTool.ts"
+          ],
+          "fragment": "export const CYBER_RISK_MITIGATION_REMINDER ="
+        },
+        {
+          "paths": [
+            "src/tools/FileReadTool/FileReadTool.ts"
+          ],
+          "fragment": "fileReadModels.set(data, context.options.mainLoopModel)"
+        },
+        {
+          "paths": [
+            "src/tools/FileReadTool/FileReadTool.ts"
+          ],
+          "fragment": "function shouldIncludeFileReadMitigation(model: string): boolean {"
+        }
+      ],
+      "sourceFileAbsences": [],
+      "focusedTests": [
+        "active-semantics",
+        "semantic-delta"
+      ],
+      "rationale": "Authenticated semantic clusters C002, C003 bind exact adjacent-bundle witnesses to the reviewed source owners and focused active-semantics, semantic-delta verification."
+    },
+    {
+      "id": "B11",
+      "obligationId": "official-2-1-126-b11",
+      "category": "official",
+      "releaseBullet": 11,
+      "title": "**Security:** Fixed `allowManagedDomainsOnly` / `allowManagedReadPathsOnly` being ignored when a higher-priority managed-settings source lacked a `sandbox` block",
+      "status": "verified",
+      "targetFragments": [
+        "token-efficient-tools-2026-03-28"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/sandbox/sandbox-adapter.ts",
+          "fragment": "const allowManagedDomainsOnly = policyTiers.some(",
+          "count": 1
+        },
+        {
+          "path": "src/utils/sandbox/sandbox-adapter.ts",
+          "fragment": "const policyTiers = getAllPolicyTierSettings()",
+          "count": 1
+        },
+        {
+          "path": "src/utils/sandbox/sandbox-adapter.ts",
+          "fragment": "for (const p of policySettings.sandbox?.filesystem?.allowRead || []) {",
+          "count": 1
+        },
+        {
+          "path": "src/utils/settings/settings.ts",
+          "fragment": "export function getAllPolicyTierSettings(): SettingsJson[] {",
+          "count": 1
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [],
+      "rationale": "The sealed settings/runtime row retains both managed-domain and managed-read-path aggregation across every policy tier.",
+      "retained": true,
+      "inheritedBaselineEvidence": {
+        "catalog": {
+          "path": "recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json",
+          "bytes": 360116,
+          "sha256": "55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3"
+        },
+        "rowIds": [
+          "settings-runtime"
+        ],
+        "rowBindings": [
+          {
+            "id": "settings-runtime",
+            "rowSha256": "69c6847c561308e58521c5901d8bdff71f857e937f3a46d6e23d599acaca7b38"
+          }
+        ],
+        "focusedTests": [
+          "gateway-doctor-plugins",
+          "runtime-tail",
+          "semantic-delta"
+        ]
+      }
+    },
+    {
+      "id": "B12",
+      "obligationId": "official-2-1-126-b12",
+      "category": "official",
+      "releaseBullet": 12,
+      "title": "Fixed pasting an image larger than 2000px breaking the session — images are now downscaled on paste, and oversized images in history are automatically removed and the request retried",
+      "status": "verified",
+      "targetFragments": [
+        "dimensions exceed max allowed size"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/api/claude.ts",
+          "fragment": "`Removed oversized image at messages.${oversizedImage.messageIdx}.content.${oversizedImage.contentIdx} (exceeded 2000px many-image limit); retrying.`,",
+          "count": 1
+        },
+        {
+          "path": "src/tools/FileReadTool/imageProcessor.ts",
+          "fragment": "export function getImageDimensionsFromBuffer(",
+          "count": 1
+        },
+        {
+          "path": "src/utils/imageResizer.ts",
+          "fragment": "const fallbackDimensions = getImageDimensionsFromBuffer(imageBuffer)",
+          "count": 1
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [],
+      "rationale": "The sealed image/retry row retains dimension-aware resizing and the targeted retry removal of an oversized historical image.",
+      "retained": true,
+      "inheritedBaselineEvidence": {
+        "catalog": {
+          "path": "recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json",
+          "bytes": 360116,
+          "sha256": "55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3"
+        },
+        "rowIds": [
+          "image-read-retry"
+        ],
+        "rowBindings": [
+          {
+            "id": "image-read-retry",
+            "rowSha256": "ea6b768b43d55172006f995dd4dc0c95317df96d5a44205abeadaa159a17cf5b"
+          }
+        ],
+        "focusedTests": [
+          "runtime-tail",
+          "semantic-delta"
+        ]
+      }
+    },
+    {
+      "id": "B13",
+      "obligationId": "official-2-1-126-b13",
+      "category": "official",
+      "releaseBullet": 13,
+      "title": "Fixed showing the login screen for \"OAuth not allowed for organization\" errors — now shows guidance to contact your admin",
+      "status": "verified",
+      "targetFragments": [
+        "/v2/session_ingress/mcp/ws/"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/entrypoints/sdk/coreSchemas.ts",
+          "fragment": "'oauth_org_not_allowed',",
+          "count": 1
+        },
+        {
+          "path": "src/services/api/errors.ts",
+          "fragment": "'Your organization has disabled Claude subscription access for Claude Code · Use an Anthropic API key instead, or ask your admin to enable access'",
+          "count": 1
+        },
+        {
+          "path": "src/services/api/errors.ts",
+          "fragment": "return OAUTH_ORG_NOT_ALLOWED_ERROR_MESSAGE",
+          "count": 1
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [],
+      "rationale": "The sealed OAuth row retains the organization-policy error classification and its administrator guidance instead of routing to login.",
+      "retained": true,
+      "inheritedBaselineEvidence": {
+        "catalog": {
+          "path": "recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json",
+          "bytes": 360116,
+          "sha256": "55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3"
+        },
+        "rowIds": [
+          "oauth-mcp-auth"
+        ],
+        "rowBindings": [
+          {
+            "id": "oauth-mcp-auth",
+            "rowSha256": "e74c015dd9393dbf6bc46e48e39257750dc9d19ad88a94121f66e8429bb1ddc7"
+          }
+        ],
+        "focusedTests": [
+          "gateway-doctor-plugins",
+          "mcp-oauth-dedup",
+          "runtime-tail",
+          "semantic-delta"
+        ]
+      }
+    },
+    {
+      "id": "B14",
+      "obligationId": "official-2-1-126-b14",
+      "category": "official",
+      "releaseBullet": 14,
+      "title": "Fixed OAuth login failing with timeout on slow or proxied connections, in IPv6-only devcontainers, and when the browser callback can't reach localhost",
+      "status": "verified",
+      "targetFragments": [
+        "/v2/session_ingress/mcp/ws/"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/cli/handlers/auth.ts",
+          "fragment": "process.stdout.write('Paste code here if prompted > ')",
+          "count": 1
+        },
+        {
+          "path": "src/services/oauth/auth-code-listener.ts",
+          "fragment": "this.localServer.listen(port ?? 0, '127.0.0.1', () => {",
+          "count": 1
+        },
+        {
+          "path": "src/services/oauth/client.ts",
+          "fragment": "timeout: 30000,",
+          "count": 2
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [],
+      "rationale": "The sealed OAuth row retains the explicit loopback listener and extended client timeout used by slow, proxied, and callback-limited environments.",
+      "retained": true,
+      "inheritedBaselineEvidence": {
+        "catalog": {
+          "path": "recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json",
+          "bytes": 360116,
+          "sha256": "55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3"
+        },
+        "rowIds": [
+          "oauth-mcp-auth"
+        ],
+        "rowBindings": [
+          {
+            "id": "oauth-mcp-auth",
+            "rowSha256": "e74c015dd9393dbf6bc46e48e39257750dc9d19ad88a94121f66e8429bb1ddc7"
+          }
+        ],
+        "focusedTests": [
+          "gateway-doctor-plugins",
+          "mcp-oauth-dedup",
+          "runtime-tail",
+          "semantic-delta"
+        ]
+      }
+    },
+    {
+      "id": "B15",
+      "obligationId": "official-2-1-126-b15",
+      "category": "official",
+      "releaseBullet": 15,
+      "title": "Fixed a rare race where a concurrent credential write could clear a valid OAuth refresh token",
+      "status": "verified",
+      "targetFragments": [
+        "token-efficient-tools-2026-03-28"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/auth.ts",
+          "fragment": "if (isInvalidGrantError(error) && refreshTokenUsed) {",
+          "count": 1
+        },
+        {
+          "path": "src/utils/auth.ts",
+          "fragment": "refreshTokenUsed = lockedTokens.refreshToken",
+          "count": 1
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [],
+      "rationale": "The sealed settings/runtime row retains the locked refresh-token identity used to avoid clearing a concurrently replaced valid credential.",
+      "retained": true,
+      "inheritedBaselineEvidence": {
+        "catalog": {
+          "path": "recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json",
+          "bytes": 360116,
+          "sha256": "55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3"
+        },
+        "rowIds": [
+          "settings-runtime"
+        ],
+        "rowBindings": [
+          {
+            "id": "settings-runtime",
+            "rowSha256": "69c6847c561308e58521c5901d8bdff71f857e937f3a46d6e23d599acaca7b38"
+          }
+        ],
+        "focusedTests": [
+          "gateway-doctor-plugins",
+          "runtime-tail",
+          "semantic-delta"
+        ]
+      }
+    },
+    {
+      "id": "B16",
+      "obligationId": "official-2-1-126-b16",
+      "category": "official",
+      "releaseBullet": 16,
+      "title": "Fixed API retry countdown sticking at \"0s\" instead of counting down between attempts",
+      "status": "verified",
+      "targetFragments": [
+        "setInProgressToolUseIDs({action:\"add\""
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/messages/SystemAPIErrorMessage.tsx",
+          "fragment": "const remainingMs = Math.max(0, Math.ceil((retryDeadline - Date.now()) / 1000)) * 1000;",
+          "count": 1
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [],
+      "rationale": "The sealed tool/runtime row retains deadline-based retry countdown calculation, preventing a stale zero-second display between attempts.",
+      "retained": true,
+      "inheritedBaselineEvidence": {
+        "catalog": {
+          "path": "recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json",
+          "bytes": 360116,
+          "sha256": "55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3"
+        },
+        "rowIds": [
+          "tool-execution-classifier"
+        ],
+        "rowBindings": [
+          {
+            "id": "tool-execution-classifier",
+            "rowSha256": "933f361ea642cba788d58be5923ab112ff2eaa27eb069c7867feda5cbef110ef"
+          }
+        ],
+        "focusedTests": [
+          "runtime-tail",
+          "semantic-delta"
+        ]
+      }
+    },
+    {
+      "id": "B17-B18",
+      "obligationId": "official-2-1-126-b17-b18",
+      "category": "official",
+      "releaseBullets": [
+        17,
+        18
+      ],
+      "semanticRowId": "stream-idle-timeout",
+      "title": "Fixed \"Stream idle timeout\" error after waking Mac from sleep mid-request / Fixed background and remote sessions falsely aborting with \"Stream idle timeout\" during long model thinking pauses",
+      "status": "verified",
+      "semanticClusterIds": [
+        1,
+        6
+      ],
+      "semanticClusterBindings": [
+        {
+          "clusterId": 1,
+          "targetWitness": {
+            "kind": "raw-statement",
+            "side": "target",
+            "statementIndex": 6249,
+            "start": 2851304,
+            "end": 2851396,
+            "bytes": 92,
+            "sha256": "382441803fd00579637b0cc6cf8ab32e34532fab79d11458855268cfd34495a7",
+            "normalizedSha256": "382441803fd00579637b0cc6cf8ab32e34532fab79d11458855268cfd34495a7",
+            "count": 1,
+            "otherSideCount": 0
+          },
+          "additionalTargetWitnesses": [
+            {
+              "kind": "raw-statement",
+              "side": "target",
+              "statementIndex": 6252,
+              "start": 2852741,
+              "end": 2853426,
+              "bytes": 685,
+              "sha256": "6a7d21830f4fbdba0026d4420cd5c769d61521c1aa8cd5d33551b019ec61f503",
+              "normalizedSha256": "6a7d21830f4fbdba0026d4420cd5c769d61521c1aa8cd5d33551b019ec61f503",
+              "count": 1,
+              "otherSideCount": 0
+            }
+          ],
+          "sourceWitnesses": [
+            {
+              "path": "src/services/api/client.ts",
+              "fragment": "export function getStreamIdleTimeoutMs(): number {",
+              "count": 1,
+              "matchedSemanticTerms": [],
+              "reviewed": true
+            },
+            {
+              "path": "src/services/api/client.ts",
+              "fragment": "addStreamIdleTimeout(response.body, getStreamIdleTimeoutMs())",
+              "count": 1,
+              "matchedSemanticTerms": [],
+              "reviewed": true
+            }
+          ],
+          "testIds": [
+            "active-semantics",
+            "semantic-delta"
+          ]
+        },
+        {
+          "clusterId": 6,
+          "targetWitness": {
+            "kind": "raw-statement",
+            "side": "target",
+            "statementIndex": 19637,
+            "start": 11901742,
+            "end": 11925184,
+            "bytes": 23442,
+            "sha256": "e7cec693269bae0ef6899d2436c796220aaa2272091642303e9ec8521a3246bc",
+            "normalizedSha256": "d0d60e1d273fd2c25f591af3006d54553f7d286b4720180577fad7637cf60346",
+            "count": 1,
+            "otherSideCount": 0
+          },
+          "sourceWitnesses": [
+            {
+              "path": "src/services/api/claude.ts",
+              "fragment": "const STREAM_IDLE_TIMEOUT_MS = getStreamIdleTimeoutMs()",
+              "count": 1,
+              "matchedSemanticTerms": [],
+              "reviewed": true
+            }
+          ],
+          "testIds": [
+            "active-semantics",
+            "semantic-delta"
+          ]
+        }
+      ],
+      "semanticTargetWitnesses": [
+        {
+          "kind": "literal",
+          "value": "Number(process.env.CLAUDE_STREAM_IDLE_TIMEOUT_MS)||0",
+          "count": 1
+        }
+      ],
+      "targetFragments": [
+        "Number(process.env.CLAUDE_STREAM_IDLE_TIMEOUT_MS)||0"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/api/claude.ts",
+          "fragment": "const STREAM_IDLE_TIMEOUT_MS = getStreamIdleTimeoutMs()",
+          "count": 1,
+          "matchedSemanticTerms": [],
+          "reviewed": true
+        },
+        {
+          "path": "src/services/api/client.ts",
+          "fragment": "addStreamIdleTimeout(response.body, getStreamIdleTimeoutMs())",
+          "count": 1,
+          "matchedSemanticTerms": [],
+          "reviewed": true
+        },
+        {
+          "path": "src/services/api/client.ts",
+          "fragment": "export function getStreamIdleTimeoutMs(): number {",
+          "count": 1,
+          "matchedSemanticTerms": [],
+          "reviewed": true
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [
+        "active-semantics",
+        "semantic-delta"
+      ],
+      "rationale": "Authenticated semantic clusters C001, C006 bind exact adjacent-bundle witnesses to the reviewed source owners and focused active-semantics, semantic-delta verification."
+    },
+    {
+      "id": "B19",
+      "obligationId": "official-2-1-126-b19",
+      "category": "official",
+      "releaseBullet": 19,
+      "title": "Fixed a hang where the assistant could finish thinking but show no output after a run of empty turns",
+      "status": "verified",
+      "targetFragments": [
+        "CLAUDE_CODE_COLD_COMPACT"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/Messages.tsx",
+          "fragment": "!turnsWithReplacementText.has(messageTurns[index]!)",
+          "count": 1
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [],
+      "rationale": "The sealed message-rendering row retains the per-turn replacement-text guard that keeps assistant text visible instead of leaving a blank turn.",
+      "retained": true,
+      "inheritedBaselineEvidence": {
+        "catalog": {
+          "path": "recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json",
+          "bytes": 360116,
+          "sha256": "55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3"
+        },
+        "rowIds": [
+          "compact-messages"
+        ],
+        "rowBindings": [
+          {
+            "id": "compact-messages",
+            "rowSha256": "15fcba25e802ae6b598a52955a63116adc322674451b20482e0e143eff8f0cf2"
+          }
+        ],
+        "focusedTests": [
+          "runtime-tail",
+          "semantic-delta",
+          "ui-command-semantics"
+        ]
+      }
+    },
+    {
+      "id": "B20",
+      "obligationId": "official-2-1-126-b20",
+      "category": "official",
+      "releaseBullet": 20,
+      "title": "Fixed overly fast trackpad scrolling in Cursor and VS Code 1.92–1.104 integrated terminals",
+      "status": "verified",
+      "targetFragments": [
+        " \\xB7 wheelFlood"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/ScrollKeybindingHandler.tsx",
+          "fragment": "logForDebugging(`wheel accel: ${config.useDecayCurve ? 'decay' : 'window (native)'} · base=${config.base} · platform=${config.platform} · TERM_PROGRAM=${config.termProgram}${config.wheelFlood ? ' · wheelFlood' : ''}`);",
+          "count": 1
+        },
+        {
+          "path": "src/ink/scroll-config.ts",
+          "fragment": "return version !== null && version >= 1_092_000 && version < 1_105_000",
+          "count": 1
+        },
+        {
+          "path": "src/ink/scroll-config.ts",
+          "fragment": "useAdaptiveDrain: !wheelFlood && xtermJs,",
+          "count": 1
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [],
+      "rationale": "The sealed terminal row retains the affected Cursor and VS Code wheel-flood version window and its corrected scroll configuration.",
+      "retained": true,
+      "inheritedBaselineEvidence": {
+        "catalog": {
+          "path": "recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json",
+          "bytes": 360116,
+          "sha256": "55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3"
+        },
+        "rowIds": [
+          "terminal-bash-scroll"
+        ],
+        "rowBindings": [
+          {
+            "id": "terminal-bash-scroll",
+            "rowSha256": "dac6a4ee7fcf9436a504138a54557e221517becc5f3fbb6812c5498ef159c46b"
+          }
+        ],
+        "focusedTests": [
+          "runtime-tail",
+          "semantic-delta",
+          "ui-command-semantics",
+          "ui-sdk-tail"
+        ]
+      }
+    },
+    {
+      "id": "B21",
+      "obligationId": "official-2-1-126-b21",
+      "category": "official",
+      "releaseBullet": 21,
+      "title": "Fixed claude.ai MCP connectors being suppressed by manual servers stuck in needs-auth state",
+      "status": "verified",
+      "targetFragments": [
+        "/v2/session_ingress/mcp/ws/"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/mcp/auth.ts",
+          "fragment": "entry.expiresAt < Date.now()",
+          "count": 1
+        },
+        {
+          "path": "src/services/mcp/auth.ts",
+          "fragment": "export function hasExpiredMcpAccessTokenWithoutRefresh(",
+          "count": 1
+        },
+        {
+          "path": "src/services/mcp/config.ts",
+          "fragment": "(hasMcpDiscoveryButNoToken(name, config, oauthEntries) ||\n        hasExpiredMcpAccessTokenWithoutRefresh(name, config, oauthEntries))",
+          "count": 1
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [],
+      "rationale": "The sealed MCP/OAuth row retains the credential-state distinction used to avoid suppressing valid managed connectors behind stale manual servers.",
+      "retained": true,
+      "inheritedBaselineEvidence": {
+        "catalog": {
+          "path": "recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json",
+          "bytes": 360116,
+          "sha256": "55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3"
+        },
+        "rowIds": [
+          "oauth-mcp-auth"
+        ],
+        "rowBindings": [
+          {
+            "id": "oauth-mcp-auth",
+            "rowSha256": "e74c015dd9393dbf6bc46e48e39257750dc9d19ad88a94121f66e8429bb1ddc7"
+          }
+        ],
+        "focusedTests": [
+          "gateway-doctor-plugins",
+          "mcp-oauth-dedup",
+          "runtime-tail",
+          "semantic-delta"
+        ]
+      }
+    },
+    {
+      "id": "B22",
+      "obligationId": "official-2-1-126-b22",
+      "category": "official",
+      "releaseBullet": 22,
+      "title": "Fixed Japanese/Korean/Chinese text rendering as garbled characters on Windows in no-flicker mode",
+      "status": "verified",
+      "targetFragments": [
+        "Fix with Claude"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/cli/bg.ts",
+          "fragment": "'\\x1B[0m' +",
+          "count": 1
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [],
+      "rationale": "The sealed command/UI row retains the terminal-state reset added when leaving the attached no-flicker terminal surface on Windows.",
+      "retained": true,
+      "inheritedBaselineEvidence": {
+        "catalog": {
+          "path": "recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json",
+          "bytes": 360116,
+          "sha256": "55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3"
+        },
+        "rowIds": [
+          "commands-ui"
+        ],
+        "rowBindings": [
+          {
+            "id": "commands-ui",
+            "rowSha256": "4d300c6c5ebbd4afc7416d804170f3faee57f6eebeb0817c0375e6e8588a4ce1"
+          }
+        ],
+        "focusedTests": [
+          "runtime-tail",
+          "semantic-delta",
+          "ui-command-semantics",
+          "ui-sdk-tail"
+        ]
+      }
+    },
+    {
+      "id": "B23",
+      "obligationId": "official-2-1-126-b23",
+      "category": "official",
+      "releaseBullet": 23,
+      "title": "Fixed `Ctrl+L` clearing the prompt input — it now only forces a screen redraw, matching readline behavior",
+      "status": "verified",
+      "targetFragments": [
+        "\"chat:clearInput\":PC",
+        "\"ctrl+l\":\"chat:clearInput\"",
+        "PC=Aq.useCallback(()=>{z1((y$)=>y$+1),b9.current=y7,iz()},[y7,iz])",
+        "m9(\"chat:clearInput\",\"Chat\",\"ctrl+l\")"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/PromptInput/PromptInput.tsx",
+          "fragment": "const handleClearInput = useCallback(() => {\n    setRedrawVersion(version => version + 1);\n    clearActionShortcutRef.current = clearInputShortcut;\n    clearDoublePress();\n  }, [clearInputShortcut, clearDoublePress]);",
+          "count": 1
+        },
+        {
+          "path": "src/keybindings/defaultBindings.ts",
+          "fragment": "'ctrl+l': 'chat:clearInput',",
+          "count": 1
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [
+        "retained-redraw"
+      ],
+      "rationale": "This byte-identical target-retained behavior repairs an inherited source gap that the sealed 2.1.124 direct catalog did not project; it is not part of the adjacent active bundle delta.",
+      "retained": true,
+      "targetRetainedSourceRepair": {
+        "observedBehavior": "Both adjacent bundles bind Ctrl+L to chat:clearInput, whose callback only increments redraw state, updates the shortcut reference, and invokes the fullscreen double-press helper; recovered source now preserves that redraw-only prompt behavior.",
+        "authenticatedBundleInvariant": "unchanged-positive-counts-required",
+        "testIds": [
+          "retained-redraw"
+        ]
+      }
+    },
+    {
+      "id": "B24",
+      "obligationId": "official-2-1-126-b24",
+      "category": "official",
+      "releaseBullet": 24,
+      "title": "Fixed deferred tools (WebSearch, WebFetch, etc.) not being available to skills with `context: fork` and other subagents on their first turn",
+      "status": "verified",
+      "targetFragments": [
+        "setInProgressToolUseIDs({action:\"add\""
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/tools/AgentTool/runAgent.ts",
+          "fragment": "callSite: 'attachments_subagent',",
+          "count": 1
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [],
+      "rationale": "The sealed tool-execution row retains first-turn deferred-tool attachment propagation for forked skills and subagents.",
+      "retained": true,
+      "inheritedBaselineEvidence": {
+        "catalog": {
+          "path": "recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json",
+          "bytes": 360116,
+          "sha256": "55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3"
+        },
+        "rowIds": [
+          "tool-execution-classifier"
+        ],
+        "rowBindings": [
+          {
+            "id": "tool-execution-classifier",
+            "rowSha256": "933f361ea642cba788d58be5923ab112ff2eaa27eb069c7867feda5cbef110ef"
+          }
+        ],
+        "focusedTests": [
+          "runtime-tail",
+          "semantic-delta"
+        ]
+      }
+    },
+    {
+      "id": "B25",
+      "obligationId": "official-2-1-126-b25",
+      "category": "official",
+      "releaseBullet": 25,
+      "title": "Fixed plan-mode tools being unavailable in interactive sessions launched with `--channels`",
+      "status": "verified",
+      "targetFragments": [
+        "setInProgressToolUseIDs({action:\"add\""
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/tools/EnterPlanModeTool/EnterPlanModeTool.ts",
+          "fragment": "getAllowedChannels().length > 0 &&\n      getIsNonInteractiveSession()",
+          "count": 1
+        },
+        {
+          "path": "src/tools/ExitPlanModeTool/ExitPlanModeV2Tool.ts",
+          "fragment": "getAllowedChannels().length > 0 &&\n      getIsNonInteractiveSession()",
+          "count": 1
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [],
+      "rationale": "The sealed tool-execution row retains the interactive-session guard that no longer removes plan-mode tools merely because channels are configured.",
+      "retained": true,
+      "inheritedBaselineEvidence": {
+        "catalog": {
+          "path": "recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json",
+          "bytes": 360116,
+          "sha256": "55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3"
+        },
+        "rowIds": [
+          "tool-execution-classifier"
+        ],
+        "rowBindings": [
+          {
+            "id": "tool-execution-classifier",
+            "rowSha256": "933f361ea642cba788d58be5923ab112ff2eaa27eb069c7867feda5cbef110ef"
+          }
+        ],
+        "focusedTests": [
+          "runtime-tail",
+          "semantic-delta"
+        ]
+      }
+    },
+    {
+      "id": "B26",
+      "obligationId": "official-2-1-126-b26",
+      "category": "official",
+      "releaseBullet": 26,
+      "title": "Fixed blank remote-session transcript when certain messaging tools are unavailable",
+      "status": "verified",
+      "targetFragments": [
+        "CLAUDE_CODE_COLD_COMPACT",
+        "ccshare_url"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/Messages.tsx",
+          "fragment": "return !msg.isMeta || isChannelOrigin(msg.origin);",
+          "count": 1
+        },
+        {
+          "path": "src/QueryEngine.ts",
+          "fragment": "origin: options?.origin,",
+          "count": 9
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [],
+      "rationale": "The sealed message and SDK rows retain both origin propagation on terminal results and channel-origin visibility in remote transcripts.",
+      "retained": true,
+      "inheritedBaselineEvidence": {
+        "catalog": {
+          "path": "recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json",
+          "bytes": 360116,
+          "sha256": "55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3"
+        },
+        "rowIds": [
+          "compact-messages",
+          "sdk-print-share"
+        ],
+        "rowBindings": [
+          {
+            "id": "compact-messages",
+            "rowSha256": "15fcba25e802ae6b598a52955a63116adc322674451b20482e0e143eff8f0cf2"
+          },
+          {
+            "id": "sdk-print-share",
+            "rowSha256": "713ab7c9248a494d4fd3b1aaf3dd7334626990ba676cf12a6c96198db9253fe7"
+          }
+        ],
+        "focusedTests": [
+          "runtime-tail",
+          "semantic-delta",
+          "ui-command-semantics",
+          "ui-sdk-tail"
+        ]
+      }
+    },
+    {
+      "id": "B27",
+      "obligationId": "official-2-1-126-b27",
+      "category": "official",
+      "releaseBullet": 27,
+      "title": "Fixed `/plugin` Uninstall reporting \"Enabled\" instead of \"Uninstalled\"",
+      "status": "verified",
+      "targetFragments": [
+        "[gatewayDiscovery] 0 usable models after filter"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/commands/plugin/ManagePlugins.tsx",
+          "fragment": "if (operation !== 'uninstall' && operation !== 'update' && enabledAfter) {",
+          "count": 1
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [],
+      "rationale": "The sealed plugin row retains the operation guard that prevents a successful uninstall from being reported through the enabled path.",
+      "retained": true,
+      "inheritedBaselineEvidence": {
+        "catalog": {
+          "path": "recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json",
+          "bytes": 360116,
+          "sha256": "55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3"
+        },
+        "rowIds": [
+          "gateway-doctor-plugins"
+        ],
+        "rowBindings": [
+          {
+            "id": "gateway-doctor-plugins",
+            "rowSha256": "73f3d52655160507833ba3c3ef0ab0fc8f855b3b12cfdfd3da7ae0e5608bc9a7"
+          }
+        ],
+        "focusedTests": [
+          "gateway-doctor-plugins",
+          "semantic-delta",
+          "ui-command-semantics"
+        ]
+      }
+    },
+    {
+      "id": "B28",
+      "obligationId": "official-2-1-126-b28",
+      "category": "official",
+      "releaseBullet": 28,
+      "title": "Bounded total size of file-modified reminders when a linter touches many files at once",
+      "status": "verified",
+      "targetFragments": [
+        "dimensions exceed max allowed size"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/attachments.ts",
+          "fragment": "const MAX_EDITED_TEXT_FILE_SNIPPET_BUDGET = 16_384",
+          "count": 1
+        },
+        {
+          "path": "src/utils/attachments.ts",
+          "fragment": "snippetBytes += attachment.snippet.length",
+          "count": 1
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [],
+      "rationale": "The sealed attachment row retains the aggregate edited-file snippet budget that bounds linter-generated file-modified reminders.",
+      "retained": true,
+      "inheritedBaselineEvidence": {
+        "catalog": {
+          "path": "recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json",
+          "bytes": 360116,
+          "sha256": "55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3"
+        },
+        "rowIds": [
+          "image-read-retry"
+        ],
+        "rowBindings": [
+          {
+            "id": "image-read-retry",
+            "rowSha256": "ea6b768b43d55172006f995dd4dc0c95317df96d5a44205abeadaa159a17cf5b"
+          }
+        ],
+        "focusedTests": [
+          "runtime-tail",
+          "semantic-delta"
+        ]
+      }
+    },
+    {
+      "id": "B29",
+      "obligationId": "official-2-1-126-b29",
+      "category": "official",
+      "releaseBullet": 29,
+      "title": "Fixed `/remote-control` retries appearing stuck on \"connecting…\" — each retry now shows its result, and unenrolled trusted-device failures are caught up-front",
+      "status": "verified",
+      "targetFragments": [
+        "/v2/session_ingress/mcp/ws/",
+        "Fix with Claude"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/bridge/trustedDevice.ts",
+          "fragment": "export function getTrustedDeviceUnenrolledReason(): string | null {",
+          "count": 1
+        },
+        {
+          "path": "src/commands/bridge/bridge.tsx",
+          "fragment": "const trustedDeviceReason = getTrustedDeviceUnenrolledReason();",
+          "count": 1
+        },
+        {
+          "path": "src/hooks/useReplBridge.tsx",
+          "fragment": "{' '}· {detail || '/remote-control'}",
+          "count": 1
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [],
+      "rationale": "The sealed Remote Control rows retain per-attempt result details and the up-front trusted-device enrollment failure check.",
+      "retained": true,
+      "inheritedBaselineEvidence": {
+        "catalog": {
+          "path": "recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json",
+          "bytes": 360116,
+          "sha256": "55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3"
+        },
+        "rowIds": [
+          "commands-ui",
+          "oauth-mcp-auth"
+        ],
+        "rowBindings": [
+          {
+            "id": "commands-ui",
+            "rowSha256": "4d300c6c5ebbd4afc7416d804170f3faee57f6eebeb0817c0375e6e8588a4ce1"
+          },
+          {
+            "id": "oauth-mcp-auth",
+            "rowSha256": "e74c015dd9393dbf6bc46e48e39257750dc9d19ad88a94121f66e8429bb1ddc7"
+          }
+        ],
+        "focusedTests": [
+          "gateway-doctor-plugins",
+          "mcp-oauth-dedup",
+          "runtime-tail",
+          "semantic-delta",
+          "ui-command-semantics",
+          "ui-sdk-tail"
+        ]
+      }
+    },
+    {
+      "id": "B30",
+      "obligationId": "official-2-1-126-b30",
+      "category": "official",
+      "releaseBullet": 30,
+      "title": "Fixed Remote Control failure notification not showing the error reason for initial connection failures",
+      "status": "verified",
+      "targetFragments": [
+        "Fix with Claude"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/PromptInput/PromptInputFooter.tsx",
+          "fragment": "const error = useAppState(s_4 => s_4.replBridgeError);",
+          "count": 1
+        },
+        {
+          "path": "src/hooks/useReplBridge.tsx",
+          "fragment": "{' '}· {detail || '/remote-control'}",
+          "count": 1
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [],
+      "rationale": "The sealed Remote Control rows retain the explicit initial error state and the reviewed reason surfaced for trusted-device failures.",
+      "retained": true,
+      "inheritedBaselineEvidence": {
+        "catalog": {
+          "path": "recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json",
+          "bytes": 360116,
+          "sha256": "55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3"
+        },
+        "rowIds": [
+          "commands-ui"
+        ],
+        "rowBindings": [
+          {
+            "id": "commands-ui",
+            "rowSha256": "4d300c6c5ebbd4afc7416d804170f3faee57f6eebeb0817c0375e6e8588a4ce1"
+          }
+        ],
+        "focusedTests": [
+          "runtime-tail",
+          "semantic-delta",
+          "ui-command-semantics",
+          "ui-sdk-tail"
+        ]
+      }
+    },
+    {
+      "id": "B31",
+      "obligationId": "official-2-1-126-b31",
+      "category": "official",
+      "releaseBullet": 31,
+      "title": "Windows: clipboard writes no longer expose copied content in process command-line arguments visible to EDR/SIEM telemetry; also fixes >22KB selections not reaching the clipboard",
+      "status": "verified",
+      "targetFragments": [
+        " \\xB7 wheelFlood"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/ink/termio/osc.ts",
+          "fragment": "['-NoProfile', '-NonInteractive', '-Command', POWERSHELL_CLIPBOARD_COMMAND],",
+          "count": 1
+        },
+        {
+          "path": "src/ink/termio/osc.ts",
+          "fragment": "const POWERSHELL_CLIPBOARD_COMMAND =",
+          "count": 1
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [],
+      "rationale": "The sealed Windows terminal row retains stdin-based PowerShell clipboard transport, keeping copied contents out of process arguments.",
+      "retained": true,
+      "inheritedBaselineEvidence": {
+        "catalog": {
+          "path": "recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json",
+          "bytes": 360116,
+          "sha256": "55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3"
+        },
+        "rowIds": [
+          "terminal-bash-scroll"
+        ],
+        "rowBindings": [
+          {
+            "id": "terminal-bash-scroll",
+            "rowSha256": "dac6a4ee7fcf9436a504138a54557e221517becc5f3fbb6812c5498ef159c46b"
+          }
+        ],
+        "focusedTests": [
+          "runtime-tail",
+          "semantic-delta",
+          "ui-command-semantics",
+          "ui-sdk-tail"
+        ]
+      }
+    },
+    {
+      "id": "B32",
+      "obligationId": "official-2-1-126-b32",
+      "category": "official",
+      "releaseBullet": 32,
+      "title": "PowerShell tool: bare `--` (e.g. `git diff -- file`) is no longer mis-flagged as the `--%` stop-parsing token",
+      "status": "verified",
+      "targetFragments": [
+        "dimensions exceed max allowed size"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/powershell/parser.ts",
+          "fragment": "if ($tok.Kind -eq $tk::Generic -and ($tok.Text -replace '[\\u2013\\u2014\\u2015]','-') -eq '--%') {",
+          "count": 1
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [],
+      "rationale": "The sealed PowerShell parser witness retains exact stop-parsing-token recognition without treating a bare double dash as that token.",
+      "retained": true,
+      "inheritedBaselineEvidence": {
+        "catalog": {
+          "path": "recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json",
+          "bytes": 360116,
+          "sha256": "55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3"
+        },
+        "rowIds": [
+          "image-read-retry"
+        ],
+        "rowBindings": [
+          {
+            "id": "image-read-retry",
+            "rowSha256": "ea6b768b43d55172006f995dd4dc0c95317df96d5a44205abeadaa159a17cf5b"
+          }
+        ],
+        "focusedTests": [
+          "runtime-tail",
+          "semantic-delta"
+        ]
+      }
+    },
+    {
+      "id": "B33",
+      "obligationId": "official-2-1-126-b33",
+      "category": "official",
+      "releaseBullet": 33,
+      "title": "Fixed Agent SDK hang when the model emits a malformed tool name in a parallel tool call batch",
+      "status": "verified",
+      "targetFragments": [
+        "setInProgressToolUseIDs({action:\"add\""
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/tools/StreamingToolExecutor.ts",
+          "fragment": "let hasCompletedResults = false",
+          "count": 1
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [],
+      "rationale": "The sealed streaming-tool row retains one-pass tracking of results actually yielded before a blocked item, preventing an already completed malformed parallel tool from causing a busy loop.",
+      "retained": true,
+      "inheritedBaselineEvidence": {
+        "catalog": {
+          "path": "recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json",
+          "bytes": 360116,
+          "sha256": "55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3"
+        },
+        "rowIds": [
+          "tool-execution-classifier"
+        ],
+        "rowBindings": [
+          {
+            "id": "tool-execution-classifier",
+            "rowSha256": "933f361ea642cba788d58be5923ab112ff2eaa27eb069c7867feda5cbef110ef"
+          }
+        ],
+        "focusedTests": [
+          "runtime-tail",
+          "semantic-delta"
+        ]
+      }
+    },
+    {
+      "id": "effort-settings-persistence",
+      "obligationId": "hidden-effort-settings-persistence",
+      "category": "hidden",
+      "title": "Effort changes persist to user settings before local side effects",
+      "status": "verified",
+      "semanticClusterIds": [
+        4
+      ],
+      "semanticClusterBindings": [
+        {
+          "clusterId": 4,
+          "targetWitness": {
+            "kind": "raw-statement",
+            "side": "target",
+            "statementIndex": 18381,
+            "start": 11258206,
+            "end": 11259159,
+            "bytes": 953,
+            "sha256": "554f8295b370ba8e6f986a8f8663372ac80a8125a496b54aa3aeb1e4620609a8",
+            "normalizedSha256": "ee2acf8abd1ecef234a9d0ae5605fd8ba98e8cb67e218ac424f023b525d03dfd",
+            "count": 1,
+            "otherSideCount": 0
+          },
+          "additionalTargetWitnesses": [
+            {
+              "kind": "raw-statement",
+              "side": "target",
+              "statementIndex": 18383,
+              "start": 11259363,
+              "end": 11259926,
+              "bytes": 563,
+              "sha256": "dc27179a431cd66fbb0083b5ab5ce3cb9000efd254b460c35244a1411a636547",
+              "normalizedSha256": "449bb31465a37587d0c6f1be52810ee449aedcda499003258995cd16ee599063",
+              "count": 1,
+              "otherSideCount": 0
+            }
+          ],
+          "sourceWitnesses": [
+            {
+              "path": "src/commands/effort/effort.tsx",
+              "fragment": "updateSettingsForSource('userSettings', {",
+              "count": 2,
+              "matchedSemanticTerms": [],
+              "reviewed": true
+            },
+            {
+              "path": "src/commands/effort/effort.tsx",
+              "fragment": "Failed to set effort level:",
+              "count": 2,
+              "matchedSemanticTerms": [],
+              "reviewed": true
+            }
+          ],
+          "testIds": [
+            "active-semantics",
+            "semantic-delta"
+          ]
+        }
+      ],
+      "semanticTargetWitnesses": [
+        {
+          "kind": "literal",
+          "value": "Failed to set effort level: ",
+          "count": 2
+        }
+      ],
+      "targetFragments": [
+        "Failed to set effort level: "
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/commands/effort/effort.tsx",
+          "fragment": "Failed to set effort level:",
+          "count": 2,
+          "matchedSemanticTerms": [],
+          "reviewed": true
+        },
+        {
+          "path": "src/commands/effort/effort.tsx",
+          "fragment": "updateSettingsForSource('userSettings', {",
+          "count": 2,
+          "matchedSemanticTerms": [],
+          "reviewed": true
+        }
+      ],
+      "sourcePathAbsences": [],
+      "sourceFileAbsences": [],
+      "focusedTests": [
+        "active-semantics",
+        "semantic-delta"
+      ],
+      "rationale": "Authenticated semantic clusters C004 bind exact adjacent-bundle witnesses to the reviewed source owners and focused active-semantics, semantic-delta verification."
+    }
+  ]
+}

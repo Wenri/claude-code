@@ -1,0 +1,329 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "bounded-entrypoint-routing-and-growthbook-attributes-source-replay-ready",
+  "criterion": "authenticated-complete-entrypoint-catalog-startup-state-and-growthbook-compiler-lineage-v1",
+  "evidenceIds": [
+    "target119-entrypoint-routing-complete-target-unit-proof",
+    "target119-entrypoint-routing-source-replay-test",
+    "target119-entrypoint-routing-source-ast-test"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "sourceFiles": [
+      {
+        "path": "src/constants/keys.ts",
+        "input": {
+          "bytes": 444,
+          "sha256": "c2318953c036cc7468e0ec6b1e2229b5925e4100b68804114c52e7d81856f116"
+        },
+        "output": {
+          "bytes": 2264,
+          "sha256": "e4d3c9611d32117e5e1804c096936d3ca30a69cb22067353eedac8c1a3992b3d"
+        }
+      },
+      {
+        "path": "src/bootstrap/state.ts",
+        "input": {
+          "bytes": 60769,
+          "sha256": "2d12eca86ad8112d58987cd3ae7173cf1fa8538fec50c8b904b6752c2efe333a"
+        },
+        "output": {
+          "bytes": 61083,
+          "sha256": "b40aeeb3eb03e072fac8453ebcd6b0d7a39765fea0fafda1d1ebcf7ed5a68bcb"
+        }
+      },
+      {
+        "path": "src/main.tsx",
+        "input": {
+          "bytes": 810059,
+          "sha256": "27f42341f13a7a3708d02105d813f42ec9d95487d9dda26a70a553dc3874d0cc"
+        },
+        "output": {
+          "bytes": 809321,
+          "sha256": "1700d785a42f5383f7167e71c6eb937c3d1342df5b82fbbc841a55ef5a97cb0c"
+        }
+      },
+      {
+        "path": "src/services/analytics/growthbook.ts",
+        "input": {
+          "bytes": 40526,
+          "sha256": "42541e6311ebed2d2865332eb7d9b2b99ac46f16d47674e702d7b035c1b96cf4"
+        },
+        "output": {
+          "bytes": 40843,
+          "sha256": "cf0c2141d833c6dd2fb63146cb142d574719c7da6dd1162a1c6cdb9d3951381f"
+        }
+      }
+    ]
+  },
+  "summary": {
+    "units": 2,
+    "residues": 3,
+    "targetIndicesSha256": "d6febe218e11b6cffa64bb8ba3ac830d77480649ec0b9fd8d81846df602acf00",
+    "residueIdentitiesSha256": "0617898ffb1923cb965b27fc7dff33507cff4ef63c5f56786d1c2fa24d55de4a"
+  },
+  "ownerOverrides": [
+    {
+      "key": "2.1.118-to-2.1.119:2076",
+      "targetIndex": 2076,
+      "paths": [
+        "src/constants/keys.ts"
+      ],
+      "declarations": [
+        "VALID_ENTRYPOINTS",
+        "getEntrypoint",
+        "initializeEntrypoint",
+        "getSessionStartType"
+      ],
+      "evidenceIds": [
+        "target119-entrypoint-routing-complete-target-unit-proof",
+        "target119-entrypoint-routing-source-replay-test",
+        "target119-entrypoint-routing-source-ast-test"
+      ],
+      "behavior": "Target119 validates CLAUDE_CODE_ENTRYPOINT against the complete authenticated entrypoint catalog, including bench and ssh-remote, before adding it to GrowthBook attributes. Startup upgrades a pre-set cli entrypoint to sdk-cli for non-interactive execution and records fresh, resume, or continue from arguments before the -- separator."
+    },
+    {
+      "key": "2.1.118-to-2.1.119:6644",
+      "targetIndex": 6644,
+      "paths": [
+        "src/services/analytics/growthbook.ts"
+      ],
+      "declarations": [
+        "getUserAttributes"
+      ],
+      "evidenceIds": [
+        "target119-entrypoint-routing-complete-target-unit-proof",
+        "target119-entrypoint-routing-source-replay-test",
+        "target119-entrypoint-routing-source-ast-test"
+      ],
+      "behavior": "Target119 GrowthBook attributes consume only the validated entrypoint. The authenticated external build also preserves the auto-update-channel read but folds its releaseChannel value to undefined, so the guarded releaseChannel spread is provably non-runtime while the entrypoint spread remains live."
+    }
+  ],
+  "targetUnits": [
+    {
+      "targetIndex": 2072,
+      "classification": "unresolved",
+      "nodeType": "FunctionDeclaration",
+      "start": 884873,
+      "end": 884959,
+      "bytes": 86,
+      "sourceHash": "0f4393dc15a335ed1260e4c82cd961ece7db6aa3d3d4e946a0b9647b2848394d",
+      "requiredMarkers": [
+        "CLAUDE_CODE_ENTRYPOINT",
+        ".has(H)?H:void 0"
+      ]
+    },
+    {
+      "targetIndex": 2073,
+      "classification": "moved",
+      "nodeType": "FunctionDeclaration",
+      "start": 884959,
+      "end": 885401,
+      "bytes": 442,
+      "sourceHash": "873fbe9f7f3605953f0967d4c8fc49db1dd2dafb321685f8a4324e5112f1a3f9",
+      "requiredMarkers": [
+        "===\"cli\"&&H",
+        "=\"sdk-cli\"",
+        "CLAUDE_CODE_ACTION"
+      ]
+    },
+    {
+      "targetIndex": 2074,
+      "classification": "moved",
+      "nodeType": "FunctionDeclaration",
+      "start": 885401,
+      "end": 885692,
+      "bytes": 291,
+      "sourceHash": "fd2e2abf8ca489dc5778196ef6fd4f702a003ad9df103aad4726afdd554267d0",
+      "requiredMarkers": [
+        "indexOf(\"--\")",
+        "--from-pr=",
+        "return\"continue\""
+      ]
+    },
+    {
+      "targetIndex": 2076,
+      "classification": "unresolved",
+      "nodeType": "VariableDeclaration",
+      "start": 885700,
+      "end": 885953,
+      "bytes": 253,
+      "sourceHash": "506ff868945a4512df9a339a34dfa57d4fb6ed55676fa45aef161e1e79f11840",
+      "requiredMarkers": [
+        "new Set([\"cli\",\"mcp\",\"sdk-cli\"",
+        "\"bench\"",
+        "\"ssh-remote\""
+      ]
+    },
+    {
+      "targetIndex": 6644,
+      "classification": "unresolved",
+      "nodeType": "FunctionDeclaration",
+      "start": 3057623,
+      "end": 3058314,
+      "bytes": 691,
+      "sourceHash": "e76a32c5514d96ff8eb6496018345e257b070c9c889c076d93b7671f1cd94bfe",
+      "requiredMarkers": [
+        "?.autoUpdatesChannel,K=void 0",
+        "...K&&{releaseChannel:K}",
+        "...A&&{entrypoint:A}"
+      ]
+    }
+  ],
+  "residueRows": [
+    {
+      "targetIndex": 2076,
+      "kind": "string",
+      "value": "bench",
+      "start": 885773,
+      "end": 885780,
+      "baselineCount": 0,
+      "targetOrdinal": 1
+    },
+    {
+      "targetIndex": 2076,
+      "kind": "string",
+      "value": "ssh-remote",
+      "start": 885936,
+      "end": 885948,
+      "baselineCount": 0,
+      "targetOrdinal": 1
+    },
+    {
+      "targetIndex": 6644,
+      "kind": "property",
+      "value": "releaseChannel",
+      "start": 3058274,
+      "end": 3058288,
+      "baselineCount": 0,
+      "targetOrdinal": 1
+    }
+  ],
+  "targetCallGraph": {
+    "matchedClientKey": {
+      "targetIndex": 2071,
+      "classification": "matched",
+      "start": 884829,
+      "end": 884873,
+      "bytes": 44,
+      "sourceHash": "305cb6991a59f6d2a20df74feea69c2a2aabd4077375c46fc8a0fc51560fb205"
+    },
+    "bootstrapDefault": {
+      "start": 32641,
+      "end": 32665,
+      "bytes": 24,
+      "sha256": "40909e003599aad9af70d2ebfd39ab8a13ed67b34b39470f21de555ae14c6e20",
+      "text": "sessionStartType:\"fresh\""
+    },
+    "bootstrapAccessors": {
+      "start": 41276,
+      "end": 41356,
+      "bytes": 80,
+      "sha256": "3b7b615b329c5b4f1b3cbf041bf4cfe4012a6b6e4347d52b6d0a95401b11fca3"
+    },
+    "mainStartup": {
+      "ownerTargetIndex": 21876,
+      "start": 13646625,
+      "end": 13646652,
+      "bytes": 27,
+      "sha256": "1f5425fa819b7d98503b7ee66a6e1493a6e82f195432213c90a9730db550ffb0",
+      "text": "wj8(!_),eo6(_),vj8(Ha6(H));"
+    }
+  },
+  "sourceDeclarations": {
+    "src/constants/keys.ts": [
+      {
+        "name": "VALID_ENTRYPOINTS",
+        "kind": "VariableStatement",
+        "start": 445,
+        "end": 755,
+        "bytes": 310,
+        "sha256": "14cb2df93e3cb1a64d2ebde544c5892071e38cda9580b3f4d9b7adff04466b9c"
+      },
+      {
+        "name": "getEntrypoint",
+        "kind": "FunctionDeclaration",
+        "start": 757,
+        "end": 952,
+        "bytes": 195,
+        "sha256": "f341d7d8710085947e91d29fb669d394f2f31b72cd631b890fffcc2536590e34"
+      },
+      {
+        "name": "initializeEntrypoint",
+        "kind": "FunctionDeclaration",
+        "start": 954,
+        "end": 1649,
+        "bytes": 695,
+        "sha256": "34fb07a926df8697b72a7fbba641500ade2c285941b89c4e2bcbdf8fb25b003d"
+      },
+      {
+        "name": "getSessionStartType",
+        "kind": "FunctionDeclaration",
+        "start": 1651,
+        "end": 2263,
+        "bytes": 612,
+        "sha256": "f6e7a45f62c036be800ecc49e93095c04ce214bbdfc3f0f97484a8c85eb79093"
+      }
+    ],
+    "src/bootstrap/state.ts": [
+      {
+        "name": "getSessionStartType",
+        "kind": "FunctionDeclaration",
+        "start": 41244,
+        "end": 41350,
+        "bytes": 106,
+        "sha256": "f916be56c6a1c525a65b63294e3d81fdf2a7434f923ca4b6de4ea57a3f61d8d6"
+      },
+      {
+        "name": "setSessionStartType",
+        "kind": "FunctionDeclaration",
+        "start": 41352,
+        "end": 41473,
+        "bytes": 121,
+        "sha256": "3463f980079ab9bb56faa2f25af854e27bac05ba38a58fd96399c0319c7f94c0"
+      }
+    ],
+    "src/services/analytics/growthbook.ts": [
+      {
+        "name": "getUserAttributes",
+        "kind": "FunctionDeclaration",
+        "start": 16453,
+        "end": 17985,
+        "bytes": 1532,
+        "sha256": "75a752ef1d13b6bc31b269bbfbc189de680f0da45ae03bde84f4fa734c275c4c"
+      }
+    ]
+  },
+  "sourceCallGraph": {
+    "mainInitialize": {
+      "text": "initializeEntrypoint(isNonInteractive);",
+      "sha256": "8798daacf6f8f3811dc59da5a15fa3106fa40abf31e3b992119d8c0eb6fda6d3"
+    },
+    "mainSessionStart": {
+      "text": "setSessionStartType(getSessionStartType(cliArgs));",
+      "sha256": "3bc7562d41b2ec78775ede31c9842e904ea41e32683d0fe1d5938badc2ea811d"
+    },
+    "growthBookCompilerMarkers": [
+      "const autoUpdatesChannel = getGlobalConfig()?.autoUpdatesChannel",
+      "const releaseChannel = false ? autoUpdatesChannel : undefined",
+      "...(releaseChannel && { releaseChannel })",
+      "...(entrypoint && { entrypoint })"
+    ]
+  }
+}

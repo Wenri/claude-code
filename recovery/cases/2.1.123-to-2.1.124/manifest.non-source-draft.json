@@ -1,0 +1,665 @@
+{
+  "schemaVersion": 4,
+  "case": "2.1.123-to-2.1.124",
+  "draft": {
+    "kind": "authenticated-non-source-recovery",
+    "status": "source-freeze-semantic-correspondence-and-final-docs-pending",
+    "generatedBy": "recovery/scripts/build-2.1.124-non-source-draft.mjs",
+    "rule": "Published artifacts, exact deltas, generated attribution, structural accounting, and readable review outputs are frozen. Source-facing recovery and semantic closure remain pending."
+  },
+  "releaseAdjacency": {
+    "baseline": "2.1.123",
+    "target": "2.1.124",
+    "targetIsNextPublishedVersion": true,
+    "skipped": [],
+    "skippedVersionsAbsent": true,
+    "provenance": "evidence/provenance.json",
+    "publicGitReleaseTagPresent": false,
+    "publicChangelogSectionPresent": false,
+    "publicReleaseAbsence": "evidence/RELEASE-2.1.124-ABSENCE.json"
+  },
+  "recoveryScope": {
+    "platform": "linux-x64",
+    "completeness": "authenticated-generated-recovery-complete-source-and-semantic-pending",
+    "authoredSourceTextObservable": false,
+    "authenticatedNativeContainer": true,
+    "exactPublishedPackageTreeReconstruction": true,
+    "exactPublishedBundleReconstruction": true,
+    "exactEmbeddedJavaScriptGraphReconstruction": true,
+    "allTargetUtf16Accounted": true,
+    "allTargetTokensClassified": true,
+    "sourceClosurePending": true,
+    "semanticClosurePending": true
+  },
+  "artifacts": [
+    {
+      "id": "baselineTarball",
+      "argument": "baseline-tarball",
+      "localPath": "2.1.123/package.tgz",
+      "bytes": 13541,
+      "sha256": "97abf96840af5728b70b8eae58ab0904b364f273e604f28f171bee2263d36a2d",
+      "url": "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.1.123.tgz"
+    },
+    {
+      "id": "baselineDeclarations",
+      "argument": "baseline-dts",
+      "archive": "baselineTarball",
+      "archiveMember": "package/sdk-tools.d.ts",
+      "localPath": "2.1.123/package/sdk-tools.d.ts",
+      "bytes": 117452,
+      "sha256": "8f907e0e9fd160b857d25881375f73f1bddd3642d372ad52ea71d7ff441f3ddf"
+    },
+    {
+      "id": "baselinePackageJson",
+      "argument": "baseline-package-json",
+      "archive": "baselineTarball",
+      "archiveMember": "package/package.json",
+      "localPath": "2.1.123/package/package.json",
+      "bytes": 1476,
+      "sha256": "97431d0dcfd036c18bc7a660ad3e1dad704c89f21c3aaaa00c6d4c4af9dc1278"
+    },
+    {
+      "id": "baselineInstall",
+      "argument": "baseline-install",
+      "archive": "baselineTarball",
+      "archiveMember": "package/install.cjs",
+      "localPath": "2.1.123/package/install.cjs",
+      "bytes": 6307,
+      "sha256": "574cb5fd945d2adba5901a9ae508b62ca539e5a91dcd877840fc174844ed79d2"
+    },
+    {
+      "id": "targetTarball",
+      "argument": "target-tarball",
+      "localPath": "2.1.124/package.tgz",
+      "bytes": 13541,
+      "sha256": "a6dc099f499adcd40f8cc53f93c709feb0c1d0e62ba8c7be2e80bf0c470ade07",
+      "url": "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.1.124.tgz"
+    },
+    {
+      "id": "targetDeclarations",
+      "argument": "target-dts",
+      "archive": "targetTarball",
+      "archiveMember": "package/sdk-tools.d.ts",
+      "localPath": "2.1.124/package/sdk-tools.d.ts",
+      "bytes": 117452,
+      "sha256": "8f907e0e9fd160b857d25881375f73f1bddd3642d372ad52ea71d7ff441f3ddf"
+    },
+    {
+      "id": "targetPackageJson",
+      "argument": "target-package-json",
+      "archive": "targetTarball",
+      "archiveMember": "package/package.json",
+      "localPath": "2.1.124/package/package.json",
+      "bytes": 1476,
+      "sha256": "d770813a0e1686ed8696fc543644a16c4269b4ac28df85e40c6ee07f751decd9"
+    },
+    {
+      "id": "targetInstall",
+      "argument": "target-install",
+      "archive": "targetTarball",
+      "archiveMember": "package/install.cjs",
+      "localPath": "2.1.124/package/install.cjs",
+      "bytes": 6307,
+      "sha256": "574cb5fd945d2adba5901a9ae508b62ca539e5a91dcd877840fc174844ed79d2"
+    },
+    {
+      "id": "baselinePlatformTarball",
+      "argument": "baseline-platform-tarball",
+      "localPath": "2.1.123-linux-x64/package.tgz",
+      "bytes": 76994598,
+      "sha256": "42030c97505ab818d31b10bf92a4587a670cd9f1290724a805e395f6d963692c",
+      "url": "https://registry.npmjs.org/@anthropic-ai/claude-code-linux-x64/-/claude-code-linux-x64-2.1.123.tgz"
+    },
+    {
+      "id": "baselineExecutable",
+      "argument": "baseline-executable",
+      "archive": "baselinePlatformTarball",
+      "archiveMember": "package/claude",
+      "localPath": "2.1.123-linux-x64/package/claude",
+      "bytes": 247732864,
+      "sha256": "5a78139b679a86a88a0ac5476c706a64c3105bf6a6d435ba10f3aa3fb635bdb2"
+    },
+    {
+      "id": "baselineBundle",
+      "argument": "baseline",
+      "localPath": "2.1.123-linux-x64/cli.js",
+      "bytes": 13949666,
+      "sha256": "6992e5f0bf7410ce9dc5eee1a26b132f3257bbed0f3a7f9433ff01c656ac91fc",
+      "byteSlice": {
+        "sourceArtifact": "baselineExecutable",
+        "offset": 231818120,
+        "bytes": 13949666,
+        "prefixHex": "2f2f204062756e204062797465636f6465"
+      }
+    },
+    {
+      "id": "baselineAnalyzableBundle",
+      "argument": "baseline-analyzable",
+      "localPath": "2.1.123-linux-x64/cli.inner.js",
+      "bytes": 13949576,
+      "sha256": "59c8eebc0660d4bbc5c1f82af0ca5e94df5db46084687b979ad21a07fba3d7dd",
+      "byteSlice": {
+        "sourceArtifact": "baselineBundle",
+        "offset": 87,
+        "bytes": 13949576
+      }
+    },
+    {
+      "id": "baselineImageProcessorJs",
+      "argument": "baseline-image-js",
+      "localPath": "2.1.123-linux-x64/image-processor.js",
+      "bytes": 1976,
+      "sha256": "18b29219472b2363465733d26210e6d8f3300fa3efd34eeb097bb9578936f8d2",
+      "byteSlice": {
+        "sourceArtifact": "baselineExecutable",
+        "offset": 245767819,
+        "bytes": 1976
+      }
+    },
+    {
+      "id": "baselineAudioCaptureJs",
+      "argument": "baseline-audio-js",
+      "localPath": "2.1.123-linux-x64/audio-capture.js",
+      "bytes": 1974,
+      "sha256": "7f5df148bebbae5d3df474e1eccce35fd47aa0ebfdcdf036cf22489b3d80d442",
+      "byteSlice": {
+        "sourceArtifact": "baselineExecutable",
+        "offset": 245769826,
+        "bytes": 1974
+      }
+    },
+    {
+      "id": "targetPlatformTarball",
+      "argument": "target-platform-tarball",
+      "localPath": "2.1.124-linux-x64/package.tgz",
+      "bytes": 77091312,
+      "sha256": "5c0ba323342c57b1a6dee4ac461315b2163f1db151adfad55fd046648c2b6916",
+      "url": "https://registry.npmjs.org/@anthropic-ai/claude-code-linux-x64/-/claude-code-linux-x64-2.1.124.tgz"
+    },
+    {
+      "id": "targetExecutable",
+      "argument": "target-executable",
+      "archive": "targetPlatformTarball",
+      "archiveMember": "package/claude",
+      "localPath": "2.1.124-linux-x64/package/claude",
+      "bytes": 248109696,
+      "sha256": "bd533ba943b9415088a0751a63fdb87d719b0ef26bd3cb746f703a7c860f06da"
+    },
+    {
+      "id": "targetBundle",
+      "argument": "target",
+      "localPath": "2.1.124-linux-x64/cli.js",
+      "bytes": 13981018,
+      "sha256": "3214b62d9f7e3763a59211ad95a570d03f37e37c6aa87686cd9b6ccf4827eacb",
+      "byteSlice": {
+        "sourceArtifact": "targetExecutable",
+        "offset": 232161464,
+        "bytes": 13981018,
+        "prefixHex": "2f2f204062756e204062797465636f6465"
+      }
+    },
+    {
+      "id": "targetAnalyzableBundle",
+      "argument": "target-analyzable",
+      "localPath": "2.1.124-linux-x64/cli.inner.js",
+      "bytes": 13980928,
+      "sha256": "dc2b68c385a3064737343e51e6d7c690f9e03cc40fa89c4393708ae03094d590",
+      "byteSlice": {
+        "sourceArtifact": "targetBundle",
+        "offset": 87,
+        "bytes": 13980928
+      }
+    },
+    {
+      "id": "targetCliJsc",
+      "argument": "target-cli-jsc",
+      "localPath": "2.1.124-linux-x64/cli.jsc",
+      "bytes": 123486192,
+      "sha256": "07af9cabd7fd1249321657a37a01003e3f845f68d3e3d177a3315b109f105675",
+      "byteSlice": {
+        "sourceArtifact": "targetExecutable",
+        "offset": 108675200,
+        "bytes": 123486192
+      }
+    },
+    {
+      "id": "targetImageProcessorJs",
+      "argument": "target-image-js",
+      "localPath": "2.1.124-linux-x64/image-processor.js",
+      "bytes": 1976,
+      "sha256": "dc2073caf18c06e7944416e90021929fba17e2fa8e371173917cc379a9d0be2b",
+      "byteSlice": {
+        "sourceArtifact": "targetExecutable",
+        "offset": 246142515,
+        "bytes": 1976
+      }
+    },
+    {
+      "id": "targetAudioCaptureJs",
+      "argument": "target-audio-js",
+      "localPath": "2.1.124-linux-x64/audio-capture.js",
+      "bytes": 1974,
+      "sha256": "014fbdebbffb574016538720b02137b88b42c2535c74f0d7e2bbe3d42837920e",
+      "byteSlice": {
+        "sourceArtifact": "targetExecutable",
+        "offset": 246144522,
+        "bytes": 1974
+      }
+    },
+    {
+      "id": "targetImageProcessorNative",
+      "argument": "target-image-native",
+      "localPath": "2.1.124-linux-x64/image-processor.node",
+      "bytes": 1464760,
+      "sha256": "37bec7de530676e3dfe963d34a824b49191595809a8072348a2ef4571f1e5f4d",
+      "byteSlice": {
+        "sourceArtifact": "targetExecutable",
+        "offset": 246146531,
+        "bytes": 1464760,
+        "prefixHex": "7f454c46"
+      }
+    },
+    {
+      "id": "targetAudioCaptureNative",
+      "argument": "target-audio-native",
+      "localPath": "2.1.124-linux-x64/audio-capture.node",
+      "bytes": 492184,
+      "sha256": "7e89edf4dde9b69b6c55a310788ad999e2d0dd469d8a31c529cf28f3ea5e929c",
+      "byteSlice": {
+        "sourceArtifact": "targetExecutable",
+        "offset": 247611324,
+        "bytes": 492184,
+        "prefixHex": "7f454c46"
+      }
+    },
+    {
+      "id": "sourceOracleBundle",
+      "argument": "source-oracle-bundle",
+      "localPath": "2.1.88/cli.js",
+      "url": "https://raw.githubusercontent.com/Exhen/claude-code-2.1.88/c8cd253554319f32ff64ff7000636199f720c9bc/cli.js",
+      "bytes": 13047043,
+      "sha256": "75c9611929d9a770fe2e3a393219d8b98f5de17fde539b2a7355c6db3fd2795f"
+    },
+    {
+      "id": "sourceOracleMap",
+      "argument": "source-oracle-map",
+      "localPath": "2.1.88/cli.js.map",
+      "url": "https://raw.githubusercontent.com/Exhen/claude-code-2.1.88/c8cd253554319f32ff64ff7000636199f720c9bc/cli.js.map",
+      "bytes": 59766257,
+      "sha256": "7965012b7a5fc9e09d8d747a04c5c32b94696924536e217f686bb1e7ee70a657"
+    }
+  ],
+  "sourceOracle": {
+    "bundleArtifact": "sourceOracleBundle",
+    "mapArtifact": "sourceOracleMap",
+    "relationship": "The matching 2.1.88 bundle/map pair is the cumulative historical ownership oracle used by generated attribution. The structural ledger, readable diff, deterministic known-delta proof, and semantic-correspondence witness/count comparisons independently use the authenticated adjacent 2.1.123 and 2.1.124 analyzable Linux x64 bundles; semantic correspondence consumes cumulative attribution only as target ownership evidence.",
+    "appliedSourceTree": {
+      "status": "pending-source-recovery"
+    }
+  },
+  "sourceLineage": {
+    "status": "pending-source-recovery-and-freeze"
+  },
+  "generatedRecovery": {
+    "packageMembers": {
+      "report": "package-members.json",
+      "baselineTarball": {
+        "bytes": 13541,
+        "sha256": "97abf96840af5728b70b8eae58ab0904b364f273e604f28f171bee2263d36a2d"
+      },
+      "targetMembers": 7,
+      "targetMemberBytes": 132031,
+      "targetFramedTreeSha256": "da3cb94a84cb7f339f5bb53932432b36f01488e1b41d2b02ef455837be250c6a",
+      "unionMemberCount": 7,
+      "baselineMemberCount": 7,
+      "targetMemberCount": 7,
+      "unchanged": 6,
+      "changed": 1,
+      "added": 0,
+      "removed": 0,
+      "complete": true,
+      "changedMemberPayloads": [
+        {
+          "member": "package/package.json",
+          "algorithm": "zstd-dictionary-patch",
+          "path": "diff/package.json.zstd-delta"
+        }
+      ],
+      "addedMemberPayloads": []
+    },
+    "exactBundleDelta": {
+      "algorithm": "zstd-dictionary-patch",
+      "path": "diff/cli.js.zstd-delta",
+      "baselineArtifact": "baselineBundle",
+      "targetArtifact": "targetBundle",
+      "reconstructsTargetExactly": true
+    },
+    "embeddedCode": {
+      "status": "all-plain-javascript-bun-modules-exact",
+      "files": [
+        {
+          "path": "src/entrypoints/cli.js",
+          "algorithm": "zstd-dictionary-patch",
+          "baselineArtifact": "baselineBundle",
+          "targetArtifact": "targetBundle",
+          "payload": "diff/cli.js.zstd-delta"
+        },
+        {
+          "path": "image-processor.js",
+          "algorithm": "zstd-dictionary-patch",
+          "baselineArtifact": "baselineImageProcessorJs",
+          "targetArtifact": "targetImageProcessorJs",
+          "payload": "diff/image-processor.js.zstd-delta"
+        },
+        {
+          "path": "audio-capture.js",
+          "algorithm": "zstd-dictionary-patch",
+          "baselineArtifact": "baselineAudioCaptureJs",
+          "targetArtifact": "targetAudioCaptureJs",
+          "payload": "diff/audio-capture.js.zstd-delta"
+        }
+      ],
+      "targetFiles": 3,
+      "targetBytes": 13984968,
+      "targetFramedTreeSha256": "d5e615f994ff7d6f6841fdfbc3290209718d05cd91dc6ec2f061c6e87e3b98e9"
+    },
+    "bunExtraction": {
+      "status": "authenticated-linux-x64-bun-footer-directory",
+      "inventory": "binary-extraction/inventory.json",
+      "extractor": "recovery/scripts/inspect-bun-container.mjs",
+      "executableArtifact": "targetExecutable",
+      "analyzableArtifact": "targetAnalyzableBundle",
+      "moduleArtifacts": [
+        {
+          "index": 0,
+          "contentArtifact": "targetBundle",
+          "jscArtifact": "targetCliJsc"
+        },
+        {
+          "index": 1,
+          "contentArtifact": "targetImageProcessorJs"
+        },
+        {
+          "index": 2,
+          "contentArtifact": "targetAudioCaptureJs"
+        },
+        {
+          "index": 3,
+          "contentArtifact": "targetImageProcessorNative"
+        },
+        {
+          "index": 4,
+          "contentArtifact": "targetAudioCaptureNative"
+        }
+      ]
+    },
+    "attribution": {
+      "status": "authenticated-inputs-exhaustively-accounted",
+      "directory": "attribution",
+      "strategy": "cumulative-source-oracle",
+      "baselineArtifact": "sourceOracleBundle",
+      "sourceMapArtifact": "sourceOracleMap",
+      "targetArtifact": "targetAnalyzableBundle",
+      "inputIdentities": {
+        "baselineBundle": {
+          "bytes": 13047043,
+          "sha256": "75c9611929d9a770fe2e3a393219d8b98f5de17fde539b2a7355c6db3fd2795f"
+        },
+        "baselineSourceMap": {
+          "bytes": 59766257,
+          "sha256": "7965012b7a5fc9e09d8d747a04c5c32b94696924536e217f686bb1e7ee70a657"
+        },
+        "targetBundle": {
+          "bytes": 13980928,
+          "sha256": "dc2b68c385a3064737343e51e6d7c690f9e03cc40fa89c4393708ae03094d590"
+        }
+      },
+      "summaryIdentity": {
+        "bytes": 4364,
+        "sha256": "9df5dd4681d00b4053d226e46a3c7ecb35445408dd2754611464aa05702bfab9"
+      },
+      "offsetUnit": "utf16-code-units",
+      "targetUtf16": 13980928,
+      "accountedTargetUtf16": 13980928,
+      "unaccountedTargetUtf16": 0,
+      "targetRanges": "attribution/target-ranges.jsonl.gz",
+      "targetRangeCount": 58003,
+      "targetRangeUtf16": 13980928
+    },
+    "structural": {
+      "status": "authenticated-inputs-exhaustively-accounted-with-zero-residue-known-delta",
+      "ledger": "structural/generated-delta.json.gz",
+      "rawLedger": {
+        "path": "structural/generated-delta.json.gz",
+        "bytes": 2415762,
+        "sha256": "0675cd7f48b2d74b5922e5eacabd76a8a151d9cdd6f515d76e2aa350fb83e982"
+      },
+      "metadataNormalizedLedger": {
+        "path": "structural/metadata-normalized-delta.json.gz",
+        "bytes": 2397530,
+        "sha256": "de7f4b2a3bd15392758ac3c981d4759f54bfcdb9a5ee3a810d8215fe4da3e460"
+      },
+      "knownDeltaExactLedger": {
+        "path": "structural/known-delta-ledger.json.gz",
+        "bytes": 2234460,
+        "sha256": "97cf1e6fe195eb4a2605cb0ade2de5fe8963adcb1a02ab2cafd731a783f54a24"
+      },
+      "knownDeltaProof": {
+        "path": "structural/known-delta-proof.json",
+        "bytes": 347925,
+        "sha256": "4104bbbd6c14f7703ac5fca78ff1a1ac30925aea53e70ed3f4c080434594e06b"
+      },
+      "baselineArtifact": "baselineAnalyzableBundle",
+      "targetArtifact": "targetAnalyzableBundle",
+      "targetUnits": 22358,
+      "targetTokens": 4405970,
+      "matchedTokens": 3705208,
+      "movedCandidateTokens": 16666,
+      "coarseChangedTokens": 301783,
+      "unresolvedTokens": 382313,
+      "exactStructuralFraction": 0.8447343036834114,
+      "resolvedStructuralFraction": 0.9132284150822634,
+      "knownDeltaClosure": {
+        "targetUnits": 22358,
+        "targetTokens": 4405970,
+        "changedUnits": 0,
+        "movedUnits": 0,
+        "unresolvedUnits": 0,
+        "changedTokens": 0,
+        "movedTokens": 0,
+        "unresolvedTokens": 0,
+        "unmatchedBaselineUnits": 0,
+        "unresolvedTargetUnits": 0
+      },
+      "semanticClusterInventory": {
+        "totalClusters": 205,
+        "directGroups": 17,
+        "directClusters": 168,
+        "accountingOnlyGroups": 4,
+        "accountingOnlyClusters": 37,
+        "supportBindings": 10,
+        "supportSourcePaths": 10,
+        "status": "complete-partition-source-bindings-pending"
+      }
+    },
+    "readableDiff": {
+      "status": "authenticated-inputs-invariant-preserving",
+      "directory": "readable-diff",
+      "strategy": "adjacent-analyzable-bundles",
+      "baselineArtifact": "baselineAnalyzableBundle",
+      "targetArtifact": "targetAnalyzableBundle",
+      "inputIdentities": {
+        "baseline": {
+          "name": "cli.inner.js",
+          "bytes": 13949576,
+          "sha256": "59c8eebc0660d4bbc5c1f82af0ca5e94df5db46084687b979ad21a07fba3d7dd"
+        },
+        "target": {
+          "name": "cli.inner.js",
+          "bytes": 13980928,
+          "sha256": "dc2b68c385a3064737343e51e6d7c690f9e03cc40fa89c4393708ae03094d590"
+        }
+      },
+      "metadataIdentity": {
+        "bytes": 3927,
+        "sha256": "63df67f8ed969f177e54e70ddf09bcf394043d2ba1d93de2d72329d95484ea63"
+      },
+      "comparisonInvariantHashesEqual": true,
+      "metadata": "readable-diff/metadata.json",
+      "fullDiff": "readable-diff/normalized.diff.gz"
+    },
+    "semanticCorrespondence": {
+      "status": "pending-source-and-semantic-closure"
+    },
+    "fileAssertions": [
+      {
+        "path": "attribution/sources.jsonl.gz",
+        "bytes": 467892,
+        "sha256": "9cf80d48545f9f10cae5236259f9825067a93cd01a514351c40994ddac2deb4a"
+      },
+      {
+        "path": "attribution/summary.json",
+        "bytes": 4364,
+        "sha256": "9df5dd4681d00b4053d226e46a3c7ecb35445408dd2754611464aa05702bfab9"
+      },
+      {
+        "path": "attribution/target-initializers.jsonl.gz",
+        "bytes": 119576,
+        "sha256": "f7bccbbaf030989212143ac0e61d219acf7eae109410cf6fbc33c7b7d7a6417c"
+      },
+      {
+        "path": "attribution/target-partitions.jsonl.gz",
+        "bytes": 2913743,
+        "sha256": "933f1ee6f9909b2aef4d7947f17ddffac4127c6dfad64a7c00540621ec94ae0b"
+      },
+      {
+        "path": "attribution/target-ranges.jsonl.gz",
+        "bytes": 3410880,
+        "sha256": "3e7d68c0615d346ec18715f879340e6fa2c1627b8a83bb1ef854a2a28bddfb2f"
+      },
+      {
+        "path": "binary-extraction/inventory.json",
+        "bytes": 6458,
+        "sha256": "4c9b8d4a8724871c8905b2d1ea0b6c5f629c84313b298c08152f08401ecd6fe0"
+      },
+      {
+        "path": "binary-extraction/native-package-members.json",
+        "bytes": 5306,
+        "sha256": "528351cc305d9c0d29ef78b41492ad7a791bcedc8fd04e834dc43815be3b31f6"
+      },
+      {
+        "path": "diff/audio-capture.js.zstd-delta",
+        "bytes": 26,
+        "sha256": "f7a4c25d1033c06c469a258d0b7c70ac0e27414d8ca91dfdcac7f70cec32b43c"
+      },
+      {
+        "path": "diff/cli.js.zstd-delta",
+        "bytes": 2306766,
+        "sha256": "5ef61de354b50af24efd26979c42cb0d7eadcba7ce21a7171dcde1b5938b3504"
+      },
+      {
+        "path": "diff/image-processor.js.zstd-delta",
+        "bytes": 26,
+        "sha256": "857a48c432ec54046192f1555be0c5b056c78da55d874306fe093e82473076ec"
+      },
+      {
+        "path": "diff/metadata.json",
+        "bytes": 2184,
+        "sha256": "be9e03de1bfb8f88d78f05d54e425f161599109441547e11584b6d099c0ed362"
+      },
+      {
+        "path": "diff/package.json.zstd-delta",
+        "bytes": 55,
+        "sha256": "8aac69ac808c28dc0f1891f31305604b47f65807ba1d94ae261fa6e5842b138c"
+      },
+      {
+        "path": "evidence/RELEASE-2.1.124-ABSENCE.json",
+        "bytes": 942,
+        "sha256": "7f7f09c7e8a7853638044b07d35673a7a3f6aca77248a16e276d3b6019d312e8"
+      },
+      {
+        "path": "evidence/claude-code-CHANGELOG-a243cad1.md",
+        "bytes": 268769,
+        "sha256": "efeda64b42e26075ebdc26bc3e7ee71416aa9d02f08e908c0e4f1b78bef4a67e"
+      },
+      {
+        "path": "evidence/official-tag-refs.txt",
+        "bytes": 11430,
+        "sha256": "476465042835e67376b8d9d7ecc01935cdc2a19bc31b9c7c74481f8574a86fbc"
+      },
+      {
+        "path": "evidence/provenance.json",
+        "bytes": 5882,
+        "sha256": "5c1591fd4f1391f9f96d074586f5366399eb23c501be008f6e7c415ad66a894b"
+      },
+      {
+        "path": "package-members.json",
+        "bytes": 6745,
+        "sha256": "5ac44d3e002f89ba8956e7ce3d7a8d356a01b996368ecf569533f8421c6c7e6b"
+      },
+      {
+        "path": "readable-diff/metadata.json",
+        "bytes": 3927,
+        "sha256": "63df67f8ed969f177e54e70ddf09bcf394043d2ba1d93de2d72329d95484ea63"
+      },
+      {
+        "path": "readable-diff/normalized.diff.gz",
+        "bytes": 5460692,
+        "sha256": "6831285bf49d5d4c6f84b2c62d02a6c16d70df709a9abc5420a50fc605ffa16a"
+      },
+      {
+        "path": "readable-diff/renames.tsv",
+        "bytes": 251843,
+        "sha256": "d1f3bc17e0f9e1a25c4e18ca308e48c51fd434feb948bdcf4a9e29df4104365f"
+      },
+      {
+        "path": "readable-diff/statements.diff",
+        "bytes": 153041,
+        "sha256": "f56cca2921b6b6cf2535d25629665b05a819a54140490ab546300d2a3785b4f7"
+      },
+      {
+        "path": "structural/generated-delta.json.gz",
+        "bytes": 2415762,
+        "sha256": "0675cd7f48b2d74b5922e5eacabd76a8a151d9cdd6f515d76e2aa350fb83e982"
+      },
+      {
+        "path": "structural/known-delta-ledger.json.gz",
+        "bytes": 2234460,
+        "sha256": "97cf1e6fe195eb4a2605cb0ade2de5fe8963adcb1a02ab2cafd731a783f54a24"
+      },
+      {
+        "path": "structural/known-delta-proof.json",
+        "bytes": 347925,
+        "sha256": "4104bbbd6c14f7703ac5fca78ff1a1ac30925aea53e70ed3f4c080434594e06b"
+      },
+      {
+        "path": "structural/metadata-normalized-delta.json.gz",
+        "bytes": 2397530,
+        "sha256": "de7f4b2a3bd15392758ac3c981d4759f54bfcdb9a5ee3a810d8215fe4da3e460"
+      },
+      {
+        "path": "structural/semantic-cluster-ledger.json.gz",
+        "bytes": 157873,
+        "sha256": "412326ff7ff466aa8d6f2d661122355b1e16ce7a8b66a9302cbc51881aa20157"
+      }
+    ]
+  },
+  "nonSourceFreeze": {
+    "index": "freeze-index.json",
+    "bytes": 4557,
+    "sha256": "bf887f92329f5b8e2af610f86c0b105aed92b0813b967dd55d2444d71e428745",
+    "files": 26,
+    "frozenBytes": 22954097,
+    "verified": true
+  },
+  "pendingSourceClosure": {
+    "status": "source-and-semantic-correspondence-pending",
+    "caseFiles": [
+      "RECOVERY_RUNBOOK.md",
+      "REPORT.md",
+      "semantic/*",
+      "recovered/source-facing-overlay.patch",
+      "recovered/source-freeze/*"
+    ]
+  }
+}

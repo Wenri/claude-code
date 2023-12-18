@@ -1,0 +1,618 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "targetVersion": "2.1.119",
+  "status": "authenticated-secondary-static-source-compiler-owner-proof",
+  "criterion": "exact-current-owner-plus-complete-target-unit-and-source-scope-and-closed-compiler-transform-v1",
+  "evidenceIds": [
+    "target119-secondary-static-owner-target-fragment",
+    "target119-secondary-static-owner-source-compiler-test"
+  ],
+  "inputs": {
+    "baselineBundle": {
+      "artifact": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "targetBundle": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.118-to-2.1.119/structural/generated-delta.json.gz",
+      "bytes": 2550437,
+      "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+    },
+    "frozenAnalysis": {
+      "path": "recovery/test/recovery-2.1.119-owner-residue-analysis.json",
+      "bytes": 751734,
+      "sha256": "2f724f6eeb76b532bb76c264887e78fce4c4435f073992d2cc539ca12890edc7"
+    },
+    "sourceFiles": [
+      {
+        "path": "src/commands.ts",
+        "bytes": 27660,
+        "sha256": "f297779e526a77dcdd8670ad5fc159408c6936f41a8b318665997c34be4be999"
+      },
+      {
+        "path": "src/hooks/useDiffInIDE.ts",
+        "bytes": 9867,
+        "sha256": "0b689ae984ab98a4f9630cf82836c64eef43c5c1105d50aa62513ab62be79bdc"
+      },
+      {
+        "path": "src/utils/cronTasksLock.ts",
+        "bytes": 6491,
+        "sha256": "4ae39495eed7bc3923028ab55e1cd3bfa9f568a38b1ab5b2a575a4b42ed94619"
+      },
+      {
+        "path": "src/utils/githubRepoPathMapping.ts",
+        "bytes": 5131,
+        "sha256": "458c94b5b90a48c4675f2e123b3d334e5a67fafde6cb5d867bbbc4ab4a5de732"
+      },
+      {
+        "path": "src/utils/permissions/filesystem.ts",
+        "bytes": 63379,
+        "sha256": "369a4d8783b1bb3e069be778ba0ec419d10d7f656a606e963ab0777685481815"
+      },
+      {
+        "path": "src/utils/plugins/officialMarketplaceStartupCheck.ts",
+        "bytes": 15192,
+        "sha256": "7223a5906e2188bc8d565fab39d846e9b79e2d3c51d162418585b488abc6284e"
+      },
+      {
+        "path": "src/utils/skills/skillChangeDetector.ts",
+        "bytes": 10033,
+        "sha256": "0f84056a1a40ab1710c2c4d2386a3b322f1db3c847aa209a32eaa162ba47d9c1"
+      }
+    ]
+  },
+  "summary": {
+    "units": 7,
+    "residues": 10,
+    "sourceFiles": 7,
+    "representationCounts": {
+      "build-metadata-object-expansion": 3,
+      "minified-typeof-undefined": 1,
+      "named-import-member-lowering": 6
+    },
+    "targetIndicesSha256": "86028c35859ad0645fe09f8a3f21d42c39b7dc5abecdf8d5ee5935f90927b4fb",
+    "residueIdentitiesSha256": "13bde77d75a68971e11998a1dc6a7800839d42b08fa5cf0f25681c110faa39d3"
+  },
+  "ownerOverrides": [
+    {
+      "key": "2.1.118-to-2.1.119:18804",
+      "targetIndex": 18804,
+      "paths": [
+        "src/commands.ts"
+      ],
+      "evidenceIds": [
+        "target119-secondary-static-owner-target-fragment",
+        "target119-secondary-static-owner-source-compiler-test"
+      ],
+      "behavior": "The authenticated Target119 commands module initializer lowers the named stopNonInteractive import to one namespace-member access while BRIDGE_SAFE_COMMANDS retains the authored binding; this residue is compiler import lowering in the already-correct source owner."
+    },
+    {
+      "key": "2.1.118-to-2.1.119:19021",
+      "targetIndex": 19021,
+      "paths": [
+        "src/utils/permissions/filesystem.ts"
+      ],
+      "evidenceIds": [
+        "target119-secondary-static-owner-target-fragment",
+        "target119-secondary-static-owner-source-compiler-test"
+      ],
+      "behavior": "The authenticated Target119 filesystem module initializer lowers the named randomBytes import inside getBundledSkillsRoot and expands the exact pinned build metadata object used for MACRO.VERSION; all four residues are compiler/build representation in the already-correct source owner."
+    },
+    {
+      "key": "2.1.118-to-2.1.119:19931",
+      "targetIndex": 19931,
+      "paths": [
+        "src/hooks/useDiffInIDE.ts"
+      ],
+      "evidenceIds": [
+        "target119-secondary-static-owner-target-fragment",
+        "target119-secondary-static-owner-source-compiler-test"
+      ],
+      "behavior": "The authenticated Target119 useDiffInIDE declaration lowers its named basename import to one namespace-member call; the residue is compiler import lowering in the already-correct source owner."
+    },
+    {
+      "key": "2.1.118-to-2.1.119:20710",
+      "targetIndex": 20710,
+      "paths": [
+        "src/utils/skills/skillChangeDetector.ts"
+      ],
+      "evidenceIds": [
+        "target119-secondary-static-owner-target-fragment",
+        "target119-secondary-static-owner-source-compiler-test"
+      ],
+      "behavior": "The authenticated Target119 USE_POLLING declaration minifies the exact authored typeof Bun !== 'undefined' comparison to the equivalent typeof Bun < 'u' form; the string residue is compiler representation in the already-correct source owner."
+    },
+    {
+      "key": "2.1.118-to-2.1.119:20891",
+      "targetIndex": 20891,
+      "paths": [
+        "src/utils/plugins/officialMarketplaceStartupCheck.ts"
+      ],
+      "evidenceIds": [
+        "target119-secondary-static-owner-target-fragment",
+        "target119-secondary-static-owner-source-compiler-test"
+      ],
+      "behavior": "The authenticated Target119 checkAndInstallOfficialMarketplace declaration lowers its named join import to one namespace-member call; the residue is compiler import lowering in the already-correct source owner."
+    },
+    {
+      "key": "2.1.118-to-2.1.119:21145",
+      "targetIndex": 21145,
+      "paths": [
+        "src/utils/cronTasksLock.ts"
+      ],
+      "evidenceIds": [
+        "target119-secondary-static-owner-target-fragment",
+        "target119-secondary-static-owner-source-compiler-test"
+      ],
+      "behavior": "The authenticated Target119 LOCK_FILE_REL initializer lowers its named join import to one namespace-member call over the exact authored lock-path literals; the residue is compiler import lowering in the already-correct source owner."
+    },
+    {
+      "key": "2.1.118-to-2.1.119:21213",
+      "targetIndex": 21213,
+      "paths": [
+        "src/utils/githubRepoPathMapping.ts"
+      ],
+      "evidenceIds": [
+        "target119-secondary-static-owner-target-fragment",
+        "target119-secondary-static-owner-source-compiler-test"
+      ],
+      "behavior": "The authenticated Target119 updateGithubRepoPathMapping declaration lowers its named realpath import to one namespace-member call; the residue is compiler import lowering in the already-correct source owner."
+    }
+  ],
+  "rows": [
+    {
+      "targetIndex": 18804,
+      "ownerPath": "src/commands.ts",
+      "priorOwnerPaths": [
+        "src/commands.ts"
+      ],
+      "behavior": "The authenticated Target119 commands module initializer lowers the named stopNonInteractive import to one namespace-member access while BRIDGE_SAFE_COMMANDS retains the authored binding; this residue is compiler import lowering in the already-correct source owner.",
+      "evidenceIds": [
+        "target119-secondary-static-owner-target-fragment",
+        "target119-secondary-static-owner-source-compiler-test"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "VariableDeclaration",
+        "start": 11508366,
+        "end": 11511571,
+        "bytes": 3205,
+        "sourceHash": "9fc15eafb1eaa50bbd51562a8a1a45dd1d4421fbf32266ef56575c2fd26e34e1"
+      },
+      "source": {
+        "path": "src/commands.ts",
+        "bytes": 27660,
+        "sha256": "f297779e526a77dcdd8670ad5fc159408c6936f41a8b318665997c34be4be999"
+      },
+      "scope": {
+        "name": "BRIDGE_SAFE_COMMANDS",
+        "kind": "FirstStatement",
+        "start": 22442,
+        "end": 22871,
+        "bytes": 429,
+        "sha256": "22d4a431ed675ec190498ca40843115766885f1194811cafd9ca881bdac89a5d"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "stopNonInteractive",
+          "start": 11509306,
+          "end": 11509324,
+          "baselineCount": 0,
+          "targetOrdinal": 2,
+          "representation": "named-import-member-lowering",
+          "proof": {
+            "module": "./commands/stop/index.js",
+            "importedName": "stopNonInteractive",
+            "sourceImport": {
+              "start": 7951,
+              "end": 7969,
+              "sourceHash": "fad2d49f7442b3f62d0287432670791a1f71ac72447bfa96cee41315c7e748ef"
+            },
+            "sourceScopeReferences": 1
+          }
+        }
+      ]
+    },
+    {
+      "targetIndex": 19021,
+      "ownerPath": "src/utils/permissions/filesystem.ts",
+      "priorOwnerPaths": [
+        "src/utils/permissions/filesystem.ts"
+      ],
+      "behavior": "The authenticated Target119 filesystem module initializer lowers the named randomBytes import inside getBundledSkillsRoot and expands the exact pinned build metadata object used for MACRO.VERSION; all four residues are compiler/build representation in the already-correct source owner.",
+      "evidenceIds": [
+        "target119-secondary-static-owner-target-fragment",
+        "target119-secondary-static-owner-source-compiler-test"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "VariableDeclaration",
+        "start": 11598423,
+        "end": 11599665,
+        "bytes": 1242,
+        "sourceHash": "a6160c93a6944a8d9e491837e0e1502590829b29ec08364a255448ca522d7d1e"
+      },
+      "source": {
+        "path": "src/utils/permissions/filesystem.ts",
+        "bytes": 63379,
+        "sha256": "369a4d8783b1bb3e069be778ba0ec419d10d7f656a606e963ab0777685481815"
+      },
+      "scope": {
+        "name": "getBundledSkillsRoot",
+        "kind": "FirstStatement",
+        "start": 14537,
+        "end": 14758,
+        "bytes": 221,
+        "sha256": "4424f37e2f70678afd58a8019b6cb004c7dba64b1299126a9f22cca3afc945c7"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "randomBytes",
+          "start": 11598963,
+          "end": 11598974,
+          "baselineCount": 35,
+          "targetOrdinal": 38,
+          "representation": "named-import-member-lowering",
+          "proof": {
+            "module": "crypto",
+            "importedName": "randomBytes",
+            "sourceImport": {
+              "start": 46,
+              "end": 57,
+              "sourceHash": "afe8b7e347eafd9e98425bf85ac565c7c72f5bd493574b9bac0a797821c3c89c"
+            },
+            "sourceScopeReferences": 1
+          }
+        },
+        {
+          "kind": "string",
+          "value": "2.1.119",
+          "start": 11599223,
+          "end": 11599232,
+          "baselineCount": 0,
+          "targetOrdinal": 93,
+          "representation": "build-metadata-object-expansion",
+          "proof": {
+            "targetObject": {
+              "properties": {
+                "ISSUES_EXPLAINER": "report the issue at https://github.com/anthropics/claude-code/issues",
+                "PACKAGE_URL": "@anthropic-ai/claude-code",
+                "README_URL": "https://code.claude.com/docs/en/overview",
+                "VERSION": "2.1.119",
+                "FEEDBACK_CHANNEL": "https://github.com/anthropics/claude-code/issues",
+                "BUILD_TIME": "2026-04-23T19:08:52Z",
+                "GIT_SHA": "6f68554839756189e277b8285a18fe47acd9a5a1"
+              },
+              "start": 609,
+              "end": 963
+            },
+            "sourceMacroReference": "MACRO.VERSION"
+          }
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-23T19:08:52Z",
+          "start": 11599312,
+          "end": 11599334,
+          "baselineCount": 0,
+          "targetOrdinal": 93,
+          "representation": "build-metadata-object-expansion",
+          "proof": {
+            "targetObject": {
+              "properties": {
+                "ISSUES_EXPLAINER": "report the issue at https://github.com/anthropics/claude-code/issues",
+                "PACKAGE_URL": "@anthropic-ai/claude-code",
+                "README_URL": "https://code.claude.com/docs/en/overview",
+                "VERSION": "2.1.119",
+                "FEEDBACK_CHANNEL": "https://github.com/anthropics/claude-code/issues",
+                "BUILD_TIME": "2026-04-23T19:08:52Z",
+                "GIT_SHA": "6f68554839756189e277b8285a18fe47acd9a5a1"
+              },
+              "start": 609,
+              "end": 963
+            },
+            "sourceMacroReference": "MACRO.VERSION"
+          }
+        },
+        {
+          "kind": "string",
+          "value": "6f68554839756189e277b8285a18fe47acd9a5a1",
+          "start": 11599343,
+          "end": 11599385,
+          "baselineCount": 0,
+          "targetOrdinal": 93,
+          "representation": "build-metadata-object-expansion",
+          "proof": {
+            "targetObject": {
+              "properties": {
+                "ISSUES_EXPLAINER": "report the issue at https://github.com/anthropics/claude-code/issues",
+                "PACKAGE_URL": "@anthropic-ai/claude-code",
+                "README_URL": "https://code.claude.com/docs/en/overview",
+                "VERSION": "2.1.119",
+                "FEEDBACK_CHANNEL": "https://github.com/anthropics/claude-code/issues",
+                "BUILD_TIME": "2026-04-23T19:08:52Z",
+                "GIT_SHA": "6f68554839756189e277b8285a18fe47acd9a5a1"
+              },
+              "start": 609,
+              "end": 963
+            },
+            "sourceMacroReference": "MACRO.VERSION"
+          }
+        }
+      ]
+    },
+    {
+      "targetIndex": 19931,
+      "ownerPath": "src/hooks/useDiffInIDE.ts",
+      "priorOwnerPaths": [
+        "src/hooks/useDiffInIDE.ts"
+      ],
+      "behavior": "The authenticated Target119 useDiffInIDE declaration lowers its named basename import to one namespace-member call; the residue is compiler import lowering in the already-correct source owner.",
+      "evidenceIds": [
+        "target119-secondary-static-owner-target-fragment",
+        "target119-secondary-static-owner-source-compiler-test"
+      ],
+      "target": {
+        "classification": "changed",
+        "nodeType": "FunctionDeclaration",
+        "start": 12123257,
+        "end": 12124224,
+        "bytes": 967,
+        "sourceHash": "abe7235445f62b4499ea6c8ed7f83cffc934056f60e48e0fc7e5eab40a9f6b24"
+      },
+      "source": {
+        "path": "src/hooks/useDiffInIDE.ts",
+        "bytes": 9867,
+        "sha256": "0b689ae984ab98a4f9630cf82836c64eef43c5c1105d50aa62513ab62be79bdc"
+      },
+      "scope": {
+        "name": "useDiffInIDE",
+        "kind": "FunctionDeclaration",
+        "start": 1422,
+        "end": 4262,
+        "bytes": 2840,
+        "sha256": "12febf30de5fe9bcb0fa6cb535d7475982692f6379dab781967252d03d449016"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "basename",
+          "start": 12123471,
+          "end": 12123479,
+          "baselineCount": 134,
+          "targetOrdinal": 141,
+          "representation": "named-import-member-lowering",
+          "proof": {
+            "module": "path",
+            "importedName": "basename",
+            "sourceImport": {
+              "start": 45,
+              "end": 53,
+              "sourceHash": "2910774c9647a4345eba69868050d0d78f0ba29b35039f87826a874163bf40c1"
+            },
+            "sourceScopeReferences": 1
+          }
+        }
+      ]
+    },
+    {
+      "targetIndex": 20710,
+      "ownerPath": "src/utils/skills/skillChangeDetector.ts",
+      "priorOwnerPaths": [
+        "src/utils/skills/skillChangeDetector.ts"
+      ],
+      "behavior": "The authenticated Target119 USE_POLLING declaration minifies the exact authored typeof Bun !== 'undefined' comparison to the equivalent typeof Bun < 'u' form; the string residue is compiler representation in the already-correct source owner.",
+      "evidenceIds": [
+        "target119-secondary-static-owner-target-fragment",
+        "target119-secondary-static-owner-source-compiler-test"
+      ],
+      "target": {
+        "classification": "changed",
+        "nodeType": "VariableDeclaration",
+        "start": 12492856,
+        "end": 12492987,
+        "bytes": 131,
+        "sourceHash": "e54bc4bd231b3162705c4abc5e8bd031c71acc56602dcc48509ea54a186e2d68"
+      },
+      "source": {
+        "path": "src/utils/skills/skillChangeDetector.ts",
+        "bytes": 10033,
+        "sha256": "0f84056a1a40ab1710c2c4d2386a3b322f1db3c847aa209a32eaa162ba47d9c1"
+      },
+      "scope": {
+        "name": "USE_POLLING",
+        "kind": "FirstStatement",
+        "start": 2450,
+        "end": 2496,
+        "bytes": 46,
+        "sha256": "3ef2c151141f56b68894951ee1f6f41218b572dc6f35c5be7e3800f6225002ec"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "u",
+          "start": 12492971,
+          "end": 12492974,
+          "baselineCount": 441,
+          "targetOrdinal": 469,
+          "representation": "minified-typeof-undefined",
+          "proof": {
+            "sourceExpression": "typeof Bun !== 'undefined'",
+            "targetOperator": "<",
+            "targetLeftType": "UnaryExpression"
+          }
+        }
+      ]
+    },
+    {
+      "targetIndex": 20891,
+      "ownerPath": "src/utils/plugins/officialMarketplaceStartupCheck.ts",
+      "priorOwnerPaths": [
+        "src/utils/plugins/officialMarketplaceStartupCheck.ts"
+      ],
+      "behavior": "The authenticated Target119 checkAndInstallOfficialMarketplace declaration lowers its named join import to one namespace-member call; the residue is compiler import lowering in the already-correct source owner.",
+      "evidenceIds": [
+        "target119-secondary-static-owner-target-fragment",
+        "target119-secondary-static-owner-source-compiler-test"
+      ],
+      "target": {
+        "classification": "changed",
+        "nodeType": "FunctionDeclaration",
+        "start": 12563277,
+        "end": 12568204,
+        "bytes": 4927,
+        "sourceHash": "c63adf8e9799b5f96cb25c3a0b61bf66b5671ece4e0460191383687e4bc64a3b"
+      },
+      "source": {
+        "path": "src/utils/plugins/officialMarketplaceStartupCheck.ts",
+        "bytes": 15192,
+        "sha256": "7223a5906e2188bc8d565fab39d846e9b79e2d3c51d162418585b488abc6284e"
+      },
+      "scope": {
+        "name": "checkAndInstallOfficialMarketplace",
+        "kind": "FunctionDeclaration",
+        "start": 4423,
+        "end": 15179,
+        "bytes": 10756,
+        "sha256": "c97cfbb78820d75a4bf160a96e168e91c68d9adf9f80c7d3e955269902749085"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "join",
+          "start": 12564505,
+          "end": 12564509,
+          "baselineCount": 2305,
+          "targetOrdinal": 2377,
+          "representation": "named-import-member-lowering",
+          "proof": {
+            "module": "path",
+            "importedName": "join",
+            "sourceImport": {
+              "start": 308,
+              "end": 312,
+              "sourceHash": "58393216032be6257784ac0c6a73efb2a084e27b4cfff1e6acee7b7e6ab93b10"
+            },
+            "sourceScopeReferences": 1
+          }
+        }
+      ]
+    },
+    {
+      "targetIndex": 21145,
+      "ownerPath": "src/utils/cronTasksLock.ts",
+      "priorOwnerPaths": [
+        "src/utils/cronTasksLock.ts"
+      ],
+      "behavior": "The authenticated Target119 LOCK_FILE_REL initializer lowers its named join import to one namespace-member call over the exact authored lock-path literals; the residue is compiler import lowering in the already-correct source owner.",
+      "evidenceIds": [
+        "target119-secondary-static-owner-target-fragment",
+        "target119-secondary-static-owner-source-compiler-test"
+      ],
+      "target": {
+        "classification": "changed",
+        "nodeType": "VariableDeclaration",
+        "start": 12679335,
+        "end": 12679599,
+        "bytes": 264,
+        "sourceHash": "435567e9a20272a69139bc7d07af963649e76d78a1d177cf78ed1473376f7d21"
+      },
+      "source": {
+        "path": "src/utils/cronTasksLock.ts",
+        "bytes": 6491,
+        "sha256": "4ae39495eed7bc3923028ab55e1cd3bfa9f568a38b1ab5b2a575a4b42ed94619"
+      },
+      "scope": {
+        "name": "LOCK_FILE_REL",
+        "kind": "FirstStatement",
+        "start": 1097,
+        "end": 1158,
+        "bytes": 61,
+        "sha256": "d09de24f44b7ac04b983411342e6257e405ae416e483d7b8a9b05ab77a41f329"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "join",
+          "start": 12679444,
+          "end": 12679448,
+          "baselineCount": 2305,
+          "targetOrdinal": 2386,
+          "representation": "named-import-member-lowering",
+          "proof": {
+            "module": "path",
+            "importedName": "join",
+            "sourceImport": {
+              "start": 577,
+              "end": 581,
+              "sourceHash": "58393216032be6257784ac0c6a73efb2a084e27b4cfff1e6acee7b7e6ab93b10"
+            },
+            "sourceScopeReferences": 1
+          }
+        }
+      ]
+    },
+    {
+      "targetIndex": 21213,
+      "ownerPath": "src/utils/githubRepoPathMapping.ts",
+      "priorOwnerPaths": [
+        "src/utils/githubRepoPathMapping.ts"
+      ],
+      "behavior": "The authenticated Target119 updateGithubRepoPathMapping declaration lowers its named realpath import to one namespace-member call; the residue is compiler import lowering in the already-correct source owner.",
+      "evidenceIds": [
+        "target119-secondary-static-owner-target-fragment",
+        "target119-secondary-static-owner-source-compiler-test"
+      ],
+      "target": {
+        "classification": "changed",
+        "nodeType": "FunctionDeclaration",
+        "start": 12763707,
+        "end": 12764228,
+        "bytes": 521,
+        "sourceHash": "ac3cb7b4c710eb288cb386ce6cd9bdc7598a0602119ce4472ad997b3e52c17d2"
+      },
+      "source": {
+        "path": "src/utils/githubRepoPathMapping.ts",
+        "bytes": 5131,
+        "sha256": "458c94b5b90a48c4675f2e123b3d334e5a67fafde6cb5d867bbbc4ab4a5de732"
+      },
+      "scope": {
+        "name": "updateGithubRepoPathMapping",
+        "kind": "FunctionDeclaration",
+        "start": 912,
+        "end": 2628,
+        "bytes": 1716,
+        "sha256": "167c3ca0597d1cc7c557c364b2c1f45ab870b898d771c5748f65a7a3ee01cad4"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "realpath",
+          "start": 12763867,
+          "end": 12763875,
+          "baselineCount": 48,
+          "targetOrdinal": 49,
+          "representation": "named-import-member-lowering",
+          "proof": {
+            "module": "fs/promises",
+            "importedName": "realpath",
+            "sourceImport": {
+              "start": 9,
+              "end": 17,
+              "sourceHash": "e7eeff1e5c004f331491ab43c8b37f146a491fe011d2895c9b768604fe5b770b"
+            },
+            "sourceScopeReferences": 1
+          }
+        }
+      ]
+    }
+  ]
+}

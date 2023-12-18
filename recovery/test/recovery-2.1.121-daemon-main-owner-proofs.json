@@ -1,0 +1,2559 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-daemon-main-exact-owner-and-compiler-proof-v1",
+  "status": "evolution-aware-complete-unit-source-coverage-owner-proof",
+  "claim": "Target121 u22207 is the complete daemon CLI dispatcher owned by src/daemon/main.ts, not src/main.tsx. The existing nonmatched whole-unit owner correction is already wired and its exact remaining production-strict partition is six build substitutions plus three compiler-split source templates. Raw and postPrune package source contain byte-identical showStatus and daemonMain declarations; their file offsets differ only because of the separately authenticated daemon-status writer replay. No new case, matched-static admission, or source replay is authorized.",
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "typedReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+      "bytes": 31092432,
+      "sha256": "f76cfab38ea9cf241a60562c7e697b0db3fbbacd7bda281737a37e052502c929"
+    },
+    "postPruneTypedReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+      "bytes": 25396455,
+      "sha256": "f63079907d813bffaf98cb89d28b8b2e183df9fe2e1c72b21f10fa2fd5c0a3f4"
+    },
+    "postPruneSourceCoverage": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+      "bytes": 345989,
+      "sha256": "05ac9243d7cee276bc51c8eb0c8e4e3678f96d941560cae620d05af240d7cdd4",
+      "rawBytes": 2968244,
+      "rawSha256": "7be9d68b6144e09290d58e3dae17f21df9536852b5f8415e777c9f7dd3ad1c06"
+    },
+    "postDaemonOwnerTypedReport": {
+      "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+      "bytes": 25369097,
+      "sha256": "2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3"
+    },
+    "postDaemonOwnerSourceCoverage": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+      "bytes": 347677,
+      "sha256": "91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83",
+      "rawBytes": 2974761,
+      "rawSha256": "8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f"
+    }
+  },
+  "targetIndices": [
+    22207
+  ],
+  "targetIndicesSha256": "f606ee39c5374cbc1b4189ac4ebe61cfc2d738fc28f51a675f64e37f008d7476",
+  "units": [
+    {
+      "targetIndex": 22207,
+      "start": 13890373,
+      "end": 13897874,
+      "nodeType": "FunctionDeclaration",
+      "sourceHash": "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8",
+      "bytes": 7501,
+      "sha256": "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8",
+      "correctedOwner": "src/daemon/main.ts"
+    }
+  ],
+  "residues": [
+    [
+      22207,
+      "string",
+      "daemon",
+      13890471,
+      13890479,
+      26,
+      31,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "origin",
+      13890533,
+      13890539,
+      446,
+      454,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "spawnedBy",
+      13890542,
+      13890551,
+      0,
+      8,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "daemon",
+      13890636,
+      13890644,
+      26,
+      32,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "claude daemon: background agents disabled (ZDR/3P/opt-out)",
+      13891255,
+      13891315,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "upgradeDetected",
+      13891539,
+      13891554,
+      2,
+      5,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "origin",
+      13891601,
+      13891607,
+      446,
+      455,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "spawnedBy",
+      13891610,
+      13891619,
+      0,
+      9,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "tengu_daemon_startup_crash",
+      13891722,
+      13891750,
+      2,
+      3,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "service",
+      13891776,
+      13891785,
+      4,
+      6,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "stopped detached daemon (pid ",
+      13892315,
+      13892344,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "number",
+      "5000",
+      13892593,
+      13892597,
+      139,
+      154,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13892635,
+      13892637,
+      469,
+      470,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "reachable",
+      13892641,
+      13892650,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "running: pid=",
+      13892695,
+      13892708,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      " origin=",
+      13892722,
+      13892730,
+      2,
+      3,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "origin",
+      13892735,
+      13892741,
+      446,
+      456,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      " (managed by ",
+      13892747,
+      13892760,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "launchd",
+      13892777,
+      13892786,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "systemd",
+      13892787,
+      13892796,
+      2,
+      4,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "warning: service installed but daemon not reachable within 5s — check `claude daemon logs`",
+      13892809,
+      13892906,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "start",
+      13892925,
+      13892932,
+      52,
+      53,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "restart",
+      13892937,
+      13892946,
+      6,
+      9,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13893132,
+      13893134,
+      469,
+      471,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "service ",
+      13893172,
+      13893180,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      " not supported on linux",
+      13893184,
+      13893207,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "the launchd/systemd unit is a per-user singleton for the default config dir",
+      13893262,
+      13893339,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "service not installed — run `claude daemon install` first",
+      13893375,
+      13893439,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "service binary missing — regenerating service file",
+      13893476,
+      13893533,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "stopped detached daemon (pid ",
+      13893569,
+      13893598,
+      0,
+      2,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "start",
+      13893695,
+      13893702,
+      52,
+      54,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "restart",
+      13893718,
+      13893727,
+      6,
+      7,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13893728,
+      13893730,
+      469,
+      472,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13893733,
+      13893735,
+      469,
+      473,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "regenerated",
+      13893736,
+      13893747,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13893755,
+      13893757,
+      469,
+      474,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "start",
+      13893765,
+      13893772,
+      52,
+      55,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "restarted",
+      13893783,
+      13893794,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "regenerate failed: ",
+      13893805,
+      13893824,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13893849,
+      13893851,
+      469,
+      475,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "start",
+      13893873,
+      13893880,
+      52,
+      56,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "op_start",
+      13893930,
+      13893938,
+      1,
+      2,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "start",
+      13893943,
+      13893950,
+      52,
+      57,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "op_restart",
+      13893951,
+      13893961,
+      1,
+      2,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "restart",
+      13893966,
+      13893975,
+      6,
+      8,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13893976,
+      13893978,
+      469,
+      476,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13893981,
+      13893983,
+      469,
+      477,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13893988,
+      13893990,
+      469,
+      478,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "start",
+      13893998,
+      13894005,
+      52,
+      58,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "restarted",
+      13894016,
+      13894027,
+      0,
+      2,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      " failed: ",
+      13894042,
+      13894051,
+      15,
+      17,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13894076,
+      13894078,
+      469,
+      479,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13894171,
+      13894173,
+      469,
+      480,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13894176,
+      13894178,
+      469,
+      481,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13894183,
+      13894185,
+      469,
+      482,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13894256,
+      13894258,
+      469,
+      483,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "stop",
+      13894268,
+      13894274,
+      37,
+      39,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "--keep-workers",
+      13894293,
+      13894309,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "stopped (terminated ",
+      13894338,
+      13894358,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "background session",
+      13894370,
+      13894390,
+      1,
+      2,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13894461,
+      13894463,
+      469,
+      484,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "reaped",
+      13894466,
+      13894472,
+      1,
+      4,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "origin",
+      13894642,
+      13894648,
+      446,
+      457,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "unknown",
+      13894650,
+      13894659,
+      243,
+      252,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "proto",
+      13894732,
+      13894737,
+      490,
+      496,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "op",
+      13894741,
+      13894743,
+      139,
+      151,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "shutdown",
+      13894744,
+      13894754,
+      13,
+      18,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "reapWorkers",
+      13894755,
+      13894766,
+      0,
+      3,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13894777,
+      13894779,
+      469,
+      485,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "op",
+      13894783,
+      13894785,
+      139,
+      152,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "shutdown",
+      13894788,
+      13894798,
+      13,
+      19,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "reaped",
+      13894824,
+      13894830,
+      1,
+      5,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "max",
+      13894838,
+      13894841,
+      794,
+      802,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "reaped",
+      13894844,
+      13894850,
+      1,
+      6,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13894884,
+      13894886,
+      469,
+      486,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13895076,
+      13895078,
+      469,
+      487,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "stop failed: ",
+      13895090,
+      13895103,
+      1,
+      2,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "kill",
+      13895169,
+      13895173,
+      120,
+      124,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "reaped",
+      13895421,
+      13895427,
+      1,
+      7,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "terminated ",
+      13895471,
+      13895482,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      " background session(s); ",
+      13895486,
+      13895510,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "supervisor (pid=",
+      13895517,
+      13895533,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      ") is still running — stop it with ",
+      13895541,
+      13895580,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "`taskkill /PID ",
+      13895583,
+      13895599,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "note: the next `claude agents` or `claude --bg` will start a new one",
+      13895728,
+      13895798,
+      1,
+      2,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "logPath",
+      13896192,
+      13896199,
+      18,
+      19,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "origin",
+      13896328,
+      13896334,
+      446,
+      458,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "transient",
+      13896342,
+      13896353,
+      9,
+      18,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "workersLive",
+      13896382,
+      13896393,
+      4,
+      5,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "leaseClients",
+      13896401,
+      13896413,
+      0,
+      2,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "holding this daemon open:",
+      13896440,
+      13896467,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "  ",
+      13896477,
+      13896479,
+      135,
+      137,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "bg worker",
+      13896491,
+      13896502,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      " running (daemon waits for them to settle)",
+      13896504,
+      13896546,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "  `",
+      13896568,
+      13896572,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "label",
+      13896576,
+      13896581,
+      781,
+      813,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "` (pid ",
+      13896582,
+      13896590,
+      0,
+      2,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      ") in ",
+      13896598,
+      13896603,
+      3,
+      5,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "to let it idle-exit: wait for (or cancel) bg workers and close any `claude agents`",
+      13896624,
+      13896708,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "workersLive",
+      13896720,
+      13896731,
+      4,
+      6,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "nothing holding this daemon open — will idle-exit shortly",
+      13896739,
+      13896803,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "2.1.121",
+      13897011,
+      13897020,
+      0,
+      158,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "2026-04-27T01:32:27Z",
+      13897100,
+      13897122,
+      0,
+      158,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "16ffea721a0a39bc787a236dc19fb62307180b75",
+      13897131,
+      13897173,
+      0,
+      158,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "2.1.121",
+      13897448,
+      13897457,
+      0,
+      159,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "2026-04-27T01:32:27Z",
+      13897537,
+      13897559,
+      0,
+      159,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "16ffea721a0a39bc787a236dc19fb62307180b75",
+      13897568,
+      13897610,
+      0,
+      159,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "claude daemon stop",
+      13897640,
+      13897660,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "claude daemon stop --any",
+      13897661,
+      13897687,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "  run `",
+      13897692,
+      13897700,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "` to pick up the new version",
+      13897704,
+      13897733,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ]
+  ],
+  "directOwnerResidues": [
+    [
+      22207,
+      "string",
+      "daemon",
+      13890471,
+      13890479,
+      26,
+      31,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "origin",
+      13890533,
+      13890539,
+      446,
+      454,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "spawnedBy",
+      13890542,
+      13890551,
+      0,
+      8,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "daemon",
+      13890636,
+      13890644,
+      26,
+      32,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "claude daemon: background agents disabled (ZDR/3P/opt-out)",
+      13891255,
+      13891315,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "upgradeDetected",
+      13891539,
+      13891554,
+      2,
+      5,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "origin",
+      13891601,
+      13891607,
+      446,
+      455,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "spawnedBy",
+      13891610,
+      13891619,
+      0,
+      9,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "tengu_daemon_startup_crash",
+      13891722,
+      13891750,
+      2,
+      3,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "service",
+      13891776,
+      13891785,
+      4,
+      6,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "stopped detached daemon (pid ",
+      13892315,
+      13892344,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "number",
+      "5000",
+      13892593,
+      13892597,
+      139,
+      154,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13892635,
+      13892637,
+      469,
+      470,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "reachable",
+      13892641,
+      13892650,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "running: pid=",
+      13892695,
+      13892708,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      " origin=",
+      13892722,
+      13892730,
+      2,
+      3,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "origin",
+      13892735,
+      13892741,
+      446,
+      456,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      " (managed by ",
+      13892747,
+      13892760,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "launchd",
+      13892777,
+      13892786,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "systemd",
+      13892787,
+      13892796,
+      2,
+      4,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "warning: service installed but daemon not reachable within 5s — check `claude daemon logs`",
+      13892809,
+      13892906,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "start",
+      13892925,
+      13892932,
+      52,
+      53,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "restart",
+      13892937,
+      13892946,
+      6,
+      9,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13893132,
+      13893134,
+      469,
+      471,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "service ",
+      13893172,
+      13893180,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      " not supported on linux",
+      13893184,
+      13893207,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "the launchd/systemd unit is a per-user singleton for the default config dir",
+      13893262,
+      13893339,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "service not installed — run `claude daemon install` first",
+      13893375,
+      13893439,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "service binary missing — regenerating service file",
+      13893476,
+      13893533,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "stopped detached daemon (pid ",
+      13893569,
+      13893598,
+      0,
+      2,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "start",
+      13893695,
+      13893702,
+      52,
+      54,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "restart",
+      13893718,
+      13893727,
+      6,
+      7,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13893728,
+      13893730,
+      469,
+      472,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13893733,
+      13893735,
+      469,
+      473,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "regenerated",
+      13893736,
+      13893747,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13893755,
+      13893757,
+      469,
+      474,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "start",
+      13893765,
+      13893772,
+      52,
+      55,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "restarted",
+      13893783,
+      13893794,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13893849,
+      13893851,
+      469,
+      475,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "start",
+      13893873,
+      13893880,
+      52,
+      56,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "op_start",
+      13893930,
+      13893938,
+      1,
+      2,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "start",
+      13893943,
+      13893950,
+      52,
+      57,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "op_restart",
+      13893951,
+      13893961,
+      1,
+      2,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "restart",
+      13893966,
+      13893975,
+      6,
+      8,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13893976,
+      13893978,
+      469,
+      476,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13893981,
+      13893983,
+      469,
+      477,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13893988,
+      13893990,
+      469,
+      478,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "start",
+      13893998,
+      13894005,
+      52,
+      58,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "restarted",
+      13894016,
+      13894027,
+      0,
+      2,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      " failed: ",
+      13894042,
+      13894051,
+      15,
+      17,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13894076,
+      13894078,
+      469,
+      479,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13894171,
+      13894173,
+      469,
+      480,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13894176,
+      13894178,
+      469,
+      481,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13894183,
+      13894185,
+      469,
+      482,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13894256,
+      13894258,
+      469,
+      483,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "stop",
+      13894268,
+      13894274,
+      37,
+      39,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "--keep-workers",
+      13894293,
+      13894309,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "stopped (terminated ",
+      13894338,
+      13894358,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "background session",
+      13894370,
+      13894390,
+      1,
+      2,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13894461,
+      13894463,
+      469,
+      484,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "reaped",
+      13894466,
+      13894472,
+      1,
+      4,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "origin",
+      13894642,
+      13894648,
+      446,
+      457,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "unknown",
+      13894650,
+      13894659,
+      243,
+      252,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "proto",
+      13894732,
+      13894737,
+      490,
+      496,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "op",
+      13894741,
+      13894743,
+      139,
+      151,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "shutdown",
+      13894744,
+      13894754,
+      13,
+      18,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "reapWorkers",
+      13894755,
+      13894766,
+      0,
+      3,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13894777,
+      13894779,
+      469,
+      485,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "op",
+      13894783,
+      13894785,
+      139,
+      152,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "shutdown",
+      13894788,
+      13894798,
+      13,
+      19,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "reaped",
+      13894824,
+      13894830,
+      1,
+      5,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "max",
+      13894838,
+      13894841,
+      794,
+      802,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "reaped",
+      13894844,
+      13894850,
+      1,
+      6,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13894884,
+      13894886,
+      469,
+      486,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "ok",
+      13895076,
+      13895078,
+      469,
+      487,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "stop failed: ",
+      13895090,
+      13895103,
+      1,
+      2,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "kill",
+      13895169,
+      13895173,
+      120,
+      124,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "reaped",
+      13895421,
+      13895427,
+      1,
+      7,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "terminated ",
+      13895471,
+      13895482,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      " background session(s); ",
+      13895486,
+      13895510,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "supervisor (pid=",
+      13895517,
+      13895533,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "note: the next `claude agents` or `claude --bg` will start a new one",
+      13895728,
+      13895798,
+      1,
+      2,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "logPath",
+      13896192,
+      13896199,
+      18,
+      19,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "origin",
+      13896328,
+      13896334,
+      446,
+      458,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "transient",
+      13896342,
+      13896353,
+      9,
+      18,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "workersLive",
+      13896382,
+      13896393,
+      4,
+      5,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "leaseClients",
+      13896401,
+      13896413,
+      0,
+      2,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "holding this daemon open:",
+      13896440,
+      13896467,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "  ",
+      13896477,
+      13896479,
+      135,
+      137,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "bg worker",
+      13896491,
+      13896502,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      " running (daemon waits for them to settle)",
+      13896504,
+      13896546,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "  `",
+      13896568,
+      13896572,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "label",
+      13896576,
+      13896581,
+      781,
+      813,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "` (pid ",
+      13896582,
+      13896590,
+      0,
+      2,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      ") in ",
+      13896598,
+      13896603,
+      3,
+      5,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "to let it idle-exit: wait for (or cancel) bg workers and close any `claude agents`",
+      13896624,
+      13896708,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "property",
+      "workersLive",
+      13896720,
+      13896731,
+      4,
+      6,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "nothing holding this daemon open — will idle-exit shortly",
+      13896739,
+      13896803,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "claude daemon stop",
+      13897640,
+      13897660,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "claude daemon stop --any",
+      13897661,
+      13897687,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "  run `",
+      13897692,
+      13897700,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "` to pick up the new version",
+      13897704,
+      13897733,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ]
+  ],
+  "buildMacroResidues": [
+    [
+      22207,
+      "string",
+      "2.1.121",
+      13897011,
+      13897020,
+      0,
+      158,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "2026-04-27T01:32:27Z",
+      13897100,
+      13897122,
+      0,
+      158,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "16ffea721a0a39bc787a236dc19fb62307180b75",
+      13897131,
+      13897173,
+      0,
+      158,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "2.1.121",
+      13897448,
+      13897457,
+      0,
+      159,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "2026-04-27T01:32:27Z",
+      13897537,
+      13897559,
+      0,
+      159,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "16ffea721a0a39bc787a236dc19fb62307180b75",
+      13897568,
+      13897610,
+      0,
+      159,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ]
+  ],
+  "compilerResidues": [
+    [
+      22207,
+      "string",
+      "regenerate failed: ",
+      13893805,
+      13893824,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      ") is still running — stop it with ",
+      13895541,
+      13895580,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ],
+    [
+      22207,
+      "string",
+      "`taskkill /PID ",
+      13895583,
+      13895599,
+      0,
+      1,
+      "91b7aa773cd467e50efbb554c1fda00192de3a3207f2a8e1b4eb15dab9a9bcc8"
+    ]
+  ],
+  "summary": {
+    "units": 1,
+    "residues": 111,
+    "directOwnerResidues": 102,
+    "buildMacroResidues": 6,
+    "compilerResidues": 3,
+    "correctedResidualResidues": 9,
+    "residueIdentitiesSha256": "bfe94c838dc2b120b46ce2af5c437c4dae9907e19483d40ebdd33066bbfa58bd",
+    "correctedResidualIdentitiesSha256": "081c76fc8a3fa413ecb395d5d81d69713fed50147649cba59a492af815c67e78"
+  },
+  "buildMacros": {
+    "values": [
+      "2.1.121",
+      "2026-04-27T01:32:27Z",
+      "16ffea721a0a39bc787a236dc19fb62307180b75"
+    ],
+    "countsByUnit": {
+      "22207": 6
+    },
+    "sourceDeclaration": "showStatus",
+    "sourceMarkers": [
+      "running.version !== MACRO.VERSION",
+      "${MACRO.VERSION}"
+    ]
+  },
+  "compilerMappings": [
+    {
+      "targetIndex": 22207,
+      "targetResidues": [
+        {
+          "kind": "string",
+          "value": "regenerate failed: ",
+          "count": 1
+        },
+        {
+          "kind": "string",
+          "value": ") is still running — stop it with ",
+          "count": 1
+        },
+        {
+          "kind": "string",
+          "value": "`taskkill /PID ",
+          "count": 1
+        }
+      ],
+      "sourcePath": "src/daemon/main.ts",
+      "declarations": [
+        "daemonMain"
+      ],
+      "sourceMarkers": [
+        "${regenerated ? 'regenerate' : sub} failed: ${result.error}",
+        "supervisor (pid=${running.pid}) is still running — stop it with",
+        "taskkill /PID ${running.pid}",
+        "or close the terminal it was started in."
+      ],
+      "behavior": "The minifier specializes the regenerated-service conditional and splits the nested Windows taskkill template into three target literals; both complete templates are pinned inside the exact daemonMain source declaration."
+    }
+  ],
+  "sourceFiles": [
+    {
+      "name": "raw",
+      "path": "src/daemon/main.ts",
+      "bytes": 51364,
+      "chars": 51292,
+      "sha256": "e63ff7e680a226f93c6953a0a6a096e8846982cc9f5fd705a5809ad7a7a6155a",
+      "declarations": [
+        {
+          "name": "showStatus",
+          "kind": "FunctionDeclaration",
+          "start": 36389,
+          "end": 38464,
+          "chars": 2075,
+          "bytes": 2081,
+          "sha256": "ae14177673d933178d1dd54713d32f9b0d0797d12a298bf7761b636a6ea082dc"
+        },
+        {
+          "name": "daemonMain",
+          "kind": "FunctionDeclaration",
+          "start": 39622,
+          "end": 51291,
+          "chars": 11669,
+          "bytes": 11685,
+          "sha256": "6d9672fc39e416b9d19e9467b74bd0eb4904908e066f83c6ba6a899ee48b8e6b"
+        }
+      ]
+    },
+    {
+      "name": "postPrunePackage",
+      "path": "src/daemon/main.ts",
+      "bytes": 51036,
+      "chars": 50964,
+      "sha256": "cb91eacf512342a4b70e01cb135eba59e621124795856eb5b4ea4762e2c5bc7c",
+      "declarations": [
+        {
+          "name": "showStatus",
+          "kind": "FunctionDeclaration",
+          "start": 36061,
+          "end": 38136,
+          "chars": 2075,
+          "bytes": 2081,
+          "sha256": "ae14177673d933178d1dd54713d32f9b0d0797d12a298bf7761b636a6ea082dc"
+        },
+        {
+          "name": "daemonMain",
+          "kind": "FunctionDeclaration",
+          "start": 39294,
+          "end": 50963,
+          "chars": 11669,
+          "bytes": 11685,
+          "sha256": "6d9672fc39e416b9d19e9467b74bd0eb4904908e066f83c6ba6a899ee48b8e6b"
+        }
+      ]
+    }
+  ],
+  "physicalPhases": {
+    "preIntegration": {
+      "typedReport": {
+        "bytes": 31092432,
+        "sha256": "f76cfab38ea9cf241a60562c7e697b0db3fbbacd7bda281737a37e052502c929"
+      },
+      "owner": {
+        "units": 1,
+        "rows": 111,
+        "identitiesSha256": "bfe94c838dc2b120b46ce2af5c437c4dae9907e19483d40ebdd33066bbfa58bd"
+      },
+      "strict": {
+        "units": 1,
+        "rows": 9,
+        "identitiesSha256": "081c76fc8a3fa413ecb395d5d81d69713fed50147649cba59a492af815c67e78"
+      }
+    },
+    "postPrune": {
+      "typedReport": {
+        "bytes": 25396455,
+        "sha256": "f63079907d813bffaf98cb89d28b8b2e183df9fe2e1c72b21f10fa2fd5c0a3f4"
+      },
+      "sourceCoverage": {
+        "bytes": 345989,
+        "sha256": "05ac9243d7cee276bc51c8eb0c8e4e3678f96d941560cae620d05af240d7cdd4",
+        "rawBytes": 2968244,
+        "rawSha256": "7be9d68b6144e09290d58e3dae17f21df9536852b5f8415e777c9f7dd3ad1c06"
+      },
+      "owner": {
+        "units": 1,
+        "rows": 38,
+        "identitiesSha256": "a66e12e26b921cdd423f7c79ffa8e105670097e54e917016ee5538a52b956cef"
+      },
+      "addedOwner": {
+        "units": 1,
+        "rows": 12,
+        "identitiesSha256": "a0b51c4378c0e369ebc5d9dbb68145ac806d13a742729e05631f35ae27a17fd6"
+      },
+      "unclassifiedAdded": {
+        "units": 0,
+        "rows": 0,
+        "identitiesSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "strict": {
+        "units": 1,
+        "rows": 9,
+        "identitiesSha256": "081c76fc8a3fa413ecb395d5d81d69713fed50147649cba59a492af815c67e78",
+        "composition": {
+          "compilerRows": 3,
+          "buildMacroRows": 6
+        }
+      },
+      "projectionReason": "All intervening postPrune proof/replay groups are disjoint from u22207; its already-corrected owner and exact nine-row strict tail are unchanged."
+    },
+    "postDaemonOwner": {
+      "typedReport": {
+        "bytes": 25369097,
+        "sha256": "2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3"
+      },
+      "sourceCoverage": {
+        "bytes": 347677,
+        "sha256": "91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83",
+        "rawBytes": 2974761,
+        "rawSha256": "8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f"
+      },
+      "owner": {
+        "units": 1,
+        "rows": 38,
+        "identitiesSha256": "a66e12e26b921cdd423f7c79ffa8e105670097e54e917016ee5538a52b956cef",
+        "physicalIdentities": {
+          "bytes": 2781,
+          "sha256": "db6eb6a7bdb96fd670663f571da5ca8ae27a51361107dd3a367789d7f80caf34"
+        }
+      },
+      "addedOwner": {
+        "units": 1,
+        "rows": 12,
+        "identitiesSha256": "a0b51c4378c0e369ebc5d9dbb68145ac806d13a742729e05631f35ae27a17fd6",
+        "physicalIdentities": {
+          "bytes": 810,
+          "sha256": "acccc95f602f4144224ce00dfa1d336532729a798dbaee515ec6e8a79689288c"
+        }
+      },
+      "unclassifiedAdded": {
+        "units": 0,
+        "rows": 0,
+        "identitiesSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "strict": {
+        "units": 1,
+        "rows": 9,
+        "identitiesSha256": "081c76fc8a3fa413ecb395d5d81d69713fed50147649cba59a492af815c67e78",
+        "physicalIdentities": {
+          "bytes": 640,
+          "sha256": "f9732dd9bc896832649579c7ddede7a834dd2f47a7fce3ecdea637ab96bf4674"
+        },
+        "composition": {
+          "compilerRows": 3,
+          "buildMacroRows": 6
+        }
+      },
+      "projectionReason": "The u22170/u22174 daemon worker-owner integration and all other intervening proof groups are disjoint from u22207; the corrected daemon-main coverage row, 38 owner rows, 12 added-owner rows, and nine-row strict tail remain exact."
+    }
+  },
+  "coverageClaim": {
+    "mode": "nonmatched-source-coverage-owner-override",
+    "matchedStatic": false,
+    "generatorWiringAlreadyPresent": true,
+    "targetIndex": 22207,
+    "structuralClass": "unresolved",
+    "disposition": "source-runtime-covered",
+    "ownerPaths": ["src/daemon/main.ts"],
+    "rowCanonical": {
+      "bytes": 874,
+      "sha256": "7a9bcb294e1a137a3235a719585c735d4912e0a3258f421a8b1c485dbb15c635"
+    }
+  },
+  "decision": {
+    "existingProofClosesCurrentStrictPartition": true,
+    "newCaseRequired": false,
+    "sourceReplayAuthorized": false,
+    "matchedStaticHarnessMode": false,
+    "combinedHarnessMode": "source-coverage-static-proof",
+    "expectedProductionStrictImpact": {"units": -1, "rows": -9}
+  },
+  "evidenceIds": [
+    "target121-daemon-main-authenticated-target-fragment",
+    "target121-daemon-main-exact-source-owner-test",
+    "target121-daemon-main-compiler-normalization-test",
+    "target121-daemon-main-build-macro-test"
+  ],
+  "ownerOverrides": [
+    {
+      "key": "2.1.120-to-2.1.121:22207",
+      "targetIndex": 22207,
+      "paths": [
+        "src/daemon/main.ts"
+      ],
+      "evidenceIds": [
+        "target121-daemon-main-authenticated-target-fragment",
+        "target121-daemon-main-exact-source-owner-test",
+        "target121-daemon-main-compiler-normalization-test",
+        "target121-daemon-main-build-macro-test"
+      ],
+      "behavior": "The authenticated unit is the complete daemon CLI dispatcher: it gates daemon commands, runs and upgrades the supervisor, controls the optional service, stops and reaps workers, reports status and version drift, tails logs, and routes list, hub, scheduled, assistant, and remote-control commands. The authored owner is daemon/main.ts, not the top-level CLI main entrypoint."
+    }
+  ]
+}

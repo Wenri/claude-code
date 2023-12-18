@@ -1,0 +1,561 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-daemon-spare-export-binding-row-owner-proof-v1",
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "frozenSnapshot": {
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25390987,
+        "sha256": "42f65dcc82a571f02ac59c9ec86858b6adbe2be3158c2d8a17ac4d6d1b9e4bd7"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 345319,
+        "sha256": "c6547d4d59a31aa2b68230d848ad7cd55d9498051e376389040e8738c14030b2",
+        "rawBytes": 2965690,
+        "rawSha256": "d35578e7e08e0a53a4020a5347d4ff8c4a1bc4e98a30ea8b9cbe4913b14f9592"
+      }
+    },
+    "frozenPostPruneSnapshot": {
+      "typedReport": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25396455,"sha256":"f63079907d813bffaf98cb89d28b8b2e183df9fe2e1c72b21f10fa2fd5c0a3f4"},
+      "sourceCoverage": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":345989,"sha256":"05ac9243d7cee276bc51c8eb0c8e4e3678f96d941560cae620d05af240d7cdd4","rawBytes":2968244,"rawSha256":"7be9d68b6144e09290d58e3dae17f21df9536852b5f8415e777c9f7dd3ad1c06"},
+      "globalCounts": {"ownerRows":35669,"addedOwnerRows":1155,"strictRows":1228},
+      "unitCounts": {"ownerRows":4,"addedOwnerRows":4,"strictRows":4},
+      "ownerRowsDescriptor": {"bytes":1607,"sha256":"eaac4fa6c2b3c8e40038836fe3a5a614cdfd7e9c412447bfa59783e64acc2c4c"},
+      "addedOwnerRowsDescriptor": {"bytes":2119,"sha256":"f3b475742a764ca7070f2f81b3dfb7fc67bb75c16bbfacb5b3d783d2408ad4be"},
+      "strictRowsDescriptor": {"bytes":2119,"sha256":"f3b475742a764ca7070f2f81b3dfb7fc67bb75c16bbfacb5b3d783d2408ad4be"},
+      "coverageRowsDescriptor": {"bytes":1298,"sha256":"ea8d0bcb101e1170a1ddfa75e560b6ff9dc786146660cb8526cddcea21d49784"},
+      "coverageRow": {
+        "targetIndex": 22116,
+        "start": 13846232,
+        "end": 13846324,
+        "nodeType": "ExpressionStatement",
+        "sourceHash": "c8f9833c2034a5979ada66afac2b9b269d6529e57faf1c2d3a56d9283b8c93b2",
+        "structuralClass": "unresolved",
+        "disposition": "source-runtime-covered",
+        "ownerIds": ["owner-src-daemon-spare-ts"],
+        "evidenceIds": [
+          "target121-daemon-spare-export-binding-proof",
+          "target121-daemon-spare-adjacent-implementation-proof",
+          "target121-daemon-spare-split-source-graph-proof",
+          "target121-daemon-spare-metadata-ambiguity-rejection",
+          "target121-daemon-spare-static-no-replay-proof"
+        ],
+        "behavior": "Authenticated Target121 u22116 is one generated daemon/spare module export table. Its four zero-argument arrows bind spawnSpare, runBgSpare, reapOrphanSpares, and claimSpare directly to adjacent u22119, u22117, u22125, and u22121 implementations. Recovered daemon/spare.ts retains the first three exact authored exports; the compiled claimSpare helper is the extracted form of the already-recovered inline claim branch in daemon/supervisor.ts. The exact nonmatched generator row permits a one-unit owner/coverage override, while nineteen unrelated baseline tables sharing the identifier-normalized token shape disprove the current alpha-equivalent correspondence. This is static row-scoped evidence only and authorizes no source replay."
+      },
+      "proofProjection": {
+        "unitBefore": {"ownerRows":4,"addedOwnerRows":4,"strictRows":4},
+        "unitAfter": {"ownerRows":0,"addedOwnerRows":0,"strictRows":0},
+        "delta": {"ownerRows":-4,"addedOwnerRows":-4,"strictRows":-4},
+        "coverageRowCount": 1
+      }
+    },
+    "frozenPostDaemonOwnerSnapshot": {
+      "typedReport": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25369097,"sha256":"2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3"},
+      "sourceCoverage": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":347677,"sha256":"91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83","rawBytes":2974761,"rawSha256":"8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f"},
+      "globalCounts": {"ownerRows":35634,"addedOwnerRows":1118,"strictRows":1275},
+      "unitCounts": {"ownerRows":4,"addedOwnerRows":4,"strictRows":4},
+      "ownerRowsDescriptor": {"bytes":1607,"sha256":"eaac4fa6c2b3c8e40038836fe3a5a614cdfd7e9c412447bfa59783e64acc2c4c"},
+      "addedOwnerRowsDescriptor": {"bytes":2119,"sha256":"f3b475742a764ca7070f2f81b3dfb7fc67bb75c16bbfacb5b3d783d2408ad4be"},
+      "strictRowsDescriptor": {"bytes":2119,"sha256":"f3b475742a764ca7070f2f81b3dfb7fc67bb75c16bbfacb5b3d783d2408ad4be"},
+      "coverageRowsDescriptor": {"bytes":1298,"sha256":"ea8d0bcb101e1170a1ddfa75e560b6ff9dc786146660cb8526cddcea21d49784"},
+      "coverageRowProjection": "frozenPostPruneSnapshot",
+      "proofProjection": {"unitBefore":{"ownerRows":4,"addedOwnerRows":4,"strictRows":4},"unitAfter":{"ownerRows":0,"addedOwnerRows":0,"strictRows":0},"delta":{"ownerRows":-4,"addedOwnerRows":-4,"strictRows":-4},"coverageRowCount":1}
+    },
+    "generatorInput": {
+      "path": ".recovery-tmp/generator-inputs/2.1.120-to-2.1.121.all-owners.json",
+      "bytes": 9491480,
+      "sha256": "a22f33e74ad03338d787b31eab6227af8aa8bad3ab4882f53dbdfb5813d63709"
+    }
+  },
+  "targetUnits": [
+    {
+      "targetIndex": 22115,
+      "role": "module-namespace",
+      "start": 13846221,
+      "end": 13846232,
+      "nodeType": "VariableDeclaration",
+      "tokenCount": 6,
+      "sourceHash": "5385a0050f255abdc2ccea7a86a1458b65b6598d0534d1dfeb5af5794dc93b78",
+      "coarseHash": "dd597ca1967ba39d68d494eb85daec171e3715dc0d7520066e7a47b2886a8018",
+      "unknownFreeIdentifierCount": 0
+    },
+    {
+      "targetIndex": 22116,
+      "role": "module-export-table",
+      "start": 13846232,
+      "end": 13846324,
+      "nodeType": "ExpressionStatement",
+      "tokenCount": 35,
+      "sourceHash": "c8f9833c2034a5979ada66afac2b9b269d6529e57faf1c2d3a56d9283b8c93b2",
+      "coarseHash": "1a838d6fa1a79d5ddf330f9ec6bb14df5d446607b43b6879a7255c7b097f922a",
+      "unknownFreeIdentifierCount": 5
+    },
+    {
+      "targetIndex": 22117,
+      "role": "runBgSpare-implementation",
+      "start": 13846324,
+      "end": 13847288,
+      "nodeType": "FunctionDeclaration",
+      "tokenCount": 414,
+      "sourceHash": "cc5bce69645a75cb3dc3c9fcd0c46b6bda0ccdcbaf8391f13091d76fa8669f24",
+      "coarseHash": "80dccbfd16b2737c6843356b10f0b70585768a579cfa40d27d2922fe35a49a77",
+      "unknownFreeIdentifierCount": 3,
+      "binding": "VS5"
+    },
+    {
+      "targetIndex": 22119,
+      "role": "spawnSpare-implementation",
+      "start": 13847556,
+      "end": 13848650,
+      "nodeType": "FunctionDeclaration",
+      "tokenCount": 367,
+      "sourceHash": "334f844590288e829f2be7e6eb89d7c7d491c30ce5c46594987f85af2d918082",
+      "coarseHash": "eefbd021144eb2e06be64d247c4bd728e1e7602e39b30eb9b2f7a7e1ebf242ad",
+      "unknownFreeIdentifierCount": 13,
+      "binding": "Ou6"
+    },
+    {
+      "targetIndex": 22121,
+      "role": "claimSpare-implementation",
+      "start": 13848889,
+      "end": 13849224,
+      "nodeType": "FunctionDeclaration",
+      "tokenCount": 151,
+      "sourceHash": "6a8f6522ad78c40415359652140723ebf749255c9a10f07cdd6659ebdaa51119",
+      "coarseHash": "b8beb36f53248bf0caedd041913863995c9456df245ab824fb8b948fe29318f6",
+      "unknownFreeIdentifierCount": 4,
+      "binding": "Mu6"
+    },
+    {
+      "targetIndex": 22125,
+      "role": "reapOrphanSpares-implementation",
+      "start": 13849730,
+      "end": 13850445,
+      "nodeType": "FunctionDeclaration",
+      "tokenCount": 349,
+      "sourceHash": "340ce54c7f6285c36cb5f828f3cc230f39eb24fa41cdb156cfafab2aa9e75c69",
+      "coarseHash": "b7f63b915cd7ad551256ddc4fb8cf215f07581266ec7a71d2d278dd4bcfc0398",
+      "unknownFreeIdentifierCount": 12,
+      "binding": "Du6"
+    },
+    {
+      "targetIndex": 22128,
+      "role": "module-initializer",
+      "start": 13850553,
+      "end": 13850772,
+      "nodeType": "VariableDeclaration",
+      "tokenCount": 110,
+      "sourceHash": "dd150405d8b14ecb908705e58535e9d2593e7d04791ac007579256e03732e0e7",
+      "coarseHash": "85a4120481dace0fc4e21b88af61e167a25b018a2ee7e958906373e8f072f1d5",
+      "unknownFreeIdentifierCount": 8
+    }
+  ],
+  "exportBinding": {
+    "targetIndex": 22116,
+    "fragment": "X$(Kb4,{spawnSpare:()=>Ou6,runBgSpare:()=>VS5,reapOrphanSpares:()=>Du6,claimSpare:()=>Mu6});",
+    "fragmentBytes": 92,
+    "fragmentSha256": "c8f9833c2034a5979ada66afac2b9b269d6529e57faf1c2d3a56d9283b8c93b2",
+    "namespaceBinding": "Kb4",
+    "properties": [
+      {
+        "name": "spawnSpare",
+        "start": 13846240,
+        "end": 13846250,
+        "implementationBinding": "Ou6",
+        "dependencyTargetIndex": 22119
+      },
+      {
+        "name": "runBgSpare",
+        "start": 13846259,
+        "end": 13846269,
+        "implementationBinding": "VS5",
+        "dependencyTargetIndex": 22117
+      },
+      {
+        "name": "reapOrphanSpares",
+        "start": 13846278,
+        "end": 13846294,
+        "implementationBinding": "Du6",
+        "dependencyTargetIndex": 22125
+      },
+      {
+        "name": "claimSpare",
+        "start": 13846303,
+        "end": 13846313,
+        "implementationBinding": "Mu6",
+        "dependencyTargetIndex": 22121
+      }
+    ],
+    "directDependencyTargetIndices": [
+      22117,
+      22119,
+      22121,
+      22125
+    ],
+    "moduleAnchorTargetIndices": [
+      22115,
+      22128
+    ]
+  },
+  "compiledGraph": {
+    "symbolOccurrences": {
+      "Kb4": [
+        [13846225, 22115],
+        [13846235, 22116],
+        [13902842, 22217]
+      ],
+      "Ou6": [
+        [13846255, 22116],
+        [13847571, 22119],
+        [13862997, 22151]
+      ],
+      "VS5": [
+        [13846274, 22116],
+        [13846339, 22117]
+      ],
+      "Du6": [
+        [13846299, 22116],
+        [13849745, 22125],
+        [13865561, 22151]
+      ],
+      "Mu6": [
+        [13846318, 22116],
+        [13848898, 22121],
+        [13863971, 22151]
+      ],
+      "wu6": [
+        [13850557, 22128],
+        [13868430, 22155],
+        [13902836, 22217]
+      ]
+    },
+    "supervisorConsumerTargetIndex": 22151,
+    "entrypointConsumerTargetIndex": 22217
+  },
+  "reportSnapshot": {
+    "global": {
+      "ownerRows": 35665,
+      "addedOwnerRows": 1151,
+      "strictRows": 1228
+    },
+    "unit": {
+      "ownerRows": 0,
+      "addedOwnerRows": 0,
+      "strictRows": 4,
+      "ownerRowsDescriptor": {
+        "bytes": 2,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "addedOwnerRowsDescriptor": {
+        "bytes": 2,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "strictRowsDescriptor": {
+        "bytes": 2027,
+        "sha256": "80921d32188c6b0b71d563bc8bea4077792654b99ecaa4ae12ce63abcafd1dfb"
+      },
+      "strictIdentitiesDescriptor": {
+        "bytes": 215,
+        "sha256": "51406827cf763d96b7f021de58f1b87aa372a84af455af1d97b313d042457b15"
+      },
+      "strictIdentities": [
+        [22116, "property", "spawnSpare", 13846240, 13846250, 1],
+        [22116, "property", "runBgSpare", 13846259, 13846269, 1],
+        [22116, "property", "reapOrphanSpares", 13846278, 13846294, 1],
+        [22116, "property", "claimSpare", 13846303, 13846313, 1]
+      ],
+      "disposition": "alpha-equivalent",
+      "ownerPaths": []
+    }
+  },
+  "coverageSnapshot": {
+    "rowCount": 1,
+    "rowsDescriptor": {
+      "bytes": 537,
+      "sha256": "70730008f647172e0379dea7b197e7b50f5ec1d427fad122df8d4860f111ca53"
+    },
+    "row": {
+      "targetIndex": 22116,
+      "start": 13846232,
+      "end": 13846324,
+      "nodeType": "ExpressionStatement",
+      "sourceHash": "c8f9833c2034a5979ada66afac2b9b269d6529e57faf1c2d3a56d9283b8c93b2",
+      "structuralClass": "unresolved",
+      "disposition": "alpha-equivalent",
+      "ownerIds": [],
+      "evidenceIds": [
+        "readable-normalization",
+        "static-semantic-noop"
+      ],
+      "reason": "The complete target unit has an exact baseline token-stream match after only bundle-local identifier and generated version/build-metadata normalization; cooked literals, operators, branches, and calls are unchanged."
+    }
+  },
+  "generatorRow": {
+    "rowIndex": 4709,
+    "descriptor": {
+      "bytes": 689,
+      "sha256": "15bc95601b32243ff31e964f4911febc84acad8ed17c97cd9642929b23326e4c"
+    },
+    "row": {
+      "targetIndex": 22116,
+      "start": 13846232,
+      "end": 13846324,
+      "sourceHash": "c8f9833c2034a5979ada66afac2b9b269d6529e57faf1c2d3a56d9283b8c93b2",
+      "coarseHash": "1a838d6fa1a79d5ddf330f9ec6bb14df5d446607b43b6879a7255c7b097f922a",
+      "structuralClass": "unresolved",
+      "nodeType": "ExpressionStatement",
+      "alphaByCoarse": false,
+      "metadataEquivalent": true,
+      "owners": [
+        {
+          "source": "../src/main.tsx",
+          "score": 1
+        }
+      ],
+      "candidateOwners": [
+        {
+          "source": "../src/main.tsx",
+          "score": 92
+        },
+        {
+          "source": "../src/entrypoints/cli.tsx",
+          "score": 92
+        }
+      ],
+      "prefix": "X$(Kb4,{spawnSpare:()=>Ou6,runBgSpare:()=>VS5,reapOrphanSpares:()=>Du6,claimSpare:()=>Mu6});",
+      "semanticOwnership": "source-candidate",
+      "semanticOwners": [
+        "src/entrypoints/cli.tsx",
+        "src/main.tsx"
+      ]
+    }
+  },
+  "baselineAmbiguity": {
+    "normalizedTokenSignature": {
+      "count": 35,
+      "bytes": 430,
+      "sha256": "f3a6ff56032aa5c26d4cc2c23f60df915c31fc4660cd4c91fac8eca605cee71e"
+    },
+    "matchCount": 19,
+    "matchesDescriptor": {
+      "bytes": 1810,
+      "sha256": "367c5a24952e7dcd4af062c43d1a9d9dbed4ec97ebc2423e1ac427b1667700bc"
+    },
+    "matches": [
+      [2582, 1045725, 1045867, 142, "ddb076f3c5df6d61a6572933f730f31e0f32b06c80347ee93fc388c3ac2ac64e"],
+      [5565, 2342208, 2342302, 94, "8aa6e56d274be199f3f3107dbd34190b99003ae72b698bf8b85cf1bb9fb6fa73"],
+      [5572, 2342811, 2342942, 131, "3537928cd304714e0320542662865b2050be7c89e08c6193e29fd4da0de5e141"],
+      [5745, 2436075, 2436229, 154, "e8e77a5c56d98e74030822ce35b65799ceeeda29268bc4f16d577edaa5997202"],
+      [7643, 3569231, 3569334, 103, "d0f3d4ef35806a0658936b39a235eef4096e70af57bd818aaa3fd4764815806b"],
+      [9005, 4234913, 4235023, 110, "908cfec83dc4fbd833ded00a396d6590fb4c5561c1fdbff56c8bbff84c00a8d3"],
+      [11889, 7376600, 7376693, 93, "77dc46c6af90f00ce73940292ae7fe785771a873bd3318f5bd5a0bf3e50a63b8"],
+      [12226, 7677604, 7677726, 122, "ac58a4fd4519bdbc4f5ead6f7c531ce9517beacf828a33cd25c775905c334f0a"],
+      [13722, 8613044, 8613158, 114, "b933265336c23acfa4a1bbf90222d7f61b5e3f89e2aa2cc0dfaf5d94a08f337e"],
+      [13950, 8767614, 8767746, 132, "13e16315f94a5c008908a37824159d63a6a593b0ca25b03cfe0937cbec131c00"],
+      [14998, 9333321, 9333449, 128, "073ad1dbb24c32eefb9d0369579cd3d1348d0e3dfd2a207870fbd3f80bd02e9b"],
+      [15582, 9600102, 9600194, 92, "71367bf42cdea8e845b79e8164ffb58a21278dd91eeb1ccad3dd51c925198efa"],
+      [16861, 10546661, 10546751, 90, "713cbcfb975c19a6f30406e10de38f32d2bed20518d38d2f2decad369dbb9a9d"],
+      [18219, 11162555, 11162698, 143, "994eb784107687b2b349d01378f442e9173f395d3afee38aba29e6f73da39693"],
+      [19684, 11994143, 11994269, 126, "be6086c81577e6d6a6f3265c9c3a84f3dc1849c875541382c6a61ad60fdbdecb"],
+      [19842, 12072719, 12072847, 128, "ef62a6cbe7d6e9beaccea26a690f08c75958c5dc6d5a95745058959ea0163861"],
+      [21422, 12866328, 12866460, 132, "e65542550d0e0c9dfdc97efd7af9f16839bb91fab5ca60de072ba4cf85420cf2"],
+      [21438, 12872045, 12872180, 135, "483d6bfbb1ad85ec10e1e91a8ce8521d5e0560b3765b5d38314eaabc75d68025"],
+      [21925, 13664125, 13664234, 109, "edee7266d0419ecea1277be483406761f0f07b00371a1c1751a40f5165e92705"]
+    ],
+    "baselineMarkerCounts": {
+      "spawnSpare": 0,
+      "runBgSpare": 0,
+      "reapOrphanSpares": 0,
+      "claimSpare": 0,
+      "[bg-spare] missing claim sock path": 0,
+      "tengu_bg_spare_claim": 0,
+      "bg orphan-spare reap": 0
+    }
+  },
+  "sourceGraph": {
+    "sourceRootPolicy": "historical-or-package-byte-identical",
+    "spare": {
+      "path": "src/daemon/spare.ts",
+      "bytes": 8255,
+      "sha256": "3e84edd0e5c5bfa745319723943159c5128581203374bd49f5e3fb701f4541cf",
+      "exportedFunctions": [
+        "spawnSpare",
+        "sendSpareClaim",
+        "runBgSpare",
+        "reapOrphanSpares",
+        "killSparePty"
+      ],
+      "authoredExportNodes": [
+        {
+          "name": "spawnSpare",
+          "kind": "FunctionDeclaration",
+          "start": 1961,
+          "end": 3411,
+          "bytes": 1450,
+          "sha256": "bbcce1e50e15252cc366bd2ee5fd837b491784618bf1367b07783782a532e649"
+        },
+        {
+          "name": "runBgSpare",
+          "kind": "FunctionDeclaration",
+          "start": 4991,
+          "end": 6696,
+          "bytes": 1705,
+          "sha256": "513a35bd0c5ea22146fc572aaabb7f5ef28464f1d39f484bac366f9f79da846b"
+        },
+        {
+          "name": "reapOrphanSpares",
+          "kind": "FunctionDeclaration",
+          "start": 6698,
+          "end": 8015,
+          "bytes": 1317,
+          "sha256": "4b96a98235cf016bf8ec8d8244ade6e8c3cb45cd9d6904f8f7bc3092a28b18c0"
+        }
+      ],
+      "claimSpareDeclarationCount": 0
+    },
+    "supervisor": {
+      "path": "src/daemon/supervisor.ts",
+      "bytes": 71160,
+      "sha256": "980a6ad10a274f9703ef8ed5a664702bee0af1ad6b2d12b90fd187c7baa66979",
+      "spareImport": {
+        "name": "'./spare.js'",
+        "kind": "ImportDeclaration",
+        "start": 1958,
+        "end": 2075,
+        "bytes": 117,
+        "sha256": "e2f44529817a56f0e15f82682c6af805de80e84a37c3a35fb8d4055839944016"
+      },
+      "runBackgroundSupervisor": {
+        "name": "runBackgroundSupervisor",
+        "kind": "FunctionDeclaration",
+        "start": 62603,
+        "end": 71131,
+        "bytes": 8528,
+        "sha256": "715830e9b42e175a0523c0951838f87701b65691a21149302253d59014f43df1"
+      },
+      "claimBranch": {
+        "name": "claim-branch",
+        "kind": "IfStatement",
+        "start": 65246,
+        "end": 66722,
+        "bytes": 1476,
+        "sha256": "ef45681fb7300f48f95ad398376a20a7d9ead57bd8b94831539c594a069dff39",
+        "requiredCalls": [
+          "BackgroundHandle.claim",
+          "BackgroundHandle.buildClaimFrame",
+          "sendSpareClaim",
+          "killSparePty"
+        ],
+        "requiredEvent": "tengu_bg_spare_claim"
+      }
+    },
+    "entrypoint": {
+      "path": "src/entrypoints/cli.tsx",
+      "bytes": 44573,
+      "sha256": "7bb93feddcf06d0cfbf386314ba1b0a1d79f4a536a89a67c01136ce30e9da12a",
+      "bgSpareBranch": {
+        "name": "bg-spare-if",
+        "kind": "IfStatement",
+        "start": 5754,
+        "end": 5932,
+        "bytes": 178,
+        "sha256": "18bb13697017188deee7982dc3179d564925300d73a9ee6875a2d2243e5b44f6"
+      },
+      "dynamicImport": "../daemon/spare.js",
+      "invokedExport": "runBgSpare"
+    }
+  },
+  "ownerCorrection": {
+    "ownerPath": "src/daemon/spare.ts",
+    "supportPaths": [
+      "src/daemon/supervisor.ts",
+      "src/entrypoints/cli.tsx"
+    ],
+    "generatedExports": [
+      "spawnSpare",
+      "runBgSpare",
+      "reapOrphanSpares",
+      "claimSpare"
+    ],
+    "authoredDeclarations": [
+      "spawnSpare",
+      "runBgSpare",
+      "reapOrphanSpares"
+    ],
+    "sourceGapExports": [
+      "claimSpare"
+    ],
+    "rowScope": "one-complete-export-table-unit",
+    "generatorRowExists": true,
+    "coverageOverrideEligible": true,
+    "generatorWiringAuthorized": true,
+    "generatorWiringPerformedByCase": false,
+    "replayAuthorized": false,
+    "predictedReportImpact": {
+      "global": {
+        "before": {
+          "ownerRows": 35665,
+          "addedOwnerRows": 1151,
+          "strictRows": 1228
+        },
+        "after": {
+          "ownerRows": 35669,
+          "addedOwnerRows": 1155,
+          "strictRows": 1224
+        },
+        "delta": {
+          "ownerRows": 4,
+          "addedOwnerRows": 4,
+          "strictRows": -4
+        }
+      },
+      "unit": {
+        "before": {
+          "ownerRows": 0,
+          "addedOwnerRows": 0,
+          "strictRows": 4
+        },
+        "after": {
+          "ownerRows": 4,
+          "addedOwnerRows": 4,
+          "strictRows": 0
+        },
+        "delta": {
+          "ownerRows": 4,
+          "addedOwnerRows": 4,
+          "strictRows": -4
+        }
+      },
+      "coverageRowCount": {
+        "before": 1,
+        "after": 1,
+        "replacement": "alpha-equivalent-to-source-runtime-covered"
+      }
+    }
+  },
+  "evidenceIds": [
+    "target121-daemon-spare-export-binding-proof",
+    "target121-daemon-spare-adjacent-implementation-proof",
+    "target121-daemon-spare-split-source-graph-proof",
+    "target121-daemon-spare-metadata-ambiguity-rejection",
+    "target121-daemon-spare-static-no-replay-proof"
+  ]
+}

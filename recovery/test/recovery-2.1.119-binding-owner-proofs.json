@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "status": "generator-ready-fail-closed",
+  "criterion": "target119-original-owner-binding-and-build-macro-static-ast-v1",
+  "inputs": {
+    "targetBundle": {
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "analysis": {
+      "path": "recovery/test/recovery-2.1.119-owner-residue-analysis.json",
+      "bytes": 751734,
+      "sha256": "2f724f6eeb76b532bb76c264887e78fce4c4435f073992d2cc539ca12890edc7"
+    }
+  },
+  "evidenceIds": [
+    "target119-binding-owner-target-fragment",
+    "target119-binding-owner-static-ast-test"
+  ],
+  "summary": {
+    "units": 3,
+    "residues": 10,
+    "bindingResidues": 7,
+    "buildMacroResidues": 3,
+    "ownerFiles": 3
+  },
+  "rows": [
+    {
+      "targetIndex": 16557,
+      "ownerPath": "src/services/plugins/pluginOperations.ts",
+      "owner": {
+        "bytes": 43856,
+        "sha256": "05707ed7d95ca0ba4c0de3ee65368a83c3241dbc8d33e52a88023cf3b3c63bc5",
+        "declaration": "performPluginUpdate",
+        "markers": ["({ constraint }) =>", ".map(({ constraint }) => constraint.version)"]
+      },
+      "target": {
+        "start": 10316442,
+        "end": 10319623,
+        "nodeType": "FunctionDeclaration",
+        "sha256": "e2daf1431f575a1040f35680db17f1052a2abef741209c2ec92829b6982741cb"
+      },
+      "behavior": "The exact Target119 performPluginUpdate owner already contains both constraint binding elements; an alternate dependencyResolver text match would split the complete function and expose eleven unrelated residues.",
+      "residues": [
+        {"kind":"property","value":"constraint","targetStart":10316719,"targetEnd":10316729,"baselineOccurrenceCount":2,"targetOccurrenceNumber":3,"proof":"binding-element"},
+        {"kind":"property","value":"constraint","targetStart":10318575,"targetEnd":10318585,"baselineOccurrenceCount":2,"targetOccurrenceNumber":4,"proof":"binding-element"}
+      ]
+    },
+    {
+      "targetIndex": 18458,
+      "ownerPath": "src/bridge/bridgeMain.ts",
+      "owner": {
+        "bytes": 116475,
+        "sha256": "d639238dbdc256e56758e6c2e526d50e95a85c70bfa65b5d5d7faeb496cb924f",
+        "declaration": "bridge runtime initializer",
+        "markers": ["const { clearOAuthTokenCache, checkAndRefreshOAuthTokenIfNeeded } =", "const { handleOAuth401Error } = await import('../utils/auth.js')", "MACRO.VERSION"]
+      },
+      "target": {
+        "start": 11302203,
+        "end": 11311057,
+        "nodeType": "FunctionDeclaration",
+        "sha256": "be220b5183d80ba2b95cb1b9538e22fe829e4a68f221601ccf95e977dd5cc8a3"
+      },
+      "behavior": "The Target119 bridge initializer owns the three destructured OAuth helper bindings and authored MACRO build identity; daemon/auth is the imported implementation, not a replacement owner for the complete bridge unit.",
+      "residues": [
+        {"kind":"property","value":"clearOAuthTokenCache","targetStart":11303609,"targetEnd":11303629,"baselineOccurrenceCount":2,"targetOccurrenceNumber":6,"proof":"binding-element"},
+        {"kind":"property","value":"checkAndRefreshOAuthTokenIfNeeded","targetStart":11303632,"targetEnd":11303665,"baselineOccurrenceCount":2,"targetOccurrenceNumber":4,"proof":"binding-element"},
+        {"kind":"property","value":"handleOAuth401Error","targetStart":11306798,"targetEnd":11306817,"baselineOccurrenceCount":2,"targetOccurrenceNumber":4,"proof":"binding-element"},
+        {"kind":"string","value":"2.1.119","targetStart":11307108,"targetEnd":11307117,"baselineOccurrenceCount":0,"targetOccurrenceNumber":88,"proof":"build-macro"},
+        {"kind":"string","value":"2026-04-23T19:08:52Z","targetStart":11307197,"targetEnd":11307219,"baselineOccurrenceCount":0,"targetOccurrenceNumber":88,"proof":"build-macro"},
+        {"kind":"string","value":"6f68554839756189e277b8285a18fe47acd9a5a1","targetStart":11307228,"targetEnd":11307270,"baselineOccurrenceCount":0,"targetOccurrenceNumber":88,"proof":"build-macro"}
+      ]
+    },
+    {
+      "targetIndex": 20626,
+      "ownerPath": "src/hooks/useCancelRequest.ts",
+      "owner": {
+        "bytes": 10451,
+        "sha256": "e117a3af9f464979268a1aec1d711e11d31160710485d4d368fbdb04ff08dab8",
+        "declaration": "useCancelRequest",
+        "markers": ["onCancel: () => void", "getConnectionSummary?: () => ConnectionSummary | undefined", "getConnectionSummary?.()"]
+      },
+      "target": {
+        "start": 12456861,
+        "end": 12459016,
+        "nodeType": "FunctionDeclaration",
+        "sha256": "d1b4827c0c87a39f6589aa69a7f6e5fbc4207473e78de4342be0938c003207ed"
+      },
+      "behavior": "The exact Target119 cancellation hook owns its onCancel and getConnectionSummary parameter bindings; moving the unit to the REPL caller would expose unrelated escape/task-state residues.",
+      "residues": [
+        {"kind":"property","value":"onCancel","targetStart":12456906,"targetEnd":12456914,"baselineOccurrenceCount":371,"targetOccurrenceNumber":373,"proof":"binding-element"},
+        {"kind":"property","value":"getConnectionSummary","targetStart":12457099,"targetEnd":12457119,"baselineOccurrenceCount":0,"targetOccurrenceNumber":1,"proof":"binding-element"}
+      ]
+    }
+  ]
+}

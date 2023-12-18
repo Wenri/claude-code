@@ -1,0 +1,256 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-daemon-supervisor-create-server-retained-ordinal-row-owner-v1",
+  "status": "case-owned-row-scoped-static-retained-owner-evidence",
+  "claim": "Complete baseline predecessor u19463 and Target121 u22136 each contain exactly one local createServer token in the complete compiled startControlServer function. The retained call moves from global ordinal 16 in Target120 to ordinal 18 in Target121; because the baseline bundle contains 17 total createServer tokens, occurrence differencing reports Target121 ordinal 18 as added. Exact Target120 and raw/packaged Target121 src/daemon/supervisor.ts declarations retain const server = createServer while Target121 evolves peer authorization, lease metadata, shutdown, and yield handling. The case therefore admits only the createServer row, performs no whole-unit override, and replays no already-complete source.",
+  "evidenceIds": [
+    "target121-daemon-supervisor-create-server-authenticated-unit-lineage",
+    "target121-daemon-supervisor-create-server-local-token-lineage",
+    "target121-daemon-supervisor-create-server-source-declaration-lineage",
+    "target121-daemon-supervisor-create-server-row-partition"
+  ],
+  "caseFiles": {
+    "helper": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/recovered/daemon-supervisor-create-server-owner-evidence.mjs",
+      "bytes": 1894,
+      "sha256": "c91cbcce4d1e80b8d3ecf0b5b713e9c960522e7954daf5822872a534785d18e6"
+    }
+  },
+  "dependencyEvidence": {
+    "role": "Authenticates complete u22136 and its exact source owner, but does not close the retained createServer ordinal spill.",
+    "fixture": {
+      "path": "recovery/test/recovery-2.1.121-daemon-supervisor-owner-proofs.json",
+      "bytes": 78567,
+      "sha256": "4be8cd934d5b395a7ea9ef4e55ef0043ef3b35236d7df644d020e7cfa94d31fc"
+    },
+    "helper": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/recovered/daemon-supervisor-owner-overrides.mjs",
+      "bytes": 1641,
+      "sha256": "b6a0ba398a75c8bcc3af63ddc3f510161916a9573b7b47a90df49749949bdee8"
+    }
+  },
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "frozenPostPruneSnapshot": {
+      "method": "The report and coverage descriptors, exact selected row, partition counts, and supplied digest prefixes were frozen before this disjoint case was created. This proof does not reopen either shared mutable artifact.",
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25396455,
+        "sha256": "f63079907d813bffaf98cb89d28b8b2e183df9fe2e1c72b21f10fa2fd5c0a3f4"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 345989,
+        "sha256": "05ac9243d7cee276bc51c8eb0c8e4e3678f96d941560cae620d05af240d7cdd4",
+        "rawBytes": 2968244,
+        "rawSha256": "7be9d68b6144e09290d58e3dae17f21df9536852b5f8415e777c9f7dd3ad1c06"
+      },
+      "selectedRow": [22136, "property", "createServer", 13852432, 13852444, 17, 18, true],
+      "selectedRowDescriptor": {
+        "bytes": 62,
+        "sha256": "94f7119eb7f9ba747bfb45ad90772bd1e102eca00ecb369967dc2a56b6150627"
+      },
+      "partitions": {
+        "owner": {"count": 5, "identitiesSha256Prefix": "c0659e64"},
+        "added": {"count": 4, "identitiesSha256Prefix": "745ee411"},
+        "strict": {"count": 1, "identitiesSha256Prefix": "4f797bc0"}
+      },
+      "coverage": {
+        "count": 1,
+        "rowIdentitySha256Prefix": "e0f84821",
+        "ownerPath": "src/daemon/supervisor.ts",
+        "ownerAndEvidenceAlreadyCorrect": true
+      }
+    },
+    "sourceRoots": {
+      "baseline": ".recovery-tmp/semantic-trees/2.1.120/src",
+      "raw": ".recovery-tmp/semantic-trees/2.1.121/src",
+      "postPrunePackage": "/tmp/target121-prune-final.QAqOlk/2.1.121/src"
+    }
+  },
+  "compiledLineage": {
+    "baselinePredecessor": {
+      "targetIndex": 19463,
+      "name": "c34",
+      "nodeType": "FunctionDeclaration",
+      "start": 11836786,
+      "end": 11837650,
+      "bytes": 864,
+      "tokenCount": 473,
+      "sha256": "694f0a9a7680611375eeb230494d55a601fcc2310464666cd92fe2df8bd1956e"
+    },
+    "targetUnit": {
+      "targetIndex": 22136,
+      "name": "Db4",
+      "nodeType": "FunctionDeclaration",
+      "parseStatus": "parsed",
+      "classification": "unresolved",
+      "unknownFreeIdentifierCount": 5,
+      "start": 13852055,
+      "end": 13853204,
+      "bytes": 1149,
+      "tokenCount": 606,
+      "sha256": "840a99ca48867f7b22e50d582a8b2c553bc9fd5afc5b5c142b2195e1becce8c2",
+      "coarseHash": "8cd5922ca4677965d8b885a451ada35f45863636d770773bd410b0c34412dc20"
+    },
+    "localCreateServer": {
+      "baseline": {
+        "tokenIndex": 126,
+        "localCoordinates": [218, 230],
+        "globalCoordinates": [11837004, 11837016],
+        "globalOrdinal": 16,
+        "globalCount": 17
+      },
+      "target": {
+        "tokenIndex": 205,
+        "localCoordinates": [377, 389],
+        "globalCoordinates": [13852432, 13852444],
+        "globalOrdinal": 18,
+        "globalCount": 18
+      },
+      "calleeShape": {
+        "type": "MemberExpression",
+        "computed": false,
+        "property": "createServer"
+      }
+    },
+    "globalCreateServerCoordinates": {
+      "baseline": {
+        "count": 17,
+        "coordinatesDescriptor": {
+          "bytes": 315,
+          "sha256": "2ad656b5571d78a5bd69367a7085d0c59cbcb9f8e6569c96c20d052ff660b855"
+        },
+        "tail": [[9221365, 9221377], [11810824, 11810836], [11817665, 11817677], [11837004, 11837016], [11991718, 11991730]]
+      },
+      "target": {
+        "count": 18,
+        "coordinatesDescriptor": {
+          "bytes": 335,
+          "sha256": "b3746be7906a39de3febade67572005e5403e88f8cfa44ca7ca30e343437309f"
+        },
+        "tail": [[11892293, 11892305], [11898407, 11898419], [11962204, 11962216], [13847341, 13847353], [13852432, 13852444]]
+      }
+    }
+  },
+  "sourceLineage": {
+    "path": "src/daemon/supervisor.ts",
+    "baseline": {
+      "file": {
+        "bytes": 53198,
+        "sha256": "2cf2b91d2a7153af5cbb69eeb04c570821f4ec93789e1117dee6eaa74c2132e1"
+      },
+      "netImport": {
+        "start": 130,
+        "end": 185,
+        "chars": 55,
+        "bytes": 55,
+        "sha256": "193e55cf61e4640621d44db115f36a2614a60290c3fc2ad1b47986506124d518"
+      },
+      "declaration": {
+        "name": "startControlServer",
+        "kind": "FunctionDeclaration",
+        "start": 42915,
+        "end": 45032,
+        "chars": 2117,
+        "bytes": 2117,
+        "sha256": "c78bcc6ee9d9f5e7b126136b1ff8cb22891682e4e8d040717d23988eeb1fb501",
+        "parameters": ["handles", "dispatch", "onNudge", "isReady", "onLeaseChange"],
+        "createServerCall": {
+          "start": 43623,
+          "end": 44567,
+          "chars": 944,
+          "bytes": 944,
+          "sha256": "b613dea27a2772ddbd3b4a2d491ce83e63090cf5c3eda71c89bbc2df13540e76",
+          "identifier": {
+            "start": 43623,
+            "end": 43635,
+            "chars": 12,
+            "bytes": 12,
+            "sha256": "f795985eec30a7c09c7d95946af065535f7b9659ec05ae536494e55f3528f375"
+          }
+        }
+      }
+    },
+    "target": {
+      "file": {
+        "bytes": 71160,
+        "sha256": "980a6ad10a274f9703ef8ed5a664702bee0af1ad6b2d12b90fd187c7baa66979"
+      },
+      "acceptedStates": ["raw", "postPrunePackage"],
+      "netImport": {
+        "start": 110,
+        "end": 165,
+        "chars": 55,
+        "bytes": 55,
+        "sha256": "193e55cf61e4640621d44db115f36a2614a60290c3fc2ad1b47986506124d518"
+      },
+      "declaration": {
+        "name": "startControlServer",
+        "kind": "FunctionDeclaration",
+        "start": 54989,
+        "end": 57924,
+        "chars": 2935,
+        "bytes": 2935,
+        "sha256": "f5fc046db4682eed46ed6de8dd9ec5c41ff1c4b29ff01bd56433d25780ca7edd",
+        "parameters": ["handles", "dispatch", "onNudge", "onShutdown", "isReady", "onYield", "onLeaseChange"],
+        "createServerCall": {
+          "start": 56185,
+          "end": 57410,
+          "chars": 1225,
+          "bytes": 1225,
+          "sha256": "ce314fde1b64c1cc298f0d23b6134118b72e3674bb9d892393bf782e89c6c3ce",
+          "identifier": {
+            "start": 56185,
+            "end": 56197,
+            "chars": 12,
+            "bytes": 12,
+            "sha256": "f795985eec30a7c09c7d95946af065535f7b9659ec05ae536494e55f3528f375"
+          }
+        }
+      }
+    },
+    "retainedOperation": "const server = createServer((socket) => {",
+    "targetEvolutionMarkers": [
+      "controlPeerMatchesCurrentUser(socket)",
+      "const leases = new Map<",
+      "onShutdown: (reapWorkers: boolean) => number",
+      "onYield: () => boolean",
+      "socket.setTimeout(30_000, () => socket.destroy())"
+    ],
+    "decision": "static-row-scoped-retained-source-operation-no-replay"
+  },
+  "rowBoundary": {
+    "admitted": [22136, "property", "createServer", 13852432, 13852444, 17, 18, true],
+    "correctedOwnerPaths": ["src/daemon/supervisor.ts"],
+    "wholeUnitOverride": false,
+    "sourceReplay": false,
+    "impact": {"owner": -1, "added": -1, "strict": -1, "coverage": 0},
+    "postProofProjection": {"owner": 4, "added": 3, "strict": 0, "coverage": 1}
+  },
+  "summary": {
+    "units": 1,
+    "residues": 1,
+    "sourceFiles": 1,
+    "dependencyFixtures": 1,
+    "wholeUnitOverride": false,
+    "sourceReplay": false,
+    "strictRowsRemoved": 1
+  }
+}

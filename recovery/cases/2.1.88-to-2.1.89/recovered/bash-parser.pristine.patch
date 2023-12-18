@@ -1,0 +1,279 @@
+diff --git a/src/utils/bash/parser.ts b/src/utils/bash/parser.ts
+--- a/src/utils/bash/parser.ts
++++ b/src/utils/bash/parser.ts
+@@ -135,7 +135,10 @@
+   return null
+ }
+ 
+-function findCommandNode(node: Node, parent: Node | null): Node | null {
++export function findCommandNode(
++  node: Node,
++  parent: Node | null,
++): Node | null {
+   const { type, children } = node
+ 
+   if (COMMAND_TYPES.has(type)) return node
+@@ -207,13 +210,23 @@
+       (!foundCommandName && child.type === 'word')
+     ) {
+       foundCommandName = true
+-      args.push(child.text)
++      const value = child.children[0] ?? child
++      args.push(stripQuotes(value.text))
+       continue
+     }
+ 
+     // Arguments
+     if (ARGUMENT_TYPES.has(child.type)) {
+       args.push(stripQuotes(child.text))
++    } else if (child.type === 'concatenation') {
++      if (
++        child.children.some(part => SUBSTITUTION_TYPES.has(part.type))
++      ) {
++        break
++      }
++      args.push(
++        child.children.map(part => stripQuotes(part.text)).join(''),
++      )
+     } else if (SUBSTITUTION_TYPES.has(child.type)) {
+       break
+     }
+diff --git a/src/utils/bash/commands.ts b/src/utils/bash/commands.ts
+--- a/src/utils/bash/commands.ts
++++ b/src/utils/bash/commands.ts
+@@ -6,9 +6,32 @@
+   createCommandPrefixExtractor,
+   createSubcommandPrefixExtractor,
+ } from '../shell/prefix.js'
++import { getParserModule, type TsNode } from './bashParser.js'
+ import { extractHeredocs, restoreHeredocs } from './heredoc.js'
++import {
++  extractCommandArguments,
++  findCommandNode,
++} from './parser.js'
+ import { quote, tryParseShellCommand } from './shellQuote.js'
+ 
++// Recovery note: these source-level names and types are inferred. Their
++// values and all parser/walker behavior are directly observed in 2.1.89.
++const MAX_COMMAND_LENGTH = 10_000
++const COMPOUND_COMMAND_NODE_TYPES = new Set([
++  'program',
++  'list',
++  'pipeline',
++])
++const CONTROL_OPERATOR_NODE_TYPES = new Set([
++  '&&',
++  '||',
++  '|',
++  ';',
++  '&',
++  '|&',
++  '\n',
++])
++
+ /**
+  * Generates placeholder strings with random salt to prevent injection attacks.
+  * The salt prevents malicious commands from containing literal placeholder strings
+@@ -256,116 +279,47 @@
+   )
+ }
+ 
+-/**
+- * @deprecated Legacy regex/shell-quote path. Only used when tree-sitter is
+- * unavailable. The primary gate is parseForSecurity (ast.ts).
+- *
+- * Splits a command string into individual commands based on shell operators
+- */
+ export function splitCommand_DEPRECATED(command: string): string[] {
+-  const parts: (string | undefined)[] = splitCommandWithOperators(command)
+-  // Handle standard input/output/error redirection
+-  for (let i = 0; i < parts.length; i++) {
+-    const part = parts[i]
+-    if (part === undefined) {
+-      continue
++  if (!command) return []
++  if (command.length > MAX_COMMAND_LENGTH) return [command]
++  const rootNode = getParserModule()!.parse(command)
++  if (!rootNode) return [command]
++
++  const commands: string[] = []
++  const visit = (node: TsNode): void => {
++    if (
++      CONTROL_OPERATOR_NODE_TYPES.has(node.type) ||
++      node.type === 'comment'
++    ) {
++      return
+     }
+-
+-    // Strip redirections so they don't appear as separate commands in permission prompts.
+-    // Handles: 2>&1, 2>/dev/null, > file.txt, >> file.txt
+-    // Security validation of file targets happens separately in checkPathConstraints()
+-    if (part === '>&' || part === '>' || part === '>>') {
+-      const prevPart = parts[i - 1]?.trim()
+-      const nextPart = parts[i + 1]?.trim()
+-      const afterNextPart = parts[i + 2]?.trim()
+-      if (nextPart === undefined) {
+-        continue
+-      }
+-
+-      // Determine if this redirection should be stripped
+-      let shouldStrip = false
+-      let stripThirdToken = false
+-
+-      // SPECIAL CASE: The adjacent-string collapse merges `/dev/null` and `2`
+-      // into `/dev/null 2` for `> /dev/null 2>&1`. The trailing ` 2` is the FD
+-      // prefix of the NEXT redirect (`>&1`). Detect this: nextPart ends with
+-      // ` <FD>` AND afterNextPart is a redirect operator. Split off the FD
+-      // suffix so isStaticRedirectTarget sees only the actual target. The FD
+-      // suffix is harmless to drop — it's handled when the loop reaches `>&`.
+-      let effectiveNextPart = nextPart
+-      if (
+-        (part === '>' || part === '>>') &&
+-        nextPart.length >= 3 &&
+-        nextPart.charAt(nextPart.length - 2) === ' ' &&
+-        ALLOWED_FILE_DESCRIPTORS.has(nextPart.charAt(nextPart.length - 1)) &&
+-        (afterNextPart === '>' ||
+-          afterNextPart === '>>' ||
+-          afterNextPart === '>&')
+-      ) {
+-        effectiveNextPart = nextPart.slice(0, -2)
+-      }
+-
+-      if (part === '>&' && ALLOWED_FILE_DESCRIPTORS.has(nextPart)) {
+-        // 2>&1 style (no space after >&)
+-        shouldStrip = true
+-      } else if (
+-        part === '>' &&
+-        nextPart === '&' &&
+-        afterNextPart !== undefined &&
+-        ALLOWED_FILE_DESCRIPTORS.has(afterNextPart)
+-      ) {
+-        // 2 > &1 style (spaces around everything)
+-        shouldStrip = true
+-        stripThirdToken = true
+-      } else if (
+-        part === '>' &&
+-        nextPart.startsWith('&') &&
+-        nextPart.length > 1 &&
+-        ALLOWED_FILE_DESCRIPTORS.has(nextPart.slice(1))
+-      ) {
+-        // 2 > &1 style (space before &1 but not after)
+-        shouldStrip = true
+-      } else if (
+-        (part === '>' || part === '>>') &&
+-        isStaticRedirectTarget(effectiveNextPart)
+-      ) {
+-        // General file redirection: > file.txt, >> file.txt, > /tmp/output.txt
+-        // Only strip static targets; keep dynamic ones (with $, `, *, etc.) visible
+-        shouldStrip = true
+-      }
+-
+-      if (shouldStrip) {
+-        // Remove trailing file descriptor from previous part if present
+-        // (e.g., strip '2' from 'echo foo 2' for `echo foo 2>file`).
+-        //
+-        // SECURITY: Only strip when the digit is preceded by a SPACE and
+-        // stripping leaves a non-empty string. shell-quote can't distinguish
+-        // `2>` (FD redirect) from `2 >` (arg + stdout). Without the space
+-        // check, `cat /tmp/path2 > out` truncates to `cat /tmp/path`. Without
+-        // the length check, `echo ; 2 > file` erases the `2` subcommand.
+-        if (
+-          prevPart &&
+-          prevPart.length >= 3 &&
+-          ALLOWED_FILE_DESCRIPTORS.has(prevPart.charAt(prevPart.length - 1)) &&
+-          prevPart.charAt(prevPart.length - 2) === ' '
+-        ) {
+-          parts[i - 1] = prevPart.slice(0, -2)
+-        }
+-
+-        // Remove the redirection operator and target
+-        parts[i] = undefined
+-        parts[i + 1] = undefined
+-        if (stripThirdToken) {
+-          parts[i + 2] = undefined
+-        }
++    if (node.type === 'redirected_statement') {
++      for (const child of node.children) {
++        if (!child.type.endsWith('_redirect')) visit(child)
+       }
++      return
++    }
++    if (COMPOUND_COMMAND_NODE_TYPES.has(node.type)) {
++      for (const child of node.children) visit(child)
++      return
+     }
++    commands.push(node.text)
+   }
+-  // Remove undefined parts and empty strings (from stripped file descriptors)
+-  const stringParts = parts.filter(
+-    (part): part is string => part !== undefined && part !== '',
+-  )
+-  return filterControlOperators(stringParts)
++  visit(rootNode)
++  return commands
++}
++
++/**
++ * Recovery note: the function name and TypeScript signature are inferred.
++ * The synchronous parser calls and return behavior match the target bundle.
++ */
++export function parseCommandArguments(command: string): string[] {
++  if (!command || command.length > MAX_COMMAND_LENGTH) return []
++  const rootNode = getParserModule()!.parse(command)
++  if (!rootNode) return []
++  const commandNode = findCommandNode(rootNode, null)
++  if (!commandNode) return []
++  return extractCommandArguments(commandNode)
+ }
+ 
+ /**
+@@ -399,34 +353,30 @@
+   }
+ 
+   // Parse the command to check for other flags
+-  const parseResult = tryParseShellCommand(trimmed)
+-  if (!parseResult.success) {
++  const tokens = parseCommandArguments(trimmed)
++  if (tokens.length === 0) {
+     return false
+   }
+-
+-  const tokens = parseResult.tokens
+   let foundHelp = false
+ 
+   // Only allow alphanumeric tokens (besides --help)
+   const alphanumericPattern = /^[a-zA-Z0-9]+$/
+ 
+   for (const token of tokens) {
+-    if (typeof token === 'string') {
+-      // Check if this token is a flag (starts with -)
+-      if (token.startsWith('-')) {
+-        // Only allow --help
+-        if (token === '--help') {
+-          foundHelp = true
+-        } else {
+-          // Found another flag, not a simple help command
+-          return false
+-        }
++    // Check if this token is a flag (starts with -)
++    if (token.startsWith('-')) {
++      // Only allow --help
++      if (token === '--help') {
++        foundHelp = true
+       } else {
+-        // Non-flag token - must be alphanumeric only
+-        // Reject paths, special characters, etc.
+-        if (!alphanumericPattern.test(token)) {
+-          return false
+-        }
++        // Found another flag, not a simple help command
++        return false
++      }
++    } else {
++      // Non-flag token - must be alphanumeric only
++      // Reject paths, special characters, etc.
++      if (!alphanumericPattern.test(token)) {
++        return false
+       }
+     }
+   }

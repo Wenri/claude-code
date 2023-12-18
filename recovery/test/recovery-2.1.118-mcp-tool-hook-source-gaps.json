@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "status": "authenticated-mcp-tool-hook-source-replay",
+  "evidenceIds": [
+    "target118-mcp-tool-hook-target-fragment",
+    "target118-mcp-tool-hook-source-replay-test"
+  ],
+  "inputs": {
+    "targetBundle": {
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.117-to-2.1.118/structural/generated-delta.json.gz",
+      "bytes": 2429007,
+      "sha256": "ccd1e94aeb39abceed08f96c58e1ad568b757450d5b8cb421192646f1544b20e"
+    },
+    "sourceFiles": [
+      {
+        "path": "src/utils/hooks/hooksSettings.ts",
+        "input": {
+          "bytes": 8506,
+          "sha256": "d417874dba9121fd18c809fb9191dfa2af454b24ee14607c9a65e47711bebd7b"
+        },
+        "output": {
+          "bytes": 8856,
+          "sha256": "6de08d738f816b82e03d72587c437720f261c3cd0cc58f6fd1e12f53f483f5c1"
+        }
+      },
+      {
+        "path": "src/components/hooks/ViewHookMode.tsx",
+        "input": {
+          "bytes": 17969,
+          "sha256": "8153b0f5c1b09b6f1abfddf6c5ac65cb894b023d9ed26ff98ead0d0e3982a47c"
+        },
+        "output": {
+          "bytes": 18084,
+          "sha256": "5cf703f1adfa536a6258d29d31a56b312f69fdd18703828f9768dac9402aab18"
+        }
+      }
+    ]
+  },
+  "summary": {
+    "units": 4,
+    "residues": 6,
+    "indicesSha256": "9e6f3d9aeda01d0ad649a5324eece31e171751b6cb2f48a84ff42d2abc19070f",
+    "residueIdentitiesSha256": "6baaf623ff845a48e696023be55247fb0b4395ba6390eb87de56f4e2cd6bebdb"
+  },
+  "rows": [
+    {
+      "targetIndex": 12732,
+      "ownerPath": "src/utils/hooks/hooksSettings.ts",
+      "provisionalOwnerPath": "src/utils/hooks/sessionHooks.ts",
+      "targetBinding": "bf7",
+      "target": {
+        "start": 7926056,
+        "end": 7926595,
+        "bytes": 539,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "d4f63df880cafb35f775766a3a4f2518390193ca685caff213598bfd7f045670"
+      },
+      "residues": [
+        ["string", "mcp_tool", 7926478, 7926488, 1, 3],
+        ["string", "mcp_tool", 7926451, 7926461, 1, 4]
+      ],
+      "declaration": "isHookEqual"
+    },
+    {
+      "targetIndex": 17170,
+      "ownerPath": "src/utils/hooks/hooksSettings.ts",
+      "provisionalOwnerPath": "src/utils/hooks/hooksSettings.ts",
+      "targetBinding": "th",
+      "target": {
+        "start": 10737092,
+        "end": 10737407,
+        "bytes": 315,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "4ac472b357840e6c98a5a649758050bc275bdd31640ccf082c98dbe75b3ea45a"
+      },
+      "residues": [
+        ["string", "mcp_tool", 10737301, 10737311, 1, 5]
+      ],
+      "declaration": "getHookDisplayText"
+    },
+    {
+      "targetIndex": 17197,
+      "ownerPath": "src/components/hooks/ViewHookMode.tsx",
+      "provisionalOwnerPath": "src/components/hooks/ViewHookMode.tsx",
+      "targetBinding": "um1",
+      "target": {
+        "start": 10758918,
+        "end": 10759090,
+        "bytes": 172,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "b5c40b5aa83857c79686740b91c06164c081c2892fc7428632e9aacac960cb88"
+      },
+      "residues": [
+        ["string", "MCP tool", 10759078, 10759088, 0, 1],
+        ["string", "mcp_tool", 10759061, 10759071, 1, 6]
+      ],
+      "declaration": "getContentFieldLabel"
+    },
+    {
+      "targetIndex": 17198,
+      "ownerPath": "src/components/hooks/ViewHookMode.tsx",
+      "provisionalOwnerPath": "src/components/hooks/ViewHookMode.tsx",
+      "targetBinding": "mm1",
+      "target": {
+        "start": 10759090,
+        "end": 10759279,
+        "bytes": 189,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "c37239889411060a567cf04529f856322d4468f3a35c032e6d1943080858210f"
+      },
+      "residues": [
+        ["string", "mcp_tool", 10759237, 10759247, 1, 7]
+      ],
+      "declaration": "getContentFieldValue"
+    }
+  ],
+  "outputDeclarations": [
+    {
+      "path": "src/utils/hooks/hooksSettings.ts",
+      "name": "isHookEqual",
+      "start": 1031,
+      "end": 2570,
+      "bytes": 1539,
+      "sha256": "5a64b9af48e150df8ebe784cfd770d45ca2cb1ef21dda88311366966e6ee52f1"
+    },
+    {
+      "path": "src/utils/hooks/hooksSettings.ts",
+      "name": "getHookDisplayText",
+      "start": 2611,
+      "end": 3230,
+      "bytes": 619,
+      "sha256": "9b5fc10dcdeb68a0703510446e57648fe100b4d77048fadb1a9f3efd77a6157c"
+    },
+    {
+      "path": "src/components/hooks/ViewHookMode.tsx",
+      "name": "getContentFieldLabel",
+      "start": 4510,
+      "end": 4830,
+      "bytes": 320,
+      "sha256": "d1ebfcc51df5b029eed7bb5f6dfcb29ecbba9c71ef96053c9cb5f83263d32783"
+    },
+    {
+      "path": "src/components/hooks/ViewHookMode.tsx",
+      "name": "getContentFieldValue",
+      "start": 4988,
+      "end": 5351,
+      "bytes": 363,
+      "sha256": "33ea843958bb1212780d1380e8e6ec9898cbb356d7445b60dc044dbcfc0f9a7d"
+    }
+  ]
+}

@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.112-to-2.1.113",
+  "artifact": {
+    "targetInnerSha256": "4a3c3636c8cb19ef42d6319e5c6ef9b029f5de148b84f22315d159052d6c5eba",
+    "targetWrapperSha256": "dda4d89e787fa455706e4f41beffc8e58d42b9094c4d155fcbf62e3f19036681",
+    "targetWrapperPrefixLength": 87,
+    "targetWrapperSuffixLength": 3,
+    "structuralGzipSha256": "383448923995bb86060ce91beac2bc5adac35817a0cdff35b533135c7d24345f"
+  },
+  "proof": {
+    "target": "complete authenticated target unit and exact residue AST occurrences",
+    "source": "exact recovered named declarations and residue AST occurrences",
+    "historical": "exact declaration/residue state before the selective recovery",
+    "classification": "per-residue exact alternate owner or bounded recovered source gap"
+  },
+  "summary": {
+    "units": 2,
+    "residues": 3,
+    "exactAlternateOwnerResidues": 1,
+    "recoveredSourceGapResidues": 2
+  },
+  "rows": [
+    {
+      "targetIndex": 9828,
+      "priorOwnerIds": [
+        "owner-src-tools-SkillTool-prompt-ts"
+      ],
+      "recoveredOwner": "src/entrypoints/sdk/coreSchemas.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 4949743,
+        "end": 4987833,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "9d1d64316d3b138118b0eb9a4479a40a02248ae8e7dc34a08194b6514ae3ef7c"
+      },
+      "sourceImports": [
+        {
+          "module": "zod/v4",
+          "imported": "z",
+          "local": "z"
+        },
+        {
+          "module": "../../utils/lazySchema.js",
+          "imported": "lazySchema",
+          "local": "lazySchema"
+        }
+      ],
+      "declarations": [
+        {
+          "name": "McpHttpServerConfigSchema",
+          "kind": "VariableDeclaration",
+          "sha256": "3d9961ff1e4effdbf49cbe398f74d71f2833420a6801a58aa10db28b6014cb8f",
+          "residues": [
+            {
+              "kind": "string",
+              "value": "http",
+              "target": {
+                "start": 4951539,
+                "end": 4951545
+              },
+              "source": {
+                "relativeStart": 91,
+                "relativeEnd": 97
+              },
+              "classification": "exact-alternate-owner"
+            }
+          ],
+          "historical": {
+            "state": "residue-present",
+            "declarationSha256": "f352a59c155b31c429d5ddfd1e5e6757a6b1fb8dd8586996fffe8b1eb8bcbd39",
+            "sourceOccurrences": [
+              {
+                "kind": "string",
+                "value": "http",
+                "relativeStart": 91,
+                "relativeEnd": 97
+              }
+            ]
+          }
+        },
+        {
+          "name": "SDKMirrorErrorMessageSchema",
+          "kind": "VariableDeclaration",
+          "sha256": "ce4a3c5276f3d2e092d5b327daa7040432c0d1a119dd9e1dd088d5fea8fdab69",
+          "residues": [
+            {
+              "kind": "string",
+              "value": "Emitted when SessionStore.append() rejects or times out for a transcript-mirror batch. The batch is dropped (at-most-once delivery); this surfaces the failure so consumers are not silent on data loss.",
+              "target": {
+                "start": 4979645,
+                "end": 4979847
+              },
+              "source": {
+                "relativeStart": 402,
+                "relativeEnd": 604
+              },
+              "classification": "recovered-source-gap"
+            }
+          ],
+          "historical": {
+            "state": "declaration-absent"
+          }
+        }
+      ],
+      "supplement": {
+        "operation": "insert-declaration-and-union-edge",
+        "declarationAnchor": "export const SDKAPIRetryMessageSchema = lazySchema(() =>",
+        "unionAnchor": "SDKPromptSuggestionMessageSchema(),",
+        "laterTemporalExclusions": [
+          "SDKTranscriptMirrorMessageSchema",
+          "UserPromptExpansionHookInputSchema",
+          "SDKPostTurnSummaryMessageSchema shape changes"
+        ]
+      }
+    },
+    {
+      "targetIndex": 9919,
+      "priorOwnerIds": [
+        "owner-src-constants-turnCompletionVerbs-ts"
+      ],
+      "recoveredOwner": "src/utils/telemetry/perfettoTracing.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 5004877,
+        "end": 5007169,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "fe56b32f00bbb8a9fa1084e487b8153217ae0b7cf56fa4be2055fd5f26ab28c2"
+      },
+      "sourceImports": [],
+      "declarations": [
+        {
+          "name": "endLLMRequestPerfettoSpan",
+          "kind": "FunctionDeclaration",
+          "sha256": "1661633b6c7a041cf13455c7a50e536f72292ebeade32ea14cee562afc1f5152",
+          "residues": [
+            {
+              "kind": "property",
+              "value": "client_request_id",
+              "target": {
+                "start": 5005535,
+                "end": 5005552
+              },
+              "source": {
+                "relativeStart": 2402,
+                "relativeEnd": 2419
+              },
+              "classification": "recovered-source-gap"
+            }
+          ],
+          "historical": {
+            "state": "residue-absent",
+            "declarationSha256": "2b4016de4d89d14892e84646e6bbaa781bf56824b61b6a05d7853e9bac36762e",
+            "sourceOccurrences": []
+          }
+        }
+      ],
+      "supplement": {
+        "operation": "two-exact-function-hunks",
+        "typeAnchor": "messageId?: string",
+        "objectAnchor": "message_id: metadata.messageId ?? pending.args.message_id,",
+        "requiredCaller": "src/utils/telemetry/sessionTracing.ts::endLLMRequestSpan",
+        "laterTemporalExclusions": []
+      }
+    }
+  ]
+}

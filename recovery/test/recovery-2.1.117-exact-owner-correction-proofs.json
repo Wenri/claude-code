@@ -1,0 +1,916 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "versions": {
+    "baseline": "2.1.116",
+    "target": "2.1.117"
+  },
+  "inputs": {
+    "baselineBundle": {
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "targetBundle": {
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "structural": {
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "derivationReport": {
+      "bytes": 27913327,
+      "sha256": "9e14ed534b088fa0ec920d31f365084a24195b8de93a21e3476d734ef637483e"
+    }
+  },
+  "proof": {
+    "target": "complete authenticated structural unit and exact typed residue coordinates",
+    "attribution": "corrected owner is the sole source-map candidate containing every target-added owner residue",
+    "source": "exact historical target source file bytes and SHA-256"
+  },
+  "summary": {
+    "units": 19,
+    "residues": 36
+  },
+  "rows": [
+    {
+      "targetIndex": 2485,
+      "currentOwnerPaths": [
+        "src/utils/env.ts"
+      ],
+      "correctedOwner": "src/constants/figures.ts",
+      "candidateUniverse": [
+        "src/constants/figures.ts",
+        "src/types/permissions.ts",
+        "src/utils/env.ts",
+        "src/utils/permissions/PermissionMode.ts"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "start": 1008997,
+        "end": 1009358,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "070c4c3e846c28f76c3a8607ad0e29a69285bcacb6ba6331b98f8d1ace5dc71c"
+      },
+      "source": {
+        "bytes": 2129,
+        "sha256": "63f2e363252f6cd4edf24e578165f5a39c5d039b884ddf5dad2c136de209741b"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "⑂",
+          "start": 1009228,
+          "end": 1009236,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        }
+      ]
+    },
+    {
+      "targetIndex": 6682,
+      "currentOwnerPaths": [
+        "src/ink/components/StdinContext.ts"
+      ],
+      "correctedOwner": "src/ink/termio/csi.ts",
+      "candidateUniverse": [
+        "src/components/design-system/ThemeProvider.tsx",
+        "src/ink/colorize.ts",
+        "src/ink/components/StdinContext.ts",
+        "src/ink/hooks/use-stdin.ts",
+        "src/ink/termio/csi.ts",
+        "src/ink/termio/osc.ts",
+        "src/native-ts/yoga-layout/enums.ts",
+        "src/native-ts/yoga-layout/index.ts",
+        "src/utils/fullscreen.ts",
+        "src/utils/systemTheme.ts"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "start": 3049147,
+        "end": 3050041,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "abe0557b382422fd941519674e32126b155c6d228f955dcbd09724088cb3cfd4"
+      },
+      "source": {
+        "bytes": 8822,
+        "sha256": "70a1c45c4ec2ee84c25b701b4f546d150a7e2af271db2996bc79e56574ca8ed7"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "HPA",
+          "start": 3049374,
+          "end": 3049377,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "kind": "property",
+          "value": "HPR",
+          "start": 3049381,
+          "end": 3049384,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "kind": "property",
+          "value": "VPR",
+          "start": 3049396,
+          "end": 3049399,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        }
+      ]
+    },
+    {
+      "targetIndex": 7321,
+      "currentOwnerPaths": [
+        "src/ink/termio/sgr.ts"
+      ],
+      "correctedOwner": "src/ink/termio/parser.ts",
+      "candidateUniverse": [
+        "src/ink/Ansi.tsx",
+        "src/ink/termio.ts",
+        "src/ink/termio/parser.ts"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "start": 3445752,
+        "end": 3447088,
+        "nodeType": "ClassDeclaration",
+        "sourceHash": "2f5dc96c49973ebc8f2fb2b6a03ffd764a789d8f0bf246258e428b18304237ac"
+      },
+      "source": {
+        "bytes": 11811,
+        "sha256": "e4d5c010ab85e0924d8a040bda6cee7828a35e4d24a9dd041d18288e19e2fd9c"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "linkUrl",
+          "start": 3446965,
+          "end": 3446972,
+          "baselineOccurrenceCount": 4,
+          "targetOccurrenceNumber": 5
+        }
+      ]
+    },
+    {
+      "targetIndex": 11719,
+      "currentOwnerPaths": [
+        "src/components/TaskListV2.tsx"
+      ],
+      "correctedOwner": "src/hooks/useTasksV2.ts",
+      "candidateUniverse": [
+        "src/components/Spinner/FlashingChar.tsx",
+        "src/components/Spinner/GlimmerMessage.tsx",
+        "src/components/Spinner/ShimmerChar.tsx",
+        "src/components/Spinner/SpinnerAnimationRow.tsx",
+        "src/components/Spinner/SpinnerGlyph.tsx",
+        "src/components/Spinner/index.ts",
+        "src/components/Spinner/useShimmerAnimation.ts",
+        "src/components/Spinner/useStalledAnimation.ts",
+        "src/components/Spinner/utils.ts",
+        "src/components/TaskListV2.tsx",
+        "src/hooks/useTasksV2.ts",
+        "src/utils/ink.ts"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "start": 7454468,
+        "end": 7455908,
+        "nodeType": "ClassDeclaration",
+        "sourceHash": "41468edfd76758f377c79963a1ed8e4496c32574c9ec851c45bd45a15fa34c4b"
+      },
+      "source": {
+        "bytes": 9948,
+        "sha256": "e8f89f0c5c517e957d4529434f34aea77e466e5fc8be46c6f449a50a1c2451df"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "refetch",
+          "start": 7455056,
+          "end": 7455063,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        }
+      ]
+    },
+    {
+      "targetIndex": 14097,
+      "currentOwnerPaths": [
+        "src/tools/PowerShellTool/commonParameters.ts"
+      ],
+      "correctedOwner": "src/tools/PowerShellTool/readOnlyValidation.ts",
+      "candidateUniverse": [
+        "src/components/permissions/ComputerUseApproval/ComputerUseApproval.tsx",
+        "src/outputStyles/loadOutputStylesDir.ts",
+        "src/services/compact/autoCompact.ts",
+        "src/services/compact/compact.ts",
+        "src/services/diagnosticTracking.ts",
+        "src/services/mcp/auth.ts",
+        "src/services/mcp/client.ts",
+        "src/services/mcp/elicitationHandler.ts",
+        "src/services/mcp/headersHelper.ts",
+        "src/services/mcp/oauthPort.ts",
+        "src/services/mcp/xaa.ts",
+        "src/services/mcp/xaaIdpLogin.ts",
+        "src/services/teamMemorySync/index.ts",
+        "src/services/teamMemorySync/watcher.ts",
+        "src/services/tokenEstimation.ts",
+        "src/services/vcr.ts",
+        "src/skills/loadSkillsDir.ts",
+        "src/tasks/LocalAgentTask/LocalAgentTask.tsx",
+        "src/tasks/LocalShellTask/LocalShellTask.tsx",
+        "src/tools/BashTool/BashTool.tsx",
+        "src/tools/BashTool/bashCommandHelpers.ts",
+        "src/tools/BashTool/bashPermissions.ts",
+        "src/tools/BashTool/commandSemantics.ts",
+        "src/tools/BashTool/modeValidation.ts",
+        "src/tools/BashTool/prompt.ts",
+        "src/tools/FileEditTool/FileEditTool.ts",
+        "src/tools/FileEditTool/UI.tsx",
+        "src/tools/FileEditTool/prompt.ts",
+        "src/tools/FileReadTool/FileReadTool.ts",
+        "src/tools/FileReadTool/UI.tsx",
+        "src/tools/MCPTool/MCPTool.ts",
+        "src/tools/MCPTool/UI.tsx",
+        "src/tools/McpAuthTool/McpAuthTool.ts",
+        "src/tools/PowerShellTool/PowerShellTool.tsx",
+        "src/tools/PowerShellTool/UI.tsx",
+        "src/tools/PowerShellTool/clmTypes.ts",
+        "src/tools/PowerShellTool/commandSemantics.ts",
+        "src/tools/PowerShellTool/commonParameters.ts",
+        "src/tools/PowerShellTool/gitSafety.ts",
+        "src/tools/PowerShellTool/modeValidation.ts",
+        "src/tools/PowerShellTool/pathValidation.ts",
+        "src/tools/PowerShellTool/powershellPermissions.ts",
+        "src/tools/PowerShellTool/powershellSecurity.ts",
+        "src/tools/PowerShellTool/prompt.ts",
+        "src/tools/PowerShellTool/readOnlyValidation.ts",
+        "src/utils/analyzeContext.ts",
+        "src/utils/attribution.ts",
+        "src/utils/claudeInChrome/toolRendering.tsx",
+        "src/utils/codeIndexing.ts",
+        "src/utils/collapseReadSearch.ts",
+        "src/utils/computerUse/appNames.ts",
+        "src/utils/computerUse/gates.ts",
+        "src/utils/computerUse/mcpServer.ts",
+        "src/utils/computerUse/toolRendering.tsx",
+        "src/utils/computerUse/wrapper.tsx",
+        "src/utils/markdownConfigLoader.ts",
+        "src/utils/mcpValidation.ts",
+        "src/utils/mcpWebSocketTransport.ts",
+        "src/utils/memoryFileDetection.ts",
+        "src/utils/permissions/dangerousPatterns.ts",
+        "src/utils/permissions/permissionSetup.ts",
+        "src/utils/permissions/permissions.ts",
+        "src/utils/plugins/hintRecommendation.ts",
+        "src/utils/plugins/installedPluginsManager.ts",
+        "src/utils/plugins/loadPluginOutputStyles.ts",
+        "src/utils/plugins/managedPlugins.ts",
+        "src/utils/plugins/pluginInstallationHelpers.ts",
+        "src/utils/plugins/pluginLoader.ts",
+        "src/utils/plugins/pluginVersioning.ts",
+        "src/utils/powershell/dangerousCmdlets.ts",
+        "src/utils/powershell/parser.ts",
+        "src/utils/promptShellExecution.ts",
+        "src/utils/sanitization.ts",
+        "src/utils/sessionFileAccessHooks.ts",
+        "src/utils/settings/validateEditTool.ts",
+        "src/utils/toolSearch.ts"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "start": 8857608,
+        "end": 8865164,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "de4babda24121fa527e7ab7c62f1f9244f84b9440ad23ee828274f45a3f88204"
+      },
+      "source": {
+        "bytes": 67312,
+        "sha256": "4d3fe3f6df0e126415766103e6dad3aaad4b4211eeed41b54b1cab23f41bd218"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "additionalCommandIsDangerousCallback",
+          "start": 8863959,
+          "end": 8863995,
+          "baselineOccurrenceCount": 53,
+          "targetOccurrenceNumber": 54
+        },
+        {
+          "kind": "property",
+          "value": "additionalCommandIsDangerousCallback",
+          "start": 8864203,
+          "end": 8864239,
+          "baselineOccurrenceCount": 53,
+          "targetOccurrenceNumber": 55
+        },
+        {
+          "kind": "property",
+          "value": "additionalCommandIsDangerousCallback",
+          "start": 8864345,
+          "end": 8864381,
+          "baselineOccurrenceCount": 53,
+          "targetOccurrenceNumber": 56
+        }
+      ]
+    },
+    {
+      "targetIndex": 15306,
+      "currentOwnerPaths": [
+        "src/commands/clear/conversation.ts"
+      ],
+      "correctedOwner": "src/commands/clear/index.ts",
+      "candidateUniverse": [
+        "src/commands/clear/clear.ts",
+        "src/commands/clear/conversation.ts",
+        "src/commands/clear/index.ts",
+        "src/commands/color/color.ts"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "start": 9475687,
+        "end": 9475986,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "7f70d921f31f0a3dd18cb7393ee3f064fea62458e3bd72858b5d8221440e9bd0"
+      },
+      "source": {
+        "bytes": 654,
+        "sha256": "4c84bf4fa6e8113fa3ffae2fa95ab6a03af284621e1a545fbce28c2f40820dd1"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "thinClientDispatch",
+          "start": 9475893,
+          "end": 9475911,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 2
+        },
+        {
+          "kind": "string",
+          "value": "post-text",
+          "start": 9475912,
+          "end": 9475923,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        }
+      ]
+    },
+    {
+      "targetIndex": 15653,
+      "currentOwnerPaths": [
+        "src/components/ContextVisualization.tsx"
+      ],
+      "correctedOwner": "src/commands/context/context.tsx",
+      "candidateUniverse": [
+        "src/commands/context/context-noninteractive.ts",
+        "src/commands/context/context.tsx",
+        "src/components/ContextVisualization.tsx",
+        "src/utils/staticRender.tsx"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "start": 9854325,
+        "end": 9854868,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "71566462b98448f9dd42dbb584497cac5a66e9b13a517649170707bc1230a03b"
+      },
+      "source": {
+        "bytes": 9669,
+        "sha256": "50e7527dce15f68927779f39f2476dd48dd326cb6238f6a3f455f81be10896e6"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "isRemote",
+          "start": 9854476,
+          "end": 9854484,
+          "baselineOccurrenceCount": 4,
+          "targetOccurrenceNumber": 6
+        },
+        {
+          "kind": "string",
+          "value": "Couldn't fetch context from remote: ",
+          "start": 9854508,
+          "end": 9854544,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        }
+      ]
+    },
+    {
+      "targetIndex": 16282,
+      "currentOwnerPaths": [
+        "src/commands/mobile/mobile.tsx"
+      ],
+      "correctedOwner": "src/commands/mobile/index.ts",
+      "candidateUniverse": [
+        "src/commands/createMovedToPluginCommand.ts",
+        "src/commands/mobile/index.ts",
+        "src/commands/onboarding/index.js",
+        "src/commands/pr_comments/index.ts",
+        "src/utils/releaseNotes.ts"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "start": 10297447,
+        "end": 10297665,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "cb0e02405b43978159577161dc38fc5281617db4424a0ce82d5e842a9c2c7dc6"
+      },
+      "source": {
+        "bytes": 309,
+        "sha256": "2659b5aa53ffe37c61cefa038555baf0fa8f646d7b098ca824b63dbdf2cc99eb"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "requires",
+          "start": 10297585,
+          "end": 10297593,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 7
+        },
+        {
+          "kind": "property",
+          "value": "ink",
+          "start": 10297595,
+          "end": 10297598,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 7
+        }
+      ]
+    },
+    {
+      "targetIndex": 16371,
+      "currentOwnerPaths": [
+        "src/commands/rename/rename.ts"
+      ],
+      "correctedOwner": "src/commands/rename/index.ts",
+      "candidateUniverse": [
+        "src/commands/rename/index.ts",
+        "src/commands/rename/rename.ts",
+        "src/utils/collapseBackgroundBashNotifications.ts",
+        "src/utils/getWorktreePaths.ts",
+        "src/utils/set.ts"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "start": 10334557,
+        "end": 10334981,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "af229efab2e82dbf0923fa94c305f679359f20352b05afd284eb519d76295c90"
+      },
+      "source": {
+        "bytes": 308,
+        "sha256": "71ce0e6a680cd96de62d5b92b96728fe90bb12568fa31726a0ffc60401847884"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "requires",
+          "start": 10334706,
+          "end": 10334714,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 10
+        },
+        {
+          "kind": "property",
+          "value": "ink",
+          "start": 10334716,
+          "end": 10334719,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 10
+        }
+      ]
+    },
+    {
+      "targetIndex": 16787,
+      "currentOwnerPaths": [
+        "src/commands/ultraplan.tsx"
+      ],
+      "correctedOwner": "src/commands/session/index.ts",
+      "candidateUniverse": [
+        "src/commands/review.ts",
+        "src/commands/review/ultrareviewCommand.tsx",
+        "src/commands/session/index.ts",
+        "src/commands/session/session.tsx",
+        "src/commands/skills/index.ts",
+        "src/commands/status/index.ts",
+        "src/commands/ultraplan.tsx",
+        "src/components/skills/SkillsMenu.tsx",
+        "src/components/tasks/renderToolActivity.tsx",
+        "src/components/tasks/taskStatusUtils.tsx",
+        "src/state/teammateViewHelpers.ts"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "start": 10530847,
+        "end": 10531100,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "fcf9abb556047c8a4c930738fabeaf45b1ffc77c9075b9afa6c0807764d871df"
+      },
+      "source": {
+        "bytes": 445,
+        "sha256": "3f27e25e8bc1166d2dac2736dd6c4f5e8184293f2f323b94e114c6d95bce191d"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "requires",
+          "start": 10531020,
+          "end": 10531028,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 11
+        },
+        {
+          "kind": "property",
+          "value": "ink",
+          "start": 10531030,
+          "end": 10531033,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 11
+        }
+      ]
+    },
+    {
+      "targetIndex": 17496,
+      "currentOwnerPaths": [
+        "src/components/WorktreeExitDialog.tsx"
+      ],
+      "correctedOwner": "src/commands/exit/index.ts",
+      "candidateUniverse": [
+        "src/commands/exit/exit.tsx",
+        "src/commands/exit/index.ts",
+        "src/components/ExitFlow.tsx",
+        "src/components/ExportDialog.tsx",
+        "src/components/WorktreeExitDialog.tsx"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "start": 10866440,
+        "end": 10866761,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "a558831353c83396aebcdf89b5cc07ff64b1736e7ec6f284ff2cda642f184d4f"
+      },
+      "source": {
+        "bytes": 488,
+        "sha256": "73e91eb1c8cbc48b1ed0b0405d7c775df7d3f73930d871d242cc787ddfc264b3"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "requires",
+          "start": 10866546,
+          "end": 10866554,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 18
+        },
+        {
+          "kind": "property",
+          "value": "ink",
+          "start": 10866556,
+          "end": 10866559,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 17
+        }
+      ]
+    },
+    {
+      "targetIndex": 17611,
+      "currentOwnerPaths": [
+        "src/commands/effort/effort.tsx"
+      ],
+      "correctedOwner": "src/commands/stats/index.ts",
+      "candidateUniverse": [
+        "src/commands/effort/effort.tsx",
+        "src/commands/effort/index.ts",
+        "src/commands/stats/index.ts",
+        "src/commands/stats/stats.tsx",
+        "src/components/Stats.tsx",
+        "src/utils/ansiToPng.ts",
+        "src/utils/ansiToSvg.ts",
+        "src/utils/heatmap.ts",
+        "src/utils/screenshotClipboard.ts",
+        "src/utils/stats.ts",
+        "src/utils/statsCache.ts"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "start": 10900190,
+        "end": 10900697,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "c9a7e48e4a900f87b5ac3106df8fa35fa92b2ef6ad2981ceb29fcd733e6404c4"
+      },
+      "source": {
+        "bytes": 279,
+        "sha256": "cdd23c73616a8f51b49e94e0fa4bc661632e2dfe371365145fd776ebb2430932"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "requires",
+          "start": 10900372,
+          "end": 10900380,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 21
+        },
+        {
+          "kind": "property",
+          "value": "ink",
+          "start": 10900382,
+          "end": 10900385,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 19
+        }
+      ]
+    },
+    {
+      "targetIndex": 18843,
+      "currentOwnerPaths": [
+        "src/components/permissions/FilePermissionDialog/permissionOptions.tsx"
+      ],
+      "correctedOwner": "src/components/permissions/FilePermissionDialog/FilePermissionDialog.tsx",
+      "candidateUniverse": [
+        "src/components/permissions/FilePermissionDialog/FilePermissionDialog.tsx",
+        "src/components/permissions/FilePermissionDialog/permissionOptions.tsx",
+        "src/components/permissions/FilePermissionDialog/useFilePermissionDialog.ts",
+        "src/components/permissions/FilePermissionDialog/usePermissionHandler.ts",
+        "src/components/permissions/SedEditPermissionRequest/SedEditPermissionRequest.tsx"
+      ],
+      "target": {
+        "classification": "changed",
+        "start": 11571589,
+        "end": 11574278,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "cc30ea98e989723c4b10ceb6a38735efd2e81fd5a7ac495d75b815e7625b8d8a"
+      },
+      "source": {
+        "bytes": 30317,
+        "sha256": "212e3f5236509694fdc25151885bffe7a46ff9b691166c46256c36a861c0fd8b"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "..",
+          "start": 11573164,
+          "end": 11573168,
+          "baselineOccurrenceCount": 77,
+          "targetOccurrenceNumber": 79
+        }
+      ]
+    },
+    {
+      "targetIndex": 19032,
+      "currentOwnerPaths": [
+        "src/components/TokenWarning.tsx"
+      ],
+      "correctedOwner": "src/components/PromptInput/VoiceIndicator.tsx",
+      "candidateUniverse": [
+        "src/components/PromptInput/Notifications.tsx",
+        "src/components/PromptInput/SandboxPromptFooterHint.tsx",
+        "src/components/PromptInput/VoiceIndicator.tsx",
+        "src/components/TokenWarning.tsx"
+      ],
+      "target": {
+        "classification": "changed",
+        "start": 11691855,
+        "end": 11691972,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "a733009527adad91faaaccdeaf27cb18b597c2f39dc81e1314a47fe7d47bb731"
+      },
+      "source": {
+        "bytes": 10810,
+        "sha256": "a263af49cb275375b487b1e51f5aa478e539dd2537fed6ca0615a2fed1386df1"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "b",
+          "start": 11691939,
+          "end": 11691940,
+          "baselineOccurrenceCount": 444,
+          "targetOccurrenceNumber": 446
+        },
+        {
+          "kind": "property",
+          "value": "b",
+          "start": 11691963,
+          "end": 11691964,
+          "baselineOccurrenceCount": 444,
+          "targetOccurrenceNumber": 447
+        }
+      ]
+    },
+    {
+      "targetIndex": 19902,
+      "currentOwnerPaths": [
+        "src/components/LspRecommendation/LspRecommendationMenu.tsx"
+      ],
+      "correctedOwner": "src/hooks/useLspPluginRecommendation.tsx",
+      "candidateUniverse": [
+        "src/components/LspRecommendation/LspRecommendationMenu.tsx",
+        "src/hooks/useLspPluginRecommendation.tsx"
+      ],
+      "target": {
+        "classification": "changed",
+        "start": 12069813,
+        "end": 12072464,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "a563802ed7e82e6550245ce91882d9132a79366cab814c30deb307e761458b3e"
+      },
+      "source": {
+        "bytes": 21588,
+        "sha256": "1c30350c5b4d479e69a8ac3a39e85a63ed6c693923f585b571487d595cd53c9d"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "pluginName",
+          "start": 12069846,
+          "end": 12069856,
+          "baselineOccurrenceCount": 47,
+          "targetOccurrenceNumber": 48
+        }
+      ]
+    },
+    {
+      "targetIndex": 19909,
+      "currentOwnerPaths": [
+        "src/components/ClaudeCodeHint/PluginHintMenu.tsx"
+      ],
+      "correctedOwner": "src/hooks/useClaudeCodeHintRecommendation.tsx",
+      "candidateUniverse": [
+        "src/components/ClaudeCodeHint/PluginHintMenu.tsx",
+        "src/hooks/useClaudeCodeHintRecommendation.tsx"
+      ],
+      "target": {
+        "classification": "changed",
+        "start": 12073762,
+        "end": 12076153,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "165b7cee25e724e610907af44e033707507dc489fe4acbcacbf11eff1b34536f"
+      },
+      "source": {
+        "bytes": 15388,
+        "sha256": "8b2966eb1a682c4285cf77c4aa5ea5d4fcb34d8d3d15eb4824a60d4f0757b3d7"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "pluginName",
+          "start": 12073795,
+          "end": 12073805,
+          "baselineOccurrenceCount": 47,
+          "targetOccurrenceNumber": 51
+        },
+        {
+          "kind": "property",
+          "value": "marketplaceName",
+          "start": 12073828,
+          "end": 12073843,
+          "baselineOccurrenceCount": 29,
+          "targetOccurrenceNumber": 33
+        }
+      ]
+    },
+    {
+      "targetIndex": 19941,
+      "currentOwnerPaths": [
+        "src/hooks/notifs/useRateLimitWarningNotification.tsx"
+      ],
+      "correctedOwner": "src/hooks/notifs/useDeprecationWarningNotification.tsx",
+      "candidateUniverse": [
+        "src/hooks/notifs/useDeprecationWarningNotification.tsx",
+        "src/hooks/notifs/useNpmDeprecationNotification.tsx",
+        "src/hooks/notifs/useRateLimitWarningNotification.tsx",
+        "src/utils/model/deprecation.ts"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "start": 12085836,
+        "end": 12086208,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "f35c6ace3f6b4c032501e4b3245e73c5cda1090714c3896a493c11b59990a4c8"
+      },
+      "source": {
+        "bytes": 4500,
+        "sha256": "7cafbc41e37303bc6619b2de025522941b78679e65258818b39d17db338e11bd"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "model-deprecation-warning",
+          "start": 12086034,
+          "end": 12086061,
+          "baselineOccurrenceCount": 2,
+          "targetOccurrenceNumber": 5
+        }
+      ]
+    },
+    {
+      "targetIndex": 20584,
+      "currentOwnerPaths": [
+        "src/cli/transports/WebSocketTransport.ts"
+      ],
+      "correctedOwner": "src/cli/transports/HybridTransport.ts",
+      "candidateUniverse": [
+        "src/cli/transports/HybridTransport.ts",
+        "src/cli/transports/WebSocketTransport.ts",
+        "src/cli/transports/transportUtils.ts",
+        "src/setup.ts"
+      ],
+      "target": {
+        "classification": "changed",
+        "start": 12876410,
+        "end": 12878931,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "10831bebfe41de892ec160b87f3f158d79f0c58f0dda9049a5e1c8e90511ad12"
+      },
+      "source": {
+        "bytes": 10883,
+        "sha256": "7b1a4f679c867660745dee577ea9c0cfe90a3f085d3184c1a0445fd317e82cc2"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "validateStatus",
+          "start": 12878344,
+          "end": 12878358,
+          "baselineOccurrenceCount": 49,
+          "targetOccurrenceNumber": 50
+        },
+        {
+          "kind": "string",
+          "value": "warn",
+          "start": 12878441,
+          "end": 12878447,
+          "baselineOccurrenceCount": 251,
+          "targetOccurrenceNumber": 252
+        },
+        {
+          "kind": "number",
+          "value": "400",
+          "start": 12878588,
+          "end": 12878591,
+          "baselineOccurrenceCount": 124,
+          "targetOccurrenceNumber": 125
+        },
+        {
+          "kind": "string",
+          "value": "warn",
+          "start": 12878696,
+          "end": 12878702,
+          "baselineOccurrenceCount": 251,
+          "targetOccurrenceNumber": 253
+        },
+        {
+          "kind": "string",
+          "value": "warn",
+          "start": 12878829,
+          "end": 12878835,
+          "baselineOccurrenceCount": 251,
+          "targetOccurrenceNumber": 254
+        }
+      ]
+    },
+    {
+      "targetIndex": 20670,
+      "currentOwnerPaths": [
+        "src/cli/print.ts"
+      ],
+      "correctedOwner": "src/components/TeleportProgress.tsx",
+      "candidateUniverse": [
+        "src/cli/print.ts",
+        "src/components/TeleportProgress.tsx"
+      ],
+      "target": {
+        "classification": "changed",
+        "start": 12983825,
+        "end": 12984971,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "7eace5fbc46fab56b1cf4fcfd1b8a103751f039e67942352427e1129d1770aad"
+      },
+      "source": {
+        "bytes": 16142,
+        "sha256": "cb70ead98b1766dc7fc887504ecec87ea872ddbbd9e54ab162438a9411b6e8dc"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "width",
+          "start": 12984531,
+          "end": 12984536,
+          "baselineOccurrenceCount": 560,
+          "targetOccurrenceNumber": 565
+        }
+      ]
+    }
+  ]
+}

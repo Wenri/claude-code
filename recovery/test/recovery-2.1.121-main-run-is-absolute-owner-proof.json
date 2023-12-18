@@ -1,0 +1,340 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "auditConclusion": "Target121 u22106 retains the exact identifier-normalized Target120 path.isAbsolute resume-telemetry branch and its require(\"path\") dependency. Recovered Target121 main.tsx retains the authored path resolve import and transcript-file boundary but omits the absolute-path alternate. Replaying the smallest closed branch would also claim the retained failure_reason and not_found_explicit_id owner rows, so this case statically admits only isAbsolute. The separately owned index row is an explicit forecast dependency, while error_name and the plugin command lane remain outside this case.",
+  "evidenceIds": [
+    "target121-main-run-is-absolute-prior-static-order",
+    "target121-main-run-is-absolute-authenticated-compiled-lineage",
+    "target121-main-run-is-absolute-path-module-dependency",
+    "target121-main-run-is-absolute-source-resume-boundary",
+    "target121-main-run-is-absolute-row-only-scope",
+    "target121-main-run-is-absolute-post-dangerous-partition"
+  ],
+  "caseFiles": {
+    "helper": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/recovered/main-run-is-absolute-owner-evidence.mjs",
+      "bytes": 1939,
+      "sha256": "5a40f06ca2f28b598e4bd4a4889aa72606e2277b8036858c0657b92d14aa7473"
+    }
+  },
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "frozenSnapshot": {
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25390987,
+        "sha256": "42f65dcc82a571f02ac59c9ec86858b6adbe2be3158c2d8a17ac4d6d1b9e4bd7"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 345319,
+        "sha256": "c6547d4d59a31aa2b68230d848ad7cd55d9498051e376389040e8738c14030b2",
+        "rawBytes": 2965690,
+        "rawSha256": "d35578e7e08e0a53a4020a5347d4ff8c4a1bc4e98a30ea8b9cbe4913b14f9592"
+      }
+    },
+    "postPruneSnapshot": {
+      "typedReport": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25396455,"sha256":"f63079907d813bffaf98cb89d28b8b2e183df9fe2e1c72b21f10fa2fd5c0a3f4"},
+      "sourceCoverage": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":345989,"sha256":"05ac9243d7cee276bc51c8eb0c8e4e3678f96d941560cae620d05af240d7cdd4","rawBytes":2968244,"rawSha256":"7be9d68b6144e09290d58e3dae17f21df9536852b5f8415e777c9f7dd3ad1c06"},
+      "u22106Counts": {"owner":199,"added":15,"strict":8},
+      "global": {"ownerRows":35669,"addedRows":1155,"strictRows":1228}
+    },
+    "postDaemonOwnerSnapshot": {
+      "typedReport": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25369097,"sha256":"2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3"},
+      "sourceCoverage": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":347677,"sha256":"91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83","rawBytes":2974761,"rawSha256":"8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f"},
+      "global": {"ownerRows":35634,"addedRows":1118,"strictRows":1275}
+    },
+    "knownRejectedReportStates": [
+      {
+        "name": "post-view-mode-pre-dangerous",
+        "bytes": 25395103,
+        "sha256": "87c3acd81441f040757b5c6cc85f1b13722d9883a4d17d91dddcbcddf16922de"
+      }
+    ],
+    "priorStaticProofs": [
+      {
+        "name": "first-allowed",
+        "fixture": {"path": "recovery/test/recovery-2.1.121-main-run-first-allowed-owner-proof.json", "bytes": 28289, "sha256": "0bf69e223d2058c326d224131b1c7ca9a4441de31e36fa101e448647bb5d86d7"},
+        "helper": {"path": "recovery/cases/2.1.120-to-2.1.121/recovered/main-run-first-allowed-owner-evidence.mjs", "bytes": 1426, "sha256": "8e002317743c7b048f22dbb5f2554a90966f15c7699482699118e742cb8972fc"},
+        "residue": ["property", "allowed", 13797608, 13797615, 65, 68, true]
+      },
+      {
+        "name": "second-allowed",
+        "fixture": {"path": "recovery/test/recovery-2.1.121-main-run-second-allowed-owner-proof.json", "bytes": 25966, "sha256": "af9a73a9635ec8702bab82ddfa9e909b8e517553471e8534c59bf72fee023332"},
+        "helper": {"path": "recovery/cases/2.1.120-to-2.1.121/recovered/main-run-second-allowed-owner-evidence.mjs", "bytes": 1498, "sha256": "6db36f512a04582272568af71e474afc276c1a42df9c647609f0d836dbfb82af"},
+        "residue": ["property", "allowed", 13800348, 13800355, 65, 69, true]
+      },
+      {
+        "name": "growthbook-timeout-300",
+        "fixture": {"path": "recovery/test/recovery-2.1.121-main-run-growthbook-timeout-owner-proof.json", "bytes": 24258, "sha256": "b0af67816cc1098186158b62315788408419d0f9cb1e4527411d4b5835f1b0dd"},
+        "helper": {"path": "recovery/cases/2.1.120-to-2.1.121/recovered/main-run-growthbook-timeout-owner-evidence.mjs", "bytes": 1866, "sha256": "ec4fbefaa1fa4f6756fd8162de01e394a39037783535a003c3667157d6f7694d"},
+        "residue": ["number", "300", 13802998, 13803001, 60, 67, true]
+      },
+      {
+        "name": "session-state",
+        "fixture": {"path": "recovery/test/recovery-2.1.121-main-run-session-state-owner-proof.json", "bytes": 22504, "sha256": "c8d8a01df44a6f60da7b38e4a8f39a375c1fd6eda769bba5f2805d717733785f"},
+        "helper": {"path": "recovery/cases/2.1.120-to-2.1.121/recovered/main-run-session-state-owner-evidence.mjs", "bytes": 2085, "sha256": "bd602fc269d7f359caceffaffa91d42699d8997e81218c8592d49caa10e7bb1e"},
+        "residue": ["property", "sessionState", 13812452, 13812464, 28, 30, true]
+      }
+    ],
+    "externalPriorAdmission": {
+      "name": "index",
+      "owner": "separate postreboot gate case",
+      "status": "forecast dependency only; not audited or claimed here",
+      "residue": ["property", "index", 13815572, 13815577, 296, 297, true]
+    },
+    "sourceFile": {
+      "path": "src/main.tsx",
+      "auditedPackageSourceRoot": "/tmp/target121-dangerous-final.WeP2Nu/2.1.121/src",
+      "postPruneAuditedPackageSourceRoot": "/tmp/target121-prune-final.QAqOlk/2.1.121/src",
+      "acceptedStates": {
+        "repositoryRaw": {
+          "file": {"bytes": 816314, "sha256": "c4e91aae36588101d8280ac6375cdae4f7981361480ad53b93a4dfb19b87ed33"},
+          "run": {"start": 50530, "end": 238967, "bytes": 188609, "sha256": "cd625ff130da4c44f430dc952e22f6ee2b5bf4838b0740c55813b7d676955891"},
+          "pathImport": {"start": 6587, "end": 6628, "bytes": 41, "sha256": "653ffbeb317999cbebeb42f4cf45bf4fdda73c39526299a8711282a608cefb0c"},
+          "resolvedPathStatement": {"start": 191916, "end": 191961, "bytes": 45, "sha256": "66847254cc6008bf5f7a316cacda081ded533e95908ea17e1695437e4895a299"},
+          "tryStatement": {"start": 191974, "end": 193949, "bytes": 1977, "sha256": "c4a0edd0b291fbda1a21e6ddf455b1b4e11e74d18fd47e12cafaf2a5bdafff80"},
+          "loadTranscriptCall": {"start": 192217, "end": 192253, "bytes": 36, "sha256": "e953525e511142c1916af32b30073026664df09e940829129c4868b7f2bd0e4b"},
+          "logOptionIf": {"start": 192449, "end": 193551, "bytes": 1102, "sha256": "2c6e9c4824884ef5c9eb75fd6a8c06ef7bd431b7daf0a72ccb04f17eff17640a"},
+          "innerFailureCall": {"start": 193323, "end": 193516, "bytes": 193, "sha256": "9a9dc6a732721ad90cf53ae545dc8484689e48a60bfa03bbe4c33d21733297c9"},
+          "innerFailureObject": {"start": 193357, "end": 193515, "bytes": 158, "sha256": "7fd2c7b445f46ca0fc24d8979c69213541301d0967313a0194314c53e95f1029"}
+        },
+        "postDangerousPackage": {
+          "file": {"bytes": 816786, "sha256": "ecc8aa7337fb3f4bebaee045db279d1330367d9e2b9449b2f3cccf31b19a88fc"},
+          "run": {"start": 50568, "end": 239352, "bytes": 188956, "sha256": "182548866a9e70349f677944468c6f500b36339fb2e99b92691ca193db6af775"},
+          "pathImport": {"start": 6587, "end": 6628, "bytes": 41, "sha256": "653ffbeb317999cbebeb42f4cf45bf4fdda73c39526299a8711282a608cefb0c"},
+          "resolvedPathStatement": {"start": 192301, "end": 192346, "bytes": 45, "sha256": "66847254cc6008bf5f7a316cacda081ded533e95908ea17e1695437e4895a299"},
+          "tryStatement": {"start": 192359, "end": 194334, "bytes": 1977, "sha256": "c4a0edd0b291fbda1a21e6ddf455b1b4e11e74d18fd47e12cafaf2a5bdafff80"},
+          "loadTranscriptCall": {"start": 192602, "end": 192638, "bytes": 36, "sha256": "e953525e511142c1916af32b30073026664df09e940829129c4868b7f2bd0e4b"},
+          "logOptionIf": {"start": 192834, "end": 193936, "bytes": 1102, "sha256": "2c6e9c4824884ef5c9eb75fd6a8c06ef7bd431b7daf0a72ccb04f17eff17640a"},
+          "innerFailureCall": {"start": 193708, "end": 193901, "bytes": 193, "sha256": "9a9dc6a732721ad90cf53ae545dc8484689e48a60bfa03bbe4c33d21733297c9"},
+          "innerFailureObject": {"start": 193742, "end": 193900, "bytes": 158, "sha256": "7fd2c7b445f46ca0fc24d8979c69213541301d0967313a0194314c53e95f1029"}
+        }
+      },
+      "postPruneSourceState": {
+        "file": {
+          "bytes": 816903,
+          "sha256": "75171059e457d263cd9bdbfbaeed0a2c4786f9a1854b1c4fdf799273399b92f3"
+        },
+        "run": {
+          "start": 50568,
+          "end": 239469,
+          "bytes": 189073,
+          "sha256": "044bac3a6f53bd31c78b2b1b0a7de0ba06a54700ea5c869c6c196da34c453f13"
+        },
+        "projection": "postDangerousPackage"
+      },
+      "sharedGraph": {
+        "pathModule": "path",
+        "pathImportNames": ["relative", "resolve"],
+        "resolvedPathInitializer": "resolve(options.resume)",
+        "loadTranscriptArgument": "resolvedPath",
+        "logOptionHasElse": false,
+        "forbiddenImportName": "isAbsolute",
+        "forbiddenTelemetryProperties": ["failure_reason", "error_name"]
+      }
+    }
+  },
+  "targetUnit": {
+    "targetIndex": 22106,
+    "classification": "unresolved",
+    "unknownFreeIdentifierCount": 42,
+    "name": "WS5",
+    "nodeType": "FunctionDeclaration",
+    "parseStatus": "parsed",
+    "async": true,
+    "start": 13779080,
+    "end": 13841990,
+    "bytes": 62910,
+    "tokenCount": 16656,
+    "topDefinitionCount": 1,
+    "sha256": "75e9d33fb5c6729b0943f31165d52ca331d0403c10ce4acb323d17a809ec197b",
+    "coarseHash": "c4e17d2ff16eb01e31964b80158abc8e5dba5d7c04a7b3469575e83593e228c1"
+  },
+  "baselineSemanticCounterpart": {
+    "baselineUnitIndex": 22004,
+    "name": "Zh5",
+    "nodeType": "FunctionDeclaration",
+    "parseStatus": "parsed",
+    "async": true,
+    "start": 13711458,
+    "end": 13773044,
+    "bytes": 61586,
+    "tokenCount": 16389,
+    "topDefinitionCount": 1,
+    "sha256": "779475eaefa28539b1ec352cc59fe574e13cc76fb5a72cb1e8d195ffee3802f0",
+    "coarseHash": "4bbcd6b9794a243d0de489dcc39212cdaff16319293fe2292891f29aac9924c0"
+  },
+  "compiledPathDependency": {
+    "sharedNormalized": {"count": 6, "bytes": 81, "sha256": "d522b2f2ce6a94f3977653382ef0dad31babfcdcfeaa4ac8d9fb7e6bc89899f7"},
+    "baseline": {"start": 13776940, "end": 13776959, "bytes": 19, "sha256": "aebfc31c0185a1b4f2a5717ee1a1d05913b7536383a6f858ad29d37c7a8b1e98"},
+    "target": {"start": 13845941, "end": 13845960, "bytes": 19, "sha256": "db7dddd5690632c2471faa0f644ecc2523b42f749c25c839a7d3d3a93846c422"}
+  },
+  "compiledIsAbsoluteGraph": {
+    "sharedNormalized": {
+      "ifStatement": {"count": 30, "bytes": 419, "sha256": "ba33996dfe3a475f27a6885973d4622eb7412fa0e55af76919a0b0e59eb0ef13"},
+      "test": {"count": 8, "bytes": 105, "sha256": "d96ef7f215154fb3b83a145541e574969178ba7da654057cfcc620f30b6ed0c0"},
+      "callee": {"count": 3, "bytes": 42, "sha256": "c4592bbd41dfda98b3e80ed130c1242bde5139b53ee68aa48eaf40078fb69fdc"},
+      "key": {"count": 1, "bytes": 16, "sha256": "e8ca4f5f6b44144f2c77cda1e050aa577128e2faf5de25bdb3294a09391f1e51"},
+      "argument": {"count": 3, "bytes": 42, "sha256": "c4592bbd41dfda98b3e80ed130c1242bde5139b53ee68aa48eaf40078fb69fdc"},
+      "consequent": {"count": 19, "bytes": 281, "sha256": "4181e1caaeef4ef8c660717bd7b5e5cb73ab745e0845913b5f920a175bfd7677"},
+      "telemetryObject": {"count": 14, "bytes": 198, "sha256": "23e1aad93d2ba4ff6b11f108a012ff475da6d9b0bdc0ef59192afe68a2d66f9e"}
+    },
+    "sharedShape": {
+      "testProperty": "isAbsolute",
+      "argumentProperty": "resume",
+      "telemetryEvent": "tengu_session_resumed",
+      "telemetryProperties": [["entrypoint", "file"], ["success", false], ["failure_reason", "not_found_explicit_id"]]
+    },
+    "baseline": {
+      "ifStatement": {"localStart": 42565, "localEnd": 42689, "start": 13754023, "end": 13754147, "bytes": 124, "sha256": "e6e4dfdd1715fe5f90ee216bfb64d4f85dcb3e315bb7ef5a21cf1d5f8d388a59"},
+      "test": {"localStart": 42568, "localEnd": 42592, "start": 13754026, "end": 13754050, "bytes": 24, "sha256": "2f7b4236bfdf9097d804021a462f772d6fec901fdd278f0611e31e067e34e135"},
+      "callee": {"localStart": 42568, "localEnd": 42582, "start": 13754026, "end": 13754040, "bytes": 14, "sha256": "9e9025ac101307cb1712359100864ca837914e13242074ba9faeefc54e6ab989"},
+      "key": {"localStart": 42572, "localEnd": 42582, "start": 13754030, "end": 13754040, "bytes": 10, "sha256": "64595bf36c3f5bc9ddcbc7aaa617336130667228cbc055ed00ea448ddee8824e"},
+      "argument": {"localStart": 42583, "localEnd": 42591, "start": 13754041, "end": 13754049, "bytes": 8, "sha256": "4587ded78f2fbf6dbf5a1c82be27354d20df811f07dce17eca8260db162394b2"},
+      "consequent": {"localStart": 42593, "localEnd": 42689, "start": 13754051, "end": 13754147, "bytes": 96, "sha256": "b15e141276ef0a6d29180c1b013f6e605ba0747d95d6afc6c5acbf705d673d40"},
+      "telemetryObject": {"localStart": 42619, "localEnd": 42688, "start": 13754077, "end": 13754146, "bytes": 69, "sha256": "b9fdb95e65d59ccb7c9af7c92f884e1d22f0f34fbdcc9388c1dee8cfcf424ea2"}
+    },
+    "target": {
+      "ifStatement": {"localStart": 43111, "localEnd": 43235, "start": 13822191, "end": 13822315, "bytes": 124, "sha256": "e9a37a8b9db513c538f902e5786449d7f6e74e7f0765623c10c589c1035d89e0"},
+      "test": {"localStart": 43114, "localEnd": 43138, "start": 13822194, "end": 13822218, "bytes": 24, "sha256": "87299fbb7fbd02be7d62ec77cc8a771c0389104bc4143a36feae8c609cc4dfd8"},
+      "callee": {"localStart": 43114, "localEnd": 43128, "start": 13822194, "end": 13822208, "bytes": 14, "sha256": "39db59ca5ccfe4d7327b3ca205289736b459d0994df5e27a04799a3f53d25207"},
+      "key": {"localStart": 43118, "localEnd": 43128, "start": 13822198, "end": 13822208, "bytes": 10, "sha256": "64595bf36c3f5bc9ddcbc7aaa617336130667228cbc055ed00ea448ddee8824e"},
+      "argument": {"localStart": 43129, "localEnd": 43137, "start": 13822209, "end": 13822217, "bytes": 8, "sha256": "4587ded78f2fbf6dbf5a1c82be27354d20df811f07dce17eca8260db162394b2"},
+      "consequent": {"localStart": 43139, "localEnd": 43235, "start": 13822219, "end": 13822315, "bytes": 96, "sha256": "b15e141276ef0a6d29180c1b013f6e605ba0747d95d6afc6c5acbf705d673d40"},
+      "telemetryObject": {"localStart": 43165, "localEnd": 43234, "start": 13822245, "end": 13822314, "bytes": 69, "sha256": "b9fdb95e65d59ccb7c9af7c92f884e1d22f0f34fbdcc9388c1dee8cfcf424ea2"}
+    }
+  },
+  "postDaemonOwnerReportSnapshot": {
+    "ownerRows": {"count":202,"full":{"bytes":82282,"sha256":"12667e8e660ac9d2922044a635480cabfaebf9c4dfab21c4c1c9e70e73d2d9a6"},"identities":{"bytes":13602,"sha256":"34c010ba52ab4f198005aa949999c1a9fa505e13a36b8dbf86ae1aa2f41a5b26"},"attributionIdentities":{"bytes":16834,"sha256":"e2e8255d90e0f2e763cd7dfd014c7912056de908a0fd1fd701fdc2d5d2717064"}},
+    "addedRows": {"count":18,"full":{"bytes":15716,"sha256":"593670e825fbcc41f6d3f61292701a24d95b4f8382ee73fea180f5e92ba37326"},"identities":{"bytes":1065,"sha256":"3c8e691f746c6a26d6174ba0a97caf0c142ac35fefae4cae1827cb8bbd79437f"}},
+    "strictRows": {
+      "count":9,
+      "full":{"bytes":4548,"sha256":"4418da70a455e83e5e8d3dc3328eea4b5d7be81636fb8d05d5e9b2b52e073746"},
+      "identities":{"bytes":587,"sha256":"70de4fe1fcd792572f45084e3e72d3c03e0bbd9250eab28cfe7f53788fa5f109"},
+      "exact": [[22106,"string","2.1.121",13808731,13808740,150],[22106,"string","2026-04-27T01:32:27Z",13808820,13808842,150],[22106,"string","16ffea721a0a39bc787a236dc19fb62307180b75",13808851,13808893,150],[22106,"property","skipDangerousModePromptSetPreDialog",13809436,13809471,1],[22106,"string","2.1.121",13825108,13825117,151],[22106,"string","2026-04-27T01:32:27Z",13825197,13825219,151],[22106,"string","16ffea721a0a39bc787a236dc19fb62307180b75",13825228,13825270,151],[22106,"property","pluginPruneHandler",13837077,13837095,2],[22106,"property","createSubcommandRoot",13840517,13840537,24]]
+    },
+    "restoredAddedRowsExact": [["property","viewMode",13792763,13792771,3,4,true],["string","focus",13792780,13792787,16,17,true],["property","skipDangerousModePromptSetPreDialog",13809436,13809471,0,1,true]],
+    "restoredStrictRowsExact": [[22106,"property","skipDangerousModePromptSetPreDialog",13809436,13809471,1]]
+  },
+  "reportSnapshot": {
+    "global": {"ownerRows": 35665, "addedRows": 1151, "strictRows": 1228},
+    "targetIndex": 22106,
+    "ownerRows": {
+      "count": 199,
+      "full": {"bytes": 81085, "sha256": "13cace3be55665334e303e43c341e5859b589845e474f80cbe5d1e143867e76c"},
+      "identities": {"bytes": 13425, "sha256": "f00a23d93b511d06d290bd4f9b3ae4fe1d4043f168a5271d647ca430a5eb8562"}
+    },
+    "addedRows": {
+      "count": 15,
+      "full": {"bytes": 13193, "sha256": "bd2b89b6f681184cad0d7216e2e5aeb23f9408261f66d6bfa95e9cab865b77ba"},
+      "identities": {"bytes": 888, "sha256": "20432f175c6adaa772965d5cfb4771182166021aa931b502893fd98fe1988d38"},
+      "exact": [
+        ["property", "allowed", 13797608, 13797615, 65, 68, true],
+        ["property", "allowed", 13800348, 13800355, 65, 69, true],
+        ["number", "300", 13802998, 13803001, 60, 67, true],
+        ["string", "2.1.121", 13808731, 13808740, 0, 150, true],
+        ["string", "2026-04-27T01:32:27Z", 13808820, 13808842, 0, 150, true],
+        ["string", "16ffea721a0a39bc787a236dc19fb62307180b75", 13808851, 13808893, 0, 150, true],
+        ["property", "sessionState", 13812452, 13812464, 28, 30, true],
+        ["property", "index", 13815572, 13815577, 296, 297, true],
+        ["property", "isAbsolute", 13822198, 13822208, 74, 75, true],
+        ["property", "error_name", 13823208, 13823218, 13, 14, true],
+        ["string", "2.1.121", 13825108, 13825117, 0, 151, true],
+        ["string", "2026-04-27T01:32:27Z", 13825197, 13825219, 0, 151, true],
+        ["string", "16ffea721a0a39bc787a236dc19fb62307180b75", 13825228, 13825270, 0, 151, true],
+        ["property", "pluginPruneHandler", 13837077, 13837095, 0, 2, true],
+        ["property", "createSubcommandRoot", 13840517, 13840537, 23, 24, true]
+      ]
+    },
+    "strictRows": {
+      "count": 8,
+      "full": {"bytes": 4031, "sha256": "59c0f3f3dabcc32279a43bb2564f5ddbacff960557ae688dd16eb6db8f32cfca"},
+      "identities": {"bytes": 510, "sha256": "2aecbae5c355ac1faa832d5bdff219e003fab8da75f91fd8466b496cf477f378"}
+    },
+    "isAbsoluteRow": {
+      "identity": ["property", "isAbsolute", 13822198, 13822208, 74, 75, true],
+      "full": {"bytes": 687, "sha256": "b402354d2e26ee8e900a264fb3143ea6b7772bc1cd714eff25ef379598cee1cf"},
+      "disposition": "source-runtime-covered",
+      "ownerPaths": ["main.tsx"],
+      "ownerSourceMatches": []
+    }
+  },
+  "staticAdmission": {
+    "sourceOwner": "src/main.tsx::run",
+    "mode": "static-row-proof-replay-rejected",
+    "casePriorResidues": [
+      ["property", "allowed", 13797608, 13797615, 65, 68, true],
+      ["property", "allowed", 13800348, 13800355, 65, 69, true],
+      ["number", "300", 13802998, 13803001, 60, 67, true],
+      ["property", "sessionState", 13812452, 13812464, 28, 30, true]
+    ],
+    "externalPriorResidue": ["property", "index", 13815572, 13815577, 296, 297, true],
+    "ownerResidue": ["property", "isAbsolute", 13822198, 13822208, 74, 75, true],
+    "classification": {
+      "casePriorStaticOrdinals": [0, 1, 2, 6],
+      "externalPriorStaticOrdinals": [7],
+      "ownedStaticOrdinals": [8],
+      "cumulativeStaticOrdinals": [0, 1, 2, 6, 7, 8],
+      "separatelyHandledBuildMacroOrdinals": [3, 4, 5, 10, 11, 12],
+      "outOfScopeProductionOrdinals": [9, 13, 14],
+      "explicitlyDeferredValue": "error_name"
+    },
+    "independentCurrentBaseImpact": {
+      "rawOwnerRows": 199,
+      "rawAddedRows": 15,
+      "ownedByThisProofOwnerAddedRows": 1,
+      "rawStrictRowsRemoved": 0,
+      "coverageRowsAddedOrReplaced": 0,
+      "predictedOwnerRows": 198,
+      "predictedAddedRows": 14,
+      "predictedStrictRows": 8,
+      "predictedCoverageRows": 1
+    },
+    "cumulativeImpact": {
+      "rawOwnerRows": 199,
+      "rawAddedRows": 15,
+      "casePriorStaticOwnerAddedRows": 4,
+      "externalPriorStaticOwnerAddedRows": 1,
+      "priorPredictedOwnerRows": 194,
+      "priorPredictedAddedRows": 10,
+      "ownedByThisProofOwnerAddedRows": 1,
+      "cumulativeAdmittedOwnerAddedRows": 6,
+      "remainingOutOfScopeProductionRows": 3,
+      "separatelyHandledBuildMacroRows": 6,
+      "rawStrictRowsRemoved": 0,
+      "coverageRowsAddedOrReplaced": 0,
+      "predictedOwnerRows": 193,
+      "predictedAddedRows": 9,
+      "predictedStrictRows": 8,
+      "predictedCoverageRows": 1
+    }
+  },
+  "replayScopeRejection": {
+    "smallestClosedGraph": "path import edit plus the complete absolute-path alternate IfStatement",
+    "collateralOwnerResidues": [
+      ["property", "failure_reason", 13822275, 13822289, 15, 12, false],
+      ["string", "not_found_explicit_id", 13822290, 13822313, 6, 5, false]
+    ],
+    "reason": "The compiled branch is retained, but source materialization is not row-only: it introduces the isAbsolute import and necessarily materializes a telemetry object whose failure_reason and not_found_explicit_id nodes are two distinct retained owner residues."
+  },
+  "coverageRowsDescriptor": {
+    "count": 1,
+    "bytes": 504,
+    "sha256": "e486a23cc17516c26a7c03d6ee6a8188534bed98501e230dd9a2af7d61f34502"
+  }
+}

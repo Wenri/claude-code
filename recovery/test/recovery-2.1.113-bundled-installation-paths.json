@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.112-to-2.1.113",
+  "artifact": {
+    "targetInnerSha256": "4a3c3636c8cb19ef42d6319e5c6ef9b029f5de148b84f22315d159052d6c5eba",
+    "targetWrapperSha256": "dda4d89e787fa455706e4f41beffc8e58d42b9094c4d155fcbf62e3f19036681",
+    "targetWrapperPrefixLength": 87,
+    "targetWrapperSuffixLength": 3,
+    "structuralGzipSha256": "383448923995bb86060ce91beac2bc5adac35817a0cdff35b533135c7d24345f"
+  },
+  "proof": {
+    "target": "complete authenticated target unit and both exact target-added residue occurrences",
+    "source": "exact recovered getCurrentInstallationType declaration, config-home import, execPath binding, and both bounded checks",
+    "historical": "exact prior declaration and import with both checks absent",
+    "semantic": "recovered and target functions agree over local/global/native bundled-path cases"
+  },
+  "summary": {
+    "units": 1,
+    "residues": 2,
+    "recoveredSourceGapResidues": 2
+  },
+  "row": {
+    "targetIndex": 11298,
+    "priorOwnerIds": [
+      "owner-src-utils-doctorDiagnostic-ts"
+    ],
+    "recoveredOwner": "src/utils/doctorDiagnostic.ts",
+    "target": {
+      "classification": "unresolved",
+      "start": 7155469,
+      "end": 7156241,
+      "nodeType": "FunctionDeclaration",
+      "sourceHash": "03d443b9e0e31722e04f7907292c5e9410b7eafb81b54a226c86e44cd41b08c4"
+    },
+    "sourceImport": {
+      "module": "./envUtils.js",
+      "imported": "getClaudeConfigHomeDir",
+      "local": "getClaudeConfigHomeDir"
+    },
+    "declaration": {
+      "name": "getCurrentInstallationType",
+      "kind": "FunctionDeclaration",
+      "sha256": "354eaedc7709faf58a66e683e8c4650af8ac40ecaa661889bb115e28769a5f36",
+      "historicalSha256": "209c0ab601cf48fa0930c93c8856f5b50460076d07ad76cea93c56ce76a91a27",
+      "residues": [
+        {
+          "kind": "string",
+          "value": "/local/node_modules/",
+          "target": {
+            "start": 7155562,
+            "end": 7155584
+          },
+          "source": {
+            "relativeStart": 409,
+            "relativeEnd": 431
+          },
+          "classification": "recovered-source-gap"
+        },
+        {
+          "kind": "string",
+          "value": "/node_modules/@anthropic-ai/",
+          "target": {
+            "start": 7155636,
+            "end": 7155666
+          },
+          "source": {
+            "relativeStart": 542,
+            "relativeEnd": 572
+          },
+          "classification": "recovered-source-gap"
+        }
+      ]
+    },
+    "supplement": {
+      "operation": "extend-one-import-and-replace-one-bundled-prefix",
+      "importSelector": "import { isEnvTruthy } from './envUtils.js'",
+      "importReplacement": "import { getClaudeConfigHomeDir, isEnvTruthy } from './envUtils.js'",
+      "bindingSelector": "const [invokedPath] = getNormalizedPaths()",
+      "bindingReplacement": "const [invokedPath, execPath] = getNormalizedPaths()",
+      "insertAnchor": "if (isInBundledMode()) {",
+      "insertBefore": "// Check if this bundled instance was installed by a package manager",
+      "laterTemporalExclusions": []
+    }
+  }
+}

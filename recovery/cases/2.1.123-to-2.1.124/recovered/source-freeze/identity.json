@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.123-to-2.1.124",
+  "kind": "authenticated-source-overlay-freeze",
+  "base": {
+    "commit": "8e378de1d91d6baaa6023c613304e1838af30b5d",
+    "tree": "3567e9079daf4d93b0b7657633010156511e6d39",
+    "srcTree": "c18f92c06db8f9e5cc5f4fbc0b60d1f7437171b5",
+    "bundleSha256": "59c8eebc0660d4bbc5c1f82af0ca5e94df5db46084687b979ad21a07fba3d7dd"
+  },
+  "target": {
+    "commit": "b40c82639862d0b976b20d45a11a40c39afad275",
+    "tree": "259e6f516000d8e5b9f90fb0331f5f632dae0fa3",
+    "srcTree": "43090c8672f1ab7ba4b9a9673bff0a762b7aaf92",
+    "bundleSha256": "dc2b68c385a3064737343e51e6d7c690f9e03cc40fa89c4393708ae03094d590"
+  },
+  "overlay": {
+    "path": "source-facing-overlay.patch",
+    "bytes": 455544,
+    "sha256": "ee63fa417d92c607454e2e4d0f3f28abe4f5269745d1e29ae6649641c1d07d19",
+    "lines": 8508,
+    "changedPaths": 131,
+    "insertions": 3528,
+    "deletions": 945
+  },
+  "source": {
+    "files": 2166,
+    "bytes": 32824273,
+    "symlinks": 0
+  },
+  "verification": {
+    "applyToBaseTree": true,
+    "completeSrcByteCompare": true,
+    "reverseToBaseTree": true,
+    "forwardToTargetTree": true,
+    "diffCheck": {
+      "scope": "full-target-tree",
+      "sourceDiagnosticLines": 0,
+      "diagnosticLines": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reviewed": true
+    },
+    "targetTests": {
+      "tests": 37,
+      "passed": 37,
+      "failed": 0,
+      "files": 12,
+      "manifest": "target-test-files.sha256",
+      "manifestSha256": "8236aad4d6759f7a8ff85d37dff372d272f05e9af2a20d7d751ce84c42adeece"
+    },
+    "retainedTests": {
+      "files": 3,
+      "manifest": "retained-test-files.sha256",
+      "manifestSha256": "f6a7b42f7bf90346a3a4edfc0c8a68f2c0920daba41d8e56a6b0f0f2c18a1e8d"
+    },
+    "syntaxBuilds": {
+      "passed": 131,
+      "failed": 0
+    },
+    "adjacentDirectEvidence": {
+      "catalog": {
+        "path": "recovery/cases/2.1.123-to-2.1.124/semantic/direct-evidence.json",
+        "bytes": 360116,
+        "sha256": "55928e6f00ec1fa8b324472e90cab317907b392223b634804b65a1d2b38d16c3"
+      },
+      "test": {
+        "path": "recovery/test/recovery-2.1.124-direct-evidence.test.mjs",
+        "bytes": 33566,
+        "sha256": "3c0fe096089209e7243bd81a249b7158ef8a5e8ebf1e3ed05116bf72cd88ca3e"
+      },
+      "manifest": "adjacent-direct-evidence.sha256",
+      "manifestSha256": "f5132c7c133db3937f4ce12513ea2978625cd578ea2c88d0af7add02cab15efb"
+    }
+  }
+}

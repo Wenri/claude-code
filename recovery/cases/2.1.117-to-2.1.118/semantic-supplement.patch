@@ -1,0 +1,2211 @@
+diff --git a/src/bootstrap/state.ts b/src/bootstrap/state.ts
+index 363024d..fc4bed0 100644
+--- a/src/bootstrap/state.ts
++++ b/src/bootstrap/state.ts
+@@ -10,2 +10,3 @@ import { cwd } from 'process'
+ import type { HookEvent, ModelUsage } from 'src/entrypoints/agentSdkTypes.js'
++import type { MCPServerConnection } from 'src/services/mcp/types.js'
+ import type { AgentColorName } from 'src/tools/AgentTool/agentColorManager.js'
+@@ -461,2 +462,4 @@ const STATE: State = getInitialState()
+ 
++let mcpClientsAccessor: (() => MCPServerConnection[]) | undefined
++
+ export function getSessionId(): SessionId {
+@@ -1509,2 +1512,14 @@ export function getInitJsonSchema(): Record<string, unknown> | null {
+ 
++export function setMcpClientsAccessor(
++  accessor: (() => MCPServerConnection[]) | undefined,
++): void {
++  mcpClientsAccessor = accessor
++}
++
++export function getMcpClientsFromAccessor():
++  | MCPServerConnection[]
++  | undefined {
++  return mcpClientsAccessor?.()
++}
++
+ export function registerHookCallbacks(
+diff --git a/src/bridge/bridgeMain.ts b/src/bridge/bridgeMain.ts
+index affa9d4..3eecdaf 100644
+--- a/src/bridge/bridgeMain.ts
++++ b/src/bridge/bridgeMain.ts
+@@ -21,3 +21,8 @@ import { logError } from '../utils/log.js'
+ import { sleep } from '../utils/sleep.js'
+-import { createAgentWorktree, removeAgentWorktree } from '../utils/worktree.js'
++import { plural } from '../utils/stringUtils.js'
++import {
++  createAgentWorktree,
++  getAgentWorktreeChanges,
++  removeAgentWorktree,
++} from '../utils/worktree.js'
+ import {
+@@ -140,2 +145,55 @@ function safeSpawn(
+ 
++type BridgeWorktree = {
++  worktreePath: string
++  worktreeBranch?: string
++  gitRoot?: string
++  hookBased?: boolean
++  headCommit?: string
++}
++
++async function cleanupBridgeWorktree(
++  worktree: BridgeWorktree,
++  logger: BridgeLogger,
++  options?: { force?: boolean },
++): Promise<void> {
++  const force =
++    options?.force || (worktree.hookBased && worktree.headCommit === undefined)
++  const { dirty, commitsAhead, gitError } = force
++    ? { dirty: false, commitsAhead: 0, gitError: false }
++    : await getAgentWorktreeChanges(
++        worktree.worktreePath,
++        worktree.headCommit,
++      )
++  if (dirty || commitsAhead > 0) {
++    const commits = `${commitsAhead} ${plural(commitsAhead, 'commit')}`
++    const reason = gitError
++      ? 'git error checking changes'
++      : dirty && commitsAhead > 0
++        ? `uncommitted changes · ${commits}`
++        : dirty
++          ? 'uncommitted changes'
++          : commits
++    logger.logStatus(`kept worktree ${worktree.worktreePath} · ${reason}`)
++    logForDebugging(
++      `[bridge:worktree] kept ${worktree.worktreePath} dirty=${dirty} commitsAhead=${commitsAhead} gitError=${Boolean(gitError)}`,
++    )
++    return
++  }
++  if (
++    await removeAgentWorktree(
++      worktree.worktreePath,
++      worktree.worktreeBranch,
++      worktree.gitRoot,
++      worktree.hookBased,
++      'bridge',
++    )
++  ) {
++    logger.logStatus(`removed worktree ${worktree.worktreePath}`)
++  } else {
++    logger.logStatus(
++      `worktree removal failed, kept: ${worktree.worktreePath}`,
++    )
++  }
++}
++
+ export async function runBridgeLoop(
+@@ -175,11 +233,4 @@ export async function runBridgeLoop(
+   const completedWorkIds = new Set<string>()
+-  const sessionWorktrees = new Map<
+-    string,
+-    {
+-      worktreePath: string
+-      worktreeBranch?: string
+-      gitRoot?: string
+-      hookBased?: boolean
+-    }
+-  >()
++  const crashedSessionIds = new Set<string>()
++  const sessionWorktrees = new Map<string, BridgeWorktree>()
+   // Track sessions killed by the timeout watchdog so onSessionDone can
+@@ -534,2 +585,9 @@ export async function runBridgeLoop(
+ 
++      const sessionCrashed =
++        status === 'failed' &&
++        !loopSignal.aborted &&
++        !wasTimedOut &&
++        !fatalExit
++      if (sessionCrashed) crashedSessionIds.add(sessionId)
++
+       // Clean up worktree if one was created for this session
+@@ -538,14 +596,7 @@ export async function runBridgeLoop(
+         sessionWorktrees.delete(sessionId)
+-        trackCleanup(
+-          removeAgentWorktree(
+-            wt.worktreePath,
+-            wt.worktreeBranch,
+-            wt.gitRoot,
+-            wt.hookBased,
+-          ).catch((err: unknown) =>
+-            logger.logVerbose(
+-              `Failed to remove worktree ${wt.worktreePath}: ${errorMessage(err)}`,
+-            ),
+-          ),
+-        )
++        if (sessionCrashed) {
++          logger.logStatus(`kept worktree ${wt.worktreePath} · session crashed`)
++        } else {
++          trackCleanup(cleanupBridgeWorktree(wt, logger))
++        }
+       }
+@@ -991,2 +1042,3 @@ export async function runBridgeLoop(
+                 hookBased: wt.hookBased,
++                headCommit: wt.headCommit,
+               })
+@@ -1069,14 +1121,3 @@ export async function runBridgeLoop(
+               sessionWorktrees.delete(sessionId)
+-              trackCleanup(
+-                removeAgentWorktree(
+-                  wt.worktreePath,
+-                  wt.worktreeBranch,
+-                  wt.gitRoot,
+-                  wt.hookBased,
+-                ).catch((err: unknown) =>
+-                  logger.logVerbose(
+-                    `Failed to remove worktree ${wt.worktreePath}: ${errorMessage(err)}`,
+-                  ),
+-                ),
+-              )
++              trackCleanup(cleanupBridgeWorktree(wt, logger, { force: true }))
+             }
+@@ -1426,3 +1467,8 @@ export async function runBridgeLoop(
+   const sessionsToArchive = new Set(activeSessions.keys())
+-  if (initialSessionId) {
++  if (
++    initialSessionId &&
++    ![...crashedSessionIds].some(sessionId =>
++      sameSessionId(sessionId, initialSessionId),
++    )
++  ) {
+     sessionsToArchive.add(initialSessionId)
+@@ -1482,10 +1528,3 @@ export async function runBridgeLoop(
+       await Promise.allSettled(
+-        remainingWorktrees.map(wt =>
+-          removeAgentWorktree(
+-            wt.worktreePath,
+-            wt.worktreeBranch,
+-            wt.gitRoot,
+-            wt.hookBased,
+-          ),
+-        ),
++        remainingWorktrees.map(wt => cleanupBridgeWorktree(wt, logger)),
+       )
+diff --git a/src/bridge/codeSessionApi.ts b/src/bridge/codeSessionApi.ts
+index f64360f..a3e7037 100644
+--- a/src/bridge/codeSessionApi.ts
++++ b/src/bridge/codeSessionApi.ts
+@@ -10,2 +10,3 @@
+ import axios from 'axios'
++import { getOriginalCwd } from '../bootstrap/state.js'
+ import { logForDebugging } from '../utils/debug.js'
+@@ -31,4 +32,30 @@ export async function createCodeSession(
+   tags?: string[],
++  gitContext?: {
++    gitRepoUrl: string
++    branch: string
++    defaultBranch?: string
++  },
++  cwd?: string,
++  model?: string,
+ ): Promise<string | null> {
+   const url = `${baseUrl}/v1/code/sessions`
++  const config: Record<string, unknown> = {
++    cwd: cwd ?? getOriginalCwd(),
++    ...(model && { model }),
++  }
++  if (gitContext) {
++    const { buildGitSessionContext } = await import(
++      '../utils/gitSessionContext.js'
++    )
++    const { sources, outcomes } = await buildGitSessionContext(
++      gitContext.gitRepoUrl,
++      gitContext.branch,
++      gitContext.defaultBranch,
++    )
++    if (sources.length > 0 || outcomes.length > 0) {
++      config.sources = sources
++      config.outcomes = outcomes
++      config.reuse_outcome_branches = true
++    }
++  }
+   let response
+@@ -40,3 +67,8 @@ export async function createCodeSession(
+       // message today; it's a placeholder for future bridge-specific options.
+-      { title, bridge: {}, ...(tags?.length ? { tags } : {}) },
++      {
++        title,
++        bridge: {},
++        ...(tags?.length ? { tags } : {}),
++        config,
++      },
+       {
+diff --git a/src/bridge/initReplBridge.ts b/src/bridge/initReplBridge.ts
+index 4e7dca7..8ab6a47 100644
+--- a/src/bridge/initReplBridge.ts
++++ b/src/bridge/initReplBridge.ts
+@@ -499,2 +499,5 @@ export async function initReplBridge(
+       onAuth401: handleOAuth401Error,
++      onProactiveRefresh: async () => {
++        await checkAndRefreshOAuthTokenIfNeeded()
++      },
+       toSDKMessages,
+diff --git a/src/bridge/remoteBridgeCore.ts b/src/bridge/remoteBridgeCore.ts
+index 8d9d64e..8e049c3 100644
+--- a/src/bridge/remoteBridgeCore.ts
++++ b/src/bridge/remoteBridgeCore.ts
+@@ -106,2 +106,3 @@ export type EnvLessBridgeParams = {
+   onAuth401?: (staleAccessToken: string) => Promise<boolean>
++  onProactiveRefresh?: () => Promise<void>
+   /**
+@@ -173,2 +174,3 @@ export async function initEnvLessBridgeCore(
+     onAuth401,
++    onProactiveRefresh,
+     toSDKMessages,
+@@ -384,3 +386,3 @@ export async function initEnvLessBridgeCore(
+       const stale = getAccessToken()
+-      if (onAuth401) await onAuth401(stale ?? '')
++      if (onProactiveRefresh) await onProactiveRefresh()
+       return getAccessToken() ?? stale
+diff --git a/src/cli/handlers/auth.ts b/src/cli/handlers/auth.ts
+index ad8bd28..a94d87a 100644
+--- a/src/cli/handlers/auth.ts
++++ b/src/cli/handlers/auth.ts
+@@ -75,2 +75,7 @@ export async function installOAuthTokens(tokens: OAuthTokens): Promise<void> {
+       accountCreatedAt: profile.account.created_at,
++      ccOnboardingFlags: profile.organization.cc_onboarding_flags ?? {},
++      claudeCodeTrialEndsAt:
++        profile.organization.claude_code_trial_ends_at ?? null,
++      claudeCodeTrialDurationDays:
++        profile.organization.claude_code_trial_duration_days ?? null,
+     })
+diff --git a/src/cli/print.ts b/src/cli/print.ts
+index abb0daa..d8e47f2 100644
+--- a/src/cli/print.ts
++++ b/src/cli/print.ts
+@@ -215,2 +215,3 @@ import {
+   setSessionSkillAllowlist,
++  setMcpClientsAccessor,
+ } from 'src/bootstrap/state.js'
+@@ -1565,2 +1566,8 @@ function runHeadlessStreaming(
+ 
++  setMcpClientsAccessor(() => [
++    ...getAppState().mcp.clients,
++    ...sdkClients,
++    ...dynamicMcpState.clients,
++  ])
++
+   // Shared tool assembly for ask() and the get_context_usage control request.
+diff --git a/src/commands/autofix-pr/autofix-pr.tsx b/src/commands/autofix-pr/autofix-pr.tsx
+index 9ded977..f55edef 100644
+--- a/src/commands/autofix-pr/autofix-pr.tsx
++++ b/src/commands/autofix-pr/autofix-pr.tsx
+@@ -154,2 +154,3 @@ function spawnLocalAutofixAgent(
+     allowPermissionPrompts: true,
++    standalone: true,
+   })
+diff --git a/src/commands/clear/conversation.ts b/src/commands/clear/conversation.ts
+index 1ecda06..78a9b84 100644
+--- a/src/commands/clear/conversation.ts
++++ b/src/commands/clear/conversation.ts
+@@ -173,2 +173,3 @@ export async function clearConversation({
+         attribution: createEmptyAttributionState(),
++        frameUrls: {},
+         // Clear standalone agent context (name/color set by /rename, /color)
+diff --git a/src/commands/effort/index.ts b/src/commands/effort/index.ts
+index 6e469c7..f447be8 100644
+--- a/src/commands/effort/index.ts
++++ b/src/commands/effort/index.ts
+@@ -11,2 +11,3 @@ export default {
+   },
++  thinClientDispatch: 'control-request',
+   load: () => import('./effort.js'),
+diff --git a/src/commands/fast/index.ts b/src/commands/fast/index.ts
+index 88ed550..9658104 100644
+--- a/src/commands/fast/index.ts
++++ b/src/commands/fast/index.ts
+@@ -22,2 +22,3 @@ const fast = {
+   },
++  thinClientDispatch: 'control-request',
+   load: () => import('./fast.js'),
+diff --git a/src/commands/theme/theme.tsx b/src/commands/theme/theme.tsx
+index 20b7e52..0bcf725 100644
+--- a/src/commands/theme/theme.tsx
++++ b/src/commands/theme/theme.tsx
+@@ -6,2 +6,6 @@ import { ThemePicker } from '../../components/ThemePicker.js';
+ import { CustomThemeEditor } from '../../components/CustomThemeEditor.js'
++import {
++  fromCustomThemeSetting,
++  toCustomThemeSetting,
++} from '../../utils/customThemes.js'
+ import { useCustomThemes, useTheme } from '../../ink.js';
+@@ -14,2 +18,5 @@ type Props = {
+ };
++type ThemePickerState =
++  | { kind: 'picker' }
++  | { kind: 'editor'; initial: CustomTheme | undefined }
+ function ThemePickerCommand({ onDone }: Props) {
+@@ -17,8 +24,8 @@ function ThemePickerCommand({ onDone }: Props) {
+   const { customThemes } = useCustomThemes()
+-  const [editing, setEditing] = React.useState<CustomTheme | undefined | null>(null)
+-  if (editing !== null) {
+-    return <CustomThemeEditor initial={editing} defaultBase={currentTheme} onDone={customTheme => {
+-      setTheme(`custom:${customTheme.slug}`)
++  const [state, setState] = React.useState<ThemePickerState>({ kind: 'picker' })
++  if (state.kind === 'editor') {
++    return <CustomThemeEditor initial={state.initial} defaultBase={currentTheme} onDone={customTheme => {
++      setTheme(toCustomThemeSetting(customTheme.slug))
+       onDone(`Using custom theme "${customTheme.name}"`)
+-    }} onCancel={() => setEditing(null)} />
++    }} onCancel={() => setState({ kind: 'picker' })} />
+   }
+@@ -26,6 +33,6 @@ function ThemePickerCommand({ onDone }: Props) {
+     setTheme(setting)
+-    onDone(setting.startsWith('custom:')
+-      ? `Using custom theme "${customThemes.find(theme => `custom:${theme.slug}` === setting)?.name ?? setting}"`
++    onDone(fromCustomThemeSetting(setting)
++      ? `Using custom theme "${customThemes.find(theme => toCustomThemeSetting(theme.slug) === setting)?.name ?? setting}"`
+       : `Theme set to ${setting}`)
+-  }} onCustomTheme={setEditing} onCancel={() => onDone('Theme picker dismissed', { display: 'system' })} skipExitHandling={true} /></Pane>
++  }} onCustomTheme={initial => setState({ kind: 'editor', initial })} onCancel={() => onDone('Theme picker dismissed', { display: 'system' })} skipExitHandling={true} /></Pane>
+ }
+diff --git a/src/commands/tui/tui.ts b/src/commands/tui/tui.ts
+index 90912e5..50f3d9b 100644
+--- a/src/commands/tui/tui.ts
++++ b/src/commands/tui/tui.ts
+@@ -1 +1,2 @@
++import { getScrollConfig } from '../../ink/scroll-config.js'
+ import { logEvent } from '../../services/analytics/index.js'
+@@ -13,7 +14,7 @@ export const call: LocalCommandCall = async args => {
+   const value = args.trim().toLowerCase()
++  const current =
++    getInitialSettings().tui ??
++    (isFullscreenEnvEnabled() ? 'fullscreen' : 'default')
+ 
+   if (value === '') {
+-    const current =
+-      getInitialSettings().tui ??
+-      (isFullscreenEnvEnabled() ? 'fullscreen' : 'default')
+     return {
+@@ -45,3 +46,15 @@ export const call: LocalCommandCall = async args => {
+ 
+-  logEvent('tengu_tui_command', { fullscreen })
++  const scrollConfig = getScrollConfig()
++  logEvent('tengu_tui_command', {
++    fullscreen,
++    from: current,
++    to: renderer,
++    session_age_ms: Math.round(process.uptime() * 1_000),
++    bounce:
++      process.env.CLAUDE_CODE_TUI_JUST_SWITCHED === 'fullscreen' &&
++      renderer === 'default',
++    scroll_decay_curve: scrollConfig.useDecayCurve,
++    scroll_base: scrollConfig.base,
++    scroll_xtermjs: scrollConfig.xtermJs,
++  })
+   return relaunch({
+diff --git a/src/commands/voice/voice.ts b/src/commands/voice/voice.ts
+index f369891..7dc9762 100644
+--- a/src/commands/voice/voice.ts
++++ b/src/commands/voice/voice.ts
+@@ -15,3 +15,12 @@ const LANG_HINT_MAX_SHOWS = 2
+ 
+-export const call: LocalCommandCall = async () => {
++function parseMode(
++  argument: string,
++): 'hold' | 'tap' | 'off' | 'invalid' | undefined {
++  const mode = argument.trim().toLowerCase()
++  if (mode === '') return undefined
++  if (mode === 'hold' || mode === 'tap' || mode === 'off') return mode
++  return 'invalid'
++}
++
++export const call: LocalCommandCall = async argument => {
+   // Check auth and kill-switch before allowing voice mode
+@@ -34,8 +43,21 @@ export const call: LocalCommandCall = async () => {
+   const currentSettings = getInitialSettings()
+-  const isCurrentlyEnabled = currentSettings.voiceEnabled === true
++  const isCurrentlyEnabled =
++    currentSettings.voice?.enabled ?? currentSettings.voiceEnabled === true
++  const requestedMode = parseMode(argument)
++
++  if (requestedMode === 'invalid') {
++    return {
++      type: 'text' as const,
++      value: `Unknown mode: "${argument.trim()}". Use hold, tap, or off.`,
++    }
++  }
+ 
+   // Toggle OFF — no checks needed
+-  if (isCurrentlyEnabled) {
++  if (
++    requestedMode === 'off' ||
++    (requestedMode === undefined && isCurrentlyEnabled)
++  ) {
+     const result = updateSettingsForSource('userSettings', {
+       voiceEnabled: false,
++      voice: { ...currentSettings.voice, enabled: false },
+     })
+@@ -114,3 +136,10 @@ export const call: LocalCommandCall = async () => {
+   // All checks passed — enable voice
+-  const result = updateSettingsForSource('userSettings', { voiceEnabled: true })
++  const mode =
++    requestedMode === 'hold' || requestedMode === 'tap'
++      ? requestedMode
++      : (currentSettings.voice?.mode ?? 'hold')
++  const result = updateSettingsForSource('userSettings', {
++    voiceEnabled: true,
++    voice: { ...currentSettings.voice, enabled: true, mode },
++  })
+   if (result.error) {
+@@ -123,4 +152,11 @@ export const call: LocalCommandCall = async () => {
+   settingsChangeDetector.notifyChange('userSettings')
+-  logEvent('tengu_voice_toggled', { enabled: true })
++  logEvent('tengu_voice_toggled', {
++    enabled: true,
++    tap_mode: mode === 'tap',
++  })
+   const key = getShortcutDisplay('voice:pushToTalk', 'Chat', 'Space')
++  const instruction =
++    mode === 'tap'
++      ? `Tap ${key} (with input empty) to start, tap again to send.`
++      : `Hold ${key} to record.`
+   const stt = normalizeLanguageForSTT(currentSettings.language)
+@@ -147,3 +183,3 @@ export const call: LocalCommandCall = async () => {
+     type: 'text' as const,
+-    value: `Voice mode enabled. Hold ${key} to record.${langNote}`,
++    value: `Voice mode enabled (${mode}). ${instruction}${langNote}`,
+   }
+diff --git a/src/components/FeedbackSurvey/FeedbackSurvey.tsx b/src/components/FeedbackSurvey/FeedbackSurvey.tsx
+index dc3e712..7227af6 100644
+--- a/src/components/FeedbackSurvey/FeedbackSurvey.tsx
++++ b/src/components/FeedbackSurvey/FeedbackSurvey.tsx
+@@ -109,2 +109,8 @@ type ThanksProps = {
+ };
++const RESPONSE_LABELS: Partial<Record<FeedbackSurveyResponse, string>> = {
++  bad: 'Bad',
++  fine: 'Fine',
++  good: 'Good',
++  not_sure: 'Unsure',
++};
+ const isFollowUpDigit = (char: string): char is '1' => char === '1';
+diff --git a/src/components/FeedbackSurvey/FeedbackSurveyView.tsx b/src/components/FeedbackSurvey/FeedbackSurveyView.tsx
+index a2f3757..ac301f2 100644
+--- a/src/components/FeedbackSurvey/FeedbackSurveyView.tsx
++++ b/src/components/FeedbackSurvey/FeedbackSurveyView.tsx
+@@ -11,3 +11,3 @@ type Props = {
+ };
+-const RESPONSE_INPUTS = ['0', '1', '2', '3'] as const;
++const RESPONSE_INPUTS = ['0', '1', '2', '3', '4'] as const;
+ type ResponseInput = (typeof RESPONSE_INPUTS)[number];
+@@ -17,4 +17,12 @@ const inputToResponse: Record<ResponseInput, FeedbackSurveyResponse> = {
+   '2': 'fine',
+-  '3': 'good'
++  '3': 'good',
++  '4': 'not_sure'
+ } as const;
++const PRIMARY_RESPONSE_OPTIONS = [
++  { key: '1', label: 'Bad' },
++  { key: '2', label: 'Fine' },
++  { key: '3', label: 'Good' },
++] as const;
++const NOT_SURE_RESPONSE_OPTION = { key: '4', label: 'Unsure' } as const;
++const DISMISS_RESPONSE_OPTION = { key: '0', label: 'Dismiss' } as const;
+ export const isValidResponseInput = (input: string): input is ResponseInput => (RESPONSE_INPUTS as readonly string[]).includes(input);
+@@ -63,3 +71,3 @@ export function FeedbackSurveyView(t0) {
+   if ($[7] !== message) {
+-    t5 = <Box>{t4}<Text bold={true}>{message}</Text></Box>;
++    t5 = <Box>{t4}<Text bold={true} wrap="wrap">{message}</Text></Box>;
+     $[7] = message;
+diff --git a/src/components/MessageSelector.tsx b/src/components/MessageSelector.tsx
+index 7df5b56..fa8dc7e 100644
+--- a/src/components/MessageSelector.tsx
++++ b/src/components/MessageSelector.tsx
+@@ -461,3 +461,3 @@ function RestoreOptionDescription(t0) {
+ function RestoreCodeConfirmation(t0) {
+-  const $ = _c(14);
++  const $ = _c(15);
+   const {
+@@ -525,17 +525,18 @@ function RestoreCodeConfirmation(t0) {
+   let t1;
+-  if ($[9] !== diffStatsForRestore) {
+-    t1 = <DiffStatsText diffStats={diffStatsForRestore} />;
+-    $[9] = diffStatsForRestore;
+-    $[10] = t1;
++  if ($[9] !== diffStatsForRestore.deletions || $[10] !== diffStatsForRestore.insertions) {
++    t1 = <DiffStatsText added={diffStatsForRestore.insertions} removed={diffStatsForRestore.deletions} />;
++    $[9] = diffStatsForRestore.deletions;
++    $[10] = diffStatsForRestore.insertions;
++    $[11] = t1;
+   } else {
+-    t1 = $[10];
++    t1 = $[11];
+   }
+   let t2;
+-  if ($[11] !== fileLabel || $[12] !== t1) {
++  if ($[12] !== fileLabel || $[13] !== t1) {
+     t2 = <><Text dimColor={true}>The code will be restored{" "}{t1} in {fileLabel}.</Text></>;
+-    $[11] = fileLabel;
+-    $[12] = t1;
+-    $[13] = t2;
++    $[12] = fileLabel;
++    $[13] = t1;
++    $[14] = t2;
+   } else {
+-    t2 = $[13];
++    t2 = $[14];
+   }
+@@ -544,35 +545,41 @@ function RestoreCodeConfirmation(t0) {
+ function DiffStatsText(t0) {
+-  const $ = _c(7);
++  const $ = _c(10);
+   const {
+-    diffStats
++    added,
++    removed,
++    bold
+   } = t0;
+-  if (!diffStats || !diffStats.filesChanged) {
+-    return;
++  if (added === 0 && removed === 0) {
++    return null;
+   }
+   let t1;
+-  if ($[0] !== diffStats.insertions) {
+-    t1 = <Text color="diffAddedWord">+{diffStats.insertions} </Text>;
+-    $[0] = diffStats.insertions;
+-    $[1] = t1;
++  if ($[0] !== added || $[1] !== bold) {
++    t1 = added > 0 && <Text color="diffAddedWord" bold={bold}>+{added}</Text>;
++    $[0] = added;
++    $[1] = bold;
++    $[2] = t1;
+   } else {
+-    t1 = $[1];
++    t1 = $[2];
+   }
+-  let t2;
+-  if ($[2] !== diffStats.deletions) {
+-    t2 = <Text color="diffRemovedWord">-{diffStats.deletions}</Text>;
+-    $[2] = diffStats.deletions;
+-    $[3] = t2;
++  const t2 = added > 0 && removed > 0 && " ";
++  let t3;
++  if ($[3] !== bold || $[4] !== removed) {
++    t3 = removed > 0 && <Text color="diffRemovedWord" bold={bold}>-{removed}</Text>;
++    $[3] = bold;
++    $[4] = removed;
++    $[5] = t3;
+   } else {
+-    t2 = $[3];
++    t3 = $[5];
+   }
+-  let t3;
+-  if ($[4] !== t1 || $[5] !== t2) {
+-    t3 = <>{t1}{t2}</>;
+-    $[4] = t1;
+-    $[5] = t2;
+-    $[6] = t3;
++  let t4;
++  if ($[6] !== t1 || $[7] !== t2 || $[8] !== t3) {
++    t4 = <Text>{t1}{t2}{t3}</Text>;
++    $[6] = t1;
++    $[7] = t2;
++    $[8] = t3;
++    $[9] = t4;
+   } else {
+-    t3 = $[6];
++    t4 = $[9];
+   }
+-  return t3;
++  return t4;
+ }
+diff --git a/src/components/PromptInput/PromptInputFooterSuggestions.tsx b/src/components/PromptInput/PromptInputFooterSuggestions.tsx
+index 6b4d7b6..04d6b1f 100644
+--- a/src/components/PromptInput/PromptInputFooterSuggestions.tsx
++++ b/src/components/PromptInput/PromptInputFooterSuggestions.tsx
+@@ -15,2 +15,3 @@ export type SuggestionItem = {
+   color?: keyof Theme;
++  matchedAlias?: string;
+ };
+diff --git a/src/components/SearchBox.tsx b/src/components/SearchBox.tsx
+index 96338a7..fd044b4 100644
+--- a/src/components/SearchBox.tsx
++++ b/src/components/SearchBox.tsx
+@@ -1,72 +1,153 @@
+-import { c as _c } from "react/compiler-runtime";
+-import React from 'react';
+-import { Box, Text } from '../ink.js';
++import React from 'react'
++import { stringWidth } from '../ink/stringWidth.js'
++import { Box, type ClickEvent, Text, type TextProps } from '../ink.js'
++import { Cursor } from '../utils/Cursor.js'
++
++type Highlight = readonly [start: number, end: number]
++
+ type Props = {
+-  query: string;
+-  placeholder?: string;
+-  isFocused: boolean;
+-  isTerminalFocused: boolean;
+-  prefix?: string;
+-  width?: number | string;
+-  cursorOffset?: number;
+-  borderless?: boolean;
+-};
+-export function SearchBox(t0) {
+-  const $ = _c(17);
+-  const {
+-    query,
+-    placeholder: t1,
+-    isFocused,
+-    isTerminalFocused,
+-    prefix: t2,
+-    width,
+-    cursorOffset,
+-    borderless: t3
+-  } = t0;
+-  const placeholder = t1 === undefined ? "Search\u2026" : t1;
+-  const prefix = t2 === undefined ? "\u2315" : t2;
+-  const borderless = t3 === undefined ? false : t3;
+-  const offset = cursorOffset ?? query.length;
+-  const t4 = borderless ? undefined : "round";
+-  const t5 = isFocused ? "suggestion" : undefined;
+-  const t6 = !isFocused;
+-  const t7 = borderless ? 0 : 1;
+-  const t8 = !isFocused;
+-  let t9;
+-  if ($[0] !== isFocused || $[1] !== isTerminalFocused || $[2] !== offset || $[3] !== placeholder || $[4] !== query) {
+-    t9 = isFocused ? <>{query ? isTerminalFocused ? <><Text>{query.slice(0, offset)}</Text><Text inverse={true}>{offset < query.length ? query[offset] : " "}</Text>{offset < query.length && <Text>{query.slice(offset + 1)}</Text>}</> : <Text>{query}</Text> : isTerminalFocused ? <><Text inverse={true}>{placeholder.charAt(0)}</Text><Text dimColor={true}>{placeholder.slice(1)}</Text></> : <Text dimColor={true}>{placeholder}</Text>}</> : query ? <Text>{query}</Text> : <Text>{placeholder}</Text>;
+-    $[0] = isFocused;
+-    $[1] = isTerminalFocused;
+-    $[2] = offset;
+-    $[3] = placeholder;
+-    $[4] = query;
+-    $[5] = t9;
+-  } else {
+-    t9 = $[5];
++  query: string
++  placeholder?: string
++  isFocused: boolean
++  isTerminalFocused: boolean
++  prefix?: string
++  width?: number | string
++  cursorOffset?: number
++  borderless?: boolean
++  highlights?: readonly Highlight[]
++  dimRange?: Highlight
++  cursorChar?: string
++  prefixDim?: boolean
++  prefixColor?: TextProps['color']
++  onCursorOffsetChange?: (offset: number) => void
++}
++
++/** Render search-result ranges, dimmed ranges, and the terminal cursor as disjoint text runs. */
++export function renderSearchBoxQuery(
++  query: string,
++  highlights: readonly Highlight[],
++  dimRange: Highlight | undefined,
++  cursorOffset: number,
++  cursorChar: string | undefined,
++): React.ReactNode[] {
++  const isHighlighted = (offset: number) =>
++    highlights.some(([start, end]) => offset >= start && offset < end)
++  const isDimmed = (offset: number) =>
++    !!dimRange && offset >= dimRange[0] && offset < dimRange[1]
++  const boundaries = new Set([0, query.length])
++  for (const [start, end] of highlights) {
++    boundaries.add(start)
++    boundaries.add(end)
++  }
++  if (dimRange) {
++    boundaries.add(dimRange[0])
++    boundaries.add(dimRange[1])
+   }
+-  let t10;
+-  if ($[6] !== prefix || $[7] !== t8 || $[8] !== t9) {
+-    t10 = <Text dimColor={t8}>{prefix}{" "}{t9}</Text>;
+-    $[6] = prefix;
+-    $[7] = t8;
+-    $[8] = t9;
+-    $[9] = t10;
+-  } else {
+-    t10 = $[9];
++  if (cursorOffset >= 0) {
++    boundaries.add(cursorOffset)
++    boundaries.add(cursorOffset + 1)
+   }
+-  let t11;
+-  if ($[10] !== t10 || $[11] !== t4 || $[12] !== t5 || $[13] !== t6 || $[14] !== t7 || $[15] !== width) {
+-    t11 = <Box flexShrink={0} borderStyle={t4} borderColor={t5} borderDimColor={t6} paddingX={t7} width={width}>{t10}</Box>;
+-    $[10] = t10;
+-    $[11] = t4;
+-    $[12] = t5;
+-    $[13] = t6;
+-    $[14] = t7;
+-    $[15] = width;
+-    $[16] = t11;
+-  } else {
+-    t11 = $[16];
++
++  const offsets = [...boundaries].sort((left, right) => left - right)
++  const rendered: React.ReactNode[] = []
++  for (let index = 0; index < offsets.length - 1; index += 1) {
++    const start = offsets[index]!
++    const end = offsets[index + 1]!
++    const text = start < query.length ? query.slice(start, end) : ' '
++    if (!text) continue
++    rendered.push(
++      start === cursorOffset && cursorChar ? (
++        <Text key={start}>{cursorChar}</Text>
++      ) : (
++        <Text
++          key={start}
++          color={isHighlighted(start) ? 'suggestion' : undefined}
++          dimColor={isDimmed(start)}
++          inverse={start === cursorOffset}
++        >
++          {text}
++        </Text>
++      ),
++    )
+   }
+-  return t11;
++  return rendered
++}
++
++export function SearchBox({
++  query,
++  placeholder = 'Search…',
++  isFocused,
++  isTerminalFocused,
++  prefix = '⌕',
++  width,
++  cursorOffset,
++  borderless = false,
++  highlights = [],
++  dimRange,
++  cursorChar,
++  prefixDim = false,
++  prefixColor,
++  onCursorOffsetChange,
++}: Props): React.ReactNode {
++  const offset = cursorOffset ?? query.length
++  const handleClick = onCursorOffsetChange
++    ? (event: ClickEvent) => {
++        if (!isFocused || !query) return
++        const borderColumnOffset = borderless ? 0 : 2
++        const row = event.localRow - (borderless ? 0 : 1)
++        if (row < 0) return
++        const prefixWidth = row === 0 ? stringWidth(prefix) + 1 : 0
++        const column = Math.max(
++          0,
++          event.localCol - borderColumnOffset - prefixWidth,
++        )
++        const cursor = Cursor.fromText(
++          query,
++          Number.MAX_SAFE_INTEGER,
++          0,
++        )
++        onCursorOffsetChange(
++          cursor.measuredText.getOffsetFromPosition({ line: row, column }),
++        )
++      }
++    : undefined
++
++  const content = isFocused ? (
++    query ? (
++      renderSearchBoxQuery(
++        query,
++        highlights,
++        dimRange,
++        isTerminalFocused ? offset : -1,
++        cursorChar,
++      )
++    ) : isTerminalFocused ? (
++      <>
++        {cursorChar ?? <Text inverse>{placeholder.charAt(0)}</Text>}
++        <Text dimColor>{cursorChar ? placeholder : placeholder.slice(1)}</Text>
++      </>
++    ) : (
++      <Text dimColor>{placeholder}</Text>
++    )
++  ) : query ? (
++    <Text>{query}</Text>
++  ) : (
++    <Text>{placeholder}</Text>
++  )
++
++  return (
++    <Box
++      flexShrink={0}
++      borderStyle={borderless ? undefined : 'round'}
++      borderColor={isFocused ? 'suggestion' : undefined}
++      borderDimColor={!isFocused}
++      paddingX={borderless ? 0 : 1}
++      width={width}
++      onClick={handleClick}
++    >
++      <Text dimColor={!isFocused}>
++        <Text dimColor={prefixDim} color={prefixColor}>{prefix}</Text> {content}
++      </Text>
++    </Box>
++  )
+ }
+-//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJSZWFjdCIsIkJveCIsIlRleHQiLCJQcm9wcyIsInF1ZXJ5IiwicGxhY2Vob2xkZXIiLCJpc0ZvY3VzZWQiLCJpc1Rlcm1pbmFsRm9jdXNlZCIsInByZWZpeCIsIndpZHRoIiwiY3Vyc29yT2Zmc2V0IiwiYm9yZGVybGVzcyIsIlNlYXJjaEJveCIsInQwIiwiJCIsIl9jIiwidDEiLCJ0MiIsInQzIiwidW5kZWZpbmVkIiwib2Zmc2V0IiwibGVuZ3RoIiwidDQiLCJ0NSIsInQ2IiwidDciLCJ0OCIsInQ5Iiwic2xpY2UiLCJjaGFyQXQiLCJ0MTAiLCJ0MTEiXSwic291cmNlcyI6WyJTZWFyY2hCb3gudHN4Il0sInNvdXJjZXNDb250ZW50IjpbImltcG9ydCBSZWFjdCBmcm9tICdyZWFjdCdcbmltcG9ydCB7IEJveCwgVGV4dCB9IGZyb20gJy4uL2luay5qcydcblxudHlwZSBQcm9wcyA9IHtcbiAgcXVlcnk6IHN0cmluZ1xuICBwbGFjZWhvbGRlcj86IHN0cmluZ1xuICBpc0ZvY3VzZWQ6IGJvb2xlYW5cbiAgaXNUZXJtaW5hbEZvY3VzZWQ6IGJvb2xlYW5cbiAgcHJlZml4Pzogc3RyaW5nXG4gIHdpZHRoPzogbnVtYmVyIHwgc3RyaW5nXG4gIGN1cnNvck9mZnNldD86IG51bWJlclxuICBib3JkZXJsZXNzPzogYm9vbGVhblxufVxuXG5leHBvcnQgZnVuY3Rpb24gU2VhcmNoQm94KHtcbiAgcXVlcnksXG4gIHBsYWNlaG9sZGVyID0gJ1NlYXJjaOKApicsXG4gIGlzRm9jdXNlZCxcbiAgaXNUZXJtaW5hbEZvY3VzZWQsXG4gIHByZWZpeCA9ICfijJUnLFxuICB3aWR0aCxcbiAgY3Vyc29yT2Zmc2V0LFxuICBib3JkZXJsZXNzID0gZmFsc2UsXG59OiBQcm9wcyk6IFJlYWN0LlJlYWN0Tm9kZSB7XG4gIGNvbnN0IG9mZnNldCA9IGN1cnNvck9mZnNldCA/PyBxdWVyeS5sZW5ndGhcblxuICByZXR1cm4gKFxuICAgIDxCb3hcbiAgICAgIGZsZXhTaHJpbms9ezB9XG4gICAgICBib3JkZXJTdHlsZT17Ym9yZGVybGVzcyA/IHVuZGVmaW5lZCA6ICdyb3VuZCd9XG4gICAgICBib3JkZXJDb2xvcj17aXNGb2N1c2VkID8gJ3N1Z2dlc3Rpb24nIDogdW5kZWZpbmVkfVxuICAgICAgYm9yZGVyRGltQ29sb3I9eyFpc0ZvY3VzZWR9XG4gICAgICBwYWRkaW5nWD17Ym9yZGVybGVzcyA/IDAgOiAxfVxuICAgICAgd2lkdGg9e3dpZHRofVxuICAgID5cbiAgICAgIDxUZXh0IGRpbUNvbG9yPXshaXNGb2N1c2VkfT5cbiAgICAgICAge3ByZWZpeH17JyAnfVxuICAgICAgICB7aXNGb2N1c2VkID8gKFxuICAgICAgICAgIDw+XG4gICAgICAgICAgICB7cXVlcnkgPyAoXG4gICAgICAgICAgICAgIGlzVGVybWluYWxGb2N1c2VkID8gKFxuICAgICAgICAgICAgICAgIDw+XG4gICAgICAgICAgICAgICAgICA8VGV4dD57cXVlcnkuc2xpY2UoMCwgb2Zmc2V0KX08L1RleHQ+XG4gICAgICAgICAgICAgICAgICA8VGV4dCBpbnZlcnNlPlxuICAgICAgICAgICAgICAgICAgICB7b2Zmc2V0IDwgcXVlcnkubGVuZ3RoID8gcXVlcnlbb2Zmc2V0XSA6ICcgJ31cbiAgICAgICAgICAgICAgICAgIDwvVGV4dD5cbiAgICAgICAgICAgICAgICAgIHtvZmZzZXQgPCBxdWVyeS5sZW5ndGggJiYgKFxuICAgICAgICAgICAgICAgICAgICA8VGV4dD57cXVlcnkuc2xpY2Uob2Zmc2V0ICsgMSl9PC9UZXh0PlxuICAgICAgICAgICAgICAgICAgKX1cbiAgICAgICAgICAgICAgICA8Lz5cbiAgICAgICAgICAgICAgKSA6IChcbiAgICAgICAgICAgICAgICA8VGV4dD57cXVlcnl9PC9UZXh0PlxuICAgICAgICAgICAgICApXG4gICAgICAgICAgICApIDogaXNUZXJtaW5hbEZvY3VzZWQgPyAoXG4gICAgICAgICAgICAgIDw+XG4gICAgICAgICAgICAgICAgPFRleHQgaW52ZXJzZT57cGxhY2Vob2xkZXIuY2hhckF0KDApfTwvVGV4dD5cbiAgICAgICAgICAgICAgICA8VGV4dCBkaW1Db2xvcj57cGxhY2Vob2xkZXIuc2xpY2UoMSl9PC9UZXh0PlxuICAgICAgICAgICAgICA8Lz5cbiAgICAgICAgICAgICkgOiAoXG4gICAgICAgICAgICAgIDxUZXh0IGRpbUNvbG9yPntwbGFjZWhvbGRlcn08L1RleHQ+XG4gICAgICAgICAgICApfVxuICAgICAgICAgIDwvPlxuICAgICAgICApIDogcXVlcnkgPyAoXG4gICAgICAgICAgPFRleHQ+e3F1ZXJ5fTwvVGV4dD5cbiAgICAgICAgKSA6IChcbiAgICAgICAgICA8VGV4dD57cGxhY2Vob2xkZXJ9PC9UZXh0PlxuICAgICAgICApfVxuICAgICAgPC9UZXh0PlxuICAgIDwvQm94PlxuICApXG59XG4iXSwibWFwcGluZ3MiOiI7QUFBQSxPQUFPQSxLQUFLLE1BQU0sT0FBTztBQUN6QixTQUFTQyxHQUFHLEVBQUVDLElBQUksUUFBUSxXQUFXO0FBRXJDLEtBQUtDLEtBQUssR0FBRztFQUNYQyxLQUFLLEVBQUUsTUFBTTtFQUNiQyxXQUFXLENBQUMsRUFBRSxNQUFNO0VBQ3BCQyxTQUFTLEVBQUUsT0FBTztFQUNsQkMsaUJBQWlCLEVBQUUsT0FBTztFQUMxQkMsTUFBTSxDQUFDLEVBQUUsTUFBTTtFQUNmQyxLQUFLLENBQUMsRUFBRSxNQUFNLEdBQUcsTUFBTTtFQUN2QkMsWUFBWSxDQUFDLEVBQUUsTUFBTTtFQUNyQkMsVUFBVSxDQUFDLEVBQUUsT0FBTztBQUN0QixDQUFDO0FBRUQsT0FBTyxTQUFBQyxVQUFBQyxFQUFBO0VBQUEsTUFBQUMsQ0FBQSxHQUFBQyxFQUFBO0VBQW1CO0lBQUFYLEtBQUE7SUFBQUMsV0FBQSxFQUFBVyxFQUFBO0lBQUFWLFNBQUE7SUFBQUMsaUJBQUE7SUFBQUMsTUFBQSxFQUFBUyxFQUFBO0lBQUFSLEtBQUE7SUFBQUMsWUFBQTtJQUFBQyxVQUFBLEVBQUFPO0VBQUEsSUFBQUwsRUFTbEI7RUFQTixNQUFBUixXQUFBLEdBQUFXLEVBQXVCLEtBQXZCRyxTQUF1QixHQUF2QixjQUF1QixHQUF2QkgsRUFBdUI7RUFHdkIsTUFBQVIsTUFBQSxHQUFBUyxFQUFZLEtBQVpFLFNBQVksR0FBWixRQUFZLEdBQVpGLEVBQVk7RUFHWixNQUFBTixVQUFBLEdBQUFPLEVBQWtCLEtBQWxCQyxTQUFrQixHQUFsQixLQUFrQixHQUFsQkQsRUFBa0I7RUFFbEIsTUFBQUUsTUFBQSxHQUFlVixZQUE0QixJQUFaTixLQUFLLENBQUFpQixNQUFPO0VBSzFCLE1BQUFDLEVBQUEsR0FBQVgsVUFBVSxHQUFWUSxTQUFnQyxHQUFoQyxPQUFnQztFQUNoQyxNQUFBSSxFQUFBLEdBQUFqQixTQUFTLEdBQVQsWUFBb0MsR0FBcENhLFNBQW9DO0VBQ2pDLE1BQUFLLEVBQUEsSUFBQ2xCLFNBQVM7RUFDaEIsTUFBQW1CLEVBQUEsR0FBQWQsVUFBVSxHQUFWLENBQWtCLEdBQWxCLENBQWtCO0VBR1osTUFBQWUsRUFBQSxJQUFDcEIsU0FBUztFQUFBLElBQUFxQixFQUFBO0VBQUEsSUFBQWIsQ0FBQSxRQUFBUixTQUFBLElBQUFRLENBQUEsUUFBQVAsaUJBQUEsSUFBQU8sQ0FBQSxRQUFBTSxNQUFBLElBQUFOLENBQUEsUUFBQVQsV0FBQSxJQUFBUyxDQUFBLFFBQUFWLEtBQUE7SUFFdkJ1QixFQUFBLEdBQUFyQixTQUFTLEdBQVQsRUFFSSxDQUFBRixLQUFLLEdBQ0pHLGlCQUFpQixHQUFqQixFQUVJLENBQUMsSUFBSSxDQUFFLENBQUFILEtBQUssQ0FBQXdCLEtBQU0sQ0FBQyxDQUFDLEVBQUVSLE1BQU0sRUFBRSxFQUE3QixJQUFJLENBQ0wsQ0FBQyxJQUFJLENBQUMsT0FBTyxDQUFQLEtBQU0sQ0FBQyxDQUNWLENBQUFBLE1BQU0sR0FBR2hCLEtBQUssQ0FBQWlCLE1BQTZCLEdBQW5CakIsS0FBSyxDQUFDZ0IsTUFBTSxDQUFPLEdBQTNDLEdBQTBDLENBQzdDLEVBRkMsSUFBSSxDQUdKLENBQUFBLE1BQU0sR0FBR2hCLEtBQUssQ0FBQWlCLE1BRWQsSUFEQyxDQUFDLElBQUksQ0FBRSxDQUFBakIsS0FBSyxDQUFBd0IsS0FBTSxDQUFDUixNQUFNLEdBQUcsQ0FBQyxFQUFFLEVBQTlCLElBQUksQ0FDUCxDQUFDLEdBSUosR0FEQyxDQUFDLElBQUksQ0FBRWhCLE1BQUksQ0FBRSxFQUFaLElBQUksQ0FTUixHQVBHRyxpQkFBaUIsR0FBakIsRUFFQSxDQUFDLElBQUksQ0FBQyxPQUFPLENBQVAsS0FBTSxDQUFDLENBQUUsQ0FBQUYsV0FBVyxDQUFBd0IsTUFBTyxDQUFDLENBQUMsRUFBRSxFQUFwQyxJQUFJLENBQ0wsQ0FBQyxJQUFJLENBQUMsUUFBUSxDQUFSLEtBQU8sQ0FBQyxDQUFFLENBQUF4QixXQUFXLENBQUF1QixLQUFNLENBQUMsQ0FBQyxFQUFFLEVBQXBDLElBQUksQ0FBdUMsR0FJL0MsR0FEQyxDQUFDLElBQUksQ0FBQyxRQUFRLENBQVIsS0FBTyxDQUFDLENBQUV2QixZQUFVLENBQUUsRUFBM0IsSUFBSSxDQUNQLENBQUMsR0FNSixHQUpHRCxLQUFLLEdBQ1AsQ0FBQyxJQUFJLENBQUVBLE1BQUksQ0FBRSxFQUFaLElBQUksQ0FHTixHQURDLENBQUMsSUFBSSxDQUFFQyxZQUFVLENBQUUsRUFBbEIsSUFBSSxDQUNOO0lBQUFTLENBQUEsTUFBQVIsU0FBQTtJQUFBUSxDQUFBLE1BQUFQLGlCQUFBO0lBQUFPLENBQUEsTUFBQU0sTUFBQTtJQUFBTixDQUFBLE1BQUFULFdBQUE7SUFBQVMsQ0FBQSxNQUFBVixLQUFBO0lBQUFVLENBQUEsTUFBQWEsRUFBQTtFQUFBO0lBQUFBLEVBQUEsR0FBQWIsQ0FBQTtFQUFBO0VBQUEsSUFBQWdCLEdBQUE7RUFBQSxJQUFBaEIsQ0FBQSxRQUFBTixNQUFBLElBQUFNLENBQUEsUUFBQVksRUFBQSxJQUFBWixDQUFBLFFBQUFhLEVBQUE7SUEvQkhHLEdBQUEsSUFBQyxJQUFJLENBQVcsUUFBVSxDQUFWLENBQUFKLEVBQVMsQ0FBQyxDQUN2QmxCLE9BQUssQ0FBRyxJQUFFLENBQ1YsQ0FBQW1CLEVBNkJELENBQ0YsRUFoQ0MsSUFBSSxDQWdDRTtJQUFBYixDQUFBLE1BQUFOLE1BQUE7SUFBQU0sQ0FBQSxNQUFBWSxFQUFBO0lBQUFaLENBQUEsTUFBQWEsRUFBQTtJQUFBYixDQUFBLE1BQUFnQixHQUFBO0VBQUE7SUFBQUEsR0FBQSxHQUFBaEIsQ0FBQTtFQUFBO0VBQUEsSUFBQWlCLEdBQUE7RUFBQSxJQUFBakIsQ0FBQSxTQUFBZ0IsR0FBQSxJQUFBaEIsQ0FBQSxTQUFBUSxFQUFBLElBQUFSLENBQUEsU0FBQVMsRUFBQSxJQUFBVCxDQUFBLFNBQUFVLEVBQUEsSUFBQVYsQ0FBQSxTQUFBVyxFQUFBLElBQUFYLENBQUEsU0FBQUwsS0FBQTtJQXhDVHNCLEdBQUEsSUFBQyxHQUFHLENBQ1UsVUFBQyxDQUFELEdBQUMsQ0FDQSxXQUFnQyxDQUFoQyxDQUFBVCxFQUErQixDQUFDLENBQ2hDLFdBQW9DLENBQXBDLENBQUFDLEVBQW1DLENBQUMsQ0FDakMsY0FBVSxDQUFWLENBQUFDLEVBQVMsQ0FBQyxDQUNoQixRQUFrQixDQUFsQixDQUFBQyxFQUFpQixDQUFDLENBQ3JCaEIsS0FBSyxDQUFMQSxNQUFJLENBQUMsQ0FFWixDQUFBcUIsR0FnQ00sQ0FDUixFQXpDQyxHQUFHLENBeUNFO0lBQUFoQixDQUFBLE9BQUFnQixHQUFBO0lBQUFoQixDQUFBLE9BQUFRLEVBQUE7SUFBQVIsQ0FBQSxPQUFBUyxFQUFBO0lBQUFULENBQUEsT0FBQVUsRUFBQTtJQUFBVixDQUFBLE9BQUFXLEVBQUE7SUFBQVgsQ0FBQSxPQUFBTCxLQUFBO0lBQUFLLENBQUEsT0FBQWlCLEdBQUE7RUFBQTtJQUFBQSxHQUFBLEdBQUFqQixDQUFBO0VBQUE7RUFBQSxPQXpDTmlCLEdBeUNNO0FBQUEiLCJpZ25vcmVMaXN0IjpbXX0=
+\ No newline at end of file
+diff --git a/src/components/StatusLine.tsx b/src/components/StatusLine.tsx
+index be85725..3057648 100644
+--- a/src/components/StatusLine.tsx
++++ b/src/components/StatusLine.tsx
+@@ -36,3 +36,3 @@ export function statusLineShouldDisplay(settings: ReadonlySettings): boolean {
+ }
+-function buildStatusLineCommandInput(permissionMode: PermissionMode, exceeds200kTokens: boolean, settings: ReadonlySettings, messages: Message[], addedDirs: string[], mainLoopModel: ModelName, gitWorktree: string | null, vimMode?: VimMode): StatusLineCommandInput {
++function buildStatusLineCommandInput(permissionMode: PermissionMode, exceeds200kTokens: boolean, fastMode: boolean, settings: ReadonlySettings, messages: Message[], addedDirs: string[], mainLoopModel: ModelName, gitWorktree: string | null, vimMode: VimMode | undefined, cwd: string): StatusLineCommandInput {
+   const agentType = getMainThreadAgentType();
+@@ -67,2 +67,3 @@ function buildStatusLineCommandInput(permissionMode: PermissionMode, exceeds200k
+     ...createBaseHookInput(),
++    cwd,
+     ...(sessionName && {
+@@ -75,3 +76,3 @@ function buildStatusLineCommandInput(permissionMode: PermissionMode, exceeds200k
+     workspace: {
+-      current_dir: getCwd(),
++      current_dir: cwd,
+       project_dir: getOriginalCwd(),
+@@ -102,2 +103,3 @@ function buildStatusLineCommandInput(permissionMode: PermissionMode, exceeds200k
+     exceeds_200k_tokens: exceeds200kTokens,
++    fast_mode: fastMode,
+     ...((rateLimits.five_hour || rateLimits.seven_day) && {
+@@ -150,2 +152,3 @@ function StatusLineInner({
+   const statusLineText = useAppState(s => s.statusLineText);
++  const fastMode = useAppState(s => s.fastMode ?? false);
+   const setAppState = useSetAppState();
+@@ -171,2 +174,4 @@ function StatusLineInner({
+   mainLoopModelRef.current = mainLoopModel;
++  const fastModeRef = useRef(fastMode);
++  fastModeRef.current = fastMode;
+ 
+@@ -179,2 +184,3 @@ function StatusLineInner({
+     mainLoopModel: ModelName;
++    fastMode: boolean;
+   }>({
+@@ -184,3 +190,4 @@ function StatusLineInner({
+     vimMode,
+-    mainLoopModel
++    mainLoopModel,
++    fastMode
+   });
+@@ -212,3 +219,5 @@ function StatusLineInner({
+       }
+-      const statusInput = buildStatusLineCommandInput(permissionModeRef.current, exceeds200kTokens, settingsRef.current, msgs, Array.from(addedDirsRef.current.keys()), mainLoopModelRef.current, await getGitWorktreeName(getCwd()), vimModeRef.current);
++      const cwd = getCwd();
++      const gitWorktree = await getGitWorktreeName(cwd);
++      const statusInput = buildStatusLineCommandInput(permissionModeRef.current, exceeds200kTokens, fastModeRef.current, settingsRef.current, msgs, Array.from(addedDirsRef.current.keys()), mainLoopModelRef.current, gitWorktree, vimModeRef.current, cwd);
+       const text = await executeStatusLineCommand(statusInput, controller.signal, undefined, logResult);
+@@ -241,3 +250,3 @@ function StatusLineInner({
+   useEffect(() => {
+-    if (lastAssistantMessageId !== previousStateRef.current.messageId || permissionMode !== previousStateRef.current.permissionMode || vimMode !== previousStateRef.current.vimMode || mainLoopModel !== previousStateRef.current.mainLoopModel) {
++    if (lastAssistantMessageId !== previousStateRef.current.messageId || permissionMode !== previousStateRef.current.permissionMode || vimMode !== previousStateRef.current.vimMode || mainLoopModel !== previousStateRef.current.mainLoopModel || fastMode !== previousStateRef.current.fastMode) {
+       // Don't update messageId here — let doUpdate handle it so
+@@ -247,5 +256,6 @@ function StatusLineInner({
+       previousStateRef.current.mainLoopModel = mainLoopModel;
++      previousStateRef.current.fastMode = fastMode;
+       scheduleUpdate();
+     }
+-  }, [lastAssistantMessageId, permissionMode, vimMode, mainLoopModel, scheduleUpdate]);
++  }, [lastAssistantMessageId, permissionMode, vimMode, mainLoopModel, fastMode, scheduleUpdate]);
+ 
+diff --git a/src/components/WarmResumeHint.tsx b/src/components/WarmResumeHint.tsx
+index 270b997..8317c01 100644
+--- a/src/components/WarmResumeHint.tsx
++++ b/src/components/WarmResumeHint.tsx
+@@ -19,2 +19,3 @@ import {
+ } from '../utils/config.js'
++import { envSessionKind } from '../utils/concurrentSessions.js'
+ import { env } from '../utils/env.js'
+@@ -51,2 +52,3 @@ function isLaunchEligible(): boolean {
+   if (process.argv.length > 2) return false
++  if (envSessionKind() !== undefined) return false
+   if (isTeammate()) return false
+diff --git a/src/components/agents/AgentDetail.tsx b/src/components/agents/AgentDetail.tsx
+index 48fc986..04f52c9 100644
+--- a/src/components/agents/AgentDetail.tsx
++++ b/src/components/agents/AgentDetail.tsx
+@@ -13,2 +13,3 @@ import { getAgentModelDisplay } from '../../utils/model/agent.js';
+ import { Markdown } from '../Markdown.js';
++import { Label } from '../design-system/Label.js';
+ import { getActualRelativeAgentFilePath } from './agentFileUtils.js';
+@@ -183,3 +184,3 @@ export function AgentDetail(t0) {
+   if ($[30] !== agent.agentType || $[31] !== backgroundColor) {
+-    t22 = backgroundColor && <Box><Text><Text bold={true}>Color</Text>:{" "}<Text backgroundColor={backgroundColor} color="inverseText">{" "}{agent.agentType}{" "}</Text></Text></Box>;
++    t22 = backgroundColor && <Box><Text><Text bold={true}>Color</Text>:{" "}<Label color={backgroundColor} padded>{agent.agentType}</Label></Text></Box>;
+     $[30] = agent.agentType;
+diff --git a/src/components/agents/ColorPicker.tsx b/src/components/agents/ColorPicker.tsx
+index f8072e7..5c4923e 100644
+--- a/src/components/agents/ColorPicker.tsx
++++ b/src/components/agents/ColorPicker.tsx
+@@ -7,2 +7,3 @@ import { AGENT_COLOR_TO_THEME_COLOR, AGENT_COLORS, type AgentColorName } from '.
+ import { capitalize } from '../../utils/stringUtils.js';
++import { Label } from '../design-system/Label.js';
+ type ColorOption = AgentColorName | 'automatic';
+@@ -62,3 +63,3 @@ export function ColorPicker(t0) {
+       const isSelected = index === selectedIndex;
+-      return <Box key={option} flexDirection="row" gap={1}><Text color={isSelected ? "suggestion" : undefined}>{isSelected ? figures.pointer : " "}</Text>{option === "automatic" ? <Text bold={isSelected}>Automatic color</Text> : <Box gap={1}><Text backgroundColor={AGENT_COLOR_TO_THEME_COLOR[option]} color="inverseText">{" "}</Text><Text bold={isSelected}>{capitalize(option)}</Text></Box>}</Box>;
++      return <Box key={option} flexDirection="row" gap={1}><Text color={isSelected ? "suggestion" : undefined}>{isSelected ? figures.pointer : " "}</Text>{option === "automatic" ? <Text bold={isSelected}>Automatic color</Text> : <Box gap={1}><Label color={AGENT_COLOR_TO_THEME_COLOR[option]}>{" "}</Label><Text bold={isSelected}>{capitalize(option)}</Text></Box>}</Box>;
+     });
+@@ -86,3 +87,3 @@ export function ColorPicker(t0) {
+   if ($[10] !== agentName || $[11] !== selectedValue) {
+-    t7 = <Box marginTop={1}>{t6}{selectedValue === undefined || selectedValue === "automatic" ? <Text inverse={true} bold={true}>{" "}@{agentName}{" "}</Text> : <Text backgroundColor={AGENT_COLOR_TO_THEME_COLOR[selectedValue]} color="inverseText" bold={true}>{" "}@{agentName}{" "}</Text>}</Box>;
++    t7 = <Box marginTop={1}>{t6}{selectedValue === undefined || selectedValue === "automatic" ? <Text inverse={true} bold={true}>{" "}@{agentName}{" "}</Text> : <Label color={AGENT_COLOR_TO_THEME_COLOR[selectedValue]} bold padded>@{agentName}</Label>}</Box>;
+     $[10] = agentName;
+diff --git a/src/components/design-system/Tabs.tsx b/src/components/design-system/Tabs.tsx
+index 34179c0..e589b35 100644
+--- a/src/components/design-system/Tabs.tsx
++++ b/src/components/design-system/Tabs.tsx
+@@ -10,2 +10,3 @@ import { Box, Text } from '../../ink.js';
+ import { useKeybindings } from '../../keybindings/useKeybinding.js';
++import { Label } from './Label.js';
+ import type { Theme } from '../../utils/theme.js';
+@@ -273,3 +274,3 @@ function TabHeader({
+   const hasColorCursor = color && isCurrent && headerFocused;
+-  return <Box ref={cursorRef}><Text backgroundColor={hasColorCursor ? color : undefined} color={hasColorCursor ? "inverseText" : undefined} inverse={isCurrent && !hasColorCursor} bold={isCurrent}>{" "}{title}{" "}</Text></Box>;
++  return <Box ref={cursorRef}>{hasColorCursor ? <Label color={color} bold padded>{title}</Label> : <Text inverse={isCurrent} bold={isCurrent}>{" "}{title}{" "}</Text>}</Box>;
+ }
+diff --git a/src/components/hooks/ViewHookMode.tsx b/src/components/hooks/ViewHookMode.tsx
+index b84d4b0..1464e56 100644
+--- a/src/components/hooks/ViewHookMode.tsx
++++ b/src/components/hooks/ViewHookMode.tsx
+@@ -179,2 +179,4 @@ function getContentFieldLabel(config: IndividualHookConfig['config']): string {
+       return 'URL';
++    case 'mcp_tool':
++      return 'MCP tool';
+   }
+@@ -196,2 +198,4 @@ function getContentFieldValue(config: IndividualHookConfig['config']): string {
+       return config.url;
++    case 'mcp_tool':
++      return `${config.server}/${config.tool}`;
+   }
+diff --git a/src/components/messages/CollapsedReadSearchContent.tsx b/src/components/messages/CollapsedReadSearchContent.tsx
+index 1494cf4..1474cab 100644
+--- a/src/components/messages/CollapsedReadSearchContent.tsx
++++ b/src/components/messages/CollapsedReadSearchContent.tsx
+@@ -409,3 +409,3 @@ export function CollapsedReadSearchContent({
+     nonMemParts.push(<Text key="bash">
+-        {verb_1} <Text bold>{bashCount}</Text> bash{' '}
++        {verb_1} <Text bold>{bashCount}</Text> shell{' '}
+         {bashCount === 1 ? 'command' : 'commands'}
+diff --git a/src/components/permissions/AskUserQuestionPermissionRequest/QuestionNavigationBar.tsx b/src/components/permissions/AskUserQuestionPermissionRequest/QuestionNavigationBar.tsx
+index 790b793..5286f0c 100644
+--- a/src/components/permissions/AskUserQuestionPermissionRequest/QuestionNavigationBar.tsx
++++ b/src/components/permissions/AskUserQuestionPermissionRequest/QuestionNavigationBar.tsx
+@@ -6,2 +6,3 @@ import { stringWidth } from '../../../ink/stringWidth.js';
+ import { Box, Text } from '../../../ink.js';
++import { Label } from '../../design-system/Label.js';
+ import type { Question } from '../../../tools/AskUserQuestionTool/AskUserQuestionTool.js';
+@@ -117,3 +118,3 @@ export function QuestionNavigationBar(t0) {
+         const displayText = tabDisplayTexts[index_2] || q_1?.header || `Q${index_2 + 1}`;
+-        return <Box key={q_1?.question || `question-${index_2}`}>{isSelected ? <Text backgroundColor="permission" color="inverseText">{" "}{checkbox} {displayText}{" "}</Text> : <Text>{" "}{checkbox} {displayText}{" "}</Text>}</Box>;
++        return <Box key={q_1?.question || `question-${index_2}`}><Label color={isSelected ? "permission" : undefined} padded>{checkbox} {displayText}</Label></Box>;
+       };
+@@ -137,3 +138,3 @@ export function QuestionNavigationBar(t0) {
+   if ($[26] !== currentQuestionIndex || $[27] !== hideSubmitTab || $[28] !== questions.length) {
+-    t5 = !hideSubmitTab && <Box key="submit">{currentQuestionIndex === questions.length ? <Text backgroundColor="permission" color="inverseText">{" "}{figures.tick} Submit{" "}</Text> : <Text> {figures.tick} Submit </Text>}</Box>;
++    t5 = !hideSubmitTab && <Box key="submit"><Label color={currentQuestionIndex === questions.length ? "permission" : undefined} padded>{figures.tick} Submit</Label></Box>;
+     $[26] = currentQuestionIndex;
+diff --git a/src/entrypoints/sdk/controlSchemas.ts b/src/entrypoints/sdk/controlSchemas.ts
+index 7938f19..9185ff6 100644
+--- a/src/entrypoints/sdk/controlSchemas.ts
++++ b/src/entrypoints/sdk/controlSchemas.ts
+@@ -261,2 +261,33 @@ export const SDKControlGetSessionCostResponseSchema = lazySchema(() =>
+ 
++export const SDKControlMcpCallRequestSchema = lazySchema(() =>
++  z
++    .object({
++      subtype: z.literal('mcp_call'),
++      tool: z
++        .string()
++        .describe('Fully-qualified MCP tool name, e.g. mcp__server__tool_name.'),
++      arguments: z.record(z.string(), z.unknown()).optional(),
++    })
++    .describe(
++      'Invokes an MCP tool via the subprocess MCP client without a model turn. No permission check (control channel is trusted, same as other ' +
++        'subtypes). SDK-type MCP servers (config.type === "sdk") are rejected — ' +
++        'they are caller-provided, so the caller can invoke them directly without the subprocess round-trip. Result content passes through the same processing as model-turn MCP calls. Session expiry is not retried automatically; callers can mcp_reconnect and retry. UrlElicitationRequired (-32042) tries Elicitation hooks; if no hook ' +
++        'resolves, the call errors with the URL in the message — open it ' +
++        'out-of-band, then retry mcp_call.',
++    ),
++)
++
++export const SDKControlMcpCallResponseSchema = lazySchema(() =>
++  z
++    .object({
++      content: z.unknown(),
++      structuredContent: z.record(z.string(), z.unknown()).optional(),
++      _meta: z.record(z.string(), z.unknown()).optional(),
++    })
++    .describe(
++      'MCP tool result — the content array, structuredContent, and _meta ' +
++        'from CallToolResult. Content passes through the same processing as model-turn MCP calls (large results may be truncated or redirected to a file). Caller interprets.',
++    ),
++)
++
+ const ContextCategorySchema = lazySchema(() =>
+@@ -679,2 +710,39 @@ export const SDKControlElicitationRequestSchema = lazySchema(() =>
+ 
++export const SDKControlRequestUserDialogRequestSchema = lazySchema(() =>
++  z
++    .object({
++      subtype: z.literal('request_user_dialog'),
++      dialog_kind: z
++        .string()
++        .describe(
++          'Identifier for the dialog the host should render. Open string union — known kinds include "it2_setup" and "computer_use_approval"; new kinds may be added without bumping the protocol.',
++        ),
++      payload: z
++        .record(z.string(), z.unknown())
++        .describe(
++          'Dialog-specific data passed to the host renderer. Shape is defined per dialog_kind; the protocol transports it opaquely.',
++        ),
++      tool_use_id: z.string().optional(),
++    })
++    .describe(
++      'Requests the SDK consumer to render a tool-driven blocking dialog and return the user choice. Used by tools that previously rendered Ink JSX via setToolJSX with an onDone callback.',
++    ),
++)
++
++export const SDKControlRequestUserDialogResponseSchema = lazySchema(() =>
++  z
++    .object({
++      behavior: z.enum(['completed', 'cancelled']),
++      result: z
++        .unknown()
++        .optional()
++        .describe(
++          'Dialog-specific result payload. Opaque to the protocol; the caller and dialog renderer agree on the shape per dialog_kind.',
++        ),
++    })
++    .describe(
++      'Response from the SDK consumer for a request_user_dialog request.',
++    ),
++)
++
+ export const SDKControlElicitationResponseSchema = lazySchema(() =>
+@@ -709,2 +777,28 @@ export const SDKControlOAuthTokenRefreshResponseSchema = lazySchema(() =>
+ 
++export const SDKControlMessageRatedRequestSchema = lazySchema(() =>
++  z
++    .object({
++      subtype: z.literal('message_rated'),
++      messageUuid: z.string().describe('UUID of the assistant message being rated.'),
++      sentiment: z
++        .enum(['positive', 'negative'])
++        .describe('User rating: positive (thumbs up) or negative (thumbs down).'),
++      surface: z
++        .enum(['tool_use', 'assistant_text'])
++        .optional()
++        .describe('Which in-conversation surface the rating came from. If omitted, logged as tool_use.'),
++      cleared: z
++        .boolean()
++        .optional()
++        .describe('True when the caller is un-rating a message (clicking the same control a second time).'),
++    })
++    .describe(
++      '@internal Records a per-message thumbs up/down rating. Logs tengu_message_rated with the same shape as the in-conversation rating controls so Desktop / IDE callers can surface their own native thumbs UI.',
++    ),
++)
++
++export const SDKControlMessageRatedResponseSchema = lazySchema(() =>
++  z.object({}).describe('@internal Empty response for message_rated.'),
++)
++
+ // ============================================================================
+@@ -727,2 +821,3 @@ export const SDKControlRequestInnerSchema = lazySchema(() =>
+     SDKControlGetSessionCostRequestSchema(),
++    SDKControlMcpCallRequestSchema(),
+     SDKHookCallbackRequestSchema(),
+@@ -741,2 +836,4 @@ export const SDKControlRequestInnerSchema = lazySchema(() =>
+     SDKControlElicitationRequestSchema(),
++    SDKControlRequestUserDialogRequestSchema(),
++    SDKControlMessageRatedRequestSchema(),
+     SDKControlOAuthTokenRefreshRequestSchema(),
+diff --git a/src/hooks/useVirtualScroll.ts b/src/hooks/useVirtualScroll.ts
+index 388b0ba..8661f5f 100644
+--- a/src/hooks/useVirtualScroll.ts
++++ b/src/hooks/useVirtualScroll.ts
+@@ -175,2 +175,7 @@ export function useVirtualScroll(
+   const refCache = useRef(new Map<string, (el: DOMElement | null) => void>())
++  const previousItemKeysRef = useRef<{
++    len: number
++    first: string | undefined
++    last: string | undefined
++  }>({ len: 0, first: undefined, last: undefined })
+   // Inline ref-compare: must run before offsets is computed below. The
+@@ -272,2 +277,12 @@ export function useVirtualScroll(
+   useMemo(() => {
++    const previous = previousItemKeysRef.current
++    const first = itemKeys[0]
++    const appendOnly =
++      itemKeys.length >= previous.len &&
++      first === previous.first &&
++      itemKeys[previous.len - 1] === previous.last
++    previous.len = itemKeys.length
++    previous.first = first
++    previous.last = itemKeys.at(-1)
++    if (appendOnly) return
+     const live = new Set(itemKeys)
+diff --git a/src/ink/scroll-config.ts b/src/ink/scroll-config.ts
+new file mode 100644
+index 0000000..d350fa9
+--- /dev/null
++++ b/src/ink/scroll-config.ts
+@@ -0,0 +1,53 @@
++import { getXtversionName, isXtermJs } from './terminal.js'
++
++export type ScrollConfig = {
++  useDecayCurve: boolean
++  useAdaptiveDrain: boolean
++  base: number
++  xtermJs: boolean
++  termProgram: string
++  xtversion: string
++  wtSession: boolean
++  scrollSpeedEnv: string
++  platform: NodeJS.Platform
++}
++
++let cachedConfig: ScrollConfig | undefined
++
++/**
++ * Resolve the wheel input and renderer drain policy from one shared terminal
++ * snapshot. The XTVERSION probe completes asynchronously, so refresh the
++ * cached snapshot when that value changes.
++ */
++export function getScrollConfig(): ScrollConfig {
++  const rawXtversion = getXtversionName()
++  const xtversion = rawXtversion ?? '(no reply)'
++  if (cachedConfig?.xtversion === xtversion) return cachedConfig
++
++  const xtermJs = isXtermJs()
++  const wtSession = Boolean(process.env.WT_SESSION)
++  const platform = process.platform
++  cachedConfig = {
++    useDecayCurve: xtermJs || platform === 'win32' || wtSession,
++    useAdaptiveDrain: xtermJs,
++    base: readScrollSpeedBase(xtermJs),
++    xtermJs,
++    termProgram: process.env.TERM_PROGRAM ?? 'unset',
++    xtversion,
++    wtSession,
++    scrollSpeedEnv: process.env.CLAUDE_CODE_SCROLL_SPEED ?? 'unset',
++    platform,
++  }
++  return cachedConfig
++}
++
++function readScrollSpeedBase(xtermJs: boolean): number {
++  const defaultBase =
++    xtermJs || process.platform === 'win32' || process.env.WT_SESSION ? 3 : 1
++  const raw = process.env.CLAUDE_CODE_SCROLL_SPEED
++  if (!raw) return defaultBase
++  const parsed = parseFloat(raw)
++  return Number.isNaN(parsed) || parsed <= 0
++    ? defaultBase
++    : Math.min(parsed, 20)
++}
+diff --git a/src/ink/termio/parser.ts b/src/ink/termio/parser.ts
+index 4ccae97..1e5a36b 100644
+--- a/src/ink/termio/parser.ts
++++ b/src/ink/termio/parser.ts
+@@ -284,3 +284,10 @@ function identifySequence(
+ export class Parser {
+-  private tokenizer: Tokenizer = createTokenizer({ forOutput: true })
++  private tokenizer: Tokenizer
++  private forOutput: boolean
++  private tail = ''
++
++  constructor(options?: { forOutput?: boolean }) {
++    this.forOutput = options?.forOutput ?? false
++    this.tokenizer = createTokenizer({ forOutput: this.forOutput })
++  }
+ 
+@@ -290,3 +297,11 @@ export class Parser {
+ 
++  flush(): Action[] {
++    if (!this.tail) return []
++    const actions = this.processText(this.tail, false)
++    this.tail = ''
++    return actions
++  }
++
+   reset(): void {
++    this.tail = ''
+     this.tokenizer.reset()
+@@ -302,5 +317,16 @@ export class Parser {
+ 
+-    for (const token of tokens) {
+-      const tokenActions = this.processToken(token)
+-      actions.push(...tokenActions)
++    for (let index = 0; index < tokens.length; index++) {
++      const token = tokens[index]!
++      if (token.type === 'text') {
++        const text = this.tail + token.value
++        this.tail = ''
++        const holdTail = this.forOutput && index === tokens.length - 1
++        actions.push(...this.processText(text, holdTail))
++      } else {
++        if (this.tail) {
++          actions.push(...this.processText(this.tail, false))
++          this.tail = ''
++        }
++        actions.push(...this.processSequence(token.value))
++      }
+     }
+@@ -310,13 +336,3 @@ export class Parser {
+ 
+-  private processToken(token: Token): Action[] {
+-    switch (token.type) {
+-      case 'text':
+-        return this.processText(token.value)
+-
+-      case 'sequence':
+-        return this.processSequence(token.value)
+-    }
+-  }
+-
+-  private processText(text: string): Action[] {
++  private processText(text: string, holdTail: boolean): Action[] {
+     const style = this.style
+@@ -324,2 +340,3 @@ export class Parser {
+       const graphemes = [...segmentGraphemes(text)]
++      this.holdTail(graphemes, holdTail)
+       return graphemes.length > 0 ? [{ type: 'text', graphemes, style }] : []
+@@ -338,2 +355,7 @@ export class Parser {
+     actions.pop()
++    const lastAction = actions.at(-1)
++    if (lastAction?.type === 'text') {
++      this.holdTail(lastAction.graphemes, holdTail)
++      if (lastAction.graphemes.length === 0) actions.pop()
++    }
+     return actions
+@@ -341,2 +363,43 @@ export class Parser {
+ 
++  private holdTail(graphemes: Grapheme[], holdTail: boolean): void {
++    if (!holdTail || graphemes.length === 0) return
++
++    const lastGrapheme = graphemes.at(-1)!
++    const lastCodeUnit = lastGrapheme.value.charCodeAt(
++      lastGrapheme.value.length - 1,
++    )
++    if (lastCodeUnit < 32) return
++
++    this.tail = lastGrapheme.value
++    graphemes.pop()
++
++    if (
++      lastCodeUnit >= 0xd800 &&
++      lastCodeUnit <= 0xdbff &&
++      graphemes.length > 0
++    ) {
++      this.tail = graphemes.pop()!.value + this.tail
++    }
++
++    while (graphemes.length > 0 && this.tail.length <= 64) {
++      const previous = graphemes.at(-1)!.value
++      const previousCodeUnit = previous.charCodeAt(previous.length - 1)
++      const previousCodePoint =
++        previousCodeUnit >= 0xdc00 && previousCodeUnit <= 0xdfff
++          ? previous.codePointAt(previous.length - 2)
++          : previousCodeUnit
++      if (
++        previousCodePoint === 8205 ||
++        (previousCodePoint !== undefined &&
++          previousCodePoint >= 127462 &&
++          previousCodePoint <= 127487)
++      ) {
++        this.tail = previous + this.tail
++        graphemes.pop()
++      } else {
++        break
++      }
++    }
++  }
++
+   private processSequence(seq: string): Action[] {
+diff --git a/src/main.tsx b/src/main.tsx
+index 1a6745e..b17533f 100644
+--- a/src/main.tsx
++++ b/src/main.tsx
+@@ -2997,2 +2997,3 @@ async function run(): Promise<CommanderCommand> {
+       },
++      frameUrls: {},
+       elicitation: {
+diff --git a/src/services/SessionMemory/sessionMemory.ts b/src/services/SessionMemory/sessionMemory.ts
+index b0c67fb..cd790d4 100644
+--- a/src/services/SessionMemory/sessionMemory.ts
++++ b/src/services/SessionMemory/sessionMemory.ts
+@@ -328,3 +328,3 @@ const extractSessionMemory = sequential(async function (
+   // Use the token usage from the last message in the conversation
+-  const lastMessage = messages[messages.length - 1]
++  const lastMessage = messages.at(-1)
+   const usage = lastMessage ? getTokenUsage(lastMessage) : undefined
+diff --git a/src/services/api/bootstrap.ts b/src/services/api/bootstrap.ts
+index 82ef0d6..7661f5b 100644
+--- a/src/services/api/bootstrap.ts
++++ b/src/services/api/bootstrap.ts
+@@ -36,2 +36,21 @@ const bootstrapResponseSchema = lazySchema(() =>
+       .nullish(),
++    additional_model_costs: z
++      .record(
++        z
++          .object({
++            input_tokens: z.number(),
++            output_tokens: z.number(),
++            prompt_cache_write_tokens: z.number(),
++            prompt_cache_read_tokens: z.number(),
++            web_search_requests: z.number().nullish(),
++          })
++          .transform(costs => ({
++            inputTokens: costs.input_tokens,
++            outputTokens: costs.output_tokens,
++            promptCacheWriteTokens: costs.prompt_cache_write_tokens,
++            promptCacheReadTokens: costs.prompt_cache_read_tokens,
++            webSearchRequests: costs.web_search_requests ?? 0.01,
++          })),
++      )
++      .nullish(),
+   }),
+diff --git a/src/services/oauth/client.ts b/src/services/oauth/client.ts
+index 536805c..d238e32 100644
+--- a/src/services/oauth/client.ts
++++ b/src/services/oauth/client.ts
+@@ -212,2 +212,3 @@ export async function refreshOAuthToken(
+       config.oauthAccount?.subscriptionCreatedAt !== undefined &&
++      config.oauthAccount?.ccOnboardingFlags !== undefined &&
+       existing?.subscriptionType != null &&
+@@ -237,2 +238,8 @@ export async function refreshOAuthToken(
+       }
++      if (profileInfo.rawProfile) {
++        updates.ccOnboardingFlags = profileInfo.ccOnboardingFlags
++        updates.claudeCodeTrialEndsAt = profileInfo.claudeCodeTrialEndsAt
++        updates.claudeCodeTrialDurationDays =
++          profileInfo.claudeCodeTrialDurationDays
++      }
+       if (Object.keys(updates).length > 0) {
+@@ -370,2 +377,5 @@ export async function fetchProfileInfo(accessToken: string): Promise<{
+   subscriptionCreatedAt?: string
++  ccOnboardingFlags: Record<string, boolean>
++  claudeCodeTrialEndsAt: string | null
++  claudeCodeTrialDurationDays: number | null
+   rawProfile?: OAuthProfileResponse
+@@ -404,2 +414,5 @@ export async function fetchProfileInfo(accessToken: string): Promise<{
+     subscriptionCreatedAt?: string
++    ccOnboardingFlags: Record<string, boolean>
++    claudeCodeTrialEndsAt: string | null
++    claudeCodeTrialDurationDays: number | null
+   } = {
+@@ -410,2 +423,7 @@ export async function fetchProfileInfo(accessToken: string): Promise<{
+     billingType: profile?.organization?.billing_type ?? null,
++    ccOnboardingFlags: profile?.organization?.cc_onboarding_flags ?? {},
++    claudeCodeTrialEndsAt:
++      profile?.organization?.claude_code_trial_ends_at ?? null,
++    claudeCodeTrialDurationDays:
++      profile?.organization?.claude_code_trial_duration_days ?? null,
+   }
+@@ -489,3 +507,4 @@ export async function populateOAuthAccountInfoIfNeeded(): Promise<boolean> {
+       config.oauthAccount.accountCreatedAt !== undefined &&
+-      config.oauthAccount.subscriptionCreatedAt !== undefined) ||
++      config.oauthAccount.subscriptionCreatedAt !== undefined &&
++      config.oauthAccount.ccOnboardingFlags !== undefined) ||
+     !isClaudeAISubscriber() ||
+@@ -517,2 +536,7 @@ export async function populateOAuthAccountInfoIfNeeded(): Promise<boolean> {
+           profile.organization.subscription_created_at ?? undefined,
++        ccOnboardingFlags: profile.organization.cc_onboarding_flags ?? {},
++        claudeCodeTrialEndsAt:
++          profile.organization.claude_code_trial_ends_at ?? null,
++        claudeCodeTrialDurationDays:
++          profile.organization.claude_code_trial_duration_days ?? null,
+       })
+@@ -533,2 +557,5 @@ export function storeOAuthAccountInfo({
+   subscriptionCreatedAt,
++  ccOnboardingFlags,
++  claudeCodeTrialEndsAt,
++  claudeCodeTrialDurationDays,
+ }: {
+@@ -542,2 +569,5 @@ export function storeOAuthAccountInfo({
+   subscriptionCreatedAt?: string
++  ccOnboardingFlags?: Record<string, boolean>
++  claudeCodeTrialEndsAt?: string | null
++  claudeCodeTrialDurationDays?: number | null
+ }): void {
+@@ -551,2 +581,5 @@ export function storeOAuthAccountInfo({
+     subscriptionCreatedAt,
++    ccOnboardingFlags,
++    claudeCodeTrialEndsAt,
++    claudeCodeTrialDurationDays,
+   }
+@@ -567,3 +600,9 @@ export function storeOAuthAccountInfo({
+       current.oauthAccount?.subscriptionCreatedAt ===
+-        accountInfo.subscriptionCreatedAt
++        accountInfo.subscriptionCreatedAt &&
++      current.oauthAccount?.claudeCodeTrialEndsAt ===
++        accountInfo.claudeCodeTrialEndsAt &&
++      current.oauthAccount?.claudeCodeTrialDurationDays ===
++        accountInfo.claudeCodeTrialDurationDays &&
++      JSON.stringify(current.oauthAccount?.ccOnboardingFlags) ===
++        JSON.stringify(accountInfo.ccOnboardingFlags)
+     ) {
+@@ -571,3 +610,6 @@ export function storeOAuthAccountInfo({
+     }
+-    return { ...current, oauthAccount: accountInfo }
++    return {
++      ...current,
++      oauthAccount: { ...current.oauthAccount, ...accountInfo },
++    }
+   })
+diff --git a/src/skills/bundled/scheduleRemoteAgents.ts b/src/skills/bundled/scheduleRemoteAgents.ts
+index 3a1f6a4..50d68e1 100644
+--- a/src/skills/bundled/scheduleRemoteAgents.ts
++++ b/src/skills/bundled/scheduleRemoteAgents.ts
+@@ -139,2 +139,3 @@ function buildPrompt(opts: {
+   nowLocal: string
++  oneOffEnabled: boolean
+   connectorsInfo: string
+@@ -151,2 +152,3 @@ function buildPrompt(opts: {
+     nowLocal,
++    oneOffEnabled,
+     connectorsInfo,
+@@ -180,3 +182,3 @@ Set \`header: "Action"\` and offer the four actions (create/list/update/run) as
+ 
+-You are helping the user schedule, update, list, or run **remote** Claude Code agents. These are NOT local cron jobs — each routine spawns a fully isolated remote session (CCR) in Anthropic's cloud infrastructure, either on a recurring cron schedule or once at a specific time. The agent runs in a sandboxed environment with its own git checkout, tools, and optional MCP connections.
++You are helping the user schedule, update, list, or run **remote** Claude Code agents. These are NOT local cron jobs — each routine spawns a fully isolated remote session (CCR) in Anthropic's cloud infrastructure${oneOffEnabled ? ', either on a recurring cron schedule or once at a specific time' : ' on a recurring cron schedule'}. The agent runs in a sandboxed environment with its own git checkout, tools, and optional MCP connections.
+ 
+@@ -234,5 +236,3 @@ For a recurring schedule:
+ 
+-For a one-time run, replace \`"cron_expression": "CRON_EXPR"\` with \`"run_once_at": "YYYY-MM-DDTHH:MM:SSZ"\` (RFC3339 UTC, must be in the future). Everything else is identical.
+-
+-Generate a fresh lowercase UUID for \`events[].data.uuid\` yourself.
++${oneOffEnabled ? "For a one-time run, replace \\`\"cron_expression\": \"CRON_EXPR\"\\` with \\`\"run_once_at\": \"YYYY-MM-DDTHH:MM:SSZ\"\\` (RFC3339 UTC, must be in the future). Everything else is identical.\n\n" : ''}Generate a fresh lowercase UUID for \`events[].data.uuid\` yourself.
+ 
+@@ -261,5 +261,3 @@ ${createdEnvironment ? `\n**Note:** A new environment \`${createdEnvironment.nam
+ - \`name\` (string) — A descriptive name
+-- Exactly ONE of:
+-  - \`cron_expression\` (string) — 5-field cron in UTC. **Minimum interval is 1 hour.**
+-  - \`run_once_at\` (string) — RFC3339 UTC timestamp. Must be in the future. Fires once, then auto-disables.
++${oneOffEnabled ? "- Exactly ONE of:\n  - \\`cron_expression\\` (string) — 5-field cron in UTC. **Minimum interval is 1 hour.**\n  - \\`run_once_at\\` (string) — RFC3339 UTC timestamp. Must be in the future. Fires once, then auto-disables." : "- \\`cron_expression\\` (string) — 5-field cron in UTC. **Minimum interval is 1 hour.**"}
+ - \`job_config\` (object) — Session configuration (see structure above)
+@@ -275,3 +273,3 @@ ${createdEnvironment ? `\n**Note:** A new environment \`${createdEnvironment.nam
+ All fields optional (partial update):
+-- \`name\`, \`cron_expression\`, \`run_once_at\`, \`enabled\`, \`job_config\`
++- \`name\`, \`cron_expression\`${oneOffEnabled ? ", \\`run_once_at\\`" : ''}, \`enabled\`, \`job_config\`
+ - \`mcp_connections\` — Replace MCP connections
+@@ -281,3 +279,3 @@ All fields optional (partial update):
+ 
+-The user's local timezone is **${userTimezone}**. Cron expressions and \`run_once_at\` timestamps are always in UTC. When the user says a local time, convert it to UTC but confirm with them: "9am ${userTimezone} = Xam UTC, so the cron would be \`0 X * * 1-5\`." For one-time runs, the same conversion applies — "run this at 3pm" → \`"run_once_at": "YYYY-MM-DDTHH:00:00Z"\` with their 3pm converted to UTC.
++The user's local timezone is **${userTimezone}**. Cron expressions${oneOffEnabled ? " and \\`run_once_at\\` timestamps" : ''} are always in UTC. When the user says a local time, convert it to UTC but confirm with them: "9am ${userTimezone} = Xam UTC, so the cron would be \`0 X * * 1-5\`."${oneOffEnabled ? " For one-time runs, the same conversion applies — \"run this at 3pm\" → \\`\"run_once_at\": \"YYYY-MM-DDTHH:00:00Z\"\\` with their 3pm converted to UTC." : ''}
+ 
+@@ -290,3 +288,3 @@ The user's local timezone is **${userTimezone}**. Cron expressions and \`run_onc
+ Minimum interval is 1 hour. \`*/30 * * * *\` will be rejected.
+-
++${oneOffEnabled ? `
+ ### Current Time (for one-off runs)
+@@ -296,3 +294,3 @@ When /schedule was invoked it was **${nowLocal}** (${userTimezone}) / **${nowUtc
+ **Before computing any \`run_once_at\` value, you MUST re-check the current time** by running \`date -u +%Y-%m-%dT%H:%M:%SZ\` via the Bash tool. Do not guess or infer today's date from conversation context. Resolve relative requests ("tomorrow at 9am", "in 3 hours", "next Monday") against the freshly fetched time, then echo the resolved local time AND the UTC timestamp back to the user for confirmation before creating the routine. If the resolved time is already in the past, ask the user to clarify rather than silently rolling forward.
+-
++` : ''}
+ ## Workflow
+@@ -306,3 +304,3 @@ When /schedule was invoked it was **${nowLocal}** (${userTimezone}) / **${nowUtc
+    - Explicit about what actions to take (open PRs, commit, just analyze, etc.)
+-3. **Set the schedule** — Ask when and how often. The user's timezone is ${userTimezone}. When they say a time (e.g., "every morning at 9am"), assume they mean their local time and convert to UTC for the cron expression. Always confirm the conversion: "9am ${userTimezone} = Xam UTC." If they want a one-time run (e.g., "once at 3pm", "tomorrow morning", "remind me to check X later"), use \`run_once_at\` instead of \`cron_expression\` — same timezone conversion applies. **First re-check the current time with \`date -u\` via Bash** (the reference time above may be stale in a long conversation), resolve the relative phrase against that fresh value, and confirm the resulting absolute timestamp with the user.
++3. **Set the schedule** — Ask when and how often. The user's timezone is ${userTimezone}. When they say a time (e.g., "every morning at 9am"), assume they mean their local time and convert to UTC for the cron expression. Always confirm the conversion: "9am ${userTimezone} = Xam UTC."${oneOffEnabled ? " If they want a one-time run (e.g., \"once at 3pm\", \"tomorrow morning\", \"remind me to check X later\"), use \\`run_once_at\\` instead of \\`cron_expression\\` — same timezone conversion applies. **First re-check the current time with \\`date -u\\` via Bash** (the reference time above may be stale in a long conversation), resolve the relative phrase against that fresh value, and confirm the resulting absolute timestamp with the user." : ''}
+ 4. **Choose the model** — Default to \`claude-sonnet-4-6\`. Tell the user which model you're defaulting to and ask if they want a different one.
+@@ -334,4 +332,3 @@ When /schedule was invoked it was **${nowLocal}** (${userTimezone}) / **${nowUtc
+ - Always convert cron to human-readable when displaying
+-- When listing routines, \`ended_reason: "run_once_fired"\` means a one-shot already ran (shows as "Ran" in the web UI). The user can re-arm it by updating with a new \`run_once_at\`.
+-- Default to \`enabled: true\` unless user says otherwise
++${oneOffEnabled ? "- When listing routines, \\`ended_reason: \"run_once_fired\"\\` means a one-shot already ran (shows as \"Ran\" in the web UI). The user can re-arm it by updating with a new \\`run_once_at\\`.\n" : ''}- Default to \`enabled: true\` unless user says otherwise
+ - Accept GitHub URLs in any format (https://github.com/org/repo, org/repo, etc.) and normalize to the full HTTPS URL (without .git suffix)
+@@ -466,2 +463,6 @@ export function registerScheduleRemoteAgentsSkill(): void {
+       })
++      const oneOffEnabled = getFeatureValue_CACHED_MAY_BE_STALE(
++        'tengu_mocha_barista',
++        false,
++      )
+       const connectorsInfo = formatConnectorsInfo(connectors)
+@@ -479,2 +480,3 @@ export function registerScheduleRemoteAgentsSkill(): void {
+         nowLocal,
++        oneOffEnabled,
+         connectorsInfo,
+diff --git a/src/state/AppState.tsx b/src/state/AppState.tsx
+index bdbb169..6235331 100644
+--- a/src/state/AppState.tsx
++++ b/src/state/AppState.tsx
+@@ -3,2 +3,3 @@ import { feature } from 'bun:bundle';
+ import React, { useContext, useEffect, useEffectEvent, useState, useSyncExternalStore } from 'react';
++import { setMcpClientsAccessor } from '../bootstrap/state.js';
+ import { MailboxProvider } from '../context/mailbox.js';
+@@ -57,2 +58,6 @@ export function AppStateProvider(t0) {
+   const [store] = useState(t1);
++  useEffect(() => {
++    setMcpClientsAccessor(() => store.getState().mcp.clients);
++    return () => setMcpClientsAccessor(undefined);
++  }, [store]);
+   let t2;
+diff --git a/src/state/AppStateStore.ts b/src/state/AppStateStore.ts
+index 06ffd23..6eed0fd 100644
+--- a/src/state/AppStateStore.ts
++++ b/src/state/AppStateStore.ts
+@@ -239,2 +239,3 @@ export type AppState = DeepImmutable<{
+   }
++  frameUrls: Record<string, string>
+   elicitation: {
+@@ -554,2 +555,3 @@ export function getDefaultAppState(): AppState {
+     },
++    frameUrls: {},
+     elicitation: {
+diff --git a/src/tasks/stopTask.ts b/src/tasks/stopTask.ts
+index c2cd768..1f51f12 100644
+--- a/src/tasks/stopTask.ts
++++ b/src/tasks/stopTask.ts
+@@ -3,8 +3,60 @@
+ 
+-import type { AppState } from '../state/AppState.js'
++import {
++  STATUS_TAG,
++  SUMMARY_TAG,
++  TASK_ID_TAG,
++  TASK_NOTIFICATION_TAG,
++  TOOL_USE_ID_TAG,
++} from '../constants/xml.js'
+ import type { TaskStateBase } from '../Task.js'
+ import { getTaskByType } from '../tasks.js'
++import { asAgentId, type AgentId } from '../types/ids.js'
++import { enqueuePendingNotification } from '../utils/messageQueueManager.js'
+ import { emitTaskTerminatedSdk } from '../utils/sdkEventQueue.js'
++import type { TaskRegistry } from '../utils/task/framework.js'
++import { escapeXml } from '../utils/xml.js'
+ import { isLocalShellTask } from './LocalShellTask/guards.js'
+ 
++function formatAgentId(agentId: AgentId | undefined): string {
++  return agentId ?? 'main session'
++}
++
++function enqueueTaskStoppedNotification({
++  taskId,
++  toolUseId,
++  description,
++  ownerAgentId,
++  stopperAgentId,
++}: {
++  taskId: string
++  toolUseId?: string
++  description: string
++  ownerAgentId: AgentId
++  stopperAgentId?: AgentId
++}): void {
++  const summary = `Task "${description}" was stopped by ${formatAgentId(stopperAgentId)}`
++  const toolUseIdLine = toolUseId
++    ? `\n<${TOOL_USE_ID_TAG}>${escapeXml(toolUseId)}</${TOOL_USE_ID_TAG}>`
++    : ''
++  const message = `<${TASK_NOTIFICATION_TAG}>
++<${TASK_ID_TAG}>${escapeXml(taskId)}</${TASK_ID_TAG}>${toolUseIdLine}
++<${STATUS_TAG}>stopped</${STATUS_TAG}>
++<${SUMMARY_TAG}>${escapeXml(summary)}</${SUMMARY_TAG}>
++</${TASK_NOTIFICATION_TAG}>`
++  enqueuePendingNotification({
++    value: message,
++    mode: 'task-notification',
++    priority: 'next',
++    agentId: asAgentId(ownerAgentId),
++  })
++}
++
++function canCallerStopTask(
++  callerAgentId: AgentId | undefined,
++  ownerAgentId: AgentId | undefined,
++): boolean {
++  if (callerAgentId === undefined) return true
++  return callerAgentId === ownerAgentId
++}
++
+ export class StopTaskError extends Error {
+@@ -12,3 +64,7 @@ export class StopTaskError extends Error {
+     message: string,
+-    public readonly code: 'not_found' | 'not_running' | 'unsupported_type',
++    public readonly code:
++      | 'not_found'
++      | 'not_running'
++      | 'not_owner'
++      | 'unsupported_type',
+   ) {
+@@ -20,4 +76,5 @@ export class StopTaskError extends Error {
+ type StopTaskContext = {
+-  getAppState: () => AppState
+-  setAppState: (f: (prev: AppState) => AppState) => void
++  taskRegistry: TaskRegistry
++  setAppState: import('../Task.js').SetAppState
++  callerAgentId?: AgentId
+ }
+@@ -41,5 +98,6 @@ export async function stopTask(
+ ): Promise<StopTaskResult> {
+-  const { getAppState, setAppState } = context
+-  const appState = getAppState()
+-  const task = appState.tasks?.[taskId] as TaskStateBase | undefined
++  const { taskRegistry, setAppState, callerAgentId } = context
++  const task = taskRegistry.get(taskId) as
++    | (TaskStateBase & { agentId?: AgentId })
++    | undefined
+ 
+@@ -56,2 +114,9 @@ export async function stopTask(
+ 
++  if (!canCallerStopTask(callerAgentId, task.agentId)) {
++    throw new StopTaskError(
++      `Task ${taskId} is owned by ${formatAgentId(task.agentId)}; agent ${callerAgentId} cannot stop it.`,
++      'not_owner',
++    )
++  }
++
+   const taskImpl = getTaskByType(task.type)
+@@ -64,3 +129,3 @@ export async function stopTask(
+ 
+-  await taskImpl.kill(taskId, setAppState)
++  await taskImpl.kill(taskId, taskRegistry, setAppState)
+ 
+@@ -71,15 +136,6 @@ export async function stopTask(
+     let suppressed = false
+-    setAppState(prev => {
+-      const prevTask = prev.tasks[taskId]
+-      if (!prevTask || prevTask.notified) {
+-        return prev
+-      }
++    taskRegistry.update(taskId, prevTask => {
++      if (prevTask.notified) return prevTask
+       suppressed = true
+-      return {
+-        ...prev,
+-        tasks: {
+-          ...prev.tasks,
+-          [taskId]: { ...prevTask, notified: true },
+-        },
+-      }
++      return { ...prevTask, notified: true }
+     })
+@@ -96,2 +152,16 @@ export async function stopTask(
+ 
++  if (
++    isLocalShellTask(task) &&
++    task.agentId !== undefined &&
++    callerAgentId !== task.agentId
++  ) {
++    enqueueTaskStoppedNotification({
++      taskId,
++      toolUseId: task.toolUseId,
++      description: task.description,
++      ownerAgentId: task.agentId,
++      stopperAgentId: callerAgentId,
++    })
++  }
++
+   const command = isLocalShellTask(task) ? task.command : task.description
+diff --git a/src/tools/FileReadTool/FileReadTool.ts b/src/tools/FileReadTool/FileReadTool.ts
+index a480743..42a67c4 100644
+--- a/src/tools/FileReadTool/FileReadTool.ts
++++ b/src/tools/FileReadTool/FileReadTool.ts
+@@ -74,4 +74,6 @@ import { readFileInRange } from '../../utils/readFileInRange.js'
+ import { semanticNumber } from '../../utils/semanticNumber.js'
++import { isBashToolEnabled } from '../../utils/shell/shellToolUtils.js'
+ import { jsonStringify } from '../../utils/slowOperations.js'
+ import { BASH_TOOL_NAME } from '../BashTool/toolName.js'
++import { POWERSHELL_TOOL_NAME } from '../PowerShellTool/toolName.js'
+ import { getDefaultFileReadingLimits } from './limits.js'
+@@ -831,9 +833,15 @@ async function callInner(
+     if (cellsJsonBytes > maxSizeBytes) {
++      const readHint = isBashToolEnabled()
++        ? `Use ${BASH_TOOL_NAME} with jq to read specific portions:
++  cat "${file_path}" | jq '.cells[:20]' # First 20 cells
++  cat "${file_path}" | jq '.cells[100:120]' # Cells 100-120
++  cat "${file_path}" | jq '.cells | length' # Count total cells
++  cat "${file_path}" | jq '.cells[] | select(.cell_type=="code") | .source' # All code sources`
++        : `Use ${POWERSHELL_TOOL_NAME} to read specific portions:
++  Get-Content "${file_path}" | ConvertFrom-Json | Select-Object -ExpandProperty cells | Select-Object -First 20
++  Get-Content "${file_path}" | ConvertFrom-Json | Select-Object -ExpandProperty cells | Select-Object -Skip 100 -First 20 # Cells 100-120
++  (Get-Content "${file_path}" | ConvertFrom-Json).cells.Count # Count total cells
++  Get-Content "${file_path}" | ConvertFrom-Json | Select-Object -ExpandProperty cells | Where-Object cell_type -eq code | Select-Object -ExpandProperty source`
+       throw new Error(
+-        `Notebook content (${formatFileSize(cellsJsonBytes)}) exceeds maximum allowed size (${formatFileSize(maxSizeBytes)}). ` +
+-          `Use ${BASH_TOOL_NAME} with jq to read specific portions:\n` +
+-          `  cat "${file_path}" | jq '.cells[:20]' # First 20 cells\n` +
+-          `  cat "${file_path}" | jq '.cells[100:120]' # Cells 100-120\n` +
+-          `  cat "${file_path}" | jq '.cells | length' # Count total cells\n` +
+-          `  cat "${file_path}" | jq '.cells[] | select(.cell_type=="code") | .source' # All code sources`,
++        `Notebook content (${formatFileSize(cellsJsonBytes)}) exceeds maximum allowed size (${formatFileSize(maxSizeBytes)}). ${readHint}`,
+       )
+diff --git a/src/tools/SkillTool/UI.tsx b/src/tools/SkillTool/UI.tsx
+index 9f2e758..d1915a7 100644
+--- a/src/tools/SkillTool/UI.tsx
++++ b/src/tools/SkillTool/UI.tsx
+@@ -15,2 +15,3 @@ import { buildSubagentLookups, EMPTY_LOOKUPS } from '../../utils/messages.js';
+ import { plural } from '../../utils/stringUtils.js';
++import { getTeamArtifactAuthor } from '../../utils/teamArtifacts.js';
+ import type { inputSchema, Output, Progress } from './SkillTool.js';
+@@ -56,6 +57,8 @@ export function renderToolUseMessage({
+   }
+-  // Look up the command to check if it came from the legacy /commands folder
+-  const command = commands?.find(c => c.name === skill);
+-  const displayName = command?.loadedFrom === 'commands_DEPRECATED' ? `/${skill}` : skill;
+-  return displayName;
++  const trimmedSkill = skill.trim();
++  const skillName = trimmedSkill.startsWith('/') ? trimmedSkill.substring(1) : trimmedSkill;
++  const command = commands?.find(c => c.name === skillName);
++  const displayName = command?.loadedFrom === 'commands_DEPRECATED' ? `/${skillName}` : skillName;
++  const author = getTeamArtifactAuthor(command?.type === 'prompt' ? command.source : undefined, skillName);
++  return author ? `${displayName} · by ${author}` : displayName;
+ }
+diff --git a/src/utils/cliArgs.ts b/src/utils/cliArgs.ts
+index 530f46c..339a838 100644
+--- a/src/utils/cliArgs.ts
++++ b/src/utils/cliArgs.ts
+@@ -60 +60,13 @@ export function extractArgsAfterDoubleDash(
+ }
++
++const CLI_FLAGS_WITH_VALUES = new Set([
++  '--prefill',
++  '--prefill-b64',
++  '--deep-link-repo',
++  '--deep-link-last-fetch',
++  '--deep-link-cwd-b64',
++  '--handle-uri',
++  '--settings',
++  '--managed-settings',
++  '--setting-sources',
++])
+diff --git a/src/utils/concurrentSessions.ts b/src/utils/concurrentSessions.ts
+index f00ce67..a589f69 100644
+--- a/src/utils/concurrentSessions.ts
++++ b/src/utils/concurrentSessions.ts
+@@ -30,3 +30,3 @@ function getSessionsDir(): string {
+  */
+-function envSessionKind(): SessionKind | undefined {
++export function envSessionKind(): SessionKind | undefined {
+   if (feature('BG_SESSIONS')) {
+diff --git a/src/utils/gitSessionContext.ts b/src/utils/gitSessionContext.ts
+new file mode 100644
+index 0000000..587343a
+--- /dev/null
++++ b/src/utils/gitSessionContext.ts
+@@ -0,0 +1,63 @@
++import type {
++  GitRepositoryOutcome,
++  GitSource,
++} from './teleport/api.js'
++
++export async function buildGitSessionContext(
++  gitRepoUrl: string | null,
++  branch?: string,
++  defaultBranch?: string,
++): Promise<{
++  sources: GitSource[]
++  outcomes: GitRepositoryOutcome[]
++}> {
++  if (!gitRepoUrl) return { sources: [], outcomes: [] }
++
++  const { parseGitRemote, parseGitHubRepository } = await import(
++    './detectRepository.js'
++  )
++  const { getDefaultBranch } = await import('./git.js')
++  const resolvedDefaultBranch =
++    defaultBranch || (await getDefaultBranch()) || ''
++  const revision = branch || resolvedDefaultBranch || undefined
++  const outcomeBranches =
++    revision && revision !== resolvedDefaultBranch ? [revision] : []
++
++  const build = (
++    host: string,
++    owner: string,
++    repo: string,
++  ): {
++    sources: GitSource[]
++    outcomes: GitRepositoryOutcome[]
++  } => ({
++    sources: [
++      {
++        type: 'git_repository',
++        url: `https://${host}/${owner}/${repo}`,
++        revision,
++      },
++    ],
++    outcomes: [
++      {
++        type: 'git_repository',
++        git_info: {
++          type: 'github',
++          repo: `${owner}/${repo}`,
++          branches: outcomeBranches,
++        },
++      },
++    ],
++  })
++
++  const parsed = parseGitRemote(gitRepoUrl)
++  if (parsed) return build(parsed.host, parsed.owner, parsed.name)
++
++  const githubRepo = parseGitHubRepository(gitRepoUrl)
++  if (githubRepo) {
++    const [owner, repo] = githubRepo.split('/')
++    if (owner && repo) return build('github.com', owner, repo)
++  }
++
++  return { sources: [], outcomes: [] }
++}
+diff --git a/src/utils/gracefulShutdown.ts b/src/utils/gracefulShutdown.ts
+index b17c8c5..f6f2e6b 100644
+--- a/src/utils/gracefulShutdown.ts
++++ b/src/utils/gracefulShutdown.ts
+@@ -1,2 +1,3 @@
+ import chalk from 'chalk'
++import { createHash } from 'crypto'
+ import { writeSync } from 'fs'
+@@ -46,2 +47,95 @@ import { profileReport } from './startupProfiler.js'
+ 
++function shortErrorHash(value: string): string {
++  return createHash('sha256').update(value).digest('hex').slice(0, 12)
++}
++
++function sanitizeErrorMessage(value: string): string {
++  return value
++    .slice(0, 500)
++    .replace(/https?:\/\/\S+/gi, '<url>')
++    .replace(/\b[\w.+-]+@[\w.-]+\.\w{2,}\b/g, '<email>')
++    .replace(
++      /\b(?:sk-ant|sk|pk|ghp|gho|ghs|ghu|github_pat|xox[bpoars])[-_][\w-]{8,}\b/gi,
++      '<key>',
++    )
++    .replace(/[A-Za-z]:\\[^\s"']*/g, '<path>')
++    .replace(/\\\\[^\s"']+/g, '<path>')
++    .replace(/(?:[^\s"'\\]+\\){2,}[^\s"']+/g, '<path>')
++    .replace(/(?:\/[^\s"':]+){2,}/g, '<path>')
++    .replace(
++      /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi,
++      '<id>',
++    )
++    .replace(/\b[0-9a-fA-F]{16,}\b/g, '<id>')
++    .replace(/\b[A-Za-z0-9+/]{32,}={0,2}/g, '<b64>')
++    .replace(/\b\d{1,3}(?:\.\d{1,3}){3}\b/g, '<ip>')
++    .replace(/\b\d{4,}\b/g, '<num>')
++}
++
++function parseErrorStack(
++  stack: string,
++  limit = 5,
++): { names: string[]; topFrame?: string } {
++  const names: string[] = []
++  let topFrame: string | undefined
++  for (const line of stack.slice(0, 4000).split('\n')) {
++    const trimmed = line.trim()
++    if (!trimmed.startsWith('at ')) continue
++    const frame = trimmed.slice(3)
++    const parenIndex = frame.indexOf(' (')
++    if (topFrame === undefined) {
++      const location = (parenIndex !== -1
++        ? frame.slice(parenIndex + 2, -1)
++        : frame
++      ).match(/([^/\\]+:\d+:\d+)\)?$/)
++      if (location) topFrame = location[1]
++    }
++    let name = parenIndex !== -1 ? frame.slice(0, parenIndex) : frame
++    name = name.replace(/^async\s+/, '').replace(/^new\s+/, '')
++    if (name.includes('/') || name.includes('\\') || /:\d/.test(name)) continue
++    if (name) names.push(name)
++    if (names.length >= limit) break
++  }
++  return { names, topFrame }
++}
++
++function safeErrorString(value: unknown): string {
++  try {
++    return String(value)
++  } catch {
++    return '[unstringifiable]'
++  }
++}
++
++function getSafeErrorMetadata(error: unknown): Record<string, string> {
++  try {
++    const value = safeErrorString(
++      error instanceof Error ? error.message : error,
++    )
++    const metadata: Record<string, string> = {
++      error_message_hash: shortErrorHash(sanitizeErrorMessage(value)),
++    }
++    const code = (error as { code?: unknown } | null)?.code
++    if (typeof code === 'string' && /^[A-Z][A-Z0-9_]*$/.test(code)) {
++      metadata.error_code = code
++    }
++    if (error instanceof Error) {
++      const constructorName = error.constructor?.name
++      if (typeof constructorName === 'string') {
++        metadata.error_constructor = constructorName
++      }
++      if (typeof error.stack === 'string') {
++        const { names, topFrame } = parseErrorStack(error.stack)
++        if (names.length > 0) {
++          metadata.error_stack_hash = shortErrorHash(names.join('|'))
++        }
++        if (topFrame !== undefined) metadata.error_top_frame = topFrame
++      }
++    }
++    return metadata
++  } catch {
++    return {}
++  }
++}
++
+ /**
+@@ -317,2 +411,3 @@ export const setupGracefulShutdown = memoize(() => {
+         error.name as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
++      ...getSafeErrorMetadata(error),
+     })
+@@ -340,2 +435,3 @@ export const setupGracefulShutdown = memoize(() => {
+         errorName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
++      ...getSafeErrorMetadata(reason),
+     })
+diff --git a/src/utils/hooks/execMcpToolHook.ts b/src/utils/hooks/execMcpToolHook.ts
+index 4806d0d..09f05d6 100644
+--- a/src/utils/hooks/execMcpToolHook.ts
++++ b/src/utils/hooks/execMcpToolHook.ts
+@@ -2,2 +2,3 @@ import { CallToolResultSchema } from '@modelcontextprotocol/sdk/types.js'
+ import type { HookEvent } from 'src/entrypoints/agentSdkTypes.js'
++import { getMcpClientsFromAccessor } from '../../bootstrap/state.js'
+ import type { MCPServerConnection } from '../../services/mcp/types.js'
+@@ -44,3 +45,4 @@ export async function execMcpToolHook(
+ ): Promise<{ ok: boolean; body: string; error?: string; aborted?: boolean }> {
+-  if (clients === undefined) {
++  const availableClients = clients ?? getMcpClientsFromAccessor()
++  if (availableClients === undefined) {
+     const error = `mcp_tool hooks are not available for the '${hookEvent}' hook event (no MCP client context)`
+@@ -49,3 +51,3 @@ export async function execMcpToolHook(
+   }
+-  const server = clients.find(client => client.name === hook.server)
++  const server = availableClients.find(client => client.name === hook.server)
+   if (!server || server.type !== 'connected') {
+diff --git a/src/utils/hooks/hookHelpers.ts b/src/utils/hooks/hookHelpers.ts
+index c6bed45..bf78ab4 100644
+--- a/src/utils/hooks/hookHelpers.ts
++++ b/src/utils/hooks/hookHelpers.ts
+@@ -43,2 +43,3 @@ export function createStructuredOutputTool(): Tool {
+     ...SyntheticOutputTool,
++    alwaysLoad: true,
+     inputSchema: hookResponseSchema(),
+diff --git a/src/utils/hooks/hooksSettings.ts b/src/utils/hooks/hooksSettings.ts
+index b918ede..08de9b3 100644
+--- a/src/utils/hooks/hooksSettings.ts
++++ b/src/utils/hooks/hooksSettings.ts
+@@ -12,2 +12,3 @@ import type { HookCommand, HookMatcher } from '../settings/types.js'
+ import { DEFAULT_HOOK_SHELL } from '../shell/shellProvider.js'
++import { jsonStringify } from '../slowOperations.js'
+ import { getSessionHooks } from './sessionHooks.js'
+@@ -60,2 +61,10 @@ export function isHookEqual(
+       return b.type === 'http' && a.url === b.url && sameIf(a, b)
++    case 'mcp_tool':
++      return (
++        b.type === 'mcp_tool' &&
++        a.server === b.server &&
++        a.tool === b.tool &&
++        jsonStringify(a.input ?? {}) === jsonStringify(b.input ?? {}) &&
++        sameIf(a, b)
++      )
+     case 'function':
+@@ -84,2 +93,4 @@ export function getHookDisplayText(
+       return hook.url
++    case 'mcp_tool':
++      return `${hook.server}/${hook.tool}`
+     case 'callback':
+diff --git a/src/utils/suggestions/commandSuggestions.ts b/src/utils/suggestions/commandSuggestions.ts
+index e91f736..6744898 100644
+--- a/src/utils/suggestions/commandSuggestions.ts
++++ b/src/utils/suggestions/commandSuggestions.ts
+@@ -3,2 +3,3 @@ import {
+   type Command,
++  findCommand,
+   formatDescriptionWithSource,
+@@ -338,2 +339,3 @@ function createCommandSuggestionItem(
+     metadata: cmd,
++    matchedAlias,
+   }
+@@ -573,3 +575,7 @@ export function applyCommandSuggestion(
+     }
+-    commandName = getCommandName(suggestion.metadata)
++    const matchedAlias = suggestion.matchedAlias
++    commandName =
++      matchedAlias && findCommand(matchedAlias, commands) === suggestion.metadata
++        ? matchedAlias
++        : suggestion.metadata.name
+     commandObj = suggestion.metadata
+diff --git a/src/utils/swarm/inProcessRunner.ts b/src/utils/swarm/inProcessRunner.ts
+index 405908b..b86388c 100644
+--- a/src/utils/swarm/inProcessRunner.ts
++++ b/src/utils/swarm/inProcessRunner.ts
+@@ -502,2 +502,4 @@ export type InProcessRunnerConfig = {
+   invokingRequestId?: string
++  /** Whether this runner is detached from team mailbox and notification flows. */
++  standalone?: boolean
+ }
+@@ -696,2 +698,3 @@ async function waitForNextPromptOrShutdown(
+   taskListId: string,
++  standalone: boolean,
+ ): Promise<WaitResult> {
+@@ -741,2 +744,11 @@ async function waitForNextPromptOrShutdown(
+ 
++    if (
++      task &&
++      task.type === 'in_process_teammate' &&
++      task.shutdownRequested &&
++      standalone
++    ) {
++      return { type: 'aborted' }
++    }
++
+     // Wait before next poll (skip on first iteration to check immediately)
+@@ -755,2 +767,4 @@ async function waitForNextPromptOrShutdown(
+ 
++    if (standalone) continue
++
+     // Check for messages in mailbox
+@@ -901,2 +915,3 @@ export async function runInProcessTeammate(
+     invokingRequestId,
++    standalone = false,
+   } = config
+@@ -1019,3 +1034,5 @@ export async function runInProcessTeammate(
+   // under its session ID, not the team name.
+-  await tryClaimNextTask(identity.parentSessionId, identity.agentName)
++  if (!standalone) {
++    await tryClaimNextTask(identity.parentSessionId, identity.agentName)
++  }
+ 
+@@ -1349,3 +1366,3 @@ export async function runInProcessTeammate(
+       // Only send idle notification on transition to idle (not if already idle)
+-      if (!wasAlreadyIdle) {
++      if (!wasAlreadyIdle && !standalone) {
+         await sendIdleNotification(
+@@ -1377,2 +1394,3 @@ export async function runInProcessTeammate(
+         identity.parentSessionId,
++        standalone,
+       )
+@@ -1532,12 +1550,14 @@ export async function runInProcessTeammate(
+     // Send idle notification with failure via file-based mailbox
+-    await sendIdleNotification(
+-      identity.agentName,
+-      identity.color,
+-      identity.teamName,
+-      {
+-        idleReason: 'failed',
+-        completedStatus: 'failed',
+-        failureReason: errorMessage,
+-      },
+-    )
++    if (!standalone) {
++      await sendIdleNotification(
++        identity.agentName,
++        identity.color,
++        identity.teamName,
++        {
++          idleReason: 'failed',
++          completedStatus: 'failed',
++          failureReason: errorMessage,
++        },
++      )
++    }
+ 
+diff --git a/src/utils/teleport/api.ts b/src/utils/teleport/api.ts
+index 85af53e..65d44a2 100644
+--- a/src/utils/teleport/api.ts
++++ b/src/utils/teleport/api.ts
+@@ -139,3 +139,3 @@ export type SessionResource = {
+ export type ListSessionsResponse = {
+-  data: SessionResource[]
++  data: SessionsApiSession[]
+   has_more: boolean
+@@ -145,2 +145,44 @@ export type ListSessionsResponse = {
+ 
++type SessionsApiSession = {
++  id: string
++  title?: string | null
++  status?: string
++  worker_status?: SessionStatus
++  environment_id: string
++  created_at: string
++  updated_at?: string
++  last_event_at: string
++  config?: {
++    sources?: SessionContextSource[]
++    outcomes?: Outcome[] | null
++    model?: string | null
++  }
++}
++
++export function ccrSessionToResource(
++  session: SessionsApiSession,
++): SessionResource {
++  const sessionStatus: SessionStatus =
++    session.status === 'archived'
++      ? 'archived'
++      : (session.worker_status ?? 'idle')
++  return {
++    type: 'session',
++    id: session.id,
++    title: session.title ?? null,
++    session_status: sessionStatus,
++    environment_id: session.environment_id,
++    created_at: session.created_at,
++    updated_at: session.updated_at ?? session.last_event_at,
++    session_context: {
++      sources: session.config?.sources ?? [],
++      outcomes: session.config?.outcomes ?? null,
++      model: session.config?.model ?? null,
++      cwd: '',
++      custom_system_prompt: null,
++      append_system_prompt: null,
++    },
++  }
++}
++
+ export const CodeSessionSchema = lazySchema(() =>
+@@ -207,12 +249,8 @@ export async function fetchCodeSessionsFromSessionsAPI(): Promise<
+ > {
+-  const { accessToken, orgUUID } = await prepareApiRequest()
++  const { accessToken } = await prepareApiRequest()
+ 
+-  const url = `${getOauthConfig().BASE_API_URL}/v1/sessions`
++  const url = `${getOauthConfig().BASE_API_URL}/v1/code/sessions`
+ 
+   try {
+-    const headers = {
+-      ...getOAuthHeaders(accessToken),
+-      'anthropic-beta': 'ccr-byoc-2025-07-29',
+-      'x-organization-uuid': orgUUID,
+-    }
++    const headers = getOAuthHeaders(accessToken)
+ 
+@@ -227,3 +265,4 @@ export async function fetchCodeSessionsFromSessionsAPI(): Promise<
+     // Transform SessionResource[] to CodeSession[] format
+-    const sessions: CodeSession[] = response.data.data.map(session => {
++    const sessions: CodeSession[] = response.data.data.map(rawSession => {
++      const session = ccrSessionToResource(rawSession)
+       // Extract repository info from git sources
+@@ -323,10 +362,6 @@ export async function fetchSession(
+ ): Promise<SessionResource> {
+-  const { accessToken, orgUUID } = await prepareApiRequest()
++  const { accessToken } = await prepareApiRequest()
+ 
+-  const url = `${getOauthConfig().BASE_API_URL}/v1/sessions/${sessionId}`
+-  const headers = {
+-    ...getOAuthHeaders(accessToken),
+-    'anthropic-beta': 'ccr-byoc-2025-07-29',
+-    'x-organization-uuid': orgUUID,
+-  }
++  const url = `${getOauthConfig().BASE_API_URL}/v1/code/sessions/${sessionId}`
++  const headers = getOAuthHeaders(accessToken)
+ 
+@@ -357,3 +392,11 @@ export async function fetchSession(
+ 
+-  return response.data
++  const responseData = response.data as unknown as {
++    response_shape?: SessionsApiSession
++    session?: SessionsApiSession
++  }
++  const session = responseData.response_shape ?? responseData.session
++  if (!session?.id) {
++    throw new Error(`Session not found: ${sessionId}`)
++  }
++  return ccrSessionToResource(session)
+ }
