@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "kind": "generated-source-ownership-and-attribution-inventory",
+  "offsetUnit": "utf16-code-units",
+  "claim": "Exhaustive generated-offset accounting with exact baseline source ownership; target source identities are evidence-ranked and unresolved where anchors are insufficient.",
+  "artifacts": {
+    "baselineBundle": {
+      "bytes": 13047043,
+      "sha256": "75c9611929d9a770fe2e3a393219d8b98f5de17fde539b2a7355c6db3fd2795f"
+    },
+    "baselineSourceMap": {
+      "bytes": 59766257,
+      "sha256": "7965012b7a5fc9e09d8d747a04c5c32b94696924536e217f686bb1e7ee70a657"
+    },
+    "targetBundle": {
+      "bytes": 13980411,
+      "sha256": "e9d40219be0cad9009c115ec637df4976e987c33d4b7a88cc5f047ead9ad828d"
+    }
+  },
+  "options": {
+    "minimumLiteralLength": 8
+  },
+  "baselineOwnership": {
+    "sourceCount": 4756,
+    "sourceKinds": {
+      "application": 1902,
+      "nodeModules": 2850,
+      "vendor": 4
+    },
+    "mappedSegmentCount": 2068722,
+    "contiguousRunCount": 4756,
+    "eachSourceHasExactlyOneContiguousRun": true,
+    "generatedHeaderUtf16": 2230
+  },
+  "literalEvidence": {
+    "uniqueCommonAnchorCount": 37732,
+    "monotoneAnchorCount": 29001,
+    "nonMonotoneAnchorCount": 8731,
+    "monotoneFraction": 0.7686048976995653,
+    "partitionCount": 29002,
+    "tokenCountDelta": 216794,
+    "utf16LengthDelta": 997083,
+    "locatedSourceCount": 2349,
+    "locatedApplicationSourceCount": 1222,
+    "splitTargetClusterSourceCount": 30
+  },
+  "initializerEvidence": {
+    "baseline": {
+      "wrapperNames": {
+        "common": "m",
+        "initializer": "y"
+      },
+      "count": 4527
+    },
+    "target": {
+      "wrapperNames": {
+        "common": "n",
+        "initializer": "T"
+      },
+      "count": 5156,
+      "statuses": {
+        "unresolved-no-unique-literal": 2692,
+        "anchored-single-baseline-unit": 2355,
+        "anchored-multiple-baseline-units": 109
+      }
+    },
+    "targetNetCountDelta": 629
+  },
+  "coverage": {
+    "partitionCount": 29002,
+    "targetPartitionUtf16": 12625156,
+    "exactAnchorCount": 29001,
+    "exactAnchorTargetUtf16": 1355255,
+    "exactGeneratedPartitionCount": 12776,
+    "exactGeneratedTargetUtf16": 152885,
+    "changedHighConfidencePartitionCount": 14155,
+    "changedHighConfidenceTargetUtf16": 4092615,
+    "changedCandidatePartitionCount": 2071,
+    "changedCandidateTargetUtf16": 8379656,
+    "unresolvedPartitionCount": 0,
+    "unresolvedTargetUtf16": 0,
+    "accountedTargetUtf16": 13980411,
+    "targetUtf16": 13980411,
+    "unaccountedTargetUtf16": 0,
+    "targetRangeCount": 58003,
+    "targetRangeUtf16": 13980411
+  },
+  "releaseEvidence": {
+    "targetPackage": {
+      "bytes": 1476,
+      "sha256": "83e82576db90bbaeb072858c55ca709409cb214031d1de0a9401680513ded5e5",
+      "name": "@anthropic-ai/claude-code",
+      "version": "2.1.126"
+    },
+    "targetDeclarations": {
+      "bytes": 117452,
+      "sha256": "8f907e0e9fd160b857d25881375f73f1bddd3642d372ad52ea71d7ff441f3ddf"
+    }
+  },
+  "reportFiles": {
+    "sources": {
+      "path": "sources.jsonl.gz",
+      "bytes": 467913,
+      "sha256": "184a7c5ff224cb19d459de6c22fed62ef9534dc9cd754cbad75cab1a18ee4175"
+    },
+    "targetInitializers": {
+      "path": "target-initializers.jsonl.gz",
+      "bytes": 119650,
+      "sha256": "e5bb2f1a7ea96f30da926eb9b6c4170b9ca546e4d004e14fbd0a05a51bbbde5d"
+    },
+    "targetPartitions": {
+      "path": "target-partitions.jsonl.gz",
+      "bytes": 2913952,
+      "sha256": "0865834352bb9f1adc5d5d52bda7543217cde47eb4aed817be0e300fbfa46f85"
+    },
+    "targetRanges": {
+      "path": "target-ranges.jsonl.gz",
+      "bytes": 3410427,
+      "sha256": "7108ef063d30d9093a6464fd8164d5533fa515c4f70904e006dbca5e3e97a74c"
+    }
+  },
+  "limitations": [
+    "Exact source ownership exists only for the baseline source map.",
+    "Initializer regions are delimited by successive Bun wrapper-expression starts; they are generated units, not asserted one-to-one source modules.",
+    "A target initializer with no unique long literal is unresolved, not automatically target-only.",
+    "Candidate ranges can include moved code; non-monotone literal owners are reported separately.",
+    "Raw-different partitions include harmless minifier-name churn as well as semantic changes.",
+    "No target source text is claimed reconstructed by this inventory."
+  ]
+}

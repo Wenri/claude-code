@@ -1,0 +1,203 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "status": "authenticated-source-gap-recovered",
+  "evidenceIds": [
+    "target118-error-telemetry-source-gap-target-fragment",
+    "target118-error-telemetry-source-gap-source-replay-test"
+  ],
+  "inputs": {
+    "targetBundle": {
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "file": {
+      "path": "src/utils/gracefulShutdown.ts",
+      "before": {
+        "bytes": 20840,
+        "sha256": "1cc0c7af7ecb33b345ccc4e3ca76c6b115a0c6dda7b86ccc1f92b495002776ee"
+      },
+      "after": {
+        "bytes": 23952,
+        "sha256": "235cee67b85df57479ee0bd2a3637f0b43469d06128843d73d6671f63a9ad9cb"
+      }
+    }
+  },
+  "summary": {
+    "units": 3,
+    "residues": 14,
+    "indicesSha256": "33a6195eaf6601d282c4f68159b0a8a51f7dda52f46bf645422e851a5a53216b",
+    "residueIdentitiesSha256": "5a4832fa14a3e886f0483fa4ceaaa326fed4c4d171070f7630960f90f5ac4c8b"
+  },
+  "rows": [
+    {
+      "targetIndex": 9866,
+      "ownerPath": "src/utils/gracefulShutdown.ts",
+      "target": {
+        "start": 4929032,
+        "end": 4929667,
+        "bytes": 635,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "a73f479b94dfbe2b8d0308472dfd14369fc4778a05db785b4920d7aef2ad3147",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "regexp",
+          {
+            "flags": "g",
+            "pattern": "\\b[\\w.+-]+@[\\w.-]+\\.\\w{2,}\\b"
+          },
+          4929114,
+          4929145,
+          0,
+          1
+        ],
+        [
+          "string",
+          "<email>",
+          4929146,
+          4929155,
+          0,
+          1
+        ],
+        [
+          "regexp",
+          {
+            "flags": "gi",
+            "pattern": "\\b(?:sk-ant|sk|pk|ghp|gho|ghs|ghu|github_pat|xox[bpoars])[-_][\\w-]{8,}\\b"
+          },
+          4929165,
+          4929241,
+          0,
+          1
+        ],
+        [
+          "string",
+          "<key>",
+          4929242,
+          4929249,
+          0,
+          1
+        ],
+        [
+          "regexp",
+          {
+            "flags": "g",
+            "pattern": "\\b[A-Za-z0-9+/]{32,}={0,2}"
+          },
+          4929550,
+          4929579,
+          0,
+          1
+        ],
+        [
+          "string",
+          "<b64>",
+          4929580,
+          4929587,
+          0,
+          1
+        ],
+        [
+          "regexp",
+          {
+            "flags": "g",
+            "pattern": "\\b\\d{1,3}(?:\\.\\d{1,3}){3}\\b"
+          },
+          4929597,
+          4929627,
+          0,
+          1
+        ],
+        [
+          "string",
+          "<ip>",
+          4929628,
+          4929634,
+          0,
+          1
+        ]
+      ]
+    },
+    {
+      "targetIndex": 9867,
+      "ownerPath": "src/utils/gracefulShutdown.ts",
+      "target": {
+        "start": 4929667,
+        "end": 4930115,
+        "bytes": 448,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "90a0a0209ecd7cd1ca427a4a18597cc2a647c6e4f82267c7a292ba5dea818dc0",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "regexp",
+          {
+            "flags": "",
+            "pattern": "([^/\\\\]+:\\d+:\\d+)\\)?$"
+          },
+          4929876,
+          4929899,
+          0,
+          1
+        ],
+        [
+          "property",
+          "names",
+          4930095,
+          4930100,
+          37,
+          38
+        ],
+        [
+          "property",
+          "topFrame",
+          4930103,
+          4930111,
+          0,
+          1
+        ]
+      ]
+    },
+    {
+      "targetIndex": 9869,
+      "ownerPath": "src/utils/gracefulShutdown.ts",
+      "target": {
+        "start": 4930185,
+        "end": 4930630,
+        "bytes": 445,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "d9ccdfd20a10d961363024e8e4cd6d893b572ea6bbd0f27a763d4bdc0ea103ff",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "property",
+          "names",
+          4930487,
+          4930492,
+          37,
+          39
+        ],
+        [
+          "property",
+          "topFrame",
+          4930495,
+          4930503,
+          0,
+          2
+        ],
+        [
+          "property",
+          "error_top_frame",
+          4930586,
+          4930601,
+          0,
+          1
+        ]
+      ]
+    }
+  ]
+}

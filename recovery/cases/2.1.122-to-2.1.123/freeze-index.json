@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.122-to-2.1.123",
+  "kind": "authenticated-non-source-recovery-freeze",
+  "summary": {
+    "files": 24,
+    "bytes": 12799983
+  },
+  "files": [
+    {
+      "path": "attribution/sources.jsonl.gz",
+      "bytes": 293,
+      "sha256": "6d440658bf1873d0a3acbcd758f2d5ecfccb0e18abb0b961675a9e9ad79c955f"
+    },
+    {
+      "path": "attribution/summary.json",
+      "bytes": 3304,
+      "sha256": "05aba1ff7bebacad5a490ef6d578099d3c89c4d1d129034ad3d1c85524668849"
+    },
+    {
+      "path": "attribution/target-initializers.jsonl.gz",
+      "bytes": 245,
+      "sha256": "88faeb040018383a0b13f4facde21b979aa0e16a95c00bcf1e5c11300a312b46"
+    },
+    {
+      "path": "attribution/target-partitions.jsonl.gz",
+      "bytes": 790,
+      "sha256": "3e15db83e1ecbe6a1cb37b39b18030c2b85e5f31c458772e175a128fb8ca4f0d"
+    },
+    {
+      "path": "attribution/target-ranges.jsonl.gz",
+      "bytes": 425,
+      "sha256": "da4d2e9a93b78ca78095dc1e91ff37881331b9ff6280d091099b8095dc2c1719"
+    },
+    {
+      "path": "binary-extraction/inventory.json",
+      "bytes": 6458,
+      "sha256": "02059bc99f70b4dbf0c0e17509e27eaebdf353447e9f1f26618172f200d856e7"
+    },
+    {
+      "path": "binary-extraction/native-package-members.json",
+      "bytes": 5306,
+      "sha256": "918e660aec0088a9fddd84a8e095a4f25d350048133026e7a0ea68078b72c9ed"
+    },
+    {
+      "path": "diff/audio-capture.js.zstd-delta",
+      "bytes": 26,
+      "sha256": "acfde30bee2e30cf42a631ee77455ac6f7cc3d80ee70a0ac9fedbbc2c2603200"
+    },
+    {
+      "path": "diff/cli.js.zstd-delta",
+      "bytes": 899024,
+      "sha256": "54320c4814c80318ef53cd3a662fd645365566bdf566fbf70576294916538a97"
+    },
+    {
+      "path": "diff/image-processor.js.zstd-delta",
+      "bytes": 26,
+      "sha256": "61d3e42e4da3764183e9d0831519152e4a5a7cc45001f1a00051f49c32d04ad4"
+    },
+    {
+      "path": "diff/metadata.json",
+      "bytes": 2182,
+      "sha256": "f0d90354217eda329fad7be56843b8e07595ecb85eb9ebddbebc7cad5aafaf03"
+    },
+    {
+      "path": "diff/package.json.zstd-delta",
+      "bytes": 55,
+      "sha256": "dce1825f4923a37538e33be99096f68acecbb51a0d79e60877310f5f45b317be"
+    },
+    {
+      "path": "evidence/CHANGELOG-2.1.123.md",
+      "bytes": 127,
+      "sha256": "7268a65de1722072c17c0241e5b74e6f02ca1d3335a4d8a7bd9497daef17ab4c"
+    },
+    {
+      "path": "evidence/claude-code-CHANGELOG-e512ec99.md",
+      "bytes": 264551,
+      "sha256": "10565504230aa417ecd21163e559d8d17e45e4c016a950d16fdfba4a5be9d531"
+    },
+    {
+      "path": "evidence/provenance.json",
+      "bytes": 4900,
+      "sha256": "38688380029e563fcad62b7121e9f8cd77c27e670e271d1b4e159e83a0a06672"
+    },
+    {
+      "path": "package-members.json",
+      "bytes": 6745,
+      "sha256": "c1e6736a8ffa94ee3b0d3c514c01449729b7e874bb454a4ca57e38bca4639575"
+    },
+    {
+      "path": "readable-diff/metadata.json",
+      "bytes": 3840,
+      "sha256": "9fcc8a8b91a016974072e35193ee45a57e564f315b93d867dfbd1ea6343b7b91"
+    },
+    {
+      "path": "readable-diff/normalized.diff.gz",
+      "bytes": 4734999,
+      "sha256": "48a92147b2d13f1256d38dda3f5b366a5e31c0cb698faec903f04fbda6ea86a2"
+    },
+    {
+      "path": "readable-diff/renames.tsv",
+      "bytes": 102233,
+      "sha256": "c1eacd6414a7a686cef1626f323b5799a1f584279c3a2ef9d1bb3253d0be92b3"
+    },
+    {
+      "path": "readable-diff/statements.diff",
+      "bytes": 38029,
+      "sha256": "55658edd3996c2a4d9ee4c8a472f6cf1be12e0e8342e6c4d14847345d793dc4b"
+    },
+    {
+      "path": "structural/generated-delta.json.gz",
+      "bytes": 2249391,
+      "sha256": "a25b8e0101631589db1a92c4d5d306aa60806228263921d2b8e37b8173a24e24"
+    },
+    {
+      "path": "structural/known-delta-ledger.json.gz",
+      "bytes": 2228225,
+      "sha256": "0c5766e6ead785c802053e1b71a3dee825df1076efba4708a7f55c19ebc6d2d1"
+    },
+    {
+      "path": "structural/known-delta-proof.json",
+      "bytes": 19857,
+      "sha256": "1e2b1bdf143c1a04afcbdfea6f887d7f73374f5e90ee9969792ae7ebe639139b"
+    },
+    {
+      "path": "structural/metadata-normalized-delta.json.gz",
+      "bytes": 2228952,
+      "sha256": "7588d83842cd9a92c6c397af15253dd2b7bb76a575af62fd0f3ea594c79fc6b7"
+    }
+  ]
+}

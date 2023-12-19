@@ -1,0 +1,200 @@
+{
+  "schemaVersion": 1,
+  "kind": "bun-compiled-elf-embedded-graph",
+  "artifact": {
+    "package": "@anthropic-ai/claude-code-linux-x64",
+    "version": "2.1.126",
+    "path": "package/claude",
+    "bytes": 248105600,
+    "sha256": "fce96968d275161ff65a4c19fc6434efc6973d9f6d35dc3992a2ba0553cac18e"
+  },
+  "bunSection": {
+    "fileOffset": 108675072,
+    "fileOffsetHex": "0x067a4000",
+    "bytes": 139425445,
+    "bytesHex": "0x084f76a5",
+    "endFileOffset": 248100517,
+    "endFileOffsetHex": "0x0ec9b6a5",
+    "sha256": "fd9509981bb627b413e8b350379b2413b2522fd111c7d36cea6b7236dc13a1f8",
+    "trailerMagic": "\n---- Bun! ----\n",
+    "footerBytes": 56,
+    "footerSha256": "e1662a07489c519a6603b2f2cf54ec2477e1136ab6004e2cdc985f1b78c413b9",
+    "footerPrefixHex": "000000000a000100",
+    "footer": {
+      "byteCount": 139425389,
+      "byteCountHex": "0x084f766d",
+      "modulesPointer": {
+        "displayedOffset": 139425128,
+        "displayedOffsetHex": "0x084f7568",
+        "bytes": 260
+      },
+      "entryPointId": 0,
+      "execArgv": {
+        "displayedOffset": 139425388,
+        "displayedOffsetHex": "0x084f766c",
+        "bytes": 0
+      },
+      "flags": 15
+    },
+    "directoryRecordBytes": 52,
+    "directorySha256": "905e7182bb3c6a3d0d7768b75880a9e640d813af7e92b91dfea5295f8c1bc087",
+    "moduleCount": 5,
+    "displayedPointerBiasBytes": 8
+  },
+  "extractionSemantics": {
+    "actualFileOffset": "bunSection.fileOffset + displayedOffset + displayedPointerBiasBytes",
+    "read": "exactly the displayed length in bytes",
+    "canonicalization": "Direct raw executable slices are canonical."
+  },
+  "modules": [
+    {
+      "index": 0,
+      "path": "/$bunfs/root/src/entrypoints/cli.js",
+      "name": {
+        "displayedOffset": 123483564,
+        "displayedOffsetHex": "0x075c35ac",
+        "actualFileOffset": 232158644,
+        "actualFileOffsetHex": "0x0dd675b4",
+        "bytes": 35,
+        "sha256": "baaf196ecf0acad41cd1f9c5b9fe53f092866a18fc1385c88eee9dda8bbfac1e"
+      },
+      "content": {
+        "displayedOffset": 123483600,
+        "displayedOffsetHex": "0x075c35d0",
+        "actualFileOffset": 232158680,
+        "actualFileOffsetHex": "0x0dd675d8",
+        "bytes": 13980501,
+        "sha256": "99ea0a1eaab285e1c4fa3602458cdc4ee3f81fc622c3dc90906a7e306dd75a0f"
+      },
+      "jsc": {
+        "displayedOffset": 120,
+        "displayedOffsetHex": "0x00000078",
+        "actualFileOffset": 108675200,
+        "actualFileOffsetHex": "0x067a4080",
+        "bytes": 123483408,
+        "sha256": "1ef67ae4df32873c790403c7c6d71eaec39a1a2024040dd346ad34d0b57896f4"
+      },
+      "bytecodeOriginPath": "/$bunfs/root/src/entrypoints/cli.js",
+      "encoding": 1,
+      "loader": 1,
+      "moduleFormat": 2,
+      "side": 0,
+      "kind": "js+jsc"
+    },
+    {
+      "index": 1,
+      "path": "/$bunfs/root/image-processor.js",
+      "name": {
+        "displayedOffset": 137464102,
+        "displayedOffsetHex": "0x08318926",
+        "actualFileOffset": 246139182,
+        "actualFileOffsetHex": "0x0eabc92e",
+        "bytes": 31,
+        "sha256": "bae945068d8c9f541bb6bca40a7e91e86ccc02d037dca6354f82f21ba9f12b21"
+      },
+      "content": {
+        "displayedOffset": 137464134,
+        "displayedOffsetHex": "0x08318946",
+        "actualFileOffset": 246139214,
+        "actualFileOffsetHex": "0x0eabc94e",
+        "bytes": 1976,
+        "sha256": "f7961b57b01f68ca5648ef123e5a6c44b5461a2baa0f84e0ce3ad3ac3d4e9d70"
+      },
+      "encoding": 1,
+      "loader": 1,
+      "moduleFormat": 2,
+      "side": 0,
+      "kind": "js"
+    },
+    {
+      "index": 2,
+      "path": "/$bunfs/root/audio-capture.js",
+      "name": {
+        "displayedOffset": 137466111,
+        "displayedOffsetHex": "0x083190ff",
+        "actualFileOffset": 246141191,
+        "actualFileOffsetHex": "0x0eabd107",
+        "bytes": 29,
+        "sha256": "9dcdf1688ab1f5643f26c1beac10d4ba44e38e767d269118ff6258ab658551d6"
+      },
+      "content": {
+        "displayedOffset": 137466141,
+        "displayedOffsetHex": "0x0831911d",
+        "actualFileOffset": 246141221,
+        "actualFileOffsetHex": "0x0eabd125",
+        "bytes": 1974,
+        "sha256": "c85673c7958c82a0e9aed0d52d39fa5bb5bb25e226352319b7eeb4ac682bf76f"
+      },
+      "encoding": 1,
+      "loader": 1,
+      "moduleFormat": 2,
+      "side": 0,
+      "kind": "js"
+    },
+    {
+      "index": 3,
+      "path": "/$bunfs/root/image-processor.node",
+      "name": {
+        "displayedOffset": 137468116,
+        "displayedOffsetHex": "0x083198d4",
+        "actualFileOffset": 246143196,
+        "actualFileOffsetHex": "0x0eabd8dc",
+        "bytes": 33,
+        "sha256": "be866af76caff1096bec2c577ab0e88013ced78b94901dbf5bd61e569f574594"
+      },
+      "content": {
+        "displayedOffset": 137468150,
+        "displayedOffsetHex": "0x083198f6",
+        "actualFileOffset": 246143230,
+        "actualFileOffsetHex": "0x0eabd8fe",
+        "bytes": 1464760,
+        "sha256": "37bec7de530676e3dfe963d34a824b49191595809a8072348a2ef4571f1e5f4d"
+      },
+      "encoding": 0,
+      "loader": 10,
+      "moduleFormat": 0,
+      "side": 1,
+      "kind": "elf"
+    },
+    {
+      "index": 4,
+      "path": "/$bunfs/root/audio-capture.node",
+      "name": {
+        "displayedOffset": 138932911,
+        "displayedOffsetHex": "0x0847f2af",
+        "actualFileOffset": 247607991,
+        "actualFileOffsetHex": "0x0ec232b7",
+        "bytes": 31,
+        "sha256": "2be290db236c5549a919d2a5fd7d3fd400c7831dc64a2bad08b4cb49bc8a2170"
+      },
+      "content": {
+        "displayedOffset": 138932943,
+        "displayedOffsetHex": "0x0847f2cf",
+        "actualFileOffset": 247608023,
+        "actualFileOffsetHex": "0x0ec232d7",
+        "bytes": 492184,
+        "sha256": "7e89edf4dde9b69b6c55a310788ad999e2d0dd469d8a31c529cf28f3ea5e929c"
+      },
+      "encoding": 0,
+      "loader": 10,
+      "moduleFormat": 0,
+      "side": 1,
+      "kind": "elf"
+    }
+  ],
+  "derivedAnalyzableCli": {
+    "canonicalWrapped": {
+      "bytes": 13980501,
+      "sha256": "99ea0a1eaab285e1c4fa3602458cdc4ee3f81fc622c3dc90906a7e306dd75a0f"
+    },
+    "wrapperPrefixBytes": 87,
+    "wrapperPrefix": "// @bun @bytecode @bun-cjs\n(function(exports, require, module, __filename, __dirname) {",
+    "wrapperSuffixBytes": 3,
+    "wrapperSuffix": "})\n",
+    "inner": {
+      "bytes": 13980411,
+      "sha256": "e9d40219be0cad9009c115ec637df4976e987c33d4b7a88cc5f047ead9ad828d",
+      "nodeCheck": true
+    }
+  }
+}

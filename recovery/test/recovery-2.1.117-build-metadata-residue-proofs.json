@@ -1,0 +1,3586 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "versions": {
+    "baseline": "2.1.116",
+    "target": "2.1.117"
+  },
+  "macro": {
+    "VERSION": "2.1.117",
+    "BUILD_TIME": "2026-04-21T17:58:52Z",
+    "GIT_SHA": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387"
+  },
+  "inputs": {
+    "baselineBundle": {
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "targetBundle": {
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "structural": {
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    },
+    "derivationReport": {
+      "bytes": 27913327,
+      "sha256": "9e14ed534b088fa0ec920d31f365084a24195b8de93a21e3476d734ef637483e"
+    }
+  },
+  "summary": {
+    "units": 67,
+    "residues": 318
+  },
+  "rows": [
+    {
+      "targetIndex": 4601,
+      "target": {
+        "classification": "unresolved",
+        "start": 2046199,
+        "end": 2047140,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "cc1881c3455bc39ce9a302efbdb6491404e91b09e2c1203a0477279abd38d758"
+      },
+      "ownerPaths": [
+        "src/utils/concurrentSessions.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 2046762,
+          "end": 2046771,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 2
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 2046851,
+          "end": 2046873,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 2
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 2046882,
+          "end": 2046924,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 2
+        }
+      ]
+    },
+    {
+      "targetIndex": 4605,
+      "target": {
+        "classification": "unresolved",
+        "start": 2047518,
+        "end": 2048738,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "de541c8de17f3cc8cb4031e498fdfce38af1ca6119a07fb348f3fae46e52008e"
+      },
+      "ownerPaths": [
+        "src/utils/concurrentSessions.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 2048464,
+          "end": 2048473,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 3
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 2048553,
+          "end": 2048575,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 3
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 2048584,
+          "end": 2048626,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 3
+        }
+      ]
+    },
+    {
+      "targetIndex": 6149,
+      "target": {
+        "classification": "unresolved",
+        "start": 2786396,
+        "end": 2787303,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "042e6e94ce1104a0300a86132d4ada32a7c24cabc51f5dd1d2c39076017517e7"
+      },
+      "ownerPaths": [
+        "src/utils/auth.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 2786779,
+          "end": 2786788,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 4
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 2786868,
+          "end": 2786890,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 4
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 2786899,
+          "end": 2786941,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 4
+        }
+      ]
+    },
+    {
+      "targetIndex": 6153,
+      "target": {
+        "classification": "unresolved",
+        "start": 2787424,
+        "end": 2788276,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "38969aa6e18cd251f544bbce72586f23690cb8cdebe096ebb59d361f6418ab24"
+      },
+      "ownerPaths": [
+        "src/utils/auth.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 2787809,
+          "end": 2787818,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 5
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 2787898,
+          "end": 2787920,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 5
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 2787929,
+          "end": 2787971,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 5
+        }
+      ]
+    },
+    {
+      "targetIndex": 6155,
+      "target": {
+        "classification": "unresolved",
+        "start": 2788984,
+        "end": 2790526,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "366d007737a54ac763851141d12d8f90a44174dab42d5aa87dc1ef49002c104a"
+      },
+      "ownerPaths": [
+        "src/utils/auth.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 2789377,
+          "end": 2789386,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 6
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 2789466,
+          "end": 2789488,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 6
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 2789497,
+          "end": 2789539,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 6
+        }
+      ]
+    },
+    {
+      "targetIndex": 6160,
+      "target": {
+        "classification": "unresolved",
+        "start": 2791092,
+        "end": 2791934,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "bc51096bbfa4680f1c5f490373b4516358bfdd43269e91fca2dad7e77e3a84b8"
+      },
+      "ownerPaths": [
+        "src/utils/auth.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 2791477,
+          "end": 2791486,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 7
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 2791566,
+          "end": 2791588,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 7
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 2791597,
+          "end": 2791639,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 7
+        }
+      ]
+    },
+    {
+      "targetIndex": 6202,
+      "target": {
+        "classification": "unresolved",
+        "start": 2803651,
+        "end": 2804051,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "fada8ad81ab9cfaebf338cba70693ca17909db84eb9e3d8c2d8153767f64e329"
+      },
+      "ownerPaths": [
+        "src/utils/auth.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 2803877,
+          "end": 2803886,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 8
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 2803966,
+          "end": 2803988,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 8
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 2803997,
+          "end": 2804039,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 8
+        }
+      ]
+    },
+    {
+      "targetIndex": 6209,
+      "target": {
+        "classification": "unresolved",
+        "start": 2804412,
+        "end": 2805116,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "ac37ab7034bb4c6733f02e0ea54563e216f070f27fbce7dc307dcd7856818d91"
+      },
+      "ownerPaths": [
+        "src/utils/http.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 2804873,
+          "end": 2804882,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 9
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 2804962,
+          "end": 2804984,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 9
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 2804993,
+          "end": 2805035,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 9
+        }
+      ]
+    },
+    {
+      "targetIndex": 6210,
+      "target": {
+        "classification": "unresolved",
+        "start": 2805116,
+        "end": 2805858,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "914e4a234f0d7b96a602e4983c3865127e939475a1d0c873d963e29fcd095c19"
+      },
+      "ownerPaths": [
+        "src/utils/http.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 2805680,
+          "end": 2805689,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 10
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 2805769,
+          "end": 2805791,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 10
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 2805800,
+          "end": 2805842,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 10
+        }
+      ]
+    },
+    {
+      "targetIndex": 6222,
+      "target": {
+        "classification": "unresolved",
+        "start": 2807244,
+        "end": 2808536,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "c7ab860b05e1e1b68736d8eeadcbf79436c5a77edb96ef21ebb922372dfef9d0"
+      },
+      "ownerPaths": [
+        "src/utils/user.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 2807774,
+          "end": 2807783,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 11
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 2807863,
+          "end": 2807885,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 11
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 2807894,
+          "end": 2807936,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 11
+        }
+      ]
+    },
+    {
+      "targetIndex": 6462,
+      "target": {
+        "classification": "unresolved",
+        "start": 2976804,
+        "end": 2979837,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "4a5edc79367bda125148a2217d876cba1f13a15d70cb7664f2d4100abb24928c"
+      },
+      "ownerPaths": [
+        "src/services/analytics/metadata.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 2977307,
+          "end": 2977316,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 12
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 2977396,
+          "end": 2977418,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 12
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 2977427,
+          "end": 2977469,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 12
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 2978801,
+          "end": 2978810,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 13
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 2978890,
+          "end": 2978912,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 13
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 2978921,
+          "end": 2978963,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 13
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 2979192,
+          "end": 2979201,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 14
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 2979281,
+          "end": 2979303,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 14
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 2979312,
+          "end": 2979354,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 14
+        }
+      ]
+    },
+    {
+      "targetIndex": 6482,
+      "target": {
+        "classification": "unresolved",
+        "start": 2989521,
+        "end": 2990951,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "3ab9ca001852d78afb9c865ccd354f143088c415566980f63eb77954935df22b"
+      },
+      "ownerPaths": [
+        "src/services/analytics/firstPartyEventLogger.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 2990030,
+          "end": 2990039,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 15
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 2990119,
+          "end": 2990141,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 15
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 2990150,
+          "end": 2990192,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 15
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 2990778,
+          "end": 2990787,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 16
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 2990867,
+          "end": 2990889,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 16
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 2990898,
+          "end": 2990940,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 16
+        }
+      ]
+    },
+    {
+      "targetIndex": 6595,
+      "target": {
+        "classification": "unresolved",
+        "start": 3017244,
+        "end": 3017974,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "823d3ca0af03c56dd7e32341d2d1b860383cf3c485fabeacbc4ffe0a3a2d44b7"
+      },
+      "ownerPaths": [
+        "src/constants/system.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 3017519,
+          "end": 3017528,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 17
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 3017608,
+          "end": 3017630,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 17
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 3017639,
+          "end": 3017681,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 17
+        }
+      ]
+    },
+    {
+      "targetIndex": 9120,
+      "target": {
+        "classification": "unresolved",
+        "start": 4277988,
+        "end": 4278844,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "0f62ee4e3f225d991b338d9c7131bba0e2f12287ceec3bb899fb2373a4352a22"
+      },
+      "ownerPaths": [
+        "src/utils/telemetryAttributes.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 4278344,
+          "end": 4278353,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 18
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 4278433,
+          "end": 4278455,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 18
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 4278464,
+          "end": 4278506,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 18
+        }
+      ]
+    },
+    {
+      "targetIndex": 9578,
+      "target": {
+        "classification": "unresolved",
+        "start": 4812727,
+        "end": 4813355,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "fd9dec3bd061d3c9fecdfa3b8f1af07c763e6c9ae3599b1a039e3482bf04010a"
+      },
+      "ownerPaths": [
+        "src/tools/AgentTool/built-in/claudeCodeGuideAgent.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 4813033,
+          "end": 4813042,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 19
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 4813122,
+          "end": 4813144,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 19
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 4813153,
+          "end": 4813195,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 19
+        }
+      ]
+    },
+    {
+      "targetIndex": 9757,
+      "target": {
+        "classification": "unresolved",
+        "start": 4889079,
+        "end": 4889463,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "a4cdef8ddc0e8c3ee5a2c03ff818b7c360b154f95061e434ca30632ee5aa3d09"
+      },
+      "ownerPaths": [
+        "src/utils/ide.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 4889291,
+          "end": 4889300,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 20
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 4889380,
+          "end": 4889402,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 20
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 4889411,
+          "end": 4889453,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 20
+        }
+      ]
+    },
+    {
+      "targetIndex": 10207,
+      "target": {
+        "classification": "unresolved",
+        "start": 5093646,
+        "end": 5094489,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "4eb3247367b347b2d7e36d1ab2abfddbc4266089782ebe2da334d641b0d72092"
+      },
+      "ownerPaths": [
+        "src/services/api/logging.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 5093856,
+          "end": 5093865,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 21
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 5093945,
+          "end": 5093967,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 21
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 5093976,
+          "end": 5094018,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 21
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 5094244,
+          "end": 5094253,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 22
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 5094333,
+          "end": 5094355,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 22
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 5094364,
+          "end": 5094406,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 22
+        }
+      ]
+    },
+    {
+      "targetIndex": 10767,
+      "target": {
+        "classification": "unresolved",
+        "start": 6276116,
+        "end": 6277113,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "2fb336d39f1a4349daf24b73b0d884234f3f5af54af2a76568892eb069da3b4a"
+      },
+      "ownerPaths": [
+        "src/bridge/bridgeEnabled.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 6276400,
+          "end": 6276409,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 23
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 6276489,
+          "end": 6276511,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 23
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 6276520,
+          "end": 6276562,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 23
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 6276815,
+          "end": 6276824,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 24
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 6276904,
+          "end": 6276926,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 24
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 6276935,
+          "end": 6276977,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 24
+        }
+      ]
+    },
+    {
+      "targetIndex": 11353,
+      "target": {
+        "classification": "unresolved",
+        "start": 7167275,
+        "end": 7168377,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "1c7bc5ee83cf9e776e5dcadf438109a17758bf9fc68eaa3f5a58dc05d467cb3e"
+      },
+      "ownerPaths": [
+        "src/utils/telemetry/instrumentation.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 7168060,
+          "end": 7168069,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 25
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 7168149,
+          "end": 7168171,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 25
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 7168180,
+          "end": 7168222,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 25
+        }
+      ]
+    },
+    {
+      "targetIndex": 11354,
+      "target": {
+        "classification": "unresolved",
+        "start": 7168377,
+        "end": 7173018,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "c83720e7adddc2ad06abff52ff8fa2ddc54aeb3de6842ede6ebb2ea2be6f495a"
+      },
+      "ownerPaths": [
+        "src/utils/telemetry/instrumentation.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 7169236,
+          "end": 7169245,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 26
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 7169325,
+          "end": 7169347,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 26
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 7169356,
+          "end": 7169398,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 26
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 7170532,
+          "end": 7170541,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 27
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 7170621,
+          "end": 7170643,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 27
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 7170652,
+          "end": 7170694,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 27
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 7171282,
+          "end": 7171291,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 28
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 7171371,
+          "end": 7171393,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 28
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 7171402,
+          "end": 7171444,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 28
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 7172845,
+          "end": 7172854,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 29
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 7172934,
+          "end": 7172956,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 29
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 7172965,
+          "end": 7173007,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 29
+        }
+      ]
+    },
+    {
+      "targetIndex": 11394,
+      "target": {
+        "classification": "unresolved",
+        "start": 7183009,
+        "end": 7183784,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "2754ec1a16190e03ff02af5e9e6ab4386ff447e7a018d27f19d2dde1e351b968"
+      },
+      "ownerPaths": [
+        "src/utils/localInstaller.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 7183339,
+          "end": 7183348,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 30
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 7183428,
+          "end": 7183450,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 30
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 7183459,
+          "end": 7183501,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 30
+        }
+      ]
+    },
+    {
+      "targetIndex": 11407,
+      "target": {
+        "classification": "unresolved",
+        "start": 7185461,
+        "end": 7186597,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "89e982e998f5a2f48992fdfc0e7efa2f0dbcb2e23932715a2a2a41c5a8765188"
+      },
+      "ownerPaths": [
+        "src/utils/autoUpdater.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 7185757,
+          "end": 7185766,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 31
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 7185846,
+          "end": 7185868,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 31
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 7185877,
+          "end": 7185919,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 31
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 7186195,
+          "end": 7186204,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 32
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 7186284,
+          "end": 7186306,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 32
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 7186315,
+          "end": 7186357,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 32
+        }
+      ]
+    },
+    {
+      "targetIndex": 11418,
+      "target": {
+        "classification": "unresolved",
+        "start": 7188631,
+        "end": 7189403,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "7860d7e3f199bf8e8d01c613ac946e9f2d339707961ecd605cd28bd6aafde02e"
+      },
+      "ownerPaths": [
+        "src/utils/autoUpdater.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 7188909,
+          "end": 7188918,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 33
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 7188998,
+          "end": 7189020,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 33
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 7189029,
+          "end": 7189071,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 33
+        }
+      ]
+    },
+    {
+      "targetIndex": 11419,
+      "target": {
+        "classification": "unresolved",
+        "start": 7189403,
+        "end": 7190231,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "840c1e4ad670065e458cb364c7d8a72c3e4c1739ff24501dd6baefe6bb16b219"
+      },
+      "ownerPaths": [
+        "src/utils/autoUpdater.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 7189644,
+          "end": 7189653,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 34
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 7189733,
+          "end": 7189755,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 34
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 7189764,
+          "end": 7189806,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 34
+        }
+      ]
+    },
+    {
+      "targetIndex": 11424,
+      "target": {
+        "classification": "unresolved",
+        "start": 7190881,
+        "end": 7194754,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "423b87580f591200367417a7078bdbe74a3dfbf60635679a1fd57eeb36b1d84f"
+      },
+      "ownerPaths": [
+        "src/utils/autoUpdater.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 7191253,
+          "end": 7191262,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 35
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 7191342,
+          "end": 7191364,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 35
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 7191373,
+          "end": 7191415,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 35
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 7191818,
+          "end": 7191827,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 36
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 7191907,
+          "end": 7191929,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 36
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 7191938,
+          "end": 7191980,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 36
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 7192621,
+          "end": 7192630,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 37
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 7192710,
+          "end": 7192732,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 37
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 7192741,
+          "end": 7192783,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 37
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 7192995,
+          "end": 7193004,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 38
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 7193084,
+          "end": 7193106,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 38
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 7193115,
+          "end": 7193157,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 38
+        }
+      ]
+    },
+    {
+      "targetIndex": 11440,
+      "target": {
+        "classification": "unresolved",
+        "start": 7199450,
+        "end": 7201554,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "44a76260b9dc3c0b1b6c377d93a3f1042ef48e5c882ad60654e18a04f34de9cc"
+      },
+      "ownerPaths": [
+        "src/utils/doctorDiagnostic.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 7199809,
+          "end": 7199818,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 39
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 7199898,
+          "end": 7199920,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 39
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 7199929,
+          "end": 7199971,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 39
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 7200177,
+          "end": 7200186,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 40
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 7200266,
+          "end": 7200288,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 40
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 7200297,
+          "end": 7200339,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 40
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 7200581,
+          "end": 7200590,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 41
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 7200670,
+          "end": 7200692,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 41
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 7200701,
+          "end": 7200743,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 41
+        }
+      ]
+    },
+    {
+      "targetIndex": 11444,
+      "target": {
+        "classification": "unresolved",
+        "start": 7204855,
+        "end": 7208217,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "b536b73c7c444ede3b8444e72aee70578374fced3db74c0ca9fb2bd0df0a7c17"
+      },
+      "ownerPaths": [
+        "src/utils/doctorDiagnostic.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 7205109,
+          "end": 7205118,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 42
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 7205198,
+          "end": 7205220,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 42
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 7205229,
+          "end": 7205271,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 42
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 7205475,
+          "end": 7205484,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 43
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 7205564,
+          "end": 7205586,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 43
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 7205595,
+          "end": 7205637,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 43
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 7206190,
+          "end": 7206199,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 44
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 7206279,
+          "end": 7206301,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 44
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 7206310,
+          "end": 7206352,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 44
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 7206558,
+          "end": 7206567,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 45
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 7206647,
+          "end": 7206669,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 45
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 7206678,
+          "end": 7206720,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 45
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 7206982,
+          "end": 7206991,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 46
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 7207071,
+          "end": 7207093,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 46
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 7207102,
+          "end": 7207144,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 46
+        }
+      ]
+    },
+    {
+      "targetIndex": 11488,
+      "target": {
+        "classification": "unresolved",
+        "start": 7219557,
+        "end": 7222377,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "6678ff10227baa60eb68f39d4f1e51ab00f1d23100df3d830729b3743937bef6"
+      },
+      "ownerPaths": [
+        "src/utils/nativeInstaller/installer.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 7220258,
+          "end": 7220267,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 47
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 7220347,
+          "end": 7220369,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 47
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 7220378,
+          "end": 7220420,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 47
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 7220670,
+          "end": 7220679,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 48
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 7220759,
+          "end": 7220781,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 48
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 7220790,
+          "end": 7220832,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 48
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 7221256,
+          "end": 7221265,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 49
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 7221345,
+          "end": 7221367,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 49
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 7221376,
+          "end": 7221418,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 49
+        }
+      ]
+    },
+    {
+      "targetIndex": 11505,
+      "target": {
+        "classification": "unresolved",
+        "start": 7233284,
+        "end": 7234962,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "e60509d2136ef9e1938614bdffb7be12a701bcd42ee92629f8d3ade240770546"
+      },
+      "ownerPaths": [
+        "src/utils/nativeInstaller/installer.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 7233639,
+          "end": 7233648,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 50
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 7233728,
+          "end": 7233750,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 50
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 7233759,
+          "end": 7233801,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 50
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 7234007,
+          "end": 7234016,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 51
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 7234096,
+          "end": 7234118,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 51
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 7234127,
+          "end": 7234169,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 51
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 7234421,
+          "end": 7234430,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 52
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 7234510,
+          "end": 7234532,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 52
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 7234541,
+          "end": 7234583,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 52
+        }
+      ]
+    },
+    {
+      "targetIndex": 11883,
+      "target": {
+        "classification": "unresolved",
+        "start": 7531851,
+        "end": 7537416,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "0438e8ced6cfd4199ae3189f9ee07e106a6cb0674cf07f5459bf448e5cd46596"
+      },
+      "ownerPaths": [
+        "src/components/ConsoleOAuthFlow.tsx"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 7533300,
+          "end": 7533309,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 53
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 7533389,
+          "end": 7533411,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 53
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 7533420,
+          "end": 7533462,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 53
+        }
+      ]
+    },
+    {
+      "targetIndex": 12708,
+      "target": {
+        "classification": "unresolved",
+        "start": 7977423,
+        "end": 7981435,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "037dd58137de830f0d321ddeb0373aa7a8278971185e930bea0e63b3736ef842"
+      },
+      "ownerPaths": [
+        "src/services/lsp/LSPServerInstance.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 7978470,
+          "end": 7978479,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 54
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 7978559,
+          "end": 7978581,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 54
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 7978590,
+          "end": 7978632,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 54
+        }
+      ]
+    },
+    {
+      "targetIndex": 14509,
+      "target": {
+        "classification": "unresolved",
+        "start": 9099888,
+        "end": 9101525,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "7b7fddbf16e8412d365e2fbb9c6daa4e8eed873ee2bedbbe1134cd4ec4e18e5e"
+      },
+      "ownerPaths": [
+        "src/services/mcp/headersHelper.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 9100316,
+          "end": 9100325,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 55
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 9100405,
+          "end": 9100427,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 55
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 9100436,
+          "end": 9100478,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 55
+        }
+      ]
+    },
+    {
+      "targetIndex": 14616,
+      "target": {
+        "classification": "unresolved",
+        "start": 9139992,
+        "end": 9141126,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "88a0e9a8a6909572821a9167d429a3497b2e39054677152397804212d63a5d8e"
+      },
+      "ownerPaths": [
+        "src/services/mcp/client.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 9140362,
+          "end": 9140371,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 56
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 9140451,
+          "end": 9140473,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 56
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 9140482,
+          "end": 9140524,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 56
+        }
+      ]
+    },
+    {
+      "targetIndex": 15242,
+      "target": {
+        "classification": "unresolved",
+        "start": 9447530,
+        "end": 9454480,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "5b3f00c1a551ff6e2b5724b8902163f20502d2eef37407752d87b5178607e166"
+      },
+      "ownerPaths": [
+        "src/components/Feedback.tsx"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 9448496,
+          "end": 9448505,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 58
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 9448585,
+          "end": 9448607,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 58
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 9448616,
+          "end": 9448658,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 58
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 9452442,
+          "end": 9452451,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 59
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 9452531,
+          "end": 9452553,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 59
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 9452562,
+          "end": 9452604,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 59
+        }
+      ]
+    },
+    {
+      "targetIndex": 15243,
+      "target": {
+        "classification": "unresolved",
+        "start": 9454480,
+        "end": 9455767,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "c58b8484d363d638394d987d6aa53af6f54a21c7e9a5aa81f3853d6f440e09f0"
+      },
+      "ownerPaths": [
+        "src/components/Feedback.tsx"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 9454826,
+          "end": 9454835,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 60
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 9454915,
+          "end": 9454937,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 60
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 9454946,
+          "end": 9454988,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 60
+        }
+      ]
+    },
+    {
+      "targetIndex": 15402,
+      "target": {
+        "classification": "unresolved",
+        "start": 9509214,
+        "end": 9509829,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "3783fdf07de7b1ca0890d9ecc5695ccaae40c4e001cf995dfe71a94a6c17b60d"
+      },
+      "ownerPaths": [
+        "src/components/Settings/Status.tsx"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 9509531,
+          "end": 9509540,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 61
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 9509620,
+          "end": 9509642,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 61
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 9509651,
+          "end": 9509693,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 61
+        }
+      ]
+    },
+    {
+      "targetIndex": 15475,
+      "target": {
+        "classification": "unresolved",
+        "start": 9540095,
+        "end": 9570367,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "d760f202037c4673cd7c9b130d5333ac15cc2a833c31e9e0f6650c598395bfb2"
+      },
+      "ownerPaths": [
+        "src/components/Settings/Config.tsx"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 9566532,
+          "end": 9566541,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 62
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 9566621,
+          "end": 9566643,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 62
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 9566652,
+          "end": 9566694,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 62
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 9567034,
+          "end": 9567043,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 63
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 9567123,
+          "end": 9567145,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 63
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 9567154,
+          "end": 9567196,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 63
+        }
+      ]
+    },
+    {
+      "targetIndex": 15769,
+      "target": {
+        "classification": "unresolved",
+        "start": 9891256,
+        "end": 9900118,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "2faea66b7f78efc9b6f38d428bc25d570edba3664831933da0fc1319511a51ed"
+      },
+      "ownerPaths": [
+        "src/screens/Doctor.tsx"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 9893645,
+          "end": 9893654,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 64
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 9893734,
+          "end": 9893756,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 64
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 9893765,
+          "end": 9893807,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 64
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 9894058,
+          "end": 9894067,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 65
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 9894147,
+          "end": 9894169,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 65
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 9894178,
+          "end": 9894220,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 65
+        }
+      ]
+    },
+    {
+      "targetIndex": 15841,
+      "target": {
+        "classification": "unresolved",
+        "start": 9922227,
+        "end": 9925330,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "269f5c9e68b5868bdfc5e13e3c2aa1009c7f3a03d93795fc274ea73661e13029"
+      },
+      "ownerPaths": [
+        "src/components/HelpV2/HelpV2.tsx"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 9924025,
+          "end": 9924034,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 66
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 9924114,
+          "end": 9924136,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 66
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 9924145,
+          "end": 9924187,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 66
+        }
+      ]
+    },
+    {
+      "targetIndex": 16324,
+      "target": {
+        "classification": "unresolved",
+        "start": 10319623,
+        "end": 10320136,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "78820767345ad4569dad603b324f1cc17ac0d3bda6ef3c418180fd899620d04c"
+      },
+      "ownerPaths": [
+        "src/utils/releaseNotes.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 10319837,
+          "end": 10319846,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 67
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 10319926,
+          "end": 10319948,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 67
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 10319957,
+          "end": 10319999,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 67
+        }
+      ]
+    },
+    {
+      "targetIndex": 16325,
+      "target": {
+        "classification": "unresolved",
+        "start": 10320136,
+        "end": 10320582,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "7d7f40bf55f721009ffaceba28221bc743552475391ae73af3aebd2d3df10b9e"
+      },
+      "ownerPaths": [
+        "src/utils/releaseNotes.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 10320344,
+          "end": 10320353,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 68
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 10320433,
+          "end": 10320455,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 68
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 10320464,
+          "end": 10320506,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 68
+        }
+      ]
+    },
+    {
+      "targetIndex": 16437,
+      "target": {
+        "classification": "unresolved",
+        "start": 10358010,
+        "end": 10358635,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "aa38065416a09ea63a752d88f5a6428708cb0c8ef73383e95281f195dd0b446d"
+      },
+      "ownerPaths": [
+        "src/utils/logoV2Utils.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 10358251,
+          "end": 10358260,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 69
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 10358340,
+          "end": 10358362,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 69
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 10358371,
+          "end": 10358413,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 69
+        }
+      ]
+    },
+    {
+      "targetIndex": 16527,
+      "target": {
+        "classification": "unresolved",
+        "start": 10382449,
+        "end": 10392479,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "a124a1c5b06478abe3c6bff0aa13132c0847593d294c7bd34032789bd07f8f73"
+      },
+      "ownerPaths": [
+        "src/components/LogoV2/LogoV2.tsx"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 10383264,
+          "end": 10383273,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 70
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 10383353,
+          "end": 10383375,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 70
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 10383384,
+          "end": 10383426,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 70
+        }
+      ]
+    },
+    {
+      "targetIndex": 16528,
+      "target": {
+        "classification": "unresolved",
+        "start": 10392479,
+        "end": 10393292,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "b717e34e8d0e329ad3c663b2a733d68dd700ca9c13c6b798218d69342946f63d"
+      },
+      "ownerPaths": [
+        "src/components/LogoV2/LogoV2.tsx"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 10392714,
+          "end": 10392723,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 71
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 10392803,
+          "end": 10392825,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 71
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 10392834,
+          "end": 10392876,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 71
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 10393119,
+          "end": 10393128,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 72
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 10393208,
+          "end": 10393230,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 72
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 10393239,
+          "end": 10393281,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 72
+        }
+      ]
+    },
+    {
+      "targetIndex": 17328,
+      "target": {
+        "classification": "unresolved",
+        "start": 10800982,
+        "end": 10803485,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "6f74c6209cde5f00f58637639341e7bb505b499427d012df054075dba86efbc1"
+      },
+      "ownerPaths": [
+        "src/utils/heapDumpService.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 10803312,
+          "end": 10803321,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 73
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 10803401,
+          "end": 10803423,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 73
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 10803432,
+          "end": 10803474,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 73
+        }
+      ]
+    },
+    {
+      "targetIndex": 17356,
+      "target": {
+        "classification": "unresolved",
+        "start": 10816116,
+        "end": 10817643,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "a05dedef7f2318705f605ea0181885b63ab118ae854fc2bae2ef6d505c818018"
+      },
+      "ownerPaths": [
+        "src/commands/version.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 10816350,
+          "end": 10816359,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 74
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 10816439,
+          "end": 10816461,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 74
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 10816470,
+          "end": 10816512,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 74
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 10816719,
+          "end": 10816728,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 75
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 10816808,
+          "end": 10816830,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 75
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 10816839,
+          "end": 10816881,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 75
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 10817092,
+          "end": 10817101,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 76
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 10817181,
+          "end": 10817203,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 76
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 10817212,
+          "end": 10817254,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 76
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 10817461,
+          "end": 10817470,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 77
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 10817550,
+          "end": 10817572,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 77
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 10817581,
+          "end": 10817623,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 77
+        }
+      ]
+    },
+    {
+      "targetIndex": 17500,
+      "target": {
+        "classification": "unresolved",
+        "start": 10866911,
+        "end": 10868169,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "fba4104e7f7918f686585dced421b9216cc8fa18b10fec0cb5067e7722c233d5"
+      },
+      "ownerPaths": [
+        "src/components/WorktreeExitDialog.tsx"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 10867945,
+          "end": 10867954,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 78
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 10868034,
+          "end": 10868056,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 78
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 10868065,
+          "end": 10868107,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 78
+        }
+      ]
+    },
+    {
+      "targetIndex": 17634,
+      "target": {
+        "classification": "unresolved",
+        "start": 10902909,
+        "end": 10903875,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "29714cfc5fadbbaf02f9debbe401986aed6373a3c5cc3ce04c4b26819dc36014"
+      },
+      "ownerPaths": [
+        "src/commands/brief.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 10903160,
+          "end": 10903169,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 79
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 10903249,
+          "end": 10903271,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 79
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 10903280,
+          "end": 10903322,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 79
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 10903576,
+          "end": 10903585,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 80
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 10903665,
+          "end": 10903687,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 80
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 10903696,
+          "end": 10903738,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 80
+        }
+      ]
+    },
+    {
+      "targetIndex": 17768,
+      "target": {
+        "classification": "unresolved",
+        "start": 11007389,
+        "end": 11008545,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "0e88be6af921dcdfb8f53d50aafb40f85332b01f86e4f4fd5595cdef4ee4dc01"
+      },
+      "ownerPaths": [
+        "src/commands/insights.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 11007608,
+          "end": 11007617,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 81
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 11007697,
+          "end": 11007719,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 81
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 11007728,
+          "end": 11007770,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 81
+        }
+      ]
+    },
+    {
+      "targetIndex": 17944,
+      "target": {
+        "classification": "unresolved",
+        "start": 11084529,
+        "end": 11086204,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "9c6a9d146b04b99bd1ce8e4711332130b6092c13bfa4e0ed0b6115cd0f10969f"
+      },
+      "ownerPaths": [
+        "src/utils/sessionStorage.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 11084953,
+          "end": 11084962,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 82
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 11085042,
+          "end": 11085064,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 82
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 11085073,
+          "end": 11085115,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 82
+        }
+      ]
+    },
+    {
+      "targetIndex": 18013,
+      "target": {
+        "classification": "unresolved",
+        "start": 11113964,
+        "end": 11115194,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "25d85211c4f635b4ea7fc116dbddaa36e536a811c21f235cb1e89c032ea69022"
+      },
+      "ownerPaths": [
+        "src/utils/permissions/filesystem.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 11114752,
+          "end": 11114761,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 83
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 11114841,
+          "end": 11114863,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 83
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 11114872,
+          "end": 11114914,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 83
+        }
+      ]
+    },
+    {
+      "targetIndex": 18220,
+      "target": {
+        "classification": "unresolved",
+        "start": 11218994,
+        "end": 11222959,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "ab8bb88fe6fe83fdaa99be33e0f4ed514384e26ce52d483e2c02abdba322decd"
+      },
+      "ownerPaths": [
+        "src/constants/prompts.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 11220842,
+          "end": 11220851,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 84
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 11220931,
+          "end": 11220953,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 84
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 11220962,
+          "end": 11221004,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 84
+        }
+      ]
+    },
+    {
+      "targetIndex": 18262,
+      "target": {
+        "classification": "unresolved",
+        "start": 11245257,
+        "end": 11245663,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "6f588b3e88d21a3e4c1590d4c997a76684fa47f465db11b062095052fbfd7257"
+      },
+      "ownerPaths": [
+        "src/utils/api.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 11245490,
+          "end": 11245499,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 85
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 11245579,
+          "end": 11245601,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 85
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 11245610,
+          "end": 11245652,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 85
+        }
+      ]
+    },
+    {
+      "targetIndex": 18323,
+      "target": {
+        "classification": "unresolved",
+        "start": 11283012,
+        "end": 11284718,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "e91f11e26c28c754a425615a3a1cc8b6209d072c32d24d396ae26583f2acdb06"
+      },
+      "ownerPaths": [
+        "src/utils/sideQuery.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 11283556,
+          "end": 11283565,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 86
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 11283645,
+          "end": 11283667,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 86
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 11283676,
+          "end": 11283718,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 86
+        }
+      ]
+    },
+    {
+      "targetIndex": 18347,
+      "target": {
+        "classification": "unresolved",
+        "start": 11293946,
+        "end": 11298685,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "a820e6ad863ed0d42bc8d00d019e701f660e5805282b711967941288251c7e2d"
+      },
+      "ownerPaths": [
+        "src/bridge/bridgeUI.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 11296389,
+          "end": 11296398,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 87
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 11296478,
+          "end": 11296500,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 87
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 11296509,
+          "end": 11296551,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 87
+        }
+      ]
+    },
+    {
+      "targetIndex": 18421,
+      "target": {
+        "classification": "unresolved",
+        "start": 11336236,
+        "end": 11345096,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "b7eb0ab7448ac1550e745b79c890645ad2214ef25f3976f6c154b12194c896db"
+      },
+      "ownerPaths": [
+        "src/bridge/bridgeMain.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 11341142,
+          "end": 11341151,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 88
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 11341231,
+          "end": 11341253,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 88
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 11341262,
+          "end": 11341304,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 88
+        }
+      ]
+    },
+    {
+      "targetIndex": 18422,
+      "target": {
+        "classification": "unresolved",
+        "start": 11345096,
+        "end": 11347711,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "7fc8dd9ac2c628e9c0e3ae4830cbc9621997a4c1c1d846dd2e28bd19ca1f8db3"
+      },
+      "ownerPaths": [
+        "src/bridge/bridgeMain.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 11346701,
+          "end": 11346710,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 89
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 11346790,
+          "end": 11346812,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 89
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 11346821,
+          "end": 11346863,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 89
+        }
+      ]
+    },
+    {
+      "targetIndex": 18566,
+      "target": {
+        "classification": "unresolved",
+        "start": 11419470,
+        "end": 11420717,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "64971a98eac20fc00c6c5c6bb43d0ff7bfe6545e1ad9498c26d7bd0ce697ecdf"
+      },
+      "ownerPaths": [
+        "src/bridge/bridgePermissionCallbacks.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 11420042,
+          "end": 11420051,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 90
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 11420131,
+          "end": 11420153,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 90
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 11420162,
+          "end": 11420204,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 90
+        }
+      ]
+    },
+    {
+      "targetIndex": 18992,
+      "target": {
+        "classification": "unresolved",
+        "start": 11674356,
+        "end": 11674837,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "58327c98a40dd68867450eed9264422295102e558193bc109ab3193f9d766ff3"
+      },
+      "ownerPaths": [
+        "src/hooks/useIdeAtMentioned.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 11674564,
+          "end": 11674573,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 91
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 11674653,
+          "end": 11674675,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 91
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 11674684,
+          "end": 11674726,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 91
+        }
+      ]
+    },
+    {
+      "targetIndex": 18995,
+      "target": {
+        "classification": "unresolved",
+        "start": 11674894,
+        "end": 11678695,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "ab7ca95f3cc4e4fa6a8857618a1f6e3d54dc0963a78983fdb421f638fcd3ec64"
+      },
+      "ownerPaths": [
+        "src/components/AutoUpdater.tsx"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 11675430,
+          "end": 11675439,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 92
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 11675519,
+          "end": 11675541,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 92
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 11675550,
+          "end": 11675592,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 92
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 11678133,
+          "end": 11678142,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 93
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 11678222,
+          "end": 11678244,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 93
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 11678253,
+          "end": 11678295,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 93
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 11678514,
+          "end": 11678523,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 94
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 11678603,
+          "end": 11678625,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 94
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 11678634,
+          "end": 11678676,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 94
+        }
+      ]
+    },
+    {
+      "targetIndex": 18999,
+      "target": {
+        "classification": "unresolved",
+        "start": 11679275,
+        "end": 11682150,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "30716d8dfb698e2123a91babb5d78ede74b604a991e123a327946e1948677b3f"
+      },
+      "ownerPaths": [
+        "src/components/NativeAutoUpdater.tsx"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 11679867,
+          "end": 11679876,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 95
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 11679956,
+          "end": 11679978,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 95
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 11679987,
+          "end": 11680029,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 95
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 11680302,
+          "end": 11680311,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 96
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 11680391,
+          "end": 11680413,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 96
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 11680422,
+          "end": 11680464,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 96
+        }
+      ]
+    },
+    {
+      "targetIndex": 19002,
+      "target": {
+        "classification": "unresolved",
+        "start": 11682260,
+        "end": 11685578,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "bb4126692af14a5ee5f6b009690f55c3f12bc46fd9a15b39d7b613f83dfa90a1"
+      },
+      "ownerPaths": [
+        "src/components/PackageManagerAutoUpdater.tsx"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 11682982,
+          "end": 11682991,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 97
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 11683071,
+          "end": 11683093,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 97
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 11683102,
+          "end": 11683144,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 97
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 11683397,
+          "end": 11683406,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 98
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 11683486,
+          "end": 11683508,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 98
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 11683517,
+          "end": 11683559,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 98
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 11683849,
+          "end": 11683858,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 99
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 11683938,
+          "end": 11683960,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 99
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 11683969,
+          "end": 11684011,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 99
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 11684284,
+          "end": 11684293,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 100
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 11684373,
+          "end": 11684395,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 100
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 11684404,
+          "end": 11684446,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 100
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 11685110,
+          "end": 11685119,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 101
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 11685199,
+          "end": 11685221,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 101
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 11685230,
+          "end": 11685272,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 101
+        }
+      ]
+    },
+    {
+      "targetIndex": 19291,
+      "target": {
+        "classification": "unresolved",
+        "start": 11789293,
+        "end": 11790841,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "6e9f109cf659f394a6c376f599a4e75ab1b7f278923833d25526d9f788e160c5"
+      },
+      "ownerPaths": [
+        "src/components/StatusLine.tsx"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 11790051,
+          "end": 11790060,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 102
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 11790140,
+          "end": 11790162,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 102
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 11790171,
+          "end": 11790213,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 102
+        }
+      ]
+    },
+    {
+      "targetIndex": 19717,
+      "target": {
+        "classification": "unresolved",
+        "start": 11972008,
+        "end": 11973476,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "c747a96ecdf78249c9c3767f5dafa89d5f77592770f6fd5f4599e54c6f037ef1"
+      },
+      "ownerPaths": [
+        "src/components/FeedbackSurvey/submitTranscriptShare.ts"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 11972679,
+          "end": 11972688,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 103
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 11972768,
+          "end": 11972790,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 103
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 11972799,
+          "end": 11972841,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 103
+        }
+      ]
+    },
+    {
+      "targetIndex": 20134,
+      "target": {
+        "classification": "unresolved",
+        "start": 12202290,
+        "end": 12211416,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "f4a08da50086fb9556dc8c1bbcf5048df08793be3f3aad3997e3ec94b8579225"
+      },
+      "ownerPaths": [
+        "src/components/LogoV2/WelcomeV2.tsx"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 12202974,
+          "end": 12202983,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 104
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 12203063,
+          "end": 12203085,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 104
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 12203094,
+          "end": 12203136,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 104
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 12207247,
+          "end": 12207256,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 105
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 12207336,
+          "end": 12207358,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 105
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 12207367,
+          "end": 12207409,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 105
+        }
+      ]
+    },
+    {
+      "targetIndex": 20135,
+      "target": {
+        "classification": "unresolved",
+        "start": 12211416,
+        "end": 12221151,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "344a3304158e24b91599d167dc70caf88665d346acf5a8e12a06b420a8616f8f"
+      },
+      "ownerPaths": [
+        "src/components/LogoV2/WelcomeV2.tsx"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 12211926,
+          "end": 12211935,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 106
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 12212015,
+          "end": 12212037,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 106
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 12212046,
+          "end": 12212088,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 106
+        },
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 12216587,
+          "end": 12216596,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 107
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 12216676,
+          "end": 12216698,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 107
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 12216707,
+          "end": 12216749,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 107
+        }
+      ]
+    },
+    {
+      "targetIndex": 20232,
+      "target": {
+        "classification": "unresolved",
+        "start": 12248786,
+        "end": 12249230,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "5dc1251944532807c30d02925cd19aec415a1366b2ce727418c2f876641f9e98"
+      },
+      "ownerPaths": [
+        "src/interactiveHelpers.tsx"
+      ],
+      "residues": [
+        {
+          "kind": "string",
+          "value": "2.1.117",
+          "start": 12249055,
+          "end": 12249064,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 108
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-21T17:58:52Z",
+          "start": 12249144,
+          "end": 12249166,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 108
+        },
+        {
+          "kind": "string",
+          "value": "5e9d59ce46d5559e3510d71ef3dc12b5ab1e7387",
+          "start": 12249175,
+          "end": 12249217,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 108
+        }
+      ]
+    }
+  ]
+}

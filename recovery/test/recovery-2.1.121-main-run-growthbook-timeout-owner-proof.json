@@ -1,0 +1,581 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "auditConclusion": "Target121 u22106 carries the same identifier-normalized GrowthBook hydration timeout graph as the complete Target120 semantic counterpart. The numeric 300 is globally added only because unrelated occurrences shift literal order; its local currentCwd/timeout/command-loading graph is retained. Both accepted src/main.tsx states authenticate the same run boundary but omit the timeout statement and its is1PEventLoggingEnabled/withTimeout imports. A source replay is not row-scoped: the smallest closed statement also restores the distinct retained gb-before-tools owner residue. This case therefore admits only numeric 300 as static row evidence, after the two immutable allowed admissions, and leaves seven production rows plus six build macros outside its scope.",
+  "evidenceIds": [
+    "target121-main-run-growthbook-timeout-prior-static-order",
+    "target121-main-run-growthbook-timeout-authenticated-compiled-lineage",
+    "target121-main-run-growthbook-timeout-source-owner-boundary",
+    "target121-main-run-growthbook-timeout-replay-scope-rejection",
+    "target121-main-run-growthbook-timeout-post-replay-partition"
+  ],
+  "caseFiles": {
+    "helper": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/recovered/main-run-growthbook-timeout-owner-evidence.mjs",
+      "bytes": 1866,
+      "sha256": "ec4fbefaa1fa4f6756fd8162de01e394a39037783535a003c3667157d6f7694d"
+    }
+  },
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "frozenPostViewModeSnapshot": {
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25395103,
+        "sha256": "87c3acd81441f040757b5c6cc85f1b13722d9883a4d17d91dddcbcddf16922de"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 345319,
+        "sha256": "c6547d4d59a31aa2b68230d848ad7cd55d9498051e376389040e8738c14030b2",
+        "rawBytes": 2965690,
+        "rawSha256": "d35578e7e08e0a53a4020a5347d4ff8c4a1bc4e98a30ea8b9cbe4913b14f9592"
+      }
+    },
+    "frozenPostDangerousSnapshot": {
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25390987,
+        "sha256": "42f65dcc82a571f02ac59c9ec86858b6adbe2be3158c2d8a17ac4d6d1b9e4bd7",
+        "projection": "frozenPostViewModeSnapshot excluding dangerous-mode replay rows"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 345319,
+        "sha256": "c6547d4d59a31aa2b68230d848ad7cd55d9498051e376389040e8738c14030b2",
+        "rawBytes": 2965690,
+        "rawSha256": "d35578e7e08e0a53a4020a5347d4ff8c4a1bc4e98a30ea8b9cbe4913b14f9592",
+        "projection": "frozenPostViewModeSnapshot"
+      }
+    },
+    "postPruneSnapshot": {
+      "typedReport": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25396455,"sha256":"f63079907d813bffaf98cb89d28b8b2e183df9fe2e1c72b21f10fa2fd5c0a3f4","projection":"frozenPostDangerousSnapshot"},
+      "sourceCoverage": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":345989,"sha256":"05ac9243d7cee276bc51c8eb0c8e4e3678f96d941560cae620d05af240d7cdd4","rawBytes":2968244,"rawSha256":"7be9d68b6144e09290d58e3dae17f21df9536852b5f8415e777c9f7dd3ad1c06","projection":"frozenPostDangerousSnapshot"},
+      "u22106Counts": {"owner":199,"added":15,"strict":8}
+    },
+    "postDaemonOwnerSnapshot": {
+      "typedReport": {"path":".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json","bytes":25369097,"sha256":"2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3"},
+      "sourceCoverage": {"path":"recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz","bytes":347677,"sha256":"91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83","rawBytes":2974761,"rawSha256":"8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f"},
+      "u22106Counts": {"owner":202,"added":18,"strict":9}
+    },
+    "evolutionCompatibility": {
+      "postViewModeReplay": ["postViewModeReplay"],
+      "postDangerousReplay": ["postDangerousReplay"],
+      "postPrune": ["postPrune"],
+      "postDaemonOwner": ["postDaemonOwner"]
+    },
+    "priorAllowedProofs": [
+      {
+        "name": "first-allowed",
+        "fixture": {
+          "path": "recovery/test/recovery-2.1.121-main-run-first-allowed-owner-proof.json",
+          "bytes": 28289,
+          "sha256": "0bf69e223d2058c326d224131b1c7ca9a4441de31e36fa101e448647bb5d86d7"
+        },
+        "helper": {
+          "path": "recovery/cases/2.1.120-to-2.1.121/recovered/main-run-first-allowed-owner-evidence.mjs",
+          "bytes": 1426,
+          "sha256": "8e002317743c7b048f22dbb5f2554a90966f15c7699482699118e742cb8972fc"
+        },
+        "residue": [
+          "property",
+          "allowed",
+          13797608,
+          13797615,
+          65,
+          68,
+          true
+        ]
+      },
+      {
+        "name": "second-allowed",
+        "fixture": {
+          "path": "recovery/test/recovery-2.1.121-main-run-second-allowed-owner-proof.json",
+          "bytes": 25966,
+          "sha256": "af9a73a9635ec8702bab82ddfa9e909b8e517553471e8534c59bf72fee023332"
+        },
+        "helper": {
+          "path": "recovery/cases/2.1.120-to-2.1.121/recovered/main-run-second-allowed-owner-evidence.mjs",
+          "bytes": 1498,
+          "sha256": "6db36f512a04582272568af71e474afc276c1a42df9c647609f0d836dbfb82af"
+        },
+        "residue": [
+          "property",
+          "allowed",
+          13800348,
+          13800355,
+          65,
+          69,
+          true
+        ]
+      }
+    ],
+    "sourceFile": {
+      "path": "src/main.tsx",
+      "auditedPackageSourceRoot": "/tmp/target121-dangerous-final.WeP2Nu/2.1.121/src",
+      "postPruneAuditedPackageSourceRoot": "/tmp/target121-prune-final.QAqOlk/2.1.121/src",
+      "postPruneSourceState": {"file":{"bytes":816903,"sha256":"75171059e457d263cd9bdbfbaeed0a2c4786f9a1854b1c4fdf799273399b92f3"},"run":{"start":50568,"end":239469,"bytes":189073,"sha256":"044bac3a6f53bd31c78b2b1b0a7de0ba06a54700ea5c869c6c196da34c453f13"},"projection":"postDangerousReplay"},
+      "acceptedStates": {
+        "preViewModeReplay": {
+          "file": {
+            "bytes": 816314,
+            "sha256": "c4e91aae36588101d8280ac6375cdae4f7981361480ad53b93a4dfb19b87ed33"
+          },
+          "run": {
+            "start": 50530,
+            "end": 238967,
+            "bytes": 188609,
+            "sha256": "cd625ff130da4c44f430dc952e22f6ee2b5bf4838b0740c55813b7d676955891"
+          },
+          "ownerBoundary": {
+            "currentCwdDeclarator": {
+              "start": 119012,
+              "end": 119065,
+              "bytes": 53,
+              "sha256": "0f87a5e0f30e14761f7f3f2ce7211e7008050d8f2e93cf8cf40b3f890a7716df"
+            },
+            "commandLoadingStatement": {
+              "start": 119071,
+              "end": 119131,
+              "bytes": 60,
+              "sha256": "85fc2cc59ea2936039b0893ac13d0c119c3429519e50a4ec1e890bb55c2ca832"
+            },
+            "gap": {
+              "bytes": 5,
+              "sha256": "4dc501d66cd78903b81b1a53459d0432939728c537bbe9ffab55ab81521cb352"
+            },
+            "statementIndex": 130,
+            "bodyCount": 227
+          }
+        },
+        "postViewModeReplay": {
+          "file": {
+            "bytes": 816530,
+            "sha256": "13589f838f55a46b5eeaa551acd450ee5bdcd1fcd8e71578039e6a03d77d54c9"
+          },
+          "run": {
+            "start": 50530,
+            "end": 239183,
+            "bytes": 188825,
+            "sha256": "927d72ca12ffb99029fa491601321e807090df1181e29b678b042130451a4c80"
+          },
+          "ownerBoundary": {
+            "currentCwdDeclarator": {
+              "start": 119248,
+              "end": 119301,
+              "bytes": 53,
+              "sha256": "0f87a5e0f30e14761f7f3f2ce7211e7008050d8f2e93cf8cf40b3f890a7716df"
+            },
+            "commandLoadingStatement": {
+              "start": 119307,
+              "end": 119367,
+              "bytes": 60,
+              "sha256": "85fc2cc59ea2936039b0893ac13d0c119c3429519e50a4ec1e890bb55c2ca832"
+            },
+            "gap": {
+              "bytes": 5,
+              "sha256": "4dc501d66cd78903b81b1a53459d0432939728c537bbe9ffab55ab81521cb352"
+            },
+            "statementIndex": 132,
+            "bodyCount": 229
+          }
+        },
+        "postDangerousReplay": {
+          "file": {"bytes":816786,"sha256":"ecc8aa7337fb3f4bebaee045db279d1330367d9e2b9449b2f3cccf31b19a88fc"},
+          "run": {"start":50568,"end":239352,"bytes":188956,"sha256":"182548866a9e70349f677944468c6f500b36339fb2e99b92691ca193db6af775"},
+          "ownerBoundary": {
+            "currentCwdDeclarator": {"start":119286,"end":119339,"bytes":53,"sha256":"0f87a5e0f30e14761f7f3f2ce7211e7008050d8f2e93cf8cf40b3f890a7716df"},
+            "commandLoadingStatement": {"start":119345,"end":119405,"bytes":60,"sha256":"85fc2cc59ea2936039b0893ac13d0c119c3429519e50a4ec1e890bb55c2ca832"},
+            "gap": {"bytes":5,"sha256":"4dc501d66cd78903b81b1a53459d0432939728c537bbe9ffab55ab81521cb352"},
+            "statementIndex": 132,
+            "bodyCount": 230
+          }
+        }
+      },
+      "sharedImports": {
+        "./services/analytics/growthbook.js": {
+          "start": 1859,
+          "end": 1993,
+          "bytes": 134,
+          "sha256": "139333d7572709f930508051dd3b15d59aa968b3f808ed4cdca668b497cb5645",
+          "names": [
+            "hasGrowthBookEnvOverride",
+            "initializeGrowthBook",
+            "refreshGrowthBookAfterAuthChange"
+          ]
+        },
+        "./services/analytics/firstPartyEventLogger.js": {
+          "start": 2127,
+          "end": 2214,
+          "bytes": 87,
+          "sha256": "37ea2a62b55240548516c52e4d78b8372ff3188b1e564c9f8c5f30555c6a38a0",
+          "names": [
+            "shutdown1PEventLogging"
+          ]
+        },
+        "./utils/config.js": {
+          "start": 3611,
+          "end": 3826,
+          "bytes": 215,
+          "sha256": "e9539c7b13495fdde4280ae31ef5911f1321a7ebbe1a9e1a87d31705570f40c0",
+          "names": [
+            "checkHasTrustDialogAccepted",
+            "getGlobalConfig",
+            "getProjectPathForConfig",
+            "getRemoteControlAtStartup",
+            "isAutoUpdaterDisabled",
+            "resetTrustDialogAcceptedCacheForTesting",
+            "saveGlobalConfig"
+          ]
+        },
+        "./utils/sleep.js": {
+          "start": 4745,
+          "end": 4786,
+          "bytes": 41,
+          "sha256": "60ee43e038f7e813e6ad14946ddaf5297bd7ac925db787b8e14e4032455f2ce0",
+          "names": [
+            "sleep"
+          ]
+        }
+      }
+    }
+  },
+  "baselineSemanticCounterpart": {
+    "baselineUnitIndex": 22004,
+    "name": "Zh5",
+    "nodeType": "FunctionDeclaration",
+    "parseStatus": "parsed",
+    "async": true,
+    "start": 13711458,
+    "end": 13773044,
+    "bytes": 61586,
+    "tokenCount": 16389,
+    "topDefinitionCount": 1,
+    "sha256": "779475eaefa28539b1ec352cc59fe574e13cc76fb5a72cb1e8d195ffee3802f0",
+    "coarseHash": "4bbcd6b9794a243d0de489dcc39212cdaff16319293fe2292891f29aac9924c0"
+  },
+  "targetUnit": {
+    "targetIndex": 22106,
+    "classification": "unresolved",
+    "unknownFreeIdentifierCount": 42,
+    "name": "WS5",
+    "nodeType": "FunctionDeclaration",
+    "parseStatus": "parsed",
+    "async": true,
+    "start": 13779080,
+    "end": 13841990,
+    "bytes": 62910,
+    "tokenCount": 16656,
+    "topDefinitionCount": 1,
+    "sha256": "75e9d33fb5c6729b0943f31165d52ca331d0403c10ce4acb323d17a809ec197b",
+    "coarseHash": "c4e17d2ff16eb01e31964b80158abc8e5dba5d7c04a7b3469575e83593e228c1"
+  },
+  "compiledTimeoutGraph": {
+    "method": "The numeric literal is closed upward through its three-argument timeout call, catch continuation, await, and enclosing IfStatement. The immediately preceding final VariableDeclarator and following command-loading ExpressionStatement authenticate the retained owner boundary. Identifier tokens are normalized to @id.",
+    "normalizedIfTokens": {
+      "count": 45,
+      "bytes": 574,
+      "sha256": "6043c33926f0f8fe86afc5902e529afdbdd635ca84870adf27a4647577969e3b"
+    },
+    "normalizedCurrentCwdTokens": {
+      "count": 9,
+      "bytes": 114,
+      "sha256": "7420fd90c95499df74ec4b8cb5506f0212221dc96dc8f30b5afad138b0874d68"
+    },
+    "normalizedCommandLoadingTokens": {
+      "count": 5,
+      "bytes": 103,
+      "sha256": "bbd0cdf2ef80ae23713356840e10ae8f247c2dd905deade78446218057bb0277"
+    },
+    "baseline": {
+      "literal": {
+        "localStart": 23416,
+        "localEnd": 23419,
+        "start": 13734874,
+        "end": 13734877,
+        "bytes": 3,
+        "sha256": "983bd614bb5afece5ab3b6023f71147cd7b6bc2314f9d27af7422541c6558389"
+      },
+      "timeoutCall": {
+        "localStart": 23408,
+        "localEnd": 23438,
+        "start": 13734866,
+        "end": 13734896,
+        "bytes": 30,
+        "sha256": "e85c182d69383de458462d1b46cefd7f3f78781f3fcb36cd74ba8036fde355bb"
+      },
+      "ifStatement": {
+        "localStart": 23335,
+        "localEnd": 23453,
+        "start": 13734793,
+        "end": 13734911,
+        "bytes": 118,
+        "sha256": "855abf2234654b44cea33ae595b8453abdf7c7cabcbe6a2c0233ed4a42575ae4"
+      },
+      "previousLastDeclarator": {
+        "localStart": 23322,
+        "localEnd": 23334,
+        "start": 13734780,
+        "end": 13734792,
+        "bytes": 12,
+        "sha256": "36f653deb6873671aab736de1037d8293f7f0915add1cb2dd97781a2a8668e67"
+      },
+      "commandLoadingStatement": {
+        "localStart": 23453,
+        "localEnd": 23499,
+        "start": 13734911,
+        "end": 13734957,
+        "bytes": 46,
+        "sha256": "577f4fc082da03ec4502c68594432da9459f415712acf42b5b5130634ca56e8f"
+      },
+      "statementIndex": 75,
+      "bodyCount": 123
+    },
+    "target": {
+      "literal": {
+        "localStart": 23918,
+        "localEnd": 23921,
+        "start": 13802998,
+        "end": 13803001,
+        "bytes": 3,
+        "sha256": "983bd614bb5afece5ab3b6023f71147cd7b6bc2314f9d27af7422541c6558389"
+      },
+      "timeoutCall": {
+        "localStart": 23910,
+        "localEnd": 23940,
+        "start": 13802990,
+        "end": 13803020,
+        "bytes": 30,
+        "sha256": "4bb9fc89863fa40296e2acf2af2f67531a2422b94b4f8f88a72ab75450bd58fd"
+      },
+      "ifStatement": {
+        "localStart": 23837,
+        "localEnd": 23955,
+        "start": 13802917,
+        "end": 13803035,
+        "bytes": 118,
+        "sha256": "a75c2c60440ca66dacc180c59c212fd627f746e78d1b1eaf9f860d7bdec9573c"
+      },
+      "previousLastDeclarator": {
+        "localStart": 23824,
+        "localEnd": 23836,
+        "start": 13802904,
+        "end": 13802916,
+        "bytes": 12,
+        "sha256": "7c82c47305d0f415f9124c62f5bdd3e88006282a9649571a65322cfcf409cea7"
+      },
+      "commandLoadingStatement": {
+        "localStart": 23955,
+        "localEnd": 24001,
+        "start": 13803035,
+        "end": 13803081,
+        "bytes": 46,
+        "sha256": "4c3b1e3310aed1aebdf9965a3386d5794aeaa28b56b0edf93a9cfbb07b172952"
+      },
+      "statementIndex": 76,
+      "bodyCount": 124
+    }
+  },
+  "reportSnapshot": {
+    "targetIndex": 22106,
+    "ownerRows": {
+      "count": 200,
+      "identities": {
+        "bytes": 13503,
+        "sha256": "f56b5605e396a33063b5ce1cdbf54723cdfefbcb4de1c87dccb13d2878029b0b"
+      },
+      "attributionIdentities": {
+        "bytes": 16703,
+        "sha256": "1f549ed17abcef2c46f50c6b778d263dc6d7e6c0f2cf72681f784b2362fa59a3"
+      }
+    },
+    "addedRows": {
+      "count": 16,
+      "identities": {
+        "bytes": 966,
+        "sha256": "2176929407d288662a742d65eb11807019d843c08256643f182e217d1520f1f1"
+      },
+      "exact": [
+        ["property", "allowed", 13797608, 13797615, 65, 68, true],
+        ["property", "allowed", 13800348, 13800355, 65, 69, true],
+        ["number", "300", 13802998, 13803001, 60, 67, true],
+        ["string", "2.1.121", 13808731, 13808740, 0, 150, true],
+        ["string", "2026-04-27T01:32:27Z", 13808820, 13808842, 0, 150, true],
+        ["string", "16ffea721a0a39bc787a236dc19fb62307180b75", 13808851, 13808893, 0, 150, true],
+        ["property", "skipDangerousModePromptSetPreDialog", 13809436, 13809471, 0, 1, true],
+        ["property", "sessionState", 13812452, 13812464, 28, 30, true],
+        ["property", "index", 13815572, 13815577, 296, 297, true],
+        ["property", "isAbsolute", 13822198, 13822208, 74, 75, true],
+        ["property", "error_name", 13823208, 13823218, 13, 14, true],
+        ["string", "2.1.121", 13825108, 13825117, 0, 151, true],
+        ["string", "2026-04-27T01:32:27Z", 13825197, 13825219, 0, 151, true],
+        ["string", "16ffea721a0a39bc787a236dc19fb62307180b75", 13825228, 13825270, 0, 151, true],
+        ["property", "pluginPruneHandler", 13837077, 13837095, 0, 2, true],
+        ["property", "createSubcommandRoot", 13840517, 13840537, 23, 24, true]
+      ]
+    },
+    "strictRows": {
+      "count": 9,
+      "identities": {
+        "bytes": 587,
+        "sha256": "70de4fe1fcd792572f45084e3e72d3c03e0bbd9250eab28cfe7f53788fa5f109"
+      },
+      "exact": [
+        [22106, "string", "2.1.121", 13808731, 13808740, 150],
+        [22106, "string", "2026-04-27T01:32:27Z", 13808820, 13808842, 150],
+        [22106, "string", "16ffea721a0a39bc787a236dc19fb62307180b75", 13808851, 13808893, 150],
+        [22106, "property", "skipDangerousModePromptSetPreDialog", 13809436, 13809471, 1],
+        [22106, "string", "2.1.121", 13825108, 13825117, 151],
+        [22106, "string", "2026-04-27T01:32:27Z", 13825197, 13825219, 151],
+        [22106, "string", "16ffea721a0a39bc787a236dc19fb62307180b75", 13825228, 13825270, 151],
+        [22106, "property", "pluginPruneHandler", 13837077, 13837095, 2],
+        [22106, "property", "createSubcommandRoot", 13840517, 13840537, 24]
+      ]
+    }
+  },
+  "postDaemonOwner": {
+    "reportSnapshot": {
+      "ownerRows": {"count":202,"fullRows":{"bytes":82282,"sha256":"12667e8e660ac9d2922044a635480cabfaebf9c4dfab21c4c1c9e70e73d2d9a6"},"identities":{"bytes":13602,"sha256":"34c010ba52ab4f198005aa949999c1a9fa505e13a36b8dbf86ae1aa2f41a5b26"},"attributionIdentities":{"bytes":16834,"sha256":"e2e8255d90e0f2e763cd7dfd014c7912056de908a0fd1fd701fdc2d5d2717064"}},
+      "addedRows": {"count":18,"fullRows":{"bytes":15716,"sha256":"593670e825fbcc41f6d3f61292701a24d95b4f8382ee73fea180f5e92ba37326"},"identities":{"bytes":1065,"sha256":"3c8e691f746c6a26d6174ba0a97caf0c142ac35fefae4cae1827cb8bbd79437f"}},
+      "strictRows": {"count":9,"fullRows":{"bytes":4548,"sha256":"4418da70a455e83e5e8d3dc3328eea4b5d7be81636fb8d05d5e9b2b52e073746"},"identities":{"bytes":587,"sha256":"70de4fe1fcd792572f45084e3e72d3c03e0bbd9250eab28cfe7f53788fa5f109"}}
+    },
+    "restoredAddedRowsExact": [["property","viewMode",13792763,13792771,3,4,true],["string","focus",13792780,13792787,16,17,true]]
+  },
+  "postDangerous": {
+    "reportSnapshot": {
+      "targetIndex": 22106,
+      "ownerRows": {
+        "count": 199,
+        "identities": {"bytes":13425,"sha256":"f00a23d93b511d06d290bd4f9b3ae4fe1d4043f168a5271d647ca430a5eb8562"},
+        "attributionIdentities": {"bytes":16609,"sha256":"700747539e464bd2a8825188794ded7398f60f62bdcac7488d797e121a388fbd"}
+      },
+      "addedRows": {
+        "count": 15,
+        "identities": {"bytes":888,"sha256":"20432f175c6adaa772965d5cfb4771182166021aa931b502893fd98fe1988d38"},
+        "exactProjection": "reportSnapshot excluding removedRowsExact"
+      },
+      "strictRows": {
+        "count": 8,
+        "identities": {"bytes":510,"sha256":"2aecbae5c355ac1faa832d5bdff219e003fab8da75f91fd8466b496cf477f378"},
+        "exactProjection": "reportSnapshot excluding removedStrictRowsExact"
+      }
+    },
+    "removedRowsExact": ["property","skipDangerousModePromptSetPreDialog",13809436,13809471,0,1,true],
+    "removedStrictRowsExact": [22106,"property","skipDangerousModePromptSetPreDialog",13809436,13809471,1],
+    "rowClassification": {
+      "priorStaticOrdinals": [0,1],
+      "ownedStaticOrdinals": [2],
+      "cumulativeStaticOrdinals": [0,1,2],
+      "deferredProductionOrdinals": [6,7,8,9,13,14],
+      "buildMacroOrdinals": [3,4,5,10,11,12],
+      "deferredProductionValues": ["sessionState","index","isAbsolute","error_name","pluginPruneHandler","createSubcommandRoot"],
+      "buildMacroValues": ["2.1.121","2026-04-27T01:32:27Z","16ffea721a0a39bc787a236dc19fb62307180b75"]
+    },
+    "staticAdmission": {
+      "predictedImpact": {
+        "rawOwnerRows": 199,
+        "rawAddedRows": 15,
+        "priorStaticOwnerAddedRows": 2,
+        "ownedByThisProofOwnerAddedRows": 1,
+        "cumulativeAdmittedOwnerAddedRows": 3,
+        "remainingDeferredProductionRows": 6,
+        "separatelyHandledBuildMacroRows": 6,
+        "rawStrictRowsRemoved": 0,
+        "coverageRowsAddedOrReplaced": 0,
+        "predictedOwnerRows": 196,
+        "predictedAddedRows": 12,
+        "predictedStrictRows": 8,
+        "predictedCoverageRows": 1
+      }
+    },
+    "coverageProjection": "postViewModeReplay"
+  },
+  "rowClassification": {
+    "priorStaticOrdinals": [0, 1],
+    "ownedStaticOrdinals": [2],
+    "cumulativeStaticOrdinals": [0, 1, 2],
+    "deferredProductionOrdinals": [6, 7, 8, 9, 10, 14, 15],
+    "buildMacroOrdinals": [3, 4, 5, 11, 12, 13],
+    "deferredProductionValues": [
+      "skipDangerousModePromptSetPreDialog",
+      "sessionState",
+      "index",
+      "isAbsolute",
+      "error_name",
+      "pluginPruneHandler",
+      "createSubcommandRoot"
+    ],
+    "buildMacroValues": [
+      "2.1.121",
+      "2026-04-27T01:32:27Z",
+      "16ffea721a0a39bc787a236dc19fb62307180b75"
+    ]
+  },
+  "staticAdmission": {
+    "sourceOwner": "src/main.tsx::run",
+    "mode": "static-row-proof-replay-rejected",
+    "priorResidues": [
+      ["property", "allowed", 13797608, 13797615, 65, 68, true],
+      ["property", "allowed", 13800348, 13800355, 65, 69, true]
+    ],
+    "ownerResidue": ["number", "300", 13802998, 13803001, 60, 67, true],
+    "predictedImpact": {
+      "rawOwnerRows": 200,
+      "rawAddedRows": 16,
+      "priorStaticOwnerAddedRows": 2,
+      "ownedByThisProofOwnerAddedRows": 1,
+      "cumulativeAdmittedOwnerAddedRows": 3,
+      "remainingDeferredProductionRows": 7,
+      "separatelyHandledBuildMacroRows": 6,
+      "rawStrictRowsRemoved": 0,
+      "coverageRowsAddedOrReplaced": 0,
+      "predictedOwnerRows": 197,
+      "predictedAddedRows": 13,
+      "predictedStrictRows": 9,
+      "predictedCoverageRows": 1
+    }
+  },
+  "replayScopeRejection": {
+    "minimalClosedStatement": "if (is1PEventLoggingEnabled() && Object.keys(getGlobalConfig().cachedGrowthBookFeatures ?? {}).length === 0) await withTimeout(initializeGrowthBook(), 300, 'gb-before-tools').catch(() => {});",
+    "descriptor": {
+      "bytes": 191,
+      "sha256": "d7bd3f29f19ea8a298565ed71f22cb4db2946aeb8b107a37c5cf84e410987fb4"
+    },
+    "normalizedTokens": {
+      "count": 45,
+      "bytes": 574,
+      "sha256": "6043c33926f0f8fe86afc5902e529afdbdd635ca84870adf27a4647577969e3b"
+    },
+    "missingImportSpecifiers": [
+      "is1PEventLoggingEnabled",
+      "withTimeout"
+    ],
+    "collateralOwnerResidue": [
+      "string",
+      "gb-before-tools",
+      13803002,
+      13803019,
+      1,
+      1,
+      false
+    ]
+  },
+  "coverageRowsDescriptor": {
+    "bytes": 504,
+    "sha256": "e486a23cc17516c26a7c03d6ee6a8188534bed98501e230dd9a2af7d61f34502"
+  }
+}

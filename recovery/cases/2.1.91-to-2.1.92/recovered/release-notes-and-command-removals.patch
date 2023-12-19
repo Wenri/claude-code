@@ -1,0 +1,244 @@
+diff --git a/src/commands.ts b/src/commands.ts
+index 10f03b222fba4e6e545378a7e0ed7cce2c951844..aee8f8a80a18bbeacdf3114ba8ba08831b567e5d 100644
+--- a/src/commands.ts
++++ b/src/commands.ts
+@@ -55,7 +55,6 @@ import bughunter from './commands/bughunter/index.js'
+ import terminalSetup from './commands/terminalSetup/index.js'
+ import usage from './commands/usage/index.js'
+ import theme from './commands/theme/index.js'
+-import vim from './commands/vim/index.js'
+ import { feature } from 'bun:bundle'
+ // Dead code elimination: conditional imports
+ /* eslint-disable @typescript-eslint/no-require-imports */
+@@ -173,7 +172,6 @@ import env from './commands/env/index.js'
+ import exit from './commands/exit/index.js'
+ import exportCommand from './commands/export/index.js'
+ import model from './commands/model/index.js'
+-import tag from './commands/tag/index.js'
+ import outputStyle from './commands/output-style/index.js'
+ import remoteEnv from './commands/remote-env/index.js'
+ import upgrade from './commands/upgrade/index.js'
+@@ -302,7 +300,6 @@ const COMMANDS = memoize((): Command[] => [
+   status,
+   statusline,
+   stickers,
+-  tag,
+   theme,
+   feedback,
+   review,
+@@ -316,7 +313,6 @@ const COMMANDS = memoize((): Command[] => [
+   rateLimitOptions,
+   usage,
+   usageReport,
+-  vim,
+   ...(webCmd ? [webCmd] : []),
+   ...(forkCmd ? [forkCmd] : []),
+   ...(buddy ? [buddy] : []),
+@@ -623,7 +619,6 @@ export const REMOTE_SAFE_COMMANDS: Set<Command> = new Set([
+   help, // Show help
+   theme, // Change terminal theme
+   color, // Change agent color
+-  vim, // Toggle vim mode
+   cost, // Show session cost (local cost tracking)
+   usage, // Show usage info
+   copy, // Copy last message
+diff --git a/src/commands/release-notes/index.ts b/src/commands/release-notes/index.ts
+index 75413de537f9dcbfa44e996684f882428cd6f0b4..dbfba9a8a5804343423f0564ad4ff08f353d054a 100644
+--- a/src/commands/release-notes/index.ts
++++ b/src/commands/release-notes/index.ts
+@@ -3,8 +3,7 @@ import type { Command } from '../../commands.js'
+ const releaseNotes: Command = {
+   description: 'View release notes',
+   name: 'release-notes',
+-  type: 'local',
+-  supportsNonInteractive: true,
++  type: 'local-jsx',
+   load: () => import('./release-notes.js'),
+ }
+ 
+diff --git a/src/commands/release-notes/release-notes.ts b/src/commands/release-notes/release-notes.ts
+deleted file mode 100644
+index dfd7aec2a4c7b86b34d989131f281aba3a0c7ff1..0000000000000000000000000000000000000000
+--- a/src/commands/release-notes/release-notes.ts
++++ /dev/null
+@@ -1,50 +0,0 @@
+-import type { LocalCommandResult } from '../../types/command.js'
+-import {
+-  CHANGELOG_URL,
+-  fetchAndStoreChangelog,
+-  getAllReleaseNotes,
+-  getStoredChangelog,
+-} from '../../utils/releaseNotes.js'
+-
+-function formatReleaseNotes(notes: Array<[string, string[]]>): string {
+-  return notes
+-    .map(([version, notes]) => {
+-      const header = `Version ${version}:`
+-      const bulletPoints = notes.map(note => `· ${note}`).join('\n')
+-      return `${header}\n${bulletPoints}`
+-    })
+-    .join('\n\n')
+-}
+-
+-export async function call(): Promise<LocalCommandResult> {
+-  // Try to fetch the latest changelog with a 500ms timeout
+-  let freshNotes: Array<[string, string[]]> = []
+-
+-  try {
+-    const timeoutPromise = new Promise<void>((_, reject) => {
+-      setTimeout(rej => rej(new Error('Timeout')), 500, reject)
+-    })
+-
+-    await Promise.race([fetchAndStoreChangelog(), timeoutPromise])
+-    freshNotes = getAllReleaseNotes(await getStoredChangelog())
+-  } catch {
+-    // Either fetch failed or timed out - just use cached notes
+-  }
+-
+-  // If we have fresh notes from the quick fetch, use those
+-  if (freshNotes.length > 0) {
+-    return { type: 'text', value: formatReleaseNotes(freshNotes) }
+-  }
+-
+-  // Otherwise check cached notes
+-  const cachedNotes = getAllReleaseNotes(await getStoredChangelog())
+-  if (cachedNotes.length > 0) {
+-    return { type: 'text', value: formatReleaseNotes(cachedNotes) }
+-  }
+-
+-  // Nothing available, show link
+-  return {
+-    type: 'text',
+-    value: `See the full changelog at: ${CHANGELOG_URL}`,
+-  }
+-}
+diff --git a/src/commands/release-notes/release-notes.tsx b/src/commands/release-notes/release-notes.tsx
+new file mode 100644
+index 0000000000000000000000000000000000000000..916ce94a43491a585fb41e99b734a457241e2184
+--- /dev/null
++++ b/src/commands/release-notes/release-notes.tsx
+@@ -0,0 +1,124 @@
++import React from 'react'
++import {
++  type OptionWithDescription,
++  Select,
++} from '../../components/CustomSelect/select.js'
++import { Dialog } from '../../components/design-system/Dialog.js'
++import { Box, Text } from '../../ink.js'
++import type { LocalJSXCommandOnDone } from '../../types/command.js'
++import {
++  CHANGELOG_URL,
++  fetchAndStoreChangelog,
++  getAllReleaseNotes,
++  getStoredChangelog,
++} from '../../utils/releaseNotes.js'
++import { gt } from '../../utils/semver.js'
++
++type ReleaseNotes = Array<[string, string[]]>
++
++const SHOW_ALL_VALUE = '__show_all__'
++
++function formatReleaseNotes(version: string, notes: string[]): string {
++  const header = `Version ${version}:`
++  const bulletPoints = notes.map(note => `· ${note}`).join('\n')
++  return `${header}\n${bulletPoints}`
++}
++
++function formatAllReleaseNotes(notes: ReleaseNotes): string {
++  return notes
++    .slice()
++    .sort(([versionA], [versionB]) => (gt(versionA, versionB) ? 1 : -1))
++    .map(([version, versionNotes]) =>
++      formatReleaseNotes(version, versionNotes),
++    )
++    .join('\n\n')
++}
++
++export async function call(onDone: LocalJSXCommandOnDone) {
++  // Try to fetch the latest changelog with a 500ms timeout
++  try {
++    const timeoutPromise = new Promise<void>((_, reject) => {
++      setTimeout(rej => rej(new Error('Timeout')), 500, reject)
++    })
++
++    await Promise.race([fetchAndStoreChangelog(), timeoutPromise])
++  } catch {
++    // Either fetch failed or timed out - just use cached notes
++  }
++
++  const notes = getAllReleaseNotes(await getStoredChangelog())
++    .slice()
++    .sort(([versionA], [versionB]) => (gt(versionA, versionB) ? -1 : 1))
++
++  if (notes.length === 0) {
++    onDone(`See the full changelog at: ${CHANGELOG_URL}`, {
++      display: 'system',
++    })
++    return null
++  }
++
++  return <ReleaseNotesPicker notes={notes} onDone={onDone} />
++}
++
++function ReleaseNotesPicker({
++  notes,
++  onDone,
++}: {
++  notes: ReleaseNotes
++  onDone: LocalJSXCommandOnDone
++}) {
++  const options: OptionWithDescription<string>[] = [
++    {
++      label: 'Show all',
++      description: `${notes.length} versions`,
++      value: SHOW_ALL_VALUE,
++    },
++    ...notes.map(toReleaseNotesOption),
++  ]
++
++  function handleChange(value: string) {
++    if (value === SHOW_ALL_VALUE) {
++      onDone(formatAllReleaseNotes(notes), { display: 'system' })
++      return
++    }
++
++    const selected = notes.find(([version]) => version === value)
++    if (!selected) {
++      onDone(undefined, { display: 'skip' })
++      return
++    }
++
++    onDone(formatReleaseNotes(selected[0], selected[1]), {
++      display: 'system',
++    })
++  }
++
++  function handleCancel() {
++    onDone(undefined, { display: 'skip' })
++  }
++
++  return (
++    <Dialog title="Release notes" onCancel={handleCancel}>
++      <Box flexDirection="column" marginBottom={1}>
++        <Text dimColor>Select a version to view its notes.</Text>
++      </Box>
++      <Select
++        options={options}
++        visibleOptionCount={10}
++        onChange={handleChange}
++        onCancel={handleCancel}
++      />
++    </Dialog>
++  )
++}
++
++function toReleaseNotesOption([
++  version,
++  notes,
++]: [string, string[]]): OptionWithDescription<string> {
++  return {
++    label: `Version ${version}`,
++    description: `${notes.length} ${notes.length === 1 ? 'item' : 'items'}`,
++    value: version,
++  }
++}

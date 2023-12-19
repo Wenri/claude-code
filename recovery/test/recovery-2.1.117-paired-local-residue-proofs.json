@@ -1,0 +1,1235 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.116-to-2.1.117",
+  "versions": {
+    "baseline": "2.1.116",
+    "target": "2.1.117"
+  },
+  "inputs": {
+    "baselineBundle": {
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    },
+    "targetBundle": {
+      "bytes": 13114118,
+      "sha256": "518e12d67eef1cdfd7b5afa0125ae4aec10739ce23dfe62899dac4b62a37d661"
+    },
+    "structural": {
+      "bytes": 2392225,
+      "sha256": "f778ae437cfcc8f25940c7bd0565e5a0d075fe00ea603e5f54f9db492274f152"
+    }
+  },
+  "proof": "Every admitted target-added residue has identical nonzero local AST multiplicity in the authenticated unique-coarse paired baseline and target units; the apparent addition is solely a global ordinal shift.",
+  "summary": {
+    "units": 24,
+    "residues": 63
+  },
+  "rows": [
+    {
+      "targetIndex": 14883,
+      "ownerPaths": [
+        "src/tools/BashTool/bashPermissions.ts"
+      ],
+      "pairReason": "unique-coarse-structural-hash",
+      "baseline": {
+        "index": 14815,
+        "start": 9269581,
+        "end": 9272449,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "cfaf48e1a5e1ba388163009c9893478c7340e7eae37c263b3b67dd935d888d05",
+        "coarseHash": "f54330c077d50093b7e489c1f7fa900eb0f2da865c490c05ebbde20da22b0495"
+      },
+      "target": {
+        "start": 9290931,
+        "end": 9293799,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "7786a99a5074102f603a454deb1d8b9d965add7aec108ceab13afc3177ee75a8",
+        "coarseHash": "f54330c077d50093b7e489c1f7fa900eb0f2da865c490c05ebbde20da22b0495"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "-o",
+          "start": 9292944,
+          "end": 9292948,
+          "baselineOccurrenceCount": 19,
+          "targetOccurrenceNumber": 20,
+          "baselineLocalCount": 3,
+          "targetLocalCount": 3
+        },
+        {
+          "kind": "string",
+          "value": "-u",
+          "start": 9292959,
+          "end": 9292963,
+          "baselineOccurrenceCount": 24,
+          "targetOccurrenceNumber": 25,
+          "baselineLocalCount": 6,
+          "targetLocalCount": 6
+        },
+        {
+          "kind": "string",
+          "value": "-o",
+          "start": 9293178,
+          "end": 9293182,
+          "baselineOccurrenceCount": 19,
+          "targetOccurrenceNumber": 21,
+          "baselineLocalCount": 3,
+          "targetLocalCount": 3
+        },
+        {
+          "kind": "string",
+          "value": "-O",
+          "start": 9293183,
+          "end": 9293187,
+          "baselineOccurrenceCount": 7,
+          "targetOccurrenceNumber": 8,
+          "baselineLocalCount": 2,
+          "targetLocalCount": 2
+        },
+        {
+          "kind": "string",
+          "value": "-S",
+          "start": 9293450,
+          "end": 9293454,
+          "baselineOccurrenceCount": 19,
+          "targetOccurrenceNumber": 20,
+          "baselineLocalCount": 4,
+          "targetLocalCount": 4
+        },
+        {
+          "kind": "string",
+          "value": "-G",
+          "start": 9293455,
+          "end": 9293459,
+          "baselineOccurrenceCount": 9,
+          "targetOccurrenceNumber": 10,
+          "baselineLocalCount": 2,
+          "targetLocalCount": 2
+        },
+        {
+          "kind": "string",
+          "value": "-a",
+          "start": 9293509,
+          "end": 9293513,
+          "baselineOccurrenceCount": 29,
+          "targetOccurrenceNumber": 30,
+          "baselineLocalCount": 5,
+          "targetLocalCount": 5
+        },
+        {
+          "kind": "string",
+          "value": "-S",
+          "start": 9293555,
+          "end": 9293559,
+          "baselineOccurrenceCount": 19,
+          "targetOccurrenceNumber": 21,
+          "baselineLocalCount": 4,
+          "targetLocalCount": 4
+        }
+      ]
+    },
+    {
+      "targetIndex": 15586,
+      "ownerPaths": [
+        "src/components/Stats.tsx"
+      ],
+      "pairReason": "unique-coarse-structural-hash",
+      "baseline": {
+        "index": 15526,
+        "start": 9813659,
+        "end": 9816949,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "0096e507580bb25241d11500e9253af39816f0d1431a56a782f1a5eeecc54b11",
+        "coarseHash": "dc782d287ddeda7cdf4c0f317ba358d510c4eccc52059f3298731e3ba2e580d6"
+      },
+      "target": {
+        "start": 9829233,
+        "end": 9832528,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "447b43e706168f10c2e0f726c8440b4c4ffdda75a487a1a84e2ce012c3cffac6",
+        "coarseHash": "dc782d287ddeda7cdf4c0f317ba358d510c4eccc52059f3298731e3ba2e580d6"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "scroll",
+          "start": 9832092,
+          "end": 9832100,
+          "baselineOccurrenceCount": 27,
+          "targetOccurrenceNumber": 29,
+          "baselineLocalCount": 1,
+          "targetLocalCount": 1
+        }
+      ]
+    },
+    {
+      "targetIndex": 15714,
+      "ownerPaths": [
+        "src/components/mcp/McpParsingWarnings.tsx"
+      ],
+      "pairReason": "unique-coarse-structural-hash",
+      "baseline": {
+        "index": 15656,
+        "start": 9863124,
+        "end": 9864313,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "56b4bb8384f578237fa299dc929e0610a5a9295ede8682f18fd1288a2346f4e9",
+        "coarseHash": "e365cebefc8ff0e9937a2e1226348b7459756e44ee9bae4f75cbcd2e91874459"
+      },
+      "target": {
+        "start": 9879021,
+        "end": 9880210,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "d5ba6ec52c06b70e518fe4542da66f4b9fd33b7fef758ba4a3c35efcc7f3883d",
+        "coarseHash": "e365cebefc8ff0e9937a2e1226348b7459756e44ee9bae4f75cbcd2e91874459"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "scopes",
+          "start": 9879342,
+          "end": 9879348,
+          "baselineOccurrenceCount": 164,
+          "targetOccurrenceNumber": 165,
+          "baselineLocalCount": 2,
+          "targetLocalCount": 2
+        }
+      ]
+    },
+    {
+      "targetIndex": 16292,
+      "ownerPaths": [
+        "src/commands/mobile/index.ts"
+      ],
+      "pairReason": "unique-coarse-structural-hash",
+      "baseline": {
+        "index": 16227,
+        "start": 10281458,
+        "end": 10282193,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "99a7b846f73a4fc3f6a6fdbcbe7c3fc347a364f51e548ba40daef5382824a8eb",
+        "coarseHash": "0d1c94e960f0230e5f92920078a3151877bb23d436acfd1f39376d2b6ace81c5"
+      },
+      "target": {
+        "start": 10299383,
+        "end": 10300118,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "a82df6267c8f5f19f5c0f3f22930a444008d4bd98d2dd7df2fb9a1833e3fe663",
+        "coarseHash": "0d1c94e960f0230e5f92920078a3151877bb23d436acfd1f39376d2b6ace81c5"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "x",
+          "start": 10299781,
+          "end": 10299782,
+          "baselineOccurrenceCount": 167,
+          "targetOccurrenceNumber": 168,
+          "baselineLocalCount": 4,
+          "targetLocalCount": 4
+        },
+        {
+          "kind": "property",
+          "value": "x",
+          "start": 10299995,
+          "end": 10299996,
+          "baselineOccurrenceCount": 167,
+          "targetOccurrenceNumber": 169,
+          "baselineLocalCount": 4,
+          "targetLocalCount": 4
+        },
+        {
+          "kind": "property",
+          "value": "x",
+          "start": 10300022,
+          "end": 10300023,
+          "baselineOccurrenceCount": 167,
+          "targetOccurrenceNumber": 170,
+          "baselineLocalCount": 4,
+          "targetLocalCount": 4
+        }
+      ]
+    },
+    {
+      "targetIndex": 16480,
+      "ownerPaths": [
+        "src/components/LogoV2/feedConfigs.tsx"
+      ],
+      "pairReason": "unique-coarse-structural-hash",
+      "baseline": {
+        "index": 16415,
+        "start": 10352311,
+        "end": 10352416,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "b8157f04ec0f6825e63b09162e4edfee382aa869091fdbd60256da663439aaa8",
+        "coarseHash": "ba4f38377c5740214231356e9b98b45e5dd1a4736d7308a633a902068c7b55ec"
+      },
+      "target": {
+        "start": 10370432,
+        "end": 10370537,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "63f36661073725c249093a33f525b9babcf45d03535cdcb3e0d2eeb1713ef92f",
+        "coarseHash": "ba4f38377c5740214231356e9b98b45e5dd1a4736d7308a633a902068c7b55ec"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "b",
+          "start": 10370527,
+          "end": 10370528,
+          "baselineOccurrenceCount": 444,
+          "targetOccurrenceNumber": 445,
+          "baselineLocalCount": 1,
+          "targetLocalCount": 1
+        }
+      ]
+    },
+    {
+      "targetIndex": 16761,
+      "ownerPaths": [
+        "src/commands/ultraplan.tsx"
+      ],
+      "pairReason": "unique-coarse-structural-hash",
+      "baseline": {
+        "index": 16693,
+        "start": 10500220,
+        "end": 10501572,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "9ad7a05c564b426f7144b70bf75e3d496ed5e1852ecdb3d9bef39715a3c186bf",
+        "coarseHash": "f51f2638665945b50ac3dd0a5c2a846c49af70ed3a5ab190b0b46180c4e836f1"
+      },
+      "target": {
+        "start": 10521230,
+        "end": 10522582,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "c4741a285bc6293b0ce3448892532758f986d568cc4ede76aedfec6f4fe99ba1",
+        "coarseHash": "f51f2638665945b50ac3dd0a5c2a846c49af70ed3a5ab190b0b46180c4e836f1"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": " USD",
+          "start": 10521894,
+          "end": 10521898,
+          "baselineOccurrenceCount": 1,
+          "targetOccurrenceNumber": 2,
+          "baselineLocalCount": 1,
+          "targetLocalCount": 1
+        }
+      ]
+    },
+    {
+      "targetIndex": 16765,
+      "ownerPaths": [
+        "src/commands/ultraplan.tsx"
+      ],
+      "pairReason": "unique-coarse-structural-hash",
+      "baseline": {
+        "index": 16697,
+        "start": 10501735,
+        "end": 10503908,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "f4eaa340f3385fb64aeccb453b13a57e761ffe6fb7390355894674cae3e6ba80",
+        "coarseHash": "6551e2c74e7d67b353965c6bd7d96e997165f1306fca5cd3b83a06fb85cf714c"
+      },
+      "target": {
+        "start": 10522745,
+        "end": 10524918,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "b09833ca9be9ca207dd00a8811c4e88cc3e141149b338c7d6c3d3f6ffe4fd6e9",
+        "coarseHash": "6551e2c74e7d67b353965c6bd7d96e997165f1306fca5cd3b83a06fb85cf714c"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "diffStat",
+          "start": 10523173,
+          "end": 10523181,
+          "baselineOccurrenceCount": 4,
+          "targetOccurrenceNumber": 5,
+          "baselineLocalCount": 2,
+          "targetLocalCount": 2
+        }
+      ]
+    },
+    {
+      "targetIndex": 16801,
+      "ownerPaths": [
+        "src/components/skills/SkillsMenu.tsx"
+      ],
+      "pairReason": "unique-coarse-structural-hash",
+      "baseline": {
+        "index": 16733,
+        "start": 10514889,
+        "end": 10515938,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "8321d13866c5cc23b853f1deb4d1ca9dd59e69b70d7520577485a829dc4cad6d",
+        "coarseHash": "93fecdfeccc514c48b2d86e62da1f8b9c0f7efe7748a6271e9eb8256eefebd86"
+      },
+      "target": {
+        "start": 10535902,
+        "end": 10536951,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "89fc338d846fd4e3988be0fbef0196b2b21e63ab175137165ff1fb5d2ed33d56",
+        "coarseHash": "93fecdfeccc514c48b2d86e62da1f8b9c0f7efe7748a6271e9eb8256eefebd86"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "skill",
+          "start": 10535935,
+          "end": 10535940,
+          "baselineOccurrenceCount": 29,
+          "targetOccurrenceNumber": 30,
+          "baselineLocalCount": 1,
+          "targetLocalCount": 1
+        }
+      ]
+    },
+    {
+      "targetIndex": 17167,
+      "ownerPaths": [
+        "src/components/agents/ColorPicker.tsx"
+      ],
+      "pairReason": "unique-coarse-structural-hash",
+      "baseline": {
+        "index": 17117,
+        "start": 10705943,
+        "end": 10707569,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "a713778eae67e00cf55bc6b12a951c92842b4f952a0bb887535d0ec1bb459272",
+        "coarseHash": "097dd36a93c88e4ba5e7d9292f7f79a26ade8e9235270bbf1986ba750b6603cd"
+      },
+      "target": {
+        "start": 10721199,
+        "end": 10722825,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "6146d5f3bb5e6a74bb2bfbb90847435d215d6858dbdc9a2ff780b8bee6c7f473",
+        "coarseHash": "097dd36a93c88e4ba5e7d9292f7f79a26ade8e9235270bbf1986ba750b6603cd"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "onConfirm",
+          "start": 10721259,
+          "end": 10721268,
+          "baselineOccurrenceCount": 5,
+          "targetOccurrenceNumber": 14,
+          "baselineLocalCount": 1,
+          "targetLocalCount": 1
+        }
+      ]
+    },
+    {
+      "targetIndex": 18925,
+      "ownerPaths": [
+        "src/components/permissions/PowerShellPermissionRequest/PowerShellPermissionRequest.tsx"
+      ],
+      "pairReason": "unique-coarse-structural-hash",
+      "baseline": {
+        "index": 18859,
+        "start": 11607676,
+        "end": 11611872,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "b47e425fd35562333ea1aab9435cd738f88c39a68a18a007a97c1b09dfaea392",
+        "coarseHash": "b89132f6b7ea40a0bd67288b4afa00847ea119a3615ca9b7c9f40baa8ff437a4"
+      },
+      "target": {
+        "start": 11628208,
+        "end": 11632406,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "350e5f2c2c5b244d6fc6c96a710af8eb7d7390ad48d1a48917ef211576157523",
+        "coarseHash": "b89132f6b7ea40a0bd67288b4afa00847ea119a3615ca9b7c9f40baa8ff437a4"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "-",
+          "start": 11631383,
+          "end": 11631386,
+          "baselineOccurrenceCount": 459,
+          "targetOccurrenceNumber": 461,
+          "baselineLocalCount": 1,
+          "targetLocalCount": 1
+        }
+      ]
+    },
+    {
+      "targetIndex": 19185,
+      "ownerPaths": [
+        "src/components/BridgeDialog.tsx"
+      ],
+      "pairReason": "unique-coarse-structural-hash",
+      "baseline": {
+        "index": 19125,
+        "start": 11728562,
+        "end": 11729387,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "24edc99a72bbf6f923129a08499e30af7881c0bdae9ced95c4d73ceb5ebe7f43",
+        "coarseHash": "0686cbb5c781ccfeae2aa1052fcd1ac55fb41d3e09760c65f463e6bc688cbd0e"
+      },
+      "target": {
+        "start": 11748330,
+        "end": 11749155,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "5e66fda5b6f17fe3768a69a1af8ca829d86ad3c6ad87c502d0bdd1766c2233d3",
+        "coarseHash": "0686cbb5c781ccfeae2aa1052fcd1ac55fb41d3e09760c65f463e6bc688cbd0e"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "hint",
+          "start": 11748387,
+          "end": 11748391,
+          "baselineOccurrenceCount": 6,
+          "targetOccurrenceNumber": 12,
+          "baselineLocalCount": 1,
+          "targetLocalCount": 1
+        }
+      ]
+    },
+    {
+      "targetIndex": 19676,
+      "ownerPaths": [
+        "src/utils/sessionRestore.ts"
+      ],
+      "pairReason": "unique-coarse-structural-hash",
+      "baseline": {
+        "index": 19602,
+        "start": 11926890,
+        "end": 11927564,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "d8cad41f4ff1a5c84cd42ab9b71d2e83194a169ec73f53479bad98edffe52525",
+        "coarseHash": "934d7bf7daa81106d1c93d8e5b7ff554ffdb2042fa76afdf9b97fc1e540fe292"
+      },
+      "target": {
+        "start": 11950368,
+        "end": 11951042,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "97f952e04c28d7a5afeefacdf44abe5e7eadf6e49c6874d722c0211968fa0fab",
+        "coarseHash": "934d7bf7daa81106d1c93d8e5b7ff554ffdb2042fa76afdf9b97fc1e540fe292"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": ".md",
+          "start": 11950784,
+          "end": 11950789,
+          "baselineOccurrenceCount": 41,
+          "targetOccurrenceNumber": 42,
+          "baselineLocalCount": 1,
+          "targetLocalCount": 1
+        }
+      ]
+    },
+    {
+      "targetIndex": 19703,
+      "ownerPaths": [
+        "src/components/SessionBackgroundHint.tsx"
+      ],
+      "pairReason": "unique-coarse-structural-hash",
+      "baseline": {
+        "index": 19633,
+        "start": 11942570,
+        "end": 11946541,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "6e095d3eaced786b4c3cc6d4c3727903f100c1a427b312d7bb36d4be899ca003",
+        "coarseHash": "3ff9cbbda7fd35ca5461ca21df68d0892af69edb80ed2d47a634adf6f29de602"
+      },
+      "target": {
+        "start": 11965999,
+        "end": 11969970,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "b36696686b85df99158c6e90d42ca82cfdd4d63975a9a79c4f942f41212d2d56",
+        "coarseHash": "3ff9cbbda7fd35ca5461ca21df68d0892af69edb80ed2d47a634adf6f29de602"
+      },
+      "residues": [
+        {
+          "kind": "number",
+          "value": "47",
+          "start": 11969590,
+          "end": 11969592,
+          "baselineOccurrenceCount": 200,
+          "targetOccurrenceNumber": 201,
+          "baselineLocalCount": 2,
+          "targetLocalCount": 2
+        },
+        {
+          "kind": "number",
+          "value": "48",
+          "start": 11969598,
+          "end": 11969600,
+          "baselineOccurrenceCount": 190,
+          "targetOccurrenceNumber": 191,
+          "baselineLocalCount": 2,
+          "targetLocalCount": 2
+        },
+        {
+          "kind": "number",
+          "value": "48",
+          "start": 11969615,
+          "end": 11969617,
+          "baselineOccurrenceCount": 190,
+          "targetOccurrenceNumber": 192,
+          "baselineLocalCount": 2,
+          "targetLocalCount": 2
+        },
+        {
+          "kind": "number",
+          "value": "53",
+          "start": 11969957,
+          "end": 11969959,
+          "baselineOccurrenceCount": 113,
+          "targetOccurrenceNumber": 114,
+          "baselineLocalCount": 2,
+          "targetLocalCount": 2
+        }
+      ]
+    },
+    {
+      "targetIndex": 20182,
+      "ownerPaths": [
+        "src/components/TrustDialog/TrustDialog.tsx"
+      ],
+      "pairReason": "unique-coarse-structural-hash",
+      "baseline": {
+        "index": 20111,
+        "start": 12209848,
+        "end": 12210589,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "3d94d22590d37e5c424da5d9fe2cfc6b4dbda0842cd0eb6a5b79b6809eca15da",
+        "coarseHash": "9ee17078dc597aabbbdb3728815bbd1c4c43f3a2faf36f30e7e671414c2a1935"
+      },
+      "target": {
+        "start": 12232984,
+        "end": 12233725,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "bafdbf990bc192933222631709e381988d3c4bae470f8b181bb862f3e9ec0707",
+        "coarseHash": "9ee17078dc597aabbbdb3728815bbd1c4c43f3a2faf36f30e7e671414c2a1935"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "paddingLeft",
+          "start": 12233574,
+          "end": 12233585,
+          "baselineOccurrenceCount": 112,
+          "targetOccurrenceNumber": 113,
+          "baselineLocalCount": 1,
+          "targetLocalCount": 1
+        },
+        {
+          "kind": "property",
+          "value": "width",
+          "start": 12233623,
+          "end": 12233628,
+          "baselineOccurrenceCount": 560,
+          "targetOccurrenceNumber": 564,
+          "baselineLocalCount": 1,
+          "targetLocalCount": 1
+        }
+      ]
+    },
+    {
+      "targetIndex": 20569,
+      "ownerPaths": [
+        "src/services/SessionMemory/sessionMemory.ts"
+      ],
+      "pairReason": "unique-coarse-structural-hash",
+      "baseline": {
+        "index": 20507,
+        "start": 12849317,
+        "end": 12850803,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "838c8e06fec17b389571e4d8e298c1ecce9c3d9b71537ab046d20c9da071f984",
+        "coarseHash": "4f900414528e28e20f1e20b756b92279cec2534f5d19f3c82555d9cc0eb5b72d"
+      },
+      "target": {
+        "start": 12858609,
+        "end": 12860095,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "e9bace88d29b93aa7e49686fb09a4b730f6f2056c7c8256b46dbfcbdc29c4de7",
+        "coarseHash": "4f900414528e28e20f1e20b756b92279cec2534f5d19f3c82555d9cc0eb5b72d"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "at",
+          "start": 12859625,
+          "end": 12859627,
+          "baselineOccurrenceCount": 216,
+          "targetOccurrenceNumber": 218,
+          "baselineLocalCount": 1,
+          "targetLocalCount": 1
+        }
+      ]
+    },
+    {
+      "targetIndex": 20604,
+      "ownerPaths": [
+        "src/utils/streamJsonStdoutGuard.ts"
+      ],
+      "pairReason": "unique-coarse-structural-hash",
+      "baseline": {
+        "index": 20542,
+        "start": 12881141,
+        "end": 12881389,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "e3319e67e4907d3c312ce3e900b2ab62fe01e931311f3644648402e0ddf49a3e",
+        "coarseHash": "0d59352ecb7b8145b0b49dae6e73c8fc3532bb7c21df01ee36b25e0ff32926d4"
+      },
+      "target": {
+        "start": 12890452,
+        "end": 12890700,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "d6f3c43c0123806e3c728785c7ac39b7e17cbc93c59677f12bd70d6a03ebb965",
+        "coarseHash": "0d59352ecb7b8145b0b49dae6e73c8fc3532bb7c21df01ee36b25e0ff32926d4"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "string",
+          "start": 12890645,
+          "end": 12890651,
+          "baselineOccurrenceCount": 1369,
+          "targetOccurrenceNumber": 1370,
+          "baselineLocalCount": 3,
+          "targetLocalCount": 3
+        },
+        {
+          "kind": "property",
+          "value": "title",
+          "start": 12890654,
+          "end": 12890659,
+          "baselineOccurrenceCount": 452,
+          "targetOccurrenceNumber": 458,
+          "baselineLocalCount": 1,
+          "targetLocalCount": 1
+        },
+        {
+          "kind": "property",
+          "value": "string",
+          "start": 12890662,
+          "end": 12890668,
+          "baselineOccurrenceCount": 1369,
+          "targetOccurrenceNumber": 1371,
+          "baselineLocalCount": 3,
+          "targetLocalCount": 3
+        },
+        {
+          "kind": "property",
+          "value": "string",
+          "start": 12890686,
+          "end": 12890692,
+          "baselineOccurrenceCount": 1369,
+          "targetOccurrenceNumber": 1372,
+          "baselineLocalCount": 3,
+          "targetLocalCount": 3
+        }
+      ]
+    },
+    {
+      "targetIndex": 20695,
+      "ownerPaths": [
+        "src/cli/handlers/mcp.tsx"
+      ],
+      "pairReason": "unique-coarse-structural-hash",
+      "baseline": {
+        "index": 20630,
+        "start": 12984551,
+        "end": 12984939,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "16252c930d6fbdf1998883c29c251d6d2dd6fb60b57f8ea75202eb6e562cf9d2",
+        "coarseHash": "44cfe24ffaf16d376eca29a9d0ad20ffde480d1bfcac77be96c22e001e6dea8b"
+      },
+      "target": {
+        "start": 12995159,
+        "end": 12995547,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "8ddf22ed2ee2da188fe1c3f946b7495cdbcdf36d09cdc11841e42a2159b36d8b",
+        "coarseHash": "44cfe24ffaf16d376eca29a9d0ad20ffde480d1bfcac77be96c22e001e6dea8b"
+      },
+      "residues": [
+        {
+          "kind": "number",
+          "value": "3",
+          "start": 12995339,
+          "end": 12995340,
+          "baselineOccurrenceCount": 3336,
+          "targetOccurrenceNumber": 3337,
+          "baselineLocalCount": 2,
+          "targetLocalCount": 2
+        },
+        {
+          "kind": "number",
+          "value": "4",
+          "start": 12995353,
+          "end": 12995354,
+          "baselineOccurrenceCount": 2328,
+          "targetOccurrenceNumber": 2329,
+          "baselineLocalCount": 2,
+          "targetLocalCount": 2
+        },
+        {
+          "kind": "number",
+          "value": "4",
+          "start": 12995409,
+          "end": 12995410,
+          "baselineOccurrenceCount": 2328,
+          "targetOccurrenceNumber": 2330,
+          "baselineLocalCount": 2,
+          "targetLocalCount": 2
+        },
+        {
+          "kind": "number",
+          "value": "5",
+          "start": 12995416,
+          "end": 12995417,
+          "baselineOccurrenceCount": 1902,
+          "targetOccurrenceNumber": 1903,
+          "baselineLocalCount": 2,
+          "targetLocalCount": 2
+        }
+      ]
+    },
+    {
+      "targetIndex": 20707,
+      "ownerPaths": [
+        "src/commands/install.tsx"
+      ],
+      "pairReason": "unique-coarse-structural-hash",
+      "baseline": {
+        "index": 20642,
+        "start": 12989035,
+        "end": 12989531,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "b041dda49ce7bf067ab4259042862ee6ced3f7c9c03a54d1ce88e9f6b5b169ff",
+        "coarseHash": "6642be6ce61d4aed041b850a26b882d3f415e2ba56facfd892a12c0ae960c89b"
+      },
+      "target": {
+        "start": 12999643,
+        "end": 13000139,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "7279b1c80458260f7bb0ff04c4f3d189a6a007afb64522f50a4b5a61b67dc83b",
+        "coarseHash": "6642be6ce61d4aed041b850a26b882d3f415e2ba56facfd892a12c0ae960c89b"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "c",
+          "start": 12999669,
+          "end": 12999670,
+          "baselineOccurrenceCount": 791,
+          "targetOccurrenceNumber": 792,
+          "baselineLocalCount": 1,
+          "targetLocalCount": 1
+        }
+      ]
+    },
+    {
+      "targetIndex": 20709,
+      "ownerPaths": [
+        "src/commands/install.tsx"
+      ],
+      "pairReason": "unique-coarse-structural-hash",
+      "baseline": {
+        "index": 20644,
+        "start": 12989659,
+        "end": 12993849,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "ad9417b639c919e17b78bfc4e6a0cf410918c2c0c0898741b32453b19c22bb6b",
+        "coarseHash": "e2b3841a84f9868eff8eb7dafd7c0eb202ff001bdf5b5946126adf1b122e73f2"
+      },
+      "target": {
+        "start": 13000267,
+        "end": 13004457,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "b64a8617af5e12b178e7009a3d6ed0aa84f26fc12adb8abd44ed1bd680e36c6e",
+        "coarseHash": "e2b3841a84f9868eff8eb7dafd7c0eb202ff001bdf5b5946126adf1b122e73f2"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "useEffect",
+          "start": 13000359,
+          "end": 13000368,
+          "baselineOccurrenceCount": 420,
+          "targetOccurrenceNumber": 421,
+          "baselineLocalCount": 2,
+          "targetLocalCount": 2
+        },
+        {
+          "kind": "property",
+          "value": "useEffect",
+          "start": 13002204,
+          "end": 13002213,
+          "baselineOccurrenceCount": 420,
+          "targetOccurrenceNumber": 422,
+          "baselineLocalCount": 2,
+          "targetLocalCount": 2
+        }
+      ]
+    },
+    {
+      "targetIndex": 20726,
+      "ownerPaths": [
+        "src/cli/handlers/plugins.ts"
+      ],
+      "pairReason": "unique-coarse-structural-hash",
+      "baseline": {
+        "index": 20661,
+        "start": 12998217,
+        "end": 13001454,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "9c8552fe5ca055a13550e15f446a0aa247d3aad9415d6d6b4d22d850a54d5d99",
+        "coarseHash": "a5e94d1eeb2ca7066e1385f47bfcda2e1ccae745ed906f7e3a59c3611db6b28b"
+      },
+      "target": {
+        "start": 13008825,
+        "end": 13012062,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "bb29fb474323c5058bf24edd263eadfe6c5829e395b1b40134d09b1c55d22b26",
+        "coarseHash": "a5e94d1eeb2ca7066e1385f47bfcda2e1ccae745ed906f7e3a59c3611db6b28b"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "data",
+          "start": 13010352,
+          "end": 13010356,
+          "baselineOccurrenceCount": 1740,
+          "targetOccurrenceNumber": 1743,
+          "baselineLocalCount": 1,
+          "targetLocalCount": 1
+        }
+      ]
+    },
+    {
+      "targetIndex": 20727,
+      "ownerPaths": [
+        "src/cli/handlers/plugins.ts"
+      ],
+      "pairReason": "unique-coarse-structural-hash",
+      "baseline": {
+        "index": 20662,
+        "start": 13001454,
+        "end": 13001689,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "82c3e5ed2e92a7e1f927532b565cff718830726465ad70a5d2d5744a54a6b684",
+        "coarseHash": "b9f751f53fa0b4b3cc8e1efad2ed80d2f0a6ec4406efea5a594b541460c20ed9"
+      },
+      "target": {
+        "start": 13012062,
+        "end": 13012297,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "f981d9cb5e3c6f49fbc5596d26bfc1bd45497bb5f584ebc34bc02eca9f1ed9eb",
+        "coarseHash": "b9f751f53fa0b4b3cc8e1efad2ed80d2f0a6ec4406efea5a594b541460c20ed9"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "c",
+          "start": 13012088,
+          "end": 13012089,
+          "baselineOccurrenceCount": 791,
+          "targetOccurrenceNumber": 794,
+          "baselineLocalCount": 1,
+          "targetLocalCount": 1
+        },
+        {
+          "kind": "number",
+          "value": "4",
+          "start": 13012090,
+          "end": 13012091,
+          "baselineOccurrenceCount": 2328,
+          "targetOccurrenceNumber": 2333,
+          "baselineLocalCount": 1,
+          "targetLocalCount": 1
+        },
+        {
+          "kind": "number",
+          "value": "3",
+          "start": 13012271,
+          "end": 13012272,
+          "baselineOccurrenceCount": 3336,
+          "targetOccurrenceNumber": 3340,
+          "baselineLocalCount": 2,
+          "targetLocalCount": 2
+        },
+        {
+          "kind": "number",
+          "value": "3",
+          "start": 13012285,
+          "end": 13012286,
+          "baselineOccurrenceCount": 3336,
+          "targetOccurrenceNumber": 3341,
+          "baselineLocalCount": 2,
+          "targetLocalCount": 2
+        }
+      ]
+    },
+    {
+      "targetIndex": 20731,
+      "ownerPaths": [
+        "src/cli/handlers/plugins.ts"
+      ],
+      "pairReason": "unique-coarse-structural-hash",
+      "baseline": {
+        "index": 20666,
+        "start": 13004452,
+        "end": 13004736,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "b5366a8ce161aa3e087e5b573944b5ff0759f8e84aa8ae68fa2a08b53e52cda7",
+        "coarseHash": "5ea834762bb192861b9c8ae53cd017462c4578209115647224d2737563b92a28"
+      },
+      "target": {
+        "start": 13015219,
+        "end": 13015503,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "df9e1e1c5f2bcca3f9c1275f46141555097ed7d04b5e1833143bbe8cc69c4c02",
+        "coarseHash": "5ea834762bb192861b9c8ae53cd017462c4578209115647224d2737563b92a28"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "c",
+          "start": 13015245,
+          "end": 13015246,
+          "baselineOccurrenceCount": 791,
+          "targetOccurrenceNumber": 795,
+          "baselineLocalCount": 1,
+          "targetLocalCount": 1
+        },
+        {
+          "kind": "number",
+          "value": "5",
+          "start": 13015247,
+          "end": 13015248,
+          "baselineOccurrenceCount": 1902,
+          "targetOccurrenceNumber": 1905,
+          "baselineLocalCount": 1,
+          "targetLocalCount": 1
+        },
+        {
+          "kind": "number",
+          "value": "3",
+          "start": 13015390,
+          "end": 13015391,
+          "baselineOccurrenceCount": 3336,
+          "targetOccurrenceNumber": 3342,
+          "baselineLocalCount": 2,
+          "targetLocalCount": 2
+        },
+        {
+          "kind": "number",
+          "value": "3",
+          "start": 13015470,
+          "end": 13015471,
+          "baselineOccurrenceCount": 3336,
+          "targetOccurrenceNumber": 3343,
+          "baselineLocalCount": 2,
+          "targetLocalCount": 2
+        },
+        {
+          "kind": "number",
+          "value": "4",
+          "start": 13015477,
+          "end": 13015478,
+          "baselineOccurrenceCount": 2328,
+          "targetOccurrenceNumber": 2334,
+          "baselineLocalCount": 2,
+          "targetLocalCount": 2
+        },
+        {
+          "kind": "number",
+          "value": "4",
+          "start": 13015491,
+          "end": 13015492,
+          "baselineOccurrenceCount": 2328,
+          "targetOccurrenceNumber": 2335,
+          "baselineLocalCount": 2,
+          "targetLocalCount": 2
+        }
+      ]
+    },
+    {
+      "targetIndex": 20733,
+      "ownerPaths": [
+        "src/cli/handlers/plugins.ts"
+      ],
+      "pairReason": "unique-coarse-structural-hash",
+      "baseline": {
+        "index": 20668,
+        "start": 13005751,
+        "end": 13005940,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "62e2b09350953448d780874ccf1a704c6ba1ea1b49515af35ef197d56b375328",
+        "coarseHash": "11e767f173daf217718c11d4641a5e4bd1087bc1753956208fda6d32a43f36e2"
+      },
+      "target": {
+        "start": 13016518,
+        "end": 13016707,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "328bb0f9edee652f050ba292f44aeec4e9af8e9d70f4d673cac00ee9ccd057f0",
+        "coarseHash": "11e767f173daf217718c11d4641a5e4bd1087bc1753956208fda6d32a43f36e2"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "c",
+          "start": 13016544,
+          "end": 13016545,
+          "baselineOccurrenceCount": 791,
+          "targetOccurrenceNumber": 796,
+          "baselineLocalCount": 1,
+          "targetLocalCount": 1
+        }
+      ]
+    },
+    {
+      "targetIndex": 20744,
+      "ownerPaths": [
+        "src/cli/handlers/agents.ts"
+      ],
+      "pairReason": "unique-coarse-structural-hash",
+      "baseline": {
+        "index": 20679,
+        "start": 13009436,
+        "end": 13009933,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "e2ac6c4de8e2743feccf87abccb5f7e93ac9e4308c484d6341e7022217166d7f",
+        "coarseHash": "c7f33fe3687a1e57a4cb03276f4ae882346921c2049e25e139186e417c15c82d"
+      },
+      "target": {
+        "start": 13020221,
+        "end": 13020718,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "7bc139e04172bd63a154cace24426ca2d165f383ad7537f89faeb55eba621faf",
+        "coarseHash": "c7f33fe3687a1e57a4cb03276f4ae882346921c2049e25e139186e417c15c82d"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "c",
+          "start": 13020247,
+          "end": 13020248,
+          "baselineOccurrenceCount": 791,
+          "targetOccurrenceNumber": 797,
+          "baselineLocalCount": 1,
+          "targetLocalCount": 1
+        },
+        {
+          "kind": "number",
+          "value": "2",
+          "start": 13020515,
+          "end": 13020516,
+          "baselineOccurrenceCount": 4279,
+          "targetOccurrenceNumber": 4293,
+          "baselineLocalCount": 2,
+          "targetLocalCount": 2
+        },
+        {
+          "kind": "number",
+          "value": "2",
+          "start": 13020529,
+          "end": 13020530,
+          "baselineOccurrenceCount": 4279,
+          "targetOccurrenceNumber": 4294,
+          "baselineLocalCount": 2,
+          "targetLocalCount": 2
+        },
+        {
+          "kind": "number",
+          "value": "3",
+          "start": 13020543,
+          "end": 13020544,
+          "baselineOccurrenceCount": 3336,
+          "targetOccurrenceNumber": 3344,
+          "baselineLocalCount": 2,
+          "targetLocalCount": 2
+        },
+        {
+          "kind": "number",
+          "value": "3",
+          "start": 13020565,
+          "end": 13020566,
+          "baselineOccurrenceCount": 3336,
+          "targetOccurrenceNumber": 3345,
+          "baselineLocalCount": 2,
+          "targetLocalCount": 2
+        },
+        {
+          "kind": "number",
+          "value": "4",
+          "start": 13020572,
+          "end": 13020573,
+          "baselineOccurrenceCount": 2328,
+          "targetOccurrenceNumber": 2336,
+          "baselineLocalCount": 2,
+          "targetLocalCount": 2
+        },
+        {
+          "kind": "number",
+          "value": "4",
+          "start": 13020586,
+          "end": 13020587,
+          "baselineOccurrenceCount": 2328,
+          "targetOccurrenceNumber": 2337,
+          "baselineLocalCount": 2,
+          "targetLocalCount": 2
+        },
+        {
+          "kind": "number",
+          "value": "5",
+          "start": 13020600,
+          "end": 13020601,
+          "baselineOccurrenceCount": 1902,
+          "targetOccurrenceNumber": 1906,
+          "baselineLocalCount": 2,
+          "targetLocalCount": 2
+        },
+        {
+          "kind": "number",
+          "value": "5",
+          "start": 13020678,
+          "end": 13020679,
+          "baselineOccurrenceCount": 1902,
+          "targetOccurrenceNumber": 1907,
+          "baselineLocalCount": 2,
+          "targetLocalCount": 2
+        },
+        {
+          "kind": "number",
+          "value": "6",
+          "start": 13020685,
+          "end": 13020686,
+          "baselineOccurrenceCount": 1500,
+          "targetOccurrenceNumber": 1501,
+          "baselineLocalCount": 2,
+          "targetLocalCount": 2
+        },
+        {
+          "kind": "number",
+          "value": "7",
+          "start": 13020692,
+          "end": 13020693,
+          "baselineOccurrenceCount": 1374,
+          "targetOccurrenceNumber": 1375,
+          "baselineLocalCount": 2,
+          "targetLocalCount": 2
+        },
+        {
+          "kind": "number",
+          "value": "7",
+          "start": 13020706,
+          "end": 13020707,
+          "baselineOccurrenceCount": 1374,
+          "targetOccurrenceNumber": 1376,
+          "baselineLocalCount": 2,
+          "targetLocalCount": 2
+        }
+      ]
+    }
+  ]
+}

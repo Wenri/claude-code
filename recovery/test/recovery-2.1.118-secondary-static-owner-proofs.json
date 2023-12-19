@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "status": "authenticated-secondary-static-source-owner",
+  "evidenceIds": [
+    "target118-secondary-static-owner-target-fragment",
+    "target118-secondary-static-owner-source-ast-test"
+  ],
+  "inputs": {
+    "targetBundle": {
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "sourceFiles": [
+      {
+        "sourcePath": "src/utils/Shell.ts",
+        "bytes": 17103,
+        "sha256": "76d483a1ed6b750d779bf6b86548475cba3f49b872c2c8554ac1a13235f68d12"
+      },
+      {
+        "sourcePath": "src/commands/passes/index.ts",
+        "bytes": 659,
+        "sha256": "4df5581e8f50f53bda305b369652dbafd57cc1031dea6411e8dee2db4874613f"
+      },
+      {
+        "sourcePath": "src/constants/prompts.ts",
+        "bytes": 56059,
+        "sha256": "2b004aadab8681fe158ddeac2443c0b72638566359fe4b12ee5cf2c7f0078a03"
+      }
+    ]
+  },
+  "summary": {
+    "units": 3,
+    "residues": 3,
+    "indicesSha256": "401e33ae797bc0a4ea9d6d5da02b88e4d07e21bb78120bc776c6202682f3d64c",
+    "residueIdentitiesSha256": "617081ccaed539b1c18b0118621d47aa22d59543fbe4137a970b9f02d9f39e34"
+  },
+  "rows": [
+    {
+      "targetIndex": 13032,
+      "ownerPath": "src/utils/Shell.ts",
+      "declaration": "exec",
+      "behavior": "The authenticated Target118 shell executor cleanup is authored by exec in Shell.ts; the compiled unlinkSync property access is the named fs import used to remove the native cwd sidecar.",
+      "target": {
+        "start": 8111583,
+        "end": 8114259,
+        "bytes": 2676,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "d7d0e3277382a8d25aca49ee9b97c764afb72f5e37ad19908720484b4cbf31bc",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "property",
+          "unlinkSync",
+          8114097,
+          8114107,
+          17,
+          18
+        ]
+      ],
+      "sourceMarkers": [
+        "unlinkSync(nativeCwdFilePath)",
+        "unlinkSync } from 'fs'"
+      ]
+    },
+    {
+      "targetIndex": 17153,
+      "ownerPath": "src/commands/passes/index.ts",
+      "declaration": "@default-export",
+      "behavior": "The authenticated Target118 passes command initializer is the authored default command object, whose hidden-state getter destructures the eligible referral result.",
+      "target": {
+        "start": 10725483,
+        "end": 10725831,
+        "bytes": 348,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "20607760a21b37ab5ba767958f402ad68e677d92ef93ebf5f4c1d8c0207d1f79",
+        "structuralClass": "changed"
+      },
+      "residues": [
+        [
+          "property",
+          "eligible",
+          10725716,
+          10725724,
+          17,
+          20
+        ]
+      ],
+      "sourceMarkers": [
+        "checkCachedPassesEligibility()",
+        "const { eligible, hasCache }",
+        "return !eligible || !hasCache"
+      ]
+    },
+    {
+      "targetIndex": 18389,
+      "ownerPath": "src/constants/prompts.ts",
+      "declaration": "getSystemPrompt",
+      "behavior": "The authenticated Target118 system-prompt unit is authored by getSystemPrompt, including the runtime CWD and session-date section for VCR mode.",
+      "target": {
+        "start": 11315677,
+        "end": 11316513,
+        "bytes": 836,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "4cf04a5103f28b40456aa58b70249eae4a045b04d610f69deae10ec4f00bfd69",
+        "structuralClass": "unresolved"
+      },
+      "residues": [
+        [
+          "string",
+          "CWD: ",
+          11315751,
+          11315756,
+          0,
+          1
+        ]
+      ],
+      "sourceMarkers": [
+        "export async function getSystemPrompt(",
+        "CWD: ${getCwd()}",
+        "Date: ${getSessionStartDate()}"
+      ]
+    }
+  ]
+}

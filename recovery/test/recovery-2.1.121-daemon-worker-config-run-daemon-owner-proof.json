@@ -1,0 +1,659 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "targetVersion": "2.1.121",
+  "criterion": "target121-daemon-worker-config-run-daemon-static-owner-proof-v1",
+  "status": "case-owned-complete-unit-static-owner-correction-no-replay",
+  "claim": "Target121 u22170 and u22174 form one compiler-extracted configured-worker manager/runDaemon cluster owned by src/daemon/main.ts::runDaemon, not src/main.tsx. Target120 u19500 contains the same worker configuration, authentication, watcher, reload, and shutdown lifecycle inline in its complete runDaemon. Target121 extracts that lifecycle into u22170 and u22174 calls its returned workerCount, hasOAuthConsumer, disposeWatcher, drainReloads, and stop interface. The exact raw and postPrune source states contain the complete integrated lifecycle byte-identically inside runDaemon; their only file-level difference is the separately authenticated daemon-status writer replay. The six build literals are two VERSION/BUILD_TIME/GIT_SHA substitutions and are segregated from the twelve worker-manager strict rows. Source replay is neither necessary nor authorized.",
+  "evidenceIds": [
+    "target121-daemon-worker-config-authenticated-complete-units",
+    "target121-daemon-worker-config-baseline-inline-lineage",
+    "target121-daemon-worker-config-source-ast-test",
+    "target121-daemon-worker-config-shared-call-graph-test",
+    "target121-daemon-run-build-macro-test",
+    "target121-daemon-worker-config-static-no-replay-test"
+  ],
+  "caseFiles": {
+    "helper": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/recovered/daemon-worker-config-run-daemon-owner-overrides.mjs",
+      "bytes": 2943,
+      "sha256": "7dd907e0df5bcc6c4cba76e59ffd1218b6983878962ba826a0e5d9a77f8e0210"
+    }
+  },
+  "inputs": {
+    "baselineBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "targetBundle": {
+      "path": ".recovery-tmp/authenticated-artifacts/2.1.121-linux-x64/cli.inner.js",
+      "bytes": 13908188,
+      "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+    },
+    "structuralLedger": {
+      "path": "recovery/cases/2.1.120-to-2.1.121/structural/generated-delta.json.gz",
+      "bytes": 2540002,
+      "sha256": "185281b390fca7ebabf81c788617dc0218e86d307b82d4f087503421dab4ac8e"
+    },
+    "frozenPostPruneSnapshot": {
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25396455,
+        "sha256": "f63079907d813bffaf98cb89d28b8b2e183df9fe2e1c72b21f10fa2fd5c0a3f4"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 345989,
+        "sha256": "05ac9243d7cee276bc51c8eb0c8e4e3678f96d941560cae620d05af240d7cdd4",
+        "rawBytes": 2968244,
+        "rawSha256": "7be9d68b6144e09290d58e3dae17f21df9536852b5f8415e777c9f7dd3ad1c06"
+      }
+    },
+    "frozenPostDaemonOwnerSnapshot": {
+      "typedReport": {
+        "path": ".recovery-tmp/residue-audits/2.1.120-to-2.1.121.typed-audit.json",
+        "bytes": 25369097,
+        "sha256": "2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3"
+      },
+      "sourceCoverage": {
+        "path": "recovery/cases/2.1.120-to-2.1.121/semantic/source-coverage.json.gz",
+        "bytes": 347677,
+        "sha256": "91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83",
+        "rawBytes": 2974761,
+        "rawSha256": "8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f"
+      }
+    },
+    "sourceRoots": {
+      "baseline": ".recovery-tmp/semantic-trees/2.1.120/src",
+      "raw": ".recovery-tmp/semantic-trees/2.1.121/src",
+      "postPrunePackage": "/tmp/target121-prune-final.QAqOlk/2.1.121/src"
+    }
+  },
+  "targetIndices": [22170, 22174],
+  "targetIndicesDescriptor": {
+    "bytes": 13,
+    "sha256": "e4b0c47c9dfd8c0672996509ea9a56e074129bb4670c96155a5eb851e959d28d"
+  },
+  "units": {
+    "baselineInlineRunDaemon": {
+      "index": 19500,
+      "classification": "unmatched-baseline",
+      "nodeType": "FunctionDeclaration",
+      "parseStatus": "parsed",
+      "name": "jO4",
+      "start": 11855281,
+      "end": 11860866,
+      "bytes": 5585,
+      "tokenCount": 1982,
+      "bodyStatementCount": 25,
+      "topDefinitionCount": 1,
+      "sha256": "fcf7f8ef3c4f6e40640b73ab0b91507e384f524ebde512f543b76c4580a3fcb7",
+      "coarseHash": "4957314f65927f020db1cd1b7bf14fa5e491e9e828fb4b188258723bc38839ac"
+    },
+    "targetWorkerConfigManager": {
+      "index": 22170,
+      "classification": "unresolved",
+      "unknownFreeIdentifierCount": 3,
+      "nodeType": "FunctionDeclaration",
+      "parseStatus": "parsed",
+      "name": "Sb4",
+      "start": 13873298,
+      "end": 13875233,
+      "bytes": 1935,
+      "tokenCount": 857,
+      "bodyStatementCount": 11,
+      "topDefinitionCount": 1,
+      "sha256": "a76e82f20468ebbe88dd9573a6f9cf71233d19c52c82402d604a317f8fa01a27",
+      "coarseHash": "fa85cd39f821e47cbbfef1252db0c97fd64d24aa9b39944ef7be6a7877009d86"
+    },
+    "targetRunDaemon": {
+      "index": 22174,
+      "classification": "unresolved",
+      "unknownFreeIdentifierCount": 5,
+      "nodeType": "FunctionDeclaration",
+      "parseStatus": "parsed",
+      "name": "bb4",
+      "start": 13875503,
+      "end": 13881181,
+      "bytes": 5678,
+      "tokenCount": 1748,
+      "bodyStatementCount": 20,
+      "topDefinitionCount": 1,
+      "sha256": "dd114539f480b0a7035caa1a759814734f6a474e0104a6dc2b97fe6c5c2e3b32",
+      "coarseHash": "260bf3346d7a331b95544563475ab9d0feb847ff9db6e70e103d064dd064775e"
+    }
+  },
+  "structuralBoundary": {
+    "decision": "u22170 and u22174 are the only claimed units; u22171-u22173 are independent module/dependency boundaries and are not overridden",
+    "left": {
+      "targetIndex": 22169,
+      "baselineUnitIndex": 19499,
+      "classification": "moved",
+      "pairReason": "exact-scope-normalized-token-hash",
+      "start": 13873215,
+      "end": 13873298,
+      "tokenCount": 40,
+      "sha256": "60caf9e36d359420fd890b4ecaa534e1abdec464d0ce596ff6adc36ef7c43e21"
+    },
+    "between": [
+      {
+        "targetIndex": 22171,
+        "classification": "unresolved",
+        "nodeType": "VariableDeclaration",
+        "start": 13875233,
+        "end": 13875289,
+        "tokenCount": 39,
+        "sha256": "d1cf858ef7ff2ef940d2edb1c6e07c335fe57c7a09787c31748aa6dd8ec16619"
+      },
+      {
+        "targetIndex": 22172,
+        "baselineUnitIndex": 19496,
+        "classification": "moved",
+        "nodeType": "FunctionDeclaration",
+        "start": 13875289,
+        "end": 13875417,
+        "tokenCount": 49,
+        "sha256": "1d16e3f9ab1c09915e7b8f2bc6a77af7335bbe0e91af2e09d323aa71e4069a5c"
+      },
+      {
+        "targetIndex": 22173,
+        "baselineUnitIndex": 19497,
+        "classification": "changed",
+        "nodeType": "FunctionDeclaration",
+        "start": 13875417,
+        "end": 13875503,
+        "tokenCount": 36,
+        "sha256": "76ee376846a79f8b414e8420739496bbcd578b1e0962e6523e53ceee35b67231"
+      }
+    ],
+    "right": {
+      "targetIndex": 22175,
+      "baselineUnitIndex": 19501,
+      "classification": "moved",
+      "pairReason": "exact-scope-normalized-token-hash",
+      "start": 13881181,
+      "end": 13881208,
+      "tokenCount": 11,
+      "sha256": "8e247d37fce4176e3f57a89ff106761036969e02791ff4459194b1812f5e2179"
+    }
+  },
+  "compiledGraph": {
+    "baselineInvariantCounts": {
+      "unknown config key '": 2,
+      "' \\u2014 upgrade claude?": 2,
+      "config load failed: ": 1,
+      " \\u2014 idling": 1,
+      "spawned ": 2,
+      "config reload failed: ": 1,
+      " \\u2014 keeping last-good config": 1,
+      "stopped ": 1,
+      "restarted ": 1,
+      "reload: stopped=": 1,
+      "tengu_daemon_config_reload": 1,
+      "needsOAuth": 1,
+      "workers=": 1,
+      "tengu_daemon_start": 1,
+      "shutting down": 1
+    },
+    "targetWorkerManagerInvariantCounts": {
+      "unknown config key '": 2,
+      "' \\u2014 upgrade claude?": 2,
+      "config load failed: ": 1,
+      " \\u2014 idling": 1,
+      "spawned ": 2,
+      "config reload failed: ": 1,
+      " \\u2014 keeping last-good config": 1,
+      "stopped ": 1,
+      "restarted ": 1,
+      "reload: stopped=": 1,
+      "tengu_daemon_config_reload": 1,
+      "needsOAuth": 1
+    },
+    "targetRunInvariantCounts": {
+      "workers=": 1,
+      "tengu_daemon_start": 1,
+      "shutting down": 1,
+      "workerCount": 2,
+      "hasOAuthConsumer": 1,
+      "disposeWatcher": 1,
+      "drainReloads": 1,
+      "manager": 8
+    },
+    "fragments": {
+      "baselineWorkerGraphStart": {
+        "unit": 19500,
+        "localStart": 1868,
+        "localEnd": 1994,
+        "start": 11857149,
+        "end": 11857275,
+        "bytes": 126,
+        "sha256": "cbe0977be21b7597f7d2b61fe52c10316869a4410fa5c84d9ae75d3defc27eb3"
+      },
+      "baselineWatcher": {
+        "unit": 19500,
+        "localStart": 4770,
+        "localEnd": 4832,
+        "start": 11860051,
+        "end": 11860113,
+        "bytes": 62,
+        "sha256": "98556b18c0cdbe84535ec051aefdfc794ff72ba1b672b5597fb4d522fc6bf2b4"
+      },
+      "baselineTeardown": {
+        "unit": 19500,
+        "localStart": 5211,
+        "localEnd": 5260,
+        "start": 11860492,
+        "end": 11860541,
+        "bytes": 49,
+        "sha256": "c316720c75a14e1da187b610431191da5e7e6b83fc78d111017d9dfbfcdd948a"
+      },
+      "baselineStops": {
+        "unit": 19500,
+        "localStart": 5454,
+        "localEnd": 5514,
+        "start": 11860735,
+        "end": 11860795,
+        "bytes": 60,
+        "sha256": "775fcc54fb77296643be28a4ecbcc75529c390dc9b845627418f03d5293eded5"
+      },
+      "managerSignature": {
+        "unit": 22170,
+        "localStart": 0,
+        "localEnd": 87,
+        "start": 13873298,
+        "end": 13873385,
+        "bytes": 87,
+        "sha256": "56438a91f776abb095a881019305bc698e46d7875cdfaa026550ac56519ae268"
+      },
+      "managerWatcher": {
+        "unit": 22170,
+        "localStart": 1595,
+        "localEnd": 1637,
+        "start": 13874893,
+        "end": 13874935,
+        "bytes": 42,
+        "sha256": "8549b2be96e74a5133e8ffe00458dfefc3def2d2235ca10a8a277110ae72ba45"
+      },
+      "managerReturn": {
+        "unit": 22170,
+        "localStart": 1677,
+        "localEnd": 1934,
+        "start": 13874975,
+        "end": 13875232,
+        "bytes": 257,
+        "sha256": "42d3b5fd0a6fec86a68172d77c761249666c9908ca941cb79bb56f884a4d4b47"
+      },
+      "runAuth": {
+        "unit": 22174,
+        "localStart": 2943,
+        "localEnd": 3008,
+        "start": 13878446,
+        "end": 13878511,
+        "bytes": 65,
+        "sha256": "6cec5e376ddcf9fcc1aefbf41a733f576ed8109d6e02e53db297cfe4238f353a"
+      },
+      "runManagerCall": {
+        "unit": 22174,
+        "localStart": 4301,
+        "localEnd": 4392,
+        "start": 13879804,
+        "end": 13879895,
+        "bytes": 91,
+        "sha256": "e0b3e8957249fc5d26fb200da33a00fbb5a146ac0020e52df5dc7966955ff426"
+      },
+      "runTeardown": {
+        "unit": 22174,
+        "localStart": 5238,
+        "localEnd": 5317,
+        "start": 13880741,
+        "end": 13880820,
+        "bytes": 79,
+        "sha256": "2c61ef6795eaeb2a6c81e54be6f7dc409c5e8f4f9a8c4ea5c33960d58d9ab6e2"
+      },
+      "runStop": {
+        "unit": 22174,
+        "localStart": 5539,
+        "localEnd": 5587,
+        "start": 13881042,
+        "end": 13881090,
+        "bytes": 48,
+        "sha256": "f29ce8ca5a51e12082235bbfeb415b4e3f5bdd0e03f3927eb81e2cdaac972ead"
+      }
+    }
+  },
+  "sourceGraph": {
+    "path": "src/daemon/main.ts",
+    "declaration": "runDaemon",
+    "baseline": {
+      "file": {
+        "bytes": 37394,
+        "chars": 37340,
+        "sha256": "1f4d1627b1c62d358e21aa5810f65ec9b413e47e0fe6f8f1761f9be537e0c1fc"
+      },
+      "runDaemon": {
+        "start": 17430,
+        "end": 28088,
+        "chars": 10658,
+        "bytes": 10692,
+        "sha256": "d619e2ebf8a3a2f13476dcfcea9949986ff431541d6e8be9084e271da4567391",
+        "bodyStatementCount": 60
+      }
+    },
+    "states": [
+      {
+        "name": "raw",
+        "file": {
+          "bytes": 51364,
+          "chars": 51292,
+          "sha256": "e63ff7e680a226f93c6953a0a6a096e8846982cc9f5fd705a5809ad7a7a6155a"
+        },
+        "runDaemon": {
+          "start": 21700,
+          "end": 36387,
+          "chars": 14687,
+          "bytes": 14727,
+          "sha256": "a4a778bec5594efc40973b83307fd8be8211558f65c467dca5394a080af6112c",
+          "bodyStatementCount": 72
+        },
+        "workerManagerGraph": {"start":27004,"end":33821,"chars":6817,"bytes":6829,"sha256":"4aafe432c981af9397f6de061ad22dfa3b06e6274348ef97aaaeaafd46df0761"},
+        "authManagerBinding": {"start":27379,"end":27626,"chars":247,"bytes":247,"sha256":"0b1d1d671ee78f9996f5589ec006c7462a233b86f3ae85e50eef0656dd5d7960"},
+        "workerBootstrap": {"start":29924,"end":31560,"chars":1636,"bytes":1642,"sha256":"ded6a15ebb1de2c797308b4ccc67067e6dfbca5653d2daf34a38bce79526b400"},
+        "reloadWorkerConfig": {"start":31564,"end":33450,"chars":1886,"bytes":1890,"sha256":"27c129515ad7a1edd924202c4a8fa171d22a32ae584c88c7d04aad27a0d1667b"},
+        "watchAndReloadChain": {"start":33453,"end":33821,"chars":368,"bytes":368,"sha256":"a05e0e9c06f2c1884d13c2117b1765c6e8b32d4c870ca11c0bc54b68e334f1e7"},
+        "workerTeardown": {"start":35495,"end":35572,"chars":77,"bytes":77,"sha256":"3d0efef50120b3b1a5ab62214ef3f9323e9f873ba587af345b57346a787be0ba"},
+        "workerStops": {"start":36065,"end":36175,"chars":110,"bytes":110,"sha256":"6e7f86f967178394d1643dbdca8f19782745c4b82b646ed8bc0912464cd706e5"},
+        "authDispose": {"start":36306,"end":36320,"chars":14,"bytes":14,"sha256":"dcb3fa2544578cc49aaa6fea174550a416a33bea5be466b37e9ff2f292caf657"}
+      },
+      {
+        "name": "postPrunePackage",
+        "file": {
+          "bytes": 51036,
+          "chars": 50964,
+          "sha256": "cb91eacf512342a4b70e01cb135eba59e621124795856eb5b4ea4762e2c5bc7c"
+        },
+        "runDaemon": {
+          "start": 21372,
+          "end": 36059,
+          "chars": 14687,
+          "bytes": 14727,
+          "sha256": "a4a778bec5594efc40973b83307fd8be8211558f65c467dca5394a080af6112c",
+          "bodyStatementCount": 72
+        },
+        "workerManagerGraph": {"start":26676,"end":33493,"chars":6817,"bytes":6829,"sha256":"4aafe432c981af9397f6de061ad22dfa3b06e6274348ef97aaaeaafd46df0761"},
+        "authManagerBinding": {"start":27051,"end":27298,"chars":247,"bytes":247,"sha256":"0b1d1d671ee78f9996f5589ec006c7462a233b86f3ae85e50eef0656dd5d7960"},
+        "workerBootstrap": {"start":29596,"end":31232,"chars":1636,"bytes":1642,"sha256":"ded6a15ebb1de2c797308b4ccc67067e6dfbca5653d2daf34a38bce79526b400"},
+        "reloadWorkerConfig": {"start":31236,"end":33122,"chars":1886,"bytes":1890,"sha256":"27c129515ad7a1edd924202c4a8fa171d22a32ae584c88c7d04aad27a0d1667b"},
+        "watchAndReloadChain": {"start":33125,"end":33493,"chars":368,"bytes":368,"sha256":"a05e0e9c06f2c1884d13c2117b1765c6e8b32d4c870ca11c0bc54b68e334f1e7"},
+        "workerTeardown": {"start":35167,"end":35244,"chars":77,"bytes":77,"sha256":"3d0efef50120b3b1a5ab62214ef3f9323e9f873ba587af345b57346a787be0ba"},
+        "workerStops": {"start":35737,"end":35847,"chars":110,"bytes":110,"sha256":"6e7f86f967178394d1643dbdca8f19782745c4b82b646ed8bc0912464cd706e5"},
+        "authDispose": {"start":35978,"end":35992,"chars":14,"bytes":14,"sha256":"dcb3fa2544578cc49aaa6fea174550a416a33bea5be466b37e9ff2f292caf657"}
+      }
+    ],
+    "runDaemonInvariantCounts": {
+      "MACRO.VERSION": 2,
+      "configuredWorkerCount": 2,
+      "loadWorkerConfigDetails": 2,
+      "diffWorkerConfig": 1,
+      "workerKindEnabled": 2,
+      "new ManagedWorker": 2,
+      "auth.ready": 2,
+      "stopWatchingConfig": 2,
+      "reloadChain": 4,
+      "auth.dispose()": 1,
+      "needsOAuth": 1,
+      "hasOAuthConsumer": 0,
+      "disposeWatcher": 0,
+      "drainReloads": 0
+    },
+    "fileStateRelation": {
+      "existingReplayModule": "recovery/cases/2.1.120-to-2.1.121/recovered/replay-daemon-status-supervisor-proc-start-source-gap.mjs",
+      "builderExport": "buildTarget121DaemonStatusProcStartOutput",
+      "decision": "the separately authenticated daemon-status writer replay maps the exact raw file to the exact package file; runDaemon and every selected worker graph are byte-identical across both states"
+    }
+  },
+  "residuePartitions": {
+    "identityFormat": ["targetIndex","literalKind","value","start","end","baselineOccurrenceCount","targetOccurrenceNumber","targetAdded"],
+    "owner": {
+      "units": 2,
+      "rows": 254,
+      "identities": {"bytes":16399,"sha256":"a1ed84719c5e6d7d7646e95763ac0b1b7c7d96f6c10d11cd6c9d960b6d9647a4"},
+      "byUnit": {
+        "22170": {"rows":62,"identities":{"bytes":3739,"sha256":"a98f94d6169cd690217e2bd5ade7a5a7c49c112193306b11f9b7dd46548bd579"}},
+        "22174": {"rows":192,"identities":{"bytes":12661,"sha256":"5a811c24f10fc7c248b0f93b71a3f19e4d039cfdd0eea00709bc8a36a6beb7ee"}}
+      }
+    },
+    "addedOwner": {
+      "units": 2,
+      "rows": 111,
+      "identities": {"bytes":7062,"sha256":"0c699227de509c89d1ac4de1faf54c718573f1452f80516d0a044b466d7a2084"},
+      "byUnit": {
+        "22170": {"rows":21,"identities":{"bytes":1238,"sha256":"f5207e3142ab0e765352f778b94a6ccc002e37f6e96ef17fe880d4ce0e9fe2f8"}},
+        "22174": {"rows":90,"identities":{"bytes":5825,"sha256":"e1abede6b3d9fa6e4c9144007698989652b9bc8a9b49a898a51ec3347601620b"}}
+      }
+    },
+    "unclassifiedAdded": {
+      "units": 0,
+      "rows": 0,
+      "identities": {"bytes":2,"sha256":"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"}
+    },
+    "strict": {
+      "units": 2,
+      "rows": 18,
+      "identities": {"bytes":1164,"sha256":"95a5e89a53b2d9b24b57ad8d68bf09f451245da29beacacaa290ff32266c71e3"},
+      "byUnit": {
+        "22170": {"rows":5,"identities":{"bytes":310,"sha256":"6ad5365a49b0b2cfe9834801b1771f2237441d8569f912945ae484f084433eb7"}},
+        "22174": {"rows":13,"identities":{"bytes":855,"sha256":"8136f4fa46bc13da1ac4a4828bbe1a0c87199f29120f0698702e61ae2a736588"}}
+      },
+      "rowsExact": [
+        [22170,"property","authManager",13873357,13873368,8,9,true],
+        [22170,"property","workerCount",13874982,13874993,0,1,true],
+        [22170,"property","hasOAuthConsumer",13875005,13875021,0,1,true],
+        [22170,"property","disposeWatcher",13875095,13875109,0,1,true],
+        [22170,"property","drainReloads",13875112,13875124,0,1,true],
+        [22174,"string","2.1.121",13875946,13875955,0,156,true],
+        [22174,"string","2026-04-27T01:32:27Z",13876035,13876057,0,156,true],
+        [22174,"string","16ffea721a0a39bc787a236dc19fb62307180b75",13876066,13876108,0,156,true],
+        [22174,"string","2.1.121",13877608,13877617,0,157,true],
+        [22174,"string","2026-04-27T01:32:27Z",13877697,13877719,0,157,true],
+        [22174,"string","16ffea721a0a39bc787a236dc19fb62307180b75",13877728,13877770,0,157,true],
+        [22174,"property","hasOAuthConsumer",13878488,13878504,0,2,true],
+        [22174,"property","workerCount",13879291,13879302,0,2,true],
+        [22174,"property","authManager",13879850,13879861,8,10,true],
+        [22174,"property","workerCount",13879882,13879893,0,3,true],
+        [22174,"property","disposeWatcher",13880781,13880795,0,2,true],
+        [22174,"property","drainReloads",13880806,13880818,0,2,true],
+        [22174,"property","manager",13881063,13881070,7,8,true]
+      ],
+      "workerManagerRows": {
+        "rows": 12,
+        "identities": {"bytes":736,"sha256":"a7646fd572a989d1e80fdaad81fc853041cf34894d6e0f9e55f03cf1feeeec90"}
+      },
+      "buildMacroRows": {
+        "rows": 6,
+        "identities": {"bytes":429,"sha256":"6d729f77e35ac8bab7f0c8125cbcfd8bcfb8abf0c4c79bdee1e84177a769acc4"},
+        "values": ["2.1.121","2026-04-27T01:32:27Z","16ffea721a0a39bc787a236dc19fb62307180b75"],
+        "counts": {"2.1.121":2,"2026-04-27T01:32:27Z":2,"16ffea721a0a39bc787a236dc19fb62307180b75":2},
+        "sourceRepresentation": "two MACRO.VERSION references; BUILD_TIME and GIT_SHA are bundled build metadata, not authored daemon literals"
+      }
+    }
+  },
+  "phaseEvolution": {
+    "acceptedArtifactPairs": [
+      {
+        "name": "postPrune",
+        "typedReport": {
+          "bytes": 25396455,
+          "sha256": "f63079907d813bffaf98cb89d28b8b2e183df9fe2e1c72b21f10fa2fd5c0a3f4"
+        },
+        "sourceCoverage": {
+          "bytes": 345989,
+          "sha256": "05ac9243d7cee276bc51c8eb0c8e4e3678f96d941560cae620d05af240d7cdd4",
+          "rawBytes": 2968244,
+          "rawSha256": "7be9d68b6144e09290d58e3dae17f21df9536852b5f8415e777c9f7dd3ad1c06"
+        },
+        "physicalRows": {
+          "22170": {
+            "rows": 5,
+            "identities": {
+              "bytes": 310,
+              "sha256": "6ad5365a49b0b2cfe9834801b1771f2237441d8569f912945ae484f084433eb7"
+            }
+          },
+          "22174": {
+            "rows": 13,
+            "identities": {
+              "bytes": 855,
+              "sha256": "8136f4fa46bc13da1ac4a4828bbe1a0c87199f29120f0698702e61ae2a736588"
+            }
+          }
+        }
+      },
+      {
+        "name": "postDaemonOwner",
+        "typedReport": {
+          "bytes": 25369097,
+          "sha256": "2126a6898cf52b4ad639c18d51dddd24d9adfd8df73470cf2ab4298700a66bf3"
+        },
+        "sourceCoverage": {
+          "bytes": 347677,
+          "sha256": "91e279daac39df4d94f0bc34e90eb31b875b5fdeeabeceb0dc83d74660de6b83",
+          "rawBytes": 2974761,
+          "rawSha256": "8b53acac16477ad92958b40bc7b9c44cba07b6ea48671adacc5c94f7235b173f"
+        },
+        "physicalRows": {
+          "22170": {
+            "rows": 5,
+            "identities": {
+              "bytes": 310,
+              "sha256": "6ad5365a49b0b2cfe9834801b1771f2237441d8569f912945ae484f084433eb7"
+            },
+            "rowsExact": [
+              [22170,"property","authManager",13873357,13873368,8,9,true],
+              [22170,"property","workerCount",13874982,13874993,0,1,true],
+              [22170,"property","hasOAuthConsumer",13875005,13875021,0,1,true],
+              [22170,"property","disposeWatcher",13875095,13875109,0,1,true],
+              [22170,"property","drainReloads",13875112,13875124,0,1,true]
+            ]
+          },
+          "22174": {
+            "rows": 14,
+            "identities": {
+              "bytes": 922,
+              "sha256": "05f6f4be558157d09b3a30783514c04a69ec5627c75178dfe1420129e616c9be"
+            },
+            "rowsExact": [
+              [22174,"string","2.1.121",13875946,13875955,0,156,true],
+              [22174,"string","2026-04-27T01:32:27Z",13876035,13876057,0,156,true],
+              [22174,"string","16ffea721a0a39bc787a236dc19fb62307180b75",13876066,13876108,0,156,true],
+              [22174,"string","2.1.121",13877608,13877617,0,157,true],
+              [22174,"string","2026-04-27T01:32:27Z",13877697,13877719,0,157,true],
+              [22174,"string","16ffea721a0a39bc787a236dc19fb62307180b75",13877728,13877770,0,157,true],
+              [22174,"property","pinToCurrentBinary",13878363,13878381,0,4,true],
+              [22174,"property","hasOAuthConsumer",13878488,13878504,0,2,true],
+              [22174,"property","workerCount",13879291,13879302,0,2,true],
+              [22174,"property","authManager",13879850,13879861,8,10,true],
+              [22174,"property","workerCount",13879882,13879893,0,3,true],
+              [22174,"property","disposeWatcher",13880781,13880795,0,2,true],
+              [22174,"property","drainReloads",13880806,13880818,0,2,true],
+              [22174,"property","manager",13881063,13881070,7,8,true]
+            ]
+          }
+        },
+        "ownerRows": {
+          "22170": {
+            "rows": 7,
+            "identities": {
+              "bytes": 426,
+              "sha256": "e0d4dc80658b541177074caad1246a42f8b144a4d23a7fc8cd7225dbd3c09e44"
+            }
+          },
+          "22174": {
+            "rows": 43,
+            "identities": {
+              "bytes": 3004,
+              "sha256": "f8c4171e1d4a1952df09e615f427653bdb73a5c8592106f378caecdb75abe17f"
+            }
+          }
+        },
+        "addedOwnerRows": {
+          "22170": {
+            "rows": 7,
+            "identities": {
+              "bytes": 426,
+              "sha256": "e0d4dc80658b541177074caad1246a42f8b144a4d23a7fc8cd7225dbd3c09e44"
+            }
+          },
+          "22174": {
+            "rows": 16,
+            "identities": {
+              "bytes": 1039,
+              "sha256": "33b814814d6a80071f0aef628221da582f8f525448e82b791ce4be589154b5f2"
+            }
+          }
+        },
+        "unclassifiedAddedRows": {
+          "rows": 0,
+          "identities": {
+            "bytes": 2,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        },
+        "correctedCoverageRows": {
+          "22170": {
+            "bytes": 1197,
+            "sha256": "eb4ae028b8ac62183ed5a244060813750f67101ce2f86653ee7859016709a9e2"
+          },
+          "22174": {
+            "bytes": 1197,
+            "sha256": "071b0deaddb7f87d1837393537165a3d332eb36833b0cd6c58eeaa5aed5dc8ef"
+          }
+        }
+      }
+    ],
+    "selectorPolicy": "accept exactly one complete report/coverage pair, reject pre/post hybrids and all unknown states",
+    "postDaemonOwnerExpectedProductionStrictImpact": {
+      "units": -2,
+      "rows": -19
+    }
+  },
+  "coverageClaims": [
+    {
+      "targetIndex": 22170,
+      "before": {
+        "rowCanonical": {"bytes":502,"sha256":"07defcf6f21d7cf2b53986fc31c53d5b17598ced64b5afa0a67a8fc745000ee6"},
+        "ownerIds": ["owner-src-main-tsx"],
+        "evidenceIds": ["source-map-attribution","semantic-test"]
+      },
+      "afterOwnerPaths": ["src/daemon/main.ts"],
+      "declarations": ["runDaemon"]
+    },
+    {
+      "targetIndex": 22174,
+      "before": {
+        "rowCanonical": {"bytes":502,"sha256":"0d73f55404decde40c14bec38bfa76ce4fa5f6adcb25b316f570e52a48f6984c"},
+        "ownerIds": ["owner-src-main-tsx"],
+        "evidenceIds": ["source-map-attribution","semantic-test"]
+      },
+      "afterOwnerPaths": ["src/daemon/main.ts"],
+      "declarations": ["runDaemon"]
+    }
+  ],
+  "decision": {
+    "ownerOverrideAuthorized": true,
+    "reason": "both units are unresolved nonmatched rows, their complete compiled graph is authenticated, and exact raw/package runDaemon source proves one exclusive authored owner while the provisional main.tsx owner is only source-map adjacency",
+    "sourceReplayAuthorized": false,
+    "replayBlocker": "the complete worker/auth/config/watcher/reload/shutdown graph already exists byte-identically in raw and packaged runDaemon; emitting a new extracted source helper would duplicate semantics and impose compiler architecture on authored source",
+    "expectedCoverageOwnerImpact": {"units":2,"ownerRows":254,"addedOwnerRows":111},
+    "expectedProductionStrictImpact": {"units":-2,"rows":-18},
+    "buildMacroRowsHandledSeparately": 6
+  },
+  "generatorWiring": {
+    "ownerOverrideModule": "recovery/cases/2.1.120-to-2.1.121/recovered/daemon-worker-config-run-daemon-owner-overrides.mjs",
+    "ownerOverrideExport": "TARGET121_DAEMON_WORKER_CONFIG_RUN_DAEMON_OWNER_OVERRIDES",
+    "evidenceExport": "TARGET121_DAEMON_WORKER_CONFIG_RUN_DAEMON_EVIDENCE_IDS",
+    "proofSpecExport": "TARGET121_DAEMON_WORKER_CONFIG_RUN_DAEMON_PROOF_SPEC",
+    "packageReplayExport": null,
+    "packageCallOrder": null
+  }
+}

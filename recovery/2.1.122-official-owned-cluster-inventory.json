@@ -1,0 +1,210 @@
+{
+  "schema_version": 1,
+  "release": "2.1.122",
+  "scope": "owned provider, resume, MCP, telemetry, branch, and ToolSearch cluster",
+  "authenticated_baseline": {
+    "artifact": "2.1.121-linux-x64/cli.inner.js",
+    "bytes": 13908188,
+    "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+  },
+  "authenticated_target": {
+    "artifact": "2.1.122-linux-x64/cli.inner.js",
+    "bytes": 13949544,
+    "sha256": "b4266d7ac18a537d67e3a503c572386f3f8bd11ae75f9485d4505cea10f6833c"
+  },
+  "tag": {
+    "name": "v2.1.122",
+    "commit": "a609cfbee3c5e0066a25f62f7b4109420c58b940",
+    "direct_parent": "v2.1.121"
+  },
+  "owned_bullets": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12],
+  "excluded_bullets": [11, 13, 14, 15, 16, 17, 18],
+  "residuals": [
+    {
+      "id": "target-only-lsp-diagnostic-injection-telemetry",
+      "classification": "authenticated-target-residual",
+      "normalized_witness": "target normalized statements 18848-18850 measure the rendered diagnostic block, diagnostic/file counts, and ide-mcp versus lsp source immediately before each attachment is delivered",
+      "artifact_fragments": [
+        { "fragment": "tengu_lsp_diagnostics_injected", "baseline_count": 0, "target_count": 1 },
+        { "fragment": "diagnostics_chars", "baseline_count": 0, "target_count": 1 },
+        { "fragment": "formatDiagnosticsBlock", "baseline_count": 0, "target_count": 3 }
+      ],
+      "source": [
+        { "path": "src/services/diagnosticTracking.ts", "includes": ["static formatDiagnosticsBlock"] },
+        { "path": "src/utils/messages.ts", "includes": ["DiagnosticTrackingService.formatDiagnosticsBlock("] },
+        { "path": "src/utils/attachments.ts", "includes": ["function logLSPDiagnosticsInjected", "DiagnosticTrackingService.formatDiagnosticsBlock(files).length", "logLSPDiagnosticsInjected(newDiagnostics, 'ide-mcp')", "logLSPDiagnosticsInjected(files, 'lsp')"] }
+      ]
+    },
+    {
+      "id": "target-only-phantom-parent-telemetry",
+      "classification": "authenticated-target-residual",
+      "normalized_witness": "target logs and avoids a missing sourceToolAssistant parent during insertMessageChain, diagnoses a missing incremental parent hint, and falls back to parsing all indexed transcript messages when the precompact offset walker encounters a broken parent chain",
+      "artifact_fragments": [
+        { "fragment": "tengu_phantom_parent_write", "baseline_count": 0, "target_count": 1 },
+        { "fragment": "tengu_phantom_parent_hint", "baseline_count": 0, "target_count": 1 },
+        { "fragment": "tengu_transcript_phantom_parent", "baseline_count": 0, "target_count": 1 },
+        { "fragment": "total_offsets", "baseline_count": 0, "target_count": 1 },
+        { "fragment": "walked_slots", "baseline_count": 0, "target_count": 1 }
+      ],
+      "source": [
+        { "path": "src/utils/sessionStorage.ts", "includes": ["persistedMessageUuids.has(sourceToolAssistantUuid)", "logEvent('tengu_phantom_parent_write'", "logEvent('tengu_phantom_parent_hint'", "let hasPhantomParent = false", "logEvent('tengu_transcript_phantom_parent'", "total_offsets: messageOffsets.length", "walked_slots: selectedOffsets.size", "selectedOffsets = null"] }
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "bullet": 1,
+      "test_id": "official-2.1.122-b01",
+      "changelog": "Added `ANTHROPIC_BEDROCK_SERVICE_TIER` environment variable to select a Bedrock service tier (`default`, `flex`, or `priority`), sent as the `X-Amzn-Bedrock-Service-Tier` header",
+      "classification": "active-source",
+      "normalized_witness": "target adds the environment value to Bedrock request headers, managed/safe environment inventories, status diagnostics, and teammate propagation",
+      "artifact_fragments": [
+        { "fragment": "ANTHROPIC_BEDROCK_SERVICE_TIER", "baseline_count": 0, "target_count": 6 },
+        { "fragment": "X-Amzn-Bedrock-Service-Tier", "baseline_count": 4, "target_count": 5 }
+      ],
+      "source": [
+        { "path": "src/services/api/client.ts", "includes": ["'X-Amzn-Bedrock-Service-Tier':", "process.env.ANTHROPIC_BEDROCK_SERVICE_TIER"] },
+        { "path": "src/utils/managedEnvConstants.ts", "includes": ["'ANTHROPIC_BEDROCK_SERVICE_TIER'"] },
+        { "path": "src/utils/status.tsx", "includes": ["Bedrock service tier"] },
+        { "path": "src/utils/swarm/spawnUtils.ts", "includes": ["'ANTHROPIC_BEDROCK_SERVICE_TIER'"] }
+      ]
+    },
+    {
+      "bullet": 2,
+      "test_id": "official-2.1.122-b02",
+      "changelog": "Pasting a PR URL into the `/resume` search box now finds the session that created that PR (GitHub, GitHub Enterprise, GitLab, and Bitbucket)",
+      "classification": "active-source",
+      "normalized_witness": "target rewrites a pasted provider PR URL to the transcript's PR-number/repository search form before local and agentic resume searches",
+      "artifact_fragments": [
+        { "fragment": "PR #", "baseline_count": 13, "target_count": 14 }
+      ],
+      "source": [
+        { "path": "src/tools/shared/gitOperationTracking.ts", "includes": ["export const PR_URL_RE", "export function parsePrUrl"] },
+        { "path": "src/components/LogSelector.tsx", "includes": ["function normalizePrUrls", "`PR #${pr.prNumber} ${pr.prRepository}`", "const normalizedSearchQuery = normalizePrUrls(searchQuery)", "onAgenticSearch(normalizedSearchQuery, logs"] }
+      ]
+    },
+    {
+      "bullet": 3,
+      "test_id": "official-2.1.122-b03",
+      "changelog": "`/mcp` now shows claude.ai connectors hidden by a manually-added server with the same URL, with a hint to remove the duplicate",
+      "classification": "active-source",
+      "normalized_witness": "target preserves deduplicated connector metadata in MCP state and renders a non-selectable claude.ai row naming the winning manual server and removal action",
+      "artifact_fragments": [
+        { "fragment": "same URL as your server", "baseline_count": 0, "target_count": 1 }
+      ],
+      "source": [
+        { "path": "src/services/mcp/config.ts", "includes": ["export function dedupClaudeAiMcpServers", "duplicateOfScope: ConfigScope", "suppressedClaudeAiConnectors"] },
+        { "path": "src/state/AppStateStore.ts", "includes": ["suppressedClaudeAiConnectors"] },
+        { "path": "src/services/mcp/useManageMCPConnections.ts", "includes": ["suppressedClaudeAiConnectors", "dedupClaudeAiMcpServers(claudeaiConfigs, configs)"] },
+        { "path": "src/components/mcp/MCPListPanel.tsx", "includes": ["hidden — same URL as your server", "claude mcp remove {suppressed.duplicateOf}"] },
+        { "path": "src/components/mcp/MCPSettings.tsx", "includes": ["suppressedClaudeAiConnectors={mcp.suppressedClaudeAiConnectors}"] }
+      ]
+    },
+    {
+      "bullet": 4,
+      "test_id": "official-2.1.122-b04",
+      "changelog": "Clarified the `/mcp` message shown when an MCP server is still unauthorized after the browser sign-in flow",
+      "classification": "active-source",
+      "normalized_witness": "target distinguishes a completed browser sign-in that remains unauthorized from a generic reconnect failure",
+      "artifact_fragments": [
+        { "fragment": "Tried reconnecting, but", "baseline_count": 0, "target_count": 1 },
+        { "fragment": "Tried reconnecting to", "baseline_count": 0, "target_count": 1 }
+      ],
+      "source": [
+        { "path": "src/components/mcp/MCPRemoteServerMenu.tsx", "includes": ["is still unauthorized. Make sure the browser sign-in completed", "but the connection failed. Restart Claude Code to retry"] }
+      ]
+    },
+    {
+      "bullet": 5,
+      "test_id": "official-2.1.122-b05",
+      "changelog": "OpenTelemetry: numeric attributes on `api_request`/`api_error` log events are now emitted as numbers, not strings",
+      "classification": "active-source",
+      "normalized_witness": "target passes token, cost, duration, attempt, and numeric API status values directly to OTel while retaining the legacy string status for analytics",
+      "artifact_fragments": [],
+      "source": [
+        { "path": "src/services/api/logging.ts", "includes": ["duration_ms: durationMs", "attempt,", "status_code: numericStatus", "input_tokens: usage.input_tokens", "cost_usd: costUSD"] },
+        { "path": "src/utils/telemetry/events.ts", "includes": ["metadata: Attributes = {}"] }
+      ]
+    },
+    {
+      "bullet": 6,
+      "test_id": "official-2.1.122-b06",
+      "changelog": "OpenTelemetry: added `claude_code.at_mention` log event for `@`-mention resolution",
+      "classification": "active-source",
+      "normalized_witness": "target emits at_mention with mention_type and success for file, directory, agent, and MCP-resource resolution paths",
+      "artifact_fragments": [
+        { "fragment": "mention_type", "baseline_count": 0, "target_count": 1 },
+        { "fragment": "at_mention", "baseline_count": 16, "target_count": 18 }
+      ],
+      "source": [
+        { "path": "src/utils/telemetry/events.ts", "includes": ["export function logAtMention", "void logOTelEvent('at_mention'", "mention_type: mentionType"] },
+        { "path": "src/utils/attachments.ts", "includes": ["mentionType: 'directory'", "mentionType: 'file'", "mentionType: 'agent'", "mentionType: 'mcp_resource'"] }
+      ]
+    },
+    {
+      "bullet": 7,
+      "test_id": "official-2.1.122-b07",
+      "changelog": "Fixed `/branch` producing forks that fail with \"tool_use ids were found without tool_result blocks\" when the source session contained entries from rewound timelines",
+      "classification": "active-source",
+      "normalized_witness": "target indexes only active transcript UUIDs and writes entries in the active in-memory message order, rebuilding the parent chain and excluding rewound timeline entries",
+      "artifact_fragments": [],
+      "source": [
+        { "path": "src/commands/branch/branch.ts", "includes": ["const activeMessageUuids = new Set(messages.map(message => message.uuid))", "const activeTranscriptEntries = new Map<UUID, TranscriptEntry>()", "for (const message of messages)", "activeTranscriptEntries.get(message.uuid)"] }
+      ]
+    },
+    {
+      "bullet": 8,
+      "test_id": "official-2.1.122-b08",
+      "changelog": "Fixed `/model` not showing the Effort option for Bedrock application inference profile ARNs, and those ARNs not receiving `output_config.effort`",
+      "classification": "active-source",
+      "normalized_witness": "target resolves application inference profiles through Bedrock with an eight-second timeout, caches the backing model, uses it for canonical/effort checks, and refreshes ModelPicker after resolution",
+      "artifact_fragments": [
+        { "fragment": "application-inference-profile", "baseline_count": 3, "target_count": 5 },
+        { "fragment": "AbortSignal.timeout(8000)", "baseline_count": 1, "target_count": 2 }
+      ],
+      "source": [
+        { "path": "src/bootstrap/state.ts", "includes": ["getInferenceProfileBackingModelCached", "setInferenceProfileBackingModel"] },
+        { "path": "src/utils/model/bedrock.ts", "includes": ["export const getInferenceProfileBackingModel", "AbortSignal.timeout(8000)", "setInferenceProfileBackingModel(profileId, backingModel)"] },
+        { "path": "src/utils/model/model.ts", "includes": ["getInferenceProfileBackingModelCached", "fullModelName.includes('application-inference-profile')"] },
+        { "path": "src/components/ModelPicker.tsx", "includes": ["getInferenceProfileBackingModel(focusedModel)", "refreshInferenceProfile"] },
+        { "path": "src/services/api/claude.ts", "includes": ["configureEffortParams(", "resolvedModel,"] }
+      ]
+    },
+    {
+      "bullet": 9,
+      "test_id": "official-2.1.122-b09",
+      "changelog": "Fixed Vertex AI / Bedrock returning `invalid_request_error: output_config: Extra inputs are not permitted` on session-title generation and other structured-output queries",
+      "classification": "active-source",
+      "normalized_witness": "target adds structured-output format and its beta only when the selected provider/model supports structured outputs, in both main and side-query request builders",
+      "artifact_fragments": [],
+      "source": [
+        { "path": "src/services/api/claude.ts", "includes": ["function configureOutputFormatParams", "!modelSupportsStructuredOutputs(model)", "outputConfig.format = outputFormat"] },
+        { "path": "src/utils/sideQuery.ts", "includes": ["const supportsOutputFormat", "modelSupportsStructuredOutputs(model)", "...(supportsOutputFormat &&"] }
+      ]
+    },
+    {
+      "bullet": 10,
+      "test_id": "official-2.1.122-b10",
+      "changelog": "Fixed Vertex AI `count_tokens` endpoint returning 400 errors for users behind proxy gateways",
+      "classification": "active-source",
+      "normalized_witness": "target unconditionally restricts beta headers at both the direct count_tokens request and fallback messages.create request to the Vertex-safe allowlist because a gateway can obscure provider detection",
+      "artifact_fragments": [],
+      "source": [
+        { "path": "src/services/tokenEstimation.ts", "includes": ["const filteredBetas = betas.filter", "VERTEX_COUNT_TOKENS_ALLOWED_BETAS.has(b)"] }
+      ]
+    },
+    {
+      "bullet": 12,
+      "test_id": "official-2.1.122-b12",
+      "changelog": "Fixed ToolSearch missing MCP tools that connected after session start in nonblocking mode",
+      "classification": "active-source",
+      "normalized_witness": "target invokes refreshTools at ToolSearch call time and derives deferred/select/keyword results from that live tool set",
+      "artifact_fragments": [
+        { "fragment": "refreshTools", "baseline_count": 9, "target_count": 12 }
+      ],
+      "source": [
+        { "path": "src/tools/ToolSearchTool/ToolSearchTool.ts", "includes": ["const currentTools = refreshTools?.() ?? tools", "const deferredTools = currentTools.filter(isDeferredTool)", "findToolByName(currentTools, toolName)", "currentTools,"] }
+      ]
+    }
+  ]
+}

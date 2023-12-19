@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.109-to-2.1.110",
+  "criterion": "exact-embedded-claude-api-content-v1",
+  "documentChanges": [],
+  "routingChanges": []
+}

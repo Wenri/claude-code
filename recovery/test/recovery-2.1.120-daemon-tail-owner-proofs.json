@@ -1,0 +1,363 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.119-to-2.1.120",
+  "status": "authenticated-direct-owner-with-compiler-residue-proof",
+  "criterion": "target120-daemon-tail-whole-unit-owner-v1",
+  "evidenceIds": [
+    "target2-1-120-daemon-tail-authenticated-target-fragment-test",
+    "target2-1-120-daemon-tail-source-ast-test",
+    "target2-1-120-daemon-tail-compiler-normalization-test"
+  ],
+  "inputs": {
+    "targetBundle": {
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.119-to-2.1.120/structural/generated-delta.json.gz",
+      "bytes": 2490663,
+      "sha256": "181e0be57cbb6e8d438b5ed0d3f54aa22ac3222d70dbc429b663d13d341729a3"
+    },
+    "typedAudit": {
+      "path": ".recovery-tmp/residue-audits/2.1.119-to-2.1.120.typed-audit.json",
+      "bytes": 20999065,
+      "sha256": "30843cd34174a5c7c4f59defa92d7dc25b62d30a34dd11e01d5d5e08b5f15187"
+    },
+    "sourceFiles": [
+      {
+        "path": "src/cli/bg.ts",
+        "bytes": 43353,
+        "sha256": "92ab99df43069787f22757297d8b87e3255fe5a554e857b0277dd230631038b0"
+      },
+      {
+        "path": "src/daemon/client.ts",
+        "bytes": 15387,
+        "sha256": "65065b2f099ae89a13819f1bd0cee172f8bf9ed71b737619d46b8e4921d83481"
+      },
+      {
+        "path": "src/daemon/main.ts",
+        "bytes": 37394,
+        "sha256": "1f4d1627b1c62d358e21aa5810f65ec9b413e47e0fe6f8f1761f9be537e0c1fc"
+      },
+      {
+        "path": "src/daemon/supervisor.ts",
+        "bytes": 53198,
+        "sha256": "2cf2b91d2a7153af5cbb69eeb04c570821f4ec93789e1117dee6eaa74c2132e1"
+      }
+    ]
+  },
+  "summary": {
+    "units": 4,
+    "residues": 90,
+    "sourceAstResidues": 72,
+    "compilerResidues": 18,
+    "buildMetadataResidues": 12,
+    "concatenationResidues": 6,
+    "indicesSha256": "dc079627b641585b1f7e31b89b86f615a16d43c4b3132f512706e3999e1d050b",
+    "residueIdentitiesSha256": "546f6311cf59e9771ee5456e94587453cd82a2e467d1727d84313f2643d9bdf8"
+  },
+  "rows": [
+    {
+      "targetIndex": 18695,
+      "ownerPath": "src/daemon/client.ts",
+      "priorOwnerPaths": [
+        "src/commands/remote-setup/index.ts"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 11417399,
+        "end": 11418625,
+        "bytes": 1226,
+        "sourceHash": "d6c3d3fd01545ad3d7f1f8517175da972d3a56750ab9492e66b82a41dc43cc35"
+      },
+      "residues": 25,
+      "sourceAstResidues": 24,
+      "compilerResidues": [
+        {
+          "kind": "string",
+          "value": "No background daemon is running.\nInstalling it as a service keeps scheduled and remote-control workers running across reboot.\n",
+          "start": 11417632,
+          "end": 11417758,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "constant-string-concatenation",
+          "sourceMarkers": [
+            "'No background daemon is running.\\n' +",
+            "'Installing it as a service keeps scheduled and remote-control workers running across reboot.\\n'"
+          ]
+        }
+      ],
+      "behavior": "Interactive daemon startup owns the persistent-service prompt, telemetry, fallback, and dismissal branches emitted by the authenticated target unit."
+    },
+    {
+      "targetIndex": 18705,
+      "ownerPath": "src/cli/bg.ts",
+      "priorOwnerPaths": [
+        "src/commands/remote-setup/index.ts"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 11421014,
+        "end": 11422666,
+        "bytes": 1652,
+        "sourceHash": "d7a3e22fa99507d8a246518dce5ed21027a9f628ca41ea8cc50cc1d6d9ca8fa7"
+      },
+      "residues": 7,
+      "sourceAstResidues": 4,
+      "compilerResidues": [
+        {
+          "kind": "string",
+          "value": "\u001b[2;7m",
+          "start": 11421541,
+          "end": 11421550,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "template-literal-segmentation",
+          "sourceMarkers": [
+            "cursorPosition(1, column)",
+            "\\x1B[2;7m Reconnecting… \\x1B[0m\\x1B8"
+          ]
+        },
+        {
+          "kind": "string",
+          "value": " Reconnecting… ",
+          "start": 11421552,
+          "end": 11421574,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "template-literal-segmentation",
+          "sourceMarkers": [
+            "cursorPosition(1, column)",
+            "\\x1B[2;7m Reconnecting… \\x1B[0m\\x1B8"
+          ]
+        },
+        {
+          "kind": "string",
+          "value": "\u001b[0m\u001b8",
+          "start": 11421575,
+          "end": 11421587,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "template-literal-segmentation",
+          "sourceMarkers": [
+            "cursorPosition(1, column)",
+            "\\x1B[2;7m Reconnecting… \\x1B[0m\\x1B8"
+          ]
+        }
+      ],
+      "behavior": "The background attach loop owns the terminal reconnect banner and transient-daemon retry emitted by the authenticated target unit."
+    },
+    {
+      "targetIndex": 19467,
+      "ownerPath": "src/daemon/supervisor.ts",
+      "priorOwnerPaths": [
+        "src/utils/claudeInChrome/chromeNativeHost.ts"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 11838326,
+        "end": 11844000,
+        "bytes": 5674,
+        "sourceHash": "6957f3f8c8e8776a9730630982b52fd1799800c6a7093d3c6cab2a2dd30602d8"
+      },
+      "residues": 16,
+      "sourceAstResidues": 10,
+      "compilerResidues": [
+        {
+          "kind": "string",
+          "value": "2.1.120",
+          "start": 11838780,
+          "end": 11838789,
+          "baselineCount": 0,
+          "targetOrdinal": 101,
+          "representation": "build-metadata-object-expansion",
+          "sourceMarkers": [
+            "MACRO.VERSION"
+          ]
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-24T19:00:49Z",
+          "start": 11838869,
+          "end": 11838891,
+          "baselineCount": 0,
+          "targetOrdinal": 101,
+          "representation": "build-metadata-object-expansion",
+          "sourceMarkers": [
+            "MACRO.VERSION"
+          ]
+        },
+        {
+          "kind": "string",
+          "value": "080f07fb4224786b965b9ea0a35f0cff594f2eb6",
+          "start": 11838900,
+          "end": 11838942,
+          "baselineCount": 0,
+          "targetOrdinal": 101,
+          "representation": "build-metadata-object-expansion",
+          "sourceMarkers": [
+            "MACRO.VERSION"
+          ]
+        },
+        {
+          "kind": "string",
+          "value": "2.1.120",
+          "start": 11839703,
+          "end": 11839712,
+          "baselineCount": 0,
+          "targetOrdinal": 102,
+          "representation": "build-metadata-object-expansion",
+          "sourceMarkers": [
+            "MACRO.VERSION"
+          ]
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-24T19:00:49Z",
+          "start": 11839792,
+          "end": 11839814,
+          "baselineCount": 0,
+          "targetOrdinal": 102,
+          "representation": "build-metadata-object-expansion",
+          "sourceMarkers": [
+            "MACRO.VERSION"
+          ]
+        },
+        {
+          "kind": "string",
+          "value": "080f07fb4224786b965b9ea0a35f0cff594f2eb6",
+          "start": 11839823,
+          "end": 11839865,
+          "baselineCount": 0,
+          "targetOrdinal": 102,
+          "representation": "build-metadata-object-expansion",
+          "sourceMarkers": [
+            "MACRO.VERSION"
+          ]
+        }
+      ],
+      "behavior": "The supervisor owns retiring-job rejection, DEC-mode snapshots, attacher tracking, and settled cleanup emitted by the authenticated target unit."
+    },
+    {
+      "targetIndex": 19531,
+      "ownerPath": "src/daemon/main.ts",
+      "priorOwnerPaths": [
+        "src/utils/claudeInChrome/chromeNativeHost.ts"
+      ],
+      "target": {
+        "classification": "unresolved",
+        "nodeType": "FunctionDeclaration",
+        "start": 11869079,
+        "end": 11874252,
+        "bytes": 5173,
+        "sourceHash": "f8fa87aaa32ea71a07ac337a12ff82763e53271155f588cfe1c5e83481f2b327"
+      },
+      "residues": 42,
+      "sourceAstResidues": 34,
+      "compilerResidues": [
+        {
+          "kind": "string",
+          "value": ") but Windows has no graceful ",
+          "start": 11871999,
+          "end": 11872029,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "template-literal-segmentation",
+          "sourceMarkers": [
+            "but Windows has no graceful signal",
+            "taskkill /PID ${running.pid}"
+          ]
+        },
+        {
+          "kind": "string",
+          "value": "signal — stop it with `taskkill /PID ",
+          "start": 11872032,
+          "end": 11872075,
+          "baselineCount": 0,
+          "targetOrdinal": 1,
+          "representation": "template-literal-segmentation",
+          "sourceMarkers": [
+            "but Windows has no graceful signal",
+            "taskkill /PID ${running.pid}"
+          ]
+        },
+        {
+          "kind": "string",
+          "value": "2.1.120",
+          "start": 11873440,
+          "end": 11873449,
+          "baselineCount": 0,
+          "targetOrdinal": 105,
+          "representation": "build-metadata-object-expansion",
+          "sourceMarkers": [
+            "MACRO.VERSION"
+          ]
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-24T19:00:49Z",
+          "start": 11873529,
+          "end": 11873551,
+          "baselineCount": 0,
+          "targetOrdinal": 105,
+          "representation": "build-metadata-object-expansion",
+          "sourceMarkers": [
+            "MACRO.VERSION"
+          ]
+        },
+        {
+          "kind": "string",
+          "value": "080f07fb4224786b965b9ea0a35f0cff594f2eb6",
+          "start": 11873560,
+          "end": 11873602,
+          "baselineCount": 0,
+          "targetOrdinal": 105,
+          "representation": "build-metadata-object-expansion",
+          "sourceMarkers": [
+            "MACRO.VERSION"
+          ]
+        },
+        {
+          "kind": "string",
+          "value": "2.1.120",
+          "start": 11873876,
+          "end": 11873885,
+          "baselineCount": 0,
+          "targetOrdinal": 106,
+          "representation": "build-metadata-object-expansion",
+          "sourceMarkers": [
+            "MACRO.VERSION"
+          ]
+        },
+        {
+          "kind": "string",
+          "value": "2026-04-24T19:00:49Z",
+          "start": 11873965,
+          "end": 11873987,
+          "baselineCount": 0,
+          "targetOrdinal": 106,
+          "representation": "build-metadata-object-expansion",
+          "sourceMarkers": [
+            "MACRO.VERSION"
+          ]
+        },
+        {
+          "kind": "string",
+          "value": "080f07fb4224786b965b9ea0a35f0cff594f2eb6",
+          "start": 11873996,
+          "end": 11874038,
+          "baselineCount": 0,
+          "targetOrdinal": 106,
+          "representation": "build-metadata-object-expansion",
+          "sourceMarkers": [
+            "MACRO.VERSION"
+          ]
+        }
+      ],
+      "behavior": "The daemon command dispatcher owns service policy, detached-process status, stop behavior, and daemon-control telemetry emitted by the authenticated target unit."
+    }
+  ]
+}

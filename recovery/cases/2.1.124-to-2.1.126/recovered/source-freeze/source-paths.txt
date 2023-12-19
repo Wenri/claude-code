@@ -1,0 +1,5 @@
+M	src/commands/effort/effort.tsx
+M	src/components/PromptInput/PromptInput.tsx
+M	src/services/api/claude.ts
+M	src/services/api/client.ts
+M	src/tools/FileReadTool/FileReadTool.ts

@@ -1,0 +1,1137 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.119-to-2.1.120",
+  "criterion": "target120-bounded-source-supplement-replay-v1",
+  "status": "case-owned-replay-ready",
+  "evidenceIds": [
+    "target2-1-120-tail-bootstrap-state-authenticated-behavior-test",
+    "target2-1-120-tail-bootstrap-state-idempotent-replay-test",
+    "target2-1-120-tail-bootstrap-state-pinned-source-preimage-test",
+    "target2-1-120-tail-safe-env-powershell-authenticated-behavior-test",
+    "target2-1-120-tail-safe-env-powershell-idempotent-replay-test",
+    "target2-1-120-tail-safe-env-powershell-pinned-source-preimage-test",
+    "target2-1-120-tail-classifier-surface-telemetry-authenticated-behavior-test",
+    "target2-1-120-tail-classifier-surface-telemetry-idempotent-replay-test",
+    "target2-1-120-tail-classifier-surface-telemetry-pinned-source-preimages-test",
+    "target2-1-120-tail-orphan-pty-sidecar-authenticated-behavior-test",
+    "target2-1-120-tail-orphan-pty-sidecar-idempotent-replay-test",
+    "target2-1-120-tail-orphan-pty-sidecar-pinned-source-preimage-test",
+    "target2-1-120-tail-daemon-status-recovery-telemetry-authenticated-behavior-test",
+    "target2-1-120-tail-daemon-status-recovery-telemetry-idempotent-replay-test",
+    "target2-1-120-tail-daemon-status-recovery-telemetry-pinned-source-preimages-test",
+    "target2-1-120-tail-environment-shell-analytics-authenticated-behavior-test",
+    "target2-1-120-tail-environment-shell-analytics-idempotent-replay-test",
+    "target2-1-120-tail-environment-shell-analytics-pinned-source-preimages-test",
+    "target2-1-120-tail-internal-network-probe-stub-authenticated-behavior-test",
+    "target2-1-120-tail-internal-network-probe-stub-idempotent-replay-test",
+    "target2-1-120-tail-internal-network-probe-stub-pinned-source-preimage-test",
+    "target2-1-120-tail-exit-worktree-cwd-override-authenticated-behavior-test",
+    "target2-1-120-tail-exit-worktree-cwd-override-idempotent-replay-test",
+    "target2-1-120-tail-exit-worktree-cwd-override-pinned-source-preimages-test",
+    "target2-1-120-tail-ccr-status-category-guard-authenticated-behavior-test",
+    "target2-1-120-tail-ccr-status-category-guard-idempotent-replay-test",
+    "target2-1-120-tail-ccr-status-category-guard-pinned-source-preimage-test",
+    "target2-1-120-tail-mcp-effort-fallback-authenticated-behavior-test",
+    "target2-1-120-tail-mcp-effort-fallback-idempotent-replay-test",
+    "target2-1-120-tail-mcp-effort-fallback-pinned-source-preimage-test",
+    "target2-1-120-tail-ultrareview-noop-task-registry-authenticated-behavior-test",
+    "target2-1-120-tail-ultrareview-noop-task-registry-idempotent-replay-test",
+    "target2-1-120-tail-ultrareview-noop-task-registry-pinned-source-preimages-test",
+    "target2-1-120-tail-fleetview-live-repositories-authenticated-behavior-test",
+    "target2-1-120-tail-fleetview-live-repositories-idempotent-replay-test",
+    "target2-1-120-tail-fleetview-live-repositories-pinned-source-preimage-test",
+    "target2-1-120-tail-feedback-survey-options-authenticated-behavior-test",
+    "target2-1-120-tail-feedback-survey-options-idempotent-replay-test",
+    "target2-1-120-tail-feedback-survey-options-pinned-source-preimages-test",
+    "target2-1-120-tail-moreright-session-restoration-authenticated-behavior-test",
+    "target2-1-120-tail-moreright-session-restoration-idempotent-replay-test",
+    "target2-1-120-tail-moreright-session-restoration-pinned-source-preimages-test",
+    "target2-1-120-tail-repl-survey-stack-authenticated-behavior-test",
+    "target2-1-120-tail-repl-survey-stack-idempotent-replay-test",
+    "target2-1-120-tail-repl-survey-stack-pinned-source-preimages-test",
+    "target2-1-120-tail-cli-print-control-telemetry-authenticated-behavior-test",
+    "target2-1-120-tail-cli-print-control-telemetry-idempotent-replay-test",
+    "target2-1-120-tail-cli-print-control-telemetry-pinned-source-preimage-test",
+    "target2-1-120-tail-cli-print-control-telemetry-source-ast-test",
+    "target2-1-120-tail-skill-change-detector-lifecycle-authenticated-behavior-test",
+    "target2-1-120-tail-skill-change-detector-lifecycle-idempotent-replay-test",
+    "target2-1-120-tail-skill-change-detector-lifecycle-pinned-source-preimages-test",
+    "target2-1-120-tail-u21627-authenticated-literal-test",
+    "target2-1-120-tail-u21627-idempotent-replay-test",
+    "target2-1-120-tail-u21627-pinned-source-preimage-test"
+  ],
+  "inputs": {
+    "classification": {
+      "path": "recovery/test/recovery-2.1.120-tail-residue-classification.json",
+      "bytes": 9979,
+      "sha256": "194d19dd68f8e58337002242f590663f9ff485f69a13e2c1e704cd88dd472604"
+    },
+    "structural": {
+      "path": "recovery/cases/2.1.119-to-2.1.120/structural/generated-delta.json.gz",
+      "bytes": 2490663,
+      "sha256": "181e0be57cbb6e8d438b5ed0d3f54aa22ac3222d70dbc429b663d13d341729a3"
+    },
+    "targetBundle": {
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    }
+  },
+  "summary": {
+    "units": 28,
+    "residues": 159,
+    "ownerFiles": 32,
+    "remainingSupplementUnits": 11,
+    "remainingSupplementResidues": 140
+  },
+  "coverageOwnerOverrides": {
+    "370": [
+      "src/bootstrap/state.ts"
+    ],
+    "371": [
+      "src/bootstrap/state.ts"
+    ],
+    "2576": [
+      "src/utils/env.ts"
+    ],
+    "2578": [
+      "src/utils/env.ts"
+    ],
+    "11081": [
+      "src/utils/managedEnvConstants.ts"
+    ],
+    "13763": [
+      "src/tools/ExitWorktreeTool/ExitWorktreeTool.ts"
+    ],
+    "14042": [
+      "src/jobs/classifier.ts"
+    ],
+    "14060": [
+      "src/jobs/classifier.ts"
+    ],
+    "18593": [
+      "src/daemon/hub.tsx"
+    ],
+    "19480": [
+      "src/daemon/supervisor.ts"
+    ],
+    "19492": [
+      "src/daemon/main.ts"
+    ],
+    "19500": [
+      "src/daemon/main.ts"
+    ],
+    "19509": [
+      "src/daemon/cli.ts"
+    ],
+    "19627": [
+      "src/components/FleetView.tsx"
+    ],
+    "19629": [
+      "src/components/FleetView.tsx"
+    ],
+    "19809": [
+      "src/cli/transports/ccrClient.ts"
+    ],
+    "20794": [
+      "src/utils/skills/skillChangeDetector.ts"
+    ],
+    "20931": [
+      "src/components/FeedbackSurvey/SurveyOptions.tsx"
+    ],
+    "20935": [
+      "src/components/FeedbackSurvey/FeedbackSurveyView.tsx"
+    ],
+    "20951": [
+      "src/components/FeedbackSurvey/MemoryWriteSurvey.tsx"
+    ],
+    "20952": [
+      "src/components/FeedbackSurvey/MemoryWriteSurvey.tsx"
+    ],
+    "20957": [
+      "src/screens/REPL.tsx"
+    ],
+    "20958": [
+      "src/screens/REPL.tsx"
+    ],
+    "21277": [
+      "src/screens/REPL.tsx"
+    ],
+    "21627": [
+      "src/skills/bundled/claude-api/shared/managed-agents-api-reference.md"
+    ],
+    "21858": [
+      "src/cli/print.ts"
+    ],
+    "21892": [
+      "src/entrypoints/mcp.ts"
+    ],
+    "21966": [
+      "src/cli/handlers/ultrareview.ts"
+    ]
+  },
+  "replayOrder": [
+    "bootstrap-state",
+    "managed-agents-api-reference",
+    "safe-env-powershell",
+    "classifier-surface-telemetry",
+    "skill-change-detector-lifecycle",
+    "orphan-pty-sidecar-cleanup",
+    "daemon-status-recovery-telemetry",
+    "environment-shell-analytics",
+    "internal-network-probe-stub",
+    "exit-worktree-cwd-override-guard",
+    "ccr-status-category-guard",
+    "mcp-effort-fallback",
+    "ultrareview-noop-task-registry",
+    "fleetview-live-repositories-and-attachment",
+    "feedback-survey-options",
+    "moreright-session-restoration",
+    "repl-survey-stack-and-undo",
+    "cli-print-control-and-telemetry"
+  ],
+  "replayClusters": {
+    "bootstrap-state": {
+      "targetIndices": [
+        370,
+        371
+      ],
+      "ownerPath": "src/bootstrap/state.ts",
+      "preimage": {
+        "bytes": 61281,
+        "sha256": "d6f74b0ea23ea6c09db27c0e433db91f930f7549bb2c0dcc9282731e9253bcbc"
+      },
+      "postimage": {
+        "bytes": 61587,
+        "sha256": "5afb83e9037dbb8b60245540b933a2e19a5d7ee63020e6113da46a241a3db557"
+      },
+      "replacementOperations": 3
+    },
+    "managed-agents-api-reference": {
+      "targetIndices": [
+        21627
+      ],
+      "ownerPath": "src/skills/bundled/claude-api/shared/managed-agents-api-reference.md",
+      "preimage": {
+        "bytes": 21629,
+        "sha256": "df1ea62ec9985391486d5dbcb9f287c518a30dd59670581fb74f88049a243983"
+      },
+      "postimage": {
+        "bytes": 21630,
+        "sha256": "1b4ebbd210a0169e447d9b6a2936c080eac7b899e71d22fafa0d2eaccd34945b"
+      },
+      "replacementOperations": 1
+    },
+    "safe-env-powershell": {
+      "targetIndices": [
+        11081
+      ],
+      "ownerPath": "src/utils/managedEnvConstants.ts",
+      "preimage": {
+        "bytes": 7119,
+        "sha256": "9816f92deeec80d9b21c915046b83cd1c324ae7a2aaaa6a6db8383492087ef26"
+      },
+      "postimage": {
+        "bytes": 7156,
+        "sha256": "50253004f06ab8c42fdb5e25bb0d28a71dd24997bd504957ce5f14f1204ec554"
+      },
+      "replacementOperations": 1
+    },
+    "classifier-surface-telemetry": {
+      "targetIndices": [
+        14042,
+        14060
+      ],
+      "owners": [
+        {
+          "ownerPath": "src/jobs/classifier.ts",
+          "preimage": {
+            "bytes": 44182,
+            "sha256": "49dae61b280b926fdac23e2974ad53c1a26268d2f036b23bdf78480b812279b3"
+          },
+          "postimage": {
+            "bytes": 44681,
+            "sha256": "56b12fd07152511bd3f7aab6c7beee1e86ef390b9315389eddc5a0ca327dd03f"
+          },
+          "replacementOperations": 8
+        },
+        {
+          "ownerPath": "src/query/stopHooks.ts",
+          "preimage": {
+            "bytes": 23143,
+            "sha256": "4a65f1c572d21f3c9422d896334dd6bff4d39b62736f1c087882c25d16fb4e18"
+          },
+          "postimage": {
+            "bytes": 23257,
+            "sha256": "8fa7bab10d8b686a846c134f615a1c8a4239752ea8de732c2a6281e4db274589"
+          },
+          "replacementOperations": 2
+        }
+      ]
+    },
+    "skill-change-detector-lifecycle": {
+      "targetIndices": [
+        20794
+      ],
+      "owners": [
+        {
+          "ownerPath": "src/utils/plugins/refresh.ts",
+          "preimage": {
+            "bytes": 8654,
+            "sha256": "3d9c7328955121a52d8177189bb1fc392238d387e7cf54ef995474e539a841fa"
+          },
+          "postimage": {
+            "bytes": 8819,
+            "sha256": "cf1085ca4cfd87934328700ea897a50505e7245928b223d7c7d0fb23b748ca81"
+          },
+          "replacementOperations": 3
+        },
+        {
+          "ownerPath": "src/utils/skills/skillChangeDetector.ts",
+          "preimage": {
+            "bytes": 10213,
+            "sha256": "f5e5ee7bbd4df1826ba1c169387c292610082726747263cda7fb3852db835cbe"
+          },
+          "postimage": {
+            "bytes": 10251,
+            "sha256": "aea576bf30a2a94ecc0220c3624bec020f7290fceef40b7064280128622e7b70"
+          },
+          "replacementOperations": 15
+        }
+      ]
+    },
+    "orphan-pty-sidecar-cleanup": {
+      "targetIndices": [
+        19480
+      ],
+      "ownerPath": "src/daemon/supervisor.ts",
+      "preimage": {
+        "bytes": 53198,
+        "sha256": "2cf2b91d2a7153af5cbb69eeb04c570821f4ec93789e1117dee6eaa74c2132e1"
+      },
+      "postimage": {
+        "bytes": 53478,
+        "sha256": "bdeca3cbaa8cfe41c0d36175210ab11ef8020e833c36670cfe11a5ab6b6b04ce"
+      },
+      "replacementOperations": 1
+    },
+    "daemon-status-recovery-telemetry": {
+      "targetIndices": [
+        18593,
+        19492,
+        19500,
+        19509
+      ],
+      "owners": [
+        {
+          "ownerPath": "src/daemon/main.ts",
+          "targetIndices": [
+            19492,
+            19500
+          ],
+          "preimage": {
+            "bytes": 37394,
+            "sha256": "1f4d1627b1c62d358e21aa5810f65ec9b413e47e0fe6f8f1761f9be537e0c1fc"
+          },
+          "postimage": {
+            "bytes": 37637,
+            "sha256": "6107ec4bc3852768f469873002219340a745d4f1a2d1648b3cd4fa385366ad65"
+          },
+          "replacementOperations": 3
+        },
+        {
+          "ownerPath": "src/daemon/cli.ts",
+          "targetIndices": [
+            19509
+          ],
+          "preimage": {
+            "bytes": 11108,
+            "sha256": "a7c4b85c3cf4b98581eda1accc272076ca0979aa0736595c152ed5eb7ed7c8b2"
+          },
+          "postimage": {
+            "bytes": 11156,
+            "sha256": "f4e2578a96aceb721ab7fb04024c6eb30404a544fe5f77de39111c1a235fa1d6"
+          },
+          "replacementOperations": 1
+        },
+        {
+          "ownerPath": "src/daemon/hub.tsx",
+          "targetIndices": [
+            18593
+          ],
+          "preimage": {
+            "bytes": 34272,
+            "sha256": "30a522786b42b424a0e8e11d24cc9fb7f97f3fbb02c301845996400598a4e880"
+          },
+          "postimage": {
+            "bytes": 34305,
+            "sha256": "f83910a6f3ac4f497b4b438f126daf097c9a7ee01c56c7eb768b609f879f3299"
+          },
+          "replacementOperations": 1
+        }
+      ]
+    },
+    "environment-shell-analytics": {
+      "targetIndices": [
+        2576
+      ],
+      "owners": [
+        {
+          "ownerPath": "src/utils/env.ts",
+          "preimage": {
+            "bytes": 10943,
+            "sha256": "534a837cd1771d6c74ccadee08c7c01511f8f9630c906cc812326ff6d970e4b0"
+          },
+          "postimage": {
+            "bytes": 11589,
+            "sha256": "30cdc4e1bb8febbd708d71b11c2ee72c799e871e5b2c9771c673e855d260f589"
+          },
+          "replacementOperations": 1
+        },
+        {
+          "ownerPath": "src/utils/Shell.ts",
+          "preimage": {
+            "bytes": 17932,
+            "sha256": "53dee92d1793e1f19952231cd3e75bf6a4740a83ca33bdd54e665a9e72b55df1"
+          },
+          "postimage": {
+            "bytes": 17479,
+            "sha256": "6675c6a34b10d4492460647ba58cef46596c02c23d2a6d41ad587c44f42a1749"
+          },
+          "replacementOperations": 2
+        },
+        {
+          "ownerPath": "src/services/analytics/metadata.ts",
+          "preimage": {
+            "bytes": 32617,
+            "sha256": "d034fde16f98ca6d65d843d30900a1b3374050ae65714caaa200abbf849f6fb4"
+          },
+          "postimage": {
+            "bytes": 32697,
+            "sha256": "66e23ced039083d7113f0af6f956c77641d045941b97a94729e35fe5106e633d"
+          },
+          "replacementOperations": 3
+        }
+      ]
+    },
+    "internal-network-probe-stub": {
+      "targetIndices": [
+        2578
+      ],
+      "ownerPath": "src/utils/env.ts",
+      "preimage": {
+        "bytes": 11589,
+        "sha256": "30cdc4e1bb8febbd708d71b11c2ee72c799e871e5b2c9771c673e855d260f589"
+      },
+      "postimage": {
+        "bytes": 11697,
+        "sha256": "dcd3b106471fa9f18439f1bde9bd810d03f36d42a854638ce406c4612de20a5c"
+      },
+      "replacementOperations": 2
+    },
+    "exit-worktree-cwd-override-guard": {
+      "targetIndices": [
+        13763
+      ],
+      "owners": [
+        {
+          "ownerPath": "src/utils/cwd.ts",
+          "preimage": {
+            "bytes": 985,
+            "sha256": "25d5bbb7fc905447a3f17c4daac6d073c41515263223ec37484badf5792b37ce"
+          },
+          "postimage": {
+            "bytes": 1170,
+            "sha256": "9732b2b449e3b452304ab8956e01cc69d0242d996800c8764b92dd78d058414b"
+          },
+          "replacementOperations": 1
+        },
+        {
+          "ownerPath": "src/tools/ExitWorktreeTool/ExitWorktreeTool.ts",
+          "preimage": {
+            "bytes": 12105,
+            "sha256": "a33f0c808dd1d1a871bf0adc5c77d0264f4707d5ad7e4131bed821abcc18ddde"
+          },
+          "postimage": {
+            "bytes": 12625,
+            "sha256": "5034db17e15d842e011d5cd10f9710d6f56bb855d4e6476e6dbfe77c2240c92c"
+          },
+          "replacementOperations": 3
+        }
+      ]
+    },
+    "ccr-status-category-guard": {
+      "targetIndices": [
+        19809
+      ],
+      "ownerPath": "src/cli/transports/ccrClient.ts",
+      "preimage": {
+        "bytes": 34499,
+        "sha256": "6b86c6b8e013c62c4598568d226ca26fdca943b60571fd724ccd6f2219703cdc"
+      },
+      "postimage": {
+        "bytes": 34578,
+        "sha256": "730e65d77df10ebd40cc2a661431d956ecfd701deabd4fe060ae26aeb8a55bd1"
+      },
+      "replacementOperations": 2
+    },
+    "mcp-effort-fallback": {
+      "targetIndices": [
+        21892
+      ],
+      "ownerPath": "src/entrypoints/mcp.ts",
+      "preimage": {
+        "bytes": 6331,
+        "sha256": "f41f8ea5a047f9fa1cfc59e834b0ba2dc09e4f14dacaf3e838ae7abdf91f0399"
+      },
+      "postimage": {
+        "bytes": 6385,
+        "sha256": "aef22e706b586f582c360bfbdf41dc188176f6c4b451ad3c0543bf3c6aab2c43"
+      },
+      "replacementOperations": 3
+    },
+    "ultrareview-noop-task-registry": {
+      "targetIndices": [
+        21966
+      ],
+      "owners": [
+        {
+          "ownerPath": "src/utils/task/framework.ts",
+          "preimage": {
+            "bytes": 11807,
+            "sha256": "8c7929a94c67c282682097307d9bbcaa2cda19b9b3285916f929dab5afba938b"
+          },
+          "postimage": {
+            "bytes": 12009,
+            "sha256": "b577b57a19d8ed7306361cab71efd5b5a30d5ed8c1032dc413be160027aea5e9"
+          },
+          "replacementOperations": 1
+        },
+        {
+          "ownerPath": "src/cli/handlers/ultrareview.ts",
+          "preimage": {
+            "bytes": 8140,
+            "sha256": "c43e445e1044b2e35697a00950651a728e59e8c2c8d6fa6f75797ebdba84e77b"
+          },
+          "postimage": {
+            "bytes": 8241,
+            "sha256": "a0860b36f5cc8616664201479ed23548cecd8376f65e26b355f46041b1793dbd"
+          },
+          "replacementOperations": 2
+        }
+      ]
+    },
+    "fleetview-live-repositories-and-attachment": {
+      "targetIndices": [
+        19627,
+        19629
+      ],
+      "ownerPath": "src/components/FleetView.tsx",
+      "preimage": {
+        "bytes": 82350,
+        "sha256": "dc4b63eb534e2a2923c6667430db1b241873939b9ff10bcf853b772707249314"
+      },
+      "postimage": {
+        "bytes": 83130,
+        "sha256": "2818ddba61861f9eb0cb0c6e5eb9b41f66678aa003e35ab7e5ab9b545bcbbf88"
+      },
+      "replacementOperations": 11
+    },
+    "feedback-survey-options": {
+      "targetIndices": [
+        20931,
+        20935,
+        20951,
+        20952
+      ],
+      "owners": [
+        {
+          "ownerPath": "src/components/FeedbackSurvey/SurveyOptions.tsx",
+          "targetIndices": [
+            20931
+          ],
+          "preimage": {
+            "absent": true
+          },
+          "postimage": {
+            "bytes": 964,
+            "sha256": "4f79f3a9637801b5aa7964e5ae7f5afb4142981829d9c0bbbc8987204b64d759"
+          },
+          "replacementOperations": 1
+        },
+        {
+          "ownerPath": "src/components/FeedbackSurvey/FeedbackSurveyView.tsx",
+          "targetIndices": [
+            20935
+          ],
+          "preimage": {
+            "bytes": 10660,
+            "sha256": "2307bbad58362eaa0b134b2e3b8d749bb70549f6b51676b38e569f88c011a78e"
+          },
+          "postimage": {
+            "bytes": 2409,
+            "sha256": "ab8f4e2c5fb900894526596a781c7076445697ffc90a62c46ed36851f4f878ca"
+          },
+          "replacementOperations": 1
+        },
+        {
+          "ownerPath": "src/components/FeedbackSurvey/MemoryWriteSurvey.tsx",
+          "targetIndices": [
+            20951,
+            20952
+          ],
+          "preimage": {
+            "bytes": 5377,
+            "sha256": "8415c8e6986e54aef5c54ecd566c28a5c530ec2f8f995465db6130662ab62003"
+          },
+          "postimage": {
+            "bytes": 4893,
+            "sha256": "790d298553e450b8e3fc00dba9957f6a623714d5ae0cf0f7df0689866c162c6c"
+          },
+          "replacementOperations": 5
+        }
+      ]
+    },
+    "moreright-session-restoration": {
+      "targetIndices": [
+        21277
+      ],
+      "owners": [
+        {
+          "ownerPath": "src/moreright/useMoreRight.tsx",
+          "preimage": {
+            "bytes": 3535,
+            "sha256": "ba5701874d69a339a9b1263f60dae7ced46060a3e6366a16cb0155f5ddef4544"
+          },
+          "postimage": {
+            "bytes": 3692,
+            "sha256": "0995b594943f038f5700448bee971079a4323cdb01e372fdd81a81ccfb3c6dde"
+          },
+          "replacementOperations": 3
+        },
+        {
+          "ownerPath": "src/screens/REPL.tsx",
+          "preimage": {
+            "bytes": 908792,
+            "sha256": "1176ad42f394d78c59aa2146f42342d3be9d9d49fcbef32ce4dc26b9bbbd0677"
+          },
+          "postimage": {
+            "bytes": 909074,
+            "sha256": "ab432ff327216889e7bb157b794c6efc5aca79dcfbb5af57bfdd1122cf41d34c"
+          },
+          "replacementOperations": 7
+        }
+      ]
+    },
+    "repl-survey-stack-and-undo": {
+      "targetIndices": [
+        20957,
+        20958
+      ],
+      "owners": [
+        {
+          "ownerPath": "src/components/FeedbackSurvey/FeedbackSurvey.tsx",
+          "preimage": {
+            "bytes": 19393,
+            "sha256": "6b2856ca8068951559a9cce545f5985cde4392b9c2c3169f2782e5080fba28aa"
+          },
+          "postimage": {
+            "bytes": 21765,
+            "sha256": "8645d13b93f523d3514a52d6ab427f9f46e666908a217a5dabd3b328ddaec6ff"
+          },
+          "replacementOperations": 11
+        },
+        {
+          "ownerPath": "src/components/FeedbackSurvey/useSurveyState.tsx",
+          "preimage": {
+            "bytes": 15007,
+            "sha256": "a50493ca59a0407017eed482846fb3203e992c4bed77f3b20c392fb711e6c05f"
+          },
+          "postimage": {
+            "bytes": 15816,
+            "sha256": "f45676f844ce1e323f7612ff0392a406aa1901a44b64e138c905dabf8fa178a3"
+          },
+          "replacementOperations": 7
+        },
+        {
+          "ownerPath": "src/components/FeedbackSurvey/useFeedbackSurvey.tsx",
+          "preimage": {
+            "bytes": 48321,
+            "sha256": "325e54de705cd608c220d5fe913cf76f1ca6005db0f5c1f8518573b0c560314d"
+          },
+          "postimage": {
+            "bytes": 48388,
+            "sha256": "f8e34039adb4760ba57a66bf97f43d23bd930660902c0b97ead775fc86278465"
+          },
+          "replacementOperations": 3
+        },
+        {
+          "ownerPath": "src/components/FeedbackSurvey/useMemorySurvey.tsx",
+          "preimage": {
+            "bytes": 30570,
+            "sha256": "06e677346fe2e448f393ceafd9df9927f3912d31a95ca9632fcf98f34074fac7"
+          },
+          "postimage": {
+            "bytes": 33569,
+            "sha256": "c72a36374ded081b661dcca93e332ab6a3877e53a7334c0e5c2210cf302320fc"
+          },
+          "replacementOperations": 10
+        },
+        {
+          "ownerPath": "src/components/FeedbackSurvey/usePostCompactSurvey.tsx",
+          "preimage": {
+            "bytes": 24071,
+            "sha256": "76959ead7363b162a9115117277cdf7a42d19b1829d237c9316d59a2aaa1df50"
+          },
+          "postimage": {
+            "bytes": 24153,
+            "sha256": "38a928e74d308092738b057105e39faffefd03020dc8560dd14f33c9e72ae5e6"
+          },
+          "replacementOperations": 4
+        },
+        {
+          "ownerPath": "src/screens/REPL.tsx",
+          "preimage": {
+            "bytes": 909074,
+            "sha256": "ab432ff327216889e7bb157b794c6efc5aca79dcfbb5af57bfdd1122cf41d34c"
+          },
+          "postimage": {
+            "bytes": 910264,
+            "sha256": "dff31837d79c693ebeace993675b67f4bf36241858e8d005d418617a201f7bc9"
+          },
+          "replacementOperations": 3
+        }
+      ]
+    },
+    "cli-print-control-and-telemetry": {
+      "targetIndices": [
+        21858
+      ],
+      "ownerPath": "src/cli/print.ts",
+      "preimage": {
+        "bytes": 231398,
+        "sha256": "85fa5a224dc8c255478d080c03ee132784b94e02c6959c6129723530023c6ed3"
+      },
+      "postimage": {
+        "bytes": 242285,
+        "sha256": "92507d3615817d94611fdf9fb10e29c31f2196de2419467b1a4d2de1033855e9"
+      },
+      "targetRegion": {
+        "bytes": 41048,
+        "sha256": "66c0c0eed98595dcf0f370c6d4be62791dc72ee69b1695783b0c48748abd2921"
+      },
+      "replacementOperations": 15,
+      "sourceReplayResidues": 5,
+      "compilerResidues": 8
+    }
+  },
+  "rows": [
+    {
+      "targetIndex": 370,
+      "category": "source-supplement-replay",
+      "dispositionAfterReplay": "source-runtime-covered",
+      "ownerPath": "src/bootstrap/state.ts",
+      "replayCluster": "bootstrap-state",
+      "residues": 3,
+      "behavior": "The bootstrap state module exports resetInteractionBaseline plus a session-scoped Friday Funday getter and one-way disable setter backed by explicit state.",
+      "evidenceIds": [
+        "target2-1-120-tail-bootstrap-state-authenticated-behavior-test",
+        "target2-1-120-tail-bootstrap-state-idempotent-replay-test",
+        "target2-1-120-tail-bootstrap-state-pinned-source-preimage-test"
+      ]
+    },
+    {
+      "targetIndex": 371,
+      "category": "source-supplement-replay",
+      "dispositionAfterReplay": "source-runtime-covered",
+      "ownerPath": "src/bootstrap/state.ts",
+      "replayCluster": "bootstrap-state",
+      "residues": 1,
+      "behavior": "Fresh bootstrap state initializes fridayFundayDisabledForSession to false before the one-way session disable setter is called.",
+      "evidenceIds": [
+        "target2-1-120-tail-bootstrap-state-authenticated-behavior-test",
+        "target2-1-120-tail-bootstrap-state-idempotent-replay-test",
+        "target2-1-120-tail-bootstrap-state-pinned-source-preimage-test"
+      ]
+    },
+    {
+      "targetIndex": 2576,
+      "category": "source-supplement-replay",
+      "dispositionAfterReplay": "source-runtime-covered",
+      "ownerPath": "src/utils/env.ts",
+      "replayCluster": "environment-shell-analytics",
+      "residues": 1,
+      "behavior": "Environment analytics classify SHELL first and fall back to COMSPEC on Windows; Bash executor analytics reuse the same executable classifier instead of maintaining a divergent copy.",
+      "evidenceIds": [
+        "target2-1-120-tail-environment-shell-analytics-authenticated-behavior-test",
+        "target2-1-120-tail-environment-shell-analytics-idempotent-replay-test",
+        "target2-1-120-tail-environment-shell-analytics-pinned-source-preimages-test"
+      ]
+    },
+    {
+      "targetIndex": 2578,
+      "category": "source-supplement-replay",
+      "dispositionAfterReplay": "source-runtime-covered",
+      "ownerPath": "src/utils/env.ts",
+      "replayCluster": "internal-network-probe-stub",
+      "residues": 1,
+      "behavior": "The external build exposes env.probeInternalNetworkAccess as an async fail-closed stub that resolves to null without probing the network.",
+      "evidenceIds": [
+        "target2-1-120-tail-internal-network-probe-stub-authenticated-behavior-test",
+        "target2-1-120-tail-internal-network-probe-stub-idempotent-replay-test",
+        "target2-1-120-tail-internal-network-probe-stub-pinned-source-preimage-test"
+      ]
+    },
+    {
+      "targetIndex": 11081,
+      "category": "source-supplement-replay",
+      "dispositionAfterReplay": "source-runtime-covered",
+      "ownerPath": "src/utils/managedEnvConstants.ts",
+      "replayCluster": "safe-env-powershell",
+      "residues": 1,
+      "behavior": "Remote-managed settings may carry the explicit CLAUDE_CODE_USE_POWERSHELL_TOOL feature gate because it is included exactly once in SAFE_ENV_VARS.",
+      "evidenceIds": [
+        "target2-1-120-tail-safe-env-powershell-authenticated-behavior-test",
+        "target2-1-120-tail-safe-env-powershell-idempotent-replay-test",
+        "target2-1-120-tail-safe-env-powershell-pinned-source-preimage-test"
+      ]
+    },
+    {
+      "targetIndex": 13763,
+      "category": "source-supplement-replay",
+      "dispositionAfterReplay": "source-runtime-covered",
+      "ownerPath": "src/tools/ExitWorktreeTool/ExitWorktreeTool.ts",
+      "replayCluster": "exit-worktree-cwd-override-guard",
+      "residues": 1,
+      "behavior": "ExitWorktree names destructive removal as worktree cleanup and refuses to mutate process-wide cwd state whenever an async subagent cwd override is active.",
+      "evidenceIds": [
+        "target2-1-120-tail-exit-worktree-cwd-override-authenticated-behavior-test",
+        "target2-1-120-tail-exit-worktree-cwd-override-idempotent-replay-test",
+        "target2-1-120-tail-exit-worktree-cwd-override-pinned-source-preimages-test"
+      ]
+    },
+    {
+      "targetIndex": 14042,
+      "category": "source-supplement-replay",
+      "dispositionAfterReplay": "source-runtime-covered",
+      "ownerPath": "src/jobs/classifier.ts",
+      "replayCluster": "classifier-surface-telemetry",
+      "residues": 1,
+      "behavior": "Classifier analytics derive deterministic boolean surface_<name> flags from the exact detected surface set.",
+      "evidenceIds": [
+        "target2-1-120-tail-classifier-surface-telemetry-authenticated-behavior-test",
+        "target2-1-120-tail-classifier-surface-telemetry-idempotent-replay-test",
+        "target2-1-120-tail-classifier-surface-telemetry-pinned-source-preimages-test"
+      ]
+    },
+    {
+      "targetIndex": 14060,
+      "category": "source-supplement-replay",
+      "dispositionAfterReplay": "source-runtime-covered",
+      "ownerPath": "src/jobs/classifier.ts",
+      "replayCluster": "classifier-surface-telemetry",
+      "residues": 1,
+      "behavior": "The classifier event records its selected engine together with the detected surface flags threaded from stop-hook dispatch.",
+      "evidenceIds": [
+        "target2-1-120-tail-classifier-surface-telemetry-authenticated-behavior-test",
+        "target2-1-120-tail-classifier-surface-telemetry-idempotent-replay-test",
+        "target2-1-120-tail-classifier-surface-telemetry-pinned-source-preimages-test"
+      ]
+    },
+    {
+      "targetIndex": 18593,
+      "category": "source-supplement-replay",
+      "dispositionAfterReplay": "source-runtime-covered",
+      "ownerPath": "src/daemon/hub.tsx",
+      "replayCluster": "daemon-status-recovery-telemetry",
+      "residues": 4,
+      "behavior": "Daemon hub status distinguishes an uninstalled on-demand daemon from an installed service that is merely stopped.",
+      "evidenceIds": [
+        "target2-1-120-tail-daemon-status-recovery-telemetry-authenticated-behavior-test",
+        "target2-1-120-tail-daemon-status-recovery-telemetry-idempotent-replay-test",
+        "target2-1-120-tail-daemon-status-recovery-telemetry-pinned-source-preimages-test"
+      ]
+    },
+    {
+      "targetIndex": 19480,
+      "category": "source-supplement-replay",
+      "dispositionAfterReplay": "source-runtime-covered",
+      "ownerPath": "src/daemon/supervisor.ts",
+      "replayCluster": "orphan-pty-sidecar-cleanup",
+      "residues": 2,
+      "behavior": "The background supervisor removes a stale PTY .sock.err sidecar only when its corresponding .sock host entry is absent, then preserves the existing orphan kill-frame path for live socket entries.",
+      "evidenceIds": [
+        "target2-1-120-tail-orphan-pty-sidecar-authenticated-behavior-test",
+        "target2-1-120-tail-orphan-pty-sidecar-idempotent-replay-test",
+        "target2-1-120-tail-orphan-pty-sidecar-pinned-source-preimage-test"
+      ]
+    },
+    {
+      "targetIndex": 19492,
+      "category": "source-supplement-replay",
+      "dispositionAfterReplay": "source-runtime-covered",
+      "ownerPath": "src/daemon/main.ts",
+      "replayCluster": "daemon-status-recovery-telemetry",
+      "residues": 3,
+      "behavior": "Both permanent-exit and crash telemetry record the measured daemon worker uptime in uptime_ms.",
+      "evidenceIds": [
+        "target2-1-120-tail-daemon-status-recovery-telemetry-authenticated-behavior-test",
+        "target2-1-120-tail-daemon-status-recovery-telemetry-idempotent-replay-test",
+        "target2-1-120-tail-daemon-status-recovery-telemetry-pinned-source-preimages-test"
+      ]
+    },
+    {
+      "targetIndex": 19500,
+      "category": "source-supplement-replay",
+      "dispositionAfterReplay": "source-runtime-covered",
+      "ownerPath": "src/daemon/main.ts",
+      "replayCluster": "daemon-status-recovery-telemetry",
+      "residues": 11,
+      "behavior": "Duplicate-daemon startup reports a platform-specific recovery command: taskkill with the running PID on Windows and claude daemon stop elsewhere.",
+      "evidenceIds": [
+        "target2-1-120-tail-daemon-status-recovery-telemetry-authenticated-behavior-test",
+        "target2-1-120-tail-daemon-status-recovery-telemetry-idempotent-replay-test",
+        "target2-1-120-tail-daemon-status-recovery-telemetry-pinned-source-preimages-test"
+      ]
+    },
+    {
+      "targetIndex": 19509,
+      "category": "source-supplement-replay",
+      "dispositionAfterReplay": "source-runtime-covered",
+      "ownerPath": "src/daemon/cli.ts",
+      "replayCluster": "daemon-status-recovery-telemetry",
+      "residues": 1,
+      "behavior": "Service-only daemon commands fail closed with the explicit on-demand policy instead of directing users to a disabled install command.",
+      "evidenceIds": [
+        "target2-1-120-tail-daemon-status-recovery-telemetry-authenticated-behavior-test",
+        "target2-1-120-tail-daemon-status-recovery-telemetry-idempotent-replay-test",
+        "target2-1-120-tail-daemon-status-recovery-telemetry-pinned-source-preimages-test"
+      ]
+    },
+    {
+      "targetIndex": 19627,
+      "category": "source-supplement-replay",
+      "dispositionAfterReplay": "source-runtime-covered",
+      "ownerPath": "src/components/FleetView.tsx",
+      "replayCluster": "fleetview-live-repositories-and-attachment",
+      "residues": 1,
+      "behavior": "FleetView carries attachment state into each rendered job row and suppresses stale detail text while that job is attaching.",
+      "evidenceIds": [
+        "target2-1-120-tail-fleetview-live-repositories-authenticated-behavior-test",
+        "target2-1-120-tail-fleetview-live-repositories-idempotent-replay-test",
+        "target2-1-120-tail-fleetview-live-repositories-pinned-source-preimage-test"
+      ]
+    },
+    {
+      "targetIndex": 19629,
+      "category": "source-supplement-replay",
+      "dispositionAfterReplay": "source-runtime-covered",
+      "ownerPath": "src/components/FleetView.tsx",
+      "replayCluster": "fleetview-live-repositories-and-attachment",
+      "residues": 20,
+      "behavior": "FleetView deterministically merges live and pending job origins into repository autocomplete, retains explicit attachment and pin state at component boundaries, and preserves update relaunch behavior.",
+      "evidenceIds": [
+        "target2-1-120-tail-fleetview-live-repositories-authenticated-behavior-test",
+        "target2-1-120-tail-fleetview-live-repositories-idempotent-replay-test",
+        "target2-1-120-tail-fleetview-live-repositories-pinned-source-preimage-test"
+      ]
+    },
+    {
+      "targetIndex": 19809,
+      "category": "source-supplement-replay",
+      "dispositionAfterReplay": "source-runtime-covered",
+      "ownerPath": "src/cli/transports/ccrClient.ts",
+      "replayCluster": "ccr-status-category-guard",
+      "residues": 1,
+      "behavior": "CCR metadata recognizes a post-turn summary only when it is a non-null object containing a string status_category field, then rewrites blocked to need_input without accepting malformed values.",
+      "evidenceIds": [
+        "target2-1-120-tail-ccr-status-category-guard-authenticated-behavior-test",
+        "target2-1-120-tail-ccr-status-category-guard-idempotent-replay-test",
+        "target2-1-120-tail-ccr-status-category-guard-pinned-source-preimage-test"
+      ]
+    },
+    {
+      "targetIndex": 20794,
+      "category": "source-supplement-replay",
+      "dispositionAfterReplay": "source-runtime-covered",
+      "ownerPath": "src/utils/skills/skillChangeDetector.ts",
+      "replayCluster": "skill-change-detector-lifecycle",
+      "residues": 2,
+      "behavior": "The skill-change detector is an independently disposable factory: it waits for chokidar readiness, observes both dynamic-skill and plugin-refresh invalidations, filters .git on either path separator, and unregisters every subscription through dispose and Symbol.asyncDispose.",
+      "evidenceIds": [
+        "target2-1-120-tail-skill-change-detector-lifecycle-authenticated-behavior-test",
+        "target2-1-120-tail-skill-change-detector-lifecycle-idempotent-replay-test",
+        "target2-1-120-tail-skill-change-detector-lifecycle-pinned-source-preimages-test"
+      ]
+    },
+    {
+      "targetIndex": 20931,
+      "category": "source-supplement-replay",
+      "dispositionAfterReplay": "source-runtime-covered",
+      "ownerPath": "src/components/FeedbackSurvey/SurveyOptions.tsx",
+      "replayCluster": "feedback-survey-options",
+      "residues": 1,
+      "behavior": "A shared generic option row renders fixed-width or natural-width keyboard choices, hover affordances, and an optional top margin while preserving typed keys for selection callbacks.",
+      "evidenceIds": [
+        "target2-1-120-tail-feedback-survey-options-authenticated-behavior-test",
+        "target2-1-120-tail-feedback-survey-options-idempotent-replay-test",
+        "target2-1-120-tail-feedback-survey-options-pinned-source-preimages-test"
+      ]
+    },
+    {
+      "targetIndex": 20935,
+      "category": "source-supplement-replay",
+      "dispositionAfterReplay": "source-runtime-covered",
+      "ownerPath": "src/components/FeedbackSurvey/FeedbackSurveyView.tsx",
+      "replayCluster": "feedback-survey-options",
+      "residues": 1,
+      "behavior": "FeedbackSurveyView uses the shared option row, supports an opt-in 4=not_sure response, configurable message emphasis and mount delay, and clears typed input on pointer selection.",
+      "evidenceIds": [
+        "target2-1-120-tail-feedback-survey-options-authenticated-behavior-test",
+        "target2-1-120-tail-feedback-survey-options-idempotent-replay-test",
+        "target2-1-120-tail-feedback-survey-options-pinned-source-preimages-test"
+      ]
+    },
+    {
+      "targetIndex": 20951,
+      "category": "source-supplement-replay",
+      "dispositionAfterReplay": "source-runtime-covered",
+      "ownerPath": "src/components/FeedbackSurvey/MemoryWriteSurvey.tsx",
+      "replayCluster": "feedback-survey-options",
+      "residues": 1,
+      "behavior": "The authenticated standalone digit guard accepts exactly the MemoryWriteSurvey Keep/Undo keys 1 and 2 and is emitted immediately before the survey body that consumes it.",
+      "evidenceIds": [
+        "target2-1-120-tail-feedback-survey-options-authenticated-behavior-test",
+        "target2-1-120-tail-feedback-survey-options-idempotent-replay-test",
+        "target2-1-120-tail-feedback-survey-options-pinned-source-preimages-test"
+      ]
+    },
+    {
+      "targetIndex": 20952,
+      "category": "source-supplement-replay",
+      "dispositionAfterReplay": "source-runtime-covered",
+      "ownerPath": "src/components/FeedbackSurvey/MemoryWriteSurvey.tsx",
+      "replayCluster": "feedback-survey-options",
+      "residues": 18,
+      "behavior": "MemoryWriteSurvey preserves its pinned summary, truncation, countdown, and Keep/Undo behavior while reusing the same typed option component with a 10-column layout.",
+      "evidenceIds": [
+        "target2-1-120-tail-feedback-survey-options-authenticated-behavior-test",
+        "target2-1-120-tail-feedback-survey-options-idempotent-replay-test",
+        "target2-1-120-tail-feedback-survey-options-pinned-source-preimages-test"
+      ]
+    },
+    {
+      "targetIndex": 20957,
+      "category": "source-supplement-replay",
+      "dispositionAfterReplay": "source-runtime-covered",
+      "ownerPath": "src/screens/REPL.tsx",
+      "replayCluster": "repl-survey-stack-and-undo",
+      "residues": 2,
+      "behavior": "The REPL survey dispatcher recognizes the memory-write survey as a distinct active survey and gives it priority over post-compact, memory, feedback, and frustration prompts.",
+      "evidenceIds": [
+        "target2-1-120-tail-repl-survey-stack-authenticated-behavior-test",
+        "target2-1-120-tail-repl-survey-stack-idempotent-replay-test",
+        "target2-1-120-tail-repl-survey-stack-pinned-source-preimages-test"
+      ]
+    },
+    {
+      "targetIndex": 20958,
+      "category": "source-supplement-replay",
+      "dispositionAfterReplay": "source-runtime-covered",
+      "ownerPath": "src/screens/REPL.tsx",
+      "replayCluster": "repl-survey-stack-and-undo",
+      "residues": 10,
+      "behavior": "The centralized REPL survey stack forwards undo handlers, memory-judge evaluation, and the explicit Unsure option while preserving fail-closed survey priority and pending-selection timing.",
+      "evidenceIds": [
+        "target2-1-120-tail-repl-survey-stack-authenticated-behavior-test",
+        "target2-1-120-tail-repl-survey-stack-idempotent-replay-test",
+        "target2-1-120-tail-repl-survey-stack-pinned-source-preimages-test"
+      ]
+    },
+    {
+      "targetIndex": 21277,
+      "category": "source-supplement-replay",
+      "dispositionAfterReplay": "source-runtime-covered",
+      "ownerPath": "src/screens/REPL.tsx",
+      "replayCluster": "moreright-session-restoration",
+      "residues": 12,
+      "behavior": "MoreRight receives result-dedup state, restores its session state for initial and rewound transcripts, and owns the input gate while active so queued prompts and background-task navigation cannot steal focus.",
+      "evidenceIds": [
+        "target2-1-120-tail-moreright-session-restoration-authenticated-behavior-test",
+        "target2-1-120-tail-moreright-session-restoration-idempotent-replay-test",
+        "target2-1-120-tail-moreright-session-restoration-pinned-source-preimages-test"
+      ]
+    },
+    {
+      "targetIndex": 21627,
+      "category": "source-supplement-replay",
+      "dispositionAfterReplay": "source-runtime-covered",
+      "ownerPath": "src/skills/bundled/claude-api/shared/managed-agents-api-reference.md",
+      "replayCluster": "managed-agents-api-reference",
+      "residues": 1,
+      "behavior": "The managed-agents endpoint reference reports the authenticated 300 requests-per-minute organization limit for create operations while retaining the separate 60 RPM environment limit.",
+      "evidenceIds": [
+        "target2-1-120-tail-u21627-authenticated-literal-test",
+        "target2-1-120-tail-u21627-idempotent-replay-test",
+        "target2-1-120-tail-u21627-pinned-source-preimage-test"
+      ],
+      "preimage": {
+        "bytes": 21629,
+        "sha256": "df1ea62ec9985391486d5dbcb9f287c518a30dd59670581fb74f88049a243983"
+      },
+      "postimage": {
+        "bytes": 21630,
+        "sha256": "1b4ebbd210a0169e447d9b6a2936c080eac7b899e71d22fafa0d2eaccd34945b"
+      },
+      "replacement": {
+        "before": "| Create operations (Agents, Sessions, Vaults) | organization | 60 | — |",
+        "after": "| Create operations (Agents, Sessions, Vaults) | organization | 300 | — |",
+        "occurrences": 1
+      }
+    },
+    {
+      "targetIndex": 21858,
+      "category": "mixed-source-supplement-and-compiler-proof",
+      "dispositionAfterReplay": "source-runtime-and-compiler-covered",
+      "ownerPath": "src/cli/print.ts",
+      "replayCluster": "cli-print-control-and-telemetry",
+      "residues": 13,
+      "sourceReplayResidues": 5,
+      "compilerResidues": 8,
+      "behavior": "Headless SDK execution reports terminal, successful, retry/compact, and crash telemetry; waits up to 30 seconds for in-flight suggestions; and serves direct trusted-channel MCP calls with abort, auth, session-expiry, URL-elicitation, structured-content, and metadata handling. Six build literals, the namespace-lowered readFile access, and the target's unreachable peer-origin arm remain authenticated compiler/DCE evidence rather than source replay.",
+      "evidenceIds": [
+        "target2-1-120-tail-cli-print-control-telemetry-authenticated-behavior-test",
+        "target2-1-120-tail-cli-print-control-telemetry-idempotent-replay-test",
+        "target2-1-120-tail-cli-print-control-telemetry-pinned-source-preimage-test",
+        "target2-1-120-tail-cli-print-control-telemetry-source-ast-test"
+      ]
+    },
+    {
+      "targetIndex": 21892,
+      "category": "source-supplement-replay",
+      "dispositionAfterReplay": "source-runtime-covered",
+      "ownerPath": "src/entrypoints/mcp.ts",
+      "replayCluster": "mcp-effort-fallback",
+      "residues": 4,
+      "behavior": "The noninteractive MCP tool context exposes an explicit undefined effort fallback, so skill and plugin prompt substitution can resolve CLAUDE_EFFORT without inheriting mutable session state.",
+      "evidenceIds": [
+        "target2-1-120-tail-mcp-effort-fallback-authenticated-behavior-test",
+        "target2-1-120-tail-mcp-effort-fallback-idempotent-replay-test",
+        "target2-1-120-tail-mcp-effort-fallback-pinned-source-preimage-test"
+      ]
+    },
+    {
+      "targetIndex": 21966,
+      "category": "source-supplement-replay",
+      "dispositionAfterReplay": "source-runtime-covered",
+      "ownerPath": "src/cli/handlers/ultrareview.ts",
+      "replayCluster": "ultrareview-noop-task-registry",
+      "residues": 41,
+      "behavior": "Standalone Ultrareview launches with the shared no-op task registry, preserving its skip-registration contract while satisfying the remote-launch context without mutating application task state.",
+      "evidenceIds": [
+        "target2-1-120-tail-ultrareview-noop-task-registry-authenticated-behavior-test",
+        "target2-1-120-tail-ultrareview-noop-task-registry-idempotent-replay-test",
+        "target2-1-120-tail-ultrareview-noop-task-registry-pinned-source-preimages-test"
+      ]
+    }
+  ]
+}

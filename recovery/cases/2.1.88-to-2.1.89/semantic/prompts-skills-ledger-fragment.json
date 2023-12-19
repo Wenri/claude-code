@@ -1,0 +1,275 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.88-to-2.1.89",
+  "criterion": "compiled-ast-prompt-skill-semantics-v1",
+  "mergeInto": "semantic/source-coverage.json.gz",
+  "owners": [
+    {
+      "id": "owner-permission-prompt-assets",
+      "path": "src/utils/permissions/yolo-classifier-prompts/permissions_external.txt",
+      "anchor": "<user_environment_to_replace>"
+    },
+    {
+      "id": "owner-permission-classifier-wiring",
+      "path": "src/utils/permissions/yoloClassifier.ts",
+      "anchor": "XML_S1_TWO_STAGE_SUFFIX"
+    },
+    {
+      "id": "owner-computer-use-prompt",
+      "path": "src/utils/computerUse/prompt.ts",
+      "anchor": "You have a computer-use MCP available"
+    },
+    {
+      "id": "owner-computer-use-prompt-gate",
+      "path": "src/utils/attachments.ts",
+      "anchor": "block: COMPUTER_USE_MCP_INSTRUCTIONS"
+    },
+    {
+      "id": "owner-update-config-skill",
+      "path": "src/skills/bundled/updateConfig.ts",
+      "anchor": "Days to keep transcripts before automatic cleanup"
+    },
+    {
+      "id": "owner-prompt-caching-asset",
+      "path": "src/skills/bundled/claude-api/shared/prompt-caching.md",
+      "anchor": "# Prompt Caching — Design & Optimization"
+    },
+    {
+      "id": "owner-claude-api-content-map",
+      "path": "src/skills/bundled/claudeApiContent.ts",
+      "anchor": "'shared/prompt-caching.md': sharedPromptCaching"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "evidence-prompts-skills-target-fragments",
+      "kind": "target-fragment",
+      "path": "recovery/test/recovery-2.1.89-prompts-skills-semantic.test.mjs",
+      "detail": "Pins the authenticated bundle, structural coordinates and hashes, cooked prompt values, minified file-map/registration gates, and external-build permission DCE initializer."
+    },
+    {
+      "id": "evidence-prompts-skills-source-test",
+      "kind": "semantic-test",
+      "path": "recovery/test/recovery-2.1.89-prompts-skills-semantic.test.mjs",
+      "detail": "Compares every target cooked value to its first-party source owner and verifies permission, MCP attachment, update-config, and claude-api content-map wiring."
+    }
+  ],
+  "staticNullBranches": [
+    {
+      "id": "permissions-anthropic-external-build-dce",
+      "sourcePath": "src/utils/permissions/yoloClassifier.ts",
+      "missingAsset": "src/utils/permissions/yolo-classifier-prompts/permissions_anthropic.txt",
+      "targetEvidence": [
+        "function $Xz(){return!0}",
+        "YXz=\"\"",
+        "Vx4=kx4(Px4()),lF1=kx4(Wx4())"
+      ],
+      "classification": "build-time-dead-in-published-external-target",
+      "detail": "The authenticated external 2.1.89 bundle fixes external-permissions selection true, keeps the Anthropic placeholder empty, and initializes only the base and external prompt modules. No unknown Anthropic text is synthesized."
+    }
+  ],
+  "literalResidueAudit": {
+    "input": "/tmp/target89-literal-gaps-canonical.json",
+    "canonicalStage": "/tmp/target89-canonical-stage.lRujBn",
+    "totalRows": 212,
+    "totalUnits": 93,
+    "classifications": [
+      {
+        "id": "build-timestamp-metadata",
+        "rows": 126,
+        "units": 67,
+        "value": "2026-03-31T22:55:14Z",
+        "disposition": "dependency-or-build-metadata"
+      },
+      {
+        "id": "absolute-dependency-build-paths",
+        "rows": 4,
+        "units": 4,
+        "targetIndices": [
+          7005,
+          7118,
+          9250,
+          9276
+        ],
+        "disposition": "dependency-or-build-metadata",
+        "detail": "The four values are absolute external-build node_modules roots for computer-use Swift/input packages and grpc-js."
+      },
+      {
+        "id": "source-representation-matches",
+        "rows": 73,
+        "units": 17,
+        "targetIndices": [
+          2592,
+          4592,
+          6632,
+          8320,
+          8765,
+          11919,
+          13212,
+          13356,
+          14420,
+          15355,
+          15364,
+          15383,
+          15392,
+          15729,
+          16127,
+          17789,
+          18041
+        ],
+        "disposition": "canonical-source-present",
+        "detail": "Fifty-nine rows are exact cooked AST values whose raw source spelling is escaped or interpolated. Fourteen more are exact behavior represented as adjacent source fragments or JSX text that the compiler folds."
+      },
+      {
+        "id": "proven-static-null-subbranches",
+        "rows": 5,
+        "units": 2,
+        "targetIndices": [
+          8865,
+          8991
+        ],
+        "sourceHashes": [
+          "7b18d7651c730032198574579a373229ec799b9d43e55c550868d1a1cc24cac1",
+          "7f5c89bfbc3dbda92c317d44e656fa0043f6a2c232e3cc179d82cee9556c6fb0"
+        ],
+        "targetEvidence": [
+          "u=x===\"auto\"||x===\"plan\"&&B,C=!1,g;",
+          "let h;if(K[36]!==G||K[37]!==D||K[38]!==k||K[39]!==P||K[40]!==f)h=null",
+          "function le(){return}",
+          "let q=le();if(q)return N(`Remote settings: Using override file ${q} (CLAUDE_CODE_REMOTE_SETTINGS_PATH), skipping API fetch`),QB()"
+        ],
+        "reachableRemainderOwners": [
+          "transcript message/tool rendering owners",
+          "src/services/remoteManagedSettings/index.ts"
+        ],
+        "disposition": "static-null-or-false-consumer-branch",
+        "detail": "Only the five literal-bearing subbranches are DCE. Unit 8865's transcript provider/rendering remainder is reachable, but its rating affordance consumer is fixed false/null. Unit 8991's remote-settings fetch/cache remainder is reachable and source-covered, but its override-path accessor always returns undefined, so only the interpolated override log branch cannot run."
+      },
+      {
+        "id": "recovered-current-runtime",
+        "rows": 1,
+        "units": 1,
+        "targetIndices": [
+          12314
+        ],
+        "sourceHashes": [
+          "c6d35b1ce4552297fd672703dfd6617b08dfac09530430e94c20b4516a56da55"
+        ],
+        "disposition": "source-runtime-covered",
+        "detail": "The computer-use instruction owner and its connected-server attachment gate were absent from the canonical-stage snapshot and are recovered by this fragment."
+      },
+      {
+        "id": "supplement-runtime-covered",
+        "rows": 3,
+        "units": 2,
+        "targetIndices": [
+          13172,
+          15515
+        ],
+        "relatedTargetIndices": [
+          13173
+        ],
+        "sourceHashes": [
+          "afc8ef272482fde2ce370b5d5ab85b945e14cfabcab14c6006aecfc1126f74a2",
+          "27a559874e00b378ce4b81f3569a034ac607516dc152a2fd86e22b52e1b8fff6"
+        ],
+        "owners": [
+          "src/utils/desktopDeepLink.ts",
+          "src/utils/sessionStorage.ts"
+        ],
+        "disposition": "source-runtime-covered",
+        "detail": "The current, historical, and canonical supplement now call getDesktopInstallStatus before opening a resume deep link, reject version-too-old with the exact target template and MIN_DESKTOP_VERSION owner (related unit 13173), and reject an empty parsed JSON transcript before convertToLogOption."
+      }
+    ]
+  },
+  "rows": [
+    {
+      "targetIndex": 8727,
+      "start": 6926389,
+      "end": 6940343,
+      "nodeType": "VariableDeclaration",
+      "sourceHash": "78bfec3dd67c540fc757fa331b88af529a014780ef05e891cdeead58931bc6cb",
+      "structuralClass": "unresolved",
+      "disposition": "source-runtime-covered",
+      "ownerIds": [
+        "owner-permission-prompt-assets",
+        "owner-permission-classifier-wiring"
+      ],
+      "evidenceIds": [
+        "evidence-prompts-skills-target-fragments",
+        "evidence-prompts-skills-source-test"
+      ],
+      "behavior": "The external permission template is loaded byte-for-byte after removing the one patch-carried trailing newline; the companion base prompt is independently pinned to matched target unit 8726."
+    },
+    {
+      "targetIndex": 8765,
+      "start": 6953835,
+      "end": 6954382,
+      "nodeType": "VariableDeclaration",
+      "sourceHash": "259ecbfd94b3544e43f854a9619d0a59596df5fd3c110cea4abd982d27868442",
+      "structuralClass": "unresolved",
+      "disposition": "source-runtime-covered",
+      "ownerIds": [
+        "owner-permission-classifier-wiring"
+      ],
+      "evidenceIds": [
+        "evidence-prompts-skills-target-fragments",
+        "evidence-prompts-skills-source-test"
+      ],
+      "behavior": "All three XML classifier suffixes are exact; two-stage mode uses the strict Stage 1 suffix while fast-only mode uses the short suffix and Stage 2 uses the review suffix."
+    },
+    {
+      "targetIndex": 12314,
+      "start": 9552764,
+      "end": 9557650,
+      "nodeType": "VariableDeclaration",
+      "sourceHash": "c6d35b1ce4552297fd672703dfd6617b08dfac09530430e94c20b4516a56da55",
+      "structuralClass": "unresolved",
+      "disposition": "source-runtime-covered",
+      "ownerIds": [
+        "owner-computer-use-prompt",
+        "owner-computer-use-prompt-gate"
+      ],
+      "evidenceIds": [
+        "evidence-prompts-skills-target-fragments",
+        "evidence-prompts-skills-source-test"
+      ],
+      "behavior": "The exact computer-use guidance is synthesized as a client-side instruction and announced only when the computer-use MCP server is connected; unlike the Chrome hint, adding the candidate is not ToolSearch-gated."
+    },
+    {
+      "targetIndex": 17789,
+      "start": 12492630,
+      "end": 12503472,
+      "nodeType": "VariableDeclaration",
+      "sourceHash": "bec547b3d3fc3644482e2ac9c3b52ea94064d91a940018c050ebdf4521499786",
+      "structuralClass": "unresolved",
+      "disposition": "source-runtime-covered",
+      "ownerIds": [
+        "owner-update-config-skill"
+      ],
+      "evidenceIds": [
+        "evidence-prompts-skills-target-fragments",
+        "evidence-prompts-skills-source-test"
+      ],
+      "behavior": "Settings examples, hooks documentation, and hook-verification flow reproduce all three cooked literals; update-config remains user-invocable, Read-only, and preserves its hooks-only command path."
+    },
+    {
+      "targetIndex": 17854,
+      "start": 12711729,
+      "end": 12721546,
+      "nodeType": "VariableDeclaration",
+      "sourceHash": "308e313f079beb3f69a91801aaee98a1e7f6e6c0cc08808b926268c8c1801ddb",
+      "structuralClass": "unresolved",
+      "disposition": "source-runtime-covered",
+      "ownerIds": [
+        "owner-prompt-caching-asset",
+        "owner-claude-api-content-map"
+      ],
+      "evidenceIds": [
+        "evidence-prompts-skills-target-fragments",
+        "evidence-prompts-skills-source-test"
+      ],
+      "behavior": "The prompt-caching Markdown is byte-identical to the cooked bundle literal and remains registered under shared/prompt-caching.md in the Claude API skill file map."
+    }
+  ]
+}

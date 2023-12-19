@@ -1,0 +1,5 @@
+unexpected diagnostics: 0
+authenticated target-owned trailing whitespace: 5
+assistant install template: lines 237, 241
+Ultraplan simple prompt: lines 4, 6; SHA-256 fcc87324ab75d5e840b55c7791395420c072d9b3440341fd639e8d6ccd212452
+Ultraplan visual prompt: line 4; SHA-256 90e2da95138e86b9c24272b6eec0c0023ad52873aff6552ad98a42128c44e56d

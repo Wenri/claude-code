@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "release": "2.1.121",
+  "scope": "owned MCP/plugin/hook cluster",
+  "authenticated_baseline": {
+    "artifact": "2.1.120-linux-x64/cli.inner.js",
+    "bytes": 13784743,
+    "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+  },
+  "authenticated_target": {
+    "artifact": "2.1.121-linux-x64/cli.inner.js",
+    "bytes": 13908188,
+    "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+  },
+  "tag": {
+    "name": "v2.1.121",
+    "commit": "158620419486e3d2d696351d5a71fbd6b8f58653",
+    "direct_parent": "v2.1.120"
+  },
+  "owned_bullets": [1, 2, 4, 11, 13, 17, 28, 30],
+  "rows": [
+    {
+      "bullet": 1,
+      "test_id": "official-2.1.121-b01",
+      "changelog": "Added `alwaysLoad` option to MCP server config — when `true`, all tools from that server skip tool-search deferral and are always available",
+      "classification": "active-source",
+      "normalized_witness": "target normalized statement 19967 maps server-level alwaysLoad OR per-tool metadata into fetched MCP tools; SDK config schema descriptions are emitted in the schema block",
+      "artifact_fragments": [
+        { "fragment": "alwaysLoad", "baseline_count": 6, "target_count": 22 },
+        { "fragment": "When true, all tools from this server are always included in the prompt", "baseline_count": 0, "target_count": 3 }
+      ],
+      "source": [
+        { "path": "src/services/mcp/types.ts", "includes": ["alwaysLoad: z.boolean().optional()"] },
+        { "path": "src/services/mcp/client.ts", "includes": ["client.config.alwaysLoad === true ||", "alwaysLoadCount: count(tools, tool => tool.alwaysLoad === true)"] },
+        { "path": "src/entrypoints/sdk/coreSchemas.ts", "includes": ["Equivalent to setting defer_loading: false on the API"] },
+        { "path": "src/entrypoints/agentSdkTypes.ts", "includes": ["alwaysLoad?: boolean"] }
+      ]
+    },
+    {
+      "bullet": 2,
+      "test_id": "official-2.1.121-b02",
+      "changelog": "Added `claude plugin prune` to remove orphaned auto-installed plugin dependencies; `plugin uninstall --prune` cascades",
+      "classification": "active-source",
+      "normalized_witness": "target normalized statements 10523-10524 compute reachability and the post-uninstall hint; 11025 prunes registry/settings/cache/data; 30829-30834 render dry-run/TTY confirmation; 40673 wires the command",
+      "artifact_fragments": [
+        { "fragment": "Nothing to prune (no auto-installed plugins at ", "baseline_count": 0, "target_count": 1 }
+      ],
+      "source": [
+        { "path": "src/utils/plugins/dependencyResolver.ts", "includes": ["findOrphanedAutoDependencies", "formatOrphanedAutoDependenciesHint"] },
+        { "path": "src/services/plugins/pluginOperations.ts", "includes": ["pruneOrphanedAutoDependencies", "pruneOrphanedAutoDeps: settings write failed"] },
+        { "path": "src/services/plugins/pluginCliCommands.ts", "includes": ["Nothing to prune (no auto-installed plugins", "Not a TTY — run", "tengu_plugin_prune_cli"] },
+        { "path": "src/main.tsx", "includes": ["command('prune').alias('autoremove')", ".option('--prune'", ".option('-y, --yes'"] }
+      ]
+    },
+    {
+      "bullet": 4,
+      "test_id": "official-2.1.121-b04",
+      "changelog": "PostToolUse hooks can now replace tool output for all tools via `hookSpecificOutput.updatedToolOutput` (previously MCP-only)",
+      "classification": "active-source",
+      "normalized_witness": "target normalized statements 12343, 17214, 17230 and 28137/28166 cover schema, REPL wrapper, ordinary-tool validation/remap, JSON parsing and deprecated-field precedence",
+      "artifact_fragments": [
+        { "fragment": "updatedToolOutput", "baseline_count": 0, "target_count": 22 },
+        { "fragment": "PostToolUse hook returned updatedToolOutput that does not match", "baseline_count": 0, "target_count": 2 }
+      ],
+      "source": [
+        { "path": "src/types/hooks.ts", "includes": ["updatedToolOutput", "Prefer updatedToolOutput, which works for all tools"] },
+        { "path": "src/utils/hooks.ts", "includes": ["result.updatedToolOutput !== undefined", "result.updatedToolOutput === undefined"] },
+        { "path": "src/services/tools/toolExecution.ts", "includes": ["toolOutputWasUpdated", "mapper returned undefined", "using original output"] },
+        { "path": "src/tools/REPLTool/toolWrappers.ts", "includes": ["'updatedToolOutput' in hookResult", "tool.outputSchema?.safeParse"] }
+      ]
+    },
+    {
+      "bullet": 11,
+      "test_id": "official-2.1.121-b11",
+      "changelog": "MCP servers that hit a transient error during startup now auto-retry up to 3 times instead of staying disconnected",
+      "classification": "active-source",
+      "normalized_witness": "target normalized statement 19967 preserves connection error codes and statement 23015 schedules three exponential-backoff initial retries for remote transports behind tengu_mcp_retry_failed_remote",
+      "artifact_fragments": [
+        { "fragment": "Initial-connect retry ", "baseline_count": 0, "target_count": 1 },
+        { "fragment": "tengu_mcp_retry_failed_remote", "baseline_count": 1, "target_count": 2 }
+      ],
+      "source": [
+        { "path": "src/services/mcp/client.ts", "includes": ["const errorCode =", "errorCode,"] },
+        { "path": "src/services/mcp/types.ts", "includes": ["errorCode?: string"] },
+        { "path": "src/services/mcp/useManageMCPConnections.ts", "includes": ["MAX_INITIAL_CONNECT_RETRIES = 3", "TRANSIENT_INITIAL_CONNECT_ERROR_CODES", "Initial-connect retry ${attempt} threw"] }
+      ]
+    },
+    {
+      "bullet": 13,
+      "test_id": "official-2.1.121-b13",
+      "changelog": "Claude.ai connectors with the same upstream URL are now deduplicated instead of appearing as duplicates",
+      "classification": "active-source",
+      "normalized_witness": "target normalized statement 14631 normalizes trailing slashes, keeps the first connector per upstream, and separately suffixes true display-name collisions",
+      "artifact_fragments": [
+        { "fragment": "Dropping duplicate upstream", "baseline_count": 0, "target_count": 1 },
+        { "fragment": "Display-name collision on distinct upstreams", "baseline_count": 0, "target_count": 1 }
+      ],
+      "source": [
+        { "path": "src/services/mcp/claudeai.ts", "includes": ["normalizeUpstreamUrl", "serversByUpstream", "Dropping duplicate upstream", "Display-name collision on distinct upstreams"] }
+      ]
+    },
+    {
+      "bullet": 17,
+      "test_id": "official-2.1.121-b17",
+      "changelog": "SDK: `mcp_authenticate` now supports `redirectUri` for custom scheme completion and claude.ai connectors",
+      "classification": "active-source-native-boundary",
+      "normalized_witness": "target normalized statement 19802 runs custom redirects without a localhost listener and exposes callback port/state; print/bridge handlers fall back to localhost when the AS rejects the URI and route claude.ai connectors to their web auth URL",
+      "boundary_note": "The public SDK method declaration/runtime wrapper is emitted by the external Agent SDK package; this tree implements the CLI control request endpoint and OAuth flow it calls.",
+      "artifact_fragments": [
+        { "fragment": "Using custom redirectUri:", "baseline_count": 0, "target_count": 1 },
+        { "fragment": "redirectScheme", "baseline_count": 0, "target_count": 2 },
+        { "fragment": "AS rejected custom redirectUri", "baseline_count": 0, "target_count": 2 }
+      ],
+      "source": [
+        { "path": "src/services/mcp/auth.ts", "includes": ["redirectUri?: string", "Using custom redirectUri", "getMcpOAuthCallbackSubmitter", "onWaitingForCallback?.(submit, port, oauthState)"] },
+        { "path": "src/services/mcp/claudeai.ts", "includes": ["buildClaudeAiMcpAuthUrl", "/mcp/start-auth/"] },
+        { "path": "src/cli/print.ts", "includes": ["buildClaudeAiMcpAuthUrl(config)", "redirectScheme", "falling back to localhost"] }
+      ]
+    },
+    {
+      "bullet": 28,
+      "test_id": "official-2.1.121-b28",
+      "changelog": "Fixed Microsoft 365 MCP OAuth failing with duplicate or unsupported `prompt` parameter",
+      "classification": "active-source",
+      "normalized_witness": "target normalized statement 19804 collapses duplicate prompt query parameters, preferring consent when present and otherwise retaining the last value",
+      "artifact_fragments": [
+        { "fragment": "getAll(\"prompt\")", "baseline_count": 0, "target_count": 1 }
+      ],
+      "source": [
+        { "path": "src/services/mcp/auth.ts", "includes": ["searchParams.getAll('prompt')", "promptValues.includes('consent') ? 'consent' : promptValues.at(-1)!"] }
+      ]
+    },
+    {
+      "bullet": 30,
+      "test_id": "official-2.1.121-b30",
+      "changelog": "Fixed claude.ai MCP connectors silently disappearing when the connector-list fetch hits a transient auth error at startup",
+      "classification": "active-source",
+      "normalized_witness": "target normalized statement 14631 refreshes before fetch, retries a 401 with the latest token, reports failure status, and clears the rejected memoized result so startup can retry",
+      "artifact_fragments": [
+        { "fragment": "[claudeai-mcp] Fetch failed (", "baseline_count": 0, "target_count": 1 }
+      ],
+      "source": [
+        { "path": "src/services/mcp/claudeai.ts", "includes": ["await checkAndRefreshOAuthTokenIfNeeded()", "withOAuth401Retry", "getClaudeAIOAuthTokens()?.accessToken ?? tokens.accessToken", "fetchClaudeAIMcpConfigsIfEligible.cache.clear?.()", "state:", "'fetch_failed'"] }
+      ]
+    }
+  ]
+}

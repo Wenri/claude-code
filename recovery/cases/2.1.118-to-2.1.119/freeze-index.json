@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "kind": "authenticated-non-source-recovery-freeze",
+  "files": [
+    {
+      "path": "binary-extraction/bun-graph.txt",
+      "bytes": 2627,
+      "sha256": "d5fa90ed0380e70e2a24c13fafafa6dc1519f75e2fe9bcbe5b50a56d542ef5be"
+    },
+    {
+      "path": "binary-extraction/inventory.json",
+      "bytes": 6326,
+      "sha256": "120ee3327bfebe45f91463e8999472440cbeb29b22bc7524a82a555c0c379ce0"
+    },
+    {
+      "path": "binary-extraction/native-package-members.json",
+      "bytes": 5306,
+      "sha256": "6b98884bf845158dc8c9b3081263b54164cf8d70dd61f71bd1d26bf0cc1b6892"
+    },
+    {
+      "path": "diff/audio-capture.js.zstd-delta",
+      "bytes": 26,
+      "sha256": "4cf4358a59881b64b77e6f06242c7566c62b562018335289976df75d5539b062"
+    },
+    {
+      "path": "diff/cli.js.zstd-delta",
+      "bytes": 2355651,
+      "sha256": "fa7164204ea9b73c965efedd32c67ee06129dca739a2480be4b2a248bf30f910"
+    },
+    {
+      "path": "diff/image-processor.js.zstd-delta",
+      "bytes": 26,
+      "sha256": "a7f7089301677ec7ce8eda02d962d08e7668057badbd850a6e9bf85769a3e090"
+    },
+    {
+      "path": "diff/metadata.json",
+      "bytes": 2184,
+      "sha256": "4fddcbcfcbb967cb5c93d11effd2c582fd21e62e7024e049f0db75321edfb933"
+    },
+    {
+      "path": "diff/package.json.zstd-delta",
+      "bytes": 55,
+      "sha256": "ea6d8b0f59c089e3d839be02841f46fba5ca2fe5f14d323fcd06c4fd507e9cda"
+    },
+    {
+      "path": "evidence/CHANGELOG-2.1.119.md",
+      "bytes": 5230,
+      "sha256": "e405e0f28fb99cbcf35c7ad6381d6b2e1fd204870400ec5d349b8a069f205eb9"
+    },
+    {
+      "path": "evidence/claude-code-CHANGELOG-ab3ce06c.md",
+      "bytes": 255309,
+      "sha256": "88d929d9b71befc31ce318a9425d721b671ff5d8ca23cc4d0275f8e7244bb88a"
+    },
+    {
+      "path": "evidence/provenance.json",
+      "bytes": 5503,
+      "sha256": "ef5888321413a7fbf5c6865debe9850a9fdadb058225ac41255d7df62570d178"
+    },
+    {
+      "path": "package-members.json",
+      "bytes": 6745,
+      "sha256": "53f8d4fe8753e0354c5e133531f94b0bef885d571c3a1bf0b7101470e6525687"
+    }
+  ],
+  "summary": {
+    "files": 12,
+    "bytes": 2644988
+  }
+}

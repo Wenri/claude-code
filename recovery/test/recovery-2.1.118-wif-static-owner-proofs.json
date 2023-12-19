@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.117-to-2.1.118",
+  "status": "authenticated-wif-static-source-owner",
+  "evidenceIds": [
+    "target118-wif-static-owner-target-fragment",
+    "target118-wif-static-owner-source-ast-test"
+  ],
+  "inputs": {
+    "targetBundle": {
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "sourceFile": {
+      "sourcePath": "src/services/api/workloadIdentity.ts",
+      "bytes": 33328,
+      "sha256": "3b25f31adde775ee931663a9ec3c10cdd7ed293ed4e368bc60378c3fa47c0c96"
+    }
+  },
+  "summary": {
+    "units": 1,
+    "residues": 2,
+    "indicesSha256": "1b4747b90a55a696654589eb700a113970a700214eeabc2295a2ed730c0b205b",
+    "residueIdentitiesSha256": "35881a70b6dd11f35b77480f73c9678c527c4b24e047c4640ef383784c232c60"
+  },
+  "row": {
+    "targetIndex": 4689,
+    "provisionalOwnerPath": "src/utils/model/model.ts",
+    "ownerPath": "src/services/api/workloadIdentity.ts",
+    "target": {
+      "start": 2095067,
+      "end": 2095534,
+      "bytes": 467,
+      "nodeType": "ExpressionStatement",
+      "sourceHash": "c55caee8fac0931001af34ce65b58f93eb7c46e091dc55102bd81e19d18e8a0c"
+    },
+    "residues": [
+      [
+        "property",
+        "withCredentialsLock",
+        2095075,
+        2095094,
+        0,
+        1
+      ],
+      [
+        "property",
+        "getWIFAuthType",
+        2095346,
+        2095360,
+        0,
+        1
+      ]
+    ],
+    "declarations": [
+      {
+        "name": "withCredentialsLock",
+        "targetBinding": "vV$",
+        "targetDeclaration": {
+          "start": 2094409,
+          "end": 2094633,
+          "bytes": 224,
+          "sha256": "c180106af8675bc6f8d0a3bcd0665d4534ecfb05b21c392f272a754d0ab2cad6"
+        },
+        "sourceDeclaration": {
+          "start": 29052,
+          "end": 29586,
+          "bytes": 534,
+          "sha256": "457db4bd1fc00d06a735dca041c2d901bbfd3b274a5679e2f8bbe1f7d23aaf88"
+        },
+        "targetMarkers": [
+          "tengu_wif_user_oauth_lock_acquired",
+          "tengu_wif_user_oauth_lock_released"
+        ],
+        "sourceMarkers": [
+          "acquireCredentialsLock(dirname(credentialsPath))",
+          "logEvent('tengu_wif_user_oauth_lock_acquired'",
+          "logEvent('tengu_wif_user_oauth_lock_released'",
+          "await provider(options)",
+          "await release()"
+        ]
+      },
+      {
+        "name": "getWIFAuthType",
+        "targetBinding": "qy8",
+        "targetDeclaration": {
+          "start": 1924350,
+          "end": 1924658,
+          "bytes": 308,
+          "sha256": "598a6822a03cf3ac4bccb5380fd406f1dbf05bc1053ae3705b2f27531887398e"
+        },
+        "sourceDeclaration": {
+          "start": 7322,
+          "end": 7797,
+          "bytes": 475,
+          "sha256": "edcfe48d9cad7f5a240274d8e4fda931be757cedd4591ad77b565188d554b61b"
+        },
+        "targetMarkers": [
+          "env-quad",
+          "oidc_federation",
+          "profile-explicit",
+          "ANTHROPIC_PROFILE",
+          "user_oauth"
+        ],
+        "sourceMarkers": [
+          "getWIFPrecedenceSource()",
+          "source === 'env-quad'",
+          "return 'oidc_federation'",
+          "source === 'profile-explicit'",
+          "env('ANTHROPIC_PROFILE')",
+          "getProfileAuthType(join(configDir, 'configs'"
+        ]
+      }
+    ],
+    "behavior": "The authenticated Target118 workload-identity export registry binds withCredentialsLock and getWIFAuthType to the exact historical source declarations; the two target-added property residues are module-export lowering, and the provisional utils/model/model.ts owner is rejected."
+  }
+}
