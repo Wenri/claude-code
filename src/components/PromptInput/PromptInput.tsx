@@ -1506,16 +1506,10 @@ function PromptInput({
   }, [clearScreenShortcut, clearDoublePress]);
   useExternalClearDetection(handleClearScreen);
   const handleClearInput = useCallback(() => {
-    trackAndSetInput('');
-    setCursorOffset(0);
-    clearBuffer();
-    resetHistory();
-    onModeChange('prompt');
-    setPastedContents({});
     setRedrawVersion(version => version + 1);
     clearActionShortcutRef.current = clearInputShortcut;
     clearDoublePress();
-  }, [trackAndSetInput, clearBuffer, resetHistory, onModeChange, setPastedContents, clearInputShortcut, clearDoublePress]);
+  }, [clearInputShortcut, clearDoublePress]);
 
   // Handler for chat:modelPicker - toggle model picker
   const showRemoteFastModeUnavailable = useCallback(() => {

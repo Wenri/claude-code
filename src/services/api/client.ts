@@ -566,6 +566,13 @@ export class StreamIdleTimeoutError extends Error {
   }
 }
 
+export function getStreamIdleTimeoutMs(): number {
+  return Math.max(
+    Number(process.env.CLAUDE_STREAM_IDLE_TIMEOUT_MS) || 0,
+    300_000,
+  )
+}
+
 function getVerboseRequestAuthDetails(headers: Headers): {
   auth: string
   headers: Record<string, string>
@@ -760,12 +767,8 @@ function buildFetch(
       response.headers.get('content-type')?.includes('text/event-stream') &&
       isByteWatchdogEnabled()
     ) {
-      const idleMs = Math.max(
-        parseInt(process.env.CLAUDE_STREAM_IDLE_TIMEOUT_MS || '', 10) || 90000,
-        300000,
-      )
       const wrappedResponse = new Response(
-        addStreamIdleTimeout(response.body, idleMs),
+        addStreamIdleTimeout(response.body, getStreamIdleTimeoutMs()),
         response,
       )
       Object.defineProperty(wrappedResponse, 'url', { value: response.url })

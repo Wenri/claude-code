@@ -249,6 +249,7 @@ import { withStreamingVCR, withVCR } from '../vcr.js'
 import {
   CLIENT_REQUEST_ID_HEADER,
   getAnthropicClient,
+  getStreamIdleTimeoutMs,
   StreamIdleTimeoutError,
 } from './client.js'
 import {
@@ -2308,8 +2309,7 @@ async function* queryModel(
     const streamWatchdogEnabled = isEnvTruthy(
       process.env.CLAUDE_ENABLE_STREAM_WATCHDOG,
     )
-    const STREAM_IDLE_TIMEOUT_MS =
-      parseInt(process.env.CLAUDE_STREAM_IDLE_TIMEOUT_MS || '', 10) || 90_000
+    const STREAM_IDLE_TIMEOUT_MS = getStreamIdleTimeoutMs()
     const STREAM_IDLE_WARNING_MS = STREAM_IDLE_TIMEOUT_MS / 2
     let streamIdleAborted = false
     // performance.now() snapshot when watchdog fires, for measuring abort propagation delay
