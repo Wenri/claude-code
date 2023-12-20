@@ -7,7 +7,7 @@ import { getOriginalCwd, getSessionId } from '../../bootstrap/state.js';
 import type { CommandResultDisplay, ResumeEntrypoint } from '../../commands.js';
 import { LogSelector } from '../../components/LogSelector.js';
 import { MessageResponse } from '../../components/MessageResponse.js';
-import { Spinner } from '../../components/Spinner.js';
+import { LoadingState } from '../../components/design-system/LoadingState.js';
 import { useIsInsideModal } from '../../context/modalContext.js';
 import { useTerminalSize } from '../../hooks/useTerminalSize.js';
 import { setClipboard } from '../../ink/termio/osc.js';
@@ -175,16 +175,10 @@ function ResumeCommand({
     });
   }
   if (loading) {
-    return <Box>
-        <Spinner />
-        <Text> Loading conversations…</Text>
-      </Box>;
+    return <LoadingState message="Loading conversations…" />;
   }
   if (resuming) {
-    return <Box>
-        <Spinner />
-        <Text> Resuming conversation…</Text>
-      </Box>;
+    return <LoadingState message="Resuming conversation…" />;
   }
   return <LogSelector logs={logs} maxHeight={insideModal ? Math.floor(rows / 2) : rows - 2} onCancel={handleCancel} onSelect={handleSelect} onLogsChanged={() => loadLogs(showAllProjects, worktreePaths)} showAllProjects={showAllProjects} onToggleAllProjects={handleToggleAllProjects} onAgenticSearch={agenticSessionSearch} />;
 }

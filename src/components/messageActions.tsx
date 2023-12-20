@@ -323,9 +323,9 @@ export function MessageActionsBar(t0) {
     T0 = Box;
     t1 = 2;
     t2 = 1;
-    t3 = applicable.map((a_0, i) => {
+    t3 = applicable.map(a_0 => {
       const label = typeof a_0.label === "function" ? a_0.label(cursor) : a_0.label;
-      return <React.Fragment key={a_0.key}>{i > 0 && <Text dimColor={true}> · </Text>}<Text bold={true} dimColor={false}>{a_0.key}</Text><Text dimColor={true}> {label}</Text></React.Fragment>;
+      return <React.Fragment key={a_0.key}><Text bold={true} dimColor={false}>{a_0.key}</Text><Text dimColor={true}> {label}</Text></React.Fragment>;
     });
     $[0] = cursor;
     $[1] = T0;
@@ -348,32 +348,20 @@ export function MessageActionsBar(t0) {
     t6 = $[8];
     t7 = $[9];
   }
-  let t10;
-  let t11;
-  let t12;
   let t8;
   let t9;
   if ($[11] === Symbol.for("react.memo_cache_sentinel")) {
-    t8 = <Text dimColor={true}> · </Text>;
-    t9 = <Text bold={true} dimColor={false}>{figures.arrowUp}{figures.arrowDown}</Text>;
-    t10 = <Text dimColor={true}> navigate · </Text>;
-    t11 = <Text bold={true} dimColor={false}>esc</Text>;
-    t12 = <Text dimColor={true}> back</Text>;
-    $[11] = t10;
-    $[12] = t11;
-    $[13] = t12;
-    $[14] = t8;
-    $[15] = t9;
+    t8 = <React.Fragment><Text bold={true} dimColor={false}>{figures.arrowUp}{figures.arrowDown}</Text><Text dimColor={true}> navigate</Text></React.Fragment>;
+    t9 = <React.Fragment><Text bold={true} dimColor={false}>esc</Text><Text dimColor={true}> back</Text></React.Fragment>;
+    $[11] = t8;
+    $[12] = t9;
   } else {
-    t10 = $[11];
-    t11 = $[12];
-    t12 = $[13];
-    t8 = $[14];
-    t9 = $[15];
+    t8 = $[11];
+    t9 = $[12];
   }
   let t13;
   if ($[16] !== T0 || $[17] !== t1 || $[18] !== t2 || $[19] !== t3) {
-    t13 = <T0 paddingX={t1} paddingY={t2}>{t3}{t8}{t9}{t10}{t11}{t12}</T0>;
+    t13 = <T0 paddingX={t1} paddingY={t2}>{t3}{t8}{t9}</T0>;
     $[16] = T0;
     $[17] = t1;
     $[18] = t2;

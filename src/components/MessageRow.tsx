@@ -30,7 +30,7 @@ export type Props = {
   streamingToolUseIDs: Set<string>;
   screen: Screen;
   canAnimate: boolean;
-  onOpenRateLimitOptions?: () => void;
+  onOpenRateLimitOptions?: () => boolean;
   lastThinkingBlockId: string | null;
   latestBashOutputUUID: string | null;
   columns: number;

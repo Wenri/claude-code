@@ -3,7 +3,7 @@
  */
 
 import axios from 'axios'
-import { OAUTH_BETA_HEADER } from '../constants/oauth.js'
+import { isWIFActive, OAUTH_BETA_HEADER } from '../constants/oauth.js'
 import {
   getAnthropicApiKey,
   getClaudeAIOAuthTokens,

@@ -45,6 +45,54 @@ export function clearAllDumpState(): void {
   dumpState.clear()
 }
 
+/**
+ * Keep prompt dumps useful without copying large inline media payloads into
+ * every JSONL record. This mirrors the bundled request sanitizer: it only
+ * rewrites content blocks and preserves the rest of the request verbatim.
+ */
+function sanitizeDumpPromptRequest(
+  request: Record<string, unknown>,
+): Record<string, unknown> {
+  if (!Array.isArray(request.messages)) return request
+  return {
+    ...request,
+    messages: request.messages.map(message => {
+      if (!message || typeof message !== 'object') return message
+      const record = message as Record<string, unknown>
+      if (!Array.isArray(record.content)) return message
+      return {
+        ...record,
+        content: record.content.map(sanitizeDumpPromptContent),
+      }
+    }),
+  }
+}
+
+function sanitizeDumpPromptContent(content: unknown): unknown {
+  if (!content || typeof content !== 'object') return content
+  const record = content as Record<string, unknown>
+  const source = record.source
+  if (source && typeof source === 'object') {
+    const sourceRecord = source as Record<string, unknown>
+    if (typeof sourceRecord.data === 'string' && sourceRecord.data.length > 256) {
+      return {
+        ...record,
+        source: {
+          ...sourceRecord,
+          data: `[${sourceRecord.data.length} base64 chars]`,
+        },
+      }
+    }
+  }
+  if (Array.isArray(record.content)) {
+    return {
+      ...record,
+      content: record.content.map(sanitizeDumpPromptContent),
+    }
+  }
+  return content
+}
+
 export function addApiRequestToCache(requestData: unknown): void {
   if (process.env.USER_TYPE !== 'ant') return
   cachedApiRequests.push({

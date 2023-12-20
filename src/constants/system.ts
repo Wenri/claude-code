@@ -83,6 +83,7 @@ export function getAttributionHeader(fingerprint: string): string {
   const cch =
     feature('NATIVE_CLIENT_ATTESTATION') &&
     provider !== 'bedrock' &&
+    provider !== 'anthropicAws' &&
     provider !== 'mantle'
       ? ' cch=00000;'
       : ''

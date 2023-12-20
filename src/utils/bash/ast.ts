@@ -2963,7 +2963,12 @@ export function checkSemantics(commands: SimpleCommand[]): SemanticCheckResult {
       // `command -v foo` / `command -V foo` are POSIX existence checks that
       // only print paths — they never execute argv[1]. Bare `command foo`
       // does bypass function/alias lookup (the concern), so keep blocking it.
-      if (name === 'command' && (a[1] === '-v' || a[1] === '-V')) {
+      if (
+        name === 'command' &&
+        (a[1] === '-v' ||
+          a[1] === '-V' ||
+          (a[1] === '-p' && (a[2] === '-v' || a[2] === '-V')))
+      ) {
         // fall through to remaining checks
       } else if (
         name === 'fc' &&

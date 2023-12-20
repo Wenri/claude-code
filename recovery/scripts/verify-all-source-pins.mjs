@@ -25,11 +25,11 @@ const LEGACY_T119_TARGET_SRC_GIT_TREE = '9e807992d428e7e23a0ad96e3a53e286d372afd
 // (unexported there); each is the sealed public-repo head a later-release
 // verifier requires, so an archive clone must keep all five reachable.
 const EXPECTED_CARRIER_HEADS = Object.freeze({
-  '2.1.120-to-2.1.121': '4593ba568ee2e840e1a0e3fdfd3b2a9fa51d2d45',
-  '2.1.121-to-2.1.122': 'a5a1ed2ac4dadc71fede364c128441a951cd067c',
-  '2.1.122-to-2.1.123': '8e378de1d91d6baaa6023c613304e1838af30b5d',
-  '2.1.123-to-2.1.124': 'b40c82639862d0b976b20d45a11a40c39afad275',
-  '2.1.124-to-2.1.126': '09f32af45bf8e2882404bb5677e697cf99dd733b',
+  '2.1.120-to-2.1.121': '3c0bae6622c3b96e14ab8405427642bac0b1a789',
+  '2.1.121-to-2.1.122': '2e2e9c13b82c017a16fc2324d54f5a4e644c99d3',
+  '2.1.122-to-2.1.123': 'cc5bd99d2d855ecc86b8a5aa72e6ed4bac6bb830',
+  '2.1.123-to-2.1.124': 'ea06188a7537fafd8c21714213e51b6996da89ab',
+  '2.1.124-to-2.1.126': '19b2f2d5898e028dca36ad80b5e524dedc42c768',
 })
 
 function parseArguments(argv) {

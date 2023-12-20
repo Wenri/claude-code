@@ -243,7 +243,7 @@ export class InProcessBackend implements TeammateExecutor {
     )
 
     // Mark the task as shutdown requested
-    requestTeammateShutdown(task.id, this.context.setAppState)
+    requestTeammateShutdown(task.id, this.context.taskRegistry)
 
     logForDebugging(
       `[InProcessBackend] terminate() sent shutdown request to ${agentId}`,
@@ -280,7 +280,11 @@ export class InProcessBackend implements TeammateExecutor {
     }
 
     // Kill the teammate via the existing helper function
-    const killed = killInProcessTeammate(task.id, this.context.setAppState)
+    const killed = killInProcessTeammate(
+      task.id,
+      this.context.taskRegistry,
+      this.context.setAppState,
+    )
 
     logForDebugging(
       `[InProcessBackend] kill() ${killed ? 'succeeded' : 'failed'} for ${agentId}`,

@@ -11,7 +11,7 @@
     "predecessorManifest": {
       "path": "recovery/cases/2.1.118-to-2.1.119/manifest.json",
       "bytes": 360450,
-      "sha256": "dc9331f65f4d02a3d08755662b97b1f87ae13ffffd5e27a78fb07525a4621677"
+      "sha256": "fe6ea61ec48d21ca4950cdb14ccf4fbdbecaa3fbb1a2b56e24009059f99b7008"
     }
   },
   "recoveryScope": {
@@ -7002,7 +7002,7 @@
     {
       "path": "recovered/source-freeze/SHA256SUMS",
       "bytes": 1244,
-      "sha256": "c8b03711cc1526a47581359f0f5d449d120f4a4f380013052e8bd5ff74cd60d7"
+      "sha256": "edecde6725e16debf487467a47d0f24e9f766f0199f1387b36c468b709bb5803"
     },
     {
       "path": "recovered/source-freeze/adjacent-direct-evidence.sha256",
@@ -7047,7 +7047,7 @@
     {
       "path": "recovered/source-freeze/source-files.sha256",
       "bytes": 213337,
-      "sha256": "b73533aba2f99b92080b4e2bbb03dd77c509caf37d04cabb99dd7ff74f64d4e3"
+      "sha256": "200c702b93c707f9cd683b17f1604f07e6860a89e950e3fa295f5951d9cb7a55"
     },
     {
       "path": "recovered/source-freeze/source-numstat.tsv",
@@ -7454,7 +7454,7 @@
       {
         "path": "recovered/source-freeze/SHA256SUMS",
         "bytes": 1244,
-        "sha256": "c8b03711cc1526a47581359f0f5d449d120f4a4f380013052e8bd5ff74cd60d7"
+        "sha256": "edecde6725e16debf487467a47d0f24e9f766f0199f1387b36c468b709bb5803"
       },
       {
         "path": "recovered/source-freeze/adjacent-direct-evidence.sha256",
@@ -7499,7 +7499,7 @@
       {
         "path": "recovered/source-freeze/source-files.sha256",
         "bytes": 213337,
-        "sha256": "b73533aba2f99b92080b4e2bbb03dd77c509caf37d04cabb99dd7ff74f64d4e3"
+        "sha256": "200c702b93c707f9cd683b17f1604f07e6860a89e950e3fa295f5951d9cb7a55"
       },
       {
         "path": "recovered/source-freeze/source-numstat.tsv",
@@ -7682,7 +7682,7 @@
       {
         "path": "recovered/source-freeze/SHA256SUMS",
         "bytes": 1244,
-        "sha256": "c8b03711cc1526a47581359f0f5d449d120f4a4f380013052e8bd5ff74cd60d7"
+        "sha256": "edecde6725e16debf487467a47d0f24e9f766f0199f1387b36c468b709bb5803"
       },
       {
         "path": "recovered/source-freeze/adjacent-direct-evidence.sha256",
@@ -7727,7 +7727,7 @@
       {
         "path": "recovered/source-freeze/source-files.sha256",
         "bytes": 213337,
-        "sha256": "b73533aba2f99b92080b4e2bbb03dd77c509caf37d04cabb99dd7ff74f64d4e3"
+        "sha256": "200c702b93c707f9cd683b17f1604f07e6860a89e950e3fa295f5951d9cb7a55"
       },
       {
         "path": "recovered/source-freeze/source-numstat.tsv",

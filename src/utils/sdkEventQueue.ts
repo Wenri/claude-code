@@ -1,6 +1,7 @@
 import type { UUID } from 'crypto'
 import { randomUUID } from 'crypto'
 import { getIsNonInteractiveSession, getSessionId } from '../bootstrap/state.js'
+import type { TaskStatus } from '../Task.js'
 import type { SdkWorkflowProgress } from '../types/tools.js'
 
 type TaskStartedEvent = {
@@ -32,6 +33,20 @@ type TaskProgressEvent = {
   // `${type}:${index}` then group by phaseIndex to rebuild the phase tree,
   // same fold as collectFromEvents + groupByPhase in PhaseProgress.tsx.
   workflow_progress?: SdkWorkflowProgress[]
+}
+
+type TaskUpdatedEvent = {
+  type: 'system'
+  subtype: 'task_updated'
+  task_id: string
+  patch: {
+    status?: TaskStatus
+    description?: string
+    end_time?: number
+    total_paused_ms?: number
+    error?: string
+    is_backgrounded?: boolean
+  }
 }
 
 // Emitted when a foreground agent completes without being backgrounded.
@@ -94,8 +109,10 @@ type NotificationEvent = {
 
 export type SdkEvent =
   | TaskStartedEvent
+  | TaskUpdatedEvent
   | TaskProgressEvent
   | TaskNotificationSdkEvent
+  | NotificationSdkEvent
   | SessionStateChangedEvent
   | PostTurnSummaryEvent
   | TaskSummaryEvent

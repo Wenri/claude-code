@@ -24,6 +24,7 @@ export function eagerParseCliFlag(
     if (arg === flagName && i + 1 < argv.length) {
       return argv[i + 1]
     }
+    if (arg !== undefined && CLI_FLAGS_WITH_VALUES.has(arg)) i++
   }
   return undefined
 }
@@ -58,3 +59,13 @@ export function extractArgsAfterDoubleDash(
   }
   return { command: commandOrValue, args }
 }
+const CLI_FLAGS_WITH_VALUES = new Set([
+  '--prefill',
+  '--prefill-b64',
+  '--deep-link-repo',
+  '--deep-link-last-fetch',
+  '--deep-link-cwd-b64',
+  '--handle-uri',
+  '--settings',
+  '--setting-sources',
+])

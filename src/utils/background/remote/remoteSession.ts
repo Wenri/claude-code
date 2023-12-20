@@ -31,6 +31,34 @@ export type BackgroundRemoteSession = {
   log: SDKMessage[]
 }
 
+export type RemoteSourceViability = {
+  cloneViable: boolean
+  bundleSeedEnabled: boolean
+}
+
+/**
+ * Resolve how a remote session can receive the current repository.  Ultraplan
+ * starts this while its confirmation dialog is opening so the UI does not add
+ * another network round trip after the user confirms.
+ */
+export async function getRemoteSourceViability(): Promise<RemoteSourceViability> {
+  const [repository, bundleSeedGate] = await Promise.all([
+    detectCurrentRepositoryWithHost(),
+    checkGate_CACHED_OR_BLOCKING('tengu_ccr_bundle_seed_enabled'),
+  ])
+  const bundleSeedEnabled =
+    findGitRoot(getCwd()) !== null &&
+    (isEnvTruthy(process.env.CCR_ENABLE_BUNDLE) || bundleSeedGate)
+  if (!bundleSeedEnabled) return { cloneViable: false, bundleSeedEnabled }
+  return {
+    cloneViable:
+      repository !== null &&
+      (repository.host !== 'github.com' ||
+        (await checkGithubAppInstalled(repository.owner, repository.name))),
+    bundleSeedEnabled,
+  }
+}
+
 /**
  * Precondition failures for background remote sessions
  */

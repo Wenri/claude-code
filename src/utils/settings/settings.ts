@@ -50,6 +50,7 @@ import {
   setCachedSettingsForSource,
   setSessionSettingsCache,
 } from './settingsCache.js'
+import { settingsChanged } from './settingsSignal.js'
 import { type SettingsJson, SettingsSchema } from './types.js'
 import {
   filterInvalidSettingsEntries,
@@ -627,6 +628,12 @@ export function updateSettingsForSource(
 
     // Invalidate the session cache since settings have been updated
     resetSettingsCache()
+
+    try {
+      settingsChanged.emit(source)
+    } catch (error) {
+      logError(error)
+    }
 
     if (source === 'localSettings') {
       // Okay to add to gitignore async without awaiting

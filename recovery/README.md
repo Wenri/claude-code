@@ -538,7 +538,7 @@ overlays in shared main. Shared main's selective cumulative merge has its own
 retention guard. The 2.1.121–2.1.126 top-level wrappers additionally pin the
 exact proof-carrier commit and manifest, then construct a private target-source
 carrier for every nested verifier. The 2.1.121 wrapper uses final proof commit
-`4593ba568ee2e840e1a0e3fdfd3b2a9fa51d2d45` and materializes its target `src`
+`3c0bae6622c3b96e14ab8405427642bac0b1a789` and materializes its target `src`
 from the manifest-pinned Git object inside that private carrier.
 
 ## Quick verification

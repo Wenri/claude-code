@@ -41,7 +41,7 @@ export function buildBridgeConnectUrl(
   ingressUrl?: string,
 ): string {
   const baseUrl = getClaudeAiBaseUrl(undefined, ingressUrl)
-  return `${baseUrl}/code?bridge=${environmentId}`
+  return `${baseUrl}/code?environment=${environmentId}`
 }
 
 /**

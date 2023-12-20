@@ -284,12 +284,12 @@ export async function launchRemoteReview(
   const positiveInteger = (
     value: unknown,
     fallback: number,
-    max?: number,
+    max: number,
   ): number => {
     if (typeof value !== 'number' || !Number.isFinite(value)) return fallback
     const integer = Math.floor(value)
     if (integer <= 0) return fallback
-    return max !== undefined && integer > max ? fallback : integer
+    return integer > max ? fallback : integer
   }
   const model = getUltrareviewModel()
   const commonEnvVars = {
@@ -410,7 +410,7 @@ export async function launchRemoteReview(
   logEvent('tengu_review_remote_launched', {})
 
   const sessionUrl = getRemoteTaskSessionUrl(session.id)
-  const billingPrefix = billingNote?.trim()
+  const billingPrefix = billingNote.trim()
     ? `${billingNote.trim()}\n`
     : ''
   const scopeSuffix = diffStat ? `\nScope: ${diffStat}` : ''

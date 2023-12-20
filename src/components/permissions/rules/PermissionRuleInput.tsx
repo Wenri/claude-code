@@ -89,7 +89,7 @@ export function PermissionRuleInput(t0) {
   if ($[9] === Symbol.for("react.memo_cache_sentinel")) {
     t7 = <Text>Permission rules are a tool name, optionally followed by a specifier in parentheses.{t4}e.g.,{" "}{t5}{t6}<Text bold={true}>{permissionRuleValueToString({
           toolName: BashTool.name,
-          ruleContent: "ls:*"
+          ruleContent: "ls *"
         })}</Text></Text>;
     $[9] = t7;
   } else {

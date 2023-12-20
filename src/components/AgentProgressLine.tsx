@@ -1,5 +1,6 @@
 import { c as _c } from "react/compiler-runtime";
 import * as React from 'react';
+import { Connector as TreeConnector } from './design-system/Tree.js';
 import { Box, Text } from '../ink.js';
 import { formatNumber } from '../utils/format.js';
 import type { Theme } from '../utils/theme.js';
@@ -39,7 +40,7 @@ export function AgentProgressLine(t0) {
   } = t0;
   const isAsync = t1 === undefined ? false : t1;
   const hideType = t2 === undefined ? false : t2;
-  const treeChar = isLast ? "\u2514\u2500" : "\u251C\u2500";
+  const connector = isLast ? "last" : "branch";
   const isBackgrounded = isAsync && isResolved;
   let t3;
   if ($[0] !== isBackgrounded || $[1] !== isResolved || $[2] !== lastToolInfo || $[3] !== taskDescription) {
@@ -62,9 +63,9 @@ export function AgentProgressLine(t0) {
   }
   const getStatusText = t3;
   let t4;
-  if ($[5] !== treeChar) {
-    t4 = <Text dimColor={true}>{treeChar} </Text>;
-    $[5] = treeChar;
+  if ($[5] !== connector) {
+    t4 = [connector];
+    $[5] = connector;
     $[6] = t4;
   } else {
     t4 = $[6];
@@ -105,7 +106,7 @@ export function AgentProgressLine(t0) {
   }
   let t9;
   if ($[22] !== t4 || $[23] !== t8) {
-    t9 = <Box paddingLeft={3}>{t4}{t8}</Box>;
+    t9 = <TreeConnector connectors={t4}>{t8}</TreeConnector>;
     $[22] = t4;
     $[23] = t8;
     $[24] = t9;
@@ -114,7 +115,7 @@ export function AgentProgressLine(t0) {
   }
   let t10;
   if ($[25] !== getStatusText || $[26] !== isBackgrounded || $[27] !== isLast) {
-    t10 = !isBackgrounded && <Box paddingLeft={3} flexDirection="row"><Text dimColor={true}>{isLast ? "   \u23BF  " : "\u2502  \u23BF  "}</Text><Text dimColor={true}>{getStatusText()}</Text></Box>;
+    t10 = !isBackgrounded && <TreeConnector connectors={[isLast ? "space" : "pipe"]}><Text dimColor={true}>{"\u23BF  "}{getStatusText()}</Text></TreeConnector>;
     $[25] = getStatusText;
     $[26] = isBackgrounded;
     $[27] = isLast;
@@ -124,7 +125,7 @@ export function AgentProgressLine(t0) {
   }
   let t11;
   if ($[29] !== t10 || $[30] !== t9) {
-    t11 = <Box flexDirection="column">{t9}{t10}</Box>;
+    t11 = <Box flexDirection="column" paddingLeft={3}>{t9}{t10}</Box>;
     $[29] = t10;
     $[30] = t9;
     $[31] = t11;

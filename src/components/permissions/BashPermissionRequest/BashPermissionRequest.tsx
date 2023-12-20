@@ -19,6 +19,8 @@ import { extractRules } from '../../../utils/permissions/PermissionUpdate.js';
 import type { PermissionUpdate } from '../../../utils/permissions/PermissionUpdateSchema.js';
 import { SandboxManager } from '../../../utils/sandbox/sandbox-adapter.js';
 import { Select } from '../../CustomSelect/select.js';
+import { Byline } from '../../design-system/Byline.js';
+import { KeyboardShortcutHint } from '../../design-system/KeyboardShortcutHint.js';
 import { ShimmerChar } from '../../Spinner/ShimmerChar.js';
 import { useShimmerAnimation } from '../../Spinner/useShimmerAnimation.js';
 import { type UnaryEvent, usePermissionRequestLogging } from '../hooks.js';
@@ -225,9 +227,9 @@ function BashPermissionRequestInner({
       return backendBashRules.length === 1 ? backendBashRules[0]!.ruleContent : undefined;
     }
     const two = getSimpleCommandPrefix(command);
-    if (two) return `${two}:*`;
+    if (two) return `${two} *`;
     const one = getFirstWordPrefix(command);
-    if (one) return `${one}:*`;
+    if (one) return `${one} *`;
     return command;
   });
   const hasUserEditedPrefix = useRef(false);
@@ -245,7 +247,7 @@ function BashPermissionRequestInner({
     })).then(prefixes => {
       if (cancelled || hasUserEditedPrefix.current) return;
       if (prefixes.length > 0) {
-        setEditablePrefix(`${prefixes[0]}:*`);
+        setEditablePrefix(`${prefixes[0]} *`);
       }
     }).catch(() => {}); // Keep sync prefix on tree-sitter failure
     return () => {
@@ -450,7 +452,9 @@ function BashPermissionRequestInner({
       {showPermissionDebug ? <>
           <PermissionDecisionDebugInfo permissionResult={toolUseConfirm.permissionResult} toolName="Bash" />
           {toolUseContext.options.debug && <Box justifyContent="flex-end" marginTop={1}>
-              <Text dimColor>Ctrl-D to hide debug info</Text>
+              <Text dimColor>
+                <KeyboardShortcutHint chord="ctrl+d" action="hide debug info" format={{ modCase: 'title', charCase: 'upper', modSep: '-' }} />
+              </Text>
             </Box>}
         </> : <>
           <Box flexDirection="column">
@@ -470,11 +474,15 @@ function BashPermissionRequestInner({
           </Box>
           <Box justifyContent="space-between" marginTop={1}>
             <Text dimColor>
-              Esc to cancel
-              {(focusedOption === 'yes' && !yesInputMode || focusedOption === 'no' && !noInputMode) && ' · Tab to amend'}
-              {explainerState.enabled && ` · ctrl+e to ${explainerState.visible ? 'hide' : 'explain'}`}
+              <Byline>
+                <KeyboardShortcutHint chord="escape" action="cancel" />
+                {(focusedOption === 'yes' && !yesInputMode || focusedOption === 'no' && !noInputMode) && <KeyboardShortcutHint chord="tab" action="amend" />}
+                {explainerState.enabled && <KeyboardShortcutHint chord="ctrl+e" action={explainerState.visible ? 'hide' : 'explain'} />}
+              </Byline>
             </Text>
-            {toolUseContext.options.debug && <Text dimColor>Ctrl+d to show debug info</Text>}
+            {toolUseContext.options.debug && <Text dimColor>
+                <KeyboardShortcutHint chord="ctrl+d" action="show debug info" format={{ modCase: 'title' }} />
+              </Text>}
           </Box>
         </>}
     </PermissionDialog>;

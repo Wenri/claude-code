@@ -1,4 +1,4 @@
-import { mkdir, open, unlink } from 'fs/promises'
+import { mkdir, open, readFile, unlink } from 'fs/promises'
 import { join } from 'path'
 import type { SettingSource } from 'src/utils/settings/constants.js'
 import { getManagedFilePath } from 'src/utils/settings/managedPath.js'
@@ -12,6 +12,8 @@ import { getCwd } from '../../utils/cwd.js'
 import type { EffortValue } from '../../utils/effort.js'
 import { getClaudeConfigHomeDir } from '../../utils/envUtils.js'
 import { getErrnoCode } from '../../utils/errors.js'
+import { parseFrontmatter } from '../../utils/frontmatterParser.js'
+import { stringifyYaml } from '../../utils/yaml.js'
 import { AGENT_PATHS } from './types.js'
 
 /**
@@ -46,7 +48,7 @@ export function formatAgentAsMarkdown(
   const memoryLine = memory ? `\nmemory: ${memory}` : ''
 
   return `---
-name: ${agentType}
+name: "${agentType}"
 description: "${escapedWhenToUse}"${toolsLine}${modelLine}${effortLine}${colorLine}${memoryLine}
 ---
 
@@ -207,32 +209,40 @@ export async function saveAgentToFile(
  */
 export async function updateAgentFile(
   agent: AgentDefinition,
-  newWhenToUse: string,
-  newTools: string[] | undefined,
-  newSystemPrompt: string,
-  newColor?: string,
-  newModel?: string,
-  newMemory?: AgentMemoryScope,
-  newEffort?: EffortValue,
+  updates: { tools?: string[]; color?: string; model?: string },
 ): Promise<void> {
   if (agent.source === 'built-in') {
     throw new Error('Cannot update built-in agents')
   }
 
   const filePath = getActualAgentFilePath(agent)
+  const existing = await readFile(filePath, 'utf-8')
+  const { frontmatter, content } = parseFrontmatter(existing, filePath)
+  const updatedFrontmatter = { ...frontmatter }
 
-  const content = formatAgentAsMarkdown(
-    agent.agentType,
-    newWhenToUse,
-    newTools,
-    newSystemPrompt,
-    newColor,
-    newModel,
-    newMemory,
-    newEffort,
+  if ('tools' in updates) {
+    if (
+      updates.tools === undefined ||
+      (updates.tools.length === 1 && updates.tools[0] === '*')
+    ) {
+      delete updatedFrontmatter.tools
+    } else {
+      updatedFrontmatter.tools = updates.tools.join(', ')
+    }
+  }
+  if ('color' in updates) {
+    if (updates.color) updatedFrontmatter.color = updates.color
+    else delete updatedFrontmatter.color
+  }
+  if ('model' in updates) {
+    if (updates.model) updatedFrontmatter.model = updates.model
+    else delete updatedFrontmatter.model
+  }
+
+  await writeFileAndFlush(
+    filePath,
+    `---\n${stringifyYaml(updatedFrontmatter)}---\n${content}`,
   )
-
-  await writeFileAndFlush(filePath, content)
 }
 
 /**

@@ -170,7 +170,7 @@ export const WebSearchTool = buildTool({
     const model = getMainLoopModel()
 
     // Enable for firstParty
-    if (provider === 'firstParty') {
+    if (provider === 'firstParty' || provider === 'anthropicAws') {
       return true
     }
 

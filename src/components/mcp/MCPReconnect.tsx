@@ -5,7 +5,7 @@ import type { CommandResultDisplay } from '../../commands.js';
 import { Box, color, Text, useTheme } from '../../ink.js';
 import { useMcpReconnect } from '../../services/mcp/MCPConnectionManager.js';
 import { useAppStateStore } from '../../state/AppState.js';
-import { Spinner } from '../Spinner.js';
+import { LoadingState } from '../design-system/LoadingState.js';
 type Props = {
   serverName: string;
   onComplete: (result?: string, options?: {
@@ -94,7 +94,7 @@ export function MCPReconnect(t0) {
     }
     let t4;
     if ($[8] === Symbol.for("react.memo_cache_sentinel")) {
-      t4 = <Box><Spinner /><Text> Establishing connection to MCP server</Text></Box>;
+      t4 = <LoadingState message="Establishing connection to MCP server" />;
       $[8] = t4;
     } else {
       t4 = $[8];

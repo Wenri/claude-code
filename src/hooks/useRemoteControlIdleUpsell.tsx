@@ -37,6 +37,15 @@ export function incrementRemoteControlUpsellSeenCount(): void {
   )
 }
 
+export function markRemoteControlUsed(): void {
+  if (getGlobalConfig().hasUsedRemoteControl) return
+  saveGlobalConfig(config =>
+    config.hasUsedRemoteControl
+      ? config
+      : { ...config, hasUsedRemoteControl: true },
+  )
+}
+
 function hasUsedOrStartsWithRemoteControl(): boolean {
   return (
     getGlobalConfig().hasUsedRemoteControl === true ||

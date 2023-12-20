@@ -120,7 +120,7 @@ export const SandboxSettingsSchema = lazySchema(() =>
         .optional()
         .describe(
           'Exit with an error at startup if sandbox.enabled is true but the sandbox cannot start ' +
-            '(missing dependencies, unsupported platform, or platform not in enabledPlatforms). ' +
+            '(missing dependencies or unsupported platform). ' +
             'When false (default), a warning is shown and commands run unsandboxed. ' +
             'Intended for managed-settings deployments that require sandboxing as a hard gate.',
         ),

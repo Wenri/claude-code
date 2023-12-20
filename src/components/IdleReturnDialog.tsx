@@ -7,14 +7,14 @@ import { Dialog } from './design-system/Dialog.js';
 type IdleReturnAction = 'continue' | 'clear' | 'dismiss' | 'never';
 type Props = {
   idleMinutes: number;
-  totalInputTokens: number;
+  contextTokens: number;
   onDone: (action: IdleReturnAction) => void;
 };
 export function IdleReturnDialog(t0) {
   const $ = _c(16);
   const {
     idleMinutes,
-    totalInputTokens,
+    contextTokens,
     onDone
   } = t0;
   let t1;
@@ -27,9 +27,9 @@ export function IdleReturnDialog(t0) {
   }
   const formattedIdle = t1;
   let t2;
-  if ($[2] !== totalInputTokens) {
-    t2 = formatTokens(totalInputTokens);
-    $[2] = totalInputTokens;
+  if ($[2] !== contextTokens) {
+    t2 = formatTokens(contextTokens);
+    $[2] = contextTokens;
     $[3] = t2;
   } else {
     t2 = $[3];

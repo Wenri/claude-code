@@ -129,41 +129,16 @@ export function LogoV2() {
     t4 = $[5];
   }
   const isCondensedMode = t4;
-  let t5;
-  let t6;
-  if ($[6] !== showGuestPassesUpsell) {
-    t5 = () => {
-      if (showGuestPassesUpsell && !showOnboarding && !isCondensedMode) {
-        incrementGuestPassesSeenCount();
-      }
-    };
-    t6 = [showGuestPassesUpsell, showOnboarding, isCondensedMode];
-    $[6] = showGuestPassesUpsell;
-    $[7] = t5;
-    $[8] = t6;
-  } else {
-    t5 = $[7];
-    t6 = $[8];
-  }
-  useEffect(t5, t6);
-  let t7;
-  let t8;
-  if ($[9] !== showGuestPassesUpsell || $[10] !== showOverageCreditUpsell) {
-    t7 = () => {
-      if (showOverageCreditUpsell && !showOnboarding && !showGuestPassesUpsell && !isCondensedMode) {
-        incrementOverageCreditUpsellSeenCount();
-      }
-    };
-    t8 = [showOverageCreditUpsell, showOnboarding, showGuestPassesUpsell, isCondensedMode];
-    $[9] = showGuestPassesUpsell;
-    $[10] = showOverageCreditUpsell;
-    $[11] = t7;
-    $[12] = t8;
-  } else {
-    t7 = $[11];
-    t8 = $[12];
-  }
-  useEffect(t7, t8);
+  useEffect(() => {
+    if (showGuestPassesUpsell && !showOnboarding && !showOpus47LaunchNotice && !isCondensedMode) {
+      incrementGuestPassesSeenCount();
+    }
+  }, [showGuestPassesUpsell, showOnboarding, showOpus47LaunchNotice, isCondensedMode]);
+  useEffect(() => {
+    if (showOverageCreditUpsell && !showOnboarding && !showOpus47LaunchNotice && !showGuestPassesUpsell && !isCondensedMode) {
+      incrementOverageCreditUpsellSeenCount();
+    }
+  }, [showOverageCreditUpsell, showOnboarding, showOpus47LaunchNotice, showGuestPassesUpsell, isCondensedMode]);
   useEffect(() => {
     if (showOpus47LaunchNotice && !showOnboarding) {
       incrementOpus47LaunchSeenCount();

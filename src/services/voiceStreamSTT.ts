@@ -29,8 +29,6 @@ import { jsonParse, jsonStringify } from '../utils/slowOperations.js'
 const KEEPALIVE_MSG = '{"type":"KeepAlive"}'
 const CLOSE_STREAM_MSG = '{"type":"CloseStream"}'
 
-import { getFeatureValue_CACHED_MAY_BE_STALE } from './analytics/growthbook.js'
-
 // ─── Constants ───────────────────────────────────────────────────────
 
 const VOICE_STREAM_PATH = '/api/ws/speech_to_text/voice_stream'
@@ -148,21 +146,9 @@ export async function connectVoiceStream(
     endpointing_ms: '300',
     utterance_end_ms: '1000',
     language: options?.language ?? 'en',
+    use_conversation_engine: 'true',
+    stt_provider: 'deepgram-nova3',
   })
-
-  // Route through conversation-engine with Deepgram Nova 3 (bypassing
-  // the server's project_bell_v2_config GrowthBook gate). The server
-  // side is anthropics/anthropic#278327 + #281372; this lets us ramp
-  // clients independently.
-  const isNova3 = getFeatureValue_CACHED_MAY_BE_STALE(
-    'tengu_cobalt_frost',
-    false,
-  )
-  if (isNova3) {
-    params.set('use_conversation_engine', 'true')
-    params.set('stt_provider', 'deepgram-nova3')
-    logForDebugging('[voice_stream] Nova 3 gate enabled (tengu_cobalt_frost)')
-  }
 
   // Append keyterms as query params — the voice_stream proxy forwards
   // these to the STT service which applies appropriate boosting.

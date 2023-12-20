@@ -10,12 +10,11 @@ import { execFileNoThrowWithCwd } from './execFileNoThrow.js'
 import { getFsImplementation } from './fsOperations.js'
 import {
   detectImageFormatFromBase64,
-  getImageLimits,
   type ImageDimensions,
+  type ImageLimits,
   maybeResizeAndDownsampleImageBuffer,
 } from './imageResizer.js'
 import { logError } from './log.js'
-import { getMainLoopModel } from './model/model.js'
 
 // Native NSPasteboard reader. GrowthBook gate tengu_collage_kaleidoscope is
 // a kill switch (default on). Falls through to osascript when off.
@@ -159,8 +158,9 @@ export async function hasImageInClipboard(): Promise<boolean> {
   return result.code === 0
 }
 
-export async function getImageFromClipboard(): Promise<ImageWithDimensions | null> {
-  const imageLimits = getImageLimits(getMainLoopModel())
+export async function getImageFromClipboard(
+  imageLimits: ImageLimits,
+): Promise<ImageWithDimensions | null> {
   // Fast path: native NSPasteboard reader (macOS only). Reads PNG bytes
   // directly in-process and downsamples via CoreGraphics if over the
   // dimension cap. ~5ms cold, sub-ms warm — vs. ~1.5s for the osascript
@@ -383,8 +383,8 @@ export function asImageFilePath(text: string): string | null {
  */
 export async function tryReadImageFromPath(
   text: string,
+  imageLimits: ImageLimits,
 ): Promise<(ImageWithDimensions & { path: string }) | null> {
-  const imageLimits = getImageLimits(getMainLoopModel())
   // Strip terminal added spaces or quotes to dragged in paths
   const cleanedPath = asImageFilePath(text)
 

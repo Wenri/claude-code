@@ -1,5 +1,5 @@
 import { execFile } from 'child_process'
-import { execa } from 'execa'
+import { execa } from '../execa.js'
 import { mkdir, stat } from 'fs/promises'
 import * as os from 'os'
 import { join } from 'path'
@@ -276,14 +276,14 @@ function getUserSnapshotContent(configFile: string): string {
  * Generates Claude Code specific snapshot content
  * This content is always included regardless of user configuration
  */
-async function getClaudeCodeSnapshotContent(): Promise<string> {
+async function getClaudeCodeSnapshotContent(shellPath: string): Promise<string> {
   // Get the appropriate PATH based on platform
   let pathValue = process.env.PATH
   if (getPlatform() === 'windows') {
     // On Windows with git-bash, read the Cygwin PATH
-    const cygwinResult = await execa('echo $PATH', {
-      shell: true,
+    const cygwinResult = await execa(shellPath, ['-lc', 'echo "$PATH"'], {
       reject: false,
+      timeout: SNAPSHOT_CREATION_TIMEOUT,
     })
     if (cygwinResult.exitCode === 0 && cygwinResult.stdout) {
       pathValue = cygwinResult.stdout.trim()
@@ -350,11 +350,15 @@ FIND_GREP_FUNC_END
     `
   }
 
-  // Add PATH to the file
+  // A randomized, quoted heredoc delimiter preserves the computed PATH as one
+  // literal shell assignment even when it contains whitespace or metacharacters.
+  const pathDelimiter = `PATH_END_${Math.random().toString(36).substring(2, 18)}`
   content += `
 
       # Add PATH to the file
-      echo "export PATH=${quote([pathValue || ''])}" >> "$SNAPSHOT_FILE"
+      cat >> "$SNAPSHOT_FILE" << '${pathDelimiter}'
+export PATH=${quote([pathValue || ''])}
+${pathDelimiter}
   `
 
   return content
@@ -378,7 +382,7 @@ async function getSnapshotScript(
       ? // we need to manually force alias expansion in bash - normally `getUserSnapshotContent` takes care of this
         'echo "shopt -s expand_aliases" >> "$SNAPSHOT_FILE"'
       : ''
-  const claudeCodeContent = await getClaudeCodeSnapshotContent()
+  const claudeCodeContent = await getClaudeCodeSnapshotContent(shellPath)
 
   const script = `SNAPSHOT_FILE=${quote([snapshotFilePath])}
       ${configFileExists ? `source "${configFile}" < /dev/null` : '# No user config file to source'}

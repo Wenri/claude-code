@@ -10,6 +10,7 @@ import { formatDuration, formatNumber } from '../../utils/format.js';
 import { toInkColor } from '../../utils/ink.js';
 import type { Theme } from '../../utils/theme.js';
 import { Byline } from '../design-system/Byline.js';
+import { KeyboardShortcutHint } from '../design-system/KeyboardShortcutHint.js';
 import { GlimmerMessage } from './GlimmerMessage.js';
 import { SpinnerGlyph } from './SpinnerGlyph.js';
 import type { SpinnerMode } from './types.js';
@@ -225,7 +226,7 @@ export function SpinnerAnimationRow({
   const wantsTimerAndTokens = verbose || hasRunningTeammates || wantsThinking || totalTokens > 0 || effectiveElapsedMs > SHOW_TOKENS_AFTER_MS;
   const availableSpace = columns - messageWidth - 5;
   let showThinking = wantsThinking && availableSpace > thinkingWidthValue;
-  if (!showThinking && wantsThinking && thinkingStatus === 'thinking' && effortSuffix) {
+  if (!showThinking && wantsThinking && thinkingStatus === 'thinking' && (effortSuffix || thinkingMilestone(effectiveElapsedMs) !== 'thinking')) {
     if (availableSpace > THINKING_BARE_WIDTH) {
       thinkingText = 'thinking';
       thinkingWidthValue = THINKING_BARE_WIDTH;
@@ -259,7 +260,7 @@ export function SpinnerAnimationRow({
               {thinkingText}
             </Text>] : [])];
   const status = foregroundedTeammate && !foregroundedTeammate.isIdle ? <>
-        <Text dimColor>(esc to interrupt </Text>
+        <Text dimColor>(<KeyboardShortcutHint chord="escape" action="interrupt" format={{ keyCase: 'lower' }} />{' '}</Text>
         <Text color={toInkColor(foregroundedTeammate.identity.color)}>
           {foregroundedTeammate.identity.agentName}
         </Text>

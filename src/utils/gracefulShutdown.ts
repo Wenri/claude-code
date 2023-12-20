@@ -102,9 +102,17 @@ function parseErrorStack(
   return { names, topFrame }
 }
 
+function safeErrorString(value: unknown): string {
+  try {
+    return String(value)
+  } catch {
+    return '[unstringifiable]'
+  }
+}
+
 function getSafeErrorMetadata(error: unknown): Record<string, string> {
   try {
-    const value = String(error instanceof Error ? error.message : error)
+    const value = safeErrorString(error instanceof Error ? error.message : error)
     const metadata: Record<string, string> = {
       error_message_hash: shortErrorHash(sanitizeErrorMessage(value)),
     }

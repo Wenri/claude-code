@@ -11,6 +11,7 @@
  * directly — there is no terminal attached.
  */
 
+import * as fs from 'fs/promises'
 import { homedir } from 'os'
 import { logForDebugging } from '../debug.js'
 import {
@@ -48,16 +49,18 @@ export async function handleDeepLinkUri(uri: string): Promise<number> {
 
   logForDebugging(`Parsed deep link action: ${jsonStringify(action)}`)
 
-  // Always the running executable — no PATH lookup. The OS launched us via
-  // an absolute path (bundle symlink / .desktop Exec= / registry command)
-  // baked at registration time, and we want the terminal-launched Claude to
-  // be the same binary. process.execPath is that binary.
+  // Resolve the running executable's registration symlink before handing it
+  // to a new terminal. Fall back to the original path for installs where the
+  // executable cannot be canonicalized.
+  const claudePath = await fs
+    .realpath(process.execPath)
+    .catch(() => process.execPath)
   const { cwd, resolvedRepo } = await resolveCwd(action)
   // Resolve FETCH_HEAD age here, in the trampoline process, so main.tsx
   // stays await-free — the launched instance receives it as a precomputed
   // flag instead of statting the filesystem on its own startup path.
   const lastFetch = resolvedRepo ? await readLastFetchTime(cwd) : undefined
-  const launched = await launchInTerminal(process.execPath, {
+  const launched = await launchInTerminal(claudePath, {
     query: action.query,
     cwd,
     repo: resolvedRepo,

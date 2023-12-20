@@ -79,7 +79,7 @@ export function generateShellSuggestionsLabel(suggestions: PermissionUpdate[], s
   // Extract shell command prefixes, optionally transforming for display
   const shellCommands = [...new Set(shellRules.flatMap(rule => {
     if (!rule.ruleContent) return [];
-    const command = permissionRuleExtractPrefix(rule.ruleContent) ?? rule.ruleContent;
+    const command = rule.ruleContent.endsWith(':*') || rule.ruleContent.endsWith(' *') ? rule.ruleContent.slice(0, -2) : rule.ruleContent;
     return commandTransform ? commandTransform(command) : command;
   }))];
 

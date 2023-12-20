@@ -581,194 +581,137 @@ export function isUnsafeCompoundCommand_DEPRECATED(command: string): boolean {
  *
  * @returns Object containing the command without redirections and the target paths if found
  */
-export function extractOutputRedirections(cmd: string): {
+export function extractOutputRedirections(command: string): {
   commandWithoutRedirections: string
   redirections: Array<{ target: string; operator: '>' | '>>' }>
   hasDangerousRedirection: boolean
   dangerousRedirectionReason?: 'network_device' | 'shell_expansion'
 } {
+  const emptyResult = {
+    commandWithoutRedirections: command,
+    redirections: [],
+    hasDangerousRedirection: false,
+    dangerousRedirectionReason: undefined,
+  }
+  if (!command || command.length > MAX_COMMAND_LENGTH) return emptyResult
+
+  const rootNode = getParserModule()!.parse(command)
+  if (!rootNode) return emptyResult
+
   const redirections: Array<{ target: string; operator: '>' | '>>' }> = []
   let hasDangerousRedirection = false
+  let dangerousRedirectionReason:
+    | 'network_device'
+    | 'shell_expansion'
+    | undefined
 
-  // SECURITY: Extract heredocs BEFORE line-continuation joining AND parsing.
-  // This matches splitCommandWithOperators (line 101). Quoted-heredoc bodies
-  // are LITERAL text in bash (`<< 'EOF'\n${}\nEOF` — ${} is NOT expanded, and
-  // `\<newline>` is NOT a continuation). But shell-quote doesn't understand
-  // heredocs; it sees `${}` on line 2 as an unquoted bad substitution and throws.
-  //
-  // ORDER MATTERS: If we join continuations first, a quoted heredoc body
-  // containing `x\<newline>DELIM` gets joined to `xDELIM` — the delimiter
-  // shifts, and `> /etc/passwd` that bash executes gets swallowed into the
-  // heredoc body and NEVER reaches path validation.
-  //
-  // Attack: `cat <<'ls'\nx\\\nls\n> /etc/passwd\nls` with Bash(cat:*)
-  //   - bash: quoted heredoc → `\` is literal, body = `x\`, next `ls` closes
-  //     heredoc → `> /etc/passwd` TRUNCATES the file, final `ls` runs
-  //   - join-first (OLD, WRONG): `x\<NL>ls` → `xls`, delimiter search finds
-  //     the LAST `ls`, body = `xls\n> /etc/passwd` → redirections:[] →
-  //     /etc/passwd NEVER validated → FILE WRITE, no prompt
-  //   - extract-first (NEW, matches splitCommandWithOperators): body = `x\`,
-  //     `> /etc/passwd` survives → captured → path-validated
-  //
-  // Original attack (why extract-before-parse exists at all):
-  //   `echo payload << 'EOF' > /etc/passwd\n${}\nEOF` with Bash(echo:*)
-  //   - bash: quoted heredoc → ${} literal, echo writes "payload\n" to /etc/passwd
-  //   - checkPathConstraints: calls THIS function on original → ${} crashes
-  //     shell-quote → previously returned {redirections:[], dangerous:false}
-  //     → /etc/passwd NEVER validated → FILE WRITE, no prompt.
-  const { processedCommand: heredocExtracted, heredocs } = extractHeredocs(cmd)
+  const visitRedirections = (node: TsNode): void => {
+    if (node.type === 'file_redirect') {
+      let operator: '>' | '>>' | null = null
+      let isFileDescriptorDuplication = false
+      let targetNode: TsNode | null = null
 
-  // SECURITY: Join line continuations AFTER heredoc extraction, BEFORE parsing.
-  // Without this, `> \<newline>/etc/passwd` causes shell-quote to emit an
-  // empty-string token for `\<newline>` and a separate token for the real path.
-  // The extractor picks up `''` as the target; isSimpleTarget('') was vacuously
-  // true (now also fixed as defense-in-depth); path.resolve(cwd,'') returns cwd
-  // (always allowed). Meanwhile bash joins the continuation and writes to
-  // /etc/passwd. Even backslash count = newline is a separator (not continuation).
-  const processedCommand = heredocExtracted.replace(/\\+\n/g, match => {
-    const backslashCount = match.length - 1
-    if (backslashCount % 2 === 1) {
-      return '\\'.repeat(backslashCount - 1)
-    }
-    return match
-  })
+      for (const child of node.children) {
+        if (child.type === '>' || child.type === '&>' || child.type === '>|') {
+          operator = '>'
+        } else if (
+          child.type === '>>' ||
+          child.type === '&>>' ||
+          child.type === '>>|'
+        ) {
+          operator = '>>'
+        } else if (child.type === '>&') {
+          operator = '>'
+          isFileDescriptorDuplication = true
+        } else if (child.type === '<') {
+          const inputTarget = node.children.find(
+            candidate =>
+              candidate !== child && candidate.type !== 'file_descriptor',
+          )
+          if (inputTarget) {
+            const inputTargetText =
+              inputTarget.type === 'string' ||
+              inputTarget.type === 'raw_string'
+                ? inputTarget.text.slice(1, -1)
+                : inputTarget.text
+            if (/^\/dev\/(tcp|udp)\//.test(inputTargetText)) {
+              hasDangerousRedirection = true
+              dangerousRedirectionReason = 'network_device'
+            }
+          }
+          return
+        } else if (child.type !== 'file_descriptor') {
+          targetNode = child
+        }
+      }
 
-  // Try to parse the heredoc-extracted command
-  const parseResult = tryParseShellCommand(processedCommand, env => `$${env}`)
+      if (!operator || !targetNode) return
+      if (targetNode.type === 'number' && isFileDescriptorDuplication) return
 
-  // SECURITY: FAIL-CLOSED on parse failure. Previously returned
-  // {redirections:[], hasDangerousRedirection:false} — a silent bypass.
-  // If shell-quote can't parse (even after heredoc extraction), we cannot
-  // verify what redirections exist. Any `>` in the command could write files.
-  // Callers MUST treat this as dangerous and ask the user.
-  if (!parseResult.success) {
-    return {
-      commandWithoutRedirections: cmd,
-      redirections: [],
-      hasDangerousRedirection: true,
-      dangerousRedirectionReason: 'shell_expansion',
-    }
-  }
-
-  const parsed = parseResult.tokens
-
-  // Bash treats /dev/tcp and /dev/udp redirects as network connections. Keep
-  // them out of the ordinary filesystem-path flow and require approval.
-  const hasNetworkDeviceRedirection = parsed.some((part, index) => {
-    if (typeof part !== 'string' || !/^\/dev\/(tcp|udp)\//.test(part)) {
-      return false
-    }
-    const previous = parsed[index - 1]
-    const previousPrevious = parsed[index - 2]
-    return (
-      (typeof previous === 'object' &&
-        previous !== null &&
-        'op' in previous &&
-        ['>', '>>', '<', '>&', '&>', '&>>'].includes(previous.op)) ||
-      ((previous === '!' ||
-        (typeof previous === 'object' &&
-          previous !== null &&
-          'op' in previous &&
-          previous.op === '|')) &&
-        typeof previousPrevious === 'object' &&
-        previousPrevious !== null &&
-        'op' in previousPrevious &&
-        ['>', '>>'].includes(previousPrevious.op))
-    )
-  })
-
-  // Find redirected subshells (e.g., "(cmd) > file")
-  const redirectedSubshells = new Set<number>()
-  const parenStack: Array<{ index: number; isStart: boolean }> = []
-
-  parsed.forEach((part, i) => {
-    if (isOperator(part, '(')) {
-      const prev = parsed[i - 1]
-      const isStart =
-        i === 0 ||
-        (prev &&
-          typeof prev === 'object' &&
-          'op' in prev &&
-          ['&&', '||', ';', '|'].includes(prev.op))
-      parenStack.push({ index: i, isStart: !!isStart })
-    } else if (isOperator(part, ')') && parenStack.length > 0) {
-      const opening = parenStack.pop()!
-      const next = parsed[i + 1]
       if (
-        opening.isStart &&
-        (isOperator(next, '>') || isOperator(next, '>>'))
+        targetNode.type === 'concatenation' ||
+        targetNode.type === 'simple_expansion' ||
+        targetNode.type === 'expansion' ||
+        targetNode.type === 'command_substitution' ||
+        (targetNode.type === 'string' &&
+          targetNode.children.some(
+            child => child.type !== 'string_content' && child.type !== '"',
+          ))
       ) {
-        redirectedSubshells.add(opening.index).add(i)
-      }
-    }
-  })
-
-  // Process command and extract redirections
-  const kept: ParseEntry[] = []
-  let cmdSubDepth = 0
-
-  for (let i = 0; i < parsed.length; i++) {
-    const part = parsed[i]
-    if (!part) continue
-
-    const [prev, next] = [parsed[i - 1], parsed[i + 1]]
-
-    // Skip redirected subshell parens
-    if (
-      (isOperator(part, '(') || isOperator(part, ')')) &&
-      redirectedSubshells.has(i)
-    ) {
-      continue
-    }
-
-    // Track command substitution depth
-    if (
-      isOperator(part, '(') &&
-      prev &&
-      typeof prev === 'string' &&
-      prev.endsWith('$')
-    ) {
-      cmdSubDepth++
-    } else if (isOperator(part, ')') && cmdSubDepth > 0) {
-      cmdSubDepth--
-    }
-
-    // Extract redirections outside command substitutions
-    if (cmdSubDepth === 0) {
-      const { skip, dangerous } = handleRedirection(
-        part,
-        prev,
-        next,
-        parsed[i + 2],
-        parsed[i + 3],
-        redirections,
-        kept,
-      )
-      if (dangerous) {
         hasDangerousRedirection = true
+        if (dangerousRedirectionReason !== 'network_device') {
+          dangerousRedirectionReason = 'shell_expansion'
+        }
+        return
       }
-      if (skip > 0) {
-        i += skip
-        continue
+
+      const target =
+        targetNode.type === 'string' || targetNode.type === 'raw_string'
+          ? targetNode.text.slice(1, -1)
+          : targetNode.text
+      if (/^~|[*?[]/.test(target)) {
+        hasDangerousRedirection = true
+        if (dangerousRedirectionReason !== 'network_device') {
+          dangerousRedirectionReason = 'shell_expansion'
+        }
+        return
       }
+      if (/^\/dev\/(tcp|udp)\//.test(target)) {
+        hasDangerousRedirection = true
+        dangerousRedirectionReason = 'network_device'
+        return
+      }
+      redirections.push({ target, operator })
+      return
     }
 
-    kept.push(part)
+    for (const child of node.children) visitRedirections(child)
   }
+  visitRedirections(rootNode)
+
+  const commandParts: string[] = []
+  const visitCommand = (node: TsNode): void => {
+    if (node.type === 'comment') return
+    if (node.type === 'redirected_statement') {
+      for (const child of node.children) {
+        if (!child.type.endsWith('_redirect')) visitCommand(child)
+      }
+      return
+    }
+    if (COMPOUND_COMMAND_NODE_TYPES.has(node.type)) {
+      for (const child of node.children) visitCommand(child)
+      return
+    }
+    commandParts.push(node.text)
+  }
+  visitCommand(rootNode)
 
   return {
-    commandWithoutRedirections: restoreHeredocs(
-      [reconstructCommand(kept, processedCommand)],
-      heredocs,
-    )[0]!,
+    commandWithoutRedirections:
+      commandParts.length > 0 ? commandParts.join(' ') : command,
     redirections,
-    hasDangerousRedirection:
-      hasDangerousRedirection || hasNetworkDeviceRedirection,
-    dangerousRedirectionReason: hasNetworkDeviceRedirection
-      ? 'network_device'
-      : hasDangerousRedirection
-        ? 'shell_expansion'
-        : undefined,
+    hasDangerousRedirection,
+    dangerousRedirectionReason,
   }
 }
 

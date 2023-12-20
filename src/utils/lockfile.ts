@@ -26,12 +26,18 @@ function getLockfile(): Lockfile {
 export function lock(
   file: string,
   options?: LockOptions,
-): Promise<() => Promise<void>> {
-  return getLockfile().lock(file, options)
+): Promise<(() => Promise<void>) & AsyncDisposable> {
+  return getLockfile()
+    .lock(file, options)
+    .then(release => Object.assign(release, { [Symbol.asyncDispose]: release }))
 }
 
-export function lockSync(file: string, options?: LockOptions): () => void {
-  return getLockfile().lockSync(file, options)
+export function lockSync(
+  file: string,
+  options?: LockOptions,
+): (() => void) & Disposable {
+  const release = getLockfile().lockSync(file, options)
+  return Object.assign(release, { [Symbol.dispose]: release })
 }
 
 export function unlock(file: string, options?: UnlockOptions): Promise<void> {

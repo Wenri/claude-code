@@ -1,5 +1,5 @@
 import { c as _c } from "react/compiler-runtime";
-import { execa } from 'execa';
+import { execa } from '../../utils/execa.js';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
 import * as React from 'react';

@@ -1,5 +1,6 @@
 import { getFeatureValue_CACHED_MAY_BE_STALE } from 'src/services/analytics/growthbook.js'
 import type { EffortLevel } from '../effort.js'
+import type { ImageLimitOverrides } from '../imageResizer.js'
 
 export type AntModel = {
   alias: string
@@ -13,6 +14,7 @@ export type AntModel = {
   upperMaxTokensLimit?: number
   /** Model defaults to adaptive thinking and rejects `thinking: { type: 'disabled' }`. */
   alwaysOnThinking?: boolean
+  imageLimits?: ImageLimitOverrides
 }
 
 export type AntModelSwitchCalloutConfig = {

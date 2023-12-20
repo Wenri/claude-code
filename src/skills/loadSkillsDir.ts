@@ -818,7 +818,7 @@ export const getSkillDirCommands = memoize(
         skill.type === 'prompt' &&
         skill.paths &&
         skill.paths.length > 0 &&
-        !activatedConditionalSkillNames.has(skill.name)
+        !skillState.activatedConditionalSkillNames.has(skill.name)
       ) {
         newConditionalSkills.push(skill)
       } else {
@@ -828,7 +828,7 @@ export const getSkillDirCommands = memoize(
 
     // Store conditional skills for later activation when matching files are touched
     for (const skill of newConditionalSkills) {
-      conditionalSkills.set(skill.name, skill)
+      skillState.conditionalSkills.set(skill.name, skill)
     }
 
     if (newConditionalSkills.length > 0) {
@@ -848,8 +848,8 @@ export const getSkillDirCommands = memoize(
 export function clearSkillCaches() {
   getSkillDirCommands.cache?.clear?.()
   loadMarkdownFilesForSubdir.cache?.clear?.()
-  conditionalSkills.clear()
-  activatedConditionalSkillNames.clear()
+  skillState.conditionalSkills.clear()
+  skillState.activatedConditionalSkillNames.clear()
 }
 
 // Backwards-compatible aliases for tests
@@ -859,16 +859,27 @@ export { transformSkillFiles }
 
 // --- Dynamic skill discovery ---
 
-// State for dynamically discovered skills
-const dynamicSkillDirs = new Set<string>()
-const dynamicSkills = new Map<string, Command>()
+export type SkillState = {
+  dynamicSkillDirs: Set<string>
+  dynamicSkills: Map<string, Command>
+  conditionalSkills: Map<string, Command>
+  activatedConditionalSkillNames: Set<string>
+}
 
-// --- Conditional skills (path-filtered) ---
+export function createSkillState(): SkillState {
+  return {
+    dynamicSkillDirs: new Set(),
+    dynamicSkills: new Map(),
+    conditionalSkills: new Map(),
+    activatedConditionalSkillNames: new Set(),
+  }
+}
 
-// Skills with paths frontmatter that haven't been activated yet
-const conditionalSkills = new Map<string, Command>()
-// Names of skills that have been activated (survives cache clears within a session)
-const activatedConditionalSkillNames = new Set<string>()
+let skillState = createSkillState()
+
+export function setSkillState(state: SkillState): void {
+  skillState = state
+}
 
 // Signal fired when dynamic skills are loaded
 const skillsLoaded = createSignal()
@@ -921,8 +932,8 @@ export async function discoverSkillDirsForPaths(
       // Skip if we've already checked this path (hit or miss) — avoids
       // repeating the same failed stat on every Read/Write/Edit call when
       // the directory doesn't exist (the common case).
-      if (!dynamicSkillDirs.has(skillDir)) {
-        dynamicSkillDirs.add(skillDir)
+      if (!skillState.dynamicSkillDirs.has(skillDir)) {
+        skillState.dynamicSkillDirs.add(skillDir)
         try {
           await fs.stat(skillDir)
           // Skills dir exists. Before loading, check if the containing dir
@@ -976,7 +987,9 @@ export async function addSkillDirectories(dirs: string[]): Promise<void> {
     return
   }
 
-  const previousSkillNamesForLogging = new Set(dynamicSkills.keys())
+  const previousSkillNamesForLogging = new Set(
+    skillState.dynamicSkills.keys(),
+  )
 
   // Load skills from all directories
   const loadedSkills = await Promise.all(
@@ -987,14 +1000,14 @@ export async function addSkillDirectories(dirs: string[]): Promise<void> {
   for (let i = loadedSkills.length - 1; i >= 0; i--) {
     for (const { skill } of loadedSkills[i] ?? []) {
       if (skill.type === 'prompt') {
-        dynamicSkills.set(skill.name, skill)
+        skillState.dynamicSkills.set(skill.name, skill)
       }
     }
   }
 
   const newSkillCount = loadedSkills.flat().length
   if (newSkillCount > 0) {
-    const addedSkills = [...dynamicSkills.keys()].filter(
+    const addedSkills = [...skillState.dynamicSkills.keys()].filter(
       n => !previousSkillNamesForLogging.has(n),
     )
     logForDebugging(
@@ -1005,7 +1018,7 @@ export async function addSkillDirectories(dirs: string[]): Promise<void> {
         source:
           'file_operation' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
         previousCount: previousSkillNamesForLogging.size,
-        newCount: dynamicSkills.size,
+        newCount: skillState.dynamicSkills.size,
         addedCount: addedSkills.length,
         directoryCount: dirs.length,
       })
@@ -1021,7 +1034,7 @@ export async function addSkillDirectories(dirs: string[]): Promise<void> {
  * These are skills discovered from file paths during the session.
  */
 export function getDynamicSkills(): Command[] {
-  return Array.from(dynamicSkills.values())
+  return Array.from(skillState.dynamicSkills.values())
 }
 
 /**
@@ -1040,13 +1053,13 @@ export function activateConditionalSkillsForPaths(
   filePaths: string[],
   cwd: string,
 ): string[] {
-  if (conditionalSkills.size === 0) {
+  if (skillState.conditionalSkills.size === 0) {
     return []
   }
 
   const activated: string[] = []
 
-  for (const [name, skill] of conditionalSkills) {
+  for (const [name, skill] of skillState.conditionalSkills) {
     if (skill.type !== 'prompt' || !skill.paths || skill.paths.length === 0) {
       continue
     }
@@ -1070,9 +1083,9 @@ export function activateConditionalSkillsForPaths(
 
       if (skillIgnore.ignores(relativePath)) {
         // Activate this skill by moving it to dynamic skills
-        dynamicSkills.set(name, skill)
-        conditionalSkills.delete(name)
-        activatedConditionalSkillNames.add(name)
+        skillState.dynamicSkills.set(name, skill)
+        skillState.conditionalSkills.delete(name)
+        skillState.activatedConditionalSkillNames.add(name)
         activated.push(name)
         logForDebugging(
           `[skills] Activated conditional skill '${name}' (matched path: ${relativePath})`,
@@ -1086,8 +1099,8 @@ export function activateConditionalSkillsForPaths(
     logEvent('tengu_dynamic_skills_changed', {
       source:
         'conditional_paths' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      previousCount: dynamicSkills.size - activated.length,
-      newCount: dynamicSkills.size,
+      previousCount: skillState.dynamicSkills.size - activated.length,
+      newCount: skillState.dynamicSkills.size,
       addedCount: activated.length,
       directoryCount: 0,
     })
@@ -1103,17 +1116,17 @@ export function activateConditionalSkillsForPaths(
  * Gets the number of pending conditional skills (for testing/debugging).
  */
 export function getConditionalSkillCount(): number {
-  return conditionalSkills.size
+  return skillState.conditionalSkills.size
 }
 
 /**
  * Clears dynamic skill state (for testing).
  */
 export function clearDynamicSkills(): void {
-  dynamicSkillDirs.clear()
-  dynamicSkills.clear()
-  conditionalSkills.clear()
-  activatedConditionalSkillNames.clear()
+  skillState.dynamicSkillDirs.clear()
+  skillState.dynamicSkills.clear()
+  skillState.conditionalSkills.clear()
+  skillState.activatedConditionalSkillNames.clear()
 }
 
 // Expose createSkillCommand + parseSkillFrontmatterFields to MCP skill

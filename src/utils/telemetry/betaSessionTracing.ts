@@ -32,7 +32,10 @@ import {
   getSessionId,
 } from '../../bootstrap/state.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
-import { sanitizeToolNameForAnalytics } from '../../services/analytics/metadata.js'
+import {
+  isToolDetailsLoggingEnabled,
+  sanitizeToolNameForAnalytics,
+} from '../../services/analytics/metadata.js'
 import type { AssistantMessage, UserMessage } from '../../types/message.js'
 import { isEnvTruthy } from '../envUtils.js'
 import { jsonParse, jsonStringify } from '../slowOperations.js'
@@ -96,17 +99,21 @@ export function isBetaTracingEnabled(): boolean {
     return false
   }
 
-  // For external users, enable in SDK/headless mode OR when org is allowlisted.
-  // Gate reads from disk cache, so first run after allowlisting returns false;
-  // works from second run onward (same behavior as enhanced_telemetry_beta).
-  if (process.env.USER_TYPE !== 'ant') {
-    return (
-      getIsNonInteractiveSession() ||
-      getFeatureValue_CACHED_MAY_BE_STALE('tengu_trace_lantern', false)
-    )
-  }
+  // Enable in SDK/headless mode OR when the org is allowlisted. The gate reads
+  // from disk cache, so the first run after allowlisting returns false and the
+  // second run onward returns true.
+  return (
+    getIsNonInteractiveSession() ||
+    getFeatureValue_CACHED_MAY_BE_STALE('tengu_trace_lantern', false)
+  )
+}
 
-  return true
+function isUserPromptLoggingEnabled(): boolean {
+  return isEnvTruthy(process.env.OTEL_LOG_USER_PROMPTS)
+}
+
+function isToolContentLoggingEnabled(): boolean {
+  return isEnvTruthy(process.env.OTEL_LOG_TOOL_CONTENT)
 }
 
 /**
@@ -238,7 +245,7 @@ export function addBetaInteractionAttributes(
   span: Span,
   userPrompt: string,
 ): void {
-  if (!isBetaTracingEnabled()) {
+  if (!isBetaTracingEnabled() || !isUserPromptLoggingEnabled()) {
     return
   }
 
@@ -393,15 +400,21 @@ export function addBetaLLMRequestAttributes(
       const { contextParts, systemReminders } =
         formatMessagesForContext(newMessages)
 
+      // Counts are safe metadata and remain available when content logging is
+      // disabled.
+      span.setAttribute('new_context_message_count', newMessages.length)
+      if (systemReminders.length > 0) {
+        span.setAttribute('system_reminders_count', systemReminders.length)
+      }
+
       // Set new_context (regular user content and tool results)
-      if (contextParts.length > 0) {
+      if (contextParts.length > 0 && isUserPromptLoggingEnabled()) {
         const fullContext = contextParts.join('\n\n---\n\n')
         const { content: truncatedContext, truncated } =
           truncateContent(fullContext)
 
         span.setAttributes({
           new_context: truncatedContext,
-          new_context_message_count: newMessages.length,
           ...(truncated && {
             new_context_truncated: true,
             new_context_original_length: fullContext.length,
@@ -410,14 +423,13 @@ export function addBetaLLMRequestAttributes(
       }
 
       // Set system_reminders as a separate attribute
-      if (systemReminders.length > 0) {
+      if (systemReminders.length > 0 && isUserPromptLoggingEnabled()) {
         const fullReminders = systemReminders.join('\n\n---\n\n')
         const { content: truncatedReminders, truncated: remindersTruncated } =
           truncateContent(fullReminders)
 
         span.setAttributes({
           system_reminders: truncatedReminders,
-          system_reminders_count: systemReminders.length,
           ...(remindersTruncated && {
             system_reminders_truncated: true,
             system_reminders_original_length: fullReminders.length,
@@ -426,9 +438,11 @@ export function addBetaLLMRequestAttributes(
       }
 
       // Update last reported hash to the last message in the array
-      const lastMessage = messagesForAPI[messagesForAPI.length - 1]
-      if (lastMessage) {
-        lastReportedMessageHash.set(querySource, hashMessage(lastMessage))
+      if (isUserPromptLoggingEnabled()) {
+        const lastMessage = messagesForAPI.at(-1)
+        if (lastMessage) {
+          lastReportedMessageHash.set(querySource, hashMessage(lastMessage))
+        }
       }
     }
   }
@@ -442,10 +456,13 @@ export function addBetaLLMResponseAttributes(
   endAttributes: Record<string, string | number | boolean>,
   metadata?: {
     modelOutput?: string
-    thinkingOutput?: string
   },
 ): void {
-  if (!isBetaTracingEnabled() || !metadata) {
+  if (
+    !isBetaTracingEnabled() ||
+    !isUserPromptLoggingEnabled() ||
+    !metadata
+  ) {
     return
   }
 
@@ -460,21 +477,6 @@ export function addBetaLLMResponseAttributes(
         metadata.modelOutput.length
     }
   }
-
-  // Add thinking_output - ant-only
-  if (
-    process.env.USER_TYPE === 'ant' &&
-    metadata.thinkingOutput !== undefined
-  ) {
-    const { content: thinkingOutput, truncated: thinkingTruncated } =
-      truncateContent(metadata.thinkingOutput)
-    endAttributes['response.thinking_output'] = thinkingOutput
-    if (thinkingTruncated) {
-      endAttributes['response.thinking_output_truncated'] = true
-      endAttributes['response.thinking_output_original_length'] =
-        metadata.thinkingOutput.length
-    }
-  }
 }
 
 /**
@@ -486,7 +488,7 @@ export function addBetaToolInputAttributes(
   toolName: string,
   toolInput: string,
 ): void {
-  if (!isBetaTracingEnabled()) {
+  if (!isBetaTracingEnabled() || !isToolDetailsLoggingEnabled()) {
     return
   }
 
@@ -511,7 +513,7 @@ export function addBetaToolResultAttributes(
   toolName: string | number | boolean,
   toolResult: string,
 ): void {
-  if (!isBetaTracingEnabled()) {
+  if (!isBetaTracingEnabled() || !isToolContentLoggingEnabled()) {
     return
   }
 

@@ -1,3 +1,5 @@
+import { isEnvTruthy } from './envUtils.js'
+
 /**
  * Privacy level controls how much nonessential network traffic and telemetry
  * Claude Code generates.
@@ -27,6 +29,9 @@ export function getPrivacyLevel(): PrivacyLevel {
     process.env.DISABLE_TELEMETRY ||
     isEnvTruthy(process.env.DO_NOT_TRACK)
   ) {
+    return 'no-telemetry'
+  }
+  if (isEnvTruthy(process.env.DO_NOT_TRACK)) {
     return 'no-telemetry'
   }
   return 'default'

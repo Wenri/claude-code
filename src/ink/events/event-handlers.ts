@@ -60,6 +60,19 @@ export const HANDLER_FOR_EVENT: Record<
 }
 
 /**
+ * Event props that require stdin raw mode while mounted. This lets a tree
+ * receive DOM-style input events without also needing a legacy useInput hook.
+ */
+export const INPUT_EVENT_HANDLER_PROPS = new Set<string>([
+  'onKeyDown',
+  'onKeyDownCapture',
+  'onPaste',
+  'onPasteCapture',
+  'onWheel',
+  'onWheelCapture',
+])
+
+/**
  * Set of all event handler prop names, for the reconciler to detect
  * event props and store them in _eventHandlers instead of attributes.
  */

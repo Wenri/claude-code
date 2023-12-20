@@ -36,6 +36,12 @@ export type UltraplanPollEventStats = {
   lastEventAt: number | undefined
 }
 
+export type UltraplanEventStats = {
+  eventsReceived: number
+  firstEventAt: number | undefined
+  lastEventAt: number | undefined
+}
+
 export class UltraplanPollError extends Error {
   constructor(
     message: string,
@@ -204,8 +210,8 @@ export type PollResult = {
 export async function pollForApprovedExitPlanMode(
   sessionId: string,
   timeoutMs: number,
-  onPhaseChange?: (phase: UltraplanPhase) => void,
-  shouldStop?: () => boolean,
+  onPhaseChange: (phase: UltraplanPhase) => void,
+  shouldStop: () => boolean,
 ): Promise<PollResult> {
   const deadline = Date.now() + timeoutMs
   const scanner = new ExitPlanModeScanner()
@@ -314,7 +320,7 @@ export async function pollForApprovedExitPlanMode(
     if (phase !== lastPhase) {
       logForDebugging(`[ultraplan] phase ${lastPhase} → ${phase}`)
       lastPhase = phase
-      onPhaseChange?.(phase)
+      onPhaseChange(phase)
     }
     await sleep(POLL_INTERVAL_MS)
   }

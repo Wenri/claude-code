@@ -5,9 +5,10 @@ import * as React from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useInterval } from 'usehooks-ts';
 import { useRegisterOverlay } from '../../context/overlayContext.js';
+import { KeyboardEvent } from '../../ink/events/keyboard-event.js';
 import { stringWidth } from '../../ink/stringWidth.js';
 // eslint-disable-next-line custom-rules/prefer-use-keybindings -- raw j/k/arrow dialog navigation
-import { Box, Text, useInput } from '../../ink.js';
+import { Box, Text } from '../../ink.js';
 import { useKeybindings } from '../../keybindings/useKeybinding.js';
 import { useShortcutDisplay } from '../../keybindings/useShortcutDisplay.js';
 import { type AppState, useAppState, useSetAppState } from '../../state/AppState.js';
@@ -27,7 +28,9 @@ import { addHiddenPaneId, removeHiddenPaneId, removeMemberFromTeam, setMemberMod
 import { listTasks, type Task, unassignTeammateTasks } from '../../utils/tasks.js';
 import { getTeammateStatuses, type TeammateStatus, type TeamSummary } from '../../utils/teamDiscovery.js';
 import { createModeSetRequestMessage, sendShutdownRequestToMailbox, writeToMailbox } from '../../utils/teammateMailbox.js';
+import { Byline } from '../design-system/Byline.js';
 import { Dialog } from '../design-system/Dialog.js';
+import { KeyboardShortcutHint } from '../design-system/KeyboardShortcutHint.js';
 import ThemedText from '../design-system/ThemedText.js';
 type Props = {
   initialTeams?: TeamSummary[];
@@ -111,7 +114,19 @@ export function TeamsDialog({
   }, {
     context: 'Confirmation'
   });
-  useInput((input, key) => {
+  const handleKeyDown = (event: KeyboardEvent): void => {
+    const input = event.key;
+    const key = {
+      leftArrow: input === 'left',
+      upArrow: input === 'up',
+      downArrow: input === 'down',
+      return: input === 'return',
+      ctrl: event.ctrl,
+      meta: event.meta
+    };
+    if (key.leftArrow || key.upArrow || key.downArrow || key.return || !key.ctrl && !key.meta && ['k', 's', 'h', 'H', 'p'].includes(input)) {
+      event.preventDefault();
+    }
     // Handle left arrow to go back
     if (key.leftArrow) {
       if (dialogLevel.type === 'teammateDetail') {
@@ -148,7 +163,7 @@ export function TeamsDialog({
     }
 
     // Handle 'k' to kill teammate
-    if (input === 'k') {
+    if (input === 'k' && !key.ctrl && !key.meta) {
       if (dialogLevel.type === 'teammateList' && teammateStatuses[selectedIndex]) {
         void killTeammate(teammateStatuses[selectedIndex].tmuxPaneId, teammateStatuses[selectedIndex].backendType, dialogLevel.teamName, teammateStatuses[selectedIndex].agentId, teammateStatuses[selectedIndex].name, setAppState).then(() => {
           setRefreshKey(k => k + 1);
@@ -163,7 +178,7 @@ export function TeamsDialog({
     }
 
     // Handle 's' for shutdown of selected teammate
-    if (input === 's') {
+    if (input === 's' && !key.ctrl && !key.meta) {
       if (dialogLevel.type === 'teammateList' && teammateStatuses[selectedIndex]) {
         const teammate = teammateStatuses[selectedIndex];
         void sendShutdownRequestToMailbox(teammate.name, dialogLevel.teamName, 'Graceful shutdown requested by team lead');
@@ -175,7 +190,7 @@ export function TeamsDialog({
     }
 
     // Handle 'h' to hide/show individual teammate (only for backends that support it)
-    if (input === 'h') {
+    if (input === 'h' && !key.ctrl && !key.meta) {
       const backend = getCachedBackend();
       const teammate = dialogLevel.type === 'teammateList' ? teammateStatuses[selectedIndex] : dialogLevel.type === 'teammateDetail' ? currentTeammate : null;
       if (teammate && backend?.supportsHideShow) {
@@ -191,7 +206,7 @@ export function TeamsDialog({
     }
 
     // Handle 'H' to hide/show all teammates (only for backends that support it)
-    if (input === 'H' && dialogLevel.type === 'teammateList') {
+    if (input === 'H' && !key.ctrl && !key.meta && dialogLevel.type === 'teammateList') {
       const backend = getCachedBackend();
       if (backend?.supportsHideShow && teammateStatuses.length > 0) {
         // If any are visible, hide all. Otherwise, show all.
@@ -205,7 +220,7 @@ export function TeamsDialog({
     }
 
     // Handle 'p' to prune (kill) all idle teammates
-    if (input === 'p' && dialogLevel.type === 'teammateList') {
+    if (input === 'p' && !key.ctrl && !key.meta && dialogLevel.type === 'teammateList') {
       const idleTeammates = teammateStatuses.filter(t => t.status === 'idle');
       if (idleTeammates.length > 0) {
         void Promise.all(idleTeammates.map(t => killTeammate(t.tmuxPaneId, t.backendType, dialogLevel.teamName, t.agentId, t.name, setAppState))).then(() => {
@@ -217,7 +232,7 @@ export function TeamsDialog({
     }
 
     // Note: Mode cycling (shift+tab) is handled via useKeybindings with confirm:cycleMode action
-  });
+  };
   function getMaxIndex(): number {
     if (dialogLevel.type === 'teammateList') {
       return Math.max(0, teammateStatuses.length - 1);
@@ -227,10 +242,10 @@ export function TeamsDialog({
 
   // Render based on dialog level
   if (dialogLevel.type === 'teammateList') {
-    return <TeamDetailView teamName={dialogLevel.teamName} teammates={teammateStatuses} selectedIndex={selectedIndex} onCancel={onDone} />;
+    return <Box flexDirection="column" tabIndex={0} autoFocus onKeyDown={handleKeyDown}><TeamDetailView teamName={dialogLevel.teamName} teammates={teammateStatuses} selectedIndex={selectedIndex} onCancel={onDone} /></Box>;
   }
   if (dialogLevel.type === 'teammateDetail' && currentTeammate) {
-    return <TeammateDetailView teammate={currentTeammate} teamName={dialogLevel.teamName} onCancel={goBackToList} />;
+    return <Box flexDirection="column" onKeyDown={handleKeyDown}><TeammateDetailView teammate={currentTeammate} teamName={dialogLevel.teamName} onCancel={goBackToList} /></Box>;
   }
   return null;
 }
@@ -241,7 +256,7 @@ type TeamDetailViewProps = {
   onCancel: () => void;
 };
 function TeamDetailView(t0) {
-  const $ = _c(13);
+  const $ = _c(23);
   const {
     teamName,
     teammates,
@@ -273,23 +288,71 @@ function TeamDetailView(t0) {
     t3 = $[7];
   }
   let t4;
-  if ($[8] !== cycleModeShortcut) {
-    t4 = <Box marginLeft={1}><Text dimColor={true}>{figures.arrowUp}/{figures.arrowDown} select · Enter view · k kill · s shutdown · p prune idle{supportsHideShow && " \xB7 h hide/show \xB7 H hide/show all"}{" \xB7 "}{cycleModeShortcut} sync cycle modes for all · Esc close</Text></Box>;
-    $[8] = cycleModeShortcut;
-    $[9] = t4;
-  } else {
-    t4 = $[9];
-  }
   let t5;
-  if ($[10] !== t3 || $[11] !== t4) {
-    t5 = <>{t3}{t4}</>;
-    $[10] = t3;
-    $[11] = t4;
-    $[12] = t5;
+  let t6;
+  let t7;
+  let t8;
+  let t9;
+  let t10;
+  if ($[8] === Symbol.for("react.memo_cache_sentinel")) {
+    t5 = <KeyboardShortcutHint chord={['up', 'down']} action="select" />;
+    t6 = <KeyboardShortcutHint chord="enter" action="view" />;
+    t7 = <KeyboardShortcutHint chord="k" action="kill" />;
+    t8 = <KeyboardShortcutHint chord="s" action="shutdown" />;
+    t9 = <KeyboardShortcutHint chord="p" action="prune idle" />;
+    t10 = supportsHideShow && <KeyboardShortcutHint chord="h" action="hide/show" />;
+    t4 = supportsHideShow && <KeyboardShortcutHint chord="shift+h" action="hide/show all" format={{
+      shiftAsCase: true
+    }} />;
+    $[8] = t4;
+    $[9] = t5;
+    $[10] = t6;
+    $[11] = t7;
+    $[12] = t8;
+    $[13] = t9;
+    $[14] = t10;
   } else {
-    t5 = $[12];
+    t4 = $[8];
+    t5 = $[9];
+    t6 = $[10];
+    t7 = $[11];
+    t8 = $[12];
+    t9 = $[13];
+    t10 = $[14];
   }
-  return t5;
+  let t11;
+  if ($[15] !== cycleModeShortcut) {
+    t11 = <>{cycleModeShortcut} sync cycle modes for all</>;
+    $[15] = cycleModeShortcut;
+    $[16] = t11;
+  } else {
+    t11 = $[16];
+  }
+  let t12;
+  if ($[17] === Symbol.for("react.memo_cache_sentinel")) {
+    t12 = <KeyboardShortcutHint chord="escape" action="close" />;
+    $[17] = t12;
+  } else {
+    t12 = $[17];
+  }
+  let t13;
+  if ($[18] !== t11) {
+    t13 = <Box marginLeft={1}><Text dimColor={true}><Byline>{t5}{t6}{t7}{t8}{t9}{t10}{t4}{t11}{t12}</Byline></Text></Box>;
+    $[18] = t11;
+    $[19] = t13;
+  } else {
+    t13 = $[19];
+  }
+  let t14;
+  if ($[20] !== t13 || $[21] !== t3) {
+    t14 = <>{t3}{t13}</>;
+    $[20] = t13;
+    $[21] = t3;
+    $[22] = t14;
+  } else {
+    t14 = $[22];
+  }
+  return t14;
 }
 type TeammateListItemProps = {
   teammate: TeammateStatus;
@@ -375,7 +438,7 @@ type TeammateDetailViewProps = {
   onCancel: () => void;
 };
 function TeammateDetailView(t0) {
-  const $ = _c(39);
+  const $ = _c(44);
   const {
     teammate,
     teamName,
@@ -420,8 +483,9 @@ function TeammateDetailView(t0) {
   useEffect(t2, t3);
   let t4;
   if ($[6] === Symbol.for("react.memo_cache_sentinel")) {
-    t4 = input => {
-      if (input === "p") {
+    t4 = event => {
+      if (event.key === "p" && !event.ctrl && !event.meta) {
+        event.preventDefault();
         setPromptExpanded(_temp);
       }
     };
@@ -429,7 +493,6 @@ function TeammateDetailView(t0) {
   } else {
     t4 = $[6];
   }
-  useInput(t4);
   const workingPath = teammate.worktreePath || teammate.cwd;
   let subtitleParts;
   if ($[7] !== teammate.model || $[8] !== teammate.worktreePath || $[9] !== workingPath) {
@@ -520,23 +583,46 @@ function TeammateDetailView(t0) {
     t11 = $[33];
   }
   let t12;
-  if ($[34] !== cycleModeShortcut) {
-    t12 = <Box marginLeft={1}><Text dimColor={true}>{figures.arrowLeft} back · Esc close · k kill · s shutdown{getCachedBackend()?.supportsHideShow && " \xB7 h hide/show"}{" \xB7 "}{cycleModeShortcut} cycle mode</Text></Box>;
-    $[34] = cycleModeShortcut;
-    $[35] = t12;
-  } else {
-    t12 = $[35];
-  }
   let t13;
-  if ($[36] !== t11 || $[37] !== t12) {
-    t13 = <>{t11}{t12}</>;
-    $[36] = t11;
-    $[37] = t12;
-    $[38] = t13;
+  let t14;
+  let t15;
+  let t16;
+  if ($[34] === Symbol.for("react.memo_cache_sentinel")) {
+    t12 = <KeyboardShortcutHint chord="left" action="back" />;
+    t13 = <KeyboardShortcutHint chord="escape" action="close" />;
+    t14 = <KeyboardShortcutHint chord="k" action="kill" />;
+    t15 = <KeyboardShortcutHint chord="s" action="shutdown" />;
+    t16 = getCachedBackend()?.supportsHideShow && <KeyboardShortcutHint chord="h" action="hide/show" />;
+    $[34] = t12;
+    $[35] = t13;
+    $[36] = t14;
+    $[37] = t15;
+    $[38] = t16;
   } else {
-    t13 = $[38];
+    t12 = $[34];
+    t13 = $[35];
+    t14 = $[36];
+    t15 = $[37];
+    t16 = $[38];
   }
-  return t13;
+  let t17;
+  if ($[39] !== cycleModeShortcut) {
+    t17 = <Box marginLeft={1}><Text dimColor={true}><Byline>{t12}{t13}{t14}{t15}{t16}<>{cycleModeShortcut} cycle mode</></Byline></Text></Box>;
+    $[39] = cycleModeShortcut;
+    $[40] = t17;
+  } else {
+    t17 = $[40];
+  }
+  let t18;
+  if ($[41] !== t11 || $[42] !== t17) {
+    t18 = <Box flexDirection="column" tabIndex={0} autoFocus onKeyDown={t4}>{t11}{t17}</Box>;
+    $[41] = t11;
+    $[42] = t17;
+    $[43] = t18;
+  } else {
+    t18 = $[43];
+  }
+  return t18;
 }
 function _temp2(task_0) {
   return <Text key={task_0.id} color={task_0.status === "completed" ? "success" : undefined}>{task_0.status === "completed" ? figures.tick : "\u25FC"}{" "}{task_0.subject}</Text>;

@@ -266,6 +266,80 @@ function walkTree(node: DOMElement, result: DOMElement[]): void {
   }
 }
 
+type FocusRect = { x: number; y: number; width: number; height: number }
+
+function directionalScore(
+  current: FocusRect,
+  candidate: FocusRect,
+  direction: FocusDirection,
+): number {
+  const currentX = current.x + current.width / 2
+  const currentY = current.y + current.height / 2
+  const candidateX = candidate.x + candidate.width / 2
+  const candidateY = candidate.y + candidate.height / 2
+  const horizontal = direction === 'left' || direction === 'right'
+  const sign = direction === 'right' || direction === 'down' ? 1 : -1
+  const primaryDistance =
+    (horizontal ? candidateX - currentX : candidateY - currentY) * sign
+  if (primaryDistance <= 0) return Infinity
+
+  const perpendicularDistance = horizontal
+    ? distanceToSpan(currentY, candidate.y, candidate.height)
+    : distanceToSpan(currentX, candidate.x, candidate.width)
+  const overlap = horizontal
+    ? spanOverlap(current.y, current.height, candidate.y, candidate.height)
+    : spanOverlap(current.x, current.width, candidate.x, candidate.width)
+  return primaryDistance + (horizontal ? 2 : 0.5) * perpendicularDistance - overlap
+}
+
+function distanceToSpan(value: number, start: number, size: number): number {
+  if (value < start) return start - value
+  if (value > start + size) return value - (start + size)
+  return 0
+}
+
+function spanOverlap(
+  firstStart: number,
+  firstSize: number,
+  secondStart: number,
+  secondSize: number,
+): number {
+  return Math.max(
+    0,
+    Math.min(firstStart + firstSize, secondStart + secondSize) -
+      Math.max(firstStart, secondStart),
+  )
+}
+
+function getNodeRect(node: DOMElement): FocusRect | undefined {
+  const cached = nodeCache.get(node)
+  if (cached) return cached
+
+  const yogaNode = node.yogaNode
+  if (!yogaNode) return undefined
+
+  let x = yogaNode.getComputedLeft()
+  let y = yogaNode.getComputedTop()
+  let parent = node.parentNode
+  while (parent) {
+    const parentCached = nodeCache.get(parent)
+    if (parentCached) {
+      return {
+        x: parentCached.x + x,
+        y: parentCached.y + y,
+        width: yogaNode.getComputedWidth(),
+        height: yogaNode.getComputedHeight(),
+      }
+    }
+    if (parent.yogaNode) {
+      x += parent.yogaNode.getComputedLeft()
+      y += parent.yogaNode.getComputedTop()
+    }
+    parent = parent.parentNode
+  }
+  return undefined
+}
+
 function isInTree(node: DOMElement, root: DOMElement): boolean {
   let current: DOMElement | undefined = node
   while (current) {

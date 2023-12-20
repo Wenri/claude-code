@@ -5,9 +5,9 @@ import { c as _c } from "react/compiler-runtime";
  * and success/failure notification JSX so new sources stay small.
  */
 
-import figures from 'figures';
 import * as React from 'react';
 import { getIsRemoteMode } from '../bootstrap/state.js';
+import { StatusIcon } from '../components/design-system/StatusIcon.js';
 import type { useNotifications } from '../context/notifications.js';
 import { Text } from '../ink.js';
 import { logError } from '../utils/log.js';
@@ -87,7 +87,7 @@ export async function installPluginAndNotify(pluginId: string, pluginName: strin
     addNotification({
       key: `${keyPrefix}-installed`,
       jsx: <Text color="success">
-          {figures.tick} {pluginName} installed · restart to apply
+          <StatusIcon status="success" withSpace={true} />{pluginName} installed · restart to apply
         </Text>,
       priority: 'immediate',
       timeoutMs: 5000

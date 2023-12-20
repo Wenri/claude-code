@@ -484,6 +484,8 @@ export async function* runPreToolUseHooks(
   let hasDeny = false
   try {
     const appState = toolUseContext.getAppState()
+    let deferredHookName: string | undefined
+    let hookDenied = false
 
     for await (const result of executePreToolHooks(
       tool.name,
@@ -672,6 +674,9 @@ export async function* runPreToolUseHooks(
         }
         yield { type: 'stop' }
       }
+    }
+    if (deferredHookName && !hookDenied) {
+      yield { type: 'defer', hookName: deferredHookName }
     }
   } catch (error) {
     logError(error)

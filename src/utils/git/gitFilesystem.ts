@@ -334,6 +334,7 @@ class GitFileWatcher {
   private gitDir: string | null = null
   private commonDir: string | null = null
   private initialized = false
+  private cleanupRegistered = false
   private initPromise: Promise<void> | null = null
   private watchedPaths: string[] = []
   private branchRefPath: string | null = null
@@ -570,14 +571,23 @@ async function computeRemoteUrl(): Promise<string | null> {
   if (!gitDir) {
     return null
   }
-  const url = await parseGitConfigValue(gitDir, 'remote', 'origin', 'url')
+  const url =
+    (await parseGitConfigValue(gitDir, 'remote', 'origin', 'pushurl')) ??
+    (await parseGitConfigValue(gitDir, 'remote', 'origin', 'url'))
   if (url) {
     return url
   }
   // In worktrees, the config with remote URLs is in the common dir
   const commonDir = await getCommonDir(gitDir)
   if (commonDir && commonDir !== gitDir) {
-    return parseGitConfigValue(commonDir, 'remote', 'origin', 'url')
+    return (
+      (await parseGitConfigValue(
+        commonDir,
+        'remote',
+        'origin',
+        'pushurl',
+      )) ?? parseGitConfigValue(commonDir, 'remote', 'origin', 'url')
+    )
   }
   return null
 }
@@ -705,14 +715,23 @@ export async function getRemoteUrlForDir(cwd: string): Promise<string | null> {
   if (!gitDir) {
     return null
   }
-  const url = await parseGitConfigValue(gitDir, 'remote', 'origin', 'url')
+  const url =
+    (await parseGitConfigValue(gitDir, 'remote', 'origin', 'pushurl')) ??
+    (await parseGitConfigValue(gitDir, 'remote', 'origin', 'url'))
   if (url) {
     return url
   }
   // In worktrees, the config with remote URLs is in the common dir
   const commonDir = await getCommonDir(gitDir)
   if (commonDir && commonDir !== gitDir) {
-    return parseGitConfigValue(commonDir, 'remote', 'origin', 'url')
+    return (
+      (await parseGitConfigValue(
+        commonDir,
+        'remote',
+        'origin',
+        'pushurl',
+      )) ?? parseGitConfigValue(commonDir, 'remote', 'origin', 'url')
+    )
   }
   return null
 }

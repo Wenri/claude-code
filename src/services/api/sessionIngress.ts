@@ -16,6 +16,7 @@ import { getOAuthHeaders } from '../../utils/teleport/api.js'
 interface SessionIngressError {
   error?: {
     message?: string
+    resource?: string
     type?: string
     resource?: string
   }

@@ -40,6 +40,7 @@ import {
   endLLMRequestPerfettoSpan,
   endToolPerfettoSpan,
   endUserInputPerfettoSpan,
+  emitPerfettoInstant,
   isPerfettoTracingEnabled,
   startInteractionPerfettoSpan,
   startLLMRequestPerfettoSpan,
@@ -78,9 +79,10 @@ const interactionContext = new AsyncLocalStorage<SpanContext | undefined>()
 const toolContext = new AsyncLocalStorage<SpanContext | undefined>()
 const toolExecutionContext = new AsyncLocalStorage<SpanContext | undefined>()
 const activeSpans = new Map<string, WeakRef<SpanContext>>()
-// Spans not stored in ALS (LLM request, blocked-on-user, tool execution, hook)
-// need a strong reference to prevent GC from collecting the SpanContext before
-// the corresponding end* function retrieves it.
+// Keep active contexts strongly reachable until their matching end function or
+// the orphan cleanup removes them. ALS normally supplies that reference, but a
+// scoped run may outlive the initiating stack and exact-span termination must
+// remain reliable for concurrent work.
 const strongSpans = new Map<string, SpanContext>()
 let interactionSequence = 0
 let _cleanupIntervalStarted = false
@@ -198,6 +200,31 @@ function createSpanAttributes(
   return attributes
 }
 
+/** Return the current live interaction, falling back to the latest live root. */
+function getInteractionSpanContext(): SpanContext | undefined {
+  const current = interactionContext.getStore()
+  if (current && !current.ended) {
+    return current
+  }
+
+  return Array.from(activeSpans.values())
+    .findLast(ref => {
+      const spanContext = ref.deref()
+      return (
+        spanContext !== undefined &&
+        !spanContext.ended &&
+        spanContext.attributes['span.type'] === 'interaction'
+      )
+    })
+    ?.deref()
+}
+
+/** Return only a live tool context; ended contexts must never parent new work. */
+function getActiveToolSpanContext(): SpanContext | undefined {
+  const current = toolContext.getStore()
+  return current && !current.ended ? current : undefined
+}
+
 /**
  * Start an interaction span. This wraps a user request -> Claude response cycle.
  * This is now a root span that includes all session-level attributes.
@@ -219,10 +246,11 @@ export function startInteractionSpan(userPrompt: string): Span {
       const spanContextObj: SpanContext = {
         span: dummySpan,
         startTime: Date.now(),
-        attributes: {},
+        attributes: { 'span.type': 'interaction' },
         perfettoSpanId,
       }
       activeSpans.set(spanId, new WeakRef(spanContextObj))
+      strongSpans.set(spanId, spanContextObj)
       interactionContext.enterWith(spanContextObj)
       return dummySpan
     }
@@ -268,6 +296,7 @@ export function startInteractionSpan(userPrompt: string): Span {
     perfettoSpanId,
   }
   activeSpans.set(spanId, new WeakRef(spanContextObj))
+  strongSpans.set(spanId, spanContextObj)
 
   interactionContext.enterWith(spanContextObj)
 
@@ -291,7 +320,9 @@ export function endInteractionSpan(): void {
 
   if (!isAnyTracingEnabled()) {
     spanContext.ended = true
-    activeSpans.delete(getSpanId(spanContext.span))
+    const spanId = getSpanId(spanContext.span)
+    activeSpans.delete(spanId)
+    strongSpans.delete(spanId)
     // Clear the store so async continuations created after this point (timers,
     // promise callbacks, I/O) do not inherit a reference to the ended span.
     // enterWith(undefined) is intentional: exit(() => {}) is a no-op because it
@@ -307,7 +338,9 @@ export function endInteractionSpan(): void {
 
   spanContext.span.end()
   spanContext.ended = true
-  activeSpans.delete(getSpanId(spanContext.span))
+  const spanId = getSpanId(spanContext.span)
+  activeSpans.delete(spanId)
+  strongSpans.delete(spanId)
   interactionContext.enterWith(undefined)
 }
 
@@ -425,6 +458,8 @@ export function endLLMRequestSpan(
     statusCode?: number
     error?: string
     attempt?: number
+    requestId?: string
+    clientRequestId?: string
     modelResponse?: string
     /** Text output from the model (non-thinking content) */
     modelOutput?: string
@@ -515,6 +550,12 @@ export function endLLMRequestSpan(
     if (metadata.error !== undefined) endAttributes['error'] = metadata.error
     if (metadata.attempt !== undefined)
       endAttributes['attempt'] = metadata.attempt
+    if (metadata.requestId !== undefined) {
+      endAttributes['request_id'] = metadata.requestId
+      endAttributes['gen_ai.response.id'] = metadata.requestId
+    }
+    if (metadata.clientRequestId !== undefined)
+      endAttributes['client_request_id'] = metadata.clientRequestId
     if (metadata.hasToolCall !== undefined)
       endAttributes['response.has_tool_call'] = metadata.hasToolCall
     if (metadata.requestId !== undefined) {
@@ -572,6 +613,7 @@ export function startToolSpan(
         perfettoSpanId,
       }
       activeSpans.set(spanId, new WeakRef(spanContextObj))
+      strongSpans.set(spanId, spanContextObj)
       toolContext.enterWith(spanContextObj)
       return dummySpan
     }
@@ -579,7 +621,8 @@ export function startToolSpan(
   }
 
   const tracer = getTracer()
-  const parentSpanCtx = interactionContext.getStore()
+  const parentSpanCtx =
+    getActiveToolSpanContext() ?? getInteractionSpanContext()
 
   const attributes = createSpanAttributes('tool', {
     tool_name: toolName,
@@ -604,6 +647,7 @@ export function startToolSpan(
     perfettoSpanId,
   }
   activeSpans.set(spanId, new WeakRef(spanContextObj))
+  strongSpans.set(spanId, spanContextObj)
 
   toolContext.enterWith(spanContextObj)
 
@@ -750,9 +794,7 @@ export function endToolExecutionSpan(metadata?: {
     return
   }
 
-  const executionSpanContext = Array.from(activeSpans.values())
-    .findLast(r => r.deref()?.attributes['span.type'] === 'tool.execution')
-    ?.deref()
+  const executionSpanContext = toolExecutionContext.getStore()
 
   if (!executionSpanContext) {
     return
@@ -769,6 +811,12 @@ export function endToolExecutionSpan(metadata?: {
   }
 
   executionSpanContext.span.setAttributes(attributes)
+  if (metadata?.success === false) {
+    executionSpanContext.span.setStatus({
+      code: SpanStatusCode.ERROR,
+      message: metadata.error,
+    })
+  }
   executionSpanContext.span.end()
 
   const spanId = getSpanId(executionSpanContext.span)
@@ -777,8 +825,14 @@ export function endToolExecutionSpan(metadata?: {
   toolExecutionContext.enterWith(undefined)
 }
 
-export function endToolSpan(toolResult?: string, resultTokens?: number): void {
-  const toolSpanContext = toolContext.getStore()
+export function endToolSpan(
+  span?: Span,
+  toolResult?: string,
+  resultTokens?: number,
+): void {
+  const toolSpanContext = span
+    ? activeSpans.get(getSpanId(span))?.deref()
+    : toolContext.getStore()
 
   if (!toolSpanContext) {
     return
@@ -792,12 +846,18 @@ export function endToolSpan(toolResult?: string, resultTokens?: number): void {
     })
   }
 
+  const isCurrentToolContext = toolContext.getStore() === toolSpanContext
+
   if (!isAnyTracingEnabled()) {
     const spanId = getSpanId(toolSpanContext.span)
     activeSpans.delete(spanId)
+    strongSpans.delete(spanId)
+    toolSpanContext.ended = true
     // Same reasoning as interactionContext above: clear so subsequent async
     // work doesn't hold a stale reference to the ended tool span.
-    toolContext.enterWith(undefined)
+    if (isCurrentToolContext) {
+      toolContext.enterWith(undefined)
+    }
     return
   }
 
@@ -818,10 +878,14 @@ export function endToolSpan(toolResult?: string, resultTokens?: number): void {
 
   toolSpanContext.span.setAttributes(endAttributes)
   toolSpanContext.span.end()
+  toolSpanContext.ended = true
 
   const spanId = getSpanId(toolSpanContext.span)
   activeSpans.delete(spanId)
-  toolContext.enterWith(undefined)
+  strongSpans.delete(spanId)
+  if (isCurrentToolContext) {
+    toolContext.enterWith(undefined)
+  }
 }
 
 function isToolContentLoggingEnabled(): boolean {
@@ -1037,6 +1101,12 @@ export function endHookSpan(
   }
 
   spanContext.span.setAttributes(endAttributes)
+  if ((metadata?.numNonBlockingError ?? 0) > 0) {
+    spanContext.span.setStatus({
+      code: SpanStatusCode.ERROR,
+      message: `${metadata!.numNonBlockingError} hook(s) failed`,
+    })
+  }
   spanContext.span.end()
   activeSpans.delete(spanId)
   strongSpans.delete(spanId)

@@ -47,6 +47,11 @@ export const IMAGE_MAX_HEIGHT = 2000
 // =============================================================================
 
 /**
+ * Maximum total request size accepted by the API.
+ */
+export const API_MAX_REQUEST_SIZE = 32 * 1024 * 1024 // 32 MB
+
+/**
  * Maximum raw PDF file size that fits within the API request limit after encoding.
  * The API has a 32MB total request size limit. Base64 encoding increases size by
  * ~33% (4/3), so 20MB raw → ~27MB base64, leaving room for conversation context.

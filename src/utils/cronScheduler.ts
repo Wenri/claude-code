@@ -133,6 +133,12 @@ type CronSchedulerOptions = {
    * non-permanent tasks in the same scheduled_tasks.json are untouched.
    */
   filter?: (t: CronTask) => boolean
+  /**
+   * Optional synthetic tasks supplied by a compile-time integration. They
+   * participate in scheduling but are not read from or persisted to the
+   * project's scheduled_tasks.json file.
+   */
+  getExtraTasks?: () => Promise<CronTask[]>
 }
 
 export type CronScheduler = {
@@ -161,6 +167,7 @@ export function createCronScheduler(
     getJitterConfig,
     isKilled,
     filter,
+    getExtraTasks,
   } = options
   const lockOpts = dir || lockIdentity ? { dir, lockIdentity } : undefined
   const ownerSessionId = dir !== undefined ? lockIdentity : getSessionId()
@@ -169,6 +176,7 @@ export function createCronScheduler(
   // here — they can be added/removed mid-session with no file event, so
   // check() reads them fresh from bootstrap state on every tick instead.
   let tasks: CronTask[] = []
+  let extraTasks: CronTask[] = []
   // Per-task next-fire times (epoch ms).
   const nextFireAt = new Map<string, number>()
   // Ids we've already enqueued a "missed task" prompt for — prevents
@@ -220,8 +228,17 @@ export function createCronScheduler(
 
   async function load(initial: boolean) {
     const next = await readCronTasks(dir)
+    const nextExtra = getExtraTasks
+      ? await getExtraTasks().catch(error => {
+          logForDebugging(
+            `[ScheduledTasks] getExtraTasks failed: ${error}`,
+          )
+          return []
+        })
+      : []
     if (stopped) return
     tasks = next
+    extraTasks = nextExtra
 
     // Only surface missed tasks on initial load. Chokidar-triggered
     // reloads leave overdue tasks to check() (which anchors from createdAt
@@ -443,6 +460,7 @@ export function createCronScheduler(
     if (dir === undefined) {
       for (const t of getSessionCronTasks()) process(t, true)
     }
+    for (const t of extraTasks) process(t, true)
 
     if (seen.size === 0) {
       // No live tasks this tick — clear the whole schedule so
@@ -551,7 +569,7 @@ export function createCronScheduler(
       // also sets this when a task is created mid-session.
       if (
         !getScheduledTasksEnabled() &&
-        (assistantMode || hasCronTasksSync())
+        (assistantMode || getExtraTasks !== undefined || hasCronTasksSync())
       ) {
         setScheduledTasksEnabled(true)
       }

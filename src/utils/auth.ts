@@ -62,6 +62,7 @@ import {
   isRunningOnHomespace,
 } from './envUtils.js'
 import { errorMessage } from './errors.js'
+import { execa as safeExeca } from './execa.js'
 import { execSyncWithDefaults_DEPRECATED } from './execFileNoThrow.js'
 import * as lockfile from './lockfile.js'
 import { logError } from './log.js'
@@ -1212,7 +1213,7 @@ export async function saveApiKey(apiKey: string): Promise<void> {
     // Process monitors only see "security -i", not the password
     const command = `add-generic-password -U -a "${username}" -s "${storageServiceName}" -X "${hexValue}"\n`
 
-    const result = await execa('security', ['-i'], {
+    const result = await safeExeca('security', ['-i'], {
       input: command,
       reject: false,
       timeout: 5000,

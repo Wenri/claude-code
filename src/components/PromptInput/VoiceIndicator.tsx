@@ -1,8 +1,10 @@
 import { c as _c } from "react/compiler-runtime";
 import { feature } from 'bun:bundle';
 import * as React from 'react';
+import { BLACK_CIRCLE } from '../../constants/figures.js';
 import { useSettings } from '../../hooks/useSettings.js';
 import { Box, Text, useAnimationFrame } from '../../ink.js';
+import { useAppState } from '../../state/AppState.js';
 import { interpolateColor, toRGBColor } from '../Spinner/utils.js';
 type Props = {
   voiceState: 'idle' | 'recording' | 'processing';
@@ -80,6 +82,9 @@ function VoiceIndicatorImpl(t0) {
         return null;
       }
   }
+}
+function selectVoiceMode(state) {
+  return state.settings.voice?.mode ?? "hold";
 }
 
 // Static — the warmup window (~120ms between space #2 and activation)

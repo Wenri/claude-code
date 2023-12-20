@@ -218,6 +218,12 @@ export const DEFAULT_BINDINGS: KeybindingBlock[] = [
       // useInput so they can conditionally propagate.
       'ctrl+shift+c': 'selection:copy',
       'cmd+c': 'selection:copy',
+      'shift+left': 'selection:extendLeft',
+      'shift+right': 'selection:extendRight',
+      'shift+up': 'selection:extendUp',
+      'shift+down': 'selection:extendDown',
+      'shift+home': 'selection:extendLineStart',
+      'shift+end': 'selection:extendLineEnd',
     },
   },
   {

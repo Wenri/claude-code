@@ -1,5 +1,6 @@
 import axios from 'axios'
 
+import { redactGitRemoteCredentials } from '../utils/git.js'
 import { debugBody, extractErrorDetail } from './debugUtils.js'
 import {
   BRIDGE_LOGIN_INSTRUCTION,
@@ -190,7 +191,7 @@ export function createBridgeApiClient(deps: BridgeApiDeps): BridgeApiClient {
         `[bridge:api] POST /v1/environments/bridge -> ${response.status} environment_id=${response.data.environment_id}`,
       )
       debug(
-        `[bridge:api] >>> ${debugBody({ machine_name: config.machineName, directory: config.dir, branch: config.branch, git_repo_url: config.gitRepoUrl, max_sessions: config.maxSessions, metadata: { worker_type: config.workerType } })}`,
+        `[bridge:api] >>> ${debugBody({ machine_name: config.machineName, directory: config.dir, branch: config.branch, git_repo_url: redactGitRemoteCredentials(config.gitRepoUrl), max_sessions: config.maxSessions, metadata: { worker_type: config.workerType } })}`,
       )
       debug(`[bridge:api] <<< ${debugBody(response.data)}`)
       return response.data

@@ -1,5 +1,10 @@
 import { execFileSync, spawn } from 'child_process'
-import { constants as fsConstants, readFileSync, unlinkSync } from 'fs'
+import {
+  closeSync,
+  constants as fsConstants,
+  readFileSync,
+  unlinkSync,
+} from 'fs'
 import { type FileHandle, mkdir, open, realpath } from 'fs/promises'
 import memoize from 'lodash-es/memoize.js'
 import { homedir, tmpdir } from 'os'
@@ -35,6 +40,10 @@ import { onCwdChangedForHooks } from './hooks/fileChangedWatcher.js'
 import { getClaudeTempDirName } from './permissions/filesystem.js'
 import { getPlatform } from './platform.js'
 import { SandboxManager } from './sandbox/sandbox-adapter.js'
+import {
+  getEmbeddedSeccompFileDescriptor,
+  SECCOMP_CHILD_FD,
+} from './sandbox/seccomp.js'
 import { invalidateSessionEnvCache } from './sessionEnvironment.js'
 import { createBashShellProvider } from './shell/bashProvider.js'
 import { getCachedPowerShellPath } from './shell/powershellDetection.js'
@@ -56,6 +65,22 @@ import { posixPathToWindowsPath } from './windowsPaths.js'
 import { parseForSecurity } from './bash/ast.js'
 
 const DEFAULT_TIMEOUT = 30 * 60 * 1000 // 30 minutes
+
+type SpawnStdio = Array<'pipe' | number | undefined>
+
+function getSpawnStdio(
+  usePipeMode: boolean,
+  outputFileDescriptor: number | undefined,
+  seccompFileDescriptor: number | undefined,
+): SpawnStdio {
+  const stdio: SpawnStdio = usePipeMode
+    ? ['pipe', 'pipe', 'pipe']
+    : ['pipe', outputFileDescriptor, outputFileDescriptor]
+  if (seccompFileDescriptor !== undefined) {
+    stdio[SECCOMP_CHILD_FD] = seccompFileDescriptor
+  }
+  return stdio
+}
 
 export type ShellConfig = {
   provider: ShellProvider
@@ -458,6 +483,9 @@ export async function exec(
   }
 
   try {
+    const seccompFileDescriptor = shouldUseSandbox
+      ? await getEmbeddedSeccompFileDescriptor()
+      : undefined
     const childProcess = spawn(spawnBinary, shellArgs, {
       env: {
         ...subprocessEnv(),
@@ -474,9 +502,11 @@ export async function exec(
           : {}),
       },
       cwd,
-      stdio: usePipeMode
-        ? ['pipe', 'pipe', 'pipe']
-        : ['pipe', outputHandle?.fd, outputHandle?.fd],
+      stdio: getSpawnStdio(
+        usePipeMode,
+        outputHandle?.fd,
+        seccompFileDescriptor,
+      ),
       // Don't pass the signal - we'll handle termination ourselves with tree-kill
       detached: provider.detached,
       // Prevent visible console window on Windows (no-op on other platforms)
@@ -499,6 +529,14 @@ export async function exec(
     if (outputHandle !== undefined) {
       try {
         await outputHandle.close()
+      } catch {
+        // fd may already be closed by the child; safe to ignore
+      }
+    }
+
+    if (seccompFileDescriptor !== undefined) {
+      try {
+        closeSync(seccompFileDescriptor)
       } catch {
         // fd may already be closed by the child; safe to ignore
       }

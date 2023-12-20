@@ -422,6 +422,7 @@ export async function isToolSearchEnabled(
       checkedModel:
         model as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       mcpToolCount,
+      mcpNonBlocking: isEnvTruthy(process.env.MCP_CONNECTION_NONBLOCKING),
       userType: (process.env.USER_TYPE ??
         'external') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       ...extraProps,
@@ -635,15 +636,11 @@ export type DeferredToolsDeltaScanContext = {
 }
 
 /**
- * True → announce deferred tools via persisted delta attachments.
- * False → claude.ts keeps its per-call <available-deferred-tools>
- * header prepend (the attachment does not fire).
+ * Deferred tools are announced through persisted delta attachments.  The
+ * pre-delta feature gate was removed in target 2.1.110.
  */
-export function isDeferredToolsDeltaEnabled(): boolean {
-  return (
-    process.env.USER_TYPE === 'ant' ||
-    getFeatureValue_CACHED_MAY_BE_STALE('tengu_glacier_2xr', false)
-  )
+export function isDeferredToolsDeltaEnabled(): true {
+  return true
 }
 
 /**

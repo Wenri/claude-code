@@ -1,10 +1,12 @@
 import type { PermissionMode } from '../permissions/PermissionMode.js'
+import { has1mContext, modelSupports1M } from '../context.js'
 import { capitalize } from '../stringUtils.js'
 import { MODEL_ALIASES, type ModelAlias } from './aliases.js'
 import { applyBedrockRegionPrefix, getBedrockRegionPrefix } from './bedrock.js'
 import {
   getCanonicalName,
   getRuntimeMainLoopModel,
+  isOpus1mMergeEnabled,
   parseUserSpecifiedModel,
 } from './model.js'
 import { getAPIProvider } from './providers.js'
@@ -24,6 +26,23 @@ export type AgentModelOption = {
  */
 export function getDefaultSubagentModel(): string {
   return 'inherit'
+}
+
+/**
+ * Preserve the merged Opus context-window behavior when an agent resolves an
+ * Opus model name directly rather than inheriting the parent model.
+ */
+function applyMergedOpusContext(model: string): string {
+  const supportsMergedContext =
+    getCanonicalName(model).includes('opus') && modelSupports1M(model)
+  if (
+    isOpus1mMergeEnabled() &&
+    !has1mContext(model) &&
+    supportsMergedContext
+  ) {
+    return `${model}[1m]`
+  }
+  return model
 }
 
 /**
@@ -71,7 +90,9 @@ export function getAgentModel(
     if (aliasMatchesParentTier(toolSpecifiedModel, parentModel)) {
       return parentModel
     }
-    const model = parseUserSpecifiedModel(toolSpecifiedModel)
+    const model = applyMergedOpusContext(
+      parseUserSpecifiedModel(toolSpecifiedModel),
+    )
     return applyParentRegionPrefix(model, toolSpecifiedModel)
   }
 
@@ -90,7 +111,9 @@ export function getAgentModel(
   if (aliasMatchesParentTier(agentModelWithExp, parentModel)) {
     return parentModel
   }
-  const model = parseUserSpecifiedModel(agentModelWithExp)
+  const model = applyMergedOpusContext(
+    parseUserSpecifiedModel(agentModelWithExp),
+  )
   return applyParentRegionPrefix(model, agentModelWithExp)
 }
 

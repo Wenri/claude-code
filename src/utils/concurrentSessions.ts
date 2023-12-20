@@ -25,6 +25,7 @@ import { lazySchema } from './lazySchema.js'
 import { getPlatform } from './platform.js'
 import { jsonParse, jsonStringify } from './slowOperations.js'
 import { getAgentId } from './teammate.js'
+import { lazySchema } from './lazySchema.js'
 
 export type SessionKind = 'interactive' | 'bg' | 'daemon' | 'daemon-worker'
 export type SessionStatus = 'busy' | 'idle' | 'waiting'

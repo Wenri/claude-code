@@ -1,5 +1,6 @@
 import { execFileNoThrow } from './execFileNoThrow.js'
 import { getBranch, getDefaultBranch, getIsGit } from './git.js'
+import { memoizeWithTTLAsync } from './memoize.js'
 import { jsonParse } from './slowOperations.js'
 
 export type PrReviewState =
@@ -14,6 +15,24 @@ export type PrStatus = {
   number: number
   url: string
   reviewState: PrReviewState
+}
+
+export type PrCheckSummary = {
+  passed: number
+  failed: number
+  pending: number
+}
+
+export type PrDetails = {
+  number: number
+  title: string
+  state: 'MERGED' | 'CLOSED' | 'DRAFT' | 'OPEN'
+  checks: PrCheckSummary
+  review: 'APPROVED' | 'CHANGES_REQUESTED' | 'REVIEW_REQUIRED' | null
+  mergeable: boolean
+  mergeStateStatus: string
+  additions: number
+  deletions: number
 }
 
 const GH_TIMEOUT_MS = 5000
@@ -104,3 +123,105 @@ export async function fetchPrStatus(): Promise<PrStatus | null> {
     return null
   }
 }
+
+export function summarizePrChecks(
+  checks:
+    | Array<{
+        conclusion?: string | null
+        state?: string | null
+        status?: string | null
+      }>
+    | null
+    | undefined,
+): PrCheckSummary {
+  let passed = 0
+  let failed = 0
+  let pending = 0
+  for (const check of checks ?? []) {
+    const conclusion = (check.conclusion ?? check.state)?.toUpperCase()
+    if (
+      conclusion === 'SUCCESS' ||
+      conclusion === 'NEUTRAL' ||
+      conclusion === 'SKIPPED'
+    ) {
+      passed++
+    } else if (conclusion === 'FAILURE' || conclusion === 'ERROR') {
+      failed++
+    } else if (
+      conclusion == null ||
+      conclusion === 'ACTION_REQUIRED' ||
+      conclusion === 'PENDING' ||
+      conclusion === 'EXPECTED' ||
+      check.status?.toUpperCase() !== 'COMPLETED'
+    ) {
+      pending++
+    } else {
+      failed++
+    }
+  }
+  return { passed, failed, pending }
+}
+
+export const fetchPrDetails = memoizeWithTTLAsync(
+  async (prUrl: string): Promise<PrDetails | null> => {
+    const { stdout, code } = await execFileNoThrow(
+      'gh',
+      [
+        'pr',
+        'view',
+        prUrl,
+        '--json',
+        'number,title,state,isDraft,statusCheckRollup,reviewDecision,mergeStateStatus,additions,deletions',
+      ],
+      { timeout: GH_TIMEOUT_MS, preserveOutputOnError: false },
+    )
+    if (code !== 0 || !stdout.trim()) return null
+    try {
+      const data = jsonParse(stdout) as {
+        number: number
+        title: string
+        state: string
+        isDraft: boolean
+        statusCheckRollup?: Array<{
+          conclusion?: string | null
+          state?: string | null
+          status?: string | null
+        }>
+        reviewDecision?: string | null
+        mergeStateStatus: string
+        additions: number
+        deletions: number
+      }
+      const review =
+        data.reviewDecision === 'APPROVED' ||
+        data.reviewDecision === 'CHANGES_REQUESTED' ||
+        data.reviewDecision === 'REVIEW_REQUIRED'
+          ? data.reviewDecision
+          : null
+      return {
+        number: data.number,
+        title: data.title,
+        state:
+          data.state === 'MERGED'
+            ? 'MERGED'
+            : data.state === 'CLOSED'
+              ? 'CLOSED'
+              : data.isDraft
+                ? 'DRAFT'
+                : 'OPEN',
+        checks: summarizePrChecks(data.statusCheckRollup),
+        review,
+        mergeable:
+          data.mergeStateStatus === 'CLEAN' ||
+          data.mergeStateStatus === 'HAS_HOOKS' ||
+          data.mergeStateStatus === 'UNSTABLE',
+        mergeStateStatus: data.mergeStateStatus,
+        additions: data.additions,
+        deletions: data.deletions,
+      }
+    } catch {
+      return null
+    }
+  },
+  30_000,
+)

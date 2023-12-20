@@ -746,13 +746,16 @@ function parseKeypress(s: string = ''): ParsedKey {
     return createNavKey(s, 'mouse', false)
   }
 
-  if (s === '\r') {
+  if (s === '\r' || s === '\x1b\r') {
     key.raw = undefined
     key.name = 'return'
-  } else if (s === '\n') {
+    key.meta = s.length === 2
+  } else if (s === '\n' || s === '\x1b\n') {
     key.name = 'enter'
-  } else if (s === '\t') {
+    key.meta = s.length === 2
+  } else if (s === '\t' || s === '\x1b\t') {
     key.name = 'tab'
+    key.meta = s.length === 2
   } else if (s === '\b' || s === '\x1b\b') {
     key.name = 'backspace'
     key.meta = s.charAt(0) === '\x1b'

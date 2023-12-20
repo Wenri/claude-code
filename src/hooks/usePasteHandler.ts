@@ -10,7 +10,10 @@ import {
   PASTE_THRESHOLD,
   tryReadImageFromPath,
 } from '../utils/imagePaste.js'
-import type { ImageDimensions } from '../utils/imageResizer.js'
+import {
+  getCurrentImageLimits,
+  type ImageDimensions,
+} from '../utils/imageResizer.js'
 import { getPlatform } from '../utils/platform.js'
 
 const CLIPBOARD_CHECK_DEBOUNCE_MS = 50
@@ -54,7 +57,7 @@ export function usePasteHandler({
   const checkClipboardForImageImpl = React.useCallback(() => {
     if (!onImagePaste || !isMountedRef.current) return
 
-    void getImageFromClipboard()
+    void getImageFromClipboard(getCurrentImageLimits())
       .then(imageData => {
         if (imageData && isMountedRef.current) {
           onImagePaste(
@@ -159,9 +162,14 @@ export function usePasteHandler({
     const imagePaths = lines.filter(line => isImageFilePath(line))
 
     if (onImagePaste && imagePaths.length > 0) {
+      const imageLimits = getCurrentImageLimits()
       const isTempScreenshot =
         /\/TemporaryItems\/.*screencaptureui.*\/Screenshot/i.test(pastedText)
-      void Promise.all(imagePaths.map(imagePath => tryReadImageFromPath(imagePath)))
+      void Promise.all(
+        imagePaths.map(imagePath =>
+          tryReadImageFromPath(imagePath, imageLimits),
+        ),
+      )
         .then(results => {
           if (!isMountedRef.current) return
           const validImages = results.filter(
