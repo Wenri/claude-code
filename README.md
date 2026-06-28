@@ -115,6 +115,18 @@ src/
     node dist/main.js
     ```
 
+> **Heads-up:** `src/` is *extracted* source (recovered from the sourcemap); there
+> is no `package.json` / `tsconfig.json`, so the `npm` steps above are illustrative
+> and it won't build or run as-is. A **pixi** workspace (`pixi.toml`) provides the
+> dev tooling that *does* run here:
+>
+> ```bash
+> pixi install              # gcc / make / nodejs / typescript (+ an isolated bun env)
+> pixi run build-wsl-fix    # build wsl1-ld-linux-fix/
+> pixi run install-wsl-fix  # build + install the WSL1 fix
+> pixi run -e bun bun ...   # bun lives in its own environment
+> ```
+
 ### 🩹 Running the real CLI on WSL1
 
 If you run the actual Claude Code binary on **WSL1**, version `2.1.83+` fails with
@@ -134,6 +146,15 @@ claude mcp add code-explorer -- npx -y claude-code-explorer-mcp
 
 ## 📈 SEO & Rankings
 **Keywords:** `Claude Code Leak`, `Anthropic Source Code`, `AI Agent Framework`, `Claude 3.5 Sonnet CLI`, `Tengu Anthropic`, `npm sourcemap leak`, `Open Source AI Agent`.
+
+---
+
+## 📜 License
+
+The repository's own additions — `wsl1-ld-linux-fix/`, the pixi setup, `CLAUDE.md`,
+and this README — are released under the **[WTFPL](LICENSE)** (Do What The Fuck You
+Want To Public License). The mirrored Claude Code source under `src/` is **not**
+covered: it remains the proprietary property of Anthropic PBC (see below).
 
 ---
 
