@@ -115,6 +115,15 @@ src/
     node dist/main.js
     ```
 
+### 🩹 Running the real CLI on WSL1
+
+If you run the actual Claude Code binary on **WSL1**, version `2.1.83+` fails with
+`Exec format error` ([anthropics/claude-code#38788](https://github.com/anthropics/claude-code/issues/38788)).
+The usual fix is to launch it through the dynamic linker (`ld-linux … claude`),
+but that quietly breaks every `grep`/`find`/`rg` tool call with
+`-G: cannot open shared object file`. See [`wsl1-ld-linux-fix/`](./wsl1-ld-linux-fix/)
+for a small two-piece (`LD_PRELOAD` + dispatcher) fix and a one-command installer.
+
 ### 🔍 Explore with MCP
 This repo includes an **MCP Server** to let you explore the source using Claude itself:
 ```bash
