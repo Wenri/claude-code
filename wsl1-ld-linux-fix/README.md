@@ -61,15 +61,33 @@ The dynamic linker receives `-G` as a *library to load* and dies with
 
 | Piece | What it does |
 | --- | --- |
-| **`claude-preload.c`** → `claude-preload.so` | An `LD_PRELOAD` library that intercepts `readlink()` / `readlinkat()` for `/proc/self/exe` and returns the **dispatcher** path. This makes `CLAUDE_CODE_EXECPATH` point at `claude-dispatch` instead of the linker. |
-| **`claude-dispatch.c`** → `claude-dispatch` | The program `CLAUDE_CODE_EXECPATH` now points to. It inspects `argv[0]`; if invoked as `ugrep`/`rg`/`bfs` it re-launches `ld-linux --argv0 <tool> <claude> <args>`, otherwise `ld-linux <claude> <args>`. |
+| **`claude-preload.c`** → `claude-preload.so` | A tiny library — loaded with the linker's own `--preload` flag (no `LD_PRELOAD` env var) — that intercepts `readlink()` / `readlinkat()` for `/proc/self/exe` and returns the **dispatcher** path. This makes `CLAUDE_CODE_EXECPATH` point at `claude-dispatch` instead of the linker. |
+| **`claude-dispatch.c`** → `claude-dispatch` | The program `CLAUDE_CODE_EXECPATH` now points to. It inspects `argv[0]`: as a leaf tool `ugrep`/`rg`/`bfs` it runs `ld-linux --argv0 <tool> <claude> <args>`; as anything else (a full-claude self-spawn) it runs `ld-linux --preload <preload> <claude> <args>`, re-applying the hook so subagents keep a correct `CLAUDE_CODE_EXECPATH`. |
 
 **Why two pieces?** Each solves a different half:
 
-- Only an `LD_PRELOAD` hook can rewrite what `/proc/self/exe` reports.
+- Only a preload hook can rewrite what `/proc/self/exe` reports.
 - Only a **compiled** dispatcher correctly receives `argv[0]` from the shim — a
   shebang shell script would have its `argv[0]` rewritten to the interpreter,
   losing the `ugrep`/`rg`/`bfs` tool name.
+
+## Why `--preload`, not the `LD_PRELOAD` env var?
+
+`LD_PRELOAD` is inherited by **every** descendant process, so the
+`/proc/self/exe` hook would be live in unrelated tools too — anything that
+locates itself that way would be handed `claude-dispatch`. The linker's
+`--preload` flag scopes the hook to exactly the processes that need it:
+
+- the **launcher** loads it for the top claude:
+  `ld-linux --preload <preload> claude …`;
+- the **dispatcher** re-applies it whenever it relaunches a full claude (the
+  non-tool branch) — this is what carries the hook to self-spawned subagents now
+  that there is no env var to inherit;
+- leaf `ugrep`/`rg`/`bfs` invocations skip it — they never read
+  `CLAUDE_CODE_EXECPATH`.
+
+The trade-off: propagation now rides on the dispatcher instead of the
+environment, so it relies on claude self-spawning via `execPath` (it does).
 
 ---
 
@@ -77,12 +95,14 @@ The dynamic linker receives `-G` as a *library to load* and dies with
 
 - A C compiler — **`gcc`** or **`clang`** (Debian/Ubuntu:
   `sudo apt install build-essential`; Slackware: install the `gcc` package).
-- The dynamic linker for your arch (e.g. `/lib64/ld-linux-x86-64.so.2`),
-  which you already have if the workaround in step 2 runs at all.
+- The dynamic linker for your arch (e.g. `/lib64/ld-linux-x86-64.so.2`) from a
+  **glibc ≥ 2.33** (needed for `ld.so --preload` / `--argv0`), which you already
+  have if the workaround in step 2 runs at all.
 
 > Unlike the original gist, **you do not edit the C files** — the install
 > script (or `make`) bakes in the right paths at compile time, and the binaries
-> also honor `CLAUDE_BIN` / `CLAUDE_LD_LINUX` / `CLAUDE_DISPATCH` at runtime.
+> also honor `CLAUDE_BIN` / `CLAUDE_LD_LINUX` / `CLAUDE_PRELOAD` / `CLAUDE_DISPATCH`
+> at runtime.
 
 ## Quick start
 
@@ -97,8 +117,8 @@ launcher function to drop into your `~/.bashrc` / `~/.zshrc`:
 
 ```bash
 claude() {
-  LD_PRELOAD="$HOME/.local/lib/claude-preload.so" \
-    /lib64/ld-linux-x86-64.so.2 "$HOME/.local/bin/claude" "$@"
+  /lib64/ld-linux-x86-64.so.2 --preload "$HOME/.local/lib/claude-preload.so" \
+    "$HOME/.local/bin/claude" "$@"
 }
 ```
 
@@ -116,7 +136,8 @@ make install CC=gcc CLAUDE_BIN=/opt/claude/bin/claude LD_LINUX=/lib/ld-linux-aar
 
 ```bash
 gcc -O2 -o ~/.local/bin/claude-dispatch claude-dispatch.c \
-    -DCLAUDE_BIN="\"$HOME/.local/bin/claude\"" -DLD_LINUX='"/lib64/ld-linux-x86-64.so.2"'
+    -DCLAUDE_BIN="\"$HOME/.local/bin/claude\"" -DLD_LINUX='"/lib64/ld-linux-x86-64.so.2"' \
+    -DPRELOAD_PATH="\"$HOME/.local/lib/claude-preload.so\""
 mkdir -p ~/.local/lib
 gcc -O2 -shared -fPIC -o ~/.local/lib/claude-preload.so claude-preload.c -ldl \
     -DDISPATCH_PATH="\"$HOME/.local/bin/claude-dispatch\""
@@ -127,6 +148,8 @@ gcc -O2 -shared -fPIC -o ~/.local/lib/claude-preload.so claude-preload.c -ldl \
 After reloading your shell and starting `claude`:
 
 - `CLAUDE_CODE_EXECPATH` should point at `…/claude-dispatch` (not at `ld-linux`).
+- `LD_PRELOAD` should be **empty** in claude-spawned shells (the hook no longer
+  leaks through the environment).
 - A `grep`/`find`/`rg` tool call should run normally instead of failing with
   `-G: cannot open shared object file`.
 

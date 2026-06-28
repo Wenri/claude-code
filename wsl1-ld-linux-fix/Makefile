@@ -9,13 +9,14 @@ PREFIX     ?= $(HOME)/.local
 CLAUDE_BIN ?= $(PREFIX)/bin/claude
 LD_LINUX   ?= /lib64/ld-linux-x86-64.so.2
 DISPATCH   ?= $(PREFIX)/bin/claude-dispatch
+PRELOAD    ?= $(PREFIX)/lib/claude-preload.so
 CC         ?= cc
 CFLAGS     ?= -O2 -Wall
 
 all: claude-dispatch claude-preload.so
 
 claude-dispatch: claude-dispatch.c
-	$(CC) $(CFLAGS) -DCLAUDE_BIN='"$(CLAUDE_BIN)"' -DLD_LINUX='"$(LD_LINUX)"' -o $@ $<
+	$(CC) $(CFLAGS) -DCLAUDE_BIN='"$(CLAUDE_BIN)"' -DLD_LINUX='"$(LD_LINUX)"' -DPRELOAD_PATH='"$(PRELOAD)"' -o $@ $<
 
 claude-preload.so: claude-preload.c
 	$(CC) $(CFLAGS) -shared -fPIC -DDISPATCH_PATH='"$(DISPATCH)"' -o $@ $< -ldl

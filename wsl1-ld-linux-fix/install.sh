@@ -66,7 +66,7 @@ mkdir -p "$BIN" "$LIB"
 
 echo "compiling claude-dispatch ..."
 "$CC" -O2 -Wall \
-  -DCLAUDE_BIN="\"$CLAUDE_BIN\"" -DLD_LINUX="\"$CLAUDE_LD_LINUX\"" \
+  -DCLAUDE_BIN="\"$CLAUDE_BIN\"" -DLD_LINUX="\"$CLAUDE_LD_LINUX\"" -DPRELOAD_PATH="\"$PRELOAD\"" \
   -o "$DISPATCH" "$here/claude-dispatch.c"
 
 echo "compiling claude-preload.so ..."
@@ -83,11 +83,11 @@ cat <<EOF
     $PRELOAD
 
 Add this launcher to your ~/.bashrc or ~/.zshrc (replace any plain
-'ld-linux ... claude' alias you were using before):
+'ld-linux ... claude' alias you were using before). It uses the linker's own
+--preload, so no LD_PRELOAD env var leaks into unrelated child processes:
 
 claude() {
-  LD_PRELOAD="$PRELOAD" \\
-    "$CLAUDE_LD_LINUX" "$CLAUDE_BIN" "\$@"
+  "$CLAUDE_LD_LINUX" --preload "$PRELOAD" "$CLAUDE_BIN" "\$@"
 }
 
 Then reload your shell (exec \$SHELL, or open a new terminal) and run 'claude'.

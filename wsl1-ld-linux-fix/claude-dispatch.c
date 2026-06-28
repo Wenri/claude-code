@@ -3,36 +3,37 @@
  *
  * Background: on WSL1, claude >= 2.1.83 fails to exec directly ("Exec format
  * error", anthropics/claude-code#38788). The community workaround is to launch
- * it through the dynamic linker:  ld-linux  ~/.local/bin/claude  "$@".
+ * it through the dynamic linker. We do that with the linker's own `--preload`
+ * (rather than an LD_PRELOAD env var) so the hook does NOT leak into unrelated
+ * child processes:
  *
- * That workaround has a side effect: the claude binary multiplexes several
- * bundled tools (ugrep / rg / bfs) off argv[0], and the shell shims it injects
- * for grep/find/rg call it as:
+ *     ld-linux --preload <claude-preload.so>  ~/.local/bin/claude  "$@"
+ *
+ * claude-preload.so makes /proc/self/exe (hence CLAUDE_CODE_EXECPATH) resolve to
+ * THIS dispatcher instead of the linker. The claude binary multiplexes bundled
+ * tools (ugrep / rg / bfs) off argv[0], and its grep/find/rg shims call it as:
  *
  *     ARGV0=ugrep  "$CLAUDE_CODE_EXECPATH"  -G ...
  *
- * CLAUDE_CODE_EXECPATH is derived from /proc/self/exe. Under the ld-linux
- * launch that resolves to the *linker*, so the shim runs `ld-linux -G ...`
- * and the linker treats "-G" as a library name -> "error while loading shared
- * libraries: -G: cannot open shared object file".
+ * which now lands here. This program re-launches through ld-linux with the
+ * correct argv[0]:
  *
- * The companion claude-preload.so makes /proc/self/exe (hence
- * CLAUDE_CODE_EXECPATH) resolve to THIS dispatcher instead. This program then
- * re-launches through ld-linux with the correct argv[0]:
- *
- *   - called as a multiplexed tool (ugrep/rg/bfs):
+ *   - called as a multiplexed tool (ugrep/rg/bfs) — a leaf grep, no hook needed:
  *         ld-linux --argv0 <tool> <claude> <args...>
- *   - called as anything else (normal self-spawn):
- *         ld-linux <claude> <args...>
+ *   - called as anything else (a full-claude self-spawn, e.g. a subagent):
+ *         ld-linux --preload <preload> <claude> <args...>
+ *     Re-applying --preload here is what propagates the /proc/self/exe hook to
+ *     self-spawned claude children, since there is no longer an LD_PRELOAD env
+ *     var for them to inherit. Leaf tools don't spawn claude, so they skip it.
  *
  * Why a compiled binary and not a shell script: the shim relies on argv[0]
  * ("ARGV0=ugrep ..."), and a shebang script would have its argv[0] rewritten
  * to the interpreter, losing the tool name.
  *
  * Path resolution (highest precedence first):
- *   1. environment   : CLAUDE_BIN, CLAUDE_LD_LINUX
- *   2. compile-time  : -DCLAUDE_BIN='"..."'  -DLD_LINUX='"..."'   (install.sh / Makefile set these)
- *   3. built-in      : $HOME/.local/bin/claude  and  /lib64/ld-linux-x86-64.so.2
+ *   1. environment   : CLAUDE_BIN, CLAUDE_LD_LINUX, CLAUDE_PRELOAD
+ *   2. compile-time  : -DCLAUDE_BIN=... -DLD_LINUX=... -DPRELOAD_PATH=...  (install.sh / Makefile set these)
+ *   3. built-in      : $HOME/.local/{bin/claude,lib/claude-preload.so} and /lib64/ld-linux-x86-64.so.2
  */
 #define _GNU_SOURCE
 #include <stdio.h>
@@ -69,6 +70,20 @@ static const char *resolve_ld_linux(void)
     return LD_LINUX;
 }
 
+static const char *resolve_preload(void)
+{
+    const char *e = getenv("CLAUDE_PRELOAD");
+    if (e && *e) return e;
+#ifdef PRELOAD_PATH
+    return PRELOAD_PATH;
+#else
+    static char buf[4096];
+    const char *home = getenv("HOME");
+    snprintf(buf, sizeof buf, "%s/.local/lib/claude-preload.so", (home && *home) ? home : "");
+    return buf;
+#endif
+}
+
 static int is_tool(const char *name)
 {
     for (const char *const *t = kTools; *t; t++)
@@ -87,7 +102,7 @@ int main(int argc, char *argv[], char *envp[])
     const char *ld     = resolve_ld_linux();
     const char *claude = resolve_claude_bin();
 
-    /* worst case we prepend 4 entries (ld, --argv0, tool, claude) + NULL */
+    /* worst case we prepend 4 entries (ld, --argv0|--preload, arg, claude) + NULL */
     char **new_argv = malloc((size_t)(argc + 5) * sizeof *new_argv);
     if (!new_argv) {
         perror("claude-dispatch: malloc");
@@ -97,8 +112,14 @@ int main(int argc, char *argv[], char *envp[])
     int n = 0;
     new_argv[n++] = (char *)ld;
     if (is_tool(name)) {
+        /* leaf tool (ugrep/rg/bfs): just fix argv[0] */
         new_argv[n++] = (char *)"--argv0";
         new_argv[n++] = (char *)name;
+    } else {
+        /* full-claude (re)launch: re-apply the /proc/self/exe hook so this
+         * child and any of its own subagents keep a correct CLAUDE_CODE_EXECPATH */
+        new_argv[n++] = (char *)"--preload";
+        new_argv[n++] = (char *)resolve_preload();
     }
     new_argv[n++] = (char *)claude;
     for (int i = 1; i < argc; i++)
