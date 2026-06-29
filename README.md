@@ -1,12 +1,12 @@
-# claude-dispatch — run Claude Code on WSL1 (in-process loader)
+# claude-dispatch — run Claude Code on WSL1 (a custom `ld.so`)
 
-`claude-dispatch` is a tiny custom ELF loader that makes Claude Code work on
-**WSL1**, where the CLI otherwise dies with `Exec format error` and — via the
+`claude-dispatch` is a **custom glibc dynamic linker** that makes Claude Code work
+on **WSL1**, where the CLI otherwise dies with `Exec format error` and — via the
 common `ld-linux` workaround — breaks every `grep`/`find`/`rg` tool call.
 
-It lives in [`loader/`](./loader/), is built on the loader internals of
-[nix-ld](https://github.com/nix-community/nix-ld) (MIT), and fixes the upstream
-issue [anthropics/claude-code#38788](https://github.com/anthropics/claude-code/issues/38788).
+It lives in [`loader/`](./loader/): a ~2-line patch to glibc's `dl_main` plus a
+small `no_std` Rust dispatch object, building a drop-in `ld.so`. It fixes the
+upstream issue [anthropics/claude-code#38788](https://github.com/anthropics/claude-code/issues/38788).
 
 > This repository is also an archival mirror of Claude Code's leaked source under
 > [`src/`](./src/) — see [About the mirror](#-about-the-mirror) below.
@@ -24,35 +24,42 @@ issue [anthropics/claude-code#38788](https://github.com/anthropics/claude-code/i
    hence `CLAUDE_CODE_EXECPATH` — is the **linker**, so the shim runs
    `ld.so -G …` and dies with `-G: cannot open shared object file`.
 
-## The fix — a loader that *is* `/proc/self/exe`
+## The fix — be the linker
 
-`claude-dispatch` is a small static-pie binary the kernel can exec on WSL1. The
-kernel execs **it**, so `/proc/self/exe` genuinely is `claude-dispatch`. It then:
+A dynamic linker (`ld.so`) is itself a kernel-executable ELF. `claude-dispatch`
+**is** a custom glibc `ld.so`: the kernel execs *it*, so `/proc/self/exe` — hence
+`CLAUDE_CODE_EXECPATH` — genuinely is `claude-dispatch`, never a separate linker.
 
-1. inspects `argv[0]` — tool dispatch (`ugrep`/`rg`/`bfs`) vs. a normal launch;
-2. `mmap`s the real `ld.so` and builds a fresh stack whose `argv` is
-   `[ld.so, (--argv0 <tool>)?, <claude>, <args…>]`, with the auxv repointed at ld.so;
-3. **jumps to ld.so's entry in-process — no `execve`.**
+A tiny hook in glibc's `dl_main` (the "run as a program" path) calls our Rust
+`claude_dispatch`, which:
 
-Because there was no `execve`, `/proc/self/exe` stays `claude-dispatch`, so
-`CLAUDE_CODE_EXECPATH` is correct with **no `LD_PRELOAD`, no `readlink` hook, no
-env var**. grep/find/rg run (as claude-`ugrep`/`rg`/`bfs`), and subagents work
-automatically — claude self-spawns via `execPath` = `claude-dispatch`.
+1. picks the program to load = `$CLAUDE_BIN` (env override → compile-time default);
+2. leaves the kernel-provided `argv` **untouched** — so the program receives
+   `[<how-we-were-invoked>, <user args…>]` unchanged, and claude dispatches its
+   bundled `ugrep`/`rg`/`bfs` off `argv[0]` exactly as it always does.
 
-It reuses nix-ld's ELF mapper, raw syscalls, self-relocation and jump trampoline;
-the direct-exec loader + tool dispatcher is
-[`loader/src/main.rs`](./loader/src/main.rs). See [`loader/NOTICE`](./loader/NOTICE).
+Because `argv` isn't shifted, glibc's `skip_args` stays 0 and the rest of rtld runs
+untouched — it loads claude and transfers control normally. **No `LD_PRELOAD`, no
+`readlink` hook, no env var, no `execve`.** grep/find/rg work, and subagents work
+automatically (claude self-spawns via `execPath` = `claude-dispatch`).
+
+The dispatch object is `no_std` and resolves only `memcpy`/`memset`/`memcmp`
+(against rtld), so it links cleanly into glibc's `-z defs` `ld.so`. The whole glibc
+change is [`loader/rtld-dispatch.patch`](./loader/rtld-dispatch.patch); the logic is
+[`loader/src/lib.rs`](./loader/src/lib.rs).
 
 ## Install
 
-Needs a Rust toolchain + a C compiler (the bundled [pixi](https://pixi.sh) env
-provides both) and a glibc ≥ 2.33 dynamic linker.
+Needs a Rust toolchain, gcc, and patchelf — all in the bundled [pixi](https://pixi.sh)
+env. The glibc source is in Git LFS.
 
 ```bash
-pixi run install-loader      # detects claude + linker, builds, installs ~/.local/bin/claude-dispatch
+git lfs pull                 # fetch loader/glibc/glibc-*.tar.xz
+pixi run install-loader      # patch + build glibc, install ~/.local/bin/claude-dispatch
 ```
 
-Then add the launcher to your `~/.bashrc` / `~/.zshrc` and reload your shell:
+This compiles glibc once (~10–20 min). Then add the launcher to your `~/.bashrc` /
+`~/.zshrc` and reload your shell:
 
 ```bash
 claude() { "$HOME/.local/bin/claude-dispatch" "$@"; }
@@ -60,7 +67,11 @@ claude() { "$HOME/.local/bin/claude-dispatch" "$@"; }
 
 Verify in a fresh shell: `echo "$CLAUDE_CODE_EXECPATH"` ends in `…/claude-dispatch`,
 `echo "$LD_PRELOAD"` is empty, and `grep`/`find`/`rg` work. See
-[`loader/`](./loader/) for `make` / `cargo` builds, overrides, and details.
+[`loader/`](./loader/) for build internals and overrides.
+
+> **Version note:** `claude-dispatch` is built from the **same glibc version as your
+> system** (here 2.42) so the linker it replaces stays in step with the `libc.so.6`
+> it loads claude against. Rebuild after a system glibc upgrade.
 
 ---
 
@@ -75,8 +86,10 @@ project. A short tour of what's inside is in [`CLAUDE.md`](./CLAUDE.md).
 
 ## 📜 License & disclaimer
 
-The loader and tooling in `loader/` are derived from nix-ld (MIT,
-[`loader/LICENSE.nix-ld`](./loader/LICENSE.nix-ld)); everything else original to
-this repo is [WTFPL](./LICENSE). **The mirrored source under `src/` is the
-proprietary property of Anthropic PBC**, included for educational/archival
-purposes only — this is not an official Anthropic product.
+`claude-dispatch` patches and links against **glibc**, so the *built binary* is
+glibc-derived (**LGPL-2.1-or-later**); this repo ships only the patch + Rust source,
+not a binary (see [`loader/NOTICE`](./loader/NOTICE)). Everything else original to
+this repo — the patch, the Rust dispatch, tooling, docs — is [WTFPL](./LICENSE).
+**The mirrored source under `src/` is the proprietary property of Anthropic PBC**,
+included for educational/archival purposes only — this is not an official Anthropic
+product.

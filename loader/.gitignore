@@ -1,2 +1,4 @@
-# Rust build output
+# Rust + glibc build output
 target/
+.build/
+src/default_bin.rs.bak

@@ -1,23 +1,24 @@
 claude-dispatch
-================
+===============
 
-This loader is derived from nix-ld (https://github.com/nix-community/nix-ld),
-Copyright (c) Jörg Thalheim and contributors, licensed under the MIT License.
-The full MIT license text is in LICENSE.nix-ld.
+claude-dispatch is a custom build of the GNU C Library's dynamic linker (ld.so).
 
-Reused essentially as-is from nix-ld:
-  src/elf.rs  src/sys.rs  src/arch.rs  src/auxv.rs  src/fixup.rs
-  src/support.rs  src/args.rs  src/const_concat.rs  src/nolibc.c  vendor/nolibc/
-  build.rs  .cargo/config.toml
+What this repository contains:
+  - rtld-dispatch.patch  — a small patch to glibc's elf/rtld.c and elf/Makefile
+  - src/                 — a no_std Rust staticlib (the `claude_dispatch` hook)
+  - build.sh / install.sh / Makefile — the build pipeline
+  - glibc/glibc-*.tar.xz — pristine upstream glibc source (Git LFS), unmodified
+  - glibc/slackware/     — Slackware's glibc patches + SlackBuild, for reference
 
-Replaced for this project (direct-exec loader + tool dispatch for the WSL1
-ld-linux workaround, anthropics/claude-code#38788):
-  src/main.rs
+Licensing:
+  - The GNU C Library is licensed under the GNU Lesser General Public License,
+    version 2.1 or later (see the glibc source: COPYING, COPYING.LIB, LICENSES).
+  - The BINARY produced by build.sh is therefore a glibc derivative and is covered
+    by the LGPL-2.1-or-later. This repository distributes only the patch and the
+    Rust/shell source needed to reproduce it — not any built binary.
+  - The project-authored parts (rtld-dispatch.patch, src/*.rs, the build scripts)
+    are released under the WTFPL, like the rest of this repository. They are also
+    usable under the LGPL when combined with glibc to form the linker.
 
-Modified:
-  src/elf.rs   — ElfMapping now exposes phdr/phent/phnum/entry_point
-  src/args.rs  — added argv()/envp()/envc() accessors
-  Cargo.toml   — package/bin renamed; tests/dev-deps dropped
-
-Project-authored parts (src/main.rs and the surrounding wsl1-ld-linux-fix/
-tooling) are licensed under the WTFPL, like the rest of this repository.
+glibc upstream: https://www.gnu.org/software/libc/
+Fixes: https://github.com/anthropics/claude-code/issues/38788

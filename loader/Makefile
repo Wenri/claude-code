@@ -1,34 +1,25 @@
-# Build & install the claude-dispatch in-process loader (Rust; see ../README.md).
-# Derived from nix-ld (MIT — LICENSE.nix-ld). Needs a Rust toolchain (the repo's
-# pixi env provides it) plus a C compiler for the freestanding nolibc.
+# Build & install claude-dispatch — a custom glibc ld.so that loads Claude Code
+# (see ../README.md). The heavy lifting is in build.sh / install.sh; this is a
+# thin convenience wrapper.
 #
-# Override paths if your install differs:
-#   make install PREFIX=$HOME/.local CLAUDE_BIN=/opt/claude/bin/claude
+#   make            build the custom ld.so (loader/.build/glibc-obj/elf/ld.so)
+#   make install    build + install ~/.local/bin/claude-dispatch + print launcher
+#   make clean      remove the build tree
+#
+# Override paths: make install CLAUDE_BIN=/opt/claude/bin/claude PREFIX=$HOME/.local
 
 PREFIX     ?= $(HOME)/.local
 CLAUDE_BIN ?= $(PREFIX)/bin/claude
-LD_LINUX   ?= /lib64/ld-linux-x86-64.so.2
-CARGO      ?= cargo
-
-# Paths are baked into the binary at build time (build.rs forwards these);
-# nix-ld's freestanding build needs nightly features enabled on stable.
 export CLAUDE_BIN
-export CLAUDE_LD_LINUX = $(LD_LINUX)
-export RUSTC_BOOTSTRAP = 1
-
-BIN = target/release/claude-dispatch
+export PREFIX
 
 all:
-	$(CARGO) build --release
+	sh build.sh
 
-install: all
-	install -d "$(PREFIX)/bin"
-	install -m 0755 "$(BIN)" "$(PREFIX)/bin/claude-dispatch"
-	@echo
-	@echo "Installed claude-dispatch to $(PREFIX)/bin/."
-	@echo 'Add to your shell rc:  claude() { "$$HOME/.local/bin/claude-dispatch" "$$@"; }'
+install:
+	sh install.sh
 
 clean:
-	$(CARGO) clean
+	rm -rf .build target
 
 .PHONY: all install clean
