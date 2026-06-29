@@ -1,172 +1,82 @@
-# Claude Code's Entire Source Code Got Leaked via a Sourcemap in npm, Let's Talk About It
+# claude-dispatch — run Claude Code on WSL1 (in-process loader)
 
-> **PS:** This breakdown is also available on [this blog](https://kuber.studio/blog/AI/Claude-Code's-Entire-Source-Code-Got-Leaked-via-a-Sourcemap-in-npm,-Let's-Talk-About-it) with a better reading experience and UX :)
+`claude-dispatch` is a tiny custom ELF loader that makes Claude Code work on
+**WSL1**, where the CLI otherwise dies with `Exec format error` and — via the
+common `ld-linux` workaround — breaks every `grep`/`find`/`rg` tool call.
 
-> **Note:** There's a non-zero chance this repo might be taken down. If you want to play around with it later or archive it yourself, feel free to **fork it** and bookmark the external blog link!
+It lives in [`loader/`](./loader/), is built on the loader internals of
+[nix-ld](https://github.com/nix-community/nix-ld) (MIT), and fixes the upstream
+issue [anthropics/claude-code#38788](https://github.com/anthropics/claude-code/issues/38788).
 
----
-
-## ⚠️ Important Disclaimer
-
-**I did not leak these files.** I have simply provided an easy, documented way to access and study this codebase for research purposes. All files and information originate from public findings shared on Twitter/X. All credit for the discovery goes to the original source.
-
----
-
-Earlier today (March 31st, 2026) - **Chaofan Shou (@Fried_rice)** discovered something that Anthropic probably didn't want the world to see: the **entire source code** of Claude Code, Anthropic's official AI coding CLI, was sitting in plain sight on the npm registry via a sourcemap file bundled into the published package.
-
-[![The tweet announcing the leak](assets/x-post.png)](https://x.com/Fried_rice/status/2038894956459290963)
-
-This repository is a backup of that leaked source, providing a full breakdown of what's in it, how the leak happened, and the internal systems that were never meant to be public.
+> This repository is also an archival mirror of Claude Code's leaked source under
+> [`src/`](./src/) — see [About the mirror](#-about-the-mirror) below.
 
 ---
 
-## 🧐 How Did This Even Happen?
+## The problem
 
-When you publish a JavaScript/TypeScript package to npm, the build toolchain often generates **source map files** (`.map` files). These files bridge minified production code and the original source for debugging.
+1. On **WSL1**, Claude Code `>= 2.1.83` won't exec: `cannot execute binary file:
+   Exec format error`.
+2. The community workaround launches it through the dynamic linker
+   (`ld-linux … claude`). But claude multiplexes its bundled search tools
+   (`ugrep`/`rg`/`bfs`) off `argv[0]`, and the shims it injects run
+   `"$CLAUDE_CODE_EXECPATH" -G …`. Under the linker launch, `/proc/self/exe` —
+   hence `CLAUDE_CODE_EXECPATH` — is the **linker**, so the shim runs
+   `ld.so -G …` and dies with `-G: cannot open shared object file`.
 
-The catch? **Source maps contain the original source code** embedded as strings inside a JSON file under the `sourcesContent` key.
+## The fix — a loader that *is* `/proc/self/exe`
 
-```json
-{
-  "version": 3,
-  "sources": ["../src/main.tsx", "../src/tools/BashTool.ts", "..."],
-  "sourcesContent": ["// The ENTIRE original source code of each file", "..."],
-  "mappings": "AAAA,SAAS,OAAO..."
-}
-```
+`claude-dispatch` is a small static-pie binary the kernel can exec on WSL1. The
+kernel execs **it**, so `/proc/self/exe` genuinely is `claude-dispatch`. It then:
 
-By forgetting to add `*.map` to `.npmignore` or failing to disable source maps in production builds (Bun's default behavior), the entire raw source was shipped to the npm registry.
+1. inspects `argv[0]` — tool dispatch (`ugrep`/`rg`/`bfs`) vs. a normal launch;
+2. `mmap`s the real `ld.so` and builds a fresh stack whose `argv` is
+   `[ld.so, (--argv0 <tool>)?, <claude>, <args…>]`, with the auxv repointed at ld.so;
+3. **jumps to ld.so's entry in-process — no `execve`.**
 
-[![Claude Code source files exposed in npm package](assets/claude-npm-img.png)](assets/claude-npm-img.png)
+Because there was no `execve`, `/proc/self/exe` stays `claude-dispatch`, so
+`CLAUDE_CODE_EXECPATH` is correct with **no `LD_PRELOAD`, no `readlink` hook, no
+env var**. grep/find/rg run (as claude-`ugrep`/`rg`/`bfs`), and subagents work
+automatically — claude self-spawns via `execPath` = `claude-dispatch`.
 
----
+It reuses nix-ld's ELF mapper, raw syscalls, self-relocation and jump trampoline;
+the direct-exec loader + tool dispatcher is
+[`loader/src/main.rs`](./loader/src/main.rs). See [`loader/NOTICE`](./loader/NOTICE).
 
-## 🛠 What's Under the Hood?
+## Install
 
-Claude Code is not just a simple CLI. It's a massive **785KB `main.tsx`** entry point featuring a custom React terminal renderer (Ink), 40+ tools, and complex multi-agent orchestration.
+Needs a Rust toolchain + a C compiler (the bundled [pixi](https://pixi.sh) env
+provides both) and a glibc ≥ 2.33 dynamic linker.
 
-### 🐣 BUDDY - The Terminal Tamagotchi
-Inside [`src/buddy/`](./src/buddy/), there is a full **Tamagotchi-style companion system**.
-- **Deterministic Gacha:** Uses a Mulberry32 PRNG seeded from your `userId`.
-- **18 Species:** Ranging from Common (*Pebblecrab*) to Legendary (*Nebulynx*).
-- **Stats & Souls:** Every buddy has stats like `DEBUGGING`, `CHAOS`, and `SNARK`, with a "soul" description written by Claude.
-
-### 🕵️‍♂️ Undercover Mode - "Do Not Blow Your Cover"
-Anthropic employees use Claude Code to contribute to public repos. **Undercover Mode** ([`src/utils/undercover.ts`](./src/utils/undercover.ts)) prevents the AI from leaking internal info:
-- Blocks internal model codenames (e.g., *Capybara*, *Tengu*).
-- Hides the fact that the user is an AI.
-- Confirms that **"Tengu"** is likely the internal codename for Claude Code.
-
-### 🌙 The "Dream" System
-Claude Code "dreams" to consolidate memory. The **autoDream** service ([`src/services/autoDream/`](./src/services/autoDream/)) runs as a background subagent to:
-1. **Orient:** Read `MEMORY.md`.
-2. **Gather:** Find new signals from daily logs.
-3. **Consolidate:** Update durable memory files.
-4. **Prune:** Keep context efficient.
-
-### 🚀 KAIROS & ULTRAPLAN
-- **KAIROS:** An "always-on" proactive assistant that watches logs and acts without waiting for input.
-- **ULTRAPLAN:** Offloads complex tasks to a remote **Opus 4.6** session for up to 30 minutes of deep planning.
-
----
-
-## 📂 Architecture & Directory Structure
-
-```text
-src/
-├── main.tsx                 # CLI Entrypoint (Commander.js + React/Ink)
-├── QueryEngine.ts           # Core LLM logic
-├── Tool.ts                  # Base tool definitions
-├── tools/                   # 40+ Agent tools (Bash, Files, LSP, Web)
-├── services/                # Backend (MCP, OAuth, Analytics, Dreams)
-├── coordinator/             # Multi-agent orchestration (Swarm)
-├── bridge/                  # IDE Integration layer
-└── buddy/                   # The secret Tamagotchi system
-```
-
----
-
-## ⚙️ How to Use & Explore
-
-### 📦 Prerequisites
-- **[Bun Runtime](https://bun.sh)** (Highly Recommended) or Node.js v18+
-- **TypeScript** installed globally
-
-### 🚀 Getting Started
-
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/your-username/claude-leaked.git
-    cd claude-leaked
-    ```
-
-2.  **Install Dependencies:**
-    ```bash
-    npm install
-    ```
-
-3.  **Build the Project:**
-    ```bash
-    npm run build
-    ```
-
-4.  **Run the CLI:**
-    ```bash
-    node dist/main.js
-    ```
-
-> **Heads-up:** `src/` is *extracted* source (recovered from the sourcemap); there
-> is no `package.json` / `tsconfig.json`, so the `npm` steps above are illustrative
-> and it won't build or run as-is. A **pixi** workspace (`pixi.toml`) provides the
-> dev tooling that *does* run here:
->
-> ```bash
-> pixi install              # gcc / make / nodejs / typescript (+ an isolated bun env)
-> pixi run build-wsl-fix    # build wsl1-ld-linux-fix/
-> pixi run install-wsl-fix  # build + install the WSL1 fix
-> pixi run -e bun bun ...   # bun lives in its own environment
-> ```
-
-### 🩹 Running the real CLI on WSL1
-
-If you run the actual Claude Code binary on **WSL1**, version `2.1.83+` fails with
-`Exec format error` ([anthropics/claude-code#38788](https://github.com/anthropics/claude-code/issues/38788)).
-The usual fix is to launch it through the dynamic linker (`ld-linux … claude`),
-but that quietly breaks every `grep`/`find`/`rg` tool call with
-`-G: cannot open shared object file`. See [`wsl1-ld-linux-fix/`](./wsl1-ld-linux-fix/)
-for a small two-piece (`ld.so --preload` + dispatcher) fix and a one-command installer.
-
-### 🔍 Explore with MCP
-This repo includes an **MCP Server** to let you explore the source using Claude itself:
 ```bash
-claude mcp add code-explorer -- npx -y claude-code-explorer-mcp
+pixi run install-loader      # detects claude + linker, builds, installs ~/.local/bin/claude-dispatch
 ```
 
----
+Then add the launcher to your `~/.bashrc` / `~/.zshrc` and reload your shell:
 
-## 📈 SEO & Rankings
-**Keywords:** `Claude Code Leak`, `Anthropic Source Code`, `AI Agent Framework`, `Claude 3.5 Sonnet CLI`, `Tengu Anthropic`, `npm sourcemap leak`, `Open Source AI Agent`.
+```bash
+claude() { "$HOME/.local/bin/claude-dispatch" "$@"; }
+```
 
----
-
-## 📜 License
-
-The repository's own additions — `wsl1-ld-linux-fix/`, the pixi setup, `CLAUDE.md`,
-and this README — are released under the **[WTFPL](LICENSE)** (Do What The Fuck You
-Want To Public License). The mirrored Claude Code source under `src/` is **not**
-covered: it remains the proprietary property of Anthropic PBC (see below).
+Verify in a fresh shell: `echo "$CLAUDE_CODE_EXECPATH"` ends in `…/claude-dispatch`,
+`echo "$LD_PRELOAD"` is empty, and `grep`/`find`/`rg` work. See
+[`loader/`](./loader/) for `make` / `cargo` builds, overrides, and details.
 
 ---
 
-## 📜 Credits & Legal
+## 🗄 About the mirror
 
-- **Discovery:** [Chaofan Shou (@Fried_rice)](https://x.com/Fried_rice)
-- **Source Post:** [Twitter/X Announcement](https://x.com/Fried_rice/status/2038894956459290963)
-- **Author of this Mirror:** [Yasas Banu](https://www.yasasbanuka.tech)
+This repo began as — and still contains — an **archival mirror of Claude Code's
+leaked source** (the TypeScript/TSX under [`src/`](./src/)), recovered from a
+`.map` sourcemap accidentally published to npm in March 2026 (discovered by
+[Chaofan Shou](https://x.com/Fried_rice); originally mirrored by
+[Yasas Banu](https://www.yasasbanuka.tech)). It is study material, not a buildable
+project. A short tour of what's inside is in [`CLAUDE.md`](./CLAUDE.md).
 
-**Disclaimer:** All original source code is the proprietary property of **Anthropic PBC**. This repository is for educational and archival purposes only. **This is not an official Anthropic product.**
+## 📜 License & disclaimer
 
----
-
-### 📩 Contact
-For spamming reasons the email has been removed. 
+The loader and tooling in `loader/` are derived from nix-ld (MIT,
+[`loader/LICENSE.nix-ld`](./loader/LICENSE.nix-ld)); everything else original to
+this repo is [WTFPL](./LICENSE). **The mirrored source under `src/` is the
+proprietary property of Anthropic PBC**, included for educational/archival
+purposes only — this is not an official Anthropic product.

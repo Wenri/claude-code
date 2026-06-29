@@ -1,0 +1,42 @@
+# Derived from nix-ld (https://github.com/nix-community/nix-ld), MIT — see LICENSE.nix-ld.
+# Builds the claude-dispatch in-process loader (see ../README.md).
+[package]
+name = "claude-loader"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "claude-dispatch"
+path = "src/main.rs"
+test = false
+
+[dependencies]
+embedded-io = "0.6.1"
+goblin = { version = "0.10.7", default-features = false, features = [
+    "elf32",
+    "elf64",
+] }
+heapless = "0.9.3"
+linux-raw-sys = { version = "0.12.1", default-features = false, features = [
+    "no_std",
+    "general",
+    "errno",
+] }
+log = "0.4.32"
+
+[build-dependencies]
+cc = "1.2.63"
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"
+lto = true
+debug = true
+
+[features]
+default = ["entry_trampoline"]
+
+# Use a trampoline to revert our env changes before executing the real program
+entry_trampoline = []

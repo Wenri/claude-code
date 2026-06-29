@@ -1,0 +1,23 @@
+claude-dispatch
+================
+
+This loader is derived from nix-ld (https://github.com/nix-community/nix-ld),
+Copyright (c) Jörg Thalheim and contributors, licensed under the MIT License.
+The full MIT license text is in LICENSE.nix-ld.
+
+Reused essentially as-is from nix-ld:
+  src/elf.rs  src/sys.rs  src/arch.rs  src/auxv.rs  src/fixup.rs
+  src/support.rs  src/args.rs  src/const_concat.rs  src/nolibc.c  vendor/nolibc/
+  build.rs  .cargo/config.toml
+
+Replaced for this project (direct-exec loader + tool dispatch for the WSL1
+ld-linux workaround, anthropics/claude-code#38788):
+  src/main.rs
+
+Modified:
+  src/elf.rs   — ElfMapping now exposes phdr/phent/phnum/entry_point
+  src/args.rs  — added argv()/envp()/envc() accessors
+  Cargo.toml   — package/bin renamed; tests/dev-deps dropped
+
+Project-authored parts (src/main.rs and the surrounding wsl1-ld-linux-fix/
+tooling) are licensed under the WTFPL, like the rest of this repository.
