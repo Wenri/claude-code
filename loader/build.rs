@@ -13,7 +13,7 @@
 //
 // NOTE: the conda gcc injects a DT_RPATH that rtld asserts on. build.rs runs BEFORE
 // the link, so it cannot strip it — `patchelf --remove-rpath` on the finished binary
-// stays a one-line post-step (see install.sh / Makefile).
+// stays a one-line post-step (the Makefile install target).
 use std::ffi::OsStr;
 use std::fs::{self, File};
 use std::path::{Path, PathBuf};
@@ -31,7 +31,7 @@ fn main() {
         std::env::var("CLAUDE_BIN").unwrap_or_else(|_| format!("{home}/.local/bin/claude"));
 
     let tarball = find_tarball(&manifest.join("glibc"));
-    let patch = manifest.join("rtld-dispatch.patch");
+    let patch = manifest.join("glibc/rtld-dispatch.patch");
     let build = manifest.join(".build");
     let src = build.join("glibc-src");
     let obj = build.join("glibc-obj");

@@ -71,7 +71,7 @@ No preload, no readlink hook, no `execve`; subagents work automatically.
 The whole build is **driven by cargo** (nix-ld's `build.rs` shape, where they
 cc-build nolibc — we build glibc instead). `cargo build` (`build.rs`):
 1. extracts the vendored glibc source (`loader/glibc/glibc-2.42.tar.xz`, Git LFS);
-2. applies `loader/rtld-dispatch.patch` — ~2 lines in `elf/rtld.c` (the `dl_main`
+2. applies `loader/glibc/rtld-dispatch.patch` — ~2 lines in `elf/rtld.c` (the `dl_main`
    hook). **`rtld.c` only — no `elf/Makefile` change**; the final link is ours;
 3. `configure` + `make`, **tolerating the one expected failure**: glibc's final `ld.so`
    link errors on the undefined `claude_dispatch` (that link is ours). We can't target
@@ -90,7 +90,7 @@ cc-build nolibc — we build glibc instead). `cargo build` (`build.rs`):
 
 The heavy glibc build is cached in `loader/.build/` (only reruns when the patch /
 tarball / `CLAUDE_BIN` change). The one step that can't fold into `build.rs` (it runs
-before the link): `install.sh` does `patchelf --remove-rpath` on
+before the link): the `Makefile` `install` target does `patchelf --remove-rpath` on
 `target/release/claude-dispatch` — the conda gcc injects a `DT_RPATH` that rtld
 asserts against. **Mandatory.** The built binary is glibc-derived (**LGPL**); only
 the patch + Rust source live here. `loader/.build/` & `target/` are git-ignored.

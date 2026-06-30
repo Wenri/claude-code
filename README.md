@@ -47,7 +47,7 @@ The final link is **driven by cargo** (nix-ld style): glibc is built only up to
 `librtld.os`, then a `no_std` `bin` crate links it — rtld supplies the `_start` entry
 **and** the libc (our hook resolves only `memcpy`/`memset`/`memcmp` against rtld) — into
 the `-shared` `ld.so`. So the whole glibc change is **`rtld.c`-only**
-([`loader/rtld-dispatch.patch`](./loader/rtld-dispatch.patch), no `elf/Makefile` hunk);
+([`loader/glibc/rtld-dispatch.patch`](./loader/glibc/rtld-dispatch.patch), no `elf/Makefile` hunk);
 the logic is [`loader/src/main.rs`](./loader/src/main.rs) and `build.rs` owns the link recipe.
 
 ## Install
