@@ -1,25 +1,22 @@
 # Build & install claude-dispatch — a custom glibc ld.so that loads Claude Code
-# (see ../README.md). The heavy lifting is in build.sh / install.sh; this is a
-# thin convenience wrapper.
+# (see ../README.md). The whole build (glibc → librtld.os, then the final ld.so
+# link) is folded into build.rs + cargo; this is a thin convenience wrapper.
 #
-#   make            build the custom ld.so (loader/.build/glibc-obj/elf/ld.so)
-#   make install    build + install ~/.local/bin/claude-dispatch + print launcher
-#   make clean      remove the build tree
+#   make            cargo build (build.rs builds glibc on first run, ~15 min, cached)
+#   make install    build + patchelf + install ~/.local/bin/claude-dispatch
+#   make clean      remove the build tree (forces a glibc rebuild next time)
 #
-# Override paths: make install CLAUDE_BIN=/opt/claude/bin/claude PREFIX=$HOME/.local
-
-PREFIX     ?= $(HOME)/.local
-CLAUDE_BIN ?= $(PREFIX)/bin/claude
-export CLAUDE_BIN
-export PREFIX
+# Override: make install CLAUDE_BIN=/opt/claude/bin/claude PREFIX=$HOME/.local
+export CLAUDE_BIN ?= $(HOME)/.local/bin/claude
 
 all:
-	sh build.sh
+	cargo build --release
 
 install:
 	sh install.sh
 
 clean:
-	rm -rf .build target
+	cargo clean
+	rm -rf .build
 
 .PHONY: all install clean

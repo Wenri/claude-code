@@ -3,5 +3,5 @@
 version = 4
 
 [[package]]
-name = "claude_dispatch"
+name = "claude-dispatch"
 version = "0.1.0"

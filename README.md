@@ -43,10 +43,12 @@ untouched — it loads claude and transfers control normally. **No `LD_PRELOAD`,
 `readlink` hook, no env var, no `execve`.** grep/find/rg work, and subagents work
 automatically (claude self-spawns via `execPath` = `claude-dispatch`).
 
-The dispatch object is `no_std` and resolves only `memcpy`/`memset`/`memcmp`
-(against rtld), so it links cleanly into glibc's `-z defs` `ld.so`. The whole glibc
-change is [`loader/rtld-dispatch.patch`](./loader/rtld-dispatch.patch); the logic is
-[`loader/src/lib.rs`](./loader/src/lib.rs).
+The final link is **driven by cargo** (nix-ld style): glibc is built only up to
+`librtld.os`, then a `no_std` `bin` crate links it — rtld supplies the `_start` entry
+**and** the libc (our hook resolves only `memcpy`/`memset`/`memcmp` against rtld) — into
+the `-shared` `ld.so`. So the whole glibc change is **`rtld.c`-only**
+([`loader/rtld-dispatch.patch`](./loader/rtld-dispatch.patch), no `elf/Makefile` hunk);
+the logic is [`loader/src/main.rs`](./loader/src/main.rs) and `build.rs` owns the link recipe.
 
 ## Install
 

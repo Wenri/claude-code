@@ -1,14 +1,15 @@
-# The claude-dispatch hook: a tiny no_std staticlib linked into a custom glibc
-# ld.so (see ../README.md and build.sh). Builds to libclaude_dispatch.a, which
-# build.sh stages into the glibc build as elf/claude_dispatch.a.
+# claude-dispatch — a nix-ld-style bin crate whose final link cargo drives,
+# pulling in glibc's rtld objects (librtld.os) as the runtime + entry point.
+# See ../README.md and build.sh. rtld provides _start + libc; this crate provides
+# only the `claude_dispatch` hook that glibc's patched dl_main calls.
 [package]
-name = "claude_dispatch"
+name = "claude-dispatch"
 version = "0.1.0"
 edition = "2021"
 
-[lib]
-crate-type = ["staticlib"]
-path = "src/lib.rs"
+[[bin]]
+name = "claude-dispatch"
+path = "src/main.rs"
 
 [profile.release]
 panic = "abort"

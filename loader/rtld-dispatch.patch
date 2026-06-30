@@ -3,7 +3,7 @@
 @@ -1348,6 +1348,16 @@
        /* Note the place where the dynamic linker actually came from.  */
        _dl_rtld_map.l_name = rtld_progname;
- 
+
 +      /* claude-dispatch: select CLAUDE_BIN as the program (and the bundled-tool
 +         argv0) without consuming any args — _dl_argv is left untouched so
 +         skip_args stays 0 and the program receives the kernel argv unchanged.
@@ -20,19 +20,8 @@
 @@ -1487,6 +1497,7 @@
        --_dl_argc;
        ++_dl_argv;
- 
+
 +    claude_loaded:
        /* The initialization of _dl_stack_flags done below assumes the
  	 executable's PT_GNU_STACK may have been honored by the kernel, and
  	 so a PT_GNU_STACK with PF_X set means the stack started out with
---- a/elf/Makefile	2025-07-28 20:22:55.000000000 +0200
-+++ b/elf/Makefile	2026-06-30 00:32:54.206039000 +0200
-@@ -1530,7 +1530,7 @@
- 
- z-now-yes = -Wl,-z,now
- 
--$(objpfx)ld.so: $(objpfx)librtld.os $(ld-map)
-+$(objpfx)ld.so: $(objpfx)librtld.os $(objpfx)claude_dispatch.a $(ld-map)
- # Link into a temporary file so that we don't touch $@ at all
- # if the sanity check below fails.
- 	$(LINK.o) -nostdlib -nostartfiles -shared -o $@.new		\

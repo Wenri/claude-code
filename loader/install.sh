@@ -1,8 +1,12 @@
 #!/usr/bin/env sh
-# install.sh — build claude-dispatch (custom ld.so) and install it.
+# install.sh — build claude-dispatch (a custom glibc ld.so) and install it.
 #
-# Wraps build.sh, then installs the resulting ld.so as ~/.local/bin/claude-dispatch
-# and prints the launcher shell function. Override: CLAUDE_BIN=... PREFIX=$HOME/.local
+# The build itself is folded into build.rs (extract + patch + configure + make
+# glibc → librtld.os, then cargo links the ld.so). This script just runs
+# `cargo build`, strips the conda-gcc RPATH (which build.rs can't — it runs before
+# the link, and rtld asserts DT_RPATH==NULL), and installs the result.
+#
+# Override: CLAUDE_BIN=... PREFIX=$HOME/.local
 # Needs cargo + gcc + patchelf (this repo's pixi env provides them) and the glibc
 # source tarball (git lfs pull). See ../README.md and anthropics/claude-code#38788.
 set -eu
@@ -11,7 +15,7 @@ here="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 PREFIX="${PREFIX:-$HOME/.local}"
 BIN="$PREFIX/bin"
 
-# locate the real claude binary (also baked in as the default program)
+# locate the real claude binary (also baked in by build.rs as the default program)
 if [ -z "${CLAUDE_BIN:-}" ]; then
   for c in "$HOME/.local/bin/claude" "/usr/local/bin/claude" "/usr/bin/claude"; do
     [ -f "$c" ] && CLAUDE_BIN="$c" && break
@@ -22,15 +26,21 @@ if [ -z "${CLAUDE_BIN:-}" ] || [ ! -f "$CLAUDE_BIN" ]; then
   exit 1
 fi
 export CLAUDE_BIN
+command -v patchelf >/dev/null 2>&1 || { echo "error: patchelf not found (pixi add patchelf)" >&2; exit 1; }
 
 echo "claude binary  : $CLAUDE_BIN"
 echo "install prefix : $PREFIX"
 echo
 
-CLAUDE_BIN="$CLAUDE_BIN" sh "$here/build.sh"
+# build.rs does the glibc build (first time ~15 min; cached in .build/) + the ld.so link
+( cd "$here" && cargo build --release )
+
+BIN_OUT="$here/target/release/claude-dispatch"
+# rtld asserts DT_RPATH==NULL; the conda gcc injects one. Strip it (post-link).
+patchelf --remove-rpath "$BIN_OUT"
 
 mkdir -p "$BIN"
-install -m 0755 "$here/.build/glibc-obj/elf/ld.so" "$BIN/claude-dispatch"
+install -m 0755 "$BIN_OUT" "$BIN/claude-dispatch"
 
 cat <<EOF
 

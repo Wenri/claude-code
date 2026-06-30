@@ -1,0 +1,9 @@
+# Drive the final link through gcc/bfd (matching glibc's own ld.so link), not the
+# bundled rust-lld: lld rejects glibc's `-z nomark-plt` and `ld.map` version script.
+# No nightly needed (unlike nix-ld's -Z plt) — these are all stable flags.
+[build]
+rustflags = [
+    "-C", "linker=gcc",
+    "-C", "link-self-contained=no",
+    "-C", "relocation-model=pic",
+]
