@@ -21,12 +21,12 @@ Two things layered on top of the mirror ARE maintained here:
 There is **no build / lint / test for `src/`**. The real tooling is the pixi
 workspace:
 
-- `pixi install` — materialize the default env (gcc, make, rust, bison, patchelf, … + nodejs/typescript).
+- `pixi install` — materialize the default env (gcc, make, rust, bison, patchelf, … + bun/nodejs/typescript).
 - `pixi run build-loader` — build the custom `ld.so` (`loader/`); output in `loader/.build/`.
 - `pixi run install-loader` — build + install `~/.local/bin/claude-dispatch` and print the launcher.
-- `pixi run <cmd>` — run a tool in the default env (e.g. `pixi run node`, `pixi run tsc`).
-- `pixi run -e bun bun <args>` — bun is isolated in its own `[environments] bun`
-  (conda-forge bun pins an older `icu` than nodejs 26, so it can't share the default env).
+- `pixi run <cmd>` — run a tool in the default env (e.g. `pixi run bun`, `pixi run node`, `pixi run tsc`).
+  bun + nodejs share the default env, but only because they share **icu 75**: bun pins it,
+  so nodejs is held `<26` (v26 needs icu 78). Bumping nodejs to 26 would break that.
 
 The glibc source tarball is in **Git LFS** (`git lfs pull` to fetch it before building).
 `.pixi/`, `loader/.build/`, and `loader/target/` are git-ignored.
