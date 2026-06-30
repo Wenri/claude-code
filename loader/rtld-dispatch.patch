@@ -9,8 +9,8 @@
 +         skip_args stays 0 and the program receives the kernel argv unchanged.
 +         Then skip ld.so's own option parsing.  */
 +      {
-+	extern int claude_dispatch (char **, char **, char **);
-+	if (claude_dispatch (_dl_argv, __environ, &argv0))
++	extern int claude_dispatch (char **, char **);
++	if (claude_dispatch (_dl_argv, &argv0))
 +	  goto claude_loaded;
 +      }
 +

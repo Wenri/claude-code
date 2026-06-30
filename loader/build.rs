@@ -42,7 +42,11 @@ fn main() {
     println!("cargo:rerun-if-changed={}", tarball.display());
     println!("cargo:rerun-if-env-changed=CLAUDE_BIN");
 
-    if !librtld.exists() || !ldmap.exists() {
+    // Rebuild glibc if librtld.os is missing OR the patch/tarball changed since it was
+    // built (the patch is compiled into rtld.os, so a stale librtld.os = wrong rtld.c).
+    let stale = !librtld.exists() || !ldmap.exists()
+        || newer_than(&patch, &librtld) || newer_than(&tarball, &librtld);
+    if stale {
         build_glibc(&tarball, &patch, &src, &obj);
         assert!(
             librtld.exists() && ldmap.exists(),
@@ -137,6 +141,15 @@ fn must(cmd: &mut Command, what: &str) {
 
 fn env_path(k: &str) -> PathBuf {
     PathBuf::from(std::env::var(k).unwrap_or_else(|_| panic!("{k} unset")))
+}
+
+/// true if `a` is newer than `b` (or either is missing) — i.e. the cache is stale.
+fn newer_than(a: &Path, b: &Path) -> bool {
+    let mtime = |p: &Path| fs::metadata(p).and_then(|m| m.modified()).ok();
+    match (mtime(a), mtime(b)) {
+        (Some(ta), Some(tb)) => ta > tb,
+        _ => true,
+    }
 }
 
 fn find_tarball(dir: &Path) -> PathBuf {
