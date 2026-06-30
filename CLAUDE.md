@@ -83,7 +83,10 @@ cc-build nolibc — we build glibc instead). `cargo build` (`build.rs`):
    `no_std` hook resolves only `memcpy`/`memset`/`memcmp` against it), `-shared` +
    `--version-script` export the GLIBC_PRIVATE interface the loaded libc binds to.
    `.cargo/config.toml` selects gcc/bfd (rust-lld rejects the version script +
-   `-z nomark-plt`). No nightly needed — all stable (vs nix-ld's `-Z plt`).
+   `-z nomark-plt`) and sets `RUSTC_BOOTSTRAP=1` to enable, on stable rustc, the
+   `lang_items` feature (for nix-ld's `eh_personality` lang item) and `-Z plt=yes`
+   (nix-ld parity). We keep `relocation-model=pic` (not nix-ld's `pie` — our output
+   is a `-shared` symbol-exporting ld.so, where pie codegen would mis-assume preemption).
 
 The heavy glibc build is cached in `loader/.build/` (only reruns when the patch /
 tarball / `CLAUDE_BIN` change). The one step that can't fold into `build.rs` (it runs
