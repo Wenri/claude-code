@@ -1,0 +1,37 @@
+rtld-dispatch
+=============
+
+rtld-dispatch is a custom build of the GNU C Library's dynamic linker (ld.so).
+
+The final ld.so link is driven by cargo (nix-ld style): glibc is built only up to
+`librtld.os`, then a `bin` crate links that (rtld = the libc subset + the `_start`
+entry) together with our `claude_dispatch` hook into the ld.so.
+
+What this repository contains:
+  - glibc/rtld-dispatch.patch — a small patch to glibc's elf/rtld.c (the dl_main hook).
+                           No elf/Makefile change: the final link is ours, not glibc's.
+  - src/                 — a no_std `bin` crate; src/main.rs is the `claude_dispatch`
+                           hook (no main/_start of its own — rtld provides _start).
+  - build.rs             — drives the whole build: extracts/patches/configures/makes
+                           glibc → librtld.os, then injects glibc's ld.so link recipe
+                           + librtld.os so cargo's own link produces the ld.so.
+  - .cargo/config.toml   — selects gcc/bfd (not rust-lld) for the final link.
+  - Makefile             — build + `patchelf --remove-rpath` + install as <prog>.rtld
+                           (the rpath strip can't live in build.rs — it runs pre-link).
+  - glibc/glibc-*.tar.xz — pristine upstream glibc source (Git LFS), unmodified.
+  - glibc/slackware/     — Slackware's glibc patches + SlackBuild, for reference.
+  - patch_agy_wsl1.py    — standalone (unrelated to the ld.so build): patches Google's
+                           Antigravity CLI binary so its bundled tcmalloc runs on WSL1.
+
+Licensing:
+  - The GNU C Library is licensed under the GNU Lesser General Public License,
+    version 2.1 or later (see the glibc source: COPYING, COPYING.LIB, LICENSES).
+  - The BINARY produced by the build is a glibc derivative (it embeds librtld.os) and
+    is covered by the LGPL-2.1-or-later. This repository distributes only the patch
+    and the Rust/shell source needed to reproduce it — not any built binary.
+  - The project-authored parts (rtld-dispatch.patch, src/*.rs, build.rs, the build
+    scripts) are released under the WTFPL, like the rest of this repository. They are
+    also usable under the LGPL when combined with glibc to form the linker.
+
+glibc upstream: https://www.gnu.org/software/libc/
+Fixes: https://github.com/anthropics/claude-code/issues/38788

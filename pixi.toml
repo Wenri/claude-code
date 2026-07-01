@@ -1,0 +1,27 @@
+[workspace]
+authors = ["Bingchen Gong <6704443+Wenri@users.noreply.github.com>"]
+channels = ["conda-forge"]
+name = "claude-code"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[tasks]
+# Build claude-dispatch: a custom glibc ld.so that loads Claude Code (the kernel
+# execs it, so /proc/self/exe is correct). Build tree: loader/.build/.
+build-loader = "make -C loader"
+# Build + install it to ~/.local/bin/claude-dispatch and print the launcher.
+install-loader = "make -C loader install"
+
+[dependencies]
+gcc = ">=15.2.0,<15.3"
+gxx = ">=15.2.0,<15.3"
+make = ">=4.4.1,<5"
+rust = ">=1.96.0,<1.97"
+bison = ">=3.8.2,<4"
+elfutils = ">=0.194,<0.195"
+patchelf = ">=0.17.2,<0.18"
+# bun and nodejs must share one icu: bun pins icu 75, so nodejs is held below v26
+# (v26 needs icu 78); 25.x shares icu 75. typescript follows nodejs.
+bun = "*"
+nodejs = ">=25.2.1,<26"
+typescript = ">=6.0.2,<7"
