@@ -1,0 +1,424 @@
+{
+  "schemaVersion": 2,
+  "case": "2.1.88-to-2.1.89",
+  "recoveryScope": {
+    "completeness": "generated-complete-source-partial",
+    "exactPublishedBundleReconstruction": true,
+    "allTargetUtf16Accounted": true,
+    "allTargetTokensClassified": true,
+    "allTargetTokensResolvedToBaseline": false,
+    "authoredSourceTextObservable": false,
+    "unresolved": "All published target bytes and tokens are present in the recovery. The structural ledger deliberately leaves 406,460 target tokens without a defensible baseline pairing, and the minified package cannot reveal erased TypeScript names, types, comments, formatting, or exact module placement."
+  },
+  "artifacts": [
+    {
+      "id": "baselineBundle",
+      "argument": "baseline",
+      "localPath": "2.1.88/cli.js",
+      "url": "https://cdn.jsdelivr.net/npm/@anthropic-ai/claude-code@2.1.88/cli.js",
+      "bytes": 13047043,
+      "sha256": "75c9611929d9a770fe2e3a393219d8b98f5de17fde539b2a7355c6db3fd2795f"
+    },
+    {
+      "id": "baselineSourceMap",
+      "argument": "map",
+      "localPath": "2.1.88/cli.js.map",
+      "url": "https://raw.githubusercontent.com/Exhen/claude-code-2.1.88/main/cli.js.map",
+      "bytes": 59766257,
+      "sha256": "7965012b7a5fc9e09d8d747a04c5c32b94696924536e217f686bb1e7ee70a657"
+    },
+    {
+      "id": "baselineDeclarations",
+      "argument": "baseline-dts",
+      "localPath": "2.1.88/sdk-tools.d.ts",
+      "url": "https://raw.githubusercontent.com/Exhen/claude-code-2.1.88/main/sdk-tools.d.ts",
+      "bytes": 116949,
+      "sha256": "53d249727389f9c9af5192f99bf66c4513b89d710e4326082ce1d218c3e6c7fc"
+    },
+    {
+      "id": "baselinePackageJson",
+      "argument": "baseline-package-json",
+      "localPath": "2.1.88/package.json",
+      "url": "https://raw.githubusercontent.com/Exhen/claude-code-2.1.88/main/package.json",
+      "bytes": 1242,
+      "sha256": "e21f9e98fa4ea8b4d007063d92c631df1bbed6d11c9e79c5fcdeb9f4859dc8fa"
+    },
+    {
+      "id": "targetTarball",
+      "argument": "target-tarball",
+      "localPath": "2.1.89/package.tgz",
+      "url": "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.1.89.tgz",
+      "bytes": 16493038,
+      "sha256": "680e35001b24b604f58958e3a324bb758be3c069c0a3f89585156256f17a9c87"
+    },
+    {
+      "id": "targetBundle",
+      "argument": "target",
+      "localPath": "2.1.89/package/cli.js",
+      "archive": "targetTarball",
+      "archiveMember": "package/cli.js",
+      "bytes": 13081065,
+      "sha256": "a9950ef6407fdc750bddb673852485500387e524a99d42385cb81e7d17128e01"
+    },
+    {
+      "id": "targetDeclarations",
+      "argument": "target-dts",
+      "localPath": "2.1.89/package/sdk-tools.d.ts",
+      "archive": "targetTarball",
+      "archiveMember": "package/sdk-tools.d.ts",
+      "bytes": 117129,
+      "sha256": "05ecc6a51d013f5e9b8f1cc86818c467435a71187d18005d3125ed6e0c52fe2d"
+    },
+    {
+      "id": "targetPackageJson",
+      "argument": "target-package-json",
+      "localPath": "2.1.89/package/package.json",
+      "archive": "targetTarball",
+      "archiveMember": "package/package.json",
+      "bytes": 1242,
+      "sha256": "2cc59f27f893cbfc4dce4d8da7ea4a088d3721afeeed5e3e3438a0fcef92d109"
+    },
+    {
+      "id": "officialChangelog",
+      "argument": "changelog",
+      "localPath": "evidence/claude-code-CHANGELOG-7ef6eec.md",
+      "url": "https://raw.githubusercontent.com/anthropics/claude-code/7ef6eec9d9ba84ea6f233f26c45f1df5c5991843/CHANGELOG.md",
+      "bytes": 477054,
+      "sha256": "9e4ad11b0443ad9db409b030481e284eb819781d94ee9f1ad28844b7759d74f5"
+    }
+  ],
+  "baselineOracle": {
+    "applicationSourceCount": 1902,
+    "applicationSourceBytes": 30382832,
+    "applicationManifestSha256": "9e114f72a61a00dc9c8bb5888072ef8289720ecec306a1c31e34c38685d6108c",
+    "tsxSourceCount": 552,
+    "nestedOriginalBytes": 4509965,
+    "nestedOriginalManifestSha256": "9f1d3a8a35152bccb71c0ba384c5f2bf104da871e09e5f596cf4d3d87d6fcd59",
+    "sourceMap": {
+      "generatedLineCount": 16666,
+      "segmentCount": 2068722,
+      "mappedSegmentCount": 2068722,
+      "sourceCount": 4756,
+      "usedSourceCount": 4756
+    }
+  },
+  "targetAssertions": {
+    "declarationExactInsertion": {
+      "anchor": "  persistedOutputSize?: number;\n",
+      "text": "  /**\n   * Model-facing note listing readFileState entries whose mtime bumped during this command (set when WRITE_COMMAND_MARKERS matches)\n   */\n  staleReadFileStateHint?: string;\n"
+    },
+    "packageVersionChange": {
+      "baseline": "2.1.88",
+      "target": "2.1.89"
+    },
+    "bundleFragments": [
+      {
+        "id": "bash-command-read-tracking",
+        "start": "function W5Y(q)",
+        "end": "var M5Y,X5Y,P5Y;",
+        "bytes": 1730,
+        "sha256": "583d4d228eb58d7bc554e6140c56c6ea36f4e42eb50d5f5e022b296e8672a7e8"
+      },
+      {
+        "id": "parser-find-command-node",
+        "start": "function xV6(q,K)",
+        "end": "function izz(q)",
+        "bytes": 381,
+        "sha256": "72b562dfb56bf2216ef66ab7bc9d90aff7567ca65842ade9b19d0dc378cac68c"
+      },
+      {
+        "id": "parser-extract-command-arguments",
+        "start": "function mo6(q)",
+        "end": "function Sp1(q)",
+        "bytes": 506,
+        "sha256": "e6929fb4e692c3ac686a4317458f2851a08a2e8b522db44c23ab3e54b837889d"
+      },
+      {
+        "id": "sync-command-argument-parser",
+        "start": "function PM(q)",
+        "end": "function iOY(q)",
+        "bytes": 126,
+        "sha256": "38e1bf3aef6c744b98c860db047c2d693295d9a2a3804b69b3d8562f8244a3c1"
+      },
+      {
+        "id": "parser-backed-split-command",
+        "start": "function e$(q)",
+        "end": "function PM(q)",
+        "bytes": 346,
+        "sha256": "64e01194e064b190159ae04a58a6a5101730056557be01ae336da9250a87808c"
+      },
+      {
+        "id": "parser-backed-help-command",
+        "start": "function iOY(q)",
+        "end": "function YGK()",
+        "bytes": 283,
+        "sha256": "3c7e825918218d745c9787dfe6799bd8507fcb5961d70e49ece007eaa2b83ad6"
+      },
+      {
+        "id": "stale-read-state-detection",
+        "start": "async function N3Y(q,K,_)",
+        "end": "async function*y3Y",
+        "bytes": 187,
+        "sha256": "e6fef7acde34d52786d59eb50e373db0dad80b26a3079685f7666f2c1f6f4ba1"
+      },
+      {
+        "id": "write-command-markers",
+        "start": "V3Y=new RegExp([",
+        "end": ";t4=tq(",
+        "includeEndPrefix": 1,
+        "bytes": 376,
+        "sha256": "02e53086a3fbab77853ec6364e531b127f7ebd88ac1f05687901104220dd7247"
+      },
+      {
+        "id": "bash-call-integration",
+        "start": "async call(q,K,_,z,Y){if(q._simulatedSedEdit",
+        "end": "},renderToolUseErrorMessage:ZYK",
+        "bytes": 2834,
+        "sha256": "0fb00c257931f43d50a2060e52fa7bbd6c386c060ecf349328dda26c90661dc2"
+      }
+    ]
+  },
+  "generatedRecovery": {
+    "packageMembers": {
+      "report": "package-members.json",
+      "baselineTarball": {
+        "availability": "user-supplied-yanked-artifact",
+        "bestEffortArchiveUrl": "https://workupload.com/file/7rmyMYnsCed",
+        "bytes": 31196633,
+        "sha1": "c22a001bea2241defb15d0124939836170389daf",
+        "sha256": "d836a86d9150ecc594a7025524c50e24080478904c979f386d447770275ef813",
+        "integrity": "sha512-ukMtYZCi0I7cD3rt89rnXy20D/Zvk0Gj/SW60xYfz17zTslLz+VuhXw/KPb+2ndp3/ATadJdyNEqdKQlcNk7nQ==",
+        "authenticatedMetadataUrl": "https://gist.githubusercontent.com/auscompgeek/f21d70668acb682f5f362d129183afe9/raw/50277188f5f7a234a2348ee0a0210bd5876247d5/claude-code-2.1.88-sig.json"
+      },
+      "baselineMembers": 20,
+      "targetMembers": 19,
+      "targetMemberBytes": 43022346,
+      "targetFramedTreeSha256": "cf6051611c5e7fca17e3bf8b9d7aa22d9da729388462fb3972a896ea29cea3b1",
+      "unchanged": 16,
+      "changed": 3,
+      "added": 0,
+      "removed": 1
+    },
+    "exactBundleDelta": {
+      "algorithm": "zstd-dictionary-patch",
+      "path": "diff/cli.js.zstd-delta",
+      "baselineArtifact": "baselineBundle",
+      "targetArtifact": "targetBundle",
+      "reconstructsTargetExactly": true
+    },
+    "attribution": {
+      "directory": "attribution",
+      "summary": "attribution/summary.json",
+      "offsetUnit": "utf16-code-units",
+      "targetUtf16": 13017066,
+      "accountedTargetUtf16": 13017066,
+      "unaccountedTargetUtf16": 0
+    },
+    "structural": {
+      "ledger": "structural/generated-delta.json.gz",
+      "targetUnits": 18181,
+      "targetTokens": 4197802,
+      "matchedTokens": 3619974,
+      "movedCandidateTokens": 46432,
+      "coarseChangedTokens": 124936,
+      "unresolvedTokens": 406460,
+      "exactStructuralFraction": 0.8734108945586285
+    },
+    "readableDiff": {
+      "directory": "readable-diff",
+      "metadata": "readable-diff/metadata.json",
+      "fullDiff": "readable-diff/normalized.diff.gz",
+      "comparisonInvariantHashesEqual": true
+    },
+    "fileAssertions": [
+      {
+        "path": "package-members.json",
+        "bytes": 13457,
+        "sha256": "c7fe9d8d7e0bb8496d5c043a5c1fe493da8d3150f0f4fb851856b36dcd72489d"
+      },
+      {
+        "path": "diff/cli.js.zstd-delta",
+        "bytes": 2249231,
+        "sha256": "33be2f1480544cbe09873fe610d5a01c66bf9bb025594637c93f3c915158db6d"
+      },
+      {
+        "path": "attribution/summary.json",
+        "bytes": 10776,
+        "sha256": "b378e9e54669a4e9188d3f5e32ee81d9e6140b98f49c615843d05eb474c13897"
+      },
+      {
+        "path": "attribution/sources.jsonl.gz",
+        "bytes": 493672,
+        "sha256": "ea29e89e8cf3373e2d70ad54893c9db860c79f2ec6fe872cc605323b03d7a583"
+      },
+      {
+        "path": "attribution/target-initializers.jsonl.gz",
+        "bytes": 109919,
+        "sha256": "546cb32f52388fc8efadf076ed267fdcd8106d5ff21eed5a962f66925ef64c85"
+      },
+      {
+        "path": "attribution/target-partitions.jsonl.gz",
+        "bytes": 4196891,
+        "sha256": "b095c0f790d470c1b9d83df010dff6130692ae61dd700fe875599f5b4e1d6c03"
+      },
+      {
+        "path": "structural/generated-delta.json.gz",
+        "bytes": 2096840,
+        "sha256": "4196e4df68330e3f0f84614bb37c4ef98dac056c09cb139e796d41bb34afbbf8"
+      },
+      {
+        "path": "readable-diff/metadata.json",
+        "bytes": 3913,
+        "sha256": "c8ffebb49805ef4f0ca597c63729ae7ce09ce5a9de6efae9e5c4d5ec0fcdf261"
+      },
+      {
+        "path": "readable-diff/normalized.diff.gz",
+        "bytes": 5643122,
+        "sha256": "fd51e84b9779f385104067c9752e0cbb074a53e1f204718791fbe7d7bbf4f946"
+      },
+      {
+        "path": "readable-diff/statements.diff",
+        "bytes": 257260,
+        "sha256": "760888b3c98a3f4c9ba47b300d8e3b2ecd535a9c04a4d5037b1b3a3de59929c4"
+      },
+      {
+        "path": "readable-diff/renames.tsv",
+        "bytes": 192638,
+        "sha256": "4d91e9ba21815cbe8348068e35380a70c1ae105dcb921d9e9de306f04b533e4f"
+      }
+    ]
+  },
+  "recoveredFileAssertions": [
+    {
+      "path": "recovered/sdk-tools.pristine.patch",
+      "bytes": 723,
+      "sha256": "65af50589ce7ea10a56690173ce87af8db37f18b0203fc3b4ea014ebf5c97c2b"
+    },
+    {
+      "path": "recovered/bash-parser.pristine.patch",
+      "bytes": 9423,
+      "sha256": "98dac6eff1fda94f85d153b3899382698ef23eff65f68e24f66e840a3516b9d6"
+    },
+    {
+      "path": "recovered/BashTool.pristine.patch",
+      "bytes": 11419,
+      "sha256": "cb5e8e16ce57ab33a1de69b892aef9a7fa05d22c459be17acce924f96afab1f2"
+    },
+    {
+      "path": "recovered/BashTool.bun-input.patch",
+      "bytes": 13559,
+      "sha256": "c814576133e6372d8358e09052533e6666a720312b264178bd7f6a76ffd86ff7"
+    },
+    {
+      "path": "recovered/src/tools/BashTool/fileReadState.ts",
+      "bytes": 5242,
+      "sha256": "3fa46f3b5e332616ec8a5ffab3dcea0299aaee527b12f3ef991c5a61f72d3029"
+    },
+    {
+      "path": "recovered/bash-read-state-model.mjs",
+      "bytes": 10396,
+      "sha256": "3ef2ab3cab32cb381a9379db4c2479769a000b3a0776fff8880f9e8f01e662e4"
+    }
+  ],
+  "recoveryValidation": {
+    "patchOrder": [
+      "recovered/sdk-tools.pristine.patch",
+      "recovered/bash-parser.pristine.patch",
+      "recovered/BashTool.pristine.patch"
+    ],
+    "standaloneCopies": [
+      {
+        "patchedPath": "src/tools/BashTool/fileReadState.ts",
+        "recoveredPath": "recovered/src/tools/BashTool/fileReadState.ts"
+      }
+    ],
+    "syntaxCheck": [
+      "src/utils/bash/parser.ts",
+      "src/utils/bash/commands.ts",
+      "src/tools/BashTool/fileReadState.ts",
+      "src/tools/BashTool/BashTool.tsx"
+    ],
+    "additionalPatchSets": [
+      {
+        "name": "bun-input",
+        "root": "bun-input",
+        "patchOrder": [
+          "recovered/bash-parser.pristine.patch",
+          "recovered/BashTool.bun-input.patch"
+        ],
+        "standaloneCopies": [
+          {
+            "patchedPath": "src/tools/BashTool/fileReadState.ts",
+            "recoveredPath": "recovered/src/tools/BashTool/fileReadState.ts"
+          }
+        ],
+        "syntaxCheck": [
+          "src/utils/bash/parser.ts",
+          "src/utils/bash/commands.ts",
+          "src/tools/BashTool/fileReadState.ts",
+          "src/tools/BashTool/BashTool.tsx"
+        ]
+      }
+    ],
+    "testFiles": [
+      "recovery/test/attribution-report.test.mjs",
+      "recovery/test/bash-read-state-model.test.mjs",
+      "recovery/test/extract-baseline.test.mjs",
+      "recovery/test/generated-attribution.test.mjs",
+      "recovery/test/generate-readable-bundle-diff.test.mjs",
+      "recovery/test/literal-anchor-locator.test.mjs",
+      "recovery/test/package-tarball-compare.test.mjs",
+      "recovery/test/readable-diff-report.test.mjs",
+      "recovery/test/structural-delta.test.mjs",
+      "recovery/test/structural-ledger.test.mjs"
+    ],
+    "testArtifactEnvironment": {
+      "CLAUDE_CODE_2_1_89_BUNDLE": "targetBundle"
+    }
+  },
+  "recoveredEdits": [
+    {
+      "id": "public-declaration",
+      "confidence": "exact",
+      "files": [
+        "recovered/sdk-tools.pristine.patch"
+      ],
+      "explains": [
+        "targetDeclarations",
+        "targetPackageJson"
+      ]
+    },
+    {
+      "id": "bash-read-state",
+      "confidence": "equivalent",
+      "sourceNames": "inferred",
+      "files": [
+        "recovered/src/tools/BashTool/fileReadState.ts",
+        "recovered/bash-read-state-model.mjs",
+        "recovered/BashTool.pristine.patch",
+        "recovered/BashTool.bun-input.patch"
+      ],
+      "explains": [
+        "bash-command-read-tracking",
+        "stale-read-state-detection",
+        "write-command-markers",
+        "bash-call-integration"
+      ]
+    },
+    {
+      "id": "bash-parser-bridge",
+      "confidence": "equivalent",
+      "sourceNames": "inferred",
+      "files": [
+        "recovered/bash-parser.pristine.patch"
+      ],
+      "explains": [
+        "parser-find-command-node",
+        "parser-extract-command-arguments",
+        "sync-command-argument-parser",
+        "parser-backed-split-command",
+        "parser-backed-help-command"
+      ]
+    }
+  ]
+}

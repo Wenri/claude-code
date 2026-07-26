@@ -116,13 +116,18 @@ leaked source** (the TypeScript/TSX under [`src/`](./src/)), recovered from a
 [Chaofan Shou](https://x.com/Fried_rice); originally mirrored by
 [Yasas Banu](https://www.yasasbanuka.tech)). It is study material, not a buildable
 project. A short tour of what's inside is in [`CLAUDE.md`](./CLAUDE.md).
+The evidence-first 2.1.88 → 2.1.89 recovery lives in
+[`recovery/`](./recovery/): it reconstructs the complete published 2.1.89
+bundle/package tree exactly, while keeping the necessarily partial
+authored-TypeScript reconstruction labeled separately.
 
 ## 📜 License & disclaimer
 
 `rtld-dispatch` patches and links against **glibc**, so the *built binary* is
 glibc-derived (**LGPL-2.1-or-later**); this repo ships only the patch + Rust source,
-not a binary (see [`loader/NOTICE`](./loader/NOTICE)). Everything else original to
-this repo — the patch, the Rust dispatch, tooling, docs — is [WTFPL](./LICENSE).
-**The mirrored source under `src/` is the proprietary property of Anthropic PBC**,
-included for educational/archival purposes only — this is not an official Anthropic
-product.
+not a binary (see [`loader/NOTICE`](./loader/NOTICE)). Original work in this repo —
+the loader patch, Rust dispatch, recovery tooling, and documentation — is
+[WTFPL](./LICENSE). **The mirrored source under `src/` and Anthropic-derived
+recovery artifacts under `recovery/cases/` are the proprietary property of
+Anthropic PBC**, included for educational/archival purposes only — this is not an
+official Anthropic product.
