@@ -44,6 +44,7 @@ import { getOriginalCwd, getSessionId } from '../../bootstrap/state.js'
 import type { Command } from '../../commands.js'
 import { getOauthConfig } from '../../constants/oauth.js'
 import { PRODUCT_URL } from '../../constants/product.js'
+import { MAX_MCP_RESULT_SIZE_CHARS } from '../../constants/toolLimits.js'
 import type { AppState } from '../../state/AppState.js'
 import {
   type Tool,
@@ -1766,6 +1767,12 @@ export const fetchToolsForClient = memoizeWithLRU(
       return toolsToProcess
         .map((tool): Tool => {
           const fullyQualifiedName = buildMcpToolName(client.name, tool.name)
+          const requestedMaxResultSizeChars =
+            tool._meta?.['anthropic/maxResultSizeChars']
+          const hasRequestedMaxResultSizeChars =
+            typeof requestedMaxResultSizeChars === 'number' &&
+            Number.isFinite(requestedMaxResultSizeChars) &&
+            requestedMaxResultSizeChars > 0
           return {
             ...MCPTool,
             // In skip-prefix mode, use the original name for model invocation so MCP tools
@@ -1807,6 +1814,15 @@ export const fetchToolsForClient = memoizeWithLRU(
             isOpenWorld() {
               return tool.annotations?.openWorldHint ?? false
             },
+            maxResultSizeChars: hasRequestedMaxResultSizeChars
+              ? Math.min(
+                  requestedMaxResultSizeChars,
+                  MAX_MCP_RESULT_SIZE_CHARS,
+                )
+              : MCPTool.maxResultSizeChars,
+            persistenceThresholdCeiling: hasRequestedMaxResultSizeChars
+              ? MAX_MCP_RESULT_SIZE_CHARS
+              : undefined,
             isSearchOrReadCommand() {
               return classifyMcpToolForCollapse(client.name, tool.name)
             },

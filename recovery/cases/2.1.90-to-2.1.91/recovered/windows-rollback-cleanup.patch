@@ -1,0 +1,38 @@
+diff --git a/src/utils/nativeInstaller/installer.ts b/src/utils/nativeInstaller/installer.ts
+index 3a3b770..147bf39 100644
+--- a/src/utils/nativeInstaller/installer.ts
++++ b/src/utils/nativeInstaller/installer.ts
+@@ -1279,6 +1279,7 @@ export async function cleanupOldVersions(): Promise<void> {
+     path: string
+     resolvedPath: string
+     mtime: Date
++    size: number
+   }
+   const versionFiles: VersionInfo[] = []
+   let tempFilesCleanedCount = 0
+@@ -1321,6 +1322,7 @@ export async function cleanupOldVersions(): Promise<void> {
+         path: entryPath,
+         resolvedPath: resolve(entryPath),
+         mtime: stats.mtime,
++        size: stats.size,
+       })
+     } catch {
+       // Skip files we can't stat
+@@ -1351,6 +1353,17 @@ export async function cleanupOldVersions(): Promise<void> {
+     const currentSymlinkVersion = await getVersionFromSymlink(dirs.executable)
+     if (currentSymlinkVersion) {
+       protectedVersions.add(currentSymlinkVersion)
++    } else if (getPlatform().startsWith('win32')) {
++      try {
++        const currentExecutableStats = await stat(dirs.executable)
++        for (const version of versionFiles) {
++          if (version.size === currentExecutableStats.size) {
++            protectedVersions.add(version.resolvedPath)
++          }
++        }
++      } catch {
++        // The active executable may not exist during a concurrent update.
++      }
+     }
+
+     // Protect versions with active locks (running in other processes)

@@ -1,0 +1,191 @@
+diff --git a/src/skills/loadSkillsDir.ts b/src/skills/loadSkillsDir.ts
+index b1138ee..b2d1e06 100644
+--- a/src/skills/loadSkillsDir.ts
++++ b/src/skills/loadSkillsDir.ts
+@@ -55,7 +55,11 @@ import {
+   parseSlashCommandToolsFromFrontmatter,
+ } from '../utils/markdownConfigLoader.js'
+ import { parseUserSpecifiedModel } from '../utils/model/model.js'
+-import { executeShellCommandsInPrompt } from '../utils/promptShellExecution.js'
++import {
++  executeShellCommandsInPrompt,
++  isSkillShellExecutionDisabled,
++  replaceSkillShellCommandsWithDisabledMessage,
++} from '../utils/promptShellExecution.js'
+ import type { SettingSource } from '../utils/settings/constants.js'
+ import { isSettingSourceEnabled } from '../utils/settings/constants.js'
+ import { getManagedFilePath } from '../utils/settings/managedPath.js'
+@@ -72,6 +76,18 @@ export type LoadedFrom =
+   | 'bundled'
+   | 'mcp'
+
++function shouldDisableSkillShellExecution(
++  loadedFrom: LoadedFrom,
++  source: PromptCommand['source'],
++): boolean {
++  if (source === 'policySettings') return false
++  return (
++    loadedFrom === 'skills' ||
++    loadedFrom === 'commands_DEPRECATED' ||
++    loadedFrom === 'plugin'
++  )
++}
++
+ /**
+  * Returns a claude config directory path for a given source.
+  */
+@@ -371,7 +387,13 @@ export function createSkillCommand({
+       // Security: MCP skills are remote and untrusted — never execute inline
+       // shell commands (!`…` / ```! … ```) from their markdown body.
+       // ${CLAUDE_SKILL_DIR} is meaningless for MCP skills anyway.
+-      if (loadedFrom !== 'mcp') {
++      if (
++        shouldDisableSkillShellExecution(loadedFrom, source) &&
++        isSkillShellExecutionDisabled()
++      ) {
++        finalContent =
++          replaceSkillShellCommandsWithDisabledMessage(finalContent)
++      } else if (loadedFrom !== 'mcp') {
+         finalContent = await executeShellCommandsInPrompt(
+           finalContent,
+           {
+diff --git a/src/utils/plugins/loadPluginCommands.ts b/src/utils/plugins/loadPluginCommands.ts
+index b876afd..4707179 100644
+--- a/src/utils/plugins/loadPluginCommands.ts
++++ b/src/utils/plugins/loadPluginCommands.ts
+@@ -24,7 +24,11 @@ import {
+   parseSlashCommandToolsFromFrontmatter,
+ } from '../markdownConfigLoader.js'
+ import { parseUserSpecifiedModel } from '../model/model.js'
+-import { executeShellCommandsInPrompt } from '../promptShellExecution.js'
++import {
++  executeShellCommandsInPrompt,
++  isSkillShellExecutionDisabled,
++  replaceSkillShellCommandsWithDisabledMessage,
++} from '../promptShellExecution.js'
+ import { loadAllPluginsCacheOnly } from './pluginLoader.js'
+ import {
+   loadPluginOptions,
+@@ -375,27 +379,32 @@ function createPluginCommand(
+           getSessionId(),
+         )
+
+-        finalContent = await executeShellCommandsInPrompt(
+-          finalContent,
+-          {
+-            ...context,
+-            getAppState() {
+-              const appState = context.getAppState()
+-              return {
+-                ...appState,
+-                toolPermissionContext: {
+-                  ...appState.toolPermissionContext,
+-                  alwaysAllowRules: {
+-                    ...appState.toolPermissionContext.alwaysAllowRules,
+-                    command: allowedTools,
++        if (isSkillShellExecutionDisabled()) {
++          finalContent =
++            replaceSkillShellCommandsWithDisabledMessage(finalContent)
++        } else {
++          finalContent = await executeShellCommandsInPrompt(
++            finalContent,
++            {
++              ...context,
++              getAppState() {
++                const appState = context.getAppState()
++                return {
++                  ...appState,
++                  toolPermissionContext: {
++                    ...appState.toolPermissionContext,
++                    alwaysAllowRules: {
++                      ...appState.toolPermissionContext.alwaysAllowRules,
++                      command: allowedTools,
++                    },
+                   },
+-                },
+-              }
++                }
++              },
+             },
+-          },
+-          `/${commandName}`,
+-          shell,
+-        )
++            `/${commandName}`,
++            shell,
++          )
++        }
+
+         return [{ type: 'text', text: finalContent }]
+       },
+diff --git a/src/utils/promptShellExecution.ts b/src/utils/promptShellExecution.ts
+index 9426994..1a57058 100644
+--- a/src/utils/promptShellExecution.ts
++++ b/src/utils/promptShellExecution.ts
+@@ -6,6 +6,10 @@ import { errorMessage, MalformedCommandError, ShellError } from './errors.js'
+ import type { FrontmatterShell } from './frontmatterParser.js'
+ import { createAssistantMessage } from './messages.js'
+ import { hasPermissionsToUseTool } from './permissions/permissions.js'
++import {
++  getSettings_DEPRECATED,
++  getSettingsForSource,
++} from './settings/settings.js'
+ import { processToolResultBlock } from './toolResultStorage.js'
+
+ // Narrow structural slice both BashTool and PowerShellTool satisfy. We can't
+@@ -55,6 +59,37 @@ const BLOCK_PATTERN = /```!\s*\n?([\s\S]*?)\n?```/g
+ // eslint-disable-next-line custom-rules/no-lookbehind-regex -- gated by text.includes('!`') below (PR#22986)
+ const INLINE_PATTERN = /(?<=^|\s)!`([^`]+)`/gm
+
++const DISABLED_BLOCK_PATTERN = /```!\s*\n?[\s\S]*?\n?```/g
++// eslint-disable-next-line custom-rules/no-lookbehind-regex -- gated by text.includes('!`') below
++const DISABLED_INLINE_PATTERN = /(?<=^|\s)!`[^`]+`/gm
++export const SHELL_EXECUTION_DISABLED_MESSAGE =
++  '[shell command execution disabled by policy]'
++
++export function isSkillShellExecutionDisabled(): boolean {
++  if (
++    getSettingsForSource('policySettings')?.disableSkillShellExecution === true
++  ) {
++    return true
++  }
++  return getSettings_DEPRECATED().disableSkillShellExecution === true
++}
++
++export function replaceSkillShellCommandsWithDisabledMessage(
++  text: string,
++): string {
++  let result = text.replace(
++    DISABLED_BLOCK_PATTERN,
++    SHELL_EXECUTION_DISABLED_MESSAGE,
++  )
++  if (result.includes('!`')) {
++    result = result.replace(
++      DISABLED_INLINE_PATTERN,
++      SHELL_EXECUTION_DISABLED_MESSAGE,
++    )
++  }
++  return result
++}
++
+ /**
+  * Parses prompt text and executes any embedded shell commands.
+  * Supports two syntaxes:
+diff --git a/src/utils/settings/types.ts b/src/utils/settings/types.ts
+index ba89edd..ae35436 100644
+--- a/src/utils/settings/types.ts
++++ b/src/utils/settings/types.ts
+@@ -460,6 +460,13 @@ export const SettingsSchema = lazySchema(() =>
+         .boolean()
+         .optional()
+         .describe('Disable all hooks and statusLine execution'),
++      disableSkillShellExecution: z
++        .boolean()
++        .optional()
++        .describe(
++          'Disable inline shell execution in skills and custom slash commands from user, project, or plugin sources. ' +
++            'Commands are replaced with a placeholder instead of being run.',
++        ),
+       // Which shell backs input-box `!` (see docs/design/ps-shell-selection.md §4.2)
+       defaultShell: z
+         .enum(['bash', 'powershell'])

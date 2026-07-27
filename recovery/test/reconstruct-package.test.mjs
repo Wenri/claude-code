@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import crypto from 'node:crypto'
-import { execFileSync } from 'node:child_process'
+import { execFileSync, spawnSync } from 'node:child_process'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
@@ -95,6 +95,10 @@ function reconstructFixture({
   baselineVersion,
   targetVersion,
   declarationInsertion,
+  packageJsonInsertion = null,
+  packageJsonAssertionAnchor,
+  packageJsonDuplicateAnchor = false,
+  expectedError,
 }) {
   const temporary = fs.mkdtempSync(
     path.join(os.tmpdir(), 'reconstruct-package-test-'),
@@ -106,12 +110,26 @@ function reconstructFixture({
     const targetCli = Buffer.from(
       `#!/usr/bin/env node\nconsole.log("${targetVersion}: changed")\n`,
     )
-    const baselinePackageJson = Buffer.from(
-      `{\n  "name": "@example/package",\n  "version": "${baselineVersion}"\n}\n`,
+    const duplicateFields = packageJsonDuplicateAnchor
+      ? ',\n  "firstMarker": "duplicate-anchor",' +
+        '\n  "secondMarker": "duplicate-anchor"'
+      : ''
+    const baselinePackageJsonText =
+      `{\n  "name": "@example/package",\n` +
+      `  "version": "${baselineVersion}"${duplicateFields}\n}\n`
+    const targetVersionAnchor = `  "version": "${targetVersion}"`
+    let targetPackageJsonText = baselinePackageJsonText.replace(
+      `"version": "${baselineVersion}"`,
+      `"version": "${targetVersion}"`,
     )
-    const targetPackageJson = Buffer.from(
-      `{\n  "name": "@example/package",\n  "version": "${targetVersion}"\n}\n`,
-    )
+    if (packageJsonInsertion !== null) {
+      targetPackageJsonText = targetPackageJsonText.replace(
+        targetVersionAnchor,
+        targetVersionAnchor + packageJsonInsertion,
+      )
+    }
+    const baselinePackageJson = Buffer.from(baselinePackageJsonText)
+    const targetPackageJson = Buffer.from(targetPackageJsonText)
     const declarationAnchor = 'export type Stable = string\n'
     const baselineDeclarations = Buffer.from(declarationAnchor)
     const targetDeclarations = Buffer.from(
@@ -262,6 +280,12 @@ function reconstructFixture({
         text: declarationInsertion,
       }
     }
+    if (packageJsonInsertion !== null) {
+      targetAssertions.packageJsonExactInsertion = {
+        anchor: packageJsonAssertionAnchor ?? targetVersionAnchor,
+        text: packageJsonInsertion,
+      }
+    }
     const manifest = {
       artifacts: [
         {
@@ -304,22 +328,30 @@ function reconstructFixture({
     )
 
     const output = path.join(temporary, 'output', 'package')
+    const commandArguments = [
+      script,
+      '--case',
+      manifestFile,
+      '--artifacts',
+      artifactsRoot,
+      '--baseline-tarball',
+      baselineTarball,
+      '--output',
+      output,
+    ]
+    if (expectedError) {
+      const result = spawnSync(process.execPath, commandArguments, {
+        encoding: 'utf8',
+      })
+      assert.notEqual(result.status, 0)
+      assert.match(result.stderr, expectedError)
+      assert.equal(fs.existsSync(output), false)
+      return
+    }
     const result = JSON.parse(
-      execFileSync(
-        process.execPath,
-        [
-          script,
-          '--case',
-          manifestFile,
-          '--artifacts',
-          artifactsRoot,
-          '--baseline-tarball',
-          baselineTarball,
-          '--output',
-          output,
-        ],
-        { encoding: 'utf8' },
-      ),
+      execFileSync(process.execPath, commandArguments, {
+        encoding: 'utf8',
+      }),
     )
     assert.equal(result.status, 'exact-package-tree-reconstructed')
     assert.equal(result.members, targetEntries.length)
@@ -348,6 +380,38 @@ test('preserves the 2.1.89 declaration insertion recipe', () => {
     baselineVersion: '2.1.88',
     targetVersion: '2.1.89',
     declarationInsertion: 'export type Added = number\n',
+  })
+})
+
+test('replaces the package version and performs one exact insertion', () => {
+  reconstructFixture({
+    baselineVersion: '2.1.90',
+    targetVersion: '2.1.91',
+    declarationInsertion: null,
+    packageJsonInsertion: ',\n  "files": ["cli.js"]',
+  })
+})
+
+test('rejects a missing package JSON insertion anchor', () => {
+  reconstructFixture({
+    baselineVersion: '2.1.90',
+    targetVersion: '2.1.91',
+    declarationInsertion: null,
+    packageJsonInsertion: ',\n  "files": ["cli.js"]',
+    packageJsonAssertionAnchor: '"missing-anchor"',
+    expectedError: /Package JSON insertion anchor is absent/,
+  })
+})
+
+test('rejects a duplicate package JSON insertion anchor', () => {
+  reconstructFixture({
+    baselineVersion: '2.1.90',
+    targetVersion: '2.1.91',
+    declarationInsertion: null,
+    packageJsonInsertion: ',\n  "files": ["cli.js"]',
+    packageJsonAssertionAnchor: 'duplicate-anchor',
+    packageJsonDuplicateAnchor: true,
+    expectedError: /Package JSON insertion anchor is not unique/,
   })
 })
 

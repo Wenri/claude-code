@@ -1,0 +1,146 @@
+diff --git a/src/Tool.ts b/src/Tool.ts
+index 205cac0..dc0f9e9 100644
+--- a/src/Tool.ts
++++ b/src/Tool.ts
+@@ -464,6 +464,12 @@ export type Tool<
+    * already self-bounds via its own limits).
+    */
+   maxResultSizeChars: number
++  /**
++   * Optional ceiling used when resolving this tool's persistence threshold.
++   * MCP tools set this when the server explicitly requests a larger result
++   * limit through tool metadata.
++   */
++  persistenceThresholdCeiling?: number
+   /**
+    * When true, enables strict mode for this tool, which causes the API to
+    * more strictly adhere to tool instructions and parameter schemas.
+diff --git a/src/constants/toolLimits.ts b/src/constants/toolLimits.ts
+index 131560a..28f5682 100644
+--- a/src/constants/toolLimits.ts
++++ b/src/constants/toolLimits.ts
+@@ -12,6 +12,12 @@
+  */
+ export const DEFAULT_MAX_RESULT_SIZE_CHARS = 50_000
+
++/**
++ * Maximum persistence threshold an MCP server may request through
++ * `_meta["anthropic/maxResultSizeChars"]`.
++ */
++export const MAX_MCP_RESULT_SIZE_CHARS = 500_000
++
+ /**
+  * Maximum size for tool results in tokens.
+  * Based on analysis of tool result sizes, we set this to a reasonable upper bound
+diff --git a/src/services/mcp/client.ts b/src/services/mcp/client.ts
+index 0b3afc6..2f9da16 100644
+--- a/src/services/mcp/client.ts
++++ b/src/services/mcp/client.ts
+@@ -44,6 +44,7 @@ import { getOriginalCwd, getSessionId } from '../../bootstrap/state.js'
+ import type { Command } from '../../commands.js'
+ import { getOauthConfig } from '../../constants/oauth.js'
+ import { PRODUCT_URL } from '../../constants/product.js'
++import { MAX_MCP_RESULT_SIZE_CHARS } from '../../constants/toolLimits.js'
+ import type { AppState } from '../../state/AppState.js'
+ import {
+   type Tool,
+@@ -1766,6 +1767,12 @@ export const fetchToolsForClient = memoizeWithLRU(
+       return toolsToProcess
+         .map((tool): Tool => {
+           const fullyQualifiedName = buildMcpToolName(client.name, tool.name)
++          const requestedMaxResultSizeChars =
++            tool._meta?.['anthropic/maxResultSizeChars']
++          const hasRequestedMaxResultSizeChars =
++            typeof requestedMaxResultSizeChars === 'number' &&
++            Number.isFinite(requestedMaxResultSizeChars) &&
++            requestedMaxResultSizeChars > 0
+           return {
+             ...MCPTool,
+             // In skip-prefix mode, use the original name for model invocation so MCP tools
+@@ -1807,6 +1814,15 @@ export const fetchToolsForClient = memoizeWithLRU(
+             isOpenWorld() {
+               return tool.annotations?.openWorldHint ?? false
+             },
++            maxResultSizeChars: hasRequestedMaxResultSizeChars
++              ? Math.min(
++                  requestedMaxResultSizeChars,
++                  MAX_MCP_RESULT_SIZE_CHARS,
++                )
++              : MCPTool.maxResultSizeChars,
++            persistenceThresholdCeiling: hasRequestedMaxResultSizeChars
++              ? MAX_MCP_RESULT_SIZE_CHARS
++              : undefined,
+             isSearchOrReadCommand() {
+               return classifyMcpToolForCollapse(client.name, tool.name)
+             },
+diff --git a/src/services/tools/toolExecution.ts b/src/services/tools/toolExecution.ts
+index 40ef38e..add9c13 100644
+--- a/src/services/tools/toolExecution.ts
++++ b/src/services/tools/toolExecution.ts
+@@ -1411,6 +1411,7 @@ async function checkPermissionsAndCallTool(
+             preMappedBlock,
+             tool.name,
+             tool.maxResultSizeChars,
++            tool.persistenceThresholdCeiling,
+           )
+         : await processToolResultBlock(tool, toolUseResult, toolUseID)
+
+diff --git a/src/utils/toolResultStorage.ts b/src/utils/toolResultStorage.ts
+index f4dfef3..4451ef0 100644
+--- a/src/utils/toolResultStorage.ts
++++ b/src/utils/toolResultStorage.ts
+@@ -55,6 +55,7 @@ const PERSIST_THRESHOLD_OVERRIDE_FLAG = 'tengu_satin_quoll'
+ export function getPersistenceThreshold(
+   toolName: string,
+   declaredMaxResultSizeChars: number,
++  persistenceThresholdCeiling = DEFAULT_MAX_RESULT_SIZE_CHARS,
+ ): number {
+   // Infinity = hard opt-out. Read self-bounds via maxTokens; persisting its
+   // output to a file the model reads back with Read is circular. Checked
+@@ -74,7 +75,7 @@ export function getPersistenceThreshold(
+   ) {
+     return override
+   }
+-  return Math.min(declaredMaxResultSizeChars, DEFAULT_MAX_RESULT_SIZE_CHARS)
++  return Math.min(declaredMaxResultSizeChars, persistenceThresholdCeiling)
+ }
+
+ // Result of persisting a tool result to disk
+@@ -206,6 +207,7 @@ export async function processToolResultBlock<T>(
+   tool: {
+     name: string
+     maxResultSizeChars: number
++    persistenceThresholdCeiling?: number
+     mapToolResultToToolResultBlockParam: (
+       result: T,
+       toolUseID: string,
+@@ -221,7 +223,11 @@ export async function processToolResultBlock<T>(
+   return maybePersistLargeToolResult(
+     toolResultBlock,
+     tool.name,
+-    getPersistenceThreshold(tool.name, tool.maxResultSizeChars),
++    getPersistenceThreshold(
++      tool.name,
++      tool.maxResultSizeChars,
++      tool.persistenceThresholdCeiling,
++    ),
+   )
+ }
+
+@@ -233,10 +239,15 @@ export async function processPreMappedToolResultBlock(
+   toolResultBlock: ToolResultBlockParam,
+   toolName: string,
+   maxResultSizeChars: number,
++  persistenceThresholdCeiling?: number,
+ ): Promise<ToolResultBlockParam> {
+   return maybePersistLargeToolResult(
+     toolResultBlock,
+     toolName,
+-    getPersistenceThreshold(toolName, maxResultSizeChars),
++    getPersistenceThreshold(
++      toolName,
++      maxResultSizeChars,
++      persistenceThresholdCeiling,
++    ),
+   )
+ }

@@ -4,6 +4,7 @@ import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 import { summarizeSourceMap } from '../lib/source-map.mjs'
+import { exactTextInsertion } from '../lib/exact-text-insertion.mjs'
 
 function parseArguments(argv) {
   const result = {}
@@ -379,17 +380,27 @@ function verifyTarget(manifest, files) {
   const versionChange = assertions.packageVersionChange
   const baselineVersion = `"version": "${versionChange.baseline}"`
   const targetVersion = `"version": "${versionChange.target}"`
-  const expectedPackageText = baselinePackageText.replace(
+  let expectedPackageText = baselinePackageText.replace(
     baselineVersion,
     targetVersion,
   )
   if (expectedPackageText === baselinePackageText) {
     throw new Error('Baseline package version marker was not found')
   }
+  const packageJsonInsertion = assertions.packageJsonExactInsertion
+  if (packageJsonInsertion) {
+    expectedPackageText = exactTextInsertion(
+      expectedPackageText,
+      packageJsonInsertion,
+      'Package JSON',
+    )
+  }
   assertEqual(
     targetPackageText,
     expectedPackageText,
-    'target package exact version-only change',
+    packageJsonInsertion
+      ? 'target package exact version and insertion change'
+      : 'target package exact version-only change',
   )
   const packageJson = JSON.parse(targetPackageText)
   assertEqual(
@@ -426,7 +437,9 @@ function verifyTarget(manifest, files) {
   return {
     packageVersion: packageJson.version,
     declarationsChange,
-    packageChange: 'version only',
+    packageChange: packageJsonInsertion
+      ? 'version plus one exact insertion'
+      : 'version only',
     fragments,
   }
 }

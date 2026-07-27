@@ -1,0 +1,51 @@
+diff --git a/src/utils/bash/ShellSnapshot.ts b/src/utils/bash/ShellSnapshot.ts
+index d26f052..218f7b2 100644
+--- a/src/utils/bash/ShellSnapshot.ts
++++ b/src/utils/bash/ShellSnapshot.ts
+@@ -16,8 +16,10 @@ import { pathExists } from '../file.js'
+ import { getFsImplementation } from '../fsOperations.js'
+ import { logError } from '../log.js'
+ import { getPlatform } from '../platform.js'
++import { getEnabledPluginBinPaths } from '../plugins/pluginLoader.js'
+ import { ripgrepCommand } from '../ripgrep.js'
+ import { subprocessEnv } from '../subprocessEnv.js'
++import { windowsPathToPosixPath } from '../windowsPaths.js'
+ import { quote } from './shellQuote.js'
+
+ const LITERAL_BACKSLASH = '\\'
+@@ -281,6 +283,17 @@ async function getClaudeCodeSnapshotContent(): Promise<string> {
+     // Fall back to process.env.PATH if we can't get Cygwin PATH
+   }
+
++  const pluginBinPaths = await getEnabledPluginBinPaths()
++  if (pluginBinPaths.length > 0) {
++    const normalizedPluginBinPaths =
++      getPlatform() === 'windows'
++        ? pluginBinPaths.map(windowsPathToPosixPath)
++        : pluginBinPaths
++    pathValue = [pathValue, ...normalizedPluginBinPaths]
++      .filter(Boolean)
++      .join(':')
++  }
++
+   const rgIntegration = createRipgrepShellIntegration()
+
+   let content = ''
+diff --git a/src/utils/plugins/pluginLoader.ts b/src/utils/plugins/pluginLoader.ts
+index 0c861bf..dd65ffa 100644
+--- a/src/utils/plugins/pluginLoader.ts
++++ b/src/utils/plugins/pluginLoader.ts
+@@ -3145,6 +3145,13 @@ export const loadAllPluginsCacheOnly = memoize(
+   },
+ )
+
++export async function getEnabledPluginBinPaths(): Promise<string[]> {
++  const { enabled } = await loadAllPluginsCacheOnly()
++  return enabled
++    .filter(plugin => !plugin.isBuiltin && plugin.path)
++    .map(plugin => join(plugin.path!, 'bin'))
++}
++
+ /**
+  * Shared body of loadAllPlugins and loadAllPluginsCacheOnly.
+  *

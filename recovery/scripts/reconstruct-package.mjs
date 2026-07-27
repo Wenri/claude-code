@@ -4,6 +4,7 @@ import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 import { spawnSync } from 'node:child_process'
+import { exactTextInsertion } from '../lib/exact-text-insertion.mjs'
 
 function usage() {
   console.error(
@@ -116,15 +117,23 @@ function tarMember(archive, member, expectedBytes, label) {
   return result.stdout
 }
 
-function exactPackageJson(baseline, assertion) {
+function exactPackageJson(baseline, versionAssertion, insertionAssertion) {
   const text = baseline.toString('utf8')
-  const from = `"version": "${assertion.baseline}"`
-  const to = `"version": "${assertion.target}"`
+  const from = `"version": "${versionAssertion.baseline}"`
+  const to = `"version": "${versionAssertion.target}"`
   const first = text.indexOf(from)
   if (first < 0 || text.indexOf(from, first + from.length) >= 0) {
     throw new Error('Baseline package version marker is not unique')
   }
-  return Buffer.from(text.slice(0, first) + to + text.slice(first + from.length))
+  let target = text.slice(0, first) + to + text.slice(first + from.length)
+  if (insertionAssertion) {
+    target = exactTextInsertion(
+      target,
+      insertionAssertion,
+      'Package JSON',
+    )
+  }
+  return Buffer.from(target)
 }
 
 function exactDeclarations(baseline, assertion) {
@@ -312,6 +321,7 @@ function main() {
         value = exactPackageJson(
           baseline,
           manifest.targetAssertions.packageVersionChange,
+          manifest.targetAssertions.packageJsonExactInsertion,
         )
       } else if (
         member.path === 'package/sdk-tools.d.ts' &&

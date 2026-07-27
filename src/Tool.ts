@@ -465,6 +465,12 @@ export type Tool<
    */
   maxResultSizeChars: number
   /**
+   * Optional ceiling used when resolving this tool's persistence threshold.
+   * MCP tools set this when the server explicitly requests a larger result
+   * limit through tool metadata.
+   */
+  persistenceThresholdCeiling?: number
+  /**
    * When true, enables strict mode for this tool, which causes the API to
    * more strictly adhere to tool instructions and parameter schemas.
    * Only applied when the tengu_tool_pear is enabled.

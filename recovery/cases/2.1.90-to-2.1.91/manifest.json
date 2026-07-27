@@ -1,0 +1,965 @@
+{
+  "schemaVersion": 3,
+  "case": "2.1.90-to-2.1.91",
+  "recoveryScope": {
+    "completeness": "generated-complete-source-partial",
+    "exactPublishedBundleReconstruction": true,
+    "exactPublishedPackageTreeReconstruction": true,
+    "allTargetUtf16Accounted": true,
+    "allTargetTokensClassified": true,
+    "allTargetTokensResolvedToBaseline": false,
+    "authoredSourceTextObservable": false,
+    "unresolved": "All published 2.1.91 package bytes and JavaScript tokens are present in the exact recovery. The structural ledger deliberately leaves 329,527 target tokens without a defensible 2.1.90 pairing. Because neither adjacent package has a source map, erased TypeScript names, types, comments, formatting, and exact module placement remain unobservable."
+  },
+  "artifacts": [
+    {
+      "id": "baselineTarball",
+      "argument": "baseline-tarball",
+      "localPath": "2.1.90/package.tgz",
+      "url": "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.1.90.tgz",
+      "bytes": 16512072,
+      "sha256": "8e49c90ebaec565b5fb0af744bebc53c1fd36262453cb4f309c12f6127b55418"
+    },
+    {
+      "id": "baselineBundle",
+      "argument": "baseline",
+      "localPath": "2.1.90/package/cli.js",
+      "archive": "baselineTarball",
+      "archiveMember": "package/cli.js",
+      "bytes": 13128331,
+      "sha256": "069185909d50518b8b239acc0f9ae9b062a610595299b35955fc53e6e2c2f5e9"
+    },
+    {
+      "id": "baselineDeclarations",
+      "argument": "baseline-dts",
+      "localPath": "2.1.90/package/sdk-tools.d.ts",
+      "archive": "baselineTarball",
+      "archiveMember": "package/sdk-tools.d.ts",
+      "bytes": 117129,
+      "sha256": "05ecc6a51d013f5e9b8f1cc86818c467435a71187d18005d3125ed6e0c52fe2d"
+    },
+    {
+      "id": "baselinePackageJson",
+      "argument": "baseline-package-json",
+      "localPath": "2.1.90/package/package.json",
+      "archive": "baselineTarball",
+      "archiveMember": "package/package.json",
+      "bytes": 1242,
+      "sha256": "c5903b5167075dcfce58df0df30e7b5249d633d9ef4dda6ba1c716ec98856d8a"
+    },
+    {
+      "id": "targetTarball",
+      "argument": "target-tarball",
+      "localPath": "2.1.91/package.tgz",
+      "url": "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.1.91.tgz",
+      "bytes": 16522495,
+      "sha256": "4fb4dae771d6fad1e74703741148f5ee2d24837f4a04eab27041746f7a5b3e2b"
+    },
+    {
+      "id": "targetBundle",
+      "argument": "target",
+      "localPath": "2.1.91/package/cli.js",
+      "archive": "targetTarball",
+      "archiveMember": "package/cli.js",
+      "bytes": 13162543,
+      "sha256": "b4bf141f30cf8b40196295816c7a6b9d01a36e906908d73a9f9a865ce4cdf816"
+    },
+    {
+      "id": "targetDeclarations",
+      "argument": "target-dts",
+      "localPath": "2.1.91/package/sdk-tools.d.ts",
+      "archive": "targetTarball",
+      "archiveMember": "package/sdk-tools.d.ts",
+      "bytes": 117138,
+      "sha256": "d54800cb26dbfc3e15d0ab034ef9c77e340fb7ec76270a167f39245f7155c4b4"
+    },
+    {
+      "id": "targetPackageJson",
+      "argument": "target-package-json",
+      "localPath": "2.1.91/package/package.json",
+      "archive": "targetTarball",
+      "archiveMember": "package/package.json",
+      "bytes": 1347,
+      "sha256": "ed6cf8c242de1184021ba5028e99453c1ec753843f6926f71db0349144044273"
+    },
+    {
+      "id": "sourceOracleBundle",
+      "argument": "source-oracle-bundle",
+      "localPath": "2.1.88/cli.js",
+      "url": "https://raw.githubusercontent.com/Exhen/claude-code-2.1.88/c8cd253554319f32ff64ff7000636199f720c9bc/cli.js",
+      "bytes": 13047043,
+      "sha256": "75c9611929d9a770fe2e3a393219d8b98f5de17fde539b2a7355c6db3fd2795f"
+    },
+    {
+      "id": "sourceOracleMap",
+      "argument": "source-oracle-map",
+      "localPath": "2.1.88/cli.js.map",
+      "url": "https://raw.githubusercontent.com/Exhen/claude-code-2.1.88/c8cd253554319f32ff64ff7000636199f720c9bc/cli.js.map",
+      "bytes": 59766257,
+      "sha256": "7965012b7a5fc9e09d8d747a04c5c32b94696924536e217f686bb1e7ee70a657"
+    },
+    {
+      "id": "officialChangelog",
+      "argument": "changelog",
+      "localPath": "evidence/claude-code-CHANGELOG-1e03cc7.md",
+      "url": "https://raw.githubusercontent.com/anthropics/claude-code/1e03cc7fc40d9bab33f24855a8b5d31ba66205cb/CHANGELOG.md",
+      "bytes": 194907,
+      "sha256": "daaf0388d48da9026f513aef5ef93515a556cf43e1057b0d54fb6fd1a0bec111"
+    }
+  ],
+  "sourceOracle": {
+    "bundleArtifact": "sourceOracleBundle",
+    "mapArtifact": "sourceOracleMap",
+    "relationship": "The 2.1.88 bundle and map are a matching source-ownership oracle. They are never treated as an offset map for the adjacent 2.1.90 bundle.",
+    "appliedSourceTree": {
+      "base": "verified 2.1.88 outer/Bun-input source-map layer",
+      "patchSet": "cumulative-2.1.89-2.1.90-and-2.1.91-source-facing-overlays",
+      "files": [
+        {
+          "path": "src/QueryEngine.ts",
+          "bytes": 47563,
+          "sha256": "6ff0e831f5aef1cd43b929cd5d6c631dfc355c6213b238bec20d5bed64982475"
+        },
+        {
+          "path": "src/Tool.ts",
+          "bytes": 29754,
+          "sha256": "1eab63097d1ad45ee16e7fea50293a368a2a6d2cd73626c4a46beb0bbf7059b6"
+        },
+        {
+          "path": "src/cli/transports/SSETransport.ts",
+          "bytes": 24223,
+          "sha256": "24c8886ecac367a80a7d5d59d8693b6060e8cbeecd6d69ffdc231548d7fe99f4"
+        },
+        {
+          "path": "src/commands/feedback/feedback.tsx",
+          "bytes": 6652,
+          "sha256": "c1492bb7791ceb1f9c8b1a30790b848e4587dabcef36c8af17483eda5cb0f55f"
+        },
+        {
+          "path": "src/commands/feedback/index.ts",
+          "bytes": 319,
+          "sha256": "cd41a6cada3616a01d739563b079de7f9f13d0922c384523198738c3f8c24578"
+        },
+        {
+          "path": "src/components/HelpV2/General.tsx",
+          "bytes": 3636,
+          "sha256": "9207943ddaf99b62aa523402808b3048251c6311c88b390df7c5cf6af000349f"
+        },
+        {
+          "path": "src/constants/toolLimits.ts",
+          "bytes": 2338,
+          "sha256": "7d8d4eefea5ba76392c87bd4171587f6b64868c075657e2dc24b8adf532b6b1b"
+        },
+        {
+          "path": "src/entrypoints/sdk/coreSchemas.ts",
+          "bytes": 56625,
+          "sha256": "5f5df22b21be677612464a200c2f4c71fe0c803608a80773091a9e15e00d3e6e"
+        },
+        {
+          "path": "src/hooks/useTextInput.ts",
+          "bytes": 17117,
+          "sha256": "2a8b789291c48ee0e330d082561de03b86264f707921b32c4e314acad399560b"
+        },
+        {
+          "path": "src/screens/REPL.tsx",
+          "bytes": 896007,
+          "sha256": "949e91a5a74bf131a1fbfea586e4b7cf7cbb1258c8c84f8fcc8915171ab7edf2"
+        },
+        {
+          "path": "src/services/mcp/client.ts",
+          "bytes": 119837,
+          "sha256": "0204a74d70880f8df41469635b6280bfa64b53db2754a2deba8f4142d79768a9"
+        },
+        {
+          "path": "src/services/tools/toolExecution.ts",
+          "bytes": 60355,
+          "sha256": "68cf1e1ecc52dd3bd19f1337642aad23c3074aaa2c9cd3576680d808b2b3b0fc"
+        },
+        {
+          "path": "src/skills/bundled/claude-api/SKILL.md",
+          "bytes": 20647,
+          "sha256": "ff5c1e3a23b70a61632d54d2652ace6f5d35f389b8e8f4348b64f68d9000bfbe",
+          "baseline": "absent"
+        },
+        {
+          "path": "src/skills/bundled/claude-api/csharp/claude-api.md",
+          "bytes": 14390,
+          "sha256": "c17ddeb20330f54d8fbf9af3e1225ab0370396b86d211cf71b1f8a5008c39e5f",
+          "baseline": "absent"
+        },
+        {
+          "path": "src/skills/bundled/claude-api/curl/examples.md",
+          "bytes": 6390,
+          "sha256": "de7db56ef83ec865b14851c891470b850257728265bffd1c5721613447666c59",
+          "baseline": "absent"
+        },
+        {
+          "path": "src/skills/bundled/claude-api/go/claude-api.md",
+          "bytes": 13873,
+          "sha256": "79730feb26fde385d351e269ff5dec022e9d2f88f1b94230c48b18db1b3e1a9b",
+          "baseline": "absent"
+        },
+        {
+          "path": "src/skills/bundled/claude-api/java/claude-api.md",
+          "bytes": 15087,
+          "sha256": "4cde0009a39bd45efb897da2377c7318cb4e86123aeb1d66904cf4e368083156",
+          "baseline": "absent"
+        },
+        {
+          "path": "src/skills/bundled/claude-api/php/claude-api.md",
+          "bytes": 11121,
+          "sha256": "2084c1414304336b30d5dbd6bf68445662584f034d4bd7a5796ef5d57de5e9d9",
+          "baseline": "absent"
+        },
+        {
+          "path": "src/skills/bundled/claude-api/python/agent-sdk/README.md",
+          "bytes": 12672,
+          "sha256": "f06fc8a83a16e28183f66733e08eb7e2633f6e31348fcfe384ae2389c185bab6",
+          "baseline": "absent"
+        },
+        {
+          "path": "src/skills/bundled/claude-api/python/agent-sdk/patterns.md",
+          "bytes": 9197,
+          "sha256": "1a42261beea4f9dce4884931b311a88123b4b0981c7a303b10513c8796218303",
+          "baseline": "absent"
+        },
+        {
+          "path": "src/skills/bundled/claude-api/python/claude-api/README.md",
+          "bytes": 12045,
+          "sha256": "3ed9c86237b6d320fd852a307986aad4151a53a6990f1b28fe473ae3397ce780",
+          "baseline": "absent"
+        },
+        {
+          "path": "src/skills/bundled/claude-api/python/claude-api/batches.md",
+          "bytes": 5079,
+          "sha256": "d831541750a3e0d4e2a88ba55528d96fc641c522410fdd396d6fa5c2f2697ab3",
+          "baseline": "absent"
+        },
+        {
+          "path": "src/skills/bundled/claude-api/python/claude-api/files-api.md",
+          "bytes": 3982,
+          "sha256": "c68c21fb62d40faf2d0678d0c249e0c54882865da38eb72bfd8145789172d3a9",
+          "baseline": "absent"
+        },
+        {
+          "path": "src/skills/bundled/claude-api/python/claude-api/streaming.md",
+          "bytes": 5198,
+          "sha256": "216e6845432aad98d72d282523b1131c1c25553472d7575c7197702fb7817189",
+          "baseline": "absent"
+        },
+        {
+          "path": "src/skills/bundled/claude-api/python/claude-api/tool-use.md",
+          "bytes": 16857,
+          "sha256": "9a74ef61c91d11c7ac24e42aa5dba4d928aa71c47f079db0a3f13bb300c46106",
+          "baseline": "absent"
+        },
+        {
+          "path": "src/skills/bundled/claude-api/ruby/claude-api.md",
+          "bytes": 2919,
+          "sha256": "67a3b3341a2cbbb6c2b66f5b41f774fcf797ad70a0c8d0f1bb1226eafe0b3d14",
+          "baseline": "absent"
+        },
+        {
+          "path": "src/skills/bundled/claude-api/shared/agent-design.md",
+          "bytes": 8335,
+          "sha256": "4801b81580e1251c0df809da9647b05b6e30513014f439f814caccfb7750e8a4",
+          "baseline": "absent"
+        },
+        {
+          "path": "src/skills/bundled/claude-api/shared/error-codes.md",
+          "bytes": 7090,
+          "sha256": "11cc407ed391415b4e26cb0d65a80638cc3d7f4eabc149513bb44234adab0fcc",
+          "baseline": "absent"
+        },
+        {
+          "path": "src/skills/bundled/claude-api/shared/live-sources.md",
+          "bytes": 12116,
+          "sha256": "5a49e19c38418a37ce9953058f64de851b9353b31557fee40d65f39d92399de5",
+          "baseline": "absent"
+        },
+        {
+          "path": "src/skills/bundled/claude-api/shared/models.md",
+          "bytes": 7115,
+          "sha256": "2a18cf78b18d7e62e6e64810f4d3f28225e024fd1cfa4928dcb5d23dcc50d4d9",
+          "baseline": "absent"
+        },
+        {
+          "path": "src/skills/bundled/claude-api/shared/prompt-caching.md",
+          "bytes": 9773,
+          "sha256": "e71e24994f603385f307e10f7dd6e83897419f00b25b7cfb3dc94ec764c7ca67",
+          "baseline": "absent"
+        },
+        {
+          "path": "src/skills/bundled/claude-api/shared/tool-use-concepts.md",
+          "bytes": 16722,
+          "sha256": "81790a54f7175a4c6f38a186871004f252c3826bfc2f244798589f9fc215824f",
+          "baseline": "absent"
+        },
+        {
+          "path": "src/skills/bundled/claude-api/typescript/agent-sdk/README.md",
+          "bytes": 10834,
+          "sha256": "8b887efb720def6c51303d169e79ae94b6d78f8bbf81c66791543c77329f39c2",
+          "baseline": "absent"
+        },
+        {
+          "path": "src/skills/bundled/claude-api/typescript/agent-sdk/patterns.md",
+          "bytes": 4711,
+          "sha256": "8a47275106399f7274ff5db2978a8ea7addb1ac5d81086abebd42a5a620c7619",
+          "baseline": "absent"
+        },
+        {
+          "path": "src/skills/bundled/claude-api/typescript/claude-api/README.md",
+          "bytes": 9814,
+          "sha256": "e0a2772459520f4ede3f16c6feb228bb1302632fdeadde7cf13c058f3135d90c",
+          "baseline": "absent"
+        },
+        {
+          "path": "src/skills/bundled/claude-api/typescript/claude-api/batches.md",
+          "bytes": 2588,
+          "sha256": "615f2b58513fcd089ba8e1e779b325ecb37b470c9ee3ddd4b601fed194129b56",
+          "baseline": "absent"
+        },
+        {
+          "path": "src/skills/bundled/claude-api/typescript/claude-api/files-api.md",
+          "bytes": 2257,
+          "sha256": "a3cc51b06251e62fa954a04e59dfd62ce538caac18876a73c7232a95d922099f",
+          "baseline": "absent"
+        },
+        {
+          "path": "src/skills/bundled/claude-api/typescript/claude-api/streaming.md",
+          "bytes": 5569,
+          "sha256": "d806e5bb7e3e204fba3e9e3910e9b6298adc1f661015e68eb0c4fee366d68e25",
+          "baseline": "absent"
+        },
+        {
+          "path": "src/skills/bundled/claude-api/typescript/claude-api/tool-use.md",
+          "bytes": 15298,
+          "sha256": "b3ec1caa26cd80c4846a194f66676df4c1eb1f3e84a3604c0c5a251f0934972f",
+          "baseline": "absent"
+        },
+        {
+          "path": "src/skills/bundled/claudeApiContent.ts",
+          "bytes": 4395,
+          "sha256": "72bd9fea8c7646fa70ed7b9dc6c7bd756345624cf1b2b0965b09f0b4c0fc3dc7"
+        },
+        {
+          "path": "src/skills/loadSkillsDir.ts",
+          "bytes": 35009,
+          "sha256": "9830c1368c75b598654993ee32090c6f31ddef932e510907ffc12c2bf60b79df"
+        },
+        {
+          "path": "src/tools/BashTool/BashTool.tsx",
+          "bytes": 163078,
+          "sha256": "5a57584665e4f18af5009c6928afa7a0f3d34734a22a8e4b8645a4aeb8e11391"
+        },
+        {
+          "path": "src/tools/BashTool/fileReadState.ts",
+          "bytes": 5242,
+          "sha256": "3fa46f3b5e332616ec8a5ffab3dcea0299aaee527b12f3ef991c5a61f72d3029",
+          "baseline": "absent"
+        },
+        {
+          "path": "src/tools/FileEditTool/prompt.ts",
+          "bytes": 2204,
+          "sha256": "becf86d533cf3c854570f043d0f7ef3ad18c9a29c66bdf7ae51ec76829e624da"
+        },
+        {
+          "path": "src/tools/PowerShellTool/readOnlyValidation.ts",
+          "bytes": 67312,
+          "sha256": "4d3fe3f6df0e126415766103e6dad3aaad4b4211eeed41b54b1cab23f41bd218"
+        },
+        {
+          "path": "src/types/logs.ts",
+          "bytes": 11391,
+          "sha256": "2c660e03de15d5c51932aa865942c7b4ce3be09c319d2f6bc8c6585899d8353e"
+        },
+        {
+          "path": "src/types/permissions.ts",
+          "bytes": 12841,
+          "sha256": "f7a07e503d3b64511f5f11c1deeff77fa1cbc91fd2afb18c9a41e454c580c0d7"
+        },
+        {
+          "path": "src/utils/bash/ShellSnapshot.ts",
+          "bytes": 22254,
+          "sha256": "c292c11543e329b701594f3f2e4efc63e580f380681860af89dcb2997a91f32c"
+        },
+        {
+          "path": "src/utils/bash/commands.ts",
+          "bytes": 48448,
+          "sha256": "7c207fb9959cc807b677b27ef364b04b27368311ac19934796d66bf58ffe39f4"
+        },
+        {
+          "path": "src/utils/bash/parser.ts",
+          "bytes": 6983,
+          "sha256": "128865ac92af89371351652fa88829398002171980425c8c2f2e9d7ca168d55e"
+        },
+        {
+          "path": "src/utils/deepLink/parseDeepLink.ts",
+          "bytes": 5951,
+          "sha256": "4f5221cdd68ba73d9a419f44e8742609b84794de6c3eeb6403bd8c4971fe59c7"
+        },
+        {
+          "path": "src/utils/nativeInstaller/installer.ts",
+          "bytes": 55211,
+          "sha256": "1486217c1f5ca6402e9044e75982be9ecc20c5cbb4c993c04094892438e9c8c8"
+        },
+        {
+          "path": "src/utils/permissions/filesystem.ts",
+          "bytes": 62266,
+          "sha256": "1f032dc71c172cc5aad5836e33d9a333fa8cbb2ed513bd29d20db93061877056"
+        },
+        {
+          "path": "src/utils/plugins/loadPluginCommands.ts",
+          "bytes": 30837,
+          "sha256": "69f6ff1bfd0f10aad12e46541ac17f3efc6f638d8bb4a0905b424e2c783763b8"
+        },
+        {
+          "path": "src/utils/plugins/marketplaceManager.ts",
+          "bytes": 93585,
+          "sha256": "e9216d0eb27947434f6d470458d695349a42afb72e7b8da9e1ec3730cf21cd2b"
+        },
+        {
+          "path": "src/utils/plugins/pluginLoader.ts",
+          "bytes": 110507,
+          "sha256": "2f8883c54494d6dc79792d1d0e5f59e7319431817683f65a8e6e9494bb773066"
+        },
+        {
+          "path": "src/utils/promptShellExecution.ts",
+          "bytes": 8006,
+          "sha256": "24c18be0a88d7ed093c0ccef38473f72ceb3b66f849426469f377fe23fded11d"
+        },
+        {
+          "path": "src/utils/sessionStorage.ts",
+          "bytes": 183706,
+          "sha256": "4a889d517a7e8b6e56137a566a756369a1131dddff3a80ea6dd79a8433bad458"
+        },
+        {
+          "path": "src/utils/settings/types.ts",
+          "bytes": 43088,
+          "sha256": "bdeb819d388f31b80c4adeebbfb4ae17150672902171bb3c1ee3c3c1531b625d"
+        },
+        {
+          "path": "src/utils/toolResultStorage.ts",
+          "bytes": 38639,
+          "sha256": "d918f42512fd644fb5eeb5ec28771e1c50af63caabb1b02ce0bd9730381c9803"
+        }
+      ]
+    }
+  },
+  "baselineOracle": {
+    "applicationSourceCount": 1902,
+    "applicationSourceBytes": 30382832,
+    "applicationManifestSha256": "9e114f72a61a00dc9c8bb5888072ef8289720ecec306a1c31e34c38685d6108c",
+    "tsxSourceCount": 552,
+    "nestedOriginalBytes": 4509965,
+    "nestedOriginalManifestSha256": "9f1d3a8a35152bccb71c0ba384c5f2bf104da871e09e5f596cf4d3d87d6fcd59",
+    "sourceMap": {
+      "generatedLineCount": 16666,
+      "segmentCount": 2068722,
+      "mappedSegmentCount": 2068722,
+      "sourceCount": 4756,
+      "usedSourceCount": 4756
+    }
+  },
+  "targetAssertions": {
+    "declarationExactInsertion": {
+      "anchor": "mode?: \"acceptEdits\" | ",
+      "text": "\"auto\" | "
+    },
+    "packageVersionChange": {
+      "baseline": "2.1.90",
+      "target": "2.1.91"
+    },
+    "packageJsonExactInsertion": {
+      "anchor": "    \"@img/sharp-win32-x64\": \"^0.34.2\"\n  }",
+      "text": ",\n  \"files\": [\n    \"cli.js\",\n    \"sdk-tools.d.ts\",\n    \"vendor/ripgrep/\",\n    \"vendor/audio-capture/\"\n  ]"
+    },
+    "bundleFragments": [
+      {
+        "id": "bun-stripansi",
+        "start": "function o96(q){",
+        "end": "function C25(q){",
+        "bytes": 869,
+        "sha256": "cf956285b7f45ffcedf9208c68d6cd504073f0e066f9a8faca10eb66c844aee4"
+      },
+      {
+        "id": "mcp-constants",
+        "start": "var zh4=50000",
+        "end": "function $Az(){",
+        "bytes": 67,
+        "sha256": "4338aa366e8114a71dcb0350119d02417ea044f88d2c0c33e13d78bd79ddd46f"
+      },
+      {
+        "id": "mcp-persistence",
+        "start": "function Ab4(q,K,_=zh4){",
+        "end": "function VMz(q){",
+        "bytes": 1263,
+        "sha256": "66a0d7734e0a2b1328d2567f7edb08fd16fce836b29cad3aef572cf8eae7c40e"
+      },
+      {
+        "id": "mcp-mapper",
+        "start": "eL=SP(async(q)=>{",
+        "end": ",uo=SP(async(q)=>{",
+        "bytes": 3065,
+        "sha256": "3336dae4b6a47ab778133eb801b8765b40010c4c64643866fcc8a046dcad74f1"
+      },
+      {
+        "id": "permission-set",
+        "start": "var bB6=L(()=>{qw8=",
+        "end": "function Jb7(q){",
+        "bytes": 111,
+        "sha256": "5ffb55686b142f0d5a0942c0a2b73236d29bf9d7b01874e9427a4944b6db5865"
+      },
+      {
+        "id": "permission-sdk-schema",
+        "start": "Sa=p6(()=>h.enum(",
+        "end": ",XUz=[",
+        "bytes": 561,
+        "sha256": "90622fa05b96c1d24fbba7c4595daf9dba58d7611e8d57c35714a1d9fbb4fa3e"
+      },
+      {
+        "id": "shell-policy-helper",
+        "start": "function Op8(){",
+        "end": "function xAK(q){",
+        "bytes": 359,
+        "sha256": "f3f3a50e949da5c247b241f95543e655377dc10675e7d651c4e76a7c875e1a8f"
+      },
+      {
+        "id": "shell-policy-skill",
+        "start": "function at1({",
+        "end": "async function uh6(q,K){",
+        "bytes": 1214,
+        "sha256": "a470d997f59f145cfb8afd99cb2629435dfb1adb6fbfee439650beba309da7cd"
+      },
+      {
+        "id": "shell-policy-plugin",
+        "start": "function a78(q,K,_,z,Y,$,O={isSkillMode:!1}){",
+        "end": "function vF8(){",
+        "bytes": 1861,
+        "sha256": "04e0bac62ecd0ef885d10049c67a209ed1838e9b3ed0bb408c5361ba9ccbcd4f"
+      },
+      {
+        "id": "deep-link",
+        "start": "function NtK(q,{allowNewlineAndTab:K=!1}={}){",
+        "end": "var zE=",
+        "bytes": 1298,
+        "sha256": "84cc66a255cc5f89b6f5100d0980a2d905d470ec6d820494f7fd5c8fa8cc999d"
+      },
+      {
+        "id": "plugin-discovery",
+        "start": "function l$K(){",
+        "end": "async function LvK(q){",
+        "bytes": 111,
+        "sha256": "2e0b5bcf91827005e325ff1cadf2ba488a4aec05cde9576f2974efb39158f608"
+      },
+      {
+        "id": "plugin-path",
+        "start": "async function toz(){",
+        "end": "async function eoz(q,K,_){",
+        "bytes": 1112,
+        "sha256": "581195d6b4b1c4684799437160a8bcf105092dc4d8d315a6fe84d713d6a13bbf"
+      },
+      {
+        "id": "chain-fallback",
+        "start": "function eK6(q,K){",
+        "end": "function LxY(q,K,_){",
+        "bytes": 636,
+        "sha256": "b6531628ebf5fa0aaa2292df12aea3cd05efe6728500bddb31a57797d63dfca1"
+      },
+      {
+        "id": "cmd-delete",
+        "start": "function J6(l){",
+        "end": "function G6(l,i){",
+        "bytes": 1150,
+        "sha256": "f3b0027f34d5909e771c121a02d969cbb6a9fefe2ebd5d5fb6a8e6e254f4849b"
+      },
+      {
+        "id": "feedback",
+        "start": "function jVK(){",
+        "end": "class GK7{",
+        "bytes": 1484,
+        "sha256": "65e7f9fb6c5123a8766a176125a2ad921561392506490e4e693e883e894f0d76"
+      },
+      {
+        "id": "edit-prompt",
+        "start": "function Fez(){",
+        "end": "var sAK=",
+        "bytes": 1402,
+        "sha256": "491975f41973f631d7849734d2bb2a2899301c14ac55f199e562d9f16663f8e7"
+      },
+      {
+        "id": "windows-cleanup",
+        "start": "async function w68(){",
+        "end": "for(let X of z){if(O.has(X.resolvedPath))continue;",
+        "bytes": 1795,
+        "sha256": "bb6822500f2e96a3782e1ab1a19694131dbe347964347c9d1db17364661f8bce"
+      },
+      {
+        "id": "claude-api-agent-design",
+        "start": "var o45=",
+        "end": "var s45=",
+        "bytes": 8409,
+        "sha256": "40d7e5fb3cbdeb10ec62c2fc6279072774940657186c46bbec35f7390b38a12a"
+      }
+    ]
+  },
+  "generatedRecovery": {
+    "packageMembers": {
+      "report": "package-members.json",
+      "baselineTarball": {
+        "availability": "npm-registry",
+        "url": "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.1.90.tgz",
+        "bytes": 16512072,
+        "sha1": "b086e61c497edae02fb5bf52fae75293c034138a",
+        "sha256": "8e49c90ebaec565b5fb0af744bebc53c1fd36262453cb4f309c12f6127b55418",
+        "integrity": "sha512-orm8uULh71ow5yA27PXMGYZrNlEAUmmGOwPrOava6wuai1wAC7J7ZOvx2cbM2u8GJBDkdiNSFdUwYmzc6QsWDQ=="
+      },
+      "baselineMembers": 19,
+      "targetMembers": 18,
+      "targetMemberBytes": 43103342,
+      "targetFramedTreeSha256": "21a9edcea0cb4bb2ae36348c39f9e08c836e3476e96ae6f3d8a34c1a7aa35585",
+      "unchanged": 15,
+      "changed": 3,
+      "added": 0,
+      "removed": 1,
+      "modeOnlyChanged": 0
+    },
+    "exactBundleDelta": {
+      "algorithm": "zstd-dictionary-patch",
+      "path": "diff/cli.js.zstd-delta",
+      "baselineArtifact": "baselineBundle",
+      "targetArtifact": "targetBundle",
+      "reconstructsTargetExactly": true
+    },
+    "attribution": {
+      "directory": "attribution",
+      "summary": "attribution/summary.json",
+      "baselineArtifact": "sourceOracleBundle",
+      "sourceMapArtifact": "sourceOracleMap",
+      "offsetUnit": "utf16-code-units",
+      "targetUtf16": 13098272,
+      "accountedTargetUtf16": 13098272,
+      "unaccountedTargetUtf16": 0
+    },
+    "structural": {
+      "ledger": "structural/generated-delta.json.gz",
+      "targetUnits": 18329,
+      "targetTokens": 4222365,
+      "matchedTokens": 3481458,
+      "movedCandidateTokens": 21851,
+      "coarseChangedTokens": 389529,
+      "unresolvedTokens": 329527,
+      "exactStructuralFraction": 0.8297030218846547
+    },
+    "readableDiff": {
+      "directory": "readable-diff",
+      "metadata": "readable-diff/metadata.json",
+      "fullDiff": "readable-diff/normalized.diff.gz",
+      "comparisonInvariantHashesEqual": true
+    },
+    "fileAssertions": [
+      {
+        "path": "package-members.json",
+        "bytes": 12955,
+        "sha256": "56c1a9fbb63a43913d5071d1fde8f11b82710388004df473e87e56cc9cb137a7"
+      },
+      {
+        "path": "diff/cli.js.zstd-delta",
+        "bytes": 1934216,
+        "sha256": "2039573574ae6167b61b030212587cd842b698ccb91cec3cce2eba1988b7ee57"
+      },
+      {
+        "path": "attribution/summary.json",
+        "bytes": 5970,
+        "sha256": "e45ecd9996490790bcffc05938f535c71e81b0659c974bfcd31dcc1ba60c9a9c"
+      },
+      {
+        "path": "attribution/sources.jsonl.gz",
+        "bytes": 493242,
+        "sha256": "606cf1ba269a38335dd7d03089b0ce498be1a19a7ee4fe5a3c1fccdaeb618159"
+      },
+      {
+        "path": "attribution/target-initializers.jsonl.gz",
+        "bytes": 110371,
+        "sha256": "73c8f056ac63eb68a0c144325c23e385aa874ea05901d5bb255c24d20bbbd61b"
+      },
+      {
+        "path": "attribution/target-partitions.jsonl.gz",
+        "bytes": 4189013,
+        "sha256": "b7d24394694702496ca635e48c3166e3be33cb506082eedf62a63670f69bb831"
+      },
+      {
+        "path": "structural/generated-delta.json.gz",
+        "bytes": 2054684,
+        "sha256": "9962b898f24659034aeec2fd8c2f6b3bafe40eaf463f0290e955f3ff3ce7070c"
+      },
+      {
+        "path": "readable-diff/metadata.json",
+        "bytes": 3914,
+        "sha256": "bcb67f6c8b0a07668c823af760cb8abd461eda5d9aabbc71dcf214960dedbfa7"
+      },
+      {
+        "path": "readable-diff/normalized.diff.gz",
+        "bytes": 5302755,
+        "sha256": "21eabcf7889a385b220033ed037ce3c6fbd15a57ee03d4c95d5897680a65f951"
+      },
+      {
+        "path": "readable-diff/statements.diff",
+        "bytes": 153936,
+        "sha256": "e3847fbc0a3cfe6f06f148ae4ca99709c033f674e705a9095ee970fc25f33b66"
+      },
+      {
+        "path": "readable-diff/renames.tsv",
+        "bytes": 210227,
+        "sha256": "20898c022b816d0f09e4c1505a5a2d9d0c162f5684937622690fce4a7956f9c7"
+      }
+    ]
+  },
+  "recoveredFileAssertions": [
+    {
+      "path": "recovered/bun-stripansi-model.mjs",
+      "bytes": 245,
+      "sha256": "9d8bfdb377cde699650f019377254564ea4bd6534d9e489c05c9d4bc33a3091b"
+    },
+    {
+      "path": "recovered/claude-api-guidance.patch",
+      "bytes": 277251,
+      "sha256": "b90adc38f1b928354aa8e6c4febf343616d3a0dfa5962b0fe005cc3202f92447"
+    },
+    {
+      "path": "recovered/edit-anchor-guidance.patch",
+      "bytes": 2647,
+      "sha256": "15c795a8ef056ba9707072547a9fd089a00195dc1390168460360906699347df"
+    },
+      {
+        "path": "recovered/feedback-availability.patch",
+        "bytes": 11842,
+        "sha256": "14ad9cf869c82345976c0f0557c947b78a7c8c88f079a9d693eb2a5411d37f4d"
+    },
+    {
+      "path": "recovered/input-permission-schema.patch",
+      "bytes": 3509,
+      "sha256": "6c4da6e85dbe997d66e7920fa35c2d7377def0709bbd787e94bd396b1d5abde1"
+    },
+      {
+        "path": "recovered/mcp-result-override.patch",
+        "bytes": 5640,
+        "sha256": "f7d57b0f707cfd70c7b515ab18e5b07ebc54699afe7d7c2dc5983b53a62fce54"
+    },
+    {
+      "path": "recovered/multiline-deep-links.patch",
+      "bytes": 2138,
+      "sha256": "60679fd3ccc2ef4e1d7c98f5676d3c101484244b9d03ec31a8b60b53f69fa7c4"
+    },
+    {
+      "path": "recovered/plugin-bin-path.patch",
+      "bytes": 1883,
+      "sha256": "d1948a3ebd459bd7489d340721473ddbd8a1171fb451685a47ec5a054affa20e"
+    },
+    {
+      "path": "recovered/skill-shell-policy.patch",
+      "bytes": 7094,
+      "sha256": "b8a1af9a2f23391c868f32bc59ab0b7488c7fea3633e3d36987979db5ffb433a"
+    },
+    {
+      "path": "recovered/transcript-chain-fallback.patch",
+      "bytes": 1874,
+      "sha256": "ed0d898505dde1d86d304437a3a800687372b9e75e291324964d9ffbfa333b28"
+    },
+    {
+      "path": "recovered/windows-rollback-cleanup.patch",
+      "bytes": 1477,
+      "sha256": "ef0d86917185854d064962a6c0c01e12f67cd1d325387a0e4720179c13d8d476"
+    }
+  ],
+  "sourceLineage": {
+    "root": "src",
+    "patchSet": "2.1.90-to-2.1.91-incremental",
+    "baseCommit": "75fb55c39164bffac8f1f5296895884a530972c8",
+    "baseGitTree": "a5bc0fdaa01f4ddc02ee253ead2d0cc39efc2572",
+    "patchOrder": [
+      "recovered/mcp-result-override.patch",
+      "recovered/skill-shell-policy.patch",
+      "recovered/multiline-deep-links.patch",
+      "recovered/plugin-bin-path.patch",
+      "recovered/transcript-chain-fallback.patch",
+      "recovered/input-permission-schema.patch",
+      "recovered/feedback-availability.patch",
+      "recovered/windows-rollback-cleanup.patch",
+      "recovered/edit-anchor-guidance.patch",
+      "recovered/claude-api-guidance.patch"
+    ],
+    "base": {
+      "files": 1903,
+      "bytes": 30392826,
+      "manifestSha256": "9be3f19a65aa46760fd3ababffefe74cc6eb1f81cb12b57bfb5e16662425ce25"
+    },
+    "target": {
+      "files": 1930,
+      "bytes": 30661962,
+      "manifestSha256": "5a74a719338766ab26023fc4041013bce9ff968356d152cb7df725bdab8a4108"
+    },
+    "syntaxCheck": [
+      "src/Tool.ts",
+      "src/commands/feedback/feedback.tsx",
+      "src/commands/feedback/index.ts",
+      "src/constants/toolLimits.ts",
+      "src/entrypoints/sdk/coreSchemas.ts",
+      "src/hooks/useTextInput.ts",
+      "src/services/mcp/client.ts",
+      "src/services/tools/toolExecution.ts",
+      "src/skills/bundled/claudeApiContent.ts",
+      "src/skills/loadSkillsDir.ts",
+      "src/tools/FileEditTool/prompt.ts",
+      "src/types/permissions.ts",
+      "src/utils/bash/ShellSnapshot.ts",
+      "src/utils/deepLink/parseDeepLink.ts",
+      "src/utils/nativeInstaller/installer.ts",
+      "src/utils/plugins/loadPluginCommands.ts",
+      "src/utils/plugins/pluginLoader.ts",
+      "src/utils/promptShellExecution.ts",
+      "src/utils/sessionStorage.ts",
+      "src/utils/settings/types.ts",
+      "src/utils/toolResultStorage.ts"
+    ],
+    "testFiles": [
+      "recovery/test/recovery-2.1.91-core-overlay.test.mjs",
+      "recovery/test/recovery-2.1.91-release-overlay.test.mjs",
+      "recovery/test/recovery-2.1.91-claude-api.test.mjs"
+    ],
+    "testArtifactEnvironment": {
+      "CLAUDE_CODE_2_1_90_BUNDLE": "baselineBundle",
+      "CLAUDE_CODE_2_1_91_BUNDLE": "targetBundle"
+    }
+  },
+  "recoveredEdits": [
+    {
+      "id": "bun-strip-ansi-dependency-output",
+      "confidence": "exact",
+      "sourceNames": "third-party Bun bundle output is preserved as an exact model",
+      "files": [
+        "recovered/bun-stripansi-model.mjs"
+      ],
+      "explains": [
+        "bun-stripansi"
+      ]
+    },
+    {
+      "id": "mcp-result-size-override",
+      "confidence": "equivalent",
+      "sourceNames": "inferred where erased by minification",
+      "files": [
+        "recovered/mcp-result-override.patch"
+      ],
+      "explains": [
+        "mcp-constants",
+        "mcp-persistence",
+        "mcp-mapper"
+      ]
+    },
+    {
+      "id": "permission-auto-mode-and-cmd-delete",
+      "confidence": "equivalent",
+      "sourceNames": "inferred where erased by minification",
+      "files": [
+        "recovered/input-permission-schema.patch"
+      ],
+      "explains": [
+        "permission-set",
+        "permission-sdk-schema",
+        "cmd-delete"
+      ]
+    },
+    {
+      "id": "skill-and-plugin-shell-policy",
+      "confidence": "equivalent",
+      "sourceNames": "inferred where erased by minification",
+      "files": [
+        "recovered/skill-shell-policy.patch"
+      ],
+      "explains": [
+        "shell-policy-helper",
+        "shell-policy-skill",
+        "shell-policy-plugin"
+      ]
+    },
+    {
+      "id": "multiline-deep-links",
+      "confidence": "equivalent",
+      "sourceNames": "inferred where erased by minification",
+      "files": [
+        "recovered/multiline-deep-links.patch"
+      ],
+      "explains": [
+        "deep-link"
+      ]
+    },
+    {
+      "id": "plugin-bin-path-discovery",
+      "confidence": "equivalent",
+      "sourceNames": "inferred where erased by minification",
+      "files": [
+        "recovered/plugin-bin-path.patch"
+      ],
+      "explains": [
+        "plugin-discovery",
+        "plugin-path"
+      ]
+    },
+    {
+      "id": "transcript-chain-fallback",
+      "confidence": "equivalent",
+      "sourceNames": "inferred where erased by minification",
+      "files": [
+        "recovered/transcript-chain-fallback.patch"
+      ],
+      "explains": [
+        "chain-fallback"
+      ]
+    },
+    {
+      "id": "feedback-command-availability",
+      "confidence": "equivalent",
+      "sourceNames": "inferred where erased by minification",
+      "files": [
+        "recovered/feedback-availability.patch"
+      ],
+      "explains": [
+        "feedback"
+      ]
+    },
+    {
+      "id": "edit-anchor-guidance",
+      "confidence": "equivalent",
+      "sourceNames": "authored prose formatting is unobservable",
+      "files": [
+        "recovered/edit-anchor-guidance.patch"
+      ],
+      "explains": [
+        "edit-prompt"
+      ]
+    },
+    {
+      "id": "windows-install-rollback-cleanup",
+      "confidence": "equivalent",
+      "sourceNames": "inferred where erased by minification",
+      "files": [
+        "recovered/windows-rollback-cleanup.patch"
+      ],
+      "explains": [
+        "windows-cleanup"
+      ]
+    },
+    {
+      "id": "claude-api-guidance",
+      "confidence": "exact",
+      "sourceNames": "target string literals preserve the published Markdown bytes",
+      "files": [
+        "recovered/claude-api-guidance.patch"
+      ],
+      "explains": [
+        "claude-api-agent-design"
+      ]
+    }
+  ]
+}
