@@ -135,7 +135,10 @@ export async function parseCommandRaw(
   return null
 }
 
-function findCommandNode(node: Node, parent: Node | null): Node | null {
+export function findCommandNode(
+  node: Node,
+  parent: Node | null,
+): Node | null {
   const { type, children } = node
 
   if (COMMAND_TYPES.has(type)) return node
@@ -207,13 +210,23 @@ export function extractCommandArguments(commandNode: Node): string[] {
       (!foundCommandName && child.type === 'word')
     ) {
       foundCommandName = true
-      args.push(child.text)
+      const value = child.children[0] ?? child
+      args.push(stripQuotes(value.text))
       continue
     }
 
     // Arguments
     if (ARGUMENT_TYPES.has(child.type)) {
       args.push(stripQuotes(child.text))
+    } else if (child.type === 'concatenation') {
+      if (
+        child.children.some(part => SUBSTITUTION_TYPES.has(part.type))
+      ) {
+        break
+      }
+      args.push(
+        child.children.map(part => stripQuotes(part.text)).join(''),
+      )
     } else if (SUBSTITUTION_TYPES.has(child.type)) {
       break
     }

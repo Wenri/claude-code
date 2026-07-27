@@ -233,6 +233,7 @@ function main() {
     }
 
     const additionalPatchSets = []
+    let appliedSourceTree = null
     for (const patchSet of validation.additionalPatchSets ?? []) {
       const patchWorkspace = safeRelativePath(
         extractionRoot,
@@ -294,12 +295,60 @@ function main() {
         )
         checkedSyntax.push(relative)
       }
+      let repositoryCopies = []
+      if (validation.appliedSourceTree?.patchSet === patchSet.name) {
+        repositoryCopies = validation.appliedSourceTree.files.map(item => {
+          const comparison = assertFileEqual(
+            safeRelativePath(
+              repositoryRoot,
+              item.path,
+              'applied repository source',
+            ),
+            safeRelativePath(
+              patchWorkspace,
+              item.path,
+              'patched source-layer copy',
+            ),
+            `repository ${item.path} equals ${patchSet.name} recovery`,
+          )
+          if (comparison.bytes !== item.bytes) {
+            throw new Error(
+              `${item.path}: expected ${item.bytes} bytes, ` +
+                `got ${comparison.bytes}`,
+            )
+          }
+          if (comparison.sha256 !== item.sha256) {
+            throw new Error(
+              `${item.path}: expected sha256 ${item.sha256}, ` +
+                `got ${comparison.sha256}`,
+            )
+          }
+          return {
+            path: item.path,
+            baseline: item.baseline ?? 'source-map',
+            bytes: comparison.bytes,
+            sha256: comparison.sha256,
+          }
+        })
+        appliedSourceTree = {
+          base: validation.appliedSourceTree.base,
+          patchSet: patchSet.name,
+          files: repositoryCopies,
+        }
+      }
       additionalPatchSets.push({
         name: patchSet.name,
         patches: patchResults,
         standaloneCopies: copies,
         syntaxChecks: checkedSyntax,
+        repositoryCopies,
       })
+    }
+    if (validation.appliedSourceTree && !appliedSourceTree) {
+      throw new Error(
+        `Applied source patch set not found: ` +
+          validation.appliedSourceTree.patchSet,
+      )
     }
 
     const testFiles = validation.testFiles.map(relative =>
@@ -331,6 +380,7 @@ function main() {
           standaloneCopies,
           syntaxChecks,
           additionalPatchSets,
+          appliedSourceTree,
           semanticTests: tests.stdout
             .split('\n')
             .find(line => line.startsWith('ℹ tests ')),

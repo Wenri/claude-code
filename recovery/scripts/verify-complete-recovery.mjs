@@ -268,6 +268,11 @@ function main() {
           bytes: packageTree.bytes,
           framedTreeSha256: packageTree.framedTreeSha256,
         },
+        sourceTree: {
+          state: evidence.baseline.repositoryState.kind,
+          patchSet: sourcePatches.appliedSourceTree?.patchSet ?? null,
+          files: sourcePatches.appliedSourceTree?.files.length ?? 0,
+        },
         bundle: {
           bytes: exactBundleDelta.target.bytes,
           sha256: exactBundleDelta.target.sha256,

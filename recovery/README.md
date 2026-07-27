@@ -15,7 +15,10 @@ not be conflated:
 
 Start with the
 [`case report`](./cases/2.1.88-to-2.1.89/REPORT.md) and
-[`manifest`](./cases/2.1.88-to-2.1.89/manifest.json).
+[`manifest`](./cases/2.1.88-to-2.1.89/manifest.json). The
+[`complete runbook`](./cases/2.1.88-to-2.1.89/RECOVERY_RUNBOOK.md) records the
+chronological commands used to construct the case, apply its source overlay,
+reconstruct the package, and verify every claim.
 
 ## Deliverables
 
@@ -27,6 +30,40 @@ Start with the
 | `structural/` | Complete target token/unit classification ledger |
 | `readable-diff/` | Binding-aware full bundle diff, structural diff, and rename map |
 | `recovered/` | Readable source-facing declaration and Bash/parser patches |
+
+## Current source-tree state
+
+The repository `src/` is the verified 2.1.88 outer/Bun-input source-map
+baseline plus the recovered 2.1.89 Bash/parser overlay. The overlay modifies
+three files and adds one:
+
+- `src/utils/bash/parser.ts`;
+- `src/utils/bash/commands.ts`;
+- `src/tools/BashTool/BashTool.tsx`; and
+- `src/tools/BashTool/fileReadState.ts`.
+
+On a fresh verified 2.1.88 outer tree, apply the parser patch first and the
+Bun-input BashTool patch second:
+
+```sh
+CASE=recovery/cases/2.1.88-to-2.1.89
+git apply "$CASE/recovered/bash-parser.pristine.patch"
+git apply "$CASE/recovered/BashTool.bun-input.patch"
+```
+
+Do not also apply `BashTool.pristine.patch`; it targets the alternate nested
+TSX source layer. `sdk-tools.pristine.patch` targets a reconstructed package
+workspace, not this repository root.
+
+The overlay is already present on current `main`. Verify it without trying to
+apply it twice:
+
+```sh
+git apply --reverse --check \
+  "$CASE/recovered/BashTool.bun-input.patch"
+git apply --reverse --check \
+  "$CASE/recovered/bash-parser.pristine.patch"
+```
 
 ## Quick verification
 
@@ -47,7 +84,11 @@ therefore takes a user-supplied copy and rejects it unless it is exactly
 31,196,633 bytes with SHA-256
 `d836a86d9150ecc594a7025524c50e24080478904c979f386d447770275ef813`.
 Its npm SHA-1, SHA-512 SRI, and registry signature are pinned in the package
-report and manifest.
+report and manifest. Do not substitute a tarball rebuilt from the source
+mirror: its added notice and archive metadata make it a different package.
+Without the original tarball, exact bundle recovery and source-overlay
+verification still work; only the exhaustive baseline-member and final
+package-tree checks are unavailable.
 
 Run the complete gate:
 
@@ -64,7 +105,9 @@ the source-like patches, exact bundle reconstruction, attribution coverage,
 structural token accounting, readable-diff invariants, target-backed tests,
 and exact package-tree reconstruction.
 
-The expected top-level status is `complete-recovery-verified`.
+The expected top-level status is `complete-recovery-verified`. On current
+`main`, the result also reports source state `verified-recovered-overlay`,
+patch set `bun-input`, and four checked repository files.
 
 ## Inspect the diff
 
@@ -82,10 +125,13 @@ gzip -cd \
   less
 ```
 
+This normalized diff is a comparison representation, not executable source.
+Do not apply it to `src/`.
+
 The exact executable can be reconstructed directly:
 
 ```sh
-zstd -d \
+pixi run zstd -d \
   --patch-from="$RECOVERY_ARTIFACTS/2.1.88/cli.js" \
   recovery/cases/2.1.88-to-2.1.89/diff/cli.js.zstd-delta \
   -o /tmp/claude-code-2.1.89-cli.js
@@ -96,7 +142,9 @@ The reconstructed file must be 13,081,065 bytes with SHA-256
 
 ## Reusable method
 
-Use these stages for another adjacent release pair.
+Use these stages for another adjacent release pair. Case construction freezes
+and derives evidence while the target artifacts are available; later recovery
+replays the committed delta, patches, and verifiers from those pinned inputs.
 
 ### 1. Freeze every artifact
 

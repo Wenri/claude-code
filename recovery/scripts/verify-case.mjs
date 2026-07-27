@@ -102,7 +102,46 @@ function walkFiles(directory) {
   return result
 }
 
-function verifyBaseline(mapPath, repo, oracle) {
+function normalizeAppliedSourceTree(repo, appliedSourceTree) {
+  if (!appliedSourceTree) {
+    return { assertions: new Map(), absentBaselineFiles: new Set() }
+  }
+  if (!Array.isArray(appliedSourceTree.files)) {
+    throw new Error('appliedSourceTree.files must be an array')
+  }
+  const assertions = new Map()
+  const absentBaselineFiles = new Set()
+  for (const assertion of appliedSourceTree.files) {
+    if (
+      typeof assertion.path !== 'string' ||
+      !assertion.path.startsWith('src/') ||
+      assertions.has(assertion.path.slice(4)) ||
+      !Number.isSafeInteger(assertion.bytes) ||
+      assertion.bytes < 0 ||
+      !/^[a-f0-9]{64}$/.test(assertion.sha256)
+    ) {
+      throw new Error(
+        `Invalid or duplicate applied source assertion: ${assertion.path}`,
+      )
+    }
+    const relative = assertion.path.slice(4)
+    const resolved = path.resolve(repo, assertion.path)
+    const sourceRoot = path.resolve(repo, 'src')
+    if (!resolved.startsWith(`${sourceRoot}${path.sep}`)) {
+      throw new Error(`${assertion.path}: applied source path escaped src`)
+    }
+    assertions.set(relative, { ...assertion, relative, resolved })
+    if (assertion.baseline === 'absent') absentBaselineFiles.add(relative)
+    else if (assertion.baseline !== undefined) {
+      throw new Error(
+        `${assertion.path}: unknown baseline state ${assertion.baseline}`,
+      )
+    }
+  }
+  return { assertions, absentBaselineFiles }
+}
+
+function verifyBaseline(mapPath, repo, oracle, appliedSourceTree) {
   const map = JSON.parse(fs.readFileSync(mapPath, 'utf8'))
   const sourceMapSummary = summarizeSourceMap(map)
   for (const [key, expected] of Object.entries(oracle.sourceMap)) {
@@ -116,6 +155,30 @@ function verifyBaseline(mapPath, repo, oracle) {
   let applicationSourceBytes = 0
   let tsxSourceCount = 0
   let nestedOriginalBytes = 0
+  const overlay = normalizeAppliedSourceTree(repo, appliedSourceTree)
+  const appliedByRelative = new Map()
+  let baselineOverlayFiles = 0
+  let recoveredOverlayFiles = 0
+
+  const recordAppliedFile = (relative, assertion, value) => {
+    assertEqual(
+      value.length,
+      assertion.bytes,
+      `${assertion.path} byte length`,
+    )
+    assertEqual(
+      sha256(value),
+      assertion.sha256,
+      `${assertion.path} sha256`,
+    )
+    recoveredOverlayFiles += 1
+    appliedByRelative.set(relative, {
+      path: assertion.path,
+      baseline: assertion.baseline ?? 'source-map',
+      bytes: assertion.bytes,
+      sha256: assertion.sha256,
+    })
+  }
 
   for (let index = 0; index < map.sources.length; index += 1) {
     const source = map.sources[index]
@@ -135,9 +198,33 @@ function verifyBaseline(mapPath, repo, oracle) {
       .update(sha256(content))
       .update('\0')
 
-    const repositoryContent = fs.readFileSync(applicationPath.resolved, 'utf8')
-    if (repositoryContent !== content) {
-      throw new Error(`${source}: repository content differs from source map`)
+    const appliedAssertion = overlay.assertions.get(applicationPath.relative)
+    if (appliedAssertion) {
+      if (overlay.absentBaselineFiles.has(applicationPath.relative)) {
+        throw new Error(
+          `${source}: overlay marks a source-map file absent from baseline`,
+        )
+      }
+      const repositoryContent = fs.readFileSync(applicationPath.resolved)
+      if (repositoryContent.equals(Buffer.from(content))) {
+        baselineOverlayFiles += 1
+      } else {
+        recordAppliedFile(
+          applicationPath.relative,
+          appliedAssertion,
+          repositoryContent,
+        )
+      }
+    } else {
+      const repositoryContent = fs.readFileSync(
+        applicationPath.resolved,
+        'utf8',
+      )
+      if (repositoryContent !== content) {
+        throw new Error(
+          `${source}: repository content differs from source map`,
+        )
+      }
     }
 
     if (source.endsWith('.tsx')) {
@@ -169,10 +256,47 @@ function verifyBaseline(mapPath, repo, oracle) {
   const repositoryFiles = walkFiles(path.resolve(repo, 'src')).map(filename =>
     path.relative(path.resolve(repo, 'src'), filename).replaceAll('\\', '/'),
   )
-  const extras = repositoryFiles.filter(filename => !expectedFiles.has(filename))
+  const extras = repositoryFiles.filter(
+    filename =>
+      !expectedFiles.has(filename) &&
+      !overlay.absentBaselineFiles.has(filename),
+  )
   if (extras.length > 0) {
     throw new Error(`Repository has ${extras.length} extra src files: ${extras[0]}`)
   }
+  for (const [relative, assertion] of overlay.assertions) {
+    const isBaselineSource = expectedFiles.has(relative)
+    if (isBaselineSource !== !overlay.absentBaselineFiles.has(relative)) {
+      throw new Error(
+        `${assertion.path}: baseline presence does not match source map`,
+      )
+    }
+    if (!isBaselineSource) {
+      if (fs.existsSync(assertion.resolved)) {
+        recordAppliedFile(
+          relative,
+          assertion,
+          fs.readFileSync(assertion.resolved),
+        )
+      } else {
+        baselineOverlayFiles += 1
+      }
+    }
+  }
+  assertEqual(
+    baselineOverlayFiles + recoveredOverlayFiles,
+    overlay.assertions.size,
+    'recognized source overlay file count',
+  )
+  if (baselineOverlayFiles > 0 && recoveredOverlayFiles > 0) {
+    throw new Error(
+      'Repository has a partially applied source overlay: expected every ' +
+        'recovery file to be either baseline or recovered',
+    )
+  }
+  const appliedFiles = [...overlay.assertions.keys()]
+    .filter(relative => appliedByRelative.has(relative))
+    .map(relative => appliedByRelative.get(relative))
 
   const actual = {
     applicationSourceCount,
@@ -186,7 +310,19 @@ function verifyBaseline(mapPath, repo, oracle) {
     if (key === 'sourceMap') continue
     assertEqual(actual[key], expected, `baseline oracle ${key}`)
   }
-  return { ...actual, sourceMap: sourceMapSummary }
+  return {
+    ...actual,
+    sourceMap: sourceMapSummary,
+    repositoryState:
+      recoveredOverlayFiles === 0
+        ? { kind: 'exact-baseline', appliedFiles: [] }
+        : {
+            kind: 'verified-recovered-overlay',
+            base: appliedSourceTree.base,
+            patchSet: appliedSourceTree.patchSet,
+            appliedFiles,
+          },
+  }
 }
 
 function verifyTarget(manifest, files) {
@@ -478,6 +614,7 @@ function main() {
     files.baselineSourceMap,
     path.resolve(args.repo),
     manifest.baselineOracle,
+    manifest.recoveryValidation?.appliedSourceTree,
   )
   const target = verifyTarget(manifest, files)
   const recovery = verifyRecoveryLedger(manifest, args.case)

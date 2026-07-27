@@ -15,7 +15,7 @@
       "id": "baselineBundle",
       "argument": "baseline",
       "localPath": "2.1.88/cli.js",
-      "url": "https://cdn.jsdelivr.net/npm/@anthropic-ai/claude-code@2.1.88/cli.js",
+      "url": "https://raw.githubusercontent.com/Exhen/claude-code-2.1.88/c8cd253554319f32ff64ff7000636199f720c9bc/cli.js",
       "bytes": 13047043,
       "sha256": "75c9611929d9a770fe2e3a393219d8b98f5de17fde539b2a7355c6db3fd2795f"
     },
@@ -23,7 +23,7 @@
       "id": "baselineSourceMap",
       "argument": "map",
       "localPath": "2.1.88/cli.js.map",
-      "url": "https://raw.githubusercontent.com/Exhen/claude-code-2.1.88/main/cli.js.map",
+      "url": "https://raw.githubusercontent.com/Exhen/claude-code-2.1.88/c8cd253554319f32ff64ff7000636199f720c9bc/cli.js.map",
       "bytes": 59766257,
       "sha256": "7965012b7a5fc9e09d8d747a04c5c32b94696924536e217f686bb1e7ee70a657"
     },
@@ -31,7 +31,7 @@
       "id": "baselineDeclarations",
       "argument": "baseline-dts",
       "localPath": "2.1.88/sdk-tools.d.ts",
-      "url": "https://raw.githubusercontent.com/Exhen/claude-code-2.1.88/main/sdk-tools.d.ts",
+      "url": "https://raw.githubusercontent.com/Exhen/claude-code-2.1.88/c8cd253554319f32ff64ff7000636199f720c9bc/sdk-tools.d.ts",
       "bytes": 116949,
       "sha256": "53d249727389f9c9af5192f99bf66c4513b89d710e4326082ce1d218c3e6c7fc"
     },
@@ -39,7 +39,7 @@
       "id": "baselinePackageJson",
       "argument": "baseline-package-json",
       "localPath": "2.1.88/package.json",
-      "url": "https://raw.githubusercontent.com/Exhen/claude-code-2.1.88/main/package.json",
+      "url": "https://raw.githubusercontent.com/Exhen/claude-code-2.1.88/c8cd253554319f32ff64ff7000636199f720c9bc/package.json",
       "bytes": 1242,
       "sha256": "e21f9e98fa4ea8b4d007063d92c631df1bbed6d11c9e79c5fcdeb9f4859dc8fa"
     },
@@ -360,6 +360,33 @@
         ]
       }
     ],
+    "appliedSourceTree": {
+      "base": "verified 2.1.88 outer/Bun-input src layer",
+      "patchSet": "bun-input",
+      "files": [
+        {
+          "path": "src/utils/bash/parser.ts",
+          "bytes": 6983,
+          "sha256": "128865ac92af89371351652fa88829398002171980425c8c2f2e9d7ca168d55e"
+        },
+        {
+          "path": "src/utils/bash/commands.ts",
+          "bytes": 48448,
+          "sha256": "7c207fb9959cc807b677b27ef364b04b27368311ac19934796d66bf58ffe39f4"
+        },
+        {
+          "path": "src/tools/BashTool/BashTool.tsx",
+          "bytes": 163078,
+          "sha256": "5a57584665e4f18af5009c6928afa7a0f3d34734a22a8e4b8645a4aeb8e11391"
+        },
+        {
+          "path": "src/tools/BashTool/fileReadState.ts",
+          "bytes": 5242,
+          "sha256": "3fa46f3b5e332616ec8a5ffab3dcea0299aaee527b12f3ef991c5a61f72d3029",
+          "baseline": "absent"
+        }
+      ]
+    },
     "testFiles": [
       "recovery/test/attribution-report.test.mjs",
       "recovery/test/bash-read-state-model.test.mjs",

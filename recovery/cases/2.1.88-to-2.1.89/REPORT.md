@@ -17,6 +17,9 @@ The recoverable 2.1.89 release is complete.
 - Exact public declaration/package edits and one readable Bash/parser feature
   slice are recovered as source-facing patches and checked against generated
   2.1.89 helpers.
+- The outer/Bun-input form of that source-facing slice is applied to the
+  repository and compared byte-for-byte with a freshly patched 2.1.88
+  extraction.
 
 The exact original TypeScript tree is not recoverable from this package.
 2.1.89 contains a minified JavaScript bundle and no source map. Types,
@@ -35,6 +38,7 @@ partial, inferred, or unobservable.
 | Target JavaScript tokens | Complete classification | 4,197,802 / 4,197,802 tokens classified |
 | Baseline source ownership | Exact | All 4,756 mapped inputs have one contiguous generated run |
 | Full readable bundle diff | Complete comparison view | Entire target is represented; unsafe renames remain rejected |
+| Repository `src/` | Verified overlay | Exact 2.1.88 outer baseline plus the source-facing 2.1.89 Bash/parser patch set |
 | Source-like TypeScript recovery | Partial | Exact/equivalent patches for the declaration and Bash/parser slice |
 | Original 2.1.89 TypeScript spelling | Unobservable | The target artifact does not retain it |
 
@@ -63,6 +67,12 @@ entry records an
 and a best-effort archival download. Core bundle/map verification does not
 depend on that download; exact whole-package reconstruction accepts a local
 copy only after checking the pinned 31,196,633-byte length and SHA-256.
+The source mirror is not a substitute for this tarball: its README and archive
+metadata differ. The four individually acquired baseline files are pinned to
+mirror commit `c8cd253554319f32ff64ff7000636199f720c9bc`, and their hashes are
+sufficient for baseline, exact-bundle, attribution, and source-overlay work.
+The original tarball is required only for exhaustive baseline package-member
+comparison and reconstruction of the complete 19-member target package.
 
 The official changelog is also pinned at Git commit
 `7ef6eec9d9ba84ea6f233f26c45f1df5c5991843`. Its 2.1.89 section has 52
@@ -234,7 +244,29 @@ changed TypeScript inputs syntax-build through Bun with external imports.
 This patch is useful readable code, but it is not presented as the complete
 authored 2.1.89 source tree.
 
+## Applied repository source overlay
+
+The repository carries the outer/Bun-input patch representation. Starting
+from the exact 2.1.88 outer source-map layer, the parser patch was applied
+first and `BashTool.bun-input.patch` second:
+
+| Path | State | SHA-256 |
+| --- | --- | --- |
+| `src/utils/bash/parser.ts` | Patched | `128865ac92af89371351652fa88829398002171980425c8c2f2e9d7ca168d55e` |
+| `src/utils/bash/commands.ts` | Patched | `7c207fb9959cc807b677b27ef364b04b27368311ac19934796d66bf58ffe39f4` |
+| `src/tools/BashTool/BashTool.tsx` | Patched | `5a57584665e4f18af5009c6928afa7a0f3d34734a22a8e4b8645a4aeb8e11391` |
+| `src/tools/BashTool/fileReadState.ts` | Added | `3fa46f3b5e332616ec8a5ffab3dcea0299aaee527b12f3ef991c5a61f72d3029` |
+
+The verifier still compares every unaffected repository file byte-for-byte
+with the 2.1.88 source map, hash-checks these four files, and compares them
+with a new baseline extraction after applying the same patch chain. This
+state is reported as `verified-recovered-overlay`. The normalized full-bundle
+diff is not executable and is never applied to `src/`.
+
 ## Reusable recovery and verification
+
+The complete construction and replay procedure, including every regeneration
+CLI, is in [`RECOVERY_RUNBOOK.md`](./RECOVERY_RUNBOOK.md).
 
 Install the pinned tooling and acquire all currently available artifacts:
 
@@ -263,6 +295,11 @@ Expected status:
 ```json
 {
   "status": "complete-recovery-verified",
+  "sourceTree": {
+    "state": "verified-recovered-overlay",
+    "patchSet": "bun-input",
+    "files": 4
+  },
   "checks": {
     "evidence": "evidence-verified",
     "sourcePatches": "patches-verified",

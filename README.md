@@ -115,11 +115,16 @@ leaked source** (the TypeScript/TSX under [`src/`](./src/)), recovered from a
 `.map` sourcemap accidentally published to npm in March 2026 (discovered by
 [Chaofan Shou](https://x.com/Fried_rice); originally mirrored by
 [Yasas Banu](https://www.yasasbanuka.tech)). It is study material, not a buildable
-project. A short tour of what's inside is in [`CLAUDE.md`](./CLAUDE.md).
+project. The untouched files remain the exact 2.1.88 outer source-map inputs;
+four Bash/parser files now carry the verified source-facing 2.1.89 recovery
+overlay. This does not claim that the complete original 2.1.89 TypeScript tree
+is observable. A short tour of what's inside is in [`CLAUDE.md`](./CLAUDE.md).
 The evidence-first 2.1.88 → 2.1.89 recovery lives in
 [`recovery/`](./recovery/): it reconstructs the complete published 2.1.89
 bundle/package tree exactly, while keeping the necessarily partial
-authored-TypeScript reconstruction labeled separately.
+authored-TypeScript reconstruction labeled separately. The
+[recovery runbook](./recovery/cases/2.1.88-to-2.1.89/RECOVERY_RUNBOOK.md)
+records every required construction, application, and verification step.
 
 ## 📜 License & disclaimer
 
