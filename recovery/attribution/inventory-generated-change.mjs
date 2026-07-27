@@ -16,7 +16,8 @@ function usage() {
   console.error(
     'Usage: inventory-generated-change.mjs --baseline BUNDLE ' +
       '--map BASELINE.map --target BUNDLE --output DIR ' +
-      '[--target-package-json FILE] [--target-dts FILE] [--changelog FILE]',
+      '[--target-package-json FILE] [--target-dts FILE] [--changelog FILE] ' +
+      '[--changelog-section VERSION]',
   )
 }
 
@@ -30,6 +31,7 @@ function parseArguments(argv) {
     'target-package-json',
     'target-dts',
     'changelog',
+    'changelog-section',
     'minimum-literal-length',
   ])
   for (let index = 0; index < argv.length; index += 1) {
@@ -348,20 +350,27 @@ function releaseEvidence(args) {
   }
   if (args['target-dts']) {
     const filename = path.resolve(args['target-dts'])
-    const content = fs.readFileSync(filename, 'utf8')
     result.targetDeclarations = {
       ...evidence(filename),
-      staleReadFileStateHint:
-        content.includes('staleReadFileStateHint?: string;') &&
-        content.includes(
-          'Model-facing note listing readFileState entries whose mtime bumped',
-        ),
     }
   }
   if (args.changelog) {
     const filename = path.resolve(args.changelog)
     const content = fs.readFileSync(filename, 'utf8')
-    const sectionStart = content.search(/^## 2\.1\.89[^\n]*$/m)
+    const section =
+      args['changelog-section'] ?? result.targetPackage?.version
+    if (!section) {
+      throw new Error(
+        '--changelog requires --changelog-section or --target-package-json',
+      )
+    }
+    const escapedSection = section.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const sectionStart = content.search(
+      new RegExp(`^## ${escapedSection}[^\\n]*$`, 'm'),
+    )
+    if (sectionStart === -1) {
+      throw new Error(`Changelog section not found: ${section}`)
+    }
     const bodyStart =
       sectionStart === -1 ? -1 : content.indexOf('\n', sectionStart) + 1
     const nextSection =
@@ -379,7 +388,7 @@ function releaseEvidence(args) {
       .map(line => line.slice(2))
     result.officialChangelog = {
       ...evidence(filename),
-      section: '2.1.89',
+      section,
       bulletCount: bullets.length,
       bullets,
     }

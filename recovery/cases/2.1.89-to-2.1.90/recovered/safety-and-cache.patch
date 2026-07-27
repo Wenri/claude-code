@@ -1,0 +1,47 @@
+diff --git a/src/tools/PowerShellTool/readOnlyValidation.ts b/src/tools/PowerShellTool/readOnlyValidation.ts
+index e0894fa..962b70f 100644
+--- a/src/tools/PowerShellTool/readOnlyValidation.ts
++++ b/src/tools/PowerShellTool/readOnlyValidation.ts
+@@ -701,7 +701,7 @@ export const CMDLET_ALLOWLIST: Record<string, CommandConfig> = Object.assign(
+       // are SKIPPED. Reject any positional argument — only bare `ipconfig` or
+       // `ipconfig /all` (read-only display) allowed. Windows ipconfig only uses
+       // /flags (display), macOS ipconfig uses subcommands (get/set/waitall).
+-      safeFlags: ['/all', '/displaydns', '/allcompartments'],
++      safeFlags: ['/all', '/allcompartments'],
+       additionalCommandIsDangerousCallback: (
+         _cmd: string,
+         element?: ParsedCommandElement,
+diff --git a/src/utils/permissions/filesystem.ts b/src/utils/permissions/filesystem.ts
+index 320b623..50edb66 100644
+--- a/src/utils/permissions/filesystem.ts
++++ b/src/utils/permissions/filesystem.ts
+@@ -76,6 +76,7 @@ export const DANGEROUS_DIRECTORIES = [
+   '.vscode',
+   '.idea',
+   '.claude',
++  '.husky',
+ ] as const
+
+ /**
+diff --git a/src/utils/plugins/marketplaceManager.ts b/src/utils/plugins/marketplaceManager.ts
+index c7c84b6..0f3b38a 100644
+--- a/src/utils/plugins/marketplaceManager.ts
++++ b/src/utils/plugins/marketplaceManager.ts
+@@ -1118,6 +1118,17 @@ async function cacheMarketplaceFromGit(
+       pullResult.code === 0 ? undefined : classifyFetchError(pullResult.stderr),
+     )
+     if (pullResult.code === 0) return
++    if (
++      isEnvTruthy(
++        process.env.CLAUDE_CODE_PLUGIN_KEEP_MARKETPLACE_ON_FAILURE,
++      )
++    ) {
++      logForDebugging(
++        `git pull failed, keeping existing clone (CLAUDE_CODE_PLUGIN_KEEP_MARKETPLACE_ON_FAILURE): ${pullResult.stderr}`,
++        { level: 'warn' },
++      )
++      return
++    }
+     logForDebugging(`git pull failed, will re-clone: ${pullResult.stderr}`, {
+       level: 'warn',
+     })

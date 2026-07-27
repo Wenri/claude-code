@@ -339,16 +339,30 @@ export class SSETransport implements Transport {
   private async readStream(body: ReadableStream<Uint8Array>): Promise<void> {
     const reader = body.getReader()
     const decoder = new TextDecoder()
-    let buffer = ''
+    let chunks: string[] = []
+    let previousChunkEndsWithNewline = false
 
     try {
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
 
-        buffer += decoder.decode(value, STREAM_DECODE_OPTS)
-        const { frames, remaining } = parseSSEFrames(buffer)
-        buffer = remaining
+        const chunk = decoder.decode(value, STREAM_DECODE_OPTS)
+        if (!chunk) continue
+
+        const hasFrameBoundary =
+          (previousChunkEndsWithNewline && chunk[0] === '\n') ||
+          chunk.includes('\n\n')
+        chunks.push(chunk)
+
+        if (!hasFrameBoundary) {
+          previousChunkEndsWithNewline = chunk.endsWith('\n')
+          continue
+        }
+
+        const { frames, remaining } = parseSSEFrames(chunks.join(''))
+        chunks = remaining ? [remaining] : []
+        previousChunkEndsWithNewline = remaining.endsWith('\n')
 
         for (const frame of frames) {
           // Any frame (including keepalive comments) proves the connection is alive

@@ -1,6 +1,6 @@
 import { feature } from 'bun:bundle'
 import type { ContentBlockParam } from '@anthropic-ai/sdk/resources/messages.mjs'
-import { randomUUID } from 'crypto'
+import { randomUUID, type UUID } from 'crypto'
 import last from 'lodash-es/last.js'
 import {
   getSessionId,
@@ -73,6 +73,8 @@ import { fetchSystemPromptParts } from './utils/queryContext.js'
 import { setCwd } from './utils/Shell.js'
 import {
   flushSessionStorage,
+  isChainParticipant,
+  isLoggableMessage,
   recordTranscript,
 } from './utils/sessionStorage.js'
 import { asSystemPrompt } from './utils/systemPromptType.js'
@@ -432,6 +434,30 @@ export class QueryEngine {
 
     // Update params to reflect updates from processing /slash commands
     const messages = [...this.mutableMessages]
+    let transcriptCursor = 0
+    let lastRecordedUuid: UUID | undefined
+    const recordNewMessages = (): Promise<UUID | null> => {
+      const start = transcriptCursor
+      if (start >= messages.length) return Promise.resolve(null)
+
+      const newMessages = start === 0 ? messages : messages.slice(start)
+      transcriptCursor = messages.length
+      const startingParentUuid = lastRecordedUuid
+      for (let index = newMessages.length - 1; index >= 0; index--) {
+        const message = newMessages[index]!
+        if (isLoggableMessage(message) && isChainParticipant(message)) {
+          lastRecordedUuid = message.uuid
+          break
+        }
+      }
+
+      return recordTranscript(
+        newMessages,
+        undefined,
+        startingParentUuid,
+        messages,
+      )
+    }
 
     // Persist the user's message(s) to transcript BEFORE entering the query
     // loop. The for-await below only calls recordTranscript when ask() yields
@@ -448,7 +474,7 @@ export class QueryEngine {
     // — the single largest controllable critical-path cost after module eval.
     // Transcript is still written (for post-hoc debugging); just not blocking.
     if (persistSession && messagesFromUserInput.length > 0) {
-      const transcriptPromise = recordTranscript(messages)
+      const transcriptPromise = recordNewMessages()
       if (isBareMode()) {
         void transcriptPromise
       } else {
@@ -606,7 +632,7 @@ export class QueryEngine {
       }
 
       if (persistSession) {
-        await recordTranscript(messages)
+        await recordNewMessages()
         if (
           isEnvTruthy(process.env.CLAUDE_CODE_EAGER_FLUSH) ||
           isEnvTruthy(process.env.CLAUDE_CODE_IS_COWORK)
@@ -710,6 +736,8 @@ export class QueryEngine {
             )
             if (tailIdx !== -1) {
               await recordTranscript(this.mutableMessages.slice(0, tailIdx + 1))
+              transcriptCursor = 0
+              lastRecordedUuid = undefined
             }
           }
         }
@@ -725,9 +753,9 @@ export class QueryEngine {
           // useLogMessages.ts fire-and-forgets. enqueueWrite is
           // order-preserving so fire-and-forget here is safe.
           if (message.type === 'assistant') {
-            void recordTranscript(messages)
+            void recordNewMessages()
           } else {
-            await recordTranscript(messages)
+            await recordNewMessages()
           }
         }
 
@@ -777,7 +805,7 @@ export class QueryEngine {
           // forking the chain and orphaning the conversation on resume.
           if (persistSession) {
             messages.push(message)
-            void recordTranscript(messages)
+            void recordNewMessages()
           }
           yield* normalizeMessage(message)
           break
@@ -831,7 +859,7 @@ export class QueryEngine {
           // Record inline (same reason as progress above).
           if (persistSession) {
             messages.push(message)
-            void recordTranscript(messages)
+            void recordNewMessages()
           }
 
           // Extract structured output from StructuredOutput tool calls
@@ -930,6 +958,7 @@ export class QueryEngine {
             const localBoundaryIdx = messages.length - 1
             if (localBoundaryIdx > 0) {
               messages.splice(0, localBoundaryIdx)
+              transcriptCursor = messages.length
             }
 
             yield {

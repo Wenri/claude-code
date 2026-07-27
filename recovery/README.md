@@ -1,69 +1,72 @@
 # Claude Code release recovery
 
-This directory contains an evidence-first method for recovering a later
-Claude Code release from a readable, source-mapped baseline.
+This directory contains an evidence-first, incremental method for recovering
+later Claude Code releases from authenticated adjacent packages and the most
+recent matching source-map oracle.
 
-The 2.1.88 → 2.1.89 case reaches two different completeness levels that must
-not be conflated:
+The checked-in cases are:
 
-- **generated/package complete**: the published 2.1.89 executable and all 19
-  package members reconstruct exactly, every generated offset is covered, and
-  every JavaScript token is classified;
+- [`2.1.88 → 2.1.89`](./cases/2.1.88-to-2.1.89/REPORT.md), the initial
+  source-map-to-package recovery; and
+- [`2.1.89 → 2.1.90`](./cases/2.1.89-to-2.1.90/REPORT.md), the first
+  adjacent incremental recovery.
+
+Each case has two simultaneous completeness levels that must not be
+conflated:
+
+- **generated/package complete**: the published target executable and package
+  members reconstruct exactly, every generated offset is covered, and every
+  JavaScript token is classified;
 - **authored-source partial**: useful TypeScript patches and source
   attribution are recovered where the target supports them, but erased names,
   types, comments, formatting, and exact module placement are not observable.
 
-Start with the
-[`case report`](./cases/2.1.88-to-2.1.89/REPORT.md) and
-[`manifest`](./cases/2.1.88-to-2.1.89/manifest.json). The
-[`complete runbook`](./cases/2.1.88-to-2.1.89/RECOVERY_RUNBOOK.md) records the
-chronological commands used to construct the case, apply its source overlay,
-reconstruct the package, and verify every claim.
+For the current target, start with the
+[`2.1.90 report`](./cases/2.1.89-to-2.1.90/REPORT.md),
+[`manifest`](./cases/2.1.89-to-2.1.90/manifest.json), and
+[`complete runbook`](./cases/2.1.89-to-2.1.90/RECOVERY_RUNBOOK.md).
 
 ## Deliverables
 
 | Deliverable | Purpose |
 | --- | --- |
-| `diff/cli.js.zstd-delta` | Exact, reversible 2.1.88 → 2.1.89 bundle delta |
+| `diff/cli.js.zstd-delta` | Exact, reversible adjacent bundle delta |
 | `package-members.json` | Exhaustive npm member path/mode/byte comparison |
 | `attribution/` | Complete target generated-offset and source-candidate inventory |
 | `structural/` | Complete target token/unit classification ledger |
 | `readable-diff/` | Binding-aware full bundle diff, structural diff, and rename map |
-| `recovered/` | Readable source-facing declaration and Bash/parser patches |
+| `recovered/` | Target-backed source-facing patches and executable models |
 
 ## Current source-tree state
 
 The repository `src/` is the verified 2.1.88 outer/Bun-input source-map
-baseline plus the recovered 2.1.89 Bash/parser overlay. The overlay modifies
-three files and adds one:
+baseline plus cumulative source-facing overlays for 2.1.89 and 2.1.90.
+Those overlays are partial behavioral recoveries, not claims of the exact
+authored TypeScript trees.
+
+The 2.1.89 overlay modifies three files and adds one:
 
 - `src/utils/bash/parser.ts`;
 - `src/utils/bash/commands.ts`;
 - `src/tools/BashTool/BashTool.tsx`; and
 - `src/tools/BashTool/fileReadState.ts`.
 
-On a fresh verified 2.1.88 outer tree, apply the parser patch first and the
-Bun-input BashTool patch second:
+On a verified 2.1.89 source tree, the incremental 2.1.90 overlay modifies
+nine more files. Apply it in this order:
 
 ```sh
-CASE=recovery/cases/2.1.88-to-2.1.89
-git apply "$CASE/recovered/bash-parser.pristine.patch"
-git apply "$CASE/recovered/BashTool.bun-input.patch"
+CASE=recovery/cases/2.1.89-to-2.1.90
+git apply "$CASE/recovered/safety-and-cache.patch"
+git apply "$CASE/recovered/sse-stream-buffering.patch"
+git apply "$CASE/recovered/session-resume.patch"
+git apply "$CASE/recovered/query-engine-transcript.patch"
+git apply "$CASE/recovered/rate-limit-options.patch"
+git apply "$CASE/recovered/help-powerup-hint.patch"
 ```
 
-Do not also apply `BashTool.pristine.patch`; it targets the alternate nested
-TSX source layer. `sdk-tools.pristine.patch` targets a reconstructed package
-workspace, not this repository root.
-
-The overlay is already present on current `main`. Verify it without trying to
-apply it twice:
-
-```sh
-git apply --reverse --check \
-  "$CASE/recovered/BashTool.bun-input.patch"
-git apply --reverse --check \
-  "$CASE/recovered/bash-parser.pristine.patch"
-```
+The overlays are already present in this working tree. Do not apply them
+again; the complete gate below reverse-checks the incremental lineage and
+then reapplies it in a temporary copy.
 
 ## Quick verification
 
@@ -75,53 +78,44 @@ pixi run npm --prefix recovery ci --ignore-scripts
 
 RECOVERY_ARTIFACTS=$(mktemp -d)
 pixi run node recovery/scripts/acquire-case.mjs \
-  --case recovery/cases/2.1.88-to-2.1.89/manifest.json \
+  --case recovery/cases/2.1.89-to-2.1.90/manifest.json \
   --output "$RECOVERY_ARTIFACTS"
 ```
-
-The original 2.1.88 npm tarball was withdrawn. Whole-package reconstruction
-therefore takes a user-supplied copy and rejects it unless it is exactly
-31,196,633 bytes with SHA-256
-`d836a86d9150ecc594a7025524c50e24080478904c979f386d447770275ef813`.
-Its npm SHA-1, SHA-512 SRI, and registry signature are pinned in the package
-report and manifest. Do not substitute a tarball rebuilt from the source
-mirror: its added notice and archive metadata make it a different package.
-Without the original tarball, exact bundle recovery and source-overlay
-verification still work; only the exhaustive baseline-member and final
-package-tree checks are unavailable.
 
 Run the complete gate:
 
 ```sh
 pixi run node recovery/scripts/verify-complete-recovery.mjs \
-  --case recovery/cases/2.1.88-to-2.1.89/manifest.json \
+  --case recovery/cases/2.1.89-to-2.1.90/manifest.json \
   --repo . \
   --artifacts "$RECOVERY_ARTIFACTS" \
-  --baseline-tarball /path/to/claude-code-2.1.88.tgz
+  --baseline-tarball "$RECOVERY_ARTIFACTS/2.1.89/package.tgz"
 ```
 
-It verifies the repository/source-map correspondence, all case/output hashes,
-the source-like patches, exact bundle reconstruction, attribution coverage,
-structural token accounting, readable-diff invariants, target-backed tests,
-and exact package-tree reconstruction.
+It verifies the 2.1.88 source-oracle correspondence, current overlay lineage,
+all case/output hashes, the source-like patches, exact bundle reconstruction,
+attribution coverage, structural token accounting, readable-diff invariants,
+target-backed tests, and exact package-tree reconstruction.
 
-The expected top-level status is `complete-recovery-verified`. On current
-`main`, the result also reports source state `verified-recovered-overlay`,
-patch set `bun-input`, and four checked repository files.
+The expected top-level status is `complete-recovery-verified`, with exact
+bundle SHA-256
+`069185909d50518b8b239acc0f9ae9b062a610595299b35955fc53e6e2c2f5e9`
+and exact package-tree SHA-256
+`23d1ac51403cbc1046cf7519d85c9a025f89f05bdeb447dbdaa65d5cf14fe45c`.
 
 ## Inspect the diff
 
 The compact structural diff is plain text:
 
 ```sh
-less recovery/cases/2.1.88-to-2.1.89/readable-diff/statements.diff
+less recovery/cases/2.1.89-to-2.1.90/readable-diff/statements.diff
 ```
 
 The complete normalized Git diff is deterministically compressed:
 
 ```sh
 gzip -cd \
-  recovery/cases/2.1.88-to-2.1.89/readable-diff/normalized.diff.gz |
+  recovery/cases/2.1.89-to-2.1.90/readable-diff/normalized.diff.gz |
   less
 ```
 
@@ -132,19 +126,19 @@ The exact executable can be reconstructed directly:
 
 ```sh
 pixi run zstd -d \
-  --patch-from="$RECOVERY_ARTIFACTS/2.1.88/cli.js" \
-  recovery/cases/2.1.88-to-2.1.89/diff/cli.js.zstd-delta \
-  -o /tmp/claude-code-2.1.89-cli.js
+  --patch-from="$RECOVERY_ARTIFACTS/2.1.89/package/cli.js" \
+  recovery/cases/2.1.89-to-2.1.90/diff/cli.js.zstd-delta \
+  -o /tmp/claude-code-2.1.90-cli.js
 ```
 
-The reconstructed file must be 13,081,065 bytes with SHA-256
-`a9950ef6407fdc750bddb673852485500387e524a99d42385cb81e7d17128e01`.
+The reconstructed file must be 13,128,331 bytes with SHA-256
+`069185909d50518b8b239acc0f9ae9b062a610595299b35955fc53e6e2c2f5e9`.
 
 ## Reusable method
 
 Use these stages for another adjacent release pair. Case construction freezes
 and derives evidence while the target artifacts are available; later recovery
-replays the committed delta, patches, and verifiers from those pinned inputs.
+replays the case delta, patches, and verifiers from those pinned inputs.
 
 ### 1. Freeze every artifact
 
@@ -154,22 +148,24 @@ artifact. If an artifact was withdrawn, record its authenticated digests and
 require a user-supplied copy instead of pretending an unstable mirror is
 canonical.
 
-### 2. Prove the readable baseline
+### 2. Separate adjacency from source ownership
 
-Verify the bundle/map pair, decode every mapping segment, compare every
-application `sourcesContent` entry with the repository, reject missing or
-extra repository files, and decode nested inline maps. This case proves all
-1,902 application sources against 2,068,722 mapped segments.
+Use the immediately previous exact bundle for reversible generated/package
+comparison. Use only a genuinely matching bundle/map pair as the source
+oracle. A mapped ancestor can inform ownership without being falsely applied
+to adjacent offsets.
 
-### 3. Preserve both source layers
+### 3. Prove and preserve both source layers
 
 `extract-baseline.mjs` emits:
 
 - `bun-input/`, the exact 4,756 outer build inputs; and
 - `pristine/src/`, the human-facing originals recovered from nested TSX maps.
 
-Use the first for build-layer correspondence and the second for readable
-patches.
+Use the outer layer for build and compiler-shape lineage. Prefer the pristine
+layer for human-readable candidate edits when a nested original supports
+them; retain the outer layer where the target evidence is only recoverable in
+compiled shape.
 
 ### 4. Inventory the whole package
 
@@ -205,12 +201,15 @@ non-bijective mappings, class dual bindings, and unresolved capture. It
 emits a normalized full diff and proves a comparison invariant before and
 after rewriting.
 
-### 9. Recover source-facing edits
+### 9. Recover incremental source-facing edits
 
 Map high-value changed regions back through baseline ownership, preserve
 target operators/literals/call order/control flow, distinguish exact text
 from inferred names/types, and add differential tests against evaluable
-target helpers.
+target helpers. Pin a unique target fragment for every claimed edit.
+
+Reverse patches in reverse order and verify the complete predecessor tree;
+then reapply them in order and byte-compare the complete successor tree.
 
 ### 10. Make the claims executable
 

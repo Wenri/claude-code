@@ -1,0 +1,15 @@
+diff --git a/src/screens/REPL.tsx b/src/screens/REPL.tsx
+index 11cc4d8..5150efc 100644
+--- a/src/screens/REPL.tsx
++++ b/src/screens/REPL.tsx
+@@ -3612,7 +3612,10 @@ export function REPL({
+   // old REPL scopes can be GC'd — saves ~35MB over a 1000-turn session.
+   const onSubmitRef = useRef(onSubmit);
+   onSubmitRef.current = onSubmit;
++  const hasOpenedRateLimitOptionsRef = useRef(false);
+   const handleOpenRateLimitOptions = useCallback(() => {
++    if (hasOpenedRateLimitOptionsRef.current) return;
++    hasOpenedRateLimitOptionsRef.current = true;
+     void onSubmitRef.current('/rate-limit-options', {
+       setCursorOffset: () => {},
+       clearBuffer: () => {},

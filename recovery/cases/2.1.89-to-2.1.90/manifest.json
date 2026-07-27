@@ -1,0 +1,573 @@
+{
+  "schemaVersion": 3,
+  "case": "2.1.89-to-2.1.90",
+  "recoveryScope": {
+    "completeness": "generated-complete-source-partial",
+    "exactPublishedBundleReconstruction": true,
+    "exactPublishedPackageTreeReconstruction": true,
+    "allTargetUtf16Accounted": true,
+    "allTargetTokensClassified": true,
+    "allTargetTokensResolvedToBaseline": false,
+    "authoredSourceTextObservable": false,
+    "unresolved": "All published 2.1.90 package bytes and JavaScript tokens are present in the exact recovery. The structural ledger deliberately leaves 304,819 target tokens without a defensible 2.1.89 pairing. Because neither adjacent package has a source map, erased TypeScript names, types, comments, formatting, and exact module placement remain unobservable."
+  },
+  "artifacts": [
+    {
+      "id": "baselineTarball",
+      "argument": "baseline-tarball",
+      "localPath": "2.1.89/package.tgz",
+      "url": "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.1.89.tgz",
+      "bytes": 16493038,
+      "sha256": "680e35001b24b604f58958e3a324bb758be3c069c0a3f89585156256f17a9c87"
+    },
+    {
+      "id": "baselineBundle",
+      "argument": "baseline",
+      "localPath": "2.1.89/package/cli.js",
+      "archive": "baselineTarball",
+      "archiveMember": "package/cli.js",
+      "bytes": 13081065,
+      "sha256": "a9950ef6407fdc750bddb673852485500387e524a99d42385cb81e7d17128e01"
+    },
+    {
+      "id": "baselineDeclarations",
+      "argument": "baseline-dts",
+      "localPath": "2.1.89/package/sdk-tools.d.ts",
+      "archive": "baselineTarball",
+      "archiveMember": "package/sdk-tools.d.ts",
+      "bytes": 117129,
+      "sha256": "05ecc6a51d013f5e9b8f1cc86818c467435a71187d18005d3125ed6e0c52fe2d"
+    },
+    {
+      "id": "baselinePackageJson",
+      "argument": "baseline-package-json",
+      "localPath": "2.1.89/package/package.json",
+      "archive": "baselineTarball",
+      "archiveMember": "package/package.json",
+      "bytes": 1242,
+      "sha256": "2cc59f27f893cbfc4dce4d8da7ea4a088d3721afeeed5e3e3438a0fcef92d109"
+    },
+    {
+      "id": "targetTarball",
+      "argument": "target-tarball",
+      "localPath": "2.1.90/package.tgz",
+      "url": "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.1.90.tgz",
+      "bytes": 16512072,
+      "sha256": "8e49c90ebaec565b5fb0af744bebc53c1fd36262453cb4f309c12f6127b55418"
+    },
+    {
+      "id": "targetBundle",
+      "argument": "target",
+      "localPath": "2.1.90/package/cli.js",
+      "archive": "targetTarball",
+      "archiveMember": "package/cli.js",
+      "bytes": 13128331,
+      "sha256": "069185909d50518b8b239acc0f9ae9b062a610595299b35955fc53e6e2c2f5e9"
+    },
+    {
+      "id": "targetDeclarations",
+      "argument": "target-dts",
+      "localPath": "2.1.90/package/sdk-tools.d.ts",
+      "archive": "targetTarball",
+      "archiveMember": "package/sdk-tools.d.ts",
+      "bytes": 117129,
+      "sha256": "05ecc6a51d013f5e9b8f1cc86818c467435a71187d18005d3125ed6e0c52fe2d"
+    },
+    {
+      "id": "targetPackageJson",
+      "argument": "target-package-json",
+      "localPath": "2.1.90/package/package.json",
+      "archive": "targetTarball",
+      "archiveMember": "package/package.json",
+      "bytes": 1242,
+      "sha256": "c5903b5167075dcfce58df0df30e7b5249d633d9ef4dda6ba1c716ec98856d8a"
+    },
+    {
+      "id": "sourceOracleBundle",
+      "argument": "source-oracle-bundle",
+      "localPath": "2.1.88/cli.js",
+      "url": "https://raw.githubusercontent.com/Exhen/claude-code-2.1.88/c8cd253554319f32ff64ff7000636199f720c9bc/cli.js",
+      "bytes": 13047043,
+      "sha256": "75c9611929d9a770fe2e3a393219d8b98f5de17fde539b2a7355c6db3fd2795f"
+    },
+    {
+      "id": "sourceOracleMap",
+      "argument": "source-oracle-map",
+      "localPath": "2.1.88/cli.js.map",
+      "url": "https://raw.githubusercontent.com/Exhen/claude-code-2.1.88/c8cd253554319f32ff64ff7000636199f720c9bc/cli.js.map",
+      "bytes": 59766257,
+      "sha256": "7965012b7a5fc9e09d8d747a04c5c32b94696924536e217f686bb1e7ee70a657"
+    },
+    {
+      "id": "officialChangelog",
+      "argument": "changelog",
+      "localPath": "evidence/claude-code-CHANGELOG-a50a919.md",
+      "url": "https://raw.githubusercontent.com/anthropics/claude-code/a50a91999b671e707cebad39542eade7154a00fa/CHANGELOG.md",
+      "bytes": 193386,
+      "sha256": "9ade5a1962402a246bb71772946b1f28bb03974672ee5ba41a6920d054856bd8"
+    }
+  ],
+  "sourceOracle": {
+    "bundleArtifact": "sourceOracleBundle",
+    "mapArtifact": "sourceOracleMap",
+    "relationship": "The 2.1.88 bundle and map are a matching source-ownership oracle. They are never treated as an offset map for the adjacent 2.1.89 bundle.",
+    "appliedSourceTree": {
+      "base": "verified 2.1.88 outer/Bun-input source-map layer",
+      "patchSet": "cumulative-2.1.89-and-2.1.90-source-facing-overlays",
+      "files": [
+        {
+          "path": "src/utils/bash/parser.ts",
+          "bytes": 6983,
+          "sha256": "128865ac92af89371351652fa88829398002171980425c8c2f2e9d7ca168d55e"
+        },
+        {
+          "path": "src/utils/bash/commands.ts",
+          "bytes": 48448,
+          "sha256": "7c207fb9959cc807b677b27ef364b04b27368311ac19934796d66bf58ffe39f4"
+        },
+        {
+          "path": "src/tools/BashTool/BashTool.tsx",
+          "bytes": 163078,
+          "sha256": "5a57584665e4f18af5009c6928afa7a0f3d34734a22a8e4b8645a4aeb8e11391"
+        },
+        {
+          "path": "src/tools/BashTool/fileReadState.ts",
+          "bytes": 5242,
+          "sha256": "3fa46f3b5e332616ec8a5ffab3dcea0299aaee527b12f3ef991c5a61f72d3029",
+          "baseline": "absent"
+        },
+        {
+          "path": "src/QueryEngine.ts",
+          "bytes": 47563,
+          "sha256": "6ff0e831f5aef1cd43b929cd5d6c631dfc355c6213b238bec20d5bed64982475"
+        },
+        {
+          "path": "src/cli/transports/SSETransport.ts",
+          "bytes": 24223,
+          "sha256": "24c8886ecac367a80a7d5d59d8693b6060e8cbeecd6d69ffdc231548d7fe99f4"
+        },
+        {
+          "path": "src/components/HelpV2/General.tsx",
+          "bytes": 3636,
+          "sha256": "9207943ddaf99b62aa523402808b3048251c6311c88b390df7c5cf6af000349f"
+        },
+        {
+          "path": "src/screens/REPL.tsx",
+          "bytes": 896007,
+          "sha256": "949e91a5a74bf131a1fbfea586e4b7cf7cbb1258c8c84f8fcc8915171ab7edf2"
+        },
+        {
+          "path": "src/tools/PowerShellTool/readOnlyValidation.ts",
+          "bytes": 67312,
+          "sha256": "4d3fe3f6df0e126415766103e6dad3aaad4b4211eeed41b54b1cab23f41bd218"
+        },
+        {
+          "path": "src/types/logs.ts",
+          "bytes": 11391,
+          "sha256": "2c660e03de15d5c51932aa865942c7b4ce3be09c319d2f6bc8c6585899d8353e"
+        },
+        {
+          "path": "src/utils/permissions/filesystem.ts",
+          "bytes": 62266,
+          "sha256": "1f032dc71c172cc5aad5836e33d9a333fa8cbb2ed513bd29d20db93061877056"
+        },
+        {
+          "path": "src/utils/plugins/marketplaceManager.ts",
+          "bytes": 93585,
+          "sha256": "e9216d0eb27947434f6d470458d695349a42afb72e7b8da9e1ec3730cf21cd2b"
+        },
+        {
+          "path": "src/utils/sessionStorage.ts",
+          "bytes": 182625,
+          "sha256": "9871291cdc9815c1b4990d52a731c6244781b75f0c5d64390fb225f6004a6510"
+        }
+      ]
+    }
+  },
+  "baselineOracle": {
+    "applicationSourceCount": 1902,
+    "applicationSourceBytes": 30382832,
+    "applicationManifestSha256": "9e114f72a61a00dc9c8bb5888072ef8289720ecec306a1c31e34c38685d6108c",
+    "tsxSourceCount": 552,
+    "nestedOriginalBytes": 4509965,
+    "nestedOriginalManifestSha256": "9f1d3a8a35152bccb71c0ba384c5f2bf104da871e09e5f596cf4d3d87d6fcd59",
+    "sourceMap": {
+      "generatedLineCount": 16666,
+      "segmentCount": 2068722,
+      "mappedSegmentCount": 2068722,
+      "sourceCount": 4756,
+      "usedSourceCount": 4756
+    }
+  },
+  "targetAssertions": {
+    "declarationChange": {
+      "kind": "unchanged"
+    },
+    "packageVersionChange": {
+      "baseline": "2.1.89",
+      "target": "2.1.90"
+    },
+    "bundleFragments": [
+      {
+        "id": "marketplace-keep-on-pull-failure",
+        "start": "if(w.code===0){let M=performance.now()",
+        "end": "}else N(`sparse-checkout reconcile requires re-clone:",
+        "bytes": 510,
+        "sha256": "5ca4b63596294a2198f0d396f9dc4ee22ed64b9676a106b94847b78bfc8332ce"
+      },
+      {
+        "id": "protected-husky-directory",
+        "start": "tbY=[\".gitconfig\"",
+        "end": ";Ac=y36.sep",
+        "bytes": 180,
+        "sha256": "44206ca6f14f280af7168b18f3f344eb23dc9994d54c466e5d25c5f41ca3732f"
+      },
+      {
+        "id": "powershell-dns-cache-privacy",
+        "start": "ipconfig:{safeFlags:",
+        "end": "},netstat:{safeFlags:",
+        "bytes": 163,
+        "sha256": "1c3e89c4cd055016e03c885e2a7a4135e209952cbd51eed3eebe11b971da9c35"
+      },
+      {
+        "id": "rate-limit-options-one-shot",
+        "start": "t36=z1.useRef(zR);",
+        "end": ",gb6=z1.useCallback",
+        "bytes": 218,
+        "sha256": "efe8125d79a001555322262a4df5fd4cd38f64b26417a73a3c1273f3b3330a0b"
+      },
+      {
+        "id": "sse-boundary-gated-buffering",
+        "start": "async readStream(q){let K=q.getReader(),_=new TextDecoder,z=[],Y=!1;",
+        "end": "for(let J of j){if(this.resetLivenessTimer()",
+        "bytes": 318,
+        "sha256": "7d8c42552a854019db0108f9fe9213be70fe8cebb0800d393c04c7cbbd3e3992"
+      },
+      {
+        "id": "session-kind-stamp",
+        "start": "async insertMessageChain(q,K=!1,_,z,Y){",
+        "end": "async insertFileHistorySnapshot(",
+        "bytes": 862,
+        "sha256": "8f604d2461d49b4d16cdc1fff8c8878626c053746b635189cc92cf6a1408b919"
+      },
+      {
+        "id": "all-project-session-load-concurrency",
+        "start": "async function Kc8(q,K=Yc8){",
+        "end": "async function gQ8(",
+        "bytes": 356,
+        "sha256": "09d73c6f96e1ca373b49aa8414b0261b4f09d787112db59c61b3a6005a1eff10"
+      },
+      {
+        "id": "worktree-session-load-concurrency",
+        "start": "async function NUK(q,K){",
+        "end": "async function BK6(",
+        "bytes": 745,
+        "sha256": "4211ba5a9fdbb60521411741c0c007f5bed6e419e63236511776b7f5b40837b3"
+      },
+      {
+        "id": "resume-critical-attachment-preservation",
+        "start": "function oJ6(q){",
+        "end": "function zc8(q,K=new Set){",
+        "bytes": 459,
+        "sha256": "3e90b5834b81ac0bb94f3a4cb080369b1ed4d7d84a2863f9c19a9f474b0908da"
+      },
+      {
+        "id": "lite-session-metadata-extraction",
+        "start": "async function QbY(q,K,_){",
+        "end": "function dbY(q){",
+        "bytes": 1010,
+        "sha256": "e6d6415afc4edac906995ac228201bed70567951fda6761bae137e5d8990f372"
+      },
+      {
+        "id": "resume-picker-filtering",
+        "start": "async function cbY(q,K){",
+        "end": "async function aJ6(",
+        "bytes": 1066,
+        "sha256": "c6beea41e60e2d5e37b1bd90e359630b9603ad1c2bd17f57f8a024291767e86d"
+      },
+      {
+        "id": "query-engine-incremental-transcript-cursor",
+        "start": "let s=[...this.mutableMessages],r=0,z6,l=()=>{",
+        "end": "if(R&&$6.length>0){",
+        "bytes": 264,
+        "sha256": "eb7c247f12e752ef5f50f935317c6a14d88cd87db43ba4c4cf231586562eca48"
+      },
+      {
+        "id": "help-powerup-hint",
+        "start": "function zyK(){let q=Y6(6),{rows:K}=e1(),_;",
+        "end": "var QM,BXY=44;",
+        "bytes": 867,
+        "sha256": "7603d7e4b28ffded85c73612bbd521296fa3c14cd9979bbe19813b85f0beb2ba"
+      }
+    ]
+  },
+  "generatedRecovery": {
+    "packageMembers": {
+      "report": "package-members.json",
+      "baselineTarball": {
+        "availability": "npm-registry",
+        "url": "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.1.89.tgz",
+        "bytes": 16493038,
+        "sha1": "f2cb6b8b589a0d4f8a2b83a3920812a747336cf8",
+        "sha256": "680e35001b24b604f58958e3a324bb758be3c069c0a3f89585156256f17a9c87",
+        "integrity": "sha512-etjihHqVxj1RjS5Zu/o+rv3ojn1N7AWzfgIOCSSSncfyb4qJn9J677scj0LHIxtwzjgU7j1qAedXlXKxgkFG2w=="
+      },
+      "baselineMembers": 19,
+      "targetMembers": 19,
+      "targetMemberBytes": 43069612,
+      "targetFramedTreeSha256": "23d1ac51403cbc1046cf7519d85c9a025f89f05bdeb447dbdaa65d5cf14fe45c",
+      "unchanged": 13,
+      "changed": 6,
+      "added": 0,
+      "removed": 0,
+      "modeOnlyChanged": 4
+    },
+    "exactBundleDelta": {
+      "algorithm": "zstd-dictionary-patch",
+      "path": "diff/cli.js.zstd-delta",
+      "baselineArtifact": "baselineBundle",
+      "targetArtifact": "targetBundle",
+      "reconstructsTargetExactly": true
+    },
+    "attribution": {
+      "directory": "attribution",
+      "summary": "attribution/summary.json",
+      "baselineArtifact": "sourceOracleBundle",
+      "sourceMapArtifact": "sourceOracleMap",
+      "offsetUnit": "utf16-code-units",
+      "targetUtf16": 13064141,
+      "accountedTargetUtf16": 13064141,
+      "unaccountedTargetUtf16": 0
+    },
+    "structural": {
+      "ledger": "structural/generated-delta.json.gz",
+      "targetUnits": 18275,
+      "targetTokens": 4213780,
+      "matchedTokens": 3714350,
+      "movedCandidateTokens": 14844,
+      "coarseChangedTokens": 179767,
+      "unresolvedTokens": 304819,
+      "exactStructuralFraction": 0.8849996914884023
+    },
+    "readableDiff": {
+      "directory": "readable-diff",
+      "metadata": "readable-diff/metadata.json",
+      "fullDiff": "readable-diff/normalized.diff.gz",
+      "comparisonInvariantHashesEqual": true
+    },
+    "fileAssertions": [
+      {
+        "path": "package-members.json",
+        "bytes": 13137,
+        "sha256": "f174fa2b2978969b64cc0c53aa41b32e5e7aa1f5a088514785f101c5644a3295"
+      },
+      {
+        "path": "diff/cli.js.zstd-delta",
+        "bytes": 1985545,
+        "sha256": "a9f3e0b9fc736ae1129cc4e8ffcd82c9327e08f8d91be8e7cd3ca46540b7089e"
+      },
+      {
+        "path": "attribution/summary.json",
+        "bytes": 6768,
+        "sha256": "74c29f8b6190c1a76fd88e00910b2a8ead7e07a53f8887738b83d70e022ad2d4"
+      },
+      {
+        "path": "attribution/sources.jsonl.gz",
+        "bytes": 493366,
+        "sha256": "eafb470ae7f65f6bf0efbfa861724cd5652f91ef48e8d3e286dedd5ec6bdf8be"
+      },
+      {
+        "path": "attribution/target-initializers.jsonl.gz",
+        "bytes": 110148,
+        "sha256": "40a328122cc7778c6b47e75855137470a0e8d6aa9a936458e0bf1502b699089d"
+      },
+      {
+        "path": "attribution/target-partitions.jsonl.gz",
+        "bytes": 4204969,
+        "sha256": "8766ffb6e249caa77188f90daca706f5f57f0a740a7e1288381e43274fbda1cc"
+      },
+      {
+        "path": "structural/generated-delta.json.gz",
+        "bytes": 1998098,
+        "sha256": "7cd29e61b5ca2bb8209a990c1d7702cc6c42b9810a11815c117309cf55cf84a2"
+      },
+      {
+        "path": "readable-diff/metadata.json",
+        "bytes": 3911,
+        "sha256": "1b00a0512203d7cf42b8e3e0d59d2422e139dec8e6dabc81bf67f8a5d1548059"
+      },
+      {
+        "path": "readable-diff/normalized.diff.gz",
+        "bytes": 5339009,
+        "sha256": "48819bbc23fb6f984dc0e18188e1a3d2cdf5269bf9fc21a3e77d62264cb173df"
+      },
+      {
+        "path": "readable-diff/statements.diff",
+        "bytes": 141866,
+        "sha256": "36880edaf55d5731fd11a63bfdaa07f528eacba15c145a3f597c84de1172a23e"
+      },
+      {
+        "path": "readable-diff/renames.tsv",
+        "bytes": 210604,
+        "sha256": "c3ecbf6e3ec22f662e34bf4cc178237696179ecb92214edeac88842196227d8a"
+      }
+    ]
+  },
+  "recoveredFileAssertions": [
+    {
+      "path": "recovered/safety-and-cache.patch",
+      "bytes": 1976,
+      "sha256": "0ff39668c52c6ad409a26ff450dda9b434c8086542f63919cb0ea92cace0b9f2"
+    },
+    {
+      "path": "recovered/rate-limit-options.patch",
+      "bytes": 676,
+      "sha256": "b7b60102c723bb82bf7e34982852cf315d2cc1dd11f84ecd99cb9a1d6d91ff08"
+    },
+    {
+      "path": "recovered/recovery-model.mjs",
+      "bytes": 750,
+      "sha256": "1755c1ecdeca92a735dae3d6efe6c6c165d43e40713517658461466685be9d56"
+    },
+    {
+      "path": "recovered/sse-stream-buffering.patch",
+      "bytes": 1485,
+      "sha256": "3415d9ee3c41e2098e775804066806c4a0d301c7563b90fd4440aa81ae664271"
+    },
+    {
+      "path": "recovered/sse-stream-buffer-model.mjs",
+      "bytes": 1171,
+      "sha256": "61c2d9c02c176f04c009e0dd0e3fd81f0ded1aa75b6601e5d0e5741c3e15547e"
+    },
+    {
+      "path": "recovered/session-resume.patch",
+      "bytes": 7062,
+      "sha256": "9ab470c6a38931406853d464d7764215c277f3e558f3431a4f0c8bb375753d05"
+    },
+    {
+      "path": "recovered/query-engine-transcript.patch",
+      "bytes": 4364,
+      "sha256": "e4bac1e4196ccb6e1aa0892e584ee0671f9caf3db724e5a9e44379f4bbb1492d"
+    },
+    {
+      "path": "recovered/help-powerup-hint.patch",
+      "bytes": 1973,
+      "sha256": "0fa5f352d4782233f5220ec8a7a539307045eca3ae523d9392c56a3eab9b1622"
+    }
+  ],
+  "sourceLineage": {
+    "root": "src",
+    "patchSet": "2.1.89-to-2.1.90-incremental",
+    "baseCommit": "270279c6f5b850207f695e554f1122591c4dde65",
+    "baseGitTree": "55f942c4be314b91e0230a034750717d7bb8132f",
+    "patchOrder": [
+      "recovered/safety-and-cache.patch",
+      "recovered/sse-stream-buffering.patch",
+      "recovered/session-resume.patch",
+      "recovered/query-engine-transcript.patch",
+      "recovered/rate-limit-options.patch",
+      "recovered/help-powerup-hint.patch"
+    ],
+    "base": {
+      "files": 1903,
+      "bytes": 30388323,
+      "manifestSha256": "b1724f0656a658c9113c06e5f7ebf94a2d97161c104fa6c59e0c962ddd5434d3"
+    },
+    "target": {
+      "files": 1903,
+      "bytes": 30392826,
+      "manifestSha256": "9be3f19a65aa46760fd3ababffefe74cc6eb1f81cb12b57bfb5e16662425ce25"
+    },
+    "syntaxCheck": [
+      "src/QueryEngine.ts",
+      "src/cli/transports/SSETransport.ts",
+      "src/components/HelpV2/General.tsx",
+      "src/screens/REPL.tsx",
+      "src/tools/PowerShellTool/readOnlyValidation.ts",
+      "src/types/logs.ts",
+      "src/utils/permissions/filesystem.ts",
+      "src/utils/plugins/marketplaceManager.ts",
+      "src/utils/sessionStorage.ts"
+    ],
+    "testFiles": [
+      "recovery/test/bash-read-state-model.test.mjs",
+      "recovery/test/help-powerup-hint.test.mjs",
+      "recovery/test/query-engine-transcript-cursor.test.mjs",
+      "recovery/test/recovery-2.1.90-model.test.mjs",
+      "recovery/test/recovery-2.1.90-session-resume.test.mjs",
+      "recovery/test/sse-stream-buffering.test.mjs"
+    ],
+    "testArtifactEnvironment": {
+      "CLAUDE_CODE_2_1_89_BUNDLE": "baselineBundle",
+      "CLAUDE_CODE_2_1_90_BUNDLE": "targetBundle"
+    }
+  },
+  "recoveredEdits": [
+    {
+      "id": "cache-permission-and-rate-guard",
+      "confidence": "equivalent",
+      "sourceNames": "inferred where erased by minification",
+      "files": [
+        "recovered/safety-and-cache.patch",
+        "recovered/rate-limit-options.patch",
+        "recovered/recovery-model.mjs"
+      ],
+      "explains": [
+        "marketplace-keep-on-pull-failure",
+        "protected-husky-directory",
+        "powershell-dns-cache-privacy",
+        "rate-limit-options-one-shot"
+      ]
+    },
+    {
+      "id": "sse-boundary-buffering",
+      "confidence": "equivalent",
+      "sourceNames": "inferred where erased by minification",
+      "files": [
+        "recovered/sse-stream-buffering.patch",
+        "recovered/sse-stream-buffer-model.mjs"
+      ],
+      "explains": [
+        "sse-boundary-gated-buffering"
+      ]
+    },
+    {
+      "id": "session-resume-performance-and-filtering",
+      "confidence": "equivalent",
+      "sourceNames": "inferred where erased by minification",
+      "files": [
+        "recovered/session-resume.patch"
+      ],
+      "explains": [
+        "session-kind-stamp",
+        "all-project-session-load-concurrency",
+        "worktree-session-load-concurrency",
+        "resume-critical-attachment-preservation",
+        "lite-session-metadata-extraction",
+        "resume-picker-filtering"
+      ]
+    },
+    {
+      "id": "query-engine-incremental-transcript",
+      "confidence": "equivalent",
+      "sourceNames": "inferred where erased by minification",
+      "files": [
+        "recovered/query-engine-transcript.patch"
+      ],
+      "explains": [
+        "query-engine-incremental-transcript-cursor"
+      ]
+    },
+    {
+      "id": "help-powerup-hint",
+      "confidence": "equivalent",
+      "sourceNames": "authored constant name and nested source map are unobservable",
+      "files": [
+        "recovered/help-powerup-hint.patch"
+      ],
+      "explains": [
+        "help-powerup-hint"
+      ]
+    }
+  ]
+}

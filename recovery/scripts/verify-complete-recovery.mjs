@@ -132,11 +132,24 @@ function main() {
     ],
     repositoryRoot,
   )
-  const sourcePatches = runJson(
-    path.join(scripts, 'verify-recovered-patches.mjs'),
-    ['--case', manifestPath, '--artifacts', artifactsRoot],
-    repositoryRoot,
-  )
+  const sourcePatches = manifest.sourceLineage
+    ? runJson(
+        path.join(scripts, 'verify-source-lineage.mjs'),
+        [
+          '--case',
+          manifestPath,
+          '--repo',
+          repositoryRoot,
+          '--artifacts',
+          artifactsRoot,
+        ],
+        repositoryRoot,
+      )
+    : runJson(
+        path.join(scripts, 'verify-recovered-patches.mjs'),
+        ['--case', manifestPath, '--artifacts', artifactsRoot],
+        repositoryRoot,
+      )
   const exactBundleDelta = runJson(
     path.join(scripts, 'build-exact-delta.mjs'),
     [
@@ -158,6 +171,16 @@ function main() {
     manifest,
     generated.attribution.summary,
   )
+  const attributionBaselineArtifact =
+    generated.attribution.baselineArtifact ?? 'baselineBundle'
+  const attributionBaselineEvidence = manifest.artifacts.find(
+    item => item.id === attributionBaselineArtifact,
+  )
+  if (!attributionBaselineEvidence) {
+    throw new Error(
+      `Unknown attribution baseline artifact: ${attributionBaselineArtifact}`,
+    )
+  }
   const attribution = runJson(
     path.join(scripts, 'verify-attribution-report.mjs'),
     [
@@ -170,7 +193,7 @@ function main() {
       '--expected-summary-sha256',
       attributionSummary.sha256,
       '--expected-baseline-sha256',
-      baselineEvidence.sha256,
+      attributionBaselineEvidence.sha256,
       '--expected-target-sha256',
       targetEvidence.sha256,
     ],
@@ -270,8 +293,14 @@ function main() {
         },
         sourceTree: {
           state: evidence.baseline.repositoryState.kind,
-          patchSet: sourcePatches.appliedSourceTree?.patchSet ?? null,
-          files: sourcePatches.appliedSourceTree?.files.length ?? 0,
+          patchSet:
+            sourcePatches.appliedSourceTree?.patchSet ??
+            sourcePatches.patchSet ??
+            null,
+          files:
+            sourcePatches.appliedSourceTree?.files.length ??
+            sourcePatches.target?.files ??
+            0,
         },
         bundle: {
           bytes: exactBundleDelta.target.bytes,
@@ -288,7 +317,7 @@ function main() {
             structural.coverage.tokens.changed +
             structural.coverage.tokens.unresolved,
         },
-        tests: sourcePatches.semanticTests,
+        tests: sourcePatches.semanticTests ?? sourcePatches.tests ?? null,
       },
       null,
       2,

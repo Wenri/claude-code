@@ -332,28 +332,44 @@ function verifyTarget(manifest, files) {
     'utf8',
   )
   const declarations = fs.readFileSync(files.targetDeclarations, 'utf8')
-  const insertion = assertions.declarationExactInsertion
-  const anchorIndex = baselineDeclarations.indexOf(insertion.anchor)
-  if (anchorIndex < 0) {
-    throw new Error('Declaration insertion anchor is absent from baseline')
+  let declarationsChange
+  if (assertions.declarationExactInsertion) {
+    const insertion = assertions.declarationExactInsertion
+    const anchorIndex = baselineDeclarations.indexOf(insertion.anchor)
+    if (anchorIndex < 0) {
+      throw new Error('Declaration insertion anchor is absent from baseline')
+    }
+    if (
+      baselineDeclarations.indexOf(
+        insertion.anchor,
+        anchorIndex + insertion.anchor.length,
+      ) >= 0
+    ) {
+      throw new Error('Declaration insertion anchor is not unique')
+    }
+    const expectedDeclarations =
+      baselineDeclarations.slice(0, anchorIndex + insertion.anchor.length) +
+      insertion.text +
+      baselineDeclarations.slice(anchorIndex + insertion.anchor.length)
+    assertEqual(
+      declarations,
+      expectedDeclarations,
+      'target declarations exact insertion',
+    )
+    declarationsChange = 'one exact insertion'
+  } else if (assertions.declarationChange?.kind === 'unchanged') {
+    assertEqual(
+      declarations,
+      baselineDeclarations,
+      'target declarations unchanged',
+    )
+    declarationsChange = 'unchanged'
+  } else {
+    throw new Error(
+      'targetAssertions must describe declarationExactInsertion or ' +
+        'declarationChange.kind=unchanged',
+    )
   }
-  if (
-    baselineDeclarations.indexOf(
-      insertion.anchor,
-      anchorIndex + insertion.anchor.length,
-    ) >= 0
-  ) {
-    throw new Error('Declaration insertion anchor is not unique')
-  }
-  const expectedDeclarations =
-    baselineDeclarations.slice(0, anchorIndex + insertion.anchor.length) +
-    insertion.text +
-    baselineDeclarations.slice(anchorIndex + insertion.anchor.length)
-  assertEqual(
-    declarations,
-    expectedDeclarations,
-    'target declarations exact insertion',
-  )
 
   const baselinePackageText = fs.readFileSync(
     files.baselinePackageJson,
@@ -409,7 +425,7 @@ function verifyTarget(manifest, files) {
   }
   return {
     packageVersion: packageJson.version,
-    declarationsChange: 'one exact insertion',
+    declarationsChange,
     packageChange: 'version only',
     fragments,
   }
@@ -610,11 +626,19 @@ function main() {
     return verifyArtifact(artifact, filename)
   })
 
+  const sourceOracle = manifest.sourceOracle ?? {
+    mapArtifact: 'baselineSourceMap',
+    appliedSourceTree: manifest.recoveryValidation?.appliedSourceTree,
+  }
+  if (!sourceOracle.mapArtifact) {
+    throw new Error('sourceOracle.mapArtifact is required')
+  }
   const baseline = verifyBaseline(
-    files.baselineSourceMap,
+    files[sourceOracle.mapArtifact],
     path.resolve(args.repo),
     manifest.baselineOracle,
-    manifest.recoveryValidation?.appliedSourceTree,
+    sourceOracle.appliedSourceTree ??
+      manifest.recoveryValidation?.appliedSourceTree,
   )
   const target = verifyTarget(manifest, files)
   const recovery = verifyRecoveryLedger(manifest, args.case)

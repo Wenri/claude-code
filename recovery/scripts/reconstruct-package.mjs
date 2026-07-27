@@ -267,7 +267,7 @@ function main() {
   verifiedFile(deltaFile, deltaAssertion, 'bundle delta')
 
   const temporary = fs.mkdtempSync(
-    path.join(parent, '.claude-code-2.1.89-recovery-'),
+    path.join(parent, '.claude-code-package-recovery-'),
   )
   const treeHash = crypto.createHash('sha256')
   let targetBytes = 0
@@ -295,7 +295,11 @@ function main() {
             `${member.path} baseline`,
           )
         : null
-      if (member.status === 'unchanged') {
+      const contentIdentical =
+        baseline !== null &&
+        member.baseline.bytes === member.target.bytes &&
+        member.baseline.sha256 === member.target.sha256
+      if (member.status === 'unchanged' || contentIdentical) {
         value = baseline
       } else if (member.path === 'package/cli.js') {
         value = reconstructBundle(
@@ -309,7 +313,11 @@ function main() {
           baseline,
           manifest.targetAssertions.packageVersionChange,
         )
-      } else if (member.path === 'package/sdk-tools.d.ts') {
+      } else if (
+        member.path === 'package/sdk-tools.d.ts' &&
+        manifest.targetAssertions?.declarationExactInsertion &&
+        !contentIdentical
+      ) {
         value = exactDeclarations(
           baseline,
           manifest.targetAssertions.declarationExactInsertion,
