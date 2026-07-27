@@ -11,7 +11,12 @@
  */
 
 import { feature } from 'bun:bundle'
-import { context as otelContext, type Span, trace } from '@opentelemetry/api'
+import {
+  context as otelContext,
+  propagation,
+  type Span,
+  trace,
+} from '@opentelemetry/api'
 import { AsyncLocalStorage } from 'async_hooks'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
 import type { AssistantMessage, UserMessage } from '../../types/message.js'
@@ -68,6 +73,7 @@ interface SpanContext {
 // it and the WeakRef goes stale.
 const interactionContext = new AsyncLocalStorage<SpanContext | undefined>()
 const toolContext = new AsyncLocalStorage<SpanContext | undefined>()
+const toolExecutionContext = new AsyncLocalStorage<SpanContext | undefined>()
 const activeSpans = new Map<string, WeakRef<SpanContext>>()
 // Spans not stored in ALS (LLM request, blocked-on-user, tool execution, hook)
 // need a strong reference to prevent GC from collecting the SpanContext before
@@ -650,6 +656,7 @@ export function startToolExecutionSpan(): Span {
   }
   activeSpans.set(spanId, new WeakRef(spanContextObj))
   strongSpans.set(spanId, spanContextObj)
+  toolExecutionContext.enterWith(spanContextObj)
 
   return span
 }
@@ -686,6 +693,7 @@ export function endToolExecutionSpan(metadata?: {
   const spanId = getSpanId(executionSpanContext.span)
   activeSpans.delete(spanId)
   strongSpans.delete(spanId)
+  toolExecutionContext.enterWith(undefined)
 }
 
 export function endToolSpan(toolResult?: string, resultTokens?: number): void {
@@ -773,6 +781,33 @@ export function addToolContentEvent(
   }
 
   currentSpanCtx.span.addEvent(eventName, processedAttributes)
+}
+
+export function getCurrentTraceparent(): string | undefined {
+  if (!isAnyTracingEnabled()) {
+    return undefined
+  }
+
+  const span =
+    toolExecutionContext.getStore()?.span ??
+    toolContext.getStore()?.span ??
+    interactionContext.getStore()?.span
+  if (!span) {
+    return undefined
+  }
+
+  const spanContext = span.spanContext()
+  if (
+    !spanContext.traceId ||
+    spanContext.traceId === '00000000000000000000000000000000'
+  ) {
+    return undefined
+  }
+
+  const context = trace.setSpan(otelContext.active(), span)
+  const carrier: Record<string, string> = {}
+  propagation.inject(context, carrier)
+  return carrier.traceparent
 }
 
 export function getCurrentSpan(): Span | null {

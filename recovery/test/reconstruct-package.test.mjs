@@ -95,6 +95,7 @@ function reconstructFixture({
   baselineVersion,
   targetVersion,
   declarationInsertion,
+  declarationEdits = null,
   addedMember = false,
   addedPayloadRecipe = 'valid',
   changedMember = false,
@@ -135,12 +136,30 @@ function reconstructFixture({
     const baselinePackageJson = Buffer.from(baselinePackageJsonText)
     const targetPackageJson = Buffer.from(targetPackageJsonText)
     const declarationAnchor = 'export type Stable = string\n'
-    const baselineDeclarations = Buffer.from(declarationAnchor)
-    const targetDeclarations = Buffer.from(
-      declarationInsertion
-        ? declarationAnchor + declarationInsertion
-        : declarationAnchor,
-    )
+    const declarationSuffix =
+      'export interface EditResult {\n  originalFile: string;\n}\n'
+    const baselineDeclarationsText = declarationAnchor + declarationSuffix
+    let targetDeclarationsText = baselineDeclarationsText
+    if (declarationInsertion) {
+      targetDeclarationsText =
+        declarationAnchor + declarationInsertion + declarationSuffix
+    } else if (declarationEdits) {
+      for (const edit of declarationEdits) {
+        if (Object.hasOwn(edit, 'from')) {
+          targetDeclarationsText = targetDeclarationsText.replace(
+            edit.from,
+            edit.to,
+          )
+        } else {
+          targetDeclarationsText = targetDeclarationsText.replace(
+            edit.anchor,
+            edit.anchor + edit.text,
+          )
+        }
+      }
+    }
+    const baselineDeclarations = Buffer.from(baselineDeclarationsText)
+    const targetDeclarations = Buffer.from(targetDeclarationsText)
     const addedEntry = {
       path: 'package/vendor/seccomp/x64/apply-seccomp',
       mode: 0o751,
@@ -361,6 +380,12 @@ function reconstructFixture({
         anchor: declarationAnchor,
         text: declarationInsertion,
       }
+    } else if (declarationEdits) {
+      targetAssertions.declarationExactEdits = declarationEdits
+    } else {
+      targetAssertions.declarationChange = {
+        kind: 'unchanged',
+      }
     }
     if (packageJsonInsertion !== null) {
       targetAssertions.packageJsonExactInsertion = {
@@ -549,6 +574,24 @@ test('preserves the 2.1.89 declaration insertion recipe', () => {
     baselineVersion: '2.1.88',
     targetVersion: '2.1.89',
     declarationInsertion: 'export type Added = number\n',
+  })
+})
+
+test('replays multiple exact declaration insertions and replacements', () => {
+  reconstructFixture({
+    baselineVersion: '2.1.96',
+    targetVersion: '2.1.97',
+    declarationInsertion: null,
+    declarationEdits: [
+      {
+        anchor: 'export type Stable = string\n',
+        text: 'export type ToolStats = { readCount: number }\n',
+      },
+      {
+        from: '  originalFile: string;\n',
+        to: '  originalFile: string | null;\n',
+      },
+    ],
   })
 })
 

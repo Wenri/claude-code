@@ -45,7 +45,8 @@ How to use the statusLine command:
      "workspace": {
        "current_dir": "string",  // Current working directory path
        "project_dir": "string",  // Project root directory path
-       "added_dirs": ["string"]  // Directories added via /add-dir
+       "added_dirs": ["string"], // Directories added via /add-dir
+       "git_worktree": "string"  // Optional: git worktree name when cwd is in a linked worktree
      },
      "version": "string",        // Claude Code app version (e.g., "1.0.71")
      "output_style": {

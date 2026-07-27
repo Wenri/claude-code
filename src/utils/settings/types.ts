@@ -559,6 +559,14 @@ export const SettingsSchema = lazySchema(() =>
           type: z.literal('command'),
           command: z.string(),
           padding: z.number().optional(),
+          refreshInterval: z
+            .number()
+            .min(1)
+            .optional()
+            .catch(undefined)
+            .describe(
+              'Re-run the status line command every N seconds in addition to event-driven updates',
+            ),
         })
         .optional()
         .describe('Custom status line display configuration'),

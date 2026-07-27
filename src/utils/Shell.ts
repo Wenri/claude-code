@@ -24,6 +24,7 @@ import {
 } from './ShellCommand.js'
 import { getTaskOutputDir } from './task/diskOutput.js'
 import { TaskOutput } from './task/TaskOutput.js'
+import { getCurrentTraceparent } from './telemetry/sessionTracing.js'
 import { which } from './which.js'
 
 export type { ExecResult } from './ShellCommand.js'
@@ -277,6 +278,7 @@ export async function exec(
     ? ['-c', commandString]
     : provider.getSpawnArgs(commandString)
   const envOverrides = await provider.getEnvironmentOverrides(command)
+  const traceparent = getCurrentTraceparent()
 
   // When onStdout is provided, use pipe mode: stdout flows through
   // StreamWrapper → TaskOutput in-memory buffer instead of a file fd.
@@ -320,6 +322,7 @@ export async function exec(
         GIT_EDITOR: 'true',
         CLAUDECODE: '1',
         ...envOverrides,
+        ...(traceparent && { TRACEPARENT: traceparent }),
         ...(process.env.USER_TYPE === 'ant'
           ? {
               CLAUDE_CODE_SESSION_ID: getSessionId(),

@@ -29,7 +29,9 @@ const LEGACY_TOOL_NAME_ALIASES: Record<string, string> = {
 }
 
 export function normalizeLegacyToolName(name: string): string {
-  return LEGACY_TOOL_NAME_ALIASES[name] ?? name
+  return Object.hasOwn(LEGACY_TOOL_NAME_ALIASES, name)
+    ? LEGACY_TOOL_NAME_ALIASES[name]!
+    : name
 }
 
 export function getLegacyToolNames(canonicalName: string): string[] {

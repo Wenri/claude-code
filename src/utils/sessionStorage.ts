@@ -79,7 +79,11 @@ import { getBranch } from './git.js'
 import { gracefulShutdownSync, isShuttingDown } from './gracefulShutdown.js'
 import { parseJSONL } from './json.js'
 import { logError } from './log.js'
-import { extractTag, isCompactBoundaryMessage } from './messages.js'
+import {
+  capStoredOriginalFile,
+  extractTag,
+  isCompactBoundaryMessage,
+} from './messages.js'
 import { sanitizePath } from './path.js'
 import {
   extractJsonStringField,
@@ -1072,6 +1076,14 @@ class Project {
           version: VERSION,
           gitBranch,
           slug,
+        }
+        if (
+          transcriptMessage.type === 'user' &&
+          transcriptMessage.toolUseResult != null
+        ) {
+          transcriptMessage.toolUseResult = capStoredOriginalFile(
+            transcriptMessage.toolUseResult,
+          )
         }
         await this.appendEntry(transcriptMessage)
         if (isChainParticipant(message)) {

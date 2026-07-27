@@ -6,6 +6,7 @@ import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { summarizeSourceMap } from '../lib/source-map.mjs'
 import { exactTextInsertion } from '../lib/exact-text-insertion.mjs'
+import { exactOrderedTextEdits } from '../lib/exact-text-edits.mjs'
 
 function parseArguments(argv) {
   const result = {}
@@ -376,15 +377,42 @@ export function verifyBaseline(mapPath, repo, oracle, appliedSourceTree) {
   }
 }
 
-function verifyTarget(manifest, files) {
+export function verifyTarget(manifest, files) {
   const assertions = manifest.targetAssertions
   const baselineDeclarations = fs.readFileSync(
     files.baselineDeclarations,
     'utf8',
   )
   const declarations = fs.readFileSync(files.targetDeclarations, 'utf8')
+  const declarationModes = [
+    assertions.declarationExactEdits !== undefined &&
+      'declarationExactEdits',
+    assertions.declarationExactInsertion !== undefined &&
+      'declarationExactInsertion',
+    assertions.declarationChange !== undefined && 'declarationChange',
+  ].filter(Boolean)
+  if (declarationModes.length !== 1) {
+    throw new Error(
+      'targetAssertions must describe exactly one declaration mode: ' +
+        'declarationExactEdits, declarationExactInsertion, or ' +
+        'declarationChange',
+    )
+  }
   let declarationsChange
-  if (assertions.declarationExactInsertion) {
+  if (assertions.declarationExactEdits !== undefined) {
+    const expectedDeclarations = exactOrderedTextEdits(
+      baselineDeclarations,
+      assertions.declarationExactEdits,
+      'Declaration',
+    )
+    assertEqual(
+      declarations,
+      expectedDeclarations,
+      'target declarations exact ordered edits',
+    )
+    declarationsChange =
+      `${assertions.declarationExactEdits.length} exact ordered edits`
+  } else if (assertions.declarationExactInsertion) {
     const insertion = assertions.declarationExactInsertion
     const anchorIndex = baselineDeclarations.indexOf(insertion.anchor)
     if (anchorIndex < 0) {
@@ -417,8 +445,7 @@ function verifyTarget(manifest, files) {
     declarationsChange = 'unchanged'
   } else {
     throw new Error(
-      'targetAssertions must describe declarationExactInsertion or ' +
-        'declarationChange.kind=unchanged',
+      'targetAssertions declarationChange must have kind=unchanged',
     )
   }
 

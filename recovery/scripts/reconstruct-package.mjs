@@ -5,6 +5,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { exactTextInsertion } from '../lib/exact-text-insertion.mjs'
+import { exactOrderedTextEdits } from '../lib/exact-text-edits.mjs'
 
 function usage() {
   console.error(
@@ -136,8 +137,18 @@ function exactPackageJson(baseline, versionAssertion, insertionAssertion) {
   return Buffer.from(target)
 }
 
-function exactDeclarations(baseline, assertion) {
+function exactDeclarations(baseline, assertions) {
   const text = baseline.toString('utf8')
+  if (assertions.declarationExactEdits !== undefined) {
+    return Buffer.from(
+      exactOrderedTextEdits(
+        text,
+        assertions.declarationExactEdits,
+        'Declaration',
+      ),
+    )
+  }
+  const assertion = assertions.declarationExactInsertion
   const first = text.indexOf(assertion.anchor)
   if (
     first < 0 ||
@@ -147,6 +158,21 @@ function exactDeclarations(baseline, assertion) {
   }
   const offset = first + assertion.anchor.length
   return Buffer.from(text.slice(0, offset) + assertion.text + text.slice(offset))
+}
+
+function validateDeclarationAssertionModes(assertions) {
+  const modes = [
+    assertions?.declarationExactEdits !== undefined &&
+      'declarationExactEdits',
+    assertions?.declarationExactInsertion !== undefined &&
+      'declarationExactInsertion',
+    assertions?.declarationChange !== undefined && 'declarationChange',
+  ].filter(Boolean)
+  if (modes.length > 1) {
+    throw new Error(
+      `Declaration assertions are mutually exclusive: ${modes.join(', ')}`,
+    )
+  }
 }
 
 function reconstructPatchedPayload(
@@ -338,6 +364,7 @@ function main() {
   }
 
   const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
+  validateDeclarationAssertionModes(manifest.targetAssertions)
   const targetTarball = verifiedArtifact(
     manifest,
     artifactsRoot,
@@ -435,7 +462,17 @@ function main() {
         baseline !== null &&
         member.baseline.bytes === member.target.bytes &&
         member.baseline.sha256 === member.target.sha256
-      if (member.status === 'unchanged' || contentIdentical) {
+      if (
+        member.path === 'package/sdk-tools.d.ts' &&
+        (manifest.targetAssertions?.declarationExactEdits !== undefined ||
+          manifest.targetAssertions?.declarationExactInsertion !==
+            undefined)
+      ) {
+        value = exactDeclarations(
+          baseline,
+          manifest.targetAssertions,
+        )
+      } else if (member.status === 'unchanged' || contentIdentical) {
         value = baseline
       } else if (member.path === 'package/cli.js') {
         value = reconstructBundle(
@@ -449,15 +486,6 @@ function main() {
           baseline,
           manifest.targetAssertions.packageVersionChange,
           manifest.targetAssertions.packageJsonExactInsertion,
-        )
-      } else if (
-        member.path === 'package/sdk-tools.d.ts' &&
-        manifest.targetAssertions?.declarationExactInsertion &&
-        !contentIdentical
-      ) {
-        value = exactDeclarations(
-          baseline,
-          manifest.targetAssertions.declarationExactInsertion,
         )
       } else if (member.status === 'added') {
         const payload = addedPayloads.get(member.path)

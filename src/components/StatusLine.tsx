@@ -20,6 +20,7 @@ import { calculateContextPercentages, getContextWindowForModel } from '../utils/
 import { getCwd } from '../utils/cwd.js';
 import { logForDebugging } from '../utils/debug.js';
 import { isFullscreenEnvEnabled } from '../utils/fullscreen.js';
+import { getGitWorktreeName } from '../utils/git.js';
 import { createBaseHookInput, executeStatusLineCommand } from '../utils/hooks.js';
 import { getLastAssistantMessage } from '../utils/messages.js';
 import { getRuntimeMainLoopModel, type ModelName, renderModelName } from '../utils/model/model.js';
@@ -33,7 +34,7 @@ export function statusLineShouldDisplay(settings: ReadonlySettings): boolean {
   if (feature('KAIROS') && getKairosActive()) return false;
   return settings?.statusLine !== undefined;
 }
-function buildStatusLineCommandInput(permissionMode: PermissionMode, exceeds200kTokens: boolean, settings: ReadonlySettings, messages: Message[], addedDirs: string[], mainLoopModel: ModelName, vimMode?: VimMode): StatusLineCommandInput {
+function buildStatusLineCommandInput(permissionMode: PermissionMode, exceeds200kTokens: boolean, settings: ReadonlySettings, messages: Message[], addedDirs: string[], mainLoopModel: ModelName, gitWorktree: string | null, vimMode?: VimMode): StatusLineCommandInput {
   const agentType = getMainThreadAgentType();
   const worktreeSession = getCurrentWorktreeSession();
   const runtimeModel = getRuntimeMainLoopModel({
@@ -74,7 +75,10 @@ function buildStatusLineCommandInput(permissionMode: PermissionMode, exceeds200k
     workspace: {
       current_dir: getCwd(),
       project_dir: getOriginalCwd(),
-      added_dirs: addedDirs
+      added_dirs: addedDirs,
+      ...(gitWorktree && {
+        git_worktree: gitWorktree
+      })
     },
     version: MACRO.VERSION,
     output_style: {
@@ -206,7 +210,7 @@ function StatusLineInner({
         previousStateRef.current.messageId = currentMessageId;
         previousStateRef.current.exceeds200kTokens = exceeds200kTokens;
       }
-      const statusInput = buildStatusLineCommandInput(permissionModeRef.current, exceeds200kTokens, settingsRef.current, msgs, Array.from(addedDirsRef.current.keys()), mainLoopModelRef.current, vimModeRef.current);
+      const statusInput = buildStatusLineCommandInput(permissionModeRef.current, exceeds200kTokens, settingsRef.current, msgs, Array.from(addedDirsRef.current.keys()), mainLoopModelRef.current, await getGitWorktreeName(getCwd()), vimModeRef.current);
       const text = await executeStatusLineCommand(statusInput, controller.signal, undefined, logResult);
       if (!controller.signal.aborted) {
         setAppState(prev => {
@@ -244,6 +248,14 @@ function StatusLineInner({
       scheduleUpdate();
     }
   }, [lastAssistantMessageId, permissionMode, vimMode, mainLoopModel, scheduleUpdate]);
+
+  const refreshInterval = settings?.statusLine?.refreshInterval;
+  useEffect(() => {
+    if (refreshInterval === undefined) return;
+    const intervalMs = Math.max(1, refreshInterval) * 1000;
+    const interval = setInterval(scheduleUpdate, intervalMs);
+    return () => clearInterval(interval);
+  }, [refreshInterval, scheduleUpdate]);
 
   // When the statusLine command changes (hot reload), log the next result
   const statusLineCommand = settings?.statusLine?.command;
