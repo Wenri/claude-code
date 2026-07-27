@@ -9,8 +9,10 @@ The checked-in cases are:
 - [`2.1.88 → 2.1.89`](./cases/2.1.88-to-2.1.89/REPORT.md), the initial
   source-map-to-package recovery;
 - [`2.1.89 → 2.1.90`](./cases/2.1.89-to-2.1.90/REPORT.md), the first
+  adjacent incremental recovery;
+- [`2.1.90 → 2.1.91`](./cases/2.1.90-to-2.1.91/REPORT.md), the second
   adjacent incremental recovery; and
-- [`2.1.90 → 2.1.91`](./cases/2.1.90-to-2.1.91/REPORT.md), the current
+- [`2.1.91 → 2.1.92`](./cases/2.1.91-to-2.1.92/REPORT.md), the current
   adjacent incremental recovery.
 
 Each case has two simultaneous completeness levels that must not be
@@ -24,9 +26,9 @@ conflated:
   types, comments, formatting, and exact module placement are not observable.
 
 For the current target, start with the
-[`2.1.91 report`](./cases/2.1.90-to-2.1.91/REPORT.md),
-[`manifest`](./cases/2.1.90-to-2.1.91/manifest.json), and
-[`complete runbook`](./cases/2.1.90-to-2.1.91/RECOVERY_RUNBOOK.md).
+[`2.1.92 report`](./cases/2.1.91-to-2.1.92/REPORT.md),
+[`manifest`](./cases/2.1.91-to-2.1.92/manifest.json), and
+[`complete runbook`](./cases/2.1.91-to-2.1.92/RECOVERY_RUNBOOK.md).
 
 ## Deliverables
 
@@ -42,8 +44,8 @@ For the current target, start with the
 ## Current source-tree state
 
 The repository `src/` is the verified 2.1.88 outer/Bun-input source-map
-baseline plus cumulative source-facing overlays for 2.1.89, 2.1.90, and
-2.1.91.
+baseline plus cumulative source-facing overlays for 2.1.89, 2.1.90, 2.1.91,
+and 2.1.92.
 Those overlays are partial behavioral recoveries, not claims of the exact
 authored TypeScript trees.
 
@@ -85,7 +87,21 @@ git apply "$CASE/recovered/edit-anchor-guidance.patch"
 git apply "$CASE/recovered/claude-api-guidance.patch"
 ```
 
-These patches are also already present. Do not apply any overlay twice; the
+These patches are also already present. On that verified 2.1.91 tree, the
+incremental 2.1.92 overlay applies in this order:
+
+```sh
+CASE=recovery/cases/2.1.91-to-2.1.92
+git apply "$CASE/recovered/startup-and-remote-settings.patch"
+git apply "$CASE/recovered/prompt-hook-policy.patch"
+git apply "$CASE/recovered/streamed-tool-input-coercion.patch"
+git apply "$CASE/recovered/homebrew-cask-channel.patch"
+git apply "$CASE/recovered/tmux-stable-window.patch"
+git apply "$CASE/recovered/cursor-end-of-line.patch"
+git apply "$CASE/recovered/release-notes-and-command-removals.patch"
+```
+
+All four overlays are already present. Do not apply any overlay twice; the
 complete gate reverse-checks the current increment and reapplies it in a
 temporary copy.
 
@@ -99,7 +115,7 @@ pixi run npm --prefix recovery ci --ignore-scripts
 
 RECOVERY_ARTIFACTS=$(mktemp -d)
 pixi run node recovery/scripts/acquire-case.mjs \
-  --case recovery/cases/2.1.90-to-2.1.91/manifest.json \
+  --case recovery/cases/2.1.91-to-2.1.92/manifest.json \
   --output "$RECOVERY_ARTIFACTS"
 ```
 
@@ -107,10 +123,10 @@ Run the complete gate:
 
 ```sh
 pixi run node recovery/scripts/verify-complete-recovery.mjs \
-  --case recovery/cases/2.1.90-to-2.1.91/manifest.json \
+  --case recovery/cases/2.1.91-to-2.1.92/manifest.json \
   --repo . \
   --artifacts "$RECOVERY_ARTIFACTS" \
-  --baseline-tarball "$RECOVERY_ARTIFACTS/2.1.90/package.tgz"
+  --baseline-tarball "$RECOVERY_ARTIFACTS/2.1.91/package.tgz"
 ```
 
 It verifies the 2.1.88 source-oracle correspondence, current overlay lineage,
@@ -120,23 +136,23 @@ target-backed tests, and exact package-tree reconstruction.
 
 The expected top-level status is `complete-recovery-verified`, with exact
 bundle SHA-256
-`b4bf141f30cf8b40196295816c7a6b9d01a36e906908d73a9f9a865ce4cdf816`
+`6b0b860206b3723d70619b84dbf3a53a795d703862aa3b01d58e869685c85362`
 and exact package-tree SHA-256
-`21a9edcea0cb4bb2ae36348c39f9e08c836e3476e96ae6f3d8a34c1a7aa35585`.
+`e8abc7a21bab293650f17f5d3abd85b026132e6f53831c4c34499bd839ebe777`.
 
 ## Inspect the diff
 
 The compact structural diff is plain text:
 
 ```sh
-less recovery/cases/2.1.90-to-2.1.91/readable-diff/statements.diff
+less recovery/cases/2.1.91-to-2.1.92/readable-diff/statements.diff
 ```
 
 The complete normalized Git diff is deterministically compressed:
 
 ```sh
 gzip -cd \
-  recovery/cases/2.1.90-to-2.1.91/readable-diff/normalized.diff.gz |
+  recovery/cases/2.1.91-to-2.1.92/readable-diff/normalized.diff.gz |
   less
 ```
 
@@ -147,13 +163,13 @@ The exact executable can be reconstructed directly:
 
 ```sh
 pixi run zstd -d \
-  --patch-from="$RECOVERY_ARTIFACTS/2.1.90/package/cli.js" \
-  recovery/cases/2.1.90-to-2.1.91/diff/cli.js.zstd-delta \
-  -o /tmp/claude-code-2.1.91-cli.js
+  --patch-from="$RECOVERY_ARTIFACTS/2.1.91/package/cli.js" \
+  recovery/cases/2.1.91-to-2.1.92/diff/cli.js.zstd-delta \
+  -o /tmp/claude-code-2.1.92-cli.js
 ```
 
-The reconstructed file must be 13,162,543 bytes with SHA-256
-`b4bf141f30cf8b40196295816c7a6b9d01a36e906908d73a9f9a865ce4cdf816`.
+The reconstructed file must be 13,221,767 bytes with SHA-256
+`6b0b860206b3723d70619b84dbf3a53a795d703862aa3b01d58e869685c85362`.
 
 ## Reusable method
 
@@ -199,6 +215,9 @@ missing declaration, metadata, vendor, or removed-file changes.
 `build-exact-delta.mjs` uses the baseline bundle as a Zstandard dictionary,
 then reconstructs and byte-compares the target. This is the completeness
 backstop: readable inference never substitutes for the published bytes.
+Package members absent from the baseline require separate hash-pinned exact
+payload recipes; reconstruction rejects missing, duplicate, unused, or unsafe
+recipes.
 
 ### 6. Account for all generated offsets
 

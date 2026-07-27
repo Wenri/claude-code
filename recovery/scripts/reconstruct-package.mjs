@@ -177,6 +177,66 @@ function reconstructBundle(baseline, delta, output, expected) {
   }
 }
 
+function reconstructCompressedPayload(payload, output, expected, label) {
+  const result = spawnSync(
+    'zstd',
+    ['-d', payload, '-o', output, '--force'],
+    { encoding: 'utf8', maxBuffer: 8 * 1024 * 1024 },
+  )
+  if (result.error) throw result.error
+  if (result.status !== 0) {
+    throw new Error(
+      `${label}: Zstandard decompression failed: ` +
+        `${result.stderr || result.stdout}`,
+    )
+  }
+  return verifiedFile(output, expected, label)
+}
+
+function addedMemberPayloads(manifest, generated, caseRoot) {
+  const recipes = generated.packageMembers.addedMemberPayloads ?? []
+  if (!Array.isArray(recipes)) {
+    throw new Error('packageMembers.addedMemberPayloads must be an array')
+  }
+  const result = new Map()
+  for (const [index, recipe] of recipes.entries()) {
+    if (
+      !recipe ||
+      typeof recipe !== 'object' ||
+      Array.isArray(recipe) ||
+      typeof recipe.member !== 'string' ||
+      typeof recipe.path !== 'string'
+    ) {
+      throw new Error(`Added-member payload ${index + 1} is invalid`)
+    }
+    if (recipe.algorithm !== 'zstd') {
+      throw new Error(
+        `${recipe.member}: unsupported added-member payload algorithm ` +
+          `${String(recipe.algorithm)}`,
+      )
+    }
+    if (result.has(recipe.member)) {
+      throw new Error(`Duplicate added-member payload: ${recipe.member}`)
+    }
+    const assertion = generated.fileAssertions.find(
+      item => item.path === recipe.path,
+    )
+    if (!assertion) {
+      throw new Error(
+        `${recipe.member}: added-member payload has no file assertion`,
+      )
+    }
+    const filename = safeRelative(
+      caseRoot,
+      recipe.path,
+      `${recipe.member} added-member payload`,
+    )
+    verifiedFile(filename, assertion, `${recipe.member} compressed payload`)
+    result.set(recipe.member, { filename })
+  }
+  return result
+}
+
 function targetPath(temporary, memberPath) {
   const prefix = 'package/'
   if (!memberPath.startsWith(prefix)) {
@@ -274,6 +334,11 @@ function main() {
   if (!deltaAssertion) throw new Error('Bundle delta has no file assertion')
   const deltaFile = safeRelative(caseRoot, delta.path, 'bundle delta')
   verifiedFile(deltaFile, deltaAssertion, 'bundle delta')
+  const addedPayloads = addedMemberPayloads(
+    manifest,
+    generated,
+    caseRoot,
+  )
 
   const temporary = fs.mkdtempSync(
     path.join(parent, '.claude-code-package-recovery-'),
@@ -332,6 +397,20 @@ function main() {
           baseline,
           manifest.targetAssertions.declarationExactInsertion,
         )
+      } else if (member.status === 'added') {
+        const payload = addedPayloads.get(member.path)
+        if (!payload) {
+          throw new Error(
+            `${member.path}: no exact reconstruction recipe for added`,
+          )
+        }
+        value = reconstructCompressedPayload(
+          payload.filename,
+          filename,
+          member.target,
+          `${member.path} reconstructed payload`,
+        )
+        addedPayloads.delete(member.path)
       } else {
         throw new Error(
           `${member.path}: no exact reconstruction recipe for ${member.status}`,
@@ -367,6 +446,11 @@ function main() {
         .update('\0')
       targetBytes += value.length
       targetMembers += 1
+    }
+    if (addedPayloads.size > 0) {
+      throw new Error(
+        `Unused added-member payload: ${addedPayloads.keys().next().value}`,
+      )
     }
     assertEqual(
       targetMembers,

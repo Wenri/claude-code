@@ -95,6 +95,8 @@ function reconstructFixture({
   baselineVersion,
   targetVersion,
   declarationInsertion,
+  addedMember = false,
+  addedPayloadRecipe = 'valid',
   packageJsonInsertion = null,
   packageJsonAssertionAnchor,
   packageJsonDuplicateAnchor = false,
@@ -137,6 +139,14 @@ function reconstructFixture({
         ? declarationAnchor + declarationInsertion
         : declarationAnchor,
     )
+    const addedEntry = {
+      path: 'package/vendor/seccomp/x64/apply-seccomp',
+      mode: 0o751,
+      content: Buffer.from(
+        '\x7fELF exact fixture payload\nwith binary-safe bytes: \0\xff\n',
+        'latin1',
+      ),
+    }
     const baselineEntries = [
       {
         path: 'package/bin/tool',
@@ -182,6 +192,7 @@ function reconstructFixture({
         mode: 0o644,
         content: Buffer.from('unchanged\n'),
       },
+      ...(addedMember ? [addedEntry] : []),
     ]
     const targetByPath = new Map(
       targetEntries.map(entry => [entry.path, entry]),
@@ -201,6 +212,14 @@ function reconstructFixture({
         target,
       }
     })
+    if (addedMember) {
+      members.push({
+        path: addedEntry.path,
+        status: 'added',
+        baseline: null,
+        target: memberEvidence(addedEntry),
+      })
+    }
 
     const baselineArchive = tarball(baselineEntries)
     const targetArchive = tarball(targetEntries)
@@ -244,6 +263,17 @@ function reconstructFixture({
       ],
       { stdio: 'pipe' },
     )
+    const addedPayloadPath = 'recovered/added-member.zst'
+    const addedPayloadFile = path.join(caseRoot, addedPayloadPath)
+    if (addedMember) {
+      const addedMemberFile = path.join(temporary, 'added-member')
+      fs.writeFileSync(addedMemberFile, addedEntry.content)
+      execFileSync(
+        'zstd',
+        [addedMemberFile, '-o', addedPayloadFile, '--force'],
+        { stdio: 'pipe' },
+      )
+    }
 
     const report = {
       artifacts: {
@@ -286,6 +316,41 @@ function reconstructFixture({
         text: packageJsonInsertion,
       }
     }
+    const validAddedPayloadRecipe = {
+      member: addedEntry.path,
+      path: addedPayloadPath,
+      algorithm: 'zstd',
+    }
+    let addedMemberPayloads = []
+    if (addedMember) {
+      if (addedPayloadRecipe === 'valid') {
+        addedMemberPayloads = [validAddedPayloadRecipe]
+      } else if (addedPayloadRecipe === 'unsafe') {
+        addedMemberPayloads = [
+          {
+            ...validAddedPayloadRecipe,
+            path: '../outside-case.zst',
+          },
+        ]
+      } else if (addedPayloadRecipe === 'duplicate') {
+        addedMemberPayloads = [
+          validAddedPayloadRecipe,
+          { ...validAddedPayloadRecipe },
+        ]
+      } else if (addedPayloadRecipe !== 'missing') {
+        throw new Error(`Unknown added payload recipe: ${addedPayloadRecipe}`)
+      }
+    }
+    const addedPayloadAssertionPath =
+      addedPayloadRecipe === 'unsafe'
+        ? '../outside-case.zst'
+        : addedPayloadPath
+    const addedPayloadAssertion = addedMember
+      ? {
+          path: addedPayloadAssertionPath,
+          ...evidence(fs.readFileSync(addedPayloadFile)),
+        }
+      : null
     const manifest = {
       artifacts: [
         {
@@ -305,6 +370,7 @@ function reconstructFixture({
           baselineTarball: evidence(baselineArchive),
           report: 'package-members.json',
           targetFramedTreeSha256: framedTreeSha256(members),
+          addedMemberPayloads,
         },
         exactBundleDelta: {
           path: 'recovered/cli.delta.zst',
@@ -318,6 +384,7 @@ function reconstructFixture({
             path: 'recovered/cli.delta.zst',
             ...evidence(fs.readFileSync(deltaFile)),
           },
+          ...(addedPayloadAssertion ? [addedPayloadAssertion] : []),
         ],
       },
     }
@@ -389,6 +456,51 @@ test('replaces the package version and performs one exact insertion', () => {
     targetVersion: '2.1.91',
     declarationInsertion: null,
     packageJsonInsertion: ',\n  "files": ["cli.js"]',
+  })
+})
+
+test('reconstructs an added regular file from its exact zstd payload', () => {
+  reconstructFixture({
+    baselineVersion: '2.1.91',
+    targetVersion: '2.1.92',
+    declarationInsertion: null,
+    addedMember: true,
+  })
+})
+
+test('rejects an added member without an exact payload recipe', () => {
+  reconstructFixture({
+    baselineVersion: '2.1.91',
+    targetVersion: '2.1.92',
+    declarationInsertion: null,
+    addedMember: true,
+    addedPayloadRecipe: 'missing',
+    expectedError:
+      /package\/vendor\/seccomp\/x64\/apply-seccomp: no exact reconstruction recipe for added/,
+  })
+})
+
+test('rejects an unsafe added-member payload path', () => {
+  reconstructFixture({
+    baselineVersion: '2.1.91',
+    targetVersion: '2.1.92',
+    declarationInsertion: null,
+    addedMember: true,
+    addedPayloadRecipe: 'unsafe',
+    expectedError:
+      /added-member payload: unsafe relative path \.\.\/outside-case\.zst/,
+  })
+})
+
+test('rejects duplicate added-member payload recipes', () => {
+  reconstructFixture({
+    baselineVersion: '2.1.91',
+    targetVersion: '2.1.92',
+    declarationInsertion: null,
+    addedMember: true,
+    addedPayloadRecipe: 'duplicate',
+    expectedError:
+      /Duplicate added-member payload: package\/vendor\/seccomp\/x64\/apply-seccomp/,
   })
 })
 

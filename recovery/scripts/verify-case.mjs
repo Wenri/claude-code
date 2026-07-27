@@ -3,6 +3,7 @@
 import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { summarizeSourceMap } from '../lib/source-map.mjs'
 import { exactTextInsertion } from '../lib/exact-text-insertion.mjs'
 
@@ -105,21 +106,29 @@ function walkFiles(directory) {
 
 function normalizeAppliedSourceTree(repo, appliedSourceTree) {
   if (!appliedSourceTree) {
-    return { assertions: new Map(), absentBaselineFiles: new Set() }
+    return {
+      assertions: new Map(),
+      absentBaselineFiles: new Set(),
+      absentTargetFiles: new Set(),
+    }
   }
   if (!Array.isArray(appliedSourceTree.files)) {
     throw new Error('appliedSourceTree.files must be an array')
   }
   const assertions = new Map()
   const absentBaselineFiles = new Set()
+  const absentTargetFiles = new Set()
   for (const assertion of appliedSourceTree.files) {
+    const targetIsAbsent = assertion.target === 'absent'
     if (
       typeof assertion.path !== 'string' ||
       !assertion.path.startsWith('src/') ||
       assertions.has(assertion.path.slice(4)) ||
-      !Number.isSafeInteger(assertion.bytes) ||
-      assertion.bytes < 0 ||
-      !/^[a-f0-9]{64}$/.test(assertion.sha256)
+      (targetIsAbsent
+        ? assertion.bytes !== undefined || assertion.sha256 !== undefined
+        : !Number.isSafeInteger(assertion.bytes) ||
+          assertion.bytes < 0 ||
+          !/^[a-f0-9]{64}$/.test(assertion.sha256))
     ) {
       throw new Error(
         `Invalid or duplicate applied source assertion: ${assertion.path}`,
@@ -138,11 +147,25 @@ function normalizeAppliedSourceTree(repo, appliedSourceTree) {
         `${assertion.path}: unknown baseline state ${assertion.baseline}`,
       )
     }
+    if (targetIsAbsent) absentTargetFiles.add(relative)
+    else if (assertion.target !== undefined) {
+      throw new Error(
+        `${assertion.path}: unknown target state ${assertion.target}`,
+      )
+    }
+    if (
+      absentBaselineFiles.has(relative) &&
+      absentTargetFiles.has(relative)
+    ) {
+      throw new Error(
+        `${assertion.path}: cannot be absent from both baseline and target`,
+      )
+    }
   }
-  return { assertions, absentBaselineFiles }
+  return { assertions, absentBaselineFiles, absentTargetFiles }
 }
 
-function verifyBaseline(mapPath, repo, oracle, appliedSourceTree) {
+export function verifyBaseline(mapPath, repo, oracle, appliedSourceTree) {
   const map = JSON.parse(fs.readFileSync(mapPath, 'utf8'))
   const sourceMapSummary = summarizeSourceMap(map)
   for (const [key, expected] of Object.entries(oracle.sourceMap)) {
@@ -180,6 +203,14 @@ function verifyBaseline(mapPath, repo, oracle, appliedSourceTree) {
       sha256: assertion.sha256,
     })
   }
+  const recordAppliedDeletion = (relative, assertion) => {
+    recoveredOverlayFiles += 1
+    appliedByRelative.set(relative, {
+      path: assertion.path,
+      baseline: assertion.baseline ?? 'source-map',
+      target: 'absent',
+    })
+  }
 
   for (let index = 0; index < map.sources.length; index += 1) {
     const source = map.sources[index]
@@ -206,15 +237,29 @@ function verifyBaseline(mapPath, repo, oracle, appliedSourceTree) {
           `${source}: overlay marks a source-map file absent from baseline`,
         )
       }
-      const repositoryContent = fs.readFileSync(applicationPath.resolved)
-      if (repositoryContent.equals(Buffer.from(content))) {
-        baselineOverlayFiles += 1
+      if (overlay.absentTargetFiles.has(applicationPath.relative)) {
+        if (fs.existsSync(applicationPath.resolved)) {
+          const repositoryContent = fs.readFileSync(applicationPath.resolved)
+          if (!repositoryContent.equals(Buffer.from(content))) {
+            throw new Error(
+              `${source}: target-absent source differs from the baseline`,
+            )
+          }
+          baselineOverlayFiles += 1
+        } else {
+          recordAppliedDeletion(applicationPath.relative, appliedAssertion)
+        }
       } else {
-        recordAppliedFile(
-          applicationPath.relative,
-          appliedAssertion,
-          repositoryContent,
-        )
+        const repositoryContent = fs.readFileSync(applicationPath.resolved)
+        if (repositoryContent.equals(Buffer.from(content))) {
+          baselineOverlayFiles += 1
+        } else {
+          recordAppliedFile(
+            applicationPath.relative,
+            appliedAssertion,
+            repositoryContent,
+          )
+        }
       }
     } else {
       const repositoryContent = fs.readFileSync(
@@ -270,6 +315,11 @@ function verifyBaseline(mapPath, repo, oracle, appliedSourceTree) {
     if (isBaselineSource !== !overlay.absentBaselineFiles.has(relative)) {
       throw new Error(
         `${assertion.path}: baseline presence does not match source map`,
+      )
+    }
+    if (overlay.absentTargetFiles.has(relative) && !isBaselineSource) {
+      throw new Error(
+        `${assertion.path}: target-absent assertion has no baseline source`,
       )
     }
     if (!isBaselineSource) {
@@ -677,9 +727,14 @@ function main() {
   )
 }
 
-try {
-  main()
-} catch (error) {
-  console.error(error.stack ?? error)
-  process.exitCode = 1
+const invokedAsScript =
+  process.argv[1] !== undefined &&
+  import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href
+if (invokedAsScript) {
+  try {
+    main()
+  } catch (error) {
+    console.error(error.stack ?? error)
+    process.exitCode = 1
+  }
 }

@@ -11,11 +11,13 @@ standalone `package.json`, `tsconfig.json`, lockfile, or full test suite for
 `src/`, and it will not compile or run as-is. Recovery tooling has its own
 locked dependencies and focused tests. The current tree is the exact 2.1.88
 outer source-map baseline for every untouched file plus cumulative verified source-facing
-overlays for 2.1.89, 2.1.90, and 2.1.91. The first changes four Bash/parser
+overlays for 2.1.89, 2.1.90, 2.1.91, and 2.1.92. The first changes four Bash/parser
 files; the second changes nine session, transport, query, safety/cache,
 rate-limit, and help files; the third changes 21 existing MCP, policy, input,
 plugin, transcript, feedback, installer, and prompt files and adds 27 exact
-`/claude-api` guidance files. These overlays are not a claim that any complete
+`/claude-api` guidance files; the fourth has 17 source-path transitions for
+remote settings, Remote Control naming, hooks, streamed input, Homebrew,
+tmux, cursor movement, and commands. These overlays are not a claim that any complete
 authored TypeScript tree is recoverable. Treat `src/` as read-only reference
 unless explicitly asked to change it; all of it is Anthropic's proprietary property
 (see the README disclaimer).
@@ -24,7 +26,7 @@ A few things layered on top of the mirror ARE maintained here:
 - `loader/` — `rtld-dispatch`, a **custom glibc `ld.so`** that loads Claude Code (and other WSL1-hostile CLIs) *in place*, preserving `/proc/self/exe`; the main thing built here.
 - `recovery/` — hash-pinned tooling for comparing later published bundles
   with authenticated adjacent releases and a matching source-map oracle. The
-  2.1.89, 2.1.90, and 2.1.91 cases have exact generated bundle/package recoveries,
+  2.1.89, 2.1.90, 2.1.91, and 2.1.92 cases have exact generated bundle/package recoveries,
   exhaustive accounting ledgers, readable bundle diffs, and separately
   labeled partial source-like TypeScript patches. Their cumulative patch sets
   are applied to `src/`. Each case manifest and its verifiers are the evidence
@@ -47,7 +49,7 @@ is the pixi workspace:
   so nodejs is held `<26` (v26 needs icu 78). Bumping nodejs to 26 would break that.
 - `pixi run node recovery/scripts/verify-complete-recovery.mjs …` — run the
   aggregate evidence, source-lineage, exact-bundle, and package-tree gate for
-  a recovery case; use the 2.1.90 → 2.1.91 manifest for the current tree and
+  a recovery case; use the 2.1.91 → 2.1.92 manifest for the current tree and
   see that case's runbook for its artifact arguments.
 
 The glibc source is committed as a **plain, unextracted source tree** (no Git LFS, no tarball —

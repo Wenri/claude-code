@@ -639,6 +639,12 @@ export const SettingsSchema = lazySchema(() =>
         .string()
         .optional()
         .describe('Organization UUID to use for OAuth login'),
+      forceRemoteSettingsRefresh: z
+        .boolean()
+        .optional()
+        .describe(
+          'When set in managed settings, the CLI blocks startup until remote managed settings are freshly fetched, and exits if the fetch fails',
+        ),
       otelHeadersHelper: z
         .string()
         .optional()

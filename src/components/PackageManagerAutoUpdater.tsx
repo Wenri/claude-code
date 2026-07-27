@@ -6,7 +6,7 @@ import { Text } from '../ink.js';
 import { type AutoUpdaterResult, getLatestVersionFromGcs, getMaxVersion, shouldSkipVersion } from '../utils/autoUpdater.js';
 import { isAutoUpdaterDisabled } from '../utils/config.js';
 import { logForDebugging } from '../utils/debug.js';
-import { getPackageManager, type PackageManager } from '../utils/nativeInstaller/packageManagers.js';
+import { getHomebrewCaskName, getPackageManager, type PackageManager } from '../utils/nativeInstaller/packageManagers.js';
 import { gt, gte } from '../utils/semver.js';
 import { getInitialSettings } from '../utils/settings/settings.js';
 type Props = {
@@ -24,6 +24,7 @@ export function PackageManagerAutoUpdater(t0) {
   } = t0;
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const [packageManager, setPackageManager] = useState("unknown");
+  const [homebrewCaskName, setHomebrewCaskName] = useState<string | null>(null);
   let t1;
   if ($[0] === Symbol.for("react.memo_cache_sentinel")) {
     t1 = async () => {
@@ -33,7 +34,13 @@ export function PackageManagerAutoUpdater(t0) {
       }
       const [channel, pm] = await Promise.all([Promise.resolve(getInitialSettings()?.autoUpdatesChannel ?? "latest"), getPackageManager()]);
       setPackageManager(pm);
-      let latest = await getLatestVersionFromGcs(channel);
+      let effectiveChannel = channel;
+      if (pm === "homebrew") {
+        const caskName = getHomebrewCaskName();
+        setHomebrewCaskName(caskName);
+        effectiveChannel = caskName === "claude-code@latest" ? "latest" : "stable";
+      }
+      let latest = await getLatestVersionFromGcs(effectiveChannel);
       const maxVersion = await getMaxVersion();
       if (maxVersion && latest && gt(latest, maxVersion)) {
         logForDebugging(`PackageManagerAutoUpdater: maxVersion ${maxVersion} is set, capping update from ${latest} to ${maxVersion}`);
@@ -73,7 +80,7 @@ export function PackageManagerAutoUpdater(t0) {
   if (!updateAvailable) {
     return null;
   }
-  const updateCommand = packageManager === "homebrew" ? "brew upgrade claude-code" : packageManager === "winget" ? "winget upgrade Anthropic.ClaudeCode" : packageManager === "apk" ? "apk upgrade claude-code" : "your package manager update command";
+  const updateCommand = packageManager === "homebrew" ? `brew upgrade ${homebrewCaskName ?? "claude-code"}` : packageManager === "winget" ? "winget upgrade Anthropic.ClaudeCode" : packageManager === "apk" ? "apk upgrade claude-code" : "your package manager update command";
   let t4;
   if ($[3] !== verbose) {
     t4 = verbose && <Text dimColor={true} wrap="truncate">currentVersion: {MACRO.VERSION}</Text>;

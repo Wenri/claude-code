@@ -117,14 +117,14 @@ leaked source** (the TypeScript/TSX under [`src/`](./src/)), recovered from a
 [Yasas Banu](https://www.yasasbanuka.tech)). It is study material, not a buildable
 project. The untouched files remain the exact 2.1.88 outer source-map inputs;
 the tree now carries cumulative, verified source-facing recovery overlays for
-2.1.89, 2.1.90, and 2.1.91. This does not claim that any complete original
-authored TypeScript tree is observable. A short tour of what's inside is in
+2.1.89, 2.1.90, 2.1.91, and 2.1.92. This does not claim that any complete
+original authored TypeScript tree is observable. A short tour of what's inside is in
 [`CLAUDE.md`](./CLAUDE.md). The evidence-first adjacent recoveries live in
 [`recovery/`](./recovery/): they reconstruct the complete published bundle and
-npm package tree exactly through 2.1.91, while keeping the necessarily partial
+npm package tree exactly through 2.1.92, while keeping the necessarily partial
 authored-TypeScript reconstruction labeled separately. See the current
-[2.1.91 report](./recovery/cases/2.1.90-to-2.1.91/REPORT.md) and
-[complete recovery runbook](./recovery/cases/2.1.90-to-2.1.91/RECOVERY_RUNBOOK.md).
+[2.1.92 report](./recovery/cases/2.1.91-to-2.1.92/REPORT.md) and
+[complete recovery runbook](./recovery/cases/2.1.91-to-2.1.92/RECOVERY_RUNBOOK.md).
 
 ## 📜 License & disclaimer
 

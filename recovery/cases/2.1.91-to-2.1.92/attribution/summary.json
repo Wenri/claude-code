@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "kind": "generated-source-ownership-and-attribution-inventory",
+  "offsetUnit": "utf16-code-units",
+  "claim": "Exhaustive generated-offset accounting with exact baseline source ownership; target source identities are evidence-ranked and unresolved where anchors are insufficient.",
+  "artifacts": {
+    "baselineBundle": {
+      "bytes": 13047043,
+      "sha256": "75c9611929d9a770fe2e3a393219d8b98f5de17fde539b2a7355c6db3fd2795f"
+    },
+    "baselineSourceMap": {
+      "bytes": 59766257,
+      "sha256": "7965012b7a5fc9e09d8d747a04c5c32b94696924536e217f686bb1e7ee70a657"
+    },
+    "targetBundle": {
+      "bytes": 13221767,
+      "sha256": "6b0b860206b3723d70619b84dbf3a53a795d703862aa3b01d58e869685c85362"
+    }
+  },
+  "options": {
+    "minimumLiteralLength": 8
+  },
+  "baselineOwnership": {
+    "sourceCount": 4756,
+    "sourceKinds": {
+      "application": 1902,
+      "nodeModules": 2850,
+      "vendor": 4
+    },
+    "mappedSegmentCount": 2068722,
+    "contiguousRunCount": 4756,
+    "eachSourceHasExactlyOneContiguousRun": true,
+    "generatedHeaderUtf16": 2230
+  },
+  "literalEvidence": {
+    "uniqueCommonAnchorCount": 43912,
+    "monotoneAnchorCount": 43046,
+    "nonMonotoneAnchorCount": 866,
+    "monotoneFraction": 0.9802787392967753,
+    "partitionCount": 43047,
+    "tokenCountDelta": 58803,
+    "utf16LengthDelta": 174175,
+    "locatedSourceCount": 2617,
+    "locatedApplicationSourceCount": 1308,
+    "splitTargetClusterSourceCount": 6
+  },
+  "initializerEvidence": {
+    "baseline": {
+      "wrapperNames": {
+        "common": "m",
+        "initializer": "y"
+      },
+      "count": 4527
+    },
+    "target": {
+      "wrapperNames": {
+        "common": "B",
+        "initializer": "L"
+      },
+      "count": 4579,
+      "statuses": {
+        "unresolved-no-unique-literal": 2053,
+        "anchored-single-baseline-unit": 2507,
+        "anchored-multiple-baseline-units": 19
+      }
+    },
+    "targetNetCountDelta": 52
+  },
+  "coverage": {
+    "partitionCount": 43047,
+    "targetPartitionUtf16": 10753880,
+    "exactAnchorCount": 43046,
+    "exactAnchorTargetUtf16": 2403623,
+    "exactGeneratedPartitionCount": 22186,
+    "exactGeneratedTargetUtf16": 547140,
+    "changedHighConfidencePartitionCount": 18288,
+    "changedHighConfidenceTargetUtf16": 5217760,
+    "changedCandidatePartitionCount": 2567,
+    "changedCandidateTargetUtf16": 4987084,
+    "unresolvedPartitionCount": 6,
+    "unresolvedTargetUtf16": 1896,
+    "accountedTargetUtf16": 13157503,
+    "targetUtf16": 13157503,
+    "unaccountedTargetUtf16": 0
+  },
+  "releaseEvidence": {
+    "targetPackage": {
+      "bytes": 1370,
+      "sha256": "6114693483d9a342ce4797b3aa5351b7e9ed9005d6fcbae32ca0095ba85ce045",
+      "name": "@anthropic-ai/claude-code",
+      "version": "2.1.92"
+    },
+    "targetDeclarations": {
+      "bytes": 117138,
+      "sha256": "d54800cb26dbfc3e15d0ab034ef9c77e340fb7ec76270a167f39245f7155c4b4"
+    },
+    "officialChangelog": {
+      "bytes": 197588,
+      "sha256": "7fda3c1135f646cf678ce4676c444bc254025fd34e9ccd82ce29dabee8e6adf7",
+      "section": "2.1.92",
+      "bulletCount": 21,
+      "bullets": [
+        "Added `forceRemoteSettingsRefresh` policy setting: when set, the CLI blocks startup until remote managed settings are freshly fetched, and exits if the fetch fails (fail-closed)",
+        "Added interactive Bedrock setup wizard accessible from the login screen when selecting \"3rd-party platform\" — guides you through AWS authentication, region configuration, credential verification, and model pinning",
+        "Added per-model and cache-hit breakdown to `/cost` for subscription users",
+        "`/release-notes` is now an interactive version picker",
+        "Remote Control session names now use your hostname as the default prefix (e.g. `myhost-graceful-unicorn`), overridable with `--remote-control-session-name-prefix`",
+        "Pro users now see a footer hint when returning to a session after the prompt cache has expired, showing roughly how many tokens the next turn will send uncached",
+        "Fixed subagent spawning permanently failing with \"Could not determine pane count\" after tmux windows are killed or renumbered during a long-running session",
+        "Fixed prompt-type Stop hooks incorrectly failing when the small fast model returns `ok:false`, and restored `preventContinuation:true` semantics for non-Stop prompt-type hooks",
+        "Fixed tool input validation failures when streaming emits array/object fields as JSON-encoded strings",
+        "Fixed an API 400 error that could occur when extended thinking produced a whitespace-only text block alongside real content",
+        "Fixed accidental feedback survey submissions from auto-pilot keypresses and consecutive-prompt digit collisions",
+        "Fixed misleading \"esc to interrupt\" hint appearing alongside \"esc to clear\" when a text selection exists in fullscreen mode during processing",
+        "Fixed Homebrew install update prompts to use the cask's release channel (`claude-code` → stable, `claude-code@latest` → latest)",
+        "Fixed `ctrl+e` jumping to the end of the next line when already at end of line in multiline prompts",
+        "Fixed an issue where the same message could appear at two positions when scrolling up in fullscreen mode (iTerm2, Ghostty, and other terminals with DEC 2026 support)",
+        "Fixed idle-return \"/clear to save X tokens\" hint showing cumulative session tokens instead of current context size",
+        "Fixed plugin MCP servers stuck \"connecting\" on session start when they duplicate a claude.ai connector that is unauthenticated",
+        "Improved Write tool diff computation speed for large files (60% faster on files with tabs/`&`/`$`)",
+        "Removed `/tag` command",
+        "Removed `/vim` command (toggle vim mode via `/config` → Editor mode)",
+        "Linux sandbox now ships the `apply-seccomp` helper in both npm and native builds, restoring unix-socket blocking for sandboxed commands"
+      ]
+    }
+  },
+  "reportFiles": {
+    "sources": {
+      "path": "sources.jsonl.gz",
+      "bytes": 492432,
+      "sha256": "1b4dfe5dceee34fdf2745aa1bee7eff57e4af96ac77a92754b0186f68a445469"
+    },
+    "targetInitializers": {
+      "path": "target-initializers.jsonl.gz",
+      "bytes": 110839,
+      "sha256": "32bc2c124285025058e342e6f7d55d1ff681f79ebc19143f7cc5617734169e5a"
+    },
+    "targetPartitions": {
+      "path": "target-partitions.jsonl.gz",
+      "bytes": 4185379,
+      "sha256": "04078dfccfa72984fbc496a77256debee31877b5ccebf9823dede6185a626088"
+    }
+  },
+  "limitations": [
+    "Exact source ownership exists only for the baseline source map.",
+    "Initializer regions are delimited by successive Bun wrapper-expression starts; they are generated units, not asserted one-to-one source modules.",
+    "A target initializer with no unique long literal is unresolved, not automatically target-only.",
+    "Candidate ranges can include moved code; non-monotone literal owners are reported separately.",
+    "Raw-different partitions include harmless minifier-name churn as well as semantic changes.",
+    "No target source text is claimed reconstructed by this inventory."
+  ]
+}
