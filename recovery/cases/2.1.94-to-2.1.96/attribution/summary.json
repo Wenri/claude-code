@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "kind": "generated-source-ownership-and-attribution-inventory",
+  "offsetUnit": "utf16-code-units",
+  "claim": "Exhaustive generated-offset accounting with exact baseline source ownership; target source identities are evidence-ranked and unresolved where anchors are insufficient.",
+  "artifacts": {
+    "baselineBundle": {
+      "bytes": 13047043,
+      "sha256": "75c9611929d9a770fe2e3a393219d8b98f5de17fde539b2a7355c6db3fd2795f"
+    },
+    "baselineSourceMap": {
+      "bytes": 59766257,
+      "sha256": "7965012b7a5fc9e09d8d747a04c5c32b94696924536e217f686bb1e7ee70a657"
+    },
+    "targetBundle": {
+      "bytes": 13308470,
+      "sha256": "62ad81e3eb00df80ac019b607cd4bad36607f665bffc7b4e9e3db7ade492d66e"
+    }
+  },
+  "options": {
+    "minimumLiteralLength": 8
+  },
+  "baselineOwnership": {
+    "sourceCount": 4756,
+    "sourceKinds": {
+      "application": 1902,
+      "nodeModules": 2850,
+      "vendor": 4
+    },
+    "mappedSegmentCount": 2068722,
+    "contiguousRunCount": 4756,
+    "eachSourceHasExactlyOneContiguousRun": true,
+    "generatedHeaderUtf16": 2230
+  },
+  "literalEvidence": {
+    "uniqueCommonAnchorCount": 43739,
+    "monotoneAnchorCount": 42858,
+    "nonMonotoneAnchorCount": 881,
+    "monotoneFraction": 0.9798577928164796,
+    "partitionCount": 42859,
+    "tokenCountDelta": 77523,
+    "utf16LengthDelta": 260707,
+    "locatedSourceCount": 2614,
+    "locatedApplicationSourceCount": 1307,
+    "splitTargetClusterSourceCount": 8
+  },
+  "initializerEvidence": {
+    "baseline": {
+      "wrapperNames": {
+        "common": "m",
+        "initializer": "y"
+      },
+      "count": 4527
+    },
+    "target": {
+      "wrapperNames": {
+        "common": "p",
+        "initializer": "L"
+      },
+      "count": 4584,
+      "statuses": {
+        "unresolved-no-unique-literal": 2058,
+        "anchored-single-baseline-unit": 2504,
+        "anchored-multiple-baseline-units": 22
+      }
+    },
+    "targetNetCountDelta": 57
+  },
+  "coverage": {
+    "partitionCount": 42859,
+    "targetPartitionUtf16": 10854520,
+    "exactAnchorCount": 42858,
+    "exactAnchorTargetUtf16": 2389515,
+    "exactGeneratedPartitionCount": 22055,
+    "exactGeneratedTargetUtf16": 546834,
+    "changedHighConfidencePartitionCount": 18234,
+    "changedHighConfidenceTargetUtf16": 5249042,
+    "changedCandidatePartitionCount": 2564,
+    "changedCandidateTargetUtf16": 5056748,
+    "unresolvedPartitionCount": 6,
+    "unresolvedTargetUtf16": 1896,
+    "accountedTargetUtf16": 13244035,
+    "targetUtf16": 13244035,
+    "unaccountedTargetUtf16": 0
+  },
+  "releaseEvidence": {
+    "targetPackage": {
+      "bytes": 1370,
+      "sha256": "90277b47ea9397b5d57917ec9a2036d3cc7168e8be911eead46de951e44a119b",
+      "name": "@anthropic-ai/claude-code",
+      "version": "2.1.96"
+    },
+    "targetDeclarations": {
+      "bytes": 117138,
+      "sha256": "d54800cb26dbfc3e15d0ab034ef9c77e340fb7ec76270a167f39245f7155c4b4"
+    },
+    "officialChangelog": {
+      "bytes": 200768,
+      "sha256": "c5bec885de21aedb4b09a497e9776e60dce031ee68d614a7a208bea657b8b566",
+      "section": "2.1.96",
+      "bulletCount": 1,
+      "bullets": [
+        "Fixed Bedrock requests failing with `403 \"Authorization header is missing\"` when using `AWS_BEARER_TOKEN_BEDROCK` or `CLAUDE_CODE_SKIP_BEDROCK_AUTH` (regression in 2.1.94)"
+      ]
+    }
+  },
+  "reportFiles": {
+    "sources": {
+      "path": "sources.jsonl.gz",
+      "bytes": 492483,
+      "sha256": "530bd598cb67338c87fc6347fba3c3dd4c7b5a36d478f0889a573cb530e08bb3"
+    },
+    "targetInitializers": {
+      "path": "target-initializers.jsonl.gz",
+      "bytes": 110979,
+      "sha256": "808e12c6d67a65fae6938820b6823354ec4f26153bbb001900fd0d8f08076b2d"
+    },
+    "targetPartitions": {
+      "path": "target-partitions.jsonl.gz",
+      "bytes": 4168386,
+      "sha256": "cce84cc07b9c40923a9d2e0fa063ce0a7ddca35ac8b3d31ab7e4268fcb60d3d7"
+    }
+  },
+  "limitations": [
+    "Exact source ownership exists only for the baseline source map.",
+    "Initializer regions are delimited by successive Bun wrapper-expression starts; they are generated units, not asserted one-to-one source modules.",
+    "A target initializer with no unique long literal is unresolved, not automatically target-only.",
+    "Candidate ranges can include moved code; non-monotone literal owners are reported separately.",
+    "Raw-different partitions include harmless minifier-name churn as well as semantic changes.",
+    "No target source text is claimed reconstructed by this inventory."
+  ]
+}

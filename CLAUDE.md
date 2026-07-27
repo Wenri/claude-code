@@ -10,26 +10,28 @@ March 2026. It is **study material, not a buildable project**: there is no
 standalone `package.json`, `tsconfig.json`, lockfile, or full test suite for
 `src/`, and it will not compile or run as-is. Recovery tooling has its own
 locked dependencies and focused tests. The current tree is the exact 2.1.88
-outer source-map baseline for every untouched file plus cumulative verified source-facing
-overlays for 2.1.89, 2.1.90, 2.1.91, 2.1.92, and 2.1.94 (upstream did not
-publish 2.1.93). The first changes four Bash/parser files; the second changes
-nine session, transport, query, safety/cache, rate-limit, and help files; the
+outer source-map baseline for every untouched file plus cumulative verified
+source-facing overlays for 2.1.89, 2.1.90, 2.1.91, 2.1.92, 2.1.94, and
+2.1.96 (upstream did not publish 2.1.93 or 2.1.95). The first changes four
+Bash/parser files; the second changes nine session, transport, query,
+safety/cache, rate-limit, and help files; the
 third changes 21 existing MCP, policy, input, plugin, transcript, feedback,
 installer, and prompt files and adds 27 exact `/claude-api` guidance files;
 the fourth has 17 source-path transitions for remote settings, Remote Control
 naming, hooks, streamed input, Homebrew, tmux, cursor movement, and commands;
 the fifth has 44 transitions for Mantle/model routing, effort/retry behavior,
 plugins and hooks, keychain and SDK diagnostics, stream-json, resume, Slack,
-and terminal/transcript repairs. These overlays are not a claim that any complete
-authored TypeScript tree is recoverable. Treat `src/` as read-only reference
-unless explicitly asked to change it; all of it is Anthropic's proprietary property
-(see the README disclaimer).
+and terminal/transcript repairs; the sixth changes the main API client for
+correct Bedrock API-key handling. These overlays are not a claim that any
+complete authored TypeScript tree is recoverable. Treat `src/` as read-only
+reference unless explicitly asked to change it; all of it is Anthropic's
+proprietary property (see the README disclaimer).
 
 A few things layered on top of the mirror ARE maintained here:
 - `loader/` — `rtld-dispatch`, a **custom glibc `ld.so`** that loads Claude Code (and other WSL1-hostile CLIs) *in place*, preserving `/proc/self/exe`; the main thing built here.
 - `recovery/` — hash-pinned tooling for comparing later published bundles
   with authenticated adjacent releases and a matching source-map oracle. The
-  2.1.89, 2.1.90, 2.1.91, 2.1.92, and 2.1.94 cases have exact generated
+  2.1.89, 2.1.90, 2.1.91, 2.1.92, 2.1.94, and 2.1.96 cases have exact generated
   bundle/package recoveries, exhaustive accounting ledgers, readable bundle
   diffs, and separately labeled partial source-like TypeScript patches. Their
   cumulative patch sets are applied to `src/`. Each case manifest and its
@@ -53,7 +55,7 @@ is the pixi workspace:
   so nodejs is held `<26` (v26 needs icu 78). Bumping nodejs to 26 would break that.
 - `pixi run node recovery/scripts/verify-complete-recovery.mjs …` — run the
   aggregate evidence, source-lineage, exact-bundle, and package-tree gate for
-  a recovery case; use the 2.1.92 → 2.1.94 manifest for the current tree and
+  a recovery case; use the 2.1.94 → 2.1.96 manifest for the current tree and
   see that case's runbook for its artifact arguments.
 
 The glibc source is committed as a **plain, unextracted source tree** (no Git LFS, no tarball —
