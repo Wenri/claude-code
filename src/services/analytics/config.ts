@@ -20,6 +20,7 @@ export function isAnalyticsDisabled(): boolean {
   return (
     process.env.NODE_ENV === 'test' ||
     isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK) ||
+    isEnvTruthy(process.env.CLAUDE_CODE_USE_MANTLE) ||
     isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX) ||
     isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY) ||
     isTelemetryDisabled()

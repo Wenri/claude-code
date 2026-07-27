@@ -1,0 +1,43 @@
+diff --git a/src/main.tsx b/src/main.tsx
+index 3748c59..dd86749 100644
+--- a/src/main.tsx
++++ b/src/main.tsx
+@@ -859,6 +859,7 @@ async function getInputPrompt(prompt: string, inputFormat: 'text' | 'stream-json
+   // Input hijacking breaks MCP.
+   !process.argv.includes('mcp')) {
+     if (inputFormat === 'stream-json') {
++      process.stdin.setEncoding('utf8');
+       return process.stdin;
+     }
+     process.stdin.setEncoding('utf8');
+diff --git a/src/utils/streamJsonStdoutGuard.ts b/src/utils/streamJsonStdoutGuard.ts
+index 0d3a56b..5f6e8c0 100644
+--- a/src/utils/streamJsonStdoutGuard.ts
++++ b/src/utils/streamJsonStdoutGuard.ts
+@@ -55,6 +55,7 @@ export function installStreamJsonStdoutGuard(): void {
+   originalWrite = process.stdout.write.bind(
+     process.stdout,
+   ) as typeof process.stdout.write
++  const decoder = new TextDecoder('utf-8')
+ 
+   process.stdout.write = function (
+     chunk: string | Uint8Array,
+@@ -62,7 +63,9 @@ export function installStreamJsonStdoutGuard(): void {
+     cb?: (err?: Error) => void,
+   ): boolean {
+     const text =
+-      typeof chunk === 'string' ? chunk : Buffer.from(chunk).toString('utf-8')
++      typeof chunk === 'string'
++        ? chunk
++        : decoder.decode(chunk, { stream: true })
+ 
+     buffer += text
+     let newlineIdx: number
+@@ -93,6 +96,7 @@ export function installStreamJsonStdoutGuard(): void {
+   registerCleanup(async () => {
+     // Flush any partial line left in the buffer at shutdown. If it's a JSON
+     // fragment it won't parse — divert it rather than drop it silently.
++    buffer += decoder.decode()
+     if (buffer.length > 0) {
+       if (originalWrite && isJsonLine(buffer)) {
+         originalWrite(buffer + '\n')

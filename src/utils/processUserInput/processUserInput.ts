@@ -39,6 +39,7 @@ import type { PastedContent } from '../config.js'
 import type { EffortValue } from '../effort.js'
 import { toArray } from '../generators.js'
 import {
+  applyHookSessionTitle,
   executeUserPromptSubmitHooks,
   getUserPromptSubmitHookBlockingMessage,
 } from '../hooks.js'
@@ -178,6 +179,7 @@ export async function processUserInput({
   // Execute UserPromptSubmit hooks and handle blocking
   queryCheckpoint('query_hooks_start')
   const inputMessage = getContentText(input) || ''
+  let hookSessionTitle: string | undefined
 
   for await (const hookResult of executeUserPromptSubmitHooks(
     inputMessage,
@@ -188,6 +190,10 @@ export async function processUserInput({
     // We only care about the result
     if (hookResult.message?.type === 'progress') {
       continue
+    }
+
+    if (hookResult.sessionTitle) {
+      hookSessionTitle = hookResult.sessionTitle
     }
 
     // Return only a system-level error message, erasing the original user input
@@ -260,6 +266,9 @@ export async function processUserInput({
           break
       }
     }
+  }
+  if (hookSessionTitle) {
+    await applyHookSessionTitle(hookSessionTitle)
   }
   queryCheckpoint('query_hooks_end')
 

@@ -5,6 +5,7 @@ import { stopCapturingEarlyInput } from '../../utils/earlyInput.js';
 import { isEnvTruthy } from '../../utils/envUtils.js';
 import { isMouseClicksDisabled } from '../../utils/fullscreen.js';
 import { logError } from '../../utils/log.js';
+import { execFileNoThrow } from '../../utils/execFileNoThrow.js';
 import { EventEmitter } from '../events/emitter.js';
 import { InputEvent } from '../events/input-event.js';
 import { TerminalFocusEvent } from '../events/terminal-focus-event.js';
@@ -251,10 +252,21 @@ export default class App extends PureComponent<Props, State> {
         // init sequence completes — avoids interleaving with alt-screen/mouse
         // tracking enable writes that may happen in the same render cycle.
         setImmediate(() => {
-          void Promise.all([this.querier.send(xtversion()), this.querier.flush()]).then(([r]) => {
+          void Promise.all([this.querier.send(xtversion()), this.querier.flush()]).then(async ([r]) => {
             if (r) {
-              setXtversionName(r.name);
-              logForDebugging(`XTVERSION: terminal identified as "${r.name}"`);
+              let name = r.name;
+              if (process.env.TMUX && name.startsWith('tmux ')) {
+                const {
+                  stdout,
+                } = await execFileNoThrow('tmux', ['display-message', '-p', '#{client_termtype}'], {
+                  timeout: 1000,
+                  useCwd: false,
+                });
+                const clientTermtype = stdout.trim();
+                if (clientTermtype) name = clientTermtype;
+              }
+              setXtversionName(name);
+              logForDebugging(`XTVERSION: terminal identified as "${name}"`);
             } else {
               logForDebugging('XTVERSION: no reply (terminal ignored query)');
             }

@@ -97,6 +97,8 @@ function reconstructFixture({
   declarationInsertion,
   addedMember = false,
   addedPayloadRecipe = 'valid',
+  changedMember = false,
+  changedPayloadRecipe = 'valid',
   packageJsonInsertion = null,
   packageJsonAssertionAnchor,
   packageJsonDuplicateAnchor = false,
@@ -147,6 +149,22 @@ function reconstructFixture({
         'latin1',
       ),
     }
+    const changedBaselineEntry = {
+      path: 'package/vendor/ripgrep/x64-linux/rg',
+      mode: 0o644,
+      content: Buffer.from(
+        '\x7fELF baseline vendor binary\nwith binary bytes: \0\xff\n',
+        'latin1',
+      ),
+    }
+    const changedTargetEntry = {
+      path: changedBaselineEntry.path,
+      mode: 0o755,
+      content: Buffer.from(
+        '\x7fELF recovered vendor binary\nwith binary bytes: \0\xfe\n',
+        'latin1',
+      ),
+    }
     const baselineEntries = [
       {
         path: 'package/bin/tool',
@@ -169,6 +187,7 @@ function reconstructFixture({
         mode: 0o644,
         content: Buffer.from('unchanged\n'),
       },
+      ...(changedMember ? [changedBaselineEntry] : []),
     ]
     const targetEntries = [
       {
@@ -192,6 +211,7 @@ function reconstructFixture({
         mode: 0o644,
         content: Buffer.from('unchanged\n'),
       },
+      ...(changedMember ? [changedTargetEntry] : []),
       ...(addedMember ? [addedEntry] : []),
     ]
     const targetByPath = new Map(
@@ -274,6 +294,38 @@ function reconstructFixture({
         { stdio: 'pipe' },
       )
     }
+    const changedPayloadPath = 'recovered/changed-member.delta.zst'
+    const changedPayloadFile = path.join(caseRoot, changedPayloadPath)
+    if (changedMember) {
+      const changedBaselineFile = path.join(
+        temporary,
+        'changed-member-baseline',
+      )
+      const changedTargetFile = path.join(
+        temporary,
+        'changed-member-target',
+      )
+      const changedPatchTarget =
+        changedPayloadRecipe === 'wrong-target'
+          ? Buffer.from(changedTargetEntry.content)
+          : changedTargetEntry.content
+      if (changedPayloadRecipe === 'wrong-target') {
+        changedPatchTarget[changedPatchTarget.length - 2] ^= 1
+      }
+      fs.writeFileSync(changedBaselineFile, changedBaselineEntry.content)
+      fs.writeFileSync(changedTargetFile, changedPatchTarget)
+      execFileSync(
+        'zstd',
+        [
+          `--patch-from=${changedBaselineFile}`,
+          changedTargetFile,
+          '-o',
+          changedPayloadFile,
+          '--force',
+        ],
+        { stdio: 'pipe' },
+      )
+    }
 
     const report = {
       artifacts: {
@@ -351,6 +403,54 @@ function reconstructFixture({
           ...evidence(fs.readFileSync(addedPayloadFile)),
         }
       : null
+    const validChangedPayloadRecipe = {
+      member: changedBaselineEntry.path,
+      path: changedPayloadPath,
+      algorithm: 'zstd-dictionary-patch',
+    }
+    let changedMemberPayloads = []
+    if (changedMember) {
+      if (
+        changedPayloadRecipe === 'valid' ||
+        changedPayloadRecipe === 'wrong-target'
+      ) {
+        changedMemberPayloads = [validChangedPayloadRecipe]
+      } else if (changedPayloadRecipe === 'unsafe') {
+        changedMemberPayloads = [
+          {
+            ...validChangedPayloadRecipe,
+            path: '../outside-case.delta.zst',
+          },
+        ]
+      } else if (changedPayloadRecipe === 'duplicate') {
+        changedMemberPayloads = [
+          validChangedPayloadRecipe,
+          { ...validChangedPayloadRecipe },
+        ]
+      } else if (changedPayloadRecipe === 'extra') {
+        changedMemberPayloads = [
+          validChangedPayloadRecipe,
+          {
+            ...validChangedPayloadRecipe,
+            member: 'package/stable.txt',
+          },
+        ]
+      } else if (changedPayloadRecipe !== 'missing') {
+        throw new Error(
+          `Unknown changed payload recipe: ${changedPayloadRecipe}`,
+        )
+      }
+    }
+    const changedPayloadAssertionPath =
+      changedPayloadRecipe === 'unsafe'
+        ? '../outside-case.delta.zst'
+        : changedPayloadPath
+    const changedPayloadAssertion = changedMember
+      ? {
+          path: changedPayloadAssertionPath,
+          ...evidence(fs.readFileSync(changedPayloadFile)),
+        }
+      : null
     const manifest = {
       artifacts: [
         {
@@ -371,6 +471,7 @@ function reconstructFixture({
           report: 'package-members.json',
           targetFramedTreeSha256: framedTreeSha256(members),
           addedMemberPayloads,
+          changedMemberPayloads,
         },
         exactBundleDelta: {
           path: 'recovered/cli.delta.zst',
@@ -385,6 +486,7 @@ function reconstructFixture({
             ...evidence(fs.readFileSync(deltaFile)),
           },
           ...(addedPayloadAssertion ? [addedPayloadAssertion] : []),
+          ...(changedPayloadAssertion ? [changedPayloadAssertion] : []),
         ],
       },
     }
@@ -501,6 +603,74 @@ test('rejects duplicate added-member payload recipes', () => {
     addedPayloadRecipe: 'duplicate',
     expectedError:
       /Duplicate added-member payload: package\/vendor\/seccomp\/x64\/apply-seccomp/,
+  })
+})
+
+test('reconstructs a changed regular file from an exact dictionary patch', () => {
+  reconstructFixture({
+    baselineVersion: '2.1.92',
+    targetVersion: '2.1.94',
+    declarationInsertion: null,
+    changedMember: true,
+  })
+})
+
+test('rejects a changed member without an exact payload recipe', () => {
+  reconstructFixture({
+    baselineVersion: '2.1.92',
+    targetVersion: '2.1.94',
+    declarationInsertion: null,
+    changedMember: true,
+    changedPayloadRecipe: 'missing',
+    expectedError:
+      /package\/vendor\/ripgrep\/x64-linux\/rg: no exact reconstruction recipe for changed/,
+  })
+})
+
+test('rejects an unsafe changed-member payload path', () => {
+  reconstructFixture({
+    baselineVersion: '2.1.92',
+    targetVersion: '2.1.94',
+    declarationInsertion: null,
+    changedMember: true,
+    changedPayloadRecipe: 'unsafe',
+    expectedError:
+      /changed-member payload: unsafe relative path \.\.\/outside-case\.delta\.zst/,
+  })
+})
+
+test('rejects duplicate changed-member payload recipes', () => {
+  reconstructFixture({
+    baselineVersion: '2.1.92',
+    targetVersion: '2.1.94',
+    declarationInsertion: null,
+    changedMember: true,
+    changedPayloadRecipe: 'duplicate',
+    expectedError:
+      /Duplicate changed-member payload: package\/vendor\/ripgrep\/x64-linux\/rg/,
+  })
+})
+
+test('rejects an unused changed-member payload recipe', () => {
+  reconstructFixture({
+    baselineVersion: '2.1.92',
+    targetVersion: '2.1.94',
+    declarationInsertion: null,
+    changedMember: true,
+    changedPayloadRecipe: 'extra',
+    expectedError: /Unused changed-member payload: package\/stable\.txt/,
+  })
+})
+
+test('rejects a changed-member patch that reconstructs the wrong bytes', () => {
+  reconstructFixture({
+    baselineVersion: '2.1.92',
+    targetVersion: '2.1.94',
+    declarationInsertion: null,
+    changedMember: true,
+    changedPayloadRecipe: 'wrong-target',
+    expectedError:
+      /reconstructed dictionary patch SHA-256: expected [0-9a-f]+, got [0-9a-f]+/,
   })
 })
 

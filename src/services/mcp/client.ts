@@ -88,6 +88,10 @@ import {
 } from '../../utils/mcpValidation.js'
 import { WebSocketTransport } from '../../utils/mcpWebSocketTransport.js'
 import { memoizeWithLRU } from '../../utils/memoize.js'
+import {
+  getSlackSendToolOverrides,
+  isSlackSendTool,
+} from './slackToolRendering.js'
 import { getWebSocketTLSOptions } from '../../utils/mtls.js'
 import {
   getProxyFetchOptions,
@@ -2000,6 +2004,9 @@ export const fetchToolsForClient = memoizeWithLRU(
             (client.config.type === 'stdio' || !client.config.type) &&
             isComputerUseMCPServer!(client.name)
               ? computerUseWrapper!().getComputerUseMCPToolOverrides(tool.name)
+              : {}),
+            ...(isSlackSendTool(tool.name)
+              ? getSlackSendToolOverrides()
               : {}),
           }
         })

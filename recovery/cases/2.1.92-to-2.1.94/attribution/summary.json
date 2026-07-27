@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "kind": "generated-source-ownership-and-attribution-inventory",
+  "offsetUnit": "utf16-code-units",
+  "claim": "Exhaustive generated-offset accounting with exact baseline source ownership; target source identities are evidence-ranked and unresolved where anchors are insufficient.",
+  "artifacts": {
+    "baselineBundle": {
+      "bytes": 13047043,
+      "sha256": "75c9611929d9a770fe2e3a393219d8b98f5de17fde539b2a7355c6db3fd2795f"
+    },
+    "baselineSourceMap": {
+      "bytes": 59766257,
+      "sha256": "7965012b7a5fc9e09d8d747a04c5c32b94696924536e217f686bb1e7ee70a657"
+    },
+    "targetBundle": {
+      "bytes": 13308322,
+      "sha256": "11fa0f142edee45aa24ad60b071345847da6c8b2372d338037fe8c4fd4469564"
+    }
+  },
+  "options": {
+    "minimumLiteralLength": 8
+  },
+  "baselineOwnership": {
+    "sourceCount": 4756,
+    "sourceKinds": {
+      "application": 1902,
+      "nodeModules": 2850,
+      "vendor": 4
+    },
+    "mappedSegmentCount": 2068722,
+    "contiguousRunCount": 4756,
+    "eachSourceHasExactlyOneContiguousRun": true,
+    "generatedHeaderUtf16": 2230
+  },
+  "literalEvidence": {
+    "uniqueCommonAnchorCount": 43739,
+    "monotoneAnchorCount": 42858,
+    "nonMonotoneAnchorCount": 881,
+    "monotoneFraction": 0.9798577928164796,
+    "partitionCount": 42859,
+    "tokenCountDelta": 77452,
+    "utf16LengthDelta": 260559,
+    "locatedSourceCount": 2614,
+    "locatedApplicationSourceCount": 1307,
+    "splitTargetClusterSourceCount": 8
+  },
+  "initializerEvidence": {
+    "baseline": {
+      "wrapperNames": {
+        "common": "m",
+        "initializer": "y"
+      },
+      "count": 4527
+    },
+    "target": {
+      "wrapperNames": {
+        "common": "p",
+        "initializer": "L"
+      },
+      "count": 4584,
+      "statuses": {
+        "unresolved-no-unique-literal": 2058,
+        "anchored-single-baseline-unit": 2504,
+        "anchored-multiple-baseline-units": 22
+      }
+    },
+    "targetNetCountDelta": 57
+  },
+  "coverage": {
+    "partitionCount": 42859,
+    "targetPartitionUtf16": 10854372,
+    "exactAnchorCount": 42858,
+    "exactAnchorTargetUtf16": 2389515,
+    "exactGeneratedPartitionCount": 22055,
+    "exactGeneratedTargetUtf16": 546834,
+    "changedHighConfidencePartitionCount": 18234,
+    "changedHighConfidenceTargetUtf16": 5248798,
+    "changedCandidatePartitionCount": 2564,
+    "changedCandidateTargetUtf16": 5056844,
+    "unresolvedPartitionCount": 6,
+    "unresolvedTargetUtf16": 1896,
+    "accountedTargetUtf16": 13243887,
+    "targetUtf16": 13243887,
+    "unaccountedTargetUtf16": 0
+  },
+  "releaseEvidence": {
+    "targetPackage": {
+      "bytes": 1370,
+      "sha256": "9fe686f624114c3837e0b8d65f132dd202b584e8742796365e5e4d3fc40b1736",
+      "name": "@anthropic-ai/claude-code",
+      "version": "2.1.94"
+    },
+    "targetDeclarations": {
+      "bytes": 117138,
+      "sha256": "d54800cb26dbfc3e15d0ab034ef9c77e340fb7ec76270a167f39245f7155c4b4"
+    },
+    "officialChangelog": {
+      "bytes": 200582,
+      "sha256": "e91c85e981d6c60d7d8228e11b965a3e4aad88c1fb9d4e34ae05db9c096a4113",
+      "section": "2.1.94",
+      "bulletCount": 25,
+      "bullets": [
+        "Added support for Amazon Bedrock powered by Mantle, set `CLAUDE_CODE_USE_MANTLE=1`",
+        "Changed default effort level from medium to high for API-key, Bedrock/Vertex/Foundry, Team, and Enterprise users (control this with `/effort`)",
+        "Added compact `Slacked #channel` header with a clickable channel link for Slack MCP send-message tool calls",
+        "Added `keep-coding-instructions` frontmatter field support for plugin output styles",
+        "Added `hookSpecificOutput.sessionTitle` to `UserPromptSubmit` hooks for setting the session title",
+        "Plugin skills declared via `\"skills\": [\"./\"]` now use the skill's frontmatter `name` for the invocation name instead of the directory basename, giving a stable name across install methods",
+        "Fixed agents appearing stuck after a 429 rate-limit response with a long Retry-After header — the error now surfaces immediately instead of silently waiting",
+        "Fixed Console login on macOS silently failing with \"Not logged in\" when the login keychain is locked or its password is out of sync — the error is now surfaced and `claude doctor` diagnoses the fix",
+        "Fixed plugin skill hooks defined in YAML frontmatter being silently ignored",
+        "Fixed plugin hooks failing with \"No such file or directory\" when `CLAUDE_PLUGIN_ROOT` was not set",
+        "Fixed `${CLAUDE_PLUGIN_ROOT}` resolving to the marketplace source directory instead of the installed cache for local-marketplace plugins on startup",
+        "Fixed scrollback showing the same diff repeated and blank pages in long-running sessions",
+        "Fixed multiline user prompts in the transcript indenting wrapped lines under the `❯` caret instead of under the text",
+        "Fixed Shift+Space inserting the literal word \"space\" instead of a space character in search inputs",
+        "Fixed hyperlinks opening two browser tabs when clicked inside tmux running in an xterm.js-based terminal (VS Code, Hyper, Tabby)",
+        "Fixed an alt-screen rendering bug where content height changes mid-scroll could leave compounding ghost lines",
+        "Fixed `FORCE_HYPERLINK` environment variable being ignored when set via `settings.json` `env`",
+        "Fixed native terminal cursor not tracking the selected tab in dialogs, so screen readers and magnifiers can follow tab navigation",
+        "Fixed Bedrock invocation of Sonnet 3.5 v2 by using the `us.` inference profile ID",
+        "Fixed SDK/print mode not preserving the partial assistant response in conversation history when interrupted mid-stream",
+        "Improved `--resume` to resume sessions from other worktrees of the same repo directly instead of printing a `cd` command",
+        "Fixed CJK and other multibyte text being corrupted with U+FFFD in stream-json input/output when chunk boundaries split a UTF-8 sequence",
+        "[VSCode] Reduced cold-open subprocess work on starting a session",
+        "[VSCode] Fixed dropdown menus selecting the wrong item when the mouse was over the list while typing or using arrow keys",
+        "[VSCode] Added a warning banner when `settings.json` files fail to parse, so users know their permission rules are not being applied"
+      ]
+    }
+  },
+  "reportFiles": {
+    "sources": {
+      "path": "sources.jsonl.gz",
+      "bytes": 492520,
+      "sha256": "a06de0a788cf39cc5fe2b6d940209da75a220ce21566420820a8a5dcb48b3d42"
+    },
+    "targetInitializers": {
+      "path": "target-initializers.jsonl.gz",
+      "bytes": 110966,
+      "sha256": "fea729b155ca6c264d1af328a379de11ceb8e2d2893b57d1d06ee94a9b545c23"
+    },
+    "targetPartitions": {
+      "path": "target-partitions.jsonl.gz",
+      "bytes": 4166626,
+      "sha256": "e0edafe48d496d436e846e0c4c153b3baf699867cccebbd9400eb23e9bd4d8ff"
+    }
+  },
+  "limitations": [
+    "Exact source ownership exists only for the baseline source map.",
+    "Initializer regions are delimited by successive Bun wrapper-expression starts; they are generated units, not asserted one-to-one source modules.",
+    "A target initializer with no unique long literal is unresolved, not automatically target-only.",
+    "Candidate ranges can include moved code; non-monotone literal owners are reported separately.",
+    "Raw-different partitions include harmless minifier-name churn as well as semantic changes.",
+    "No target source text is claimed reconstructed by this inventory."
+  ]
+}

@@ -79,6 +79,10 @@ export const syncHookResponseSchema = lazySchema(() =>
         z.object({
           hookEventName: z.literal('UserPromptSubmit'),
           additionalContext: z.string().optional(),
+          sessionTitle: z
+            .string()
+            .describe('Set the session title (same effect as /rename)')
+            .optional(),
         }),
         z.object({
           hookEventName: z.literal('SessionStart'),
@@ -267,6 +271,7 @@ export type HookResult = {
   permissionBehavior?: 'ask' | 'deny' | 'allow' | 'passthrough'
   hookPermissionDecisionReason?: string
   additionalContext?: string
+  sessionTitle?: string
   initialUserMessage?: string
   updatedInput?: Record<string, unknown>
   updatedMCPToolOutput?: unknown
@@ -282,6 +287,7 @@ export type AggregatedHookResult = {
   hookPermissionDecisionReason?: string
   permissionBehavior?: PermissionResult['behavior']
   additionalContexts?: string[]
+  sessionTitle?: string
   initialUserMessage?: string
   updatedInput?: Record<string, unknown>
   updatedMCPToolOutput?: unknown

@@ -482,6 +482,25 @@ export const SDKControlGetSettingsRequestSchema = lazySchema(() =>
     ),
 )
 
+export const SettingsValidationErrorSchema = lazySchema(() =>
+  z
+    .object({
+      file: z
+        .string()
+        .optional()
+        .describe('Path to the settings file that failed to parse or validate.'),
+      path: z
+        .string()
+        .describe(
+          'Dot-notation path to the field with the error, or empty string for whole-file errors.',
+        ),
+      message: z.string().describe('Human-readable error message.'),
+    })
+    .describe(
+      'A settings file parse or validation error. When a settings.json file fails to parse (invalid JSON, JSON comments, schema mismatch), the file is skipped and any rules it contained — including permission allow/deny lists — are not applied.',
+    ),
+)
+
 export const SDKControlGetSettingsResponseSchema = lazySchema(() =>
   z
     .object({
@@ -512,6 +531,12 @@ export const SDKControlGetSettingsResponseSchema = lazySchema(() =>
         .optional()
         .describe(
           'Runtime-resolved values after env overrides, session state, and model-specific defaults are applied. Unlike `effective` (disk merge), these reflect what will actually be sent to the API.',
+        ),
+      errors: z
+        .array(SettingsValidationErrorSchema())
+        .optional()
+        .describe(
+          'Settings parse and validation errors. When non-empty, the listed files were skipped during the merge above — their settings are not reflected in `effective` or `sources`.',
         ),
     })
     .describe(

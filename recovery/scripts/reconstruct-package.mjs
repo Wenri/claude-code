@@ -149,7 +149,13 @@ function exactDeclarations(baseline, assertion) {
   return Buffer.from(text.slice(0, offset) + assertion.text + text.slice(offset))
 }
 
-function reconstructBundle(baseline, delta, output, expected) {
+function reconstructPatchedPayload(
+  baseline,
+  delta,
+  output,
+  expected,
+  label,
+) {
   const baselineFile = `${output}.baseline`
   fs.writeFileSync(baselineFile, baseline, { flag: 'wx' })
   try {
@@ -168,13 +174,24 @@ function reconstructBundle(baseline, delta, output, expected) {
     if (result.error) throw result.error
     if (result.status !== 0) {
       throw new Error(
-        `Zstandard reconstruction failed: ${result.stderr || result.stdout}`,
+        `${label}: Zstandard reconstruction failed: ` +
+          `${result.stderr || result.stdout}`,
       )
     }
-    return verifiedFile(output, expected, 'reconstructed cli.js')
+    return verifiedFile(output, expected, label)
   } finally {
     fs.rmSync(baselineFile, { force: true })
   }
+}
+
+function reconstructBundle(baseline, delta, output, expected) {
+  return reconstructPatchedPayload(
+    baseline,
+    delta,
+    output,
+    expected,
+    'reconstructed cli.js',
+  )
 }
 
 function reconstructCompressedPayload(payload, output, expected, label) {
@@ -232,6 +249,50 @@ function addedMemberPayloads(manifest, generated, caseRoot) {
       `${recipe.member} added-member payload`,
     )
     verifiedFile(filename, assertion, `${recipe.member} compressed payload`)
+    result.set(recipe.member, { filename })
+  }
+  return result
+}
+
+function changedMemberPayloads(generated, caseRoot) {
+  const recipes = generated.packageMembers.changedMemberPayloads ?? []
+  if (!Array.isArray(recipes)) {
+    throw new Error('packageMembers.changedMemberPayloads must be an array')
+  }
+  const result = new Map()
+  for (const [index, recipe] of recipes.entries()) {
+    if (
+      !recipe ||
+      typeof recipe !== 'object' ||
+      Array.isArray(recipe) ||
+      typeof recipe.member !== 'string' ||
+      typeof recipe.path !== 'string'
+    ) {
+      throw new Error(`Changed-member payload ${index + 1} is invalid`)
+    }
+    if (recipe.algorithm !== 'zstd-dictionary-patch') {
+      throw new Error(
+        `${recipe.member}: unsupported changed-member payload algorithm ` +
+          `${String(recipe.algorithm)}`,
+      )
+    }
+    if (result.has(recipe.member)) {
+      throw new Error(`Duplicate changed-member payload: ${recipe.member}`)
+    }
+    const assertion = generated.fileAssertions.find(
+      item => item.path === recipe.path,
+    )
+    if (!assertion) {
+      throw new Error(
+        `${recipe.member}: changed-member payload has no file assertion`,
+      )
+    }
+    const filename = safeRelative(
+      caseRoot,
+      recipe.path,
+      `${recipe.member} changed-member payload`,
+    )
+    verifiedFile(filename, assertion, `${recipe.member} dictionary patch`)
     result.set(recipe.member, { filename })
   }
   return result
@@ -339,6 +400,7 @@ function main() {
     generated,
     caseRoot,
   )
+  const changedPayloads = changedMemberPayloads(generated, caseRoot)
 
   const temporary = fs.mkdtempSync(
     path.join(parent, '.claude-code-package-recovery-'),
@@ -412,9 +474,21 @@ function main() {
         )
         addedPayloads.delete(member.path)
       } else {
-        throw new Error(
-          `${member.path}: no exact reconstruction recipe for ${member.status}`,
+        const payload = changedPayloads.get(member.path)
+        if (!payload) {
+          throw new Error(
+            `${member.path}: no exact reconstruction recipe for ` +
+              `${member.status}`,
+          )
+        }
+        value = reconstructPatchedPayload(
+          baseline,
+          payload.filename,
+          filename,
+          member.target,
+          `${member.path} reconstructed dictionary patch`,
         )
+        changedPayloads.delete(member.path)
       }
 
       assertEqual(value.length, member.target.bytes, `${member.path} bytes`)
@@ -437,6 +511,13 @@ function main() {
       }
       const mode = Number.parseInt(member.target.mode, 8)
       fs.chmodSync(filename, mode)
+      assertEqual(
+        (fs.statSync(filename).mode & 0o7777)
+          .toString(8)
+          .padStart(4, '0'),
+        member.target.mode,
+        `${member.path} mode`,
+      )
       treeHash
         .update(member.path)
         .update('\0')
@@ -450,6 +531,12 @@ function main() {
     if (addedPayloads.size > 0) {
       throw new Error(
         `Unused added-member payload: ${addedPayloads.keys().next().value}`,
+      )
+    }
+    if (changedPayloads.size > 0) {
+      throw new Error(
+        `Unused changed-member payload: ` +
+          `${changedPayloads.keys().next().value}`,
       )
     }
     assertEqual(

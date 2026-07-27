@@ -96,6 +96,7 @@ function shouldRetry529(querySource: QuerySource | undefined): boolean {
 const PERSISTENT_MAX_BACKOFF_MS = 5 * 60 * 1000
 const PERSISTENT_RESET_CAP_MS = 6 * 60 * 60 * 1000
 const HEARTBEAT_INTERVAL_MS = 30_000
+const MAX_RETRY_AFTER_MS = 60_000
 
 function isPersistentRetryEnabled(): boolean {
   return feature('UNATTENDED_RETRY')
@@ -460,6 +461,15 @@ export async function* withRetry<T>(
         )
       } else {
         delayMs = getRetryDelay(attempt, retryAfter)
+      }
+
+      if (!persistent && delayMs > MAX_RETRY_AFTER_MS) {
+        logEvent('tengu_api_retry_after_too_long', {
+          delayMs,
+          status: (error as APIError).status,
+          provider: getAPIProviderForStatsig(),
+        })
+        throw new CannotRetryError(error, retryContext)
       }
 
       // In persistent mode the for-loop `attempt` is clamped at maxRetries+1;

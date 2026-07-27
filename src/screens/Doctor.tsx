@@ -163,7 +163,9 @@ export function Doctor(t0) {
   let t6;
   if ($[6] !== agentDefinitions || $[7] !== toolPermissionContext || $[8] !== tools) {
     t5 = () => {
-      getDoctorDiagnostic().then(setDiagnostic);
+      getDoctorDiagnostic({
+        probeKeychain: true
+      }).then(setDiagnostic);
       (async () => {
         const userAgentsDir = join(getClaudeConfigHomeDir(), "agents");
         const projectAgentsDir = join(getOriginalCwd(), ".claude", "agents");

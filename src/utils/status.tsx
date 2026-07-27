@@ -11,7 +11,7 @@ import { getDisplayPath } from './file.js';
 import { formatNumber } from './format.js';
 import { getIdeClientName, type IDEExtensionInstallationStatus, isJetBrainsIde, toIDEDisplayName } from './ide.js';
 import { getClaudeAiUserDefaultModelDescription, modelDisplayString } from './model/model.js';
-import { getAPIProvider } from './model/providers.js';
+import { getAPIProvider, getSecondaryAPIProvider } from './model/providers.js';
 import { getMTLSConfig } from './mtls.js';
 import { checkInstall } from './nativeInstaller/index.js';
 import { getProxyUrl } from './proxy.js';
@@ -239,16 +239,18 @@ export function buildAccountProperties(): Property[] {
 }
 export function buildAPIProviderProperties(): Property[] {
   const apiProvider = getAPIProvider();
+  const secondaryAPIProvider = getSecondaryAPIProvider();
   const properties: Property[] = [];
   if (apiProvider !== 'firstParty') {
     const providerLabel = {
-      bedrock: 'AWS Bedrock',
+      bedrock: 'Amazon Bedrock',
+      mantle: 'Amazon Bedrock (Mantle)',
       vertex: 'Google Vertex AI',
       foundry: 'Microsoft Foundry'
     }[apiProvider];
     properties.push({
       label: 'API provider',
-      value: providerLabel
+      value: secondaryAPIProvider === 'mantle' ? `${providerLabel} + Amazon Bedrock (Mantle)` : providerLabel
     });
   }
   if (apiProvider === 'firstParty') {
@@ -318,6 +320,26 @@ export function buildAPIProviderProperties(): Property[] {
     if (isEnvTruthy(process.env.CLAUDE_CODE_SKIP_FOUNDRY_AUTH)) {
       properties.push({
         value: 'Microsoft Foundry auth skipped'
+      });
+    }
+  }
+  if (apiProvider === 'mantle' || secondaryAPIProvider === 'mantle') {
+    const mantleBaseUrl = process.env.ANTHROPIC_BEDROCK_MANTLE_BASE_URL;
+    if (mantleBaseUrl) {
+      properties.push({
+        label: 'Amazon Bedrock (Mantle) base URL',
+        value: mantleBaseUrl
+      });
+    }
+    if (apiProvider === 'mantle') {
+      properties.push({
+        label: 'AWS region',
+        value: getAWSRegion()
+      });
+    }
+    if (isEnvTruthy(process.env.CLAUDE_CODE_SKIP_MANTLE_AUTH)) {
+      properties.push({
+        value: 'Amazon Bedrock (Mantle) auth skipped'
       });
     }
   }

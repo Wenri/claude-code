@@ -14,6 +14,7 @@ import { getUserAgent } from 'src/utils/http.js'
 import { getSmallFastModel } from 'src/utils/model/model.js'
 import {
   getAPIProvider,
+  getAPIProviderForModel,
   isFirstPartyAnthropicBaseUrl,
 } from 'src/utils/model/providers.js'
 import { getProxyFetchOptions } from 'src/utils/proxy.js'
@@ -150,7 +151,8 @@ export async function getAnthropicClient({
       fetch: resolvedFetch,
     }),
   }
-  if (isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK)) {
+  const apiProvider = getAPIProviderForModel(model)
+  if (apiProvider === 'bedrock') {
     const { AnthropicBedrock } = await import('@anthropic-ai/bedrock-sdk')
     // Use region override for small fast model if specified
     const awsRegion =
@@ -188,7 +190,30 @@ export async function getAnthropicClient({
     // we have always been lying about the return type - this doesn't support batching or models
     return new AnthropicBedrock(bedrockArgs) as unknown as Anthropic
   }
-  if (isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY)) {
+  if (apiProvider === 'mantle') {
+    const { AnthropicBedrockMantle } = await import(
+      '@anthropic-ai/bedrock-sdk'
+    )
+    const skipAuth = isEnvTruthy(
+      process.env.CLAUDE_CODE_SKIP_MANTLE_AUTH,
+    )
+    const cachedCredentials =
+      !process.env.AWS_BEARER_TOKEN_BEDROCK && !skipAuth
+        ? await refreshAndGetAwsCredentials()
+        : null
+    return new AnthropicBedrockMantle({
+      ...ARGS,
+      awsRegion: getAWSRegion(),
+      ...(skipAuth && { skipAuth: true }),
+      ...(cachedCredentials && {
+        awsAccessKey: cachedCredentials.accessKeyId,
+        awsSecretAccessKey: cachedCredentials.secretAccessKey,
+        awsSessionToken: cachedCredentials.sessionToken,
+      }),
+      ...(isDebugToStdErr() && { logger: createStderrLogger() }),
+    }) as unknown as Anthropic
+  }
+  if (apiProvider === 'foundry') {
     const { AnthropicFoundry } = await import('@anthropic-ai/foundry-sdk')
     // Determine Azure AD token provider based on configuration
     // SDK reads ANTHROPIC_FOUNDRY_API_KEY by default
@@ -218,7 +243,7 @@ export async function getAnthropicClient({
     // we have always been lying about the return type - this doesn't support batching or models
     return new AnthropicFoundry(foundryArgs) as unknown as Anthropic
   }
-  if (isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX)) {
+  if (apiProvider === 'vertex') {
     // Refresh GCP credentials if gcpAuthRefresh is configured and credentials are expired
     // This is similar to how we handle AWS credential refresh for Bedrock
     if (!isEnvTruthy(process.env.CLAUDE_CODE_SKIP_VERTEX_AUTH)) {

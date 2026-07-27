@@ -4,6 +4,7 @@ import { useIsInsideModal, useModalScrollRef } from '../../context/modalContext.
 import { useTerminalSize } from '../../hooks/useTerminalSize.js';
 import ScrollBox from '../../ink/components/ScrollBox.js';
 import type { KeyboardEvent } from '../../ink/events/keyboard-event.js';
+import { useDeclaredCursor } from '../../ink/hooks/use-declared-cursor.js';
 import { stringWidth } from '../../ink/stringWidth.js';
 import { Box, Text } from '../../ink.js';
 import { useKeybindings } from '../../keybindings/useKeybinding.js';
@@ -200,10 +201,9 @@ export function Tabs(t0) {
   const t13 = true;
   const t14 = modalScrollRef ? 0 : undefined;
   const t15 = !hidden && <Box flexDirection="row" gap={1} flexShrink={modalScrollRef ? 0 : undefined}>{title !== undefined && <Text bold={true} color={color}>{title}</Text>}{tabs.map((t16, i) => {
-      const [id, title_0] = t16;
-      const isCurrent = selectedTabIndex === i;
-      const hasColorCursor = color && isCurrent && headerFocused;
-      return <Text key={id} backgroundColor={hasColorCursor ? color : undefined} color={hasColorCursor ? "inverseText" : undefined} inverse={isCurrent && !hasColorCursor} bold={isCurrent}>{" "}{title_0}{" "}</Text>;
+    const [id, title_0] = t16;
+    const isCurrent = selectedTabIndex === i;
+    return <TabHeader key={id} title={title_0} isCurrent={isCurrent} headerFocused={headerFocused} color={color} />;
     })}{spacerWidth > 0 && <Text>{" ".repeat(spacerWidth)}</Text>}</Box>;
   let t17;
   if ($[11] !== children || $[12] !== contentHeight || $[13] !== contentWidth || $[14] !== hidden || $[15] !== modalScrollRef || $[16] !== selectedTabIndex) {
@@ -252,6 +252,26 @@ function _temp2(n) {
 }
 function _temp(child) {
   return [child.props.id ?? child.props.title, child.props.title];
+}
+type TabHeaderProps = {
+  title: string;
+  isCurrent: boolean;
+  headerFocused: boolean;
+  color: keyof Theme | undefined;
+};
+function TabHeader({
+  title,
+  isCurrent,
+  headerFocused,
+  color
+}: TabHeaderProps): React.ReactNode {
+  const cursorRef = useDeclaredCursor({
+    line: 0,
+    column: 1,
+    active: isCurrent && headerFocused
+  });
+  const hasColorCursor = color && isCurrent && headerFocused;
+  return <Box ref={cursorRef}><Text backgroundColor={hasColorCursor ? color : undefined} color={hasColorCursor ? "inverseText" : undefined} inverse={isCurrent && !hasColorCursor} bold={isCurrent}>{" "}{title}{" "}</Text></Box>;
 }
 type TabProps = {
   title: string;

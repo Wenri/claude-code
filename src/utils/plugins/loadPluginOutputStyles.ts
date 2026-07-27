@@ -5,6 +5,7 @@ import { getPluginErrorMessage } from '../../types/plugin.js'
 import { logForDebugging } from '../debug.js'
 import {
   coerceDescriptionToString,
+  parseBooleanFrontmatter,
   parseFrontmatter,
 } from '../frontmatterParser.js'
 import { getFsImplementation, isDuplicatePath } from '../fsOperations.js'
@@ -60,14 +61,12 @@ async function loadOutputStyleFromFile(
         `Output style from ${pluginName} plugin`,
       )
 
-    // Parse forceForPlugin flag (supports both boolean and string values)
-    const forceRaw = frontmatter['force-for-plugin']
-    const forceForPlugin =
-      forceRaw === true || forceRaw === 'true'
-        ? true
-        : forceRaw === false || forceRaw === 'false'
-          ? false
-          : undefined
+    const forceForPlugin = parseBooleanFrontmatter(
+      frontmatter['force-for-plugin'],
+    )
+    const keepCodingInstructions = parseBooleanFrontmatter(
+      frontmatter['keep-coding-instructions'],
+    )
 
     return {
       name,
@@ -75,6 +74,7 @@ async function loadOutputStyleFromFile(
       prompt: markdownContent.trim(),
       source: 'plugin',
       forceForPlugin,
+      keepCodingInstructions,
     }
   } catch (error) {
     logForDebugging(`Failed to load output style from ${filePath}: ${error}`, {

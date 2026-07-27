@@ -22,6 +22,7 @@ import type { Stream } from '@anthropic-ai/sdk/streaming.mjs'
 import { randomUUID } from 'crypto'
 import {
   getAPIProvider,
+  getAPIProviderForModel,
   isFirstPartyAnthropicBaseUrl,
 } from 'src/utils/model/providers.js'
 import {
@@ -1548,7 +1549,7 @@ async function* queryModel(
 
     // For Bedrock, include both model-based betas and dynamically-added tool search header
     const bedrockBetas =
-      getAPIProvider() === 'bedrock'
+      getAPIProviderForModel(retryContext.model) === 'bedrock'
         ? [
             ...getBedrockExtraBodyParamsBetas(retryContext.model),
             ...(toolSearchHeader ? [toolSearchHeader] : []),
@@ -2436,6 +2437,29 @@ async function* queryModel(
         // If the signal is aborted, it's a user-initiated abort
         // If not, it's likely a timeout from the SDK
         if (signal.aborted) {
+          if (options.querySource === 'sdk') {
+            const contentBlock = contentBlocks[newMessages.length]
+            if (
+              contentBlock?.type === 'text' &&
+              contentBlock.text.trim() &&
+              partialMessage
+            ) {
+              yield {
+                message: {
+                  ...partialMessage,
+                  content: normalizeContentFromAPI(
+                    [contentBlock] as BetaContentBlock[],
+                    tools,
+                    options.agentId,
+                  ),
+                },
+                requestId: streamRequestId ?? undefined,
+                type: 'assistant',
+                uuid: randomUUID(),
+                timestamp: new Date().toISOString(),
+              }
+            }
+          }
           // This is a real user abort (ESC key was pressed)
           logForDebugging(
             `Streaming aborted by user: ${errorMessage(streamingError)}`,
