@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "kind": "generated-source-ownership-and-attribution-inventory",
+  "offsetUnit": "utf16-code-units",
+  "claim": "Exhaustive generated-offset accounting with exact baseline source ownership; target source identities are evidence-ranked and unresolved where anchors are insufficient.",
+  "artifacts": {
+    "baselineBundle": {
+      "bytes": 13047043,
+      "sha256": "75c9611929d9a770fe2e3a393219d8b98f5de17fde539b2a7355c6db3fd2795f"
+    },
+    "baselineSourceMap": {
+      "bytes": 59766257,
+      "sha256": "7965012b7a5fc9e09d8d747a04c5c32b94696924536e217f686bb1e7ee70a657"
+    },
+    "targetBundle": {
+      "bytes": 13567412,
+      "sha256": "ca80da60be80a380abfe27251d30f5697ae0b60852a5265b50f94d48062a3e39"
+    }
+  },
+  "options": {
+    "minimumLiteralLength": 8
+  },
+  "baselineOwnership": {
+    "sourceCount": 4756,
+    "sourceKinds": {
+      "application": 1902,
+      "nodeModules": 2850,
+      "vendor": 4
+    },
+    "mappedSegmentCount": 2068722,
+    "contiguousRunCount": 4756,
+    "eachSourceHasExactlyOneContiguousRun": true,
+    "generatedHeaderUtf16": 2230
+  },
+  "literalEvidence": {
+    "uniqueCommonAnchorCount": 43309,
+    "monotoneAnchorCount": 39864,
+    "nonMonotoneAnchorCount": 3445,
+    "monotoneFraction": 0.9204553326098501,
+    "partitionCount": 39865,
+    "tokenCountDelta": 128633,
+    "utf16LengthDelta": 518399,
+    "locatedSourceCount": 2599,
+    "locatedApplicationSourceCount": 1292,
+    "splitTargetClusterSourceCount": 11
+  },
+  "initializerEvidence": {
+    "baseline": {
+      "wrapperNames": {
+        "common": "m",
+        "initializer": "y"
+      },
+      "count": 4527
+    },
+    "target": {
+      "wrapperNames": {
+        "common": "B",
+        "initializer": "L"
+      },
+      "count": 4627,
+      "statuses": {
+        "unresolved-no-unique-literal": 2097,
+        "anchored-single-baseline-unit": 2483,
+        "anchored-multiple-baseline-units": 47
+      }
+    },
+    "targetNetCountDelta": 100
+  },
+  "coverage": {
+    "partitionCount": 39865,
+    "targetPartitionUtf16": 11288048,
+    "exactAnchorCount": 39864,
+    "exactAnchorTargetUtf16": 2213679,
+    "exactGeneratedPartitionCount": 19704,
+    "exactGeneratedTargetUtf16": 468877,
+    "changedHighConfidencePartitionCount": 17737,
+    "changedHighConfidenceTargetUtf16": 5129138,
+    "changedCandidatePartitionCount": 2418,
+    "changedCandidateTargetUtf16": 5688136,
+    "unresolvedPartitionCount": 6,
+    "unresolvedTargetUtf16": 1897,
+    "accountedTargetUtf16": 13501727,
+    "targetUtf16": 13501727,
+    "unaccountedTargetUtf16": 0
+  },
+  "releaseEvidence": {
+    "targetPackage": {
+      "bytes": 1371,
+      "sha256": "106ae47f9c512d342200edc3ef24dc93e26a61a75a4983118da8a73386cf6b0e",
+      "name": "@anthropic-ai/claude-code",
+      "version": "2.1.104"
+    },
+    "targetDeclarations": {
+      "bytes": 117378,
+      "sha256": "9cb15df6a2108f277401925acc55c2eb881f6bfe5ef6ad1fc737fa64b22ca8fe"
+    }
+  },
+  "reportFiles": {
+    "sources": {
+      "path": "sources.jsonl.gz",
+      "bytes": 490529,
+      "sha256": "cc259072a2c4edcc9ceab8133a070bc7fd70e61af01325c3c840808ea5e21a04"
+    },
+    "targetInitializers": {
+      "path": "target-initializers.jsonl.gz",
+      "bytes": 111989,
+      "sha256": "d2bb5f26742c3de93a6ce7d2ec505210f2c7fe7e50add8efab81f840d7dacf82"
+    },
+    "targetPartitions": {
+      "path": "target-partitions.jsonl.gz",
+      "bytes": 3911848,
+      "sha256": "d8c09f4ef9cf15a4a2be93087bc41f3bb4f903f190d2e788a94f58bce9ff6cc1"
+    }
+  },
+  "limitations": [
+    "Exact source ownership exists only for the baseline source map.",
+    "Initializer regions are delimited by successive Bun wrapper-expression starts; they are generated units, not asserted one-to-one source modules.",
+    "A target initializer with no unique long literal is unresolved, not automatically target-only.",
+    "Candidate ranges can include moved code; non-monotone literal owners are reported separately.",
+    "Raw-different partitions include harmless minifier-name churn as well as semantic changes.",
+    "No target source text is claimed reconstructed by this inventory."
+  ]
+}

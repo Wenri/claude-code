@@ -437,6 +437,56 @@ function getCustomHeaders(): Record<string, string> {
 
 export const CLIENT_REQUEST_ID_HEADER = 'x-client-request-id'
 
+export class StreamIdleTimeoutError extends Error {
+  readonly idleMs: number
+
+  constructor(idleMs: number) {
+    super(`stream idle: no bytes for ${idleMs}ms`)
+    this.name = 'StreamIdleTimeoutError'
+    this.idleMs = idleMs
+  }
+}
+
+function addStreamIdleTimeout(
+  body: ReadableStream<Uint8Array>,
+  idleMs: number,
+): ReadableStream<Uint8Array> {
+  let timeout: ReturnType<typeof setTimeout> | null = null
+
+  const clearIdleTimeout = () => {
+    if (timeout !== null) {
+      clearTimeout(timeout)
+      timeout = null
+    }
+  }
+
+  const resetIdleTimeout = (
+    controller: TransformStreamDefaultController<Uint8Array>,
+  ) => {
+    clearIdleTimeout()
+    timeout = setTimeout(() => {
+      timeout = null
+      try {
+        controller.error(new StreamIdleTimeoutError(idleMs))
+      } catch {
+        // The stream may already have closed between scheduling and firing.
+      }
+    }, idleMs)
+    timeout.unref?.()
+  }
+
+  return body.pipeThrough(
+    new TransformStream<Uint8Array, Uint8Array>({
+      start: resetIdleTimeout,
+      transform(chunk, controller) {
+        resetIdleTimeout(controller)
+        controller.enqueue(chunk)
+      },
+      flush: clearIdleTimeout,
+    }),
+  )
+}
+
 function buildFetch(
   fetchOverride: ClientOptions['fetch'],
   source: string | undefined,
@@ -445,15 +495,18 @@ function buildFetch(
   const inner = fetchOverride ?? globalThis.fetch
   // Only send to the first-party API — Bedrock/Vertex/Foundry don't log it
   // and unknown headers risk rejection by strict proxies (inc-4029 class).
-  const injectClientRequestId =
-    getAPIProvider() === 'firstParty' && isFirstPartyAnthropicBaseUrl()
-  return (input, init) => {
+  const provider = getAPIProvider()
+  const isFirstPartyRequest =
+    (provider === 'firstParty' && isFirstPartyAnthropicBaseUrl()) ||
+    ((provider as string) === 'anthropicAws' &&
+      !process.env.ANTHROPIC_AWS_BASE_URL)
+  return async (input, init) => {
     // eslint-disable-next-line eslint-plugin-n/no-unsupported-features/node-builtins
     const headers = new Headers(init?.headers)
     // Generate a client-side request ID so timeouts (which return no server
     // request ID) can still be correlated with server logs by the API team.
     // Callers that want to track the ID themselves can pre-set the header.
-    if (injectClientRequestId && !headers.has(CLIENT_REQUEST_ID_HEADER)) {
+    if (isFirstPartyRequest && !headers.has(CLIENT_REQUEST_ID_HEADER)) {
       headers.set(CLIENT_REQUEST_ID_HEADER, randomUUID())
     }
     try {
@@ -466,6 +519,23 @@ function buildFetch(
     } catch {
       // never let logging crash the fetch
     }
-    return inner(input, { ...init, headers })
+    const response = await inner(input, { ...init, headers })
+    if (
+      isFirstPartyRequest &&
+      response.body &&
+      response.headers.get('content-type')?.includes('text/event-stream')
+    ) {
+      const idleMs = Math.max(
+        parseInt(process.env.CLAUDE_STREAM_IDLE_TIMEOUT_MS || '', 10) || 90000,
+        15000,
+      )
+      const wrappedResponse = new Response(
+        addStreamIdleTimeout(response.body, idleMs),
+        response,
+      )
+      Object.defineProperty(wrappedResponse, 'url', { value: response.url })
+      return wrappedResponse
+    }
+    return response
   }
 }
