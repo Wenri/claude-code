@@ -186,6 +186,17 @@ function parseKey(keypress: ParsedKey): [Key, string] {
     key.shift = true
   }
 
+  if (
+    processedAsSpecialSequence &&
+    key.shift &&
+    !key.ctrl &&
+    input.length === 1 &&
+    input >= 'a' &&
+    input <= 'z'
+  ) {
+    input = input.toUpperCase()
+  }
+
   return [key, input]
 }
 

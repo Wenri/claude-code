@@ -52,12 +52,11 @@ export function getContextWindowForModel(
   model: string,
   betas?: string[],
 ): number {
-  // Allow override via environment variable (ant-only)
-  // This takes precedence over all other context window resolution, including 1M detection,
-  // so users can cap the effective context window for local decisions (auto-compact, etc.)
-  // while still using a 1M-capable endpoint.
+  // When compaction is disabled, allow callers to set the effective context
+  // window explicitly. This takes precedence over 1M-context detection.
   if (
-    process.env.USER_TYPE === 'ant' &&
+    (process.env.USER_TYPE === 'ant' ||
+      isEnvTruthy(process.env.DISABLE_COMPACT)) &&
     process.env.CLAUDE_CODE_MAX_CONTEXT_TOKENS
   ) {
     const override = parseInt(process.env.CLAUDE_CODE_MAX_CONTEXT_TOKENS, 10)

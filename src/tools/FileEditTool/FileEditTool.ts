@@ -22,6 +22,8 @@ import {
   FILE_NOT_FOUND_CWD_NOTE,
   findSimilarFile,
   getFileModificationTime,
+  isPerforceReadOnly,
+  PERFORCE_READ_ONLY_ERROR,
   suggestPathUnderCwd,
   writeTextContent,
 } from '../../utils/file.js'
@@ -184,13 +186,21 @@ export const FileEditTool = buildTool({
 
     // Prevent OOM on multi-GB files.
     try {
-      const { size } = await fs.stat(fullFilePath)
+      const { size, mode } = await fs.stat(fullFilePath)
       if (size > MAX_EDIT_FILE_SIZE) {
         return {
           result: false,
           behavior: 'ask',
           message: `File is too large to edit (${formatFileSize(size)}). Maximum editable file size is ${formatFileSize(MAX_EDIT_FILE_SIZE)}.`,
           errorCode: 10,
+        }
+      }
+      if (isPerforceReadOnly(mode)) {
+        return {
+          result: false,
+          behavior: 'ask',
+          message: PERFORCE_READ_ONLY_ERROR,
+          errorCode: 11,
         }
       }
     } catch (e) {

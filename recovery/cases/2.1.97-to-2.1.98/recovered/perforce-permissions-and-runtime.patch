@@ -1,0 +1,771 @@
+diff --git a/src/components/TokenWarning.tsx b/src/components/TokenWarning.tsx
+index 8a5c200..ce89326 100644
+--- a/src/components/TokenWarning.tsx
++++ b/src/components/TokenWarning.tsx
+@@ -6,6 +6,7 @@ import { Box, Text } from '../ink.js';
+ import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js';
+ import { calculateTokenWarningState, getEffectiveContextWindowSize, isAutoCompactEnabled } from '../services/compact/autoCompact.js';
+ import { useCompactWarningSuppression } from '../services/compact/compactWarningHook.js';
++import { isEnvTruthy } from '../utils/envUtils.js';
+ import { getUpgradeMessage } from '../utils/model/contextWindowUpgradeCheck.js';
+ type Props = {
+   tokenUsage: number;
+@@ -166,7 +167,7 @@ export function TokenWarning(t0) {
+   const autocompactLabel = reactiveOnlyMode ? `${100 - displayPercentLeft}% context used` : `${displayPercentLeft}% until auto-compact`;
+   let t4;
+   if ($[9] !== autocompactLabel || $[10] !== isAboveErrorThreshold || $[11] !== percentLeft) {
+-    t4 = <Box flexDirection="row">{showAutoCompactWarning ? <Text dimColor={true} wrap="truncate">{upgradeMessage ? `${autocompactLabel} \u00b7 ${upgradeMessage}` : autocompactLabel}</Text> : <Text color={isAboveErrorThreshold ? "error" : "warning"} wrap="truncate">{upgradeMessage ? `Context low (${percentLeft}% remaining) \u00b7 ${upgradeMessage}` : `Context low (${percentLeft}% remaining) \u00b7 Run /compact to compact & continue`}</Text>}</Box>;
++    t4 = <Box flexDirection="row">{showAutoCompactWarning ? <Text dimColor={true} wrap="truncate">{upgradeMessage ? `${autocompactLabel} \u00b7 ${upgradeMessage}` : autocompactLabel}</Text> : <Text color={isAboveErrorThreshold ? "error" : "warning"} wrap="truncate">{upgradeMessage ? `Context low (${percentLeft}% remaining) \u00b7 ${upgradeMessage}` : isEnvTruthy(process.env.DISABLE_COMPACT) ? `Context low (${percentLeft}% remaining)` : `Context low (${percentLeft}% remaining) \u00b7 Run /compact to compact & continue`}</Text>}</Box>;
+     $[9] = autocompactLabel;
+     $[10] = isAboveErrorThreshold;
+     $[11] = percentLeft;
+diff --git a/src/components/messages/AssistantTextMessage.tsx b/src/components/messages/AssistantTextMessage.tsx
+index 23302fd..4160829 100644
+--- a/src/components/messages/AssistantTextMessage.tsx
++++ b/src/components/messages/AssistantTextMessage.tsx
+@@ -6,6 +6,7 @@ import { isRateLimitErrorMessage } from 'src/services/rateLimitMessages.js';
+ import { BLACK_CIRCLE } from '../../constants/figures.js';
+ import { Box, NoSelect, Text } from '../../ink.js';
+ import { API_ERROR_MESSAGE_PREFIX, API_TIMEOUT_ERROR_MESSAGE, CREDIT_BALANCE_TOO_LOW_ERROR_MESSAGE, CUSTOM_OFF_SWITCH_MESSAGE, INVALID_API_KEY_ERROR_MESSAGE, INVALID_API_KEY_ERROR_MESSAGE_EXTERNAL, ORG_DISABLED_ERROR_MESSAGE_ENV_KEY, ORG_DISABLED_ERROR_MESSAGE_ENV_KEY_WITH_OAUTH, PROMPT_TOO_LONG_ERROR_MESSAGE, startsWithApiErrorPrefix, TOKEN_REVOKED_ERROR_MESSAGE } from '../../services/api/errors.js';
++import { isEnvTruthy } from '../../utils/envUtils.js';
+ import { isEmptyMessageText, NO_RESPONSE_REQUESTED } from '../../utils/messages.js';
+ import { getUpgradeMessage } from '../../utils/model/contextWindowUpgradeCheck.js';
+ import { getDefaultSonnetModel, renderModelName } from '../../utils/model/model.js';
+@@ -87,9 +88,10 @@ export function AssistantTextMessage(t0) {
+           t2 = $[3];
+         }
+         const upgradeHint = t2;
++        const compactHint = isEnvTruthy(process.env.DISABLE_COMPACT) ? "/clear to continue" : "/compact or /clear to continue";
+         let t3;
+         if ($[4] === Symbol.for("react.memo_cache_sentinel")) {
+-          t3 = <MessageResponse height={1}><Text color="error">Context limit reached · /compact or /clear to continue{upgradeHint ? ` · ${upgradeHint}` : ""}</Text></MessageResponse>;
++          t3 = <MessageResponse height={1}><Text color="error">Context limit reached · {compactHint}{upgradeHint ? ` · ${upgradeHint}` : ""}</Text></MessageResponse>;
+           $[4] = t3;
+         } else {
+           t3 = $[4];
+diff --git a/src/context.ts b/src/context.ts
+index 423414d..4dcd2ad 100644
+--- a/src/context.ts
++++ b/src/context.ts
+@@ -140,6 +140,10 @@ export const getSystemContext = memoize(
+ 
+     return {
+       ...(gitStatus && { gitStatus }),
++      ...(isEnvTruthy(process.env.CLAUDE_CODE_PERFORCE_MODE) && {
++        perforceMode:
++          'This is a Perforce workspace. Files not yet opened for edit are read-only; if a file is read-only, run `p4 edit <file>` via Bash to check it out before modifying. Files that are already writable have been opened and can be edited directly.',
++      }),
+       ...(feature('BREAK_CACHE_COMMAND') && injection
+         ? {
+             cacheBreaker: `[CACHE_BREAKER: ${injection}]`,
+diff --git a/src/ink/events/input-event.ts b/src/ink/events/input-event.ts
+index 4905028..8f6ee5d 100644
+--- a/src/ink/events/input-event.ts
++++ b/src/ink/events/input-event.ts
+@@ -186,6 +186,17 @@ function parseKey(keypress: ParsedKey): [Key, string] {
+     key.shift = true
+   }
+ 
++  if (
++    processedAsSpecialSequence &&
++    key.shift &&
++    !key.ctrl &&
++    input.length === 1 &&
++    input >= 'a' &&
++    input <= 'z'
++  ) {
++    input = input.toUpperCase()
++  }
++
+   return [key, input]
+ }
+ 
+diff --git a/src/services/lsp/LSPServerInstance.ts b/src/services/lsp/LSPServerInstance.ts
+index b5994a5..014b09c 100644
+--- a/src/services/lsp/LSPServerInstance.ts
++++ b/src/services/lsp/LSPServerInstance.ts
+@@ -166,6 +166,10 @@ export function createLSPServerInstance(
+ 
+       const initParams: InitializeParams = {
+         processId: process.pid,
++        clientInfo: {
++          name: 'Claude Code',
++          version: MACRO.VERSION,
++        },
+ 
+         // Pass server-specific initialization options from plugin config
+         // Required by vue-language-server, optional for others
+diff --git a/src/tools/BashTool/readOnlyValidation.ts b/src/tools/BashTool/readOnlyValidation.ts
+index 784222a..5dec35b 100644
+--- a/src/tools/BashTool/readOnlyValidation.ts
++++ b/src/tools/BashTool/readOnlyValidation.ts
+@@ -122,6 +122,112 @@ const FD_SAFE_FLAGS: Record<string, FlagArgType> = {
+   '--format': 'string',
+ }
+ 
++// grep, egrep, and fgrep are the same executable interface (the latter two
++// select a default regexp mode). Keep their flag policy shared so aliases
++// cannot drift into a less restrictive permission path.
++const GREP_SAFE_FLAGS: Record<string, FlagArgType> = {
++  // Pattern flags
++  '-e': 'string',
++  '--regexp': 'string',
++  '-f': 'string',
++  '--file': 'string',
++  '-F': 'none',
++  '--fixed-strings': 'none',
++  '-G': 'none',
++  '--basic-regexp': 'none',
++  '-E': 'none',
++  '--extended-regexp': 'none',
++  '-P': 'none',
++  '--perl-regexp': 'none',
++
++  // Matching control
++  '-i': 'none',
++  '--ignore-case': 'none',
++  '--no-ignore-case': 'none',
++  '-v': 'none',
++  '--invert-match': 'none',
++  '-w': 'none',
++  '--word-regexp': 'none',
++  '-x': 'none',
++  '--line-regexp': 'none',
++
++  // Output control
++  '-c': 'none',
++  '--count': 'none',
++  '--color': 'string',
++  '--colour': 'string',
++  '-L': 'none',
++  '--files-without-match': 'none',
++  '-l': 'none',
++  '--files-with-matches': 'none',
++  '-m': 'number',
++  '--max-count': 'number',
++  '-o': 'none',
++  '--only-matching': 'none',
++  '-q': 'none',
++  '--quiet': 'none',
++  '--silent': 'none',
++  '-s': 'none',
++  '--no-messages': 'none',
++
++  // Output line prefix
++  '-b': 'none',
++  '--byte-offset': 'none',
++  '-H': 'none',
++  '--with-filename': 'none',
++  '-h': 'none',
++  '--no-filename': 'none',
++  '--label': 'string',
++  '-n': 'none',
++  '--line-number': 'none',
++  '-T': 'none',
++  '--initial-tab': 'none',
++  '-u': 'none',
++  '--unix-byte-offsets': 'none',
++  '-Z': 'none',
++  '--null': 'none',
++  '-z': 'none',
++  '--null-data': 'none',
++
++  // Context control
++  '-A': 'number',
++  '--after-context': 'number',
++  '-B': 'number',
++  '--before-context': 'number',
++  '-C': 'number',
++  '--context': 'number',
++  '--group-separator': 'string',
++  '--no-group-separator': 'none',
++
++  // File and directory selection
++  '-a': 'none',
++  '--text': 'none',
++  '--binary-files': 'string',
++  '-I': 'none',
++  '-D': 'string',
++  '--devices': 'string',
++  '-d': 'string',
++  '--directories': 'string',
++  '--exclude': 'string',
++  '--exclude-from': 'string',
++  '--exclude-dir': 'string',
++  '--include': 'string',
++  '-r': 'none',
++  '--recursive': 'none',
++  '-R': 'none',
++  '--dereference-recursive': 'none',
++
++  // Other options
++  '--line-buffered': 'none',
++  '-U': 'none',
++  '--binary': 'none',
++
++  // Help and version
++  '--help': 'none',
++  '-V': 'none',
++  '--version': 'none',
++}
++
+ // Central configuration for allowlist-based command validation
+ // All commands and flags here should only allow reading files. They should not
+ // allow writing to files, executing code, or creating network requests.
+@@ -454,107 +560,13 @@ const COMMAND_ALLOWLIST: Record<string, CommandConfig> = {
+     },
+   },
+   grep: {
+-    safeFlags: {
+-      // Pattern flags
+-      '-e': 'string', // Pattern
+-      '--regexp': 'string',
+-      '-f': 'string', // File with patterns
+-      '--file': 'string',
+-      '-F': 'none', // Fixed strings
+-      '--fixed-strings': 'none',
+-      '-G': 'none', // Basic regexp (default)
+-      '--basic-regexp': 'none',
+-      '-E': 'none', // Extended regexp
+-      '--extended-regexp': 'none',
+-      '-P': 'none', // Perl regexp
+-      '--perl-regexp': 'none',
+-
+-      // Matching control
+-      '-i': 'none', // Ignore case
+-      '--ignore-case': 'none',
+-      '--no-ignore-case': 'none',
+-      '-v': 'none', // Invert match
+-      '--invert-match': 'none',
+-      '-w': 'none', // Word regexp
+-      '--word-regexp': 'none',
+-      '-x': 'none', // Line regexp
+-      '--line-regexp': 'none',
+-
+-      // Output control
+-      '-c': 'none', // Count
+-      '--count': 'none',
+-      '--color': 'string',
+-      '--colour': 'string',
+-      '-L': 'none', // Files without match
+-      '--files-without-match': 'none',
+-      '-l': 'none', // Files with matches
+-      '--files-with-matches': 'none',
+-      '-m': 'number', // Max count
+-      '--max-count': 'number',
+-      '-o': 'none', // Only matching
+-      '--only-matching': 'none',
+-      '-q': 'none', // Quiet
+-      '--quiet': 'none',
+-      '--silent': 'none',
+-      '-s': 'none', // No messages
+-      '--no-messages': 'none',
+-
+-      // Output line prefix
+-      '-b': 'none', // Byte offset
+-      '--byte-offset': 'none',
+-      '-H': 'none', // With filename
+-      '--with-filename': 'none',
+-      '-h': 'none', // No filename
+-      '--no-filename': 'none',
+-      '--label': 'string',
+-      '-n': 'none', // Line number
+-      '--line-number': 'none',
+-      '-T': 'none', // Initial tab
+-      '--initial-tab': 'none',
+-      '-u': 'none', // Unix byte offsets
+-      '--unix-byte-offsets': 'none',
+-      '-Z': 'none', // Null after filename
+-      '--null': 'none',
+-      '-z': 'none', // Null data
+-      '--null-data': 'none',
+-
+-      // Context control
+-      '-A': 'number', // After context
+-      '--after-context': 'number',
+-      '-B': 'number', // Before context
+-      '--before-context': 'number',
+-      '-C': 'number', // Context
+-      '--context': 'number',
+-      '--group-separator': 'string',
+-      '--no-group-separator': 'none',
+-
+-      // File and directory selection
+-      '-a': 'none', // Text (process binary as text)
+-      '--text': 'none',
+-      '--binary-files': 'string',
+-      '-D': 'string', // Devices
+-      '--devices': 'string',
+-      '-d': 'string', // Directories
+-      '--directories': 'string',
+-      '--exclude': 'string',
+-      '--exclude-from': 'string',
+-      '--exclude-dir': 'string',
+-      '--include': 'string',
+-      '-r': 'none', // Recursive
+-      '--recursive': 'none',
+-      '-R': 'none', // Dereference-recursive
+-      '--dereference-recursive': 'none',
+-
+-      // Other options
+-      '--line-buffered': 'none',
+-      '-U': 'none', // Binary
+-      '--binary': 'none',
+-
+-      // Help and version
+-      '--help': 'none',
+-      '-V': 'none',
+-      '--version': 'none',
+-    },
++    safeFlags: GREP_SAFE_FLAGS,
++  },
++  egrep: {
++    safeFlags: GREP_SAFE_FLAGS,
++  },
++  fgrep: {
++    safeFlags: GREP_SAFE_FLAGS,
+   },
+   ...RIPGREP_READ_ONLY_COMMANDS,
+   // Checksum commands - these only read files and compute/verify hashes
+@@ -1234,6 +1246,8 @@ const SAFE_TARGET_COMMANDS_FOR_XARGS = [
+   'printf', // xargs runs /usr/bin/printf (binary), not bash builtin — no -v support
+   'wc', // Read-only counting, no dangerous flags
+   'grep', // Read-only search, no dangerous flags
++  'egrep', // grep alias with extended regular expressions
++  'fgrep', // grep alias with fixed strings
+   'head', // Read-only, no dangerous flags
+   'tail', // Read-only (including -f follow), no dangerous flags
+ ]
+@@ -1386,10 +1400,14 @@ export function isCommandSafeViaFlagParsing(command: string): boolean {
+   if (!commandConfig.regex && /`/.test(command)) {
+     return false
+   }
+-  // Block newlines and carriage returns in grep/rg patterns as they can be used for injection
++  // Block newlines and carriage returns in grep-family/rg patterns as they
++  // can be used for injection.
+   if (
+     !commandConfig.regex &&
+-    (tokens[0] === 'rg' || tokens[0] === 'grep') &&
++    (tokens[0] === 'rg' ||
++      tokens[0] === 'grep' ||
++      tokens[0] === 'egrep' ||
++      tokens[0] === 'fgrep') &&
+     /[\n\r]/.test(command)
+   ) {
+     return false
+@@ -1502,6 +1520,128 @@ const READONLY_COMMANDS = [
+   'pr', // Paginate files for printing
+ ]
+ 
++const FIND_DANGEROUS_PREDICATES = new Set([
++  '-delete',
++  '-exec',
++  '-execdir',
++  '-ok',
++  '-okdir',
++  '-fprint',
++  '-fprint0',
++  '-fls',
++  '-fprintf',
++])
++
++// Predicates/options whose following argv item is data. A token such as
++// "-delete" in that data position must not be mistaken for an action.
++const FIND_ARGUMENT_PREDICATES = new Set([
++  '-name',
++  '-iname',
++  '-path',
++  '-ipath',
++  '-wholename',
++  '-iwholename',
++  '-lname',
++  '-ilname',
++  '-regex',
++  '-iregex',
++  '-newer',
++  '-anewer',
++  '-cnewer',
++  '-Bnewer',
++  '-samefile',
++  '-user',
++  '-group',
++  '-uid',
++  '-gid',
++  '-perm',
++  '-type',
++  '-xtype',
++  '-size',
++  '-inum',
++  '-links',
++  '-used',
++  '-fstype',
++  '-context',
++  '-mtime',
++  '-atime',
++  '-ctime',
++  '-Btime',
++  '-mmin',
++  '-amin',
++  '-cmin',
++  '-Bmin',
++  '-flags',
++  '-f',
++  '-maxdepth',
++  '-mindepth',
++  '-regextype',
++  '-printf',
++  '-D',
++])
++
++const TEST_ARITHMETIC_COMPARISON_OPERATORS = new Set([
++  '-eq',
++  '-ne',
++  '-lt',
++  '-le',
++  '-gt',
++  '-ge',
++])
++
++/**
++ * Classify the commands whose read-only status depends on argv position.
++ * Returns null for commands handled by the normal flag/regex validators.
++ */
++function classifySpecialReadOnlyArgv(argv: string[]): boolean | null {
++  const command = argv[0]
++
++  if (command === 'printf') {
++    // Bash's printf -v writes to a shell variable. All other printf forms
++    // only write their formatted result to stdout.
++    return !argv[1]?.startsWith('-v')
++  }
++
++  if (command === '[[') {
++    for (let i = 1; i < argv.length; i++) {
++      const arg = argv[i]
++      if (
++        (arg === '-v' || arg === '-R') &&
++        argv[i + 1]?.includes('[')
++      ) {
++        return false
++      }
++      if (
++        arg &&
++        TEST_ARITHMETIC_COMPARISON_OPERATORS.has(arg) &&
++        (argv[i - 1]?.includes('[') || argv[i + 1]?.includes('['))
++      ) {
++        return false
++      }
++    }
++    return true
++  }
++
++  if (command === 'find') {
++    for (let i = 1; i < argv.length; i++) {
++      const arg = argv[i]
++      if (
++        (arg && FIND_ARGUMENT_PREDICATES.has(arg)) ||
++        (arg && /^-newer[aBcmt]{2}$/.test(arg))
++      ) {
++        i++
++        continue
++      }
++      if (arg && FIND_DANGEROUS_PREDICATES.has(arg)) {
++        return false
++      }
++    }
++    return true
++  }
++
++  return null
++}
++
+ // Complex commands that require custom regex patterns
+ // Warning: If possible, avoid adding new regexes here and prefer using COMMAND_ALLOWLIST
+ // instead. This allowlist-based approach to CLI flags is more secure and avoids
+@@ -1602,6 +1742,7 @@ function containsUnquotedExpansion(command: string): boolean {
+   let inSingleQuote = false
+   let inDoubleQuote = false
+   let escaped = false
++  let inGlobBracket = false
+ 
+   for (let i = 0; i < command.length; i++) {
+     const currentChar = command[i]
+@@ -1658,9 +1799,34 @@ function containsUnquotedExpansion(command: string): boolean {
+       continue
+     }
+ 
+-    // Check for glob characters outside all quotes.
+-    // These could expand to anything, including dangerous flags.
+-    if (currentChar && /[?*[\]]/.test(currentChar)) {
++    // A bracket expression is a glob only when its closing bracket occurs in
++    // the same shell word. Reset at whitespace and shell operators so
++    // unrelated arguments such as `cut -d[ file ]` are not joined into a
++    // synthetic glob by this scanner.
++    if (
++      currentChar === ' ' ||
++      currentChar === '\t' ||
++      currentChar === '\n' ||
++      currentChar === '|' ||
++      currentChar === '&' ||
++      currentChar === ';' ||
++      currentChar === '(' ||
++      currentChar === ')' ||
++      currentChar === '<' ||
++      currentChar === '>'
++    ) {
++      inGlobBracket = false
++      continue
++    }
++
++    if (currentChar === '?' || currentChar === '*') {
++      return true
++    }
++    if (currentChar === '[') {
++      inGlobBracket = true
++      continue
++    }
++    if (currentChar === ']' && inGlobBracket) {
+       return true
+     }
+   }
+@@ -1707,6 +1873,18 @@ function isCommandReadOnly(command: string): boolean {
+     return false
+   }
+ 
++  // The 2.1.98 classifier handles a few shell commands from parsed argv
++  // because a flat regex cannot distinguish flags from predicate arguments.
++  const parsed = tryParseShellCommand(testCommand, env => `$${env}`)
++  if (parsed.success && parsed.tokens.every(token => typeof token === 'string')) {
++    const specialResult = classifySpecialReadOnlyArgv(
++      parsed.tokens as string[],
++    )
++    if (specialResult !== null) {
++      return specialResult
++    }
++  }
++
+   // Tools like git allow `--upload-pack=cmd` to be abbreviated as `--up=cmd`
+   // Regex filters can be bypassed, so we use strict allowlist validation instead.
+   // This requires defining a set of known safe flags. Claude can help with this,
+diff --git a/src/tools/FileEditTool/FileEditTool.ts b/src/tools/FileEditTool/FileEditTool.ts
+index 8539942..b711e1a 100644
+--- a/src/tools/FileEditTool/FileEditTool.ts
++++ b/src/tools/FileEditTool/FileEditTool.ts
+@@ -22,6 +22,8 @@ import {
+   FILE_NOT_FOUND_CWD_NOTE,
+   findSimilarFile,
+   getFileModificationTime,
++  isPerforceReadOnly,
++  PERFORCE_READ_ONLY_ERROR,
+   suggestPathUnderCwd,
+   writeTextContent,
+ } from '../../utils/file.js'
+@@ -184,7 +186,7 @@ export const FileEditTool = buildTool({
+ 
+     // Prevent OOM on multi-GB files.
+     try {
+-      const { size } = await fs.stat(fullFilePath)
++      const { size, mode } = await fs.stat(fullFilePath)
+       if (size > MAX_EDIT_FILE_SIZE) {
+         return {
+           result: false,
+@@ -193,6 +195,14 @@ export const FileEditTool = buildTool({
+           errorCode: 10,
+         }
+       }
++      if (isPerforceReadOnly(mode)) {
++        return {
++          result: false,
++          behavior: 'ask',
++          message: PERFORCE_READ_ONLY_ERROR,
++          errorCode: 11,
++        }
++      }
+     } catch (e) {
+       if (!isENOENT(e)) {
+         throw e
+diff --git a/src/tools/FileWriteTool/FileWriteTool.ts b/src/tools/FileWriteTool/FileWriteTool.ts
+index 6da0afc..1df3052 100644
+--- a/src/tools/FileWriteTool/FileWriteTool.ts
++++ b/src/tools/FileWriteTool/FileWriteTool.ts
+@@ -19,7 +19,12 @@ import { logForDebugging } from '../../utils/debug.js'
+ import { countLinesChanged, getPatchForDisplay } from '../../utils/diff.js'
+ import { isEnvTruthy } from '../../utils/envUtils.js'
+ import { isENOENT } from '../../utils/errors.js'
+-import { getFileModificationTime, writeTextContent } from '../../utils/file.js'
++import {
++  getFileModificationTime,
++  isPerforceReadOnly,
++  PERFORCE_READ_ONLY_ERROR,
++  writeTextContent,
++} from '../../utils/file.js'
+ import {
+   fileHistoryEnabled,
+   fileHistoryTrackEdit,
+@@ -188,6 +193,13 @@ export const FileWriteTool = buildTool({
+     try {
+       const fileStat = await fs.stat(fullFilePath)
+       fileMtimeMs = fileStat.mtimeMs
++      if (isPerforceReadOnly(fileStat.mode)) {
++        return {
++          result: false,
++          message: PERFORCE_READ_ONLY_ERROR,
++          errorCode: 6,
++        }
++      }
+     } catch (e) {
+       if (isENOENT(e)) {
+         return { result: true }
+diff --git a/src/tools/NotebookEditTool/NotebookEditTool.ts b/src/tools/NotebookEditTool/NotebookEditTool.ts
+index 4551412..4066a09 100644
+--- a/src/tools/NotebookEditTool/NotebookEditTool.ts
++++ b/src/tools/NotebookEditTool/NotebookEditTool.ts
+@@ -9,7 +9,14 @@ import { buildTool, type ToolDef, type ToolUseContext } from '../../Tool.js'
+ import type { NotebookCell, NotebookContent } from '../../types/notebook.js'
+ import { getCwd } from '../../utils/cwd.js'
+ import { isENOENT } from '../../utils/errors.js'
+-import { getFileModificationTime, writeTextContent } from '../../utils/file.js'
++import {
++  getFileModificationTime,
++  isPerforceMode,
++  isPerforceReadOnly,
++  PERFORCE_READ_ONLY_ERROR,
++  writeTextContent,
++} from '../../utils/file.js'
++import { getFsImplementation } from '../../utils/fsOperations.js'
+ import { readFileSyncWithMetadata } from '../../utils/fileRead.js'
+ import { safeParseJSON } from '../../utils/json.js'
+ import { lazySchema } from '../../utils/lazySchema.js'
+@@ -227,6 +234,22 @@ export const NotebookEditTool = buildTool({
+         errorCode: 9,
+       }
+     }
++    if (isPerforceMode()) {
++      try {
++        const { mode } = await getFsImplementation().stat(fullPath)
++        if (isPerforceReadOnly(mode)) {
++          return {
++            result: false,
++            message: PERFORCE_READ_ONLY_ERROR,
++            errorCode: 11,
++          }
++        }
++      } catch (e) {
++        if (!isENOENT(e)) {
++          throw e
++        }
++      }
++    }
+     if (getFileModificationTime(fullPath) > readTimestamp.timestamp) {
+       return {
+         result: false,
+diff --git a/src/utils/context.ts b/src/utils/context.ts
+index d9714de..adffee5 100644
+--- a/src/utils/context.ts
++++ b/src/utils/context.ts
+@@ -52,12 +52,11 @@ export function getContextWindowForModel(
+   model: string,
+   betas?: string[],
+ ): number {
+-  // Allow override via environment variable (ant-only)
+-  // This takes precedence over all other context window resolution, including 1M detection,
+-  // so users can cap the effective context window for local decisions (auto-compact, etc.)
+-  // while still using a 1M-capable endpoint.
++  // When compaction is disabled, allow callers to set the effective context
++  // window explicitly. This takes precedence over 1M-context detection.
+   if (
+-    process.env.USER_TYPE === 'ant' &&
++    (process.env.USER_TYPE === 'ant' ||
++      isEnvTruthy(process.env.DISABLE_COMPACT)) &&
+     process.env.CLAUDE_CODE_MAX_CONTEXT_TOKENS
+   ) {
+     const override = parseInt(process.env.CLAUDE_CODE_MAX_CONTEXT_TOKENS, 10)
+diff --git a/src/utils/contextSuggestions.ts b/src/utils/contextSuggestions.ts
+index 6959e12..7126220 100644
+--- a/src/utils/contextSuggestions.ts
++++ b/src/utils/contextSuggestions.ts
+@@ -3,6 +3,7 @@ import { FILE_READ_TOOL_NAME } from '../tools/FileReadTool/prompt.js'
+ import { GREP_TOOL_NAME } from '../tools/GrepTool/prompt.js'
+ import { WEB_FETCH_TOOL_NAME } from '../tools/WebFetchTool/prompt.js'
+ import type { ContextData } from './analyzeContext.js'
++import { isEnvTruthy } from './envUtils.js'
+ import { getDisplayPath } from './file.js'
+ import { formatTokens } from './format.js'
+ 
+@@ -62,7 +63,9 @@ function checkNearCapacity(
+       title: `Context is ${data.percentage}% full`,
+       detail: data.isAutoCompactEnabled
+         ? 'Autocompact will trigger soon, which discards older messages. Use /compact now to control what gets kept.'
+-        : 'Autocompact is disabled. Use /compact to free space, or enable autocompact in /config.',
++        : isEnvTruthy(process.env.DISABLE_COMPACT)
++          ? 'Compaction is disabled.'
++          : 'Autocompact is disabled. Use /compact to free space, or enable autocompact in /config.',
+     })
+   }
+ }
+@@ -222,6 +225,7 @@ function checkAutoCompactDisabled(
+ ): void {
+   if (
+     !data.isAutoCompactEnabled &&
++    !isEnvTruthy(process.env.DISABLE_COMPACT) &&
+     data.percentage >= 50 &&
+     data.percentage < NEAR_CAPACITY_PERCENT
+   ) {
+diff --git a/src/utils/file.ts b/src/utils/file.ts
+index 773c3f4..0bc812b 100644
+--- a/src/utils/file.ts
++++ b/src/utils/file.ts
+@@ -16,6 +16,7 @@ import { logEvent } from 'src/services/analytics/index.js'
+ import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js'
+ import { getCwd } from '../utils/cwd.js'
+ import { logForDebugging } from './debug.js'
++import { isEnvTruthy } from './envUtils.js'
+ import { isENOENT, isFsInaccessible } from './errors.js'
+ import {
+   detectEncodingForResolvedPath,
+@@ -81,6 +82,17 @@ export async function getFileModificationTimeAsync(
+   return Math.floor(s.mtimeMs)
+ }
+ 
++export function isPerforceMode(): boolean {
++  return isEnvTruthy(process.env.CLAUDE_CODE_PERFORCE_MODE)
++}
++
++export function isPerforceReadOnly(mode: number): boolean {
++  return isPerforceMode() && (mode & 128) === 0
++}
++
++export const PERFORCE_READ_ONLY_ERROR =
++  'File is read-only — it has not been opened for edit in Perforce. Run `p4 edit <file>` to check it out, then retry. Do not chmod the file writable; that bypasses Perforce tracking.'
++
+ export function writeTextContent(
+   filePath: string,
+   content: string,
+diff --git a/src/utils/shell/readOnlyCommandValidation.ts b/src/utils/shell/readOnlyCommandValidation.ts
+index ad32bdc..b976115 100644
+--- a/src/utils/shell/readOnlyCommandValidation.ts
++++ b/src/utils/shell/readOnlyCommandValidation.ts
+@@ -1676,7 +1676,7 @@ export function validateFlagArgument(
+  * @param tokens - Pre-tokenized args (from bash shell-quote or PowerShell AST)
+  * @param startIndex - Where to start validating (after command tokens)
+  * @param config - The safe flags config
+- * @param options.commandName - For command-specific handling (git numeric shorthand, grep/rg attached numeric)
++ * @param options.commandName - For command-specific handling (git numeric shorthand, grep-family/rg attached numeric)
+  * @param options.rawCommand - For additionalCommandIsDangerousCallback
+  * @param options.xargsTargetCommands - If provided, enables xargs-style target command detection
+  * @returns true if all flags are valid, false otherwise
+@@ -1768,9 +1768,12 @@ export function validateFlags(
+         }
+ 
+         // Handle flags with directly attached numeric arguments (e.g., -A20, -B10)
+-        // Only apply this special handling to grep and rg commands
++        // Only apply this special handling to grep-family and rg commands
+         if (
+-          (options?.commandName === 'grep' || options?.commandName === 'rg') &&
++          (options?.commandName === 'grep' ||
++            options?.commandName === 'egrep' ||
++            options?.commandName === 'fgrep' ||
++            options?.commandName === 'rg') &&
+           flag.startsWith('-') &&
+           !flag.startsWith('--') &&
+           flag.length > 2
