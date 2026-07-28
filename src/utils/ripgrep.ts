@@ -13,6 +13,7 @@ import { findExecutable } from './findExecutable.js'
 import { logError } from './log.js'
 import { getPlatform } from './platform.js'
 import { countCharInString } from './stringUtils.js'
+import { whichSync } from './which.js'
 
 const __filename = fileURLToPath(import.meta.url)
 // we use node:path.join instead of node:url.resolve because the former doesn't encode spaces
@@ -37,22 +38,26 @@ const getRipgrepConfig = memoize((): RipgrepConfig => {
   if (userWantsSystemRipgrep) {
     const { cmd: systemPath } = findExecutable('rg', [])
     if (systemPath !== 'rg') {
-      // SECURITY: Use command name 'rg' instead of systemPath to prevent PATH hijacking
-      // If we used systemPath, a malicious ./rg.exe in current directory could be executed
-      // Using just 'rg' lets the OS resolve it safely with NoDefaultCurrentDirectoryInExePath protection
-      return { mode: 'system', command: 'rg', args: [] }
+      return { mode: 'system', command: systemPath, args: [] }
     }
   }
 
   // In bundled (native) mode, ripgrep is statically compiled into bun-internal
   // and dispatches based on argv[0]. We spawn ourselves with argv0='rg'.
   if (isInBundledMode()) {
-    return {
+    const embeddedConfig: RipgrepConfig = {
       mode: 'embedded',
       command: process.execPath,
       args: ['--no-config'],
       argv0: 'rg',
     }
+    if (whichSync(process.execPath)) return embeddedConfig
+
+    const { cmd: systemPath } = findExecutable('rg', [])
+    if (systemPath !== 'rg') {
+      return { mode: 'system', command: systemPath, args: [] }
+    }
+    return embeddedConfig
   }
 
   const rgRoot = path.resolve(__dirname, 'vendor', 'ripgrep')
@@ -207,6 +212,7 @@ function ripGrepRaw(
       settled = true
       clearTimeout(timeoutId)
       clearTimeout(killTimeoutId)
+      if (err.code === 'ENOENT') clearRipgrepCache()
       const error: ExecFileException = err
       callback(error, stdout, stderr)
     })
@@ -275,6 +281,7 @@ async function ripGrepFileCount(
     child.on('error', err => {
       if (settled) return
       settled = true
+      if (err.code === 'ENOENT' && argv0) clearRipgrepCache()
       reject(err)
     })
   })
@@ -527,6 +534,14 @@ let ripgrepStatus: {
   lastTested: number
   config: RipgrepConfig
 } | null = null
+
+function clearRipgrepCache(): void {
+  getRipgrepConfig.cache?.clear?.()
+  if (ripgrepStatus?.working !== false) {
+    testRipgrepOnFirstUse.cache?.clear?.()
+    ripgrepStatus = null
+  }
+}
 
 /**
  * Get ripgrep status and configuration info

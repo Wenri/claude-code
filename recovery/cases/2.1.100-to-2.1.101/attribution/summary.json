@@ -1,0 +1,177 @@
+{
+  "schemaVersion": 1,
+  "kind": "generated-source-ownership-and-attribution-inventory",
+  "offsetUnit": "utf16-code-units",
+  "claim": "Exhaustive generated-offset accounting with exact baseline source ownership; target source identities are evidence-ranked and unresolved where anchors are insufficient.",
+  "artifacts": {
+    "baselineBundle": {
+      "bytes": 13047043,
+      "sha256": "75c9611929d9a770fe2e3a393219d8b98f5de17fde539b2a7355c6db3fd2795f"
+    },
+    "baselineSourceMap": {
+      "bytes": 59766257,
+      "sha256": "7965012b7a5fc9e09d8d747a04c5c32b94696924536e217f686bb1e7ee70a657"
+    },
+    "targetBundle": {
+      "bytes": 13566090,
+      "sha256": "bacffcb4d409504294be4b76273965a646ec412a465bf2dd4c7ed48f6b0309eb"
+    }
+  },
+  "options": {
+    "minimumLiteralLength": 8
+  },
+  "baselineOwnership": {
+    "sourceCount": 4756,
+    "sourceKinds": {
+      "application": 1902,
+      "nodeModules": 2850,
+      "vendor": 4
+    },
+    "mappedSegmentCount": 2068722,
+    "contiguousRunCount": 4756,
+    "eachSourceHasExactlyOneContiguousRun": true,
+    "generatedHeaderUtf16": 2230
+  },
+  "literalEvidence": {
+    "uniqueCommonAnchorCount": 43311,
+    "monotoneAnchorCount": 39866,
+    "nonMonotoneAnchorCount": 3445,
+    "monotoneFraction": 0.9204590057952945,
+    "partitionCount": 39867,
+    "tokenCountDelta": 128217,
+    "utf16LengthDelta": 517077,
+    "locatedSourceCount": 2599,
+    "locatedApplicationSourceCount": 1292,
+    "splitTargetClusterSourceCount": 11
+  },
+  "initializerEvidence": {
+    "baseline": {
+      "wrapperNames": {
+        "common": "m",
+        "initializer": "y"
+      },
+      "count": 4527
+    },
+    "target": {
+      "wrapperNames": {
+        "common": "B",
+        "initializer": "L"
+      },
+      "count": 4627,
+      "statuses": {
+        "unresolved-no-unique-literal": 2097,
+        "anchored-single-baseline-unit": 2483,
+        "anchored-multiple-baseline-units": 47
+      }
+    },
+    "targetNetCountDelta": 100
+  },
+  "coverage": {
+    "partitionCount": 39867,
+    "targetPartitionUtf16": 11286668,
+    "exactAnchorCount": 39866,
+    "exactAnchorTargetUtf16": 2213737,
+    "exactGeneratedPartitionCount": 19705,
+    "exactGeneratedTargetUtf16": 468881,
+    "changedHighConfidencePartitionCount": 17738,
+    "changedHighConfidenceTargetUtf16": 5127924,
+    "changedCandidatePartitionCount": 2418,
+    "changedCandidateTargetUtf16": 5687966,
+    "unresolvedPartitionCount": 6,
+    "unresolvedTargetUtf16": 1897,
+    "accountedTargetUtf16": 13500405,
+    "targetUtf16": 13500405,
+    "unaccountedTargetUtf16": 0
+  },
+  "releaseEvidence": {
+    "targetPackage": {
+      "bytes": 1371,
+      "sha256": "b24c2b43b9d276ebe81495691a59c659be0e1b601012e249603c6c2106a0af69",
+      "name": "@anthropic-ai/claude-code",
+      "version": "2.1.101"
+    },
+    "targetDeclarations": {
+      "bytes": 117378,
+      "sha256": "9cb15df6a2108f277401925acc55c2eb881f6bfe5ef6ad1fc737fa64b22ca8fe"
+    },
+    "officialChangelog": {
+      "bytes": 219187,
+      "sha256": "6446550f7fe6286a588ebfe7c13465995418bf0c668f406b4e653edb86a19a32",
+      "section": "2.1.101",
+      "bulletCount": 46,
+      "bullets": [
+        "Added `/team-onboarding` command to generate a teammate ramp-up guide from your local Claude Code usage",
+        "Added OS CA certificate store trust by default, so enterprise TLS proxies work without extra setup (set `CLAUDE_CODE_CERT_STORE=bundled` to use only bundled CAs)",
+        "`/ultraplan` and other remote-session features now auto-create a default cloud environment instead of requiring web setup first",
+        "Improved brief mode to retry once when Claude responds with plain text instead of a structured message",
+        "Improved focus mode: Claude now writes more self-contained summaries since it knows you only see its final message",
+        "Improved tool-not-available errors to explain why and how to proceed when the model calls a tool that exists but isn't available in the current context",
+        "Improved rate-limit retry messages to show which limit was hit and when it resets instead of an opaque seconds countdown",
+        "Improved refusal error messages to include the API-provided explanation when available",
+        "Improved `claude -p --resume <name>` to accept session titles set via `/rename` or `--name`",
+        "Improved settings resilience: an unrecognized hook event name in `settings.json` no longer causes the entire file to be ignored",
+        "Improved plugin hooks from plugins force-enabled by managed settings to run when `allowManagedHooksOnly` is set",
+        "Improved `/plugin` and `claude plugin update` to show a warning when the marketplace could not be refreshed, instead of silently reporting a stale version",
+        "Improved plan mode to hide the \"Refine with Ultraplan\" option when the user's org or auth setup can't reach Claude Code on the web",
+        "Improved beta tracing to honor `OTEL_LOG_USER_PROMPTS`, `OTEL_LOG_TOOL_DETAILS`, and `OTEL_LOG_TOOL_CONTENT`; sensitive span attributes are no longer emitted unless opted in",
+        "Improved SDK `query()` to clean up subprocess and temp files when consumers `break` from `for await` or use `await using`",
+        "Fixed a command injection vulnerability in the POSIX `which` fallback used by LSP binary detection",
+        "Fixed a memory leak where long sessions retained dozens of historical copies of the message list in the virtual scroller",
+        "Fixed `--resume`/`--continue` losing conversation context on large sessions when the loader anchored on a dead-end branch instead of the live conversation",
+        "Fixed `--resume` chain recovery bridging into an unrelated subagent conversation when a subagent message landed near a main-chain write gap",
+        "Fixed a crash on `--resume` when a persisted Edit/Write tool result was missing its `file_path`",
+        "Fixed a hardcoded 5-minute request timeout that aborted slow backends (local LLMs, extended thinking, slow gateways) regardless of `API_TIMEOUT_MS`",
+        "Fixed `permissions.deny` rules not overriding a PreToolUse hook's `permissionDecision: \"ask\"` — previously the hook could downgrade a deny into a prompt",
+        "Fixed `--setting-sources` without `user` causing background cleanup to ignore `cleanupPeriodDays` and delete conversation history older than 30 days",
+        "Fixed Bedrock SigV4 authentication failing with 403 when `ANTHROPIC_AUTH_TOKEN`, `apiKeyHelper`, or `ANTHROPIC_CUSTOM_HEADERS` set an Authorization header",
+        "Fixed `claude -w <name>` failing with \"already exists\" after a previous session's worktree cleanup left a stale directory",
+        "Fixed subagents not inheriting MCP tools from dynamically-injected servers",
+        "Fixed sub-agents running in isolated worktrees being denied Read/Edit access to files inside their own worktree",
+        "Fixed sandboxed Bash commands failing with `mktemp: No such file or directory` after a fresh boot",
+        "Fixed `claude mcp serve` tool calls failing with \"Tool execution failed\" in MCP clients that validate `outputSchema`",
+        "Fixed `RemoteTrigger` tool's `run` action sending an empty body and being rejected by the server",
+        "Fixed several `/resume` picker issues: narrow default view hiding sessions from other projects, unreachable preview on Windows Terminal, incorrect cwd in worktrees, session-not-found errors not surfacing in stderr, terminal title not being set, and resume hint overlapping the prompt input",
+        "Fixed Grep tool ENOENT when the embedded ripgrep binary path becomes stale (VS Code extension auto-update, macOS App Translocation); now falls back to system `rg` and self-heals mid-session",
+        "Fixed `/btw` writing a copy of the entire conversation to disk on every use",
+        "Fixed `/context` Free space and Messages breakdown disagreeing with the header percentage",
+        "Fixed several plugin issues: slash commands resolving to the wrong plugin with duplicate `name:` frontmatter, `/plugin update` failing with `ENAMETOOLONG`, Discover showing already-installed plugins, directory-source plugins loading from a stale version cache, and skills not honoring `context: fork` and `agent` frontmatter fields",
+        "Fixed the `/mcp` menu offering OAuth-specific actions for MCP servers configured with `headersHelper`; Reconnect is now offered instead to re-invoke the helper script",
+        "Fixed `ctrl+]`, `ctrl+\\`, and `ctrl+^` keybindings not firing in terminals that send raw C0 control bytes (Terminal.app, default iTerm2, xterm)",
+        "Fixed `/login` OAuth URL rendering with padding that prevented clean mouse selection",
+        "Fixed rendering issues: flicker in non-fullscreen mode when content above the visible area changed, terminal scrollback being wiped during long sessions in non-fullscreen mode, and mouse-scroll escape sequences occasionally leaking into the prompt as text",
+        "Fixed crash when `settings.json` env values are numbers instead of strings",
+        "Fixed in-app settings writes (e.g. `/add-dir --remember`, `/config`) not refreshing the in-memory snapshot, preventing removed directories from being revoked mid-session",
+        "Fixed custom keybindings (`~/.claude/keybindings.json`) not loading on Bedrock, Vertex, and other third-party providers",
+        "Fixed `claude --continue -p` not correctly continuing sessions created by `-p` or the SDK",
+        "Fixed several Remote Control issues: worktrees removed on session crash, connection failures not persisting in the transcript, spurious \"Disconnected\" indicator in brief mode for local sessions, and `/remote-control` failing over SSH when only `CLAUDE_CODE_ORGANIZATION_UUID` is set",
+        "Fixed `/insights` sometimes omitting the report file link from its response",
+        "[VSCode] Fixed the file attachment below the chat input not clearing when the last editor tab is closed"
+      ]
+    }
+  },
+  "reportFiles": {
+    "sources": {
+      "path": "sources.jsonl.gz",
+      "bytes": 490535,
+      "sha256": "2143d9aafd31c5fd4ef02244ec7c4c138529dad5c5e4b8c5c44710a49a958742"
+    },
+    "targetInitializers": {
+      "path": "target-initializers.jsonl.gz",
+      "bytes": 111993,
+      "sha256": "408ecf8ddded66bee02b6ce0e8d769caa69b5cc6abb8a9e27eb0bb8ec9784459"
+    },
+    "targetPartitions": {
+      "path": "target-partitions.jsonl.gz",
+      "bytes": 3910157,
+      "sha256": "87cbe158e38161bd78a4104ac416921c5b8f31f3b314bb8bd1a363ee50709a85"
+    }
+  },
+  "limitations": [
+    "Exact source ownership exists only for the baseline source map.",
+    "Initializer regions are delimited by successive Bun wrapper-expression starts; they are generated units, not asserted one-to-one source modules.",
+    "A target initializer with no unique long literal is unresolved, not automatically target-only.",
+    "Candidate ranges can include moved code; non-monotone literal owners are reported separately.",
+    "Raw-different partitions include harmless minifier-name churn as well as semantic changes.",
+    "No target source text is claimed reconstructed by this inventory."
+  ]
+}

@@ -717,6 +717,15 @@ function parseKeypress(s: string = ''): ParsedKey {
   } else if (s === ' ' || s === '\x1b ') {
     key.name = 'space'
     key.meta = s.length === 2
+  } else if (s === '\x1c') {
+    key.name = '\\'
+    key.ctrl = true
+  } else if (s === '\x1d') {
+    key.name = ']'
+    key.ctrl = true
+  } else if (s === '\x1e') {
+    key.name = '^'
+    key.ctrl = true
   } else if (s === '\x1f') {
     key.name = '_'
     key.ctrl = true

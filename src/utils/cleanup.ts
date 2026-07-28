@@ -13,6 +13,7 @@ import { cleanupOldVersions } from './nativeInstaller/index.js'
 import { cleanupOldPastes } from './pasteStore.js'
 import { getProjectsDir } from './sessionStorage.js'
 import { getSettingsWithAllErrors } from './settings/allErrors.js'
+import { isSettingSourceEnabled } from './settings/constants.js'
 import {
   getSettings_DEPRECATED,
   rawSettingsContainsKey,
@@ -573,6 +574,18 @@ export async function cleanupOldVersionsThrottled(): Promise<void> {
 }
 
 export async function cleanupOldMessageFilesInBackground(): Promise<void> {
+  await cleanupOldImageCaches()
+
+  if (
+    !isSettingSourceEnabled('userSettings') &&
+    getSettings_DEPRECATED()?.cleanupPeriodDays === undefined
+  ) {
+    logForDebugging(
+      'Skipping retention cleanup: userSettings source is disabled (--setting-sources) and no enabled source provides cleanupPeriodDays.',
+    )
+    return
+  }
+
   // If settings have validation errors but the user explicitly set cleanupPeriodDays,
   // skip cleanup entirely rather than falling back to the default (30 days).
   // This prevents accidentally deleting files when the user intended a different retention period.
@@ -590,7 +603,6 @@ export async function cleanupOldMessageFilesInBackground(): Promise<void> {
   await cleanupOldFileHistoryBackups()
   await cleanupOldSessionEnvDirs()
   await cleanupOldDebugLogs()
-  await cleanupOldImageCaches()
   await cleanupOldPastes(getCutoffDate())
   const removedWorktrees = await cleanupStaleAgentWorktrees(getCutoffDate())
   if (removedWorktrees > 0) {

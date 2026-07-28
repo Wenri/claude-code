@@ -302,11 +302,17 @@ const THINKING_MILESTONES = [{
   afterMs: 30000,
   text: 'Thinking a bit longer… still working on it…'
 }, {
-  afterMs: 90000,
-  text: 'This is a harder one… it might take a few more minutes…'
-}, {
-  afterMs: 270000,
+  afterMs: 60000,
   text: 'Hang tight… really working through this one…'
+}, {
+  afterMs: 90000,
+  text: 'This is a harder one… it might take another minute…'
+}, {
+  afterMs: 150000,
+  text: 'Still going… thanks for hanging in there…'
+}, {
+  afterMs: 240000,
+  text: 'Taking the time to get this right… thanks for your patience…'
 }];
 // Window after a user-initiated scroll during which type-into-empty does NOT
 // repin to bottom. Josh Rosen's workflow: Claude emits long output → scroll

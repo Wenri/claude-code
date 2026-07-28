@@ -74,6 +74,15 @@ const TIP_MATCHERS: TipMatcher[] = [
   },
   {
     matches: (ctx): boolean =>
+      ctx.path.startsWith('hooks.') && ctx.code === 'invalid_key',
+    tip: {
+      suggestion:
+        'Not a recognized hook event. Common events: PreToolUse, PostToolUse, UserPromptSubmit, SessionStart, SessionEnd, Stop. Check spelling and capitalization.',
+      docLink: `${DOCUMENTATION_BASE}/hooks`,
+    },
+  },
+  {
+    matches: (ctx): boolean =>
       ctx.path.includes('hooks') && ctx.code === 'invalid_type',
     tip: {
       suggestion:

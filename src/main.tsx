@@ -302,6 +302,11 @@ function getCertEnvVarTelemetry(): Record<string, boolean> {
   if (hasNodeOption('--use-openssl-ca')) {
     result.has_use_openssl_ca = true;
   }
+  if (process.env.CLAUDE_CODE_CERT_STORE) {
+    result.cert_store =
+      process.env
+        .CLAUDE_CODE_CERT_STORE as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS;
+  }
   return result;
 }
 async function logStartupTelemetry(): Promise<void> {

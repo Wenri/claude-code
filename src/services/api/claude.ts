@@ -2240,7 +2240,13 @@ async function* queryModel(
             // replacement ({ ...lastMsg.message, usage }) would disconnect
             // the queued reference; direct mutation ensures the transcript
             // captures the final values.
-            stopReason = part.delta.stop_reason
+            const deltaWithStopDetails = part.delta as typeof part.delta & {
+              stop_details?: {
+                type?: string
+                explanation?: string | null
+              } | null
+            }
+            stopReason = deltaWithStopDetails.stop_reason
 
             const lastMsg = newMessages.at(-1)
             if (lastMsg) {
@@ -2257,8 +2263,9 @@ async function* queryModel(
             )
 
             const refusalMessage = getErrorMessageIfRefusal(
-              part.delta.stop_reason,
+              deltaWithStopDetails.stop_reason,
               options.model,
+              deltaWithStopDetails.stop_details,
             )
             if (refusalMessage) {
               yield refusalMessage

@@ -1,7 +1,39 @@
 import memoize from 'lodash-es/memoize.js'
+import { uniq } from './array.js'
 import { logForDebugging } from './debug.js'
 import { hasNodeOption } from './envUtils.js'
 import { getFsImplementation } from './fsOperations.js'
+
+const DEFAULT_CA_STORES = ['bundled', 'system'] as const
+type CAStore = (typeof DEFAULT_CA_STORES)[number]
+
+function getCAStores(): CAStore[] {
+  const configuredStores = process.env.CLAUDE_CODE_CERT_STORE
+  if (configuredStores) {
+    const stores: CAStore[] = []
+    for (const value of configuredStores.split(',')) {
+      const store = value.trim().toLowerCase()
+      if (store === 'bundled' || store === 'system') {
+        if (!stores.includes(store)) stores.push(store)
+      } else if (store) {
+        logForDebugging(
+          `CA certs: unrecognized CLAUDE_CODE_CERT_STORE source '${store}', ignoring`,
+          { level: 'warn' },
+        )
+      }
+    }
+    return stores.length > 0 ? stores : [...DEFAULT_CA_STORES]
+  }
+
+  if (
+    hasNodeOption('--use-system-ca') ||
+    hasNodeOption('--use-openssl-ca')
+  ) {
+    return ['system']
+  }
+
+  return [...DEFAULT_CA_STORES]
+}
 
 /**
  * Load CA certificates for TLS connections.
@@ -13,10 +45,12 @@ import { getFsImplementation } from './fsOperations.js'
  * runtime's default certificate handling to apply.
  *
  * Behavior:
- * - Neither NODE_EXTRA_CA_CERTS nor --use-system-ca/--use-openssl-ca set: undefined (runtime defaults)
- * - NODE_EXTRA_CA_CERTS only: bundled Mozilla CAs + extra cert file contents
+ * - Bun defaults to bundled Mozilla CAs plus the OS trust store
+ * - Node.js with no explicit CA configuration returns undefined (runtime defaults)
+ * - CLAUDE_CODE_CERT_STORE selects an ordered comma-separated list of
+ *   "bundled" and "system" stores
  * - --use-system-ca or --use-openssl-ca only: system CAs
- * - --use-system-ca + NODE_EXTRA_CA_CERTS: system CAs + extra cert file contents
+ * - NODE_EXTRA_CA_CERTS appends the configured certificate file
  *
  * Memoized for performance. Call clearCACertsCache() to invalidate after
  * environment variable changes (e.g., after trust dialog applies settings.json).
@@ -26,17 +60,21 @@ import { getFsImplementation } from './fsOperations.js'
  * so `proxy.ts`/`mtls.ts` don't transitively pull in the command registry.
  */
 export const getCACertificates = memoize((): string[] | undefined => {
-  const useSystemCA =
-    hasNodeOption('--use-system-ca') || hasNodeOption('--use-openssl-ca')
-
+  const stores = getCAStores()
   const extraCertsPath = process.env.NODE_EXTRA_CA_CERTS
+  const useBundledCA = stores.includes('bundled')
+  const useSystemCA = stores.includes('system')
 
   logForDebugging(
-    `CA certs: useSystemCA=${useSystemCA}, extraCertsPath=${extraCertsPath}`,
+    `CA certs: stores=${stores.join(',')}, extraCertsPath=${extraCertsPath}`,
   )
 
-  // If neither is set, return undefined (use runtime defaults, no override)
-  if (!useSystemCA && !extraCertsPath) {
+  // Node.js already honors its default/flag-selected trust stores at runtime.
+  if (
+    typeof Bun === 'undefined' &&
+    !extraCertsPath &&
+    !process.env.CLAUDE_CODE_CERT_STORE
+  ) {
     return undefined
   }
 
@@ -45,42 +83,49 @@ export const getCACertificates = memoize((): string[] | undefined => {
   // is never accessed. Most users hit the early return above, so we only
   // pay this cost when custom CA handling is actually needed.
   /* eslint-disable @typescript-eslint/no-require-imports */
-  const tls = require('tls') as typeof import('tls')
+  const tls = require('tls') as typeof import('tls') & {
+    getCACertificates?: (type: string) => string[]
+  }
   /* eslint-enable @typescript-eslint/no-require-imports */
+
+  const getCACerts = tls.getCACertificates
+  if (!useBundledCA && useSystemCA && !getCACerts) {
+    logForDebugging(
+      'CA certs: stores=system but system CA API unavailable, deferring to runtime',
+    )
+    return undefined
+  }
 
   const certs: string[] = []
 
-  if (useSystemCA) {
-    // Load system CA store (Bun API)
-    const getCACerts = (
-      tls as typeof tls & { getCACertificates?: (type: string) => string[] }
-    ).getCACertificates
-    const systemCAs = getCACerts?.('system')
-    if (systemCAs && systemCAs.length > 0) {
-      certs.push(...systemCAs)
-      logForDebugging(
-        `CA certs: Loaded ${certs.length} system CA certificates (--use-system-ca)`,
-      )
-    } else if (!getCACerts && !extraCertsPath) {
-      // Under Node.js where getCACertificates doesn't exist and no extra certs,
-      // return undefined to let Node.js handle --use-system-ca natively.
-      logForDebugging(
-        'CA certs: --use-system-ca set but system CA API unavailable, deferring to runtime',
-      )
-      return undefined
-    } else {
-      // System CA API returned empty or unavailable; fall back to bundled root certs
-      certs.push(...tls.rootCertificates)
-      logForDebugging(
-        `CA certs: Loaded ${certs.length} bundled root certificates as base (--use-system-ca fallback)`,
-      )
-    }
-  } else {
-    // Must include bundled Mozilla CAs as base since ca replaces defaults
+  if (useBundledCA) {
     certs.push(...tls.rootCertificates)
     logForDebugging(
-      `CA certs: Loaded ${certs.length} bundled root certificates as base`,
+      `CA certs: Loaded ${tls.rootCertificates.length} bundled root certificates`,
     )
+  }
+
+  if (useSystemCA) {
+    try {
+      const systemCAs = getCACerts?.('system')
+      if (systemCAs && systemCAs.length > 0) {
+        certs.push(...systemCAs)
+        logForDebugging(
+          `CA certs: Loaded ${systemCAs.length} system CA certificates`,
+        )
+      } else {
+        logForDebugging(
+          `CA certs: system store ${getCACerts ? 'returned empty' : 'unavailable'}`,
+        )
+        if (!useBundledCA) certs.push(...tls.rootCertificates)
+      }
+    } catch (error) {
+      logForDebugging(
+        `CA certs: Failed to load system CA certificates: ${error}`,
+        { level: 'error' },
+      )
+      if (!useBundledCA) certs.push(...tls.rootCertificates)
+    }
   }
 
   // Append extra certs from file
@@ -101,13 +146,13 @@ export const getCACertificates = memoize((): string[] | undefined => {
     }
   }
 
-  return certs.length > 0 ? certs : undefined
+  return certs.length > 0 ? uniq(certs) : undefined
 })
 
 /**
  * Clear the CA certificates cache.
  * Call this when environment variables that affect CA certs may have changed
- * (e.g., NODE_EXTRA_CA_CERTS, NODE_OPTIONS).
+ * (e.g., CLAUDE_CODE_CERT_STORE, NODE_EXTRA_CA_CERTS, NODE_OPTIONS).
  */
 export function clearCACertsCache(): void {
   getCACertificates.cache.clear?.()
