@@ -20,9 +20,11 @@ The checked-in cases are:
   incremental recovery;
 - [`2.1.96 → 2.1.97`](./cases/2.1.96-to-2.1.97/REPORT.md), the sixth
   incremental recovery; and
-- [`2.1.97 → 2.1.98`](./cases/2.1.97-to-2.1.98/REPORT.md), the current
-  incremental recovery. Upstream did not publish 2.1.93 or 2.1.95, so the
-  two-number advances are single steps in published-release order.
+- [`2.1.97 → 2.1.98`](./cases/2.1.97-to-2.1.98/REPORT.md), the seventh
+  incremental recovery; and
+- [`2.1.98 → 2.1.100`](./cases/2.1.98-to-2.1.100/REPORT.md), the current
+  incremental recovery. Upstream did not publish 2.1.93, 2.1.95, or 2.1.99,
+  so each two-number advance is one step in published-release order.
 
 Each case has two simultaneous completeness levels that must not be
 conflated:
@@ -35,9 +37,9 @@ conflated:
   types, comments, formatting, and exact module placement are not observable.
 
 For the current target, start with the
-[`2.1.98 report`](./cases/2.1.97-to-2.1.98/REPORT.md),
-[`manifest`](./cases/2.1.97-to-2.1.98/manifest.json), and
-[`complete runbook`](./cases/2.1.97-to-2.1.98/RECOVERY_RUNBOOK.md).
+[`2.1.100 report`](./cases/2.1.98-to-2.1.100/REPORT.md),
+[`manifest`](./cases/2.1.98-to-2.1.100/manifest.json), and
+[`complete runbook`](./cases/2.1.98-to-2.1.100/RECOVERY_RUNBOOK.md).
 
 ## Deliverables
 
@@ -54,9 +56,9 @@ For the current target, start with the
 
 The repository `src/` is the verified 2.1.88 outer/Bun-input source-map
 baseline plus cumulative source-facing overlays for 2.1.89, 2.1.90, 2.1.91,
-2.1.92, 2.1.94, 2.1.96, 2.1.97, and 2.1.98. Upstream skipped 2.1.93 and
-2.1.95. Those overlays are partial behavioral recoveries, not claims of the
-exact authored TypeScript trees.
+2.1.92, 2.1.94, 2.1.96, 2.1.97, 2.1.98, and 2.1.100. Upstream skipped
+2.1.93, 2.1.95, and 2.1.99. Those overlays are partial behavioral
+recoveries, not claims of the exact authored TypeScript trees.
 
 The 2.1.89 overlay modifies three files and adds one:
 
@@ -152,7 +154,22 @@ Bash permission hardening, LSP client identity, compact-disabled behavior,
 and shifted uppercase input. Large target-only additions remain exact in the
 published bundle recovery where their authored boundaries are unobservable.
 
-All eight overlays are already present. Do not apply any overlay twice; the
+The incremental 2.1.100 overlay advances directly from the verified 2.1.98
+tree because there is no published 2.1.99 package:
+
+```sh
+CASE=recovery/cases/2.1.98-to-2.1.100
+git apply "$CASE/recovered/thinking-progress-and-prompts.patch"
+```
+
+It recovers the 30-, 90-, and 270-second long-thinking notices, delays the
+stalled-response color transition from 3 seconds to 10 seconds with a
+10-second fade, and removes the obsolete output-efficiency prompt owner.
+Experiment-only communication-style and numeric-length changes remain exact
+in the published bundle layer because their preceding 2.1.98 authored
+scaffolding is absent from this partial source lineage.
+
+All nine overlays are already present. Do not apply any overlay twice; the
 complete gate reverse-checks the current increment and reapplies it in a
 temporary copy.
 
@@ -166,7 +183,7 @@ pixi run npm --prefix recovery ci --ignore-scripts
 
 RECOVERY_ARTIFACTS=$(mktemp -d)
 pixi run node recovery/scripts/acquire-case.mjs \
-  --case recovery/cases/2.1.97-to-2.1.98/manifest.json \
+  --case recovery/cases/2.1.98-to-2.1.100/manifest.json \
   --output "$RECOVERY_ARTIFACTS"
 ```
 
@@ -174,10 +191,10 @@ Run the complete gate:
 
 ```sh
 pixi run node recovery/scripts/verify-complete-recovery.mjs \
-  --case recovery/cases/2.1.97-to-2.1.98/manifest.json \
+  --case recovery/cases/2.1.98-to-2.1.100/manifest.json \
   --repo . \
   --artifacts "$RECOVERY_ARTIFACTS" \
-  --baseline-tarball "$RECOVERY_ARTIFACTS/2.1.97/package.tgz"
+  --baseline-tarball "$RECOVERY_ARTIFACTS/2.1.98/package.tgz"
 ```
 
 It verifies the 2.1.88 source-oracle correspondence, current overlay lineage,
@@ -187,23 +204,23 @@ target-backed tests, and exact package-tree reconstruction.
 
 The expected top-level status is `complete-recovery-verified`, with exact
 bundle SHA-256
-`27782951b963eaaa7f42018de0732c98c2e855804f709aa700f19cde30f23556`
+`d490cc3e923832683cd899cce6375cb9b3ce734bc72321d0bfea43470d5799be`
 and exact package-tree SHA-256
-`850b956fe51eb41bb07b0a3fcc59b1c18cf3aa7cb06bab6961d0d290c096c8f0`.
+`77664e78764fb8a12061576b840eb3efa6cd9f0405b6189f6c8b2edca33a83f7`.
 
 ## Inspect the diff
 
 The compact structural diff is plain text:
 
 ```sh
-less recovery/cases/2.1.97-to-2.1.98/readable-diff/statements.diff
+less recovery/cases/2.1.98-to-2.1.100/readable-diff/statements.diff
 ```
 
 The complete normalized Git diff is deterministically compressed:
 
 ```sh
 gzip -cd \
-  recovery/cases/2.1.97-to-2.1.98/readable-diff/normalized.diff.gz |
+  recovery/cases/2.1.98-to-2.1.100/readable-diff/normalized.diff.gz |
   less
 ```
 
@@ -214,13 +231,13 @@ The exact executable can be reconstructed directly:
 
 ```sh
 pixi run zstd -d \
-  --patch-from="$RECOVERY_ARTIFACTS/2.1.97/package/cli.js" \
-  recovery/cases/2.1.97-to-2.1.98/diff/cli.js.zstd-delta \
-  -o /tmp/claude-code-2.1.98-cli.js
+  --patch-from="$RECOVERY_ARTIFACTS/2.1.98/package/cli.js" \
+  recovery/cases/2.1.98-to-2.1.100/diff/cli.js.zstd-delta \
+  -o /tmp/claude-code-2.1.100-cli.js
 ```
 
-The reconstructed file must be 13,471,101 bytes with SHA-256
-`27782951b963eaaa7f42018de0732c98c2e855804f709aa700f19cde30f23556`.
+The reconstructed file must be 13,468,528 bytes with SHA-256
+`d490cc3e923832683cd899cce6375cb9b3ce734bc72321d0bfea43470d5799be`.
 
 ## Reusable method
 
