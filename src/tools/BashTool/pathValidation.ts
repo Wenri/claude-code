@@ -746,6 +746,12 @@ export function createPathChecker(
       const operationType =
         operationTypeOverride ?? COMMAND_OPERATION_TYPE[command]
       const suggestions: PermissionUpdate[] = []
+      const hadHigherPrePlanMode =
+        context.mode === 'plan' &&
+        context.prePlanMode !== undefined &&
+        ['auto', 'bypassPermissions', 'acceptEdits', 'dontAsk'].includes(
+          context.prePlanMode,
+        )
 
       // Only suggest adding directory/rules if we have a blocked path
       if (result.blockedPath) {
@@ -767,7 +773,10 @@ export function createPathChecker(
       }
 
       // For write operations, also suggest enabling accept-edits mode
-      if (operationType === 'write' || operationType === 'create') {
+      if (
+        (operationType === 'write' || operationType === 'create') &&
+        !hadHigherPrePlanMode
+      ) {
         suggestions.push({
           type: 'setMode',
           mode: 'acceptEdits',

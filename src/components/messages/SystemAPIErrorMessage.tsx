@@ -2,7 +2,10 @@ import { c as _c } from "react/compiler-runtime";
 import * as React from 'react';
 import { useState } from 'react';
 import { Box, Text } from 'src/ink.js';
-import { formatAPIError } from 'src/services/api/errorUtils.js';
+import {
+  formatAPIError,
+  isNetworkConnectionError
+} from 'src/services/api/errorUtils.js';
 import type { SystemAPIErrorMessage } from 'src/types/message.js';
 import { useInterval } from 'usehooks-ts';
 import { CtrlOToExpand } from '../CtrlOToExpand.js';
@@ -24,7 +27,7 @@ export function SystemAPIErrorMessage(t0) {
     retryInMs,
     maxRetries
   } = t1;
-  const hidden = true && retryAttempt < 4;
+  const hidden = retryAttempt < 4 && !isNetworkConnectionError(error);
   const [countdownMs, setCountdownMs] = useState(0);
   const done = countdownMs >= retryInMs;
   let t2;

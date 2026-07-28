@@ -23,6 +23,7 @@ import { createSignal } from '../utils/signal.js'
 import { jsonParse } from '../utils/slowOperations.js'
 import { DEFAULT_BINDINGS } from './defaultBindings.js'
 import { parseBindings } from './parser.js'
+import { KeybindingBlockSchema } from './schema.js'
 import type { KeybindingBlock, ParsedBinding } from './types.js'
 import {
   checkDuplicateKeysInJson,
@@ -93,13 +94,7 @@ function logCustomBindingsLoadedOncePerDay(userBindingCount: number): void {
  * Type guard to check if an object is a valid KeybindingBlock.
  */
 function isKeybindingBlock(obj: unknown): obj is KeybindingBlock {
-  if (typeof obj !== 'object' || obj === null) return false
-  const b = obj as Record<string, unknown>
-  return (
-    typeof b.context === 'string' &&
-    typeof b.bindings === 'object' &&
-    b.bindings !== null
-  )
+  return KeybindingBlockSchema().safeParse(obj).success
 }
 
 /**
@@ -173,7 +168,7 @@ export async function loadKeybindings(): Promise<KeybindingsLoadResult> {
         : 'keybindings.json contains invalid block structure'
       const suggestion = !Array.isArray(userBlocks)
         ? 'Set "bindings" to an array of keybinding blocks'
-        : 'Each block must have "context" (string) and "bindings" (object)'
+        : 'Each block must have "context" (string) and "bindings" (object mapping keys to a string action or null)'
       logForDebugging(`[keybindings] Invalid keybindings.json: ${errorMessage}`)
       return {
         bindings: defaultBindings,
@@ -302,7 +297,7 @@ export function loadKeybindingsSyncWithWarnings(): KeybindingsLoadResult {
         : 'keybindings.json contains invalid block structure'
       const suggestion = !Array.isArray(userBlocks)
         ? 'Set "bindings" to an array of keybinding blocks'
-        : 'Each block must have "context" (string) and "bindings" (object)'
+        : 'Each block must have "context" (string) and "bindings" (object mapping keys to a string action or null)'
       cachedBindings = defaultBindings
       cachedWarnings = [
         {

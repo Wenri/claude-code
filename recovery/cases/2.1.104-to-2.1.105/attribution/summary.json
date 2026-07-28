@@ -1,0 +1,168 @@
+{
+  "schemaVersion": 1,
+  "kind": "generated-source-ownership-and-attribution-inventory",
+  "offsetUnit": "utf16-code-units",
+  "claim": "Exhaustive generated-offset accounting with exact baseline source ownership; target source identities are evidence-ranked and unresolved where anchors are insufficient.",
+  "artifacts": {
+    "baselineBundle": {
+      "bytes": 13047043,
+      "sha256": "75c9611929d9a770fe2e3a393219d8b98f5de17fde539b2a7355c6db3fd2795f"
+    },
+    "baselineSourceMap": {
+      "bytes": 59766257,
+      "sha256": "7965012b7a5fc9e09d8d747a04c5c32b94696924536e217f686bb1e7ee70a657"
+    },
+    "targetBundle": {
+      "bytes": 13676915,
+      "sha256": "8bc6a637870babb5cb539da24e4bcbbd3e2c399b93d91b319ee42d0f26b03f75"
+    }
+  },
+  "options": {
+    "minimumLiteralLength": 8
+  },
+  "baselineOwnership": {
+    "sourceCount": 4756,
+    "sourceKinds": {
+      "application": 1902,
+      "nodeModules": 2850,
+      "vendor": 4
+    },
+    "mappedSegmentCount": 2068722,
+    "contiguousRunCount": 4756,
+    "eachSourceHasExactlyOneContiguousRun": true,
+    "generatedHeaderUtf16": 2230
+  },
+  "literalEvidence": {
+    "uniqueCommonAnchorCount": 42646,
+    "monotoneAnchorCount": 38091,
+    "nonMonotoneAnchorCount": 4555,
+    "monotoneFraction": 0.8931904516250059,
+    "partitionCount": 38092,
+    "tokenCountDelta": 165231,
+    "utf16LengthDelta": 627645,
+    "locatedSourceCount": 2585,
+    "locatedApplicationSourceCount": 1278,
+    "splitTargetClusterSourceCount": 14
+  },
+  "initializerEvidence": {
+    "baseline": {
+      "wrapperNames": {
+        "common": "m",
+        "initializer": "y"
+      },
+      "count": 4527
+    },
+    "target": {
+      "wrapperNames": {
+        "common": "B",
+        "initializer": "L"
+      },
+      "count": 4664,
+      "statuses": {
+        "unresolved-no-unique-literal": 2141,
+        "anchored-single-baseline-unit": 2467,
+        "anchored-multiple-baseline-units": 56
+      }
+    },
+    "targetNetCountDelta": 137
+  },
+  "coverage": {
+    "partitionCount": 38092,
+    "targetPartitionUtf16": 11455741,
+    "exactAnchorCount": 38091,
+    "exactAnchorTargetUtf16": 2155232,
+    "exactGeneratedPartitionCount": 18850,
+    "exactGeneratedTargetUtf16": 427813,
+    "changedHighConfidencePartitionCount": 16911,
+    "changedHighConfidenceTargetUtf16": 4928268,
+    "changedCandidatePartitionCount": 2325,
+    "changedCandidateTargetUtf16": 6097763,
+    "unresolvedPartitionCount": 6,
+    "unresolvedTargetUtf16": 1897,
+    "accountedTargetUtf16": 13610973,
+    "targetUtf16": 13610973,
+    "unaccountedTargetUtf16": 0
+  },
+  "releaseEvidence": {
+    "targetPackage": {
+      "bytes": 1371,
+      "sha256": "4bfad648bc456c97c8a3e8267e46dbe37bb9ffb6a6c2a7751fd349d0abbf27ba",
+      "name": "@anthropic-ai/claude-code",
+      "version": "2.1.105"
+    },
+    "targetDeclarations": {
+      "bytes": 117636,
+      "sha256": "434bd6609ce22b3bf749793a988e796108f28151c6307c840e5c1427c4ccd928"
+    },
+    "officialChangelog": {
+      "bytes": 223437,
+      "sha256": "94f4bf1d27b1ff557c422db8453f96d1aadb9021f6d94d90801492d51786f022",
+      "section": "2.1.105",
+      "bulletCount": 37,
+      "bullets": [
+        "Added `path` parameter to the `EnterWorktree` tool to switch into an existing worktree of the current repository",
+        "Added PreCompact hook support: hooks can now block compaction by exiting with code 2 or returning `{\"decision\":\"block\"}`",
+        "Added background monitor support for plugins via a top-level `monitors` manifest key that auto-arms at session start or on skill invoke",
+        "`/proactive` is now an alias for `/loop`",
+        "Improved stalled API stream handling: streams now abort after 5 minutes of no data and retry non-streaming instead of hanging indefinitely",
+        "Improved network error messages: connection errors now show a retry message immediately instead of a silent spinner",
+        "Improved file write display: long single-line writes (e.g. minified JSON) are now truncated in the UI instead of paginating across many screens",
+        "Improved `/doctor` layout with status icons; press `f` to have Claude fix reported issues",
+        "Improved `/config` labels and descriptions for clarity",
+        "Improved skill description handling: raised the listing cap from 250 to 1,536 characters and added a startup warning when descriptions are truncated",
+        "Improved `WebFetch` to strip `<style>` and `<script>` contents from fetched pages so CSS-heavy pages no longer exhaust the content budget before reaching actual text",
+        "Improved stale agent worktree cleanup to remove worktrees whose PR was squash-merged instead of keeping them indefinitely",
+        "Improved MCP large-output truncation prompt to give format-specific recipes (e.g. `jq` for JSON, computed Read chunk sizes for text)",
+        "Fixed images attached to queued messages (sent while Claude is working) being dropped",
+        "Fixed screen going blank when the prompt input wraps to a second line in long conversations",
+        "Fixed leading whitespace getting copied when selecting multi-line assistant responses in fullscreen mode",
+        "Fixed leading whitespace being trimmed from assistant messages, breaking ASCII art and indented diagrams",
+        "Fixed garbled bash output when commands print clickable file links (e.g. Python `rich`/`loguru` logging)",
+        "Fixed alt+enter not inserting a newline in terminals using ESC-prefix alt encoding, and Ctrl+J not inserting a newline (regression in 2.1.100)",
+        "Fixed duplicate \"Creating worktree\" text in EnterWorktree/ExitWorktree tool display",
+        "Fixed queued user prompts disappearing from focus mode",
+        "Fixed one-shot scheduled tasks re-firing repeatedly when the file watcher missed the post-fire cleanup",
+        "Fixed inbound channel notifications being silently dropped after the first message for Team/Enterprise users",
+        "Fixed marketplace plugins with `package.json` and lockfile not having dependencies installed automatically after install/update",
+        "Fixed marketplace auto-update leaving the official marketplace in a broken state when a plugin process holds files open during the update",
+        "Fixed \"Resume this session with...\" hint not printing on exit after `/resume`, `--worktree`, or `/branch`",
+        "Fixed feedback survey shortcut keys firing when typed at the end of a longer prompt",
+        "Fixed stdio MCP server emitting malformed (non-JSON) output hanging the session instead of failing fast with \"Connection closed\"",
+        "Fixed MCP tools missing on the first turn of headless/remote-trigger sessions when MCP servers connect asynchronously",
+        "Fixed `/model` picker on AWS Bedrock in non-US regions persisting invalid `us.*` model IDs to `settings.json` when inference profile discovery is still in-flight",
+        "Fixed 429 rate-limit errors showing a raw JSON dump instead of a clean message for API-key, Bedrock, and Vertex users",
+        "Fixed crash on resume when session contains malformed text blocks",
+        "Fixed `/help` dropping the tab bar, Shortcuts heading, and footer at short terminal heights",
+        "Fixed malformed keybinding entry values in `keybindings.json` being silently loaded instead of rejected with a clear error",
+        "Fixed `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` in one project's settings permanently disabling usage metrics for all projects on the machine",
+        "Fixed washed-out 16-color palette when using Ghostty, Kitty, Alacritty, WezTerm, foot, rio, or Contour over SSH/mosh",
+        "Fixed Bash tool suggesting `acceptEdits` permission mode when exiting plan mode would downgrade from a higher permission level"
+      ]
+    }
+  },
+  "reportFiles": {
+    "sources": {
+      "path": "sources.jsonl.gz",
+      "bytes": 489416,
+      "sha256": "cd82bae280f0fdbb091d130d3f4e4fd7936a4ed8ca9bc70822643c3760b9f246"
+    },
+    "targetInitializers": {
+      "path": "target-initializers.jsonl.gz",
+      "bytes": 112531,
+      "sha256": "6216a86eb9f6009d1ef88856ec4e37c1efa17143fa137913aa6ee9dec148df68"
+    },
+    "targetPartitions": {
+      "path": "target-partitions.jsonl.gz",
+      "bytes": 3734462,
+      "sha256": "6080c8462e5ca6b531f23e40c91cd29fda495b5e05b152cef20c8e65b2ad40bf"
+    }
+  },
+  "limitations": [
+    "Exact source ownership exists only for the baseline source map.",
+    "Initializer regions are delimited by successive Bun wrapper-expression starts; they are generated units, not asserted one-to-one source modules.",
+    "A target initializer with no unique long literal is unresolved, not automatically target-only.",
+    "Candidate ranges can include moved code; non-monotone literal owners are reported separately.",
+    "Raw-different partitions include harmless minifier-name churn as well as semantic changes.",
+    "No target source text is claimed reconstructed by this inventory."
+  ]
+}

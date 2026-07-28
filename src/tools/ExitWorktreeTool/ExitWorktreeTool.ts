@@ -187,6 +187,14 @@ export const ExitWorktreeTool: Tool<InputSchema, Output> = buildTool({
       }
     }
 
+    if (input.action === 'remove' && session.enteredExisting) {
+      return {
+        result: false,
+        message: `This session entered an existing worktree (${session.worktreePath}); it was not created by EnterWorktree, so this tool will not remove it. Use action: "keep" to return to ${session.originalCwd}, then remove the worktree manually with \`git worktree remove\` if desired.`,
+        errorCode: 4,
+      }
+    }
+
     if (input.action === 'remove' && !input.discard_changes) {
       const summary = await countWorktreeChanges(
         session.worktreePath,
@@ -291,6 +299,7 @@ export const ExitWorktreeTool: Tool<InputSchema, Output> = buildTool({
     restoreSessionToOriginalCwd(originalCwd, projectRootIsWorktree)
 
     logEvent('tengu_worktree_removed', {
+      source: 'exit_tool',
       mid_session: true,
       commits,
       changed_files: changedFiles,

@@ -74,6 +74,7 @@ ${args}`
 export function registerLoopSkill(): void {
   registerBundledSkill({
     name: 'loop',
+    aliases: ['proactive'],
     description:
       'Run a prompt or slash command on a recurring interval (e.g. /loop 5m /foo, defaults to 10m)',
     whenToUse:

@@ -28,6 +28,18 @@ const SSL_ERROR_CODES = new Set([
   'ERR_SSL_DECRYPTION_FAILED_OR_BAD_RECORD_MAC',
 ])
 
+const NETWORK_CONNECTION_ERROR_CODES = new Set([
+  'ECONNREFUSED',
+  'ConnectionRefused',
+  'ENOTFOUND',
+  'ENETUNREACH',
+  'ENETDOWN',
+  'EHOSTUNREACH',
+  'EHOSTDOWN',
+  'EAI_AGAIN',
+  'FailedToOpenSocket',
+])
+
 export type ConnectionErrorDetails = {
   code: string
   message: string
@@ -80,6 +92,13 @@ export function extractConnectionErrorDetails(
   }
 
   return null
+}
+
+export function isNetworkConnectionError(error: unknown): boolean {
+  const details = extractConnectionErrorDetails(error)
+  return (
+    details !== null && NETWORK_CONNECTION_ERROR_CODES.has(details.code)
+  )
 }
 
 /**

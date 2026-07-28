@@ -579,6 +579,8 @@ const MessagesImpl = ({
   // every new message.
   const lookupsRef = useRef(lookups_0);
   lookupsRef.current = lookups_0;
+  const columnsRef = useRef(columns);
+  columnsRef.current = columns;
   const isItemClickable = useCallback((msg_6: RenderableMessage): boolean => {
     if (msg_6.type === 'collapsed_read_search') return true;
     if (msg_6.type === 'assistant') {
@@ -590,7 +592,9 @@ const MessagesImpl = ({
     if (b_0?.type !== 'tool_result' || b_0.is_error || !msg_6.toolUseResult) return false;
     const name = lookupsRef.current.toolUseByToolUseID.get(b_0.tool_use_id)?.name;
     const tool = name ? findToolByName(tools, name) : undefined;
-    return tool?.isResultTruncated?.(msg_6.toolUseResult as never) ?? false;
+    return tool?.isResultTruncated?.(msg_6.toolUseResult as never, {
+      columns: columnsRef.current
+    }) ?? false;
   }, [tools]);
   const canAnimate = (!toolJSX || !!toolJSX.shouldContinueAnimation) && !toolUseConfirmQueue.length && !isMessageSelectorVisible;
   const hasToolsInProgress = inProgressToolUseIDs.size > 0;

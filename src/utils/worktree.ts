@@ -6,12 +6,13 @@ import {
   mkdir,
   readdir,
   readFile,
+  realpath,
   stat,
   symlink,
   utimes,
 } from 'fs/promises'
 import ignore from 'ignore'
-import { basename, dirname, join } from 'path'
+import { basename, dirname, join, resolve } from 'path'
 import { saveCurrentProjectConfig } from './config.js'
 import { getCwd } from './cwd.js'
 import { logForDebugging } from './debug.js'
@@ -151,6 +152,8 @@ export type WorktreeSession = {
   creationDurationMs?: number
   /** True if git sparse-checkout was applied via settings.worktree.sparsePaths. */
   usedSparsePaths?: boolean
+  /** True when this session entered a pre-existing registered worktree. */
+  enteredExisting?: boolean
 }
 
 let currentWorktreeSession: WorktreeSession | null = null
@@ -166,6 +169,14 @@ export function getCurrentWorktreeSession(): WorktreeSession | null {
  */
 export function restoreWorktreeSession(session: WorktreeSession | null): void {
   currentWorktreeSession = session
+}
+
+function setCurrentWorktreeSession(session: WorktreeSession | null): void {
+  currentWorktreeSession = session
+  saveCurrentProjectConfig(current => ({
+    ...current,
+    activeWorktreeSession: session ?? undefined,
+  }))
 }
 
 export function generateTmuxSessionName(
@@ -710,6 +721,7 @@ export async function createWorktreeForSession(
   validateWorktreeSlug(slug)
 
   const originalCwd = getCwd()
+  let worktreeSession: WorktreeSession
 
   // Try hook-based worktree creation first (allows user-configured VCS)
   if (hasWorktreeCreateHook()) {
@@ -718,7 +730,7 @@ export async function createWorktreeForSession(
       `Created hook-based worktree at: ${hookResult.worktreePath}`,
     )
 
-    currentWorktreeSession = {
+    worktreeSession = {
       originalCwd,
       worktreePath: hookResult.worktreePath,
       worktreeName: slug,
@@ -753,7 +765,7 @@ export async function createWorktreeForSession(
       creationDurationMs = Date.now() - createStart
     }
 
-    currentWorktreeSession = {
+    worktreeSession = {
       originalCwd,
       worktreePath,
       worktreeName: slug,
@@ -768,13 +780,116 @@ export async function createWorktreeForSession(
     }
   }
 
-  // Save to project config for persistence
-  saveCurrentProjectConfig(current => ({
-    ...current,
-    activeWorktreeSession: currentWorktreeSession ?? undefined,
-  }))
+  setCurrentWorktreeSession(worktreeSession)
+  return worktreeSession
+}
 
-  return currentWorktreeSession
+export async function listRegisteredWorktrees(
+  repoRoot: string,
+): Promise<
+  Array<{ worktreePath: string; worktreeBranch?: string }>
+> {
+  const { code, stdout, stderr, error } = await execFileNoThrow(
+    gitExe(),
+    ['-C', repoRoot, 'worktree', 'list', '--porcelain'],
+    { timeout: 10_000 },
+  )
+  if (code !== 0) {
+    throw new Error(
+      `\`git -C ${repoRoot} worktree list\` failed: ${stderr.trim() || errorMessage(error) || `exit ${code}`}`,
+    )
+  }
+
+  const worktrees: Array<{
+    worktreePath: string
+    worktreeBranch?: string
+  }> = []
+  let current: { worktreePath: string; worktreeBranch?: string } | null = null
+
+  for (const line of stdout.split('\n')) {
+    if (line.startsWith('worktree ')) {
+      if (current) {
+        worktrees.push(current)
+      }
+      current = { worktreePath: line.slice('worktree '.length) }
+    } else if (line.startsWith('branch ') && current) {
+      current.worktreeBranch = line
+        .slice('branch '.length)
+        .replace(/^refs\/heads\//, '')
+    }
+  }
+  if (current) {
+    worktrees.push(current)
+  }
+  return worktrees
+}
+
+export async function enterExistingWorktreeForSession(
+  sessionId: string,
+  requestedPath: string,
+): Promise<WorktreeSession> {
+  const originalCwd = getCwd()
+  const repoRoot = findCanonicalGitRoot(originalCwd)
+  if (!repoRoot) {
+    throw new Error(
+      'Cannot enter an existing worktree: the current directory is not in a git repository.',
+    )
+  }
+
+  let requestedRealPath: string
+  let repoRealPath: string
+  let currentRealPath: string
+  try {
+    requestedRealPath = await realpath(resolve(originalCwd, requestedPath))
+    repoRealPath = await realpath(repoRoot)
+    currentRealPath = await realpath(originalCwd)
+  } catch (error) {
+    throw new Error(
+      `Cannot enter worktree: ${requestedPath}: ${errorMessage(error)}`,
+    )
+  }
+
+  if (requestedRealPath === repoRealPath) {
+    throw new Error(
+      `Cannot enter worktree: ${requestedPath} is the main working tree, not a linked worktree.`,
+    )
+  }
+  if (requestedRealPath === currentRealPath) {
+    throw new Error(
+      `Cannot enter worktree: ${requestedPath} is the current working directory.`,
+    )
+  }
+
+  const registeredWorktrees = await listRegisteredWorktrees(repoRoot)
+  let registered:
+    | { worktreePath: string; worktreeBranch?: string }
+    | undefined
+  for (const worktree of registeredWorktrees) {
+    try {
+      if ((await realpath(worktree.worktreePath)) === requestedRealPath) {
+        registered = worktree
+        break
+      }
+    } catch {
+      // Ignore stale registered paths while looking for the requested one.
+    }
+  }
+  if (!registered) {
+    throw new Error(
+      `Cannot enter worktree: ${requestedPath} is not a registered worktree of ${repoRoot}. Run 'git -C ${repoRoot} worktree list' to see registered worktrees.`,
+    )
+  }
+
+  const worktreeSession: WorktreeSession = {
+    originalCwd,
+    worktreePath: requestedRealPath,
+    worktreeName: basename(requestedRealPath),
+    worktreeBranch: registered.worktreeBranch,
+    sessionId,
+    enteredExisting: true,
+  }
+  setCurrentWorktreeSession(worktreeSession)
+  return worktreeSession
 }
 
 export async function keepWorktree(): Promise<void> {
@@ -789,13 +904,7 @@ export async function keepWorktree(): Promise<void> {
     process.chdir(originalCwd)
 
     // Clear the session but keep the worktree intact
-    currentWorktreeSession = null
-
-    // Update config
-    saveCurrentProjectConfig(current => ({
-      ...current,
-      activeWorktreeSession: undefined,
-    }))
+    setCurrentWorktreeSession(null)
 
     logForDebugging(
       `Linked worktree preserved at: ${worktreePath}${worktreeBranch ? ` on branch: ${worktreeBranch}` : ''}`,
@@ -821,6 +930,11 @@ export async function cleanupWorktree(): Promise<void> {
 
     // Change back to original directory first
     process.chdir(originalCwd)
+
+    if (currentWorktreeSession.enteredExisting) {
+      setCurrentWorktreeSession(null)
+      return
+    }
 
     if (hookBased) {
       // Hook-based worktree: delegate cleanup to WorktreeRemove hook
@@ -855,13 +969,7 @@ export async function cleanupWorktree(): Promise<void> {
     }
 
     // Clear the session
-    currentWorktreeSession = null
-
-    // Update config
-    saveCurrentProjectConfig(current => ({
-      ...current,
-      activeWorktreeSession: undefined,
-    }))
+    setCurrentWorktreeSession(null)
 
     // Delete the temporary worktree branch (git-based only)
     if (!hookBased && worktreeBranch) {

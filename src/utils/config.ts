@@ -130,6 +130,7 @@ export type ProjectConfig = {
     originalBranch?: string
     sessionId: string
     hookBased?: boolean
+    enteredExisting?: boolean
   }
   /** Spawn mode for `claude remote-control` multi-session. Set by first-run dialog or `w` toggle. */
   remoteControlSpawnMode?: 'same-dir' | 'worktree'

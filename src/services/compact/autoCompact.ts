@@ -19,6 +19,7 @@ import { setLastSummarizedMessageId } from '../SessionMemory/sessionMemoryUtils.
 import {
   type CompactionResult,
   compactConversation,
+  ERROR_MESSAGE_COMPACTION_BLOCKED,
   ERROR_MESSAGE_USER_ABORT,
   type RecompactionInfo,
 } from './compact.js'
@@ -332,6 +333,12 @@ export async function autoCompactIfNeeded(
       consecutiveFailures: 0,
     }
   } catch (error) {
+    if (
+      error instanceof Error &&
+      error.message.startsWith(ERROR_MESSAGE_COMPACTION_BLOCKED)
+    ) {
+      return { wasCompacted: false }
+    }
     if (!hasExactErrorMessage(error, ERROR_MESSAGE_USER_ABORT)) {
       logError(error)
     }
