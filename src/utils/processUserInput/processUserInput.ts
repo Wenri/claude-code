@@ -9,6 +9,10 @@ import type { QuerySource } from 'src/constants/querySource.js'
 import { logEvent } from 'src/services/analytics/index.js'
 import { getContentText } from 'src/utils/messages.js'
 import {
+  isThinkingGuidanceEnabled,
+  THINKING_GUIDANCE_REMINDER,
+} from '../../constants/prompts.js'
+import {
   findCommand,
   getCommandName,
   isBridgeSafeCommand,
@@ -583,7 +587,7 @@ async function processUserInputBase(
   }
 
   // Regular user prompt
-  return addImageMetadataMessage(
+  const result = addImageMetadataMessage(
     processTextPrompt(
       normalizedInput,
       imageContentBlocks,
@@ -595,6 +599,22 @@ async function processUserInputBase(
     ),
     imageMetadataTexts,
   )
+  if (
+    mode === 'prompt' &&
+    !isMeta &&
+    context.options.customSystemPrompt === undefined &&
+    context.options.thinkingConfig?.type !== 'disabled' &&
+    isThinkingGuidanceEnabled(context.options.mainLoopModel) &&
+    messages?.some(message => message.type === 'assistant')
+  ) {
+    result.messages.push(
+      createUserMessage({
+        content: THINKING_GUIDANCE_REMINDER,
+        isMeta: true,
+      }),
+    )
+  }
+  return result
 }
 
 // Adds image metadata texts as isMeta message to result

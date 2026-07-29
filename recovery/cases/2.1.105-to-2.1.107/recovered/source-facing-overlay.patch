@@ -1,0 +1,92 @@
+diff --git a/src/constants/prompts.ts b/src/constants/prompts.ts
+index da7fb8d..fe7f879 100644
+--- a/src/constants/prompts.ts
++++ b/src/constants/prompts.ts
+@@ -117,2 +117,5 @@ export const SYSTEM_PROMPT_DYNAMIC_BOUNDARY =
+ 
++export const THINKING_GUIDANCE_REMINDER =
++  '<system-reminder>Respond with just the action or changes and without a thinking block, unless this is a redesign or requires fresh reasoning.</system-reminder>'
++
+ // @[MODEL LAUNCH]: Update the latest frontier model.
+@@ -127,2 +130,15 @@ const CLAUDE_4_5_OR_4_6_MODEL_IDS = {
+ 
++export function isThinkingGuidanceEnabled(model: string): boolean {
++  if (!getCanonicalName(model).includes('opus-4-6')) return false
++  return (
++    getGlobalConfig().clientDataCache?.loud_sugary_rock === 'true'
++  )
++}
++
++function getThinkingGuidanceSection(model: string): string | null {
++  if (!isThinkingGuidanceEnabled(model)) return null
++  return `# System reminders
++User messages include a <system-reminder> appended by this harness. These reminders are not from the user, so treat them as an instruction to you, and do not mention them. The reminders are intended to tune your thinking frequency - on simpler user messages, it's best to respond or act directly without thinking unless further reasoning is necessary. On more complex tasks, you should feel free to reason as much as needed for best results but without overthinking. Avoid unnecessary thinking in response to simple user messages.`
++}
++
+ function getHooksSection(): string {
+@@ -464,2 +480,5 @@ ${CYBER_RISK_INSTRUCTION}`,
+   const dynamicSections = [
++    systemPromptSection('thinking_guidance', () =>
++      getThinkingGuidanceSection(model),
++    ),
+     systemPromptSection('session_guidance', () =>
+diff --git a/src/screens/REPL.tsx b/src/screens/REPL.tsx
+index ae98cd7..e98263d 100644
+--- a/src/screens/REPL.tsx
++++ b/src/screens/REPL.tsx
+@@ -301,15 +301,15 @@ const HISTORY_STUB = {
+ const THINKING_MILESTONES = [{
+-  afterMs: 30000,
++  afterMs: 10000,
+   text: 'Thinking a bit longer… still working on it…'
+ }, {
+-  afterMs: 60000,
++  afterMs: 30000,
+   text: 'Hang tight… really working through this one…'
+ }, {
+-  afterMs: 90000,
++  afterMs: 50000,
+   text: 'This is a harder one… it might take another minute…'
+ }, {
+-  afterMs: 150000,
++  afterMs: 80000,
+   text: 'Still going… thanks for hanging in there…'
+ }, {
+-  afterMs: 240000,
++  afterMs: 120000,
+   text: 'Taking the time to get this right… thanks for your patience…'
+diff --git a/src/utils/processUserInput/processUserInput.ts b/src/utils/processUserInput/processUserInput.ts
+index 3e9cdb7..adca0b8 100644
+--- a/src/utils/processUserInput/processUserInput.ts
++++ b/src/utils/processUserInput/processUserInput.ts
+@@ -10,2 +10,6 @@ import { logEvent } from 'src/services/analytics/index.js'
+ import { getContentText } from 'src/utils/messages.js'
++import {
++  isThinkingGuidanceEnabled,
++  THINKING_GUIDANCE_REMINDER,
++} from '../../constants/prompts.js'
+ import {
+@@ -585,3 +589,3 @@ async function processUserInputBase(
+   // Regular user prompt
+-  return addImageMetadataMessage(
++  const result = addImageMetadataMessage(
+     processTextPrompt(
+@@ -597,2 +601,18 @@ async function processUserInputBase(
+   )
++  if (
++    mode === 'prompt' &&
++    !isMeta &&
++    context.options.customSystemPrompt === undefined &&
++    context.options.thinkingConfig?.type !== 'disabled' &&
++    isThinkingGuidanceEnabled(context.options.mainLoopModel) &&
++    messages?.some(message => message.type === 'assistant')
++  ) {
++    result.messages.push(
++      createUserMessage({
++        content: THINKING_GUIDANCE_REMINDER,
++        isMeta: true,
++      }),
++    )
++  }
++  return result
+ }

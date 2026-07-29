@@ -115,6 +115,9 @@ export const CLAUDE_CODE_DOCS_MAP_URL =
 export const SYSTEM_PROMPT_DYNAMIC_BOUNDARY =
   '__SYSTEM_PROMPT_DYNAMIC_BOUNDARY__'
 
+export const THINKING_GUIDANCE_REMINDER =
+  '<system-reminder>Respond with just the action or changes and without a thinking block, unless this is a redesign or requires fresh reasoning.</system-reminder>'
+
 // @[MODEL LAUNCH]: Update the latest frontier model.
 const FRONTIER_MODEL_NAME = 'Claude Opus 4.6'
 
@@ -123,6 +126,19 @@ const CLAUDE_4_5_OR_4_6_MODEL_IDS = {
   opus: 'claude-opus-4-6',
   sonnet: 'claude-sonnet-4-6',
   haiku: 'claude-haiku-4-5-20251001',
+}
+
+export function isThinkingGuidanceEnabled(model: string): boolean {
+  if (!getCanonicalName(model).includes('opus-4-6')) return false
+  return (
+    getGlobalConfig().clientDataCache?.loud_sugary_rock === 'true'
+  )
+}
+
+function getThinkingGuidanceSection(model: string): string | null {
+  if (!isThinkingGuidanceEnabled(model)) return null
+  return `# System reminders
+User messages include a <system-reminder> appended by this harness. These reminders are not from the user, so treat them as an instruction to you, and do not mention them. The reminders are intended to tune your thinking frequency - on simpler user messages, it's best to respond or act directly without thinking unless further reasoning is necessary. On more complex tasks, you should feel free to reason as much as needed for best results but without overthinking. Avoid unnecessary thinking in response to simple user messages.`
 }
 
 function getHooksSection(): string {
@@ -462,6 +478,9 @@ ${CYBER_RISK_INSTRUCTION}`,
   }
 
   const dynamicSections = [
+    systemPromptSection('thinking_guidance', () =>
+      getThinkingGuidanceSection(model),
+    ),
     systemPromptSection('session_guidance', () =>
       getSessionSpecificGuidanceSection(enabledTools, skillToolCommands),
     ),
