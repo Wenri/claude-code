@@ -1,7 +1,7 @@
-claude-dispatch
-===============
+rtld-dispatch
+=============
 
-claude-dispatch is a custom build of the GNU C Library's dynamic linker (ld.so).
+rtld-dispatch is a custom build of the GNU C Library's dynamic linker (ld.so).
 
 The final ld.so link is driven by cargo (nix-ld style): glibc is built only up to
 `librtld.os`, then a `bin` crate links that (rtld = the libc subset + the `_start`
@@ -16,10 +16,12 @@ What this repository contains:
                            glibc → librtld.os, then injects glibc's ld.so link recipe
                            + librtld.os so cargo's own link produces the ld.so.
   - .cargo/config.toml   — selects gcc/bfd (not rust-lld) for the final link.
-  - Makefile             — build + `patchelf --remove-rpath` + install (the rpath
-                           strip can't live in build.rs — it runs pre-link).
+  - Makefile             — build + `patchelf --remove-rpath` + install as <prog>.rtld
+                           (the rpath strip can't live in build.rs — it runs pre-link).
   - glibc/glibc-*.tar.xz — pristine upstream glibc source (Git LFS), unmodified.
   - glibc/slackware/     — Slackware's glibc patches + SlackBuild, for reference.
+  - patch_agy_wsl1.py    — standalone (unrelated to the ld.so build): patches Google's
+                           Antigravity CLI binary so its bundled tcmalloc runs on WSL1.
 
 Licensing:
   - The GNU C Library is licensed under the GNU Lesser General Public License,

@@ -4,12 +4,12 @@
        /* Note the place where the dynamic linker actually came from.  */
        _dl_rtld_map.l_name = rtld_progname;
 
-+      /* claude-dispatch: select CLAUDE_BIN as the program (and the bundled-tool
-+         argv0) without consuming any args — _dl_argv is left untouched so
-+         skip_args stays 0 and the program receives the kernel argv unchanged.
-+         Then skip ld.so's own option parsing.  */
++      /* claude-dispatch: pick the program to load from our OWN name (readlink of
++         /proc/self/exe, minus ".rtld") by rewriting _dl_argv[0], and set argv0 for
++         a bundled-tool invocation. _dl_argv isn't advanced (skip_args stays 0);
++         then skip ld.so's own option parsing.  */
 +      {
-+	extern int claude_dispatch (char **, char **);
++	extern _Bool claude_dispatch (char **, char **);
 +	if (claude_dispatch (_dl_argv, &argv0))
 +	  goto claude_loaded;
 +      }
