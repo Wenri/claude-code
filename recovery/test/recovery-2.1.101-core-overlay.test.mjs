@@ -97,7 +97,7 @@ test('recovers permission precedence and stale ripgrep re-resolution', () => {
 
 test('recovers focus display, thinking cadence, key controls, and live resume leaf', () => {
   const prompts = source('constants/prompts.ts')
-  const repl = source('screens/REPL.tsx')
+  const indicator = source('components/ThinkingIndicator.tsx')
   const keypress = source('ink/parse-keypress.ts')
   const sessions = source('utils/sessionStorage.ts')
   const virtualList = source('components/VirtualMessageList.tsx')
@@ -105,8 +105,8 @@ test('recovers focus display, thinking cadence, key controls, and live resume le
   assert.match(prompts, /systemPromptSection\('focus_mode'/)
   assert.match(prompts, /The user has focus mode enabled/)
   assert.match(
-    repl,
-    /afterMs: 30000,[\s\S]*afterMs: 60000,[\s\S]*afterMs: 90000,[\s\S]*afterMs: 150000,[\s\S]*afterMs: 240000,/,
+    indicator,
+    /afterMs: 1000,[\s\S]*afterMs: 60000,[\s\S]*afterMs: 120000,[\s\S]*afterMs: 165000,/,
   )
   assert.match(keypress, /s === '\\x1c'[\s\S]*key\.name = '\\\\'/)
   assert.match(keypress, /s === '\\x1d'[\s\S]*key\.name = '\]'/)

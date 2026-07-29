@@ -7,6 +7,12 @@ import { fileURLToPath } from 'node:url'
 const replPath = fileURLToPath(
   new URL('../../src/screens/REPL.tsx', import.meta.url),
 )
+const messagesPath = fileURLToPath(
+  new URL('../../src/components/Messages.tsx', import.meta.url),
+)
+const thinkingIndicatorPath = fileURLToPath(
+  new URL('../../src/components/ThinkingIndicator.tsx', import.meta.url),
+)
 const promptsPath = fileURLToPath(
   new URL('../../src/constants/prompts.ts', import.meta.url),
 )
@@ -64,18 +70,15 @@ function requiredBundle(filename, label, expectedSha256) {
   return bytes.toString('utf8')
 }
 
-test('recovers the complete earlier thinking-hint cadence in source', () => {
+test('tracks the verified successor to the earlier thinking-hint cadence', () => {
   const repl = fs.readFileSync(replPath, 'utf8')
-  const start = repl.indexOf('const THINKING_MILESTONES = [')
-  const end = repl.indexOf('];', start)
-  const milestoneBlock = repl.slice(start, end)
+  const indicator = fs.readFileSync(thinkingIndicatorPath, 'utf8')
   const milestones = [
-    ...milestoneBlock.matchAll(/afterMs: (\d+),\n  text: '([^']+)'/g),
+    ...indicator.matchAll(/afterMs: (\d+),\n  text: '([^']+)'/g),
   ]
 
-  assert.equal(start >= 0, true)
-  assert.equal(end > start, true)
-  assert.equal(milestones.length, 5)
+  assert.equal(repl.includes('THINKING_MILESTONES'), false)
+  assert.equal(milestones.length, 14)
   assert.deepEqual(
     milestones.map(match => ({
       afterMs: Number(match[1]),
@@ -83,41 +86,83 @@ test('recovers the complete earlier thinking-hint cadence in source', () => {
     })),
     [
       {
-        afterMs: 10_000,
-        text: 'Thinking a bit longer… still working on it…',
+        afterMs: 1_000,
+        text: 'Hmm…',
       },
       {
-        afterMs: 30_000,
-        text: 'Hang tight… really working through this one…',
+        afterMs: 6_000,
+        text: 'This one needs a moment…',
       },
       {
-        afterMs: 50_000,
-        text: 'This is a harder one… it might take another minute…',
+        afterMs: 12_000,
+        text: 'Working through it…',
+      },
+      {
+        afterMs: 20_000,
+        text: 'Untangling some thoughts…',
+      },
+      {
+        afterMs: 28_000,
+        text: 'Weighing a few approaches…',
+      },
+      {
+        afterMs: 36_000,
+        text: 'Consulting the rubber duck…',
+      },
+      {
+        afterMs: 48_000,
+        text: 'Cross-referencing seventeen theories…',
+      },
+      {
+        afterMs: 60_000,
+        text: 'Double-checking the double-checks…',
       },
       {
         afterMs: 80_000,
-        text: 'Still going… thanks for hanging in there…',
+        text: 'Almost there…',
+      },
+      {
+        afterMs: 108_000,
+        text: 'Pacing in small circles…',
       },
       {
         afterMs: 120_000,
-        text: 'Taking the time to get this right… thanks for your patience…',
+        text: 'Reticulating splines…',
+      },
+      {
+        afterMs: 135_000,
+        text: 'Hmm…?',
+      },
+      {
+        afterMs: 150_000,
+        text: 'Staring thoughtfully into the middle distance…',
+      },
+      {
+        afterMs: 165_000,
+        text: 'Still here, still at it…',
       },
     ],
   )
 })
 
-test('keeps milestone scheduling and cleanup wired to the recovered delays', () => {
+test('keeps successor scheduling, cleanup, and placement wired in source', () => {
   const repl = fs.readFileSync(replPath, 'utf8')
+  const messages = fs.readFileSync(messagesPath, 'utf8')
+  const indicator = fs.readFileSync(thinkingIndicatorPath, 'utf8')
 
   assert.match(
-    repl,
-    /if \(streamMode !== 'thinking' \|\| !isLoading\) \{\n      setThinkingMilestoneIndex\(-1\);\n      return;\n    \}\n    const timers = THINKING_MILESTONES\.map\(\(milestone, index\) => setTimeout\(setThinkingMilestoneIndex, milestone\.afterMs, index\)\)/,
+    indicator,
+    /THINKING_HINTS\.map\(\(hint, index\) => setTimeout\(setHintIndex, hint\.afterMs, index\)\)/,
   )
-  assert.match(repl, /for \(const timer of timers\) clearTimeout\(timer\)/)
-  assert.match(repl, /\}, \[streamMode, isLoading\]\);/)
+  assert.match(indicator, /for \(const timer of timers\) clearTimeout\(timer\)/)
+  assert.match(indicator, /if \(hintIndex < 0 \|\| !isLoading\) return null;/)
   assert.match(
     repl,
-    /showSpinner && thinkingMilestoneIndex >= 0 && streamMode === 'thinking'[\s\S]*THINKING_MILESTONES\[thinkingMilestoneIndex\]!\.text/,
+    /showThinkingHint=\{streamMode === 'thinking' && !viewedAgentTask\}/,
+  )
+  assert.match(
+    messages,
+    /\{showThinkingHint && <ThinkingIndicator isLoading=\{isLoading\} \/>\}/,
   )
 })
 

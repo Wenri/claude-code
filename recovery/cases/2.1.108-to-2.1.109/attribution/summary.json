@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "kind": "generated-source-ownership-and-attribution-inventory",
+  "offsetUnit": "utf16-code-units",
+  "claim": "Exhaustive generated-offset accounting with exact baseline source ownership; target source identities are evidence-ranked and unresolved where anchors are insufficient.",
+  "artifacts": {
+    "baselineBundle": {
+      "bytes": 13047043,
+      "sha256": "75c9611929d9a770fe2e3a393219d8b98f5de17fde539b2a7355c6db3fd2795f"
+    },
+    "baselineSourceMap": {
+      "bytes": 59766257,
+      "sha256": "7965012b7a5fc9e09d8d747a04c5c32b94696924536e217f686bb1e7ee70a657"
+    },
+    "targetBundle": {
+      "bytes": 13543570,
+      "sha256": "3dc52acca1883b40ede1ca481512036faffbca36f0c5eff9bb4c3c3c99078bb7"
+    }
+  },
+  "options": {
+    "minimumLiteralLength": 8
+  },
+  "baselineOwnership": {
+    "sourceCount": 4756,
+    "sourceKinds": {
+      "application": 1902,
+      "nodeModules": 2850,
+      "vendor": 4
+    },
+    "mappedSegmentCount": 2068722,
+    "contiguousRunCount": 4756,
+    "eachSourceHasExactlyOneContiguousRun": true,
+    "generatedHeaderUtf16": 2230
+  },
+  "literalEvidence": {
+    "uniqueCommonAnchorCount": 42446,
+    "monotoneAnchorCount": 39004,
+    "nonMonotoneAnchorCount": 3442,
+    "monotoneFraction": 0.9189087310936248,
+    "partitionCount": 39005,
+    "tokenCountDelta": 113624,
+    "utf16LengthDelta": 494164,
+    "locatedSourceCount": 2571,
+    "locatedApplicationSourceCount": 1274,
+    "splitTargetClusterSourceCount": 15
+  },
+  "initializerEvidence": {
+    "baseline": {
+      "wrapperNames": {
+        "common": "m",
+        "initializer": "y"
+      },
+      "count": 4527
+    },
+    "target": {
+      "wrapperNames": {
+        "common": "p",
+        "initializer": "L"
+      },
+      "count": 4658,
+      "statuses": {
+        "unresolved-no-unique-literal": 2147,
+        "anchored-single-baseline-unit": 2448,
+        "anchored-multiple-baseline-units": 63
+      }
+    },
+    "targetNetCountDelta": 131
+  },
+  "coverage": {
+    "partitionCount": 39005,
+    "targetPartitionUtf16": 11335490,
+    "exactAnchorCount": 39004,
+    "exactAnchorTargetUtf16": 2142002,
+    "exactGeneratedPartitionCount": 19227,
+    "exactGeneratedTargetUtf16": 441167,
+    "changedHighConfidencePartitionCount": 17424,
+    "changedHighConfidenceTargetUtf16": 5067614,
+    "changedCandidatePartitionCount": 2348,
+    "changedCandidateTargetUtf16": 5824812,
+    "unresolvedPartitionCount": 6,
+    "unresolvedTargetUtf16": 1897,
+    "accountedTargetUtf16": 13477492,
+    "targetUtf16": 13477492,
+    "unaccountedTargetUtf16": 0
+  },
+  "releaseEvidence": {
+    "targetPackage": {
+      "bytes": 1371,
+      "sha256": "8535bdfb08b2795ac54e0ccc009748f8310a367b9cfcffeca991a94fc78908ef",
+      "name": "@anthropic-ai/claude-code",
+      "version": "2.1.109"
+    },
+    "targetDeclarations": {
+      "bytes": 117636,
+      "sha256": "434bd6609ce22b3bf749793a988e796108f28151c6307c840e5c1427c4ccd928"
+    },
+    "officialChangelog": {
+      "bytes": 226508,
+      "sha256": "5ae4283ec121bd2130d7eec177ad931a55dd46a4ab2a8f69fc6546a04e17db8a",
+      "section": "2.1.109",
+      "bulletCount": 1,
+      "bullets": [
+        "Improved the extended-thinking indicator with a rotating progress hint"
+      ]
+    }
+  },
+  "reportFiles": {
+    "sources": {
+      "path": "sources.jsonl.gz",
+      "bytes": 488743,
+      "sha256": "d02f5308d7cc27c21d86a591a38d3a25cacc93730a6ffff72bdb7eac9c47e597"
+    },
+    "targetInitializers": {
+      "path": "target-initializers.jsonl.gz",
+      "bytes": 112388,
+      "sha256": "0dcafb138c1f5591ec10b14ac38a8ec1515d3d02ebc09823a7937c0024dd2cdf"
+    },
+    "targetPartitions": {
+      "path": "target-partitions.jsonl.gz",
+      "bytes": 3832033,
+      "sha256": "74ac93b4b5afbfb9f05607031b6f33483abbf0306412caaf93d537fbd101bab3"
+    }
+  },
+  "limitations": [
+    "Exact source ownership exists only for the baseline source map.",
+    "Initializer regions are delimited by successive Bun wrapper-expression starts; they are generated units, not asserted one-to-one source modules.",
+    "A target initializer with no unique long literal is unresolved, not automatically target-only.",
+    "Candidate ranges can include moved code; non-monotone literal owners are reported separately.",
+    "Raw-different partitions include harmless minifier-name churn as well as semantic changes.",
+    "No target source text is claimed reconstructed by this inventory."
+  ]
+}

@@ -41,23 +41,25 @@ function requiredBundle(filename, label, expectedSha256) {
   return bytes.toString('utf8')
 }
 
-test('recovers progressive long-thinking milestones in the REPL', () => {
+test('tracks the verified successor to the progressive thinking milestones', () => {
   const repl = source('screens/REPL.tsx')
+  const messages = source('components/Messages.tsx')
+  const indicator = source('components/ThinkingIndicator.tsx')
 
   for (const milestone of THINKING_MILESTONES) {
-    assert.ok(repl.includes(milestone), milestone)
+    assert.equal(repl.includes(milestone), false, milestone)
   }
   assert.match(
-    repl,
-    /const THINKING_MILESTONES = \[\{[\s\S]*?afterMs: 30000,[\s\S]*?afterMs: 90000,[\s\S]*?afterMs: 270000,/,
+    indicator,
+    /afterMs: 1000,[\s\S]*afterMs: 60000,[\s\S]*afterMs: 120000,[\s\S]*afterMs: 165000,/,
   )
   assert.match(
-    repl,
-    /const \[thinkingMilestoneIndex, setThinkingMilestoneIndex\] = useState\(-1\);[\s\S]*?streamMode !== 'thinking' \|\| !isLoading[\s\S]*?THINKING_MILESTONES\.map\(\(milestone, index\) => setTimeout\(setThinkingMilestoneIndex, milestone\.afterMs, index\)\)[\s\S]*?\[streamMode, isLoading\]/,
+    indicator,
+    /THINKING_HINTS\.map\(\(hint, index\) => setTimeout\(setHintIndex, hint\.afterMs, index\)\)/,
   )
   assert.match(
-    repl,
-    /showSpinner && thinkingMilestoneIndex >= 0 && streamMode === 'thinking'[\s\S]*?figures\.pointerSmall[\s\S]*?THINKING_MILESTONES\[thinkingMilestoneIndex\]!\.text/,
+    messages,
+    /\{showThinkingHint && <ThinkingIndicator isLoading=\{isLoading\} \/>\}/,
   )
 })
 
