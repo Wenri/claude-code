@@ -563,11 +563,8 @@ export const getSkillToolCommands = memoize(
       cmd =>
         cmd.type === 'prompt' &&
         !cmd.disableModelInvocation &&
-        cmd.source !== 'builtin' &&
-        // Always include skills from /skills/ dirs, bundled skills, and legacy /commands/ entries
-        // (they all get an auto-derived description from the first line if frontmatter is missing).
-        // Plugin/MCP commands still require an explicit description to appear in the listing.
-        (cmd.loadedFrom === 'bundled' ||
+        (cmd.source === 'builtin' ||
+          cmd.loadedFrom === 'bundled' ||
           cmd.loadedFrom === 'skills' ||
           cmd.loadedFrom === 'commands_DEPRECATED' ||
           cmd.hasUserSpecifiedDescription ||
@@ -737,12 +734,12 @@ export function formatDescriptionWithSource(cmd: Command): string {
     return `${cmd.description} (plugin)`
   }
 
-  if (cmd.source === 'builtin' || cmd.source === 'mcp') {
+  if (
+    cmd.source === 'builtin' ||
+    cmd.source === 'mcp' ||
+    cmd.source === 'bundled'
+  ) {
     return cmd.description
-  }
-
-  if (cmd.source === 'bundled') {
-    return `${cmd.description} (bundled)`
   }
 
   return `${cmd.description} (${getSettingSourceName(cmd.source)})`

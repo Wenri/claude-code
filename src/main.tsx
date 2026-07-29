@@ -3596,13 +3596,9 @@ async function run(): Promise<CommanderCommand> {
             });
             messages = result.messages;
           } catch (error) {
-            if (error instanceof TeleportOperationError) {
-              process.stderr.write(error.formattedMessage + '\n');
-            } else {
-              logError(error);
-              process.stderr.write(chalk.red(`Error: ${errorMessage(error)}\n`));
-            }
-            await gracefulShutdown(1);
+            const isOperationError = error instanceof TeleportOperationError;
+            if (!isOperationError) logError(error);
+            await exitWithError(root, isOperationError ? error.message : errorMessage(error), () => gracefulShutdown(1));
           }
         }
       }
@@ -3706,7 +3702,11 @@ async function run(): Promise<CommanderCommand> {
               entrypoint: 'cli_flag' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
               success: false
             });
-            return await exitWithError(root, `No conversation found with session ID: ${sessionId}`);
+            const message = `No conversation found with session ID: ${sessionId}`;
+            logForDebugging(message, {
+              level: 'error'
+            });
+            return await exitWithError(root, message, () => gracefulShutdown(1));
           }
           const fullPath = matchedLog?.fullPath ?? result.fullPath;
           processedResume = await processResumedConversation(result, {

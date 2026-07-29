@@ -40,6 +40,7 @@ import { isRestrictedToPluginOnly, isSourceAdminTrusted } from '../settings/plug
 import { parseSlashCommand } from '../slashCommandParsing.js';
 import { sleep } from '../sleep.js';
 import { recordSkillUsage } from '../suggestions/skillUsageTracking.js';
+import { findClosestCommand } from '../suggestions/commandSuggestions.js';
 import { logOTelEvent, redactIfDisabled } from '../telemetry/events.js';
 import { buildPluginCommandTelemetryFields } from '../telemetry/pluginTelemetry.js';
 import { getAssistantMessageContentLength } from '../tokens.js';
@@ -341,10 +342,15 @@ export async function processSlashCommand(inputString: string, precedingInputBlo
       // Not a file path — treat as command name
     }
     if (looksLikeCommand(commandName) && !isFilePath) {
+      const suggestion = findClosestCommand(commandName, context.options.commands.filter(command => !command.isHidden).map(command => ({
+        name: getCommandName(command),
+        aliases: command.aliases
+      })));
       logEvent('tengu_input_slash_invalid', {
-        input: commandName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+        input: commandName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        had_suggestion: Boolean(suggestion)
       });
-      const unknownMessage = `Unknown skill: ${commandName}`;
+      const unknownMessage = suggestion ? `Unknown command: /${commandName}. Did you mean /${suggestion}?` : `Unknown command: /${commandName}`;
       return {
         messages: [createSyntheticUserCaveatMessage(), ...attachmentMessages, createUserMessage({
           content: prepareUserContent({

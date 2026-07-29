@@ -169,7 +169,7 @@ export async function createBashShellProvider(
       // Source session environment variables captured from session start hooks
       const sessionEnvScript = await getSessionEnvironmentScript()
       if (sessionEnvScript) {
-        commandParts.push(sessionEnvScript)
+        commandParts.push(`${sessionEnvScript}\n:`)
       }
 
       // Disable extended glob patterns for security (after sourcing user config to override)

@@ -322,7 +322,10 @@ export function Feedback({
         if (error) {
           setError(null);
         }
-      }} columns={textInputColumns} onSubmit={() => setStep('consent')} onExitMessage={() => onDone('Feedback cancelled', {
+      }} columns={textInputColumns} onSubmit={() => {
+        setError(null);
+        setStep('consent');
+      }} onExitMessage={() => onDone('Feedback cancelled', {
         display: 'system'
       })} cursorOffset={cursorOffset} onChangeCursorOffset={setCursorOffset} showCursor />
           {error && <Box flexDirection="column" gap={1}>

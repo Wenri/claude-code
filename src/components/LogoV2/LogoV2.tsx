@@ -238,7 +238,7 @@ export function LogoV2() {
     }
     let t23;
     if ($[29] !== t18) {
-      t23 = <>{t11}{t12}{t13}{t14}{t15}{t16}{t17}{t18}{t19}{t20}{t21}{t22}</>;
+      t23 = <>{t11}{t12}{t13}{t14}<PromptCachingDisabledWarning />{t15}{t16}{t17}{t18}{t19}{t20}{t21}{t22}</>;
       $[29] = t18;
       $[30] = t23;
     } else {
@@ -326,7 +326,7 @@ export function LogoV2() {
       t18 = $[42];
       t19 = $[43];
     }
-    return <><OffscreenFreeze><Box flexDirection="column" borderStyle="round" borderColor="claude" borderText={t11} paddingX={1} paddingY={1} alignItems="center" width={columns}><Text bold={true}>{welcomeMessage}</Text>{t12}{t13}<Text dimColor={true}>{billingType}</Text><Text dimColor={true}>{agentName ? `@${agentName} · ${truncatedCwd}` : truncatedCwd}</Text></Box></OffscreenFreeze>{t14}{t15}{t16}{t17}{t18}{t19}</>;
+    return <><OffscreenFreeze><Box flexDirection="column" borderStyle="round" borderColor="claude" borderText={t11} paddingX={1} paddingY={1} alignItems="center" width={columns}><Text bold={true}>{welcomeMessage}</Text>{t12}{t13}<Text dimColor={true}>{billingType}</Text><Text dimColor={true}>{agentName ? `@${agentName} · ${truncatedCwd}` : truncatedCwd}</Text></Box></OffscreenFreeze>{t14}{t15}{t16}<PromptCachingDisabledWarning />{t17}{t18}{t19}</>;
   }
   const welcomeMessage_0 = formatWelcomeMessage(username);
   const modelLine = !process.env.IS_DEMO && config.oauthAccount?.organizationName ? `${modelDisplayName} · ${billingType} · ${config.oauthAccount.organizationName}` : `${modelDisplayName} · ${billingType}`;
@@ -515,7 +515,7 @@ export function LogoV2() {
   }
   let t41;
   if ($[90] !== t28 || $[91] !== t35 || $[92] !== t36) {
-    t41 = <>{t28}{t29}{t30}{t31}{t32}{t33}{t34}{t35}{t36}{t37}{t38}{t39}{t40}</>;
+    t41 = <>{t28}{t29}{t30}{t31}<PromptCachingDisabledWarning />{t32}{t33}{t34}{t35}{t36}{t37}{t38}{t39}{t40}</>;
     $[90] = t28;
     $[91] = t35;
     $[92] = t36;
@@ -524,6 +524,14 @@ export function LogoV2() {
     t41 = $[93];
   }
   return t41;
+}
+function PromptCachingDisabledWarning() {
+  const envVars = ['DISABLE_PROMPT_CACHING', 'DISABLE_PROMPT_CACHING_HAIKU', 'DISABLE_PROMPT_CACHING_OPUS', 'DISABLE_PROMPT_CACHING_SONNET'];
+  const disabledEnvVars = envVars.filter(envVar => isEnvTruthy(process.env[envVar]));
+  if (disabledEnvVars.length === 0) {
+    return null;
+  }
+  return <Box flexDirection="row"><Text color="error">● </Text><Box flexDirection="column"><Text color="error">Prompt caching disabled via {disabledEnvVars.join(', ')}. This will impact latency and token costs.</Text><Text dimColor={true}>We highly recommend disabling {disabledEnvVars.length === 1 ? 'this environment variable' : 'these environment variables'}</Text></Box></Box>;
 }
 function _temp3(current) {
   if (current.lastReleaseNotesSeen === MACRO.VERSION) {

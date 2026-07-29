@@ -15,6 +15,7 @@ import { dirname, join } from 'path'
 import { getOriginalCwd } from '../../bootstrap/state.js'
 import { isBuiltinPluginId } from '../../plugins/builtinPlugins.js'
 import type { LoadedPlugin, PluginManifest } from '../../types/plugin.js'
+import { logForDebugging } from '../../utils/debug.js'
 import { isENOENT, toError } from '../../utils/errors.js'
 import { getFsImplementation } from '../../utils/fsOperations.js'
 import { logError } from '../../utils/log.js'
@@ -865,9 +866,17 @@ export async function updatePluginOp(
   const projectPath = getProjectPathForScope(scope)
 
   // Find the installation for this scope
-  const installation = installations.find(
-    inst => inst.scope === scope && inst.projectPath === projectPath,
+  const scopeInstallations = installations.filter(inst => inst.scope === scope)
+  const matchingInstallation = scopeInstallations.find(
+    inst => inst.projectPath === projectPath,
   )
+  if (!matchingInstallation && scopeInstallations.length > 1) {
+    logForDebugging(
+      `updatePluginOp: ${scopeInstallations.length} ${scope}-scope installs, none match CWD '${projectPath}'; updating '${scopeInstallations[0]?.projectPath}' only`,
+      { level: 'warn' },
+    )
+  }
+  const installation = matchingInstallation ?? scopeInstallations[0]
   if (!installation) {
     const scopeDesc = projectPath ? `${scope} (${projectPath})` : scope
     return {
@@ -885,7 +894,7 @@ export async function updatePluginOp(
     marketplaceInstallLocation,
     installation,
     scope,
-    projectPath,
+    projectPath: installation.projectPath,
   })
 }
 

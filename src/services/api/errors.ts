@@ -163,6 +163,7 @@ export const TOKEN_REVOKED_ERROR_MESSAGE =
   'OAuth token revoked · Please run /login'
 export const CCR_AUTH_ERROR_MESSAGE =
   'Authentication error · This may be a temporary network issue, please try again'
+export const CLAUDE_STATUS_PAGE = 'status.claude.com'
 export const REPEATED_529_ERROR_MESSAGE = 'Repeated 529 Overloaded errors'
 export const CUSTOM_OFF_SWITCH_MESSAGE =
   'Opus is experiencing high load, please use /model to switch to Sonnet'
@@ -462,11 +463,9 @@ export function getAssistantMessageFromError(
     })
   }
 
-  if (
-    error instanceof APIError &&
-    error.status === 429 &&
-    shouldProcessRateLimits(isClaudeAISubscriber())
-  ) {
+  if (error instanceof APIError && error.status === 429) {
+    const processRateLimits = shouldProcessRateLimits(isClaudeAISubscriber())
+
     // Check if this is the new API with multiple rate limit headers
     const rateLimitType = error.headers?.get?.(
       'anthropic-ratelimit-unified-representative-claim',
@@ -477,7 +476,7 @@ export function getAssistantMessageFromError(
     ) as 'allowed' | 'allowed_warning' | 'rejected' | null
 
     // If we have the new headers, use the new message generation
-    if (rateLimitType || overageStatus) {
+    if (processRateLimits && (rateLimitType || overageStatus)) {
       // Build limits object from error headers to determine the appropriate message
       const limits: ClaudeAILimits = {
         status: 'rejected',
@@ -537,7 +536,10 @@ export function getAssistantMessageFromError(
     // No quota headers — this is NOT a quota limit. Surface what the API actually
     // said instead of a generic "Rate limit reached". Entitlement rejections
     // (e.g. 1M context without Extra Usage) and infra capacity 429s land here.
-    if (error.message.includes('Extra usage is required for long context')) {
+    if (
+      processRateLimits &&
+      error.message.includes('Extra usage is required for long context')
+    ) {
       const hint = getIsNonInteractiveSession()
         ? 'enable extra usage at claude.ai/settings/usage, or use --model to switch to standard context'
         : 'run /extra-usage to enable, or /model to switch to standard context'
@@ -549,10 +551,25 @@ export function getAssistantMessageFromError(
     // SDK's APIError.makeMessage prepends "429 " and JSON-stringifies the body
     // when there's no top-level .message — extract the inner error.message.
     const stripped = error.message.replace(/^429\s+/, '')
-    const innerMessage = stripped.match(/"message"\s*:\s*"([^"]*)"/)?.[1]
-    const detail = innerMessage || stripped
+    let parsedMessage: string | undefined
+    try {
+      const parsed = JSON.parse(stripped) as {
+        error?: { message?: unknown }
+        message?: unknown
+      }
+      const message = parsed?.error?.message ?? parsed?.message
+      if (typeof message === 'string') {
+        parsedMessage = message
+      }
+    } catch {
+      // The SDK message is not always JSON.
+    }
+    const detail = parsedMessage || stripped
+    const messagePrefix = processRateLimits
+      ? 'Server is temporarily limiting requests (not your usage limit)'
+      : 'Request rejected (429)'
     return createAssistantAPIErrorMessage({
-      content: `${API_ERROR_MESSAGE_PREFIX}: Request rejected (429) · ${detail || 'this may be a temporary capacity issue — check status.anthropic.com'}`,
+      content: `${API_ERROR_MESSAGE_PREFIX}: ${messagePrefix} · ${detail || `this may be a temporary capacity issue — check ${CLAUDE_STATUS_PAGE}`}`,
       error: 'rate_limit',
     })
   }
@@ -657,9 +674,17 @@ export function getAssistantMessageFromError(
   // Check for request too large errors (413 status)
   // This typically happens when a large PDF + conversation context exceeds the 32MB API limit
   if (error instanceof APIError && error.status === 413) {
+    if (error.message.toLowerCase().includes('context window')) {
+      return createAssistantAPIErrorMessage({
+        content: PROMPT_TOO_LONG_ERROR_MESSAGE,
+        error: 'invalid_request',
+        errorDetails: error.message,
+      })
+    }
     return createAssistantAPIErrorMessage({
       content: getRequestTooLargeErrorMessage(),
       error: 'invalid_request',
+      errorDetails: `request_too_large: ${error.message}`,
     })
   }
 
@@ -910,6 +935,30 @@ export function getAssistantMessageFromError(
         ? `The model ${model} is not available on your ${getAPIProvider()} deployment. Try ${switchCmd} to switch to ${fallbackSuggestion}, or ask your admin to enable this model.`
         : `There's an issue with the selected model (${model}). It may not exist or you may not have access to it. Run ${switchCmd} to pick a different model.`,
       error: 'invalid_request',
+    })
+  }
+
+  const statusHint =
+    getAPIProvider() === 'firstParty' ? ` · check ${CLAUDE_STATUS_PAGE}` : ''
+
+  if (
+    error instanceof Error &&
+    error.message.includes(REPEATED_529_ERROR_MESSAGE)
+  ) {
+    return createAssistantAPIErrorMessage({
+      content: `${API_ERROR_MESSAGE_PREFIX}: ${REPEATED_529_ERROR_MESSAGE}${statusHint}`,
+      error: 'server_error',
+    })
+  }
+
+  if (
+    error instanceof APIError &&
+    typeof error.status === 'number' &&
+    error.status >= 500
+  ) {
+    return createAssistantAPIErrorMessage({
+      content: `${API_ERROR_MESSAGE_PREFIX}: ${formatAPIError(error)}${statusHint}`,
+      error: 'server_error',
     })
   }
 

@@ -1,56 +1,138 @@
-// highlight.js's type defs carry `/// <reference lib="dom" />`. SSETransport,
-// mcp/client, ssh, dumpPrompts use DOM types (TextDecodeOptions, RequestInfo)
-// that only typecheck because this file's `typeof import('highlight.js')` pulls
-// lib.dom in. tsconfig has lib: ["ESNext"] only — fixing the actual DOM-type
-// deps is a separate sweep; this ref preserves the status quo.
+// SSETransport, mcp/client, ssh, and dumpPrompts use DOM types
+// (TextDecodeOptions, RequestInfo). tsconfig has lib: ["ESNext"] only; fixing
+// those dependencies is a separate sweep, so preserve the status quo here.
 /// <reference lib="dom" />
 
+import chalk from 'chalk'
 import { extname } from 'path'
+import {
+  ensureLanguage,
+  getHljsCore,
+} from './highlightLanguages/index.js'
 
 export type CliHighlight = {
-  highlight: typeof import('cli-highlight').highlight
-  supportsLanguage: typeof import('cli-highlight').supportsLanguage
+  highlight: (
+    code: string,
+    options?: {
+      language?: string
+    },
+  ) => string
+  supportsLanguage: (language: string) => boolean
 }
 
-// One promise shared by Fallback.tsx, markdown.ts, events.ts, getLanguageName.
-// The highlight.js import piggybacks: cli-highlight has already pulled it into
-// the module cache, so the second import() is a cache hit — no extra bytes
-// faulted in.
-let cliHighlightPromise: Promise<CliHighlight | null> | undefined
+type HljsNode = {
+  scope?: string
+  kind?: string
+  children: (HljsNode | string)[]
+}
 
-let loadedGetLanguage: typeof import('highlight.js').getLanguage | undefined
+type AnsiFormatter = (text: string) => string
 
-async function loadCliHighlight(): Promise<CliHighlight | null> {
+const DEFAULT_THEME: Record<string, AnsiFormatter> = {
+  keyword: chalk.blue,
+  built_in: chalk.cyan,
+  type: chalk.cyan.dim,
+  literal: chalk.blue,
+  number: chalk.green,
+  regexp: chalk.red,
+  string: chalk.red,
+  subst: chalk.reset,
+  symbol: chalk.reset,
+  class: chalk.blue,
+  function: chalk.yellow,
+  title: chalk.reset,
+  params: chalk.reset,
+  comment: chalk.green,
+  doctag: chalk.green,
+  meta: chalk.grey,
+  'meta-keyword': chalk.reset,
+  'meta-string': chalk.reset,
+  section: chalk.reset,
+  tag: chalk.grey,
+  name: chalk.blue,
+  attr: chalk.cyan,
+  attribute: chalk.reset,
+  variable: chalk.reset,
+  bullet: chalk.reset,
+  code: chalk.reset,
+  emphasis: chalk.italic,
+  strong: chalk.bold,
+  link: chalk.underline,
+  quote: chalk.reset,
+  addition: chalk.green,
+  deletion: chalk.red,
+}
+
+function renderNode(node: HljsNode | string): string {
+  if (typeof node === 'string') return node
+
+  const text = node.children.map(renderNode).join('')
+  const scope = node.scope ?? node.kind
+  const formatter = scope
+    ? DEFAULT_THEME[scope.replace(/^hljs-/, '')]
+    : undefined
+  return formatter ? formatter(text) : text
+}
+
+function highlight(
+  code: string,
+  options?: {
+    language?: string
+  },
+): string {
+  const requestedLanguage = options?.language
+  if (!requestedLanguage) return code
+
   try {
-    const cliHighlight = await import('cli-highlight')
-    // cache hit — cli-highlight already loaded highlight.js
-    const highlightJs = await import('highlight.js')
-    const { registerExtraLanguages } = await import('./highlightLanguages/index.js')
-    registerExtraLanguages(highlightJs)
-    loadedGetLanguage = highlightJs.getLanguage
-    return {
-      highlight: cliHighlight.highlight,
-      supportsLanguage: cliHighlight.supportsLanguage,
+    const language = ensureLanguage(requestedLanguage)
+    if (!language) return code
+
+    const result = getHljsCore().highlight(code, {
+      language,
+      ignoreIllegals: true,
+    }) as {
+      emitter?: {
+        rootNode?: HljsNode | string
+        root?: HljsNode | string
+      }
+      _emitter?: {
+        rootNode?: HljsNode | string
+        root?: HljsNode | string
+      }
     }
+    const emitter = result._emitter ?? result.emitter
+    const root = emitter?.rootNode ?? emitter?.root
+    if (!root || typeof root === 'string') return code
+    return root.children.map(renderNode).join('')
   } catch {
-    return null
+    return code
   }
 }
 
-export function getCliHighlightPromise(): Promise<CliHighlight | null> {
-  cliHighlightPromise ??= loadCliHighlight()
+const cliHighlight: CliHighlight = {
+  highlight,
+  supportsLanguage: language => ensureLanguage(language) !== null,
+}
+
+// One promise shared by Fallback.tsx, markdown.ts, permission previews, and
+// getLanguageName. Grammar registration remains synchronous and demand-driven.
+let cliHighlightPromise: Promise<CliHighlight> | undefined
+
+export function getCliHighlightPromise(): Promise<CliHighlight> {
+  cliHighlightPromise ??= Promise.resolve(cliHighlight)
   return cliHighlightPromise
 }
 
 /**
- * eg. "foo/bar.ts" → "TypeScript". Awaits the shared cli-highlight load,
- * then reads highlight.js's language registry. All callers are telemetry
- * (OTel counter attributes, permission-dialog unary events) — none block
- * on this, they fire-and-forget or the consumer already handles Promise<string>.
+ * eg. "foo/bar.ts" → "TypeScript". All callers are telemetry (OTel counter
+ * attributes, permission-dialog unary events), so keep the async API even
+ * though registration is now synchronous.
  */
 export async function getLanguageName(file_path: string): Promise<string> {
-  await getCliHighlightPromise()
   const ext = extname(file_path).slice(1)
   if (!ext) return 'unknown'
-  return loadedGetLanguage?.(ext)?.name ?? 'unknown'
+
+  const language = ensureLanguage(ext)
+  if (!language) return 'unknown'
+  return getHljsCore().getLanguage(language)?.name ?? 'unknown'
 }

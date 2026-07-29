@@ -8,6 +8,59 @@ import {
 import type { SuggestionItem } from '../../components/PromptInput/PromptInputFooterSuggestions.js'
 import { getSkillUsageScore } from './skillUsageTracking.js'
 
+export type CommandNameCandidate = {
+  name: string
+  aliases?: string[]
+}
+
+/**
+ * Return the nearest command name or alias within a deliberately small edit
+ * distance. Short command names tolerate one edit; longer names tolerate two.
+ */
+export function findClosestCommand(
+  input: string,
+  commands: CommandNameCandidate[],
+): string | undefined {
+  const names = commands.flatMap(command => [
+    command.name,
+    ...(command.aliases ?? []),
+  ])
+  const maxDistance = input.length <= 3 ? 1 : 2
+  let best: string | undefined
+  let bestDistance = maxDistance + 1
+
+  for (const name of names) {
+    if (Math.abs(name.length - input.length) > maxDistance) continue
+    const distance = levenshteinDistance(input, name)
+    if (distance < bestDistance) {
+      bestDistance = distance
+      best = name
+    }
+  }
+
+  return best
+}
+
+function levenshteinDistance(left: string, right: string): number {
+  if (left === right) return 0
+  const row = Array.from({ length: right.length + 1 }, (_, index) => index)
+
+  for (let leftIndex = 1; leftIndex <= left.length; leftIndex++) {
+    let diagonal = row[0]!
+    row[0] = leftIndex
+    for (let rightIndex = 1; rightIndex <= right.length; rightIndex++) {
+      const previous = row[rightIndex]!
+      row[rightIndex] =
+        left[leftIndex - 1] === right[rightIndex - 1]
+          ? diagonal
+          : 1 + Math.min(diagonal, row[rightIndex]!, row[rightIndex - 1]!)
+      diagonal = previous
+    }
+  }
+
+  return row[right.length]!
+}
+
 // Treat these characters as word separators for command search
 const SEPARATORS = /[:_-]/g
 

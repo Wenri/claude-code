@@ -6,6 +6,7 @@ import { getProjectRoot } from 'src/bootstrap/state.js'
 import {
   builtInCommandNames,
   findCommand,
+  getCommandName,
   getCommands,
   type PromptCommand,
 } from 'src/commands.js'
@@ -58,6 +59,7 @@ import { createUserMessage, normalizeMessages } from '../../utils/messages.js'
 import type { ModelAlias } from '../../utils/model/aliases.js'
 import { resolveSkillModelOverride } from '../../utils/model/model.js'
 import { recordSkillUsage } from '../../utils/suggestions/skillUsageTracking.js'
+import { findClosestCommand } from '../../utils/suggestions/commandSuggestions.js'
 import { createAgentId } from '../../utils/uuid.js'
 import { runAgent } from '../AgentTool/runAgent.js'
 import {
@@ -401,9 +403,18 @@ export const SkillTool: Tool<InputSchema, Output, Progress> = buildTool({
     // Check if command exists
     const foundCommand = findCommand(normalizedCommandName, commands)
     if (!foundCommand) {
+      const suggestion = findClosestCommand(
+        normalizedCommandName,
+        commands.map(command => ({
+          name: getCommandName(command),
+          aliases: command.aliases,
+        })),
+      )
       return {
         result: false,
-        message: `Unknown skill: ${normalizedCommandName}`,
+        message: suggestion
+          ? `Unknown skill: ${normalizedCommandName}. Did you mean ${suggestion}?`
+          : `Unknown skill: ${normalizedCommandName}`,
         errorCode: 2,
       }
     }
@@ -419,9 +430,11 @@ export const SkillTool: Tool<InputSchema, Output, Progress> = buildTool({
 
     // Check if command is a prompt-based command
     if (foundCommand.type !== 'prompt') {
+      const commandType =
+        foundCommand.type === 'local-jsx' ? 'UI' : 'built-in CLI'
       return {
         result: false,
-        message: `Skill ${normalizedCommandName} is not a prompt-based skill`,
+        message: `${normalizedCommandName} is a ${commandType} command, not a skill. Ask the user to run /${normalizedCommandName} themselves — it cannot be invoked via the ${SKILL_TOOL_NAME} tool.`,
         errorCode: 5,
       }
     }

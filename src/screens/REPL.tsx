@@ -358,7 +358,7 @@ function TranscriptModeFooter(t0) {
   }
   let t4;
   if ($[3] !== searchBadge || $[4] !== status) {
-    t4 = status ? <><Box flexGrow={1} /><Text>{status} </Text></> : searchBadge ? <><Box flexGrow={1} /><Text dimColor={true}>{searchBadge.current}/{searchBadge.count}{"  "}</Text></> : null;
+    t4 = <><Box flexGrow={1} />{status ? <Text>{status} </Text> : searchBadge ? <Text dimColor={true}>{searchBadge.current}/{searchBadge.count}{"  "}</Text> : <Text dimColor={true}>verbose </Text>}</>;
     $[3] = searchBadge;
     $[4] = status;
     $[5] = t4;

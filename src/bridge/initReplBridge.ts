@@ -63,6 +63,7 @@ import {
 import {
   archiveBridgeSession,
   createBridgeSession,
+  getBridgeSession,
   updateBridgeSessionTitle,
 } from './createSession.js'
 import { logBridgeSkip } from './debugUtils.js'
@@ -312,6 +313,8 @@ export async function initReplBridge(
   let userMessageCount = 0
   let lastBridgeSessionId: string | undefined
   let genSeq = 0
+  let serverTitleSessionId: string | undefined
+  const locallyGeneratedTitles = new Set([title])
   const patch = (
     derived: string,
     bridgeSessionId: string,
@@ -319,6 +322,7 @@ export async function initReplBridge(
   ): void => {
     hasTitle = true
     title = derived
+    locallyGeneratedTitles.add(derived)
     logForDebugging(
       `[bridge:repl] derived title from message ${atCount}: ${derived}`,
     )
@@ -335,20 +339,34 @@ export async function initReplBridge(
     const gen = ++genSeq
     const atCount = userMessageCount
     void generateSessionTitle(input, AbortSignal.timeout(15_000)).then(
-      generated => {
+      async generated => {
+        const isStale = (): boolean =>
+          gen !== genSeq ||
+          lastBridgeSessionId !== bridgeSessionId ||
+          Boolean(getCurrentSessionTitle(getSessionId()))
+        if (!generated || isStale()) return
+        const session = await getBridgeSession(bridgeSessionId, {
+          baseUrl,
+          getAccessToken: getBridgeAccessToken,
+        }).catch(() => null)
+        if (isStale()) return
         if (
-          generated &&
-          gen === genSeq &&
-          lastBridgeSessionId === bridgeSessionId &&
-          !getCurrentSessionTitle(getSessionId())
+          session?.title &&
+          !locallyGeneratedTitles.has(session.title)
         ) {
-          patch(generated, bridgeSessionId, atCount)
+          serverTitleSessionId = bridgeSessionId
+          return
         }
+        patch(generated, bridgeSessionId, atCount)
       },
     )
   }
   const onUserMessage = (text: string, bridgeSessionId: string): boolean => {
-    if (hasExplicitTitle || getCurrentSessionTitle(getSessionId())) {
+    if (
+      hasExplicitTitle ||
+      serverTitleSessionId === bridgeSessionId ||
+      getCurrentSessionTitle(getSessionId())
+    ) {
       return true
     }
     // v1 env-lost re-creates the session with a new ID. Reset the count so

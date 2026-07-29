@@ -24,6 +24,7 @@ import { extractTextContent } from './messages.js'
 import { asSystemPrompt } from './systemPromptType.js'
 
 const MAX_CONVERSATION_TEXT = 1000
+const MIN_TITLE_INPUT_LENGTH = 10
 
 /**
  * Flatten a message array into a single text string for Haiku title input.
@@ -81,7 +82,7 @@ export async function generateSessionTitle(
   signal: AbortSignal,
 ): Promise<string | null> {
   const trimmed = description.trim()
-  if (!trimmed) return null
+  if (trimmed.length < MIN_TITLE_INPUT_LENGTH) return null
 
   try {
     const result = await queryHaiku({
