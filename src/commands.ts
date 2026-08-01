@@ -1,5 +1,9 @@
 // biome-ignore-all assist/source/organizeImports: ANT-ONLY import markers must not be reordered
 import addDir from './commands/add-dir/index.js'
+import {
+  autocompact,
+  autocompactNonInteractive,
+} from './commands/autocompact/index.js'
 import autofixPr from './commands/autofix-pr/index.js'
 import backfillSessions from './commands/backfill-sessions/index.js'
 import btw from './commands/btw/index.js'
@@ -55,6 +59,8 @@ import bughunter from './commands/bughunter/index.js'
 import terminalSetup from './commands/terminalSetup/index.js'
 import usage from './commands/usage/index.js'
 import theme from './commands/theme/index.js'
+import tui from './commands/tui/index.js'
+import update from './commands/update/index.js'
 import { feature } from 'bun:bundle'
 // Dead code elimination: conditional imports
 /* eslint-disable @typescript-eslint/no-require-imports */
@@ -125,6 +131,7 @@ import thinkbackPlay from './commands/thinkback-play/index.js'
 import permissions from './commands/permissions/index.js'
 import plan from './commands/plan/index.js'
 import fast from './commands/fast/index.js'
+import focus from './commands/focus.js'
 import passes from './commands/passes/index.js'
 import privacySettings from './commands/privacy-settings/index.js'
 import hooks from './commands/hooks/index.js'
@@ -169,7 +176,7 @@ import memoize from 'lodash-es/memoize.js'
 import { isUsing3PServices, isClaudeAISubscriber } from './utils/auth.js'
 import { isFirstPartyAnthropicBaseUrl } from './utils/model/providers.js'
 import env from './commands/env/index.js'
-import exit from './commands/exit/index.js'
+import exit, { exitNonInteractive } from './commands/exit/index.js'
 import exportCommand from './commands/export/index.js'
 import model from './commands/model/index.js'
 import outputStyle from './commands/output-style/index.js'
@@ -221,6 +228,8 @@ export { getCommandName, isCommandEnabled } from './types/command.js'
 
 // Commands that get eliminated from the external build
 export const INTERNAL_ONLY_COMMANDS = [
+  autocompact,
+  autocompactNonInteractive,
   backfillSessions,
   breakCache,
   bughunter,
@@ -274,6 +283,7 @@ const COMMANDS = memoize((): Command[] => [
   effort,
   exit,
   fast,
+  focus,
   files,
   heapDump,
   help,
@@ -301,6 +311,8 @@ const COMMANDS = memoize((): Command[] => [
   statusline,
   stickers,
   theme,
+  tui,
+  update,
   feedback,
   review,
   ultrareview,
@@ -643,11 +655,15 @@ export const REMOTE_SAFE_COMMANDS: Set<Command> = new Set([
 export const BRIDGE_SAFE_COMMANDS: Set<Command> = new Set(
   [
     compact, // Shrink context — useful mid-session from a phone
+    autocompactNonInteractive,
     clear, // Wipe transcript
     cost, // Show session cost
+    contextNonInteractive,
     summary, // Summarize conversation
     releaseNotes, // Show changelog
+    reloadPlugins,
     files, // List tracked files
+    exitNonInteractive,
   ].filter((c): c is Command => c !== null),
 )
 
@@ -665,6 +681,27 @@ export function isBridgeSafeCommand(cmd: Command): boolean {
   if (cmd.type === 'local-jsx') return false
   if (cmd.type === 'prompt') return true
   return BRIDGE_SAFE_COMMANDS.has(cmd)
+}
+
+/**
+ * Resolve the text-only counterpart of a bridge-safe local JSX command.
+ */
+export function getBridgeSafeCommand(cmd: Command): Command | undefined {
+  if (cmd.type !== 'local-jsx') return undefined
+  for (const safeCommand of BRIDGE_SAFE_COMMANDS) {
+    if (safeCommand.name === cmd.name && safeCommand.type === 'local') {
+      return safeCommand
+    }
+  }
+  return undefined
+}
+
+/**
+ * Whether a command can be invoked over Remote Control, directly or through
+ * a bridge-safe text-only counterpart.
+ */
+export function isBridgeCommandAvailable(cmd: Command): boolean {
+  return isBridgeSafeCommand(cmd) || getBridgeSafeCommand(cmd) !== undefined
 }
 
 /**

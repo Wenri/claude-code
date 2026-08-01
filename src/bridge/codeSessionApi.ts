@@ -90,13 +90,57 @@ export type RemoteCredentials = {
   worker_epoch: number
 }
 
+export type RemoteCredentialsTerminalReason =
+  | 'untrusted_device'
+  | 'session_stale_relogin'
+
+export type RemoteCredentialsTerminal = {
+  terminal: true
+  reason: RemoteCredentialsTerminalReason
+}
+
+export type RemoteCredentialsResult =
+  | RemoteCredentials
+  | RemoteCredentialsTerminal
+
+export function isRemoteCredentialsTerminal(
+  value: RemoteCredentialsResult,
+): value is RemoteCredentialsTerminal {
+  return 'terminal' in value
+}
+
+function getTerminalReason(
+  data: unknown,
+  detail: string | undefined,
+): RemoteCredentialsTerminalReason | undefined {
+  if (
+    data !== null &&
+    typeof data === 'object' &&
+    'error' in data &&
+    data.error !== null &&
+    typeof data.error === 'object' &&
+    'resource' in data.error
+  ) {
+    const resource = data.error.resource
+    if (
+      resource === 'untrusted_device' ||
+      resource === 'session_stale_relogin'
+    ) {
+      return resource
+    }
+    return undefined
+  }
+  if (detail?.includes('trusted device')) return 'untrusted_device'
+  return undefined
+}
+
 export async function fetchRemoteCredentials(
   sessionId: string,
   baseUrl: string,
   accessToken: string,
   timeoutMs: number,
   trustedDeviceToken?: string,
-): Promise<RemoteCredentials | null> {
+): Promise<RemoteCredentialsResult | null> {
   const url = `${baseUrl}/v1/code/sessions/${sessionId}/bridge`
   const headers = oauthHeaders(accessToken)
   if (trustedDeviceToken) {
@@ -125,6 +169,10 @@ export async function fetchRemoteCredentials(
     logForDebugging(
       `[code-session] /bridge failed ${response.status}${detail ? `: ${detail}` : ''}`,
     )
+    if (response.status === 403) {
+      const reason = getTerminalReason(response.data, detail)
+      if (reason) return { terminal: true, reason }
+    }
     return null
   }
 

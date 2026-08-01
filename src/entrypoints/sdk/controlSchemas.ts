@@ -154,6 +154,15 @@ export const SDKControlSetMaxThinkingTokensRequestSchema = lazySchema(() =>
     ),
 )
 
+export const SDKControlRenameSessionRequestSchema = lazySchema(() =>
+  z
+    .object({
+      subtype: z.literal('rename_session'),
+      title: z.string(),
+    })
+    .describe('Sets the user-facing title for the current session.'),
+)
+
 export const SDKControlMcpStatusRequestSchema = lazySchema(() =>
   z
     .object({
@@ -582,6 +591,7 @@ export const SDKControlRequestInnerSchema = lazySchema(() =>
     SDKControlSetPermissionModeRequestSchema(),
     SDKControlSetModelRequestSchema(),
     SDKControlSetMaxThinkingTokensRequestSchema(),
+    SDKControlRenameSessionRequestSchema(),
     SDKControlMcpStatusRequestSchema(),
     SDKControlGetContextUsageRequestSchema(),
     SDKHookCallbackRequestSchema(),

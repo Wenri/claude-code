@@ -115,11 +115,13 @@ async function updatePlugin(
     try {
       const result = await updatePluginOp(pluginId, scope)
 
-      if (result.success && !result.alreadyUpToDate) {
+      if (result.success && !result.alreadyUpToDate && !result.skipped) {
         wasUpdated = true
         logForDebugging(
           `Plugin autoupdate: updated ${pluginId} from ${result.oldVersion} to ${result.newVersion}`,
         )
+      } else if (result.skipped) {
+        logForDebugging(`Plugin autoupdate: ${pluginId} ${result.message}`)
       } else if (!result.alreadyUpToDate) {
         logForDebugging(
           `Plugin autoupdate: failed to update ${pluginId}: ${result.message}`,

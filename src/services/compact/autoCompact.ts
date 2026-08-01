@@ -8,6 +8,7 @@ import { getGlobalConfig } from '../../utils/config.js'
 import { getContextWindowForModel } from '../../utils/context.js'
 import { logForDebugging } from '../../utils/debug.js'
 import { isEnvTruthy } from '../../utils/envUtils.js'
+import { validateBoundedIntEnvVar } from '../../utils/envValidation.js'
 import { hasExactErrorMessage } from '../../utils/errors.js'
 import type { CacheSafeParams } from '../../utils/forkedAgent.js'
 import { logError } from '../../utils/log.js'
@@ -31,20 +32,100 @@ import { trySessionMemoryCompaction } from './sessionMemoryCompact.js'
 const MAX_OUTPUT_TOKENS_FOR_SUMMARY = 20_000
 
 // Returns the context window size minus the max output tokens for the model
-export function getEffectiveContextWindowSize(model: string): number {
+export type AutoCompactWindowSource =
+  | 'env'
+  | 'settings'
+  | 'experiment'
+  | 'model'
+
+export type AutoCompactWindowResolution = {
+  window: number
+  configured: number
+  source: AutoCompactWindowSource
+}
+
+const MIN_AUTO_COMPACT_WINDOW = 100_000
+const MAX_AUTO_COMPACT_WINDOW = 1_000_000
+
+export function parseAutoCompactWindow(value: string): number | undefined {
+  const normalized = value.trim().toLowerCase()
+  let parsed: number
+  if (normalized.endsWith('m')) {
+    parsed = Number.parseFloat(normalized) * 1_000_000
+  } else if (normalized.endsWith('k')) {
+    parsed = Number.parseFloat(normalized) * 1_000
+  } else {
+    const raw = Number.parseInt(normalized, 10)
+    parsed = raw >= 100 && raw <= 1_000 ? raw * 1_000 : raw
+  }
+
+  if (
+    !Number.isFinite(parsed) ||
+    parsed < MIN_AUTO_COMPACT_WINDOW ||
+    parsed > MAX_AUTO_COMPACT_WINDOW
+  ) {
+    return undefined
+  }
+  return Math.round(parsed)
+}
+
+export function resolveAutoCompactWindow(
+  model: string,
+  setting?: number,
+): AutoCompactWindowResolution {
+  const modelWindow = getContextWindowForModel(model, getSdkBetas())
+  const envValue = process.env.CLAUDE_CODE_AUTO_COMPACT_WINDOW
+  if (envValue) {
+    const result = validateBoundedIntEnvVar(
+      'CLAUDE_CODE_AUTO_COMPACT_WINDOW',
+      envValue,
+      MIN_AUTO_COMPACT_WINDOW,
+      MAX_AUTO_COMPACT_WINDOW,
+    )
+    if (result.status !== 'invalid') {
+      const configured = Math.max(MIN_AUTO_COMPACT_WINDOW, result.effective)
+      return {
+        window: Math.min(modelWindow, configured),
+        configured,
+        source: 'env',
+      }
+    }
+  }
+  if (setting !== undefined) {
+    return {
+      window: Math.min(modelWindow, setting),
+      configured: setting,
+      source: 'settings',
+    }
+  }
+  const experimentValue = isAutoCompactEnabled()
+    ? getFeatureValue_CACHED_MAY_BE_STALE('tengu_amber_redwood', '')
+    : ''
+  if (experimentValue) {
+    const parsed = parseAutoCompactWindow(experimentValue)
+    if (parsed !== undefined) {
+      return {
+        window: Math.min(modelWindow, parsed),
+        configured: parsed,
+        source: 'experiment',
+      }
+    }
+  }
+  return { window: modelWindow, configured: modelWindow, source: 'model' }
+}
+
+export function getEffectiveContextWindowSize(
+  model: string,
+  autoCompactWindow?: number,
+): number {
   const reservedTokensForSummary = Math.min(
     getMaxOutputTokensForModel(model),
     MAX_OUTPUT_TOKENS_FOR_SUMMARY,
   )
-  let contextWindow = getContextWindowForModel(model, getSdkBetas())
-
-  const autoCompactWindow = process.env.CLAUDE_CODE_AUTO_COMPACT_WINDOW
-  if (autoCompactWindow) {
-    const parsed = parseInt(autoCompactWindow, 10)
-    if (!isNaN(parsed) && parsed > 0) {
-      contextWindow = Math.min(contextWindow, parsed)
-    }
-  }
+  const { window: contextWindow } = resolveAutoCompactWindow(
+    model,
+    isAutoCompactEnabled() ? autoCompactWindow : undefined,
+  )
 
   return contextWindow - reservedTokensForSummary
 }
@@ -70,8 +151,14 @@ export const MANUAL_COMPACT_BUFFER_TOKENS = 3_000
 // in a single session, wasting ~250K API calls/day globally.
 const MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES = 3
 
-export function getAutoCompactThreshold(model: string): number {
-  const effectiveContextWindow = getEffectiveContextWindowSize(model)
+export function getAutoCompactThreshold(
+  model: string,
+  autoCompactWindow?: number,
+): number {
+  const effectiveContextWindow = getEffectiveContextWindowSize(
+    model,
+    autoCompactWindow,
+  )
 
   const autocompactThreshold =
     effectiveContextWindow - AUTOCOMPACT_BUFFER_TOKENS
@@ -94,6 +181,7 @@ export function getAutoCompactThreshold(model: string): number {
 export function calculateTokenWarningState(
   tokenUsage: number,
   model: string,
+  autoCompactWindow?: number,
 ): {
   percentLeft: number
   isAboveWarningThreshold: boolean
@@ -101,10 +189,10 @@ export function calculateTokenWarningState(
   isAboveAutoCompactThreshold: boolean
   isAtBlockingLimit: boolean
 } {
-  const autoCompactThreshold = getAutoCompactThreshold(model)
+  const autoCompactThreshold = getAutoCompactThreshold(model, autoCompactWindow)
   const threshold = isAutoCompactEnabled()
     ? autoCompactThreshold
-    : getEffectiveContextWindowSize(model)
+    : getEffectiveContextWindowSize(model, autoCompactWindow)
 
   const percentLeft = Math.max(
     0,
@@ -120,7 +208,10 @@ export function calculateTokenWarningState(
   const isAboveAutoCompactThreshold =
     isAutoCompactEnabled() && tokenUsage >= autoCompactThreshold
 
-  const actualContextWindow = getEffectiveContextWindowSize(model)
+  const actualContextWindow = getEffectiveContextWindowSize(
+    model,
+    autoCompactWindow,
+  )
   const defaultBlockingLimit =
     actualContextWindow - MANUAL_COMPACT_BUFFER_TOKENS
 
@@ -161,6 +252,7 @@ export function isAutoCompactEnabled(): boolean {
 export async function shouldAutoCompact(
   messages: Message[],
   model: string,
+  autoCompactWindow?: number,
   querySource?: QuerySource,
   // Snip removes messages but the surviving assistant's usage still reflects
   // pre-snip context, so tokenCountWithEstimation can't see the savings.
@@ -224,8 +316,11 @@ export async function shouldAutoCompact(
   }
 
   const tokenCount = tokenCountWithEstimation(messages) - snipTokensFreed
-  const threshold = getAutoCompactThreshold(model)
-  const effectiveWindow = getEffectiveContextWindowSize(model)
+  const threshold = getAutoCompactThreshold(model, autoCompactWindow)
+  const effectiveWindow = getEffectiveContextWindowSize(
+    model,
+    autoCompactWindow,
+  )
 
   logForDebugging(
     `autocompact: tokens=${tokenCount} threshold=${threshold} effectiveWindow=${effectiveWindow}${snipTokensFreed > 0 ? ` snipFreed=${snipTokensFreed}` : ''}`,
@@ -234,6 +329,7 @@ export async function shouldAutoCompact(
   const { isAboveAutoCompactThreshold } = calculateTokenWarningState(
     tokenCount,
     model,
+    autoCompactWindow,
   )
 
   return isAboveAutoCompactThreshold
@@ -266,9 +362,11 @@ export async function autoCompactIfNeeded(
   }
 
   const model = toolUseContext.options.mainLoopModel
+  const autoCompactWindow = toolUseContext.getAppState().autoCompactWindow
   const shouldCompact = await shouldAutoCompact(
     messages,
     model,
+    autoCompactWindow,
     querySource,
     snipTokensFreed,
   )
@@ -281,7 +379,7 @@ export async function autoCompactIfNeeded(
     isRecompactionInChain: tracking?.compacted === true,
     turnsSincePreviousCompact: tracking?.turnCounter ?? -1,
     previousCompactTurnId: tracking?.turnId,
-    autoCompactThreshold: getAutoCompactThreshold(model),
+    autoCompactThreshold: getAutoCompactThreshold(model, autoCompactWindow),
     querySource,
   }
 

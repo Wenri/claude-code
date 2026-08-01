@@ -17,6 +17,7 @@ import type { AssistantMessage } from '../../types/message.js'
 import type {
   PendingClassifierCheck,
   PermissionAllowDecision,
+  PermissionAskDecision,
   PermissionDecisionReason,
   PermissionDenyDecision,
 } from '../../types/permissions.js'
@@ -31,6 +32,10 @@ import {
   withMemoryCorrectionHint,
 } from '../../utils/messages.js'
 import type { PermissionDecision } from '../../utils/permissions/PermissionResult.js'
+import {
+  checkRuleBasedPermissions,
+  getPermissionRequestHookRuleOverride,
+} from '../../utils/permissions/permissions.js'
 import {
   applyPermissionUpdates,
   persistPermissionUpdates,
@@ -218,7 +223,14 @@ function createPermissionContext(
       suggestions: PermissionUpdate[] | undefined,
       updatedInput?: Record<string, unknown>,
       permissionPromptStartTimeMs?: number,
-    ): Promise<PermissionDecision | null> {
+    ): Promise<
+      | PermissionDecision
+      | {
+          reprompted: PermissionAskDecision
+          finalInput: Record<string, unknown>
+        }
+      | null
+    > {
       for await (const hookResult of executePermissionRequestHooks(
         tool.name,
         toolUseID,
@@ -232,6 +244,33 @@ function createPermissionContext(
           const decision = hookResult.permissionRequestResult
           if (decision.behavior === 'allow') {
             const finalInput = decision.updatedInput ?? updatedInput ?? input
+            if (decision.updatedInput) {
+              const ruleOverride = getPermissionRequestHookRuleOverride(
+                await checkRuleBasedPermissions(
+                  tool,
+                  finalInput,
+                  toolUseContext,
+                ),
+                tool.name,
+              )
+              if (ruleOverride?.behavior === 'deny') {
+                this.logDecision(
+                  { decision: 'reject', source: 'config' },
+                  { input: finalInput, permissionPromptStartTimeMs },
+                )
+                return ruleOverride
+              }
+              if (ruleOverride?.behavior === 'ask') {
+                this.updateQueueItem({
+                  input: finalInput,
+                  permissionResult: ruleOverride,
+                })
+                return {
+                  reprompted: ruleOverride,
+                  finalInput,
+                }
+              }
+            }
             return await this.handleHookAllow(
               finalInput,
               decision.updatedPermissions ?? [],

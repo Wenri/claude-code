@@ -135,6 +135,15 @@ function cleanupTerminalModes(): void {
   }
 }
 
+/**
+ * Put the current terminal back into its normal mode before handing it to a
+ * replacement Claude process. Relaunches intentionally do not print a resume
+ * hint or exit here; the child inherits the conversation and stdio.
+ */
+export function cleanupTerminalForRelaunch(): void {
+  cleanupTerminalModes()
+}
+
 let resumeHintPrinted = false
 
 /**
@@ -366,6 +375,20 @@ let pendingShutdown: Promise<void> | undefined
 /** Check if graceful shutdown is in progress */
 export function isShuttingDown(): boolean {
   return shutdownInProgress
+}
+
+/**
+ * Stop the normal shutdown machinery from racing a process relaunch.
+ *
+ * In particular, clear the orphaned-terminal poll: after the parent severs
+ * its TTY descriptors, that poll would otherwise start a second shutdown.
+ */
+export function markShuttingDownForRelaunch(): void {
+  shutdownInProgress = true
+  if (orphanCheckInterval !== undefined) {
+    clearInterval(orphanCheckInterval)
+    orphanCheckInterval = undefined
+  }
 }
 
 /** Reset shutdown state - only for use in tests */

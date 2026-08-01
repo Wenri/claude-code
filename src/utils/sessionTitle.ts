@@ -18,13 +18,26 @@ import { logEvent } from '../services/analytics/index.js'
 import { queryHaiku } from '../services/api/claude.js'
 import type { Message } from '../types/message.js'
 import { logForDebugging } from './debug.js'
+import { isEnvTruthy } from './envUtils.js'
 import { safeParseJSON } from './json.js'
 import { lazySchema } from './lazySchema.js'
 import { extractTextContent } from './messages.js'
+import { isEssentialTrafficOnly } from './privacyLevel.js'
 import { asSystemPrompt } from './systemPromptType.js'
 
 const MAX_CONVERSATION_TEXT = 1000
 const MIN_TITLE_INPUT_LENGTH = 10
+
+/**
+ * Auto-generated titles are nonessential traffic and also affect the terminal
+ * title. Both opt-outs therefore suppress automatic title generation.
+ */
+export function isSessionTitleGenerationDisabled(): boolean {
+  return (
+    isEssentialTrafficOnly() ||
+    isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_TERMINAL_TITLE)
+  )
+}
 
 /**
  * Flatten a message array into a single text string for Haiku title input.

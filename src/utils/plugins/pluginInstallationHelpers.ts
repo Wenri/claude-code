@@ -8,12 +8,14 @@
 import { randomBytes } from 'crypto'
 import { rename, rm } from 'fs/promises'
 import { dirname, join, resolve, sep } from 'path'
+import type { DependencyConstraint } from '../../types/plugin.js'
 import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
   logEvent,
 } from '../../services/analytics/index.js'
 import { getCwd } from '../cwd.js'
+import { logForDebugging } from '../debug.js'
 import { toError } from '../errors.js'
 import { getFsImplementation } from '../fsOperations.js'
 import { logError } from '../log.js'
@@ -22,13 +24,17 @@ import {
   updateSettingsForSource,
 } from '../settings/settings.js'
 import { buildPluginTelemetryFields } from '../telemetry/pluginTelemetry.js'
+import { logOTelEvent } from '../telemetry/events.js'
 import { clearAllCaches } from './cacheUtils.js'
 import {
   formatDependencyCountSuffix,
   getEnabledPluginIdsForScope,
+  intersectConstraints,
+  qualifyDependency,
   type ResolutionResult,
   resolveDependencyClosure,
 } from './dependencyResolver.js'
+import { installPluginDependencies } from './pluginDependencyInstaller.js'
 import {
   addInstalledPlugin,
   getGitCommitSha,
@@ -44,9 +50,15 @@ import {
   cachePlugin,
   getVersionedCachePath,
   getVersionedZipCachePath,
+  loadAllPlugins,
 } from './pluginLoader.js'
 import { isPluginBlockedByPolicy } from './pluginPolicy.js'
-import { calculatePluginVersion } from './pluginVersioning.js'
+import {
+  calculatePluginVersion,
+  getGitUrlForVersionResolution,
+  type ResolvedGitTag,
+  resolveVersionRange,
+} from './pluginVersioning.js'
 import {
   isLocalPluginSource,
   type PluginMarketplaceEntry,
@@ -65,6 +77,12 @@ export type PluginInstallationInfo = {
   pluginId: string
   installPath: string
   version?: string
+}
+
+export type CachedPluginRegistration = {
+  path: string
+  depConstraints?: Map<string, DependencyConstraint>
+  dependencies?: string[]
 }
 
 /**
@@ -123,7 +141,7 @@ export function validatePathWithinBase(
  *                'managed' scope is used for plugins installed automatically from managed settings.
  * @param projectPath - Project path (required for project/local scopes)
  * @param localSourcePath - For local plugins, the resolved absolute path to the source directory
- * @returns The installation path
+ * @returns The installation path plus raw manifest dependency metadata
  */
 export async function cacheAndRegisterPlugin(
   pluginId: string,
@@ -131,13 +149,22 @@ export async function cacheAndRegisterPlugin(
   scope: PluginScope = 'user',
   projectPath?: string,
   localSourcePath?: string,
-): Promise<string> {
+  resolvedTag?: ResolvedGitTag,
+): Promise<CachedPluginRegistration> {
   // For local plugins, we need the resolved absolute path
   // Cast to PluginSource since cachePlugin handles any string path at runtime
-  const source: PluginSource =
+  const baseSource: PluginSource =
     typeof entry.source === 'string' && localSourcePath
       ? (localSourcePath as PluginSource)
       : entry.source
+  const source: PluginSource =
+    resolvedTag &&
+    typeof baseSource === 'object' &&
+    (baseSource.source === 'github' ||
+      baseSource.source === 'url' ||
+      baseSource.source === 'git-subdir')
+      ? { ...baseSource, ref: resolvedTag.ref, sha: resolvedTag.sha }
+      : baseSource
 
   const cacheResult = await cachePlugin(source, {
     manifest: entry as PluginMarketplaceEntry,
@@ -150,17 +177,23 @@ export async function cacheAndRegisterPlugin(
   // before discarding the ephemeral clone (the extracted subdir has no .git).
   const pathForGitSha = localSourcePath || cacheResult.path
   const gitCommitSha =
-    cacheResult.gitCommitSha ?? (await getGitCommitSha(pathForGitSha))
+    resolvedTag?.sha ??
+    cacheResult.gitCommitSha ??
+    (await getGitCommitSha(pathForGitSha))
 
   const now = getCurrentTimestamp()
-  const version = await calculatePluginVersion(
+  const calculatedVersion = await calculatePluginVersion(
     pluginId,
     entry.source,
     cacheResult.manifest,
     pathForGitSha,
     entry.version,
-    cacheResult.gitCommitSha,
+    resolvedTag?.sha ?? cacheResult.gitCommitSha,
   )
+  const version =
+    resolvedTag && (cacheResult.manifest.version || entry.version)
+      ? `${calculatedVersion}-${resolvedTag.sha.substring(0, 12)}`
+      : calculatedVersion
 
   // Move the cached plugin to the versioned path: cache/marketplace/plugin/version/
   const versionedPath = getVersionedCachePath(pluginId, version)
@@ -201,11 +234,30 @@ export async function cacheAndRegisterPlugin(
     finalPath = versionedPath
   }
 
+  const dependencyInstall = await installPluginDependencies(finalPath)
+  if (dependencyInstall.error) {
+    logForDebugging(
+      `Plugin dependency install warning for ${pluginId}: ${dependencyInstall.error}`,
+      { level: 'warn' },
+    )
+  }
+
   // Zip cache mode: convert directory to ZIP and remove the directory
   if (isPluginZipCacheEnabled()) {
     const zipPath = getVersionedZipCachePath(pluginId, version)
     await convertDirectoryToZipInPlace(finalPath, zipPath)
     finalPath = zipPath
+  }
+
+  if (
+    resolvedTag &&
+    cacheResult.manifest.version &&
+    resolvedTag.version !== cacheResult.manifest.version
+  ) {
+    logForDebugging(
+      `Tag ${resolvedTag.ref} resolved to a commit whose plugin.json says version ${cacheResult.manifest.version} — using tag-derived ${resolvedTag.version} for constraint checks`,
+      { level: 'warn' },
+    )
   }
 
   // Add to both V1 and V2 installed_plugins files with correct scope
@@ -217,12 +269,17 @@ export async function cacheAndRegisterPlugin(
       lastUpdated: now,
       installPath: finalPath,
       gitCommitSha,
+      ...(resolvedTag && { resolvedVersion: resolvedTag.version }),
     },
     scope,
     projectPath,
   )
 
-  return finalPath
+  return {
+    path: finalPath,
+    depConstraints: cacheResult.depConstraints,
+    dependencies: cacheResult.manifest.dependencies,
+  }
 }
 
 /**
@@ -295,6 +352,18 @@ export type InstallCoreResult =
       pluginName: string
       blockedDependency: string
     }
+  | {
+      ok: false
+      reason: 'range-conflict'
+      dep: string
+      ranges: string[]
+    }
+  | {
+      ok: false
+      reason: 'no-matching-tag'
+      dep: string
+      range: string
+    }
 
 /**
  * Format a failed ResolutionResult into a user-facing message. Unified on
@@ -326,6 +395,74 @@ export function formatResolutionError(
   }
 }
 
+type DependencyPluginInfo = {
+  entry: PluginMarketplaceEntry
+  marketplaceInstallLocation: string
+}
+
+/**
+ * Reconcile dependencies declared by the installed root plugin with the
+ * marketplace catalog used for the initial closure. plugin.json is the
+ * runtime source of truth, but it cannot silently expand trust to another
+ * marketplace.
+ */
+async function resolvePluginJsonDependencies({
+  rootManifestDependencies,
+  pluginId,
+  closure,
+  alreadyEnabled,
+  rootMarketplace,
+  allowedCrossMarketplaces,
+  dependencyInfo,
+}: {
+  rootManifestDependencies?: string[]
+  pluginId: string
+  closure: ReadonlySet<string>
+  alreadyEnabled: ReadonlySet<string>
+  rootMarketplace?: string
+  allowedCrossMarketplaces: ReadonlySet<string>
+  dependencyInfo: Map<string, DependencyPluginInfo>
+}): Promise<
+  | { ok: true; ids: string[] }
+  | { ok: false; blockedDependency: string }
+> {
+  const ids: string[] = []
+  for (const rawDependency of rootManifestDependencies ?? []) {
+    const dependency = qualifyDependency(rawDependency, pluginId)
+    if (closure.has(dependency) || alreadyEnabled.has(dependency)) continue
+
+    const dependencyMarketplace =
+      parsePluginIdentifier(dependency).marketplace
+    if (
+      dependencyMarketplace !== rootMarketplace &&
+      !(
+        dependencyMarketplace &&
+        allowedCrossMarketplaces.has(dependencyMarketplace)
+      )
+    ) {
+      logForDebugging(
+        `${pluginId} plugin.json declares dependency "${dependency}" in a different marketplace; not auto-installing — install it manually`,
+        { level: 'warn' },
+      )
+      continue
+    }
+    if (isPluginBlockedByPolicy(dependency)) {
+      return { ok: false, blockedDependency: dependency }
+    }
+    const info = await getPluginById(dependency)
+    if (!info) {
+      logForDebugging(
+        `${pluginId} plugin.json declares dependency "${dependency}" not found in any known marketplace; not auto-installing`,
+        { level: 'warn' },
+      )
+      continue
+    }
+    dependencyInfo.set(dependency, info)
+    ids.push(dependency)
+  }
+  return { ok: true, ids }
+}
+
 /**
  * Core plugin install logic, shared by the CLI path (`installPluginOp`) and
  * the interactive UI path (`installPluginFromMarketplace`). Given a
@@ -350,11 +487,13 @@ export async function installResolvedPlugin({
   entry,
   scope,
   marketplaceInstallLocation,
+  trigger,
 }: {
   pluginId: string
   entry: PluginMarketplaceEntry
   scope: 'user' | 'project' | 'local'
   marketplaceInstallLocation?: string
+  trigger?: string
 }): Promise<InstallCoreResult> {
   const settingSource = scopeToSettingSource(scope)
 
@@ -369,10 +508,7 @@ export async function installResolvedPlugin({
   // ── Resolve dependency closure ──
   // depInfo caches marketplace lookups so the materialize loop doesn't
   // re-fetch. Seed the root if the caller gave us its install location.
-  const depInfo = new Map<
-    string,
-    { entry: PluginMarketplaceEntry; marketplaceInstallLocation: string }
-  >()
+  const depInfo = new Map<string, DependencyPluginInfo>()
   // Without this guard, a local-source root with undefined
   // marketplaceInstallLocation falls through: depInfo isn't seeded, the
   // materialize loop's `if (!info) continue` skips the root, and the user
@@ -395,6 +531,7 @@ export async function installResolvedPlugin({
           ?.allowCrossMarketplaceDependenciesOn
       : undefined) ?? [],
   )
+  const alreadyEnabled = getEnabledPluginIdsForScope(settingSource)
   const resolution = await resolveDependencyClosure(
     pluginId,
     async id => {
@@ -404,7 +541,7 @@ export async function installResolvedPlugin({
       if (info) depInfo.set(id, info)
       return info?.entry ?? null
     },
-    getEnabledPluginIdsForScope(settingSource),
+    alreadyEnabled,
     allowedCrossMarketplaces,
   )
   if (!resolution.ok) {
@@ -426,12 +563,16 @@ export async function installResolvedPlugin({
     }
   }
 
+  const previousEnabled = {
+    ...(getSettingsForSource(settingSource)?.enabledPlugins ?? {}),
+  }
+
   // ── ACTION: write entire closure to settings in one call ──
   const closureEnabled: Record<string, true> = {}
   for (const id of resolution.closure) closureEnabled[id] = true
   const { error } = updateSettingsForSource(settingSource, {
     enabledPlugins: {
-      ...getSettingsForSource(settingSource)?.enabledPlugins,
+      ...previousEnabled,
       ...closureEnabled,
     },
   })
@@ -443,48 +584,245 @@ export async function installResolvedPlugin({
     }
   }
 
-  // ── Materialize: cache each closure member ──
   const projectPath = scope !== 'user' ? getCwd() : undefined
-  for (const id of resolution.closure) {
-    let info = depInfo.get(id)
-    // Root wasn't pre-seeded (caller didn't pass marketplaceInstallLocation
-    // for a non-local source). Fetch now; it's needed for the cache write.
-    if (!info && id === pluginId) {
-      const mktLocation = (await getPluginById(id))?.marketplaceInstallLocation
-      if (mktLocation) info = { entry, marketplaceInstallLocation: mktLocation }
-    }
-    if (!info) continue
+  const materialized = new Set<string>()
+  const closure = resolution.closure
 
-    let localSourcePath: string | undefined
-    const { source } = info.entry
-    if (isLocalPluginSource(source)) {
-      localSourcePath = validatePathWithinBase(
-        info.marketplaceInstallLocation,
-        source,
+  function getLocalSourcePath(info: DependencyPluginInfo): string | undefined {
+    return isLocalPluginSource(info.entry.source)
+      ? validatePathWithinBase(
+          info.marketplaceInstallLocation,
+          info.entry.source,
+        )
+      : undefined
+  }
+
+  function rollbackEnabledPlugins(): void {
+    const restore: Record<string, boolean | string[] | undefined> = {}
+    for (const id of closure) {
+      restore[id] =
+        id === pluginId && materialized.has(id)
+          ? true
+          : previousEnabled[id]
+    }
+    const { error: rollbackError } = updateSettingsForSource(settingSource, {
+      enabledPlugins: restore,
+    })
+    if (rollbackError) {
+      logError(
+        `Failed to roll back enabledPlugins after install failure for ${pluginId}: ${rollbackError.message}. Retry may skip un-cached deps; manually disable then reinstall to recover.`,
       )
     }
-    await cacheAndRegisterPlugin(
-      id,
-      info.entry,
-      scope,
-      projectPath,
-      localSourcePath,
+  }
+
+  let rootManifestDependencies: string[] | undefined
+  try {
+    if (!depInfo.has(pluginId)) {
+      const rootInstallLocation = (await getPluginById(pluginId))
+        ?.marketplaceInstallLocation
+      if (rootInstallLocation) {
+        depInfo.set(pluginId, {
+          entry,
+          marketplaceInstallLocation: rootInstallLocation,
+        })
+      }
+    }
+
+    const closureSet = new Set(closure)
+    const existingConstraints = new Map<string, string[]>()
+    const loaded = await loadAllPlugins()
+    for (const loadedPlugin of [...loaded.enabled, ...loaded.disabled]) {
+      if (!loadedPlugin.depConstraints) continue
+      if (closureSet.has(loadedPlugin.source)) continue
+      for (const [rawDependency, constraint] of loadedPlugin.depConstraints) {
+        if (constraint.version === undefined) continue
+        const dependency = qualifyDependency(
+          rawDependency,
+          loadedPlugin.source,
+        )
+        const ranges = existingConstraints.get(dependency)
+        if (ranges) ranges.push(constraint.version)
+        else existingConstraints.set(dependency, [constraint.version])
+      }
+    }
+
+    const pendingConstraints = new Map<string, string[]>()
+    const tagLookupCache = new Map<string, Promise<string>>()
+
+    async function materialize(
+      id: string,
+    ): Promise<
+      | { ok: true; dependencies?: string[] }
+      | Extract<
+          InstallCoreResult,
+          { reason: 'range-conflict' | 'no-matching-tag' }
+        >
+    > {
+      const info = depInfo.get(id)
+      if (!info) return { ok: true, dependencies: undefined }
+
+      const ranges = [
+        ...(pendingConstraints.get(id) ?? []),
+        ...(existingConstraints.get(id) ?? []),
+      ]
+      let resolvedTag: ResolvedGitTag | undefined
+      if (ranges.length > 0) {
+        const intersection = intersectConstraints(ranges)
+        if (intersection === null) {
+          return { ok: false, reason: 'range-conflict', dep: id, ranges }
+        }
+        if (intersection !== '*') {
+          const gitUrl = getGitUrlForVersionResolution(info.entry.source)
+          if (gitUrl !== null) {
+            const resolved = await resolveVersionRange(
+              gitUrl,
+              info.entry.name,
+              intersection,
+              tagLookupCache,
+            )
+            if (resolved === null) {
+              return {
+                ok: false,
+                reason: 'no-matching-tag',
+                dep: id,
+                range: intersection,
+              }
+            }
+            resolvedTag = resolved
+          }
+        }
+      }
+
+      const cached = await cacheAndRegisterPlugin(
+        id,
+        info.entry,
+        scope,
+        projectPath,
+        getLocalSourcePath(info),
+        resolvedTag,
+      )
+      materialized.add(id)
+      for (const [rawDependency, constraint] of cached.depConstraints ?? []) {
+        if (constraint.version === undefined) continue
+        const dependency = qualifyDependency(rawDependency, id)
+        const dependencyRanges = pendingConstraints.get(dependency)
+        if (dependencyRanges) dependencyRanges.push(constraint.version)
+        else pendingConstraints.set(dependency, [constraint.version])
+      }
+      return { ok: true, dependencies: cached.dependencies ?? [] }
+    }
+
+    // The resolver returns dependencies before dependents. Materialize in
+    // reverse so the root's raw plugin.json constraints are known before its
+    // dependencies select tags.
+    for (let index = closure.length - 1; index >= 0; index--) {
+      const id = closure[index]
+      if (id === undefined) continue
+      const result = await materialize(id)
+      if (!result.ok) {
+        rollbackEnabledPlugins()
+        return result
+      }
+      if (id === pluginId) rootManifestDependencies = result.dependencies
+    }
+
+    const pluginJsonDependencies = await resolvePluginJsonDependencies({
+      rootManifestDependencies,
+      pluginId,
+      closure: closureSet,
+      alreadyEnabled: getEnabledPluginIdsForScope(settingSource),
+      rootMarketplace,
+      allowedCrossMarketplaces,
+      dependencyInfo: depInfo,
+    })
+    if (!pluginJsonDependencies.ok) {
+      rollbackEnabledPlugins()
+      return {
+        ok: false,
+        reason: 'dependency-blocked-by-policy',
+        pluginName: entry.name,
+        blockedDependency: pluginJsonDependencies.blockedDependency,
+      }
+    }
+
+    if (pluginJsonDependencies.ids.length > 0) {
+      const additionalEnabled: Record<string, true> = {}
+      for (const id of pluginJsonDependencies.ids) {
+        closureSet.add(id)
+        closure.push(id)
+        additionalEnabled[id] = true
+      }
+      const { error: dependencySettingsError } = updateSettingsForSource(
+        settingSource,
+        {
+          enabledPlugins: {
+            ...getSettingsForSource(settingSource)?.enabledPlugins,
+            ...additionalEnabled,
+          },
+        },
+      )
+      if (dependencySettingsError) {
+        rollbackEnabledPlugins()
+        return {
+          ok: false,
+          reason: 'settings-write-failed',
+          message: dependencySettingsError.message,
+        }
+      }
+
+      for (const id of pluginJsonDependencies.ids) {
+        const result = await materialize(id)
+        if (!result.ok) {
+          rollbackEnabledPlugins()
+          return result
+        }
+      }
+    }
+  } catch (installError) {
+    rollbackEnabledPlugins()
+    throw installError
+  }
+
+  if (rootManifestDependencies !== undefined) {
+    const manifestDependencies = new Set(
+      rootManifestDependencies.map(dependency =>
+        qualifyDependency(dependency, pluginId),
+      ),
     )
+    for (const catalogDependency of entry.dependencies ?? []) {
+      const normalized = qualifyDependency(catalogDependency, pluginId)
+      if (!manifestDependencies.has(normalized)) {
+        logForDebugging(
+          `Marketplace entry for ${pluginId} lists dependency "${catalogDependency}" not present in plugin.json — catalog may be stale`,
+        )
+      }
+    }
   }
 
   clearAllCaches()
 
+  const marketplace = parsePluginIdentifier(pluginId).marketplace
+  void logOTelEvent('plugin_installed', {
+    'plugin.name': entry.name,
+    ...(entry.version && { 'plugin.version': entry.version }),
+    ...(marketplace && { 'marketplace.name': marketplace }),
+    'marketplace.is_official': String(
+      marketplace ? isOfficialMarketplaceName(marketplace) : false,
+    ),
+    ...(trigger && { 'install.trigger': trigger }),
+  })
+
   const depNote = formatDependencyCountSuffix(
-    resolution.closure.filter(id => id !== pluginId),
+    closure.filter(id => id !== pluginId),
   )
-  return { ok: true, closure: resolution.closure, depNote }
+  return { ok: true, closure, depNote }
 }
 
 /**
  * Result of a plugin installation operation
  */
 export type InstallPluginResult =
-  | { success: true; message: string }
+  | { success: true; message: string; depNote?: string }
   | { success: false; error: string }
 
 /**
@@ -522,6 +860,7 @@ export async function installPluginFromMarketplace({
       entry,
       scope,
       marketplaceInstallLocation,
+      trigger: 'ui',
     })
 
     if (!result.ok) {
@@ -550,6 +889,16 @@ export async function installPluginFromMarketplace({
           return {
             success: false,
             error: `Cannot install "${result.pluginName}": dependency "${result.blockedDependency}" is blocked by your organization's policy`,
+          }
+        case 'range-conflict':
+          return {
+            success: false,
+            error: `${result.dep === pluginId ? 'Plugin' : 'Dependency'} "${result.dep}" has conflicting version requirements: ${result.ranges.join(', ')}`,
+          }
+        case 'no-matching-tag':
+          return {
+            success: false,
+            error: `${result.dep === pluginId ? 'Plugin' : 'Dependency'} "${result.dep}" has no git tag satisfying ${result.range}`,
           }
       }
     }
@@ -586,6 +935,7 @@ export async function installPluginFromMarketplace({
     return {
       success: true,
       message: `✓ Installed ${entry.name}${result.depNote}. Run /reload-plugins to activate.`,
+      depNote: result.depNote,
     }
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err)

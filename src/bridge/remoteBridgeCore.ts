@@ -38,7 +38,11 @@ import { buildCCRv2SdkUrl } from './workSecret.js'
 import { toCompatSessionId } from './sessionIdCompat.js'
 import { FlushGate } from './flushGate.js'
 import { createTokenRefreshScheduler } from './jwtUtils.js'
-import { getTrustedDeviceToken } from './trustedDevice.js'
+import {
+  clearTrustedDeviceTokenCache,
+  getTrustedDeviceToken,
+  isTrustedDeviceGateEnabled,
+} from './trustedDevice.js'
 import {
   getEnvLessBridgeConfig,
   type EnvLessBridgeConfig,
@@ -119,6 +123,9 @@ export type EnvLessBridgeParams = {
   onSetPermissionMode?: (
     mode: PermissionMode,
   ) => { ok: true } | { ok: false; error: string }
+  onRenameSession?: (
+    title: string,
+  ) => { ok: true } | { ok: false; error: string }
   onStateChange?: (state: BridgeState, detail?: string) => void
   /**
    * When true, skip opening the SSE read stream — only the CCRClient write
@@ -156,6 +163,7 @@ export async function initEnvLessBridgeCore(
     onSetModel,
     onSetMaxThinkingTokens,
     onSetPermissionMode,
+    onRenameSession,
     onStateChange,
     outboundOnly,
     tags,
@@ -197,9 +205,18 @@ export async function initEnvLessBridgeCore(
     'fetchRemoteCredentials',
     cfg,
   )
-  if (!credentials) {
-    onStateChange?.('failed', 'Remote credentials fetch failed — see debug log')
-    logBridgeSkip('v2_remote_creds_failed', undefined, true)
+  if (!credentials || isRemoteCredentialsTerminal(credentials)) {
+    const detail = credentials
+      ? getRemoteCredentialsFailureDetail(credentials)
+      : 'Remote credentials fetch failed — see debug log'
+    onStateChange?.('failed', detail)
+    logBridgeSkip(
+      credentials
+        ? `v2_remote_creds_${credentials.reason}`
+        : 'v2_remote_creds_failed',
+      undefined,
+      true,
+    )
     void archiveSession(
       sessionId,
       baseUrl,
@@ -351,6 +368,15 @@ export async function initEnvLessBridgeCore(
             cfg,
           )
           if (!fresh || tornDown) return
+          if (isRemoteCredentialsTerminal(fresh)) {
+            if (!tornDown) {
+              onStateChange?.(
+                'failed',
+                getRemoteCredentialsFailureDetail(fresh),
+              )
+            }
+            return
+          }
           await rebuildTransport(fresh, 'proactive_refresh')
           logForDebugging(
             '[remote-bridge] Transport rebuilt (proactive refresh)',
@@ -442,6 +468,7 @@ export async function initEnvLessBridgeCore(
             onSetModel,
             onSetMaxThinkingTokens,
             onSetPermissionMode,
+            onRenameSession,
             outboundOnly,
           }),
       )
@@ -564,6 +591,12 @@ export async function initEnvLessBridgeCore(
       if (!fresh || tornDown) {
         if (!tornDown) {
           onStateChange?.('failed', 'JWT refresh failed after 401')
+        }
+        return
+      }
+      if (isRemoteCredentialsTerminal(fresh)) {
+        if (!tornDown) {
+          onStateChange?.('failed', getRemoteCredentialsFailureDetail(fresh))
         }
         return
       }
@@ -921,7 +954,10 @@ export {
 import {
   createCodeSession,
   fetchRemoteCredentials as fetchRemoteCredentialsRaw,
+  isRemoteCredentialsTerminal,
   type RemoteCredentials,
+  type RemoteCredentialsResult,
+  type RemoteCredentialsTerminal,
 } from './codeSessionApi.js'
 import { getBridgeBaseUrlOverride } from './bridgeConfig.js'
 
@@ -933,18 +969,61 @@ export async function fetchRemoteCredentials(
   baseUrl: string,
   accessToken: string,
   timeoutMs: number,
-): Promise<RemoteCredentials | null> {
-  const creds = await fetchRemoteCredentialsRaw(
+): Promise<RemoteCredentialsResult | null> {
+  const trustedDeviceToken = getTrustedDeviceToken()
+  let creds = await fetchRemoteCredentialsRaw(
     sessionId,
     baseUrl,
     accessToken,
     timeoutMs,
-    getTrustedDeviceToken(),
+    trustedDeviceToken,
   )
+  if (
+    creds &&
+    isRemoteCredentialsTerminal(creds) &&
+    creds.reason === 'untrusted_device' &&
+    isTrustedDeviceGateEnabled()
+  ) {
+    clearTrustedDeviceTokenCache()
+    const freshTrustedDeviceToken = getTrustedDeviceToken()
+    if (freshTrustedDeviceToken !== trustedDeviceToken) {
+      logForDebugging(
+        '[remote-bridge] Stale trusted-device token cache; retrying with fresh keychain read',
+      )
+      creds =
+        (await fetchRemoteCredentialsRaw(
+          sessionId,
+          baseUrl,
+          accessToken,
+          timeoutMs,
+          freshTrustedDeviceToken,
+        )) ?? creds
+    }
+  }
   if (!creds) return null
+  if (isRemoteCredentialsTerminal(creds)) {
+    if (
+      creds.reason === 'untrusted_device' &&
+      !isTrustedDeviceGateEnabled()
+    ) {
+      return null
+    }
+    return creds
+  }
   return getBridgeBaseUrlOverride()
     ? { ...creds, api_base_url: baseUrl }
     : creds
+}
+
+function getRemoteCredentialsFailureDetail(
+  credentials: RemoteCredentialsTerminal,
+): string {
+  switch (credentials.reason) {
+    case 'untrusted_device':
+      return 'run /login to enroll this device'
+    case 'session_stale_relogin':
+      return 'session expired for trusted-device check — run /login to re-authenticate'
+  }
 }
 
 type ArchiveStatus = number | 'timeout' | 'error' | 'no_token'

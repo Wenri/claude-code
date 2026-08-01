@@ -45,6 +45,11 @@ export type PluginConfig = {
   repositories: Record<string, PluginRepository>
 }
 
+export type DependencyConstraint = {
+  version?: string
+  sha?: string
+}
+
 export type LoadedPlugin = {
   name: string
   manifest: PluginManifest
@@ -54,6 +59,10 @@ export type LoadedPlugin = {
   enabled?: boolean
   isBuiltin?: boolean // true for built-in plugins that ship with the CLI
   sha?: string // Git commit SHA for version pinning (from marketplace entry source)
+  /** Raw dependency version/SHA metadata stripped by PluginManifestSchema. */
+  depConstraints?: Map<string, DependencyConstraint>
+  /** Version derived from the git tag selected for a dependency constraint. */
+  resolvedVersion?: string
   commandsPath?: string
   commandsPaths?: string[] // Additional command paths from manifest
   commandsMetadata?: Record<string, CommandMetadata> // Metadata for named commands from object-mapping format
@@ -270,6 +279,14 @@ export type PluginError =
       reason: 'not-enabled' | 'not-found'
     }
   | {
+      type: 'dependency-version-unsatisfied'
+      source: string
+      plugin: string
+      dependency: string
+      required: string
+      installed?: string
+    }
+  | {
       type: 'plugin-cache-miss'
       source: string
       plugin: string
@@ -357,6 +374,8 @@ export function getPluginErrorMessage(error: PluginError): string {
           : 'not found in any configured marketplace'
       return `Dependency "${error.dependency}" is ${hint}`
     }
+    case 'dependency-version-unsatisfied':
+      return `Requires "${error.dependency}" ${error.required}, installed ${error.installed ?? 'version unknown'}`
     case 'plugin-cache-miss':
       return `Plugin "${error.plugin}" not cached at ${error.installPath} — run /plugins to refresh`
   }

@@ -1713,7 +1713,7 @@ async function checkPermissionsAndCallTool(
       hookMessages.push(hookResult)
     }
 
-    return [
+    resultingMessages.push(
       {
         message: createUserMessage({
           content: [
@@ -1735,7 +1735,8 @@ async function checkPermissionsAndCallTool(
         }),
       },
       ...hookMessages,
-    ]
+    )
+    return resultingMessages
   } finally {
     stopSessionActivity('tool_exec')
     // Clean up decision info after logging

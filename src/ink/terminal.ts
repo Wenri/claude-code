@@ -84,10 +84,16 @@ export function isSynchronizedOutputSupported(): boolean {
     termProgram === 'ghostty' ||
     termProgram === 'contour' ||
     termProgram === 'vscode' ||
-    termProgram === 'alacritty'
+    termProgram === 'alacritty' ||
+    termProgram === 'mintty' ||
+    termProgram === 'rio' ||
+    termProgram === 'Tabby'
   ) {
     return true
   }
+
+  // Konsole 21.12.0+
+  if (parseInt(process.env.KONSOLE_VERSION ?? '', 10) >= 211200) return true
 
   // kitty sets TERM=xterm-kitty or KITTY_WINDOW_ID
   if (term?.includes('kitty') || process.env.KITTY_WINDOW_ID) return true

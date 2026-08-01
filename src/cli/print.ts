@@ -148,7 +148,11 @@ import {
 } from 'src/utils/permissions/PermissionPromptToolResultSchema.js'
 import { createAbortController } from 'src/utils/abortController.js'
 import { createCombinedAbortSignal } from 'src/utils/combinedAbortSignal.js'
-import { generateSessionTitle } from 'src/utils/sessionTitle.js'
+import {
+  generateSessionTitle,
+  isSessionTitleGenerationDisabled,
+} from 'src/utils/sessionTitle.js'
+import { restoreSessionCronTasks } from 'src/utils/sessionCronTasks.js'
 import { buildSideQuestionFallbackParams } from 'src/utils/queryContext.js'
 import { runSideQuestion } from 'src/utils/sideQuestion.js'
 import {
@@ -160,7 +164,14 @@ import {
   DEFAULT_OUTPUT_STYLE_NAME,
   getAllOutputStyles,
 } from 'src/constants/outputStyles.js'
-import { TEAMMATE_MESSAGE_TAG, TICK_TAG } from 'src/constants/xml.js'
+import {
+  BASH_INPUT_TAG,
+  COMMAND_MESSAGE_TAG,
+  COMMAND_NAME_TAG,
+  LOCAL_COMMAND_STDOUT_TAG,
+  TEAMMATE_MESSAGE_TAG,
+  TICK_TAG,
+} from 'src/constants/xml.js'
 import {
   getSettings_DEPRECATED,
   getSettingsWithErrors,
@@ -213,6 +224,7 @@ import {
   saveAgentSetting,
   saveMode,
   saveAiGeneratedTitle,
+  getCurrentSessionTitle,
   restoreSessionMetadata,
 } from 'src/utils/sessionStorage.js'
 import { incrementPromptCount } from 'src/utils/commitAttribution.js'
@@ -258,9 +270,11 @@ import {
   toInternalMessages,
   toSDKRateLimitInfo,
 } from 'src/utils/messages/mappers.js'
-import { createModelSwitchBreadcrumbs } from 'src/utils/messages.js'
+import {
+  createModelSwitchBreadcrumbs,
+  getContentText,
+} from 'src/utils/messages.js'
 import { collectContextData } from 'src/commands/context/context-noninteractive.js'
-import { LOCAL_COMMAND_STDOUT_TAG } from 'src/constants/xml.js'
 import {
   statusListeners,
   type ClaudeAILimits,
@@ -450,6 +464,15 @@ export function canBatchWith(
     next.mode === 'prompt' &&
     next.workload === head.workload &&
     next.isMeta === head.isMeta
+  )
+}
+
+function isSyntheticSessionTitleInput(text: string): boolean {
+  return (
+    text.startsWith(`<${LOCAL_COMMAND_STDOUT_TAG}>`) ||
+    text.startsWith(`<${COMMAND_MESSAGE_TAG}>`) ||
+    text.startsWith(`<${COMMAND_NAME_TAG}>`) ||
+    text.startsWith(`<${BASH_INPUT_TAG}>`)
   )
 }
 
@@ -694,6 +717,10 @@ export async function runHeadless(
     sessionStartHooksPromise: options.sessionStartHooksPromise,
     restoredWorkerState: structuredIO.restoredWorkerState,
   })
+
+  if (initialMessages.length > 0) {
+    restoreSessionCronTasks(initialMessages)
+  }
 
   // SessionStart hooks can emit initialUserMessage — the first user turn for
   // headless orchestrator sessions where stdin is empty and additionalContext
@@ -2813,6 +2840,8 @@ function runHeadlessStreaming(
   // the last generation of the queue has complete.
   void (async () => {
     let initialized = false
+    let autoTitleAttempted =
+      initialMessages.length > 0 || isSessionTitleGenerationDisabled()
     logForDiagnosticsNoPII('info', 'cli_message_loop_started')
     for await (const message of structuredIO.structuredInput) {
       // Non-user events are handled inline (no queue). started→completed in
@@ -3790,6 +3819,9 @@ function runHeadlessStreaming(
           // (which would delay processing of subsequent user messages /
           // interrupts for the duration of the API roundtrip).
           const { description, persist } = message.request
+          if (persist) {
+            autoTitleAttempted = true
+          }
           // Reuse the live controller only if it has not already been aborted
           // (e.g. by interrupt()); an aborted signal would cause queryHaiku to
           // immediately throw APIUserAbortError → {title: null}.
@@ -4102,6 +4134,46 @@ function runHeadlessStreaming(
 
         // Track this UUID to prevent runtime duplicates
         trackReceivedMessageUuid(message.uuid)
+      }
+
+      // Generate a title once from the first real prompt. This mirrors the
+      // interactive REPL, while honoring the nonessential-traffic and terminal
+      // title opt-outs before any Haiku request is made.
+      if (
+        !autoTitleAttempted &&
+        (message as typeof message & { shouldQuery?: boolean }).shouldQuery !==
+          false
+      ) {
+        const text = getContentText(message.message.content)
+        if (text && !isSyntheticSessionTitleInput(text)) {
+          autoTitleAttempted = true
+          const sessionId = getSessionId() as UUID
+          if (!getCurrentSessionTitle(sessionId)) {
+            const titleSignal = (
+              abortController && !abortController.signal.aborted
+                ? abortController
+                : createAbortController()
+            ).signal
+            void generateSessionTitle(text, titleSignal).then(
+              title => {
+                if (!title) {
+                  autoTitleAttempted = false
+                  return
+                }
+                // A user or hook may have named the session while the title
+                // request was in flight. User-authored titles always win.
+                if (getCurrentSessionTitle(sessionId)) return
+                saveAiGeneratedTitle(sessionId, title)
+              },
+              error => {
+                autoTitleAttempted = false
+                logError(
+                  error instanceof Error ? error : new Error(String(error)),
+                )
+              },
+            )
+          }
+        }
       }
 
       enqueue({

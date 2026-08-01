@@ -178,6 +178,12 @@ export async function cleanupOldSessionFiles(): Promise<CleanupResult> {
       result.errors++
       continue
     }
+    // Process session directories before their transcript files. Once an old
+    // transcript is removed below, its complete sidecar directory can then be
+    // deleted without racing this directory-cleanup branch.
+    entries.sort(
+      (a, b) => Number(b.isDirectory()) - Number(a.isDirectory()),
+    )
 
     for (const entry of entries) {
       if (entry.isFile()) {
@@ -189,6 +195,19 @@ export async function cleanupOldSessionFiles(): Promise<CleanupResult> {
             await unlinkIfOld(join(projectDir, entry.name), cutoffDate, fsImpl)
           ) {
             result.messages++
+            if (entry.name.endsWith('.jsonl')) {
+              const sessionId = entry.name.slice(0, -'.jsonl'.length)
+              if (sessionId && sessionId !== '.' && sessionId !== '..') {
+                await fsImpl
+                  .rm(join(projectDir, sessionId), {
+                    recursive: true,
+                    force: true,
+                  })
+                  .catch(() => {
+                    result.errors++
+                  })
+              }
+            }
           }
         } catch {
           result.errors++

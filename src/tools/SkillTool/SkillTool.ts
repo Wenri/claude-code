@@ -55,10 +55,15 @@ import {
 } from '../../utils/forkedAgent.js'
 import { parseFrontmatter } from '../../utils/frontmatterParser.js'
 import { lazySchema } from '../../utils/lazySchema.js'
-import { createUserMessage, normalizeMessages } from '../../utils/messages.js'
+import {
+  createUserMessage,
+  getUserMessageText,
+  normalizeMessages,
+} from '../../utils/messages.js'
 import type { ModelAlias } from '../../utils/model/aliases.js'
 import { resolveSkillModelOverride } from '../../utils/model/model.js'
 import { recordSkillUsage } from '../../utils/suggestions/skillUsageTracking.js'
+import { escapeRegExp } from '../../utils/stringUtils.js'
 import { findClosestCommand } from '../../utils/suggestions/commandSuggestions.js'
 import { createAgentId } from '../../utils/uuid.js'
 import { runAgent } from '../AgentTool/runAgent.js'
@@ -93,6 +98,40 @@ async function getAllCommands(context: ToolUseContext): Promise<Command[]> {
   if (mcpSkills.length === 0) return getCommands(getProjectRoot())
   const localCommands = await getCommands(getProjectRoot())
   return uniqBy([...localCommands, ...mcpSkills], 'name')
+}
+
+/**
+ * A skill marked disable-model-invocation may still be launched when the
+ * current human turn explicitly contains `/skill`. This preserves the
+ * frontmatter's model-proactive restriction without breaking a user's direct
+ * mid-message invocation.
+ */
+function wasExplicitlyInvoked(
+  commandName: string,
+  context: ToolUseContext,
+): boolean {
+  if (context.agentId !== undefined) return false
+
+  const commandPattern = new RegExp(
+    `(?<!\\S)/${escapeRegExp(commandName)}(?=$|\\s)`,
+  )
+  const turnStart = context.turnStartIndex
+
+  for (let index = context.messages.length - 1; index >= turnStart; index--) {
+    const message = context.messages[index]
+    if (!message || message.type !== 'user' || message.isMeta) continue
+
+    const content = message.message.content
+    if (typeof content === 'string') {
+      if (content.includes(`<${COMMAND_MESSAGE_TAG}>`)) continue
+    } else if (content.some(block => block.type === 'tool_result')) {
+      continue
+    }
+
+    if (commandPattern.test(getUserMessageText(message) ?? '')) return true
+  }
+
+  return false
 }
 
 // Re-export Progress from centralized types to break import cycles
@@ -420,7 +459,10 @@ export const SkillTool: Tool<InputSchema, Output, Progress> = buildTool({
     }
 
     // Check if command has model invocation disabled
-    if (foundCommand.disableModelInvocation) {
+    if (
+      foundCommand.disableModelInvocation &&
+      !wasExplicitlyInvoked(normalizedCommandName, context)
+    ) {
       return {
         result: false,
         message: `Skill ${normalizedCommandName} cannot be used with ${SKILL_TOOL_NAME} tool due to disable-model-invocation`,

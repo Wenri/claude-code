@@ -1,6 +1,6 @@
 import { c as _c } from "react/compiler-runtime";
 import React, { useMemo } from 'react';
-import { getMcpConfigsByScope } from 'src/services/mcp/config.js';
+import { findMcpServerNameConflicts, getMcpConfigsByScope } from 'src/services/mcp/config.js';
 import type { ConfigScope } from 'src/services/mcp/types.js';
 import { describeMcpConfigFilePath, getScopeLabel } from 'src/services/mcp/utils.js';
 import type { ValidationError } from 'src/utils/settings/validation.js';
@@ -164,11 +164,13 @@ export function McpParsingWarnings() {
   const scopes = t3 satisfies Array<{
     scope: ConfigScope;
     config: {
+      servers: ReturnType<typeof getMcpConfigsByScope>['servers'];
       errors: ValidationError[];
     };
   }>;
+  const conflicts = findMcpServerNameConflicts(scopes.filter(_temp6).map(_temp7));
   const hasParsingErrors = scopes.some(_temp3);
-  const hasWarnings = scopes.some(_temp4);
+  const hasWarnings = conflicts.length > 0 || scopes.some(_temp4);
   if (!hasParsingErrors && !hasWarnings) {
     return null;
   }
@@ -181,12 +183,29 @@ export function McpParsingWarnings() {
   }
   let t5;
   if ($[5] === Symbol.for("react.memo_cache_sentinel")) {
-    t5 = <Box flexDirection="column" marginTop={1} marginBottom={1}>{t4}<Box marginTop={1}><Text dimColor={true}>For help configuring MCP servers, see:{" "}<Link url="https://code.claude.com/docs/en/mcp">https://code.claude.com/docs/en/mcp</Link></Text></Box>{scopes.map(_temp5)}</Box>;
+    t5 = <Box flexDirection="column" marginTop={1} marginBottom={1}>{t4}<Box marginTop={1}><Text dimColor={true}>For help configuring MCP servers, see:{" "}<Link url="https://code.claude.com/docs/en/mcp">https://code.claude.com/docs/en/mcp</Link></Text></Box>{scopes.map(_temp5)}{conflicts.length > 0 && <Box flexDirection="column" marginTop={1}><Text color="warning">[Conflicting scopes]</Text><Box marginLeft={1} flexDirection="column">{conflicts.map(_tempConflict)}</Box></Box>}</Box>;
     $[5] = t5;
   } else {
     t5 = $[5];
   }
   return t5;
+}
+function _tempConflict(conflict: ValidationError, i: number) {
+  return <Box key={`conflict-${i}`} flexDirection="column"><Text><Text dimColor={true}>└ </Text><Text color="warning">[Warning]</Text><Text dimColor={true}> {conflict.message}</Text></Text>{conflict.suggestion && <Text dimColor={true}>{"  "}Suggestion: {conflict.suggestion}</Text>}</Box>;
+}
+function _temp7(t0: {
+  scope: ConfigScope;
+  config: ReturnType<typeof getMcpConfigsByScope>;
+}) {
+  return {
+    scope: t0.scope,
+    servers: t0.config.servers
+  };
+}
+function _temp6(t0: {
+  scope: ConfigScope;
+}) {
+  return t0.scope !== "enterprise";
 }
 function _temp5(t0) {
   const {

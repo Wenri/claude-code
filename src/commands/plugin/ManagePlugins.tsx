@@ -6,6 +6,7 @@ import * as React from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ConfigurableShortcutHint } from '../../components/ConfigurableShortcutHint.js';
 import { Byline } from '../../components/design-system/Byline.js';
+import { useIsInsideModal, useModalOrTerminalSize } from '../../context/modalContext.js';
 import { MCPRemoteServerMenu } from '../../components/mcp/MCPRemoteServerMenu.js';
 import { MCPStdioServerMenu } from '../../components/mcp/MCPStdioServerMenu.js';
 import { MCPToolDetailView } from '../../components/mcp/MCPToolDetailView.js';
@@ -27,6 +28,7 @@ import type { Tool } from '../../Tool.js';
 import type { LoadedPlugin, PluginError } from '../../types/plugin.js';
 import { count } from '../../utils/array.js';
 import { openBrowser } from '../../utils/browser.js';
+import { getGlobalConfig, saveGlobalConfig } from '../../utils/config.js';
 import { logForDebugging } from '../../utils/debug.js';
 import { errorMessage, toError } from '../../utils/errors.js';
 import { logError } from '../../utils/log.js';
@@ -116,6 +118,53 @@ type PluginState = {
   pendingEnable?: boolean; // Toggle enable/disable
   pendingUpdate?: boolean; // Marked for update
 };
+type InstalledSection = 'attention' | 'favorites' | 'main' | 'disabled';
+type InstalledRow = {
+  kind: 'item';
+  section: InstalledSection;
+  item: UnifiedInstalledItem;
+} | {
+  kind: 'disabled-header';
+  count: number;
+};
+
+function needsAttention(item: UnifiedInstalledItem): boolean {
+  switch (item.type) {
+    case 'plugin':
+      return item.isEnabled && item.errorCount > 0;
+    case 'failed-plugin':
+    case 'flagged-plugin':
+      return true;
+    case 'mcp':
+      return item.status === 'needs-auth' || item.status === 'failed';
+  }
+}
+
+function isDisabled(item: UnifiedInstalledItem): boolean {
+  return item.type === 'plugin' && !item.isEnabled || item.type === 'mcp' && item.status === 'disabled';
+}
+
+function getInstalledScopeLabel(scope: string): string {
+  switch (scope) {
+    case 'flagged':
+      return 'Flagged';
+    case 'project':
+      return 'Project';
+    case 'local':
+      return 'Local';
+    case 'user':
+      return 'User';
+    case 'enterprise':
+      return 'Enterprise';
+    case 'managed':
+      return 'Managed';
+    case 'builtin':
+    case 'dynamic':
+      return 'Built-in';
+    default:
+      return scope;
+  }
+}
 
 /**
  * Get list of base file names (without .md extension) from a directory
@@ -416,9 +465,14 @@ export function ManagePlugins({
     onSearchModeChange?.(active);
   }, [onSearchModeChange]);
   const isTerminalFocused = useTerminalFocus();
+  const isInsideModal = useIsInsideModal();
+  const terminalSize = useTerminalSize();
   const {
     columns: terminalWidth
-  } = useTerminalSize();
+  } = terminalSize;
+  const {
+    rows: availableRows
+  } = useModalOrTerminalSize(terminalSize);
 
   // View state
   const [viewState, setViewState] = useState<ViewState>('plugin-list');
@@ -790,21 +844,88 @@ export function ManagePlugins({
     }
   }, [flaggedIds]);
 
-  // Filter items based on search query (matches name or description)
+  const [favoritePluginIds, setFavoritePluginIds] = useState(() => new Set((getGlobalConfig() as ReturnType<typeof getGlobalConfig> & {
+    favoritePlugins?: string[];
+  }).favoritePlugins ?? []));
+  const toggleFavorite = useCallback((pluginId: string) => {
+    setFavoritePluginIds(current => {
+      const next = new Set(current);
+      if (next.has(pluginId)) {
+        next.delete(pluginId);
+      } else {
+        next.add(pluginId);
+      }
+      saveGlobalConfig(config => ({
+        ...config,
+        favoritePlugins: [...next]
+      }));
+      return next;
+    });
+  }, []);
+  const [showDisabled, setShowDisabled] = useState(false);
+
+  // Build display rows. Search intentionally flattens the categorized view.
   const filteredItems = useMemo(() => {
-    if (!searchQuery) return unifiedItems;
-    const lowerQuery = searchQuery.toLowerCase();
-    return unifiedItems.filter(item_5 => item_5.name.toLowerCase().includes(lowerQuery) || 'description' in item_5 && item_5.description?.toLowerCase().includes(lowerQuery));
-  }, [unifiedItems, searchQuery]);
+    if (searchQuery) {
+      const lowerQuery = searchQuery.toLowerCase();
+      return unifiedItems.filter(item_5 => item_5.name.toLowerCase().includes(lowerQuery) || 'description' in item_5 && item_5.description?.toLowerCase().includes(lowerQuery)).map(item_6 => ({
+        kind: 'item' as const,
+        section: 'main' as const,
+        item: item_6
+      }));
+    }
+
+    const rows: InstalledRow[] = [];
+    const add = (section: InstalledSection, item: UnifiedInstalledItem): void => {
+      const previous = rows.at(-1);
+      const hasAdjacentPlugin = previous?.kind === 'item' && previous.section === section && previous.item.type === 'plugin';
+      const normalized = item.type === 'mcp' && item.indented && !hasAdjacentPlugin ? {
+        ...item,
+        indented: false
+      } : item;
+      rows.push({
+        kind: 'item',
+        section,
+        item: normalized
+      });
+    };
+
+    for (const item of unifiedItems) {
+      if (needsAttention(item)) add('attention', item);
+    }
+    for (const item of unifiedItems) {
+      if (favoritePluginIds.has(item.id)) add('favorites', item);
+    }
+    for (const item of unifiedItems) {
+      if (!isDisabled(item)) add('main', item);
+    }
+    const disabled = unifiedItems.filter(isDisabled);
+    if (disabled.length > 0) {
+      rows.push({
+        kind: 'disabled-header',
+        count: disabled.length
+      });
+      if (showDisabled) {
+        for (const item of disabled) add('disabled', item);
+      }
+    }
+    return rows;
+  }, [unifiedItems, searchQuery, favoritePluginIds, showDisabled]);
 
   // Selection state
   const [selectedIndex, setSelectedIndex] = useState(0);
+  useEffect(() => {
+    if (filteredItems.length > 0 && selectedIndex >= filteredItems.length) {
+      setSelectedIndex(filteredItems.length - 1);
+    }
+  }, [filteredItems.length, selectedIndex]);
 
   // Pagination for unified list (continuous scrolling)
-  const pagination = usePagination<UnifiedInstalledItem>({
+  const maxVisible = isInsideModal ? Math.max(6, availableRows - 13) : 6;
+  const pagination = usePagination<InstalledRow>({
     totalItems: filteredItems.length,
     selectedIndex,
-    maxVisible: 8
+    maxVisible
   });
 
   // Details view state
@@ -1158,7 +1279,13 @@ export function ManagePlugins({
   // Handle toggle enable/disable
   const handleToggle = React.useCallback(() => {
     if (selectedIndex >= filteredItems.length) return;
-    const item_7 = filteredItems[selectedIndex];
+    const row = filteredItems[selectedIndex];
+    if (row?.kind === 'disabled-header') {
+      setShowDisabled(show => !show);
+      return;
+    }
+    if (row?.kind !== 'item') return;
+    const item_7 = row.item;
     if (item_7?.type === 'flagged-plugin') return;
     if (item_7?.type === 'plugin') {
       const pluginId_4 = `${item_7.plugin.name}@${item_7.marketplace}`;
@@ -1210,7 +1337,13 @@ export function ManagePlugins({
   // Handle accept (Enter) in plugin-list
   const handleAccept = React.useCallback(() => {
     if (selectedIndex >= filteredItems.length) return;
-    const item_8 = filteredItems[selectedIndex];
+    const row = filteredItems[selectedIndex];
+    if (row?.kind === 'disabled-header') {
+      setShowDisabled(show => !show);
+      return;
+    }
+    if (row?.kind !== 'item') return;
+    const item_8 = row.item;
     if (item_8?.type === 'plugin') {
       const state_0 = pluginStates.find(s_4 => s_4.plugin.name === item_8.plugin.name && s_4.marketplace === item_8.marketplace);
       if (state_0) {
@@ -1274,7 +1407,16 @@ export function ManagePlugins({
     isActive: viewState === 'plugin-list' && !isSearchMode
   });
   useKeybindings({
-    'plugin:toggle': handleToggle
+    'plugin:toggle': handleToggle,
+    'plugin:favorite': () => {
+      const row = filteredItems[selectedIndex];
+      if (row?.kind !== 'item') return;
+      const adding = !favoritePluginIds.has(row.item.id);
+      toggleFavorite(row.item.id);
+      if (row.section === 'main' || row.section === 'disabled') {
+        setSelectedIndex(index => index + (adding ? 1 : -1));
+      }
+    }
   }, {
     context: 'Plugin',
     isActive: viewState === 'plugin-list' && !isSearchMode
@@ -1307,6 +1449,10 @@ export function ManagePlugins({
     menuItems.push({
       label: isEnabled_1 ? 'Disable plugin' : 'Enable plugin',
       action: () => void handleSingleOperation(isEnabled_1 ? 'disable' : 'enable')
+    });
+    menuItems.push({
+      label: favoritePluginIds.has(pluginId_5) ? 'Remove from favorites' : 'Add to favorites',
+      action: () => toggleFavorite(pluginId_5)
     });
 
     // Update/Uninstall options — not available for built-in plugins
@@ -1419,7 +1565,7 @@ export function ManagePlugins({
       }
     });
     return menuItems;
-  }, [viewState, selectedPlugin, selectedPluginHasMcpb, pluginStates]);
+  }, [viewState, selectedPlugin, selectedPluginHasMcpb, pluginStates, favoritePluginIds, toggleFavorite]);
 
   // Plugin-details navigation
   useKeybindings({
@@ -2145,43 +2291,34 @@ export function ManagePlugins({
           <Text dimColor> {figures.arrowUp} more above</Text>
         </Box>}
 
-      {/* Unified list of plugins and MCPs grouped by scope */}
-      {visibleItems.map((item_10, visibleIndex) => {
+      {/* Unified list of plugins and MCPs grouped by status and scope */}
+      {visibleItems.map((row, visibleIndex) => {
       const actualIndex = pagination.toActualIndex(visibleIndex);
       const isSelected_0 = actualIndex === selectedIndex && !isSearchMode;
-
-      // Check if we need to show a scope header
-      const prevItem = visibleIndex > 0 ? visibleItems[visibleIndex - 1] : null;
-      const showScopeHeader = !prevItem || prevItem.scope !== item_10.scope;
-
-      // Get scope label
-      const getScopeLabel = (scope_8: string): string => {
-        switch (scope_8) {
-          case 'flagged':
-            return 'Flagged';
-          case 'project':
-            return 'Project';
-          case 'local':
-            return 'Local';
-          case 'user':
-            return 'User';
-          case 'enterprise':
-            return 'Enterprise';
-          case 'managed':
-            return 'Managed';
-          case 'builtin':
-            return 'Built-in';
-          case 'dynamic':
-            return 'Built-in';
-          default:
-            return scope_8;
-        }
-      };
-      return <React.Fragment key={item_10.id}>
-            {showScopeHeader && <Box marginTop={visibleIndex > 0 ? 1 : 0} paddingLeft={2}>
-                <Text dimColor={item_10.scope !== 'flagged'} color={item_10.scope === 'flagged' ? 'warning' : undefined} bold={item_10.scope === 'flagged'}>
-                  {getScopeLabel(item_10.scope)}
+      const previous = visibleIndex > 0 ? visibleItems[visibleIndex - 1] : null;
+      if (row.kind === 'disabled-header') {
+        return <Box key="section:disabled" marginTop={visibleIndex > 0 ? 1 : 0} paddingLeft={2}>
+            <Text color={isSelected_0 ? 'suggestion' : undefined}>
+              {isSelected_0 ? `${figures.pointer} ` : '  '}
+              {showDisabled ? figures.arrowDown : figures.arrowRight}
+              {' Show disabled '}
+              <Text dimColor>({row.count})</Text>
+            </Text>
+          </Box>;
+      }
+      const item_10 = row.item;
+      const previousSection = previous?.kind === 'item' ? previous.section : null;
+      const showSectionHeader = (row.section === 'attention' || row.section === 'favorites') && row.section !== previousSection;
+      const previousItem = previous?.kind === 'item' && previous.section === row.section ? previous.item : null;
+      const showScopeHeader = (row.section === 'main' || row.section === 'disabled') && (!previousItem || previousItem.scope !== item_10.scope);
+      return <React.Fragment key={`${row.section}:${item_10.id}`}>
+            {showSectionHeader && <Box marginTop={visibleIndex > 0 ? 1 : 0} paddingLeft={2}>
+                <Text dimColor={row.section !== 'attention'} color={row.section === 'attention' ? 'warning' : undefined} bold>
+                  {row.section === 'attention' ? 'Needs attention' : 'Favorites'}
                 </Text>
+              </Box>}
+            {showScopeHeader && <Box marginTop={previous == null || previous.kind === 'disabled-header' ? 0 : 1} paddingLeft={4}>
+                <Text dimColor>{getInstalledScopeLabel(item_10.scope)}</Text>
               </Box>}
             <UnifiedInstalledCell item={item_10} isSelected={isSelected_0} />
           </React.Fragment>;
@@ -2198,6 +2335,7 @@ export function ManagePlugins({
           <Byline>
             <Text>type to search</Text>
             <ConfigurableShortcutHint action="plugin:toggle" context="Plugin" fallback="Space" description="toggle" />
+            <ConfigurableShortcutHint action="plugin:favorite" context="Plugin" fallback="f" description="favorite" />
             <ConfigurableShortcutHint action="select:accept" context="Select" fallback="Enter" description="details" />
             <ConfigurableShortcutHint action="confirm:no" context="Confirmation" fallback="Esc" description="back" />
           </Byline>

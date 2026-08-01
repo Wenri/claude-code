@@ -16,6 +16,12 @@ import { AnimatedClawd } from './AnimatedClawd.js';
 import { Clawd } from './Clawd.js';
 import { GuestPassesUpsell, incrementGuestPassesSeenCount, useShowGuestPassesUpsell } from './GuestPassesUpsell.js';
 import { incrementOverageCreditUpsellSeenCount, OverageCreditUpsell, useShowOverageCreditUpsell } from './OverageCreditUpsell.js';
+import {
+  FullscreenUpsell,
+  incrementFullscreenUpsellSeenCount,
+  TuiSwitchNotice,
+  useShowFullscreenUpsell,
+} from './FullscreenUpsell.js';
 export function CondensedLogo() {
   const $ = _c(29);
   const {
@@ -34,6 +40,8 @@ export function CondensedLogo() {
   const agentName = agent ?? agentNameFromSettings;
   const showGuestPassesUpsell = useShowGuestPassesUpsell();
   const showOverageCreditUpsell = useShowOverageCreditUpsell();
+  const justSwitchedTui = process.env.CLAUDE_CODE_TUI_JUST_SWITCHED !== undefined;
+  const showFullscreenUpsell = useShowFullscreenUpsell() && !justSwitchedTui;
   let t0;
   let t1;
   if ($[0] !== showGuestPassesUpsell) {
@@ -69,6 +77,11 @@ export function CondensedLogo() {
     t3 = $[6];
   }
   useEffect(t2, t3);
+  useEffect(() => {
+    if (showFullscreenUpsell && !showGuestPassesUpsell && !showOverageCreditUpsell) {
+      incrementFullscreenUpsellSeenCount();
+    }
+  }, [showFullscreenUpsell, showGuestPassesUpsell, showOverageCreditUpsell]);
   const textWidth = Math.max(columns - 15, 20);
   const truncatedVersion = truncate(version, Math.max(textWidth - 13, 6));
   const effortSuffix = getEffortSuffix(model, effortValue);
@@ -150,7 +163,7 @@ export function CondensedLogo() {
   } else {
     t12 = $[28];
   }
-  return t12;
+  return <Box flexDirection="column">{t12}{justSwitchedTui && <Box paddingLeft={2} flexDirection="column" marginTop={1}><TuiSwitchNotice /></Box>}{!showGuestPassesUpsell && !showOverageCreditUpsell && showFullscreenUpsell && <Box paddingLeft={2} flexDirection="column" marginTop={1}><FullscreenUpsell /></Box>}</Box>;
 }
 function _temp2(s_0) {
   return s_0.effortValue;

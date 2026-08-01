@@ -266,6 +266,79 @@ export function dedupPluginMcpServers(
 }
 
 /**
+ * Describe the endpoint that identifies an MCP server in diagnostics.
+ * Remote servers use the original URL when CCR rewrote it through a proxy;
+ * stdio servers use the complete command and argument list.
+ */
+function getMcpServerEndpoint(config: McpServerConfig): string {
+  const url = getServerUrl(config)
+  if (url) {
+    return unwrapCcrProxyUrl(url)
+  }
+  const command = getServerCommandArray(config)
+  if (command) {
+    return command.join(' ')
+  }
+  return config.type ?? 'unknown'
+}
+
+/**
+ * Find server names that are defined in more than one scope but point at
+ * different endpoints. OAuth credentials are keyed by endpoint, so this
+ * otherwise looks like authentication unexpectedly disappearing between
+ * project contexts.
+ */
+export function findMcpServerNameConflicts(
+  scopes: Array<{
+    scope: ConfigScope
+    servers: Record<string, ScopedMcpServerConfig>
+  }>,
+): ValidationError[] {
+  const definitionsByName = new Map<
+    string,
+    Array<{
+      scope: ConfigScope
+      signature: string
+      endpoint: string
+    }>
+  >()
+
+  for (const { scope, servers } of scopes) {
+    for (const [name, config] of Object.entries(servers)) {
+      const signature = getMcpServerSignature(config)
+      if (!signature) continue
+      const definitions = definitionsByName.get(name) ?? []
+      definitions.push({
+        scope,
+        signature,
+        endpoint: getMcpServerEndpoint(config),
+      })
+      definitionsByName.set(name, definitions)
+    }
+  }
+
+  const conflicts: ValidationError[] = []
+  for (const [name, definitions] of definitionsByName) {
+    if (definitions.length < 2) continue
+    if (new Set(definitions.map(({ signature }) => signature)).size < 2) {
+      continue
+    }
+
+    conflicts.push({
+      path: `mcpServers.${name}`,
+      message: `Server "${name}" is defined in multiple scopes with different endpoints: ${definitions.map(({ scope, endpoint }) => `${scope} (${endpoint})`).join(', ')}. OAuth tokens are stored per endpoint, so authenticating in one context will not carry over.`,
+      suggestion: `Keep the correct endpoint and remove the others: ${definitions.map(({ scope }) => `\`claude mcp remove ${name} -s ${scope}\``).join(' or ')}`,
+      mcpErrorMetadata: {
+        scope: definitions[0]!.scope,
+        serverName: name,
+        severity: 'warning',
+      },
+    })
+  }
+  return conflicts
+}
+
+/**
  * Filter claude.ai connectors, dropping any whose signature matches an enabled
  * manually-configured server. Manual wins: a user who wrote .mcp.json or ran
  * `claude mcp add` expressed higher intent than a connector toggled in the web UI.

@@ -4,9 +4,10 @@ import {
   getTerminalFocusState,
   subscribeTerminalFocus,
 } from '../ink/terminal-focus-state.js'
-import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js'
 import { generateAwaySummary } from '../services/awaySummary.js'
+import { useAppState } from '../state/AppState.js'
 import type { Message } from '../types/message.js'
+import { isAwaySummaryEnabled } from '../utils/awaySummaryEnabled.js'
 import { createAwaySummaryMessage } from '../utils/messages.js'
 
 const BLUR_DELAY_MS = 5 * 60_000
@@ -44,15 +45,11 @@ export function useAwaySummary(
   messagesRef.current = messages
   isLoadingRef.current = isLoading
 
-  // 3P default: false
-  const gbEnabled = getFeatureValue_CACHED_MAY_BE_STALE(
-    'tengu_sedge_lantern',
-    false,
-  )
+  const awaySummaryEnabled = useAppState(state => state.awaySummaryEnabled)
 
   useEffect(() => {
     if (!feature('AWAY_SUMMARY')) return
-    if (!gbEnabled) return
+    if (!awaySummaryEnabled || !isAwaySummaryEnabled()) return
 
     function clearTimer(): void {
       if (timerRef.current !== null) {
@@ -113,7 +110,7 @@ export function useAwaySummary(
       abortInFlight()
       generateRef.current = null
     }
-  }, [gbEnabled, setMessages])
+  }, [awaySummaryEnabled, setMessages])
 
   // Timer fired mid-turn → fire when turn ends (if still blurred)
   useEffect(() => {

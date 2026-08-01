@@ -233,6 +233,9 @@ export type GlobalConfig = {
   bypassPermissionsModeAccepted?: boolean
   hasUsedBackslashReturn?: boolean
   autoCompactEnabled: boolean // Controls whether auto-compact is enabled
+  autoScrollEnabled?: boolean // Keep fullscreen output pinned to the latest turn
+  externalEditorContext?: boolean // Include recent assistant output in the external prompt editor
+  briefTranscript?: boolean // Persist the compact focus transcript view
   showTurnDuration: boolean // Controls whether to show turn duration message (e.g., "Cooked for 1m 6s")
   /**
    * @deprecated Use settings.env instead.
@@ -315,6 +318,7 @@ export type GlobalConfig = {
   passesUpsellSeenCount?: number // Number of times the guest passes upsell has been shown
   hasVisitedPasses?: boolean // Whether the user has visited /passes command
   passesLastSeenRemaining?: number // Last seen remaining_passes count — reset upsell when it increases
+  fullscreenUpsellSeenCount?: number
 
   // Overage credit grant upsell tracking (keyed by org UUID — multi-org users).
   // Inlined shape (not import()) because config.ts is in the SDK build surface
@@ -593,6 +597,9 @@ function createDefaultGlobalConfig(): GlobalConfig {
     verbose: false,
     editorMode: 'normal',
     autoCompactEnabled: true,
+    autoScrollEnabled: true,
+    externalEditorContext: false,
+    briefTranscript: false,
     showTurnDuration: true,
     hasSeenTasksHint: false,
     hasUsedStash: false,
@@ -637,6 +644,9 @@ export const GLOBAL_CONFIG_KEYS = [
   'editorMode',
   'hasUsedBackslashReturn',
   'autoCompactEnabled',
+  'autoScrollEnabled',
+  'externalEditorContext',
+  'briefTranscript',
   'showTurnDuration',
   'diffTool',
   'env',

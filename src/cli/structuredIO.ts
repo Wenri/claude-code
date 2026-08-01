@@ -34,7 +34,11 @@ import type {
   PermissionDecision,
   PermissionDecisionReason,
 } from 'src/utils/permissions/PermissionResult.js'
-import { hasPermissionsToUseTool } from 'src/utils/permissions/permissions.js'
+import {
+  checkRuleBasedPermissions,
+  getPermissionRequestHookRuleOverride,
+  hasPermissionsToUseTool,
+} from 'src/utils/permissions/permissions.js'
 import { writeToStdout } from 'src/utils/process.js'
 import { jsonStringify } from 'src/utils/slowOperations.js'
 import { z } from 'zod/v4'
@@ -814,6 +818,24 @@ async function executePermissionRequestHooksForSDK(
       const decision = hookResult.permissionRequestResult
       if (decision.behavior === 'allow') {
         const finalInput = decision.updatedInput || input
+        if (decision.updatedInput) {
+          const ruleOverride = getPermissionRequestHookRuleOverride(
+            await checkRuleBasedPermissions(tool, finalInput, toolUseContext),
+            tool.name,
+          )
+          if (ruleOverride) {
+            return ruleOverride.behavior === 'ask'
+              ? {
+                  behavior: 'deny',
+                  message: ruleOverride.message,
+                  decisionReason: ruleOverride.decisionReason ?? {
+                    type: 'other',
+                    reason: 'ask rule on hook-rewritten input',
+                  },
+                }
+              : ruleOverride
+          }
+        }
 
         // Apply permission updates if provided by hook ("always allow")
         const permissionUpdates = decision.updatedPermissions ?? []

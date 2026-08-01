@@ -14,6 +14,7 @@ import {
 } from '../../constants/prompts.js'
 import {
   findCommand,
+  getBridgeSafeCommand,
   getCommandName,
   isBridgeSafeCommand,
   type LocalJSXCommandContext,
@@ -131,8 +132,8 @@ export async function processUserInput({
    */
   skipSlashCommands?: boolean
   /**
-   * When true, slash commands matching isBridgeSafeCommand() execute even
-   * though skipSlashCommands is set. See QueuedCommand.bridgeOrigin.
+   * When true, bridge-safe slash commands execute even though
+   * skipSlashCommands is set. See QueuedCommand.bridgeOrigin.
    */
   bridgeOrigin?: boolean
   /**
@@ -439,6 +440,8 @@ async function processUserInputBase(
   // known-but-unsafe command (local-jsx UI or terminal-only), short-circuit
   // with a helpful message rather than letting the model see raw "/config".
   let effectiveSkipSlash = skipSlashCommands
+  let effectiveContext = context
+  let effectiveInputString = inputString
   if (bridgeOrigin && inputString !== null && inputString.startsWith('/')) {
     const parsed = parseSlashCommand(inputString)
     const cmd = parsed
@@ -448,16 +451,32 @@ async function processUserInputBase(
       if (isBridgeSafeCommand(cmd)) {
         effectiveSkipSlash = false
       } else {
-        const msg = `/${getCommandName(cmd)} isn't available over Remote Control.`
-        return {
-          messages: [
-            createUserMessage({ content: inputString, uuid }),
-            createCommandInputMessage(
-              `<local-command-stdout>${msg}</local-command-stdout>`,
-            ),
-          ],
-          shouldQuery: false,
-          resultText: msg,
+        const safeCommand = getBridgeSafeCommand(cmd)
+        if (safeCommand) {
+          effectiveSkipSlash = false
+          effectiveInputString = inputString.replace(
+            /^\/\S+/,
+            `/${safeCommand.name}`,
+          )
+          effectiveContext = {
+            ...context,
+            options: {
+              ...context.options,
+              commands: [safeCommand, ...context.options.commands],
+            },
+          }
+        } else {
+          const msg = `/${getCommandName(cmd)} isn't available over Remote Control.`
+          return {
+            messages: [
+              createUserMessage({ content: inputString, uuid }),
+              createCommandInputMessage(
+                `<local-command-stdout>${msg}</local-command-stdout>`,
+              ),
+            ],
+            shouldQuery: false,
+            resultText: msg,
+          }
         }
       }
     }
@@ -544,17 +563,17 @@ async function processUserInputBase(
   // Slash commands
   // Skip for remote bridge messages — input from CCR clients is plain text
   if (
-    inputString !== null &&
+    effectiveInputString !== null &&
     !effectiveSkipSlash &&
-    inputString.startsWith('/')
+    effectiveInputString.startsWith('/')
   ) {
     const { processSlashCommand } = await import('./processSlashCommand.js')
     const slashResult = await processSlashCommand(
-      inputString,
+      effectiveInputString,
       precedingInputBlocks,
       imageContentBlocks,
       attachmentMessages,
-      context,
+      effectiveContext,
       setToolJSX,
       uuid,
       isAlreadyProcessing,

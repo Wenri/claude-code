@@ -39,6 +39,7 @@ type ViewState = 'marketplace-list' | 'plugin-list' | 'plugin-details' | {
   type: 'plugin-options';
   plugin: LoadedPlugin;
   pluginId: string;
+  depNote: string;
 };
 type MarketplaceInfo = {
   name: string;
@@ -384,7 +385,8 @@ export function BrowseMarketplace({
         setViewState({
           type: 'plugin-options',
           plugin: loaded,
-          pluginId: plugin_2.pluginId
+          pluginId: plugin_2.pluginId,
+          depNote: result_0.depNote ?? ''
         });
         return;
       }
@@ -539,7 +541,8 @@ export function BrowseMarketplace({
   if (typeof viewState === 'object' && viewState.type === 'plugin-options') {
     const {
       plugin: plugin_5,
-      pluginId: pluginId_2
+      pluginId: pluginId_2,
+      depNote
     } = viewState;
     function finish(msg: string): void {
       setResult(msg);
@@ -553,10 +556,10 @@ export function BrowseMarketplace({
     return <PluginOptionsFlow plugin={plugin_5} pluginId={pluginId_2} onDone={(outcome, detail) => {
       switch (outcome) {
         case 'configured':
-          finish(`✓ Installed and configured ${plugin_5.name}. Run /reload-plugins to apply.`);
+          finish(`✓ Installed and configured ${plugin_5.name}${depNote}. Run /reload-plugins to apply.`);
           break;
         case 'skipped':
-          finish(`✓ Installed ${plugin_5.name}. Run /reload-plugins to apply.`);
+          finish(`✓ Installed ${plugin_5.name}${depNote}. Run /reload-plugins to apply.`);
           break;
         case 'error':
           finish(`Installed but failed to save config: ${detail}`);

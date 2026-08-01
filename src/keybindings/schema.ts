@@ -160,6 +160,7 @@ export const KEYBINDING_ACTIONS = [
   'select:cancel',
   // Plugin dialog actions
   'plugin:toggle',
+  'plugin:favorite',
   'plugin:install',
   // Permission dialog actions
   'permission:toggleDebug',

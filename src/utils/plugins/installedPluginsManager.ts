@@ -885,6 +885,9 @@ export function addInstalledPlugin(
     installedAt: metadata.installedAt,
     lastUpdated: metadata.lastUpdated,
     gitCommitSha: metadata.gitCommitSha,
+    ...(metadata.resolvedVersion && {
+      resolvedVersion: metadata.resolvedVersion,
+    }),
     ...(projectPath && { projectPath }),
   }
 

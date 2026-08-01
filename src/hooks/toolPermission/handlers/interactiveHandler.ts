@@ -73,7 +73,8 @@ function handleInteractivePermission(
   // Hoisted so onDismissCheckmark (Esc during checkmark window) can also
   // remove the abort listener — not just the timer callback.
   let checkmarkAbortHandler: (() => void) | undefined
-  const bridgeRequestId = bridgeCallbacks ? randomUUID() : undefined
+  let bridgeRequestId = bridgeCallbacks ? randomUUID() : undefined
+  let bridgeUnsubscribe: (() => void) | undefined
   // Hoisted so local/hook/classifier wins can remove the pending channel
   // entry. No "tell remote to dismiss" equivalent — the text sits in your
   // phone, and a stale "yes abc123" after local-resolve falls through
@@ -82,6 +83,8 @@ function handleInteractivePermission(
 
   const permissionPromptStartTimeMs = Date.now()
   const displayInput = result.updatedInput ?? ctx.input
+  let decisionReason = result.decisionReason
+  let currentInput = displayInput
 
   function clearClassifierIndicator(): void {
     if (feature('BASH_CLASSIFIER')) {
@@ -147,7 +150,7 @@ function handleInteractivePermission(
       ctx.logCancelled()
       ctx.logDecision(
         { decision: 'reject', source: { type: 'user_abort' } },
-        { permissionPromptStartTimeMs },
+        { permissionPromptStartTimeMs, input: currentInput },
       )
       resolveOnce(ctx.cancelAndAbort(undefined, true))
     },
@@ -176,7 +179,7 @@ function handleInteractivePermission(
           feedback,
           permissionPromptStartTimeMs,
           contentBlocks,
-          result.decisionReason,
+          decisionReason,
         ),
       )
     },
@@ -197,7 +200,7 @@ function handleInteractivePermission(
           decision: 'reject',
           source: { type: 'user_reject', hasFeedback: !!feedback },
         },
-        { permissionPromptStartTimeMs },
+        { permissionPromptStartTimeMs, input: currentInput },
       )
       resolveOnce(ctx.cancelAndAbort(feedback, undefined, contentBlocks))
     },
@@ -293,6 +296,7 @@ function handleInteractivePermission(
         }
       },
     )
+    bridgeUnsubscribe = unsubscribe
 
     signal.addEventListener('abort', unsubscribe, { once: true })
   }
@@ -420,6 +424,21 @@ function handleInteractivePermission(
         result.updatedInput,
         permissionPromptStartTimeMs,
       )
+      if (hookDecision && 'reprompted' in hookDecision) {
+        if (isResolved()) return
+        userInteracted = true
+        clearClassifierChecking(ctx.toolUseID)
+        clearClassifierIndicator()
+        if (bridgeCallbacks && bridgeRequestId) {
+          bridgeCallbacks.cancelRequest(bridgeRequestId)
+          bridgeRequestId = undefined
+        }
+        bridgeUnsubscribe?.()
+        channelUnsubscribe?.()
+        decisionReason = hookDecision.reprompted.decisionReason
+        currentInput = hookDecision.finalInput
+        return
+      }
       if (!hookDecision || !claim()) return
       if (bridgeCallbacks && bridgeRequestId) {
         bridgeCallbacks.cancelRequest(bridgeRequestId)

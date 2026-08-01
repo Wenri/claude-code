@@ -27,6 +27,7 @@ import {
   createEmptyAttributionState,
 } from '../utils/commitAttribution.js'
 import type { EffortValue } from '../utils/effort.js'
+import { isAwaySummaryEnabled } from '../utils/awaySummaryEnabled.js'
 import type { FileHistoryState } from '../utils/fileHistory.js'
 import type { REPLHookContext } from '../utils/hooks/postSamplingHooks.js'
 import type { SessionHooksState } from '../utils/hooks/sessionHooks.js'
@@ -94,6 +95,9 @@ export type AppState = DeepImmutable<{
   statusLineText: string | undefined
   expandedView: 'none' | 'tasks' | 'teammates'
   isBriefOnly: boolean
+  briefTranscript: boolean
+  awaySummaryEnabled: boolean
+  autoCompactWindow: number | undefined
   // Optional - only present when ENABLE_AGENT_SWARMS is true (for dead code elimination)
   showTeammateMessagePreview?: boolean
   selectedIPAgentIndex: number
@@ -475,6 +479,9 @@ export function getDefaultAppState(): AppState {
     statusLineText: undefined,
     expandedView: 'none',
     isBriefOnly: false,
+    briefTranscript: false,
+    awaySummaryEnabled: isAwaySummaryEnabled(),
+    autoCompactWindow: getInitialSettings().autoCompactWindow,
     showTeammateMessagePreview: false,
     selectedIPAgentIndex: -1,
     coordinatorTaskIndex: -1,

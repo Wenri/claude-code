@@ -3,6 +3,7 @@ import { getIsInteractive } from '../bootstrap/state.js'
 import { logForDebugging } from './debug.js'
 import { isEnvDefinedFalsy, isEnvTruthy } from './envUtils.js'
 import { execFileNoThrow } from './execFileNoThrow.js'
+import { getInitialSettings } from './settings/settings.js'
 
 let loggedTmuxCcDisable = false
 let checkedTmuxMouseHint = false
@@ -114,6 +115,10 @@ export function isFullscreenEnvEnabled(): boolean {
   if (isEnvDefinedFalsy(process.env.CLAUDE_CODE_NO_FLICKER)) return false
   // Explicit opt-in overrides auto-detection (escape hatch).
   if (isEnvTruthy(process.env.CLAUDE_CODE_NO_FLICKER)) return true
+  // Persisted renderer selection follows explicit environment overrides.
+  const configuredRenderer = getInitialSettings().tui
+  if (configuredRenderer === 'default') return false
+  if (configuredRenderer === 'fullscreen') return true
   // Auto-disable under tmux -CC: alt-screen + mouse tracking corrupts
   // terminal state on double-click and mouse wheel is dead.
   if (isTmuxControlMode()) {

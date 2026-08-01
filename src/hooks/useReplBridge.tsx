@@ -7,7 +7,7 @@ import { extractInboundMessageFields } from '../bridge/inboundMessages.js';
 import type { BridgeState, ReplBridgeHandle } from '../bridge/replBridge.js';
 import { setReplBridgeHandle } from '../bridge/replBridgeHandle.js';
 import type { Command } from '../commands.js';
-import { getSlashCommandToolSkills, isBridgeSafeCommand } from '../commands.js';
+import { getSlashCommandToolSkills, isBridgeCommandAvailable } from '../commands.js';
 import { getRemoteSessionUrl } from '../constants/product.js';
 import { useNotifications } from '../context/notifications.js';
 import type { PermissionMode, SDKMessage } from '../entrypoints/agentSdkTypes.js';
@@ -311,7 +311,7 @@ export function useReplBridge(messages: Message[], setMessages: (action: React.S
                           // Remote clients can only invoke bridge-safe commands —
                           // advertising unsafe ones (local-jsx, unallowed local)
                           // would let mobile/web attempt them and hit errors.
-                          commands: commandsRef.current.filter(isBridgeSafeCommand),
+                          commands: commandsRef.current.filter(isBridgeCommandAvailable),
                           agents: state_0.agentDefinitions.activeAgents,
                           skills,
                           plugins: [],

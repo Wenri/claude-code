@@ -1458,6 +1458,12 @@ export const InstalledPluginSchema = lazySchema(() =>
       .string()
       .optional()
       .describe('Git commit SHA for git-based plugins (for version tracking)'),
+    resolvedVersion: z
+      .string()
+      .optional()
+      .describe(
+        'Tag-derived semver this install resolved to (when fetched via a version constraint). Used by verifyAndDemote in preference to manifest.version, since the upstream may have forgotten to bump plugin.json.',
+      ),
   }),
 )
 
@@ -1538,6 +1544,10 @@ export const PluginInstallationEntrySchema = lazySchema(() =>
       .string()
       .optional()
       .describe('Git commit SHA for git-based plugins'),
+    resolvedVersion: z
+      .string()
+      .optional()
+      .describe('Tag-derived semver this install resolved to'),
   }),
 )
 

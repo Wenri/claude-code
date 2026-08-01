@@ -1,0 +1,163 @@
+{
+  "schemaVersion": 1,
+  "kind": "generated-source-ownership-and-attribution-inventory",
+  "offsetUnit": "utf16-code-units",
+  "claim": "Exhaustive generated-offset accounting with exact baseline source ownership; target source identities are evidence-ranked and unresolved where anchors are insufficient.",
+  "artifacts": {
+    "baselineBundle": {
+      "bytes": 13047043,
+      "sha256": "75c9611929d9a770fe2e3a393219d8b98f5de17fde539b2a7355c6db3fd2795f"
+    },
+    "baselineSourceMap": {
+      "bytes": 59766257,
+      "sha256": "7965012b7a5fc9e09d8d747a04c5c32b94696924536e217f686bb1e7ee70a657"
+    },
+    "targetBundle": {
+      "bytes": 13609982,
+      "sha256": "cc686e832fdfb97841608875a918043db5d565a2110821b8fc4cd9fad12ea861"
+    }
+  },
+  "options": {
+    "minimumLiteralLength": 8
+  },
+  "baselineOwnership": {
+    "sourceCount": 4756,
+    "sourceKinds": {
+      "application": 1902,
+      "nodeModules": 2850,
+      "vendor": 4
+    },
+    "mappedSegmentCount": 2068722,
+    "contiguousRunCount": 4756,
+    "eachSourceHasExactlyOneContiguousRun": true,
+    "generatedHeaderUtf16": 2230
+  },
+  "literalEvidence": {
+    "uniqueCommonAnchorCount": 42398,
+    "monotoneAnchorCount": 34459,
+    "nonMonotoneAnchorCount": 7939,
+    "monotoneFraction": 0.8127506014434643,
+    "partitionCount": 34460,
+    "tokenCountDelta": 136656,
+    "utf16LengthDelta": 560487,
+    "locatedSourceCount": 2568,
+    "locatedApplicationSourceCount": 1271,
+    "splitTargetClusterSourceCount": 15
+  },
+  "initializerEvidence": {
+    "baseline": {
+      "wrapperNames": {
+        "common": "m",
+        "initializer": "y"
+      },
+      "count": 4527
+    },
+    "target": {
+      "wrapperNames": {
+        "common": "p",
+        "initializer": "L"
+      },
+      "count": 4677,
+      "statuses": {
+        "unresolved-no-unique-literal": 2173,
+        "anchored-single-baseline-unit": 2418,
+        "anchored-multiple-baseline-units": 86
+      }
+    },
+    "targetNetCountDelta": 150
+  },
+  "coverage": {
+    "partitionCount": 34460,
+    "targetPartitionUtf16": 11579065,
+    "exactAnchorCount": 34459,
+    "exactAnchorTargetUtf16": 1964750,
+    "exactGeneratedPartitionCount": 17190,
+    "exactGeneratedTargetUtf16": 395843,
+    "changedHighConfidencePartitionCount": 15192,
+    "changedHighConfidenceTargetUtf16": 4426750,
+    "changedCandidatePartitionCount": 2072,
+    "changedCandidateTargetUtf16": 6754575,
+    "unresolvedPartitionCount": 6,
+    "unresolvedTargetUtf16": 1897,
+    "accountedTargetUtf16": 13543815,
+    "targetUtf16": 13543815,
+    "unaccountedTargetUtf16": 0
+  },
+  "releaseEvidence": {
+    "targetPackage": {
+      "bytes": 1371,
+      "sha256": "c27d3f1dc4b58cf3f42ae833ce1f8dbcc7d73dee645aec00c369b1a8d5e8e77b",
+      "name": "@anthropic-ai/claude-code",
+      "version": "2.1.110"
+    },
+    "targetDeclarations": {
+      "bytes": 117768,
+      "sha256": "98730ce1055bd34558158e4d18e3bd9c75c6899f5f0f1ceff78552ce0c48766d"
+    },
+    "officialChangelog": {
+      "bytes": 230226,
+      "sha256": "969c6214457767a395f78a1a02cb0b7b357e28df3dc3812ead5cc065d483cdb9",
+      "section": "2.1.110",
+      "bulletCount": 32,
+      "bullets": [
+        "Added `/tui` command and `tui` setting — run `/tui fullscreen` to switch to flicker-free rendering in the same conversation",
+        "Changed `Ctrl+O` to toggle between normal and verbose transcript only; focus view is now toggled separately with the new `/focus` command",
+        "Added `autoScrollEnabled` config to disable conversation auto-scroll in fullscreen mode",
+        "Added option to show Claude's last response as commented context in the `Ctrl+G` external editor (enable via `/config`)",
+        "Improved `/plugin` Installed tab — items needing attention and favorites appear at the top, disabled items are hidden behind a fold, and `f` favorites the selected item",
+        "Improved `/doctor` to warn when an MCP server is defined in multiple config scopes with different endpoints",
+        "`--resume`/`--continue` now resurrects unexpired scheduled tasks",
+        "`/autocompact`, `/context`, `/exit`, and `/reload-plugins` now work from Remote Control (mobile/web) clients",
+        "Write tool now informs the model when you edit the proposed content in the IDE diff before accepting",
+        "Bash tool now enforces the documented maximum timeout instead of accepting arbitrarily large values",
+        "SDK/headless sessions now read `TRACEPARENT`/`TRACESTATE` from the environment for distributed trace linking",
+        "Session recap is now enabled for users with telemetry disabled (Bedrock, Vertex, Foundry, `DISABLE_TELEMETRY`). Opt out via `/config` or `CLAUDE_CODE_ENABLE_AWAY_SUMMARY=0`.",
+        "Fixed MCP tool calls hanging indefinitely when the server connection drops mid-response on SSE/HTTP transports",
+        "Fixed non-streaming fallback retries causing multi-minute hangs when the API is unreachable",
+        "Fixed session recap, local slash-command output, and other system status lines not appearing in focus mode",
+        "Fixed high CPU usage in fullscreen when text is selected while a tool is running",
+        "Fixed plugin install not honoring dependencies declared in `plugin.json` when the marketplace entry omits them; `/plugin` install now lists auto-installed dependencies",
+        "Fixed skills with `disable-model-invocation: true` failing when invoked via `/<skill>` mid-message",
+        "Fixed `--resume` sometimes showing the first prompt instead of the `/rename` name for sessions still running or exited uncleanly",
+        "Fixed queued messages briefly appearing twice during multi-tool-call turns",
+        "Fixed session cleanup not removing the full session directory including subagent transcripts",
+        "Fixed dropped keystrokes after the CLI relaunches (e.g. `/tui`, provider setup wizards)",
+        "Fixed garbled startup rendering in macOS Terminal.app and other terminals that don't support synchronized output",
+        "Hardened \"Open in editor\" actions against command injection from untrusted filenames",
+        "Fixed `PermissionRequest` hooks returning `updatedInput` not being re-checked against `permissions.deny` rules; `setMode:'bypassPermissions'` updates now respect `disableBypassPermissionsMode`",
+        "Fixed `PreToolUse` hook `additionalContext` being dropped when the tool call fails",
+        "Fixed stdio MCP servers that print stray non-JSON lines to stdout being disconnected on the first stray line (regression in 2.1.105)",
+        "Fixed headless/SDK session auto-title firing an extra Haiku request when `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` or `CLAUDE_CODE_DISABLE_TERMINAL_TITLE` is set",
+        "Fixed potential excessive memory allocation when piped (non-TTY) Ink output contains a single very wide line",
+        "Fixed `/skills` menu not scrolling when the list overflows the modal in fullscreen mode",
+        "Fixed Remote Control sessions showing a generic error instead of prompting for re-login when the session is too old",
+        "Fixed Remote Control session renames from claude.ai not persisting the title to the local CLI session"
+      ]
+    }
+  },
+  "reportFiles": {
+    "sources": {
+      "path": "sources.jsonl.gz",
+      "bytes": 486680,
+      "sha256": "614de1864c4e0434b6abe865eecc20758b84e1caf0ceb00b1ffd47fb7e305755"
+    },
+    "targetInitializers": {
+      "path": "target-initializers.jsonl.gz",
+      "bytes": 113153,
+      "sha256": "0623aa4bd7714ac788283d26c36c66ba1bf2e72cfa8e2c8f96f4f3b866a4d5f1"
+    },
+    "targetPartitions": {
+      "path": "target-partitions.jsonl.gz",
+      "bytes": 3362969,
+      "sha256": "018a10271bfdc12a8abceefbe4f3c0ee6109cae399f3eda846ccfbe2869e88c0"
+    }
+  },
+  "limitations": [
+    "Exact source ownership exists only for the baseline source map.",
+    "Initializer regions are delimited by successive Bun wrapper-expression starts; they are generated units, not asserted one-to-one source modules.",
+    "A target initializer with no unique long literal is unresolved, not automatically target-only.",
+    "Candidate ranges can include moved code; non-monotone literal owners are reported separately.",
+    "Raw-different partitions include harmless minifier-name churn as well as semantic changes.",
+    "No target source text is claimed reconstructed by this inventory."
+  ]
+}

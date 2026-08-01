@@ -122,6 +122,7 @@ export function Config({
   const thinkingEnabled = useAppState(s_1 => s_1.thinkingEnabled);
   const isFastMode = useAppState(s_2 => isFastModeEnabled() ? s_2.fastMode : false);
   const promptSuggestionEnabled = useAppState(s_3 => s_3.promptSuggestionEnabled);
+  const awaySummaryEnabled = useAppState(s_4 => s_4.awaySummaryEnabled);
   // Show auto in the default-mode dropdown when the user has opted in OR the
   // config is fully 'enabled' — even if currently circuit-broken ('disabled'),
   // an opted-in user should still see it in settings (it's a temporary state).
@@ -158,6 +159,7 @@ export function Config({
       thinkingEnabled: s_4.thinkingEnabled,
       fastMode: s_4.fastMode,
       promptSuggestionEnabled: s_4.promptSuggestionEnabled,
+      awaySummaryEnabled: s_4.awaySummaryEnabled,
       isBriefOnly: s_4.isBriefOnly,
       replBridgeEnabled: s_4.replBridgeEnabled,
       replBridgeOutboundOnly: s_4.replBridgeOutboundOnly,
@@ -388,6 +390,20 @@ export function Config({
       }));
       updateSettingsForSource('userSettings', {
         promptSuggestionEnabled: enabled_1 ? undefined : false
+      });
+    }
+  }] : []), ...(getFeatureValue_CACHED_MAY_BE_STALE('tengu_sedge_lantern', true) ? [{
+    id: 'awaySummaryEnabled',
+    label: 'Session recap',
+    value: awaySummaryEnabled,
+    type: 'boolean' as const,
+    onChange(enabled_2: boolean) {
+      setAppState(prev_12 => ({
+        ...prev_12,
+        awaySummaryEnabled: enabled_2
+      }));
+      updateSettingsForSource('userSettings', {
+        awaySummaryEnabled: enabled_2 ? undefined : false
       });
     }
   }] : []),
@@ -631,6 +647,25 @@ export function Config({
         value: String(copyOnSelect) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
       });
     }
+  }, {
+    id: 'autoScrollEnabled',
+    label: 'Auto-scroll',
+    value: globalConfig.autoScrollEnabled,
+    type: 'boolean' as const,
+    onChange(autoScrollEnabled: boolean) {
+      saveGlobalConfig(current_9 => ({
+        ...current_9,
+        autoScrollEnabled
+      }));
+      setGlobalConfig({
+        ...getGlobalConfig(),
+        autoScrollEnabled
+      });
+      logEvent('tengu_config_changed', {
+        setting: 'autoScrollEnabled' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        value: String(autoScrollEnabled) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+      });
+    }
   }] : []),
   // autoUpdates setting is hidden - use DISABLE_AUTOUPDATER env var to control
   autoUpdaterDisabledReason ? {
@@ -784,6 +819,24 @@ export function Config({
       logEvent('tengu_editor_mode_changed', {
         mode: value_1 as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
         source: 'config_panel' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+      });
+    }
+  }, {
+    id: 'externalEditorContext',
+    label: 'Show last response in external editor',
+    value: globalConfig.externalEditorContext ?? false,
+    type: 'boolean' as const,
+    onChange(externalEditorContext: boolean) {
+      saveGlobalConfig(current_14 => ({
+        ...current_14,
+        externalEditorContext
+      }));
+      setGlobalConfig({
+        ...getGlobalConfig(),
+        externalEditorContext
+      });
+      logEvent('tengu_external_editor_context_changed', {
+        enabled: externalEditorContext
       });
     }
   }, {
@@ -1139,6 +1192,9 @@ export function Config({
     if (globalConfig.autoCompactEnabled !== initialConfig.current.autoCompactEnabled) {
       formattedChanges.push(`${globalConfig.autoCompactEnabled ? 'Enabled' : 'Disabled'} auto-compact`);
     }
+    if (globalConfig.autoScrollEnabled !== initialConfig.current.autoScrollEnabled) {
+      formattedChanges.push(`${globalConfig.autoScrollEnabled ? 'Enabled' : 'Disabled'} auto-scroll`);
+    }
     if (globalConfig.respectGitignore !== initialConfig.current.respectGitignore) {
       formattedChanges.push(`${globalConfig.respectGitignore ? 'Enabled' : 'Disabled'} respect .gitignore in file picker`);
     }
@@ -1201,6 +1257,7 @@ export function Config({
       alwaysThinkingEnabled: iu?.alwaysThinkingEnabled,
       fastMode: iu?.fastMode,
       promptSuggestionEnabled: iu?.promptSuggestionEnabled,
+      awaySummaryEnabled: iu?.awaySummaryEnabled,
       autoUpdatesChannel: iu?.autoUpdatesChannel,
       minimumVersion: iu?.minimumVersion,
       language: iu?.language,
@@ -1233,6 +1290,7 @@ export function Config({
       thinkingEnabled: ia.thinkingEnabled,
       fastMode: ia.fastMode,
       promptSuggestionEnabled: ia.promptSuggestionEnabled,
+      awaySummaryEnabled: ia.awaySummaryEnabled,
       isBriefOnly: ia.isBriefOnly,
       replBridgeEnabled: ia.replBridgeEnabled,
       replBridgeOutboundOnly: ia.replBridgeOutboundOnly,

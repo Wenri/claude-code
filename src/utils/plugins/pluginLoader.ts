@@ -52,6 +52,7 @@ import {
   getBuiltinPlugins,
 } from '../../plugins/builtinPlugins.js'
 import type {
+  DependencyConstraint,
   LoadedPlugin,
   PluginComponent,
   PluginError,
@@ -62,6 +63,7 @@ import { logForDebugging } from '../debug.js'
 import { isEnvTruthy } from '../envUtils.js'
 import {
   errorMessage,
+  getErrnoCode,
   getErrnoPath,
   isENOENT,
   isFsInaccessible,
@@ -84,7 +86,10 @@ import type { HooksSettings } from '../settings/types.js'
 import { SettingsSchema } from '../settings/types.js'
 import { jsonParse, jsonStringify } from '../slowOperations.js'
 import { getAddDirEnabledPlugins } from './addDirPluginSettings.js'
-import { verifyAndDemote } from './dependencyResolver.js'
+import {
+  extractDependencyConstraints,
+  verifyAndDemote,
+} from './dependencyResolver.js'
 import { classifyFetchError, logPluginFetch } from './fetchTelemetry.js'
 import { checkGitAvailable } from './gitAvailability.js'
 import { getInMemoryInstalledPlugins } from './installedPluginsManager.js'
@@ -103,6 +108,7 @@ import {
 } from './marketplaceManager.js'
 import { getPluginSeedDirs, getPluginsDirectory } from './pluginDirectories.js'
 import { parsePluginIdentifier } from './pluginIdentifier.js'
+import { installPluginDependencies } from './pluginDependencyInstaller.js'
 import { validatePathWithinBase } from './pluginInstallationHelpers.js'
 import { calculatePluginVersion } from './pluginVersioning.js'
 import {
@@ -448,6 +454,14 @@ export async function copyPluginToVersionedCache(
   if (cacheEntries.length === 0) {
     throw new Error(
       `Failed to copy plugin ${pluginId} to versioned cache: destination is empty after copy`,
+    )
+  }
+
+  const dependencyInstall = await installPluginDependencies(cachePath)
+  if (dependencyInstall.error) {
+    logForDebugging(
+      `Plugin dependency install warning for ${pluginId}: ${dependencyInstall.error}`,
+      { level: 'warn' },
     )
   }
 
@@ -913,7 +927,12 @@ export async function cachePlugin(
   options?: {
     manifest?: PluginManifest
   },
-): Promise<{ path: string; manifest: PluginManifest; gitCommitSha?: string }> {
+): Promise<{
+  path: string
+  manifest: PluginManifest
+  gitCommitSha?: string
+  depConstraints?: Map<string, DependencyConstraint>
+}> {
   const cachePath = getPluginCachePath()
 
   await getFsImplementation().mkdir(cachePath)
@@ -976,107 +995,23 @@ export async function cachePlugin(
     throw error
   }
 
-  const manifestPath = join(tempPath, '.claude-plugin', 'plugin.json')
   const legacyManifestPath = join(tempPath, 'plugin.json')
-  let manifest: PluginManifest
-
-  if (await pathExists(manifestPath)) {
-    try {
-      const content = await readFile(manifestPath, { encoding: 'utf-8' })
-      const parsed = jsonParse(content)
-      const result = PluginManifestSchema().safeParse(parsed)
-
-      if (result.success) {
-        manifest = result.data
-      } else {
-        // Manifest exists but is invalid - throw error
-        const errors = result.error.issues
-          .map(err => `${err.path.join('.')}: ${err.message}`)
-          .join(', ')
-
-        logForDebugging(`Invalid manifest at ${manifestPath}: ${errors}`, {
-          level: 'error',
-        })
-
-        throw new Error(
-          `Plugin has an invalid manifest file at ${manifestPath}. Validation errors: ${errors}`,
-        )
-      }
-    } catch (error) {
-      // Check if this is a validation error we just threw
-      if (
-        error instanceof Error &&
-        error.message.includes('invalid manifest file')
-      ) {
-        throw error
-      }
-
-      // JSON parse error
-      const errorMsg = errorMessage(error)
-      logForDebugging(
-        `Failed to parse manifest at ${manifestPath}: ${errorMsg}`,
-        {
-          level: 'error',
-        },
-      )
-
-      throw new Error(
-        `Plugin has a corrupt manifest file at ${manifestPath}. JSON parse error: ${errorMsg}`,
-      )
-    }
-  } else if (await pathExists(legacyManifestPath)) {
-    try {
-      const content = await readFile(legacyManifestPath, {
-        encoding: 'utf-8',
-      })
-      const parsed = jsonParse(content)
-      const result = PluginManifestSchema().safeParse(parsed)
-
-      if (result.success) {
-        manifest = result.data
-      } else {
-        // Manifest exists but is invalid - throw error
-        const errors = result.error.issues
-          .map(err => `${err.path.join('.')}: ${err.message}`)
-          .join(', ')
-
-        logForDebugging(
-          `Invalid legacy manifest at ${legacyManifestPath}: ${errors}`,
-          { level: 'error' },
-        )
-
-        throw new Error(
-          `Plugin has an invalid manifest file at ${legacyManifestPath}. Validation errors: ${errors}`,
-        )
-      }
-    } catch (error) {
-      // Check if this is a validation error we just threw
-      if (
-        error instanceof Error &&
-        error.message.includes('invalid manifest file')
-      ) {
-        throw error
-      }
-
-      // JSON parse error
-      const errorMsg = errorMessage(error)
-      logForDebugging(
-        `Failed to parse legacy manifest at ${legacyManifestPath}: ${errorMsg}`,
-        {
-          level: 'error',
-        },
-      )
-
-      throw new Error(
-        `Plugin has a corrupt manifest file at ${legacyManifestPath}. JSON parse error: ${errorMsg}`,
-      )
-    }
-  } else {
-    manifest = options?.manifest || {
-      name: tempName,
-      description: `Plugin cached from ${typeof source === 'string' ? source : source.source}`,
-    }
-  }
+  const sourceDescription =
+    typeof source === 'string' ? source : source.source
+  const {
+    manifest: loadedManifest,
+    manifestPath,
+    depConstraints,
+  } = await loadPluginManifest(tempPath, tempName, sourceDescription, [
+    legacyManifestPath,
+  ])
+  const manifest =
+    manifestPath !== null
+      ? loadedManifest
+      : options?.manifest || {
+          name: tempName,
+          description: `Plugin cached from ${sourceDescription}`,
+        }
 
   const finalName = manifest.name.replace(/[^a-zA-Z0-9-_]/g, '-')
   const finalPath = join(cachePath, finalName)
@@ -1094,6 +1029,7 @@ export async function cachePlugin(
     path: finalPath,
     manifest,
     ...(gitCommitSha && { gitCommitSha }),
+    ...(depConstraints && { depConstraints }),
   }
 }
 
@@ -1138,77 +1074,93 @@ export async function cachePlugin(
  * - Invalid JSON: Throws error with parse details
  * - Schema validation failure: Throws error with validation details
  *
- * @param manifestPath - Full path to the plugin.json file
+ * @param pluginPath - Root directory of the plugin
  * @param pluginName - Name to use in default manifest (e.g., "my-plugin")
  * @param source - Source description for default manifest (e.g., "git:repo" or ".claude-plugin/name")
- * @returns A valid PluginManifest object (either loaded or default)
+ * @param additionalManifestPaths - Compatibility manifest paths to probe after
+ *   the canonical `.claude-plugin/plugin.json`
+ * @returns The validated manifest, the path it came from, and dependency
+ *   constraints captured from the raw JSON before schema normalization
  * @throws Error if manifest exists but is invalid (corrupt JSON or schema validation failure)
  */
 export async function loadPluginManifest(
-  manifestPath: string,
+  pluginPath: string,
   pluginName: string,
   source: string,
-): Promise<PluginManifest> {
-  // Check if manifest file exists
-  // If not, create a minimal manifest to allow plugin to function
-  if (!(await pathExists(manifestPath))) {
-    // Return default manifest with provided name and source
-    return {
-      name: pluginName,
-      description: `Plugin from ${source}`,
+  additionalManifestPaths: string[] = [],
+): Promise<{
+  manifest: PluginManifest
+  manifestPath: string | null
+  depConstraints?: Map<string, DependencyConstraint>
+}> {
+  const manifestPaths = [
+    join(pluginPath, '.claude-plugin', 'plugin.json'),
+    ...additionalManifestPaths,
+  ]
+
+  for (const manifestPath of manifestPaths) {
+    let content: string
+    try {
+      content = await readFile(manifestPath, { encoding: 'utf-8' })
+    } catch (error) {
+      if (isENOENT(error) || getErrnoCode(error) === 'ENOTDIR') continue
+
+      const readError = errorMessage(error)
+      logForDebugging(
+        `Plugin ${pluginName}: failed to read manifest file at ${manifestPath}. Read error: ${readError}`,
+        { level: 'error' },
+      )
+      throw new Error(
+        `Plugin ${pluginName}: failed to read manifest file at ${manifestPath}.\n\nRead error: ${readError}`,
+      )
     }
-  }
 
-  try {
-    // Read and parse the manifest JSON file
-    const content = await readFile(manifestPath, { encoding: 'utf-8' })
-    const parsedJson = jsonParse(content)
+    let parsedJson: unknown
+    try {
+      parsedJson = jsonParse(content)
+    } catch (error) {
+      const parseError = errorMessage(error)
+      logForDebugging(
+        `Plugin ${pluginName} has a corrupt manifest file at ${manifestPath}. Parse error: ${parseError}`,
+        { level: 'error' },
+      )
+      throw new Error(
+        `Plugin ${pluginName} has a corrupt manifest file at ${manifestPath}.\n\nJSON parse error: ${parseError}`,
+      )
+    }
 
-    // Validate against the PluginManifest schema
     const result = PluginManifestSchema().safeParse(parsedJson)
-
     if (result.success) {
-      // Valid manifest - return the validated data
-      return result.data
+      return {
+        manifest: result.data,
+        manifestPath,
+        depConstraints: extractDependencyConstraints(parsedJson),
+      }
     }
 
-    // Schema validation failed but JSON was valid
-    const errors = result.error.issues
-      .map(err =>
-        err.path.length > 0
-          ? `${err.path.join('.')}: ${err.message}`
-          : err.message,
+    const validationErrors = result.error.issues
+      .map(issue =>
+        issue.path.length > 0
+          ? `${issue.path.join('.')}: ${issue.message}`
+          : issue.message,
       )
       .join(', ')
-
     logForDebugging(
-      `Plugin ${pluginName} has an invalid manifest file at ${manifestPath}. Validation errors: ${errors}`,
+      `Plugin ${pluginName} has an invalid manifest file at ${manifestPath}. Validation errors: ${validationErrors}`,
       { level: 'error' },
     )
-
     throw new Error(
-      `Plugin ${pluginName} has an invalid manifest file at ${manifestPath}.\n\nValidation errors: ${errors}`,
+      `Plugin ${pluginName} has an invalid manifest file at ${manifestPath}.\n\nValidation errors: ${validationErrors}`,
     )
-  } catch (error) {
-    // Check if this is the error we just threw (validation error)
-    if (
-      error instanceof Error &&
-      error.message.includes('invalid manifest file')
-    ) {
-      throw error
-    }
+  }
 
-    // JSON parsing failed or file read error
-    const errorMsg = errorMessage(error)
-
-    logForDebugging(
-      `Plugin ${pluginName} has a corrupt manifest file at ${manifestPath}. Parse error: ${errorMsg}`,
-      { level: 'error' },
-    )
-
-    throw new Error(
-      `Plugin ${pluginName} has a corrupt manifest file at ${manifestPath}.\n\nJSON parse error: ${errorMsg}`,
-    )
+  return {
+    manifest: {
+      name: pluginName,
+      description: `Plugin from ${source}`,
+    },
+    manifestPath: null,
+    depConstraints: undefined,
   }
 }
 
@@ -1356,8 +1308,11 @@ export async function createPluginFromPath(
 
   // Step 1: Load or create the plugin manifest
   // This provides metadata about the plugin (name, version, etc.)
-  const manifestPath = join(pluginPath, '.claude-plugin', 'plugin.json')
-  const manifest = await loadPluginManifest(manifestPath, fallbackName, source)
+  const { manifest, depConstraints } = await loadPluginManifest(
+    pluginPath,
+    fallbackName,
+    source,
+  )
 
   // Step 2: Create the base plugin object
   // Start with required fields from manifest and parameters
@@ -1368,6 +1323,7 @@ export async function createPluginFromPath(
     source, // Source identifier (e.g., "git:repo" or ".claude-plugin/name")
     repository: source, // For backward compatibility with Plugin Repository
     enabled, // Current enabled state
+    depConstraints,
   }
 
   // Step 3: Auto-detect optional directories in parallel
@@ -2049,7 +2005,7 @@ async function loadPluginsFromMarketplaces({
       // (version for the full loader's first-pass probe, installPath for
       // the cache-only loader's direct read).
       const installEntry = installedPluginsData.plugins[pluginId]?.[0]
-      return cacheOnly
+      const plugin = await (cacheOnly
         ? loadPluginFromMarketplaceEntryCacheOnly(
             result.entry,
             result.marketplaceInstallLocation,
@@ -2065,7 +2021,11 @@ async function loadPluginsFromMarketplaces({
             enabledValue === true,
             errors,
             installEntry?.version,
-          )
+          ))
+      if (plugin && installEntry?.resolvedVersion !== undefined) {
+        plugin.resolvedVersion = installEntry.resolvedVersion
+      }
+      return plugin
     }),
   )
 
@@ -2227,18 +2187,14 @@ async function loadPluginFromMarketplaceEntry(
     // Always copy local plugins to versioned cache
     try {
       // Try to load manifest from plugin directory to check for version field first
-      const manifestPath = join(
-        sourcePluginPath,
-        '.claude-plugin',
-        'plugin.json',
-      )
       let pluginManifest: PluginManifest | undefined
       try {
-        pluginManifest = await loadPluginManifest(
-          manifestPath,
+        const loadedManifest = await loadPluginManifest(
+          sourcePluginPath,
           entry.name,
           entry.source,
         )
+        pluginManifest = loadedManifest.manifest
       } catch {
         // Manifest loading failed - will fall back to provided version or git SHA
       }

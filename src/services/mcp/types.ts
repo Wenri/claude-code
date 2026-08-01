@@ -189,6 +189,14 @@ export type ConnectedMCPServer = {
   instructions?: string
   config: ScopedMcpServerConfig
   cleanup: () => Promise<void>
+  /**
+   * Tracks terminal transport failures that may leave an in-flight request
+   * pending without a response. SDK/in-process clients do not need this.
+   */
+  transportErrorState?: {
+    lastErrorAt: number
+    consecutiveErrors: number
+  }
 }
 
 export type FailedMCPServer = {
