@@ -14,7 +14,11 @@ import { logEvent } from '../services/analytics/index.js'
 import type { AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS } from '../services/analytics/metadata.js'
 import { getAPIMetadata } from '../services/api/claude.js'
 import { getAnthropicClient } from '../services/api/client.js'
-import { getModelBetas, modelSupportsStructuredOutputs } from './betas.js'
+import {
+  getModelBetas,
+  modelSupportsStructuredOutputs,
+  modelSupportsTemperature,
+} from './betas.js'
 import { computeFingerprint } from './fingerprint.js'
 import { normalizeModelStringForAPI } from './model/model.js'
 
@@ -188,7 +192,8 @@ export async function sideQuery(opts: SideQueryOptions): Promise<BetaMessage> {
       ...(tools && { tools }),
       ...(tool_choice && { tool_choice }),
       ...(output_format && { output_config: { format: output_format } }),
-      ...(temperature !== undefined && { temperature }),
+      ...(temperature !== undefined &&
+        modelSupportsTemperature(normalizedModel) && { temperature }),
       ...(stop_sequences && { stop_sequences }),
       ...(thinkingConfig && { thinking: thinkingConfig }),
       ...(betas.length > 0 && { betas }),

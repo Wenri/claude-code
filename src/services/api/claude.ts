@@ -158,6 +158,7 @@ import { isClaudeAISubscriber } from 'src/utils/auth.js'
 import {
   getToolSearchBetaHeader,
   modelSupportsStructuredOutputs,
+  modelSupportsTemperature,
   shouldIncludeFirstPartyOnlyBetas,
   shouldUseGlobalCacheScope,
 } from 'src/utils/betas.js'
@@ -1694,9 +1695,10 @@ async function* queryModel(
 
     // Only send temperature when thinking is disabled — the API requires
     // temperature: 1 when thinking is enabled, which is already the default.
-    const temperature = !hasThinking
-      ? (options.temperatureOverride ?? 1)
-      : undefined
+    const temperature =
+      !hasThinking && modelSupportsTemperature(options.model)
+        ? (options.temperatureOverride ?? 1)
+        : undefined
 
     lastRequestBetas = betasParams
 

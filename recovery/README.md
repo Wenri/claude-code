@@ -37,9 +37,11 @@ The checked-in cases are:
 - [`2.1.108 → 2.1.109`](./cases/2.1.108-to-2.1.109/REPORT.md), the fourteenth
   adjacent incremental recovery;
 - [`2.1.109 → 2.1.110`](./cases/2.1.109-to-2.1.110/REPORT.md), the fifteenth
+  adjacent incremental recovery;
+- [`2.1.110 → 2.1.111`](./cases/2.1.110-to-2.1.111/REPORT.md), the sixteenth
   adjacent incremental recovery; and
-- [`2.1.110 → 2.1.111`](./cases/2.1.110-to-2.1.111/REPORT.md), the current
-  sixteenth adjacent npm-package recovery. The 2.1.110 to 2.1.111 advance is
+- [`2.1.111 → 2.1.112`](./cases/2.1.111-to-2.1.112/REPORT.md), the current
+  seventeenth adjacent npm-package recovery. The 2.1.111 to 2.1.112 advance is
   direct in published-package order,
   with no skipped version. Upstream did not publish 2.1.93, 2.1.95, 2.1.99,
   2.1.102, 2.1.103, or 2.1.106, so each multi-number advance is still one step
@@ -56,9 +58,9 @@ conflated:
   types, comments, formatting, and exact module placement are not observable.
 
 For the current target, start with the
-[`2.1.111 report`](./cases/2.1.110-to-2.1.111/REPORT.md),
-[`manifest`](./cases/2.1.110-to-2.1.111/manifest.json), and
-[`complete runbook`](./cases/2.1.110-to-2.1.111/RECOVERY_RUNBOOK.md).
+[`2.1.112 report`](./cases/2.1.111-to-2.1.112/REPORT.md),
+[`manifest`](./cases/2.1.111-to-2.1.112/manifest.json), and
+[`complete runbook`](./cases/2.1.111-to-2.1.112/RECOVERY_RUNBOOK.md).
 
 ## Deliverables
 
@@ -76,7 +78,7 @@ For the current target, start with the
 The repository `src/` is the verified 2.1.88 outer/Bun-input source-map
 baseline plus cumulative source-facing overlays for 2.1.89, 2.1.90, 2.1.91,
 2.1.92, 2.1.94, 2.1.96, 2.1.97, 2.1.98, 2.1.100, 2.1.101, 2.1.104, 2.1.105,
-2.1.107, 2.1.108, 2.1.109, 2.1.110, and 2.1.111.
+2.1.107, 2.1.108, 2.1.109, 2.1.110, 2.1.111, and 2.1.112.
 Upstream skipped 2.1.93, 2.1.95, 2.1.99, 2.1.102, 2.1.103, and 2.1.106. Those
 overlays are partial behavioral recoveries, not claims of the exact authored
 TypeScript trees.
@@ -310,7 +312,21 @@ The ultrareview SDK handler is adapted to the mirror's existing task context;
 the target's absent task-registry/cloud-environment owners remain exact only
 in generated code, as documented in the case report.
 
-All seventeen overlays are already present. Do not apply any overlay twice; the
+The incremental 2.1.112 overlay advances directly from the verified 2.1.111
+tree in npm publication order:
+
+```sh
+CASE=recovery/cases/2.1.111-to-2.1.112
+git apply "$CASE/recovered/source-facing-overlay.patch"
+```
+
+It recovers a shared model-temperature capability and guards the main and
+side-query request builders so canonical Opus 4.7 requests omit unsupported
+explicit temperatures. The source-facing helper name is inferred because
+minification erased its upstream spelling. A structured-output source gap
+already present in the 2.1.111 mirror is explicitly excluded from this delta.
+
+All eighteen overlays are already present. Do not apply any overlay twice; the
 complete gate reverse-checks the current increment and reapplies it in a
 temporary copy.
 
@@ -324,7 +340,7 @@ pixi run npm --prefix recovery ci --ignore-scripts
 
 RECOVERY_ARTIFACTS=$(mktemp -d)
 pixi run node recovery/scripts/acquire-case.mjs \
-  --case recovery/cases/2.1.110-to-2.1.111/manifest.json \
+  --case recovery/cases/2.1.111-to-2.1.112/manifest.json \
   --output "$RECOVERY_ARTIFACTS"
 ```
 
@@ -332,10 +348,10 @@ Run the complete gate:
 
 ```sh
 pixi run node recovery/scripts/verify-complete-recovery.mjs \
-  --case recovery/cases/2.1.110-to-2.1.111/manifest.json \
+  --case recovery/cases/2.1.111-to-2.1.112/manifest.json \
   --repo . \
   --artifacts "$RECOVERY_ARTIFACTS" \
-  --baseline-tarball "$RECOVERY_ARTIFACTS/2.1.110/package.tgz"
+  --baseline-tarball "$RECOVERY_ARTIFACTS/2.1.111/package.tgz"
 ```
 
 It verifies the 2.1.88 source-oracle correspondence, current overlay lineage,
@@ -345,23 +361,23 @@ target-backed tests, and exact package-tree reconstruction.
 
 The expected top-level status is `complete-recovery-verified`, with exact
 bundle SHA-256
-`8cd052c0224ebb0f717a0820ff0a8a0616f0de6d2365de43efe9867b8143d0c0`
+`bc3358282800e3e99daa8e71ac5b7b1566bd0d7ca7eb94f714a7859365d3163f`
 and exact package-tree SHA-256
-`410cfb1d65e3924897162a6d682e46882208d71e32626a6001751740c2236bfb`.
+`938bdf827e5fa7181cff5360cb2f028447cf865bd26c129d1edbcaa8af377fac`.
 
 ## Inspect the diff
 
 The compact structural diff is plain text:
 
 ```sh
-less recovery/cases/2.1.110-to-2.1.111/readable-diff/statements.diff
+less recovery/cases/2.1.111-to-2.1.112/readable-diff/statements.diff
 ```
 
 The complete normalized Git diff is deterministically compressed:
 
 ```sh
 gzip -cd \
-  recovery/cases/2.1.110-to-2.1.111/readable-diff/normalized.diff.gz |
+  recovery/cases/2.1.111-to-2.1.112/readable-diff/normalized.diff.gz |
   less
 ```
 
@@ -372,13 +388,13 @@ The exact executable can be reconstructed directly:
 
 ```sh
 pixi run zstd -d \
-  --patch-from="$RECOVERY_ARTIFACTS/2.1.110/package/cli.js" \
-  recovery/cases/2.1.110-to-2.1.111/diff/cli.js.zstd-delta \
-  -o /tmp/claude-code-2.1.111-cli.js
+  --patch-from="$RECOVERY_ARTIFACTS/2.1.111/package/cli.js" \
+  recovery/cases/2.1.111-to-2.1.112/diff/cli.js.zstd-delta \
+  -o /tmp/claude-code-2.1.112-cli.js
 ```
 
-The reconstructed file must be 13,711,605 bytes with SHA-256
-`8cd052c0224ebb0f717a0820ff0a8a0616f0de6d2365de43efe9867b8143d0c0`.
+The reconstructed file must be 13,711,684 bytes with SHA-256
+`bc3358282800e3e99daa8e71ac5b7b1566bd0d7ca7eb94f714a7859365d3163f`.
 
 ## Reusable method
 

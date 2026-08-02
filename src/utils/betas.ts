@@ -160,6 +160,10 @@ export function modelSupportsStructuredOutputs(model: string): boolean {
   )
 }
 
+export function modelSupportsTemperature(model: string): boolean {
+  return !getCanonicalName(model).includes('claude-opus-4-7')
+}
+
 // @[MODEL LAUNCH]: Add the new model if it supports auto mode (specifically PI probes) — ask in #proj-claude-code-safety-research.
 export function modelSupportsAutoMode(model: string): boolean {
   if (feature('TRANSCRIPT_CLASSIFIER')) {
