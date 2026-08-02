@@ -181,3 +181,11 @@ export const getExternalEditor = memoize((): string | undefined => {
   const editors = ['code', 'vi', 'nano']
   return editors.find(command => isCommandAvailable(command))
 })
+
+export const getExternalEditorDisplayName = memoize((): string | undefined => {
+  const editor = getExternalEditor()
+  if (!editor) return undefined
+
+  const displayName = basename(editor.split(' ')[0] ?? '')
+  return displayName && displayName.length <= 8 ? displayName : undefined
+})

@@ -903,7 +903,8 @@ async function getMessagesForPromptSlashCommand(command: CommandBase & PromptCom
   const attachmentMessages = await toArray(getAttachmentMessages(result.filter((block): block is TextBlockParam => block.type === 'text').map(block => block.text).join(' '), context, null, [],
   // queuedCommands - handled by query.ts for mid-turn attachments
   context.messages, 'repl_main_thread', {
-    skipSkillDiscovery: true
+    skipSkillDiscovery: true,
+    planSlugSeed: args
   }));
   const messages = [createUserMessage({
     content: metadata,

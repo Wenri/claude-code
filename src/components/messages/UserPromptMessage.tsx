@@ -66,7 +66,11 @@ export function UserPromptMessage({
     const head = text.slice(0, TRUNCATE_HEAD_CHARS);
     const tail = text.slice(-TRUNCATE_TAIL_CHARS);
     const hiddenLines = countCharInString(text, '\n', TRUNCATE_HEAD_CHARS) - countCharInString(tail, '\n');
-    return `${head}\n… +${hiddenLines} lines …\n${tail}`;
+    return {
+      head,
+      hiddenLines,
+      tail
+    };
   }, [text]);
   const isSelected = useContext(MessageActionsSelectedContext);
   if (!text) {

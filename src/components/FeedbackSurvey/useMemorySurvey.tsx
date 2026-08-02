@@ -45,9 +45,11 @@ function hasMemoryFileRead(messages: Message[]): boolean {
   return false;
 }
 export function useMemorySurvey(messages: Message[], isLoading: boolean, hasActivePrompt = false, {
-  enabled = true
+  enabled = true,
+  otherSurveyActive = false
 }: {
   enabled?: boolean;
+  otherSurveyActive?: boolean;
 } = {}): {
   state: 'closed' | 'open' | 'thanks' | 'transcript_prompt' | 'submitting' | 'submitted';
   lastResponse: FeedbackSurveyResponse | null;
@@ -143,6 +145,7 @@ export function useMemorySurvey(messages: Message[], isLoading: boolean, hasActi
     handleSelect,
     handleTranscriptSelect
   } = useSurveyState({
+    otherSurveyActive,
     hideThanksAfterMs: HIDE_THANKS_AFTER_MS,
     onOpen,
     onSelect,
@@ -162,6 +165,9 @@ export function useMemorySurvey(messages: Message[], isLoading: boolean, hasActi
       return;
     }
     if (state !== 'closed' || isLoading || hasActivePrompt) {
+      return;
+    }
+    if (otherSurveyActive) {
       return;
     }
 
@@ -202,7 +208,7 @@ export function useMemorySurvey(messages: Message[], isLoading: boolean, hasActi
     if (Math.random() < SURVEY_PROBABILITY) {
       open();
     }
-  }, [enabled, state, isLoading, hasActivePrompt, lastAssistant, messages, open]);
+  }, [enabled, otherSurveyActive, state, isLoading, hasActivePrompt, lastAssistant, messages, open]);
   return {
     state,
     lastResponse,

@@ -38,6 +38,12 @@ type DividerProps = {
    * <Divider title="Title" />
    */
   title?: string;
+
+  /**
+   * Alignment of the title within the divider.
+   * @default 'center'
+   */
+  titleAlign?: 'start' | 'center';
 };
 
 /**
@@ -70,10 +76,12 @@ export function Divider(t0) {
     color,
     char: t1,
     padding: t2,
-    title
+    title,
+    titleAlign: tTitleAlign
   } = t0;
   const char = t1 === undefined ? "\u2500" : t1;
   const padding = t2 === undefined ? 0 : t2;
+  const titleAlign = tTitleAlign === undefined ? 'center' : tTitleAlign;
   const {
     columns: terminalWidth
   } = useTerminalSize();
@@ -81,7 +89,7 @@ export function Divider(t0) {
   if (title) {
     const titleWidth = stringWidth(title) + 2;
     const sideWidth = Math.max(0, effectiveWidth - titleWidth);
-    const leftWidth = Math.floor(sideWidth / 2);
+    const leftWidth = titleAlign === 'start' ? Math.min(4, sideWidth) : Math.floor(sideWidth / 2);
     const rightWidth = sideWidth - leftWidth;
     const t3 = !color;
     let t4;

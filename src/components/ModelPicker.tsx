@@ -8,8 +8,9 @@ import { FAST_MODE_MODEL_DISPLAY, isFastModeAvailable, isFastModeCooldown, isFas
 import { Box, Text } from '../ink.js';
 import { useKeybindings } from '../keybindings/useKeybinding.js';
 import { useAppState, useSetAppState } from '../state/AppState.js';
-import { convertEffortValueToLevel, type EffortLevel, getDefaultEffortForModel, modelSupportsEffort, modelSupportsMaxEffort, resolvePickerEffortPersistence, toPersistableEffort } from '../utils/effort.js';
-import { getDefaultMainLoopModel, type ModelSetting, modelDisplayString, parseUserSpecifiedModel } from '../utils/model/model.js';
+import { getGlobalConfig, saveGlobalConfig } from '../utils/config.js';
+import { convertEffortValueToLevel, type EffortLevel, getDefaultEffortForModel, modelSupportsEffort, modelSupportsMaxEffort, modelSupportsXHighEffort, resolvePickerEffortPersistence, toPersistableEffort } from '../utils/effort.js';
+import { getCanonicalName, getDefaultMainLoopModel, type ModelSetting, modelDisplayString, parseUserSpecifiedModel } from '../utils/model/model.js';
 import { getModelOptions } from '../utils/model/modelOptions.js';
 import { getSettingsForSource, updateSettingsForSource } from '../utils/settings/settings.js';
 import { ConfigurableShortcutHint } from './ConfigurableShortcutHint.js';
@@ -158,6 +159,8 @@ export function ModelPicker(t0) {
     t8 = $[22];
   }
   const focusedSupportsMax = t8;
+  const focusedModel = resolveOptionModel(focusedValue);
+  const focusedSupportsXHigh = focusedModel ? modelSupportsXHighEffort(focusedModel) : false;
   let t9;
   if ($[23] !== focusedValue) {
     t9 = getDefaultEffortLevelForOption(focusedValue);
@@ -167,7 +170,9 @@ export function ModelPicker(t0) {
     t9 = $[24];
   }
   const focusedDefaultEffort = t9;
-  const displayEffort = effort === "max" && !focusedSupportsMax ? "high" : effort;
+  const isLaunchPinned = !hasToggledEffort && focusedModel !== undefined && getCanonicalName(focusedModel).includes('opus-4-7') && !getGlobalConfig().unpinOpus47LaunchEffort;
+  const selectedDisplayEffort = isLaunchPinned ? 'xhigh' : effort;
+  const displayEffort = selectedDisplayEffort === "max" && !focusedSupportsMax || selectedDisplayEffort === 'xhigh' && !focusedSupportsXHigh ? "high" : selectedDisplayEffort;
   let t10;
   if ($[25] !== effortValue || $[26] !== hasToggledEffort) {
     t10 = value => {
@@ -183,23 +188,11 @@ export function ModelPicker(t0) {
     t10 = $[27];
   }
   const handleFocus = t10;
-  let t11;
-  if ($[28] !== focusedDefaultEffort || $[29] !== focusedSupportsEffort || $[30] !== focusedSupportsMax) {
-    t11 = direction => {
-      if (!focusedSupportsEffort) {
-        return;
-      }
-      setEffort(prev => cycleEffortLevel(prev ?? focusedDefaultEffort, direction, focusedSupportsMax));
-      setHasToggledEffort(true);
-    };
-    $[28] = focusedDefaultEffort;
-    $[29] = focusedSupportsEffort;
-    $[30] = focusedSupportsMax;
-    $[31] = t11;
-  } else {
-    t11 = $[31];
-  }
-  const handleCycleEffort = t11;
+  const handleCycleEffort = direction => {
+    if (!focusedSupportsEffort) return;
+    setEffort(previous => cycleEffortLevel(isLaunchPinned ? 'xhigh' : previous ?? focusedDefaultEffort, direction, focusedSupportsMax, focusedSupportsXHigh));
+    setHasToggledEffort(true);
+  };
   let t12;
   if ($[32] !== handleCycleEffort) {
     t12 = {
@@ -227,7 +220,7 @@ export function ModelPicker(t0) {
       logEvent("tengu_model_command_menu_effort", {
         effort: effort as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
       });
-      if (!skipSettingsWrite) {
+      if (!skipSettingsWrite && hasToggledEffort) {
         const effortLevel = resolvePickerEffortPersistence(effort, getDefaultEffortLevelForOption(value_0), getSettingsForSource("userSettings")?.effortLevel, hasToggledEffort);
         const persistable = toPersistableEffort(effortLevel);
         if (persistable !== undefined) {
@@ -235,6 +228,10 @@ export function ModelPicker(t0) {
             effortLevel: persistable
           });
         }
+        saveGlobalConfig(config => config.unpinOpus47LaunchEffort ? config : {
+          ...config,
+          unpinOpus47LaunchEffort: true
+        });
         setAppState(prev_0 => ({
           ...prev_0,
           effortValue: effortLevel
@@ -325,7 +322,7 @@ export function ModelPicker(t0) {
   }
   let t24;
   if ($[62] !== displayEffort || $[63] !== focusedDefaultEffort || $[64] !== focusedModelName || $[65] !== focusedSupportsEffort) {
-    t24 = <Box marginBottom={1} flexDirection="column">{focusedSupportsEffort ? <Text dimColor={true}><EffortLevelIndicator effort={displayEffort} />{" "}{capitalize(displayEffort)} effort{displayEffort === focusedDefaultEffort ? " (default)" : ""}{" "}<Text color="subtle">← → to adjust</Text></Text> : <Text color="subtle"><EffortLevelIndicator effort={undefined} /> Effort not supported{focusedModelName ? ` for ${focusedModelName}` : ""}</Text>}</Box>;
+    t24 = <Box marginBottom={1} flexDirection="column">{focusedSupportsEffort ? <Text dimColor={true}><EffortLevelIndicator effort={displayEffort} />{" "}{displayEffort === 'xhigh' ? 'xHigh' : capitalize(displayEffort)} effort{displayEffort === focusedDefaultEffort ? " (default)" : ""}{" "}<Text color="subtle">← → to adjust</Text></Text> : <Text color="subtle"><EffortLevelIndicator effort={undefined} /> Effort not supported{focusedModelName ? ` for ${focusedModelName}` : ""}</Text>}</Box>;
     $[62] = displayEffort;
     $[63] = focusedDefaultEffort;
     $[64] = focusedModelName;
@@ -428,8 +425,10 @@ function EffortLevelIndicator(t0) {
   }
   return t4;
 }
-function cycleEffortLevel(current: EffortLevel, direction: 'left' | 'right', includeMax: boolean): EffortLevel {
-  const levels: EffortLevel[] = includeMax ? ['low', 'medium', 'high', 'max'] : ['low', 'medium', 'high'];
+function cycleEffortLevel(current: EffortLevel, direction: 'left' | 'right', includeMax: boolean, includeXHigh: boolean): EffortLevel {
+  const levels: EffortLevel[] = ['low', 'medium', 'high'];
+  if (includeXHigh) levels.push('xhigh');
+  if (includeMax) levels.push('max');
   // If the current level isn't in the cycle (e.g. 'max' after switching to a
   // non-Opus model), clamp to 'high'.
   const idx = levels.indexOf(current);

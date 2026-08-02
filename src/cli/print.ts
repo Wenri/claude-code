@@ -14,6 +14,7 @@ import {
   formatDescriptionWithSource,
   getCommandName,
 } from 'src/commands.js'
+import { launchUltrareview } from 'src/commands/review/reviewRemote.js'
 import { createStreamlinedTransformer } from 'src/utils/streamlinedTransform.js'
 import { installStreamJsonStdoutGuard } from 'src/utils/streamJsonStdoutGuard.js'
 import type { ToolPermissionContext } from 'src/Tool.js'
@@ -289,6 +290,7 @@ import { getModelOptions } from 'src/utils/model/modelOptions.js'
 import {
   modelSupportsEffort,
   modelSupportsMaxEffort,
+  modelSupportsXHighEffort,
   EFFORT_LEVELS,
   resolveAppliedEffort,
 } from 'src/utils/effort.js'
@@ -1236,9 +1238,18 @@ function runHeadlessStreaming(
       description: option.description,
       ...(hasEffort && {
         supportsEffort: true,
-        supportedEffortLevels: modelSupportsMaxEffort(resolvedModel)
-          ? [...EFFORT_LEVELS]
-          : EFFORT_LEVELS.filter(l => l !== 'max'),
+        supportedEffortLevels: EFFORT_LEVELS.filter(level => {
+          if (level === 'max' && !modelSupportsMaxEffort(resolvedModel)) {
+            return false
+          }
+          if (
+            level === 'xhigh' &&
+            !modelSupportsXHighEffort(resolvedModel)
+          ) {
+            return false
+          }
+          return true
+        }),
       }),
       ...(hasAdaptiveThinking && { supportsAdaptiveThinking: true }),
       ...(hasFastMode && { supportsFastMode: true }),
@@ -3907,6 +3918,25 @@ function runHeadlessStreaming(
               sendControlResponseSuccess(message, { response: result.response })
             } catch (e) {
               sendControlResponseError(message, errorMessage(e))
+            }
+          })()
+        } else if (message.request.subtype === 'ultrareview_launch') {
+          const { args = '', confirm = false } = message.request
+          // Keep the remote launch off the stdin loop so bundle upload and
+          // session creation do not delay later control messages.
+          void (async () => {
+            try {
+              const result = await launchUltrareview(args, {
+                confirm,
+                context: {
+                  abortController: createAbortController(),
+                  getAppState,
+                  setAppState,
+                },
+              })
+              sendControlResponseSuccess(message, result)
+            } catch (error) {
+              sendControlResponseError(message, errorMessage(error))
             }
           })()
         } else if (

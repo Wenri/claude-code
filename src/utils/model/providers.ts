@@ -7,6 +7,7 @@ export type APIProvider =
   | 'bedrock'
   | 'vertex'
   | 'foundry'
+  | 'anthropicAws'
   | 'mantle'
 
 export function getAPIProvider(): APIProvider {
@@ -14,11 +15,13 @@ export function getAPIProvider(): APIProvider {
     ? 'bedrock'
     : isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY)
       ? 'foundry'
-      : isEnvTruthy(process.env.CLAUDE_CODE_USE_MANTLE)
-        ? 'mantle'
-        : isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX)
-          ? 'vertex'
-          : 'firstParty'
+      : isEnvTruthy(process.env.CLAUDE_CODE_USE_ANTHROPIC_AWS)
+        ? 'anthropicAws'
+        : isEnvTruthy(process.env.CLAUDE_CODE_USE_MANTLE)
+          ? 'mantle'
+          : isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX)
+            ? 'vertex'
+            : 'firstParty'
 }
 
 export function getSecondaryAPIProvider(): APIProvider | null {
@@ -70,9 +73,16 @@ export function isFirstPartyCompatibleAPIProvider(
 ): boolean {
   return (
     provider === 'firstParty' ||
+    provider === 'anthropicAws' ||
     provider === 'foundry' ||
     provider === 'mantle'
   )
+}
+
+export function isDirectAnthropicAPIProvider(
+  provider: APIProvider = getAPIProvider(),
+): boolean {
+  return provider === 'firstParty' || provider === 'anthropicAws'
 }
 
 export function getAPIProviderForStatsig(): AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS {

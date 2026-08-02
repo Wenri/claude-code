@@ -1,6 +1,7 @@
 // biome-ignore-all assist/source/organizeImports: ANT-ONLY import markers must not be reordered
 import { isUltrathinkEnabled } from './thinking.js'
 import { getInitialSettings } from './settings/settings.js'
+import { getGlobalConfig, saveGlobalConfig } from './config.js'
 import { isProSubscriber, isMaxSubscriber } from './auth.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from 'src/services/analytics/growthbook.js'
 import {
@@ -9,6 +10,7 @@ import {
 } from './model/providers.js'
 import { get3PModelCapabilityOverride } from './model/modelSupportOverrides.js'
 import { isEnvTruthy } from './envUtils.js'
+import { getCanonicalName } from './model/model.js'
 import type { EffortLevel } from 'src/entrypoints/sdk/runtimeTypes.js'
 
 export type { EffortLevel }
@@ -17,6 +19,7 @@ export const EFFORT_LEVELS = [
   'low',
   'medium',
   'high',
+  'xhigh',
   'max',
 ] as const satisfies readonly EffortLevel[]
 
@@ -33,7 +36,11 @@ export function modelSupportsEffort(model: string): boolean {
     return supported3P
   }
   // Supported by a subset of Claude 4 models
-  if (m.includes('opus-4-6') || m.includes('sonnet-4-6')) {
+  if (
+    m.includes('opus-4-7') ||
+    m.includes('opus-4-6') ||
+    m.includes('sonnet-4-6')
+  ) {
     return true
   }
   // Exclude any other known legacy models (haiku, older opus/sonnet variants)
@@ -51,20 +58,41 @@ export function modelSupportsEffort(model: string): boolean {
   return isFirstPartyCompatibleAPIProvider(getAPIProviderForModel(model))
 }
 
-// @[MODEL LAUNCH]: Add the new model to the allowlist if it supports 'max' effort.
-// Per API docs, 'max' is Opus 4.6 only for public models — other models return an error.
+const MODELS_WITHOUT_MAX_EFFORT = new Set([
+  'claude-3-opus',
+  'claude-3-sonnet',
+  'claude-3-5-sonnet',
+  'claude-3-7-sonnet',
+  'claude-sonnet-4',
+  'claude-sonnet-4-0',
+  'claude-sonnet-4-5',
+  'claude-opus-4',
+  'claude-opus-4-0',
+  'claude-opus-4-1',
+  'claude-opus-4-5',
+])
+
+function normalizeModelForEffortCapability(model: string): string {
+  const lower = model.toLowerCase()
+  const matched = lower.match(/claude-[a-z0-9-]+/)?.[0] ?? lower
+  return matched.replace(/-v\d+(?::\d+)?$/, '').replace(/-\d{8}$/, '')
+}
+
 export function modelSupportsMaxEffort(model: string): boolean {
   const supported3P = get3PModelCapabilityOverride(model, 'max_effort')
   if (supported3P !== undefined) {
     return supported3P
   }
-  if (model.toLowerCase().includes('opus-4-6')) {
-    return true
-  }
-  if (process.env.USER_TYPE === 'ant' && resolveAntModel(model)) {
-    return true
-  }
-  return false
+  if (model.toLowerCase().includes('haiku')) return false
+  return !MODELS_WITHOUT_MAX_EFFORT.has(
+    normalizeModelForEffortCapability(model),
+  )
+}
+
+export function modelSupportsXHighEffort(model: string): boolean {
+  const supported3P = get3PModelCapabilityOverride(model, 'xhigh_effort')
+  if (supported3P !== undefined) return supported3P
+  return getCanonicalName(model).includes('opus-4-7')
 }
 
 export function isEffortLevel(value: string): value is EffortLevel {
@@ -91,26 +119,36 @@ export function parseEffortValue(value: unknown): EffortValue | undefined {
 
 /**
  * Numeric values are model-default only and not persisted.
- * 'max' is session-scoped for external users (ants can persist it).
+ * 'max' is session-scoped and never persisted.
  * Write sites call this before saving to settings so the Zod schema
  * (which only accepts string levels) never rejects a write.
  */
 export function toPersistableEffort(
   value: EffortValue | undefined,
 ): EffortLevel | undefined {
-  if (value === 'low' || value === 'medium' || value === 'high') {
-    return value
-  }
-  if (value === 'max' && process.env.USER_TYPE === 'ant') {
+  if (
+    value === 'low' ||
+    value === 'medium' ||
+    value === 'high' ||
+    value === 'xhigh'
+  ) {
     return value
   }
   return undefined
 }
 
-export function getInitialEffortSetting(): EffortLevel | undefined {
-  // toPersistableEffort filters 'max' for non-ants on read, so a manually
-  // edited settings.json doesn't leak session-scoped max into a fresh session.
-  return toPersistableEffort(getInitialSettings().effortLevel)
+export function getInitialEffortSetting(
+  cliValue?: unknown,
+): EffortValue | undefined {
+  const parsed = parseEffortValue(cliValue)
+  if (parsed !== undefined) {
+    saveGlobalConfig(config =>
+      config.unpinOpus47LaunchEffort
+        ? config
+        : { ...config, unpinOpus47LaunchEffort: true },
+    )
+  }
+  return parsed ?? toPersistableEffort(getInitialSettings().effortLevel)
 }
 
 /**
@@ -157,13 +195,22 @@ export function resolveAppliedEffort(
   appStateEffortValue: EffortValue | undefined,
 ): EffortValue | undefined {
   const envOverride = getEffortEnvOverride()
+  const launchPinned =
+    getCanonicalName(model).includes('opus-4-7') &&
+    !getGlobalConfig().unpinOpus47LaunchEffort
+  const modelDefault = getDefaultEffortForModel(model)
   if (envOverride === null) {
-    return undefined
+    return launchPinned ? modelDefault : undefined
   }
   const resolved =
-    envOverride ?? appStateEffortValue ?? getDefaultEffortForModel(model)
-  // API rejects 'max' on non-Opus-4.6 models — downgrade to 'high'.
+    envOverride ??
+    (launchPinned ? modelDefault : undefined) ??
+    appStateEffortValue ??
+    modelDefault
   if (resolved === 'max' && !modelSupportsMaxEffort(model)) {
+    return 'high'
+  }
+  if (resolved === 'xhigh' && !modelSupportsXHighEffort(model)) {
     return 'high'
   }
   return resolved
@@ -209,12 +256,6 @@ export function convertEffortValueToLevel(value: EffortValue): EffortLevel {
     // rather than passing them through unchecked.
     return isEffortLevel(value) ? value : 'high'
   }
-  if (process.env.USER_TYPE === 'ant' && typeof value === 'number') {
-    if (value <= 50) return 'low'
-    if (value <= 85) return 'medium'
-    if (value <= 100) return 'high'
-    return 'max'
-  }
   return 'high'
 }
 
@@ -232,8 +273,10 @@ export function getEffortLevelDescription(level: EffortLevel): string {
       return 'Balanced approach with standard implementation and testing'
     case 'high':
       return 'Comprehensive implementation with extensive testing and documentation'
+    case 'xhigh':
+      return 'Deeper reasoning than high, just below maximum (Opus 4.7 only)'
     case 'max':
-      return 'Maximum capability with deepest reasoning (Opus 4.6 only)'
+      return 'Maximum capability with deepest reasoning'
   }
 }
 
@@ -244,10 +287,6 @@ export function getEffortLevelDescription(level: EffortLevel): string {
  * @returns Human-readable description
  */
 export function getEffortValueDescription(value: EffortValue): string {
-  if (process.env.USER_TYPE === 'ant' && typeof value === 'number') {
-    return `[ANT-ONLY] Numeric effort value of ${value}`
-  }
-
   if (typeof value === 'string') {
     return getEffortLevelDescription(value)
   }
@@ -307,6 +346,10 @@ export function getDefaultEffortForModel(
   // the model launch DRI and research. Default effort is a sensitive setting
   // that can greatly affect model quality and bashing.
 
+  if (getCanonicalName(model).includes('opus-4-7')) {
+    return 'xhigh'
+  }
+
   // Default effort on Opus 4.6 to medium for Pro.
   // Max also gets medium when the tengu_grey_step2 config is enabled.
   if (model.toLowerCase().includes('opus-4-6')) {
@@ -330,7 +373,5 @@ export function getDefaultEffortForModel(
     return 'medium'
   }
 
-  // Fallback to undefined, which means we don't set an effort level. This
-  // should resolve to high effort level in the API.
-  return undefined
+  return 'high'
 }

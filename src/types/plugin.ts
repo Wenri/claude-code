@@ -305,6 +305,22 @@ export type PluginLoadResult = {
   errors: PluginError[]
 }
 
+export type PluginDependencyError = Extract<
+  PluginError,
+  {
+    type: 'dependency-unsatisfied' | 'dependency-version-unsatisfied'
+  }
+>
+
+export function isPluginDependencyError(
+  error: PluginError,
+): error is PluginDependencyError {
+  return (
+    error.type === 'dependency-unsatisfied' ||
+    error.type === 'dependency-version-unsatisfied'
+  )
+}
+
 /**
  * Helper function to get a display message from any PluginError
  * Useful for logging and simple error displays

@@ -4,7 +4,6 @@ import { getSessionId } from '../bootstrap/state.js'
 import { logForDebugging } from './debug.js'
 import { getClaudeConfigHomeDir } from './envUtils.js'
 import { errorMessage, getErrnoCode } from './errors.js'
-import { getPlatform } from './platform.js'
 
 // Cache states:
 // undefined = not yet loaded (need to check disk)
@@ -58,11 +57,6 @@ export function invalidateSessionEnvCache(): void {
 }
 
 export async function getSessionEnvironmentScript(): Promise<string | null> {
-  if (getPlatform() === 'windows') {
-    logForDebugging('Session environment not yet supported on Windows')
-    return null
-  }
-
   if (sessionEnvScript !== undefined) {
     return sessionEnvScript
   }

@@ -41,6 +41,10 @@ import type { AgentDefinition } from './tools/AgentTool/loadAgentsDir.js'
 import { SYNTHETIC_OUTPUT_TOOL_NAME } from './tools/SyntheticOutputTool/SyntheticOutputTool.js'
 import type { Message } from './types/message.js'
 import type { OrphanedPermission } from './types/textInputTypes.js'
+import {
+  getPluginErrorMessage,
+  isPluginDependencyError,
+} from './types/plugin.js'
 import { createAbortController } from './utils/abortController.js'
 import type { AttributionState } from './utils/commitAttribution.js'
 import { getGlobalConfig } from './utils/config.js'
@@ -574,10 +578,11 @@ export class QueryEngine {
     // ref-tracked plugins. CCR populates the cache via CLAUDE_CODE_SYNC_PLUGIN_INSTALL
     // (headlessPluginInstall) or CLAUDE_CODE_PLUGIN_SEED_DIR before this runs;
     // SDK callers that need fresh source can call /reload-plugins.
-    const [skills, { enabled: enabledPlugins }] = await Promise.all([
-      getSlashCommandToolSkills(getCwd()),
-      loadAllPluginsCacheOnly(),
-    ])
+    const [skills, { enabled: enabledPlugins, errors: pluginErrors }] =
+      await Promise.all([
+        getSlashCommandToolSkills(getCwd()),
+        loadAllPluginsCacheOnly(),
+      ])
     headlessProfilerCheckpoint('after_skills_plugins')
 
     yield buildSystemInitMessage({
@@ -590,6 +595,11 @@ export class QueryEngine {
       agents,
       skills,
       plugins: enabledPlugins,
+      pluginErrors: pluginErrors.filter(isPluginDependencyError).map(error => ({
+        plugin: error.source,
+        type: error.type,
+        message: getPluginErrorMessage(error),
+      })),
       fastMode: initialAppState.fastMode,
     })
 

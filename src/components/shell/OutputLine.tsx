@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useMemo } from 'react';
 import { useTerminalSize } from '../../hooks/useTerminalSize.js';
 import { Ansi, Text } from '../../ink.js';
+import { OSC8_PREFIX } from '../../ink/screen.js';
 import { createHyperlink } from '../../utils/hyperlink.js';
 import { jsonParse, jsonStringify } from '../../utils/slowOperations.js';
 import { renderTruncatedContent } from '../../utils/terminal.js';
@@ -41,17 +42,23 @@ export function tryJsonFormatContent(content: string): string {
 // Match http(s) URLs inside JSON string values. Conservative: no quotes,
 // no whitespace, no trailing comma/brace that'd be JSON structure.
 const URL_IN_JSON = /https?:\/\/[^\s"'<>\\]+/g;
+const MAX_LINKIFY_LENGTH = 100_000;
 export function linkifyUrlsInText(content: string): string {
+  if (content.length > MAX_LINKIFY_LENGTH) {
+    return content;
+  }
+  if (content.includes(OSC8_PREFIX)) {
+    return content;
+  }
   return content.replace(URL_IN_JSON, url => createHyperlink(url));
 }
 export function OutputLine(t0) {
-  const $ = _c(11);
+  const $ = _c(10);
   const {
     content,
     verbose,
     isError,
-    isWarning,
-    linkifyUrls
+    isWarning
   } = t0;
   const {
     columns
@@ -60,12 +67,9 @@ export function OutputLine(t0) {
   const inVirtualList = React.useContext(InVirtualListContext);
   const shouldShowFull = verbose || expandShellOutput;
   let t1;
-  if ($[0] !== columns || $[1] !== content || $[2] !== inVirtualList || $[3] !== linkifyUrls || $[4] !== shouldShowFull) {
+  if ($[0] !== columns || $[1] !== content || $[2] !== inVirtualList || $[3] !== shouldShowFull) {
     bb0: {
-      let formatted = tryJsonFormatContent(content);
-      if (linkifyUrls) {
-        formatted = linkifyUrlsInText(formatted);
-      }
+      const formatted = linkifyUrlsInText(tryJsonFormatContent(content));
       if (shouldShowFull) {
         t1 = stripUnderlineAnsi(formatted);
         break bb0;
@@ -75,30 +79,29 @@ export function OutputLine(t0) {
     $[0] = columns;
     $[1] = content;
     $[2] = inVirtualList;
-    $[3] = linkifyUrls;
-    $[4] = shouldShowFull;
-    $[5] = t1;
+    $[3] = shouldShowFull;
+    $[4] = t1;
   } else {
-    t1 = $[5];
+    t1 = $[4];
   }
   const formattedContent = t1;
   const color = isError ? "error" : isWarning ? "warning" : undefined;
   let t2;
-  if ($[6] !== formattedContent) {
+  if ($[5] !== formattedContent) {
     t2 = <Ansi>{formattedContent}</Ansi>;
-    $[6] = formattedContent;
-    $[7] = t2;
+    $[5] = formattedContent;
+    $[6] = t2;
   } else {
-    t2 = $[7];
+    t2 = $[6];
   }
   let t3;
-  if ($[8] !== color || $[9] !== t2) {
+  if ($[7] !== color || $[8] !== t2) {
     t3 = <MessageResponse><Text color={color}>{t2}</Text></MessageResponse>;
-    $[8] = color;
-    $[9] = t2;
-    $[10] = t3;
+    $[7] = color;
+    $[8] = t2;
+    $[9] = t3;
   } else {
-    t3 = $[10];
+    t3 = $[9];
   }
   return t3;
 }

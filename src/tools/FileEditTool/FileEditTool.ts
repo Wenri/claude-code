@@ -2,7 +2,10 @@ import { dirname, isAbsolute, sep } from 'path'
 import { logEvent } from 'src/services/analytics/index.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
 import { diagnosticTracker } from '../../services/diagnosticTracking.js'
-import { clearDeliveredDiagnosticsForFile } from '../../services/lsp/LSPDiagnosticRegistry.js'
+import {
+  clearDeliveredDiagnosticsForFile,
+  purgePendingDiagnosticsForFile,
+} from '../../services/lsp/LSPDiagnosticRegistry.js'
 import { getLspServerManager } from '../../services/lsp/manager.js'
 import { notifyVscodeFileUpdated } from '../../services/mcp/vscodeSdkMcp.js'
 import { checkTeamMemSecrets } from '../../services/teamMemorySync/teamMemSecretGuard.js'
@@ -504,7 +507,9 @@ export const FileEditTool = buildTool({
     const lspManager = getLspServerManager()
     if (lspManager) {
       // Clear previously delivered diagnostics so new ones will be shown
-      clearDeliveredDiagnosticsForFile(`file://${absoluteFilePath}`)
+      const fileUri = `file://${absoluteFilePath}`
+      clearDeliveredDiagnosticsForFile(fileUri)
+      purgePendingDiagnosticsForFile(fileUri)
       // didChange: Content has been modified
       lspManager
         .changeFile(absoluteFilePath, updatedFile)

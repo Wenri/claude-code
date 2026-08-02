@@ -559,6 +559,7 @@ export function updateInstallationPathOnDisk(
   if (entry) {
     entry.installPath = newPath
     entry.version = newVersion
+    delete entry.resolvedVersion
     entry.lastUpdated = new Date().toISOString()
     if (gitCommitSha !== undefined) {
       entry.gitCommitSha = gitCommitSha

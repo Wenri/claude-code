@@ -23,6 +23,7 @@ import { getAPIProviderForStatsig } from 'src/utils/model/providers.js'
 import type { PermissionMode } from 'src/utils/permissions/PermissionMode.js'
 import { jsonStringify } from 'src/utils/slowOperations.js'
 import { logOTelEvent } from 'src/utils/telemetry/events.js'
+import { logRawAPIResponseBody } from 'src/utils/telemetry/apiBodyLogging.js'
 import {
   endLLMRequestSpan,
   isBetaTracingEnabled,
@@ -725,6 +726,13 @@ export function logAPISuccessAndDuration({
     duration_ms: String(durationMs),
     speed: fastMode ? 'fast' : 'normal',
   })
+  if (newMessages) {
+    logRawAPIResponseBody(newMessages, {
+      model,
+      querySource,
+      requestId: requestId ?? undefined,
+    })
+  }
 
   // Extract model output, thinking output, and tool call flag when beta tracing is enabled
   let modelOutput: string | undefined

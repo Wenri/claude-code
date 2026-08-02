@@ -379,6 +379,30 @@ export function clearDeliveredDiagnosticsForFile(fileUri: string): void {
 }
 
 /**
+ * Remove queued diagnostics for a file before an edit is sent to the LSP.
+ * Notifications are asynchronous, so an entry produced for the pre-edit
+ * document can otherwise be delivered on the next turn after the edit.
+ */
+export function purgePendingDiagnosticsForFile(fileUri: string): void {
+  let purgedEntries = 0
+  for (const [id, diagnostic] of pendingDiagnostics) {
+    const files = diagnostic.files.filter(file => file.uri !== fileUri)
+    if (files.length === diagnostic.files.length) continue
+    if (files.length === 0) {
+      pendingDiagnostics.delete(id)
+    } else {
+      diagnostic.files = files
+    }
+    purgedEntries++
+  }
+  if (purgedEntries > 0) {
+    logForDebugging(
+      `LSP Diagnostics: Purged ${purgedEntries} pending entry(ies) referencing ${fileUri}`,
+    )
+  }
+}
+
+/**
  * Get count of pending diagnostics (for monitoring)
  */
 export function getPendingLSPDiagnosticCount(): number {

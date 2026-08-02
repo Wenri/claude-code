@@ -118,18 +118,18 @@ leaked source** (the TypeScript/TSX under [`src/`](./src/)), recovered from a
 project. The untouched files remain the exact 2.1.88 outer source-map inputs;
 the tree now carries cumulative, verified source-facing recovery overlays for
 2.1.89, 2.1.90, 2.1.91, 2.1.92, 2.1.94, 2.1.96, 2.1.97, 2.1.98, 2.1.100,
-2.1.101, 2.1.104, 2.1.105, 2.1.107, 2.1.108, 2.1.109, and 2.1.110; upstream did not
+2.1.101, 2.1.104, 2.1.105, 2.1.107, 2.1.108, 2.1.109, 2.1.110, and 2.1.111; upstream did not
 publish 2.1.93, 2.1.95, 2.1.99, 2.1.102, 2.1.103, or 2.1.106.
 This does not claim that any complete original authored TypeScript tree is
 observable. A short tour of what's inside is in [`CLAUDE.md`](./CLAUDE.md).
 The evidence-first adjacent-published-release recoveries live in
 [`recovery/`](./recovery/): they reconstruct the complete published bundle
-and npm package tree exactly through 2.1.110, while keeping the necessarily
-partial authored-TypeScript reconstruction labeled separately. The 2.1.110
-case advances directly from published 2.1.109, with no skipped version. See
+and npm package tree exactly through 2.1.111, while keeping the necessarily
+partial authored-TypeScript reconstruction labeled separately. The 2.1.111
+case advances directly from published 2.1.110 in npm release order. See
 the current
-[2.1.110 report](./recovery/cases/2.1.109-to-2.1.110/REPORT.md) and
-[complete recovery runbook](./recovery/cases/2.1.109-to-2.1.110/RECOVERY_RUNBOOK.md).
+[2.1.111 report](./recovery/cases/2.1.110-to-2.1.111/REPORT.md) and
+[complete recovery runbook](./recovery/cases/2.1.110-to-2.1.111/RECOVERY_RUNBOOK.md).
 
 ## 📜 License & disclaimer
 

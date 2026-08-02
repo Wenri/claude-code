@@ -189,6 +189,12 @@ export function useTextInput({
     return newCursor
   }
 
+  function killInput(): Cursor {
+    if (cursor.text === '') return cursor
+    pushToKillRing(cursor.text, 'prepend')
+    return Cursor.fromText('', columns, 0)
+  }
+
   function killWordBefore(): Cursor {
     const { cursor: newCursor, killed } = cursor.deleteWordBefore()
     pushToKillRing(killed, 'prepend')
@@ -232,7 +238,7 @@ export function useTextInput({
     ['k', killToLineEnd],
     ['n', () => downOrHistoryDown()],
     ['p', () => upOrHistoryUp()],
-    ['u', killToLineStart],
+    ['u', killInput],
     ['w', killWordBefore],
     ['y', yank],
   ])

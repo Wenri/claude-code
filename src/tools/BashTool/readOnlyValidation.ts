@@ -1709,6 +1709,44 @@ const READONLY_COMMAND_REGEXES = new Set([
   /^find(?:\s+(?:\\[()]|(?!-delete\b|-exec\b|-execdir\b|-ok\b|-okdir\b|-fprint0?\b|-fls\b|-fprintf\b)[^<>()$`|{}&;\n\r\s]|\s)+)?$/,
 ])
 
+// Commands whose positional path arguments remain read-only when the shell
+// expands an unquoted glob. Keep this deliberately narrow: a glob can turn
+// into option-looking argv entries, so only commands with no mutating mode are
+// eligible for automatic approval here.
+const READ_ONLY_GLOB_COMMANDS = new Set([
+  'ls',
+  'cat',
+  'head',
+  'tail',
+  'wc',
+  'stat',
+  'grep',
+  'egrep',
+  'fgrep',
+  'diff',
+  'du',
+  'df',
+  'echo',
+  'strings',
+  'hexdump',
+  'od',
+  'nl',
+  'cut',
+  'column',
+  'tr',
+  'tac',
+  'rev',
+  'cmp',
+  'basename',
+  'dirname',
+  'realpath',
+  'readlink',
+  'sha256sum',
+  'sha1sum',
+  'md5sum',
+  'cd',
+])
+
 /**
  * Checks if a command contains glob characters (?, *, [, ]) or expandable `$`
  * variables OUTSIDE the quote contexts where bash would treat them as literal.
@@ -1737,12 +1775,15 @@ const READONLY_COMMAND_REGEXES = new Set([
  * @param command The command string to check
  * @returns true if the command contains unquoted glob or expandable `$`
  */
-function containsUnquotedExpansion(command: string): boolean {
+function containsUnquotedExpansion(
+  command: string,
+): false | 'variable' | 'glob' {
   // Track quote state to avoid false positives for patterns inside quoted strings
   let inSingleQuote = false
   let inDoubleQuote = false
   let escaped = false
   let inGlobBracket = false
+  let hasGlob = false
 
   for (let i = 0; i < command.length; i++) {
     const currentChar = command[i]
@@ -1790,7 +1831,7 @@ function containsUnquotedExpansion(command: string): boolean {
     if (currentChar === '$') {
       const next = command[i + 1]
       if (next && /[A-Za-z_@*#?!$0-9-]/.test(next)) {
-        return true
+        return 'variable'
       }
     }
 
@@ -1820,18 +1861,19 @@ function containsUnquotedExpansion(command: string): boolean {
     }
 
     if (currentChar === '?' || currentChar === '*') {
-      return true
+      hasGlob = true
+      continue
     }
     if (currentChar === '[') {
       inGlobBracket = true
       continue
     }
     if (currentChar === ']' && inGlobBracket) {
-      return true
+      hasGlob = true
     }
   }
 
-  return false
+  return hasGlob ? 'glob' : false
 }
 
 /**
@@ -1869,7 +1911,7 @@ function isCommandReadOnly(command: string): boolean {
   // check inside isCommandSafeViaFlagParsing only covers COMMAND_ALLOWLIST
   // commands; hand-written regexes in READONLY_COMMAND_REGEXES (uniq, jq, cd)
   // have no such guard. See containsUnquotedExpansion for full analysis.
-  if (containsUnquotedExpansion(testCommand)) {
+  if (containsUnquotedExpansion(testCommand) === 'variable') {
     return false
   }
 
@@ -2056,6 +2098,7 @@ export function checkReadOnlyConstraints(
   compoundCommandHasCd: boolean,
 ): PermissionResult {
   const { command } = input
+  const expansion = containsUnquotedExpansion(command)
 
   // Detect if the command is not parseable and return early
   const result = tryParseShellCommand(command, env => `$${env}`)
@@ -2073,6 +2116,13 @@ export function checkReadOnlyConstraints(
     return {
       behavior: 'passthrough',
       message: 'Command is not read-only, requires further permission checks',
+    }
+  }
+
+  if (expansion === 'variable') {
+    return {
+      behavior: 'passthrough',
+      message: 'Command contains unquoted variable expansion',
     }
   }
 
@@ -2148,6 +2198,19 @@ export function checkReadOnlyConstraints(
     subcmd => {
       if (bashCommandIsSafe_DEPRECATED(subcmd).behavior !== 'passthrough') {
         return false
+      }
+      if (expansion === 'glob' && containsUnquotedExpansion(subcmd) === 'glob') {
+        const parsedSubcommand = tryParseShellCommand(subcmd, env => `$${env}`)
+        if (!parsedSubcommand.success) return false
+        const commandName = parsedSubcommand.tokens.find(
+          token => typeof token === 'string',
+        )
+        if (
+          typeof commandName !== 'string' ||
+          !READ_ONLY_GLOB_COMMANDS.has(commandName)
+        ) {
+          return false
+        }
       }
       return isCommandReadOnly(subcmd)
     },

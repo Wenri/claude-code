@@ -15,7 +15,7 @@ import { useTerminalSize } from '../hooks/useTerminalSize.js';
 import { useSearchHighlight } from '../ink/hooks/use-search-highlight.js';
 import type { JumpHandle } from '../components/VirtualMessageList.js';
 import { renderMessagesToPlainText } from '../utils/exportRenderer.js';
-import { openFileInExternalEditor } from '../utils/editor.js';
+import { getExternalEditorDisplayName, openFileInExternalEditor } from '../utils/editor.js';
 import { writeFile } from 'fs/promises';
 import { Box, Text, useStdin, useTheme, useTerminalFocus, useTerminalTitle, useTabStatus } from '../ink.js';
 import type { TabStatusKind } from '../ink/hooks/use-tab-status.js';
@@ -171,7 +171,7 @@ import { useAppState, useSetAppState, useAppStateStore } from '../state/AppState
 import type { ContentBlockParam, ImageBlockParam } from '@anthropic-ai/sdk/resources/messages.mjs';
 import type { ProcessUserInputContext } from '../utils/processUserInput/processUserInput.js';
 import type { PastedContent } from '../utils/config.js';
-import { copyPlanForFork, copyPlanForResume, getPlanSlug, setPlanSlug } from '../utils/plans.js';
+import { copyPlanForFork, copyPlanForResume, getCachedPlanSlug, setPlanSlug } from '../utils/plans.js';
 import { clearSessionMetadata, resetSessionFilePointer, adoptResumedSessionFile, removeTranscriptMessage, restoreSessionMetadata, getCurrentSessionTitle, isEphemeralToolProgress, isLoggableMessage, saveWorktreeState, getAgentTranscript } from '../utils/sessionStorage.js';
 import { deserializeMessages } from '../utils/conversationRecovery.js';
 import { extractReadFilesFromMessages, extractBashToolsFromMessages } from '../utils/queryHelpers.js';
@@ -320,7 +320,7 @@ function median(values: number[]): number {
  * Must be rendered inside KeybindingSetup to access keybinding context.
  */
 function TranscriptModeFooter(t0) {
-  const $ = _c(9);
+  const $ = _c(10);
   const {
     showAllInTranscript,
     virtualScroll,
@@ -331,35 +331,43 @@ function TranscriptModeFooter(t0) {
   const suppressShowAll = t1 === undefined ? false : t1;
   const toggleShortcut = useShortcutDisplay("app:toggleTranscript", "Global", "ctrl+o");
   const showAllShortcut = useShortcutDisplay("transcript:toggleShowAll", "Transcript", "ctrl+e");
-  const t2 = searchBadge ? " \xB7 n/N to navigate" : virtualScroll ? ` · ${figures.arrowUp}${figures.arrowDown} scroll · home/end top/bottom` : suppressShowAll ? "" : ` · ${showAllShortcut} to ${showAllInTranscript ? "collapse" : "show all"}`;
-  let t3;
-  if ($[0] !== t2 || $[1] !== toggleShortcut) {
-    t3 = <Text dimColor={true}>Showing detailed transcript · {toggleShortcut} to toggle{t2}</Text>;
+  let t2;
+  if ($[0] === Symbol.for("react.memo_cache_sentinel")) {
+    t2 = getExternalEditorDisplayName();
     $[0] = t2;
-    $[1] = toggleShortcut;
-    $[2] = t3;
   } else {
-    t3 = $[2];
+    t2 = $[0];
   }
+  const editorAction = t2 ? `open in ${t2}` : "open in editor";
+  const t3 = searchBadge ? " · n/N to navigate" : virtualScroll ? ` · ${figures.arrowUp}${figures.arrowDown} scroll · [ to print output · v to ${editorAction}` : suppressShowAll ? ` · v to ${editorAction}` : ` · ${showAllShortcut} to ${showAllInTranscript ? "collapse" : "show all"}`;
   let t4;
-  if ($[3] !== searchBadge || $[4] !== status) {
-    t4 = <><Box flexGrow={1} />{status ? <Text>{status} </Text> : searchBadge ? <Text dimColor={true}>{searchBadge.current}/{searchBadge.count}{"  "}</Text> : <Text dimColor={true}>verbose </Text>}</>;
-    $[3] = searchBadge;
-    $[4] = status;
-    $[5] = t4;
+  if ($[1] !== t3 || $[2] !== toggleShortcut) {
+    t4 = <Text dimColor={true}>Showing detailed transcript · {toggleShortcut} to toggle{t3}</Text>;
+    $[1] = t3;
+    $[2] = toggleShortcut;
+    $[3] = t4;
   } else {
-    t4 = $[5];
+    t4 = $[3];
   }
   let t5;
-  if ($[6] !== t3 || $[7] !== t4) {
-    t5 = <Box noSelect={true} alignItems="center" alignSelf="center" borderTopDimColor={true} borderBottom={false} borderLeft={false} borderRight={false} borderStyle="single" marginTop={1} paddingLeft={2} width="100%">{t3}{t4}</Box>;
-    $[6] = t3;
+  if ($[4] !== searchBadge || $[5] !== status) {
+    t5 = <><Box flexGrow={1} />{status ? <Text>{status} </Text> : searchBadge ? <Text dimColor={true}>{searchBadge.current}/{searchBadge.count}{"  "}</Text> : <Text dimColor={true}>verbose </Text>}</>;
+    $[4] = searchBadge;
+    $[5] = status;
+    $[6] = t5;
+  } else {
+    t5 = $[6];
+  }
+  let t6;
+  if ($[7] !== t4 || $[8] !== t5) {
+    t6 = <Box noSelect={true} alignItems="center" alignSelf="center" borderTopDimColor={true} borderBottom={false} borderLeft={false} borderRight={false} borderStyle="single" marginTop={1} paddingLeft={2} width="100%">{t4}{t5}</Box>;
     $[7] = t4;
     $[8] = t5;
+    $[9] = t6;
   } else {
-    t5 = $[8];
+    t6 = $[9];
   }
-  return t5;
+  return t6;
 }
 
 /** less-style / bar. 1-row, same border-top styling as TranscriptModeFooter
@@ -1690,7 +1698,20 @@ export function REPL({
   // Check if any permission or ask question prompt is currently visible
   // This is used to prevent the survey from opening while prompts are active
   const hasActivePrompt = toolUseConfirmQueue.length > 0 || promptQueue.length > 0 || sandboxPermissionRequestQueue.length > 0 || elicitation.queue.length > 0 || workerSandboxPermissions.queue.length > 0;
-  const feedbackSurveyOriginal = useFeedbackSurvey(messages, isLoading, submitCount, 'session', hasActivePrompt);
+
+  // Post-compact survey: shown after compaction if feature gate is enabled
+  const postCompactSurvey = usePostCompactSurvey(messages, isLoading, hasActivePrompt, {
+    enabled: !isRemoteSession
+  });
+
+  // Memory survey: shown when the assistant mentions memory and a memory file
+  // was read this conversation
+  const memorySurvey = useMemorySurvey(messages, isLoading, hasActivePrompt, {
+    enabled: !isRemoteSession,
+    otherSurveyActive: postCompactSurvey.state !== 'closed'
+  });
+
+  const feedbackSurveyOriginal = useFeedbackSurvey(messages, isLoading, submitCount, 'session', hasActivePrompt, postCompactSurvey.state !== 'closed' || memorySurvey.state !== 'closed');
   const skillImprovementSurvey = useSkillImprovementSurvey(setMessages);
   const showIssueFlagBanner = useIssueFlagBanner(messages, submitCount);
 
@@ -1708,17 +1729,6 @@ export function REPL({
       }
     }
   }), [feedbackSurveyOriginal]);
-
-  // Post-compact survey: shown after compaction if feature gate is enabled
-  const postCompactSurvey = usePostCompactSurvey(messages, isLoading, hasActivePrompt, {
-    enabled: !isRemoteSession
-  });
-
-  // Memory survey: shown when the assistant mentions memory and a memory file
-  // was read this conversation
-  const memorySurvey = useMemorySurvey(messages, isLoading, hasActivePrompt, {
-    enabled: !isRemoteSession
-  });
 
   // Frustration detection: show transcript sharing prompt after detecting frustrated messages
   const frustrationDetection = useFrustrationDetection(messages, isLoading, hasActivePrompt, feedbackSurvey.state !== 'closed' || postCompactSurvey.state !== 'closed' || memorySurvey.state !== 'closed');
@@ -3043,7 +3053,7 @@ export function REPL({
       if (initialMsg.clearContext) {
         // Preserve the plan slug before clearing context, so the new session
         // can access the same plan file after regenerateSessionId()
-        const oldPlanSlug = initialMsg.message.planContent ? getPlanSlug() : undefined;
+        const oldPlanSlug = initialMsg.message.planContent ? getCachedPlanSlug() : undefined;
         const {
           clearConversation
         } = await import('../commands/clear/conversation.js');

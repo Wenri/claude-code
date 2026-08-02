@@ -12,6 +12,7 @@
  */
 
 import * as semver from 'semver'
+import stripAnsi from 'strip-ansi'
 import type {
   DependencyConstraint,
   LoadedPlugin,
@@ -100,17 +101,23 @@ export function qualifyDependency(
 }
 
 const MAX_CONSTRAINT_CONJUNCTS = 1024
+const MAX_CONSTRAINT_INPUT_CHARS = 4096
+const MAX_CONSTRAINT_ERROR_CHARS = 200
+const CONTROL_CHARACTERS = /[\x00-\x08\x0b-\x1f\x7f]/g
 
-function logConstraintExplosion(
-  count: number,
-  inputIndex: number,
-  totalInputs: number,
-): true {
+export type ConstraintIntersection =
+  | { ok: true; range: string }
+  | {
+      ok: false
+      reason: 'disjoint' | 'too-complex' | 'invalid'
+    }
+
+function constraintTooComplex(reason: string): ConstraintIntersection {
   logForDebugging(
-    `intersectConstraints: Cartesian product exceeded ${MAX_CONSTRAINT_CONJUNCTS} conjuncts (${count} after ${inputIndex}/${totalInputs} inputs) — treating as unresolvable`,
+    `intersectConstraints: ${reason} — treating as too complex`,
     { level: 'warn' },
   )
-  return true
+  return { ok: false, reason: 'too-complex' }
 }
 
 /**
@@ -118,43 +125,97 @@ function logConstraintExplosion(
  * has no direct range-intersection primitive, so form a bounded Cartesian
  * product of the alternatives and discard unsatisfiable conjunctions.
  */
-export function intersectConstraints(ranges: string[]): string | null {
-  if (ranges.length === 0) return '*'
+export function intersectConstraints(ranges: string[]): ConstraintIntersection {
+  if (ranges.length === 0) return { ok: true, range: '*' }
 
-  const alternatives = ranges.map(range =>
-    range
-      .split('||')
-      .map(part => part.trim())
-      .filter(Boolean),
-  )
+  let inputChars = 0
+  for (const range of ranges) inputChars += range.length
+  if (inputChars > MAX_CONSTRAINT_INPUT_CHARS) {
+    return constraintTooComplex(
+      `total input ${inputChars} chars > ${MAX_CONSTRAINT_INPUT_CHARS}`,
+    )
+  }
+
+  const alternatives: string[][] = []
+  for (const range of ranges) {
+    const validRange = semver.validRange(range)
+    if (validRange === null) return { ok: false, reason: 'invalid' }
+    alternatives.push(
+      validRange
+        .split('||')
+        .map(part => part.trim())
+        .filter(Boolean),
+    )
+  }
   let conjuncts = alternatives[0] ?? []
-  if (
-    conjuncts.length > MAX_CONSTRAINT_CONJUNCTS &&
-    logConstraintExplosion(conjuncts.length, 1, alternatives.length)
-  ) {
-    return null
+  if (conjuncts.length > MAX_CONSTRAINT_CONJUNCTS) {
+    return constraintTooComplex(
+      `${conjuncts.length} conjuncts after 1/${ranges.length} inputs > ${MAX_CONSTRAINT_CONJUNCTS}`,
+    )
   }
 
   for (let i = 1; i < alternatives.length; i++) {
     const next = alternatives[i] ?? []
     const productSize = conjuncts.length * next.length
-    if (
-      productSize > MAX_CONSTRAINT_CONJUNCTS &&
-      logConstraintExplosion(productSize, i + 1, alternatives.length)
-    ) {
-      return null
+    if (productSize > MAX_CONSTRAINT_CONJUNCTS) {
+      return constraintTooComplex(
+        `${productSize} conjuncts after ${i + 1}/${ranges.length} inputs > ${MAX_CONSTRAINT_CONJUNCTS}`,
+      )
     }
-    conjuncts = conjuncts.flatMap(left =>
-      next.map(right => `${left} ${right}`),
-    )
+    const combined: string[] = []
+    for (const left of conjuncts) {
+      for (const right of next) combined.push(`${left} ${right}`)
+    }
+    conjuncts = combined
   }
 
   const satisfiable = conjuncts.filter(conjunct => {
     const range = semver.validRange(conjunct)
     return range !== null && semver.minVersion(range) !== null
   })
-  if (satisfiable.length === 0) return null
-  return semver.validRange(satisfiable.join(' || '))
+  if (satisfiable.length === 0) return { ok: false, reason: 'disjoint' }
+  const range = semver.validRange(satisfiable.join(' || '))
+  return range === null
+    ? { ok: false, reason: 'disjoint' }
+    : { ok: true, range }
+}
+
+function sanitizeConstraintText(value: string): string {
+  return stripAnsi(value).replace(CONTROL_CHARACTERS, '')
+}
+
+function truncateConstraintText(value: string): string {
+  if (value.length <= MAX_CONSTRAINT_ERROR_CHARS) return value
+  return `${value.slice(0, MAX_CONSTRAINT_ERROR_CHARS)}… (+${value.length - MAX_CONSTRAINT_ERROR_CHARS} chars)`
+}
+
+export function formatConstraintIntersectionError(
+  subject: 'Plugin' | 'Dependency',
+  dependency: string,
+  ranges: string[],
+  reason: Extract<ConstraintIntersection, { ok: false }>['reason'],
+): string {
+  const displayedRanges = truncateConstraintText(
+    sanitizeConstraintText(ranges.join(', ')),
+  )
+  const displayedDependency = sanitizeConstraintText(dependency)
+  switch (reason) {
+    case 'disjoint':
+      return `${subject} "${displayedDependency}" has conflicting version requirements (no version satisfies all of: ${displayedRanges})`
+    case 'too-complex':
+      return `${subject} "${displayedDependency}" has version requirements too complex to intersect — simplify the ranges: ${displayedRanges}`
+    case 'invalid':
+      return `${subject} "${displayedDependency}" has an invalid version requirement among: ${displayedRanges}`
+  }
+}
+
+export function formatNoMatchingTagError(
+  subject: 'Plugin' | 'Dependency',
+  dependency: string,
+  range: string,
+): string {
+  const displayedRange = truncateConstraintText(sanitizeConstraintText(range))
+  return `${subject} "${sanitizeConstraintText(dependency)}" has no git tag satisfying ${displayedRange}`
 }
 
 /**

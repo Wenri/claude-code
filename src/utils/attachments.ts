@@ -34,7 +34,7 @@ import {
   getTaskListId,
   isTodoV2Enabled,
 } from './tasks.js'
-import { getPlanFilePath, getPlan } from './plans.js'
+import { getPlanFilePath, getPlan, getPlanSlug } from './plans.js'
 import { getConnectedIdeName } from './ide.js'
 import {
   filterInjectedMemoryFiles,
@@ -747,7 +747,7 @@ export async function getAttachments(
   queuedCommands: QueuedCommand[],
   messages?: Message[],
   querySource?: QuerySource,
-  options?: { skipSkillDiscovery?: boolean },
+  options?: { skipSkillDiscovery?: boolean; planSlugSeed?: string },
 ): Promise<Attachment[]> {
   if (
     isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_ATTACHMENTS) ||
@@ -878,7 +878,9 @@ export async function getAttachments(
     // previously lived here was the assistant_turn signal — 97% of those
     // Haiku calls found nothing in prod. Prefetch + await-at-collection
     // replaces it; see src/services/skillSearch/prefetch.ts.
-    maybe('plan_mode', () => getPlanModeAttachments(messages, toolUseContext)),
+    maybe('plan_mode', () =>
+      getPlanModeAttachments(input, messages, toolUseContext, options),
+    ),
     maybe('plan_mode_exit', () => getPlanModeExitAttachment(toolUseContext)),
     ...(feature('TRANSCRIPT_CLASSIFIER')
       ? [
@@ -1184,8 +1186,10 @@ function countPlanModeAttachmentsSinceLastExit(messages: Message[]): number {
 }
 
 async function getPlanModeAttachments(
+  input: string | null,
   messages: Message[] | undefined,
   toolUseContext: ToolUseContext,
+  options?: { planSlugSeed?: string },
 ): Promise<Attachment[]> {
   const appState = toolUseContext.getAppState()
   const permissionContext = appState.toolPermissionContext
@@ -1206,6 +1210,11 @@ async function getPlanModeAttachments(
       return []
     }
   }
+
+  getPlanSlug(
+    getSessionId(),
+    options?.planSlugSeed ?? input ?? undefined,
+  )
 
   const planFilePath = getPlanFilePath(toolUseContext.agentId)
   const existingPlan = getPlan(toolUseContext.agentId)
@@ -2941,7 +2950,7 @@ export async function* getAttachmentMessages(
   queuedCommands: QueuedCommand[],
   messages?: Message[],
   querySource?: QuerySource,
-  options?: { skipSkillDiscovery?: boolean },
+  options?: { skipSkillDiscovery?: boolean; planSlugSeed?: string },
 ): AsyncGenerator<AttachmentMessage, void> {
   // TODO: Compute this upstream
   const attachments = await getAttachments(

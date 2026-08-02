@@ -541,12 +541,13 @@ async function handleTeleportPrerequisites(root: Root, errorsToIgnore?: Set<Tele
  * @param branchName Optional branch name for the remote session to use
  * @returns Promise<TeleportToRemoteResponse | null> The created session or null if creation fails
  */
-export async function teleportToRemoteWithErrorHandling(root: Root, description: string | null, signal: AbortSignal, branchName?: string): Promise<TeleportToRemoteResponse | null> {
+export async function teleportToRemoteWithErrorHandling(root: Root, description: string | null, signal: AbortSignal, branchName?: string, source?: string): Promise<TeleportToRemoteResponse | null> {
   const errorsToIgnore = new Set<TeleportLocalErrorType>(['needsGitStash']);
   await handleTeleportPrerequisites(root, errorsToIgnore);
   return teleportToRemote({
     initialMessage: description,
     signal,
+    source,
     branchName,
     onBundleFail: msg => process.stderr.write(`\n${msg}\n`)
   });
@@ -729,6 +730,10 @@ export async function pollRemoteSessionEvents(sessionId: string, afterId: string
  */
 export async function teleportToRemote(options: {
   initialMessage: string | null;
+  /** Analytics source for the remote-session link event. */
+  source?: string;
+  /** Server-side tags attached to the created session. */
+  tags?: string[];
   branchName?: string;
   title?: string;
   /**
@@ -765,12 +770,14 @@ export async function teleportToRemote(options: {
    * exact local state. Needs .git/ only, not a GitHub remote.
    */
   useBundle?: boolean;
+  /** Preserve this fork point as the parent of a squashed bundle snapshot. */
+  bundleBaseRef?: string;
   /**
    * Called with a user-facing message when the bundle path is attempted but
    * fails. The wrapper stderr.writes it (pre-REPL). Remote-agent callers
    * capture it to include in their throw (in-REPL, Ink-rendered).
    */
-  onBundleFail?: (message: string) => void;
+  onBundleFail?: (message: string, reason: 'bundle' | 'env_create') => void;
   /**
    * When true, disables the git-bundle fallback entirely. Use for flows like
    * autofix where CCR must push to GitHub — a bundle can't do that.
@@ -841,10 +848,14 @@ export async function teleportToRemote(options: {
           sessionId: getSessionId(),
           baseUrl: getOauthConfig().BASE_API_URL
         }, {
-          signal
+          signal,
+          baseRef: options.bundleBaseRef
         });
         if (!bundle.success) {
           logError(new Error(`Bundle upload failed: ${bundle.error}`));
+          if (bundle.failReason !== 'too_large') {
+            options.onBundleFail?.(bundle.error, 'bundle');
+          }
           return null;
         }
         seedBundleFileId = bundle.fileId;
@@ -875,7 +886,10 @@ export async function teleportToRemote(options: {
           outcomes: [],
           environment_variables: envVars
         },
-        environment_id: options.environmentId
+        environment_id: options.environmentId,
+        ...(options.tags && {
+          tags: options.tags
+        })
       };
       logForDebugging(`[teleportToRemote] explicit env ${options.environmentId}, ${Object.keys(envVars).length} env vars, ${seedBundleFileId ? `bundle=${seedBundleFileId}` : `source=${gitSource?.url ?? 'none'}@${options.branchName ?? 'default'}`}`);
       const response = await axios.post(url, requestBody, {
@@ -891,6 +905,11 @@ export async function teleportToRemote(options: {
         logError(new Error(`No session id in response: ${jsonStringify(response.data)}`));
         return null;
       }
+      logEvent('tengu_ccr_session_link', {
+        ccr_session_id:
+          sessionData.id as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        source: options.source as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+      });
       return {
         id: sessionData.id,
         title: sessionData.title || requestBody.title
@@ -1022,6 +1041,10 @@ export async function teleportToRemote(options: {
           case 'git_error':
             msg = `Failed to create git bundle (${bundle.error})${setup}`;
             break;
+          case 'stash_failed':
+          case 'no_changes':
+            msg = bundle.error;
+            break;
           case undefined:
             msg = `Bundle upload failed: ${bundle.error}${setup}`;
             break;
@@ -1032,7 +1055,7 @@ export async function teleportToRemote(options: {
               msg = `Bundle upload failed: ${bundle.error}`;
             }
         }
-        options.onBundleFail?.(msg);
+        options.onBundleFail?.(msg, 'bundle');
         return null;
       }
       seedBundleFileId = bundle.fileId;
@@ -1156,7 +1179,10 @@ export async function teleportToRemote(options: {
       title: options.ultraplan ? `ultraplan: ${sessionTitle}` : sessionTitle,
       events,
       session_context: sessionContext,
-      environment_id: environmentId
+      environment_id: environmentId,
+      ...(options.tags && {
+        tags: options.tags
+      })
     };
     logForDebugging(`Creating session with payload: ${jsonStringify(requestBody, null, 2)}`);
 
@@ -1178,6 +1204,11 @@ export async function teleportToRemote(options: {
       return null;
     }
     logForDebugging(`Successfully created remote session: ${sessionData.id}`);
+    logEvent('tengu_ccr_session_link', {
+      ccr_session_id:
+        sessionData.id as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      source: options.source as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+    });
     return {
       id: sessionData.id,
       title: sessionData.title || requestBody.title

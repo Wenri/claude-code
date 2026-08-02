@@ -106,24 +106,32 @@ function clamp(value: number, minimum?: number, maximum?: number): number {
 }
 
 export function SkillsMenu({ onExit, commands }: Props): React.ReactNode {
-  const skills = useMemo(
-    () =>
-      commands
-        .filter(
-          (command): command is SkillCommand =>
-            command.type === 'prompt' &&
-            (command.loadedFrom === 'skills' ||
-              command.loadedFrom === 'commands_DEPRECATED' ||
-              command.loadedFrom === 'plugin' ||
-              command.loadedFrom === 'mcp'),
-        )
-        .sort(
-          (a, b) =>
-            String(a.source).localeCompare(String(b.source)) ||
-            getCommandName(a).localeCompare(getCommandName(b)),
-        ),
-    [commands],
-  )
+  const [sortByTokens, setSortByTokens] = useState(false)
+  const skills = useMemo(() => {
+    const filtered = commands.filter(
+      (command): command is SkillCommand =>
+        command.type === 'prompt' &&
+        (command.loadedFrom === 'skills' ||
+          command.loadedFrom === 'commands_DEPRECATED' ||
+          command.loadedFrom === 'plugin' ||
+          command.loadedFrom === 'mcp'),
+    )
+    if (sortByTokens) {
+      const estimates = new Map(
+        filtered.map(skill => [skill, estimateSkillFrontmatterTokens(skill)]),
+      )
+      return filtered.sort(
+        (a, b) =>
+          (estimates.get(b) ?? 0) - (estimates.get(a) ?? 0) ||
+          getCommandName(a).localeCompare(getCommandName(b)),
+      )
+    }
+    return filtered.sort(
+      (a, b) =>
+        String(a.source).localeCompare(String(b.source)) ||
+        getCommandName(a).localeCompare(getCommandName(b)),
+    )
+  }, [commands, sortByTokens])
   const localOverrides = getSkillOverrides('localSettings') ?? {}
   const inheritedOverrides = useMemo(() => {
     const result = new Map<string, SkillOverride>()
@@ -190,6 +198,11 @@ export function SkillsMenu({ onExit, commands }: Props): React.ReactNode {
     'Settings',
     'esc',
   )
+  const sortShortcut = getShortcutDisplay(
+    'settings:sortByTokens',
+    'Settings',
+    't',
+  )
   void toggleShortcut
   void saveShortcut
 
@@ -203,6 +216,10 @@ export function SkillsMenu({ onExit, commands }: Props): React.ReactNode {
         setSelectedIndex(index => (index + 1) % skills.length),
       'select:accept': handleToggle,
       'settings:close': handleClose,
+      'settings:sortByTokens': () => {
+        setSortByTokens(value => !value)
+        setSelectedIndex(0)
+      },
       'confirm:no': handleClose,
     },
     {
@@ -229,7 +246,7 @@ export function SkillsMenu({ onExit, commands }: Props): React.ReactNode {
   return (
     <Dialog
       title="Skills"
-      subtitle={`${skills.length} ${plural(skills.length, 'skill')} · ${closeShortcut} to close`}
+      subtitle={`${skills.length} ${plural(skills.length, 'skill')}${sortByTokens ? ' · sorted by tokens' : ''} · ${sortShortcut} to sort, ${closeShortcut} to close`}
       onCancel={handleClose}
       hideInputGuide
     >

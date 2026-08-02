@@ -28,7 +28,7 @@ import {
   getDirectoryForPath,
   sanitizePath,
 } from '../path.js'
-import { getPlanSlug, getPlansDirectory } from '../plans.js'
+import { getCachedPlanSlug, getPlansDirectory } from '../plans.js'
 import { getPlatform } from '../platform.js'
 import { getProjectDir } from '../sessionStorage.js'
 import { SETTING_SOURCES } from '../settings/constants.js'
@@ -247,7 +247,9 @@ function isSessionPlanFile(absolutePath: string): boolean {
   // Check if path is a plan file for this session (main or agent-specific)
   // Main plan file: {plansDir}/{planSlug}.md
   // Agent plan file: {plansDir}/{planSlug}-agent-{agentId}.md
-  const expectedPrefix = join(getPlansDirectory(), getPlanSlug())
+  const planSlug = getCachedPlanSlug()
+  if (!planSlug) return false
+  const expectedPrefix = join(getPlansDirectory(), planSlug)
   // SECURITY: Normalize to prevent path traversal bypasses via .. segments
   const normalizedPath = normalize(absolutePath)
   return (
@@ -878,8 +880,8 @@ function patternWithRoot(
       // Extract the drive root (C:\) and the rest of the pattern
       const driveRoot = `${driveLetter}:\\`
       const relativeFromDrive = pathAfterDrive.startsWith('/')
-        ? pathAfterDrive.slice(1)
-        : pathAfterDrive
+        ? pathAfterDrive
+        : '/' + pathAfterDrive
 
       return {
         relativePattern: relativeFromDrive,
