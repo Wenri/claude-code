@@ -1231,8 +1231,15 @@ export const connectToServer = memoize(
       // terminal errors and manually closing after MAX_ERRORS_BEFORE_RECONNECT failures.
       const MAX_ERRORS_BEFORE_RECONNECT = 3
       const transportErrorState = {
-        lastErrorAt: 0,
         consecutiveErrors: 0,
+        activeCallWatchdogs: new Set<{ armedAt: number }>(),
+      }
+
+      const armActiveCallWatchdogs = () => {
+        const now = Date.now()
+        for (const watchdog of transportErrorState.activeCallWatchdogs) {
+          if (watchdog.armedAt === 0) watchdog.armedAt = now
+        }
       }
 
       // Guard against re-entry: close() aborts in-flight streams which may fire
@@ -1295,7 +1302,7 @@ export const connectToServer = memoize(
           error instanceof SyntaxError
         ) {
           hasErrorOccurred = true
-          transportErrorState.lastErrorAt = Date.now()
+          armActiveCallWatchdogs()
           closeTransportAndRejectPending(
             'malformed JSON-RPC message (response truncated)',
           )
@@ -1397,7 +1404,7 @@ export const connectToServer = memoize(
 
           if (isTerminalConnectionError(error.message)) {
             transportErrorState.consecutiveErrors++
-            transportErrorState.lastErrorAt = Date.now()
+            armActiveCallWatchdogs()
             logMCPDebug(
               name,
               `Terminal connection error ${transportErrorState.consecutiveErrors}/${MAX_ERRORS_BEFORE_RECONNECT}`,
@@ -1422,14 +1429,13 @@ export const connectToServer = memoize(
         }
       }
 
-      // A successful message proves the transport recovered. Reset the shared
-      // state observed by in-flight tool calls before forwarding to the SDK's
-      // original handler.
+      // A successful message proves the transport recovered for reconnection
+      // purposes. Individual tool-call watchdogs are disarmed only by progress
+      // for that call so concurrent responses cannot clear one another.
       if (client.transport) {
         const originalOnmessage = client.transport.onmessage
         client.transport.onmessage = (message, extra) => {
-          if (transportErrorState.lastErrorAt !== 0) {
-            transportErrorState.lastErrorAt = 0
+          if (transportErrorState.consecutiveErrors !== 0) {
             transportErrorState.consecutiveErrors = 0
           }
           originalOnmessage?.(message, extra)
@@ -3132,6 +3138,8 @@ async function callMCPTool({
 }> {
   const toolStartTime = Date.now()
   let progressInterval: NodeJS.Timeout | undefined
+  const transportErrorWatchdog = { armedAt: 0 }
+  transportErrorState?.activeCallWatchdogs.add(transportErrorWatchdog)
 
   try {
     logMCPDebug(name, `Calling MCP tool: ${tool}`)
@@ -3141,9 +3149,9 @@ async function callMCPTool({
       rejectTransportDrop = reject
     })
 
-    // Log long-running tools every 30 seconds. If a terminal transport error
-    // occurred after this call began and no message has arrived for 90 seconds,
-    // the response was lost; fail instead of leaving the request hung forever.
+    // Log long-running tools every 30 seconds. If this call's watchdog remains
+    // armed for 90 seconds after a terminal transport error, its response was
+    // lost; fail instead of leaving the request hung forever.
     progressInterval = setInterval(() => {
       const elapsedSeconds = Math.floor((Date.now() - toolStartTime) / 1000)
       logMCPDebug(
@@ -3151,13 +3159,12 @@ async function callMCPTool({
         `Tool '${tool}' still running (${elapsedSeconds}s elapsed)`,
       )
       if (
-        transportErrorState &&
-        transportErrorState.lastErrorAt > toolStartTime &&
-        Date.now() - transportErrorState.lastErrorAt > 90000
+        transportErrorWatchdog.armedAt > 0 &&
+        Date.now() - transportErrorWatchdog.armedAt > 90000
       ) {
         logMCPDebug(
           name,
-          `Tool '${tool}' aborting: transport error ${Math.floor((Date.now() - transportErrorState.lastErrorAt) / 1000)}s ago, response presumed lost`,
+          `Tool '${tool}' aborting: transport error ${Math.floor((Date.now() - transportErrorWatchdog.armedAt) / 1000)}s ago, response presumed lost`,
         )
         rejectTransportDrop(
           new TelemetrySafeError_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS(
@@ -3202,19 +3209,20 @@ async function callMCPTool({
         {
           signal,
           timeout: timeoutMs,
-          onprogress: onProgress
-            ? sdkProgress => {
-                onProgress({
-                  type: 'mcp_progress',
-                  status: 'progress',
-                  serverName: name,
-                  toolName: tool,
-                  progress: sdkProgress.progress,
-                  total: sdkProgress.total,
-                  progressMessage: sdkProgress.message,
-                })
-              }
-            : undefined,
+          onprogress: sdkProgress => {
+            transportErrorWatchdog.armedAt = 0
+            if (onProgress) {
+              onProgress({
+                type: 'mcp_progress',
+                status: 'progress',
+                serverName: name,
+                toolName: tool,
+                progress: sdkProgress.progress,
+                total: sdkProgress.total,
+                progressMessage: sdkProgress.message,
+              })
+            }
+          },
         },
       ),
       timeoutPromise,
@@ -3227,6 +3235,7 @@ async function callMCPTool({
         clearInterval(progressInterval)
         progressInterval = undefined
       }
+      transportErrorState?.activeCallWatchdogs.delete(transportErrorWatchdog)
     })
 
     if ('isError' in result && result.isError) {
@@ -3289,6 +3298,7 @@ async function callMCPTool({
     if (progressInterval !== undefined) {
       clearInterval(progressInterval)
     }
+    transportErrorState?.activeCallWatchdogs.delete(transportErrorWatchdog)
 
     const elapsed = Date.now() - toolStartTime
 

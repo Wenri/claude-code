@@ -31,8 +31,8 @@ test('deterministically accounts for a mapped baseline and target bundle', () =>
       'example=y(()=>{let note="one uniquely stable literal";return note})',
     ].join(';')
     const target = [
-      'var E=(q,K)=>()=>(q&&(K=q(q=0)),K)',
-      'p=(q,K)=>()=>(K||q((K={exports:{}}).exports,K),K.exports)',
+      'var E=(H,$)=>()=>(H&&($=H(H=0)),$)',
+      'p=(H,$)=>()=>($||H(($={exports:{}}).exports,$),$.exports)',
       'example=E(()=>{let note="one uniquely stable literal";return note+"!"})',
     ].join(';')
     const map = {
@@ -76,6 +76,10 @@ test('deterministically accounts for a mapped baseline and target bundle', () =>
     assert.equal(summary.baselineOwnership.contiguousRunCount, 1)
     assert.equal(summary.initializerEvidence.baseline.count, 1)
     assert.equal(summary.initializerEvidence.target.count, 1)
+    assert.deepEqual(summary.initializerEvidence.target.wrapperNames, {
+      common: 'p',
+      initializer: 'E',
+    })
     assert.equal(summary.coverage.accountedTargetUtf16, target.length)
     assert.equal(summary.coverage.unaccountedTargetUtf16, 0)
     assert.equal(

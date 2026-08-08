@@ -5,6 +5,7 @@ import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
 } from '../../services/analytics/index.js'
+import { mcpInfoFromString } from '../../services/mcp/mcpStringUtils.js'
 import {
   buildTool,
   findToolByName,
@@ -129,18 +130,28 @@ function buildSearchResult(
  * Parse tool name into searchable parts.
  * Handles both MCP tools (mcp__server__action) and regular tools (CamelCase).
  */
-function parseToolName(name: string): {
+function parseToolName(tool: Tool): {
   parts: string[]
+  coarseParts: string[]
   full: string
   isMcp: boolean
 } {
-  // Check if it's an MCP tool
-  if (name.startsWith('mcp__')) {
-    const withoutPrefix = name.replace(/^mcp__/, '').toLowerCase()
-    const parts = withoutPrefix.split('__').flatMap(p => p.split('_'))
+  const { name } = tool
+  const mcpInfo = tool.mcpInfo ?? mcpInfoFromString(name)
+
+  // Prefer the original MCP server/tool names when available. They preserve
+  // coarse name boundaries that are lost in the normalized mcp__ name.
+  if (mcpInfo) {
+    const coarseParts = [mcpInfo.serverName, mcpInfo.toolName]
+      .filter((part): part is string => Boolean(part))
+      .map(part => part.toLowerCase())
+    const parts = coarseParts
+      .flatMap(part => part.split(/[\s_.]+/))
+      .filter(Boolean)
     return {
-      parts: parts.filter(Boolean),
-      full: withoutPrefix.replace(/__/g, ' ').replace(/_/g, ' '),
+      parts,
+      coarseParts,
+      full: parts.join(' '),
       isMcp: true,
     }
   }
@@ -155,6 +166,7 @@ function parseToolName(name: string): {
 
   return {
     parts,
+    coarseParts: [name.toLowerCase()],
     full: parts.join(' '),
     isMcp: false,
   }
@@ -237,7 +249,7 @@ async function searchToolsWithKeywords(
   if (requiredTerms.length > 0) {
     const matches = await Promise.all(
       deferredTools.map(async tool => {
-        const parsed = parseToolName(tool.name)
+        const parsed = parseToolName(tool)
         const description = await getToolDescriptionMemoized(tool.name, tools)
         const descNormalized = description.toLowerCase()
         const hintNormalized = tool.searchHint?.toLowerCase() ?? ''
@@ -246,6 +258,8 @@ async function searchToolsWithKeywords(
           return (
             parsed.parts.includes(term) ||
             parsed.parts.some(part => part.includes(term)) ||
+            parsed.coarseParts.includes(term) ||
+            parsed.coarseParts.some(part => part.includes(term)) ||
             pattern.test(descNormalized) ||
             (hintNormalized && pattern.test(hintNormalized))
           )
@@ -258,7 +272,7 @@ async function searchToolsWithKeywords(
 
   const scored = await Promise.all(
     candidateTools.map(async tool => {
-      const parsed = parseToolName(tool.name)
+      const parsed = parseToolName(tool)
       const description = await getToolDescriptionMemoized(tool.name, tools)
       const descNormalized = description.toLowerCase()
       const hintNormalized = tool.searchHint?.toLowerCase() ?? ''
@@ -272,6 +286,14 @@ async function searchToolsWithKeywords(
           score += parsed.isMcp ? 12 : 10
         } else if (parsed.parts.some(part => part.includes(term))) {
           score += parsed.isMcp ? 6 : 5
+        }
+
+        // Preserve whole MCP server/tool components so pasted names win over
+        // weaker description matches from sibling tools.
+        if (parsed.coarseParts.includes(term)) {
+          score += parsed.isMcp ? 12 : 10
+        } else if (parsed.coarseParts.some(part => part.includes(term))) {
+          score += parsed.isMcp ? 4 : 3
         }
 
         // Full name fallback (for edge cases)

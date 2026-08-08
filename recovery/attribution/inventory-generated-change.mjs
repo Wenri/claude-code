@@ -247,10 +247,10 @@ function sourceRangeForOffsets(runs, start, end) {
 
 function discoverWrapperNames(text) {
   const common = text.match(
-    /[,;]([A-Za-z_$][A-Za-z0-9_$]*)=\(q,K\)=>\(\)=>\(K\|\|q\(\(K=\{exports:\{\}\}\)\.exports,K\),K\.exports\)/,
+    /[,;]([A-Za-z_$][A-Za-z0-9_$]*)=\(([A-Za-z_$][A-Za-z0-9_$]*),([A-Za-z_$][A-Za-z0-9_$]*)\)=>\(\)=>\(\3\|\|\2\(\(\3=\{exports:\{\}\}\)\.exports,\3\),\3\.exports\)/,
   )
   const initializer = text.match(
-    /var ([A-Za-z_$][A-Za-z0-9_$]*)=\(q,K\)=>\(\)=>\(q&&\(K=q\(q=0\)\),K\)/,
+    /var ([A-Za-z_$][A-Za-z0-9_$]*)=\(([A-Za-z_$][A-Za-z0-9_$]*),([A-Za-z_$][A-Za-z0-9_$]*)\)=>\(\)=>\(\2&&\(\3=\2\(\2=0\)\),\3\)/,
   )
   if (!common || !initializer) {
     throw new Error('Could not discover Bun wrapper helper names')

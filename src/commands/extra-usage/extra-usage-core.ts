@@ -15,7 +15,9 @@ type ExtraUsageResult =
   | { type: 'message'; value: string }
   | { type: 'browser-opened'; url: string; opened: boolean }
 
-export async function runExtraUsage(): Promise<ExtraUsageResult> {
+export async function runExtraUsage(
+  { openInBrowser = true }: { openInBrowser?: boolean } = {},
+): Promise<ExtraUsageResult> {
   if (!getGlobalConfig().hasVisitedExtraUsage) {
     saveGlobalConfig(prev => ({ ...prev, hasVisitedExtraUsage: true }))
   }
@@ -104,6 +106,10 @@ export async function runExtraUsage(): Promise<ExtraUsageResult> {
   const url = isTeamOrEnterprise
     ? 'https://claude.ai/admin-settings/usage'
     : 'https://claude.ai/settings/usage'
+
+  if (!openInBrowser) {
+    return { type: 'browser-opened', url, opened: false }
+  }
 
   try {
     const opened = await openBrowser(url)

@@ -229,6 +229,9 @@ export type ServerControlRequestHandlers = {
   onRenameSession?: (
     title: string,
   ) => { ok: true } | { ok: false; error: string }
+  onFileSuggestions?: (
+    query: string,
+  ) => Promise<Array<{ path: string; score?: number }>>
 }
 
 const OUTBOUND_ONLY_ERROR =
@@ -256,6 +259,7 @@ export function handleServerControlRequest(
     onSetMaxThinkingTokens,
     onSetPermissionMode,
     onRenameSession,
+    onFileSuggestions,
   } = handlers
   if (!transport) {
     logForDebugging(
@@ -388,6 +392,51 @@ export function handleServerControlRequest(
         }
       }
       break
+    }
+
+    case 'file_suggestions': {
+      if (!onFileSuggestions) {
+        response = {
+          type: 'control_response',
+          response: {
+            subtype: 'error',
+            request_id: request.request_id,
+            error:
+              'file_suggestions is not supported in this context (onFileSuggestions callback not registered)',
+          },
+        }
+        break
+      }
+      void onFileSuggestions(request.request.query)
+        .then<SDKControlResponse>(suggestions => ({
+          type: 'control_response',
+          response: {
+            subtype: 'success',
+            request_id: request.request_id,
+            response: { suggestions },
+          },
+        }))
+        .catch(
+          (err): SDKControlResponse => ({
+            type: 'control_response',
+            response: {
+              subtype: 'error',
+              request_id: request.request_id,
+              error: errorMessage(err),
+            },
+          }),
+        )
+        .then(fileSuggestionsResponse => {
+          const event = {
+            ...fileSuggestionsResponse,
+            session_id: sessionId,
+          }
+          void transport.write(event)
+          logForDebugging(
+            `[bridge:repl] Sent control_response for file_suggestions request_id=${request.request_id} result=${fileSuggestionsResponse.response.subtype}`,
+          )
+        })
+      return
     }
 
     case 'interrupt':

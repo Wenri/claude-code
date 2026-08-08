@@ -126,6 +126,9 @@ export type EnvLessBridgeParams = {
   onRenameSession?: (
     title: string,
   ) => { ok: true } | { ok: false; error: string }
+  onFileSuggestions?: (
+    query: string,
+  ) => Promise<Array<{ path: string; score?: number }>>
   onStateChange?: (state: BridgeState, detail?: string) => void
   /**
    * When true, skip opening the SSE read stream — only the CCRClient write
@@ -164,6 +167,7 @@ export async function initEnvLessBridgeCore(
     onSetMaxThinkingTokens,
     onSetPermissionMode,
     onRenameSession,
+    onFileSuggestions,
     onStateChange,
     outboundOnly,
     tags,
@@ -469,6 +473,7 @@ export async function initEnvLessBridgeCore(
             onSetMaxThinkingTokens,
             onSetPermissionMode,
             onRenameSession,
+            onFileSuggestions,
             outboundOnly,
           }),
       )

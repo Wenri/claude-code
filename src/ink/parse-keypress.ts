@@ -5,6 +5,7 @@
  * then interprets sequences as keypresses.
  */
 import { Buffer } from 'buffer'
+import { isEnvDefinedFalsy, isEnvTruthy } from '../utils/envUtils.js'
 import { PASTE_END, PASTE_START } from './termio/csi.js'
 import { createTokenizer, type Tokenizer } from './termio/tokenize.js'
 
@@ -63,6 +64,24 @@ const XTVERSION_RE = /^\x1bP>\|(.*?)(?:\x07|\x1b\\)$/s
 // Button 32=left-drag (0x20 | motion-bit). Plain 0/1/2 = left/mid/right click.
 // eslint-disable-next-line no-control-regex
 const SGR_MOUSE_RE = /^\x1b\[<(\d+);(\d+);(\d+)([Mm])$/
+
+export function shouldTreatBackspaceAsCtrlBackspace(
+  platform: NodeJS.Platform,
+  env: NodeJS.ProcessEnv,
+): boolean {
+  const override = env.CLAUDE_CODE_BS_AS_CTRL_BACKSPACE
+  if (isEnvTruthy(override)) return true
+  if (isEnvDefinedFalsy(override)) return false
+  return (
+    platform === 'win32' &&
+    env.TERM_PROGRAM !== 'mintty' &&
+    env.TERM !== 'cygwin'
+  )
+}
+
+function isBackspaceCtrl(): boolean {
+  return shouldTreatBackspaceAsCtrlBackspace(process.platform, process.env)
+}
 
 function createPasteKey(content: string): ParsedKey {
   return {
@@ -708,6 +727,7 @@ function parseKeypress(s: string = ''): ParsedKey {
   } else if (s === '\b' || s === '\x1b\b') {
     key.name = 'backspace'
     key.meta = s.charAt(0) === '\x1b'
+    if (isBackspaceCtrl()) key.ctrl = true
   } else if (s === '\x7f' || s === '\x1b\x7f') {
     key.name = 'backspace'
     key.meta = s.charAt(0) === '\x1b'

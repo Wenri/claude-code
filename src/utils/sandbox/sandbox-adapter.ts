@@ -209,6 +209,10 @@ export function convertToSandboxRuntimeConfig(
     }
   }
 
+  for (const domain of settings.sandbox?.network?.deniedDomains || []) {
+    deniedDomains.push(domain)
+  }
+
   for (const ruleString of permissions.deny || []) {
     const rule = permissionRuleValueFromString(ruleString)
     if (

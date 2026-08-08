@@ -337,8 +337,16 @@ export function isDangerousRemovalPath(resolvedPath: string): boolean {
     return true
   }
 
+  const isMacOS = getPlatform() === 'macos'
+  const normalizeMacOSPrivatePath = (path: string): string =>
+    isMacOS
+      ? path.replace(/^\/private\/(etc|var|tmp|home)(\/|$)/i, '/$1$2')
+      : path
+  const normalizedForwardSlashed = normalizeMacOSPrivatePath(forwardSlashed)
   const normalizedPath =
-    forwardSlashed === '/' ? forwardSlashed : forwardSlashed.replace(/\/$/, '')
+    normalizedForwardSlashed === '/'
+      ? normalizedForwardSlashed
+      : normalizedForwardSlashed.replace(/\/$/, '')
 
   if (normalizedPath === '/') {
     return true
@@ -348,7 +356,9 @@ export function isDangerousRemovalPath(resolvedPath: string): boolean {
     return true
   }
 
-  const normalizedHome = homedir().replace(/[\\/]+/g, '/')
+  const normalizedHome = normalizeMacOSPrivatePath(
+    homedir().replace(/[\\/]+/g, '/'),
+  )
   if (normalizedPath === normalizedHome) {
     return true
   }

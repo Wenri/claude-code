@@ -116,7 +116,7 @@ function unsetEffortLevel(): EffortCommandResult {
     }
   }
   return {
-    message: 'Effort level set to auto',
+    message: 'Effort level set to max',
     effortUpdate: { value: undefined },
   }
 }

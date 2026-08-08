@@ -440,7 +440,12 @@ function configureEffortParams(
   betas: string[],
   model: string,
 ): void {
-  if (!modelSupportsEffort(model) || 'effort' in outputConfig) {
+  if (!modelSupportsEffort(model)) {
+    delete outputConfig.effort
+    return
+  }
+
+  if ('effort' in outputConfig) {
     return
   }
 
@@ -1564,6 +1569,7 @@ async function* queryModel(
     const outputConfig: BetaOutputConfig = {
       ...((extraBodyParams.output_config as BetaOutputConfig) ?? {}),
     }
+    delete extraBodyParams.output_config
 
     configureEffortParams(
       effort,

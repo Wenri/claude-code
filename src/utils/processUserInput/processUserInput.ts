@@ -50,6 +50,7 @@ import {
 } from '../hooks.js'
 import {
   createImageMetadataText,
+  ImageResizeError,
   maybeResizeAndDownsampleImageBlock,
 } from '../imageResizer.js'
 import { storeImages } from '../imageStore.js'
@@ -332,15 +333,24 @@ async function processUserInputBase(
     const processedBlocks: ContentBlockParam[] = []
     for (const block of input) {
       if (block.type === 'image') {
-        const resized = await maybeResizeAndDownsampleImageBlock(block)
-        // Collect image metadata for isMeta message
-        if (resized.dimensions) {
-          const metadataText = createImageMetadataText(resized.dimensions)
-          if (metadataText) {
-            imageMetadataTexts.push(metadataText)
+        try {
+          const resized = await maybeResizeAndDownsampleImageBlock(block)
+          // Collect image metadata for isMeta message
+          if (resized.dimensions) {
+            const metadataText = createImageMetadataText(resized.dimensions)
+            if (metadataText) {
+              imageMetadataTexts.push(metadataText)
+            }
           }
+          processedBlocks.push(resized.block)
+        } catch (error) {
+          if (!(error instanceof ImageResizeError)) throw error
+          logEvent('tengu_image_resize_degraded', {})
+          processedBlocks.push({
+            type: 'text',
+            text: `[Image could not be processed: ${error.message}]`,
+          })
         }
-        processedBlocks.push(resized.block)
       } else {
         processedBlocks.push(block)
       }

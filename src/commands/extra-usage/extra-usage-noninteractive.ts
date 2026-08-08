@@ -1,7 +1,10 @@
+import { getIsNonInteractiveSession } from '../../bootstrap/state.js'
 import { runExtraUsage } from './extra-usage-core.js'
 
 export async function call(): Promise<{ type: 'text'; value: string }> {
-  const result = await runExtraUsage()
+  const result = await runExtraUsage({
+    openInBrowser: getIsNonInteractiveSession(),
+  })
 
   if (result.type === 'message') {
     return { type: 'text', value: result.value }

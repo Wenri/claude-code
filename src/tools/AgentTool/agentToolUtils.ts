@@ -662,6 +662,53 @@ export async function runAsyncAgentLifecycle({
 }): Promise<void> {
   let stopSummarization: (() => void) | undefined
   const agentMessages: MessageType[] = []
+  const stallTimeoutMs =
+    parseInt(process.env.CLAUDE_ASYNC_AGENT_STALL_TIMEOUT_MS || '', 10) ||
+    600_000
+  let stallTimer: NodeJS.Timeout | null = null
+  let lastMessageType = 'none'
+  let lifecycleFinished = false
+
+  const clearStallTimer = () => {
+    if (stallTimer !== null) clearTimeout(stallTimer)
+    stallTimer = null
+  }
+
+  const resetStallWatchdog = () => {
+    clearStallTimer()
+    stallTimer = setTimeout(() => {
+      stallTimer = null
+      if (lifecycleFinished) return
+      lifecycleFinished = true
+      logForDebugging(
+        `[AsyncAgent ${taskId}] stall watchdog fired after ${stallTimeoutMs}ms with no progress (last message: ${lastMessageType}); aborting`,
+        { level: 'error' },
+      )
+      logEvent('tengu_async_agent_stall_timeout', {
+        agent_type:
+          metadata.agentType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        stall_ms: stallTimeoutMs,
+        last_message_type:
+          lastMessageType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        message_count: agentMessages.length,
+      })
+      abortController.abort()
+      stopSummarization?.()
+      const message = `Agent stalled: no progress for ${stallTimeoutMs / 1000}s (stream watchdog did not recover)`
+      failAsyncAgent(taskId, message, rootSetAppState)
+      enqueueAgentNotification({
+        taskId,
+        description,
+        status: 'failed',
+        error: message,
+        setAppState: rootSetAppState,
+        toolUseId: toolUseContext.toolUseId,
+        finalMessage: extractPartialResult(agentMessages),
+      })
+    }, stallTimeoutMs)
+    stallTimer.unref?.()
+  }
+
   try {
     const tracker = createProgressTracker()
     const resolveActivity = createActivityDescriptionResolver(
@@ -678,7 +725,10 @@ export async function runAsyncAgentLifecycle({
           stopSummarization = stop
         }
       : undefined
+    resetStallWatchdog()
     for await (const message of makeStream(onCacheSafeParams)) {
+      lastMessageType = message.type
+      resetStallWatchdog()
       agentMessages.push(message)
       // Append immediately when UI holds the task (retain). Bootstrap reads
       // disk in parallel and UUID-merges the prefix — disk-write-before-yield
@@ -719,6 +769,9 @@ export async function runAsyncAgentLifecycle({
       }
     }
 
+    clearStallTimer()
+    if (lifecycleFinished) return
+    lifecycleFinished = true
     stopSummarization?.()
 
     const agentResult = finalizeAgentTool(agentMessages, taskId, metadata)
@@ -763,6 +816,9 @@ export async function runAsyncAgentLifecycle({
       ...worktreeResult,
     })
   } catch (error) {
+    clearStallTimer()
+    if (lifecycleFinished) return
+    lifecycleFinished = true
     stopSummarization?.()
     if (error instanceof AbortError) {
       // killAsyncAgent is a no-op if TaskStop already set status='killed' —
@@ -804,9 +860,11 @@ export async function runAsyncAgentLifecycle({
       error: msg,
       setAppState: rootSetAppState,
       toolUseId: toolUseContext.toolUseId,
+      finalMessage: extractPartialResult(agentMessages),
       ...worktreeResult,
     })
   } finally {
+    clearStallTimer()
     clearInvokedSkillsForAgent(agentIdForCleanup)
     clearDumpState(agentIdForCleanup)
   }

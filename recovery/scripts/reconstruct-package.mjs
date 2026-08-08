@@ -474,6 +474,16 @@ function main() {
         )
       } else if (member.status === 'unchanged' || contentIdentical) {
         value = baseline
+      } else if (changedPayloads.has(member.path)) {
+        const payload = changedPayloads.get(member.path)
+        value = reconstructPatchedPayload(
+          baseline,
+          payload.filename,
+          filename,
+          member.target,
+          `${member.path} reconstructed dictionary patch`,
+        )
+        changedPayloads.delete(member.path)
       } else if (member.path === 'package/cli.js') {
         value = reconstructBundle(
           baseline,

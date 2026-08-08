@@ -189,12 +189,6 @@ export function useTextInput({
     return newCursor
   }
 
-  function killInput(): Cursor {
-    if (cursor.text === '') return cursor
-    pushToKillRing(cursor.text, 'prepend')
-    return Cursor.fromText('', columns, 0)
-  }
-
   function killWordBefore(): Cursor {
     const { cursor: newCursor, killed } = cursor.deleteWordBefore()
     pushToKillRing(killed, 'prepend')
@@ -228,17 +222,17 @@ export function useTextInput({
   }
 
   const handleCtrl = mapInput([
-    ['a', () => cursor.startOfLine()],
+    ['a', () => cursor.startOfLogicalLine()],
     ['b', () => cursor.left()],
     ['c', handleCtrlC],
     ['d', handleCtrlD],
-    ['e', () => cursor.endOfLine()],
+    ['e', () => cursor.endOfLogicalLine()],
     ['f', () => cursor.right()],
     ['h', () => cursor.deleteTokenBefore() ?? cursor.backspace()],
     ['k', killToLineEnd],
     ['n', () => downOrHistoryDown()],
     ['p', () => upOrHistoryUp()],
-    ['u', killInput],
+    ['u', killToLineStart],
     ['w', killWordBefore],
     ['y', yank],
   ])

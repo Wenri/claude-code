@@ -1,0 +1,918 @@
+diff --git a/src/bridge/bridgeMessaging.ts b/src/bridge/bridgeMessaging.ts
+index 2351eaf..1b7473a 100644
+--- a/src/bridge/bridgeMessaging.ts
++++ b/src/bridge/bridgeMessaging.ts
+@@ -229,6 +229,9 @@ export type ServerControlRequestHandlers = {
+   onRenameSession?: (
+     title: string,
+   ) => { ok: true } | { ok: false; error: string }
++  onFileSuggestions?: (
++    query: string,
++  ) => Promise<Array<{ path: string; score?: number }>>
+ }
+ 
+ const OUTBOUND_ONLY_ERROR =
+@@ -256,6 +259,7 @@ export function handleServerControlRequest(
+     onSetMaxThinkingTokens,
+     onSetPermissionMode,
+     onRenameSession,
++    onFileSuggestions,
+   } = handlers
+   if (!transport) {
+     logForDebugging(
+@@ -390,6 +394,51 @@ export function handleServerControlRequest(
+       break
+     }
+ 
++    case 'file_suggestions': {
++      if (!onFileSuggestions) {
++        response = {
++          type: 'control_response',
++          response: {
++            subtype: 'error',
++            request_id: request.request_id,
++            error:
++              'file_suggestions is not supported in this context (onFileSuggestions callback not registered)',
++          },
++        }
++        break
++      }
++      void onFileSuggestions(request.request.query)
++        .then<SDKControlResponse>(suggestions => ({
++          type: 'control_response',
++          response: {
++            subtype: 'success',
++            request_id: request.request_id,
++            response: { suggestions },
++          },
++        }))
++        .catch(
++          (err): SDKControlResponse => ({
++            type: 'control_response',
++            response: {
++              subtype: 'error',
++              request_id: request.request_id,
++              error: errorMessage(err),
++            },
++          }),
++        )
++        .then(fileSuggestionsResponse => {
++          const event = {
++            ...fileSuggestionsResponse,
++            session_id: sessionId,
++          }
++          void transport.write(event)
++          logForDebugging(
++            `[bridge:repl] Sent control_response for file_suggestions request_id=${request.request_id} result=${fileSuggestionsResponse.response.subtype}`,
++          )
++        })
++      return
++    }
++
+     case 'interrupt':
+       onInterrupt?.()
+       response = {
+diff --git a/src/bridge/initReplBridge.ts b/src/bridge/initReplBridge.ts
+index c6e5418..55e3468 100644
+--- a/src/bridge/initReplBridge.ts
++++ b/src/bridge/initReplBridge.ts
+@@ -19,6 +19,7 @@ import { hostname } from 'os'
+ import { getOriginalCwd, getSessionId } from '../bootstrap/state.js'
+ import type { SDKMessage } from '../entrypoints/agentSdkTypes.js'
+ import type { SDKControlResponse } from '../entrypoints/sdk/controlTypes.js'
++import { generateFileSuggestions } from '../hooks/fileSuggestions.js'
+ import { getFeatureValue_CACHED_WITH_REFRESH } from '../services/analytics/growthbook.js'
+ import { getOrganizationUUID } from '../services/oauth/client.js'
+ import {
+@@ -419,6 +420,13 @@ export async function initReplBridge(
+     return userMessageCount >= 3
+   }
+ 
++  const onFileSuggestions = async (
++    query: string,
++  ): Promise<Array<{ path: string; score?: number }>> =>
++    (await generateFileSuggestions(query, true)).map(suggestion => ({
++      path: suggestion.displayText,
++    }))
++
+   const initialHistoryCap = getFeatureValue_CACHED_WITH_REFRESH(
+     'tengu_bridge_initial_history_cap',
+     200,
+@@ -488,6 +496,7 @@ export async function initReplBridge(
+       onSetMaxThinkingTokens,
+       onSetPermissionMode,
+       onRenameSession,
++      onFileSuggestions,
+       onStateChange,
+       outboundOnly,
+       tags,
+@@ -583,6 +592,7 @@ export async function initReplBridge(
+     onSetMaxThinkingTokens,
+     onSetPermissionMode,
+     onRenameSession,
++    onFileSuggestions,
+     onStateChange,
+     perpetual,
+   })
+diff --git a/src/bridge/remoteBridgeCore.ts b/src/bridge/remoteBridgeCore.ts
+index da21045..3607221 100644
+--- a/src/bridge/remoteBridgeCore.ts
++++ b/src/bridge/remoteBridgeCore.ts
+@@ -126,6 +126,9 @@ export type EnvLessBridgeParams = {
+   onRenameSession?: (
+     title: string,
+   ) => { ok: true } | { ok: false; error: string }
++  onFileSuggestions?: (
++    query: string,
++  ) => Promise<Array<{ path: string; score?: number }>>
+   onStateChange?: (state: BridgeState, detail?: string) => void
+   /**
+    * When true, skip opening the SSE read stream — only the CCRClient write
+@@ -164,6 +167,7 @@ export async function initEnvLessBridgeCore(
+     onSetMaxThinkingTokens,
+     onSetPermissionMode,
+     onRenameSession,
++    onFileSuggestions,
+     onStateChange,
+     outboundOnly,
+     tags,
+@@ -469,6 +473,7 @@ export async function initEnvLessBridgeCore(
+             onSetMaxThinkingTokens,
+             onSetPermissionMode,
+             onRenameSession,
++            onFileSuggestions,
+             outboundOnly,
+           }),
+       )
+diff --git a/src/bridge/replBridge.ts b/src/bridge/replBridge.ts
+index 9815639..c8a1ec3 100644
+--- a/src/bridge/replBridge.ts
++++ b/src/bridge/replBridge.ts
+@@ -195,6 +195,9 @@ export type BridgeCoreParams = {
+   onRenameSession?: (
+     title: string,
+   ) => { ok: true } | { ok: false; error: string }
++  onFileSuggestions?: (
++    query: string,
++  ) => Promise<Array<{ path: string; score?: number }>>
+   onStateChange?: (state: BridgeState, detail?: string) => void
+   /**
+    * Fires on each real user message to flow through writeMessages() until
+@@ -293,6 +296,7 @@ export async function initBridgeCore(
+     onSetMaxThinkingTokens,
+     onSetPermissionMode,
+     onRenameSession,
++    onFileSuggestions,
+     onStateChange,
+     onUserMessage,
+     perpetual,
+@@ -1203,6 +1207,7 @@ export async function initBridgeCore(
+           onSetMaxThinkingTokens,
+           onSetPermissionMode,
+           onRenameSession,
++          onFileSuggestions,
+         })
+ 
+       let initialFlushDone = false
+diff --git a/src/commands/effort/effort.tsx b/src/commands/effort/effort.tsx
+index 727eff5..7e9aa9d 100644
+--- a/src/commands/effort/effort.tsx
++++ b/src/commands/effort/effort.tsx
+@@ -116,7 +116,7 @@ function unsetEffortLevel(): EffortCommandResult {
+     }
+   }
+   return {
+-    message: 'Effort level set to auto',
++    message: 'Effort level set to max',
+     effortUpdate: { value: undefined },
+   }
+ }
+diff --git a/src/commands/extra-usage/extra-usage-core.ts b/src/commands/extra-usage/extra-usage-core.ts
+index 4a8c03b..510caa8 100644
+--- a/src/commands/extra-usage/extra-usage-core.ts
++++ b/src/commands/extra-usage/extra-usage-core.ts
+@@ -15,7 +15,9 @@ type ExtraUsageResult =
+   | { type: 'message'; value: string }
+   | { type: 'browser-opened'; url: string; opened: boolean }
+ 
+-export async function runExtraUsage(): Promise<ExtraUsageResult> {
++export async function runExtraUsage(
++  { openInBrowser = true }: { openInBrowser?: boolean } = {},
++): Promise<ExtraUsageResult> {
+   if (!getGlobalConfig().hasVisitedExtraUsage) {
+     saveGlobalConfig(prev => ({ ...prev, hasVisitedExtraUsage: true }))
+   }
+@@ -105,6 +107,10 @@ export async function runExtraUsage(): Promise<ExtraUsageResult> {
+     ? 'https://claude.ai/admin-settings/usage'
+     : 'https://claude.ai/settings/usage'
+ 
++  if (!openInBrowser) {
++    return { type: 'browser-opened', url, opened: false }
++  }
++
+   try {
+     const opened = await openBrowser(url)
+     return { type: 'browser-opened', url, opened }
+diff --git a/src/commands/extra-usage/extra-usage-noninteractive.ts b/src/commands/extra-usage/extra-usage-noninteractive.ts
+index b4eabe8..ff30653 100644
+--- a/src/commands/extra-usage/extra-usage-noninteractive.ts
++++ b/src/commands/extra-usage/extra-usage-noninteractive.ts
+@@ -1,7 +1,10 @@
++import { getIsNonInteractiveSession } from '../../bootstrap/state.js'
+ import { runExtraUsage } from './extra-usage-core.js'
+ 
+ export async function call(): Promise<{ type: 'text'; value: string }> {
+-  const result = await runExtraUsage()
++  const result = await runExtraUsage({
++    openInBrowser: getIsNonInteractiveSession(),
++  })
+ 
+   if (result.type === 'message') {
+     return { type: 'text', value: result.value }
+diff --git a/src/components/shell/OutputLine.tsx b/src/components/shell/OutputLine.tsx
+index 5f29333..fc03bd0 100644
+--- a/src/components/shell/OutputLine.tsx
++++ b/src/components/shell/OutputLine.tsx
+@@ -41,16 +41,20 @@ export function tryJsonFormatContent(content: string): string {
+ 
+ // Match http(s) URLs inside JSON string values. Conservative: no quotes,
+ // no whitespace, no trailing comma/brace that'd be JSON structure.
+-const URL_IN_JSON = /https?:\/\/[^\s"'<>\\]+/g;
++// eslint-disable-next-line no-control-regex
++const URL_IN_JSON = /https?:\/\/[^\s"'<>\\\x00-\x1f]+/g;
+ const MAX_LINKIFY_LENGTH = 100_000;
+ export function linkifyUrlsInText(content: string): string {
+   if (content.length > MAX_LINKIFY_LENGTH) {
+     return content;
+   }
+-  if (content.includes(OSC8_PREFIX)) {
+-    return content;
+-  }
+-  return content.replace(URL_IN_JSON, url => createHyperlink(url));
++  const linkifyLine = (line: string): string =>
++    line.replace(URL_IN_JSON, url => createHyperlink(url));
++  if (!content.includes(OSC8_PREFIX)) return linkifyLine(content);
++  return content
++    .split('\n')
++    .map(line => (line.includes(OSC8_PREFIX) ? line : linkifyLine(line)))
++    .join('\n');
+ }
+ export function OutputLine(t0) {
+   const $ = _c(10);
+diff --git a/src/entrypoints/sandboxTypes.ts b/src/entrypoints/sandboxTypes.ts
+index b38a156..152fbda 100644
+--- a/src/entrypoints/sandboxTypes.ts
++++ b/src/entrypoints/sandboxTypes.ts
+@@ -15,6 +15,12 @@ export const SandboxNetworkConfigSchema = lazySchema(() =>
+   z
+     .object({
+       allowedDomains: z.array(z.string()).optional(),
++      deniedDomains: z
++        .array(z.string())
++        .optional()
++        .describe(
++          'Domains that are always blocked, even if matched by allowedDomains. Supports the same wildcard syntax as allowedDomains. Merged from all settings sources regardless of allowManagedDomainsOnly.',
++        ),
+       allowManagedDomainsOnly: z
+         .boolean()
+         .optional()
+diff --git a/src/entrypoints/sdk/controlSchemas.ts b/src/entrypoints/sdk/controlSchemas.ts
+index 998e846..a90ec36 100644
+--- a/src/entrypoints/sdk/controlSchemas.ts
++++ b/src/entrypoints/sdk/controlSchemas.ts
+@@ -181,6 +181,32 @@ export const SDKControlMcpStatusResponseSchema = lazySchema(() =>
+     ),
+ )
+ 
++export const SDKControlFileSuggestionsRequestSchema = lazySchema(() =>
++  z
++    .object({
++      subtype: z.literal('file_suggestions'),
++      query: z.string(),
++    })
++    .describe(
++      'Requests at-mention file autocomplete suggestions for a partial path prefix. Returns the same fuzzy-matched results the TUI shows.',
++    ),
++)
++
++export const SDKControlFileSuggestionsResponseSchema = lazySchema(() =>
++  z
++    .object({
++      suggestions: z.array(
++        z.object({
++          path: z.string(),
++          score: z.number().optional(),
++        }),
++      ),
++    })
++    .describe(
++      'Response containing fuzzy-ranked file path suggestions (capped at the same limit as the TUI typeahead).',
++    ),
++)
++
+ export const SDKControlGetContextUsageRequestSchema = lazySchema(() =>
+   z
+     .object({
+@@ -631,6 +657,7 @@ export const SDKControlRequestInnerSchema = lazySchema(() =>
+     SDKControlSetMaxThinkingTokensRequestSchema(),
+     SDKControlRenameSessionRequestSchema(),
+     SDKControlMcpStatusRequestSchema(),
++    SDKControlFileSuggestionsRequestSchema(),
+     SDKControlGetContextUsageRequestSchema(),
+     SDKHookCallbackRequestSchema(),
+     SDKControlMcpMessageRequestSchema(),
+diff --git a/src/hooks/useTextInput.ts b/src/hooks/useTextInput.ts
+index 3c300ad..c261bed 100644
+--- a/src/hooks/useTextInput.ts
++++ b/src/hooks/useTextInput.ts
+@@ -189,12 +189,6 @@ export function useTextInput({
+     return newCursor
+   }
+ 
+-  function killInput(): Cursor {
+-    if (cursor.text === '') return cursor
+-    pushToKillRing(cursor.text, 'prepend')
+-    return Cursor.fromText('', columns, 0)
+-  }
+-
+   function killWordBefore(): Cursor {
+     const { cursor: newCursor, killed } = cursor.deleteWordBefore()
+     pushToKillRing(killed, 'prepend')
+@@ -228,17 +222,17 @@ export function useTextInput({
+   }
+ 
+   const handleCtrl = mapInput([
+-    ['a', () => cursor.startOfLine()],
++    ['a', () => cursor.startOfLogicalLine()],
+     ['b', () => cursor.left()],
+     ['c', handleCtrlC],
+     ['d', handleCtrlD],
+-    ['e', () => cursor.endOfLine()],
++    ['e', () => cursor.endOfLogicalLine()],
+     ['f', () => cursor.right()],
+     ['h', () => cursor.deleteTokenBefore() ?? cursor.backspace()],
+     ['k', killToLineEnd],
+     ['n', () => downOrHistoryDown()],
+     ['p', () => upOrHistoryUp()],
+-    ['u', killInput],
++    ['u', killToLineStart],
+     ['w', killWordBefore],
+     ['y', yank],
+   ])
+diff --git a/src/ink/parse-keypress.ts b/src/ink/parse-keypress.ts
+index 0651e93..38220c3 100644
+--- a/src/ink/parse-keypress.ts
++++ b/src/ink/parse-keypress.ts
+@@ -5,6 +5,7 @@
+  * then interprets sequences as keypresses.
+  */
+ import { Buffer } from 'buffer'
++import { isEnvDefinedFalsy, isEnvTruthy } from '../utils/envUtils.js'
+ import { PASTE_END, PASTE_START } from './termio/csi.js'
+ import { createTokenizer, type Tokenizer } from './termio/tokenize.js'
+ 
+@@ -64,6 +65,24 @@ const XTVERSION_RE = /^\x1bP>\|(.*?)(?:\x07|\x1b\\)$/s
+ // eslint-disable-next-line no-control-regex
+ const SGR_MOUSE_RE = /^\x1b\[<(\d+);(\d+);(\d+)([Mm])$/
+ 
++export function shouldTreatBackspaceAsCtrlBackspace(
++  platform: NodeJS.Platform,
++  env: NodeJS.ProcessEnv,
++): boolean {
++  const override = env.CLAUDE_CODE_BS_AS_CTRL_BACKSPACE
++  if (isEnvTruthy(override)) return true
++  if (isEnvDefinedFalsy(override)) return false
++  return (
++    platform === 'win32' &&
++    env.TERM_PROGRAM !== 'mintty' &&
++    env.TERM !== 'cygwin'
++  )
++}
++
++function isBackspaceCtrl(): boolean {
++  return shouldTreatBackspaceAsCtrlBackspace(process.platform, process.env)
++}
++
+ function createPasteKey(content: string): ParsedKey {
+   return {
+     kind: 'key',
+@@ -708,6 +727,7 @@ function parseKeypress(s: string = ''): ParsedKey {
+   } else if (s === '\b' || s === '\x1b\b') {
+     key.name = 'backspace'
+     key.meta = s.charAt(0) === '\x1b'
++    if (isBackspaceCtrl()) key.ctrl = true
+   } else if (s === '\x7f' || s === '\x1b\x7f') {
+     key.name = 'backspace'
+     key.meta = s.charAt(0) === '\x1b'
+diff --git a/src/services/api/claude.ts b/src/services/api/claude.ts
+index 87d923c..62df7b0 100644
+--- a/src/services/api/claude.ts
++++ b/src/services/api/claude.ts
+@@ -440,7 +440,12 @@ function configureEffortParams(
+   betas: string[],
+   model: string,
+ ): void {
+-  if (!modelSupportsEffort(model) || 'effort' in outputConfig) {
++  if (!modelSupportsEffort(model)) {
++    delete outputConfig.effort
++    return
++  }
++
++  if ('effort' in outputConfig) {
+     return
+   }
+ 
+@@ -1564,6 +1569,7 @@ async function* queryModel(
+     const outputConfig: BetaOutputConfig = {
+       ...((extraBodyParams.output_config as BetaOutputConfig) ?? {}),
+     }
++    delete extraBodyParams.output_config
+ 
+     configureEffortParams(
+       effort,
+diff --git a/src/services/mcp/client.ts b/src/services/mcp/client.ts
+index a7b1af1..36d03d4 100644
+--- a/src/services/mcp/client.ts
++++ b/src/services/mcp/client.ts
+@@ -1231,8 +1231,15 @@ export const connectToServer = memoize(
+       // terminal errors and manually closing after MAX_ERRORS_BEFORE_RECONNECT failures.
+       const MAX_ERRORS_BEFORE_RECONNECT = 3
+       const transportErrorState = {
+-        lastErrorAt: 0,
+         consecutiveErrors: 0,
++        activeCallWatchdogs: new Set<{ armedAt: number }>(),
++      }
++
++      const armActiveCallWatchdogs = () => {
++        const now = Date.now()
++        for (const watchdog of transportErrorState.activeCallWatchdogs) {
++          if (watchdog.armedAt === 0) watchdog.armedAt = now
++        }
+       }
+ 
+       // Guard against re-entry: close() aborts in-flight streams which may fire
+@@ -1295,7 +1302,7 @@ export const connectToServer = memoize(
+           error instanceof SyntaxError
+         ) {
+           hasErrorOccurred = true
+-          transportErrorState.lastErrorAt = Date.now()
++          armActiveCallWatchdogs()
+           closeTransportAndRejectPending(
+             'malformed JSON-RPC message (response truncated)',
+           )
+@@ -1397,7 +1404,7 @@ export const connectToServer = memoize(
+ 
+           if (isTerminalConnectionError(error.message)) {
+             transportErrorState.consecutiveErrors++
+-            transportErrorState.lastErrorAt = Date.now()
++            armActiveCallWatchdogs()
+             logMCPDebug(
+               name,
+               `Terminal connection error ${transportErrorState.consecutiveErrors}/${MAX_ERRORS_BEFORE_RECONNECT}`,
+@@ -1422,14 +1429,13 @@ export const connectToServer = memoize(
+         }
+       }
+ 
+-      // A successful message proves the transport recovered. Reset the shared
+-      // state observed by in-flight tool calls before forwarding to the SDK's
+-      // original handler.
++      // A successful message proves the transport recovered for reconnection
++      // purposes. Individual tool-call watchdogs are disarmed only by progress
++      // for that call so concurrent responses cannot clear one another.
+       if (client.transport) {
+         const originalOnmessage = client.transport.onmessage
+         client.transport.onmessage = (message, extra) => {
+-          if (transportErrorState.lastErrorAt !== 0) {
+-            transportErrorState.lastErrorAt = 0
++          if (transportErrorState.consecutiveErrors !== 0) {
+             transportErrorState.consecutiveErrors = 0
+           }
+           originalOnmessage?.(message, extra)
+@@ -3132,6 +3138,8 @@ async function callMCPTool({
+ }> {
+   const toolStartTime = Date.now()
+   let progressInterval: NodeJS.Timeout | undefined
++  const transportErrorWatchdog = { armedAt: 0 }
++  transportErrorState?.activeCallWatchdogs.add(transportErrorWatchdog)
+ 
+   try {
+     logMCPDebug(name, `Calling MCP tool: ${tool}`)
+@@ -3141,9 +3149,9 @@ async function callMCPTool({
+       rejectTransportDrop = reject
+     })
+ 
+-    // Log long-running tools every 30 seconds. If a terminal transport error
+-    // occurred after this call began and no message has arrived for 90 seconds,
+-    // the response was lost; fail instead of leaving the request hung forever.
++    // Log long-running tools every 30 seconds. If this call's watchdog remains
++    // armed for 90 seconds after a terminal transport error, its response was
++    // lost; fail instead of leaving the request hung forever.
+     progressInterval = setInterval(() => {
+       const elapsedSeconds = Math.floor((Date.now() - toolStartTime) / 1000)
+       logMCPDebug(
+@@ -3151,13 +3159,12 @@ async function callMCPTool({
+         `Tool '${tool}' still running (${elapsedSeconds}s elapsed)`,
+       )
+       if (
+-        transportErrorState &&
+-        transportErrorState.lastErrorAt > toolStartTime &&
+-        Date.now() - transportErrorState.lastErrorAt > 90000
++        transportErrorWatchdog.armedAt > 0 &&
++        Date.now() - transportErrorWatchdog.armedAt > 90000
+       ) {
+         logMCPDebug(
+           name,
+-          `Tool '${tool}' aborting: transport error ${Math.floor((Date.now() - transportErrorState.lastErrorAt) / 1000)}s ago, response presumed lost`,
++          `Tool '${tool}' aborting: transport error ${Math.floor((Date.now() - transportErrorWatchdog.armedAt) / 1000)}s ago, response presumed lost`,
+         )
+         rejectTransportDrop(
+           new TelemetrySafeError_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS(
+@@ -3202,19 +3209,20 @@ async function callMCPTool({
+         {
+           signal,
+           timeout: timeoutMs,
+-          onprogress: onProgress
+-            ? sdkProgress => {
+-                onProgress({
+-                  type: 'mcp_progress',
+-                  status: 'progress',
+-                  serverName: name,
+-                  toolName: tool,
+-                  progress: sdkProgress.progress,
+-                  total: sdkProgress.total,
+-                  progressMessage: sdkProgress.message,
+-                })
+-              }
+-            : undefined,
++          onprogress: sdkProgress => {
++            transportErrorWatchdog.armedAt = 0
++            if (onProgress) {
++              onProgress({
++                type: 'mcp_progress',
++                status: 'progress',
++                serverName: name,
++                toolName: tool,
++                progress: sdkProgress.progress,
++                total: sdkProgress.total,
++                progressMessage: sdkProgress.message,
++              })
++            }
++          },
+         },
+       ),
+       timeoutPromise,
+@@ -3227,6 +3235,7 @@ async function callMCPTool({
+         clearInterval(progressInterval)
+         progressInterval = undefined
+       }
++      transportErrorState?.activeCallWatchdogs.delete(transportErrorWatchdog)
+     })
+ 
+     if ('isError' in result && result.isError) {
+@@ -3289,6 +3298,7 @@ async function callMCPTool({
+     if (progressInterval !== undefined) {
+       clearInterval(progressInterval)
+     }
++    transportErrorState?.activeCallWatchdogs.delete(transportErrorWatchdog)
+ 
+     const elapsed = Date.now() - toolStartTime
+ 
+diff --git a/src/services/mcp/types.ts b/src/services/mcp/types.ts
+index 69e1615..060f05e 100644
+--- a/src/services/mcp/types.ts
++++ b/src/services/mcp/types.ts
+@@ -194,8 +194,8 @@ export type ConnectedMCPServer = {
+    * pending without a response. SDK/in-process clients do not need this.
+    */
+   transportErrorState?: {
+-    lastErrorAt: number
+     consecutiveErrors: number
++    activeCallWatchdogs: Set<{ armedAt: number }>
+   }
+ }
+ 
+diff --git a/src/tools/AgentTool/agentToolUtils.ts b/src/tools/AgentTool/agentToolUtils.ts
+index 60bf00b..957d8fb 100644
+--- a/src/tools/AgentTool/agentToolUtils.ts
++++ b/src/tools/AgentTool/agentToolUtils.ts
+@@ -662,6 +662,53 @@ export async function runAsyncAgentLifecycle({
+ }): Promise<void> {
+   let stopSummarization: (() => void) | undefined
+   const agentMessages: MessageType[] = []
++  const stallTimeoutMs =
++    parseInt(process.env.CLAUDE_ASYNC_AGENT_STALL_TIMEOUT_MS || '', 10) ||
++    600_000
++  let stallTimer: NodeJS.Timeout | null = null
++  let lastMessageType = 'none'
++  let lifecycleFinished = false
++
++  const clearStallTimer = () => {
++    if (stallTimer !== null) clearTimeout(stallTimer)
++    stallTimer = null
++  }
++
++  const resetStallWatchdog = () => {
++    clearStallTimer()
++    stallTimer = setTimeout(() => {
++      stallTimer = null
++      if (lifecycleFinished) return
++      lifecycleFinished = true
++      logForDebugging(
++        `[AsyncAgent ${taskId}] stall watchdog fired after ${stallTimeoutMs}ms with no progress (last message: ${lastMessageType}); aborting`,
++        { level: 'error' },
++      )
++      logEvent('tengu_async_agent_stall_timeout', {
++        agent_type:
++          metadata.agentType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
++        stall_ms: stallTimeoutMs,
++        last_message_type:
++          lastMessageType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
++        message_count: agentMessages.length,
++      })
++      abortController.abort()
++      stopSummarization?.()
++      const message = `Agent stalled: no progress for ${stallTimeoutMs / 1000}s (stream watchdog did not recover)`
++      failAsyncAgent(taskId, message, rootSetAppState)
++      enqueueAgentNotification({
++        taskId,
++        description,
++        status: 'failed',
++        error: message,
++        setAppState: rootSetAppState,
++        toolUseId: toolUseContext.toolUseId,
++        finalMessage: extractPartialResult(agentMessages),
++      })
++    }, stallTimeoutMs)
++    stallTimer.unref?.()
++  }
++
+   try {
+     const tracker = createProgressTracker()
+     const resolveActivity = createActivityDescriptionResolver(
+@@ -678,7 +725,10 @@ export async function runAsyncAgentLifecycle({
+           stopSummarization = stop
+         }
+       : undefined
++    resetStallWatchdog()
+     for await (const message of makeStream(onCacheSafeParams)) {
++      lastMessageType = message.type
++      resetStallWatchdog()
+       agentMessages.push(message)
+       // Append immediately when UI holds the task (retain). Bootstrap reads
+       // disk in parallel and UUID-merges the prefix — disk-write-before-yield
+@@ -719,6 +769,9 @@ export async function runAsyncAgentLifecycle({
+       }
+     }
+ 
++    clearStallTimer()
++    if (lifecycleFinished) return
++    lifecycleFinished = true
+     stopSummarization?.()
+ 
+     const agentResult = finalizeAgentTool(agentMessages, taskId, metadata)
+@@ -763,6 +816,9 @@ export async function runAsyncAgentLifecycle({
+       ...worktreeResult,
+     })
+   } catch (error) {
++    clearStallTimer()
++    if (lifecycleFinished) return
++    lifecycleFinished = true
+     stopSummarization?.()
+     if (error instanceof AbortError) {
+       // killAsyncAgent is a no-op if TaskStop already set status='killed' —
+@@ -804,9 +860,11 @@ export async function runAsyncAgentLifecycle({
+       error: msg,
+       setAppState: rootSetAppState,
+       toolUseId: toolUseContext.toolUseId,
++      finalMessage: extractPartialResult(agentMessages),
+       ...worktreeResult,
+     })
+   } finally {
++    clearStallTimer()
+     clearInvokedSkillsForAgent(agentIdForCleanup)
+     clearDumpState(agentIdForCleanup)
+   }
+diff --git a/src/tools/BashTool/commentLabel.ts b/src/tools/BashTool/commentLabel.ts
+index dd36df8..55b0de2 100644
+--- a/src/tools/BashTool/commentLabel.ts
++++ b/src/tools/BashTool/commentLabel.ts
+@@ -9,5 +9,28 @@ export function extractBashCommentLabel(command: string): string | undefined {
+   const nl = command.indexOf('\n')
+   const firstLine = (nl === -1 ? command : command.slice(0, nl)).trim()
+   if (!firstLine.startsWith('#') || firstLine.startsWith('#!')) return undefined
+-  return firstLine.replace(/^#+\s*/, '') || undefined
++  if (nl !== -1 && containsNonCommentLine(command.slice(nl + 1))) {
++    return undefined
++  }
++
++  const label = firstLine.replace(/^#+\s*/, '')
++  if (!label || containsControlCharacter(label)) return undefined
++  return label
++}
++
++function containsNonCommentLine(command: string): boolean {
++  for (const line of command.split('\n')) {
++    const trimmed = line.trim()
++    if (trimmed === '' || trimmed.startsWith('#')) continue
++    return true
++  }
++  return false
++}
++
++function containsControlCharacter(value: string): boolean {
++  for (let i = 0; i < value.length; i++) {
++    const code = value.charCodeAt(i)
++    if (code < 32 || (code >= 127 && code <= 159)) return true
++  }
++  return false
+ }
+diff --git a/src/tools/ToolSearchTool/ToolSearchTool.ts b/src/tools/ToolSearchTool/ToolSearchTool.ts
+index ee43b66..39e3e19 100644
+--- a/src/tools/ToolSearchTool/ToolSearchTool.ts
++++ b/src/tools/ToolSearchTool/ToolSearchTool.ts
+@@ -5,6 +5,7 @@ import {
+   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+   logEvent,
+ } from '../../services/analytics/index.js'
++import { mcpInfoFromString } from '../../services/mcp/mcpStringUtils.js'
+ import {
+   buildTool,
+   findToolByName,
+@@ -129,18 +130,28 @@ function buildSearchResult(
+  * Parse tool name into searchable parts.
+  * Handles both MCP tools (mcp__server__action) and regular tools (CamelCase).
+  */
+-function parseToolName(name: string): {
++function parseToolName(tool: Tool): {
+   parts: string[]
++  coarseParts: string[]
+   full: string
+   isMcp: boolean
+ } {
+-  // Check if it's an MCP tool
+-  if (name.startsWith('mcp__')) {
+-    const withoutPrefix = name.replace(/^mcp__/, '').toLowerCase()
+-    const parts = withoutPrefix.split('__').flatMap(p => p.split('_'))
++  const { name } = tool
++  const mcpInfo = tool.mcpInfo ?? mcpInfoFromString(name)
++
++  // Prefer the original MCP server/tool names when available. They preserve
++  // coarse name boundaries that are lost in the normalized mcp__ name.
++  if (mcpInfo) {
++    const coarseParts = [mcpInfo.serverName, mcpInfo.toolName]
++      .filter((part): part is string => Boolean(part))
++      .map(part => part.toLowerCase())
++    const parts = coarseParts
++      .flatMap(part => part.split(/[\s_.]+/))
++      .filter(Boolean)
+     return {
+-      parts: parts.filter(Boolean),
+-      full: withoutPrefix.replace(/__/g, ' ').replace(/_/g, ' '),
++      parts,
++      coarseParts,
++      full: parts.join(' '),
+       isMcp: true,
+     }
+   }
+@@ -155,6 +166,7 @@ function parseToolName(name: string): {
+ 
+   return {
+     parts,
++    coarseParts: [name.toLowerCase()],
+     full: parts.join(' '),
+     isMcp: false,
+   }
+@@ -237,7 +249,7 @@ async function searchToolsWithKeywords(
+   if (requiredTerms.length > 0) {
+     const matches = await Promise.all(
+       deferredTools.map(async tool => {
+-        const parsed = parseToolName(tool.name)
++        const parsed = parseToolName(tool)
+         const description = await getToolDescriptionMemoized(tool.name, tools)
+         const descNormalized = description.toLowerCase()
+         const hintNormalized = tool.searchHint?.toLowerCase() ?? ''
+@@ -246,6 +258,8 @@ async function searchToolsWithKeywords(
+           return (
+             parsed.parts.includes(term) ||
+             parsed.parts.some(part => part.includes(term)) ||
++            parsed.coarseParts.includes(term) ||
++            parsed.coarseParts.some(part => part.includes(term)) ||
+             pattern.test(descNormalized) ||
+             (hintNormalized && pattern.test(hintNormalized))
+           )
+@@ -258,7 +272,7 @@ async function searchToolsWithKeywords(
+ 
+   const scored = await Promise.all(
+     candidateTools.map(async tool => {
+-      const parsed = parseToolName(tool.name)
++      const parsed = parseToolName(tool)
+       const description = await getToolDescriptionMemoized(tool.name, tools)
+       const descNormalized = description.toLowerCase()
+       const hintNormalized = tool.searchHint?.toLowerCase() ?? ''
+@@ -274,6 +288,14 @@ async function searchToolsWithKeywords(
+           score += parsed.isMcp ? 6 : 5
+         }
+ 
++        // Preserve whole MCP server/tool components so pasted names win over
++        // weaker description matches from sibling tools.
++        if (parsed.coarseParts.includes(term)) {
++          score += parsed.isMcp ? 12 : 10
++        } else if (parsed.coarseParts.some(part => part.includes(term))) {
++          score += parsed.isMcp ? 4 : 3
++        }
++
+         // Full name fallback (for edge cases)
+         if (parsed.full.includes(term) && score === 0) {
+           score += 3
+diff --git a/src/utils/permissions/pathValidation.ts b/src/utils/permissions/pathValidation.ts
+index 40814f7..eecb81a 100644
+--- a/src/utils/permissions/pathValidation.ts
++++ b/src/utils/permissions/pathValidation.ts
+@@ -337,8 +337,16 @@ export function isDangerousRemovalPath(resolvedPath: string): boolean {
+     return true
+   }
+ 
++  const isMacOS = getPlatform() === 'macos'
++  const normalizeMacOSPrivatePath = (path: string): string =>
++    isMacOS
++      ? path.replace(/^\/private\/(etc|var|tmp|home)(\/|$)/i, '/$1$2')
++      : path
++  const normalizedForwardSlashed = normalizeMacOSPrivatePath(forwardSlashed)
+   const normalizedPath =
+-    forwardSlashed === '/' ? forwardSlashed : forwardSlashed.replace(/\/$/, '')
++    normalizedForwardSlashed === '/'
++      ? normalizedForwardSlashed
++      : normalizedForwardSlashed.replace(/\/$/, '')
+ 
+   if (normalizedPath === '/') {
+     return true
+@@ -348,7 +356,9 @@ export function isDangerousRemovalPath(resolvedPath: string): boolean {
+     return true
+   }
+ 
+-  const normalizedHome = homedir().replace(/[\\/]+/g, '/')
++  const normalizedHome = normalizeMacOSPrivatePath(
++    homedir().replace(/[\\/]+/g, '/'),
++  )
+   if (normalizedPath === normalizedHome) {
+     return true
+   }
+diff --git a/src/utils/processUserInput/processUserInput.ts b/src/utils/processUserInput/processUserInput.ts
+index 0c206f7..b985333 100644
+--- a/src/utils/processUserInput/processUserInput.ts
++++ b/src/utils/processUserInput/processUserInput.ts
+@@ -50,6 +50,7 @@ import {
+ } from '../hooks.js'
+ import {
+   createImageMetadataText,
++  ImageResizeError,
+   maybeResizeAndDownsampleImageBlock,
+ } from '../imageResizer.js'
+ import { storeImages } from '../imageStore.js'
+@@ -332,15 +333,24 @@ async function processUserInputBase(
+     const processedBlocks: ContentBlockParam[] = []
+     for (const block of input) {
+       if (block.type === 'image') {
+-        const resized = await maybeResizeAndDownsampleImageBlock(block)
+-        // Collect image metadata for isMeta message
+-        if (resized.dimensions) {
+-          const metadataText = createImageMetadataText(resized.dimensions)
+-          if (metadataText) {
+-            imageMetadataTexts.push(metadataText)
++        try {
++          const resized = await maybeResizeAndDownsampleImageBlock(block)
++          // Collect image metadata for isMeta message
++          if (resized.dimensions) {
++            const metadataText = createImageMetadataText(resized.dimensions)
++            if (metadataText) {
++              imageMetadataTexts.push(metadataText)
++            }
+           }
++          processedBlocks.push(resized.block)
++        } catch (error) {
++          if (!(error instanceof ImageResizeError)) throw error
++          logEvent('tengu_image_resize_degraded', {})
++          processedBlocks.push({
++            type: 'text',
++            text: `[Image could not be processed: ${error.message}]`,
++          })
+         }
+-        processedBlocks.push(resized.block)
+       } else {
+         processedBlocks.push(block)
+       }
+diff --git a/src/utils/sandbox/sandbox-adapter.ts b/src/utils/sandbox/sandbox-adapter.ts
+index 170ecac..6ff5b59 100644
+--- a/src/utils/sandbox/sandbox-adapter.ts
++++ b/src/utils/sandbox/sandbox-adapter.ts
+@@ -209,6 +209,10 @@ export function convertToSandboxRuntimeConfig(
+     }
+   }
+ 
++  for (const domain of settings.sandbox?.network?.deniedDomains || []) {
++    deniedDomains.push(domain)
++  }
++
+   for (const ruleString of permissions.deny || []) {
+     const rule = permissionRuleValueFromString(ruleString)
+     if (

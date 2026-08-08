@@ -119,18 +119,21 @@ project. The untouched files remain the exact 2.1.88 outer source-map inputs;
 the tree now carries cumulative, verified source-facing recovery overlays for
 2.1.89, 2.1.90, 2.1.91, 2.1.92, 2.1.94, 2.1.96, 2.1.97, 2.1.98, 2.1.100,
 2.1.101, 2.1.104, 2.1.105, 2.1.107, 2.1.108, 2.1.109, 2.1.110, 2.1.111,
-and 2.1.112; upstream did not publish 2.1.93, 2.1.95, 2.1.99, 2.1.102,
+2.1.112, and 2.1.113; upstream did not publish 2.1.93, 2.1.95, 2.1.99, 2.1.102,
 2.1.103, or 2.1.106.
 This does not claim that any complete original authored TypeScript tree is
 observable. A short tour of what's inside is in [`CLAUDE.md`](./CLAUDE.md).
 The evidence-first adjacent-published-release recoveries live in
-[`recovery/`](./recovery/): they reconstruct the complete published bundle
-and npm package tree exactly through 2.1.112, while keeping the necessarily
-partial authored-TypeScript reconstruction labeled separately. The 2.1.112
-case advances directly from published 2.1.111 in npm release order. See
-the current
-[2.1.112 report](./recovery/cases/2.1.111-to-2.1.112/REPORT.md) and
-[complete recovery runbook](./recovery/cases/2.1.111-to-2.1.112/RECOVERY_RUNBOOK.md).
+[`recovery/`](./recovery/): they reconstruct the complete published wrapper
+and every plain JavaScript entry in the authenticated Linux x64 Bun graph
+exactly through 2.1.113, while keeping the necessarily partial authored-source
+reconstruction labeled separately. The signed native executable
+itself is authenticated and container-verified; it is not claimed as
+baseline-derived source. The 2.1.113 source-facing overlay is applied, so
+`src/` now carries the cumulative 2.1.113-facing state.
+See the current
+[2.1.113 report](./recovery/cases/2.1.112-to-2.1.113/REPORT.md) and
+[complete recovery runbook](./recovery/cases/2.1.112-to-2.1.113/RECOVERY_RUNBOOK.md).
 
 ## 📜 License & disclaimer
 

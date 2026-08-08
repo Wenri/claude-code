@@ -455,30 +455,45 @@ export function verifyTarget(manifest, files) {
   )
   const targetPackageText = fs.readFileSync(files.targetPackageJson, 'utf8')
   const versionChange = assertions.packageVersionChange
-  const baselineVersion = `"version": "${versionChange.baseline}"`
-  const targetVersion = `"version": "${versionChange.target}"`
-  let expectedPackageText = baselinePackageText.replace(
-    baselineVersion,
-    targetVersion,
-  )
-  if (expectedPackageText === baselinePackageText) {
-    throw new Error('Baseline package version marker was not found')
-  }
-  const packageJsonInsertion = assertions.packageJsonExactInsertion
-  if (packageJsonInsertion) {
-    expectedPackageText = exactTextInsertion(
-      expectedPackageText,
-      packageJsonInsertion,
-      'Package JSON',
+  const packageJsonChange = assertions.packageJsonChange
+  let packageChange
+  if (packageJsonChange?.kind === 'exact-artifact') {
+    const baselinePackageJson = JSON.parse(baselinePackageText)
+    assertEqual(
+      baselinePackageJson.version,
+      versionChange.baseline,
+      'baseline package version',
     )
+    packageChange = 'authenticated exact artifact replacement'
+  } else {
+    const baselineVersion = `"version": "${versionChange.baseline}"`
+    const targetVersion = `"version": "${versionChange.target}"`
+    let expectedPackageText = baselinePackageText.replace(
+      baselineVersion,
+      targetVersion,
+    )
+    if (expectedPackageText === baselinePackageText) {
+      throw new Error('Baseline package version marker was not found')
+    }
+    const packageJsonInsertion = assertions.packageJsonExactInsertion
+    if (packageJsonInsertion) {
+      expectedPackageText = exactTextInsertion(
+        expectedPackageText,
+        packageJsonInsertion,
+        'Package JSON',
+      )
+    }
+    assertEqual(
+      targetPackageText,
+      expectedPackageText,
+      packageJsonInsertion
+        ? 'target package exact version and insertion change'
+        : 'target package exact version-only change',
+    )
+    packageChange = packageJsonInsertion
+      ? 'version plus one exact insertion'
+      : 'version only'
   }
-  assertEqual(
-    targetPackageText,
-    expectedPackageText,
-    packageJsonInsertion
-      ? 'target package exact version and insertion change'
-      : 'target package exact version-only change',
-  )
   const packageJson = JSON.parse(targetPackageText)
   assertEqual(
     packageJson.version,
@@ -514,9 +529,7 @@ export function verifyTarget(manifest, files) {
   return {
     packageVersion: packageJson.version,
     declarationsChange,
-    packageChange: packageJsonInsertion
-      ? 'version plus one exact insertion'
-      : 'version only',
+    packageChange,
     fragments,
   }
 }

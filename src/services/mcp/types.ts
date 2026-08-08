@@ -194,8 +194,8 @@ export type ConnectedMCPServer = {
    * pending without a response. SDK/in-process clients do not need this.
    */
   transportErrorState?: {
-    lastErrorAt: number
     consecutiveErrors: number
+    activeCallWatchdogs: Set<{ armedAt: number }>
   }
 }
 

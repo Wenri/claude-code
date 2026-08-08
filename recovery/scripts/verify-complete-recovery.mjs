@@ -120,6 +120,12 @@ function main() {
   )
   const generated = manifest.generatedRecovery
 
+  const evidenceFor = id => {
+    const item = manifest.artifacts.find(artifact => artifact.id === id)
+    if (!item) throw new Error(`Unknown artifact: ${id}`)
+    return item
+  }
+
   const evidence = runJson(
     path.join(scripts, 'verify-case.mjs'),
     [
@@ -132,6 +138,18 @@ function main() {
     ],
     repositoryRoot,
   )
+  const bunExtraction = generated.bunExtraction
+    ? runJson(
+        path.join(scripts, 'verify-bun-container.mjs'),
+        [
+          '--case',
+          manifestPath,
+          '--artifacts',
+          artifactsRoot,
+        ],
+        repositoryRoot,
+      )
+    : null
   const sourcePatches = manifest.sourceLineage
     ? runJson(
         path.join(scripts, 'verify-source-lineage.mjs'),
@@ -181,6 +199,9 @@ function main() {
       `Unknown attribution baseline artifact: ${attributionBaselineArtifact}`,
     )
   }
+  const attributionTargetEvidence = evidenceFor(
+    generated.attribution.targetArtifact ?? 'targetBundle',
+  )
   const attribution = runJson(
     path.join(scripts, 'verify-attribution-report.mjs'),
     [
@@ -195,7 +216,7 @@ function main() {
       '--expected-baseline-sha256',
       attributionBaselineEvidence.sha256,
       '--expected-target-sha256',
-      targetEvidence.sha256,
+      attributionTargetEvidence.sha256,
     ],
     repositoryRoot,
   )
@@ -203,6 +224,12 @@ function main() {
   const structuralAssertion = assertion(
     manifest,
     generated.structural.ledger,
+  )
+  const structuralBaselineEvidence = evidenceFor(
+    generated.structural.baselineArtifact ?? 'baselineBundle',
+  )
+  const structuralTargetEvidence = evidenceFor(
+    generated.structural.targetArtifact ?? 'targetBundle',
   )
   const structural = runJson(
     path.join(scripts, 'verify-structural-ledger.mjs'),
@@ -214,9 +241,9 @@ function main() {
       '--expected-bytes',
       String(structuralAssertion.bytes),
       '--expected-baseline-sha256',
-      baselineEvidence.sha256,
+      structuralBaselineEvidence.sha256,
       '--expected-target-sha256',
-      targetEvidence.sha256,
+      structuralTargetEvidence.sha256,
       '--expected-target-tokens',
       String(generated.structural.targetTokens),
       '--expected-target-units',
@@ -228,6 +255,12 @@ function main() {
   const readableMetadata = assertion(
     manifest,
     generated.readableDiff.metadata,
+  )
+  const readableBaselineEvidence = evidenceFor(
+    generated.readableDiff.baselineArtifact ?? 'baselineBundle',
+  )
+  const readableTargetEvidence = evidenceFor(
+    generated.readableDiff.targetArtifact ?? 'targetBundle',
   )
   const readableDiff = runJson(
     path.join(scripts, 'verify-readable-diff.mjs'),
@@ -241,9 +274,9 @@ function main() {
       '--expected-metadata-sha256',
       readableMetadata.sha256,
       '--expected-baseline-sha256',
-      baselineEvidence.sha256,
+      readableBaselineEvidence.sha256,
       '--expected-target-sha256',
-      targetEvidence.sha256,
+      readableTargetEvidence.sha256,
     ],
     repositoryRoot,
   )
@@ -252,7 +285,22 @@ function main() {
     path.join(os.tmpdir(), 'claude-code-complete-recovery-'),
   )
   let packageTree
+  let embeddedCode
   try {
+    embeddedCode = generated.embeddedCode
+      ? runJson(
+          path.join(scripts, 'reconstruct-embedded-code.mjs'),
+          [
+            '--case',
+            manifestPath,
+            '--artifacts',
+            artifactsRoot,
+            '--output',
+            path.join(temporary, 'embedded-code'),
+          ],
+          repositoryRoot,
+        )
+      : null
     packageTree = runJson(
       path.join(scripts, 'reconstruct-package.mjs'),
       [
@@ -279,11 +327,13 @@ function main() {
         scope: manifest.recoveryScope,
         checks: {
           evidence: evidence.status,
+          bunExtraction: bunExtraction?.status ?? null,
           sourcePatches: sourcePatches.status,
           exactBundleDelta: exactBundleDelta.status,
           attribution: attribution.status,
           structural: structural.status,
           readableDiff: readableDiff.status,
+          embeddedCode: embeddedCode?.status ?? null,
           packageTree: packageTree.status,
         },
         packageTree: {
@@ -306,6 +356,17 @@ function main() {
           bytes: exactBundleDelta.target.bytes,
           sha256: exactBundleDelta.target.sha256,
         },
+        analyzedBundle: {
+          bytes: structural.target.bytes,
+          sha256: structural.target.sha256,
+        },
+        embeddedCode: embeddedCode
+          ? {
+              files: embeddedCode.targetFiles,
+              bytes: embeddedCode.targetBytes,
+              framedTreeSha256: embeddedCode.targetFramedTreeSha256,
+            }
+          : null,
         accounting: {
           targetUtf16: attribution.coverage.targetUtf16,
           unaccountedTargetUtf16:

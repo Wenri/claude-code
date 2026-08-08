@@ -100,6 +100,7 @@ function reconstructFixture({
   addedPayloadRecipe = 'valid',
   changedMember = false,
   changedPayloadRecipe = 'valid',
+  packageJsonDictionaryPatch = false,
   packageJsonInsertion = null,
   packageJsonAssertionAnchor,
   packageJsonDuplicateAnchor = false,
@@ -131,6 +132,13 @@ function reconstructFixture({
       targetPackageJsonText = targetPackageJsonText.replace(
         targetVersionAnchor,
         targetVersionAnchor + packageJsonInsertion,
+      )
+    }
+    if (packageJsonDictionaryPatch) {
+      targetPackageJsonText = targetPackageJsonText.replace(
+        targetVersionAnchor,
+        targetVersionAnchor +
+          ',\n  "optionalDependencies": {"@example/native": "1.0.0"}',
       )
     }
     const baselinePackageJson = Buffer.from(baselinePackageJsonText)
@@ -345,6 +353,35 @@ function reconstructFixture({
         { stdio: 'pipe' },
       )
     }
+    const packageJsonPayloadPath =
+      'recovered/package-json.delta.zst'
+    const packageJsonPayloadFile = path.join(
+      caseRoot,
+      packageJsonPayloadPath,
+    )
+    if (packageJsonDictionaryPatch) {
+      const packageJsonBaselineFile = path.join(
+        temporary,
+        'package-json-baseline',
+      )
+      const packageJsonTargetFile = path.join(
+        temporary,
+        'package-json-target',
+      )
+      fs.writeFileSync(packageJsonBaselineFile, baselinePackageJson)
+      fs.writeFileSync(packageJsonTargetFile, targetPackageJson)
+      execFileSync(
+        'zstd',
+        [
+          `--patch-from=${packageJsonBaselineFile}`,
+          packageJsonTargetFile,
+          '-o',
+          packageJsonPayloadFile,
+          '--force',
+        ],
+        { stdio: 'pipe' },
+      )
+    }
 
     const report = {
       artifacts: {
@@ -466,6 +503,13 @@ function reconstructFixture({
         )
       }
     }
+    if (packageJsonDictionaryPatch) {
+      changedMemberPayloads.push({
+        member: 'package/package.json',
+        path: packageJsonPayloadPath,
+        algorithm: 'zstd-dictionary-patch',
+      })
+    }
     const changedPayloadAssertionPath =
       changedPayloadRecipe === 'unsafe'
         ? '../outside-case.delta.zst'
@@ -474,6 +518,12 @@ function reconstructFixture({
       ? {
           path: changedPayloadAssertionPath,
           ...evidence(fs.readFileSync(changedPayloadFile)),
+        }
+      : null
+    const packageJsonPayloadAssertion = packageJsonDictionaryPatch
+      ? {
+          path: packageJsonPayloadPath,
+          ...evidence(fs.readFileSync(packageJsonPayloadFile)),
         }
       : null
     const manifest = {
@@ -512,6 +562,9 @@ function reconstructFixture({
           },
           ...(addedPayloadAssertion ? [addedPayloadAssertion] : []),
           ...(changedPayloadAssertion ? [changedPayloadAssertion] : []),
+          ...(packageJsonPayloadAssertion
+            ? [packageJsonPayloadAssertion]
+            : []),
         ],
       },
     }
@@ -655,6 +708,15 @@ test('reconstructs a changed regular file from an exact dictionary patch', () =>
     targetVersion: '2.1.94',
     declarationInsertion: null,
     changedMember: true,
+  })
+})
+
+test('prefers an exact package JSON dictionary patch over version-only edits', () => {
+  reconstructFixture({
+    baselineVersion: '2.1.112',
+    targetVersion: '2.1.113',
+    declarationInsertion: null,
+    packageJsonDictionaryPatch: true,
   })
 })
 
