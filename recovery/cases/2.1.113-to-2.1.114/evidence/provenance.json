@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "release": "2.1.114",
+  "npm": {
+    "registryKey": {
+      "registryUrl": "https://registry.npmjs.org/-/npm/v1/keys",
+      "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+      "keytype": "ecdsa-sha2-nistp256",
+      "scheme": "ecdsa-sha2-nistp256",
+      "expires": null,
+      "publicKeyDerBase64": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEY6Ya7W++7aUPzvMTrezH6Ycx3c+HOKYCcNGybJZSCJq/fd7Qa8uuAKtdIkUQtQiEKERhAmE5lMMJhP8OkDOa2g=="
+    },
+    "wrapper": {
+      "name": "@anthropic-ai/claude-code",
+      "version": "2.1.114",
+      "publishedAt": "2026-04-17T23:26:20.555Z",
+      "tarballUrl": "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.1.114.tgz",
+      "tarballBytes": 13614,
+      "tarballSha256": "2092a5ac6ae7115f46b961662d5dc872038219f37cf91ee57b7004614b87b9af",
+      "registryShasum": "42f8b092074c60ad2b2724a12bc37b49661fdb7b",
+      "registryIntegrity": "sha512-RPhw1ClFxzOESQdI+bXYp35IXlhS/bi75VIajQgrg11qH10k5jiYZ+ivz1dTN6rbeii+zaCuhjpMzKfdtN/JTw==",
+      "registrySignature": "MEUCIQDDUct0DwoTDULvyS/d+FXylAJuQjO+y2covAfO1MnXlAIgWBNn35SrCIUWS1bxNZI8ycsHOcWrPXc7AZbygvpwlEg=",
+      "signatureKeyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+      "signatureMessageSha256": "5acbcd0ca590a34424d1f2a7e4f349c8c68be44fb1df43cb0dec5ef498416ca5",
+      "signatureVerification": "ECDSA/SHA-256 verified OK with the live npm registry key",
+      "fileCount": 7,
+      "unpackedSize": 132292
+    },
+    "linuxX64": {
+      "name": "@anthropic-ai/claude-code-linux-x64",
+      "version": "2.1.114",
+      "publishedAt": "2026-04-17T23:24:28.107Z",
+      "tarballUrl": "https://registry.npmjs.org/@anthropic-ai/claude-code-linux-x64/-/claude-code-linux-x64-2.1.114.tgz",
+      "tarballBytes": 73850665,
+      "tarballSha256": "c1123db5ac5003185686866f7431cc9c831e92c286bba2104382ca4403230195",
+      "registryShasum": "c505e20dfeaef08d36d67ea5e8a6f9526e0366a0",
+      "registryIntegrity": "sha512-4YX0ataEGqtgmXoYf97YQnbzh0xwegH4ZFP5d5LXBlJIXAB26cSIBNBPE+Eln8evguGJ9QzmHQBhSTdOl0DQAw==",
+      "registrySignature": "MEQCIBUc5n0113sX+OaDURxEpDV6GrFo1vEbpCUK/v2BKty4AiB4vU61pMKtPlnenvic+PaOXdfySrw2pNTBvgbmTudNug==",
+      "signatureKeyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+      "signatureMessageSha256": "242d3d52609808b9915a0d6d69ed59f63434401db5cfa0b012a3f64a734e8424",
+      "signatureVerification": "ECDSA/SHA-256 verified OK with the live npm registry key",
+      "fileCount": 4,
+      "unpackedSize": 236412106,
+      "os": ["linux"],
+      "cpu": ["x64"]
+    }
+  },
+  "git": {
+    "repository": "https://github.com/anthropics/claude-code.git",
+    "tag": "v2.1.114",
+    "tagObjectType": "commit",
+    "commit": "0385848b4e737831fc3b973d9a78d31950a87d9d",
+    "parent": "71366ecf5dd9103a46537eab8607a2a3c0637577",
+    "parentTag": "v2.1.113",
+    "tree": "330d0d87da792c88da71599c5be1dcef31a5bd9e",
+    "parentTree": "dc3c978fa5469f61234496eb70e0ed820cbb2581",
+    "commitTimestamp": "2026-04-18T01:34:25+00:00",
+    "subject": "chore: Update CHANGELOG.md",
+    "commitsSinceParentTag": 1,
+    "publicDiff": {
+      "filesChanged": 1,
+      "insertions": 4,
+      "deletions": 0,
+      "paths": ["CHANGELOG.md"]
+    }
+  },
+  "changelog": {
+    "fullPath": "evidence/claude-code-CHANGELOG-0385848b.md",
+    "fullBytes": 239190,
+    "fullSha256": "5cbbc5f54ae136afb6877495f6a593bce64bda1c3353b88bb6819a8f6e1b5201",
+    "sectionPath": "evidence/CHANGELOG-2.1.114.md",
+    "sectionBytes": 109,
+    "sectionSha256": "149a9d71224c7260b2914c7638c469b75bcc0921426f5a6260a9e82a6713d6ad",
+    "bulletCount": 1
+  }
+}
