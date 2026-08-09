@@ -27,6 +27,7 @@ import {
   type McpWebSocketServerConfig,
   type ScopedMcpServerConfig,
   type ServerResource,
+  type ServerResourceTemplate,
 } from './types.js'
 
 /**
@@ -188,6 +189,7 @@ export function excludeStalePluginClients(
     tools: Tool[]
     commands: Command[]
     resources: Record<string, ServerResource[]>
+    resourceTemplates: Record<string, ServerResourceTemplate[]>
   },
   configs: Record<string, ScopedMcpServerConfig>,
 ): {
@@ -195,6 +197,7 @@ export function excludeStalePluginClients(
   tools: Tool[]
   commands: Command[]
   resources: Record<string, ServerResource[]>
+  resourceTemplates: Record<string, ServerResourceTemplate[]>
   stale: MCPServerConnection[]
 } {
   const stale = mcp.clients.filter(c => {
@@ -206,11 +209,13 @@ export function excludeStalePluginClients(
     return { ...mcp, stale: [] }
   }
 
-  let { tools, commands, resources } = mcp
+  let { tools, commands, resources, resourceTemplates } = mcp
   for (const s of stale) {
     tools = excludeToolsByServer(tools, s.name)
     commands = excludeCommandsByServer(commands, s.name)
     resources = excludeResourcesByServer(resources, s.name)
+    resourceTemplates = { ...resourceTemplates }
+    delete resourceTemplates[s.name]
   }
   const staleNames = new Set(stale.map(c => c.name))
 
@@ -219,6 +224,7 @@ export function excludeStalePluginClients(
     tools,
     commands,
     resources,
+    resourceTemplates,
     stale,
   }
 }

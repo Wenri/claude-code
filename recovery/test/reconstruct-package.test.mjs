@@ -100,6 +100,7 @@ function reconstructFixture({
   addedPayloadRecipe = 'valid',
   changedMember = false,
   changedPayloadRecipe = 'valid',
+  declarationDictionaryPatch = false,
   packageJsonDictionaryPatch = false,
   packageJsonInsertion = null,
   packageJsonAssertionAnchor,
@@ -382,6 +383,35 @@ function reconstructFixture({
         { stdio: 'pipe' },
       )
     }
+    const declarationPayloadPath =
+      'recovered/sdk-tools.d.ts.delta.zst'
+    const declarationPayloadFile = path.join(
+      caseRoot,
+      declarationPayloadPath,
+    )
+    if (declarationDictionaryPatch) {
+      const declarationBaselineFile = path.join(
+        temporary,
+        'declaration-baseline',
+      )
+      const declarationTargetFile = path.join(
+        temporary,
+        'declaration-target',
+      )
+      fs.writeFileSync(declarationBaselineFile, baselineDeclarations)
+      fs.writeFileSync(declarationTargetFile, targetDeclarations)
+      execFileSync(
+        'zstd',
+        [
+          `--patch-from=${declarationBaselineFile}`,
+          declarationTargetFile,
+          '-o',
+          declarationPayloadFile,
+          '--force',
+        ],
+        { stdio: 'pipe' },
+      )
+    }
 
     const report = {
       artifacts: {
@@ -510,6 +540,13 @@ function reconstructFixture({
         algorithm: 'zstd-dictionary-patch',
       })
     }
+    if (declarationDictionaryPatch) {
+      changedMemberPayloads.push({
+        member: 'package/sdk-tools.d.ts',
+        path: declarationPayloadPath,
+        algorithm: 'zstd-dictionary-patch',
+      })
+    }
     const changedPayloadAssertionPath =
       changedPayloadRecipe === 'unsafe'
         ? '../outside-case.delta.zst'
@@ -524,6 +561,12 @@ function reconstructFixture({
       ? {
           path: packageJsonPayloadPath,
           ...evidence(fs.readFileSync(packageJsonPayloadFile)),
+        }
+      : null
+    const declarationPayloadAssertion = declarationDictionaryPatch
+      ? {
+          path: declarationPayloadPath,
+          ...evidence(fs.readFileSync(declarationPayloadFile)),
         }
       : null
     const manifest = {
@@ -564,6 +607,9 @@ function reconstructFixture({
           ...(changedPayloadAssertion ? [changedPayloadAssertion] : []),
           ...(packageJsonPayloadAssertion
             ? [packageJsonPayloadAssertion]
+            : []),
+          ...(declarationPayloadAssertion
+            ? [declarationPayloadAssertion]
             : []),
         ],
       },
@@ -717,6 +763,15 @@ test('prefers an exact package JSON dictionary patch over version-only edits', (
     targetVersion: '2.1.113',
     declarationInsertion: null,
     packageJsonDictionaryPatch: true,
+  })
+})
+
+test('prefers an exact declaration dictionary patch over semantic edits', () => {
+  reconstructFixture({
+    baselineVersion: '2.1.114',
+    targetVersion: '2.1.116',
+    declarationInsertion: 'export type Added = number\n',
+    declarationDictionaryPatch: true,
   })
 })
 

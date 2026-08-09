@@ -34,6 +34,7 @@ import {
   getStatsStore,
   addToTurnHookDuration,
   getOriginalCwd,
+  getMainThreadAgentHooks,
   getMainThreadAgentType,
 } from '../bootstrap/state.js'
 import { checkHasTrustDialogAccepted } from './config.js'
@@ -180,9 +181,27 @@ const SESSION_END_HOOK_TIMEOUT_MS_DEFAULT = 1500
 export function getSessionEndHookTimeoutMs(): number {
   const raw = process.env.CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS
   const parsed = raw ? parseInt(raw, 10) : NaN
-  return Number.isFinite(parsed) && parsed > 0
-    ? parsed
-    : SESSION_END_HOOK_TIMEOUT_MS_DEFAULT
+  if (Number.isFinite(parsed) && parsed > 0) return parsed
+
+  const agentMatchers = shouldAllowManagedHooksOnly()
+    ? []
+    : (getMainThreadAgentHooks()?.SessionEnd ?? [])
+  const matchers = [
+    ...(getHooksConfigFromSnapshot()?.SessionEnd ?? []),
+    ...agentMatchers,
+  ]
+  let longestConfiguredTimeoutMs = 0
+  for (const matcher of matchers) {
+    for (const hook of matcher.hooks) {
+      if (hook.timeout && hook.timeout * 1000 > longestConfiguredTimeoutMs) {
+        longestConfiguredTimeoutMs = hook.timeout * 1000
+      }
+    }
+  }
+  return Math.max(
+    SESSION_END_HOOK_TIMEOUT_MS_DEFAULT,
+    Math.min(longestConfiguredTimeoutMs, TOOL_HOOK_EXECUTION_TIMEOUT_MS),
+  )
 }
 
 function executeInBackground({
@@ -1522,6 +1541,11 @@ function getHooksConfig(
   // Check if only managed hooks should run (used for both registered and session hooks)
   const managedOnly = shouldAllowManagedHooksOnly()
 
+  if (!managedOnly) {
+    const mainThreadAgentHooks = getMainThreadAgentHooks()?.[hookEvent]
+    if (mainThreadAgentHooks) hooks.push(...mainThreadAgentHooks)
+  }
+
   // Process registered hooks (SDK callbacks and plugin native hooks)
   const registeredHooks = getRegisteredHooks()?.[hookEvent]
   if (registeredHooks) {
@@ -1595,6 +1619,12 @@ function hasHookForEvent(
   if (snap && snap.length > 0) return true
   const reg = getRegisteredHooks()?.[hookEvent]
   if (reg && reg.length > 0) return true
+  if (
+    !shouldAllowManagedHooksOnly() &&
+    (getMainThreadAgentHooks()?.[hookEvent]?.length ?? 0) > 0
+  ) {
+    return true
+  }
   if (appState?.sessionHooks.get(sessionId)?.hooks[hookEvent]) return true
   return false
 }
@@ -4376,6 +4406,12 @@ export function hasInstructionsLoadedHook(): boolean {
   if (snapshotHooks && snapshotHooks.length > 0) return true
   const registeredHooks = getRegisteredHooks()?.['InstructionsLoaded']
   if (registeredHooks && registeredHooks.length > 0) return true
+  if (
+    !shouldAllowManagedHooksOnly() &&
+    (getMainThreadAgentHooks()?.InstructionsLoaded?.length ?? 0) > 0
+  ) {
+    return true
+  }
   return false
 }
 
@@ -4971,12 +5007,16 @@ export function hasWorktreeCreateHook(): boolean {
   const snapshotHooks = getHooksConfigFromSnapshot()?.['WorktreeCreate']
   if (snapshotHooks && snapshotHooks.length > 0) return true
   const registeredHooks = getRegisteredHooks()?.['WorktreeCreate']
-  if (!registeredHooks || registeredHooks.length === 0) return false
   // Mirror getHooksConfig(): skip plugin hooks in managed-only mode
   const managedOnly = shouldAllowManagedHooksOnly()
-  return registeredHooks.some(
-    matcher => !(managedOnly && 'pluginRoot' in matcher),
-  )
+  if (
+    !managedOnly &&
+    (getMainThreadAgentHooks()?.WorktreeCreate?.length ?? 0) > 0
+  ) {
+    return true
+  }
+  if (!registeredHooks || registeredHooks.length === 0) return false
+  return registeredHooks.some(matcher => !(managedOnly && 'pluginRoot' in matcher))
 }
 
 /**
@@ -5031,7 +5071,10 @@ export async function executeWorktreeRemoveHook(
   const registeredHooks = getRegisteredHooks()?.['WorktreeRemove']
   const hasSnapshotHooks = snapshotHooks && snapshotHooks.length > 0
   const hasRegisteredHooks = registeredHooks && registeredHooks.length > 0
-  if (!hasSnapshotHooks && !hasRegisteredHooks) {
+  const hasMainThreadAgentHooks =
+    !shouldAllowManagedHooksOnly() &&
+    (getMainThreadAgentHooks()?.WorktreeRemove?.length ?? 0) > 0
+  if (!hasSnapshotHooks && !hasRegisteredHooks && !hasMainThreadAgentHooks) {
     return false
   }
 

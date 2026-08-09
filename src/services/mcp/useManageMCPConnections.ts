@@ -8,6 +8,7 @@ import {
   clearServerCache,
   fetchCommandsForClient,
   fetchResourcesForClient,
+  fetchResourceTemplatesForClient,
   fetchToolsForClient,
   getMcpToolsCommandsAndResources,
   reconnectMcpServerImpl,
@@ -16,6 +17,7 @@ import type {
   MCPServerConnection,
   ScopedMcpServerConfig,
   ServerResource,
+  ServerResourceTemplate,
 } from './types.js'
 
 /* eslint-disable @typescript-eslint/no-require-imports */
@@ -209,6 +211,7 @@ export function useManageMCPConnections(
     tools?: Tool[]
     commands?: Command[]
     resources?: ServerResource[]
+    resourceTemplates?: ServerResourceTemplate[]
   }
   const pendingUpdatesRef = useRef<PendingUpdate[]>([])
   const flushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -227,6 +230,7 @@ export function useManageMCPConnections(
           tools: rawTools,
           commands: rawCmds,
           resources: rawRes,
+          resourceTemplates: rawTemplates,
           ...client
         } = update
         const tools =
@@ -241,6 +245,10 @@ export function useManageMCPConnections(
           client.type === 'disabled' || client.type === 'failed'
             ? (rawRes ?? [])
             : rawRes
+        const resourceTemplates =
+          client.type === 'disabled' || client.type === 'failed'
+            ? (rawTemplates ?? [])
+            : rawTemplates
 
         const prefix = getMcpPrefix(client.name)
         const existingClientIndex = mcp.clients.findIndex(
@@ -277,12 +285,23 @@ export function useManageMCPConnections(
                   : omit(mcp.resources, client.name)),
               }
 
+        const updatedResourceTemplates =
+          resourceTemplates === undefined
+            ? mcp.resourceTemplates
+            : {
+                ...mcp.resourceTemplates,
+                ...(resourceTemplates.length > 0
+                  ? { [client.name]: resourceTemplates }
+                  : omit(mcp.resourceTemplates, client.name)),
+              }
+
         mcp = {
           ...mcp,
           clients: updatedClients,
           tools: updatedTools,
           commands: updatedCommands,
           resources: updatedResources,
+          resourceTemplates: updatedResourceTemplates,
         }
       }
 
@@ -313,13 +332,15 @@ export function useManageMCPConnections(
       tools,
       commands,
       resources,
+      resourceTemplates,
     }: {
       client: MCPServerConnection
       tools: Tool[]
       commands: Command[]
       resources?: ServerResource[]
+      resourceTemplates?: ServerResourceTemplate[]
     }) => {
-      updateServer({ ...client, tools, commands, resources })
+      updateServer({ ...client, tools, commands, resources, resourceTemplates })
 
       // Handle side effects based on client state
       switch (client.type) {
@@ -715,6 +736,7 @@ export function useManageMCPConnections(
                 })
                 try {
                   fetchResourcesForClient.cache.delete(client.name)
+                  fetchResourceTemplatesForClient.cache.delete(client.name)
                   if (feature('MCP_SKILLS')) {
                     // Skills are discovered from resources, so refresh them too.
                     // Invalidate prompts cache as well: we write commands here,
@@ -722,23 +744,28 @@ export function useManageMCPConnections(
                     // us stomp its fresh result with our cached stale one.
                     fetchMcpSkillsForClient!.cache.delete(client.name)
                     fetchCommandsForClient.cache.delete(client.name)
-                    const [newResources, mcpPrompts, mcpSkills] =
+                    const [newResources, newTemplates, mcpPrompts, mcpSkills] =
                       await Promise.all([
                         fetchResourcesForClient(client),
+                        fetchResourceTemplatesForClient(client),
                         fetchCommandsForClient(client),
                         fetchMcpSkillsForClient!(client),
                       ])
                     updateServer({
                       ...client,
                       resources: newResources,
+                      resourceTemplates: newTemplates,
                       commands: [...mcpPrompts, ...mcpSkills],
                     })
                     // MCP skills changed — invalidate skill-search index so
                     // next discovery rebuilds with the new set.
                     clearSkillIndexCache?.()
                   } else {
-                    const newResources = await fetchResourcesForClient(client)
-                    updateServer({ ...client, resources: newResources })
+                    const [newResources, newTemplates] = await Promise.all([
+                      fetchResourcesForClient(client),
+                      fetchResourceTemplatesForClient(client),
+                    ])
+                    updateServer({ ...client, resources: newResources, resourceTemplates: newTemplates })
                   }
                 } catch (error) {
                   logMCPError(

@@ -4,6 +4,7 @@ import { redownloadUserSettings } from '../../services/settingsSync/index.js'
 import type { LocalCommandCall } from '../../types/command.js'
 import { isEnvTruthy } from '../../utils/envUtils.js'
 import { refreshActivePlugins } from '../../utils/plugins/refresh.js'
+import { resolveMissingDependencies } from '../../utils/plugins/missingDependencyResolver.js'
 import { settingsChangeDetector } from '../../utils/settings/changeDetector.js'
 import { plural } from '../../utils/stringUtils.js'
 
@@ -34,7 +35,11 @@ export const call: LocalCommandCall = async (_args, context) => {
     }
   }
 
-  const r = await refreshActivePlugins(context.setAppState)
+  let r = await refreshActivePlugins(context.setAppState)
+  const { installed: resolvedDependencies } = await resolveMissingDependencies(r.errors)
+  if (resolvedDependencies.length > 0) {
+    r = await refreshActivePlugins(context.setAppState)
+  }
 
   const parts = [
     n(r.enabled_count, 'plugin'),
@@ -48,6 +53,9 @@ export const call: LocalCommandCall = async (_args, context) => {
     n(r.lsp_count, 'plugin LSP server'),
   ]
   let msg = `Reloaded: ${parts.join(' · ')}`
+  if (resolvedDependencies.length > 0) {
+    msg += ` · ${n(resolvedDependencies.length, 'dependency')} resolved`
+  }
 
   if (r.error_count > 0) {
     msg += `\n${n(r.error_count, 'error')} during load. Run /doctor for details.`

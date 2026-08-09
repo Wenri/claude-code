@@ -597,22 +597,11 @@ function StickyPromptHeader(t0) {
 // flex-end here: they would create empty padding rows that shift visible
 // items down into the prompt area when the list has fewer items than max.
 function SuggestionsOverlay() {
-  const $ = _c(4);
   const data = usePromptOverlay();
-  if (!data || data.suggestions.length === 0) {
+  if (!data || data.suggestions.length === 0 && !data.emptyMessage) {
     return null;
   }
-  let t0;
-  if ($[0] !== data.maxColumnWidth || $[1] !== data.selectedSuggestion || $[2] !== data.suggestions) {
-    t0 = <Box position="absolute" bottom="100%" left={0} right={0} paddingX={2} paddingTop={1} flexDirection="column" opaque={true}><PromptInputFooterSuggestions suggestions={data.suggestions} selectedSuggestion={data.selectedSuggestion} maxColumnWidth={data.maxColumnWidth} overlay={true} /></Box>;
-    $[0] = data.maxColumnWidth;
-    $[1] = data.selectedSuggestion;
-    $[2] = data.suggestions;
-    $[3] = t0;
-  } else {
-    t0 = $[3];
-  }
-  return t0;
+  return <Box position="absolute" bottom="100%" left={0} right={0} paddingX={2} paddingTop={1} flexDirection="column" opaque={true}><PromptInputFooterSuggestions suggestions={data.suggestions} selectedSuggestion={data.selectedSuggestion} maxColumnWidth={data.maxColumnWidth} emptyMessage={data.emptyMessage} overlay={true} /></Box>;
 }
 
 // Dialog portaled from PromptInput (AutoModeOptInDialog) — same clip-escape

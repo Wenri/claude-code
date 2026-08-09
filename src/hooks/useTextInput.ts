@@ -329,6 +329,10 @@ export function useTextInput({
           // Return the current cursor unchanged - handleEscape manages state internally
           return cursor
         }
+      case key.leftArrow && key.super:
+        return () => cursor.startOfLine()
+      case key.rightArrow && key.super:
+        return () => cursor.endOfLine()
       case key.leftArrow && (key.ctrl || key.meta || key.fn):
         return () => cursor.prevWord()
       case key.rightArrow && (key.ctrl || key.meta || key.fn):

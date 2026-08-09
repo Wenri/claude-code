@@ -5,6 +5,7 @@ import {
   getMainLoopModelOverride,
   getSessionId,
   setMainLoopModelOverride,
+  setMainThreadAgentHooks,
   setMainThreadAgentType,
   setOriginalCwd,
   switchSession,
@@ -44,6 +45,10 @@ import { createSystemMessage } from './messages.js'
 import { parseUserSpecifiedModel } from './model/model.js'
 import { getPlansDirectory } from './plans.js'
 import { setCwd } from './Shell.js'
+import {
+  isRestrictedToPluginOnly,
+  isSourceAdminTrusted,
+} from './settings/pluginOnlyPolicy.js'
 import {
   adoptResumedSessionFile,
   recordContentReplacement,
@@ -187,6 +192,21 @@ export function computeStandaloneAgentContext(
   }
 }
 
+export function applyMainThreadAgentHooks(
+  agentDefinition: AgentDefinition | undefined,
+): void {
+  const hooks = agentDefinition?.hooks
+  if (
+    hooks &&
+    (!isRestrictedToPluginOnly('hooks') ||
+      isSourceAdminTrusted(agentDefinition.source))
+  ) {
+    setMainThreadAgentHooks(hooks)
+    return
+  }
+  setMainThreadAgentHooks(undefined)
+}
+
 /**
  * Restore agent setting from a resumed session.
  *
@@ -213,6 +233,7 @@ export function restoreAgentFromSession(
   // If session had no agent, clear any stale bootstrap state
   if (!agentSetting) {
     setMainThreadAgentType(undefined)
+    applyMainThreadAgentHooks(undefined)
     return { agentDefinition: undefined, agentType: undefined }
   }
 
@@ -224,10 +245,12 @@ export function restoreAgentFromSession(
       `Resumed session had agent "${agentSetting}" but it is no longer available. Using default behavior.`,
     )
     setMainThreadAgentType(undefined)
+    applyMainThreadAgentHooks(undefined)
     return { agentDefinition: undefined, agentType: undefined }
   }
 
   setMainThreadAgentType(resumedAgent.agentType)
+  applyMainThreadAgentHooks(resumedAgent)
 
   // Apply agent's model if user didn't specify one
   if (

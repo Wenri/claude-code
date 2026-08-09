@@ -453,6 +453,10 @@ const reconciler = createReconciler<
       }
     }
 
+    if (newProps['autoFocus'] === true) {
+      getFocusManager(node).handleAutoFocus(node)
+    }
+
     if (style && node.yogaNode) {
       applyStyles(node.yogaNode, style, newProps['style'] as Styles)
     }

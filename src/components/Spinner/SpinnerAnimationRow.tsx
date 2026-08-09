@@ -16,7 +16,15 @@ import { useStalledAnimation } from './useStalledAnimation.js';
 import { interpolateColor, toRGBColor } from './utils.js';
 const SEP_WIDTH = stringWidth(' · ');
 const THINKING_BARE_WIDTH = stringWidth('thinking');
-const SHOW_TOKENS_AFTER_MS = 30_000;
+const SHOW_TOKENS_AFTER_MS = 16_000;
+
+function thinkingMilestone(elapsedMs: number): string {
+  if (elapsedMs >= 60_000) return 'almost done thinking';
+  if (elapsedMs >= 45_000) return 'thinking some more';
+  if (elapsedMs >= 30_000) return 'thinking more';
+  if (elapsedMs >= 15_000) return 'still thinking';
+  return 'thinking';
+}
 
 // Thinking shimmer constants. Previously lived in a separate ThinkingShimmerText
 // component with its own useAnimationFrame(50) — inlined here to reuse our
@@ -127,7 +135,7 @@ export function SpinnerAnimationRow({
   const {
     isStalled,
     stalledIntensity
-  } = useStalledAnimation(time, currentResponseLength, hasActiveTools || leaderIsIdle, reducedMotion);
+  } = useStalledAnimation(time, currentResponseLength, hasActiveTools || leaderIsIdle || mode === 'thinking', reducedMotion);
   const frame = reducedMotion ? 0 : Math.floor(time / 120);
   const glimmerSpeed = mode === 'requesting' ? 50 : 200;
   // message is stable within a turn; stringWidth is expensive enough (Bun native
@@ -169,7 +177,7 @@ export function SpinnerAnimationRow({
   const tokensWidth = stringWidth(tokensText);
 
   // === Thinking text (may shrink to fit) ===
-  let thinkingText = thinkingStatus === 'thinking' ? `thinking${effortSuffix}` : typeof thinkingStatus === 'number' ? `thought for ${Math.max(1, Math.round(thinkingStatus / 1000))}s` : null;
+  let thinkingText = thinkingStatus === 'thinking' ? `${thinkingMilestone(effectiveElapsedMs)}${effortSuffix}` : typeof thinkingStatus === 'number' ? `thought for ${Math.max(1, Math.round(thinkingStatus / 1000))}s` : null;
   let thinkingWidthValue = thinkingText ? stringWidth(thinkingText) : 0;
 
   // === Progressive width gating ===

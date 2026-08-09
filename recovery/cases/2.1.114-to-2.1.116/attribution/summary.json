@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "kind": "generated-source-ownership-and-attribution-inventory",
+  "offsetUnit": "utf16-code-units",
+  "claim": "Exhaustive generated-offset accounting with exact baseline source ownership; target source identities are evidence-ranked and unresolved where anchors are insufficient.",
+  "artifacts": {
+    "baselineBundle": {
+      "bytes": 13047043,
+      "sha256": "75c9611929d9a770fe2e3a393219d8b98f5de17fde539b2a7355c6db3fd2795f"
+    },
+    "baselineSourceMap": {
+      "bytes": 59766257,
+      "sha256": "7965012b7a5fc9e09d8d747a04c5c32b94696924536e217f686bb1e7ee70a657"
+    },
+    "targetBundle": {
+      "bytes": 13102272,
+      "sha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a"
+    }
+  },
+  "options": {
+    "minimumLiteralLength": 8
+  },
+  "baselineOwnership": {
+    "sourceCount": 4756,
+    "sourceKinds": {
+      "application": 1902,
+      "nodeModules": 2850,
+      "vendor": 4
+    },
+    "mappedSegmentCount": 2068722,
+    "contiguousRunCount": 4756,
+    "eachSourceHasExactlyOneContiguousRun": true,
+    "generatedHeaderUtf16": 2230
+  },
+  "literalEvidence": {
+    "uniqueCommonAnchorCount": 38303,
+    "monotoneAnchorCount": 30078,
+    "nonMonotoneAnchorCount": 8225,
+    "monotoneFraction": 0.7852648617601754,
+    "partitionCount": 30079,
+    "tokenCountDelta": -95871,
+    "utf16LengthDelta": 118944,
+    "locatedSourceCount": 2363,
+    "locatedApplicationSourceCount": 1237,
+    "splitTargetClusterSourceCount": 21
+  },
+  "initializerEvidence": {
+    "baseline": {
+      "wrapperNames": {
+        "common": "m",
+        "initializer": "y"
+      },
+      "count": 4527
+    },
+    "target": {
+      "wrapperNames": {
+        "common": "d",
+        "initializer": "v"
+      },
+      "count": 5031,
+      "statuses": {
+        "unresolved-no-unique-literal": 2562,
+        "anchored-single-baseline-unit": 2369,
+        "anchored-multiple-baseline-units": 100
+      }
+    },
+    "targetNetCountDelta": 504
+  },
+  "coverage": {
+    "partitionCount": 30079,
+    "targetPartitionUtf16": 11700873,
+    "exactAnchorCount": 30078,
+    "exactAnchorTargetUtf16": 1401399,
+    "exactGeneratedPartitionCount": 13067,
+    "exactGeneratedTargetUtf16": 164066,
+    "changedHighConfidencePartitionCount": 14904,
+    "changedHighConfidenceTargetUtf16": 4089640,
+    "changedCandidatePartitionCount": 2105,
+    "changedCandidateTargetUtf16": 7444986,
+    "unresolvedPartitionCount": 3,
+    "unresolvedTargetUtf16": 2181,
+    "accountedTargetUtf16": 13102272,
+    "targetUtf16": 13102272,
+    "unaccountedTargetUtf16": 0
+  },
+  "releaseEvidence": {
+    "targetPackage": {
+      "bytes": 1476,
+      "sha256": "7f6ee419ce8f1c2ab01b417c0ead73055942d720f015e33d2c8b452a7fbf2931",
+      "name": "@anthropic-ai/claude-code",
+      "version": "2.1.116"
+    },
+    "targetDeclarations": {
+      "bytes": 117907,
+      "sha256": "ac897b25130f69621deed0288caf88c4227677b8e122bdb5952ee46de8fb99bc"
+    },
+    "officialChangelog": {
+      "bytes": 242121,
+      "sha256": "5b72ee8862d1964719b9d6358ee497e351640376fa850320ce5167aa7f00c891",
+      "section": "2.1.116",
+      "bulletCount": 24,
+      "bullets": [
+        "`/resume` on large sessions is significantly faster (up to 67% on 40MB+ sessions) and handles sessions with many dead-fork entries more efficiently",
+        "Faster MCP startup when multiple stdio servers are configured; `resources/templates/list` is now deferred to first `@`-mention",
+        "Smoother fullscreen scrolling in VS Code, Cursor, and Windsurf terminals — `/terminal-setup` now configures the editor's scroll sensitivity",
+        "Thinking spinner now shows progress inline (\"still thinking\", \"thinking more\", \"almost done thinking\"), replacing the separate hint row",
+        "`/config` search now matches option values (e.g. searching \"vim\" finds the Editor mode setting)",
+        "`/doctor` can now be opened while Claude is responding, without waiting for the current turn to finish",
+        "`/reload-plugins` and background plugin auto-update now auto-install missing plugin dependencies from marketplaces you've already added",
+        "Bash tool now surfaces a hint when `gh` commands hit GitHub's API rate limit, so agents can back off instead of retrying",
+        "The Usage tab in Settings now shows your 5-hour and weekly usage immediately and no longer fails when the usage endpoint is rate-limited",
+        "Agent frontmatter `hooks:` now fire when running as a main-thread agent via `--agent`",
+        "Slash command menu now shows \"No commands match\" when your filter has zero results, instead of disappearing",
+        "Security: sandbox auto-allow no longer bypasses the dangerous-path safety check for `rm`/`rmdir` targeting `/`, `$HOME`, or other critical system directories",
+        "Fixed Devanagari and other Indic scripts rendering with broken column alignment in the terminal UI",
+        "Fixed Ctrl+- not triggering undo in terminals using the Kitty keyboard protocol (iTerm2, Ghostty, kitty, WezTerm, Windows Terminal)",
+        "Fixed Cmd+Left/Right not jumping to line start/end in terminals that use the Kitty keyboard protocol (Warp fullscreen, kitty, Ghostty, WezTerm)",
+        "Fixed Ctrl+Z hanging the terminal when Claude Code is launched via a wrapper process (e.g. `npx`, `bun run`)",
+        "Fixed scrollback duplication in inline mode where resizing the terminal or large output bursts would repeat earlier conversation history",
+        "Fixed modal search dialogs overflowing the screen at short terminal heights, hiding the search box and keyboard hints",
+        "Fixed scattered blank cells and disappearing composer chrome in the VS Code integrated terminal during scrolling",
+        "Fixed an intermittent API 400 error related to cache control TTL ordering that could occur when a parallel request completed during request setup",
+        "Fixed `/branch` rejecting conversations with transcripts larger than 50MB",
+        "Fixed `/resume` silently showing an empty conversation on large session files instead of reporting the load error",
+        "Fixed `/plugin` Installed tab showing the same item twice when it appears under Needs attention or Favorites",
+        "Fixed `/update` and `/tui` not working after entering a worktree mid-session"
+      ]
+    }
+  },
+  "reportFiles": {
+    "sources": {
+      "path": "sources.jsonl.gz",
+      "bytes": 467971,
+      "sha256": "ef14f658ac03d68534087be27bed1cc19a5e96827a6cce588bf96b1acdb9b606"
+    },
+    "targetInitializers": {
+      "path": "target-initializers.jsonl.gz",
+      "bytes": 117072,
+      "sha256": "7390799f0ee126bbf7c68bee1fd58e55f71bd1a06ea52ceee73cc40fbe9195c5"
+    },
+    "targetPartitions": {
+      "path": "target-partitions.jsonl.gz",
+      "bytes": 3029218,
+      "sha256": "c980bf06163a2f195decca05317f6f022e5663d7d1230351448bffebb96e00f1"
+    }
+  },
+  "limitations": [
+    "Exact source ownership exists only for the baseline source map.",
+    "Initializer regions are delimited by successive Bun wrapper-expression starts; they are generated units, not asserted one-to-one source modules.",
+    "A target initializer with no unique long literal is unresolved, not automatically target-only.",
+    "Candidate ranges can include moved code; non-monotone literal owners are reported separately.",
+    "Raw-different partitions include harmless minifier-name churn as well as semantic changes.",
+    "No target source text is claimed reconstructed by this inventory."
+  ]
+}

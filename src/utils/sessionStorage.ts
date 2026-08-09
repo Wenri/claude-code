@@ -70,7 +70,7 @@ import { getCwd } from './cwd.js'
 import { logForDebugging } from './debug.js'
 import { logForDiagnosticsNoPII } from './diagLogs.js'
 import { getClaudeConfigHomeDir, isEnvTruthy } from './envUtils.js'
-import { isFsInaccessible } from './errors.js'
+import { isENOENT, isFsInaccessible } from './errors.js'
 import type { FileHistorySnapshot } from './fileHistory.js'
 import { formatFileSize } from './format.js'
 import { getFsImplementation } from './fsOperations.js'
@@ -90,7 +90,6 @@ import {
   extractLastJsonStringField,
   LITE_READ_BUF_SIZE,
   readHeadAndTail,
-  readTranscriptForLoad,
   SKIP_PRECOMPACT_THRESHOLD,
 } from './sessionStoragePortable.js'
 import { getSettings_DEPRECATED } from './settings/settings.js'
@@ -738,10 +737,9 @@ class Project {
    * Called from two contexts with different file-ordering implications:
    * - During compaction (compact.ts, reactiveCompact.ts): writes metadata
    *   just before the boundary marker is emitted - these entries end up
-   *   before the boundary and are recovered by scanPreBoundaryMetadata.
+   *   before the boundary and are retained by the large-transcript scanner.
    * - On session exit (cleanup handler): writes metadata at EOF after all
-   *   boundaries - this is what enables loadTranscriptFile's pre-compact
-   *   skip to find metadata without a forward scan.
+   *   boundaries so progressive tail reads see the latest values.
    *
    * External-writer safety for SDK-mutable fields (custom-title, tag):
    * before re-appending, refresh the cache from the tail scan window. If an
@@ -3140,8 +3138,9 @@ export async function loadFullLog(log: LogOption): Promise<LogOption> {
           ? contextCollapseSnapshot
           : undefined,
     }
-  } catch {
+  } catch (error) {
     // If loading fails, return the original log
+    logError(error)
     return log
   }
 }
@@ -3197,124 +3196,6 @@ export async function searchSessionsByCustomTitle(
 }
 
 /**
- * Metadata entry types that can appear before a compact boundary but must
- * still be loaded (they're session-scoped, not message-scoped).
- * Kept as raw JSON string markers for cheap line filtering during streaming.
- */
-const METADATA_TYPE_MARKERS = [
-  '"type":"summary"',
-  '"type":"custom-title"',
-  '"type":"tag"',
-  '"type":"agent-name"',
-  '"type":"agent-color"',
-  '"type":"agent-setting"',
-  '"type":"mode"',
-  '"type":"worktree-state"',
-  '"type":"pr-link"',
-]
-const METADATA_MARKER_BUFS = METADATA_TYPE_MARKERS.map(m => Buffer.from(m))
-// Longest marker is 22 bytes; +1 for leading `{` = 23.
-const METADATA_PREFIX_BOUND = 25
-
-// null = carry spans whole chunk. Skips concat when carry provably isn't
-// a metadata line (markers sit at byte 1 after `{`).
-function resolveMetadataBuf(
-  carry: Buffer | null,
-  chunkBuf: Buffer,
-): Buffer | null {
-  if (carry === null || carry.length === 0) return chunkBuf
-  if (carry.length < METADATA_PREFIX_BOUND) {
-    return Buffer.concat([carry, chunkBuf])
-  }
-  if (carry[0] === 0x7b /* { */) {
-    for (const m of METADATA_MARKER_BUFS) {
-      if (carry.compare(m, 0, m.length, 1, 1 + m.length) === 0) {
-        return Buffer.concat([carry, chunkBuf])
-      }
-    }
-  }
-  const firstNl = chunkBuf.indexOf(0x0a)
-  return firstNl === -1 ? null : chunkBuf.subarray(firstNl + 1)
-}
-
-/**
- * Lightweight forward scan of [0, endOffset) collecting only metadata-entry lines.
- * Uses raw Buffer chunks and byte-level marker matching — no readline, no per-line
- * string conversion for the ~99% of lines that are message content.
- *
- * Fast path: if a chunk contains zero markers (the common case — metadata entries
- * are <50 per session), the entire chunk is skipped without line splitting.
- */
-async function scanPreBoundaryMetadata(
-  filePath: string,
-  endOffset: number,
-): Promise<string[]> {
-  const { createReadStream } = await import('fs')
-  const NEWLINE = 0x0a
-
-  const stream = createReadStream(filePath, { end: endOffset - 1 })
-  const metadataLines: string[] = []
-  let carry: Buffer | null = null
-
-  for await (const chunk of stream) {
-    const chunkBuf = chunk as Buffer
-    const buf = resolveMetadataBuf(carry, chunkBuf)
-    if (buf === null) {
-      carry = null
-      continue
-    }
-
-    // Fast path: most chunks contain zero metadata markers. Skip line splitting.
-    let hasAnyMarker = false
-    for (const m of METADATA_MARKER_BUFS) {
-      if (buf.includes(m)) {
-        hasAnyMarker = true
-        break
-      }
-    }
-
-    if (hasAnyMarker) {
-      let lineStart = 0
-      let nl = buf.indexOf(NEWLINE)
-      while (nl !== -1) {
-        // Bounded marker check: only look within this line's byte range
-        for (const m of METADATA_MARKER_BUFS) {
-          const mIdx = buf.indexOf(m, lineStart)
-          if (mIdx !== -1 && mIdx < nl) {
-            metadataLines.push(buf.toString('utf-8', lineStart, nl))
-            break
-          }
-        }
-        lineStart = nl + 1
-        nl = buf.indexOf(NEWLINE, lineStart)
-      }
-      carry = buf.subarray(lineStart)
-    } else {
-      // No markers in this chunk — just preserve the incomplete trailing line
-      const lastNl = buf.lastIndexOf(NEWLINE)
-      carry = lastNl >= 0 ? buf.subarray(lastNl + 1) : buf
-    }
-
-    // Guard against quadratic carry growth for pathological huge lines
-    // (e.g., a 10 MB tool-output line with no newline). Real metadata entries
-    // are <1 KB, so if carry exceeds this we're mid-message-content — drop it.
-    if (carry.length > 64 * 1024) carry = null
-  }
-
-  // Final incomplete line (no trailing newline at endOffset)
-  if (carry !== null && carry.length > 0) {
-    for (const m of METADATA_MARKER_BUFS) {
-      if (carry.includes(m)) {
-        metadataLines.push(carry.toString('utf-8'))
-        break
-      }
-    }
-  }
-
-  return metadataLines
-}
-
-/**
  * Byte-level pre-filter that excises dead fork branches before parseJSONL.
  *
  * Every rewind/ctrl-z leaves an orphaned chain branch in the append-only
@@ -3348,6 +3229,45 @@ async function scanPreBoundaryMetadata(
  * The append-only write discipline guarantees parents appear at earlier file
  * offsets than children, so walking backward from EOF always finds them.
  */
+
+/** Find a JSON object key at depth one without parsing the complete line. */
+function findDepthOneKey(
+  buf: Buffer,
+  start: number,
+  end: number,
+  key: Buffer,
+): number {
+  const firstKeyByte = key[0]
+  let depth = 0
+  let inString = false
+  let escapeNext = false
+
+  for (let i = start; i < end; i++) {
+    const byte = buf[i]!
+    if (
+      depth === 1 &&
+      !inString &&
+      byte === firstKeyByte &&
+      i + key.length <= end &&
+      buf.compare(key, 0, key.length, i, i + key.length) === 0
+    ) {
+      return i
+    }
+    if (escapeNext) {
+      escapeNext = false
+    } else if (inString) {
+      if (byte === 0x5c /* \\ */) escapeNext = true
+      else if (byte === 0x22 /* " */) inString = false
+    } else if (byte === 0x22 /* " */) {
+      inString = true
+    } else if (byte === 0x7b /* { */) {
+      depth++
+    } else if (byte === 0x7d /* } */) {
+      depth--
+    }
+  }
+  return -1
+}
 
 /**
  * Disambiguate multiple `"uuid":"<36>","timestamp":"` matches in one line by
@@ -3556,6 +3476,325 @@ function walkChainBeforeParse(buf: Buffer): Buffer {
   return Buffer.concat(parts)
 }
 
+const TRANSCRIPT_SCAN_CHUNK_SIZE = 1024 * 1024
+const SIDECHAIN_PROBE_BYTES = 256
+const COMPACT_BOUNDARY_PROBE_BYTES = 4096
+
+type TranscriptLineVisitor = (
+  buf: Buffer,
+  start: number,
+  length: number,
+  fileOffset: number,
+) => void
+
+function parseTranscriptLine(
+  buf: Buffer,
+  start: number,
+  length: number,
+): Entry {
+  return jsonParse(buf.toString('utf8', start, start + length)) as Entry
+}
+
+/**
+ * Two-pass fd-level reader for large transcripts.
+ *
+ * Pass one stores only line offsets and the fields needed to identify the
+ * latest live main-thread chain. Pass two parses that chain plus every line
+ * that could not be classified as a transcript message. Attribution snapshots
+ * are handled separately so only their last post-compaction value is parsed.
+ */
+function scanLargeTranscript(
+  filePath: string,
+  fileSize: number,
+  onEntry: (entry: Entry) => void,
+  resetMessageState: () => void,
+  keepAllLeaves: boolean,
+): { lastAttributionOffset: number; lastAttributionLength: number } {
+  const ATTRIBUTION_PREFIX = Buffer.from('{"type":"attribution-snapshot"')
+  const PARENT_PREFIX = Buffer.from('{"parentUuid":')
+  const PARENT_KEY = Buffer.from('"parentUuid":')
+  const UUID_KEY = Buffer.from('"uuid":"')
+  const TIMESTAMP_SUFFIX = Buffer.from('","timestamp":"')
+  const SIDECHAIN_TRUE = Buffer.from('"isSidechain":true')
+  const COMPACT_BOUNDARY = Buffer.from('"compact_boundary"')
+  const UUID_LENGTH = 36
+
+  const chunk = Buffer.allocUnsafe(TRANSCRIPT_SCAN_CHUNK_SIZE)
+  const fd = openSync(filePath, 'r')
+  const messageOffsets: number[] = []
+  const parentUuids: Array<string | null> = []
+  const sidechains: boolean[] = []
+  const uuidToMessageIndex = new Map<string, number>()
+  const unclassifiedOffsets: number[] = []
+  const compactBoundaryOffsets = new Set<number>()
+  let hasPreservedSegment = false
+  let lastAttributionOffset = -1
+  let lastAttributionLength = 0
+
+  function findUuidKey(line: Buffer, lineLength: number): number {
+    let firstAny = -1
+    let firstTimestamped = -1
+    let timestampedCandidates: number[] | undefined
+    let from = 0
+    for (;;) {
+      const candidate = line.indexOf(UUID_KEY, from)
+      if (candidate < 0) break
+      if (firstAny < 0) firstAny = candidate
+      const afterUuid = candidate + UUID_KEY.length + UUID_LENGTH
+      if (
+        afterUuid + TIMESTAMP_SUFFIX.length <= lineLength &&
+        line.compare(
+          TIMESTAMP_SUFFIX,
+          0,
+          TIMESTAMP_SUFFIX.length,
+          afterUuid,
+          afterUuid + TIMESTAMP_SUFFIX.length,
+        ) === 0
+      ) {
+        if (firstTimestamped < 0) {
+          firstTimestamped = candidate
+        } else {
+          if (!timestampedCandidates) {
+            timestampedCandidates = [firstTimestamped]
+          }
+          timestampedCandidates.push(candidate)
+        }
+      }
+      from = candidate + UUID_KEY.length
+    }
+
+    return timestampedCandidates
+      ? pickDepthOneUuidCandidate(line, 0, timestampedCandidates)
+      : firstTimestamped >= 0
+        ? firstTimestamped
+        : firstAny
+  }
+
+  function indexLine(
+    buf: Buffer,
+    start: number,
+    length: number,
+    fileOffset: number,
+  ): void {
+    const line = buf.subarray(start, start + length)
+    if (
+      length >= ATTRIBUTION_PREFIX.length &&
+      line.compare(
+        ATTRIBUTION_PREFIX,
+        0,
+        ATTRIBUTION_PREFIX.length,
+        0,
+        ATTRIBUTION_PREFIX.length,
+      ) === 0
+    ) {
+      lastAttributionOffset = fileOffset
+      lastAttributionLength = length
+      return
+    }
+
+    const boundaryProbe =
+      length <= COMPACT_BOUNDARY_PROBE_BYTES
+        ? line
+        : line.subarray(0, COMPACT_BOUNDARY_PROBE_BYTES)
+    if (boundaryProbe.includes(COMPACT_BOUNDARY)) {
+      const entry = parseTranscriptLine(line, 0, length)
+      if (entry?.type === 'system' && entry.subtype === 'compact_boundary') {
+        if (entry.compactMetadata?.preservedSegment) {
+          hasPreservedSegment = true
+        } else {
+          compactBoundaryOffsets.add(fileOffset)
+          messageOffsets.length = 0
+          parentUuids.length = 0
+          sidechains.length = 0
+          uuidToMessageIndex.clear()
+          hasPreservedSegment = false
+          lastAttributionOffset = -1
+          lastAttributionLength = 0
+        }
+      }
+    }
+
+    let parentValueOffset: number
+    if (
+      length > PARENT_PREFIX.length &&
+      line.compare(
+        PARENT_PREFIX,
+        0,
+        PARENT_PREFIX.length,
+        0,
+        PARENT_PREFIX.length,
+      ) === 0
+    ) {
+      parentValueOffset = PARENT_PREFIX.length
+    } else {
+      const parentKeyOffset = findDepthOneKey(line, 0, length, PARENT_KEY)
+      if (parentKeyOffset < 0) {
+        unclassifiedOffsets.push(fileOffset)
+        return
+      }
+      parentValueOffset = parentKeyOffset + PARENT_KEY.length
+    }
+
+    const parentUuid =
+      line[parentValueOffset] === 0x22
+        ? line.toString(
+            'latin1',
+            parentValueOffset + 1,
+            parentValueOffset + 1 + UUID_LENGTH,
+          )
+        : null
+    const uuidKeyOffset = findUuidKey(line, length)
+    if (uuidKeyOffset < 0) {
+      unclassifiedOffsets.push(fileOffset)
+      return
+    }
+    const uuid = line.toString(
+      'latin1',
+      uuidKeyOffset + UUID_KEY.length,
+      uuidKeyOffset + UUID_KEY.length + UUID_LENGTH,
+    )
+    const sidechainProbe =
+      length <= SIDECHAIN_PROBE_BYTES
+        ? line
+        : line.subarray(0, SIDECHAIN_PROBE_BYTES)
+
+    uuidToMessageIndex.set(uuid, messageOffsets.length)
+    messageOffsets.push(fileOffset)
+    parentUuids.push(parentUuid)
+    sidechains.push(sidechainProbe.includes(SIDECHAIN_TRUE))
+  }
+
+  let longLineBuffer = Buffer.allocUnsafe(64 * 1024)
+  function scanLines(
+    visit: TranscriptLineVisitor,
+    shouldVisit?: (fileOffset: number) => boolean,
+  ): void {
+    let spanningLineOffset = -1
+    let chunkOffset = 0
+    while (chunkOffset < fileSize) {
+      const bytesRead = readSync(
+        fd,
+        chunk,
+        0,
+        TRANSCRIPT_SCAN_CHUNK_SIZE,
+        chunkOffset,
+      )
+      if (bytesRead === 0) break
+
+      let lineStart = 0
+      for (let i = 0; i < bytesRead; i++) {
+        if (chunk[i] !== 0x0a) continue
+        if (spanningLineOffset >= 0) {
+          if (shouldVisit === undefined || shouldVisit(spanningLineOffset)) {
+            const length = chunkOffset + i - spanningLineOffset
+            if (length > longLineBuffer.length) {
+              longLineBuffer = Buffer.allocUnsafe(length)
+            }
+            readSync(
+              fd,
+              longLineBuffer,
+              0,
+              length,
+              spanningLineOffset,
+            )
+            visit(longLineBuffer, 0, length, spanningLineOffset)
+          }
+          spanningLineOffset = -1
+        } else if (i > lineStart) {
+          const absoluteLineOffset = chunkOffset + lineStart
+          if (
+            shouldVisit === undefined ||
+            shouldVisit(absoluteLineOffset)
+          ) {
+            visit(
+              chunk,
+              lineStart,
+              i - lineStart,
+              absoluteLineOffset,
+            )
+          }
+        }
+        lineStart = i + 1
+      }
+
+      if (lineStart < bytesRead && spanningLineOffset < 0) {
+        spanningLineOffset = chunkOffset + lineStart
+      }
+      chunkOffset += bytesRead
+    }
+
+    if (
+      spanningLineOffset >= 0 &&
+      (shouldVisit === undefined || shouldVisit(spanningLineOffset))
+    ) {
+      const length = fileSize - spanningLineOffset
+      if (length > longLineBuffer.length) {
+        longLineBuffer = Buffer.allocUnsafe(length)
+      }
+      readSync(fd, longLineBuffer, 0, length, spanningLineOffset)
+      visit(longLineBuffer, 0, length, spanningLineOffset)
+    }
+  }
+
+  try {
+    scanLines(indexLine)
+
+    let selectedOffsets: Set<number> | null = null
+    if (!keepAllLeaves && !hasPreservedSegment) {
+      let leafIndex = -1
+      for (let i = messageOffsets.length - 1; i >= 0; i--) {
+        if (!sidechains[i]) {
+          leafIndex = i
+          break
+        }
+      }
+
+      selectedOffsets = new Set<number>()
+      const seen = new Set<number>()
+      let messageIndex = leafIndex >= 0 ? leafIndex : undefined
+      while (messageIndex !== undefined && !seen.has(messageIndex)) {
+        seen.add(messageIndex)
+        selectedOffsets.add(messageOffsets[messageIndex]!)
+        const parentUuid = parentUuids[messageIndex]
+        messageIndex =
+          parentUuid === null ? undefined : uuidToMessageIndex.get(parentUuid)
+      }
+    }
+
+    const offsetsToParse = selectedOffsets ?? new Set(messageOffsets)
+    for (const offset of unclassifiedOffsets) offsetsToParse.add(offset)
+
+    scanLines(
+      (buf, start, length, fileOffset) => {
+        if (compactBoundaryOffsets.has(fileOffset)) resetMessageState()
+        const entry = parseTranscriptLine(buf, start, length)
+        if (entry) onEntry(entry)
+      },
+      fileOffset => offsetsToParse.has(fileOffset),
+    )
+  } finally {
+    closeSync(fd)
+  }
+
+  return { lastAttributionOffset, lastAttributionLength }
+}
+
+function readTranscriptEntryAt(
+  filePath: string,
+  offset: number,
+  length: number,
+): Entry | undefined {
+  if (offset < 0 || length <= 0) return undefined
+  const fd = openSync(filePath, 'r')
+  try {
+    const buf = Buffer.allocUnsafe(length)
+    readSync(fd, buf, 0, length, offset)
+    return parseTranscriptLine(buf, 0, length)
+  } finally {
+    closeSync(fd)
+  }
+}
+
 /**
  * Loads all messages, summaries, and file history snapshots from a transcript file.
  * Returns the messages, summaries, custom titles, tags, file history snapshots, and attribution snapshots.
@@ -3610,100 +3849,22 @@ export async function loadTranscriptFile(
   let lastWrittenNonSidechainUuid: UUID | undefined
 
   try {
-    // For large transcripts, avoid materializing megabytes of stale content.
-    // Single forward chunked read: attribution-snapshot lines are skipped at
-    // the fd level (never buffered), compact boundaries truncate the
-    // accumulator in-stream. Peak allocation is the OUTPUT size, not the
-    // file size — a 151 MB session that is 84% stale attr-snaps allocates
-    // ~32 MB instead of 159+64 MB. This matters because mimalloc does not
-    // return those pages to the OS even after JS-level GC frees the backing
-    // buffers (measured: arrayBuffers=0 after Bun.gc(true) but RSS stuck at
-    // ~316 MB on the old scan+strip path vs ~155 MB here).
-    //
-    // Pre-boundary metadata (agent-setting, mode, pr-link, etc.) is recovered
-    // via a cheap byte-level forward scan of [0, boundary).
-    let buf: Buffer | null = null
-    let metadataLines: string[] | null = null
-    let hasPreservedSegment = false
+    let largeFileSize: number | undefined
     if (!isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_PRECOMPACT_SKIP)) {
       const { size } = await stat(filePath)
       if (size > SKIP_PRECOMPACT_THRESHOLD) {
-        const scan = await readTranscriptForLoad(filePath, size)
-        buf = scan.postBoundaryBuf
-        hasPreservedSegment = scan.hasPreservedSegment
-        // >0 means we truncated pre-boundary bytes and must recover
-        // session-scoped metadata from that range. A preservedSegment
-        // boundary does not truncate (preserved messages are physically
-        // pre-boundary), so offset stays 0 unless an EARLIER non-preserved
-        // boundary already truncated — in which case the preserved messages
-        // for the later boundary are post-that-earlier-boundary and were
-        // kept, and we still want the metadata scan.
-        if (scan.boundaryStartOffset > 0) {
-          metadataLines = await scanPreBoundaryMetadata(
-            filePath,
-            scan.boundaryStartOffset,
-          )
-        }
+        largeFileSize = size
       }
     }
-    buf ??= await readFile(filePath)
-    // For large buffers (which here means readTranscriptForLoad output with
-    // attr-snaps already stripped at the fd level — the <5MB readFile path
-    // falls through the size gate below), the dominant cost is parsing dead
-    // fork branches that buildConversationChain would discard anyway. Skip
-    // when the caller needs all
-    // leaves (loadAllLogsFromSessionFile for /insights picks the branch with
-    // most user messages, not the latest), when the boundary has a
-    // preservedSegment (those messages keep their pre-compact parentUuid on
-    // disk -- applyPreservedSegmentRelinks splices them in-memory AFTER
-    // parse, so a pre-parse chain walk would drop them as orphans), and when
-    // CLAUDE_CODE_DISABLE_PRECOMPACT_SKIP is set (that kill switch means
-    // "load everything, skip nothing"; this is another skip-before-parse
-    // optimization and the scan it depends on for hasPreservedSegment did
-    // not run).
-    if (
-      !opts?.keepAllLeaves &&
-      !hasPreservedSegment &&
-      !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_PRECOMPACT_SKIP) &&
-      buf.length > SKIP_PRECOMPACT_THRESHOLD
-    ) {
-      buf = walkChainBeforeParse(buf)
-    }
-
-    // First pass: process metadata-only lines collected during the boundary scan.
-    // These populate the session-scoped maps (agentSettings, modes, prNumbers,
-    // etc.) for entries written before the compact boundary. Any overlap with
-    // the post-boundary buffer is harmless — later values overwrite earlier ones.
-    if (metadataLines && metadataLines.length > 0) {
-      const metaEntries = parseJSONL<Entry>(
-        Buffer.from(metadataLines.join('\n')),
-      )
-      for (const entry of metaEntries) {
-        if (entry.type === 'summary' && entry.leafUuid) {
-          summaries.set(entry.leafUuid, entry.summary)
-        } else if (entry.type === 'custom-title' && entry.sessionId) {
-          customTitles.set(entry.sessionId, entry.customTitle)
-        } else if (entry.type === 'tag' && entry.sessionId) {
-          tags.set(entry.sessionId, entry.tag)
-        } else if (entry.type === 'agent-name' && entry.sessionId) {
-          agentNames.set(entry.sessionId, entry.agentName)
-        } else if (entry.type === 'agent-color' && entry.sessionId) {
-          agentColors.set(entry.sessionId, entry.agentColor)
-        } else if (entry.type === 'agent-setting' && entry.sessionId) {
-          agentSettings.set(entry.sessionId, entry.agentSetting)
-        } else if (entry.type === 'mode' && entry.sessionId) {
-          modes.set(entry.sessionId, entry.mode)
-        } else if (entry.type === 'worktree-state' && entry.sessionId) {
-          worktreeStates.set(entry.sessionId, entry.worktreeSession)
-        } else if (entry.type === 'pr-link' && entry.sessionId) {
-          prNumbers.set(entry.sessionId, entry.prNumber)
-          prUrls.set(entry.sessionId, entry.prUrl)
-          prRepositories.set(entry.sessionId, entry.prRepository)
-        }
+    let entries: Entry[] | undefined
+    if (largeFileSize === undefined) {
+      let buf = await readFile(filePath)
+      // Fallback for large reads when the fd scanner is disabled.
+      if (!opts?.keepAllLeaves && buf.length > SKIP_PRECOMPACT_THRESHOLD) {
+        buf = walkChainBeforeParse(buf)
       }
+      entries = parseJSONL<Entry>(buf)
     }
-
-    const entries = parseJSONL<Entry>(buf)
 
     // Bridge map for legacy progress entries: progress_uuid → progress_parent_uuid.
     // PR #24099 removed progress from isTranscriptMessage, so old transcripts with
@@ -3714,7 +3875,7 @@ export async function loadTranscriptFile(
     // rewrite any subsequent message whose parentUuid lands in the bridge.
     const progressBridge = new Map<UUID, UUID | null>()
 
-    for (const entry of entries) {
+    const processEntry = (entry: Entry): void => {
       // Legacy progress check runs before the Entry-typed else-if chain —
       // progress is not in the Entry union, so checking it after TypeScript
       // has narrowed `entry` intersects to `never`.
@@ -3729,7 +3890,7 @@ export async function loadTranscriptFile(
             ? (progressBridge.get(parent) ?? null)
             : parent,
         )
-        continue
+        return
       }
       if (isTranscriptMessage(entry)) {
         if (entry.parentUuid && progressBridge.has(entry.parentUuid)) {
@@ -3771,6 +3932,7 @@ export async function loadTranscriptFile(
       } else if (entry.type === 'file-history-snapshot') {
         fileHistorySnapshots.set(entry.messageId, entry)
       } else if (entry.type === 'attribution-snapshot') {
+        attributionSnapshots.clear()
         attributionSnapshots.set(entry.messageId, entry)
       } else if (entry.type === 'content-replacement') {
         // Subagent decisions key by agentId (sidechain resume); main-thread
@@ -3790,8 +3952,38 @@ export async function loadTranscriptFile(
         contextCollapseSnapshot = entry
       }
     }
-  } catch {
-    // File doesn't exist or can't be read
+
+    if (largeFileSize !== undefined) {
+      const scan = scanLargeTranscript(
+        filePath,
+        largeFileSize,
+        processEntry,
+        () => {
+          messages.clear()
+          fileHistorySnapshots.clear()
+          progressBridge.clear()
+        },
+        opts?.keepAllLeaves ?? false,
+      )
+      const lastAttribution = readTranscriptEntryAt(
+        filePath,
+        scan.lastAttributionOffset,
+        scan.lastAttributionLength,
+      )
+      if (lastAttribution?.type === 'attribution-snapshot') {
+        attributionSnapshots.set(
+          lastAttribution.messageId,
+          lastAttribution,
+        )
+      }
+    } else {
+      for (const entry of entries ?? []) processEntry(entry)
+    }
+  } catch (error) {
+    if (!isENOENT(error)) {
+      logError(error)
+      throw error
+    }
   }
 
   applyPreservedSegmentRelinks(messages)

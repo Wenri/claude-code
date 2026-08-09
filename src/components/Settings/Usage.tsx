@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { extraUsage as extraUsageCommand } from 'src/commands/extra-usage/index.js';
 import { formatCost } from 'src/cost-tracker.js';
 import { getSubscriptionType } from 'src/utils/auth.js';
+import { getRawUtilization } from '../../services/claudeAiLimits.js';
 import { useTerminalSize } from '../../hooks/useTerminalSize.js';
 import { Box, Text } from '../../ink.js';
 import { useKeybinding } from '../../keybindings/useKeybinding.js';
@@ -15,6 +16,7 @@ import { ConfigurableShortcutHint } from '../ConfigurableShortcutHint.js';
 import { Byline } from '../design-system/Byline.js';
 import { ProgressBar } from '../design-system/ProgressBar.js';
 import { isEligibleForOverageCreditGrant, OverageCreditUpsell } from '../LogoV2/OverageCreditUpsell.js';
+import { UsageContributors } from './UsageContributors.js';
 type LimitBarProps = {
   title: string;
   limit: RateLimit;
@@ -172,8 +174,9 @@ function LimitBar(t0) {
   }
 }
 export function Usage(): React.ReactNode {
-  const [utilization, setUtilization] = useState<Utilization | null>(null);
+  const [utilization, setUtilization] = useState<Utilization | null>(getCachedUtilization);
   const [error, setError] = useState<string | null>(null);
+  const [refreshError, setRefreshError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const {
     columns
@@ -183,6 +186,7 @@ export function Usage(): React.ReactNode {
   const loadUtilization = React.useCallback(async () => {
     setIsLoading(true);
     setError(null);
+    setRefreshError(null);
     try {
       const data = await fetchUtilization();
       setUtilization(data);
@@ -190,11 +194,26 @@ export function Usage(): React.ReactNode {
       logError(err as Error);
       const axiosError = err as {
         response?: {
+          status?: number;
           data?: unknown;
         };
       };
-      const responseBody = axiosError.response?.data ? jsonStringify(axiosError.response.data) : undefined;
-      setError(responseBody ? `Failed to load usage data: ${responseBody}` : 'Failed to load usage data');
+      const status = axiosError.response?.status;
+      const cached = getCachedUtilization();
+      if (cached) {
+        setUtilization(previous => previous ?? cached);
+        setRefreshError(status === 429 ? 'Per-model breakdown unavailable (rate limited — try again in a moment)' : 'Could not refresh usage data');
+      } else if (status === 429) {
+        setError('Usage endpoint is rate limited. Please try again in a moment.');
+      } else {
+      const responseError = err as {
+        response?: {
+          data?: unknown;
+        };
+      };
+      const responseBody = responseError.response?.data ? jsonStringify(responseError.response.data) : undefined;
+        setError(responseBody ? `Failed to load usage data: ${responseBody}` : 'Failed to load usage data');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -206,7 +225,7 @@ export function Usage(): React.ReactNode {
     void loadUtilization();
   }, {
     context: 'Settings',
-    isActive: !!error && !isLoading
+    isActive: (!!error || !!refreshError) && !isLoading
   });
   if (error) {
     return <Box flexDirection="column" gap={1}>
@@ -254,14 +273,35 @@ export function Usage(): React.ReactNode {
       limit: limit_0
     }) => limit_0 && <LimitBar key={title} title={title} limit={limit_0} maxWidth={maxWidth} />)}
 
+      <UsageContributors maxWidth={maxWidth} />
+
       {utilization.extra_usage && <ExtraUsageSection extraUsage={utilization.extra_usage} maxWidth={maxWidth} />}
 
       {isEligibleForOverageCreditGrant() && <OverageCreditUpsell maxWidth={maxWidth} />}
 
+      {refreshError && <Text dimColor>{refreshError}</Text>}
+      {isLoading && !refreshError && <Text dimColor>Refreshing…</Text>}
+
       <Text dimColor>
-        <ConfigurableShortcutHint action="confirm:no" context="Settings" fallback="Esc" description="cancel" />
+        <Byline>
+          {refreshError && <ConfigurableShortcutHint action="settings:retry" context="Settings" fallback="r" description="retry" />}
+          <ConfigurableShortcutHint action="confirm:no" context="Settings" fallback="Esc" description="cancel" />
+        </Byline>
       </Text>
     </Box>;
+}
+
+function getCachedUtilization(): Utilization | null {
+  const raw = getRawUtilization();
+  if (!raw.five_hour && !raw.seven_day) return null;
+  const convert = (limit: typeof raw.five_hour): RateLimit | undefined => limit ? {
+    utilization: limit.utilization * 100,
+    resets_at: new Date(limit.resets_at * 1000).toISOString()
+  } : undefined;
+  return {
+    five_hour: convert(raw.five_hour),
+    seven_day: convert(raw.seven_day)
+  };
 }
 type ExtraUsageSectionProps = {
   extraUsage: ExtraUsage;

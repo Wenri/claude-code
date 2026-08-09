@@ -770,7 +770,7 @@ function writeLineToScreen(
     // Wide char at last column can't fit — terminal would wrap it to
     // the next line, desyncing our cursor model. Place a SpacerHead
     // to mark the blank column, matching terminal behavior.
-    if (isWideCharacter && offsetX + 2 > screenWidth) {
+    if (isWideCharacter && offsetX + charWidth > screenWidth) {
       setCellAt(screen, offsetX, y, {
         char: ' ',
         styleId: stylePool.none,
@@ -790,7 +790,18 @@ function writeLineToScreen(
       width: isWideCharacter ? CellWidth.Wide : CellWidth.Narrow,
       hyperlink: character.hyperlink,
     })
-    offsetX += isWideCharacter ? 2 : 1
+    // setCellAt writes the first SpacerTail for a wide cell. Grapheme
+    // clusters can occupy more than two columns (notably Indic clusters),
+    // so explicitly model every remaining terminal cell as a styled tail.
+    for (let i = 2; i < charWidth; i++) {
+      setCellAt(screen, offsetX + i, y, {
+        char: '',
+        styleId: character.styleId,
+        width: CellWidth.SpacerTail,
+        hyperlink: character.hyperlink,
+      })
+    }
+    offsetX += isWideCharacter ? charWidth : 1
   }
 
   return offsetX

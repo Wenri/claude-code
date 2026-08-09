@@ -39,6 +39,7 @@ type Props = {
   onChangeIsUpdating: (isUpdating: boolean) => void;
   suggestions: SuggestionItem[];
   selectedSuggestion: number;
+  suggestionsEmptyMessage?: string;
   maxColumnWidth?: number;
   toolPermissionContext: ToolPermissionContext;
   helpOpen: boolean;
@@ -73,6 +74,7 @@ function PromptInputFooter({
   onChangeIsUpdating,
   suggestions,
   selectedSuggestion,
+  suggestionsEmptyMessage,
   maxColumnWidth,
   toolPermissionContext,
   helpOpen,
@@ -121,15 +123,17 @@ function PromptInputFooter({
   // Hide `? for shortcuts` if the user has a custom status line, or during ctrl-r
   const suppressHint = suppressHintFromProps || statusLineShouldDisplay(settings) || isSearching;
   // Fullscreen: portal data to FullscreenLayout — see promptOverlayContext.tsx
-  const overlayData = useMemo(() => isFullscreen && suggestions.length ? {
+  const hasSuggestionsContent = suggestions.length > 0 || !!suggestionsEmptyMessage;
+  const overlayData = useMemo(() => isFullscreen && hasSuggestionsContent ? {
     suggestions,
     selectedSuggestion,
-    maxColumnWidth
-  } : null, [isFullscreen, suggestions, selectedSuggestion, maxColumnWidth]);
+    maxColumnWidth,
+    emptyMessage: suggestionsEmptyMessage
+  } : null, [isFullscreen, hasSuggestionsContent, suggestions, selectedSuggestion, maxColumnWidth, suggestionsEmptyMessage]);
   useSetPromptOverlay(overlayData);
-  if (suggestions.length && !isFullscreen) {
+  if (hasSuggestionsContent && !isFullscreen) {
     return <Box paddingX={2} paddingY={0}>
-        <PromptInputFooterSuggestions suggestions={suggestions} selectedSuggestion={selectedSuggestion} maxColumnWidth={maxColumnWidth} />
+        <PromptInputFooterSuggestions suggestions={suggestions} selectedSuggestion={selectedSuggestion} maxColumnWidth={maxColumnWidth} emptyMessage={suggestionsEmptyMessage} />
       </Box>;
   }
   if (helpOpen) {

@@ -362,10 +362,10 @@ export function getPromptCachingEnabled(model: string): boolean {
 
 export function getCacheControl({
   scope,
-  querySource,
+  ttl,
 }: {
   scope?: CacheScope
-  querySource?: QuerySource
+  ttl?: '1h'
 } = {}): {
   type: 'ephemeral'
   ttl?: '1h'
@@ -373,7 +373,7 @@ export function getCacheControl({
 } {
   return {
     type: 'ephemeral',
-    ...(should1hCacheTTL(querySource) && { ttl: '1h' }),
+    ...(ttl && { ttl }),
     ...(scope === 'global' && { scope }),
   }
 }
@@ -393,7 +393,7 @@ export function getCacheControl({
  *
  * The allowlist is cached in STATE for session stability.
  */
-function should1hCacheTTL(querySource?: QuerySource): boolean {
+export function should1hCacheTTL(querySource?: QuerySource): boolean {
   if (isEnvTruthy(process.env.FORCE_PROMPT_CACHING_5M)) {
     return false
   }
@@ -590,7 +590,7 @@ export function userMessageToMessageParam(
   message: UserMessage,
   addCache = false,
   enablePromptCaching: boolean,
-  querySource?: QuerySource,
+  cacheTtl?: '1h',
 ): MessageParam {
   if (addCache) {
     if (typeof message.message.content === 'string') {
@@ -601,7 +601,7 @@ export function userMessageToMessageParam(
             type: 'text',
             text: message.message.content,
             ...(enablePromptCaching && {
-              cache_control: getCacheControl({ querySource }),
+              cache_control: getCacheControl({ ttl: cacheTtl }),
             }),
           },
         ],
@@ -613,7 +613,7 @@ export function userMessageToMessageParam(
           ..._,
           ...(i === message.message.content.length - 1
             ? enablePromptCaching
-              ? { cache_control: getCacheControl({ querySource }) }
+              ? { cache_control: getCacheControl({ ttl: cacheTtl }) }
               : {}
             : {}),
         })),
@@ -635,7 +635,7 @@ export function assistantMessageToMessageParam(
   message: AssistantMessage,
   addCache = false,
   enablePromptCaching: boolean,
-  querySource?: QuerySource,
+  cacheTtl?: '1h',
 ): MessageParam {
   if (addCache) {
     if (typeof message.message.content === 'string') {
@@ -646,7 +646,7 @@ export function assistantMessageToMessageParam(
             type: 'text',
             text: message.message.content,
             ...(enablePromptCaching && {
-              cache_control: getCacheControl({ querySource }),
+              cache_control: getCacheControl({ ttl: cacheTtl }),
             }),
           },
         ],
@@ -661,7 +661,7 @@ export function assistantMessageToMessageParam(
           _.type !== 'redacted_thinking' &&
           (feature('CONNECTOR_TEXT') ? !isConnectorTextBlock(_) : true)
             ? enablePromptCaching
-              ? { cache_control: getCacheControl({ querySource }) }
+              ? { cache_control: getCacheControl({ ttl: cacheTtl }) }
               : {}
             : {}),
         })),
@@ -1374,9 +1374,13 @@ async function* queryModel(
 
   const enablePromptCaching =
     options.enablePromptCaching ?? getPromptCachingEnabled(options.model)
+  // Resolve once per query. Eligibility reads session/account state that can
+  // change while parallel request setup runs; every marker in one request
+  // must use the same TTL.
+  const cacheTtl = should1hCacheTTL(options.querySource) ? '1h' : undefined
   const system = buildSystemPromptBlocks(systemPrompt, enablePromptCaching, {
     skipGlobalCacheForSystemPrompt: needsToolBasedCacheMarker,
-    querySource: options.querySource,
+    cacheTtl,
   })
   const useBetas = betas.length > 0
 
@@ -1713,7 +1717,7 @@ async function* queryModel(
       messages: addCacheBreakpoints(
         messagesForAPI,
         enablePromptCaching,
-        options.querySource,
+        cacheTtl,
         useCachedMC,
         consumedCacheEdits,
         consumedPinnedEdits,
@@ -3187,7 +3191,7 @@ type CachedMCPinnedEdits = {
 export function addCacheBreakpoints(
   messages: (UserMessage | AssistantMessage)[],
   enablePromptCaching: boolean,
-  querySource?: QuerySource,
+  cacheTtl?: '1h',
   useCachedMC = false,
   newCacheEdits?: CachedMCEditsBlock | null,
   pinnedEdits?: CachedMCPinnedEdits[],
@@ -3218,14 +3222,14 @@ export function addCacheBreakpoints(
         msg,
         addCache,
         enablePromptCaching,
-        querySource,
+        cacheTtl,
       )
     }
     return assistantMessageToMessageParam(
       msg,
       addCache,
       enablePromptCaching,
-      querySource,
+      cacheTtl,
     )
   })
 
@@ -3339,7 +3343,7 @@ export function buildSystemPromptBlocks(
   enablePromptCaching: boolean,
   options?: {
     skipGlobalCacheForSystemPrompt?: boolean
-    querySource?: QuerySource
+    cacheTtl?: '1h'
   },
 ): TextBlockParam[] {
   // IMPORTANT: Do not add any more blocks for caching or you will get a 400
@@ -3353,7 +3357,7 @@ export function buildSystemPromptBlocks(
         block.cacheScope !== null && {
           cache_control: getCacheControl({
             scope: block.cacheScope,
-            querySource: options?.querySource,
+            ttl: options?.cacheTtl,
           }),
         }),
     }

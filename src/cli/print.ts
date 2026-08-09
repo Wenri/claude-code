@@ -323,6 +323,7 @@ import {
   fileHistoryGetDiffStats,
 } from 'src/utils/fileHistory.js'
 import {
+  applyMainThreadAgentHooks,
   restoreAgentFromSession,
   restoreSessionStateFromLog,
 } from 'src/utils/sessionRestore.js'
@@ -4498,6 +4499,7 @@ async function handleInitializeRequest(
     const alreadyResolved = getMainThreadAgentType() === options.agent
     const mainThreadAgent = agents.find(a => a.agentType === options.agent)
     if (mainThreadAgent && !alreadyResolved) {
+      applyMainThreadAgentHooks(mainThreadAgent)
       // Update the main thread agent type in bootstrap state
       setMainThreadAgentType(mainThreadAgent.agentType)
 

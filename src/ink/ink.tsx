@@ -371,7 +371,6 @@ export default class Ink {
    */
   enterAlternateScreen(): void {
     this.pause();
-    this.suspendStdin();
     this.options.stdout.write(
     // Disable extended key reporting first — editors that don't speak
     // CSI-u (e.g. nano) show "Unknown sequence" for every Ctrl-<key> if
@@ -390,6 +389,7 @@ export default class Ink {
     // clear screen
     '\x1b[H' // cursor home
     );
+    this.suspendStdin();
   }
 
   /**
@@ -405,6 +405,7 @@ export default class Ink {
    * returns, fullscreen scroll is dead.
    */
   exitAlternateScreen(): void {
+    this.resumeStdin();
     this.options.stdout.write((this.altScreenActive ? ENTER_ALT_SCREEN : '') +
     // re-enter alt — vim's rmcup dropped us to main
     '\x1b[2J' +
@@ -417,7 +418,6 @@ export default class Ink {
     // exit alt (non-fullscreen only)
     '\x1b[?25l' // hide cursor (Ink manages)
     );
-    this.resumeStdin();
     if (this.altScreenActive) {
       this.resetFramesForAltScreen();
     } else {
@@ -844,6 +844,12 @@ export default class Ink {
    */
   forceRedraw(): void {
     if (!this.options.stdout.isTTY || this.isUnmounted || this.isPaused) return;
+    const cols = this.options.stdout.columns || 80;
+    const rows = this.options.stdout.rows || 24;
+    if (cols !== this.terminalColumns || rows !== this.terminalRows) {
+      this.handleResize();
+      return;
+    }
     this.options.stdout.write(ERASE_SCREEN + CURSOR_HOME);
     if (this.altScreenActive) {
       this.resetFramesForAltScreen();
@@ -969,6 +975,10 @@ export default class Ink {
     }
   }
 
+  get hasUnmounted(): boolean {
+    return this.isUnmounted;
+  }
+
   /** @see drainStdin */
   drainStdin(): void {
     drainStdin(this.options.stdin);
@@ -982,7 +992,7 @@ export default class Ink {
    * stays true. ENTER_ALT_SCREEN is a terminal-side no-op if already in alt.
    */
   private reenterAltScreen(): void {
-    this.options.stdout.write(ENTER_ALT_SCREEN + ERASE_SCREEN + CURSOR_HOME + (this.altScreenMouseTracking ? ENABLE_MOUSE_TRACKING : ''));
+    this.options.stdout.write(ENTER_ALT_SCREEN + ERASE_SCREEN + CURSOR_HOME + (supportsExtendedKeys() ? DISABLE_KITTY_KEYBOARD + ENABLE_KITTY_KEYBOARD + ENABLE_MODIFY_OTHER_KEYS : '') + (this.altScreenMouseTracking ? ENABLE_MOUSE_TRACKING : ''));
     this.resetFramesForAltScreen();
   }
 

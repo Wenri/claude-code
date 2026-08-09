@@ -7,6 +7,7 @@ import { getOriginalCwd, getSessionId } from '../bootstrap/state.js';
 import { useExitOnCtrlCDWithKeybindings } from '../hooks/useExitOnCtrlCDWithKeybindings.js';
 import { useSearchInput } from '../hooks/useSearchInput.js';
 import { useTerminalSize } from '../hooks/useTerminalSize.js';
+import { useModalOrTerminalSize } from '../context/modalContext.js';
 import { applyColor } from '../ink/colorize.js';
 import type { Color } from '../ink/styles.js';
 import { Box, Text, useInput, useTerminalFocus, useTheme } from '../ink.js';
@@ -22,8 +23,8 @@ import { getTheme } from '../utils/theme.js';
 import { ConfigurableShortcutHint } from './ConfigurableShortcutHint.js';
 import { Select } from './CustomSelect/select.js';
 import { Byline } from './design-system/Byline.js';
-import { Divider } from './design-system/Divider.js';
 import { KeyboardShortcutHint } from './design-system/KeyboardShortcutHint.js';
+import { Pane } from './design-system/Pane.js';
 import { SearchBox } from './SearchBox.js';
 import { SessionPreview } from './SessionPreview.js';
 import { Spinner } from './Spinner.js';
@@ -157,8 +158,9 @@ export function LogSelector(t0) {
   } = t0;
   const maxHeight = t1 === undefined ? Infinity : t1;
   const showAllProjects = t2 === undefined ? false : t2;
-  const terminalSize = useTerminalSize();
+  const terminalSize = useModalOrTerminalSize(useTerminalSize());
   const columns = forceWidth === undefined ? terminalSize.columns : forceWidth;
+  const usableColumns = columns - 2 * 2;
   const exitState = useExitOnCtrlCDWithKeybindings(onCancel);
   const isTerminalFocused = useTerminalFocus();
   let t3;
@@ -560,7 +562,7 @@ export function LogSelector(t0) {
     t28 = filteredLogs;
   }
   const displayedLogs = t28;
-  const maxLabelWidth = Math.max(30, columns - 4);
+  const maxLabelWidth = Math.max(30, usableColumns - 4);
   let t29;
   bb2: {
     if (!isResumeWithRenameEnabled) {
@@ -1247,24 +1249,10 @@ export function LogSelector(t0) {
     return t58;
   }
   const t57 = maxHeight - 1;
-  let t58;
-  if ($[164] === Symbol.for("react.memo_cache_sentinel")) {
-    t58 = <Box flexShrink={0}><Divider color="suggestion" /></Box>;
-    $[164] = t58;
-  } else {
-    t58 = $[164];
-  }
-  let t59;
-  if ($[165] === Symbol.for("react.memo_cache_sentinel")) {
-    t59 = <Box flexShrink={0}><Text> </Text></Box>;
-    $[165] = t59;
-  } else {
-    t59 = $[165];
-  }
   let t60;
-  if ($[166] !== columns || $[167] !== displayedLogs.length || $[168] !== effectiveTagIndex || $[169] !== focusedIndex || $[170] !== hasTags || $[171] !== showAllProjects || $[172] !== tagTabs || $[173] !== viewMode || $[174] !== visibleCount) {
-    t60 = hasTags ? <TagTabs tabs={tagTabs} selectedIndex={effectiveTagIndex} availableWidth={columns} showAllProjects={showAllProjects} /> : <Box flexShrink={0}><Text bold={true} color="suggestion">Resume Session{viewMode === "list" && displayedLogs.length > visibleCount && <Text dimColor={true}>{" "}({focusedIndex} of {displayedLogs.length})</Text>}</Text></Box>;
-    $[166] = columns;
+  if ($[166] !== usableColumns || $[167] !== displayedLogs.length || $[168] !== effectiveTagIndex || $[169] !== focusedIndex || $[170] !== hasTags || $[171] !== showAllProjects || $[172] !== tagTabs || $[173] !== viewMode || $[174] !== visibleCount) {
+    t60 = hasTags ? <TagTabs tabs={tagTabs} selectedIndex={effectiveTagIndex} availableWidth={usableColumns} showAllProjects={showAllProjects} /> : <Box flexShrink={0}><Text bold={true} color="suggestion">Resume Session{viewMode === "list" && displayedLogs.length > visibleCount && <Text dimColor={true}>{" "}({focusedIndex} of {displayedLogs.length})</Text>}</Text></Box>;
+    $[166] = usableColumns;
     $[167] = displayedLogs.length;
     $[168] = effectiveTagIndex;
     $[169] = focusedIndex;
@@ -1353,8 +1341,8 @@ export function LogSelector(t0) {
     t69 = $[201];
   }
   let t70;
-  if ($[202] !== agenticSearchState.status || $[203] !== branchFilterEnabled || $[204] !== columns || $[205] !== displayedLogs || $[206] !== expandedGroupSessionIds || $[207] !== flatOptions || $[208] !== focusedLog || $[209] !== focusedNode?.id || $[210] !== handleFlatOptionsSelectFocus || $[211] !== handleRenameSubmit || $[212] !== handleTreeSelectFocus || $[213] !== isAgenticSearchOptionFocused || $[214] !== onCancel || $[215] !== onSelect || $[216] !== renameCursorOffset || $[217] !== renameValue || $[218] !== treeNodes || $[219] !== viewMode || $[220] !== visibleCount) {
-    t70 = agenticSearchState.status === "searching" ? null : viewMode === "rename" && focusedLog ? <Box paddingLeft={2} flexDirection="column"><Text bold={true}>Rename session:</Text><Box paddingTop={1}><TextInput value={renameValue} onChange={setRenameValue} onSubmit={handleRenameSubmit} placeholder={getLogDisplayTitle(focusedLog, "Enter new session name")} columns={columns} cursorOffset={renameCursorOffset} onChangeCursorOffset={setRenameCursorOffset} showCursor={true} /></Box></Box> : isResumeWithRenameEnabled ? <TreeSelect nodes={treeNodes} onSelect={node_0 => {
+  if ($[202] !== agenticSearchState.status || $[203] !== branchFilterEnabled || $[204] !== usableColumns || $[205] !== displayedLogs || $[206] !== expandedGroupSessionIds || $[207] !== flatOptions || $[208] !== focusedLog || $[209] !== focusedNode?.id || $[210] !== handleFlatOptionsSelectFocus || $[211] !== handleRenameSubmit || $[212] !== handleTreeSelectFocus || $[213] !== isAgenticSearchOptionFocused || $[214] !== onCancel || $[215] !== onSelect || $[216] !== renameCursorOffset || $[217] !== renameValue || $[218] !== treeNodes || $[219] !== viewMode || $[220] !== visibleCount) {
+    t70 = agenticSearchState.status === "searching" ? null : viewMode === "rename" && focusedLog ? <Box paddingLeft={2} flexDirection="column"><Text bold={true}>Rename session:</Text><Box paddingTop={1}><TextInput value={renameValue} onChange={setRenameValue} onSubmit={handleRenameSubmit} placeholder={getLogDisplayTitle(focusedLog, "Enter new session name")} columns={usableColumns - 2} cursorOffset={renameCursorOffset} onChangeCursorOffset={setRenameCursorOffset} showCursor={true} /></Box></Box> : isResumeWithRenameEnabled ? <TreeSelect nodes={treeNodes} onSelect={node_0 => {
       onSelect(node_0.value.log);
     }} onFocus={handleTreeSelectFocus} onCancel={onCancel} focusNodeId={focusedNode?.id} visibleOptionCount={visibleCount} layout="expanded" isDisabled={viewMode === "search" || isAgenticSearchOptionFocused} hideIndexes={false} isNodeExpanded={nodeId => {
       if (viewMode === "search" || branchFilterEnabled) {
@@ -1386,7 +1374,7 @@ export function LogSelector(t0) {
     }} visibleOptionCount={visibleCount} onCancel={onCancel} onFocus={handleFlatOptionsSelectFocus} defaultFocusValue={focusedNode?.id.toString()} layout="expanded" isDisabled={viewMode === "search" || isAgenticSearchOptionFocused} onUpFromFirstItem={enterSearchMode} />;
     $[202] = agenticSearchState.status;
     $[203] = branchFilterEnabled;
-    $[204] = columns;
+    $[204] = usableColumns;
     $[205] = displayedLogs;
     $[206] = expandedGroupSessionIds;
     $[207] = flatOptions;
@@ -1428,7 +1416,7 @@ export function LogSelector(t0) {
   }
   let t72;
   if ($[235] !== t57 || $[236] !== t60 || $[237] !== t62 || $[238] !== t63 || $[239] !== t65 || $[240] !== t66 || $[241] !== t67 || $[242] !== t68 || $[243] !== t69 || $[244] !== t70 || $[245] !== t71) {
-    t72 = <Box flexDirection="column" height={t57}>{t58}{t59}{t60}{t62}{t63}{t64}{t65}{t66}{t67}{t68}{t69}{t70}{t71}</Box>;
+    t72 = <Box flexDirection="column" height={t57}><Pane color="suggestion">{t60}{t62}{t63}{t64}{t65}{t66}{t67}{t68}{t69}{t70}{t71}</Pane></Box>;
     $[235] = t57;
     $[236] = t60;
     $[237] = t62;

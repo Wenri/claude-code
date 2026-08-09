@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "release": "2.1.116",
+  "publicationAdjacency": {
+    "baseline": "2.1.114",
+    "skipped": ["2.1.115"],
+    "registryVersionSequence": [
+      "2.1.111",
+      "2.1.112",
+      "2.1.113",
+      "2.1.114",
+      "2.1.116",
+      "2.1.117",
+      "2.1.118"
+    ],
+    "targetIsNextPublishedVersion": true,
+    "skippedVersionsAbsent": true
+  },
+  "npm": {
+    "registryKey": {
+      "registryUrl": "https://registry.npmjs.org/-/npm/v1/keys",
+      "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+      "keytype": "ecdsa-sha2-nistp256",
+      "scheme": "ecdsa-sha2-nistp256",
+      "expires": null,
+      "publicKeyDerBase64": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEY6Ya7W++7aUPzvMTrezH6Ycx3c+HOKYCcNGybJZSCJq/fd7Qa8uuAKtdIkUQtQiEKERhAmE5lMMJhP8OkDOa2g=="
+    },
+    "wrapper": {
+      "name": "@anthropic-ai/claude-code",
+      "version": "2.1.116",
+      "publishedAt": "2026-04-20T19:24:52.313Z",
+      "tarballUrl": "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.1.116.tgz",
+      "tarballBytes": 13680,
+      "tarballSha256": "c86bbeaf44babf744bb1e1f004a268ac31eb164ff37afa93114b766e5667f7f1",
+      "registryShasum": "27abb10e16fcb2ee5236a60ec07fa3aa68dd4121",
+      "registryIntegrity": "sha512-4QGIIgpfZIznRqlMpEbn5lz8HyGaU+WZND+MGo4sCdMfGBwJPQ5OyXaiA8zhgFtlGW5iWAbYR5CpjQhrvCFeCw==",
+      "registrySignature": "MEQCIGTbqRDUR0z7WA3cwr2Wwh/yxO1g2S5QC4xu5vtf7QhnAiA7j8WvPyIYj36a1vRMR3qz72wQN/FnUunYPb8fcEUWWg==",
+      "signatureKeyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+      "signatureMessageSha256": "51cf528834397f4555d380f7e8baa95ab2ea0c13cde61d864942e5362d510784",
+      "signatureVerification": "ECDSA/SHA-256 verified OK with the live npm registry key",
+      "fileCount": 7,
+      "unpackedSize": 132486
+    },
+    "linuxX64": {
+      "name": "@anthropic-ai/claude-code-linux-x64",
+      "version": "2.1.116",
+      "publishedAt": "2026-04-20T19:22:57.666Z",
+      "tarballUrl": "https://registry.npmjs.org/@anthropic-ai/claude-code-linux-x64/-/claude-code-linux-x64-2.1.116.tgz",
+      "tarballBytes": 74153663,
+      "tarballSha256": "0dde548c698cee7174751a92426123e90a95f56bf09271423681dd883d8bf0ea",
+      "registryShasum": "70fc945e30491431f44e546f12e300bdc2c8c902",
+      "registryIntegrity": "sha512-XLlgIItxdjhr4DpSNx7eWmNtVWeCqRtaXoly58lFObpyU1Fq3HAbY//+nmqVirWKFK2BjVXLa/iq9y64+SZ4kg==",
+      "registrySignature": "MEUCIQDvTHFfWSO9iE5GbTsSrC3IrbuZffbJpU8P64f0E0avWgIgW3V4nNrUETut7o2s9T6EkuYUEiV776iXLHOTX2b+l+w=",
+      "signatureKeyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+      "signatureMessageSha256": "689c4217f5650313b1c40b29e33f89941f9146d02e0e2b0bddeaf43533f77ff7",
+      "signatureVerification": "ECDSA/SHA-256 verified OK with the live npm registry key",
+      "fileCount": 4,
+      "unpackedSize": 237653194,
+      "os": ["linux"],
+      "cpu": ["x64"]
+    }
+  },
+  "git": {
+    "repository": "https://github.com/anthropics/claude-code.git",
+    "tag": "v2.1.116",
+    "tagObjectType": "commit",
+    "commit": "fe53778ed90fd971bf4ec78fa1f65ccf0536352f",
+    "parent": "0385848b4e737831fc3b973d9a78d31950a87d9d",
+    "parentTag": "v2.1.114",
+    "skippedTag": "v2.1.115",
+    "skippedTagPresent": false,
+    "tree": "4708245c1a69a70166aae3b53da3f3ab7ee52536",
+    "parentTree": "330d0d87da792c88da71599c5be1dcef31a5bd9e",
+    "commitTimestamp": "2026-04-20T22:18:23+00:00",
+    "subject": "chore: Update CHANGELOG.md",
+    "commitsSinceParentTag": 1,
+    "publicDiff": {
+      "filesChanged": 1,
+      "insertions": 27,
+      "deletions": 0,
+      "paths": ["CHANGELOG.md"]
+    }
+  },
+  "changelog": {
+    "fullPath": "evidence/claude-code-CHANGELOG-fe53778e.md",
+    "fullBytes": 242121,
+    "fullSha256": "5b72ee8862d1964719b9d6358ee497e351640376fa850320ce5167aa7f00c891",
+    "sectionPath": "evidence/CHANGELOG-2.1.116.md",
+    "sectionBytes": 2931,
+    "sectionSha256": "f4159b05140593eb4f095d2527be3e4a5eb78f203718052252ff73912fb6b1aa",
+    "bulletCount": 24
+  }
+}

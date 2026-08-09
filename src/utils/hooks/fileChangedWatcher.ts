@@ -1,5 +1,6 @@
 import chokidar, { type FSWatcher } from 'chokidar'
 import { isAbsolute, join } from 'path'
+import { getMainThreadAgentHooks } from '../../bootstrap/state.js'
 import { registerCleanup } from '../cleanupRegistry.js'
 import { logForDebugging } from '../debug.js'
 import { errorMessage } from '../errors.js'
@@ -10,6 +11,11 @@ import {
 } from '../hooks.js'
 import { clearCwdEnvFiles } from '../sessionEnvironment.js'
 import { getHooksConfigFromSnapshot } from './hooksConfigSnapshot.js'
+import { shouldAllowManagedHooksOnly } from './hooksConfigSnapshot.js'
+
+function getMainAgentEnvHooks() {
+  return shouldAllowManagedHooksOnly() ? undefined : getMainThreadAgentHooks()
+}
 
 let watcher: FSWatcher | null = null
 let currentCwd: string
@@ -48,7 +54,10 @@ export function initializeFileChangedWatcher(cwd: string): void {
 function resolveWatchPaths(
   config?: ReturnType<typeof getHooksConfigFromSnapshot>,
 ): string[] {
-  const matchers = (config ?? getHooksConfigFromSnapshot())?.FileChanged ?? []
+  const matchers = [
+    ...((config ?? getHooksConfigFromSnapshot())?.FileChanged ?? []),
+    ...(getMainAgentEnvHooks()?.FileChanged ?? []),
+  ]
 
   // Matcher field: filenames to watch in cwd, pipe-separated (e.g. ".envrc|.env")
   const staticPaths: string[] = []
@@ -138,9 +147,12 @@ export async function onCwdChangedForHooks(
 
   // Re-evaluate from the current snapshot so mid-session hook changes are picked up
   const config = getHooksConfigFromSnapshot()
+  const agentHooks = getMainAgentEnvHooks()
   const currentHasEnvHooks =
     (config?.CwdChanged?.length ?? 0) > 0 ||
-    (config?.FileChanged?.length ?? 0) > 0
+    (config?.FileChanged?.length ?? 0) > 0 ||
+    (agentHooks?.CwdChanged?.length ?? 0) > 0 ||
+    (agentHooks?.FileChanged?.length ?? 0) > 0
   if (!currentHasEnvHooks) return
   currentCwd = newCwd
 

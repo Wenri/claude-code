@@ -132,6 +132,12 @@ export class LogUpdate {
 
     const startTime = performance.now()
     const stylePool = this.options.stylePool
+    const prevHadScrollback =
+      prev.cursor.y >= prev.screen.height &&
+      prev.screen.height >= prev.viewport.height
+    const previousVisibleStart = prevHadScrollback
+      ? prev.screen.height - prev.viewport.height + 1
+      : 0
 
     // Since we assume the cursor is at the bottom on the screen, we only need
     // to clear when the viewport gets shorter (i.e. the cursor position drifts)
@@ -141,9 +147,16 @@ export class LogUpdate {
     // Resizing is a rare enough event that it's not practically a big issue.
     if (
       next.viewport.height < prev.viewport.height ||
+      (next.viewport.height > prev.viewport.height && prevHadScrollback) ||
       (prev.viewport.width !== 0 && next.viewport.width !== prev.viewport.width)
     ) {
-      return fullResetSequence_CAUSES_FLICKER(next, 'resize', stylePool)
+      return fullResetSequence_CAUSES_FLICKER(
+        next,
+        'resize',
+        stylePool,
+        altScreen,
+        previousVisibleStart,
+      )
     }
 
     // DECSTBM scroll optimization: when a ScrollBox's scrollTop changed,
@@ -201,8 +214,6 @@ export class LogUpdate {
     // When content fills the viewport exactly (height == viewport) and the
     // cursor is at the bottom, the cursor-restore LF at the end of the
     // previous frame scrolled 1 row into scrollback. Use >= to catch this.
-    const prevHadScrollback =
-      cursorAtBottom && prev.screen.height >= prev.viewport.height
     const isShrinking = next.screen.height < prev.screen.height
     const nextFitsViewport = next.screen.height <= prev.viewport.height
 
@@ -215,36 +226,13 @@ export class LogUpdate {
       logForDebugging(
         `Full reset (shrink->below): prevHeight=${prev.screen.height}, nextHeight=${next.screen.height}, viewport=${prev.viewport.height}`,
       )
-      return fullResetSequence_CAUSES_FLICKER(next, 'offscreen', stylePool)
-    }
-
-    if (
-      prev.screen.height >= prev.viewport.height &&
-      prev.screen.height > 0 &&
-      cursorAtBottom &&
-      !isGrowing
-    ) {
-      // viewportY = rows in scrollback from content overflow
-      // +1 for the row pushed by cursor-restore scroll
-      const viewportY = prev.screen.height - prev.viewport.height
-      const scrollbackRows = viewportY + 1
-
-      let scrollbackChangeY = -1
-      diffEach(prev.screen, next.screen, (_x, y) => {
-        if (y < scrollbackRows) {
-          scrollbackChangeY = y
-          return true // early exit
-        }
-      })
-      if (scrollbackChangeY >= 0) {
-        const prevLine = readLine(prev.screen, scrollbackChangeY)
-        const nextLine = readLine(next.screen, scrollbackChangeY)
-        return fullResetSequence_CAUSES_FLICKER(next, 'offscreen', stylePool, {
-          triggerY: scrollbackChangeY,
-          prevLine,
-          nextLine,
-        })
-      }
+      return fullResetSequence_CAUSES_FLICKER(
+        next,
+        'offscreen',
+        stylePool,
+        altScreen,
+        previousVisibleStart,
+      )
     }
 
     const screen = new VirtualScreen(prev.cursor, next.viewport.width)
@@ -267,6 +255,8 @@ export class LogUpdate {
           next,
           'offscreen',
           this.options.stylePool,
+          altScreen,
+          previousVisibleStart,
         )
       }
 
@@ -343,9 +333,15 @@ export class LogUpdate {
       // If the cell outside the viewport range has changed, we need to reset
       // because we can't move the cursor there to draw.
       if (y < viewportY) {
-        needsFullReset = true
-        resetTriggerY = y
-        return true // early exit
+        // Main-screen rows above the viewport are immutable terminal
+        // scrollback. Re-rendering them after a full clear duplicates the
+        // transcript; only alt-screen or shrinking layouts need a reset.
+        if (altScreen || shrinking) {
+          needsFullReset = true
+          resetTriggerY = y
+          return true // early exit
+        }
+        return
       }
 
       moveCursorTo(screen, x, y)
@@ -380,11 +376,18 @@ export class LogUpdate {
       }
     })
     if (needsFullReset) {
-      return fullResetSequence_CAUSES_FLICKER(next, 'offscreen', stylePool, {
-        triggerY: resetTriggerY,
-        prevLine: readLine(prev.screen, resetTriggerY),
-        nextLine: readLine(next.screen, resetTriggerY),
-      })
+      return fullResetSequence_CAUSES_FLICKER(
+        next,
+        'offscreen',
+        stylePool,
+        altScreen,
+        previousVisibleStart,
+        {
+          triggerY: resetTriggerY,
+          prevLine: readLine(prev.screen, resetTriggerY),
+          nextLine: readLine(next.screen, resetTriggerY),
+        },
+      )
     }
 
     // Reset styles before rendering new rows (they'll set their own styles)
@@ -504,20 +507,24 @@ function fullResetSequence_CAUSES_FLICKER(
   frame: Frame,
   reason: FlickerReason,
   stylePool: StylePool,
+  altScreen: boolean,
+  previousVisibleStart: number,
   debug?: { triggerY: number; prevLine: string; nextLine: string },
 ): Diff {
-  // After clearTerminal, cursor is at (0, 0)
-  const screen = new VirtualScreen({ x: 0, y: 0 }, frame.viewport.width)
-  renderFrame(screen, frame, stylePool)
-  return [{ type: 'clearTerminal', reason, debug }, ...screen.diff]
-}
-
-function renderFrame(
-  screen: VirtualScreen,
-  frame: Frame,
-  stylePool: StylePool,
-): void {
-  renderFrameSlice(screen, frame, 0, frame.screen.height, stylePool)
+  // In the main screen, clearTerminal clears the viewport and scrollback;
+  // render only the previously visible tail instead of replaying the whole frame.
+  const startY = altScreen
+    ? 0
+    : Math.min(
+        previousVisibleStart,
+        Math.max(0, frame.screen.height - frame.viewport.height + 1),
+      )
+  const screen = new VirtualScreen({ x: 0, y: startY }, frame.viewport.width)
+  renderFrameSlice(screen, frame, startY, frame.screen.height, stylePool)
+  return [
+    { type: 'clearTerminal', reason, altScreen, debug },
+    ...screen.diff,
+  ]
 }
 
 /**

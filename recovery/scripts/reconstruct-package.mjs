@@ -462,17 +462,7 @@ function main() {
         baseline !== null &&
         member.baseline.bytes === member.target.bytes &&
         member.baseline.sha256 === member.target.sha256
-      if (
-        member.path === 'package/sdk-tools.d.ts' &&
-        (manifest.targetAssertions?.declarationExactEdits !== undefined ||
-          manifest.targetAssertions?.declarationExactInsertion !==
-            undefined)
-      ) {
-        value = exactDeclarations(
-          baseline,
-          manifest.targetAssertions,
-        )
-      } else if (member.status === 'unchanged' || contentIdentical) {
+      if (member.status === 'unchanged' || contentIdentical) {
         value = baseline
       } else if (changedPayloads.has(member.path)) {
         const payload = changedPayloads.get(member.path)
@@ -484,6 +474,16 @@ function main() {
           `${member.path} reconstructed dictionary patch`,
         )
         changedPayloads.delete(member.path)
+      } else if (
+        member.path === 'package/sdk-tools.d.ts' &&
+        (manifest.targetAssertions?.declarationExactEdits !== undefined ||
+          manifest.targetAssertions?.declarationExactInsertion !==
+            undefined)
+      ) {
+        value = exactDeclarations(
+          baseline,
+          manifest.targetAssertions,
+        )
       } else if (member.path === 'package/cli.js') {
         value = reconstructBundle(
           baseline,

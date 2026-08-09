@@ -23,7 +23,7 @@ export const OVERLAY_MAX_ITEMS = 5;
  */
 function getIcon(itemId: string): string {
   if (itemId.startsWith('file-')) return '+';
-  if (itemId.startsWith('mcp-resource-')) return '◇';
+  if (itemId.startsWith('mcp-resource-') || itemId.startsWith('mcp-template')) return '◇';
   if (itemId.startsWith('agent-')) return '*';
   return '+';
 }
@@ -32,7 +32,7 @@ function getIcon(itemId: string): string {
  * Check if an item is a unified suggestion type (file, mcp-resource, or agent)
  */
 function isUnifiedSuggestion(itemId: string): boolean {
-  return itemId.startsWith('file-') || itemId.startsWith('mcp-resource-') || itemId.startsWith('agent-');
+  return itemId.startsWith('file-') || itemId.startsWith('mcp-resource-') || itemId.startsWith('mcp-template') || itemId.startsWith('agent-');
 }
 const SuggestionItemRow = memo(function SuggestionItemRow(t0) {
   const $ = _c(36);
@@ -56,7 +56,7 @@ const SuggestionItemRow = memo(function SuggestionItemRow(t0) {
     const textColor = isSelected ? "suggestion" : undefined;
     const dimColor = !isSelected;
     const isFile = item.id.startsWith("file-");
-    const isMcpResource = item.id.startsWith("mcp-resource-");
+    const isMcpResource = item.id.startsWith("mcp-resource-") || item.id.startsWith("mcp-template");
     const separatorWidth = item.description ? 3 : 0;
     let displayText;
     if (isFile) {
@@ -209,6 +209,7 @@ type Props = {
    * renderer doesn't push fewer items down into the prompt area.
    */
   overlay?: boolean;
+  emptyMessage?: string;
 };
 export function PromptInputFooterSuggestions(t0) {
   const $ = _c(22);
@@ -216,14 +217,15 @@ export function PromptInputFooterSuggestions(t0) {
     suggestions,
     selectedSuggestion,
     maxColumnWidth: maxColumnWidthProp,
-    overlay
+    overlay,
+    emptyMessage
   } = t0;
   const {
     rows
   } = useTerminalSize();
   const maxVisibleItems = overlay ? OVERLAY_MAX_ITEMS : Math.min(6, Math.max(1, rows - 3));
   if (suggestions.length === 0) {
-    return null;
+    return emptyMessage ? <Text dimColor>{emptyMessage}</Text> : null;
   }
   let t1;
   if ($[0] !== maxColumnWidthProp || $[1] !== suggestions) {

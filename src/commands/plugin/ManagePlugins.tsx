@@ -124,9 +124,23 @@ type InstalledRow = {
   section: InstalledSection;
   item: UnifiedInstalledItem;
 } | {
+  kind: 'spacer';
+} | {
+  kind: 'section-header';
+  section: 'attention' | 'favorites';
+} | {
+  kind: 'scope-header';
+  scope: string;
+} | {
   kind: 'disabled-header';
   count: number;
 };
+
+function isSelectableInstalledRow(
+  row: InstalledRow | undefined,
+): boolean {
+  return row?.kind === 'item' || row?.kind === 'disabled-header'
+}
 
 function needsAttention(item: UnifiedInstalledItem): boolean {
   switch (item.type) {
@@ -142,6 +156,94 @@ function needsAttention(item: UnifiedInstalledItem): boolean {
 
 function isDisabled(item: UnifiedInstalledItem): boolean {
   return item.type === 'plugin' && !item.isEnabled || item.type === 'mcp' && item.status === 'disabled';
+}
+
+function buildInstalledRows(
+  items: UnifiedInstalledItem[],
+  {
+    searchQuery,
+    favoriteIds,
+    showDisabled,
+  }: {
+    searchQuery: string
+    favoriteIds: Set<string>
+    showDisabled: boolean
+  },
+): InstalledRow[] {
+  if (searchQuery) {
+    const lowerQuery = searchQuery.toLowerCase()
+    return items
+      .filter(
+        item =>
+          item.name.toLowerCase().includes(lowerQuery) ||
+          ('description' in item &&
+            item.description?.toLowerCase().includes(lowerQuery)),
+      )
+      .map(item => ({ kind: 'item', section: 'main', item }))
+  }
+
+  const rows: InstalledRow[] = []
+  let previous: { section: InstalledSection; item: UnifiedInstalledItem } | null = null
+  let skipped = false
+  const add = (section: InstalledSection, item: UnifiedInstalledItem): void => {
+    const sectionChanged = previous?.section !== section
+    if (sectionChanged) {
+      if (rows.length > 0 && rows.at(-1)?.kind !== 'disabled-header') {
+        rows.push({ kind: 'spacer' })
+      }
+      if (section === 'attention' || section === 'favorites') {
+        rows.push({ kind: 'section-header', section })
+      }
+    }
+    if (
+      (section === 'main' || section === 'disabled') &&
+      (sectionChanged || previous?.item.scope !== item.scope)
+    ) {
+      if (!sectionChanged) rows.push({ kind: 'spacer' })
+      rows.push({ kind: 'scope-header', scope: item.scope })
+    }
+
+    const hasAdjacentPlugin =
+      !sectionChanged && !skipped && previous?.item.type === 'plugin'
+    const normalized =
+      item.type === 'mcp' && item.indented && !hasAdjacentPlugin
+        ? { ...item, indented: false }
+        : item
+    rows.push({ kind: 'item', section, item: normalized })
+    previous = { section, item: normalized }
+    skipped = false
+  }
+
+  const seenIds = new Set<string>()
+  for (const item of items) {
+    if (needsAttention(item)) {
+      add('attention', item)
+      seenIds.add(item.id)
+    }
+  }
+  for (const item of items) {
+    if (favoriteIds.has(item.id) && !seenIds.has(item.id)) {
+      add('favorites', item)
+      seenIds.add(item.id)
+    }
+  }
+  for (const item of items) {
+    if (!isDisabled(item) && !seenIds.has(item.id)) {
+      add('main', item)
+    } else {
+      skipped = true
+    }
+  }
+
+  const disabled = items.filter(isDisabled)
+  if (disabled.length > 0) {
+    if (rows.length > 0) rows.push({ kind: 'spacer' })
+    rows.push({ kind: 'disabled-header', count: disabled.length })
+    if (showDisabled) {
+      for (const item of disabled) add('disabled', item)
+    }
+  }
+  return rows
 }
 
 function getInstalledScopeLabel(scope: string): string {
@@ -865,63 +967,70 @@ export function ManagePlugins({
   const [showDisabled, setShowDisabled] = useState(false);
 
   // Build display rows. Search intentionally flattens the categorized view.
-  const filteredItems = useMemo(() => {
-    if (searchQuery) {
-      const lowerQuery = searchQuery.toLowerCase();
-      return unifiedItems.filter(item_5 => item_5.name.toLowerCase().includes(lowerQuery) || 'description' in item_5 && item_5.description?.toLowerCase().includes(lowerQuery)).map(item_6 => ({
-        kind: 'item' as const,
-        section: 'main' as const,
-        item: item_6
-      }));
-    }
+  const filteredItems = useMemo(
+    () =>
+      buildInstalledRows(unifiedItems, {
+        searchQuery,
+        favoriteIds: favoritePluginIds,
+        showDisabled,
+      }),
+    [unifiedItems, searchQuery, favoritePluginIds, showDisabled],
+  )
 
-    const rows: InstalledRow[] = [];
-    const add = (section: InstalledSection, item: UnifiedInstalledItem): void => {
-      const previous = rows.at(-1);
-      const hasAdjacentPlugin = previous?.kind === 'item' && previous.section === section && previous.item.type === 'plugin';
-      const normalized = item.type === 'mcp' && item.indented && !hasAdjacentPlugin ? {
-        ...item,
-        indented: false
-      } : item;
-      rows.push({
-        kind: 'item',
-        section,
-        item: normalized
-      });
-    };
-
-    for (const item of unifiedItems) {
-      if (needsAttention(item)) add('attention', item);
-    }
-    for (const item of unifiedItems) {
-      if (favoritePluginIds.has(item.id)) add('favorites', item);
-    }
-    for (const item of unifiedItems) {
-      if (!isDisabled(item)) add('main', item);
-    }
-    const disabled = unifiedItems.filter(isDisabled);
-    if (disabled.length > 0) {
-      rows.push({
-        kind: 'disabled-header',
-        count: disabled.length
-      });
-      if (showDisabled) {
-        for (const item of disabled) add('disabled', item);
+  const findSelectableRow = useCallback(
+    (start: number, direction: 1 | -1): number => {
+      const first =
+        direction === -1 ? Math.min(start, filteredItems.length - 1) : start
+      for (
+        let index = first;
+        index >= 0 && index < filteredItems.length;
+        index += direction
+      ) {
+        if (isSelectableInstalledRow(filteredItems[index])) return index
       }
-    }
-    return rows;
-  }, [unifiedItems, searchQuery, favoritePluginIds, showDisabled]);
+      return -1
+    },
+    [filteredItems],
+  )
 
   // Selection state
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(0)
+  const beforeFavoriteRef = useRef<{
+    id: string
+    section: InstalledSection
+  } | null>(null)
   useEffect(() => {
-    if (filteredItems.length > 0 && selectedIndex >= filteredItems.length) {
-      setSelectedIndex(filteredItems.length - 1);
+    if (filteredItems.length === 0) return
+    const previous = beforeFavoriteRef.current
+    if (previous) {
+      beforeFavoriteRef.current = null
+      let match = filteredItems.findIndex(
+        row =>
+          row.kind === 'item' &&
+          row.section === previous.section &&
+          row.item.id === previous.id,
+      )
+      if (match === -1) {
+        match = filteredItems.findIndex(
+          row => row.kind === 'item' && row.item.id === previous.id,
+        )
+      }
+      if (match !== -1) {
+        setSelectedIndex(match)
+        return
+      }
     }
-  }, [filteredItems.length, selectedIndex]);
+    if (!isSelectableInstalledRow(filteredItems[selectedIndex])) {
+      const next = findSelectableRow(selectedIndex, 1)
+      const previousSelectable = findSelectableRow(selectedIndex, -1)
+      setSelectedIndex(
+        next !== -1 ? next : previousSelectable !== -1 ? previousSelectable : 0,
+      )
+    }
+  }, [filteredItems, selectedIndex, findSelectableRow])
 
   // Pagination for unified list (continuous scrolling)
-  const maxVisible = isInsideModal ? Math.max(6, availableRows - 13) : 6;
+  const maxVisible = isInsideModal ? Math.max(8, availableRows - 10) : 8;
   const pagination = usePagination<InstalledRow>({
     totalItems: filteredItems.length,
     selectedIndex,
@@ -1390,33 +1499,31 @@ export function ManagePlugins({
   // Plugin-list navigation (non-search mode)
   useKeybindings({
     'select:previous': () => {
-      if (selectedIndex === 0) {
+      const previous = findSelectableRow(selectedIndex - 1, -1)
+      if (previous === -1) {
         setIsSearchMode(true);
       } else {
-        pagination.handleSelectionChange(selectedIndex - 1, setSelectedIndex);
+        pagination.handleSelectionChange(previous, setSelectedIndex);
       }
     },
     'select:next': () => {
-      if (selectedIndex < filteredItems.length - 1) {
-        pagination.handleSelectionChange(selectedIndex + 1, setSelectedIndex);
-      }
+      const next = findSelectableRow(selectedIndex + 1, 1)
+      if (next !== -1) pagination.handleSelectionChange(next, setSelectedIndex)
     },
     'select:accept': handleAccept
   }, {
     context: 'Select',
     isActive: viewState === 'plugin-list' && !isSearchMode
   });
+  const handleFavorite = useCallback(() => {
+    const row = filteredItems[selectedIndex]
+    if (row?.kind !== 'item') return
+    beforeFavoriteRef.current = { section: row.section, id: row.item.id }
+    toggleFavorite(row.item.id)
+  }, [filteredItems, selectedIndex, toggleFavorite])
   useKeybindings({
     'plugin:toggle': handleToggle,
-    'plugin:favorite': () => {
-      const row = filteredItems[selectedIndex];
-      if (row?.kind !== 'item') return;
-      const adding = !favoritePluginIds.has(row.item.id);
-      toggleFavorite(row.item.id);
-      if (row.section === 'main' || row.section === 'disabled') {
-        setSelectedIndex(index => index + (adding ? 1 : -1));
-      }
-    }
+    'plugin:favorite': handleFavorite,
   }, {
     context: 'Plugin',
     isActive: viewState === 'plugin-list' && !isSearchMode
@@ -2295,33 +2402,31 @@ export function ManagePlugins({
       {visibleItems.map((row, visibleIndex) => {
       const actualIndex = pagination.toActualIndex(visibleIndex);
       const isSelected_0 = actualIndex === selectedIndex && !isSearchMode;
-      const previous = visibleIndex > 0 ? visibleItems[visibleIndex - 1] : null;
-      if (row.kind === 'disabled-header') {
-        return <Box key="section:disabled" marginTop={visibleIndex > 0 ? 1 : 0} paddingLeft={2}>
-            <Text color={isSelected_0 ? 'suggestion' : undefined}>
-              {isSelected_0 ? `${figures.pointer} ` : '  '}
-              {showDisabled ? figures.arrowDown : figures.arrowRight}
-              {' Show disabled '}
-              <Text dimColor>({row.count})</Text>
-            </Text>
-          </Box>;
+      switch (row.kind) {
+        case 'spacer':
+          return <Box key={`spacer:${actualIndex}`} height={1} />
+        case 'section-header':
+          return <Box key={`section:${row.section}`} paddingLeft={2}>
+              <Text dimColor={row.section !== 'attention'} color={row.section === 'attention' ? 'warning' : undefined} bold>
+                {row.section === 'attention' ? 'Needs attention' : 'Favorites'}
+              </Text>
+            </Box>
+        case 'scope-header':
+          return <Box key={`scope:${actualIndex}`} paddingLeft={4}>
+              <Text dimColor>{getInstalledScopeLabel(row.scope)}</Text>
+            </Box>
+        case 'disabled-header':
+          return <Box key="section:disabled" paddingLeft={2}>
+              <Text color={isSelected_0 ? 'suggestion' : undefined}>
+                {isSelected_0 ? `${figures.pointer} ` : '  '}
+                {showDisabled ? figures.arrowDown : figures.arrowRight}
+                {' Show disabled '}
+                <Text dimColor>({row.count})</Text>
+              </Text>
+            </Box>
+        case 'item':
+          return <UnifiedInstalledCell key={`${row.section}:${row.item.id}`} item={row.item} isSelected={isSelected_0} />
       }
-      const item_10 = row.item;
-      const previousSection = previous?.kind === 'item' ? previous.section : null;
-      const showSectionHeader = (row.section === 'attention' || row.section === 'favorites') && row.section !== previousSection;
-      const previousItem = previous?.kind === 'item' && previous.section === row.section ? previous.item : null;
-      const showScopeHeader = (row.section === 'main' || row.section === 'disabled') && (!previousItem || previousItem.scope !== item_10.scope);
-      return <React.Fragment key={`${row.section}:${item_10.id}`}>
-            {showSectionHeader && <Box marginTop={visibleIndex > 0 ? 1 : 0} paddingLeft={2}>
-                <Text dimColor={row.section !== 'attention'} color={row.section === 'attention' ? 'warning' : undefined} bold>
-                  {row.section === 'attention' ? 'Needs attention' : 'Favorites'}
-                </Text>
-              </Box>}
-            {showScopeHeader && <Box marginTop={previous == null || previous.kind === 'disabled-header' ? 0 : 1} paddingLeft={4}>
-                <Text dimColor>{getInstalledScopeLabel(item_10.scope)}</Text>
-              </Box>}
-            <UnifiedInstalledCell item={item_10} isSelected={isSelected_0} />
-          </React.Fragment>;
     })}
 
       {/* Scroll down indicator */}
