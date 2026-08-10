@@ -25,9 +25,7 @@ function describeAutoCompactWindow(
       ? ' (from CLAUDE_CODE_AUTO_COMPACT_WINDOW)'
       : source === 'settings'
         ? ' (from settings)'
-        : source === 'experiment'
-          ? ' (from default)'
-          : ' (model default)'
+        : ' (from default)'
   const capped =
     configured > window
       ? ` · capped to ${formatTokens(window)} by model`
@@ -57,7 +55,8 @@ export function applyAutoCompactWindow(
     normalized === 'reset' ||
     normalized === 'unset' ||
     normalized === 'default'
-  const value = reset ? undefined : parseAutoCompactWindow(normalized)
+  const parsed = reset ? undefined : parseAutoCompactWindow(normalized)
+  const value = typeof parsed === 'number' ? parsed : undefined
   if (!reset && value === undefined) {
     return `Invalid argument: ${rawValue}. Expected 100k–1M tokens (e.g. 500k, 200000, or 200 as shorthand) or 'reset'`
   }
@@ -81,7 +80,7 @@ export function applyAutoCompactWindow(
   const model = context.options.mainLoopModel
   const { window, source } = resolveAutoCompactWindow(model, mergedValue)
   const overrideActive =
-    source === 'env' || source === 'experiment' || mergedValue !== value
+    source === 'env' || mergedValue !== value
   if (reset) {
     return overrideActive
       ? `Auto-compact window reset in settings, but a higher-priority override is active (${formatTokens(window)} tokens)`

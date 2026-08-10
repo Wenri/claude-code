@@ -272,6 +272,7 @@ import {
   toSDKRateLimitInfo,
 } from 'src/utils/messages/mappers.js'
 import {
+  createUserMessage,
   createModelSwitchBreadcrumbs,
   getContentText,
 } from 'src/utils/messages.js'
@@ -309,6 +310,7 @@ import {
   getMainThreadAgentType,
   getAllowedChannels,
   setAllowedChannels,
+  setSdkOAuthTokenRefreshCallback,
   type ChannelEntry,
 } from 'src/bootstrap/state.js'
 import { runWithWorkload, WORKLOAD_CRON } from 'src/utils/workloadContext.js'
@@ -411,6 +413,11 @@ Shut down your team and prepare your final response for the user.`
 // Track message UUIDs received during the current session runtime
 const MAX_RECEIVED_UUIDS = 10_000
 const receivedMessageUuids = new Set<UUID>()
+const SDK_OAUTH_REFRESH_ENTRYPOINTS = new Set([
+  'claude-desktop',
+  'local-agent',
+  'claude-vscode',
+])
 const receivedMessageUuidsOrder: UUID[] = []
 
 function trackReceivedMessageUuid(uuid: UUID): boolean {
@@ -483,6 +490,7 @@ export async function runHeadless(
   inputPrompt: string | AsyncIterable<string>,
   getAppState: () => AppState,
   setAppState: (f: (prev: AppState) => AppState) => void,
+  subscribeAppState: (listener: () => void) => () => void,
   commands: Command[],
   tools: Tools,
   sdkMcpConfigs: Record<string, McpSdkServerConfig>,
@@ -612,6 +620,17 @@ export async function runHeadless(
   }
 
   const structuredIO = getStructuredIO(inputPrompt, options)
+
+  if (
+    isEnvTruthy(process.env.CLAUDE_CODE_SDK_HAS_OAUTH_REFRESH) &&
+    SDK_OAUTH_REFRESH_ENTRYPOINTS.has(
+      process.env.CLAUDE_CODE_ENTRYPOINT ?? '',
+    )
+  ) {
+    setSdkOAuthTokenRefreshCallback(() =>
+      structuredIO.requestOAuthTokenRefresh(),
+    )
+  }
 
   // When emitting NDJSON for SDK clients, any stray write to stdout (debug
   // prints, dependency console.log, library banners) breaks the client's
@@ -902,6 +921,7 @@ export async function runHeadless(
     sdkMcpConfigs,
     getAppState,
     setAppState,
+    subscribeAppState,
     agents,
     options,
     turnInterruptionState,
@@ -1014,6 +1034,7 @@ function runHeadlessStreaming(
   sdkMcpConfigs: Record<string, McpSdkServerConfig>,
   getAppState: () => AppState,
   setAppState: (f: (prev: AppState) => AppState) => void,
+  subscribeAppState: (listener: () => void) => () => void,
   agents: AgentDefinition[],
   options: {
     verbose: boolean | undefined
@@ -1291,7 +1312,7 @@ function runHeadlessStreaming(
   let sdkTools: Tools = []
 
   // Track which MCP clients have had elicitation handlers registered
-  const elicitationRegistered = new Set<string>()
+  const elicitationRegistered = new WeakSet<object>()
 
   /**
    * Register elicitation request/completion handlers on connected MCP clients
@@ -1304,7 +1325,7 @@ function runHeadlessStreaming(
     for (const connection of clients) {
       if (
         connection.type !== 'connected' ||
-        elicitationRegistered.has(connection.name)
+        elicitationRegistered.has(connection.client)
       ) {
         continue
       }
@@ -1418,13 +1439,22 @@ function runHeadlessStreaming(
           },
         )
 
-        elicitationRegistered.add(serverName)
+        elicitationRegistered.add(connection.client)
       } catch {
         // setRequestHandler throws if the client wasn't created with
         // elicitation capability — skip silently
       }
     }
   }
+
+  let elicitationClients = getAppState().mcp.clients
+  registerElicitationHandlers(elicitationClients)
+  subscribeAppState(() => {
+    const clients = getAppState().mcp.clients
+    if (clients === elicitationClients) return
+    elicitationClients = clients
+    registerElicitationHandlers(clients)
+  })
 
   async function updateSdkMcp() {
     // Check if SDK MCP servers need to be updated (new servers added or removed)
@@ -1758,10 +1788,13 @@ function runHeadlessStreaming(
         ),
       ])
 
+      const existingMcpServerNames = new Set(
+        Object.keys((await getAllMcpConfigs()).servers),
+      )
       const pluginsInstalled = await installPluginsForHeadless()
 
       if (pluginsInstalled) {
-        await applyPluginMcpDiff()
+        await applyPluginMcpDiff(existingMcpServerNames)
       }
     } catch (error) {
       logError(error)
@@ -1829,11 +1862,14 @@ function runHeadlessStreaming(
   // so applyMcpServerChanges' diff doesn't close their transports.
   // Nested: needs closure access to sdkMcpConfigs, applyMcpServerChanges,
   // updateSdkMcp.
-  async function applyPluginMcpDiff(): Promise<void> {
+  async function applyPluginMcpDiff(
+    existingMcpServerNames?: Set<string>,
+  ): Promise<void> {
     const { servers: newConfigs } = await getAllMcpConfigs()
     const supportedConfigs: Record<string, McpServerConfigForProcessTransport> =
       {}
     for (const [name, config] of Object.entries(newConfigs)) {
+      if (existingMcpServerNames?.has(name)) continue
       const type = config.type
       if (
         type === undefined ||
@@ -3129,9 +3165,19 @@ function runHeadlessStreaming(
             // read failure doesn't mask the successful state change.
             // allSettled so one failure doesn't discard the others.
             let plugins: SDKControlReloadPluginsResponse['plugins'] = []
+            const dynamicMcpServerNames = new Set(
+              Object.keys(dynamicMcpState.configs),
+            )
+            const existingUserMcpServerNames = new Set(
+              getAppState()
+                .mcp.clients.filter(
+                  client => !dynamicMcpServerNames.has(client.name),
+                )
+                .map(client => client.name),
+            )
             const [cmdsR, mcpR, pluginsR] = await Promise.allSettled([
               getCommands(cwd()),
-              applyPluginMcpDiff(),
+              applyPluginMcpDiff(existingUserMcpServerNames),
               loadAllPluginsCacheOnly(),
             ])
             if (cmdsR.status === 'fulfilled') {
@@ -3175,7 +3221,6 @@ function runHeadlessStreaming(
         } else if (message.request.subtype === 'mcp_reconnect') {
           const currentAppState = getAppState()
           const { serverName } = message.request
-          elicitationRegistered.delete(serverName)
           // Config-existence gate must cover the SAME sources as the
           // operations below. SDK-injected servers (query({mcpServers:{...}}))
           // and dynamically-added servers were missing here, so
@@ -3248,7 +3293,6 @@ function runHeadlessStreaming(
         } else if (message.request.subtype === 'mcp_toggle') {
           const currentAppState = getAppState()
           const { serverName, enabled } = message.request
-          elicitationRegistered.delete(serverName)
           // Gate must match the client-lookup spread below (which
           // includes sdkClients and dynamicMcpState.clients). Same fix as
           // mcp_reconnect above (gh-31339 / CC-314).
@@ -3935,6 +3979,30 @@ function runHeadlessStreaming(
                   setAppState,
                 },
               })
+              if (result.status === 'launched') {
+                const reviewMessages = [
+                  createUserMessage({
+                    content: `<${COMMAND_NAME_TAG}>/ultrareview${args ? ` ${args}` : ''}</${COMMAND_NAME_TAG}>`,
+                    isMeta: true,
+                  }),
+                  createUserMessage({
+                    content: `<${LOCAL_COMMAND_STDOUT_TAG}>${result.message}</${LOCAL_COMMAND_STDOUT_TAG}>`,
+                    isMeta: true,
+                  }),
+                ]
+                mutableMessages.push(...reviewMessages)
+                for (const reviewMessage of reviewMessages) {
+                  output.enqueue({
+                    type: 'user',
+                    message: reviewMessage.message,
+                    session_id: getSessionId(),
+                    parent_tool_use_id: null,
+                    uuid: reviewMessage.uuid,
+                    timestamp: reviewMessage.timestamp,
+                    isReplay: true,
+                  } satisfies SDKUserMessageReplay)
+                }
+              }
               sendControlResponseSuccess(message, result)
             } catch (error) {
               sendControlResponseError(message, errorMessage(error))

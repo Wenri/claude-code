@@ -28,6 +28,7 @@ import {
 } from './marketplaceManager.js'
 import { parsePluginIdentifier } from './pluginIdentifier.js'
 import { resolveMissingDependencies } from './missingDependencyResolver.js'
+import { isSourceAllowedByPolicy } from './marketplaceHelpers.js'
 import { clearAllCaches } from './cacheUtils.js'
 import { loadAllPlugins } from './pluginLoader.js'
 import { isMarketplaceAutoUpdate, type PluginScope } from './schemas.js'
@@ -93,6 +94,7 @@ async function getAutoUpdateEnabledMarketplaces(): Promise<Set<string>> {
   const enabled = new Set<string>()
 
   for (const [name, entry] of Object.entries(config)) {
+    if (!isSourceAllowedByPolicy(entry.source)) continue
     // Settings-declared autoUpdate takes precedence over JSON state
     const declaredAutoUpdate = declared[name]?.autoUpdate
     const autoUpdate =

@@ -3,6 +3,7 @@ import { c as _c } from "react/compiler-runtime";
 import { feature } from 'bun:bundle';
 import { spawnSync } from 'child_process';
 import { snapshotOutputTokensForTurn, getCurrentTurnTokenBudget, getTurnOutputTokens, getBudgetContinuationCount, getTotalInputTokens } from '../bootstrap/state.js';
+import { getRuntimeCapabilities, setActiveRemoteControlTransport, type ActiveRemoteControlTransport } from '../bootstrap/state.js';
 import { parseTokenBudget } from '../utils/tokenBudget.js';
 import { count } from '../utils/array.js';
 import { dirname, join } from 'path';
@@ -266,6 +267,7 @@ import { useModelMigrationNotifications } from 'src/hooks/notifs/useModelMigrati
 import { useCanSwitchToExistingSubscription } from 'src/hooks/notifs/useCanSwitchToExistingSubscription.js';
 import { useTeammateLifecycleNotification } from 'src/hooks/notifs/useTeammateShutdownNotification.js';
 import { useFastModeNotification } from 'src/hooks/notifs/useFastModeNotification.js';
+import { useAdvisorNotification } from 'src/hooks/notifs/useAdvisorNotification.js';
 import { AutoRunIssueNotification, shouldAutoRunIssue, getAutoRunIssueReasonText, getAutoRunCommand, type AutoRunIssueReason } from '../utils/autoRunIssue.js';
 import type { HookProgress } from '../types/hooks.js';
 import { TungstenLiveMonitor } from '../tools/TungstenTool/TungstenLiveMonitor.js';
@@ -767,6 +769,7 @@ export function REPL({
   useSettingsErrors();
   useRateLimitWarningNotification(mainLoopModel);
   useFastModeNotification();
+  useAdvisorNotification();
   useDeprecationWarningNotification(mainLoopModel);
   useNpmDeprecationNotification();
   useAntOrgWarningNotification();
@@ -1430,6 +1433,23 @@ export function REPL({
 
   // Use whichever remote mode is active
   const activeRemote = sshRemote.isRemoteMode ? sshRemote : directConnect.isRemoteMode ? directConnect : remoteSession;
+  const activeRemoteControlTransport = useMemo<ActiveRemoteControlTransport | null>(() => {
+    if (!activeRemote.isRemoteMode) return null;
+    const kind = remoteSession.isRemoteMode ? 'ccr' : sshRemote.isRemoteMode ? 'ssh' : 'direct';
+    return {
+      kind,
+      async sendControlRequest<Response = Record<string, unknown>>(request: unknown): Promise<Response> {
+        if (kind === 'ccr') {
+          return remoteSession.sendControlRequest<Response>(request as Parameters<typeof remoteSession.sendControlRequest>[0]);
+        }
+        throw new Error(`sendControlRequest not yet wired for ${kind} transport`);
+      }
+    };
+  }, [activeRemote.isRemoteMode, remoteSession.isRemoteMode, remoteSession.sendControlRequest, sshRemote.isRemoteMode]);
+  useEffect(() => {
+    setActiveRemoteControlTransport(activeRemoteControlTransport);
+    return () => setActiveRemoteControlTransport(null);
+  }, [activeRemoteControlTransport]);
   const [pastedContents, setPastedContents] = useState<Record<number, PastedContent>>({});
   const [submitCount, setSubmitCount] = useState(0);
   // Ref instead of state to avoid triggering React re-renders on every
@@ -3669,8 +3689,16 @@ export function REPL({
     }
   }, []);
   const handleShowMessageSelector = useCallback(() => {
+    if (getRuntimeCapabilities().workspace === 'remote') {
+      addNotification({
+        key: 'remote-rewind-unavailable',
+        text: 'Rewind is not yet available in remote sessions',
+        priority: 'medium'
+      });
+      return;
+    }
     setIsMessageSelectorVisible(prev => !prev);
-  }, []);
+  }, [addNotification]);
 
   // Rewind conversation state to just before `message`: slice messages,
   // reset conversation ID, microcompact state, permission mode, prompt suggestion.

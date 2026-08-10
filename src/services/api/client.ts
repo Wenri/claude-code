@@ -21,6 +21,8 @@ import {
   isFirstPartyAnthropicBaseUrl,
 } from 'src/utils/model/providers.js'
 import { getProxyFetchOptions } from 'src/utils/proxy.js'
+import { logForDiagnosticsNoPII } from 'src/utils/diagLogs.js'
+import { logEvent } from '../analytics/index.js'
 import {
   getIsNonInteractiveSession,
   getSessionId,
@@ -466,8 +468,31 @@ function addStreamIdleTimeout(
     controller: TransformStreamDefaultController<Uint8Array>,
   ) => {
     clearIdleTimeout()
+    const resetAt = performance.now()
     timeout = setTimeout(() => {
       timeout = null
+      const lateMs = Math.round(performance.now() - resetAt - idleMs)
+      const readableErrored = controller.desiredSize === null
+      try {
+        logForDebugging(
+          `[byte-watchdog] firing: idle=${idleMs}ms late=${lateMs}ms errored=${readableErrored}`,
+          { level: 'warn' },
+        )
+        logForDiagnosticsNoPII('warn', 'cli_byte_watchdog_fired', {
+          idle_ms: idleMs,
+          late_ms: lateMs,
+          readable_errored: readableErrored,
+        })
+        if (lateMs >= 1000) {
+          logEvent('tengu_byte_watchdog_fired_late', {
+            idle_ms: idleMs,
+            late_ms: lateMs,
+            readable_errored: readableErrored,
+          })
+        }
+      } catch {
+        // Watchdog diagnostics must never prevent the stream from aborting.
+      }
       try {
         controller.error(new StreamIdleTimeoutError(idleMs))
       } catch {

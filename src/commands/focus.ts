@@ -5,6 +5,7 @@ import { isFullscreenEnvEnabled } from '../utils/fullscreen.js'
 const focus = {
   type: 'local-jsx',
   name: 'focus',
+  requires: { ink: true },
   description:
     'Toggle focus view (show only your prompt, a tool summary, and the final response)',
   isEnabled: isFullscreenEnvEnabled,

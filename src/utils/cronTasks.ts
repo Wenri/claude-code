@@ -16,6 +16,7 @@ import { join } from 'path'
 import {
   addSessionCronTask,
   getProjectRoot,
+  getSessionId,
   getSessionCronTasks,
   removeSessionCronTasks,
 } from '../bootstrap/state.js'
@@ -35,6 +36,10 @@ export type CronTask = {
   prompt: string
   /** Epoch ms when the task was created. Anchor for missed-task detection. */
   createdAt: number
+  /** Session that created this durable task. Absent on legacy tasks. */
+  createdBySessionId?: string
+  /** PID that most recently loaded this task for its creating session. */
+  createdByPid?: number
   /**
    * Epoch ms of the most recent fire. Written back by the scheduler after
    * each recurring fire so next-fire computation survives process restarts.
@@ -134,6 +139,12 @@ export async function readCronTasks(dir?: string): Promise<CronTask[]> {
         : {}),
       ...(t.recurring ? { recurring: true } : {}),
       ...(t.permanent ? { permanent: true } : {}),
+      ...(typeof t.createdBySessionId === 'string'
+        ? { createdBySessionId: t.createdBySessionId }
+        : {}),
+      ...(typeof t.createdByPid === 'number'
+        ? { createdByPid: t.createdByPid }
+        : {}),
     })
   }
   return out
@@ -213,7 +224,11 @@ export async function addCronTask(
     return id
   }
   const tasks = await readCronTasks()
-  tasks.push(task)
+  tasks.push({
+    ...task,
+    createdBySessionId: getSessionId(),
+    createdByPid: process.pid,
+  })
   await writeCronTasks(tasks)
   return id
 }

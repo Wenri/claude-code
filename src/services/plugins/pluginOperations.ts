@@ -42,6 +42,7 @@ import {
   getPluginById,
   loadKnownMarketplacesConfig,
 } from '../../utils/plugins/marketplaceManager.js'
+import { isSourceAllowedByPolicy } from '../../utils/plugins/marketplaceHelpers.js'
 import { deletePluginDataDir } from '../../utils/plugins/pluginDirectories.js'
 import {
   parsePluginIdentifier,
@@ -49,8 +50,10 @@ import {
 } from '../../utils/plugins/pluginIdentifier.js'
 import {
   formatResolutionError,
+  isPluginInstalledAtScope,
   installResolvedPlugin,
 } from '../../utils/plugins/pluginInstallationHelpers.js'
+import { recoverInstalledPluginDependencies } from '../../utils/plugins/missingDependencyResolver.js'
 import {
   cachePlugin,
   copyPluginToVersionedCache,
@@ -349,6 +352,7 @@ export async function installPluginOp(
   } else {
     const marketplaces = await loadKnownMarketplacesConfig()
     for (const [mktName, mktConfig] of Object.entries(marketplaces)) {
+      if (!isSourceAllowedByPolicy(mktConfig.source)) continue
       try {
         const marketplace = await getMarketplace(mktName)
         const pluginEntry = marketplace.plugins.find(p => p.name === pluginName)
@@ -377,6 +381,18 @@ export async function installPluginOp(
 
   const entry = foundPlugin
   const pluginId = `${entry.name}@${foundMarketplace}`
+
+  if (await isPluginInstalledAtScope(pluginId, scope)) {
+    const dependencyRecovery =
+      await recoverInstalledPluginDependencies(pluginId)
+    return {
+      success: true,
+      message: `Plugin "${pluginId}" is already installed (scope: ${scope})${dependencyRecovery?.suffix ?? ''}`,
+      pluginId,
+      pluginName: entry.name,
+      scope,
+    }
+  }
 
   const result = await installResolvedPlugin({
     pluginId,
@@ -408,10 +424,20 @@ export async function installPluginOp(
           success: false,
           message: `Plugin "${result.pluginName}" is blocked by your organization's policy and cannot be installed`,
         }
+      case 'marketplace-blocked-by-policy':
+        return {
+          success: false,
+          message: `Plugin "${result.pluginName}" comes from marketplace "${result.marketplaceName}", which is blocked by your organization's policy`,
+        }
       case 'dependency-blocked-by-policy':
         return {
           success: false,
           message: `Plugin "${result.pluginName}" depends on "${result.blockedDependency}", which is blocked by your organization's policy`,
+        }
+      case 'dependency-marketplace-blocked-by-policy':
+        return {
+          success: false,
+          message: `Plugin "${result.pluginName}" depends on "${result.blockedDependency}" from marketplace "${result.marketplaceName}", which is blocked by your organization's policy`,
         }
       case 'range-conflict':
         return {
@@ -861,6 +887,18 @@ export async function updatePluginOp(
   const { name: pluginName, marketplace: marketplaceName } =
     parsePluginIdentifier(plugin)
   const pluginId = marketplaceName ? `${pluginName}@${marketplaceName}` : plugin
+
+  if (marketplaceName) {
+    const marketplace = (await loadKnownMarketplacesConfig())[marketplaceName]
+    if (marketplace && !isSourceAllowedByPolicy(marketplace.source)) {
+      return {
+        success: false,
+        message: `Marketplace "${marketplaceName}" is blocked by enterprise policy`,
+        pluginId,
+        scope,
+      }
+    }
+  }
 
   // Get plugin info from marketplace
   const pluginInfo = await getPluginById(plugin)

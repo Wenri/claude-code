@@ -525,6 +525,23 @@ export function formatDependencyCountSuffix(installedDeps: string[]): string {
   return ` (+ ${n} ${plural(n, 'dependency', 'dependencies')}: ${displayedNames})`
 }
 
+export function formatUnresolvedDependencySuffix(
+  unresolved: string[],
+  marketplaceMissing: string[],
+): string {
+  if (unresolved.length === 0) return ''
+  const marketplace = marketplaceMissing
+    .map(id => parsePluginIdentifier(id).marketplace)
+    .find((name): name is string => name !== undefined)
+  const hint = marketplace
+    ? ` Is the "${marketplace}" marketplace added?`
+    : marketplaceMissing.length > 0
+      ? ` Add the dependency's marketplace, then re-run install.`
+      : ''
+  const count = unresolved.length
+  return ` — ${count} ${plural(count, 'dependency', 'dependencies')} still unresolved: ${unresolved.join(', ')}.${hint}`
+}
+
 /**
  * Format the "warning: required by X, Y" suffix for uninstall/disable
  * results. Em-dash style for CLI result messages (not the middot style

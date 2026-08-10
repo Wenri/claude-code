@@ -61,54 +61,38 @@ export function useInputBuffer({
 
       lastPushTime.current = now
 
+      // The current entry is the last state returned by undo. Avoid appending
+      // the same text again before the state update below has rendered.
+      if (buffer[currentIndex]?.text === text) return
+
       setBuffer(prevBuffer => {
-        // If we're not at the end of the buffer, truncate everything after current position
-        const newBuffer =
-          currentIndex >= 0 ? prevBuffer.slice(0, currentIndex + 1) : prevBuffer
-
-        // Don't add if it's the same as the last entry
-        const lastEntry = newBuffer[newBuffer.length - 1]
-        if (lastEntry && lastEntry.text === text) {
-          return newBuffer
-        }
-
-        // Add new entry
-        const updatedBuffer = [
-          ...newBuffer,
+        const next = [
+          ...prevBuffer.slice(0, currentIndex + 1),
           { text, cursorOffset, pastedContents, timestamp: now },
         ]
-
-        // Limit buffer size
-        if (updatedBuffer.length > maxBufferSize) {
-          return updatedBuffer.slice(-maxBufferSize)
-        }
-
-        return updatedBuffer
+        return next.length > maxBufferSize
+          ? next.slice(-maxBufferSize)
+          : next
       })
 
       // Update current index to point to the new entry
-      setCurrentIndex(prev => {
-        const newIndex = prev >= 0 ? prev + 1 : buffer.length
-        return Math.min(newIndex, maxBufferSize - 1)
-      })
+      setCurrentIndex(prev => Math.min(prev + 1, maxBufferSize - 1))
     },
     [debounceMs, maxBufferSize, currentIndex, buffer.length],
   )
 
   const undo = useCallback((): BufferEntry | undefined => {
-    if (currentIndex < 0 || buffer.length === 0) {
-      return undefined
+    // A debounced push represents text that has not entered history yet. Undo
+    // cancels it before observing the current history slot.
+    if (pendingPush.current) {
+      clearTimeout(pendingPush.current)
+      pendingPush.current = null
     }
 
-    const targetIndex = Math.max(0, currentIndex - 1)
-    const entry = buffer[targetIndex]
-
-    if (entry) {
-      setCurrentIndex(targetIndex)
-      return entry
-    }
-
-    return undefined
+    const entry = buffer[currentIndex]
+    if (!entry) return undefined
+    setCurrentIndex(currentIndex - 1)
+    return entry
   }, [buffer, currentIndex])
 
   const clearBuffer = useCallback(() => {
@@ -121,7 +105,7 @@ export function useInputBuffer({
     }
   }, [lastPushTime, pendingPush])
 
-  const canUndo = currentIndex > 0 && buffer.length > 1
+  const canUndo = currentIndex >= 0 && buffer[currentIndex] !== undefined
 
   return {
     pushToBuffer,

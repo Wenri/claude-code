@@ -386,7 +386,7 @@ export function getPluginErrorMessage(error: PluginError): string {
     case 'dependency-unsatisfied': {
       const hint =
         error.reason === 'not-enabled'
-          ? 'disabled — enable it or remove the dependency'
+          ? `not installed — run \`claude plugin install ${error.dependency}\`, or check that its marketplace is added`
           : 'not found in any configured marketplace'
       return `Dependency "${error.dependency}" is ${hint}`
     }

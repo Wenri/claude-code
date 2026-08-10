@@ -4,6 +4,7 @@ const feedback = {
   aliases: ['bug'],
   type: 'local-jsx',
   name: 'feedback',
+  requires: { ink: true },
   description: `Submit feedback about Claude Code`,
   argumentHint: '[report]',
   isEnabled: () => true,

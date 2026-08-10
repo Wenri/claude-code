@@ -9,6 +9,7 @@ const compact = {
   isEnabled: () => !isEnvTruthy(process.env.DISABLE_COMPACT),
   supportsNonInteractive: true,
   argumentHint: '<optional custom summarization instructions>',
+  thinClientDispatch: 'post-text',
   load: () => import('./compact.js'),
 } satisfies Command
 

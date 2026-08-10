@@ -3,7 +3,6 @@ import { CONTEXT_1M_BETA_HEADER } from '../constants/betas.js'
 import { getGlobalConfig } from './config.js'
 import { isEnvTruthy } from './envUtils.js'
 import { getCanonicalName } from './model/model.js'
-import { getModelCapability } from './model/modelCapabilities.js'
 
 // Model context window size (200k tokens for all models right now)
 export const MODEL_CONTEXT_WINDOW_DEFAULT = 200_000
@@ -52,6 +51,13 @@ export function modelSupports1M(model: string): boolean {
   )
 }
 
+function modelHasNative1MContext(model: string): boolean {
+  if (is1mContextDisabled()) {
+    return false
+  }
+  return getCanonicalName(model) === 'claude-opus-4-7'
+}
+
 export function getContextWindowForModel(
   model: string,
   betas?: string[],
@@ -74,23 +80,14 @@ export function getContextWindowForModel(
     return 1_000_000
   }
 
-  const cap = getModelCapability(model)
-  if (cap?.max_input_tokens && cap.max_input_tokens >= 100_000) {
-    if (
-      cap.max_input_tokens > MODEL_CONTEXT_WINDOW_DEFAULT &&
-      is1mContextDisabled()
-    ) {
-      return MODEL_CONTEXT_WINDOW_DEFAULT
-    }
-    return cap.max_input_tokens
-  }
-
   if (betas?.includes(CONTEXT_1M_BETA_HEADER) && modelSupports1M(model)) {
     return 1_000_000
   }
-  if (getSonnet1mExpTreatmentEnabled(model)) {
+  if (modelHasNative1MContext(model)) {
     return 1_000_000
   }
+  const sonnetContextWindow = getSonnetContextWindowExperiment(model)
+  if (sonnetContextWindow !== null) return sonnetContextWindow
   if (process.env.USER_TYPE === 'ant') {
     const antModel = resolveAntModel(model)
     if (antModel?.contextWindow) {
@@ -100,18 +97,22 @@ export function getContextWindowForModel(
   return MODEL_CONTEXT_WINDOW_DEFAULT
 }
 
-export function getSonnet1mExpTreatmentEnabled(model: string): boolean {
+export function getSonnetContextWindowExperiment(model: string): number | null {
   if (is1mContextDisabled()) {
-    return false
+    return null
   }
   // Only applies to sonnet 4.6 without an explicit [1m] suffix
   if (has1mContext(model)) {
-    return false
+    return null
   }
-  if (!getCanonicalName(model).includes('sonnet-4-6')) {
-    return false
+  if (getCanonicalName(model) !== 'claude-sonnet-4-6') {
+    return null
   }
-  return getGlobalConfig().clientDataCache?.['coral_reef_sonnet'] === 'true'
+  const value = getGlobalConfig().clientDataCache?.['kelp_forest_sonnet']
+  if (typeof value !== 'string') return null
+  const contextWindow = parseInt(value, 10)
+  if (!Number.isFinite(contextWindow) || contextWindow <= 0) return null
+  return contextWindow
 }
 
 /**

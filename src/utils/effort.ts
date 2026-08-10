@@ -1,8 +1,6 @@
 // biome-ignore-all assist/source/organizeImports: ANT-ONLY import markers must not be reordered
-import { isUltrathinkEnabled } from './thinking.js'
 import { getInitialSettings } from './settings/settings.js'
 import { getGlobalConfig, saveGlobalConfig } from './config.js'
-import { isProSubscriber, isMaxSubscriber } from './auth.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from 'src/services/analytics/growthbook.js'
 import {
   getAPIProviderForModel,
@@ -348,29 +346,6 @@ export function getDefaultEffortForModel(
 
   if (getCanonicalName(model).includes('opus-4-7')) {
     return 'xhigh'
-  }
-
-  // Default effort on Opus 4.6 to medium for Pro.
-  // Max also gets medium when the tengu_grey_step2 config is enabled.
-  if (model.toLowerCase().includes('opus-4-6')) {
-    if (isProSubscriber()) {
-      return 'medium'
-    }
-    if (
-      getOpusDefaultEffortConfig().enabled &&
-      isMaxSubscriber()
-    ) {
-      return 'medium'
-    }
-  }
-
-  // When ultrathink feature is on, default effort to medium (ultrathink bumps to high)
-  if (
-    isUltrathinkEnabled() &&
-    modelSupportsEffort(model) &&
-    (isProSubscriber() || isMaxSubscriber())
-  ) {
-    return 'medium'
   }
 
   return 'high'

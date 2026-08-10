@@ -12,6 +12,7 @@
  */
 
 import { getGraphemeSegmenter } from '../../utils/intl.js'
+import { stringWidth } from '../stringWidth.js'
 import { C0 } from './ansi.js'
 import { CSI, CURSOR_STYLES, ERASE_DISPLAY, ERASE_LINE_REGION } from './csi.js'
 import { DEC } from './dec.js'
@@ -26,51 +27,32 @@ import { defaultStyle } from './types.js'
 // Grapheme Utilities
 // =============================================================================
 
-function isEmoji(codePoint: number): boolean {
-  return (
-    (codePoint >= 0x2600 && codePoint <= 0x26ff) ||
-    (codePoint >= 0x2700 && codePoint <= 0x27bf) ||
-    (codePoint >= 0x1f300 && codePoint <= 0x1f9ff) ||
-    (codePoint >= 0x1fa00 && codePoint <= 0x1faff) ||
-    (codePoint >= 0x1f1e0 && codePoint <= 0x1f1ff)
-  )
-}
-
-function isEastAsianWide(codePoint: number): boolean {
-  return (
-    (codePoint >= 0x1100 && codePoint <= 0x115f) ||
-    (codePoint >= 0x2e80 && codePoint <= 0x9fff) ||
-    (codePoint >= 0xac00 && codePoint <= 0xd7a3) ||
-    (codePoint >= 0xf900 && codePoint <= 0xfaff) ||
-    (codePoint >= 0xfe10 && codePoint <= 0xfe1f) ||
-    (codePoint >= 0xfe30 && codePoint <= 0xfe6f) ||
-    (codePoint >= 0xff00 && codePoint <= 0xff60) ||
-    (codePoint >= 0xffe0 && codePoint <= 0xffe6) ||
-    (codePoint >= 0x20000 && codePoint <= 0x2fffd) ||
-    (codePoint >= 0x30000 && codePoint <= 0x3fffd)
-  )
-}
-
-function hasMultipleCodepoints(str: string): boolean {
-  let count = 0
-  for (const _ of str) {
-    count++
-    if (count > 1) return true
-  }
-  return false
-}
-
-function graphemeWidth(grapheme: string): 1 | 2 {
-  if (hasMultipleCodepoints(grapheme)) return 2
-  const codePoint = grapheme.codePointAt(0)
-  if (codePoint === undefined) return 1
-  if (isEmoji(codePoint) || isEastAsianWide(codePoint)) return 2
-  return 1
-}
-
 function* segmentGraphemes(str: string): Generator<Grapheme> {
+  let isAscii = true
+  for (let i = 0; i < str.length; i++) {
+    const code = str.charCodeAt(i)
+    if (code < 32 || code >= 127) {
+      isAscii = false
+      break
+    }
+  }
+
+  if (isAscii) {
+    for (let i = 0; i < str.length; i++) {
+      yield { value: str[i]!, width: 1 }
+    }
+    return
+  }
+
   for (const { segment } of getGraphemeSegmenter().segment(str)) {
-    yield { value: segment, width: graphemeWidth(segment) }
+    if (segment.length === 1) {
+      const code = segment.charCodeAt(0)
+      if (code >= 32 && code < 127) {
+        yield { value: segment, width: 1 }
+        continue
+      }
+    }
+    yield { value: segment, width: Math.max(1, stringWidth(segment)) }
   }
 }
 
@@ -83,8 +65,45 @@ function parseCSIParams(paramStr: string): number[] {
   return paramStr.split(/[;:]/).map(s => (s === '' ? 0 : parseInt(s, 10)))
 }
 
+function parsePrivateMode(param: number, enabled: boolean): Action | null {
+  if (param === DEC.CURSOR_VISIBLE) {
+    return {
+      type: 'cursor',
+      action: enabled ? { type: 'show' } : { type: 'hide' },
+    }
+  }
+  if (param === DEC.ALT_SCREEN_CLEAR || param === DEC.ALT_SCREEN) {
+    return { type: 'mode', action: { type: 'alternateScreen', enabled } }
+  }
+  if (param === DEC.BRACKETED_PASTE) {
+    return { type: 'mode', action: { type: 'bracketedPaste', enabled } }
+  }
+  if (param === DEC.MOUSE_NORMAL) {
+    return {
+      type: 'mode',
+      action: { type: 'mouseTracking', mode: enabled ? 'normal' : 'off' },
+    }
+  }
+  if (param === DEC.MOUSE_BUTTON) {
+    return {
+      type: 'mode',
+      action: { type: 'mouseTracking', mode: enabled ? 'button' : 'off' },
+    }
+  }
+  if (param === DEC.MOUSE_ANY) {
+    return {
+      type: 'mode',
+      action: { type: 'mouseTracking', mode: enabled ? 'any' : 'off' },
+    }
+  }
+  if (param === DEC.FOCUS_EVENTS) {
+    return { type: 'mode', action: { type: 'focusEvents', enabled } }
+  }
+  return null
+}
+
 /** Parse a raw CSI sequence (e.g., "\x1b[31m") into an action */
-function parseCSI(rawSequence: string): Action | null {
+function parseCSI(rawSequence: string): Action | Action[] | null {
   const inner = rawSequence.slice(2)
   if (inner.length === 0) return null
 
@@ -95,25 +114,30 @@ function parseCSI(rawSequence: string): Action | null {
   let paramStr = beforeFinal
   let intermediate = ''
 
-  if (beforeFinal.length > 0 && '?>='.includes(beforeFinal[0]!)) {
+  if (beforeFinal.length > 0 && '?>=<'.includes(beforeFinal[0]!)) {
     privateMode = beforeFinal[0]!
     paramStr = beforeFinal.slice(1)
   }
 
-  const intermediateMatch = paramStr.match(/([^0-9;:]+)$/)
-  if (intermediateMatch) {
-    intermediate = intermediateMatch[1]!
-    paramStr = paramStr.slice(0, -intermediate.length)
+  if (paramStr.length > 0) {
+    const lastParamCode = paramStr.charCodeAt(paramStr.length - 1)
+    if (!(lastParamCode >= 0x30 && lastParamCode <= 0x3b)) {
+      const intermediateMatch = paramStr.match(/([^0-9;:]+)$/)
+      if (intermediateMatch) {
+        intermediate = intermediateMatch[1]!
+        paramStr = paramStr.slice(0, -intermediate.length)
+      }
+    }
   }
-
-  const params = parseCSIParams(paramStr)
-  const p0 = params[0] ?? 1
-  const p1 = params[1] ?? 1
 
   // SGR (Select Graphic Rendition)
   if (finalByte === CSI.SGR && privateMode === '') {
     return { type: 'sgr', params: paramStr }
   }
+
+  const params = parseCSIParams(paramStr)
+  const p0 = params[0] ?? 1
+  const p1 = params[1] ?? 1
 
   // Cursor movement
   if (finalByte === CSI.CUU) {
@@ -122,13 +146,13 @@ function parseCSI(rawSequence: string): Action | null {
       action: { type: 'move', direction: 'up', count: p0 },
     }
   }
-  if (finalByte === CSI.CUD) {
+  if (finalByte === CSI.CUD || finalByte === CSI.VPR) {
     return {
       type: 'cursor',
       action: { type: 'move', direction: 'down', count: p0 },
     }
   }
-  if (finalByte === CSI.CUF) {
+  if (finalByte === CSI.CUF || finalByte === CSI.HPR) {
     return {
       type: 'cursor',
       action: { type: 'move', direction: 'forward', count: p0 },
@@ -146,7 +170,7 @@ function parseCSI(rawSequence: string): Action | null {
   if (finalByte === CSI.CPL) {
     return { type: 'cursor', action: { type: 'prevLine', count: p0 } }
   }
-  if (finalByte === CSI.CHA) {
+  if (finalByte === CSI.CHA || finalByte === CSI.HPA) {
     return { type: 'cursor', action: { type: 'column', col: p0 } }
   }
   if (finalByte === CSI.CUP || finalByte === CSI.HVP) {
@@ -169,6 +193,20 @@ function parseCSI(rawSequence: string): Action | null {
     return { type: 'erase', action: { type: 'chars', count: p0 } }
   }
 
+  // Insert/Delete
+  if (finalByte === CSI.IL) {
+    return { type: 'edit', action: { type: 'insertLines', count: p0 } }
+  }
+  if (finalByte === CSI.DL) {
+    return { type: 'edit', action: { type: 'deleteLines', count: p0 } }
+  }
+  if (finalByte === CSI.ICH) {
+    return { type: 'edit', action: { type: 'insertChars', count: p0 } }
+  }
+  if (finalByte === CSI.DCH) {
+    return { type: 'edit', action: { type: 'deleteChars', count: p0 } }
+  }
+
   // Scroll
   if (finalByte === CSI.SU) {
     return { type: 'scroll', action: { type: 'up', count: p0 } }
@@ -179,7 +217,7 @@ function parseCSI(rawSequence: string): Action | null {
   if (finalByte === CSI.DECSTBM) {
     return {
       type: 'scroll',
-      action: { type: 'setRegion', top: p0, bottom: p1 },
+      action: { type: 'setRegion', top: p0, bottom: params[1] ?? 0 },
     }
   }
 
@@ -200,40 +238,14 @@ function parseCSI(rawSequence: string): Action | null {
   // Private modes
   if (privateMode === '?' && (finalByte === CSI.SM || finalByte === CSI.RM)) {
     const enabled = finalByte === CSI.SM
-
-    if (p0 === DEC.CURSOR_VISIBLE) {
-      return {
-        type: 'cursor',
-        action: enabled ? { type: 'show' } : { type: 'hide' },
-      }
+    const actions: Action[] = []
+    for (const param of params) {
+      const action = parsePrivateMode(param, enabled)
+      if (action) actions.push(action)
     }
-    if (p0 === DEC.ALT_SCREEN_CLEAR || p0 === DEC.ALT_SCREEN) {
-      return { type: 'mode', action: { type: 'alternateScreen', enabled } }
-    }
-    if (p0 === DEC.BRACKETED_PASTE) {
-      return { type: 'mode', action: { type: 'bracketedPaste', enabled } }
-    }
-    if (p0 === DEC.MOUSE_NORMAL) {
-      return {
-        type: 'mode',
-        action: { type: 'mouseTracking', mode: enabled ? 'normal' : 'off' },
-      }
-    }
-    if (p0 === DEC.MOUSE_BUTTON) {
-      return {
-        type: 'mode',
-        action: { type: 'mouseTracking', mode: enabled ? 'button' : 'off' },
-      }
-    }
-    if (p0 === DEC.MOUSE_ANY) {
-      return {
-        type: 'mode',
-        action: { type: 'mouseTracking', mode: enabled ? 'any' : 'off' },
-      }
-    }
-    if (p0 === DEC.FOCUS_EVENTS) {
-      return { type: 'mode', action: { type: 'focusEvents', enabled } }
-    }
+    return actions.length > 0
+      ? actions
+      : { type: 'unknown', sequence: rawSequence }
   }
 
   return { type: 'unknown', sequence: rawSequence }
@@ -307,32 +319,23 @@ export class Parser {
   }
 
   private processText(text: string): Action[] {
-    // Handle BEL characters embedded in text
+    const style = this.style
+    if (text.indexOf('\x07') === -1) {
+      const graphemes = [...segmentGraphemes(text)]
+      return graphemes.length > 0 ? [{ type: 'text', graphemes, style }] : []
+    }
+
     const actions: Action[] = []
-    let current = ''
-
-    for (const char of text) {
-      if (char.charCodeAt(0) === C0.BEL) {
-        if (current) {
-          const graphemes = [...segmentGraphemes(current)]
-          if (graphemes.length > 0) {
-            actions.push({ type: 'text', graphemes, style: { ...this.style } })
-          }
-          current = ''
+    for (const part of text.split('\x07')) {
+      if (part) {
+        const graphemes = [...segmentGraphemes(part)]
+        if (graphemes.length > 0) {
+          actions.push({ type: 'text', graphemes, style })
         }
-        actions.push({ type: 'bell' })
-      } else {
-        current += char
       }
+      actions.push({ type: 'bell' })
     }
-
-    if (current) {
-      const graphemes = [...segmentGraphemes(current)]
-      if (graphemes.length > 0) {
-        actions.push({ type: 'text', graphemes, style: { ...this.style } })
-      }
-    }
-
+    actions.pop()
     return actions
   }
 
@@ -343,6 +346,7 @@ export class Parser {
       case 'csi': {
         const action = parseCSI(seq)
         if (!action) return []
+        if (Array.isArray(action)) return action
         if (action.type === 'sgr') {
           this.style = applySGR(action.params, this.style)
           return []
@@ -379,6 +383,11 @@ export class Parser {
       case 'esc': {
         const escContent = seq.slice(1)
         const action = parseEsc(escContent)
+        if (action?.type === 'reset') {
+          this.style = defaultStyle()
+          this.inLink = false
+          this.linkUrl = undefined
+        }
         return action ? [action] : []
       }
 

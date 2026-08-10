@@ -553,7 +553,10 @@ async function computeDefaultBranch(): Promise<string> {
     'refs/remotes/origin/HEAD',
     'refs/remotes/origin/',
   )
-  if (branchFromSymref) {
+  if (
+    branchFromSymref &&
+    (await resolveRef(commonDir, `refs/remotes/origin/${branchFromSymref}`))
+  ) {
     return branchFromSymref
   }
   for (const candidate of ['main', 'master']) {

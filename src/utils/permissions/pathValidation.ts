@@ -376,6 +376,22 @@ export function isDangerousRemovalPath(resolvedPath: string): boolean {
   return false
 }
 
+function containsTraversalAfterDirectory(path: string): boolean {
+  const segments = path.split(getPlatform() === 'windows' ? /[\\/]/ : '/')
+  let sawDirectory = false
+
+  for (const segment of segments) {
+    if (segment === '' || segment === '.') continue
+    if (segment === '..') {
+      if (sawDirectory) return true
+    } else {
+      sawDirectory = true
+    }
+  }
+
+  return false
+}
+
 /**
  * Validates a file system path, handling tilde expansion and glob patterns.
  * Returns whether the path is allowed and the resolved path for error messages.
@@ -470,6 +486,21 @@ export function validatePath(
       toolPermissionContext,
       operationType,
     )
+  }
+
+  if (
+    (operationType === 'write' || operationType === 'create') &&
+    containsTraversalAfterDirectory(cleanPath)
+  ) {
+    return {
+      allowed: false,
+      resolvedPath: cleanPath,
+      decisionReason: {
+        type: 'other',
+        reason:
+          "Path contains '..' traversal after a directory segment, which may follow a symlink outside the working directory",
+      },
+    }
   }
 
   // Resolve path

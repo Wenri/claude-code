@@ -148,7 +148,7 @@ export function useBackgroundTaskNavigation(options?: {
     // Escape in viewing mode:
     // - If teammate is running: abort current work only (stops current turn, teammate stays alive)
     // - If teammate is not running (completed/killed/failed): exit the view back to leader
-    if (e.key === 'escape' && viewSelectionMode === 'viewing-agent') {
+    if (e.name === 'escape' && viewSelectionMode === 'viewing-agent') {
       e.preventDefault()
       const taskId = viewingAgentTaskId
       if (taskId) {
@@ -165,7 +165,7 @@ export function useBackgroundTaskNavigation(options?: {
     }
 
     // Escape in selection mode: exit selection without aborting leader
-    if (e.key === 'escape' && viewSelectionMode === 'selecting-agent') {
+    if (e.name === 'escape' && viewSelectionMode === 'selecting-agent') {
       e.preventDefault()
       setAppState(prev => ({
         ...prev,
@@ -178,10 +178,10 @@ export function useBackgroundTaskNavigation(options?: {
     // Shift+Up/Down for teammate transcript switching (with wrapping)
     // Index -1 represents the leader, 0+ are teammates
     // When showSpinnerTree is true, index === teammateCount is the "hide" row
-    if (e.shift && (e.key === 'up' || e.key === 'down')) {
+    if (e.shift && (e.name === 'up' || e.name === 'down')) {
       e.preventDefault()
       if (teammateCount > 0) {
-        stepTeammateSelection(e.key === 'down' ? 1 : -1, setAppState)
+        stepTeammateSelection(e.name === 'down' ? 1 : -1, setAppState)
       } else if (hasNonTeammateBackgroundTasks) {
         options?.onOpenBackgroundTasks?.()
       }
@@ -203,7 +203,7 @@ export function useBackgroundTaskNavigation(options?: {
     }
 
     // Enter to confirm selection (only when in selecting mode)
-    if (e.key === 'return' && viewSelectionMode === 'selecting-agent') {
+    if (e.name === 'return' && viewSelectionMode === 'selecting-agent') {
       e.preventDefault()
       if (selectedIPAgentIndex === -1) {
         exitTeammateView(setAppState)

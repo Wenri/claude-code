@@ -45,9 +45,11 @@ The checked-in cases are:
 - [`2.1.112 → 2.1.113`](./cases/2.1.112-to-2.1.113/REPORT.md), the eighteenth
   adjacent recovery and the first native-packaging case;
 - [`2.1.113 → 2.1.114`](./cases/2.1.113-to-2.1.114/REPORT.md), the nineteenth
+  adjacent recovery;
+- [`2.1.114 → 2.1.116`](./cases/2.1.114-to-2.1.116/REPORT.md), the twentieth
   adjacent recovery; and
-- [`2.1.114 → 2.1.116`](./cases/2.1.114-to-2.1.116/REPORT.md), the current
-  twentieth adjacent recovery. Upstream did not publish 2.1.93, 2.1.95,
+- [`2.1.116 → 2.1.117`](./cases/2.1.116-to-2.1.117/REPORT.md), the current
+  twenty-first adjacent recovery. Upstream did not publish 2.1.93, 2.1.95,
   2.1.99, 2.1.102, 2.1.103, 2.1.106, or 2.1.115, so every multi-number advance
   is still one step in published-release order.
 
@@ -64,9 +66,9 @@ Each case has simultaneous completeness levels that must not be conflated:
   types, comments, formatting, and exact module placement are not observable.
 
 For the current target, start with the
-[`2.1.116 report`](./cases/2.1.114-to-2.1.116/REPORT.md),
-[`manifest`](./cases/2.1.114-to-2.1.116/manifest.json), and
-[`complete runbook`](./cases/2.1.114-to-2.1.116/RECOVERY_RUNBOOK.md).
+[`2.1.117 report`](./cases/2.1.116-to-2.1.117/REPORT.md),
+[`manifest`](./cases/2.1.116-to-2.1.117/manifest.json), and
+[`complete runbook`](./cases/2.1.116-to-2.1.117/RECOVERY_RUNBOOK.md).
 
 ## Deliverables
 
@@ -86,7 +88,7 @@ The repository `src/` is the verified 2.1.88 outer/Bun-input source-map
 baseline plus cumulative source-facing overlays for 2.1.89, 2.1.90, 2.1.91,
 2.1.92, 2.1.94, 2.1.96, 2.1.97, 2.1.98, 2.1.100, 2.1.101, 2.1.104, 2.1.105,
 2.1.107, 2.1.108, 2.1.109, 2.1.110, 2.1.111, 2.1.112, 2.1.113, 2.1.114,
-and 2.1.116.
+2.1.116, and 2.1.117.
 Upstream skipped 2.1.93, 2.1.95, 2.1.99, 2.1.102, 2.1.103, 2.1.106, and
 2.1.115.
 Those overlays are partial behavioral recoveries, not claims of the exact
@@ -102,6 +104,17 @@ Its incremental source-facing overlay is applied, so the checked-out `src/`
 tree carries the cumulative 2.1.116-facing target as its twenty-first recovered
 overlay. Version 2.1.115 was not published. The exact generated recovery and
 the necessarily partial authored-source localization remain separate claims.
+
+The 2.1.117 exact wrapper and embedded-JavaScript recovery is complete. Its
+incremental source-facing overlay is applied, so the checked-out `src/` tree
+carries the cumulative 2.1.117-facing target as its twenty-second recovered
+overlay. The frozen patch touches 123 paths and produces 1,957 files,
+30,993,723 bytes, and framed SHA-256
+`135719f7be0cccc9e4658e0f7b78d46e52d947cc171a9bf80b36e1081d727cee`.
+All 122 target-existing changed source paths pass syntax construction, and the
+three focused test files pass 8/8 in both base and applied-target orientations.
+The complete generated/package claim and necessarily partial authored-source
+localization remain separate.
 
 The 2.1.89 overlay modifies three files and adds one:
 
@@ -387,9 +400,36 @@ framed SHA-256
 Its three focused suites pass 15/15 in both the base and applied-target
 orientations.
 
-All twenty-one overlays through 2.1.116 are already present. Do not apply an
-overlay twice; reverse only the final 2.1.116 overlay when deliberately
-auditing the 2.1.114 base orientation.
+The incremental 2.1.117 recovery advances directly from the verified 2.1.116
+tree in npm publication order. Its source-facing overlay is applied in the
+checked-out tree, and the archived patch records the reversible transition.
+Do not apply it a second time. For a clean-room replay only, apply it from a
+verified 2.1.116 source base in a disposable checkout:
+
+```sh
+CASE=recovery/cases/2.1.116-to-2.1.117
+git apply "$CASE/recovered/source-facing-overlay.patch"
+```
+
+Its generated/package claim is complete: one exact wrapper-member payload
+recovers `package.json`, the other six wrapper members are unchanged, and
+three adjacent payloads reconstruct every plain JavaScript entry in the
+authenticated Linux x64 Bun graph. The target ELF, JSC cache, and native
+addons are authenticated and range-verified, not presented as authored source.
+
+The frozen source-facing patch is 637,321 bytes with SHA-256
+`d2063694679f1a1e02d41c84bb375da029263e1feff9c1e457d66df979e21773`.
+It records 123 paths (115 modified, seven added, one deleted), with 2,864
+insertions and 856 deletions. Applying it produces 1,957 files, 30,993,723
+bytes, and framed SHA-256
+`135719f7be0cccc9e4658e0f7b78d46e52d947cc171a9bf80b36e1081d727cee`.
+All 122 target-existing changed source paths pass syntax construction, and its
+three focused test files pass 8/8 from both source-tree orientations.
+
+All twenty-two overlays through 2.1.117 are present. Do not apply an overlay
+twice. Reverse the final overlay only for a deliberate reversibility audit,
+and reapply it before continuing; never reverse a cumulative pre-2.1.117
+overlay.
 
 ## Quick verification
 
@@ -401,19 +441,24 @@ pixi run npm --prefix recovery ci --ignore-scripts
 
 RECOVERY_ARTIFACTS=$(mktemp -d)
 pixi run node recovery/scripts/acquire-case.mjs \
-  --case recovery/cases/2.1.114-to-2.1.116/manifest.json \
+  --case recovery/cases/2.1.116-to-2.1.117/manifest.json \
   --output "$RECOVERY_ARTIFACTS"
 ```
 
-Run the complete gate against the checked-out, applied 2.1.116 target state:
+Run the complete gate directly against the checked-out, applied 2.1.117 target
+state:
 
 ```sh
-CASE=recovery/cases/2.1.114-to-2.1.116
+CASE=recovery/cases/2.1.116-to-2.1.117
+git diff --exit-code -- src
+git diff --cached --exit-code -- src
+git apply --reverse --check "$CASE/recovered/source-facing-overlay.patch"
+
 pixi run node recovery/scripts/verify-complete-recovery.mjs \
   --case "$CASE/manifest.json" \
   --repo . \
   --artifacts "$RECOVERY_ARTIFACTS" \
-  --baseline-tarball "$RECOVERY_ARTIFACTS/2.1.114/package.tgz"
+  --baseline-tarball "$RECOVERY_ARTIFACTS/2.1.116/package.tgz"
 ```
 
 It verifies the 2.1.88 source-oracle correspondence, Bun container and raw
@@ -422,43 +467,44 @@ and wrapper reconstruction, attribution coverage, structural token accounting,
 readable-diff invariants, and target-backed tests.
 
 The source-lineage gate reverses and reapplies the patch in a disposable
-workspace. For a manual audit from a clean committed 2.1.116 checkout, reverse
-only this case's patch, confirm the documented 2.1.114 base summary, and then
-restore the target before continuing work:
+workspace. The checked-out source tree therefore remains at 2.1.117. For an
+optional manual reversibility audit, reverse only this case's patch, verify the
+2.1.116 base, and immediately reapply it so the audit ends at 2.1.117:
 
 ```sh
-git diff --exit-code -- src
-git diff --cached --exit-code -- src
 git apply --reverse --check "$CASE/recovered/source-facing-overlay.patch"
 git apply --reverse "$CASE/recovered/source-facing-overlay.patch"
-# Require: 1,950 files, 30,868,629 bytes, framed SHA-256
-# 45d994bcaea6ce0c204722a7cfc6c9973296d8f0a64cbfa96f935fda24f5e3e0.
+# Require: 1,951 files, 30,923,332 bytes, framed SHA-256
+# b1a90b5f154db24f709ab12afb2bc746ddc1e03ea07235d4880f099743ec58a4.
 git apply --check "$CASE/recovered/source-facing-overlay.patch"
 git apply "$CASE/recovered/source-facing-overlay.patch"
+# Require: 1,957 files, 30,993,723 bytes, framed SHA-256
+# 135719f7be0cccc9e4658e0f7b78d46e52d947cc171a9bf80b36e1081d727cee.
 git diff --exit-code -- src
+git diff --cached --exit-code -- src
 ```
 
 The expected top-level status is `complete-recovery-verified`, with exact
 raw embedded CLI SHA-256
-`06cb80193f3af8bb468d1536b230b0e2f854a398b1e88af3c79048ce821bf193`
+`092d43f3fd4ef663e387038c0e3d44e0af70e17eb52b27f0805abda0fe703744`
 and exact wrapper-tree SHA-256
-`5cf546a554e481b32f4633be6f883c8740b05f34a359142e9665a591011e90c0`.
+`5989877c00805b29590a870dc429703e04d625c9830e99611bf67144e5b01dbd`.
 The exact target Bun graph contains three embedded plain JavaScript files and
-13,107,488 bytes.
+13,119,334 bytes.
 
 ## Inspect the diff
 
 The compact structural diff is plain text:
 
 ```sh
-less recovery/cases/2.1.114-to-2.1.116/readable-diff/statements.diff
+less recovery/cases/2.1.116-to-2.1.117/readable-diff/statements.diff
 ```
 
 The complete normalized Git diff is deterministically compressed:
 
 ```sh
 gzip -cd \
-  recovery/cases/2.1.114-to-2.1.116/readable-diff/normalized.diff.gz |
+  recovery/cases/2.1.116-to-2.1.117/readable-diff/normalized.diff.gz |
   less
 ```
 
@@ -469,14 +515,14 @@ The exact embedded CLI entry can be reconstructed directly:
 
 ```sh
 pixi run zstd -d \
-  --patch-from="$RECOVERY_ARTIFACTS/2.1.114-linux-x64/cli.js" \
-  recovery/cases/2.1.114-to-2.1.116/diff/cli.js.zstd-delta \
-  -o /tmp/claude-code-2.1.116-embedded-cli.js
+  --patch-from="$RECOVERY_ARTIFACTS/2.1.116-linux-x64/cli.js" \
+  recovery/cases/2.1.116-to-2.1.117/diff/cli.js.zstd-delta \
+  -o /tmp/claude-code-2.1.117-embedded-cli.js
 ```
 
-The baseline is the canonical 2.1.114 CLI slice from its authenticated native
-executable. The reconstructed file must be 13,102,362 bytes with SHA-256
-`06cb80193f3af8bb468d1536b230b0e2f854a398b1e88af3c79048ce821bf193`.
+The baseline is the canonical 2.1.116 CLI slice from its authenticated native
+executable. The reconstructed file must be 13,114,208 bytes with SHA-256
+`092d43f3fd4ef663e387038c0e3d44e0af70e17eb52b27f0805abda0fe703744`.
 
 ## Reusable method
 

@@ -278,6 +278,8 @@ export function describeMcpConfigFilePath(scope: ConfigScope): string {
       return 'Dynamically configured'
     case 'enterprise':
       return getEnterpriseMcpFilePath()
+    case 'agent':
+      return 'agent frontmatter'
     case 'claudeai':
       return 'claude.ai'
     default:
@@ -297,6 +299,8 @@ export function getScopeLabel(scope: ConfigScope): string {
       return 'Dynamic config (from command line)'
     case 'enterprise':
       return 'Enterprise config (managed by your organization)'
+    case 'agent':
+      return 'Agent config (from agent frontmatter)'
     case 'claudeai':
       return 'claude.ai config'
     default:

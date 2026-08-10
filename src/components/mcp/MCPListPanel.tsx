@@ -1,4 +1,5 @@
 import { c as _c } from "react/compiler-runtime";
+import { getMainThreadAgentType } from '../../bootstrap/state.js';
 import figures from 'figures';
 import React, { useCallback, useState } from 'react';
 import type { CommandResultDisplay } from '../../commands.js';
@@ -34,7 +35,7 @@ type SelectableItem = {
 
 // Define scope order for display (constant, outside component)
 // 'dynamic' (built-in) is rendered separately at the end
-const SCOPE_ORDER: ConfigScope[] = ['project', 'local', 'user', 'enterprise'];
+const SCOPE_ORDER: ConfigScope[] = ['project', 'local', 'user', 'enterprise', 'agent'];
 
 // Get scope heading parts (label is bold, path is grey)
 function getScopeHeading(scope: ConfigScope): {
@@ -66,6 +67,13 @@ function getScopeHeading(scope: ConfigScope): {
         label: 'Built-in MCPs',
         path: 'always available'
       };
+    case 'agent': {
+      const agent = getMainThreadAgentType();
+      return {
+        label: 'Active agent MCPs',
+        path: agent ? `@${agent} frontmatter` : 'agent frontmatter'
+      };
+    }
     default:
       return {
         label: scope
@@ -106,7 +114,8 @@ export function MCPListPanel(t0) {
   } else {
     t2 = $[1];
   }
-  const agentServers = t2;
+  const activeAgentServerNames = new Set(servers.filter(server => server.scope === 'agent').map(server => server.name));
+  const agentServers = t2.filter(server => !activeAgentServerNames.has(server.name));
   const [theme] = useTheme();
   const [selectedIndex, setSelectedIndex] = useState(0);
   let t3;

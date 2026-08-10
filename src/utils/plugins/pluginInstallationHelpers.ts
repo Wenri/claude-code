@@ -43,7 +43,12 @@ import {
   getInMemoryInstalledPlugins,
 } from './installedPluginsManager.js'
 import { getManagedPluginNames } from './managedPlugins.js'
-import { getMarketplaceCacheOnly, getPluginById } from './marketplaceManager.js'
+import {
+  getMarketplaceCacheOnly,
+  getPluginById,
+  loadKnownMarketplacesConfig,
+} from './marketplaceManager.js'
+import { isSourceAllowedByPolicy } from './marketplaceHelpers.js'
 import {
   isOfficialMarketplaceName,
   parsePluginIdentifier,
@@ -80,6 +85,33 @@ export type PluginInstallationInfo = {
   pluginId: string
   installPath: string
   version?: string
+}
+
+export async function isPluginInstalledAtScope(
+  pluginId: string,
+  scope: 'user' | 'project' | 'local',
+): Promise<boolean> {
+  const settingSource = scopeToSettingSource(scope)
+  if (!getEnabledPluginIdsForScope(settingSource).has(pluginId)) return false
+  const projectPath = scope !== 'user' ? getCwd() : undefined
+  const installation = getInMemoryInstalledPlugins().plugins[pluginId]?.find(
+    candidate =>
+      candidate.scope === scope && candidate.projectPath === projectPath,
+  )
+  if (!installation) return false
+  try {
+    await getFsImplementation().stat(installation.installPath)
+    return true
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      'code' in error &&
+      error.code === 'ENOENT'
+    ) {
+      return false
+    }
+    throw error
+  }
 }
 
 export type CachedPluginRegistration = {
@@ -351,9 +383,22 @@ export type InstallCoreResult =
   | { ok: false; reason: 'blocked-by-policy'; pluginName: string }
   | {
       ok: false
+      reason: 'marketplace-blocked-by-policy'
+      pluginName: string
+      marketplaceName: string
+    }
+  | {
+      ok: false
       reason: 'dependency-blocked-by-policy'
       pluginName: string
       blockedDependency: string
+    }
+  | {
+      ok: false
+      reason: 'dependency-marketplace-blocked-by-policy'
+      pluginName: string
+      blockedDependency: string
+      marketplaceName: string
     }
   | {
       ok: false
@@ -418,6 +463,7 @@ async function resolvePluginJsonDependencies({
   rootMarketplace,
   allowedCrossMarketplaces,
   dependencyInfo,
+  knownMarketplaces,
 }: {
   rootManifestDependencies?: string[]
   pluginId: string
@@ -426,9 +472,14 @@ async function resolvePluginJsonDependencies({
   rootMarketplace?: string
   allowedCrossMarketplaces: ReadonlySet<string>
   dependencyInfo: Map<string, DependencyPluginInfo>
+  knownMarketplaces: Awaited<ReturnType<typeof loadKnownMarketplacesConfig>>
 }): Promise<
   | { ok: true; ids: string[] }
-  | { ok: false; blockedDependency: string }
+  | {
+      ok: false
+      blockedDependency: string
+      blockedMarketplace?: string
+    }
 > {
   const ids: string[] = []
   for (const rawDependency of rootManifestDependencies ?? []) {
@@ -452,6 +503,20 @@ async function resolvePluginJsonDependencies({
     }
     if (isPluginBlockedByPolicy(dependency)) {
       return { ok: false, blockedDependency: dependency }
+    }
+    const marketplaceConfig = dependencyMarketplace
+      ? knownMarketplaces[dependencyMarketplace]
+      : undefined
+    if (
+      dependencyMarketplace &&
+      marketplaceConfig &&
+      !isSourceAllowedByPolicy(marketplaceConfig.source)
+    ) {
+      return {
+        ok: false,
+        blockedDependency: dependency,
+        blockedMarketplace: dependencyMarketplace,
+      }
     }
     const info = await getPluginById(dependency)
     if (!info) {
@@ -509,6 +574,24 @@ export async function installResolvedPlugin({
     return { ok: false, reason: 'blocked-by-policy', pluginName: entry.name }
   }
 
+  const knownMarketplaces = await loadKnownMarketplacesConfig()
+  const rootMarketplace = parsePluginIdentifier(pluginId).marketplace
+  const rootMarketplaceConfig = rootMarketplace
+    ? knownMarketplaces[rootMarketplace]
+    : undefined
+  if (
+    rootMarketplace &&
+    rootMarketplaceConfig &&
+    !isSourceAllowedByPolicy(rootMarketplaceConfig.source)
+  ) {
+    return {
+      ok: false,
+      reason: 'marketplace-blocked-by-policy',
+      pluginName: entry.name,
+      marketplaceName: rootMarketplace,
+    }
+  }
+
   // ── Resolve dependency closure ──
   // depInfo caches marketplace lookups so the materialize loop doesn't
   // re-fetch. Seed the root if the caller gave us its install location.
@@ -528,7 +611,6 @@ export async function installResolvedPlugin({
     depInfo.set(pluginId, { entry, marketplaceInstallLocation })
   }
 
-  const rootMarketplace = parsePluginIdentifier(pluginId).marketplace
   const allowedCrossMarketplaces = new Set(
     (rootMarketplace
       ? (await getMarketplaceCacheOnly(rootMarketplace))
@@ -576,6 +658,25 @@ export async function installResolvedPlugin({
         reason: 'dependency-blocked-by-policy',
         pluginName: entry.name,
         blockedDependency: id,
+      }
+    }
+    if (id !== pluginId) {
+      const dependencyMarketplace = parsePluginIdentifier(id).marketplace
+      const dependencyMarketplaceConfig = dependencyMarketplace
+        ? knownMarketplaces[dependencyMarketplace]
+        : undefined
+      if (
+        dependencyMarketplace &&
+        dependencyMarketplaceConfig &&
+        !isSourceAllowedByPolicy(dependencyMarketplaceConfig.source)
+      ) {
+        return {
+          ok: false,
+          reason: 'dependency-marketplace-blocked-by-policy',
+          pluginName: entry.name,
+          blockedDependency: id,
+          marketplaceName: dependencyMarketplace,
+        }
       }
     }
   }
@@ -756,9 +857,19 @@ export async function installResolvedPlugin({
       rootMarketplace,
       allowedCrossMarketplaces,
       dependencyInfo: depInfo,
+      knownMarketplaces,
     })
     if (!pluginJsonDependencies.ok) {
       rollbackEnabledPlugins()
+      if (pluginJsonDependencies.blockedMarketplace) {
+        return {
+          ok: false,
+          reason: 'dependency-marketplace-blocked-by-policy',
+          pluginName: entry.name,
+          blockedDependency: pluginJsonDependencies.blockedDependency,
+          marketplaceName: pluginJsonDependencies.blockedMarketplace,
+        }
+      }
       return {
         ok: false,
         reason: 'dependency-blocked-by-policy',
@@ -907,10 +1018,20 @@ export async function installPluginFromMarketplace({
             success: false,
             error: `Plugin "${result.pluginName}" is blocked by your organization's policy and cannot be installed`,
           }
+        case 'marketplace-blocked-by-policy':
+          return {
+            success: false,
+            error: `Cannot install "${result.pluginName}": marketplace "${result.marketplaceName}" is blocked by your organization's policy`,
+          }
         case 'dependency-blocked-by-policy':
           return {
             success: false,
             error: `Cannot install "${result.pluginName}": dependency "${result.blockedDependency}" is blocked by your organization's policy`,
+          }
+        case 'dependency-marketplace-blocked-by-policy':
+          return {
+            success: false,
+            error: `Cannot install "${result.pluginName}": dependency "${result.blockedDependency}" comes from marketplace "${result.marketplaceName}", which is blocked by your organization's policy`,
           }
         case 'range-conflict':
           return {

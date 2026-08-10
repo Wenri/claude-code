@@ -152,6 +152,16 @@ export type EraseAction =
   | { type: 'chars'; count: number }
 
 // =============================================================================
+// Edit Actions
+// =============================================================================
+
+export type EditAction =
+  | { type: 'insertLines'; count: number }
+  | { type: 'deleteLines'; count: number }
+  | { type: 'insertChars'; count: number }
+  | { type: 'deleteChars'; count: number }
+
+// =============================================================================
 // Scroll Actions
 // =============================================================================
 
@@ -159,6 +169,8 @@ export type ScrollAction =
   | { type: 'up'; count: number }
   | { type: 'down'; count: number }
   | { type: 'setRegion'; top: number; bottom: number }
+  | { type: 'index' }
+  | { type: 'reverseIndex' }
 
 // =============================================================================
 // Mode Actions
@@ -217,7 +229,7 @@ export type TextSegment = {
 /** A grapheme (visual character unit) with width info */
 export type Grapheme = {
   value: string
-  width: 1 | 2 // Display width in columns
+  width: number // Display width in columns
 }
 
 /** All possible parsed actions */
@@ -225,6 +237,7 @@ export type Action =
   | { type: 'text'; graphemes: Grapheme[]; style: TextStyle }
   | { type: 'cursor'; action: CursorAction }
   | { type: 'erase'; action: EraseAction }
+  | { type: 'edit'; action: EditAction }
   | { type: 'scroll'; action: ScrollAction }
   | { type: 'mode'; action: ModeAction }
   | { type: 'link'; action: LinkAction }

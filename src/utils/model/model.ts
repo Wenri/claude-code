@@ -21,7 +21,11 @@ import {
 import { isEnvTruthy } from '../envUtils.js'
 import { getModelStrings, resolveOverriddenModel } from './modelStrings.js'
 import { formatModelPricing, getOpus46CostTier } from '../modelCost.js'
-import { getSettings_DEPRECATED } from '../settings/settings.js'
+import {
+  getRelativeSettingsFilePathForSource,
+  getSettings_DEPRECATED,
+  getSettingsSourceForKey,
+} from '../settings/settings.js'
 import type { PermissionMode } from '../permissions/PermissionMode.js'
 import { getAPIProvider, isDirectAnthropicAPIProvider } from './providers.js'
 import { LIGHTNING_BOLT } from '../../constants/figures.js'
@@ -231,8 +235,8 @@ export function firstPartyNameToCanonical(name: ModelName): ModelShortName {
   if (name.includes('claude-opus-4-1')) {
     return 'claude-opus-4-1'
   }
-  if (name.includes('claude-opus-4')) {
-    return 'claude-opus-4'
+  if (/claude-opus-4(?!-\d(?!\d))/.test(name)) {
+    return 'claude-opus-4-0'
   }
   if (name.includes('claude-sonnet-4-6')) {
     return 'claude-sonnet-4-6'
@@ -240,8 +244,8 @@ export function firstPartyNameToCanonical(name: ModelName): ModelShortName {
   if (name.includes('claude-sonnet-4-5')) {
     return 'claude-sonnet-4-5'
   }
-  if (name.includes('claude-sonnet-4')) {
-    return 'claude-sonnet-4'
+  if (/claude-sonnet-4(?!-\d(?!\d))/.test(name)) {
+    return 'claude-sonnet-4-0'
   }
   if (name.includes('claude-haiku-4-5')) {
     return 'claude-haiku-4-5'
@@ -265,12 +269,8 @@ export function firstPartyNameToCanonical(name: ModelName): ModelShortName {
   if (name.includes('claude-3-haiku')) {
     return 'claude-3-haiku'
   }
-  const match = name.match(/(claude-(\d+-\d+-)?\w+)/)
-  if (match && match[1]) {
-    return match[1]
-  }
-  // Fall back to the original name if no pattern matches
-  return name
+  // Fall back to the original name without a first-party date suffix.
+  return name.replace(/-\d{8}$/, '')
 }
 
 /**
@@ -343,6 +343,19 @@ export function renderModelSetting(setting: ModelName | ModelAlias): string {
     return capitalize(setting)
   }
   return renderModelName(setting)
+}
+
+export function getModelSourceSuffix(): string {
+  if (getMainLoopModelOverride() !== undefined) return ''
+  if (process.env.ANTHROPIC_MODEL) return ''
+  switch (getSettingsSourceForKey('model')) {
+    case 'projectSettings':
+      return ` (from ${getRelativeSettingsFilePathForSource('projectSettings')})`
+    case 'policySettings':
+      return ' (from managed settings)'
+    default:
+      return ''
+  }
 }
 
 // @[MODEL LAUNCH]: Add display name cases for the new model (base + [1m] variant if applicable).

@@ -9,6 +9,7 @@
 import type { FSWatcher } from 'chokidar'
 import {
   getScheduledTasksEnabled,
+  getSessionId,
   getSessionCronTasks,
   removeSessionCronTasks,
   setScheduledTasksEnabled,
@@ -30,12 +31,14 @@ import {
   oneShotJitteredNextCronRunMs,
   readCronTasks,
   removeCronTasks,
+  writeCronTasks,
 } from './cronTasks.js'
 import {
   releaseSchedulerLock,
   tryAcquireSchedulerLock,
 } from './cronTasksLock.js'
 import { logForDebugging } from './debug.js'
+import { isProcessRunning } from './genericProcessUtils.js'
 
 const CHECK_INTERVAL_MS = 1000
 const FILE_STABILITY_MS = 300
@@ -155,6 +158,7 @@ export function createCronScheduler(
     filter,
   } = options
   const lockOpts = dir || lockIdentity ? { dir, lockIdentity } : undefined
+  const ownerSessionId = dir !== undefined ? lockIdentity : getSessionId()
 
   // File-backed tasks only. Session tasks (durable: false) are NOT loaded
   // here — they can be added/removed mid-session with no file event, so
@@ -176,6 +180,15 @@ export function createCronScheduler(
   let stopped = false
   let isOwner = false
 
+  function shouldProcessFileTask(task: CronTask): boolean {
+    if (task.createdBySessionId === undefined) return isOwner
+    if (task.createdBySessionId === ownerSessionId) return true
+    return (
+      isOwner &&
+      (task.createdByPid === undefined || !isProcessRunning(task.createdByPid))
+    )
+  }
+
   async function load(initial: boolean) {
     const next = await readCronTasks(dir)
     if (stopped) return
@@ -191,9 +204,32 @@ export function createCronScheduler(
     // missed tasks need user input (run once now, or discard forever).
     if (!initial) return
 
+    let refreshedPids = false
+    for (const task of next) {
+      if (
+        ownerSessionId !== undefined &&
+        task.createdBySessionId === ownerSessionId &&
+        task.createdByPid !== process.pid
+      ) {
+        task.createdByPid = process.pid
+        refreshedPids = true
+      }
+    }
+    if (refreshedPids) {
+      await writeCronTasks(next, dir).catch(e =>
+        logForDebugging(
+          `[ScheduledTasks] failed to refresh task pids: ${e}`,
+        ),
+      )
+    }
+
     const now = Date.now()
     const missed = findMissedTasks(next, now).filter(
-      t => !t.recurring && !missedAsked.has(t.id) && (!filter || filter(t)),
+      t =>
+        !t.recurring &&
+        !missedAsked.has(t.id) &&
+        (!filter || filter(t)) &&
+        shouldProcessFileTask(t),
     )
     if (missed.length > 0) {
       for (const t of missed) {
@@ -344,29 +380,29 @@ export function createCronScheduler(
       }
     }
 
-    // File-backed tasks: only when we own the scheduler lock. The lock
-    // exists to stop two Claude sessions in the same cwd from double-firing
-    // the same on-disk task.
-    if (isOwner) {
-      for (const t of tasks) process(t, false)
-      // Batched lastFiredAt write. inFlight guards against double-fire
-      // during the chokidar-triggered reload (same pattern as removeCronTasks
-      // below) — the reload re-seeds `tasks` with the just-written
-      // lastFiredAt, and first-sight on that yields the same newNext we
-      // already set in-memory, so it's idempotent even without inFlight.
-      // Guarding anyway keeps the semantics obvious.
-      if (firedFileRecurring.length > 0) {
-        for (const id of firedFileRecurring) inFlight.add(id)
-        void markCronTasksFired(firedFileRecurring, now, dir)
-          .catch(e =>
-            logForDebugging(
-              `[ScheduledTasks] failed to persist lastFiredAt: ${e}`,
-            ),
-          )
-          .finally(() => {
-            for (const id of firedFileRecurring) inFlight.delete(id)
-          })
-      }
+    // File-backed tasks are handled by their creating session while it is
+    // alive. The lock owner handles legacy tasks and takes over tasks whose
+    // creating process is gone.
+    for (const t of tasks) {
+      if (shouldProcessFileTask(t)) process(t, false)
+    }
+    // Batched lastFiredAt write. inFlight guards against double-fire
+    // during the chokidar-triggered reload (same pattern as removeCronTasks
+    // below) — the reload re-seeds `tasks` with the just-written
+    // lastFiredAt, and first-sight on that yields the same newNext we
+    // already set in-memory, so it's idempotent even without inFlight.
+    // Guarding anyway keeps the semantics obvious.
+    if (firedFileRecurring.length > 0) {
+      for (const id of firedFileRecurring) inFlight.add(id)
+      void markCronTasksFired(firedFileRecurring, now, dir)
+        .catch(e =>
+          logForDebugging(
+            `[ScheduledTasks] failed to persist lastFiredAt: ${e}`,
+          ),
+        )
+        .finally(() => {
+          for (const id of firedFileRecurring) inFlight.delete(id)
+        })
     }
     // Session-only tasks: process-private, the lock does not apply — the
     // other session cannot see them and there is no double-fire risk. Read

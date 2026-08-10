@@ -10,6 +10,7 @@ import { addInvokedSkill, getSessionId } from '../../bootstrap/state.js';
 import { COMMAND_MESSAGE_TAG, COMMAND_NAME_TAG } from '../../constants/xml.js';
 import type { CanUseToolFn } from '../../hooks/useCanUseTool.js';
 import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, type AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED, logEvent } from '../../services/analytics/index.js';
+import { isToolDetailsLoggingEnabled } from '../../services/analytics/metadata.js';
 import { getDumpPromptsPath } from '../../services/api/dumpPrompts.js';
 import { buildPostCompactMessages } from '../../services/compact/compact.js';
 import { resetMicrocompactState } from '../../services/compact/microCompact.js';
@@ -385,6 +386,32 @@ export async function processSlashCommand(inputString: string, precedingInputBlo
       shouldQuery: true
     };
   }
+
+  const telemetryCommand = getCommand(commandName, context.options.commands)
+  const commandSource = isMcp
+    ? 'mcp'
+    : builtInCommandNames().has(commandName) ||
+        (telemetryCommand.type === 'prompt' &&
+          (telemetryCommand.source === 'bundled' ||
+            telemetryCommand.source === 'builtin'))
+      ? 'builtin'
+      : 'custom'
+  const promptForTelemetry =
+    telemetryCommand.isSensitive && parsedArgs.trim()
+      ? `/${commandName} ***`
+      : inputString
+  const promptId = randomUUID()
+  setPromptId(promptId)
+  void logOTelEvent('user_prompt', {
+    prompt_length: String(promptForTelemetry.length),
+    prompt: redactIfDisabled(promptForTelemetry),
+    'prompt.id': promptId,
+    command_name:
+      commandSource === 'builtin' || isToolDetailsLoggingEnabled()
+        ? commandName
+        : commandSource,
+    command_source: commandSource,
+  })
 
   // Track slash command usage for feature discovery
 

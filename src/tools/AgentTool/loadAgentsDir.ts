@@ -11,6 +11,7 @@ import {
 import {
   type McpServerConfig,
   McpServerConfigSchema,
+  type ScopedMcpServerConfig,
 } from '../../services/mcp/types.js'
 import type { ToolUseContext } from '../../Tool.js'
 import { logForDebugging } from '../../utils/debug.js'
@@ -36,6 +37,10 @@ import {
   clearPluginAgentCache,
   loadPluginAgents,
 } from '../../utils/plugins/loadPluginAgents.js'
+import {
+  isRestrictedToPluginOnly,
+  isSourceAdminTrusted,
+} from '../../utils/settings/pluginOnlyPolicy.js'
 import { HooksSchema, type HooksSettings } from '../../utils/settings/types.js'
 import { jsonStringify } from '../../utils/slowOperations.js'
 import { FILE_EDIT_TOOL_NAME } from '../FileEditTool/constants.js'
@@ -58,6 +63,34 @@ import { getBuiltInAgents } from './builtInAgents.js'
 export type AgentMcpServerSpec =
   | string // Reference to existing server by name (e.g., "slack")
   | { [name: string]: McpServerConfig } // Inline definition as { name: config }
+
+export function agentMcpSpecsToScopedConfigs(
+  agent: AgentDefinition,
+): Record<string, ScopedMcpServerConfig> {
+  if (!agent.mcpServers?.length) return {}
+  if (isRestrictedToPluginOnly('mcp') && !isSourceAdminTrusted(agent.source)) {
+    logForDebugging(
+      `[Agent: ${agent.agentType}] Skipping frontmatter MCP servers: strictPluginOnlyCustomization locks MCP to plugin-only (agent source: ${agent.source})`,
+    )
+    return {}
+  }
+
+  const configs: Record<string, ScopedMcpServerConfig> = {}
+  for (const spec of agent.mcpServers) {
+    if (typeof spec === 'string') continue
+    const entries = Object.entries(spec)
+    if (entries.length !== 1) {
+      logForDebugging(
+        `[Agent: ${agent.agentType}] Invalid MCP server spec: expected exactly one key`,
+        { level: 'warn' },
+      )
+      continue
+    }
+    const [name, config] = entries[0]!
+    configs[name] = { ...config, scope: 'agent' }
+  }
+  return configs
+}
 
 // Zod schema for agent MCP server specs
 const AgentMcpServerSpecSchema = lazySchema(() =>

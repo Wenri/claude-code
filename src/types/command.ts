@@ -173,6 +173,10 @@ export type CommandAvailability =
   | 'console'
 
 export type CommandBase = {
+  requires?: {
+    workspace?: boolean
+    ink?: boolean
+  }
   availability?: CommandAvailability[]
   description: string
   hasUserSpecifiedDescription?: boolean
@@ -198,6 +202,7 @@ export type CommandBase = {
   kind?: 'workflow' // Distinguishes workflow-backed commands (badged in autocomplete)
   immediate?: boolean // If true, command executes immediately without waiting for a stop point (bypasses queue)
   isSensitive?: boolean // If true, args are redacted from the conversation history
+  thinClientDispatch?: 'post-text' | 'control-request'
   /** Defaults to `name`. Only override when the displayed name differs (e.g. plugin prefix stripping). */
   userFacingName?: () => string
 }

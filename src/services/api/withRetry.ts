@@ -7,6 +7,7 @@ import {
 } from '@anthropic-ai/sdk'
 import type { QuerySource } from 'src/constants/querySource.js'
 import type { SystemAPIErrorMessage } from 'src/types/message.js'
+import { getSdkOAuthTokenRefreshCallback } from '../../bootstrap/state.js'
 import { isAwsCredentialsProviderError } from 'src/utils/aws.js'
 import { logForDebugging } from 'src/utils/debug.js'
 import { logError } from 'src/utils/log.js'
@@ -18,6 +19,7 @@ import {
   clearGcpCredentialsCache,
   getClaudeAIOAuthTokens,
   handleOAuth401Error,
+  isAnthropicAuthEnabled,
   isClaudeAISubscriber,
   isEnterpriseSubscriber,
 } from '../../utils/auth.js'
@@ -52,6 +54,7 @@ const abortError = () => new APIUserAbortError()
 const DEFAULT_MAX_RETRIES = 10
 const FLOOR_OUTPUT_TOKENS = 3000
 const MAX_529_RETRIES = 3
+const MAX_OAUTH_REFRESH_FAILURES = 2
 export const BASE_DELAY_MS = 500
 
 // Foreground query sources where the user IS blocking on the result — these
@@ -140,6 +143,11 @@ interface RetryOptions {
    * regardless of which request mode hit the overload.
    */
   initialConsecutive529Errors?: number
+  /**
+   * Gives a caller one free retry for each distinct recovery action. Returning
+   * the same action key again does not bypass the normal retry policy.
+   */
+  onError?: (error: unknown) => Promise<string | undefined>
 }
 
 export class CannotRetryError extends Error {
@@ -187,6 +195,8 @@ export async function* withRetry<T>(
   let consecutive529Errors = options.initialConsecutive529Errors ?? 0
   let lastError: unknown
   let persistentAttempt = 0
+  let oauthRefreshFailureCount = 0
+  const handledErrorActions = new Set<string>()
   for (let attempt = 1; attempt <= maxRetries + 1; attempt++) {
     if (options.signal?.aborted) {
       throw new APIUserAbortError()
@@ -243,9 +253,28 @@ export async function* withRetry<T>(
           (lastError instanceof APIError && lastError.status === 401) ||
           isOAuthTokenRevokedError(lastError)
         ) {
-          const failedAccessToken = getClaudeAIOAuthTokens()?.accessToken
+          const failedAccessToken = isAnthropicAuthEnabled()
+            ? getClaudeAIOAuthTokens()?.accessToken
+            : undefined
           if (failedAccessToken) {
             await handleOAuth401Error(failedAccessToken)
+            if (
+              getClaudeAIOAuthTokens()?.accessToken === failedAccessToken
+            ) {
+              const isRemoteAuthError =
+                isEnvTruthy(process.env.CLAUDE_CODE_REMOTE) &&
+                lastError instanceof APIError &&
+                (lastError.status === 401 || lastError.status === 403)
+              if (
+                getSdkOAuthTokenRefreshCallback() !== null ||
+                (!isRemoteAuthError &&
+                  ++oauthRefreshFailureCount >= MAX_OAUTH_REFRESH_FAILURES)
+              ) {
+                throw new CannotRetryError(lastError, retryContext)
+              }
+            } else {
+              oauthRefreshFailureCount = 0
+            }
           }
         }
         client = await getClient()
@@ -258,6 +287,13 @@ export async function* withRetry<T>(
         `API error (attempt ${attempt}/${maxRetries + 1}): ${error instanceof APIError ? `${error.status} ${error.message}` : errorMessage(error)}`,
         { level: 'error' },
       )
+
+      const action = await options.onError?.(error)
+      if (action && !handledErrorActions.has(action)) {
+        handledErrorActions.add(action)
+        attempt--
+        continue
+      }
 
       // Fast mode fallback: on 429/529, either wait and retry (short delays)
       // or fall back to standard speed (long delays) to avoid cache thrashing.
@@ -737,6 +773,17 @@ function shouldRetry(error: APIError): boolean {
 
   // Check for max tokens context overflow errors that we can handle
   if (parseMaxTokensContextOverflowError(error)) {
+    return true
+  }
+
+  // A first-party OAuth token can be refreshed reactively. This check must
+  // precede x-should-retry because an expired token may arrive with an
+  // otherwise terminal retry hint.
+  if (
+    isAnthropicAuthEnabled() &&
+    getClaudeAIOAuthTokens()?.accessToken &&
+    (error.status === 401 || isOAuthTokenRevokedError(error))
+  ) {
     return true
   }
 

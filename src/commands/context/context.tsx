@@ -1,11 +1,13 @@
 import { feature } from 'bun:bundle';
 import * as React from 'react';
+import { getRuntimeCapabilities } from '../../bootstrap/state.js';
 import type { LocalJSXCommandContext } from '../../commands.js';
 import { ContextVisualization } from '../../components/ContextVisualization.js';
 import { microcompactMessages } from '../../services/compact/microCompact.js';
 import type { LocalJSXCommandOnDone } from '../../types/command.js';
 import type { Message } from '../../types/message.js';
-import { analyzeContextUsage } from '../../utils/analyzeContext.js';
+import { analyzeContextUsage, type ContextData } from '../../utils/analyzeContext.js';
+import { errorMessage } from '../../utils/errors.js';
 import { getMessagesAfterCompactBoundary } from '../../utils/messages.js';
 import { renderToAnsiString } from '../../utils/staticRender.js';
 
@@ -28,6 +30,19 @@ function toApiView(messages: Message[]): Message[] {
   return view;
 }
 export async function call(onDone: LocalJSXCommandOnDone, context: LocalJSXCommandContext): Promise<React.ReactNode> {
+  const remote = getRuntimeCapabilities().remote;
+  if (remote) {
+    try {
+      const data = await remote.sendControlRequest<ContextData>({
+        subtype: 'get_context_usage'
+      });
+      const output = await renderToAnsiString(<ContextVisualization data={data} isRemote />);
+      onDone(output);
+    } catch (error) {
+      onDone(`Couldn't fetch context from remote: ${errorMessage(error)}`);
+    }
+    return null;
+  }
   const {
     messages,
     getAppState,

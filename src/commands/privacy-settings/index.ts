@@ -4,6 +4,7 @@ import { isConsumerSubscriber } from '../../utils/auth.js'
 const privacySettings = {
   type: 'local-jsx',
   name: 'privacy-settings',
+  requires: { ink: true },
   description: 'View and update your privacy settings',
   isEnabled: () => {
     return isConsumerSubscriber()

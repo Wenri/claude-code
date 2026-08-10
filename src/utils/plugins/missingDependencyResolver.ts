@@ -1,14 +1,23 @@
-import type { PluginError } from '../../types/plugin.js'
+import {
+  isPluginDependencyError,
+  type PluginError,
+} from '../../types/plugin.js'
 import { logForDebugging } from '../debug.js'
 import { errorMessage } from '../errors.js'
 import { getSettingsForSource } from '../settings/settings.js'
 import { installResolvedPlugin } from './pluginInstallationHelpers.js'
 import {
+  formatDependencyCountSuffix,
+  formatUnresolvedDependencySuffix,
+} from './dependencyResolver.js'
+import {
   getMarketplaceCacheOnly,
   getPluginById,
   loadKnownMarketplacesConfig,
 } from './marketplaceManager.js'
+import { isSourceAllowedByPolicy } from './marketplaceHelpers.js'
 import { parsePluginIdentifier } from './pluginIdentifier.js'
+import { loadAllPlugins } from './pluginLoader.js'
 
 type InstallScope = 'user' | 'project' | 'local'
 
@@ -29,7 +38,11 @@ function inferScope(declaringPlugins: ReadonlySet<string>): InstallScope {
 
 export async function resolveMissingDependencies(
   errors: readonly PluginError[],
-): Promise<{ installed: string[]; stillUnresolved: string[] }> {
+): Promise<{
+  installed: string[]
+  stillUnresolved: string[]
+  marketplaceMissing: string[]
+}> {
   const missing = new Map<string, Set<string>>()
   for (const error of errors) {
     if (
@@ -46,17 +59,32 @@ export async function resolveMissingDependencies(
     declaringPlugins.add(error.source)
   }
 
-  if (missing.size === 0) return { installed: [], stillUnresolved: [] }
+  if (missing.size === 0)
+    return { installed: [], stillUnresolved: [], marketplaceMissing: [] }
 
   const knownMarketplaces = await loadKnownMarketplacesConfig()
   const installed: string[] = []
   const stillUnresolved: string[] = []
+  const marketplaceMissing: string[] = []
   for (const [dependency, declaringPlugins] of missing) {
     const dependencyMarketplace = parsePluginIdentifier(dependency).marketplace
     if (
       !dependencyMarketplace ||
       !knownMarketplaces[dependencyMarketplace]
     ) {
+      stillUnresolved.push(dependency)
+      marketplaceMissing.push(dependency)
+      continue
+    }
+
+    if (
+      !isSourceAllowedByPolicy(
+        knownMarketplaces[dependencyMarketplace]!.source,
+      )
+    ) {
+      logForDebugging(
+        `resolveMissingDependencies: skipping "${dependency}" — marketplace "${dependencyMarketplace}" is blocked by enterprise policy`,
+      )
       stillUnresolved.push(dependency)
       continue
     }
@@ -117,5 +145,27 @@ export async function resolveMissingDependencies(
       stillUnresolved.push(dependency)
     }
   }
-  return { installed, stillUnresolved }
+  return { installed, stillUnresolved, marketplaceMissing }
+}
+
+export async function recoverInstalledPluginDependencies(
+  pluginId: string,
+): Promise<{ suffix: string } | null> {
+  const { errors } = await loadAllPlugins()
+  const dependencyErrors = errors
+    .filter(isPluginDependencyError)
+    .filter(error => error.source === pluginId)
+  if (dependencyErrors.length === 0) return null
+
+  const { installed, marketplaceMissing } =
+    await resolveMissingDependencies(dependencyErrors)
+  const installedSet = new Set(installed)
+  const unresolved = [
+    ...new Set(dependencyErrors.map(error => error.dependency)),
+  ].filter(dependency => !installedSet.has(dependency))
+  return {
+    suffix:
+      formatDependencyCountSuffix(installed) +
+      formatUnresolvedDependencySuffix(unresolved, marketplaceMissing),
+  }
 }

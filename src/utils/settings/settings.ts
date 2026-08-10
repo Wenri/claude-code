@@ -847,6 +847,17 @@ export function getSettingsWithSources(): SettingsWithSources {
   return { effective: getInitialSettings(), sources }
 }
 
+export function getSettingsSourceForKey(
+  key: keyof SettingsJson,
+): SettingSource | null {
+  const sources = getEnabledSettingSources()
+  for (let index = sources.length - 1; index >= 0; index--) {
+    const source = sources[index]!
+    if (getSettingsForSource(source)?.[key] !== undefined) return source
+  }
+  return null
+}
+
 /**
  * Get merged settings and validation errors from all sources
  * This function now uses session-level caching to avoid repeated file I/O.

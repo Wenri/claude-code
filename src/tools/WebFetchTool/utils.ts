@@ -129,6 +129,10 @@ const MAX_REDIRECTS = 10
 // Truncate to not spend too many tokens
 export const MAX_MARKDOWN_LENGTH = 100_000
 
+// Turndown builds a DOM before producing markdown. Bound the HTML given to it
+// so a large but otherwise valid response cannot make conversion hang.
+const MAX_HTML_CONVERSION_LENGTH = 1024 * 1024
+
 export function isPreapprovedUrl(url: string): boolean {
   try {
     const parsedUrl = new URL(url)
@@ -456,7 +460,12 @@ export async function getURLMarkdownContent(
   let markdownContent: string
   let contentBytes: number
   if (contentType.includes('text/html')) {
-    markdownContent = (await getTurndownService()).turndown(htmlContent)
+    markdownContent = (await getTurndownService()).turndown(
+      htmlContent.slice(0, MAX_HTML_CONVERSION_LENGTH),
+    )
+    if (htmlContent.length > MAX_HTML_CONVERSION_LENGTH) {
+      markdownContent += '\n\n[Content truncated due to length...]'
+    }
     contentBytes = Buffer.byteLength(markdownContent)
   } else {
     // It's not HTML - just use it raw. The decoded string's UTF-8 byte

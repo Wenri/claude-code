@@ -61,6 +61,7 @@ import { loadMemoryPrompt } from '../memdir/memdir.js'
 import { isUndercover } from '../utils/undercover.js'
 import { isMcpInstructionsDeltaEnabled } from '../utils/mcpInstructionsDelta.js'
 import { getGlobalConfig } from '../utils/config.js'
+import { isUltrareviewEnabled } from '../commands/review/ultrareviewEnabled.js'
 
 // Dead code elimination: conditional imports for feature-gated modules
 /* eslint-disable @typescript-eslint/no-require-imports */
@@ -404,6 +405,9 @@ function getSessionSpecificGuidanceSection(
     hasSkills &&
     enabledTools.has(DISCOVER_SKILLS_TOOL_NAME)
       ? getDiscoverSkillsGuidance()
+      : null,
+    isUltrareviewEnabled()
+      ? 'If the user asks about "ultrareview" or how to run it, explain that /ultrareview launches a multi-agent cloud review of the current branch (or /ultrareview <PR#> for a GitHub PR). It is user-triggered and billed; you cannot launch it yourself, so do not attempt to via Bash or otherwise. It needs a git repository (offer to "git init" if not in one); the no-arg form bundles the local branch and does not need a GitHub remote.'
       : null,
     hasAgentTool &&
     feature('VERIFICATION_AGENT') &&

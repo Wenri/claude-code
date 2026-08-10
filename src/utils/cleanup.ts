@@ -23,10 +23,11 @@ import { cleanupStaleAgentWorktrees } from './worktree.js'
 
 const DEFAULT_CLEANUP_PERIOD_DAYS = 30
 
-function getCutoffDate(): Date {
+function getCutoffDate(): Date | null {
   const settings = getSettings_DEPRECATED() || {}
   const cleanupPeriodDays =
     settings.cleanupPeriodDays ?? DEFAULT_CLEANUP_PERIOD_DAYS
+  if (cleanupPeriodDays === 0) return null
   const cleanupPeriodMs = cleanupPeriodDays * 24 * 60 * 60 * 1000
   return new Date(Date.now() - cleanupPeriodMs)
 }
@@ -94,6 +95,7 @@ async function cleanupOldFilesInDirectory(
 export async function cleanupOldMessageFiles(): Promise<CleanupResult> {
   const fsImpl = getFsImplementation()
   const cutoffDate = getCutoffDate()
+  if (cutoffDate === null) return { messages: 0, errors: 0 }
   const errorPath = CACHE_PATHS.errors()
   const baseCachePath = CACHE_PATHS.baseLogs()
 
@@ -156,6 +158,7 @@ async function tryRmdir(dirPath: string, fsImpl: FsOperations): Promise<void> {
 export async function cleanupOldSessionFiles(): Promise<CleanupResult> {
   const cutoffDate = getCutoffDate()
   const result: CleanupResult = { messages: 0, errors: 0 }
+  if (cutoffDate === null) return result
   const projectsDir = getProjectsDir()
   const fsImpl = getFsImplementation()
 
@@ -290,6 +293,7 @@ async function cleanupSingleDirectory(
 ): Promise<CleanupResult> {
   const cutoffDate = getCutoffDate()
   const result: CleanupResult = { messages: 0, errors: 0 }
+  if (cutoffDate === null) return result
   const fsImpl = getFsImplementation()
 
   let dirents
@@ -323,75 +327,40 @@ export function cleanupOldPlanFiles(): Promise<CleanupResult> {
 }
 
 export async function cleanupOldFileHistoryBackups(): Promise<CleanupResult> {
-  const cutoffDate = getCutoffDate()
-  const result: CleanupResult = { messages: 0, errors: 0 }
-  const fsImpl = getFsImplementation()
-
-  try {
-    const configDir = getClaudeConfigHomeDir()
-    const fileHistoryStorageDir = join(configDir, 'file-history')
-
-    let dirents
-    try {
-      dirents = await fsImpl.readdir(fileHistoryStorageDir)
-    } catch {
-      return result
-    }
-
-    const fileHistorySessionsDirs = dirents
-      .filter(dirent => dirent.isDirectory())
-      .map(dirent => join(fileHistoryStorageDir, dirent.name))
-
-    await Promise.all(
-      fileHistorySessionsDirs.map(async fileHistorySessionDir => {
-        try {
-          const stats = await fsImpl.stat(fileHistorySessionDir)
-          if (stats.mtime < cutoffDate) {
-            await fsImpl.rm(fileHistorySessionDir, {
-              recursive: true,
-              force: true,
-            })
-            result.messages++
-          }
-        } catch {
-          result.errors++
-        }
-      }),
-    )
-
-    await tryRmdir(fileHistoryStorageDir, fsImpl)
-  } catch (error) {
-    logError(error as Error)
-  }
-
-  return result
+  return cleanupOldDirectories('file-history')
 }
 
 export async function cleanupOldSessionEnvDirs(): Promise<CleanupResult> {
+  return cleanupOldDirectories('session-env')
+}
+
+async function cleanupOldDirectories(
+  directoryName: string,
+): Promise<CleanupResult> {
   const cutoffDate = getCutoffDate()
   const result: CleanupResult = { messages: 0, errors: 0 }
+  if (cutoffDate === null) return result
   const fsImpl = getFsImplementation()
 
   try {
-    const configDir = getClaudeConfigHomeDir()
-    const sessionEnvBaseDir = join(configDir, 'session-env')
+    const baseDir = join(getClaudeConfigHomeDir(), directoryName)
 
     let dirents
     try {
-      dirents = await fsImpl.readdir(sessionEnvBaseDir)
+      dirents = await fsImpl.readdir(baseDir)
     } catch {
       return result
     }
 
-    const sessionEnvDirs = dirents
+    const childDirs = dirents
       .filter(dirent => dirent.isDirectory())
-      .map(dirent => join(sessionEnvBaseDir, dirent.name))
+      .map(dirent => join(baseDir, dirent.name))
 
-    for (const sessionEnvDir of sessionEnvDirs) {
+    for (const childDir of childDirs) {
       try {
-        const stats = await fsImpl.stat(sessionEnvDir)
+        const stats = await fsImpl.stat(childDir)
         if (stats.mtime < cutoffDate) {
-          await fsImpl.rm(sessionEnvDir, { recursive: true, force: true })
+          await fsImpl.rm(childDir, { recursive: true, force: false })
           result.messages++
         }
       } catch {
@@ -399,11 +368,55 @@ export async function cleanupOldSessionEnvDirs(): Promise<CleanupResult> {
       }
     }
 
-    await tryRmdir(sessionEnvBaseDir, fsImpl)
+    await tryRmdir(baseDir, fsImpl)
   } catch (error) {
     logError(error as Error)
   }
 
+  return result
+}
+
+export function cleanupOldTaskDirs(): Promise<CleanupResult> {
+  return cleanupOldDirectories('tasks')
+}
+
+export function cleanupOldDumpPrompts(): Promise<CleanupResult> {
+  return cleanupSingleDirectory(
+    join(getClaudeConfigHomeDir(), 'dump-prompts'),
+    '.jsonl',
+  )
+}
+
+export function cleanupOldShellSnapshots(): Promise<CleanupResult> {
+  return cleanupSingleDirectory(
+    join(getClaudeConfigHomeDir(), 'shell-snapshots'),
+    '.sh',
+  )
+}
+
+export function cleanupOldBackups(): Promise<CleanupResult> {
+  return cleanupSingleDirectory(
+    join(getClaudeConfigHomeDir(), 'backups'),
+    '',
+    false,
+  )
+}
+
+export async function cleanupOldHfiAuth(): Promise<CleanupResult> {
+  const result: CleanupResult = { messages: 0, errors: 0 }
+  const cutoffDate = getCutoffDate()
+  if (cutoffDate === null) return result
+  const filePath = join(getClaudeConfigHomeDir(), 'hfi-auth.json')
+  try {
+    if (await unlinkIfOld(filePath, cutoffDate, getFsImplementation())) {
+      result.messages++
+    }
+  } catch (error) {
+    if (error instanceof Error && 'code' in error && error.code !== 'ENOENT') {
+      logError(error)
+      result.errors++
+    }
+  }
   return result
 }
 
@@ -416,6 +429,7 @@ export async function cleanupOldSessionEnvDirs(): Promise<CleanupResult> {
 export async function cleanupOldDebugLogs(): Promise<CleanupResult> {
   const cutoffDate = getCutoffDate()
   const result: CleanupResult = { messages: 0, errors: 0 }
+  if (cutoffDate === null) return result
   const fsImpl = getFsImplementation()
   const debugDir = join(getClaudeConfigHomeDir(), 'debug')
 
@@ -621,11 +635,19 @@ export async function cleanupOldMessageFilesInBackground(): Promise<void> {
   await cleanupOldPlanFiles()
   await cleanupOldFileHistoryBackups()
   await cleanupOldSessionEnvDirs()
+  await cleanupOldTaskDirs()
   await cleanupOldDebugLogs()
-  await cleanupOldPastes(getCutoffDate())
-  const removedWorktrees = await cleanupStaleAgentWorktrees(getCutoffDate())
-  if (removedWorktrees > 0) {
-    logEvent('tengu_worktree_cleanup', { removed: removedWorktrees })
+  await cleanupOldDumpPrompts()
+  await cleanupOldShellSnapshots()
+  await cleanupOldBackups()
+  await cleanupOldHfiAuth()
+  const cutoffDate = getCutoffDate()
+  if (cutoffDate !== null) {
+    await cleanupOldPastes(cutoffDate)
+    const removedWorktrees = await cleanupStaleAgentWorktrees(cutoffDate)
+    if (removedWorktrees > 0) {
+      logEvent('tengu_worktree_cleanup', { removed: removedWorktrees })
+    }
   }
   if (process.env.USER_TYPE === 'ant') {
     await cleanupNpmCacheForAnthropicPackages()

@@ -3,6 +3,7 @@ import { isEnvTruthy } from '../../utils/envUtils.js'
 
 const doctor: Command = {
   name: 'doctor',
+  requires: { ink: true },
   description: 'Diagnose and verify your Claude Code installation and settings',
   isEnabled: () => !isEnvTruthy(process.env.DISABLE_DOCTOR_COMMAND),
   type: 'local-jsx',

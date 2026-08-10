@@ -22,6 +22,7 @@ import { createPluginId, detectEmptyMarketplaceReason, type EmptyMarketplaceReas
 import { loadKnownMarketplacesConfig } from '../../utils/plugins/marketplaceManager.js';
 import { OFFICIAL_MARKETPLACE_NAME } from '../../utils/plugins/officialMarketplace.js';
 import { installPluginFromMarketplace } from '../../utils/plugins/pluginInstallationHelpers.js';
+import { recoverInstalledPluginDependencies } from '../../utils/plugins/missingDependencyResolver.js';
 import { isPluginBlockedByPolicy } from '../../utils/plugins/pluginPolicy.js';
 import { plural } from '../../utils/stringUtils.js';
 import { truncateToWidth } from '../../utils/truncate.js';
@@ -207,7 +208,13 @@ export function DiscoverPlugins({
           const foundPlugin = allPlugins.find(p_0 => p_0.entry.name === targetPlugin);
           if (foundPlugin) {
             if (foundPlugin.isInstalled) {
-              setError(`Plugin '${foundPlugin.pluginId}' is already installed. Use '/plugin' to manage existing plugins.`);
+              const recovery = await recoverInstalledPluginDependencies(foundPlugin.pluginId);
+              if (recovery === null) {
+                setError(`Plugin '${foundPlugin.pluginId}' is already installed. Use '/plugin' to manage existing plugins.`);
+              } else {
+                setResult(`Plugin "${foundPlugin.pluginId}" is already installed${recovery.suffix}`);
+                await onInstallComplete?.();
+              }
             } else {
               setSelectedPlugin(foundPlugin);
               setViewState('plugin-details');

@@ -66,9 +66,12 @@ import { getOrCreateUserID } from '../../utils/config.js'
 import {
   CAPPED_DEFAULT_MAX_TOKENS,
   getModelMaxOutputTokens,
-  getSonnet1mExpTreatmentEnabled,
+  getSonnetContextWindowExperiment,
 } from '../../utils/context.js'
-import { resolveAppliedEffort } from '../../utils/effort.js'
+import {
+  convertEffortValueToLevel,
+  resolveAppliedEffort,
+} from '../../utils/effort.js'
 import { isEnvTruthy } from '../../utils/envUtils.js'
 import { errorMessage } from '../../utils/errors.js'
 import { computeFingerprintFromMessages } from '../../utils/fingerprint.js'
@@ -811,6 +814,19 @@ function getNonstreamingFallbackTimeoutMs(): number {
   return isEnvTruthy(process.env.CLAUDE_CODE_REMOTE) ? 120_000 : 300_000
 }
 
+function isValidNonStreamingMessage(value: unknown): value is BetaMessage {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'content' in value &&
+    'model' in value &&
+    'usage' in value &&
+    Array.isArray(value.content) &&
+    typeof value.model === 'string' &&
+    typeof value.usage === 'object'
+  )
+}
+
 /**
  * Helper generator for non-streaming API requests.
  * Encapsulates the common pattern of creating a withRetry generator,
@@ -862,16 +878,24 @@ export async function* executeNonStreamingRequest(
 
       try {
         // biome-ignore lint/plugin: non-streaming API call
-        return await anthropic.beta.messages.create(
-          {
-            ...adjustedParams,
-            model: normalizeModelStringForAPI(adjustedParams.model),
-          },
-          {
-            signal: retryOptions.signal,
-            timeout: fallbackTimeoutMs,
-          },
-        )
+        const result = await anthropic.beta.messages
+          .create(
+            {
+              ...adjustedParams,
+              model: normalizeModelStringForAPI(adjustedParams.model),
+            },
+            {
+              signal: retryOptions.signal,
+              timeout: fallbackTimeoutMs,
+            },
+          )
+          .withResponse()
+        if (!isValidNonStreamingMessage(result.data)) {
+          throw new Error(
+            `API returned an empty or malformed response (HTTP ${result.response.status}) — check for a proxy or gateway intercepting the request`,
+          )
+        }
+        return result.data
       } catch (err) {
         // User aborts are not errors — re-throw immediately without logging
         if (err instanceof APIUserAbortError) throw err
@@ -1461,6 +1485,10 @@ async function* queryModel(
   }
 
   const effort = resolveAppliedEffort(options.model, options.effortValue)
+  const telemetryEffort =
+    modelSupportsEffort(options.model) && effort !== undefined
+      ? convertEffortValueToLevel(effort)
+      : undefined
 
   if (feature('PROMPT_CACHE_BREAK_DETECTION')) {
     // Exclude defer_loading tools from the hash -- the API strips them from the
@@ -1542,7 +1570,7 @@ async function* queryModel(
   // Consume pending cache edits ONCE before paramsFromContext is defined.
   // paramsFromContext is called multiple times (logging, retries), so consuming
   // inside it would cause the first call to steal edits from subsequent calls.
-  const consumedCacheEdits = cachedMCEnabled ? consumePendingCacheEdits() : null
+  let consumedCacheEdits = cachedMCEnabled ? consumePendingCacheEdits() : null
   const consumedPinnedEdits = cachedMCEnabled ? getPinnedCacheEdits() : []
 
   // Capture the betas sent in the last API request, including the ones that
@@ -1555,7 +1583,7 @@ async function* queryModel(
     // Append 1M beta dynamically for the Sonnet 1M experiment.
     if (
       !betasParams.includes(CONTEXT_1M_BETA_HEADER) &&
-      getSonnet1mExpTreatmentEnabled(retryContext.model)
+      getSonnetContextWindowExperiment(retryContext.model) !== null
     ) {
       betasParams.push(CONTEXT_1M_BETA_HEADER)
     }
@@ -1706,7 +1734,7 @@ async function* queryModel(
     // Only send temperature when thinking is disabled — the API requires
     // temperature: 1 when thinking is enabled, which is already the default.
     const temperature =
-      !hasThinking && modelSupportsTemperature(options.model)
+      !hasThinking && modelSupportsTemperature(resolvedModel)
         ? (options.temperatureOverride ?? 1)
         : undefined
 
@@ -1883,6 +1911,24 @@ async function* queryModel(
         ...(isFastModeEnabled() ? { fastMode: isFastMode } : false),
         signal,
         querySource: options.querySource,
+        onError: async error => {
+          if (
+            error instanceof APIError &&
+            error.status === 400 &&
+            error.message.includes(
+              'Advisor tool result content could not be processed',
+            )
+          ) {
+            messagesForAPI = stripAdvisorBlocks(messagesForAPI)
+            // Cached edit offsets refer to the pre-strip message array.
+            consumedCacheEdits = null
+            logEvent('tengu_advisor_strip_retry', {
+              query_source: options.querySource ?? '',
+            })
+            return 'retry:advisor-strip'
+          }
+          return undefined
+        },
       },
     )
 
@@ -2302,6 +2348,8 @@ async function* queryModel(
               costUSDForPart,
               usage,
               options.model,
+              options.querySource,
+              telemetryEffort,
             )
 
             const refusalMessage = getErrorMessageIfRefusal(
@@ -2861,6 +2909,7 @@ async function* queryModel(
           llmSpan,
           fastMode: isFastModeRequest,
           previousRequestId,
+          effort: telemetryEffort,
         })
 
         if (error instanceof APIUserAbortError) {
@@ -2917,6 +2966,7 @@ async function* queryModel(
         llmSpan,
         fastMode: isFastModeRequest,
         previousRequestId,
+        effort: telemetryEffort,
       })
 
       // Don't yield an assistant error message for user aborts
@@ -2954,6 +3004,8 @@ async function* queryModel(
         fallbackCost,
         fallbackUsage,
         options.model,
+        options.querySource,
+        telemetryEffort,
       )
     }
   }
@@ -3012,6 +3064,7 @@ async function* queryModel(
       fastMode: isFastModeRequest,
       previousRequestId,
       betas: lastRequestBetas,
+      effort: telemetryEffort,
     })
   })
 

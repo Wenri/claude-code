@@ -17,6 +17,7 @@ const cost = {
     return isClaudeAISubscriber()
   },
   supportsNonInteractive: true,
+  thinClientDispatch: 'post-text',
   load: () => import('./cost.js'),
 } satisfies Command
 

@@ -1,6 +1,7 @@
 import { getCwd } from './cwd.js'
 import { logForDebugging } from './debug.js'
-import { getRemoteUrl } from './git.js'
+import { execFileNoThrow } from './execFileNoThrow.js'
+import { getRemoteUrl, gitExe } from './git.js'
 
 export type ParsedRepository = {
   host: string
@@ -37,7 +38,15 @@ export async function detectCurrentRepositoryWithHost(): Promise<ParsedRepositor
   }
 
   try {
-    const remoteUrl = await getRemoteUrl()
+    let remoteUrl = await getRemoteUrl()
+    if (!remoteUrl) {
+      const { stdout, code } = await execFileNoThrow(
+        gitExe(),
+        ['config', '--get', 'remote.origin.url'],
+        { preserveOutputOnError: false },
+      )
+      remoteUrl = code === 0 ? stdout.trim() || null : null
+    }
     logForDebugging(`Git remote URL: ${remoteUrl}`)
     if (!remoteUrl) {
       logForDebugging('No git remote URL found')

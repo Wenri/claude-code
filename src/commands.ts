@@ -1,9 +1,5 @@
 // biome-ignore-all assist/source/organizeImports: ANT-ONLY import markers must not be reordered
 import addDir from './commands/add-dir/index.js'
-import {
-  autocompact,
-  autocompactNonInteractive,
-} from './commands/autocompact/index.js'
 import autofixPr from './commands/autofix-pr/index.js'
 import backfillSessions from './commands/backfill-sessions/index.js'
 import btw from './commands/btw/index.js'
@@ -135,7 +131,6 @@ import focus from './commands/focus.js'
 import passes from './commands/passes/index.js'
 import privacySettings from './commands/privacy-settings/index.js'
 import hooks from './commands/hooks/index.js'
-import files from './commands/files/index.js'
 import branch from './commands/branch/index.js'
 import agents from './commands/agents/index.js'
 import plugin from './commands/plugin/index.js'
@@ -155,7 +150,7 @@ import perfIssue from './commands/perf-issue/index.js'
 import sandboxToggle from './commands/sandbox-toggle/index.js'
 import chrome from './commands/chrome/index.js'
 import stickers from './commands/stickers/index.js'
-import advisor from './commands/advisor.js'
+import advisor from './commands/advisor/index.js'
 import { logError } from './utils/log.js'
 import { toError } from './utils/errors.js'
 import { logForDebugging } from './utils/debug.js'
@@ -199,6 +194,7 @@ const usageReport: Command = {
   contentLength: 0,
   progressMessage: 'analyzing your sessions',
   source: 'builtin',
+  requires: { workspace: true },
   async getPromptForCommand(args, context) {
     const real = (await import('./commands/insights.js')).default
     if (real.type !== 'prompt') throw new Error('unreachable')
@@ -228,8 +224,6 @@ export { getCommandName, isCommandEnabled } from './types/command.js'
 
 // Commands that get eliminated from the external build
 export const INTERNAL_ONLY_COMMANDS = [
-  autocompact,
-  autocompactNonInteractive,
   backfillSessions,
   breakCache,
   bughunter,
@@ -284,7 +278,6 @@ const COMMANDS = memoize((): Command[] => [
   exit,
   fast,
   focus,
-  files,
   heapDump,
   help,
   ide,
@@ -655,14 +648,12 @@ export const REMOTE_SAFE_COMMANDS: Set<Command> = new Set([
 export const BRIDGE_SAFE_COMMANDS: Set<Command> = new Set(
   [
     compact, // Shrink context — useful mid-session from a phone
-    autocompactNonInteractive,
     clear, // Wipe transcript
     cost, // Show session cost
     contextNonInteractive,
     summary, // Summarize conversation
     releaseNotes, // Show changelog
     reloadPlugins,
-    files, // List tracked files
     exitNonInteractive,
   ].filter((c): c is Command => c !== null),
 )
@@ -711,7 +702,37 @@ export function isBridgeCommandAvailable(cmd: Command): boolean {
  * the CCR init message arrives.
  */
 export function filterCommandsForRemoteMode(commands: Command[]): Command[] {
-  return commands.filter(cmd => REMOTE_SAFE_COMMANDS.has(cmd))
+  return commands.filter(
+    cmd =>
+      (cmd.type === 'prompt' && supportsThinClient(cmd)) ||
+      REMOTE_SAFE_COMMANDS.has(cmd),
+  )
+}
+
+function getCommandRequirements(command: Command): {
+  workspace: boolean
+  ink: boolean
+} {
+  if (command.requires) {
+    return {
+      workspace: command.requires.workspace ?? false,
+      ink: command.requires.ink ?? false,
+    }
+  }
+
+  switch (command.type) {
+    case 'prompt':
+      return { workspace: false, ink: false }
+    case 'local':
+      return { workspace: true, ink: false }
+    case 'local-jsx':
+      return { workspace: true, ink: true }
+  }
+}
+
+function supportsThinClient(command: Command): boolean {
+  const requirements = getCommandRequirements(command)
+  return !requirements.workspace || command.thinClientDispatch !== undefined
 }
 
 export function findCommand(

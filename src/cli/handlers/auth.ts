@@ -1,6 +1,10 @@
 /* eslint-disable custom-rules/no-process-exit -- CLI subcommand handler intentionally exits */
 
 import {
+  getOauthTokenFromFd,
+  setOauthTokenFromFd,
+} from '../../bootstrap/state.js'
+import {
   clearAuthRelatedCaches,
   performLogout,
 } from '../../commands/logout/logout.js'
@@ -78,6 +82,12 @@ export async function installOAuthTokens(tokens: OAuthTokens): Promise<void> {
 
   const storageResult = saveOAuthTokensIfNeeded(tokens)
   clearOAuthTokenCache()
+  if (process.env.CLAUDE_CODE_OAUTH_TOKEN) {
+    process.env.CLAUDE_CODE_OAUTH_TOKEN = tokens.accessToken
+  }
+  if (getOauthTokenFromFd()) {
+    setOauthTokenFromFd(tokens.accessToken)
+  }
 
   if (storageResult.warning) {
     logEvent('tengu_oauth_storage_warning', {
