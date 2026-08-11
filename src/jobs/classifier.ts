@@ -764,6 +764,30 @@ export function markTurnActive(
     .catch(() => {})
 }
 
+export function markTurnAborted(
+  state: ClassifierJobState,
+  short: string,
+): void {
+  state.kicked = false
+  state.bridgeWriteChain = state.bridgeWriteChain
+    .then(async () => {
+      const jobDir = getJobDir(short)
+      const current = await readJobState(jobDir)
+      if (!current || current.tempo !== 'active') return
+      await writeStateAndNotify(
+        jobDir,
+        {
+          ...current,
+          tempo: 'idle',
+          inFlight: undefined,
+          updatedAt: new Date().toISOString(),
+        },
+        { tempo: 'idle' },
+      )
+    })
+    .catch(() => {})
+}
+
 export async function setPermissionBlock(
   short: string,
   needs: string | null,

@@ -22,7 +22,7 @@ function getRandomGoodbyeMessage(): string {
 }
 
 export async function stopBackgroundSession(
-  source: 'bridge' | 'exit_dialog' | 'stop_command',
+  source: 'bridge' | 'exit_dialog' | 'keybind_exit' | 'stop_command',
 ): Promise<void> {
   logEvent('tengu_bg_agent_action', {
     action: 'stop',

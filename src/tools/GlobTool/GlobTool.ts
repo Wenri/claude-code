@@ -14,7 +14,7 @@ import { expandPath, toRelativePath } from '../../utils/path.js'
 import { checkReadPermissionForTool } from '../../utils/permissions/filesystem.js'
 import type { PermissionDecision } from '../../utils/permissions/PermissionResult.js'
 import { matchWildcardPattern } from '../../utils/permissions/shellRuleMatching.js'
-import { DESCRIPTION, GLOB_TOOL_NAME } from './prompt.js'
+import { DESCRIPTION, getGlobToolPrompt, GLOB_TOOL_NAME } from './prompt.js'
 import {
   getToolUseSummary,
   renderToolResultMessage,
@@ -140,8 +140,8 @@ export const GlobTool = buildTool({
       appState.toolPermissionContext,
     )
   },
-  async prompt() {
-    return DESCRIPTION
+  async prompt({ model }) {
+    return getGlobToolPrompt(model)
   },
   renderToolUseMessage,
   renderToolUseErrorMessage,

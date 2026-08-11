@@ -24,6 +24,10 @@ import type {
 } from 'src/entrypoints/sdk/controlTypes.js'
 import type { CanUseToolFn } from 'src/hooks/useCanUseTool.js'
 import type { Tool, ToolUseContext } from 'src/Tool.js'
+import { ASK_USER_QUESTION_TOOL_NAME } from 'src/tools/AskUserQuestionTool/prompt.js'
+import { BASH_TOOL_NAME } from 'src/tools/BashTool/toolName.js'
+import { EXIT_PLAN_MODE_V2_TOOL_NAME } from 'src/tools/ExitPlanModeTool/constants.js'
+import { POWERSHELL_TOOL_NAME } from 'src/tools/PowerShellTool/toolName.js'
 import { type HookCallback, hookJSONOutputSchema } from 'src/types/hooks.js'
 import { logForDebugging } from 'src/utils/debug.js'
 import { logForDiagnosticsNoPII } from 'src/utils/diagLogs.js'
@@ -104,24 +108,104 @@ function buildRequiresActionDetails(
   toolUseID: string,
   requestId: string,
 ): RequiresActionDetails {
-  // Per-tool summary methods may throw on malformed input; permission
-  // handling must not break because of a bad description.
-  let description: string
-  try {
-    description =
-      tool.getActivityDescription?.(input) ??
-      tool.getToolUseSummary?.(input) ??
-      tool.userFacingName(input)
-  } catch {
-    description = tool.name
+  const interactionDescription = getInteractionDescription(tool, input)
+  if (interactionDescription) {
+    return {
+      tool_name: tool.name,
+      display_tool_name: interactionDescription.label,
+      action_description: interactionDescription.body,
+      raw_command: undefined,
+      tool_use_id: toolUseID,
+      request_id: '',
+      input,
+    }
   }
+
+  const rawCommand =
+    (tool.name === BASH_TOOL_NAME || tool.name === POWERSHELL_TOOL_NAME) &&
+    typeof input.command === 'string'
+      ? input.command
+      : undefined
+
   return {
     tool_name: tool.name,
-    action_description: description,
+    display_tool_name: formatToolDisplayName(tool.name),
+    action_description: describeToolUseForPush(tool, input),
+    raw_command: rawCommand,
     tool_use_id: toolUseID,
     request_id: requestId,
     input,
   }
+}
+
+function describeToolUseForPush(
+  tool: Tool,
+  input: Record<string, unknown>,
+): string {
+  try {
+    return (
+      tool.getToolUseSummary?.(input) ??
+      tool.getActivityDescription?.(input) ??
+      ''
+    )
+  } catch (error) {
+    logForDebugging(`describeToolUseForPush failed: ${error}`, {
+      level: 'error',
+    })
+    return ''
+  }
+}
+
+function getInteractionDescription(
+  tool: Tool,
+  input: Record<string, unknown>,
+): { label: string; body: string } | undefined {
+  if (!tool.requiresUserInteraction?.()) return undefined
+
+  switch (tool.name) {
+    case ASK_USER_QUESTION_TOOL_NAME: {
+      const questions = Array.isArray(input.questions) ? input.questions : []
+      const first = questions[0] as
+        | { header?: string; question?: string }
+        | undefined
+      const summary = first?.header || first?.question
+      const additional =
+        questions.length > 1 ? ` (+${questions.length - 1} more)` : ''
+      return {
+        label: 'Question',
+        body: summary ? summary + additional : 'Tap to answer',
+      }
+    }
+    case EXIT_PLAN_MODE_V2_TOOL_NAME:
+      return { label: 'Plan', body: 'Plan ready for review' }
+    default:
+      return { label: formatToolDisplayName(tool.name), body: '' }
+  }
+}
+
+function formatToolDisplayName(toolName: string): string {
+  return (toolName.split('__').pop() || toolName)
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, character => character.toUpperCase())
+}
+
+function findSafetyCheckReason(
+  reason: PermissionDecisionReason | undefined,
+  predicate: (
+    reason: Extract<PermissionDecisionReason, { type: 'safetyCheck' }>,
+  ) => boolean = () => true,
+): Extract<PermissionDecisionReason, { type: 'safetyCheck' }> | undefined {
+  if (!reason) return undefined
+  if (reason.type === 'safetyCheck') {
+    return predicate(reason) ? reason : undefined
+  }
+  if (reason.type === 'subcommandResults') {
+    for (const result of reason.reasons.values()) {
+      const match = findSafetyCheckReason(result.decisionReason, predicate)
+      if (match) return match
+    }
+  }
+  return undefined
 }
 
 type PendingRequest<T> = {
@@ -595,16 +679,30 @@ export class StructuredIO {
         onPermissionPrompt?.(
           buildRequiresActionDetails(tool, input, toolUseID, requestId),
         )
+        const decisionReason = mainPermissionResult.decisionReason
+        const safetyCheckReason = findSafetyCheckReason(decisionReason)
+        const description =
+          (mainPermissionResult.metadata &&
+          'command' in mainPermissionResult.metadata
+            ? mainPermissionResult.metadata.command.description
+            : undefined) || describeToolUseForPush(tool, input) || undefined
         const sdkPromise = this.sendRequest<PermissionToolOutput>(
           {
             subtype: 'can_use_tool',
             tool_name: tool.name,
+            display_name: formatToolDisplayName(tool.name),
             input,
+            ...(description && { description }),
             permission_suggestions: mainPermissionResult.suggestions,
             blocked_path: mainPermissionResult.blockedPath,
-            decision_reason: serializeDecisionReason(
-              mainPermissionResult.decisionReason,
-            ),
+            decision_reason: serializeDecisionReason(decisionReason),
+            decision_reason_type: decisionReason?.type,
+            classifier_approvable: safetyCheckReason
+              ? !findSafetyCheckReason(
+                  decisionReason,
+                  reason => !reason.classifierApprovable,
+                )
+              : undefined,
             tool_use_id: toolUseID,
             agent_id: toolUseContext.agentId,
           },

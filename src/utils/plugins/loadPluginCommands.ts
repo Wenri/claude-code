@@ -8,7 +8,11 @@ import {
   substituteArguments,
 } from '../argumentSubstitution.js'
 import { logForDebugging } from '../debug.js'
-import { EFFORT_LEVELS, parseEffortValue } from '../effort.js'
+import {
+  EFFORT_LEVELS,
+  getDisplayedEffortLevel,
+  parseEffortValue,
+} from '../effort.js'
 import { isBareMode } from '../envUtils.js'
 import { isENOENT } from '../errors.js'
 import {
@@ -392,6 +396,13 @@ function createPluginCommand(
         finalContent = finalContent.replace(
           /\$\{CLAUDE_SESSION_ID\}/g,
           getSessionId(),
+        )
+        finalContent = finalContent.replaceAll(
+          '${CLAUDE_EFFORT}',
+          getDisplayedEffortLevel(
+            model ?? context.options.mainLoopModel,
+            effort ?? context.getEffortValue(),
+          ),
         )
 
         if (isSkillShellExecutionDisabled()) {

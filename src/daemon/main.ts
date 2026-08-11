@@ -6,10 +6,17 @@ import { createInterface } from 'readline'
 import { isDeepStrictEqual } from 'util'
 import chokidar from 'chokidar'
 import { logEvent } from '../services/analytics/index.js'
-import { isDaemonCliEnabled, fleetGateRejected } from '../utils/agentsFleet.js'
+import { logEventTo1PAwaitable } from '../services/analytics/firstPartyEventLogger.js'
+import {
+  fleetGateRejected,
+  isDaemonCliEnabled,
+  isDaemonServiceInstallEnabled,
+  isDaemonWorkerRegistryEnabled,
+} from '../utils/agentsFleet.js'
 import { isInBundledMode } from '../utils/bundledMode.js'
 import { logForDebugging } from '../utils/debug.js'
-import { getErrnoCode, isENOENT } from '../utils/errors.js'
+import { errorMessage, getErrnoCode, isENOENT } from '../utils/errors.js'
+import { logError } from '../utils/log.js'
 import { getRelaunchLauncher } from '../utils/relaunch.js'
 import { getXDGDataHome } from '../utils/xdg.js'
 import {
@@ -25,13 +32,14 @@ import { requestControl } from './client.js'
 import { createDaemonAuthManager } from './auth.js'
 import {
   controlDaemonService,
+  DAEMON_SERVICE_MARKER,
   getDaemonExecutablePath,
   getDefaultDaemonConfigPath,
   getDefaultDaemonLogPath,
   installDaemonService,
   isDaemonServiceInstalled,
   isServiceInstallSupported,
-  serviceExecutableIsMissing,
+  getSystemdServicePath,
   uninstallDaemonService,
 } from './service.js'
 import { runBackgroundSupervisor } from './supervisor.js'
@@ -40,31 +48,47 @@ import { handleCliKind, handleListAllKinds } from './cli.js'
 import { getDaemonStatusPath } from './paths.js'
 import { formatBgDaemonStatus, getBgDaemonStatus } from './status.js'
 
-const DAEMON_HELP = `Usage: claude daemon [command] [options]
+const SERVICE_HELP = `  install, i        Install as a launchctl/systemd service (persists across reboot)
+`
+const SERVICE_DISABLED_HELP = `
+  Service install is disabled in this version — the daemon runs on demand
+  and exits when the last client disconnects.
+`
+const REGISTRY_HELP = `
+Listing:
+  list [--json]                             Flat list across all kinds
+  scheduled [--json]                        List scheduled tasks
+  assistant [--json]                        List assistants
+  remote-control [--json]                   List remote-control servers
 
-Manage configured background workers.
+Mutation (require the service to be installed):
+  scheduled -a --cron "<expr>" --prompt "<text>" [--dir <path>]
+            [--permission-mode <mode>] [--model <id>] [--id <task-id>]
+  scheduled -r <task-id>
+  assistant -a [--dir <path>] [--name <n>] [--model <id>]
+            [--permission-mode <mode>]
+  assistant -r <name-or-dir>
+  remote-control -a [--dir <path>] [--name <n>]
+                 [--spawn-mode same-dir|worktree]
+  remote-control -r <name-or-dir>
+`
 
-Commands:
-  run               Run the daemon in the foreground (default when piped)
-  install, i        Install as a background service (launchctl/systemd)
-  uninstall         Remove the background service
-  start             Start the installed service
-  stop              Stop the installed service
-  restart           Restart the installed service
-  status            Show daemon status
-  log               Tail the daemon log
-  list               List configured workers
-  scheduled         Manage scheduled workers
-  assistant         Manage assistant workers
-  remote-control    Manage Remote Control workers
-  hub               Open the interactive daemon hub (default in a TTY)
+function daemonHelp(): string {
+  return `Usage: claude daemon [subcommand] [options]
 
+Service lifecycle:
+  run [json-path]   Run the supervisor in the foreground (default when piped)
+  status            Show daemon pid, version, uptime
+  log               Tail the daemon log (Ctrl-C to stop)
+  uninstall         Remove the background service (launchctl/systemd)
+  stop [--any]      Stop the background service (--any: also stop a transient daemon)
+${isDaemonServiceInstallEnabled() ? SERVICE_HELP : SERVICE_DISABLED_HELP}${isDaemonWorkerRegistryEnabled() ? REGISTRY_HELP : ''}
 Options:
   --json-path <p>   Config file (default: ~/.claude/daemon.json)
   --log-file <p>    Log file (default: ~/.claude/daemon.log)
-  --origin <value>  Daemon origin (foreground, service, cli, auto)
-  -h, --help        Show this help
+  --help, -h        Show this help
 `
+}
 
 type DaemonSubcommand =
   | 'run'
@@ -76,6 +100,7 @@ type DaemonSubcommand =
   | 'restart'
   | 'status'
   | 'log'
+  | 'logs'
   | 'list'
   | 'scheduled'
   | 'assistant'
@@ -83,7 +108,7 @@ type DaemonSubcommand =
   | 'hub'
 
 export interface ParsedDaemonArgs {
-  sub: DaemonSubcommand
+  sub: string
   jsonPath: string
   logPath: string
   origin?: 'foreground' | 'service' | 'cli' | 'auto'
@@ -136,7 +161,7 @@ export function parseArgs(args: string[]): ParsedDaemonArgs {
     }
   }
   const rest = args.filter((_arg, index) => !consumed.has(index))
-  const commands = new Set<DaemonSubcommand>([
+  const commands = new Set<string>([
     'run',
     'install',
     'i',
@@ -146,6 +171,7 @@ export function parseArgs(args: string[]): ParsedDaemonArgs {
     'restart',
     'status',
     'log',
+    'logs',
     'list',
     'scheduled',
     'assistant',
@@ -157,8 +183,11 @@ export function parseArgs(args: string[]): ParsedDaemonArgs {
   if (positional === -1) {
     return { sub: defaultSub, jsonPath, logPath, origin, rest }
   }
-  const candidate = rest[positional] as DaemonSubcommand
+  const candidate = rest[positional]
   if (!commands.has(candidate)) {
+    if (!/[./\\~]/.test(candidate)) {
+      return { sub: candidate, jsonPath, logPath, origin, rest: [] }
+    }
     return {
       sub: 'run',
       jsonPath: explicitJsonPath ? jsonPath : candidate,
@@ -761,7 +790,7 @@ async function runDaemon(options: {
   if (workers.size) {
     log(
       'supervisor',
-      'daemon.json has configured workers but the supervisor is client-bound — they will stop when the last client disconnects',
+      'daemon.json has configured workers but they do not pin the supervisor — they stop when the last client lease and bg job are gone',
     )
   }
   logEvent('tengu_daemon_start', {
@@ -942,19 +971,48 @@ async function daemonInvocationHasExternalRestartPolicy(): Promise<boolean> {
   return isDaemonServiceInstalled()
 }
 
+async function removeLegacyDaemonService(): Promise<void> {
+  if (process.env.CLAUDE_CONFIG_DIR || !isServiceInstallSupported()) return
+  try {
+    if (!(await isDaemonServiceInstalled())) return
+    const unit = await readFile(getSystemdServicePath(), 'utf8').catch(() => '')
+    if (unit.includes(DAEMON_SERVICE_MARKER)) return
+    const result = await uninstallDaemonService()
+    logEvent('tengu_daemon_auto_uninstall', { ok: result.ok })
+  } catch (error) {
+    logError(error)
+    logEvent('tengu_daemon_auto_uninstall', { ok: false, threw: true })
+  }
+}
+
 export async function daemonMain(args: string[]): Promise<void> {
   if (args.includes('--help') || args.includes('-h')) {
     if (!isDaemonCliEnabled()) fleetGateRejected('daemon')
-    output(DAEMON_HELP.trimEnd())
+    output(daemonHelp().trimEnd())
     return
   }
   const parsed = parseArgs(args)
-  if (parsed.sub !== 'run' && !isDaemonCliEnabled()) {
+  const sub =
+    parsed.sub === 'hub' && !isDaemonWorkerRegistryEnabled()
+      ? 'status'
+      : parsed.sub
+  if (sub !== 'run' && !isDaemonCliEnabled()) {
     fleetGateRejected('daemon')
   }
-  switch (parsed.sub) {
+  if (
+    (sub === 'list' ||
+      sub === 'scheduled' ||
+      sub === 'assistant' ||
+      sub === 'remote-control' ||
+      sub === 'hub') &&
+    !isDaemonWorkerRegistryEnabled()
+  ) {
+    fleetGateRejected(`daemon ${sub}`)
+  }
+  switch (sub) {
     case 'run': {
       process.title = 'claude daemon'
+      await removeLegacyDaemonService()
       const controller = new AbortController()
       let signaled = false
       const shutdown = () => {
@@ -965,12 +1023,20 @@ export async function daemonMain(args: string[]): Promise<void> {
       process.on('SIGINT', shutdown)
       process.on('SIGTERM', shutdown)
       const origin = parsed.origin ?? 'foreground'
-      const { upgradeDetected } = await runDaemon({
-        jsonPath: parsed.jsonPath,
-        logPath: parsed.logPath,
-        origin,
-        signal: controller.signal,
-      })
+      let upgradeDetected: boolean
+      try {
+        ;({ upgradeDetected } = await runDaemon({
+          jsonPath: parsed.jsonPath,
+          logPath: parsed.logPath,
+          origin,
+          signal: controller.signal,
+        }))
+      } catch (error) {
+        logError(error)
+        await logEventTo1PAwaitable('tengu_daemon_startup_crash', {})
+        process.exitCode = 1
+        return
+      }
       if (
         upgradeDetected &&
         !(await daemonInvocationHasExternalRestartPolicy())
@@ -1001,10 +1067,41 @@ export async function daemonMain(args: string[]): Promise<void> {
     }
     case 'install':
     case 'i': {
+      if (!isDaemonServiceInstallEnabled()) {
+        outputError(
+          `\`claude daemon ${sub}\` is disabled in this version — the daemon runs on demand and exits when the last client disconnects.`,
+        )
+        logEvent('tengu_daemon_install', { ok: false, disabled: true })
+        process.exitCode = 1
+        return
+      }
       if (!isServiceInstallSupported()) {
         outputError('service install not supported on linux')
         process.exitCode = 1
         return
+      }
+      if (process.env.CLAUDE_CONFIG_DIR) {
+        outputError(
+          'service install only supports the default config dir — the launchd/systemd unit is a per-user singleton',
+        )
+        process.exitCode = 1
+        return
+      }
+      const detached = await getRunningDaemon().catch(() => null)
+      if (detached) {
+        output(`stopping detached daemon (pid ${detached.pid})`)
+        try {
+          process.kill(detached.pid, 'SIGTERM')
+        } catch {}
+        const deadline = Date.now() + 2_000
+        while (Date.now() < deadline) {
+          try {
+            process.kill(detached.pid, 0)
+          } catch {
+            break
+          }
+          await new Promise(resolve => setTimeout(resolve, 50))
+        }
       }
       const result = await installDaemonService(parsed)
       logEvent('tengu_daemon_install', { ok: result.ok })
@@ -1018,7 +1115,7 @@ export async function daemonMain(args: string[]): Promise<void> {
     }
     case 'uninstall': {
       const result = await uninstallDaemonService()
-      logEvent('tengu_daemon_control', {
+      await logEventTo1PAwaitable('tengu_daemon_control', {
         op_uninstall: true,
         ok: result.ok,
       })
@@ -1030,41 +1127,72 @@ export async function daemonMain(args: string[]): Promise<void> {
       return
     }
     case 'start':
-    case 'stop':
-    case 'restart': {
+    case 'restart':
+      outputError(
+        `\`claude daemon ${sub}\` is disabled in this version — the daemon runs on demand and exits when the last client disconnects.`,
+      )
+      await logEventTo1PAwaitable('tengu_daemon_install', {
+        ok: false,
+        disabled: true,
+      })
+      process.exitCode = 1
+      return
+    case 'stop': {
       if (!(await isDaemonServiceInstalled())) {
-        outputError('service not installed — run `claude daemon install` first')
-        process.exitCode = 1
-        return
-      }
-      if (parsed.sub !== 'stop' && (await serviceExecutableIsMissing())) {
-        output('service binary missing — regenerating service file')
-        const regenerated = await installDaemonService(parsed)
-        if (!regenerated.ok) {
-          outputError(`regenerate failed: ${regenerated.error}`)
+        const running = await getRunningDaemon()
+        if (!running) {
+          output('no daemon running')
+          return
+        }
+        if (!parsed.rest.includes('--any')) {
+          outputError(
+            `no background service is installed, but a daemon is running (pid=${running.pid}, origin=${running.origin ?? 'unknown'}). Run \`claude daemon stop --any\` to stop it.`,
+          )
           process.exitCode = 1
           return
         }
-        output(parsed.sub === 'start' ? 'started' : 'restarted')
+        if (process.platform === 'win32') {
+          outputError(
+            `daemon running (pid=${running.pid}) but Windows has no graceful signal — stop it with \`taskkill /PID ${running.pid}\` or close the terminal it was started in.`,
+          )
+          process.exitCode = 1
+          return
+        }
+        try {
+          process.kill(running.pid, 'SIGTERM')
+        } catch (error) {
+          if (getErrnoCode(error) !== 'ESRCH') {
+            const suffix =
+              getErrnoCode(error) === 'EPERM'
+                ? ' (running as another user — try with elevated privileges)'
+                : ''
+            outputError(
+              `could not stop daemon (pid=${running.pid}): ${errorMessage(error)}${suffix}`,
+            )
+            process.exitCode = 1
+            return
+          }
+        }
+        output(`stopped (pid=${running.pid})`)
+        output(
+          'note: the next `claude agents` or `claude --bg` will start a new one',
+        )
+        await logEventTo1PAwaitable('tengu_daemon_control', {
+          op_start: false,
+          op_stop: true,
+          op_restart: false,
+          ok: true,
+        })
         return
       }
-      const result = await controlDaemonService(parsed.sub)
-      logEvent('tengu_daemon_control', {
-        op_start: parsed.sub === 'start',
-        op_stop: parsed.sub === 'stop',
-        op_restart: parsed.sub === 'restart',
+      const result = await controlDaemonService('stop')
+      await logEventTo1PAwaitable('tengu_daemon_control', {
+        op_stop: true,
         ok: result.ok,
       })
-      if (result.ok) {
-        output(
-          parsed.sub === 'stop'
-            ? 'stopped'
-            : parsed.sub === 'start'
-              ? 'started'
-              : 'restarted',
-        )
-      } else {
-        outputError(`${parsed.sub} failed: ${result.error}`)
+      if (result.ok) output('stopped')
+      else {
+        outputError(`stop failed: ${result.error}`)
         process.exitCode = 1
       }
       return
@@ -1073,6 +1201,7 @@ export async function daemonMain(args: string[]): Promise<void> {
       await showStatus()
       return
     case 'log':
+    case 'logs':
       await tailLog(parsed.logPath)
       return
     case 'list': {

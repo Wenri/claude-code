@@ -2,6 +2,8 @@ import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/gr
 import { getSubscriptionType } from '../../utils/auth.js'
 import { hasEmbeddedSearchTools } from '../../utils/embeddedTools.js'
 import { isEnvDefinedFalsy, isEnvTruthy } from '../../utils/envUtils.js'
+import { isLeanPromptEnabled } from '../../utils/leanPrompt.js'
+import { isBashToolEnabled } from '../../utils/shell/shellToolUtils.js'
 import { isTeammate } from '../../utils/teammate.js'
 import { isInProcessTeammate } from '../../utils/teammateContext.js'
 import { FILE_READ_TOOL_NAME } from '../FileReadTool/prompt.js'
@@ -71,6 +73,7 @@ export function shouldSteerAgentCost(): boolean {
 
 export async function getPrompt(
   agentDefinitions: AgentDefinition[],
+  model?: string,
   isCoordinator?: boolean,
   allowedAgentTypes?: string[],
 ): Promise<string> {
@@ -219,7 +222,7 @@ ${
     return shared
   }
 
-  const contentSearchHint = hasEmbeddedSearchTools()
+  const contentSearchHint = hasEmbeddedSearchTools() && isBashToolEnabled()
     ? '`grep` via the Bash tool'
     : `the ${GREP_TOOL_NAME} tool`
   const whenNotToUseSection = forkEnabled
@@ -241,13 +244,33 @@ If the target is already known, use the direct tool: ${FILE_READ_TOOL_NAME} for 
 - When you launch multiple agents for independent work, send them in a single message with multiple tool uses so they run concurrently`
       : ''
 
+  if (isLeanPromptEnabled(model)) {
+    const backgroundNote =
+      !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_BACKGROUND_TASKS) &&
+      !isInProcessTeammate() &&
+      !forkEnabled
+        ? "\n- `run_in_background: true` runs the agent asynchronously; you'll be notified when it completes."
+        : ''
+    const contextNote = isInProcessTeammate()
+      ? '\n- `run_in_background`, `name`, `team_name`, and `mode` are unavailable here — only synchronous subagents.'
+      : isTeammate()
+        ? '\n- `name`, `team_name`, and `mode` are unavailable here — teammates cannot spawn teammates.'
+        : ''
+    return `${shared}
+
+- The agent's final message is returned to you as the tool result; it is not shown to the user — relay what matters.
+- Use ${SEND_MESSAGE_TOOL_NAME} with the agent's ID or name to continue a previously spawned agent with its context intact; a new ${AGENT_TOOL_NAME} call${forkEnabled ? ' with a subagent_type' : ''} starts fresh.
+- \`isolation: "worktree"\` gives the agent its own git worktree (auto-cleaned if unchanged).${backgroundNote}${concurrencyNote}${contextNote}`
+  }
+
   // Non-coordinator gets the full prompt with all sections
   return `${shared}
 ${whenNotToUseSection}
 ## Usage notes
 
 - Always include a short description summarizing what the agent will do${concurrencyNote}
-- When the agent is done, it will return a single message back to you. The result returned by the agent is not visible to the user. To show the user the result, you should send a text message back to the user with a concise summary of the result.${
+- When the agent is done, it will return a single message back to you. The result returned by the agent is not visible to the user. To show the user the result, you should send a text message back to the user with a concise summary of the result.
+- Trust but verify: an agent's summary describes what it intended to do, not necessarily what it did. When an agent writes or edits code, check the actual changes before reporting the work as done.${
     // eslint-disable-next-line custom-rules/no-process-env-top-level
     !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_BACKGROUND_TASKS) &&
     !isInProcessTeammate() &&
@@ -258,7 +281,6 @@ ${whenNotToUseSection}
       : ''
   }
 - To continue a previously spawned agent, use ${SEND_MESSAGE_TOOL_NAME} with the agent's ID or name as the \`to\` field — that resumes it with full context. A new ${AGENT_TOOL_NAME} call${forkEnabled ? ' with a subagent_type' : ''} starts a fresh agent with no memory of prior runs, so the prompt must be self-contained.
-- Trust but verify: an agent's summary describes what it intended to do, not necessarily what it did. When an agent writes or edits code, check the actual changes before reporting the work as done.
 - Clearly tell the agent whether you expect it to write code or just to do research (search, file reads, web fetches, etc.)${forkEnabled ? '' : ", since it is not aware of the user's intent"}
 - If the agent description mentions that it should be used proactively, then you should try your best to use it without the user having to ask for it first.
 - If the user specifies that they want you to run agents "in parallel", you MUST send a single message with multiple ${AGENT_TOOL_NAME} tool use content blocks. For example, if you need to launch both a build-validator agent and a test-runner agent in parallel, send a single message with both tool calls.

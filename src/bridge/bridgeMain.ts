@@ -3,13 +3,9 @@ import { randomUUID } from 'crypto'
 import { hostname, tmpdir } from 'os'
 import { basename, join, resolve } from 'path'
 import { getRemoteSessionUrl } from '../constants/product.js'
-import { shutdownDatadog } from '../services/analytics/datadog.js'
-import { shutdown1PEventLogging } from '../services/analytics/firstPartyEventLogger.js'
-import { checkGate_CACHED_OR_BLOCKING } from '../services/analytics/growthbook.js'
 import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
-  logEventAsync,
 } from '../services/analytics/index.js'
 import { isInBundledMode } from '../utils/bundledMode.js'
 import { logForDebugging } from '../utils/debug.js'
@@ -19,7 +15,12 @@ import { errorMessage } from '../utils/errors.js'
 import { truncateToWidth } from '../utils/format.js'
 import { logError } from '../utils/log.js'
 import { sleep } from '../utils/sleep.js'
-import { createAgentWorktree, removeAgentWorktree } from '../utils/worktree.js'
+import { plural } from '../utils/stringUtils.js'
+import {
+  createAgentWorktree,
+  getAgentWorktreeChanges,
+  removeAgentWorktree,
+} from '../utils/worktree.js'
 import {
   BridgeFatalError,
   createBridgeApiClient,
@@ -83,21 +84,6 @@ const STATUS_UPDATE_INTERVAL_MS = 1_000
 const SPAWN_SESSIONS_DEFAULT = 32
 
 /**
- * GrowthBook gate for multi-session spawn modes (--spawn / --capacity / --create-session-in-dir).
- * Sibling of tengu_ccr_bridge_multi_environment (multiple envs per host:dir) —
- * this one enables multiple sessions per environment.
- * Rollout staged via targeting rules: ants first, then gradual external.
- *
- * Uses the blocking gate check so a stale disk-cache miss doesn't unfairly
- * deny access. The fast path (cache has true) is still instant; only the
- * cold-start path awaits the server fetch, and that fetch also seeds the
- * disk cache for next time.
- */
-async function isMultiSessionSpawnEnabled(): Promise<boolean> {
-  return checkGate_CACHED_OR_BLOCKING('tengu_ccr_bridge_multi_session')
-}
-
-/**
  * Returns the threshold for detecting system sleep/wake in the poll loop.
  * Must exceed the max backoff cap — otherwise normal backoff delays trigger
  * false sleep detection (resetting the error budget indefinitely). Using
@@ -138,6 +124,59 @@ function safeSpawn(
   }
 }
 
+type BridgeWorktree = {
+  worktreePath: string
+  worktreeBranch?: string
+  gitRoot?: string
+  hookBased?: boolean
+  headCommit?: string
+}
+
+async function cleanupBridgeWorktree(
+  worktree: BridgeWorktree,
+  logger: BridgeLogger,
+  options?: { force?: boolean },
+): Promise<void> {
+  const force =
+    options?.force || (worktree.hookBased && worktree.headCommit === undefined)
+  const { dirty, commitsAhead, gitError } = force
+    ? { dirty: false, commitsAhead: 0, gitError: false }
+    : await getAgentWorktreeChanges(
+        worktree.worktreePath,
+        worktree.headCommit,
+      )
+  if (dirty || commitsAhead > 0) {
+    const commits = `${commitsAhead} ${plural(commitsAhead, 'commit')}`
+    const reason = gitError
+      ? 'git error checking changes'
+      : dirty && commitsAhead > 0
+        ? `uncommitted changes · ${commits}`
+        : dirty
+          ? 'uncommitted changes'
+          : commits
+    logger.logStatus(`kept worktree ${worktree.worktreePath} · ${reason}`)
+    logForDebugging(
+      `[bridge:worktree] kept ${worktree.worktreePath} dirty=${dirty} commitsAhead=${commitsAhead} gitError=${Boolean(gitError)}`,
+    )
+    return
+  }
+  if (
+    await removeAgentWorktree(
+      worktree.worktreePath,
+      worktree.worktreeBranch,
+      worktree.gitRoot,
+      worktree.hookBased,
+      'bridge',
+    )
+  ) {
+    logger.logStatus(`removed worktree ${worktree.worktreePath}`)
+  } else {
+    logger.logStatus(
+      `worktree removal failed, kept: ${worktree.worktreePath}`,
+    )
+  }
+}
+
 export async function runBridgeLoop(
   config: BridgeConfig,
   environmentId: string,
@@ -173,15 +212,8 @@ export async function runBridgeLoop(
   const sessionIngressTokens = new Map<string, string>()
   const sessionTimers = new Map<string, ReturnType<typeof setTimeout>>()
   const completedWorkIds = new Set<string>()
-  const sessionWorktrees = new Map<
-    string,
-    {
-      worktreePath: string
-      worktreeBranch?: string
-      gitRoot?: string
-      hookBased?: boolean
-    }
-  >()
+  const crashedSessionIds = new Set<string>()
+  const sessionWorktrees = new Map<string, BridgeWorktree>()
   // Track sessions killed by the timeout watchdog so onSessionDone can
   // distinguish them from server-initiated or shutdown interrupts.
   const timedOutSessions = new Set<string>()
@@ -532,23 +564,22 @@ export async function runBridgeLoop(
         completedWorkIds.add(workId)
       }
 
+      const sessionCrashed =
+        status === 'failed' &&
+        !loopSignal.aborted &&
+        !wasTimedOut &&
+        !fatalExit
+      if (sessionCrashed) crashedSessionIds.add(sessionId)
+
       // Clean up worktree if one was created for this session
       const wt = sessionWorktrees.get(sessionId)
       if (wt) {
         sessionWorktrees.delete(sessionId)
-        trackCleanup(
-          removeAgentWorktree(
-            wt.worktreePath,
-            wt.worktreeBranch,
-            wt.gitRoot,
-            wt.hookBased,
-            'bridge',
-          ).catch((err: unknown) =>
-            logger.logVerbose(
-              `Failed to remove worktree ${wt.worktreePath}: ${errorMessage(err)}`,
-            ),
-          ),
-        )
+        if (sessionCrashed) {
+          logger.logStatus(`kept worktree ${wt.worktreePath} · session crashed`)
+        } else {
+          trackCleanup(cleanupBridgeWorktree(wt, logger))
+        }
       }
 
       // Lifecycle decision: in multi-session mode, keep the bridge running
@@ -990,6 +1021,7 @@ export async function runBridgeLoop(
                 worktreeBranch: wt.worktreeBranch,
                 gitRoot: wt.gitRoot,
                 hookBased: wt.hookBased,
+                headCommit: wt.headCommit,
               })
               sessionDir = wt.worktreePath
               logForDebugging(
@@ -1068,19 +1100,7 @@ export async function runBridgeLoop(
             const wt = sessionWorktrees.get(sessionId)
             if (wt) {
               sessionWorktrees.delete(sessionId)
-              trackCleanup(
-                removeAgentWorktree(
-                  wt.worktreePath,
-                  wt.worktreeBranch,
-                  wt.gitRoot,
-                  wt.hookBased,
-                  'bridge',
-                ).catch((err: unknown) =>
-                  logger.logVerbose(
-                    `Failed to remove worktree ${wt.worktreePath}: ${errorMessage(err)}`,
-                  ),
-                ),
-              )
+              trackCleanup(cleanupBridgeWorktree(wt, logger, { force: true }))
             }
             completedWorkIds.add(work.id)
             trackCleanup(
@@ -1426,7 +1446,12 @@ export async function runBridgeLoop(
   // api.archiveSession is idempotent (409 if already archived), so
   // double-archiving is safe.
   const sessionsToArchive = new Set(activeSessions.keys())
-  if (initialSessionId) {
+  if (
+    initialSessionId &&
+    ![...crashedSessionIds].some(sessionId =>
+      sameSessionId(sessionId, initialSessionId),
+    )
+  ) {
     sessionsToArchive.add(initialSessionId)
   }
   // Snapshot before killing — onSessionDone clears sessionCompatIds.
@@ -1482,15 +1507,7 @@ export async function runBridgeLoop(
         `[bridge:shutdown] Cleaning up ${remainingWorktrees.length} worktree(s)`,
       )
       await Promise.allSettled(
-        remainingWorktrees.map(wt =>
-          removeAgentWorktree(
-            wt.worktreePath,
-            wt.worktreeBranch,
-            wt.gitRoot,
-            wt.hookBased,
-            'bridge',
-          ),
-        ),
+        remainingWorktrees.map(wt => cleanupBridgeWorktree(wt, logger)),
       )
     }
 
@@ -1907,32 +1924,6 @@ async function printHelp(): Promise<void> {
   // are ant-only and auto is feature-gated; they're still accepted by validation.
   const { EXTERNAL_PERMISSION_MODES } = await import('../types/permissions.js')
   const modes = EXTERNAL_PERMISSION_MODES.join(', ')
-  const showServer = await isMultiSessionSpawnEnabled()
-  const serverOptions = showServer
-    ? `  --spawn <mode>                   Spawn mode: same-dir, worktree, session
-                                   (default: same-dir)
-  --capacity <N>                   Max concurrent sessions in worktree or
-                                   same-dir mode (default: ${SPAWN_SESSIONS_DEFAULT})
-  --[no-]create-session-in-dir     Pre-create a session in the current
-                                   directory; in worktree mode this session
-                                   stays in cwd while on-demand sessions get
-                                   isolated worktrees (default: on)
-`
-    : ''
-  const serverDescription = showServer
-    ? `
-  Remote Control runs as a persistent server that accepts multiple concurrent
-  sessions in the current directory. One session is pre-created on start so
-  you have somewhere to type immediately. Use --spawn=worktree to isolate
-  each on-demand session in its own git worktree, or --spawn=session for
-  the classic single-session mode (exits when that session ends). Press 'w'
-  during runtime to toggle between same-dir and worktree.
-`
-    : ''
-  const serverNote = showServer
-    ? `  - Worktree mode requires a git repository or WorktreeCreate/WorktreeRemove hooks
-`
-    : ''
   const help = `
 Remote Control - Connect your local environment to claude.ai/code
 
@@ -1956,16 +1947,32 @@ ${
   --debug-file <path>              Write debug logs to file
   -v, --verbose                    Enable verbose output
   -h, --help                       Show this help
-${serverOptions}
+  --spawn <mode>                   Spawn mode: same-dir, worktree, session
+                                   (default: same-dir)
+  --capacity <N>                   Max concurrent sessions in worktree or
+                                   same-dir mode (default: ${SPAWN_SESSIONS_DEFAULT})
+  --[no-]create-session-in-dir     Pre-create a session in the current
+                                   directory; in worktree mode this session
+                                   stays in cwd while on-demand sessions get
+                                   isolated worktrees (default: on)
+
 DESCRIPTION
   Remote Control allows you to control sessions on your local device from
   claude.ai/code (https://claude.ai/code). Run this command in the
   directory you want to work in, then connect from the Claude app or web.
-${serverDescription}
+
+  Remote Control runs as a persistent server that accepts multiple concurrent
+  sessions in the current directory. One session is pre-created on start so
+  you have somewhere to type immediately. Use --spawn=worktree to isolate
+  each on-demand session in its own git worktree, or --spawn=session for
+  the classic single-session mode (exits when that session ends). Press 'w'
+  during runtime to toggle between same-dir and worktree.
+
 NOTES
   - You must be logged in with a Claude account that has a subscription
   - Run \`claude\` first in the directory to accept the workspace trust dialog
-${serverNote}`
+  - Worktree mode requires a git repository or WorktreeCreate/WorktreeRemove hooks
+`
   // biome-ignore lint/suspicious/noConsole: intentional help output
   console.log(help)
 }
@@ -2037,11 +2044,6 @@ export async function bridgeMain(args: string[]): Promise<void> {
   // dead session. Undefined for explicit --session-id (leaves pointer alone).
   let resumePointerDir: string | undefined
 
-  const usedMultiSessionFeature =
-    parsedSpawnMode !== undefined ||
-    parsedCapacity !== undefined ||
-    parsedCreateSessionInDir !== undefined
-
   // Validate permission mode early so the user gets an error before
   // the bridge starts polling for work.
   if (permissionMode !== undefined) {
@@ -2070,34 +2072,6 @@ export async function bridgeMain(args: string[]): Promise<void> {
   // setup() init flow, so we call initSinks() directly to attach sinks here.
   const { initSinks } = await import('../utils/sinks.js')
   initSinks()
-
-  // Gate-aware validation: --spawn / --capacity / --create-session-in-dir require
-  // the multi-session gate. parseArgs has already validated flag combinations;
-  // here we only check the gate since that requires an async GrowthBook call.
-  // Runs after enableConfigs() (GrowthBook cache reads global config) and after
-  // initSinks() so the denial event can be enqueued.
-  const multiSessionEnabled = await isMultiSessionSpawnEnabled()
-  if (usedMultiSessionFeature && !multiSessionEnabled) {
-    await logEventAsync('tengu_bridge_multi_session_denied', {
-      used_spawn: parsedSpawnMode !== undefined,
-      used_capacity: parsedCapacity !== undefined,
-      used_create_session_in_dir: parsedCreateSessionInDir !== undefined,
-    })
-    // logEventAsync only enqueues — process.exit() discards buffered events.
-    // Flush explicitly, capped at 500ms to match gracefulShutdown.ts.
-    // (sleep() doesn't unref its timer, but process.exit() follows immediately
-    // so the ref'd timer can't delay shutdown.)
-    await Promise.race([
-      Promise.all([shutdown1PEventLogging(), shutdownDatadog()]),
-      sleep(500, undefined, { unref: true }),
-    ]).catch(() => {})
-    // biome-ignore lint/suspicious/noConsole: intentional error output
-    console.error(
-      'Error: Multi-session Remote Control is not enabled for your account yet.',
-    )
-    // eslint-disable-next-line custom-rules/no-process-exit
-    process.exit(1)
-  }
 
   // Set the bootstrap CWD so that trust checks, project config lookups, and
   // git utilities (getBranch, getRemoteUrl) resolve against the correct path.
@@ -2236,16 +2210,11 @@ export async function bridgeMain(args: string[]): Promise<void> {
   const { hasWorktreeCreateHook } = await import('../utils/hooks.js')
   const worktreeAvailable = hasWorktreeCreateHook() || findGitRoot(dir) !== null
 
-  // Load saved per-project spawn-mode preference. Gated by multiSessionEnabled
-  // so a GrowthBook rollback cleanly reverts users to single-session —
-  // otherwise a saved pref would silently re-enable multi-session behavior
-  // (worktree isolation, 32 max sessions, w toggle) despite the gate being off.
-  // Also guard against a stale worktree pref left over from when this dir WAS
+  // Load saved per-project spawn-mode preference. Guard against a stale
+  // worktree pref left over from when this dir WAS
   // a git repo (or the user copied config) — clear it on disk so the warning
   // doesn't repeat on every launch.
-  let savedSpawnMode = multiSessionEnabled
-    ? getCurrentProjectConfig().remoteControlSpawnMode
-    : undefined
+  let savedSpawnMode = getCurrentProjectConfig().remoteControlSpawnMode
   if (savedSpawnMode === 'worktree' && !worktreeAvailable) {
     // biome-ignore lint/suspicious/noConsole: intentional warning output
     console.error(
@@ -2259,10 +2228,9 @@ export async function bridgeMain(args: string[]): Promise<void> {
   }
 
   // First-run spawn-mode choice: ask once per project when the choice is
-  // meaningful (gate on, both modes available, no explicit override, not
+  // meaningful (both modes available, no explicit override, not
   // resuming). Saves to ProjectConfig so subsequent runs skip this.
   if (
-    multiSessionEnabled &&
     !savedSpawnMode &&
     worktreeAvailable &&
     parsedSpawnMode === undefined &&
@@ -2300,13 +2268,12 @@ export async function bridgeMain(args: string[]): Promise<void> {
   }
 
   // Determine effective spawn mode.
-  // Precedence: resume > explicit --spawn > saved project pref > gate default
+  // Precedence: resume > explicit --spawn > saved project pref > default
   // - resuming via --continue / --session-id: always single-session (resume
   //   targets one specific session in its original directory)
   // - explicit --spawn flag: use that value directly (does not persist)
   // - saved ProjectConfig.remoteControlSpawnMode: set by first-run dialog or `w`
-  // - default with gate on: same-dir (persistent multi-session, shared cwd)
-  // - default with gate off: single-session (unchanged legacy behavior)
+  // - default: same-dir (persistent multi-session, shared cwd)
   // Track how spawn mode was determined, for rollout analytics.
   type SpawnModeSource = 'resume' | 'flag' | 'saved' | 'gate_default'
   let spawnModeSource: SpawnModeSource
@@ -2321,7 +2288,7 @@ export async function bridgeMain(args: string[]): Promise<void> {
     spawnMode = savedSpawnMode
     spawnModeSource = 'saved'
   } else {
-    spawnMode = multiSessionEnabled ? 'same-dir' : 'single-session'
+    spawnMode = 'same-dir'
     spawnModeSource = 'gate_default'
   }
   const maxSessions =
@@ -2583,7 +2550,6 @@ export async function bridgeMain(args: string[]): Promise<void> {
       config.spawnMode as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
     spawn_mode_source:
       spawnModeSource as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    multi_session_gate: multiSessionEnabled,
     pre_create_session: preCreateSession,
     worktree_available: worktreeAvailable,
   })

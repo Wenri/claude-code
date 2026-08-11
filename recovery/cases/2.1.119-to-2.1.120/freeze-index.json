@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.119-to-2.1.120",
+  "kind": "authenticated-non-source-recovery-freeze",
+  "summary": {
+    "files": 12,
+    "bytes": 2777716
+  },
+  "files": [
+    {
+      "path": "binary-extraction/bun-graph.txt",
+      "bytes": 2627,
+      "sha256": "f78e5b90b3fe42ded9e5620bbe34856750bc1290fab7010329b2564ba562bc6a"
+    },
+    {
+      "path": "binary-extraction/inventory.json",
+      "bytes": 6326,
+      "sha256": "a28b5c6ffd7101c1ee5716024577cc89e356f2f0e076a6c5f9a708d619fb4f27"
+    },
+    {
+      "path": "binary-extraction/native-package-members.json",
+      "bytes": 5306,
+      "sha256": "e51202ef6803b112c71d2e32e2805225b78803d112eae55620f225d54b509eb7"
+    },
+    {
+      "path": "diff/audio-capture.js.zstd-delta",
+      "bytes": 167,
+      "sha256": "216480718fe07232d1ee3971898da4c855f2e14c30dc5a4b0345db23be25b484"
+    },
+    {
+      "path": "diff/cli.js.zstd-delta",
+      "bytes": 2488650,
+      "sha256": "182523f7a68bc84d5789e1ef508a6ae12477a282682bee41bffe6f312fc8e588"
+    },
+    {
+      "path": "diff/image-processor.js.zstd-delta",
+      "bytes": 167,
+      "sha256": "1ebc3d045f9c5d27ad92b877c5d164c672ff0b48ff0a458707a9173605490489"
+    },
+    {
+      "path": "diff/metadata.json",
+      "bytes": 2186,
+      "sha256": "0b88cc193abdbc1e70682f57f7740b7a9a5e1595b2fd84bb8805773ca2151a23"
+    },
+    {
+      "path": "diff/package.json.zstd-delta",
+      "bytes": 66,
+      "sha256": "ad53f612329038c981dd4d1d397585f6344ebca93338b6126bcabbf08507672b"
+    },
+    {
+      "path": "evidence/CHANGELOG-2.1.120.md",
+      "bytes": 2659,
+      "sha256": "75a3c8095663ecec2e2e85d304958a9e8fe12b0e540b4eea6ce207facf88e1a5"
+    },
+    {
+      "path": "evidence/claude-code-CHANGELOG-c3933441.md",
+      "bytes": 257968,
+      "sha256": "7859f1bbcb8bc46d2ded13c69100a227644c277d778964eca2216b162a678640"
+    },
+    {
+      "path": "evidence/provenance.json",
+      "bytes": 4849,
+      "sha256": "b19ec8e6c9b6478c0767dd9c3266ad1c0374a28c65d0cea8bd1a2c0ede7c1b22"
+    },
+    {
+      "path": "package-members.json",
+      "bytes": 6745,
+      "sha256": "0ab0856e6c12b6d545f81f225b3560aa6c314a3af6e4c8c8e14f6aa669e5d913"
+    }
+  ]
+}

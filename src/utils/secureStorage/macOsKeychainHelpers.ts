@@ -25,6 +25,7 @@ import type { SecureStorageData } from './types.js'
 // DO NOT change this value — it's part of the keychain lookup key and would
 // orphan existing stored credentials.
 export const CREDENTIALS_SERVICE_SUFFIX = '-credentials'
+const VALID_KEYCHAIN_USERNAME = /^[a-zA-Z0-9._-]+$/
 
 export function getMacOsKeychainStorageServiceName(
   serviceSuffix: string = '',
@@ -41,11 +42,13 @@ export function getMacOsKeychainStorageServiceName(
 }
 
 export function getUsername(): string {
+  let username: string
   try {
-    return process.env.USER || userInfo().username
+    username = process.env.USER || userInfo().username
   } catch {
-    return 'claude-code-user'
+    username = 'claude-code-user'
   }
+  return VALID_KEYCHAIN_USERNAME.test(username) ? username : 'claude-code-user'
 }
 
 // --

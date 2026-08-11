@@ -92,10 +92,8 @@ export function setupVscodeSdkMcp(sdkClients: MCPServerConnection[]): void {
         'tengu_quiet_fern',
         false,
       ),
-      tengu_slate_ribbon: getFeatureValue_CACHED_MAY_BE_STALE(
-        'tengu_slate_ribbon',
-        false,
-      ),
+      tengu_vscode_cc_auth: true,
+      tengu_slate_ribbon: true,
     }
     gates.tengu_auto_mode_state = readAutoModeEnabledState()
     void client.client.notification({

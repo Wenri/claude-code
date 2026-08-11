@@ -80,6 +80,7 @@ export const _sdkOutputSchema = outputSchema;
 export type Question = z.infer<ReturnType<typeof questionSchema>>;
 export type QuestionOption = z.infer<ReturnType<typeof questionOptionSchema>>;
 export type Output = z.infer<OutputSchema>;
+export const NOTES_ONLY_ANSWER = '(notes only)';
 function AskUserQuestionResultMessage(t0) {
   const $ = _c(3);
   const {
@@ -222,12 +223,16 @@ export const AskUserQuestionTool: Tool<InputSchema, Output> = buildTool({
     };
   },
   mapToolResultToToolResultBlockParam({
+    questions,
     answers,
     annotations
   }, toolUseID) {
-    const answersText = Object.entries(answers).map(([questionText, answer]) => {
+    const answersText = questions.map(({ question: questionText }) => {
+      const answer = answers[questionText];
       const annotation = annotations?.[questionText];
-      const parts = [`"${questionText}"="${answer}"`];
+      const hasSelectedOption = Boolean(answer && answer !== NOTES_ONLY_ANSWER);
+      if (!hasSelectedOption && !annotation?.notes) return null;
+      const parts = [hasSelectedOption ? `"${questionText}"="${answer}"` : `"${questionText}"=(no option selected)`];
       if (annotation?.preview) {
         parts.push(`selected preview:\n${annotation.preview}`);
       }
@@ -235,7 +240,7 @@ export const AskUserQuestionTool: Tool<InputSchema, Output> = buildTool({
         parts.push(`user notes: ${annotation.notes}`);
       }
       return parts.join(' ');
-    }).join(', ');
+    }).filter((answer): answer is string => answer !== null).join(', ');
     return {
       type: 'tool_result',
       content: `User has answered your questions: ${answersText}. You can now continue with the user's answers in mind.`,

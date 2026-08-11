@@ -580,6 +580,12 @@ export const SettingsSchema = lazySchema(() =>
             .describe(
               'Re-run the status line command every N seconds in addition to event-driven updates',
             ),
+          hideVimModeIndicator: z
+            .boolean()
+            .optional()
+            .describe(
+              'Hide the built-in `-- INSERT --` / `-- VISUAL --` indicator below the prompt. Use this when your status line script renders `vim.mode` itself.',
+            ),
         })
         .optional()
         .describe('Custom status line display configuration'),
@@ -590,6 +596,15 @@ export const SettingsSchema = lazySchema(() =>
           'URL template for PR links in the footer badge and inline messages. ' +
             'Placeholders: {host} {owner} {repo} {number} {url}. ' +
             'Example: "https://reviews.example.com/{owner}/{repo}/pull/{number}"',
+        ),
+      subagentStatusLine: z
+        .object({
+          type: z.literal('command'),
+          command: z.string(),
+        })
+        .optional()
+        .describe(
+          'Custom per-subagent status line shown in the agent panel; receives row context as JSON on stdin',
         ),
       // Enabled plugins using marketplace-first format
       enabledPlugins: z
@@ -1191,6 +1206,12 @@ export const SettingsSchema = lazySchema(() =>
         .boolean()
         .optional()
         .describe('Start Remote Control bridge automatically each session'),
+      daemonColdStart: z
+        .enum(['transient', 'ask'])
+        .optional()
+        .describe(
+          "When no background daemon is running: 'transient' spawns one for this login session; 'ask' offers to install a persistent service",
+        ),
       autoUploadSessions: z
         .boolean()
         .optional()

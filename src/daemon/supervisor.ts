@@ -59,8 +59,42 @@ const MAX_DISPATCH_BYTES = 262_144
 const MAX_DISPATCH_AGE_MS = 86_400_000
 const MAX_RESPAWN_ATTEMPTS = 20
 const RESPAWN_DELAY_MS = 10_000
+const TRACKED_DEC_MODES = new Set([1000, 1002, 1003, 1004, 1006, 2004, 2031])
+const DEC_MODE_SEQUENCE = /\x1b\[\?([\d;]+)([hl])/g
 
 type Dispose = () => void
+
+function createDecModeTracker() {
+  const enabled = new Set<number>()
+  let pending = ''
+  return {
+    feed(data: string) {
+      const combined = pending ? pending + data : data
+      DEC_MODE_SEQUENCE.lastIndex = 0
+      let match: RegExpExecArray | null
+      let consumed = 0
+      while ((match = DEC_MODE_SEQUENCE.exec(combined)) !== null) {
+        const set = match[2] === 'h'
+        for (const value of match[1].split(';')) {
+          const mode = Number(value)
+          if (!TRACKED_DEC_MODES.has(mode)) continue
+          if (set) enabled.add(mode)
+          else enabled.delete(mode)
+        }
+        consumed = match.index + match[0].length
+      }
+      const suffix = combined.slice(Math.max(consumed, combined.length - 16))
+      const escape = suffix.lastIndexOf('\x1b')
+      pending =
+        escape >= 0 && /^\x1b(\[(\?[\d;]*)?)?$/.test(suffix.slice(escape))
+          ? suffix.slice(escape)
+          : ''
+    },
+    snapshot() {
+      return [...enabled]
+    },
+  }
+}
 
 function createSignal<T>() {
   const listeners = new Set<(value: T) => void>()
@@ -287,11 +321,14 @@ class BackgroundHandle {
   private stopped = false
   private killed = false
   private upgrading = false
+  private retiring = false
+  private lastInputAt?: number
   private respawnTimer?: NodeJS.Timeout
   private pidPoll?: NodeJS.Timeout
   private pidPollTick = 0
   private ring: string[] = []
   private ringBytes = 0
+  private decModes = createDecModeTracker()
   private cols = 200
   private rows = 50
 
@@ -366,15 +403,52 @@ class BackgroundHandle {
     return this.killed
   }
 
+  get isRetiring() {
+    return this.retiring
+  }
+
+  private get isTransitioning() {
+    return this.upgrading || this.retiring || !this.pty || !this.record.pid
+  }
+
+  private shutdownWorker(): boolean {
+    const rendezvousSent = this.rendezvous?.send({ type: 'shutdown' }) ?? false
+    if (!rendezvousSent) this.sigtermWorker()
+    else {
+      const timer = setTimeout((handle: BackgroundHandle) => {
+        if (
+          (handle.upgrading || handle.retiring) &&
+          !handle.record.outcome
+        ) {
+          handle.sigtermWorker()
+        }
+      }, 2_000, this)
+      timer.unref()
+    }
+    return rendezvousSent
+  }
+
+  private sigtermWorker(): void {
+    try {
+      this.pty?.kill('SIGTERM')
+    } catch {}
+  }
+
   tail(count: number): string[] {
     return count > 0 ? this.ring.slice(-count) : []
   }
 
+  decModeSnapshot(): number[] {
+    return this.decModes.snapshot()
+  }
+
   write(value: string): void {
+    this.lastInputAt = Date.now()
     this.pty?.write(value)
   }
 
   reply(value: string): boolean {
+    this.lastInputAt = Date.now()
     if (this.pty) {
       this.pty.write(`\x1B[200~${value}\x1B[201~`)
       setTimeout(() => this.pty?.write('\r'), 10)
@@ -408,16 +482,34 @@ class BackgroundHandle {
       this.rendezvous?.send({ type: 'repaint' })
       return () => {}
     }
-    this.rendezvous?.send({ type: 'repaint' })
-    const temporaryCols = Math.max(2, cols - 1)
-    this.resize(temporaryCols, rows)
-    this.signalPtyProcessGroup()
-    const timer = setTimeout(() => {
-      if (this.cols === temporaryCols && this.rows === rows) {
-        this.resize(cols, rows)
+    const repaintSent = this.rendezvous?.send({ type: 'repaint' }) === true
+    const timer = setTimeout(
+      (originalCols: number, originalRows: number) => {
+        if (this.cols !== originalCols || this.rows !== originalRows) return
+        const temporaryCols = Math.max(2, originalCols - 1)
+        this.resize(temporaryCols, originalRows)
         this.signalPtyProcessGroup()
-      }
-    }, 30)
+        const restore = setTimeout(
+          (
+            restoreCols: number,
+            restoreRows: number,
+            expectedCols: number,
+          ) => {
+            if (this.cols === expectedCols && this.rows === restoreRows) {
+              this.resize(restoreCols, restoreRows)
+              this.signalPtyProcessGroup()
+            }
+          },
+          30,
+          originalCols,
+          originalRows,
+          temporaryCols,
+        )
+      },
+      repaintSent ? 50 : 0,
+      cols,
+      rows,
+    )
     return () => clearTimeout(timer)
   }
 
@@ -442,7 +534,7 @@ class BackgroundHandle {
     respawned: boolean
     reason?: string
   }> {
-    if (this.upgrading || !this.pty || !this.record.pid) {
+    if (this.isTransitioning) {
       return { respawned: false, reason: 'in-progress' }
     }
     if (this.killed || this.stopped || this.record.outcome) {
@@ -450,31 +542,58 @@ class BackgroundHandle {
     }
     if (this.attachers.size > 0) return { respawned: false, reason: 'attached' }
     const state = await readJobState(getJobDir(this.dispatch.short))
-    if (this.upgrading || !this.pty || !this.record.pid) {
+    if (this.isTransitioning) {
       return { respawned: false, reason: 'in-progress' }
     }
     if (!state) return { respawned: false, reason: 'no-state' }
+    if (isSettledJob(state)) return { respawned: false, reason: 'settled' }
     if (!state.cliVersion || state.cliVersion === MACRO.VERSION) {
       return { respawned: false, reason: 'not-stale' }
     }
     if (state.tempo !== 'idle') return { respawned: false, reason: 'busy' }
     this.upgrading = true
-    const rendezvousSent = this.rendezvous?.send({ type: 'shutdown' }) ?? false
-    if (!rendezvousSent) this.sigtermForUpgrade()
-    else {
-      const timer = setTimeout(() => {
-        if (this.upgrading && !this.record.outcome) this.sigtermForUpgrade()
-      }, 2_000)
-      timer.unref()
-    }
-    logEvent('tengu_bg_respawn_stale', { rvSent: rendezvousSent })
+    logEvent('tengu_bg_respawn_stale', { rvSent: this.shutdownWorker() })
     return { respawned: true }
   }
 
-  private sigtermForUpgrade(): void {
-    try {
-      this.pty?.kill('SIGTERM')
-    } catch {}
+  async retireIfSettled(graceMs: number): Promise<{
+    retired: boolean
+    reason?: string
+  }> {
+    if (this.isTransitioning) return { retired: false, reason: 'in-progress' }
+    if (this.killed || this.stopped || this.record.outcome) {
+      return { retired: false, reason: 'no-state' }
+    }
+    if (this.attachers.size > 0) return { retired: false, reason: 'attached' }
+    if (this.lastInputAt && Date.now() - this.lastInputAt < graceMs) {
+      return { retired: false, reason: 'recent-input' }
+    }
+    const state = await readJobState(getJobDir(this.dispatch.short))
+    if (this.isTransitioning || this.attachers.size > 0) {
+      return { retired: false, reason: 'in-progress' }
+    }
+    if (!state) return { retired: false, reason: 'no-state' }
+    if (!isSettledJob(state)) return { retired: false, reason: 'not-settled' }
+    if ((state.inFlight?.tasks ?? 1) > 0 || (state.inFlight?.queued ?? 1) > 0) {
+      return { retired: false, reason: 'inflight' }
+    }
+    if (state.inFlight?.kinds.includes('session_cron')) {
+      return { retired: false, reason: 'session-cron' }
+    }
+    if (state.routine) return { retired: false, reason: 'routine' }
+    const settledForMs = state.updatedAt
+      ? Date.now() - Date.parse(state.updatedAt)
+      : 0
+    if (!settledForMs || settledForMs < graceMs) {
+      return { retired: false, reason: 'grace' }
+    }
+    this.retiring = true
+    logEvent('tengu_bg_retired', {
+      rvSent: this.shutdownWorker(),
+      settledForMs,
+      state: state.state,
+    })
+    return { retired: true }
   }
 
   rosterEntry(): WorkerRecord {
@@ -502,6 +621,7 @@ class BackgroundHandle {
 
   stop(): void {
     if (this.killed) this.finish('killed')
+    else if (this.retiring) this.finish('done')
     this.stopped = true
     if (this.respawnTimer) clearTimeout(this.respawnTimer)
     this.respawnTimer = undefined
@@ -609,8 +729,10 @@ class BackgroundHandle {
 
   private wirePty(pty: PtyClient): void {
     this.pty = pty
+    this.decModes = createDecModeTracker()
     pty.onResume(() => this.rendezvous?.send({ type: 'repaint' }))
     this.offData = pty.onData((data) => {
+      this.decModes.feed(data)
       const cleaned = data.includes(DETACH_SEQUENCE)
         ? data.replaceAll(DETACH_SEQUENCE, '')
         : data
@@ -638,6 +760,7 @@ class BackgroundHandle {
       attempt: this.attempt,
     })
     if (this.killed) return this.finish('killed')
+    if (this.retiring) return this.finish('done')
     if (this.upgrading) {
       this.upgrading = false
       this.attempt = 1
@@ -1061,7 +1184,7 @@ async function handleControl(
       sendJson(socket, {
         ok: true,
         op: 'has',
-        alive: Boolean(handle && !handle.record.outcome),
+        alive: Boolean(handle && !handle.record.outcome && !handle.isRetiring),
       })
       return
     }
@@ -1088,7 +1211,7 @@ async function handleControl(
       return
     case 'reply': {
       const handle = handles.get(message.short)
-      if (!handle) {
+      if (!handle || handle.isRetiring) {
         sendJson(socket, {
           ok: false,
           error: 'job not found — it may have already exited',
@@ -1168,6 +1291,14 @@ async function handleControl(
         })
         return
       }
+      if (handle.isRetiring) {
+        sendJson(socket, {
+          ok: false,
+          error: 'job is retiring; retry attach',
+          code: 'ERESPAWNING',
+        })
+        return
+      }
       if (handle.record.legacy) {
         const value = handle.dispatch
         const cwd = await canonicalizePath(value.cwd)
@@ -1209,7 +1340,11 @@ async function handleControl(
         return
       }
       registerLease(socket)
-      sendJson(socket, { ok: true, op: 'attach' }, false)
+      sendJson(
+        socket,
+        { ok: true, op: 'attach', decModes: handle.decModeSnapshot() },
+        false,
+      )
       logEvent('tengu_bg_attach', {})
       let bufferedOutput: string[] | null = []
       let bufferedBytes = 0
@@ -1567,7 +1702,10 @@ export async function runBackgroundSupervisor(options?: {
     if (closing) return
     const existing = handles.get(value.short)
     if (existing) {
-      if ((existing.isKilling || existing.record.outcome) && retry < 30) {
+      if (
+        (existing.isKilling || existing.isRetiring || existing.record.outcome) &&
+        retry < 30
+      ) {
         setTimeout(() => dispatch(value, retry + 1), 100)
         return
       }
@@ -1636,6 +1774,12 @@ export async function runBackgroundSupervisor(options?: {
   await writeRoster(handles)
   ready = true
   options?.onKeepAliveChange?.()
+  const retirementSweep = setInterval(() => {
+    for (const handle of handles.values()) {
+      void handle.retireIfSettled(600_000).catch((error) => logError(error))
+    }
+  }, 60_000)
+  retirementSweep.unref()
   const watcher = await startDispatchWatcher(dispatch)
   return {
     handles,
@@ -1655,6 +1799,7 @@ export async function runBackgroundSupervisor(options?: {
     },
     close: async () => {
       closing = true
+      clearInterval(retirementSweep)
       await Promise.all([watcher.close(), control.close()])
       for (const handle of handles.values()) handle.stop()
       if (

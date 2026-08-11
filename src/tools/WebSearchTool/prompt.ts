@@ -1,9 +1,17 @@
 import { getLocalMonthYear } from 'src/constants/common.js'
+import { isLeanPromptEnabled } from '../../utils/leanPrompt.js'
 
 export const WEB_SEARCH_TOOL_NAME = 'WebSearch'
 
-export function getWebSearchPrompt(): string {
+export function getWebSearchPrompt(model?: string): string {
   const currentMonthYear = getLocalMonthYear()
+  if (isLeanPromptEnabled(model)) {
+    return `Search the web. Returns result blocks with titles and URLs. US-only.
+
+- The current month is ${currentMonthYear} — use this when searching for recent information.
+- \`allowed_domains\` / \`blocked_domains\` filter results.
+- After answering from results, end with a "Sources:" list of the URLs you used as markdown links.`
+  }
   return `
 - Allows Claude to search the web and use the results to inform responses
 - Provides up-to-date information for current events and recent data

@@ -4,6 +4,7 @@ import { getSessionId } from '../bootstrap/state.js'
 import { getJobDir, readJobState } from '../daemon/jobs.js'
 import { isBgSession, updateSessionName } from '../utils/concurrentSessions.js'
 import { logForDebugging } from '../utils/debug.js'
+import { errorMessage } from '../utils/errors.js'
 import {
   getCurrentSessionAgentName,
   saveAgentName,
@@ -47,6 +48,12 @@ export function useJobStateNameSync(onName?: (name: string) => void): void {
         if (filename && filename.toString() !== 'state.json') return
         void synchronize()
       })
+      watcher.on('error', error =>
+        logForDebugging(
+          `[jobStateNameSync] watcher error: ${errorMessage(error)}`,
+          { level: 'warn' },
+        ),
+      )
       watcher.unref()
     } catch (error) {
       logForDebugging(`[jobStateNameSync] watch skipped: ${String(error)}`)

@@ -1028,7 +1028,9 @@ export async function cachePlugin(
           )
           break
         default:
-          throw new Error(`Unsupported plugin source type`)
+          throw new Error(
+            'This plugin uses a source type your Claude Code version does not support. Update Claude Code and try again.',
+          )
       }
     }
   } catch (error) {

@@ -1,5 +1,6 @@
 import { lstat, realpath } from 'fs/promises'
 import { dirname, join, resolve, sep } from 'path'
+import { getTeamMemoryServerStatus } from '../bootstrap/state.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js'
 import { getErrnoCode } from '../utils/errors.js'
 import { getAutoMemPath, isAutoMemoryEnabled } from './paths.js'
@@ -75,6 +76,10 @@ export function isTeamMemoryEnabled(): boolean {
     return false
   }
   return getFeatureValue_CACHED_MAY_BE_STALE('tengu_herring_clock', false)
+}
+
+export function isTeamMemoryActiveForCwd(): boolean {
+  return isTeamMemoryEnabled() && getTeamMemoryServerStatus() === 'has-content'
 }
 
 /**

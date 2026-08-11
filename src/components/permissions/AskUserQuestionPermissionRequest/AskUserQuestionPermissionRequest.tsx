@@ -293,10 +293,10 @@ function AskUserQuestionPermissionRequestBody(t0) {
     t13 = async () => {
       const questionsWithAnswers = questions.map(q_1 => {
         const answer = answers[q_1.question];
-        if (answer) {
-          return `- "${q_1.question}"\n  Answer: ${answer}`;
-        }
-        return `- "${q_1.question}"\n  (No answer provided)`;
+        const notes = !q_1.multiSelect && q_1.options.some(option => option.preview) ? questionStates[q_1.question]?.textInputValue?.trim() : undefined;
+        const parts = [`- "${q_1.question}"`, answer ? `  Answer: ${answer}` : '  (No answer provided)'];
+        if (notes) parts.push(`  User notes: ${notes}`);
+        return parts.join('\n');
       }).join("\n");
       const feedback = `The user wants to clarify these questions.
     This means they may have additional information, context or questions for you.
@@ -333,10 +333,10 @@ function AskUserQuestionPermissionRequestBody(t0) {
     t14 = async () => {
       const questionsWithAnswers_0 = questions.map(q_2 => {
         const answer_0 = answers[q_2.question];
-        if (answer_0) {
-          return `- "${q_2.question}"\n  Answer: ${answer_0}`;
-        }
-        return `- "${q_2.question}"\n  (No answer provided)`;
+        const notes = !q_2.multiSelect && q_2.options.some(option => option.preview) ? questionStates[q_2.question]?.textInputValue?.trim() : undefined;
+        const parts = [`- "${q_2.question}"`, answer_0 ? `  Answer: ${answer_0}` : '  (No answer provided)'];
+        if (notes) parts.push(`  User notes: ${notes}`);
+        return parts.join('\n');
       }).join("\n");
       const feedback_0 = `The user has indicated they have provided enough answers for the plan interview.
 Stop asking clarifying questions and proceed to finish the plan with the information you have.

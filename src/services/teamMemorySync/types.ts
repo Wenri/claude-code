@@ -20,6 +20,9 @@ export const TeamMemoryContentSchema = lazySchema(() =>
     // anthropic/anthropic#283027. Optional for forward-compat with older
     // server deployments; empty map when entries is empty.
     entryChecksums: z.record(z.string(), z.string()).optional(),
+    // Server-side tombstones keyed by relative path. Values are deletion
+    // versions/timestamps and are intentionally opaque to the client.
+    deletedEntries: z.record(z.string(), z.number()).optional(),
   }),
 )
 
@@ -56,6 +59,26 @@ export const TeamMemoryTooManyEntriesSchema = lazySchema(() =>
   }),
 )
 
+/**
+ * Common API error envelope. Error fields are optional because gateway and
+ * older server responses are not guaranteed to include the full shape.
+ */
+export const TeamMemoryErrorSchema = lazySchema(() =>
+  z.object({
+    error: z
+      .object({
+        type: z.string().optional(),
+        message: z.string().optional(),
+        details: z
+          .object({
+            error_code: z.string().optional(),
+          })
+          .optional(),
+      })
+      .optional(),
+  }),
+)
+
 export type TeamMemoryData = z.infer<ReturnType<typeof TeamMemoryDataSchema>>
 
 /**
@@ -82,8 +105,17 @@ export type TeamMemorySyncFetchResult = {
   checksum?: string // ETag from response header
   error?: string
   skipRetry?: boolean
-  errorType?: 'auth' | 'timeout' | 'network' | 'parse' | 'unknown'
+  errorType?:
+    | 'auth'
+    | 'forbidden'
+    | 'timeout'
+    | 'network'
+    | 'parse'
+    | 'unknown'
   httpStatus?: number
+  serverMessage?: string
+  serverErrorCode?: string
+  serverErrorType?: string
 }
 
 /**
@@ -96,9 +128,19 @@ export type TeamMemoryHashesResult = {
   version?: number
   checksum?: string
   entryChecksums?: Record<string, string>
+  deletedEntries?: Record<string, number>
   error?: string
-  errorType?: 'auth' | 'timeout' | 'network' | 'parse' | 'unknown'
+  errorType?:
+    | 'auth'
+    | 'forbidden'
+    | 'timeout'
+    | 'network'
+    | 'parse'
+    | 'unknown'
   httpStatus?: number
+  serverMessage?: string
+  serverErrorCode?: string
+  serverErrorType?: string
 }
 
 /**
@@ -107,6 +149,7 @@ export type TeamMemoryHashesResult = {
 export type TeamMemorySyncPushResult = {
   success: boolean
   filesUploaded: number
+  filesSoftDeleted?: number
   checksum?: string
   conflict?: boolean // true if 412 Precondition Failed
   error?: string
@@ -114,13 +157,16 @@ export type TeamMemorySyncPushResult = {
   skippedSecrets?: SkippedSecretFile[]
   errorType?:
     | 'auth'
+    | 'forbidden'
     | 'timeout'
     | 'network'
     | 'conflict'
     | 'unknown'
     | 'no_oauth'
-    | 'no_repo'
   httpStatus?: number
+  serverMessage?: string
+  serverErrorCode?: string
+  serverErrorType?: string
 }
 
 /**
@@ -132,16 +178,15 @@ export type TeamMemorySyncUploadResult = {
   lastModified?: string
   conflict?: boolean // true if 412 Precondition Failed
   error?: string
-  errorType?: 'auth' | 'timeout' | 'network' | 'unknown'
+  errorType?: 'auth' | 'forbidden' | 'timeout' | 'network' | 'unknown'
   httpStatus?: number
   /**
-   * Structured error_code from a parsed 413 body (anthropic/anthropic#293258).
-   * Currently only 'team_memory_too_many_entries' is modelled; if the server
-   * adds more (entry_too_large, total_bytes_exceeded) they'd extend this
-   * union.  Passed straight through to the tengu_team_mem_sync_push event
-   * as a Datadog-filterable facet.
+   * Structured error_code from the common API error envelope. Passed through
+   * to the sync result and telemetry as a Datadog-filterable facet.
    */
-  serverErrorCode?: 'team_memory_too_many_entries'
+  serverErrorCode?: string
+  serverMessage?: string
+  serverErrorType?: string
   /**
    * Server-enforced max_entries, populated when serverErrorCode is
    * team_memory_too_many_entries. Lets the caller cache the effective

@@ -4,6 +4,7 @@ import type { ContentReplacementRecord } from 'src/utils/toolResultStorage.js'
 import type { AgentId } from './ids.js'
 import type { Message } from './message.js'
 import type { QueueOperationMessage } from './messageQueueTypes.js'
+import type { PermissionMode } from './permissions.js'
 
 export type SerializedMessage = Message & {
   cwd: string
@@ -51,6 +52,7 @@ export type LogOption = {
   prUrl?: string // Full URL to the linked PR
   prRepository?: string // Repository in "owner/repo" format
   mode?: 'coordinator' | 'normal' // Session mode for coordinator/normal detection
+  permissionMode?: PermissionMode // Permission mode active at the end of the session
   worktreeSession?: PersistedWorktreeSession | null // Worktree state at session end (null = exited, undefined = never entered)
   contentReplacements?: ContentReplacementRecord[] // Replacement decisions for resume reconstruction
 }
@@ -84,7 +86,9 @@ export type AiTitleMessage = {
 export type LastPromptMessage = {
   type: 'last-prompt'
   sessionId: UUID
-  lastPrompt: string
+  lastPrompt?: string
+  leafUuid?: UUID
+  explicit?: boolean
 }
 
 /**
@@ -141,6 +145,12 @@ export type ModeEntry = {
   type: 'mode'
   sessionId: UUID
   mode: 'coordinator' | 'normal'
+}
+
+export type PermissionModeEntry = {
+  type: 'permission-mode'
+  sessionId: UUID
+  permissionMode: PermissionMode
 }
 
 /**
@@ -327,6 +337,7 @@ export type Entry =
   | QueueOperationMessage
   | SpeculationAcceptMessage
   | ModeEntry
+  | PermissionModeEntry
   | WorktreeStateEntry
   | ContentReplacementEntry
   | ForkContextRefEntry

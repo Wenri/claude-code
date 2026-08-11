@@ -71,11 +71,23 @@ export type UltrareviewLaunchResult =
       status: 'launched'
       sessionId: string
       sessionUrl: string
-      taskId: string
-      title: string
+      taskId?: string
+      title?: string
       message: string
       billingNote: string
     }
+
+type RemoteReviewContext = Pick<TaskContext, 'abortController'> &
+  Partial<Pick<TaskContext, 'getAppState' | 'setAppState'>>
+
+function hasTaskRegistrationContext(
+  context: RemoteReviewContext,
+): context is TaskContext {
+  return (
+    typeof context.getAppState === 'function' &&
+    typeof context.setAppState === 'function'
+  )
+}
 
 let sessionOverageConfirmed = false
 
@@ -241,8 +253,9 @@ function failedLaunch(message: string): RemoteReviewLaunchResult {
 
 export async function launchRemoteReview(
   scope: RemoteReviewScope,
-  context: TaskContext,
+  context: RemoteReviewContext,
   billingNote?: string,
+  options?: { skipTaskRegistration?: boolean },
 ): Promise<RemoteReviewLaunchResult | null> {
   const eligibility = await checkRemoteAgentEligibility({ allowBundle: true })
   if (!eligibility.eligible && eligibility.errors.length > 0) {
@@ -381,13 +394,19 @@ export async function launchRemoteReview(
     return null
   }
 
-  const { taskId } = registerRemoteAgentTask({
-    remoteTaskType: 'ultrareview',
-    session,
-    command,
-    context,
-    isRemoteReview: true,
-  })
+  let taskId: string | undefined
+  if (!options?.skipTaskRegistration) {
+    if (!hasTaskRegistrationContext(context)) {
+      throw new Error('Ultrareview task registration requires an app context')
+    }
+    taskId = registerRemoteAgentTask({
+      remoteTaskType: 'ultrareview',
+      session,
+      command,
+      context,
+      isRemoteReview: true,
+    }).taskId
+  }
   logEvent('tengu_review_remote_launched', {})
 
   const sessionUrl = getRemoteTaskSessionUrl(session.id)
@@ -412,7 +431,11 @@ export async function launchRemoteReview(
 
 export async function launchUltrareview(
   args: string,
-  options: { confirm?: boolean; context: TaskContext },
+  options: {
+    confirm?: boolean
+    skipTaskRegistration?: boolean
+    context: RemoteReviewContext
+  },
 ): Promise<UltrareviewLaunchResult> {
   if (!isUltrareviewEnabled()) {
     return { status: 'error', message: 'Ultrareview is currently unavailable.' }
@@ -431,6 +454,7 @@ export async function launchUltrareview(
     }
   }
   if (gate.kind === 'needs-confirm') {
+    logEvent('tengu_review_overage_dialog_shown', {})
     if (!options.confirm) {
       return {
         status: 'needs-confirm',
@@ -457,6 +481,7 @@ export async function launchUltrareview(
     prepared.scope,
     options.context,
     gate.billingNote,
+    { skipTaskRegistration: options.skipTaskRegistration },
   )
   const message =
     launched?.blocks
@@ -470,8 +495,8 @@ export async function launchUltrareview(
     status: 'launched',
     sessionId: launched.sessionId,
     sessionUrl: launched.sessionUrl,
-    taskId: launched.taskId!,
-    title: launched.title!,
+    taskId: launched.taskId,
+    title: launched.title,
     message,
     billingNote: gate.billingNote,
   }

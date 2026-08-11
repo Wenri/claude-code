@@ -3,6 +3,7 @@ import { POWERSHELL_TOOL_NAME } from '../../tools/PowerShellTool/toolName.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
 import { isEnvDefinedFalsy, isEnvTruthy } from '../envUtils.js'
 import { getPlatform } from '../platform.js'
+import { findGitBashPath } from '../windowsPaths.js'
 
 export const SHELL_TOOL_NAMES: string[] = [BASH_TOOL_NAME, POWERSHELL_TOOL_NAME]
 
@@ -11,7 +12,8 @@ export const SHELL_TOOL_NAMES: string[] = [BASH_TOOL_NAME, POWERSHELL_TOOL_NAME]
  * use Bash only when the PowerShell tool is not enabled.
  */
 export function isBashToolEnabled(): boolean {
-  return getPlatform() !== 'windows' || !isPowerShellToolEnabled()
+  if (getPlatform() !== 'windows') return true
+  return findGitBashPath() !== null
 }
 
 /**
@@ -26,12 +28,13 @@ export function isBashToolEnabled(): boolean {
 export function isPowerShellToolEnabled(): boolean {
   const envValue = process.env.CLAUDE_CODE_USE_POWERSHELL_TOOL
   if (getPlatform() !== 'windows') return isEnvTruthy(envValue)
-  if (isEnvTruthy(envValue)) return true
   if (isEnvDefinedFalsy(envValue)) return false
+  if (isEnvTruthy(envValue)) return true
+  if (findGitBashPath() === null) return true
   return getFeatureValue_CACHED_MAY_BE_STALE('tengu_cobalt_ridge', false)
 }
 
-/** Selects the default shell tool while preserving Bash on non-Windows hosts. */
-export function isBashToolEnabled(): boolean {
-  return getPlatform() !== 'windows' || !isPowerShellToolEnabled()
+/** Selects the default shell for hook and monitor commands. */
+export function getDefaultHookShell(): 'bash' | 'powershell' {
+  return isBashToolEnabled() ? 'bash' : 'powershell'
 }

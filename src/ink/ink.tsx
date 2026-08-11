@@ -34,7 +34,7 @@ import { applyPositionedHighlight, type MatchPosition, scanPositions } from './r
 import createRenderer, { type Renderer } from './renderer.js';
 import { CellWidth, CharPool, cellAt, createScreen, HyperlinkPool, isEmptyCellAt, migrateScreenPools, StylePool } from './screen.js';
 import { applySearchHighlight } from './searchHighlight.js';
-import { applySelectionOverlay, captureScrolledRows, clearSelection, createSelectionState, extendSelection, type FocusMove, findPlainTextUrlAt, getSelectedText, hasSelection, moveFocus, type SelectionState, selectLineAt, selectWordAt, shiftAnchor, shiftSelection, shiftSelectionForFollow, startSelection, updateSelection } from './selection.js';
+import { applySelectionOverlay, captureScrolledRows, clearSelection, createSelectionState, extendSelection, type FocusMove, findPlainTextUrlAt, getSelectedText, hasSelection, isSelectionWhollyOffscreen, moveFocus, type SelectionState, selectLineAt, selectWordAt, shiftAnchor, shiftSelection, startSelection, updateSelection } from './selection.js';
 import { DECSTBM_SAFE, SYNC_OUTPUT_SUPPORTED, supportsExtendedKeys, type Terminal, writeDiffToTerminal } from './terminal.js';
 import { CURSOR_HOME, cursorMove, cursorPosition, DISABLE_KITTY_KEYBOARD, DISABLE_MODIFY_OTHER_KEYS, ENABLE_KITTY_KEYBOARD, ENABLE_MODIFY_OTHER_KEYS, ERASE_SCREEN } from './termio/csi.js';
 import { DBP, DFE, DISABLE_MOUSE_TRACKING, ENABLE_MOUSE_TRACKING, ENTER_ALT_SCREEN, EXIT_ALT_SCREEN, SHOW_CURSOR } from './termio/dec.js';
@@ -459,7 +459,7 @@ export default class Ink {
     const overlaySignature = `${anchor?.row},${anchor?.col},${focus?.row},${focus?.col}|${this.searchHighlightQuery}|${searchPositions?.currentIdx},${searchPositions?.rowOffset},${searchPositions?.positions.length}`;
     const overlayChanged = this.prevFrameContaminated || overlaySignature !== this.prevOverlaySig;
     this.prevOverlaySig = overlaySignature;
-    const overlayActive = anchor !== null && focus !== null || !!this.searchHighlightQuery || !!searchPositions;
+    const overlayActive = anchor !== null && focus !== null && !isSelectionWhollyOffscreen(this.selection) || !!this.searchHighlightQuery || !!searchPositions;
     const frame = this.renderer({
       frontFrame: this.frontFrame,
       backFrame: this.backFrame,
@@ -497,6 +497,9 @@ export default class Ink {
         viewportTop,
         viewportBottom
       } = follow;
+      const firstRow = delta > 0 ? viewportTop : viewportBottom + delta + 1;
+      const lastRow = delta > 0 ? viewportTop + delta - 1 : viewportBottom;
+      const side = delta > 0 ? 'above' : 'below';
       // captureScrolledRows and shift* are a pair: capture grabs rows about
       // to scroll off, shift moves the selection endpoint so the same rows
       // won't intersect again next frame. Capturing without shifting leaves
@@ -506,14 +509,14 @@ export default class Ink {
       // each shift branch so the pairing can't be broken by a new guard.
       if (this.selection.isDragging) {
         if (hasSelection(this.selection)) {
-          captureScrolledRows(this.selection, this.frontFrame.screen, viewportTop, viewportTop + delta - 1, 'above');
+          captureScrolledRows(this.selection, this.frontFrame.screen, firstRow, lastRow, side);
         }
         shiftAnchor(this.selection, -delta, viewportTop, viewportBottom);
       } else if (
       // Flag-3 guard: the anchor check above only proves ONE endpoint is
       // on scrollbox content. A drag from row 3 (scrollbox) into the
       // footer at row 6, then release, leaves focus outside the viewport
-      // — shiftSelectionForFollow would clamp it to viewportBottom,
+      // — shiftSelection would clamp it to viewportBottom,
       // teleporting the highlight from static footer into the scrollbox.
       // Symmetric check: require BOTH ends inside to translate. A
       // straddling selection falls through to NEITHER shift NOR capture:
@@ -524,15 +527,9 @@ export default class Ink {
       // is correct there even when focus is in the footer).
       !this.selection.focus || this.selection.focus.row >= viewportTop && this.selection.focus.row <= viewportBottom) {
         if (hasSelection(this.selection)) {
-          captureScrolledRows(this.selection, this.frontFrame.screen, viewportTop, viewportTop + delta - 1, 'above');
+          captureScrolledRows(this.selection, this.frontFrame.screen, firstRow, lastRow, side);
         }
-        const cleared = shiftSelectionForFollow(this.selection, -delta, viewportTop, viewportBottom);
-        // Auto-clear (both ends overshot minRow) must notify React-land
-        // so useHasSelection re-renders and the footer copy/escape hint
-        // disappears. notifySelectionChange() would recurse into onRender;
-        // fire the listeners directly — they schedule a React update for
-        // LATER, they don't re-enter this frame.
-        if (cleared) for (const cb of this.selectionListeners) cb();
+        shiftSelection(this.selection, -delta, viewportTop, viewportBottom, this.frontFrame.screen.width);
       }
     }
 
@@ -558,7 +555,7 @@ export default class Ink {
     let selActive = false;
     let hlActive = false;
     if (this.altScreenActive) {
-      selActive = hasSelection(this.selection);
+      selActive = hasSelection(this.selection) && !isSelectionWhollyOffscreen(this.selection);
       if (selActive) {
         applySelectionOverlay(frame.screen, this.selection, this.stylePool);
       }

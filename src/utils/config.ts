@@ -13,6 +13,7 @@ import type {
   ReferralEligibilityResponse,
 } from '../services/oauth/types.js'
 import { getCwd } from '../utils/cwd.js'
+import { daemonColdStartGbDefault } from './agentsFleet.js'
 import { registerCleanup } from './cleanupRegistry.js'
 import { logForDebugging } from './debug.js'
 import { logForDiagnosticsNoPII } from './diagLogs.js'
@@ -44,6 +45,7 @@ const ccrAutoConnect = feature('CCR_AUTO_CONNECT')
 /* eslint-enable @typescript-eslint/no-require-imports */
 import type { ImageDimensions } from './imageResizer.js'
 import type { ModelOption } from './model/modelOptions.js'
+import type { ModelCosts } from './modelCost.js'
 import { jsonParse, jsonStringify } from './slowOperations.js'
 
 // Re-entrancy guard: prevents getConfig → logEvent → getGlobalConfig → getConfig
@@ -176,6 +178,10 @@ export type AccountInfo = {
   ccOnboardingFlags?: Record<string, boolean>
   claudeCodeTrialEndsAt?: string | null
   claudeCodeTrialDurationDays?: number | null
+  organizationType?: string | null
+  organizationRateLimitTier?: string | null
+  userRateLimitTier?: string | null
+  seatTier?: string | null
 }
 
 // TODO: 'emacs' is kept for backward compatibility - remove after a few releases
@@ -238,6 +244,8 @@ export type GlobalConfig = {
   hasSeenUndercoverAutoNotice?: boolean // ant-only: whether the one-time auto-undercover explainer has been shown
   hasSeenUltraplanTerms?: boolean // ant-only: whether the one-time CCR terms notice has been shown in the ultraplan launch dialog
   hasSeenUltrareviewTerms?: boolean // ant-only: whether the one-time CCR terms notice has been shown in the ultrareview launch dialog
+  closedIssuesLastChecked?: number
+  closedIssuesAcknowledged?: number[]
   hasResetAutoModeOptInForDefaultOffer?: boolean // ant-only: one-shot migration guard, re-prompts churned auto-mode users
   autoModeOptInDismissed?: boolean // User declined auto mode and chose not to be prompted again
   oauthAccount?: AccountInfo
@@ -573,6 +581,7 @@ export type GlobalConfig = {
   // Run Remote Control at startup (requires BRIDGE_MODE)
   // undefined = use default (see getRemoteControlAtStartup() for precedence)
   remoteControlAtStartup?: boolean
+  daemonInstallPromptDismissed?: boolean
   autoUploadSessions?: boolean
   hasUsedRemoteControl?: boolean
   remoteControlUpsellSeenCount?: number
@@ -594,6 +603,9 @@ export type GlobalConfig = {
 
   // Additional model options for the model picker (fetched during bootstrap).
   additionalModelOptionsCache?: ModelOption[]
+
+  // Additional model pricing for models not built into this client.
+  additionalModelCostsCache?: Record<string, ModelCosts>
 
   // Disk cache for /api/claude_code/organizations/metrics_enabled.
   // Org-level settings change rarely; persisting across processes avoids a
@@ -1160,6 +1172,14 @@ export function getRemoteControlAtStartup(): boolean {
     if (ccrAutoConnect?.getCcrAutoConnectDefault()) return true
   }
   return false
+}
+
+export function getDaemonColdStart(): 'transient' | 'ask' {
+  const environment = process.env.CLAUDE_CODE_DAEMON_COLD_START
+  if (environment === 'transient' || environment === 'ask') return environment
+  const configured = getSessionSettingsCache()?.settings.daemonColdStart
+  if (configured !== undefined) return configured
+  return daemonColdStartGbDefault()
 }
 
 export function getCustomApiKeyStatus(

@@ -1,0 +1,336 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.119-to-2.1.120",
+  "scope": "Finite hidden and adjacent application-semantic obligations outside the separately owned official changelog and daemon tranches",
+  "artifacts": {
+    "baseline": {
+      "artifact": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "target": {
+      "artifact": "2.1.120-linux-x64/cli.inner.js",
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    },
+    "normalizedBaseline": "/tmp/claude-21120-readable/baseline.normalized.js",
+    "normalizedTarget": "/tmp/claude-21120-readable/target.normalized.js"
+  },
+  "obligations": [
+    {
+      "id": "H01",
+      "title": "Memory taxonomy, bundled memory-types skill, and model-aware lean memory prompt",
+      "classification": "hidden-adjacent",
+      "status": "implemented_verified",
+      "targetWitnesses": [
+        "target normalized 18122-18123: typed memory sections become compactable",
+        "target normalized 27750-27754 and 28148: memory prompt APIs receive the model and cache lean variants",
+        "target normalized 30945+: bundled memory-types skill",
+        "bundle literal memory-types: baseline 0, target 1"
+      ],
+      "paths": [
+        "src/QueryEngine.ts",
+        "src/memdir/memdir.ts",
+        "src/memdir/memoryTypes.ts",
+        "src/memdir/teamMemPrompts.ts",
+        "src/skills/bundled/index.ts",
+        "src/skills/bundled/memoryTypes.ts",
+        "src/utils/queryContext.ts"
+      ],
+      "integrationDependencies": [
+        "official UI/H11 commit 870cd2a90ec4df7d5f218da2639fec996ffd6728 supplies src/utils/leanPrompt.ts and model-aware constants/prompts.ts call sites"
+      ]
+    },
+    {
+      "id": "H02",
+      "title": "Memory-write survey capture, priority, countdown, keep, undo, and telemetry",
+      "classification": "hidden",
+      "status": "implemented_verified",
+      "targetWitnesses": [
+        "target normalized 9554-9574: tengu_slate_siskin config and eligibility",
+        "target normalized 30146-30189: survey hook and renderer",
+        "bundle literal tengu_slate_siskin: baseline 0, target 1",
+        "bundle literal auto-hides in: baseline 0, target 1"
+      ],
+      "paths": [
+        "src/components/Feedback.tsx",
+        "src/components/FeedbackSurvey/MemoryWriteSurvey.tsx",
+        "src/components/FeedbackSurvey/useMemoryWriteSurvey.ts",
+        "src/memdir/memoryWriteSurvey.ts",
+        "src/screens/REPL.tsx",
+        "src/state/AppStateStore.ts",
+        "src/tools/FileEditTool/FileEditTool.ts",
+        "src/tools/FileWriteTool/FileWriteTool.ts"
+      ]
+    },
+    {
+      "id": "H03",
+      "title": "Per-session memory-log layout reflected in dream consolidation",
+      "classification": "hidden-platform-boundary",
+      "status": "implemented_verified",
+      "targetWitnesses": [
+        "target consolidation prompt: logs/YYYY/MM/DD/<id>-<title>.md and ls -R logs/",
+        "bundle literal one file per session under: baseline 0, target 1"
+      ],
+      "paths": [
+        "src/services/autoDream/consolidationPrompt.ts"
+      ],
+      "notes": "The KAIROS log writer is eliminated from the authenticated Linux artifact; only its reachable application-facing consolidation contract is recovered here."
+    },
+    {
+      "id": "H04",
+      "title": "Task-state update wire event and unregisterCleanup description correction",
+      "classification": "hidden",
+      "status": "implemented_verified",
+      "targetWitnesses": [
+        "target normalized 12024-12025: diffTaskState plus task_updated enqueue",
+        "target normalized 12291: schema excludes abortController, messages, result",
+        "old schema prose count: baseline 1, target 0; corrected prose count: baseline 0, target 1"
+      ],
+      "paths": [
+        "src/entrypoints/sdk/coreSchemas.ts",
+        "src/utils/task/framework.ts"
+      ]
+    },
+    {
+      "id": "H05",
+      "title": "SDK submit_feedback request, response, handler, and reusable report construction",
+      "classification": "hidden",
+      "status": "implemented_verified",
+      "targetWitnesses": [
+        "target normalized 30262+: submit_feedback control schemas",
+        "target print control loop: submit_feedback handler",
+        "bundle literal submit_feedback: baseline 0, target 4"
+      ],
+      "paths": [
+        "src/cli/print.ts",
+        "src/components/Feedback.tsx",
+        "src/entrypoints/sdk/controlSchemas.ts"
+      ]
+    },
+    {
+      "id": "H06",
+      "title": "Plan-mode write violation telemetry with internal-edit exception",
+      "classification": "hidden",
+      "status": "implemented_verified",
+      "targetWitnesses": [
+        "target tool execution path emits tengu_plan_mode_violated for non-read-only tools outside editable internal paths",
+        "bundle literal tengu_plan_mode_violated: baseline 0, target 1"
+      ],
+      "paths": [
+        "src/services/tools/toolExecution.ts"
+      ]
+    },
+    {
+      "id": "H07",
+      "title": "Dirty agent-worktree cleanup abort",
+      "classification": "hidden",
+      "status": "implemented_verified",
+      "targetWitnesses": [
+        "target normalized 17610+: non-exit cleanup keeps a worktree with changed files",
+        "bundle fragment would be lost, kept: baseline 0, target 1"
+      ],
+      "paths": [
+        "src/utils/worktree.ts"
+      ]
+    },
+    {
+      "id": "H08",
+      "title": "Remote-control multi-session and presence rollout completion",
+      "classification": "hidden-gate-removal",
+      "status": "implemented_verified",
+      "targetWitnesses": [
+        "target normalized 28367-28964: same-dir default, ungated presence, and blurred-terminal suppression",
+        "tengu_ccr_bridge_multi_session: baseline 1, target 0",
+        "tengu_bridge_client_presence_enabled: baseline 1, target 0"
+      ],
+      "paths": [
+        "src/bridge/bridgeMain.ts",
+        "src/bridge/clientPresence.ts"
+      ]
+    },
+    {
+      "id": "H09",
+      "title": "Leaf checkpoints, deterministic resume selection, permission-mode persistence, and unconditional leaf pruning",
+      "classification": "hidden-gate-removal",
+      "status": "implemented_verified",
+      "targetWitnesses": [
+        "target transcript loader: last-prompt leafUuid checkpoints and explicit checkpoint precedence",
+        "target normalized 25165: update command persists the current live leaf before relaunch",
+        "target normalized 27678 and 30522: cache every live permission-mode transition for transcript metadata without restoring AppState mode on resume",
+        "tengu_pebble_leaf_prune: baseline 1, target 0"
+      ],
+      "paths": [
+        "src/commands/update/update.ts",
+        "src/screens/REPL.tsx",
+        "src/types/logs.ts",
+        "src/utils/sessionStorage.ts"
+      ]
+    },
+    {
+      "id": "H10",
+      "title": "Daemon cold-start, configured-worker, and service lifecycle",
+      "classification": "hidden-external-owner",
+      "status": "external_owner_frozen",
+      "owner": "/root",
+      "targetWitnesses": [
+        "target normalized 7112-7203 and 26436+: daemon/service lifecycle cluster"
+      ],
+      "paths": [],
+      "notes": "Root explicitly took this tranche; this overlay intentionally does not edit daemon, service, status, or background-client paths."
+    },
+    {
+      "id": "H11",
+      "title": "Tool and harness prompt refresh, including lean-prompt dispatch",
+      "classification": "hidden-external-owner",
+      "status": "external_owner_frozen",
+      "owner": "/root/official_ui_shell_audit",
+      "targetWitnesses": [
+        "target prompt cluster 13458 and 18103+",
+        "target normalized 27750-27754 and 28148: model-aware lean prompt call sites"
+      ],
+      "paths": [],
+      "integrationDependencies": [
+        "commit 870cd2a90ec4df7d5f218da2639fec996ffd6728"
+      ],
+      "notes": "Memory-owned APIs and QueryEngine/queryContext call sites are H01; all other prompt files are kept out of this patch."
+    },
+    {
+      "id": "H12",
+      "title": "Auto-mode detection of permission deny-rule circumvention",
+      "classification": "hidden-security",
+      "status": "implemented_verified",
+      "targetWitnesses": [
+        "target normalized 15547-15548: alwaysDenyRules become a classifier settings section while prompt: rules remain excluded",
+        "bundle literal settings_deny_rules: baseline 0, target 3",
+        "bundle literal User Deny Rules: baseline 0, target 1"
+      ],
+      "paths": [
+        "src/utils/permissions/yolo-classifier-prompts/permissions_external.txt",
+        "src/utils/permissions/yoloClassifier.ts"
+      ]
+    },
+    {
+      "id": "H13",
+      "title": "Security classifier policy corpus retention audit",
+      "classification": "audited-no-source-delta",
+      "status": "retained_verified",
+      "targetWitnesses": [
+        "Memory Poisoning and mandatory exception rules remain byte-identical adjacent anchors in both authenticated bundles",
+        "target normalized 15470-15496 versus baseline 15371-15397; only the H12 insertion follows the retained corpus"
+      ],
+      "paths": [],
+      "notes": "No speculative rewrite was made to stable policy prose."
+    },
+    {
+      "id": "H14",
+      "title": "Structured push/control request descriptions and safe tool summarization",
+      "classification": "hidden",
+      "status": "implemented_verified",
+      "targetWitnesses": [
+        "target normalized 30273: getToolUseSummary then getActivityDescription with one guarded failure path",
+        "bundle literal describeToolUseForPush failed: baseline 0, target 1",
+        "bundle literal display_tool_name: baseline 0, target 5"
+      ],
+      "paths": [
+        "src/bridge/remoteBridgeCore.ts",
+        "src/cli/structuredIO.ts",
+        "src/entrypoints/sdk/controlSchemas.ts",
+        "src/utils/sessionState.ts"
+      ],
+      "integrationDependencies": [
+        "root integration must add display_tool_name: details.display_tool_name in src/cli/transports/ccrClient.ts when serializing requires-action state"
+      ]
+    },
+    {
+      "id": "H15",
+      "title": "Exact rollout-gate removals and adjacent notification/loop/rate-limit behavior",
+      "classification": "hidden-gate-removal",
+      "status": "implemented_verified",
+      "targetWitnesses": [
+        "tengu_toolref_defer_j8m: baseline 2, target 0",
+        "tengu_lodestone_enabled: baseline 1, target 0",
+        "tengu_amber_swift: baseline 1, target 0",
+        "tengu_cinder_almanac: baseline 2, target 0",
+        "tengu_garnet_plover: baseline 1, target 0",
+        "tengu_pebble_leaf_prune: baseline 1, target 0"
+      ],
+      "editedBehaviors": [
+        {
+          "path": "src/utils/messages.ts",
+          "behavior": "Always inject the Tool loaded. sibling for tool_reference content; remove both toolref-defer checks and remove relocateToolReferenceSiblings entirely."
+        },
+        {
+          "path": "src/utils/deepLink/registerProtocol.ts",
+          "behavior": "Replace lodestone rollout gating with the darwin/linux/win32 platform allowlist."
+        },
+        {
+          "path": "src/components/PromptInput/Notifications.tsx",
+          "behavior": "Show the stale uncached-token /clear notice without the amber-swift rollout gate."
+        },
+        {
+          "path": "src/commands/update/update.ts",
+          "behavior": "Persist the live leaf checkpoint before the update bridge teardown and relaunch."
+        },
+        {
+          "path": "src/utils/sessionStorage.ts",
+          "behavior": "Run corrected leaf pruning unconditionally after removing pebble-leaf-prune branching."
+        },
+        {
+          "path": "src/skills/bundled/loop.ts",
+          "behavior": "Remove cinder-almanac gating and expose the durable cloud-schedule choice under the surviving surreal-dali capability."
+        },
+        {
+          "path": "src/bridge/bridgeMain.ts",
+          "behavior": "Remove the CCR multi-session denial gate and make same-dir the default spawn mode."
+        },
+        {
+          "path": "src/bridge/clientPresence.ts",
+          "behavior": "Remove the client-presence feature gate and suppress pulses while the terminal is explicitly blurred."
+        },
+        {
+          "path": "src/hooks/notifs/useRateLimitWarningNotification.tsx",
+          "behavior": "Pair weekly-limit warnings with a one-shot recovery-lever hint."
+        },
+        {
+          "path": "src/services/rateLimitMessages.ts",
+          "behavior": "Remove garnet-plover gating and derive the Pro seven-day recovery lever from model and effort capacity."
+        },
+        {
+          "path": "src/services/claudeAiLimits.ts",
+          "behavior": "Re-export the new rate-limit lever helper through the existing Claude AI limits facade."
+        }
+      ]
+    }
+  ],
+  "retainedNoDelta": [
+    {
+      "title": "Resumed-session queued overlay handling",
+      "reason": "Authenticated adjacent witnesses are equivalent: earlyInput 7482=7533, App raw handoff 7869=7922, resume chooser 30555=30750, picker-to-REPL 23607=23741. No source change was invented."
+    }
+  ],
+  "excluded": [
+    {
+      "category": "dependency-owned",
+      "examples": [
+        "Chrome bridge batch, tab-close, file-upload, and dependency error strings"
+      ],
+      "reason": "SourceURL/package attribution assigns these units to bundled dependencies rather than application source."
+    },
+    {
+      "category": "minifier-only",
+      "examples": [
+        "identifier renames, declaration ordering, wrapper reshaping"
+      ],
+      "reason": "No observable application-semantic delta."
+    },
+    {
+      "category": "platform-DCE",
+      "examples": [
+        "non-Linux KAIROS memory log writer implementation and native platform branches absent from the Linux target"
+      ],
+      "reason": "The authenticated Linux artifact cannot prove eliminated source bytes; only reachable contracts are recovered."
+    }
+  ],
+  "directTest": "recovery/test/recovery-2.1.120-hidden-obligations.test.mjs"
+}

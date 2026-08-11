@@ -14,6 +14,7 @@ export type SessionState = 'idle' | 'running' | 'requires_action'
  */
 export type RequiresActionDetails = {
   tool_name: string
+  display_tool_name: string
   /** Human-readable summary, e.g. "Editing src/foo.ts", "Running npm test" */
   action_description: string
   raw_command?: string

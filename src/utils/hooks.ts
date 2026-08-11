@@ -19,7 +19,7 @@ import { subprocessEnv } from './subprocessEnv.js'
 import { getPlatform } from './platform.js'
 import { findGitBashPath, windowsPathToPosixPath } from './windowsPaths.js'
 import { getCachedPowerShellPath } from './shell/powershellDetection.js'
-import { DEFAULT_HOOK_SHELL } from './shell/shellProvider.js'
+import { getDefaultHookShell } from './shell/shellToolUtils.js'
 import { buildPowerShellArgs } from './shell/powershellProvider.js'
 import {
   loadPluginOptions,
@@ -826,14 +826,14 @@ async function execCommandHook(
 
   // --
   // Per-hook shell selection (phase 1 of docs/design/ps-shell-selection.md).
-  // Resolution order: hook.shell → DEFAULT_HOOK_SHELL. The defaultShell
-  // fallback (settings.defaultShell) is phase 2 — not wired yet.
+  // Resolution order: hook.shell → available platform default. The
+  // settings.defaultShell fallback remains specific to input-box commands.
   //
-  // The bash path is the historical default and stays unchanged. The
-  // PowerShell path deliberately skips the Windows-specific bash
+  // Bash remains the default when available. The PowerShell path deliberately
+  // skips the Windows-specific bash
   // accommodations (cygpath conversion, .sh auto-prepend, POSIX-quoted
   // SHELL_PREFIX).
-  const shellType = hook.shell ?? DEFAULT_HOOK_SHELL
+  const shellType = hook.shell ?? getDefaultHookShell()
 
   const isPowerShell = shellType === 'powershell'
 
@@ -994,12 +994,8 @@ async function execCommandHook(
   //   skips user profile scripts (faster, deterministic).
   //   -NonInteractive fails fast instead of prompting.
   //
-  // The Git Bash hard-exit in findGitBashPath() is still in place for
-  // bash hooks. PowerShell hooks never call it, so a Windows user with
-  // only pwsh and shell: 'powershell' on every hook could in theory run
-  // without Git Bash — but init.ts still calls setShellIfWindows() on
-  // startup, which will exit first. Relaxing that is phase 1 of the
-  // design's implementation order (separate PR).
+  // Git Bash is optional on Windows. Bash hooks still require it, while
+  // explicitly configured PowerShell hooks work without it.
   let child: ChildProcessWithoutNullStreams
   if (shellType === 'powershell') {
     const pwshPath = await getCachedPowerShellPath()
@@ -1019,11 +1015,16 @@ async function execCommandHook(
   } else {
     // On Windows, use Git Bash explicitly (cmd.exe can't run bash syntax).
     // On other platforms, shell: true uses /bin/sh.
-    const shell = isWindows ? findGitBashPath() : true
+    const bashPath = isWindows ? findGitBashPath() : null
+    if (isWindows && !bashPath) {
+      throw new Error(
+        `Hook "${hook.command}" requires bash but Git Bash was not found. Install Git for Windows (https://git-scm.com/downloads/win), or add "shell": "powershell" to this hook's config.`,
+      )
+    }
     child = spawn(finalCommand, [], {
       env: envVars,
       cwd: safeCwd,
-      shell,
+      shell: isWindows ? bashPath! : true,
       // Prevent visible console window on Windows (no-op on other platforms)
       windowsHide: true,
     }) as ChildProcessWithoutNullStreams
@@ -1808,7 +1809,7 @@ export async function getMatchingHooks(
           .map(m => [
             hookDedupKey(
               m,
-              `${m.hook.shell ?? DEFAULT_HOOK_SHELL}\0${m.hook.command}\0${getIfCondition(m.hook)}`,
+              `${m.hook.shell ?? getDefaultHookShell()}\0${m.hook.command}\0${getIfCondition(m.hook)}`,
             ),
             m,
           ]),

@@ -344,12 +344,15 @@ export function filterForFocusView(
     let summary: any = null;
     let summaryIndex = turnEnd;
     let pendingText: string | undefined;
+    let ignoredMetaCount = 0;
     const preserved = new Set<number>(standalone);
     for (let candidate = index; candidate < turnEnd; candidate++) {
       if (candidate === finalTextIndex || standalone.has(candidate)) continue;
       const message = messages[candidate] as any;
       if (message.type === 'system') {
-        if (!(message.subtype === 'api_metrics' || message.subtype === 'informational' && message.level === 'info')) {
+        if (message.subtype === 'api_metrics' || message.subtype === 'informational' && message.level === 'info') {
+          ignoredMetaCount++;
+        } else {
           preserved.add(candidate);
         }
         continue;
@@ -364,6 +367,8 @@ export function filterForFocusView(
           toolSummary = createFocusToolSummary(message, tools);
         } else if (pendingTurn && block?.type === 'text' && block.text.trim()) {
           pendingText = block.text;
+        } else if (block?.type === 'thinking' || block?.type === 'redacted_thinking') {
+          ignoredMetaCount++;
         }
       } else if (message.type === 'user' && summary) {
         summary.messages.push(message);
@@ -386,7 +391,18 @@ export function filterForFocusView(
       ordered.push([summaryIndex, summary]);
     }
     ordered.sort((left, right) => left[0] - right[0]);
-    filtered.push(...ordered.map(([, message]) => message));
+    const briefHiddenCount = pendingTurn
+      ? 0
+      : turnEnd - index - ordered.length - ignoredMetaCount;
+    filtered.push(
+      ...ordered.map(([, message]) =>
+        briefHiddenCount > 0 &&
+        message.type === 'system' &&
+        message.subtype === 'turn_duration'
+          ? { ...message, briefHiddenCount }
+          : message,
+      ),
+    );
     index = turnEnd;
   }
   return filtered;

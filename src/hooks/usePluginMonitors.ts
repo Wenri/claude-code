@@ -17,6 +17,7 @@ import {
   substituteUserConfigVariables,
 } from '../utils/plugins/pluginOptionsStorage.js'
 import { exec } from '../utils/Shell.js'
+import { getDefaultHookShell } from '../utils/shell/shellToolUtils.js'
 import { skillInvoked } from '../utils/suggestions/skillUsageTracking.js'
 import { enqueueMonitorEvent } from '../tools/MonitorTool/MonitorTool.js'
 import {
@@ -129,7 +130,7 @@ async function armPluginMonitor(
   const shellCommand = await exec(
     monitor.command,
     context.abortController.signal,
-    'bash',
+    getDefaultHookShell(),
     {
       preventCwdChanges: true,
       shouldUseSandbox: false,

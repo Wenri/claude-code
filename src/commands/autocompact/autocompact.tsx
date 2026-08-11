@@ -101,7 +101,7 @@ function AutoCompactDialog({
 
   const selectedLabel =
     selection === MODEL_DEFAULT
-      ? 'Auto'
+      ? 'auto'
       : `${formatTokens(selection)} tokens`
 
   return (

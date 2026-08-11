@@ -16,6 +16,41 @@ import { getAPIProvider } from '../../utils/model/providers.js'
 import { isEssentialTrafficOnly } from '../../utils/privacyLevel.js'
 import { getClaudeCodeUserAgent } from '../../utils/userAgent.js'
 
+function mergeBootstrapOAuthAccount(
+  current: ReturnType<typeof getGlobalConfig>['oauthAccount'],
+  bootstrap:
+    | z.infer<
+        ReturnType<typeof bootstrapResponseSchema>
+      >['oauth_account']
+    | undefined,
+): ReturnType<typeof getGlobalConfig>['oauthAccount'] {
+  if (!current || !bootstrap) return current
+  if (
+    bootstrap.account_uuid != null &&
+    bootstrap.account_uuid !== current.accountUuid
+  ) {
+    return current
+  }
+
+  const enrichment = {
+    organizationType: bootstrap.organization_type ?? null,
+    organizationRateLimitTier:
+      bootstrap.organization_rate_limit_tier ?? null,
+    userRateLimitTier: bootstrap.user_rate_limit_tier ?? null,
+    seatTier: bootstrap.seat_tier ?? null,
+    ...(bootstrap.account_email != null && {
+      emailAddress: bootstrap.account_email,
+    }),
+    ...(bootstrap.organization_uuid != null && {
+      organizationUuid: bootstrap.organization_uuid,
+    }),
+    ...(bootstrap.organization_name != null && {
+      organizationName: bootstrap.organization_name,
+    }),
+  }
+  return { ...current, ...enrichment }
+}
+
 const bootstrapResponseSchema = lazySchema(() =>
   z.object({
     client_data: z.record(z.unknown()).nullish(),
@@ -33,6 +68,38 @@ const bootstrapResponseSchema = lazySchema(() =>
             description,
           })),
       )
+      .nullish(),
+    additional_model_costs: z
+      .record(
+        z
+          .object({
+            input_tokens: z.number(),
+            output_tokens: z.number(),
+            prompt_cache_write_tokens: z.number(),
+            prompt_cache_read_tokens: z.number(),
+            web_search_requests: z.number().nullish(),
+          })
+          .transform(costs => ({
+            inputTokens: costs.input_tokens,
+            outputTokens: costs.output_tokens,
+            promptCacheWriteTokens: costs.prompt_cache_write_tokens,
+            promptCacheReadTokens: costs.prompt_cache_read_tokens,
+            webSearchRequests: costs.web_search_requests ?? 0.01,
+          })),
+      )
+      .nullish(),
+    oauth_account: z
+      .object({
+        account_uuid: z.string().nullish(),
+        account_email: z.string().nullish(),
+        organization_uuid: z.string().nullish(),
+        organization_name: z.string().nullish(),
+        organization_type: z.string().nullish(),
+        organization_rate_limit_tier: z.string().nullish(),
+        user_rate_limit_tier: z.string().nullish(),
+        seat_tier: z.string().nullish(),
+      })
+      .passthrough()
       .nullish(),
   }),
 )
@@ -118,12 +185,19 @@ export async function fetchBootstrapData(): Promise<void> {
 
     const clientData = response.client_data ?? null
     const additionalModelOptions = response.additional_model_options ?? []
+    const additionalModelCosts = response.additional_model_costs ?? {}
 
     // Only persist if data actually changed — avoids a config write on every startup.
     const config = getGlobalConfig()
+    const oauthAccount = mergeBootstrapOAuthAccount(
+      config.oauthAccount,
+      response.oauth_account,
+    )
     if (
       isEqual(config.clientDataCache, clientData) &&
-      isEqual(config.additionalModelOptionsCache, additionalModelOptions)
+      isEqual(config.additionalModelOptionsCache, additionalModelOptions) &&
+      isEqual(config.additionalModelCostsCache, additionalModelCosts) &&
+      isEqual(oauthAccount, config.oauthAccount)
     ) {
       logForDebugging('[Bootstrap] Cache unchanged, skipping write')
       return
@@ -134,6 +208,11 @@ export async function fetchBootstrapData(): Promise<void> {
       ...current,
       clientDataCache: clientData,
       additionalModelOptionsCache: additionalModelOptions,
+      additionalModelCostsCache: additionalModelCosts,
+      oauthAccount: mergeBootstrapOAuthAccount(
+        current.oauthAccount,
+        response.oauth_account,
+      ),
     }))
   } catch (error) {
     logError(error)

@@ -13,12 +13,14 @@ import { Pane } from '../components/design-system/Pane.js';
 import { PressEnterToContinue } from '../components/PressEnterToContinue.js';
 import { SandboxDoctorSection } from '../components/sandbox/SandboxDoctorSection.js';
 import { ValidationErrorsList } from '../components/ValidationErrorsList.js';
+import { getBgDaemonStatus, type BgDaemonStatus } from '../daemon/status.js';
 import { useSettingsErrors } from '../hooks/notifs/useSettingsErrors.js';
 import { useExitOnCtrlCDWithKeybindings } from '../hooks/useExitOnCtrlCDWithKeybindings.js';
 import { Box, Text } from '../ink.js';
 import { useKeybindings } from '../keybindings/useKeybinding.js';
 import { useAppState } from '../state/AppState.js';
 import { getPluginErrorMessage } from '../types/plugin.js';
+import { isDaemonCliEnabled } from '../utils/agentsFleet.js';
 import { getGcsDistTags, getNpmDistTags, type NpmDistTags } from '../utils/autoUpdater.js';
 import { type ContextWarnings, checkContextWarnings } from '../utils/doctorContextWarnings.js';
 import { type DiagnosticInfo, getDoctorDiagnostic } from '../utils/doctorDiagnostic.js';
@@ -97,6 +99,41 @@ function DistTagsDisplay(t0) {
   }
   return t3;
 }
+
+function BackgroundServerDetails({ promise }: { promise: Promise<BgDaemonStatus> }) {
+  const status = use(promise);
+  const supervisor = status.supervisor;
+  const workerCount = status.workersLive ?? status.workersRoster;
+  const mode = status.serviceInstalled ? 'service-managed' : 'ephemeral';
+  return <>
+    <Text>└ {supervisor === null
+      ? 'Status: not running'
+      : <>Status: running · pid {supervisor.pid} · v{supervisor.version} · {workerCount} bg {workerCount === 1 ? 'worker' : 'workers'}{status.controlReachable ? '' : ' · control.sock unreachable'}</>}
+    </Text>
+    <Text>└ Mode: {mode}</Text>
+    {supervisor !== null && supervisor.version !== MACRO.VERSION
+      ? <Text color="warning">└ Server version v{supervisor.version} differs from this CLI (v{MACRO.VERSION}). It will restart on next use.</Text>
+      : null}
+    {status.serviceInstalled
+      ? <Text color="warning">└ A persistent launchd/systemd unit is installed. The next server start will remove it; run <Text dimColor={true}>claude daemon uninstall</Text> to remove it now.</Text>
+      : null}
+    {status.configuredWorkers > 0
+      ? <Text color="warning">└ {status.configuredWorkers} configured background {status.configuredWorkers === 1 ? 'worker' : 'workers'} (daemon.json) only run while a foreground client or background job keeps the server alive. They will not start after reboot.</Text>
+      : null}
+    <Text dimColor={true}>└ See <Text dimColor={true}>claude daemon status</Text> for details</Text>
+  </>;
+}
+
+function BackgroundServer() {
+  const promise = useMemo(() => getBgDaemonStatus(), []);
+  return <Box flexDirection="column" marginTop={1}>
+    <Text bold={true}>Background server</Text>
+    <Suspense fallback={<Text dimColor={true}>└ Probing background server…</Text>}>
+      <BackgroundServerDetails promise={promise} />
+    </Suspense>
+  </Box>;
+}
+
 export function Doctor(t0) {
   const $ = _c(84);
   const {
@@ -488,7 +525,7 @@ export function Doctor(t0) {
   }
   let t41;
   if ($[76] !== t23 || $[77] !== t30 || $[78] !== t35 || $[79] !== t36 || $[80] !== t37 || $[81] !== t38 || $[82] !== t39) {
-    t41 = <Pane>{t23}{t30}{t31}{t32}{t33}{t34}{t35}{t36}{t37}{t38}{t39}{t40}</Pane>;
+    t41 = <Pane>{t23}{t30}{t31}{isDaemonCliEnabled() ? <BackgroundServer /> : null}{t32}{t33}{t34}{t35}{t36}{t37}{t38}{t39}{t40}</Pane>;
     $[76] = t23;
     $[77] = t30;
     $[78] = t35;

@@ -1,5 +1,6 @@
 import { dirname, isAbsolute, sep } from 'path'
 import { logEvent } from 'src/services/analytics/index.js'
+import { captureMemoryWrite } from '../../memdir/memoryWriteSurvey.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
 import { diagnosticTracker } from '../../services/diagnosticTracking.js'
 import {
@@ -102,8 +103,8 @@ export const FileEditTool = buildTool({
   async description() {
     return 'A tool for editing files'
   },
-  async prompt() {
-    return getEditToolDescription()
+  async prompt({ model }) {
+    return getEditToolDescription(model)
   },
   userFacingName,
   getToolUseSummary,
@@ -413,6 +414,8 @@ export const FileEditTool = buildTool({
       userModified,
       updateFileHistoryState,
       dynamicSkillDirTriggers,
+      setAppState,
+      agentId,
     },
     _,
     parentMessage,
@@ -579,6 +582,22 @@ export const FileEditTool = buildTool({
         durationMs: Date.now() - startTime,
         hasDiff: !!diff,
       })
+    }
+
+    const memoryWrite = captureMemoryWrite(
+      { agentId },
+      {
+        filePath: absoluteFilePath,
+        afterContent: updatedFile,
+        beforeContent: fileExists ? originalFileContents : null,
+        structuredPatch: patch,
+      },
+    )
+    if (memoryWrite) {
+      setAppState(state => ({
+        ...state,
+        memoryWriteQueue: [...(state.memoryWriteQueue ?? []), memoryWrite],
+      }))
     }
 
     // 8. Yield result

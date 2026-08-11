@@ -4,7 +4,7 @@ import { mkdir, writeFile } from 'fs/promises'
 import { basename, extname, join } from 'path'
 import { logForDebugging } from './debug.js'
 import { getClaudeConfigHomeDir } from './envUtils.js'
-import { getErrnoCode, isENOENT } from './errors.js'
+import { errorMessage, getErrnoCode, isENOENT } from './errors.js'
 import {
   getTheme,
   isThemeName,
@@ -186,5 +186,10 @@ export function watchUserThemes(onChange: () => void): () => void {
     awaitWriteFinish: { stabilityThreshold: 300, pollInterval: 100 },
   })
   watcher.on('add', onChange).on('change', onChange).on('unlink', onChange)
+  watcher.on('error', error =>
+    logForDebugging(`[theme] watcher error: ${errorMessage(error)}`, {
+      level: 'warn',
+    }),
+  )
   return () => void watcher.close()
 }

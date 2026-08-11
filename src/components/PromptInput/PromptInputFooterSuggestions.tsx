@@ -40,7 +40,11 @@ function getIcon(itemId: string): string {
   return '+'
 }
 
-function findQueryRanges(text: string, query: string): Array<[number, number]> {
+function findQueryRanges(
+  text: string,
+  query: string,
+  contiguousOnly = false,
+): Array<[number, number]> {
   const normalizedText = text.toLowerCase()
   // Lower-casing some Unicode characters changes their length. Avoid applying
   // offsets from that transformed string to the original display text.
@@ -50,6 +54,7 @@ function findQueryRanges(text: string, query: string): Array<[number, number]> {
   if (contiguousStart !== -1) {
     return [[contiguousStart, contiguousStart + query.length]]
   }
+  if (contiguousOnly) return []
 
   const ranges: Array<[number, number]> = []
   let cursor = 0
@@ -69,13 +74,15 @@ function HighlightedSuggestionText({
   query,
   color,
   dimColor,
+  contiguousOnly = false,
 }: {
   text: string
   query?: string
   color?: keyof Theme
   dimColor: boolean
+  contiguousOnly?: boolean
 }): ReactNode {
-  const ranges = query ? findQueryRanges(text, query) : []
+  const ranges = query ? findQueryRanges(text, query, contiguousOnly) : []
   if (ranges.length === 0) {
     return (
       <Text color={color} dimColor={dimColor}>
@@ -91,7 +98,6 @@ function HighlightedSuggestionText({
       <Text
         key={start}
         color={highlighted ? 'suggestion' : color}
-        bold={highlighted}
         dimColor={!highlighted && dimColor}
       >
         {text.slice(start, end)}
@@ -251,6 +257,7 @@ const SuggestionItemRow = memo(function SuggestionItemRow({
         query={item.query}
         color={selectedColor}
         dimColor={!isSelected}
+        contiguousOnly
       />
     </Text>
   )
@@ -270,6 +277,7 @@ const SuggestionItemRow = memo(function SuggestionItemRow({
           query={item.query}
           color={selectedColor}
           dimColor={!isSelected}
+          contiguousOnly
         />
       </Text>
     </Box>
@@ -358,9 +366,7 @@ export function PromptInputFooterSuggestions({
   }
 
   const visibleItems = suggestions.slice(startIndex, endIndex)
-  const allVisible = startIndex === 0 && endIndex === suggestions.length
-  const paddingRows =
-    noPad && allVisible ? 0 : Math.max(0, maxVisibleItems - usedRows)
+  const paddingRows = noPad ? 0 : Math.max(0, maxVisibleItems - usedRows)
 
   return (
     <Box

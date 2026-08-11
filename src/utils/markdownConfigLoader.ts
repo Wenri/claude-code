@@ -17,7 +17,7 @@ import type { FrontmatterData } from './frontmatterParser.js'
 import { parseFrontmatter } from './frontmatterParser.js'
 import { findCanonicalGitRoot, findGitRoot } from './git.js'
 import { parseToolListFromCLI } from './permissions/permissionSetup.js'
-import { ripGrep } from './ripgrep.js'
+import { ripGrep, RipgrepTimeoutError } from './ripgrep.js'
 import {
   isSettingSourceEnabled,
   type SettingSource,
@@ -571,6 +571,10 @@ async function loadMarkdownFiles(dir: string): Promise<
     // existence (TOCTOU). findMarkdownFilesNative already catches internally;
     // ripGrep rejects on inaccessible target paths.
     if (isFsInaccessible(e)) return []
+    if (e instanceof RipgrepTimeoutError) {
+      logForDebugging(`loadMarkdownFiles: ripgrep timed out scanning ${dir}`)
+      return []
+    }
     throw e
   }
 

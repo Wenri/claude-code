@@ -605,7 +605,7 @@ function SuggestionsOverlay() {
   if (!data || data.suggestions.length === 0 && !data.emptyMessage) {
     return null;
   }
-  return <Box position="absolute" bottom="100%" left={0} right={0} paddingX={2} paddingTop={1} flexDirection="column" opaque={true}><PromptInputFooterSuggestions suggestions={data.suggestions} selectedSuggestion={data.selectedSuggestion} maxColumnWidth={data.maxColumnWidth} emptyMessage={data.emptyMessage} overlay={true} /></Box>;
+  return <Box position="absolute" bottom="100%" left={0} right={0} paddingX={2} paddingTop={1} flexDirection="column" opaque={true}><PromptInputFooterSuggestions suggestions={data.suggestions} selectedSuggestion={data.selectedSuggestion} maxColumnWidth={data.maxColumnWidth} emptyMessage={data.emptyMessage} overlay={true} noPad={true} /></Box>;
 }
 
 // Dialog portaled from PromptInput (AutoModeOptInDialog) — same clip-escape

@@ -1,0 +1,342 @@
+import assert from 'node:assert/strict'
+import { execFileSync } from 'node:child_process'
+import crypto from 'node:crypto'
+import fs from 'node:fs'
+import path from 'node:path'
+import test from 'node:test'
+import { fileURLToPath } from 'node:url'
+
+const BASELINE_BYTES = 13_720_987
+const BASELINE_SHA256 =
+  '9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef'
+const TARGET_BYTES = 13_784_743
+const TARGET_SHA256 =
+  'c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f'
+const CATALOG_BYTES = 198_027
+const CATALOG_SHA256 =
+  '80c2ec3c22e48a9d0cc412113637e3a12cc062e668c05d5834417fb398ef967e'
+const CATALOG_PATH =
+  'recovery/cases/2.1.119-to-2.1.120/semantic/direct-evidence.json'
+const OFFICIAL_BYTES = 21_570
+const OFFICIAL_SHA256 =
+  '87bee7f52356d3a590c3861d7336ec2bfa08e5a4c1ed47eb1b624aaecaccdece'
+const OFFICIAL_PATH = 'recovery/2.1.120-official-semantic-inventory.json'
+const HIDDEN_BYTES = 14_156
+const HIDDEN_SHA256 =
+  '88167ea50a647ae56bcc1f1309c28bb881b0281b7809b0c091d134f8646f0dc5'
+const HIDDEN_PATH = 'recovery/2.1.120-hidden-semantic-inventory.json'
+const repo = fileURLToPath(new URL('../..', import.meta.url))
+const frozenSourcePathsPath = path.join(
+  repo,
+  'recovery/cases/2.1.119-to-2.1.120/recovered/source-freeze/source-paths.txt',
+)
+
+const expectedIds = [
+  ...Array.from({ length: 22 }, (_, index) =>
+    `B${String(index + 1).padStart(2, '0')}`,
+  ),
+  ...Array.from({ length: 15 }, (_, index) =>
+    `H${String(index + 1).padStart(2, '0')}`,
+  ),
+  ...Array.from({ length: 3 }, (_, index) =>
+    `D${String(index + 1).padStart(2, '0')}`,
+  ),
+  'S01',
+  'S02',
+  ...Array.from({ length: 40 }, (_, index) =>
+    `R${String(index + 1).padStart(2, '0')}`,
+  ),
+  'F01',
+  'F02',
+]
+
+function sha256(value) {
+  return crypto.createHash('sha256').update(value).digest('hex')
+}
+
+function occurrences(contents, fragment) {
+  assert.ok(fragment.length > 0, 'cannot count an empty fragment')
+  let count = 0
+  let offset = 0
+  while ((offset = contents.indexOf(fragment, offset)) !== -1) {
+    count += 1
+    offset += fragment.length
+  }
+  return count
+}
+
+function readPinnedFile(relativePath, expectedBytes, expectedSha256, label) {
+  assert.equal(path.isAbsolute(relativePath), false, `${label}: relative path`)
+  assert.equal(relativePath.includes('..'), false, `${label}: no traversal`)
+  const filename = path.join(repo, relativePath)
+  const status = fs.lstatSync(filename)
+  assert.equal(status.isFile(), true, `${label}: regular file`)
+  assert.equal(status.isSymbolicLink(), false, `${label}: not a symlink`)
+  const value = fs.readFileSync(filename)
+  assert.equal(value.length, expectedBytes, `${label}: byte length`)
+  assert.equal(sha256(value), expectedSha256, `${label}: SHA-256`)
+  return value
+}
+
+function readAuthenticatedBundle(environmentName, expectedBytes, expectedSha256) {
+  const filename = process.env[environmentName]
+  assert.ok(filename, `${environmentName} must be set`)
+  const value = fs.readFileSync(filename)
+  assert.equal(value.length, expectedBytes, `${environmentName}: byte length`)
+  assert.equal(sha256(value), expectedSha256, `${environmentName}: SHA-256`)
+  return value
+}
+
+function assertFragmentMetadata(fragment, label) {
+  const text = fragment.text ?? fragment.fragment
+  const value = Buffer.from(text, 'utf8')
+  assert.equal(value.length, fragment.bytes, `${label}: byte length`)
+  assert.equal(sha256(value), fragment.sha256, `${label}: SHA-256`)
+  return value
+}
+
+function changedSourcePaths() {
+  if (fs.existsSync(frozenSourcePathsPath)) {
+    return fs
+      .readFileSync(frozenSourcePathsPath, 'utf8')
+      .trim()
+      .split('\n')
+      .filter(Boolean)
+      .map(line => line.split('\t').at(-1))
+      .sort()
+  }
+  return execFileSync(
+    'git',
+    ['diff', '--name-only', '351cd4d..HEAD', '--', 'src'],
+    { cwd: repo, encoding: 'utf8' },
+  )
+    .trim()
+    .split('\n')
+    .filter(Boolean)
+    .sort()
+}
+
+const catalogBytes = readPinnedFile(
+  CATALOG_PATH,
+  CATALOG_BYTES,
+  CATALOG_SHA256,
+  '2.1.120 direct-evidence catalog',
+)
+const officialBytes = readPinnedFile(
+  OFFICIAL_PATH,
+  OFFICIAL_BYTES,
+  OFFICIAL_SHA256,
+  '2.1.120 official inventory',
+)
+const hiddenBytes = readPinnedFile(
+  HIDDEN_PATH,
+  HIDDEN_BYTES,
+  HIDDEN_SHA256,
+  '2.1.120 hidden inventory',
+)
+const catalog = JSON.parse(catalogBytes)
+const official = JSON.parse(officialBytes)
+const hidden = JSON.parse(hiddenBytes)
+
+test('2.1.120-direct-evidence.catalog-is-exhaustive-and-row-scoped', () => {
+  assert.equal(catalog.schemaVersion, 1)
+  assert.equal(catalog.case, '2.1.119-to-2.1.120')
+  assert.equal(catalog.release, '2.1.120')
+  assert.deepEqual(catalog.baseline, {
+    bytes: BASELINE_BYTES,
+    sha256: BASELINE_SHA256,
+  })
+  assert.deepEqual(catalog.target, {
+    bytes: TARGET_BYTES,
+    sha256: TARGET_SHA256,
+  })
+  assert.deepEqual(catalog.inputs, {
+    official: {
+      path: OFFICIAL_PATH,
+      bytes: OFFICIAL_BYTES,
+      sha256: OFFICIAL_SHA256,
+    },
+    hidden: {
+      path: HIDDEN_PATH,
+      bytes: HIDDEN_BYTES,
+      sha256: HIDDEN_SHA256,
+    },
+  })
+  assert.equal(catalog.rowCount, expectedIds.length)
+  assert.equal(catalog.rows.length, expectedIds.length)
+  assert.deepEqual(catalog.rows.map(row => row.id), expectedIds)
+  assert.equal(new Set(catalog.rows.map(row => row.id)).size, expectedIds.length)
+  assert.deepEqual(catalog.categoryCounts, {
+    official: 22,
+    hidden: 15,
+    daemon: 3,
+    selection: 2,
+    residual: 40,
+    fleet: 2,
+  })
+
+  const officialByBullet = new Map(official.rows.map(row => [row.bullet, row]))
+  const hiddenById = new Map(hidden.obligations.map(row => [row.id, row]))
+  assert.deepEqual(
+    catalog.rows
+      .filter(row => row.category === 'official')
+      .map(row => row.releaseBullet),
+    Array.from({ length: 22 }, (_, index) => index + 1),
+  )
+
+  for (const row of catalog.rows) {
+    assert.equal(
+      row.evidenceKind,
+      'reviewed-row-scoped-direct-evidence',
+      `${row.id}: direct evidence kind`,
+    )
+    assert.ok(row.obligationId.length > 0, `${row.id}: stable obligation ID`)
+    assert.ok(row.title.length > 0, `${row.id}: title`)
+    assert.ok(row.rationale.length > 0, `${row.id}: rationale`)
+    assert.ok(row.targetFragments.length > 0, `${row.id}: bundle evidence`)
+    assert.ok(row.sourceAssertions.length > 0, `${row.id}: source evidence`)
+    const directSourcePaths = [
+      ...new Set([
+        ...row.sourceAssertions.map(assertion => assertion.path),
+        ...row.sourcePathAbsences.flatMap(absence => absence.paths),
+      ]),
+    ].sort()
+    assert.deepEqual(
+      row.targetAbsences,
+      row.targetFragments.filter(fragment => fragment.targetCount === 0),
+      `${row.id}: explicit target absences`,
+    )
+    if (row.category === 'official') {
+      const inventoryRow = officialByBullet.get(row.releaseBullet)
+      assert.ok(inventoryRow, `${row.id}: official inventory row`)
+      assert.equal(row.title, inventoryRow.changelog, `${row.id}: exact changelog`)
+      assert.equal(
+        row.obligationId,
+        inventoryRow.test_id.replaceAll('.', '-'),
+        `${row.id}: official obligation ID`,
+      )
+      assert.deepEqual(
+        directSourcePaths,
+        [...new Set(inventoryRow.source.map(entry => entry.path))].sort(),
+        `${row.id}: every official source path has row-scoped direct evidence`,
+      )
+    }
+    if (row.category === 'hidden') {
+      const inventoryRow = hiddenById.get(row.id)
+      assert.ok(inventoryRow, `${row.id}: hidden inventory row`)
+      assert.equal(row.title, inventoryRow.title, `${row.id}: hidden title`)
+      const inventoryPaths = [
+        ...new Set([
+          ...(inventoryRow.paths ?? []),
+          ...(inventoryRow.editedBehaviors ?? []).map(entry => entry.path),
+        ]),
+      ].sort()
+      assert.deepEqual(
+        inventoryPaths.filter(sourcePath => !directSourcePaths.includes(sourcePath)),
+        [],
+        `${row.id}: every hidden source path has row-scoped direct evidence`,
+      )
+    }
+  }
+
+  const allDirectSourcePaths = [
+    ...new Set(
+      catalog.rows.flatMap(row => [
+        ...row.sourceAssertions.map(assertion => assertion.path),
+        ...row.sourcePathAbsences.flatMap(absence => absence.paths),
+      ]),
+    ),
+  ]
+  assert.deepEqual(
+    changedSourcePaths().filter(sourcePath => !allDirectSourcePaths.includes(sourcePath)),
+    [],
+    'every changed source path has row-scoped direct evidence',
+  )
+})
+
+test('2.1.120-direct-evidence.authenticated-adjacent-bundle-counts', () => {
+  const baseline = readAuthenticatedBundle(
+    'CLAUDE_CODE_2_1_119_BUNDLE',
+    BASELINE_BYTES,
+    BASELINE_SHA256,
+  )
+  const target = readAuthenticatedBundle(
+    'CLAUDE_CODE_2_1_120_BUNDLE',
+    TARGET_BYTES,
+    TARGET_SHA256,
+  )
+
+  for (const row of catalog.rows) {
+    for (const fragment of row.targetFragments) {
+      const value = assertFragmentMetadata(fragment, `${row.id}: bundle witness`)
+      assert.equal(
+        occurrences(baseline, value),
+        fragment.baselineCount,
+        `${row.id}: baseline count: ${fragment.text}`,
+      )
+      assert.equal(
+        occurrences(target, value),
+        fragment.targetCount,
+        `${row.id}: target count: ${fragment.text}`,
+      )
+    }
+    const changed = row.targetFragments.some(
+      fragment => fragment.baselineCount !== fragment.targetCount,
+    )
+    assert.equal(
+      changed ||
+        row.category === 'official' ||
+        ['H13', 'R18', 'R20', 'R21', 'R22', 'R31', 'R36', 'R37'].includes(
+          row.id,
+        ),
+      true,
+      `${row.id}: adjacent or explicitly retained evidence`,
+    )
+  }
+})
+
+test('2.1.120-direct-evidence.exact-source-counts-and-absences', () => {
+  for (const row of catalog.rows) {
+    for (const sourceAssertion of row.sourceAssertions) {
+      const value = assertFragmentMetadata(
+        sourceAssertion,
+        `${row.id}: ${sourceAssertion.path}`,
+      )
+      const source = readPinnedFile(
+        sourceAssertion.path,
+        fs.statSync(path.join(repo, sourceAssertion.path)).size,
+        sha256(fs.readFileSync(path.join(repo, sourceAssertion.path))),
+        `${row.id}: source path`,
+      )
+      assert.equal(
+        occurrences(source, value),
+        sourceAssertion.count,
+        `${row.id}: exact source count: ${sourceAssertion.path}`,
+      )
+      assert.ok(sourceAssertion.count > 0, `${row.id}: source witness present`)
+    }
+    for (const sourceAbsence of row.sourcePathAbsences) {
+      const value = assertFragmentMetadata(
+        sourceAbsence,
+        `${row.id}: source absence`,
+      )
+      assert.deepEqual(
+        sourceAbsence.paths,
+        [...new Set(sourceAbsence.paths)].sort(),
+        `${row.id}: canonical source-absence paths`,
+      )
+      const count = sourceAbsence.paths.reduce((sum, sourcePath) => {
+        const source = readPinnedFile(
+          sourcePath,
+          fs.statSync(path.join(repo, sourcePath)).size,
+          sha256(fs.readFileSync(path.join(repo, sourcePath))),
+          `${row.id}: source-absence path`,
+        )
+        return sum + occurrences(source, value)
+      }, 0)
+      assert.equal(count, sourceAbsence.count, `${row.id}: source absence count`)
+      assert.equal(sourceAbsence.count, 0, `${row.id}: source witness absent`)
+    }
+    assert.deepEqual(row.sourceAbsences, [], `${row.id}: no global fallback`)
+  }
+})

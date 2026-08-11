@@ -47,7 +47,7 @@ function buildDesktopDeepLink(sessionId: string): string {
  * On Windows, checks if the protocol handler exists.
  * In dev mode, always returns true (assumes dev Desktop is running).
  */
-async function isDesktopInstalled(): Promise<boolean> {
+export async function isDesktopInstalled(): Promise<boolean> {
   // In dev mode, assume the dev Desktop app is running
   if (isDevMode()) {
     return true

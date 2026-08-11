@@ -291,7 +291,7 @@ function extractReviewFromLog(log: SDKMessage[]): string | null {
  * would trigger the fallback and prematurely set cachedReviewContent,
  * completing the review before the actual tagged output arrives.
  */
-function extractReviewTagFromLog(log: SDKMessage[]): string | null {
+export function extractReviewTagFromLog(log: SDKMessage[]): string | null {
   // hook_progress / hook_response per-message scan (bughunter path)
   for (let i = log.length - 1; i >= 0; i--) {
     const msg = log[i];

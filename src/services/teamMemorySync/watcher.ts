@@ -33,6 +33,10 @@ import {
 import type { TeamMemorySyncPushResult } from './types.js'
 
 const DEBOUNCE_MS = 2000 // Wait 2s after last change before pushing
+export const UNLINK_RECOVERABLE_REASONS = new Set([
+  'http_413',
+  'team_memory_too_many_entries',
+])
 
 // ─── Watcher state ──────────────────────────────────────────
 let watcher: FSWatcher | null = null
@@ -46,20 +50,20 @@ let watcherStarted = false
 // Prevents watch events from other sessions' writes to the shared team
 // dir driving an infinite retry loop (BQ Mar 14-16: one no_oauth device
 // emitted 167K push events over 2.5 days). Cleared on unlink — file deletion
-// is a recovery action for the too-many-entries case, and for no_oauth the
-// suppression persisting until session restart is correct.
+// is a recovery action for the too-many-entries case. Other permanent
+// failures remain suppressed until session restart.
 let pushSuppressedReason: string | null = null
 
 /**
  * Permanent = retry without user action will fail the same way.
- * - no_oauth / no_repo: pre-request client checks, no status code
+ * - no_oauth: pre-request client check, no status code
  * - 4xx except 409/429: client error (404 missing repo, 413 too many
  *   entries, 403 permission). 409 is a transient conflict — server state
  *   changed under us, a fresh push after next pull can succeed. 429 is a
  *   rate limit — watcher-driven backoff is fine.
  */
 export function isPermanentFailure(r: TeamMemorySyncPushResult): boolean {
-  if (r.errorType === 'no_oauth' || r.errorType === 'no_repo') return true
+  if (r.errorType === 'no_oauth') return true
   if (
     r.httpStatus !== undefined &&
     r.httpStatus >= 400 &&
@@ -102,17 +106,44 @@ async function executePush(): Promise<void> {
       })
       if (isPermanentFailure(result) && pushSuppressedReason === null) {
         pushSuppressedReason =
-          result.httpStatus !== undefined
+          result.serverErrorCode ??
+          (result.httpStatus !== undefined
             ? `http_${result.httpStatus}`
-            : (result.errorType ?? 'unknown')
+            : (result.errorType ?? 'unknown'))
+        if (
+          result.serverErrorCode === 'team_memory_group_acl_denied' ||
+          result.serverErrorCode === 'team_memory_group_acl_unconfigured'
+        ) {
+          logForDebugging(
+            `team-memory-watcher: ${result.serverMessage || 'Team memory is restricted to specific groups for your organization.'} Contact your administrator for access.`,
+            { level: 'warn' },
+          )
+        }
+        const recoverySuffix = UNLINK_RECOVERABLE_REASONS.has(
+          pushSuppressedReason,
+        )
+          ? ' (recoverable via file deletion)'
+          : ''
         logForDebugging(
-          `team-memory-watcher: suppressing retry until next unlink or session restart (${pushSuppressedReason})`,
+          `team-memory-watcher: suppressing retry for the rest of this session (${pushSuppressedReason})${recoverySuffix}`,
           { level: 'warn' },
         )
         logEvent('tengu_team_mem_push_suppressed', {
           reason:
             pushSuppressedReason as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
           ...(result.httpStatus && { status: result.httpStatus }),
+          ...(result.serverMessage !== undefined && {
+            server_message:
+              result.serverMessage as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+          }),
+          ...(result.serverErrorCode !== undefined && {
+            server_error_code:
+              result.serverErrorCode as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+          }),
+          ...(result.serverErrorType !== undefined && {
+            server_error_type:
+              result.serverErrorType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+          }),
         })
       }
     }
@@ -159,10 +190,9 @@ function schedulePush(): void {
  * per directory — O(subdirs), still fine (team memory rarely nests).
  *
  * `fs.watch` on a directory doesn't distinguish add/change/unlink — all three
- * emit `rename`. To clear suppression on the too-many-entries recovery path
- * (user deletes files), we stat the filename on each event: ENOENT → treat as
- * unlink.  For `no_oauth` suppression this is correct: no_oauth users don't
- * delete team memory files to recover, they restart with auth.
+ * emit `rename`. To clear a deletion-recoverable suppression, we stat the
+ * filename on each event: ENOENT → treat as unlink. Other permanent failures
+ * remain suppressed until session restart.
  */
 async function startFileWatcher(teamDir: string): Promise<void> {
   if (watcherStarted) {
@@ -185,6 +215,7 @@ async function startFileWatcher(teamDir: string): Promise<void> {
           return
         }
         if (pushSuppressedReason !== null) {
+          if (!UNLINK_RECOVERABLE_REASONS.has(pushSuppressedReason)) return
           // Suppression is only cleared by unlink (recovery action for
           // too-many-entries). fs.watch doesn't distinguish unlink from
           // add/write — stat to disambiguate. ENOENT → file gone → clear.
@@ -265,21 +296,29 @@ export async function startTeamMemoryWatcher(): Promise<void> {
     return
   }
 
-  syncState = createSyncState()
+  syncState = createSyncState(repoSlug)
 
   // Initial pull from server (runs before the watcher starts, so its disk
   // writes won't trigger schedulePush)
   let initialPullSuccess = false
   let initialFilesPulled = 0
+  let initialFilesReaped = 0
   let serverHasContent = false
   try {
     const pullResult = await pullTeamMemory(syncState)
     initialPullSuccess = pullResult.success
     serverHasContent = pullResult.entryCount > 0
-    if (pullResult.success && pullResult.filesWritten > 0) {
+    if (
+      pullResult.success &&
+      (pullResult.filesWritten > 0 || pullResult.filesReaped > 0)
+    ) {
       initialFilesPulled = pullResult.filesWritten
+      initialFilesReaped = pullResult.filesReaped
       logForDebugging(
-        `team-memory-watcher: initial pull got ${pullResult.filesWritten} files`,
+        `team-memory-watcher: initial pull got ${pullResult.filesWritten} files` +
+          (pullResult.filesReaped > 0
+            ? `, reaped ${pullResult.filesReaped} tombstoned`
+            : ''),
         { level: 'info' },
       )
     }
@@ -298,6 +337,7 @@ export async function startTeamMemoryWatcher(): Promise<void> {
   logEvent('tengu_team_mem_sync_started', {
     initial_pull_success: initialPullSuccess,
     initial_files_pulled: initialFilesPulled,
+    initial_files_reaped: initialFilesReaped,
     // Kept for dashboard continuity; now always true when this event fires.
     watcher_started: true,
     server_has_content: serverHasContent,

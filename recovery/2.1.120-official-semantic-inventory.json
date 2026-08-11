@@ -1,0 +1,567 @@
+{
+  "schema_version": 1,
+  "release": "2.1.120",
+  "authenticated_baseline": {
+    "artifact": "2.1.119-linux-x64/cli.inner.js",
+    "bytes": 13720987,
+    "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+  },
+  "authenticated_target": {
+    "artifact": "2.1.120-linux-x64/cli.inner.js",
+    "bytes": 13784743,
+    "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+  },
+  "authenticated_changelog": {
+    "artifact": "CHANGELOG-2.1.120.md",
+    "sha256": "75a3c8095663ecec2e2e85d304958a9e8fe12b0e540b4eea6ce207facf88e1a5"
+  },
+  "tag": {
+    "name": "v2.1.120",
+    "commit": "c3933441f09efb3429934c2213ee29f21a55cf74",
+    "direct_parent": "v2.1.119"
+  },
+  "test_id_namespace": "official-2.1.120-bNN",
+  "direct_all_22_test_coverage": true,
+  "rows": [
+    {
+      "bullet": 1,
+      "test_id": "official-2.1.120-b01",
+      "changelog": "Windows: Git for Windows (Git Bash) is no longer required — when absent, Claude Code uses PowerShell as the shell tool",
+      "classification": "active-source",
+      "normalized_witness": "target 2380, 2784, 9904-9906, 19373, 27989 and 28706-28710: nullable Git Bash discovery, PowerShell fallback, and shell-specific skill/hook errors",
+      "artifact_fragments": [
+        {
+          "fragment": "Git Bash not found; BashTool will be unavailable",
+          "baseline_count": 0,
+          "target_count": 1
+        }
+      ],
+      "source": [
+        {
+          "path": "src/utils/windowsPaths.ts",
+          "includes": [
+            "Git Bash not found; BashTool will be unavailable",
+            "export const findGitBashPath = memoize((): string | null =>"
+          ]
+        },
+        {
+          "path": "src/utils/shell/shellToolUtils.ts",
+          "includes": [
+            "return findGitBashPath() !== null",
+            "return isBashToolEnabled() ? 'bash' : 'powershell'"
+          ]
+        },
+        {
+          "path": "src/utils/promptShellExecution.ts",
+          "includes": [
+            "Skill ${slashCommandName} requires bash",
+            ": getPowerShellTool()"
+          ]
+        }
+      ]
+    },
+    {
+      "bullet": 2,
+      "test_id": "official-2.1.120-b02",
+      "changelog": "Added `claude ultrareview [target]` subcommand to run `/ultrareview` non-interactively from CI or scripts — prints findings to stdout (`--json` for raw output) and exits 0 on completion or 1 on failure",
+      "classification": "active-source",
+      "normalized_witness": "target 40610-40616 and 40814: policy/auth launch, 3-second polling, five transient failures, tag-only result extraction, formatting, JSON and exit status",
+      "artifact_fragments": [
+        {
+          "fragment": "ultrareview [target]",
+          "baseline_count": 0,
+          "target_count": 1
+        },
+        {
+          "fragment": "Run a cloud-hosted multi-agent code review of the current branch (or a PR number / base branch) and print the findings",
+          "baseline_count": 0,
+          "target_count": 1
+        }
+      ],
+      "source": [
+        {
+          "path": "src/main.tsx",
+          "includes": [
+            "program.command('ultrareview [target]')",
+            ".option('--json', 'Print the raw bugs.json payload instead of formatted findings')"
+          ]
+        },
+        {
+          "path": "src/cli/handlers/ultrareview.ts",
+          "includes": [
+            "const POLL_INTERVAL_MS = 3000",
+            "const MAX_CONSECUTIVE_FAILURES = 5",
+            "skipTaskRegistration: true",
+            "process.exit(reviewError ? 1 : 0)"
+          ]
+        }
+      ]
+    },
+    {
+      "bullet": 3,
+      "test_id": "official-2.1.120-b03",
+      "changelog": "Skills can now reference the current effort level with `${CLAUDE_EFFORT}` in their content",
+      "classification": "active-source",
+      "normalized_witness": "target 18733 and 19390: skill and plugin-command content substitute the effective displayed effort",
+      "artifact_fragments": [
+        {
+          "fragment": "${CLAUDE_EFFORT}",
+          "baseline_count": 0,
+          "target_count": 2
+        }
+      ],
+      "source": [
+        {
+          "path": "src/skills/loadSkillsDir.ts",
+          "includes": [
+            "'${CLAUDE_EFFORT}'",
+            "getDisplayedEffortLevel("
+          ]
+        },
+        {
+          "path": "src/utils/plugins/loadPluginCommands.ts",
+          "includes": [
+            "'${CLAUDE_EFFORT}'",
+            "effort ?? context.getEffortValue()"
+          ]
+        }
+      ]
+    },
+    {
+      "bullet": 4,
+      "test_id": "official-2.1.120-b04",
+      "changelog": "Set `AI_AGENT` environment variable for subprocesses so `gh` can attribute traffic to Claude Code",
+      "classification": "active-source",
+      "normalized_witness": "target 22, 16607, 40788 and 40826: harness initialization plus /agent child-process attribution",
+      "artifact_fragments": [
+        {
+          "fragment": "AI_AGENT",
+          "baseline_count": 0,
+          "target_count": 4
+        }
+      ],
+      "source": [
+        {
+          "path": "src/utils/userAgent.ts",
+          "includes": [
+            "process.env.AI_AGENT = getClaudeCodeAgentUserAgent('harness')",
+            "process.env.AI_AGENT.startsWith('claude-code/')"
+          ]
+        },
+        {
+          "path": "src/utils/Shell.ts",
+          "includes": [
+            "AI_AGENT: getClaudeCodeAgentUserAgent('agent')"
+          ]
+        }
+      ]
+    },
+    {
+      "bullet": 5,
+      "test_id": "official-2.1.120-b05",
+      "changelog": "Spinner tips that recommend installing the desktop app or creating skills/agents are now hidden when you already have them",
+      "classification": "active-source",
+      "normalized_witness": "target 30247 and 30251: memoized desktop detection and user-defined skills/agents relevance guards",
+      "source": [
+        {
+          "path": "src/services/tips/tipRegistry.ts",
+          "includes": [
+            "const memoizedIsDesktopInstalled = memoize(isDesktopInstalled)",
+            "async function hasUserDefined(kind: 'skills' | 'agents')",
+            "!(await hasUserDefined('skills'))",
+            "!(await memoizedIsDesktopInstalled())"
+          ]
+        },
+        {
+          "path": "src/utils/desktopDeepLink.ts",
+          "includes": [
+            "export async function isDesktopInstalled()"
+          ]
+        }
+      ]
+    },
+    {
+      "bullet": 6,
+      "test_id": "official-2.1.120-b06",
+      "changelog": "Show a \"use PgUp/PgDn to scroll\" hint when the terminal sends arrow keys instead of scroll events",
+      "classification": "active-source",
+      "normalized_witness": "target 7918-7920 and 30457-30459: eight same-direction unmodified arrows within 100 ms emit an event; the handler logs once and shows a delayed hint",
+      "artifact_fragments": [
+        {
+          "fragment": "Scroll wheel is sending arrow keys",
+          "baseline_count": 1,
+          "target_count": 1
+        }
+      ],
+      "source": [
+        {
+          "path": "src/ink/components/App.tsx",
+          "includes": [
+            "const ARROW_BURST_WINDOW_MS = 100",
+            "const ARROW_BURST_THRESHOLD = 8",
+            "internal_eventEmitter.emit('arrow-burst'"
+          ]
+        },
+        {
+          "path": "src/components/ScrollKeybindingHandler.tsx",
+          "includes": [
+            "tengu_scroll_arrows_detected",
+            "use PgUp/PgDn to scroll",
+            "setTimeout(showArrowScrollHint, 200, addNotification)"
+          ]
+        }
+      ]
+    },
+    {
+      "bullet": 7,
+      "test_id": "official-2.1.120-b07",
+      "changelog": "Faster session start when you have many claude.ai connectors configured but not authorized",
+      "classification": "active-source",
+      "normalized_witness": "baseline 19679/19705 versus target 19801/19828: auth cache lookup is transport-type-aware, claude.ai proxy entries live four hours, and successful connection clears the entry",
+      "source": [
+        {
+          "path": "src/services/mcp/client.ts",
+          "includes": [
+            "const CLAUDE_AI_MCP_AUTH_CACHE_TTL_MS = 4 * 60 * 60 * 1000",
+            "isMcpAuthCached(name, config.type)",
+            "clearMcpAuthCacheEntry(name)"
+          ]
+        }
+      ]
+    },
+    {
+      "bullet": 8,
+      "test_id": "official-2.1.120-b08",
+      "changelog": "The auto mode denial message now links to the configuration docs",
+      "classification": "active-source",
+      "normalized_witness": "target 15992: denial response renders the short configuration documentation URL",
+      "artifact_fragments": [
+        {
+          "fragment": "https://code.claude.com/docs/s/claude-code-auto-mode",
+          "baseline_count": 0,
+          "target_count": 1
+        }
+      ],
+      "source": [
+        {
+          "path": "src/components/messages/UserToolResultMessage/UserToolErrorMessage.tsx",
+          "includes": [
+            "https://code.claude.com/docs/s/claude-code-auto-mode"
+          ]
+        }
+      ]
+    },
+    {
+      "bullet": 9,
+      "test_id": "official-2.1.120-b09",
+      "changelog": "`claude plugin validate` now accepts `$schema`, `version`, and `description` at the top level of `marketplace.json` and `$schema` in `plugin.json`",
+      "classification": "active-source",
+      "normalized_witness": "target 2797 and approximately 23040: manifest schemas accept metadata while strict validation still rejects unknown authored fields",
+      "artifact_fragments": [
+        {
+          "fragment": "Marketplace manifest version",
+          "baseline_count": 0,
+          "target_count": 1
+        }
+      ],
+      "source": [
+        {
+          "path": "src/utils/plugins/schemas.ts",
+          "includes": [
+            "Marketplace manifest version",
+            "Human-readable description of this marketplace",
+            "JSON Schema reference for editor autocomplete/validation; ignored at load time"
+          ]
+        },
+        {
+          "path": "src/utils/plugins/validatePlugin.ts",
+          "includes": [
+            "const strictMarketplaceSchema = PluginMarketplaceSchema()"
+          ]
+        }
+      ]
+    },
+    {
+      "bullet": 10,
+      "test_id": "official-2.1.120-b10",
+      "changelog": "Auto-compact in auto mode now displays `auto` (lowercase, no token count) instead of a misleading token value",
+      "classification": "active-source",
+      "normalized_witness": "target approximately 19505: auto-mode notice and `/autocompact` status use lowercase auto without a numeric window",
+      "artifact_fragments": [
+        {
+          "fragment": "compacting at the auto ",
+          "baseline_count": 0,
+          "target_count": 1
+        }
+      ],
+      "source": [
+        {
+          "path": "src/services/compact/autoCompact.ts",
+          "includes": [
+            "compacting at the auto ${formatTokens(configured)} window · configure with /autocompact"
+          ]
+        },
+        {
+          "path": "src/commands/autocompact/autocompact-noninteractive.ts",
+          "includes": [
+            "? 'Auto-compact window: auto'"
+          ]
+        },
+        {
+          "path": "src/commands/autocompact/autocompact.tsx",
+          "includes": [
+            "selection === MODEL_DEFAULT",
+            "? 'auto'"
+          ]
+        }
+      ]
+    },
+    {
+      "bullet": 11,
+      "test_id": "official-2.1.120-b11",
+      "changelog": "Fixed pressing Esc during a stdio MCP tool call closing the entire server connection (regression in 2.1.105)",
+      "classification": "active-source",
+      "normalized_witness": "target 19845 removes the stdio-only closeTransportAndRejectPending/originalOnerror/return branch while retaining the shared error tail",
+      "source": [
+        {
+          "path": "src/services/mcp/client.ts",
+          "includes": [
+            "if (originalOnerror) {\n          originalOnerror(error)\n        }"
+          ],
+          "excludes": [
+            "stdio transport error:"
+          ]
+        }
+      ]
+    },
+    {
+      "bullet": 12,
+      "test_id": "official-2.1.120-b12",
+      "changelog": "Fixed `/rewind` and other interactive overlays not responding to keyboard input after launching with `claude --resume`",
+      "classification": "retained-no-js-delta",
+      "normalized_witness": "baseline 7482/7869/30555/23607 equals target 7533/7922/30750/23741: early-input stop, raw-mode handoff, resume chooser wrapper and picker-to-REPL morph are retained",
+      "boundary_note": "The authenticated Linux CLI contains no 2.1.119-to-2.1.120 semantic delta in the overlay/input paths; the recovered base already has the behavior.",
+      "source": [
+        {
+          "path": "src/ink/components/App.tsx",
+          "includes": [
+            "stopCapturingEarlyInput();"
+          ]
+        },
+        {
+          "path": "src/screens/REPL.tsx",
+          "includes": [
+            "const mainReturn = <KeybindingSetup>"
+          ]
+        }
+      ]
+    },
+    {
+      "bullet": 13,
+      "test_id": "official-2.1.120-b13",
+      "changelog": "Fixed terminal scrollback duplication in non-fullscreen mode (resize, dialog dismiss, long sessions)",
+      "classification": "active-source",
+      "normalized_witness": "baseline 7888 versus target 7941: previousVisibleStart uses the smaller of previous and next viewport heights",
+      "source": [
+        {
+          "path": "src/ink/log-update.ts",
+          "includes": [
+            "Math.min(prev.viewport.height, next.viewport.height)"
+          ]
+        }
+      ]
+    },
+    {
+      "bullet": 14,
+      "test_id": "official-2.1.120-b14",
+      "changelog": "Fixed `DISABLE_TELEMETRY` / `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` not suppressing usage metrics telemetry for API and enterprise users",
+      "classification": "active-source",
+      "normalized_witness": "baseline 14273 versus target 14371: BigQuery metrics enablement returns false immediately at the telemetry privacy boundary",
+      "source": [
+        {
+          "path": "src/utils/telemetry/instrumentation.ts",
+          "includes": [
+            "if (isTelemetryDisabled()) return false"
+          ]
+        }
+      ]
+    },
+    {
+      "bullet": 15,
+      "test_id": "official-2.1.120-b15",
+      "changelog": "Fixed false-positive \"Dangerous rm operation\" permission prompts in auto mode for multi-line bash commands containing both a pipe and a redirect",
+      "classification": "active-source",
+      "normalized_witness": "baseline 20091 versus target 20227: withoutOutputRedirections normalizes horizontal whitespace while preserving command-separating newlines",
+      "source": [
+        {
+          "path": "src/utils/bash/ParsedCommand.ts",
+          "includes": [
+            ".replace(/[ \\t]+/g, ' ')",
+            ".replace(/[ \\t]*\\n[ \\t]*/g, '\\n')"
+          ],
+          "excludes": [
+            ".trim()\n      .replace(/\\s+/g, ' ')"
+          ]
+        }
+      ]
+    },
+    {
+      "bullet": 16,
+      "test_id": "official-2.1.120-b16",
+      "changelog": "Fixed long selection menus clipping below the terminal in fullscreen mode — the focused option now stays on screen as you scroll",
+      "classification": "active-source",
+      "normalized_witness": "baseline 8621-8622 versus target 8684-8685: visible-count changes reset navigation and recompute an exact in-bounds viewport around focus",
+      "source": [
+        {
+          "path": "src/components/CustomSelect/use-select-navigation.ts",
+          "includes": [
+            "const [lastVisibleOptionCount, setLastVisibleOptionCount]",
+            "visibleOptionCount !== lastVisibleOptionCount",
+            "visibleFromIndex + visibleOptionCount"
+          ]
+        }
+      ]
+    },
+    {
+      "bullet": 17,
+      "test_id": "official-2.1.120-b17",
+      "changelog": "Fixed Write tool output collapsing instead of expanding when clicking \"+N lines\" in fullscreen",
+      "classification": "retained-no-js-delta",
+      "normalized_witness": "FileWrite 16288=16389, VirtualItem 23518=23652, Messages 23533=23667, OffscreenFreeze 15096=15194 and Ink hit-test 7880/7882/8003=7933/7935/8059",
+      "boundary_note": "The fix is already present in the 2.1.119 bundle and recovered source through the virtual-list OffscreenFreeze bypass; the release note has no new Linux CLI delta.",
+      "source": [
+        {
+          "path": "src/components/OffscreenFreeze.tsx",
+          "includes": [
+            "if (isVisible || inVirtualList)"
+          ]
+        }
+      ]
+    },
+    {
+      "bullet": 18,
+      "test_id": "official-2.1.120-b18",
+      "changelog": "Fixed slash command picker jumping while typing, and improved highlight to only match contiguous substrings in blue",
+      "classification": "active-source",
+      "normalized_witness": "baseline 8665-8668/23510 versus target 8726-8729/23644: descriptions use contiguous-only blue ranges, highlighted spans are not bold, and fullscreen removes footer padding",
+      "source": [
+        {
+          "path": "src/components/PromptInput/PromptInputFooterSuggestions.tsx",
+          "includes": [
+            "contiguousOnly = false",
+            "if (contiguousOnly) return []",
+            "const paddingRows = noPad ? 0"
+          ]
+        },
+        {
+          "path": "src/components/FullscreenLayout.tsx",
+          "includes": [
+            "noPad={true}"
+          ]
+        }
+      ]
+    },
+    {
+      "bullet": 19,
+      "test_id": "official-2.1.120-b19",
+      "changelog": "Fixed `/plugin` marketplace failing to load when one entry uses an unrecognized source format — that entry is shown but installing it prompts you to update",
+      "classification": "active-source",
+      "normalized_witness": "target 2797 and approximately 10639/23040: per-entry safe parsing stubs named unsupported sources and install/update surfaces an upgrade message",
+      "artifact_fragments": [
+        {
+          "fragment": "Stubbing unparseable marketplace plugin entry",
+          "baseline_count": 0,
+          "target_count": 1
+        },
+        {
+          "fragment": "source.source: 'unsupported' is a parse-time placeholder",
+          "baseline_count": 0,
+          "target_count": 2
+        }
+      ],
+      "source": [
+        {
+          "path": "src/utils/plugins/schemas.ts",
+          "includes": [
+            "function parseMarketplacePluginEntries(plugins: unknown[])",
+            "source: { source: 'unsupported' as const }",
+            "Stubbing unparseable marketplace plugin entry"
+          ]
+        },
+        {
+          "path": "src/utils/plugins/pluginLoader.ts",
+          "includes": [
+            "This plugin uses a source type your Claude Code version does not support. Update Claude Code and try again."
+          ]
+        }
+      ]
+    },
+    {
+      "bullet": 20,
+      "test_id": "official-2.1.120-b20",
+      "changelog": "[VSCode] `/usage` now opens the native Account & Usage dialog instead of returning plain-text session cost",
+      "classification": "external-vscode-boundary",
+      "normalized_witness": "CLI command metadata baseline 24183 equals target 24317 and usage call baseline 24174 equals target 24308; no new native-dialog subtype exists in the target Linux CLI",
+      "boundary_note": "Implemented by the VSCode/thin-client release outside this source tree; the CLI control-request dispatch is retained unchanged.",
+      "source": [
+        {
+          "path": "src/commands/usage/index.ts",
+          "includes": [
+            "thinClientDispatch: 'control-request'"
+          ]
+        }
+      ]
+    },
+    {
+      "bullet": 21,
+      "test_id": "official-2.1.120-b21",
+      "changelog": "[VSCode] Voice dictation now respects the `language` setting in `~/.claude/settings.json`",
+      "classification": "external-vscode-boundary",
+      "normalized_witness": "language normalizer baseline 26135 versus target hoist at 374 and `/voice` baseline 26139 versus target 26262 are semantically identical; all target call sites are TUI voice flows",
+      "boundary_note": "Implemented by the VSCode extension outside this source tree; the Linux CLI already normalizes its own TUI voice setting.",
+      "source": [
+        {
+          "path": "src/commands/voice/voice.ts",
+          "includes": [
+            "normalizeLanguageForSTT(currentSettings.language)"
+          ]
+        }
+      ]
+    },
+    {
+      "bullet": 22,
+      "test_id": "official-2.1.120-b22",
+      "changelog": "Fixed `find` in the Bash tool exhausting open file descriptors on large directory trees, causing host-wide crashes (macOS/Linux native builds)",
+      "classification": "active-source-native-path",
+      "normalized_witness": "baseline 16367 versus target 16468 adds bfs -S dfs; target 20186 also adds the root-find resource warning",
+      "artifact_fragments": [
+        {
+          "fragment": "[\"-S\",\"dfs\",\"-regextype\",\"findutils-default\"]",
+          "baseline_count": 0,
+          "target_count": 1
+        },
+        {
+          "fragment": "When running `find`, search from `.` (or a specific path), not `/`",
+          "baseline_count": 0,
+          "target_count": 1
+        }
+      ],
+      "source": [
+        {
+          "path": "src/utils/bash/ShellSnapshot.ts",
+          "includes": [
+            "'-S',",
+            "'dfs',",
+            "'-regextype',"
+          ]
+        },
+        {
+          "path": "src/tools/BashTool/prompt.ts",
+          "includes": [
+            "When running `find`, search from `.` (or a specific path), not `/`"
+          ]
+        }
+      ]
+    }
+  ]
+}

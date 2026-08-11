@@ -20,6 +20,7 @@ import {
 // Re-export message functions from centralized location
 export {
   getRateLimitErrorMessage,
+  getRateLimitLeverHint,
   getRateLimitWarning,
   getUsingOverageText,
 } from './rateLimitMessages.js'
@@ -225,6 +226,7 @@ type StatusChangeListener = (limits: ClaudeAILimits) => void
 export const statusListeners: Set<StatusChangeListener> = new Set()
 
 export function emitStatusChange(limits: ClaudeAILimits) {
+  const previousStatus = currentLimits.status
   currentLimits = limits
   statusListeners.forEach(listener => listener(limits))
   const hoursTillReset = Math.round(
@@ -234,6 +236,11 @@ export function emitStatusChange(limits: ClaudeAILimits) {
   logEvent('tengu_claudeai_limits_status_changed', {
     status:
       limits.status as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    previousStatus:
+      previousStatus as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    rateLimitType:
+      limits.rateLimitType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    isUsingOverage: limits.isUsingOverage,
     unifiedRateLimitFallbackAvailable: limits.unifiedRateLimitFallbackAvailable,
     hoursTillReset,
   })

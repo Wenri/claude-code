@@ -7,8 +7,9 @@ import type { FocusMove, SelectionState } from '../ink/selection.js';
 import { isXtermJs } from '../ink/terminal.js';
 import { getClipboardPath } from '../ink/termio/osc.js';
 // eslint-disable-next-line custom-rules/prefer-use-keybindings -- Esc needs conditional propagation based on selection state
-import { type Key, useInput } from '../ink.js';
+import { type Key, useInput, useStdin } from '../ink.js';
 import { useKeybindings } from '../keybindings/useKeybinding.js';
+import { logEvent } from '../services/analytics/index.js';
 import { logForDebugging } from '../utils/debug.js';
 type Props = {
   scrollRef: RefObject<ScrollBoxHandle | null>;
@@ -350,6 +351,41 @@ const AUTOSCROLL_INTERVAL_MS = 50;
 // event restarts the count via check()→start().
 const AUTOSCROLL_MAX_TICKS = 200; // 10s @ 50ms
 
+function useArrowScrollHint(
+  addNotification: ReturnType<typeof useNotifications>['addNotification'],
+): void {
+  const { internal_eventEmitter } = useStdin();
+  const didLog = useRef(false);
+  useEffect(() => {
+    const onArrowBurst = (event: { direction: 'up' | 'down'; count: number }) => {
+      if (!didLog.current) {
+        didLog.current = true;
+        logEvent('tengu_scroll_arrows_detected', {
+          count: event.count,
+          up: event.direction === 'up',
+        });
+      }
+      setTimeout(showArrowScrollHint, 200, addNotification);
+    };
+    internal_eventEmitter.on('arrow-burst', onArrowBurst);
+    return () => {
+      internal_eventEmitter.off('arrow-burst', onArrowBurst);
+    };
+  }, [internal_eventEmitter, addNotification]);
+}
+
+function showArrowScrollHint(
+  addNotification: ReturnType<typeof useNotifications>['addNotification'],
+): void {
+  addNotification({
+    key: 'scroll-as-arrows',
+    priority: 'immediate',
+    text: 'Scroll wheel is sending arrow keys · use PgUp/PgDn to scroll',
+    color: 'warning',
+    timeoutMs: 12_000,
+  });
+}
+
 /**
  * Keyboard scroll navigation for the fullscreen layout's message scroll box.
  * PgUp/PgDn scroll by half-viewport. Mouse wheel scrolls by a few lines.
@@ -366,6 +402,7 @@ export function ScrollKeybindingHandler({
   const {
     addNotification
   } = useNotifications();
+  useArrowScrollHint(addNotification);
   // Lazy-inited on first wheel event so the XTVERSION probe (fired at
   // raw-mode-enable time) has resolved by then — initializing in useRef()
   // would read getWheelBase() before the probe reply arrives over SSH.

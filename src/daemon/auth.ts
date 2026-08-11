@@ -209,6 +209,11 @@ export function createDaemonAuthManager(
         )
         return
       }
+      if (tokens?.accessToken && expiresAt !== null && expiresAt > Date.now()) {
+        log('auth: proactive refresh failed, retrying in ~60s (token still valid)')
+        scheduleRefresh(Date.now() + 60_000 + REFRESH_AHEAD_MS)
+        return
+      }
       log('auth: proactive refresh failed, signalling re-auth required')
       const failedToken = tokens?.accessToken ?? previousToken
       snapshot = undefined

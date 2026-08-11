@@ -1,4 +1,5 @@
 import { FILE_READ_TOOL_NAME } from '../FileReadTool/prompt.js'
+import { isLeanPromptEnabled } from '../../utils/leanPrompt.js'
 
 export const FILE_WRITE_TOOL_NAME = 'Write'
 export const DESCRIPTION = 'Write a file to the local filesystem.'
@@ -7,7 +8,13 @@ function getPreReadInstruction(): string {
   return `\n- If this is an existing file, you MUST use the ${FILE_READ_TOOL_NAME} tool first to read the file's contents. This tool will fail if you did not read the file first.`
 }
 
-export function getWriteToolDescription(): string {
+export function getWriteToolDescription(model?: string): string {
+  if (isLeanPromptEnabled(model)) {
+    return `Writes a file to the local filesystem. Overwrites if the file exists.
+
+- If the file already exists, you must ${FILE_READ_TOOL_NAME} it first in this conversation or the call will fail.
+- Prefer Edit for modifying existing files — it only sends the diff.`
+  }
   return `Writes a file to the local filesystem.
 
 Usage:

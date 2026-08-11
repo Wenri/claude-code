@@ -4,6 +4,7 @@ import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/gr
 import { getAttributionTexts } from '../../utils/attribution.js'
 import { hasEmbeddedSearchTools } from '../../utils/embeddedTools.js'
 import { isEnvTruthy } from '../../utils/envUtils.js'
+import { isLeanPromptEnabled } from '../../utils/leanPrompt.js'
 import { shouldIncludeGitInstructions } from '../../utils/gitSettings.js'
 import { getClaudeTempDir } from '../../utils/permissions/filesystem.js'
 import { SandboxManager } from '../../utils/sandbox/sandbox-adapter.js'
@@ -274,7 +275,41 @@ function getSimpleSandboxSection(): string {
   ].join('\n')
 }
 
-export function getSimplePrompt(): string {
+function getLeanGitInstructions(): string {
+  if (!shouldIncludeGitInstructions()) return ''
+  const { commit, pr } = getAttributionTexts()
+  const attributionInstructions = [
+    commit ? `- End git commit messages with:\n${commit}` : null,
+    pr ? `- End PR bodies with:\n${pr}` : null,
+  ]
+    .filter(Boolean)
+    .join('\n')
+  return `# Git
+- Interactive flags (\`-i\`, e.g. \`git rebase -i\`, \`git add -i\`) are not supported in this environment.
+- Use the \`gh\` CLI for GitHub operations (PRs, issues, API).${attributionInstructions ? `\n${attributionInstructions}` : ''}`
+}
+
+function getLeanPrompt(): string {
+  const backgroundNote = getBackgroundUsageNote()
+  const rerunNote = isBashRerunEnabled()
+    ? "- To rerun a prior command exactly, emit {rerun:'bN'} from the result footer instead of retyping it."
+    : null
+  const gitInstructions = getLeanGitInstructions()
+  const sandboxSection = getSimpleSandboxSection()
+  return [
+    'Executes a bash command and returns its output.',
+    '',
+    "- Working directory persists between calls; shell state (env vars, functions) does not. The shell is initialized from the user's profile.",
+    `- \`timeout\` is in milliseconds: default ${getDefaultTimeoutMs()}, max ${getMaxTimeoutMs()}.`,
+    ...(backgroundNote ? [`- ${backgroundNote}`] : []),
+    ...(rerunNote ? [rerunNote] : []),
+    ...(sandboxSection ? [sandboxSection] : []),
+    ...(gitInstructions ? ['', gitInstructions] : []),
+  ].join('\n')
+}
+
+export function getSimplePrompt(model?: string): string {
+  if (isLeanPromptEnabled(model)) return getLeanPrompt()
   // Ant-native builds alias find/grep to embedded bfs/ugrep in Claude's shell,
   // so we don't steer away from them (and Glob/Grep tools are removed).
   const embedded = hasEmbeddedSearchTools()
@@ -353,6 +388,7 @@ export function getSimplePrompt(): string {
     sleepSubitems,
     ...(embedded
       ? [
+          'When running `find`, search from `.` (or a specific path), not `/` — scanning the full filesystem can exhaust system resources on large trees.',
           // bfs (which backs `find`) uses Oniguruma for -regex, which picks the
           // FIRST matching alternative (leftmost-first), unlike GNU find's
           // POSIX leftmost-longest. This silently drops matches when a shorter

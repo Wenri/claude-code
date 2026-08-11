@@ -2,6 +2,7 @@ import type { BetaUsage as Usage } from '@anthropic-ai/sdk/resources/beta/messag
 import type { AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS } from 'src/services/analytics/index.js'
 import { logEvent } from 'src/services/analytics/index.js'
 import { setHasUnknownModelCost } from '../bootstrap/state.js'
+import { getGlobalConfig } from './config.js'
 import { isFastModeEnabled } from './fastMode.js'
 import {
   CLAUDE_3_5_HAIKU_CONFIG,
@@ -156,14 +157,17 @@ export function getModelCosts(model: string, usage: Usage): ModelCosts {
   }
 
   const costs = MODEL_COSTS[shortName]
-  if (!costs) {
-    trackUnknownModelCost(model, shortName)
-    return (
-      MODEL_COSTS[getCanonicalName(getDefaultMainLoopModelSetting())] ??
-      DEFAULT_UNKNOWN_MODEL_COST
-    )
-  }
-  return costs
+  if (costs) return costs
+
+  const additionalCosts = getGlobalConfig().additionalModelCostsCache
+  const dynamicCosts = additionalCosts?.[model] ?? additionalCosts?.[shortName]
+  if (dynamicCosts) return dynamicCosts
+
+  trackUnknownModelCost(model, shortName)
+  return (
+    MODEL_COSTS[getCanonicalName(getDefaultMainLoopModelSetting())] ??
+    DEFAULT_UNKNOWN_MODEL_COST
+  )
 }
 
 function trackUnknownModelCost(model: string, shortName: ModelShortName): void {

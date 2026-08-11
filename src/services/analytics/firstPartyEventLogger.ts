@@ -230,6 +230,25 @@ export function logEventTo1P(
 }
 
 /**
+ * Log a 1st-party event and wait until its metadata has been emitted to the
+ * logger. Use this immediately before a process exit where fire-and-forget
+ * emission can otherwise be lost.
+ */
+export async function logEventTo1PAwaitable(
+  eventName: string,
+  metadata: Record<string, number | boolean | undefined> = {},
+): Promise<void> {
+  if (
+    !is1PEventLoggingEnabled() ||
+    !firstPartyEventLogger ||
+    isSinkKilled('firstParty')
+  ) {
+    return
+  }
+  await logEventTo1PAsync(firstPartyEventLogger, eventName, metadata)
+}
+
+/**
  * GrowthBook experiment event data for logging
  */
 export type GrowthBookExperimentData = {

@@ -28,7 +28,10 @@ type PromptShellTool = Tool & {
   ): Promise<{ data: ShellOut }>
 }
 
-import { isPowerShellToolEnabled } from './shell/shellToolUtils.js'
+import {
+  isBashToolEnabled,
+  isPowerShellToolEnabled,
+} from './shell/shellToolUtils.js'
 
 // Lazy: this file is on the startup import chain (main → commands →
 // loadSkillsDir → here). A static import would load PowerShellTool.ts
@@ -96,7 +99,8 @@ export function replaceSkillShellCommandsWithDisabledMessage(
  * - Code blocks: ```! command ```
  * - Inline: !`command`
  *
- * @param shell - Shell to route commands through. Defaults to bash.
+ * @param shell - Shell to route commands through. When omitted, uses Bash if
+ *   available and otherwise PowerShell.
  *   This is *never* read from settings.defaultShell — it comes from .md
  *   frontmatter (author's choice) or is undefined for built-in commands.
  *   See docs/design/ps-shell-selection.md §5.3.
@@ -109,13 +113,21 @@ export async function executeShellCommandsInPrompt(
 ): Promise<string> {
   let result = text
 
+  if (shell === 'bash' && !isBashToolEnabled()) {
+    throw new Error(
+      `Skill ${slashCommandName} requires bash (\`shell: bash\` in frontmatter) but Git Bash was not found. Install Git for Windows (https://git-scm.com/downloads/win), or change the skill's frontmatter to \`shell: powershell\`.`,
+    )
+  }
+
   // Resolve the tool once. `shell === undefined` and `shell === 'bash'` both
   // hit BashTool. PowerShell only when the runtime gate allows — a skill
   // author's frontmatter choice doesn't override the user's opt-in/out.
   const shellTool: PromptShellTool =
     shell === 'powershell' && isPowerShellToolEnabled()
       ? getPowerShellTool()
-      : BashTool
+      : isBashToolEnabled()
+        ? BashTool
+        : getPowerShellTool()
 
   // INLINE_PATTERN's lookbehind is ~100x slower than BLOCK_PATTERN on large
   // skill content (265µs vs 2µs @ 17KB). 93% of skills have no !` at all,

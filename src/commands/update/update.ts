@@ -7,13 +7,20 @@ import {
   type RelaunchLauncher,
 } from '../../utils/relaunch.js'
 import { getSessionId } from '../../bootstrap/state.js'
-import { getProjectDir, getTranscriptPath } from '../../utils/sessionStorage.js'
+import {
+  getProjectDir,
+  getTranscriptPath,
+  isChainParticipant,
+  isLoggableMessage,
+  persistLeafCheckpoint,
+} from '../../utils/sessionStorage.js'
 import { join } from 'path'
 import { logEvent } from '../../services/analytics/index.js'
 import { which } from '../../utils/which.js'
 import { makeSystemMessage } from '../../bridge/bridgeMessaging.js'
 import { getReplBridgeHandle } from '../../bridge/replBridgeHandle.js'
 import { withTimeout } from '../../utils/sleep.js'
+import { logError } from '../../utils/log.js'
 
 export async function resolveLauncher(): Promise<RelaunchLauncher> {
   const installedLauncher = await which('claude')
@@ -48,6 +55,17 @@ export const call: LocalCommandCall = async (_args, context) => {
       type: 'text',
       value:
         'Cannot /update — this session was resumed from a different project directory. Restart manually with --resume to continue on the latest version.',
+    }
+  }
+
+  const leafUuid = context.messages.findLast(
+    message => isChainParticipant(message) && isLoggableMessage(message),
+  )?.uuid
+  if (leafUuid) {
+    try {
+      await persistLeafCheckpoint(leafUuid)
+    } catch (error) {
+      logError(error)
     }
   }
 

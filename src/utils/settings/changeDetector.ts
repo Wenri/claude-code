@@ -145,6 +145,11 @@ export async function initialize(): Promise<void> {
   watcher.on('change', handleChange)
   watcher.on('unlink', handleDelete)
   watcher.on('add', handleAdd)
+  watcher.on('error', error =>
+    logForDebugging(`[settings] watcher error: ${errorMessage(error)}`, {
+      level: 'warn',
+    }),
+  )
 }
 
 /**

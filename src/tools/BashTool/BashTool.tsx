@@ -30,7 +30,7 @@ import { lazySchema } from '../../utils/lazySchema.js';
 import { expandPath } from '../../utils/path.js';
 import type { PermissionDecisionReason, PermissionResult } from '../../utils/permissions/PermissionResult.js';
 import { maybeRecordPluginHint } from '../../utils/plugins/hintRecommendation.js';
-import { exec } from '../../utils/Shell.js';
+import { exec, getExecutorShell } from '../../utils/Shell.js';
 import type { ExecResult } from '../../utils/ShellCommand.js';
 import { SandboxManager } from '../../utils/sandbox/sandbox-adapter.js';
 import { semanticBoolean } from '../../utils/semanticBoolean.js';
@@ -487,8 +487,8 @@ export const BashTool = buildTool({
   }) {
     return description || 'Run shell command';
   },
-  async prompt() {
-    return getSimplePrompt();
+  async prompt({ model }) {
+    return getSimplePrompt(model);
   },
   isConcurrencySafe(input) {
     return this.isReadOnly?.(input) ?? false;
@@ -840,7 +840,9 @@ export const BashTool = buildTool({
       stdout_length: stdout.length,
       stderr_length: 0,
       exit_code: result.code,
-      interrupted: wasInterrupted
+      interrupted: wasInterrupted,
+      executor_shell: await getExecutorShell(),
+      executor_shell_overridden: Boolean(process.env.CLAUDE_CODE_SHELL)
     });
 
     // Log code indexing tool usage

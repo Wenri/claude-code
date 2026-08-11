@@ -9,7 +9,7 @@ import {
   getSettingsForSource,
 } from '../settings/settings.js'
 import type { HookCommand, HookMatcher } from '../settings/types.js'
-import { DEFAULT_HOOK_SHELL } from '../shell/shellProvider.js'
+import { getDefaultHookShell } from '../shell/shellToolUtils.js'
 import { getSessionHooks } from './sessionHooks.js'
 
 export type HookSource =
@@ -49,7 +49,8 @@ export function isHookEqual(
       return (
         b.type === 'command' &&
         a.command === b.command &&
-        (a.shell ?? DEFAULT_HOOK_SHELL) === (b.shell ?? DEFAULT_HOOK_SHELL) &&
+        (a.shell ?? getDefaultHookShell()) ===
+          (b.shell ?? getDefaultHookShell()) &&
         sameIf(a, b)
       )
     case 'prompt':

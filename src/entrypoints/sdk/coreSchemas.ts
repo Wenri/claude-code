@@ -370,7 +370,6 @@ export const PermissionModeSchema = lazySchema(() =>
     ),
 )
 
-
 // ============================================================================
 // Hook Types
 // ============================================================================
@@ -1926,6 +1925,30 @@ export const SDKTaskStartedMessageSchema = lazySchema(() =>
   }),
 )
 
+export const SDKTaskUpdatedMessageSchema = lazySchema(() =>
+  z.object({
+    type: z.literal('system'),
+    subtype: z.literal('task_updated'),
+    task_id: z.string(),
+    patch: z
+      .object({
+        status: z
+          .enum(['pending', 'running', 'completed', 'failed', 'killed'])
+          .optional(),
+        description: z.string().optional(),
+        end_time: z.number().optional(),
+        total_paused_ms: z.number().optional(),
+        error: z.string().optional(),
+        is_backgrounded: z.boolean().optional(),
+      })
+      .describe(
+        'Wire-safe subset of TaskState fields that changed. Excludes abortController, messages, result. Clients merge into their local task map.',
+      ),
+    uuid: UUIDPlaceholder(),
+    session_id: z.string(),
+  }),
+)
+
 export const SDKSessionStateChangedMessageSchema = lazySchema(() =>
   z
     .object({
@@ -1939,7 +1962,6 @@ export const SDKSessionStateChangedMessageSchema = lazySchema(() =>
       "Mirrors notifySessionStateChanged. 'idle' fires after heldBackResult flushes and the bg-agent do-while exits — authoritative turn-over signal.",
     ),
 )
-
 
 export const SDKTaskProgressMessageSchema = lazySchema(() =>
   z.object({
@@ -2067,6 +2089,7 @@ export const SDKMessageSchema = lazySchema(() =>
     SDKAuthStatusMessageSchema(),
     SDKTaskNotificationMessageSchema(),
     SDKTaskStartedMessageSchema(),
+    SDKTaskUpdatedMessageSchema(),
     SDKTaskProgressMessageSchema(),
     SDKSessionStateChangedMessageSchema(),
     SDKFilesPersistedEventSchema(),

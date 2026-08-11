@@ -49,13 +49,13 @@ import type { InProcessTeammateTaskState } from '../../tasks/InProcessTeammateTa
 import { isPanelAgentTask, type LocalAgentTaskState } from '../../tasks/LocalAgentTask/LocalAgentTask.js';
 import { isBackgroundTask } from '../../tasks/types.js';
 import { AGENT_COLOR_TO_THEME_COLOR, AGENT_COLORS, type AgentColorName } from '../../tools/AgentTool/agentColorManager.js';
+import { isForkSubagentEnabled } from '../../tools/AgentTool/forkSubagent.js';
 import type { AgentDefinition } from '../../tools/AgentTool/loadAgentsDir.js';
 import type { Message } from '../../types/message.js';
 import type { PermissionMode } from '../../types/permissions.js';
 import type { BaseTextInputProps, PromptInputMode, VimMode } from '../../types/textInputTypes.js';
 import { isAgentSwarmsEnabled } from '../../utils/agentSwarmsEnabled.js';
 import { count } from '../../utils/array.js';
-import type { AutoUpdaterResult } from '../../utils/autoUpdater.js';
 import { Cursor } from '../../utils/Cursor.js';
 import { getGlobalConfig, type PastedContent, saveGlobalConfig } from '../../utils/config.js';
 import { isBgSession } from '../../utils/concurrentSessions.js';
@@ -136,8 +136,6 @@ type Props = {
   isLoading: boolean;
   verbose: boolean;
   messages: Message[];
-  onAutoUpdaterResult: (result: AutoUpdaterResult) => void;
-  autoUpdaterResult: AutoUpdaterResult | null;
   input: string;
   onInputChange: (value: string) => void;
   mode: PromptInputMode;
@@ -196,6 +194,14 @@ type Props = {
 // Bottom slot has maxHeight="50%"; reserve lines for footer, border, status.
 const PROMPT_FOOTER_LINES = 5;
 const MIN_INPUT_VIEWPORT_LINES = 3;
+export function reconcileCoordinatorTaskIndex(currentIndex: number, previousIds: string[], nextIds: string[]): number {
+  if (currentIndex < 1) return currentIndex;
+  for (let index = Math.min(currentIndex, previousIds.length) - 1; index >= 0; index--) {
+    const nextIndex = nextIds.indexOf(previousIds[index]);
+    if (nextIndex !== -1) return nextIndex + 1;
+  }
+  return 0;
+}
 function PromptInput({
   debug,
   ideSelection,
@@ -207,8 +213,6 @@ function PromptInput({
   isLoading,
   verbose,
   messages,
-  onAutoUpdaterResult,
-  autoUpdaterResult,
   input,
   onInputChange,
   mode,
@@ -385,6 +389,7 @@ function PromptInput({
   // First ↓ selects the pill, second ↓ moves to row 0. Prevents double-select
   // of pill + row when both bg tasks (pill) and forked agents (rows) are visible.
   const coordinatorTaskIndex = useAppState(s => s.coordinatorTaskIndex);
+  const taskDecorations = useAppState(s => s.taskDecorations);
   const setCoordinatorTaskIndex = useCallback((v: number | ((prev: number) => number)) => setAppState(prev => {
     const next = typeof v === 'function' ? v(prev.coordinatorTaskIndex) : v;
     if (next === prev.coordinatorTaskIndex) return prev;
@@ -398,16 +403,24 @@ function PromptInput({
   // exist. When only local_agent tasks are running (coordinator/fork mode), the
   // pill is absent, so the -1 sentinel would leave nothing visually selected.
   // In that case, skip -1 and treat 0 as the minimum selectable index.
-  const hasBgTaskPill = useMemo(() => Object.values(tasks).some(t => isBackgroundTask(t) && !("external" === 'ant' && isPanelAgentTask(t))), [tasks]);
+  const hasBgTaskPill = useMemo(() => Object.values(tasks).some(t => isBackgroundTask(t) && !(isForkSubagentEnabled() && isPanelAgentTask(t))), [tasks]);
   const minCoordinatorIndex = hasBgTaskPill ? -1 : 0;
-  // Clamp index when tasks complete and the list shrinks beneath the cursor
+  const visibleCoordinatorTaskIds = useMemo(() => getVisibleAgentTasks(tasks, taskDecorations).map(task => task.id), [tasks, taskDecorations]);
+  const previousCoordinatorTaskIdsRef = useRef(visibleCoordinatorTaskIds);
+  // Preserve the selected task when a custom status-line hides/reorders rows,
+  // then clamp to the remaining valid range.
   useEffect(() => {
-    if (coordinatorTaskIndex >= coordinatorTaskCount) {
+    const previousIds = previousCoordinatorTaskIdsRef.current;
+    previousCoordinatorTaskIdsRef.current = visibleCoordinatorTaskIds;
+    const reconciled = reconcileCoordinatorTaskIndex(coordinatorTaskIndex, previousIds, visibleCoordinatorTaskIds);
+    if (reconciled !== coordinatorTaskIndex) {
+      setCoordinatorTaskIndex(reconciled);
+    } else if (coordinatorTaskIndex >= coordinatorTaskCount) {
       setCoordinatorTaskIndex(Math.max(minCoordinatorIndex, coordinatorTaskCount - 1));
     } else if (coordinatorTaskIndex < minCoordinatorIndex) {
       setCoordinatorTaskIndex(minCoordinatorIndex);
     }
-  }, [coordinatorTaskCount, coordinatorTaskIndex, minCoordinatorIndex]);
+  }, [visibleCoordinatorTaskIds, coordinatorTaskCount, coordinatorTaskIndex, minCoordinatorIndex, setCoordinatorTaskIndex]);
   const [isPasting, setIsPasting] = useState(false);
   const [showExpandPasteHint, setShowExpandPasteHint] = useState(false);
   const expandPasteHintTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -469,7 +482,7 @@ function PromptInput({
   // Panel shows retained-completed agents too (getVisibleAgentTasks), so the
   // pill must stay navigable whenever the panel has rows — not just when
   // something is running.
-  const tasksFooterVisible = (runningTaskCount > 0 || "external" === 'ant' && coordinatorTaskCount > 0) && !shouldHideTasksFooter(tasks, showSpinnerTree);
+  const tasksFooterVisible = (runningTaskCount > 0 || isForkSubagentEnabled() && coordinatorTaskCount > 0) && !shouldHideTasksFooter(tasks, showSpinnerTree);
   const teamsFooterVisible = cachedTeams.length > 0;
   const footerItems = useMemo(() => [tasksFooterVisible && 'tasks', tmuxFooterVisible && 'tmux', bagelFooterVisible && 'bagel', teamsFooterVisible && 'teams', bridgeFooterVisible && 'bridge', companionFooterVisible && 'companion'].filter(Boolean) as FooterItem[], [tasksFooterVisible, tmuxFooterVisible, bagelFooterVisible, teamsFooterVisible, bridgeFooterVisible, companionFooterVisible]);
 
@@ -1853,7 +1866,7 @@ function PromptInput({
   useKeybindings({
     'footer:up': () => {
       // ↑ scrolls within the coordinator task list before leaving the pill
-      if (tasksSelected && "external" === 'ant' && coordinatorTaskCount > 0 && coordinatorTaskIndex > minCoordinatorIndex) {
+      if (tasksSelected && isForkSubagentEnabled() && coordinatorTaskCount > 0 && coordinatorTaskIndex > minCoordinatorIndex) {
         setCoordinatorTaskIndex(prev => prev - 1);
         return;
       }
@@ -1861,7 +1874,7 @@ function PromptInput({
     },
     'footer:down': () => {
       // ↓ scrolls within the coordinator task list, never leaves the pill
-      if (tasksSelected && "external" === 'ant' && coordinatorTaskCount > 0) {
+      if (tasksSelected && isForkSubagentEnabled() && coordinatorTaskCount > 0) {
         if (coordinatorTaskIndex < coordinatorTaskCount - 1) {
           setCoordinatorTaskIndex(prev => prev + 1);
         }
@@ -1914,7 +1927,7 @@ function PromptInput({
           } else if (coordinatorTaskIndex === 0 && coordinatorTaskCount > 0) {
             exitTeammateView(setAppState);
           } else {
-            const selectedTaskId = getVisibleAgentTasks(tasks)[coordinatorTaskIndex - 1]?.id;
+            const selectedTaskId = getVisibleAgentTasks(tasks, taskDecorations)[coordinatorTaskIndex - 1]?.id;
             if (selectedTaskId) {
               enterTeammateView(selectedTaskId, setAppState);
             } else {
@@ -1951,7 +1964,7 @@ function PromptInput({
     },
     'footer:close': () => {
       if (tasksSelected && coordinatorTaskIndex >= 1) {
-        const task = getVisibleAgentTasks(tasks)[coordinatorTaskIndex - 1];
+        const task = getVisibleAgentTasks(tasks, taskDecorations)[coordinatorTaskIndex - 1];
         if (!task) return false;
         // When the selected row IS the viewed agent, 'x' types into the
         // steering input. Any other row — dismiss it.
@@ -2390,7 +2403,7 @@ function PromptInput({
             {textInputElement}
           </Box>
         </Box>}
-      <PromptInputFooter apiKeyStatus={apiKeyStatus} debug={debug} exitMessage={exitMessage} leftArrowPending={leftArrowPending} vimMode={isVimModeEnabled() ? vimMode : undefined} mode={mode} autoUpdaterResult={autoUpdaterResult} isAutoUpdating={isAutoUpdating} verbose={verbose} onAutoUpdaterResult={onAutoUpdaterResult} onChangeIsUpdating={setIsAutoUpdating} suggestions={suggestions} selectedSuggestion={selectedSuggestion} suggestionsEmptyMessage={suggestionsEmptyMessage} maxColumnWidth={maxColumnWidth} toolPermissionContext={effectiveToolPermissionContext} helpOpen={helpOpen} suppressHint={input.length > 0} isLoading={isLoading} tasksSelected={tasksSelected} teamsSelected={teamsSelected} bridgeSelected={bridgeSelected} tmuxSelected={tmuxSelected} teammateFooterIndex={teammateFooterIndex} ideSelection={ideSelection} mcpClients={mcpClients} isPasting={isPasting} showExpandPasteHint={showExpandPasteHint} isInputWrapped={isInputWrapped} messages={messages} isSearching={isSearchingHistory} historyQuery={historyQuery} setHistoryQuery={setHistoryQuery} historyFailedMatch={historyFailedMatch} onOpenTasksDialog={isFullscreenEnvEnabled() ? handleOpenTasksDialog : undefined} />
+      <PromptInputFooter apiKeyStatus={apiKeyStatus} debug={debug} exitMessage={exitMessage} leftArrowPending={leftArrowPending} vimMode={isVimModeEnabled() ? vimMode : undefined} mode={mode} isAutoUpdating={isAutoUpdating} verbose={verbose} onChangeIsUpdating={setIsAutoUpdating} suggestions={suggestions} selectedSuggestion={selectedSuggestion} suggestionsEmptyMessage={suggestionsEmptyMessage} maxColumnWidth={maxColumnWidth} toolPermissionContext={effectiveToolPermissionContext} helpOpen={helpOpen} suppressHint={input.length > 0} isLoading={isLoading} tasksSelected={tasksSelected} teamsSelected={teamsSelected} bridgeSelected={bridgeSelected} tmuxSelected={tmuxSelected} teammateFooterIndex={teammateFooterIndex} ideSelection={ideSelection} mcpClients={mcpClients} isPasting={isPasting} showExpandPasteHint={showExpandPasteHint} isInputWrapped={isInputWrapped} messages={messages} isSearching={isSearchingHistory} historyQuery={historyQuery} setHistoryQuery={setHistoryQuery} historyFailedMatch={historyFailedMatch} onOpenTasksDialog={isFullscreenEnvEnabled() ? handleOpenTasksDialog : undefined} />
       {isFullscreenEnvEnabled() ? null : autoModeOptInDialog}
       {isFullscreenEnvEnabled() ?
     // position=absolute takes zero layout height so the spinner
@@ -2410,7 +2423,7 @@ function PromptInput({
     // initial-check effect from re-firing on every slash-completion
     // toggle (PR#22413).
     <Box position="absolute" marginTop={briefOwnsGap ? -2 : -1} height={suggestions.length === 0 && !showAutoModeOptIn ? 1 : 0} width="100%" paddingLeft={2} paddingRight={1} flexDirection="column" justifyContent="flex-end" overflow="hidden">
-          <Notifications apiKeyStatus={apiKeyStatus} autoUpdaterResult={autoUpdaterResult} debug={debug} isAutoUpdating={isAutoUpdating} verbose={verbose} messages={messages} onAutoUpdaterResult={onAutoUpdaterResult} onChangeIsUpdating={setIsAutoUpdating} ideSelection={ideSelection} mcpClients={mcpClients} isInputWrapped={isInputWrapped} />
+          <Notifications apiKeyStatus={apiKeyStatus} debug={debug} isAutoUpdating={isAutoUpdating} verbose={verbose} messages={messages} onChangeIsUpdating={setIsAutoUpdating} ideSelection={ideSelection} mcpClients={mcpClients} isInputWrapped={isInputWrapped} />
         </Box> : null}
     </Box>;
 }

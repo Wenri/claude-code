@@ -54,6 +54,10 @@ export type SelectionState = {
   virtualAnchorRow?: number
   /** Same for focus. */
   virtualFocusRow?: number
+  /** Original column for an anchor whose row is currently virtual. */
+  virtualAnchorCol?: number
+  /** Same for focus. */
+  virtualFocusCol?: number
   /** True if the mouse-down that started this selection had the alt
    *  modifier set (SGR button bit 0x08). On macOS xterm.js this is a
    *  signal that VS Code's macOptionClickForcesSelection is OFF — if it
@@ -94,6 +98,8 @@ export function startSelection(
   s.scrolledOffBelowSW = []
   s.virtualAnchorRow = undefined
   s.virtualFocusRow = undefined
+  s.virtualAnchorCol = undefined
+  s.virtualFocusCol = undefined
   s.lastPressHadAlt = false
 }
 
@@ -130,6 +136,8 @@ export function clearSelection(s: SelectionState): void {
   s.scrolledOffBelowSW = []
   s.virtualAnchorRow = undefined
   s.virtualFocusRow = undefined
+  s.virtualAnchorCol = undefined
+  s.virtualFocusCol = undefined
   s.lastPressHadAlt = false
 }
 
@@ -447,6 +455,7 @@ export function moveFocus(s: SelectionState, col: number, row: number): void {
   // shiftSelection clamp) no longer reflects intent. Anchor stays put so
   // virtualAnchorRow is still valid for its own round-trip.
   s.virtualFocusRow = undefined
+  s.virtualFocusCol = undefined
 }
 
 /**
@@ -460,12 +469,10 @@ export function moveFocus(s: SelectionState, col: number, row: number): void {
  * for dRow<0 (scrolling down, top leaves, 'above' semantics) or width-1 for
  * dRow>0 (scrolling up, bottom leaves, 'below' semantics).
  *
- * If both ends overshoot the SAME viewport edge (select text → Home/End/g/G
- * jumps far enough that both are out of view), clear — otherwise both clamp
- * to the same corner cell and a ghost 1-cell highlight lingers, and
- * getSelectedText returns one unrelated char from that corner. Symmetric
- * with shiftSelectionForFollow's top-edge check, but bidirectional: keyboard
- * scroll can jump either way.
+ * When both ends are offscreen, their unclamped rows and original columns
+ * remain virtual. This lets reverse scrolling restore the exact endpoints;
+ * crossing directly from one offscreen edge to the other transfers the
+ * captured text between the above/below accumulators.
  */
 export function shiftSelection(
   s: SelectionState,
@@ -480,13 +487,6 @@ export function shiftSelection(
   // and scrolledOffAbove stays stale (highlight ≠ copy).
   const vAnchor = (s.virtualAnchorRow ?? s.anchor.row) + dRow
   const vFocus = (s.virtualFocusRow ?? s.focus.row) + dRow
-  if (
-    (vAnchor < minRow && vFocus < minRow) ||
-    (vAnchor > maxRow && vFocus > maxRow)
-  ) {
-    clearSelection(s)
-    return
-  }
   // Debt = how far the nearer endpoint overshoots each edge. When debt
   // shrinks (reverse scroll), those rows are back on-screen — pop from
   // the accumulator so getSelectedText doesn't double-count them.
@@ -498,13 +498,43 @@ export function shiftSelection(
     s.virtualAnchorRow ?? s.anchor.row,
     s.virtualFocusRow ?? s.focus.row,
   )
-  const oldAboveDebt = Math.max(0, minRow - oldMin)
-  const oldBelowDebt = Math.max(0, oldMax - maxRow)
-  const newAboveDebt = Math.max(0, minRow - Math.min(vAnchor, vFocus))
-  const newBelowDebt = Math.max(0, Math.max(vAnchor, vFocus) - maxRow)
+  const selectionHeight = oldMax - oldMin + 1
+  const oldAboveDebt = Math.min(
+    selectionHeight,
+    Math.max(0, minRow - oldMin),
+  )
+  const oldBelowDebt = Math.min(
+    selectionHeight,
+    Math.max(0, oldMax - maxRow),
+  )
+  const newAboveDebt = Math.min(
+    selectionHeight,
+    Math.max(0, minRow - Math.min(vAnchor, vFocus)),
+  )
+  const newBelowDebt = Math.min(
+    selectionHeight,
+    Math.max(0, Math.max(vAnchor, vFocus) - maxRow),
+  )
+  if (oldBelowDebt === selectionHeight && newAboveDebt === selectionHeight) {
+    s.scrolledOffAbove = s.scrolledOffBelow
+    s.scrolledOffAboveSW = s.scrolledOffBelowSW
+    s.scrolledOffBelow = []
+    s.scrolledOffBelowSW = []
+  } else if (
+    oldAboveDebt === selectionHeight &&
+    newBelowDebt === selectionHeight
+  ) {
+    s.scrolledOffBelow = s.scrolledOffAbove
+    s.scrolledOffBelowSW = s.scrolledOffAboveSW
+    s.scrolledOffAbove = []
+    s.scrolledOffAboveSW = []
+  }
   if (newAboveDebt < oldAboveDebt) {
     // scrolledOffAbove pushes newest at the end (closest to on-screen).
-    const drop = oldAboveDebt - newAboveDebt
+    const drop = Math.min(
+      oldAboveDebt - newAboveDebt,
+      s.scrolledOffAbove.length,
+    )
     s.scrolledOffAbove.length -= drop
     s.scrolledOffAboveSW.length = s.scrolledOffAbove.length
   }
@@ -537,16 +567,21 @@ export function shiftSelection(
   // Clamp col depends on which EDGE (not dRow direction): virtual tracking
   // means a top-clamped point can stay top-clamped during a dRow>0 reverse
   // shift — dRow-based clampCol would give it the bottom col.
-  const shift = (p: Point, vRow: number): Point => {
+  const shift = (vRow: number, col: number): Point => {
     if (vRow < minRow) return { col: 0, row: minRow }
     if (vRow > maxRow) return { col: width - 1, row: maxRow }
-    return { col: p.col, row: vRow }
+    return { col, row: vRow }
   }
-  s.anchor = shift(s.anchor, vAnchor)
-  s.focus = shift(s.focus, vFocus)
-  s.virtualAnchorRow =
-    vAnchor < minRow || vAnchor > maxRow ? vAnchor : undefined
-  s.virtualFocusRow = vFocus < minRow || vFocus > maxRow ? vFocus : undefined
+  const anchorCol = s.virtualAnchorCol ?? s.anchor.col
+  const focusCol = s.virtualFocusCol ?? s.focus.col
+  s.anchor = shift(vAnchor, anchorCol)
+  s.focus = shift(vFocus, focusCol)
+  const anchorIsVirtual = vAnchor < minRow || vAnchor > maxRow
+  const focusIsVirtual = vFocus < minRow || vFocus > maxRow
+  s.virtualAnchorRow = anchorIsVirtual ? vAnchor : undefined
+  s.virtualAnchorCol = anchorIsVirtual ? anchorCol : undefined
+  s.virtualFocusRow = focusIsVirtual ? vFocus : undefined
+  s.virtualFocusCol = focusIsVirtual ? focusCol : undefined
   // anchorSpan not virtual-tracked: it's for word/line extend-on-drag,
   // irrelevant to the keyboard-scroll round-trip case.
   if (s.anchorSpan) {
@@ -577,15 +612,21 @@ export function shiftAnchor(
   maxRow: number,
 ): void {
   if (!s.anchor) return
-  // Same virtual-row tracking as shiftSelection/shiftSelectionForFollow: the
-  // drag→follow transition hands off to shiftSelectionForFollow, which reads
+  // Same virtual-row tracking as shiftSelection: the drag→follow transition
+  // hands off to shiftSelection, which reads
   // (virtualAnchorRow ?? anchor.row). Without this, drag-phase clamping
   // leaves virtual undefined → follow initializes from the already-clamped
   // row, under-counting total drift → shiftSelection's invariant-restore
   // prematurely clears valid drag-phase accumulator entries.
   const raw = (s.virtualAnchorRow ?? s.anchor.row) + dRow
-  s.anchor = { col: s.anchor.col, row: clamp(raw, minRow, maxRow) }
-  s.virtualAnchorRow = raw < minRow || raw > maxRow ? raw : undefined
+  const isVirtual = raw < minRow || raw > maxRow
+  const anchorCol = s.virtualAnchorCol ?? s.anchor.col
+  s.anchor = {
+    col: isVirtual ? s.anchor.col : anchorCol,
+    row: clamp(raw, minRow, maxRow),
+  }
+  s.virtualAnchorRow = isVirtual ? raw : undefined
+  s.virtualAnchorCol = isVirtual ? anchorCol : undefined
   // anchorSpan not virtual-tracked (word/line extend, irrelevant to
   // keyboard-scroll round-trip) — plain clamp from current row.
   if (s.anchorSpan) {
@@ -675,6 +716,23 @@ export function shiftSelectionForFollow(
 
 export function hasSelection(s: SelectionState): boolean {
   return s.anchor !== null && s.focus !== null
+}
+
+export function isSelectionWhollyOffscreen(s: SelectionState): boolean {
+  if (
+    !s.anchor ||
+    !s.focus ||
+    s.virtualAnchorRow === undefined ||
+    s.virtualFocusRow === undefined
+  ) {
+    return false
+  }
+  return (
+    (s.virtualAnchorRow < s.anchor.row &&
+      s.virtualFocusRow < s.focus.row) ||
+    (s.virtualAnchorRow > s.anchor.row &&
+      s.virtualFocusRow > s.focus.row)
+  )
 }
 
 /**
@@ -781,10 +839,16 @@ export function getSelectedText(s: SelectionState, screen: Screen): string {
     joinRows(lines, s.scrolledOffAbove[i]!, s.scrolledOffAboveSW[i])
   }
 
-  for (let row = start.row; row <= end.row; row++) {
-    const rowStart = row === start.row ? start.col : 0
-    const rowEnd = row === end.row ? end.col : screen.width - 1
-    joinRows(lines, extractRowText(screen, row, rowStart, rowEnd), sw[row]! > 0)
+  if (!isSelectionWhollyOffscreen(s)) {
+    for (let row = start.row; row <= end.row; row++) {
+      const rowStart = row === start.row ? start.col : 0
+      const rowEnd = row === end.row ? end.col : screen.width - 1
+      joinRows(
+        lines,
+        extractRowText(screen, row, rowStart, rowEnd),
+        sw[row]! > 0,
+      )
+    }
   }
 
   for (let i = 0; i < s.scrolledOffBelow.length; i++) {
@@ -818,7 +882,7 @@ export function captureScrolledRows(
   side: 'above' | 'below',
 ): void {
   const b = selectionBounds(s)
-  if (!b || firstRow > lastRow) return
+  if (!b || firstRow > lastRow || isSelectionWhollyOffscreen(s)) return
   const { start, end } = b
   // Intersect [firstRow, lastRow] with [start.row, end.row]. Rows outside
   // the selection aren't captured — they weren't selected.
@@ -847,6 +911,7 @@ export function captureScrolledRows(
     // col constraint was applied to the captured row. Reset to col 0 so
     // the NEXT tick and the final getSelectedText read the full row.
     if (s.anchor && s.anchor.row === start.row && lo === start.row) {
+      s.virtualAnchorCol ??= s.anchor.col
       s.anchor = { col: 0, row: s.anchor.row }
       if (s.anchorSpan) {
         s.anchorSpan = {
@@ -862,6 +927,7 @@ export function captureScrolledRows(
     s.scrolledOffBelow.unshift(...captured)
     s.scrolledOffBelowSW.unshift(...capturedSW)
     if (s.anchor && s.anchor.row === end.row && hi === end.row) {
+      s.virtualAnchorCol ??= s.anchor.col
       s.anchor = { col: width - 1, row: s.anchor.row }
       if (s.anchorSpan) {
         s.anchorSpan = {
@@ -896,7 +962,7 @@ export function applySelectionOverlay(
   stylePool: StylePool,
 ): void {
   const b = selectionBounds(selection)
-  if (!b) return
+  if (!b || isSelectionWhollyOffscreen(selection)) return
   const { start, end } = b
   const width = screen.width
   const noSelect = screen.noSelect

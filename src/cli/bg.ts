@@ -23,6 +23,7 @@ import {
   isTranscriptPersistenceDisabled,
 } from '../utils/sessionStorage.js'
 import {
+  getAgentWorktreeChanges,
   getCurrentWorktreeSession,
   removeAgentWorktree,
   restoreWorktreeSession,
@@ -33,7 +34,7 @@ import type { EffortValue } from '../utils/effort.js'
 import { logEvent } from '../services/analytics/index.js'
 import { logForDebugging } from '../utils/debug.js'
 import { logError } from '../utils/log.js'
-import { isDaemonCliEnabled } from '../utils/agentsFleet.js'
+import { daemonHint } from '../utils/agentsFleet.js'
 import { errorMessage } from '../utils/errors.js'
 import { registerCleanup } from '../utils/cleanupRegistry.js'
 import { relaunch } from '../utils/relaunch.js'
@@ -46,8 +47,11 @@ import {
   ENABLE_KITTY_KEYBOARD,
   ENABLE_MODIFY_OTHER_KEYS,
   ERASE_SCREEN,
+  cursorPosition,
 } from '../ink/termio/csi.js'
 import {
+  decreset,
+  decset,
   ENTER_ALT_SCREEN,
   ESU,
   EXIT_ALT_SCREEN,
@@ -71,6 +75,7 @@ import {
 } from '../daemon/jobs.js'
 import {
   ensureDaemon,
+  ensureDaemonInteractive,
   killJob,
   listLiveJobs,
   requestControl,
@@ -87,7 +92,7 @@ import {
 
 const BG_FLAGS = ['--bg', '--background']
 
-function enterAttachedTerminal(): string {
+function enterAttachedTerminal(decModes: number[] = []): string {
   return (
     ENTER_ALT_SCREEN +
     ERASE_SCREEN +
@@ -96,18 +101,27 @@ function enterAttachedTerminal(): string {
       ? DISABLE_KITTY_KEYBOARD +
         ENABLE_KITTY_KEYBOARD +
         ENABLE_MODIFY_OTHER_KEYS
-      : '')
+      : '') +
+    decModes.map(decset).join('')
   )
 }
 
-function leaveAttachedTerminal(): string {
+function leaveAttachedTerminal(
+  decModes: number[] = [],
+  holdScreen = false,
+): string {
   return (
     ESU +
+    decModes.map(decreset).reverse().join('') +
     SHOW_CURSOR +
     DISABLE_KITTY_KEYBOARD +
-    EXIT_ALT_SCREEN +
-    DISABLE_MODIFY_OTHER_KEYS
+    DISABLE_MODIFY_OTHER_KEYS +
+    (holdScreen ? '' : EXIT_ALT_SCREEN)
   )
+}
+
+function exitAttachedScreen(): string {
+  return DISABLE_KITTY_KEYBOARD + EXIT_ALT_SCREEN + DISABLE_MODIFY_OTHER_KEYS
 }
 const ENV_ALLOWLIST = [
   'CLAUDE_CONFIG_DIR',
@@ -327,11 +341,10 @@ function recordDispatchFallback(
 
 async function sendDispatch(dispatch: Dispatch): Promise<DispatchResult> {
   if (!daemonWasReachable) {
-    const started = await ensureDaemon(
+    const started =
       dispatch.source === 'shell'
-        ? () => process.stderr.write('Starting background daemon…\n')
-        : undefined,
-    )
+        ? await ensureDaemonInteractive()
+        : await ensureDaemon()
     if (!started.ok) {
       recordDispatchFallback('daemon-unreachable')
       return {
@@ -424,10 +437,6 @@ function dispatchError(reason: Exclude<DispatchResult, { ok: true }>['reason']) 
     case 'stale-short':
       return 'id collision with a prior job'
   }
-}
-
-function daemonHint(command: 'status'): string {
-  return isDaemonCliEnabled() ? ` — run 'claude daemon ${command}'` : ''
 }
 
 export async function spawnBgSession(
@@ -876,9 +885,16 @@ export function detachSuffixLength(buffer: Buffer): number {
   return 0
 }
 
-async function attachTerminal(short: string): Promise<AttachOutcome> {
-  const stdin = process.stdin
-  const stdout = process.stdout
+async function attachTerminal(
+  short: string,
+  options: {
+    stdin?: typeof process.stdin
+    stdout?: typeof process.stdout
+    holdScreenOnDisconnect?: boolean
+  } = {},
+): Promise<AttachOutcome> {
+  const stdin = options.stdin ?? process.stdin
+  const stdout = options.stdout ?? process.stdout
   const cols = stdout.columns ?? 120
   const rows = stdout.rows ?? 30
   let currentCols = cols
@@ -889,15 +905,21 @@ async function attachTerminal(short: string): Promise<AttachOutcome> {
   let acknowledged = false
   let finished = false
   let inputPrefix = false
+  let decModes: number[] = []
   let outputBuffer = Buffer.alloc(0)
   let ackBuffer = Buffer.alloc(0)
   return new Promise((resolve) => {
     const finish = (result: AttachOutcome) => {
       if (finished) return
       finished = true
-      if (acknowledged) stdout.write(leaveAttachedTerminal())
+      if (acknowledged) {
+        const holdScreen =
+          result.outcome === 'disconnected' &&
+          options.holdScreenOnDisconnect === true
+        stdout.write(leaveAttachedTerminal(decModes, holdScreen))
+      }
       if (stdin.setRawMode) stdin.setRawMode(wasRaw)
-      stdin.off('data', onInput)
+      stdin.off('readable', onReadable)
       stdout.off('resize', onResize)
       socket.destroy()
       resolve(result)
@@ -937,6 +959,12 @@ async function attachTerminal(short: string): Promise<AttachOutcome> {
       }
       if (start < chunk.length) socket.write(chunk.subarray(start))
     }
+    const onReadable = () => {
+      let chunk: Buffer | string | null
+      while ((chunk = stdin.read()) !== null) {
+        onInput(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk))
+      }
+    }
     const onOutput = (chunk: Buffer) => {
       const combined = outputBuffer.length
         ? Buffer.concat([outputBuffer, chunk])
@@ -957,11 +985,17 @@ async function attachTerminal(short: string): Promise<AttachOutcome> {
       ackBuffer = Buffer.concat([ackBuffer, chunk])
       const newline = ackBuffer.indexOf(10)
       if (newline < 0) return
-      let response: { ok?: boolean; code?: string; error?: string }
+      let response: {
+        ok?: boolean
+        op?: string
+        code?: string
+        error?: string
+        decModes?: unknown
+      }
       try {
         response = JSON.parse(ackBuffer.subarray(0, newline).toString('utf8'))
       } catch (error) {
-        finish({ outcome: 'error', msg: `bad ack: ${String(error)}` })
+        finish({ outcome: 'error', msg: `bad ack: ${errorMessage(error)}` })
         return
       }
       if (!response.ok) {
@@ -972,15 +1006,24 @@ async function attachTerminal(short: string): Promise<AttachOutcome> {
         return
       }
       acknowledged = true
-      stdout.write(`${enterAttachedTerminal()}\n  \x1B[2mAttaching…\x1B[0m\n`)
+      decModes =
+        response.op === 'attach' &&
+        Array.isArray(response.decModes) &&
+        response.decModes.every((mode): mode is number => typeof mode === 'number')
+          ? response.decModes
+          : []
+      stdout.write(
+        `${enterAttachedTerminal(decModes)}\n  \x1B[2mAttaching…\x1B[0m\n`,
+      )
       if (stdin.setRawMode) stdin.setRawMode(true)
-      stdin.on('data', onInput)
+      stdin.on('readable', onReadable)
+      onReadable()
       stdout.on('resize', onResize)
       const remainder = ackBuffer.subarray(newline + 1)
       if (remainder.length) onOutput(remainder)
     })
     socket.on('error', (error) =>
-      finish({ outcome: 'error', msg: String(error) }),
+      finish({ outcome: 'error', msg: errorMessage(error) }),
     )
     socket.once('close', () => {
       if (!finished) finish(acknowledged ? { outcome: 'disconnected' } : { outcome: 'error', msg: 'control socket closed' })
@@ -1008,30 +1051,40 @@ export type FleetAttachResult =
 export async function attachJob(short: string): Promise<FleetAttachResult> {
   writeFile(join(getJobDir(short), 'recap.trigger'), '').catch(() => {})
   logForDebugging('[PERF:bg-attach-start]')
-  const daemon = await ensureDaemon()
-  if (!daemon.ok) {
-    return {
-      kind: 'error',
-      msg: `Couldn't start the background service — ${daemon.reason}`,
+  drainStdin()
+  const daemonUnavailable = /ENOENT|ECONNREFUSED/
+  const daemonStarting = /ERESPAWNING|ESTARTING/
+  let outcome = await attachTerminal(short, { holdScreenOnDisconnect: true })
+  let daemonStart: Awaited<ReturnType<typeof ensureDaemon>> | undefined
+  if (
+    outcome.outcome === 'error' &&
+    outcome.msg &&
+    daemonUnavailable.test(outcome.msg)
+  ) {
+    daemonStart = await ensureDaemon({ forceTransient: true })
+    if (daemonStart.ok) {
+      outcome = await attachTerminal(short, { holdScreenOnDisconnect: true })
     }
   }
-  drainStdin()
-  let outcome = await attachTerminal(short)
   for (
     let attempt = 0;
     outcome.outcome === 'error' &&
-    /ERESPAWNING|ESTARTING/.test(outcome.msg) &&
+    outcome.msg &&
+    daemonStarting.test(outcome.msg) &&
     attempt < 20;
     attempt++
   ) {
     await delay(500)
-    outcome = await attachTerminal(short)
+    outcome = await attachTerminal(short, { holdScreenOnDisconnect: true })
   }
   if (outcome.outcome === 'disconnected') {
-    process.stdout.write('\n  Reconnecting…\n')
-    if ((await ensureDaemon()).ok) {
+    const column = Math.max(1, (process.stdout.columns ?? 80) - 15)
+    process.stdout.write(
+      `\x1B7${cursorPosition(1, column)}\x1B[2;7m Reconnecting… \x1B[0m\x1B8`,
+    )
+    if ((await ensureDaemon({ forceTransient: true })).ok) {
       drainStdin()
-      outcome = await attachTerminal(short)
+      outcome = await attachTerminal(short, { holdScreenOnDisconnect: true })
       for (
         let attempt = 0;
         outcome.outcome === 'error' &&
@@ -1040,18 +1093,21 @@ export async function attachJob(short: string): Promise<FleetAttachResult> {
         attempt++
       ) {
         await delay(200)
-        outcome = await attachTerminal(short)
+        outcome = await attachTerminal(short, { holdScreenOnDisconnect: true })
       }
       if (outcome.outcome === 'error' && outcome.msg.includes('ENOJOB')) {
+        process.stdout.write(exitAttachedScreen())
         return { kind: 'error', msg: 'That job has exited — back to the list' }
       }
     }
     if (outcome.outcome === 'disconnected') {
+      process.stdout.write(exitAttachedScreen())
       return {
         kind: 'error',
         msg: 'Disconnected — the job should still be running. Press Enter to retry',
       }
     }
+    if (outcome.outcome === 'error') process.stdout.write(exitAttachedScreen())
   }
   if (outcome.outcome === 'error') {
     if (outcome.msg.includes('ENOJOB')) {
@@ -1061,11 +1117,17 @@ export async function attachJob(short: string): Promise<FleetAttachResult> {
         msg: 'Background daemon lost track of this job — press Enter to respawn it',
       }
     }
+    if (daemonStart && !daemonStart.ok) {
+      return {
+        kind: 'error',
+        msg: `Couldn't start the background service — ${daemonStart.reason}`,
+      }
+    }
     return {
       kind: 'error',
-      msg: /ERESPAWNING|ESTARTING/.test(outcome.msg)
+      msg: daemonStarting.test(outcome.msg)
         ? 'Background daemon is still starting — try again in a moment'
-        : /ENOENT|ECONNREFUSED/.test(outcome.msg)
+        : daemonUnavailable.test(outcome.msg)
           ? "Background daemon didn't respond after starting — try again in a moment"
           : `Couldn't attach — ${outcome.msg}`,
     }
@@ -1076,9 +1138,7 @@ export async function attachJob(short: string): Promise<FleetAttachResult> {
 
 export async function attachHandler(prefix: string | undefined): Promise<void> {
   const short = await resolveJobPrefix(prefix, 'claude attach <id>')
-  const daemon = await ensureDaemon(() =>
-    process.stderr.write('Starting background daemon…\n'),
-  )
+  const daemon = await ensureDaemonInteractive()
   if (!daemon.ok) {
     process.stderr.write(
       `Couldn't attach — background daemon is unavailable (${daemon.reason})${daemonHint('status')}\n`,
@@ -1180,14 +1240,25 @@ export async function deleteBgJob(short: string): Promise<void> {
   const state = await readJobState(getJobDir(short))
   await killJob(short, state ?? undefined).catch(() => {})
   if (state?.worktreePath) {
-    await removeAgentWorktree(
+    const { dirty, gitError } = await getAgentWorktreeChanges(
       state.worktreePath,
-      state.worktreeBranch,
-      findGitRoot(state.originCwd ?? state.worktreePath) ?? undefined,
-      state.worktreeHookBased,
-    ).catch(() => false)
+    )
+    if (dirty && !gitError) {
+      logForDebugging(
+        `deleteJob: worktree has uncommitted changes, kept ${state.worktreePath}`,
+        { level: 'warn' },
+      )
+    } else {
+      await removeAgentWorktree(
+        state.worktreePath,
+        state.worktreeBranch,
+        findGitRoot(state.originCwd ?? state.worktreePath) ?? undefined,
+        state.worktreeHookBased,
+        'job_delete',
+      ).catch(() => false)
+    }
   }
-  await rm(getJobDir(short), { recursive: true, force: true })
+  await rm(getJobDir(short), { recursive: true, force: true }).catch(() => {})
 }
 
 export async function rmHandler(prefix: string | undefined): Promise<void> {
@@ -1205,10 +1276,12 @@ export async function respawnBgJob(
   knownState?: JobState,
   suppliedInitialPrompt?: string,
 ): Promise<{ ok: true; state: JobState } | { ok: false; error: string }> {
-  const state = knownState ?? (await readJobState(getJobDir(short)))
+  const jobDir = getJobDir(short)
+  const state = knownState ?? (await readJobState(jobDir))
   if (!state) {
     return { ok: false, error: "Can't respawn — that job's saved state is missing" }
   }
+  const freshState = knownState ? ((await readJobState(jobDir)) ?? state) : state
   await requestControl({ proto: PROTOCOL_VERSION, op: 'kill', short }).catch(
     () => {},
   )
@@ -1240,22 +1313,28 @@ export async function respawnBgJob(
   logEvent('tengu_bg_agent_action', {
     action: 'respawn',
     agent: state.template,
+    wasSettled: isTerminalState(state.state),
   })
   const nextState: JobState = {
-    ...state,
+    ...freshState,
     ...(suppliedInitialPrompt
       ? {
           detail: suppliedInitialPrompt.replace(/[\r\n]+/g, ' ').slice(0, 80),
         }
       : {}),
-    tempo: 'active',
-    inFlight: undefined,
-    needs: undefined,
-    output: null,
+    ...(initialPrompt
+      ? {
+          tempo: 'active' as const,
+          needs: undefined,
+          output: null,
+          inFlight: undefined,
+        }
+      : { inFlight: { tasks: 0, queued: 0, kinds: [] } }),
+    ...(!exists ? { firstTerminalAt: null } : {}),
     updatedAt: new Date().toISOString(),
     backend: 'daemon',
   }
-  await writeJobState(getJobDir(short), nextState).catch(() => {})
+  await writeJobState(jobDir, nextState).catch(() => {})
   return { ok: true, state: nextState }
 }
 
@@ -1265,9 +1344,7 @@ export async function respawnHandler(target: string | undefined): Promise<void> 
     process.exitCode = 1
     return
   }
-  const daemon = await ensureDaemon(() =>
-    process.stderr.write('Starting background daemon…\n'),
-  )
+  const daemon = await ensureDaemonInteractive()
   if (!daemon.ok) {
     process.stderr.write(
       `Couldn't respawn — background daemon is unavailable (${daemon.reason})${daemonHint('status')}\n`,

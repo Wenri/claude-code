@@ -1,5 +1,6 @@
 import { createReadStream } from 'fs'
 import { randomUUID } from 'crypto'
+import chalk from 'chalk'
 import { readdir, stat } from 'fs/promises'
 import { createInterface } from 'readline'
 import { basename, isAbsolute, join } from 'path'
@@ -25,7 +26,9 @@ import { OSC, osc } from '../ink/termio/osc.js'
 import { supportsExtendedKeys } from '../ink/terminal.js'
 import { clearTerminal } from '../ink/clearTerminal.js'
 import { stringWidth } from '../ink/stringWidth.js'
+import { useTerminalFocus } from '../ink/hooks/use-terminal-focus.js'
 import TextInput from './TextInput.js'
+import { AutoUpdaterWrapper } from './AutoUpdaterWrapper.js'
 import { ThemeProvider } from './design-system/ThemeProvider.js'
 import {
   getJobDir,
@@ -57,6 +60,7 @@ import {
   type TemplateJob,
 } from '../cli/handlers/templateJobs.js'
 import { getSkillToolCommands } from '../commands.js'
+import { resolveLauncher } from '../commands/update/update.js'
 import {
   getActiveAgentsFromList,
   getAgentDefinitionsWithOverrides,
@@ -74,6 +78,10 @@ import {
 } from '../utils/git.js'
 import { getCwd } from '../utils/cwd.js'
 import {
+  getLastInteractionTime,
+  resetInteractionBaseline,
+} from '../bootstrap/state.js'
+import {
   clearFleetViewHeartbeat,
   listAllLiveSessions,
 } from '../utils/concurrentSessions.js'
@@ -81,6 +89,9 @@ import { sendControlToUdsSocket } from '../utils/udsClient.js'
 import { maintainDaemonLease } from '../daemon/client.js'
 import { logEvent } from '../services/analytics/index.js'
 import { logForDebugging } from '../utils/debug.js'
+import { errorMessage } from '../utils/errors.js'
+import { logError } from '../utils/log.js'
+import { relaunch } from '../utils/relaunch.js'
 import {
   getGlobalConfig,
   saveGlobalConfig,
@@ -94,6 +105,7 @@ import { isMouseTrackingEnabled, isTmuxControlMode } from '../utils/fullscreen.j
 import {
   AppStateProvider,
   type AppState,
+  useAppState,
 } from '../state/AppState.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js'
 import {
@@ -106,6 +118,9 @@ import {
 } from '../utils/prStatus.js'
 
 const CONTROL_RE = /[\x00-\x08\x0E-\x1F\x7F-\x9F]/g
+export const AUTO_RELAUNCH_UNFOCUSED_MS = 3_600_000
+export const AUTO_RELAUNCH_MIN_INTERVAL_MS = 21_600_000
+export const AUTO_RELAUNCH_ENV_KEY = 'CLAUDE_AGENTS_AUTO_RELAUNCHED_AT'
 const DEFAULT_TEMPLATE: FleetTemplate = {
   name: 'general-purpose',
   description: 'General-purpose background agent',
@@ -219,6 +234,7 @@ export type FleetAction =
       statuses: Map<string, SessionStatus>
       statusesTs: number
       freshDispatch?: boolean
+      respawnResult?: Awaited<ReturnType<typeof respawnTemplateJob>>
     }
   | { type: 'logs'; job: FleetJob }
 
@@ -990,9 +1006,13 @@ export function FleetView({
 }): React.ReactNode {
   const rootCwd = getCwd()
   const [jobs, setJobs] = useState<FleetJob[] | null>(lastJobs)
+  const jobsRef = useRef(jobs)
+  jobsRef.current = jobs
   const [pendingJobs, setPendingJobs] = useState<FleetJob[]>([])
   const [statuses, setStatuses] = useState(lastPrStatuses)
   const [sessionStatuses, setSessionStatuses] = useState(lastSessionStatuses)
+  const sessionStatusesRef = useRef(sessionStatuses)
+  sessionStatusesRef.current = sessionStatuses
   const [query, setQuery] = useState(initialQuery)
   const queryRef = useRef(query)
   queryRef.current = query
@@ -1008,14 +1028,79 @@ export function FleetView({
   const [groupMode, setGroupMode] = useState(
     initialGroupMode ?? getGlobalConfig().fleetViewGroupMode ?? lastGroupMode,
   )
+  const groupModeRef = useRef(groupMode)
+  groupModeRef.current = groupMode
   const [collapsedGroups, setCollapsedGroups] = useState(new Set<string>())
   const [error, setError] = useState<string | null>(initialError ?? null)
+  const isTerminalFocused = useTerminalFocus()
+  const updateAvailable = useAppState(
+    state => state.autoUpdaterResult?.status === 'success',
+  )
+  const [isUpdating, setIsUpdating] = useState(false)
+  const handleUpdate = useCallback((mode: 'auto' | 'manual') => {
+    logEvent('tengu_bg_agent_action', {
+      action: `fleetview_update_${mode}`,
+    })
+    void resolveLauncher()
+      .then(launcher => {
+        if (
+          mode === 'auto' &&
+          Date.now() - getLastInteractionTime() < AUTO_RELAUNCH_UNFOCUSED_MS
+        ) {
+          return
+        }
+        return relaunch({
+          launcher,
+          args: ['agents'],
+          env:
+            mode === 'auto'
+              ? { [AUTO_RELAUNCH_ENV_KEY]: String(Date.now()) }
+              : undefined,
+          preSpawn: () =>
+            process.stdout.write(
+              chalk.dim(
+                `\nSwitching from ${MACRO.VERSION} to latest…\n\n`,
+              ),
+            ),
+        })
+      })
+      .catch(caught => {
+        logError(caught)
+        if (mode === 'manual') {
+          setError(
+            `Couldn't switch to the latest build — ${errorMessage(caught)}`,
+          )
+        }
+      })
+  }, [])
+
+  useEffect(() => {
+    if (!updateAvailable || isTerminalFocused) return
+    const previousRelaunch =
+      Number(process.env[AUTO_RELAUNCH_ENV_KEY]) || 0
+    if (Date.now() - previousRelaunch < AUTO_RELAUNCH_MIN_INTERVAL_MS) return
+    const timer = setInterval(
+      (relaunchUpdate: typeof handleUpdate) => {
+        if (
+          Date.now() - getLastInteractionTime() < AUTO_RELAUNCH_UNFOCUSED_MS
+        ) {
+          return
+        }
+        relaunchUpdate('auto')
+      },
+      AUTO_RELAUNCH_UNFOCUSED_MS,
+      handleUpdate,
+    )
+    return () => clearInterval(timer)
+  }, [updateAvailable, isTerminalFocused, handleUpdate])
   const [deleteArmed, setDeleteArmed] = useState<string | null>(null)
   const [deleteAllArmed, setDeleteAllArmed] = useState<string | null>(null)
   const [exitArmed, setExitArmed] = useState(false)
   const [renameId, setRenameId] = useState<string | null>(null)
   const [renameDraft, setRenameDraft] = useState('')
   const [busy, setBusy] = useState(new Set<string>())
+  const [attachingJobId, setAttachingJobId] = useState<string | null>(null)
+  const focusedJobId = useRef<string | null>(null)
   const [detail, setDetail] = useState(false)
   const [reply, setReply] = useState('')
   const [replyCursor, setReplyCursor] = useState(0)
@@ -1268,6 +1353,8 @@ export function FleetView({
       prTargetJob ? null : parseDispatch(query, templates, repositories, routines),
     [prTargetJob, query, repositories, routines, templates],
   )
+  const dispatchRef = useRef(dispatch)
+  dispatchRef.current = dispatch
   const autocomplete = useMemo(
     () =>
       fleetSuggestions(
@@ -1322,7 +1409,11 @@ export function FleetView({
   )
   const focusedRow = rows[Math.min(focus, Math.max(0, rows.length - 1))]
   const selected = focusedRow?.kind === 'job' ? focusedRow.job : undefined
+  focusedJobId.current = selected?.id ?? null
   const selectedHeader = focusedRow?.kind === 'header' ? focusedRow : undefined
+  const canPin = Boolean(
+    selected && !pendingJobs.some(job => job.id === selected.id),
+  )
   useLayoutEffect(() => {
     if (followedHeaderGroup.current) {
       const index = rows.findIndex(
@@ -1461,17 +1552,39 @@ export function FleetView({
     setFocus(focus + direction)
   }
 
-  const openJob = (job: FleetJob, freshDispatch = false) => {
-    onAction({
-      type: 'open',
-      job,
-      query: dispatch === null ? query : undefined,
-      groupMode,
-      jobs,
-      loopKicks: lastLoopTimelines,
-      statuses: sessionStatuses,
-      statusesTs: lastSessionStatusesTs,
-      ...(freshDispatch ? { freshDispatch: true } : {}),
+  const openJob = (job: FleetJob | undefined) => {
+    if (!job || attachingJobId !== null) return
+    if (pendingJobs.some(pending => pending.id === job.id)) return
+    if (job.state.backend === 'peer') return
+    setAttachingJobId(job.id)
+    setError(null)
+    const knownAlive =
+      Date.now() - lastSessionStatusesTs < 1_500 &&
+      sessionStatusesRef.current.get(job.state.sessionId) !== undefined
+        ? true
+        : undefined
+    focusedJobId.current = job.id
+    void respawnTemplateJob(job.id, {
+      knownState: job.state,
+      knownAlive,
+    }).then(respawnResult => {
+      if (focusedJobId.current !== job.id) return
+      setAttachingJobId(null)
+      if (respawnResult.ok || respawnResult.alive) {
+        onAction({
+          type: 'open',
+          job,
+          query: dispatchRef.current === null ? queryRef.current : undefined,
+          groupMode: groupModeRef.current,
+          jobs: jobsRef.current,
+          loopKicks: lastLoopTimelines,
+          statuses: sessionStatusesRef.current,
+          statusesTs: lastSessionStatusesTs,
+          respawnResult,
+        })
+      } else {
+        setError(respawnResult.error)
+      }
     })
   }
 
@@ -1672,6 +1785,13 @@ export function FleetView({
       }
       if (!key.ctrl && !key.meta && !key.super && input) {
         setRenameDraft(value => value + input)
+      }
+      return
+    }
+    if (attachingJobId !== null) {
+      if (key.ctrl && input === 'c') {
+        focusedJobId.current = null
+        setAttachingJobId(null)
       }
       return
     }
@@ -1988,7 +2108,16 @@ export function FleetView({
                 sessionId,
               },
             }
-            openJob(opened, true)
+            onAction({
+              type: 'open',
+              job: opened,
+              groupMode,
+              jobs: jobsRef.current,
+              loopKicks: lastLoopTimelines,
+              statuses: sessionStatusesRef.current,
+              statusesTs: lastSessionStatusesTs,
+              freshDispatch: true,
+            })
           }
         }
         void poll()
@@ -2035,7 +2164,7 @@ export function FleetView({
       )}
       {showHelp && !detail ? (
         <Text dimColor>
-          enter attach · space peek · l logs · r respawn · x stop/rm · ctrl+t pin · shift+↑↓ reorder · ctrl+s group
+          enter attach · space peek · l logs · r respawn · x stop/rm{canPin ? ' · ctrl+t pin' : ''} · shift+↑↓ reorder · ctrl+s group
         </Text>
       ) : null}
       {autocomplete.suggestions.length > 0 ? (
@@ -2217,8 +2346,14 @@ export function FleetView({
               ? 'ctrl+x confirm delete all'
               : detail
                 ? 'enter send/attach · ! bash · ctrl+x delete · esc/space back'
-                : '↑↓ move · enter attach/dispatch · space peek · tab complete · l logs · r respawn · ctrl+x stop/delete · ctrl+r rename · ctrl+t pin · shift+↑↓ reorder · esc exit'}
+                : `↑↓ move · enter attach/dispatch · space peek · tab complete · l logs · r respawn · ctrl+x stop/delete · ctrl+r rename${canPin ? ' · ctrl+t pin' : ''} · shift+↑↓ reorder · esc exit`}
       </Text>
+      <AutoUpdaterWrapper
+        isUpdating={isUpdating}
+        onChangeIsUpdating={setIsUpdating}
+        showSuccessMessage={true}
+        verbose={false}
+      />
     </Box>
   )
 }
@@ -2299,21 +2434,23 @@ export async function mountFleetView(root: Root): Promise<void> {
       lastSessionStatusesTs = action.statusesTs
 
       const openingAt = Date.now()
-      const respawn = await respawnTemplateJob(
-        action.job.id,
-        action.freshDispatch
-          ? undefined
-          : {
-              knownState: action.job.state,
-              knownAlive:
-                Date.now() - action.statusesTs < 1_500 &&
-                action.statuses.has(action.job.state.sessionId),
-            },
-      ).catch(caught => ({
-        ok: false as const,
-        alive: false,
-        error: `Couldn't respawn — ${String(caught)}`,
-      }))
+      const respawn =
+        action.respawnResult ??
+        (await respawnTemplateJob(
+          action.job.id,
+          action.freshDispatch
+            ? undefined
+            : {
+                knownState: action.job.state,
+                knownAlive:
+                  Date.now() - action.statusesTs < 1_500 &&
+                  action.statuses.has(action.job.state.sessionId),
+              },
+        ).catch(caught => ({
+          ok: false as const,
+          alive: false,
+          error: `Couldn't respawn — ${String(caught)}`,
+        })))
       logForDebugging(
         `[FV-attach] respawnJob ${action.job.id}: ok=${respawn.ok} alive=${
           !respawn.ok && respawn.alive
@@ -2348,6 +2485,7 @@ export async function mountFleetView(root: Root): Promise<void> {
       } else {
         initialError = respawn.error
       }
+      resetInteractionBaseline()
       if (alternateScreen) process.stdout.write(enterFleetTerminal())
       currentRoot = await createRoot({ exitOnCtrlC: false })
       logForDebugging('[PERF:bg-remount-start]')

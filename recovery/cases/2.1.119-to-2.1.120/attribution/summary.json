@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "kind": "generated-source-ownership-and-attribution-inventory",
+  "offsetUnit": "utf16-code-units",
+  "claim": "Exhaustive generated-offset accounting with exact baseline source ownership; target source identities are evidence-ranked and unresolved where anchors are insufficient.",
+  "artifacts": {
+    "baselineBundle": {
+      "bytes": 13047043,
+      "sha256": "75c9611929d9a770fe2e3a393219d8b98f5de17fde539b2a7355c6db3fd2795f"
+    },
+    "baselineSourceMap": {
+      "bytes": 59766257,
+      "sha256": "7965012b7a5fc9e09d8d747a04c5c32b94696924536e217f686bb1e7ee70a657"
+    },
+    "targetBundle": {
+      "bytes": 13784743,
+      "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+    }
+  },
+  "options": {
+    "minimumLiteralLength": 8
+  },
+  "baselineOwnership": {
+    "sourceCount": 4756,
+    "sourceKinds": {
+      "application": 1902,
+      "nodeModules": 2850,
+      "vendor": 4
+    },
+    "mappedSegmentCount": 2068722,
+    "contiguousRunCount": 4756,
+    "eachSourceHasExactlyOneContiguousRun": true,
+    "generatedHeaderUtf16": 2230
+  },
+  "literalEvidence": {
+    "uniqueCommonAnchorCount": 37902,
+    "monotoneAnchorCount": 29172,
+    "nonMonotoneAnchorCount": 8730,
+    "monotoneFraction": 0.7696691467468735,
+    "partitionCount": 29173,
+    "tokenCountDelta": 142722,
+    "utf16LengthDelta": 801415,
+    "locatedSourceCount": 2349,
+    "locatedApplicationSourceCount": 1222,
+    "splitTargetClusterSourceCount": 26
+  },
+  "initializerEvidence": {
+    "baseline": {
+      "wrapperNames": {
+        "common": "m",
+        "initializer": "y"
+      },
+      "count": 4527
+    },
+    "target": {
+      "wrapperNames": {
+        "common": "c",
+        "initializer": "T"
+      },
+      "count": 5142,
+      "statuses": {
+        "unresolved-no-unique-literal": 2675,
+        "anchored-single-baseline-unit": 2365,
+        "anchored-multiple-baseline-units": 102
+      }
+    },
+    "targetNetCountDelta": 615
+  },
+  "coverage": {
+    "partitionCount": 29173,
+    "targetPartitionUtf16": 12423672,
+    "exactAnchorCount": 29172,
+    "exactAnchorTargetUtf16": 1361071,
+    "exactGeneratedPartitionCount": 12923,
+    "exactGeneratedTargetUtf16": 156158,
+    "changedHighConfidencePartitionCount": 14183,
+    "changedHighConfidenceTargetUtf16": 4042365,
+    "changedCandidatePartitionCount": 2067,
+    "changedCandidateTargetUtf16": 8225149,
+    "unresolvedPartitionCount": 0,
+    "unresolvedTargetUtf16": 0,
+    "accountedTargetUtf16": 13784743,
+    "targetUtf16": 13784743,
+    "unaccountedTargetUtf16": 0,
+    "targetRangeCount": 58345,
+    "targetRangeUtf16": 13784743
+  },
+  "releaseEvidence": {
+    "targetPackage": {
+      "bytes": 1476,
+      "sha256": "cf10ef98e4e3699b457c08cb04842902aa1004d1f6e9131d00c9ef9856b35106",
+      "name": "@anthropic-ai/claude-code",
+      "version": "2.1.120"
+    },
+    "targetDeclarations": {
+      "bytes": 117452,
+      "sha256": "8f907e0e9fd160b857d25881375f73f1bddd3642d372ad52ea71d7ff441f3ddf"
+    },
+    "officialChangelog": {
+      "bytes": 257968,
+      "sha256": "7859f1bbcb8bc46d2ded13c69100a227644c277d778964eca2216b162a678640",
+      "section": "2.1.120",
+      "bulletCount": 22,
+      "bullets": [
+        "Windows: Git for Windows (Git Bash) is no longer required — when absent, Claude Code uses PowerShell as the shell tool",
+        "Added `claude ultrareview [target]` subcommand to run `/ultrareview` non-interactively from CI or scripts — prints findings to stdout (`--json` for raw output) and exits 0 on completion or 1 on failure",
+        "Skills can now reference the current effort level with `${CLAUDE_EFFORT}` in their content",
+        "Set `AI_AGENT` environment variable for subprocesses so `gh` can attribute traffic to Claude Code",
+        "Spinner tips that recommend installing the desktop app or creating skills/agents are now hidden when you already have them",
+        "Show a \"use PgUp/PgDn to scroll\" hint when the terminal sends arrow keys instead of scroll events",
+        "Faster session start when you have many claude.ai connectors configured but not authorized",
+        "The auto mode denial message now links to the configuration docs",
+        "`claude plugin validate` now accepts `$schema`, `version`, and `description` at the top level of `marketplace.json` and `$schema` in `plugin.json`",
+        "Auto-compact in auto mode now displays `auto` (lowercase, no token count) instead of a misleading token value",
+        "Fixed pressing Esc during a stdio MCP tool call closing the entire server connection (regression in 2.1.105)",
+        "Fixed `/rewind` and other interactive overlays not responding to keyboard input after launching with `claude --resume`",
+        "Fixed terminal scrollback duplication in non-fullscreen mode (resize, dialog dismiss, long sessions)",
+        "Fixed `DISABLE_TELEMETRY` / `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` not suppressing usage metrics telemetry for API and enterprise users",
+        "Fixed false-positive \"Dangerous rm operation\" permission prompts in auto mode for multi-line bash commands containing both a pipe and a redirect",
+        "Fixed long selection menus clipping below the terminal in fullscreen mode — the focused option now stays on screen as you scroll",
+        "Fixed Write tool output collapsing instead of expanding when clicking \"+N lines\" in fullscreen",
+        "Fixed slash command picker jumping while typing, and improved highlight to only match contiguous substrings in blue",
+        "Fixed `/plugin` marketplace failing to load when one entry uses an unrecognized source format — that entry is shown but installing it prompts you to update",
+        "[VSCode] `/usage` now opens the native Account & Usage dialog instead of returning plain-text session cost",
+        "[VSCode] Voice dictation now respects the `language` setting in `~/.claude/settings.json`",
+        "Fixed `find` in the Bash tool exhausting open file descriptors on large directory trees, causing host-wide crashes (macOS/Linux native builds)"
+      ]
+    }
+  },
+  "reportFiles": {
+    "sources": {
+      "path": "sources.jsonl.gz",
+      "bytes": 467263,
+      "sha256": "78f08ad855ecd07d9a9307d184d7ca0b1298b27c693c5eb5c8fd1c73c421df08"
+    },
+    "targetInitializers": {
+      "path": "target-initializers.jsonl.gz",
+      "bytes": 119188,
+      "sha256": "1236b77e251f60f80dacb0505a873c2b3d2876325391c69c8dfbb911535ae59b"
+    },
+    "targetPartitions": {
+      "path": "target-partitions.jsonl.gz",
+      "bytes": 2922704,
+      "sha256": "574841485d4bbd6dab6d23af900db1e3f45caaf98d7b4b0323e49fe68556b639"
+    },
+    "targetRanges": {
+      "path": "target-ranges.jsonl.gz",
+      "bytes": 3436008,
+      "sha256": "20e38e24c49fd2baf6be632b26515c15bbee9229c6d9b08db8fb72e567ac1adc"
+    }
+  },
+  "limitations": [
+    "Exact source ownership exists only for the baseline source map.",
+    "Initializer regions are delimited by successive Bun wrapper-expression starts; they are generated units, not asserted one-to-one source modules.",
+    "A target initializer with no unique long literal is unresolved, not automatically target-only.",
+    "Candidate ranges can include moved code; non-monotone literal owners are reported separately.",
+    "Raw-different partitions include harmless minifier-name churn as well as semantic changes.",
+    "No target source text is claimed reconstructed by this inventory."
+  ]
+}

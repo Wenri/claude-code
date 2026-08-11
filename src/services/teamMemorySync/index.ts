@@ -15,8 +15,8 @@
  *   - Pull overwrites local files with server content (server wins per-key).
  *   - Push uploads only keys whose content hash differs from serverChecksums
  *     (delta upload). Server uses upsert: keys not in the PUT are preserved.
- *   - File deletions do NOT propagate: deleting a local file won't remove it
- *     from the server, and the next pull will restore it locally.
+ *   - After a trusted pull, local deletions are sent as soft-delete keys.
+ *     Server tombstones are reaped locally and suppress stale resurrection.
  *
  * State management:
  *   All mutable state (ETag tracking, watcher suppression) lives in a
@@ -26,8 +26,9 @@
 
 import axios from 'axios'
 import { createHash } from 'crypto'
-import { mkdir, readdir, readFile, stat, writeFile } from 'fs/promises'
+import { mkdir, readdir, readFile, stat, unlink, writeFile } from 'fs/promises'
 import { join, relative, sep } from 'path'
+import { setTeamMemoryServerStatus } from '../../bootstrap/state.js'
 import {
   CLAUDE_AI_INFERENCE_SCOPE,
   CLAUDE_AI_PROFILE_SCOPE,
@@ -45,8 +46,7 @@ import {
   getClaudeAIOAuthTokens,
 } from '../../utils/auth.js'
 import { logForDebugging } from '../../utils/debug.js'
-import { classifyAxiosError } from '../../utils/errors.js'
-import { getGithubRepo } from '../../utils/git.js'
+import { classifyAxiosError, getErrnoCode } from '../../utils/errors.js'
 import {
   getAPIProvider,
   isFirstPartyAnthropicBaseUrl,
@@ -61,6 +61,7 @@ import { scanForSecrets } from './secretScanner.js'
 import {
   type SkippedSecretFile,
   TeamMemoryDataSchema,
+  TeamMemoryErrorSchema,
   type TeamMemoryHashesResult,
   type TeamMemorySyncFetchResult,
   type TeamMemorySyncPushResult,
@@ -89,6 +90,8 @@ const MAX_FILE_SIZE_BYTES = 250_000
 const MAX_PUT_BODY_BYTES = 200_000
 const MAX_RETRIES = 3
 const MAX_CONFLICT_RETRIES = 2
+const MAX_SERVER_ERROR_FIELD_LENGTH = 256
+const TEAM_MEMORY_FEATURE_UNAVAILABLE = 'team_memory_feature_unavailable'
 
 // ─── Sync state ─────────────────────────────────────────────
 
@@ -98,6 +101,8 @@ const MAX_CONFLICT_RETRIES = 2
  * Tests create a fresh instance per test for isolation.
  */
 export type SyncState = {
+  /** GitHub repository slug captured when the watcher starts. */
+  repoSlug: string
   /** Last known server checksum (ETag) for conditional requests. */
   lastKnownChecksum: string | null
   /**
@@ -116,13 +121,20 @@ export type SyncState = {
    * authoritative (it rejects atomically).
    */
   serverMaxEntries: number | null
+  /** Whether this state has completed a trusted pull in the current session. */
+  pulled: boolean
+  /** Remote tombstones that must not be resurrected from stale local files. */
+  tombstonedKeys: Set<string>
 }
 
-export function createSyncState(): SyncState {
+export function createSyncState(repoSlug: string): SyncState {
   return {
+    repoSlug,
     lastKnownChecksum: null,
     serverChecksums: new Map(),
     serverMaxEntries: null,
+    pulled: false,
+    tombstonedKeys: new Set(),
   }
 }
 
@@ -135,12 +147,42 @@ export function hashContent(content: string): string {
   return 'sha256:' + createHash('sha256').update(content, 'utf8').digest('hex')
 }
 
-/**
- * Type guard narrowing an unknown error to a Node.js errno-style exception.
- * Uses `in` narrowing so no `as` cast is needed at call sites.
- */
-function isErrnoException(e: unknown): e is NodeJS.ErrnoException {
-  return e instanceof Error && 'code' in e && typeof e.code === 'string'
+/** Structured server fields safe to propagate into results and telemetry. */
+type ServerErrorMetadata = {
+  serverMessage?: string
+  serverErrorCode?: string
+  serverErrorType?: string
+}
+
+function truncateServerErrorField(value: string): string {
+  return value.length > MAX_SERVER_ERROR_FIELD_LENGTH
+    ? value.slice(0, MAX_SERVER_ERROR_FIELD_LENGTH)
+    : value
+}
+
+function extractServerErrorMetadata(data: unknown): ServerErrorMetadata {
+  if (data === undefined || data === null) return {}
+  const parsed = TeamMemoryErrorSchema().safeParse(data)
+  if (!parsed.success || !parsed.data.error) return {}
+  const serverError = parsed.data.error
+  return {
+    ...(serverError.message !== undefined && {
+      serverMessage: truncateServerErrorField(serverError.message),
+    }),
+    ...(serverError.type !== undefined && {
+      serverErrorType: truncateServerErrorField(serverError.type),
+    }),
+    ...(serverError.details?.error_code !== undefined && {
+      serverErrorCode: truncateServerErrorField(
+        serverError.details.error_code,
+      ),
+    }),
+  }
+}
+
+function extractAxiosServerErrorMetadata(error: unknown): ServerErrorMetadata {
+  if (!axios.isAxiosError(error)) return {}
+  return extractServerErrorMetadata(error.response?.data)
 }
 
 // ─── Auth & endpoint ─────────────────────────────────────────
@@ -224,11 +266,13 @@ async function fetchTeamMemoryOnce(
     }
 
     if (response.status === 404) {
-      logForDebugging('team-memory-sync: no remote data (404)', {
-        level: 'debug',
-      })
+      const { serverErrorCode } = extractServerErrorMetadata(response.data)
+      logForDebugging(
+        `team-memory-sync: no remote data (404, code=${serverErrorCode ?? 'none'})`,
+        { level: 'debug' },
+      )
       state.lastKnownChecksum = null
-      return { success: true, isEmpty: true }
+      return { success: true, isEmpty: true, serverErrorCode }
     }
 
     const parsed = TeamMemoryDataSchema().safeParse(response.data)
@@ -266,21 +310,26 @@ async function fetchTeamMemoryOnce(
   } catch (error) {
     const { kind, status, message } = classifyAxiosError(error)
     const body = axios.isAxiosError(error)
-      ? JSON.stringify(error.response?.data ?? '')
+      ? jsonStringify(error.response?.data ?? '')
       : ''
     if (kind !== 'other') {
       logForDebugging(`team-memory-sync: fetch error ${status}: ${body}`, {
         level: 'warn',
       })
     }
+    const serverMetadata = extractAxiosServerErrorMetadata(error)
     switch (kind) {
       case 'auth':
         return {
           success: false,
-          error: `Not authorized for team memory sync: ${body}`,
+          error:
+            status === 403
+              ? `Forbidden by server policy: ${body}`
+              : `Not authorized for team memory sync: ${body}`,
           skipRetry: true,
-          errorType: 'auth',
+          errorType: status === 403 ? 'forbidden' : 'auth',
           httpStatus: status,
+          ...serverMetadata,
         }
       case 'timeout':
         return {
@@ -300,6 +349,7 @@ async function fetchTeamMemoryOnce(
           error: message,
           errorType: 'unknown',
           httpStatus: status,
+          ...serverMetadata,
         }
     }
   }
@@ -353,21 +403,30 @@ async function fetchTeamMemoryHashes(
     if (checksum) {
       state.lastKnownChecksum = checksum
     }
+    const deletedEntries =
+      response.data?.deletedEntries &&
+      typeof response.data.deletedEntries === 'object'
+        ? response.data.deletedEntries
+        : undefined
     return {
       success: true,
       version: response.data?.version,
       checksum,
       entryChecksums,
+      deletedEntries,
     }
   } catch (error) {
     const { kind, status, message } = classifyAxiosError(error)
+    const serverMetadata = extractAxiosServerErrorMetadata(error)
     switch (kind) {
       case 'auth':
         return {
           success: false,
-          error: 'Not authorized',
-          errorType: 'auth',
+          error:
+            status === 403 ? 'Forbidden by server policy' : 'Not authorized',
+          errorType: status === 403 ? 'forbidden' : 'auth',
           httpStatus: status,
+          ...serverMetadata,
         }
       case 'timeout':
         return { success: false, error: 'Timeout', errorType: 'timeout' }
@@ -379,6 +438,7 @@ async function fetchTeamMemoryHashes(
           error: message,
           errorType: 'unknown',
           httpStatus: status,
+          ...serverMetadata,
         }
     }
   }
@@ -464,6 +524,7 @@ async function uploadTeamMemory(
   repoSlug: string,
   entries: Record<string, string>,
   ifMatchChecksum?: string | null,
+  softDeleteKeys: readonly string[] = [],
 ): Promise<TeamMemorySyncUploadResult> {
   try {
     await checkAndRefreshOAuthTokenIfNeeded()
@@ -481,10 +542,18 @@ async function uploadTeamMemory(
       headers['If-Match'] = `"${ifMatchChecksum.replace(/"/g, '')}"`
     }
 
+    const body: {
+      entries: Record<string, string>
+      soft_delete_keys?: string[]
+    } = { entries }
+    if (softDeleteKeys.length > 0) {
+      body.soft_delete_keys = [...softDeleteKeys]
+    }
+
     const endpoint = getTeamMemorySyncEndpoint(repoSlug)
     const response = await axios.put(
       endpoint,
-      { entries },
+      body,
       {
         headers,
         timeout: TEAM_MEMORY_SYNC_TIMEOUT_MS,
@@ -504,8 +573,12 @@ async function uploadTeamMemory(
       state.lastKnownChecksum = responseChecksum
     }
 
+    const softDeleteSummary =
+      softDeleteKeys.length > 0
+        ? `, soft-deleted ${softDeleteKeys.length}`
+        : ''
     logForDebugging(
-      `team-memory-sync: uploaded ${Object.keys(entries).length} entries (checksum: ${responseChecksum ?? 'none'})`,
+      `team-memory-sync: uploaded ${Object.keys(entries).length} entries${softDeleteSummary} (checksum: ${responseChecksum ?? 'none'})`,
       { level: 'debug' },
     )
     return {
@@ -515,15 +588,20 @@ async function uploadTeamMemory(
     }
   } catch (error) {
     const body = axios.isAxiosError(error)
-      ? JSON.stringify(error.response?.data ?? '')
+      ? jsonStringify(error.response?.data ?? '')
       : ''
     logForDebugging(
       `team-memory-sync: upload failed: ${error instanceof Error ? error.message : ''} ${body}`,
       { level: 'warn' },
     )
     const { kind, status: httpStatus, message } = classifyAxiosError(error)
-    const errorType = kind === 'http' || kind === 'other' ? 'unknown' : kind
-    let serverErrorCode: 'team_memory_too_many_entries' | undefined
+    const errorType =
+      httpStatus === 403
+        ? 'forbidden'
+        : kind === 'http' || kind === 'other'
+          ? 'unknown'
+          : kind
+    const serverMetadata = extractAxiosServerErrorMetadata(error)
     let serverMaxEntries: number | undefined
     let serverReceivedEntries: number | undefined
     // Parse structured 413 (anthropic/anthropic#293258). The server's
@@ -535,7 +613,6 @@ async function uploadTeamMemory(
         error.response?.data,
       )
       if (parsed.success) {
-        serverErrorCode = parsed.data.error.details.error_code
         serverMaxEntries = parsed.data.error.details.max_entries
         serverReceivedEntries = parsed.data.error.details.received_entries
       }
@@ -545,7 +622,7 @@ async function uploadTeamMemory(
       error: message,
       errorType,
       httpStatus,
-      ...(serverErrorCode !== undefined && { serverErrorCode }),
+      ...serverMetadata,
       ...(serverMaxEntries !== undefined && { serverMaxEntries }),
       ...(serverReceivedEntries !== undefined && { serverReceivedEntries }),
     }
@@ -566,11 +643,15 @@ async function uploadTeamMemory(
  */
 async function readLocalTeamMemory(maxEntries: number | null): Promise<{
   entries: Record<string, string>
+  diskKeys: Set<string>
+  diskTrusted: boolean
   skippedSecrets: SkippedSecretFile[]
 }> {
   const teamDir = getTeamMemPath()
   const entries: Record<string, string> = {}
+  const diskKeys = new Set<string>()
   const skippedSecrets: SkippedSecretFile[] = []
+  let diskTrusted = true
 
   async function walkDir(dir: string): Promise<void> {
     try {
@@ -581,6 +662,17 @@ async function readLocalTeamMemory(maxEntries: number | null): Promise<{
           if (entry.isDirectory()) {
             await walkDir(fullPath)
           } else if (entry.isFile()) {
+            if (
+              entry.name.startsWith('.') ||
+              (!entry.name.endsWith('.md') && !entry.name.endsWith('.txt'))
+            ) {
+              return
+            }
+            const relPath = relative(teamDir, fullPath).replaceAll('\\', '/')
+            // Record eligible on-disk keys before reading/scanning. An
+            // unreadable, oversized, or secret-bearing file still exists and
+            // therefore must not be interpreted as a deletion.
+            diskKeys.add(relPath)
             try {
               const stats = await stat(fullPath)
               if (stats.size > MAX_FILE_SIZE_BYTES) {
@@ -591,7 +683,6 @@ async function readLocalTeamMemory(maxEntries: number | null): Promise<{
                 return
               }
               const content = await readFile(fullPath, 'utf8')
-              const relPath = relative(teamDir, fullPath).replaceAll('\\', '/')
 
               // PSR M22174: scan for secrets BEFORE adding to the upload
               // payload. If a secret is detected, skip this file entirely
@@ -622,13 +713,9 @@ async function readLocalTeamMemory(maxEntries: number | null): Promise<{
         }),
       )
     } catch (e) {
-      if (isErrnoException(e)) {
-        if (e.code !== 'ENOENT' && e.code !== 'EACCES' && e.code !== 'EPERM') {
-          throw e
-        }
-      } else {
-        throw e
-      }
+      const code = getErrnoCode(e)
+      if (code === 'EACCES' || code === 'EPERM') diskTrusted = false
+      if (code !== 'ENOENT' && code !== 'EACCES' && code !== 'EPERM') throw e
     }
   }
 
@@ -667,9 +754,9 @@ async function readLocalTeamMemory(maxEntries: number | null): Promise<{
     for (const key of keys.slice(0, maxEntries)) {
       truncated[key] = entries[key]!
     }
-    return { entries: truncated, skippedSecrets }
+    return { entries: truncated, diskKeys, diskTrusted, skippedSecrets }
   }
-  return { entries, skippedSecrets }
+  return { entries, diskKeys, diskTrusted, skippedSecrets }
 }
 
 /**
@@ -684,11 +771,13 @@ async function readLocalTeamMemory(maxEntries: number | null): Promise<{
  * recursive: true (EEXIST is swallowed). The initial pull is the long
  * pole in startTeamMemoryWatcher — p99 was ~22s serial at 50 entries.
  *
- * Returns the number of files actually written.
+ * Returns the number of files actually written and the keys that could not
+ * be applied. Failed keys are removed from serverChecksums by the caller so
+ * they are never treated as a trustworthy local/server match.
  */
 async function writeRemoteEntriesToLocal(
   entries: Record<string, string>,
-): Promise<number> {
+): Promise<{ filesWritten: number; unwrittenKeys: Set<string> }> {
   const results = await Promise.all(
     Object.entries(entries).map(async ([relPath, content]) => {
       let validatedPath: string
@@ -697,7 +786,7 @@ async function writeRemoteEntriesToLocal(
       } catch (e) {
         if (e instanceof PathTraversalError) {
           logForDebugging(`team-memory-sync: ${e.message}`, { level: 'warn' })
-          return false
+          return { relPath, outcome: 'failed' as const }
         }
         throw e
       }
@@ -708,7 +797,7 @@ async function writeRemoteEntriesToLocal(
           `team-memory-sync: skipping oversized remote entry "${relPath}"`,
           { level: 'info' },
         )
-        return false
+        return { relPath, outcome: 'failed' as const }
       }
 
       // Skip if on-disk content already matches. Handles the common case
@@ -717,16 +806,13 @@ async function writeRemoteEntriesToLocal(
       try {
         const existing = await readFile(validatedPath, 'utf8')
         if (existing === content) {
-          return false
+          return { relPath, outcome: 'matched' as const }
         }
       } catch (e) {
-        if (
-          isErrnoException(e) &&
-          e.code !== 'ENOENT' &&
-          e.code !== 'ENOTDIR'
-        ) {
+        const code = getErrnoCode(e)
+        if (code !== undefined && code !== 'ENOENT' && code !== 'ENOTDIR') {
           logForDebugging(
-            `team-memory-sync: unexpected read error for "${relPath}": ${e.code}`,
+            `team-memory-sync: unexpected read error for "${relPath}": ${code}`,
             { level: 'debug' },
           )
         }
@@ -740,17 +826,56 @@ async function writeRemoteEntriesToLocal(
         )
         await mkdir(parentDir, { recursive: true })
         await writeFile(validatedPath, content, 'utf8')
-        return true
+        return { relPath, outcome: 'written' as const }
       } catch (e) {
         logForDebugging(
           `team-memory-sync: failed to write "${relPath}": ${e}`,
           { level: 'warn' },
         )
-        return false
+        return { relPath, outcome: 'failed' as const }
       }
     }),
   )
 
+  const filesWritten = count(results, result => result.outcome === 'written')
+  const unwrittenKeys = new Set(
+    results
+      .filter(result => result.outcome === 'failed')
+      .map(result => result.relPath),
+  )
+  return { filesWritten, unwrittenKeys }
+}
+
+/** Remove local files named by server tombstones. */
+async function reapRemoteTombstones(
+  deletedEntries: Record<string, number>,
+): Promise<number> {
+  const keys = Object.keys(deletedEntries)
+  if (keys.length === 0) return 0
+
+  const results = await Promise.all(
+    keys.map(async key => {
+      let validatedPath: string
+      try {
+        validatedPath = await validateTeamMemKey(key)
+      } catch {
+        return false
+      }
+      try {
+        await unlink(validatedPath)
+        return true
+      } catch (error) {
+        const code = getErrnoCode(error)
+        if (code !== 'ENOENT') {
+          logForDebugging(
+            `team-memory-sync: failed to reap tombstoned "${key}": ${code}`,
+            { level: 'warn' },
+          )
+        }
+        return false
+      }
+    }),
+  )
   return count(results, Boolean)
 }
 
@@ -773,6 +898,7 @@ export async function pullTeamMemory(
 ): Promise<{
   success: boolean
   filesWritten: number
+  filesReaped: number
   /** Number of entries the server returned, regardless of whether they were written to disk. */
   entryCount: number
   notModified?: boolean
@@ -786,51 +912,69 @@ export async function pullTeamMemory(
     return {
       success: false,
       filesWritten: 0,
+      filesReaped: 0,
       entryCount: 0,
       error: 'OAuth not available',
     }
   }
 
-  const repoSlug = await getGithubRepo()
-  if (!repoSlug) {
-    logPull(startTime, { success: false, errorType: 'no_repo' })
-    return {
-      success: false,
-      filesWritten: 0,
-      entryCount: 0,
-      error: 'No git remote found',
-    }
-  }
-
   const etag = skipEtagCache ? null : state.lastKnownChecksum
-  const result = await fetchTeamMemory(state, repoSlug, etag)
+  const result = await fetchTeamMemory(state, state.repoSlug, etag)
   if (!result.success) {
+    if (result.errorType === 'forbidden') {
+      setTeamMemoryServerStatus('not-available')
+    }
     logPull(startTime, {
       success: false,
       errorType: result.errorType,
       status: result.httpStatus,
+      serverMessage: result.serverMessage,
+      serverErrorCode: result.serverErrorCode,
+      serverErrorType: result.serverErrorType,
     })
     return {
       success: false,
       filesWritten: 0,
+      filesReaped: 0,
       entryCount: 0,
       error: result.error,
     }
   }
   if (result.notModified) {
+    state.pulled = true
     logPull(startTime, { success: true, notModified: true })
-    return { success: true, filesWritten: 0, entryCount: 0, notModified: true }
+    return {
+      success: true,
+      filesWritten: 0,
+      filesReaped: 0,
+      entryCount: 0,
+      notModified: true,
+    }
   }
   if (result.isEmpty || !result.data) {
     // Server has no data — clear stale serverChecksums so the next push
     // doesn't skip entries it thinks the server already has.
     state.serverChecksums.clear()
+    state.tombstonedKeys.clear()
+    state.pulled = true
+    setTeamMemoryServerStatus(
+      result.serverErrorCode === TEAM_MEMORY_FEATURE_UNAVAILABLE
+        ? 'not-available'
+        : 'empty',
+    )
     logPull(startTime, { success: true })
-    return { success: true, filesWritten: 0, entryCount: 0 }
+    return {
+      success: true,
+      filesWritten: 0,
+      filesReaped: 0,
+      entryCount: 0,
+    }
   }
 
   const entries = result.data.content.entries
   const responseChecksums = result.data.content.entryChecksums
+  const deletedEntries = result.data.content.deletedEntries ?? {}
+  state.tombstonedKeys = new Set(Object.keys(deletedEntries))
 
   // Refresh serverChecksums from server-provided per-key hashes.
   // Requires anthropic/anthropic#283027 — if the response lacks entryChecksums
@@ -848,21 +992,35 @@ export async function pullTeamMemory(
     )
   }
 
-  const filesWritten = await writeRemoteEntriesToLocal(entries)
-  if (filesWritten > 0) {
+  const { filesWritten, unwrittenKeys } =
+    await writeRemoteEntriesToLocal(entries)
+  const filesReaped = await reapRemoteTombstones(deletedEntries)
+  if (filesWritten > 0 || filesReaped > 0) {
     const { clearMemoryFileCaches } = await import('../../utils/claudemd.js')
     clearMemoryFileCaches()
   }
-  logForDebugging(`team-memory-sync: pulled ${filesWritten} files`, {
-    level: 'info',
-  })
+  for (const key of unwrittenKeys) state.serverChecksums.delete(key)
+  state.pulled = true
+  const entryCount = Object.keys(entries).length
 
-  logPull(startTime, { success: true, filesWritten })
+  setTeamMemoryServerStatus(entryCount > 0 ? 'has-content' : 'empty')
+
+  logForDebugging(
+    `team-memory-sync: pulled ${filesWritten} files` +
+      (filesReaped > 0 ? `, reaped ${filesReaped} tombstoned` : '') +
+      (unwrittenKeys.size > 0
+        ? ` (${unwrittenKeys.size} entries skipped)`
+        : ''),
+    { level: 'info' },
+  )
+
+  logPull(startTime, { success: true, filesWritten, filesReaped })
 
   return {
     success: true,
     filesWritten,
-    entryCount: Object.keys(entries).length,
+    filesReaped,
+    entryCount,
   }
 }
 
@@ -902,16 +1060,7 @@ export async function pushTeamMemory(
     }
   }
 
-  const repoSlug = await getGithubRepo()
-  if (!repoSlug) {
-    logPush(startTime, { success: false, errorType: 'no_repo' })
-    return {
-      success: false,
-      filesUploaded: 0,
-      error: 'No git remote found',
-      errorType: 'no_repo',
-    }
-  }
+  const repoSlug = state.repoSlug
 
   // Read local entries once at the start. Conflict resolution does NOT re-read
   // from disk — the delta computation against a refreshed serverChecksums naturally
@@ -920,7 +1069,20 @@ export async function pushTeamMemory(
   // secrets are excluded from the upload set.
   const localRead = await readLocalTeamMemory(state.serverMaxEntries)
   const entries = localRead.entries
+  const diskKeys = localRead.diskKeys
+  const diskTrusted = localRead.diskTrusted
   const skippedSecrets = localRead.skippedSecrets
+  const softDeleteKeys: string[] = []
+  if (state.pulled && diskTrusted) {
+    for (const key of state.serverChecksums.keys()) {
+      if (!diskKeys.has(key)) softDeleteKeys.push(key)
+    }
+  } else if (state.pulled && !diskTrusted) {
+    logForDebugging(
+      'team-memory-sync: team dir inaccessible — suppressing soft-delete',
+      { level: 'warn' },
+    )
+  }
   if (skippedSecrets.length > 0) {
     // Log a user-visible warning listing which files were skipped and why.
     // Don't block the push — just exclude those files. The secret VALUE is
@@ -948,10 +1110,13 @@ export async function pushTeamMemory(
   // (serverChecksums may change after a 412 probe) but local hashes are stable.
   const localHashes = new Map<string, string>()
   for (const [key, content] of Object.entries(entries)) {
+    if (state.tombstonedKeys.has(key)) continue
     localHashes.set(key, hashContent(content))
   }
 
   let sawConflict = false
+  let filesUploaded = 0
+  let filesSoftDeleted = 0
 
   for (
     let conflictAttempt = 0;
@@ -971,18 +1136,21 @@ export async function pushTeamMemory(
     }
     const deltaCount = Object.keys(delta).length
 
-    if (deltaCount === 0) {
+    if (deltaCount === 0 && softDeleteKeys.length === 0) {
       // Nothing to upload. This is the expected fast path after a fresh pull
       // with no local edits, and also the convergence point after a 412 where
       // the teammate's push was a strict superset of ours.
       logPush(startTime, {
         success: true,
+        filesUploaded,
+        ...(filesSoftDeleted > 0 && { filesSoftDeleted }),
         conflict: sawConflict,
         conflictRetries,
       })
       return {
         success: true,
-        filesUploaded: 0,
+        filesUploaded,
+        ...(filesSoftDeleted > 0 && { filesSoftDeleted }),
         ...(skippedSecrets.length > 0 && { skippedSecrets }),
       }
     }
@@ -997,15 +1165,19 @@ export async function pushTeamMemory(
     // state.lastKnownChecksum is updated inside uploadTeamMemory on each
     // 200, so the ETag chain threads through the batches automatically.
     const batches = batchDeltaByBytes(delta)
-    let filesUploaded = 0
+    // A deletion-only push still needs one PUT with an empty entries object.
+    if (batches.length === 0) batches.push({})
     let result: TeamMemorySyncUploadResult | undefined
 
-    for (const batch of batches) {
+    for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+      const batch = batches[batchIndex]!
+      const batchSoftDeleteKeys = batchIndex === 0 ? softDeleteKeys : []
       result = await uploadTeamMemory(
         state,
         repoSlug,
         batch,
         state.lastKnownChecksum,
+        batchSoftDeleteKeys,
       )
       if (!result.success) break
 
@@ -1013,24 +1185,39 @@ export async function pushTeamMemory(
         state.serverChecksums.set(key, localHashes.get(key)!)
       }
       filesUploaded += Object.keys(batch).length
+      if (batchSoftDeleteKeys.length > 0) {
+        for (const key of batchSoftDeleteKeys) {
+          state.serverChecksums.delete(key)
+        }
+        filesSoftDeleted += batchSoftDeleteKeys.length
+        softDeleteKeys.length = 0
+      }
     }
-    // batches is non-empty (deltaCount > 0 guaranteed by the check above),
+    // batches is non-empty (the deletion-only path inserts an empty batch),
     // so the loop executed at least once.
     result = result!
 
     if (result.success) {
+      if (localHashes.size > 0) {
+        setTeamMemoryServerStatus('has-content')
+      }
       // Server-side delta propagation to disk (server-only new keys from a
       // teammate's concurrent push) happens on the next pull — we only
       // fetched hashes during conflict resolution, not bodies.
+      const pushSummary =
+        filesSoftDeleted > 0
+          ? `${filesUploaded} of ${localHashes.size} files, soft-deleted ${filesSoftDeleted}`
+          : `${filesUploaded} of ${localHashes.size} files`
       logForDebugging(
         batches.length > 1
-          ? `team-memory-sync: pushed ${filesUploaded} of ${localHashes.size} files in ${batches.length} batches`
-          : `team-memory-sync: pushed ${filesUploaded} of ${localHashes.size} files (delta)`,
+          ? `team-memory-sync: pushed ${pushSummary} in ${batches.length} batches`
+          : `team-memory-sync: pushed ${pushSummary} (delta)`,
         { level: 'info' },
       )
       logPush(startTime, {
         success: true,
         filesUploaded,
+        ...(filesSoftDeleted > 0 && { filesSoftDeleted }),
         conflict: sawConflict,
         conflictRetries,
         putBatches: batches.length > 1 ? batches.length : undefined,
@@ -1038,6 +1225,7 @@ export async function pushTeamMemory(
       return {
         success: true,
         filesUploaded,
+        ...(filesSoftDeleted > 0 && { filesSoftDeleted }),
         checksum: result.checksum,
         ...(skippedSecrets.length > 0 && { skippedSecrets }),
       }
@@ -1064,6 +1252,7 @@ export async function pushTeamMemory(
       logPush(startTime, {
         success: false,
         filesUploaded,
+        ...(filesSoftDeleted > 0 && { filesSoftDeleted }),
         conflictRetries,
         putBatches: batches.length > 1 ? batches.length : undefined,
         errorType: result.errorType,
@@ -1073,13 +1262,20 @@ export async function pushTeamMemory(
         errorCode: result.serverErrorCode,
         serverMaxEntries: result.serverMaxEntries,
         serverReceivedEntries: result.serverReceivedEntries,
+        serverMessage: result.serverMessage,
+        serverErrorCode: result.serverErrorCode,
+        serverErrorType: result.serverErrorType,
       })
       return {
         success: false,
         filesUploaded,
+        ...(filesSoftDeleted > 0 && { filesSoftDeleted }),
         error: result.error,
         errorType: result.errorType,
         httpStatus: result.httpStatus,
+        serverMessage: result.serverMessage,
+        serverErrorCode: result.serverErrorCode,
+        serverErrorType: result.serverErrorType,
       }
     }
 
@@ -1092,13 +1288,16 @@ export async function pushTeamMemory(
       )
       logPush(startTime, {
         success: false,
+        filesUploaded,
+        ...(filesSoftDeleted > 0 && { filesSoftDeleted }),
         conflict: true,
         conflictRetries,
         errorType: 'conflict',
       })
       return {
         success: false,
-        filesUploaded: 0,
+        filesUploaded,
+        ...(filesSoftDeleted > 0 && { filesSoftDeleted }),
         conflict: true,
         error: 'Conflict resolution failed after retries',
       }
@@ -1115,32 +1314,67 @@ export async function pushTeamMemory(
     // serverChecksums so the next iteration's delta drops any keys a teammate just
     // pushed with identical content.
     const probe = await fetchTeamMemoryHashes(state, repoSlug)
-    if (!probe.success || !probe.entryChecksums) {
+    if (!probe.success) {
       // Requires anthropic/anthropic#283027. A transient probe failure here is
       // fine: the push is failed and the watcher will retry on the next edit.
+      const probeErrorType =
+        probe.errorType === 'parse' ? undefined : probe.errorType
       logPush(startTime, {
         success: false,
+        filesUploaded,
+        ...(filesSoftDeleted > 0 && { filesSoftDeleted }),
         conflict: true,
         conflictRetries,
-        errorType: 'conflict',
+        errorType: probeErrorType ?? 'conflict',
+        status: probe.httpStatus,
+        serverMessage: probe.serverMessage,
+        serverErrorCode: probe.serverErrorCode,
+        serverErrorType: probe.serverErrorType,
       })
       return {
         success: false,
-        filesUploaded: 0,
+        filesUploaded,
+        ...(filesSoftDeleted > 0 && { filesSoftDeleted }),
         conflict: true,
         error: `Conflict resolution hashes probe failed: ${probe.error}`,
+        ...(probeErrorType !== undefined && { errorType: probeErrorType }),
+        ...(probe.httpStatus !== undefined && {
+          httpStatus: probe.httpStatus,
+        }),
+        ...(probe.serverMessage !== undefined && {
+          serverMessage: probe.serverMessage,
+        }),
+        ...(probe.serverErrorCode !== undefined && {
+          serverErrorCode: probe.serverErrorCode,
+        }),
+        ...(probe.serverErrorType !== undefined && {
+          serverErrorType: probe.serverErrorType,
+        }),
       }
     }
+    const previouslyKnownServerKeys = new Set(state.serverChecksums.keys())
     state.serverChecksums.clear()
-    for (const [key, hash] of Object.entries(probe.entryChecksums)) {
-      state.serverChecksums.set(key, hash)
+    for (const [key, hash] of Object.entries(probe.entryChecksums!)) {
+      if (previouslyKnownServerKeys.has(key) || diskKeys.has(key)) {
+        state.serverChecksums.set(key, hash)
+      }
+    }
+    for (const key of Object.keys(probe.deletedEntries ?? {})) {
+      localHashes.delete(key)
+      state.tombstonedKeys.add(key)
     }
   }
 
-  logPush(startTime, { success: false, conflictRetries })
+  logPush(startTime, {
+    success: false,
+    filesUploaded,
+    ...(filesSoftDeleted > 0 && { filesSoftDeleted }),
+    conflictRetries,
+  })
   return {
     success: false,
-    filesUploaded: 0,
+    filesUploaded,
+    ...(filesSoftDeleted > 0 && { filesSoftDeleted }),
     error: 'Unexpected end of conflict resolution loop',
   }
 }
@@ -1197,9 +1431,13 @@ function logPull(
   outcome: {
     success: boolean
     filesWritten?: number
+    filesReaped?: number
     notModified?: boolean
     errorType?: string
     status?: number
+    serverMessage?: string
+    serverErrorCode?: string
+    serverErrorType?: string
   },
 ): void {
   logEvent('tengu_team_mem_sync_pull', {
@@ -1207,11 +1445,24 @@ function logPull(
     files_written: outcome.filesWritten ?? 0,
     not_modified: outcome.notModified ?? false,
     duration_ms: Date.now() - startTime,
+    ...(outcome.filesReaped && { files_reaped: outcome.filesReaped }),
     ...(outcome.errorType && {
       errorType:
         outcome.errorType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
     }),
     ...(outcome.status && { status: outcome.status }),
+    ...(outcome.serverMessage !== undefined && {
+      server_message:
+        outcome.serverMessage as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    }),
+    ...(outcome.serverErrorCode !== undefined && {
+      server_error_code:
+        outcome.serverErrorCode as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    }),
+    ...(outcome.serverErrorType !== undefined && {
+      server_error_type:
+        outcome.serverErrorType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    }),
   })
 }
 
@@ -1220,6 +1471,7 @@ function logPush(
   outcome: {
     success: boolean
     filesUploaded?: number
+    filesSoftDeleted?: number
     conflict?: boolean
     conflictRetries?: number
     errorType?: string
@@ -1228,6 +1480,9 @@ function logPush(
     errorCode?: string
     serverMaxEntries?: number
     serverReceivedEntries?: number
+    serverMessage?: string
+    serverErrorCode?: string
+    serverErrorType?: string
   },
 ): void {
   logEvent('tengu_team_mem_sync_push', {
@@ -1236,6 +1491,9 @@ function logPush(
     conflict: outcome.conflict ?? false,
     conflict_retries: outcome.conflictRetries ?? 0,
     duration_ms: Date.now() - startTime,
+    ...(outcome.filesSoftDeleted && {
+      files_soft_deleted: outcome.filesSoftDeleted,
+    }),
     ...(outcome.errorType && {
       errorType:
         outcome.errorType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -1251,6 +1509,18 @@ function logPush(
     }),
     ...(outcome.serverReceivedEntries !== undefined && {
       server_received_entries: outcome.serverReceivedEntries,
+    }),
+    ...(outcome.serverErrorCode !== undefined && {
+      server_error_code:
+        outcome.serverErrorCode as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    }),
+    ...(outcome.serverMessage !== undefined && {
+      server_message:
+        outcome.serverMessage as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    }),
+    ...(outcome.serverErrorType !== undefined && {
+      server_error_type:
+        outcome.serverErrorType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
     }),
   })
 }

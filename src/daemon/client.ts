@@ -1,9 +1,22 @@
 import { spawn } from 'child_process'
 import { readFile } from 'fs/promises'
 import { connect, type Socket } from 'net'
+import { createInterface } from 'readline'
 import { StringDecoder } from 'string_decoder'
 import { setTimeout as delay } from 'timers/promises'
 import { logEvent } from '../services/analytics/index.js'
+import {
+  isDaemonCliEnabled,
+  isDaemonServiceInstallEnabled,
+} from '../utils/agentsFleet.js'
+import {
+  getDaemonColdStart,
+  getGlobalConfig,
+  saveGlobalConfig,
+} from '../utils/config.js'
+import { env } from '../utils/env.js'
+import { logForDebugging } from '../utils/debug.js'
+import { errorMessage, getErrnoCode } from '../utils/errors.js'
 import { getPlatform } from '../utils/platform.js'
 import { getRelaunchLauncher } from '../utils/relaunch.js'
 import { getSecureStorage } from '../utils/secureStorage/index.js'
@@ -15,6 +28,12 @@ import {
 import { getControlSocketPath, getRosterPath } from './paths.js'
 import { PROTOCOL_VERSION, type ControlMessage } from './protocol.js'
 import { getRunningDaemon } from './lock.js'
+import {
+  getDefaultDaemonConfigPath,
+  getDefaultDaemonLogPath,
+  installDaemonService,
+  isServiceInstallSupported,
+} from './service.js'
 
 export type ControlResponse =
   | ({ ok: true; op?: string } & Record<string, unknown>)
@@ -200,9 +219,13 @@ async function waitUntilReachable(timeoutMs: number): Promise<boolean> {
   return false
 }
 
+export type EnsureDaemonResult =
+  | { ok: true }
+  | { ok: false; reason: string; askInstall?: true }
+
 export async function ensureDaemon(
-  beforeSpawn?: () => void,
-): Promise<{ ok: true } | { ok: false; reason: string }> {
+  options: { forceTransient?: boolean; onStarting?: () => void } = {},
+): Promise<EnsureDaemonResult> {
   const startedAt = Date.now()
   const nudgeDeadline = Date.now() + 10_000
   let sawNudge = false
@@ -233,15 +256,35 @@ export async function ensureDaemon(
     logEvent('tengu_bg_skew_nudge', { converged: false, restarting: true })
   }
 
-  beforeSpawn?.()
+  if (
+    !options.forceTransient &&
+    getDaemonColdStart() === 'ask' &&
+    canOfferServiceInstall()
+  ) {
+    logEvent('tengu_bg_daemon_cold_start_ask', {})
+    return {
+      ok: false,
+      askInstall: true,
+      reason:
+        "No background daemon is running. Run 'claude daemon install' to set it up as a persistent service.",
+    }
+  }
+
+  options.onStarting?.()
   const running = await getRunningDaemon().catch(() => null)
   if (running && Date.now() - running.startedAt > 5_000) {
+    logForDebugging(
+      `bg: supervisor pid ${running.pid} alive but control socket unreachable — signalling restart`,
+      { level: 'warn' },
+    )
     try {
       process.kill(running.pid, 'SIGTERM')
     } catch (error) {
-      return {
-        ok: false,
-        reason: `daemon socket missing; could not restart supervisor (${String(error)})`,
+      if (getErrnoCode(error) === 'EPERM') {
+        return {
+          ok: false,
+          reason: `daemon socket missing; could not restart supervisor (${errorMessage(error)})`,
+        }
       }
     }
     logEvent('tengu_bg_daemon_zombie_restart', { pid: running.pid })
@@ -264,7 +307,7 @@ export async function ensureDaemon(
       env: daemonSpawnEnv(),
     }).unref()
   } catch (error) {
-    return { ok: false, reason: `spawn daemon: ${String(error)}` }
+    return { ok: false, reason: `spawn daemon: ${errorMessage(error)}` }
   }
   const reachable = await waitUntilReachable(5_000)
   const platform = getPlatform()
@@ -280,6 +323,107 @@ export async function ensureDaemon(
   return reachable
     ? { ok: true }
     : { ok: false, reason: 'daemon did not become reachable within 5s' }
+}
+
+function canOfferServiceInstall(): boolean {
+  return (
+    isDaemonServiceInstallEnabled() &&
+    isServiceInstallSupported() &&
+    !process.env.CLAUDE_CONFIG_DIR &&
+    isDaemonCliEnabled()
+  )
+}
+
+const announceDaemonStarting = () =>
+  process.stderr.write('Starting background daemon…\n')
+
+async function readInstallAnswer(
+  prompt: string,
+): Promise<'yes' | 'once' | 'never' | 'no'> {
+  const readline = createInterface({ input: process.stdin, output: process.stderr })
+  try {
+    const answer = (
+      await new Promise<string>((resolve) => {
+        readline.once('close', () => resolve('n'))
+        readline.question(prompt, resolve)
+      })
+    )
+      .trim()
+      .toLowerCase()
+    if (answer === '' || answer === 'y' || answer === 'yes') return 'yes'
+    if (answer === 'once' || answer === 'o') return 'once'
+    if (answer === 'never') return 'never'
+    return 'no'
+  } finally {
+    readline.close()
+  }
+}
+
+export async function ensureDaemonInteractive(): Promise<EnsureDaemonResult> {
+  const initial = await ensureDaemon({ onStarting: announceDaemonStarting })
+  if (initial.ok || !initial.askInstall) return initial
+  if (getGlobalConfig().daemonInstallPromptDismissed) {
+    return ensureDaemon({
+      forceTransient: true,
+      onStarting: announceDaemonStarting,
+    })
+  }
+  if (!process.stdin.isTTY || env.isCI) return initial
+
+  process.stderr.write(
+    'No background daemon is running.\n' +
+      'Installing it as a service keeps scheduled and remote-control workers running across reboot.\n',
+  )
+  const answer = await readInstallAnswer(
+    "Install as a service now? [Y/n/never, or 'once' for this login session] ",
+  )
+  logEvent('tengu_bg_daemon_cold_start_ask_answer', {
+    answer_yes: answer === 'yes',
+    answer_once: answer === 'once',
+    answer_never: answer === 'never',
+  })
+  switch (answer) {
+    case 'yes': {
+      const installed = await installDaemonService({
+        jsonPath: getDefaultDaemonConfigPath(),
+        logPath: getDefaultDaemonLogPath(),
+      })
+      if (!installed.ok) {
+        process.stderr.write(
+          `Service install failed (${installed.error}). Falling back to a transient daemon for this session.\n`,
+        )
+        return ensureDaemon({
+          forceTransient: true,
+          onStarting: announceDaemonStarting,
+        })
+      }
+      process.stderr.write(`Installed: ${installed.servicePath}\n`)
+      return (await waitUntilReachable(5_000))
+        ? { ok: true }
+        : {
+            ok: false,
+            reason:
+              "service installed but the daemon did not become reachable within 5s — check 'claude daemon status'",
+          }
+    }
+    case 'once':
+      return ensureDaemon({
+        forceTransient: true,
+        onStarting: announceDaemonStarting,
+      })
+    case 'never':
+      saveGlobalConfig((config) =>
+        config.daemonInstallPromptDismissed
+          ? config
+          : { ...config, daemonInstallPromptDismissed: true },
+      )
+      return ensureDaemon({
+        forceTransient: true,
+        onStarting: announceDaemonStarting,
+      })
+    case 'no':
+      return initial
+  }
 }
 
 export async function listLiveJobs(): Promise<Set<string>> {

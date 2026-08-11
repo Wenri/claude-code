@@ -410,7 +410,19 @@ export async function validateMarketplaceManifest(
   // with strict entries to catch typos inside individual plugin entries too.
   const strictMarketplaceSchema = PluginMarketplaceSchema()
     .extend({
-      plugins: z.array(PluginMarketplaceEntrySchema().strict()),
+      plugins: z.array(
+        PluginMarketplaceEntrySchema()
+          .strict()
+          .refine(
+            plugin =>
+              typeof plugin.source === 'string' ||
+              plugin.source.source !== 'unsupported',
+            {
+              message:
+                "source.source: 'unsupported' is a parse-time placeholder and cannot be authored",
+            },
+          ),
+      ),
     })
     .strict()
   const result = strictMarketplaceSchema.safeParse(parsed)

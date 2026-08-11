@@ -47,8 +47,10 @@ import { BASH_TOOL_NAME } from '../../tools/BashTool/toolName.js'
 import { FILE_EDIT_TOOL_NAME } from '../../tools/FileEditTool/constants.js'
 import { FILE_READ_TOOL_NAME } from '../../tools/FileReadTool/prompt.js'
 import { FILE_WRITE_TOOL_NAME } from '../../tools/FileWriteTool/prompt.js'
+import { EXIT_PLAN_MODE_V2_TOOL_NAME } from '../../tools/ExitPlanModeTool/constants.js'
 import { NOTEBOOK_EDIT_TOOL_NAME } from '../../tools/NotebookEditTool/constants.js'
 import { POWERSHELL_TOOL_NAME } from '../../tools/PowerShellTool/toolName.js'
+import { TodoWriteTool } from '../../tools/TodoWriteTool/TodoWriteTool.js'
 import { parseGitCommitId } from '../../tools/shared/gitOperationTracking.js'
 import {
   isDeferredTool,
@@ -75,6 +77,8 @@ import {
 } from '../../utils/errors.js'
 import { executePermissionDeniedHooks } from '../../utils/hooks.js'
 import { logError } from '../../utils/log.js'
+import { expandPath } from '../../utils/path.js'
+import { checkEditableInternalPath } from '../../utils/permissions/filesystem.js'
 import {
   CANCEL_MESSAGE,
   createProgressMessage,
@@ -1212,6 +1216,44 @@ async function checkPermissionsAndCallTool(
     }),
     ...mcpToolDetailsForAnalytics(tool.name, mcpServerType, mcpServerBaseUrl),
   })
+
+  if (
+    permissionMode === 'plan' &&
+    tool.name !== EXIT_PLAN_MODE_V2_TOOL_NAME &&
+    tool.name !== TodoWriteTool.name &&
+    permissionDecision.decisionReason?.type !== 'other'
+  ) {
+    let isReadOnly = true
+    try {
+      isReadOnly = tool.isReadOnly(processedInput)
+    } catch {
+      isReadOnly = false
+    }
+
+    let isAllowedInternalEdit = false
+    if (
+      !isReadOnly &&
+      (tool.name === FILE_WRITE_TOOL_NAME ||
+        tool.name === FILE_EDIT_TOOL_NAME) &&
+      processedInput &&
+      typeof processedInput === 'object' &&
+      'file_path' in processedInput &&
+      typeof processedInput.file_path === 'string'
+    ) {
+      isAllowedInternalEdit =
+        checkEditableInternalPath(
+          expandPath(processedInput.file_path),
+          processedInput as Record<string, unknown>,
+        ).behavior === 'allow'
+    }
+
+    if (!isReadOnly && !isAllowedInternalEdit) {
+      logEvent('tengu_plan_mode_violated', {
+        toolName: sanitizeToolNameForAnalytics(tool.name),
+        decisionReasonType: permissionDecision.decisionReason?.type,
+      })
+    }
+  }
 
   // Use the updated input from permissions if provided
   // (Don't overwrite if undefined - processedInput may have been modified by passthrough hooks)

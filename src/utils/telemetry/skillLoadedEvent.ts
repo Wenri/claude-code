@@ -30,6 +30,7 @@ export async function logSkillsLoaded(
       skill_loaded_from:
         skill.loadedFrom as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       skill_budget: skillBudget,
+      skill_content_chars: skill.contentLength,
       ...(skill.kind && {
         skill_kind:
           skill.kind as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,

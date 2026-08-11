@@ -22,6 +22,7 @@ import { TASK_CREATE_TOOL_NAME } from '../tools/TaskCreateTool/constants.js'
 import type { Tools } from '../Tool.js'
 import type { Command } from '../types/command.js'
 import { BASH_TOOL_NAME } from '../tools/BashTool/toolName.js'
+import { POWERSHELL_TOOL_NAME } from '../tools/PowerShellTool/toolName.js'
 import {
   getCanonicalName,
   getMarketingNameForModel,
@@ -36,7 +37,6 @@ import type {
 import { GLOB_TOOL_NAME } from 'src/tools/GlobTool/prompt.js'
 import { GREP_TOOL_NAME } from 'src/tools/GrepTool/prompt.js'
 import { hasEmbeddedSearchTools } from 'src/utils/embeddedTools.js'
-import { ASK_USER_QUESTION_TOOL_NAME } from '../tools/AskUserQuestionTool/prompt.js'
 import {
   EXPLORE_AGENT,
   EXPLORE_AGENT_MIN_QUERIES,
@@ -47,6 +47,7 @@ import {
   getScratchpadDir,
 } from '../utils/permissions/filesystem.js'
 import { isEnvTruthy } from '../utils/envUtils.js'
+import { isLeanPromptEnabled } from '../utils/leanPrompt.js'
 import { isReplModeEnabled } from '../tools/REPLTool/constants.js'
 import { feature } from 'bun:bundle'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from 'src/services/analytics/growthbook.js'
@@ -168,7 +169,8 @@ function getThinkingGuidanceSection(model: string): string | null {
 User messages include a <system-reminder> appended by this harness. These reminders are not from the user, so treat them as an instruction to you, and do not mention them. The reminders are intended to tune your thinking frequency - on simpler user messages, it's best to respond or act directly without thinking unless further reasoning is necessary. On more complex tasks, you should feel free to reason as much as needed for best results but without overthinking. Avoid unnecessary thinking in response to simple user messages.`
 }
 
-function getAntiVerbositySection(_model: string): string {
+function getAntiVerbositySection(model: string): string | null {
+  if (isLeanPromptEnabled(model)) return null
   return `# Text output (does not apply to tool calls)
 Assume users can't see most tool calls or thinking — only your text output. Before your first tool call, state in one sentence what you're about to do. While working, give short updates at key moments: when you find something, when you change direction, or when you hit a blocker. Brief is good — silent is not. One sentence per update is almost always enough.
 
@@ -181,6 +183,11 @@ End-of-turn summary: one or two sentences. What changed and what's next. Nothing
 Match responses to the task: a simple question gets a direct answer, not headers and sections.
 
 In code: default to writing no comments. Never write multi-paragraph docstrings or multi-line comment blocks — one short line max. Don't create planning, decision, or analysis documents unless the user asks for them — work from conversation context, not intermediate files.`
+}
+
+function getActionCautionSection(model: string): string | null {
+  if (!isLeanPromptEnabled(model)) return null
+  return null
 }
 
 function getBackgroundSessionSection(): string | null {
@@ -369,28 +376,20 @@ function getUsingYourToolsSection(enabledTools: Set<string>): string {
     return [`# Using your tools`, ...prependBullets(items)].join(`\n`)
   }
 
-  // Ant-native builds alias find/grep to embedded bfs/ugrep and remove the
-  // dedicated Glob/Grep tools, so skip guidance pointing at them.
   const embedded = hasEmbeddedSearchTools()
-
-  const providedToolSubitems = [
-    `To read files use ${FILE_READ_TOOL_NAME} instead of cat, head, tail, or sed`,
-    `To edit files use ${FILE_EDIT_TOOL_NAME} instead of sed or awk`,
-    `To create files use ${FILE_WRITE_TOOL_NAME} instead of cat with heredoc or echo redirection`,
-    ...(embedded
-      ? []
-      : [
-          `To search for files use ${GLOB_TOOL_NAME} instead of find or ls`,
-          `To search the content of files, use ${GREP_TOOL_NAME} instead of grep or rg`,
-        ]),
-    `Reserve using the ${BASH_TOOL_NAME} exclusively for system commands and terminal operations that require shell execution. If you are unsure and there is a relevant dedicated tool, default to using the dedicated tool and only fallback on using the ${BASH_TOOL_NAME} tool for these if it is absolutely necessary.`,
-  ]
+  const hasBash = enabledTools.has(BASH_TOOL_NAME)
+  const shellToolName = hasBash ? BASH_TOOL_NAME : POWERSHELL_TOOL_NAME
+  const dedicatedToolNames = [
+    FILE_READ_TOOL_NAME,
+    FILE_EDIT_TOOL_NAME,
+    FILE_WRITE_TOOL_NAME,
+    ...(embedded && hasBash ? [] : [GLOB_TOOL_NAME, GREP_TOOL_NAME]),
+  ].join(', ')
 
   const items = [
-    `Do NOT use the ${BASH_TOOL_NAME} to run commands when a relevant dedicated tool is provided. Using dedicated tools allows the user to better understand and review your work. This is CRITICAL to assisting the user:`,
-    providedToolSubitems,
+    `Prefer dedicated tools over ${shellToolName} when one fits (${dedicatedToolNames}) — reserve ${shellToolName} for shell-only operations.`,
     taskToolName
-      ? `Break down and manage your work with the ${taskToolName} tool. These tools are helpful for planning your work and helping the user track your progress. Mark each task as completed as soon as you are done with the task. Do not batch up multiple tasks before marking them as completed.`
+      ? `Use ${taskToolName} to plan and track work. Mark each task completed as soon as it's done; don't batch.`
       : null,
     `You can call multiple tools in a single response. If you intend to call multiple tools and there are no dependencies between them, make all independent tool calls in parallel. Maximize use of parallel tool calls where possible to increase efficiency. However, if some tool calls depend on previous calls to inform dependent values, do NOT call these tools in parallel and instead call them sequentially. For instance, if one operation must complete before another starts, run these operations sequentially instead.`,
   ].filter(item => item !== null)
@@ -438,21 +437,17 @@ function getSessionSpecificGuidanceSection(
   enabledTools: Set<string>,
   skillToolCommands: Command[],
 ): string | null {
-  const hasAskUserQuestionTool = enabledTools.has(ASK_USER_QUESTION_TOOL_NAME)
   const sessionSkillAllowlist = getSessionSkillAllowlist()
   const hasSkills =
     (sessionSkillAllowlist === undefined
       ? skillToolCommands.length > 0
       : sessionSkillAllowlist.length > 0) && enabledTools.has(SKILL_TOOL_NAME)
   const hasAgentTool = enabledTools.has(AGENT_TOOL_NAME)
-  const searchTools = hasEmbeddedSearchTools()
+  const searchTools = hasEmbeddedSearchTools() && enabledTools.has(BASH_TOOL_NAME)
     ? `\`find\` or \`grep\` via the ${BASH_TOOL_NAME} tool`
     : `the ${GLOB_TOOL_NAME} or ${GREP_TOOL_NAME}`
 
   const items = [
-    hasAskUserQuestionTool
-      ? `If you do not understand why the user has denied a tool call, use the ${ASK_USER_QUESTION_TOOL_NAME} to ask them.`
-      : null,
     getIsNonInteractiveSession()
       ? null
       : `If you need the user to run a shell command themselves (e.g., an interactive login like \`gcloud auth login\`), suggest they type \`! <command>\` in the prompt — the \`!\` prefix runs the command in this session so its output lands directly in the conversation.`,
@@ -463,17 +458,11 @@ function getSessionSpecificGuidanceSection(
     areExplorePlanAgentsEnabled() &&
     !isForkSubagentEnabled()
       ? [
-          `For simple, directed codebase searches (e.g. for a specific file/class/function) use ${searchTools} directly.`,
-          `For broader codebase exploration and deep research, use the ${AGENT_TOOL_NAME} tool with subagent_type=${EXPLORE_AGENT.agentType}. This is slower than using ${searchTools} directly, so use this only when a simple, directed search proves to be insufficient or when your task will clearly require more than ${EXPLORE_AGENT_MIN_QUERIES} queries.`,
+          `For broad codebase exploration or research that'll take more than ${EXPLORE_AGENT_MIN_QUERIES} queries, spawn ${AGENT_TOOL_NAME} with subagent_type=${EXPLORE_AGENT.agentType}. Otherwise use ${searchTools} directly.`,
         ]
       : []),
     hasSkills
-      ? `/<skill-name> (e.g., /commit) is shorthand for users to invoke a user-invocable skill. When executed, the skill gets expanded to a full prompt. Use the ${SKILL_TOOL_NAME} tool to execute them. IMPORTANT: Only use ${SKILL_TOOL_NAME} for skills listed in its user-invocable skills section - do not guess or use built-in CLI commands.`
-      : null,
-    DISCOVER_SKILLS_TOOL_NAME !== null &&
-    hasSkills &&
-    enabledTools.has(DISCOVER_SKILLS_TOOL_NAME)
-      ? getDiscoverSkillsGuidance()
+      ? `When the user types \`/<skill-name>\`, invoke it via ${SKILL_TOOL_NAME}. Only use skills listed in the user-invocable skills section — don't guess.`
       : null,
     hasSkills &&
     (sessionSkillAllowlist === undefined ||
@@ -482,6 +471,11 @@ function getSessionSpecificGuidanceSection(
     skillToolCommands.some(command => getCommandName(command) === 'schedule') &&
     getFeatureValue_CACHED_MAY_BE_STALE('tengu_orchid_mantis', false)
       ? 'When work you just finished has a natural future follow-up, end your reply with a one-line offer to `/schedule` a background agent to do it — name the concrete action and cadence ("Want me to /schedule an agent in 2 weeks to open a cleanup PR for the flag?"). One-time signals: a feature flag/gate/experiment/staged rollout (clean it up or ramp it), a soak window or metric to verify (query it and post results), a long-running job with an ETA (check status and report), a temp workaround/instrumentation/.skip left in (open a removal PR), a "remove once X" TODO. Recurring signals: a sweep/triage/report/queue-drain the user just did by hand, or anything "weekly"/"again"/"piling up" — offer to run it as a routine. The bar is 70%+ odds the user says yes — skip it for refactors, bug fixes with tests, docs, renames, routine dep bumps, plain feature merges, or when the user signals closure ("nothing else to do", "should be fine now"). Don\'t stack offers on back-to-back turns; let most tasks just be tasks.'
+      : null,
+    DISCOVER_SKILLS_TOOL_NAME !== null &&
+    hasSkills &&
+    enabledTools.has(DISCOVER_SKILLS_TOOL_NAME)
+      ? getDiscoverSkillsGuidance()
       : null,
     isUltrareviewEnabled()
       ? 'If the user asks about "ultrareview" or how to run it, explain that /ultrareview launches a multi-agent cloud review of the current branch (or /ultrareview <PR#> for a GitHub PR). It is user-triggered and billed; you cannot launch it yourself, so do not attempt to via Bash or otherwise. It needs a git repository (offer to "git init" if not in one); the no-arg form bundles the local branch and does not need a GitHub remote.'
@@ -505,11 +499,32 @@ function getSimpleToneAndStyleSection(): string {
       ? null
       : `Your responses should be short and concise.`,
     `When referencing specific functions or pieces of code include the pattern file_path:line_number to allow the user to easily navigate to the source code location.`,
-    `When referencing GitHub issues or pull requests, use the owner/repo#123 format (e.g. anthropics/claude-code#100) so they render as clickable links.`,
     `Do not use a colon before tool calls. Your tool calls may not be shown directly in the output, so text like "Let me read the file:" followed by a read tool call should just be "Let me read the file." with a period.`,
   ].filter(item => item !== null)
 
   return [`# Tone and style`, ...prependBullets(items)].join(`\n`)
+}
+
+export function isSimpleSystemPrompt(): boolean {
+  return (
+    isEnvTruthy(process.env.CLAUDE_CODE_SIMPLE) ||
+    isEnvTruthy(process.env.CLAUDE_CODE_SIMPLE_SYSTEM_PROMPT)
+  )
+}
+
+function getLeanSystemPromptSection(
+  _model: string,
+  outputStyleConfig: OutputStyleConfig | null,
+): string {
+  return `${getSimpleIntroSection(outputStyleConfig)}
+
+# Harness
+ - Text you output outside of tool use is displayed to the user as Github-flavored markdown in a terminal.
+ - Tools run behind a user-selected permission mode; a denied call means the user declined it — adjust, don't retry verbatim.
+ - \`<system-reminder>\` tags in messages and tool results are injected by the harness, not the user. Hooks may intercept tool calls; treat hook output as user feedback.
+ - If the conversation grows long, automatic context compaction will be triggered.
+ - Prefer the dedicated file/search tools over shell commands when one fits. Independent tool calls can run in parallel in one response.
+ - Reference code as \`file_path:line_number\` — it's clickable.`
 }
 
 export async function getSystemPrompt(
@@ -519,13 +534,16 @@ export async function getSystemPrompt(
   mcpClients?: MCPServerConnection[],
   options?: { excludeDynamicSections?: boolean },
 ): Promise<string[]> {
-  if (isEnvTruthy(process.env.CLAUDE_CODE_SIMPLE)) {
+  if (isSimpleSystemPrompt()) {
     return options?.excludeDynamicSections
       ? []
       : [
           `CWD: ${getCwd()}\nDate: ${getSessionStartDate()}`,
         ]
   }
+
+  const lean = isLeanPromptEnabled(model)
+  const leanCacheSuffix = lean ? ':L' : ''
 
   const cwd = getCwd()
   const [skillToolCommands, outputStyleConfig, envInfo] = await Promise.all([
@@ -549,7 +567,7 @@ export async function getSystemPrompt(
 
 ${CYBER_RISK_INSTRUCTION}`,
       getSystemRemindersSection(),
-      await loadMemoryPrompt(),
+      await loadMemoryPrompt(model),
       envInfo,
       getLanguageSection(settings.language),
       // When delta enabled, instructions are announced via persisted
@@ -565,8 +583,11 @@ ${CYBER_RISK_INSTRUCTION}`,
   }
 
   const dynamicSections = [
-    systemPromptSection('anti_verbosity', () =>
+    systemPromptSection(`anti_verbosity${leanCacheSuffix}`, () =>
       getAntiVerbositySection(model),
+    ),
+    systemPromptSection(`action_caution${leanCacheSuffix}`, () =>
+      getActionCautionSection(model),
     ),
     systemPromptSection('thinking_guidance', () =>
       getThinkingGuidanceSection(model),
@@ -576,7 +597,11 @@ ${CYBER_RISK_INSTRUCTION}`,
     ),
     ...(options?.excludeDynamicSections
       ? []
-      : [systemPromptSection('memory', () => loadMemoryPrompt())]),
+      : [
+          systemPromptSection(`memory${leanCacheSuffix}`, () =>
+            loadMemoryPrompt(model),
+          ),
+        ]),
     systemPromptSection('ant_model_override', () =>
       getAntModelOverrideSection(),
     ),
@@ -654,16 +679,20 @@ ${CYBER_RISK_INSTRUCTION}`,
 
   return [
     // --- Static content (cacheable) ---
-    getSimpleIntroSection(outputStyleConfig),
-    getSimpleSystemSection(),
-    outputStyleConfig === null ||
-    outputStyleConfig.keepCodingInstructions === true
-      ? getSimpleDoingTasksSection()
-      : null,
-    getActionsSection(),
-    getUsingYourToolsSection(enabledTools),
-    getSimpleToneAndStyleSection(),
-    ...(options?.excludeDynamicSections ? [getStaticMemoryPrompt()] : []),
+    ...(lean
+      ? [getLeanSystemPromptSection(model, outputStyleConfig)]
+      : [
+          getSimpleIntroSection(outputStyleConfig),
+          getSimpleSystemSection(),
+          outputStyleConfig === null ||
+          outputStyleConfig.keepCodingInstructions === true
+            ? getSimpleDoingTasksSection()
+            : null,
+          getActionsSection(),
+          getUsingYourToolsSection(enabledTools),
+          getSimpleToneAndStyleSection(),
+        ]),
+    ...(options?.excludeDynamicSections ? [getStaticMemoryPrompt(model)] : []),
     // === BOUNDARY MARKER - DO NOT MOVE OR REMOVE ===
     ...(shouldUseGlobalCacheScope() ? [SYSTEM_PROMPT_DYNAMIC_BOUNDARY] : []),
     // --- Dynamic content (registry-managed) ---
@@ -873,11 +902,12 @@ function splitPromptSection(section: string): [string, string] {
 }
 
 export async function getExcludedDynamicSectionsContent(
+  model: string,
   additionalWorkingDirectories?: string[],
 ): Promise<Record<string, string>> {
   const [environment, memory] = await Promise.all([
     computeDynamicEnvInfo(additionalWorkingDirectories),
-    getDynamicMemoryPrompt(),
+    getDynamicMemoryPrompt(model),
   ])
   const content: Record<string, string> = {}
   for (const section of [environment, memory]) {
@@ -891,19 +921,21 @@ export async function getExcludedDynamicSectionsContent(
 // @[MODEL LAUNCH]: Add a knowledge cutoff date for the new model.
 function getKnowledgeCutoff(modelId: string): string | null {
   const canonical = getCanonicalName(modelId)
-  if (canonical.includes('claude-opus-4-7')) {
+  if (canonical === 'claude-opus-4-7') {
     return 'January 2026'
-  } else if (canonical.includes('claude-sonnet-4-6')) {
+  } else if (canonical === 'claude-sonnet-4-6') {
     return 'August 2025'
-  } else if (canonical.includes('claude-opus-4-6')) {
+  } else if (canonical === 'claude-opus-4-6') {
     return 'May 2025'
-  } else if (canonical.includes('claude-opus-4-5')) {
+  } else if (canonical === 'claude-opus-4-5') {
     return 'May 2025'
-  } else if (canonical.includes('claude-haiku-4')) {
+  } else if (canonical === 'claude-haiku-4-5') {
     return 'February 2025'
   } else if (
-    canonical.includes('claude-opus-4') ||
-    canonical.includes('claude-sonnet-4')
+    canonical === 'claude-opus-4-0' ||
+    canonical === 'claude-opus-4-1' ||
+    canonical === 'claude-sonnet-4-0' ||
+    canonical === 'claude-sonnet-4-5'
   ) {
     return 'January 2025'
   }
@@ -950,11 +982,17 @@ export async function enhanceSystemPromptWithEnvDetails(
   additionalWorkingDirectories?: string[],
   enabledToolNames?: ReadonlySet<string>,
 ): Promise<string[]> {
-  const notes = `Notes:
+  let notes = `Notes:
 - Agent threads always have their cwd reset between bash calls, as a result please only use absolute file paths.
 - In your final response, share file paths (always absolute, never relative) that are relevant to the task. Include code snippets only when the exact text is load-bearing (e.g., a bug you found, a function signature the caller asked for) — do not recap code you merely read.
 - For clear communication with the user the assistant MUST avoid using emojis.
 - Do not use a colon before tool calls. Text like "Let me read the file:" followed by a read tool call should just be "Let me read the file." with a period.`
+  if (
+    getFeatureValue_CACHED_MAY_BE_STALE('tengu_sub_nomdrep_q7k', false)
+  ) {
+    notes += `
+- Do NOT ${FILE_WRITE_TOOL_NAME} report/summary/findings/analysis .md files. Return findings directly as your final assistant message — the parent agent reads your text output, not files you create.`
+  }
   // Subagents get skill_discovery attachments (prefetch.ts runs in query(),
   // no agentId guard since #22830) but don't go through getSystemPrompt —
   // surface the same DiscoverSkills framing the main session gets. Gated on
@@ -1025,7 +1063,8 @@ function getFunctionResultClearingSection(model: string): string | null {
 Old tool results will be automatically cleared from context to free up space. The ${config.keepRecent} most recent results are always kept.`
 }
 
-const SUMMARIZE_TOOL_RESULTS_SECTION = `When working with tool results, write down any important information you might need later in your response, as the original tool result may be cleared later.`
+const SUMMARIZE_TOOL_RESULTS_SECTION = `# Context management
+When working with tool results, write down any important information you might need later in your response, as the original tool result may be cleared later.`
 
 const FOCUS_MODE_SECTION = `# Focus mode
 The user has focus mode enabled. In focus mode, the user only sees your final text message in each response. They do not see tool calls, tool results, or any text you emit between tool calls. This overrides earlier guidance about giving short updates between tool calls — skip those updates and put everything the user needs to know in your final message. Do not assume they saw earlier progress updates.`

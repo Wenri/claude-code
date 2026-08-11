@@ -27,6 +27,7 @@ import { logForDebugging } from '../utils/debug.js'
 import {
   EFFORT_LEVELS,
   type EffortValue,
+  getDisplayedEffortLevel,
   parseEffortValue,
 } from '../utils/effort.js'
 import {
@@ -392,6 +393,13 @@ export function createSkillCommand({
       finalContent = finalContent.replace(
         /\$\{CLAUDE_SESSION_ID\}/g,
         getSessionId(),
+      )
+      finalContent = finalContent.replaceAll(
+        '${CLAUDE_EFFORT}',
+        getDisplayedEffortLevel(
+          model ?? toolUseContext.options.mainLoopModel,
+          effort ?? toolUseContext.getEffortValue(),
+        ),
       )
 
       // Security: MCP skills are remote and untrusted — never execute inline

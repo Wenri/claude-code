@@ -47,6 +47,7 @@ import {
   parseClassifierResponse,
 } from './classifierShared.js'
 import { getClaudeTempDir } from './filesystem.js'
+import { permissionRuleValueFromString } from './permissionRuleParser.js'
 
 // Dead code elimination: conditional imports for auto mode classifier prompts.
 // At build time, the bundler inlines .txt files as string literals. At test
@@ -559,6 +560,16 @@ export async function buildYoloSystemPrompt(
     ...(includePowerShellGuidance ? POWERSHELL_DENY_GUIDANCE : []),
     ...(autoMode?.soft_deny ?? []),
   ]
+  const settingsDenyRules = formatSettingsDenyRules(
+    Object.values(context.alwaysDenyRules)
+      .flatMap(rules => rules ?? [])
+      .filter(
+        rule =>
+          !permissionRuleValueFromString(rule).ruleContent?.startsWith(
+            'prompt:',
+          ),
+      ),
+  )
 
   // All three sections use the same <foo_to_replace>...</foo_to_replace>
   // delimiter pattern. The external template wraps its defaults inside the
@@ -587,6 +598,21 @@ export async function buildYoloSystemPrompt(
       (_m, defaults: string) =>
         renderRules(autoMode?.environment ?? [], defaults),
     )
+    .replace('<settings_deny_rules>', () => settingsDenyRules)
+}
+
+export function formatSettingsDenyRules(rules: string[]): string {
+  if (rules.length === 0) return ''
+  return (
+    `- User Deny Rules: The user has configured these permission deny rules: ` +
+    `${rules.map(rule => `\`${rule}\``).join(', ')}. Each rule names a tool and ` +
+    `(optionally) an argument pattern that is already hard-blocked for that tool. ` +
+    `Block the action if it accomplishes the same effect via a different tool — e.g. ` +
+    `using Bash with \`python -c\`, \`sed -i\`, \`cat >\`, heredocs, or similar to ` +
+    `write or edit a file that an Edit/Write/MultiEdit deny rule covers, or otherwise ` +
+    `routing around a deny rule by switching tools. The named tool itself is enforced ` +
+    `separately; your job here is to catch circumvention.`
+  )
 }
 // ============================================================================
 // 2-Stage XML Classifier

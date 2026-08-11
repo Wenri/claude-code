@@ -11,6 +11,9 @@
  * trivial without reasoning through a helper's conditional rendering.
  */
 
+import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js'
+import { isEnvTruthy } from '../utils/envUtils.js'
+
 export const MEMORY_TYPES = [
   'user',
   'feedback',
@@ -19,6 +22,47 @@ export const MEMORY_TYPES = [
 ] as const
 
 export type MemoryType = (typeof MEMORY_TYPES)[number]
+
+export const MEMORY_TYPES_SKILL_NAME = 'memory-types'
+
+export const MEMORY_TYPE_SUMMARIES: Record<MemoryType, string> = {
+  user: "the user's role, expertise, or working preferences",
+  feedback:
+    "a correction or confirmation of how you should approach work. Confirmations ('yes, good call') are quieter than corrections — watch for them",
+  project:
+    'ongoing work, deadlines, or decisions not derivable from code or git history',
+  reference:
+    'where to find information in an external system (issue tracker, dashboard, channel)',
+}
+
+export function isLeanMemoryPromptEnabled(): boolean {
+  if (isEnvTruthy(process.env.CLAUDE_CODE_LEAN_PROMPT)) return true
+  return getFeatureValue_CACHED_MAY_BE_STALE('tengu_ochre_finch', false)
+}
+
+export function buildCompactTypesSection(
+  types: readonly MemoryType[] = MEMORY_TYPES,
+): string[] {
+  return [
+    '## Types of memory',
+    '',
+    'Save a memory when you learn one of the following — pick the matching `type:`:',
+    '',
+    ...types.map(type => `- **${type}** — ${MEMORY_TYPE_SUMMARIES[type]}`),
+    '',
+    `Invoke the \`${MEMORY_TYPES_SKILL_NAME}\` skill for scope, body structure and examples once you've decided to save.`,
+    '',
+  ]
+}
+
+export function maybeCompactTypesSection(
+  fullSection: readonly string[],
+  types: readonly MemoryType[] = MEMORY_TYPES,
+): readonly string[] {
+  return isLeanMemoryPromptEnabled()
+    ? buildCompactTypesSection(types)
+    : fullSection
+}
 
 /**
  * Parse a raw frontmatter value into a MemoryType.
