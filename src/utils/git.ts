@@ -332,6 +332,44 @@ export function normalizeGitRemoteUrl(url: string): string | null {
   return null
 }
 
+const REMOTE_SLUG_NOT_FOUND = Symbol('remote-slug-not-found')
+const findRepoRemoteSlugImpl = memoizeWithLRU(
+  (root: string): string | typeof REMOTE_SLUG_NOT_FOUND => {
+    let config: string | null = null
+    for (const path of [join(root, '.git', 'config'), join(root, 'config')]) {
+      try {
+        config = readFileSync(path, 'utf8')
+        break
+      } catch {}
+    }
+    if (!config) return REMOTE_SLUG_NOT_FOUND
+    let inOrigin = false
+    let url: string | null = null
+    let pushUrl: string | null = null
+    for (const line of config.split(/\r?\n/)) {
+      const section = /^\s*\[([^\]]+)]/.exec(line)
+      if (section) {
+        inOrigin = /^remote\s+"origin"$/i.test(section[1]!.trim())
+        continue
+      }
+      if (!inOrigin) continue
+      const entry = /^\s*(pushurl|url)\s*=\s*(.*?)\s*$/i.exec(line)
+      if (!entry) continue
+      if (entry[1]!.toLowerCase() === 'pushurl') pushUrl = entry[2]!
+      else url = entry[2]!
+    }
+    return normalizeGitRemoteUrl(pushUrl ?? url ?? '') ?? REMOTE_SLUG_NOT_FOUND
+  },
+  root => root,
+  50,
+)
+
+/** Synchronously identifies a repository as host/owner/name from origin. */
+export function findRepoRemoteSlug(root: string): string | null {
+  const value = findRepoRemoteSlugImpl(root)
+  return value === REMOTE_SLUG_NOT_FOUND ? null : value
+}
+
 /**
  * Returns a SHA256 hash (first 16 chars) of the normalized git remote URL.
  * This provides a globally unique identifier for the repository that:

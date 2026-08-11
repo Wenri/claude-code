@@ -372,6 +372,28 @@ let failsafeTimer: ReturnType<typeof setTimeout> | undefined
 let orphanCheckInterval: ReturnType<typeof setInterval> | undefined
 let pendingShutdown: Promise<void> | undefined
 
+function disarmOrphanCheck(): void {
+  if (orphanCheckInterval !== undefined) {
+    clearInterval(orphanCheckInterval)
+    orphanCheckInterval = undefined
+  }
+}
+
+function armOrphanCheck(): void {
+  if (orphanCheckInterval !== undefined || !process.stdin.isTTY) return
+  orphanCheckInterval = setInterval(() => {
+    if (getIsScrollDraining()) return
+    if (!process.stdout.writable || !process.stdin.readable) {
+      disarmOrphanCheck()
+      logForDiagnosticsNoPII('info', 'shutdown_signal', {
+        signal: 'orphan_detected',
+      })
+      void gracefulShutdown(129)
+    }
+  }, 30_000)
+  orphanCheckInterval.unref()
+}
+
 /** Check if graceful shutdown is in progress */
 export function isShuttingDown(): boolean {
   return shutdownInProgress
@@ -385,10 +407,19 @@ export function isShuttingDown(): boolean {
  */
 export function markShuttingDownForRelaunch(): void {
   shutdownInProgress = true
-  if (orphanCheckInterval !== undefined) {
-    clearInterval(orphanCheckInterval)
-    orphanCheckInterval = undefined
-  }
+  disarmOrphanCheck()
+}
+
+/** Temporarily own shutdown while swapping one in-process UI for another. */
+export function claimShutdown(): void {
+  shutdownInProgress = true
+  disarmOrphanCheck()
+}
+
+/** Release a temporary shutdown claim after the new UI root is ready. */
+export function releaseShutdownClaim(): void {
+  shutdownInProgress = false
+  armOrphanCheck()
 }
 
 /** Reset shutdown state - only for use in tests */
@@ -419,12 +450,15 @@ export async function gracefulShutdown(
     setAppState?: (f: (prev: AppState) => AppState) => void
     /** Printed to stderr after alt-screen exit, before forceExit. */
     finalMessage?: string
+    /** Suppress the interactive `claude --resume` hint for subcommand UIs. */
+    suppressResumeHint?: boolean
   },
 ): Promise<void> {
   if (shutdownInProgress) {
     return
   }
   shutdownInProgress = true
+  if (options?.suppressResumeHint) resumeHintPrinted = true
 
   // Resolve the SessionEnd hook budget before arming the failsafe so the
   // failsafe can scale with it. Without this, a user-configured 10s hook

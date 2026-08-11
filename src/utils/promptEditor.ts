@@ -85,33 +85,20 @@ export function editFileInEditor(filePath: string): EditorResult {
 
     if (result.error || result.signal || (result.status ?? 0) !== 0) {
       const editorName = toIDEDisplayName(editor)
-      const detail = result.error
-        ? result.error.message
-        : result.signal
-          ? `terminated by signal ${result.signal}`
-          : `exited with code ${result.status}`
-      return { content: null, error: `${editorName} ${detail}` }
+      return {
+        content: null,
+        error: result.error
+          ? `Couldn't open ${editorName} — ${result.error.message}`
+          : result.signal
+            ? `${editorName} closed unexpectedly (${result.signal})`
+            : `${editorName} quit unexpectedly (exit code ${result.status})`,
+      }
     }
 
     // Read the edited content
     const editedContent = fs.readFileSync(filePath, { encoding: 'utf-8' })
     return { content: editedContent }
-  } catch (err) {
-    if (
-      typeof err === 'object' &&
-      err !== null &&
-      'status' in err &&
-      typeof (err as { status: unknown }).status === 'number'
-    ) {
-      const status = (err as { status: number }).status
-      if (status !== 0) {
-        const editorName = toIDEDisplayName(editor)
-        return {
-          content: null,
-          error: `${editorName} exited with code ${status}`,
-        }
-      }
-    }
+  } catch {
     return { content: null }
   } finally {
     if (useAlternateScreen) {

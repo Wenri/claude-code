@@ -1,10 +1,37 @@
 import { isPDFSupported } from '../../utils/pdfUtils.js'
+import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
 
 // Use a string constant for tool names to avoid circular dependencies
 export const FILE_READ_TOOL_NAME = 'Read'
 
 export const FILE_UNCHANGED_STUB =
   'File unchanged since last read. The content from the earlier Read tool_result in this conversation is still current — refer to that instead of re-reading.'
+
+export const FILE_UNCHANGED_WASTED_CALL_STUB =
+  'Wasted call — file unchanged since your last Read. Refer to that earlier tool_result instead.'
+
+export const FILE_STATE_CURRENT_HINT =
+  ' (file state is current in your context — no need to Read it back)'
+
+export function isNoRereadEnabled(): boolean {
+  return getFeatureValue_CACHED_MAY_BE_STALE(
+    'tengu_noreread_q7m_velvet',
+    false,
+  )
+}
+
+export function getFileUnchangedStub(): string {
+  return isNoRereadEnabled()
+    ? FILE_UNCHANGED_WASTED_CALL_STUB
+    : FILE_UNCHANGED_STUB
+}
+
+export function isFileUnchangedStub(content: string): boolean {
+  return (
+    content.startsWith(FILE_UNCHANGED_STUB) ||
+    content.startsWith(FILE_UNCHANGED_WASTED_CALL_STUB)
+  )
+}
 
 export const MAX_LINES_TO_READ = 2000
 
@@ -44,5 +71,9 @@ ${lineFormat}
 - This tool can read Jupyter notebooks (.ipynb files) and returns all cells with their outputs, combining code, text, and visualizations.
 - This tool can only read files, not directories. To list files in a directory, use the registered shell tool.
 - You will regularly be asked to read screenshots. If the user provides a path to a screenshot, ALWAYS use this tool to view the file at the path. This tool will work with all temporary file paths.
-- If you read a file that exists but has empty contents you will receive a system reminder warning in place of file contents.`
+- If you read a file that exists but has empty contents you will receive a system reminder warning in place of file contents.${
+    isNoRereadEnabled()
+      ? '\n- Do NOT re-read a file you just edited to verify — Edit/Write would have errored if the change failed, and the harness tracks file state for you.'
+      : ''
+  }`
 }

@@ -6,6 +6,7 @@
 import { rollbackConsolidationLock } from '../../services/autoDream/consolidationLock.js'
 import type { SetAppState, Task, TaskStateBase } from '../../Task.js'
 import { createTaskStateBase, generateTaskId } from '../../Task.js'
+import { emitTaskTerminatedSdk } from '../../utils/sdkEventQueue.js'
 import { registerTask, updateTaskState } from '../../utils/task/framework.js'
 
 // Keep only the N most recent turns for live display.
@@ -24,6 +25,7 @@ export type DreamPhase = 'starting' | 'updating'
 
 export type DreamTaskState = TaskStateBase & {
   type: 'dream'
+  skipTranscript: true
   phase: DreamPhase
   sessionsReviewing: number
   /**
@@ -62,6 +64,7 @@ export function registerDreamTask(
     ...createTaskStateBase(id, 'dream', 'dreaming'),
     type: 'dream',
     status: 'running',
+    skipTranscript: true,
     phase: 'starting',
     sessionsReviewing: opts.sessionsReviewing,
     filesTouched: [],
@@ -117,6 +120,7 @@ export function completeDreamTask(
     notified: true,
     abortController: undefined,
   }))
+  emitTaskTerminatedSdk(taskId, 'completed', { skipTranscript: true })
 }
 
 export function failDreamTask(taskId: string, setAppState: SetAppState): void {
@@ -127,6 +131,7 @@ export function failDreamTask(taskId: string, setAppState: SetAppState): void {
     notified: true,
     abortController: undefined,
   }))
+  emitTaskTerminatedSdk(taskId, 'failed', { skipTranscript: true })
 }
 
 export const DreamTask: Task = {
@@ -151,6 +156,7 @@ export const DreamTask: Task = {
     // fork-failure catch in autoDream.ts. If updateTaskState was a no-op
     // (already terminal), priorMtime stays undefined and we skip.
     if (priorMtime !== undefined) {
+      emitTaskTerminatedSdk(taskId, 'stopped', { skipTranscript: true })
       await rollbackConsolidationLock(priorMtime)
     }
   },

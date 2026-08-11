@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { feature } from 'bun:bundle';
 import chalk from 'chalk';
 import { randomUUID } from 'crypto';
 import React from 'react';
@@ -578,7 +579,12 @@ export async function teleportFromSessionsAPI(sessionId: string, orgUUID: string
     // (endpoint not yet deployed, or transient error). Once session-ingress
     // is gone, the fallback becomes a no-op — getSessionLogsViaOAuth will
     // return null too and we fail with "Failed to fetch session logs".
-    let logs = await getTeleportEvents(sessionId, accessToken, orgUUID);
+    let trustedDeviceToken: string | undefined;
+    if (feature('KAIROS')) {
+      const { readStoredTrustedDeviceToken } = await import('../bridge/trustedDevice.js');
+      trustedDeviceToken = readStoredTrustedDeviceToken();
+    }
+    let logs = await getTeleportEvents(sessionId, accessToken, orgUUID, trustedDeviceToken);
     if (logs === null) {
       logForDebugging('[teleport] v2 endpoint returned null, trying session-ingress');
       logs = await getSessionLogsViaOAuth(sessionId, accessToken, orgUUID);
@@ -605,6 +611,9 @@ export async function teleportFromSessionsAPI(sessionId: string, orgUUID: string
       branch
     };
   } catch (error) {
+    if (error instanceof TeleportOperationError) {
+      throw error;
+    }
     const err = toError(error);
 
     // Handle 404 specifically
@@ -612,7 +621,7 @@ export async function teleportFromSessionsAPI(sessionId: string, orgUUID: string
       logEvent('tengu_teleport_error_session_not_found_404', {
         sessionId: sessionId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
       });
-      throw new TeleportOperationError(`${sessionId} not found.`, `${sessionId} not found.\n${chalk.dim('Run /status in Claude Code to check your account.')}`);
+      throw new TeleportOperationError(`${sessionId} not found.\nRun /status in Claude Code to check your account.`, `${sessionId} not found.\n${chalk.dim('Run /status in Claude Code to check your account.')}`);
     }
     logError(err);
     throw new Error(`Failed to fetch session from Sessions API: ${err.message}`);

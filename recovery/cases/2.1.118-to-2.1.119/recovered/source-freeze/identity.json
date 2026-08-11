@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "kind": "authenticated-source-overlay-freeze",
+  "base": {
+    "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+    "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+    "srcTree": "a404264d155cde23ec7479fc7e69d1edec7d92a9",
+    "bundleSha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+  },
+  "target": {
+    "tree": "bceb0af2f6b5261fab23b9d8fee51cf48f1b2dd2",
+    "srcTree": "9e807992d428e7e23a0ad96e3a53e286d372afd7",
+    "bundleSha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+  },
+  "overlay": {
+    "path": "source-facing-overlay.patch",
+    "sha256": "623cfd2740598d7a6f7cc0a7f72bfebd5000eeae13d6ccb3295f594b0abef794",
+    "bytes": 2709667,
+    "lines": 38251,
+    "changedPaths": 290,
+    "insertions": 25828,
+    "deletions": 1994
+  },
+  "source": {
+    "files": 2088,
+    "bytes": 32357579,
+    "symlinks": 0
+  },
+  "verification": {
+    "applyToBaseTree": true,
+    "completeSrcByteCompare": true,
+    "reverseToBaseTree": true,
+    "forwardToTargetTree": true,
+    "diffCheck": {
+      "unexpectedDiagnostics": 0,
+      "authenticatedTargetTrailingWhitespace": 5
+    },
+    "runtimeImports": {
+      "sourceFilesScanned": 2041,
+      "newlyUnresolved": 0
+    },
+    "targetTests": {
+      "passed": 86,
+      "failed": 0,
+      "files": 8,
+      "manifest": "target-test-files.sha256",
+      "manifestSha256": "d20c074e4f1639c62e330a8924b816ecbce179296113d449387e3c25c5be47b0"
+    },
+    "retainedTests": {
+      "passed": 21,
+      "failed": 0,
+      "files": 4,
+      "manifest": "retained-test-files.sha256",
+      "manifestSha256": "cc0ddaf10292517c2276844424216291f2c54d806b89049e03ec5b4ef75631c1"
+    },
+    "syntaxBuilds": {
+      "passed": 278,
+      "failed": 0
+    },
+    "adjacentDirectEvidence": {
+      "catalog": {
+        "path": "recovery/cases/2.1.118-to-2.1.119/semantic/adjacent-direct-evidence.json",
+        "bytes": 156609,
+        "sha256": "6f3829ac9fd4da733d9bf960f7a4834df789caa246ecc3f50fda281b33a2d1d7"
+      },
+      "test": {
+        "path": "recovery/test/recovery-2.1.119-adjacent-direct-evidence.test.mjs",
+        "bytes": 8552,
+        "sha256": "e89df8f8dbb140265cadd627b60863209cb514a9577dce04fdb97eaf1ae3bf19"
+      },
+      "manifest": "adjacent-direct-evidence.sha256",
+      "manifestSha256": "06747ed35fabf72add98b4817b4dd7512af7d494ad0656e57462e1b92e1e9707"
+    }
+  }
+}

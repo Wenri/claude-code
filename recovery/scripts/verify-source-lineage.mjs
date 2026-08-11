@@ -6,6 +6,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { pathToFileURL } from 'node:url'
+import { parse } from 'acorn'
 
 const SHA256_PATTERN = /^[a-f0-9]{64}$/
 const ENVIRONMENT_NAME_PATTERN = /^[A-Za-z_][A-Za-z0-9_]*$/
@@ -467,15 +468,64 @@ function normalizeTestConfiguration(lineage) {
 
 function relativeModuleSpecifiers(source) {
   const result = new Set()
-  const patterns = [
-    /\bfrom\s*(['"])(\.[^'"]+)\1/g,
-    /\bimport\s*(['"])(\.[^'"]+)\1/g,
-    /\bimport\s*\(\s*(['"])(\.[^'"]+)\1\s*\)/g,
-    /\brequire\s*\(\s*(['"])(\.[^'"]+)\1\s*\)/g,
-  ]
-  for (const pattern of patterns) {
-    for (const match of source.matchAll(pattern)) result.add(match[2])
+
+  const moduleSpecifier = node => {
+    if (node?.type === 'Literal' && typeof node.value === 'string') {
+      return node.value
+    }
+    if (
+      node?.type === 'TemplateLiteral' &&
+      node.expressions.length === 0 &&
+      node.quasis.length === 1
+    ) {
+      return node.quasis[0].value.cooked
+    }
+    return undefined
   }
+
+  const add = node => {
+    const specifier = moduleSpecifier(node)
+    if (specifier?.startsWith('.')) result.add(specifier)
+  }
+
+  const visit = node => {
+    if (!node || typeof node !== 'object') return
+    switch (node.type) {
+      case 'ImportDeclaration':
+      case 'ExportAllDeclaration':
+      case 'ExportNamedDeclaration':
+      case 'ImportExpression':
+        add(node.source)
+        break
+      case 'CallExpression':
+        if (
+          node.callee?.type === 'Identifier' &&
+          node.callee.name === 'require' &&
+          node.arguments.length === 1
+        ) {
+          add(node.arguments[0])
+        }
+        break
+      default:
+        break
+    }
+    for (const [key, child] of Object.entries(node)) {
+      if (key === 'type' || key === 'start' || key === 'end') continue
+      if (Array.isArray(child)) {
+        for (const item of child) visit(item)
+      } else {
+        visit(child)
+      }
+    }
+  }
+
+  visit(
+    parse(source, {
+      allowHashBang: true,
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+    }),
+  )
   return [...result].sort(compareText)
 }
 

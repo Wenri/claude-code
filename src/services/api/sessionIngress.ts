@@ -5,6 +5,7 @@ import type { Entry, TranscriptMessage } from '../../types/logs.js'
 import { logForDebugging } from '../../utils/debug.js'
 import { logForDiagnosticsNoPII } from '../../utils/diagLogs.js'
 import { isEnvTruthy } from '../../utils/envUtils.js'
+import { TeleportOperationError } from '../../utils/errors.js'
 import { logError } from '../../utils/log.js'
 import { sequential } from '../../utils/sequential.js'
 import { getSessionIngressAuthToken } from '../../utils/sessionIngressAuth.js'
@@ -16,6 +17,7 @@ interface SessionIngressError {
   error?: {
     message?: string
     type?: string
+    resource?: string
   }
 }
 
@@ -292,11 +294,15 @@ export async function getTeleportEvents(
   sessionId: string,
   accessToken: string,
   orgUUID: string,
+  trustedDeviceToken?: string,
 ): Promise<Entry[] | null> {
   const baseUrl = `${getOauthConfig().BASE_API_URL}/v1/code/sessions/${sessionId}/teleport-events`
-  const headers = {
+  const headers: Record<string, string> = {
     ...getOAuthHeaders(accessToken),
     'x-organization-uuid': orgUUID,
+  }
+  if (trustedDeviceToken) {
+    headers['X-Trusted-Device-Token'] = trustedDeviceToken
   }
 
   logForDebugging(`[teleport] Fetching events from: ${baseUrl}`)
@@ -354,9 +360,22 @@ export async function getTeleportEvents(
 
     if (response.status === 401) {
       logForDiagnosticsNoPII('error', 'teleport_events_bad_token')
-      throw new Error(
-        'Your session has expired. Please run /login to sign in again.',
-      )
+      const message =
+        'Your session has expired. Please run /login to sign in again.'
+      throw new TeleportOperationError(message, message)
+    }
+
+    if (response.status === 403) {
+      logForDiagnosticsNoPII('error', 'teleport_events_forbidden')
+      const data = response.data as SessionIngressError
+      if (data?.error?.resource === 'untrusted_device') {
+        const message =
+          'This session requires a trusted device. Run /login to enroll this device, then retry.'
+        throw new TeleportOperationError(message, message)
+      }
+      const message =
+        data?.error?.message ?? 'Access denied fetching session events'
+      throw new TeleportOperationError(message, message)
     }
 
     if (response.status !== 200) {

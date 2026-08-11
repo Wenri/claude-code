@@ -11,7 +11,7 @@ import { useRegisterOverlay } from '../context/overlayContext.js';
 import { Box, Text, useInput } from '../ink.js';
 import { useKeybindings } from '../keybindings/useKeybinding.js';
 import { useAppState, useSetAppState } from '../state/AppState.js';
-import { saveGlobalConfig } from '../utils/config.js';
+import { setConfigValue } from '../utils/settings/configSettings.js';
 import { getBranch } from '../utils/git.js';
 import { Dialog } from './design-system/Dialog.js';
 type Props = {
@@ -116,10 +116,11 @@ export function BridgeDialog(t0) {
   useKeybindings(t7, t8);
   let t9;
   if ($[11] !== explicit || $[12] !== onDone || $[13] !== setAppState) {
-    t9 = input => {
-      if (input === "d") {
+    t9 = (_input, _key, event) => {
+      if (event.key === "d" && !event.ctrl && !event.meta) {
+        event.preventDefault();
         if (explicit) {
-          saveGlobalConfig(_temp11);
+          setConfigValue('remoteControlAtStartup', false);
         }
         setAppState(_temp12);
         onDone();
@@ -353,15 +354,6 @@ function _temp12(prev_0) {
   return {
     ...prev_0,
     replBridgeEnabled: false
-  };
-}
-function _temp11(current) {
-  if (current.remoteControlAtStartup === false) {
-    return current;
-  }
-  return {
-    ...current,
-    remoteControlAtStartup: false
   };
 }
 function _temp10(prev) {

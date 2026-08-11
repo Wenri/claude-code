@@ -67,6 +67,7 @@ import type {
 import type { QueueOperationMessage } from '../types/messageQueueTypes.js'
 import { uniq } from './array.js'
 import { registerCleanup } from './cleanupRegistry.js'
+import { createSignal } from './signal.js'
 import { updateSessionName } from './concurrentSessions.js'
 import { getCwd } from './cwd.js'
 import { logForDebugging } from './debug.js'
@@ -87,6 +88,7 @@ import {
   isCompactBoundaryMessage,
 } from './messages.js'
 import { sanitizePath } from './path.js'
+import { refreshRepoBranches } from './repoCheckouts.js'
 import {
   extractJsonStringField,
   extractLastJsonStringField,
@@ -264,6 +266,26 @@ export function getAgentTranscriptPath(agentId: AgentId): string {
     ? join(projectDir, sessionId, 'subagents', subdir)
     : join(projectDir, sessionId, 'subagents')
   return join(base, `agent-${agentId}.jsonl`)
+}
+
+export async function listLocalAgentIds(): Promise<string[]> {
+  const projectDir =
+    getSessionProjectDir() ?? getProjectDir(getOriginalCwd())
+  const subagentsDir = join(projectDir, getSessionId(), 'subagents')
+  let entries: Dirent[]
+  try {
+    entries = await readdir(subagentsDir, { withFileTypes: true })
+  } catch {
+    return []
+  }
+  return entries
+    .filter(
+      entry =>
+        entry.isFile() &&
+        entry.name.startsWith('agent-') &&
+        entry.name.endsWith('.jsonl'),
+    )
+    .map(entry => entry.name.slice(6, -6))
 }
 
 function getAgentMetadataPath(agentId: AgentId): string {
@@ -577,6 +599,31 @@ export function setSessionFileForTesting(path: string): void {
   getProject().sessionFile = path
 }
 
+export function getMaterializedSessionFile(): string | null {
+  return project?.sessionFile ?? null
+}
+
+/** Return the active Project's materialized transcript, creating it if needed. */
+export function getCurrentSessionFile(): string | null {
+  return getProject().sessionFile
+}
+
+/**
+ * True when transcript persistence is unavailable for this process. This is
+ * the public form of Project.shouldSkipPersistence's process-level guards;
+ * callers such as /background use it before promising a resumable fork.
+ */
+export function isTranscriptPersistenceDisabled(): boolean {
+  const allowTestPersistence = isEnvTruthy(
+    process.env.TEST_ENABLE_SESSION_PERSISTENCE,
+  )
+  return (
+    (getNodeEnv() === 'test' && !allowTestPersistence) ||
+    isSessionPersistenceDisabled() ||
+    isEnvTruthy(process.env.CLAUDE_CODE_SKIP_PROMPT_HISTORY)
+  )
+}
+
 type InternalEventWriter = (
   eventType: string,
   payload: Record<string, unknown>,
@@ -590,6 +637,10 @@ type InternalEventWriter = (
  */
 export function setInternalEventWriter(writer: InternalEventWriter): void {
   getProject().setInternalEventWriter(writer)
+}
+
+export function clearInternalEventWriter(): void {
+  project?.clearInternalEventWriter()
 }
 
 type InternalEventReader = () => Promise<
@@ -1119,14 +1170,9 @@ class Project {
    * test sessions don't pollute the user's --resume list.
    */
   private shouldSkipPersistence(): boolean {
-    const allowTestPersistence = isEnvTruthy(
-      process.env.TEST_ENABLE_SESSION_PERSISTENCE,
-    )
     return (
-      (getNodeEnv() === 'test' && !allowTestPersistence) ||
       getSettings_DEPRECATED()?.cleanupPeriodDays === 0 ||
-      isSessionPersistenceDisabled() ||
-      isEnvTruthy(process.env.CLAUDE_CODE_SKIP_PROMPT_HISTORY)
+      isTranscriptPersistenceDisabled()
     )
   }
 
@@ -1180,6 +1226,7 @@ class Project {
       }
 
       // Get slug if one exists for this session (used for plan files, etc.)
+      void refreshRepoBranches()
       const sessionId = getSessionId()
       const slug = getPlanSlugCache().get(sessionId)
 
@@ -1534,6 +1581,12 @@ class Project {
     )
     // Use fast flush interval for CCR v2
     this.FLUSH_INTERVAL_MS = REMOTE_FLUSH_INTERVAL_MS
+  }
+
+  clearInternalEventWriter(): void {
+    if (!this.internalEventWriter) return
+    this.internalEventWriter = null
+    logForDebugging('CCR v2 internal event writer cleared')
   }
 
   setInternalEventReader(reader: InternalEventReader): void {
@@ -2877,7 +2930,8 @@ export async function saveCustomTitle(
   source: 'user' | 'auto' | 'hook' | 'remote' = 'user',
 ) {
   // Fall back to computed path if fullPath is not provided
-  const resolvedPath = fullPath ?? getTranscriptPathForSession(sessionId)
+  const resolvedPath =
+    fullPath ?? getTranscriptPathForSession(sessionId)
   appendEntryToFile(resolvedPath, {
     type: 'custom-title',
     customTitle,
@@ -2965,7 +3019,10 @@ export async function linkSessionToPR(
   prRepository: string,
   fullPath?: string,
 ): Promise<void> {
-  const resolvedPath = fullPath ?? getTranscriptPathForSession(sessionId)
+  const resolvedPath =
+    fullPath ??
+    (sessionId === getSessionId() ? getMaterializedSessionFile() : null) ??
+    getTranscriptPathForSession(sessionId)
   appendEntryToFile(resolvedPath, {
     type: 'pr-link',
     sessionId,
@@ -3004,6 +3061,10 @@ export function getCurrentSessionTitle(
 
 export function getCurrentSessionAgentColor(): string | undefined {
   return getProject().currentSessionAgentColor
+}
+
+export function getCurrentSessionAgentName(): string | undefined {
+  return getProject().currentSessionAgentName
 }
 
 /**
@@ -3136,6 +3197,10 @@ export function saveMode(mode: 'coordinator' | 'normal'): void {
   getProject().currentSessionMode = mode
 }
 
+/** Emits the stripped worktree ownership snapshot written to the transcript. */
+export const worktreeStateSignal =
+  createSignal<[worktree: PersistedWorktreeSession | null]>()
+
 /**
  * Record the session's worktree state for --resume. Written to disk by
  * materializeSessionFile on the first user message and re-stamped by
@@ -3164,6 +3229,7 @@ export function saveWorktreeState(
     : null
   const project = getProject()
   project.currentSessionWorktree = stripped
+  worktreeStateSignal.emit(stripped)
   // Write eagerly when the file already exists (mid-session enter/exit).
   // For --worktree startup, sessionFile is null — materializeSessionFile
   // will write it on the first message via reAppendSessionMetadata.

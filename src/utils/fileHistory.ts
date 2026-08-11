@@ -20,7 +20,7 @@ import { logEvent } from 'src/services/analytics/index.js'
 import { notifyVscodeFileUpdated } from 'src/services/mcp/vscodeSdkMcp.js'
 import type { LogOption } from 'src/types/logs.js'
 import { inspect } from 'util'
-import { getGlobalConfig } from './config.js'
+import { getConfigValue } from './settings/configSettings.js'
 import { logForDebugging } from './debug.js'
 import { getClaudeConfigHomeDir, isEnvTruthy } from './envUtils.js'
 import { getErrnoCode, isENOENT } from './errors.js'
@@ -65,7 +65,7 @@ export function fileHistoryEnabled(): boolean {
     return fileHistoryEnabledSdk()
   }
   return (
-    getGlobalConfig().fileCheckpointingEnabled !== false &&
+    getConfigValue('fileCheckpointingEnabled', true).value &&
     !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_FILE_CHECKPOINTING)
   )
 }

@@ -2,6 +2,10 @@ import axios from 'axios'
 import { z } from 'zod/v4'
 import { getOauthConfig } from '../../constants/oauth.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
+import {
+  type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+  logEvent,
+} from '../../services/analytics/index.js'
 import { getOrganizationUUID } from '../../services/oauth/client.js'
 import { isPolicyAllowed } from '../../services/policyLimits/index.js'
 import type { ToolUseContext } from '../../Tool.js'
@@ -10,6 +14,7 @@ import {
   checkAndRefreshOAuthTokenIfNeeded,
   getClaudeAIOAuthTokens,
 } from '../../utils/auth.js'
+import { isEnvTruthy } from '../../utils/envUtils.js'
 import { lazySchema } from '../../utils/lazySchema.js'
 import { jsonStringify } from '../../utils/slowOperations.js'
 import { DESCRIPTION, PROMPT, REMOTE_TRIGGER_TOOL_NAME } from './prompt.js'
@@ -26,7 +31,7 @@ const inputSchema = lazySchema(() =>
     body: z
       .record(z.string(), z.unknown())
       .optional()
-      .describe('JSON body for create and update'),
+      .describe('Required for create and update; optional for run'),
   }),
 )
 type InputSchema = ReturnType<typeof inputSchema>
@@ -142,6 +147,19 @@ export const RemoteTriggerTool = buildTool({
       signal: context.abortController.signal,
       validateStatus: () => true,
     })
+
+    if (action === 'create' || action === 'update') {
+      logEvent('tengu_remote_trigger', {
+        action:
+          action as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        has_run_once_at:
+          typeof body?.run_once_at === 'string' && body.run_once_at !== '',
+        has_cron:
+          typeof body?.cron_expression === 'string' &&
+          body.cron_expression !== '',
+        success: res.status >= 200 && res.status < 300,
+      })
+    }
 
     return {
       data: {

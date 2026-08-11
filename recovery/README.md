@@ -47,11 +47,13 @@ The checked-in cases are:
 - [`2.1.113 → 2.1.114`](./cases/2.1.113-to-2.1.114/REPORT.md), the nineteenth
   adjacent recovery;
 - [`2.1.114 → 2.1.116`](./cases/2.1.114-to-2.1.116/REPORT.md), the twentieth
-  adjacent recovery; and
+  adjacent recovery;
 - [`2.1.116 → 2.1.117`](./cases/2.1.116-to-2.1.117/REPORT.md), the twenty-first
+  adjacent recovery;
+- [`2.1.117 → 2.1.118`](./cases/2.1.117-to-2.1.118/REPORT.md), the twenty-second
   adjacent recovery; and
-- [`2.1.117 → 2.1.118`](./cases/2.1.117-to-2.1.118/REPORT.md), the current
-  twenty-second adjacent recovery. Upstream did not publish 2.1.93, 2.1.95,
+- [`2.1.118 → 2.1.119`](./cases/2.1.118-to-2.1.119/REPORT.md), the current
+  twenty-third adjacent recovery. Upstream did not publish 2.1.93, 2.1.95,
   2.1.99, 2.1.102, 2.1.103, 2.1.106, or 2.1.115, so every multi-number advance
   is still one step in published-release order.
 
@@ -68,9 +70,9 @@ Each case has simultaneous completeness levels that must not be conflated:
   types, comments, formatting, and exact module placement are not observable.
 
 For the current target, start with the
-[`2.1.118 report`](./cases/2.1.117-to-2.1.118/REPORT.md),
-[`manifest`](./cases/2.1.117-to-2.1.118/manifest.json), and
-[`complete runbook`](./cases/2.1.117-to-2.1.118/RECOVERY_RUNBOOK.md).
+[`2.1.119 report`](./cases/2.1.118-to-2.1.119/REPORT.md),
+[`manifest`](./cases/2.1.118-to-2.1.119/manifest.json), and
+[`complete runbook`](./cases/2.1.118-to-2.1.119/RECOVERY_RUNBOOK.md).
 
 ## Deliverables
 
@@ -82,6 +84,7 @@ For the current target, start with the
 | `attribution/` | Complete target generated-offset and source-candidate inventory |
 | `structural/` | Complete target token/unit classification ledger |
 | `readable-diff/` | Binding-aware full bundle diff, structural diff, and rename map |
+| `semantic/` | Reviewed obligations and whole-bundle/source correspondence |
 | `recovered/` | Target-backed source-facing patches and executable models |
 
 ## Current source-tree state
@@ -90,7 +93,7 @@ The repository `src/` is the verified 2.1.88 outer/Bun-input source-map
 baseline plus cumulative source-facing overlays for 2.1.89, 2.1.90, 2.1.91,
 2.1.92, 2.1.94, 2.1.96, 2.1.97, 2.1.98, 2.1.100, 2.1.101, 2.1.104, 2.1.105,
 2.1.107, 2.1.108, 2.1.109, 2.1.110, 2.1.111, 2.1.112, 2.1.113, 2.1.114,
-2.1.116, 2.1.117, and 2.1.118.
+2.1.116, 2.1.117, 2.1.118, and 2.1.119.
 Upstream skipped 2.1.93, 2.1.95, 2.1.99, 2.1.102, 2.1.103, 2.1.106, and
 2.1.115.
 Those overlays are partial behavioral recoveries, not claims of the exact
@@ -129,6 +132,17 @@ All 280 declared TypeScript/TSX paths pass syntax construction, and the four
 focused suites pass 21/21 in both source orientations. The complete
 generated/package claim and necessarily partial authored-source localization
 remain separate.
+
+The 2.1.119 exact wrapper and embedded-JavaScript recovery is complete. Its
+incremental source-facing overlay is frozen and applied in the shared
+checkout, so `src/` carries the cumulative 2.1.119-facing target. The patch
+records 290 paths (224 modified and 66 added), with 25,828 insertions and
+1,994 deletions. It produces 2,088 files, 32,357,579 bytes, and framed SHA-256
+`5b91f7f3ddcdf440a8ef22b7e43eec769402aa54c3f1995ee508adb0c9157882`.
+All 278 declared TypeScript/TSX paths pass syntax construction, the eight
+target-focused suites pass 86/86, and the retained 2.1.118 suites pass 21/21.
+The complete generated/package claim and necessarily partial authored-source
+localization remain separate.
 
 The 2.1.89 overlay modifies three files and adds one:
 
@@ -440,10 +454,10 @@ bytes, and framed SHA-256
 All 122 target-existing changed source paths pass syntax construction, and its
 three focused test files pass 8/8 from both source-tree orientations.
 
-All twenty-three overlays through 2.1.118 are present and applied. Do not apply
-an overlay twice. Reverse only the final 2.1.118 overlay for a deliberate
+All twenty-four overlays through 2.1.119 are present and applied. Do not apply
+an overlay twice. Reverse only the final 2.1.119 overlay for a deliberate
 reversibility audit, and reapply it before continuing so the audit ends at the
-2.1.118 target. Never reverse a cumulative pre-2.1.117 overlay.
+2.1.119 target. Never reverse a cumulative pre-2.1.117 overlay.
 
 ## Quick verification
 
@@ -455,15 +469,15 @@ pixi run npm --prefix recovery ci --ignore-scripts
 
 RECOVERY_ARTIFACTS=$(mktemp -d)
 pixi run node recovery/scripts/acquire-case.mjs \
-  --case recovery/cases/2.1.117-to-2.1.118/manifest.json \
+  --case recovery/cases/2.1.118-to-2.1.119/manifest.json \
   --output "$RECOVERY_ARTIFACTS"
 ```
 
-Run the complete gate directly against the checked-out, applied 2.1.118
+Run the complete gate directly against the checked-out, applied 2.1.119
 target:
 
 ```sh
-CASE=recovery/cases/2.1.117-to-2.1.118
+CASE=recovery/cases/2.1.118-to-2.1.119
 git diff --exit-code -- src
 git diff --cached --exit-code -- src
 git apply --reverse --check "$CASE/recovered/source-facing-overlay.patch"
@@ -472,7 +486,7 @@ pixi run node recovery/scripts/verify-complete-recovery.mjs \
   --case "$CASE/manifest.json" \
   --repo . \
   --artifacts "$RECOVERY_ARTIFACTS" \
-  --baseline-tarball "$RECOVERY_ARTIFACTS/2.1.117/package.tgz"
+  --baseline-tarball "$RECOVERY_ARTIFACTS/2.1.118/package.tgz"
 ```
 
 It verifies the 2.1.88 source-oracle correspondence, Bun container and raw
@@ -481,44 +495,44 @@ and wrapper reconstruction, attribution coverage, structural token accounting,
 readable-diff invariants, and target-backed tests.
 
 The source-lineage gate reverses and reapplies the patch inside its own
-temporary workspace, so the checked-out tree remains at 2.1.118. For an
+temporary workspace, so the checked-out tree remains at 2.1.119. For an
 optional manual reversibility audit, reverse only this case's patch, verify the
-2.1.117 base, and immediately reapply it so the audit ends at 2.1.118:
+2.1.118 base, and immediately reapply it so the audit ends at 2.1.119:
 
 ```sh
 git apply --reverse --check "$CASE/recovered/source-facing-overlay.patch"
 git apply --reverse "$CASE/recovered/source-facing-overlay.patch"
-# Require: 1,957 files, 30,993,723 bytes, framed SHA-256
-# 135719f7be0cccc9e4658e0f7b78d46e52d947cc171a9bf80b36e1081d727cee.
-git apply --check "$CASE/recovered/source-facing-overlay.patch"
-git apply "$CASE/recovered/source-facing-overlay.patch"
 # Require: 2,022 files, 31,570,676 bytes, framed SHA-256
 # c91ebcc114cbe577e4ffe43801e6014ade8e26d27271f57b0af1ce8ce9ff3d59.
+git apply --check "$CASE/recovered/source-facing-overlay.patch"
+git apply "$CASE/recovered/source-facing-overlay.patch"
+# Require: 2,088 files, 32,357,579 bytes, framed SHA-256
+# 5b91f7f3ddcdf440a8ef22b7e43eec769402aa54c3f1995ee508adb0c9157882.
 git diff --exit-code -- src
 git diff --cached --exit-code -- src
 ```
 
 The expected top-level status is `complete-recovery-verified`, with exact
 raw embedded CLI SHA-256
-`fbf6347d8ba29bfd37c48471e77e635180918e45be61ec8c49cfacd70ffb37ba`
+`bc814388b51cbcb5114db927e60f8fbb5e12409532a89137429975556c29464e`
 and exact wrapper-tree SHA-256
-`72c0c29d2bf08d2309560c7496ae91a2c1282b2f452ec484114f971d67a99094`.
+`0f004220762348aee137dcb6a56ba362a694651b9cbb3f05ba3c055c4d8d68dc`.
 The exact target Bun graph contains three embedded plain JavaScript files and
-13,239,834 bytes.
+13,726,203 bytes.
 
 ## Inspect the diff
 
 The compact structural diff is plain text:
 
 ```sh
-less recovery/cases/2.1.117-to-2.1.118/readable-diff/statements.diff
+less recovery/cases/2.1.118-to-2.1.119/readable-diff/statements.diff
 ```
 
 The complete normalized Git diff is deterministically compressed:
 
 ```sh
 gzip -cd \
-  recovery/cases/2.1.117-to-2.1.118/readable-diff/normalized.diff.gz |
+  recovery/cases/2.1.118-to-2.1.119/readable-diff/normalized.diff.gz |
   less
 ```
 
@@ -529,14 +543,14 @@ The exact embedded CLI entry can be reconstructed directly:
 
 ```sh
 pixi run zstd -d \
-  --patch-from="$RECOVERY_ARTIFACTS/2.1.117-linux-x64/cli.js" \
-  recovery/cases/2.1.117-to-2.1.118/diff/cli.js.zstd-delta \
-  -o /tmp/claude-code-2.1.118-embedded-cli.js
+  --patch-from="$RECOVERY_ARTIFACTS/2.1.118-linux-x64/cli.js" \
+  recovery/cases/2.1.118-to-2.1.119/diff/cli.js.zstd-delta \
+  -o /tmp/claude-code-2.1.119-embedded-cli.js
 ```
 
-The baseline is the canonical 2.1.117 CLI slice from its authenticated native
-executable. The reconstructed file must be 13,234,708 bytes with SHA-256
-`fbf6347d8ba29bfd37c48471e77e635180918e45be61ec8c49cfacd70ffb37ba`.
+The baseline is the canonical 2.1.118 CLI slice from its authenticated native
+executable. The reconstructed file must be 13,721,077 bytes with SHA-256
+`bc814388b51cbcb5114db927e60f8fbb5e12409532a89137429975556c29464e`.
 
 ## Reusable method
 

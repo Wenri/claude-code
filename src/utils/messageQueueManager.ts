@@ -99,6 +99,15 @@ export function getCommandQueueLength(): number {
 }
 
 /**
+ * Count commands that belong to the main conversation rather than a
+ * background agent. Background-agent commands must not keep the main REPL's
+ * spinner alive after its own work has gone idle.
+ */
+export function getMainThreadCommandQueueLength(): number {
+  return commandQueue.filter(command => command.agentId === undefined).length
+}
+
+/**
  * Check if there are commands in the queue.
  */
 export function hasCommandsInQueue(): boolean {

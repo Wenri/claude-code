@@ -1,13 +1,15 @@
 import { getIsNonInteractiveSession } from '../../bootstrap/state.js'
 import type { Command } from '../../commands.js'
+import { isAutoCompactConfigurationEnabled } from '../../services/compact/autoCompact.js'
 
 export const autocompact = {
   type: 'local-jsx',
   name: 'autocompact',
   description: 'Configure the auto-compact window size',
-  isEnabled: () => !getIsNonInteractiveSession(),
+  isEnabled: () =>
+    isAutoCompactConfigurationEnabled() && !getIsNonInteractiveSession(),
   isHidden: false,
-  argumentHint: '[tokens|reset]',
+  argumentHint: '[auto|<tokens>]',
   load: () => import('./autocompact.js'),
   userFacingName() {
     return 'autocompact'
@@ -23,9 +25,11 @@ export const autocompactNonInteractive = {
     return !getIsNonInteractiveSession()
   },
   isEnabled() {
-    return getIsNonInteractiveSession()
+    return (
+      isAutoCompactConfigurationEnabled() && getIsNonInteractiveSession()
+    )
   },
-  argumentHint: '[tokens|reset]',
+  argumentHint: '[auto|<tokens>]',
   load: () => import('./autocompact-noninteractive.js'),
   userFacingName() {
     return 'autocompact'

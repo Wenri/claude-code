@@ -1,27 +1,122 @@
-import { feature } from 'bun:bundle';
 import { spawnSync } from 'child_process';
 import sample from 'lodash-es/sample.js';
 import * as React from 'react';
 import { ExitFlow } from '../../components/ExitFlow.js';
+import { Dialog } from '../../components/design-system/Dialog.js';
+import { Select } from '../../components/CustomSelect/select.js';
+import { getSessionId } from '../../bootstrap/state.js';
+import { isSettledJob, readJobState, writeJobState } from '../../daemon/jobs.js';
+import { encodeDetach } from '../../daemon/protocol.js';
+import { logEvent } from '../../services/analytics/index.js';
 import type { LocalJSXCommandOnDone } from '../../types/command.js';
 import { isBgSession } from '../../utils/concurrentSessions.js';
 import { gracefulShutdown } from '../../utils/gracefulShutdown.js';
+import { logError } from '../../utils/log.js';
 import { getSessionBackgroundExitItems } from '../../utils/sessionCronTasks.js';
 import { getCurrentWorktreeSession } from '../../utils/worktree.js';
+import { getBackgroundWorkState } from '../../utils/backgroundWorkState.js';
+import { plural } from '../../utils/stringUtils.js';
 const GOODBYE_MESSAGES = ['Goodbye!', 'See ya!', 'Bye!', 'Catch you later!'];
 function getRandomGoodbyeMessage(): string {
   return sample(GOODBYE_MESSAGES) ?? 'Goodbye!';
 }
+
+export async function stopBackgroundSession(
+  source: 'bridge' | 'exit_dialog' | 'stop_command',
+): Promise<void> {
+  logEvent('tengu_bg_agent_action', {
+    action: 'stop',
+    source,
+    jobSessionId: getSessionId(),
+  });
+  const jobDir = process.env.CLAUDE_JOB_DIR;
+  if (isBgSession() && jobDir) {
+    const now = new Date().toISOString();
+    const state = await readJobState(jobDir);
+    if (state && !isSettledJob(state)) {
+      await writeJobState(jobDir, {
+        ...state,
+        state: 'stopped',
+        detail: 'stopped from session',
+        tempo: 'idle',
+        needs: undefined,
+        inFlight: undefined,
+        updatedAt: now,
+        firstTerminalAt: state.firstTerminalAt ?? now,
+      }).catch(logError);
+    }
+    if (process.env.CLAUDE_BG_BACKEND === 'daemon') {
+      process.stdout.write(encodeDetach('Session stopped.'));
+    }
+  }
+  await gracefulShutdown(0, 'prompt_input_exit', {
+    suppressResumeHint: true,
+  });
+}
+
+function getDetachMessage(): string | undefined {
+  const { tasks } = getBackgroundWorkState()
+  if (tasks === 0) return undefined
+  return `Detached — ${tasks} ${plural(tasks, 'task')} still running. Run \`claude agents\` to see your background sessions.`
+}
+
+export function detachBackgroundSession(): void {
+  if (process.env.CLAUDE_BG_BACKEND === 'daemon') {
+    process.stdout.write(encodeDetach(getDetachMessage()));
+  } else {
+    spawnSync('tmux', ['detach-client'], { stdio: 'ignore' });
+  }
+}
+
+function BackgroundSessionExitDialog({
+  onDetach,
+  onCancel,
+}: {
+  onDetach(): void;
+  onCancel(): void;
+}): React.ReactNode {
+  return (
+    <Dialog
+      title="Leave background session"
+      subtitle="This session keeps running after you detach."
+      onCancel={onCancel}
+    >
+      <Select
+        defaultFocusValue="detach"
+        options={[
+          {
+            label: 'Detach',
+            value: 'detach',
+            description: 'Return to agents · reattach anytime',
+          },
+          {
+            label: 'Stop session',
+            value: 'stop',
+            description: 'Ends the process · restart from agents anytime',
+          },
+        ]}
+        onChange={value => {
+          if (value === 'stop') {
+            void stopBackgroundSession('exit_dialog');
+          } else {
+            onDetach();
+          }
+        }}
+      />
+    </Dialog>
+  );
+}
 export async function call(onDone: LocalJSXCommandOnDone): Promise<React.ReactNode> {
-  // Inside a `claude --bg` tmux session: detach instead of kill. The REPL
-  // keeps running; `claude attach` can reconnect. Covers /exit, /quit,
-  // ctrl+c, ctrl+d — all funnel through here via REPL's handleExit.
-  if (feature('BG_SESSIONS') && isBgSession()) {
-    onDone();
-    spawnSync('tmux', ['detach-client'], {
-      stdio: 'ignore'
-    });
-    return null;
+  if (isBgSession()) {
+    return (
+      <BackgroundSessionExitDialog
+        onDetach={() => {
+          onDone();
+          detachBackgroundSession();
+        }}
+        onCancel={() => onDone()}
+      />
+    );
   }
   const showWorktree = getCurrentWorktreeSession() !== null;
   const backgroundItems = getSessionBackgroundExitItems();

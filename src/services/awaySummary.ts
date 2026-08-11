@@ -1,81 +1,88 @@
-import { APIUserAbortError } from '@anthropic-ai/sdk'
-import { getEmptyToolPermissionContext } from '../Tool.js'
 import type { Message } from '../types/message.js'
-import { logForDebugging } from '../utils/debug.js'
 import {
-  createUserMessage,
-  getAssistantMessageText,
-} from '../utils/messages.js'
-import { getSmallFastModel } from '../utils/model/model.js'
-import { asSystemPrompt } from '../utils/systemPromptType.js'
-import { queryModelWithoutStreaming } from './api/claude.js'
-import { getSessionMemoryContent } from './SessionMemory/sessionMemoryUtils.js'
+  getLastCacheSafeParams,
+  runForkedAgent,
+} from '../utils/forkedAgent.js'
+import { logForDebugging } from '../utils/debug.js'
+import { createUserMessage } from '../utils/messages.js'
 
-// Recap only needs recent context — truncate to avoid "prompt too long" on
-// large sessions. 30 messages ≈ ~15 exchanges, plenty for "where we left off."
-const RECENT_MESSAGE_WINDOW = 30
+const AWAY_SUMMARY_PROMPT =
+  'The user stepped away and is coming back. Recap in under 40 words, 1-2 plain sentences, no markdown. Lead with the overall goal and current task, then the one next action. Skip root-cause narrative, fix internals, secondary to-dos, and em-dash tangents.'
 
 export type AwaySummaryResult =
   | { kind: 'no-turn' | 'aborted' | 'failed' }
   | { kind: 'ok' | 'api-error'; text: string }
 
-function buildAwaySummaryPrompt(memory: string | null): string {
-  const memoryBlock = memory
-    ? `Session memory (broader context):\n${memory}\n\n`
-    : ''
-  return `${memoryBlock}The user stepped away and is coming back. Write exactly 1-3 short sentences. Start by stating the high-level task — what they are building or debugging, not implementation details. Next: the concrete next step. Skip status reports and commit recaps.`
+function extractAssistantText(
+  messages: readonly Message[],
+  includeApiErrors: boolean,
+): string {
+  return messages
+    .flatMap(message => {
+      if (
+        message.type !== 'assistant' ||
+        (!includeApiErrors && message.isApiErrorMessage)
+      ) {
+        return []
+      }
+      return Array.isArray(message.message.content)
+        ? message.message.content
+        : []
+    })
+    .filter(block => block.type === 'text')
+    .map(block => ('text' in block ? block.text : ''))
+    .join('')
+    .trim()
 }
 
-/**
- * Generates a short session recap for the "while you were away" card.
- * Distinguishes successful summaries from API errors and local cancellation so
- * interactive callers can show the right result without rendering API errors
- * in the automatic away card.
- */
+/** Run the recap as a cache-sharing, tool-denied, transcript-free fork. */
 export async function generateAwaySummary(
-  messages: readonly Message[],
   signal: AbortSignal,
 ): Promise<AwaySummaryResult> {
-  if (messages.length === 0) {
+  const cacheSafeParams = getLastCacheSafeParams()
+  if (!cacheSafeParams) {
+    logForDebugging('[awaySummary] no CacheSafeParams saved, skipping')
     return { kind: 'no-turn' }
   }
 
+  const controller = new AbortController()
+  signal.addEventListener('abort', () => controller.abort(), { once: true })
   try {
-    const memory = await getSessionMemoryContent()
-    const recent = messages.slice(-RECENT_MESSAGE_WINDOW)
-    recent.push(createUserMessage({ content: buildAwaySummaryPrompt(memory) }))
-    const response = await queryModelWithoutStreaming({
-      messages: recent,
-      systemPrompt: asSystemPrompt([]),
-      thinkingConfig: { type: 'disabled' },
-      tools: [],
-      signal,
-      options: {
-        getToolPermissionContext: async () => getEmptyToolPermissionContext(),
-        model: getSmallFastModel(),
-        toolChoice: undefined,
-        isNonInteractiveSession: false,
-        hasAppendSystemPrompt: false,
-        agents: [],
-        querySource: 'away_summary',
-        mcpTools: [],
-        skipCacheWrite: true,
-      },
+    const { messages } = await runForkedAgent({
+      promptMessages: [
+        createUserMessage({ content: AWAY_SUMMARY_PROMPT }),
+      ],
+      cacheSafeParams,
+      overrides: { abortController: controller },
+      canUseTool: async () => ({
+        behavior: 'deny' as const,
+        message: 'Away summary cannot use tools',
+        decisionReason: {
+          type: 'other' as const,
+          reason: 'away_summary',
+        },
+      }),
+      querySource: 'away_summary',
+      forkLabel: 'away_summary',
+      maxTurns: 1,
+      skipCacheWrite: true,
+      skipTranscript: true,
     })
-
-    if (response.isApiErrorMessage) {
-      const text = getAssistantMessageText(response)
-      logForDebugging(
-        `[awaySummary] API error: ${text}`,
-      )
-      return { kind: 'api-error', text }
+    if (signal.aborted) return { kind: 'aborted' }
+    const apiError = messages.find(
+      message => message.type === 'assistant' && message.isApiErrorMessage,
+    )
+    if (apiError) {
+      return {
+        kind: 'api-error',
+        text: extractAssistantText([apiError], true),
+      }
     }
-    return { kind: 'ok', text: getAssistantMessageText(response) }
-  } catch (err) {
-    if (err instanceof APIUserAbortError || signal.aborted) {
-      return { kind: 'aborted' }
-    }
-    logForDebugging(`[awaySummary] generation failed: ${err}`)
+    const text = extractAssistantText(messages, false)
+    return text ? { kind: 'ok', text } : { kind: 'failed' }
+  } catch (error) {
+    if (signal.aborted) return { kind: 'aborted' }
+    logForDebugging(`[awaySummary] generation failed: ${error}`)
     return { kind: 'failed' }
   }
 }

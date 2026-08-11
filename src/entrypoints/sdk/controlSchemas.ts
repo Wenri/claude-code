@@ -72,6 +72,12 @@ export const SDKControlInitializeRequestSchema = lazySchema(() =>
         .describe(
           'Custom workflow body for the plan-mode system reminder. Replaces the default code-implementation phases; the CLI still wraps it with the read-only enforcement preamble and the ExitPlanMode protocol footer.',
         ),
+      excludeDynamicSections: z
+        .boolean()
+        .optional()
+        .describe(
+          'When true, omit per-user dynamic sections (working directory, auto-memory path) from the cached system prompt and re-inject them as the first user message. Lets cross-user prompt caching hit on a static system prompt prefix. Tradeoff: the model sees this context slightly later in the prompt, so steering on the working directory and memory location is marginally less authoritative. Has no effect when a custom (non-preset) system prompt is in use.',
+        ),
       agents: z.record(z.string(), AgentDefinitionSchema()).optional(),
       skills: z
         .array(z.string())
@@ -257,6 +263,21 @@ export const SDKControlGetSessionCostResponseSchema = lazySchema(() =>
       text: z.string(),
     })
     .describe('Formatted session cost text, ANSI-stripped.'),
+)
+
+export const SDKControlGetBinaryVersionRequestSchema = lazySchema(() =>
+  z
+    .object({ subtype: z.literal('get_binary_version') })
+    .describe(
+      "Requests the responder's CLI binary version. Used by /version in --remote mode so the thin client can show both its own and the remote container's version.",
+    ),
+)
+
+export const SDKControlGetBinaryVersionResponseSchema = lazySchema(() =>
+  z.object({
+    version: z.string(),
+    buildTime: z.string().optional(),
+  }),
 )
 
 const ContextCategorySchema = lazySchema(() =>
@@ -725,6 +746,7 @@ export const SDKControlRequestInnerSchema = lazySchema(() =>
     SDKControlFileSuggestionsRequestSchema(),
     SDKControlGetContextUsageRequestSchema(),
     SDKControlGetSessionCostRequestSchema(),
+    SDKControlGetBinaryVersionRequestSchema(),
     SDKHookCallbackRequestSchema(),
     SDKControlMcpMessageRequestSchema(),
     SDKControlRewindFilesRequestSchema(),

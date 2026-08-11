@@ -583,7 +583,7 @@ export class StructuredIO {
       try {
         // Start the hook evaluation (runs in background)
         const hookPromise = executePermissionRequestHooksForSDK(
-          tool.name,
+          tool,
           toolUseID,
           input,
           toolUseContext,
@@ -802,7 +802,7 @@ function exitWithMessage(message: string): never {
  * Returns undefined if no hook made a decision.
  */
 async function executePermissionRequestHooksForSDK(
-  toolName: string,
+  tool: Tool,
   toolUseID: string,
   input: Record<string, unknown>,
   toolUseContext: ToolUseContext,
@@ -813,7 +813,7 @@ async function executePermissionRequestHooksForSDK(
 
   // Iterate directly over the generator instead of using `all`
   const hookGenerator = executePermissionRequestHooks(
-    toolName,
+    tool.name,
     toolUseID,
     input,
     toolUseContext,
@@ -854,15 +854,14 @@ async function executePermissionRequestHooksForSDK(
         const permissionUpdates = decision.updatedPermissions ?? []
         if (permissionUpdates.length > 0) {
           persistPermissionUpdates(permissionUpdates)
-          const currentAppState = toolUseContext.getAppState()
-          const updatedContext = applyPermissionUpdates(
-            currentAppState.toolPermissionContext,
-            permissionUpdates,
-          )
-          // Update permission context via setAppState
           toolUseContext.setAppState(prev => {
-            if (prev.toolPermissionContext === updatedContext) return prev
-            return { ...prev, toolPermissionContext: updatedContext }
+            const updatedContext = applyPermissionUpdates(
+              prev.toolPermissionContext,
+              permissionUpdates,
+            )
+            return updatedContext === prev.toolPermissionContext
+              ? prev
+              : { ...prev, toolPermissionContext: updatedContext }
           })
         }
 

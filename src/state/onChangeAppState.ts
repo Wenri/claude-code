@@ -21,6 +21,7 @@ import {
   getSettingsForSource,
   updateSettingsForSource,
 } from '../utils/settings/settings.js'
+import { setConfigValue } from '../utils/settings/configSettings.js'
 import type { AppState } from './AppStateStore.js'
 
 // Inverse of the push below — restore on worker restart.
@@ -128,15 +129,8 @@ export function onChangeAppState({
   }
 
   // verbose
-  if (
-    newState.verbose !== oldState.verbose &&
-    getGlobalConfig().verbose !== newState.verbose
-  ) {
-    const verbose = newState.verbose
-    saveGlobalConfig(current => ({
-      ...current,
-      verbose,
-    }))
+  if (newState.verbose !== oldState.verbose) {
+    setConfigValue('verbose', newState.verbose)
   }
 
   // tungstenPanelVisible (ant-only tmux panel sticky toggle)

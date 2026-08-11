@@ -30,27 +30,28 @@ export async function detectCurrentRepository(): Promise<string | null> {
  * or a GHE hostname). Callers that need to construct URLs against a specific
  * GitHub host should use this variant.
  */
-export async function detectCurrentRepositoryWithHost(): Promise<ParsedRepository | null> {
-  const cwd = getCwd()
+export async function detectCurrentRepositoryWithHost(
+  cwdOverride?: string,
+): Promise<ParsedRepository | null> {
+  const cwd = cwdOverride ?? getCwd()
 
   if (repositoryWithHostCache.has(cwd)) {
     return repositoryWithHostCache.get(cwd) ?? null
   }
 
   try {
-    let remoteUrl = await getRemoteUrl()
+    let remoteUrl = cwdOverride === undefined ? await getRemoteUrl() : null
     if (!remoteUrl) {
       const { stdout, code } = await execFileNoThrow(
         gitExe(),
         ['config', '--get', 'remote.origin.url'],
-        { preserveOutputOnError: false },
+        { cwd, preserveOutputOnError: false },
       )
       remoteUrl = code === 0 ? stdout.trim() || null : null
     }
     logForDebugging(`Git remote URL: ${remoteUrl}`)
     if (!remoteUrl) {
       logForDebugging('No git remote URL found')
-      repositoryWithHostCache.set(cwd, null)
       return null
     }
 
@@ -62,7 +63,6 @@ export async function detectCurrentRepositoryWithHost(): Promise<ParsedRepositor
     return parsed
   } catch (error) {
     logForDebugging(`Error detecting repository: ${error}`)
-    repositoryWithHostCache.set(cwd, null)
     return null
   }
 }
@@ -78,6 +78,11 @@ export function getCachedRepository(): string | null {
   const parsed = repositoryWithHostCache.get(getCwd())
   if (!parsed || parsed.host !== 'github.com') return null
   return `${parsed.owner}/${parsed.name}`
+}
+
+/** Returns the cached remote host for the current working directory. */
+export function getCachedRepositoryHost(): string | null {
+  return repositoryWithHostCache.get(getCwd())?.host ?? null
 }
 
 /**

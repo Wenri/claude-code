@@ -1,0 +1,4 @@
+04d966488aa98959bf8d1f94e4053afb20d19892670ecfc4690e994c8b8c066a  recovery/test/recovery-2.1.118-auth-settings.test.mjs
+1d506eaefc219a78670f4c5aa703747b6501a63325135a4faebfbc189bd00934  recovery/test/recovery-2.1.118-editor-hooks.test.mjs
+2bba3251ee7ad0e4e73a1fe9745dc2707d75378676afd4ec72aee0b1757c0f32  recovery/test/recovery-2.1.118-plugins-themes.test.mjs
+1e463969f9bb90232e06dcb8ca5c805365443c502cc19d6d332a40db77c3de5a  recovery/test/recovery-2.1.118-runtime-session.test.mjs

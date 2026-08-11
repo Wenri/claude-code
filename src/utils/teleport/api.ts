@@ -3,7 +3,10 @@ import { randomUUID } from 'crypto'
 import { getOauthConfig } from 'src/constants/oauth.js'
 import { getOrganizationUUID } from 'src/services/oauth/client.js'
 import z from 'zod/v4'
-import { getClaudeAIOAuthTokens } from '../auth.js'
+import {
+  checkAndRefreshOAuthTokenIfNeeded,
+  getClaudeAIOAuthTokens,
+} from '../auth.js'
 import { logForDebugging } from '../debug.js'
 import { parseGitHubRepository } from '../detectRepository.js'
 import { errorMessage, toError } from '../errors.js'
@@ -137,10 +140,52 @@ export type SessionResource = {
 }
 
 export type ListSessionsResponse = {
-  data: SessionResource[]
+  data: SessionsApiSession[]
   has_more: boolean
   first_id: string | null
   last_id: string | null
+}
+
+type SessionsApiSession = {
+  id: string
+  title?: string | null
+  status?: string
+  worker_status?: SessionStatus
+  environment_id: string
+  created_at: string
+  updated_at?: string
+  last_event_at: string
+  config?: {
+    sources?: SessionContextSource[]
+    outcomes?: Outcome[] | null
+    model?: string | null
+  }
+}
+
+export function ccrSessionToResource(
+  session: SessionsApiSession,
+): SessionResource {
+  const sessionStatus: SessionStatus =
+    session.status === 'archived'
+      ? 'archived'
+      : (session.worker_status ?? 'idle')
+  return {
+    type: 'session',
+    id: session.id,
+    title: session.title ?? null,
+    session_status: sessionStatus,
+    environment_id: session.environment_id,
+    created_at: session.created_at,
+    updated_at: session.updated_at ?? session.last_event_at,
+    session_context: {
+      sources: session.config?.sources ?? [],
+      outcomes: session.config?.outcomes ?? null,
+      model: session.config?.model ?? null,
+      cwd: '',
+      custom_system_prompt: null,
+      append_system_prompt: null,
+    },
+  }
 }
 
 export const CodeSessionSchema = lazySchema(() =>
@@ -183,6 +228,7 @@ export async function prepareApiRequest(): Promise<{
   accessToken: string
   orgUUID: string
 }> {
+  await checkAndRefreshOAuthTokenIfNeeded()
   const accessToken = getClaudeAIOAuthTokens()?.accessToken
   if (accessToken === undefined) {
     throw new Error(
@@ -205,16 +251,12 @@ export async function prepareApiRequest(): Promise<{
 export async function fetchCodeSessionsFromSessionsAPI(): Promise<
   CodeSession[]
 > {
-  const { accessToken, orgUUID } = await prepareApiRequest()
+  const { accessToken } = await prepareApiRequest()
 
-  const url = `${getOauthConfig().BASE_API_URL}/v1/sessions`
+  const url = `${getOauthConfig().BASE_API_URL}/v1/code/sessions`
 
   try {
-    const headers = {
-      ...getOAuthHeaders(accessToken),
-      'anthropic-beta': 'ccr-byoc-2025-07-29',
-      'x-organization-uuid': orgUUID,
-    }
+    const headers = getOAuthHeaders(accessToken)
 
     const response = await axiosGetWithRetry<ListSessionsResponse>(url, {
       headers,
@@ -225,7 +267,8 @@ export async function fetchCodeSessionsFromSessionsAPI(): Promise<
     }
 
     // Transform SessionResource[] to CodeSession[] format
-    const sessions: CodeSession[] = response.data.data.map(session => {
+    const sessions: CodeSession[] = response.data.data.map(rawSession => {
+      const session = ccrSessionToResource(rawSession)
       // Extract repository info from git sources
       const gitSource = session.session_context.sources.find(
         (source): source is GitSource => source.type === 'git_repository',
@@ -320,15 +363,12 @@ export async function reportClientPresence(
  */
 export async function fetchSession(
   sessionId: string,
+  credentials?: { accessToken: string; orgUUID: string },
 ): Promise<SessionResource> {
-  const { accessToken, orgUUID } = await prepareApiRequest()
+  const { accessToken } = credentials ?? (await prepareApiRequest())
 
-  const url = `${getOauthConfig().BASE_API_URL}/v1/sessions/${sessionId}`
-  const headers = {
-    ...getOAuthHeaders(accessToken),
-    'anthropic-beta': 'ccr-byoc-2025-07-29',
-    'x-organization-uuid': orgUUID,
-  }
+  const url = `${getOauthConfig().BASE_API_URL}/v1/code/sessions/${sessionId}`
+  const headers = getOAuthHeaders(accessToken)
 
   const response = await axios.get<SessionResource>(url, {
     headers,
@@ -355,7 +395,15 @@ export async function fetchSession(
     )
   }
 
-  return response.data
+  const responseData = response.data as unknown as {
+    response_shape?: SessionsApiSession
+    session?: SessionsApiSession
+  }
+  const session = responseData.response_shape ?? responseData.session
+  if (!session?.id) {
+    throw new Error(`Session not found: ${sessionId}`)
+  }
+  return ccrSessionToResource(session)
 }
 
 /**
@@ -394,16 +442,12 @@ export async function sendEventToRemoteSession(
   sessionId: string,
   messageContent: RemoteMessageContent,
   opts?: { uuid?: string },
-): Promise<boolean> {
+): Promise<{ ok: true } | { ok: false; reason: string }> {
   try {
-    const { accessToken, orgUUID } = await prepareApiRequest()
+    const { accessToken } = await prepareApiRequest()
 
-    const url = `${getOauthConfig().BASE_API_URL}/v1/sessions/${sessionId}/events`
-    const headers = {
-      ...getOAuthHeaders(accessToken),
-      'anthropic-beta': 'ccr-byoc-2025-07-29',
-      'x-organization-uuid': orgUUID,
-    }
+    const url = `${getOauthConfig().BASE_API_URL}/v1/code/sessions/${sessionId}/events`
+    const headers = getOAuthHeaders(accessToken)
 
     const userEvent = {
       uuid: opts?.uuid ?? randomUUID(),
@@ -416,9 +460,7 @@ export async function sendEventToRemoteSession(
       },
     }
 
-    const requestBody = {
-      events: [userEvent],
-    }
+    const requestBody = { events: [{ payload: userEvent }] }
 
     logForDebugging(
       `[sendEventToRemoteSession] Sending event to session ${sessionId}`,
@@ -435,16 +477,24 @@ export async function sendEventToRemoteSession(
       logForDebugging(
         `[sendEventToRemoteSession] Successfully sent event to session ${sessionId}`,
       )
-      return true
+      return { ok: true }
     }
 
     logForDebugging(
       `[sendEventToRemoteSession] Failed with status ${response.status}: ${jsonStringify(response.data)}`,
     )
-    return false
+    const errorData = response.data as { error?: { message?: unknown } }
+    const apiMessage = errorData?.error?.message
+    return {
+      ok: false,
+      reason:
+        typeof apiMessage === 'string'
+          ? `${apiMessage} (HTTP ${response.status})`
+          : `HTTP ${response.status}`,
+    }
   } catch (error) {
     logForDebugging(`[sendEventToRemoteSession] Error: ${errorMessage(error)}`)
-    return false
+    return { ok: false, reason: errorMessage(error) }
   }
 }
 
@@ -459,19 +509,15 @@ export async function updateSessionTitle(
   title: string,
 ): Promise<boolean> {
   try {
-    const { accessToken, orgUUID } = await prepareApiRequest()
+    const { accessToken } = await prepareApiRequest()
 
-    const url = `${getOauthConfig().BASE_API_URL}/v1/sessions/${sessionId}`
-    const headers = {
-      ...getOAuthHeaders(accessToken),
-      'anthropic-beta': 'ccr-byoc-2025-07-29',
-      'x-organization-uuid': orgUUID,
-    }
+    const url = `${getOauthConfig().BASE_API_URL}/v1/code/sessions/${sessionId}`
+    const headers = getOAuthHeaders(accessToken)
 
     logForDebugging(
       `[updateSessionTitle] Updating title for session ${sessionId}: "${title}"`,
     )
-    const response = await axios.patch(
+    const response = await axios.put(
       url,
       { title },
       {
@@ -494,5 +540,31 @@ export async function updateSessionTitle(
   } catch (error) {
     logForDebugging(`[updateSessionTitle] Error: ${errorMessage(error)}`)
     return false
+  }
+}
+
+export async function markSessionRead(
+  sessionId: string,
+  eventId?: string,
+): Promise<void> {
+  try {
+    const { accessToken } = await prepareApiRequest()
+    const url = `${getOauthConfig().BASE_API_URL}/v1/code/sessions/${sessionId}/mark_read`
+    const response = await axios.post(
+      url,
+      eventId ? { event_id: eventId } : {},
+      {
+        headers: getOAuthHeaders(accessToken),
+        timeout: 10_000,
+        validateStatus: status => status < 500,
+      },
+    )
+    if (response.status !== 200) {
+      logForDebugging(
+        `[markSessionRead] Failed with status ${response.status}: ${jsonStringify(response.data)}`,
+      )
+    }
+  } catch (error) {
+    logForDebugging(`[markSessionRead] Error: ${errorMessage(error)}`)
   }
 }

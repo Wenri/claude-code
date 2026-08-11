@@ -11,6 +11,7 @@ export function useStalledAnimation(
 ): {
   isStalled: boolean
   stalledIntensity: number
+  timeSinceLastToken: number
 } {
   const lastTokenTime = useRef(time)
   const lastResponseLength = useRef(currentResponseLength)
@@ -71,5 +72,9 @@ export function useStalledAnimation(
     ? intensity
     : stalledIntensityRef.current
 
-  return { isStalled, stalledIntensity: effectiveIntensity }
+  return {
+    isStalled,
+    stalledIntensity: effectiveIntensity,
+    timeSinceLastToken,
+  }
 }

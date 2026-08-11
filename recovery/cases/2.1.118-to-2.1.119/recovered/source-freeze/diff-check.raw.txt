@@ -1,0 +1,10 @@
+src/assistant/install.ts:237: trailing whitespace.
++- We need to keep \`MEMORY.md\` under 200 lines. 
+src/assistant/install.ts:241: trailing whitespace.
++- Consider if anything should be *added* that has recently become more important. 
+src/utils/ultraplan/simple-plan.txt:4: trailing whitespace.
++Run a lightweight planning process, consistent with how you would in regular plan mode: 
+src/utils/ultraplan/simple-plan.txt:6: trailing whitespace.
++- Do not spawn subagents. 
+src/utils/ultraplan/visual-plan.txt:4: trailing whitespace.
++Run a lightweight planning process, consistent with how you would in regular plan mode: 

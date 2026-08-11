@@ -160,10 +160,13 @@ export function getEnabledSettingSources(): SettingSource[] {
   const allowed = getAllowedSettingSources()
 
   // Always include policy and flag settings
-  const result = new Set<SettingSource>(allowed)
-  result.add('policySettings')
-  result.add('flagSettings')
-  return Array.from(result)
+  const enabled = new Set<SettingSource>(allowed)
+  enabled.add('flagSettings')
+  enabled.add('policySettings')
+
+  // Preserve the canonical merge order regardless of the order supplied by
+  // the caller. Later sources must continue to override earlier ones.
+  return SETTING_SOURCES.filter(source => enabled.has(source))
 }
 
 /**

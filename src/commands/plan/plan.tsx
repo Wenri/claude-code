@@ -8,7 +8,7 @@ import { getExternalEditor } from '../../utils/editor.js';
 import { toIDEDisplayName } from '../../utils/ide.js';
 import { applyPermissionUpdate } from '../../utils/permissions/PermissionUpdate.js';
 import { prepareContextForPlanMode } from '../../utils/permissions/permissionSetup.js';
-import { getPlan, getPlanFilePath } from '../../utils/plans.js';
+import { getCachedPlanSlug, getPlan, getPlanFilePath } from '../../utils/plans.js';
 import { editFileInEditor } from '../../utils/promptEditor.js';
 import { renderToString } from '../../utils/staticRender.js';
 function PlanDisplay(t0) {
@@ -90,8 +90,9 @@ export async function call(onDone: LocalJSXCommandOnDone, context: LocalJSXComma
     return null;
   }
 
+  const enteredPlanMode = currentMode !== 'plan';
   // If not in plan mode, enable it
-  if (currentMode !== 'plan') {
+  if (enteredPlanMode) {
     handlePlanModeTransition(currentMode, 'plan');
     setAppState(prev => ({
       ...prev,
@@ -106,17 +107,19 @@ export async function call(onDone: LocalJSXCommandOnDone, context: LocalJSXComma
       onDone('Enabled plan mode', {
         shouldQuery: true
       });
-    } else {
-      onDone('Enabled plan mode');
+      return null;
     }
-    return null;
+    if (!getCachedPlanSlug()) {
+      onDone('Enabled plan mode');
+      return null;
+    }
   }
 
   // Already in plan mode - show the current plan
   const planContent = getPlan();
   const planPath = getPlanFilePath();
   if (!planContent) {
-    onDone('Already in plan mode. No plan written yet.');
+    onDone(enteredPlanMode ? 'Enabled plan mode' : 'Already in plan mode. No plan written yet.');
     return null;
   }
 
@@ -125,7 +128,7 @@ export async function call(onDone: LocalJSXCommandOnDone, context: LocalJSXComma
   if (argList[0] === 'open') {
     const result = await editFileInEditor(planPath);
     if (result.error) {
-      onDone(`Failed to open plan in editor: ${result.error}`);
+      onDone(result.error);
     } else {
       onDone(`Opened plan in editor: ${planPath}`);
     }

@@ -65,6 +65,12 @@ How to use the statusLine command:
        "used_percentage": number | null,      // Pre-calculated: % of context used (0-100), null if no messages yet
        "remaining_percentage": number | null  // Pre-calculated: % of context remaining (0-100), null if no messages yet
      },
+     "effort": {                  // Optional, only present when the current model supports reasoning effort
+       "level": "low" | "medium" | "high" | "xhigh" | "max"  // Live session effort level
+     },
+     "thinking": {
+       "enabled": boolean         // Whether extended thinking is enabled for this session
+     },
      "rate_limits": {             // Optional: Claude.ai subscription usage limits. Only present for subscribers after first API response.
        "five_hour": {             // Optional: 5-hour session limit (may be absent)
          "used_percentage": number,   // Percentage of limit used (0-100)

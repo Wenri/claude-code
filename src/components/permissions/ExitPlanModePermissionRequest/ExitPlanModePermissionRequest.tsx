@@ -8,6 +8,7 @@ import { useAppState, useAppStateStore, useSetAppState } from 'src/state/AppStat
 import { getSdkBetas, getSessionId, isSessionPersistenceDisabled, setHasExitedPlanMode, setNeedsAutoModeExitAttachment, setNeedsPlanModeExitAttachment } from '../../../bootstrap/state.js';
 import { generateSessionName } from '../../../commands/rename/generateSessionName.js';
 import { launchUltraplan } from '../../../commands/ultraplan.js';
+import { isPolicyAllowed } from '../../../services/policyLimits/index.js';
 import type { KeyboardEvent } from '../../../ink/events/keyboard-event.js';
 import { Box, Text } from '../../../ink.js';
 import type { AppState } from '../../../state/AppStateStore.js';
@@ -34,6 +35,7 @@ import { getPlan, getPlanFilePath } from '../../../utils/plans.js';
 import { editFileInEditor, editPromptInEditor } from '../../../utils/promptEditor.js';
 import { getCurrentSessionTitle, getTranscriptPath, saveAgentName, saveCustomTitle } from '../../../utils/sessionStorage.js';
 import { getSettings_DEPRECATED } from '../../../utils/settings/settings.js';
+import { isUltraplanEnabled } from '../../../utils/ultraplan/config.js';
 import { type OptionWithDescription, Select } from '../../CustomSelect/index.js';
 import { Markdown } from '../../Markdown.js';
 import { PermissionDialog } from '../PermissionDialog.js';
@@ -142,7 +144,7 @@ export function ExitPlanModePermissionRequest({
   // selecting it would dismiss the dialog and reject locally before
   // launchUltraplan can notice the session exists and return "already polling".
   // feature() must sit directly in an if/ternary (bun:bundle DCE constraint).
-  const showUltraplan = feature('ULTRAPLAN') ? !ultraplanSessionUrl && !ultraplanLaunching : false;
+  const showUltraplan = feature('ULTRAPLAN') ? isUltraplanEnabled() && isPolicyAllowed('allow_remote_sessions') && !ultraplanSessionUrl && !ultraplanLaunching : false;
   const usage = toolUseConfirm.assistantMessage.message.usage;
   const {
     mode,
@@ -288,17 +290,21 @@ export function ExitPlanModePermissionRequest({
       });
       onDone();
       onReject();
-      toolUseConfirm.onReject('Plan being refined via Ultraplan — please wait for the result.');
+      toolUseConfirm.onReject("I'm sending this plan to Ultraplan to be refined remotely. Let me know it's been handed off and that a web link will appear here in a moment — I can use that to edit and iterate on the plan in the browser once the plan has been generated. I can continue to work here in the meantime; Claude Code will notify me when the cloud plan is ready for review, and I have the option to teleport the plan back here for implementation post-approval.");
+      const onStatusMessage = (message: string) =>
+        enqueuePendingNotification({
+          value: message,
+          mode: 'task-notification',
+        });
       void launchUltraplan({
-        blurb: '',
+        arg: '',
+        source: 'exit_plan_mode',
         seedPlan: currentPlan,
         getAppState: store.getState,
         setAppState: store.setState,
-        signal: new AbortController().signal
-      }).then(msg => enqueuePendingNotification({
-        value: msg,
-        mode: 'task-notification'
-      })).catch(logError);
+        signal: new AbortController().signal,
+        onStatusMessage,
+      }).then(onStatusMessage).catch(logError);
       return;
     }
 

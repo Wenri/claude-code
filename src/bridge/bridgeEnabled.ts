@@ -6,6 +6,7 @@ import {
   getDynamicConfig_CACHED_MAY_BE_STALE,
   getFeatureValue_CACHED_MAY_BE_STALE,
 } from '../services/analytics/growthbook.js'
+import type { AppState } from '../state/AppStateStore.js'
 // Namespace import breaks the bridgeEnabled → auth → config → bridgeEnabled
 // cycle — authModule.foo is a live binding, so by the time the helpers below
 // call it, auth.js is fully loaded. Previously used require() for the same
@@ -13,8 +14,10 @@ import {
 // namespace after mock.module() (daemon/auth.test.ts), breaking spyOn.
 import * as authModule from '../utils/auth.js'
 import { isDebugMode } from '../utils/debug.js'
+import { getGlobalConfig } from '../utils/config.js'
 import { isBareMode, isEnvTruthy } from '../utils/envUtils.js'
 import { lt } from '../utils/semver.js'
+import { getSessionSettingsCache } from '../utils/settings/settingsCache.js'
 
 /**
  * Runtime check for bridge mode entitlement.
@@ -161,6 +164,17 @@ function getOauthAccountInfo(): ReturnType<
   }
 }
 
+function getAutoUploadSessions(): boolean | undefined {
+  try {
+    return (
+      getSessionSettingsCache()?.settings.autoUploadSessions ??
+      getGlobalConfig().autoUploadSessions
+    )
+  } catch {
+    return undefined
+  }
+}
+
 /**
  * Runtime check for the env-less (v2) REPL bridge path.
  * Returns true when the GrowthBook flag `tengu_bridge_repl_v2` is enabled.
@@ -241,8 +255,44 @@ export function getCcrAutoConnectDefault(): boolean {
  * local opt-in; GrowthBook controls rollout.
  */
 export function isCcrMirrorEnabled(): boolean {
-  return feature('CCR_MIRROR')
-    ? isEnvTruthy(process.env.CLAUDE_CODE_CCR_MIRROR) ||
-        getFeatureValue_CACHED_MAY_BE_STALE('tengu_ccr_mirror', false)
-    : false
+  if (!feature('CCR_MIRROR')) return false
+  if (isEnvTruthy(process.env.CLAUDE_CODE_CCR_MIRROR)) return true
+
+  const configured = getAutoUploadSessions()
+  if (configured !== undefined) return configured
+
+  return getFeatureValue_CACHED_MAY_BE_STALE('tengu_ccr_mirror', false)
+}
+
+export function applyRemoteControlToAppState(
+  state: AppState,
+  enabled: boolean,
+): AppState {
+  if (state.replBridgeOutboundOnly && !enabled) return state
+  if (state.replBridgeEnabled === enabled && !state.replBridgeOutboundOnly) {
+    return state
+  }
+  return {
+    ...state,
+    replBridgeEnabled: enabled,
+    replBridgeOutboundOnly: false,
+  }
+}
+
+export function applyAutoUploadSessionsToAppState(
+  state: AppState,
+  enabled: boolean,
+): AppState {
+  if (state.replBridgeEnabled && !state.replBridgeOutboundOnly) return state
+  if (
+    state.replBridgeEnabled === enabled &&
+    state.replBridgeOutboundOnly === enabled
+  ) {
+    return state
+  }
+  return {
+    ...state,
+    replBridgeEnabled: enabled,
+    replBridgeOutboundOnly: enabled,
+  }
 }

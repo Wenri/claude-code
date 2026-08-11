@@ -3148,10 +3148,6 @@ ${data.date_range.start} to ${data.date_range.end}
 ${remoteInfo}
 `
 
-    const userSummary = `${header}${summaryText}
-
-Your full shareable insights report is ready: ${reportUrl}${uploadHint}`
-
     // Return prompt for Claude to respond to
     return [
       {
@@ -3165,10 +3161,10 @@ Report URL: ${reportUrl}
 HTML file: ${htmlPath}
 Facets directory: ${getFacetsDir()}
 
-Here is what the user sees:
-${userSummary}
+At-a-glance summary (for your context only — the user has not seen any output yet):
+${header}${summaryText}
 
-Now output the following message exactly:
+Output the text between <message> tags verbatim as your entire response. Do not omit any line:
 
 <message>
 Your shareable insights report is ready:

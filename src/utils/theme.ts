@@ -106,6 +106,9 @@ export const THEME_NAMES = [
   'dark-ansi',
 ] as const
 
+/** Theme preferences accepted by settings.json (custom themes are separate). */
+export const THEME_SETTINGS = ['auto', ...THEME_NAMES] as const
+
 /** A renderable theme. Always resolvable to a concrete color palette. */
 export type ThemeName = (typeof THEME_NAMES)[number]
 

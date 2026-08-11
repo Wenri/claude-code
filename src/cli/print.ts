@@ -21,6 +21,7 @@ import type { ToolPermissionContext } from 'src/Tool.js'
 import type { ThinkingConfig } from 'src/utils/thinking.js'
 import { assembleToolPool, filterToolsByDenyRules } from 'src/tools.js'
 import uniqBy from 'lodash-es/uniqBy.js'
+import pMap from 'p-map'
 import { uniq } from 'src/utils/array.js'
 import { mergeAndFilterTools } from 'src/utils/toolPool.js'
 import {
@@ -39,6 +40,7 @@ import {
   isBuiltInAgent,
   parseAgentsFromJson,
 } from 'src/tools/AgentTool/loadAgentsDir.js'
+import { resolveAgentTools } from 'src/tools/AgentTool/agentToolUtils.js'
 import type { Message, NormalizedUserMessage } from 'src/types/message.js'
 import type { QueuedCommand } from 'src/types/textInputTypes.js'
 import {
@@ -59,6 +61,7 @@ import {
   type RequiresActionDetails,
   type SessionExternalMetadata,
 } from 'src/utils/sessionState.js'
+import { runClassifierSummaryForBlocked } from 'src/utils/taskSummary.js'
 import { externalMetadataToAppState } from 'src/state/onChangeAppState.js'
 import { getInMemoryErrors, logError, logMCPDebug } from 'src/utils/log.js'
 import {
@@ -238,7 +241,12 @@ import {
   setupSdkMcpClients,
   connectToServer,
   clearServerCache,
+  fetchCommandsForClient,
+  fetchResourcesForClient,
   fetchToolsForClient,
+  getMcpServerConnectionBatchSize,
+  getRemoteMcpServerConnectionBatchSize,
+  isLocalMcpServer,
   areMcpConfigsEqual,
   reconnectMcpServerImpl,
 } from 'src/services/mcp/client.js'
@@ -263,7 +271,10 @@ import {
   ElicitRequestSchema,
   ElicitationCompleteNotificationSchema,
 } from '@modelcontextprotocol/sdk/types.js'
-import { getMcpPrefix } from 'src/services/mcp/mcpStringUtils.js'
+import {
+  buildMcpToolName,
+  getMcpPrefix,
+} from 'src/services/mcp/mcpStringUtils.js'
 import {
   commandBelongsToServer,
   filterToolsByServer,
@@ -517,6 +528,7 @@ export async function runHeadless(
     taskBudget: { total: number } | undefined
     systemPrompt: string | undefined
     appendSystemPrompt: string | undefined
+    excludeDynamicSections: boolean | undefined
     planModeInstructions: string | undefined
     userSpecifiedModel: string | undefined
     fallbackModel: string | undefined
@@ -875,6 +887,9 @@ export async function runHeadless(
       }))
     }
     notifySessionStateChanged('requires_action', details)
+    runClassifierSummaryForBlocked(details, {
+      notifyMetadataChanged: notifySessionMetadataChanged,
+    })
   }
 
   const canUseTool = getCanUseToolFn(
@@ -961,7 +976,8 @@ export async function runHeadless(
           message.subtype === 'task_updated' ||
           message.subtype === 'task_progress' ||
           message.subtype === 'notification' ||
-          message.subtype === 'post_turn_summary')
+          message.subtype === 'post_turn_summary' ||
+          message.subtype === 'task_summary')
       ) &&
       message.type !== 'stream_event' &&
       message.type !== 'keep_alive' &&
@@ -1059,6 +1075,7 @@ function runHeadlessStreaming(
     taskBudget: { total: number } | undefined
     systemPrompt: string | undefined
     appendSystemPrompt: string | undefined
+    excludeDynamicSections: boolean | undefined
     planModeInstructions: string | undefined
     userSpecifiedModel: string | undefined
     fallbackModel: string | undefined
@@ -1561,11 +1578,13 @@ function runHeadlessStreaming(
     clients: [],
     tools: [],
     configs: {},
+    policyRules: new Set(),
   }
 
   // Shared tool assembly for ask() and the get_context_usage control request.
   // Closes over the mutable sdkTools/dynamicMcpState bindings so both call
   // sites see late-connecting servers.
+  let allowedAgentTypes: string[] | undefined
   const buildAllTools = (appState: AppState): Tools => {
     const assembledTools = assembleToolPool(
       appState.toolPermissionContext,
@@ -1579,6 +1598,23 @@ function runHeadlessStreaming(
       ),
       'name',
     )
+    allowedAgentTypes = undefined
+    const mainThreadAgentType = getMainThreadAgentType()
+    if (mainThreadAgentType) {
+      const mainThreadAgent = currentAgents.find(
+        agent => agent.agentType === mainThreadAgentType,
+      )
+      if (mainThreadAgent) {
+        const resolved = resolveAgentTools(
+          mainThreadAgent,
+          allTools,
+          false,
+          true,
+        )
+        allTools = resolved.resolvedTools
+        allowedAgentTypes = resolved.allowedAgentTypes
+      }
+    }
     if (options.permissionPromptToolName) {
       allTools = allTools.filter(
         tool => !toolMatchesName(tool, options.permissionPromptToolName!),
@@ -2057,6 +2093,9 @@ function runHeadlessStreaming(
                 ...command,
                 value: joinPromptValues(batch.map(c => c.value)),
                 uuid: batch.findLast(c => c.uuid)?.uuid ?? command.uuid,
+                clientPlatform:
+                  batch.find(c => c.clientPlatform)?.clientPlatform ??
+                  command.clientPlatform,
               }
             }
           }
@@ -2253,6 +2292,7 @@ function runHeadlessStreaming(
               prompt: input,
               promptUuid: cmd.uuid,
               isMeta: cmd.isMeta,
+              clientPlatform: cmd.clientPlatform,
               cwd: cwd(),
               tools: allTools,
               verbose: options.verbose,
@@ -2282,6 +2322,7 @@ function runHeadlessStreaming(
               },
               customSystemPrompt: options.systemPrompt,
               appendSystemPrompt: options.appendSystemPrompt,
+              excludeDynamicSections: options.excludeDynamicSections,
               planModeInstructions: options.planModeInstructions,
               getAppState,
               setAppState,
@@ -2299,6 +2340,7 @@ function runHeadlessStreaming(
                   'elicitationId' in params ? params.elicitationId : undefined,
                 ),
               agents: currentAgents,
+              allowedAgentTypes,
               orphanedPermission: cmd.orphanedPermission,
               setSDKStatus: status => {
                 output.enqueue({
@@ -3071,6 +3113,11 @@ function runHeadlessStreaming(
           sendControlResponseSuccess(message, {
             mcpServers: buildMcpServerStatuses(),
           })
+        } else if (message.request.subtype === 'get_binary_version') {
+          sendControlResponseSuccess(message, {
+            version: MACRO.VERSION,
+            buildTime: MACRO.BUILD_TIME,
+          })
         } else if (message.request.subtype === 'get_context_usage') {
           try {
             const appState = getAppState()
@@ -3083,6 +3130,7 @@ function runHeadlessStreaming(
                 agentDefinitions: appState.agentDefinitions,
                 customSystemPrompt: options.systemPrompt,
                 appendSystemPrompt: options.appendSystemPrompt,
+                excludeDynamicSections: options.excludeDynamicSections,
               },
             })
             sendControlResponseSuccess(message, { ...data })
@@ -3131,6 +3179,20 @@ function runHeadlessStreaming(
           sendControlResponseSuccess(message, {
             cancelled: removed.length > 0,
           })
+        } else if (message.request.subtype === 'read_file') {
+          try {
+            const { readFileForRemote } = await import(
+              'src/bridge/readFileForRemote.js'
+            )
+            const result = await readFileForRemote(
+              message.request.path,
+              message.request.max_bytes,
+              getAppState().toolPermissionContext,
+            )
+            sendControlResponseSuccess(message, result)
+          } catch (error) {
+            sendControlResponseError(message, errorMessage(error))
+          }
         } else if (message.request.subtype === 'seed_read_state') {
           // Client observed a Read that was later removed from context (e.g.
           // by snip), so transcript-based seeding missed it. Queued into
@@ -3995,6 +4057,7 @@ function runHeadlessStreaming(
                     setAppState,
                     customSystemPrompt: options.systemPrompt,
                     appendSystemPrompt: options.appendSystemPrompt,
+                    excludeDynamicSections: options.excludeDynamicSections,
                     planModeInstructions: options.planModeInstructions,
                     thinkingConfig: options.thinkingConfig,
                     agents: currentAgents,
@@ -4095,15 +4158,26 @@ function runHeadlessStreaming(
                   'src/bridge/initReplBridge.js'
                 )
                 const handle = await initReplBridge({
+                  onReadFile: async (path, maxBytes) => {
+                    const { readFileForRemote } = await import(
+                      'src/bridge/readFileForRemote.js'
+                    )
+                    return readFileForRemote(
+                      path,
+                      maxBytes,
+                      getAppState().toolPermissionContext,
+                    )
+                  },
                   onInboundMessage(msg) {
                     const fields = extractInboundMessageFields(msg)
                     if (!fields) return
-                    const { content, uuid } = fields
+                    const { content, uuid, clientPlatform } = fields
                     enqueue({
                       value: content,
                       mode: 'prompt' as const,
                       uuid,
                       skipSlashCommands: true,
+                      clientPlatform,
                     })
                     void run()
                   },
@@ -4325,6 +4399,7 @@ function runHeadlessStreaming(
         value: await resolveAndPrepend(message, message.message.content),
         uuid: message.uuid,
         priority: message.priority,
+        clientPlatform: message.client_platform,
       })
       // Increment prompt count for attribution tracking and save snapshot
       // The snapshot persists promptCount so it survives compaction
@@ -4564,6 +4639,7 @@ async function handleInitializeRequest(
   options: {
     systemPrompt: string | undefined
     appendSystemPrompt: string | undefined
+    excludeDynamicSections?: boolean | undefined
     agent?: string | undefined
     userSpecifiedModel?: string | undefined
     [key: string]: unknown
@@ -4591,6 +4667,9 @@ async function handleInitializeRequest(
   }
   if (request.appendSystemPrompt !== undefined) {
     options.appendSystemPrompt = request.appendSystemPrompt
+  }
+  if (request.excludeDynamicSections !== undefined) {
+    options.excludeDynamicSections = request.excludeDynamicSections
   }
   if (request.planModeInstructions !== undefined) {
     options.planModeInstructions = request.planModeInstructions
@@ -5533,6 +5612,7 @@ export type DynamicMcpState = {
   clients: MCPServerConnection[]
   tools: Tools
   configs: Record<string, ScopedMcpServerConfig>
+  policyRules: Set<string>
 }
 
 /**
@@ -5733,36 +5813,104 @@ export async function reconcileMcpServers(
     }
   }
 
-  // Add new servers (including replacements)
-  for (const name of [...toAdd, ...toReplace]) {
+  // Connect independent servers concurrently. Local stdio servers use the
+  // conservative process-spawn batch size while remote transports get their
+  // own, larger concurrency limit.
+  const namesToConnect = [...toAdd, ...toReplace]
+  const connectServer = async (name: string) => {
     const config = desiredConfigs[name]
-    if (!config) continue
-    const scopedConfig = toScopedConfig(config)
+    if (!config) return null
 
     // SDK servers are managed by the SDK process, not the CLI.
     // Just track them without trying to connect.
     if (config.type === 'sdk') {
-      added.push(name)
-      continue
+      return {
+        name,
+        added: true,
+        client: null,
+        tools: [] as Tools,
+        error: null,
+        fetched: null,
+      }
     }
 
+    const scopedConfig = toScopedConfig(config)
     try {
       const client = await connectToServer(name, scopedConfig)
-      newClients.push(client)
-
+      let serverTools: Tools = []
+      let fetched: {
+        name: string
+        commands: Command[]
+        resources: Awaited<ReturnType<typeof fetchResourcesForClient>>
+      } | null = null
       if (client.type === 'connected') {
-        const serverTools = await fetchToolsForClient(client)
-        newTools.push(...serverTools)
-      } else if (client.type === 'failed') {
-        errors[name] = client.error || 'Connection failed'
+        serverTools = await fetchToolsForClient(client)
+        try {
+          const [commands, resources] = await Promise.all([
+            fetchCommandsForClient(client),
+            fetchResourcesForClient(client),
+          ])
+          fetched = { name, commands, resources }
+        } catch (error) {
+          logError(error)
+        }
       }
-
-      added.push(name)
+      const error =
+        client.type === 'failed'
+          ? client.error || 'Connection failed'
+          : null
+      return {
+        name,
+        added: true,
+        client,
+        tools: serverTools,
+        error,
+        fetched,
+      }
     } catch (e) {
       const err = toError(e)
-      errors[name] = err.message
       logError(err)
+      return {
+        name,
+        added: false,
+        client: null,
+        tools: [] as Tools,
+        error: err.message,
+        fetched: null,
+      }
     }
+  }
+
+  const isLocal = (name: string): boolean => {
+    const config = desiredConfigs[name]
+    return !config || isLocalMcpServer(toScopedConfig(config))
+  }
+  const [localResults, remoteResults] = await Promise.all([
+    pMap(namesToConnect.filter(isLocal), connectServer, {
+      concurrency: getMcpServerConnectionBatchSize(),
+    }),
+    pMap(namesToConnect.filter(name => !isLocal(name)), connectServer, {
+      concurrency: getRemoteMcpServerConnectionBatchSize(),
+    }),
+  ])
+  const resultsByName = new Map(
+    [...localResults, ...remoteResults]
+      .filter(result => result !== null)
+      .map(result => [result.name, result]),
+  )
+  const fetchedContent: Array<{
+    name: string
+    commands: Command[]
+    resources: Awaited<ReturnType<typeof fetchResourcesForClient>>
+  }> = []
+  for (const name of namesToConnect) {
+    const result = resultsByName.get(name)
+    if (!result) continue
+    if (result.client) newClients.push(result.client)
+    newTools.push(...result.tools)
+    if (result.error) errors[result.name] = result.error
+    if (result.added) added.push(result.name)
+    if (result.fetched) fetchedContent.push(result.fetched)
   }
 
   // Build new configs
@@ -5774,10 +5922,25 @@ export async function reconcileMcpServers(
     }
   }
 
+  const alwaysAllowRules: string[] = []
+  const alwaysDenyRules: string[] = []
+  for (const [serverName, config] of Object.entries(desiredConfigs)) {
+    if (config.type !== 'http' && config.type !== 'sse') continue
+    for (const tool of config.tools ?? []) {
+      const toolName = buildMcpToolName(serverName, tool.name)
+      if (tool.permission_policy === 'always_allow') {
+        alwaysAllowRules.push(toolName)
+      } else if (tool.permission_policy === 'always_deny') {
+        alwaysDenyRules.push(toolName)
+      }
+    }
+  }
+
   const newState: DynamicMcpState = {
     clients: newClients,
     tools: newTools,
     configs: newConfigs,
+    policyRules: new Set([...alwaysAllowRules, ...alwaysDenyRules]),
   }
 
   // Update AppState with the new tools
@@ -5803,13 +5966,70 @@ export async function reconcileMcpServers(
       return !allDynamicServerNames.has(c.name)
     })
 
+    // Remove commands belonging to old or newly configured dynamic servers.
+    const nonDynamicCommands = prev.mcp.commands.filter(command => {
+      for (const serverName of allDynamicServerNames) {
+        if (commandBelongsToServer(command, serverName)) return false
+      }
+      return true
+    })
+
+    const updateSessionRules = (
+      rules: AppState['toolPermissionContext']['alwaysAllowRules'],
+      nextRules: string[],
+    ) => {
+      const sessionRules = rules.session ?? []
+      const withoutPreviousPolicy = sessionRules.filter(
+        rule => !currentState.policyRules.has(rule),
+      )
+      if (
+        withoutPreviousPolicy.length === sessionRules.length &&
+        nextRules.length === 0
+      ) {
+        return rules
+      }
+      return { ...rules, session: [...withoutPreviousPolicy, ...nextRules] }
+    }
+    const nextAlwaysAllowRules = updateSessionRules(
+      prev.toolPermissionContext.alwaysAllowRules,
+      alwaysAllowRules,
+    )
+    const nextAlwaysDenyRules = updateSessionRules(
+      prev.toolPermissionContext.alwaysDenyRules,
+      alwaysDenyRules,
+    )
+    const toolPermissionContext =
+      nextAlwaysAllowRules ===
+        prev.toolPermissionContext.alwaysAllowRules &&
+      nextAlwaysDenyRules === prev.toolPermissionContext.alwaysDenyRules
+        ? prev.toolPermissionContext
+        : {
+            ...prev.toolPermissionContext,
+            alwaysAllowRules: nextAlwaysAllowRules,
+            alwaysDenyRules: nextAlwaysDenyRules,
+          }
+
     return {
       ...prev,
       mcp: {
         ...prev.mcp,
         tools: [...nonDynamicTools, ...newTools],
         clients: [...nonDynamicClients, ...newClients],
+        commands: uniqBy(
+          [
+            ...nonDynamicCommands,
+            ...fetchedContent.flatMap(result => result.commands),
+          ],
+          'name',
+        ),
+        resources: {
+          ...omit(prev.mcp.resources, [...allDynamicServerNames]),
+          ...Object.fromEntries(
+            fetchedContent.map(result => [result.name, result.resources]),
+          ),
+        },
       },
+      toolPermissionContext,
     }
   })
 

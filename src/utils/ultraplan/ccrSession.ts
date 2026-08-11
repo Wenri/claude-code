@@ -29,13 +29,19 @@ export type PollFailReason =
   | 'timeout_no_plan'
   | 'extract_marker_missing'
   | 'network_or_unknown'
-  | 'stopped'
+
+export type UltraplanPollEventStats = {
+  eventsReceived: number
+  firstEventAt: number | undefined
+  lastEventAt: number | undefined
+}
 
 export class UltraplanPollError extends Error {
   constructor(
     message: string,
     readonly reason: PollFailReason,
     readonly rejectCount: number,
+    readonly eventStats: UltraplanPollEventStats,
     options?: ErrorOptions,
   ) {
     super(message, options)
@@ -203,18 +209,17 @@ export async function pollForApprovedExitPlanMode(
 ): Promise<PollResult> {
   const deadline = Date.now() + timeoutMs
   const scanner = new ExitPlanModeScanner()
+  const eventStats: UltraplanPollEventStats = {
+    eventsReceived: 0,
+    firstEventAt: undefined,
+    lastEventAt: undefined,
+  }
   let cursor: string | null = null
   let failures = 0
   let lastPhase: UltraplanPhase = 'running'
 
   while (Date.now() < deadline) {
-    if (shouldStop?.()) {
-      throw new UltraplanPollError(
-        'poll stopped by caller',
-        'stopped',
-        scanner.rejectCount,
-      )
-    }
+    if (shouldStop?.()) throw new Error('poll stopped by caller')
     let newEvents: SDKMessage[]
     let sessionStatus: PollRemoteSessionResponse['sessionStatus']
     try {
@@ -226,13 +231,29 @@ export async function pollForApprovedExitPlanMode(
       cursor = resp.lastEventId
       sessionStatus = resp.sessionStatus
       failures = 0
+      if (newEvents.length > 0) {
+        const now = Date.now()
+        eventStats.eventsReceived += newEvents.length
+        eventStats.firstEventAt ??= now
+        eventStats.lastEventAt = now
+      }
     } catch (e) {
       const transient = isTransientNetworkError(e)
-      if (!transient || ++failures >= MAX_CONSECUTIVE_FAILURES) {
+      if (!transient) {
         throw new UltraplanPollError(
           e instanceof Error ? e.message : String(e),
           'network_or_unknown',
           scanner.rejectCount,
+          eventStats,
+          { cause: e },
+        )
+      }
+      if (++failures >= MAX_CONSECUTIVE_FAILURES) {
+        throw new UltraplanPollError(
+          'Lost connection to the remote session after repeated retries — the session may still be running',
+          'network_or_unknown',
+          scanner.rejectCount,
+          eventStats,
           { cause: e },
         )
       }
@@ -248,6 +269,7 @@ export async function pollForApprovedExitPlanMode(
         e instanceof Error ? e.message : String(e),
         'extract_marker_missing',
         scanner.rejectCount,
+        eventStats,
       )
     }
     if (result.kind === 'approved') {
@@ -269,6 +291,7 @@ export async function pollForApprovedExitPlanMode(
         `remote session ended (${result.subtype}) before plan approval`,
         'terminated',
         scanner.rejectCount,
+        eventStats,
       )
     }
     // plan_ready from the event stream wins; otherwise idle session status
@@ -296,12 +319,15 @@ export async function pollForApprovedExitPlanMode(
     await sleep(POLL_INTERVAL_MS)
   }
 
+  const timeoutMinutes = Math.round(timeoutMs / 60000)
+  const timeoutUnit = timeoutMinutes === 1 ? 'minute' : 'minutes'
   throw new UltraplanPollError(
     scanner.everSeenPending
-      ? `no approval after ${timeoutMs / 1000}s`
-      : `ExitPlanMode never reached after ${timeoutMs / 1000}s (the remote container failed to start, or session ID mismatch?)`,
+      ? `no approval after ${timeoutMinutes} ${timeoutUnit}`
+      : `ExitPlanMode never reached after ${timeoutMinutes} ${timeoutUnit} (the remote container failed to start, or session ID mismatch?)`,
     scanner.everSeenPending ? 'timeout_pending' : 'timeout_no_plan',
     scanner.rejectCount,
+    eventStats,
   )
 }
 

@@ -11,6 +11,11 @@ import {
   type AutoCompactTrackingState,
 } from './services/compact/autoCompact.js'
 import { buildPostCompactMessages } from './services/compact/compact.js'
+import {
+  applyToolResultClears,
+  getReadPathsForClearedToolResults,
+} from './services/compact/microCompact.js'
+import { resetResultDedupState } from './services/tools/resultDedup.js'
 /* eslint-disable @typescript-eslint/no-require-imports */
 const reactiveCompact = feature('REACTIVE_COMPACT')
   ? (require('./services/compact/reactiveCompact.js') as typeof import('./services/compact/reactiveCompact.js'))
@@ -52,6 +57,7 @@ import {
   getMessagesAfterCompactBoundary,
   createToolUseSummaryMessage,
   createMicrocompactBoundaryMessage,
+  getAssistantMessageText,
   stripSignatureBlocks,
 } from './utils/messages.js'
 import { generateToolUseSummary } from './services/toolUseSummary/toolUseSummaryGenerator.js'
@@ -88,7 +94,6 @@ import {
 } from './utils/tokens.js'
 import { ESCALATED_MAX_TOKENS } from './utils/context.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from './services/analytics/growthbook.js'
-import { SLEEP_TOOL_NAME } from './tools/SleepTool/prompt.js'
 import { executePostSamplingHooks } from './utils/hooks/postSamplingHooks.js'
 import {
   executePostToolBatchHooks,
@@ -115,6 +120,8 @@ import {
 } from './bootstrap/state.js'
 import { createBudgetTracker, checkTokenBudget } from './query/tokenBudget.js'
 import { count } from './utils/array.js'
+import { isBgSession } from './utils/concurrentSessions.js'
+import { expandPath } from './utils/path.js'
 
 function findCurrentTurnStart(messages: Message[]): number {
   for (let index = messages.length - 1; index >= 0; index--) {
@@ -135,10 +142,33 @@ function findCurrentTurnStart(messages: Message[]): number {
 const snipModule = feature('HISTORY_SNIP')
   ? (require('./services/compact/snipCompact.js') as typeof import('./services/compact/snipCompact.js'))
   : null
-const taskSummaryModule = feature('BG_SESSIONS')
-  ? (require('./utils/taskSummary.js') as typeof import('./utils/taskSummary.js'))
-  : null
 /* eslint-enable @typescript-eslint/no-require-imports */
+
+const classifierJobState = jobClassifier
+  ? jobClassifier.createClassifierJobState()
+  : null
+
+function markClassifierApiFailure(
+  toolUseContext: ToolUseContext,
+  querySource: QuerySource,
+  message: AssistantMessage,
+): Promise<void> | undefined {
+  if (
+    !jobClassifier ||
+    !classifierJobState ||
+    !isBgSession() ||
+    !querySource.startsWith('repl_main_thread') ||
+    toolUseContext.agentId
+  ) {
+    return undefined
+  }
+  return jobClassifier.markApiFailure(
+    classifierJobState,
+    getSessionId().slice(0, 8),
+    message.error,
+    getAssistantMessageText(message) ?? message.errorDetails ?? '',
+  )
+}
 
 function* yieldMissingToolResultBlocks(
   assistantMessages: AssistantMessage[],
@@ -699,7 +729,33 @@ async function* queryLoop(
               onStreamingFallback: () => {
                 streamingFallbackOccured = true
               },
+              onHintCleared: (
+                clearedIds: Set<string>,
+                clearedContent?: Map<string, string>,
+              ) => {
+                toolUseContext.applyHintClears?.(
+                  clearedIds,
+                  clearedContent,
+                )
+                for (const path of getReadPathsForClearedToolResults(
+                  messagesForQuery,
+                  clearedIds,
+                )) {
+                  toolUseContext.readFileState.delete(expandPath(path))
+                }
+                if (toolUseContext.resultDedupState) {
+                  resetResultDedupState(toolUseContext.resultDedupState)
+                }
+                messagesForQuery = applyToolResultClears(
+                  messagesForQuery,
+                  clearedIds,
+                  clearedContent,
+                )
+              },
               querySource,
+              connection: toolUseContext.options.connection,
+              messageClientPlatform:
+                toolUseContext.options.messageClientPlatform,
               agents: toolUseContext.options.agentDefinitions.activeAgents,
               allowedAgentTypes:
                 toolUseContext.options.agentDefinitions.allowedAgentTypes,
@@ -1080,6 +1136,29 @@ async function* queryLoop(
       }
     }
 
+    if (
+      jobClassifier &&
+      classifierJobState &&
+      isBgSession() &&
+      querySource.startsWith('repl_main_thread') &&
+      !toolUseContext.agentId
+    ) {
+      const lastUserMessage = messagesForQuery.findLast(
+        message =>
+          message.type === 'user' &&
+          !message.isMeta &&
+          typeof message.message.content === 'string',
+      )
+      void jobClassifier.markTurnActive(
+        classifierJobState,
+        getSessionId().slice(0, 8),
+        lastUserMessage?.type === 'user' &&
+          typeof lastUserMessage.message.content === 'string'
+          ? lastUserMessage.message.content
+          : undefined,
+      )
+    }
+
     if (!needsFollowUp) {
       const lastMessage = assistantMessages.at(-1)
 
@@ -1193,6 +1272,7 @@ async function* queryLoop(
         // → retry → error → … (the hook injects more tokens each cycle).
         yield lastMessage
         void executeStopFailureHooks(lastMessage, toolUseContext)
+        void markClassifierApiFailure(toolUseContext, querySource, lastMessage)
         return { reason: isWithheldMedia ? 'image_error' : 'prompt_too_long' }
       } else if (feature('CONTEXT_COLLAPSE') && isWithheld413) {
         // reactiveCompact compiled out but contextCollapse withheld and
@@ -1200,6 +1280,7 @@ async function* queryLoop(
         // early-return rationale — don't fall through to stop hooks.
         yield lastMessage
         void executeStopFailureHooks(lastMessage, toolUseContext)
+        void markClassifierApiFailure(toolUseContext, querySource, lastMessage)
         return { reason: 'prompt_too_long' }
       }
 
@@ -1282,6 +1363,7 @@ async function* queryLoop(
       // error → hook blocking → retry → error → …
       if (lastMessage?.isApiErrorMessage) {
         void executeStopFailureHooks(lastMessage, toolUseContext)
+        await markClassifierApiFailure(toolUseContext, querySource, lastMessage)
         return { reason: 'completed' }
       }
 
@@ -1294,6 +1376,7 @@ async function* queryLoop(
         toolUseContext,
         querySource,
         stopHookActive,
+        classifierJobState,
       )
 
       if (stopHookResult.preventContinuation) {
@@ -1666,10 +1749,7 @@ async function* queryLoop(
     // Get queued commands snapshot before processing attachments.
     // These will be sent as attachments so Claude can respond to them in the current turn.
     //
-    // Drain pending notifications. LocalShellTask completions are 'next'
-    // (when MONITOR_TOOL is on) and drain without Sleep. Other task types
-    // (agent/workflow/framework) still default to 'later' — the Sleep flush
-    // covers those. If all task types move to 'next', this branch could go.
+    // Drain the highest-priority pending notifications for this turn.
     //
     // Slash commands are excluded from mid-turn drain — they must go through
     // processSlashCommand after the turn ends (via useQueueProcessor), not be
@@ -1681,14 +1761,10 @@ async function* queryLoop(
     // addressed to it — main thread drains agentId===undefined, subagents
     // drain their own agentId. User prompts (mode:'prompt') still go to main
     // only; subagents never see the prompt stream.
-    // eslint-disable-next-line custom-rules/require-tool-match-name -- ToolUseBlock.name has no aliases
-    const sleepRan = toolUseBlocks.some(b => b.name === SLEEP_TOOL_NAME)
     const isMainThread =
       querySource.startsWith('repl_main_thread') || querySource === 'sdk'
     const currentAgentId = toolUseContext.agentId
-    const queuedCommandsSnapshot = getCommandsByMaxPriority(
-      sleepRan ? 'later' : 'next',
-    ).filter(cmd => {
+    const queuedCommandsSnapshot = getCommandsByMaxPriority('next').filter(cmd => {
       if (isSlashCommand(cmd)) return false
       if (isMainThread) return cmd.agentId === undefined
       // Subagents only drain task-notifications addressed to them — never
@@ -1798,29 +1874,6 @@ async function* queryLoop(
 
     // Each time we have tool results and are about to recurse, that's a turn
     const nextTurnCount = turnCount + 1
-
-    // Periodic task summary for `claude ps` — fires mid-turn so a
-    // long-running agent still refreshes what it's working on. Gated
-    // only on !agentId so every top-level conversation (REPL, SDK, HFI,
-    // remote) generates summaries; subagents/forks don't.
-    if (feature('BG_SESSIONS')) {
-      if (
-        !toolUseContext.agentId &&
-        taskSummaryModule!.shouldGenerateTaskSummary()
-      ) {
-        taskSummaryModule!.maybeGenerateTaskSummary({
-          systemPrompt,
-          userContext,
-          systemContext,
-          toolUseContext,
-          forkContextMessages: [
-            ...messagesForQuery,
-            ...assistantMessages,
-            ...toolResults,
-          ],
-        })
-      }
-    }
 
     // Check if we've reached the max turns limit
     if (maxTurns && nextTurnCount > maxTurns) {

@@ -1,0 +1,2027 @@
+{
+  "schema_version": 2,
+  "release": "2.1.119",
+  "authenticated_baseline": {
+    "artifact": "2.1.118-linux-x64/cli.inner.js",
+    "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+  },
+  "authenticated_target": {
+    "artifact": "2.1.119-linux-x64/cli.inner.js",
+    "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+  },
+  "target_normalized_artifact": "generated/readable-diff/target.normalized.js",
+  "direct_all_51_test_coverage": true,
+  "test_id_namespace": "official-2.1.119-bNN",
+  "rows": [
+    {
+      "bullet": 1,
+      "test_id": "official-2.1.119-b01",
+      "changelog": "/config settings (theme, editor mode, verbose, etc.) now persist to ~/.claude/settings.json and participate in project/local/policy override precedence",
+      "target": {
+        "kind": "literal-and-code-shape",
+        "normalized_line": 39996,
+        "fragment": "tengu_migrate_user_intent_to_settings; migrate non-default legacy user intent into userSettings, then use reverse-precedence enabled sources"
+      },
+      "source": [
+        {
+          "path": "src/utils/settings/configSettings.ts",
+          "fragment": "SETTINGS_BACKED_CONFIG_KEYS",
+          "bytes": 27,
+          "sha256": "4f6fd260053eb667e8b86b53c6607eb7108ff26b1c9ea7caf2ea2287c9c93df7",
+          "count": 2
+        },
+        {
+          "path": "src/migrations/migrateUserIntentToSettings.ts",
+          "fragment": "tengu_migrate_user_intent_to_settings",
+          "bytes": 37,
+          "sha256": "9b24cc974da83f655347a05ef22a64165ebc99faec8d7506a770967a45197969",
+          "count": 1
+        },
+        {
+          "path": "src/main.tsx",
+          "fragment": "CURRENT_MIGRATION_VERSION = 12",
+          "bytes": 30,
+          "sha256": "5f824836e1a08cd3979ccd6c0e0b1acfb8d4566bdfea324277785e32524bc3ed",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b01",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b01-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "dGVuZ3VfbWlncmF0ZV91c2VyX2ludGVudF90b19zZXR0aW5ncw==",
+          "bytes": 37,
+          "sha256": "9b24cc974da83f655347a05ef22a64165ebc99faec8d7506a770967a45197969",
+          "baseline_count": 0,
+          "target_count": 1
+        }
+      ]
+    },
+    {
+      "bullet": 2,
+      "test_id": "official-2.1.119-b02",
+      "changelog": "Added prUrlTemplate setting to point the footer PR badge at a custom code-review URL instead of github.com",
+      "target": {
+        "kind": "literal",
+        "normalized_line": 15839,
+        "fragment": "applyPrUrlTemplate(url, settings.prUrlTemplate)"
+      },
+      "source": [
+        {
+          "path": "src/components/PrBadge.tsx",
+          "fragment": "applyPrUrlTemplate(url, getInitialSettings().prUrlTemplate)",
+          "bytes": 59,
+          "sha256": "5b2f3f5f3a3f0236b36e45613bca4211497a056c652776036d7e6d7fc1eec59c",
+          "count": 1
+        },
+        {
+          "path": "src/utils/settings/types.ts",
+          "fragment": "prUrlTemplate",
+          "bytes": 13,
+          "sha256": "1ecdd9d1a4a3b069bf7208d5d59ee88c5ecf9cfb83d9ae385269f5aea1baf5e0",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b02",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b02-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "cHJVcmxUZW1wbGF0ZQ==",
+          "bytes": 13,
+          "sha256": "1ecdd9d1a4a3b069bf7208d5d59ee88c5ecf9cfb83d9ae385269f5aea1baf5e0",
+          "baseline_count": 0,
+          "target_count": 2
+        }
+      ]
+    },
+    {
+      "bullet": 3,
+      "test_id": "official-2.1.119-b03",
+      "changelog": "Added CLAUDE_CODE_HIDE_CWD environment variable to hide the working directory in the startup logo",
+      "target": {
+        "kind": "literal",
+        "normalized_line": 23319,
+        "fragment": "CLAUDE_CODE_HIDE_CWD"
+      },
+      "source": [
+        {
+          "path": "src/utils/logoV2Utils.ts",
+          "fragment": "isEnvTruthy(process.env.CLAUDE_CODE_HIDE_CWD)",
+          "bytes": 45,
+          "sha256": "0b50fbf5b1f9adc16f6712f8da29d4411fe9902f35b5ebc22d0446ab3404d80c",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b03",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b03-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "Q0xBVURFX0NPREVfSElERV9DV0Q=",
+          "bytes": 20,
+          "sha256": "de210624dc64c79b6072d944ad92dffb6bdaa3dfd1685bf97c609e43d0b92881",
+          "baseline_count": 0,
+          "target_count": 1
+        }
+      ]
+    },
+    {
+      "bullet": 4,
+      "test_id": "official-2.1.119-b04",
+      "changelog": "--from-pr now accepts GitLab merge-request, Bitbucket pull-request, and GitHub Enterprise PR URLs",
+      "target": {
+        "kind": "regex",
+        "normalized_line": 13341,
+        "fragment": "/https?:\\/\\/[^/\\s\"]+\\/([^\\s\"]+?)\\/(?:pull|pull-requests|-\\/merge_requests)\\/(\\d+)/"
+      },
+      "source": [
+        {
+          "path": "src/screens/ResumeConversation.tsx",
+          "fragment": "pull-requests|-\\/merge_requests",
+          "bytes": 31,
+          "sha256": "c822044f6b242b5ef9dfbae8a135567e794e1df3ca64090e3521270c72c9135c",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b04",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b04-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "cHVsbC1yZXF1ZXN0c3wtXC9tZXJnZV9yZXF1ZXN0cw==",
+          "bytes": 31,
+          "sha256": "c822044f6b242b5ef9dfbae8a135567e794e1df3ca64090e3521270c72c9135c",
+          "baseline_count": 0,
+          "target_count": 2
+        }
+      ]
+    },
+    {
+      "bullet": 5,
+      "test_id": "official-2.1.119-b05",
+      "changelog": "--print mode now honors the agent's tools: and disallowedTools: frontmatter, matching interactive-mode behavior",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "resolve agent tools/disallowedTools before print QueryEngine creation and propagate allowedAgentTypes"
+      },
+      "source": [
+        {
+          "path": "src/cli/print.ts",
+          "fragment": "resolveAgentTools",
+          "bytes": 17,
+          "sha256": "5d283801b11075af56088b7e7bbde85049e718f0307985f3bdeb009f18b2a130",
+          "count": 2
+        },
+        {
+          "path": "src/QueryEngine.ts",
+          "fragment": "allowedAgentTypes?: string[]",
+          "bytes": 28,
+          "sha256": "f0cbc0c33e2d9488532c5731b1cc593348f038294957ea5264b4c908121f2c84",
+          "count": 2
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b05",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b05-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "YWxsb3dlZEFnZW50VHlwZXM=",
+          "bytes": 17,
+          "sha256": "7d70bd76616abfff8d456bb3d3f328b96cf6a0f2d326703d58035c01cff8b519",
+          "baseline_count": 13,
+          "target_count": 20
+        },
+        {
+          "id": "b05-target-2",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "ZGlzYWxsb3dlZFRvb2xz",
+          "bytes": 15,
+          "sha256": "87b794dfd453ccbaa2bfd04878197a973d76180482e5694f975ce89f3a32d5b4",
+          "baseline_count": 22,
+          "target_count": 28
+        }
+      ]
+    },
+    {
+      "bullet": 6,
+      "test_id": "official-2.1.119-b06",
+      "changelog": "--agent <name> now honors the agent definition's permissionMode for built-in agents",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "agentPermissionMode overrides the child mode unless the parent is bypassPermissions, acceptEdits, or auto"
+      },
+      "source": [
+        {
+          "path": "src/tools/AgentTool/runAgent.ts",
+          "fragment": "const agentPermissionMode = agentDefinition.permissionMode",
+          "bytes": 58,
+          "sha256": "8aff25d0ab02b8c5e2d72dbce9b2a02db14d22e4491ad89ee9827694fb258f4a",
+          "count": 1
+        },
+        {
+          "path": "src/utils/permissions/permissionSetup.ts",
+          "fragment": "agentPermissionMode",
+          "bytes": 19,
+          "sha256": "3625eb8f946ceae8706b1f586a21dc0ad083ebbe89c9e53a0772fda88c778916",
+          "count": 5
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b06",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b06-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "YWdlbnRQZXJtaXNzaW9uTW9kZQ==",
+          "bytes": 19,
+          "sha256": "3625eb8f946ceae8706b1f586a21dc0ad083ebbe89c9e53a0772fda88c778916",
+          "baseline_count": 0,
+          "target_count": 2
+        }
+      ]
+    },
+    {
+      "bullet": 7,
+      "test_id": "official-2.1.119-b07",
+      "changelog": "PowerShell tool commands can now be auto-approved in permission mode, matching Bash behavior",
+      "target": {
+        "kind": "deletion",
+        "fragment": "remove POWERSHELL_TOOL_NAME import and the PowerShell explicit-interactive-approval guard; PowerShell now reaches the shared auto classifier"
+      },
+      "source": [
+        {
+          "path": "src/utils/permissions/permissions.ts",
+          "fragment": "tool.name !== REPL_TOOL_NAME",
+          "bytes": 28,
+          "sha256": "0231cc504471810595fa8e9789fd87ba32a9c5bbda4abc08facb10795cb4923e",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b07",
+      "status": "source-equivalent-by-deletion",
+      "targetFragments": [
+        {
+          "id": "b07-target-1",
+          "kind": "baseline-removal",
+          "encoding": "base64",
+          "base64": "UG93ZXJTaGVsbCB0b29sIHJlcXVpcmVzIGludGVyYWN0aXZlIGFwcHJvdmFs",
+          "bytes": 45,
+          "sha256": "6dbb596e5c0781e70c4175f6627ecd4ae7df70947ccd9342fdf80d883d75231c",
+          "baseline_count": 2,
+          "target_count": 0
+        }
+      ]
+    },
+    {
+      "bullet": 8,
+      "test_id": "official-2.1.119-b08",
+      "changelog": "Hooks: PostToolUse and PostToolUseFailure hook inputs now include duration_ms (tool execution time, excluding permission prompts and PreToolUse hooks)",
+      "target": {
+        "kind": "literal-and-code-shape",
+        "fragment": "duration_ms: durationMs on PostToolUse/PostToolUseFailure input, with timer beginning after PreToolUse and permission"
+      },
+      "source": [
+        {
+          "path": "src/utils/hooks.ts",
+          "fragment": "duration_ms: durationMs",
+          "bytes": 23,
+          "sha256": "b448f1b92dbfced705b273643caed08d1bcaf86e9d181add0dcfe337f8b5dcc9",
+          "count": 2
+        },
+        {
+          "path": "src/services/tools/toolExecution.ts",
+          "fragment": "const startTime = Date.now()",
+          "bytes": 28,
+          "sha256": "43f9f3b4a4ef4c6ee12e7c10c911d2c96eab0a011b0ccc2585d5a5f040358ee7",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b08",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b08-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "ZHVyYXRpb25fbXM=",
+          "bytes": 11,
+          "sha256": "f9caaaf7fc92a0b0e06b93caf945365f3abbbb82656747310a14bad611a46ec8",
+          "baseline_count": 146,
+          "target_count": 154
+        },
+        {
+          "id": "b08-target-2",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "dG9vbF9pbnB1dF9zaXplX2J5dGVz",
+          "bytes": 21,
+          "sha256": "bf36b6c9ba746aaa1fe71035c24d0d820d2f411bc881921385cc162d93a5da17",
+          "baseline_count": 0,
+          "target_count": 2
+        }
+      ]
+    },
+    {
+      "bullet": 9,
+      "test_id": "official-2.1.119-b09",
+      "changelog": "Subagent and SDK MCP server reconfiguration now connects servers in parallel instead of serially",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "Promise.all over subagent MCP servers and bounded pMap over SDK/local and remote MCP connections"
+      },
+      "source": [
+        {
+          "path": "src/tools/AgentTool/runAgent.ts",
+          "fragment": "const connectionResults = await Promise.all(",
+          "bytes": 44,
+          "sha256": "1bb1fae7c8a7d931fe11f70e2982ec889c9066df3917e315a8a40927b2252bee",
+          "count": 1
+        },
+        {
+          "path": "src/cli/print.ts",
+          "fragment": "pMap",
+          "bytes": 4,
+          "sha256": "3567d2c6baf3bc4de50b413dc34afedf8a8cf7d3c2aec97f9b36e643188b261c",
+          "count": 3
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b09",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b09-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "bWNwU2VydmVycw==",
+          "bytes": 10,
+          "sha256": "e8e0bff0996bebf18f3a56d128815d08d2fce158831e3f8c45b17df2e76c590f",
+          "baseline_count": 129,
+          "target_count": 134
+        },
+        {
+          "id": "b09-target-2",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "UHJvbWlzZS5hbGw=",
+          "bytes": 11,
+          "sha256": "981675d5cd342de6ea515ba8a9e2383aabaa36848b808e0c791d7f23e90163b5",
+          "baseline_count": 382,
+          "target_count": 423
+        }
+      ]
+    },
+    {
+      "bullet": 10,
+      "test_id": "official-2.1.119-b10",
+      "changelog": "Plugins pinned by another plugin's version constraint now auto-update to the highest satisfying git tag",
+      "target": {
+        "kind": "literal-and-code-shape",
+        "fragment": "highest tag satisfying; semver.maxSatisfying over fetched git tags"
+      },
+      "source": [
+        {
+          "path": "src/utils/plugins/pluginVersioning.ts",
+          "fragment": "maxSatisfying",
+          "bytes": 13,
+          "sha256": "4460cac7205c4f6f87fa0f88ee43c0fa464928e963bb2e39939d2aa50bbb0304",
+          "count": 1
+        },
+        {
+          "path": "src/services/plugins/pluginOperations.ts",
+          "fragment": "highest tag satisfying",
+          "bytes": 22,
+          "sha256": "2d576433389739cc2c550423853a72c69d35efbfb57d35ae362553d0e7f623ab",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b10",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b10-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "aGlnaGVzdCB0YWcgc2F0aXNmeWluZw==",
+          "bytes": 22,
+          "sha256": "2d576433389739cc2c550423853a72c69d35efbfb57d35ae362553d0e7f623ab",
+          "baseline_count": 0,
+          "target_count": 1
+        }
+      ]
+    },
+    {
+      "bullet": 11,
+      "test_id": "official-2.1.119-b11",
+      "changelog": "Vim mode: Esc in INSERT no longer pulls a queued message back into the input; press Esc again to interrupt",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "queued-command restore is guarded by !(vim enabled && vimMode === INSERT)"
+      },
+      "source": [
+        {
+          "path": "src/hooks/useCancelRequest.ts",
+          "fragment": "!(isVimModeEnabled() && vimMode === 'INSERT')",
+          "bytes": 45,
+          "sha256": "75e4baf720564a7b738281699b593dab18a7c65c5f00b186ae33ba3825270a2e",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b11",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b11-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "dmltTW9kZQ==",
+          "bytes": 7,
+          "sha256": "b86a966f8528235589c279865ba7649e994606f2776f2d95d5b6008ca8032ca3",
+          "baseline_count": 9,
+          "target_count": 9
+        },
+        {
+          "id": "b11-target-2",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "SU5TRVJU",
+          "bytes": 6,
+          "sha256": "014413c294c5ac3baae43fc07f76edad47ade0562b00324b023a65585667f2dc",
+          "baseline_count": 26,
+          "target_count": 26
+        }
+      ]
+    },
+    {
+      "bullet": 12,
+      "test_id": "official-2.1.119-b12",
+      "changelog": "Slash command suggestions now highlight the characters that matched your query",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "findQueryRanges plus HighlightedSuggestionText renders matched query ranges"
+      },
+      "source": [
+        {
+          "path": "src/components/PromptInput/PromptInputFooterSuggestions.tsx",
+          "fragment": "function findQueryRanges",
+          "bytes": 24,
+          "sha256": "a93dc3b27c9a68b191695c1d68599fde1a1794ea2ec7eea5363aeaa35e149281",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b12",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b12-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "bWF0Y2hlZA==",
+          "bytes": 7,
+          "sha256": "eadc688cd557ee351fa9b718e87a6e8dfb9c9fce69e9944c71c0f58f8b972632",
+          "baseline_count": 36,
+          "target_count": 47
+        }
+      ]
+    },
+    {
+      "bullet": 13,
+      "test_id": "official-2.1.119-b13",
+      "changelog": "Slash command picker now wraps long descriptions onto a second line instead of truncating",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "splitDescription returns two rows and suggestionRowHeight accounts for the wrapped row"
+      },
+      "source": [
+        {
+          "path": "src/components/PromptInput/PromptInputFooterSuggestions.tsx",
+          "fragment": "function splitDescription",
+          "bytes": 25,
+          "sha256": "dd95ea2f9b120e4af31461debf401ca2f0719cfae2feb2d5015ed7cd778e33eb",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b13",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b13-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "d3JhcHBlZA==",
+          "bytes": 7,
+          "sha256": "adbf45b08ad6468aa147e5b2a23758ef56ab631a2b70ad52501ca358441a34f3",
+          "baseline_count": 33,
+          "target_count": 33
+        }
+      ]
+    },
+    {
+      "bullet": 14,
+      "test_id": "official-2.1.119-b14",
+      "changelog": "owner/repo#N shorthand links in output now use your git remote's host instead of always pointing at github.com",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "getCachedRepositoryHost supplies the issue-link host; non-GitHub issue hosts are excluded"
+      },
+      "source": [
+        {
+          "path": "src/utils/detectRepository.ts",
+          "fragment": "getCachedRepositoryHost",
+          "bytes": 23,
+          "sha256": "99e0da66ac5587d658d100f0425536d92aa808cd70a403f608a95ac9ab69b29e",
+          "count": 1
+        },
+        {
+          "path": "src/utils/markdown.ts",
+          "fragment": "NON_GITHUB_ISSUE_HOSTS",
+          "bytes": 22,
+          "sha256": "7d2f67b6ab1b58226a091acf79ed4f50f9688452b15cda3dc6f6025a002e478a",
+          "count": 2
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b14",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b14-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "Z2V0Q2FjaGVkUmVwb3NpdG9yeUhvc3Q=",
+          "bytes": 23,
+          "sha256": "99e0da66ac5587d658d100f0425536d92aa808cd70a403f608a95ac9ab69b29e",
+          "baseline_count": 0,
+          "target_count": 1
+        }
+      ]
+    },
+    {
+      "bullet": 15,
+      "test_id": "official-2.1.119-b15",
+      "changelog": "Security: blockedMarketplaces now correctly enforces hostPattern and pathPattern entries",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "doesSourceMatchHostPattern and doesSourceMatchPathPattern are both evaluated by isSourceInBlocklist"
+      },
+      "source": [
+        {
+          "path": "src/utils/plugins/marketplaceHelpers.ts",
+          "fragment": "function doesSourceMatchHostPattern",
+          "bytes": 35,
+          "sha256": "eac73adfb9a9590444384847e40149a8ab8d84c2680c5ea83e60a6d144f84cde",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b15",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b15-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "YmxvY2tlZE1hcmtldHBsYWNlcw==",
+          "bytes": 19,
+          "sha256": "dfac5c68f9d19b067ccd5215faf1146e9a03089daa4dca844fffaf0c14a4898f",
+          "baseline_count": 5,
+          "target_count": 5
+        }
+      ]
+    },
+    {
+      "bullet": 16,
+      "test_id": "official-2.1.119-b16",
+      "changelog": "OpenTelemetry: tool_result and tool_decision events now include tool_use_id; tool_result also includes tool_input_size_bytes",
+      "target": {
+        "kind": "literal",
+        "fragment": "tool_use_id; tool_input_size_bytes"
+      },
+      "source": [
+        {
+          "path": "src/hooks/toolPermission/permissionLogging.ts",
+          "fragment": "tool_use_id",
+          "bytes": 11,
+          "sha256": "323e7ffb7c32cd2b021f6e3857d055b2e92a7829ed96bd552626e3b2c207bcbb",
+          "count": 1
+        },
+        {
+          "path": "src/services/tools/toolExecution.ts",
+          "fragment": "tool_input_size_bytes",
+          "bytes": 21,
+          "sha256": "bf36b6c9ba746aaa1fe71035c24d0d820d2f411bc881921385cc162d93a5da17",
+          "count": 2
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b16",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b16-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "dG9vbF9pbnB1dF9zaXplX2J5dGVz",
+          "bytes": 21,
+          "sha256": "bf36b6c9ba746aaa1fe71035c24d0d820d2f411bc881921385cc162d93a5da17",
+          "baseline_count": 0,
+          "target_count": 2
+        },
+        {
+          "id": "b16-target-2",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "dG9vbF91c2VfaWQ=",
+          "bytes": 11,
+          "sha256": "323e7ffb7c32cd2b021f6e3857d055b2e92a7829ed96bd552626e3b2c207bcbb",
+          "baseline_count": 328,
+          "target_count": 339
+        }
+      ]
+    },
+    {
+      "bullet": 17,
+      "test_id": "official-2.1.119-b17",
+      "changelog": "Status line: stdin JSON now includes effort.level and thinking.enabled",
+      "target": {
+        "kind": "object-shape",
+        "fragment": "effort: { level: getDisplayedEffortLevel(...) }, thinking: { enabled: thinkingEnabled !== false }"
+      },
+      "source": [
+        {
+          "path": "src/components/StatusLine.tsx",
+          "fragment": "thinking: {",
+          "bytes": 11,
+          "sha256": "5db175ffc77b6ae30ff60c51c2707c1ee4ddd7d11bedeab37f8a5f7170f9ebd6",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b17",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b17-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "dGhpbmtpbmdFbmFibGVk",
+          "bytes": 15,
+          "sha256": "3cf983e406ea0774551c841e5c07f4870b824854656031e53e70546a07bbb047",
+          "baseline_count": 16,
+          "target_count": 20
+        },
+        {
+          "id": "b17-target-2",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "ZWZmb3J0",
+          "bytes": 6,
+          "sha256": "a4f12c3895258d0b6e32d9a4d692057c8cfcd5f8efc97dbdf7cefe1c46382b89",
+          "baseline_count": 289,
+          "target_count": 304
+        }
+      ]
+    },
+    {
+      "bullet": 18,
+      "test_id": "official-2.1.119-b18",
+      "changelog": "Fixed pasting CRLF content (Windows clipboards, Xcode console) inserting an extra blank line between every line",
+      "target": {
+        "kind": "regex-chain",
+        "fragment": ".replace(/\\r\\n/g, '\\n').replace(/\\r/g, '\\n')"
+      },
+      "source": [
+        {
+          "path": "src/hooks/useTextInput.ts",
+          "fragment": ".replace(/\\r\\n/g, '\\n')",
+          "bytes": 23,
+          "sha256": "b30969cf018e237258673340b01aaa1139fa05915a905c234f81a6a59b1cb49e",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b18",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b18-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "XHJcbg==",
+          "bytes": 4,
+          "sha256": "ce318ab44926f2cb39e0a7a9c0877943b11733ab8e611cbb170feef1a3d5c549",
+          "baseline_count": 50,
+          "target_count": 53
+        },
+        {
+          "id": "b18-target-2",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "XHI=",
+          "bytes": 2,
+          "sha256": "156de42b059b0f0973813c09f276dc9be573a1e06a1991f7775986df8fdabbe0",
+          "baseline_count": 321,
+          "target_count": 330
+        }
+      ]
+    },
+    {
+      "bullet": 19,
+      "test_id": "official-2.1.119-b19",
+      "changelog": "Fixed multi-line paste losing newlines in terminals using kitty keyboard protocol sequences inside bracketed paste",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "decodePastedKeySequence decodes CSI-u and modifyOtherKeys codepoints while inPaste"
+      },
+      "source": [
+        {
+          "path": "src/ink/parse-keypress.ts",
+          "fragment": "function decodePastedKeySequence",
+          "bytes": 32,
+          "sha256": "624503939b1356cd5f46ecb00553686bca128be2522cf1550187dc0ad954babd",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b19",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b19-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "Y29kZXBvaW50",
+          "bytes": 9,
+          "sha256": "aa1a07b580876a42c85a58ae9504c25bdd079f94a28069147f1cb4e550b3aad1",
+          "baseline_count": 8,
+          "target_count": 8
+        }
+      ]
+    },
+    {
+      "bullet": 20,
+      "test_id": "official-2.1.119-b20",
+      "changelog": "Fixed Glob and Grep tools disappearing on native macOS/Linux builds when the Bash tool is denied via permissions",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "after deny filtering, add GlobTool and GrepTool when embedded search is available but Bash is not"
+      },
+      "source": [
+        {
+          "path": "src/tools.ts",
+          "fragment": "const bashAvailable =",
+          "bytes": 21,
+          "sha256": "04fb48f646fd072c34c2d7d29b58349845fbd5007e6c1af31b32f4c80a6e6e7c",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b20",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b20-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "R2xvYlRvb2w=",
+          "bytes": 8,
+          "sha256": "a3d223b9aeeeb6442beafaa35cca4b2ca4410baa5ef019632609cde96f34e20b",
+          "baseline_count": 1,
+          "target_count": 1
+        },
+        {
+          "id": "b20-target-2",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "R3JlcFRvb2w=",
+          "bytes": 8,
+          "sha256": "9d87677b737e914e7e909b4a36b1a68332f11ff272dee43f715f6a1c5d3c3e69",
+          "baseline_count": 1,
+          "target_count": 1
+        }
+      ]
+    },
+    {
+      "bullet": 21,
+      "test_id": "official-2.1.119-b21",
+      "changelog": "Fixed scrolling up in fullscreen mode snapping back to the bottom every time a tool finishes",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "capture prePermissionScrollTopRef and only repin tool-JSX layout when the viewport was already sticky"
+      },
+      "source": [
+        {
+          "path": "src/screens/REPL.tsx",
+          "fragment": "prePermissionScrollTopRef",
+          "bytes": 25,
+          "sha256": "5c1625bd8da32598275ed118644396152857bbc4c4ea6e31f8084ee44c928aab",
+          "count": 5
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b21",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b21-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "c2Nyb2xsVG9w",
+          "bytes": 9,
+          "sha256": "cb80202d65fe0088ae84324f9775cdfacdfd10f09a5c4218d37697d18011fc2f",
+          "baseline_count": 20,
+          "target_count": 22
+        },
+        {
+          "id": "b21-target-2",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "c3RpY2t5",
+          "bytes": 6,
+          "sha256": "964a9431ff491fd7e0d7436ea1ed3e76e15d1d2e34fae585cdfca3c57805cf75",
+          "baseline_count": 50,
+          "target_count": 52
+        }
+      ]
+    },
+    {
+      "bullet": 22,
+      "test_id": "official-2.1.119-b22",
+      "changelog": "Fixed MCP HTTP connections failing with Invalid OAuth error response when servers returned non-JSON bodies for OAuth discovery requests",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "normalizeOAuthErrorBody reads text and returns a text Response when JSON parsing fails"
+      },
+      "source": [
+        {
+          "path": "src/services/mcp/auth.ts",
+          "fragment": "export async function normalizeOAuthErrorBody",
+          "bytes": 45,
+          "sha256": "7f1259faa7027411aabdb0c7288508c85f68b7fb9a8b041fea983e37a0b7273d",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b22",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b22-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "SW52YWxpZCBPQXV0aCBlcnJvciByZXNwb25zZQ==",
+          "bytes": 28,
+          "sha256": "1c4277763ca9579dcd724a69c684754d1b1a1fa7629d0b826a02e61b5bffeb76",
+          "baseline_count": 1,
+          "target_count": 1
+        }
+      ]
+    },
+    {
+      "bullet": 23,
+      "test_id": "official-2.1.119-b23",
+      "changelog": "Fixed Rewind overlay showing (no prompt) for messages with image attachments",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "getUserMessageText(userMessage)?.trim() || '(no prompt)'"
+      },
+      "source": [
+        {
+          "path": "src/components/MessageSelector.tsx",
+          "fragment": "getUserMessageText(userMessage)?.trim() || \"(no prompt)\"",
+          "bytes": 56,
+          "sha256": "524130f140ae3307d04888b191453eff2733dd1c712133965d0dfa669f8511ca",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b23",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b23-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "KG5vIHByb21wdCk=",
+          "bytes": 11,
+          "sha256": "56f7b775e01040eb9bde9b9581477b39b8fd405e170921a62a91157d1db17e1a",
+          "baseline_count": 1,
+          "target_count": 1
+        }
+      ]
+    },
+    {
+      "bullet": 24,
+      "test_id": "official-2.1.119-b24",
+      "changelog": "Fixed auto mode overriding plan mode with conflicting Execute immediately instructions",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "getAutoModeAttachments returns empty unless permissionContext.mode === 'auto'"
+      },
+      "source": [
+        {
+          "path": "src/utils/attachments.ts",
+          "fragment": "if (permissionContext.mode !== 'auto')",
+          "bytes": 38,
+          "sha256": "76ad6f6c328ea45dbc808eaa746c79c0ac961fd875dae9b325e3eba06a9c599f",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b24",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b24-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "cGVybWlzc2lvbkNvbnRleHQ=",
+          "bytes": 17,
+          "sha256": "f65eefaf048ad335b83f40f23a417b5fe2b1aa3004ac7a5446c2e3a25708afce",
+          "baseline_count": 6,
+          "target_count": 6
+        },
+        {
+          "id": "b24-target-2",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "YXV0bw==",
+          "bytes": 4,
+          "sha256": "929260ad9b9ea9fe0f3553dd964f4ff3deb5792efd031a2b90f573fe91f012bb",
+          "baseline_count": 1425,
+          "target_count": 1531
+        }
+      ]
+    },
+    {
+      "bullet": 25,
+      "test_id": "official-2.1.119-b25",
+      "changelog": "Fixed async PostToolUse hooks that emit no response payload writing empty entries to the session transcript",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "successful async hook with empty response and blank stderr is skipped instead of attached"
+      },
+      "source": [
+        {
+          "path": "src/utils/hooks/AsyncHookRegistry.ts",
+          "fragment": "produced no response payload — skipping attachment",
+          "bytes": 52,
+          "sha256": "160555a643d7658dba96c15cd3aea492a9845e9debf36eb03a92781ea54c68ce",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b25",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b25-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "cHJvZHVjZWQgbm8gcmVzcG9uc2UgcGF5bG9hZA==",
+          "bytes": 28,
+          "sha256": "86ba4b7adc48188f24030905694ef42cbe00484afb8ec2e35884ca642f7bce2f",
+          "baseline_count": 0,
+          "target_count": 1
+        }
+      ]
+    },
+    {
+      "bullet": 26,
+      "test_id": "official-2.1.119-b26",
+      "changelog": "Fixed spinner staying on when a subagent task notification is orphaned in the queue",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "spinner queue predicate uses getMainThreadCommandQueueLength rather than total queue length"
+      },
+      "source": [
+        {
+          "path": "src/screens/REPL.tsx",
+          "fragment": "getMainThreadCommandQueueLength()",
+          "bytes": 33,
+          "sha256": "0e712048fddae856d4f2ab13fc2673294bd5a144890ab0413f262c1f9b9b1a06",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b26",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b26-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "bWFpblRocmVhZA==",
+          "bytes": 10,
+          "sha256": "4f2c6ecc526c637934eca999ee5779c16a53be8093936af46a5fd6e20ab24175",
+          "baseline_count": 29,
+          "target_count": 29
+        }
+      ]
+    },
+    {
+      "bullet": 27,
+      "test_id": "official-2.1.119-b27",
+      "changelog": "Tool search is now disabled by default on Vertex AI to avoid an unsupported beta header error (opt in with ENABLE_TOOL_SEARCH)",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "when ENABLE_TOOL_SEARCH is unset and provider is vertex, isToolSearchEnabledOptimistic returns false"
+      },
+      "source": [
+        {
+          "path": "src/utils/toolSearch.ts",
+          "fragment": "getAPIProvider() === 'vertex'",
+          "bytes": 29,
+          "sha256": "b11f9d89972c9ec6ebc1778d5a7a393fe89821c828939e69905125ad7dc75831",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b27",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b27-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "RU5BQkxFX1RPT0xfU0VBUkNI",
+          "bytes": 18,
+          "sha256": "7436478abfd28328c48dec2cd473299ba503d1f367932d838ff7b553b8b758dd",
+          "baseline_count": 11,
+          "target_count": 13
+        },
+        {
+          "id": "b27-target-2",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "dmVydGV4",
+          "bytes": 6,
+          "sha256": "e1b683e26a3aad218df6aa63afe9cf57fdb5dfaf5eb20cddac14305d67f48a02",
+          "baseline_count": 163,
+          "target_count": 164
+        }
+      ]
+    },
+    {
+      "bullet": 28,
+      "test_id": "official-2.1.119-b28",
+      "changelog": "Fixed @-file Tab completion replacing the entire prompt when used inside a slash command with an absolute path",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "origin ref distinguishes command-arg from @-path; validated replacement metadata bypasses longest-common-prefix replacement"
+      },
+      "source": [
+        {
+          "path": "src/hooks/useTypeahead.tsx",
+          "fragment": "function getReplacementMetadata",
+          "bytes": 31,
+          "sha256": "0e70241ab4245b9772f188cb8c4804f75271cbe9f72e4da2ebf2d6e9e1620bf4",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b28",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b28-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "cmVwbGFjZW1lbnQ=",
+          "bytes": 11,
+          "sha256": "95713e9cbdd1dfcb2d4080c2537f418d43ca0da25f0d7d6631f4f7c97b89dc47",
+          "baseline_count": 76,
+          "target_count": 81
+        },
+        {
+          "id": "b28-target-2",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "bG9uZ2VzdA==",
+          "bytes": 7,
+          "sha256": "4a10fc76ef342d64bc0ea9003066c32a9f3d017d0857e4a5bf2a7537f6056ce4",
+          "baseline_count": 40,
+          "target_count": 40
+        }
+      ]
+    },
+    {
+      "bullet": 29,
+      "test_id": "official-2.1.119-b29",
+      "changelog": "Fixed a stray p character appearing at the prompt on startup in macOS Terminal.app via Docker or SSH",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "skip DECRQM synchronized-output probe when XTVERSION has no reply or TERM_PROGRAM is Apple_Terminal"
+      },
+      "source": [
+        {
+          "path": "src/ink/components/App.tsx",
+          "fragment": "const skipSynchronizedProbe =",
+          "bytes": 29,
+          "sha256": "6dbdc11d979509b2069557ef2a4099db561c77b6a56c89c87c56597bb7f14e17",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b29",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b29-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "WFRWRVJTSU9O",
+          "bytes": 9,
+          "sha256": "acda41a8531dfa3cc6048e6f282b6432f30606f2093fd3f481601783187242ed",
+          "baseline_count": 2,
+          "target_count": 3
+        },
+        {
+          "id": "b29-target-2",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "QXBwbGVfVGVybWluYWw=",
+          "bytes": 14,
+          "sha256": "df32ab4430708c84df8941e0683c59382298264e85dd74558b35ca16cb9c22de",
+          "baseline_count": 26,
+          "target_count": 26
+        }
+      ]
+    },
+    {
+      "bullet": 30,
+      "test_id": "official-2.1.119-b30",
+      "changelog": "Fixed ${ENV_VAR} placeholders in headers for HTTP/SSE/WebSocket MCP servers not being substituted before requests",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "expandEnvVarsInString over every static header value before merging dynamic headers"
+      },
+      "source": [
+        {
+          "path": "src/services/mcp/headersHelper.ts",
+          "fragment": "const expanded = expandEnvVarsInString(value)",
+          "bytes": 45,
+          "sha256": "b044a5c89716aa010b4891aa5c558ba512388f4983c0154599de0246cda9c68c",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b30",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b30-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "aGVhZGVycw==",
+          "bytes": 7,
+          "sha256": "378f37b1fb33fa4dafba6519a48e06447ecaa58af290729cc3d357bcadd9926c",
+          "baseline_count": 1245,
+          "target_count": 1251
+        },
+        {
+          "id": "b30-target-2",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "ZW52aXJvbm1lbnQgdmFyaWFibGU=",
+          "bytes": 20,
+          "sha256": "9489846378282357e223b0220b07a20594ea7b834e8078b3b3f1c5adff04665e",
+          "baseline_count": 92,
+          "target_count": 93
+        }
+      ]
+    },
+    {
+      "bullet": 31,
+      "test_id": "official-2.1.119-b31",
+      "changelog": "Fixed MCP OAuth client secret stored via --client-secret not being sent during token exchange for servers requiring client_secret_post",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "clientInformation returns configuredClientSecret with the configured client ID and fills matching stored client info"
+      },
+      "source": [
+        {
+          "path": "src/services/mcp/auth.ts",
+          "fragment": "const configuredClientSecret =",
+          "bytes": 30,
+          "sha256": "4ce44217b8b691718b1f37d06e460e8d4c2e9766e5f2d6f17ae20b444233a41f",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b31",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b31-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "Y2xpZW50X3NlY3JldF9wb3N0",
+          "bytes": 18,
+          "sha256": "efe6632ca6de0e7e93d7db97351079f0327af3b3ccba916e78f612c1a17a3899",
+          "baseline_count": 12,
+          "target_count": 12
+        },
+        {
+          "id": "b31-target-2",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "Y2xpZW50U2VjcmV0",
+          "bytes": 12,
+          "sha256": "9a5f75fe98e58215cfdd5b1f64bdb438b7bc6523427224dcc8d8dc0d957eeb86",
+          "baseline_count": 90,
+          "target_count": 90
+        }
+      ]
+    },
+    {
+      "bullet": 32,
+      "test_id": "official-2.1.119-b32",
+      "changelog": "Fixed /skills Enter key closing the dialog instead of pre-filling /<skill-name> in the prompt",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "settings:close dispatches handleUse and exits with display skip plus nextInput"
+      },
+      "source": [
+        {
+          "path": "src/components/skills/SkillsMenu.tsx",
+          "fragment": "onExit(undefined, { display: 'skip', nextInput })",
+          "bytes": 49,
+          "sha256": "16b784abbcb3437e33a07c45dcc4a03a3cb4e1103ddd657289c756533140d2c9",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b32",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b32-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "bmV4dElucHV0",
+          "bytes": 9,
+          "sha256": "f1f32df4622de30bab0e2d941e2d6acdc1ed31bd8a5b2c56472570de7806d42a",
+          "baseline_count": 12,
+          "target_count": 16
+        },
+        {
+          "id": "b32-target-2",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "L3NraWxscw==",
+          "bytes": 7,
+          "sha256": "74fd9300928720e1e8ea22ae671d5afbd7c0abfa3ef012022fc7fc69c270814e",
+          "baseline_count": 54,
+          "target_count": 54
+        }
+      ]
+    },
+    {
+      "bullet": 33,
+      "test_id": "official-2.1.119-b33",
+      "changelog": "Fixed /agents detail view mislabeling built-in tools unavailable to subagents as Unrecognized",
+      "target": {
+        "kind": "literal-and-code-shape",
+        "fragment": "unavailableTools render as 'Not available to subagents'; only invalidTools render as 'Unrecognized'"
+      },
+      "source": [
+        {
+          "path": "src/components/agents/AgentDetail.tsx",
+          "fragment": "Not available to subagents",
+          "bytes": 26,
+          "sha256": "33690d5f41fb30b8482e1b8d8672566aafd28d6dbbbc8278ec0f96b3f2959b42",
+          "count": 1
+        },
+        {
+          "path": "src/components/agents/validateAgent.ts",
+          "fragment": "unavailableTools",
+          "bytes": 16,
+          "sha256": "c142ef6e8aaaf1f23ddc0854854b5a135a1d8486d60a9dd23471946bc4d670ea",
+          "count": 2
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b33",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b33-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "Tm90IGF2YWlsYWJsZSB0byBzdWJhZ2VudHM=",
+          "bytes": 26,
+          "sha256": "33690d5f41fb30b8482e1b8d8672566aafd28d6dbbbc8278ec0f96b3f2959b42",
+          "baseline_count": 0,
+          "target_count": 2
+        }
+      ]
+    },
+    {
+      "bullet": 34,
+      "test_id": "official-2.1.119-b34",
+      "changelog": "Fixed MCP servers from plugins not spawning on Windows when the plugin cache was incomplete",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "hasPluginCacheContents treats bookkeeping-only directories as incomplete and forces materialization/retry"
+      },
+      "source": [
+        {
+          "path": "src/utils/plugins/pluginLoader.ts",
+          "fragment": "async function hasPluginCacheContents",
+          "bytes": 37,
+          "sha256": "7b5db64ed3dc02e7519233f0065c935a14708c6a79b84de709dafe41e16fc362",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b34",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b34-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "LmNsYXVkZS1wbHVnaW4=",
+          "bytes": 14,
+          "sha256": "216ddf49c509d2b0a10996a179171895d05fb9cb900c6d0ead6fa5edf19a48a2",
+          "baseline_count": 35,
+          "target_count": 35
+        },
+        {
+          "id": "b34-target-2",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "bWFya2V0cGxhY2UuanNvbg==",
+          "bytes": 16,
+          "sha256": "94fae5d8ff3f60da82a6c956edac23d2177b136bc2d04e41a3aece5fe5ffe3e2",
+          "baseline_count": 30,
+          "target_count": 30
+        }
+      ]
+    },
+    {
+      "bullet": 35,
+      "test_id": "official-2.1.119-b35",
+      "changelog": "Fixed /export showing the current default model instead of the model the conversation actually used",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "scan assistant messages for first non-synthetic model and seed export AppStateProvider.mainLoopModel"
+      },
+      "source": [
+        {
+          "path": "src/utils/exportRenderer.tsx",
+          "fragment": "function getConversationModel",
+          "bytes": 29,
+          "sha256": "c0666d86bc9688fb3406fff86c40b7bb2f0bc7c4c818c90022917032ceb6d3bc",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b35",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b35-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "QXBwU3RhdGVQcm92aWRlcg==",
+          "bytes": 16,
+          "sha256": "85309fbf9f7c9391f3cd8c10ec0092af473ddb7398a3453d26b6ca7236bf67d6",
+          "baseline_count": 3,
+          "target_count": 5
+        },
+        {
+          "id": "b35-target-2",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "bWFpbkxvb3BNb2RlbA==",
+          "bytes": 13,
+          "sha256": "a8c7e035a215eda692925e52b60bd8f2ec116a91b7077aad88223d5fba33ff31",
+          "baseline_count": 148,
+          "target_count": 156
+        }
+      ]
+    },
+    {
+      "bullet": 36,
+      "test_id": "official-2.1.119-b36",
+      "changelog": "Fixed verbose output setting not persisting after restart",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "verbose is read from settings precedence and onChangeVerbose calls setConfigValue('verbose', value)"
+      },
+      "source": [
+        {
+          "path": "src/components/Settings/Config.tsx",
+          "fragment": "setConfigValue('verbose', value_0)",
+          "bytes": 34,
+          "sha256": "881acd606487bccf41b21edab5d558367899ffc2ffc7ebbd1352f54124847b36",
+          "count": 1
+        },
+        {
+          "path": "src/utils/settings/configSettings.ts",
+          "fragment": "'verbose'",
+          "bytes": 9,
+          "sha256": "901474457ada979870e73151aba97aaf7716e9493499f43c5ec9f517110d7af8",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b36",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b36-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "InZlcmJvc2Ui",
+          "bytes": 9,
+          "sha256": "482e3c9f51e9234a757a002d589c5fed23e6f4eebd0f978c96c15fcf707c5e73",
+          "baseline_count": 26,
+          "target_count": 31
+        }
+      ]
+    },
+    {
+      "bullet": 37,
+      "test_id": "official-2.1.119-b37",
+      "changelog": "Fixed /usage progress bars overlapping with their Resets … labels",
+      "target": {
+        "kind": "layout-shape",
+        "fragment": "wide layout keeps reset subtext on its own row; narrow layout renders label then a maxWidth progress bar with flexShrink=0"
+      },
+      "source": [
+        {
+          "path": "src/components/Settings/Usage.tsx",
+          "fragment": "if (maxWidth >= 62)",
+          "bytes": 19,
+          "sha256": "76fe35b36ac5fe7a239dbf0a60fd16b2e67d9de2931547f8951b745805448d10",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b37",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b37-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "UmVzZXRzIA==",
+          "bytes": 7,
+          "sha256": "27e2318a96c6d9e45691e9c3374e046e170d536e45c2f600930e3fa6c591eeec",
+          "baseline_count": 1,
+          "target_count": 1
+        },
+        {
+          "id": "b37-target-2",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "bWF4V2lkdGg=",
+          "bytes": 8,
+          "sha256": "2c8961686c0800bdebe553b48d02714a0829e22e2552c05fa3bae8dfdb56dfed",
+          "baseline_count": 43,
+          "target_count": 43
+        }
+      ]
+    },
+    {
+      "bullet": 38,
+      "test_id": "official-2.1.119-b38",
+      "changelog": "Fixed plugin MCP servers failing when ${user_config.*} references an optional field left blank",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "optional plugin options receive option.default or empty string before user_config substitution"
+      },
+      "source": [
+        {
+          "path": "src/utils/plugins/pluginOptionsStorage.ts",
+          "fragment": "defaults[key] = option.default ?? ''",
+          "bytes": 36,
+          "sha256": "6b0fd29ae53edfb1900781aae9458c2ea03d95b7db30419a7d040c9eea2d41ab",
+          "count": 1
+        },
+        {
+          "path": "src/utils/plugins/mcpPluginIntegration.ts",
+          "fragment": "applyPluginOptionDefaults(",
+          "bytes": 26,
+          "sha256": "bf880587f65d98f77e37664e2379c46f887eb7b03a89e56dd325555beede0429",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b38",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b38-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "dXNlcl9jb25maWc=",
+          "bytes": 11,
+          "sha256": "eb7349fa407ebaeb8cc62c3e94e3b4192e6cad1aa7326ba16c46b91e8c0e9c3f",
+          "baseline_count": 24,
+          "target_count": 24
+        },
+        {
+          "id": "b38-target-2",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "ZGVmYXVsdA==",
+          "bytes": 7,
+          "sha256": "37a8eec1ce19687d132fe29051dca629d164e2c4958ba141d5f4133a33f0688f",
+          "baseline_count": 7450,
+          "target_count": 7647
+        }
+      ]
+    },
+    {
+      "bullet": 39,
+      "test_id": "official-2.1.119-b39",
+      "changelog": "Fixed list items containing a sentence-final number wrapping the number onto its own line",
+      "target": {
+        "kind": "regex",
+        "fragment": "text.replace(/ (\\d{1,9}[.)])(?!\\w)/g, '\\u00a0$1')"
+      },
+      "source": [
+        {
+          "path": "src/utils/markdown.ts",
+          "fragment": "function preventSentenceFinalNumberWraps",
+          "bytes": 40,
+          "sha256": "2964da55c9c193b3d8a93896b5fda537e25fff8533376f6bd724d8430acdca3e",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b39",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b39-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "XHhBMCQx",
+          "bytes": 6,
+          "sha256": "0342b6180f5973cc44b63baf59e336e07e4786222649d65c4bd4712c7b49e902",
+          "baseline_count": 0,
+          "target_count": 1
+        }
+      ]
+    },
+    {
+      "bullet": 40,
+      "test_id": "official-2.1.119-b40",
+      "changelog": "Fixed /plan and /plan open not acting on the existing plan when entering plan mode",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "enteredPlanMode is tracked; after transition an existing cached plan falls through to getPlan and open/display handling"
+      },
+      "source": [
+        {
+          "path": "src/commands/plan/plan.tsx",
+          "fragment": "const enteredPlanMode = currentMode !== 'plan'",
+          "bytes": 46,
+          "sha256": "0e537376eb8b746d1c6b13ebb1bf170689f3107bf0a6d32bf6f6e8667f3d127f",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b40",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b40-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "Z2V0UGxhbg==",
+          "bytes": 7,
+          "sha256": "66b6e5f858e4348346bdb5d97f9f13d8b433fee4177618bc8b60ec06f58449eb",
+          "baseline_count": 1,
+          "target_count": 1
+        },
+        {
+          "id": "b40-target-2",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "cGxhbiBtb2Rl",
+          "bytes": 9,
+          "sha256": "156d8d777a8cf0bac015757cfe6cd8b6f9fca68fb973d5ce9eeb6eb67fba8167",
+          "baseline_count": 66,
+          "target_count": 66
+        }
+      ]
+    },
+    {
+      "bullet": 41,
+      "test_id": "official-2.1.119-b41",
+      "changelog": "Fixed skills invoked before auto-compaction being re-executed against the next user message",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "slash-command results consisting only of local-system or meta user messages do not receive a synthetic user caveat after compact"
+      },
+      "source": [
+        {
+          "path": "src/utils/processUserInput/processSlashCommand.tsx",
+          "fragment": "message.type === 'user' && message.isMeta",
+          "bytes": 41,
+          "sha256": "c5cc9b27cf3898eb17eeff92bd49f7375afa0fc1955bc3ca9e2727155f38c2a3",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b41",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b41-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "aXNNZXRh",
+          "bytes": 6,
+          "sha256": "2c1e439286536d0ddd5d1f5558af1abddf6b68eb0b71b3bffea8cd9da763fe05",
+          "baseline_count": 183,
+          "target_count": 195
+        },
+        {
+          "id": "b41-target-2",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "Y29tcGFjdA==",
+          "bytes": 7,
+          "sha256": "b6b54201f23d00f5b719f532c30bc3362af2da4651d9a33cc0e94714d01c205c",
+          "baseline_count": 430,
+          "target_count": 455
+        }
+      ]
+    },
+    {
+      "bullet": 42,
+      "test_id": "official-2.1.119-b42",
+      "changelog": "Fixed /reload-plugins and /doctor reporting load errors for disabled plugins",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "finishLoadingPluginFromPath appends collected component errors only when enabled is true"
+      },
+      "source": [
+        {
+          "path": "src/utils/plugins/pluginLoader.ts",
+          "fragment": "if (enabled) {",
+          "bytes": 14,
+          "sha256": "4cfc54ccc883f3644e6fa44cc72b81cf9d9be01cebf936ddf945bd360cff0e91",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b42",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b42-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "ZW5hYmxlZFBsdWdpbnM=",
+          "bytes": 14,
+          "sha256": "3a7db6446f65c96846ab974972f91dbaf7f6d4bf87d08b9b127e998a3b7aad5d",
+          "baseline_count": 63,
+          "target_count": 63
+        },
+        {
+          "id": "b42-target-2",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "cGx1Z2luRXJyb3Jz",
+          "bytes": 12,
+          "sha256": "f9ca8b8227fd1fb891235b63b037046099935928c9acabae960f35949d906f04",
+          "baseline_count": 4,
+          "target_count": 4
+        }
+      ]
+    },
+    {
+      "bullet": 43,
+      "test_id": "official-2.1.119-b43",
+      "changelog": "Fixed Agent tool with isolation: worktree reusing stale worktrees from prior sessions",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "agentWorktreeSlug uses the full a+16-hex agent ID; cleanup recognizes both 16-hex current and 7-hex legacy slugs"
+      },
+      "source": [
+        {
+          "path": "src/utils/worktree.ts",
+          "fragment": "return `agent-${agentId}`",
+          "bytes": 25,
+          "sha256": "2c7bfaaeb04173490d462adf8a8c80c6acd44497b7151ca19ff1fca7e6cb8500",
+          "count": 1
+        },
+        {
+          "path": "src/tools/AgentTool/AgentTool.tsx",
+          "fragment": "agentWorktreeSlug(earlyAgentId)",
+          "bytes": 31,
+          "sha256": "7de52f3754fb5fa14e78fa7bdfc453b76ded998ea36d3a58649f3b4b2d918c91",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b43",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b43-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "YWdlbnRXb3JrdHJlZVNsdWc=",
+          "bytes": 17,
+          "sha256": "0effacae3800b4b54997c55a53d71e9e03111d6edebfe5b854f477a66959bb55",
+          "baseline_count": 0,
+          "target_count": 1
+        },
+        {
+          "id": "b43-target-2",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "YWdlbnQtYVswLTlhLWZdezE2fQ==",
+          "bytes": 19,
+          "sha256": "79271acafec2bcaec613abf2f7e2bd97575fd9ffeb4e934285a23b684627b7d7",
+          "baseline_count": 0,
+          "target_count": 1
+        }
+      ]
+    },
+    {
+      "bullet": 44,
+      "test_id": "official-2.1.119-b44",
+      "changelog": "Fixed disabled MCP servers appearing as failed in /status",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "MCP status aggregation has a separate disabled counter and renders '<n> disabled' with inactive color"
+      },
+      "source": [
+        {
+          "path": "src/utils/status.tsx",
+          "fragment": "if (byState.disabled)",
+          "bytes": 21,
+          "sha256": "305f734b5e85d57b3a65fd7900e32afc4b84c569d3e4573774824ffbbd41877e",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b44",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b44-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "ZGlzYWJsZWQ=",
+          "bytes": 8,
+          "sha256": "17eb3c0168d0d7b21ede5481150f17233427d89833ec121b4dbc4fb96cfab71e",
+          "baseline_count": 426,
+          "target_count": 467
+        },
+        {
+          "id": "b44-target-2",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "TUNQ",
+          "bytes": 3,
+          "sha256": "53f13ae99ed53bd346eb8e1c8cefb7ef8260683b50401caf101360967ea052aa",
+          "baseline_count": 661,
+          "target_count": 669
+        }
+      ]
+    },
+    {
+      "bullet": 45,
+      "test_id": "official-2.1.119-b45",
+      "changelog": "Fixed TaskList returning tasks in arbitrary filesystem order instead of sorted by ID",
+      "target": {
+        "kind": "code-shape",
+        "normalized_line": 11537,
+        "fragment": ".sort((a, b) => Number(a.id) - Number(b.id))"
+      },
+      "source": [
+        {
+          "path": "src/utils/tasks.ts",
+          "fragment": ".sort((a, b) => Number(a.id) - Number(b.id))",
+          "bytes": 44,
+          "sha256": "a0ab0902be4156d44b2f1288c5290251a9c79b54abf6d8095aad204066be52a2",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b45",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b45-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "TnVtYmVyKA==",
+          "bytes": 7,
+          "sha256": "ef75498fb7d2cb4b9b9b5619ac2c1a92356061af51e0580565b7a27a7381f8e2",
+          "baseline_count": 357,
+          "target_count": 367
+        },
+        {
+          "id": "b45-target-2",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "LnNvcnQo",
+          "bytes": 6,
+          "sha256": "cf4c4b578ea1c44c576b3aa812716405b08ac8249aab969d7655f9f44f8d9925",
+          "baseline_count": 264,
+          "target_count": 288
+        }
+      ]
+    },
+    {
+      "bullet": 46,
+      "test_id": "official-2.1.119-b46",
+      "changelog": "Fixed spurious GitHub API rate limit exceeded hints when gh output contained PR titles mentioning rate limit",
+      "target": {
+        "kind": "regex",
+        "normalized_line": 13341,
+        "fragment": "/API rate limit (?:already )?exceeded|exceeded a secondary rate limit|\\bRATE_LIMITED\\b/i"
+      },
+      "source": [
+        {
+          "path": "src/tools/shared/gitOperationTracking.ts",
+          "fragment": "API rate limit (?:already )?exceeded",
+          "bytes": 36,
+          "sha256": "1659988a79dadd439754db2fdd44bcab209dde47fa2cb9524c21f495e39e4178",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b46",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b46-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "QVBJIHJhdGUgbGltaXQgKD86YWxyZWFkeSApP2V4Y2VlZGVk",
+          "bytes": 36,
+          "sha256": "1659988a79dadd439754db2fdd44bcab209dde47fa2cb9524c21f495e39e4178",
+          "baseline_count": 0,
+          "target_count": 1
+        }
+      ]
+    },
+    {
+      "bullet": 47,
+      "test_id": "official-2.1.119-b47",
+      "changelog": "Fixed SDK/bridge read_file not correctly enforcing size cap on growing files",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "open once, allocate limit+1, positional-read at most limit+1, and return buffer.subarray(0, min(bytesRead, limit))"
+      },
+      "source": [
+        {
+          "path": "src/bridge/readFileForRemote.ts",
+          "fragment": "const buffer = Buffer.alloc(limit + 1)",
+          "bytes": 38,
+          "sha256": "41d2cb7cd8b4aee7da2b90ca20a7fe2d227b49272667733e2115e53b13240991",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b47",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b47-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "Ynl0ZXNSZWFk",
+          "bytes": 9,
+          "sha256": "d8be1adacc37977aa4a811e59f367dc4804760b6d94dab0b0d7703cb0021d338",
+          "baseline_count": 34,
+          "target_count": 38
+        },
+        {
+          "id": "b47-target-2",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "c3ViYXJyYXk=",
+          "bytes": 8,
+          "sha256": "d038b258ae1039f7b0a2e17889e0a41658fd7c6c64f01562c61b0e985fc81e95",
+          "baseline_count": 116,
+          "target_count": 134
+        }
+      ]
+    },
+    {
+      "bullet": 48,
+      "test_id": "official-2.1.119-b48",
+      "changelog": "Fixed PR not linked to session when working in a git worktree",
+      "target": {
+        "kind": "code-shape",
+        "normalized_line": 27440,
+        "fragment": "fullPath ?? (sessionId === getSessionId() ? getMaterializedSessionFile() : null) ?? getTranscriptPathForSession(sessionId)"
+      },
+      "source": [
+        {
+          "path": "src/utils/sessionStorage.ts",
+          "fragment": "getMaterializedSessionFile() : null",
+          "bytes": 35,
+          "sha256": "bde909281f988487bfe50a00f7deb68cd95875059c6af99c20e761fe58a2d3a9",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b48",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b48-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "Z2V0TWF0ZXJpYWxpemVkU2Vzc2lvbkZpbGU=",
+          "bytes": 26,
+          "sha256": "c69dedb313a153ef274faeb0e7f6da94d7b79ab3ff135fa0194885bc83fef70e",
+          "baseline_count": 1,
+          "target_count": 1
+        }
+      ]
+    },
+    {
+      "bullet": 49,
+      "test_id": "official-2.1.119-b49",
+      "changelog": "Fixed /doctor warning about MCP server entries overridden by a higher-precedence scope",
+      "target": {
+        "kind": "code-shape",
+        "fragment": "filterOverriddenMcpWarnings drops warning-severity entries shadowed by policy or an effective higher-precedence server"
+      },
+      "source": [
+        {
+          "path": "src/components/mcp/McpParsingWarnings.tsx",
+          "fragment": "function filterOverriddenMcpWarnings",
+          "bytes": 36,
+          "sha256": "580168fa9d65a331b8df50ce0b4658d915d9a7eb0e1f98e4d316b4e33efa0168",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b49",
+      "status": "source-equivalent",
+      "targetFragments": [
+        {
+          "id": "b49-target-1",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "b3ZlcnJpZGU=",
+          "bytes": 8,
+          "sha256": "ce603774135699e9abdfd65eb1f2733774da58af91782528e82ef5f9efdb8fba",
+          "baseline_count": 206,
+          "target_count": 214
+        },
+        {
+          "id": "b49-target-2",
+          "kind": "target-exact",
+          "encoding": "base64",
+          "base64": "d2FybmluZw==",
+          "bytes": 7,
+          "sha256": "4bd9354bb652233497a0f42647464b81b83a83654fcf1511263a5d0120d74c91",
+          "baseline_count": 651,
+          "target_count": 683
+        }
+      ]
+    },
+    {
+      "bullet": 50,
+      "test_id": "official-2.1.119-b50",
+      "changelog": "Windows: removed false-positive Windows requires 'cmd /c' wrapper MCP config warning",
+      "target": {
+        "kind": "deletion",
+        "fragment": "parseMcpConfig no longer imports getPlatform or emits the Windows npx/cmd-wrapper warning before validatedServers[name] assignment"
+      },
+      "source": [
+        {
+          "path": "src/services/mcp/config.ts",
+          "fragment": "validatedServers[name] = configToCheck",
+          "bytes": 38,
+          "sha256": "1ee90d88746975da5c461df3c741b6127732c62000f7f051e82587957cb8eafa",
+          "count": 1
+        }
+      ],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b50",
+      "status": "source-equivalent-by-deletion",
+      "targetFragments": [
+        {
+          "id": "b50-target-1",
+          "kind": "baseline-removal",
+          "encoding": "base64",
+          "base64": "V2luZG93cyByZXF1aXJlcyAnY21kIC9jJyB3cmFwcGVy",
+          "bytes": 33,
+          "sha256": "a584e057abff5bbf675b427487f19aa38d2482753b9cb505c2e805ce6c33fc29",
+          "baseline_count": 1,
+          "target_count": 0
+        }
+      ]
+    },
+    {
+      "bullet": 51,
+      "test_id": "official-2.1.119-b51",
+      "changelog": "[VSCode] Fixed voice dictation's first recording producing nothing on macOS while the microphone permission prompt is showing",
+      "target": {
+        "kind": "platform-external",
+        "fragment": "No recoverable Linux cli.js source delta: voice service/hooks are structurally equivalent; Linux audio-capture.node is byte-identical",
+        "linux_native_sha256_baseline": "7e89edf4dde9b69b6c55a310788ad999e2d0dd469d8a31c529cf28f3ea5e929c",
+        "linux_native_sha256_target": "7e89edf4dde9b69b6c55a310788ad999e2d0dd469d8a31c529cf28f3ea5e929c"
+      },
+      "source": [],
+      "direct_test": "recovery/test/recovery-2.1.119-official-bullets.test.mjs#official-2.1.119-b51",
+      "status": "not-in-authenticated-linux-cli-source-delta",
+      "targetFragments": [
+        {
+          "id": "b51-native-linux-boundary",
+          "kind": "native-artifact",
+          "artifact": "audio-capture.node",
+          "baseline_bytes": 492184,
+          "target_bytes": 492184,
+          "baseline_sha256": "7e89edf4dde9b69b6c55a310788ad999e2d0dd469d8a31c529cf28f3ea5e929c",
+          "target_sha256": "7e89edf4dde9b69b6c55a310788ad999e2d0dd469d8a31c529cf28f3ea5e929c"
+        }
+      ]
+    }
+  ]
+}

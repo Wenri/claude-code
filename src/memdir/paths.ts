@@ -3,6 +3,8 @@ import { homedir } from 'os'
 import { isAbsolute, join, normalize, sep } from 'path'
 import {
   getIsNonInteractiveSession,
+  getInitialMainLoopModel,
+  getMainLoopModelOverride,
   getMemoryToggledOff,
   getProjectRoot,
 } from '../bootstrap/state.js'
@@ -39,6 +41,24 @@ export function isAutoMemoryEnabled(): boolean {
   }
   if (isEnvDefinedFalsy(envVal)) {
     return true
+  }
+  const disabledModels = getFeatureValue_CACHED_MAY_BE_STALE(
+    'tengu_sepia_cormorant',
+    null,
+  )
+  if (Array.isArray(disabledModels) && disabledModels.length > 0) {
+    const model = getMainLoopModelOverride() ?? getInitialMainLoopModel()
+    if (
+      typeof model === 'string' &&
+      disabledModels.some(
+        value =>
+          typeof value === 'string' &&
+          value.length > 0 &&
+          model.toLowerCase().includes(value.toLowerCase()),
+      )
+    ) {
+      return false
+    }
   }
   // --bare / SIMPLE: prompts.ts already drops the memory section from the
   // system prompt via its SIMPLE early-return; this gate stops the other half

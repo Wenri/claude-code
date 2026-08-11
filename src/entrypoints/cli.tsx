@@ -33,11 +33,16 @@ if (feature('ABLATION_BASELINE') && process.env.CLAUDE_CODE_ABLATION_BASELINE) {
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
 
-  // Fast-path for --version/-v: zero module loading needed
-  if (args.length === 1 && (args[0] === '--version' || args[0] === '-v' || args[0] === '-V')) {
+  // Fast-path for --version/-v: zero module loading needed. --verbose includes
+  // the source commit used for native/package provenance checks.
+  if ((args.length === 1 || (args.length === 2 && args[1] === '--verbose')) && (args[0] === '--version' || args[0] === '-v' || args[0] === '-V')) {
     // MACRO.VERSION is inlined at build time
     // biome-ignore lint/suspicious/noConsole:: intentional console output
     console.log(`${MACRO.VERSION} (Claude Code)`);
+    if (args.length === 2 && MACRO.GIT_SHA) {
+      // biome-ignore lint/suspicious/noConsole:: intentional console output
+      console.log(`Commit: ${MACRO.GIT_SHA}`);
+    }
     return;
   }
 
@@ -102,6 +107,15 @@ async function main(): Promise<void> {
       runDaemonWorker
     } = await import('../daemon/workerRegistry.js');
     await runDaemonWorker(args[1]);
+    return;
+  }
+
+  // Internal PTY sidecar. The supervisor starts one per daemon-backed job.
+  if (feature('DAEMON') && args[0] === '--bg-pty-host') {
+    const {
+      runPtyHost
+    } = await import('../daemon/ptyHost.js');
+    await runPtyHost(args.slice(1));
     return;
   }
 
@@ -179,20 +193,22 @@ async function main(): Promise<void> {
     return;
   }
 
-  // Fast-path for `claude ps|logs|attach|kill` and `--bg`/`--background`.
-  // Session management against the ~/.claude/sessions/ registry. Flag
-  // literals are inlined so bg.js only loads when actually dispatching.
-  if (feature('BG_SESSIONS') && (args[0] === 'ps' || args[0] === 'logs' || args[0] === 'attach' || args[0] === 'kill' || args.includes('--bg') || args.includes('--background'))) {
+  // Fast-path for background-agent management and --bg dispatch.
+  if (feature('BG_SESSIONS') && (args[0] === 'logs' || args[0] === 'attach' || args[0] === 'kill' || args[0] === 'respawn' || args[0] === 'rm' || args.includes('--bg') || args.includes('--background'))) {
     profileCheckpoint('cli_bg_path');
     const {
       enableConfigs
     } = await import('../utils/config.js');
     enableConfigs();
+    const fleet = await import('../utils/agentsFleet.js');
+    if (!fleet.isAgentsFleetEnabled()) {
+      const operation = args[0] !== undefined && ['logs', 'attach', 'kill', 'respawn', 'rm'].includes(args[0])
+        ? args[0]
+        : (args.find(arg => arg === '--bg' || arg === '--background' || arg === '--routine' || arg.startsWith('--routine=')) ?? '--bg');
+      return fleet.fleetGateRejected(operation);
+    }
     const bg = await import('../cli/bg.js');
     switch (args[0]) {
-      case 'ps':
-        await bg.psHandler(args.slice(1));
-        break;
       case 'logs':
         await bg.logsHandler(args[1]);
         break;
@@ -202,23 +218,119 @@ async function main(): Promise<void> {
       case 'kill':
         await bg.killHandler(args[1]);
         break;
+      case 'respawn':
+      case 'rm': {
+        const [
+          { initializeAnalyticsSink },
+          { initialize1PEventLogging, shutdown1PEventLogging },
+          { shutdownDatadog },
+          { sleep },
+        ] = await Promise.all([
+          import('../services/analytics/sink.js'),
+          import('../services/analytics/firstPartyEventLogger.js'),
+          import('../services/analytics/datadog.js'),
+          import('../utils/sleep.js'),
+        ]);
+        initializeAnalyticsSink();
+        initialize1PEventLogging();
+        if (args[0] === 'respawn') await bg.respawnHandler(args[1]);
+        else await bg.rmHandler(args[1]);
+        await Promise.race([
+          Promise.all([shutdown1PEventLogging(), shutdownDatadog()]),
+          sleep(500, undefined, { unref: true }),
+        ]).catch(() => {});
+        // eslint-disable-next-line custom-rules/no-process-exit
+        process.exit(process.exitCode ?? 0);
+        break;
+      }
       default:
-        await bg.handleBgFlag(args);
+        {
+          const [
+            { initializeAnalyticsSink },
+            { initialize1PEventLogging, shutdown1PEventLogging },
+            { shutdownDatadog },
+            { logEvent },
+            { sleep },
+          ] = await Promise.all([
+            import('../services/analytics/sink.js'),
+            import('../services/analytics/firstPartyEventLogger.js'),
+            import('../services/analytics/datadog.js'),
+            import('../services/analytics/index.js'),
+            import('../utils/sleep.js'),
+          ]);
+          initializeAnalyticsSink();
+          initialize1PEventLogging();
+          logEvent('tengu_background', { via_flag: true, via: 'flag' });
+          await bg.handleBgFlag(args);
+          await Promise.race([
+            Promise.all([shutdown1PEventLogging(), shutdownDatadog()]),
+            sleep(500, undefined, { unref: true }),
+          ]).catch(() => {});
+          // eslint-disable-next-line custom-rules/no-process-exit
+          process.exit(0);
+        }
     }
     return;
   }
 
-  // Fast-path for template job commands.
-  if (feature('TEMPLATES') && (args[0] === 'new' || args[0] === 'list' || args[0] === 'reply')) {
-    profileCheckpoint('cli_templates_path');
+  // FleetView owns the interactive `claude agents` command. Debug-only flags
+  // remain accepted; any other option falls through to Commander for normal
+  // validation/help behavior.
+  const agentsArgsAreDebugOnly = (values: string[]): boolean => {
+    for (let index = 0; index < values.length; index++) {
+      const value = values[index];
+      if (value === '--debug' || value === '-d' || value === '--debug-to-stderr' || value === '-d2e' || value.startsWith('--debug=') || value.startsWith('--debug-file=')) continue;
+      if (value === '--debug-file' && index + 1 < values.length) {
+        index++;
+        continue;
+      }
+      return false;
+    }
+    return true;
+  };
+  if (feature('BG_SESSIONS') && args[0] === 'agents' && agentsArgsAreDebugOnly(args.slice(1)) && process.stdout.isTTY) {
     const {
-      templatesMain
-    } = await import('../cli/handlers/templateJobs.js');
-    await templatesMain(args);
-    // process.exit (not return) — mountFleetView's Ink TUI can leave event
-    // loop handles that prevent natural exit.
-    // eslint-disable-next-line custom-rules/no-process-exit
-    process.exit(0);
+      enableConfigs
+    } = await import('../utils/config.js');
+    enableConfigs();
+    const {
+      isAgentsFleetEnabled
+    } = await import('../utils/agentsFleet.js');
+    if (isAgentsFleetEnabled()) {
+      const [
+        { initializeErrorLogSink },
+        { initializeAnalyticsSink },
+        { initialize1PEventLogging },
+        { setupGracefulShutdown, gracefulShutdown },
+        { setIsInteractive },
+      ] = await Promise.all([
+        import('../utils/errorLogSink.js'),
+        import('../services/analytics/sink.js'),
+        import('../services/analytics/firstPartyEventLogger.js'),
+        import('../utils/gracefulShutdown.js'),
+        import('../bootstrap/state.js'),
+      ]);
+      initializeErrorLogSink();
+      initializeAnalyticsSink();
+      initialize1PEventLogging();
+      const {
+        logEvent
+      } = await import('../services/analytics/index.js');
+      logEvent('tengu_fleetview', {});
+      setIsInteractive(true);
+      setupGracefulShutdown();
+      const [
+        { mountFleetView },
+        { createRoot },
+      ] = await Promise.all([
+        import('../components/FleetView.js'),
+        import('../ink.js'),
+      ]);
+      const root = await createRoot({ exitOnCtrlC: false });
+      await mountFleetView(root);
+      await gracefulShutdown(0, 'other', { suppressResumeHint: true });
+      return;
+    }
   }
 
   // Fast-path for `claude environment-runner`: headless BYOC runner.

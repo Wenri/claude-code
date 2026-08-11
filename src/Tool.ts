@@ -29,6 +29,7 @@ import type {
   AgentDefinition,
   AgentDefinitionsResult,
 } from './tools/AgentTool/loadAgentsDir.js'
+import type { BashRerunAliases } from './tools/BashTool/rerun.js'
 import type {
   AssistantMessage,
   AttachmentMessage,
@@ -58,6 +59,8 @@ import type {
 } from './types/tools.js'
 import type { FileStateCache } from './utils/fileStateCache.js'
 import type { DenialTrackingState } from './utils/permissions/denialTracking.js'
+import type { ResultDedupState } from './services/tools/resultDedup.js'
+import type { ConnectionLifecycleTracker } from './services/api/connectionState.js'
 import type { SystemPrompt } from './utils/systemPromptType.js'
 import type { ContentReplacementState } from './utils/toolResultStorage.js'
 
@@ -177,18 +180,27 @@ export type ToolUseContext = {
     customSystemPrompt?: string
     /** Additional system prompt appended after the main system prompt */
     appendSystemPrompt?: string
+    /** Move per-machine default-prompt sections into the first user context. */
+    excludeDynamicSections?: boolean
     /** Custom workflow body for plan-mode reminders. */
     planModeInstructions?: string
     /** Override querySource for analytics tracking */
     querySource?: QuerySource
+    messageClientPlatform?: string
     /** Optional callback to get the latest tools (e.g., after MCP servers connect mid-query) */
     refreshTools?: () => Tools
+    /** Per-query API connection lifecycle and reliability telemetry. */
+    connection?: ConnectionLifecycleTracker
   }
   abortController: AbortController
   readFileState: FileStateCache
   getAppState(): AppState
   getToolPermissionContext(): ToolPermissionContext
   setAppState(f: (prev: AppState) => AppState): void
+  /** Per-session metadata transport used by SDK/CCR entrypoints. */
+  sessionState?: {
+    notifyMetadataChanged(metadata: Record<string, unknown>): void
+  }
   setReplContext(agentId: string, context: ReplContext | undefined): void
   replHydration?: ReplHydration
   isolationLatch?: ReplIsolationLatch
@@ -239,6 +251,8 @@ export type ToolUseContext = {
   dynamicSkillDirTriggers?: Set<string>
   /** Skill names surfaced via skill_discovery this session. Telemetry only (feeds was_discovered). */
   discoveredSkillNames?: Set<string>
+  /** Session-local aliases for exact Bash command reruns. */
+  bashRerunAliases?: BashRerunAliases
   userModified?: boolean
   setInProgressToolUseIDs: (f: (prev: Set<string>) => Set<string>) => void
   /** Only wired in interactive (REPL) contexts; SDK/QueryEngine don't set this. */
@@ -312,6 +326,13 @@ export type ToolUseContext = {
    * resumeAgentBackground threads one reconstructed from sidechain records.
    */
   contentReplacementState?: ContentReplacementState
+  /** Apply API context-hint clears to the rendered REPL transcript. */
+  applyHintClears?: (
+    clearedIds: Set<string>,
+    clearedContent?: Map<string, string>,
+  ) => void
+  /** Per-conversation identical tool-result tracking. */
+  resultDedupState?: ResultDedupState
   /**
    * Parent's rendered system prompt bytes, frozen at turn start.
    * Used by fork subagents to share the parent's prompt cache — re-calling

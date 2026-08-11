@@ -30,6 +30,7 @@ import type { MemoryType } from './memory/types.js'
 import { normalizePathForConfigKey } from './path.js'
 import { getEssentialTrafficOnlyReason } from './privacyLevel.js'
 import { getManagedFilePath } from './settings/managedPath.js'
+import { getSessionSettingsCache } from './settings/settingsCache.js'
 import type { ThemeSetting } from './theme.js'
 
 /* eslint-disable @typescript-eslint/no-require-imports */
@@ -71,7 +72,7 @@ export interface HistoryEntry {
   pastedContents: Record<number, PastedContent>
 }
 
-export type ReleaseChannel = 'stable' | 'latest'
+export type ReleaseChannel = 'stable' | 'latest' | 'rc'
 
 export type ProjectConfig = {
   allowedTools: string[]
@@ -172,6 +173,9 @@ export type AccountInfo = {
   billingType?: BillingType | null
   accountCreatedAt?: string
   subscriptionCreatedAt?: string
+  ccOnboardingFlags?: Record<string, boolean>
+  claudeCodeTrialEndsAt?: string | null
+  claudeCodeTrialDurationDays?: number | null
 }
 
 // TODO: 'emacs' is kept for backward compatibility - remove after a few releases
@@ -246,6 +250,7 @@ export type GlobalConfig = {
   externalEditorContext?: boolean // Include recent assistant output in the external prompt editor
   briefTranscript?: boolean // Persist the compact focus transcript view
   showTurnDuration: boolean // Controls whether to show turn duration message (e.g., "Cooked for 1m 6s")
+  showMessageTimestamps: boolean // Stamp assistant messages with their arrival time
   unpinOpus47LaunchEffort?: boolean // Whether the user has explicitly changed Opus 4.7's launch effort
   /**
    * @deprecated Use settings.env instead.
@@ -480,6 +485,13 @@ export type GlobalConfig = {
   // Fullscreen in-app text selection behavior
   copyOnSelect?: boolean // Auto-copy to clipboard on mouse-up (undefined → true; lets cmd+c "work" via no-op)
 
+  // Foreground conversation handoff into the Agents fleet.
+  leftArrowOpensAgents?: boolean
+
+  // Fleet view persistence and agent autocomplete recency.
+  fleetViewGroupMode?: 'directory' | 'state'
+  agentLastUsed?: Record<string, number>
+
   // GitHub repo path mapping for teleport directory switching
   // Key: "owner/repo" (lowercase), Value: array of absolute paths where repo is cloned
   githubRepoPaths?: Record<string, string[]>
@@ -561,6 +573,7 @@ export type GlobalConfig = {
   // Run Remote Control at startup (requires BRIDGE_MODE)
   // undefined = use default (see getRemoteControlAtStartup() for precedence)
   remoteControlAtStartup?: boolean
+  autoUploadSessions?: boolean
   hasUsedRemoteControl?: boolean
   remoteControlUpsellSeenCount?: number
   pushNotifUpsellSeenCount?: number
@@ -615,6 +628,7 @@ function createDefaultGlobalConfig(): GlobalConfig {
     externalEditorContext: false,
     briefTranscript: false,
     showTurnDuration: true,
+    showMessageTimestamps: false,
     hasSeenTasksHint: false,
     hasUsedStash: false,
     hasUsedBackgroundTask: false,
@@ -662,6 +676,7 @@ export const GLOBAL_CONFIG_KEYS = [
   'externalEditorContext',
   'briefTranscript',
   'showTurnDuration',
+  'showMessageTimestamps',
   'diffTool',
   'env',
   'tipsHistory',
@@ -684,9 +699,11 @@ export const GLOBAL_CONFIG_KEYS = [
   'lspRecommendationIgnoredCount',
   'copyFullResponse',
   'copyOnSelect',
+  'leftArrowOpensAgents',
   'permissionExplainerEnabled',
   'prStatusFooterEnabled',
   'remoteControlAtStartup',
+  'autoUploadSessions',
   'remoteDialogSeen',
 ] as const
 
@@ -783,6 +800,24 @@ export function isPathTrusted(dir: string): boolean {
     if (parentPath === currentPath) return false
     currentPath = parentPath
   }
+}
+
+/** Persist trust for an arbitrary directory selected by a daemon hub form. */
+export function setPathTrusted(dir: string): void {
+  const projectPath = normalizePathForConfigKey(resolve(dir))
+  saveGlobalConfig(config => {
+    if (config.projects?.[projectPath]?.hasTrustDialogAccepted) return config
+    return {
+      ...config,
+      projects: {
+        ...config.projects,
+        [projectPath]: {
+          ...(config.projects?.[projectPath] ?? DEFAULT_PROJECT_CONFIG),
+          hasTrustDialogAccepted: true,
+        },
+      },
+    }
+  })
 }
 
 // We have to put this test code here because Jest doesn't support mocking ES modules :O
@@ -1112,12 +1147,14 @@ export function getGlobalConfig(): GlobalConfig {
 
 /**
  * Returns the effective value of remoteControlAtStartup. Precedence:
- *   1. User's explicit config value (always wins — honors opt-out)
+ *   1. Effective settings value, then the legacy config value (honors opt-out)
  *   2. CCR auto-connect default (ant-only build, GrowthBook-gated)
  *   3. false (Remote Control must be explicitly opted into)
  */
 export function getRemoteControlAtStartup(): boolean {
-  const explicit = getGlobalConfig().remoteControlAtStartup
+  const explicit =
+    getSessionSettingsCache()?.settings.remoteControlAtStartup ??
+    getGlobalConfig().remoteControlAtStartup
   if (explicit !== undefined) return explicit
   if (feature('CCR_AUTO_CONNECT')) {
     if (ccrAutoConnect?.getCcrAutoConnectDefault()) return true

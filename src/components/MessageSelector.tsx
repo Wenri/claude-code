@@ -13,7 +13,7 @@ import { Box, Text } from '../ink.js';
 import { useKeybinding, useKeybindings } from '../keybindings/useKeybinding.js';
 import type { Message, PartialCompactDirection, UserMessage } from '../types/message.js';
 import { stripDisplayTags } from '../utils/displayTags.js';
-import { createUserMessage, extractTag, isEmptyMessageText, isSyntheticMessage, isToolUseResultMessage } from '../utils/messages.js';
+import { createUserMessage, extractTag, getUserMessageText, isEmptyMessageText, isSyntheticMessage, isToolUseResultMessage } from '../utils/messages.js';
 import { type OptionWithDescription, Select } from './CustomSelect/select.js';
 import { Spinner } from './Spinner.js';
 function isTextBlock(block: ContentBlockParam): block is TextBlockParam {
@@ -613,7 +613,7 @@ function UserMessageOption(t0) {
   if ($[3] !== color || $[4] !== columns || $[5] !== content || $[6] !== dimColor || $[7] !== lastBlock || $[8] !== paddingRight) {
     t6 = Symbol.for("react.early_return_sentinel");
     bb0: {
-      const rawMessageText = typeof content === "string" ? content.trim() : lastBlock && isTextBlock(lastBlock) ? lastBlock.text.trim() : "(no prompt)";
+      const rawMessageText = getUserMessageText(userMessage)?.trim() || "(no prompt)";
       const messageText = stripDisplayTags(rawMessageText);
       if (isEmptyMessageText(messageText)) {
         let t7;

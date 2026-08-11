@@ -50,6 +50,9 @@ const KITTY_FLAGS_RE = /^\x1b\[\?(\d+)u$/
 // Ctrl+F3 = CSI 1;5 R, etc.) — plain CSI row;col R is genuinely ambiguous.
 // eslint-disable-next-line no-control-regex
 const CURSOR_POSITION_RE = /^\x1b\[\?(\d+);(\d+)R$/
+// Terminal theme notification: CSI ? 997 ; 1 n (dark) / 2 n (light)
+// eslint-disable-next-line no-control-regex
+const THEME_NOTIFY_RE = /^\x1b\[\?997;([12])n$/
 // OSC response: OSC code ; data (BEL|ST)
 // eslint-disable-next-line no-control-regex
 const OSC_RESPONSE_RE = /^\x1b\](\d+);(.*?)(?:\x07|\x1b\\)$/s
@@ -99,6 +102,26 @@ function createPasteKey(content: string): ParsedKey {
   }
 }
 
+/**
+ * Kitty keyboard and modifyOtherKeys sequences can appear inside bracketed
+ * paste when a terminal encodes pasted control characters (notably newlines)
+ * as key events. Decode their codepoint so pasted text stays literal.
+ */
+function decodePastedKeySequence(sequence: string): string {
+  let match = CSI_U_RE.exec(sequence)
+  let codepoint = match ? parseInt(match[1]!, 10) : undefined
+
+  if (codepoint === undefined && (match = MODIFY_OTHER_KEYS_RE.exec(sequence))) {
+    codepoint = parseInt(match[2]!, 10)
+  }
+
+  if (codepoint !== undefined && codepoint <= 0x10ffff) {
+    return String.fromCodePoint(codepoint)
+  }
+
+  return sequence
+}
+
 /** DECRPM status values (response to DECRQM) */
 export const DECRPM_STATUS = {
   NOT_RECOGNIZED: 0,
@@ -123,6 +146,8 @@ export type TerminalResponse =
   | { type: 'kittyKeyboard'; flags: number }
   /** DSR: cursor position report (answer to CSI 6 n) */
   | { type: 'cursorPosition'; row: number; col: number }
+  /** Terminal background theme changed (DEC mode 2031 notification). */
+  | { type: 'themeNotify'; dark: boolean }
   /** OSC response: generic operating-system-command reply (e.g. OSC 11 bg color) */
   | { type: 'osc'; code: number; data: string }
   /** XTVERSION: terminal name/version string (answer to CSI > 0 q).
@@ -169,6 +194,10 @@ function parseTerminalResponse(s: string): TerminalResponse | null {
         row: parseInt(m[1]!, 10),
         col: parseInt(m[2]!, 10),
       }
+    }
+
+    if ((m = THEME_NOTIFY_RE.exec(s))) {
+      return { type: 'themeNotify', dark: m[1] === '1' }
     }
 
     return null
@@ -261,7 +290,7 @@ export function parseMultipleKeypresses(
         pasteBuffer = ''
       } else if (inPaste) {
         // Sequences inside paste are treated as literal text
-        pasteBuffer += token.value
+        pasteBuffer += decodePastedKeySequence(token.value)
       } else {
         const response = parseTerminalResponse(token.value)
         if (response) {

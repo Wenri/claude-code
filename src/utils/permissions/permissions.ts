@@ -9,7 +9,6 @@ import type { Tool, ToolPermissionContext, ToolUseContext } from '../../Tool.js'
 import { AGENT_TOOL_NAME } from '../../tools/AgentTool/constants.js'
 import { shouldUseSandbox } from '../../tools/BashTool/shouldUseSandbox.js'
 import { BASH_TOOL_NAME } from '../../tools/BashTool/toolName.js'
-import { POWERSHELL_TOOL_NAME } from '../../tools/PowerShellTool/toolName.js'
 import { REPL_TOOL_NAME } from '../../tools/REPLTool/constants.js'
 import type { AssistantMessage } from '../../types/message.js'
 import { extractOutputRedirections } from '../bash/commands.js'
@@ -574,39 +573,6 @@ export const hasPermissionsToUseTool: CanUseToolFn = async (
         context.localDenialTracking ??
         appState.denialTracking ??
         createDenialTrackingState()
-
-      // PowerShell requires explicit user permission in auto mode unless
-      // POWERSHELL_AUTO_MODE (ant-only build flag) is on. When disabled, this
-      // guard keeps PS out of the classifier and skips the acceptEdits
-      // fast-path below. When enabled, PS flows through to the classifier like
-      // Bash — the classifier prompt gets POWERSHELL_DENY_GUIDANCE appended so
-      // it recognizes `iex (iwr ...)` as download-and-execute, etc.
-      // Note: this runs inside the behavior === 'ask' branch, so allow rules
-      // that fire earlier (step 2b toolAlwaysAllowedRule, PS prefix allow)
-      // return before reaching here. Allow-rule protection is handled by
-      // permissionSetup.ts: isOverlyBroadPowerShellAllowRule strips PowerShell(*)
-      // and isDangerousPowerShellPermission strips iex/pwsh/Start-Process
-      // prefix rules for ant users and auto mode entry.
-      if (
-        tool.name === POWERSHELL_TOOL_NAME &&
-        !feature('POWERSHELL_AUTO_MODE')
-      ) {
-        if (appState.toolPermissionContext.shouldAvoidPermissionPrompts) {
-          return {
-            behavior: 'deny',
-            message: 'PowerShell tool requires interactive approval',
-            decisionReason: {
-              type: 'asyncAgent',
-              reason:
-                'PowerShell tool requires interactive approval and permission prompts are not available in this context',
-            },
-          }
-        }
-        logForDebugging(
-          `Skipping auto mode classifier for ${tool.name}: tool requires explicit user permission`,
-        )
-        return result
-      }
 
       // Before running the auto mode classifier, check if acceptEdits mode would
       // allow this action. This avoids expensive classifier API calls for safe

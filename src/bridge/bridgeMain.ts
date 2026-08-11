@@ -542,6 +542,7 @@ export async function runBridgeLoop(
             wt.worktreeBranch,
             wt.gitRoot,
             wt.hookBased,
+            'bridge',
           ).catch((err: unknown) =>
             logger.logVerbose(
               `Failed to remove worktree ${wt.worktreePath}: ${errorMessage(err)}`,
@@ -1073,6 +1074,7 @@ export async function runBridgeLoop(
                   wt.worktreeBranch,
                   wt.gitRoot,
                   wt.hookBased,
+                  'bridge',
                 ).catch((err: unknown) =>
                   logger.logVerbose(
                     `Failed to remove worktree ${wt.worktreePath}: ${errorMessage(err)}`,
@@ -1486,6 +1488,7 @@ export async function runBridgeLoop(
             wt.worktreeBranch,
             wt.gitRoot,
             wt.hookBased,
+            'bridge',
           ),
         ),
       )

@@ -24,6 +24,7 @@ import sharedManagedAgentsClientPatterns from './claude-api/shared/managed-agent
 import sharedManagedAgentsCore from './claude-api/shared/managed-agents-core.md'
 import sharedManagedAgentsEnvironments from './claude-api/shared/managed-agents-environments.md'
 import sharedManagedAgentsEvents from './claude-api/shared/managed-agents-events.md'
+import sharedManagedAgentsMemory from './claude-api/shared/managed-agents-memory.md'
 import sharedManagedAgentsOnboarding from './claude-api/shared/managed-agents-onboarding.md'
 import sharedManagedAgentsOverview from './claude-api/shared/managed-agents-overview.md'
 import sharedManagedAgentsTools from './claude-api/shared/managed-agents-tools.md'
@@ -79,6 +80,7 @@ export const SKILL_FILES: Record<string, string> = {
   'shared/managed-agents-core.md': sharedManagedAgentsCore,
   'shared/managed-agents-environments.md': sharedManagedAgentsEnvironments,
   'shared/managed-agents-events.md': sharedManagedAgentsEvents,
+  'shared/managed-agents-memory.md': sharedManagedAgentsMemory,
   'shared/managed-agents-onboarding.md': sharedManagedAgentsOnboarding,
   'shared/managed-agents-overview.md': sharedManagedAgentsOverview,
   'shared/managed-agents-tools.md': sharedManagedAgentsTools,

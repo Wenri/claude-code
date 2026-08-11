@@ -43,9 +43,12 @@ function convertAssistantMessage(msg: SDKAssistantMessage): AssistantMessage {
  * Convert an SDKPartialAssistantMessage (streaming) to a StreamEvent
  */
 function convertStreamEvent(msg: SDKPartialAssistantMessage): StreamEvent {
+  const ttftMs = (msg as SDKPartialAssistantMessage & { ttft_ms?: number })
+    .ttft_ms
   return {
     type: 'stream_event',
     event: msg.event,
+    ...(ttftMs !== undefined && { ttftMs }),
   }
 }
 
@@ -119,6 +122,28 @@ function convertToolProgressMessage(
     uuid: msg.uuid,
     timestamp: new Date().toISOString(),
     toolUseID: msg.tool_use_id,
+  }
+}
+
+const POST_TURN_STATUS_LABELS: Record<string, string> = {
+  blocked: 'Blocked',
+  completed: 'Completed',
+  review_ready: 'Ready for review',
+  failed: 'Failed',
+}
+
+function convertPostTurnSummaryMessage(msg: {
+  status_category: string
+  status_detail: string
+  uuid: string
+}): SystemMessage {
+  return {
+    type: 'system',
+    subtype: 'informational',
+    content: `${POST_TURN_STATUS_LABELS[msg.status_category] ?? msg.status_category}: ${msg.status_detail}`,
+    level: msg.status_category === 'blocked' ? 'warning' : 'info',
+    uuid: msg.uuid,
+    timestamp: new Date().toISOString(),
   }
 }
 
@@ -230,6 +255,12 @@ export function convertSDKMessage(
         return { type: 'message', message: convertInitMessage(msg) }
       }
       if (msg.subtype === 'status') {
+        if (msg.status === 'requesting') {
+          return {
+            type: 'stream_event',
+            event: { type: 'stream_request_start' },
+          }
+        }
         const statusMsg = convertStatusMessage(msg)
         return statusMsg
           ? { type: 'message', message: statusMsg }
@@ -239,6 +270,12 @@ export function convertSDKMessage(
         return {
           type: 'message',
           message: convertCompactBoundaryMessage(msg),
+        }
+      }
+      if (msg.subtype === 'post_turn_summary') {
+        return {
+          type: 'message',
+          message: convertPostTurnSummaryMessage(msg),
         }
       }
       // hook_response and other subtypes

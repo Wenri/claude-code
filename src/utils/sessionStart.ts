@@ -9,6 +9,7 @@ import { shouldAllowManagedHooksOnly } from './hooks/hooksConfigSnapshot.js'
 import { executeSessionStartHooks, executeSetupHooks } from './hooks.js'
 import { logError } from './log.js'
 import { loadPluginHooks } from './plugins/loadPluginHooks.js'
+import { getManagedPluginNames } from './plugins/managedPlugins.js'
 
 type SessionStartHooksOptions = {
   sessionId?: string
@@ -53,8 +54,10 @@ export async function processSessionStartHooks(
 
   // Skip loading plugin hooks if restricted to managed hooks only
   // Plugin hooks are untrusted external code that should be blocked by policy
-  if (shouldAllowManagedHooksOnly()) {
-    logForDebugging('Skipping plugin hooks - allowManagedHooksOnly is enabled')
+  if (shouldAllowManagedHooksOnly() && getManagedPluginNames() === null) {
+    logForDebugging(
+      'Skipping plugin hooks - allowManagedHooksOnly is enabled and no managed plugins',
+    )
   } else {
     // Ensure plugin hooks are loaded before executing SessionStart hooks.
     // loadPluginHooks() may be called early during startup (fire-and-forget, non-blocking)
@@ -185,8 +188,10 @@ export async function processSetupHooks(
   const hookMessages: HookResultMessage[] = []
   const additionalContexts: string[] = []
 
-  if (shouldAllowManagedHooksOnly()) {
-    logForDebugging('Skipping plugin hooks - allowManagedHooksOnly is enabled')
+  if (shouldAllowManagedHooksOnly() && getManagedPluginNames() === null) {
+    logForDebugging(
+      'Skipping plugin hooks - allowManagedHooksOnly is enabled and no managed plugins',
+    )
   } else {
     try {
       await loadPluginHooks()

@@ -21,6 +21,7 @@ import {
 } from './mcpbHandler.js'
 import { getPluginDataDir } from './pluginDirectories.js'
 import {
+  applyPluginOptionDefaults,
   getPluginStorageId,
   loadPluginOptions,
   substitutePluginVariables,
@@ -318,23 +319,6 @@ export function getUnconfiguredChannels(
 }
 
 /**
- * Look up saved user config for a server, if this server is declared as a
- * channel in the plugin's manifest. Returns undefined for non-channel servers
- * or channels without a userConfig schema — resolvePluginMcpEnvironment will
- * then skip ${user_config.X} substitution for that server.
- */
-function loadChannelUserConfig(
-  plugin: LoadedPlugin,
-  serverName: string,
-): UserConfigValues | undefined {
-  const channel = plugin.manifest.channels?.find(c => c.server === serverName)
-  if (!channel?.userConfig) {
-    return undefined
-  }
-  return loadMcpServerUserConfig(plugin.repository, serverName) ?? undefined
-}
-
-/**
  * Add plugin scope to MCP server configs
  * This adds a prefix to server names to avoid conflicts between plugins
  */
@@ -441,20 +425,23 @@ function buildMcpUserConfig(
   plugin: LoadedPlugin,
   serverName: string,
 ): UserConfigValues | undefined {
-  // Gate on manifest.userConfig. loadPluginOptions always returns at least {}
-  // (it spreads two `?? {}` fallbacks), so without this guard topLevel is never
-  // undefined — the `!topLevel` check below is dead, we return {} for
-  // unconfigured plugins, and resolvePluginMcpEnvironment runs
-  // substituteUserConfigVariables against an empty map → throws on any
-  // ${user_config.X} ref. The manifest check also skips the unconditional
-  // keychain read (~50-100ms on macOS) for plugins that don't use options.
-  const topLevel = plugin.manifest.userConfig
+  const topLevelSchema = plugin.manifest.userConfig
+  const channelSchema = plugin.manifest.channels?.find(
+    channel => channel.server === serverName,
+  )?.userConfig
+  if (!topLevelSchema && !channelSchema) return undefined
+
+  const topLevel = topLevelSchema
     ? loadPluginOptions(getPluginStorageId(plugin))
     : undefined
-  const channelSpecific = loadChannelUserConfig(plugin, serverName)
+  const channelSpecific = channelSchema
+    ? (loadMcpServerUserConfig(plugin.repository, serverName) ?? undefined)
+    : undefined
 
-  if (!topLevel && !channelSpecific) return undefined
-  return { ...topLevel, ...channelSpecific }
+  return applyPluginOptionDefaults(
+    { ...topLevel, ...channelSpecific },
+    { ...topLevelSchema, ...channelSchema },
+  )
 }
 
 /**

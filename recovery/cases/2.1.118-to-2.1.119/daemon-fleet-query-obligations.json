@@ -1,0 +1,358 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.118-to-2.1.119",
+  "scope": "Authenticated daemon, background-agent, FleetView, query, and assistant source recovery",
+  "artifacts": {
+    "baseline": {
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa"
+    },
+    "target": {
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef"
+    },
+    "normalizedTarget": "/home/coder/.cache/claude-code-recovery/preflight-2.1.118-to-2.1.119/generated/readable-diff/target.normalized.js"
+  },
+  "tests": {
+    "daemon.authenticated": "recovery/test/recovery-2.1.119-daemon-fleet-query.test.mjs :: authenticated fragments",
+    "daemon.telemetry": "recovery/test/recovery-2.1.119-daemon-fleet-query.test.mjs :: exact active telemetry-call counts",
+    "daemon.runtime": "recovery/test/recovery-2.1.119-daemon-fleet-query.test.mjs :: daemon/auth/worker/schedule/UDS runtime",
+    "daemon.fleet": "recovery/test/recovery-2.1.119-daemon-fleet-query.test.mjs :: Fleet/bg/name/version runtime",
+    "daemon.query": "recovery/test/recovery-2.1.119-daemon-fleet-query.test.mjs :: classifier/context/dedup/connection runtime",
+    "daemon.assistant": "recovery/test/recovery-2.1.119-daemon-fleet-query.test.mjs :: exact assistant scaffold bytes"
+  },
+  "obligations": [
+    {
+      "id": "DFQ-001-daemon-auth-lifecycle",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "daemon-auth-status.json",
+        "baselineCount": 0,
+        "targetCount": 1,
+        "normalized": "25840-25845"
+      },
+      "source": [
+        { "path": "src/daemon/auth.ts", "fragment": "keychain polling, proactive refresh, 401 recovery, cooldown/status and worker broadcasts" },
+        { "path": "src/daemon/workerRegistry.ts", "fragment": "auth IPC request/result and direct-auth fallback" },
+        { "path": "src/daemon/main.ts", "fragment": "auth-ready supervisor/worker startup ordering" }
+      ],
+      "testIds": ["daemon.authenticated", "daemon.runtime"]
+    },
+    {
+      "id": "DFQ-002-configured-scheduled-workers",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "scheduled worker started tasks=",
+        "baselineCount": 0,
+        "targetCount": 1,
+        "normalized": "25803-25830, 28255-28266"
+      },
+      "source": [
+        { "path": "src/daemon/config.ts", "fragment": "interval/cron parsing plus scheduled/assistant/remote-control config mutation" },
+        { "path": "src/daemon/workerRegistry.ts", "fragment": "exact scheduled/assistant/remote-control worker factories" },
+        { "path": "src/entrypoints/agentSdk.ts", "fragment": "SDK query subprocess runtime" },
+        { "path": "src/daemon/main.ts", "fragment": "managed-worker status, restart, config watch, executable re-resolution" }
+      ],
+      "testIds": ["daemon.runtime", "daemon.telemetry"]
+    },
+    {
+      "id": "DFQ-003-background-supervisor-and-client",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "CLAUDE_CODE_RESUME_INTERRUPTED_TURN",
+        "baselineCount": 1,
+        "targetCount": 2,
+        "normalized": "26305-26400, 28218-28234"
+      },
+      "source": [
+        { "path": "src/daemon/supervisor.ts", "fragment": "transcript validation, PTY respawn/adoption/liveness, repaint buffering, dispatch watcher and runtime cleanup" },
+        { "path": "src/daemon/client.ts", "fragment": "stable launcher, OAuth scrub, roster fallback, common orphan-aware kill" },
+        { "path": "src/cli/bg.ts", "fragment": "direct attach/reconnect terminal lifecycle and spawn/respawn/delete paths" },
+        { "path": "src/utils/transcriptValidation.ts", "fragment": "message-bearing JSONL validation" }
+      ],
+      "testIds": ["daemon.runtime", "daemon.fleet", "daemon.telemetry"]
+    },
+    {
+      "id": "DFQ-004-daemon-lock-reload-shutdown",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "tengu_daemon_self_restart_on_upgrade",
+        "baselineCount": 0,
+        "targetCount": 2,
+        "normalized": "21707, 28266"
+      },
+      "source": [
+        { "path": "src/daemon/lock.ts", "fragment": "process identity and daemon-version checks" },
+        { "path": "src/daemon/main.ts", "fragment": "PID-reuse-safe lock race, hot reload, self restart, status persistence and idle kill ordering" },
+        { "path": "src/daemon/service.ts", "fragment": "stable service executable" }
+      ],
+      "testIds": ["daemon.runtime", "daemon.telemetry"]
+    },
+    {
+      "id": "DFQ-005-fleetview-activation",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": ".fleetview-heartbeat",
+        "baselineCount": 0,
+        "targetCount": 1,
+        "normalized": "26038-26051, 28362-28440"
+      },
+      "source": [
+        { "path": "src/components/FleetView.tsx", "fragment": "grouping/detail/editor/autocomplete/prewarm/dispatch/reply/rename/pin/stop/delete/remount and terminal lifecycle" },
+        { "path": "src/utils/agentsFleet.ts", "fragment": "Fleet helpers and background summary" },
+        { "path": "src/utils/concurrentSessions.ts", "fragment": "Fleet heartbeat and live-session status" },
+        { "path": "src/cli/handlers/templateJobs.ts", "fragment": "prewarm, claim, dispatch, respawn and reply" },
+        { "path": "src/screens/REPL.tsx", "fragment": "left-arrow persistence/task guards and Fleet mount" }
+      ],
+      "testIds": ["daemon.authenticated", "daemon.fleet", "daemon.telemetry"]
+    },
+    {
+      "id": "DFQ-006-fleet-remote-and-name-sync",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "jobStateNameSync",
+        "baselineCount": 0,
+        "targetCount": 1,
+        "normalized": "30025-30030"
+      },
+      "source": [
+        { "path": "src/hooks/useJobStateNameSync.ts", "fragment": "state-file and global callback name synchronization" },
+        { "path": "src/components/FleetView.tsx", "fragment": "remote slug grouping, peer rename/control and live status" },
+        { "path": "src/utils/udsClient.ts", "fragment": "peer session discovery and bounded UDS control sends" }
+      ],
+      "testIds": ["daemon.authenticated", "daemon.fleet"]
+    },
+    {
+      "id": "DFQ-007-remote-binary-version",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "get_binary_version",
+        "baselineCount": 0,
+        "targetCount": 3,
+        "normalized": "24839-24842, 30077-30078"
+      },
+      "source": [
+        { "path": "src/commands/version.ts", "fragment": "thin-client and remote-container version dialog" },
+        { "path": "src/entrypoints/sdk/controlSchemas.ts", "fragment": "request/response schemas" },
+        { "path": "src/cli/print.ts", "fragment": "binary version control response" }
+      ],
+      "testIds": ["daemon.authenticated", "daemon.fleet"]
+    },
+    {
+      "id": "DFQ-008-classifier-and-task-summary",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "subtype:\"task_summary\"",
+        "baselineCount": 0,
+        "targetCount": 1,
+        "normalized": "18324-18343, 30086"
+      },
+      "source": [
+        { "path": "src/jobs/classifier.ts", "fragment": "serialized cached classification, blocked-state preservation and state re-read" },
+        { "path": "src/utils/taskSummary.ts", "fragment": "watched/CCR/bridge/repl surface engine" },
+        { "path": "src/query.ts", "fragment": "turn activity integration" },
+        { "path": "src/query/stopHooks.ts", "fragment": "post-turn classifier and task-summary flow" },
+        { "path": "src/utils/sessionState.ts", "fragment": "task-summary metadata lifecycle" },
+        { "path": "src/entrypoints/sdk/coreSchemas.ts", "fragment": "exact summary schemas" }
+      ],
+      "testIds": ["daemon.authenticated", "daemon.query"]
+    },
+    {
+      "id": "DFQ-009-context-hint-and-result-dedup",
+      "classification": "inherited",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "onHintCleared",
+        "baselineCount": 3,
+        "targetCount": 3,
+        "normalized": "18366"
+      },
+      "source": [
+        { "path": "src/query.ts", "fragment": "apply clears, invalidate Read paths, reset dedup and replace query messages" },
+        { "path": "src/services/compact/contextHint.ts", "fragment": "hint controller" },
+        { "path": "src/services/compact/microCompact.ts", "fragment": "tool-result clear transforms" },
+        { "path": "src/services/tools/resultDedup.ts", "fragment": "dedup state reconstruction/reset" },
+        { "path": "src/screens/REPL.tsx", "fragment": "UI clear and dedup-state wiring" }
+      ],
+      "testIds": ["daemon.query"]
+    },
+    {
+      "id": "DFQ-010-connection-lifecycle",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "ms_in_connecting",
+        "baselineCount": 0,
+        "targetCount": 1,
+        "normalized": "29954, 30336"
+      },
+      "source": [
+        { "path": "src/services/api/connectionState.ts", "fragment": "idle/connecting/streaming/degraded/offline/failed tracker and summary" },
+        { "path": "src/services/api/claude.ts", "fragment": "sending/receiving/retrying/completed/failed updates" },
+        { "path": "src/screens/REPL.tsx", "fragment": "per-query tracker construction" }
+      ],
+      "testIds": ["daemon.authenticated", "daemon.query"]
+    },
+    {
+      "id": "DFQ-011-assistant-scaffold-and-retained-installer",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "tengu_assistant_install",
+        "baselineCount": 0,
+        "targetCount": 1,
+        "normalized": "11232-11272, 25818-25819, 26036"
+      },
+      "source": [
+        { "path": "src/assistant/install.ts", "fragment": "six byte-exact scaffold assets, settings diagnostics and installation" },
+        { "path": "src/daemon/hub.tsx", "fragment": "target-retained installer form and install telemetry; canonical Linux hub has no assistant tab transition" },
+        { "path": "src/daemon/config.ts", "fragment": "assistant persistence" }
+      ],
+      "notes": "The target retains assistant detail/form code but loads assistants as Promise.resolve([]) and mounts only scheduled and remote-control tabs on canonical Linux.",
+      "testIds": ["daemon.runtime", "daemon.assistant"]
+    },
+    {
+      "id": "DFQ-012-uds-transport",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "Timed out sending to ",
+        "baselineCount": 0,
+        "targetCount": 1,
+        "normalized": "14918-14933"
+      },
+      "source": [
+        { "path": "src/utils/udsClient.ts", "fragment": "5-second send timeout, exact cross-session envelope, control and peer discovery" }
+      ],
+      "testIds": ["daemon.authenticated", "daemon.runtime"]
+    },
+    {
+      "id": "DFQ-013-performance-markers",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "[PERF:bg-{attach,dispatch,claim,remount,spare}-*]",
+        "baselineCounts": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "targetCounts": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        "normalized": "Fleet/background activation functions"
+      },
+      "source": [
+        { "path": "src/cli/bg.ts", "fragment": "attach start/end" },
+        { "path": "src/cli/handlers/templateJobs.ts", "fragment": "dispatch/claim/spare markers" },
+        { "path": "src/components/FleetView.tsx", "fragment": "remount start/end markers" }
+      ],
+      "testIds": ["daemon.fleet"]
+    },
+    {
+      "id": "DFQ-014-daemon-cli-gate",
+      "classification": "adjacent",
+      "status": "authenticated_inert",
+      "target": {
+        "fragment": "isDaemonCliEnabled",
+        "normalized": "21381 qqH returns false in the canonical Linux-x64 target"
+      },
+      "source": [
+        { "path": "src/utils/agentsFleet.ts", "fragment": "matching disabled management-command gate" },
+        { "path": "src/daemon/main.ts", "fragment": "run remains active while management subcommands honor the gate" }
+      ],
+      "notes": "Status/doctor/hub management copy behind this constant-false gate is authenticated DCE in the target artifact; active daemon run and background-agent paths are recovered above.",
+      "testIds": ["daemon.authenticated", "daemon.runtime"]
+    },
+    {
+      "id": "DFQ-015-telemetry-call-sites",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "28 active tengu_bg_* and tengu_daemon_* event names",
+        "normalized": "exact target/source runtime-call table in DAEMON_EVENT_COUNTS"
+      },
+      "source": [
+        { "path": "src/daemon", "fragment": "daemon, client, PTY, and supervisor runtime event calls" },
+        { "path": "src/jobs", "fragment": "classifier/background event calls" },
+        { "path": "src/cli", "fragment": "background CLI and template-job event calls" },
+        { "path": "src/commands/exit", "fragment": "background exit event calls" },
+        { "path": "src/components/FleetView.tsx", "fragment": "Fleet action event calls" }
+      ],
+      "notes": "tengu_daemon_auto_uninstall and tengu_daemon_lease are allowlist-only target strings with zero active calls.",
+      "testIds": ["daemon.telemetry"]
+    },
+    {
+      "id": "DFQ-016-hub-and-fleet-residual-lifecycle",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "Remove task? / Remove server? / Fleet peer pin and follow re-pin",
+        "baselineCounts": [0, 0, 0, 0],
+        "targetCounts": [1, 1, 1, 1],
+        "normalized": "26040-26059, 28430-28432"
+      },
+      "source": [
+        { "path": "src/daemon/hub.tsx", "fragment": "managed-worker status, scheduled/remote confirmations and result messages, auto id/name, canonical model choices and trust flow" },
+        { "path": "src/components/FleetView.tsx", "fragment": "peer pin guard, exact empty intro, job/header follow selection across poll and regroup" }
+      ],
+      "testIds": ["daemon.authenticated", "daemon.runtime", "daemon.fleet"]
+    },
+    {
+      "id": "DFQ-017-attach-recap-trigger",
+      "classification": "adjacent",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "recap.trigger",
+        "baselineCounts": [0],
+        "targetCounts": [1],
+        "normalized": "26323, 26327, 30021-30023"
+      },
+      "source": [
+        { "path": "src/cli/bg.ts", "fragment": "Fleet attach writes the one-shot job recap trigger" },
+        { "path": "src/hooks/useAwaySummary.ts", "fragment": "background session polls every 500ms, preserves while loading, unlinks atomically, and force-generates" }
+      ],
+      "testIds": ["daemon.authenticated", "daemon.fleet"]
+    },
+    {
+      "id": "DFQ-018-away-summary-canonical-runtime",
+      "classification": "inherited",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "[awaySummary] skipped: cache stale / tengu_return_to_session / Away summary cannot use tools",
+        "baselineCounts": [1, 1, 1],
+        "targetCounts": [1, 1, 1],
+        "normalized": "13672-13674, 30018-30024"
+      },
+      "source": [
+        { "path": "src/hooks/useAwaySummary.ts", "fragment": "cache-TTL scheduling, eligibility, draft/latest guards, recap placement, return telemetry, and bg force trigger" },
+        { "path": "src/services/awaySummary.ts", "fragment": "saved CacheSafeParams tool-denied fork with exact prompt and ephemeral execution settings" },
+        { "path": "src/screens/REPL.tsx", "fragment": "scroll/draft references and remote-session enable gate" },
+        { "path": "src/commands/recap/recap.ts", "fragment": "canonical signal-only recap service call" }
+      ],
+      "testIds": ["daemon.authenticated", "daemon.fleet"]
+    },
+    {
+      "id": "DFQ-019-stop-hook-and-queue-enforcement",
+      "classification": "inherited",
+      "status": "implemented_verified",
+      "target": {
+        "fragment": "brief-mode-enforce / Stop hook error occurred / SDK loop notification",
+        "baselineCounts": [1, 2, 1],
+        "targetCounts": [1, 2, 1],
+        "normalized": "12197, 18351"
+      },
+      "source": [
+        { "path": "src/query/stopHooks.ts", "fragment": "Brief/SendUserMessage enforcement, session-state metadata, SDK stop-hook notification, and teammate context" },
+        { "path": "src/utils/hooks.ts", "fragment": "TeammateIdle ToolUseContext plumbing" },
+        { "path": "src/utils/sdkEventQueue.ts", "fragment": "notification event queue type" },
+        { "path": "src/entrypoints/sdk/coreSchemas.ts", "fragment": "SDK notification schema and message union" },
+        { "path": "src/query.ts", "fragment": "always drains max-priority next commands before attachments and agent filtering" },
+        { "path": "src/tools/BriefTool/prompt.ts", "fragment": "exact BRIEF_ENFORCE_SENTINEL" }
+      ],
+      "testIds": ["daemon.authenticated", "daemon.query"]
+    }
+  ]
+}

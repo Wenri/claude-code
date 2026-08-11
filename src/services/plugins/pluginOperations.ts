@@ -17,7 +17,7 @@ import { getOriginalCwd } from '../../bootstrap/state.js'
 import { isBuiltinPluginId } from '../../plugins/builtinPlugins.js'
 import type { LoadedPlugin, PluginManifest } from '../../types/plugin.js'
 import { logForDebugging } from '../../utils/debug.js'
-import { isENOENT, toError } from '../../utils/errors.js'
+import { errorMessage, isENOENT, toError } from '../../utils/errors.js'
 import { getFsImplementation } from '../../utils/fsOperations.js'
 import { logError } from '../../utils/log.js'
 import {
@@ -30,10 +30,12 @@ import {
   formatConstraintIntersectionError,
   formatNoMatchingTagError,
   formatReverseDependentsSuffix,
+  intersectConstraints,
 } from '../../utils/plugins/dependencyResolver.js'
 import {
   loadInstalledPluginsFromDisk,
   loadInstalledPluginsV2,
+  markPluginInstalledManually,
   removePluginInstallation,
   updateInstallationPathOnDisk,
 } from '../../utils/plugins/installedPluginsManager.js'
@@ -41,6 +43,7 @@ import {
   getMarketplace,
   getPluginById,
   loadKnownMarketplacesConfig,
+  refreshMarketplace,
 } from '../../utils/plugins/marketplaceManager.js'
 import { isSourceAllowedByPolicy } from '../../utils/plugins/marketplaceHelpers.js'
 import { deletePluginDataDir } from '../../utils/plugins/pluginDirectories.js'
@@ -65,7 +68,12 @@ import {
 import { deletePluginOptions } from '../../utils/plugins/pluginOptionsStorage.js'
 import { isPluginBlockedByPolicy } from '../../utils/plugins/pluginPolicy.js'
 import { getPluginEditableScopes } from '../../utils/plugins/pluginStartupCheck.js'
-import { calculatePluginVersion } from '../../utils/plugins/pluginVersioning.js'
+import {
+  calculatePluginVersion,
+  getGitUrlForVersionResolution,
+  type ResolvedGitTag,
+  resolveVersionRange,
+} from '../../utils/plugins/pluginVersioning.js'
 import type {
   PluginMarketplaceEntry,
   PluginScope,
@@ -391,11 +399,16 @@ export async function installPluginOp(
         error.type !== 'dependency-unsatisfied' || error.reason !== 'not-found',
     )
     if (!needsReinstall) {
+      const markedManual = markPluginInstalledManually(
+        pluginId,
+        scope,
+        getProjectPathForScope(scope),
+      )
       const dependencyRecovery =
         await recoverInstalledPluginDependencies(pluginId)
       return {
         success: true,
-        message: `Plugin "${pluginId}" is already installed (scope: ${scope})${dependencyRecovery?.suffix ?? ''}`,
+        message: `Plugin "${pluginId}" is already installed (scope: ${scope})${markedManual ? ' — marked as manually installed' : ''}${dependencyRecovery?.suffix ?? ''}`,
         pluginId,
         pluginName: entry.name,
         scope,
@@ -896,6 +909,7 @@ export async function updatePluginOp(
   const { name: pluginName, marketplace: marketplaceName } =
     parsePluginIdentifier(plugin)
   const pluginId = marketplaceName ? `${pluginName}@${marketplaceName}` : plugin
+  let refreshWarning: string | undefined
 
   if (marketplaceName) {
     const marketplace = (await loadKnownMarketplacesConfig())[marketplaceName]
@@ -905,6 +919,24 @@ export async function updatePluginOp(
         message: `Marketplace "${marketplaceName}" is blocked by enterprise policy`,
         pluginId,
         scope,
+      }
+    }
+    if (
+      marketplace &&
+      (marketplace.source.source === 'github' ||
+        marketplace.source.source === 'git' ||
+        marketplace.source.source === 'url')
+    ) {
+      try {
+        await refreshMarketplace(marketplaceName, undefined, {
+          skipIfRecent: true,
+        })
+      } catch (error) {
+        refreshWarning = `marketplace not refreshed (${errorMessage(error)})`
+        logForDebugging(
+          `Failed to refresh marketplace '${marketplaceName}' before update; using cached data: ${errorMessage(error)}`,
+          { level: 'warn' },
+        )
       }
     }
   }
@@ -968,6 +1000,7 @@ export async function updatePluginOp(
     installation,
     scope,
     projectPath: installation.projectPath,
+    refreshWarning,
   })
 }
 
@@ -983,17 +1016,83 @@ async function performPluginUpdate({
   installation,
   scope,
   projectPath,
+  refreshWarning,
 }: {
   pluginId: string
   pluginName: string
   entry: PluginMarketplaceEntry
   marketplaceInstallLocation: string
-  installation: { version?: string; installPath: string }
+  installation: {
+    version?: string
+    installPath: string
+    gitCommitSha?: string
+    resolvedVersion?: string
+  }
   scope: PluginScope
   projectPath: string | undefined
+  refreshWarning?: string
 }): Promise<PluginUpdateResult> {
   const fs = getFsImplementation()
   const oldVersion = installation.version
+
+  const { enabled, disabled } = await loadAllPlugins()
+  const constraints = findDependencyConstraints(pluginId, [
+    ...enabled,
+    ...disabled,
+  ])
+  const versionConstraints = constraints.filter(
+    ({ constraint }) => constraint.version !== undefined,
+  )
+  const ranges = constraints
+    .map(({ constraint }) => constraint.version)
+    .filter((range): range is string => range !== undefined)
+  let resolvedTag: ResolvedGitTag | undefined
+  let updateSuffix = ''
+
+  if (ranges.length > 0) {
+    const intersection = intersectConstraints(ranges)
+    if (!intersection.ok) {
+      return {
+        success: true,
+        skipped: true,
+        message: `Skipped — ${formatConstraintIntersectionError('Plugin', pluginId, ranges, intersection.reason)}`,
+        pluginId,
+        scope,
+        blockedBy: versionConstraints.map(({ plugin }) => plugin.source),
+        oldVersion,
+      }
+    }
+
+    const gitUrl = getGitUrlForVersionResolution(entry.source)
+    if (gitUrl !== null && intersection.range !== '*') {
+      const resolved = await resolveVersionRange(
+        gitUrl,
+        entry.name,
+        intersection.range,
+      )
+      if (resolved === null) {
+        logForDebugging(
+          `performPluginUpdate(${pluginId}): no ${entry.name}--v* tag satisfying ${intersection.range}; falling back to HEAD + post-fetch guard`,
+        )
+      } else if (
+        resolved.version === installation.resolvedVersion &&
+        resolved.sha === installation.gitCommitSha
+      ) {
+        return {
+          success: true,
+          message: `${pluginName} is already at the latest version satisfying ${ranges.join(', ')} (${resolved.version}, required by ${versionConstraints.map(({ plugin }) => plugin.name).join(', ')}).${refreshWarning ? ` Warning: ${refreshWarning} — version shown may be stale.` : ''}`,
+          pluginId,
+          newVersion: installation.version,
+          oldVersion,
+          alreadyUpToDate: true,
+          scope,
+        }
+      } else {
+        resolvedTag = resolved
+        updateSuffix = ` (highest tag satisfying ${ranges.join(', ')} from ${versionConstraints.map(({ plugin }) => plugin.name).join(', ')})`
+      }
+    }
+  }
 
   let sourcePath: string
   let newVersion: string
@@ -1004,12 +1103,23 @@ async function performPluginUpdate({
   // Handle remote vs local plugins
   if (typeof entry.source !== 'string') {
     // Remote plugin: download to temp directory first
-    const cacheResult = await cachePlugin(entry.source, {
+    const effectiveSource =
+      resolvedTag &&
+      (entry.source.source === 'github' ||
+        entry.source.source === 'url' ||
+        entry.source.source === 'git-subdir')
+        ? {
+            ...entry.source,
+            ref: resolvedTag.ref,
+            sha: resolvedTag.sha,
+          }
+        : entry.source
+    const cacheResult = await cachePlugin(effectiveSource, {
       manifest: { name: entry.name },
     })
     sourcePath = cacheResult.path
     shouldCleanupSource = true
-    gitCommitSha = cacheResult.gitCommitSha
+    gitCommitSha = resolvedTag?.sha ?? cacheResult.gitCommitSha
     pluginManifestVersion = cacheResult.manifest.version
 
     // Calculate version from downloaded plugin. For git-subdir sources,
@@ -1022,8 +1132,11 @@ async function performPluginUpdate({
       cacheResult.manifest,
       cacheResult.path,
       entry.version,
-      cacheResult.gitCommitSha,
+      resolvedTag?.sha ?? cacheResult.gitCommitSha,
     )
+    if (resolvedTag && (cacheResult.manifest.version || entry.version)) {
+      newVersion = `${newVersion}-${resolvedTag.sha.substring(0, 12)}`
+    }
   } else {
     // Local plugin: use path from marketplace
     // Stat directly — handle ENOENT inline rather than pre-checking existence
@@ -1094,12 +1207,7 @@ async function performPluginUpdate({
 
   // Use try/finally to ensure temp directory cleanup on any error
   try {
-    const { enabled, disabled } = await loadAllPlugins()
-    const constraints = findDependencyConstraints(pluginId, [
-      ...enabled,
-      ...disabled,
-    ])
-    if (constraints.length > 0) {
+    if (resolvedTag === undefined && ranges.length > 0) {
       const normalizedVersion = pluginManifestVersion
         ? (semver.valid(pluginManifestVersion) ??
           semver.coerce(pluginManifestVersion)?.version)
@@ -1135,9 +1243,12 @@ async function performPluginUpdate({
       installation.installPath === versionedPath ||
       installation.installPath === zipPath
     if (isUpToDate) {
+      const message = `${pluginName} is already at the latest version (${newVersion}).`
       return {
         success: true,
-        message: `${pluginName} is already at the latest version (${newVersion}).`,
+        message: refreshWarning
+          ? `${message} Warning: ${refreshWarning} — version shown may be stale.`
+          : message,
         pluginId,
         newVersion,
         oldVersion,
@@ -1166,6 +1277,7 @@ async function performPluginUpdate({
       versionedPath,
       newVersion,
       gitCommitSha,
+      resolvedTag?.version,
     )
 
     if (oldVersionPath && oldVersionPath !== versionedPath) {
@@ -1182,11 +1294,13 @@ async function performPluginUpdate({
     }
 
     const scopeDesc = projectPath ? `${scope} (${projectPath})` : scope
-    const message = `Plugin "${pluginName}" updated from ${oldVersion || 'unknown'} to ${newVersion} for scope ${scopeDesc}. Restart to apply changes.`
+    const message = `Plugin "${pluginName}" updated from ${oldVersion || 'unknown'} to ${newVersion}${updateSuffix} for scope ${scopeDesc}. Restart to apply changes.`
 
     return {
       success: true,
-      message,
+      message: refreshWarning
+        ? `${message} Warning: ${refreshWarning}.`
+        : message,
       pluginId,
       newVersion,
       oldVersion,

@@ -2,6 +2,7 @@ import { c as _c } from "react/compiler-runtime";
 import React from 'react';
 import { Link, Text } from '../ink.js';
 import type { PrReviewState } from '../utils/ghPrStatus.js';
+import { getInitialSettings } from '../utils/settings/settings.js';
 type Props = {
   number: number;
   url: string;
@@ -16,6 +17,7 @@ export function PrBadge(t0) {
     reviewState,
     bold
   } = t0;
+  const linkUrl = applyPrUrlTemplate(url, getInitialSettings().prUrlTemplate);
   let t1;
   if ($[0] !== reviewState) {
     t1 = getPrStatusColor(reviewState);
@@ -60,11 +62,11 @@ export function PrBadge(t0) {
     t7 = $[13];
   }
   let t8;
-  if ($[14] !== label || $[15] !== t7 || $[16] !== url) {
-    t8 = <Link url={url} fallback={label}>{t7}</Link>;
+  if ($[14] !== label || $[15] !== linkUrl || $[16] !== t7) {
+    t8 = <Link url={linkUrl} fallback={label}>{t7}</Link>;
     $[14] = label;
-    $[15] = t7;
-    $[16] = url;
+    $[15] = linkUrl;
+    $[16] = t7;
     $[17] = t8;
   } else {
     t8 = $[17];
@@ -79,6 +81,39 @@ export function PrBadge(t0) {
     t9 = $[20];
   }
   return t9;
+}
+
+const PR_URL_PATTERN =
+  /^https:\/\/([\w.-]+)\/([\w.-]+)\/([\w.-]+)\/pull\/(\d+)\b/;
+
+function parsePrUrl(url: string): {
+  url: string;
+  host: string;
+  owner: string;
+  repo: string;
+  num: number;
+} | null {
+  const match = url.match(PR_URL_PATTERN);
+  if (!match) return null;
+  return {
+    url,
+    host: match[1]!,
+    owner: match[2]!,
+    repo: match[3]!,
+    num: Number(match[4])
+  };
+}
+
+export function applyPrUrlTemplate(url: string, template?: string): string {
+  if (!template) return url;
+  const parsed = parsePrUrl(url);
+  if (!parsed) return url;
+  return template
+    .replaceAll('{host}', parsed.host)
+    .replaceAll('{owner}', parsed.owner)
+    .replaceAll('{repo}', parsed.repo)
+    .replaceAll('{number}', String(parsed.num))
+    .replaceAll('{url}', url);
 }
 function getPrStatusColor(state?: PrReviewState): 'success' | 'error' | 'warning' | 'merged' | undefined {
   switch (state) {

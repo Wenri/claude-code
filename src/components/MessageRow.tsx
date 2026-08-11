@@ -25,6 +25,7 @@ export type Props = {
   tools: Tools;
   commands: Command[];
   verbose: boolean;
+  showMessageTimestamps: boolean;
   inProgressToolUseIDs: Set<string>;
   streamingToolUseIDs: Set<string>;
   screen: Screen;
@@ -91,7 +92,7 @@ export function hasContentAfterIndex(messages: RenderableMessage[], index: numbe
   return false;
 }
 function MessageRowImpl(t0) {
-  const $ = _c(64);
+  const $ = _c(74);
   const {
     message: msg,
     isUserContinuation,
@@ -99,6 +100,7 @@ function MessageRowImpl(t0) {
     tools,
     commands,
     verbose,
+    showMessageTimestamps,
     inProgressToolUseIDs,
     streamingToolUseIDs,
     screen,
@@ -217,73 +219,95 @@ function MessageRowImpl(t0) {
     }
   }
   let t5;
-  if ($[34] !== displayMsg || $[35] !== isTranscriptMode) {
-    t5 = isTranscriptMode && displayMsg.type === "assistant" && displayMsg.message.content.some(_temp) && (displayMsg.timestamp || displayMsg.message.model);
-    $[34] = displayMsg;
-    $[35] = isTranscriptMode;
-    $[36] = t5;
+  if ($[34] !== displayMsg.message || $[35] !== displayMsg.timestamp || $[36] !== displayMsg.type || $[37] !== isTranscriptMode || $[38] !== showMessageTimestamps) {
+    t5 = displayMsg.type === "assistant" && (showMessageTimestamps || isTranscriptMode && displayMsg.message.content.some(_temp)) && (displayMsg.timestamp || displayMsg.message.model);
+    $[34] = displayMsg.message;
+    $[35] = displayMsg.timestamp;
+    $[36] = displayMsg.type;
+    $[37] = isTranscriptMode;
+    $[38] = showMessageTimestamps;
+    $[39] = t5;
   } else {
-    t5 = $[36];
+    t5 = $[39];
   }
   const hasMetadata = t5;
   const t6 = !hasMetadata;
   const t7 = hasMetadata ? undefined : columns;
   let t8;
-  if ($[37] !== commands || $[38] !== inProgressToolUseIDs || $[39] !== isActiveCollapsedGroup || $[40] !== isStatic || $[41] !== isTranscriptMode || $[42] !== isUserContinuation || $[43] !== lastThinkingBlockId || $[44] !== latestBashOutputUUID || $[45] !== lookups || $[46] !== msg || $[47] !== onOpenRateLimitOptions || $[48] !== progressMessagesForMessage || $[49] !== shouldAnimate || $[50] !== t6 || $[51] !== t7 || $[52] !== tools || $[53] !== verbose) {
+  if ($[40] !== commands || $[41] !== inProgressToolUseIDs || $[42] !== isActiveCollapsedGroup || $[43] !== isStatic || $[44] !== isTranscriptMode || $[45] !== isUserContinuation || $[46] !== lastThinkingBlockId || $[47] !== latestBashOutputUUID || $[48] !== lookups || $[49] !== msg || $[50] !== onOpenRateLimitOptions || $[51] !== progressMessagesForMessage || $[52] !== shouldAnimate || $[53] !== t6 || $[54] !== t7 || $[55] !== tools || $[56] !== verbose) {
     t8 = <Message message={msg} lookups={lookups} addMargin={t6} containerWidth={t7} tools={tools} commands={commands} verbose={verbose} inProgressToolUseIDs={inProgressToolUseIDs} progressMessagesForMessage={progressMessagesForMessage} shouldAnimate={shouldAnimate} shouldShowDot={true} isTranscriptMode={isTranscriptMode} isStatic={isStatic} onOpenRateLimitOptions={onOpenRateLimitOptions} isActiveCollapsedGroup={isActiveCollapsedGroup} isUserContinuation={isUserContinuation} lastThinkingBlockId={lastThinkingBlockId} latestBashOutputUUID={latestBashOutputUUID} />;
-    $[37] = commands;
-    $[38] = inProgressToolUseIDs;
-    $[39] = isActiveCollapsedGroup;
-    $[40] = isStatic;
-    $[41] = isTranscriptMode;
-    $[42] = isUserContinuation;
-    $[43] = lastThinkingBlockId;
-    $[44] = latestBashOutputUUID;
-    $[45] = lookups;
-    $[46] = msg;
-    $[47] = onOpenRateLimitOptions;
-    $[48] = progressMessagesForMessage;
-    $[49] = shouldAnimate;
-    $[50] = t6;
-    $[51] = t7;
-    $[52] = tools;
-    $[53] = verbose;
-    $[54] = t8;
+    $[40] = commands;
+    $[41] = inProgressToolUseIDs;
+    $[42] = isActiveCollapsedGroup;
+    $[43] = isStatic;
+    $[44] = isTranscriptMode;
+    $[45] = isUserContinuation;
+    $[46] = lastThinkingBlockId;
+    $[47] = latestBashOutputUUID;
+    $[48] = lookups;
+    $[49] = msg;
+    $[50] = onOpenRateLimitOptions;
+    $[51] = progressMessagesForMessage;
+    $[52] = shouldAnimate;
+    $[53] = t6;
+    $[54] = t7;
+    $[55] = tools;
+    $[56] = verbose;
+    $[57] = t8;
   } else {
-    t8 = $[54];
+    t8 = $[57];
   }
   const messageEl = t8;
   if (!hasMetadata) {
     let t9;
-    if ($[55] !== messageEl) {
+    if ($[58] !== messageEl) {
       t9 = <OffscreenFreeze>{messageEl}</OffscreenFreeze>;
-      $[55] = messageEl;
-      $[56] = t9;
+      $[58] = messageEl;
+      $[59] = t9;
     } else {
-      t9 = $[56];
+      t9 = $[59];
     }
     return t9;
   }
   let t9;
-  if ($[57] !== displayMsg || $[58] !== isTranscriptMode) {
-    t9 = <Box flexDirection="row" justifyContent="flex-end" gap={1} marginTop={1}><MessageTimestamp message={displayMsg} isTranscriptMode={isTranscriptMode} /><MessageModel message={displayMsg} isTranscriptMode={isTranscriptMode} /></Box>;
-    $[57] = displayMsg;
-    $[58] = isTranscriptMode;
-    $[59] = t9;
+  if ($[60] !== displayMsg || $[61] !== isTranscriptMode || $[62] !== showMessageTimestamps) {
+    t9 = <MessageTimestamp message={displayMsg} isTranscriptMode={isTranscriptMode} showMessageTimestamps={showMessageTimestamps} />;
+    $[60] = displayMsg;
+    $[61] = isTranscriptMode;
+    $[62] = showMessageTimestamps;
+    $[63] = t9;
   } else {
-    t9 = $[59];
+    t9 = $[63];
   }
   let t10;
-  if ($[60] !== columns || $[61] !== messageEl || $[62] !== t9) {
-    t10 = <OffscreenFreeze><Box width={columns} flexDirection="column">{t9}{messageEl}</Box></OffscreenFreeze>;
-    $[60] = columns;
-    $[61] = messageEl;
-    $[62] = t9;
-    $[63] = t10;
+  if ($[64] !== displayMsg || $[65] !== isTranscriptMode) {
+    t10 = <MessageModel message={displayMsg} isTranscriptMode={isTranscriptMode} />;
+    $[64] = displayMsg;
+    $[65] = isTranscriptMode;
+    $[66] = t10;
   } else {
-    t10 = $[63];
+    t10 = $[66];
   }
-  return t10;
+  let t11;
+  if ($[67] !== t10 || $[68] !== t9) {
+    t11 = <Box flexDirection="row" justifyContent="flex-end" gap={1} marginTop={1}>{t9}{t10}</Box>;
+    $[67] = t10;
+    $[68] = t9;
+    $[69] = t11;
+  } else {
+    t11 = $[69];
+  }
+  let t12;
+  if ($[70] !== columns || $[71] !== messageEl || $[72] !== t11) {
+    t12 = <OffscreenFreeze><Box width={columns} flexDirection="column">{t11}{messageEl}</Box></OffscreenFreeze>;
+    $[70] = columns;
+    $[71] = messageEl;
+    $[72] = t11;
+    $[73] = t12;
+  } else {
+    t12 = $[73];
+  }
+  return t12;
 }
 
 /**
@@ -348,6 +372,8 @@ export function areMessageRowPropsEqual(prev: Props, next: Props): boolean {
 
   // Verbose toggle changes thinking block visibility
   if (prev.verbose !== next.verbose) return false;
+
+  if (prev.showMessageTimestamps !== next.showMessageTimestamps) return false;
 
   // collapsed_read_search is never static in prompt mode (matches shouldRenderStatically)
   if (prev.message.type === 'collapsed_read_search' && next.screen !== 'transcript') {

@@ -2,6 +2,7 @@ import { c as _c } from "react/compiler-runtime";
 import figures from 'figures';
 import * as React from 'react';
 import { useMemo, useRef } from 'react';
+import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEvent } from '../../services/analytics/index.js';
 import { stringWidth } from '../../ink/stringWidth.js';
 import { Box, Text, useAnimationFrame } from '../../ink.js';
 import type { InProcessTeammateTaskState } from '../../tasks/InProcessTeammateTask/types.js';
@@ -17,6 +18,7 @@ import { interpolateColor, toRGBColor } from './utils.js';
 const SEP_WIDTH = stringWidth(' · ');
 const THINKING_BARE_WIDTH = stringWidth('thinking');
 const SHOW_TOKENS_AFTER_MS = 16_000;
+const STALL_TELEMETRY_THRESHOLDS_MS = [10_000, 45_000];
 
 function thinkingMilestone(elapsedMs: number): string {
   if (elapsedMs >= 60_000) return 'almost done thinking';
@@ -134,8 +136,28 @@ export function SpinnerAnimationRow({
   // Treating leaderIsIdle like hasActiveTools resets the stall timer.
   const {
     isStalled,
-    stalledIntensity
+    stalledIntensity,
+    timeSinceLastToken
   } = useStalledAnimation(time, currentResponseLength, hasActiveTools || leaderIsIdle || mode === 'thinking', reducedMotion);
+  const loggedStallThresholdsRef = useRef(new Set<number>());
+  if (timeSinceLastToken === 0) {
+    if (loggedStallThresholdsRef.current.size > 0) {
+      loggedStallThresholdsRef.current = new Set();
+    }
+  } else {
+    for (const thresholdMs of STALL_TELEMETRY_THRESHOLDS_MS) {
+      if (timeSinceLastToken >= thresholdMs && !loggedStallThresholdsRef.current.has(thresholdMs)) {
+        loggedStallThresholdsRef.current.add(thresholdMs);
+        logEvent('tengu_spinner_stalled_ui', {
+          threshold_ms: thresholdMs,
+          mode: mode as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+          override_color: overrideColor != null,
+          time_since_last_token_ms: Math.round(timeSinceLastToken),
+          response_length: currentResponseLength
+        });
+      }
+    }
+  }
   const frame = reducedMotion ? 0 : Math.floor(time / 120);
   const glimmerSpeed = mode === 'requesting' ? 50 : 200;
   // message is stable within a turn; stringWidth is expensive enough (Bun native

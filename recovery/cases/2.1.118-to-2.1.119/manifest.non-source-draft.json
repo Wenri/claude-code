@@ -1,0 +1,1121 @@
+{
+  "schemaVersion": 4,
+  "case": "2.1.118-to-2.1.119",
+  "draft": {
+    "kind": "authenticated-evidence-and-source-freeze",
+    "status": "semantic-correspondence-and-final-docs-pending",
+    "generatedBy": "recovery/scripts/build-2.1.119-non-source-draft.mjs",
+    "rule": "Published artifacts, non-source evidence, and the immutable source overlay identity are frozen. Semantic correspondence hashes and final report/runbook identities remain pending."
+  },
+  "releaseAdjacency": {
+    "baseline": "2.1.118",
+    "target": "2.1.119",
+    "targetIsNextPublishedVersion": true,
+    "skipped": [],
+    "skippedVersionsAbsent": true,
+    "provenance": "evidence/provenance.json"
+  },
+  "recoveryScope": {
+    "platform": "linux-x64",
+    "completeness": "authenticated-artifacts-and-source-overlay-complete-semantic-pending",
+    "authoredSourceTextObservable": false,
+    "authenticatedNativeContainer": true,
+    "exactPublishedPackageTreeReconstruction": true,
+    "exactPublishedBundleReconstruction": true,
+    "exactEmbeddedJavaScriptGraphReconstruction": true,
+    "allTargetUtf16Accounted": true,
+    "allTargetTokensClassified": true,
+    "sourceClosurePending": false,
+    "semanticClosurePending": true
+  },
+  "artifacts": [
+    {
+      "id": "baselineTarball",
+      "argument": "baseline-tarball",
+      "localPath": "2.1.118/package.tgz",
+      "bytes": 13541,
+      "sha256": "6bf12298233cbe70f0412000772bea927f0d000b90debc2e78fbf1db69fa6c47",
+      "url": "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.1.118.tgz"
+    },
+    {
+      "id": "baselineDeclarations",
+      "argument": "baseline-dts",
+      "archive": "baselineTarball",
+      "archiveMember": "package/sdk-tools.d.ts",
+      "localPath": "2.1.118/package/sdk-tools.d.ts",
+      "bytes": 117452,
+      "sha256": "8f907e0e9fd160b857d25881375f73f1bddd3642d372ad52ea71d7ff441f3ddf"
+    },
+    {
+      "id": "baselinePackageJson",
+      "argument": "baseline-package-json",
+      "archive": "baselineTarball",
+      "archiveMember": "package/package.json",
+      "localPath": "2.1.118/package/package.json",
+      "bytes": 1476,
+      "sha256": "fd9eba95cb868d4c06c42fca9707a51139b6b0b4aa8e1c1826b356b58d09befc"
+    },
+    {
+      "id": "baselineInstall",
+      "argument": "baseline-install",
+      "archive": "baselineTarball",
+      "archiveMember": "package/install.cjs",
+      "localPath": "2.1.118/package/install.cjs",
+      "bytes": 6307,
+      "sha256": "574cb5fd945d2adba5901a9ae508b62ca539e5a91dcd877840fc174844ed79d2"
+    },
+    {
+      "id": "targetTarball",
+      "argument": "target-tarball",
+      "localPath": "2.1.119/package.tgz",
+      "bytes": 13541,
+      "sha256": "70213032ec5bede0b88a78d9bc4fa3619d81e507a3ffe4dd0bebb15b15f335f2",
+      "url": "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.1.119.tgz"
+    },
+    {
+      "id": "targetDeclarations",
+      "argument": "target-dts",
+      "archive": "targetTarball",
+      "archiveMember": "package/sdk-tools.d.ts",
+      "localPath": "2.1.119/package/sdk-tools.d.ts",
+      "bytes": 117452,
+      "sha256": "8f907e0e9fd160b857d25881375f73f1bddd3642d372ad52ea71d7ff441f3ddf"
+    },
+    {
+      "id": "targetPackageJson",
+      "argument": "target-package-json",
+      "archive": "targetTarball",
+      "archiveMember": "package/package.json",
+      "localPath": "2.1.119/package/package.json",
+      "bytes": 1476,
+      "sha256": "259bdf03c602afccdaad60445bcf533b50a7a61d467109045ed45a452008b1e2"
+    },
+    {
+      "id": "targetInstall",
+      "argument": "target-install",
+      "archive": "targetTarball",
+      "archiveMember": "package/install.cjs",
+      "localPath": "2.1.119/package/install.cjs",
+      "bytes": 6307,
+      "sha256": "574cb5fd945d2adba5901a9ae508b62ca539e5a91dcd877840fc174844ed79d2"
+    },
+    {
+      "id": "baselinePlatformTarball",
+      "argument": "baseline-platform-tarball",
+      "localPath": "2.1.118-linux-x64/package.tgz",
+      "bytes": 75226490,
+      "sha256": "9265b84455ce045a77e89a822ddeed6dabfbb920a4cda5e8f38ef1ec55d7c45c",
+      "url": "https://registry.npmjs.org/@anthropic-ai/claude-code-linux-x64/-/claude-code-linux-x64-2.1.118.tgz"
+    },
+    {
+      "id": "baselineExecutable",
+      "argument": "baseline-executable",
+      "archive": "baselinePlatformTarball",
+      "archiveMember": "package/claude",
+      "localPath": "2.1.118-linux-x64/package/claude",
+      "bytes": 239573632,
+      "sha256": "ba363b2410a47120d2d4b8ece2e11fe0bbc5d59adb1329e8fb87ea0f370f4e46"
+    },
+    {
+      "id": "baselineBundle",
+      "argument": "baseline",
+      "localPath": "2.1.118-linux-x64/cli.js",
+      "bytes": 13234708,
+      "sha256": "fbf6347d8ba29bfd37c48471e77e635180918e45be61ec8c49cfacd70ffb37ba",
+      "byteSlice": {
+        "sourceArtifact": "baselineExecutable",
+        "offset": 224378312,
+        "bytes": 13234708,
+        "prefixHex": "2f2f204062756e204062797465636f6465"
+      }
+    },
+    {
+      "id": "baselineAnalyzableBundle",
+      "argument": "baseline-analyzable",
+      "localPath": "2.1.118-linux-x64/cli.inner.js",
+      "bytes": 13234618,
+      "sha256": "84d06c8582112ca623b66cc28b3a55c5d57e9add86d7a1b1163d6a12a31a9ffa",
+      "byteSlice": {
+        "sourceArtifact": "baselineBundle",
+        "offset": 87,
+        "bytes": 13234618
+      }
+    },
+    {
+      "id": "baselineImageProcessorJs",
+      "argument": "baseline-image-js",
+      "localPath": "2.1.118-linux-x64/image-processor.js",
+      "bytes": 2564,
+      "sha256": "d0e8787dfe93a0e0134631d8f72ef91bbfbc8b22bdc5fc8a6f8b4ddbe30571e4",
+      "byteSlice": {
+        "sourceArtifact": "baselineExecutable",
+        "offset": 237613053,
+        "bytes": 2564
+      }
+    },
+    {
+      "id": "baselineAudioCaptureJs",
+      "argument": "baseline-audio-js",
+      "localPath": "2.1.118-linux-x64/audio-capture.js",
+      "bytes": 2562,
+      "sha256": "8f6b51633d314e510bb1824b4e19aedb0c4c03e17738fdc3a9199b264be04a4e",
+      "byteSlice": {
+        "sourceArtifact": "baselineExecutable",
+        "offset": 237615648,
+        "bytes": 2562
+      }
+    },
+    {
+      "id": "targetPlatformTarball",
+      "argument": "target-platform-tarball",
+      "localPath": "2.1.119-linux-x64/package.tgz",
+      "bytes": 76696630,
+      "sha256": "2a97954a862fc1dc096601f011eb46adeea0d95d08ac98fcd272ca1681ae9ca8",
+      "url": "https://registry.npmjs.org/@anthropic-ai/claude-code-linux-x64/-/claude-code-linux-x64-2.1.119.tgz"
+    },
+    {
+      "id": "targetExecutable",
+      "argument": "target-executable",
+      "archive": "targetPlatformTarball",
+      "archiveMember": "package/claude",
+      "localPath": "2.1.119-linux-x64/package/claude",
+      "bytes": 245230208,
+      "sha256": "cca43053f062949495596b11b6fd1b59cf79102adb13bacbe66997e6fae41e4a"
+    },
+    {
+      "id": "targetBundle",
+      "argument": "target",
+      "localPath": "2.1.119-linux-x64/cli.js",
+      "bytes": 13721077,
+      "sha256": "bc814388b51cbcb5114db927e60f8fbb5e12409532a89137429975556c29464e",
+      "byteSlice": {
+        "sourceArtifact": "targetExecutable",
+        "offset": 229546328,
+        "bytes": 13721077,
+        "prefixHex": "2f2f204062756e204062797465636f6465"
+      }
+    },
+    {
+      "id": "targetAnalyzableBundle",
+      "argument": "target-analyzable",
+      "localPath": "2.1.119-linux-x64/cli.inner.js",
+      "bytes": 13720987,
+      "sha256": "9a1fccbe69ffe06c82345db1cc8cdbbc9a9929ed723bc8832ad48dfeff64b4ef",
+      "byteSlice": {
+        "sourceArtifact": "targetBundle",
+        "offset": 87,
+        "bytes": 13720987
+      }
+    },
+    {
+      "id": "targetCliJsc",
+      "argument": "target-cli-jsc",
+      "localPath": "2.1.119-linux-x64/cli.jsc",
+      "bytes": 120854672,
+      "sha256": "8582ccaaf502507cd2639aba35cdf917d3bc07becb87921c0e54320bcf8dfa68",
+      "byteSlice": {
+        "sourceArtifact": "targetExecutable",
+        "offset": 108691584,
+        "bytes": 120854672
+      }
+    },
+    {
+      "id": "targetImageProcessorJs",
+      "argument": "target-image-js",
+      "localPath": "2.1.119-linux-x64/image-processor.js",
+      "bytes": 2564,
+      "sha256": "46a48a5c7d8b85d668b5e599092d1b92e4e26a2fa152d7b7e44fb86df9e0308e",
+      "byteSlice": {
+        "sourceArtifact": "targetExecutable",
+        "offset": 243267438,
+        "bytes": 2564
+      }
+    },
+    {
+      "id": "targetAudioCaptureJs",
+      "argument": "target-audio-js",
+      "localPath": "2.1.119-linux-x64/audio-capture.js",
+      "bytes": 2562,
+      "sha256": "c34cedf53a591a0ff1f888572fb657148ec82eadc7be61a2b6676b0b9b178190",
+      "byteSlice": {
+        "sourceArtifact": "targetExecutable",
+        "offset": 243270033,
+        "bytes": 2562
+      }
+    },
+    {
+      "id": "targetImageProcessorNative",
+      "argument": "target-image-native",
+      "localPath": "2.1.119-linux-x64/image-processor.node",
+      "bytes": 1458656,
+      "sha256": "418c92f2e5d688ecf0fe24ab490123c7bdb6d62ca72983431244665f179a4405",
+      "byteSlice": {
+        "sourceArtifact": "targetExecutable",
+        "offset": 243272630,
+        "bytes": 1458656,
+        "prefixHex": "7f454c46"
+      }
+    },
+    {
+      "id": "targetAudioCaptureNative",
+      "argument": "target-audio-native",
+      "localPath": "2.1.119-linux-x64/audio-capture.node",
+      "bytes": 492184,
+      "sha256": "7e89edf4dde9b69b6c55a310788ad999e2d0dd469d8a31c529cf28f3ea5e929c",
+      "byteSlice": {
+        "sourceArtifact": "targetExecutable",
+        "offset": 244731319,
+        "bytes": 492184,
+        "prefixHex": "7f454c46"
+      }
+    },
+    {
+      "id": "sourceOracleBundle",
+      "argument": "source-oracle-bundle",
+      "localPath": "2.1.88/cli.js",
+      "url": "https://raw.githubusercontent.com/Exhen/claude-code-2.1.88/c8cd253554319f32ff64ff7000636199f720c9bc/cli.js",
+      "bytes": 13047043,
+      "sha256": "75c9611929d9a770fe2e3a393219d8b98f5de17fde539b2a7355c6db3fd2795f"
+    },
+    {
+      "id": "sourceOracleMap",
+      "argument": "source-oracle-map",
+      "localPath": "2.1.88/cli.js.map",
+      "url": "https://raw.githubusercontent.com/Exhen/claude-code-2.1.88/c8cd253554319f32ff64ff7000636199f720c9bc/cli.js.map",
+      "bytes": 59766257,
+      "sha256": "7965012b7a5fc9e09d8d747a04c5c32b94696924536e217f686bb1e7ee70a657"
+    },
+    {
+      "id": "officialChangelog",
+      "argument": "changelog",
+      "localPath": "evidence/claude-code-CHANGELOG-ab3ce06c.md",
+      "bytes": 255309,
+      "sha256": "88d929d9b71befc31ce318a9425d721b671ff5d8ca23cc4d0275f8e7244bb88a",
+      "url": "https://raw.githubusercontent.com/anthropics/claude-code/ab3ce06c9ac0a6a0405850e642b80b0bb2c9fb25/CHANGELOG.md"
+    }
+  ],
+  "baselineOracle": {
+    "applicationSourceCount": 1902,
+    "applicationSourceBytes": 30382832,
+    "applicationManifestSha256": "9e114f72a61a00dc9c8bb5888072ef8289720ecec306a1c31e34c38685d6108c",
+    "tsxSourceCount": 552,
+    "nestedOriginalBytes": 4509965,
+    "nestedOriginalManifestSha256": "9f1d3a8a35152bccb71c0ba384c5f2bf104da871e09e5f596cf4d3d87d6fcd59",
+    "sourceMap": {
+      "generatedLineCount": 16666,
+      "segmentCount": 2068722,
+      "mappedSegmentCount": 2068722,
+      "sourceCount": 4756,
+      "usedSourceCount": 4756
+    }
+  },
+  "sourceOracle": {
+    "bundleArtifact": "sourceOracleBundle",
+    "mapArtifact": "sourceOracleMap",
+    "relationship": "The matching 2.1.88 bundle/map pair is used only for exact historical source ownership. The canonical analyzable interiors extracted from the authenticated 2.1.117 and 2.1.118 Linux x64 Bun executables are the adjacent generated comparison. No 2.1.88 offsets are projected onto either adjacent bundle.",
+    "appliedSourceTree": {
+      "status": "immutable-source-freeze-bound",
+      "base": {
+        "commit": "bd846a24e3886322888f02b9f747c132a4a32314",
+        "tree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+        "srcTree": "a404264d155cde23ec7479fc7e69d1edec7d92a9"
+      },
+      "patchSet": "recovered/source-facing-overlay.patch",
+      "fileCount": 2088,
+      "bytes": 32357579,
+      "files": "recovered/source-freeze/source-files.sha256"
+    }
+  },
+  "sourceLineage": {
+    "status": "immutable-source-freeze-bound",
+    "root": "src",
+    "baseCommit": "bd846a24e3886322888f02b9f747c132a4a32314",
+    "baseGitTree": "695e9409899f783a90899d5ff7b06cef0129b7e0",
+    "baseSrcGitTree": "a404264d155cde23ec7479fc7e69d1edec7d92a9",
+    "targetGitTree": "bceb0af2f6b5261fab23b9d8fee51cf48f1b2dd2",
+    "targetSrcGitTree": "9e807992d428e7e23a0ad96e3a53e286d372afd7",
+    "patchSet": "2.1.118-to-2.1.119-incremental",
+    "patchOrder": [
+      "recovered/source-facing-overlay.patch"
+    ],
+    "patchStats": {
+      "files": 290,
+      "insertions": 25828,
+      "deletions": 1994
+    },
+    "target": {
+      "files": 2088,
+      "bytes": 32357579,
+      "manifest": "recovered/source-freeze/source-files.sha256",
+      "manifestSha256": "086ebda78e97c35fe895cf156e17272a0fb7c12441e1d0a85ca3b2efc3d3d383"
+    },
+    "verification": {
+      "applyToBaseTree": true,
+      "completeSrcByteCompare": true,
+      "reverseToBaseTree": true,
+      "forwardToTargetTree": true,
+      "diffCheck": {
+        "unexpectedDiagnostics": 0,
+        "authenticatedTargetTrailingWhitespace": 5
+      },
+      "runtimeImports": {
+        "sourceFilesScanned": 2041,
+        "newlyUnresolved": 0
+      },
+      "targetTests": {
+        "passed": 86,
+        "failed": 0,
+        "files": 8,
+        "manifest": "target-test-files.sha256",
+        "manifestSha256": "d20c074e4f1639c62e330a8924b816ecbce179296113d449387e3c25c5be47b0"
+      },
+      "retainedTests": {
+        "passed": 21,
+        "failed": 0,
+        "files": 4,
+        "manifest": "retained-test-files.sha256",
+        "manifestSha256": "cc0ddaf10292517c2276844424216291f2c54d806b89049e03ec5b4ef75631c1"
+      },
+      "syntaxBuilds": {
+        "passed": 278,
+        "failed": 0
+      },
+      "adjacentDirectEvidence": {
+        "catalog": {
+          "path": "recovery/cases/2.1.118-to-2.1.119/semantic/adjacent-direct-evidence.json",
+          "bytes": 156609,
+          "sha256": "6f3829ac9fd4da733d9bf960f7a4834df789caa246ecc3f50fda281b33a2d1d7"
+        },
+        "test": {
+          "path": "recovery/test/recovery-2.1.119-adjacent-direct-evidence.test.mjs",
+          "bytes": 8552,
+          "sha256": "e89df8f8dbb140265cadd627b60863209cb514a9577dce04fdb97eaf1ae3bf19"
+        },
+        "manifest": "adjacent-direct-evidence.sha256",
+        "manifestSha256": "06747ed35fabf72add98b4817b4dd7512af7d494ad0656e57462e1b92e1e9707"
+      }
+    }
+  },
+  "targetAssertions": {
+    "declarationChange": {
+      "kind": "unchanged"
+    },
+    "packageVersionChange": {
+      "baseline": "2.1.118",
+      "target": "2.1.119"
+    },
+    "packageJsonChange": {
+      "kind": "exact-artifact"
+    },
+    "bundleFragments": [],
+    "status": "authenticated-test-witnesses-bound-semantic-ledger-pending"
+  },
+  "recoveredEdits": [],
+  "recoveredFileAssertions": [],
+  "generatedRecovery": {
+    "packageMembers": {
+      "report": "package-members.json",
+      "baselineTarball": {
+        "bytes": 13541,
+        "sha256": "6bf12298233cbe70f0412000772bea927f0d000b90debc2e78fbf1db69fa6c47"
+      },
+      "baselineMembers": 7,
+      "targetMembers": 7,
+      "targetMemberBytes": 132031,
+      "targetFramedTreeSha256": "ee6ee1c561bf85639c3f84f19be9fca25fe9f940338b8ad30d2dbe136460ac94",
+      "unchanged": 6,
+      "changed": 1,
+      "added": 0,
+      "removed": 0,
+      "modeOnlyChanged": 0,
+      "changedMemberPayloads": [
+        {
+          "member": "package/package.json",
+          "algorithm": "zstd-dictionary-patch",
+          "path": "diff/package.json.zstd-delta"
+        }
+      ],
+      "addedMemberPayloads": []
+    },
+    "exactBundleDelta": {
+      "algorithm": "zstd-dictionary-patch",
+      "path": "diff/cli.js.zstd-delta",
+      "baselineArtifact": "baselineBundle",
+      "targetArtifact": "targetBundle",
+      "reconstructsTargetExactly": true
+    },
+    "embeddedCode": {
+      "status": "all-plain-javascript-bun-modules-exact",
+      "files": [
+        {
+          "path": "src/entrypoints/cli.js",
+          "algorithm": "zstd-dictionary-patch",
+          "baselineArtifact": "baselineBundle",
+          "targetArtifact": "targetBundle",
+          "payload": "diff/cli.js.zstd-delta"
+        },
+        {
+          "path": "image-processor.js",
+          "algorithm": "zstd-dictionary-patch",
+          "baselineArtifact": "baselineImageProcessorJs",
+          "targetArtifact": "targetImageProcessorJs",
+          "payload": "diff/image-processor.js.zstd-delta"
+        },
+        {
+          "path": "audio-capture.js",
+          "algorithm": "zstd-dictionary-patch",
+          "baselineArtifact": "baselineAudioCaptureJs",
+          "targetArtifact": "targetAudioCaptureJs",
+          "payload": "diff/audio-capture.js.zstd-delta"
+        }
+      ],
+      "targetFiles": 3,
+      "targetBytes": 13726203,
+      "targetFramedTreeSha256": "bcf0a0443ad78a12e27d8b49a5f7293ac07bfeaef18d35a33dd696ac93b6c75b"
+    },
+    "bunExtraction": {
+      "status": "authenticated-linux-x64-bun-graph",
+      "inventory": "binary-extraction/inventory.json",
+      "discoveryOutput": "binary-extraction/bun-graph.txt",
+      "executableArtifact": "targetExecutable",
+      "analyzableArtifact": "targetAnalyzableBundle",
+      "moduleArtifacts": [
+        {
+          "index": 0,
+          "contentArtifact": "targetBundle",
+          "jscArtifact": "targetCliJsc"
+        },
+        {
+          "index": 1,
+          "contentArtifact": "targetImageProcessorJs"
+        },
+        {
+          "index": 2,
+          "contentArtifact": "targetAudioCaptureJs"
+        },
+        {
+          "index": 3,
+          "contentArtifact": "targetImageProcessorNative"
+        },
+        {
+          "index": 4,
+          "contentArtifact": "targetAudioCaptureNative"
+        }
+      ]
+    },
+    "attribution": {
+      "status": "non-source-cache-candidate-authenticated-inputs",
+      "directory": "attribution",
+      "baselineArtifact": "sourceOracleBundle",
+      "sourceMapArtifact": "sourceOracleMap",
+      "targetArtifact": "targetAnalyzableBundle",
+      "offsetUnit": "utf16-code-units",
+      "targetUtf16": 13720987,
+      "accountedTargetUtf16": 13720987,
+      "unaccountedTargetUtf16": 0,
+      "targetRanges": "attribution/target-ranges.jsonl.gz",
+      "targetRangeCount": 58513,
+      "targetRangeUtf16": 13720987
+    },
+    "structural": {
+      "status": "non-source-cache-candidate-authenticated-inputs",
+      "ledger": "structural/generated-delta.json.gz",
+      "baselineArtifact": "baselineAnalyzableBundle",
+      "targetArtifact": "targetAnalyzableBundle",
+      "targetUnits": 21893,
+      "targetTokens": 4312550,
+      "matchedTokens": 3499586,
+      "movedCandidateTokens": 36691,
+      "coarseChangedTokens": 215646,
+      "unresolvedTokens": 560627,
+      "exactStructuralFraction": 0.8199967536608271,
+      "resolvedStructuralFraction": 0.8700010434661627
+    },
+    "readableDiff": {
+      "status": "non-source-cache-candidate-authenticated-inputs",
+      "directory": "readable-diff",
+      "comparisonInvariantHashesEqual": true,
+      "metadata": "readable-diff/metadata.json",
+      "fullDiff": "readable-diff/normalized.diff.gz",
+      "baselineArtifact": "baselineAnalyzableBundle",
+      "targetArtifact": "targetAnalyzableBundle"
+    },
+    "semanticCorrespondence": {
+      "status": "pending-semantic-closure",
+      "required": [
+        "semantic/README.md",
+        "semantic/obligations.json",
+        "semantic/semantic-correspondence.json.gz",
+        "semantic/summary.json"
+      ]
+    },
+    "semanticCatalogContract": {
+      "status": "verified-input-ledgers-awaiting-final-correspondence",
+      "official": 51,
+      "hidden": 65,
+      "daemonFleetQuery": 19,
+      "total": 135,
+      "unclassified": 0,
+      "unverified": 0,
+      "authenticatedTestCoverage": {
+        "testFiles": 8,
+        "authenticatedWitnesses": 471,
+        "unconsumedTestFiles": 0,
+        "unconsumedAuthenticatedWitnesses": 0,
+        "suites": [
+          {
+            "file": "recovery/test/recovery-2.1.119-adjacent-direct-evidence.test.mjs",
+            "obligationIds": [
+              "AUD-001-daemon-telemetry-call-counts",
+              "AUD-002-daemon-allowlist-only-events",
+              "AUD-003-connection-lifecycle",
+              "AUD-004-task-summary-classifier-flow",
+              "AUD-005-assistant-scaffold-assets",
+              "AUD-006-fleet-routine-cache-inert",
+              "AUD-007-daemon-status-hint-gate",
+              "AUD-008-supervisor-idle-respawn-race",
+              "AUD-009-dispatch-watcher-readiness-errors",
+              "AUD-010-bg-attach-terminal-lifecycle",
+              "AUD-011-fleet-remount-terminal-providers",
+              "AUD-012-daemon-startup-ordering",
+              "DFQ-001-daemon-auth-lifecycle",
+              "DFQ-002-configured-scheduled-workers",
+              "DFQ-003-background-supervisor-and-client",
+              "DFQ-004-daemon-lock-reload-shutdown",
+              "DFQ-005-fleetview-activation",
+              "DFQ-006-fleet-remote-and-name-sync",
+              "DFQ-007-remote-binary-version",
+              "DFQ-008-classifier-and-task-summary",
+              "DFQ-009-context-hint-and-result-dedup",
+              "DFQ-010-connection-lifecycle",
+              "DFQ-011-assistant-scaffold-and-retained-installer",
+              "DFQ-012-uds-transport",
+              "DFQ-013-performance-markers",
+              "DFQ-014-daemon-cli-gate",
+              "DFQ-015-telemetry-call-sites",
+              "DFQ-016-hub-and-fleet-residual-lifecycle",
+              "DFQ-017-attach-recap-trigger",
+              "DFQ-018-away-summary-canonical-runtime",
+              "DFQ-019-stop-hook-and-queue-enforcement",
+              "HID-001-notification-preferences",
+              "HID-002-push-notification-tool",
+              "HID-003-ambient-memory-update",
+              "HID-004-memory-consolidation-reconciliation",
+              "HID-005-yolo-classifier-assets",
+              "HID-006-monitor-tool-prompt",
+              "HID-007-prompt-editor-exit-wording",
+              "HID-008-remote-model-control",
+              "HID-009-plugin-auto-install-metadata",
+              "HID-010-bridge-dialog-key-event",
+              "HID-011-session-tracing-attempts",
+              "HID-012-trusted-device-policy",
+              "HID-013-teleport-trusted-token",
+              "HID-014-outbound-mirror-org-policy",
+              "HID-015-remote-pending-action-and-repo-metadata",
+              "HID-016-remote-sdk-adapter-status",
+              "HID-017-updater-channel-minimum-daemon",
+              "HID-018-repo-checkouts-metadata-watcher",
+              "HID-019-sdk-ambient-task-lifecycle",
+              "HID-020-daemon-config-hot-reload-self-restart",
+              "HID-021-pro-trial-start-flow",
+              "HID-022-usage-based-limits",
+              "HID-023-spinner-stall-telemetry",
+              "HID-024-speculation-background-boundary",
+              "HID-025-remote-trigger-tool",
+              "HID-026-mark-session-read",
+              "HID-027-cross-session-uds-envelope",
+              "HID-028-read-divider-rendering",
+              "HID-029-job-state-name-sync",
+              "HID-030-managed-agents-memory-doc",
+              "HID-031-autocompact-command-hint",
+              "HID-032-background-mcp-approval-state",
+              "HID-033-background-wake-router",
+              "HID-034-ultraplan-dialogs-and-handoff",
+              "HID-035-background-stop-and-detach",
+              "HID-036-update-reconnect-flush",
+              "INH-013-usage-safe-command-identity",
+              "INH-014-sdk-permission-rewritten-input",
+              "INH-015-model-capability-output-cap",
+              "INH-019-plugin-monitor-runtime",
+              "INH-020-plugin-path-containment",
+              "INH-021-managed-plugin-hooks-and-registry",
+              "INH-022-marketplace-atomic-promotion-and-refresh",
+              "INH-023-plugin-project-scope-ux",
+              "INH-024-insights-verbatim-handoff",
+              "INH-025-bash-cwd-guidance",
+              "INH-026-bash-rerun-sleep-and-sandbox",
+              "INH-027-read-no-reread",
+              "INH-028-agent-steering-and-result-verification",
+              "INH-029-core-exploratory-and-verification-prompt",
+              "INH-030-message-client-platform-telemetry",
+              "INH-031-first-attempt-request-id",
+              "INH-032-env-less-bridge-session-persistence"
+            ],
+            "bytes": 8552,
+            "sha256": "e89df8f8dbb140265cadd627b60863209cb514a9577dce04fdb97eaf1ae3bf19",
+            "witnessInventorySha256": "35dd20e01497ec9c84086985dd968e761a9d053d835e8bfa7cffe9a7dd53f919",
+            "authenticatedWitnesses": 199,
+            "losslessSemanticGrouping": true
+          },
+          {
+            "file": "recovery/test/recovery-2.1.119-official-bullets.test.mjs",
+            "obligationIds": [
+              "official-2.1.119-b01",
+              "official-2.1.119-b02",
+              "official-2.1.119-b03",
+              "official-2.1.119-b04",
+              "official-2.1.119-b05",
+              "official-2.1.119-b06",
+              "official-2.1.119-b07",
+              "official-2.1.119-b08",
+              "official-2.1.119-b09",
+              "official-2.1.119-b10",
+              "official-2.1.119-b11",
+              "official-2.1.119-b12",
+              "official-2.1.119-b13",
+              "official-2.1.119-b14",
+              "official-2.1.119-b15",
+              "official-2.1.119-b16",
+              "official-2.1.119-b17",
+              "official-2.1.119-b18",
+              "official-2.1.119-b19",
+              "official-2.1.119-b20",
+              "official-2.1.119-b21",
+              "official-2.1.119-b22",
+              "official-2.1.119-b23",
+              "official-2.1.119-b24",
+              "official-2.1.119-b25",
+              "official-2.1.119-b26",
+              "official-2.1.119-b27",
+              "official-2.1.119-b28",
+              "official-2.1.119-b29",
+              "official-2.1.119-b30",
+              "official-2.1.119-b31",
+              "official-2.1.119-b32",
+              "official-2.1.119-b33",
+              "official-2.1.119-b34",
+              "official-2.1.119-b35",
+              "official-2.1.119-b36",
+              "official-2.1.119-b37",
+              "official-2.1.119-b38",
+              "official-2.1.119-b39",
+              "official-2.1.119-b40",
+              "official-2.1.119-b41",
+              "official-2.1.119-b42",
+              "official-2.1.119-b43",
+              "official-2.1.119-b44",
+              "official-2.1.119-b45",
+              "official-2.1.119-b46",
+              "official-2.1.119-b47",
+              "official-2.1.119-b48",
+              "official-2.1.119-b49",
+              "official-2.1.119-b50",
+              "official-2.1.119-b51"
+            ],
+            "bytes": 6022,
+            "sha256": "03e40de98a888ab468cdb8534db8c6a1c7d738cadf223f93112e19480187c4a3",
+            "witnessInventorySha256": "5ba2c8e388decaadfe896d7a294d825a6fb99ad819425f9635d413334911aa46",
+            "authenticatedWitnesses": 79,
+            "losslessSemanticGrouping": true
+          },
+          {
+            "file": "recovery/test/recovery-2.1.119-hidden-tracing-remote-updater.test.mjs",
+            "obligationIds": [
+              "HID-001-notification-preferences",
+              "HID-002-push-notification-tool",
+              "HID-003-ambient-memory-update",
+              "HID-004-memory-consolidation-reconciliation",
+              "HID-005-yolo-classifier-assets",
+              "HID-006-monitor-tool-prompt",
+              "HID-007-prompt-editor-exit-wording",
+              "HID-008-remote-model-control",
+              "HID-010-bridge-dialog-key-event",
+              "HID-011-session-tracing-attempts",
+              "HID-012-trusted-device-policy",
+              "HID-013-teleport-trusted-token",
+              "HID-014-outbound-mirror-org-policy",
+              "HID-015-remote-pending-action-and-repo-metadata",
+              "HID-016-remote-sdk-adapter-status",
+              "HID-017-updater-channel-minimum-daemon",
+              "HID-018-repo-checkouts-metadata-watcher",
+              "HID-019-sdk-ambient-task-lifecycle",
+              "HID-021-pro-trial-start-flow",
+              "HID-022-usage-based-limits",
+              "HID-023-spinner-stall-telemetry",
+              "HID-024-speculation-background-boundary",
+              "HID-025-remote-trigger-tool",
+              "HID-026-mark-session-read",
+              "HID-028-read-divider-rendering",
+              "HID-030-managed-agents-memory-doc",
+              "HID-031-autocompact-command-hint",
+              "HID-032-background-mcp-approval-state",
+              "HID-033-background-wake-router",
+              "INH-013-usage-safe-command-identity",
+              "INH-014-sdk-permission-rewritten-input",
+              "INH-015-model-capability-output-cap"
+            ],
+            "bytes": 16288,
+            "sha256": "fa42e2079042bc67f3a4696e598ca6eb159e57fa777bf423097ab0b0de54a395",
+            "witnessInventorySha256": "d98f92dbfbea12141dae541ca733740af8d629acd7cdd4b38a7cb4587f144248",
+            "authenticatedWitnesses": 33,
+            "losslessSemanticGrouping": true
+          },
+          {
+            "file": "recovery/test/recovery-2.1.119-daemon-fleet-query.test.mjs",
+            "obligationIds": [
+              "AUD-001-daemon-telemetry-call-counts",
+              "AUD-002-daemon-allowlist-only-events",
+              "AUD-003-connection-lifecycle",
+              "AUD-004-task-summary-classifier-flow",
+              "AUD-005-assistant-scaffold-assets",
+              "AUD-006-fleet-routine-cache-inert",
+              "AUD-007-daemon-status-hint-gate",
+              "AUD-008-supervisor-idle-respawn-race",
+              "AUD-009-dispatch-watcher-readiness-errors",
+              "AUD-010-bg-attach-terminal-lifecycle",
+              "AUD-011-fleet-remount-terminal-providers",
+              "AUD-012-daemon-startup-ordering",
+              "DFQ-001-daemon-auth-lifecycle",
+              "DFQ-002-configured-scheduled-workers",
+              "DFQ-003-background-supervisor-and-client",
+              "DFQ-004-daemon-lock-reload-shutdown",
+              "DFQ-005-fleetview-activation",
+              "DFQ-006-fleet-remote-and-name-sync",
+              "DFQ-007-remote-binary-version",
+              "DFQ-008-classifier-and-task-summary",
+              "DFQ-009-context-hint-and-result-dedup",
+              "DFQ-010-connection-lifecycle",
+              "DFQ-011-assistant-scaffold-and-retained-installer",
+              "DFQ-012-uds-transport",
+              "DFQ-013-performance-markers",
+              "DFQ-014-daemon-cli-gate",
+              "DFQ-015-telemetry-call-sites",
+              "DFQ-016-hub-and-fleet-residual-lifecycle",
+              "DFQ-017-attach-recap-trigger",
+              "DFQ-018-away-summary-canonical-runtime",
+              "DFQ-019-stop-hook-and-queue-enforcement",
+              "HID-020-daemon-config-hot-reload-self-restart",
+              "HID-027-cross-session-uds-envelope",
+              "HID-029-job-state-name-sync"
+            ],
+            "bytes": 35270,
+            "sha256": "ed7c20916459b0857213e4ff69a19b5789f8665f4da549847bf838d4790d4047",
+            "witnessInventorySha256": "830ee61e697a8b5d7946309416820ea3d606bb84f468b60c5ac50d161661cefa",
+            "authenticatedWitnesses": 94,
+            "losslessSemanticGrouping": true
+          },
+          {
+            "file": "recovery/test/recovery-2.1.119-official-prompts-plugins.test.mjs",
+            "obligationIds": [
+              "HID-009-plugin-auto-install-metadata",
+              "INH-019-plugin-monitor-runtime",
+              "INH-020-plugin-path-containment",
+              "INH-021-managed-plugin-hooks-and-registry",
+              "INH-022-marketplace-atomic-promotion-and-refresh",
+              "INH-023-plugin-project-scope-ux",
+              "INH-024-insights-verbatim-handoff",
+              "INH-025-bash-cwd-guidance",
+              "INH-026-bash-rerun-sleep-and-sandbox",
+              "INH-027-read-no-reread",
+              "INH-028-agent-steering-and-result-verification",
+              "INH-029-core-exploratory-and-verification-prompt"
+            ],
+            "bytes": 11899,
+            "sha256": "36603a46a34b8f49b996f4f7965527d69657f302dddf549f86fa2af3bc98f6b5",
+            "witnessInventorySha256": "05326f8722dc67a8d473e7eb8732062994239ef16212f7e9eed9abaf86e8a7b5",
+            "authenticatedWitnesses": 20,
+            "losslessSemanticGrouping": true
+          },
+          {
+            "file": "recovery/test/recovery-2.1.119-platform-persistence.test.mjs",
+            "obligationIds": [
+              "HID-036-update-reconnect-flush",
+              "INH-030-message-client-platform-telemetry",
+              "INH-031-first-attempt-request-id",
+              "INH-032-env-less-bridge-session-persistence"
+            ],
+            "bytes": 7782,
+            "sha256": "da2f94d84e13734cca016ebad5fbd819137a9fd5e7db381b2d8be33ccbd5a32d",
+            "witnessInventorySha256": "198062994ccaed40b7520a7a59b7afd85ed1ba14d4393fdb40674d090c6877ab",
+            "authenticatedWitnesses": 9,
+            "losslessSemanticGrouping": true
+          },
+          {
+            "file": "recovery/test/recovery-2.1.119-ultraplan-dialogs.test.mjs",
+            "obligationIds": [
+              "HID-034-ultraplan-dialogs-and-handoff"
+            ],
+            "bytes": 10729,
+            "sha256": "d75a7029e7c952a8346bcefa35edfd05136c26c470005f3646974e870b2baa8f",
+            "witnessInventorySha256": "3f3197a6cc0f6d3b8adae4481950503aa9601e145f20def6203f4249decfe53b",
+            "authenticatedWitnesses": 15,
+            "losslessSemanticGrouping": true
+          },
+          {
+            "file": "recovery/test/recovery-2.1.119-background-stop.test.mjs",
+            "obligationIds": [
+              "HID-035-background-stop-and-detach"
+            ],
+            "bytes": 9880,
+            "sha256": "ffe48c68c1653a4153e552cf41fff3bd3f58f951d8fa67d0a01651a11058a0a8",
+            "witnessInventorySha256": "a9466100f32526bb7d25213f32aaeb68643df2636e8f968f772305c29a64a84f",
+            "authenticatedWitnesses": 22,
+            "losslessSemanticGrouping": true
+          }
+        ]
+      },
+      "ledgers": [
+        {
+          "path": "recovery/2.1.119-official-semantic-inventory.json",
+          "obligations": 51
+        },
+        {
+          "path": "hidden-obligations.json",
+          "obligations": 65
+        },
+        {
+          "path": "daemon-fleet-query-obligations.json",
+          "obligations": 19
+        }
+      ]
+    },
+    "fileAssertions": [
+      {
+        "path": "binary-extraction/bun-graph.txt",
+        "bytes": 2627,
+        "sha256": "d5fa90ed0380e70e2a24c13fafafa6dc1519f75e2fe9bcbe5b50a56d542ef5be"
+      },
+      {
+        "path": "binary-extraction/inventory.json",
+        "bytes": 6326,
+        "sha256": "120ee3327bfebe45f91463e8999472440cbeb29b22bc7524a82a555c0c379ce0"
+      },
+      {
+        "path": "binary-extraction/native-package-members.json",
+        "bytes": 5306,
+        "sha256": "6b98884bf845158dc8c9b3081263b54164cf8d70dd61f71bd1d26bf0cc1b6892"
+      },
+      {
+        "path": "diff/audio-capture.js.zstd-delta",
+        "bytes": 26,
+        "sha256": "4cf4358a59881b64b77e6f06242c7566c62b562018335289976df75d5539b062"
+      },
+      {
+        "path": "diff/cli.js.zstd-delta",
+        "bytes": 2355651,
+        "sha256": "fa7164204ea9b73c965efedd32c67ee06129dca739a2480be4b2a248bf30f910"
+      },
+      {
+        "path": "diff/image-processor.js.zstd-delta",
+        "bytes": 26,
+        "sha256": "a7f7089301677ec7ce8eda02d962d08e7668057badbd850a6e9bf85769a3e090"
+      },
+      {
+        "path": "diff/metadata.json",
+        "bytes": 2184,
+        "sha256": "4fddcbcfcbb967cb5c93d11effd2c582fd21e62e7024e049f0db75321edfb933"
+      },
+      {
+        "path": "diff/package.json.zstd-delta",
+        "bytes": 55,
+        "sha256": "ea6d8b0f59c089e3d839be02841f46fba5ca2fe5f14d323fcd06c4fd507e9cda"
+      },
+      {
+        "path": "evidence/CHANGELOG-2.1.119.md",
+        "bytes": 5230,
+        "sha256": "e405e0f28fb99cbcf35c7ad6381d6b2e1fd204870400ec5d349b8a069f205eb9"
+      },
+      {
+        "path": "evidence/claude-code-CHANGELOG-ab3ce06c.md",
+        "bytes": 255309,
+        "sha256": "88d929d9b71befc31ce318a9425d721b671ff5d8ca23cc4d0275f8e7244bb88a"
+      },
+      {
+        "path": "evidence/provenance.json",
+        "bytes": 5503,
+        "sha256": "ef5888321413a7fbf5c6865debe9850a9fdadb058225ac41255d7df62570d178"
+      },
+      {
+        "path": "package-members.json",
+        "bytes": 6745,
+        "sha256": "53f8d4fe8753e0354c5e133531f94b0bef885d571c3a1bf0b7101470e6525687"
+      }
+    ]
+  },
+  "sourceFreeze": {
+    "status": "immutable-and-verified",
+    "identity": "recovered/source-freeze/identity.json",
+    "identitySha256": "41cd1817efe43a47ff109168467bebfcbaf260df545ed56511d3a3295ae8ed26",
+    "overlay": {
+      "path": "recovered/source-facing-overlay.patch",
+      "bytes": 2709667,
+      "sha256": "623cfd2740598d7a6f7cc0a7f72bfebd5000eeae13d6ccb3295f594b0abef794"
+    },
+    "fileAssertions": [
+      {
+        "path": "recovered/source-facing-overlay.patch",
+        "bytes": 2709667,
+        "sha256": "623cfd2740598d7a6f7cc0a7f72bfebd5000eeae13d6ccb3295f594b0abef794"
+      },
+      {
+        "path": "recovered/source-freeze/adjacent-direct-evidence.sha256",
+        "bytes": 139,
+        "sha256": "06747ed35fabf72add98b4817b4dd7512af7d494ad0656e57462e1b92e1e9707"
+      },
+      {
+        "path": "recovered/source-freeze/applied-src-byte-compare.txt",
+        "bytes": 10,
+        "sha256": "1cc103f316d7707bb7ead8d7a203934bbf0f1251b615eb6056deb22c90d6144f"
+      },
+      {
+        "path": "recovered/source-freeze/diff-check-allowlist.txt",
+        "bytes": 335,
+        "sha256": "0627c38c929d736766bdcf5ef6add40cc2582a75925b4a244e33a9b52df48d84"
+      },
+      {
+        "path": "recovered/source-freeze/diff-check.raw.txt",
+        "bytes": 625,
+        "sha256": "b78b2cf9c01213fbfff4bd4f851241b447c6225890d0eb3db22444f70d2ce44a"
+      },
+      {
+        "path": "recovered/source-freeze/forward-src-byte-compare.txt",
+        "bytes": 10,
+        "sha256": "1cc103f316d7707bb7ead8d7a203934bbf0f1251b615eb6056deb22c90d6144f"
+      },
+      {
+        "path": "recovered/source-freeze/identity.json",
+        "bytes": 2442,
+        "sha256": "41cd1817efe43a47ff109168467bebfcbaf260df545ed56511d3a3295ae8ed26"
+      },
+      {
+        "path": "recovered/source-freeze/retained-test-files.sha256",
+        "bytes": 482,
+        "sha256": "cc0ddaf10292517c2276844424216291f2c54d806b89049e03ec5b4ef75631c1"
+      },
+      {
+        "path": "recovered/source-freeze/SHA256SUMS",
+        "bytes": 1244,
+        "sha256": "dba23fc71774b8579ac272b58aaccd2088b0da53309e642323c08c1b609f7899"
+      },
+      {
+        "path": "recovered/source-freeze/source-facing-overlay.patch",
+        "bytes": 2709667,
+        "sha256": "623cfd2740598d7a6f7cc0a7f72bfebd5000eeae13d6ccb3295f594b0abef794"
+      },
+      {
+        "path": "recovered/source-freeze/source-files.sha256",
+        "bytes": 212195,
+        "sha256": "086ebda78e97c35fe895cf156e17272a0fb7c12441e1d0a85ca3b2efc3d3d383"
+      },
+      {
+        "path": "recovered/source-freeze/source-numstat.tsv",
+        "bytes": 10918,
+        "sha256": "636a4d2a5979968704ae68f9a2adfdce42cc904130dff7766acbfb91f5212e64"
+      },
+      {
+        "path": "recovered/source-freeze/source-paths.txt",
+        "bytes": 10018,
+        "sha256": "d99336a37a2d67b163f3d354b455eef5e566d8ae1d7022886f13f504f9b92ef8"
+      },
+      {
+        "path": "recovered/source-freeze/source-stat.txt",
+        "bytes": 18039,
+        "sha256": "a2cbcf3afb8bdf4661d28edd5164a2889f8b4d5a310fcc83da7eb63f88ba2c65"
+      },
+      {
+        "path": "recovered/source-freeze/source-symlinks.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "recovered/source-freeze/target-test-files.sha256",
+        "bytes": 1019,
+        "sha256": "d20c074e4f1639c62e330a8924b816ecbce179296113d449387e3c25c5be47b0"
+      }
+    ]
+  },
+  "nonSourceFreeze": {
+    "index": "freeze-index.json",
+    "indexBytes": 2162,
+    "indexSha256": "4b0ab098ff1840b0fb21fc7a286bc18eb5500037b8b8e36e6a0e817af4e8fb88",
+    "files": 12,
+    "bytes": 2644988,
+    "verified": true,
+    "cacheCandidates": [
+      {
+        "path": "generated/attribution/sources.jsonl.gz",
+        "bytes": 467154,
+        "sha256": "3888fb95868e5b47c68b7b4a694a593cc3842e334e5e3c09330fc6448d3a23a3"
+      },
+      {
+        "path": "generated/attribution/summary.json",
+        "bytes": 10284,
+        "sha256": "216f90f1fe950005219d724761aa755e3161d7ff2f30e23d5c07b18e2aecb612"
+      },
+      {
+        "path": "generated/attribution/target-initializers.jsonl.gz",
+        "bytes": 118829,
+        "sha256": "bf757acaaaf0a03296dd4c4568d7fafd2dcfc26073998a6de79b0326eedc814b"
+      },
+      {
+        "path": "generated/attribution/target-partitions.jsonl.gz",
+        "bytes": 2933436,
+        "sha256": "6282d6e00d7cde295ef8428f6de18838ec8497ee0e980848651bc4a4c8ffa5c4"
+      },
+      {
+        "path": "generated/attribution/target-ranges.jsonl.gz",
+        "bytes": 3442594,
+        "sha256": "33859a74cae8e3182d5fc7f0b31b129ad43d3938c8feff50d1df39146a75b704"
+      },
+      {
+        "path": "generated/readable-diff/metadata.json",
+        "bytes": 4842,
+        "sha256": "41db91fc52ed557ee96376eed7f90f2e3e5901f8619d98b79495479ad95120e6"
+      },
+      {
+        "path": "generated/readable-diff/normalized.diff.gz",
+        "bytes": 5447923,
+        "sha256": "7ce5ff6cba8222aee1cf7fe414a85a5156106a71cca74c77f8a5bdaa9df4a995"
+      },
+      {
+        "path": "generated/readable-diff/renames.tsv",
+        "bytes": 238687,
+        "sha256": "3c3f64a50b5b58dbd7dc38ef8c62a6a2d183982b57d4c33ab7fc33223d23cdda"
+      },
+      {
+        "path": "generated/readable-diff/statements.diff",
+        "bytes": 310765,
+        "sha256": "fc0a0bd9083bffd61bd89c8a92e0f2864eed78c670e92afd3b3d25825c695c91"
+      },
+      {
+        "path": "generated/structural/generated-delta.json.gz",
+        "bytes": 2550437,
+        "sha256": "fc8a30dd71e19a8208827c571a217d014218acb725eb8b104a548f98a7c67839"
+      }
+    ]
+  },
+  "pendingSourceClosure": {
+    "status": "source-frozen-semantic-correspondence-pending",
+    "manifestFields": [
+      "recoveryScope.completeness and final unresolved claim",
+      "targetAssertions.bundleFragments",
+      "recoveredEdits",
+      "recoveredFileAssertions",
+      "generatedRecovery.semanticCorrespondence",
+      "generatedRecovery.fileAssertions for source-dependent outputs"
+    ],
+    "caseFiles": [
+      "RECOVERY_RUNBOOK.md",
+      "REPORT.md",
+      "semantic/README.md",
+      "semantic/obligations.json",
+      "semantic/semantic-correspondence.json.gz",
+      "semantic/summary.json"
+    ],
+    "sourceInputs": [
+      "schema-v1 semantic/obligations.json generated losslessly from the verified 135-row input contract",
+      "semantic correspondence report and summary with zero unverified obligations",
+      "final recovery runbook/report and their manifest assertions"
+    ]
+  }
+}

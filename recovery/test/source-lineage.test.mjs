@@ -135,8 +135,12 @@ function createFixture() {
     "import assert from 'node:assert/strict'",
     "import test from 'node:test'",
     "import { readArtifact } from './semantic-helper.mjs'",
+    `const bundleWitness = ${JSON.stringify(
+      "await import('../bridge/trustedDevice.js')",
+    )}`,
     '',
     "test('receives the verified artifact path', () => {",
+    '  assert.match(bundleWitness, /trustedDevice/)',
     '  assert.equal(',
     '    readArtifact(process.env.LINEAGE_TEST_ARTIFACT),',
     `    ${JSON.stringify(artifact)},`,

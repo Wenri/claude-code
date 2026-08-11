@@ -296,7 +296,15 @@ async function fetchAuthServerMetadata(
       headers: { Accept: 'application/json' },
     })
     if (response.ok) {
-      return OAuthMetadataSchema.parse(await response.json())
+      let metadata: unknown
+      try {
+        metadata = await response.json()
+      } catch {
+        throw new Error(
+          `Configured auth server metadata at ${configuredMetadataUrl} is not valid JSON`,
+        )
+      }
+      return OAuthMetadataSchema.parse(metadata)
     }
     throw new Error(
       `HTTP ${response.status} fetching configured auth server metadata from ${configuredMetadataUrl}`,
@@ -330,9 +338,17 @@ async function fetchAuthServerMetadata(
   if (url.pathname === '/') {
     return undefined
   }
-  return discoverAuthorizationServerMetadata(url, {
-    ...(fetchFn && { fetchFn }),
-  })
+  try {
+    return await discoverAuthorizationServerMetadata(url, {
+      ...(fetchFn && { fetchFn }),
+    })
+  } catch (err) {
+    logMCPDebug(
+      serverName,
+      `Path-aware auth server discovery failed: ${errorMessage(err)}`,
+    )
+    return undefined
+  }
 }
 
 export class AuthenticationCancelledError extends Error {
@@ -1524,6 +1540,9 @@ export class ClaudeAuthProvider implements OAuthClientProvider {
     const storage = getSecureStorage()
     const data = storage.read()
     const serverKey = getServerKey(this.serverName, this.serverConfig)
+    const configuredClientSecret =
+      data?.mcpOAuthClientConfig?.[serverKey]?.clientSecret
+    const configuredClientId = this.serverConfig.oauth?.clientId
 
     // Check session credentials first (from DCR or previous auth)
     const storedInfo = data?.mcpOAuth?.[serverKey]
@@ -1531,18 +1550,20 @@ export class ClaudeAuthProvider implements OAuthClientProvider {
       logMCPDebug(this.serverName, `Found client info`)
       return {
         client_id: storedInfo.clientId,
-        client_secret: storedInfo.clientSecret,
+        client_secret:
+          storedInfo.clientSecret ??
+          (storedInfo.clientId === configuredClientId
+            ? configuredClientSecret
+            : undefined),
       }
     }
 
     // Fallback: pre-configured client ID from server config
-    const configClientId = this.serverConfig.oauth?.clientId
-    if (configClientId) {
-      const clientConfig = data?.mcpOAuthClientConfig?.[serverKey]
+    if (configuredClientId) {
       logMCPDebug(this.serverName, `Using pre-configured client ID`)
       return {
-        client_id: configClientId,
-        client_secret: clientConfig?.clientSecret,
+        client_id: configuredClientId,
+        client_secret: configuredClientSecret,
       }
     }
 

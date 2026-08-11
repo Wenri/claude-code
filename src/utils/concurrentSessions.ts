@@ -1,4 +1,5 @@
 import { feature } from 'bun:bundle'
+import { statSync } from 'fs'
 import { chmod, mkdir, readdir, readFile, unlink, writeFile } from 'fs/promises'
 import { join } from 'path'
 import {
@@ -10,7 +11,11 @@ import { registerCleanup } from './cleanupRegistry.js'
 import { logForDebugging } from './debug.js'
 import { getClaudeConfigHomeDir } from './envUtils.js'
 import { errorMessage, isFsInaccessible } from './errors.js'
-import { isProcessRunning } from './genericProcessUtils.js'
+import {
+  getCurrentProcessStartToken,
+  isProcessRunning,
+  processStartTokenMatches,
+} from './genericProcessUtils.js'
 import { getPlatform } from './platform.js'
 import { jsonParse, jsonStringify } from './slowOperations.js'
 import { getAgentId } from './teammate.js'
@@ -18,8 +23,63 @@ import { getAgentId } from './teammate.js'
 export type SessionKind = 'interactive' | 'bg' | 'daemon' | 'daemon-worker'
 export type SessionStatus = 'busy' | 'idle' | 'waiting'
 
+export interface ConcurrentSession {
+  pid: number
+  sessionId?: string
+  cwd?: string
+  startedAt: number
+  version?: string
+  kind?: SessionKind
+  entrypoint?: string
+  name?: string
+  logPath?: string
+  agent?: string
+  status?: SessionStatus
+  waitingFor?: string
+  updatedAt?: number
+  state?: string
+  detail?: string
+  tempo?: 'active' | 'idle' | 'blocked'
+  needs?: string
+  bridgeSessionId?: string
+  messagingSocketPath?: string
+  procStart?: string
+}
+
 function getSessionsDir(): string {
   return join(getClaudeConfigHomeDir(), 'sessions')
+}
+
+const FLEETVIEW_HEARTBEAT = '.fleetview-heartbeat'
+const FLEETVIEW_HEARTBEAT_TTL_MS = 5_000
+let fleetViewHeartbeatCache: { at: number; value: boolean } | undefined
+
+/** True while a FleetView process is actively watching this session set. */
+export function isFleetViewWatching(): boolean {
+  const now = Date.now()
+  if (fleetViewHeartbeatCache && now - fleetViewHeartbeatCache.at < 1_000) {
+    return fleetViewHeartbeatCache.value
+  }
+  let value = false
+  try {
+    value =
+      now - statSync(join(getSessionsDir(), FLEETVIEW_HEARTBEAT)).mtimeMs <
+      FLEETVIEW_HEARTBEAT_TTL_MS
+  } catch (error) {
+    if (!isFsInaccessible(error)) {
+      logForDebugging(
+        `[concurrentSessions] heartbeat stat failed: ${errorMessage(error)}`,
+      )
+    }
+  }
+  fleetViewHeartbeatCache = { at: now, value }
+  return value
+}
+
+export async function clearFleetViewHeartbeat(): Promise<void> {
+  try {
+    await unlink(join(getSessionsDir(), FLEETVIEW_HEARTBEAT))
+  } catch {}
 }
 
 /**
@@ -81,6 +141,9 @@ export async function registerSession(): Promise<boolean> {
         sessionId: getSessionId(),
         cwd: getOriginalCwd(),
         startedAt: Date.now(),
+        procStart: getCurrentProcessStartToken(),
+        version: typeof MACRO !== 'undefined' ? MACRO.VERSION : 'unknown',
+        peerProtocol: 1,
         kind,
         entrypoint: process.env.CLAUDE_CODE_ENTRYPOINT,
         ...(feature('UDS_INBOX')
@@ -155,6 +218,10 @@ export async function updateSessionBridgeId(
 export async function updateSessionActivity(patch: {
   status?: SessionStatus
   waitingFor?: string
+  state?: string
+  detail?: string
+  tempo?: 'active' | 'idle' | 'blocked'
+  needs?: string
 }): Promise<void> {
   if (!feature('BG_SESSIONS')) return
   await updatePidFile({ ...patch, updatedAt: Date.now() })
@@ -201,4 +268,100 @@ export async function countConcurrentSessions(): Promise<number> {
     }
   }
   return count
+}
+
+/**
+ * Return the live local session registry used by FleetView.  Stale PID files
+ * are removed on platforms where a PID probe is authoritative.  The process
+ * birth token prevents a recycled PID from making an old session look live.
+ */
+export async function listAllLiveSessions(): Promise<ConcurrentSession[]> {
+  const dir = getSessionsDir()
+  let files: string[]
+  try {
+    files = await readdir(dir)
+  } catch {
+    return []
+  }
+
+  const candidates = await Promise.all(
+    files
+      .filter(file => /^\d+\.json$/.test(file))
+      .map(async file => {
+        const pid = Number(file.slice(0, -5))
+        try {
+          const raw = jsonParse(await readFile(join(dir, file), 'utf8')) as Record<
+            string,
+            unknown
+          >
+          const kind =
+            raw.kind === 'interactive' ||
+            raw.kind === 'bg' ||
+            raw.kind === 'daemon' ||
+            raw.kind === 'daemon-worker'
+              ? raw.kind
+              : undefined
+          const status =
+            raw.status === 'busy' || raw.status === 'idle' || raw.status === 'waiting'
+              ? raw.status
+              : undefined
+          const tempo =
+            raw.tempo === 'active' || raw.tempo === 'idle' || raw.tempo === 'blocked'
+              ? raw.tempo
+              : undefined
+          return {
+            file,
+            session: {
+              pid,
+              sessionId:
+                typeof raw.sessionId === 'string' ? raw.sessionId : undefined,
+              cwd: typeof raw.cwd === 'string' ? raw.cwd : undefined,
+              startedAt:
+                typeof raw.startedAt === 'number' ? raw.startedAt : 0,
+              version: typeof raw.version === 'string' ? raw.version : undefined,
+              kind,
+              entrypoint:
+                typeof raw.entrypoint === 'string' ? raw.entrypoint : undefined,
+              name: typeof raw.name === 'string' ? raw.name : undefined,
+              logPath: typeof raw.logPath === 'string' ? raw.logPath : undefined,
+              agent: typeof raw.agent === 'string' ? raw.agent : undefined,
+              status,
+              waitingFor:
+                typeof raw.waitingFor === 'string' ? raw.waitingFor : undefined,
+              updatedAt:
+                typeof raw.updatedAt === 'number' ? raw.updatedAt : undefined,
+              state: typeof raw.state === 'string' ? raw.state : undefined,
+              detail: typeof raw.detail === 'string' ? raw.detail : undefined,
+              tempo,
+              needs: typeof raw.needs === 'string' ? raw.needs : undefined,
+              bridgeSessionId:
+                typeof raw.bridgeSessionId === 'string'
+                  ? raw.bridgeSessionId
+                  : undefined,
+              messagingSocketPath:
+                typeof raw.messagingSocketPath === 'string'
+                  ? raw.messagingSocketPath
+                  : undefined,
+              procStart:
+                typeof raw.procStart === 'string' ? raw.procStart : undefined,
+            } satisfies ConcurrentSession,
+          }
+        } catch {
+          return null
+        }
+      }),
+  )
+
+  const live: ConcurrentSession[] = []
+  for (const candidate of candidates) {
+    if (!candidate) continue
+    const { file, session } = candidate
+    const running = isProcessRunning(session.pid)
+    if (running && (await processStartTokenMatches(session.pid, session.procStart))) {
+      live.push(session)
+    } else if (!running && getPlatform() !== 'wsl') {
+      void unlink(join(dir, file)).catch(() => {})
+    }
+  }
+  return live
 }

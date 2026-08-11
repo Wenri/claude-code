@@ -16,6 +16,7 @@ import type {
   ToolCallProgress,
   ToolUseContext,
 } from '../../Tool.js'
+import { isAbortError } from '../../utils/errors.js'
 import { createAssistantMessage } from '../../utils/messages.js'
 import { formatError } from '../../utils/toolErrors.js'
 import type {
@@ -160,6 +161,7 @@ export function createToolWrappers(
         },
       })
 
+      let toolStartTime: number | undefined
       try {
         const parsed = tool.inputSchema.safeParse(input)
         if (!parsed.success) {
@@ -241,6 +243,7 @@ export function createToolWrappers(
           processedInput = rest
         }
 
+        toolStartTime = Date.now()
         const result = await tool.call(
           processedInput,
           {
@@ -256,6 +259,7 @@ export function createToolWrappers(
           canUseTool,
           parentMessage,
         )
+        const durationMs = Date.now() - toolStartTime
 
         let output: unknown = result.data
         for await (const hookResult of runPostToolUseHooks(
@@ -268,6 +272,7 @@ export function createToolWrappers(
           parentMessage.requestId,
           undefined as never,
           undefined,
+          durationMs,
         )) {
           if ('updatedMCPToolOutput' in hookResult) {
             output = hookResult.updatedMCPToolOutput
@@ -316,10 +321,13 @@ export function createToolWrappers(
           parentMessage.message.id,
           processedInput,
           message,
-          undefined,
+          isAbortError(error),
           parentMessage.requestId,
           undefined as never,
           undefined,
+          typeof toolStartTime !== 'undefined'
+            ? Date.now() - toolStartTime
+            : undefined,
         )) {
           // Hook messages are represented in the outer transcript, not VM data.
         }

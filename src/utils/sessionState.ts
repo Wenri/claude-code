@@ -16,6 +16,7 @@ export type RequiresActionDetails = {
   tool_name: string
   /** Human-readable summary, e.g. "Editing src/foo.ts", "Running npm test" */
   action_description: string
+  raw_command?: string
   tool_use_id: string
   request_id: string
   /** Raw tool input — the frontend reads from external_metadata.pending_action.input
@@ -42,6 +43,7 @@ export type SessionExternalMetadata = {
   // ~5 steps / 2min so long-running turns still surface "what's happening
   // right now" before post_turn_summary arrives.
   task_summary?: string | null
+  current_branches?: Record<string, string | null>
 }
 
 type SessionStateChangedListener = (
@@ -83,6 +85,7 @@ export function setPermissionModeChangedListener(
 }
 
 let hasPendingAction = false
+let hasTaskSummary = false
 let currentState: SessionState = 'idle'
 
 export function getSessionState(): SessionState {
@@ -109,10 +112,14 @@ export function notifySessionStateChanged(
     metadataListener?.({ pending_action: null })
   }
 
-  // task_summary is written mid-turn by the forked summarizer; clear it at
-  // idle so the next turn doesn't briefly show the previous turn's progress.
-  if (state === 'idle') {
-    metadataListener?.({ task_summary: null })
+  if (state === 'running') metadataListener?.({ post_turn_summary: null })
+
+  // Only emit the idle clear when a summary was actually published. Besides
+  // avoiding redundant metadata writes, routing it through the normal
+  // metadata path emits the matching SDK task_summary event.
+  if (state === 'idle' && hasTaskSummary) {
+    hasTaskSummary = false
+    notifySessionMetadataChanged({ task_summary: null })
   }
 
   // Mirror to the SDK event stream so non-CCR consumers (scmuxd, VS Code)
@@ -137,6 +144,14 @@ export function notifySessionMetadataChanged(
   metadata: SessionExternalMetadata,
 ): void {
   metadataListener?.(metadata)
+  if ('task_summary' in metadata) {
+    if (metadata.task_summary != null) hasTaskSummary = true
+    enqueueSdkEvent({
+      type: 'system',
+      subtype: 'task_summary',
+      detail: metadata.task_summary ?? null,
+    })
+  }
 }
 
 /**

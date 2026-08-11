@@ -41,6 +41,8 @@ import { useHasSelection, useSelection } from '../../ink/hooks/use-selection.js'
 import { getGlobalConfig, saveGlobalConfig } from '../../utils/config.js';
 import { getPlatform } from '../../utils/platform.js';
 import { PrBadge } from '../PrBadge.js';
+import { isBgSession } from '../../utils/concurrentSessions.js';
+import { isFgLeftArrowAgentsAvailable } from '../../utils/agentsFleet.js';
 
 // Dead code elimination: conditional import for proactive mode
 /* eslint-disable @typescript-eslint/no-require-imports */
@@ -54,6 +56,7 @@ type Props = {
     show: boolean;
     key?: string;
   };
+  leftArrowPending: boolean;
   vimMode: VimMode | undefined;
   mode: PromptInputMode;
   toolPermissionContext: ToolPermissionContext;
@@ -126,9 +129,10 @@ function ProactiveCountdown() {
   return t4;
 }
 export function PromptInputFooterLeftSide(t0) {
-  const $ = _c(27);
+  const $ = _c(29);
   const {
     exitMessage,
+    leftArrowPending,
     vimMode,
     mode,
     toolPermissionContext,
@@ -194,8 +198,8 @@ export function PromptInputFooterLeftSide(t0) {
   const t3 = showVim ? <Text dimColor={true} key="vim-indicator">-- {vimMode} --</Text> : null;
   const t4 = !suppressHint && !showVim;
   let t5;
-  if ($[13] !== isLoading || $[14] !== mode || $[15] !== onOpenTasksDialog || $[16] !== t4 || $[17] !== tasksSelected || $[18] !== teammateFooterIndex || $[19] !== teamsSelected || $[20] !== tmuxSelected || $[21] !== toolPermissionContext) {
-    t5 = <ModeIndicator mode={mode} toolPermissionContext={toolPermissionContext} showHint={t4} isLoading={isLoading} tasksSelected={tasksSelected} teamsSelected={teamsSelected} teammateFooterIndex={teammateFooterIndex} tmuxSelected={tmuxSelected} onOpenTasksDialog={onOpenTasksDialog} />;
+  if ($[13] !== isLoading || $[14] !== mode || $[15] !== onOpenTasksDialog || $[16] !== t4 || $[17] !== tasksSelected || $[18] !== teammateFooterIndex || $[19] !== teamsSelected || $[20] !== tmuxSelected || $[21] !== toolPermissionContext || $[27] !== leftArrowPending || $[28] !== suppressHint) {
+    t5 = <ModeIndicator mode={mode} toolPermissionContext={toolPermissionContext} showHint={t4} isInputEmpty={!suppressHint} isLoading={isLoading} leftArrowPending={leftArrowPending} tasksSelected={tasksSelected} teamsSelected={teamsSelected} teammateFooterIndex={teammateFooterIndex} tmuxSelected={tmuxSelected} onOpenTasksDialog={onOpenTasksDialog} />;
     $[13] = isLoading;
     $[14] = mode;
     $[15] = onOpenTasksDialog;
@@ -205,6 +209,8 @@ export function PromptInputFooterLeftSide(t0) {
     $[19] = teamsSelected;
     $[20] = tmuxSelected;
     $[21] = toolPermissionContext;
+    $[27] = leftArrowPending;
+    $[28] = suppressHint;
     $[22] = t5;
   } else {
     t5 = $[22];
@@ -225,7 +231,9 @@ type ModeIndicatorProps = {
   mode: PromptInputMode;
   toolPermissionContext: ToolPermissionContext;
   showHint: boolean;
+  isInputEmpty: boolean;
   isLoading: boolean;
+  leftArrowPending: boolean;
   tasksSelected: boolean;
   teamsSelected: boolean;
   tmuxSelected: boolean;
@@ -236,7 +244,9 @@ function ModeIndicator({
   mode,
   toolPermissionContext,
   showHint,
+  isInputEmpty,
   isLoading,
+  leftArrowPending,
   tasksSelected,
   teamsSelected,
   tmuxSelected,
@@ -407,6 +417,11 @@ function ModeIndicator({
   if (parts.length === 0 && !tasksPart && !modePart && showHint) {
     parts.push(<Text dimColor key="shortcuts-hint">
         ? for shortcuts
+      </Text>);
+  }
+  if (!isBgSession() && !isLoading && isInputEmpty && isFgLeftArrowAgentsAvailable() && getGlobalConfig().leftArrowOpensAgents !== false) {
+    parts.push(<Text dimColor key="fg-agents">
+        ← {leftArrowPending ? 'again ' : ''}for agents
       </Text>);
   }
 

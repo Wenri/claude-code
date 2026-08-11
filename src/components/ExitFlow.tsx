@@ -11,6 +11,7 @@ function getRandomGoodbyeMessage(): string {
 type Props = {
   onDone: (message?: string) => void;
   onCancel?: () => void;
+  onDetach?: () => void;
   showWorktree: boolean;
   backgroundItems: SessionBackgroundExitItem[];
 };
@@ -19,6 +20,7 @@ export function ExitFlow({
   backgroundItems,
   onDone,
   onCancel,
+  onDetach,
 }: Props): React.ReactNode {
   async function onExit(resultMessage?: string): Promise<void> {
     onDone(resultMessage ?? getRandomGoodbyeMessage());
@@ -33,6 +35,7 @@ export function ExitFlow({
       <BackgroundExitDialog
         items={backgroundItems}
         onExit={() => void onExit()}
+        onDetach={onDetach}
         onCancel={onCancel ?? noop}
       />
     );

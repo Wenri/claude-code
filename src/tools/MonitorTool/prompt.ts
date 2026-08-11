@@ -1,12 +1,12 @@
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
-import { getGlobalConfig } from '../../utils/config.js'
+import { getConfigValue } from '../../utils/settings/configSettings.js'
 
 function isPushNotificationAvailable(): boolean {
   return (
     getFeatureValue_CACHED_MAY_BE_STALE(
       'tengu_kairos_push_notifications',
       false,
-    ) && getGlobalConfig().agentPushNotifEnabled === true
+    ) && getConfigValue('agentPushNotifEnabled', false).value
   )
 }
 
@@ -16,7 +16,10 @@ When an event lands that the user would want to act on now — an error appeared
 
 export const MONITOR_PROMPT = `Start a background monitor that streams events from a long-running script. Each stdout line is an event — you keep working and notifications arrive in the chat. Events arrive on their own schedule and are not replies from the user, even if one lands while you're waiting for the user to answer a question.
 
-Monitor is for the **streaming** case: "tell me every time X happens." For one-shot "wait until X is done," use Bash with run_in_background instead — you'll get a completion notification when it exits.
+Pick by how many notifications you need:
+- **One** ("tell me when the server is ready / the build finishes") → use **Bash with \`run_in_background\`** and a command that exits when the condition is true, e.g. \`until grep -q "Ready in" dev.log; do sleep 0.5; done\`. You get a single completion notification when it exits.
+- **One per occurrence, indefinitely** ("tell me every time an ERROR line appears") → Monitor with an unbounded command (\`tail -f\`, \`inotifywait -m\`, \`while true\`).
+- **One per occurrence, until a known end** ("emit each CI step result, stop when the run completes") → Monitor with a command that emits lines and then exits.
 
 Your script's stdout is the event stream. Each line becomes a notification. Exit ends the watch.
 
@@ -36,6 +39,19 @@ Your script's stdout is the event stream. Each line becomes a notification. Exit
 
   # Node script that emits events as they arrive (e.g. WebSocket listener)
   node watch-for-events.js
+
+  # Per-occurrence with a natural end: emit each CI check as it lands, exit when the run completes
+  prev=""
+  while true; do
+    s=$(gh pr checks 123 --json name,bucket)
+    cur=$(jq -r '.[] | select(.bucket!="pending") | "\\(.name): \\(.bucket)"' <<<"$s" | sort)
+    comm -13 <(echo "$prev") <(echo "$cur")
+    prev=$cur
+    jq -e 'all(.bucket!="pending")' <<<"$s" >/dev/null && break
+    sleep 30
+  done
+
+**Don't use an unbounded command for a single notification.** \`tail -f\`, \`inotifywait -m\`, and \`while true\` never exit on their own, so the monitor stays armed until timeout even after the event has fired. For "tell me when X is ready," use Bash \`run_in_background\` with an \`until\` loop instead (one notification, ends in seconds). Note that \`tail -f log | grep -m 1 ...\` does *not* fix this: if the log goes quiet after the match, \`tail\` never receives SIGPIPE and the pipeline hangs anyway.
 
 **Script quality:**
 - Always use \`grep --line-buffered\` in pipes — without it, pipe buffering delays events by minutes.

@@ -33,7 +33,8 @@ const GIT_MERGE_RE = gitCmdRe('merge', '(?!-)')
 const GIT_REBASE_RE = gitCmdRe('rebase')
 const GH_COMMAND_RE =
   /(?:^|[;&|]|\b(?:then|do)\b)\s*gh\s+(?!auth\b|help\b|version\b|alias\b|completion\b|config\b)/
-const RATE_LIMIT_RE = /\brate limit\b/i
+const RATE_LIMIT_RE =
+  /API rate limit (?:already )?exceeded|exceeded a secondary rate limit|\bRATE_LIMITED\b/i
 const GH_RATE_LIMIT_HINT_COOLDOWN_MS = 60_000
 let ghRateLimitHintCooldownUntil = 0
 
@@ -75,10 +76,13 @@ const GH_PR_ACTIONS: readonly { re: RegExp; action: PrAction; op: string }[] = [
  * Parse PR info from a GitHub PR URL.
  * Returns { prNumber, prUrl, prRepository } or null if not a valid PR URL.
  */
+const PR_URL_RE =
+  /https?:\/\/[^/\s"]+\/([^\s"]+?)\/(?:pull|pull-requests|-\/merge_requests)\/(\d+)/
+
 function parsePrUrl(
   url: string,
 ): { prNumber: number; prUrl: string; prRepository: string } | null {
-  const match = url.match(/https:\/\/github\.com\/([^/]+\/[^/]+)\/pull\/(\d+)/)
+  const match = url.match(PR_URL_RE)
   if (match?.[1] && match?.[2]) {
     return {
       prNumber: parseInt(match[2], 10),
@@ -91,8 +95,25 @@ function parsePrUrl(
 
 /** Find a GitHub PR URL embedded anywhere in stdout and parse it. */
 function findPrInStdout(stdout: string): ReturnType<typeof parsePrUrl> {
-  const m = stdout.match(/https:\/\/github\.com\/[^/\s]+\/[^/\s]+\/pull\/\d+/)
-  return m ? parsePrUrl(m[0]) : null
+  const matches = stdout.match(new RegExp(PR_URL_RE.source, 'g'))
+  return matches ? parsePrUrl(matches.at(-1)!) : null
+}
+
+async function linkCurrentSessionToPr(
+  prInfo: NonNullable<ReturnType<typeof parsePrUrl>>,
+): Promise<void> {
+  const [{ linkSessionToPR }, { getSessionId }] = await Promise.all([
+    import('../../utils/sessionStorage.js'),
+    import('../../bootstrap/state.js'),
+  ])
+  const sessionId = getSessionId()
+  if (!sessionId) return
+  await linkSessionToPR(
+    sessionId as `${string}-${string}-${string}-${string}-${string}`,
+    prInfo.prNumber,
+    prInfo.prUrl,
+    prInfo.prRepository,
+  )
 }
 
 // Exported for testing purposes
@@ -248,22 +269,7 @@ export function trackGitOperations(
     if (stdout) {
       const prInfo = findPrInStdout(stdout)
       if (prInfo) {
-        // Import is done dynamically to avoid circular dependency
-        void import('../../utils/sessionStorage.js').then(
-          ({ linkSessionToPR }) => {
-            void import('../../bootstrap/state.js').then(({ getSessionId }) => {
-              const sessionId = getSessionId()
-              if (sessionId) {
-                void linkSessionToPR(
-                  sessionId as `${string}-${string}-${string}-${string}-${string}`,
-                  prInfo.prNumber,
-                  prInfo.prUrl,
-                  prInfo.prRepository,
-                )
-              }
-            })
-          },
-        )
+        void linkCurrentSessionToPr(prInfo)
       }
     }
   }
@@ -273,6 +279,10 @@ export function trackGitOperations(
         'pr_create' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
     })
     getPrCounter()?.add(1)
+    if (stdout) {
+      const prInfo = findPrInStdout(stdout)
+      if (prInfo) void linkCurrentSessionToPr(prInfo)
+    }
   }
   // Detect PR creation via curl to REST APIs (Bitbucket, GitHub API, GitLab API)
   // Check for POST method and PR endpoint separately to handle any argument order
@@ -293,5 +303,9 @@ export function trackGitOperations(
         'pr_create' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
     })
     getPrCounter()?.add(1)
+    if (stdout) {
+      const prInfo = findPrInStdout(stdout)
+      if (prInfo) void linkCurrentSessionToPr(prInfo)
+    }
   }
 }

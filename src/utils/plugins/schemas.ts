@@ -541,6 +541,68 @@ const PluginManifestThemesSchema = lazySchema(() =>
   }),
 )
 
+export const PluginMonitorSchema = lazySchema(() =>
+  z.strictObject({
+    name: z
+      .string()
+      .min(1)
+      .describe(
+        'Identifier for this monitor, unique within the plugin. Used to dedupe so re-arming (plugin reload, repeat skill invoke) does not spawn duplicates.',
+      ),
+    command: z
+      .string()
+      .min(1)
+      .describe(
+        'Shell command to run as a persistent background monitor. Each stdout line is delivered to the model as a <task_notification> event; the process runs for the session lifetime. ${CLAUDE_PLUGIN_ROOT}, ${CLAUDE_PLUGIN_DATA}, ${user_config.*}, and ${ENV_VAR} are substituted. Runs in the session cwd — prefix with `cd "${CLAUDE_PLUGIN_ROOT}" && ` if the script needs its own directory.',
+      ),
+    description: z
+      .string()
+      .min(1)
+      .describe(
+        'Short human-readable description of what is being monitored (shown in task panel and notification summary).',
+      ),
+    when: z
+      .union([
+        z.literal('always'),
+        z
+          .string()
+          .startsWith('on-skill-invoke:')
+          .refine(value => value.length > 16, {
+            message: 'on-skill-invoke: must specify a skill name',
+          }),
+      ])
+      .default('always')
+      .describe(
+        'Arm trigger. "always" arms at session start and on plugin reload. "on-skill-invoke:<skill>" arms the first time that skill is dispatched (via Skill tool or slash command).',
+      ),
+  }),
+)
+
+export const PluginMonitorsSchema = lazySchema(() =>
+  z
+    .array(PluginMonitorSchema())
+    .refine(
+      monitors =>
+        new Set(monitors.map(monitor => monitor.name)).size === monitors.length,
+      { message: 'Monitor names must be unique within a plugin' },
+    ),
+)
+
+const PluginManifestMonitorsSchema = lazySchema(() =>
+  z.object({
+    monitors: z
+      .union([
+        RelativeJSONPath().describe(
+          'Path to a JSON file containing the monitors array, relative to the plugin root',
+        ),
+        PluginMonitorsSchema(),
+      ])
+      .describe(
+        'Background watch scripts the host arms as persistent Monitor tasks (unsandboxed, same trust tier as hooks) so plugins need not instruct the model to arm them. When omitted, monitors/monitors.json at the plugin root is loaded if present.',
+      ),
+  }),
+)
+
 // Helper validators for LSP config
 const nonEmptyString = lazySchema(() => z.string().min(1))
 const fileExtension = lazySchema(() =>
@@ -911,6 +973,7 @@ export const PluginManifestSchema = lazySchema(() =>
     ...PluginManifestChannelsSchema().partial().shape,
     ...PluginManifestMcpServerSchema().partial().shape,
     ...PluginManifestLspServerSchema().partial().shape,
+    ...PluginManifestMonitorsSchema().partial().shape,
     ...PluginManifestSettingsSchema().partial().shape,
     ...PluginManifestUserConfigSchema().partial().shape,
   }),
@@ -1087,7 +1150,15 @@ export const PluginSourceSchema = lazySchema(() =>
       .object({
         source: z.literal('npm'),
         package: NpmPackageNameSchema()
-          .or(z.string()) // Allow URLs and local paths as well
+          .or(
+            z.string().refine(
+              value =>
+                /^(?:file|https?|git(?:\+https?|\+ssh)?|ssh|github|gitlab|bitbucket):/i.test(
+                  value,
+                ) || !value.includes('..'),
+              'Package reference cannot contain ".." path segments',
+            ),
+          ) // Allow URLs and local paths as well
           .describe(
             'Package name (or url, or local path, or anything else that can be passed to `npm` as a package)',
           ),
@@ -1464,6 +1535,12 @@ export const InstalledPluginSchema = lazySchema(() =>
       .describe(
         'Tag-derived semver this install resolved to (when fetched via a version constraint). Used by verifyAndDemote in preference to manifest.version, since the upstream may have forgotten to bump plugin.json.',
       ),
+    auto: z
+      .boolean()
+      .optional()
+      .describe(
+        'True when this plugin was pulled in as a dependency rather than installed explicitly. Auto-installed plugins are eligible for removal by the orphan sweep when nothing depends on them. Absent = manual (preserves pre-flag installs).',
+      ),
   }),
 )
 
@@ -1548,6 +1625,12 @@ export const PluginInstallationEntrySchema = lazySchema(() =>
       .string()
       .optional()
       .describe('Tag-derived semver this install resolved to'),
+    auto: z
+      .boolean()
+      .optional()
+      .describe(
+        'True when pulled in as a dependency. Eligible for orphan sweep.',
+      ),
   }),
 )
 
@@ -1661,6 +1744,7 @@ export type MarketplaceSource = z.infer<
 export type PluginAuthor = z.infer<ReturnType<typeof PluginAuthorSchema>>
 export type PluginSource = z.infer<ReturnType<typeof PluginSourceSchema>>
 export type PluginManifest = z.infer<ReturnType<typeof PluginManifestSchema>>
+export type PluginMonitor = z.infer<ReturnType<typeof PluginMonitorSchema>>
 export type PluginManifestChannel = NonNullable<
   PluginManifest['channels']
 >[number]

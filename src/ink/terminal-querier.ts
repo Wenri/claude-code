@@ -175,6 +175,19 @@ export class TerminalQuerier {
   }
 
   /**
+   * Remove a pending query without emitting another terminal sequence.
+   * Used when a multiplexer-passthrough probe is abandoned during cleanup.
+   */
+  cancel(query: TerminalQuery): void {
+    const idx = this.queue.findIndex(
+      pending => pending.kind === 'query' && pending.match === query.match,
+    )
+    if (idx === -1) return
+    const [pending] = this.queue.splice(idx, 1)
+    if (pending?.kind === 'query') pending.resolve(undefined)
+  }
+
+  /**
    * Dispatch a response parsed from stdin. Called by App.tsx's
    * processKeysInBatch for every `kind: 'response'` item.
    *

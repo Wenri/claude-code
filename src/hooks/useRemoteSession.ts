@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { randomUUID } from 'crypto'
 import { BoundedUUIDSet } from '../bridge/bridgeMessaging.js'
+import { setCwdState } from '../bootstrap/state.js'
 import type { ToolUseConfirm } from '../components/permissions/PermissionRequest.js'
 import type { SpinnerMode } from '../components/Spinner/types.js'
 import {
@@ -32,7 +34,12 @@ import {
 } from '../utils/messages.js'
 import { generateSessionTitle } from '../utils/sessionTitle.js'
 import type { RemoteMessageContent } from '../utils/teleport/api.js'
-import { updateSessionTitle } from '../utils/teleport/api.js'
+import {
+  markSessionRead,
+  reportClientPresence,
+  updateSessionTitle,
+} from '../utils/teleport/api.js'
+import { errorMessage } from '../utils/errors.js'
 
 // How long to wait for a response before showing a warning
 const RESPONSE_TIMEOUT_MS = 60000 // 60 seconds
@@ -125,6 +132,7 @@ export function useRemoteSession({
   const isCompactingRef = useRef(false)
 
   const managerRef = useRef<RemoteSessionManager | null>(null)
+  const presenceClientIdRef = useRef(randomUUID())
 
   // Track whether we've already updated the session title (for no-initial-prompt sessions)
   const hasUpdatedTitleRef = useRef(false)
@@ -154,11 +162,21 @@ export function useRemoteSession({
     if (permissionModeRef.current === permissionMode) return
     permissionModeRef.current = permissionMode
     if (permissionMode === 'bubble') return
-    managerRef.current?.sendControlRequest({
-      subtype: 'set_permission_mode',
-      mode: permissionMode,
-    })
-  }, [permissionMode, config])
+    managerRef.current
+      ?.sendControlRequest({
+        subtype: 'set_permission_mode',
+        mode: permissionMode,
+      })
+      .catch(error => {
+        setMessages(prev => [
+          ...prev,
+          createSystemMessage(
+            `Couldn't change permission mode on the remote session — ${errorMessage(error)}`,
+            'warning',
+          ),
+        ])
+      })
+  }, [permissionMode, config, setMessages])
 
   // Initialize and connect to remote session
   useEffect(() => {
@@ -218,13 +236,13 @@ export function useRemoteSession({
         // Handle init message - extract available slash commands
         if (
           sdkMessage.type === 'system' &&
-          sdkMessage.subtype === 'init' &&
-          onInit
+          sdkMessage.subtype === 'init'
         ) {
           logForDebugging(
             `[useRemoteSession] Init received with ${sdkMessage.slash_commands.length} slash commands`,
           )
-          onInit(sdkMessage.slash_commands)
+          if (sdkMessage.cwd) setCwdState(sdkMessage.cwd)
+          onInit?.(sdkMessage.slash_commands)
         }
 
         // Track remote subagent lifecycle for the "N in background" counter.
@@ -242,7 +260,11 @@ export function useRemoteSession({
             writeTaskCount()
             return
           }
-          if (sdkMessage.subtype === 'task_progress') {
+          if (
+            sdkMessage.subtype === 'task_progress' ||
+            sdkMessage.subtype === 'task_updated' ||
+            sdkMessage.subtype === 'notification'
+          ) {
             return
           }
           // Track compaction state. The CLI emits status='compacting' at
@@ -471,6 +493,40 @@ export function useRemoteSession({
     managerRef.current = manager
     manager.connect()
 
+    const presenceClientId = presenceClientIdRef.current
+    let presenceTimer: NodeJS.Timeout | null = null
+    void reportClientPresence(config.sessionId, presenceClientId).then(
+      refreshAfterSeconds => {
+        if (managerRef.current !== manager || refreshAfterSeconds === null) {
+          return
+        }
+        presenceTimer = setInterval(
+          (sessionId, clientId) =>
+            void reportClientPresence(sessionId, clientId),
+          refreshAfterSeconds * 1000,
+          config.sessionId,
+          presenceClientId,
+        )
+      },
+    )
+
+    void config.preflightCheck?.catch(error => {
+      if (managerRef.current !== manager) return
+      setMessages(prev => [
+        ...prev,
+        createSystemMessage(errorMessage(error), 'warning'),
+      ])
+      manager.disconnect()
+      managerRef.current = null
+      setConnStatus('disconnected')
+      setIsLoading(false)
+      runningTaskIdsRef.current.clear()
+      writeTaskCount()
+      setInProgressToolUseIDs?.(prev =>
+        prev.size > 0 ? new Set() : prev,
+      )
+    })
+
     return () => {
       logForDebugging('[useRemoteSession] Cleanup - disconnecting')
       // Clear any pending timeout
@@ -478,6 +534,16 @@ export function useRemoteSession({
         clearTimeout(responseTimeoutRef.current)
         responseTimeoutRef.current = null
       }
+      if (presenceTimer) {
+        clearInterval(presenceTimer)
+        presenceTimer = null
+      }
+      void reportClientPresence(
+        config.sessionId,
+        presenceClientId,
+        true,
+      )
+      void markSessionRead(config.sessionId)
       manager.disconnect()
       managerRef.current = null
     }
@@ -518,10 +584,17 @@ export function useRemoteSession({
       // before the POST promise resolves.
       if (opts?.uuid) sentUUIDsRef.current.add(opts.uuid)
 
-      const success = await manager.sendMessage(content, opts)
+      const result = await manager.sendMessage(content, opts)
 
-      if (!success) {
+      if (!result.ok) {
         // No need to undo the pre-POST add — BoundedUUIDSet's ring evicts it.
+        setMessages(prev => [
+          ...prev,
+          createSystemMessage(
+            `Couldn't send your message — ${result.reason}. It wasn't delivered to the remote session.`,
+            'warning',
+          ),
+        ])
         setIsLoading(false)
         return false
       }
@@ -587,7 +660,7 @@ export function useRemoteSession({
         )
       }
 
-      return success
+      return true
     },
     [config, setIsLoading, setMessages],
   )

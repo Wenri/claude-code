@@ -37,6 +37,12 @@ import {
 } from '../../Tool.js'
 import type { BashToolInput } from '../../tools/BashTool/BashTool.js'
 import { startSpeculativeClassifierCheck } from '../../tools/BashTool/bashPermissions.js'
+import {
+  formatBashRerunFooter,
+  isBashRerunEnabled,
+  registerBashRerunAlias,
+  resolveBashRerunAlias,
+} from '../../tools/BashTool/rerun.js'
 import { BASH_TOOL_NAME } from '../../tools/BashTool/toolName.js'
 import { FILE_EDIT_TOOL_NAME } from '../../tools/FileEditTool/constants.js'
 import { FILE_READ_TOOL_NAME } from '../../tools/FileReadTool/prompt.js'
@@ -106,6 +112,7 @@ import {
   processPreMappedToolResultBlock,
   processToolResultBlock,
 } from '../../utils/toolResultStorage.js'
+import { deduplicateToolResult } from './resultDedup.js'
 import {
   extractDiscoveredToolNames,
   isToolSearchEnabledOptimistic,
@@ -379,6 +386,11 @@ export async function* runToolUse(
       queryChainId: toolUseContext.queryTracking
         ?.chainId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       queryDepth: toolUseContext.queryTracking?.depth,
+      ...(toolUseContext.options.messageClientPlatform && {
+        messageClientPlatform:
+          toolUseContext.options
+            .messageClientPlatform as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      }),
       ...(mcpServerType && {
         mcpServerType:
           mcpServerType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -611,6 +623,66 @@ async function checkPermissionsAndCallTool(
     progress: ToolProgress<ToolProgressData> | ProgressMessage<HookProgress>,
   ) => void,
 ): Promise<MessageUpdateLazy[]> {
+  const toolInputSizeBytes = jsonStringify(input).length
+
+  if (
+    tool.name === BASH_TOOL_NAME &&
+    isBashRerunEnabled() &&
+    typeof input.rerun === 'string'
+  ) {
+    if (typeof input.command === 'string' && input.command.length > 0) {
+      return [
+        {
+          message: createUserMessage({
+            content: [
+              {
+                type: 'tool_result',
+                content:
+                  "<tool_use_error>'rerun' and 'command' are mutually exclusive — provide one or the other.</tool_use_error>",
+                is_error: true,
+                tool_use_id: toolUseID,
+              },
+            ],
+            toolUseResult:
+              "Error: 'rerun' and 'command' are mutually exclusive",
+            sourceToolAssistantUUID: assistantMessage.uuid,
+          }),
+        },
+      ]
+    }
+
+    const resolved = resolveBashRerunAlias(
+      toolUseContext.bashRerunAliases,
+      input.rerun,
+    )
+    if ('error' in resolved) {
+      logEvent('tengu_bash_rerun_used', { ok: false })
+      return [
+        {
+          message: createUserMessage({
+            content: [
+              {
+                type: 'tool_result',
+                content: `<tool_use_error>${resolved.error}</tool_use_error>`,
+                is_error: true,
+                tool_use_id: toolUseID,
+              },
+            ],
+            toolUseResult: `Error: ${resolved.error}`,
+            sourceToolAssistantUUID: assistantMessage.uuid,
+          }),
+        },
+      ]
+    }
+
+    logEvent('tengu_bash_rerun_used', {
+      ok: true,
+      commandBytes: Buffer.byteLength(resolved.command, 'utf8'),
+    })
+    const { rerun: _, ...rest } = input
+    input = { ...rest, command: resolved.command }
+  }
+
   // Validate input types with zod (surprisingly, the model is not great at generating valid input)
   const parsedInput = tool.inputSchema.safeParse(input)
   if (!parsedInput.success) {
@@ -647,6 +719,11 @@ async function checkPermissionsAndCallTool(
       queryChainId: toolUseContext.queryTracking
         ?.chainId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       queryDepth: toolUseContext.queryTracking?.depth,
+      ...(toolUseContext.options.messageClientPlatform && {
+        messageClientPlatform:
+          toolUseContext.options
+            .messageClientPlatform as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      }),
       ...(mcpServerType && {
         mcpServerType:
           mcpServerType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -700,6 +777,11 @@ async function checkPermissionsAndCallTool(
       queryChainId: toolUseContext.queryTracking
         ?.chainId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       queryDepth: toolUseContext.queryTracking?.depth,
+      ...(toolUseContext.options.messageClientPlatform && {
+        messageClientPlatform:
+          toolUseContext.options
+            .messageClientPlatform as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      }),
       ...(mcpServerType && {
         mcpServerType:
           mcpServerType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -963,6 +1045,7 @@ async function checkPermissionsAndCallTool(
       decision,
       source,
       tool_name: sanitizeToolNameForAnalytics(tool.name),
+      tool_use_id: toolUseID,
     })
 
     // Increment code-edit tool decision counter for headless mode
@@ -1006,6 +1089,11 @@ async function checkPermissionsAndCallTool(
       queryChainId: toolUseContext.queryTracking
         ?.chainId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       queryDepth: toolUseContext.queryTracking?.depth,
+      ...(toolUseContext.options.messageClientPlatform && {
+        messageClientPlatform:
+          toolUseContext.options
+            .messageClientPlatform as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      }),
       ...(mcpServerType && {
         mcpServerType:
           mcpServerType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -1203,6 +1291,19 @@ async function checkPermissionsAndCallTool(
   } else if (processedInput !== backfilledClone) {
     callInput = processedInput
   }
+  let bashRerunAlias: string | undefined
+  if (
+    tool.name === BASH_TOOL_NAME &&
+    isBashRerunEnabled() &&
+    toolUseContext.bashRerunAliases &&
+    'command' in processedInput &&
+    typeof processedInput.command === 'string'
+  ) {
+    bashRerunAlias = registerBashRerunAlias(
+      toolUseContext.bashRerunAliases,
+      processedInput.command,
+    )
+  }
   logForDebugging(
     `[Stall] tool_dispatch_start tool=${tool.name} toolUseId=${toolUseID} permissionDecisionMs=${permissionDurationMs}`,
     { level: 'info' },
@@ -1303,6 +1404,26 @@ async function checkPermissionsAndCallTool(
       result.data,
       toolUseID,
     )
+    if (bashRerunAlias !== undefined) {
+      const footer = formatBashRerunFooter(bashRerunAlias)
+      if (typeof mappedToolResultBlock.content === 'string') {
+        mappedToolResultBlock.content +=
+          (mappedToolResultBlock.content ? '\n' : '') + footer
+      } else if (Array.isArray(mappedToolResultBlock.content)) {
+        mappedToolResultBlock.content = [
+          ...mappedToolResultBlock.content,
+          { type: 'text', text: footer },
+        ]
+      }
+    }
+    const deduplicatedMappedToolResultBlock = isMcpTool(tool)
+      ? mappedToolResultBlock
+      : deduplicateToolResult(
+          mappedToolResultBlock,
+          tool.name,
+          toolUseContext.resultDedupState,
+          tool.maxResultSizeChars,
+        )
     const mappedContent = mappedToolResultBlock.content
     const toolResultSizeBytes = !mappedContent
       ? 0
@@ -1312,6 +1433,8 @@ async function checkPermissionsAndCallTool(
 
     // Extract file extension for file-related tools
     let fileExtension: ReturnType<typeof getFileExtensionForAnalytics>
+    let filePathLen: number | undefined
+    let bashCommandLen: number | undefined
     if (processedInput && typeof processedInput === 'object') {
       if (
         (tool.name === FILE_READ_TOOL_NAME ||
@@ -1322,19 +1445,21 @@ async function checkPermissionsAndCallTool(
         fileExtension = getFileExtensionForAnalytics(
           String(processedInput.file_path),
         )
+        filePathLen = String(callInput.file_path).length
       } else if (
         tool.name === NOTEBOOK_EDIT_TOOL_NAME &&
         'notebook_path' in processedInput
       ) {
-        fileExtension = getFileExtensionForAnalytics(
-          String(processedInput.notebook_path),
-        )
+        const notebookPath = String(processedInput.notebook_path)
+        fileExtension = getFileExtensionForAnalytics(notebookPath)
+        filePathLen = notebookPath.length
       } else if (tool.name === BASH_TOOL_NAME && 'command' in processedInput) {
         const bashInput = processedInput as BashToolInput
         fileExtension = getFileExtensionsFromBashCommand(
           bashInput.command,
           bashInput._simulatedSedEdit?.filePath,
         )
+        bashCommandLen = bashInput.command.length
       }
     }
 
@@ -1345,12 +1470,27 @@ async function checkPermissionsAndCallTool(
       isMcp: tool.isMcp ?? false,
       durationMs,
       preToolHookDurationMs,
+      permissionDurationMs,
       toolResultSizeBytes,
+      toolInputSizeBytes,
       ...(fileExtension !== undefined && { fileExtension }),
+      ...(filePathLen !== undefined && { filePathLen }),
+      ...(bashCommandLen !== undefined && { bashCommandLen }),
+      ...(tool.name === FILE_READ_TOOL_NAME &&
+        processedInput &&
+        typeof processedInput === 'object' && {
+          readHasLimit: processedInput.limit !== undefined,
+          readHasOffset: processedInput.offset !== undefined,
+        }),
 
       queryChainId: toolUseContext.queryTracking
         ?.chainId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       queryDepth: toolUseContext.queryTracking?.depth,
+      ...(toolUseContext.options.messageClientPlatform && {
+        messageClientPlatform:
+          toolUseContext.options
+            .messageClientPlatform as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      }),
       ...(mcpServerType && {
         mcpServerType:
           mcpServerType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -1390,12 +1530,14 @@ async function checkPermissionsAndCallTool(
 
     void logOTelEvent('tool_result', {
       tool_name: sanitizeToolNameForAnalytics(tool.name),
+      tool_use_id: toolUseID,
       success: 'true',
       duration_ms: String(durationMs),
       ...(Object.keys(toolParameters).length > 0 && {
         tool_parameters: jsonStringify(toolParameters),
       }),
       ...(telemetryToolInput && { tool_input: telemetryToolInput }),
+      tool_input_size_bytes: String(toolInputSizeBytes),
       tool_result_size_bytes: String(toolResultSizeBytes),
       ...(decisionInfo && {
         decision_source: decisionInfo.source,
@@ -1486,7 +1628,7 @@ async function checkPermissionsAndCallTool(
 
     // TOOD(hackyon): refactor so we don't have different experiences for MCP tools
     if (!isMcpTool(tool)) {
-      await addToolResult(toolOutput, mappedToolResultBlock)
+      await addToolResult(toolOutput, deduplicatedMappedToolResultBlock)
     }
 
     const postToolHookInfos: StopHookInfo[] = []
@@ -1501,6 +1643,7 @@ async function checkPermissionsAndCallTool(
       requestId,
       mcpServerType,
       mcpServerBaseUrl,
+      durationMs,
     )) {
       if ('updatedMCPToolOutput' in hookResult) {
         if (isMcpTool(tool)) {
@@ -1670,6 +1813,11 @@ async function checkPermissionsAndCallTool(
         queryChainId: toolUseContext.queryTracking
           ?.chainId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
         queryDepth: toolUseContext.queryTracking?.depth,
+        ...(toolUseContext.options.messageClientPlatform && {
+          messageClientPlatform:
+            toolUseContext.options
+              .messageClientPlatform as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        }),
         ...(mcpServerType && {
           mcpServerType:
             mcpServerType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -1695,14 +1843,16 @@ async function checkPermissionsAndCallTool(
 
       void logOTelEvent('tool_result', {
         tool_name: sanitizeToolNameForAnalytics(tool.name),
-        use_id: toolUseID,
+        tool_use_id: toolUseID,
         success: 'false',
         duration_ms: String(durationMs),
-        error: errorMessage(error),
+        error_type: classifyToolError(error),
+        ...(isToolDetailsLoggingEnabled() && { error: errorMessage(error) }),
         ...(Object.keys(toolParameters).length > 0 && {
           tool_parameters: jsonStringify(toolParameters),
         }),
         ...(telemetryToolInput && { tool_input: telemetryToolInput }),
+        tool_input_size_bytes: String(toolInputSizeBytes),
         ...(decisionInfo && {
           decision_source: decisionInfo.source,
           decision_type: decisionInfo.decision,
@@ -1710,7 +1860,11 @@ async function checkPermissionsAndCallTool(
         ...(mcpServerScope && { mcp_server_scope: mcpServerScope }),
       })
     }
-    const content = formatError(error)
+    const formattedError = formatError(error)
+    const content =
+      bashRerunAlias !== undefined
+        ? `${formattedError}\n${formatBashRerunFooter(bashRerunAlias)}`
+        : formattedError
 
     // Determine if this was a user interrupt
     const isInterrupt = error instanceof AbortError
@@ -1730,6 +1884,7 @@ async function checkPermissionsAndCallTool(
       requestId,
       mcpServerType,
       mcpServerBaseUrl,
+      durationMs,
     )) {
       hookMessages.push(hookResult)
     }

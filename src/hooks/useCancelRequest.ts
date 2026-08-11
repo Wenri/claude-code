@@ -15,6 +15,7 @@ import {
 import { isVimModeEnabled } from '../components/PromptInput/utils.js'
 import type { ToolUseConfirm } from '../components/permissions/PermissionRequest.js'
 import type { SpinnerMode } from '../components/Spinner/types.js'
+import type { ConnectionSummary } from '../services/api/connectionState.js'
 import { useNotifications } from '../context/notifications.js'
 import { useIsOverlayActive } from '../context/overlayContext.js'
 import { useCommandQueue } from '../hooks/useCommandQueue.js'
@@ -54,6 +55,7 @@ type CancelRequestHandlerProps = {
   inputMode?: PromptInputMode
   inputValue?: string
   streamMode?: SpinnerMode
+  getConnectionSummary?: () => ConnectionSummary | undefined
 }
 
 /**
@@ -76,6 +78,7 @@ export function CancelRequestHandler(props: CancelRequestHandlerProps): null {
     inputMode,
     inputValue,
     streamMode,
+    getConnectionSummary,
   } = props
   const store = useAppStateStore()
   const setAppState = useSetAppState()
@@ -90,6 +93,7 @@ export function CancelRequestHandler(props: CancelRequestHandlerProps): null {
         'escape' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       streamMode:
         streamMode as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      ...(getConnectionSummary?.() ?? {}),
     }
 
     // Priority 1: If there's an active task running, cancel it first
@@ -119,6 +123,7 @@ export function CancelRequestHandler(props: CancelRequestHandlerProps): null {
     setToolUseConfirmQueue,
     onCancel,
     streamMode,
+    getConnectionSummary,
   ])
 
   // Determine if this handler should be active
@@ -245,6 +250,7 @@ export function CancelRequestHandler(props: CancelRequestHandlerProps): null {
       logEvent('tengu_cancel', {
         source:
           'kill_agents' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        ...(getConnectionSummary?.() ?? {}),
       })
       clearCommandQueue()
       killAllAgentsAndNotify()
@@ -263,7 +269,13 @@ export function CancelRequestHandler(props: CancelRequestHandlerProps): null {
       priority: 'immediate',
       timeoutMs: KILL_AGENTS_CONFIRM_WINDOW_MS,
     })
-  }, [store, addNotification, removeNotification, killAllAgentsAndNotify])
+  }, [
+    store,
+    addNotification,
+    removeNotification,
+    killAllAgentsAndNotify,
+    getConnectionSummary,
+  ])
 
   // Must stay always-active: ctrl+x is consumed as a chord prefix regardless
   // of isActive (because ctrl+x ctrl+e is always live), so an inactive handler

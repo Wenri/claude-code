@@ -568,17 +568,22 @@ export function wrapFetchWithTimeout(baseFetch: FetchLike): FetchLike {
 }
 
 export function getMcpServerConnectionBatchSize(): number {
-  return parseInt(process.env.MCP_SERVER_CONNECTION_BATCH_SIZE || '', 10) || 3
-}
-
-function getRemoteMcpServerConnectionBatchSize(): number {
-  return (
-    parseInt(process.env.MCP_REMOTE_SERVER_CONNECTION_BATCH_SIZE || '', 10) ||
-    20
+  const parsed = parseInt(
+    process.env.MCP_SERVER_CONNECTION_BATCH_SIZE || '',
+    10,
   )
+  return parsed > 0 ? parsed : 3
 }
 
-function isLocalMcpServer(config: ScopedMcpServerConfig): boolean {
+export function getRemoteMcpServerConnectionBatchSize(): number {
+  const parsed = parseInt(
+    process.env.MCP_REMOTE_SERVER_CONNECTION_BATCH_SIZE || '',
+    10,
+  )
+  return parsed > 0 ? parsed : 20
+}
+
+export function isLocalMcpServer(config: ScopedMcpServerConfig): boolean {
   return !config.type || config.type === 'stdio' || config.type === 'sdk'
 }
 
@@ -1842,6 +1847,15 @@ export const fetchToolsForClient = memoizeWithLRU(
 
       // Sanitize tool data from MCP server
       const toolsToProcess = recursivelySanitizeUnicode(result.tools)
+      if (toolsToProcess.length === 0) {
+        logEvent('tengu_mcp_degraded', {
+          reason:
+            'connected_zero_tools' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+          transportType: (client.config.type ??
+            'stdio') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+          ...mcpBaseUrlAnalytics(client.config),
+        })
+      }
 
       // Check if we should skip the mcp__ prefix for SDK MCP servers
       const skipPrefix =

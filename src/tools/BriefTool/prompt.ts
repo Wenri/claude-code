@@ -1,5 +1,7 @@
 export const BRIEF_TOOL_NAME = 'SendUserMessage'
 export const LEGACY_BRIEF_TOOL_NAME = 'Brief'
+export const BRIEF_ENFORCE_SENTINEL =
+  'In brief mode you must call SendUserMessage to communicate with the user — text outside it is hidden from their view.'
 
 export const DESCRIPTION = 'Send a message to the user'
 

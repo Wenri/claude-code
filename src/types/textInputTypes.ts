@@ -92,6 +92,16 @@ export type BaseTextInputProps = {
   readonly onExitMessage?: (show: boolean, key?: string) => void
 
   /**
+   * Optional callback when left is pressed with an empty input.
+   */
+  readonly onLeftArrowOnEmpty?: () => void
+
+  /**
+   * Optional callback used to show the double-left pending state.
+   */
+  readonly onLeftArrowOnEmptyMessage?: (show: boolean) => void
+
+  /**
    * Optional callback to show custom message
    */
   // readonly onMessage?: (show: boolean, message?: string) => void
@@ -301,6 +311,7 @@ export type QueuedCommand = {
   mode: PromptInputMode
   /** Defaults to the priority implied by `mode` when enqueued. */
   priority?: QueuePriority
+  clientPlatform?: string
   uuid?: UUID
   orphanedPermission?: OrphanedPermission
   /** Raw pasted contents including images. Images are resized at execution time. */

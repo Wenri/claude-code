@@ -35,7 +35,9 @@ import mobile from './commands/mobile/index.js'
 import onboarding from './commands/onboarding/index.js'
 import pr_comments from './commands/pr_comments/index.js'
 import releaseNotes from './commands/release-notes/index.js'
-import rename from './commands/rename/index.js'
+import rename, {
+  renameNonInteractive,
+} from './commands/rename/index.js'
 import resume from './commands/resume/index.js'
 import review, { ultrareview } from './commands/review.js'
 import session from './commands/session/index.js'
@@ -83,6 +85,9 @@ const remoteControlServerCommand =
   feature('DAEMON') && feature('BRIDGE_MODE')
     ? require('./commands/remoteControlServer/index.js').default
     : null
+const daemonCommand = feature('DAEMON')
+  ? require('./commands/daemon/index.js').default
+  : null
 const voiceCommand = feature('VOICE_MODE')
   ? require('./commands/voice/index.js').default
   : null
@@ -144,7 +149,7 @@ import rewind from './commands/rewind/index.js'
 import heapDump from './commands/heapdump/index.js'
 import mockLimits from './commands/mock-limits/index.js'
 import bridgeKick from './commands/bridge-kick.js'
-import version from './commands/version.js'
+import version, { versionNonInteractive } from './commands/version.js'
 import summary from './commands/summary/index.js'
 import {
   resetLimits,
@@ -177,6 +182,8 @@ import { isUsing3PServices, isClaudeAISubscriber } from './utils/auth.js'
 import { isFirstPartyAnthropicBaseUrl } from './utils/model/providers.js'
 import env from './commands/env/index.js'
 import exit, { exitNonInteractive } from './commands/exit/index.js'
+import background from './commands/background/index.js'
+import stop, { stopNonInteractive } from './commands/stop/index.js'
 import exportCommand from './commands/export/index.js'
 import model from './commands/model/index.js'
 import outputStyle from './commands/output-style/index.js'
@@ -190,6 +197,7 @@ import rateLimitOptions from './commands/rate-limit-options/index.js'
 import proTrialExpired from './commands/pro-trial-expired/index.js'
 import statusline from './commands/statusline.js'
 import effort from './commands/effort/index.js'
+import { isAgentsFleetEnabled } from './utils/agentsFleet.js'
 // insights.ts is 113KB (3200 lines, includes diffLines/html rendering). Lazy
 // shim defers the heavy module until /insights is actually invoked.
 const usageReport: Command = {
@@ -242,6 +250,7 @@ export const INTERNAL_ONLY_COMMANDS = [
   mockLimits,
   bridgeKick,
   version,
+  versionNonInteractive,
   ...(ultraplan ? [ultraplan] : []),
   ...(subscribePr ? [subscribePr] : []),
   resetLimits,
@@ -280,6 +289,8 @@ const COMMANDS = memoize((): Command[] => [
   diff,
   doctor,
   effort,
+  ...(isAgentsFleetEnabled() ? [background] : []),
+  ...(isAgentsFleetEnabled() ? [stop] : []),
   exit,
   fast,
   focus,
@@ -301,6 +312,7 @@ const COMMANDS = memoize((): Command[] => [
   releaseNotes,
   reloadPlugins,
   rename,
+  renameNonInteractive,
   resume,
   session,
   skills,
@@ -333,6 +345,7 @@ const COMMANDS = memoize((): Command[] => [
   ...(assistantCommand ? [assistantCommand] : []),
   ...(bridge ? [bridge] : []),
   ...(remoteControlServerCommand ? [remoteControlServerCommand] : []),
+  ...(daemonCommand ? [daemonCommand] : []),
   ...(voiceCommand ? [voiceCommand] : []),
   thinkback,
   thinkbackPlay,
@@ -630,8 +643,7 @@ export const REMOTE_SAFE_COMMANDS: Set<Command> = new Set([
   help, // Show help
   theme, // Change terminal theme
   color, // Change agent color
-  cost, // Show session cost (local cost tracking)
-  usage, // Show usage info
+  usage, // Show usage info (including the /cost and /stats aliases)
   copy, // Copy last message
   btw, // Quick note
   feedback, // Send feedback
@@ -658,12 +670,13 @@ export const BRIDGE_SAFE_COMMANDS: Set<Command> = new Set(
   [
     compact, // Shrink context — useful mid-session from a phone
     clear, // Wipe transcript
-    cost, // Show session cost
+    usageNonInteractive, // Show usage and session cost
     contextNonInteractive,
     summary, // Summarize conversation
     releaseNotes, // Show changelog
     reloadPlugins,
     exitNonInteractive,
+    stopNonInteractive,
   ].filter((c): c is Command => c !== null),
 )
 

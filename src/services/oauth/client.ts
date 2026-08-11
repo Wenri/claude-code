@@ -210,6 +210,7 @@ export async function refreshOAuthToken(
       config.oauthAccount?.billingType !== undefined &&
       config.oauthAccount?.accountCreatedAt !== undefined &&
       config.oauthAccount?.subscriptionCreatedAt !== undefined &&
+      config.oauthAccount?.ccOnboardingFlags !== undefined &&
       existing?.subscriptionType != null &&
       existing?.rateLimitTier != null
 
@@ -234,6 +235,12 @@ export async function refreshOAuthToken(
       }
       if (profileInfo.subscriptionCreatedAt !== undefined) {
         updates.subscriptionCreatedAt = profileInfo.subscriptionCreatedAt
+      }
+      if (profileInfo.rawProfile) {
+        updates.ccOnboardingFlags = profileInfo.ccOnboardingFlags
+        updates.claudeCodeTrialEndsAt = profileInfo.claudeCodeTrialEndsAt
+        updates.claudeCodeTrialDurationDays =
+          profileInfo.claudeCodeTrialDurationDays
       }
       if (Object.keys(updates).length > 0) {
         saveGlobalConfig(current => ({
@@ -368,6 +375,9 @@ export async function fetchProfileInfo(accessToken: string): Promise<{
   billingType: BillingType | null
   accountCreatedAt?: string
   subscriptionCreatedAt?: string
+  ccOnboardingFlags: Record<string, boolean>
+  claudeCodeTrialEndsAt: string | null
+  claudeCodeTrialDurationDays: number | null
   rawProfile?: OAuthProfileResponse
 }> {
   const profile = await getOauthProfileFromOauthToken(accessToken)
@@ -402,12 +412,20 @@ export async function fetchProfileInfo(accessToken: string): Promise<{
     billingType: BillingType | null
     accountCreatedAt?: string
     subscriptionCreatedAt?: string
+    ccOnboardingFlags: Record<string, boolean>
+    claudeCodeTrialEndsAt: string | null
+    claudeCodeTrialDurationDays: number | null
   } = {
     subscriptionType,
     rateLimitTier: profile?.organization?.rate_limit_tier ?? null,
     hasExtraUsageEnabled:
       profile?.organization?.has_extra_usage_enabled ?? null,
     billingType: profile?.organization?.billing_type ?? null,
+    ccOnboardingFlags: profile?.organization?.cc_onboarding_flags ?? {},
+    claudeCodeTrialEndsAt:
+      profile?.organization?.claude_code_trial_ends_at ?? null,
+    claudeCodeTrialDurationDays:
+      profile?.organization?.claude_code_trial_duration_days ?? null,
   }
 
   if (profile?.account?.display_name) {
@@ -487,7 +505,8 @@ export async function populateOAuthAccountInfoIfNeeded(): Promise<boolean> {
     (config.oauthAccount &&
       config.oauthAccount.billingType !== undefined &&
       config.oauthAccount.accountCreatedAt !== undefined &&
-      config.oauthAccount.subscriptionCreatedAt !== undefined) ||
+      config.oauthAccount.subscriptionCreatedAt !== undefined &&
+      config.oauthAccount.ccOnboardingFlags !== undefined) ||
     !isClaudeAISubscriber() ||
     !hasProfileScope()
   ) {
@@ -515,6 +534,11 @@ export async function populateOAuthAccountInfoIfNeeded(): Promise<boolean> {
         accountCreatedAt: profile.account.created_at,
         subscriptionCreatedAt:
           profile.organization.subscription_created_at ?? undefined,
+        ccOnboardingFlags: profile.organization.cc_onboarding_flags ?? {},
+        claudeCodeTrialEndsAt:
+          profile.organization.claude_code_trial_ends_at ?? null,
+        claudeCodeTrialDurationDays:
+          profile.organization.claude_code_trial_duration_days ?? null,
       })
       return true
     }
@@ -531,6 +555,9 @@ export function storeOAuthAccountInfo({
   billingType,
   accountCreatedAt,
   subscriptionCreatedAt,
+  ccOnboardingFlags,
+  claudeCodeTrialEndsAt,
+  claudeCodeTrialDurationDays,
 }: {
   accountUuid: string
   emailAddress: string
@@ -540,6 +567,9 @@ export function storeOAuthAccountInfo({
   billingType?: BillingType
   accountCreatedAt?: string
   subscriptionCreatedAt?: string
+  ccOnboardingFlags?: Record<string, boolean>
+  claudeCodeTrialEndsAt?: string | null
+  claudeCodeTrialDurationDays?: number | null
 }): void {
   const accountInfo: AccountInfo = {
     accountUuid,
@@ -549,6 +579,9 @@ export function storeOAuthAccountInfo({
     billingType,
     accountCreatedAt,
     subscriptionCreatedAt,
+    ccOnboardingFlags,
+    claudeCodeTrialEndsAt,
+    claudeCodeTrialDurationDays,
   }
   if (displayName) {
     accountInfo.displayName = displayName
@@ -565,10 +598,19 @@ export function storeOAuthAccountInfo({
       current.oauthAccount?.billingType === accountInfo.billingType &&
       current.oauthAccount?.accountCreatedAt === accountInfo.accountCreatedAt &&
       current.oauthAccount?.subscriptionCreatedAt ===
-        accountInfo.subscriptionCreatedAt
+        accountInfo.subscriptionCreatedAt &&
+      current.oauthAccount?.claudeCodeTrialEndsAt ===
+        accountInfo.claudeCodeTrialEndsAt &&
+      current.oauthAccount?.claudeCodeTrialDurationDays ===
+        accountInfo.claudeCodeTrialDurationDays &&
+      JSON.stringify(current.oauthAccount?.ccOnboardingFlags) ===
+        JSON.stringify(accountInfo.ccOnboardingFlags)
     ) {
       return current
     }
-    return { ...current, oauthAccount: accountInfo }
+    return {
+      ...current,
+      oauthAccount: { ...current.oauthAccount, ...accountInfo },
+    }
   })
 }

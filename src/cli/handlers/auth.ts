@@ -73,6 +73,11 @@ export async function installOAuthTokens(tokens: OAuthTokens): Promise<void> {
       subscriptionCreatedAt:
         profile.organization.subscription_created_at ?? undefined,
       accountCreatedAt: profile.account.created_at,
+      ccOnboardingFlags: profile.organization.cc_onboarding_flags ?? {},
+      claudeCodeTrialEndsAt:
+        profile.organization.claude_code_trial_ends_at ?? null,
+      claudeCodeTrialDurationDays:
+        profile.organization.claude_code_trial_duration_days ?? null,
     })
   } else if (tokens.tokenAccount) {
     // Fallback to token exchange account data when profile endpoint fails

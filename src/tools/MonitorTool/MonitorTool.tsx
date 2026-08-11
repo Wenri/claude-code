@@ -20,7 +20,7 @@ import { enqueuePendingNotification } from '../../utils/messageQueueManager.js'
 import { exec } from '../../utils/Shell.js'
 import { escapeXml } from '../../utils/xml.js'
 import { lazySchema } from '../../utils/lazySchema.js'
-import { getGlobalConfig } from '../../utils/config.js'
+import { getConfigValue } from '../../utils/settings/configSettings.js'
 import { bashToolHasPermission } from '../BashTool/bashPermissions.js'
 import { shouldUseSandbox } from '../BashTool/shouldUseSandbox.js'
 import { getMonitorPrompt } from './prompt.js'
@@ -102,7 +102,7 @@ function isPushNotificationAvailable(): boolean {
     getFeatureValue_CACHED_MAY_BE_STALE(
       'tengu_kairos_push_notifications',
       false,
-    ) && getGlobalConfig().agentPushNotifEnabled === true
+    ) && getConfigValue('agentPushNotifEnabled', false).value
   )
 }
 

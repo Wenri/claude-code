@@ -1,7 +1,9 @@
 import chalk from 'chalk'
 import { logEvent } from 'src/services/analytics/index.js'
 import {
+  getLatestHomebrewVersion,
   getLatestVersion,
+  shouldSkipVersion,
   type InstallStatus,
   installGlobalPackage,
 } from 'src/utils/autoUpdater.js'
@@ -31,6 +33,8 @@ import { writeToStdout } from 'src/utils/process.js'
 import { gte } from 'src/utils/semver.js'
 import { getInitialSettings } from 'src/utils/settings/settings.js'
 import { isEnvTruthy } from 'src/utils/envUtils.js'
+import { daemonVersionDiffers } from 'src/daemon/lock.js'
+import { getLatestVersion as getLatestNativeVersion } from 'src/utils/nativeInstaller/download.js'
 
 export async function update() {
   if (isEnvTruthy(process.env.DISABLE_UPDATES)) {
@@ -52,7 +56,8 @@ export async function update() {
     : detectHomebrew()
       ? 'stable'
       : configuredChannel
-  writeToStdout(`Checking for updates to ${channel} version...\n`)
+  const displayChannel = channel === 'rc' ? 'slow' : channel
+  writeToStdout(`Checking for updates to ${displayChannel} version...\n`)
 
   logForDebugging('update: Starting update check')
 
@@ -142,8 +147,17 @@ export async function update() {
     if (packageManager === 'homebrew') {
       writeToStdout('Claude is managed by Homebrew.\n')
       const updateCommand = `brew upgrade ${homebrewCaskName ?? 'claude-code'}`
-      const latest = await getLatestVersion(channel)
-      if (latest && !gte(MACRO.VERSION, latest)) {
+      const latest = await getLatestHomebrewVersion(
+        homebrewCaskName ?? 'claude-code',
+        channel,
+      )
+      if (latest === null) {
+        writeToStdout(
+          'Could not check for updates (network check skipped or unavailable).\n',
+        )
+        writeToStdout('To update manually, run:\n')
+        writeToStdout(chalk.bold(`  ${updateCommand}`) + '\n')
+      } else if (!gte(MACRO.VERSION, latest)) {
         writeToStdout(`Update available: ${MACRO.VERSION} → ${latest}\n`)
         writeToStdout('\n')
         writeToStdout('To update, run:\n')
@@ -249,6 +263,20 @@ export async function update() {
     logForDebugging(
       'update: Detected native installation, using native updater',
     )
+    const minimumVersion = getInitialSettings()?.minimumVersion
+    if (minimumVersion) {
+      const targetVersion = await getLatestNativeVersion(channel).catch(
+        () => null,
+      )
+      if (targetVersion && shouldSkipVersion(targetVersion)) {
+        writeToStdout(
+          chalk.yellow(
+            `The ${displayChannel} channel is at ${targetVersion}, which is below your minimumVersion setting (${minimumVersion}). Staying on ${MACRO.VERSION}.`,
+          ) + '\n',
+        )
+        await gracefulShutdown(0)
+      }
+    }
     try {
       const result = await installLatestNative(channel, true)
 
@@ -270,17 +298,24 @@ export async function update() {
         await gracefulShutdown(1)
       }
 
-      if (result.latestVersion === MACRO.VERSION) {
-        writeToStdout(
-          chalk.green(`Claude Code is up to date (${MACRO.VERSION})`) + '\n',
-        )
-      } else {
+      if (result.wasUpdated && result.latestVersion !== MACRO.VERSION) {
         writeToStdout(
           chalk.green(
             `Successfully updated from ${MACRO.VERSION} to version ${result.latestVersion}`,
           ) + '\n',
         )
         await regenerateCompletionCache()
+        if (await daemonVersionDiffers(result.latestVersion)) {
+          writeToStdout(
+            chalk.dim(
+              'Claude daemon will restart for the upgrade once background jobs finish',
+            ) + '\n',
+          )
+        }
+      } else {
+        writeToStdout(
+          chalk.green(`Claude Code is up to date (${MACRO.VERSION})`) + '\n',
+        )
       }
       await gracefulShutdown(0)
     } catch (error) {
@@ -337,6 +372,16 @@ export async function update() {
 
     process.stderr.write('  • Check if you need to login: npm whoami\n')
     await gracefulShutdown(1)
+  }
+
+  if (latestVersion && shouldSkipVersion(latestVersion)) {
+    const minimumVersion = getInitialSettings()?.minimumVersion
+    writeToStdout(
+      chalk.yellow(
+        `The ${displayChannel} channel is at ${latestVersion}, which is below your minimumVersion setting (${minimumVersion}). Staying on ${MACRO.VERSION}.`,
+      ) + '\n',
+    )
+    await gracefulShutdown(0)
   }
 
   // Check if versions match exactly, including any build metadata (like SHA)
@@ -412,6 +457,13 @@ export async function update() {
         ) + '\n',
       )
       await regenerateCompletionCache()
+      if (await daemonVersionDiffers(latestVersion)) {
+        writeToStdout(
+          chalk.dim(
+            'Claude daemon will restart for the upgrade once background jobs finish',
+          ) + '\n',
+        )
+      }
       break
     case 'no_permissions':
       process.stderr.write(

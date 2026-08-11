@@ -59,6 +59,10 @@ import {
   FILE_EDIT_TOOL_NAME,
   FILE_UNEXPECTEDLY_MODIFIED_ERROR,
 } from './constants.js'
+import {
+  FILE_STATE_CURRENT_HINT,
+  isNoRereadEnabled,
+} from '../FileReadTool/prompt.js'
 import { getEditToolDescription } from './prompt.js'
 import {
   type FileEditInput,
@@ -597,19 +601,21 @@ export const FileEditTool = buildTool({
     const modifiedNote = userModified
       ? '.  The user modified your proposed changes before accepting them. '
       : ''
+    const fileStateHint =
+      isNoRereadEnabled() && !userModified ? FILE_STATE_CURRENT_HINT : ''
 
     if (replaceAll) {
       return {
         tool_use_id: toolUseID,
         type: 'tool_result',
-        content: `The file ${filePath} has been updated${modifiedNote}. All occurrences were successfully replaced.`,
+        content: `The file ${filePath} has been updated${modifiedNote}. All occurrences were successfully replaced.${fileStateHint}`,
       }
     }
 
     return {
       tool_use_id: toolUseID,
       type: 'tool_result',
-      content: `The file ${filePath} has been updated successfully${modifiedNote}.`,
+      content: `The file ${filePath} has been updated successfully${modifiedNote}.${fileStateHint}`,
     }
   },
 } satisfies ToolDef<ReturnType<typeof inputSchema>, FileEditOutput>)

@@ -62,6 +62,7 @@ import { getPlatform } from './utils/platform.js';
 import { getBaseRenderOptions } from './utils/renderOptions.js';
 import { getSessionIngressAuthToken } from './utils/sessionIngressAuth.js';
 import { settingsChangeDetector } from './utils/settings/changeDetector.js';
+import { getConfigValue } from './utils/settings/configSettings.js';
 import { skillChangeDetector } from './utils/skills/skillChangeDetector.js';
 import { sleep } from './utils/sleep.js';
 import { findClosestCommand } from './utils/suggestions/commandSuggestions.js';
@@ -105,6 +106,7 @@ import { createHeadlessMcpConnectionManager } from './services/mcp/headlessConne
 import { VALID_INSTALLABLE_SCOPES, VALID_UPDATE_SCOPES } from './services/plugins/pluginCliCommands.js';
 import { initBundledSkills } from './skills/bundled/index.js';
 import type { AgentColorName } from './tools/AgentTool/agentColorManager.js';
+import { getBuiltInAgents } from './tools/AgentTool/builtInAgents.js';
 import { getActiveAgentsFromList, getAgentDefinitionsWithOverrides, isBuiltInAgent, isCustomAgent, parseAgentsFromJson } from './tools/AgentTool/loadAgentsDir.js';
 import type { LogOption } from './types/logs.js';
 import type { Message as MessageType } from './types/message.js';
@@ -186,6 +188,7 @@ import { migrateFennecToOpus } from './migrations/migrateFennecToOpus.js';
 import { migrateLegacyOpusToCurrent } from './migrations/migrateLegacyOpusToCurrent.js';
 import { migrateOpusToOpus1m } from './migrations/migrateOpusToOpus1m.js';
 import { migrateReplBridgeEnabledToRemoteControlAtStartup } from './migrations/migrateReplBridgeEnabledToRemoteControlAtStartup.js';
+import { migrateUserIntentToSettings } from './migrations/migrateUserIntentToSettings.js';
 import { migrateSonnet1mToSonnet45 } from './migrations/migrateSonnet1mToSonnet45.js';
 import { migrateSonnet45ToSonnet46 } from './migrations/migrateSonnet45ToSonnet46.js';
 import { resetAutoModeOptInForDefaultOffer } from './migrations/resetAutoModeOptInForDefaultOffer.js';
@@ -335,7 +338,7 @@ async function logStartupTelemetry(): Promise<void> {
 
 // @[MODEL LAUNCH]: Consider any migrations you may need for model strings. See migrateSonnet1mToSonnet45.ts for an example.
 // Bump this when adding a new sync migration so existing users re-run the set.
-const CURRENT_MIGRATION_VERSION = 11;
+const CURRENT_MIGRATION_VERSION = 12;
 function runMigrations(): void {
   if (getGlobalConfig().migrationVersion !== CURRENT_MIGRATION_VERSION) {
     migrateAutoUpdatesToSettings();
@@ -347,6 +350,7 @@ function runMigrations(): void {
     migrateSonnet45ToSonnet46();
     migrateOpusToOpus1m();
     migrateReplBridgeEnabledToRemoteControlAtStartup();
+    migrateUserIntentToSettings();
     if (feature('TRANSCRIPT_CLASSIFIER')) {
       resetAutoModeOptInForDefaultOffer();
     }
@@ -1060,7 +1064,7 @@ async function run(): Promise<CommanderCommand> {
       throw new Error('--task-budget must be a positive integer');
     }
     return tokens;
-  }).hideHelp()).option('--replay-user-messages', 'Re-emit user messages from stdin back on stdout for acknowledgment (only works with --input-format=stream-json and --output-format=stream-json)', () => true).addOption(new Option('--enable-auth-status', 'Enable auth status messages in SDK mode').default(false).hideHelp()).option('--allowedTools, --allowed-tools <tools...>', 'Comma or space-separated list of tool names to allow (e.g. "Bash(git:*) Edit")').option('--tools <tools...>', 'Specify the list of available tools from the built-in set. Use "" to disable all tools, "default" to use all tools, or specify tool names (e.g. "Bash,Edit,Read").').option('--disallowedTools, --disallowed-tools <tools...>', 'Comma or space-separated list of tool names to deny (e.g. "Bash(git:*) Edit")').option('--mcp-config <configs...>', 'Load MCP servers from JSON files or strings (space-separated)').addOption(new Option('--permission-prompt-tool <tool>', 'MCP tool to use for permission prompts (only works with --print)').argParser(String).hideHelp()).addOption(new Option('--system-prompt <prompt>', 'System prompt to use for the session').argParser(String)).addOption(new Option('--system-prompt-file <file>', 'Read system prompt from a file').argParser(String).hideHelp()).addOption(new Option('--append-system-prompt <prompt>', 'Append a system prompt to the default system prompt').argParser(String)).addOption(new Option('--append-system-prompt-file <file>', 'Read system prompt from a file and append to the default system prompt').argParser(String).hideHelp()).addOption(new Option('--permission-mode <mode>', 'Permission mode to use for the session').argParser(String).choices(PERMISSION_MODES)).option('-c, --continue', 'Continue the most recent conversation in the current directory', () => true).option('-r, --resume [value]', 'Resume a conversation by session ID, or open interactive picker with optional search term', value => value || true).option('--fork-session', 'When resuming, create a new session ID instead of reusing the original (use with --resume or --continue)', () => true).addOption(new Option('--prefill <text>', 'Pre-fill the prompt input with text without submitting it').hideHelp()).addOption(new Option('--deep-link-origin', 'Signal that this session was launched from a deep link').hideHelp()).addOption(new Option('--deep-link-repo <slug>', 'Repo slug the deep link ?repo= parameter resolved to the current cwd').hideHelp()).addOption(new Option('--deep-link-last-fetch <ms>', 'FETCH_HEAD mtime in epoch ms, precomputed by the deep link trampoline').argParser(v => {
+  }).hideHelp()).option('--replay-user-messages', 'Re-emit user messages from stdin back on stdout for acknowledgment (only works with --input-format=stream-json and --output-format=stream-json)', () => true).addOption(new Option('--enable-auth-status', 'Enable auth status messages in SDK mode').default(false).hideHelp()).option('--allowedTools, --allowed-tools <tools...>', 'Comma or space-separated list of tool names to allow (e.g. "Bash(git:*) Edit")').option('--tools <tools...>', 'Specify the list of available tools from the built-in set. Use "" to disable all tools, "default" to use all tools, or specify tool names (e.g. "Bash,Edit,Read").').option('--disallowedTools, --disallowed-tools <tools...>', 'Comma or space-separated list of tool names to deny (e.g. "Bash(git:*) Edit")').option('--mcp-config <configs...>', 'Load MCP servers from JSON files or strings (space-separated)').addOption(new Option('--permission-prompt-tool <tool>', 'MCP tool to use for permission prompts (only works with --print)').argParser(String).hideHelp()).addOption(new Option('--system-prompt <prompt>', 'System prompt to use for the session').argParser(String)).addOption(new Option('--system-prompt-file <file>', 'Read system prompt from a file').argParser(String).hideHelp()).addOption(new Option('--append-system-prompt <prompt>', 'Append a system prompt to the default system prompt').argParser(String)).addOption(new Option('--append-system-prompt-file <file>', 'Read system prompt from a file and append to the default system prompt').argParser(String).hideHelp()).addOption(new Option('--plan-mode-instructions <instructions>', 'Custom workflow body for plan mode. Replaces the default code-implementation phases in the plan-mode system reminder; the read-only enforcement preamble and ExitPlanMode protocol footer are always kept.').argParser(String).hideHelp()).addOption(new Option('--exclude-dynamic-system-prompt-sections', 'Move per-machine sections (cwd, env info, memory paths, git status) from the system prompt into the first user message. Improves cross-user prompt-cache reuse. Only applies with the default system prompt (ignored with --system-prompt).').default(false)).addOption(new Option('--permission-mode <mode>', 'Permission mode to use for the session').argParser(String).choices(PERMISSION_MODES)).option('-c, --continue', 'Continue the most recent conversation in the current directory', () => true).option('-r, --resume [value]', 'Resume a conversation by session ID, or open interactive picker with optional search term', value => value || true).option('--fork-session', 'When resuming, create a new session ID instead of reusing the original (use with --resume or --continue)', () => true).addOption(new Option('--prefill <text>', 'Pre-fill the prompt input with text without submitting it').hideHelp()).addOption(new Option('--deep-link-origin', 'Signal that this session was launched from a deep link').hideHelp()).addOption(new Option('--deep-link-repo <slug>', 'Repo slug the deep link ?repo= parameter resolved to the current cwd').hideHelp()).addOption(new Option('--deep-link-last-fetch <ms>', 'FETCH_HEAD mtime in epoch ms, precomputed by the deep link trampoline').argParser(v => {
     const n = Number(v);
     return Number.isFinite(n) ? n : undefined;
   }).hideHelp()).option('--from-pr [value]', 'Resume a session linked to a PR by PR number/URL, or open interactive picker with optional search term', value => value || true).option('--no-session-persistence', 'Disable session persistence - sessions will not be saved to disk and cannot be resumed (only works with --print)').addOption(new Option('--resume-session-at <message id>', 'When resuming, only messages up to and including the assistant message with <message.id> (use with --resume in print mode)').argParser(String).hideHelp()).addOption(new Option('--rewind-files <user-message-id>', 'Restore files to state at the specified user message and exit (requires --resume)').hideHelp())
@@ -1203,7 +1207,7 @@ async function run(): Promise<CommanderCommand> {
     // Extract these separately so they can be modified if needed
     let outputFormat = options.outputFormat;
     let inputFormat = options.inputFormat;
-    let verbose = options.verbose ?? getGlobalConfig().verbose;
+    let verbose = options.verbose ?? getConfigValue('verbose', false).value;
     let print = options.print;
     const init = options.init ?? false;
     const initOnly = options.initOnly ?? false;
@@ -1472,12 +1476,17 @@ async function run(): Promise<CommanderCommand> {
       const addendum = getTeammatePromptAddendum().TEAMMATE_SYSTEM_PROMPT_ADDENDUM;
       appendSystemPrompt = appendSystemPrompt ? `${appendSystemPrompt}\n\n${addendum}` : addendum;
     }
+    const agentPermissionMode = agentCli
+      ? getBuiltInAgents().find(agent => agent.agentType === agentCli)
+          ?.permissionMode
+      : undefined;
     const {
       mode: permissionMode,
       notification: permissionModeNotification
     } = initialPermissionModeFromCLI({
       permissionModeCli,
-      dangerouslySkipPermissions
+      dangerouslySkipPermissions,
+      agentPermissionMode
     });
 
     // Store session bypass permissions mode for trust dialog check
@@ -1491,7 +1500,7 @@ async function run(): Promise<CommanderCommand> {
       // auto-unavailable, and by tengu_auto_mode_config opt-in carousel.
       if ((options as {
         enableAutoMode?: boolean;
-      }).enableAutoMode || permissionModeCli === 'auto' || permissionMode === 'auto' || !permissionModeCli && isDefaultPermissionModeAuto()) {
+      }).enableAutoMode || permissionModeCli === 'auto' || agentPermissionMode === 'auto' || permissionMode === 'auto' || !permissionModeCli && isDefaultPermissionModeAuto()) {
         autoModeStateModule?.setAutoModeFlagCli(true);
       }
     }
@@ -2188,10 +2197,11 @@ async function run(): Promise<CommanderCommand> {
     // call .toString() producing "[object Object]". The AsyncIterable case
     // is handled in print.ts via structuredIO.prependUserMessage().
     if (mainThreadAgentDefinition?.initialPrompt) {
+      const initialAgentPrompt = mainThreadAgentDefinition.initialPrompt;
       if (typeof inputPrompt === 'string') {
-        inputPrompt = inputPrompt ? `${mainThreadAgentDefinition.initialPrompt}\n\n${inputPrompt}` : mainThreadAgentDefinition.initialPrompt;
+        inputPrompt = initialAgentPrompt.includes('{{intent}}') ? initialAgentPrompt.split('{{intent}}').join(inputPrompt) : inputPrompt ? `${initialAgentPrompt}\n\n${inputPrompt}` : initialAgentPrompt;
       } else if (!inputPrompt) {
-        inputPrompt = mainThreadAgentDefinition.initialPrompt;
+        inputPrompt = initialAgentPrompt;
       }
     }
 
@@ -2852,6 +2862,8 @@ async function run(): Promise<CommanderCommand> {
         systemPrompt,
         appendSystemPrompt,
         planModeInstructions: options.planModeInstructions,
+        excludeDynamicSections:
+          options.excludeDynamicSystemPromptSections || undefined,
         userSpecifiedModel: effectiveModel,
         fallbackModel: userSpecifiedFallbackModel,
         teleport,
@@ -2938,7 +2950,8 @@ async function run(): Promise<CommanderCommand> {
       settings: getInitialSettings(),
       tasks: {},
       agentNameRegistry: new Map(),
-      verbose: verbose ?? getGlobalConfig().verbose ?? false,
+      verbose: verbose ?? getConfigValue('verbose', false).value,
+      showMessageTimestamps: getConfigValue('showMessageTimestamps', false).value,
       mainLoopModel: initialMainLoopModel,
       mainLoopModelForSession: null,
       isBriefOnly: initialIsBriefOnly,
@@ -3012,6 +3025,7 @@ async function run(): Promise<CommanderCommand> {
       inbox: {
         messages: []
       },
+      pendingMemoryUpdates: [],
       promptSuggestion: {
         text: null,
         promptId: null,
@@ -3447,26 +3461,37 @@ async function run(): Promise<CommanderCommand> {
         if (!isRemoteTuiEnabled && !hasInitialPrompt) {
           return await exitWithError(root, 'Error: --remote requires a description.\nUsage: claude --remote "your task description"', () => gracefulShutdown(1));
         }
+        let apiCreds: {
+          accessToken: string;
+          orgUUID: string;
+        };
+        try {
+          apiCreds = await prepareApiRequest();
+        } catch (error) {
+          logError(toError(error));
+          return await exitWithError(root, `Error: ${errorMessage(error) || 'Failed to authenticate'}`, () => gracefulShutdown(1));
+        }
         let remoteSessionId: string;
+        let preflightCheck: Promise<void> | undefined;
         if (existingSessionId) {
           logEvent('tengu_remote_attach_session', {
             session_id: existingSessionId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
           });
-          try {
-            const existingSession = await fetchSession(existingSessionId);
+          remoteSessionId = existingSessionId;
+          preflightCheck = fetchSession(existingSessionId, apiCreds).then(existingSession => {
             if (existingSession.session_status === 'archived') {
               logEvent('tengu_remote_attach_session_rejected', {
                 reason: 'archived' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
               });
-              return await exitWithError(root, `Error: Remote session ${existingSessionId} is archived and cannot accept new messages.\nView it at ${getRemoteSessionUrl(existingSessionId)}?m=0`, () => gracefulShutdown(1));
+              throw new Error(`Remote session ${existingSessionId} is archived and cannot accept new messages.\nView it at ${getRemoteSessionUrl(existingSessionId)}?m=0`);
             }
-          } catch (error) {
-            logEvent('tengu_remote_attach_session_rejected', {
-              reason: 'fetch_failed' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-            });
-            return await exitWithError(root, `Error: ${errorMessage(error)}`, () => gracefulShutdown(1));
-          }
-          remoteSessionId = existingSessionId;
+            if (existingSession.session_context.cwd) {
+              setCwdState(existingSession.session_context.cwd);
+            }
+          }, error => {
+            logForDebugging(`[--remote] preflight fetchSession failed (continuing via WS): ${errorMessage(error)}`);
+          });
+          void preflightCheck.catch(() => {});
         } else {
           logEvent('tengu_remote_create_session', {
             has_initial_prompt: String(hasInitialPrompt) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
@@ -3500,24 +3525,13 @@ async function run(): Promise<CommanderCommand> {
         setIsRemoteMode(true);
         switchSession(asSessionId(remoteSessionId));
 
-        // Get OAuth credentials for remote session
-        let apiCreds: {
-          accessToken: string;
-          orgUUID: string;
-        };
-        try {
-          apiCreds = await prepareApiRequest();
-        } catch (error) {
-          logError(toError(error));
-          return await exitWithError(root, `Error: ${errorMessage(error) || 'Failed to authenticate'}`, () => gracefulShutdown(1));
-        }
-
         // Create remote session config for the REPL
         const {
-          getClaudeAIOAuthTokens: getTokensForRemote
+          getClaudeAIOAuthTokens: getTokensForRemote,
+          handleOAuth401Error
         } = await import('./utils/auth.js');
         const getAccessTokenForRemote = (): string => getTokensForRemote()?.accessToken ?? apiCreds.accessToken;
-        const remoteSessionConfig = createRemoteSessionConfig(remoteSessionId, getAccessTokenForRemote, apiCreds.orgUUID, hasInitialPrompt, false, existingSessionId !== null);
+        const remoteSessionConfig = createRemoteSessionConfig(remoteSessionId, getAccessTokenForRemote, apiCreds.orgUUID, hasInitialPrompt, false, existingSessionId !== null, preflightCheck, handleOAuth401Error);
 
         // Add remote session info as initial system message
         const remoteSessionUrl = `${getRemoteSessionUrl(remoteSessionId)}?m=0`;
@@ -3531,7 +3545,10 @@ async function run(): Promise<CommanderCommand> {
         // Set remote session URL in app state for footer indicator
         const remoteInitialState = {
           ...initialState,
-          remoteSessionUrl
+          remoteSessionUrl,
+          replBridgeEnabled: false,
+          replBridgeOutboundOnly: false,
+          replBridgeExplicit: false
         };
 
         // Pre-filter commands to only include remote-safe ones.
@@ -4354,7 +4371,7 @@ async function run(): Promise<CommanderCommand> {
   });
 
   // Agents command - list configured agents
-  program.command('agents').description('List configured agents').option('--setting-sources <sources>', 'Comma-separated list of setting sources to load (user, project, local).').action(async () => {
+  program.command('agents').description('Manage background and configured agents').option('--setting-sources <sources>', 'Comma-separated list of setting sources to load (user, project, local).').action(async () => {
     const {
       agentsHandler
     } = await import('./cli/handlers/agents.js');

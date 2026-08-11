@@ -22,6 +22,7 @@ import { accumulateUsage, updateUsage } from '../services/api/claude.js'
 import { EMPTY_USAGE, type NonNullableUsage } from '../services/api/logging.js'
 import type { ToolUseContext } from '../Tool.js'
 import type { AgentDefinition } from '../tools/AgentTool/loadAgentsDir.js'
+import { createBashRerunAliases } from '../tools/BashTool/rerun.js'
 import type { AgentId } from '../types/ids.js'
 import type { Message } from '../types/message.js'
 import { createChildAbortController } from './abortController.js'
@@ -34,6 +35,7 @@ import {
   getLastAssistantMessage,
 } from './messages.js'
 import { createDenialTrackingState } from './permissions/denialTracking.js'
+import { createResultDedupState } from '../services/tools/resultDedup.js'
 import { parseToolListFromCLI } from './permissions/permissionSetup.js'
 import { recordSidechainTranscript } from './sessionStorage.js'
 import type { SystemPrompt } from './systemPromptType.js'
@@ -386,6 +388,7 @@ export function createSubagentContext(
     dynamicSkillDirTriggers: new Set<string>(),
     // Per-subagent: tracks skills surfaced by discovery for was_discovered telemetry (SkillTool.ts:116)
     discoveredSkillNames: new Set<string>(),
+    bashRerunAliases: createBashRerunAliases(),
     toolDecisions: undefined,
     // Budget decisions: override > clone of parent > undefined (feature off).
     //
@@ -403,6 +406,7 @@ export function createSubagentContext(
       (parentContext.contentReplacementState
         ? cloneContentReplacementState(parentContext.contentReplacementState)
         : undefined),
+    resultDedupState: createResultDedupState(),
 
     // AbortController
     abortController,

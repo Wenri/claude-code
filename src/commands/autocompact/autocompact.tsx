@@ -22,7 +22,6 @@ const STEP = 100_000
 const MINIMUM = 100_000
 const MAXIMUM = 1_000_000
 const MODEL_DEFAULT = 0
-const LEARN_MORE = 'https://claude.com/blog/1m-context-ga'
 
 function AutoCompactDialog({
   onDone,
@@ -47,7 +46,7 @@ function AutoCompactDialog({
       ? 'from CLAUDE_CODE_AUTO_COMPACT_WINDOW'
       : source === 'settings'
         ? 'from settings'
-        : 'from default'
+        : 'auto'
   const initialSelection =
     source === 'auto'
       ? MODEL_DEFAULT
@@ -80,7 +79,7 @@ function AutoCompactDialog({
       onDone(`Auto-compact window unchanged: ${current}`)
       return
     }
-    const value = selection === MODEL_DEFAULT ? 'reset' : String(selection)
+    const value = selection === MODEL_DEFAULT ? 'auto' : String(selection)
     onDone(applyAutoCompactWindow(value, context))
   }
 
@@ -89,20 +88,25 @@ function AutoCompactDialog({
       'select:previous': () => move(1),
       'select:next': () => move(-1),
       'select:accept': finish,
+    },
+    { context: 'Select' },
+  )
+  useKeybindings(
+    {
       'tabs:next': () => move(1),
       'tabs:previous': () => move(-1),
     },
-    { context: 'Select' },
+    { context: 'Tabs' },
   )
 
   const selectedLabel =
     selection === MODEL_DEFAULT
-      ? 'Model default'
+      ? 'Auto'
       : `${formatTokens(selection)} tokens`
 
   return (
     <Dialog
-      title="Auto-compact"
+      title="Auto-compact Window"
       subtitle={`Current setting: ${current}`}
       onCancel={() => onDone(`Auto-compact window unchanged: ${current}`)}
       inputGuide={() => (
@@ -126,12 +130,23 @@ function AutoCompactDialog({
       <Box flexDirection="column" gap={1}>
         <Text>
           This command configures when auto-compaction happens. The actual
-          threshold is the minimum of this setting and your model&apos;s context
-          window.
+          threshold is the minimum of this setting and your model&apos;s maximum
+          context window.
+        </Text>
+        <Text>
+          The auto setting picks a window tuned for your model and is{' '}
+          <Text bold>strongly recommended</Text> for the best cost and
+          performance. You can override it below.
         </Text>
         {!enabled && (
           <Text color="warning">
             Auto-compact is currently disabled (see /config)
+          </Text>
+        )}
+        {selection !== MODEL_DEFAULT && (
+          <Text color="warning">
+            Overriding auto may result in high token usage, especially when
+            resuming long sessions.
           </Text>
         )}
         {environmentOverride ? (
@@ -147,17 +162,6 @@ function AutoCompactDialog({
             </Text>
           </Box>
         )}
-        <Box flexDirection="column" marginTop={1}>
-          <Text bold>Long context that holds up</Text>
-          <Text>
-            Both Opus 4.6 and Sonnet 4.6 achieve state-of-the-art scores on
-            long-context retrieval benchmarks at 1M tokens — Opus 4.6 scores
-            78.3% on MRCR v2, the highest among frontier models at that length.
-            Opus 4.6 includes 1M context at standard pricing; Sonnet 4.6 1M is
-            available with overages.
-          </Text>
-          <Text dimColor>Learn more: {LEARN_MORE}</Text>
-        </Box>
       </Box>
     </Dialog>
   )
@@ -168,7 +172,7 @@ export async function call(
   context: LocalJSXCommandContext,
   args?: string,
 ): Promise<React.ReactNode> {
-  const value = args?.trim() ?? ''
+  const value = args?.trim() || ''
   if (value) {
     onDone(applyAutoCompactWindow(value, context))
     return null

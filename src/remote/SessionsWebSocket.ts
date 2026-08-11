@@ -33,6 +33,7 @@ type SessionsMessage =
 type ClientEvent = {
   event_type?: string
   sequence_num?: number | string
+  source?: string
   payload?: unknown
 }
 
@@ -49,6 +50,14 @@ function isSessionsMessage(value: unknown): value is SessionsMessage {
   )
 }
 
+function isControlMessage(message: SessionsMessage): boolean {
+  return (
+    message.type === 'control_request' ||
+    message.type === 'control_response' ||
+    message.type === 'control_cancel_request'
+  )
+}
+
 export type SessionsWebSocketCallbacks = {
   onMessage: (message: SessionsMessage) => void
   onClose?: () => void
@@ -57,6 +66,10 @@ export type SessionsWebSocketCallbacks = {
   /** Fired when a transient stream end schedules a reconnect. */
   onReconnecting?: () => void
 }
+
+export type SessionsAuth401Handler = (
+  staleAccessToken: string,
+) => Promise<boolean>
 
 /**
  * Sessions v2 client. Reads events over SSE and writes control events over
@@ -75,6 +88,7 @@ export class SessionsWebSocket {
     private readonly orgUuid: string,
     private readonly getAccessToken: () => string,
     private readonly callbacks: SessionsWebSocketCallbacks,
+    private readonly onAuth401?: SessionsAuth401Handler,
   ) {}
 
   async connect(): Promise<void> {
@@ -139,6 +153,14 @@ export class SessionsWebSocket {
         { level: 'error' },
       )
       void response.body?.cancel()
+      if (response.status === 401 && this.onAuth401) {
+        logForDebugging(
+          '[SessionsV2Client] 401 on SSE connect — refreshing',
+        )
+        await this.onAuth401(this.getAccessToken())
+        this.handleStreamEnd()
+        return
+      }
       if (PERMANENT_HTTP_CODES.has(response.status)) {
         this.state = 'closed'
         this.callbacks.onClose?.()
@@ -211,13 +233,22 @@ export class SessionsWebSocket {
         if (!isNaN(sequenceNum) && sequenceNum > this.lastSequenceNum) {
           this.lastSequenceNum = sequenceNum
         }
-        if (isSessionsMessage(clientEvent.payload)) {
-          this.callbacks.onMessage(clientEvent.payload)
-        } else {
+        if (!isSessionsMessage(clientEvent.payload)) {
           logForDebugging(
             `[SessionsV2Client] Dropping client_event with no payload.type (event_type=${clientEvent.event_type})`,
           )
+          return
         }
+        if (
+          isControlMessage(clientEvent.payload) &&
+          clientEvent.source !== 'worker'
+        ) {
+          logForDebugging(
+            `[SessionsV2Client] Dropping ${clientEvent.payload.type} from source=${clientEvent.source}`,
+          )
+          return
+        }
+        this.callbacks.onMessage(clientEvent.payload)
         return
       }
       case 'ephemeral_event': {
@@ -322,6 +353,36 @@ export class SessionsWebSocket {
       })
       if (!response.ok) {
         void response.body?.cancel()
+        if (response.status === 401 && this.onAuth401) {
+          logForDebugging(
+            '[SessionsV2Client] 401 on POST — refreshing + retry',
+          )
+          if (await this.onAuth401(this.getAccessToken())) {
+            const retryResponse = await fetch(url, {
+              method: 'POST',
+              headers: this.authHeaders(),
+              body: jsonStringify(body),
+              signal: AbortSignal.timeout(30000),
+              ...getProxyFetchOptions({ url }),
+            })
+            if (retryResponse.ok) {
+              const retryResult = (
+                (await retryResponse.json()) as {
+                  results?: Array<{ sequence_num?: number | string }>
+                }
+              ).results?.[0]
+              const retrySequenceNum = retryResult
+                ? parseInt(String(retryResult.sequence_num), 10)
+                : NaN
+              return {
+                sequence_num: isNaN(retrySequenceNum)
+                  ? 0
+                  : retrySequenceNum,
+              }
+            }
+            void retryResponse.body?.cancel()
+          }
+        }
         logForDebugging(
           `[SessionsV2Client] POST /events returned ${response.status}`,
           { level: 'warn' },

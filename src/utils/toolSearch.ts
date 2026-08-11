@@ -310,6 +310,19 @@ export function isToolSearchEnabledOptimistic(): boolean {
     return false
   }
 
+  if (
+    !process.env.ENABLE_TOOL_SEARCH &&
+    getAPIProvider() === 'vertex'
+  ) {
+    if (!loggedOptimistic) {
+      loggedOptimistic = true
+      logForDebugging(
+        '[ToolSearch:optimistic] disabled: Vertex AI does not accept the tool-search beta header. Set ENABLE_TOOL_SEARCH=true to override.',
+      )
+    }
+    return false
+  }
+
   if (!loggedOptimistic) {
     loggedOptimistic = true
     logForDebugging(

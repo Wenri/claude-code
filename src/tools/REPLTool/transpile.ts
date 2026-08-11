@@ -1,6 +1,10 @@
 let replTranspiler: Bun.Transpiler | undefined
 
-const MODULE_LOADING_PATTERN = /\b(import|require)\s*\(/
+const MODULE_LOADING_KINDS: Record<string, string> = {
+  'import-statement': 'import',
+  'dynamic-import': 'import',
+  'require-call': 'require',
+}
 
 function getReplTranspiler(): Bun.Transpiler {
   if (replTranspiler) return replTranspiler
@@ -9,19 +13,31 @@ function getReplTranspiler(): Bun.Transpiler {
   return replTranspiler
 }
 
-export function rejectModuleLoading(code: string): void {
-  const match = MODULE_LOADING_PATTERN.exec(code)
-  if (match) {
-    throw Error(
-      `Module loading (${match[1]}) is not available in REPL — the vm context is sealed. ` +
-        "Use the tool globals instead: await Read({file_path: '...'}), await Glob({pattern: '...'}), the registered shell tool, etc.",
-    )
+export function rejectModuleLoading(
+  transpiler: Bun.Transpiler,
+  code: string,
+): void {
+  let imports: ReturnType<Bun.Transpiler['scanImports']>
+  try {
+    imports = transpiler.scanImports(code.replace(/^#!.*\n?/, ''))
+  } catch {
+    return
+  }
+  for (const { kind } of imports) {
+    const moduleLoadingKind = MODULE_LOADING_KINDS[kind]
+    if (moduleLoadingKind) {
+      throw Error(
+        `Module loading (${moduleLoadingKind}) is not available in REPL — the vm context is sealed. ` +
+          "Use the tool globals instead: await Read({file_path: '...'}), await Glob({pattern: '...'}), the registered shell tool, etc.",
+      )
+    }
   }
 }
 
 export function transpileReplCode(code: string): string {
-  const transformed = getReplTranspiler().transformSync(code)
-  rejectModuleLoading(transformed)
+  const transpiler = getReplTranspiler()
+  const transformed = transpiler.transformSync(code)
+  rejectModuleLoading(transpiler, code)
   return transformed
 }
 

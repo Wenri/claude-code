@@ -90,10 +90,11 @@ export function renderToolUseMessage(input: Partial<BashToolInput>, {
   theme: ThemeName;
 }): React.ReactNode {
   const {
-    command
+    command,
+    rerun
   } = input;
   if (!command) {
-    return null;
+    return rerun ? `rerun ${rerun}` : null;
   }
 
   // Render sed in-place edits like file edits (show file path only)

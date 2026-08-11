@@ -3,6 +3,8 @@ export function formatErrorMessage(error: PluginError): string {
   switch (error.type) {
     case 'path-not-found':
       return `${error.component} path not found: ${error.path}`;
+    case 'path-traversal':
+      return `Path escapes plugin directory: ${error.path} (${error.component})`;
     case 'git-auth-failed':
       return `Git ${error.authType.toUpperCase()} authentication failed for ${error.gitUrl}`;
     case 'git-timeout':
@@ -70,6 +72,8 @@ export function getErrorGuidance(error: PluginError): string | null {
   switch (error.type) {
     case 'path-not-found':
       return 'Check that the path in your manifest or marketplace config is correct';
+    case 'path-traversal':
+      return 'Paths in plugin.json must not use ".." to reference files outside the plugin directory';
     case 'git-auth-failed':
       return error.authType === 'ssh' ? 'Configure SSH keys or use HTTPS URL instead' : 'Configure credentials or use SSH URL instead';
     case 'git-timeout':

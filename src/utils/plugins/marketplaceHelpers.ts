@@ -463,9 +463,15 @@ export function isSourceInBlocklist(source: MarketplaceSource): boolean {
   if (blocklist === null) {
     return false
   }
-  return blocklist.some(blocked =>
-    areSourcesEquivalentForBlocklist(source, blocked),
-  )
+  return blocklist.some(blocked => {
+    if (blocked.source === 'hostPattern') {
+      return doesSourceMatchHostPattern(source, blocked)
+    }
+    if (blocked.source === 'pathPattern') {
+      return doesSourceMatchPathPattern(source, blocked)
+    }
+    return areSourcesEquivalentForBlocklist(source, blocked)
+  })
 }
 
 /**
@@ -542,6 +548,7 @@ export type EmptyMarketplaceReason =
   | 'all-marketplaces-failed'
   | 'no-marketplaces-configured'
   | 'all-plugins-installed'
+  | 'all-plugins-project-installed'
 
 /**
  * Detect why no marketplaces are available.

@@ -338,6 +338,10 @@ class GitFileWatcher {
   private watchedPaths: string[] = []
   private branchRefPath: string | null = null
   private cache = new Map<string, CacheEntry<unknown>>()
+  private repoBranches = new Map<string, string | null>()
+  private repoGitDirs = new Map<string, string>()
+  private repoBranchListeners: Array<() => void> = []
+  private cleanupRegistered = false
 
   async ensureStarted(): Promise<void> {
     if (this.initialized) {
@@ -353,6 +357,12 @@ class GitFileWatcher {
   private async start(): Promise<void> {
     this.gitDir = await resolveGitDir()
     this.initialized = true
+    if (!this.cleanupRegistered) {
+      this.cleanupRegistered = true
+      registerCleanup(async () => {
+        this.stopWatching()
+      })
+    }
     if (!this.gitDir) {
       return
     }
@@ -374,9 +384,6 @@ class GitFileWatcher {
     // Watch the current branch's ref file for commit changes
     await this.watchCurrentBranchRef()
 
-    registerCleanup(async () => {
-      this.stopWatching()
-    })
   }
 
   private watchPath(path: string, callback: () => void): void {
@@ -484,10 +491,44 @@ class GitFileWatcher {
     return value
   }
 
+  async addRepo(cwd: string): Promise<void> {
+    if (this.repoGitDirs.has(cwd)) return
+    const gitDir = await resolveGitDir(cwd)
+    if (!gitDir) return
+
+    this.repoGitDirs.set(cwd, gitDir)
+    this.watchPath(join(gitDir, 'HEAD'), () => {
+      this.repoBranches.delete(cwd)
+      for (const listener of this.repoBranchListeners) listener()
+    })
+  }
+
+  onRepoBranchChange(listener: () => void): () => void {
+    this.repoBranchListeners.push(listener)
+    return () => {
+      const index = this.repoBranchListeners.indexOf(listener)
+      if (index !== -1) this.repoBranchListeners.splice(index, 1)
+    }
+  }
+
+  async getBranchForRepo(cwd: string): Promise<string | null | undefined> {
+    if (this.repoBranches.has(cwd)) return this.repoBranches.get(cwd)
+    const gitDir = this.repoGitDirs.get(cwd)
+    if (!gitDir) return undefined
+
+    const head = await readGitHead(gitDir)
+    const branch = head?.type === 'branch' ? head.name : null
+    this.repoBranches.set(cwd, branch)
+    return branch
+  }
+
   /** Reset all state. Stops file watchers. For testing only. */
   reset(): void {
     this.stopWatching()
     this.cache.clear()
+    this.repoBranches.clear()
+    this.repoGitDirs.clear()
+    this.repoBranchListeners = []
     this.initialized = false
     this.initPromise = null
     this.gitDir = null
@@ -582,6 +623,20 @@ export function getCachedRemoteUrl(): Promise<string | null> {
 
 export function getCachedDefaultBranch(): Promise<string> {
   return gitWatcher.get('defaultBranch', computeDefaultBranch)
+}
+
+export function addWatchedRepo(cwd: string): Promise<void> {
+  return gitWatcher.addRepo(cwd)
+}
+
+export function getCachedBranchForRepo(
+  cwd: string,
+): Promise<string | null | undefined> {
+  return gitWatcher.getBranchForRepo(cwd)
+}
+
+export function onRepoBranchChange(listener: () => void): () => void {
+  return gitWatcher.onRepoBranchChange(listener)
 }
 
 /** Reset the git file watcher state. For testing only. */

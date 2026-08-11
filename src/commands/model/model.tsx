@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import * as React from 'react';
-import { getTotalOutputTokens } from '../../bootstrap/state.js';
+import { getRuntimeCapabilities, getTotalOutputTokens } from '../../bootstrap/state.js';
 import type { CommandResultDisplay } from '../../commands.js';
 import { Select } from '../../components/CustomSelect/index.js';
 import { Dialog } from '../../components/design-system/Dialog.js';
@@ -13,6 +13,8 @@ import { useAppState, useSetAppState } from '../../state/AppState.js';
 import type { LocalJSXCommandCall } from '../../types/command.js';
 import type { EffortLevel } from '../../utils/effort.js';
 import { isBilledAsExtraUsage } from '../../utils/extraUsage.js';
+import { logForDebugging } from '../../utils/debug.js';
+import { errorMessage } from '../../utils/errors.js';
 import { clearFastModeCooldown, isFastModeAvailable, isFastModeEnabled, isFastModeSupportedByModel } from '../../utils/fastMode.js';
 import { MODEL_ALIASES } from '../../utils/model/aliases.js';
 import { checkOpus1mAccess, checkSonnet1mAccess } from '../../utils/model/check1mAccess.js';
@@ -223,6 +225,27 @@ function SetModelAndClose({
   const { addNotification } = useNotifications();
   const model = args === 'default' ? null : args;
   React.useEffect(() => {
+    const remote = getRuntimeCapabilities().remote;
+    if (remote?.kind === 'ccr' && !remote.viewerOnly) {
+      remote.sendControlRequest({
+        subtype: 'set_model',
+        model: model ?? undefined
+      }).then(() => {
+        setAppState(prev => ({
+          ...prev,
+          mainLoopModel: model,
+          mainLoopModelForSession: null
+        }));
+        onDone(`Set model to ${chalk.bold(renderModelLabel(model))}`);
+      }).catch(error => {
+        logForDebugging(`[remote] set_model rejected: ${errorMessage(error)}`);
+        onDone(`Remote session couldn't switch to ${args}`, {
+          display: 'system'
+        });
+      });
+      return;
+    }
+
     async function handleModelChange(): Promise<void> {
       if (model && !isModelAllowed(model)) {
         onDone(`Model '${model}' is not available. Your organization restricts model selection.`, {

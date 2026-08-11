@@ -39,7 +39,9 @@ function parsePrIdentifier(value: string): number | null {
   if (!isNaN(directNumber) && directNumber > 0) {
     return directNumber;
   }
-  const urlMatch = value.match(/github\.com\/[^/]+\/[^/]+\/pull\/(\d+)/);
+  const urlMatch = value.match(
+    /(?:https?:\/\/)?[^/\s]+\/[^\s]+?\/(?:pull|pull-requests|-\/merge_requests)\/(\d+)/,
+  );
   if (urlMatch?.[1]) {
     return parseInt(urlMatch[1], 10);
   }

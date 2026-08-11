@@ -3,6 +3,7 @@
 import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
+import vm from 'node:vm'
 import { gunzipSync, gzipSync } from 'node:zlib'
 import { pathToFileURL } from 'node:url'
 import { summarizeSourceTree } from './verify-source-lineage.mjs'
@@ -399,6 +400,99 @@ function validateObligations({
   const coveredBullets = new Map()
   const testCatalog = new Map()
   const testContents = new Map()
+  const testEvidence = new Map()
+  const directEvidenceMetadata = obligations.directEvidenceCatalog ?? null
+  let directEvidenceRows = new Map()
+  const usedDirectEvidenceRows = new Set()
+  if (directEvidenceMetadata !== null) {
+    assert(
+      typeof directEvidenceMetadata.path === 'string' &&
+        directEvidenceMetadata.path.startsWith('recovery/'),
+      'direct evidence catalog path is unsafe',
+    )
+    const directEvidenceFilename = safeExistingRegularFile(
+      path.dirname(sourceRoot),
+      directEvidenceMetadata.path,
+      'direct evidence catalog',
+    )
+    const directEvidenceValue = fs.readFileSync(directEvidenceFilename)
+    assertEqual(
+      directEvidenceValue.length,
+      directEvidenceMetadata.bytes,
+      'direct evidence catalog bytes',
+    )
+    assertEqual(
+      sha256(directEvidenceValue),
+      directEvidenceMetadata.sha256,
+      'direct evidence catalog SHA-256',
+    )
+    const parsed = JSON.parse(directEvidenceValue.toString('utf8'))
+    assert(
+      Array.isArray(parsed.rows) &&
+        parsed.rows.length === directEvidenceMetadata.rowCount,
+      'direct evidence row count',
+    )
+    directEvidenceRows = new Map(parsed.rows.map(row => [row.id, row]))
+    assertEqual(
+      directEvidenceRows.size,
+      parsed.rows.length,
+      'unique direct evidence row IDs',
+    )
+    assertEqual(
+      sha256(Buffer.from(parsed.rows.map(row => row.id).join('\n') + '\n')),
+      directEvidenceMetadata.rowIdsSha256,
+      'direct evidence row-ID SHA-256',
+    )
+  }
+  const decodedCatalogStrings = value => {
+    const result = []
+    const visit = candidate => {
+      if (Array.isArray(candidate)) {
+        for (const child of candidate) visit(child)
+      } else if (candidate && typeof candidate === 'object') {
+        if (
+          candidate.encoding === 'base64' &&
+          typeof candidate.base64 === 'string'
+        ) {
+          result.push(Buffer.from(candidate.base64, 'base64').toString('utf8'))
+        }
+        for (const child of Object.values(candidate)) visit(child)
+      } else if (typeof candidate === 'string') {
+        result.push(candidate)
+      }
+    }
+    visit(value)
+    return result
+  }
+  const literalArrayFromTest = (source, declaration, label) => {
+    const declarationOffset = source.indexOf(`const ${declaration} = [`)
+    assert(declarationOffset !== -1, `${label}: missing ${declaration}`)
+    const start = source.indexOf('[', declarationOffset)
+    let depth = 0
+    let quote = null
+    let escaped = false
+    for (let offset = start; offset < source.length; offset += 1) {
+      const character = source[offset]
+      if (quote !== null) {
+        if (escaped) escaped = false
+        else if (character === '\\') escaped = true
+        else if (character === quote) quote = null
+        continue
+      }
+      if (character === '"' || character === "'" || character === '`') {
+        quote = character
+        continue
+      }
+      if (character === '[') depth += 1
+      else if (character === ']' && --depth === 0) {
+        return vm.runInNewContext(
+          source.slice(start, offset + 1),
+          Object.create(null),
+        )
+      }
+    }
+    throw new Error(`${label}: unterminated ${declaration}`)
+  }
   assert(Array.isArray(obligations.testCatalog), 'testCatalog must be an array')
   for (const entry of obligations.testCatalog) {
     assert(
@@ -422,16 +516,103 @@ function validateObligations({
     if (entry.sha256 !== undefined) {
       assertEqual(sha256(value), entry.sha256, `${entry.id} test SHA-256`)
     }
+    const testSource = value.toString('utf8')
+    let authenticatedText = testSource
+    const literalArrays = entry.literalArrays ?? []
+    assert(
+      Array.isArray(literalArrays),
+      `${entry.id}: literalArrays must be an array`,
+    )
+    for (const declaration of literalArrays) {
+      assert(
+        typeof declaration === 'string' && /^[A-Z][A-Z0-9_]*$/.test(declaration),
+        `${entry.id}: invalid literal-array declaration`,
+      )
+      authenticatedText += `\n${decodedCatalogStrings(
+        literalArrayFromTest(testSource, declaration, entry.id),
+      ).join('\n')}`
+    }
+    const evidence = entry.evidence ?? []
+    assert(Array.isArray(evidence), `${entry.id}: test evidence must be an array`)
+    const evidenceByPath = new Map()
+    for (const item of evidence) {
+      assert(
+        typeof item.path === 'string' && item.path.startsWith('recovery/'),
+        `${entry.id}: unsafe test evidence path`,
+      )
+      const evidenceFilename = safeExistingRegularFile(
+        path.dirname(sourceRoot),
+        item.path,
+        `${entry.id} test evidence`,
+      )
+      const evidenceValue = fs.readFileSync(evidenceFilename)
+      assertEqual(evidenceValue.length, item.bytes, `${entry.id} evidence bytes`)
+      assertEqual(sha256(evidenceValue), item.sha256, `${entry.id} evidence SHA-256`)
+      assertEqual(
+        item.relation,
+        'loaded-and-exactly-verified-by-this-test',
+        `${entry.id} evidence relation`,
+      )
+      assert(
+        testSource.includes(item.path),
+        `${entry.id}: test does not load declared evidence`,
+      )
+      if (item.testPinsIdentity === true) {
+        assert(
+          testSource.includes(item.sha256),
+          `${entry.id}: test does not pin evidence SHA-256`,
+        )
+        assert(
+          testSource.replaceAll('_', '').includes(String(item.bytes)),
+          `${entry.id}: test does not pin evidence bytes`,
+        )
+      }
+      if (item.decodeBase64Fragments === true) {
+        const parsed = JSON.parse(evidenceValue.toString('utf8'))
+        authenticatedText += `\n${decodedCatalogStrings(parsed).join('\n')}`
+      }
+      assert(
+        !evidenceByPath.has(item.path),
+        `${entry.id}: duplicate test evidence path`,
+      )
+      evidenceByPath.set(item.path, item)
+    }
     testCatalog.set(entry.id, entry)
-    testContents.set(entry.id, value.toString('utf8'))
+    testContents.set(entry.id, authenticatedText)
+    testEvidence.set(entry.id, evidenceByPath)
   }
   const usedTestIds = new Set()
   const obligationWitnesses = []
   let fragmentCount = 0
+  let targetAbsenceCount = 0
   let sourceAssertionCount = 0
+  let sourceAbsenceCount = 0
   let sourceRemovalCount = 0
   const classifications = {}
   const localizationBases = {}
+  let sourceTypeScriptTexts = null
+
+  function allSourceTypeScriptTexts() {
+    if (sourceTypeScriptTexts !== null) return sourceTypeScriptTexts
+    const values = []
+    const queue = [sourceRoot]
+    while (queue.length > 0) {
+      const directory = queue.shift()
+      for (const entry of fs
+        .readdirSync(directory, { withFileTypes: true })
+        .sort((left, right) => left.name.localeCompare(right.name))) {
+        const filename = path.join(directory, entry.name)
+        const status = fs.lstatSync(filename)
+        assert(!status.isSymbolicLink(), `source absence scan crosses symlink: ${filename}`)
+        if (status.isDirectory()) queue.push(filename)
+        else if (status.isFile() && /\.(?:ts|tsx)$/.test(entry.name)) {
+          values.push(fs.readFileSync(filename, 'utf8'))
+        }
+      }
+    }
+    sourceTypeScriptTexts = values
+    return values
+  }
 
   for (const obligation of obligations.obligations) {
     const bundleWitnesses = []
@@ -482,6 +663,77 @@ function validateObligations({
       typeof obligation.rationale === 'string' && obligation.rationale.length > 0,
       `${obligation.id}: rationale is absent`,
     )
+    let boundDirectEvidenceRow = null
+    if (obligation.catalogBinding !== undefined) {
+      const binding = obligation.catalogBinding
+      assert(directEvidenceMetadata !== null, `${obligation.id}: no direct catalog`)
+      assertEqual(
+        binding.path,
+        directEvidenceMetadata.path,
+        `${obligation.id}: catalog path`,
+      )
+      assertEqual(
+        binding.bytes,
+        directEvidenceMetadata.bytes,
+        `${obligation.id}: catalog bytes`,
+      )
+      assertEqual(
+        binding.sha256,
+        directEvidenceMetadata.sha256,
+        `${obligation.id}: catalog SHA-256`,
+      )
+      assert(
+        typeof binding.rawId === 'string' && binding.rawId.length > 0,
+        `${obligation.id}: catalog raw ID`,
+      )
+      boundDirectEvidenceRow = directEvidenceRows.get(binding.rawId)
+      assert(
+        boundDirectEvidenceRow !== undefined,
+        `${obligation.id}: direct evidence row is absent`,
+      )
+      assert(
+        !usedDirectEvidenceRows.has(binding.rawId),
+        `${obligation.id}: direct evidence row is reused`,
+      )
+      usedDirectEvidenceRows.add(binding.rawId)
+      assertEqual(
+        boundDirectEvidenceRow.obligationId,
+        obligation.id,
+        `${obligation.id}: catalog obligation ID`,
+      )
+      assertEqual(
+        binding.kind,
+        boundDirectEvidenceRow.evidenceKind,
+        `${obligation.id}: direct evidence kind`,
+      )
+      assertEqual(
+        sha256(Buffer.from(JSON.stringify(boundDirectEvidenceRow))),
+        binding.rowSha256,
+        `${obligation.id}: direct evidence row SHA-256`,
+      )
+      assert(
+        (obligation.testIds ?? []).includes('adjacent'),
+        `${obligation.id}: direct evidence test is not bound`,
+      )
+      const adjacentEvidence = testEvidence.get('adjacent')?.get(binding.path)
+      assert(
+        adjacentEvidence !== undefined &&
+          adjacentEvidence.testPinsIdentity === true,
+        `${obligation.id}: direct evidence catalog is not test-pinned`,
+      )
+      for (const [label, actual, expected] of [
+        ['target fragments', obligation.targetFragments, boundDirectEvidenceRow.targetFragments],
+        ['target absences', obligation.targetAbsences ?? [], boundDirectEvidenceRow.targetAbsences],
+        ['source assertions', obligation.sourceAssertions ?? [], boundDirectEvidenceRow.sourceAssertions],
+        ['source absences', obligation.sourceAbsences ?? [], boundDirectEvidenceRow.sourceAbsences],
+      ]) {
+        assertEqual(
+          JSON.stringify(actual),
+          JSON.stringify(expected),
+          `${obligation.id}: catalog ${label}`,
+        )
+      }
+    }
     assert(
       Array.isArray(obligation.targetFragments),
       `${obligation.id}: targetFragments must be an array`,
@@ -553,6 +805,44 @@ function validateObligations({
       })
       fragmentCount += 1
     }
+    const targetAbsences = obligation.targetAbsences ?? []
+    assert(
+      Array.isArray(targetAbsences),
+      `${obligation.id}: targetAbsences must be an array`,
+    )
+    for (const fragment of targetAbsences) {
+      assert(
+        typeof fragment.text === 'string' && fragment.text.length > 0,
+        `${obligation.id}: target absence text is absent`,
+      )
+      const bytes = Buffer.from(fragment.text)
+      assertEqual(
+        bytes.length,
+        fragment.bytes,
+        `${obligation.id} target absence bytes`,
+      )
+      assertEqual(
+        sha256(bytes),
+        fragment.sha256,
+        `${obligation.id} target absence SHA-256`,
+      )
+      assertEqual(
+        countOccurrences(baselineText, fragment.text),
+        fragment.baselineCount,
+        `${obligation.id} baseline target-absence count`,
+      )
+      assertEqual(
+        countOccurrences(targetText, fragment.text),
+        fragment.targetCount,
+        `${obligation.id} target target-absence count`,
+      )
+      assertEqual(
+        fragment.targetCount,
+        0,
+        `${obligation.id} target absence must be absent`,
+      )
+      targetAbsenceCount += 1
+    }
     if (
       obligation.classification === 'source-localized-adjacent' ||
       obligation.classification === 'dependency-adjacent' ||
@@ -599,6 +889,13 @@ function validateObligations({
       const text = fs.readFileSync(filename, 'utf8')
       assert(typeof assertion.fragment === 'string' && assertion.fragment.length > 0,
         `${obligation.id}: source fragment is absent`)
+      if (assertion.bytes !== undefined) {
+        assertEqual(
+          Buffer.byteLength(assertion.fragment),
+          assertion.bytes,
+          `${obligation.id} source fragment bytes`,
+        )
+      }
       assertEqual(
         sha256(Buffer.from(assertion.fragment)),
         assertion.sha256,
@@ -610,6 +907,43 @@ function validateObligations({
         `${obligation.id} source fragment count`,
       )
       sourceAssertionCount += 1
+    }
+    const sourceAbsences = obligation.sourceAbsences ?? []
+    assert(
+      Array.isArray(sourceAbsences),
+      `${obligation.id}: sourceAbsences must be an array`,
+    )
+    for (const absence of sourceAbsences) {
+      assertEqual(
+        absence.scope,
+        'src/**/*.{ts,tsx}',
+        `${obligation.id}: source absence scope`,
+      )
+      assert(
+        typeof absence.fragment === 'string' && absence.fragment.length > 0,
+        `${obligation.id}: source absence fragment is absent`,
+      )
+      assertEqual(
+        Buffer.byteLength(absence.fragment),
+        absence.bytes,
+        `${obligation.id} source absence bytes`,
+      )
+      assertEqual(
+        sha256(Buffer.from(absence.fragment)),
+        absence.sha256,
+        `${obligation.id} source absence SHA-256`,
+      )
+      const actualCount = allSourceTypeScriptTexts().reduce(
+        (sum, text) => sum + countOccurrences(text, absence.fragment),
+        0,
+      )
+      assertEqual(
+        actualCount,
+        absence.count,
+        `${obligation.id} source absence count`,
+      )
+      assertEqual(absence.count, 0, `${obligation.id}: source absence must be absent`)
+      sourceAbsenceCount += 1
     }
     const sourceRemovals = obligation.sourceRemovals ?? []
     assert(
@@ -670,19 +1004,21 @@ function validateObligations({
       )
     } else if (sourceLocalized) {
       assert(
-        obligation.classification === 'source-localized-adjacent',
-        `${obligation.id}: manual localization must be adjacent`,
+        obligation.classification === 'source-localized-adjacent' ||
+          obligation.classification === 'source-localized-inherited',
+        `${obligation.id}: manual localization classification is invalid`,
       )
-      assert(
-        hasAdjacentCountEvidence,
-        `${obligation.id}: manual localization needs count-different behavior evidence`,
-      )
-      assert(
-        obligation.targetFragments.every(fragment =>
-          fragment.baselineCount !== fragment.targetCount,
-        ),
-        `${obligation.id}: every manual localization fragment must be count-different`,
-      )
+      if (obligation.classification === 'source-localized-adjacent') {
+        assert(
+          hasAdjacentCountEvidence,
+          `${obligation.id}: adjacent manual localization needs count-different behavior evidence`,
+        )
+      } else {
+        assert(
+          !hasAdjacentCountEvidence,
+          `${obligation.id}: inherited manual localization must preserve witness counts`,
+        )
+      }
       assert(
         obligation.allowCandidateOwnership !== true,
         `${obligation.id}: manual localization cannot claim candidate ownership`,
@@ -712,38 +1048,40 @@ function validateObligations({
         .filter(sourcePath => !retainedSourcePaths.includes(sourcePath))
         .sort()
       assert(
-        changedSourcePaths.length > 0,
-        `${obligation.id}: manual localization has no changed source path`,
+        changedSourcePaths.length > 0 || retainedSourcePaths.length > 0,
+        `${obligation.id}: manual localization has no asserted source boundary`,
       )
-      const boundTestTexts = (obligation.testIds ?? []).map(testId => ({
-        id: testId,
-        text: testContents.get(testId),
-      }))
-      const testContains = value =>
-        boundTestTexts.some(test => test.text.includes(value))
-      for (const fragment of obligation.targetFragments) {
-        assert(
-          testContains(fragment.text),
-          `${obligation.id}: bound test does not contain target behavior fragment`,
-        )
-      }
-      for (const assertion of obligation.sourceAssertions ?? []) {
-        assert(
-          boundTestTexts.some(test =>
-            test.text.includes(assertion.path) &&
-            test.text.includes(assertion.fragment),
-          ),
-          `${obligation.id}: bound test does not contain source assertion evidence`,
-        )
-      }
-      for (const removal of sourceRemovals) {
-        assert(
-          boundTestTexts.some(test =>
-            test.text.includes(removal.path) &&
-            test.text.includes(removal.fragment),
-          ),
-          `${obligation.id}: bound test does not contain source removal evidence`,
-        )
+      if (boundDirectEvidenceRow === null) {
+        const boundTestTexts = (obligation.testIds ?? []).map(testId => ({
+          id: testId,
+          text: testContents.get(testId),
+        }))
+        const testContains = value =>
+          boundTestTexts.some(test => test.text.includes(value))
+        for (const fragment of obligation.targetFragments) {
+          assert(
+            testContains(fragment.text),
+            `${obligation.id}: bound test does not contain target behavior fragment`,
+          )
+        }
+        for (const assertion of obligation.sourceAssertions ?? []) {
+          assert(
+            boundTestTexts.some(test =>
+              test.text.includes(assertion.path) &&
+              test.text.includes(assertion.fragment),
+            ),
+            `${obligation.id}: bound test does not contain source assertion evidence`,
+          )
+        }
+        for (const removal of sourceRemovals) {
+          assert(
+            boundTestTexts.some(test =>
+              test.text.includes(removal.path) &&
+              test.text.includes(removal.fragment),
+            ),
+            `${obligation.id}: bound test does not contain source removal evidence`,
+          )
+        }
       }
       manualLocalization = {
         basis: localizationBasis,
@@ -759,6 +1097,11 @@ function validateObligations({
       localizationBasis,
       releaseBullets: obligation.releaseBullets,
       bundleWitnesses,
+      targetAbsences: targetAbsences.map(fragment => ({
+        sha256: fragment.sha256,
+        baselineCount: fragment.baselineCount,
+        targetCount: fragment.targetCount,
+      })),
       sourcePaths: [...new Set(
         [
           ...(obligation.sourceAssertions ?? []).map(assertion => assertion.path),
@@ -769,7 +1112,22 @@ function validateObligations({
         path: removal.path,
         sha256: removal.sha256,
       })),
+      sourceAbsences: sourceAbsences.map(absence => ({
+        scope: absence.scope,
+        sha256: absence.sha256,
+        count: absence.count,
+      })),
       testIds: [...(obligation.testIds ?? [])].sort(),
+      ...(obligation.catalogBinding === undefined
+        ? {}
+        : {
+            catalogBinding: {
+              path: obligation.catalogBinding.path,
+              sha256: obligation.catalogBinding.sha256,
+              rawId: obligation.catalogBinding.rawId,
+              rowSha256: obligation.catalogBinding.rowSha256,
+            },
+          }),
       ...(manualLocalization === null ? {} : { manualLocalization }),
     })
   }
@@ -777,11 +1135,25 @@ function validateObligations({
   for (let bullet = 1; bullet <= obligations.releaseBulletCount; bullet += 1) {
     assert(coveredBullets.has(bullet), `release bullet ${bullet} is not covered`)
   }
+  if (directEvidenceMetadata !== null) {
+    assertEqual(
+      usedDirectEvidenceRows.size,
+      directEvidenceRows.size,
+      'direct evidence rows consumed exactly once',
+    )
+    assertEqual(
+      JSON.stringify([...usedDirectEvidenceRows].sort()),
+      JSON.stringify([...directEvidenceRows.keys()].sort()),
+      'direct evidence row-ID set consumed exactly once',
+    )
+  }
   return {
     summary: {
       obligationCount: obligations.obligations.length,
       fragmentCount,
+      targetAbsenceCount,
       sourceAssertionCount,
+      sourceAbsenceCount,
       sourceRemovalCount,
       releaseBulletCount: obligations.releaseBulletCount,
       releaseBulletsCovered: coveredBullets.size,
@@ -801,6 +1173,14 @@ function validateObligations({
     testCatalog: [...testCatalog.values()].map(entry => ({
       id: entry.id,
       path: entry.path,
+      bytes: entry.bytes,
+      sha256: entry.sha256,
+      evidence: (entry.evidence ?? []).map(item => ({
+        path: item.path,
+        bytes: item.bytes,
+        sha256: item.sha256,
+        relation: item.relation,
+      })),
     })),
   }
 }

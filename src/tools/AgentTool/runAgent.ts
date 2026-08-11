@@ -128,69 +128,76 @@ async function initializeAgentMcpServers(
     }
   }
 
+  const connectionResults = await Promise.all(
+    agentDefinition.mcpServers.map(async spec => {
+      let config: ScopedMcpServerConfig | null = null
+      let name: string
+      let isNewlyCreated = false
+
+      if (typeof spec === 'string') {
+        // Reference by name - look up in existing MCP configs
+        // This uses the memoized connectToServer, so we may get a shared client
+        name = spec
+        config = getMcpConfigByName(spec)
+        if (!config) {
+          logForDebugging(
+            `[Agent: ${agentDefinition.agentType}] MCP server not found: ${spec}`,
+            { level: 'warn' },
+          )
+          return null
+        }
+      } else {
+        // Inline definition as { [name]: config }
+        // These are agent-specific servers that should be cleaned up
+        const entries = Object.entries(spec)
+        if (entries.length !== 1) {
+          logForDebugging(
+            `[Agent: ${agentDefinition.agentType}] Invalid MCP server spec: expected exactly one key`,
+            { level: 'warn' },
+          )
+          return null
+        }
+        const [serverName, serverConfig] = entries[0]!
+        name = serverName
+        config = {
+          ...serverConfig,
+          scope: 'dynamic' as const,
+        } as ScopedMcpServerConfig
+        isNewlyCreated = true
+      }
+
+      // Connect to the server
+      const client = await connectToServer(name, config)
+      // Fetch tools if connected
+      let tools: Tool[] = []
+      if (client.type === 'connected') {
+        tools = await fetchToolsForClient(client)
+        logForDebugging(
+          `[Agent: ${agentDefinition.agentType}] Connected to MCP server '${name}' with ${tools.length} tools`,
+        )
+      } else {
+        logForDebugging(
+          `[Agent: ${agentDefinition.agentType}] Failed to connect to MCP server '${name}': ${client.type}`,
+          { level: 'warn' },
+        )
+      }
+
+      return { client, tools, isNewlyCreated }
+    }),
+  )
+
   const agentClients: MCPServerConnection[] = []
   // Track which clients were newly created (inline definitions) vs. shared from parent
   // Only newly created clients should be cleaned up when the agent finishes
   const newlyCreatedClients: MCPServerConnection[] = []
   const agentTools: Tool[] = []
-
-  for (const spec of agentDefinition.mcpServers) {
-    let config: ScopedMcpServerConfig | null = null
-    let name: string
-    let isNewlyCreated = false
-
-    if (typeof spec === 'string') {
-      // Reference by name - look up in existing MCP configs
-      // This uses the memoized connectToServer, so we may get a shared client
-      name = spec
-      config = getMcpConfigByName(spec)
-      if (!config) {
-        logForDebugging(
-          `[Agent: ${agentDefinition.agentType}] MCP server not found: ${spec}`,
-          { level: 'warn' },
-        )
-        continue
-      }
-    } else {
-      // Inline definition as { [name]: config }
-      // These are agent-specific servers that should be cleaned up
-      const entries = Object.entries(spec)
-      if (entries.length !== 1) {
-        logForDebugging(
-          `[Agent: ${agentDefinition.agentType}] Invalid MCP server spec: expected exactly one key`,
-          { level: 'warn' },
-        )
-        continue
-      }
-      const [serverName, serverConfig] = entries[0]!
-      name = serverName
-      config = {
-        ...serverConfig,
-        scope: 'dynamic' as const,
-      } as ScopedMcpServerConfig
-      isNewlyCreated = true
+  for (const result of connectionResults) {
+    if (!result) continue
+    agentClients.push(result.client)
+    if (result.isNewlyCreated) {
+      newlyCreatedClients.push(result.client)
     }
-
-    // Connect to the server
-    const client = await connectToServer(name, config)
-    agentClients.push(client)
-    if (isNewlyCreated) {
-      newlyCreatedClients.push(client)
-    }
-
-    // Fetch tools if connected
-    if (client.type === 'connected') {
-      const tools = await fetchToolsForClient(client)
-      agentTools.push(...tools)
-      logForDebugging(
-        `[Agent: ${agentDefinition.agentType}] Connected to MCP server '${name}' with ${tools.length} tools`,
-      )
-    } else {
-      logForDebugging(
-        `[Agent: ${agentDefinition.agentType}] Failed to connect to MCP server '${name}': ${client.type}`,
-        { level: 'warn' },
-      )
-    }
+    agentTools.push(...result.tools)
   }
 
   // Create cleanup function for agent-specific servers
@@ -697,6 +704,7 @@ export async function* runAgent({
     mcpClients: mergedMcpClients,
     mcpResources: toolUseContext.options.mcpResources,
     agentDefinitions: toolUseContext.options.agentDefinitions,
+    messageClientPlatform: toolUseContext.options.messageClientPlatform,
     // Fork children (useExactTools path) need querySource on context.options
     // for the recursive-fork guard at AgentTool.tsx call() — it checks
     // options.querySource === 'agent:builtin:fork'. This survives autocompact

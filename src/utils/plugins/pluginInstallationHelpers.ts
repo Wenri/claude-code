@@ -185,6 +185,7 @@ export async function cacheAndRegisterPlugin(
   projectPath?: string,
   localSourcePath?: string,
   resolvedTag?: ResolvedGitTag,
+  auto?: boolean,
 ): Promise<CachedPluginRegistration> {
   // For local plugins, we need the resolved absolute path
   // Cast to PluginSource since cachePlugin handles any string path at runtime
@@ -305,6 +306,7 @@ export async function cacheAndRegisterPlugin(
       installPath: finalPath,
       gitCommitSha,
       ...(resolvedTag && { resolvedVersion: resolvedTag.version }),
+      ...(auto && { auto: true }),
     },
     scope,
     projectPath,
@@ -557,12 +559,14 @@ export async function installResolvedPlugin({
   scope,
   marketplaceInstallLocation,
   trigger,
+  auto,
 }: {
   pluginId: string
   entry: PluginMarketplaceEntry
   scope: 'user' | 'project' | 'local'
   marketplaceInstallLocation?: string
   trigger?: string
+  auto?: boolean
 }): Promise<InstallCoreResult> {
   const settingSource = scopeToSettingSource(scope)
 
@@ -823,6 +827,7 @@ export async function installResolvedPlugin({
         projectPath,
         getLocalSourcePath(info),
         resolvedTag,
+        auto === true || id !== pluginId,
       )
       materialized.add(id)
       for (const [rawDependency, constraint] of cached.depConstraints ?? []) {

@@ -11,6 +11,7 @@ import { Clawd } from './Clawd.js';
 import { FeedColumn } from './FeedColumn.js';
 import { createRecentActivityFeed, createWhatsNewFeed, createProjectOnboardingFeed, createGuestPassesFeed } from './feedConfigs.js';
 import { getGlobalConfig, saveGlobalConfig } from 'src/utils/config.js';
+import { getConfigValue } from 'src/utils/settings/configSettings.js';
 import { resolveThemeSetting } from 'src/utils/systemTheme.js';
 import { getInitialSettings } from 'src/utils/settings/settings.js';
 import { isDebugMode, isDebugToStdErr, getDebugLogPath } from 'src/utils/debug.js';
@@ -248,7 +249,7 @@ export function LogoV2() {
     return t23;
   }
   const layoutMode = getLayoutMode(columns);
-  const userTheme = resolveThemeSetting(getGlobalConfig().theme);
+  const userTheme = resolveThemeSetting(getConfigValue('theme', 'dark').value);
   const borderTitle = ` ${color("claude", userTheme)("Claude Code")} ${color("inactive", userTheme)(`v${version}`)} `;
   const compactBorderTitle = color("claude", userTheme)(" Claude Code ");
   if (layoutMode === "compact") {

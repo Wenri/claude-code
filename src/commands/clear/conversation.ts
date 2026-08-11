@@ -25,6 +25,7 @@ import { asAgentId } from '../../types/ids.js'
 import type { Message } from '../../types/message.js'
 import { createEmptyAttributionState } from '../../utils/commitAttribution.js'
 import type { FileStateCache } from '../../utils/fileStateCache.js'
+import type { ReplIsolationLatch } from '../../tools/REPLTool/types.js'
 import {
   executeSessionEndHooks,
   getSessionEndHookTimeoutMs,
@@ -47,6 +48,10 @@ import {
 } from '../../utils/task/diskOutput.js'
 import { getCurrentWorktreeSession } from '../../utils/worktree.js'
 import { clearSessionCaches } from './caches.js'
+import {
+  clearResultDedupState,
+  type ResultDedupState,
+} from '../../services/tools/resultDedup.js'
 
 export async function clearConversation({
   setMessages,
@@ -56,6 +61,8 @@ export async function clearConversation({
   getAppState,
   setAppState,
   setConversationId,
+  resultDedupState,
+  isolationLatch,
 }: {
   setMessages: (updater: (prev: Message[]) => Message[]) => void
   readFileState: FileStateCache
@@ -64,6 +71,8 @@ export async function clearConversation({
   getAppState?: () => AppState
   setAppState?: (f: (prev: AppState) => AppState) => void
   setConversationId?: (id: UUID) => void
+  resultDedupState?: ResultDedupState
+  isolationLatch?: ReplIsolationLatch
 }): Promise<void> {
   // Execute SessionEnd hooks before clearing (bounded by
   // CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS, default 1.5s)
@@ -132,6 +141,8 @@ export async function clearConversation({
   readFileState.clear()
   discoveredSkillNames?.clear()
   loadedNestedMemoryPaths?.clear()
+  if (resultDedupState) clearResultDedupState(resultDedupState)
+  if (isolationLatch) isolationLatch.current = null
 
   // Clean out necessary items from App State
   if (setAppState) {

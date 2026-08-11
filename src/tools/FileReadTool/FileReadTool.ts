@@ -78,7 +78,7 @@ import { getDefaultFileReadingLimits } from './limits.js'
 import {
   DESCRIPTION,
   FILE_READ_TOOL_NAME,
-  FILE_UNCHANGED_STUB,
+  getFileUnchangedStub,
   LINE_FORMAT_INSTRUCTION,
   OFFSET_INSTRUCTION_DEFAULT,
   OFFSET_INSTRUCTION_TARGETED,
@@ -687,7 +687,7 @@ export const FileReadTool = buildTool({
         return {
           tool_use_id: toolUseID,
           type: 'tool_result',
-          content: FILE_UNCHANGED_STUB,
+          content: getFileUnchangedStub(),
         }
       case 'text': {
         let content: string

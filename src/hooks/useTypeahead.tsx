@@ -52,6 +52,25 @@ function isPathMetadata(metadata: unknown): metadata is {
   return typeof metadata === 'object' && metadata !== null && 'type' in metadata && (metadata.type === 'directory' || metadata.type === 'file');
 }
 
+function getReplacementMetadata(
+  metadata: unknown,
+): { replacement: string; partial: boolean } | undefined {
+  if (
+    typeof metadata === 'object' &&
+    metadata !== null &&
+    'replacement' in metadata &&
+    typeof metadata.replacement === 'string' &&
+    'partial' in metadata &&
+    typeof metadata.partial === 'boolean'
+  ) {
+    return {
+      replacement: metadata.replacement,
+      partial: metadata.partial,
+    }
+  }
+  return undefined
+}
+
 // Helper to determine selectedSuggestion when updating suggestions
 function getPreservedSelection(prevSuggestions: SuggestionItem[], prevSelection: number, newSuggestions: SuggestionItem[]): number {
   // No new suggestions
@@ -458,6 +477,9 @@ export function useTypeahead({
   const prevInputRef = useRef('');
   // Track the latest path token to discard stale results from path completion
   const latestPathTokenRef = useRef('');
+  const directorySuggestionOriginRef = useRef<
+    'command-arg' | 'at-path' | null
+  >(null)
   // Track the latest bash input to discard stale results from history completion
   const latestBashInputRef = useRef('');
   // Track the latest slack channel token to discard stale results from MCP
@@ -478,6 +500,7 @@ export function useTypeahead({
     setSuggestionType('none');
     setMaxColumnWidth(undefined);
     setInlineGhostText(undefined);
+    directorySuggestionOriginRef.current = null;
   }, [setSuggestionsState]);
 
   // Expensive async operation to fetch file/resource suggestions
@@ -741,6 +764,7 @@ export function useTypeahead({
         }
         const dirSuggestions = await getDirectoryCompletions(args);
         if (dirSuggestions.length > 0) {
+          directorySuggestionOriginRef.current = 'command-arg';
           setSuggestionsState(prev => ({
             suggestions: dirSuggestions,
             selectedSuggestion: getPreservedSelection(prev.suggestions, prev.selectedSuggestion, dirSuggestions),
@@ -906,6 +930,7 @@ export function useTypeahead({
             return;
           }
           if (pathSuggestions.length > 0) {
+            directorySuggestionOriginRef.current = 'at-path';
             setSuggestionsState(prev => ({
               suggestions: pathSuggestions,
               selectedSuggestion: getPreservedSelection(prev.suggestions, prev.selectedSuggestion, pathSuggestions),
@@ -1035,7 +1060,8 @@ export function useTypeahead({
         const suggestion = suggestions[index];
         if (suggestion) {
           // Check if this is a command context (e.g., /add-dir) or general path completion
-          const isInCommandContext = isCommandInput(input);
+          const isInCommandContext =
+            directorySuggestionOriginRef.current === 'command-arg';
           let newInput: string;
           if (isInCommandContext) {
             // Command context: replace just the argument portion
@@ -1113,7 +1139,12 @@ export function useTypeahead({
         }
 
         // Check if all suggestions share a common prefix longer than the current input
-        const commonPrefix = findLongestCommonPrefix(suggestions);
+        const hasReplacementMetadata = suggestions.some(suggestion =>
+          getReplacementMetadata(suggestion.metadata),
+        );
+        const commonPrefix = hasReplacementMetadata
+          ? ''
+          : findLongestCommonPrefix(suggestions);
 
         // Determine if token starts with @ to preserve it during replacement
         const hasAtPrefix = completionToken.token.startsWith('@');
@@ -1148,10 +1179,7 @@ export function useTypeahead({
           // Otherwise, apply the selected suggestion
           const suggestion = suggestions[index];
           if (suggestion) {
-            const metadata = suggestion.metadata as {
-              replacement?: string;
-              partial?: boolean;
-            } | undefined;
+            const metadata = getReplacementMetadata(suggestion.metadata);
             const replacementValue = metadata?.replacement
               ? `${metadata.replacement}${metadata.partial ? '' : ' '}`
               : formatReplacementValue({
@@ -1274,10 +1302,7 @@ export function useTypeahead({
       if (completionInfo) {
         if (suggestion) {
           const hasAtPrefix = completionInfo.token.startsWith('@');
-          const metadata = suggestion.metadata as {
-            replacement?: string;
-            partial?: boolean;
-          } | undefined;
+          const metadata = getReplacementMetadata(suggestion.metadata);
           const replacementValue = metadata?.replacement
             ? `${metadata.replacement}${metadata.partial ? '' : ' '}`
             : formatReplacementValue({
@@ -1306,7 +1331,7 @@ export function useTypeahead({
         // In command context (e.g., /add-dir), Enter submits the command
         // rather than applying the directory suggestion. Just clear
         // suggestions and let the submit handler process the current input.
-        if (isCommandInput(input)) {
+        if (directorySuggestionOriginRef.current === 'command-arg') {
           debouncedFetchFileSuggestions.cancel();
           debouncedFetchSlashTemplateSuggestions.cancel();
           clearSuggestions();

@@ -3628,6 +3628,7 @@ export async function* executePostToolHooks<ToolInput, ToolResponse>(
   permissionMode?: string,
   signal?: AbortSignal,
   timeoutMs: number = TOOL_HOOK_EXECUTION_TIMEOUT_MS,
+  durationMs?: number,
 ): AsyncGenerator<AggregatedHookResult> {
   const hookInput: PostToolUseHookInput = {
     ...createBaseHookInput(permissionMode, undefined, toolUseContext),
@@ -3636,6 +3637,7 @@ export async function* executePostToolHooks<ToolInput, ToolResponse>(
     tool_input: toolInput,
     tool_response: toolResponse,
     tool_use_id: toolUseID,
+    duration_ms: durationMs,
   }
 
   yield* executeHooks({
@@ -3692,6 +3694,7 @@ export async function* executePostToolBatchHooks(
  * @param permissionMode Optional permission mode from toolPermissionContext
  * @param signal Optional AbortSignal to cancel hook execution
  * @param timeoutMs Optional timeout in milliseconds for hook execution
+ * @param toolUseContext Optional ToolUseContext for prompt/function hooks and session metadata
  * @returns Async generator that yields progress messages and blocking errors
  */
 export async function* executePostToolUseFailureHooks<ToolInput>(
@@ -3704,6 +3707,7 @@ export async function* executePostToolUseFailureHooks<ToolInput>(
   permissionMode?: string,
   signal?: AbortSignal,
   timeoutMs: number = TOOL_HOOK_EXECUTION_TIMEOUT_MS,
+  durationMs?: number,
 ): AsyncGenerator<AggregatedHookResult> {
   const appState = toolUseContext.getAppState()
   const sessionId = toolUseContext.agentId ?? getSessionId()
@@ -3719,6 +3723,7 @@ export async function* executePostToolUseFailureHooks<ToolInput>(
     tool_use_id: toolUseID,
     error,
     is_interrupt: isInterrupt,
+    duration_ms: durationMs,
   }
 
   yield* executeHooks({
@@ -3917,6 +3922,7 @@ export async function* executeTeammateIdleHooks(
   permissionMode?: string,
   signal?: AbortSignal,
   timeoutMs: number = TOOL_HOOK_EXECUTION_TIMEOUT_MS,
+  toolUseContext?: ToolUseContext,
 ): AsyncGenerator<AggregatedHookResult> {
   const hookInput: TeammateIdleHookInput = {
     ...createBaseHookInput(permissionMode),
@@ -3930,6 +3936,7 @@ export async function* executeTeammateIdleHooks(
     toolUseID: randomUUID(),
     signal,
     timeoutMs,
+    toolUseContext,
   })
 }
 

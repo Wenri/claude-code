@@ -1,12 +1,26 @@
 import type { StdoutMessage } from 'src/entrypoints/sdk/controlTypes.js'
-import { CCRClient } from '../cli/transports/ccrClient.js'
+import { CCRClient, type InternalEvent } from '../cli/transports/ccrClient.js'
 import type { HybridTransport } from '../cli/transports/HybridTransport.js'
 import { SSETransport } from '../cli/transports/SSETransport.js'
 import { logForDebugging } from '../utils/debug.js'
 import { errorMessage } from '../utils/errors.js'
 import { updateSessionIngressAuthToken } from '../utils/sessionIngressAuth.js'
-import type { SessionState } from '../utils/sessionState.js'
+import type {
+  RequiresActionDetails,
+  SessionState,
+} from '../utils/sessionState.js'
 import { registerWorker } from './workSecret.js'
+
+export type InternalEventWriter = (
+  eventType: string,
+  payload: Record<string, unknown>,
+  options?: { isCompaction?: boolean; agentId?: string },
+) => Promise<void>
+
+export type InternalEventReaders = {
+  readMain: () => Promise<InternalEvent[] | null>
+  readSubagents: () => Promise<InternalEvent[] | null>
+}
 
 /**
  * Transport abstraction for replBridge. Covers exactly the surface that
@@ -53,7 +67,7 @@ export type ReplBridgeTransport = {
    * "waiting for input" indicator. REPL/daemon callers don't need this
    * (user watches the REPL locally); multi-session worker callers do.
    */
-  reportState(state: SessionState): void
+  reportState(state: SessionState, details?: RequiresActionDetails): void
   /** PUT /worker external_metadata (v2 only; v1 is a no-op). */
   reportMetadata(metadata: Record<string, unknown>): void
   /**
@@ -67,6 +81,8 @@ export type ReplBridgeTransport = {
    * immediately — HybridTransport POSTs are already awaited per-write).
    */
   flush(): Promise<void>
+  getInternalEventWriter?(): InternalEventWriter
+  getInternalEventReaders?(): InternalEventReaders
 }
 
 /**
@@ -321,8 +337,8 @@ export async function createV2ReplTransport(opts: {
     },
     // v2 write path (CCRClient) doesn't set maxConsecutiveFailures — no drops.
     droppedBatchCount: 0,
-    reportState(state) {
-      ccr.reportState(state)
+    reportState(state, details) {
+      ccr.reportState(state, details)
     },
     reportMetadata(metadata) {
       ccr.reportMetadata(metadata)
@@ -332,6 +348,16 @@ export async function createV2ReplTransport(opts: {
     },
     flush() {
       return ccr.flush()
+    },
+    getInternalEventWriter() {
+      return (eventType, payload, options) =>
+        ccr.writeInternalEvent(eventType, payload, options)
+    },
+    getInternalEventReaders() {
+      return {
+        readMain: () => ccr.readInternalEvents(),
+        readSubagents: () => ccr.readSubagentInternalEvents(),
+      }
     },
     connect() {
       // Outbound-only: skip the SSE read stream entirely — no inbound
