@@ -16,7 +16,7 @@ export type BundledSkillDefinition = {
   name: string
   description: string
   aliases?: string[]
-  whenToUse?: string
+  whenToUse?: string | (() => string)
   argumentHint?: string
   allowedTools?: string[]
   model?: string
@@ -80,7 +80,6 @@ export function registerBundledSkill(definition: BundledSkillDefinition): void {
     hasUserSpecifiedDescription: true,
     allowedTools: definition.allowedTools ?? [],
     argumentHint: definition.argumentHint,
-    whenToUse: definition.whenToUse,
     model: definition.model,
     disableModelInvocation: definition.disableModelInvocation ?? false,
     userInvocable: definition.userInvocable ?? true,
@@ -95,6 +94,15 @@ export function registerBundledSkill(definition: BundledSkillDefinition): void {
     isHidden: !(definition.userInvocable ?? true),
     progressMessage: 'running',
     getPromptForCommand,
+  }
+  if (typeof definition.whenToUse === 'function') {
+    Object.defineProperty(command, 'whenToUse', {
+      get: definition.whenToUse,
+      enumerable: true,
+      configurable: true,
+    })
+  } else if (definition.whenToUse !== undefined) {
+    command.whenToUse = definition.whenToUse
   }
   bundledSkills.push(command)
 }

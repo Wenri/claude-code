@@ -1,5 +1,8 @@
 import { feature } from 'bun:bundle'
-import { getIsRemoteMode } from '../../bootstrap/state.js'
+import {
+  getIsRemoteMode,
+  getRuntimeCapabilities,
+} from '../../bootstrap/state.js'
 import { redownloadUserSettings } from '../../services/settingsSync/index.js'
 import type { LocalCommandCall } from '../../types/command.js'
 import { isEnvTruthy } from '../../utils/envUtils.js'
@@ -9,6 +12,16 @@ import { settingsChangeDetector } from '../../utils/settings/changeDetector.js'
 import { plural } from '../../utils/stringUtils.js'
 
 export const call: LocalCommandCall = async (_args, context) => {
+  const remote = getRuntimeCapabilities().remote
+  if (remote?.kind === 'ccr') {
+    const result = await remote.sendControlRequest({ subtype: 'reload_plugins' })
+    let message = `Reloaded on remote: ${n(result.plugins.length, 'plugin')} · ${n(result.commands.length, 'skill')} · ${n(result.agents.length, 'agent')} · ${n(result.mcpServers.length, 'plugin MCP server')}`
+    if (result.error_count > 0) {
+      message += `\n${n(result.error_count, 'error')} during load. Run /doctor on the remote for details.`
+    }
+    return { type: 'text', value: message }
+  }
+
   // CCR: re-pull user settings before the cache sweep so enabledPlugins /
   // extraKnownMarketplaces pushed from the user's local CLI (settingsSync)
   // take effect. Non-CCR headless (e.g. vscode SDK subprocess) shares disk

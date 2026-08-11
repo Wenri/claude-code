@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "release": "2.1.118",
+  "publicationAdjacency": {
+    "baseline": "2.1.117",
+    "skipped": [],
+    "registryVersionSequence": [
+      "2.1.113",
+      "2.1.114",
+      "2.1.116",
+      "2.1.117",
+      "2.1.118",
+      "2.1.119",
+      "2.1.120"
+    ],
+    "targetIsNextPublishedVersion": true,
+    "skippedVersionsAbsent": true
+  },
+  "npm": {
+    "registryKey": {
+      "registryUrl": "https://registry.npmjs.org/-/npm/v1/keys",
+      "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+      "keytype": "ecdsa-sha2-nistp256",
+      "scheme": "ecdsa-sha2-nistp256",
+      "expires": null,
+      "publicKeyDerBase64": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEY6Ya7W++7aUPzvMTrezH6Ycx3c+HOKYCcNGybJZSCJq/fd7Qa8uuAKtdIkUQtQiEKERhAmE5lMMJhP8OkDOa2g=="
+    },
+    "wrapper": {
+      "name": "@anthropic-ai/claude-code",
+      "version": "2.1.118",
+      "publishedAt": "2026-04-22T23:48:56.690Z",
+      "tarballUrl": "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.1.118.tgz",
+      "tarballBytes": 13541,
+      "tarballSha256": "6bf12298233cbe70f0412000772bea927f0d000b90debc2e78fbf1db69fa6c47",
+      "registryShasum": "a96c2aa0723f0baaad6df16eb93fb2fb1d3e9a24",
+      "registryIntegrity": "sha512-wQw3aWRmDc6+OB2JQ/FyIxyQOLbdX7doPEsmIRklB/N6hjFDDqquIG7y78yofHFx1YKbyrkfvmLWecwxNL8fZg==",
+      "registrySignature": "MEUCIQCPP9Mg5xzYj2C8wvX/FAedrZruDHQZnHDwFALxNbqIWQIgf0wn0rCYAuYBZpgu8kg5XpDaIxpVt9sywbt4Ga5++yQ=",
+      "signatureKeyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+      "signatureMessageSha256": "4a77a167bdeb9b558d96b32e5e7e9e2189acc66af0f5d319be8186138b5752cb",
+      "signatureVerification": "ECDSA/SHA-256 verified OK with the live npm registry key",
+      "fileCount": 7,
+      "unpackedSize": 132031
+    },
+    "linuxX64": {
+      "name": "@anthropic-ai/claude-code-linux-x64",
+      "version": "2.1.118",
+      "publishedAt": "2026-04-22T23:47:07.822Z",
+      "tarballUrl": "https://registry.npmjs.org/@anthropic-ai/claude-code-linux-x64/-/claude-code-linux-x64-2.1.118.tgz",
+      "tarballBytes": 75226490,
+      "tarballSha256": "9265b84455ce045a77e89a822ddeed6dabfbb920a4cda5e8f38ef1ec55d7c45c",
+      "registryShasum": "2378ea67ec21d77880bb38549d17c5a402d727e4",
+      "registryIntegrity": "sha512-t6aNIvNa1T+ZR5IkJARqjTy+U5LH59FuWok4QoXa/RpT4C0njeeE/SdUzvvhwmH3ji/Rh6EX4zgbx/v5yGtG8Q==",
+      "registrySignature": "MEYCIQDauxWcphcdldLpfBnCoO2Z5KNvegbAJ9DVVAQnDWuz4QIhAJ9VuhHbQKrD55Cy/PE9hr1vgiYxMnZdSySF9K2xoTKm",
+      "signatureKeyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+      "signatureMessageSha256": "2feca43c1fec1d59e2c9b5690ab3df46e8e97901902b53c61d2bd8d3a181974e",
+      "signatureVerification": "ECDSA/SHA-256 verified OK with the live npm registry key",
+      "fileCount": 4,
+      "unpackedSize": 239574218,
+      "os": [
+        "linux"
+      ],
+      "cpu": [
+        "x64"
+      ]
+    }
+  },
+  "git": {
+    "repository": "https://github.com/anthropics/claude-code.git",
+    "tag": "v2.1.118",
+    "tagObjectType": "commit",
+    "commit": "925200dffc3d0aea02ffa9aa234b22d5efb63bc3",
+    "parent": "9afdfd7dc06fad5a924a9e87563f1eb924720221",
+    "parentTag": null,
+    "tree": "9fd61e8715beda5cb81993be35bb7d2004f84762",
+    "parentTree": "b45a905f084d2d67c57758160bc88d16f3f01b6b",
+    "commitTimestamp": "2026-04-23T00:42:15+00:00",
+    "subject": "chore: Update CHANGELOG.md",
+    "immediateParentTagged": false,
+    "previousReleaseTag": "v2.1.117",
+    "previousReleaseCommit": "2fa67717b8046c253cfa55fd84002e3501f1eca6",
+    "previousReleaseTree": "a6593f7f3672246bffb84d54dec5ee4b9c9c4e6a",
+    "commitsSincePreviousReleaseTag": 2,
+    "commitChainFromPreviousRelease": [
+      {
+        "commit": "9afdfd7dc06fad5a924a9e87563f1eb924720221",
+        "parent": "2fa67717b8046c253cfa55fd84002e3501f1eca6",
+        "tree": "b45a905f084d2d67c57758160bc88d16f3f01b6b",
+        "commitTimestamp": "2026-04-22T23:01:47+00:00",
+        "subject": "chore: Update CHANGELOG.md"
+      },
+      {
+        "commit": "925200dffc3d0aea02ffa9aa234b22d5efb63bc3",
+        "parent": "9afdfd7dc06fad5a924a9e87563f1eb924720221",
+        "tree": "9fd61e8715beda5cb81993be35bb7d2004f84762",
+        "commitTimestamp": "2026-04-23T00:42:15+00:00",
+        "subject": "chore: Update CHANGELOG.md"
+      }
+    ],
+    "publicDiff": {
+      "basis": "v2.1.117..v2.1.118",
+      "filesChanged": 1,
+      "insertions": 38,
+      "deletions": 0,
+      "paths": [
+        "CHANGELOG.md"
+      ]
+    },
+    "tagCommitDiff": {
+      "basis": "9afdfd7dc06fad5a924a9e87563f1eb924720221..v2.1.118",
+      "filesChanged": 1,
+      "insertions": 37,
+      "deletions": 0,
+      "paths": [
+        "CHANGELOG.md"
+      ]
+    },
+    "intermediateCommitDiff": {
+      "basis": "v2.1.117..9afdfd7dc06fad5a924a9e87563f1eb924720221",
+      "filesChanged": 1,
+      "insertions": 1,
+      "deletions": 0,
+      "paths": [
+        "CHANGELOG.md"
+      ]
+    }
+  },
+  "changelog": {
+    "fullPath": "evidence/claude-code-CHANGELOG-925200df.md",
+    "fullGitBlobSha1": "3084d33eac446d0bad1adee8eb7daa845b9563c6",
+    "fullBytes": 250079,
+    "fullSha256": "16b8c952c057d9ad82090afb659f3ad116a583211994faf67fc47b61efa5df2b",
+    "sectionPath": "evidence/CHANGELOG-2.1.118.md",
+    "sectionBytes": 3918,
+    "sectionSha256": "3a6edbf3f74375c4f6e21734ff2e187197b6f2fc763e1077eb949bb867a4b742",
+    "bulletCount": 34
+  }
+}

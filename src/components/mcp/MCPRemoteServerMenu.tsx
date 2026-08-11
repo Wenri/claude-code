@@ -512,8 +512,9 @@ export function MCPRemoteServerMenu({
       });
     }
   }
+  const hasHeadersHelper = server.config.type !== 'claudeai-proxy' && !!server.config.headersHelper;
   if (server.client.type !== 'disabled') {
-    if (server.client.type !== 'needs-auth') {
+    if (server.client.type !== 'needs-auth' || hasHeadersHelper) {
       menuOptions.push({
         label: 'Reconnect',
         value: 'reconnectMcpServer'
@@ -611,7 +612,9 @@ export function MCPRemoteServerMenu({
                 }
                 const {
                   message: message_0
-                } = handleReconnectResult(result_1, server.name);
+                } = handleReconnectResult(result_1, server.name, {
+                  hasHeadersHelper
+                });
                 onComplete?.(message_0);
               } catch (err_2) {
                 if (server.config.type === 'claudeai-proxy') {

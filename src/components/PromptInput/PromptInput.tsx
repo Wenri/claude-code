@@ -21,7 +21,7 @@ import { getNativeCSIuTerminalDisplayName } from '../../commands/terminalSetup/t
 import { type Command, hasCommand } from '../../commands.js';
 import { useIsModalOverlayActive } from '../../context/overlayContext.js';
 import { useSetPromptOverlayDialog } from '../../context/promptOverlayContext.js';
-import { formatImageRef, formatPastedTextRef, getPastedTextRefNumLines, parseReferences } from '../../history.js';
+import { expandHighestPastedTextRef, formatImageRef, formatPastedTextRef, getPastedTextRefNumLines, parseReferences } from '../../history.js';
 import type { VerificationStatus } from '../../hooks/useApiKeyVerification.js';
 import { type HistoryMode, useArrowKeyHistory } from '../../hooks/useArrowKeyHistory.js';
 import { useDoublePress } from '../../hooks/useDoublePress.js';
@@ -404,6 +404,13 @@ function PromptInput({
     }
   }, [coordinatorTaskCount, coordinatorTaskIndex, minCoordinatorIndex]);
   const [isPasting, setIsPasting] = useState(false);
+  const [showExpandPasteHint, setShowExpandPasteHint] = useState(false);
+  const expandPasteHintTimerRef = useRef<NodeJS.Timeout | null>(null);
+  useEffect(() => () => {
+    if (expandPasteHintTimerRef.current) {
+      clearTimeout(expandPasteHintTimerRef.current);
+    }
+  }, []);
   const [isExternalEditorActive, setIsExternalEditorActive] = useState(false);
   const [showModelPicker, setShowModelPicker] = useState(false);
   const [showQuickOpen, setShowQuickOpen] = useState(false);
@@ -1202,6 +1209,27 @@ function PromptInput({
       return next;
     });
   }, [input, setPastedContents]);
+  function expandPaste(pasteId: number): boolean {
+    const result = expandHighestPastedTextRef(input, pastedContents);
+    if (result?.id !== pasteId) return false;
+
+    pushToBuffer(input, cursorOffset, pastedContents);
+    trackAndSetInput(result.expanded);
+    setCursorOffset(result.cursorOffset);
+    setPastedContents(prev => {
+      const {
+        [result.id]: _removed,
+        ...rest
+      } = prev;
+      return rest;
+    });
+    if (expandPasteHintTimerRef.current) {
+      clearTimeout(expandPasteHintTimerRef.current);
+    }
+    expandPasteHintTimerRef.current = null;
+    setShowExpandPasteHint(false);
+    return true;
+  }
   function onTextPaste(rawText: string) {
     pendingSpaceAfterPillRef.current = false;
     // Clean up pasted text - strip ANSI escape codes and normalize line endings and tabs
@@ -1214,6 +1242,10 @@ function PromptInput({
         onModeChange(pastedMode);
         text = getValueFromInput(text);
       }
+    }
+    const latestPasteId = nextPasteIdRef.current - 1;
+    if (pastedContents[latestPasteId]?.type === 'text' && pastedContents[latestPasteId].content === text && expandPaste(latestPasteId)) {
+      return;
     }
     const numLines = getPastedTextRefNumLines(text);
     // Limit the number of lines to show in the input
@@ -1237,6 +1269,16 @@ function PromptInput({
         [pasteId]: newContent
       }));
       insertTextAtCursor(formatPastedTextRef(pasteId, numLines));
+      if (text.length <= 100_000) {
+        setShowExpandPasteHint(true);
+        if (expandPasteHintTimerRef.current) {
+          clearTimeout(expandPasteHintTimerRef.current);
+        }
+        expandPasteHintTimerRef.current = setTimeout((setHint, timerRef) => {
+          setHint(false);
+          timerRef.current = null;
+        }, 8000, setShowExpandPasteHint, expandPasteHintTimerRef);
+      }
     } else {
       // For shorter pastes, just insert the text normally
       insertTextAtCursor(text);
@@ -1427,6 +1469,11 @@ function PromptInput({
 
   // Handler for chat:cycleMode - cycle through permission modes
   const handleCycleMode = useCallback(() => {
+    if (expandPasteHintTimerRef.current) {
+      clearTimeout(expandPasteHintTimerRef.current);
+      expandPasteHintTimerRef.current = null;
+    }
+    setShowExpandPasteHint(false);
     // When viewing a teammate, cycle their mode instead of the leader's
     if (isAgentSwarmsEnabled() && viewedTeammate && viewingAgentTaskId) {
       const teammateContext: ToolPermissionContext = {
@@ -2296,7 +2343,7 @@ function PromptInput({
             {textInputElement}
           </Box>
         </Box>}
-      <PromptInputFooter apiKeyStatus={apiKeyStatus} debug={debug} exitMessage={exitMessage} vimMode={isVimModeEnabled() ? vimMode : undefined} mode={mode} autoUpdaterResult={autoUpdaterResult} isAutoUpdating={isAutoUpdating} verbose={verbose} onAutoUpdaterResult={onAutoUpdaterResult} onChangeIsUpdating={setIsAutoUpdating} suggestions={suggestions} selectedSuggestion={selectedSuggestion} suggestionsEmptyMessage={suggestionsEmptyMessage} maxColumnWidth={maxColumnWidth} toolPermissionContext={effectiveToolPermissionContext} helpOpen={helpOpen} suppressHint={input.length > 0} isLoading={isLoading} tasksSelected={tasksSelected} teamsSelected={teamsSelected} bridgeSelected={bridgeSelected} tmuxSelected={tmuxSelected} teammateFooterIndex={teammateFooterIndex} ideSelection={ideSelection} mcpClients={mcpClients} isPasting={isPasting} isInputWrapped={isInputWrapped} messages={messages} isSearching={isSearchingHistory} historyQuery={historyQuery} setHistoryQuery={setHistoryQuery} historyFailedMatch={historyFailedMatch} onOpenTasksDialog={isFullscreenEnvEnabled() ? handleOpenTasksDialog : undefined} />
+      <PromptInputFooter apiKeyStatus={apiKeyStatus} debug={debug} exitMessage={exitMessage} vimMode={isVimModeEnabled() ? vimMode : undefined} mode={mode} autoUpdaterResult={autoUpdaterResult} isAutoUpdating={isAutoUpdating} verbose={verbose} onAutoUpdaterResult={onAutoUpdaterResult} onChangeIsUpdating={setIsAutoUpdating} suggestions={suggestions} selectedSuggestion={selectedSuggestion} suggestionsEmptyMessage={suggestionsEmptyMessage} maxColumnWidth={maxColumnWidth} toolPermissionContext={effectiveToolPermissionContext} helpOpen={helpOpen} suppressHint={input.length > 0} isLoading={isLoading} tasksSelected={tasksSelected} teamsSelected={teamsSelected} bridgeSelected={bridgeSelected} tmuxSelected={tmuxSelected} teammateFooterIndex={teammateFooterIndex} ideSelection={ideSelection} mcpClients={mcpClients} isPasting={isPasting} showExpandPasteHint={showExpandPasteHint} isInputWrapped={isInputWrapped} messages={messages} isSearching={isSearchingHistory} historyQuery={historyQuery} setHistoryQuery={setHistoryQuery} historyFailedMatch={historyFailedMatch} onOpenTasksDialog={isFullscreenEnvEnabled() ? handleOpenTasksDialog : undefined} />
       {isFullscreenEnvEnabled() ? null : autoModeOptInDialog}
       {isFullscreenEnvEnabled() ?
     // position=absolute takes zero layout height so the spinner

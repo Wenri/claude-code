@@ -35,6 +35,7 @@ import { getPlatform, type Platform } from '../platform.js'
 import { settingsChangeDetector } from '../settings/changeDetector.js'
 import { SETTING_SOURCES, type SettingSource } from '../settings/constants.js'
 import { getManagedSettingsDropInDir } from '../settings/managedPath.js'
+import { WSL_WINDOWS_MANAGED_SETTINGS_PATH } from '../settings/mdm/constants.js'
 import {
   getInitialSettings,
   getSettings_DEPRECATED,
@@ -238,6 +239,12 @@ export function convertToSandboxRuntimeConfig(
   ).filter((p): p is string => p !== undefined)
   denyWrite.push(...settingsPaths)
   denyWrite.push(getManagedSettingsDropInDir())
+  if (getPlatform() === 'wsl') {
+    denyWrite.push(
+      join(WSL_WINDOWS_MANAGED_SETTINGS_PATH, 'managed-settings.json'),
+      join(WSL_WINDOWS_MANAGED_SETTINGS_PATH, 'managed-settings.d'),
+    )
+  }
 
   // Also block settings files in the current working directory if it differs from original
   // This handles the case where the user has cd'd to a different directory

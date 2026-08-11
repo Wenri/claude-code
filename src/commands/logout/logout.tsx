@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { setOauthTokenFromFd } from '../../bootstrap/state.js';
 import { clearTrustedDeviceTokenCache } from '../../bridge/trustedDevice.js';
 import { Text } from '../../ink.js';
 import { refreshGrowthBookAfterAuthChange } from '../../services/analytics/growthbook.js';
@@ -6,21 +7,32 @@ import { getGroveNoticeConfig, getGroveSettings } from '../../services/api/grove
 import { clearPolicyLimitsCache } from '../../services/policyLimits/index.js';
 // flushTelemetry is loaded lazily to avoid pulling in ~1.1MB of OpenTelemetry at startup
 import { clearRemoteManagedSettingsCache } from '../../services/remoteManagedSettings/index.js';
+import { isBgSession } from '../../utils/concurrentSessions.js';
 import { getClaudeAIOAuthTokens, removeApiKey } from '../../utils/auth.js';
 import { clearBetasCaches } from '../../utils/betas.js';
 import { saveGlobalConfig } from '../../utils/config.js';
 import { gracefulShutdownSync } from '../../utils/gracefulShutdown.js';
 import { getSecureStorage } from '../../utils/secureStorage/index.js';
 import { clearToolSchemaCache } from '../../utils/toolSchemaCache.js';
+import { logOTelEvent } from '../../utils/telemetry/events.js';
 import { resetUserCache } from '../../utils/user.js';
 export async function performLogout({
-  clearOnboarding = false
+  clearOnboarding = false,
+  preserveInProcessTokens = false
 }): Promise<void> {
   // Flush telemetry BEFORE clearing credentials to prevent org data leakage
   const {
     flushTelemetry
   } = await import('../../utils/telemetry/instrumentation.js');
   await flushTelemetry();
+  if (isBgSession()) {
+    await clearAuthRelatedCaches();
+    return;
+  }
+  if (!preserveInProcessTokens) {
+    delete process.env.CLAUDE_CODE_OAUTH_TOKEN;
+    setOauthTokenFromFd(null);
+  }
   await removeApiKey();
 
   // Wipe all secure storage data on logout
@@ -70,9 +82,20 @@ export async function clearAuthRelatedCaches(): Promise<void> {
   await clearPolicyLimitsCache();
 }
 export async function call(): Promise<React.ReactNode> {
+  const bg = isBgSession();
+  if (!bg) {
+    void logOTelEvent('auth', {
+      action: 'logout',
+      success: 'true',
+      auth_method: 'oauth',
+    });
+  }
   await performLogout({
     clearOnboarding: true
   });
+  if (bg) {
+    return <Text>This background session shares credentials with other sessions; /logout here has no effect. Run /logout from your main terminal to sign out.</Text>;
+  }
   const message = <Text>Successfully logged out from your Anthropic account.</Text>;
   setTimeout(() => {
     gracefulShutdownSync(0, 'logout');

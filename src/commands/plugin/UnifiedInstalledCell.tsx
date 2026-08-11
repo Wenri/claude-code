@@ -2,6 +2,7 @@ import { c as _c } from "react/compiler-runtime";
 import figures from 'figures';
 import * as React from 'react';
 import { Box, color, Text, useTheme } from '../../ink.js';
+import { Label } from '../../components/design-system/Label.js';
 import { plural } from '../../utils/stringUtils.js';
 import type { UnifiedInstalledItem } from './unifiedTypes.js';
 type Props = {
@@ -100,7 +101,7 @@ export function UnifiedInstalledCell(t0) {
     const t6 = !isSelected;
     let t7;
     if ($[16] === Symbol.for("react.memo_cache_sentinel")) {
-      t7 = <Text backgroundColor="userMessageBackground">Plugin</Text>;
+      t7 = <Label color="userMessageBackground" textColor="text">Plugin</Label>;
       $[16] = t7;
     } else {
       t7 = $[16];
@@ -190,7 +191,7 @@ export function UnifiedInstalledCell(t0) {
     const t7 = !isSelected;
     let t8;
     if ($[42] === Symbol.for("react.memo_cache_sentinel")) {
-      t8 = <Text backgroundColor="userMessageBackground">Plugin</Text>;
+      t8 = <Label color="userMessageBackground" textColor="text">Plugin</Label>;
       $[42] = t8;
     } else {
       t8 = $[42];
@@ -289,7 +290,7 @@ export function UnifiedInstalledCell(t0) {
     const t9 = !isSelected;
     let t10;
     if ($[69] === Symbol.for("react.memo_cache_sentinel")) {
-      t10 = <Text backgroundColor="userMessageBackground">Plugin</Text>;
+      t10 = <Label color="userMessageBackground" textColor="text">Plugin</Label>;
       $[69] = t10;
     } else {
       t10 = $[69];
@@ -443,7 +444,7 @@ export function UnifiedInstalledCell(t0) {
     const t8 = !isSelected;
     let t9;
     if ($[105] === Symbol.for("react.memo_cache_sentinel")) {
-      t9 = <Text backgroundColor="userMessageBackground">MCP</Text>;
+      t9 = <Label color="userMessageBackground" textColor="text">MCP</Label>;
       $[105] = t9;
     } else {
       t9 = $[105];
@@ -515,7 +516,7 @@ export function UnifiedInstalledCell(t0) {
   const t6 = !isSelected;
   let t7;
   if ($[127] === Symbol.for("react.memo_cache_sentinel")) {
-    t7 = <Text backgroundColor="userMessageBackground">MCP</Text>;
+    t7 = <Label color="userMessageBackground" textColor="text">MCP</Label>;
     $[127] = t7;
   } else {
     t7 = $[127];

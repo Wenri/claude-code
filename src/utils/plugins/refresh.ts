@@ -29,6 +29,7 @@ import { errorMessage } from '../errors.js'
 import { logError } from '../log.js'
 import { clearAllCaches } from './cacheUtils.js'
 import { getPluginCommands } from './loadPluginCommands.js'
+import { loadPluginThemes } from './loadPluginThemes.js'
 import { loadPluginHooks } from './loadPluginHooks.js'
 import { loadPluginLspServers } from './lspPluginIntegration.js'
 import { loadPluginMcpServers } from './mcpPluginIntegration.js'
@@ -90,6 +91,7 @@ export async function refreshActivePlugins(
   const [pluginCommands, agentDefinitions] = await Promise.all([
     getPluginCommands(),
     getAgentDefinitionsWithOverrides(getOriginalCwd()),
+    loadPluginThemes(),
   ])
 
   const { enabled, disabled, errors } = pluginResult

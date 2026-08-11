@@ -11,6 +11,7 @@ import { TerminalEvent } from './terminal-event.js'
  */
 export class KeyboardEvent extends TerminalEvent {
   readonly key: string
+  readonly name: string
   readonly ctrl: boolean
   readonly shift: boolean
   readonly meta: boolean
@@ -21,6 +22,7 @@ export class KeyboardEvent extends TerminalEvent {
     super('keydown', { bubbles: true, cancelable: true })
 
     this.key = keyFromParsed(parsedKey)
+    this.name = parsedKey.name ?? ''
     this.ctrl = parsedKey.ctrl
     this.shift = parsedKey.shift
     this.meta = parsedKey.meta || parsedKey.option

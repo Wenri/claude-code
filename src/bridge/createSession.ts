@@ -324,9 +324,10 @@ export async function archiveBridgeSession(
  *
  * Errors are swallowed — title sync is best-effort.
  */
-export async function updateBridgeSessionTitle(
+async function updateBridgeSession(
   sessionId: string,
-  title: string,
+  body: Record<string, unknown>,
+  updateType: string,
   opts?: { baseUrl?: string; getAccessToken?: () => string | undefined },
 ): Promise<void> {
   const { getClaudeAIOAuthTokens } = await import('../utils/auth.js')
@@ -338,13 +339,15 @@ export async function updateBridgeSessionTitle(
   const accessToken =
     opts?.getAccessToken?.() ?? getClaudeAIOAuthTokens()?.accessToken
   if (!accessToken) {
-    logForDebugging('[bridge] No access token for session title update')
+    logForDebugging(
+      `[bridge] No access token for session ${updateType} update`,
+    )
     return
   }
 
   const orgUUID = await getOrganizationUUID()
   if (!orgUUID) {
-    logForDebugging('[bridge] No org UUID for session title update')
+    logForDebugging(`[bridge] No org UUID for session ${updateType} update`)
     return
   }
 
@@ -359,26 +362,55 @@ export async function updateBridgeSessionTitle(
   // Idempotent for v1's session_* and bridgeMain's pre-converted compatSessionId.
   const compatId = toCompatSessionId(sessionId)
   const url = `${opts?.baseUrl ?? getOauthConfig().BASE_API_URL}/v1/sessions/${compatId}`
-  logForDebugging(`[bridge] Updating session title: ${compatId} → ${title}`)
+  logForDebugging(`[bridge] Updating session ${updateType}: ${compatId}`)
 
   try {
     const response = await axios.patch(
       url,
-      { title },
+      body,
       { headers, timeout: 10_000, validateStatus: s => s < 500 },
     )
 
     if (response.status === 200) {
-      logForDebugging(`[bridge] Session title updated successfully`)
+      logForDebugging(`[bridge] Session ${updateType} updated successfully`)
     } else {
       const detail = extractErrorDetail(response.data)
       logForDebugging(
-        `[bridge] Session title update failed with status ${response.status}${detail ? `: ${detail}` : ''}`,
+        `[bridge] Session ${updateType} update failed with status ${response.status}${detail ? `: ${detail}` : ''}`,
       )
     }
   } catch (err: unknown) {
     logForDebugging(
-      `[bridge] Session title update request failed: ${errorMessage(err)}`,
+      `[bridge] Session ${updateType} update request failed: ${errorMessage(err)}`,
     )
   }
+}
+
+export async function updateBridgeSessionTitle(
+  sessionId: string,
+  title: string,
+  opts?: { baseUrl?: string; getAccessToken?: () => string | undefined },
+): Promise<void> {
+  return updateBridgeSession(sessionId, { title }, 'title', opts)
+}
+
+export const SESSION_COLOR_TAG_PREFIX = 'color:'
+
+export async function updateBridgeSessionColorTag(
+  sessionId: string,
+  color: string,
+  availableColors: readonly string[],
+  opts?: { baseUrl?: string; getAccessToken?: () => string | undefined },
+): Promise<void> {
+  const reset = color === 'default'
+  const removeTags = availableColors
+    .filter(candidate => reset || candidate !== color)
+    .map(candidate => `${SESSION_COLOR_TAG_PREFIX}${candidate}`)
+  const addTags = reset ? undefined : [`${SESSION_COLOR_TAG_PREFIX}${color}`]
+  return updateBridgeSession(
+    sessionId,
+    { add_tags: addTags, remove_tags: removeTags },
+    'color tag',
+    opts,
+  )
 }

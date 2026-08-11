@@ -74,13 +74,21 @@ import type {
   SDKControlResponse,
 } from '../entrypoints/sdk/controlTypes.js'
 import type { PermissionMode } from '../utils/permissions/PermissionMode.js'
+import {
+  updatePullRequestSubscription,
+  updateSlackThreadSubscription,
+} from './sessionSubscriptions.js'
 
 const ANTHROPIC_VERSION = '2023-06-01'
 
 // Telemetry discriminator for ws_connected. 'initial' is the default and
 // never passed to rebuildTransport (which can only be called post-init);
 // Exclude<> makes that constraint explicit at both signatures.
-type ConnectCause = 'initial' | 'proactive_refresh' | 'auth_401_recovery'
+type ConnectCause =
+  | 'initial'
+  | 'proactive_refresh'
+  | 'auth_401_recovery'
+  | 'init_4091_recovery'
 
 function oauthHeaders(accessToken: string): Record<string, string> {
   return {
@@ -126,6 +134,9 @@ export type EnvLessBridgeParams = {
   onRenameSession?: (
     title: string,
   ) => { ok: true } | { ok: false; error: string }
+  onSetColor?: (
+    color: string,
+  ) => { ok: true } | { ok: false; error: string }
   onFileSuggestions?: (
     query: string,
   ) => Promise<Array<{ path: string; score?: number }>>
@@ -138,6 +149,10 @@ export type EnvLessBridgeParams = {
   outboundOnly?: boolean
   /** Free-form tags for session categorization (e.g. ['ccr-mirror']). */
   tags?: string[]
+  /** Existing server session reused across an in-place CLI update. */
+  reattachSessionId?: string
+  /** SSE high-water mark captured by the process being replaced. */
+  reattachSequenceNum?: number
 }
 
 /**
@@ -167,13 +182,17 @@ export async function initEnvLessBridgeCore(
     onSetMaxThinkingTokens,
     onSetPermissionMode,
     onRenameSession,
+    onSetColor,
     onFileSuggestions,
     onStateChange,
     outboundOnly,
     tags,
+    reattachSessionId,
+    reattachSequenceNum,
   } = params
 
   const cfg = await getEnvLessBridgeConfig()
+  const isReattach = reattachSessionId !== undefined
 
   // ── 1. Create session (POST /v1/code/sessions, no env_id) ───────────────
   const accessToken = getAccessToken()
@@ -182,20 +201,33 @@ export async function initEnvLessBridgeCore(
     return null
   }
 
-  const createdSessionId = await withRetry(
-    () =>
-      createCodeSession(baseUrl, accessToken, title, cfg.http_timeout_ms, tags),
-    'createCodeSession',
-    cfg,
-  )
-  if (!createdSessionId) {
-    onStateChange?.('failed', 'Session creation failed — see debug log')
-    logBridgeSkip('v2_session_create_failed', undefined, true)
-    return null
+  let sessionId: string
+  if (reattachSessionId) {
+    sessionId = reattachSessionId
+    logForDebugging(`[remote-bridge] Reattaching to session ${sessionId}`)
+    logForDiagnosticsNoPII('info', 'bridge_repl_v2_session_reattached')
+  } else {
+    const createdSessionId = await withRetry(
+      () =>
+        createCodeSession(
+          baseUrl,
+          accessToken,
+          title,
+          cfg.http_timeout_ms,
+          tags,
+        ),
+      'createCodeSession',
+      cfg,
+    )
+    if (!createdSessionId) {
+      onStateChange?.('failed', 'Session creation failed — see debug log')
+      logBridgeSkip('v2_session_create_failed', undefined, true)
+      return null
+    }
+    sessionId = createdSessionId
+    logForDebugging(`[remote-bridge] Created session ${sessionId}`)
+    logForDiagnosticsNoPII('info', 'bridge_repl_v2_session_created')
   }
-  const sessionId: string = createdSessionId
-  logForDebugging(`[remote-bridge] Created session ${sessionId}`)
-  logForDiagnosticsNoPII('info', 'bridge_repl_v2_session_created')
 
   // ── 2. Fetch bridge credentials (POST /bridge → worker_jwt, expires_in, api_base_url) ──
   const credentials = await withRetry(
@@ -221,13 +253,15 @@ export async function initEnvLessBridgeCore(
       undefined,
       true,
     )
-    void archiveSession(
-      sessionId,
-      baseUrl,
-      accessToken,
-      orgUUID,
-      cfg.http_timeout_ms,
-    )
+    if (!isReattach) {
+      void archiveSession(
+        sessionId,
+        baseUrl,
+        accessToken,
+        orgUUID,
+        cfg.http_timeout_ms,
+      )
+    }
     return null
   }
   logForDebugging(
@@ -247,6 +281,7 @@ export async function initEnvLessBridgeCore(
       epoch: credentials.worker_epoch,
       heartbeatIntervalMs: cfg.heartbeat_interval_ms,
       heartbeatJitterFraction: cfg.heartbeat_jitter_fraction,
+      initialSequenceNum: reattachSequenceNum,
       // Per-instance closure — keeps the worker JWT out of
       // process.env.CLAUDE_CODE_SESSION_ACCESS_TOKEN, which mcp/client.ts
       // reads ungatedly and would otherwise send to user-configured ws/http
@@ -262,13 +297,15 @@ export async function initEnvLessBridgeCore(
     )
     onStateChange?.('failed', `Transport setup failed: ${errorMessage(err)}`)
     logBridgeSkip('v2_transport_setup_failed', undefined, true)
-    void archiveSession(
-      sessionId,
-      baseUrl,
-      accessToken,
-      orgUUID,
-      cfg.http_timeout_ms,
-    )
+    if (!isReattach) {
+      void archiveSession(
+        sessionId,
+        baseUrl,
+        accessToken,
+        orgUUID,
+        cfg.http_timeout_ms,
+      )
+    }
     return null
   }
   logForDebugging(
@@ -300,9 +337,11 @@ export async function initEnvLessBridgeCore(
   // so the server receives [history..., live...] in order.
   const flushGate = new FlushGate<Message>()
 
-  let initialFlushDone = false
+  let initialFlushDone = isReattach
   let tornDown = false
   let authRecoveryInFlight = false
+  let transportRecoveryAttempts = 0
+  const MAX_TRANSPORT_RECOVERY_ATTEMPTS = 3
   // Latch for onUserMessage — flips true when the callback returns true
   // (policy says "done deriving"). sessionId is const (no re-create path —
   // rebuildTransport swaps JWT/epoch, same session), so no reset needed.
@@ -410,6 +449,7 @@ export async function initEnvLessBridgeCore(
   function wireTransportCallbacks(): void {
     transport.setOnConnect(() => {
       clearTimeout(connectDeadline)
+      transportRecoveryAttempts = 0
       logForDebugging('[remote-bridge] v2 transport connected')
       logForDiagnosticsNoPII('info', 'bridge_repl_v2_transport_connected')
       logEvent('tengu_bridge_repl_ws_connected', {
@@ -473,6 +513,7 @@ export async function initEnvLessBridgeCore(
             onSetMaxThinkingTokens,
             onSetPermissionMode,
             onRenameSession,
+            onSetColor,
             onFileSuggestions,
             outboundOnly,
           }),
@@ -487,10 +528,22 @@ export async function initEnvLessBridgeCore(
       // onClose fires only for TERMINAL failures: 401 (JWT invalid),
       // 4090 (CCR epoch mismatch), 4091 (CCR init failed), or SSE 10-min
       // reconnect budget exhausted. Transient disconnects are handled
-      // transparently inside SSETransport. 401 we can recover from (fetch
-      // fresh JWT, rebuild transport); all other codes are dead-ends.
-      if (code === 401 && !authRecoveryInFlight) {
-        void recoverFromAuthFailure()
+      // transparently inside SSETransport. 401 and 4091 can be recovered by
+      // fetching fresh transport credentials and rebuilding the transport.
+      if ((code === 401 || code === 4091) && !authRecoveryInFlight) {
+        if (transportRecoveryAttempts >= MAX_TRANSPORT_RECOVERY_ATTEMPTS) {
+          logForDebugging(
+            `[remote-bridge] ${code} recovery exhausted after ${transportRecoveryAttempts} attempts`,
+            { level: 'error' },
+          )
+          onStateChange?.(
+            'failed',
+            `Transport recovery exhausted (code ${code})`,
+          )
+          return
+        }
+        transportRecoveryAttempts++
+        void recoverTransport(code)
         return
       }
       onStateChange?.('failed', `Transport closed (code ${code})`)
@@ -558,22 +611,27 @@ export async function initEnvLessBridgeCore(
     }
   }
 
-  // ── 8. 401 recovery (OAuth refresh + rebuild) ───────────────────────────
-  async function recoverFromAuthFailure(): Promise<void> {
+  // ── 8. Transport recovery (credential refresh + rebuild) ────────────────
+  async function recoverTransport(code: 401 | 4091): Promise<void> {
     // setOnClose already guards `!authRecoveryInFlight` but that check and
     // this set must be atomic against onRefresh — claim synchronously before
     // any await. Laptop wake fires both paths ~simultaneously.
     if (authRecoveryInFlight) return
     authRecoveryInFlight = true
-    onStateChange?.('reconnecting', 'JWT expired — refreshing')
-    logForDebugging('[remote-bridge] 401 on SSE — attempting JWT refresh')
+    onStateChange?.(
+      'reconnecting',
+      code === 401 ? 'JWT expired — refreshing' : 'CCR init failed — retrying',
+    )
+    logForDebugging(
+      `[remote-bridge] ${code} on transport — attempting credential refresh + rebuild`,
+    )
     try {
       // Unconditionally try OAuth refresh — getAccessToken() returns expired
       // tokens as non-null strings, so !oauthToken doesn't catch expiry.
       // Pass the stale token so handleOAuth401Error's keychain-comparison
       // can detect if another tab already refreshed.
       const stale = getAccessToken()
-      if (onAuth401) await onAuth401(stale ?? '')
+      if (code === 401 && onAuth401) await onAuth401(stale ?? '')
       const oauthToken = getAccessToken() ?? stale
       if (!oauthToken || tornDown) {
         if (!tornDown) {
@@ -595,7 +653,7 @@ export async function initEnvLessBridgeCore(
       )
       if (!fresh || tornDown) {
         if (!tornDown) {
-          onStateChange?.('failed', 'JWT refresh failed after 401')
+          onStateChange?.('failed', `JWT refresh failed after ${code}`)
         }
         return
       }
@@ -605,22 +663,33 @@ export async function initEnvLessBridgeCore(
         }
         return
       }
-      // If 401 interrupted the initial flush, writeBatch may have silently
+      // If recovery interrupted the initial flush, writeBatch may have silently
       // no-op'd on the closed uploader (ccr.close() ran in the SSE wrapper
       // before our setOnClose callback). Reset so the new onConnect re-flushes.
       // (v1 scopes initialFlushDone inside the per-transport closure at
       // replBridge.ts:1027 so it resets naturally; v2 has it at outer scope.)
       initialFlushDone = false
-      await rebuildTransport(fresh, 'auth_401_recovery')
-      logForDebugging('[remote-bridge] Transport rebuilt after 401')
+      await rebuildTransport(
+        fresh,
+        code === 401 ? 'auth_401_recovery' : 'init_4091_recovery',
+      )
+      logForDebugging(`[remote-bridge] Transport rebuilt after ${code}`)
     } catch (err) {
       logForDebugging(
-        `[remote-bridge] 401 recovery failed: ${errorMessage(err)}`,
+        `[remote-bridge] ${code} recovery failed: ${errorMessage(err)}`,
         { level: 'error' },
       )
-      logForDiagnosticsNoPII('error', 'bridge_repl_v2_jwt_refresh_failed')
+      logForDiagnosticsNoPII(
+        'error',
+        code === 401
+          ? 'bridge_repl_v2_jwt_refresh_failed'
+          : 'bridge_repl_v2_4091_recovery_failed',
+      )
       if (!tornDown) {
-        onStateChange?.('failed', `JWT refresh failed: ${errorMessage(err)}`)
+        onStateChange?.(
+          'failed',
+          `Transport recovery failed (${code}): ${errorMessage(err)}`,
+        )
       }
     } finally {
       authRecoveryInFlight = false
@@ -699,9 +768,23 @@ export async function initEnvLessBridgeCore(
   //   - archive: teardown_archive_timeout_ms (default 1500, cap 2000)
   //   - result write: fire-and-forget, archive latency covers the drain
   //   - 401 retry: only if first archive 401s, shares the same budget
-  async function teardown(): Promise<void> {
-    if (tornDown) return
+  let skipArchive = false
+  let teardownPromise: Promise<void> | undefined
+  let prWebhookTarget: {
+    agentId: string
+    repo: string
+    prNumber: number
+  } | null = null
+
+  function teardown(options?: { skipArchive?: boolean }): Promise<void> {
+    if (options?.skipArchive) skipArchive = true
+    if (teardownPromise) return teardownPromise
     tornDown = true
+    teardownPromise = performTeardown()
+    return teardownPromise
+  }
+
+  async function performTeardown(): Promise<void> {
     refresh.cancelAll()
     clearTimeout(connectDeadline)
     flushGate.drop()
@@ -714,6 +797,26 @@ export async function initEnvLessBridgeCore(
     // next while-check, so close-before-archive drops the result.
     transport.reportState('idle')
     void transport.write(makeResultMessage(sessionId))
+
+    if (skipArchive) {
+      transport.close()
+      logForDebugging(
+        `[remote-bridge] Teardown complete (skipArchive): session=${sessionId}`,
+      )
+      logForDiagnosticsNoPII('info', 'bridge_repl_v2_teardown')
+      logEvent(
+        feature('CCR_MIRROR') && outboundOnly
+          ? 'tengu_ccr_mirror_teardown'
+          : 'tengu_bridge_repl_teardown',
+        {
+          v2: true,
+          archive_status:
+            'skipped_teleport' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+          archive_ok: false,
+        },
+      )
+      return
+    }
 
     let token = getAccessToken()
     let status = await archiveSession(
@@ -802,6 +905,7 @@ export async function initEnvLessBridgeCore(
     bridgeSessionId: sessionId,
     environmentId: '',
     sessionIngressUrl: credentials.api_base_url,
+    getLastSequenceNum: () => transport.getLastSequenceNum(),
     writeMessages(messages) {
       const filtered = messages.filter(
         m =>
@@ -917,9 +1021,68 @@ export async function initEnvLessBridgeCore(
       void transport.write(makeResultMessage(sessionId))
       logForDebugging(`[remote-bridge] Sent result`)
     },
-    async teardown() {
+    async subscribePR(repo, prNumber, agentId) {
+      const previousTarget = prWebhookTarget
+      if (agentId) {
+        prWebhookTarget = { agentId, repo, prNumber }
+      }
+      const subscribed = await updatePullRequestSubscription(
+        'subscribe',
+        sessionId,
+        repo,
+        prNumber,
+        baseUrl,
+        getAccessToken,
+      )
+      if (!subscribed && agentId) {
+        prWebhookTarget = previousTarget
+      }
+      return subscribed
+    },
+    async unsubscribePR(repo, prNumber) {
+      const unsubscribed = await updatePullRequestSubscription(
+        'unsubscribe',
+        sessionId,
+        repo,
+        prNumber,
+        baseUrl,
+        getAccessToken,
+      )
+      if (
+        unsubscribed &&
+        prWebhookTarget?.repo === repo &&
+        prWebhookTarget.prNumber === prNumber
+      ) {
+        prWebhookTarget = null
+      }
+      return unsubscribed
+    },
+    getPRWebhookTarget() {
+      return prWebhookTarget
+    },
+    subscribeSlackThread(channel, threadTs) {
+      return updateSlackThreadSubscription(
+        'subscribe',
+        sessionId,
+        channel,
+        threadTs,
+        baseUrl,
+        getAccessToken,
+      )
+    },
+    unsubscribeSlackThread(channel, threadTs) {
+      return updateSlackThreadSubscription(
+        'unsubscribe',
+        sessionId,
+        channel,
+        threadTs,
+        baseUrl,
+        getAccessToken,
+      )
+    },
+    async teardown(options?: { skipArchive?: boolean }) {
       unregister()
-      await teardown()
+      await teardown(options)
     },
   }
 }

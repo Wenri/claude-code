@@ -6,6 +6,7 @@
  */
 
 import { resolveMotion } from './motions.js'
+import { findTextObject } from './textObjects.js'
 import {
   executeIndent,
   executeJoin,
@@ -35,6 +36,8 @@ import {
   TEXT_OBJ_SCOPES,
   TEXT_OBJ_TYPES,
   type TextObjScope,
+  type VisualCaseOperator,
+  type VisualCommandState,
 } from './types.js'
 
 /**
@@ -52,6 +55,18 @@ export type TransitionResult = {
   next?: CommandState
   execute?: () => void
 }
+
+export type VisualTransitionResult =
+  | { next: VisualCommandState; move?: () => void }
+  | { exit: 'operator'; op: Operator; forceLinewise?: boolean }
+  | { exit: 'replace'; char: string }
+  | { exit: 'case'; op: VisualCaseOperator }
+  | { exit: 'paste' }
+  | { exit: 'indent'; dir: '>' | '<'; count: number }
+  | { exit: 'toggleKind'; key: 'v' | 'V' }
+  | { exit: 'swap' }
+  | { exit: 'join' }
+  | { exit: 'selectRange'; start: number; end: number }
 
 /**
  * Main transition function. Dispatches based on current state type.
@@ -85,6 +100,198 @@ export function transition(
     case 'indent':
       return fromIndent(state, input, ctx)
   }
+}
+
+export function transitionVisual(
+  state: VisualCommandState,
+  input: string,
+  ctx: TransitionContext,
+): VisualTransitionResult {
+  switch (state.type) {
+    case 'idle':
+      return fromVisualIdle(input, ctx)
+    case 'count':
+      return fromVisualCount(state, input, ctx)
+    case 'find':
+      return fromVisualFind(state, input, ctx)
+    case 'g':
+      return fromVisualG(state, input, ctx)
+    case 'replace':
+      if (input === '') return { next: { type: 'idle' } }
+      return { exit: 'replace', char: input }
+    case 'textObject':
+      return fromVisualTextObject(state, input, ctx)
+  }
+}
+
+function handleVisualInput(
+  input: string,
+  count: number,
+  ctx: TransitionContext,
+): VisualTransitionResult | null {
+  if (isOperatorKey(input)) {
+    return { exit: 'operator', op: OPERATORS[input] }
+  }
+  if (input === 'x') return { exit: 'operator', op: 'delete' }
+  if (input === 's') return { exit: 'operator', op: 'change' }
+  if (input === 'X' || input === 'D') {
+    return { exit: 'operator', op: 'delete', forceLinewise: true }
+  }
+  if (input === 'C' || input === 'S' || input === 'R') {
+    return { exit: 'operator', op: 'change', forceLinewise: true }
+  }
+  if (input === 'Y') {
+    return { exit: 'operator', op: 'yank', forceLinewise: true }
+  }
+  if (input === 'r') return { next: { type: 'replace' } }
+  if (input === '~') return { exit: 'case', op: 'toggle' }
+  if (input === 'u') return { exit: 'case', op: 'lower' }
+  if (input === 'U') return { exit: 'case', op: 'upper' }
+  if (input === 'p' || input === 'P') return { exit: 'paste' }
+  if (input === '>' || input === '<') {
+    return { exit: 'indent', dir: input, count }
+  }
+  if (input === 'v' || input === 'V') {
+    return { exit: 'toggleKind', key: input }
+  }
+  if (input === 'o') return { exit: 'swap' }
+  if (input === 'J') return { exit: 'join' }
+  if (isTextObjScopeKey(input)) {
+    return {
+      next: {
+        type: 'textObject',
+        scope: TEXT_OBJ_SCOPES[input],
+        count,
+      },
+    }
+  }
+  if (SIMPLE_MOTIONS.has(input)) {
+    return {
+      next: { type: 'idle' },
+      move: () => ctx.setOffset(resolveMotion(input, ctx.cursor, count).offset),
+    }
+  }
+  if (FIND_KEYS.has(input)) {
+    return { next: { type: 'find', find: input as FindType, count } }
+  }
+  if (input === 'g') return { next: { type: 'g', count } }
+  if (input === 'G') {
+    return {
+      next: { type: 'idle' },
+      move: () => {
+        const target =
+          count === 1
+            ? ctx.cursor.startOfLastLine()
+            : ctx.cursor.goToLine(count)
+        ctx.setOffset(target.offset)
+      },
+    }
+  }
+  if (input === ';' || input === ',') {
+    return {
+      next: { type: 'idle' },
+      move: () => executeRepeatFind(input === ',', count, ctx),
+    }
+  }
+  return null
+}
+
+function fromVisualIdle(
+  input: string,
+  ctx: TransitionContext,
+): VisualTransitionResult {
+  if (/[1-9]/.test(input)) {
+    return { next: { type: 'count', digits: input } }
+  }
+  if (input === '0') {
+    return {
+      next: { type: 'idle' },
+      move: () => ctx.setOffset(ctx.cursor.startOfLogicalLine().offset),
+    }
+  }
+  return handleVisualInput(input, 1, ctx) ?? { next: { type: 'idle' } }
+}
+
+function fromVisualCount(
+  state: { type: 'count'; digits: string },
+  input: string,
+  ctx: TransitionContext,
+): VisualTransitionResult {
+  if (/[0-9]/.test(input)) {
+    const digits = state.digits + input
+    const count = Math.min(parseInt(digits, 10), MAX_VIM_COUNT)
+    return { next: { type: 'count', digits: String(count) } }
+  }
+  return (
+    handleVisualInput(input, parseInt(state.digits, 10), ctx) ?? {
+      next: { type: 'idle' },
+    }
+  )
+}
+
+function fromVisualFind(
+  state: { type: 'find'; find: FindType; count: number },
+  input: string,
+  ctx: TransitionContext,
+): VisualTransitionResult {
+  return {
+    next: { type: 'idle' },
+    move: () => {
+      const result = ctx.cursor.findCharacter(input, state.find, state.count)
+      if (result !== null) {
+        ctx.setOffset(result)
+        ctx.setLastFind(state.find, input)
+      }
+    },
+  }
+}
+
+function fromVisualG(
+  state: { type: 'g'; count: number },
+  input: string,
+  ctx: TransitionContext,
+): VisualTransitionResult {
+  if (input === 'j' || input === 'k') {
+    return {
+      next: { type: 'idle' },
+      move: () =>
+        ctx.setOffset(
+          resolveMotion(`g${input}`, ctx.cursor, state.count).offset,
+        ),
+    }
+  }
+  if (input === 'g') {
+    return {
+      next: { type: 'idle' },
+      move: () => {
+        const target =
+          state.count > 1
+            ? ctx.cursor.goToLine(state.count)
+            : ctx.cursor.startOfFirstLine()
+        ctx.setOffset(target.offset)
+      },
+    }
+  }
+  return { next: { type: 'idle' } }
+}
+
+function fromVisualTextObject(
+  state: { type: 'textObject'; scope: TextObjScope; count: number },
+  input: string,
+  ctx: TransitionContext,
+): VisualTransitionResult {
+  if (TEXT_OBJ_TYPES.has(input)) {
+    const range = findTextObject(
+      ctx.text,
+      ctx.cursor.offset,
+      input,
+      state.scope === 'inner',
+    )
+    if (range) {
+      return { exit: 'selectRange', start: range.start, end: range.end }
+    }
+  }
+  return { next: { type: 'idle' } }
 }
 
 // ============================================================================

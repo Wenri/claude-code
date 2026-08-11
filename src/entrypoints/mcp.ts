@@ -125,6 +125,7 @@ export async function startMCPServer(
         },
         getAppState: () => getDefaultAppState(),
         setAppState: () => {},
+        setReplContext: () => {},
         messages: [],
         turnStartIndex: 0,
         readFileState: readFileStateCache,

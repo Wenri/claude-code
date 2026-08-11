@@ -5,7 +5,11 @@
  */
 
 import { Cursor } from '../utils/Cursor.js'
-import { firstGrapheme, lastGrapheme } from '../utils/intl.js'
+import {
+  firstGrapheme,
+  getGraphemeSegmenter,
+  lastGrapheme,
+} from '../utils/intl.js'
 import { countCharInString } from '../utils/stringUtils.js'
 import {
   isInclusiveMotion,
@@ -18,6 +22,7 @@ import type {
   Operator,
   RecordedChange,
   TextObjScope,
+  VisualCaseOperator,
 } from './types.js'
 
 /**
@@ -553,4 +558,396 @@ export function executeOperatorGg(
   const range = getOperatorRange(ctx.cursor, target, 'gg', op, count)
   applyOperator(op, range.from, range.to, ctx, range.linewise)
   ctx.recordChange({ type: 'operator', op, motion: 'gg', count })
+}
+
+function logicalLineStart(text: string, offset: number): number {
+  if (offset === 0) return 0
+  const newline = text.lastIndexOf('\n', offset - 1)
+  return newline === -1 ? 0 : newline + 1
+}
+
+function selectionSpan(text: string, linewise: boolean): number {
+  if (linewise) {
+    const newlines = countCharInString(text, '\n')
+    return text.endsWith('\n') ? newlines : newlines + 1
+  }
+  return [...getGraphemeSegmenter().segment(text)].length
+}
+
+function getReplayRange(
+  ctx: OperatorContext,
+  span: number,
+  linewise: boolean,
+): { from: number; to: number } {
+  const text = ctx.text
+  if (linewise) {
+    const from = logicalLineStart(text, ctx.cursor.offset)
+    let to = from
+    for (let i = 0; i < span; i++) {
+      const newline = text.indexOf('\n', to)
+      if (newline === -1) {
+        to = text.length
+        break
+      }
+      to = newline + 1
+    }
+    return { from, to }
+  }
+
+  const from = ctx.cursor.offset
+  let to = from
+  for (let i = 0; i < span && to < text.length; i++) {
+    to = ctx.cursor.measuredText.nextOffset(to)
+  }
+  return { from, to }
+}
+
+function getVisualRange(
+  anchor: number,
+  ctx: OperatorContext,
+  linewise: boolean,
+): { from: number; to: number } {
+  const low = Math.min(anchor, ctx.cursor.offset)
+  const high = Math.max(anchor, ctx.cursor.offset)
+  if (!linewise) {
+    return { from: low, to: ctx.cursor.measuredText.nextOffset(high) }
+  }
+  const from = logicalLineStart(ctx.text, low)
+  const newline = ctx.text.indexOf('\n', high)
+  return { from, to: newline === -1 ? ctx.text.length : newline + 1 }
+}
+
+function indentLines(
+  lines: string[],
+  start: number,
+  end: number,
+  dir: '>' | '<',
+): void {
+  for (let i = start; i <= end; i++) {
+    const line = lines[i] ?? ''
+    if (dir === '>') {
+      lines[i] = `  ${line}`
+    } else if (line.startsWith('  ')) {
+      lines[i] = line.slice(2)
+    } else if (line.startsWith('\t')) {
+      lines[i] = line.slice(1)
+    } else {
+      let whitespace = 0
+      while (
+        whitespace < line.length &&
+        whitespace < 2 &&
+        /\s/.test(line[whitespace]!)
+      ) {
+        whitespace++
+      }
+      lines[i] = line.slice(whitespace)
+    }
+  }
+}
+
+function applyVisualOperatorRange(
+  op: Operator,
+  from: number,
+  to: number,
+  ctx: OperatorContext,
+  linewise: boolean,
+): void {
+  if (linewise && op === 'change') {
+    let selected = ctx.text.slice(from, to)
+    if (!selected.endsWith('\n')) selected += '\n'
+    ctx.setRegister(selected, true)
+    const before = ctx.text.slice(0, from)
+    const after = ctx.text.slice(to)
+    ctx.setText(before + (after !== '' ? '\n' : '') + after)
+    ctx.enterInsert(from)
+    return
+  }
+  if (linewise && op === 'delete') {
+    let selected = ctx.text.slice(from, to)
+    if (!selected.endsWith('\n')) selected += '\n'
+    ctx.setRegister(selected, true)
+    let deleteFrom = from
+    if (to === ctx.text.length && from > 0 && ctx.text[from - 1] === '\n') {
+      deleteFrom--
+    }
+    const newText = ctx.text.slice(0, deleteFrom) + ctx.text.slice(to)
+    ctx.setText(newText)
+    const maxOffset = Math.max(
+      0,
+      newText.length - (lastGrapheme(newText).length || 1),
+    )
+    ctx.setOffset(Math.min(deleteFrom, maxOffset))
+    return
+  }
+  applyOperator(op, from, to, ctx, linewise)
+}
+
+export function executeVisualOperator(
+  op: Operator,
+  anchor: number,
+  ctx: OperatorContext,
+  linewise: boolean,
+): void {
+  const { from, to } = getVisualRange(anchor, ctx, linewise)
+  const span = selectionSpan(ctx.text.slice(from, to), linewise)
+  applyVisualOperatorRange(op, from, to, ctx, linewise)
+  if (op !== 'yank') {
+    ctx.recordChange({ type: 'visualOp', op, span, linewise })
+  }
+}
+
+export function replayVisualOperator(
+  op: Operator,
+  span: number,
+  linewise: boolean,
+  ctx: OperatorContext,
+): void {
+  const { from, to } = getReplayRange(ctx, span, linewise)
+  if (from === to) return
+  applyVisualOperatorRange(op, from, to, ctx, linewise)
+}
+
+export function replayVisualChange(
+  span: number,
+  linewise: boolean,
+  insertedText: string,
+  ctx: OperatorContext,
+): void {
+  const { from, to } = getReplayRange(ctx, span, linewise)
+  if (from === to && !linewise) return
+  let selected = ctx.text.slice(from, to)
+  if (linewise && !selected.endsWith('\n')) selected += '\n'
+  ctx.setRegister(selected, linewise)
+  const after = ctx.text.slice(to)
+  const suffix = linewise && after !== '' ? `\n${after}` : after
+  const newText = ctx.text.slice(0, from) + insertedText + suffix
+  ctx.setText(newText)
+  const last = lastGrapheme(insertedText)
+  ctx.setOffset(
+    Math.max(from, from + insertedText.length - (last.length || 1)),
+  )
+}
+
+function replaceRange(
+  char: string,
+  from: number,
+  to: number,
+  ctx: OperatorContext,
+): void {
+  let replacement = ''
+  for (const { segment } of getGraphemeSegmenter().segment(
+    ctx.text.slice(from, to),
+  )) {
+    replacement += segment === '\n' ? '\n' : char
+  }
+  ctx.setText(ctx.text.slice(0, from) + replacement + ctx.text.slice(to))
+  ctx.setOffset(from)
+}
+
+export function executeVisualReplace(
+  char: string,
+  anchor: number,
+  ctx: OperatorContext,
+  linewise: boolean,
+): void {
+  const { from, to } = getVisualRange(anchor, ctx, linewise)
+  const span = selectionSpan(ctx.text.slice(from, to), linewise)
+  replaceRange(char, from, to, ctx)
+  ctx.recordChange({ type: 'visualReplace', char, span, linewise })
+}
+
+export function replayVisualReplace(
+  char: string,
+  span: number,
+  linewise: boolean,
+  ctx: OperatorContext,
+): void {
+  const { from, to } = getReplayRange(ctx, span, linewise)
+  if (from === to) return
+  replaceRange(char, from, to, ctx)
+}
+
+function changeCaseRange(
+  caseOp: VisualCaseOperator,
+  from: number,
+  to: number,
+  ctx: OperatorContext,
+): void {
+  let replacement = ''
+  for (const { segment } of getGraphemeSegmenter().segment(
+    ctx.text.slice(from, to),
+  )) {
+    if (caseOp === 'upper') replacement += segment.toUpperCase()
+    else if (caseOp === 'lower') replacement += segment.toLowerCase()
+    else {
+      replacement +=
+        segment === segment.toUpperCase()
+          ? segment.toLowerCase()
+          : segment.toUpperCase()
+    }
+  }
+  ctx.setText(ctx.text.slice(0, from) + replacement + ctx.text.slice(to))
+  ctx.setOffset(from)
+}
+
+export function executeVisualCase(
+  caseOp: VisualCaseOperator,
+  anchor: number,
+  ctx: OperatorContext,
+  linewise: boolean,
+): void {
+  const { from, to } = getVisualRange(anchor, ctx, linewise)
+  const span = selectionSpan(ctx.text.slice(from, to), linewise)
+  changeCaseRange(caseOp, from, to, ctx)
+  ctx.recordChange({ type: 'visualCase', caseOp, span, linewise })
+}
+
+export function replayVisualCase(
+  caseOp: VisualCaseOperator,
+  span: number,
+  linewise: boolean,
+  ctx: OperatorContext,
+): void {
+  const { from, to } = getReplayRange(ctx, span, linewise)
+  if (from === to) return
+  changeCaseRange(caseOp, from, to, ctx)
+}
+
+function replaceSelectionWithRegister(
+  content: string,
+  from: number,
+  to: number,
+  ctx: OperatorContext,
+  linewise: boolean,
+): string {
+  const selectionEndsWithNewline = ctx.text.slice(from, to).endsWith('\n')
+  let replacement = content.endsWith('\n') ? content.slice(0, -1) : content
+  if (selectionEndsWithNewline && !replacement.endsWith('\n')) {
+    replacement += '\n'
+  }
+  let selected = ctx.text.slice(from, to)
+  if (linewise && !selected.endsWith('\n')) selected += '\n'
+  ctx.setRegister(selected, linewise)
+  ctx.setText(ctx.text.slice(0, from) + replacement + ctx.text.slice(to))
+  if (linewise || replacement.endsWith('\n')) {
+    ctx.setOffset(from)
+  } else {
+    const last = lastGrapheme(replacement)
+    ctx.setOffset(
+      Math.max(from, from + replacement.length - (last.length || 1)),
+    )
+  }
+  return replacement
+}
+
+export function executeVisualPaste(
+  anchor: number,
+  ctx: OperatorContext,
+  linewise: boolean,
+): void {
+  const register = ctx.getRegister()
+  if (!register) return
+  const { from, to } = getVisualRange(anchor, ctx, linewise)
+  const span = selectionSpan(ctx.text.slice(from, to), linewise)
+  const content = replaceSelectionWithRegister(
+    register,
+    from,
+    to,
+    ctx,
+    linewise,
+  )
+  ctx.recordChange({ type: 'visualPaste', content, span, linewise })
+}
+
+export function replayVisualPaste(
+  content: string,
+  span: number,
+  linewise: boolean,
+  ctx: OperatorContext,
+): void {
+  const { from, to } = getReplayRange(ctx, span, linewise)
+  if (from === to && !linewise) return
+  replaceSelectionWithRegister(content, from, to, ctx, linewise)
+}
+
+export function executeVisualJoin(
+  anchor: number,
+  ctx: OperatorContext,
+): void {
+  const low = Math.min(anchor, ctx.cursor.offset)
+  const high = Math.max(anchor, ctx.cursor.offset)
+  const startLine = countCharInString(ctx.text.slice(0, low), '\n')
+  const selectedLines = countCharInString(ctx.text.slice(low, high), '\n') + 1
+  const lines = ctx.text.split('\n')
+  const linesToJoin = Math.max(
+    1,
+    Math.min(selectedLines - 1, lines.length - startLine - 1),
+  )
+  if (startLine >= lines.length - 1) return
+
+  let joined = lines[startLine]!
+  const cursorPosition = joined.length
+  for (let i = 1; i <= linesToJoin; i++) {
+    const nextLine = (lines[startLine + i] ?? '').trimStart()
+    if (nextLine.length > 0) {
+      if (!joined.endsWith(' ') && joined.length > 0) joined += ' '
+      joined += nextLine
+    }
+  }
+  const newLines = [
+    ...lines.slice(0, startLine),
+    joined,
+    ...lines.slice(startLine + linesToJoin + 1),
+  ]
+  ctx.setText(newLines.join('\n'))
+  ctx.setOffset(getLineStartOffset(newLines, startLine) + cursorPosition)
+  ctx.recordChange({ type: 'join', count: linesToJoin })
+}
+
+export function executeVisualIndent(
+  dir: '>' | '<',
+  count: number,
+  anchor: number,
+  ctx: OperatorContext,
+): void {
+  const low = Math.min(anchor, ctx.cursor.offset)
+  const high = Math.max(anchor, ctx.cursor.offset)
+  const startLine = countCharInString(ctx.text.slice(0, low), '\n')
+  const endLine =
+    startLine + countCharInString(ctx.text.slice(low, high), '\n')
+  const lines = ctx.text.split('\n')
+  for (let i = 0; i < count; i++) {
+    indentLines(lines, startLine, endLine, dir)
+  }
+  const newText = lines.join('\n')
+  const firstNonBlank = (lines[startLine]?.match(/^\s*/)?.[0] ?? '').length
+  ctx.setText(newText)
+  ctx.setOffset(getLineStartOffset(lines, startLine) + firstNonBlank)
+  ctx.recordChange({
+    type: 'visualIndent',
+    dir,
+    count,
+    lines: endLine - startLine + 1,
+  })
+}
+
+export function replayVisualIndent(
+  dir: '>' | '<',
+  count: number,
+  lineCount: number,
+  ctx: OperatorContext,
+): void {
+  const lines = ctx.text.split('\n')
+  const startLine = countCharInString(
+    ctx.text.slice(0, ctx.cursor.offset),
+    '\n',
+  )
+  const endLine = Math.min(startLine + lineCount - 1, lines.length - 1)
+  for (let i = 0; i < count; i++) {
+    indentLines(lines, startLine, endLine, dir)
+  }
+  const newText = lines.join('\n')
+  const firstNonBlank = (lines[startLine]?.match(/^\s*/)?.[0] ?? '').length
+  ctx.setText(newText)
+  ctx.setOffset(getLineStartOffset(lines, startLine) + firstNonBlank)
 }

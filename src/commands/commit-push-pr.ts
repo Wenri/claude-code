@@ -5,19 +5,26 @@ import {
 } from '../utils/attribution.js'
 import { getDefaultBranch } from '../utils/git.js'
 import { executeShellCommandsInPrompt } from '../utils/promptShellExecution.js'
+import { isBashToolEnabled } from '../utils/shell/shellToolUtils.js'
 import { getUndercoverInstructions, isUndercover } from '../utils/undercover.js'
 
+const BASE_ALLOWED_TOOL_PATTERNS = [
+  'git checkout -b *',
+  'git add *',
+  'git status *',
+  'git push *',
+  'git commit *',
+  'gh pr create *',
+  'gh pr edit *',
+  'gh pr view *',
+  'gh pr merge *',
+]
+
 const ALLOWED_TOOLS = [
-  'Bash(git checkout --branch:*)',
-  'Bash(git checkout -b:*)',
-  'Bash(git add:*)',
-  'Bash(git status:*)',
-  'Bash(git push:*)',
-  'Bash(git commit:*)',
-  'Bash(gh pr create:*)',
-  'Bash(gh pr edit:*)',
-  'Bash(gh pr view:*)',
-  'Bash(gh pr merge:*)',
+  ...BASE_ALLOWED_TOOL_PATTERNS.flatMap(pattern => [
+    `Bash(${pattern})`,
+    `PowerShell(${pattern})`,
+  ]),
   'ToolSearch',
   'mcp__slack__send_message',
   'mcp__claude_ai_Slack__slack_send_message',
@@ -62,7 +69,11 @@ function getPromptContent(
 - \`git diff HEAD\`: !\`git diff HEAD\`
 - \`git branch --show-current\`: !\`git branch --show-current\`
 - \`git diff ${defaultBranch}...HEAD\`: !\`git diff ${defaultBranch}...HEAD\`
-- \`gh pr view --json number 2>/dev/null || true\`: !\`gh pr view --json number 2>/dev/null || true\`
+- \`gh pr view --json number\`: !\`${
+    isBashToolEnabled()
+      ? 'gh pr view --json number 2>/dev/null || true'
+      : 'gh pr view --json number 2>$null; if (-not $?) { "" }'
+  }\`
 
 ## Git Safety Protocol
 
@@ -79,17 +90,28 @@ Analyze all changes that will be included in the pull request, making sure to lo
 
 Based on the above changes:
 1. Create a new branch if on ${defaultBranch} (use SAFEUSER from context above for the branch name prefix, falling back to whoami if SAFEUSER is empty, e.g., \`username/feature-name\`)
-2. Create a single commit with an appropriate message using heredoc syntax${commitAttribution ? `, ending with the attribution text shown in the example below` : ''}:
-\`\`\`
+2. Create a single commit with an appropriate message${commitAttribution ? `, ending with the attribution text shown in the example below` : ''}:
+${
+  isBashToolEnabled()
+    ? `\`\`\`
 git commit -m "$(cat <<'EOF'
 Commit message here.${commitAttribution ? `\n\n${commitAttribution}` : ''}
 EOF
 )"
+\`\`\``
+    : `\`\`\`
+git commit -m @'
+Commit message here.${commitAttribution ? `\n\n${commitAttribution}` : ''}
+'@
 \`\`\`
+The closing \`'@\` MUST be at column 0 with no leading whitespace.`
+}
 3. Push the branch to origin
-4. If a PR already exists for this branch (check the gh pr view output above), update the PR title and body using \`gh pr edit\` to reflect the current diff${addReviewerArg}. Otherwise, create a pull request using \`gh pr create\` with heredoc syntax for the body${reviewerArg}.
+4. If a PR already exists for this branch (check the gh pr view output above), update the PR title and body using \`gh pr edit\` to reflect the current diff${addReviewerArg}. Otherwise, create a pull request using \`gh pr create\` with the multi-line body syntax shown below${reviewerArg}.
    - IMPORTANT: Keep PR titles short (under 70 characters). Use the body for details.
-\`\`\`
+${
+  isBashToolEnabled()
+    ? `\`\`\`
 gh pr create --title "Short, descriptive title" --body "$(cat <<'EOF'
 ## Summary
 <1-3 bullet points>
@@ -98,7 +120,17 @@ gh pr create --title "Short, descriptive title" --body "$(cat <<'EOF'
 [Bulleted markdown checklist of TODOs for testing the pull request...]${changelogSection}${effectivePrAttribution ? `\n\n${effectivePrAttribution}` : ''}
 EOF
 )"
-\`\`\`
+\`\`\``
+    : `\`\`\`
+gh pr create --title "Short, descriptive title" --body @'
+## Summary
+<1-3 bullet points>
+
+## Test plan
+[Bulleted markdown checklist of TODOs for testing the pull request...]${changelogSection}${effectivePrAttribution ? `\n\n${effectivePrAttribution}` : ''}
+'@
+\`\`\``
+}
 
 You have the capability to call multiple tools in a single response. You MUST do all of the above in a single message.${slackStep}
 

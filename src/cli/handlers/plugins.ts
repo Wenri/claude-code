@@ -5,7 +5,9 @@
 /* eslint-disable custom-rules/no-process-exit -- CLI subcommand handlers intentionally exit */
 import figures from 'figures'
 import { basename, dirname } from 'path'
+import React from 'react'
 import { setUseCoworkPlugins } from '../../bootstrap/state.js'
+import { Text, type Root } from '../../ink.js'
 import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
@@ -55,11 +57,15 @@ import { resolveMissingDependencies } from '../../utils/plugins/missingDependenc
 import type { PluginSource } from '../../utils/plugins/schemas.js'
 import {
   type ValidationResult,
+  executePluginTag,
+  getPluginTagMessage,
   validateManifest,
   validatePluginContents,
+  validatePluginRelease,
 } from '../../utils/plugins/validatePlugin.js'
 import { jsonStringify } from '../../utils/slowOperations.js'
 import { plural } from '../../utils/stringUtils.js'
+import { RenderOnceAndExit } from '../../utils/staticRender.js'
 import { cliError, cliOk } from '../exit.js'
 
 // Re-export for main.tsx to reference in option definitions
@@ -154,6 +160,92 @@ export async function pluginValidateHandler(
     )
     process.exit(2)
   }
+}
+
+export async function pluginTagHandler(
+  root: Root,
+  pluginPath: string | undefined,
+  options: {
+    push?: boolean
+    dryRun?: boolean
+    force?: boolean
+    message?: string
+    remote?: string
+  },
+): Promise<void> {
+  const result = await validatePluginRelease(pluginPath ?? '.', {
+    force: options.force,
+  })
+  const lines: string[] = []
+  for (const warning of result.warnings) {
+    lines.push(`${figures.warning} ${warning}`)
+  }
+  if (!result.ok) {
+    lines.push(`${figures.cross} ${result.error}`)
+    renderPluginTagResult(root, lines, 1)
+    return
+  }
+
+  const { plan } = result
+  lines.push(
+    `Plugin:  ${plan.pluginName}`,
+    `Version: ${plan.version} (from ${plan.versionFrom})`,
+  )
+  if (plan.marketplace) {
+    lines.push(
+      `Marketplace entry: plugins[${plan.marketplace.entryIndex}] in ${plan.marketplace.path}` +
+        (plan.marketplace.entryVersion
+          ? ` (version: ${plan.marketplace.entryVersion})`
+          : ''),
+    )
+  }
+  lines.push(`Tag:     ${plan.tag}`, '')
+
+  const remote = options.remote ?? 'origin'
+  const force = options.force ?? false
+  const message = getPluginTagMessage(plan, options.message)
+  const pushCommand = `git -C ${plan.gitRoot} push ${force ? '--force ' : ''}${remote} refs/tags/${plan.tag}`
+  if (options.dryRun) {
+    lines.push(
+      `${figures.tick} Dry run — would create tag ${plan.tag} at HEAD in ${plan.gitRoot}`,
+      `  git -C ${plan.gitRoot} tag ${force ? '-f ' : ''}-a ${plan.tag} -m ${jsonStringify(message)}`,
+      `  ${pushCommand}`,
+    )
+    renderPluginTagResult(root, lines, 0)
+    return
+  }
+
+  const execution = await executePluginTag(plan, {
+    push: options.push ?? false,
+    force,
+    message: options.message,
+    remote,
+  })
+  if (!execution.ok) {
+    lines.push(`${figures.cross} ${execution.error}`)
+    renderPluginTagResult(root, lines, 1)
+    return
+  }
+
+  lines.push(`${figures.tick} Created tag ${plan.tag}`)
+  if (execution.pushed) lines.push(`${figures.tick} Pushed to ${remote}`)
+  else lines.push(`  Push with: ${pushCommand}`)
+  renderPluginTagResult(root, lines, 0)
+}
+
+function renderPluginTagResult(
+  root: Root,
+  lines: string[],
+  exitCode: number,
+): void {
+  root.render(
+    React.createElement(
+      RenderOnceAndExit,
+      null,
+      React.createElement(Text, null, lines.join('\n')),
+    ),
+  )
+  void root.waitUntilExit().then(() => process.exit(exitCode))
 }
 
 // plugin list (lines 5217–5416)

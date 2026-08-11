@@ -827,7 +827,7 @@ export function applyFileSuggestion(
   startPos: number,
   onInputChange: (value: string) => void,
   setCursorOffset: (offset: number) => void,
-): void {
+): string {
   // Extract suggestion text from string or SuggestionItem
   const suggestionText =
     typeof suggestion === 'string' ? suggestion : suggestion.displayText
@@ -842,4 +842,5 @@ export function applyFileSuggestion(
   // Move cursor to end of the file path
   const newCursorPos = startPos + suggestionText.length
   setCursorOffset(newCursorPos)
+  return newInput
 }

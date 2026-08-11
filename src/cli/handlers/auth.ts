@@ -53,7 +53,10 @@ import {
  */
 export async function installOAuthTokens(tokens: OAuthTokens): Promise<void> {
   // Clear old state before saving new credentials
-  await performLogout({ clearOnboarding: false })
+  await performLogout({
+    clearOnboarding: false,
+    preserveInProcessTokens: true,
+  })
 
   // Reuse pre-fetched profile if available, otherwise fetch fresh
   const profile =
@@ -83,10 +86,14 @@ export async function installOAuthTokens(tokens: OAuthTokens): Promise<void> {
   const storageResult = saveOAuthTokensIfNeeded(tokens)
   clearOAuthTokenCache()
   if (process.env.CLAUDE_CODE_OAUTH_TOKEN) {
-    process.env.CLAUDE_CODE_OAUTH_TOKEN = tokens.accessToken
+    if (storageResult.success) {
+      delete process.env.CLAUDE_CODE_OAUTH_TOKEN
+    } else {
+      process.env.CLAUDE_CODE_OAUTH_TOKEN = tokens.accessToken
+    }
   }
   if (getOauthTokenFromFd()) {
-    setOauthTokenFromFd(tokens.accessToken)
+    setOauthTokenFromFd(storageResult.success ? null : tokens.accessToken)
   }
 
   if (storageResult.warning) {
@@ -164,7 +171,11 @@ export async function authLogin({
     try {
       logEvent('tengu_login_from_refresh_token', {})
 
-      const tokens = await refreshOAuthToken(envRefreshToken, { scopes })
+      const tokens = await refreshOAuthToken(envRefreshToken, {
+        scopes,
+        expiresIn: 365 * 24 * 60 * 60,
+        clientId: process.env.CLAUDE_CODE_OAUTH_CLIENT_ID || undefined,
+      })
       await installOAuthTokens(tokens)
 
       const orgResult = await validateForceLoginOrg()
@@ -331,8 +342,9 @@ export async function authStatus(opts: {
 export async function authLogout(): Promise<void> {
   try {
     await performLogout({ clearOnboarding: false })
-  } catch {
-    process.stderr.write('Failed to log out.\n')
+  } catch (err) {
+    logError(err)
+    process.stderr.write(`Logout failed: ${errorMessage(err)}\n`)
     process.exit(1)
   }
   process.stdout.write('Successfully logged out from your Anthropic account.\n')

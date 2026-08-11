@@ -465,6 +465,156 @@ function normalizeTestConfiguration(lineage) {
   return { files, artifactEnvironment }
 }
 
+function relativeModuleSpecifiers(source) {
+  const result = new Set()
+  const patterns = [
+    /\bfrom\s*(['"])(\.[^'"]+)\1/g,
+    /\bimport\s*(['"])(\.[^'"]+)\1/g,
+    /\bimport\s*\(\s*(['"])(\.[^'"]+)\1\s*\)/g,
+    /\brequire\s*\(\s*(['"])(\.[^'"]+)\1\s*\)/g,
+  ]
+  for (const pattern of patterns) {
+    for (const match of source.matchAll(pattern)) result.add(match[2])
+  }
+  return [...result].sort(compareText)
+}
+
+function resolveRelativeModule(repositoryRoot, importer, specifier, label) {
+  const unresolved = path.resolve(path.dirname(importer), specifier)
+  const repository = path.resolve(repositoryRoot)
+  if (
+    unresolved !== repository &&
+    !unresolved.startsWith(`${repository}${path.sep}`)
+  ) {
+    throw new Error(`${label}: relative import escaped repository: ${specifier}`)
+  }
+  const candidates = [
+    unresolved,
+    `${unresolved}.js`,
+    `${unresolved}.mjs`,
+    `${unresolved}.cjs`,
+    `${unresolved}.ts`,
+    `${unresolved}.tsx`,
+    path.join(unresolved, 'index.js'),
+    path.join(unresolved, 'index.mjs'),
+    path.join(unresolved, 'index.cjs'),
+    path.join(unresolved, 'index.ts'),
+    path.join(unresolved, 'index.tsx'),
+  ]
+  const matches = candidates.filter(candidate => {
+    try {
+      const status = fs.lstatSync(candidate)
+      return status.isFile() && !status.isSymbolicLink()
+    } catch {
+      return false
+    }
+  })
+  if (matches.length !== 1) {
+    throw new Error(
+      `${label}: relative import ${specifier} resolved to ${matches.length} files`,
+    )
+  }
+  return matches[0]
+}
+
+function verifyTestFileAssertions(
+  manifest,
+  lineage,
+  repositoryRoot,
+  configuration,
+) {
+  const assertions = lineage.testFileAssertions
+  const semanticContract = manifest.generatedRecovery?.semanticCorrespondence
+  if (assertions === undefined) {
+    if (semanticContract && configuration.files.length > 0) {
+      throw new Error(
+        'sourceLineage.testFileAssertions is required for semantic tests',
+      )
+    }
+    return []
+  }
+  if (!Array.isArray(assertions) || assertions.length === 0) {
+    throw new Error(
+      'sourceLineage.testFileAssertions must be a non-empty array',
+    )
+  }
+
+  const byPath = new Map()
+  const verified = assertions.map((assertion, index) => {
+    const label = `sourceLineage test file assertion ${index + 1}`
+    if (!assertion || typeof assertion !== 'object' || Array.isArray(assertion)) {
+      throw new Error(`${label} must be an object`)
+    }
+    if (typeof assertion.path !== 'string') {
+      throw new Error(`${label}.path must be a string`)
+    }
+    if (byPath.has(assertion.path)) {
+      throw new Error(`Duplicate sourceLineage test file assertion: ${assertion.path}`)
+    }
+    if (!Number.isSafeInteger(assertion.bytes) || assertion.bytes < 0) {
+      throw new Error(`${label}.bytes must be a non-negative safe integer`)
+    }
+    if (
+      typeof assertion.sha256 !== 'string' ||
+      !SHA256_PATTERN.test(assertion.sha256)
+    ) {
+      throw new Error(`${label}.sha256 must be a lowercase SHA-256`)
+    }
+    const filename = safeExistingFile(
+      repositoryRoot,
+      assertion.path,
+      label,
+    )
+    const value = fs.readFileSync(filename)
+    assertEqual(value.length, assertion.bytes, `${assertion.path} byte length`)
+    assertEqual(sha256(value), assertion.sha256, `${assertion.path} SHA-256`)
+    const record = {
+      path: assertion.path,
+      filename,
+      bytes: value.length,
+      sha256: assertion.sha256,
+    }
+    byPath.set(assertion.path, record)
+    return record
+  })
+
+  const pending = [...configuration.files]
+  const visited = new Set()
+  while (pending.length > 0) {
+    const relative = pending.pop()
+    if (visited.has(relative)) continue
+    visited.add(relative)
+    const record = byPath.get(relative)
+    if (!record) {
+      throw new Error(
+        `Missing sourceLineage test file assertion for ${relative}`,
+      )
+    }
+    const source = fs.readFileSync(record.filename, 'utf8')
+    for (const specifier of relativeModuleSpecifiers(source)) {
+      const dependency = resolveRelativeModule(
+        repositoryRoot,
+        record.filename,
+        specifier,
+        `sourceLineage test dependency ${relative}`,
+      )
+      const dependencyRelative = path
+        .relative(repositoryRoot, dependency)
+        .split(path.sep)
+        .join('/')
+      if (!byPath.has(dependencyRelative)) {
+        throw new Error(
+          `Missing sourceLineage test file assertion for imported ` +
+            `${dependencyRelative}`,
+        )
+      }
+      pending.push(dependencyRelative)
+    }
+  }
+
+  return verified.map(({ filename: _, ...record }) => record)
+}
+
 function verifiedArtifact(manifest, artifactsRoot, id) {
   if (!artifactsRoot) {
     throw new Error(
@@ -631,6 +781,13 @@ export function verifySourceLineage({
     caseRoot,
   )
   const sourceRoot = path.join(resolvedRepository, 'src')
+  const testConfiguration = normalizeTestConfiguration(lineage)
+  const testFileAssertions = verifyTestFileAssertions(
+    manifest,
+    lineage,
+    resolvedRepository,
+    testConfiguration,
+  )
   const repositoryTarget = summarizeSourceTree(sourceRoot)
   assertTreeSummary(
     repositoryTarget,
@@ -689,7 +846,7 @@ export function verifySourceLineage({
     manifest,
     resolvedRepository,
     resolvedArtifacts,
-    normalizeTestConfiguration(lineage),
+    testConfiguration,
   )
   const baseSummary = publicTreeSummary(base)
   const targetSummary = publicTreeSummary(reconstructed)
@@ -717,6 +874,7 @@ export function verifySourceLineage({
       sha256: digest,
     })),
     syntaxChecks: checkedSyntax,
+    testFileAssertions,
     semanticTests: tests.summary,
     tests,
   }

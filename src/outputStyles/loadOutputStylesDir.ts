@@ -3,6 +3,7 @@ import { basename } from 'path'
 import type { OutputStyleConfig } from '../constants/outputStyles.js'
 import { logForDebugging } from '../utils/debug.js'
 import { coerceDescriptionToString } from '../utils/frontmatterParser.js'
+import { shadowValidateFrontmatter } from '../utils/frontmatterShadowValidation.js'
 import { logError } from '../utils/log.js'
 import {
   extractDescriptionFromMarkdown,
@@ -34,6 +35,7 @@ export const getOutputStyleDirStyles = memoize(
       const styles = markdownFiles
         .map(({ filePath, frontmatter, content, source }) => {
           try {
+            shadowValidateFrontmatter('output-style', frontmatter)
             const fileName = basename(filePath)
             const styleName = fileName.replace(/\.md$/, '')
 

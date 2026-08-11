@@ -145,12 +145,16 @@ export async function exchangeCodeForTokens(
 
 export async function refreshOAuthToken(
   refreshToken: string,
-  { scopes: requestedScopes }: { scopes?: string[] } = {},
+  {
+    scopes: requestedScopes,
+    expiresIn,
+    clientId,
+  }: { scopes?: string[]; expiresIn?: number; clientId?: string } = {},
 ): Promise<OAuthTokens> {
-  const requestBody = {
+  const requestBody: Record<string, string | number> = {
     grant_type: 'refresh_token',
     refresh_token: refreshToken,
-    client_id: getOauthConfig().CLIENT_ID,
+    client_id: clientId ?? getOauthConfig().CLIENT_ID,
     // Request specific scopes, defaulting to the full Claude AI set. The
     // backend's refresh-token grant allows scope expansion beyond what the
     // initial authorize granted (see ALLOWED_SCOPE_EXPANSIONS), so this is
@@ -160,6 +164,9 @@ export async function refreshOAuthToken(
       ? requestedScopes
       : CLAUDE_AI_OAUTH_SCOPES
     ).join(' '),
+  }
+  if (expiresIn !== undefined) {
+    requestBody.expires_in = expiresIn
   }
 
   try {
@@ -243,6 +250,7 @@ export async function refreshOAuthToken(
       refreshToken: newRefreshToken,
       expiresAt,
       scopes,
+      clientId,
       subscriptionType:
         profileInfo?.subscriptionType ?? existing?.subscriptionType ?? null,
       rateLimitTier:

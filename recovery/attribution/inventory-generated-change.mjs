@@ -714,10 +714,81 @@ function main() {
   coverage.targetUtf16 = targetText.length
   coverage.unaccountedTargetUtf16 = 0
 
+  const targetRangeRecords = [
+    ...partitionRecords.map((partition, index) => ({
+      kind: 'partition',
+      id: partition.id,
+      target: partition.target,
+      classification: partition.classification,
+      confidence: partition.confidence,
+      sourceIndices: [
+        partition.attributedSourceIndex,
+        ...partition.sourceCandidates,
+        ...partition.relocatedSourceCandidates,
+        partition.boundarySourceIndices.left,
+        partition.boundarySourceIndices.right,
+      ]
+        .filter(value => value !== null)
+        .filter((value, position, values) => values.indexOf(value) === position)
+        .sort((leftValue, rightValue) => leftValue - rightValue),
+      partitionIndex: index,
+    })),
+    ...literalReport.anchors
+      .filter(anchor => anchor.monotone)
+      .map(anchor => {
+        const owner = anchorOwners.get(anchor.id)
+        const value = targetText.slice(
+          anchor.target.offset,
+          anchor.target.endOffset,
+        )
+        return {
+          kind: 'exact-literal-anchor',
+          id: anchor.id,
+          target: {
+            offsetStart: anchor.target.offset,
+            offsetEnd: anchor.target.endOffset,
+            tokenStart: anchor.target.tokenIndex,
+            tokenEnd: anchor.target.tokenIndex + 1,
+            tokenCount: 1,
+            utf16Length: value.length,
+            sha256: sha256(value),
+          },
+          classification: 'exact-literal-anchor',
+          confidence: owner.sourceIndex === null ? 'unresolved' : 'exact',
+          sourceIndices:
+            owner.sourceIndex === null ? [] : [owner.sourceIndex],
+          monotoneIndex: anchor.monotoneIndex,
+        }
+      }),
+  ].sort((leftValue, rightValue) =>
+    leftValue.target.offsetStart - rightValue.target.offsetStart,
+  )
+  let targetRangeEnd = 0
+  for (const [index, range] of targetRangeRecords.entries()) {
+    if (range.target.offsetStart !== targetRangeEnd) {
+      throw new Error(
+        `Target range ${index} is not contiguous: ` +
+          `${range.target.offsetStart} != ${targetRangeEnd}`,
+      )
+    }
+    if (range.target.offsetEnd < range.target.offsetStart) {
+      throw new Error(`Target range ${index} is inverted`)
+    }
+    targetRangeEnd = range.target.offsetEnd
+  }
+  if (targetRangeEnd !== targetText.length) {
+    throw new Error(
+      `Target range coverage mismatch: ${targetRangeEnd} != ${targetText.length}`,
+    )
+  }
+  coverage.targetRangeCount = targetRangeRecords.length
+  coverage.targetRangeUtf16 = targetRangeEnd
+
   const reportFiles = {
     sources: 'sources.jsonl.gz',
     targetInitializers: 'target-initializers.jsonl.gz',
     targetPartitions: 'target-partitions.jsonl.gz',
+    targetRanges: 'target-ranges.jsonl.gz',
   }
   fs.writeFileSync(
     path.join(output, reportFiles.sources),
@@ -730,6 +801,10 @@ function main() {
   fs.writeFileSync(
     path.join(output, reportFiles.targetPartitions),
     gzipJsonLines(partitionRecords),
+  )
+  fs.writeFileSync(
+    path.join(output, reportFiles.targetRanges),
+    gzipJsonLines(targetRangeRecords),
   )
 
   const sourceKinds = sourceRecords.reduce(

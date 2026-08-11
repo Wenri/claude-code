@@ -78,7 +78,9 @@ import {
   areFileEditsInputsEquivalent,
   findActualString,
   getPatchForEdit,
+  hasUnicodeEscapeOrCharacter,
   preserveQuoteStyle,
+  preserveUnicodeRepresentation,
 } from './utils.js'
 
 // V8/Bun string length limit is ~2^30 characters (~1 billion). For typical
@@ -328,10 +330,13 @@ export const FileEditTool = buildTool({
     // Use findActualString to handle quote normalization
     const actualOldString = findActualString(file, old_string)
     if (!actualOldString) {
+      const unicodeSwapNote = hasUnicodeEscapeOrCharacter(old_string)
+        ? '\n(note: Edit also tried swapping \\uXXXX escapes and their characters; neither form matched, so the mismatch is likely elsewhere in old_string. Re-read the file and copy the exact surrounding text.)'
+        : ''
       return {
         result: false,
         behavior: 'ask',
-        message: `String to replace not found in file.\nString: ${old_string}`,
+        message: `String to replace not found in file.\nString: ${old_string}${unicodeSwapNote}`,
         meta: {
           isFilePathAbsolute: String(isAbsolute(file_path)),
         },
@@ -485,10 +490,10 @@ export const FileEditTool = buildTool({
       findActualString(originalFileContents, old_string) || old_string
 
     // Preserve curly quotes in new_string when the file uses them
-    const actualNewString = preserveQuoteStyle(
+    const actualNewString = preserveUnicodeRepresentation(
       old_string,
       actualOldString,
-      new_string,
+      preserveQuoteStyle(old_string, actualOldString, new_string),
     )
 
     // 4. Generate patch

@@ -10,7 +10,7 @@
  */
 
 import { execFile } from 'child_process'
-import { existsSync } from 'fs'
+import { existsSync, readFileSync } from 'fs'
 import {
   getMacOSPlistPaths,
   MDM_SUBPROCESS_TIMEOUT_MS,
@@ -19,6 +19,7 @@ import {
   WINDOWS_REGISTRY_KEY_PATH_HKCU,
   WINDOWS_REGISTRY_KEY_PATH_HKLM,
   WINDOWS_REGISTRY_VALUE_NAME,
+  WSL_WINDOWS_REGISTRY_EXE,
 } from './constants.js'
 
 export type RawReadResult = {
@@ -44,6 +45,16 @@ function execFilePromise(
       },
     )
   })
+}
+
+function isWslEnvironment(): boolean {
+  if (process.env.WSL_DISTRO_NAME) return true
+  try {
+    const version = readFileSync('/proc/version', 'utf8').toLowerCase()
+    return version.includes('microsoft') || version.includes('wsl')
+  } catch {
+    return false
+  }
 }
 
 /**
@@ -87,15 +98,17 @@ export function fireRawRead(): Promise<RawReadResult> {
       }
     }
 
-    if (process.platform === 'win32') {
+    if (process.platform === 'win32' || isWslEnvironment()) {
+      const registryExecutable =
+        process.platform === 'win32' ? 'reg' : WSL_WINDOWS_REGISTRY_EXE
       const [hklm, hkcu] = await Promise.all([
-        execFilePromise('reg', [
+        execFilePromise(registryExecutable, [
           'query',
           WINDOWS_REGISTRY_KEY_PATH_HKLM,
           '/v',
           WINDOWS_REGISTRY_VALUE_NAME,
         ]),
-        execFilePromise('reg', [
+        execFilePromise(registryExecutable, [
           'query',
           WINDOWS_REGISTRY_KEY_PATH_HKCU,
           '/v',

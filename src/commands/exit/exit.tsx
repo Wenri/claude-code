@@ -6,6 +6,7 @@ import { ExitFlow } from '../../components/ExitFlow.js';
 import type { LocalJSXCommandOnDone } from '../../types/command.js';
 import { isBgSession } from '../../utils/concurrentSessions.js';
 import { gracefulShutdown } from '../../utils/gracefulShutdown.js';
+import { getSessionBackgroundExitItems } from '../../utils/sessionCronTasks.js';
 import { getCurrentWorktreeSession } from '../../utils/worktree.js';
 const GOODBYE_MESSAGES = ['Goodbye!', 'See ya!', 'Bye!', 'Catch you later!'];
 function getRandomGoodbyeMessage(): string {
@@ -23,8 +24,9 @@ export async function call(onDone: LocalJSXCommandOnDone): Promise<React.ReactNo
     return null;
   }
   const showWorktree = getCurrentWorktreeSession() !== null;
-  if (showWorktree) {
-    return <ExitFlow showWorktree={showWorktree} onDone={onDone} onCancel={() => onDone()} />;
+  const backgroundItems = getSessionBackgroundExitItems();
+  if (showWorktree || backgroundItems.length > 0) {
+    return <ExitFlow showWorktree={showWorktree} backgroundItems={backgroundItems} onDone={onDone} onCancel={() => onDone()} />;
   }
   onDone(getRandomGoodbyeMessage());
   await gracefulShutdown(0, 'prompt_input_exit');

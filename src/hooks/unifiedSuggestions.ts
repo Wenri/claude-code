@@ -5,6 +5,7 @@ import { generateFileSuggestions } from 'src/hooks/fileSuggestions.js'
 import type { ServerResource, ServerResourceTemplate } from 'src/services/mcp/types.js'
 import type { MCPServerConnection } from 'src/services/mcp/types.js'
 import { completeResourceTemplate } from 'src/services/mcp/client.js'
+import { normalizeNameForMCP } from 'src/services/mcp/normalization.js'
 import { getAgentColor } from 'src/tools/AgentTool/agentColorManager.js'
 import type { AgentDefinition } from 'src/tools/AgentTool/loadAgentsDir.js'
 import { truncateToWidth } from 'src/utils/format.js'
@@ -271,10 +272,23 @@ function hasMoreTemplateVariables(match: UriTemplateMatch): boolean {
   return false
 }
 
+function formatResourceTemplateReplacement(
+  prefix: string,
+  value: string,
+  partial: boolean,
+): string {
+  if (prefix === '@' && value.includes(' ')) {
+    return partial ? `@"${value}` : `@"${value}"`
+  }
+  if (prefix === '/') return `/${value.replace(/ /g, '%20')}`
+  return `${prefix}${value}`
+}
+
 export async function generateMcpResourceTemplateCompletions(
   query: string,
   templatesByServer: Record<string, ServerResourceTemplate[]>,
   clients: readonly MCPServerConnection[],
+  prefix: string,
 ): Promise<SuggestionItem[] | null> {
   const separator = query.indexOf(':')
   if (separator === -1) return null
@@ -288,7 +302,11 @@ export async function generateMcpResourceTemplateCompletions(
   if (!match) {
     if (!uri) return null
     const suggestions = templates
-      .filter(template => template.uriTemplate.startsWith(uri))
+      .filter(
+        template =>
+          template.uriTemplate.startsWith(uri) &&
+          template.uriTemplate.length > uri.length,
+      )
       .slice(0, MAX_UNIFIED_SUGGESTIONS)
       .map(template => ({
         id: `mcp-template::${serverName}__${template.uriTemplate}`,
@@ -296,23 +314,48 @@ export async function generateMcpResourceTemplateCompletions(
         description: truncateDescription(
           template.description || template.name || template.uriTemplate,
         ),
-        metadata: { partial: true },
+        metadata: {
+          replacement: formatResourceTemplateReplacement(
+            prefix,
+            `${serverName}:${templateDisplayPrefix(template.uriTemplate)}`,
+            true,
+          ),
+          partial: true,
+        },
       }))
     return suggestions.length > 0 ? suggestions : null
   }
 
+  const normalizedServerName = normalizeNameForMCP(serverName)
   const client = clients.find(
     candidate =>
-      candidate.type === 'connected' && candidate.name === serverName,
+      candidate.type === 'connected' &&
+      normalizeNameForMCP(candidate.name) === normalizedServerName,
   )
   if (!client || client.type !== 'connected') return []
+
+  const resolvedArgs = Object.fromEntries(
+    Object.entries(match.resolvedArgs).map(([name, value]) => {
+      try {
+        return [name, decodeURIComponent(value)]
+      } catch {
+        return [name, value]
+      }
+    }),
+  )
+  let argValue = match.argValue
+  try {
+    argValue = decodeURIComponent(argValue)
+  } catch {
+    // Keep the literal value when it is not valid percent-encoding.
+  }
 
   const completions = await completeResourceTemplate(
     client,
     match.template.uriTemplate,
     match.argName,
-    match.argValue,
-    match.resolvedArgs,
+    argValue,
+    resolvedArgs,
   )
   const description = truncateDescription(
     match.template.description || match.template.name || '',
@@ -325,7 +368,14 @@ export async function generateMcpResourceTemplateCompletions(
       id: `mcp-template-value::${serverName}__${resolvedUri}`,
       displayText: resolvedUri.slice(match.valueStartIndex),
       description,
-      metadata: { partial, replacement },
+      metadata: {
+        partial,
+        replacement: formatResourceTemplateReplacement(
+          prefix,
+          replacement,
+          partial,
+        ),
+      },
     }
   })
 }

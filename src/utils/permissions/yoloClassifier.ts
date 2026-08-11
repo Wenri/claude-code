@@ -3,6 +3,7 @@ import type Anthropic from '@anthropic-ai/sdk'
 import type { BetaToolUnion } from '@anthropic-ai/sdk/resources/beta/messages.js'
 import { mkdir, writeFile } from 'fs/promises'
 import { dirname, join } from 'path'
+import { randomUUID } from 'crypto'
 import { z } from 'zod/v4'
 import {
   getCachedClaudeMdContent,
@@ -15,6 +16,7 @@ import { logEvent } from '../../services/analytics/index.js'
 import type { AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS } from '../../services/analytics/metadata.js'
 import {
   getCacheControl,
+  getExtraBodyParams,
   should1hCacheTTL,
 } from '../../services/api/claude.js'
 import { parsePromptTooLongTokenCounts } from '../../services/api/errors.js'
@@ -27,7 +29,7 @@ import type {
 } from '../../types/permissions.js'
 import { isDebugMode, logForDebugging } from '../debug.js'
 import { isEnvDefinedFalsy, isEnvTruthy } from '../envUtils.js'
-import { errorMessage } from '../errors.js'
+import { errorMessage, isAbortError } from '../errors.js'
 import { lazySchema } from '../lazySchema.js'
 import { extractTextContent } from '../messages.js'
 import { resolveAntModel } from '../model/antModels.js'
@@ -93,6 +95,49 @@ export type AutoModeRules = {
   allow: string[]
   soft_deny: string[]
   environment: string[]
+}
+
+export const AUTO_MODE_DEFAULTS_MARKER = '$defaults'
+
+export function expandAutoModeRules<T>(
+  configured: string[] | undefined,
+  defaults: T[],
+  transform: (rule: string) => T,
+): T[] {
+  if (!configured?.length) return [...defaults]
+  let includedDefaults = false
+  const expanded: T[] = []
+  for (const rule of configured) {
+    if (rule === AUTO_MODE_DEFAULTS_MARKER) {
+      if (!includedDefaults) {
+        expanded.push(...defaults)
+        includedDefaults = true
+      }
+      continue
+    }
+    expanded.push(transform(rule))
+  }
+  return expanded
+}
+
+export function getEffectiveExternalAutoModeRules(
+  configured = getAutoModeConfig(),
+): AutoModeRules {
+  const defaults = getDefaultExternalAutoModeRules()
+  const identity = (rule: string): string => rule
+  return {
+    allow: expandAutoModeRules(configured?.allow, defaults.allow, identity),
+    soft_deny: expandAutoModeRules(
+      configured?.soft_deny,
+      defaults.soft_deny,
+      identity,
+    ),
+    environment: expandAutoModeRules(
+      configured?.environment,
+      defaults.environment,
+      identity,
+    ),
+  }
 }
 
 /**
@@ -521,28 +566,26 @@ export async function buildYoloSystemPrompt(
   // anthropic template keeps its defaults outside the tags and uses an empty
   // tag pair at the end of each section, so user-provided values are
   // strictly ADDITIVE.
-  const userAllow = allowDescriptions.length
-    ? allowDescriptions.map(d => `- ${d}`).join('\n')
-    : undefined
-  const userDeny = denyDescriptions.length
-    ? denyDescriptions.map(d => `- ${d}`).join('\n')
-    : undefined
-  const userEnvironment = autoMode?.environment?.length
-    ? autoMode.environment.map(e => `- ${e}`).join('\n')
-    : undefined
+  const renderRules = (rules: string[], defaults: string): string =>
+    expandAutoModeRules(
+      rules,
+      defaults.length > 0 ? [defaults] : [],
+      rule => `- ${rule}`,
+    ).join('\n')
 
   return systemPrompt
     .replace(
       /<user_allow_rules_to_replace>([\s\S]*?)<\/user_allow_rules_to_replace>/,
-      (_m, defaults: string) => userAllow ?? defaults,
+      (_m, defaults: string) => renderRules(allowDescriptions, defaults),
     )
     .replace(
       /<user_deny_rules_to_replace>([\s\S]*?)<\/user_deny_rules_to_replace>/,
-      (_m, defaults: string) => userDeny ?? defaults,
+      (_m, defaults: string) => renderRules(denyDescriptions, defaults),
     )
     .replace(
       /<user_environment_to_replace>([\s\S]*?)<\/user_environment_to_replace>/,
-      (_m, defaults: string) => userEnvironment ?? defaults,
+      (_m, defaults: string) =>
+        renderRules(autoMode?.environment ?? [], defaults),
     )
 }
 // ============================================================================
@@ -647,6 +690,95 @@ function combineUsage(a: ClassifierUsage, b: ClassifierUsage): ClassifierUsage {
   }
 }
 
+type ClassifierFailureMode = 'policy_refusal' | 'unparseable'
+
+function classifierFailureReason(
+  _stage: string,
+  _failureMode: ClassifierFailureMode,
+  _stopReason: string | null,
+): string {
+  return 'Auto mode could not evaluate this action and is blocking it for safety'
+}
+
+function getClassifierFailureMode(
+  text: string,
+  stopReason: string | null,
+): ClassifierFailureMode {
+  return stopReason === 'refusal' ||
+    (text === '' && stopReason !== 'max_tokens')
+    ? 'policy_refusal'
+    : 'unparseable'
+}
+
+async function withClassifierRequestWatchdog<T>(
+  request: Promise<T>,
+  {
+    toolName,
+    classifierModel,
+    classifierStage,
+    promptTokensEstimate,
+  }: {
+    toolName: string
+    classifierModel: string
+    classifierStage: 'xml_s1' | 'xml_s2' | 'tool_use'
+    promptTokensEstimate?: number
+  },
+): Promise<T> {
+  const start = Date.now()
+  const reqId = randomUUID()
+  const promptTokens =
+    promptTokensEstimate !== undefined
+      ? ` promptTokensEst=${promptTokensEstimate}`
+      : ''
+  logForDebugging(
+    `[Stall] classifier_request_started reqId=${reqId} tool=${toolName} model=${classifierModel} stage=${classifierStage}${promptTokens}`,
+    { level: 'info' },
+  )
+
+  let progressCount = 0
+  let timer: ReturnType<typeof setTimeout> | null = null
+  const scheduleProgress = (delay: number): void => {
+    timer = setTimeout(() => {
+      timer = null
+      logForDebugging(
+        `[Stall] classifier_request_progress reqId=${reqId} tool=${toolName} stage=${classifierStage} ageMs=${Date.now() - start}`,
+        { level: 'warn' },
+      )
+      progressCount += 1
+      if (progressCount < 10) scheduleProgress(30_000)
+    }, delay)
+    timer.unref?.()
+  }
+  scheduleProgress(15_000)
+
+  try {
+    const result = await request
+    logForDebugging(
+      `[Stall] classifier_request_finished reqId=${reqId} tool=${toolName} stage=${classifierStage} outcome=ok durationMs=${Date.now() - start}`,
+      { level: 'info' },
+    )
+    return result
+  } catch (error) {
+    const aborted = isAbortError(error)
+    const errorKind =
+      error instanceof Error
+        ? `${error.name}:${error.message.slice(0, 80)}`
+        : 'unknown'
+    logForDebugging(
+      `[Stall] classifier_request_finished reqId=${reqId} tool=${toolName} stage=${classifierStage} outcome=${aborted ? 'aborted' : 'error'} durationMs=${Date.now() - start} errorKind=${errorKind}`,
+      { level: aborted ? 'info' : 'warn' },
+    )
+    throw error
+  } finally {
+    if (timer !== null) clearTimeout(timer)
+  }
+}
+
+function getActionToolName(action: TranscriptEntry): string {
+  const toolUse = action.content.find(block => block.type === 'tool_use')
+  return toolUse?.type === 'tool_use' ? toolUse.name : 'unknown'
+}
+
 /**
  * Replace the tool_use output format instruction with XML format.
  * Finds the last line of the prompt ("Use the classify_result tool...")
@@ -738,6 +870,7 @@ async function classifyYoloActionXml(
     action: string
   },
   mode: TwoStageMode,
+  toolName: string,
 ): Promise<YoloClassifierResult> {
   const classifierType =
     mode === 'both'
@@ -798,8 +931,17 @@ async function classifyYoloActionXml(
         signal,
         ...(mode !== 'fast' && { stop_sequences: ['</block>'] }),
         querySource: 'auto_mode',
+        extraBodyParams: getExtraBodyParams(),
       }
-      const stage1Raw = await sideQuery(stage1Opts)
+      const stage1Raw = await withClassifierRequestWatchdog(
+        sideQuery(stage1Opts),
+        {
+          toolName,
+          classifierModel: model,
+          classifierStage: 'xml_s1',
+          promptTokensEstimate: dumpContextInfo.classifierTokensEst,
+        },
+      )
       stage1DurationMs = Date.now() - stage1Start
       stage1Usage = extractUsage(stage1Raw)
       stage1RequestId = extractRequestId(stage1Raw)
@@ -832,10 +974,22 @@ async function classifyYoloActionXml(
       // In fast-only mode, stage 1 is final — handle block + unparseable here.
       if (mode === 'fast') {
         if (stage1Block === null) {
-          logAutoModeOutcome('parse_failure', model, { classifierType })
+          const failureMode = getClassifierFailureMode(
+            stage1Text,
+            stage1Raw.stop_reason,
+          )
+          logAutoModeOutcome('parse_failure', model, {
+            classifierType,
+            failureKind: failureMode,
+          })
           return {
             shouldBlock: true,
-            reason: 'Classifier stage 1 unparseable - blocking for safety',
+            reason: classifierFailureReason(
+              'stage 1',
+              failureMode,
+              stage1Raw.stop_reason,
+            ),
+            failureMode,
             model,
             usage: stage1Usage,
             durationMs: stage1DurationMs,
@@ -884,8 +1038,17 @@ async function classifyYoloActionXml(
       maxRetries: getDefaultMaxRetries(),
       signal,
       querySource: 'auto_mode' as const,
+      extraBodyParams: getExtraBodyParams(),
     }
-    const stage2Raw = await sideQuery(stage2Opts)
+    const stage2Raw = await withClassifierRequestWatchdog(
+      sideQuery(stage2Opts),
+      {
+        toolName,
+        classifierModel: model,
+        classifierStage: 'xml_s2',
+        promptTokensEstimate: dumpContextInfo.classifierTokensEst,
+      },
+    )
     const stage2DurationMs = Date.now() - stage2Start
     const stage2Usage = extractUsage(stage2Raw)
     const stage2RequestId = extractRequestId(stage2Raw)
@@ -903,10 +1066,22 @@ async function classifyYoloActionXml(
     )
 
     if (stage2Block === null) {
-      logAutoModeOutcome('parse_failure', model, { classifierType })
+      const failureMode = getClassifierFailureMode(
+        stage2Text,
+        stage2Raw.stop_reason,
+      )
+      logAutoModeOutcome('parse_failure', model, {
+        classifierType,
+        failureKind: failureMode,
+      })
       return {
         shouldBlock: true,
-        reason: 'Classifier stage 2 unparseable - blocking for safety',
+        reason: classifierFailureReason(
+          'stage 2',
+          failureMode,
+          stage2Raw.stop_reason,
+        ),
+        failureMode,
         model,
         usage: totalUsage,
         durationMs: totalDurationMs,
@@ -1133,6 +1308,7 @@ export async function classifyYoloAction(
         action: actionCompact,
       },
       getTwoStageMode(),
+      getActionToolName(action),
     )
   }
   const [disableThinking, thinkingPadding] = getClassifierThinkingConfig(model)
@@ -1163,8 +1339,17 @@ export async function classifyYoloAction(
       maxRetries: getDefaultMaxRetries(),
       signal,
       querySource: 'auto_mode' as const,
+      extraBodyParams: getExtraBodyParams(),
     }
-    const result = await sideQuery(sideQueryOpts)
+    const result = await withClassifierRequestWatchdog(
+      sideQuery(sideQueryOpts),
+      {
+        toolName: getActionToolName(action),
+        classifierModel: model,
+        classifierStage: 'tool_use',
+        promptTokensEstimate: classifierTokensEst,
+      },
+    )
     void maybeDumpAutoMode(sideQueryOpts, result, start)
     setLastClassifierRequests([sideQueryOpts])
     const durationMs = Date.now() - start
@@ -1203,13 +1388,27 @@ export async function classifyYoloAction(
     )
 
     if (!toolUseBlock) {
-      logForDebugging('Auto mode classifier: No tool use block found', {
-        level: 'warn',
+      const policyRefusal =
+        result.stop_reason === 'refusal' ||
+        (result.content.length === 0 && result.stop_reason !== 'max_tokens')
+      logForDebugging(
+        policyRefusal
+          ? `Auto mode classifier: input blocked by upstream policy (stop_reason=${result.stop_reason})`
+          : 'Auto mode classifier: No tool use block found',
+        { level: 'warn' },
+      )
+      logAutoModeOutcome('parse_failure', model, {
+        failureKind: policyRefusal ? 'policy_refusal' : 'no_tool_use',
       })
-      logAutoModeOutcome('parse_failure', model, { failureKind: 'no_tool_use' })
+      const failureMode = policyRefusal ? 'policy_refusal' : 'unparseable'
       return {
         shouldBlock: true,
-        reason: 'Classifier returned no tool use block - blocking for safety',
+        reason: classifierFailureReason(
+          policyRefusal ? 'tool_use' : 'no tool use block',
+          failureMode,
+          result.stop_reason,
+        ),
+        failureMode,
         model,
         usage,
         durationMs,
@@ -1233,7 +1432,12 @@ export async function classifyYoloAction(
       })
       return {
         shouldBlock: true,
-        reason: 'Invalid classifier response - blocking for safety',
+        reason: classifierFailureReason(
+          'invalid schema',
+          'unparseable',
+          result.stop_reason,
+        ),
+        failureMode: 'unparseable',
         model,
         usage,
         durationMs,

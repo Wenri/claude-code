@@ -3,8 +3,8 @@ import type { ReactNode } from 'react';
 import React, { useContext } from 'react';
 import Text from '../../ink/components/Text.js';
 import type { Color, Styles } from '../../ink/styles.js';
-import { getTheme, type Theme } from '../../utils/theme.js';
-import { useTheme } from './ThemeProvider.js';
+import { type Theme } from '../../utils/theme.js';
+import { useResolvedTheme } from './ThemeProvider.js';
 
 /** Colors uncolored ThemedText in the subtree. Precedence: explicit `color` >
  *  this > dimColor. Crosses Box boundaries (Ink's style cascade doesn't). */
@@ -98,8 +98,7 @@ export default function ThemedText(t0) {
   const strikethrough = t5 === undefined ? false : t5;
   const inverse = t6 === undefined ? false : t6;
   const wrap = t7 === undefined ? "wrap" : t7;
-  const [themeName] = useTheme();
-  const theme = getTheme(themeName);
+  const theme = useResolvedTheme();
   const hoverColor = useContext(TextHoverColorContext);
   const resolvedColor = !color && hoverColor ? resolveColor(hoverColor, theme) : dimColor ? theme.inactive as Color : resolveColor(color, theme);
   const resolvedBackgroundColor = backgroundColor ? theme[backgroundColor] as Color : undefined;

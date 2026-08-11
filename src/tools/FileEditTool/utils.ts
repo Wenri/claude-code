@@ -63,6 +63,50 @@ export function stripTrailingWhitespace(str: string): string {
   return result
 }
 
+const UNICODE_ESCAPE_REGEX = /\\u[0-9a-fA-F]{4}/
+const UNICODE_CHARACTER_REGEX = /[\u0080-\uffff]/
+
+export function decodeUnicodeEscapes(value: string): string {
+  return value.replace(
+    /(\\\\)|\\u([0-9a-fA-F]{4})/g,
+    (match, escapedBackslash: string | undefined, hex: string) =>
+      escapedBackslash !== undefined
+        ? match
+        : String.fromCharCode(parseInt(hex, 16)),
+  )
+}
+
+export function encodeUnicodeCharacters(value: string): string {
+  return value.replace(/[\u0080-\uffff]/g, character =>
+    `\\u${character.charCodeAt(0).toString(16).padStart(4, '0')}`,
+  )
+}
+
+export function hasUnicodeEscapeOrCharacter(value: string): boolean {
+  return UNICODE_ESCAPE_REGEX.test(value) || UNICODE_CHARACTER_REGEX.test(value)
+}
+
+export function preserveUnicodeRepresentation(
+  oldString: string,
+  actualOldString: string,
+  newString: string,
+): string {
+  if (oldString === actualOldString) return newString
+  if (
+    UNICODE_CHARACTER_REGEX.test(oldString) &&
+    encodeUnicodeCharacters(oldString) === actualOldString
+  ) {
+    return encodeUnicodeCharacters(newString)
+  }
+  if (
+    UNICODE_ESCAPE_REGEX.test(oldString) &&
+    decodeUnicodeEscapes(oldString) === actualOldString
+  ) {
+    return decodeUnicodeEscapes(newString)
+  }
+  return newString
+}
+
 /**
  * Finds the actual string in the file content that matches the search string,
  * accounting for quote normalization
@@ -87,6 +131,26 @@ export function findActualString(
   if (searchIndex !== -1) {
     // Find the actual string in the file that matches
     return fileContent.substring(searchIndex, searchIndex + searchString.length)
+  }
+
+  if (UNICODE_ESCAPE_REGEX.test(searchString)) {
+    const decodedSearch = decodeUnicodeEscapes(searchString)
+    if (
+      decodedSearch !== searchString &&
+      fileContent.includes(decodedSearch)
+    ) {
+      return decodedSearch
+    }
+  }
+
+  if (UNICODE_CHARACTER_REGEX.test(searchString)) {
+    const encodedSearch = encodeUnicodeCharacters(searchString)
+    if (
+      encodedSearch !== searchString &&
+      fileContent.includes(encodedSearch)
+    ) {
+      return encodedSearch
+    }
   }
 
   return null

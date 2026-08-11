@@ -212,8 +212,11 @@ import {
   setInitJsonSchema,
   getInitJsonSchema,
   setSdkAgentProgressSummariesEnabled,
+  setSessionSkillAllowlist,
 } from 'src/bootstrap/state.js'
 import { createSyntheticOutputTool } from 'src/tools/SyntheticOutputTool/SyntheticOutputTool.js'
+import { formatTotalCost } from 'src/cost-tracker.js'
+import stripAnsi from 'strip-ansi'
 import { parseSessionIdentifier } from 'src/utils/sessionUrl.js'
 import {
   hydrateRemoteSession,
@@ -227,6 +230,8 @@ import {
   saveAiGeneratedTitle,
   getCurrentSessionTitle,
   restoreSessionMetadata,
+  registerSessionMirror,
+  flushSessionStorage,
 } from 'src/utils/sessionStorage.js'
 import { incrementPromptCount } from 'src/utils/commitAttribution.js'
 import {
@@ -244,8 +249,10 @@ import {
   setMcpServerEnabled,
 } from 'src/services/mcp/config.js'
 import {
+  getActiveMCPOAuthFlow,
   performMCPOAuthFlow,
   revokeServerTokens,
+  trackMCPOAuthFlow,
 } from 'src/services/mcp/auth.js'
 import {
   runElicitationHooks,
@@ -510,12 +517,14 @@ export async function runHeadless(
     taskBudget: { total: number } | undefined
     systemPrompt: string | undefined
     appendSystemPrompt: string | undefined
+    planModeInstructions: string | undefined
     userSpecifiedModel: string | undefined
     fallbackModel: string | undefined
     teleport: string | true | null | undefined
     sdkUrl: string | undefined
     replayUserMessages: boolean | undefined
     includePartialMessages: boolean | undefined
+    sessionMirror: boolean | undefined
     forkSession: boolean | undefined
     rewindFiles: string | undefined
     enableAuthStatus: boolean | undefined
@@ -949,14 +958,17 @@ export async function runHeadless(
         (message.subtype === 'session_state_changed' ||
           message.subtype === 'task_notification' ||
           message.subtype === 'task_started' ||
+          message.subtype === 'task_updated' ||
           message.subtype === 'task_progress' ||
+          message.subtype === 'notification' ||
           message.subtype === 'post_turn_summary')
       ) &&
       message.type !== 'stream_event' &&
       message.type !== 'keep_alive' &&
       message.type !== 'streamlined_text' &&
       message.type !== 'streamlined_tool_use_summary' &&
-      message.type !== 'prompt_suggestion'
+      message.type !== 'prompt_suggestion' &&
+      message.type !== 'transcript_mirror'
     ) {
       if (needsFullArray) {
         messages.push(message)
@@ -1047,10 +1059,13 @@ function runHeadlessStreaming(
     taskBudget: { total: number } | undefined
     systemPrompt: string | undefined
     appendSystemPrompt: string | undefined
+    planModeInstructions: string | undefined
     userSpecifiedModel: string | undefined
     fallbackModel: string | undefined
     replayUserMessages?: boolean | undefined
     includePartialMessages?: boolean | undefined
+    outputFormat?: string | undefined
+    sessionMirror?: boolean | undefined
     enableAuthStatus?: boolean | undefined
     agent?: string | undefined
     setSDKStatus?: (status: SDKStatus) => void
@@ -1072,6 +1087,16 @@ function runHeadlessStreaming(
   let abortController: AbortController | undefined
   // Same queue sendRequest() enqueues to — one FIFO for everything.
   const output = structuredIO.outbound
+
+  if (options.outputFormat === 'stream-json' && options.sessionMirror) {
+    registerSessionMirror((filePath, entries) =>
+      structuredIO.write({
+        type: 'transcript_mirror',
+        filePath,
+        entries,
+      } as StdoutMessage),
+    )
+  }
 
   // Ctrl+C in -p mode: abort the in-flight query, then shut down gracefully.
   // gracefulShutdown persists session state and flushes analytics, with a
@@ -2257,6 +2282,7 @@ function runHeadlessStreaming(
               },
               customSystemPrompt: options.systemPrompt,
               appendSystemPrompt: options.appendSystemPrompt,
+              planModeInstructions: options.planModeInstructions,
               getAppState,
               setAppState,
               abortController,
@@ -2308,6 +2334,9 @@ function runHeadlessStreaming(
                   heldBackResult = message
                 } else {
                   heldBackResult = null
+                  if (options.sessionMirror) {
+                    await flushSessionStorage()
+                  }
                   output.enqueue(message)
                 }
               } else {
@@ -2482,6 +2511,9 @@ function runHeadlessStreaming(
       } while (waitingForAgents)
 
       if (heldBackResult) {
+        if (options.sessionMirror) {
+          await flushSessionStorage()
+        }
         output.enqueue(heldBackResult)
         heldBackResult = null
         if (suggestionState.pendingSuggestion) {
@@ -2501,6 +2533,9 @@ function runHeadlessStreaming(
       // Emit error result message before shutting down
       // Write directly to structuredIO to ensure immediate delivery
       try {
+        if (options.sessionMirror) {
+          await flushSessionStorage()
+        }
         await structuredIO.write({
           type: 'result',
           subtype: 'error_during_execution',
@@ -3054,6 +3089,10 @@ function runHeadlessStreaming(
           } catch (error) {
             sendControlResponseError(message, errorMessage(error))
           }
+        } else if (message.request.subtype === 'get_session_cost') {
+          sendControlResponseSuccess(message, {
+            text: stripAnsi(formatTotalCost()),
+          })
         } else if (message.request.subtype === 'mcp_message') {
           // Handle MCP notifications from SDK servers
           const mcpRequest = message.request
@@ -3457,6 +3496,7 @@ function runHeadlessStreaming(
               // Don't swallow errors — the callback handler needs to detect
               // auth failures and report them to the caller.
               oauthAuthPromises.set(serverName, oauthPromise)
+              trackMCPOAuthFlow(serverName, oauthPromise)
 
               // Handle background completion — reconnect after auth.
               // When manual callback is used, skip the reconnect here;
@@ -3574,7 +3614,9 @@ function runHeadlessStreaming(
               // Wait for auth (token exchange) to complete before responding.
               // Reconnect is handled by the extension via handleAuthDone →
               // mcp_reconnect (which updates dynamicMcpState for tools).
-              const authPromise = oauthAuthPromises.get(serverName)
+              const authPromise =
+                oauthAuthPromises.get(serverName) ??
+                getActiveMCPOAuthFlow(serverName)
               if (authPromise) {
                 try {
                   await authPromise
@@ -3953,6 +3995,7 @@ function runHeadlessStreaming(
                     setAppState,
                     customSystemPrompt: options.systemPrompt,
                     appendSystemPrompt: options.appendSystemPrompt,
+                    planModeInstructions: options.planModeInstructions,
                     thinkingConfig: options.thinkingConfig,
                     agents: currentAgents,
                   })
@@ -4549,8 +4592,14 @@ async function handleInitializeRequest(
   if (request.appendSystemPrompt !== undefined) {
     options.appendSystemPrompt = request.appendSystemPrompt
   }
+  if (request.planModeInstructions !== undefined) {
+    options.planModeInstructions = request.planModeInstructions
+  }
   if (request.promptSuggestions !== undefined) {
     options.promptSuggestions = request.promptSuggestions
+  }
+  if (request.skills !== undefined) {
+    setSessionSkillAllowlist(request.skills)
   }
 
   // Merge agents from stdin to avoid ARG_MAX limits

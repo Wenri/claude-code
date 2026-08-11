@@ -120,21 +120,33 @@ function createFixture() {
 
   const artifact = 'verified target artifact\n'
   write(artifactPath, artifact)
+  const helper = [
+    "import fs from 'node:fs'",
+    '',
+    'export function readArtifact(filename) {',
+    "  return fs.readFileSync(filename, 'utf8')",
+    '}',
+    '',
+  ].join('\n')
+  const helperRelative = 'lineage-fixtures/semantic-helper.mjs'
+  write(path.join(repository, helperRelative), helper)
+  const testRelative = 'lineage-fixtures/semantic.test.mjs'
+  const semanticTest = [
+    "import assert from 'node:assert/strict'",
+    "import test from 'node:test'",
+    "import { readArtifact } from './semantic-helper.mjs'",
+    '',
+    "test('receives the verified artifact path', () => {",
+    '  assert.equal(',
+    '    readArtifact(process.env.LINEAGE_TEST_ARTIFACT),',
+    `    ${JSON.stringify(artifact)},`,
+    '  )',
+    '})',
+    '',
+  ].join('\n')
   write(
-    path.join(repository, 'lineage-fixtures', 'semantic.test.mjs'),
-    [
-      "import assert from 'node:assert/strict'",
-      "import fs from 'node:fs'",
-      "import test from 'node:test'",
-      '',
-      "test('receives the verified artifact path', () => {",
-      '  assert.equal(',
-      "    fs.readFileSync(process.env.LINEAGE_TEST_ARTIFACT, 'utf8'),",
-      `    ${JSON.stringify(artifact)},`,
-      '  )',
-      '})',
-      '',
-    ].join('\n'),
+    path.join(repository, testRelative),
+    semanticTest,
   )
 
   const manifest = {
@@ -160,7 +172,19 @@ function createFixture() {
       base,
       target,
       syntaxCheck: ['src/example.ts', 'src/new.ts'],
-      testFiles: ['lineage-fixtures/semantic.test.mjs'],
+      testFiles: [testRelative],
+      testFileAssertions: [
+        {
+          path: helperRelative,
+          bytes: Buffer.byteLength(helper),
+          sha256: sha256(helper),
+        },
+        {
+          path: testRelative,
+          bytes: Buffer.byteLength(semanticTest),
+          sha256: sha256(semanticTest),
+        },
+      ],
       testArtifactEnvironment: {
         LINEAGE_TEST_ARTIFACT: 'targetBundle',
       },
@@ -232,6 +256,13 @@ test('verifies an incremental source lineage in both directions', () => {
     assert.deepEqual(report.tests.files, [
       'lineage-fixtures/semantic.test.mjs',
     ])
+    assert.deepEqual(
+      report.testFileAssertions.map(assertion => assertion.path),
+      [
+        'lineage-fixtures/semantic-helper.mjs',
+        'lineage-fixtures/semantic.test.mjs',
+      ],
+    )
     assert.equal(
       report.tests.artifactEnvironment.LINEAGE_TEST_ARTIFACT.artifact,
       'targetBundle',
@@ -283,6 +314,45 @@ test('rejects case-relative patch traversal', () => {
     const result = invoke(fixture)
     assert.notEqual(result.status, 0)
     assert.match(result.stderr, /unsafe relative path/)
+  } finally {
+    fs.rmSync(fixture.root, { recursive: true, force: true })
+  }
+})
+
+test('rejects a tampered semantic test support file', () => {
+  const fixture = createFixture()
+  try {
+    write(
+      path.join(
+        fixture.repository,
+        'lineage-fixtures',
+        'semantic-helper.mjs',
+      ),
+      "export const readArtifact = () => 'forged'\n",
+    )
+    const result = invoke(fixture)
+    assert.notEqual(result.status, 0)
+    assert.match(result.stderr, /semantic-helper\.mjs (byte length|SHA-256)/)
+  } finally {
+    fs.rmSync(fixture.root, { recursive: true, force: true })
+  }
+})
+
+test('requires assertions for relative semantic test dependencies', () => {
+  const fixture = createFixture()
+  try {
+    rewriteManifest(fixture, manifest => {
+      manifest.sourceLineage.testFileAssertions =
+        manifest.sourceLineage.testFileAssertions.filter(
+          assertion => !assertion.path.endsWith('semantic-helper.mjs'),
+        )
+    })
+    const result = invoke(fixture)
+    assert.notEqual(result.status, 0)
+    assert.match(
+      result.stderr,
+      /Missing sourceLineage test file assertion for imported .*semantic-helper\.mjs/,
+    )
   } finally {
     fs.rmSync(fixture.root, { recursive: true, force: true })
   }

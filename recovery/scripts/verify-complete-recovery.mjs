@@ -252,6 +252,130 @@ function main() {
     repositoryRoot,
   )
 
+  const semanticContract = generated.semanticCorrespondence
+  const semanticCorrespondence = semanticContract
+    ? runJson(
+        path.join(scripts, 'verify-semantic-correspondence.mjs'),
+        [
+          '--attribution',
+          safeRelative(
+            caseRoot,
+            semanticContract.attributionDirectory ??
+              generated.attribution.directory,
+            'semantic attribution report',
+          ),
+          '--structural',
+          safeRelative(
+            caseRoot,
+            semanticContract.structuralLedger ?? generated.structural.ledger,
+            'semantic structural ledger',
+          ),
+          '--obligations',
+          safeRelative(
+            caseRoot,
+            semanticContract.obligations,
+            'semantic obligations',
+          ),
+          '--changelog',
+          safeRelative(
+            caseRoot,
+            semanticContract.changelog,
+            'semantic changelog section',
+          ),
+          '--source-root',
+          path.join(repositoryRoot, manifest.sourceLineage?.root ?? 'src'),
+          '--baseline',
+          artifactPath(
+            manifest,
+            artifactsRoot,
+            semanticContract.baselineArtifact ??
+              generated.structural.baselineArtifact ??
+              'baselineBundle',
+          ),
+          '--target',
+          artifactPath(
+            manifest,
+            artifactsRoot,
+            semanticContract.targetArtifact ??
+              generated.structural.targetArtifact ??
+              'targetBundle',
+          ),
+          '--report',
+          safeRelative(caseRoot, semanticContract.report, 'semantic report'),
+          '--summary',
+          safeRelative(caseRoot, semanticContract.summary, 'semantic summary'),
+          '--expected-report-sha256',
+          assertion(manifest, semanticContract.report).sha256,
+          '--expected-summary-sha256',
+          assertion(manifest, semanticContract.summary).sha256,
+        ],
+        repositoryRoot,
+      )
+    : null
+  let semanticReproduction = null
+  if (semanticCorrespondence) {
+    if (semanticCorrespondence.obligations.unverifiedObligationCount !== 0) {
+      throw new Error(
+        'Cannot verify source semantic reproduction with unverified obligations',
+      )
+    }
+    const lineageTestFiles = new Set(
+      manifest.sourceLineage?.testFiles ??
+        manifest.sourceLineage?.tests?.files ??
+        [],
+    )
+    for (const testEntry of semanticCorrespondence.testCatalog) {
+      if (!lineageTestFiles.has(testEntry.path)) {
+        throw new Error(
+          `Semantic test is not executed by source lineage: ${testEntry.path}`,
+        )
+      }
+    }
+    const semanticTestIds = new Set(
+      semanticCorrespondence.testCatalog.map(testEntry => testEntry.id),
+    )
+    const changedSourcePaths = new Set(
+      (manifest.sourceLineage?.changedFiles ?? []).map(entry => entry.path),
+    )
+    for (const localization of semanticCorrespondence.manualLocalizations ?? []) {
+      if (localization.basis !== 'authenticated-behavior-test') {
+        throw new Error(
+          `Unknown manual localization basis: ${localization.id}`,
+        )
+      }
+      for (const sourcePath of localization.changedSourcePaths) {
+        if (!changedSourcePaths.has(sourcePath)) {
+          throw new Error(
+            `Manual semantic localization path is not changed by source lineage: ${localization.id}: ${sourcePath}`,
+          )
+        }
+      }
+      for (const sourcePath of localization.retainedSourcePaths) {
+        if (changedSourcePaths.has(sourcePath)) {
+          throw new Error(
+            `Manual semantic localization retained path is changed by source lineage: ${localization.id}: ${sourcePath}`,
+          )
+        }
+      }
+      for (const testId of localization.testIds) {
+        if (!semanticTestIds.has(testId)) {
+          throw new Error(
+            `Manual semantic localization uses an unauthenticated test: ${localization.id}: ${testId}`,
+          )
+        }
+      }
+    }
+    semanticReproduction = {
+      status: 'whole-bundle-source-semantics-verified',
+      correspondence: semanticCorrespondence.status,
+      executedTestFiles: semanticCorrespondence.testCatalog.length,
+      targetTokens: semanticCorrespondence.targetTokens,
+      unclassifiedTokens: semanticCorrespondence.unclassifiedTokens,
+      manualLocalizationCount:
+        semanticCorrespondence.manualLocalizations?.length ?? 0,
+    }
+  }
+
   const readableMetadata = assertion(
     manifest,
     generated.readableDiff.metadata,
@@ -332,6 +456,8 @@ function main() {
           exactBundleDelta: exactBundleDelta.status,
           attribution: attribution.status,
           structural: structural.status,
+          semanticCorrespondence: semanticCorrespondence?.status ?? null,
+          sourceSemanticReproduction: semanticReproduction?.status ?? null,
           readableDiff: readableDiff.status,
           embeddedCode: embeddedCode?.status ?? null,
           packageTree: packageTree.status,
@@ -377,8 +503,13 @@ function main() {
             structural.coverage.tokens.moved +
             structural.coverage.tokens.changed +
             structural.coverage.tokens.unresolved,
+          sourceSemanticTokens:
+            semanticCorrespondence?.accountedTokens ?? null,
+          unclassifiedSourceSemanticTokens:
+            semanticCorrespondence?.unclassifiedTokens ?? null,
         },
         tests: sourcePatches.semanticTests ?? sourcePatches.tests ?? null,
+        semanticReproduction,
       },
       null,
       2,

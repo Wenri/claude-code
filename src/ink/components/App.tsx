@@ -86,6 +86,8 @@ type Props = {
   // Dispatch a keyboard event through the DOM tree. Called for each
   // parsed key alongside the legacy EventEmitter path.
   readonly dispatchKeyboardEvent: (parsedKey: ParsedKey) => void;
+  readonly dispatchPasteEvent: (text: string) => void;
+  readonly dispatchWheelEvent: (parsedKey: ParsedKey) => void;
 };
 
 // Multi-click detection thresholds. 500ms is the macOS default; a small
@@ -515,12 +517,22 @@ function processKeysInBatch(app: App, items: ParsedInput[], _unused1: undefined,
       app.handleSuspend();
       continue;
     }
-    app.handleInput(sequence);
+    if (!item.isPasted) {
+      app.handleInput(sequence);
+    }
     const event = new InputEvent(item);
     app.internal_eventEmitter.emit('input', event);
 
-    // Also dispatch through the DOM tree so onKeyDown handlers fire.
-    app.props.dispatchKeyboardEvent(item);
+    if (item.isPasted) {
+      app.props.dispatchPasteEvent(item.sequence ?? '');
+    } else if (item.name === 'wheelup' || item.name === 'wheeldown' || item.name === 'mouse') {
+      if (item.name !== 'mouse') {
+        app.props.dispatchWheelEvent(item);
+      }
+    } else if (!event.didStopImmediatePropagation()) {
+      // Also dispatch through the DOM tree so onKeyDown handlers fire.
+      app.props.dispatchKeyboardEvent(item);
+    }
   }
 }
 

@@ -10,13 +10,23 @@ import React from 'react';
 import { WelcomeV2 } from '../../components/LogoV2/WelcomeV2.js';
 import { useManagePlugins } from '../../hooks/useManagePlugins.js';
 import type { Root } from '../../ink.js';
-import { Box, Text } from '../../ink.js';
+import { Box, createRoot, Text } from '../../ink.js';
 import { KeybindingSetup } from '../../keybindings/KeybindingProviderSetup.js';
 import { logEvent } from '../../services/analytics/index.js';
 import { MCPConnectionManager } from '../../services/mcp/MCPConnectionManager.js';
 import { AppStateProvider } from '../../state/AppState.js';
 import { onChangeAppState } from '../../state/onChangeAppState.js';
 import { isAnthropicAuthEnabled } from '../../utils/auth.js';
+import { isEnvTruthy } from '../../utils/envUtils.js';
+import { getBaseRenderOptions } from '../../utils/renderOptions.js';
+
+export function createSubcommandRoot(): Promise<Root> {
+  return createRoot({
+    ...getBaseRenderOptions(false),
+    patchConsole: false,
+  });
+}
+
 export async function setupTokenHandler(root: Root): Promise<void> {
   logEvent('tengu_setup_token_command', {});
   const showAuthWarning = !isAnthropicAuthEnabled();
@@ -90,6 +100,10 @@ export async function doctorHandler(root: Root): Promise<void> {
 export async function installHandler(target: string | undefined, options: {
   force?: boolean;
 }): Promise<void> {
+  if (isEnvTruthy(process.env.DISABLE_UPDATES)) {
+    process.stdout.write('Updates are disabled by your administrator. Contact your IT team to get the latest version.\n');
+    process.exit(0);
+  }
   const {
     setup
   } = await import('../../setup.js');

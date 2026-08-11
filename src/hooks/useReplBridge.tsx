@@ -1,6 +1,6 @@
 import { feature } from 'bun:bundle';
 import React, { useCallback, useEffect, useRef } from 'react';
-import { setMainLoopModelOverride } from '../bootstrap/state.js';
+import { getSessionId, setMainLoopModelOverride } from '../bootstrap/state.js';
 import { type BridgePermissionCallbacks, type BridgePermissionResponse, isBridgePermissionResponse } from '../bridge/bridgePermissionCallbacks.js';
 import { buildBridgeConnectUrl } from '../bridge/bridgeStatusUtil.js';
 import { extractInboundMessageFields } from '../bridge/inboundMessages.js';
@@ -16,12 +16,14 @@ import { Text } from '../ink.js';
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js';
 import { useAppState, useAppStateStore, useSetAppState } from '../state/AppState.js';
 import type { Message } from '../types/message.js';
+import { AGENT_COLORS, type AgentColorName } from '../tools/AgentTool/agentColorManager.js';
 import { getCwd } from '../utils/cwd.js';
 import { logForDebugging } from '../utils/debug.js';
 import { errorMessage } from '../utils/errors.js';
 import { enqueue } from '../utils/messageQueueManager.js';
 import { buildSystemInitMessage } from '../utils/messages/systemInit.js';
 import { createBridgeStatusMessage, createSystemMessage } from '../utils/messages.js';
+import { getTranscriptPath, saveAgentColor } from '../utils/sessionStorage.js';
 import { getAutoModeUnavailableNotification, getAutoModeUnavailableReason, isAutoModeGateEnabled, isBypassPermissionsModeDisabled, transitionPermissionMode } from '../utils/permissions/permissionSetup.js';
 import { getLeaderToolUseConfirmQueue } from '../utils/swarm/leaderPermissionBridge.js';
 
@@ -473,6 +475,31 @@ export function useReplBridge(messages: Message[], setMessages: (action: React.S
                 ok: true
               };
             },
+            onSetColor(color) {
+              const reset = color === 'default';
+              if (!reset && !AGENT_COLORS.includes(color as AgentColorName)) {
+                return {
+                  ok: false,
+                  error: `Unknown color "${color}". Available: ${AGENT_COLORS.join(', ')}, default`
+                };
+              }
+              void saveAgentColor(getSessionId(), color, getTranscriptPath());
+              setAppState(prev_13 => {
+                const newColor = reset ? undefined : color as AgentColorName;
+                if (prev_13.standaloneAgentContext?.color === newColor) return prev_13;
+                return {
+                  ...prev_13,
+                  standaloneAgentContext: {
+                    ...prev_13.standaloneAgentContext,
+                    name: prev_13.standaloneAgentContext?.name ?? '',
+                    color: newColor
+                  }
+                };
+              });
+              return {
+                ok: true
+              };
+            },
             onStateChange: handleStateChange,
             initialMessages: messages.length > 0 ? messages : undefined,
             getMessages: () => messagesRef.current,
@@ -653,8 +680,15 @@ export function useReplBridge(messages: Message[], setMessages: (action: React.S
         clearTimeout(failureTimeoutRef.current);
         failureTimeoutRef.current = undefined;
         if (handleRef.current) {
-          logForDebugging(`[bridge:repl] Hook cleanup: starting teardown for env=${handleRef.current.environmentId} session=${handleRef.current.bridgeSessionId}`);
-          teardownPromiseRef.current = handleRef.current.teardown();
+          const skipArchive = store.getState().replBridgeSkipNextArchive;
+          if (skipArchive) {
+            setAppState(prev => prev.replBridgeSkipNextArchive ? {
+              ...prev,
+              replBridgeSkipNextArchive: false
+            } : prev);
+          }
+          logForDebugging(`[bridge:repl] Hook cleanup: starting teardown for env=${handleRef.current.environmentId} session=${handleRef.current.bridgeSessionId}${skipArchive ? ' (skipArchive)' : ''}`);
+          teardownPromiseRef.current = handleRef.current.teardown({ skipArchive });
           handleRef.current = null;
           setReplBridgeHandle(null);
         }

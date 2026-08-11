@@ -28,6 +28,12 @@ export const WINDOWS_REGISTRY_KEY_PATH_HKCU =
 /** Windows registry value name containing the JSON settings blob. */
 export const WINDOWS_REGISTRY_VALUE_NAME = 'Settings'
 
+/** Windows policy paths as mounted inside WSL. */
+export const WSL_WINDOWS_REGISTRY_EXE =
+  '/mnt/c/Windows/System32/reg.exe'
+export const WSL_WINDOWS_MANAGED_SETTINGS_PATH =
+  '/mnt/c/Program Files/ClaudeCode'
+
 /** Path to macOS plutil binary. */
 export const PLUTIL_PATH = '/usr/bin/plutil'
 

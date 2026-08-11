@@ -26,6 +26,7 @@ import { createUserMessage } from '../../../utils/messages.js';
 import { getMainLoopModel, getRuntimeMainLoopModel } from '../../../utils/model/model.js';
 import { createPromptRuleContent, isClassifierPermissionsEnabled, PROMPT_PREFIX } from '../../../utils/permissions/bashClassifier.js';
 import { type PermissionMode, toExternalPermissionMode } from '../../../utils/permissions/PermissionMode.js';
+import { isAutoModeOptInDismissed } from '../../../utils/permissions/getNextPermissionMode.js';
 import type { PermissionUpdate } from '../../../utils/permissions/PermissionUpdateSchema.js';
 import { isAutoModeGateEnabled, restoreDangerousPermissions, stripDangerousPermissionsForAutoMode } from '../../../utils/permissions/permissionSetup.js';
 import { getPewterLedgerVariant, isPlanModeInterviewPhaseEnabled } from '../../../utils/planModeV2.js';
@@ -152,7 +153,7 @@ export function ExitPlanModePermissionRequest({
     showClearContext,
     showUltraplan,
     usedPercent: showClearContext ? getContextUsedPercent(usage, mode) : null,
-    isAutoModeAvailable,
+    isAutoModeAvailable: isAutoModeAvailable && !isAutoModeOptInDismissed(),
     isBypassPermissionsModeAvailable,
     onFeedbackChange: setPlanFeedback
   }), [showClearContext, showUltraplan, usage, mode, isAutoModeAvailable, isBypassPermissionsModeAvailable]);
@@ -689,15 +690,15 @@ export function buildPlanApprovalOptions({
   const options: OptionWithDescription<ResponseValue>[] = [];
   const usedLabel = usedPercent !== null ? ` (${usedPercent}% used)` : '';
   if (showClearContext) {
-    if (feature('TRANSCRIPT_CLASSIFIER') && isAutoModeAvailable) {
-      options.push({
-        label: `Yes, clear context${usedLabel} and use auto mode`,
-        value: 'yes-auto-clear-context'
-      });
-    } else if (isBypassPermissionsModeAvailable) {
+    if (isBypassPermissionsModeAvailable) {
       options.push({
         label: `Yes, clear context${usedLabel} and bypass permissions`,
         value: 'yes-bypass-permissions'
+      });
+    } else if (feature('TRANSCRIPT_CLASSIFIER') && isAutoModeAvailable) {
+      options.push({
+        label: `Yes, clear context${usedLabel} and use auto mode`,
+        value: 'yes-auto-clear-context'
       });
     } else {
       options.push({
@@ -707,16 +708,16 @@ export function buildPlanApprovalOptions({
     }
   }
 
-  // Slot 2: keep-context with elevated mode (same priority: auto > bypass > edits).
-  if (feature('TRANSCRIPT_CLASSIFIER') && isAutoModeAvailable) {
-    options.push({
-      label: 'Yes, and use auto mode',
-      value: 'yes-resume-auto-mode'
-    });
-  } else if (isBypassPermissionsModeAvailable) {
+  // Slot 2: keep-context with elevated mode (same priority: bypass > auto > edits).
+  if (isBypassPermissionsModeAvailable) {
     options.push({
       label: 'Yes, and bypass permissions',
       value: 'yes-accept-edits-keep-context'
+    });
+  } else if (feature('TRANSCRIPT_CLASSIFIER') && isAutoModeAvailable) {
+    options.push({
+      label: 'Yes, and use auto mode',
+      value: 'yes-resume-auto-mode'
     });
   } else {
     options.push({

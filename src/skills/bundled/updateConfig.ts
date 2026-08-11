@@ -30,8 +30,8 @@ Settings load in order: user → project → local (later overrides earlier).
 \`\`\`json
 {
   "permissions": {
-    "allow": ["Bash(npm:*)", "Edit(.claude)", "Read"],
-    "deny": ["Bash(rm -rf:*)"],
+    "allow": ["Bash(npm *)", "Edit(.claude)", "Read"],
+    "deny": ["Bash(rm -rf *)"],
     "ask": ["Write(/etc/*)"],
     "defaultMode": "default" | "plan" | "acceptEdits" | "dontAsk",
     "additionalDirectories": ["/extra/dir"]
@@ -41,7 +41,7 @@ Settings load in order: user → project → local (later overrides earlier).
 
 **Permission Rule Syntax:**
 - Exact match: \`"Bash(npm run test)"\`
-- Prefix wildcard: \`"Bash(git:*)"\` - matches \`git status\`, \`git commit\`, etc.
+- Prefix wildcard: \`"Bash(git *)"\` - matches \`git\`, \`git status\`, \`git commit\`, etc.
 - Tool only: \`"Read"\` - allows all Read operations
 
 ### Environment Variables
@@ -95,7 +95,7 @@ Plugin syntax: \`plugin-name@source\` where source is \`claude-code-marketplace\
 
 ### Other Settings
 - \`language\`: Preferred response language (e.g., "japanese")
-- \`cleanupPeriodDays\`: Days to keep transcripts (default: 30; 0 disables persistence entirely)
+- \`cleanupPeriodDays\`: Days to keep transcripts before automatic cleanup (default: 30; minimum 1)
 - \`respectGitignore\`: Whether to respect .gitignore (default: true)
 - \`spinnerTipsEnabled\`: Show tips in spinner
 - \`spinnerVerbs\`: Customize spinner verbs (\`{ "mode": "append" | "replace", "verbs": [...] }\`)
@@ -331,9 +331,9 @@ When the user's request is ambiguous, use AskUserQuestion to clarify:
 - Whether to add to existing arrays or replace them
 - Specific values when multiple options exist
 
-## Decision: Config Tool vs Direct Edit
+## Decision: /config command vs Direct Edit
 
-**Use the Config tool** for these simple settings:
+**Suggest the `/config` slash command** for these simple settings:
 - \`theme\`, \`editorMode\`, \`verbose\`, \`model\`
 - \`language\`, \`alwaysThinkingEnabled\`
 - \`permissions.defaultMode\`
@@ -359,7 +359,7 @@ When adding to permission arrays or hook arrays, **merge with existing**, don't 
 
 **WRONG** (replaces existing permissions):
 \`\`\`json
-{ "permissions": { "allow": ["Bash(npm:*)"] } }
+{ "permissions": { "allow": ["Bash(npm *)"] } }
 \`\`\`
 
 **RIGHT** (preserves existing + adds new):
@@ -367,9 +367,9 @@ When adding to permission arrays or hook arrays, **merge with existing**, don't 
 {
   "permissions": {
     "allow": [
-      "Bash(git:*)",      // existing
+      "Bash(git *)",      // existing
       "Edit(.claude)",    // existing
-      "Bash(npm:*)"       // new
+      "Bash(npm *)"       // new
     ]
   }
 }
@@ -410,7 +410,7 @@ User: "Format my code after Claude writes it"
 User: "Allow npm commands without prompting"
 
 1. **Read**: Existing permissions
-2. **Merge**: Add \`Bash(npm:*)\` to allow array
+2. **Merge**: Add \`Bash(npm *)\` to allow array
 3. **Result**: Combined with existing allows
 
 ### Environment Variables
@@ -446,7 +446,7 @@ export function registerUpdateConfigSkill(): void {
   registerBundledSkill({
     name: 'update-config',
     description:
-      'Use this skill to configure the Claude Code harness via settings.json. Automated behaviors ("from now on when X", "each time X", "whenever X", "before/after X") require hooks configured in settings.json - the harness executes these, not Claude, so memory/preferences cannot fulfill them. Also use for: permissions ("allow X", "add permission", "move permission to"), env vars ("set X=Y"), hook troubleshooting, or any changes to settings.json/settings.local.json files. Examples: "allow npm commands", "add bq permission to global settings", "move permission to user settings", "set DEBUG=true", "when claude stops show X". For simple settings like theme/model, use Config tool.',
+      'Use this skill to configure the Claude Code harness via settings.json. Automated behaviors ("from now on when X", "each time X", "whenever X", "before/after X") require hooks configured in settings.json - the harness executes these, not Claude, so memory/preferences cannot fulfill them. Also use for: permissions ("allow X", "add permission", "move permission to"), env vars ("set X=Y"), hook troubleshooting, or any changes to settings.json/settings.local.json files. Examples: "allow npm commands", "add bq permission to global settings", "move permission to user settings", "set DEBUG=true", "when claude stops show X". For simple settings like theme/model, suggest the /config command.',
     allowedTools: ['Read'],
     userInvocable: true,
     async getPromptForCommand(args) {

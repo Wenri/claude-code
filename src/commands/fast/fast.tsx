@@ -1,6 +1,7 @@
 import { c as _c } from "react/compiler-runtime";
 import * as React from 'react';
 import { useState } from 'react';
+import { getRuntimeCapabilities } from '../../bootstrap/state.js';
 import type { CommandResultDisplay, LocalJSXCommandContext } from '../../commands.js';
 import { Dialog } from '../../components/design-system/Dialog.js';
 import { FastIcon, getFastIconString } from '../../components/FastIcon.js';
@@ -13,11 +14,22 @@ import { clearFastModeCooldown, FAST_MODE_MODEL_DISPLAY, getFastModeModel, getFa
 import { formatDuration } from '../../utils/format.js';
 import { formatModelPricing, getOpus46CostTier } from '../../utils/modelCost.js';
 import { updateSettingsForSource } from '../../utils/settings/settings.js';
+import { logError } from '../../utils/log.js';
 function applyFastMode(enable: boolean, setAppState: (f: (prev: AppState) => AppState) => void): void {
   clearFastModeCooldown();
   updateSettingsForSource('userSettings', {
     fastMode: enable ? true : undefined
   });
+  const remote = getRuntimeCapabilities().remote;
+  if (remote?.kind === 'ccr' && !remote.viewerOnly) {
+    remote.sendControlRequest({
+      subtype: 'apply_flag_settings',
+      settings: {
+        fastMode: enable ? true : null,
+        ...(enable && { model: getFastModeModel() })
+      }
+    }).catch(logError);
+  }
   if (enable) {
     setAppState(prev => {
       // Only switch model if current model doesn't support fast mode

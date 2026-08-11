@@ -79,10 +79,17 @@ import {
   getDefaultOpusModel,
 } from './model/model.js'
 import type { ReadResourceResult } from '@modelcontextprotocol/sdk/types.js'
-import { getSkillToolCommands, getMcpSkillCommands } from '../commands.js'
+import {
+  filterCommandsBySkillAllowlist,
+  getSkillToolCommands,
+  getMcpSkillCommands,
+} from '../commands.js'
 import type { Command } from '../types/command.js'
 import uniqBy from 'lodash-es/uniqBy.js'
-import { getProjectRoot } from '../bootstrap/state.js'
+import {
+  getProjectRoot,
+  getSessionSkillAllowlist,
+} from '../bootstrap/state.js'
 import { formatCommandsWithinBudget } from '../tools/SkillTool/prompt.js'
 import { getContextWindowForModel } from './context.js'
 import type { DiscoverySignal } from '../services/skillSearch/signals.js'
@@ -567,6 +574,7 @@ export type Attachment =
       isSubAgent?: boolean
       planFilePath: string
       planExists: boolean
+      customInstructions?: string
     }
   | {
       type: 'plan_mode_reentry'
@@ -1245,6 +1253,7 @@ async function getPlanModeAttachments(
     isSubAgent: !!toolUseContext.agentId,
     planFilePath,
     planExists: existingPlan !== null,
+    customInstructions: toolUseContext.options.planModeInstructions,
   })
 
   return attachments
@@ -2690,6 +2699,13 @@ async function getSkillListingAttachments(
     mcpSkills.length > 0
       ? uniqBy([...localCommands, ...mcpSkills], 'name')
       : localCommands
+
+  if (toolUseContext.agentId === undefined) {
+    allCommands = filterCommandsBySkillAllowlist(
+      allCommands,
+      getSessionSkillAllowlist(),
+    )
+  }
 
   // When skill search is active, filter to bundled + MCP instead of full
   // suppression. Resolves the turn-0 gap: main thread gets turn-0 discovery

@@ -119,6 +119,7 @@ import {
 } from '@anthropic-ai/sdk/error'
 import {
   getAfkModeHeaderLatched,
+  getCacheDiagnosisHeaderLatched,
   getCacheEditingHeaderLatched,
   getFastModeHeaderLatched,
   getLastApiCompletionTimestamp,
@@ -126,6 +127,7 @@ import {
   getSessionId,
   getThinkingClearLatched,
   setAfkModeHeaderLatched,
+  setCacheDiagnosisHeaderLatched,
   setCacheEditingHeaderLatched,
   setFastModeHeaderLatched,
   setLastMainRequestId,
@@ -134,6 +136,7 @@ import {
 } from 'src/bootstrap/state.js'
 import {
   AFK_MODE_BETA_HEADER,
+  CACHE_DIAGNOSIS_BETA_HEADER,
   CONTEXT_1M_BETA_HEADER,
   CONTEXT_MANAGEMENT_BETA_HEADER,
   EFFORT_BETA_HEADER,
@@ -962,6 +965,44 @@ function getPreviousRequestIdFromMessages(
   return undefined
 }
 
+function getPreviousMessageIdFromMessages(
+  messages: Message[],
+): string | undefined {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const msg = messages[i]!
+    if (msg.type === 'assistant' && msg.requestId) {
+      return msg.message.id
+    }
+  }
+  return undefined
+}
+
+function shouldEnableCacheDiagnosis(): boolean {
+  if (!shouldIncludeFirstPartyOnlyBetas()) return false
+  const provider = getAPIProvider()
+  if (
+    !(
+      (provider === 'firstParty' && isFirstPartyAnthropicBaseUrl()) ||
+      (provider === 'anthropicAws' && !process.env.ANTHROPIC_AWS_BASE_URL)
+    )
+  ) {
+    return false
+  }
+  return getFeatureValue_CACHED_MAY_BE_STALE<boolean>(
+    'tengu_prompt_cache_diagnostics',
+    false,
+  )
+}
+
+function isCacheDiagnosisBetaRejected(error: unknown): boolean {
+  return (
+    error instanceof APIError &&
+    error.status === 400 &&
+    error.message.includes(CACHE_DIAGNOSIS_BETA_HEADER) &&
+    error.message.includes('anthropic-beta')
+  )
+}
+
 function isMedia(
   block: BetaContentBlockParam,
 ): block is BetaImageBlockParam | BetaRequestDocumentBlock {
@@ -1078,6 +1119,7 @@ async function* queryModel(
   // so concurrent agents don't clobber each other's request chain tracking.
   // Also naturally handles rollback/undo since removed messages won't be in the array.
   const previousRequestId = getPreviousRequestIdFromMessages(messages)
+  const previousMessageId = getPreviousMessageIdFromMessages(messages)
 
   const resolvedModel =
     getAPIProvider() === 'bedrock' &&
@@ -1470,6 +1512,15 @@ async function* queryModel(
     }
   }
 
+  let cacheDiagnosis = getCacheDiagnosisHeaderLatched() === true
+  if (
+    getCacheDiagnosisHeaderLatched() === null &&
+    shouldEnableCacheDiagnosis()
+  ) {
+    cacheDiagnosis = true
+    setCacheDiagnosisHeaderLatched(true)
+  }
+
   // Only latch from agentic queries so a classifier call doesn't flip the
   // main thread's context_management mid-turn.
   let thinkingClearLatched = getThinkingClearLatched() === true
@@ -1513,6 +1564,7 @@ async function* queryModel(
       autoModeActive: afkHeaderLatched,
       isUsingOverage: currentLimits.isUsingOverage ?? false,
       cachedMCEnabled: cacheEditingHeaderLatched,
+      cacheDiagnosis,
       effortValue: effort,
       extraBodyParams: getExtraBodyParams(),
     })
@@ -1731,6 +1783,23 @@ async function* queryModel(
       )
     }
 
+
+    if (
+      cacheDiagnosis &&
+      !betasParams.includes(CACHE_DIAGNOSIS_BETA_HEADER)
+    ) {
+      betasParams.push(CACHE_DIAGNOSIS_BETA_HEADER)
+    }
+
+    const simulateProxyUsage = isEnvTruthy(
+      process.env.CLAUDE_CODE_SIMULATE_PROXY_USAGE,
+    )
+    if (simulateProxyUsage) {
+      logForDebugging(
+        `[API:client] SIMULATE_PROXY_USAGE: stripping ${betasParams.length} beta headers from request: ${betasParams.join(', ')}`,
+      )
+    }
+
     // Only send temperature when thinking is disabled — the API requires
     // temperature: 1 when thinking is enabled, which is already the default.
     const temperature =
@@ -1738,7 +1807,7 @@ async function* queryModel(
         ? (options.temperatureOverride ?? 1)
         : undefined
 
-    lastRequestBetas = betasParams
+    lastRequestBetas = simulateProxyUsage ? [] : betasParams
 
     return {
       model: normalizeModelStringForAPI(options.model),
@@ -1754,7 +1823,7 @@ async function* queryModel(
       system,
       tools: allTools,
       tool_choice: options.toolChoice,
-      ...(useBetas && { betas: betasParams }),
+      ...(useBetas && !simulateProxyUsage && { betas: betasParams }),
       metadata: getAPIMetadata(),
       max_tokens: maxOutputTokens,
       thinking,
@@ -1769,6 +1838,13 @@ async function* queryModel(
         output_config: outputConfig,
       }),
       ...(speed !== undefined && { speed }),
+      ...(cacheDiagnosis &&
+        isAgenticQuery &&
+        previousMessageId &&
+        useBetas &&
+        !simulateProxyUsage && {
+          diagnostics: { previous_message_id: previousMessageId },
+        }),
     }
   }
 
@@ -1926,6 +2002,15 @@ async function* queryModel(
               query_source: options.querySource ?? '',
             })
             return 'retry:advisor-strip'
+          }
+          if (cacheDiagnosis && isCacheDiagnosisBetaRejected(error)) {
+            cacheDiagnosis = false
+            setCacheDiagnosisHeaderLatched(false)
+            logForDebugging(
+              '[cache-diagnosis] server rejected beta — dropping header latch',
+              { level: 'warn' },
+            )
+            return 'retry:cache-diagnosis-beta'
           }
           return undefined
         },

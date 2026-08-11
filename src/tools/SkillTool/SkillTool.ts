@@ -5,6 +5,7 @@ import { dirname } from 'path'
 import { getProjectRoot } from 'src/bootstrap/state.js'
 import {
   builtInCommandNames,
+  filterCommandsBySkillAllowlist,
   findCommand,
   getCommandName,
   getCommands,
@@ -38,6 +39,7 @@ import { z } from 'zod/v4'
 import {
   addInvokedSkill,
   clearInvokedSkillsForAgent,
+  getSessionSkillAllowlist,
   getSessionId,
 } from '../../bootstrap/state.js'
 import { COMMAND_MESSAGE_TAG } from '../../constants/xml.js'
@@ -65,6 +67,10 @@ import { resolveSkillModelOverride } from '../../utils/model/model.js'
 import { recordSkillUsage } from '../../utils/suggestions/skillUsageTracking.js'
 import { escapeRegExp } from '../../utils/stringUtils.js'
 import { findClosestCommand } from '../../utils/suggestions/commandSuggestions.js'
+import {
+  getTeamArtifactAnalyticsMetadata,
+  getTeamArtifactAuthor,
+} from '../../utils/teamArtifacts.js'
 import { createAgentId } from '../../utils/uuid.js'
 import { runAgent } from '../AgentTool/runAgent.js'
 import {
@@ -209,6 +215,9 @@ async function executeForkedSkill(
         parentAgentId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
     }),
     ...wasDiscoveredField,
+    ...getTeamArtifactAnalyticsMetadata(command.source, commandName),
+    attribution_shown:
+      getTeamArtifactAuthor(command.source, commandName) !== null,
     ...(process.env.USER_TYPE === 'ant' && {
       skill_name:
         commandName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -436,6 +445,9 @@ export const SkillTool: Tool<InputSchema, Output, Progress> = buildTool({
       }
     }
 
+    const sessionSkillAllowlist =
+      context.agentId === undefined ? getSessionSkillAllowlist() : undefined
+
     // Get available commands (including MCP skills)
     const commands = await getAllCommands(context)
 
@@ -467,6 +479,20 @@ export const SkillTool: Tool<InputSchema, Output, Progress> = buildTool({
         result: false,
         message: `Skill ${normalizedCommandName} cannot be used with ${SKILL_TOOL_NAME} tool due to disable-model-invocation`,
         errorCode: 4,
+      }
+    }
+
+    if (
+      sessionSkillAllowlist !== undefined &&
+      filterCommandsBySkillAllowlist(
+        [foundCommand],
+        sessionSkillAllowlist,
+      ).length === 0
+    ) {
+      return {
+        result: false,
+        message: `Skill ${normalizedCommandName} is not in this session's skills allowlist`,
+        errorCode: 8,
       }
     }
 
@@ -746,6 +772,15 @@ export const SkillTool: Tool<InputSchema, Output, Progress> = buildTool({
           parentAgentId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       }),
       ...wasDiscoveredField,
+      ...getTeamArtifactAnalyticsMetadata(
+        command?.type === 'prompt' ? command.source : '',
+        commandName,
+      ),
+      attribution_shown:
+        getTeamArtifactAuthor(
+          command?.type === 'prompt' ? command.source : '',
+          commandName,
+        ) !== null,
       ...(process.env.USER_TYPE === 'ant' && {
         skill_name:
           commandName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,

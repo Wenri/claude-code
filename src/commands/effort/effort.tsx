@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { useState } from 'react'
+import { getRuntimeCapabilities } from '../../bootstrap/state.js'
 import { useMainLoopModel } from '../../hooks/useMainLoopModel.js'
 import { Box, Text, useAnimationFrame, useInput } from '../../ink.js'
 import {
@@ -20,6 +21,7 @@ import {
 } from '../../utils/effort.js'
 import { updateSettingsForSource } from '../../utils/settings/settings.js'
 import { getRainbowColor } from '../../utils/thinking.js'
+import { logError } from '../../utils/log.js'
 
 const COMMON_HELP_ARGS = ['help', '-h', '--help']
 const HELP =
@@ -28,6 +30,23 @@ const HELP =
 type EffortCommandResult = {
   message: string
   effortUpdate?: { value: EffortValue | undefined }
+}
+
+function applyRemoteEffort(
+  effortLevel: ReturnType<typeof toPersistableEffort>,
+): string | null {
+  const remote = getRuntimeCapabilities().remote
+  if (!remote) return null
+  if (remote.kind !== 'ccr' || remote.viewerOnly) {
+    return ' (applied locally — this remote transport can’t change server effort)'
+  }
+  remote
+    .sendControlRequest({
+      subtype: 'apply_flag_settings',
+      settings: { effortLevel: effortLevel ?? null },
+    })
+    .catch(logError)
+  return null
 }
 
 function unpinLaunchEffort(): void {
@@ -40,6 +59,17 @@ function unpinLaunchEffort(): void {
 
 function setEffortValue(effortValue: EffortValue): EffortCommandResult {
   const persistable = toPersistableEffort(effortValue)
+  const remote = getRuntimeCapabilities().remote
+  if (
+    remote?.kind === 'ccr' &&
+    !remote.viewerOnly &&
+    persistable === undefined
+  ) {
+    return {
+      message: `${effortValue} is session-scoped and won't reach the remote process. Use low, medium, high, or xhigh for remote sessions.`,
+    }
+  }
+  const remoteSuffix = applyRemoteEffort(persistable)
   if (persistable !== undefined) {
     const result = updateSettingsForSource('userSettings', {
       effortLevel: persistable,
@@ -50,13 +80,13 @@ function setEffortValue(effortValue: EffortValue): EffortCommandResult {
       }
     }
   }
-  unpinLaunchEffort()
   logEvent('tengu_effort_command', {
     effort:
       effortValue as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   })
+  unpinLaunchEffort()
 
-  const envOverride = getEffortEnvOverride()
+  const envOverride = remote ? undefined : getEffortEnvOverride()
   if (envOverride !== undefined && envOverride !== effortValue) {
     const envRaw = process.env.CLAUDE_CODE_EFFORT_LEVEL
     if (persistable === undefined) {
@@ -73,7 +103,7 @@ function setEffortValue(effortValue: EffortValue): EffortCommandResult {
   const description = getEffortValueDescription(effortValue)
   const suffix = persistable !== undefined ? '' : ' (this session only)'
   return {
-    message: `Set effort level to ${effortValue}${suffix}: ${description}`,
+    message: `Set effort level to ${effortValue}${suffix}: ${description}${remoteSuffix ?? ''}`,
     effortUpdate: { value: effortValue },
   }
 }
@@ -82,7 +112,9 @@ export function showCurrentEffort(
   appStateEffort: EffortValue | undefined,
   model: string,
 ): EffortCommandResult {
-  const envOverride = getEffortEnvOverride()
+  const envOverride = getRuntimeCapabilities().remote
+    ? undefined
+    : getEffortEnvOverride()
   const effectiveValue =
     envOverride === null ? undefined : (envOverride ?? appStateEffort)
   if (effectiveValue === undefined) {
@@ -96,18 +128,21 @@ export function showCurrentEffort(
 }
 
 function unsetEffortLevel(): EffortCommandResult {
+  const remoteSuffix = applyRemoteEffort(undefined)
   const result = updateSettingsForSource('userSettings', {
     effortLevel: undefined,
   })
   if (result.error) {
     return { message: `Failed to set effort level: ${result.error.message}` }
   }
-  unpinLaunchEffort()
   logEvent('tengu_effort_command', {
     effort:
       'auto' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   })
-  const envOverride = getEffortEnvOverride()
+  unpinLaunchEffort()
+  const envOverride = getRuntimeCapabilities().remote
+    ? undefined
+    : getEffortEnvOverride()
   if (envOverride !== undefined && envOverride !== null) {
     const envRaw = process.env.CLAUDE_CODE_EFFORT_LEVEL
     return {
@@ -116,7 +151,7 @@ function unsetEffortLevel(): EffortCommandResult {
     }
   }
   return {
-    message: 'Effort level set to max',
+    message: `Effort level set to max${remoteSuffix ?? ''}`,
     effortUpdate: { value: undefined },
   }
 }

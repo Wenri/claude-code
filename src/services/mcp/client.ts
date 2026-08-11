@@ -401,6 +401,17 @@ export function createClaudeAiProxyFetch(innerFetch: FetchLike): FetchLike {
     if (response.status !== 401) {
       return response
     }
+    const proxyErrorCode =
+      response.headers.get('X-Mcp-Error-Code') ?? undefined
+    if (proxyErrorCode) {
+      logEvent('tengu_mcp_claudeai_proxy_401', {
+        tokenChanged:
+          false as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        proxyErrorCode:
+          proxyErrorCode as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      })
+      return response
+    }
     // handleOAuth401Error returns true only if the token actually changed
     // (keychain had a newer one, or force-refresh succeeded). Gate retry on
     // that — otherwise we double round-trip time for every connector whose

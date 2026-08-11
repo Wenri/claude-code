@@ -2,14 +2,16 @@ import { c as _c } from "react/compiler-runtime";
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { extraUsage as extraUsageCommand } from 'src/commands/extra-usage/index.js';
-import { formatCost } from 'src/cost-tracker.js';
-import { getSubscriptionType } from 'src/utils/auth.js';
+import { formatCost, formatTotalCost } from 'src/cost-tracker.js';
+import { getRuntimeCapabilities } from 'src/bootstrap/state.js';
+import { getSubscriptionType, isClaudeAISubscriber } from 'src/utils/auth.js';
 import { getRawUtilization } from '../../services/claudeAiLimits.js';
 import { useTerminalSize } from '../../hooks/useTerminalSize.js';
 import { Box, Text } from '../../ink.js';
 import { useKeybinding } from '../../keybindings/useKeybinding.js';
 import { type ExtraUsage, fetchUtilization, type RateLimit, type Utilization } from '../../services/api/usage.js';
 import { formatResetText } from '../../utils/format.js';
+import { errorMessage } from '../../utils/errors.js';
 import { logError } from '../../utils/log.js';
 import { jsonStringify } from '../../utils/slowOperations.js';
 import { ConfigurableShortcutHint } from '../ConfigurableShortcutHint.js';
@@ -174,15 +176,58 @@ function LimitBar(t0) {
   }
 }
 export function Usage(): React.ReactNode {
+  const { columns } = useTerminalSize();
+  const maxWidth = Math.min(columns - 2, 80);
+  const isThinClient = getRuntimeCapabilities().remote !== null;
+
+  return <Box flexDirection="column" gap={1} width="100%">
+      <SessionCost isThinClient={isThinClient} />
+      {isClaudeAISubscriber()
+        ? <UsageContent maxWidth={maxWidth} />
+        : <Text dimColor>
+            <ConfigurableShortcutHint action="confirm:no" context="Settings" fallback="Esc" description="cancel" />
+          </Text>}
+    </Box>;
+}
+
+function SessionCost({ isThinClient }: { isThinClient: boolean }): React.ReactNode {
+  const localCost = formatTotalCost();
+  const remoteCost = useRemoteCostText(isThinClient);
+  return <Box flexDirection="column">
+      <Text bold>Session{isThinClient ? ' (remote)' : ''}</Text>
+      <Text dimColor>{isThinClient ? remoteCost : localCost}</Text>
+    </Box>;
+}
+
+function useRemoteCostText(isThinClient: boolean): string {
+  const [text, setText] = useState('Loading remote cost…');
+  useEffect(() => {
+    if (!isThinClient) return;
+    let cancelled = false;
+    const remote = getRuntimeCapabilities().remote;
+    if (!remote) {
+      setText('Remote cost unavailable');
+      return;
+    }
+    void remote.sendControlRequest({ subtype: 'get_session_cost' })
+      .then(response => {
+        if (!cancelled) setText(response.text as string);
+      })
+      .catch(error => {
+        if (!cancelled) setText(`Remote cost unavailable (${errorMessage(error)})`);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isThinClient]);
+  return text;
+}
+
+function UsageContent({ maxWidth }: { maxWidth: number }): React.ReactNode {
   const [utilization, setUtilization] = useState<Utilization | null>(getCachedUtilization);
   const [error, setError] = useState<string | null>(null);
   const [refreshError, setRefreshError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const {
-    columns
-  } = useTerminalSize();
-  const availableWidth = columns - 2; // 2 for screen padding
-  const maxWidth = Math.min(availableWidth, 80);
   const loadUtilization = React.useCallback(async () => {
     setIsLoading(true);
     setError(null);

@@ -88,6 +88,15 @@ export type Theme = {
   rainbow_violet_shimmer: string
 }
 
+export type CustomThemeSource = 'user' | { plugin: string }
+export type CustomTheme = {
+  slug: string
+  name: string
+  base: ThemeName
+  overrides: Partial<Theme>
+  source: CustomThemeSource
+}
+
 export const THEME_NAMES = [
   'dark',
   'light',
@@ -100,13 +109,34 @@ export const THEME_NAMES = [
 /** A renderable theme. Always resolvable to a concrete color palette. */
 export type ThemeName = (typeof THEME_NAMES)[number]
 
-export const THEME_SETTINGS = ['auto', ...THEME_NAMES] as const
-
 /**
  * A theme preference as stored in user config. `'auto'` follows the system
  * dark/light mode and is resolved to a ThemeName at runtime.
  */
-export type ThemeSetting = (typeof THEME_SETTINGS)[number]
+export type ThemeSetting = 'auto' | ThemeName | `custom:${string}`
+
+export function isThemeName(value: string): value is ThemeName {
+  return (THEME_NAMES as readonly string[]).includes(value)
+}
+
+const ANSI_COLOR_NAMES = new Set([
+  'black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white',
+  'blackBright', 'redBright', 'greenBright', 'yellowBright', 'blueBright',
+  'magentaBright', 'cyanBright', 'whiteBright',
+])
+
+export function isValidThemeColor(value: string): boolean {
+  return (
+    /^rgb\(\d{1,3},\s*\d{1,3},\s*\d{1,3}\)$/.test(value) ||
+    /^#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?$/.test(value) ||
+    /^ansi256\(\d{1,3}\)$/.test(value) ||
+    (value.startsWith('ansi:') && ANSI_COLOR_NAMES.has(value.slice(5)))
+  )
+}
+
+export function mergeTheme(base: Theme, overrides?: Partial<Theme>): Theme {
+  return { ...base, ...(overrides ?? {}) }
+}
 
 /**
  * Light theme using explicit RGB values to avoid inconsistencies

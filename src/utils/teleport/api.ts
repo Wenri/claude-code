@@ -7,6 +7,7 @@ import { getClaudeAIOAuthTokens } from '../auth.js'
 import { logForDebugging } from '../debug.js'
 import { parseGitHubRepository } from '../detectRepository.js'
 import { errorMessage, toError } from '../errors.js'
+import { getClientPlatform } from '../http.js'
 import { lazySchema } from '../lazySchema.js'
 import { logError } from '../log.js'
 import { sleep } from '../sleep.js'
@@ -278,6 +279,37 @@ export function getOAuthHeaders(accessToken: string): Record<string, string> {
     Authorization: `Bearer ${accessToken}`,
     'Content-Type': 'application/json',
     'anthropic-version': '2023-06-01',
+    'anthropic-client-platform': getClientPlatform(),
+  }
+}
+
+export async function reportClientPresence(
+  sessionId: string,
+  clientId: string,
+  clear = false,
+): Promise<number | null> {
+  try {
+    const { accessToken } = await prepareApiRequest()
+    const url = `${getOauthConfig().BASE_API_URL}/v1/code/sessions/${sessionId}/client/presence`
+    const response = await axios.post(
+      url,
+      { client_id: clientId, clear },
+      {
+        headers: getOAuthHeaders(accessToken),
+        timeout: 10_000,
+        validateStatus: status => status < 500,
+      },
+    )
+    if (response.status !== 200) {
+      logForDebugging(
+        `[reportClientPresence] Failed with status ${response.status}: ${jsonStringify(response.data)}`,
+      )
+      return null
+    }
+    return response.data.refresh_after_seconds ?? null
+  } catch (error) {
+    logForDebugging(`[reportClientPresence] Error: ${errorMessage(error)}`)
+    return null
   }
 }
 

@@ -12,6 +12,7 @@ import {
 } from '../../state/AppStateStore.js'
 import { commandHasAnyCd } from '../../tools/BashTool/bashPermissions.js'
 import { checkReadOnlyConstraints } from '../../tools/BashTool/readOnlyValidation.js'
+import { BASH_TOOL_NAME } from '../../tools/BashTool/toolName.js'
 import type { SpeculationAcceptMessage } from '../../types/logs.js'
 import type { Message } from '../../types/message.js'
 import { createChildAbortController } from '../../utils/abortController.js'
@@ -42,6 +43,7 @@ import {
 import { getClaudeTempDir } from '../../utils/permissions/filesystem.js'
 import { extractReadFilesFromMessages } from '../../utils/queryHelpers.js'
 import { getTranscriptPath } from '../../utils/sessionStorage.js'
+import { SHELL_TOOL_NAMES } from '../../utils/shell/shellToolUtils.js'
 import { jsonStringify } from '../../utils/slowOperations.js'
 import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -169,7 +171,6 @@ function getBoundaryTool(
   if (!boundary) return undefined
   switch (boundary.type) {
     case 'bash':
-      return 'Bash'
     case 'edit':
     case 'denied_tool':
       return boundary.toolName
@@ -573,30 +574,39 @@ export async function startSpeculation(
           // Write tools with undefined path → fall through to default deny
         }
 
-        // Stop at non-read-only bash commands
-        if (tool.name === 'Bash') {
+        // Stop at shell commands that are not read-only.
+        if (SHELL_TOOL_NAMES.includes(tool.name)) {
           const command =
             'command' in input && typeof input.command === 'string'
               ? input.command
               : ''
-          if (
-            !command ||
-            checkReadOnlyConstraints({ command }, commandHasAnyCd(command))
-              .behavior !== 'allow'
-          ) {
+          const parsedInput = tool.inputSchema.safeParse({ command })
+          const isReadOnly =
+            tool.name === BASH_TOOL_NAME
+              ? checkReadOnlyConstraints(
+                  { command },
+                  commandHasAnyCd(command),
+                ).behavior === 'allow'
+              : parsedInput.success && tool.isReadOnly(parsedInput.data)
+          if (!command || !isReadOnly) {
             logForDebugging(
-              `[Speculation] Stopping at bash: ${command.slice(0, 50) || 'missing command'}`,
+              `[Speculation] Stopping at ${tool.name}: ${command.slice(0, 50) || 'missing command'}`,
             )
             updateActiveSpeculationState(setAppState, () => ({
-              boundary: { type: 'bash', command, completedAt: Date.now() },
+              boundary: {
+                type: 'bash',
+                toolName: tool.name,
+                command,
+                completedAt: Date.now(),
+              },
             }))
             abortController.abort()
             return denySpeculation(
-              'Speculation paused: bash boundary',
+              'Speculation paused: shell boundary',
               'speculation_bash_boundary',
             )
           }
-          // Read-only bash command — allow during speculation
+          // Read-only shell command — allow during speculation.
           return {
             behavior: 'allow' as const,
             updatedInput: input,

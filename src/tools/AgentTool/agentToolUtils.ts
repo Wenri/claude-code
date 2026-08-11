@@ -575,6 +575,8 @@ export async function classifyHandoffIfNeeded({
         .id as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       classifierStage:
         classifierResult.stage as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      classifierFailureMode:
+        classifierResult.failureMode as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       classifierStage1RequestId:
         classifierResult.stage1RequestId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       classifierStage1MsgId:
@@ -648,6 +650,7 @@ export async function runAsyncAgentLifecycle({
   abortController: AbortController
   makeStream: (
     onCacheSafeParams: ((p: CacheSafeParams) => void) | undefined,
+    onProgress: () => void,
   ) => AsyncGenerator<MessageType, void>
   metadata: Parameters<typeof finalizeAgentTool>[2]
   description: string
@@ -668,6 +671,42 @@ export async function runAsyncAgentLifecycle({
   let stallTimer: NodeJS.Timeout | null = null
   let lastMessageType = 'none'
   let lifecycleFinished = false
+  const lifecycleStartedAt = Date.now()
+  let assistantTurns = 0
+  let lastAssistantMessageId: string | undefined
+  let lastToolUseId: string | undefined
+  let lastToolResultSeen: string | undefined
+  let lastAssistantMessage: MessageType | undefined
+  let lastChunkAt = Date.now()
+
+  const logAgentCompletion = (
+    exitPath: 'watchdog_stall' | 'completed' | 'cancelled' | 'error',
+    details?: { errorKind?: string },
+  ): void => {
+    const now = Date.now()
+    const finalStopReason =
+      lastAssistantMessage?.type === 'assistant'
+        ? (lastAssistantMessage.message.stop_reason ?? 'null')
+        : 'none'
+    const fields = [
+      `agentId=${taskId}`,
+      `agentType=${metadata.agentType ?? 'unknown'}`,
+      `exitPath=${exitPath}`,
+      `durationMs=${now - lifecycleStartedAt}`,
+      `turns=${assistantTurns}`,
+      `finalStopReason=${finalStopReason}`,
+      `lastChunkAgeMs=${now - lastChunkAt}`,
+      `lastToolUseId=${lastToolUseId ?? 'none'}`,
+      `lastToolResultSeen=${lastToolResultSeen ?? 'none'}`,
+    ]
+    if (details?.errorKind) fields.push(`errorKind=${details.errorKind}`)
+    logForDebugging(`[Stall] agent_completion ${fields.join(' ')}`, {
+      level:
+        exitPath === 'watchdog_stall' || exitPath === 'error'
+          ? 'warn'
+          : 'info',
+    })
+  }
 
   const clearStallTimer = () => {
     if (stallTimer !== null) clearTimeout(stallTimer)
@@ -694,6 +733,7 @@ export async function runAsyncAgentLifecycle({
       })
       abortController.abort()
       stopSummarization?.()
+      logAgentCompletion('watchdog_stall')
       const message = `Agent stalled: no progress for ${stallTimeoutMs / 1000}s (stream watchdog did not recover)`
       failAsyncAgent(taskId, message, rootSetAppState)
       enqueueAgentNotification({
@@ -707,6 +747,17 @@ export async function runAsyncAgentLifecycle({
       })
     }, stallTimeoutMs)
     stallTimer.unref?.()
+  }
+
+  let lastProgressWatchdogReset = 0
+  const progressResetThrottleMs = Math.min(stallTimeoutMs * 0.1, 1000)
+  const onQueryProgress = (): void => {
+    const now = Date.now()
+    lastChunkAt = now
+    if (now - lastProgressWatchdogReset < progressResetThrottleMs) return
+    lastProgressWatchdogReset = now
+    lastMessageType = 'query_progress'
+    resetStallWatchdog()
   }
 
   try {
@@ -726,8 +777,40 @@ export async function runAsyncAgentLifecycle({
         }
       : undefined
     resetStallWatchdog()
-    for await (const message of makeStream(onCacheSafeParams)) {
-      lastMessageType = message.type
+    for await (const message of makeStream(
+      onCacheSafeParams,
+      onQueryProgress,
+    )) {
+      lastMessageType =
+        message.type === 'system' && 'subtype' in message
+          ? `system:${message.subtype}`
+          : message.type
+      if (message.type === 'assistant') {
+        if (message.message.id !== lastAssistantMessageId) assistantTurns += 1
+        lastAssistantMessageId = message.message.id
+        lastAssistantMessage = message
+        const toolUse = message.message.content.findLast(
+          block => block.type === 'tool_use',
+        )
+        if (toolUse?.type === 'tool_use') lastToolUseId = toolUse.id
+      } else if (message.type === 'user') {
+        const content = message.message.content
+        if (Array.isArray(content)) {
+          const toolResult = content.findLast(
+            block =>
+              typeof block === 'object' &&
+              block !== null &&
+              block.type === 'tool_result',
+          )
+          if (
+            toolResult &&
+            typeof toolResult === 'object' &&
+            toolResult.type === 'tool_result'
+          ) {
+            lastToolResultSeen = toolResult.tool_use_id
+          }
+        }
+      }
       resetStallWatchdog()
       agentMessages.push(message)
       // Append immediately when UI holds the task (retain). Bootstrap reads
@@ -773,6 +856,7 @@ export async function runAsyncAgentLifecycle({
     if (lifecycleFinished) return
     lifecycleFinished = true
     stopSummarization?.()
+    logAgentCompletion('completed')
 
     const agentResult = finalizeAgentTool(agentMessages, taskId, metadata)
 
@@ -821,6 +905,7 @@ export async function runAsyncAgentLifecycle({
     lifecycleFinished = true
     stopSummarization?.()
     if (error instanceof AbortError) {
+      logAgentCompletion('cancelled')
       // killAsyncAgent is a no-op if TaskStop already set status='killed' —
       // but only this catch handler has agentMessages, so the notification
       // must fire unconditionally. Transition status BEFORE worktree cleanup
@@ -851,6 +936,12 @@ export async function runAsyncAgentLifecycle({
       return
     }
     const msg = errorMessage(error)
+    logAgentCompletion('error', {
+      errorKind:
+        error instanceof Error
+          ? `${error.name}:${msg.slice(0, 80)}`
+          : 'unknown',
+    })
     failAsyncAgent(taskId, msg, rootSetAppState)
     const worktreeResult = await getWorktreeResult()
     enqueueAgentNotification({

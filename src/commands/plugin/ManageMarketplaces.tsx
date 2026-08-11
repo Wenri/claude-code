@@ -245,7 +245,9 @@ export function ManageMarketplaces({
       // installed_plugins.json via updateInstallationPathOnDisk.
       let updatedPluginCount = 0;
       if (refreshedMarketplaces.size > 0) {
-        const updatedPluginIds = await updatePluginsForMarketplaces(refreshedMarketplaces);
+        const {
+          updated: updatedPluginIds
+        } = await updatePluginsForMarketplaces(refreshedMarketplaces);
         updatedPluginCount = updatedPluginIds.length;
       }
 

@@ -44,6 +44,7 @@ import {
   parseShellFrontmatter,
   splitPathInFrontmatter,
 } from '../utils/frontmatterParser.js'
+import { shadowValidateFrontmatter } from '../utils/frontmatterShadowValidation.js'
 import { getFsImplementation } from '../utils/fsOperations.js'
 import { isPathGitignored } from '../utils/git/gitignore.js'
 import { logError } from '../utils/log.js'
@@ -220,6 +221,7 @@ export function parseSkillFrontmatterFields(
   agent: string | undefined
   effort: EffortValue | undefined
   shell: FrontmatterShell | undefined
+  createdBy: 'dream-proposal' | undefined
 } {
   const validatedDescription = coerceDescriptionToString(
     frontmatter.description,
@@ -277,6 +279,11 @@ export function parseSkillFrontmatterFields(
     agent: frontmatter.agent as string | undefined,
     effort,
     shell: parseShellFrontmatter(frontmatter.shell, resolvedName),
+    createdBy:
+      frontmatter.created_by === 'dream-proposal' ||
+      frontmatter.improved_by === 'dream-proposal'
+        ? 'dream-proposal'
+        : undefined,
   }
 }
 
@@ -306,6 +313,7 @@ export function createSkillCommand({
   paths,
   effort,
   shell,
+  createdBy,
 }: {
   skillName: string
   displayName: string | undefined
@@ -329,6 +337,7 @@ export function createSkillCommand({
   paths: string[] | undefined
   effort: EffortValue | undefined
   shell: FrontmatterShell | undefined
+  createdBy: 'dream-proposal' | undefined
 }): Command {
   return {
     type: 'prompt',
@@ -355,6 +364,7 @@ export function createSkillCommand({
     },
     source,
     loadedFrom,
+    createdBy,
     hooks,
     skillRoot: baseDir,
     async getPromptForCommand(args, toolUseContext) {
@@ -472,6 +482,7 @@ async function loadSkillsFromSkillsDir(
         )
 
         const skillName = entry.name
+        shadowValidateFrontmatter('skill', frontmatter)
         const parsed = parseSkillFrontmatterFields(
           frontmatter,
           markdownContent,
@@ -612,6 +623,7 @@ async function loadSkillsFromCommandsDir(
           source,
         })
 
+        shadowValidateFrontmatter('skill', frontmatter)
         const parsed = parseSkillFrontmatterFields(
           frontmatter,
           content,

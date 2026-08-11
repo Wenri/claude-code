@@ -3,7 +3,10 @@ import { type as osType, version as osVersion, release as osRelease } from 'os'
 import { env } from '../utils/env.js'
 import { getIsGit } from '../utils/git.js'
 import { getCwd } from '../utils/cwd.js'
-import { getIsNonInteractiveSession } from '../bootstrap/state.js'
+import {
+  getIsNonInteractiveSession,
+  getSessionSkillAllowlist,
+} from '../bootstrap/state.js'
 import { getCurrentWorktreeSession } from '../utils/worktree.js'
 import { getSessionStartDate } from './common.js'
 import { getInitialSettings } from '../utils/settings/settings.js'
@@ -23,7 +26,7 @@ import {
   getCanonicalName,
   getMarketingNameForModel,
 } from '../utils/model/model.js'
-import { getSkillToolCommands } from 'src/commands.js'
+import { getCommandName, getSkillToolCommands } from 'src/commands.js'
 import { SKILL_TOOL_NAME } from '../tools/SkillTool/constants.js'
 import { getOutputStyleConfig } from './outputStyles.js'
 import type {
@@ -62,6 +65,10 @@ import { isUndercover } from '../utils/undercover.js'
 import { isMcpInstructionsDeltaEnabled } from '../utils/mcpInstructionsDelta.js'
 import { getGlobalConfig } from '../utils/config.js'
 import { isUltrareviewEnabled } from '../commands/review/ultrareviewEnabled.js'
+import {
+  isBashToolEnabled,
+  isPowerShellToolEnabled,
+} from '../utils/shell/shellToolUtils.js'
 
 // Dead code elimination: conditional imports for feature-gated modules
 /* eslint-disable @typescript-eslint/no-require-imports */
@@ -373,8 +380,11 @@ function getSessionSpecificGuidanceSection(
   skillToolCommands: Command[],
 ): string | null {
   const hasAskUserQuestionTool = enabledTools.has(ASK_USER_QUESTION_TOOL_NAME)
+  const sessionSkillAllowlist = getSessionSkillAllowlist()
   const hasSkills =
-    skillToolCommands.length > 0 && enabledTools.has(SKILL_TOOL_NAME)
+    (sessionSkillAllowlist === undefined
+      ? skillToolCommands.length > 0
+      : sessionSkillAllowlist.length > 0) && enabledTools.has(SKILL_TOOL_NAME)
   const hasAgentTool = enabledTools.has(AGENT_TOOL_NAME)
   const searchTools = hasEmbeddedSearchTools()
     ? `\`find\` or \`grep\` via the ${BASH_TOOL_NAME} tool`
@@ -405,6 +415,14 @@ function getSessionSpecificGuidanceSection(
     hasSkills &&
     enabledTools.has(DISCOVER_SKILLS_TOOL_NAME)
       ? getDiscoverSkillsGuidance()
+      : null,
+    hasSkills &&
+    (sessionSkillAllowlist === undefined ||
+      sessionSkillAllowlist.includes('schedule') ||
+      sessionSkillAllowlist.includes('routines')) &&
+    skillToolCommands.some(command => getCommandName(command) === 'schedule') &&
+    getFeatureValue_CACHED_MAY_BE_STALE('tengu_orchid_mantis', false)
+      ? 'When work you just finished has a natural future follow-up, end your reply with a one-line offer to `/schedule` a background agent to do it — name the concrete action and cadence ("Want me to /schedule an agent in 2 weeks to open a cleanup PR for the flag?"). One-time signals: a feature flag/gate/experiment/staged rollout (clean it up or ramp it), a soak window or metric to verify (query it and post results), a long-running job with an ETA (check status and report), a temp workaround/instrumentation/.skip left in (open a removal PR), a "remove once X" TODO. Recurring signals: a sweep/triage/report/queue-drain the user just did by hand, or anything "weekly"/"again"/"piling up" — offer to run it as a routine. The bar is 70%+ odds the user says yes — skip it for refactors, bug fixes with tests, docs, renames, routine dep bumps, plain feature merges, or when the user signals closure ("nothing else to do", "should be fine now"). Don\'t stack offers on back-to-back turns; let most tasks just be tasks.'
       : null,
     isUltrareviewEnabled()
       ? 'If the user asks about "ultrareview" or how to run it, explain that /ultrareview launches a multi-agent cloud review of the current branch (or /ultrareview <PR#> for a GitHub PR). It is user-triggered and billed; you cannot launch it yourself, so do not attempt to via Bash or otherwise. It needs a git repository (offer to "git init" if not in one); the no-arg form bundles the local branch and does not need a GitHub remote.'
@@ -734,7 +752,13 @@ function getShellInfoLine(): string {
       ? 'bash'
       : shell
   if (env.platform === 'win32') {
-    return `Shell: ${shellName} (use Unix shell syntax, not Windows — e.g., /dev/null not NUL, forward slashes in paths)`
+    if (!isBashToolEnabled()) {
+      return 'Shell: PowerShell (use PowerShell syntax — e.g., $null not /dev/null, $env:VAR not $VAR, backtick for line continuation)'
+    }
+    const powershellSuffix = isPowerShellToolEnabled()
+      ? '. PowerShell is also available via the PowerShell tool.'
+      : ''
+    return `Shell: ${shellName} (use Unix shell syntax, not Windows — e.g., /dev/null not NUL, forward slashes in paths)${powershellSuffix}`
   }
   return `Shell: ${shellName}`
 }

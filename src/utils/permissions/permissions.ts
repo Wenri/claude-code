@@ -789,6 +789,8 @@ export const hasPermissionsToUseTool: CanUseToolFn = async (
         classifierCostUSD,
         classifierStage:
           classifierResult.stage as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        classifierFailureMode:
+          classifierResult.failureMode as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
         classifierStage1InputTokens: classifierResult.stage1Usage?.inputTokens,
         classifierStage1OutputTokens:
           classifierResult.stage1Usage?.outputTokens,

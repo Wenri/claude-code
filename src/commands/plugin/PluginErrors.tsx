@@ -54,6 +54,12 @@ export function formatErrorMessage(error: PluginError): string {
       return `LSP server "${error.serverName}" ${error.method} failed: ${error.error}`;
     case 'plugin-cache-miss':
       return `Plugin "${error.plugin}" not cached at ${error.installPath}`;
+    case 'autoupdate-blocked-by-pinner':
+      {
+        const heldAt = error.heldAt ? ` at ${error.heldAt}` : '';
+        const disabled = error.disabledPinners.length > 0 ? ` (${error.disabledPinners.join(', ')} ${error.disabledPinners.length === 1 ? 'is' : 'are'} disabled)` : '';
+        return `Autoupdate held${heldAt} — version constraint from ${error.blockedBy.join(', ')}${disabled}`;
+      }
     case 'generic-error':
       return error.error;
   }
@@ -118,6 +124,11 @@ export function getErrorGuidance(error: PluginError): string | null {
       return 'Check LSP server logs with --debug for details';
     case 'plugin-cache-miss':
       return 'Run /plugins to refresh the plugin cache';
+    case 'autoupdate-blocked-by-pinner':
+      {
+        const pinner = error.disabledPinners.length > 0 ? error.disabledPinners[0] : error.blockedBy[0];
+        return pinner ? `Update or uninstall "${pinner}" to unblock${error.disabledPinners.length > 0 ? ' (it is currently disabled)' : ''}` : null;
+      }
     case 'marketplace-load-failed':
     case 'generic-error':
       return null;

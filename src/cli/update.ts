@@ -30,8 +30,15 @@ import {
 import { writeToStdout } from 'src/utils/process.js'
 import { gte } from 'src/utils/semver.js'
 import { getInitialSettings } from 'src/utils/settings/settings.js'
+import { isEnvTruthy } from 'src/utils/envUtils.js'
 
 export async function update() {
+  if (isEnvTruthy(process.env.DISABLE_UPDATES)) {
+    writeToStdout(
+      'Updates are disabled by your administrator. Contact your IT team to get the latest version.\n',
+    )
+    await gracefulShutdown(0)
+  }
   logEvent('tengu_update_check', {})
   writeToStdout(`Current version: ${MACRO.VERSION}\n`)
 
@@ -143,6 +150,19 @@ export async function update() {
         writeToStdout(chalk.bold(`  ${updateCommand}`) + '\n')
       } else {
         writeToStdout('Claude is up to date!\n')
+      }
+      if (homebrewCaskName !== 'claude-code@latest') {
+        writeToStdout('\n')
+        writeToStdout(
+          chalk.dim(
+            'Tip: For more frequent updates, use the claude-code@latest cask:\n',
+          ),
+        )
+        writeToStdout(
+          chalk.dim(
+            `  brew uninstall --cask ${homebrewCaskName ?? 'claude-code'} && brew install --cask claude-code@latest`,
+          ) + '\n',
+        )
       }
     } else if (packageManager === 'winget') {
       writeToStdout('Claude is managed by winget.\n')

@@ -17,20 +17,28 @@ import {
   type SessionsWebSocketCallbacks,
 } from './SessionsWebSocket.js'
 
+type RemoteStreamMessage =
+  | SDKMessage
+  | SDKControlRequest
+  | SDKControlResponse
+  | SDKControlCancelRequest
+  | { type: 'keep_alive' }
+  | { type: 'transcript_mirror'; filePath: string; entries: unknown[] }
+  | { type: 'system'; subtype: 'post_turn_summary' }
+
 /**
  * Type guard to check if a message is an SDKMessage (not a control message)
  */
 function isSDKMessage(
-  message:
-    | SDKMessage
-    | SDKControlRequest
-    | SDKControlResponse
-    | SDKControlCancelRequest,
+  message: RemoteStreamMessage,
 ): message is SDKMessage {
   return (
     message.type !== 'control_request' &&
     message.type !== 'control_response' &&
-    message.type !== 'control_cancel_request'
+    message.type !== 'keep_alive' &&
+    message.type !== 'control_cancel_request' &&
+    message.type !== 'transcript_mirror' &&
+    !(message.type === 'system' && message.subtype === 'post_turn_summary')
   )
 }
 
@@ -81,7 +89,7 @@ export type RemoteSessionCallbacks = {
   onConnected?: () => void
   /** Called when connection is lost and cannot be restored */
   onDisconnected?: () => void
-  /** Called on transient WS drop while reconnect backoff is in progress */
+  /** Called while the SSE stream reconnect backoff is in progress */
   onReconnecting?: () => void
   /** Called on error */
   onError?: (error: Error) => void
@@ -91,12 +99,12 @@ export type RemoteSessionCallbacks = {
  * Manages a remote CCR session.
  *
  * Coordinates:
- * - WebSocket subscription for receiving messages from CCR
+ * - SSE subscription for receiving messages from CCR
  * - HTTP POST for sending user messages to CCR
  * - Permission request/response flow
  */
 export class RemoteSessionManager {
-  private websocket: SessionsWebSocket | null = null
+  private client: SessionsWebSocket | null = null
   private pendingPermissionRequests: Map<string, SDKControlPermissionRequest> =
     new Map()
   private pendingControlRequests = new Map<
@@ -113,14 +121,14 @@ export class RemoteSessionManager {
   ) {}
 
   /**
-   * Connect to the remote session via WebSocket
+   * Connect to the remote session event stream
    */
   connect(): void {
     logForDebugging(
       `[RemoteSessionManager] Connecting to session ${this.config.sessionId}`,
     )
 
-    const wsCallbacks: SessionsWebSocketCallbacks = {
+    const clientCallbacks: SessionsWebSocketCallbacks = {
       onMessage: message => this.handleMessage(message),
       onConnected: () => {
         logForDebugging('[RemoteSessionManager] Connected')
@@ -131,7 +139,7 @@ export class RemoteSessionManager {
         this.callbacks.onDisconnected?.()
       },
       onReconnecting: () => {
-        logForDebugging('[RemoteSessionManager] Reconnecting')
+        logForDebugging('[RemoteSessionManager] Reconnecting SSE stream')
         this.callbacks.onReconnecting?.()
       },
       onError: error => {
@@ -140,26 +148,20 @@ export class RemoteSessionManager {
       },
     }
 
-    this.websocket = new SessionsWebSocket(
+    this.client = new SessionsWebSocket(
       this.config.sessionId,
       this.config.orgUuid,
       this.config.getAccessToken,
-      wsCallbacks,
+      clientCallbacks,
     )
 
-    void this.websocket.connect()
+    void this.client.connect()
   }
 
   /**
-   * Handle messages from WebSocket
+   * Handle messages from the session event stream
    */
-  private handleMessage(
-    message:
-      | SDKMessage
-      | SDKControlRequest
-      | SDKControlResponse
-      | SDKControlCancelRequest,
-  ): void {
+  private handleMessage(message: RemoteStreamMessage): void {
     // Handle control requests (permission prompts from CCR)
     if (message.type === 'control_request') {
       this.handleControlRequest(message)
@@ -230,7 +232,7 @@ export class RemoteSessionManager {
           error: `Unsupported control request subtype: ${inner.subtype}`,
         },
       }
-      this.websocket?.sendControlResponse(response)
+      this.client?.sendControlResponse(response)
     }
   }
 
@@ -299,14 +301,14 @@ export class RemoteSessionManager {
       `[RemoteSessionManager] Sending permission response: ${result.behavior}`,
     )
 
-    this.websocket?.sendControlResponse(response)
+    this.client?.sendControlResponse(response)
   }
 
   /**
    * Check if connected to the remote session
    */
   isConnected(): boolean {
-    return this.websocket?.isConnected() ?? false
+    return this.client?.isConnected() ?? false
   }
 
   /**
@@ -314,13 +316,13 @@ export class RemoteSessionManager {
    */
   cancelSession(): void {
     logForDebugging('[RemoteSessionManager] Sending interrupt signal')
-    this.websocket?.sendControlRequest({ subtype: 'interrupt' })
+    this.client?.sendControlRequest({ subtype: 'interrupt' })
   }
 
   sendControlRequest<Response = Record<string, unknown>>(
     request: SDKControlRequestInner,
   ): Promise<Response> {
-    const requestId = this.websocket?.sendControlRequest(request)
+    const requestId = this.client?.sendControlRequest(request)
     if (requestId == null) {
       return Promise.reject(
         new Error('[RemoteSessionManager] Cannot send: not connected'),
@@ -346,8 +348,8 @@ export class RemoteSessionManager {
    */
   disconnect(): void {
     logForDebugging('[RemoteSessionManager] Disconnecting')
-    this.websocket?.close()
-    this.websocket = null
+    this.client?.close()
+    this.client = null
     this.pendingPermissionRequests.clear()
     for (const request of this.pendingControlRequests.values()) {
       request.reject(new Error('[RemoteSessionManager] Disconnected'))
@@ -356,12 +358,12 @@ export class RemoteSessionManager {
   }
 
   /**
-   * Force reconnect the WebSocket.
+   * Force reconnect the SSE stream.
    * Useful when the subscription becomes stale after container shutdown.
    */
   reconnect(): void {
-    logForDebugging('[RemoteSessionManager] Reconnecting WebSocket')
-    this.websocket?.reconnect()
+    logForDebugging('[RemoteSessionManager] Reconnecting SSE stream')
+    this.client?.reconnect()
   }
 }
 

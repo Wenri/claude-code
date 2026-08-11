@@ -11,6 +11,7 @@ import {
   mkdir,
   readdir,
   readFile,
+  realpath,
   stat,
   unlink,
   writeFile,
@@ -48,6 +49,7 @@ import {
   type ContextCollapseSnapshotEntry,
   type Entry,
   type FileHistorySnapshotMessage,
+  type ForkContextRefEntry,
   type LogOption,
   type PersistedWorktreeSession,
   type SerializedMessage,
@@ -124,6 +126,10 @@ type Transcript = (
 // 50MB — prevents OOM in the tombstone slow path which reads + rewrites the
 // entire session file. Session files can grow to multiple GB (inc-3930).
 const MAX_TOMBSTONE_REWRITE_BYTES = 50 * 1024 * 1024
+
+const SESSION_ALIASES_FILENAME = '.session-aliases'
+const FORK_CONTEXT_CACHE_SIZE = 4
+const forkContextCache = new Map<UUID, Message[]>()
 
 const SKIP_FIRST_PROMPT_PATTERN =
   /^(?:\s*<[a-z][\w-]*[\s>]|\[Request interrupted by user[^\]]*\])/
@@ -268,6 +274,10 @@ export type AgentMetadata = {
   agentType: string
   /** Worktree path if the agent was spawned with isolation: "worktree" */
   worktreePath?: string
+  /** Explicit cwd override used by the agent, if any. */
+  cwd?: string
+  /** User-visible agent name used for SendMessage routing. */
+  name?: string
   /** Original task description from the AgentTool input. Persisted so a
    * resumed agent's notification can show the original description instead
    * of a placeholder. Optional — older metadata files lack this field. */
@@ -290,6 +300,16 @@ export async function writeAgentMetadata(
   const path = getAgentMetadataPath(agentId)
   await mkdir(dirname(path), { recursive: true })
   await writeFile(path, JSON.stringify(metadata))
+  fireSessionMirror(path.replace(/\.meta\.json$/, '.jsonl'), [
+    {
+      type: 'agent_metadata',
+      agentType: metadata.agentType,
+      ...(metadata.worktreePath && { worktreePath: metadata.worktreePath }),
+      ...(metadata.cwd && { cwd: metadata.cwd }),
+      ...(metadata.description && { description: metadata.description }),
+      ...(metadata.name && { name: metadata.name }),
+    },
+  ])
 }
 
 export async function readAgentMetadata(
@@ -450,6 +470,63 @@ export const getProjectDir = memoize((projectDir: string): string => {
   return join(getProjectsDir(), sanitizePath(projectDir))
 })
 
+/**
+ * Record that the current session's project directory should also be
+ * discoverable when resuming from an added working directory.
+ */
+export async function recordSessionAlias(addedDir: string): Promise<void> {
+  if (isSessionPersistenceDisabled()) return
+
+  let canonicalAddedDir = addedDir
+  try {
+    canonicalAddedDir = (await realpath(addedDir)).normalize('NFC')
+  } catch (error) {
+    if (!isENOENT(error)) logError(error)
+  }
+
+  const sourceProjectDir =
+    getSessionProjectDir() ?? getProjectDir(getOriginalCwd())
+  const destinationProjectDir = getProjectDir(canonicalAddedDir)
+  if (destinationProjectDir === sourceProjectDir) return
+
+  const aliasesPath = join(destinationProjectDir, SESSION_ALIASES_FILENAME)
+  try {
+    const aliases = (await readFile(aliasesPath, 'utf8')).split('\n')
+    if (aliases.includes(sourceProjectDir)) return
+  } catch (error) {
+    if (!isENOENT(error)) {
+      logError(error)
+      return
+    }
+    try {
+      await mkdir(dirname(aliasesPath), { recursive: true, mode: 0o700 })
+    } catch (mkdirError) {
+      logError(mkdirError)
+      return
+    }
+  }
+
+  try {
+    await fsAppendFile(aliasesPath, `${sourceProjectDir}\n`, { mode: 0o600 })
+  } catch (error) {
+    logError(error)
+  }
+}
+
+async function getSessionAliases(projectPath: string): Promise<string[]> {
+  const aliasesPath = join(
+    getProjectDir(projectPath),
+    SESSION_ALIASES_FILENAME,
+  )
+  try {
+    const contents = await readFile(aliasesPath, 'utf8')
+    return uniq(contents.split('\n').filter(alias => alias.length > 0))
+  } catch (error) {
+    if (!isENOENT(error)) logError(error)
+    return []
+  }
+}
+
 let project: Project | null = null
 let cleanupRegistered = false
 
@@ -540,6 +617,22 @@ export function setRemoteIngressUrlForTesting(url: string): void {
   getProject().setRemoteIngressUrl(url)
 }
 
+export type SessionMirror = (
+  filePath: string,
+  entries: unknown[],
+) => void
+
+export function registerSessionMirror(mirror: SessionMirror): void {
+  getProject().addMirror(mirror)
+}
+
+export function fireSessionMirror(
+  filePath: string,
+  entries: unknown[],
+): void {
+  getProject().fireMirror(filePath, entries)
+}
+
 const REMOTE_FLUSH_INTERVAL_MS = 10
 
 class Project {
@@ -567,6 +660,7 @@ class Project {
   private internalEventWriter: InternalEventWriter | null = null
   private internalEventReader: InternalEventReader | null = null
   private internalSubagentEventReader: InternalEventReader | null = null
+  private mirrors: SessionMirror[] = []
   private pendingWriteCount: number = 0
   private flushResolvers: Array<() => void> = []
   // Per-file write queues. Each entry carries a resolve callback so
@@ -592,6 +686,24 @@ class Project {
     this.flushTimer = null
     this.activeDrain = null
     this.writeQueues = new Map()
+    this.mirrors = []
+  }
+
+  addMirror(mirror: SessionMirror): void {
+    this.mirrors.push(mirror)
+  }
+
+  fireMirror(filePath: string, entries: unknown[]): void {
+    for (const mirror of this.mirrors) {
+      try {
+        mirror(filePath, entries)
+      } catch (error) {
+        logForDebugging(
+          `[SessionMirror] mirror failed for ${filePath}: ${error}`,
+          { level: 'error' },
+        )
+      }
+    }
   }
 
   private incrementPendingWrites(): void {
@@ -671,6 +783,8 @@ class Project {
       try {
         let content = ''
         let chunkStartIndex = 0
+        const mirrorEntries: Entry[] | undefined =
+          this.mirrors.length > 0 ? [] : undefined
 
         for (let i = 0; i < batch.length; i++) {
           const { entry } = batch[i]!
@@ -679,6 +793,10 @@ class Project {
           if (content.length + line.length >= this.MAX_CHUNK_BYTES) {
             // Flush chunk and resolve its entries before starting a new one
             await this.appendToFile(filePath, content)
+            if (mirrorEntries) {
+              this.fireMirror(filePath, mirrorEntries.slice())
+              mirrorEntries.length = 0
+            }
             for (let j = chunkStartIndex; j < i; j++) {
               batch[j]!.resolve()
             }
@@ -688,10 +806,14 @@ class Project {
           }
 
           content += line
+          mirrorEntries?.push(entry)
         }
 
         if (content.length > 0) {
           await this.appendToFile(filePath, content)
+          if (mirrorEntries) {
+            this.fireMirror(filePath, mirrorEntries)
+          }
           for (let i = chunkStartIndex; i < batch.length; i++) {
             batch[i]!.resolve()
           }
@@ -1256,6 +1378,9 @@ class Project {
         ? getAgentTranscriptPath(entry.agentId)
         : sessionFile
       void this.enqueueWrite(targetFile, entry)
+    } else if (entry.type === 'fork-context-ref') {
+      // Fork pointers belong beside the agent's own transcript entries.
+      void this.enqueueWrite(getAgentTranscriptPath(entry.agentId), entry)
     } else if (entry.type === 'marble-origami-commit') {
       // Always append. Commit order matters for restore (later commits may
       // reference earlier commits' summary messages), so these must be
@@ -1510,6 +1635,48 @@ export async function recordSidechainTranscript(
     agentId,
     startingParentUuid,
   )
+}
+
+export async function recordForkContextRef(
+  entry: Omit<ForkContextRefEntry, 'type'>,
+): Promise<void> {
+  await getProject().appendEntry({ type: 'fork-context-ref', ...entry })
+}
+
+async function resolveForkContextRef(
+  entry: ForkContextRefEntry,
+): Promise<Message[]> {
+  const cached = forkContextCache.get(entry.parentLastUuid)
+  if (cached) {
+    // Refresh insertion order so eviction is least-recently used.
+    forkContextCache.delete(entry.parentLastUuid)
+    forkContextCache.set(entry.parentLastUuid, cached)
+    return cached
+  }
+
+  const parentPath = getTranscriptPathForSession(entry.parentSessionId)
+  const { messages } = await loadTranscriptFile(parentPath)
+  const leaf = messages.get(entry.parentLastUuid)
+  if (!leaf) {
+    logForDebugging(
+      `[fork-context-ref] parent uuid ${entry.parentLastUuid} not found in ${parentPath}; returning empty prefix`,
+      { level: 'warn' },
+    )
+    return []
+  }
+
+  const prefix: Message[] = buildConversationChain(messages, leaf)
+    .filter(message => !message.isSidechain)
+    .map(({ isSidechain: _isSidechain, parentUuid: _parentUuid, ...message }) =>
+      message,
+    )
+
+  if (forkContextCache.size >= FORK_CONTEXT_CACHE_SIZE) {
+    const oldest = forkContextCache.keys().next().value
+    if (oldest !== undefined) forkContextCache.delete(oldest)
+  }
+  forkContextCache.set(entry.parentLastUuid, prefix)
+  return prefix
 }
 
 export async function recordQueueOperation(queueOp: QueueOperationMessage) {
@@ -2669,6 +2836,7 @@ function appendEntryToFile(
     fs.mkdirSync(dirname(fullPath), { mode: 0o700 })
     fs.appendFileSync(fullPath, line, { mode: 0o600 })
   }
+  fireSessionMirror(fullPath, [entry])
 }
 
 /**
@@ -3819,6 +3987,7 @@ export async function loadTranscriptFile(
   attributionSnapshots: Map<UUID, AttributionSnapshotMessage>
   contentReplacements: Map<UUID, ContentReplacementRecord[]>
   agentContentReplacements: Map<AgentId, ContentReplacementRecord[]>
+  forkContextRefs: Map<AgentId, ForkContextRefEntry>
   contextCollapseCommits: ContextCollapseCommitEntry[]
   contextCollapseSnapshot: ContextCollapseSnapshotEntry | undefined
   leafUuids: Set<UUID>
@@ -3842,6 +4011,7 @@ export async function loadTranscriptFile(
     AgentId,
     ContentReplacementRecord[]
   >()
+  const forkContextRefs = new Map<AgentId, ForkContextRefEntry>()
   // Array, not Map — commit order matters (nested collapses).
   const contextCollapseCommits: ContextCollapseCommitEntry[] = []
   // Last-wins — later entries supersede.
@@ -3946,6 +4116,8 @@ export async function loadTranscriptFile(
           contentReplacements.set(entry.sessionId, existing)
           existing.push(...entry.replacements)
         }
+      } else if (entry.type === 'fork-context-ref') {
+        forkContextRefs.set(entry.agentId, entry)
       } else if (entry.type === 'marble-origami-commit') {
         contextCollapseCommits.push(entry)
       } else if (entry.type === 'marble-origami-snapshot') {
@@ -4113,6 +4285,7 @@ export async function loadTranscriptFile(
     attributionSnapshots,
     contentReplacements,
     agentContentReplacements,
+    forkContextRefs,
     contextCollapseCommits,
     contextCollapseSnapshot,
     leafUuids,
@@ -4438,10 +4611,43 @@ async function getStatOnlyLogsForWorktrees(
 ): Promise<LogOption[]> {
   const projectsDir = getProjectsDir()
 
+  const cwd = getOriginalCwd()
+  const normalizeSeparators = (path: string): string =>
+    path.replaceAll('\\', '/')
+  const normalizedCwd = normalizeSeparators(cwd)
+  const enclosingWorktree = worktreePaths
+    .filter(worktreePath => {
+      const normalizedWorktree = normalizeSeparators(worktreePath)
+      return (
+        normalizedCwd === normalizedWorktree ||
+        normalizedCwd.startsWith(`${normalizedWorktree}/`)
+      )
+    })
+    .sort((a, b) => b.length - a.length)[0]
+  const aliasProjectDirs = uniq(
+    (
+      await Promise.all(
+        (enclosingWorktree && enclosingWorktree !== cwd
+          ? [cwd, enclosingWorktree]
+          : [cwd]
+        ).map(getSessionAliases),
+      )
+    ).flat(),
+  )
+  const aliasLogs = (
+    await Promise.all(
+      aliasProjectDirs.map(projectDir => getSessionFilesLite(projectDir, limit)),
+    )
+  )
+    .flat()
+    .map(log => ({ ...log, isAlias: true }))
+
   if (worktreePaths.length <= 1) {
-    const cwd = getOriginalCwd()
     const projectDir = getProjectDir(cwd)
-    return getSessionFilesLite(projectDir, undefined, cwd)
+    const logs = await getSessionFilesLite(projectDir, undefined, cwd)
+    return aliasLogs.length > 0
+      ? deduplicateLogsBySessionId(logs.concat(aliasLogs))
+      : logs
   }
 
   // On Windows, drive letter case can differ between git worktree list
@@ -4472,8 +4678,11 @@ async function getStatOnlyLogsForWorktrees(
     logForDebugging(
       `Failed to read projects dir ${projectsDir}, falling back to current project: ${e}`,
     )
-    const projectDir = getProjectDir(getOriginalCwd())
-    return getSessionFilesLite(projectDir, limit, getOriginalCwd())
+    const projectDir = getProjectDir(cwd)
+    const logs = await getSessionFilesLite(projectDir, limit, cwd)
+    return aliasLogs.length > 0
+      ? deduplicateLogsBySessionId(logs.concat(aliasLogs))
+      : logs
   }
 
   const projectCandidates: Array<{
@@ -4505,7 +4714,7 @@ async function getStatOnlyLogsForWorktrees(
 
   // Deduplicate by sessionId — the same session can appear in multiple
   // worktree project dirs. Keep the entry with the newest modified time.
-  return deduplicateLogsBySessionId(logsPerProject.flat())
+  return deduplicateLogsBySessionId(logsPerProject.flat().concat(aliasLogs))
 }
 
 /**
@@ -4522,7 +4731,7 @@ export async function getAgentTranscript(agentId: AgentId): Promise<{
   const agentFile = getAgentTranscriptPath(agentId)
 
   try {
-    const { messages, agentContentReplacements } =
+    const { messages, agentContentReplacements, forkContextRefs } =
       await loadTranscriptFile(agentFile)
 
     // Find messages with matching agentId
@@ -4551,11 +4760,17 @@ export async function getAgentTranscript(agentId: AgentId): Promise<{
     // Filter to only include messages with this agentId
     const agentTranscript = transcript.filter(msg => msg.agentId === agentId)
 
+    const ownMessages = agentTranscript.map(
+      ({ isSidechain, parentUuid, ...msg }) => msg,
+    )
+    const forkContextRef = forkContextRefs.get(agentId)
+
     return {
       // Convert TranscriptMessage[] to Message[]
-      messages: agentTranscript.map(
-        ({ isSidechain, parentUuid, ...msg }) => msg,
-      ),
+      messages:
+        forkContextRef === undefined
+          ? ownMessages
+          : (await resolveForkContextRef(forkContextRef)).concat(ownMessages),
       contentReplacements: agentContentReplacements.get(agentId) ?? [],
     }
   } catch {

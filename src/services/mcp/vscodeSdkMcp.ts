@@ -11,12 +11,12 @@ import type { ConnectedMCPServer, MCPServerConnection } from './types.js'
 // Mirror of AutoModeEnabledState in permissionSetup.ts — inlined because that
 // file pulls in too many deps for this thin IPC module.
 type AutoModeEnabledState = 'enabled' | 'disabled' | 'opt-in'
-function readAutoModeEnabledState(): AutoModeEnabledState | undefined {
+function readAutoModeEnabledState(): AutoModeEnabledState {
   const v = getFeatureValue_CACHED_MAY_BE_STALE<{ enabled?: string }>(
     'tengu_auto_mode_config',
     {},
   )?.enabled
-  return v === 'enabled' || v === 'disabled' || v === 'opt-in' ? v : undefined
+  return v === 'enabled' || v === 'disabled' || v === 'opt-in' ? v : 'opt-in'
 }
 
 export const LogEventNotificationSchema = lazySchema(() =>
@@ -92,21 +92,19 @@ export function setupVscodeSdkMcp(sdkClients: MCPServerConnection[]): void {
         'tengu_quiet_fern',
         false,
       ),
-      // In-band OAuth via claude_authenticate (vs. extension-native PKCE).
-      tengu_vscode_cc_auth: getFeatureValue_CACHED_MAY_BE_STALE(
-        'tengu_vscode_cc_auth',
+      tengu_slate_ribbon: getFeatureValue_CACHED_MAY_BE_STALE(
+        'tengu_slate_ribbon',
         false,
       ),
     }
-    // Tri-state: 'enabled' | 'disabled' | 'opt-in'. Omit if unknown so VSCode
-    // fails closed (treats absent as 'disabled').
-    const autoModeState = readAutoModeEnabledState()
-    if (autoModeState !== undefined) {
-      gates.tengu_auto_mode_state = autoModeState
-    }
+    gates.tengu_auto_mode_state = readAutoModeEnabledState()
     void client.client.notification({
       method: 'experiment_gates',
       params: { gates },
+    }).catch((error: Error) => {
+      logForDebugging(
+        `[VSCode] Failed to send experiment_gates notification: ${error.message}`,
+      )
     })
   }
 }

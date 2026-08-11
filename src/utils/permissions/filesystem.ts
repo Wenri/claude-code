@@ -12,7 +12,11 @@ import {
   GLOBAL_CLAUDE_FOLDER_PERMISSION_PATTERN,
 } from 'src/tools/FileEditTool/constants.js'
 import type { z } from 'zod/v4'
-import { getOriginalCwd, getSessionId } from '../../bootstrap/state.js'
+import {
+  getMemoryToggledOff,
+  getOriginalCwd,
+  getSessionId,
+} from '../../bootstrap/state.js'
 import { checkStatsigFeatureGate_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
 import type { AnyObject, Tool, ToolPermissionContext } from '../../Tool.js'
 import { FILE_READ_TOOL_NAME } from '../../tools/FileReadTool/prompt.js'
@@ -32,6 +36,8 @@ import { getCachedPlanSlug, getPlansDirectory } from '../plans.js'
 import { getPlatform } from '../platform.js'
 import { getProjectDir } from '../sessionStorage.js'
 import { SETTING_SOURCES } from '../settings/constants.js'
+import { WSL_WINDOWS_MANAGED_SETTINGS_PATH } from '../settings/mdm/constants.js'
+import { getWslInheritsWindowsSettings } from '../settings/mdm/settings.js'
 import {
   getSettingsFilePathForSource,
   getSettingsRootPathForSource,
@@ -193,9 +199,15 @@ export function toPosixPath(path: string): string {
 }
 
 function getSettingsPaths(): string[] {
-  return SETTING_SOURCES.map(source =>
+  const paths = SETTING_SOURCES.map(source =>
     getSettingsFilePathForSource(source),
   ).filter(path => path !== undefined)
+  if (getPlatform() === 'wsl' && getWslInheritsWindowsSettings()) {
+    paths.push(
+      join(WSL_WINDOWS_MANAGED_SETTINGS_PATH, 'managed-settings.json'),
+    )
+  }
+  return paths
 }
 
 export function isClaudeSettingsPath(filePath: string): boolean {
@@ -1572,6 +1584,17 @@ export function checkEditableInternalPath(
   // so it gets NO special permission treatment here — writes go through normal
   // permission flow (step 5 → ask). SDK callers who want silent memory should
   // pass an allow rule for the override path.
+  if (isAutoMemPath(normalizedPath) && getMemoryToggledOff()) {
+    return {
+      behavior: 'deny',
+      message:
+        'Cannot write to memory while it is toggled off. Run /toggle-memory to re-enable automemory.',
+      decisionReason: {
+        type: 'other',
+        reason: 'memory access blocked by /toggle-memory',
+      },
+    }
+  }
   if (!hasAutoMemPathOverride() && isAutoMemPath(normalizedPath)) {
     return {
       behavior: 'allow',
@@ -1717,6 +1740,17 @@ export function checkReadableInternalPath(
 
   // Memdir directory (persistent memory for cross-session learning)
   if (isAutoMemPath(normalizedPath)) {
+    if (getMemoryToggledOff()) {
+      return {
+        behavior: 'deny',
+        message:
+          'Cannot read memory while it is toggled off. Run /toggle-memory to re-enable automemory.',
+        decisionReason: {
+          type: 'other',
+          reason: 'memory access blocked by /toggle-memory',
+        },
+      }
+    }
     return {
       behavior: 'allow',
       updatedInput: input,

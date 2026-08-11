@@ -1,12 +1,16 @@
 import type { Command } from '../commands.js'
 import { getAttributionTexts } from '../utils/attribution.js'
 import { executeShellCommandsInPrompt } from '../utils/promptShellExecution.js'
+import { isBashToolEnabled } from '../utils/shell/shellToolUtils.js'
 import { getUndercoverInstructions, isUndercover } from '../utils/undercover.js'
 
 const ALLOWED_TOOLS = [
-  'Bash(git add:*)',
-  'Bash(git status:*)',
-  'Bash(git commit:*)',
+  'Bash(git add *)',
+  'Bash(git status *)',
+  'Bash(git commit *)',
+  'PowerShell(git add *)',
+  'PowerShell(git status *)',
+  'PowerShell(git commit *)',
 ]
 
 function getPromptContent(): string {
@@ -43,13 +47,18 @@ Based on the above changes, create a single git commit:
    - Ensure the message accurately reflects the changes and their purpose (i.e. "add" means a wholly new feature, "update" means an enhancement to an existing feature, "fix" means a bug fix, etc.)
    - Draft a concise (1-2 sentences) commit message that focuses on the "why" rather than the "what"
 
-2. Stage relevant files and create the commit using HEREDOC syntax:
-\`\`\`
+2. Stage relevant files and create the commit:
+${isBashToolEnabled() ? `\`\`\`
 git commit -m "$(cat <<'EOF'
 Commit message here.${commitAttribution ? `\n\n${commitAttribution}` : ''}
 EOF
 )"
+\`\`\`` : `\`\`\`
+git commit -m @'
+Commit message here.${commitAttribution ? `\n\n${commitAttribution}` : ''}
+'@
 \`\`\`
+The closing \`'@\` MUST be at column 0 with no leading whitespace.`}
 
 You have the capability to call multiple tools in a single response. Stage and create the commit using a single message. Do not use any other tools or do anything else. Do not send any other text or messages besides these tool calls.`
 }
@@ -68,6 +77,16 @@ const command = {
       promptContent,
       {
         ...context,
+        getToolPermissionContext() {
+          const permissionContext = context.getToolPermissionContext()
+          return {
+            ...permissionContext,
+            alwaysAllowRules: {
+              ...permissionContext.alwaysAllowRules,
+              command: ALLOWED_TOOLS,
+            },
+          }
+        },
         getAppState() {
           const appState = context.getAppState()
           return {

@@ -5,6 +5,8 @@ import {
   setCachedClaudeMdContent,
 } from './bootstrap/state.js'
 import { getLocalISODate } from './constants/common.js'
+import { BASH_TOOL_NAME } from './tools/BashTool/toolName.js'
+import { POWERSHELL_TOOL_NAME } from './tools/PowerShellTool/toolName.js'
 import {
   filterInjectedMemoryFiles,
   getClaudeMds,
@@ -16,6 +18,7 @@ import { execFileNoThrow } from './utils/execFileNoThrow.js'
 import { getBranch, getDefaultBranch, getIsGit, gitExe } from './utils/git.js'
 import { shouldIncludeGitInstructions } from './utils/gitSettings.js'
 import { logError } from './utils/log.js'
+import { isBashToolEnabled } from './utils/shell/shellToolUtils.js'
 
 const MAX_STATUS_CHARS = 2000
 
@@ -82,10 +85,13 @@ export const getGitStatus = memoize(async (): Promise<string | null> => {
     })
 
     // Check if status exceeds character limit
+    const shellToolName = isBashToolEnabled()
+      ? BASH_TOOL_NAME
+      : POWERSHELL_TOOL_NAME
     const truncatedStatus =
       status.length > MAX_STATUS_CHARS
         ? status.substring(0, MAX_STATUS_CHARS) +
-          '\n... (truncated because it exceeds 2k characters. If you need more information, run "git status" using BashTool)'
+          `\n... (truncated because it exceeds 2k characters. If you need more information, run "git status" using ${shellToolName})`
         : status
 
     logForDiagnosticsNoPII('info', 'git_status_completed', {

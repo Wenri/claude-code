@@ -1093,7 +1093,7 @@ async function checkPermissionsAndCallTool(
         resultingMessages.push({
           message: createUserMessage({
             content:
-              'The PermissionDenied hook indicated this command is now approved. You may retry it if you would like.',
+              'The PermissionDenied hook indicated you may retry this tool call.',
             isMeta: true,
           }),
         })
@@ -1203,6 +1203,11 @@ async function checkPermissionsAndCallTool(
   } else if (processedInput !== backfilledClone) {
     callInput = processedInput
   }
+  logForDebugging(
+    `[Stall] tool_dispatch_start tool=${tool.name} toolUseId=${toolUseID} permissionDecisionMs=${permissionDurationMs}`,
+    { level: 'info' },
+  )
+  let toolCallReturned = false
   try {
     const result = await tool.call(
       callInput,
@@ -1222,6 +1227,11 @@ async function checkPermissionsAndCallTool(
     )
     const durationMs = Date.now() - startTime
     addToToolDuration(durationMs)
+    logForDebugging(
+      `[Stall] tool_dispatch_end tool=${tool.name} toolUseId=${toolUseID} outcome=ok durationMs=${durationMs}`,
+      { level: 'info' },
+    )
+    toolCallReturned = true
 
     // Log tool content/output as span event if enabled
     if (result.data && typeof result.data === 'object') {
@@ -1590,6 +1600,17 @@ async function checkPermissionsAndCallTool(
   } catch (error) {
     const durationMs = Date.now() - startTime
     addToToolDuration(durationMs)
+    if (!toolCallReturned) {
+      logForDebugging(
+        `[Stall] tool_dispatch_end tool=${tool.name} toolUseId=${toolUseID} outcome=${error instanceof AbortError ? 'aborted' : 'error'} durationMs=${durationMs}`,
+        { level: error instanceof AbortError ? 'info' : 'warn' },
+      )
+    } else {
+      logForDebugging(
+        `[Stall] tool_dispatch_post_error tool=${tool.name} toolUseId=${toolUseID} durationMs=${durationMs}`,
+        { level: 'warn' },
+      )
+    }
 
     endToolExecutionSpan({
       success: false,

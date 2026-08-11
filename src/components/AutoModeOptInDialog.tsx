@@ -5,6 +5,7 @@ import { Box, Link, Text } from '../ink.js';
 import { updateSettingsForSource } from '../utils/settings/settings.js';
 import { Select } from './CustomSelect/index.js';
 import { Dialog } from './design-system/Dialog.js';
+import { getGlobalConfig, saveGlobalConfig } from '../utils/config.js';
 
 // NOTE: This copy is legally reviewed — do not modify without Legal team approval.
 export const AUTO_MODE_DESCRIPTION = "Auto mode lets Claude handle permission prompts automatically — Claude checks each tool call for risky actions and prompt injection before executing. Actions Claude identifies as safe are executed, while actions Claude identifies as risky are blocked and Claude may try a different approach. Ideal for long-running tasks. Sessions are slightly more expensive. Claude can make mistakes that allow harmful commands to run, it's recommended to only use in isolated environments. Shift+Tab to change mode.";
@@ -32,6 +33,12 @@ export function AutoModeOptInDialog(t0) {
   let t2;
   if ($[1] !== onAccept || $[2] !== onDecline) {
     t2 = function onChange(value) {
+      if ((value === "accept" || value === "accept-default") && getGlobalConfig().autoModeOptInDismissed) {
+        saveGlobalConfig(current => ({
+          ...current,
+          autoModeOptInDismissed: undefined
+        }));
+      }
       bb3: switch (value) {
         case "accept":
           {
@@ -57,6 +64,18 @@ export function AutoModeOptInDialog(t0) {
         case "decline":
           {
             logEvent("tengu_auto_mode_opt_in_dialog_decline", {});
+            onDecline();
+            break bb3;
+          }
+        case "decline-dont-ask":
+          {
+            logEvent("tengu_auto_mode_opt_in_dialog_decline_dont_ask", {});
+            if (!getGlobalConfig().autoModeOptInDismissed) {
+              saveGlobalConfig(current => ({
+                ...current,
+                autoModeOptInDismissed: true
+              }));
+            }
             onDecline();
           }
       }
@@ -96,20 +115,17 @@ export function AutoModeOptInDialog(t0) {
     t5 = $[6];
   }
   const t6 = declineExits ? "No, exit" : "No, go back";
-  let t7;
-  if ($[7] !== t6) {
-    t7 = [...t4, t5, {
+  const declineOption = {
       label: t6,
       value: "decline" as const
-    }];
-    $[7] = t6;
-    $[8] = t7;
-  } else {
-    t7 = $[8];
-  }
+    };
+  const t7 = [...t4, t5, declineOption, ...(declineExits ? [] : [{
+    label: "No, don't ask again",
+    value: "decline-dont-ask" as const
+  }])];
   let t8;
   if ($[9] !== onChange) {
-    t8 = value_0 => onChange(value_0 as 'accept' | 'accept-default' | 'decline');
+    t8 = value_0 => onChange(value_0 as 'accept' | 'accept-default' | 'decline' | 'decline-dont-ask');
     $[9] = onChange;
     $[10] = t8;
   } else {

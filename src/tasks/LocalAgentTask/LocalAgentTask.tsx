@@ -2,7 +2,7 @@ import { getSdkAgentProgressSummariesEnabled } from '../../bootstrap/state.js';
 import { OUTPUT_FILE_TAG, STATUS_TAG, SUMMARY_TAG, TASK_ID_TAG, TASK_NOTIFICATION_TAG, TOOL_USE_ID_TAG, WORKTREE_BRANCH_TAG, WORKTREE_PATH_TAG, WORKTREE_TAG } from '../../constants/xml.js';
 import { abortSpeculation } from '../../services/PromptSuggestion/speculation.js';
 import type { AppState } from '../../state/AppState.js';
-import type { SetAppState, Task, TaskStateBase } from '../../Task.js';
+import { isTerminalTaskStatus, type SetAppState, type Task, type TaskStateBase } from '../../Task.js';
 import { createTaskStateBase } from '../../Task.js';
 import type { Tools } from '../../Tool.js';
 import { findToolByName } from '../../Tool.js';
@@ -141,10 +141,16 @@ export type LocalAgentTaskState = TaskStateBase & {
   // Bootstrap has read the sidechain JSONL and UUID-merged into messages.
   // One-shot per retain cycle; stream appends from there.
   diskLoaded: boolean;
+  /** Effective cwd for resumed/background agent operations. */
+  cwd?: string;
   // Panel visibility deadline. undefined = no deadline (running or retained);
   // timestamp = hide + GC-eligible after this time. Set at terminal transition
   // and on unselect; cleared on retain.
   evictAfter?: number;
+  // Reasons why a terminal async agent must remain registered. Streaming
+  // monitors use this to keep their owner addressable until the last monitor
+  // exits, even after the agent's query has completed.
+  keepaliveReasons?: Set<string>;
 };
 export function isLocalAgentTask(task: unknown): task is LocalAgentTaskState {
   return typeof task === 'object' && task !== null && 'type' in task && task.type === 'local_agent';
@@ -158,6 +164,73 @@ export function isLocalAgentTask(task: unknown): task is LocalAgentTaskState {
  */
 export function isPanelAgentTask(t: unknown): t is LocalAgentTaskState {
   return isLocalAgentTask(t) && t.agentType !== 'main-session';
+}
+
+export function getAgentKeepaliveReasons(
+  task: LocalAgentTaskState,
+): Set<string> {
+  return task.keepaliveReasons ?? new Set<string>()
+}
+
+function computeEvictAfter(
+  task: LocalAgentTaskState,
+  { park }: { park: boolean },
+): number | undefined {
+  if (task.retain) return undefined
+  if (park && getAgentKeepaliveReasons(task).size > 0) return undefined
+  return Date.now() + PANEL_GRACE_MS
+}
+
+export function addAgentKeepaliveReason(
+  agentId: string | undefined,
+  reason: string,
+  setAppState: SetAppState,
+): void {
+  if (!agentId) return
+  updateTaskState<LocalAgentTaskState>(agentId, setAppState, task => {
+    if (!isLocalAgentTask(task) || getAgentKeepaliveReasons(task).has(reason)) {
+      return task
+    }
+    return {
+      ...task,
+      keepaliveReasons: new Set(getAgentKeepaliveReasons(task)).add(reason),
+    }
+  })
+}
+
+export function removeAgentKeepaliveReason(
+  agentId: string | undefined,
+  reason: string,
+  setAppState: SetAppState,
+): void {
+  if (!agentId) return
+  updateTaskState<LocalAgentTaskState>(agentId, setAppState, task => {
+    if (!isLocalAgentTask(task) || !getAgentKeepaliveReasons(task).has(reason)) {
+      return task
+    }
+    const keepaliveReasons = new Set(getAgentKeepaliveReasons(task))
+    keepaliveReasons.delete(reason)
+    const shouldPark =
+      keepaliveReasons.size === 0 &&
+      isTerminalTaskStatus(task.status) &&
+      !task.retain
+    return {
+      ...task,
+      keepaliveReasons,
+      ...(shouldPark && task.evictAfter === undefined
+        ? { evictAfter: Date.now() + PANEL_GRACE_MS }
+        : {}),
+    }
+  })
+}
+
+export function hasAgentKeepalive(
+  agentId: string | undefined,
+  getAppState: () => AppState,
+): boolean {
+  if (!agentId) return false
+  const task = getAppState().tasks[agentId]
+  return isLocalAgentTask(task) && getAgentKeepaliveReasons(task).size > 0
 }
 export function queuePendingMessage(taskId: string, msg: string, setAppState: (f: (prev: AppState) => AppState) => void): void {
   updateTaskState<LocalAgentTaskState>(taskId, setAppState, task => ({
@@ -291,7 +364,7 @@ export function killAsyncAgent(taskId: string, setAppState: SetAppState): void {
       ...task,
       status: 'killed',
       endTime: Date.now(),
-      evictAfter: task.retain ? undefined : Date.now() + PANEL_GRACE_MS,
+      evictAfter: computeEvictAfter(task, { park: false }),
       abortController: undefined,
       unregisterCleanup: undefined,
       selectedAgent: undefined
@@ -421,7 +494,7 @@ export function completeAgentTask(result: AgentToolResult, setAppState: SetAppSt
       status: 'completed',
       result,
       endTime: Date.now(),
-      evictAfter: task.retain ? undefined : Date.now() + PANEL_GRACE_MS,
+      evictAfter: computeEvictAfter(task, { park: true }),
       abortController: undefined,
       unregisterCleanup: undefined,
       selectedAgent: undefined
@@ -445,7 +518,7 @@ export function failAgentTask(taskId: string, error: string, setAppState: SetApp
       status: 'failed',
       error,
       endTime: Date.now(),
-      evictAfter: task.retain ? undefined : Date.now() + PANEL_GRACE_MS,
+      evictAfter: computeEvictAfter(task, { park: false }),
       abortController: undefined,
       unregisterCleanup: undefined,
       selectedAgent: undefined
@@ -470,7 +543,8 @@ export function registerAsyncAgent({
   selectedAgent,
   setAppState,
   parentAbortController,
-  toolUseId
+  toolUseId,
+  cwd
 }: {
   agentId: string;
   description: string;
@@ -479,6 +553,7 @@ export function registerAsyncAgent({
   setAppState: SetAppState;
   parentAbortController?: AbortController;
   toolUseId?: string;
+  cwd?: string;
 }): LocalAgentTaskState {
   void initTaskOutputAsSymlink(agentId, getAgentTranscriptPath(asAgentId(agentId)));
 
@@ -500,7 +575,9 @@ export function registerAsyncAgent({
     // registerAsyncAgent immediately backgrounds
     pendingMessages: [],
     retain: false,
-    diskLoaded: false
+    diskLoaded: false,
+    keepaliveReasons: new Set(),
+    ...(cwd && { cwd })
   };
 
   // Register cleanup handler
@@ -566,7 +643,8 @@ export function registerAgentForeground({
     // Not yet backgrounded - running in foreground
     pendingMessages: [],
     retain: false,
-    diskLoaded: false
+    diskLoaded: false,
+    keepaliveReasons: new Set()
   };
 
   // Create background signal promise

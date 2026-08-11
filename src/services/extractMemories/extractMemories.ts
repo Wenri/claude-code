@@ -15,7 +15,10 @@
 
 import { feature } from 'bun:bundle'
 import { basename } from 'path'
-import { getIsRemoteMode } from '../../bootstrap/state.js'
+import {
+  getIsRemoteMode,
+  getMemoryToggledOff,
+} from '../../bootstrap/state.js'
 import type { CanUseToolFn } from '../../hooks/useCanUseTool.js'
 import { ENTRYPOINT_NAME } from '../../memdir/memdir.js'
 import {
@@ -26,6 +29,7 @@ import {
   getAutoMemPath,
   isAutoMemoryEnabled,
   isAutoMemPath,
+  isTinyMemoryEnabled,
 } from '../../memdir/paths.js'
 import type { Tool } from '../../Tool.js'
 import { BASH_TOOL_NAME } from '../../tools/BashTool/toolName.js'
@@ -34,6 +38,7 @@ import { FILE_READ_TOOL_NAME } from '../../tools/FileReadTool/prompt.js'
 import { FILE_WRITE_TOOL_NAME } from '../../tools/FileWriteTool/prompt.js'
 import { GLOB_TOOL_NAME } from '../../tools/GlobTool/prompt.js'
 import { GREP_TOOL_NAME } from '../../tools/GrepTool/prompt.js'
+import { POWERSHELL_TOOL_NAME } from '../../tools/PowerShellTool/toolName.js'
 import { REPL_TOOL_NAME } from '../../tools/REPLTool/constants.js'
 import type {
   AssistantMessage,
@@ -43,6 +48,7 @@ import type {
 } from '../../types/message.js'
 import { createAbortController } from '../../utils/abortController.js'
 import { count, uniq } from '../../utils/array.js'
+import { parseForSecurity } from '../../utils/bash/ast.js'
 import { logForDebugging } from '../../utils/debug.js'
 import {
   createCacheSafeParams,
@@ -53,13 +59,11 @@ import {
   createMemorySavedMessage,
   createUserMessage,
 } from '../../utils/messages.js'
+import { isBashToolEnabled } from '../../utils/shell/shellToolUtils.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../analytics/growthbook.js'
 import { logEvent } from '../analytics/index.js'
 import { sanitizeToolNameForAnalytics } from '../analytics/metadata.js'
-import {
-  buildExtractAutoOnlyPrompt,
-  buildExtractCombinedPrompt,
-} from './prompts.js'
+import { buildExtractPrompt } from './prompts.js'
 
 /* eslint-disable @typescript-eslint/no-require-imports */
 const teamMemPaths = feature('TEAMMEM')
@@ -163,6 +167,69 @@ function denyAutoMemTool(tool: Tool, reason: string) {
   }
 }
 
+function isSafePowerShellMemoryDelete(command: string): boolean {
+  const tokens = command.trim().match(/"[^"]*"|'[^']*'|\S+/g) ?? []
+  if (tokens.length < 2) return false
+  if (!/^(remove-item|ri|del|erase|rd|rm|rmdir)$/i.test(tokens[0]!)) {
+    return false
+  }
+
+  let pathCount = 0
+  for (let i = 1; i < tokens.length; i++) {
+    const token = tokens[i]
+    if (token === undefined) continue
+    if (/^-(?:Literal)?Path$/i.test(token)) continue
+    if (token.startsWith('-')) return false
+
+    const filePath =
+      (token.startsWith('"') && token.endsWith('"')) ||
+      (token.startsWith("'") && token.endsWith("'"))
+        ? token.slice(1, -1)
+        : token
+    if (/[*?[\]$`(){}|;&<>"',]/.test(filePath)) return false
+    if (!filePath.endsWith('.md')) return false
+    if (!isAutoMemPath(filePath)) return false
+    pathCount++
+  }
+  return pathCount > 0
+}
+
+async function isSafeBashMemoryDelete(command: string): Promise<boolean> {
+  const parsed = await parseForSecurity(command)
+  if (parsed.kind !== 'simple') return false
+  if (parsed.commands.length !== 1) return false
+
+  const parsedCommand = parsed.commands[0]
+  if (parsedCommand === undefined) return false
+  if (parsedCommand.argv[0] !== 'rm') return false
+  if (parsedCommand.redirects.length > 0) return false
+  if (parsedCommand.envVars.length > 0) return false
+
+  let pathCount = 0
+  let optionsEnded = false
+  for (let i = 1; i < parsedCommand.argv.length; i++) {
+    const arg = parsedCommand.argv[i]
+    if (arg === undefined) continue
+    if (!optionsEnded) {
+      if (arg === '--') {
+        optionsEnded = true
+        continue
+      }
+      if (arg.startsWith('-')) {
+        if (arg === '--recursive' || /^-[a-zA-Z]*[rR]/.test(arg)) {
+          return false
+        }
+        continue
+      }
+    }
+    if (/[*?[]/.test(arg)) return false
+    if (!arg.startsWith('/') || !arg.endsWith('.md')) return false
+    if (!isAutoMemPath(arg)) return false
+    pathCount++
+  }
+  return pathCount > 0
+}
+
 /**
  * Creates a canUseTool function that allows Read/Grep/Glob (unrestricted),
  * read-only Bash commands, and Edit/Write only for paths within the
@@ -170,6 +237,13 @@ function denyAutoMemTool(tool: Tool, reason: string) {
  */
 export function createAutoMemCanUseTool(memoryDir: string): CanUseToolFn {
   return async (tool: Tool, input: Record<string, unknown>) => {
+    if (getMemoryToggledOff()) {
+      return denyAutoMemTool(
+        tool,
+        'Memory is toggled off. Run /toggle-memory to re-enable automemory.',
+      )
+    }
+
     // Allow REPL — when REPL mode is enabled (ant-default), primitive tools
     // are hidden from the tool list so the forked agent calls REPL instead.
     // REPL's VM context re-invokes this canUseTool for each inner primitive
@@ -190,16 +264,32 @@ export function createAutoMemCanUseTool(memoryDir: string): CanUseToolFn {
       return { behavior: 'allow' as const, updatedInput: input }
     }
 
-    // Allow Bash only for commands that pass BashTool.isReadOnly.
-    // `tool` IS BashTool here — no static import needed.
-    if (tool.name === BASH_TOOL_NAME) {
+    // Allow shell commands that are read-only, plus scoped memory deletion.
+    // `tool` is the matching shell tool here — no static tool import needed.
+    if (
+      tool.name === BASH_TOOL_NAME ||
+      tool.name === POWERSHELL_TOOL_NAME
+    ) {
       const parsed = tool.inputSchema.safeParse(input)
-      if (parsed.success && tool.isReadOnly(parsed.data)) {
-        return { behavior: 'allow' as const, updatedInput: input }
+      if (parsed.success) {
+        if (tool.isReadOnly(parsed.data)) {
+          return { behavior: 'allow' as const, updatedInput: input }
+        }
+        const command = parsed.data.command
+        if (typeof command === 'string') {
+          const safeDelete =
+            tool.name === BASH_TOOL_NAME
+              ? await isSafeBashMemoryDelete(command)
+              : isSafePowerShellMemoryDelete(command)
+          if (safeDelete) {
+            return { behavior: 'allow' as const, updatedInput: input }
+          }
+        }
       }
+      const isBash = tool.name === BASH_TOOL_NAME
       return denyAutoMemTool(
         tool,
-        'Only read-only shell commands are permitted in this context (ls, find, grep, cat, stat, wc, head, tail, and similar)',
+        `Only read-only shell commands and ${isBash ? 'rm' : 'Remove-Item'} with all paths inside ${memoryDir} are permitted in this context (${isBash ? 'ls, find, grep, cat, stat, wc, head, tail, and similar' : 'Get-ChildItem, Get-Content, Select-Object -First/-Last, and similar'})`,
       )
     }
 
@@ -208,15 +298,24 @@ export function createAutoMemCanUseTool(memoryDir: string): CanUseToolFn {
         tool.name === FILE_WRITE_TOOL_NAME) &&
       'file_path' in input
     ) {
+      if (tool.name === FILE_EDIT_TOOL_NAME && isTinyMemoryEnabled()) {
+        return denyAutoMemTool(
+          tool,
+          `${FILE_EDIT_TOOL_NAME} is not permitted in tiny memory mode — memories are immutable, so delete via ${isBashToolEnabled() ? 'Bash rm' : 'PowerShell Remove-Item'} and rewrite via ${FILE_WRITE_TOOL_NAME}.`,
+        )
+      }
       const filePath = input.file_path
       if (typeof filePath === 'string' && isAutoMemPath(filePath)) {
         return { behavior: 'allow' as const, updatedInput: input }
       }
     }
 
+    const shellToolName = isBashToolEnabled()
+      ? BASH_TOOL_NAME
+      : POWERSHELL_TOOL_NAME
     return denyAutoMemTool(
       tool,
-      `only ${FILE_READ_TOOL_NAME}, ${GREP_TOOL_NAME}, ${GLOB_TOOL_NAME}, read-only ${BASH_TOOL_NAME}, and ${FILE_EDIT_TOOL_NAME}/${FILE_WRITE_TOOL_NAME} within ${memoryDir} are allowed`,
+      `only ${FILE_READ_TOOL_NAME}, ${GREP_TOOL_NAME}, ${GLOB_TOOL_NAME}, read-only ${shellToolName}, and ${FILE_EDIT_TOOL_NAME}/${FILE_WRITE_TOOL_NAME} within ${memoryDir} are allowed`,
     )
   }
 }
@@ -363,11 +462,6 @@ export function initExtractMemories(): void {
       ? teamMemPaths!.isTeamMemoryEnabled()
       : false
 
-    const skipIndex = getFeatureValue_CACHED_MAY_BE_STALE(
-      'tengu_moth_copse',
-      false,
-    )
-
     const canUseTool = createAutoMemCanUseTool(memoryDir)
     const cacheSafeParams = createCacheSafeParams(context)
 
@@ -399,18 +493,11 @@ export function initExtractMemories(): void {
         await scanMemoryFiles(memoryDir, createAbortController().signal),
       )
 
-      const userPrompt =
-        feature('TEAMMEM') && teamMemoryEnabled
-          ? buildExtractCombinedPrompt(
-              newMessageCount,
-              existingMemories,
-              skipIndex,
-            )
-          : buildExtractAutoOnlyPrompt(
-              newMessageCount,
-              existingMemories,
-              skipIndex,
-            )
+      const userPrompt = buildExtractPrompt(
+        newMessageCount,
+        existingMemories,
+        teamMemoryEnabled,
+      )
 
       const result = await runForkedAgent({
         promptMessages: [createUserMessage({ content: userPrompt })],

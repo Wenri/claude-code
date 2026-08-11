@@ -68,6 +68,8 @@ export type UseTextInputProps = {
   inputFilter?: (input: string, key: Key) => string
   inlineGhostText?: InlineGhostText
   dim?: (text: string) => string
+  selectionAnchor?: number | null
+  selectionLinewise?: boolean
 }
 
 export function useTextInput({
@@ -94,6 +96,8 @@ export function useTextInput({
   inputFilter,
   inlineGhostText,
   dim,
+  selectionAnchor,
+  selectionLinewise = false,
 }: UseTextInputProps): TextInputState {
   // Pre-warm the modifiers module for Apple Terminal (has internal guard, safe to call multiple times)
   if (env.terminal === 'Apple_Terminal') {
@@ -524,6 +528,8 @@ export function useTextInput({
       invert,
       ghostTextForRender,
       maxVisibleLines,
+      selectionAnchor ?? undefined,
+      selectionLinewise,
     ),
     offset,
     setOffset,

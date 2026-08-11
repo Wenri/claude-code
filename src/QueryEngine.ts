@@ -36,8 +36,10 @@ import { query } from './query.js'
 import { categorizeRetryableAPIError } from './services/api/errors.js'
 import type { MCPServerConnection } from './services/mcp/types.js'
 import type { AppState } from './state/AppState.js'
+import { makeSetReplContext } from './state/AppStateStore.js'
 import { type Tools, type ToolUseContext, toolMatchesName } from './Tool.js'
 import type { AgentDefinition } from './tools/AgentTool/loadAgentsDir.js'
+import type { ReplIsolationLatch } from './tools/REPLTool/types.js'
 import { SYNTHETIC_OUTPUT_TOOL_NAME } from './tools/SyntheticOutputTool/SyntheticOutputTool.js'
 import type { Message } from './types/message.js'
 import type { OrphanedPermission } from './types/textInputTypes.js'
@@ -161,6 +163,7 @@ export type QueryEngineConfig = {
   readFileCache: FileStateCache
   customSystemPrompt?: string
   appendSystemPrompt?: string
+  planModeInstructions?: string
   userSpecifiedModel?: string
   fallbackModel?: string
   thinkingConfig?: ThinkingConfig
@@ -175,6 +178,7 @@ export type QueryEngineConfig = {
   includePartialMessages?: boolean
   setSDKStatus?: (status: SDKStatus) => void
   abortController?: AbortController
+  isolationLatch?: ReplIsolationLatch
   orphanedPermission?: OrphanedPermission
   /**
    * Snip-boundary handler: receives each yielded system message plus the
@@ -217,6 +221,7 @@ export class QueryEngine {
   // many turns in SDK mode.
   private discoveredSkillNames = new Set<string>()
   private loadedNestedMemoryPaths = new Set<string>()
+  private isolationLatch: ReplIsolationLatch
 
   constructor(config: QueryEngineConfig) {
     this.config = config
@@ -224,6 +229,7 @@ export class QueryEngine {
     this.abortController = config.abortController ?? createAbortController()
     this.permissionDenials = []
     this.readFileState = config.readFileCache
+    this.isolationLatch = config.isolationLatch ?? { current: null }
     this.totalUsage = EMPTY_USAGE
   }
 
@@ -244,6 +250,7 @@ export class QueryEngine {
       canUseTool,
       customSystemPrompt,
       appendSystemPrompt,
+      planModeInstructions,
       userSpecifiedModel,
       fallbackModel,
       jsonSchema,
@@ -381,12 +388,15 @@ export class QueryEngine {
         isNonInteractiveSession: true,
         customSystemPrompt,
         appendSystemPrompt,
+        planModeInstructions,
         agentDefinitions: { activeAgents: agents, allAgents: [] },
         theme: resolveThemeSetting(getGlobalConfig().theme),
         maxBudgetUsd,
       },
       getAppState,
       setAppState,
+      setReplContext: makeSetReplContext(setAppState),
+      isolationLatch: this.isolationLatch,
       abortController: this.abortController,
       readFileState: this.readFileState,
       nestedMemoryAttachmentTriggers: new Set<string>(),
@@ -554,12 +564,15 @@ export class QueryEngine {
         isNonInteractiveSession: true,
         customSystemPrompt,
         appendSystemPrompt,
+        planModeInstructions,
         theme: resolveThemeSetting(getGlobalConfig().theme),
         agentDefinitions: { activeAgents: agents, allAgents: [] },
         maxBudgetUsd,
       },
       getAppState,
       setAppState,
+      setReplContext: makeSetReplContext(setAppState),
+      isolationLatch: this.isolationLatch,
       abortController: this.abortController,
       readFileState: this.readFileState,
       nestedMemoryAttachmentTriggers: new Set<string>(),
@@ -1258,12 +1271,14 @@ export async function* ask({
   setReadFileCache,
   customSystemPrompt,
   appendSystemPrompt,
+  planModeInstructions,
   userSpecifiedModel,
   fallbackModel,
   jsonSchema,
   getAppState,
   setAppState,
   abortController,
+  isolationLatch,
   replayUserMessages = false,
   includePartialMessages = false,
   handleElicitation,
@@ -1287,6 +1302,7 @@ export async function* ask({
   mutableMessages?: Message[]
   customSystemPrompt?: string
   appendSystemPrompt?: string
+  planModeInstructions?: string
   userSpecifiedModel?: string
   fallbackModel?: string
   jsonSchema?: Record<string, unknown>
@@ -1295,6 +1311,7 @@ export async function* ask({
   getReadFileCache: () => FileStateCache
   setReadFileCache: (cache: FileStateCache) => void
   abortController?: AbortController
+  isolationLatch?: ReplIsolationLatch
   replayUserMessages?: boolean
   includePartialMessages?: boolean
   handleElicitation?: ToolUseContext['handleElicitation']
@@ -1315,6 +1332,7 @@ export async function* ask({
     readFileCache: cloneFileStateCache(getReadFileCache()),
     customSystemPrompt,
     appendSystemPrompt,
+    planModeInstructions,
     userSpecifiedModel,
     fallbackModel,
     thinkingConfig,
@@ -1328,6 +1346,7 @@ export async function* ask({
     includePartialMessages,
     setSDKStatus,
     abortController,
+    isolationLatch,
     orphanedPermission,
     ...(feature('HISTORY_SNIP')
       ? {

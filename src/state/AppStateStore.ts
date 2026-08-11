@@ -33,6 +33,7 @@ import type { FileHistoryState } from '../utils/fileHistory.js'
 import type { REPLHookContext } from '../utils/hooks/postSamplingHooks.js'
 import type { SessionHooksState } from '../utils/hooks/sessionHooks.js'
 import type { ModelSetting } from '../utils/model/model.js'
+import type { ReplContext } from '../tools/REPLTool/types.js'
 import type { DenialTrackingState } from '../utils/permissions/denialTracking.js'
 import type { PermissionMode } from '../utils/permissions/PermissionMode.js'
 import { getInitialSettings } from '../utils/settings/settings.js'
@@ -42,7 +43,12 @@ import type { Store } from './store.js'
 
 export type CompletionBoundary =
   | { type: 'complete'; completedAt: number; outputTokens: number }
-  | { type: 'bash'; command: string; completedAt: number }
+  | {
+      type: 'bash'
+      toolName: string
+      command: string
+      completedAt: number
+    }
   | { type: 'edit'; toolName: string; filePath: string; completedAt: number }
   | {
       type: 'denied_tool'
@@ -158,6 +164,8 @@ export type AppState = DeepImmutable<{
   replBridgeError: string | undefined
   // Always-on bridge: session name set via `/remote-control <name>` (used as session title)
   replBridgeInitialName: string | undefined
+  /** One-shot teardown override used by /update bridge reattachment. */
+  replBridgeSkipNextArchive: boolean
   // Always-on bridge: first-time remote dialog pending (set by /remote-control command)
   showRemoteCallout: boolean
 }> & {
@@ -303,29 +311,8 @@ export type AppState = DeepImmutable<{
     // changed since — keeps the resolver from yanking on every screenshot.
     displayResolvedForApps?: string
   }
-  // REPL tool VM context - persists across REPL calls for state sharing
-  replContext?: {
-    vmContext: import('vm').Context
-    registeredTools: Map<
-      string,
-      {
-        name: string
-        description: string
-        schema: Record<string, unknown>
-        handler: (args: Record<string, unknown>) => Promise<unknown>
-      }
-    >
-    console: {
-      log: (...args: unknown[]) => void
-      error: (...args: unknown[]) => void
-      warn: (...args: unknown[]) => void
-      info: (...args: unknown[]) => void
-      debug: (...args: unknown[]) => void
-      getStdout: () => string
-      getStderr: () => string
-      clear: () => void
-    }
-  }
+  // REPL tool VM contexts persist independently for the main thread and agents.
+  replContexts: Record<string, ReplContext>
   teamContext?: {
     teamName: string
     teamFilePath: string
@@ -459,6 +446,26 @@ export type AppState = DeepImmutable<{
 
 export type AppStateStore = Store<AppState>
 
+export function makeSetReplContext(
+  setState: (updater: (prev: AppState) => AppState) => void,
+): (agentId: string, context: ReplContext | undefined) => void {
+  return (agentId, context) => {
+    setState(prev => {
+      const current = prev.replContexts[agentId]
+      if (context === undefined) {
+        if (current === undefined) return prev
+        const { [agentId]: _, ...replContexts } = prev.replContexts
+        return { ...prev, replContexts }
+      }
+      if (current === context) return prev
+      return {
+        ...prev,
+        replContexts: { ...prev.replContexts, [agentId]: context },
+      }
+    })
+  }
+}
+
 export function getDefaultAppState(): AppState {
   // Determine initial permission mode for teammates spawned with plan_mode_required
   // Use lazy require to avoid circular dependency with teammate.ts
@@ -505,6 +512,8 @@ export function getDefaultAppState(): AppState {
     replBridgeSessionId: undefined,
     replBridgeError: undefined,
     replBridgeInitialName: undefined,
+    replBridgeSkipNextArchive: false,
+    replContexts: {},
     showRemoteCallout: false,
     toolPermissionContext: {
       ...getEmptyToolPermissionContext(),

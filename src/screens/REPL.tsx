@@ -169,6 +169,7 @@ import { resolveAgentTools } from '../tools/AgentTool/agentToolUtils.js';
 import { resumeAgentBackground } from '../tools/AgentTool/resumeAgent.js';
 import { useMainLoopModel } from '../hooks/useMainLoopModel.js';
 import { useAppState, useSetAppState, useAppStateStore } from '../state/AppState.js';
+import { makeSetReplContext } from '../state/AppStateStore.js';
 import type { ContentBlockParam, ImageBlockParam } from '@anthropic-ai/sdk/resources/messages.mjs';
 import type { ProcessUserInputContext } from '../utils/processUserInput/processUserInput.js';
 import type { PastedContent } from '../utils/config.js';
@@ -186,7 +187,9 @@ import { fileHistoryMakeSnapshot, type FileHistoryState, fileHistoryRewind, type
 import { type AttributionState, incrementPromptCount } from '../utils/commitAttribution.js';
 import { recordAttributionSnapshot } from '../utils/sessionStorage.js';
 import { computeStandaloneAgentContext, restoreAgentFromSession, restoreSessionStateFromLog, restoreWorktreeForResume, exitRestoredWorktree } from '../utils/sessionRestore.js';
-import { restoreSessionCronTasks } from '../utils/sessionCronTasks.js';
+import { getSessionBackgroundExitItems, restoreSessionCronTasks } from '../utils/sessionCronTasks.js';
+import { getBackgroundTaskSummary } from '../tasks/pillLabel.js';
+import { setBackgroundWorkState } from '../utils/backgroundWorkState.js';
 import { isBgSession, updateSessionName, updateSessionActivity } from '../utils/concurrentSessions.js';
 import { isInProcessTeammateTask, type InProcessTeammateTaskState } from '../tasks/InProcessTeammateTask/types.js';
 import { restoreRemoteAgentTasks } from '../tasks/RemoteAgentTask/RemoteAgentTask.js';
@@ -232,6 +235,7 @@ import { useMemorySurvey } from 'src/components/FeedbackSurvey/useMemorySurvey.j
 import { usePostCompactSurvey } from 'src/components/FeedbackSurvey/usePostCompactSurvey.js';
 import { FeedbackSurvey } from 'src/components/FeedbackSurvey/FeedbackSurvey.js';
 import { useInstallMessages } from 'src/hooks/notifs/useInstallMessages.js';
+import { useRemoteControlIdleUpsell } from '../hooks/useRemoteControlIdleUpsell.js';
 import { useAwaySummary } from 'src/hooks/useAwaySummary.js';
 import { useChromeExtensionNotification } from 'src/hooks/useChromeExtensionNotification.js';
 import { useOfficialMarketplaceNotification } from 'src/hooks/useOfficialMarketplaceNotification.js';
@@ -283,7 +287,7 @@ import type { RemoteSessionConfig } from '../remote/RemoteSessionManager.js';
 import { REMOTE_SAFE_COMMANDS } from '../commands.js';
 import type { RemoteMessageContent } from '../utils/teleport/api.js';
 import { FullscreenLayout, useUnseenDivider, computeUnseenDivider } from '../components/FullscreenLayout.js';
-import { isFullscreenEnvEnabled, maybeGetTmuxMouseHint, isMouseTrackingEnabled } from '../utils/fullscreen.js';
+import { isFullscreenEnvEnabled, maybeGetTmuxFocusHint, maybeGetTmuxMouseHint, isMouseTrackingEnabled } from '../utils/fullscreen.js';
 import { AlternateScreen } from '../ink/components/AlternateScreen.js';
 import { ScrollKeybindingHandler } from '../components/ScrollKeybindingHandler.js';
 import { useMessageActions, MessageActionsKeybindings, MessageActionsBar, type MessageActionsState, type MessageActionsNav, type MessageActionCaps } from '../components/messageActions.js';
@@ -1020,6 +1024,15 @@ export function REPL({
         }
       });
     }
+    void maybeGetTmuxFocusHint().then(hint => {
+      if (hint) {
+        addNotification({
+          key: 'tmux-focus-hint',
+          text: hint,
+          priority: 'low'
+        });
+      }
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const [showUndercoverCallout, setShowUndercoverCallout] = useState(false);
@@ -1166,6 +1179,15 @@ export function REPL({
   }, [isLoading, isWaitingForApproval, isShowingLocalJSXCommand]);
   const sessionStatus: TabStatusKind = isWaitingForApproval || isShowingLocalJSXCommand ? 'waiting' : isLoading ? 'busy' : 'idle';
   const waitingFor = sessionStatus !== 'waiting' ? undefined : toolUseConfirmQueue.length > 0 ? `approve ${toolUseConfirmQueue[0]!.tool.name}` : pendingWorkerRequest ? 'worker request' : pendingSandboxRequest ? 'sandbox request' : isShowingLocalJSXCommand ? 'dialog open' : 'input needed';
+  const backgroundTaskSummary = getBackgroundTaskSummary(tasks);
+  const queuedBackgroundCommands = getCommandQueueLength();
+  useEffect(() => {
+    setBackgroundWorkState({
+      tasks: backgroundTaskSummary.count,
+      queued: queuedBackgroundCommands,
+      kinds: backgroundTaskSummary.kinds
+    });
+  }, [backgroundTaskSummary.count, queuedBackgroundCommands, backgroundTaskSummary.kinds.join(',')]);
 
   // Push status to the PID file for `claude ps`. Fire-and-forget; ps falls
   // back to transcript-tail derivation when this is missing/stale.
@@ -1408,7 +1430,8 @@ export function REPL({
     tools: combinedInitialTools,
     setStreamingToolUses,
     setStreamMode,
-    setInProgressToolUseIDs
+    setInProgressToolUseIDs,
+    permissionMode: toolPermissionContext.mode
   });
 
   // Direct connect hook - manages WebSocket to a claude server for `claude connect` mode
@@ -1438,6 +1461,7 @@ export function REPL({
     const kind = remoteSession.isRemoteMode ? 'ccr' : sshRemote.isRemoteMode ? 'ssh' : 'direct';
     return {
       kind,
+      viewerOnly: kind === 'ccr' ? remoteSessionConfig?.viewerOnly : undefined,
       async sendControlRequest<Response = Record<string, unknown>>(request: unknown): Promise<Response> {
         if (kind === 'ccr') {
           return remoteSession.sendControlRequest<Response>(request as Parameters<typeof remoteSession.sendControlRequest>[0]);
@@ -1445,7 +1469,7 @@ export function REPL({
         throw new Error(`sendControlRequest not yet wired for ${kind} transport`);
       }
     };
-  }, [activeRemote.isRemoteMode, remoteSession.isRemoteMode, remoteSession.sendControlRequest, sshRemote.isRemoteMode]);
+  }, [activeRemote.isRemoteMode, remoteSession.isRemoteMode, remoteSession.sendControlRequest, remoteSessionConfig?.viewerOnly, sshRemote.isRemoteMode]);
   useEffect(() => {
     setActiveRemoteControlTransport(activeRemoteControlTransport);
     return () => setActiveRemoteControlTransport(null);
@@ -1999,6 +2023,7 @@ export function REPL({
   // readFileState is a 100-entry LRU; once it evicts a CLAUDE.md path,
   // the next discovery cycle re-injects it. Cleared in clearConversation.
   const loadedNestedMemoryPathsRef = useRef(new Set<string>());
+  const isolationLatchRef = useRef<'web' | 'connectors' | null>(null);
 
   // Helper to restore read file state from messages (used for resume flows)
   // This allows Claude to edit files that were read in previous sessions
@@ -2471,7 +2496,13 @@ export function REPL({
         refreshTools: computeTools
       },
       getAppState: () => store.getState(),
+      getToolPermissionContext: () => store.getState().toolPermissionContext,
       setAppState,
+      setReplContext: makeSetReplContext(setAppState),
+      replHydration: {
+        kind: 'resume'
+      },
+      isolationLatch: isolationLatchRef,
       messages,
       turnStartIndex: 0,
       setMessages,
@@ -3298,7 +3329,7 @@ export function REPL({
           // pinning stale REPL render scopes in downstream closures.
           const context = getToolUseContext(messagesRef.current, [], createAbortController(), mainLoopModel);
           const mod = await matchingCommand.load();
-          const jsx = await mod.call(onDone, context, commandArgs);
+          const jsx = await mod.call(onDone, context, commandArgs, commandName);
 
           // Skip if onDone already fired — prevents stuck isLocalJSXCommand
           // (see processSlashCommand.tsx local-jsx case for full mechanism).
@@ -3671,8 +3702,9 @@ export function REPL({
       return;
     }
     const showWorktree = getCurrentWorktreeSession() !== null;
-    if (showWorktree) {
-      setExitFlow(<ExitFlow showWorktree onDone={() => {}} onCancel={() => {
+    const backgroundItems = getSessionBackgroundExitItems();
+    if (showWorktree || backgroundItems.length > 0) {
+      setExitFlow(<ExitFlow showWorktree={showWorktree} backgroundItems={backgroundItems} onDone={() => {}} onCancel={() => {
         setExitFlow(null);
         setIsExiting(false);
       }} />);
@@ -4037,6 +4069,8 @@ export function REPL({
       idleHintShownRef.current = false;
     };
   }, [lastQueryCompletionTime, isLoading, addNotification, removeNotification]);
+
+  useRemoteControlIdleUpsell(lastQueryCompletionTime, isLoading);
 
   // Submits incoming prompts from teammate messages or tasks mode as new turns
   // Returns true if submission succeeded, false if a query is already running

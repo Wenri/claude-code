@@ -14,7 +14,7 @@ export function expandTabs(
     return text
   }
 
-  const tokenizer = createTokenizer()
+  const tokenizer = createTokenizer({ forOutput: true })
   const tokens = tokenizer.feed(text)
   tokens.push(...tokenizer.flush())
 

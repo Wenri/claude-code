@@ -10,6 +10,7 @@
 // State is closure-scoped inside initAutoDream() rather than module-level
 // (tests call initAutoDream() in beforeEach for a fresh closure).
 
+import { feature } from 'bun:bundle'
 import type { REPLHookContext } from '../../utils/hooks/postSamplingHooks.js'
 import {
   createCacheSafeParams,
@@ -24,7 +25,11 @@ import { logForDebugging } from '../../utils/debug.js'
 import type { ToolUseContext } from '../../Tool.js'
 import { logEvent } from '../analytics/index.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../analytics/growthbook.js'
-import { isAutoMemoryEnabled, getAutoMemPath } from '../../memdir/paths.js'
+import {
+  isAutoMemoryEnabled,
+  getAutoMemPath,
+  isTinyMemoryEnabled,
+} from '../../memdir/paths.js'
 import { isAutoDreamEnabled } from './config.js'
 import { getProjectDir } from '../../utils/sessionStorage.js'
 import {
@@ -34,7 +39,10 @@ import {
   getSessionId,
 } from '../../bootstrap/state.js'
 import { createAutoMemCanUseTool } from '../extractMemories/extractMemories.js'
-import { buildConsolidationPrompt } from './consolidationPrompt.js'
+import {
+  buildConsolidationPrompt,
+  buildPruningPrompt,
+} from './consolidationPrompt.js'
 import {
   readLastConsolidatedAt,
   listSessionsTouchedSince,
@@ -50,6 +58,13 @@ import {
 } from '../../tasks/DreamTask/DreamTask.js'
 import { FILE_EDIT_TOOL_NAME } from '../../tools/FileEditTool/constants.js'
 import { FILE_WRITE_TOOL_NAME } from '../../tools/FileWriteTool/prompt.js'
+import { SHELL_TOOL_NAMES } from '../../utils/shell/shellToolUtils.js'
+
+/* eslint-disable @typescript-eslint/no-require-imports */
+const teamMemPaths = feature('TEAMMEM')
+  ? (require('../../memdir/teamMemPaths.js') as typeof import('../../memdir/teamMemPaths.js'))
+  : null
+/* eslint-enable @typescript-eslint/no-require-imports */
 
 // Scan throttle: when time-gate passes but session-gate doesn't, the lock
 // mtime doesn't advance, so the time-gate keeps passing every turn.
@@ -210,16 +225,29 @@ export function initAutoDream(): void {
     try {
       const memoryRoot = getAutoMemPath()
       const transcriptDir = getProjectDir(getOriginalCwd())
+      const teamMemoryEnabled = teamMemPaths?.isTeamMemoryEnabled() ?? false
       // Tool constraints note goes in `extra`, not the shared prompt body —
       // manual /dream runs in the main loop with normal permissions and this
       // would be misleading there.
-      const extra = `
+      const tinyMemoryEnabled = isTinyMemoryEnabled()
+      const extra = tinyMemoryEnabled
+        ? `
 
-**Tool constraints for this run:** Bash is restricted to read-only commands (\`ls\`, \`find\`, \`grep\`, \`cat\`, \`stat\`, \`wc\`, \`head\`, \`tail\`, and similar). Anything that writes, redirects to a file, or modifies state will be denied. Plan your exploration with this in mind — no need to probe.
+**Tool constraints for this run:** Shell access is restricted to read-only commands (\`ls\`, \`find\`, \`grep\`, \`cat\`, \`stat\`, \`wc\`, \`head\`, \`tail\`, and similar) plus deleting \`.md\` paths inside the memory directory. ${FILE_EDIT_TOOL_NAME} is not permitted — memories are immutable, so delete + ${FILE_WRITE_TOOL_NAME} to replace, never edit in place. Plan your exploration with this in mind — no need to probe.`
+        : `
+
+**Tool constraints for this run:** Shell access is restricted to read-only commands (\`ls\`, \`find\`, \`grep\`, \`cat\`, \`stat\`, \`wc\`, \`head\`, \`tail\`, and similar) plus deleting \`.md\` paths inside the memory directory. Anything else that writes, redirects to a file, or modifies state will be denied. Plan your exploration with this in mind — no need to probe.
 
 Sessions since last consolidation (${sessionIds.length}):
 ${sessionIds.map(id => `- ${id}`).join('\n')}`
-      const prompt = buildConsolidationPrompt(memoryRoot, transcriptDir, extra)
+      const prompt = tinyMemoryEnabled
+        ? buildPruningPrompt(memoryRoot, extra, teamMemoryEnabled)
+        : buildConsolidationPrompt(
+            memoryRoot,
+            transcriptDir,
+            extra,
+            teamMemoryEnabled,
+          )
 
       const result = await runForkedAgent({
         promptMessages: [createUserMessage({ content: prompt })],
@@ -299,6 +327,18 @@ function makeDreamProgressWatcher(
           const input = block.input as { file_path?: unknown }
           if (typeof input.file_path === 'string') {
             touchedPaths.push(input.file_path)
+          }
+        } else if (SHELL_TOOL_NAMES.includes(block.name)) {
+          const input = block.input as { command?: unknown }
+          if (
+            typeof input.command === 'string' &&
+            /^\s*(rm|remove-item|ri|del|erase)\b/i.test(input.command)
+          ) {
+            for (const match of input.command.matchAll(
+              /"[^"]*\.md"|'[^']*\.md'|(?:\/|[A-Za-z]:[\\/])\S*\.md\b/g,
+            )) {
+              touchedPaths.push(match[0].replace(/^["']|["']$/g, ''))
+            }
           }
         }
       }

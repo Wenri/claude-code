@@ -23,6 +23,7 @@ import { resetSettingsCache } from 'src/utils/settings/settingsCache.js'
 import type {
   HooksSettings,
   PluginHookMatcher,
+  SettingsJson,
 } from 'src/utils/settings/types.js'
 import { createSignal } from 'src/utils/signal.js'
 
@@ -31,6 +32,7 @@ type RegisteredHookMatcher = HookCallbackMatcher | PluginHookMatcher
 
 export type ActiveRemoteControlTransport = {
   kind: 'ccr' | 'direct' | 'ssh'
+  viewerOnly?: boolean
   sendControlRequest: <Response = Record<string, unknown>>(
     request: unknown,
   ) => Promise<Response>
@@ -87,11 +89,14 @@ type State = {
   strictToolResultPairing: boolean
   sdkAgentProgressSummariesEnabled: boolean
   userMsgOptIn: boolean
+  memoryToggledOff: boolean
+  sessionSkillAllowlist: string[] | undefined
   clientType: string
   sessionSource: string | undefined
   questionPreviewFormat: 'markdown' | 'html' | undefined
   flagSettingsPath: string | undefined
   flagSettingsInline: Record<string, unknown> | null
+  parentManagedSettings: SettingsJson | null
   allowedSettingSources: SettingSource[]
   sessionIngressToken: string | null | undefined
   oauthTokenFromFd: string | null | undefined
@@ -249,6 +254,9 @@ type State = {
   // microcompact is first enabled, keep sending the header so mid-session
   // GrowthBook/settings toggles don't bust the prompt cache.
   cacheEditingHeaderLatched: boolean | null
+  // Session latch for prompt-cache diagnostics. Null means the eligibility
+  // gate has not been evaluated for this conversation yet.
+  cacheDiagnosisHeaderLatched: boolean | null
   // Sticky-on latch for clearing thinking from prior tool loops. Triggered
   // when >1h since last API call (confirmed cache miss — no cache-hit
   // benefit to keeping thinking). Once latched, stays on so the newly-warmed
@@ -256,6 +264,7 @@ type State = {
   thinkingClearLatched: boolean | null
   // Current prompt ID (UUID) correlating a user prompt with subsequent OTel events
   promptId: string | null
+  promptIndex: number
   // Last API requestId for the main conversation chain (not subagents).
   // Updated after each successful API response for main-session queries.
   // Read at shutdown to send cache eviction hints to inference.
@@ -316,6 +325,8 @@ function getInitialState(): State {
     strictToolResultPairing: false,
     sdkAgentProgressSummariesEnabled: false,
     userMsgOptIn: false,
+    memoryToggledOff: false,
+    sessionSkillAllowlist: undefined,
     clientType: 'cli',
     sessionSource: undefined,
     questionPreviewFormat: undefined,
@@ -326,6 +337,7 @@ function getInitialState(): State {
     activeRemoteControlTransport: null,
     flagSettingsPath: undefined,
     flagSettingsInline: null,
+    parentManagedSettings: null,
     allowedSettingSources: [
       'userSettings',
       'projectSettings',
@@ -431,9 +443,11 @@ function getInitialState(): State {
     afkModeHeaderLatched: null,
     fastModeHeaderLatched: null,
     cacheEditingHeaderLatched: null,
+    cacheDiagnosisHeaderLatched: null,
     thinkingClearLatched: null,
     // Current prompt ID
     promptId: null,
+    promptIndex: 0,
     lastMainRequestId: undefined,
     lastApiCompletionTimestamp: null,
     pendingPostCompaction: false,
@@ -496,6 +510,7 @@ export function switchSession(
 }
 
 const sessionSwitched = createSignal<[id: SessionId]>()
+const interactionOccurred = createSignal<[]>()
 
 /**
  * Register a callback that fires when switchSession changes the active
@@ -504,6 +519,7 @@ const sessionSwitched = createSignal<[id: SessionId]>()
  * PID file's sessionId in sync with --resume.
  */
 export const onSessionSwitch = sessionSwitched.subscribe
+export const onInteraction = interactionOccurred.subscribe
 
 /**
  * Project directory the current session's transcript lives in, or `null` if
@@ -703,6 +719,7 @@ export function flushInteractionTime(): void {
 function flushInteractionTime_inner(): void {
   STATE.lastInteractionTime = Date.now()
   interactionTimeDirty = false
+  interactionOccurred.emit()
 }
 
 export function addToTotalLinesChanged(added: number, removed: number): void {
@@ -1126,6 +1143,22 @@ export function setUserMsgOptIn(value: boolean): void {
   STATE.userMsgOptIn = value
 }
 
+export function getMemoryToggledOff(): boolean {
+  return STATE.memoryToggledOff
+}
+
+export function setMemoryToggledOff(value: boolean): void {
+  STATE.memoryToggledOff = value
+}
+
+export function getSessionSkillAllowlist(): string[] | undefined {
+  return STATE.sessionSkillAllowlist
+}
+
+export function setSessionSkillAllowlist(value: string[] | undefined): void {
+  STATE.sessionSkillAllowlist = value
+}
+
 export function getSessionSource(): string | undefined {
   return STATE.sessionSource
 }
@@ -1162,6 +1195,14 @@ export function setFlagSettingsInline(
   settings: Record<string, unknown> | null,
 ): void {
   STATE.flagSettingsInline = settings
+}
+
+export function getParentManagedSettings(): SettingsJson | null {
+  return STATE.parentManagedSettings
+}
+
+export function setParentManagedSettings(settings: SettingsJson | null): void {
+  STATE.parentManagedSettings = settings
 }
 
 export function getSessionIngressToken(): string | null | undefined {
@@ -1787,6 +1828,14 @@ export function setCacheEditingHeaderLatched(v: boolean): void {
   STATE.cacheEditingHeaderLatched = v
 }
 
+export function getCacheDiagnosisHeaderLatched(): boolean | null {
+  return STATE.cacheDiagnosisHeaderLatched
+}
+
+export function setCacheDiagnosisHeaderLatched(v: boolean): void {
+  STATE.cacheDiagnosisHeaderLatched = v
+}
+
 export function getThinkingClearLatched(): boolean | null {
   return STATE.thinkingClearLatched
 }
@@ -1803,6 +1852,7 @@ export function clearBetaHeaderLatches(): void {
   STATE.afkModeHeaderLatched = null
   STATE.fastModeHeaderLatched = null
   STATE.cacheEditingHeaderLatched = null
+  STATE.cacheDiagnosisHeaderLatched = null
   STATE.thinkingClearLatched = null
 }
 
@@ -1812,4 +1862,9 @@ export function getPromptId(): string | null {
 
 export function setPromptId(id: string | null): void {
   STATE.promptId = id
+}
+
+export function getNextPromptIndex(): number {
+  STATE.promptIndex++
+  return STATE.promptIndex
 }

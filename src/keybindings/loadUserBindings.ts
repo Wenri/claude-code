@@ -390,6 +390,11 @@ export async function initializeKeybindingWatcher(): Promise<void> {
     atomic: true,
   })
 
+  watcher.on('error', error =>
+    logForDebugging(`[keybindings] watcher error: ${errorMessage(error)}`, {
+      level: 'warn',
+    }),
+  )
   watcher.on('add', handleChange)
   watcher.on('change', handleChange)
   watcher.on('unlink', handleDelete)

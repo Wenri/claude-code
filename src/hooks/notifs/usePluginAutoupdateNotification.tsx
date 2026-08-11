@@ -6,16 +6,18 @@ import { useNotifications } from '../../context/notifications.js';
 import { Text } from '../../ink.js';
 import { logForDebugging } from '../../utils/debug.js';
 import { onPluginsAutoUpdated } from '../../utils/plugins/pluginAutoupdate.js';
+import { useSetAppState } from '../../state/AppState.js';
 
 /**
  * Hook that displays a notification when plugins have been auto-updated.
  * The notification tells the user to run /reload-plugins to apply the updates.
  */
 export function usePluginAutoupdateNotification() {
-  const $ = _c(7);
+  const $ = _c(9);
   const {
     addNotification
   } = useNotifications();
+  const setAppState = useSetAppState();
   let t0;
   if ($[0] === Symbol.for("react.memo_cache_sentinel")) {
     t0 = [];
@@ -26,28 +28,42 @@ export function usePluginAutoupdateNotification() {
   const [updatedPlugins, setUpdatedPlugins] = useState(t0);
   let t1;
   let t2;
-  if ($[1] === Symbol.for("react.memo_cache_sentinel")) {
+  if ($[1] !== setAppState) {
     t1 = () => {
       if (getIsRemoteMode()) {
         return;
       }
-      const unsubscribe = onPluginsAutoUpdated(plugins => {
-        logForDebugging(`Plugin autoupdate notification: ${plugins.length} plugin(s) updated`);
+      const unsubscribe = onPluginsAutoUpdated((plugins, blocked) => {
+        logForDebugging(`Plugin autoupdate notification: ${plugins.length} plugin(s) updated, ${blocked.length} blocked by pinner`);
         setUpdatedPlugins(plugins);
+        setAppState(previous => {
+          const remaining = previous.plugins.errors.filter(error => error.type !== 'autoupdate-blocked-by-pinner');
+          if (remaining.length === previous.plugins.errors.length && blocked.length === 0) {
+            return previous;
+          }
+          return {
+            ...previous,
+            plugins: {
+              ...previous.plugins,
+              errors: [...remaining, ...blocked]
+            }
+          };
+        });
       });
       return unsubscribe;
     };
-    t2 = [];
-    $[1] = t1;
-    $[2] = t2;
+    t2 = [setAppState];
+    $[1] = setAppState;
+    $[2] = t1;
+    $[3] = t2;
   } else {
-    t1 = $[1];
-    t2 = $[2];
+    t1 = $[2];
+    t2 = $[3];
   }
   useEffect(t1, t2);
   let t3;
   let t4;
-  if ($[3] !== addNotification || $[4] !== updatedPlugins) {
+  if ($[4] !== addNotification || $[5] !== updatedPlugins) {
     t3 = () => {
       if (getIsRemoteMode()) {
         return;
@@ -66,13 +82,13 @@ export function usePluginAutoupdateNotification() {
       logForDebugging(`Showing plugin autoupdate notification for: ${pluginNames.join(", ")}`);
     };
     t4 = [updatedPlugins, addNotification];
-    $[3] = addNotification;
-    $[4] = updatedPlugins;
-    $[5] = t3;
-    $[6] = t4;
+    $[4] = addNotification;
+    $[5] = updatedPlugins;
+    $[6] = t3;
+    $[7] = t4;
   } else {
-    t3 = $[5];
-    t4 = $[6];
+    t3 = $[6];
+    t4 = $[7];
   }
   useEffect(t3, t4);
 }

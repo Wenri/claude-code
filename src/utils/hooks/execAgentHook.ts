@@ -8,7 +8,6 @@ import { type Tool, toolMatchesName } from '../../Tool.js'
 import { SYNTHETIC_OUTPUT_TOOL_NAME } from '../../tools/SyntheticOutputTool/SyntheticOutputTool.js'
 import { ALL_AGENT_DISALLOWED_TOOLS } from '../../tools.js'
 import { asAgentId } from '../../types/ids.js'
-import type { Message } from '../../types/message.js'
 import { createAbortController } from '../abortController.js'
 import { createAttachmentMessage } from '../attachments.js'
 import { createCombinedAbortSignal } from '../combinedAbortSignal.js'
@@ -30,6 +29,8 @@ import {
 } from './hookHelpers.js'
 import { clearSessionHooks } from './sessionHooks.js'
 
+export const HOOK_AGENT_ID_PREFIX = 'hook-agent-'
+
 /**
  * Execute an agent-based hook using a multi-turn LLM query
  */
@@ -41,11 +42,6 @@ export async function execAgentHook(
   signal: AbortSignal,
   toolUseContext: ToolUseContext,
   toolUseID: string | undefined,
-  // Kept for signature stability with the other exec*Hook functions.
-  // Was used by hook.prompt(messages) before the .transform() was removed
-  // (CC-79) — the only consumer of that was ExitPlanModeV2Tool's
-  // programmatic construction, since refactored into VerifyPlanExecutionTool.
-  _messages: Message[],
   agentName?: string,
 ): Promise<HookResult> {
   const effectiveToolUseID = toolUseID || `hook-${randomUUID()}`
@@ -104,8 +100,12 @@ export async function execAgentHook(
         structuredOutputTool,
       ]
 
+      const taskDescription =
+        hookEvent === 'Stop' || hookEvent === 'SubagentStop'
+          ? 'You are verifying a stop condition in Claude Code. Your task is to verify that the agent completed the given plan.'
+          : `You are evaluating a ${hookEvent} hook in Claude Code. Your task is to evaluate the condition described in the user message.`
       const systemPrompt = asSystemPrompt([
-        `You are verifying a stop condition in Claude Code. Your task is to verify that the agent completed the given plan. The conversation transcript is available at: ${transcriptPath}\nYou can read this file to analyze the conversation history if needed.
+        `${taskDescription} The conversation transcript is available at: ${transcriptPath}\nYou can read this file to analyze the conversation history if needed.
 
 Use the available tools to inspect the codebase and verify the condition.
 Use as few steps as possible - be efficient and direct.
@@ -119,7 +119,7 @@ When done, return your result using the ${SYNTHETIC_OUTPUT_TOOL_NAME} tool with:
       const MAX_AGENT_TURNS = 50
 
       // Create unique agentId for this hook agent
-      const hookAgentId = asAgentId(`hook-agent-${randomUUID()}`)
+      const hookAgentId = asAgentId(`${HOOK_AGENT_ID_PREFIX}${randomUUID()}`)
 
       // Create a modified toolUseContext for the agent
       const agentToolUseContext: ToolUseContext = {
@@ -242,6 +242,7 @@ When done, return your result using the ${SYNTHETIC_OUTPUT_TOOL_NAME} tool with:
           logEvent('tengu_agent_stop_hook_max_turns', {
             durationMs: Date.now() - hookStartTime,
             turnCount,
+            hookEvent,
             agentName:
               agentName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
           })
@@ -258,6 +259,7 @@ When done, return your result using the ${SYNTHETIC_OUTPUT_TOOL_NAME} tool with:
           durationMs: Date.now() - hookStartTime,
           turnCount,
           errorType: 1, // 1 = no structured output
+          hookEvent,
           agentName:
             agentName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
         })
@@ -272,6 +274,13 @@ When done, return your result using the ${SYNTHETIC_OUTPUT_TOOL_NAME} tool with:
         logForDebugging(
           `Hooks: Agent hook condition was not met: ${structuredOutputResult.reason}`,
         )
+        logEvent('tengu_agent_stop_hook_blocking', {
+          durationMs: Date.now() - hookStartTime,
+          turnCount,
+          hookEvent,
+          agentName:
+            agentName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        })
         return {
           hook,
           outcome: 'blocking',
@@ -287,6 +296,7 @@ When done, return your result using the ${SYNTHETIC_OUTPUT_TOOL_NAME} tool with:
       logEvent('tengu_agent_stop_hook_success', {
         durationMs: Date.now() - hookStartTime,
         turnCount,
+        hookEvent,
         agentName:
           agentName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       })
@@ -319,6 +329,7 @@ When done, return your result using the ${SYNTHETIC_OUTPUT_TOOL_NAME} tool with:
     logEvent('tengu_agent_stop_hook_error', {
       durationMs: Date.now() - hookStartTime,
       errorType: 2, // 2 = general error
+      hookEvent,
       agentName:
         agentName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
     })

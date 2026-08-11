@@ -1,17 +1,25 @@
 import type { Dirent, Stats } from 'fs'
 import { readdir, readFile, stat } from 'fs/promises'
 import * as path from 'path'
+import * as semver from 'semver'
 import { z } from 'zod/v4'
+import { getCwd } from '../cwd.js'
 import { errorMessage, getErrnoCode, isENOENT } from '../errors.js'
+import { execFileNoThrow } from '../execFileNoThrow.js'
 import { FRONTMATTER_REGEX } from '../frontmatterParser.js'
+import { findGitRoot } from '../git.js'
+import { isSafeRefName } from '../git/gitFilesystem.js'
 import { jsonParse } from '../slowOperations.js'
 import { parseYaml } from '../yaml.js'
 import {
+  type PluginMarketplace,
+  type PluginMarketplaceEntry,
   PluginHooksSchema,
   PluginManifestSchema,
   PluginMarketplaceEntrySchema,
   PluginMarketplaceSchema,
 } from './schemas.js'
+import { makePluginVersionTag } from './pluginVersioning.js'
 
 /**
  * Fields that belong in marketplace.json entries (PluginMarketplaceEntrySchema)
@@ -505,6 +513,7 @@ export async function validateMarketplaceManifest(
     fileType: 'marketplace',
   }
 }
+
 /**
  * Validate the YAML frontmatter in a plugin component markdown file.
  *
@@ -900,4 +909,423 @@ export async function validateManifest(
       return validatePluginManifest(filePath)
     }
   }
+}
+
+export type PluginReleasePlan = {
+  pluginName: string
+  version: string
+  versionFrom: 'plugin.json' | 'marketplace entry'
+  tag: string
+  pluginRoot: string
+  gitRoot: string
+  marketplace?: {
+    path: string
+    entryIndex: number
+    entryVersion?: string
+  }
+  validation: ValidationResult[]
+}
+
+export type ValidatePluginReleaseResult =
+  | { ok: true; warnings: string[]; plan: PluginReleasePlan }
+  | { ok: false; error: string; warnings: string[] }
+
+export type ExecutePluginTagResult =
+  | { ok: true; pushed: boolean }
+  | { ok: false; error: string }
+
+type MarketplaceMatch = {
+  path: string
+  entryIndex: number
+  entry: PluginMarketplaceEntry
+}
+
+export async function validatePluginRelease(
+  inputPath: string,
+  options: { force?: boolean } = {},
+): Promise<ValidatePluginReleaseResult> {
+  const warnings: string[] = []
+  const resolved = await resolvePluginReleaseManifest(inputPath)
+  if (!resolved.ok) return { ok: false, error: resolved.error, warnings }
+
+  const { pluginRoot, manifestPath, manifest } = resolved
+  const manifestValidation = await validatePluginManifest(manifestPath)
+  const validation = [manifestValidation]
+  if (manifestValidation.success) {
+    validation.push(...(await validatePluginContents(pluginRoot)))
+  }
+
+  for (const result of validation) {
+    for (const warning of result.warnings) {
+      warnings.push(
+        `${path.relative(getCwd(), result.filePath)}: ${warning.message}`,
+      )
+    }
+  }
+
+  const failedValidation = validation.find(result => !result.success)
+  if (failedValidation) {
+    const errors = failedValidation.errors
+      .map(error => `  ${error.path}: ${error.message}`)
+      .join('\n')
+    return {
+      ok: false,
+      error: `Plugin validation failed for ${failedValidation.filePath}:\n${errors}`,
+      warnings,
+    }
+  }
+
+  const pluginName = manifest.name
+  if (typeof pluginName !== 'string' || pluginName.length === 0) {
+    return {
+      ok: false,
+      error: `plugin.json at ${manifestPath} has no "name" field`,
+      warnings,
+    }
+  }
+
+  const marketplace = await findEnclosingMarketplace(pluginRoot, pluginName)
+  const manifestVersion =
+    typeof manifest.version === 'string' && manifest.version.length > 0
+      ? manifest.version
+      : undefined
+
+  let version: string
+  let versionFrom: 'plugin.json' | 'marketplace entry'
+  if (manifestVersion !== undefined) {
+    version = manifestVersion
+    versionFrom = 'plugin.json'
+  } else if (marketplace?.entry.version) {
+    version = marketplace.entry.version
+    versionFrom = 'marketplace entry'
+  } else {
+    return {
+      ok: false,
+      error:
+        `No version to tag. Set "version" in ${path.relative(getCwd(), manifestPath)}` +
+        (marketplace
+          ? ` or in the marketplace entry at ${path.relative(getCwd(), marketplace.path)} plugins[${marketplace.entryIndex}].`
+          : '.') +
+        ' Tags are only used for dependency version constraints, which require an explicit semver — the git-SHA fallback does not need a tag.',
+      warnings,
+    }
+  }
+
+  if (
+    marketplace?.entry.version &&
+    manifestVersion !== undefined &&
+    marketplace.entry.version !== manifestVersion
+  ) {
+    return {
+      ok: false,
+      error: `Version mismatch: plugin.json says "${manifestVersion}" but ${path.relative(getCwd(), marketplace.path)} plugins[${marketplace.entryIndex}].version says "${marketplace.entry.version}". plugin.json wins at install time, so update the marketplace entry to "${manifestVersion}" (or remove it) before tagging.`,
+      warnings,
+    }
+  }
+
+  if (semver.valid(version) === null) {
+    return {
+      ok: false,
+      error: `Version "${version}" is not valid semver. Dependency resolution (resolveVersionRange) ignores tags whose suffix doesn't parse as semver, so this tag would never be selected.`,
+      warnings,
+    }
+  }
+
+  const tag = makePluginVersionTag(pluginName, version)
+  if (!isSafeRefName(tag)) {
+    return {
+      ok: false,
+      error: `Computed tag name "${tag}" is not a valid git ref. Check the plugin name for characters git rejects (spaces, ~, ^, :, ?, *, [, \\, or sequences like .., @{, //).`,
+      warnings,
+    }
+  }
+
+  const gitRoot = findGitRoot(pluginRoot)
+  if (gitRoot === null) {
+    return {
+      ok: false,
+      error: `${pluginRoot} is not inside a git repository. Dependency tags are resolved via git ls-remote, so the plugin must live in a git repo.`,
+      warnings,
+    }
+  }
+
+  if (!options.force) {
+    const dirtyPaths = await getDirtyPluginReleasePaths(
+      gitRoot,
+      marketplace ? [pluginRoot, marketplace.path] : [pluginRoot],
+    )
+    if (dirtyPaths.length > 0) {
+      const shown = dirtyPaths.slice(0, 5).join('\n  ')
+      const remainder =
+        dirtyPaths.length > 5
+          ? `\n  …and ${dirtyPaths.length - 5} more`
+          : ''
+      return {
+        ok: false,
+        error: `Uncommitted changes affecting this release — commit them first so the tag points at the version you intend to release (or use --force):\n  ${shown}${remainder}`,
+        warnings,
+      }
+    }
+  }
+
+  if (!options.force && (await localPluginTagExists(gitRoot, tag))) {
+    return {
+      ok: false,
+      error: `Tag "${tag}" already exists locally. Bump the version in ${versionFrom}, or re-run with --force to move the tag.`,
+      warnings,
+    }
+  }
+
+  return {
+    ok: true,
+    warnings,
+    plan: {
+      pluginName,
+      version,
+      versionFrom,
+      tag,
+      pluginRoot,
+      gitRoot,
+      marketplace: marketplace
+        ? {
+            path: marketplace.path,
+            entryIndex: marketplace.entryIndex,
+            entryVersion: marketplace.entry.version,
+          }
+        : undefined,
+      validation,
+    },
+  }
+}
+
+export async function executePluginTag(
+  plan: PluginReleasePlan,
+  options: {
+    push: boolean
+    force: boolean
+    message?: string
+    remote: string
+  },
+): Promise<ExecutePluginTagResult> {
+  const tagArgs = ['-C', plan.gitRoot, 'tag']
+  if (options.force) tagArgs.push('-f')
+  tagArgs.push(
+    '-a',
+    plan.tag,
+    '-m',
+    getPluginTagMessage(plan, options.message),
+    'HEAD',
+  )
+  const tagResult = await execFileNoThrow('git', tagArgs)
+  if (tagResult.code !== 0) {
+    return {
+      ok: false,
+      error: `git tag failed (exit ${tagResult.code}): ${tagResult.stderr.trim() || tagResult.stdout.trim()}`,
+    }
+  }
+
+  if (!options.push) return { ok: true, pushed: false }
+  if (!/^[A-Za-z0-9][A-Za-z0-9._/-]*$/.test(options.remote)) {
+    return {
+      ok: false,
+      error: `Tag created locally but not pushed: "${options.remote}" is not a valid remote name.`,
+    }
+  }
+
+  const pushArgs = ['-C', plan.gitRoot, 'push']
+  if (options.force) pushArgs.push('--force')
+  pushArgs.push(options.remote, `refs/tags/${plan.tag}`)
+  const pushResult = await execFileNoThrow('git', pushArgs)
+  if (pushResult.code !== 0) {
+    return {
+      ok: false,
+      error: `Tag created locally but push failed (exit ${pushResult.code}): ${pushResult.stderr.trim() || pushResult.stdout.trim()}`,
+    }
+  }
+  return { ok: true, pushed: true }
+}
+
+export function getPluginTagMessage(
+  plan: PluginReleasePlan,
+  message?: string,
+): string {
+  return message === undefined
+    ? `${plan.pluginName} ${plan.version}`
+    : message.replaceAll('%s', plan.version)
+}
+
+async function resolvePluginReleaseManifest(inputPath: string): Promise<
+  | {
+      ok: true
+      pluginRoot: string
+      manifestPath: string
+      manifest: Record<string, unknown>
+    }
+  | { ok: false; error: string }
+> {
+  const absolutePath = path.resolve(inputPath)
+  let stats: Stats
+  try {
+    stats = await stat(absolutePath)
+  } catch (error) {
+    return {
+      ok: false,
+      error: isENOENT(error)
+        ? `Path not found: ${absolutePath}`
+        : `Cannot stat ${absolutePath}: ${errorMessage(error)}`,
+    }
+  }
+
+  const candidates: Array<[string, string]> = stats.isFile()
+    ? [[path.dirname(path.dirname(absolutePath)), absolutePath]]
+    : [
+        [absolutePath, path.join(absolutePath, '.claude-plugin', 'plugin.json')],
+        [path.dirname(absolutePath), path.join(absolutePath, 'plugin.json')],
+      ]
+
+  for (const [pluginRoot, manifestPath] of candidates) {
+    let raw: string
+    try {
+      raw = await readFile(manifestPath, { encoding: 'utf-8' })
+    } catch (error) {
+      if (isENOENT(error)) continue
+      return {
+        ok: false,
+        error: `Cannot read ${manifestPath}: ${errorMessage(error)}`,
+      }
+    }
+
+    let parsed: unknown
+    try {
+      parsed = jsonParse(raw)
+    } catch (error) {
+      return {
+        ok: false,
+        error: `Invalid JSON in ${manifestPath}: ${errorMessage(error)}`,
+      }
+    }
+
+    return {
+      ok: true,
+      pluginRoot,
+      manifestPath,
+      manifest:
+        typeof parsed === 'object' && parsed !== null
+          ? (parsed as Record<string, unknown>)
+          : {},
+    }
+  }
+
+  return {
+    ok: false,
+    error: `No plugin manifest found. Expected ${path.join(absolutePath, '.claude-plugin', 'plugin.json')}.`,
+  }
+}
+
+async function findEnclosingMarketplace(
+  pluginRoot: string,
+  pluginName: string,
+): Promise<MarketplaceMatch | undefined> {
+  const gitRoot = findGitRoot(pluginRoot) ?? undefined
+  let current = pluginRoot
+  for (;;) {
+    const marketplacePath = path.join(
+      current,
+      '.claude-plugin',
+      'marketplace.json',
+    )
+    const marketplace = await readMarketplace(marketplacePath)
+    if (marketplace) {
+      for (const [entryIndex, entry] of marketplace.plugins.entries()) {
+        if (marketplaceEntryMatches(entry, current, pluginRoot, pluginName)) {
+          return { path: marketplacePath, entryIndex, entry }
+        }
+      }
+    }
+
+    if (current === gitRoot) return undefined
+    const parent = path.dirname(current)
+    if (parent === current) return undefined
+    current = parent
+  }
+}
+
+async function readMarketplace(
+  marketplacePath: string,
+): Promise<PluginMarketplace | undefined> {
+  let raw: string
+  try {
+    raw = await readFile(marketplacePath, { encoding: 'utf-8' })
+  } catch (error) {
+    if (isENOENT(error)) return undefined
+    return undefined
+  }
+
+  let parsed: unknown
+  try {
+    parsed = jsonParse(raw)
+  } catch {
+    return undefined
+  }
+  const result = PluginMarketplaceSchema().safeParse(parsed)
+  return result.success ? result.data : undefined
+}
+
+function marketplaceEntryMatches(
+  entry: PluginMarketplaceEntry,
+  marketplaceRoot: string,
+  pluginRoot: string,
+  pluginName: string,
+): boolean {
+  if (typeof entry.source === 'string') {
+    return pathsEqual(path.resolve(marketplaceRoot, entry.source), pluginRoot)
+  }
+  return entry.name === pluginName
+}
+
+function pathsEqual(left: string, right: string): boolean {
+  const normalize = (value: string) => {
+    const resolved = path.resolve(value)
+    return resolved.endsWith(path.sep)
+      ? resolved.slice(0, -path.sep.length)
+      : resolved
+  }
+  return normalize(left) === normalize(right)
+}
+
+async function getDirtyPluginReleasePaths(
+  gitRoot: string,
+  releasePaths: string[],
+): Promise<string[]> {
+  const relativePaths = releasePaths.map(
+    releasePath => path.relative(gitRoot, releasePath) || '.',
+  )
+  const result = await execFileNoThrow('git', [
+    '-C',
+    gitRoot,
+    'status',
+    '--porcelain',
+    '--',
+    ...relativePaths,
+  ])
+  if (result.code !== 0) return []
+  return result.stdout
+    .split('\n')
+    .map(line => line.slice(3).trim())
+    .filter(line => line.length > 0)
+}
+
+async function localPluginTagExists(
+  gitRoot: string,
+  tag: string,
+): Promise<boolean> {
+  const result = await execFileNoThrow('git', [
+    '-C',
+    gitRoot,
+    'tag',
+    '-l',
+    '--',
+    tag,
+  ])
+  return result.code === 0 && result.stdout.trim() === tag
 }

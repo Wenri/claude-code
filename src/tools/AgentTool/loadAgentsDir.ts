@@ -22,6 +22,7 @@ import {
 } from '../../utils/effort.js'
 import { isEnvTruthy } from '../../utils/envUtils.js'
 import { parsePositiveIntFromFrontmatter } from '../../utils/frontmatterParser.js'
+import { shadowValidateFrontmatter } from '../../utils/frontmatterShadowValidation.js'
 import { lazySchema } from '../../utils/lazySchema.js'
 import { logError } from '../../utils/log.js'
 import {
@@ -587,6 +588,7 @@ export function parseAgentFromMarkdown(
     if (!agentType || typeof agentType !== 'string') {
       return null
     }
+    shadowValidateFrontmatter('agent', frontmatter)
     if (!whenToUse || typeof whenToUse !== 'string') {
       logForDebugging(
         `Agent file ${filePath} is missing required 'description' in frontmatter`,

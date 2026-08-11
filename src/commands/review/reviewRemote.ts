@@ -244,7 +244,7 @@ export async function launchRemoteReview(
   context: TaskContext,
   billingNote?: string,
 ): Promise<RemoteReviewLaunchResult | null> {
-  const eligibility = await checkRemoteAgentEligibility()
+  const eligibility = await checkRemoteAgentEligibility({ allowBundle: true })
   if (!eligibility.eligible && eligibility.errors.length > 0) {
     logEvent('tengu_review_remote_precondition_failed', {
       precondition_errors: eligibility.errors

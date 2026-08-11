@@ -25,20 +25,21 @@ import { getCwd } from './cwd.js';
 import { logForDebugging } from './debug.js';
 import { detectCurrentRepositoryWithHost, parseGitHubRepository, parseGitRemote } from './detectRepository.js';
 import { isEnvTruthy } from './envUtils.js';
-import { TeleportOperationError, toError } from './errors.js';
+import { errorMessage, TeleportOperationError, toError } from './errors.js';
 import { execFileNoThrow } from './execFileNoThrow.js';
 import { truncateToWidth } from './format.js';
 import { findGitRoot, getDefaultBranch, getIsClean, gitExe } from './git.js';
 import { safeParseJSON } from './json.js';
 import { logError } from './log.js';
-import { createSystemMessage, createUserMessage } from './messages.js';
+import { createSystemMessage, createUserMessage, extractTextContent } from './messages.js';
 import { getMainLoopModel } from './model/model.js';
 import { isTranscriptMessage } from './sessionStorage.js';
+import { sleep } from './sleep.js';
 import { getSettings_DEPRECATED } from './settings/settings.js';
 import { jsonStringify } from './slowOperations.js';
 import { asSystemPrompt } from './systemPromptType.js';
 import { fetchSession, type GitRepositoryOutcome, type GitSource, getBranchFromSession, getOAuthHeaders, type SessionResource } from './teleport/api.js';
-import { fetchEnvironments } from './teleport/environments.js';
+import { createDefaultCloudEnvironment, fetchEnvironments } from './teleport/environments.js';
 import { createAndUploadGitBundle } from './teleport/gitBundle.js';
 export type TeleportResult = {
   messages: Message[];
@@ -550,6 +551,7 @@ export async function teleportToRemoteWithErrorHandling(root: Root, description:
     signal,
     source,
     branchName,
+    allowBundle: true,
     onBundleFail: msg => process.stderr.write(`\n${msg}\n`)
   });
 }
@@ -625,6 +627,7 @@ export type PollRemoteSessionResponse = {
   lastEventId: string | null;
   branch?: string;
   sessionStatus?: 'idle' | 'running' | 'requires_action' | 'archived';
+  metadataFetchError?: string;
 };
 
 /**
@@ -635,25 +638,16 @@ export type PollRemoteSessionResponse = {
 export async function pollRemoteSessionEvents(sessionId: string, afterId: string | null = null, opts?: {
   skipMetadata?: boolean;
 }): Promise<PollRemoteSessionResponse> {
+  await checkAndRefreshOAuthTokenIfNeeded();
   const accessToken = getClaudeAIOAuthTokens()?.accessToken;
   if (!accessToken) {
     throw new Error('No access token for polling');
   }
-  const orgUUID = await getOrganizationUUID();
-  if (!orgUUID) {
-    throw new Error('No org UUID for polling');
-  }
-  const headers = {
-    ...getOAuthHeaders(accessToken),
-    'anthropic-beta': 'ccr-byoc-2025-07-29',
-    'x-organization-uuid': orgUUID
-  };
-  const eventsUrl = `${getOauthConfig().BASE_API_URL}/v1/sessions/${sessionId}/events`;
+  const headers = getOAuthHeaders(accessToken);
+  const eventsUrl = `${getOauthConfig().BASE_API_URL}/v1/code/sessions/${sessionId}/events`;
   type EventsResponse = {
-    data: unknown[];
-    has_more: boolean;
-    first_id: string | null;
-    last_id: string | null;
+    data: Array<{ sequence_num?: number; payload?: unknown }>;
+    next_cursor?: string | null;
   };
 
   // Cap is a safety valve against stuck cursors; steady-state is 0–1 pages.
@@ -663,9 +657,10 @@ export async function pollRemoteSessionEvents(sessionId: string, afterId: string
   for (let page = 0; page < MAX_EVENT_PAGES; page++) {
     const eventsResponse = await axios.get(eventsUrl, {
       headers,
-      params: cursor ? {
-        after_id: cursor
-      } : undefined,
+      params: {
+        sort_order: 'asc',
+        ...(cursor && { cursor })
+      },
       timeout: 30000
     });
     if (eventsResponse.status !== 200) {
@@ -676,18 +671,20 @@ export async function pollRemoteSessionEvents(sessionId: string, afterId: string
       throw new Error('Invalid events response');
     }
     for (const event of eventsData.data) {
-      if (event && typeof event === 'object' && 'type' in event) {
-        if (event.type === 'env_manager_log' || event.type === 'control_response') {
+      if (event?.sequence_num !== undefined) {
+        cursor = String(event.sequence_num);
+      }
+      const payload = event?.payload;
+      if (payload && typeof payload === 'object' && 'type' in payload) {
+        if (payload.type === 'env_manager_log' || payload.type === 'control_response') {
           continue;
         }
-        if ('session_id' in event) {
-          sdkMessages.push(event as SDKMessage);
+        if ('session_id' in payload) {
+          sdkMessages.push(payload as SDKMessage);
         }
       }
     }
-    if (!eventsData.last_id) break;
-    cursor = eventsData.last_id;
-    if (!eventsData.has_more) break;
+    if (!eventsData.next_cursor) break;
   }
   if (opts?.skipMetadata) {
     return {
@@ -699,21 +696,138 @@ export async function pollRemoteSessionEvents(sessionId: string, afterId: string
   // Fetch session metadata (branch, status)
   let branch: string | undefined;
   let sessionStatus: PollRemoteSessionResponse['sessionStatus'];
+  let metadataFetchError: string | undefined;
   try {
     const sessionData = await fetchSession(sessionId);
     branch = getBranchFromSession(sessionData);
     sessionStatus = sessionData.session_status as PollRemoteSessionResponse['sessionStatus'];
   } catch (e) {
+    metadataFetchError = errorMessage(e);
     logForDebugging(`teleport: failed to fetch session ${sessionId} metadata: ${e}`, {
-      level: 'debug'
+      level: 'warn'
     });
   }
   return {
     newEvents: sdkMessages,
     lastEventId: cursor,
     branch,
-    sessionStatus
+    sessionStatus,
+    metadataFetchError
   };
+}
+
+export async function awaitRemoteSessionResult(
+  sessionId: string,
+  signal?: AbortSignal,
+) {
+  let lastEventId: string | null = null;
+  let lastAssistant: Extract<SDKMessage, { type: 'assistant' }> | undefined;
+  let result: Extract<SDKMessage, { type: 'result' }> | undefined;
+  let toolCalls = 0;
+  let idlePolls = 0;
+  let metadataFailures = 0;
+  let finished = false;
+  const startedAt = Date.now();
+
+  while (Date.now() - startedAt < 30 * 60 * 1000) {
+    if (signal?.aborted) throw new Error('Workflow aborted');
+    const response = await pollRemoteSessionEvents(sessionId, lastEventId);
+    lastEventId = response.lastEventId;
+    for (const event of response.newEvents) {
+      if (event.type === 'assistant') {
+        lastAssistant = event;
+        for (const block of event.message.content) {
+          if (block.type === 'tool_use') toolCalls++;
+        }
+      } else if (event.type === 'result') {
+        result = event;
+      }
+    }
+    if (response.sessionStatus === 'archived') {
+      finished = true;
+      break;
+    }
+    if (response.sessionStatus === 'requires_action') {
+      throw new Error(
+        `Remote session ${sessionId} entered 'requires_action' (likely a permission prompt) with no client to answer it. Ensure the remote agent's allowed_tools cover what it needs, or set a permissive mode.`,
+      );
+    }
+    if (response.sessionStatus === undefined) {
+      metadataFailures++;
+      if (metadataFailures >= 10) {
+        throw new Error(
+          `Remote session ${sessionId}: fetchSession failed 10 times in a row (last error: ${response.metadataFetchError ?? 'unknown'}). Bailing instead of polling to the 30-min timeout.`,
+        );
+      }
+    } else {
+      metadataFailures = 0;
+    }
+    if (
+      response.sessionStatus === 'idle' &&
+      response.newEvents.length === 0
+    ) {
+      idlePolls++;
+      if (idlePolls >= 5) {
+        finished = true;
+        break;
+      }
+    } else {
+      idlePolls = 0;
+    }
+    await sleep(1000, signal);
+  }
+
+  if (!finished) {
+    throw new Error(`Remote session ${sessionId} timed out after 30 min`);
+  }
+  return {
+    text: lastAssistant
+      ? extractTextContent(lastAssistant.message.content, '\n')
+      : '',
+    structuredOutput:
+      result?.subtype === 'success' ? result.structured_output : undefined,
+    resultSubtype: result?.subtype,
+    usage: result?.usage,
+    totalCostUsd: result?.total_cost_usd,
+    modelUsage: result?.modelUsage,
+    numTurns: result?.num_turns,
+    toolCalls
+  };
+}
+
+function buildInitialEvents(options: {
+  initialMessage: string | null;
+  permissionMode?: PermissionMode;
+  ultraplan?: boolean;
+}): Array<{ type: 'event'; data: Record<string, unknown> }> {
+  const events: Array<{ type: 'event'; data: Record<string, unknown> }> = [];
+  if (options.permissionMode) {
+    events.push({
+      type: 'event',
+      data: {
+        type: 'control_request',
+        request_id: `set-mode-${randomUUID()}`,
+        request: {
+          subtype: 'set_permission_mode',
+          mode: options.permissionMode,
+          ultraplan: options.ultraplan
+        }
+      }
+    });
+  }
+  if (options.initialMessage) {
+    events.push({
+      type: 'event',
+      data: {
+        uuid: randomUUID(),
+        session_id: '',
+        type: 'user',
+        parent_tool_use_id: null,
+        message: { role: 'user', content: options.initialMessage }
+      }
+    });
+  }
+  return events;
 }
 
 /**
@@ -763,6 +877,8 @@ export async function teleportToRemote(options: {
    * its own, user sessions don't get one automatically).
    */
   environmentVariables?: Record<string, string>;
+  /** Explicit git source URL, preferred over local repository detection. */
+  sourceUrl?: string;
   /**
    * When set with environmentId, creates and uploads a git bundle of the
    * local working tree (createAndUploadGitBundle handles the stash-create
@@ -782,10 +898,9 @@ export async function teleportToRemote(options: {
   /** Called with the API's user-facing error when session creation is rejected. */
   onCreateFail?: (message: string) => void;
   /**
-   * When true, disables the git-bundle fallback entirely. Use for flows like
-   * autofix where CCR must push to GitHub — a bundle can't do that.
+   * When true, permits the git-bundle fallback for local repositories.
    */
-  skipBundle?: boolean;
+  allowBundle?: boolean;
   /**
    * When set, reuses this branch as the outcome branch instead of generating
    * a new claude/ branch. Sets allow_unrestricted_git_push on the source and
@@ -868,6 +983,12 @@ export async function teleportToRemote(options: {
           has_wip: bundle.hasWip,
           reason: 'explicit_env_bundle' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
         });
+      } else if (options.sourceUrl) {
+        gitSource = {
+          type: 'git_repository',
+          url: options.sourceUrl,
+          revision: options.branchName
+        };
       } else {
         const repoInfo = await detectCurrentRepositoryWithHost();
         if (repoInfo) {
@@ -880,14 +1001,19 @@ export async function teleportToRemote(options: {
       }
       const requestBody = {
         title: options.title || options.description || 'Remote task',
-        events: [],
+        events: buildInitialEvents({
+          initialMessage,
+          permissionMode: options.permissionMode,
+          ultraplan: options.ultraplan
+        }),
         session_context: {
           sources: gitSource ? [gitSource] : [],
           ...(seedBundleFileId && {
             seed_bundle_file_id: seedBundleFileId
           }),
           outcomes: [],
-          environment_variables: envVars
+          environment_variables: envVars,
+          ...(options.model && { model: options.model })
         },
         environment_id: options.environmentId,
         ...(options.tags && {
@@ -923,6 +1049,86 @@ export async function teleportToRemote(options: {
         title: sessionData.title || requestBody.title
       };
     }
+    let environments = await fetchEnvironments();
+    if (environments.length === 0) {
+      try {
+        environments = [await createDefaultCloudEnvironment(undefined, signal)];
+        logForDebugging('[teleportToRemote] Auto-created default cloud env');
+      } catch (error) {
+        logForDebugging(
+          `[teleportToRemote] auto-create env failed: ${errorMessage(error)}`,
+          { level: 'warn' },
+        );
+        options.onBundleFail?.(
+          'Could not create a cloud environment. Set one up at https://claude.ai/code/onboarding?magic=env-setup',
+          'env_create',
+        );
+        return null;
+      }
+    }
+    logForDebugging(
+      `Available environments: ${environments.map(environment => `${environment.environment_id} (${environment.name}, ${environment.kind})`).join(', ')}`,
+    );
+    const defaultEnvironmentId =
+      getSettings_DEPRECATED()?.remote?.defaultEnvironmentId;
+    let defaultEnvironment = defaultEnvironmentId
+      ? environments.find(
+          environment => environment.environment_id === defaultEnvironmentId,
+        )
+      : undefined;
+    let cloudEnvironment = environments.find(
+      environment => environment.kind === 'anthropic_cloud',
+    );
+    if (
+      options.useDefaultEnvironment &&
+      !defaultEnvironment &&
+      !cloudEnvironment
+    ) {
+      logForDebugging(
+        `No configured default or anthropic_cloud in env list (${environments.length} envs); retrying fetchEnvironments`,
+      );
+      environments = await fetchEnvironments();
+      defaultEnvironment = defaultEnvironmentId
+        ? environments.find(
+            environment =>
+              environment.environment_id === defaultEnvironmentId,
+          )
+        : undefined;
+      cloudEnvironment = environments.find(
+        environment => environment.kind === 'anthropic_cloud',
+      );
+      if (!defaultEnvironment && !cloudEnvironment) {
+        logError(
+          new Error(
+            `No configured default or anthropic_cloud environment available after retry (got: ${environments.map(environment => `${environment.name} (${environment.kind})`).join(', ')}${defaultEnvironmentId ? `; configured default ${defaultEnvironmentId} not in list` : ''}). Silent byoc fallthrough would launch into a dead env — fail fast instead.`,
+          ),
+        );
+        return null;
+      }
+    }
+    const selectedEnvironment =
+      defaultEnvironment ||
+      cloudEnvironment ||
+      environments.find(environment => environment.kind !== 'bridge') ||
+      environments[0];
+    if (!selectedEnvironment) {
+      logError(new Error('No environments available for session creation'));
+      return null;
+    }
+    if (defaultEnvironmentId) {
+      const matchedDefault =
+        selectedEnvironment.environment_id === defaultEnvironmentId;
+      logForDebugging(
+        matchedDefault
+          ? `Using configured default environment: ${defaultEnvironmentId}`
+          : `Configured default environment ${defaultEnvironmentId} not found, using first available`,
+      );
+    }
+    const environmentId = selectedEnvironment.environment_id;
+    logForDebugging(
+      `Selected environment: ${environmentId} (${selectedEnvironment.name}, ${selectedEnvironment.kind})`,
+    );
+
     let gitSource: GitSource | null = null;
     let gitOutcome: GitRepositoryOutcome | null = null;
     let seedBundleFileId: string | null = null;
@@ -940,7 +1146,16 @@ export async function teleportToRemote(options: {
     // or when you know your GitHub auth is busted. Read here (not in the
     // caller) so it works for remote-agent too, not just --remote.
 
-    const repoInfo = await detectCurrentRepositoryWithHost();
+    if (options.sourceUrl) {
+      gitSource = {
+        type: 'git_repository',
+        url: options.sourceUrl,
+        revision: options.branchName
+      };
+    }
+    const repoInfo = gitSource
+      ? null
+      : await detectCurrentRepositoryWithHost();
 
     // Generate title and branch name for the session. Skip the Haiku call
     // when both title and outcome branch are explicitly provided.
@@ -962,13 +1177,13 @@ export async function teleportToRemote(options: {
     // somehow accepted), fall through optimistically; if the backend
     // rejects the host, bundle next time.
     let ghViable = false;
-    let sourceReason: 'github_preflight_ok' | 'ghes_optimistic' | 'github_preflight_failed' | 'no_github_remote' | 'forced_bundle' | 'no_git_at_all' = 'no_git_at_all';
+    let sourceReason: 'github_preflight_ok' | 'ghes_optimistic' | 'github_preflight_failed' | 'no_github_remote' | 'forced_bundle' | 'no_git_at_all' | 'explicit_source_url' = options.sourceUrl ? 'explicit_source_url' : 'no_git_at_all';
 
     // gitRoot gates both bundle creation and the gate check itself — no
     // point awaiting GrowthBook when there's nothing to bundle.
     const gitRoot = findGitRoot(getCwd());
-    const forceBundle = !options.skipBundle && isEnvTruthy(process.env.CCR_FORCE_BUNDLE);
-    const bundleSeedGateOn = !options.skipBundle && gitRoot !== null && (isEnvTruthy(process.env.CCR_ENABLE_BUNDLE) || (await checkGate_CACHED_OR_BLOCKING('tengu_ccr_bundle_seed_enabled')));
+    const forceBundle = options.allowBundle && isEnvTruthy(process.env.CCR_FORCE_BUNDLE);
+    const bundleSeedGateOn = options.allowBundle && gitRoot !== null && (isEnvTruthy(process.env.CCR_ENABLE_BUNDLE) || (await checkGate_CACHED_OR_BLOCKING('tengu_ccr_bundle_seed_enabled')));
     if (repoInfo && !forceBundle) {
       if (repoInfo.host === 'github.com') {
         ghViable = await checkGithubAppInstalled(repoInfo.owner, repoInfo.name, signal);
@@ -1082,47 +1297,6 @@ export async function teleportToRemote(options: {
       logForDebugging('[teleportToRemote] No repository detected — session will have an empty sandbox');
     }
 
-    // Fetch available environments
-    let environments = await fetchEnvironments();
-    if (!environments || environments.length === 0) {
-      logError(new Error('No environments available for session creation'));
-      return null;
-    }
-    logForDebugging(`Available environments: ${environments.map(e => `${e.environment_id} (${e.name}, ${e.kind})`).join(', ')}`);
-
-    // Select environment based on settings, then anthropic_cloud preference, then first available.
-    // Prefer anthropic_cloud environments over byoc: anthropic_cloud environments (e.g. "Default")
-    // are the standard compute environments with full repo access, whereas byoc environments
-    // (e.g. "monorepo") are user-owned compute that may not support the current repository.
-    const settings = getSettings_DEPRECATED();
-    const defaultEnvironmentId = options.useDefaultEnvironment ? undefined : settings?.remote?.defaultEnvironmentId;
-    let cloudEnv = environments.find(env => env.kind === 'anthropic_cloud');
-    // When the caller opts out of their configured default, do not fall
-    // through to a BYOC env that may not support the current repo or the
-    // requested permission mode. Retry once for eventual consistency,
-    // then fail loudly.
-    if (options.useDefaultEnvironment && !cloudEnv) {
-      logForDebugging(`No anthropic_cloud in env list (${environments.length} envs); retrying fetchEnvironments`);
-      const retried = await fetchEnvironments();
-      cloudEnv = retried?.find(env => env.kind === 'anthropic_cloud');
-      if (!cloudEnv) {
-        logError(new Error(`No anthropic_cloud environment available after retry (got: ${(retried ?? environments).map(e => `${e.name} (${e.kind})`).join(', ')}). Silent byoc fallthrough would launch into a dead env — fail fast instead.`));
-        return null;
-      }
-      if (retried) environments = retried;
-    }
-    const selectedEnvironment = defaultEnvironmentId && environments.find(env => env.environment_id === defaultEnvironmentId) || cloudEnv || environments.find(env => env.kind !== 'bridge') || environments[0];
-    if (!selectedEnvironment) {
-      logError(new Error('No environments available for session creation'));
-      return null;
-    }
-    if (defaultEnvironmentId) {
-      const matchedDefault = selectedEnvironment.environment_id === defaultEnvironmentId;
-      logForDebugging(matchedDefault ? `Using configured default environment: ${defaultEnvironmentId}` : `Configured default environment ${defaultEnvironmentId} not found, using first available`);
-    }
-    const environmentId = selectedEnvironment.environment_id;
-    logForDebugging(`Selected environment: ${environmentId} (${selectedEnvironment.name}, ${selectedEnvironment.kind})`);
-
     // Prepare API request for Sessions API
     const url = `${getOauthConfig().BASE_API_URL}/v1/sessions`;
     const headers = {
@@ -1142,6 +1316,9 @@ export async function teleportToRemote(options: {
       }),
       ...(options.githubPr && {
         github_pr: options.githubPr
+      }),
+      ...(options.environmentVariables && {
+        environment_variables: options.environmentVariables
       })
     };
 
@@ -1150,39 +1327,11 @@ export async function teleportToRemote(options: {
     // Instead prepend a set_permission_mode control_request event. Initial
     // events are written to threadstore before the container connects, so
     // the CLI applies the mode before the first user turn — no readiness race.
-    const events: Array<{
-      type: 'event';
-      data: Record<string, unknown>;
-    }> = [];
-    if (options.permissionMode) {
-      events.push({
-        type: 'event',
-        data: {
-          type: 'control_request',
-          request_id: `set-mode-${randomUUID()}`,
-          request: {
-            subtype: 'set_permission_mode',
-            mode: options.permissionMode,
-            ultraplan: options.ultraplan
-          }
-        }
-      });
-    }
-    if (initialMessage) {
-      events.push({
-        type: 'event',
-        data: {
-          uuid: randomUUID(),
-          session_id: '',
-          type: 'user',
-          parent_tool_use_id: null,
-          message: {
-            role: 'user',
-            content: initialMessage
-          }
-        }
-      });
-    }
+    const events = buildInitialEvents({
+      initialMessage,
+      permissionMode: options.permissionMode,
+      ultraplan: options.ultraplan
+    });
     const requestBody = {
       title: options.ultraplan ? `ultraplan: ${sessionTitle}` : sessionTitle,
       events,
@@ -1241,21 +1390,18 @@ export async function teleportToRemote(options: {
  * success. Fire-and-forget; failure leaks a visible session until the
  * reaper collects it.
  */
-export async function archiveRemoteSession(sessionId: string): Promise<void> {
+export async function archiveRemoteSession(
+  sessionId: string,
+  timeout = 10000,
+): Promise<void> {
   const accessToken = getClaudeAIOAuthTokens()?.accessToken;
   if (!accessToken) return;
-  const orgUUID = await getOrganizationUUID();
-  if (!orgUUID) return;
-  const headers = {
-    ...getOAuthHeaders(accessToken),
-    'anthropic-beta': 'ccr-byoc-2025-07-29',
-    'x-organization-uuid': orgUUID
-  };
-  const url = `${getOauthConfig().BASE_API_URL}/v1/sessions/${sessionId}/archive`;
+  const headers = getOAuthHeaders(accessToken);
+  const url = `${getOauthConfig().BASE_API_URL}/v1/code/sessions/${sessionId}/archive`;
   try {
     const resp = await axios.post(url, {}, {
       headers,
-      timeout: 10000,
+      timeout,
       validateStatus: s => s < 500
     });
     if (resp.status === 200 || resp.status === 409) {

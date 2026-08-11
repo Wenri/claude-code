@@ -17,12 +17,18 @@ import {
   clearApiKeyHelperCache,
   clearAwsCredentialsCache,
   clearGcpCredentialsCache,
+  getAnthropicApiKey,
   getClaudeAIOAuthTokens,
   handleOAuth401Error,
   isAnthropicAuthEnabled,
   isClaudeAISubscriber,
   isEnterpriseSubscriber,
+  shouldUseWIFAuth,
 } from '../../utils/auth.js'
+import {
+  getWIFTokenCache,
+  WorkloadIdentityError,
+} from './workloadIdentity.js'
 import { isEnvTruthy } from '../../utils/envUtils.js'
 import { errorMessage } from '../../utils/errors.js'
 import {
@@ -288,6 +294,16 @@ export async function* withRetry<T>(
         { level: 'error' },
       )
 
+      if (
+        !getAnthropicApiKey() &&
+        shouldUseWIFAuth() &&
+        ((error instanceof APIError && error.status === 401) ||
+          isOAuthTokenRevokedError(error))
+      ) {
+        const wifCache = await getWIFTokenCache().catch(() => null)
+        wifCache?.invalidate()
+      }
+
       const action = await options.onError?.(error)
       if (action && !handledErrorActions.has(action)) {
         handledErrorActions.add(action)
@@ -410,7 +426,9 @@ export async function* withRetry<T>(
 
       // AWS/GCP errors aren't always APIError, but can be retried
       const handledCloudAuthError =
-        handleAwsCredentialError(error) || handleGcpCredentialError(error)
+        handleAwsCredentialError(error) ||
+        handleGcpCredentialError(error) ||
+        (await handleWIFCredentialError(error))
       if (
         !handledCloudAuthError &&
         (!(error instanceof APIError) || !shouldRetry(error))
@@ -739,6 +757,23 @@ function handleGcpCredentialError(error: unknown): boolean {
     return true
   }
   return false
+}
+
+async function handleWIFCredentialError(error: unknown): Promise<boolean> {
+  if (
+    !(
+      error instanceof WorkloadIdentityError &&
+      (error.statusCode === null ||
+        error.statusCode === 401 ||
+        error.statusCode >= 500)
+    )
+  ) {
+    return false
+  }
+  const cache = await getWIFTokenCache().catch(() => null)
+  if (cache === null) return false
+  cache.invalidate()
+  return true
 }
 
 function shouldRetry(error: APIError): boolean {

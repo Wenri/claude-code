@@ -60,6 +60,10 @@ import {
   getBridgeTokenOverride,
 } from './bridgeConfig.js'
 import {
+  cleanupBridgeClientPresence,
+  setupBridgeClientPresence,
+} from './clientPresence.js'
+import {
   checkBridgeMinVersion,
   isBridgeEnabledBlocking,
   isCseShimEnabled,
@@ -76,7 +80,7 @@ import { checkEnvLessBridgeMinVersion } from './envLessBridgeConfig.js'
 import { getPollIntervalConfig } from './pollConfig.js'
 import type { BridgeState, ReplBridgeHandle } from './replBridge.js'
 import { initBridgeCore } from './replBridge.js'
-import { setCseShimGate } from './sessionIdCompat.js'
+import { setCseShimGate, toCompatSessionId } from './sessionIdCompat.js'
 import type { BridgeWorkerType } from './types.js'
 
 export type InitBridgeOptions = {
@@ -87,6 +91,9 @@ export type InitBridgeOptions = {
   onSetMaxThinkingTokens?: (maxTokens: number | null) => void
   onSetPermissionMode?: (
     mode: PermissionMode,
+  ) => { ok: true } | { ok: false; error: string }
+  onSetColor?: (
+    color: string,
   ) => { ok: true } | { ok: false; error: string }
   onStateChange?: (state: BridgeState, detail?: string) => void
   initialMessages?: Message[]
@@ -124,6 +131,7 @@ export async function initReplBridge(
     onSetModel,
     onSetMaxThinkingTokens,
     onSetPermissionMode,
+    onSetColor,
     onStateChange,
     initialMessages,
     getMessages,
@@ -133,6 +141,17 @@ export async function initReplBridge(
     outboundOnly,
     tags,
   } = options ?? {}
+
+  // /update hands the active Remote Control session to the replacement
+  // process. Consume these once so child processes and later re-inits cannot
+  // accidentally attach a second bridge to the same server session.
+  const reattachSessionId = process.env.CLAUDE_BRIDGE_REATTACH_SESSION
+  const reattachSequenceRaw = process.env.CLAUDE_BRIDGE_REATTACH_SEQ
+  delete process.env.CLAUDE_BRIDGE_REATTACH_SESSION
+  delete process.env.CLAUDE_BRIDGE_REATTACH_SEQ
+  const reattachSequenceNum = reattachSequenceRaw
+    ? Number.parseInt(reattachSequenceRaw, 10) || undefined
+    : undefined
 
   // Wire the cse_ shim kill switch so toCompatSessionId respects the
   // GrowthBook gate. Daemon/SDK paths skip this — shim defaults to active.
@@ -457,7 +476,7 @@ export async function initReplBridge(
   // perpetual (assistant-mode session continuity via bridge-pointer.json) is
   // env-coupled and not yet implemented here — fall back to env-based when set
   // so KAIROS users don't silently lose cross-restart continuity.
-  if (isEnvLessBridgeEnabled() && !perpetual) {
+  if ((reattachSessionId || isEnvLessBridgeEnabled()) && !perpetual) {
     const versionError = await checkEnvLessBridgeMinVersion()
     if (versionError) {
       logBridgeSkip(
@@ -472,7 +491,7 @@ export async function initReplBridge(
       '[bridge:repl] Using env-less bridge path (tengu_bridge_repl_v2)',
     )
     const { initEnvLessBridgeCore } = await import('./remoteBridgeCore.js')
-    return initEnvLessBridgeCore({
+    const handle = await initEnvLessBridgeCore({
       baseUrl,
       orgUUID,
       title,
@@ -496,11 +515,15 @@ export async function initReplBridge(
       onSetMaxThinkingTokens,
       onSetPermissionMode,
       onRenameSession,
+      onSetColor,
       onFileSuggestions,
       onStateChange,
       outboundOnly,
       tags,
+      reattachSessionId,
+      reattachSequenceNum,
     })
+    return attachClientPresence(handle, baseUrl)
   }
 
   // ── v1 path: env-based (register/poll/ack/heartbeat) ──────────────────
@@ -539,7 +562,7 @@ export async function initReplBridge(
   // 6. Delegate. BridgeCoreHandle is a structural superset of
   // ReplBridgeHandle (adds writeSdkMessages which REPL callers don't use),
   // so no adapter needed — just the narrower type on the way out.
-  return initBridgeCore({
+  const handle = await initBridgeCore({
     dir: getOriginalCwd(),
     machineName: hostname(),
     branch,
@@ -592,10 +615,36 @@ export async function initReplBridge(
     onSetMaxThinkingTokens,
     onSetPermissionMode,
     onRenameSession,
+    onSetColor,
     onFileSuggestions,
     onStateChange,
     perpetual,
   })
+  return attachClientPresence(handle, baseUrl)
+}
+
+function attachClientPresence(
+  handle: ReplBridgeHandle | null,
+  baseUrl: string,
+): ReplBridgeHandle | null {
+  if (!handle) {
+    cleanupBridgeClientPresence()
+    return null
+  }
+  setupBridgeClientPresence(
+    toCompatSessionId(handle.bridgeSessionId),
+    baseUrl,
+    () => {
+    const token = getBridgeAccessToken()
+    return token ? { Authorization: `Bearer ${token}` } : {}
+    },
+  )
+  const teardown = handle.teardown.bind(handle)
+  handle.teardown = async options => {
+    cleanupBridgeClientPresence()
+    await teardown(options)
+  }
+  return handle
 }
 
 const TITLE_MAX_LEN = 50

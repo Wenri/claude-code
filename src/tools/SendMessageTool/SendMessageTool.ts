@@ -68,11 +68,7 @@ const inputSchema = lazySchema(() =>
   z.object({
     to: z
       .string()
-      .describe(
-        feature('UDS_INBOX')
-          ? 'Recipient: teammate name, "*" for broadcast, "uds:<socket-path>" for a local peer, or "bridge:<session-id>" for a Remote Control peer (use ListPeers to discover)'
-          : 'Recipient: teammate name, or "*" for broadcast to all teammates',
-      ),
+      .describe('Recipient: teammate name'),
     summary: z
       .string()
       .optional()
@@ -104,13 +100,6 @@ export type MessageOutput = {
   routing?: MessageRouting
 }
 
-export type BroadcastOutput = {
-  success: boolean
-  message: string
-  recipients: string[]
-  routing?: MessageRouting
-}
-
 export type RequestOutput = {
   success: boolean
   message: string
@@ -126,7 +115,6 @@ export type ResponseOutput = {
 
 export type SendMessageToolOutput =
   | MessageOutput
-  | BroadcastOutput
   | RequestOutput
   | ResponseOutput
 
@@ -154,6 +142,14 @@ async function handleMessage(
 ): Promise<{ data: MessageOutput }> {
   const appState = context.getAppState()
   const teamName = getTeamName(appState.teamContext)
+  if (!teamName) {
+    return {
+      data: {
+        success: false,
+        message: `No agent named '${recipientName}' is currently addressable. Spawn a new one or use the agent ID.`,
+      },
+    }
+  }
   const senderName =
     getAgentName() || (isTeammate() ? 'teammate' : TEAM_LEAD_NAME)
   const senderColor = getTeammateColor()
@@ -181,83 +177,6 @@ async function handleMessage(
         senderColor,
         target: `@${recipientName}`,
         targetColor: recipientColor,
-        summary,
-        content,
-      },
-    },
-  }
-}
-
-async function handleBroadcast(
-  content: string,
-  summary: string | undefined,
-  context: ToolUseContext,
-): Promise<{ data: BroadcastOutput }> {
-  const appState = context.getAppState()
-  const teamName = getTeamName(appState.teamContext)
-
-  if (!teamName) {
-    throw new Error(
-      'Not in a team context. Create a team with Teammate spawnTeam first, or set CLAUDE_CODE_TEAM_NAME.',
-    )
-  }
-
-  const teamFile = await readTeamFileAsync(teamName)
-  if (!teamFile) {
-    throw new Error(`Team "${teamName}" does not exist`)
-  }
-
-  const senderName =
-    getAgentName() || (isTeammate() ? 'teammate' : TEAM_LEAD_NAME)
-  if (!senderName) {
-    throw new Error(
-      'Cannot broadcast: sender name is required. Set CLAUDE_CODE_AGENT_NAME.',
-    )
-  }
-
-  const senderColor = getTeammateColor()
-
-  const recipients: string[] = []
-  for (const member of teamFile.members) {
-    if (member.name.toLowerCase() === senderName.toLowerCase()) {
-      continue
-    }
-    recipients.push(member.name)
-  }
-
-  if (recipients.length === 0) {
-    return {
-      data: {
-        success: true,
-        message: 'No teammates to broadcast to (you are the only team member)',
-        recipients: [],
-      },
-    }
-  }
-
-  for (const recipientName of recipients) {
-    await writeToMailbox(
-      recipientName,
-      {
-        from: senderName,
-        text: content,
-        summary,
-        timestamp: new Date().toISOString(),
-        color: senderColor,
-      },
-      teamName,
-    )
-  }
-
-  return {
-    data: {
-      success: true,
-      message: `Message broadcast to ${recipients.length} teammate(s): ${recipients.join(', ')}`,
-      recipients,
-      routing: {
-        sender: senderName,
-        senderColor,
-        target: '@team',
         summary,
         content,
       },
@@ -544,10 +463,7 @@ export const SendMessageTool: Tool<InputSchema, SendMessageToolOutput> =
       if ('type' in input) return
       if (typeof input.to !== 'string') return
 
-      if (input.to === '*') {
-        input.type = 'broadcast'
-        if (typeof input.message === 'string') input.content = input.message
-      } else if (typeof input.message === 'string') {
+      if (typeof input.message === 'string') {
         input.type = 'message'
         input.recipient = input.to
         input.content = input.message
@@ -609,6 +525,14 @@ export const SendMessageTool: Tool<InputSchema, SendMessageToolOutput> =
           errorCode: 9,
         }
       }
+      if (input.to === '*') {
+        return {
+          result: false,
+          message:
+            'broadcast (to: "*") is no longer supported — send a message per recipient',
+          errorCode: 9,
+        }
+      }
       const addr = parseAddress(input.to)
       if (
         (addr.scheme === 'bridge' || addr.scheme === 'uds') &&
@@ -624,7 +548,7 @@ export const SendMessageTool: Tool<InputSchema, SendMessageToolOutput> =
         return {
           result: false,
           message:
-            'to must be a bare teammate name or "*" — there is only one team per session',
+            'to must be a bare teammate name — there is only one team per session',
           errorCode: 9,
         }
       }
@@ -675,13 +599,6 @@ export const SendMessageTool: Tool<InputSchema, SendMessageToolOutput> =
         return { result: true }
       }
 
-      if (input.to === '*') {
-        return {
-          result: false,
-          message: 'structured messages cannot be broadcast (to: "*")',
-          errorCode: 9,
-        }
-      }
       if (feature('UDS_INBOX') && parseAddress(input.to).scheme !== 'other') {
         return {
           result: false,
@@ -799,7 +716,7 @@ export const SendMessageTool: Tool<InputSchema, SendMessageToolOutput> =
 
       // Route to in-process subagent by name or raw agentId before falling
       // through to ambient-team resolution. Stopped agents are auto-resumed.
-      if (typeof input.message === 'string' && input.to !== '*') {
+      if (typeof input.message === 'string') {
         const appState = context.getAppState()
         const registered = appState.agentNameRegistry.get(input.to)
         const agentId = registered ?? toAgentId(input.to)
@@ -865,7 +782,7 @@ export const SendMessageTool: Tool<InputSchema, SendMessageToolOutput> =
               return {
                 data: {
                   success: false,
-                  message: `Agent "${input.to}" is registered but has no transcript to resume. It may have been cleaned up. (${errorMessage(e)})`,
+                  message: `Agent "${input.to}" has no transcript to resume. It may have been cleaned up. (${errorMessage(e)})`,
                 },
               }
             }
@@ -874,14 +791,7 @@ export const SendMessageTool: Tool<InputSchema, SendMessageToolOutput> =
       }
 
       if (typeof input.message === 'string') {
-        if (input.to === '*') {
-          return handleBroadcast(input.message, input.summary, context)
-        }
         return handleMessage(input.to, input.message, input.summary, context)
-      }
-
-      if (input.to === '*') {
-        throw new Error('structured messages cannot be broadcast')
       }
 
       switch (input.message.type) {

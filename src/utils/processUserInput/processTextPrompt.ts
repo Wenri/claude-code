@@ -1,6 +1,6 @@
 import type { ContentBlockParam } from '@anthropic-ai/sdk/resources'
 import { randomUUID } from 'crypto'
-import { setPromptId } from 'src/bootstrap/state.js'
+import { getNextPromptIndex, setPromptId } from 'src/bootstrap/state.js'
 import type {
   AttachmentMessage,
   SystemMessage,
@@ -14,6 +14,7 @@ import { startInteractionSpan } from '../telemetry/sessionTracing.js'
 import {
   matchesKeepGoingKeyword,
   matchesNegativeKeyword,
+  matchesWakeupKeyword,
 } from '../userPromptKeywords.js'
 
 export function processTextPrompt(
@@ -58,9 +59,13 @@ export function processTextPrompt(
 
   const isNegative = matchesNegativeKeyword(userPromptText)
   const isKeepGoing = matchesKeepGoingKeyword(userPromptText)
+  const isWakeup = matchesWakeupKeyword(userPromptText)
+  const promptIndex = isMeta ? undefined : getNextPromptIndex()
   logEvent('tengu_input_prompt', {
     is_negative: isNegative,
     is_keep_going: isKeepGoing,
+    is_wakeup: isWakeup,
+    prompt_index: promptIndex,
   })
 
   // If we have pasted images, create a message with image content

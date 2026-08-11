@@ -9,7 +9,9 @@ import {
   getClaudeAIOAuthTokens,
   handleOAuth401Error,
   isClaudeAISubscriber,
+  shouldUseWIFAuth,
 } from './auth.js'
+import { logError } from './log.js'
 import { getClaudeCodeUserAgent } from './userAgent.js'
 import { getWorkload } from './workloadContext.js'
 
@@ -49,6 +51,32 @@ export function getMCPUserAgent(): string {
   return `claude-code/${MACRO.VERSION}${suffix}`
 }
 
+export function getClientPlatform(): string {
+  switch (process.env.CLAUDE_CODE_ENTRYPOINT) {
+    case 'claude-vscode':
+      return 'claude_code_vscode'
+    case 'remote':
+    case 'remote_desktop':
+    case 'remote_mobile':
+      return 'claude_code_remote'
+    case 'sdk-cli':
+    case 'sdk-ts':
+    case 'sdk-py':
+      return 'claude_code_sdk'
+    case 'mcp':
+      return 'claude_code_mcp'
+    case 'claude-code-github-action':
+      return 'claude_code_github_action'
+    case 'local-agent':
+      return 'claude_code_local_agent'
+    case 'claude_in_slack':
+      return 'claude_in_slack'
+    case 'cli':
+    default:
+      return 'claude_code_cli'
+  }
+}
+
 // User-Agent for WebFetch requests to arbitrary sites. `Claude-User` is
 // Anthropic's publicly documented agent for user-initiated fetches (what site
 // operators match in robots.txt); the claude-code suffix lets them distinguish
@@ -60,6 +88,36 @@ export function getWebFetchUserAgent(): string {
 export type AuthHeaders = {
   headers: Record<string, string>
   error?: string
+}
+
+export async function getAuthHeadersAsync(): Promise<AuthHeaders> {
+  if (!getAnthropicApiKey() && shouldUseWIFAuth()) {
+    try {
+      const { getWIFCredentials, getWIFTokenCache } = await import(
+        '../services/api/workloadIdentity.js'
+      )
+      const [tokenCache, credentials] = await Promise.all([
+        getWIFTokenCache(),
+        getWIFCredentials(),
+      ])
+      if (tokenCache !== null) {
+        return {
+          headers: {
+            ...credentials?.extraHeaders,
+            Authorization: `Bearer ${await tokenCache.getToken()}`,
+            'anthropic-beta': OAUTH_BETA_HEADER,
+          },
+        }
+      }
+    } catch (error) {
+      logError(error)
+      return {
+        headers: {},
+        error: error instanceof Error ? error.message : String(error),
+      }
+    }
+  }
+  return getAuthHeaders()
 }
 
 /**

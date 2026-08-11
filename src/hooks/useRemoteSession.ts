@@ -53,6 +53,7 @@ type UseRemoteSessionProps = {
   >
   setStreamMode?: React.Dispatch<React.SetStateAction<SpinnerMode>>
   setInProgressToolUseIDs?: (f: (prev: Set<string>) => Set<string>) => void
+  permissionMode: AppState['toolPermissionContext']['mode']
 }
 
 type UseRemoteSessionResult = {
@@ -87,6 +88,7 @@ export function useRemoteSession({
   setStreamingToolUses,
   setStreamMode,
   setInProgressToolUseIDs,
+  permissionMode,
 }: UseRemoteSessionProps): UseRemoteSessionResult {
   const isRemoteMode = !!config
 
@@ -146,6 +148,18 @@ export function useRemoteSession({
     toolsRef.current = tools
   }, [tools])
 
+  const permissionModeRef = useRef(permissionMode)
+  useEffect(() => {
+    if (!config || config.viewerOnly) return
+    if (permissionModeRef.current === permissionMode) return
+    permissionModeRef.current = permissionMode
+    if (permissionMode === 'bubble') return
+    managerRef.current?.sendControlRequest({
+      subtype: 'set_permission_mode',
+      mode: permissionMode,
+    })
+  }, [permissionMode, config])
+
   // Initialize and connect to remote session
   useEffect(() => {
     // Skip if not in remote mode
@@ -178,18 +192,26 @@ export function useRemoteSession({
           responseTimeoutRef.current = null
         }
 
-        // Echo filter: drop user messages we already added locally before POST.
-        // The server and/or worker round-trip our own send back on the WS with
-        // the same uuid we passed to sendEventToRemoteSession. DO NOT delete on
-        // match — the same uuid can echo more than once (server broadcast +
-        // worker echo), and BoundedUUIDSet already caps growth via its ring.
+        // Echo reconciliation: the v2 event stream defines canonical event
+        // order. Move the locally-added copy to the echo's position instead of
+        // appending a duplicate. Keep the UUID in the bounded set because the
+        // same message may be echoed more than once.
         if (
           sdkMessage.type === 'user' &&
           sdkMessage.uuid &&
           sentUUIDsRef.current.has(sdkMessage.uuid)
         ) {
+          const uuid = sdkMessage.uuid
+          setMessages(prev => {
+            const index = prev.findLastIndex(message => message.uuid === uuid)
+            if (index === -1 || index === prev.length - 1) return prev
+            const localMessage = prev[index]
+            return prev
+              .slice(0, index)
+              .concat(prev.slice(index + 1), localMessage)
+          })
           logForDebugging(
-            `[useRemoteSession] Dropping echoed user message ${sdkMessage.uuid}`,
+            `[useRemoteSession] Reconciled echoed user message ${uuid} to canonical position`,
           )
           return
         }
