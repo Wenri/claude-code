@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 1,
+  "kind": "npm-tarball-member-byte-comparison",
+  "comparisonBasis": "Exact member paths, types, modes, link targets, and uncompressed member bytes",
+  "packageName": "@anthropic-ai/claude-code",
+  "artifacts": {
+    "baseline": {
+      "version": "2.1.120",
+      "registryTarballUrl": "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.1.120.tgz",
+      "compressedBytes": 13541,
+      "sha1": "df13bd123fdbc4bb5a6a15d26305c2c60d5580b8",
+      "sha256": "9bca5e08cdd8418a7cfac44f75f7fb4f6e160caefcf6bad423a134cc6fdc4494",
+      "sha512": "23cd8d68509bc0ce614cc06fc8922450c759d76997e9d24825a69f02d97bef154ac795d6f9baaca06bf53fdc59fa6ecc9d68739c35dec5679d59ea38fb4c762a",
+      "integrity": "sha512-I82NaFCbwM5hTMBvyJIkUMdZ12mX6dJIJaafAtl77xVKx5XW+bqsoGv1P9xZ+m7MnWhznDXexWedWeo4+0x2Kg==",
+      "uncompressedTarBytes": 138240,
+      "memberCount": 7,
+      "metadataHeaderCount": 0,
+      "unpackedMemberBytes": 132031,
+      "authentication": {
+        "expectedShasum": "df13bd123fdbc4bb5a6a15d26305c2c60d5580b8",
+        "expectedIntegrity": "sha512-I82NaFCbwM5hTMBvyJIkUMdZ12mX6dJIJaafAtl77xVKx5XW+bqsoGv1P9xZ+m7MnWhznDXexWedWeo4+0x2Kg==",
+        "shasumVerified": true,
+        "integrityVerified": true,
+        "registrySignature": {
+          "keyId": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+          "publicKeySpkiSha256": "fb190a462123443500cbcdb6519623e7179e9f38d84ad4e9362b72d2b68b62c1",
+          "signature": "MEUCIQCMm6GZ9mTq3RdRwfqoYjsct3WYduaooUMQP6xjp8ZybQIgT7APwzJ6GnvTLnzqfaEKCdwb9ynBnXw32LTgLrd5N3s=",
+          "verified": true
+        }
+      }
+    },
+    "target": {
+      "version": "2.1.121",
+      "registryTarballUrl": "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.1.121.tgz",
+      "compressedBytes": 13541,
+      "sha1": "292dd8701a29ad8d969e05d6727298a2abdb7f23",
+      "sha256": "fbb28f31d803d5cebafa8a5b95475df6ef152c219609940a3edd194b558a3460",
+      "sha512": "db75c5b65c9617c78b94d6d94d8b131d315ea87eddf2d3c15a8274379705efe010e322371c7817fcb5f791e0a192c5045ff2e7581f8fdf02fb1a3a274d2257c4",
+      "integrity": "sha512-23XFtlyWF8eLlNbZTYsTHTFeqH7d8tPBWoJ0N5cF7+AQ4yI3HHgX/LX3keChksUEX/LnWB+P3wL7GjonTSJXxA==",
+      "uncompressedTarBytes": 138240,
+      "memberCount": 7,
+      "metadataHeaderCount": 0,
+      "unpackedMemberBytes": 132031,
+      "authentication": {
+        "expectedShasum": "292dd8701a29ad8d969e05d6727298a2abdb7f23",
+        "expectedIntegrity": "sha512-23XFtlyWF8eLlNbZTYsTHTFeqH7d8tPBWoJ0N5cF7+AQ4yI3HHgX/LX3keChksUEX/LnWB+P3wL7GjonTSJXxA==",
+        "shasumVerified": true,
+        "integrityVerified": true,
+        "registrySignature": {
+          "keyId": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+          "publicKeySpkiSha256": "fb190a462123443500cbcdb6519623e7179e9f38d84ad4e9362b72d2b68b62c1",
+          "signature": "MEUCIGLMpu80MxayFWbXK8zoqGMDxNBcUYy4Qn+82FhcVZ7aAiEAlieQib7WR1tvU7cY7zKxAMdK3aWapqIIQTRfKukHUFM=",
+          "verified": true
+        }
+      }
+    }
+  },
+  "summary": {
+    "unionMemberCount": 7,
+    "baselineMemberCount": 7,
+    "targetMemberCount": 7,
+    "unchanged": 6,
+    "changed": 1,
+    "added": 0,
+    "removed": 0,
+    "complete": true
+  },
+  "members": [
+    {
+      "path": "package/LICENSE.md",
+      "status": "unchanged",
+      "baseline": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 147,
+        "sha256": "8ce94b9478bb9868f9641f818e06cd722fbe55d4c22e2d2ed11971b20146173a"
+      },
+      "target": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 147,
+        "sha256": "8ce94b9478bb9868f9641f818e06cd722fbe55d4c22e2d2ed11971b20146173a"
+      }
+    },
+    {
+      "path": "package/README.md",
+      "status": "unchanged",
+      "baseline": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 2037,
+        "sha256": "9c121f2b01db7f62e3b75e400c8846857b4c32976083ae5a7b2cf6939876c17e"
+      },
+      "target": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 2037,
+        "sha256": "9c121f2b01db7f62e3b75e400c8846857b4c32976083ae5a7b2cf6939876c17e"
+      }
+    },
+    {
+      "path": "package/bin/claude.exe",
+      "status": "unchanged",
+      "baseline": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 500,
+        "sha256": "6d7abae055d3b598281300a6c835086dec81bf3048f8a2294c5d3e50c8830d7b"
+      },
+      "target": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 500,
+        "sha256": "6d7abae055d3b598281300a6c835086dec81bf3048f8a2294c5d3e50c8830d7b"
+      }
+    },
+    {
+      "path": "package/cli-wrapper.cjs",
+      "status": "unchanged",
+      "baseline": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 4112,
+        "sha256": "e107bcdc2708243006ca2b156ac46da60eb8b7451c9e3133fa4be0f162b1ca02"
+      },
+      "target": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 4112,
+        "sha256": "e107bcdc2708243006ca2b156ac46da60eb8b7451c9e3133fa4be0f162b1ca02"
+      }
+    },
+    {
+      "path": "package/install.cjs",
+      "status": "unchanged",
+      "baseline": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 6307,
+        "sha256": "574cb5fd945d2adba5901a9ae508b62ca539e5a91dcd877840fc174844ed79d2"
+      },
+      "target": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 6307,
+        "sha256": "574cb5fd945d2adba5901a9ae508b62ca539e5a91dcd877840fc174844ed79d2"
+      }
+    },
+    {
+      "path": "package/package.json",
+      "status": "changed",
+      "baseline": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 1476,
+        "sha256": "cf10ef98e4e3699b457c08cb04842902aa1004d1f6e9131d00c9ef9856b35106"
+      },
+      "target": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 1476,
+        "sha256": "83eb99fd29fb46e03642f2ca2481c5f2eb5c7141607d407a7b06069362ddd6bd"
+      }
+    },
+    {
+      "path": "package/sdk-tools.d.ts",
+      "status": "unchanged",
+      "baseline": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 117452,
+        "sha256": "8f907e0e9fd160b857d25881375f73f1bddd3642d372ad52ea71d7ff441f3ddf"
+      },
+      "target": {
+        "type": "file",
+        "linkPath": null,
+        "mode": "0644",
+        "bytes": 117452,
+        "sha256": "8f907e0e9fd160b857d25881375f73f1bddd3642d372ad52ea71d7ff441f3ddf"
+      }
+    }
+  ]
+}
