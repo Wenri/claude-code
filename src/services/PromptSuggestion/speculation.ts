@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto'
 import { rm } from 'fs'
-import { appendFile, copyFile, mkdir } from 'fs/promises'
-import { dirname, isAbsolute, join, relative } from 'path'
+import { appendFile, copyFile, lstat, mkdir, realpath, unlink } from 'fs/promises'
+import { dirname, isAbsolute, join, relative, sep } from 'path'
 import { getCwdState } from '../../bootstrap/state.js'
 import type { CompletionBoundary } from '../../state/AppStateStore.js'
 import {
@@ -104,11 +104,71 @@ async function copyOverlayToMain(
   cwd: string,
 ): Promise<boolean> {
   let allCopied = true
+  let canonicalCwd: string
+  try {
+    canonicalCwd = await realpath(cwd)
+  } catch {
+    return false
+  }
+
   for (const rel of writtenPaths) {
     const src = join(overlayPath, rel)
     const dest = join(cwd, rel)
     try {
+      try {
+        if ((await lstat(src)).isSymbolicLink()) {
+          allCopied = false
+          logForDebugging(
+            `[Speculation] Skipping symlink source ${rel} in overlay`,
+          )
+          continue
+        }
+      } catch {
+        allCopied = false
+        logForDebugging(`[Speculation] Failed to copy ${rel} to main`)
+        continue
+      }
+
+      let existingParent = dirname(dest)
+      let canonicalParent: string | null = null
+      for (;;) {
+        try {
+          canonicalParent = await realpath(existingParent)
+          break
+        } catch {
+          const parent = dirname(existingParent)
+          if (parent === existingParent) break
+          existingParent = parent
+        }
+      }
+      if (
+        canonicalParent === null ||
+        (canonicalParent !== canonicalCwd &&
+          !canonicalParent.startsWith(canonicalCwd + sep))
+      ) {
+        allCopied = false
+        logForDebugging(
+          `[Speculation] Skipping ${rel}: parent dir escapes cwd via symlink`,
+        )
+        continue
+      }
+
       await mkdir(dirname(dest), { recursive: true })
+      let destinationStat: Awaited<ReturnType<typeof lstat>> | undefined
+      try {
+        destinationStat = await lstat(dest)
+      } catch {}
+      if (destinationStat?.isSymbolicLink()) {
+        try {
+          await unlink(dest)
+        } catch {
+          allCopied = false
+          logForDebugging(
+            `[Speculation] Failed to unlink symlink at ${rel}`,
+          )
+          continue
+        }
+      }
       await copyFile(src, dest)
     } catch {
       allCopied = false

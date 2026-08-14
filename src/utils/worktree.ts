@@ -3,6 +3,7 @@ import chalk from 'chalk'
 import { spawnSync } from 'child_process'
 import {
   copyFile,
+  lstat,
   mkdir,
   readdir,
   readFile,
@@ -496,6 +497,13 @@ export async function copyWorktreeIncludeFiles(
     const srcPath = join(repoRoot, relativePath)
     const destPath = join(worktreePath, relativePath)
     try {
+      if ((await lstat(srcPath)).isSymbolicLink()) {
+        logForDebugging(
+          `Skipping symlink in .worktreeinclude: ${relativePath}`,
+          { level: 'warn' },
+        )
+        continue
+      }
       await mkdir(dirname(destPath), { recursive: true })
       await copyFile(srcPath, destPath)
       copied.push(relativePath)
@@ -530,12 +538,19 @@ async function performPostCreationSetup(
     getRelativeSettingsFilePathForSource('localSettings')
   const sourceSettingsLocal = join(repoRoot, localSettingsRelativePath)
   try {
-    const destSettingsLocal = join(worktreePath, localSettingsRelativePath)
-    await mkdirRecursive(dirname(destSettingsLocal))
-    await copyFile(sourceSettingsLocal, destSettingsLocal)
-    logForDebugging(
-      `Copied settings.local.json to worktree: ${destSettingsLocal}`,
-    )
+    if ((await lstat(sourceSettingsLocal)).isSymbolicLink()) {
+      logForDebugging(
+        `Skipping symlinked settings.local.json: ${sourceSettingsLocal}`,
+        { level: 'warn' },
+      )
+    } else {
+      const destSettingsLocal = join(worktreePath, localSettingsRelativePath)
+      await mkdirRecursive(dirname(destSettingsLocal))
+      await copyFile(sourceSettingsLocal, destSettingsLocal)
+      logForDebugging(
+        `Copied settings.local.json to worktree: ${destSettingsLocal}`,
+      )
+    }
   } catch (e: unknown) {
     const code = getErrnoCode(e)
     if (code !== 'ENOENT') {

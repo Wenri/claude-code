@@ -1,0 +1,331 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "scope": "Fail-closed inventory of active hidden and inherited application semantics outside the 39 official changelog bullets, with all non-owned clusters frozen to named owners",
+  "artifacts": {
+    "baseline": {
+      "package": {
+        "artifact": "2.1.120-linux-x64/package.tgz",
+        "bytes": 76473493,
+        "sha256": "5d1c7dd861d8d8fff0593a4fc9e8f163c2e4c01cca914c159ef25591b4740131"
+      },
+      "wrapper": {
+        "artifact": "2.1.120-linux-x64/cli.js",
+        "bytes": 13784833,
+        "sha256": "280754b3db23901e986711f11dc74536da9669c43f61999b4a84e2cf76cf1e83"
+      },
+      "bundle": {
+        "artifact": "2.1.120-linux-x64/cli.inner.js",
+        "bytes": 13784743,
+        "sha256": "c059a8b461185de1823ac3f758e0216bd8cb5ea7d6d2d2e868d92e44e2c0db0f"
+      }
+    },
+    "target": {
+      "package": {
+        "artifact": "2.1.121-linux-x64/package.tgz",
+        "bytes": 76841856,
+        "sha256": "2ebb9e97a98009f4cd557b132c5fdc4dc3fb5ddf4bb8c6db138e71870ba96133"
+      },
+      "wrapper": {
+        "artifact": "2.1.121-linux-x64/cli.js",
+        "bytes": 13908278,
+        "sha256": "885f3342ff45bb4258517a4dc0f8405bbe2817f237d6b8b2fe4429694ecbe9c2"
+      },
+      "bundle": {
+        "artifact": "2.1.121-linux-x64/cli.inner.js",
+        "bytes": 13908188,
+        "sha256": "783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a"
+      }
+    },
+    "normalizedBaseline": "/tmp/claude-21121-hidden.ZfrDB4/readable2/baseline.normalized.js",
+    "normalizedTarget": "/tmp/claude-21121-hidden.ZfrDB4/readable2/target.normalized.js",
+    "literalDelta": "/tmp/claude-21121-hidden.ZfrDB4/literals.json"
+  },
+  "obligations": [
+    {
+      "id": "H01",
+      "title": "Inline extra-usage eligibility, purchase, limits, tax, auto-reload, polling, and completion UX",
+      "classification": "hidden",
+      "status": "implemented_verified",
+      "owner": "/root/hidden_residual_21121",
+      "targetWitnesses": [
+        "bundle /setup_overage_billing: baseline 0, target 1",
+        "bundle tengu_extra_usage_inline_dialog_shown: baseline 0, target 1",
+        "bundle tengu_ember_latch: baseline 0, target 1",
+        "target normalized 15790-15836: service endpoints and complete dialog state machine",
+        "target normalized 3090-3113 in the extracted command module: Pro/Max, provisioning, essential-traffic, and GrowthBook gate"
+      ],
+      "paths": [
+        "src/commands/extra-usage/ExtraUsageDialog.tsx",
+        "src/commands/extra-usage/extra-usage-core.ts",
+        "src/commands/extra-usage/extra-usage.tsx",
+        "src/components/LogoV2/AnimatedClawd.tsx",
+        "src/services/api/extraUsage.ts"
+      ],
+      "integrationDependencies": [
+        "The official /usage stale-token refresh bullet, owned by /root, supplies target fetchUtilization retry behavior used by the dialog."
+      ]
+    },
+    {
+      "id": "H02",
+      "title": "Admin-request client errors are returned to the extra-usage caller when safe",
+      "classification": "hidden",
+      "status": "implemented_verified",
+      "owner": "/root/hidden_residual_21121",
+      "targetWitnesses": [
+        "target bundle byte 7881343: status below 500 accepts nested error.message, message, or detail",
+        "target bundle byte 7882696: createAdminRequest catch returns the extracted message before the generic fallback"
+      ],
+      "paths": [
+        "src/commands/extra-usage/extra-usage-core.ts"
+      ]
+    },
+    {
+      "id": "H03",
+      "title": "Prompt-cache diagnosis request and response telemetry",
+      "classification": "hidden",
+      "status": "implemented_verified",
+      "owner": "/root/hidden_residual_21121",
+      "targetWitnesses": [
+        "bundle tengu_prompt_cache_diagnosis_received: baseline 0, target 1",
+        "target normalized prompt request sends diagnostics on the first eligible turn with previous_message_id null when absent",
+        "target stream and non-stream response paths capture diagnostics.cache_miss_reason and emit diagnosis telemetry"
+      ],
+      "paths": [
+        "src/services/api/claude.ts",
+        "src/services/api/promptCacheBreakDetection.ts"
+      ]
+    },
+    {
+      "id": "H04",
+      "title": "Inherited active prompt-cache tracker completeness exposed by the changed API module",
+      "classification": "inherited-active-gap",
+      "status": "implemented_verified",
+      "owner": "/root/hidden_residual_21121",
+      "targetWitnesses": [
+        "bundle cache-break-state-: baseline 1, target 1",
+        "bundle messagesHistoryChanged: baseline 4, target 4",
+        "bundle previous_message_id: baseline 1, target 1",
+        "bundle TTL flip expected: baseline 1, target 1",
+        "both authenticated bundles persist Cowork state, hash message and system-block history, sanitize sources, and track only Cowork/Desktop while base source 6801ead omitted those active semantics"
+      ],
+      "paths": [
+        "src/commands/compact/compact.ts",
+        "src/services/api/claude.ts",
+        "src/services/api/promptCacheBreakDetection.ts",
+        "src/services/compact/autoCompact.ts",
+        "src/services/compact/compact.ts",
+        "src/services/compact/microCompact.ts",
+        "src/tools/AgentTool/runAgent.ts"
+      ],
+      "notes": "This row is intentionally not claimed as a 2.1.121 introduction. It is recovered because fail-closed semantic reproduction cannot leave an active baseline-and-target gap in a high-attribution file changed by H03."
+    },
+    {
+      "id": "H05",
+      "title": "Worktree include and local-settings copies refuse symlink sources",
+      "classification": "hidden-security",
+      "status": "implemented_verified",
+      "owner": "/root/hidden_residual_21121",
+      "targetWitnesses": [
+        "bundle Skipping symlink in .worktreeinclude: baseline 0, target 1",
+        "bundle Skipping symlinked settings.local.json: baseline 0, target 1",
+        "target normalized 28201-28202: lstat checks precede both copy operations"
+      ],
+      "paths": [
+        "src/utils/worktree.ts"
+      ]
+    },
+    {
+      "id": "H06",
+      "title": "Debug output applies broad redaction without broadening team-memory rejection",
+      "classification": "hidden-security",
+      "status": "implemented_verified",
+      "owner": "/root/hidden_residual_21121",
+      "targetWitnesses": [
+        "bundle loose-sk-ant, loose-bearer, loose-env-assign, and loose-jwt: each baseline 0, target 1",
+        "target normalized 999-1015: logForDebugging redacts the trimmed message before disk or stderr output"
+      ],
+      "paths": [
+        "src/services/teamMemorySync/secretScanner.ts",
+        "src/utils/debug.ts"
+      ]
+    },
+    {
+      "id": "H07",
+      "title": "Debug logs rotate at 10 MiB and recover when --debug-file names a directory",
+      "classification": "hidden-lifecycle",
+      "status": "implemented_verified",
+      "owner": "/root/hidden_residual_21121",
+      "targetWitnesses": [
+        "bundle .1.txt: baseline 0, target 1",
+        "target normalized 999-1015: post-append stat accounting, rename/unlink fallback, and EISDIR fallback to <directory>/<session>.txt",
+        "target chooses explicit debug file, then the cached fallback, then CLAUDE_CODE_DEBUG_LOGS_DIR, then the default"
+      ],
+      "paths": [
+        "src/utils/debug.ts"
+      ]
+    },
+    {
+      "id": "H08",
+      "title": "Speculative overlay acceptance fails closed across symlinked sources, parents, and destinations",
+      "classification": "hidden-security",
+      "status": "implemented_verified",
+      "owner": "/root/hidden_residual_21121",
+      "targetWitnesses": [
+        "bundle [Speculation] Skipping symlink source: baseline 0, target 1",
+        "bundle parent dir escapes cwd via symlink: baseline 0, target 1",
+        "bundle [Speculation] Failed to unlink symlink at: baseline 0, target 1",
+        "target bundle byte 6490884: canonical cwd and nearest-existing-parent containment precede mkdir/copy"
+      ],
+      "paths": [
+        "src/services/PromptSuggestion/speculation.ts"
+      ]
+    },
+    {
+      "id": "H09",
+      "title": "Hidden UI, wording, renderer, spinner, job-label, PowerShell, autocompact, and branch deltas",
+      "classification": "hidden-external-owner",
+      "status": "external_owner_frozen",
+      "owner": "/root",
+      "targetWitnesses": [
+        "target introduced [reportRenderError] React boundary caught, tengu_idle_amber_finch, tengu_quiet_slate_wren, and tengu_spinner_stall_cleared",
+        "target changes the job-label prompt, PowerShell upstream-pipeline path approval, autocompact status copy, and branch resume copy"
+      ],
+      "paths": [
+        "src/commands/branch/branch.ts",
+        "src/components/Spinner/SpinnerAnimationRow.tsx",
+        "src/ink/components/App.tsx",
+        "src/jobs/classifier.ts",
+        "src/main.tsx",
+        "src/services/compact/autoCompact.ts",
+        "src/tools/PowerShellTool/pathValidation.ts",
+        "src/tools/PowerShellTool/readOnlyValidation.ts",
+        "src/utils/gracefulShutdown.ts",
+        "src/utils/idleTimeout.ts"
+      ],
+      "notes": "autoCompact.ts is the only cross-owner path: H04 changes only the prompt-cache gate there; /root must preserve both edits while integrating."
+    },
+    {
+      "id": "H10",
+      "title": "Local /usage plugin, skill, and subagent attribution breakdown",
+      "classification": "hidden-external-owner",
+      "status": "external_owner_frozen",
+      "owner": "/root",
+      "targetWitnesses": [
+        "target normalized 21702-21713: JSONL token extraction plus attributionPlugin, attributionAgent, and attributionSkill grouping",
+        "bundle Skills, subagents, and plugins: baseline 0, target 1",
+        "bundle No attribution data yet: baseline 0, target 1"
+      ],
+      "paths": [
+        "src/components/Settings/UsageContributors.tsx"
+      ]
+    },
+    {
+      "id": "H11",
+      "title": "SDK URL allowlist, bridge reattach fallback, immediate command dispatch, and remote permission UX",
+      "classification": "hidden-external-owner",
+      "status": "external_owner_frozen",
+      "owner": "/root",
+      "targetWitnesses": [
+        "target normalized 28559-28806 and 29703: approved Anthropic host checks, reattach fallback, immediate execution, and permission-mode no-op",
+        "bundle tengu_sdk_url_host_rejected, bridge_repl_v2_reattach_fallback, and remote-permission-mode-noop: each baseline 0, target 1"
+      ],
+      "paths": [
+        "src/bridge/initReplBridge.ts",
+        "src/bridge/remoteBridgeCore.ts",
+        "src/cli/transports/transportUtils.ts",
+        "src/components/PromptInput/PromptInput.tsx",
+        "src/main.tsx",
+        "src/screens/REPL.tsx",
+        "src/utils/handlePromptSubmit.ts"
+      ]
+    },
+    {
+      "id": "H12",
+      "title": "Daemon, background-agent, Fleet, worker recovery, session-task, and file-encoding cluster",
+      "classification": "hidden-external-owner",
+      "status": "external_owner_frozen",
+      "owner": "/root/daemon_hidden_21121",
+      "targetWitnesses": [
+        "target normalized 7151-7230, 21971-22072, 25271-25283, 26277-26698, 28492-28515, 29791, 30029, 30111-30117, 30323-30331, and 40851-41026",
+        "the target introduces daemon cold-start/install/yield/spare-claim telemetry, crash reattach, task ownership guards, read encoding, container-restart reminders, and daemon CLI/service lifecycle copy"
+      ],
+      "paths": [
+        "src/commands/background/",
+        "src/commands/daemon/",
+        "src/commands/tasks/",
+        "src/components/BackgroundExitDialog.tsx",
+        "src/components/FleetView.tsx",
+        "src/components/tasks/",
+        "src/daemon/",
+        "src/entrypoints/sdk/coreSchemas.ts",
+        "src/utils/agentsFleet.ts",
+        "src/utils/background/",
+        "src/utils/backgroundHousekeeping.ts"
+      ],
+      "notes": "No daemon, Fleet, background, task, or encoding source is edited by this overlay."
+    },
+    {
+      "id": "H13",
+      "title": "All 39 published changelog bullets",
+      "classification": "official-external-owner",
+      "status": "external_owner_frozen",
+      "owners": {
+        "/root/official_recover_21121": [1, 2, 4, 11, 13, 17, 28, 30],
+        "/root": [3, 5, 6, 7, 8, 9, 10, 12, 14, 15, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 29, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+      },
+      "targetWitnesses": [
+        "authenticated CHANGELOG-2.1.121.md contains exactly 39 bullets",
+        "official ownership was frozen before hidden recovery; official MCP/plugin/hook paths and root UI/runtime paths are intentionally not edited here"
+      ],
+      "paths": []
+    }
+  ],
+  "retainedNoDelta": [
+    {
+      "title": "High-confidence team-memory secret rejection",
+      "reason": "SECRET_RULES and scanContentForSecrets remain strict. H06 appends loose patterns only inside redactSecrets, matching the target's intentional redaction-only boundary."
+    }
+  ],
+  "excluded": [
+    {
+      "category": "dependency-owned",
+      "examples": [
+        "gaxios 7 and google-auth-library certificate/mTLS implementation",
+        "Google package metadata and third-party runtime helper churn"
+      ],
+      "reason": "Package/source attribution assigns these units to bundled dependencies. Application-facing Vertex behavior is an official bullet owned outside this overlay."
+    },
+    {
+      "category": "generated",
+      "examples": [
+        "2.1.121 version/build commit/timestamp constants",
+        "wrapper/source-map/module-order metadata"
+      ],
+      "reason": "Generated release bytes are authenticated but do not describe a source-tree application semantic to recover."
+    },
+    {
+      "category": "platform-DCE",
+      "examples": [
+        "development-only extra-usage mock branches whose authenticated production accessor is exactly function hT(){return null}",
+        "native and non-Linux branches eliminated from the authenticated Linux bundle"
+      ],
+      "reason": "The production artifact proves these branches unreachable or absent; no speculative source implementation is invented."
+    },
+    {
+      "category": "minifier-only",
+      "examples": [
+        "identifier renames, initializer renumbering, declaration ordering, and React compiler cache-slot reshaping"
+      ],
+      "reason": "No observable application-semantic delta."
+    }
+  ],
+  "auditClosure": {
+    "method": "AST string-literal multiset plus normalized statement diff, with every active non-official cluster assigned to H01-H12 and official changes frozen as H13",
+    "changedLiteralRows": 1453,
+    "ownedRows": ["H01", "H02", "H03", "H04", "H05", "H06", "H07", "H08"],
+    "externalRows": ["H09", "H10", "H11", "H12", "H13"],
+    "unassignedActiveRows": 0
+  },
+  "directTest": "recovery/test/recovery-2.1.121-hidden-obligations.test.mjs"
+}

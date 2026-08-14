@@ -1,9 +1,19 @@
 import React from 'react';
 import type { LocalJSXCommandContext } from '../../commands.js';
 import type { LocalJSXCommandOnDone } from '../../types/command.js';
+import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js';
+import { getSubscriptionType, isOverageProvisioningAllowed } from '../../utils/auth.js';
+import { isEssentialTrafficOnly } from '../../utils/privacyLevel.js';
 import { Login } from '../login/login.js';
-import { runExtraUsage } from './extra-usage-core.js';
+import { ExtraUsageDialog } from './ExtraUsageDialog.js';
+import { prepareExtraUsageVisit, runExtraUsage } from './extra-usage-core.js';
 export async function call(onDone: LocalJSXCommandOnDone, context: LocalJSXCommandContext): Promise<React.ReactNode | null> {
+  const subscriptionType = getSubscriptionType();
+  const canUseInlineDialog = (subscriptionType === 'pro' || subscriptionType === 'max') && isOverageProvisioningAllowed() && !isEssentialTrafficOnly() && getFeatureValue_CACHED_MAY_BE_STALE('tengu_ember_latch', false);
+  if (canUseInlineDialog) {
+    prepareExtraUsageVisit();
+    return <ExtraUsageDialog onDone={onDone} />;
+  }
   const result = await runExtraUsage();
   if (result.type === 'message') {
     onDone(result.value);

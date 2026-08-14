@@ -1,4 +1,4 @@
-import { appendFile, mkdir, symlink, unlink } from 'fs/promises'
+import { appendFile, mkdir, rename, stat, symlink, unlink } from 'fs/promises'
 import memoize from 'lodash-es/memoize.js'
 import { dirname, join } from 'path'
 import { getSessionId } from 'src/bootstrap/state.js'
@@ -11,8 +11,10 @@ import {
   shouldShowDebugMessage,
 } from './debugFilter.js'
 import { getClaudeConfigHomeDir, isEnvTruthy } from './envUtils.js'
+import { getErrnoCode, isENOENT } from './errors.js'
 import { getFsImplementation } from './fsOperations.js'
 import { writeToStderr } from './process.js'
+import { redactSecrets } from '../services/teamMemorySync/secretScanner.js'
 import { jsonStringify } from './slowOperations.js'
 
 export type DebugLogLevel = 'verbose' | 'debug' | 'info' | 'warn' | 'error'
@@ -134,6 +136,48 @@ export function getHasFormattedOutput(): boolean {
 
 let debugWriter: BufferedWriter | null = null
 let pendingWrite: Promise<void> = Promise.resolve()
+const MAX_DEBUG_LOG_BYTES = 10 * 1024 * 1024
+let debugLogBytes = -1
+let rotatingDebugLog = false
+let fallbackDebugLogPath: string | null = null
+
+async function rotateDebugLogIfNeeded(
+  path: string,
+  appendedBytes: number,
+  maxBytes = MAX_DEBUG_LOG_BYTES,
+): Promise<void> {
+  if (debugLogBytes < 0) {
+    debugLogBytes = await stat(path)
+      .then(file => file.size)
+      .catch(() => 0)
+  } else {
+    debugLogBytes += appendedBytes
+  }
+  if (debugLogBytes <= maxBytes || rotatingDebugLog) return
+
+  rotatingDebugLog = true
+  try {
+    const rotatedPath = path.endsWith('.txt')
+      ? `${path.slice(0, -4)}.1.txt`
+      : `${path}.1`
+    try {
+      await rename(path, rotatedPath)
+    } catch (error) {
+      if (!isENOENT(error)) {
+        await unlink(rotatedPath).catch(() => {})
+        await rename(path, rotatedPath).catch(() => unlink(path).catch(() => {}))
+      }
+    }
+    debugLogBytes = 0
+  } finally {
+    rotatingDebugLog = false
+  }
+}
+
+function useDebugDirectory(path: string): string {
+  fallbackDebugLogPath = join(path, `${getSessionId()}.txt`)
+  return fallbackDebugLogPath
+}
 
 // Module-level so .bind captures only its explicit args, not the
 // writeFn closure's parent scope (Jarred, #22257).
@@ -146,7 +190,17 @@ async function appendAsync(
   if (needMkdir) {
     await mkdir(dir, { recursive: true }).catch(() => {})
   }
-  await appendFile(path, content)
+  let actualPath = path
+  try {
+    await appendFile(path, content)
+  } catch (error) {
+    if (getErrnoCode(error) !== 'EISDIR') throw error
+    actualPath = useDebugDirectory(path)
+    await appendFile(actualPath, content)
+  }
+  await rotateDebugLogIfNeeded(actualPath, Buffer.byteLength(content)).catch(
+    noop,
+  )
   void updateLatestDebugLogSymlink()
 }
 
@@ -172,7 +226,18 @@ function getDebugWriter(): BufferedWriter {
               // Directory already exists
             }
           }
-          getFsImplementation().appendFileSync(path, content)
+          let actualPath = path
+          try {
+            getFsImplementation().appendFileSync(path, content)
+          } catch (error) {
+            if (getErrnoCode(error) !== 'EISDIR') throw error
+            actualPath = useDebugDirectory(path)
+            getFsImplementation().appendFileSync(actualPath, content)
+          }
+          void rotateDebugLogIfNeeded(
+            actualPath,
+            Buffer.byteLength(content),
+          ).catch(noop)
           void updateLatestDebugLogSymlink()
           return
         }
@@ -218,7 +283,7 @@ export function logForDebugging(
     message = jsonStringify(message)
   }
   const timestamp = new Date().toISOString()
-  const output = `${timestamp} [${level.toUpperCase()}] ${message.trim()}\n`
+  const output = `${timestamp} [${level.toUpperCase()}] ${redactSecrets(message.trim())}\n`
   if (isDebugToStdErr()) {
     writeToStderr(output)
     return
@@ -230,6 +295,7 @@ export function logForDebugging(
 export function getDebugLogPath(): string {
   return (
     getDebugFilePath() ??
+    fallbackDebugLogPath ??
     process.env.CLAUDE_CODE_DEBUG_LOGS_DIR ??
     join(getClaudeConfigHomeDir(), 'debug', `${getSessionId()}.txt`)
   )

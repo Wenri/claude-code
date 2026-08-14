@@ -15,7 +15,10 @@ import type { CanUseToolFn } from '../../hooks/useCanUseTool.js'
 import { query } from '../../query.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
 import { getDumpPromptsPath } from '../../services/api/dumpPrompts.js'
-import { cleanupAgentTracking } from '../../services/api/promptCacheBreakDetection.js'
+import {
+  cleanupAgentTracking,
+  shouldTrackPromptCacheBreaks,
+} from '../../services/api/promptCacheBreakDetection.js'
 import {
   connectToServer,
   fetchToolsForClient,
@@ -886,7 +889,7 @@ export async function* runAgent({
       clearSessionHooks(rootSetAppState, agentId)
     }
     // Clean up prompt cache tracking state for this agent
-    if (feature('PROMPT_CACHE_BREAK_DETECTION')) {
+    if (shouldTrackPromptCacheBreaks()) {
       cleanupAgentTracking(agentId)
     }
     // Release cloned file state cache memory

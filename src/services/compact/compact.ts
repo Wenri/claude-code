@@ -105,7 +105,10 @@ import {
   PROMPT_TOO_LONG_ERROR_MESSAGE,
   startsWithApiErrorPrefix,
 } from '../api/errors.js'
-import { notifyCompaction } from '../api/promptCacheBreakDetection.js'
+import {
+  notifyCompaction,
+  shouldTrackPromptCacheBreaks,
+} from '../api/promptCacheBreakDetection.js'
 import { getRetryDelay } from '../api/withRetry.js'
 import { logPermissionContextForAnts } from '../internalLogging.js'
 import {
@@ -721,7 +724,7 @@ export async function compactConversation(
     })
 
     // Reset cache read baseline so the post-compact drop isn't flagged as a break
-    if (feature('PROMPT_CACHE_BREAK_DETECTION')) {
+    if (shouldTrackPromptCacheBreaks()) {
       notifyCompaction(
         context.options.querySource ?? 'compact',
         context.agentId,
@@ -1071,7 +1074,7 @@ export async function partialCompactConversation(
       }),
     ]
 
-    if (feature('PROMPT_CACHE_BREAK_DETECTION')) {
+    if (shouldTrackPromptCacheBreaks()) {
       notifyCompaction(
         context.options.querySource ?? 'compact',
         context.agentId,

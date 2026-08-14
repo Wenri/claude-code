@@ -263,7 +263,10 @@ import {
 import {
   CACHE_TTL_1HOUR_MS,
   checkResponseForCacheBreak,
+  type CacheMissReason,
+  logPromptCacheDiagnosis,
   recordPromptState,
+  shouldTrackPromptCacheBreaks,
 } from './promptCacheBreakDetection.js'
 import {
   CannotRetryError,
@@ -1585,7 +1588,7 @@ async function* queryModel(
       ? convertEffortValueToLevel(effort)
       : undefined
 
-  if (feature('PROMPT_CACHE_BREAK_DETECTION')) {
+  if (shouldTrackPromptCacheBreaks()) {
     // Exclude defer_loading tools from the hash -- the API strips them from the
     // prompt, so they never affect the actual cache key. Including them creates
     // false-positive "tool schemas changed" breaks when tools are discovered or
@@ -1607,10 +1610,13 @@ async function* queryModel(
       betas,
       autoModeActive: afkHeaderLatched,
       isUsingOverage: currentLimits.isUsingOverage ?? false,
+      is1hCacheTTL: cacheTtl === '1h',
+      queryDepth: options.queryTracking?.depth,
       cachedMCEnabled: cacheEditingHeaderLatched,
       cacheDiagnosis,
       effortValue: effort,
       extraBodyParams: getExtraBodyParams(),
+      messagesForAPI,
     })
   }
 
@@ -1907,10 +1913,9 @@ async function* queryModel(
       ...(speed !== undefined && { speed }),
       ...(cacheDiagnosis &&
         isAgenticQuery &&
-        previousMessageId &&
         useBetas &&
         !simulateProxyUsage && {
-          diagnostics: { previous_message_id: previousMessageId },
+          diagnostics: { previous_message_id: previousMessageId ?? null },
         }),
     }
   }
@@ -1958,6 +1963,7 @@ async function* queryModel(
   let maxOutputTokens = 0
   let responseHeaders: globalThis.Headers | undefined = undefined
   let research: unknown = undefined
+  let cacheMissReason: CacheMissReason | undefined
   let isFastModeRequest = isFastMode // Keep separate state as it may change if falling back
   let isAdvisorInProgress = false
 
@@ -2280,6 +2286,11 @@ async function* queryModel(
             partialMessage = part.message
             ttftMs = Date.now() - start
             usage = updateUsage(usage, part.message?.usage)
+            cacheMissReason = (
+              part.message as typeof part.message & {
+                diagnostics?: { cache_miss_reason?: CacheMissReason }
+              }
+            ).diagnostics?.cache_miss_reason
             // Capture research from message_start if available (internal only).
             // Always overwrite with the latest value.
             if (
@@ -2543,6 +2554,11 @@ async function* queryModel(
                 type?: string
                 explanation?: string | null
               } | null
+              diagnostics?: { cache_miss_reason?: CacheMissReason }
+            }
+            if (deltaWithStopDetails.diagnostics?.cache_miss_reason) {
+              cacheMissReason =
+                deltaWithStopDetails.diagnostics.cache_miss_reason
             }
             stopReason = deltaWithStopDetails.stop_reason
 
@@ -2688,7 +2704,7 @@ async function* queryModel(
       }
 
       // Check if the cache actually broke based on response tokens
-      if (feature('PROMPT_CACHE_BREAK_DETECTION')) {
+      if (shouldTrackPromptCacheBreaks()) {
         void checkResponseForCacheBreak(
           options.querySource,
           usage.cache_read_input_tokens,
@@ -2696,6 +2712,7 @@ async function* queryModel(
           messages,
           options.agentId,
           streamRequestId,
+          previousMessageId,
         )
       }
 
@@ -2970,6 +2987,11 @@ async function* queryModel(
         streamRequestId,
       )
       streamRequestId = requestId
+      cacheMissReason = (
+        result as typeof result & {
+          diagnostics?: { cache_miss_reason?: CacheMissReason }
+        }
+      ).diagnostics?.cache_miss_reason
 
       const m: AssistantMessage = {
         message: {
@@ -3075,6 +3097,11 @@ async function* queryModel(
           failedRequestId,
         )
         streamRequestId = requestId
+        cacheMissReason = (
+          result as typeof result & {
+            diagnostics?: { cache_miss_reason?: CacheMissReason }
+          }
+        ).diagnostics?.cache_miss_reason
 
         const m: AssistantMessage = {
           message: {
@@ -3270,6 +3297,17 @@ async function* queryModel(
   }
 
   options.connection?.push({ type: 'completed' })
+
+  if (cacheDiagnosis && cacheMissReason) {
+    logPromptCacheDiagnosis(cacheMissReason, {
+      requestId: streamRequestId,
+      previousMessageId,
+      model: options.model,
+      is1hCacheTTL: cacheTtl === '1h',
+      querySource: options.querySource,
+      queryDepth: options.queryTracking?.depth,
+    })
+  }
 
   // Precompute scalars so the fire-and-forget .then() closure doesn't pin the
   // full messagesForAPI array (the entire conversation up to the context window
