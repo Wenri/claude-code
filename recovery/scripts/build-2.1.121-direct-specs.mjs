@@ -417,6 +417,7 @@ const hiddenRows = [
     targetFragments: [
       '[reportRenderError] React boundary caught ',
       'tengu_idle_amber_finch',
+      'tengu_quiet_slate_wren',
       'tengu_spinner_stall_cleared',
       'lastHintSessionId',
       'lastSessionModified',
