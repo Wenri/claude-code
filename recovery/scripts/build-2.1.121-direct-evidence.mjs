@@ -195,6 +195,25 @@ for (const spec of specs.rows) {
     }
   }
 }
+const preflightAssertedPaths = new Set(
+  specs.rows.flatMap(spec => [
+    ...(spec.sourceAssertions ?? []).map(assertion => assertion.path),
+    ...(spec.sourcePathAbsences ?? []).flatMap(absence => absence.paths),
+  ]),
+)
+const preflightBoundTests = new Set(
+  specs.rows.flatMap(spec => spec.focusedTests ?? []),
+)
+for (const id of focusedTestIds) {
+  if (!preflightBoundTests.has(id)) {
+    preflightFailures.push(`focused test has no row binding: ${id}`)
+  }
+}
+for (const sourcePath of changedSourcePaths()) {
+  if (!preflightAssertedPaths.has(sourcePath)) {
+    preflightFailures.push(`changed source path has no row evidence: ${sourcePath}`)
+  }
+}
 assert(
   preflightFailures.length === 0,
   `direct-evidence preflight failed:\n${preflightFailures.join('\n')}`,
