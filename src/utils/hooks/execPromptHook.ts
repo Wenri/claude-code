@@ -1,19 +1,120 @@
 import { randomUUID } from 'crypto'
 import type { HookEvent } from 'src/entrypoints/agentSdkTypes.js'
+import {
+  type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+  logEvent,
+} from '../../services/analytics/index.js'
 import { queryModelWithoutStreaming } from '../../services/api/claude.js'
+import { groupMessagesByApiRound } from '../../services/compact/grouping.js'
+import { roughTokenCountEstimationForMessage } from '../../services/tokenEstimation.js'
 import type { ToolUseContext } from '../../Tool.js'
 import type { Message } from '../../types/message.js'
 import { createAttachmentMessage } from '../attachments.js'
 import { createCombinedAbortSignal } from '../combinedAbortSignal.js'
+import {
+  has1mContext,
+  MODEL_CONTEXT_WINDOW_DEFAULT,
+} from '../context.js'
 import { logForDebugging } from '../debug.js'
 import { errorMessage } from '../errors.js'
 import type { HookResult } from '../hooks.js'
 import { safeParseJSON } from '../json.js'
-import { createUserMessage, extractTextContent } from '../messages.js'
+import {
+  createUserMessage,
+  extractTextContent,
+  SYNTHETIC_MODEL,
+} from '../messages.js'
 import { getSmallFastModel } from '../model/model.js'
 import type { PromptHook } from '../settings/types.js'
+import { jsonStringify } from '../slowOperations.js'
 import { asSystemPrompt } from '../systemPromptType.js'
 import { addArgumentsToPrompt, hookResponseSchema } from './hookHelpers.js'
+
+const STOP_HOOK_TRANSCRIPT_BUDGET_RATIO = 0.7
+
+function estimateMessageGroupTokens(group: Message[]): number {
+  let total = 0
+  for (const message of group) {
+    total +=
+      message.type === 'assistant' || message.type === 'user'
+        ? roughTokenCountEstimationForMessage(message)
+        : jsonStringify(message).length / 4
+  }
+  return Math.ceil(total)
+}
+
+function lastResponseTokenCount(messages: Message[]): number {
+  for (let index = messages.length - 1; index >= 0; index--) {
+    const message = messages[index]
+    if (
+      message?.type === 'assistant' &&
+      'usage' in message.message &&
+      message.message.model !== SYNTHETIC_MODEL
+    ) {
+      const usage = message.message.usage
+      return (
+        usage.input_tokens +
+        (usage.cache_creation_input_tokens ?? 0) +
+        (usage.cache_read_input_tokens ?? 0) +
+        usage.output_tokens
+      )
+    }
+  }
+  return 0
+}
+
+function truncateStopHookTranscript(
+  messages: Message[],
+  evaluatorModel: string,
+): Message[] {
+  const contextWindow = has1mContext(evaluatorModel)
+    ? 1_000_000
+    : MODEL_CONTEXT_WINDOW_DEFAULT
+  const budget = Math.floor(
+    contextWindow * STOP_HOOK_TRANSCRIPT_BUDGET_RATIO,
+  )
+  if (lastResponseTokenCount(messages) <= budget) return messages
+
+  const groups = groupMessagesByApiRound(messages)
+  let selectedTokens = 0
+  let suffixStart = groups.length
+  for (let index = groups.length - 1; index >= 0; index--) {
+    const group = groups[index]
+    if (!group) continue
+    const groupTokens = estimateMessageGroupTokens(group)
+    // Always retain at least the newest complete API-round group, even when
+    // that group alone exceeds the evaluator budget.
+    if (
+      suffixStart < groups.length &&
+      selectedTokens + groupTokens > budget
+    ) {
+      break
+    }
+    selectedTokens += groupTokens
+    suffixStart = index
+  }
+
+  const suffix = groups.slice(suffixStart).flat()
+  const droppedMessages = messages.length - suffix.length
+  if (droppedMessages <= 0) return messages
+
+  logForDebugging(
+    `Hooks: truncated Stop transcript ${messages.length}→${suffix.length} msgs (budget ${budget}, model ${evaluatorModel})`,
+  )
+  logEvent('tengu_hook_prompt_transcript_truncated', {
+    droppedMessages,
+    keptMessages: suffix.length,
+    budget,
+    evaluatorModel:
+      evaluatorModel as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+  })
+  return [
+    createUserMessage({
+      content: `[Earlier conversation truncated to fit the hook evaluator's context window — ${droppedMessages} earlier messages omitted. Evaluate the condition against the recent transcript below; if the required evidence may be in the omitted prefix, return {"ok": false, "reason": "insufficient evidence in transcript"}.]`,
+    }),
+    ...suffix,
+  ]
+}
 
 /**
  * Execute a prompt-based hook using an LLM
@@ -46,11 +147,15 @@ Condition: ${hook.prompt}`
     // Create user message directly - no need for processUserInput which would
     // trigger UserPromptSubmit hooks and cause infinite recursion
     const userMessage = createUserMessage({ content: processedPrompt })
+    const evaluatorModel = hook.model ?? getSmallFastModel()
 
     // Prepend conversation history if provided
     const messagesToQuery =
       messages && messages.length > 0
-        ? [...messages, userMessage]
+        ? [
+            ...truncateStopHookTranscript(messages, evaluatorModel),
+            userMessage,
+          ]
         : [userMessage]
 
     logForDebugging(
@@ -92,7 +197,7 @@ Always include a "reason" field.`,
             const appState = toolUseContext.getAppState()
             return appState.toolPermissionContext
           },
-          model: hook.model ?? getSmallFastModel(),
+          model: evaluatorModel,
           toolChoice: undefined,
           isNonInteractiveSession: true,
           hasAppendSystemPrompt: false,
