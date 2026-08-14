@@ -35,6 +35,7 @@ import type { PermissionMode } from './utils/permissions/PermissionMode.js';
 import { getBaseRenderOptions } from './utils/renderOptions.js';
 import { getSettingsWithAllErrors } from './utils/settings/allErrors.js';
 import { hasAutoModeOptIn, hasSkipDangerousModePermissionPrompt } from './utils/settings/settings.js';
+import { withTimeout } from './utils/sleep.js';
 export function completeOnboarding(): void {
   saveGlobalConfig(current => ({
     ...current,
@@ -114,8 +115,7 @@ export async function showSetupScreens(root: Root, permissionMode: PermissionMod
   }
   const config = getGlobalConfig();
   let onboardingShown = false;
-  if (!config.theme || !config.hasCompletedOnboarding // always show onboarding at least once
-  ) {
+  if (!config.hasCompletedOnboarding || process.env.CLAUDE_CODE_TEAM_ONBOARDING === 'banner' || process.env.CLAUDE_CODE_TEAM_ONBOARDING === 'step') {
     onboardingShown = true;
     const {
       Onboarding
@@ -214,6 +214,21 @@ export async function showSetupScreens(root: Root, permissionMode: PermissionMod
       } = await import('./components/ProTrialStartScreen.js');
       logEvent('tengu_pro_trial_start_screen_shown', {});
       await showSetupDialog(root, done => <ProTrialStartScreen onDone={done} />);
+    }
+  }
+
+  if (onboardingShown) {
+    if (!isEnvTruthy(process.env.CLAUBBIT)) {
+      await withTimeout(initializeGrowthBook(), 1000, 'cedar-inlet').catch(() => {});
+    }
+    const {
+      resolveTeamOnboardingDiscoveryArm
+    } = await import('./commands/team-onboarding/index.js');
+    if (resolveTeamOnboardingDiscoveryArm() === 'step') {
+      const {
+        TeamOnboardingDiscoveryStep
+      } = await import('./components/TeamOnboardingDiscoveryStep.js');
+      await showSetupDialog(root, done => <TeamOnboardingDiscoveryStep onDone={done} />);
     }
   }
 

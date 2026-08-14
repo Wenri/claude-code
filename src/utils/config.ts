@@ -220,6 +220,7 @@ export type GlobalConfig = {
   userID?: string
   theme: ThemeSetting
   hasCompletedOnboarding?: boolean
+  powerupsUnlocked?: string[]
   // Tracks the last version that reset onboarding, used with MIN_VERSION_REQUIRING_ONBOARDING_RESET
   lastOnboardingVersion?: string
   // Tracks the last version for which release notes were seen, used for managing release notes

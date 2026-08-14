@@ -94,6 +94,7 @@ import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEve
 import { initializeAnalyticsGates } from 'src/services/analytics/sink.js';
 import { getOriginalCwd, setAdditionalDirectoriesForClaudeMd, setIsRemoteMode, setMainLoopModelOverride, setMainThreadAgentType, setParentManagedSettings, setTeleportedSessionInfo } from './bootstrap/state.js';
 import { filterCommandsForRemoteMode, getCommands } from './commands.js';
+import { resolveTeamOnboardingDiscoveryArm, TEAM_ONBOARDING_DISCOVERY_COPY } from './commands/team-onboarding/index.js';
 import type { StatsStore } from './context/stats.js';
 import { launchAssistantInstallWizard, launchAssistantSessionChooser, launchInvalidSettingsDialog, launchResumeChooser, launchSnapshotUpdateDialog, launchTeleportRepoMismatchDialog, launchTeleportResumeWrapper } from './dialogLaunchers.js';
 import { SHOW_CURSOR } from './ink/termio/dec.js';
@@ -220,6 +221,18 @@ import { checkOutTeleportedSessionBranch, processMessagesForTeleportResume, tele
 import { shouldEnableThinkingByDefault, type ThinkingConfig } from './utils/thinking.js';
 import { initUser, resetUserCache } from './utils/user.js';
 import { getTmuxInstallInstructions, isTmuxAvailable, parsePRReference } from './utils/worktree.js';
+
+export function buildTeamOnboardingDiscoveryMessages({
+  onboardingShown
+}: {
+  onboardingShown: boolean;
+}): ReturnType<typeof createSystemMessage>[] {
+  const messages: ReturnType<typeof createSystemMessage>[] = [];
+  if (onboardingShown && resolveTeamOnboardingDiscoveryArm() === 'banner') {
+    messages.push(createSystemMessage(`${TEAM_ONBOARDING_DISCOVERY_COPY.heading} ${TEAM_ONBOARDING_DISCOVERY_COPY.body}`, 'suggestion'));
+  }
+  return messages;
+}
 
 // eslint-disable-next-line custom-rules/no-top-level-side-effects
 profileCheckpoint('main_tsx_imports_loaded');
@@ -3959,7 +3972,10 @@ async function run(): Promise<CommanderCommand> {
           deepLinkBanner = createSystemMessage('Launched with a pre-filled prompt — review it before pressing Enter.', 'warning');
         }
       }
-      const initialMessages = deepLinkBanner ? [deepLinkBanner, ...hookMessages] : hookMessages.length > 0 ? hookMessages : undefined;
+      const startupMessages = [...deepLinkBanner ? [deepLinkBanner] : [], ...buildTeamOnboardingDiscoveryMessages({
+        onboardingShown
+      })];
+      const initialMessages = startupMessages.length > 0 || hookMessages.length > 0 ? [...startupMessages, ...hookMessages] : undefined;
       await launchRepl(root, {
         getFpsMetrics,
         stats,
