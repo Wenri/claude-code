@@ -193,6 +193,21 @@ export function jsonStringify(
   )
 }
 
+/** Serialize one JSON Lines record without per-record slow-operation logging. */
+export function jsonlStringify(value: unknown): string {
+  return JSON.stringify(value) + '\n'
+}
+
+/** Serialize a batch of JSON Lines records under one slow-operation sample. */
+export function jsonlJoin(values: readonly unknown[]): string {
+  using _ = slowLogging`jsonlJoin(${values.length})`
+  let result = ''
+  for (let i = 0; i < values.length; i++) {
+    result += JSON.stringify(values[i]) + '\n'
+  }
+  return result
+}
+
 /**
  * Wrapped JSON.parse with slow operation logging.
  * Use this instead of JSON.parse directly to detect performance issues.

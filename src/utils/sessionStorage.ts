@@ -97,7 +97,12 @@ import {
   SKIP_PRECOMPACT_THRESHOLD,
 } from './sessionStoragePortable.js'
 import { getSettings_DEPRECATED } from './settings/settings.js'
-import { jsonParse, jsonStringify } from './slowOperations.js'
+import {
+  jsonlJoin,
+  jsonlStringify,
+  jsonParse,
+  jsonStringify,
+} from './slowOperations.js'
 import type { ContentReplacementRecord } from './toolResultStorage.js'
 import { validateUuid } from './uuid.js'
 
@@ -836,7 +841,7 @@ class Project {
 
         for (let i = 0; i < batch.length; i++) {
           const { entry } = batch[i]!
-          const line = jsonStringify(entry) + '\n'
+          const line = jsonlStringify(entry)
 
           if (content.length + line.length >= this.MAX_CHUNK_BYTES) {
             // Flush chunk and resolve its entries before starting a new one
@@ -886,7 +891,7 @@ class Project {
     // uncleanly and the normal shutdown re-append never runs.
     if (this.bytesSinceMetadataReAppend >= LITE_READ_BUF_SIZE / 2) {
       try {
-        this.reAppendSessionMetadata()
+        await this.reAppendSessionMetadataAsync()
       } catch (error) {
         logError(error as Error)
       }
@@ -928,14 +933,46 @@ class Project {
    */
   reAppendSessionMetadata(skipTitleRefresh = false): void {
     if (!this.sessionFile) return
-    const sessionId = getSessionId() as UUID
-    if (!sessionId) return
     this.bytesSinceMetadataReAppend = 0
-
-    // One sync tail read to refresh SDK-mutable fields. Same
-    // LITE_READ_BUF_SIZE window readLiteMetadata uses. Empty string on
-    // failure → extract returns null → cache is the only source of truth.
     const tail = readFileTailSync(this.sessionFile)
+    const plan = this.planReAppendSessionMetadata(tail, skipTitleRefresh)
+    if (!plan) return
+    for (const entry of plan.entries) {
+      appendEntryToFile(plan.sessionFile, entry)
+    }
+  }
+
+  private async reAppendSessionMetadataAsync(
+    skipTitleRefresh = false,
+  ): Promise<void> {
+    const sessionFile = this.sessionFile
+    if (!sessionFile) return
+    this.bytesSinceMetadataReAppend = 0
+    const tail = await readFileTail(sessionFile)
+    const plan = this.planReAppendSessionMetadata(tail, skipTitleRefresh)
+    if (!plan || plan.entries.length === 0) return
+
+    const content = jsonlJoin(plan.entries)
+    try {
+      await fsAppendFile(plan.sessionFile, content, { mode: 0o600 })
+    } catch {
+      await mkdir(dirname(plan.sessionFile), { recursive: true, mode: 0o700 })
+      await fsAppendFile(plan.sessionFile, content, { mode: 0o600 })
+    }
+    this.fireMirror(plan.sessionFile, plan.entries)
+  }
+
+  private planReAppendSessionMetadata(
+    tail: string,
+    skipTitleRefresh: boolean,
+  ): {
+    sessionFile: string
+    entries: Array<Record<string, unknown>>
+  } | null {
+    if (!this.sessionFile) return null
+    const sessionId = getSessionId() as UUID
+    if (!sessionId) return null
+    const sessionFile = this.sessionFile
 
     // Absorb any fresher SDK-written title/tag into our cache. If the SDK
     // wrote while we had the session open, our cache is stale — the tail
@@ -970,14 +1007,12 @@ class Project {
       }
     }
 
-    // lastPrompt is re-appended so readLiteMetadata can show what the
-    // user was most recently doing. Written first so customTitle/tag/etc
-    // land closer to EOF (they're the more critical fields for tail reads).
+    const entries: Array<Record<string, unknown>> = []
     if (
       this.currentSessionLastPrompt !== undefined ||
       this.currentSessionLeafUuid !== undefined
     ) {
-      appendEntryToFile(this.sessionFile, {
+      entries.push({
         type: 'last-prompt',
         ...(this.currentSessionLastPrompt && {
           lastPrompt: this.currentSessionLastPrompt,
@@ -988,59 +1023,57 @@ class Project {
         sessionId,
       })
     }
-    // Unconditional: cache was refreshed from tail above; re-append keeps
-    // the entry at EOF so compaction-pushed content doesn't evict it.
     if (this.currentSessionTitle) {
-      appendEntryToFile(this.sessionFile, {
+      entries.push({
         type: 'custom-title',
         customTitle: this.currentSessionTitle,
         sessionId,
       })
     }
     if (this.currentSessionTag) {
-      appendEntryToFile(this.sessionFile, {
+      entries.push({
         type: 'tag',
         tag: this.currentSessionTag,
         sessionId,
       })
     }
     if (this.currentSessionAgentName) {
-      appendEntryToFile(this.sessionFile, {
+      entries.push({
         type: 'agent-name',
         agentName: this.currentSessionAgentName,
         sessionId,
       })
     }
     if (this.currentSessionAgentColor) {
-      appendEntryToFile(this.sessionFile, {
+      entries.push({
         type: 'agent-color',
         agentColor: this.currentSessionAgentColor,
         sessionId,
       })
     }
     if (this.currentSessionAgentSetting) {
-      appendEntryToFile(this.sessionFile, {
+      entries.push({
         type: 'agent-setting',
         agentSetting: this.currentSessionAgentSetting,
         sessionId,
       })
     }
     if (this.currentSessionMode) {
-      appendEntryToFile(this.sessionFile, {
+      entries.push({
         type: 'mode',
         mode: this.currentSessionMode,
         sessionId,
       })
     }
     if (this.currentSessionPermissionMode) {
-      appendEntryToFile(this.sessionFile, {
+      entries.push({
         type: 'permission-mode',
         permissionMode: this.currentSessionPermissionMode,
         sessionId,
       })
     }
     if (this.currentSessionWorktree !== undefined) {
-      appendEntryToFile(this.sessionFile, {
+      entries.push({
         type: 'worktree-state',
         worktreeSession: this.currentSessionWorktree,
         sessionId,
@@ -1051,7 +1084,7 @@ class Project {
       this.currentSessionPrUrl &&
       this.currentSessionPrRepository
     ) {
-      appendEntryToFile(this.sessionFile, {
+      entries.push({
         type: 'pr-link',
         sessionId,
         prNumber: this.currentSessionPrNumber,
@@ -1060,6 +1093,7 @@ class Project {
         timestamp: new Date().toISOString(),
       })
     }
+    return { sessionFile, entries }
   }
 
   async flush(): Promise<void> {
@@ -1199,7 +1233,7 @@ class Project {
     if (this.shouldSkipPersistence()) return
     this.ensureCurrentSessionFile()
     // mode/agentSetting are cache-only pre-materialization; write them now.
-    this.reAppendSessionMetadata()
+    await this.reAppendSessionMetadataAsync()
     if (this.pendingEntries.length > 0) {
       const buffered = this.pendingEntries
       this.pendingEntries = []
@@ -2964,6 +2998,30 @@ function readFileTailSync(fullPath: string): string {
   }
 }
 /* eslint-enable custom-rules/no-sync-fs */
+
+async function readFileTail(fullPath: string): Promise<string> {
+  let file: Awaited<ReturnType<typeof fsOpen>> | undefined
+  try {
+    file = await fsOpen(fullPath, 'r')
+    const { size } = await file.stat()
+    const tailOffset = Math.max(0, size - LITE_READ_BUF_SIZE)
+    const length = Math.min(LITE_READ_BUF_SIZE, size - tailOffset)
+    if (length <= 0) return ''
+    const buffer = Buffer.allocUnsafe(length)
+    const { bytesRead } = await file.read(buffer, 0, length, tailOffset)
+    return buffer.toString('utf8', 0, bytesRead)
+  } catch {
+    return ''
+  } finally {
+    if (file) {
+      try {
+        await file.close()
+      } catch {
+        // Preserve the empty-tail fallback contract.
+      }
+    }
+  }
+}
 
 export async function saveCustomTitle(
   sessionId: UUID,
