@@ -23,7 +23,12 @@ import type {
   StdinMessage,
   StdoutMessage,
 } from 'src/entrypoints/sdk/controlTypes.js'
+import { SDKMessageSchema } from 'src/entrypoints/sdk/coreSchemas.js'
 import type { CanUseToolFn } from 'src/hooks/useCanUseTool.js'
+import {
+  type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+  logEvent,
+} from 'src/services/analytics/index.js'
 import type { Tool, ToolUseContext } from 'src/Tool.js'
 import { ASK_USER_QUESTION_TOOL_NAME } from 'src/tools/AskUserQuestionTool/prompt.js'
 import { BASH_TOOL_NAME } from 'src/tools/BashTool/toolName.js'
@@ -58,6 +63,7 @@ import {
   persistPermissionUpdates,
 } from '../utils/permissions/PermissionUpdate.js'
 import {
+  getSessionState,
   notifySessionStateChanged,
   type RequiresActionDetails,
   type RestoredWorkerState,
@@ -73,6 +79,8 @@ import { ndjsonSafeStringify } from './ndjsonSafeStringify.js'
  */
 export const SANDBOX_NETWORK_ACCESS_TOOL_NAME = 'SandboxNetworkAccess'
 const OAUTH_TOKEN_REFRESH_TIMEOUT_MS = 30_000
+const STALL_TIMEOUT_MS = 300_000
+const SDK_SCHEMA_SAMPLE_RATE = 0.01
 
 function serializeDecisionReason(
   reason: PermissionDecisionReason | undefined,
@@ -228,6 +236,9 @@ const MAX_RESOLVED_TOOL_USE_IDS = 1000
 export class StructuredIO {
   readonly structuredInput: AsyncGenerator<StdinMessage | SDKMessage>
   private readonly pendingRequests = new Map<string, PendingRequest<unknown>>()
+  private stallTimer?: ReturnType<typeof setTimeout>
+  private stallFired = false
+  private readonly createdAt = Date.now()
 
   // CCR worker metadata read back on worker start; null when the transport
   // doesn't restore. Assigned by RemoteIO.
@@ -555,7 +566,53 @@ export class StructuredIO {
     }
   }
 
+  resetStallWatchdog(): void {
+    this.stallFired = false
+  }
+
+  private trackWrite(message: StdoutMessage): void {
+    if (this.stallTimer) {
+      clearTimeout(this.stallTimer)
+    }
+    if (message.type !== 'result' && !this.stallFired) {
+      this.stallTimer = setTimeout(
+        (lastMessageType: StdoutMessage['type']) => {
+          if (getSessionState() !== 'running') {
+            return
+          }
+          this.stallFired = true
+          logEvent('tengu_sdk_stall', {
+            session_age_ms: Date.now() - this.createdAt,
+            session_state:
+              getSessionState() as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+            last_message_type:
+              lastMessageType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+            pending_control_requests: this.pendingRequests.size,
+          })
+        },
+        STALL_TIMEOUT_MS,
+        message.type,
+      )
+      this.stallTimer.unref()
+    }
+    if (
+      message.type !== 'system' &&
+      Math.random() < SDK_SCHEMA_SAMPLE_RATE
+    ) {
+      const result = SDKMessageSchema().safeParse(message)
+      if (!result.success) {
+        logEvent('tengu_sdk_schema_violation', {
+          message_type:
+            message.type as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+          error_path: (result.error.issues[0]?.path.join('.') ??
+            '') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        })
+      }
+    }
+  }
+
   async write(message: StdoutMessage): Promise<void> {
+    this.trackWrite(message)
     writeToStdout(ndjsonSafeStringify(message) + '\n')
   }
 

@@ -2189,6 +2189,7 @@ function runHeadlessStreaming(
     running = true
     runPhase = undefined
     notifySessionStateChanged('running')
+    structuredIO.resetStallWatchdog()
     idleTimeout.stop()
 
     headlessProfilerCheckpoint('run_entry')

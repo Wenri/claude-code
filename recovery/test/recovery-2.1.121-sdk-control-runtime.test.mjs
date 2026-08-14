@@ -85,6 +85,11 @@ test('authenticated adjacent bundles contain the inherited SDK control surface',
       occurrences(bundle, 'CLAUDE_CODE_ENABLE_APPEND_SUBAGENT_PROMPT'),
       2,
     )
+    assert.equal(occurrences(bundle, 'tengu_sdk_stall'), 2)
+    assert.equal(occurrences(bundle, 'tengu_sdk_schema_violation'), 2)
+    assert.equal(occurrences(bundle, 'resetStallWatchdog'), 2)
+    assert.equal(occurrences(bundle, 'stallFired'), 4)
+    assert.equal(occurrences(bundle, 'stallTimer'), 5)
   }
 })
 
@@ -219,5 +224,49 @@ test('source implements fail-closed direct MCP, elicitation, dialog, and context
   assert.match(
     context,
     /Object\.values\(systemContext\)[\s\S]*?Object\.values\(userContext\)/,
+  )
+})
+
+test('source preserves the inherited SDK stall watchdog and sampled schema audit', () => {
+  const structured = compact(source('src/cli/structuredIO.ts'))
+  assert.ok(structured.includes('const STALL_TIMEOUT_MS = 300_000'))
+  assert.ok(structured.includes('const SDK_SCHEMA_SAMPLE_RATE = 0.01'))
+  assert.match(
+    structured,
+    /resetStallWatchdog\(\): void \{ this\.stallFired = false \}/,
+  )
+  assert.match(
+    structured,
+    /if \(this\.stallTimer\) \{ clearTimeout\(this\.stallTimer\) \} if \(message\.type !== 'result' && !this\.stallFired\)/,
+  )
+  assert.match(
+    structured,
+    /if \(getSessionState\(\) !== 'running'\) \{ return \} this\.stallFired = true logEvent\('tengu_sdk_stall', \{ session_age_ms: Date\.now\(\) - this\.createdAt, session_state:/,
+  )
+  assert.match(
+    structured,
+    /last_message_type:[\s\S]*?pending_control_requests: this\.pendingRequests\.size/,
+  )
+  assert.match(
+    structured,
+    /STALL_TIMEOUT_MS, message\.type, \) this\.stallTimer\.unref\(\)/,
+  )
+  assert.match(
+    structured,
+    /message\.type !== 'system' && Math\.random\(\) < SDK_SCHEMA_SAMPLE_RATE/,
+  )
+  assert.match(
+    structured,
+    /SDKMessageSchema\(\)\.safeParse\(message\)[\s\S]*?logEvent\('tengu_sdk_schema_violation',[\s\S]*?error\.issues\[0\]\?\.path\.join\('\.'\) \?\? ''/,
+  )
+  assert.match(
+    structured,
+    /async write\(message: StdoutMessage\): Promise<void> \{ this\.trackWrite\(message\) writeToStdout/,
+  )
+
+  const print = compact(source('src/cli/print.ts'))
+  assert.match(
+    print,
+    /running = true runPhase = undefined notifySessionStateChanged\('running'\) structuredIO\.resetStallWatchdog\(\) idleTimeout\.stop\(\)/,
   )
 })
