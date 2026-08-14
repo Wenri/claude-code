@@ -2,22 +2,25 @@ import { unlink } from 'fs/promises'
 import { createServer, type Server, type Socket } from 'net'
 import { StringDecoder } from 'string_decoder'
 import { setTimeout as delay } from 'timers/promises'
+import { getReplBridgeHandle } from '../bridge/replBridgeHandle.js'
+import instances from '../ink/instances.js'
+import { CURSOR_HOME, ERASE_SCREEN } from '../ink/termio/csi.js'
+import { runCleanupFunctions } from '../utils/cleanupRegistry.js'
 import { logForDebugging } from '../utils/debug.js'
+import { enqueue } from '../utils/messageQueueManager.js'
+import { readJobState, writeJobState } from './jobs.js'
 
 let server: Server | undefined
 let activeSocket: Socket | undefined
-let onReply: ((text: string) => void) | undefined
-let onRepaint: (() => void) | undefined
-let onShutdown: (() => Promise<void>) | undefined
 
-export function configureRendezvousHandlers(handlers: {
-  reply?: (text: string) => void
-  repaint?: () => void
-  shutdown?: () => Promise<void>
-}): void {
-  onReply = handlers.reply
-  onRepaint = handlers.repaint
-  onShutdown = handlers.shutdown
+async function persistBridgeSequence(jobDir: string, sequence: number) {
+  const state = await readJobState(jobDir)
+  if (!state || state.bridgeSessionSeq === sequence) return
+  await writeJobState(jobDir, {
+    ...state,
+    bridgeSessionSeq: sequence,
+    updatedAt: new Date().toISOString(),
+  })
 }
 
 function handleLine(line: string): void {
@@ -31,13 +34,36 @@ function handleLine(line: string): void {
   const value = message as Record<string, unknown>
   if (value.type === 'shutdown') {
     sendRendezvous({ type: 'shutting-down' })
-    void Promise.race([onShutdown?.() ?? Promise.resolve(), delay(2_000)]).finally(
-      () => process.exit(0),
-    )
+    const bridge = getReplBridgeHandle()
+    const pending: Promise<unknown>[] = []
+    if (bridge) {
+      const sequence = bridge.getLastSequenceNum()
+      void bridge.teardown({ skipArchive: true }).catch(() => {})
+      const jobDir = process.env.CLAUDE_JOB_DIR
+      if (jobDir && sequence > 0) {
+        pending.push(persistBridgeSequence(jobDir, sequence).catch(() => {}))
+      }
+    }
+    pending.push(runCleanupFunctions())
+    void Promise.race([Promise.all(pending), delay(5_000)]).finally(() => {
+      process.exit(0)
+    })
+    return
   } else if (value.type === 'repaint') {
-    onRepaint?.()
+    if (!instances.get(process.stdout)?.forceRedraw()) {
+      process.stdout.write(
+        `${ERASE_SCREEN}${CURSOR_HOME}\n  \x1B[2mSession can't redraw right now — Ctrl+B then d to detach\x1B[0m\n`,
+      )
+    }
   } else if (value.type === 'reply' && typeof value.text === 'string') {
-    onReply?.(value.text)
+    enqueue({
+      mode: 'prompt',
+      value: value.text,
+      priority: 'next',
+      origin: { kind: 'peer', from: 'bg-rendezvous' },
+      skipSlashCommands: true,
+      isMeta: false,
+    })
     logForDebugging(`[bg-rv] enqueued reply: ${value.text.slice(0, 80)}`)
   }
 }

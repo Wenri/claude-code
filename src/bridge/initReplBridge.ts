@@ -125,7 +125,13 @@ export type InitBridgeOptions = {
   onReadFile?: (
     path: string,
     maxBytes?: number,
-  ) => Promise<{ contents: string; absPath: string; truncated?: boolean }>
+    encoding?: 'utf-8' | 'base64',
+  ) => Promise<{
+    contents: string
+    absPath: string
+    truncated?: boolean
+    encoding?: 'base64'
+  }>
   // UUIDs already flushed in a prior bridge session. Messages with these
   // UUIDs are excluded from the initial flush to avoid poisoning the
   // server (duplicate UUIDs across sessions cause the WS to be killed).

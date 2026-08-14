@@ -47,39 +47,51 @@ function fail(message: string): never {
   throw new DaemonCliFailure(message)
 }
 
-export function parseKindArgs(args: string[]): ParsedKindArgs {
-  let action: CliAction = 'list'
+export function parseKindArgs(
+  kind: 'scheduled' | 'assistant' | 'remote-control',
+  args: string[],
+): ParsedKindArgs {
   let removeTarget: string | undefined
   const flags = new Map<string, string>()
   let json = false
-  for (let index = 0; index < args.length; index++) {
-    const arg = args[index]!
+  const actionIndex = args.findIndex(arg => !arg.startsWith('-'))
+  const actionArg = actionIndex === -1 ? undefined : args[actionIndex]
+  let action: CliAction
+  if (actionArg === undefined || actionArg === 'list') action = 'list'
+  else if (actionArg === 'add' || actionArg === 'remove') action = actionArg
+  else {
+    fail(
+      `unknown action '${actionArg}' — expected: claude daemon ${kind} <add|remove|list>`,
+    )
+  }
+  const remaining =
+    actionIndex === -1
+      ? args
+      : [...args.slice(0, actionIndex), ...args.slice(actionIndex + 1)]
+  for (let index = 0; index < remaining.length; index++) {
+    const arg = remaining[index]!
     if (arg === '--json') {
       json = true
       continue
     }
-    if (arg === '-a' || arg === '--add') {
-      action = 'add'
-      continue
-    }
-    if (arg === '-r' || arg === '--remove') {
-      action = 'remove'
-      removeTarget = args[++index]
-      continue
-    }
-    if (arg.startsWith('--add=')) {
-      action = 'add'
-      continue
-    }
-    if (arg.startsWith('--remove=')) {
-      action = 'remove'
-      removeTarget = arg.slice(9)
-      continue
-    }
     if (arg.startsWith('--')) {
       const equals = arg.indexOf('=')
-      if (equals !== -1) flags.set(arg.slice(2, equals), arg.slice(equals + 1))
-      else flags.set(arg.slice(2), args[++index] ?? '')
+      const name = equals !== -1 ? arg.slice(2, equals) : arg.slice(2)
+      if (name === 'add' || name === 'remove') {
+        fail(
+          `'${arg}' is no longer supported — use: claude daemon ${kind} <add|remove|list>`,
+        )
+      }
+      flags.set(
+        name,
+        equals !== -1 ? arg.slice(equals + 1) : (remaining[++index] ?? ''),
+      )
+    } else if (action === 'remove' && removeTarget === undefined) {
+      removeTarget = arg
+    } else {
+      fail(
+        `unknown option '${arg}' — expected: claude daemon ${kind} <add|remove|list>`,
+      )
     }
   }
   return { action, removeTarget, flags, json }
@@ -87,7 +99,9 @@ export function parseKindArgs(args: string[]): ParsedKindArgs {
 
 async function requireInstalledService(): Promise<void> {
   if (!(await isDaemonServiceInstalled())) {
-    fail('daemon service is not installed — run `claude daemon install` first')
+    fail(
+      'daemon service is not installed (service install is disabled in this version; the daemon runs on demand)',
+    )
   }
 }
 
@@ -126,8 +140,13 @@ function renderRows(rows: DaemonRow[]): void {
 async function listAll(path: string): Promise<DaemonRow[]> {
   const config = await getConfig(path)
   const rows: DaemonRow[] = []
-  // The external 2.1.119 worker registry compiles the assistant worker out;
-  // its validated config therefore has no active assistant entries.
+  for (const entry of config.assistant ?? []) {
+    rows.push({
+      kind: 'assistant',
+      dir: entry.dir,
+      name: entry.name ?? basename(entry.dir),
+    })
+  }
   for (const entry of config.remoteControl ?? []) {
     rows.push({
       kind: 'remote-control',
@@ -178,7 +197,9 @@ async function handleScheduled(
     return
   }
   if (args.action === 'remove') {
-    if (!args.removeTarget) fail('missing task id for --remove')
+    if (!args.removeTarget) {
+      fail('usage: claude daemon scheduled remove <task-id>')
+    }
     await requireInstalledService()
     if (!(await removeScheduledTask(args.removeTarget, path))) {
       fail(`No scheduled task with id "${args.removeTarget}"`)
@@ -280,7 +301,7 @@ async function handleAssistant(
   path: string,
 ): Promise<void> {
   const config = await getConfig(path)
-  const assistants = ((config as unknown as { assistant?: Array<{ dir: string; name?: string }> }).assistant ?? [])
+  const assistants = config.assistant ?? []
   if (args.action === 'list') {
     if (args.json) print(JSON.stringify(assistants, null, 2))
     else {
@@ -295,7 +316,9 @@ async function handleAssistant(
     return
   }
   if (args.action === 'remove') {
-    if (!args.removeTarget) fail('missing name or dir for --remove')
+    if (!args.removeTarget) {
+      fail('usage: claude daemon assistant remove <name-or-dir>')
+    }
     await requireInstalledService()
     const dir = await resolveNamedEntry(
       args.removeTarget,
@@ -307,7 +330,7 @@ async function handleAssistant(
     return
   }
   await requireInstalledService()
-  fail('`claude daemon assistant -a` is not available in this build')
+  fail('`claude daemon assistant add` is not available in this build')
 }
 
 async function handleRemoteControl(
@@ -331,7 +354,9 @@ async function handleRemoteControl(
     return
   }
   if (args.action === 'remove') {
-    if (!args.removeTarget) fail('missing name or dir for --remove')
+    if (!args.removeTarget) {
+      fail('usage: claude daemon remote-control remove <name-or-dir>')
+    }
     await requireInstalledService()
     const dir = await resolveNamedEntry(
       args.removeTarget,
@@ -375,7 +400,7 @@ export async function handleCliKind(
   path: string,
 ): Promise<void> {
   try {
-    const args = parseKindArgs(rawArgs)
+    const args = parseKindArgs(kind, rawArgs)
     if (kind === 'scheduled') await handleScheduled(args, path)
     else if (kind === 'assistant') await handleAssistant(args, path)
     else await handleRemoteControl(args, path)

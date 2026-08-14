@@ -1,24 +1,36 @@
-import { spawn } from 'child_process'
-import { mkdir, readFile, readdir, rename, rm, stat, unlink, writeFile } from 'fs/promises'
+import {
+  lstat,
+  mkdir,
+  readFile,
+  readdir,
+  rename,
+  rm,
+  unlink,
+  writeFile,
+} from 'fs/promises'
 import { createServer, Socket, type Server } from 'net'
 import { basename, dirname, join } from 'path'
 import { StringDecoder } from 'string_decoder'
 import chokidar, { type FSWatcher } from 'chokidar'
 import { logEvent } from '../services/analytics/index.js'
+import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js'
+import { bgSupervisorNoun } from '../utils/agentsFleet.js'
 import { logForDebugging } from '../utils/debug.js'
 import { getErrnoCode, isENOENT } from '../utils/errors.js'
 import {
   getProcessStartToken,
   getProcessStartTokenAsync,
+  isProcessRunning,
 } from '../utils/genericProcessUtils.js'
 import { logError } from '../utils/log.js'
+import { isInBundledMode } from '../utils/bundledMode.js'
+import type { RelaunchLauncher } from '../utils/relaunch.js'
 import {
   canonicalizePath,
   getProjectDir,
 } from '../utils/sessionStoragePortable.js'
 import { hasTranscriptMessages } from '../utils/transcriptValidation.js'
 import { withTimeout } from '../utils/sleep.js'
-import { encodeControlFrame } from './framing.js'
 import {
   isSettledJob,
   readJobState,
@@ -27,19 +39,20 @@ import {
 } from './jobs.js'
 import {
   cleanupStaleRuntimeDirs,
+  ensureDaemonDir,
   ensureDaemonRuntimeDir,
   getControlSocketPath,
   getDaemonRuntimeDir,
   getDispatchDir,
   getPtyDir,
   getPtyErrorPath,
+  getPtyPidDir,
+  getPtyPidPath,
   getPtySocketPath,
   getRejectedDispatchDir,
   getRendezvousDir,
   getRendezvousSocketPath,
   getRosterPath,
-  getSettledDir,
-  getSettledPath,
 } from './paths.js'
 import {
   ControlMessageSchema,
@@ -53,6 +66,15 @@ import {
   type WorkerRecord,
 } from './protocol.js'
 import { connectPtyHost, type PtyClient } from './ptyClient.js'
+import { killWorkerThroughPty } from './orphanReaper.js'
+import { controlPeerMatchesCurrentUser } from './peerCredentials.js'
+import {
+  killSparePty,
+  reapOrphanSpares,
+  sendSpareClaim,
+  spawnSpare,
+  type SpareProcess,
+} from './spare.js'
 
 const MAX_SOCKET_BUFFER = 1_048_576
 const MAX_DISPATCH_BYTES = 262_144
@@ -63,6 +85,83 @@ const TRACKED_DEC_MODES = new Set([1000, 1002, 1003, 1004, 1006, 2004, 2031])
 const DEC_MODE_SEQUENCE = /\x1b\[\?([\d;]+)([hl])/g
 
 type Dispose = () => void
+
+export type SpawnPty = (
+  command: string,
+  args: string[],
+  options: {
+    cols: number
+    rows: number
+    cwd: string
+    env: NodeJS.ProcessEnv
+    ptySock: string
+  },
+) => PtyClient
+
+type WorkerOutcome = NonNullable<BackgroundRecord['outcome']>
+export type WorkerPhase =
+  | { kind: 'spawning' }
+  | { kind: 'running' }
+  | { kind: 'upgrading' }
+  | { kind: 'retiring'; reason: 'reap' | 'grace' | 'stop' }
+  | { kind: 'retired'; outcome: WorkerOutcome }
+
+function phaseLabel(phase: WorkerPhase): string {
+  if (phase.kind === 'retiring') return `retiring:${phase.reason}`
+  if (phase.kind === 'retired') return `retired:${phase.outcome}`
+  return phase.kind
+}
+
+function canTransition(from: WorkerPhase, to: WorkerPhase): boolean {
+  if (from.kind === 'retired') return false
+  switch (to.kind) {
+    case 'spawning':
+      return from.kind === 'upgrading' || from.kind === 'running'
+    case 'running':
+      return from.kind === 'spawning'
+    case 'upgrading':
+      return from.kind === 'running'
+    case 'retiring':
+    case 'retired':
+      return true
+  }
+}
+
+function pinnedWorkerLauncher(): RelaunchLauncher {
+  if (isInBundledMode()) return { cmd: process.execPath, prefixArgs: [] }
+  const script = process.argv[1]
+  return script
+    ? { cmd: process.execPath, prefixArgs: [script] }
+    : { cmd: process.execPath, prefixArgs: [] }
+}
+
+function defaultSpawnPty(): SpawnPty | undefined {
+  if (typeof Bun === 'undefined') return undefined
+  return (command, args, options) => {
+    const launcher = pinnedWorkerLauncher()
+    const child = Bun.spawn(
+      [
+        launcher.cmd,
+        ...launcher.prefixArgs,
+        '--bg-pty-host',
+        options.ptySock,
+        String(options.cols),
+        String(options.rows),
+        '--',
+        command,
+        ...args,
+      ],
+      {
+        cwd: options.cwd,
+        env: options.env,
+        stdio: ['ignore', 'ignore', 'ignore'],
+        detached: true,
+      },
+    )
+    child.unref()
+    return connectPtyHost(options.ptySock, child.pid)
+  }
+}
 
 function createDecModeTracker() {
   const enabled = new Set<number>()
@@ -133,17 +232,10 @@ export interface BackgroundRecord {
   settledAt?: number
 }
 
-interface AuthSnapshot {
+export interface AuthSnapshot {
   accessToken?: string
   subscriptionType?: string
   rateLimitTier?: string
-}
-
-function launchExecutable(): { command: string; prefix: string[] } {
-  if (process.argv[1] && process.execPath !== process.argv[1]) {
-    return { command: process.execPath, prefix: [process.argv[1]] }
-  }
-  return { command: process.execPath, prefix: [] }
 }
 
 function launchArgs(
@@ -173,6 +265,17 @@ const strippedInheritedEnv = [
   'CLAUDECODE',
   'CLAUDE_CODE_SESSION_ID',
   'CLAUDE_CODE_EXECPATH',
+  'TERM_PROGRAM',
+  'TERM_PROGRAM_VERSION',
+  '__CFBundleIdentifier',
+  'KITTY_WINDOW_ID',
+  'WT_SESSION',
+  'KONSOLE_VERSION',
+  'VTE_VERSION',
+  'ZED_TERM',
+  'ZELLIJ',
+  'TMUX',
+  'STY',
 ]
 
 function jobEnvironment(
@@ -221,6 +324,7 @@ function connectRendezvous(
   path: string,
   onMessage: (message: Record<string, unknown>) => void,
   onClose: () => void,
+  onReady?: () => void,
 ) {
   let socket: Socket | undefined
   let stopped = false
@@ -258,6 +362,7 @@ function connectRendezvous(
       connected = true
       attempts = 0
       socket = candidate
+      onReady?.()
       candidate.write(
         `${JSON.stringify({
           proto: PROTOCOL_VERSION,
@@ -287,7 +392,13 @@ function connectRendezvous(
   open()
   return {
     send(message: unknown) {
-      if (!socket || socket.destroyed) return false
+      if (!socket || socket.destroyed) {
+        if (attempts >= 30) {
+          attempts = 0
+          retry()
+        }
+        return false
+      }
       try {
         socket.write(`${JSON.stringify(message)}\n`)
         return true
@@ -304,7 +415,7 @@ function connectRendezvous(
   }
 }
 
-class BackgroundHandle {
+export class BackgroundHandle {
   readonly record: BackgroundRecord
   readonly stream = createSignal<string>()
   readonly state = createSignal<Partial<BackgroundRecord>>()
@@ -318,11 +429,10 @@ class BackgroundHandle {
   private ptySocket: string
   private rendezvousSocket: string
   private attempt = 0
-  private stopped = false
-  private killed = false
-  private upgrading = false
-  private retiring = false
+  private phase: WorkerPhase = { kind: 'spawning' }
+  private workerReady = false
   private lastInputAt?: number
+  private replyChain: Promise<void> = Promise.resolve()
   private respawnTimer?: NodeJS.Timeout
   private pidPoll?: NodeJS.Timeout
   private pidPollTick = 0
@@ -334,6 +444,7 @@ class BackgroundHandle {
 
   constructor(
     readonly dispatch: Dispatch,
+    private readonly spawnPty: SpawnPty | undefined,
     private readonly getAuthSnapshot?: () => AuthSnapshot | undefined,
     adopted?: WorkerRecord,
   ) {
@@ -367,16 +478,78 @@ class BackgroundHandle {
 
   static spawn(
     dispatch: Dispatch,
+    spawnPty?: SpawnPty,
     getAuthSnapshot?: () => AuthSnapshot | undefined,
   ) {
-    const handle = new BackgroundHandle(dispatch, getAuthSnapshot)
-    void handle.spawn()
-    handle.connectRendezvous()
+    const handle = new BackgroundHandle(
+      dispatch,
+      spawnPty ?? defaultSpawnPty(),
+      getAuthSnapshot,
+    )
+    void handle.doSpawn(dispatch.reattachEnv)
     return handle
+  }
+
+  static claim(
+    dispatch: Dispatch,
+    options: {
+      pid: number
+      ptySockPath: string
+      spawnPty: SpawnPty | undefined
+      getAuthSnapshot?: () => AuthSnapshot | undefined
+    },
+  ): BackgroundHandle {
+    const handle = new BackgroundHandle(
+      dispatch,
+      options.spawnPty,
+      options.getAuthSnapshot,
+    )
+    Object.assign(handle.record, {
+      pid: options.pid,
+      attempt: 1,
+      state: 'running',
+      cliVersion: MACRO.VERSION,
+    })
+    handle.attempt = 1
+    handle.ptySocket = options.ptySockPath
+    handle.rendezvousSocket = getRendezvousSocketPath(dispatch.short)
+    handle.cols = 0
+    handle.wirePty(connectPtyHost(options.ptySockPath, options.pid))
+    handle.connectRendezvous()
+    void getProcessStartTokenAsync(options.pid).then((token) => {
+      if (
+        !token ||
+        handle.record.pid !== options.pid ||
+        handle.isDetached ||
+        handle.record.outcome
+      ) {
+        return
+      }
+      handle.procStart = token
+      handle.patch({ pid: options.pid })
+    })
+    return handle
+  }
+
+  static buildClaimFrame(
+    dispatch: Dispatch,
+    auth?: AuthSnapshot,
+  ): { env: NodeJS.ProcessEnv; argv: string[] } {
+    const jobDir = getJobDir(dispatch.short)
+    return {
+      env: jobEnvironment(
+        dispatch,
+        jobDir,
+        getRendezvousSocketPath(dispatch.short),
+        auth,
+      ),
+      argv: launchArgs(dispatch, 1, false),
+    }
   }
 
   static async adopt(
     record: WorkerRecord,
+    spawnPty: SpawnPty | undefined,
     getAuthSnapshot?: () => AuthSnapshot | undefined,
   ): Promise<BackgroundHandle | null> {
     try {
@@ -387,8 +560,14 @@ class BackgroundHandle {
     }
     const token = await getProcessStartTokenAsync(record.pid)
     if (record.procStart && token && record.procStart !== token) return null
-    const handle = new BackgroundHandle(record.dispatch, getAuthSnapshot, record)
+    const handle = new BackgroundHandle(
+      record.dispatch,
+      spawnPty,
+      getAuthSnapshot,
+      record,
+    )
     handle.procStart = record.procStart ?? token
+    handle.workerReady = true
     if (record.ptySock) {
       handle.wirePty(
         connectPtyHost(record.ptySock, record.pid, handle.procStart),
@@ -400,15 +579,35 @@ class BackgroundHandle {
   }
 
   get isKilling() {
-    return this.killed
+    return this.phase.kind === 'retiring' && this.phase.reason === 'reap'
   }
 
   get isRetiring() {
-    return this.retiring
+    return this.phase.kind === 'retiring' && this.phase.reason === 'grace'
+  }
+
+  getPhase(): WorkerPhase {
+    return this.phase
   }
 
   private get isTransitioning() {
-    return this.upgrading || this.retiring || !this.pty || !this.record.pid
+    return this.phase.kind !== 'running' || !this.pty || !this.record.pid
+  }
+
+  private get isDetached() {
+    return this.phase.kind === 'retiring' && this.phase.reason === 'stop'
+  }
+
+  private transitionTo(next: WorkerPhase): boolean {
+    if (!canTransition(this.phase, next)) {
+      logForDebugging(
+        `[bg] illegal worker-phase transition ${phaseLabel(this.phase)} → ${phaseLabel(next)} for ${this.record.short}`,
+        { level: 'warn' },
+      )
+      return false
+    }
+    this.phase = next
+    return true
   }
 
   private shutdownWorker(): boolean {
@@ -417,12 +616,14 @@ class BackgroundHandle {
     else {
       const timer = setTimeout((handle: BackgroundHandle) => {
         if (
-          (handle.upgrading || handle.retiring) &&
+          (handle.phase.kind === 'upgrading' ||
+            (handle.phase.kind === 'retiring' &&
+              handle.phase.reason === 'grace')) &&
           !handle.record.outcome
         ) {
           handle.sigtermWorker()
         }
-      }, 2_000, this)
+      }, 5_000, this)
       timer.unref()
     }
     return rendezvousSent
@@ -450,8 +651,16 @@ class BackgroundHandle {
   reply(value: string): boolean {
     this.lastInputAt = Date.now()
     if (this.pty) {
-      this.pty.write(`\x1B[200~${value}\x1B[201~`)
-      setTimeout(() => this.pty?.write('\r'), 10)
+      this.replyChain = this.replyChain.then(
+        () =>
+          new Promise<void>((resolve) => {
+            this.pty?.write(`\x1B[200~${value}\x1B[201~`)
+            setTimeout(() => {
+              this.pty?.write('\r')
+              resolve()
+            }, 10)
+          }),
+      )
       return true
     }
     return this.rendezvous?.send({ type: 'reply', text: value }) ?? false
@@ -514,10 +723,15 @@ class BackgroundHandle {
   }
 
   kill(signal: NodeJS.Signals = 'SIGTERM'): void {
-    this.killed = true
+    if (this.phase.kind === 'retired') return
+    this.transitionTo({ kind: 'retiring', reason: 'reap' })
     if (this.respawnTimer) clearTimeout(this.respawnTimer)
     this.respawnTimer = undefined
-    if (this.pty) this.pty.kill(signal)
+    if (this.pty) {
+      try {
+        this.pty.kill(signal)
+      } catch {}
+    }
     else if (this.record.pid && !this.pidRecycled()) {
       try {
         process.kill(-this.record.pid, signal)
@@ -537,7 +751,7 @@ class BackgroundHandle {
     if (this.isTransitioning) {
       return { respawned: false, reason: 'in-progress' }
     }
-    if (this.killed || this.stopped || this.record.outcome) {
+    if (this.record.outcome) {
       return { respawned: false, reason: 'no-state' }
     }
     if (this.attachers.size > 0) return { respawned: false, reason: 'attached' }
@@ -545,13 +759,18 @@ class BackgroundHandle {
     if (this.isTransitioning) {
       return { respawned: false, reason: 'in-progress' }
     }
+    if (this.record.outcome) {
+      return { respawned: false, reason: 'no-state' }
+    }
     if (!state) return { respawned: false, reason: 'no-state' }
     if (isSettledJob(state)) return { respawned: false, reason: 'settled' }
     if (!state.cliVersion || state.cliVersion === MACRO.VERSION) {
       return { respawned: false, reason: 'not-stale' }
     }
     if (state.tempo !== 'idle') return { respawned: false, reason: 'busy' }
-    this.upgrading = true
+    if (!this.transitionTo({ kind: 'upgrading' })) {
+      return { respawned: false, reason: 'in-progress' }
+    }
     logEvent('tengu_bg_respawn_stale', { rvSent: this.shutdownWorker() })
     return { respawned: true }
   }
@@ -561,7 +780,7 @@ class BackgroundHandle {
     reason?: string
   }> {
     if (this.isTransitioning) return { retired: false, reason: 'in-progress' }
-    if (this.killed || this.stopped || this.record.outcome) {
+    if (this.record.outcome) {
       return { retired: false, reason: 'no-state' }
     }
     if (this.attachers.size > 0) return { retired: false, reason: 'attached' }
@@ -587,7 +806,9 @@ class BackgroundHandle {
     if (!settledForMs || settledForMs < graceMs) {
       return { retired: false, reason: 'grace' }
     }
-    this.retiring = true
+    if (!this.transitionTo({ kind: 'retiring', reason: 'grace' })) {
+      return { retired: false, reason: 'in-progress' }
+    }
     logEvent('tengu_bg_retired', {
       rvSent: this.shutdownWorker(),
       settledForMs,
@@ -609,20 +830,33 @@ class BackgroundHandle {
       attempt: this.attempt,
       cwd: this.dispatch.cwd,
       worktreePath: this.dispatch.worktree?.path,
-      dispatch: JSON.parse(
-        JSON.stringify(this.dispatch, (_key, value) =>
-          typeof value === 'string' && value.length > 4_096
-            ? value.slice(0, 4_096)
-            : value,
-        ),
-      ) as Dispatch,
+      dispatch: this.cappedDispatch(),
     }
   }
 
+  private cappedDispatch(): Dispatch {
+    return JSON.parse(
+      JSON.stringify(this.dispatch, (key, value) =>
+        key === 'reattachEnv'
+          ? undefined
+          : typeof value === 'string' && value.length > 4_096
+            ? value.slice(0, 4_096)
+            : value,
+      ),
+    ) as Dispatch
+  }
+
   stop(): void {
-    if (this.killed) this.finish('killed')
-    else if (this.retiring) this.finish('done')
-    this.stopped = true
+    if (this.phase.kind === 'retiring' && this.phase.reason === 'reap') {
+      this.finish('killed')
+    } else if (
+      this.phase.kind === 'retiring' &&
+      this.phase.reason === 'grace'
+    ) {
+      this.finish('done')
+    } else if (this.phase.kind !== 'retired') {
+      this.transitionTo({ kind: 'retiring', reason: 'stop' })
+    }
     if (this.respawnTimer) clearTimeout(this.respawnTimer)
     this.respawnTimer = undefined
     this.clearLiveness()
@@ -632,8 +866,9 @@ class BackgroundHandle {
     this.pty = undefined
   }
 
-  private async spawn(): Promise<void> {
+  private async doSpawn(reattachEnv?: Record<string, string>): Promise<void> {
     this.attempt++
+    this.workerReady = false
     const dispatch = this.dispatch
     const jobDir = getJobDir(dispatch.short)
     await mkdir(jobDir, { recursive: true }).catch(() => {})
@@ -658,7 +893,13 @@ class BackgroundHandle {
         await unlink(currentTranscript).catch(() => {})
       }
     }
-    if (this.killed || this.stopped || this.record.outcome) return
+    if (
+      this.phase.kind === 'retiring' ||
+      this.phase.kind === 'retired' ||
+      this.record.outcome
+    ) {
+      return
+    }
     if (sourceTranscriptMissing) {
       this.patch({
         state: 'crashed',
@@ -667,7 +908,16 @@ class BackgroundHandle {
       this.finish('crashed')
       return
     }
-    const executable = launchExecutable()
+    if (!this.spawnPty) {
+      this.patch({
+        state: 'crashed',
+        detail: 'Bun.Terminal unavailable (running under Node?)',
+      })
+      logEvent('tengu_bg_pty_unavailable', {})
+      this.finish('crashed')
+      return
+    }
+    const launcher = pinnedWorkerLauncher()
     const args = launchArgs(dispatch, this.attempt, currentTranscriptValid)
     const env = jobEnvironment(
       dispatch,
@@ -678,49 +928,50 @@ class BackgroundHandle {
     if (this.attempt > 1 && currentTranscriptValid) {
       env.CLAUDE_CODE_RESUME_INTERRUPTED_TURN = '1'
     }
+    if (reattachEnv) Object.assign(env, reattachEnv)
     try {
-      const host = spawn(
-        executable.command,
-        [
-          ...executable.prefix,
-          '--bg-pty-host',
-          this.ptySocket,
-          String(this.cols),
-          String(this.rows),
-          '--',
-          executable.command,
-          ...executable.prefix,
-          ...args,
-        ],
+      const pty = this.spawnPty(
+        launcher.cmd,
+        [...launcher.prefixArgs, ...args],
         {
+          cols: this.cols || dispatch.cols || 200,
+          rows: this.rows || dispatch.rows || 50,
           cwd: dispatch.cwd,
           env,
-          stdio: 'ignore',
-          detached: true,
-          windowsHide: true,
+          ptySock: this.ptySocket,
         },
       )
-      host.unref()
-      if (!host.pid) throw new Error('PTY host did not return a pid')
-      this.wirePty(connectPtyHost(this.ptySocket, host.pid))
+      if (process.platform === 'win32') {
+        void mkdir(getPtyPidDir(), { recursive: true })
+          .then(() => writeFile(getPtyPidPath(dispatch.short), String(pty.pid)))
+          .catch(() => {})
+      }
+      this.wirePty(pty)
+      this.rendezvous?.close()
+      this.rendezvous = undefined
+      this.connectRendezvous()
       this.patch({
-        pid: host.pid,
+        pid: pty.pid,
         attempt: this.attempt,
         state: this.attempt > 1 ? 'resuming' : 'running',
+        detail: '',
         cliVersion: MACRO.VERSION,
       })
-      logEvent('tengu_bg_worker_spawn', { attempt: this.attempt })
-      void getProcessStartTokenAsync(host.pid).then((token) => {
+      logEvent('tengu_bg_worker_spawn', {
+        attempt: this.attempt,
+        source: this.dispatch.source,
+      })
+      void getProcessStartTokenAsync(pty.pid).then((token) => {
         if (
           !token ||
-          this.record.pid !== host.pid ||
-          this.stopped ||
+          this.record.pid !== pty.pid ||
+          this.isDetached ||
           this.record.outcome
         ) {
           return
         }
         this.procStart = token
-        this.patch({ pid: host.pid })
+        this.patch({ pid: pty.pid })
       })
     } catch (error) {
       this.scheduleRespawn(String(error))
@@ -729,18 +980,15 @@ class BackgroundHandle {
 
   private wirePty(pty: PtyClient): void {
     this.pty = pty
+    this.transitionTo({ kind: 'running' })
     this.decModes = createDecModeTracker()
-    pty.onResume(() => this.rendezvous?.send({ type: 'repaint' }))
+    pty.onResume?.(() => this.rendezvous?.send({ type: 'repaint' }))
     this.offData = pty.onData((data) => {
       this.decModes.feed(data)
       const cleaned = data.includes(DETACH_SEQUENCE)
         ? data.replaceAll(DETACH_SEQUENCE, '')
         : data
-      this.ring.push(cleaned)
-      this.ringBytes += cleaned.length
-      while (this.ringBytes > 262_144 && this.ring.length > 1) {
-        this.ringBytes -= this.ring.shift()!.length
-      }
+      this.pushRing(cleaned)
       this.stream.emit(data)
     })
     let exited = false
@@ -753,29 +1001,87 @@ class BackgroundHandle {
     })
   }
 
+  private pushRing(data: string): void {
+    this.ring.push(data)
+    this.ringBytes += data.length
+    if (this.ringBytes <= 262_144 * 1.25 || this.ring.length <= 1) return
+    let count = 0
+    let bytes = 0
+    while (
+      this.ringBytes - bytes > 262_144 &&
+      count < this.ring.length - 1
+    ) {
+      bytes += this.ring[count]!.length
+      count++
+    }
+    this.ring.splice(0, count)
+    this.ringBytes -= bytes
+  }
+
   private onExit(exitCode: number | undefined): void {
-    if (this.stopped) return
+    if (this.isDetached || this.phase.kind === 'retired') return
+    let outcome: WorkerOutcome | undefined
+    if (this.phase.kind === 'retiring' && this.phase.reason === 'reap') {
+      outcome = 'killed'
+    } else if (
+      this.phase.kind === 'retiring' &&
+      this.phase.reason === 'grace'
+    ) {
+      outcome = 'done'
+    } else if (this.phase.kind === 'upgrading') {
+      outcome = undefined
+    } else if (exitCode === 0) {
+      outcome = 'done'
+    } else if (
+      (!this.workerReady && this.attempt >= 2) ||
+      this.attempt >= MAX_RESPAWN_ATTEMPTS
+    ) {
+      outcome = 'crashed'
+    }
     logEvent('tengu_bg_worker_exit', {
       code: exitCode ?? undefined,
       attempt: this.attempt,
+      source: this.dispatch.source,
+      outcome,
     })
-    if (this.killed) return this.finish('killed')
-    if (this.retiring) return this.finish('done')
-    if (this.upgrading) {
-      this.upgrading = false
+    if (this.phase.kind === 'retiring') {
+      return this.finish(this.phase.reason === 'reap' ? 'killed' : 'done')
+    }
+    if (this.phase.kind === 'upgrading') {
+      this.transitionTo({ kind: 'spawning' })
       this.attempt = 1
       this.patch({ pid: 0, state: 'starting', detail: 'upgrading' })
       this.procStart = undefined
-      void this.spawn()
-    } else if (exitCode === 0) {
-      this.finish('done')
-    } else {
-      this.scheduleRespawn(`exit ${exitCode}`)
+      void this.buildBridgeReattachEnvFromState().then((env) =>
+        this.doSpawn(env),
+      )
+      return
+    }
+    if (exitCode === 0) return this.finish('done')
+    if (!this.workerReady && this.attempt >= 2) {
+      this.patch({ state: 'crashed', detail: `exit ${exitCode} before init` })
+      return this.finish('crashed')
+    }
+    this.scheduleRespawn(`exit ${exitCode}`)
+  }
+
+  private async buildBridgeReattachEnvFromState(): Promise<
+    Record<string, string> | undefined
+  > {
+    const state = await readJobState(getJobDir(this.dispatch.short)).catch(
+      () => null,
+    )
+    if (!state?.bridgeSessionId) return undefined
+    return {
+      CLAUDE_BRIDGE_REATTACH_SESSION: state.bridgeSessionId,
+      ...(state.bridgeSessionSeq !== undefined && state.bridgeSessionSeq > 0
+        ? { CLAUDE_BRIDGE_REATTACH_SEQ: String(state.bridgeSessionSeq) }
+        : {}),
     }
   }
 
   private connectRendezvous(): void {
-    if (this.rendezvous || this.stopped || this.record.outcome) return
+    if (this.rendezvous || this.isDetached || this.record.outcome) return
     this.rendezvous = connectRendezvous(
       this.rendezvousSocket,
       (message) => {
@@ -797,6 +1103,9 @@ class BackgroundHandle {
         }
       },
       () => this.checkPid(),
+      () => {
+        this.workerReady = true
+      },
     )
   }
 
@@ -819,12 +1128,14 @@ class BackgroundHandle {
     } catch (error) {
       const code = getErrnoCode(error)
       if (code === 'ESRCH' || code === 'EPERM') {
-        this.finish(this.killed ? 'killed' : 'crashed')
+        this.finish(this.isKilling ? 'killed' : 'crashed')
       }
       return
     }
     if (checkRecycled && this.pidPollTick++ % 12 !== 0) return
-    if (this.pidRecycled()) this.finish(this.killed ? 'killed' : 'crashed')
+    if (this.pidRecycled()) {
+      this.finish(this.isKilling ? 'killed' : 'crashed')
+    }
   }
 
   private clearLiveness(): void {
@@ -841,6 +1152,9 @@ class BackgroundHandle {
       this.finish('crashed')
       return
     }
+    if (this.phase.kind === 'running') {
+      this.transitionTo({ kind: 'spawning' })
+    }
     this.patch({
       pid: 0,
       state: 'crashed',
@@ -849,7 +1163,9 @@ class BackgroundHandle {
     this.procStart = undefined
     this.respawnTimer = setTimeout(() => {
       this.respawnTimer = undefined
-      if (!this.stopped && !this.killed) void this.spawn()
+      if (this.phase.kind !== 'retiring' && this.phase.kind !== 'retired') {
+        void this.doSpawn()
+      }
     }, RESPAWN_DELAY_MS)
     this.respawnTimer.unref()
   }
@@ -861,6 +1177,7 @@ class BackgroundHandle {
 
   private finish(outcome: NonNullable<BackgroundRecord['outcome']>): void {
     if (this.record.outcome) return
+    this.transitionTo({ kind: 'retired', outcome })
     this.clearLiveness()
     this.patch({ outcome, settledAt: Date.now(), tempo: 'idle' })
     this.settled.emit(outcome)
@@ -939,98 +1256,110 @@ function writeRoster(handles: Map<string, BackgroundHandle>): Promise<void> {
       updatedAt: Date.now(),
       workers,
     }
-    await mkdir(dirname(getRosterPath()), { recursive: true })
+    await mkdir(dirname(getRosterPath()), { recursive: true, mode: 0o700 })
     const temporary = `${getRosterPath()}.tmp.${process.pid}`
-    await writeFile(temporary, JSON.stringify(manifest, null, 2), 'utf8')
+    await writeFile(temporary, JSON.stringify(manifest, null, 2), {
+      encoding: 'utf8',
+      mode: 0o600,
+    })
     await rename(temporary, getRosterPath())
   })
   rosterWrite = next.catch(() => {})
   return next
 }
 
-async function persistSettled(
-  handle: BackgroundHandle,
-  outcome: NonNullable<BackgroundRecord['outcome']>,
-): Promise<void> {
-  const record = handle.record
-  await writeFile(
-    getSettledPath(record.short),
-    JSON.stringify(
-      {
-        short: record.short,
-        sessionId: record.sessionId,
-        name: record.name,
-        intent: record.intent,
-        outcome,
-        cwd: record.cwd,
-        worktreePath: record.worktreePath,
-        startedAt: record.startedAt,
-        settledAt: record.settledAt ?? Date.now(),
-        attempts: record.attempt,
-      },
-      null,
-      2,
-    ),
-    'utf8',
-  )
-}
-
 function wireHandle(
   handles: Map<string, BackgroundHandle>,
   handle: BackgroundHandle,
-  onKeepAliveChange?: () => void,
+  onKeepAliveChange: () => void,
+  pendingSettleWrites: Set<Promise<unknown>>,
 ): void {
+  const track = (promise: Promise<unknown>) => {
+    pendingSettleWrites.add(promise)
+    void promise.finally(() => pendingSettleWrites.delete(promise))
+  }
   handle.state.subscribe((patch) => {
-    if (patch.pid) void writeRoster(handles)
-    if (patch.state === 'crashed') {
+    if (patch.pid) void writeRoster(handles).catch((error) => logError(error))
+    if (patch.state === 'crashed' || patch.state === 'resuming') {
+      const nextState = patch.state
       const dir = getJobDir(handle.record.short)
-      void readJobState(dir).then((state) => {
-        if (!state || isSettledJob(state)) return
-        return writeJobState(dir, {
-          ...state,
-          state: 'crashed',
-          detail: handle.record.detail,
-          tempo: 'idle',
-          inFlight: undefined,
-          updatedAt: new Date().toISOString(),
+      void readJobState(dir)
+        .then((state) => {
+          if (
+            !state ||
+            isSettledJob(state) ||
+            state.state === 'blocked' ||
+            (nextState === 'resuming' && state.state !== 'crashed')
+          ) {
+            return
+          }
+          return writeJobState(dir, {
+            ...state,
+            state: nextState,
+            detail: handle.record.detail,
+            tempo: nextState === 'crashed' ? 'idle' : 'active',
+            inFlight: undefined,
+            updatedAt: new Date().toISOString(),
+          })
         })
-      })
+        .catch((error) => logError(error))
     }
   })
   handle.settled.subscribe((outcome) => {
     if (!outcome) return
-    void persistSettled(handle, outcome)
     const dir = getJobDir(handle.record.short)
-    void readJobState(dir).then((state) => {
-      if (!state || isSettledJob(state)) return
-      const now = new Date().toISOString()
-      return writeJobState(dir, {
-        ...state,
-        state:
-          outcome === 'done'
-            ? 'done'
-            : outcome === 'killed'
-              ? 'stopped'
-              : 'failed',
-        detail: (handle.record.detail || state.detail).replace(
-          /; respawning$/,
-          '',
-        ),
-        tempo: 'idle',
-        inFlight: undefined,
-        needs: undefined,
-        updatedAt: now,
-        firstTerminalAt: state.firstTerminalAt ?? now,
-      })
-    })
-    handles.delete(handle.record.short)
-    onKeepAliveChange?.()
-    void writeRoster(handles)
-    void unlink(getRendezvousSocketPath(handle.record.short)).catch(() => {})
-    void unlink(getPtySocketPath(handle.record.short)).catch(() => {})
-    void unlink(getPtyErrorPath(getPtySocketPath(handle.record.short))).catch(
-      () => {},
+    track(
+      readJobState(dir)
+        .then((state) => {
+          if (
+            !state ||
+            isSettledJob(state) ||
+            (outcome === 'done' && state.state === 'blocked')
+          ) {
+            return
+          }
+          const now = new Date().toISOString()
+          return writeJobState(dir, {
+            ...state,
+            state:
+              outcome === 'done'
+                ? 'done'
+                : outcome === 'killed'
+                  ? 'stopped'
+                  : 'failed',
+            detail: (handle.record.detail || state.detail).replace(
+              /; respawning$/,
+              '',
+            ),
+            tempo: 'idle',
+            inFlight: undefined,
+            needs: undefined,
+            updatedAt: now,
+            firstTerminalAt: state.firstTerminalAt ?? now,
+          })
+        })
+        .catch((error) => logError(error)),
     )
+    handles.delete(handle.record.short)
+    onKeepAliveChange()
+    track(writeRoster(handles).catch((error) => logError(error)))
+    if (process.platform === 'win32') {
+      track(unlink(getPtyPidPath(handle.record.short)).catch(() => {}))
+      track(
+        unlink(getPtyErrorPath(getPtySocketPath(handle.record.short))).catch(
+          () => {},
+        ),
+      )
+    } else {
+      const roster = handle.rosterEntry()
+      track(
+        unlink(roster.rendezvousSock).catch(() => {}),
+      )
+      if (roster.ptySock) {
+        track(unlink(roster.ptySock).catch(() => {}))
+        track(unlink(getPtyErrorPath(roster.ptySock)).catch(() => {}))
+      }
+    }
   })
 }
 
@@ -1082,7 +1411,7 @@ async function awaitAck(
         }
       : {
           ok: false,
-          error: "daemon didn't acknowledge in time — retry",
+          error: `${bgSupervisorNoun()} didn't acknowledge in time — retry`,
           code: 'ETIMEOUT',
         },
   )
@@ -1092,11 +1421,17 @@ async function handleControl(
   handles: Map<string, BackgroundHandle>,
   dispatch: (value: Dispatch) => void,
   onNudge: () => Promise<boolean>,
+  onShutdown: (reapWorkers: boolean) => number,
   isReady: () => boolean,
+  onYield: () => boolean,
   socket: Socket,
   raw: string,
   initialData: Buffer,
-  registerLease: (socket: Socket) => void,
+  registerLease: (
+    socket: Socket,
+    client: { label: string; cwd: string; pid: number } | null,
+  ) => void,
+  listLeases: () => Array<{ label: string; cwd: string; pid: number }>,
 ): Promise<void> {
   let value: unknown
   try {
@@ -1127,15 +1462,42 @@ async function handleControl(
     })
     return
   }
+  if (unparsed.op === 'yield') {
+    sendJson(socket, { ok: true, op: 'yield', yielding: onYield() })
+    return
+  }
   if (unparsed.op === 'lease') {
-    registerLease(socket)
+    const client = unparsed.client
+    registerLease(
+      socket,
+      client &&
+        typeof client === 'object' &&
+        typeof (client as { label?: unknown }).label === 'string' &&
+        typeof (client as { cwd?: unknown }).cwd === 'string' &&
+        typeof (client as { pid?: unknown }).pid === 'number'
+        ? (client as { label: string; cwd: string; pid: number })
+        : null,
+    )
     sendJson(socket, { ok: true, op: 'lease' }, false)
+    return
+  }
+  if (unparsed.op === 'leases') {
+    sendJson(socket, { ok: true, op: 'leases', clients: listLeases() })
+    return
+  }
+  if (unparsed.op === 'shutdown') {
+    const reapWorkers = unparsed.reapWorkers !== false
+    sendJson(socket, {
+      ok: true,
+      op: 'shutdown',
+      reaped: onShutdown(reapWorkers),
+    })
     return
   }
   if (!isReady()) {
     sendJson(socket, {
       ok: false,
-      error: 'daemon starting (adoption in progress)',
+      error: `${bgSupervisorNoun()} starting (adoption in progress)`,
       code: 'ESTARTING',
     })
     return
@@ -1154,7 +1516,7 @@ async function handleControl(
     })
     sendJson(socket, {
       ok: false,
-      error: `proto mismatch (server=${PROTOCOL_VERSION}, client=${clientProtocol}) — daemon and CLI versions differ; restart claude`,
+      error: `proto mismatch (server=${PROTOCOL_VERSION}, client=${clientProtocol}) — ${bgSupervisorNoun()} and CLI versions differ; restart claude`,
       code: 'EPROTO',
       serverProto: PROTOCOL_VERSION,
       serverVersion: MACRO.VERSION,
@@ -1184,7 +1546,12 @@ async function handleControl(
       sendJson(socket, {
         ok: true,
         op: 'has',
-        alive: Boolean(handle && !handle.record.outcome && !handle.isRetiring),
+        alive: Boolean(
+          handle &&
+            !handle.record.outcome &&
+            !handle.isRetiring &&
+            !handle.isKilling,
+        ),
       })
       return
     }
@@ -1211,7 +1578,12 @@ async function handleControl(
       return
     case 'reply': {
       const handle = handles.get(message.short)
-      if (!handle || handle.isRetiring) {
+      if (
+        !handle ||
+        handle.isRetiring ||
+        handle.isKilling ||
+        handle.record.outcome
+      ) {
         sendJson(socket, {
           ok: false,
           error: 'job not found — it may have already exited',
@@ -1283,7 +1655,7 @@ async function handleControl(
     }
     case 'attach': {
       const handle = handles.get(message.short)
-      if (!handle || handle.record.outcome) {
+      if (!handle || handle.isKilling || handle.record.outcome) {
         sendJson(socket, {
           ok: false,
           error: 'job not found — it may have already exited',
@@ -1307,7 +1679,7 @@ async function handleControl(
           `${value.sessionId}.jsonl`,
         )
         const transcriptExists = await hasTranscriptMessages(transcript)
-        if (!transcriptExists) await rm(transcript, { force: true }).catch(() => {})
+        if (!transcriptExists) await rm(transcript, { force: false }).catch(() => {})
         if (handles.get(message.short) !== handle || socket.destroyed) {
           sendJson(socket, {
             ok: false,
@@ -1339,7 +1711,7 @@ async function handleControl(
         })
         return
       }
-      registerLease(socket)
+      registerLease(socket, null)
       sendJson(
         socket,
         { ok: true, op: 'attach', decModes: handle.decModeSnapshot() },
@@ -1350,6 +1722,10 @@ async function handleControl(
       let bufferedBytes = 0
       let markerTail = ''
       let bufferTimer: NodeJS.Timeout
+      let repaintTimer: NodeJS.Timeout | undefined
+      let cancelRepaintResize: Dispose = () => {}
+      const clearDisplay = '\x1B[2J'
+      const homeAndEraseLine = '\x1B[H\x1B[2K'
       const flushBufferedOutput = (write: boolean) => {
         if (bufferedOutput === null) return
         const output = bufferedOutput
@@ -1359,14 +1735,52 @@ async function handleControl(
           for (const data of output) socket.write(data)
         }
       }
-      bufferTimer = setTimeout(flushBufferedOutput, 500, true)
+      bufferTimer = setTimeout(() => {
+        const hadNoOutput = bufferedOutput !== null && bufferedBytes === 0
+        flushBufferedOutput(true)
+        if (hadNoOutput && !socket.destroyed) {
+          const state = handle.record.state
+          const message =
+            state === 'starting' ||
+            state === 'resuming' ||
+            state === 'adopted' ||
+            state === 'crashed'
+              ? 'Session is starting — it will appear once ready. Ctrl+B then d to detach'
+              : 'Waiting for session to redraw… Ctrl+B then d to detach'
+          socket.write(
+            `${clearDisplay}\x1B[H\n  \x1B[2m${message}\x1B[0m\n`,
+          )
+          repaintTimer = setInterval(() => {
+            const attached = handle.attachers.get(attachId)
+            cancelRepaintResize()
+            cancelRepaintResize = handle.resizeForRepaint(
+              attached?.cols ?? messageCols,
+              attached?.rows ?? messageRows,
+            )
+          }, 1_000)
+          repaintTimer.unref()
+        }
+      }, 500)
       bufferTimer.unref()
       const stopStream = handle.stream.subscribe((data) => {
         if (socket.destroyed) return
+        if (
+          repaintTimer &&
+          (data.includes(clearDisplay) || data.includes(homeAndEraseLine))
+        ) {
+          clearInterval(repaintTimer)
+          repaintTimer = undefined
+        }
         if (bufferedOutput !== null) {
           const withTail = markerTail + data
-          if (withTail.includes('\x1B[2J')) {
-            const fromMarker = data.includes('\x1B[2J') ? data : withTail
+          if (
+            withTail.includes(clearDisplay) ||
+            withTail.includes(homeAndEraseLine)
+          ) {
+            const fromMarker =
+              data.includes(clearDisplay) || data.includes(homeAndEraseLine)
+                ? data
+                : withTail
             flushBufferedOutput(false)
             if (socket.writableLength <= MAX_SOCKET_BUFFER) {
               socket.write(fromMarker)
@@ -1375,7 +1789,7 @@ async function handleControl(
           }
           bufferedOutput.push(data)
           bufferedBytes += data.length
-          markerTail = data.slice(-3)
+          markerTail = withTail.slice(-6)
           if (bufferedBytes > 65_536) flushBufferedOutput(true)
           return
         }
@@ -1383,6 +1797,8 @@ async function handleControl(
         else socket.write(data)
       })
       const attachId: unknown = message.attachId ?? socket
+      const messageCols = message.cols
+      const messageRows = message.rows
       handle.attachers.set(attachId, {
         cols: message.cols,
         rows: message.rows,
@@ -1396,6 +1812,8 @@ async function handleControl(
       if (initialData.length) handle.write(decoder.write(initialData))
       socket.on('data', (chunk) => handle.write(decoder.write(chunk)))
       socket.once('close', () => {
+        if (repaintTimer) clearInterval(repaintTimer)
+        cancelRepaintResize()
         cancelResizeRestore()
         flushBufferedOutput(false)
         const tail = decoder.end()
@@ -1420,7 +1838,7 @@ async function handleControl(
         })
         return
       }
-      registerLease(socket)
+      registerLease(socket, null)
       sendJson(
         socket,
         {
@@ -1462,7 +1880,10 @@ async function handleControl(
       return
     case 'ping':
     case 'nudge':
+    case 'yield':
     case 'lease':
+    case 'leases':
+    case 'shutdown':
       return
   }
 }
@@ -1471,7 +1892,9 @@ async function startControlServer(
   handles: Map<string, BackgroundHandle>,
   dispatch: (value: Dispatch) => void,
   onNudge: () => Promise<boolean>,
+  onShutdown: (reapWorkers: boolean) => number,
   isReady: () => boolean,
+  onYield: () => boolean,
   onLeaseChange?: () => void,
 ): Promise<{
   server: Server
@@ -1482,20 +1905,39 @@ async function startControlServer(
   const path = getControlSocketPath()
   await unlink(path).catch(() => {})
   const sockets = new Set<Socket>()
-  const leases = new Set<Socket>()
-  const registerLease = (socket: Socket) => {
+  const leases = new Map<
+    Socket,
+    { label: string; cwd: string; pid: number } | null
+  >()
+  const registerLease = (
+    socket: Socket,
+    client: { label: string; cwd: string; pid: number } | null,
+  ) => {
     if (leases.has(socket)) return
-    leases.add(socket)
+    leases.set(socket, client)
+    logEvent('tengu_daemon_lease', { op: 'open' })
     onLeaseChange?.()
     socket.once('close', () => {
       leases.delete(socket)
+      logEvent('tengu_daemon_lease', { op: 'close' })
       onLeaseChange?.()
     })
   }
+  const listLeases = () =>
+    [...leases.values()].filter(
+      (client): client is { label: string; cwd: string; pid: number } =>
+        client !== null,
+    )
   const server = createServer((socket) => {
+    if (!controlPeerMatchesCurrentUser(socket)) {
+      logEvent('tengu_daemon_peer_uid_reject', {})
+      socket.destroy()
+      return
+    }
     sockets.add(socket)
     socket.once('close', () => sockets.delete(socket))
     socket.on('error', () => socket.destroy())
+    socket.setTimeout(30_000, () => socket.destroy())
     let buffered = Buffer.alloc(0)
     const first = (chunk: Buffer) => {
       buffered = Buffer.concat([buffered, chunk])
@@ -1505,17 +1947,21 @@ async function startControlServer(
         return
       }
       socket.off('data', first)
+      socket.setTimeout(0)
       const raw = buffered.subarray(0, newline).toString('utf8')
       const remainder = buffered.subarray(newline + 1)
       void handleControl(
         handles,
         dispatch,
         onNudge,
+        onShutdown,
         isReady,
+        onYield,
         socket,
         raw,
         remainder,
         registerLease,
+        listLeases,
       ).catch((error) =>
         sendJson(socket, {
           ok: false,
@@ -1526,6 +1972,7 @@ async function startControlServer(
     }
     socket.on('data', first)
   })
+  server.on('error', (error) => logError(error))
   await new Promise<void>((resolve, reject) => {
     server.once('error', reject)
     server.listen(path, () => {
@@ -1548,8 +1995,8 @@ async function startControlServer(
 }
 
 async function rejectDispatch(path: string, reason: string): Promise<void> {
-  await mkdir(getRejectedDispatchDir(), { recursive: true }).catch(() => {})
-  await rename(path, join(getRejectedDispatchDir(), path.split('/').at(-1)!)).catch(
+  await mkdir(getRejectedDispatchDir(), { recursive: true, mode: 0o700 }).catch(() => {})
+  await rename(path, join(getRejectedDispatchDir(), basename(path))).catch(
     () => unlink(path).catch(() => {}),
   )
   logForDebugging(`[bg-dispatch] rejected ${basename(path)}: ${reason}`, {
@@ -1563,9 +2010,13 @@ async function readDispatch(
 ): Promise<void> {
   let metadata
   try {
-    metadata = await stat(path)
+    metadata = await lstat(path)
   } catch (error) {
     if (!isENOENT(error)) await rejectDispatch(path, String(error))
+    return
+  }
+  if (metadata.isSymbolicLink()) {
+    await rejectDispatch(path, 'symlink')
     return
   }
   if (metadata.size > MAX_DISPATCH_BYTES) {
@@ -1595,7 +2046,7 @@ async function readDispatch(
 async function startDispatchWatcher(
   onDispatch: (dispatch: Dispatch) => void,
 ): Promise<FSWatcher> {
-  await mkdir(getDispatchDir(), { recursive: true })
+  await mkdir(getDispatchDir(), { recursive: true, mode: 0o700 }).catch(() => {})
   const platform = process.platform
   const usePolling = typeof Bun !== 'undefined' && platform === 'darwin'
   const watcher = chokidar.watch(getDispatchDir(), {
@@ -1652,31 +2103,47 @@ async function reapOrphanedPtySockets(
   handles: Map<string, BackgroundHandle>,
   log: (message: string) => void,
 ): Promise<void> {
-  if (process.platform === 'win32') return
-  const entries = await readdir(getPtyDir()).catch(() => [])
+  const windows = process.platform === 'win32'
+  const directory = windows ? getPtyPidDir() : getPtyDir()
+  const suffix = windows ? '.pid' : '.sock'
+  const entries = await readdir(directory).catch(() => [])
+  const hostEntries = new Set(entries.filter(entry => entry.endsWith(suffix)))
   let reaped = 0
   for (const entry of entries) {
-    if (!entry.endsWith('.sock')) continue
-    const short = entry.slice(0, -5)
+    if (!entry.endsWith(suffix)) {
+      if (
+        entry.endsWith('.sock.err') &&
+        !hostEntries.has(entry.slice(0, -4))
+      ) {
+        void unlink(join(directory, entry)).catch(() => {})
+      }
+      continue
+    }
+    const short = entry.slice(0, -suffix.length)
     if (handles.has(short)) continue
     reaped++
+    const pidPath = getPtyPidPath(short)
     const socketPath = getPtySocketPath(short)
-    const socket = new Socket()
-    socket.on('error', () => {
-      void unlink(socketPath).catch(() => {})
-      void unlink(getPtyErrorPath(socketPath)).catch(() => {})
+    void killWorkerThroughPty(socketPath).then(killed => {
+      if (!windows) return
+      const errorPath = getPtyErrorPath(socketPath)
+      if (killed) {
+        void unlink(pidPath).catch(() => {})
+        void unlink(errorPath).catch(() => {})
+        return
+      }
+      void readFile(pidPath, 'utf8')
+        .then(raw => {
+          if (!isProcessRunning(Number(raw))) {
+            void unlink(pidPath).catch(() => {})
+            void unlink(errorPath).catch(() => {})
+          }
+        })
+        .catch(() => {})
     })
-    socket.once('connect', () => {
-      socket.resume()
-      socket.write(encodeControlFrame({ t: 'kill', sig: 'SIGTERM' }))
-      socket.end()
-      const timer = setTimeout(() => socket.destroy(), 2_000)
-      timer.unref()
-    })
-    socket.connect(socketPath)
   }
   if (reaped > 0) {
-    log(`bg orphan-reap: ${reaped} roster-less pty sock(s)`)
+    log(`bg orphan-reap: ${reaped} roster-less pty host(s)`)
     logEvent('tengu_bg_orphan_reap', { reaped })
   }
 }
@@ -1685,19 +2152,72 @@ export async function runBackgroundSupervisor(options?: {
   getAuthSnapshot?: () => AuthSnapshot | undefined
   log?: (message: string) => void
   onNudge?: () => Promise<boolean>
+  onShutdown?: () => void
+  onYield?: () => boolean
   onKeepAliveChange?: () => void
+  spawnPty?: SpawnPty
 }): Promise<{
   handles: Map<string, BackgroundHandle>
   dispatch(value: Dispatch): void
   leaseCount(): number
   liveHandleCount(): number
-  killAll(signal: NodeJS.Signals): void
+  pendingSettleWrites(): number
+  killAll(signal: NodeJS.Signals): number
   close(): Promise<void>
 }> {
   const log = options?.log ?? ((message) => logForDebugging(message))
   const handles = new Map<string, BackgroundHandle>()
+  const pendingSettleWrites = new Set<Promise<unknown>>()
+  const spawnPty = options?.spawnPty ?? defaultSpawnPty()
   let closing = false
   let ready = false
+  let spare: SpareProcess | null = null
+  let spawningSpare = false
+  const canPrewarm = options?.spawnPty === undefined
+  const ensureSpare = () => {
+    if (
+      spare ||
+      spawningSpare ||
+      closing ||
+      !ready ||
+      !spawnPty ||
+      !canPrewarm ||
+      process.platform === 'win32' ||
+      !getFeatureValue_CACHED_MAY_BE_STALE('tengu_bg_spare_enable', true)
+    ) {
+      return
+    }
+    spawningSpare = true
+    let candidate: SpareProcess | null = null
+    let exited = false
+    const startedAt = Date.now()
+    void spawnSpare({
+      log,
+      onExit: () => {
+        if (!candidate) {
+          exited = true
+          return
+        }
+        if (spare === candidate) {
+          spare = null
+          if (Date.now() - startedAt >= 2_000) ensureSpare()
+        }
+      },
+    })
+      .then((created) => {
+        candidate = created
+        if (!created || closing || exited) {
+          created?.dispose()
+          return
+        }
+        spare = created
+        logEvent('tengu_bg_spare_spawn', {})
+      })
+      .catch((error) => logError(error))
+      .finally(() => {
+        spawningSpare = false
+      })
+  }
   const dispatch = (value: Dispatch, retry = 0) => {
     if (closing) return
     const existing = handles.get(value.short)
@@ -1706,51 +2226,155 @@ export async function runBackgroundSupervisor(options?: {
         (existing.isKilling || existing.isRetiring || existing.record.outcome) &&
         retry < 30
       ) {
+        if (retry === 15 && (existing.isKilling || existing.isRetiring)) {
+          logEvent('tengu_bg_dispatch_sigkill_escalate', {})
+          existing.kill('SIGKILL')
+        }
         setTimeout(() => dispatch(value, retry + 1), 100)
         return
       }
       log(`bg: dup dispatch ${value.short} dropped (existing handle still live)`)
       return
     }
-    const handle = BackgroundHandle.spawn(value, options?.getAuthSnapshot)
+    let handle: BackgroundHandle | undefined
+    if (
+      spare &&
+      spare.cliVersion === MACRO.VERSION &&
+      getFeatureValue_CACHED_MAY_BE_STALE('tengu_bg_spare_enable', true)
+    ) {
+      const claimed = spare
+      spare = null
+      try {
+        handle = BackgroundHandle.claim(value, {
+          pid: claimed.hostPid,
+          ptySockPath: claimed.ptySock,
+          spawnPty,
+          getAuthSnapshot: options?.getAuthSnapshot,
+        })
+        const frame = BackgroundHandle.buildClaimFrame(
+          value,
+          options?.getAuthSnapshot?.(),
+        )
+        void sendSpareClaim(claimed.claimSock, {
+          cwd: value.cwd,
+          env: frame.env,
+          argv: frame.argv,
+          sessionId: value.sessionId,
+        }).catch((error) => {
+          logForDebugging(`[bg-spare] send-claim failed: ${String(error)}`, {
+            level: 'warn',
+          })
+          killSparePty(claimed.ptySock)
+        })
+        logEvent('tengu_bg_spare_claim', {
+          age_ms: Date.now() - claimed.startedAt,
+        })
+        log(`bg claimed-spare ${value.short} (${value.source})`)
+      } catch (error) {
+        const code = getErrnoCode(error)
+        logEvent('tengu_bg_spare_claim_fail', {
+          reason:
+            code === 'ENOENT'
+              ? 'enoent'
+              : code === 'ECONNREFUSED'
+                ? 'econnrefused'
+                : error instanceof Error
+                  ? 'error'
+                  : 'unknown',
+        })
+        claimed.dispose()
+      }
+    }
+    if (!handle) {
+      handle = BackgroundHandle.spawn(
+        value,
+        spawnPty,
+        options?.getAuthSnapshot,
+      )
+      log(`bg spawned ${value.short} (${value.source})`)
+    }
     handles.set(value.short, handle)
-    wireHandle(handles, handle, options?.onKeepAliveChange)
+    wireHandle(
+      handles,
+      handle,
+      options?.onKeepAliveChange ?? (() => {}),
+      pendingSettleWrites,
+    )
     options?.onKeepAliveChange?.()
     void writeRoster(handles)
-    log(`bg spawned ${value.short} (${value.source})`)
+    ensureSpare()
+  }
+
+  const killAll = (signal: NodeJS.Signals = 'SIGTERM') => {
+    let killed = 0
+    for (const handle of handles.values()) {
+      if (!handle.record.outcome) {
+        handle.kill(signal)
+        killed++
+      }
+    }
+    return killed
   }
 
   await ensureDaemonRuntimeDir()
+  await ensureDaemonDir()
   const control = await startControlServer(
     handles,
     dispatch,
     options?.onNudge ?? (async () => false),
+    (reapWorkers) => {
+      const reaped = reapWorkers ? killAll('SIGTERM') : 0
+      options?.onShutdown?.()
+      return reaped
+    },
     () => ready,
+    options?.onYield ?? (() => false),
     options?.onKeepAliveChange,
   )
-  await Promise.all([
-    mkdir(getRendezvousDir(), { recursive: true, mode: 0o700 }),
-    mkdir(getPtyDir(), { recursive: true, mode: 0o700 }),
-    mkdir(getSettledDir(), { recursive: true }),
-  ])
+  await Promise.all(
+    process.platform === 'win32'
+      ? [mkdir(getPtyPidDir(), { recursive: true }).catch(() => {})]
+      : [
+          mkdir(getRendezvousDir(), { recursive: true, mode: 0o700 }).catch(
+            () => {},
+          ),
+          mkdir(getPtyDir(), { recursive: true, mode: 0o700 }).catch(() => {}),
+        ],
+  )
   cleanupStaleRuntimeDirs()
   const { manifest: roster, parseFailed } = await readRoster()
   let adopted = 0
   let dead = 0
   await Promise.all(
-    Object.values(roster.workers).map(async (record) => {
-      const handle = await BackgroundHandle.adopt(
-        record,
-        options?.getAuthSnapshot,
-      )
+    Object.entries(roster.workers).map(async ([short, record]) => {
+      let handle: BackgroundHandle | null
+      try {
+        handle = await BackgroundHandle.adopt(
+          record,
+          spawnPty,
+          options?.getAuthSnapshot,
+        )
+      } catch (error) {
+        logError(error)
+        dead++
+        return
+      }
       if (handle) {
         handles.set(record.dispatch.short, handle)
-        wireHandle(handles, handle, options?.onKeepAliveChange)
+        wireHandle(
+          handles,
+          handle,
+          options?.onKeepAliveChange ?? (() => {}),
+          pendingSettleWrites,
+        )
         adopted++
         return
       }
       dead++
-      if (process.platform !== 'win32') {
+      if (process.platform === 'win32') {
+        void unlink(getPtyPidPath(short)).catch(() => {})
+        void unlink(getPtyErrorPath(getPtySocketPath(short))).catch(() => {})
+      } else {
         void unlink(record.rendezvousSock).catch(() => {})
         if (record.ptySock) {
           void unlink(record.ptySock).catch(() => {})
@@ -1771,12 +2395,14 @@ export async function runBackgroundSupervisor(options?: {
     logEvent('tengu_bg_adopt', { adopted, dead })
   }
   if (!parseFailed) await reapOrphanedPtySockets(handles, log)
-  await writeRoster(handles)
+  if (!parseFailed) await reapOrphanSpares(handles, log)
+  await writeRoster(handles).catch((error) => logError(error))
   ready = true
   options?.onKeepAliveChange?.()
+  ensureSpare()
   const retirementSweep = setInterval(() => {
     for (const handle of handles.values()) {
-      void handle.retireIfSettled(600_000).catch((error) => logError(error))
+      void handle.retireIfSettled(3_600_000).catch((error) => logError(error))
     }
   }, 60_000)
   retirementSweep.unref()
@@ -1792,22 +2418,25 @@ export async function runBackgroundSupervisor(options?: {
       }
       return count
     },
-    killAll: signal => {
-      for (const handle of handles.values()) {
-        if (!handle.record.outcome) handle.kill(signal)
-      }
-    },
+    pendingSettleWrites: () => pendingSettleWrites.size,
+    killAll,
     close: async () => {
       closing = true
       clearInterval(retirementSweep)
-      await Promise.all([watcher.close(), control.close()])
+      spare?.dispose()
+      spare = null
+      await Promise.all([
+        watcher.close().catch(() => {}),
+        control.close().catch(() => {}),
+      ])
       for (const handle of handles.values()) handle.stop()
+      await Promise.allSettled([...pendingSettleWrites])
       if (
         handles.size === 0 &&
         !parseFailed &&
         process.platform !== 'win32'
       ) {
-        await rm(getDaemonRuntimeDir(), { recursive: true, force: true }).catch(
+        await rm(getDaemonRuntimeDir(), { recursive: true, force: false }).catch(
           () => {},
         )
       }

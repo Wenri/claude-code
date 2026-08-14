@@ -3,6 +3,10 @@ import { Socket } from 'net'
 import { StringDecoder } from 'string_decoder'
 import { logForDebugging } from '../utils/debug.js'
 import {
+  getProcessStartToken,
+  getProcessStartTokenAsync,
+} from '../utils/genericProcessUtils.js'
+import {
   createFrameDecoder,
   encodeControlFrame,
   encodeDataFrame,
@@ -52,22 +56,33 @@ export function connectPtyHost(
   let stopped = false
   let exited = false
   let attempts = 0
+  let postDisconnectAttempts = 0
   let reconnectTimer: NodeJS.Timeout | undefined
+  let drainTimer: NodeJS.Timeout | undefined
+  let backlogTimer: NodeJS.Timeout | undefined
   let replPid: number | undefined
   let replVersion: string | undefined
   let onResume: (() => void) | undefined
   let gotHello = false
   let suppressReplay = false
-  let connected = false
+  let expectedToken = expectedProcessStart
   const pending: Buffer[] = []
   let pendingBytes = 0
   const backoff = [50, 100, 250, 500, 1_000, 2_000]
+
+  if (expectedToken === undefined) {
+    void getProcessStartTokenAsync(hostPid).then((token) => {
+      expectedToken = token
+    })
+  }
 
   const finish = (exitCode: number) => {
     if (exited) return
     exited = true
     stopped = true
     if (reconnectTimer) clearTimeout(reconnectTimer)
+    if (drainTimer) clearTimeout(drainTimer)
+    if (backlogTimer) clearTimeout(backlogTimer)
     socket?.destroy()
     const tail = decoder.end()
     if (tail) dataSignal.emit(tail)
@@ -82,15 +97,13 @@ export function connectPtyHost(
     }
   }
   const hostCrashed = () => {
-    if (process.platform !== 'win32') {
-      void readFile(getPtyErrorPath(socketPath), 'utf8')
-        .then((text) =>
-          logForDebugging(`[bg-pty] host crash: ${text.trim()}`, {
-            level: 'warn',
-          }),
-        )
-        .catch(() => {})
-    }
+    void readFile(getPtyErrorPath(socketPath), 'utf8')
+      .then((text) =>
+        logForDebugging(`[bg-pty] host crash: ${text.trim()}`, {
+          level: 'warn',
+        }),
+      )
+      .catch(() => {})
     try {
       process.kill(-hostPid, 'SIGTERM')
     } catch {
@@ -105,20 +118,27 @@ export function connectPtyHost(
   const schedule = () => {
     if (stopped || reconnectTimer) return
     if (!hostAlive()) return hostCrashed()
+    if (postDisconnectAttempts > 0 && --postDisconnectAttempts === 0) {
+      return hostCrashed()
+    }
     if (attempts >= 30) {
       logForDebugging(
         `[bg-pty] ${socketPath}: ${attempts} connect attempts failed; treating host as dead`,
         { level: 'warn' },
       )
-      // expectedProcessStart is retained as the PID-reuse guard contract. A
-      // caller that cannot resolve it still gets best-effort termination.
-      void expectedProcessStart
-      try {
-        process.kill(-hostPid, 'SIGKILL')
-      } catch {
+      const currentProcessStart = expectedToken && getProcessStartToken(hostPid)
+      if (
+        !expectedToken ||
+        !currentProcessStart ||
+        expectedToken === currentProcessStart
+      ) {
         try {
-          process.kill(hostPid, 'SIGKILL')
-        } catch {}
+          process.kill(-hostPid, 'SIGKILL')
+        } catch {
+          try {
+            process.kill(hostPid, 'SIGKILL')
+          } catch {}
+        }
       }
       return finish(-1)
     }
@@ -132,7 +152,30 @@ export function connectPtyHost(
   }
   const send = (frame: Buffer) => {
     if (socket && !socket.destroyed) {
-      socket.write(frame)
+      if (!socket.write(frame)) {
+        if (!drainTimer) {
+          drainTimer = setTimeout(() => {
+            drainTimer = undefined
+            socket?.destroy()
+          }, 10_000)
+          drainTimer.unref()
+        }
+        if (!backlogTimer && socket.writableLength > 8 * MAX_FRAME_BYTES) {
+          backlogTimer = setTimeout(() => {
+            backlogTimer = undefined
+            if (
+              socket &&
+              !socket.destroyed &&
+              socket.writableLength > 8 * MAX_FRAME_BYTES
+            ) {
+              if (drainTimer) clearTimeout(drainTimer)
+              drainTimer = undefined
+              socket.destroy()
+            }
+          }, 50)
+          backlogTimer.unref()
+        }
+      }
       return true
     }
     if (pendingBytes < 2 * MAX_FRAME_BYTES) {
@@ -148,12 +191,17 @@ export function connectPtyHost(
     candidate.on('error', schedule)
     candidate.once('close', () => {
       if (socket === candidate) socket = undefined
+      if (drainTimer) clearTimeout(drainTimer)
+      drainTimer = undefined
+      if (backlogTimer) clearTimeout(backlogTimer)
+      backlogTimer = undefined
       if (stopped) return
       if (didConnect && !exited) {
         if (hostAlive()) {
           logForDebugging('[bg-pty] dropped by host; reconnecting', {
             level: 'debug',
           })
+          postDisconnectAttempts = 4
           attempts = 0
           schedule()
         } else {
@@ -166,11 +214,16 @@ export function connectPtyHost(
     candidate.once('connect', () => {
       didConnect = true
       attempts = 0
+      postDisconnectAttempts = 0
       socket = candidate
-      if (process.platform !== 'win32') {
-        void unlink(getPtyErrorPath(socketPath)).catch(() => {})
-      }
-      for (const frame of pending.splice(0)) candidate.write(frame)
+      candidate.on('drain', () => {
+        if (drainTimer) clearTimeout(drainTimer)
+        drainTimer = undefined
+        if (backlogTimer) clearTimeout(backlogTimer)
+        backlogTimer = undefined
+      })
+      void unlink(getPtyErrorPath(socketPath)).catch(() => {})
+      for (const frame of pending.splice(0)) send(frame)
       pendingBytes = 0
       const decode = createFrameDecoder(
         (frame) => {
@@ -202,7 +255,6 @@ export function connectPtyHost(
         },
       )
       candidate.on('data', decode)
-      connected = true
     })
     candidate.connect(socketPath)
   }
@@ -253,6 +305,8 @@ export function connectPtyHost(
     dispose() {
       stopped = true
       if (reconnectTimer) clearTimeout(reconnectTimer)
+      if (drainTimer) clearTimeout(drainTimer)
+      if (backlogTimer) clearTimeout(backlogTimer)
       socket?.destroy()
       socket = undefined
     },

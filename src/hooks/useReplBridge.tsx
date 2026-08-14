@@ -7,13 +7,24 @@ import { extractInboundMessageFields } from '../bridge/inboundMessages.js';
 import type { BridgeState, ReplBridgeHandle } from '../bridge/replBridge.js';
 import { setReplBridgeHandle } from '../bridge/replBridgeHandle.js';
 import type { Command } from '../commands.js';
-import { getSlashCommandToolSkills, isBridgeCommandAvailable } from '../commands.js';
+import {
+  findCommand,
+  getBridgeSafeCommand,
+  getCommandName,
+  getSlashCommandToolSkills,
+  isBridgeCommandAvailable,
+  isBridgeSafeCommand,
+} from '../commands.js';
 import { getRemoteSessionUrl } from '../constants/product.js';
 import { useNotifications } from '../context/notifications.js';
 import type { PermissionMode, SDKMessage } from '../entrypoints/agentSdkTypes.js';
 import type { SDKControlResponse } from '../entrypoints/sdk/controlTypes.js';
 import { Text } from '../ink.js';
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js';
+import {
+  logEvent,
+  type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+} from '../services/analytics/index.js';
 import { useAppState, useAppStateStore, useSetAppState } from '../state/AppState.js';
 import type { Message } from '../types/message.js';
 import { AGENT_COLORS, type AgentColorName } from '../tools/AgentTool/agentColorManager.js';
@@ -26,6 +37,7 @@ import { createBridgeStatusMessage, createSystemMessage } from '../utils/message
 import { getTranscriptPath, saveAgentColor } from '../utils/sessionStorage.js';
 import { getAutoModeUnavailableNotification, getAutoModeUnavailableReason, isAutoModeGateEnabled, isBypassPermissionsModeDisabled, transitionPermissionMode } from '../utils/permissions/permissionSetup.js';
 import { getLeaderToolUseConfirmQueue } from '../utils/swarm/leaderPermissionBridge.js';
+import { parseSlashCommand } from '../utils/slashCommandParsing.js';
 
 /** How long after a failure before replBridgeEnabled is auto-cleared (stops retries). */
 export const BRIDGE_FAILURE_DISMISS_MS = 10_000;
@@ -52,7 +64,33 @@ const MAX_CONSECUTIVE_INIT_FAILURES = 3;
  *
  * Inbound messages from claude.ai are injected into the REPL via queuedCommands.
  */
-export function useReplBridge(messages: Message[], setMessages: (action: React.SetStateAction<Message[]>) => void, abortControllerRef: React.RefObject<AbortController | null>, commands: readonly Command[], mainLoopModel: string): {
+type BridgeImmediateCommand = {
+  target: Command
+  args: string
+  displayName: string
+}
+
+function resolveBridgeImmediateCommand(
+  input: string,
+  commands: readonly Command[],
+): BridgeImmediateCommand | null {
+  const parsed = parseSlashCommand(input)
+  if (!parsed) return null
+  const command = findCommand(parsed.commandName, commands as Command[])
+  if (!command?.immediate) return null
+  const target =
+    command.type === 'local' && isBridgeSafeCommand(command)
+      ? command
+      : getBridgeSafeCommand(command)
+  if (!target || target.type !== 'local') return null
+  return {
+    target,
+    args: parsed.args,
+    displayName: getCommandName(command),
+  }
+}
+
+export function useReplBridge(messages: Message[], setMessages: (action: React.SetStateAction<Message[]>) => void, abortControllerRef: React.RefObject<AbortController | null>, commands: readonly Command[], mainLoopModel: string, runImmediateCommand?: (command: Command, args: string, displayName: string) => void): {
   sendBridgeResult: () => void;
 } {
   const handleRef = useRef<ReplBridgeHandle | null>(null);
@@ -70,6 +108,22 @@ export function useReplBridge(messages: Message[], setMessages: (action: React.S
   const setAppState = useSetAppState();
   const commandsRef = useRef(commands);
   commandsRef.current = commands;
+  const runImmediateCommandRef = useRef(runImmediateCommand);
+  runImmediateCommandRef.current = runImmediateCommand;
+  const tryRunImmediateCommand = (input: string): boolean => {
+    const run = runImmediateCommandRef.current
+    if (!run) return false
+    const resolved = resolveBridgeImmediateCommand(input, commandsRef.current)
+    if (!resolved) return false
+    logEvent('tengu_immediate_command_executed', {
+      commandName:
+        resolved.displayName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      fromKeybinding: false,
+      bridgeOrigin: true,
+    })
+    run(resolved.target, resolved.args, resolved.displayName)
+    return true
+  };
   const mainLoopModelRef = useRef(mainLoopModel);
   mainLoopModelRef.current = mainLoopModel;
   const messagesRef = useRef(messages);
@@ -187,6 +241,15 @@ export function useReplBridge(messages: Message[], setMessages: (action: React.S
                 uuid,
                 clientPlatform
               } = fields;
+              if (
+                typeof fields.content === 'string' &&
+                tryRunImmediateCommand(fields.content)
+              ) {
+                logForDebugging(
+                  `[bridge:repl] Ran immediate command without enqueue: ${fields.content.slice(0, 80)}${uuid ? ` uuid=${uuid}` : ''}`,
+                )
+                return
+              }
 
               // Dynamic import keeps the bridge code out of non-BRIDGE_MODE builds.
               const {
@@ -393,7 +456,7 @@ export function useReplBridge(messages: Message[], setMessages: (action: React.S
             outboundOnly,
             enableSessionPersistence: outboundOnly || feature('KAIROS'),
             tags: outboundOnly ? ['ccr-mirror'] : undefined,
-            onReadFile: async (path, maxBytes) => {
+            onReadFile: async (path, maxBytes, encoding) => {
               const { readFileForRemote } = await import(
                 '../bridge/readFileForRemote.js'
               );
@@ -401,6 +464,7 @@ export function useReplBridge(messages: Message[], setMessages: (action: React.S
                 path,
                 maxBytes,
                 store.getState().toolPermissionContext,
+                encoding,
               );
             },
             onInboundMessage: handleInboundMessage,

@@ -138,7 +138,7 @@ import { logEvent, type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPAT
 import { getFeatureValue_CACHED_MAY_BE_STALE } from 'src/services/analytics/growthbook.js';
 import { textForResubmit, handleMessageFromStream, type StreamingToolUse, type StreamingThinking, isCompactBoundaryMessage, getMessagesAfterCompactBoundary, getContentText, createUserMessage, createAssistantMessage, createTurnDurationMessage, createAgentsKilledMessage, createApiMetricsMessage, createSystemMessage, createCommandInputMessage, formatCommandInputTags } from '../utils/messages.js';
 import { generateSessionTitle } from '../utils/sessionTitle.js';
-import { BASH_INPUT_TAG, COMMAND_MESSAGE_TAG, COMMAND_NAME_TAG, LOCAL_COMMAND_STDOUT_TAG } from '../constants/xml.js';
+import { BASH_INPUT_TAG, COMMAND_MESSAGE_TAG, COMMAND_NAME_TAG, LOCAL_COMMAND_STDERR_TAG, LOCAL_COMMAND_STDOUT_TAG } from '../constants/xml.js';
 import { escapeXml } from '../utils/xml.js';
 import type { ThinkingConfig } from '../utils/thinking.js';
 import { gracefulShutdownSync } from '../utils/gracefulShutdown.js';
@@ -217,7 +217,6 @@ import type { SandboxAskCallback, NetworkHostPattern } from '../utils/sandbox/sa
 import { type IDEExtensionInstallationStatus, closeOpenDiffs, getConnectedIdeClient, type IdeType } from '../utils/ide.js';
 import { useIDEIntegration } from '../hooks/useIDEIntegration.js';
 import exit from '../commands/exit/index.js';
-import { detachBackgroundSession } from '../commands/exit/exit.js';
 import { ExitFlow } from '../components/ExitFlow.js';
 import { getCurrentWorktreeSession } from '../utils/worktree.js';
 import { popAllEditable, enqueue, type SetAppState, getCommandQueue, getCommandQueueLength, getMainThreadCommandQueueLength, removeByFilter } from '../utils/messageQueueManager.js';
@@ -3907,10 +3906,7 @@ export function REPL({
         setExitFlow(null);
         setIsExiting(false);
       };
-      setExitFlow(<ExitFlow showWorktree={showWorktree} backgroundItems={backgroundItems} onDone={() => {}} onCancel={cancel} onDetach={isBgSession() ? () => {
-        cancel();
-        detachBackgroundSession();
-      } : undefined} />);
+      setExitFlow(<ExitFlow showWorktree={showWorktree} backgroundItems={backgroundItems} onDone={() => {}} onCancel={cancel} />);
       return;
     }
     const exitMod = await exit.load();
@@ -4113,9 +4109,54 @@ export function REPL({
 
   // REPL Bridge: replicate user/assistant messages to the bridge session
   // for remote access via claude.ai. No-op in external builds or when not enabled.
+  const runBridgeImmediateCommand = useCallback(
+    (command: Command, args: string, displayName: string): void => {
+      if (command.type !== 'local') return
+      void (async () => {
+        try {
+          const context = getToolUseContext(
+            messagesRef.current,
+            [],
+            createAbortController(),
+            mainLoopModel,
+          )
+          const result = await (await command.load()).call(args, context)
+          const output = result.type === 'text' ? result.value : undefined
+          setMessages(previous => [
+            ...previous,
+            createCommandInputMessage(formatCommandInputTags(displayName, args)),
+            ...(output
+              ? [
+                  createCommandInputMessage(
+                    `<${LOCAL_COMMAND_STDOUT_TAG}>${escapeXml(output)}</${LOCAL_COMMAND_STDOUT_TAG}>`,
+                  ),
+                ]
+              : []),
+          ])
+        } catch (error) {
+          logError(errorMessage(error))
+          setMessages(previous => [
+            ...previous,
+            createCommandInputMessage(formatCommandInputTags(displayName, args)),
+            createCommandInputMessage(
+              `<${LOCAL_COMMAND_STDERR_TAG}>${escapeXml(String(error))}</${LOCAL_COMMAND_STDERR_TAG}>`,
+            ),
+          ])
+        }
+      })()
+    },
+    [getToolUseContext, mainLoopModel, setMessages],
+  )
   const {
     sendBridgeResult
-  } = useReplBridge(messages, setMessages, abortControllerRef, commands, mainLoopModel);
+  } = useReplBridge(
+    messages,
+    setMessages,
+    abortControllerRef,
+    commands,
+    mainLoopModel,
+    runBridgeImmediateCommand,
+  );
   sendBridgeResultRef.current = sendBridgeResult;
   useAfterFirstRender();
 

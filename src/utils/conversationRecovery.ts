@@ -140,6 +140,20 @@ export type TurnInterruptionState =
   | { kind: 'none' }
   | { kind: 'interrupted_prompt'; message: NormalizedUserMessage }
 
+/**
+ * Remove an interrupted prompt and the synthetic assistant sentinel that
+ * immediately follows it before the prompt is re-enqueued after a restart.
+ */
+export function removeInterruptedMessage(
+  messages: Message[],
+  interruptedUserMessage: NormalizedUserMessage,
+): void {
+  const index = messages.findIndex(
+    message => message.uuid === interruptedUserMessage.uuid,
+  )
+  if (index !== -1) messages.splice(index, 2)
+}
+
 export type DeserializeResult = {
   messages: Message[]
   turnInterruptionState: TurnInterruptionState

@@ -11,6 +11,7 @@ export type RemoteFileContents = {
   contents: string
   absPath: string
   truncated?: boolean
+  encoding?: 'base64'
 }
 
 /** Read a bounded prefix for SDK/Remote Control file viewers. */
@@ -18,6 +19,7 @@ export async function readFileForRemote(
   path: string,
   maxBytes: number | undefined,
   permissionContext: ToolPermissionContext,
+  encoding: 'utf-8' | 'base64' = 'utf-8',
 ): Promise<RemoteFileContents> {
   const absPath = expandPath(path)
   for (const candidate of getPathsForPermissionCheck(absPath)) {
@@ -38,9 +40,12 @@ export async function readFileForRemote(
     const { bytesRead } = await handle.read(buffer, 0, limit + 1, 0)
     const truncated = bytesRead > limit
     return {
-      contents: buffer.subarray(0, Math.min(bytesRead, limit)).toString('utf-8'),
+      contents: buffer
+        .subarray(0, Math.min(bytesRead, limit))
+        .toString(encoding === 'base64' ? 'base64' : 'utf-8'),
       absPath,
       ...(truncated && { truncated }),
+      ...(encoding === 'base64' && { encoding }),
     }
   } finally {
     await handle.close()

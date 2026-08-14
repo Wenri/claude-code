@@ -40,6 +40,7 @@ import {
   terminalStateActivity,
   writeJobState,
   writeJobOrder,
+  writeJobStateOrder,
   type JobRecord,
   type JobState,
 } from '../daemon/jobs.js'
@@ -698,6 +699,10 @@ export function effectiveSortOrder(state: JobState): number {
   return state.sortOrder ?? Date.parse(state.createdAt)
 }
 
+export function effectiveStateSortOrder(state: JobState): number {
+  return state.stateSortOrder ?? Date.parse(state.updatedAt)
+}
+
 export function sortJobs<T extends { state: JobState }>(jobs: T[]): T[] {
   return [...jobs].sort(
     (left, right) => effectiveSortOrder(left.state) - effectiveSortOrder(right.state),
@@ -951,7 +956,17 @@ function groupedJobs(
       if (mode === 'state') return stateRank.indexOf(left) - stateRank.indexOf(right)
       return left.localeCompare(right)
     })
-    .map(([group, values]) => ({ group, jobs: sortJobs(values) }))
+    .map(([group, values]) => ({
+      group,
+      jobs:
+        mode === 'state' && group !== 'pinned'
+          ? [...values].sort(
+              (left, right) =>
+                effectiveStateSortOrder(right.state) -
+                effectiveStateSortOrder(left.state),
+            )
+          : sortJobs(values),
+    }))
 }
 
 function eventAge(timestamp: string): string {
@@ -976,8 +991,15 @@ export function optimisticReplyState(state: JobState, text: string): JobState {
 }
 
 async function stopFleetJob(short: string, knownState: JobState): Promise<void> {
-  if (knownState.backend === 'peer') return
-  await killJob(short, knownState)
+  logEvent('tengu_bg_agent_action', {
+    action: 'stop',
+    source: 'fleet',
+    jobSessionId: knownState.sessionId,
+  })
+  const stopped = await killJob(short, knownState)
+  if (!stopped.confirmed) {
+    throw new Error(stopped.error ?? 'worker may still be running')
+  }
   const current = await readJobState(getJobDir(short))
   if (!current || isSettledJob(current)) return
   const now = new Date().toISOString()
@@ -1093,7 +1115,10 @@ export function FleetView({
     )
     return () => clearInterval(timer)
   }, [updateAvailable, isTerminalFocused, handleUpdate])
-  const [deleteArmed, setDeleteArmed] = useState<string | null>(null)
+  const [deleteArmed, setDeleteArmed] = useState<{
+    id: string
+    justKilled: boolean
+  } | null>(null)
   const [deleteAllArmed, setDeleteAllArmed] = useState<string | null>(null)
   const [exitArmed, setExitArmed] = useState(false)
   const [renameId, setRenameId] = useState<string | null>(null)
@@ -1121,7 +1146,32 @@ export function FleetView({
   const [showAllSuggestions, setShowAllSuggestions] = useState(false)
   const [suggestionFocus, setSuggestionFocus] = useState(0)
   const writeQueue = useRef(new Map<string, number>())
+  const stateWriteQueue = useRef(new Map<string, number>())
   const writeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const flushOrderWrites = useCallback(() => {
+    const writes = [...writeQueue.current]
+    const stateWrites = [...stateWriteQueue.current]
+    writeQueue.current.clear()
+    stateWriteQueue.current.clear()
+    return Promise.all([
+      ...writes.map(([id, order]) => writeJobOrder(getJobDir(id), order)),
+      ...stateWrites.map(([id, order]) =>
+        writeJobStateOrder(getJobDir(id), order),
+      ),
+    ]).catch(caught => {
+      logError(caught)
+      setError(`Couldn't save order — ${errorMessage(caught)}`)
+    })
+  }, [])
+
+  useEffect(
+    () => () => {
+      if (writeTimer.current) clearTimeout(writeTimer.current)
+      void flushOrderWrites()
+    },
+    [flushOrderWrites],
+  )
 
   useEffect(() => {
     if (!deleteArmed) return
@@ -1255,7 +1305,7 @@ export function FleetView({
     })
   }, [jobs])
 
-  useEffect(maintainDaemonLease, [])
+  useEffect(() => maintainDaemonLease('claude agents'), [])
 
   useEffect(() => {
     void prewarmTemplateJob(rootCwd, true)
@@ -1325,7 +1375,11 @@ export function FleetView({
       for (const [id, order] of writeQueue.current) {
         void writeJobOrder(getJobDir(id), order)
       }
+      for (const [id, order] of stateWriteQueue.current) {
+        void writeJobStateOrder(getJobDir(id), order)
+      }
       writeQueue.current.clear()
+      stateWriteQueue.current.clear()
     },
     [],
   )
@@ -1509,15 +1563,33 @@ export function FleetView({
     const selected = currentRow.job
     const other = otherRow.job
     const selectedGroup = currentRow.group
+    if (
+      pendingJobs.some(job => job.id === selected.id || job.id === other.id) ||
+      selected.state.backend === 'peer' ||
+      other.state.backend === 'peer'
+    ) {
+      return
+    }
     followedJobId.current = selected.id
     followedHeaderGroup.current = null
-    if (groupMode === 'state' && selectedGroup !== 'pinned') return
-    const leftOrder = effectiveSortOrder(selected.state)
-    const rightOrder = effectiveSortOrder(other.state)
+    const useStateOrder = groupMode === 'state' && selectedGroup !== 'pinned'
+    const orderOf = useStateOrder
+      ? effectiveStateSortOrder
+      : effectiveSortOrder
+    const leftOrder = orderOf(selected.state)
+    const rightOrder = orderOf(other.state)
     const orders = new Map<string, number>()
     if (leftOrder === rightOrder) {
       const group = visible.filter((job) => {
+        if (pendingJobs.some(pending => pending.id === job.id)) return false
         if (selectedGroup === 'pinned') return job.state.pinned
+        if (groupMode === 'state') {
+          return stateBucket(
+            job,
+            statuses,
+            sessionStatuses.get(job.state.sessionId),
+          ) === selectedGroup
+        }
         return repoGroup(job.state) === selectedGroup
       })
       group.forEach((job, index) => orders.set(job.id, index))
@@ -1535,19 +1607,23 @@ export function FleetView({
               const order = orders.get(job.id)
               return order === undefined
                 ? job
-                : { ...job, state: { ...job.state, sortOrder: order } }
+                : {
+                    ...job,
+                    state: {
+                      ...job.state,
+                      [useStateOrder ? 'stateSortOrder' : 'sortOrder']: order,
+                    },
+                  }
             }),
           )
         : currentJobs,
     )
-    for (const [id, order] of orders) writeQueue.current.set(id, order)
+    const queue = useStateOrder ? stateWriteQueue : writeQueue
+    for (const [id, order] of orders) queue.current.set(id, order)
     if (writeTimer.current) clearTimeout(writeTimer.current)
     writeTimer.current = setTimeout(() => {
-      const writes = [...writeQueue.current]
-      writeQueue.current.clear()
-      void Promise.all(
-        writes.map(([id, order]) => writeJobOrder(getJobDir(id), order)),
-      ).catch((caught) => setError(String(caught)))
+      writeTimer.current = null
+      void flushOrderWrites()
     }, 100)
     setFocus(focus + direction)
   }
@@ -1555,7 +1631,10 @@ export function FleetView({
   const openJob = (job: FleetJob | undefined) => {
     if (!job || attachingJobId !== null) return
     if (pendingJobs.some(pending => pending.id === job.id)) return
-    if (job.state.backend === 'peer') return
+    if (job.state.backend === 'peer') {
+      setError("Can't attach — this session is running in another terminal")
+      return
+    }
     setAttachingJobId(job.id)
     setError(null)
     const knownAlive =
@@ -1600,9 +1679,15 @@ export function FleetView({
   }
 
   const stopOrDelete = (job: FleetJob, forceDelete = false): void => {
+    if (job.state.backend === 'peer') {
+      setError(
+        "Can't stop or delete — this session is running in another terminal",
+      )
+      return
+    }
     const band = deriveBand(job.state)
-    if (!forceDelete && deleteArmed !== job.id) {
-      setDeleteArmed(job.id)
+    if (!forceDelete && deleteArmed?.id !== job.id) {
+      setDeleteArmed({ id: job.id, justKilled: band !== 'completed' })
       if (band === 'completed') return
       const now = new Date().toISOString()
       setJobs(current =>
@@ -1626,7 +1711,11 @@ export function FleetView({
       setBusy(current => new Set(current).add(job.id))
       void stopFleetJob(job.id, job.state)
         .then(poll)
-        .catch(caught => setError(String(caught)))
+        .catch(caught => {
+          logError(caught)
+          setError(`Couldn't stop — ${errorMessage(caught)}`)
+          void poll()
+        })
         .finally(() =>
           setBusy(current => {
             const next = new Set(current)
@@ -1638,11 +1727,24 @@ export function FleetView({
     }
     setDeleteArmed(null)
     setBusy(current => new Set(current).add(job.id))
-    logEvent('tengu_bg_agent_action', { action: 'delete' })
     setJobs(current => current?.filter(candidate => candidate.id !== job.id) ?? current)
     void deleteBgJob(job.id)
-      .then(poll)
-      .catch(caught => setError(String(caught)))
+      .then(result => {
+        if (!result.removed) {
+          throw new Error(result.error ?? 'worker may still be running')
+        }
+        logEvent('tengu_bg_agent_action', {
+          action: 'delete',
+          source: 'fleet',
+          jobSessionId: job.state.sessionId,
+        })
+        return poll()
+      })
+      .catch(caught => {
+        logError(caught)
+        setError(`Couldn't delete — ${errorMessage(caught)}`)
+        void poll()
+      })
       .finally(() =>
         setBusy(current => {
           const next = new Set(current)
@@ -2242,7 +2344,14 @@ export function FleetView({
                   {eventAge(job.state.updatedAt)}{next}
                   {busy.has(job.id) ? ' · updating…' : ''}
                 </Text>
-                {selectedRow && job.state.detail ? (
+                {deleteArmed?.id === job.id ? (
+                  <Text color="error">
+                    {'    '}
+                    {deleteArmed.justKilled
+                      ? 'stopped. ctrl+x again to delete.'
+                      : 'ctrl+x again to delete'}
+                  </Text>
+                ) : selectedRow && job.state.detail ? (
                   <Text dimColor>    {job.state.detail}</Text>
                 ) : null}
                 {selectedRow

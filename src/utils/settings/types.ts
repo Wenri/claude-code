@@ -473,6 +473,12 @@ export const SettingsSchema = lazySchema(() =>
         .boolean()
         .optional()
         .describe('Disable all hooks and statusLine execution'),
+      disableBackgroundAgents: z
+        .boolean()
+        .optional()
+        .describe(
+          'Disable the background-agents fleet (`claude agents`, `--bg`, /background, the on-demand daemon). Typically set in managed settings. Equivalent to CLAUDE_CODE_DISABLE_AGENTS_FLEET=1.',
+        ),
       disableSkillShellExecution: z
         .boolean()
         .optional()
@@ -1212,7 +1218,7 @@ export const SettingsSchema = lazySchema(() =>
         .enum(['transient', 'ask'])
         .optional()
         .describe(
-          "When no background daemon is running: 'transient' spawns one for this login session; 'ask' offers to install a persistent service",
+          "When no background service is running: 'transient' spawns one for this login session; 'ask' offers to install it persistently",
         ),
       autoUploadSessions: z
         .boolean()

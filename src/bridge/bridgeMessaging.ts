@@ -238,7 +238,13 @@ export type ServerControlRequestHandlers = {
   onReadFile?: (
     path: string,
     maxBytes?: number,
-  ) => Promise<{ contents: string; absPath: string; truncated?: boolean }>
+    encoding?: 'utf-8' | 'base64',
+  ) => Promise<{
+    contents: string
+    absPath: string
+    truncated?: boolean
+    encoding?: 'base64'
+  }>
 }
 
 const OUTBOUND_ONLY_ERROR =
@@ -488,7 +494,11 @@ export function handleServerControlRequest(
         }
         break
       }
-      void onReadFile(request.request.path, request.request.max_bytes)
+      void onReadFile(
+        request.request.path,
+        request.request.max_bytes,
+        request.request.encoding,
+      )
         .then<SDKControlResponse>(result => ({
           type: 'control_response',
           response: {

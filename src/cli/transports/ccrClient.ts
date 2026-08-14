@@ -690,7 +690,7 @@ export class CCRClient {
     this.workerState.enqueue({ external_metadata: externalMetadata })
   }
 
-  /** Report worker-private metadata to CCR via PUT /worker. */
+  /** Report process-private recovery metadata to CCR via PUT /worker. */
   reportInternalMetadata(metadata: Record<string, unknown>): void {
     this.workerState.enqueue({ internal_metadata: metadata })
   }

@@ -43,7 +43,7 @@ import {
   parseAgentsFromJson,
 } from 'src/tools/AgentTool/loadAgentsDir.js'
 import { resolveAgentTools } from 'src/tools/AgentTool/agentToolUtils.js'
-import type { Message, NormalizedUserMessage } from 'src/types/message.js'
+import type { Message } from 'src/types/message.js'
 import type { QueuedCommand } from 'src/types/textInputTypes.js'
 import {
   dequeue,
@@ -60,6 +60,7 @@ import {
   notifySessionStateChanged,
   notifySessionMetadataChanged,
   setPermissionModeChangedListener,
+  notifySessionInternalMetadataChanged,
   type RequiresActionDetails,
   type RestoredWorkerState,
 } from 'src/utils/sessionState.js'
@@ -77,6 +78,7 @@ import type { Stream } from 'src/utils/stream.js'
 import { EMPTY_USAGE } from 'src/services/api/logging.js'
 import {
   loadConversationForResume,
+  removeInterruptedMessage,
   type TurnInterruptionState,
 } from 'src/utils/conversationRecovery.js'
 import type {
@@ -912,6 +914,32 @@ export async function runHeadless(
     )
   }
 
+  if (isEnvTruthy(process.env.CLAUDE_CODE_RESUME_INTERRUPTED_TURN)) {
+    const runningBackgroundTasks = (await structuredIO.restoredWorkerState)
+      ?.internal?.running_background_tasks
+    if (runningBackgroundTasks && runningBackgroundTasks.length > 0) {
+      logForDebugging(
+        `[print.ts] ${runningBackgroundTasks.length} orphaned background task(s) after restart`,
+      )
+      initialMessages.push(
+        createUserMessage({
+          content: `<system-reminder>
+The container was restarted. The following background tasks were running and are now stopped:
+${runningBackgroundTasks
+  .map(
+    task =>
+      `- ${task.description || '(no description)'} (task ${task.task_id})`,
+  )
+  .join('\n')}
+Re-create them if still needed.
+</system-reminder>`,
+          isMeta: true,
+        }),
+      )
+      notifySessionInternalMetadataChanged({ running_background_tasks: [] })
+    }
+  }
+
   // Install errors handlers to gracefully handle broken pipes (e.g., when parent process dies)
   registerProcessOutputErrorHandlers()
 
@@ -1269,12 +1297,10 @@ function runHeadlessStreaming(
 
   // Auto-resume interrupted turns on restart so CC continues from where it
   // left off without requiring the SDK to re-send the prompt.
-  const resumeInterruptedTurnEnv =
-    process.env.CLAUDE_CODE_RESUME_INTERRUPTED_TURN
   if (
     turnInterruptionState &&
     turnInterruptionState.kind !== 'none' &&
-    resumeInterruptedTurnEnv
+    isEnvTruthy(process.env.CLAUDE_CODE_RESUME_INTERRUPTED_TURN)
   ) {
     logForDebugging(
       `[print.ts] Auto-resuming interrupted turn (kind: ${turnInterruptionState.kind})`,
@@ -3258,6 +3284,7 @@ function runHeadlessStreaming(
               message.request.path,
               message.request.max_bytes,
               getAppState().toolPermissionContext,
+              message.request.encoding,
             )
             sendControlResponseSuccess(message, result)
           } catch (error) {
@@ -4311,7 +4338,7 @@ function runHeadlessStreaming(
                   'src/bridge/initReplBridge.js'
                 )
                 const handle = await initReplBridge({
-                  onReadFile: async (path, maxBytes) => {
+                  onReadFile: async (path, maxBytes, encoding) => {
                     const { readFileForRemote } = await import(
                       'src/bridge/readFileForRemote.js'
                     )
@@ -4319,6 +4346,7 @@ function runHeadlessStreaming(
                       path,
                       maxBytes,
                       getAppState().toolPermissionContext,
+                      encoding,
                     )
                   },
                   onInboundMessage(msg) {
@@ -5359,25 +5387,6 @@ function emitLoadError(
     process.stdout.write(jsonStringify(errorResult) + '\n')
   } else {
     process.stderr.write(message + '\n')
-  }
-}
-
-/**
- * Removes an interrupted user message and its synthetic assistant sentinel
- * from the message array. Used during gateway-triggered restarts to clean up
- * the message history before re-enqueuing the interrupted prompt.
- *
- * @internal Exported for testing
- */
-export function removeInterruptedMessage(
-  messages: Message[],
-  interruptedUserMessage: NormalizedUserMessage,
-): void {
-  const idx = messages.findIndex(m => m.uuid === interruptedUserMessage.uuid)
-  if (idx !== -1) {
-    // Remove the user message and the sentinel that immediately follows it.
-    // splice safely handles the case where idx is the last element.
-    messages.splice(idx, 2)
   }
 }
 

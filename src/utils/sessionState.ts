@@ -50,6 +50,10 @@ export type SessionExternalMetadata = {
 // Worker-only metadata is not exposed to remote clients. It survives worker
 // replacement and is used to restore process-local execution state.
 export type SessionInternalMetadata = Record<string, unknown> & {
+  running_background_tasks?: Array<{
+    task_id: string
+    description?: string
+  }>
   session_allow_rules?: unknown
 }
 

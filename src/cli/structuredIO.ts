@@ -58,8 +58,8 @@ import {
 } from '../utils/permissions/PermissionUpdate.js'
 import {
   notifySessionStateChanged,
-  type RestoredWorkerState,
   type RequiresActionDetails,
+  type RestoredWorkerState,
 } from '../utils/sessionState.js'
 import { jsonParse } from '../utils/slowOperations.js'
 import { Stream } from '../utils/stream.js'

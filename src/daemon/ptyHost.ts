@@ -1,8 +1,8 @@
-import { createWriteStream, writeFileSync } from 'fs'
+import { createWriteStream, mkdirSync, writeFileSync } from 'fs'
 import { unlink } from 'fs/promises'
 import { createServer, type Socket } from 'net'
 import { getPriority, setPriority } from 'os'
-import { logEvent } from '../services/analytics/index.js'
+import { dirname } from 'path'
 import {
   createFrameDecoder,
   encodeControlFrame,
@@ -126,8 +126,9 @@ function createRecorder(path: string | undefined, cols: number, rows: number) {
 }
 
 function fail(socketPath: string | undefined, message: string): never {
-  if (socketPath && process.platform !== 'win32') {
+  if (socketPath) {
     try {
+      mkdirSync(dirname(getPtyErrorPath(socketPath)), { recursive: true })
       writeFileSync(
         getPtyErrorPath(socketPath),
         `${new Date().toISOString()} ${message}\n`,
@@ -146,13 +147,21 @@ export async function runPtyHost(args: string[]): Promise<void> {
     )
   }
   const socketPath = args[0]
+  process.on('uncaughtException', error =>
+    fail(socketPath, `uncaught: ${error?.stack ?? String(error)}`),
+  )
+  process.on('unhandledRejection', error =>
+    fail(
+      socketPath,
+      `unhandledRejection: ${(error as Error)?.stack ?? String(error)}`,
+    ),
+  )
   const cols = Number(args[1]) || 200
   const rows = Number(args[2]) || 50
   const file = args[separator + 1]
   const childArgs = args.slice(separator + 2)
   const bun = (globalThis as typeof globalThis & { Bun?: BunRuntime }).Bun
   if (!bun) {
-    logEvent('tengu_bg_pty_unavailable', {})
     fail(socketPath, 'Bun.Terminal unavailable (running under Node?)')
   }
   if (process.platform !== 'win32') {

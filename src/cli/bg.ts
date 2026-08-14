@@ -14,7 +14,10 @@ import {
   getSessionId,
 } from '../bootstrap/state.js'
 import { findGitRoot } from '../utils/git.js'
-import { getProjectDir } from '../utils/sessionStoragePortable.js'
+import {
+  canonicalizePath,
+  getProjectDir,
+} from '../utils/sessionStoragePortable.js'
 import {
   flushSessionStorage,
   saveAiGeneratedTitle,
@@ -32,9 +35,14 @@ import { getAssistantMessageText, getUserMessageText } from '../utils/messages.j
 import type { Message } from '../types/message.js'
 import type { EffortValue } from '../utils/effort.js'
 import { logEvent } from '../services/analytics/index.js'
+import { logEventTo1PAwaitable } from '../services/analytics/firstPartyEventLogger.js'
 import { logForDebugging } from '../utils/debug.js'
 import { logError } from '../utils/log.js'
-import { daemonHint } from '../utils/agentsFleet.js'
+import {
+  bgSupervisorNoun,
+  bgSupervisorNounCap,
+  daemonHint,
+} from '../utils/agentsFleet.js'
 import { errorMessage } from '../utils/errors.js'
 import { registerCleanup } from '../utils/cleanupRegistry.js'
 import { relaunch } from '../utils/relaunch.js'
@@ -76,6 +84,7 @@ import {
 import {
   ensureDaemon,
   ensureDaemonInteractive,
+  isBackgroundJobAlive,
   killJob,
   listLiveJobs,
   requestControl,
@@ -192,6 +201,7 @@ export const parseReplBackgroundSeed = deriveBackgroundSeed
 export interface SpawnBgOptions {
   intent?: string
   name?: string
+  nameSource?: 'user' | 'auto'
   detail?: string
   worktree?: {
     path: string
@@ -237,11 +247,12 @@ function respawnFlags(args: string[]): string[] {
       arg === '-c' ||
       arg === '--continue' ||
       arg.startsWith('--resume=') ||
-      arg.startsWith('-r=')
+      arg.startsWith('-r=') ||
+      arg.startsWith('--session-id=')
     ) {
       continue
     }
-    if (arg === '--resume' || arg === '-r') {
+    if (arg === '--resume' || arg === '-r' || arg === '--session-id') {
       if (args[index + 1] !== undefined && !args[index + 1].startsWith('-')) {
         index++
       }
@@ -250,6 +261,72 @@ function respawnFlags(args: string[]): string[] {
     flags.push(arg)
   }
   return flags
+}
+
+const RESPAWN_VALUE_FLAGS = new Set([
+  '--model',
+  '-m',
+  '--permission-mode',
+  '--agent',
+  '--routine',
+  '--effort',
+  '--add-dir',
+  '--mcp-config',
+  '--settings',
+  '--system-prompt',
+  '--system-prompt-file',
+  '--append-system-prompt',
+  '--append-system-prompt-file',
+  '--fallback-model',
+  '--permission-prompt-tool',
+  '--allowed-tools',
+  '--allowedTools',
+  '--disallowed-tools',
+  '--disallowedTools',
+  '--session-id',
+  '--debug-file',
+])
+
+function persistentRespawnFlags(args: string[]): string[] {
+  const flags: string[] = []
+  for (let index = 0; index < args.length; index++) {
+    const arg = args[index]!
+    if (!arg.startsWith('-')) continue
+    const next = args[index + 1]
+    const hasValue = next !== undefined && !next.startsWith('-')
+    if (RESPAWN_VALUE_FLAGS.has(arg)) {
+      flags.push(arg)
+      if (next !== undefined) {
+        flags.push(next)
+        index++
+      }
+    } else if (hasValue) {
+      index++
+    } else {
+      flags.push(arg)
+    }
+  }
+  return flags
+}
+
+function stripSessionIdFlags(args: string[]): string[] {
+  const stripped: string[] = []
+  for (let index = 0; index < args.length; index++) {
+    const arg = args[index]!
+    if (arg === '--') {
+      stripped.push(...args.slice(index))
+      break
+    }
+    if (arg.startsWith('--session-id=')) continue
+    if (arg === '--session-id') {
+      if (args[index + 1] !== undefined && !args[index + 1]!.startsWith('-')) {
+        index++
+      }
+      continue
+    }
+    stripped.push(arg)
+  }
+  return stripped
 }
 
 function optionValue(name: string, args: string[]): string | undefined {
@@ -277,6 +354,7 @@ export async function preSeedReplBgJob(
       template: { name: 'bg' },
       intent,
       name: options.name,
+      nameSource: options.nameSource,
       detail:
         options.detail ??
         (idle ? '(idle — attach to send a prompt)' : undefined),
@@ -344,7 +422,7 @@ async function sendDispatch(dispatch: Dispatch): Promise<DispatchResult> {
     const started =
       dispatch.source === 'shell'
         ? await ensureDaemonInteractive()
-        : await ensureDaemon()
+        : await ensureDaemon({ forceTransient: true })
     if (!started.ok) {
       recordDispatchFallback('daemon-unreachable')
       return {
@@ -393,7 +471,7 @@ async function sendDispatch(dispatch: Dispatch): Promise<DispatchResult> {
       detail = String(error)
       break
     }
-    const ack = await requestControl(
+    let ack = await requestControl(
       {
         proto: PROTOCOL_VERSION,
         op: 'await-ack',
@@ -403,6 +481,23 @@ async function sendDispatch(dispatch: Dispatch): Promise<DispatchResult> {
       },
       { timeoutMs: 6_000 },
     )
+    for (
+      let retry = 0;
+      !ack.ok && ack.code === 'ESTARTING' && retry < 10;
+      retry++
+    ) {
+      await delay(200)
+      ack = await requestControl(
+        {
+          proto: PROTOCOL_VERSION,
+          op: 'await-ack',
+          short: dispatch.short,
+          nonce,
+          timeoutMs: 5_000,
+        },
+        { timeoutMs: 6_000 },
+      )
+    }
     if (ack.ok && ack.op === 'await-ack') {
       return dispatchSucceeded(dispatch)
     }
@@ -445,6 +540,7 @@ export async function spawnBgSession(
   source: 'shell' | 'repl' | 'fleet' | 'respawn' = 'shell',
   suppliedCwd?: string,
   options?: SpawnBgOptions,
+  reattachEnv?: Record<string, string>,
 ): Promise<SpawnBgResult> {
   const sessionId = suppliedSessionId ?? randomUUID()
   const short = sessionId.slice(0, 8)
@@ -454,6 +550,8 @@ export async function spawnBgSession(
     const separator = args.indexOf('--')
     const beforeSeparator = separator >= 0 ? args.slice(0, separator) : args
     const agentName = optionValue('--agent', beforeSeparator)
+    const explicitName =
+      optionValue('--name', beforeSeparator) ?? optionValue('-n', beforeSeparator)
     const resumeTarget = parseResumeTarget(beforeSeparator)
     const inferredIntent =
       separator >= 0
@@ -463,7 +561,8 @@ export async function spawnBgSession(
               !arg.startsWith('-') &&
               arg.length > 0 &&
               arg !== resumeTarget &&
-              arg !== agentName,
+              arg !== agentName &&
+              arg !== explicitName,
           )
     const resuming = beforeSeparator.some(
       (arg) =>
@@ -497,10 +596,16 @@ export async function spawnBgSession(
       }
     }
 
+    const rawRespawnFlags = respawnFlags(beforeSeparator)
+    const savedRespawnFlags =
+      separator >= 0
+        ? rawRespawnFlags
+        : persistentRespawnFlags(rawRespawnFlags)
     let seeded = false
     let seedWrite: Promise<void> | undefined
     const freshDir = suppliedSessionId === undefined
-    if (source !== 'fleet' && (freshDir || (await readJobState(jobDir)) === null)) {
+    const existingState = freshDir ? null : await readJobState(jobDir)
+    if (source !== 'fleet' && existingState === null) {
       const intent = options?.intent ?? inferredIntent ?? ''
       const idle = !agentName && intent === '' && !options?.detail
       seedWrite = writeJobState(
@@ -511,7 +616,9 @@ export async function spawnBgSession(
             initialPrompt: activeAgent?.initialPrompt,
           },
           intent,
-          name: options?.name,
+          name: explicitName ?? options?.name,
+          nameSource: explicitName ? 'user' : options?.nameSource,
+          respawnFlags: savedRespawnFlags,
           detail:
             options?.detail ??
             (idle ? '(idle — attach to send a prompt)' : undefined),
@@ -523,9 +630,29 @@ export async function spawnBgSession(
           worktreeHookBased: options?.worktree?.hookBased,
           originCwd: options?.worktree?.originCwd,
         }),
-      ).then(() => {
-        seeded = true
-      })
+      )
+        .then(() => {
+          seeded = true
+        })
+        .catch(error =>
+          logForDebugging(`bg seed state write failed: ${errorMessage(error)}`, {
+            level: 'warn',
+          }),
+        )
+    } else if (
+      source !== 'fleet' &&
+      existingState &&
+      savedRespawnFlags.length > 0 &&
+      existingState.respawnFlags.length === 0
+    ) {
+      seedWrite = writeJobState(jobDir, {
+        ...existingState,
+        respawnFlags: savedRespawnFlags,
+      }).catch(error =>
+        logForDebugging(`bg respawnFlags patch failed: ${errorMessage(error)}`, {
+          level: 'warn',
+        }),
+      )
     }
 
     const dispatch: Dispatch = {
@@ -546,9 +673,13 @@ export async function spawnBgSession(
                 ...(separator >= 0 ? args.slice(separator) : []),
               ],
             }
-          : { mode: 'prompt', args: [...sessionFlags, ...args] },
-      respawnFlags: respawnFlags(beforeSeparator),
+          : {
+              mode: 'prompt',
+              args: [...sessionFlags, ...stripSessionIdFlags(args)],
+            },
+      respawnFlags: rawRespawnFlags,
       env: inheritedEnv(),
+      reattachEnv,
       worktree: options?.worktree
         ? { path: options.worktree.path, ownershipToken: sessionId }
         : undefined,
@@ -558,7 +689,10 @@ export async function spawnBgSession(
           ? 'worktree'
           : 'none',
       agent: agentName,
-      seed: { intent: options?.intent ?? inferredIntent ?? '', name: options?.name },
+      seed: {
+        intent: options?.intent ?? inferredIntent ?? '',
+        name: explicitName ?? options?.name,
+      },
       cols: process.stdout.columns || undefined,
       rows: process.stdout.rows || undefined,
     }
@@ -583,19 +717,19 @@ export async function spawnBgSession(
             return
           }
         }
-        if (seeded) await rm(jobDir, { recursive: true, force: true }).catch(() => {})
+        if (seeded) await rm(jobDir, { recursive: true, force: false }).catch(() => {})
         if (result.reason === 'stale-short') {
           throw new Error('Previous session is still shutting down — try again in a moment')
         }
         throw new Error(
-        `Couldn't reach the background daemon (${dispatchError(result.reason)})${daemonHint('status')}`,
+        `Couldn't reach the ${bgSupervisorNoun()} (${dispatchError(result.reason)})${daemonHint('status')}`,
         )
       },
     )
     return { ok: true, short, sessionId }
   } catch (error) {
     if (source !== 'fleet') {
-      await rm(jobDir, { recursive: true, force: true }).catch(() => {})
+      await rm(jobDir, { recursive: true, force: false }).catch(() => {})
     }
     return {
       ok: false,
@@ -798,7 +932,7 @@ export function formatBgHints(short: string, name?: string): string {
     row('claude agents', 'list sessions'),
     row(`claude attach ${short}`, 'open in this terminal'),
     row(`claude logs ${short}`, 'show recent output'),
-    row(`claude kill ${short}`, 'stop this session'),
+    row(`claude stop ${short}`, 'stop this session'),
   ].join('\n')
 }
 
@@ -897,6 +1031,17 @@ async function attachTerminal(
   const stdout = options.stdout ?? process.stdout
   const cols = stdout.columns ?? 120
   const rows = stdout.rows ?? 30
+  const attachStartedAt = Date.now()
+  let attachAckMs: number | undefined
+  let firstFrameRecorded = false
+  const recordFirstFrame = () => {
+    if (firstFrameRecorded) return
+    firstFrameRecorded = true
+    logEvent('tengu_bg_attach_first_frame', {
+      ms: Date.now() - attachStartedAt,
+      ack_ms: attachAckMs,
+    })
+  }
   let currentCols = cols
   let currentRows = rows
   const attachId = randomUUID()
@@ -973,11 +1118,13 @@ async function attachTerminal(
       if (marker >= 0) {
         const before = combined.subarray(0, marker)
         if (before.length) stdout.write(before)
+        recordFirstFrame()
         finish({ outcome: 'detached', msg: parseDetachMessage(before) })
         return
       }
       const keep = detachSuffixLength(combined)
       if (combined.length > keep) stdout.write(combined.subarray(0, combined.length - keep))
+      recordFirstFrame()
       outputBuffer = Buffer.from(combined.subarray(combined.length - keep))
     }
     socket.on('data', (chunk) => {
@@ -1006,6 +1153,7 @@ async function attachTerminal(
         return
       }
       acknowledged = true
+      attachAckMs = Date.now() - attachStartedAt
       decModes =
         response.op === 'attach' &&
         Array.isArray(response.decModes) &&
@@ -1114,21 +1262,21 @@ export async function attachJob(short: string): Promise<FleetAttachResult> {
       return {
         kind: 'error',
         orphaned: true,
-        msg: 'Background daemon lost track of this job — press Enter to respawn it',
+        msg: `${bgSupervisorNounCap()} lost track of this job — press Enter to respawn it`,
       }
     }
     if (daemonStart && !daemonStart.ok) {
       return {
         kind: 'error',
-        msg: `Couldn't start the background service — ${daemonStart.reason}`,
+        msg: `Couldn't start the ${bgSupervisorNoun()} — ${daemonStart.reason}`,
       }
     }
     return {
       kind: 'error',
       msg: daemonStarting.test(outcome.msg)
-        ? 'Background daemon is still starting — try again in a moment'
+        ? `${bgSupervisorNounCap()} is still starting — try again in a moment`
         : daemonUnavailable.test(outcome.msg)
-          ? "Background daemon didn't respond after starting — try again in a moment"
+          ? `${bgSupervisorNounCap()} didn't respond after starting — try again in a moment`
           : `Couldn't attach — ${outcome.msg}`,
     }
   }
@@ -1141,7 +1289,7 @@ export async function attachHandler(prefix: string | undefined): Promise<void> {
   const daemon = await ensureDaemonInteractive()
   if (!daemon.ok) {
     process.stderr.write(
-      `Couldn't attach — background daemon is unavailable (${daemon.reason})${daemonHint('status')}\n`,
+      `Couldn't attach — ${bgSupervisorNoun()} is unavailable (${daemon.reason})${daemonHint('status')}\n`,
     )
     process.exit(1)
     return
@@ -1197,38 +1345,32 @@ export async function attachHandler(prefix: string | undefined): Promise<void> {
     const detail = outcome.msg.includes('ERESPAWNING')
       ? 'Job is respawning after an upgrade — try attach again in a moment.'
       : /ENOENT|ECONNREFUSED|ESTARTING/.test(outcome.msg)
-        ? 'Background daemon is restarting — try again in a moment.'
+        ? `${bgSupervisorNounCap()} is restarting — try again in a moment.`
         : outcome.msg || 'unknown'
     process.stderr.write(`Couldn't attach to ${short} — ${detail}\n`)
   }
   process.exit(outcome.outcome === 'error' ? 1 : 0)
 }
 
-export async function killHandler(prefix: string | undefined): Promise<void> {
-  const short = await resolveJobPrefix(prefix, 'claude kill <id>')
-  let response = await requestControl({
-    proto: PROTOCOL_VERSION,
-    op: 'kill',
-    short,
-  })
-  for (
-    let attempt = 0;
-    !response.ok && response.code === 'ESTARTING' && attempt < 10;
-    attempt++
-  ) {
-    await delay(200)
-    response = await requestControl({
-      proto: PROTOCOL_VERSION,
-      op: 'kill',
-      short,
-    })
-  }
-  if (!response.ok) {
-    process.stderr.write(`Couldn't stop ${short} — ${response.error}\n`)
+export async function stopHandler(prefix: string | undefined): Promise<void> {
+  const short = await resolveJobPrefix(prefix, 'claude stop <id>')
+  const result = await killJob(short)
+  if (!result.confirmed) {
+    process.stderr.write(
+      result.error
+        ? `couldn't confirm ${short} was stopped — ${result.error}\n`
+        : `couldn't confirm ${short} was stopped — the background service may be restarting. Try again in a moment.\n`,
+    )
     process.exit(1)
+    return
   }
-  process.stdout.write(`killed ${short}\n`)
+  process.stdout.write(`stopped ${short}\n`)
   const state = await readJobState(getJobDir(short))
+  await logEventTo1PAwaitable('tengu_bg_agent_action', {
+    action: 'stop',
+    source: 'cli',
+    jobSessionId: state?.sessionId ?? '',
+  })
   if (state?.worktreePath) {
     process.stdout.write(
       `  worktree retained at ${state.worktreePath}\n  run 'claude rm ${short}' to remove worktree and job state\n`,
@@ -1236,9 +1378,24 @@ export async function killHandler(prefix: string | undefined): Promise<void> {
   }
 }
 
-export async function deleteBgJob(short: string): Promise<void> {
+/** Compatibility alias for older callers; the user-facing command is `stop`. */
+export const killHandler = stopHandler
+
+export async function deleteBgJob(
+  short: string,
+): Promise<{ removed: boolean; error?: string }> {
   const state = await readJobState(getJobDir(short))
-  await killJob(short, state ?? undefined).catch(() => {})
+  const stopped = await killJob(short, state ?? undefined).catch(error => ({
+    confirmed: false,
+    error: errorMessage(error),
+  }))
+  if (!stopped.confirmed) {
+    logForDebugging(
+      `deleteJob: kill unconfirmed for ${short} — skipping jobdir/worktree removal to avoid stranding a live worker`,
+      { level: 'warn' },
+    )
+    return { removed: false, error: stopped.error }
+  }
   if (state?.worktreePath) {
     const { dirty, gitError } = await getAgentWorktreeChanges(
       state.worktreePath,
@@ -1258,14 +1415,26 @@ export async function deleteBgJob(short: string): Promise<void> {
       ).catch(() => false)
     }
   }
-  await rm(getJobDir(short), { recursive: true, force: true }).catch(() => {})
+  await rm(getJobDir(short), { recursive: true, force: false }).catch(() => {})
+  return { removed: true }
 }
 
 export async function rmHandler(prefix: string | undefined): Promise<void> {
   const short = await resolveJobPrefix(prefix, 'claude rm <id>')
   const state = await readJobState(getJobDir(short))
-  logEvent('tengu_bg_agent_action', { action: 'delete' })
-  await deleteBgJob(short)
+  const result = await deleteBgJob(short)
+  if (!result.removed) {
+    process.stderr.write(
+      `couldn't confirm ${short} was stopped — ${result.error ?? 'the background service may be restarting. Try again in a moment.'}\n`,
+    )
+    process.exit(1)
+    return
+  }
+  await logEventTo1PAwaitable('tengu_bg_agent_action', {
+    action: 'delete',
+    source: 'cli',
+    jobSessionId: state?.sessionId ?? '',
+  })
   process.stdout.write(
     `removed ${short}${state?.worktreePath ? `\n  worktree: ${state.worktreePath}` : ''}\n`,
   )
@@ -1273,31 +1442,76 @@ export async function rmHandler(prefix: string | undefined): Promise<void> {
 
 export async function respawnBgJob(
   short: string,
-  knownState?: JobState,
-  suppliedInitialPrompt?: string,
-): Promise<{ ok: true; state: JobState } | { ok: false; error: string }> {
-  const jobDir = getJobDir(short)
-  const state = knownState ?? (await readJobState(jobDir))
-  if (!state) {
-    return { ok: false, error: "Can't respawn — that job's saved state is missing" }
+  options?: {
+    knownAlive?: boolean
+    knownState?: JobState
+    force?: boolean
+    initialPrompt?: string
+  },
+): Promise<
+  | { ok: true; state: JobState }
+  | { ok: false; error: string; alive?: boolean; state?: JobState }
+> {
+  if (options?.knownAlive && options.knownState && !options.force) {
+    return {
+      ok: false,
+      alive: true,
+      state: options.knownState,
+      error: `Session ${short} is already running`,
+    }
   }
-  const freshState = knownState ? ((await readJobState(jobDir)) ?? state) : state
-  await requestControl({ proto: PROTOCOL_VERSION, op: 'kill', short }).catch(
-    () => {},
-  )
+  const jobDir = getJobDir(short)
+  const state = options?.knownState ?? (await readJobState(jobDir))
+  if (!state) {
+    return {
+      ok: false,
+      alive: false,
+      error: "Can't respawn — that job's saved state is missing",
+    }
+  }
+  const wasAlive = await isBackgroundJobAlive(short)
+  if (!options?.force && wasAlive) {
+    return {
+      ok: false,
+      alive: true,
+      state,
+      error: `Session ${short} is already running`,
+    }
+  }
+  const freshState = options?.knownState
+    ? ((await readJobState(jobDir)) ?? state)
+    : state
+  const stopped = await killJob(short, state)
+  if (wasAlive && !stopped.confirmed) {
+    logEvent('tengu_bg_respawn_unconfirmed_bail', {})
+    return {
+      ok: false,
+      alive: true,
+      state,
+      error:
+        stopped.error ??
+        "Couldn't stop the previous worker — supervisor may be starting, retry in a moment",
+    }
+  }
   const deadline = Date.now() + 3_000
-  while ((await listLiveJobs()).has(short) && Date.now() < deadline) {
+  while ((await isBackgroundJobAlive(short)) && Date.now() < deadline) {
     await delay(100)
   }
-  const transcript = join(getProjectDir(state.cwd), `${state.sessionId}.jsonl`)
+  const transcript = join(
+    getProjectDir(await canonicalizePath(state.cwd)),
+    `${state.sessionId}.jsonl`,
+  )
   const exists = await hasTranscriptMessages(transcript)
-  if (!exists) await rm(transcript, { force: true }).catch(() => {})
-  const templateArgs = state.routine
-    ? ['--routine', state.routine]
-    : state.template !== 'bg'
-      ? ['--agent', state.template]
-      : []
-  const initialPrompt = suppliedInitialPrompt ?? (exists ? undefined : state.intent)
+  if (!exists) await rm(transcript, { force: false }).catch(() => {})
+  const templateArgs =
+    state.respawnFlags.length > 0
+      ? state.respawnFlags
+      : state.routine
+        ? ['--routine', state.routine]
+        : state.template !== 'bg'
+          ? ['--agent', state.template]
+          : []
+  const initialPrompt = options?.initialPrompt ?? (exists ? undefined : state.intent)
   const args = [
     ...(exists ? ['--resume', state.sessionId] : []),
     ...templateArgs,
@@ -1308,8 +1522,20 @@ export async function respawnBgJob(
     state.sessionId,
     'fleet',
     state.cwd,
+    undefined,
+    state.bridgeSessionId
+      ? {
+          CLAUDE_BRIDGE_REATTACH_SESSION: state.bridgeSessionId,
+          ...(state.bridgeSessionSeq !== undefined &&
+          state.bridgeSessionSeq > 0
+            ? {
+                CLAUDE_BRIDGE_REATTACH_SEQ: String(state.bridgeSessionSeq),
+              }
+            : {}),
+        }
+      : undefined,
   )
-  if (!spawned.ok) return { ok: false, error: spawned.error }
+  if (!spawned.ok) return { ok: false, error: spawned.error, alive: false }
   logEvent('tengu_bg_agent_action', {
     action: 'respawn',
     agent: state.template,
@@ -1317,9 +1543,9 @@ export async function respawnBgJob(
   })
   const nextState: JobState = {
     ...freshState,
-    ...(suppliedInitialPrompt
+    ...(options?.initialPrompt
       ? {
-          detail: suppliedInitialPrompt.replace(/[\r\n]+/g, ' ').slice(0, 80),
+          detail: options.initialPrompt.replace(/[\r\n]+/g, ' ').slice(0, 80),
         }
       : {}),
     ...(initialPrompt
@@ -1347,7 +1573,7 @@ export async function respawnHandler(target: string | undefined): Promise<void> 
   const daemon = await ensureDaemonInteractive()
   if (!daemon.ok) {
     process.stderr.write(
-      `Couldn't respawn — background daemon is unavailable (${daemon.reason})${daemonHint('status')}\n`,
+      `Couldn't respawn — ${bgSupervisorNoun()} is unavailable (${daemon.reason})${daemonHint('status')}\n`,
     )
     process.exitCode = 1
     return
@@ -1361,7 +1587,10 @@ export async function respawnHandler(target: string | undefined): Promise<void> 
       return
     }
     for (const job of jobs) {
-      const result = await respawnBgJob(job.id, job.state)
+      const result = await respawnBgJob(job.id, {
+        force: true,
+        knownState: job.state,
+      })
       if (result.ok) process.stdout.write(`respawned ${job.id}\n`)
       else {
         process.stderr.write(`${job.id}: ${result.error}\n`)
@@ -1371,7 +1600,7 @@ export async function respawnHandler(target: string | undefined): Promise<void> 
     return
   }
   const short = await resolveJobPrefix(target, 'claude respawn <id>|--all')
-  const result = await respawnBgJob(short)
+  const result = await respawnBgJob(short, { force: true })
   if (!result.ok) {
     process.stderr.write(`${result.error}\n`)
     process.exitCode = 1

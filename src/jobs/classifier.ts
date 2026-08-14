@@ -41,6 +41,7 @@ const CLASSIFY_DEBOUNCE_MS = 15_000
 const DETAIL_MAX = 180
 const TAIL_MAX = 2_000
 const NAME_RETRIES = 3
+const SIDE_QUERY_TOKEN_OVERHEAD = 2_048
 const IS_RESUME = process.argv.some(
   argument =>
     argument === '-c' ||
@@ -561,7 +562,7 @@ export async function classify(
         const response = await sideQuery({
           querySource: 'agent_classifier',
           model: getSmallFastModel(),
-          max_tokens: 3_072,
+          max_tokens: 1_024 + SIDE_QUERY_TOKEN_OVERHEAD,
           maxRetries: 3,
           skipSystemPromptPrefix: true,
           system: [
@@ -994,7 +995,11 @@ function latestToolDetail(
   return 'working'
 }
 
-async function generateJobName(jobDir: string, intent: string): Promise<void> {
+async function generateJobName(
+  jobDir: string,
+  intent: string,
+  agentContext?: string,
+): Promise<void> {
   const records = await readAllJobs().catch(() => [])
   const taken = new Set(
     records
@@ -1009,12 +1014,16 @@ async function generateJobName(jobDir: string, intent: string): Promise<void> {
     const response = await sideQuery({
       querySource: 'agent_classifier',
       model: getSmallFastModel(),
-      max_tokens: 2_080,
+      max_tokens: 32 + SIDE_QUERY_TOKEN_OVERHEAD,
       maxRetries: 1,
       messages: [
         {
           role: 'user',
-          content: `2-4 word lowercase label for this job:\n"${truncate(intent, 400)}"\n\nInclude the MOST SPECIFIC identifier (component/file/feature). Skip generic\nverbs like fix/add/update. Respond with ONLY the label.${avoid}`,
+          content: `2-4 word lowercase label for this job.
+User: "${truncate(intent, 300)}"${agentContext ? `\nAgent: "${truncate(agentContext, 300)}"` : ''}
+
+Include the MOST SPECIFIC identifier (component/file/feature). Skip generic
+verbs like fix/add/update. Respond with ONLY the label.${avoid}`,
         },
       ],
     }).catch(() => null)
@@ -1031,7 +1040,7 @@ async function generateJobName(jobDir: string, intent: string): Promise<void> {
   const now = new Date().toISOString()
   await writeStateAndNotify(
     jobDir,
-    { ...current, name: candidate, updatedAt: now },
+    { ...current, name: candidate, nameSource: 'auto', updatedAt: now },
     { name: candidate },
   )
   cacheSessionTitle(candidate)
@@ -1177,9 +1186,11 @@ export async function classifyAndPush(
         linkScanPath: transcriptPath,
         template,
         routine: latest?.routine,
+        respawnFlags: latest?.respawnFlags ?? [],
         intent: latest?.intent ?? fallbackIntent ?? state.capturedIntent,
         initialPrompt: latest?.initialPrompt,
         name: latest?.name,
+        nameSource: latest?.nameSource,
         sessionId: latest?.sessionId ?? getSessionId(),
         cliVersion: MACRO.VERSION,
         cwd: current?.cwd ?? getCwd(),
@@ -1188,6 +1199,8 @@ export async function classifyAndPush(
           latest ?? undefined,
         ),
         originCwd: latest?.originCwd,
+        bridgeSessionId: latest?.bridgeSessionId,
+        bridgeSessionSeq: latest?.bridgeSessionSeq,
         backend: latest?.backend ?? 'daemon',
         createdAt: latest?.createdAt ?? now,
         updatedAt: now,
@@ -1215,7 +1228,17 @@ export async function classifyAndPush(
     ).catch(() => {})
     const intent = current?.intent || fallbackIntent || state.capturedIntent
     if (!current?.name && intent && engine === 'llm') {
-      void generateJobName(jobDir, intent).catch(() => {})
+      const firstAssistantText = messages
+        .map(message => assistantText([message]))
+        .find(Boolean)
+      const toolSummary = firstAssistantText ? '' : summarizeToolCalls(messages)
+      const context = truncate(
+        (firstAssistantText ?? (toolSummary ? `[calling ${toolSummary}]` : ''))
+          .replace(/\s+/g, ' ')
+          .trim(),
+        500,
+      )
+      void generateJobName(jobDir, intent, context).catch(() => {})
     }
     logForDebugging(
       `[classifier] ${state.prevState} · ${classified.detail}${needs ? ` · needs: ${needs}` : ''}`,

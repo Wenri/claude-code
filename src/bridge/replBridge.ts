@@ -226,7 +226,13 @@ export type BridgeCoreParams = {
   onReadFile?: (
     path: string,
     maxBytes?: number,
-  ) => Promise<{ contents: string; absPath: string; truncated?: boolean }>
+    encoding?: 'utf-8' | 'base64',
+  ) => Promise<{
+    contents: string
+    absPath: string
+    truncated?: boolean
+    encoding?: 'base64'
+  }>
   onStateChange?: (state: BridgeState, detail?: string) => void
   /**
    * Fires on each real user message to flow through writeMessages() until

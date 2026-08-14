@@ -472,6 +472,40 @@ export const SDKControlCancelAsyncMessageResponseSchema = lazySchema(() =>
     ),
 )
 
+export const SDKControlReadFileRequestSchema = lazySchema(() =>
+  z
+    .object({
+      subtype: z.literal('read_file'),
+      path: z.string(),
+      max_bytes: z.number().optional(),
+      encoding: z
+        .enum(['utf-8', 'base64'])
+        .optional()
+        .describe(
+          "How to encode the bytes in `contents`. Defaults to utf-8 (lossy for binary); pass 'base64' to read images.",
+        ),
+    })
+    .describe(
+      'Read a file from the session filesystem for the remote sidebar viewer. Path is resolved against cwd and gated by the same read-permission rules as the Read tool.',
+    ),
+)
+
+export const SDKControlReadFileResponseSchema = lazySchema(() =>
+  z
+    .object({
+      contents: z.string(),
+      absPath: z.string(),
+      truncated: z.boolean().optional(),
+      encoding: z
+        .literal('base64')
+        .optional()
+        .describe(
+          "Set when the request asked for base64. Absent means utf-8 — including when an older CLI ignored the request's encoding field.",
+        ),
+    })
+    .describe('File contents for the remote sidebar viewer.'),
+)
+
 export const SDKControlSeedReadStateRequestSchema = lazySchema(() =>
   z
     .object({
@@ -813,6 +847,7 @@ export const SDKControlRequestInnerSchema = lazySchema(() =>
     SDKControlMcpMessageRequestSchema(),
     SDKControlRewindFilesRequestSchema(),
     SDKControlCancelAsyncMessageRequestSchema(),
+    SDKControlReadFileRequestSchema(),
     SDKControlSeedReadStateRequestSchema(),
     SDKControlMcpSetServersRequestSchema(),
     SDKControlReloadPluginsRequestSchema(),
