@@ -268,6 +268,8 @@ import { useLspPluginRecommendation } from 'src/hooks/useLspPluginRecommendation
 import { LspRecommendationMenu } from 'src/components/LspRecommendation/LspRecommendationMenu.js';
 import { useClaudeCodeHintRecommendation } from 'src/hooks/useClaudeCodeHintRecommendation.js';
 import { PluginHintMenu } from 'src/components/ClaudeCodeHint/PluginHintMenu.js';
+import { useManagedSettingsSecurityPrompt } from 'src/hooks/useManagedSettingsSecurityPrompt.js';
+import { ManagedSettingsSecurityDialog } from 'src/components/ManagedSettingsSecurityDialog/ManagedSettingsSecurityDialog.js';
 import { DesktopUpsellStartup, shouldShowDesktopUpsellStartup } from 'src/components/DesktopUpsell/DesktopUpsellStartup.js';
 import { UltraplanChoiceDialog } from '../components/UltraplanChoiceDialog.js';
 import { UltraplanLaunchDialog } from '../components/UltraplanLaunchDialog.js';
@@ -834,6 +836,7 @@ export function REPL({
     recommendation: hintRecommendation,
     handleResponse: handleHintResponse
   } = useClaudeCodeHintRecommendation();
+  const managedSettingsSecurityPrompt = useManagedSettingsSecurityPrompt();
 
   // Memoize the combined initial tools array to prevent reference changes
   const combinedInitialTools = useMemo(() => {
@@ -2190,7 +2193,7 @@ export function REPL({
   // Permission and interactive dialogs can show even when toolJSX is set,
   // as long as shouldContinueAnimation is true. This prevents deadlocks when
   // agents set background hints while waiting for user interaction.
-  function getFocusedInputDialog(): 'message-selector' | 'sandbox-permission' | 'tool-permission' | 'prompt' | 'worker-sandbox-permission' | 'elicitation' | 'cost' | 'idle-return' | 'init-onboarding' | 'ide-onboarding' | 'model-switch' | 'undercover-callout' | 'effort-callout' | 'remote-callout' | 'lsp-recommendation' | 'plugin-hint' | 'desktop-upsell' | 'ultraplan-choice' | 'ultraplan-launch' | undefined {
+  function getFocusedInputDialog(): 'message-selector' | 'sandbox-permission' | 'tool-permission' | 'prompt' | 'worker-sandbox-permission' | 'elicitation' | 'managed-settings-security' | 'cost' | 'idle-return' | 'init-onboarding' | 'ide-onboarding' | 'model-switch' | 'undercover-callout' | 'effort-callout' | 'remote-callout' | 'lsp-recommendation' | 'plugin-hint' | 'desktop-upsell' | 'ultraplan-choice' | 'ultraplan-launch' | undefined {
     // Exit states always take precedence
     if (isExiting || exitFlow) return undefined;
 
@@ -2208,6 +2211,7 @@ export function REPL({
     // Worker sandbox permission prompts (network access) from swarm workers
     if (allowDialogsWithAnimation && workerSandboxPermissions.queue[0]) return 'worker-sandbox-permission';
     if (allowDialogsWithAnimation && elicitation.queue[0]) return 'elicitation';
+    if (allowDialogsWithAnimation && managedSettingsSecurityPrompt) return 'managed-settings-security';
     if (allowDialogsWithAnimation && showingCostDialog) return 'cost';
     if (allowDialogsWithAnimation && idleReturnPending) return 'idle-return';
     if (feature('ULTRAPLAN') && allowDialogsWithAnimation && !isLoading && ultraplanPendingChoice) return 'ultraplan-choice';
@@ -2241,7 +2245,7 @@ export function REPL({
   const focusedInputDialog = getFocusedInputDialog();
 
   // True when permission prompts exist but are hidden because the user is typing
-  const hasSuppressedDialogs = isPromptInputActive && (sandboxPermissionRequestQueue[0] || toolUseConfirmQueue[0] || promptQueue[0] || workerSandboxPermissions.queue[0] || elicitation.queue[0] || showingCostDialog);
+  const hasSuppressedDialogs = isPromptInputActive && (sandboxPermissionRequestQueue[0] || toolUseConfirmQueue[0] || promptQueue[0] || workerSandboxPermissions.queue[0] || elicitation.queue[0] || managedSettingsSecurityPrompt || showingCostDialog);
 
   // Keep ref in sync so timer callbacks can read the current value
   focusedInputDialogRef.current = focusedInputDialog;
@@ -5028,6 +5032,7 @@ export function REPL({
             }));
             currentRequest?.onWaitingDismiss?.(action);
           }} />}
+                {focusedInputDialog === 'managed-settings-security' && managedSettingsSecurityPrompt && <ManagedSettingsSecurityDialog settings={managedSettingsSecurityPrompt.settings} onAccept={() => managedSettingsSecurityPrompt.resolve('approved')} onReject={() => managedSettingsSecurityPrompt.resolve('rejected')} />}
                 {focusedInputDialog === 'cost' && <CostThresholdDialog onDone={() => {
             setShowCostDialog(false);
             setHaveShownCostDialog(true);

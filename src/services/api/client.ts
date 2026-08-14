@@ -1,6 +1,5 @@
 import Anthropic, { type ClientOptions } from '@anthropic-ai/sdk'
 import { randomUUID } from 'crypto'
-import type { GoogleAuth } from 'google-auth-library'
 import {
   checkAndRefreshOAuthTokenIfNeeded,
   getAnthropicApiKey,
@@ -41,6 +40,10 @@ import {
   isEnvTruthy,
 } from '../../utils/envUtils.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../analytics/growthbook.js'
+import {
+  buildVertexGoogleAuth,
+  getVertexApiBaseUrl,
+} from './vertexAuth.js'
 
 /**
  * Environment variables for different client types:
@@ -151,6 +154,7 @@ export async function getAnthropicClient({
 
   const resolvedFetch = buildFetch(fetchOverride, source)
 
+  const apiProvider = getAPIProviderForModel(model)
   const ARGS = {
     defaultHeaders,
     maxRetries,
@@ -158,12 +162,12 @@ export async function getAnthropicClient({
     dangerouslyAllowBrowser: true,
     fetchOptions: getProxyFetchOptions({
       forAnthropicAPI: true,
+      url: getApiEndpointForProxy(apiProvider, model),
     }) as ClientOptions['fetchOptions'],
     ...(resolvedFetch && {
       fetch: resolvedFetch,
     }),
   }
-  const apiProvider = getAPIProviderForModel(model)
   if (apiProvider === 'bedrock') {
     const { AnthropicBedrock } = await import('@anthropic-ai/bedrock-sdk')
     const awsRegion = getAWSRegionForModel(model)
@@ -286,10 +290,7 @@ export async function getAnthropicClient({
       await refreshGcpCredentialsIfNeeded()
     }
 
-    const [{ AnthropicVertex }, { GoogleAuth }] = await Promise.all([
-      import('@anthropic-ai/vertex-sdk'),
-      import('google-auth-library'),
-    ])
+    const { AnthropicVertex } = await import('@anthropic-ai/vertex-sdk')
     // TODO: Cache either GoogleAuth instance or AuthClient to improve performance
     // Currently we create a new GoogleAuth instance for every getAnthropicClient() call
     // This could cause repeated authentication flows and metadata server checks
@@ -324,29 +325,14 @@ export async function getAnthropicClient({
       process.env['GOOGLE_APPLICATION_CREDENTIALS'] ||
       process.env['google_application_credentials']
 
-    const googleAuth = isEnvTruthy(process.env.CLAUDE_CODE_SKIP_VERTEX_AUTH)
-      ? ({
-          // Mock GoogleAuth for testing/proxy scenarios
-          getClient: () => ({
-            getRequestHeaders: () => ({}),
-          }),
-        } as unknown as GoogleAuth)
-      : new GoogleAuth({
-          scopes: ['https://www.googleapis.com/auth/cloud-platform'],
-          // Only use ANTHROPIC_VERTEX_PROJECT_ID as last resort fallback
-          // This prevents the 12-second metadata server timeout when:
-          // - No project env vars are set AND
-          // - No credential keyfile is specified AND
-          // - ADC file exists but lacks project_id field
-          //
-          // Risk: If auth project != API target project, this could cause billing/audit issues
-          // Mitigation: Users can set GOOGLE_CLOUD_PROJECT to override
-          ...(hasProjectEnvVar || hasKeyFile
-            ? {}
-            : {
-                projectId: process.env.ANTHROPIC_VERTEX_PROJECT_ID,
-              }),
-        })
+    const googleAuth = await buildVertexGoogleAuth(
+      isEnvTruthy(process.env.CLAUDE_CODE_SKIP_VERTEX_AUTH)
+        ? { kind: 'skip' }
+        : { kind: 'default' },
+      hasProjectEnvVar || hasKeyFile
+        ? undefined
+        : process.env.ANTHROPIC_VERTEX_PROJECT_ID,
+    )
 
     const vertexArgs: ConstructorParameters<typeof AnthropicVertex>[0] = {
       ...ARGS,
@@ -410,6 +396,46 @@ function getAWSRegionForModel(model?: string): string {
     return smallFastModelRegion
   }
   return getAWSRegion()
+}
+
+/** Resolve the provider endpoint so Bun can apply NO_PROXY before a request. */
+function getApiEndpointForProxy(
+  provider: ReturnType<typeof getAPIProviderForModel>,
+  model?: string,
+): string | undefined {
+  switch (provider) {
+    case 'bedrock':
+      return (
+        process.env.ANTHROPIC_BEDROCK_BASE_URL ||
+        `https://bedrock-runtime.${getAWSRegionForModel(model)}.amazonaws.com`
+      )
+    case 'mantle':
+      return (
+        process.env.ANTHROPIC_BEDROCK_MANTLE_BASE_URL ||
+        `https://bedrock-mantle.${getAWSRegionForModel(model)}.api.aws`
+      )
+    case 'anthropicAws':
+      return (
+        process.env.ANTHROPIC_AWS_BASE_URL ||
+        `https://aws-external-anthropic.${getAWSRegion()}.api.aws`
+      )
+    case 'vertex':
+      return (
+        process.env.ANTHROPIC_VERTEX_BASE_URL ||
+        getVertexApiBaseUrl(getVertexRegionForModel(model))
+      )
+    case 'foundry': {
+      const resource = process.env.ANTHROPIC_FOUNDRY_RESOURCE
+      return (
+        process.env.ANTHROPIC_FOUNDRY_BASE_URL ||
+        (resource
+          ? `https://${resource}.services.ai.azure.com`
+          : undefined)
+      )
+    }
+    case 'firstParty':
+      return process.env.ANTHROPIC_BASE_URL || getOauthConfig().BASE_API_URL
+  }
 }
 
 async function configureApiKeyHeaders(

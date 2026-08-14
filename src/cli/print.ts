@@ -61,10 +61,13 @@ import {
   notifySessionMetadataChanged,
   setPermissionModeChangedListener,
   type RequiresActionDetails,
-  type SessionExternalMetadata,
+  type RestoredWorkerState,
 } from 'src/utils/sessionState.js'
 import { runClassifierSummaryForBlocked } from 'src/utils/taskSummary.js'
-import { externalMetadataToAppState } from 'src/state/onChangeAppState.js'
+import {
+  externalMetadataToAppState,
+  internalMetadataToAppState,
+} from 'src/state/onChangeAppState.js'
 import { getInMemoryErrors, logError, logMCPDebug } from 'src/utils/log.js'
 import {
   writeToStdout,
@@ -1584,6 +1587,29 @@ function runHeadlessStreaming(
     configs: {},
     policyRules: new Set(),
   }
+  let preservedRemoteDynamicMcpConfigs: Record<
+    string,
+    McpServerConfigForProcessTransport
+  > = isEnvTruthy(process.env.CLAUDE_CODE_REMOTE)
+    ? (Object.fromEntries(
+        getAppState()
+          .mcp.clients.filter(connection => {
+            const type = connection.config.type
+            return (
+              connection.config.scope === 'dynamic' &&
+              !('pluginSource' in connection.config) &&
+              (type === undefined ||
+                type === 'stdio' ||
+                type === 'sse' ||
+                type === 'http')
+            )
+          })
+          .map(connection => {
+            const { scope: _scope, ...config } = connection.config
+            return [connection.name, config]
+          }),
+      ) as Record<string, McpServerConfigForProcessTransport>)
+    : {}
 
   // Shared tool assembly for ask() and the get_context_usage control request.
   // Closes over the mutable sdkTools/dynamicMcpState bindings so both call
@@ -1682,6 +1708,7 @@ function runHeadlessStreaming(
 
   function applyMcpServerChanges(
     servers: Record<string, McpServerConfigForProcessTransport>,
+    options: { authoritative: boolean; caller: string },
   ): Promise<{
     response: SDKControlMcpSetServersResponse
     sdkServersChanged: boolean
@@ -1693,13 +1720,45 @@ function runHeadlessStreaming(
       sdkServersChanged: boolean
     }> => {
       const oldSdkClientNames = new Set(sdkClients.map(c => c.name))
+      const currentDynamicState: DynamicMcpState = {
+        ...dynamicMcpState,
+        configs: {
+          ...Object.fromEntries(
+            Object.entries(preservedRemoteDynamicMcpConfigs).map(
+              ([name, config]) => [name, toScopedConfig(config)],
+            ),
+          ),
+          ...dynamicMcpState.configs,
+        },
+      }
+      const desiredServers = options.authoritative
+        ? servers
+        : {
+            ...Object.fromEntries(
+              Object.entries(preservedRemoteDynamicMcpConfigs).filter(
+                ([name]) => !(name in servers),
+              ),
+            ),
+            ...servers,
+          }
 
       const result = await handleMcpSetServers(
-        servers,
+        desiredServers,
         { configs: sdkMcpConfigs, clients: sdkClients, tools: sdkTools },
-        dynamicMcpState,
+        currentDynamicState,
         setAppState,
+        getAppState,
+        options.caller,
       )
+
+      if (options.authoritative) {
+        const retainedNames = new Set(
+          Object.keys(result.newDynamicState.configs),
+        )
+        preservedRemoteDynamicMcpConfigs = Object.fromEntries(
+          Object.entries(servers).filter(([name]) => retainedNames.has(name)),
+        )
+      }
 
       // Update SDK state (need to mutate sdkMcpConfigs since it's shared)
       for (const key of Object.keys(sdkMcpConfigs)) {
@@ -1859,7 +1918,10 @@ function runHeadlessStreaming(
       const pluginsInstalled = await installPluginsForHeadless()
 
       if (pluginsInstalled) {
-        await applyPluginMcpDiff(existingMcpServerNames)
+        await applyPluginMcpDiff(
+          existingMcpServerNames,
+          'plugin_install_diff',
+        )
       }
     } catch (error) {
       logError(error)
@@ -1929,6 +1991,7 @@ function runHeadlessStreaming(
   // updateSdkMcp.
   async function applyPluginMcpDiff(
     existingMcpServerNames?: Set<string>,
+    caller = 'unknown',
   ): Promise<void> {
     const { servers: newConfigs } = await getAllMcpConfigs()
     const supportedConfigs: Record<string, McpServerConfigForProcessTransport> =
@@ -1952,7 +2015,10 @@ function runHeadlessStreaming(
       }
     }
     const { response, sdkServersChanged } =
-      await applyMcpServerChanges(supportedConfigs)
+      await applyMcpServerChanges(supportedConfigs, {
+        authoritative: false,
+        caller,
+      })
     if (sdkServersChanged) {
       void updateSdkMcp()
     }
@@ -3238,6 +3304,7 @@ function runHeadlessStreaming(
         } else if (message.request.subtype === 'mcp_set_servers') {
           const { response, sdkServersChanged } = await applyMcpServerChanges(
             message.request.servers,
+            { authoritative: true, caller: 'mcp_set_servers' },
           )
           sendControlResponseSuccess(message, response)
 
@@ -3282,7 +3349,10 @@ function runHeadlessStreaming(
             )
             const [cmdsR, mcpR, pluginsR] = await Promise.allSettled([
               getCommands(cwd()),
-              applyPluginMcpDiff(existingUserMcpServerNames),
+              applyPluginMcpDiff(
+                existingUserMcpServerNames,
+                'reload_plugins',
+              ),
               loadAllPluginsCacheOnly(),
             ])
             if (cmdsR.status === 'fulfilled') {
@@ -5327,7 +5397,7 @@ async function loadInitialMessages(
     forkSession: boolean | undefined
     outputFormat: string | undefined
     sessionStartHooksPromise?: ReturnType<typeof processSessionStartHooks>
-    restoredWorkerState: Promise<SessionExternalMetadata | null>
+    restoredWorkerState: Promise<RestoredWorkerState | null>
   },
 ): Promise<LoadInitialMessagesResult> {
   const persistSession = !isSessionPersistenceDisabled()
@@ -5480,10 +5550,14 @@ async function loadInitialMessages(
           hydrateFromCCRv2InternalEvents(parsedSessionId.sessionId),
           options.restoredWorkerState,
         ])
-        if (metadata) {
-          setAppState(externalMetadataToAppState(metadata))
-          if (typeof metadata.model === 'string') {
-            setMainLoopModelOverride(metadata.model)
+        if (metadata?.external || metadata?.internal) {
+          setAppState(prev =>
+            internalMetadataToAppState(metadata.internal ?? {})(
+              externalMetadataToAppState(metadata.external ?? {})(prev),
+            ),
+          )
+          if (typeof metadata.external?.model === 'string') {
+            setMainLoopModelOverride(metadata.external.model)
           }
         }
       } else if (
@@ -5783,6 +5857,8 @@ export async function handleMcpSetServers(
   sdkState: SdkMcpState,
   dynamicState: DynamicMcpState,
   setAppState: (f: (prev: AppState) => AppState) => void,
+  getAppState?: () => AppState,
+  caller = 'unknown',
 ): Promise<McpSetServersResult> {
   // Enforce enterprise MCP policy on process-based servers (stdio/http/sse).
   // Mirrors the --mcp-config filter in main.tsx — both user-controlled injection
@@ -5853,6 +5929,8 @@ export async function handleMcpSetServers(
     processServers,
     dynamicState,
     setAppState,
+    getAppState,
+    caller,
   )
 
   return {
@@ -5879,6 +5957,8 @@ export async function reconcileMcpServers(
   desiredConfigs: Record<string, McpServerConfigForProcessTransport>,
   currentState: DynamicMcpState,
   setAppState: (f: (prev: AppState) => AppState) => void,
+  getAppState?: () => AppState,
+  caller = 'unknown',
 ): Promise<{
   response: SDKControlMcpSetServersResponse
   newState: DynamicMcpState
@@ -5899,6 +5979,16 @@ export async function reconcileMcpServers(
     return !areMcpConfigsEqual(currentConfig, desiredConfig)
   })
 
+  logEvent('tengu_mcp_reconcile', {
+    caller:
+      caller as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    desiredCount: desiredNames.size,
+    currentCount: currentNames.size,
+    toRemoveCount: toRemove.length,
+    toAddCount: toAdd.length,
+    toReplaceCount: toReplace.length,
+  })
+
   const removed: string[] = []
   const added: string[] = []
   const errors: Record<string, string> = {}
@@ -5908,7 +5998,9 @@ export async function reconcileMcpServers(
 
   // Remove old servers (including ones being replaced)
   for (const name of [...toRemove, ...toReplace]) {
-    const client = newClients.find(c => c.name === name)
+    const client =
+      newClients.find(c => c.name === name) ??
+      getAppState?.().mcp.clients.find(c => c.name === name)
     const config = currentState.configs[name]
     if (client && config) {
       if (client.type === 'connected') {

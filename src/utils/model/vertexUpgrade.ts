@@ -1,5 +1,4 @@
 import type { APIError } from '@anthropic-ai/sdk'
-import type { GoogleAuth } from 'google-auth-library'
 import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
@@ -20,6 +19,10 @@ import {
 } from './model.js'
 import { getAPIProvider } from './providers.js'
 import type { ModelTier } from './bedrockUpgrade.js'
+import {
+  buildVertexGoogleAuth,
+  getVertexApiBaseUrl,
+} from '../../services/api/vertexAuth.js'
 
 type TierConfig = {
   envVarPriority: readonly string[]
@@ -288,27 +291,6 @@ function previousKeyForTier(
   return undefined
 }
 
-async function createGoogleAuth(
-  skipAuth: boolean,
-  projectId: string | undefined,
-): Promise<GoogleAuth> {
-  if (skipAuth) {
-    return {
-      getClient: () => ({
-        getRequestHeaders: () => ({}),
-      }),
-    } as unknown as GoogleAuth
-  }
-
-  const { GoogleAuth: GoogleAuthConstructor } = await import(
-    'google-auth-library'
-  )
-  return new GoogleAuthConstructor({
-    scopes: ['https://www.googleapis.com/auth/cloud-platform'],
-    ...(projectId && { projectId }),
-  })
-}
-
 export async function probeVertexModel(modelId: string): Promise<boolean> {
   try {
     const [{ AnthropicVertex }, { getProxyFetchOptions }] = await Promise.all([
@@ -331,14 +313,22 @@ export async function probeVertexModel(modelId: string): Promise<boolean> {
       hasProjectEnv || hasCredentialsEnv
         ? undefined
         : process.env.ANTHROPIC_VERTEX_PROJECT_ID
-    const googleAuth = await createGoogleAuth(skipAuth, fallbackProjectId)
+    const googleAuth = await buildVertexGoogleAuth(
+      skipAuth ? { kind: 'skip' } : { kind: 'default' },
+      fallbackProjectId,
+    )
+    const region = getVertexRegionForModel(modelId)
 
     const client = new AnthropicVertex({
-      region: getVertexRegionForModel(modelId),
+      region,
       googleAuth,
       maxRetries: 0,
       timeout: 8_000,
-      fetchOptions: getProxyFetchOptions(),
+      fetchOptions: getProxyFetchOptions({
+        url:
+          process.env.ANTHROPIC_VERTEX_BASE_URL ||
+          getVertexApiBaseUrl(region),
+      }),
     })
     await client.messages.create({
       model: modelId,

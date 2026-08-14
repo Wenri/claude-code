@@ -59,6 +59,7 @@ import {
 import {
   logEvent,
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+  type AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
 } from 'src/services/analytics/index.js'
 import { logOTelEvent } from './telemetry/events.js'
 import { ALLOWED_OFFICIAL_MARKETPLACE_NAMES } from './plugins/schemas.js'
@@ -173,6 +174,8 @@ import type { AppState } from '../state/AppState.js'
 import { jsonStringify, jsonParse } from './slowOperations.js'
 import { isEnvTruthy } from './envUtils.js'
 import { errorMessage, getErrnoCode } from './errors.js'
+import { parsePluginIdentifier } from './plugins/pluginIdentifier.js'
+import { buildPluginTelemetryFields } from './telemetry/pluginTelemetry.js'
 
 const TOOL_HOOK_EXECUTION_TIMEOUT_MS = 10 * 60 * 1000
 
@@ -2906,12 +2909,57 @@ async function* executeHooks({
     non_blocking_error: 0,
     cancelled: 0,
   }
+  const injectedContentChars = {
+    additionalContextChars: 0,
+    systemMessageChars: 0,
+    initialUserMessageChars: 0,
+    hookSuccessStdoutChars: 0,
+  }
+  const pluginIdByHook = new Map(
+    matchingHooks.map(({ hook, pluginId }) => [hook, pluginId]),
+  )
+  const pluginInjectedContentChars = new Map<
+    string,
+    typeof injectedContentChars
+  >()
+  function recordInjectedContent(
+    hook: HookCommand | HookCallback | FunctionHook,
+    field: keyof typeof injectedContentChars,
+    chars: number,
+  ): void {
+    if (chars === 0) return
+    injectedContentChars[field] += chars
+    const pluginId = pluginIdByHook.get(hook)
+    if (!pluginId) return
+    let pluginCounts = pluginInjectedContentChars.get(pluginId)
+    if (!pluginCounts) {
+      pluginCounts = {
+        additionalContextChars: 0,
+        systemMessageChars: 0,
+        initialUserMessageChars: 0,
+        hookSuccessStdoutChars: 0,
+      }
+      pluginInjectedContentChars.set(pluginId, pluginCounts)
+    }
+    pluginCounts[field] += chars
+  }
 
   let permissionBehavior: PermissionResult['behavior'] | undefined
 
   // Run all hooks in parallel and wait for all to complete
   for await (const result of all(hookPromises)) {
     outcomes[result.outcome]++
+
+    if (
+      result.message?.type === 'attachment' &&
+      result.message.attachment.type === 'hook_success'
+    ) {
+      recordInjectedContent(
+        result.hook,
+        'hookSuccessStdoutChars',
+        result.message.attachment.stdout?.length ?? 0,
+      )
+    }
 
     // Check for preventContinuation early
     if (result.preventContinuation) {
@@ -2937,6 +2985,11 @@ async function* executeHooks({
 
     // Yield system message separately if present
     if (result.systemMessage) {
+      recordInjectedContent(
+        result.hook,
+        'systemMessageChars',
+        result.systemMessage.length,
+      )
       yield {
         message: createAttachmentMessage({
           type: 'hook_system_message',
@@ -2950,6 +3003,11 @@ async function* executeHooks({
 
     // Collect additional context from hooks
     if (result.additionalContext) {
+      recordInjectedContent(
+        result.hook,
+        'additionalContextChars',
+        result.additionalContext.length,
+      )
       logForDebugging(
         `Hook ${hookEvent} (${getHookDisplayText(result.hook)}) provided additionalContext (${result.additionalContext.length} chars)`,
       )
@@ -2959,6 +3017,11 @@ async function* executeHooks({
     }
 
     if (result.initialUserMessage) {
+      recordInjectedContent(
+        result.hook,
+        'initialUserMessageChars',
+        result.initialUserMessage.length,
+      )
       logForDebugging(
         `Hook ${hookEvent} (${getHookDisplayText(result.hook)}) provided initialUserMessage (${result.initialUserMessage.length} chars)`,
       )
@@ -3121,6 +3184,22 @@ async function* executeHooks({
   getStatsStore()?.observe('hook_duration_ms', totalDurationMs)
   addToTurnHookDuration(totalDurationMs)
 
+  for (const [pluginId, counts] of pluginInjectedContentChars) {
+    const { name, marketplace } = parsePluginIdentifier(pluginId)
+    logEvent('tengu_hook_plugin_injected', {
+      hookName:
+        hookName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      _PROTO_plugin_name:
+        name as AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
+      ...(marketplace && {
+        _PROTO_marketplace_name:
+          marketplace as AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
+      }),
+      ...buildPluginTelemetryFields(name, marketplace),
+      ...counts,
+    })
+  }
+
   logEvent(`tengu_repl_hook_finished`, {
     hookName:
       hookName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -3130,6 +3209,7 @@ async function* executeHooks({
     numNonBlockingError: outcomes.non_blocking_error,
     numCancelled: outcomes.cancelled,
     totalDurationMs,
+    ...injectedContentChars,
   })
 
   // Log hook execution completion to OTEL (only for beta tracing)

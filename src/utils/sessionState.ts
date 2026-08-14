@@ -47,6 +47,17 @@ export type SessionExternalMetadata = {
   current_branches?: Record<string, string | null>
 }
 
+// Worker-only metadata is not exposed to remote clients. It survives worker
+// replacement and is used to restore process-local execution state.
+export type SessionInternalMetadata = Record<string, unknown> & {
+  session_allow_rules?: unknown
+}
+
+export type RestoredWorkerState = {
+  external: SessionExternalMetadata | null
+  internal: SessionInternalMetadata | null
+}
+
 type SessionStateChangedListener = (
   state: SessionState,
   details?: RequiresActionDetails,
@@ -54,10 +65,15 @@ type SessionStateChangedListener = (
 type SessionMetadataChangedListener = (
   metadata: SessionExternalMetadata,
 ) => void
+type SessionInternalMetadataChangedListener = (
+  metadata: SessionInternalMetadata,
+) => void
 type PermissionModeChangedListener = (mode: PermissionMode) => void
 
 let stateListener: SessionStateChangedListener | null = null
 let metadataListener: SessionMetadataChangedListener | null = null
+let internalMetadataListener: SessionInternalMetadataChangedListener | null =
+  null
 let permissionModeListener: PermissionModeChangedListener | null = null
 
 export function setSessionStateChangedListener(
@@ -70,6 +86,12 @@ export function setSessionMetadataChangedListener(
   cb: SessionMetadataChangedListener | null,
 ): void {
   metadataListener = cb
+}
+
+export function setSessionInternalMetadataChangedListener(
+  cb: SessionInternalMetadataChangedListener | null,
+): void {
+  internalMetadataListener = cb
 }
 
 /**
@@ -153,6 +175,12 @@ export function notifySessionMetadataChanged(
       detail: metadata.task_summary ?? null,
     })
   }
+}
+
+export function notifySessionInternalMetadataChanged(
+  metadata: SessionInternalMetadata,
+): void {
+  internalMetadataListener?.(metadata)
 }
 
 /**

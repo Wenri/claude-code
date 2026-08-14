@@ -16,6 +16,7 @@ import { initializeRepoBranchWatcher } from '../utils/repoCheckouts.js'
 import { getSessionIngressAuthToken } from '../utils/sessionIngressAuth.js'
 import {
   notifySessionMetadataChanged,
+  setSessionInternalMetadataChangedListener,
   setSessionMetadataChangedListener,
   setSessionStateChangedListener,
 } from '../utils/sessionState.js'
@@ -166,6 +167,9 @@ export class RemoteIO extends StructuredIO {
       })
       setSessionMetadataChangedListener(metadata => {
         this.ccrClient?.reportMetadata(metadata)
+      })
+      setSessionInternalMetadataChangedListener(metadata => {
+        this.ccrClient?.reportInternalMetadata(metadata)
       })
       void initializeRepoBranchWatcher(notifySessionMetadataChanged)
     }

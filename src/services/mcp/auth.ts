@@ -1484,6 +1484,15 @@ export function wrapFetchWithStepUpDetection(
   }
 }
 
+function normalizeRedirectOrigin(redirectUri: string): string {
+  try {
+    const url = new URL(redirectUri)
+    return `${url.protocol}//${url.hostname}`
+  } catch {
+    return redirectUri
+  }
+}
+
 export class ClaudeAuthProvider implements OAuthClientProvider {
   private serverName: string
   private serverConfig: McpSSEServerConfig | McpHTTPServerConfig
@@ -1601,6 +1610,20 @@ export class ClaudeAuthProvider implements OAuthClientProvider {
     // Check session credentials first (from DCR or previous auth)
     const storedInfo = data?.mcpOAuth?.[serverKey]
     if (storedInfo?.clientId) {
+      const registeredRedirectUri = storedInfo.redirectUri
+      if (
+        this.handleRedirection &&
+        (registeredRedirectUri
+          ? normalizeRedirectOrigin(registeredRedirectUri) !==
+            normalizeRedirectOrigin(this.redirectUri)
+          : !this.redirectUri.startsWith('http://localhost'))
+      ) {
+        logMCPDebug(
+          this.serverName,
+          `Cached client_id was registered for ${registeredRedirectUri ?? 'localhost'}; current redirectUri is ${this.redirectUri} — forcing re-DCR`,
+        )
+        return undefined
+      }
       logMCPDebug(this.serverName, `Found client info`)
       return {
         client_id: storedInfo.clientId,
@@ -1643,6 +1666,7 @@ export class ClaudeAuthProvider implements OAuthClientProvider {
           serverUrl: this.serverConfig.url,
           clientId: clientInformation.client_id,
           clientSecret: clientInformation.client_secret,
+          redirectUri: this.redirectUri,
           accessToken: existingData.mcpOAuth?.[serverKey]?.accessToken || '',
           expiresAt: existingData.mcpOAuth?.[serverKey]?.expiresAt,
         },

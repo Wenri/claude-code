@@ -7,10 +7,7 @@ import { logEvent } from 'src/services/analytics/index.js'
 import { registerCleanup } from '../cleanupRegistry.js'
 import { getCwd } from '../cwd.js'
 import { logForDebugging } from '../debug.js'
-import {
-  embeddedSearchToolsBinaryPath,
-  hasEmbeddedSearchTools,
-} from '../embeddedTools.js'
+import { hasEmbeddedSearchTools } from '../embeddedTools.js'
 import { getClaudeConfigHomeDir } from '../envUtils.js'
 import { pathExists } from '../file.js'
 import { getFsImplementation } from '../fsOperations.js'
@@ -24,9 +21,10 @@ import { quote } from './shellQuote.js'
 
 const LITERAL_BACKSLASH = '\\'
 const SNAPSHOT_CREATION_TIMEOUT = 10000 // 10 seconds
+const CLAUDE_CODE_EXECPATH_ENV_VAR = 'CLAUDE_CODE_EXECPATH'
 
 /**
- * Creates a shell function that invokes `binaryPath` with a specific argv[0].
+ * Creates a shell function that invokes Claude with a specific argv[0].
  * This uses the bun-internal ARGV0 dispatch trick: the bun binary checks its
  * argv[0] and runs the embedded tool (rg, bfs, ugrep) that matches.
  *
@@ -37,24 +35,34 @@ const SNAPSHOT_CREATION_TIMEOUT = 10000 // 10 seconds
 function createArgv0ShellFunction(
   funcName: string,
   argv0: string,
-  binaryPath: string,
   prependArgs: string[] = [],
 ): string {
-  const quotedPath = quote([binaryPath])
   const argSuffix =
     prependArgs.length > 0 ? `${prependArgs.join(' ')} "$@"` : '"$@"'
+  const isWindows = getPlatform() === 'windows'
+  const installedBinaryPath = join(
+    getClaudeConfigHomeDir(),
+    isWindows ? 'claude.exe' : 'claude',
+  )
+  const shellInstalledBinaryPath = isWindows
+    ? windowsPathToPosixPath(installedBinaryPath)
+    : installedBinaryPath
+  const quotedInstalledBinaryPath = quote([shellInstalledBinaryPath])
   return [
     `function ${funcName} {`,
+    `  local _cc_bin="\${${CLAUDE_CODE_EXECPATH_ENV_VAR}:-}"`,
+    `  [[ -x $_cc_bin ]] || _cc_bin=${quotedInstalledBinaryPath}`,
+    `  if [[ ! -x $_cc_bin ]]; then command ${funcName} "$@"; return; fi`,
     '  if [[ -n $ZSH_VERSION ]]; then',
-    `    ARGV0=${argv0} ${quotedPath} ${argSuffix}`,
+    `    ARGV0=${argv0} "$_cc_bin" ${argSuffix}`,
     '  elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "win32" ]]; then',
     // On Windows (git bash), exec -a does not work, so use ARGV0 env var instead
     // The bun binary reads from ARGV0 natively to set argv[0]
-    `    ARGV0=${argv0} ${quotedPath} ${argSuffix}`,
+    `    ARGV0=${argv0} "$_cc_bin" ${argSuffix}`,
     '  elif [[ $BASHPID != $$ ]]; then',
-    `    exec -a ${argv0} ${quotedPath} ${argSuffix}`,
+    `    exec -a ${argv0} "$_cc_bin" ${argSuffix}`,
     '  else',
-    `    (exec -a ${argv0} ${quotedPath} ${argSuffix})`,
+    `    (exec -a ${argv0} "$_cc_bin" ${argSuffix})`,
     '  fi',
     '}',
   ].join('\n')
@@ -74,11 +82,7 @@ export function createRipgrepShellIntegration(): {
   if (rgCommand.argv0) {
     return {
       type: 'function',
-      snippet: createArgv0ShellFunction(
-        'rg',
-        rgCommand.argv0,
-        rgCommand.rgPath,
-      ),
+      snippet: createArgv0ShellFunction('rg', rgCommand.argv0),
     }
   }
 
@@ -159,7 +163,6 @@ export function createFindGrepShellIntegration(): string | null {
   if (!hasEmbeddedSearchTools()) {
     return null
   }
-  const binaryPath = embeddedSearchToolsBinaryPath()
   return [
     // User shell configs may define aliases like `alias find=gfind` or
     // `alias grep=ggrep` (common on macOS with Homebrew GNU tools). The
@@ -169,13 +172,13 @@ export function createFindGrepShellIntegration(): string | null {
     // (same fix the rg integration uses).
     'unalias find 2>/dev/null || true',
     'unalias grep 2>/dev/null || true',
-    createArgv0ShellFunction('find', 'bfs', binaryPath, [
+    createArgv0ShellFunction('find', 'bfs', [
       '-S',
       'dfs',
       '-regextype',
       'findutils-default',
     ]),
-    createArgv0ShellFunction('grep', 'ugrep', binaryPath, [
+    createArgv0ShellFunction('grep', 'ugrep', [
       '-G',
       '--ignore-files',
       '--hidden',

@@ -14,8 +14,10 @@ import {
 } from '../utils/permissions/PermissionMode.js'
 import {
   notifyPermissionModeChanged,
+  notifySessionInternalMetadataChanged,
   notifySessionMetadataChanged,
   type SessionExternalMetadata,
+  type SessionInternalMetadata,
 } from '../utils/sessionState.js'
 import {
   getSettingsForSource,
@@ -41,6 +43,27 @@ export function externalMetadataToAppState(
     ...(typeof metadata.is_ultraplan_mode === 'boolean'
       ? { isUltraplanMode: metadata.is_ultraplan_mode }
       : {}),
+  })
+}
+
+export function internalMetadataToAppState(
+  metadata: SessionInternalMetadata,
+): (prev: AppState) => AppState {
+  if (!Array.isArray(metadata.session_allow_rules)) return prev => prev
+  const sessionAllowRules = metadata.session_allow_rules.filter(
+    (rule): rule is string =>
+      typeof rule === 'string' && !rule.startsWith('mcp__'),
+  )
+  if (sessionAllowRules.length === 0) return prev => prev
+  return prev => ({
+    ...prev,
+    toolPermissionContext: {
+      ...prev.toolPermissionContext,
+      alwaysAllowRules: {
+        ...prev.toolPermissionContext.alwaysAllowRules,
+        session: sessionAllowRules,
+      },
+    },
   })
 }
 
@@ -93,6 +116,19 @@ export function onChangeAppState({
       })
     }
     notifyPermissionModeChanged(newMode)
+  }
+
+  const prevSessionAllowRules =
+    oldState.toolPermissionContext.alwaysAllowRules.session
+  const newSessionAllowRules =
+    newState.toolPermissionContext.alwaysAllowRules.session
+  if (prevSessionAllowRules !== newSessionAllowRules) {
+    const builtInRules = newSessionAllowRules?.filter(
+      rule => !rule.startsWith('mcp__'),
+    )
+    notifySessionInternalMetadataChanged({
+      session_allow_rules: builtInRules?.length ? builtInRules : null,
+    })
   }
 
   if (newState.mainLoopModel !== oldState.mainLoopModel) {

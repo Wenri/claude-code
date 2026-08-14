@@ -1167,6 +1167,7 @@ export const SettingsSchema = lazySchema(() =>
       preferredNotifChannel: z
         .enum(NOTIFICATION_CHANNELS)
         .optional()
+        .catch(undefined)
         .describe('Preferred OS notification channel'),
       autoCompactEnabled: z
         .boolean()
@@ -1201,6 +1202,7 @@ export const SettingsSchema = lazySchema(() =>
       teammateMode: z
         .enum(TEAMMATE_MODES)
         .optional()
+        .catch(undefined)
         .describe('How spawned teammates execute (tmux, in-process, auto)'),
       remoteControlAtStartup: z
         .boolean()

@@ -5,7 +5,8 @@ import {
   hasProfileScope,
   isClaudeAISubscriber,
 } from '../../utils/auth.js'
-import { getAuthHeaders } from '../../utils/http.js'
+import { logForDebugging } from '../../utils/debug.js'
+import { getAuthHeaders, withOAuth401Retry } from '../../utils/http.js'
 import { getClaudeCodeUserAgent } from '../../utils/userAgent.js'
 import { isOAuthTokenExpired } from '../oauth/client.js'
 
@@ -41,23 +42,29 @@ export async function fetchUtilization(): Promise<Utilization | null> {
     return null
   }
 
-  const authResult = getAuthHeaders()
-  if (authResult.error) {
-    throw new Error(`Auth error: ${authResult.error}`)
-  }
-
-  const headers = {
-    'Content-Type': 'application/json',
-    'User-Agent': getClaudeCodeUserAgent(),
-    ...authResult.headers,
-  }
-
   const url = `${getOauthConfig().BASE_API_URL}/api/oauth/usage`
+  let attempts = 0
+  const response = await withOAuth401Retry(() => {
+    attempts++
+    // Re-read auth inside the retry closure so a refreshed token is used.
+    const authResult = getAuthHeaders()
+    if (authResult.error) {
+      throw new Error(`Auth error: ${authResult.error}`)
+    }
 
-  const response = await axios.get<Utilization>(url, {
-    headers,
-    timeout: 5000, // 5 second timeout
+    logForDebugging(`fetchUtilization: GET ${url} (attempt ${attempts})`)
+    return axios.get<Utilization>(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Agent': getClaudeCodeUserAgent(),
+        ...authResult.headers,
+      },
+      timeout: 5000, // 5 second timeout
+    })
   })
 
+  logForDebugging(
+    `fetchUtilization: 200 after ${attempts} attempt(s)${attempts > 1 ? ' (401→refresh→retry succeeded)' : ''}`,
+  )
   return response.data
 }
