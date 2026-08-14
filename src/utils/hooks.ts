@@ -288,7 +288,7 @@ function executeInBackground({
   }
 
   // TaskOutput on the ShellCommand accumulates data — no stream listeners needed
-  if (!shellCommand.background(processId)) {
+  if (!shellCommand.background(processId, { skipSpill: true })) {
     return false
   }
 

@@ -244,6 +244,8 @@ import {
   saveMode,
   saveAiGeneratedTitle,
   getCurrentSessionTitle,
+  getSessionIdFromLog,
+  searchSessionsByCustomTitle,
   restoreSessionMetadata,
   registerSessionMirror,
   flushSessionStorage,
@@ -5559,19 +5561,55 @@ async function loadInitialMessages(
   // Handle resume in print mode (accepts session ID or URL)
   // URLs are [ANT-ONLY]
   if (options.resume) {
+    let failureReason = 'load_error'
+    const resumeStart = performance.now()
     try {
       logEvent('tengu_resume_print', {})
 
-      // In print mode - we require a valid session ID, JSONL file or URL
-      const parsedSessionId = parseSessionIdentifier(
-        typeof options.resume === 'string' ? options.resume : '',
-      )
+      // In print mode, accept a session ID, exact custom title, JSONL file, or URL.
+      const resumeValue =
+        typeof options.resume === 'string' ? options.resume.trim() : ''
+      let parsedSessionId = parseSessionIdentifier(resumeValue)
+      if (!parsedSessionId && resumeValue) {
+        const titleMatches = await searchSessionsByCustomTitle(resumeValue, {
+          exact: true,
+        })
+        if (titleMatches.length === 1) {
+          const matchedSessionId = getSessionIdFromLog(titleMatches[0]!)
+          if (matchedSessionId) {
+            parsedSessionId = parseSessionIdentifier(matchedSessionId)
+          }
+        } else if (titleMatches.length > 1) {
+          const choices = titleMatches
+            .map(
+              match =>
+                `  ${getSessionIdFromLog(match) ?? '(unknown)'}  (modified ${match.modified.toISOString()})`,
+            )
+            .join('\n')
+          logEvent('tengu_session_resumed', {
+            entrypoint: 'print',
+            success: false,
+            failure_reason: 'not_found_explicit_id',
+          })
+          emitLoadError(
+            `Error: --resume "${resumeValue}" matches ${titleMatches.length} sessions. Pass one of these session IDs to disambiguate:\n${choices}`,
+            options.outputFormat,
+          )
+          gracefulShutdownSync(1)
+          return { messages: [] }
+        }
+      }
       if (!parsedSessionId) {
         let errorMessage =
-          'Error: --resume requires a valid session ID when used with --print. Usage: claude -p --resume <session-id>'
-        if (typeof options.resume === 'string') {
-          errorMessage += `. Session IDs must be in UUID format (e.g., 550e8400-e29b-41d4-a716-446655440000). Provided value "${options.resume}" is not a valid UUID`
+          'Error: --resume requires a valid session ID or session title when used with --print. Usage: claude -p --resume <session-id|title>'
+        if (resumeValue) {
+          errorMessage += `. Provided value "${resumeValue}" is not a UUID and does not match any session title.`
         }
+        logEvent('tengu_session_resumed', {
+          entrypoint: 'print',
+          success: false,
+          failure_reason: 'not_found_explicit_id',
+        })
         emitLoadError(errorMessage, options.outputFormat)
         gracefulShutdownSync(1)
         return { messages: [] }
@@ -5612,6 +5650,7 @@ async function loadInitialMessages(
         parsedSessionId.sessionId,
         parsedSessionId.jsonlFile || undefined,
       )
+      failureReason = 'processing_error'
 
       // hydrateFromCCRv2InternalEvents writes an empty transcript file for
       // fresh sessions (writeFile(sessionFile, '') with zero events), so
@@ -5629,6 +5668,11 @@ async function loadInitialMessages(
               processSessionStartHooks('startup')),
           }
         } else {
+          logEvent('tengu_session_resumed', {
+            entrypoint: 'print',
+            success: false,
+            failure_reason: 'not_found_explicit_id',
+          })
           emitLoadError(
             `No conversation found with session ID: ${parsedSessionId.sessionId}`,
             options.outputFormat,
@@ -5644,6 +5688,11 @@ async function loadInitialMessages(
           m => m.uuid === options.resumeSessionAt,
         )
         if (index < 0) {
+          logEvent('tengu_session_resumed', {
+            entrypoint: 'print',
+            success: false,
+            failure_reason: 'processing_error',
+          })
           emitLoadError(
             `No message found with message.uuid of: ${options.resumeSessionAt}`,
             options.outputFormat,
@@ -5706,6 +5755,11 @@ async function loadInitialMessages(
         )
       }
 
+      logEvent('tengu_session_resumed', {
+        entrypoint: 'print',
+        success: true,
+        resume_duration_ms: Math.round(performance.now() - resumeStart),
+      })
       return {
         messages: result.messages,
         turnInterruptionState: result.turnInterruptionState,
@@ -5713,6 +5767,12 @@ async function loadInitialMessages(
         deferredToolUse: result.deferredToolUse,
       }
     } catch (error) {
+      logEvent('tengu_session_resumed', {
+        entrypoint: 'print',
+        success: false,
+        failure_reason: failureReason,
+        error_name: error instanceof Error ? error.name : 'Error',
+      })
       logError(error)
       const errorMessage =
         error instanceof Error

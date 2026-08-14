@@ -248,6 +248,7 @@ export const detectDeploymentEnvironment = memoize((): string => {
   if (process.env.DAYTONA_WS_ID) return 'daytona'
   if (isEnvTruthy(process.env.GOOGLE_CLOUD_WORKSTATIONS))
     return 'gcp-cloud-workstations'
+  if (process.env.C9_PID || process.env.C9_USER) return 'aws-cloud9'
   if (process.env.REPL_ID || process.env.REPL_SLUG) return 'replit'
   if (process.env.PROJECT_DOMAIN) return 'glitch'
 
