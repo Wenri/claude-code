@@ -1,11 +1,11 @@
 import React, { Suspense, use, useMemo, useState } from 'react'
-import { readdir, readFile, stat } from 'fs/promises'
+import { readdir, stat } from 'fs/promises'
 import { extname, join } from 'path'
 import { Box, Text } from '../../ink.js'
 import { useKeybindings } from '../../keybindings/useKeybinding.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
-import { getSubscriptionType } from '../../utils/auth.js'
 import { isENOENT } from '../../utils/errors.js'
+import { readLineBuffers } from '../../utils/fsOperations.js'
 import { logError } from '../../utils/log.js'
 import { getProjectsDir } from '../../utils/sessionStorage.js'
 import { ConfigurableShortcutHint } from '../ConfigurableShortcutHint.js'
@@ -28,14 +28,21 @@ type UsageRecord = {
   isSubagent: boolean
   modelTier: number
   uuid: string
+  attributionAgent?: string
+  attributionSkill?: string
+  attributionPlugin?: string
 }
 
 type BehaviorStat = { key: BehaviorKey; cost: number; count: number }
+type AttributionStat = { name: string; pct: number }
 type WindowStats = {
   totalCost: number
   requestCount: number
   sessionCount: number
   behaviors: BehaviorStat[]
+  agents: AttributionStat[]
+  skills: AttributionStat[]
+  plugins: AttributionStat[]
 }
 type ScanResult = {
   day: WindowStats
@@ -48,20 +55,33 @@ const EMPTY_STATS: WindowStats = {
   requestCount: 0,
   sessionCount: 0,
   behaviors: [],
+  agents: [],
+  skills: [],
+  plugins: [],
 }
 const MAX_FILE_BYTES = 200 * 1024 * 1024
-const FILE_BATCH_SIZE = 16
+const FILE_BATCH_SIZE = 4
 const MIN_SIGNIFICANT_PERCENT = 10
-const TIMESTAMP_RE = /"timestamp":"([^"]+)"/
-const SESSION_ID_RE = /"sessionId":"([^"]+)"/
-const MODEL_RE = /"model":"([^"]+)"/
-const REQUEST_ID_RE = /"requestId":"([^"]+)"/
-const MESSAGE_ID_RE = /"id":"(msg_[^"]+)"/
-const UUID_RE = /"uuid":"([^"]+)"/
-const INPUT_TOKENS_RE = /"input_tokens":(\d+)/
-const OUTPUT_TOKENS_RE = /"output_tokens":(\d+)/
-const CACHE_CREATE_TOKENS_RE = /"cache_creation_input_tokens":(\d+)/
-const CACHE_READ_TOKENS_RE = /"cache_read_input_tokens":(\d+)/
+const encoder = new TextEncoder()
+const ASSISTANT = encoder.encode('"type":"assistant"')
+const USAGE = encoder.encode('"usage":{')
+const TIMESTAMP = encoder.encode('"timestamp":"')
+const SESSION_ID = encoder.encode('"sessionId":"')
+const MODEL = encoder.encode('"model":"')
+const REQUEST_ID = encoder.encode('"requestId":"')
+const MESSAGE_ID = encoder.encode('"id":"')
+const MESSAGE_PREFIX = encoder.encode('msg_')
+const UUID = encoder.encode('"uuid":"')
+const INPUT_TOKENS = encoder.encode('"input_tokens":')
+const OUTPUT_TOKENS = encoder.encode('"output_tokens":')
+const CACHE_CREATE_TOKENS = encoder.encode('"cache_creation_input_tokens":')
+const CACHE_READ_TOKENS = encoder.encode('"cache_read_input_tokens":')
+const SIDECHAIN_COMPACT = encoder.encode('"isSidechain":true')
+const SIDECHAIN_SPACED = encoder.encode('"isSidechain": true')
+const ATTRIBUTION = encoder.encode('"attribution')
+const ATTRIBUTION_AGENT = encoder.encode('"attributionAgent":"')
+const ATTRIBUTION_SKILL = encoder.encode('"attributionSkill":"')
+const ATTRIBUTION_PLUGIN = encoder.encode('"attributionPlugin":"')
 
 const behaviorCopy: Record<
   BehaviorKey,
@@ -109,8 +129,6 @@ export function UsageContributors({
   ) {
     return null
   }
-  const subscriptionType = getSubscriptionType()
-  if (subscriptionType !== 'pro' && subscriptionType !== 'max') return null
   return <UsageContributorsSuspense maxWidth={maxWidth} />
 }
 
@@ -150,9 +168,11 @@ function UsageContributorsResult({
   const [period, setPeriod] = useState<'day' | 'week'>('day')
   const dayStats = significantBehaviors(result.day)
   const weekStats = significantBehaviors(result.week)
+  const dayHasResults = dayStats.length > 0 || hasAttribution(result.day)
+  const weekHasResults = weekStats.length > 0 || hasAttribution(result.week)
   const hasResults =
     result.oversizedFiles.length === 0 &&
-    (dayStats.length > 0 || weekStats.length > 0)
+    (dayHasResults || weekHasResults)
   const handlers = useMemo(
     () => ({
       'settings:periodDay': () => setPeriod('day'),
@@ -186,7 +206,7 @@ function UsageContributorsResult({
     )
   }
 
-  if (dayStats.length === 0 && weekStats.length === 0) return null
+  if (!dayHasResults && !weekHasResults) return null
   const stats = period === 'day' ? result.day : result.week
   const behaviors = significantBehaviors(stats)
   return (
@@ -199,20 +219,64 @@ function UsageContributorsResult({
         </Text>
       </Box>
       <Box marginTop={1} flexDirection="column" gap={1}>
-        {behaviors.length === 0 ? (
+        {behaviors.length === 0 && !hasAttribution(stats) ? (
           <Text dimColor>
             Nothing over {MIN_SIGNIFICANT_PERCENT}% in this period — try the
             other window.
           </Text>
         ) : (
-          behaviors.map(stat => (
-            <BehaviorRow
-              key={stat.key}
-              stat={stat}
-              totalCost={stats.totalCost}
+          <>
+            {behaviors.map(stat => (
+              <BehaviorRow
+                key={stat.key}
+                stat={stat}
+                totalCost={stats.totalCost}
+                maxWidth={maxWidth}
+              />
+            ))}
+            <AttributionInsight
+              top={stats.agents[0]}
               maxWidth={maxWidth}
+              headline={(percent, name) =>
+                `${percent}% of your usage came from subagents under "${name}"`
+              }
+              body="If this runs frequently, consider configuring its subagents with a cheaper model or tightening their prompts."
             />
-          ))
+            <AttributionInsight
+              top={stats.skills[0]}
+              maxWidth={maxWidth}
+              headline={(percent, name) =>
+                `${percent}% of your usage came from /${name}`
+              }
+              body="Heavy skills can be scoped down or run with a cheaper model via skill frontmatter."
+            />
+            <AttributionInsight
+              top={stats.plugins[0]}
+              maxWidth={maxWidth}
+              headline={(percent, name) =>
+                `${percent}% of your usage came from plugin "${name}"`
+              }
+              body="Review what this plugin contributes — its agents, skills, and MCP tools all count toward your limit."
+            />
+            {!hasAttribution(stats) ? (
+              <Box flexDirection="column">
+                <Text bold>Skills, subagents, and plugins</Text>
+                <Text dimColor wrap="wrap">
+                  No attribution data yet · accumulates as you use Claude
+                </Text>
+              </Box>
+            ) : (
+              <>
+                <AttributionTable
+                  title="Skills"
+                  rows={stats.skills}
+                  label={name => `/${name}`}
+                />
+                <AttributionTable title="Subagents" rows={stats.agents} />
+                <AttributionTable title="Plugins" rows={stats.plugins} />
+              </>
+            )}
+          </>
         )}
       </Box>
       <Box marginTop={1}>
@@ -274,6 +338,65 @@ function BehaviorRow({
   )
 }
 
+function AttributionInsight({
+  top,
+  maxWidth,
+  headline,
+  body,
+}: {
+  top?: AttributionStat
+  maxWidth: number
+  headline: (percent: number, name: string) => string
+  body: string
+}) {
+  if (!top || top.pct < MIN_SIGNIFICANT_PERCENT) return null
+  return (
+    <Box flexDirection="column" width={maxWidth}>
+      <Text wrap="wrap">{headline(top.pct, top.name)}</Text>
+      <Box paddingLeft={1}>
+        <Text dimColor wrap="wrap">
+          {body}
+        </Text>
+      </Box>
+    </Box>
+  )
+}
+
+function AttributionTable({
+  title,
+  rows,
+  label,
+}: {
+  title: string
+  rows: AttributionStat[]
+  label?: (name: string) => string
+}) {
+  if (rows.length === 0) return null
+  const visible = rows.slice(0, 8)
+  const remaining = rows.length - visible.length
+  return (
+    <Box flexDirection="column">
+      <Box width={34} justifyContent="space-between">
+        <Text>{title}</Text>
+        <Text dimColor>% of usage</Text>
+      </Box>
+      {visible.map(row => (
+        <Box key={row.name}>
+          <Box width={28}>
+            <Text dimColor wrap="truncate-end">
+              {label ? label(row.name) : row.name}
+            </Text>
+          </Box>
+          <Box width={6} justifyContent="flex-end">
+            <Text dimColor>{row.pct}%</Text>
+          </Box>
+        </Box>
+      ))}
+      {remaining > 0 && <Text dimColor>… {remaining} more</Text>}
+    </Box>
+  )
+}
+
 function significantBehaviors(stats: WindowStats): BehaviorStat[] {
   if (stats.totalCost === 0) return []
   return stats.behaviors.filter(
@@ -282,49 +405,60 @@ function significantBehaviors(stats: WindowStats): BehaviorStat[] {
   )
 }
 
-async function scanUsageContributors(): Promise<ScanResult> {
-  const { records, oversizedFiles } = await scanRecentUsageRecords(7)
-  const dayStart = Date.now() - 24 * 60 * 60 * 1000
-  return {
-    day: summarizeRecords(records.filter(record => record.ts >= dayStart)),
-    week: summarizeRecords(records),
-    oversizedFiles,
-  }
+function hasAttribution(stats: WindowStats): boolean {
+  return (
+    stats.agents.length > 0 ||
+    stats.skills.length > 0 ||
+    stats.plugins.length > 0
+  )
 }
 
-async function scanRecentUsageRecords(days: number): Promise<{
-  records: UsageRecord[]
-  oversizedFiles: string[]
-}> {
-  const cutoff = Date.now() - days * 24 * 60 * 60 * 1000
+async function scanUsageContributors(): Promise<ScanResult> {
+  const weekStart = Date.now() - 7 * 24 * 60 * 60 * 1000
+  const dayStart = Date.now() - 24 * 60 * 60 * 1000
   const projectsDir = getProjectsDir()
   let projects: string[]
   try {
     projects = await readdir(projectsDir)
   } catch (error) {
-    if (isENOENT(error)) return { records: [], oversizedFiles: [] }
+    if (isENOENT(error)) {
+      return { day: EMPTY_STATS, week: EMPTY_STATS, oversizedFiles: [] }
+    }
     throw error
   }
   const files = (
     await Promise.all(projects.map(project => findTranscriptFiles(join(projectsDir, project))))
   ).flat()
-  const records: UsageRecord[] = []
+  const day = createAccumulator()
+  const week = createAccumulator()
+  const seen = new Set<string>()
   const oversizedFiles: string[] = []
   for (let index = 0; index < files.length; index += FILE_BATCH_SIZE) {
     const batch = files.slice(index, index + FILE_BATCH_SIZE)
     const batchResults = await Promise.all(
-      batch.map(file => readUsageRecords(file, cutoff)),
+      batch.map(file => readUsageRecords(file, weekStart)),
     )
     batchResults.forEach((result, resultIndex) => {
       if (result === 'oversized') {
         const file = batch[resultIndex]
         if (file) oversizedFiles.push(file)
       } else {
-        records.push(...result)
+        for (const record of result) {
+          if (record.uuid) {
+            if (seen.has(record.uuid)) continue
+            seen.add(record.uuid)
+          }
+          addRecord(week, record)
+          if (record.ts >= dayStart) addRecord(day, record)
+        }
       }
     })
   }
-  return { records: dedupeRecords(records), oversizedFiles }
+  return {
+    day: finalizeAccumulator(day),
+    week: finalizeAccumulator(week),
+    oversizedFiles,
+  }
 }
 
 async function findTranscriptFiles(projectDir: string): Promise<string[]> {
@@ -373,70 +507,135 @@ async function readUsageRecords(
   }
   if (!fileStat.isFile() || fileStat.mtimeMs < cutoff) return []
   if (fileStat.size > MAX_FILE_BYTES) return 'oversized'
-  let content: string
-  try {
-    content = await readFile(file, 'utf8')
-  } catch (error) {
-    if (isENOENT(error)) return []
-    throw error
-  }
   const records: UsageRecord[] = []
-  let position = 0
-  while (position < content.length) {
-    let end = content.indexOf('\n', position)
-    if (end === -1) end = content.length
-    const line = content.slice(position, end)
-    position = end + 1
-    if (!line.includes('"type":"assistant"') || !line.includes('"usage":{')) {
-      continue
+  try {
+    for await (const line of readLineBuffers(file)) {
+      const record = parseUsageRecord(line, 0, line.length, cutoff)
+      if (record) records.push(record)
     }
-    const timestamp = TIMESTAMP_RE.exec(line)?.[1]
-    const sessionId = SESSION_ID_RE.exec(line)?.[1]
-    if (!timestamp || !sessionId) continue
-    const ts = Date.parse(timestamp)
-    if (Number.isNaN(ts) || ts < cutoff) continue
-    const uncached = Number(INPUT_TOKENS_RE.exec(line)?.[1] ?? 0)
-    const output = Number(OUTPUT_TOKENS_RE.exec(line)?.[1] ?? 0)
-    const cacheCreate = Number(
-      CACHE_CREATE_TOKENS_RE.exec(line)?.[1] ?? 0,
-    )
-    const cached = Number(
-      CACHE_READ_TOKENS_RE.exec(line)?.[1] ?? 0,
-    )
-    if (uncached + output + cacheCreate + cached === 0) continue
-    const model = MODEL_RE.exec(line)?.[1] ?? ''
-    records.push({
-      ts,
-      sessionId,
-      cached,
-      cacheCreate,
-      uncached,
-      output,
-      isSubagent:
-        line.includes('"isSidechain":true') ||
-        line.includes('"isSidechain": true'),
-      modelTier: modelTier(model),
-      uuid:
-        REQUEST_ID_RE.exec(line)?.[1] ??
-        MESSAGE_ID_RE.exec(line)?.[1] ??
-        UUID_RE.exec(line)?.[1] ??
-        '',
-    })
+  } catch (error) {
+    if (isENOENT(error)) return records
+    throw error
   }
   return records
 }
 
-function dedupeRecords(records: UsageRecord[]): UsageRecord[] {
-  const seen = new Set<string>()
-  return records.filter(record => {
-    if (!record.uuid) return true
-    if (seen.has(record.uuid)) return false
-    seen.add(record.uuid)
-    return true
-  })
+function indexOfWithin(
+  line: Buffer,
+  needle: Uint8Array,
+  start: number,
+  end: number,
+): number {
+  const offset = line.subarray(start, end).indexOf(needle)
+  return offset < 0 ? -1 : start + offset
 }
 
-function modelTier(model: string): number {
+function extractQuoted(
+  line: Buffer,
+  prefix: Uint8Array,
+  start: number,
+  end: number,
+): string | undefined {
+  const index = indexOfWithin(line, prefix, start, end)
+  if (index < 0) return undefined
+  const valueStart = index + prefix.length
+  let valueEnd = valueStart
+  while (valueEnd < end && line[valueEnd] !== 0x22) valueEnd++
+  return line.toString('utf8', valueStart, valueEnd)
+}
+
+function extractMessageId(
+  line: Buffer,
+  start: number,
+  end: number,
+): string | undefined {
+  let position = start
+  while (true) {
+    position = indexOfWithin(line, MESSAGE_ID, position, end)
+    if (position < 0) return undefined
+    const valueStart = position + MESSAGE_ID.length
+    if (
+      indexOfWithin(
+        line,
+        MESSAGE_PREFIX,
+        valueStart,
+        valueStart + MESSAGE_PREFIX.length,
+      ) === valueStart
+    ) {
+      let valueEnd = valueStart
+      while (valueEnd < end && line[valueEnd] !== 0x22) valueEnd++
+      return line.toString('utf8', valueStart, valueEnd)
+    }
+    position = valueStart
+  }
+}
+
+function extractNumber(
+  line: Buffer,
+  prefix: Uint8Array,
+  start: number,
+  end: number,
+): number {
+  const index = indexOfWithin(line, prefix, start, end)
+  if (index < 0) return 0
+  let position = index + prefix.length
+  let value = 0
+  while (
+    position < end &&
+    line[position]! >= 0x30 &&
+    line[position]! <= 0x39
+  ) {
+    value = value * 10 + line[position]! - 0x30
+    position++
+  }
+  return value
+}
+
+function parseUsageRecord(
+  line: Buffer,
+  start: number,
+  end: number,
+  cutoff: number,
+): UsageRecord | undefined {
+  if (indexOfWithin(line, ASSISTANT, start, end) < 0) return undefined
+  if (indexOfWithin(line, USAGE, start, end) < 0) return undefined
+  const timestamp = extractQuoted(line, TIMESTAMP, start, end)
+  const sessionId = extractQuoted(line, SESSION_ID, start, end)
+  if (!timestamp || !sessionId) return undefined
+  const ts = Date.parse(timestamp)
+  if (Number.isNaN(ts) || ts < cutoff) return undefined
+  const uncached = extractNumber(line, INPUT_TOKENS, start, end)
+  const output = extractNumber(line, OUTPUT_TOKENS, start, end)
+  const cacheCreate = extractNumber(line, CACHE_CREATE_TOKENS, start, end)
+  const cached = extractNumber(line, CACHE_READ_TOKENS, start, end)
+  if (uncached + output + cacheCreate + cached === 0) return undefined
+  const hasAttribution = indexOfWithin(line, ATTRIBUTION, start, end) >= 0
+  return {
+    ts,
+    sessionId,
+    cached,
+    cacheCreate,
+    uncached,
+    output,
+    isSubagent:
+      indexOfWithin(line, SIDECHAIN_COMPACT, start, end) >= 0 ||
+      indexOfWithin(line, SIDECHAIN_SPACED, start, end) >= 0,
+    modelTier: modelTier(extractQuoted(line, MODEL, start, end)),
+    uuid:
+      extractQuoted(line, REQUEST_ID, start, end) ??
+      extractMessageId(line, start, end) ??
+      extractQuoted(line, UUID, start, end) ??
+      '',
+    ...(hasAttribution && {
+      attributionAgent: extractQuoted(line, ATTRIBUTION_AGENT, start, end),
+      attributionSkill: extractQuoted(line, ATTRIBUTION_SKILL, start, end),
+      attributionPlugin: extractQuoted(line, ATTRIBUTION_PLUGIN, start, end),
+    }),
+  }
+}
+
+function modelTier(model?: string): number {
+  if (!model) return 3
   const normalized = model.toLowerCase()
   if (normalized.includes('opus')) return 5
   if (normalized.includes('haiku')) return 1
@@ -453,69 +652,111 @@ function estimatedCost(record: UsageRecord): number {
   )
 }
 
-function summarizeRecords(records: UsageRecord[]): WindowStats {
-  let totalCost = 0
-  let cacheMissCost = 0
-  let cacheMissCount = 0
-  let longContextCost = 0
-  let longContextCount = 0
-  const sessions = new Map<
+type UsageAccumulator = {
+  totalCost: number
+  requestCount: number
+  cacheMissCost: number
+  cacheMissCount: number
+  longContextCost: number
+  longContextCount: number
+  sessions: Map<
     string,
     { cost: number; subCost: number; subCount: number; hours: Set<number> }
-  >()
-  const windows = new Map<
+  >
+  buckets: Map<
     number,
     { sessionIds: Set<string>; cost: number; count: number }
-  >()
+  >
+  byAgent: Map<string, number>
+  bySkill: Map<string, number>
+  byPlugin: Map<string, number>
+}
 
-  for (const record of records) {
-    const cost = estimatedCost(record)
-    totalCost += cost
-    const inputTokens = record.cached + record.cacheCreate + record.uncached
-    if (record.uncached > 100_000) {
-      cacheMissCost += cost
-      cacheMissCount++
-    }
-    if (inputTokens > 150_000) {
-      longContextCost += cost
-      longContextCount++
-    }
-    let session = sessions.get(record.sessionId)
-    if (!session) {
-      session = { cost: 0, subCost: 0, subCount: 0, hours: new Set() }
-      sessions.set(record.sessionId, session)
-    }
-    session.cost += cost
-    if (record.isSubagent) {
-      session.subCost += cost
-      session.subCount++
-    }
-    session.hours.add(Math.floor(record.ts / (60 * 60 * 1000)))
-
-    const windowKey = Math.floor(record.ts / (5 * 60 * 1000))
-    let window = windows.get(windowKey)
-    if (!window) {
-      window = { sessionIds: new Set(), cost: 0, count: 0 }
-      windows.set(windowKey, window)
-    }
-    window.sessionIds.add(record.sessionId)
-    window.cost += cost
-    window.count++
+function createAccumulator(): UsageAccumulator {
+  return {
+    totalCost: 0,
+    requestCount: 0,
+    cacheMissCost: 0,
+    cacheMissCount: 0,
+    longContextCost: 0,
+    longContextCount: 0,
+    sessions: new Map(),
+    buckets: new Map(),
+    byAgent: new Map(),
+    bySkill: new Map(),
+    byPlugin: new Map(),
   }
+}
 
+function addAttribution(
+  values: Map<string, number>,
+  name: string | undefined,
+  cost: number,
+): void {
+  if (name) values.set(name, (values.get(name) ?? 0) + cost)
+}
+
+function addRecord(accumulator: UsageAccumulator, record: UsageRecord): void {
+  const cost = estimatedCost(record)
+  accumulator.totalCost += cost
+  accumulator.requestCount++
+  if (record.attributionAgent) {
+    addAttribution(
+      accumulator.byAgent,
+      record.attributionSkill ?? record.attributionAgent,
+      cost,
+    )
+  } else {
+    addAttribution(accumulator.bySkill, record.attributionSkill, cost)
+  }
+  addAttribution(accumulator.byPlugin, record.attributionPlugin, cost)
+
+  const inputTokens = record.cached + record.cacheCreate + record.uncached
+  if (record.uncached > 100_000) {
+    accumulator.cacheMissCost += cost
+    accumulator.cacheMissCount++
+  }
+  if (inputTokens > 150_000) {
+    accumulator.longContextCost += cost
+    accumulator.longContextCount++
+  }
+  let session = accumulator.sessions.get(record.sessionId)
+  if (!session) {
+    session = { cost: 0, subCost: 0, subCount: 0, hours: new Set() }
+    accumulator.sessions.set(record.sessionId, session)
+  }
+  session.cost += cost
+  if (record.isSubagent) {
+    session.subCost += cost
+    session.subCount++
+  }
+  session.hours.add(Math.floor(record.ts / (60 * 60 * 1000)))
+
+  const bucketKey = Math.floor(record.ts / (5 * 60 * 1000))
+  let bucket = accumulator.buckets.get(bucketKey)
+  if (!bucket) {
+    bucket = { sessionIds: new Set(), cost: 0, count: 0 }
+    accumulator.buckets.set(bucketKey, bucket)
+  }
+  bucket.sessionIds.add(record.sessionId)
+  bucket.cost += cost
+  bucket.count++
+}
+
+function finalizeAccumulator(accumulator: UsageAccumulator): WindowStats {
   let highParallelCost = 0
   let highParallelCount = 0
-  for (const window of windows.values()) {
-    if (window.sessionIds.size >= 4) {
-      highParallelCost += window.cost
-      highParallelCount += window.count
+  for (const bucket of accumulator.buckets.values()) {
+    if (bucket.sessionIds.size >= 4) {
+      highParallelCost += bucket.cost
+      highParallelCount += bucket.count
     }
   }
   let subagentCost = 0
   let subagentCount = 0
   let cronCost = 0
   let cronCount = 0
-  for (const session of sessions.values()) {
+  for (const session of accumulator.sessions.values()) {
     if (
       session.subCount >= 3 ||
       (session.cost > 0 && session.subCost / session.cost > 0.5)
@@ -529,17 +770,42 @@ function summarizeRecords(records: UsageRecord[]): WindowStats {
     }
   }
   const behaviors: BehaviorStat[] = [
-    { key: 'cache_miss', cost: cacheMissCost, count: cacheMissCount },
-    { key: 'long_context', cost: longContextCost, count: longContextCount },
+    {
+      key: 'cache_miss',
+      cost: accumulator.cacheMissCost,
+      count: accumulator.cacheMissCount,
+    },
+    {
+      key: 'long_context',
+      cost: accumulator.longContextCost,
+      count: accumulator.longContextCount,
+    },
     { key: 'subagent_heavy', cost: subagentCost, count: subagentCount },
     { key: 'high_parallel', cost: highParallelCost, count: highParallelCount },
     { key: 'cron', cost: cronCost, count: cronCount },
   ]
   behaviors.sort((left, right) => right.cost - left.cost)
   return {
-    totalCost,
-    requestCount: records.length,
-    sessionCount: sessions.size,
+    totalCost: accumulator.totalCost,
+    requestCount: accumulator.requestCount,
+    sessionCount: accumulator.sessions.size,
     behaviors,
+    agents: summarizeAttribution(accumulator.byAgent, accumulator.totalCost),
+    skills: summarizeAttribution(accumulator.bySkill, accumulator.totalCost),
+    plugins: summarizeAttribution(accumulator.byPlugin, accumulator.totalCost),
   }
+}
+
+function summarizeAttribution(
+  values: Map<string, number>,
+  totalCost: number,
+): AttributionStat[] {
+  if (values.size === 0 || totalCost === 0) return []
+  return [...values.entries()]
+    .sort((left, right) => right[1] - left[1])
+    .map(([name, cost]) => ({
+      name,
+      pct: Math.round((cost / totalCost) * 100),
+    }))
+    .filter(value => value.pct > 0)
 }

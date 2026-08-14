@@ -714,6 +714,64 @@ export async function tailFile(
 }
 
 /**
+ * Yield newline-delimited byte slices without decoding or retaining the whole
+ * file. A line may span multiple read chunks; the yielded buffer never
+ * includes the trailing newline.
+ */
+export async function* readLineBuffers(
+  path: string,
+  chunkSize = 64 * 1024,
+): AsyncGenerator<Buffer, void, undefined> {
+  const fileHandle = await open(path, 'r')
+  const buffer = Buffer.alloc(chunkSize)
+  let position = 0
+  let fragments: Buffer[] = []
+  let fragmentBytes = 0
+
+  try {
+    while (true) {
+      const { bytesRead } = await fileHandle.read(
+        buffer,
+        0,
+        chunkSize,
+        position,
+      )
+      if (bytesRead === 0) break
+      position += bytesRead
+      const chunk = buffer.subarray(0, bytesRead)
+      let start = 0
+      while (start < bytesRead) {
+        const newline = chunk.indexOf(0x0a, start)
+        if (newline === -1) {
+          fragments.push(Buffer.from(chunk.subarray(start)))
+          fragmentBytes += bytesRead - start
+          break
+        }
+        if (fragmentBytes === 0) {
+          yield chunk.subarray(start, newline)
+        } else {
+          yield Buffer.concat(
+            [...fragments, chunk.subarray(start, newline)],
+            fragmentBytes + newline - start,
+          )
+          fragments = []
+          fragmentBytes = 0
+        }
+        start = newline + 1
+      }
+    }
+  } finally {
+    await fileHandle.close()
+  }
+
+  if (fragmentBytes > 0) {
+    yield fragments.length === 1
+      ? fragments[0]!
+      : Buffer.concat(fragments, fragmentBytes)
+  }
+}
+
+/**
  * Async generator that yields lines from a file in reverse order.
  * Reads the file backwards in chunks to avoid loading the entire file into memory.
  * @param path - The path to the file to read
