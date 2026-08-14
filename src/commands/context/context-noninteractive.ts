@@ -26,7 +26,7 @@ type CollectContextDataInput = {
     mainLoopModel: string
     tools: Tools
     agentDefinitions: AgentDefinitionsResult
-    customSystemPrompt?: string
+    customSystemPrompt?: string | string[]
     appendSystemPrompt?: string
     excludeDynamicSections?: boolean
   }

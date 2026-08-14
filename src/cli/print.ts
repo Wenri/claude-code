@@ -243,6 +243,7 @@ import {
   saveAgentSetting,
   saveMode,
   saveAiGeneratedTitle,
+  cacheSessionTitle,
   getCurrentSessionTitle,
   getSessionIdFromLog,
   searchSessionsByCustomTitle,
@@ -263,6 +264,9 @@ import {
   isLocalMcpServer,
   areMcpConfigsEqual,
   reconnectMcpServerImpl,
+  callMCPToolWithUrlElicitationRetry,
+  McpAuthError,
+  McpSessionExpiredError,
 } from 'src/services/mcp/client.js'
 import {
   filterMcpServersByPolicy,
@@ -286,11 +290,15 @@ import { executeNotificationHooks } from 'src/utils/hooks.js'
 import {
   ElicitRequestSchema,
   ElicitationCompleteNotificationSchema,
+  ErrorCode,
+  McpError,
 } from '@modelcontextprotocol/sdk/types.js'
 import {
   buildMcpToolName,
   getMcpPrefix,
+  mcpInfoFromString,
 } from 'src/services/mcp/mcpStringUtils.js'
+import { normalizeNameForMCP } from 'src/services/mcp/normalization.js'
 import {
   commandBelongsToServer,
   filterToolsByServer,
@@ -523,6 +531,61 @@ function isSyntheticSessionTitleInput(text: string): boolean {
   )
 }
 
+const PERMISSION_DISPLAY_META_KEY = 'anthropic/permissionDisplay'
+
+function getPermissionDisplay(meta?: Record<string, unknown>):
+  | { title?: string; displayName?: string; description?: string }
+  | undefined {
+  const value = meta?.[PERMISSION_DISPLAY_META_KEY]
+  if (value === null || typeof value !== 'object') return undefined
+  const display = value as Record<string, unknown>
+  const getString = (key: string) =>
+    typeof display[key] === 'string' ? display[key] : undefined
+  return {
+    title: getString('title'),
+    displayName: getString('displayName'),
+    description: getString('description'),
+  }
+}
+
+function getUrlElicitationUrls(error: McpError): string[] {
+  const data = error.data
+  if (data === null || typeof data !== 'object') return []
+  const elicitations = (data as Record<string, unknown>).elicitations
+  if (!Array.isArray(elicitations)) return []
+  return elicitations.flatMap(value => {
+    if (value === null || typeof value !== 'object') return []
+    const elicitation = value as Record<string, unknown>
+    return elicitation.mode === 'url' &&
+      typeof elicitation.url === 'string' &&
+      typeof elicitation.elicitationId === 'string' &&
+      typeof elicitation.message === 'string'
+      ? [elicitation.url]
+      : []
+  })
+}
+
+function markMcpServerNeedsAuth(
+  serverName: string,
+  setAppState: (f: (prev: AppState) => AppState) => void,
+): void {
+  setAppState(prevState => {
+    const existingClientIndex = prevState.mcp.clients.findIndex(
+      client => client.name === serverName,
+    )
+    if (existingClientIndex === -1) return prevState
+    const existingClient = prevState.mcp.clients[existingClientIndex]
+    if (!existingClient || existingClient.type !== 'connected') return prevState
+    const clients = [...prevState.mcp.clients]
+    clients[existingClientIndex] = {
+      name: serverName,
+      type: 'needs-auth',
+      config: existingClient.config,
+    }
+    return { ...prevState, mcp: { ...prevState.mcp, clients } }
+  })
+}
+
 export async function runHeadless(
   inputPrompt: string | AsyncIterable<string>,
   getAppState: () => AppState,
@@ -545,8 +608,10 @@ export async function runHeadless(
     maxTurns: number | undefined
     maxBudgetUsd: number | undefined
     taskBudget: { total: number } | undefined
-    systemPrompt: string | undefined
+    systemPrompt: string | string[] | undefined
     appendSystemPrompt: string | undefined
+    appendSubagentSystemPrompt?: string | undefined
+    forwardSubagentText?: boolean | undefined
     excludeDynamicSections: boolean | undefined
     planModeInstructions: string | undefined
     userSpecifiedModel: string | undefined
@@ -1120,8 +1185,10 @@ function runHeadlessStreaming(
     maxTurns: number | undefined
     maxBudgetUsd: number | undefined
     taskBudget: { total: number } | undefined
-    systemPrompt: string | undefined
+    systemPrompt: string | string[] | undefined
     appendSystemPrompt: string | undefined
+    appendSubagentSystemPrompt?: string | undefined
+    forwardSubagentText?: boolean | undefined
     excludeDynamicSections: boolean | undefined
     planModeInstructions: string | undefined
     userSpecifiedModel: string | undefined
@@ -1150,6 +1217,7 @@ function runHeadlessStreaming(
   let shutdownPromptInjected = false
   let heldBackResult: StdoutMessage | null = null
   let abortController: AbortController | undefined
+  const controlRequestAbortController = createAbortController(500)
   // Same queue sendRequest() enqueues to — one FIFO for everything.
   const output = structuredIO.outbound
 
@@ -1171,6 +1239,7 @@ function runHeadlessStreaming(
     if (abortController && !abortController.signal.aborted) {
       abortController.abort()
     }
+    controlRequestAbortController.abort()
     void gracefulShutdown(0)
   }
   process.on('SIGINT', sigintHandler)
@@ -1487,6 +1556,7 @@ function runHeadlessStreaming(
               mode,
               url,
               elicitationId,
+              getPermissionDisplay(request.params._meta),
             )
 
             const result = await runElicitationResultHooks(
@@ -2440,6 +2510,8 @@ function runHeadlessStreaming(
               },
               customSystemPrompt: options.systemPrompt,
               appendSystemPrompt: options.appendSystemPrompt,
+              appendSubagentSystemPrompt: options.appendSubagentSystemPrompt,
+              forwardSubagentText: options.forwardSubagentText,
               excludeDynamicSections: options.excludeDynamicSections,
               planModeInstructions: options.planModeInstructions,
               getAppState,
@@ -2457,6 +2529,7 @@ function runHeadlessStreaming(
                   params.mode,
                   params.url,
                   'elicitationId' in params ? params.elicitationId : undefined,
+                  getPermissionDisplay(params._meta),
                 ),
               agents: currentAgents,
               allowedAgentTypes,
@@ -3126,6 +3199,7 @@ function runHeadlessStreaming(
           if (abortController) {
             abortController.abort()
           }
+          controlRequestAbortController.abort()
           suggestionState.abortController?.abort()
           suggestionState.abortController = null
           suggestionState.lastEmitted = null
@@ -3133,6 +3207,15 @@ function runHeadlessStreaming(
           sendControlResponseSuccess(message)
           break // exits for-await → falls through to inputClosed=true drain below
         } else if (message.request.subtype === 'initialize') {
+          const requestedTitle =
+            typeof message.request.title === 'string'
+              ? message.request.title.trim()
+              : undefined
+          if (requestedTitle) {
+            autoTitleAttempted = true
+            cacheSessionTitle(requestedTitle)
+          }
+
           // SDK MCP server names from the initialize message
           // Populated by both browser and ProcessTransport sessions
           if (
@@ -3235,6 +3318,110 @@ function runHeadlessStreaming(
             version: MACRO.VERSION,
             buildTime: MACRO.BUILD_TIME,
           })
+        } else if (message.request.subtype === 'mcp_call') {
+          const { tool, arguments: args } = message.request
+          const mcpInfo = mcpInfoFromString(tool)
+          if (!mcpInfo || !mcpInfo.toolName) {
+            sendControlResponseError(
+              message,
+              `Not a fully-qualified MCP tool name: ${tool}`,
+            )
+          } else {
+            const connectedClient = [
+              ...getAppState().mcp.clients,
+              ...sdkClients,
+              ...dynamicMcpState.clients,
+            ].find(
+              client =>
+                client.type === 'connected' &&
+                normalizeNameForMCP(client.name) === mcpInfo.serverName,
+            )
+            if (!connectedClient || connectedClient.type !== 'connected') {
+              sendControlResponseError(
+                message,
+                `MCP server not connected: ${mcpInfo.serverName}`,
+              )
+            } else if (connectedClient.config.type === 'sdk') {
+              sendControlResponseError(
+                message,
+                'mcp_call does not support SDK MCP servers. ' +
+                  `SDK servers are caller-provided — invoke ${mcpInfo.serverName} directly.`,
+              )
+            } else {
+              const actualToolName =
+                [
+                  ...getAppState().mcp.tools,
+                  ...dynamicMcpState.tools,
+                ].find(candidate => toolMatchesName(candidate, tool))?.mcpInfo
+                  ?.toolName ?? mcpInfo.toolName
+
+              void (async () => {
+                if (controlRequestAbortController.signal.aborted) return
+                const callAbortController = createAbortController()
+                const onParentAbort = () =>
+                  callAbortController.abort(
+                    controlRequestAbortController.signal.reason,
+                  )
+                controlRequestAbortController.signal.addEventListener(
+                  'abort',
+                  onParentAbort,
+                  { once: true },
+                )
+                try {
+                  const result = await callMCPToolWithUrlElicitationRetry({
+                    client: connectedClient,
+                    clientConnection: connectedClient,
+                    tool: actualToolName,
+                    args: args ?? {},
+                    signal: callAbortController.signal,
+                    setAppState,
+                    handleElicitation: async () => ({ action: 'cancel' }),
+                  })
+                  if (controlRequestAbortController.signal.aborted) return
+                  if (result.urlElicitationDeclined) {
+                    sendControlResponseError(
+                      message,
+                      `URL elicitation required (open URL, then retry mcp_call): ${result.urlElicitationDeclined.url}` +
+                        (typeof result.content === 'string'
+                          ? ` — ${result.content}`
+                          : ''),
+                    )
+                  } else {
+                    sendControlResponseSuccess(message, {
+                      content: result.content,
+                      structuredContent: result.structuredContent,
+                      _meta: result._meta,
+                    })
+                  }
+                } catch (error) {
+                  if (controlRequestAbortController.signal.aborted) return
+                  if (error instanceof McpAuthError) {
+                    markMcpServerNeedsAuth(error.serverName, setAppState)
+                  }
+                  let messageText =
+                    error instanceof Error ? error.message : String(error)
+                  if (error instanceof McpSessionExpiredError) {
+                    messageText = `MCP session expired for ${mcpInfo.serverName} — send mcp_reconnect and retry mcp_call: ${messageText}`
+                  } else if (
+                    error instanceof McpError &&
+                    error.code === ErrorCode.UrlElicitationRequired
+                  ) {
+                    const urls = getUrlElicitationUrls(error)
+                    messageText =
+                      urls.length > 0
+                        ? `URL elicitation required (open URL, then retry mcp_call): ${urls.join(', ')} — ${messageText}`
+                        : `URL elicitation required (no URL in error data): ${messageText}`
+                  }
+                  sendControlResponseError(message, messageText)
+                } finally {
+                  controlRequestAbortController.signal.removeEventListener(
+                    'abort',
+                    onParentAbort,
+                  )
+                }
+              })()
+            }
+          }
         } else if (message.request.subtype === 'get_context_usage') {
           try {
             const appState = getAppState()
@@ -4623,6 +4810,7 @@ function runHeadlessStreaming(
       void run()
     }
     inputClosed = true
+    controlRequestAbortController.abort()
     cronScheduler?.stop()
     if (!running) {
       // If a push-suggestion is in-flight, wait for it to emit before closing
@@ -4873,6 +5061,14 @@ export function getCanUseToolFn(
   }
 }
 
+function isEmptySystemPrompt(systemPrompt: unknown): boolean {
+  return (
+    Array.isArray(systemPrompt) &&
+    systemPrompt.length === 1 &&
+    systemPrompt[0] === ''
+  )
+}
+
 async function handleInitializeRequest(
   request: SDKControlInitializeRequest,
   requestId: string,
@@ -4883,8 +5079,10 @@ async function handleInitializeRequest(
   structuredIO: StructuredIO,
   enableAuthStatus: boolean,
   options: {
-    systemPrompt: string | undefined
+    systemPrompt: string | string[] | undefined
     appendSystemPrompt: string | undefined
+    appendSubagentSystemPrompt?: string | undefined
+    forwardSubagentText?: boolean | undefined
     excludeDynamicSections?: boolean | undefined
     agent?: string | undefined
     userSpecifiedModel?: string | undefined
@@ -4909,7 +5107,9 @@ async function handleInitializeRequest(
 
   // Apply systemPrompt/appendSystemPrompt from stdin to avoid ARG_MAX limits
   if (request.systemPrompt !== undefined) {
-    options.systemPrompt = request.systemPrompt
+    options.systemPrompt = isEmptySystemPrompt(request.systemPrompt)
+      ? ''
+      : request.systemPrompt
   }
   if (request.appendSystemPrompt !== undefined) {
     options.appendSystemPrompt = request.appendSystemPrompt
@@ -4920,8 +5120,14 @@ async function handleInitializeRequest(
   if (request.planModeInstructions !== undefined) {
     options.planModeInstructions = request.planModeInstructions
   }
+  if (request.appendSubagentSystemPrompt !== undefined) {
+    options.appendSubagentSystemPrompt = request.appendSubagentSystemPrompt
+  }
   if (request.promptSuggestions !== undefined) {
     options.promptSuggestions = request.promptSuggestions
+  }
+  if (request.forwardSubagentText !== undefined) {
+    options.forwardSubagentText = request.forwardSubagentText
   }
   if (request.skills !== undefined) {
     setSessionSkillAllowlist(request.skills)

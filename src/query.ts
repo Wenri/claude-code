@@ -125,12 +125,15 @@ import { expandPath } from './utils/path.js'
 import { isBetaTracingEnabled } from './utils/telemetry/sessionTracing.js'
 
 function combineUserSystemPrompt(
-  customSystemPrompt: string | undefined,
+  customSystemPrompt: string | string[] | undefined,
   appendSystemPrompt: string | undefined,
 ): string | undefined {
-  const prompts = [customSystemPrompt, appendSystemPrompt].filter(
-    (prompt): prompt is string => Boolean(prompt),
-  )
+  const prompts = [
+    ...(typeof customSystemPrompt === 'string'
+      ? [customSystemPrompt]
+      : (customSystemPrompt ?? [])),
+    appendSystemPrompt,
+  ].filter((prompt): prompt is string => Boolean(prompt))
   return prompts.length > 0 ? prompts.join('\n\n') : undefined
 }
 

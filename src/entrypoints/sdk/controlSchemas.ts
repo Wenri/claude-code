@@ -78,13 +78,19 @@ export const SDKControlInitializeRequestSchema = lazySchema(() =>
         .optional(),
       sdkMcpServers: z.array(z.string()).optional(),
       jsonSchema: z.record(z.string(), z.unknown()).optional(),
-      systemPrompt: z.string().optional(),
+      systemPrompt: z.array(z.string()).optional(),
       appendSystemPrompt: z.string().optional(),
       planModeInstructions: z
         .string()
         .optional()
         .describe(
           'Custom workflow body for the plan-mode system reminder. Replaces the default code-implementation phases; the CLI still wraps it with the read-only enforcement preamble and the ExitPlanMode protocol footer.',
+        ),
+      appendSubagentSystemPrompt: z
+        .string()
+        .optional()
+        .describe(
+          '@internal Additional system prompt appended to every Task-tool subagent (and propagated to nested subagents). Gated by CLAUDE_CODE_ENABLE_APPEND_SUBAGENT_PROMPT.',
         ),
       excludeDynamicSections: z
         .boolean()
@@ -93,6 +99,12 @@ export const SDKControlInitializeRequestSchema = lazySchema(() =>
           'When true, omit per-user dynamic sections (working directory, auto-memory path) from the cached system prompt and re-inject them as the first user message. Lets cross-user prompt caching hit on a static system prompt prefix. Tradeoff: the model sees this context slightly later in the prompt, so steering on the working directory and memory location is marginally less authoritative. Has no effect when a custom (non-preset) system prompt is in use.',
         ),
       agents: z.record(z.string(), AgentDefinitionSchema()).optional(),
+      title: z
+        .string()
+        .optional()
+        .describe(
+          'Custom session title. When provided, the session uses this title and skips automatic title generation. Has no effect on the persisted title when resuming an existing session.',
+        ),
       skills: z
         .array(z.string())
         .optional()
@@ -101,6 +113,7 @@ export const SDKControlInitializeRequestSchema = lazySchema(() =>
         ),
       promptSuggestions: z.boolean().optional(),
       agentProgressSummaries: z.boolean().optional(),
+      forwardSubagentText: z.boolean().optional(),
     })
     .describe(
       'Initializes the SDK session with hooks, MCP servers, and agent configuration.',
@@ -306,6 +319,37 @@ export const SDKControlGetBinaryVersionResponseSchema = lazySchema(() =>
   }),
 )
 
+export const SDKControlMcpCallRequestSchema = lazySchema(() =>
+  z
+    .object({
+      subtype: z.literal('mcp_call'),
+      tool: z
+        .string()
+        .describe('Fully-qualified MCP tool name, e.g. mcp__server__tool_name.'),
+      arguments: z.record(z.string(), z.unknown()).optional(),
+    })
+    .describe(
+      'Invokes an MCP tool via the subprocess MCP client without a model turn. No permission check (control channel is trusted, same as other ' +
+        'subtypes). SDK-type MCP servers (config.type === "sdk") are rejected — ' +
+        'they are caller-provided, so the caller can invoke them directly without the subprocess round-trip. Result content passes through the same processing as model-turn MCP calls. Session expiry is not retried automatically; callers can mcp_reconnect and retry. UrlElicitationRequired (-32042) tries Elicitation hooks; if no hook ' +
+        'resolves, the call errors with the URL in the message — open it ' +
+        'out-of-band, then retry mcp_call.',
+    ),
+)
+
+export const SDKControlMcpCallResponseSchema = lazySchema(() =>
+  z
+    .object({
+      content: z.unknown(),
+      structuredContent: z.record(z.string(), z.unknown()).optional(),
+      _meta: z.record(z.string(), z.unknown()).optional(),
+    })
+    .describe(
+      'MCP tool result — the content array, structuredContent, and _meta ' +
+        'from CallToolResult. Content passes through the same processing as model-turn MCP calls (large results may be truncated or redirected to a file). Caller interprets.',
+    ),
+)
+
 const ContextCategorySchema = lazySchema(() =>
   z.object({
     name: z.string(),
@@ -403,6 +447,8 @@ export const SDKControlGetContextUsageResponseSchema = lazySchema(() =>
           attachmentTokens: z.number(),
           assistantMessageTokens: z.number(),
           userMessageTokens: z.number(),
+          redirectedContextTokens: z.number(),
+          unattributedTokens: z.number(),
           toolCallsByType: z.array(
             z.object({
               name: z.string(),
@@ -752,9 +798,64 @@ export const SDKControlElicitationRequestSchema = lazySchema(() =>
       url: z.string().optional(),
       elicitation_id: z.string().optional(),
       requested_schema: z.record(z.string(), z.unknown()).optional(),
+      title: z
+        .string()
+        .optional()
+        .describe(
+          "Permission-display title from the MCP server's _meta['anthropic/permissionDisplay']. Mirrors can_use_tool.title so SDK consumers can render elicitation-driven permission prompts with structured headers instead of parsing `message`.",
+        ),
+      display_name: z
+        .string()
+        .optional()
+        .describe(
+          "Short tool/server label from _meta['anthropic/permissionDisplay'].displayName. Mirrors can_use_tool.display_name.",
+        ),
+      description: z
+        .string()
+        .optional()
+        .describe(
+          "Permission-display subtitle from _meta['anthropic/permissionDisplay'].description. Mirrors can_use_tool.description.",
+        ),
     })
     .describe(
       'Requests the SDK consumer to handle an MCP elicitation (user input request).',
+    ),
+)
+
+export const SDKControlRequestUserDialogRequestSchema = lazySchema(() =>
+  z
+    .object({
+      subtype: z.literal('request_user_dialog'),
+      dialog_kind: z
+        .string()
+        .describe(
+          'Identifier for the dialog the host should render. Open string union — known kinds include "it2_setup" and "computer_use_approval"; new kinds may be added without bumping the protocol.',
+        ),
+      payload: z
+        .record(z.string(), z.unknown())
+        .describe(
+          'Dialog-specific data passed to the host renderer. Shape is defined per dialog_kind; the protocol transports it opaquely.',
+        ),
+      tool_use_id: z.string().optional(),
+    })
+    .describe(
+      'Requests the SDK consumer to render a tool-driven blocking dialog and return the user choice. Used by tools that previously rendered Ink JSX via setToolJSX with an onDone callback.',
+    ),
+)
+
+export const SDKControlRequestUserDialogResponseSchema = lazySchema(() =>
+  z
+    .object({
+      behavior: z.enum(['completed', 'cancelled']),
+      result: z
+        .unknown()
+        .optional()
+        .describe(
+          'Dialog-specific result payload. Opaque to the protocol; the caller and dialog renderer agree on the shape per dialog_kind.',
+        ),
+    })
+    .describe(
+      'Response from the SDK consumer for a request_user_dialog request.',
     ),
 )
 
@@ -869,6 +970,7 @@ export const SDKControlRequestInnerSchema = lazySchema(() =>
     SDKControlGetContextUsageRequestSchema(),
     SDKControlGetSessionCostRequestSchema(),
     SDKControlGetBinaryVersionRequestSchema(),
+    SDKControlMcpCallRequestSchema(),
     SDKHookCallbackRequestSchema(),
     SDKControlMcpMessageRequestSchema(),
     SDKControlRewindFilesRequestSchema(),
@@ -884,6 +986,7 @@ export const SDKControlRequestInnerSchema = lazySchema(() =>
     SDKControlApplyFlagSettingsRequestSchema(),
     SDKControlGetSettingsRequestSchema(),
     SDKControlElicitationRequestSchema(),
+    SDKControlRequestUserDialogRequestSchema(),
     SDKControlSubmitFeedbackRequestSchema(),
     SDKControlMessageRatedRequestSchema(),
     SDKControlOAuthTokenRefreshRequestSchema(),

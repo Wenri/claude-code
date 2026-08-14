@@ -177,8 +177,10 @@ export type QueryEngineConfig = {
   setAppState: (f: (prev: AppState) => AppState) => void
   initialMessages?: Message[]
   readFileCache: FileStateCache
-  customSystemPrompt?: string
+  customSystemPrompt?: string | string[]
   appendSystemPrompt?: string
+  appendSubagentSystemPrompt?: string
+  forwardSubagentText?: boolean
   excludeDynamicSections?: boolean
   planModeInstructions?: string
   userSpecifiedModel?: string
@@ -270,6 +272,8 @@ export class QueryEngine {
       canUseTool,
       customSystemPrompt,
       appendSystemPrompt,
+      appendSubagentSystemPrompt,
+      forwardSubagentText = false,
       excludeDynamicSections,
       planModeInstructions,
       userSpecifiedModel,
@@ -333,9 +337,6 @@ export class QueryEngine {
         : { type: 'disabled' }
 
     headlessProfilerCheckpoint('before_getSystemPrompt')
-    // Narrow once so TS tracks the type through the conditionals below.
-    const customPrompt =
-      typeof customSystemPrompt === 'string' ? customSystemPrompt : undefined
     const {
       defaultSystemPrompt,
       userContext: baseUserContext,
@@ -347,7 +348,7 @@ export class QueryEngine {
         initialAppState.toolPermissionContext.additionalWorkingDirectories.keys(),
       ),
       mcpClients,
-      customSystemPrompt: customPrompt,
+      customSystemPrompt,
       excludeDynamicSections,
     })
     headlessProfilerCheckpoint('after_getSystemPrompt')
@@ -366,12 +367,16 @@ export class QueryEngine {
     // Write/Edit tools to call, MEMORY.md filename, loading semantics).
     // The caller can layer their own policy text via appendSystemPrompt.
     const memoryMechanicsPrompt =
-      customPrompt !== undefined && hasAutoMemPathOverride()
+      customSystemPrompt !== undefined && hasAutoMemPathOverride()
         ? await loadMemoryPrompt(initialMainLoopModel)
         : null
 
     const systemPrompt = asSystemPrompt([
-      ...(customPrompt !== undefined ? [customPrompt] : defaultSystemPrompt),
+      ...(typeof customSystemPrompt === 'string'
+        ? [customSystemPrompt]
+        : Array.isArray(customSystemPrompt)
+          ? customSystemPrompt
+          : defaultSystemPrompt),
       ...(memoryMechanicsPrompt ? [memoryMechanicsPrompt] : []),
       ...(appendSystemPrompt ? [appendSystemPrompt] : []),
     ])
@@ -412,6 +417,8 @@ export class QueryEngine {
         isNonInteractiveSession: true,
         customSystemPrompt,
         appendSystemPrompt,
+        appendSubagentSystemPrompt,
+        forwardSubagentText,
         excludeDynamicSections,
         planModeInstructions,
         agentDefinitions: {
@@ -676,6 +683,8 @@ export class QueryEngine {
         isNonInteractiveSession: true,
         customSystemPrompt,
         appendSystemPrompt,
+        appendSubagentSystemPrompt,
+        forwardSubagentText,
         excludeDynamicSections,
         planModeInstructions,
         theme: resolveThemeSetting(getConfigValue('theme', 'dark').value),
@@ -1445,6 +1454,8 @@ export async function* ask({
   setReadFileCache,
   customSystemPrompt,
   appendSystemPrompt,
+  appendSubagentSystemPrompt,
+  forwardSubagentText,
   excludeDynamicSections,
   planModeInstructions,
   userSpecifiedModel,
@@ -1478,8 +1489,10 @@ export async function* ask({
   taskBudget?: { total: number }
   canUseTool: CanUseToolFn
   mutableMessages?: Message[]
-  customSystemPrompt?: string
+  customSystemPrompt?: string | string[]
   appendSystemPrompt?: string
+  appendSubagentSystemPrompt?: string
+  forwardSubagentText?: boolean
   excludeDynamicSections?: boolean
   planModeInstructions?: string
   userSpecifiedModel?: string
@@ -1514,6 +1527,8 @@ export async function* ask({
     readFileCache: cloneFileStateCache(getReadFileCache()),
     customSystemPrompt,
     appendSystemPrompt,
+    appendSubagentSystemPrompt,
+    forwardSubagentText,
     excludeDynamicSections,
     planModeInstructions,
     userSpecifiedModel,

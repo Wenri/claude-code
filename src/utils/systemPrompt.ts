@@ -48,7 +48,7 @@ export function buildEffectiveSystemPrompt({
 }: {
   mainThreadAgentDefinition: AgentDefinition | undefined
   toolUseContext: Pick<ToolUseContext, 'options'>
-  customSystemPrompt: string | undefined
+  customSystemPrompt: string | string[] | undefined
   defaultSystemPrompt: string[]
   appendSystemPrompt: string | undefined
   overrideSystemPrompt?: string | null
@@ -115,9 +115,11 @@ export function buildEffectiveSystemPrompt({
   return asSystemPrompt([
     ...(agentSystemPrompt
       ? [agentSystemPrompt]
-      : customSystemPrompt
+      : typeof customSystemPrompt === 'string'
         ? [customSystemPrompt]
-        : defaultSystemPrompt),
+        : Array.isArray(customSystemPrompt)
+          ? customSystemPrompt
+          : defaultSystemPrompt),
     ...(appendSystemPrompt ? [appendSystemPrompt] : []),
   ])
 }

@@ -177,7 +177,7 @@ export class McpAuthError extends Error {
  * Thrown when an MCP session has expired and the connection cache has been cleared.
  * The caller should get a fresh client via ensureConnectedClient and retry.
  */
-class McpSessionExpiredError extends Error {
+export class McpSessionExpiredError extends Error {
   constructor(serverName: string) {
     super(`MCP server "${serverName}" session expired`)
     this.name = 'McpSessionExpiredError'
@@ -3115,6 +3115,7 @@ type MCPToolCallResult = {
   content: MCPToolResult
   _meta?: Record<string, unknown>
   structuredContent?: Record<string, unknown>
+  urlElicitationDeclined?: { url: string }
 }
 
 /** @internal Exported for testing. */
@@ -3246,6 +3247,7 @@ export async function callMCPToolWithUrlElicitationRetry({
           if (hookResponse.action !== 'accept') {
             return {
               content: `URL elicitation was ${hookResponse.action === 'decline' ? 'declined' : hookResponse.action + 'ed'} by a hook. The tool "${tool}" could not complete because it requires the user to open a URL.`,
+              urlElicitationDeclined: { url: elicitation.url },
             }
           }
           // Hook accepted — skip the UI and proceed to retry
@@ -3324,6 +3326,7 @@ export async function callMCPToolWithUrlElicitationRetry({
           )
           return {
             content: `URL elicitation was ${finalResult.action === 'decline' ? 'declined' : finalResult.action + 'ed'} by the user. The tool "${tool}" could not complete because it requires the user to open a URL.`,
+            urlElicitationDeclined: { url: elicitation.url },
           }
         }
 

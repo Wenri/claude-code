@@ -46,6 +46,7 @@ import type {
 } from '../../types/message.js'
 import { createAttachmentMessage } from '../../utils/attachments.js'
 import { AbortError } from '../../utils/errors.js'
+import { isEnvTruthy } from '../../utils/envUtils.js'
 import { getDisplayPath } from '../../utils/file.js'
 import {
   cloneFileStateCache,
@@ -527,7 +528,7 @@ export async function* runAgent({
     appState.toolPermissionContext.additionalWorkingDirectories.keys(),
   )
 
-  const agentSystemPrompt = override?.systemPrompt
+  const baseAgentSystemPrompt = override?.systemPrompt
     ? override.systemPrompt
     : asSystemPrompt(
         await getAgentSystemPrompt(
@@ -538,6 +539,15 @@ export async function* runAgent({
           resolvedTools,
         ),
       )
+  const agentSystemPrompt =
+    !useExactTools &&
+    isEnvTruthy(process.env.CLAUDE_CODE_ENABLE_APPEND_SUBAGENT_PROMPT) &&
+    toolUseContext.options.appendSubagentSystemPrompt
+      ? asSystemPrompt([
+          ...baseAgentSystemPrompt,
+          toolUseContext.options.appendSubagentSystemPrompt,
+        ])
+      : baseAgentSystemPrompt
 
   // Determine abortController:
   // - Override takes precedence
@@ -693,6 +703,8 @@ export async function* runAgent({
         ? true
         : (toolUseContext.options.isNonInteractiveSession ?? false),
     appendSystemPrompt: toolUseContext.options.appendSystemPrompt,
+    appendSubagentSystemPrompt:
+      toolUseContext.options.appendSubagentSystemPrompt,
     tools: allTools,
     commands: [],
     debug: toolUseContext.options.debug,

@@ -202,9 +202,13 @@ export type ToolUseContext = {
     agentDefinitions: AgentDefinitionsResult
     maxBudgetUsd?: number
     /** Custom system prompt that replaces the default system prompt */
-    customSystemPrompt?: string
+    customSystemPrompt?: string | string[]
     /** Additional system prompt appended after the main system prompt */
     appendSystemPrompt?: string
+    /** Additional prompt propagated to Task-tool subagents. */
+    appendSubagentSystemPrompt?: string
+    /** Forward subagent text messages in addition to tool progress. */
+    forwardSubagentText?: boolean
     /** Move per-machine default-prompt sections into the first user context. */
     excludeDynamicSections?: boolean
     /** Custom workflow body for plan-mode reminders. */

@@ -15,6 +15,7 @@ import type {
 import {
   SDKControlElicitationResponseSchema,
   SDKControlOAuthTokenRefreshResponseSchema,
+  SDKControlRequestUserDialogResponseSchema,
 } from 'src/entrypoints/sdk/controlSchemas.js'
 import type {
   SDKControlRequest,
@@ -805,6 +806,11 @@ export class StructuredIO {
     mode?: 'form' | 'url',
     url?: string,
     elicitationId?: string,
+    permissionDisplay?: {
+      title?: string
+      displayName?: string
+      description?: string
+    },
   ): Promise<ElicitResult> {
     try {
       const result = await this.sendRequest<ElicitResult>(
@@ -816,6 +822,9 @@ export class StructuredIO {
           url,
           elicitation_id: elicitationId,
           requested_schema: requestedSchema,
+          title: permissionDisplay?.title,
+          display_name: permissionDisplay?.displayName,
+          description: permissionDisplay?.description,
         },
         SDKControlElicitationResponseSchema(),
         signal,
@@ -823,6 +832,30 @@ export class StructuredIO {
       return result
     } catch {
       return { action: 'cancel' as const }
+    }
+  }
+
+  async requestUserDialog(
+    dialogKind: string,
+    payload: Record<string, unknown>,
+    options?: { toolUseId?: string; signal?: AbortSignal },
+  ): Promise<{ behavior: 'completed' | 'cancelled'; result?: unknown }> {
+    try {
+      return await this.sendRequest<{
+        behavior: 'completed' | 'cancelled'
+        result?: unknown
+      }>(
+        {
+          subtype: 'request_user_dialog',
+          dialog_kind: dialogKind,
+          payload,
+          tool_use_id: options?.toolUseId,
+        },
+        SDKControlRequestUserDialogResponseSchema(),
+        options?.signal,
+      )
+    } catch {
+      return { behavior: 'cancelled' }
     }
   }
 
