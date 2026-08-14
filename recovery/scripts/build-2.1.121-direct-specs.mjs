@@ -450,8 +450,9 @@ const hiddenRows = [
       sr('src/tools/PowerShellTool/readOnlyValidation.ts', 'export const CMDLET_ALLOWLIST'),
       sr('src/utils/config.ts', 'lastSessionFirstPrompt?: string'),
       sr('src/utils/gracefulShutdown.ts', 'export function reportRenderError'),
-      sr('src/utils/idleTimeout.ts', "tengu_idle_amber_finch"),
       sr('src/utils/logoV2Utils.ts', 'export function truncatePath'),
+      sr('src/utils/subscriptionUpsell.ts', "'tengu_idle_amber_finch'"),
+      sr('src/utils/subscriptionUpsell.ts', "'tengu_quiet_slate_wren'"),
     ],
     sourcePathAbsences: [
       absent(['src/setup.ts', 'src/utils/logoV2Utils.ts'], 'getRecentActivity'),
@@ -463,6 +464,7 @@ const hiddenRows = [
       'hidden-obligations',
       'powershell-pipeline-paths',
       'remote-ux-and-branch',
+      'subscription-upsell-gates',
       'warm-resume',
     ],
     rationale: 'Reviewed target-only UI/error/spinner markers and wording deltas form the finite renderer, warm-resume, job-label, PowerShell, compact, branch, and idle cluster.',
@@ -549,7 +551,13 @@ const daemonRows = [
     id: 'D01',
     category: 'daemon',
     title: 'Daemon service install, start, status, log, stop, restart, and version lifecycle',
-    targetFragments: ['Usage: claude daemon [subcommand] [options]', 'Service lifecycle:'],
+    targetFragments: [
+      'Usage: claude daemon [subcommand] [options]',
+      'Service lifecycle:',
+      'logs              Tail the daemon log (Ctrl-C to stop)',
+      '--keep-workers  leave detached sessions running',
+      'stop              Shut down the supervisor and terminate background sessions',
+    ],
     sourceAssertions: [
       sr('src/daemon/cli.ts', 'Service lifecycle:'),
       sr('src/daemon/service.ts', 'launchctl'),

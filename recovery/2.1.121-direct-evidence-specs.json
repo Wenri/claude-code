@@ -1685,12 +1685,16 @@
           "fragment": "export function reportRenderError"
         },
         {
-          "path": "src/utils/idleTimeout.ts",
-          "fragment": "tengu_idle_amber_finch"
-        },
-        {
           "path": "src/utils/logoV2Utils.ts",
           "fragment": "export function truncatePath"
+        },
+        {
+          "path": "src/utils/subscriptionUpsell.ts",
+          "fragment": "'tengu_idle_amber_finch'"
+        },
+        {
+          "path": "src/utils/subscriptionUpsell.ts",
+          "fragment": "'tengu_quiet_slate_wren'"
         }
       ],
       "sourcePathAbsences": [
@@ -1714,6 +1718,7 @@
         "hidden-obligations",
         "powershell-pipeline-paths",
         "remote-ux-and-branch",
+        "subscription-upsell-gates",
         "warm-resume"
       ],
       "rationale": "Reviewed target-only UI/error/spinner markers and wording deltas form the finite renderer, warm-resume, job-label, PowerShell, compact, branch, and idle cluster."
@@ -1893,7 +1898,10 @@
       "title": "Daemon service install, start, status, log, stop, restart, and version lifecycle",
       "targetFragments": [
         "Usage: claude daemon [subcommand] [options]",
-        "Service lifecycle:"
+        "Service lifecycle:",
+        "logs              Tail the daemon log (Ctrl-C to stop)",
+        "--keep-workers  leave detached sessions running",
+        "stop              Shut down the supervisor and terminate background sessions"
       ],
       "sourceAssertions": [
         {
