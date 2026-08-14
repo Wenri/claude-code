@@ -33,6 +33,10 @@ import type {
   inputSchema as permissionToolInputSchema,
   outputSchema as permissionToolOutputSchema,
 } from './permissions/PermissionPromptToolResultSchema.js'
+import {
+  applyPermissionUpdates,
+  persistPermissionUpdates,
+} from './permissions/PermissionUpdate.js'
 import type { ProcessUserInputContext } from './processUserInput/processUserInput.js'
 import { recordTranscript } from './sessionStorage.js'
 
@@ -268,6 +272,24 @@ export async function* handleOrphanedPermission(
         `Orphaned permission for ${toolName}: updatedInput is undefined, falling back to original tool input`,
         { level: 'warn' },
       )
+    }
+    const updatedPermissions = permissionResult.updatedPermissions
+    if (Array.isArray(updatedPermissions)) {
+      try {
+        processUserInputContext.setAppState(prev => ({
+          ...prev,
+          toolPermissionContext: applyPermissionUpdates(
+            prev.toolPermissionContext,
+            updatedPermissions,
+          ),
+        }))
+        persistPermissionUpdates(updatedPermissions)
+      } catch (error) {
+        logForDebugging(
+          `Orphaned permission for ${toolName}: malformed updatedPermissions ignored: ${error}`,
+          { level: 'warn' },
+        )
+      }
     }
   }
   const finalToolUseBlock: ToolUseBlock = {

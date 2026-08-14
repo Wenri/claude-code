@@ -1460,6 +1460,9 @@ class Project {
     } else if (entry.type === 'pr-link') {
       // PR links can always be appended
       void this.enqueueWrite(sessionFile, entry)
+    } else if (entry.type === 'frame-link') {
+      // Forward-compatible frame relationships are always preserved verbatim.
+      void this.enqueueWrite(sessionFile, entry)
     } else if (entry.type === 'file-history-snapshot') {
       // File history snapshots can always be appended
       void this.enqueueWrite(sessionFile, entry)

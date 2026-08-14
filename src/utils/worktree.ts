@@ -14,7 +14,7 @@ import {
   utimes,
 } from 'fs/promises'
 import ignore from 'ignore'
-import { basename, dirname, join, resolve } from 'path'
+import { basename, dirname, isAbsolute, join, resolve } from 'path'
 import { saveCurrentProjectConfig } from './config.js'
 import { logEvent } from '../services/analytics/index.js'
 import { getCwd } from './cwd.js'
@@ -110,9 +110,13 @@ async function symlinkDirectories(
 ): Promise<void> {
   for (const dir of dirsToSymlink) {
     // Validate directory doesn't escape repository boundaries
-    if (containsPathTraversal(dir)) {
+    if (
+      containsPathTraversal(dir) ||
+      isAbsolute(dir) ||
+      dir.split(/[/\\]/).some(segment => /^\.\.[ .]*$/.test(segment))
+    ) {
       logForDebugging(
-        `Skipping symlink for "${dir}": path traversal detected`,
+        `Skipping symlink for "${dir}": path traversal or absolute path`,
         { level: 'warn' },
       )
       continue

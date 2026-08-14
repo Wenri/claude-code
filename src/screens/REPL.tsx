@@ -941,7 +941,7 @@ export function REPL({
 
   // Ref for the synchronous restore callback — set after restoreMessageSync is
   // defined, read in the onQuery finally block for auto-restore on interrupt.
-  const restoreMessageSyncRef = useRef<(m: UserMessage) => void>(() => {});
+  const restoreMessageSyncRef = useRef<(m: UserMessage, source?: string) => void>(() => {});
 
   // Ref to the fullscreen layout's scroll box for keyboard scrolling.
   // Null when fullscreen mode is disabled (ref never attached).
@@ -3235,7 +3235,7 @@ export function REPL({
             // The submit is being undone — undo its history entry too,
             // otherwise Up-arrow shows the restored text twice.
             removeLastFromHistory();
-            restoreMessageSyncRef.current(lastUserMsg);
+            restoreMessageSyncRef.current(lastUserMsg, 'auto_restore_cancel');
           }
         }
       }
@@ -3920,7 +3920,7 @@ export function REPL({
   // Does NOT touch the prompt input. Index is computed from messagesRef (always
   // fresh via the setMessages wrapper) so callers don't need to worry about
   // stale closures.
-  const rewindConversationTo = useCallback((message: UserMessage) => {
+  const rewindConversationTo = useCallback((message: UserMessage, source?: string) => {
     const prev = messagesRef.current;
     const messageIndex = prev.lastIndexOf(message);
     if (messageIndex === -1) return;
@@ -3928,7 +3928,8 @@ export function REPL({
       preRewindMessageCount: prev.length,
       postRewindMessageCount: messageIndex,
       messagesRemoved: prev.length - messageIndex,
-      rewindToMessageIndex: messageIndex
+      rewindToMessageIndex: messageIndex,
+      source
     });
     setMessages(prev.slice(0, messageIndex));
     // Careful, this has to happen after setMessages
@@ -3972,8 +3973,8 @@ export function REPL({
   // Synchronous rewind + input population. Used directly by auto-restore on
   // interrupt (so React batches with the abort's setMessages → single render,
   // no flicker). MessageSelector wraps this in setImmediate via handleRestoreMessage.
-  const restoreMessageSync = useCallback((message: UserMessage) => {
-    rewindConversationTo(message);
+  const restoreMessageSync = useCallback((message: UserMessage, source?: string) => {
+    rewindConversationTo(message, source);
     const r = textForResubmit(message);
     if (r) {
       setInputValue(r.text);
@@ -4005,8 +4006,8 @@ export function REPL({
   // MessageSelector path: defer via setImmediate so the "Interrupted" message
   // renders to static output before rewind — otherwise it remains vestigial
   // at the top of the screen.
-  const handleRestoreMessage = useCallback(async (message: UserMessage) => {
-    setImmediate((restore, message) => restore(message), restoreMessageSync, message);
+  const handleRestoreMessage = useCallback(async (message: UserMessage, source?: string) => {
+    setImmediate((restore, message, source) => restore(message, source), restoreMessageSync, message, source);
   }, [restoreMessageSync]);
 
   // Not memoized — hook stores caps via ref, reads latest closure at dispatch.
@@ -4039,8 +4040,7 @@ export function REPL({
       if (noFileChanges && onlySynthetic) {
         // rewindConversationTo's setMessages races stream appends — cancel first (idempotent).
         onCancel();
-        // handleRestoreMessage also restores pasted images.
-        void handleRestoreMessage(raw);
+        void handleRestoreMessage(raw, 'jump_to_message');
       } else {
         // Dialog path: onPreRestore (= onCancel) fires when user CONFIRMS, not on nevermind.
         setMessageSelectorPreselect(raw);

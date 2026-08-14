@@ -141,6 +141,15 @@ export type PRLinkMessage = {
   timestamp: string // ISO timestamp when linked
 }
 
+/**
+ * Opaque frame relationship supplied by external transcript producers.
+ * The CLI persists it losslessly; interpretation belongs to the producer.
+ */
+export type FrameLinkEntry = {
+  type: 'frame-link'
+  [key: string]: unknown
+}
+
 export type ModeEntry = {
   type: 'mode'
   sessionId: UUID
@@ -332,6 +341,7 @@ export type Entry =
   | AgentColorMessage
   | AgentSettingMessage
   | PRLinkMessage
+  | FrameLinkEntry
   | FileHistorySnapshotMessage
   | AttributionSnapshotMessage
   | QueueOperationMessage
