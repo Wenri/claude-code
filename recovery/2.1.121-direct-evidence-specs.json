@@ -3709,6 +3709,311 @@
         "sdk-control-runtime"
       ],
       "sourcePathAbsences": []
+    },
+    {
+      "id": "R32",
+      "category": "residual",
+      "retained": true,
+      "title": "Monotonic LSP document versions reject stale diagnostics",
+      "targetFragments": [
+        "LSP Diagnostics: Dropping stale publishDiagnostics",
+        "getDocumentVersion"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/lsp/LSPServerManager.ts",
+          "fragment": "const documentVersions: Map<string, number> = new Map()"
+        },
+        {
+          "path": "src/services/lsp/LSPServerManager.ts",
+          "fragment": "version: nextDocumentVersion(fileUri)"
+        },
+        {
+          "path": "src/services/lsp/LSPServerManager.ts",
+          "fragment": "getDocumentVersion(uri: string): number | undefined"
+        },
+        {
+          "path": "src/services/lsp/passiveFeedback.ts",
+          "fragment": "diagnosticParams.version < currentVersion"
+        },
+        {
+          "path": "src/services/lsp/passiveFeedback.ts",
+          "fragment": "LSP Diagnostics: Dropping stale publishDiagnostics"
+        }
+      ],
+      "rationale": "Retained version helper and refusal diagnostic bind monotonically increasing open/change versions, cleanup on close/shutdown, deterministic extensions, and rejection of diagnostics older than the active document.",
+      "focusedTests": [
+        "lower-runtime-boundaries"
+      ],
+      "sourcePathAbsences": []
+    },
+    {
+      "id": "R33",
+      "category": "residual",
+      "retained": true,
+      "title": "Remote Bun shells prepend the small-heap option before eval",
+      "targetFragments": [
+        "export BUN_OPTIONS=\"--smol${BUN_OPTIONS:+ $BUN_OPTIONS}\""
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/shell/bashProvider.ts",
+          "fragment": "if (isEnvTruthy(process.env.CLAUDE_CODE_REMOTE))"
+        },
+        {
+          "path": "src/utils/shell/bashProvider.ts",
+          "fragment": "export BUN_OPTIONS=\"--smol${BUN_OPTIONS:+ $BUN_OPTIONS}\""
+        },
+        {
+          "path": "src/utils/shell/bashProvider.ts",
+          "fragment": "commandParts.push(`eval ${quotedCommand}`)"
+        }
+      ],
+      "rationale": "Retained exact export syntax binds remote-only Bun heap reduction, preservation of existing BUN_OPTIONS, and ordering before the evaluated command.",
+      "focusedTests": [
+        "lower-runtime-boundaries"
+      ],
+      "sourcePathAbsences": []
+    },
+    {
+      "id": "R34",
+      "category": "residual",
+      "retained": true,
+      "title": "Upstream proxy credentials, environment, and AWS config fail closed",
+      "targetFragments": [
+        "[upstreamproxy] no session token; proxy disabled",
+        "[upstreamproxy] token via ",
+        "payload_signing_enabled = false",
+        "npm.jsr.io",
+        "proxy-injected"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/upstreamproxy/upstreamproxy.ts",
+          "fragment": "const token = tokenResult.token ?? getSessionIngressAuthToken()"
+        },
+        {
+          "path": "src/upstreamproxy/upstreamproxy.ts",
+          "fragment": "'[upstreamproxy] no session token; proxy disabled'"
+        },
+        {
+          "path": "src/upstreamproxy/upstreamproxy.ts",
+          "fragment": "'npm.jsr.io'"
+        },
+        {
+          "path": "src/upstreamproxy/upstreamproxy.ts",
+          "fragment": "AWS_ACCESS_KEY_ID: 'proxy-injected'"
+        },
+        {
+          "path": "src/upstreamproxy/upstreamproxy.ts",
+          "fragment": "flag: 'wx', mode: 0o600"
+        },
+        {
+          "path": "src/upstreamproxy/upstreamproxy.ts",
+          "fragment": "payload_signing_enabled = false"
+        }
+      ],
+      "sourcePathAbsences": [
+        {
+          "paths": [
+            "src/upstreamproxy/upstreamproxy.ts"
+          ],
+          "fragment": "'*.githubusercontent.com'"
+        }
+      ],
+      "rationale": "Retained token-source, injected credential, and config witnesses bind session-ingress fallback, no-token disablement, exclusive credential writes, jsr routing, and removal of broad GitHub proxy bypasses.",
+      "focusedTests": [
+        "lower-runtime-boundaries"
+      ]
+    },
+    {
+      "id": "R35",
+      "category": "residual",
+      "retained": true,
+      "title": "Proxy authentication helper trust, cache, retry, and Bun headers",
+      "targetFragments": [
+        "CLAUDE_CODE_ENABLE_PROXY_AUTH_HELPER",
+        "CLAUDE_CODE_PROXY_AUTHENTICATE",
+        "proxyAuthHelper failed:"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/proxy.ts",
+          "fragment": "export async function getProxyAuthFromHelper(): Promise<string | null>"
+        },
+        {
+          "path": "src/utils/proxy.ts",
+          "fragment": "timeout: 30_000"
+        },
+        {
+          "path": "src/utils/proxy.ts",
+          "fragment": "proxyAuthHelperCache?.value ?? null"
+        },
+        {
+          "path": "src/utils/proxy.ts",
+          "fragment": "headers: { 'Proxy-Authorization': proxyAuthorization }"
+        },
+        {
+          "path": "src/services/api/withRetry.ts",
+          "fragment": "error.status === 407 && getConfiguredProxyAuthHelper()"
+        },
+        {
+          "path": "src/services/api/client.ts",
+          "fragment": "await getProxyAuthFromHelper()"
+        },
+        {
+          "path": "src/setup.ts",
+          "fragment": "_setProxyAuthHelperConfig({"
+        },
+        {
+          "path": "src/utils/settings/types.ts",
+          "fragment": "proxyAuthHelper: z"
+        }
+      ],
+      "rationale": "Retained environment and failure witnesses bind opt-in helper execution, project/local trust, TTL and last-good cache, proxy-authenticate retry feedback, startup prefetch, and Proxy-Authorization injection.",
+      "focusedTests": [
+        "settings-auth-runtime"
+      ],
+      "sourcePathAbsences": []
+    },
+    {
+      "id": "R36",
+      "category": "residual",
+      "retained": true,
+      "title": "Organization arrays and bounded skill/settings controls",
+      "targetFragments": [
+        "No organizations are permitted. This is almost certainly a misconfiguration.",
+        "one of these organizations:",
+        "skillListingMaxDescChars",
+        "skillListingBudgetFraction",
+        "cleanupPeriodDays must be at least 1.",
+        "Default transcript view mode on startup"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/cli/handlers/auth.ts",
+          "fragment": "typeof settings.forceLoginOrgUUID === 'string'"
+        },
+        {
+          "path": "src/components/ConsoleOAuthFlow.tsx",
+          "fragment": "typeof settings.forceLoginOrgUUID === 'string'"
+        },
+        {
+          "path": "src/utils/auth.ts",
+          "fragment": "typeof requiredOrgUuid === 'string'"
+        },
+        {
+          "path": "src/utils/auth.ts",
+          "fragment": "requiredOrgUuids.includes(tokenOrgUuid)"
+        },
+        {
+          "path": "src/utils/settings/types.ts",
+          "fragment": ".union([z.string(), z.array(z.string())])"
+        },
+        {
+          "path": "src/utils/settings/types.ts",
+          "fragment": "skillListingMaxDescChars: z"
+        },
+        {
+          "path": "src/utils/settings/types.ts",
+          "fragment": "skillListingBudgetFraction: z"
+        },
+        {
+          "path": "src/utils/settings/types.ts",
+          "fragment": "skillOverrides: z"
+        },
+        {
+          "path": "src/utils/settings/types.ts",
+          "fragment": "viewMode: z"
+        },
+        {
+          "path": "src/utils/settings/validationTips.ts",
+          "fragment": "cleanupPeriodDays must be at least 1."
+        },
+        {
+          "path": "src/tools/SkillTool/prompt.ts",
+          "fragment": "getInitialSettings().skillListingMaxDescChars"
+        },
+        {
+          "path": "src/tools/SkillTool/prompt.ts",
+          "fragment": "getInitialSettings().skillListingBudgetFraction"
+        }
+      ],
+      "rationale": "Retained exact organization errors and setting keys bind any-of managed org validation, empty-list denial, positive transcript retention, view defaults, and dynamically bounded skill descriptions and total listing budget.",
+      "focusedTests": [
+        "settings-auth-runtime"
+      ],
+      "sourcePathAbsences": []
+    },
+    {
+      "id": "R37",
+      "category": "residual",
+      "retained": true,
+      "title": "Voice hold/tap mode, bounded recording, cancellation, and submission",
+      "targetFragments": [
+        "Voice mode enabled (",
+        "Toggle silence timeout",
+        "tap to send"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/commands/voice/index.ts",
+          "fragment": "argumentHint: '[hold|tap|off]'"
+        },
+        {
+          "path": "src/commands/voice/voice.ts",
+          "fragment": "requestedMode === 'hold' || requestedMode === 'tap'"
+        },
+        {
+          "path": "src/components/PromptInput/PromptInput.tsx",
+          "fragment": "submit: (value: string, fromKeybinding?: boolean)"
+        },
+        {
+          "path": "src/components/PromptInput/VoiceIndicator.tsx",
+          "fragment": "tap to send"
+        },
+        {
+          "path": "src/hooks/useVoice.ts",
+          "fragment": "const TOGGLE_SILENCE_TIMEOUT_MS = 15_000"
+        },
+        {
+          "path": "src/hooks/useVoice.ts",
+          "fragment": "const TOGGLE_MAX_DURATION_MS = 120_000"
+        },
+        {
+          "path": "src/hooks/useVoice.ts",
+          "fragment": "cancelRecording: discarding without submit"
+        },
+        {
+          "path": "src/hooks/useVoiceEnabled.ts",
+          "fragment": "const userIntent = useAppState("
+        },
+        {
+          "path": "src/hooks/useVoiceIntegration.tsx",
+          "fragment": "voiceMode === 'tap' || autoSubmit"
+        },
+        {
+          "path": "src/hooks/useVoiceIntegration.tsx",
+          "fragment": "e.key === 'escape'"
+        },
+        {
+          "path": "src/screens/REPL.tsx",
+          "fragment": "voiceCancelRecording={voice.cancelRecording}"
+        },
+        {
+          "path": "src/utils/settings/types.ts",
+          "fragment": ".enum(['hold', 'tap'])"
+        },
+        {
+          "path": "src/utils/settings/types.ts",
+          "fragment": "autoSubmit: z"
+        }
+      ],
+      "rationale": "Retained enablement and indicator copy bind explicit hold/tap/off selection, two bounded tap timers, escape cancellation, input-safe toggle handling, three-word submission, and settings fallback compatibility.",
+      "focusedTests": [
+        "settings-auth-runtime"
+      ],
+      "sourcePathAbsences": []
     }
   ]
 }
