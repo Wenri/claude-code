@@ -174,7 +174,12 @@ async function detectWindowsTerminal(): Promise<TerminalInfo> {
   }
 
   // cmd.exe is always available
-  return { name: 'Command Prompt', command: 'cmd.exe' }
+  return {
+    name: 'Command Prompt',
+    command:
+      process.env.ComSpec ||
+      `${process.env.SystemRoot || 'C:\\Windows'}\\System32\\cmd.exe`,
+  }
 }
 
 /**
@@ -493,32 +498,41 @@ async function launchWindowsTerminal(
  * waiting for the terminal to close. Resolves false on spawn failure
  * (ENOENT, EACCES) rather than crashing.
  */
-function spawnDetached(
+async function spawnDetached(
   command: string,
   args: string[],
   opts: { cwd?: string; windowsVerbatimArguments?: boolean } = {},
 ): Promise<boolean> {
   const attempt = (cwd: string | undefined): Promise<boolean> =>
     new Promise<boolean>(resolve => {
-      const child = spawn(command, args, {
-        detached: true,
-        stdio: 'ignore',
-        cwd,
-        windowsVerbatimArguments: opts.windowsVerbatimArguments,
-      })
-      child.once('error', () => void resolve(false))
+      const fail = (error: Error) => {
+        logForDebugging(`Failed to spawn ${command}: ${error.message}`, {
+          level: 'error',
+        })
+        resolve(false)
+      }
+      let child
+      try {
+        child = spawn(command, args, {
+          detached: true,
+          stdio: 'ignore',
+          cwd,
+          windowsVerbatimArguments: opts.windowsVerbatimArguments,
+        })
+      } catch (error) {
+        fail(error as Error)
+        return
+      }
+      child.once('error', fail)
       child.once('spawn', () => {
         child.unref()
-        void resolve(true)
+        resolve(true)
       })
     })
 
-  return attempt(opts.cwd).then(async launched => {
-    if (launched) return true
-    if (opts.cwd !== undefined && (await attempt(undefined))) return true
-    logForDebugging(`Failed to spawn ${command}`, { level: 'error' })
-    return false
-  })
+  if (await attempt(opts.cwd)) return true
+  if (opts.cwd) return attempt(undefined)
+  return false
 }
 
 /**

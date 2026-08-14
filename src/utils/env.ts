@@ -241,6 +241,13 @@ export const detectDeploymentEnvironment = memoize((): string => {
   // Cloud development environments
   if (isEnvTruthy(process.env.CODESPACES)) return 'codespaces'
   if (process.env.GITPOD_WORKSPACE_ID) return 'gitpod'
+  if (isEnvTruthy(process.env.CODER) || process.env.CODER_WORKSPACE_NAME)
+    return 'coder'
+  if (isEnvTruthy(process.env.DEVPOD) || process.env.DEVPOD_WORKSPACE_UID)
+    return 'devpod'
+  if (process.env.DAYTONA_WS_ID) return 'daytona'
+  if (isEnvTruthy(process.env.GOOGLE_CLOUD_WORKSTATIONS))
+    return 'gcp-cloud-workstations'
   if (process.env.REPL_ID || process.env.REPL_SLUG) return 'replit'
   if (process.env.PROJECT_DOMAIN) return 'glitch'
 

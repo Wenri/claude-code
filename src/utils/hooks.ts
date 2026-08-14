@@ -228,6 +228,8 @@ function executeInBackground({
   hookName,
   command,
   asyncRewake,
+  rewakeMessage: _rewakeMessage,
+  rewakeSummary: _rewakeSummary,
   pluginId,
 }: {
   processId: string
@@ -238,6 +240,8 @@ function executeInBackground({
   hookName: string
   command: string
   asyncRewake?: boolean
+  rewakeMessage?: string
+  rewakeSummary?: string
   pluginId?: string
 }): boolean {
   if (asyncRewake) {
@@ -1084,6 +1088,8 @@ async function execCommandHook(
       hookName,
       command: hook.command,
       asyncRewake: hook.asyncRewake,
+      rewakeMessage: hook.rewakeMessage,
+      rewakeSummary: hook.rewakeSummary,
       pluginId,
     })
     if (backgrounded) {

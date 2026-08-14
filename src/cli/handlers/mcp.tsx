@@ -92,7 +92,7 @@ export async function mcpRemoveHandler(name: string, options: {
       await removeMcpConfig(name, scope);
       cleanupSecureStorage();
       process.stdout.write(`Removed MCP server ${name} from ${scope} config\n`);
-      cliOk(`File modified: ${describeMcpConfigFilePath(scope)}`);
+      return cliOk(`File modified: ${describeMcpConfigFilePath(scope)}`);
     }
 
     // If no scope specified, check where the server exists
@@ -111,7 +111,16 @@ export async function mcpRemoveHandler(name: string, options: {
     if (mcpJsonExists) scopes.push('project');
     if (globalConfig.mcpServers?.[name]) scopes.push('user');
     if (scopes.length === 0) {
-      cliError(`No MCP server found with name: "${name}"`);
+      const configuredNames = Array.from(new Set([
+        ...Object.keys(projectConfig.mcpServers ?? {}),
+        ...Object.keys(projectServers),
+        ...Object.keys(globalConfig.mcpServers ?? {}),
+      ])).sort()
+      return cliError(
+        configuredNames.length > 0
+          ? `No MCP server found with name: "${name}". Configured servers: ${configuredNames.join(', ')}`
+          : `No MCP server found with name: "${name}". No MCP servers are configured.`,
+      );
     } else if (scopes.length === 1) {
       // Server exists in only one scope, remove it
       const scope = scopes[0]!;
@@ -196,7 +205,13 @@ export async function mcpGetHandler(name: string): Promise<void> {
   });
   const server = getMcpConfigByName(name);
   if (!server) {
-    cliError(`No MCP server found with name: ${name}`);
+    const { servers } = await getAllMcpConfigs();
+    const configuredNames = Object.keys(servers).sort();
+    return cliError(
+      configuredNames.length > 0
+        ? `No MCP server found with name: "${name}". Configured servers: ${configuredNames.join(', ')}`
+        : `No MCP server found with name: "${name}". No MCP servers are configured.`,
+    );
   }
 
   // biome-ignore lint/suspicious/noConsole:: intentional console output
