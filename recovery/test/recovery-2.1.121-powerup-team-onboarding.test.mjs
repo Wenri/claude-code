@@ -157,4 +157,5 @@ test('source wires discovery step and banner into authenticated onboarding consu
   assert.match(commands, /plan,[\s\S]*?powerup,[\s\S]*?privacySettings/)
   assert.match(commands, /REMOTE_SAFE_COMMANDS[\s\S]*?plan,[\s\S]*?powerup,/)
   assert.match(config, /powerupsUnlocked\?: string\[\]/)
+  assert.equal(config.split('powerupsUnlocked?: string[]').length - 1, 1)
 })

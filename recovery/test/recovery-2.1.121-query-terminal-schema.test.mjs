@@ -121,7 +121,12 @@ test('authenticated adjacent bundles contain the exact inherited terminal result
 })
 
 test('source captures query return and emits terminal reason only after natural loop completion', () => {
-  const engine = compact(source('src/QueryEngine.ts'))
+  const rawEngine = source('src/QueryEngine.ts')
+  assert.match(
+    rawEngine,
+    /import \{ logForDebugging \} from '\.\/utils\/debug\.js'/,
+  )
+  const engine = compact(rawEngine)
   assert.ok(
     engine.includes('state.value = yield* generator'),
     'collector must retain the delegated generator return',

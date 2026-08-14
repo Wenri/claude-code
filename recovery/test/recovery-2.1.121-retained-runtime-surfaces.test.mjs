@@ -137,6 +137,7 @@ test('retains exact UI, rating, cost, image, deep-link, and settings behavior', 
       "label: \"Don't ask me again\"",
     ],
     'src/components/StatusLine.tsx': [
+      "import { stringWidth } from '../ink/stringWidth.js'",
       "logEvent('tengu_status_line_result'",
       'command_length: commandLength',
       'visual_width: visualWidth',
