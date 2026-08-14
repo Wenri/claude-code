@@ -91,16 +91,25 @@ test('recovers SDK endpoint validation and env-less token lifecycle', () => {
     "isPolicyAllowed('allow_remote_control')",
   ])
   assertSource('src/bridge/initReplBridge.ts', [
+    'if (reattachSessionId) { delete process.env.CLAUDE_BRIDGE_REATTACH_SESSION delete process.env.CLAUDE_BRIDGE_REATTACH_SEQ }',
+    'const initialHistoryCap = 200',
+    'const versionError = await checkEnvLessBridgeMinVersion()',
+    'const { initEnvLessBridgeCore } = await import',
+    'getToolPermissionContext?.() ?? getEmptyToolPermissionContext()',
     'onProactiveRefresh: async () => { await checkAndRefreshOAuthTokenIfNeeded() }',
     'onMcpAuthenticate, onMcpOauthCallbackUrl, onMcpReconnect, onMcpStatus',
   ])
+  assertSource('src/bridge/envLessBridgeConfig.ts', [
+    'const cfg = await getEnvLessBridgeConfig() return cfg.should_show_app_upgrade_message',
+  ])
   assertSource('src/bridge/remoteBridgeCore.ts', [
-    'let isReattach = reattachSessionId !== undefined',
+    'let isReattach = !!reattachSessionId',
     'bridge_repl_v2_reattach_fallback',
     "'fetchRemoteCredentials (post-fallback)'",
     'if (onProactiveRefresh) await onProactiveRefresh()',
     'initialSequenceNum: isReattach ? reattachSequenceNum : undefined',
     'initialFlushDone = isReattach',
+    'if (!isReattach && initialMessages && initialMessages.length > 0)',
   ])
 })
 
@@ -115,13 +124,36 @@ test('recovers MCP bridge controls and reactive system metadata', () => {
   assertSource('src/hooks/useReplBridge.tsx', [
     'onMcpStatus() { return store.getState().mcp.clients.map',
     'async onMcpAuthenticate(serverName, redirectUri)',
+    'getToolPermissionContext: () => store.getState().toolPermissionContext',
     "logEvent('tengu_claudeai_mcp_auth_started', {})",
     'trackMCPOAuthFlow(serverName, oauthPromise)',
+    'requiresUserAction: true, callbackExpected: true',
     'async onMcpOauthCallbackUrl(serverName, callbackUrl)',
     'async onMcpReconnect(serverName)',
     'const sendBridgeSystemInit = useCallback(() =>',
     'if (!replBridgeConnected || replBridgeOutboundOnly) return',
+    '!replBridgeEnabled || getIsRemoteMode()',
     'mainLoopModel, permissionMode, fastMode, sendBridgeSystemInit',
+    "message.subtype === 'bridge_status' && message.url === url",
+    'notifyBridgeFailed detail="${detail}" outboundOnly=${outboundOnly} wasConnected=${wasConnected}',
+    "Remote Control {wasConnected ? 'disconnected' : 'failed'}",
+    "lastFailureDetailRef.current === normalizedDetail",
+    "wasConnected ? 'info' : 'warning'",
+    '<Text color="error">Remote Control failed</Text> <Text dimColor> · {fuseHint}</Text>',
+    'if (!outboundOnly) { addNotification',
+    'handleStateChange state=${state} detail="${detail_0}" cancelled=${cancelled} outboundOnly=${outboundOnly}',
+    'No handler for control_response request_id=${requestId} (late response after local resolve, or unknown id)',
+    "{ level: 'verbose' }",
+    'async function persistBridgeSessionId(bridgeSessionId: string)',
+    'bridgeSessionId, bridgeSessionSeq: undefined',
+    'if (isBgSession()) { void persistBridgeSessionId(handle_0.bridgeSessionId) }',
+    "display_name: formatToolDisplayName(toolName)",
+    "(toolName.split('__').pop() || toolName) .replace(/_/g, ' ') .replace(/\\b\\w/g, character => character.toUpperCase())",
+    'handle_0.sendControlCancelRequest(requestId_2)',
+    'pendingPermissionHandlers.delete(requestId_2)',
+    "Hook: init cancelled during flight, tearing down'",
+    'replBridgePermissionCallbacks: permissionCallbacks, replBridgeConnected: true, replBridgeSessionUrl: url, replBridgeEnvironmentId: handle_0.environmentId',
+    'Hook cleanup: starting teardown for session=${handleRef.current.bridgeSessionId}',
   ])
   assertSource('src/services/mcp/MCPConnectionManager.tsx', [
     'let activeMcpReconnect:',

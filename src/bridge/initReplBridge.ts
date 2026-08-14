@@ -13,14 +13,11 @@
  * (SDK -p mode via query.enableRemoteControl).
  */
 
-import { feature } from 'bun:bundle'
 import type { UUID } from 'crypto'
-import { hostname } from 'os'
-import { getOriginalCwd, getSessionId } from '../bootstrap/state.js'
+import { getSessionId } from '../bootstrap/state.js'
 import type { SDKMessage } from '../entrypoints/agentSdkTypes.js'
 import type { SDKControlResponse } from '../entrypoints/sdk/controlTypes.js'
 import { generateFileSuggestions } from '../hooks/fileSuggestions.js'
-import { getFeatureValue_CACHED_WITH_REFRESH } from '../services/analytics/growthbook.js'
 import {
   hydrateNotificationPreferences,
   isKairosPushNotificationsEnabled,
@@ -31,6 +28,7 @@ import {
   waitForPolicyLimitsToLoad,
 } from '../services/policyLimits/index.js'
 import type { Message } from '../types/message.js'
+import { getEmptyToolPermissionContext, type ToolPermissionContext } from '../Tool.js'
 import { AGENT_COLORS } from '../tools/AgentTool/agentColorManager.js'
 import {
   checkAndRefreshOAuthTokenIfNeeded,
@@ -75,30 +73,24 @@ import {
   setupBridgeClientPresence,
 } from './clientPresence.js'
 import {
-  checkBridgeMinVersion,
   isBridgeEnabledBlocking,
   isCseShimEnabled,
-  isEnvLessBridgeEnabled,
 } from './bridgeEnabled.js'
 import {
-  archiveBridgeSession,
-  createBridgeSession,
   getBridgeSession,
   updateBridgeSessionTitle,
   updateBridgeSessionColorTag,
 } from './createSession.js'
 import { logBridgeSkip } from './debugUtils.js'
 import { checkEnvLessBridgeMinVersion } from './envLessBridgeConfig.js'
-import { getPollIntervalConfig } from './pollConfig.js'
+import { readFileForRemote } from './readFileForRemote.js'
 import type { BridgeState, ReplBridgeHandle } from './replBridge.js'
-import { initBridgeCore } from './replBridge.js'
 import type {
   InternalEventReaders,
   InternalEventWriter,
 } from './replBridgeTransport.js'
 import { syncLocalTranscriptEvents } from './sessionPersistenceSync.js'
 import { setCseShimGate, toCompatSessionId } from './sessionIdCompat.js'
-import type { BridgeWorkerType } from './types.js'
 
 export type InitBridgeOptions = {
   onInboundMessage?: (msg: SDKMessage) => void | Promise<void>
@@ -122,16 +114,7 @@ export type InitBridgeOptions = {
   // Optional — print.ts's SDK enableRemoteControl path has no REPL message
   // array; count-3 falls back to the single message text when absent.
   getMessages?: () => Message[]
-  onReadFile?: (
-    path: string,
-    maxBytes?: number,
-    encoding?: 'utf-8' | 'base64',
-  ) => Promise<{
-    contents: string
-    absPath: string
-    truncated?: boolean
-    encoding?: 'base64'
-  }>
+  getToolPermissionContext?: () => ToolPermissionContext
   onMcpAuthenticate?: (
     serverName: string,
     redirectUri?: string,
@@ -142,13 +125,6 @@ export type InitBridgeOptions = {
   ) => Promise<unknown>
   onMcpReconnect?: (serverName: string) => Promise<unknown>
   onMcpStatus?: () => unknown[]
-  // UUIDs already flushed in a prior bridge session. Messages with these
-  // UUIDs are excluded from the initial flush to avoid poisoning the
-  // server (duplicate UUIDs across sessions cause the WS to be killed).
-  // Mutated in place — newly flushed UUIDs are added after each flush.
-  previouslyFlushedUUIDs?: Set<string>
-  /** See BridgeCoreParams.perpetual. */
-  perpetual?: boolean
   /**
    * When true, the bridge only forwards events outbound (no SSE inbound
    * stream). Used by CCR mirror mode — local sessions visible on claude.ai
@@ -173,12 +149,10 @@ export async function initReplBridge(
     onStateChange,
     initialMessages,
     getMessages,
-    previouslyFlushedUUIDs,
     initialName,
-    perpetual,
     outboundOnly,
     tags,
-    onReadFile,
+    getToolPermissionContext,
     onMcpAuthenticate,
     onMcpOauthCallbackUrl,
     onMcpReconnect,
@@ -191,8 +165,10 @@ export async function initReplBridge(
   // accidentally attach a second bridge to the same server session.
   const reattachSessionId = process.env.CLAUDE_BRIDGE_REATTACH_SESSION
   const reattachSequenceRaw = process.env.CLAUDE_BRIDGE_REATTACH_SEQ
-  delete process.env.CLAUDE_BRIDGE_REATTACH_SESSION
-  delete process.env.CLAUDE_BRIDGE_REATTACH_SEQ
+  if (reattachSessionId) {
+    delete process.env.CLAUDE_BRIDGE_REATTACH_SESSION
+    delete process.env.CLAUDE_BRIDGE_REATTACH_SEQ
+  }
   const reattachSequenceNum = reattachSequenceRaw
     ? Number.parseInt(reattachSequenceRaw, 10) || undefined
     : undefined
@@ -535,11 +511,7 @@ export async function initReplBridge(
       path: suggestion.displayText,
     }))
 
-  const initialHistoryCap = getFeatureValue_CACHED_WITH_REFRESH(
-    'tengu_bridge_initial_history_cap',
-    200,
-    5 * 60 * 1000,
-  )
+  const initialHistoryCap = 200
 
   // Fetch orgUUID before the v1/v2 branch — both paths need it. v1 for
   // environment registration; v2 for archive (which lives at the compat
@@ -552,186 +524,57 @@ export async function initReplBridge(
     return null
   }
 
-  const branch = await getBranch()
-  const gitRepoUrl = await getRemoteUrl()
-
-  // ── GrowthBook gate: env-less bridge ──────────────────────────────────
-  // When enabled, skips the Environments API layer entirely (no register/
-  // poll/ack/heartbeat) and connects directly via POST /bridge → worker_jwt.
-  // See server PR #292605 (renamed in #293280). REPL-only — daemon/print stay
-  // on env-based.
-  //
-  // NAMING: "env-less" is distinct from "CCR v2" (the /worker/* transport).
-  // The env-based path below can ALSO use CCR v2 via CLAUDE_CODE_USE_CCR_V2.
-  // tengu_bridge_repl_v2 gates env-less (no poll loop), not transport version.
-  //
-  // perpetual (assistant-mode session continuity via bridge-pointer.json) is
-  // env-coupled and not yet implemented here — fall back to env-based when set
-  // so KAIROS users don't silently lose cross-restart continuity.
-  if ((reattachSessionId || isEnvLessBridgeEnabled()) && !perpetual) {
-    const versionError = await checkEnvLessBridgeMinVersion()
-    if (versionError) {
-      logBridgeSkip(
-        'version_too_old',
-        `[bridge:repl] Skipping: ${versionError}`,
-        true,
-      )
-      onStateChange?.('failed', 'run `claude update` to upgrade')
-      return null
-    }
-    logForDebugging(
-      '[bridge:repl] Using env-less bridge path (tengu_bridge_repl_v2)',
-    )
-    const { initEnvLessBridgeCore } = await import('./remoteBridgeCore.js')
-    const handle = await initEnvLessBridgeCore({
-      baseUrl,
-      orgUUID,
-      title,
-      getAccessToken: getBridgeAccessToken,
-      onAuth401: handleOAuth401Error,
-      onProactiveRefresh: async () => {
-        await checkAndRefreshOAuthTokenIfNeeded()
-      },
-      toSDKMessages,
-      initialHistoryCap,
-      initialMessages,
-      // v2 always creates a fresh server session (new cse_* id), so
-      // previouslyFlushedUUIDs is not passed — there's no cross-session
-      // UUID collision risk, and the ref persists across enable→disable→
-      // re-enable cycles which would cause the new session to receive zero
-      // history (all UUIDs already in the set from the prior enable).
-      // v1 handles this by calling previouslyFlushedUUIDs.clear() on fresh
-      // session creation (replBridge.ts:768); v2 skips the param entirely.
-      onInboundMessage,
-      onUserMessage,
-      onSessionEstablished: sessionId => {
-        setupBridgeClientPresence(
-          toCompatSessionId(sessionId),
-          baseUrl,
-          () => {
-            const token = getBridgeAccessToken()
-            return token ? { Authorization: `Bearer ${token}` } : {}
-          },
-        )
-        if (
-          isKairosPushNotificationsEnabled() &&
-          !isEssentialTrafficOnly()
-        ) {
-          void hydrateNotificationPreferences()
-        }
-        const color = getCurrentSessionAgentColor()
-        if (color && color !== 'default') {
-          void updateBridgeSessionColorTag(sessionId, color, AGENT_COLORS, {
-            baseUrl,
-            getAccessToken: getBridgeAccessToken,
-          })
-        }
-      },
-      onPermissionResponse,
-      onInterrupt,
-      onSetModel,
-      onSetMaxThinkingTokens,
-      onSetPermissionMode,
-      onRenameSession,
-      onSetColor,
-      onFileSuggestions,
-      onReadFile,
-      onMcpAuthenticate,
-      onMcpOauthCallbackUrl,
-      onMcpReconnect,
-      onMcpStatus,
-      onStateChange,
-      outboundOnly,
-      tags,
-      gitRepoUrl,
-      branch,
-      reattachSessionId,
-      reattachSequenceNum,
-      ...(enableSessionPersistence ? persistenceCallbacks : {}),
-    })
-    return attachClientPresenceCleanup(handle)
-  }
-
-  // ── v1 path: env-based (register/poll/ack/heartbeat) ──────────────────
-
-  const versionError = checkBridgeMinVersion()
+  const versionError = await checkEnvLessBridgeMinVersion()
   if (versionError) {
-    logBridgeSkip('version_too_old', `[bridge:repl] Skipping: ${versionError}`)
+    logBridgeSkip(
+      'version_too_old',
+      `[bridge:repl] Skipping: ${versionError}`,
+      true,
+    )
     onStateChange?.('failed', 'run `claude update` to upgrade')
     return null
   }
 
-  // Gather git context — this is the bootstrap-read boundary.
-  // Everything from here down is passed explicitly to bridgeCore.
-  const sessionIngressUrl =
-    process.env.USER_TYPE === 'ant' &&
-    process.env.CLAUDE_BRIDGE_SESSION_INGRESS_URL
-      ? process.env.CLAUDE_BRIDGE_SESSION_INGRESS_URL
-      : baseUrl
-
-  // Assistant-mode sessions advertise a distinct worker_type so the web UI
-  // can filter them into a dedicated picker. KAIROS guard keeps the
-  // assistant module out of external builds entirely.
-  let workerType: BridgeWorkerType = 'claude_code'
-  if (feature('KAIROS')) {
-    /* eslint-disable @typescript-eslint/no-require-imports */
-    const { isAssistantMode } =
-      require('../assistant/index.js') as typeof import('../assistant/index.js')
-    /* eslint-enable @typescript-eslint/no-require-imports */
-    if (isAssistantMode()) {
-      workerType = 'claude_code_assistant'
-    }
-  }
-
-  // 6. Delegate. BridgeCoreHandle is a structural superset of
-  // ReplBridgeHandle (adds writeSdkMessages which REPL callers don't use),
-  // so no adapter needed — just the narrower type on the way out.
-  const handle = await initBridgeCore({
-    dir: getOriginalCwd(),
-    machineName: hostname(),
-    branch,
-    gitRepoUrl,
-    title,
+  const branch = await getBranch()
+  const gitRepoUrl = await getRemoteUrl()
+  const { initEnvLessBridgeCore } = await import('./remoteBridgeCore.js')
+  const handle = await initEnvLessBridgeCore({
+    reattachSessionId,
+    reattachSequenceNum,
     baseUrl,
-    sessionIngressUrl,
-    workerType,
+    orgUUID,
+    title,
     getAccessToken: getBridgeAccessToken,
-    createSession: opts =>
-      createBridgeSession({
-        ...opts,
-        events: [],
-        baseUrl,
-        getAccessToken: getBridgeAccessToken,
-      }),
-    archiveSession: sessionId =>
-      archiveBridgeSession(sessionId, {
-        baseUrl,
-        getAccessToken: getBridgeAccessToken,
-        // gracefulShutdown.ts:407 races runCleanupFunctions against 2s.
-        // Teardown also does stopWork (parallel) + deregister (sequential),
-        // so archive can't have the full budget. 1.5s matches v2's
-        // teardown_archive_timeout_ms default.
-        timeoutMs: 1500,
-      }).catch((err: unknown) => {
-        // archiveBridgeSession has no try/catch — 5xx/timeout/network throw
-        // straight through. Previously swallowed silently, making archive
-        // failures BQ-invisible and undiagnosable from debug logs.
-        logForDebugging(
-          `[bridge:repl] archiveBridgeSession threw: ${errorMessage(err)}`,
-          { level: 'error' },
-        )
-      }),
-    // getCurrentTitle is read on reconnect-after-env-lost to re-title the new
-    // session. /rename writes to session storage; onUserMessage mutates
-    // `title` directly — both paths are picked up here.
-    getCurrentTitle: () => getCurrentSessionTitle(getSessionId()) ?? title,
-    onUserMessage,
-    toSDKMessages,
     onAuth401: handleOAuth401Error,
-    getPollIntervalConfig,
+    onProactiveRefresh: async () => {
+      await checkAndRefreshOAuthTokenIfNeeded()
+    },
+    toSDKMessages,
     initialHistoryCap,
     initialMessages,
-    previouslyFlushedUUIDs,
+    branch,
+    gitRepoUrl,
+    onUserMessage,
+    onSessionEstablished: sessionId => {
+      setupBridgeClientPresence(
+        toCompatSessionId(sessionId),
+        baseUrl,
+        () => {
+          const token = getBridgeAccessToken()
+          return token ? { Authorization: `Bearer ${token}` } : {}
+        },
+      )
+      if (isKairosPushNotificationsEnabled() && !isEssentialTrafficOnly()) {
+        void hydrateNotificationPreferences()
+      }
+      const color = getCurrentSessionAgentColor()
+      if (color && color !== 'default') {
+        void updateBridgeSessionColorTag(sessionId, color, AGENT_COLORS, {
+          baseUrl,
+          getAccessToken: getBridgeAccessToken,
+        })
+      }
+    },
     onInboundMessage,
     onPermissionResponse,
     onInterrupt,
@@ -741,46 +584,23 @@ export async function initReplBridge(
     onRenameSession,
     onSetColor,
     onFileSuggestions,
-    onReadFile,
+    onReadFile: (path, maxBytes, encoding) =>
+      readFileForRemote(
+        path,
+        maxBytes,
+        getToolPermissionContext?.() ?? getEmptyToolPermissionContext(),
+        encoding,
+      ),
     onMcpAuthenticate,
     onMcpOauthCallbackUrl,
     onMcpReconnect,
     onMcpStatus,
     onStateChange,
-    perpetual,
+    outboundOnly,
+    tags,
+    ...(enableSessionPersistence ? persistenceCallbacks : {}),
   })
-  if (
-    handle &&
-    isKairosPushNotificationsEnabled() &&
-    !isEssentialTrafficOnly()
-  ) {
-    void hydrateNotificationPreferences()
-  }
-  return attachClientPresence(handle, baseUrl)
-}
-
-function attachClientPresence(
-  handle: ReplBridgeHandle | null,
-  baseUrl: string,
-): ReplBridgeHandle | null {
-  if (!handle) {
-    cleanupBridgeClientPresence()
-    return null
-  }
-  setupBridgeClientPresence(
-    toCompatSessionId(handle.bridgeSessionId),
-    baseUrl,
-    () => {
-    const token = getBridgeAccessToken()
-    return token ? { Authorization: `Bearer ${token}` } : {}
-    },
-  )
-  const teardown = handle.teardown.bind(handle)
-  handle.teardown = async options => {
-    cleanupBridgeClientPresence()
-    await teardown(options)
-  }
-  return handle
+  return attachClientPresenceCleanup(handle)
 }
 
 function attachClientPresenceCleanup(

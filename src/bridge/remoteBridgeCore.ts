@@ -240,7 +240,7 @@ export async function initEnvLessBridgeCore(
   } = params
 
   const cfg = await getEnvLessBridgeConfig()
-  let isReattach = reattachSessionId !== undefined
+  let isReattach = !!reattachSessionId
 
   // ── 1. Create session (POST /v1/code/sessions, no env_id) ───────────────
   const accessToken = getAccessToken()
@@ -865,7 +865,7 @@ export async function initEnvLessBridgeCore(
 
   // Start flushGate BEFORE connect so writeMessages() during handshake
   // queues instead of racing the history POST.
-  if (initialMessages && initialMessages.length > 0) {
+  if (!isReattach && initialMessages && initialMessages.length > 0) {
     flushGate.start()
   }
   transport.connect()

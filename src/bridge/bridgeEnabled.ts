@@ -176,20 +176,6 @@ function getAutoUploadSessions(): boolean | undefined {
 }
 
 /**
- * Runtime check for the env-less (v2) REPL bridge path.
- * Returns true when the GrowthBook flag `tengu_bridge_repl_v2` is enabled.
- *
- * This gates which implementation initReplBridge uses — NOT whether bridge
- * is available at all (see isBridgeEnabled above). Daemon/print paths stay
- * on the env-based implementation regardless of this gate.
- */
-export function isEnvLessBridgeEnabled(): boolean {
-  return feature('BRIDGE_MODE')
-    ? getFeatureValue_CACHED_MAY_BE_STALE('tengu_bridge_repl_v2', false)
-    : false
-}
-
-/**
  * Kill-switch for the `cse_*` → `session_*` client-side retag shim.
  *
  * The shim exists because compat/convert.go:27 validates TagSession and the

@@ -251,7 +251,7 @@ test('recovers worker lifecycle, takeover, service recall, and safe cleanup', ()
     '`claude daemon assistant add` is not available in this build',
   ])
   assertSourceFragments('src/bridge/remoteBridgeCore.ts', [
-    'let isReattach = reattachSessionId !== undefined',
+    'let isReattach = !!reattachSessionId',
     'async function createFreshSession()',
     'bridge_repl_v2_reattach_fallback',
     "'fetchRemoteCredentials (post-fallback)'",
@@ -355,8 +355,8 @@ test('recovers durable job ordering, generated-name context, and restart state',
     "...(encoding === 'base64' && { encoding })",
   ])
   assertSourceFragments('src/hooks/useReplBridge.tsx', [
-    'onReadFile: async (path, maxBytes, encoding) =>',
-    'store.getState().toolPermissionContext, encoding',
+    'getToolPermissionContext: () =>',
+    'store.getState().toolPermissionContext',
     'function resolveBridgeImmediateCommand(',
     "logEvent('tengu_immediate_command_executed'",
     'tryRunImmediateCommand(fields.content)',

@@ -4338,17 +4338,8 @@ function runHeadlessStreaming(
                   'src/bridge/initReplBridge.js'
                 )
                 const handle = await initReplBridge({
-                  onReadFile: async (path, maxBytes, encoding) => {
-                    const { readFileForRemote } = await import(
-                      'src/bridge/readFileForRemote.js'
-                    )
-                    return readFileForRemote(
-                      path,
-                      maxBytes,
-                      getAppState().toolPermissionContext,
-                      encoding,
-                    )
-                  },
+                  getToolPermissionContext: () =>
+                    getAppState().toolPermissionContext,
                   onInboundMessage(msg) {
                     const fields = extractInboundMessageFields(msg)
                     if (!fields) return
