@@ -320,12 +320,6 @@ const EMPTY_MCP_CLIENTS: MCPServerConnection[] = [];
 const HISTORY_STUB = {
   maybeLoadOlder: (_: ScrollBoxHandle) => {}
 };
-// Window after a user-initiated scroll during which type-into-empty does NOT
-// repin to bottom. Josh Rosen's workflow: Claude emits long output → scroll
-// up to read the start → start typing → before this fix, snapped to bottom.
-// https://anthropic.slack.com/archives/C07VBSHV7EV/p1773545449871739
-const RECENT_SCROLL_REPIN_WINDOW_MS = 3000;
-
 type ActiveToolProgress = Exclude<ToolProgressEvent, { kind: 'clear' }>;
 
 function reduceToolProgress(
@@ -966,6 +960,7 @@ export function REPL({
   // do NOT go through composedOnScroll, so they don't stamp this. Ref not
   // state: no re-render on every wheel tick.
   const lastUserScrollTsRef = useRef(0);
+  const hasScrolledAwayRef = useRef(false);
 
   // Synchronous state machine for the query lifecycle. Replaces the
   // error-prone dual-state pattern where isLoading (React state, async
@@ -1401,6 +1396,7 @@ export function REPL({
     if (!force && !getConfigValue('autoScrollEnabled', true).value) return;
     scrollRef.current?.scrollToBottom();
     onRepin();
+    hasScrolledAwayRef.current = false;
     setCursor(null);
   }, [onRepin, setCursor]);
   // Backstop for the submit-handler repin at onSubmit. If a buffered stdin
@@ -1433,6 +1429,7 @@ export function REPL({
   // Compose useUnseenDivider's callbacks with the lazy-load trigger.
   const composedOnScroll = useCallback((sticky: boolean, handle: ScrollBoxHandle) => {
     lastUserScrollTsRef.current = Date.now();
+    hasScrolledAwayRef.current = !sticky;
     if (sticky) {
       onRepin();
     } else {
@@ -1494,10 +1491,9 @@ export function REPL({
     // something while composing a message doesn't yank the view back on
     // every keystroke. Restores the pre-fullscreen muscle memory of
     // typing to snap back to the end of the conversation.
-    // Skipped if the user scrolled within the last 3s — they're actively
-    // reading, not lost. lastUserScrollTsRef starts at 0 so the first-
-    // ever keypress (no scroll yet) always repins.
-    if (inputValueRef.current === '' && value !== '' && Date.now() - lastUserScrollTsRef.current >= RECENT_SCROLL_REPIN_WINDOW_MS) {
+    // Preserve a deliberate scroll-away until the user explicitly returns
+    // to the live edge, regardless of how long they spend reading there.
+    if (inputValueRef.current === '' && value !== '' && !hasScrolledAwayRef.current) {
       repinScroll();
     }
     // Sync ref immediately (like setMessages) so callers that read
