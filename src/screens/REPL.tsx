@@ -2909,6 +2909,14 @@ export function REPL({
       // None of these are the user's topic; wait for real prose.
       if (text && !text.startsWith(`<${LOCAL_COMMAND_STDOUT_TAG}>`) && !text.startsWith(`<${COMMAND_MESSAGE_TAG}>`) && !text.startsWith(`<${COMMAND_NAME_TAG}>`) && !text.startsWith(`<${BASH_INPUT_TAG}>`)) {
         haikuTitleAttemptedRef.current = true;
+        const sessionId = getSessionId();
+        const firstPrompt = text.replaceAll('\n', ' ').trim().slice(0, 200);
+        saveGlobalConfig(config => config.lastHintSessionId === sessionId && config.lastSessionFirstPrompt === firstPrompt ? config : {
+          ...config,
+          lastHintSessionId: sessionId,
+          lastSessionFirstPrompt: firstPrompt,
+          lastSessionModified: Date.now()
+        });
         void generateSessionTitle(text, new AbortController().signal).then(title => {
           if (title) setHaikuTitle(title);else haikuTitleAttemptedRef.current = false;
         }, () => {

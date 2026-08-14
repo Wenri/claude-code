@@ -205,6 +205,9 @@ export type GlobalConfig = {
   projects?: Record<string, ProjectConfig>
   numStartups: number
   warmResumeHintShown?: boolean
+  lastHintSessionId?: string
+  lastSessionModified?: number
+  lastSessionFirstPrompt?: string
   installMethod?: InstallMethod
   autoUpdates?: boolean
   // Flag to distinguish protection-based disabling from user preference
