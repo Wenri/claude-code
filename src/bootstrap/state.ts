@@ -166,6 +166,10 @@ type State = {
   // SessionCronTask below (not importing from cronTasks.ts keeps
   // bootstrap a leaf of the import DAG).
   sessionCronTasks: SessionCronTask[]
+  // Per-prompt chain lifetime for dynamically paced /loop wakeups. A
+  // null-prototype record keeps arbitrary user prompts (including
+  // "__proto__") safe as keys while keeping bootstrap state serial-free.
+  loopChainStartedAt: Record<string, LoopChainState>
   // Teams created this session via TeamCreate. cleanupSessionTeams()
   // removes these on gracefulShutdown so subagent-created teams don't
   // persist on disk forever (gh-32730). TeamDelete removes entries to
@@ -403,6 +407,7 @@ function getInitialState(): State {
     // Scheduled tasks disabled until flag or dialog enables them
     scheduledTasksEnabled: false,
     sessionCronTasks: [],
+    loopChainStartedAt: Object.create(null) as Record<string, LoopChainState>,
     sessionCreatedTeams: new Set(),
     // Session-only trust flag (not persisted to disk)
     sessionTrustAccepted: false,
@@ -1430,6 +1435,7 @@ export type SessionCronTask = {
   prompt: string
   createdAt: number
   recurring?: boolean
+  kind?: 'loop'
   /**
    * When set, the task was created by an in-process teammate (not the team lead).
    * The scheduler routes fires to that teammate's pendingUserMessages queue
@@ -1438,12 +1444,35 @@ export type SessionCronTask = {
   agentId?: string
 }
 
+export type LoopChainState = {
+  startedAt: number
+  lastScheduledFor: number
+  agedOut?: boolean
+}
+
 export function getSessionCronTasks(): SessionCronTask[] {
   return STATE.sessionCronTasks
 }
 
 export function addSessionCronTask(task: SessionCronTask): void {
   STATE.sessionCronTasks.push(task)
+}
+
+export function getLoopChainStartedAt(
+  prompt: string,
+): LoopChainState | undefined {
+  return STATE.loopChainStartedAt[prompt]
+}
+
+export function setLoopChainStartedAt(
+  prompt: string,
+  value: LoopChainState,
+): void {
+  STATE.loopChainStartedAt[prompt] = value
+}
+
+export function deleteLoopChainStartedAt(prompt: string): void {
+  delete STATE.loopChainStartedAt[prompt]
 }
 
 /**

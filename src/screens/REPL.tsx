@@ -2399,6 +2399,7 @@ export function REPL({
     isMessageSelectorVisible: isMessageSelectorVisible || !!showBashesDialog,
     screen,
     abortSignal: abortController?.signal,
+    isExternalLoading,
     popCommandFromQueue: handleQueuedCommandOnCancel,
     getConnectionSummary: () => connectionRef.current?.summary(),
     vimMode,

@@ -4,6 +4,7 @@
  * Must be rendered inside KeybindingSetup to have access to the keybinding context.
  * This component renders nothing - it just registers the cancel keybinding handler.
  */
+import { feature } from 'bun:bundle'
 import { useCallback, useRef } from 'react'
 import { logEvent } from 'src/services/analytics/index.js'
 import type { AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS } from 'src/services/analytics/metadata.js'
@@ -35,6 +36,12 @@ import {
 } from '../utils/messageQueueManager.js'
 import { emitTaskTerminatedSdk } from '../utils/sdkEventQueue.js'
 
+/* eslint-disable @typescript-eslint/no-require-imports */
+const loopDynamicModule = feature('AGENT_TRIGGERS')
+  ? (require('../utils/loopDynamic.js') as typeof import('../utils/loopDynamic.js'))
+  : null
+/* eslint-enable @typescript-eslint/no-require-imports */
+
 /** Time window in ms during which a second press kills all background agents. */
 const KILL_AGENTS_CONFIRM_WINDOW_MS = 3000
 
@@ -47,6 +54,7 @@ type CancelRequestHandlerProps = {
   isMessageSelectorVisible: boolean
   screen: Screen
   abortSignal?: AbortSignal
+  isExternalLoading?: boolean
   popCommandFromQueue?: () => void
   vimMode?: VimMode
   isLocalJSXCommand?: boolean
@@ -70,6 +78,7 @@ export function CancelRequestHandler(props: CancelRequestHandlerProps): null {
     isMessageSelectorVisible,
     screen,
     abortSignal,
+    isExternalLoading = false,
     popCommandFromQueue,
     vimMode,
     isLocalJSXCommand,
@@ -98,9 +107,13 @@ export function CancelRequestHandler(props: CancelRequestHandlerProps): null {
 
     // Priority 1: If there's an active task running, cancel it first
     // This takes precedence over queue management so users can always interrupt Claude
-    if (abortSignal !== undefined && !abortSignal.aborted) {
+    if (
+      (abortSignal !== undefined && !abortSignal.aborted) ||
+      isExternalLoading
+    ) {
       logEvent('tengu_cancel', cancelProps)
       setToolUseConfirmQueue(() => [])
+      loopDynamicModule?.cancelAllPendingLoopSessionCrons()
       onCancel()
       return
     }
@@ -119,6 +132,7 @@ export function CancelRequestHandler(props: CancelRequestHandlerProps): null {
     onCancel()
   }, [
     abortSignal,
+    isExternalLoading,
     popCommandFromQueue,
     setToolUseConfirmQueue,
     onCancel,
@@ -131,7 +145,8 @@ export function CancelRequestHandler(props: CancelRequestHandlerProps): null {
   // Overlays (ModelPicker, ThinkingToggle, etc.) register themselves via useRegisterOverlay
   // Local JSX commands (like /model, /btw) handle their own input
   const isOverlayActive = useIsOverlayActive()
-  const canCancelRunningTask = abortSignal !== undefined && !abortSignal.aborted
+  const canCancelRunningTask =
+    (abortSignal !== undefined && !abortSignal.aborted) || isExternalLoading
   const hasQueuedCommands = queuedCommandsLength > 0
   // When in bash/background mode with empty input, escape should exit the mode
   // rather than cancel the request. Let PromptInput handle mode exit.

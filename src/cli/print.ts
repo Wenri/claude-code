@@ -418,6 +418,9 @@ const cronJitterConfigModule = feature('AGENT_TRIGGERS')
 const cronGate = feature('AGENT_TRIGGERS')
   ? (require('../tools/ScheduleCronTool/prompt.js') as typeof import('../tools/ScheduleCronTool/prompt.js'))
   : null
+const loopDefaultModule = feature('AGENT_TRIGGERS')
+  ? (require('../utils/loopDefault.js') as typeof import('../utils/loopDefault.js'))
+  : null
 const extractMemoriesModule = feature('EXTRACT_MEMORIES')
   ? (require('../services/extractMemories/extractMemories.js') as typeof import('../services/extractMemories/extractMemories.js'))
   : null
@@ -2964,9 +2967,11 @@ function runHeadlessStreaming(
     cronScheduler = cronSchedulerModule.createCronScheduler({
       onFire: prompt => {
         if (inputClosed) return
+        const resolvedPrompt =
+          loopDefaultModule?.resolveLoopDefaultFire(prompt) ?? prompt
         enqueue({
           mode: 'prompt',
-          value: prompt,
+          value: resolvedPrompt,
           uuid: randomUUID(),
           priority: 'later',
           // System-generated — matches useScheduledTasks.ts REPL equivalent.

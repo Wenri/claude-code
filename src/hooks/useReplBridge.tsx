@@ -49,6 +49,12 @@ import { getLeaderToolUseConfirmQueue } from '../utils/swarm/leaderPermissionBri
 import { parseSlashCommand } from '../utils/slashCommandParsing.js';
 import { logError } from '../utils/log.js';
 
+/* eslint-disable @typescript-eslint/no-require-imports */
+const loopDynamicModule = feature('AGENT_TRIGGERS')
+  ? (require('../utils/loopDynamic.js') as typeof import('../utils/loopDynamic.js'))
+  : null;
+/* eslint-enable @typescript-eslint/no-require-imports */
+
 /** How long after a failure before replBridgeEnabled is auto-cleared (stops retries). */
 export const BRIDGE_FAILURE_DISMISS_MS = 10_000;
 
@@ -531,6 +537,7 @@ export function useReplBridge(messages: Message[], setMessages: (action: React.S
             onInboundMessage: handleInboundMessage,
             onPermissionResponse: handlePermissionResponse,
             onInterrupt() {
+              loopDynamicModule?.cancelAllPendingLoopSessionCrons();
               abortControllerRef.current?.abort();
             },
             onSetModel(model) {

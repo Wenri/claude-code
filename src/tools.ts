@@ -33,6 +33,10 @@ const cronTools = feature('AGENT_TRIGGERS')
       require('./tools/ScheduleCronTool/CronListTool.js').CronListTool,
     ]
   : []
+const ScheduleWakeupTool = feature('AGENT_TRIGGERS')
+  ? require('./tools/ScheduleWakeupTool/ScheduleWakeupTool.js')
+      .ScheduleWakeupTool
+  : null
 const RemoteTriggerTool = feature('AGENT_TRIGGERS_REMOTE')
   ? require('./tools/RemoteTriggerTool/RemoteTriggerTool.js').RemoteTriggerTool
   : null
@@ -231,6 +235,7 @@ export function getAllBaseTools(): Tools {
     ...(WorkflowTool ? [WorkflowTool] : []),
     ...(SleepTool ? [SleepTool] : []),
     ...cronTools,
+    ...(ScheduleWakeupTool ? [ScheduleWakeupTool] : []),
     ...(RemoteTriggerTool ? [RemoteTriggerTool] : []),
     ...(MonitorTool ? [MonitorTool] : []),
     BriefTool,
