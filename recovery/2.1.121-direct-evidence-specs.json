@@ -102,6 +102,14 @@
         {
           "path": "src/utils/hooks.ts",
           "fragment": "buildPluginTelemetryFields(name, marketplace)"
+        },
+        {
+          "path": "src/cli/handlers/plugins.ts",
+          "fragment": "export async function pluginPruneHandler"
+        },
+        {
+          "path": "src/cli/handlers/plugins.ts",
+          "fragment": "logEvent('tengu_plugin_prune_command'"
         }
       ],
       "sourcePathAbsences": [],
@@ -109,7 +117,7 @@
         "official-owned-cluster",
         "official-residual-cluster"
       ],
-      "rationale": "target normalized statements 10523-10524 compute reachability and the post-uninstall hint; 11025 prunes registry/settings/cache/data; 30829-30834 render dry-run/TTY confirmation; 40673 wires the command target normalized statement 28166 attributes content injected by each plugin hook after a hook batch; this supplements the recovered dependency-prune lifecycle with its target-only plugin observability path"
+      "rationale": "target normalized statements 10523-10524 compute reachability and the post-uninstall hint; 11025 prunes registry/settings/cache/data; 30829-30834 render dry-run/TTY confirmation; 40673 wires the command target normalized statement 28166 attributes content injected by each plugin hook after a hook batch; this supplements the recovered dependency-prune lifecycle with its target-only plugin observability path The CLI handler exposes prune/autoremove and passes uninstall cascade controls into the recovered plugin lifecycle."
     },
     {
       "id": "B03",
@@ -199,6 +207,14 @@
         {
           "path": "src/cli/print.ts",
           "fragment": "toReplaceCount: toReplace.length"
+        },
+        {
+          "path": "src/services/tools/toolHooks.ts",
+          "fragment": "result.updatedToolOutput !== undefined"
+        },
+        {
+          "path": "src/services/tools/toolHooks.ts",
+          "fragment": "updatedToolOutput: toolOutput"
         }
       ],
       "sourcePathAbsences": [],
@@ -206,7 +222,7 @@
         "official-owned-cluster",
         "official-residual-cluster"
       ],
-      "rationale": "target normalized statements 12343, 17214, 17230 and 28137/28166 cover schema, REPL wrapper, ordinary-tool validation/remap, JSON parsing and deprecated-field precedence target normalized statements 40537 and 40566 reconcile MCP state after background plugin installation with caller plugin_install_diff and emit target-only reconcile cardinality telemetry"
+      "rationale": "target normalized statements 12343, 17214, 17230 and 28137/28166 cover schema, REPL wrapper, ordinary-tool validation/remap, JSON parsing and deprecated-field precedence target normalized statements 40537 and 40566 reconcile MCP state after background plugin installation with caller plugin_install_diff and emit target-only reconcile cardinality telemetry The shared tool-hook runner propagates ordinary-tool replacements while retaining the deprecated MCP-only input field."
     },
     {
       "id": "B05",
@@ -1069,13 +1085,21 @@
         {
           "path": "src/utils/sessionState.ts",
           "fragment": "notifySessionInternalMetadataChanged"
+        },
+        {
+          "path": "src/cli/structuredIO.ts",
+          "fragment": "type RestoredWorkerState"
+        },
+        {
+          "path": "src/cli/structuredIO.ts",
+          "fragment": "restoredWorkerState: Promise<RestoredWorkerState | null>"
         }
       ],
       "sourcePathAbsences": [],
       "focusedTests": [
         "official-runtime-settings-cluster"
       ],
-      "rationale": "target normalized statements 28645-28646 filter mcp__ rules while restoring/reporting session_allow_rules; 28741/28748 coalesce and round-trip internal_metadata; 40561 applies internal state after external state on resume"
+      "rationale": "target normalized statements 28645-28646 filter mcp__ rules while restoring/reporting session_allow_rules; 28741/28748 coalesce and round-trip internal_metadata; 40561 applies internal state after external state on resume Structured I/O retains both external and internal worker metadata through the typed restored state used by remote-session rule recovery."
     },
     {
       "id": "B32",
@@ -1699,7 +1723,11 @@
       "targetFragments": [
         "Skills, subagents, and plugins",
         "No attribution data yet",
-        "\"attributionAgent\":\""
+        "\"attributionAgent\":\"",
+        "\"attributionSkill\":\"",
+        "\"attributionPlugin\":\"",
+        "Heavy skills can be scoped down",
+        "came from subagents under"
       ],
       "sourceAssertions": [
         {
@@ -1713,13 +1741,50 @@
         {
           "path": "src/components/Settings/UsageContributors.tsx",
           "fragment": "attributionSkill"
+        },
+        {
+          "path": "src/components/Settings/UsageContributors.tsx",
+          "fragment": "addAttribution(accumulator.byPlugin, record.attributionPlugin, cost)"
+        },
+        {
+          "path": "src/components/Settings/UsageContributors.tsx",
+          "fragment": "const FILE_BATCH_SIZE = 4"
+        },
+        {
+          "path": "src/components/Settings/UsageContributors.tsx",
+          "fragment": "const seen = new Set<string>()"
+        },
+        {
+          "path": "src/components/Settings/UsageContributors.tsx",
+          "fragment": "rows.slice(0, 8)"
+        },
+        {
+          "path": "src/utils/fsOperations.ts",
+          "fragment": "chunkSize = 64 * 1024"
+        },
+        {
+          "path": "src/utils/fsOperations.ts",
+          "fragment": "export async function* readLineBuffers"
         }
       ],
-      "rationale": "Target-only attribution headings and JSONL keys bind local /usage grouping for plugins, skills, and subagents.",
-      "focusedTests": [
-        "hidden-obligations"
+      "sourcePathAbsences": [
+        {
+          "paths": [
+            "src/components/Settings/UsageContributors.tsx"
+          ],
+          "fragment": "getSubscriptionType"
+        },
+        {
+          "paths": [
+            "src/components/Settings/UsageContributors.tsx"
+          ],
+          "fragment": "readFile(file, 'utf8')"
+        }
       ],
-      "sourcePathAbsences": []
+      "focusedTests": [
+        "usage-attribution"
+      ],
+      "rationale": "Target-only attribution headings and JSONL keys bind the bounded Buffer-line scan, shared UUID dedupe, day/week accumulators, and local /usage grouping for plugins, skills, and subagents."
     },
     {
       "id": "H11",

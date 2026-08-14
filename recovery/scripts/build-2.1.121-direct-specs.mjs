@@ -16,6 +16,13 @@ const absent = (paths, fragment) => ({ paths, fragment })
 
 const rootTest = ['hidden-obligations']
 const manualOfficial = new Map([
+  [2, {
+    sourceAssertions: [
+      sr('src/cli/handlers/plugins.ts', 'export async function pluginPruneHandler'),
+      sr('src/cli/handlers/plugins.ts', "logEvent('tengu_plugin_prune_command'"),
+    ],
+    rationale: 'The CLI handler exposes prune/autoremove and passes uninstall cascade controls into the recovered plugin lifecycle.',
+  }],
   [3, {
     targetFragments: ['Search skills', 'No skills match "'],
     sourceAssertions: [
@@ -23,6 +30,13 @@ const manualOfficial = new Map([
       sr('src/components/skills/SkillsMenu.tsx', 'filteredSkills'),
     ],
     rationale: 'Target-only search copy and the recovered controlled filter state bind long-list skill filtering.',
+  }],
+  [4, {
+    sourceAssertions: [
+      sr('src/services/tools/toolHooks.ts', 'result.updatedToolOutput !== undefined'),
+      sr('src/services/tools/toolHooks.ts', 'updatedToolOutput: toolOutput'),
+    ],
+    rationale: 'The shared tool-hook runner propagates ordinary-tool replacements while retaining the deprecated MCP-only input field.',
   }],
   [5, {
     targetFragments: ['K8?.scrollToBottom(),dz(),X3.current=!1'],
@@ -214,6 +228,13 @@ const manualOfficial = new Map([
       sr('src/ink/log-update.ts', 'forceFullReset(): void'),
     ],
     rationale: 'Target-only forced reset support clears non-fullscreen redraw history instead of duplicating scrollback.',
+  }],
+  [31, {
+    sourceAssertions: [
+      sr('src/cli/structuredIO.ts', 'type RestoredWorkerState'),
+      sr('src/cli/structuredIO.ts', 'restoredWorkerState: Promise<RestoredWorkerState | null>'),
+    ],
+    rationale: 'Structured I/O retains both external and internal worker metadata through the typed restored state used by remote-session rule recovery.',
   }],
   [36, {
     targetFragments: ['stickyScroll'],
@@ -448,13 +469,32 @@ const hiddenRows = [
   {
     id: 'H10',
     category: 'hidden',
-    targetFragments: ['Skills, subagents, and plugins', 'No attribution data yet', '"attributionAgent":"'],
+    targetFragments: [
+      'Skills, subagents, and plugins',
+      'No attribution data yet',
+      '"attributionAgent":"',
+      '"attributionSkill":"',
+      '"attributionPlugin":"',
+      'Heavy skills can be scoped down',
+      'came from subagents under',
+    ],
     sourceAssertions: [
       sr('src/components/Settings/UsageContributors.tsx', 'Skills, subagents, and plugins'),
       sr('src/components/Settings/UsageContributors.tsx', 'attributionAgent'),
       sr('src/components/Settings/UsageContributors.tsx', 'attributionSkill'),
+      sr('src/components/Settings/UsageContributors.tsx', 'addAttribution(accumulator.byPlugin, record.attributionPlugin, cost)'),
+      sr('src/components/Settings/UsageContributors.tsx', 'const FILE_BATCH_SIZE = 4'),
+      sr('src/components/Settings/UsageContributors.tsx', 'const seen = new Set<string>()'),
+      sr('src/components/Settings/UsageContributors.tsx', 'rows.slice(0, 8)'),
+      sr('src/utils/fsOperations.ts', 'chunkSize = 64 * 1024'),
+      sr('src/utils/fsOperations.ts', 'export async function* readLineBuffers'),
     ],
-    rationale: 'Target-only attribution headings and JSONL keys bind local /usage grouping for plugins, skills, and subagents.',
+    sourcePathAbsences: [
+      absent(['src/components/Settings/UsageContributors.tsx'], 'getSubscriptionType'),
+      absent(['src/components/Settings/UsageContributors.tsx'], "readFile(file, 'utf8')"),
+    ],
+    focusedTests: ['usage-attribution'],
+    rationale: 'Target-only attribution headings and JSONL keys bind the bounded Buffer-line scan, shared UUID dedupe, day/week accumulators, and local /usage grouping for plugins, skills, and subagents.',
   },
   {
     id: 'H11',
