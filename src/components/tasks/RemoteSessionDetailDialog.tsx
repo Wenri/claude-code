@@ -173,42 +173,23 @@ function UltraplanSessionDetail(t0) {
     } else {
       t7 = $[12];
     }
-    let t8;
-    if ($[13] === Symbol.for("react.memo_cache_sentinel")) {
-      t8 = {
-        label: "Terminate session",
-        value: "stop" as const
-      };
-      $[13] = t8;
-    } else {
-      t8 = $[13];
-    }
-    let t9;
-    if ($[14] === Symbol.for("react.memo_cache_sentinel")) {
-      t9 = [t8, {
-        label: "Back",
-        value: "back" as const
-      }];
-      $[14] = t9;
-    } else {
-      t9 = $[14];
-    }
-    let t10;
-    if ($[15] !== goBackOrClose || $[16] !== onKill) {
-      t10 = <Dialog title="Stop ultraplan?" onCancel={t6} color="background"><Box flexDirection="column" gap={1}>{t7}<Select options={t9} onChange={v => {
-            if (v === "stop") {
-              onKill?.();
-              goBackOrClose();
-            } else {
-              setConfirmingStop(false);
-            }
-          }} /></Box></Dialog>;
-      $[15] = goBackOrClose;
-      $[16] = onKill;
-      $[17] = t10;
-    } else {
-      t10 = $[17];
-    }
+    const stopConfirmLabel = phase === "plan_ready" ? "Terminate session and discard plan" : "Terminate session";
+    const t8 = {
+      label: stopConfirmLabel,
+      value: "stop" as const
+    };
+    const t9 = [t8, {
+      label: "Back",
+      value: "back" as const
+    }];
+    const t10 = <Dialog title="Stop ultraplan?" onCancel={t6} color="background"><Box flexDirection="column" gap={1}>{t7}<Select options={t9} onChange={v => {
+          if (v === "stop") {
+            onKill?.();
+            goBackOrClose();
+          } else {
+            setConfirmingStop(false);
+          }
+        }} /></Box></Dialog>;
     return t10;
   }
   const t6 = phase === "plan_ready" ? DIAMOND_FILLED : DIAMOND_OPEN;
@@ -308,28 +289,21 @@ function UltraplanSessionDetail(t0) {
   } else {
     t18 = $[46];
   }
-  let t19;
-  if ($[47] === Symbol.for("react.memo_cache_sentinel")) {
-    t19 = {
-      label: "Review in Claude Code on the web",
-      value: "open" as const
-    };
-    $[47] = t19;
-  } else {
-    t19 = $[47];
-  }
-  let t20;
-  if ($[48] !== onKill || $[49] !== running) {
-    t20 = onKill && running ? [{
-      label: "Stop ultraplan",
-      value: "stop" as const
-    }] : [];
-    $[48] = onKill;
-    $[49] = running;
-    $[50] = t20;
-  } else {
-    t20 = $[50];
-  }
+  const openLabel = phase === "plan_ready" ? "Review in Claude Code on the web" : phase === "needs_input" ? "Answer in Claude Code on the web" : "Open in Claude Code on the web";
+  const t19 = {
+    label: openLabel,
+    value: "open" as const,
+    ...(phase === "plan_ready" && {
+      description: "Approve, edit, or comment on the plan"
+    })
+  };
+  const t20 = onKill && running ? [{
+    label: "Stop ultraplan",
+    value: "stop" as const,
+    ...(phase === "plan_ready" && {
+      description: "Discard the generated plan"
+    })
+  }] : [];
   let t21;
   if ($[51] === Symbol.for("react.memo_cache_sentinel")) {
     t21 = {
@@ -340,14 +314,7 @@ function UltraplanSessionDetail(t0) {
   } else {
     t21 = $[51];
   }
-  let t22;
-  if ($[52] !== t20) {
-    t22 = [t19, ...t20, t21];
-    $[52] = t20;
-    $[53] = t22;
-  } else {
-    t22 = $[53];
-  }
+  const t22 = [t19, ...t20, t21];
   let t23;
   if ($[54] !== goBackOrClose || $[55] !== onDone || $[56] !== sessionUrl) {
     t23 = v_0 => {

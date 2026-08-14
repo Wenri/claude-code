@@ -388,6 +388,10 @@ export function hasFileArgs(command: string): boolean {
 export function extractSedExpressions(command: string): string[] {
   const expressions: string[] = []
 
+  if (/^\s*sed\s*$/.test(command)) {
+    throw new Error('No sed arguments')
+  }
+
   // Calculate withoutSed by trimming off the first N characters (removing 'sed ')
   const sedMatch = command.match(/^\s*sed\s+/)
   if (!sedMatch) return expressions

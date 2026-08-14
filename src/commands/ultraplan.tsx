@@ -256,6 +256,31 @@ export async function stopUltraplan(taskId: string, sessionId: string, setAppSta
   });
 }
 
+/** Stop a running teleported ultrareview and surface the same task boundary
+ * notifications as the bundled client. */
+export async function stopUltrareview(
+  taskId: string,
+  sessionId: string,
+  setAppState: (f: (prev: AppState) => AppState) => void,
+): Promise<void> {
+  await RemoteAgentTask.kill(taskId, setAppState)
+  logEvent('tengu_review_remote_stopped', {})
+  const url = getRemoteSessionUrl(
+    sessionId,
+    process.env.SESSION_INGRESS_URL,
+  )
+  enqueuePendingNotification({
+    value: `Ultrareview stopped.\n\nSession: ${url}`,
+    mode: 'task-notification',
+  })
+  enqueuePendingNotification({
+    value:
+      'The user stopped the ultrareview session above. Do not respond to the stop notification — wait for their next message.',
+    mode: 'task-notification',
+    isMeta: true,
+  })
+}
+
 /**
  * Shared entry for the slash command, keyword trigger, and the plan-approval
  * dialog's "Ultraplan" button. When seedPlan is present (dialog path), it is

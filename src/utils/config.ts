@@ -52,6 +52,7 @@ import { jsonParse, jsonStringify } from './slowOperations.js'
 // infinite recursion when the config file is corrupted. logEvent's sampling check
 // reads GrowthBook features from the global config, which calls getConfig again.
 let insideGetConfig = false
+let generatedUserID: string | undefined
 
 // Image dimension info for coordinate mapping (only set when image was resized)
 export type PastedContent = {
@@ -1852,8 +1853,20 @@ export function getOrCreateUserID(): string {
     return config.userID
   }
 
+  if (generatedUserID) {
+    return generatedUserID
+  }
+
   const userID = randomBytes(32).toString('hex')
-  saveGlobalConfig(current => ({ ...current, userID }))
+  generatedUserID = userID
+  try {
+    saveGlobalConfig(current => ({ ...current, userID }))
+  } catch (error) {
+    logForDebugging(
+      `getOrCreateUserID: could not persist userID: ${String(error)}`,
+      { level: 'error' },
+    )
+  }
   return userID
 }
 

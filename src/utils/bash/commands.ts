@@ -585,6 +585,7 @@ export function extractOutputRedirections(cmd: string): {
   commandWithoutRedirections: string
   redirections: Array<{ target: string; operator: '>' | '>>' }>
   hasDangerousRedirection: boolean
+  dangerousRedirectionReason?: 'network_device' | 'shell_expansion'
 } {
   const redirections: Array<{ target: string; operator: '>' | '>>' }> = []
   let hasDangerousRedirection = false
@@ -645,10 +646,36 @@ export function extractOutputRedirections(cmd: string): {
       commandWithoutRedirections: cmd,
       redirections: [],
       hasDangerousRedirection: true,
+      dangerousRedirectionReason: 'shell_expansion',
     }
   }
 
   const parsed = parseResult.tokens
+
+  // Bash treats /dev/tcp and /dev/udp redirects as network connections. Keep
+  // them out of the ordinary filesystem-path flow and require approval.
+  const hasNetworkDeviceRedirection = parsed.some((part, index) => {
+    if (typeof part !== 'string' || !/^\/dev\/(tcp|udp)\//.test(part)) {
+      return false
+    }
+    const previous = parsed[index - 1]
+    const previousPrevious = parsed[index - 2]
+    return (
+      (typeof previous === 'object' &&
+        previous !== null &&
+        'op' in previous &&
+        ['>', '>>', '<', '>&', '&>', '&>>'].includes(previous.op)) ||
+      ((previous === '!' ||
+        (typeof previous === 'object' &&
+          previous !== null &&
+          'op' in previous &&
+          previous.op === '|')) &&
+        typeof previousPrevious === 'object' &&
+        previousPrevious !== null &&
+        'op' in previousPrevious &&
+        ['>', '>>'].includes(previousPrevious.op))
+    )
+  })
 
   // Find redirected subshells (e.g., "(cmd) > file")
   const redirectedSubshells = new Set<number>()
@@ -735,7 +762,13 @@ export function extractOutputRedirections(cmd: string): {
       heredocs,
     )[0]!,
     redirections,
-    hasDangerousRedirection,
+    hasDangerousRedirection:
+      hasDangerousRedirection || hasNetworkDeviceRedirection,
+    dangerousRedirectionReason: hasNetworkDeviceRedirection
+      ? 'network_device'
+      : hasDangerousRedirection
+        ? 'shell_expansion'
+        : undefined,
   }
 }
 
