@@ -1809,7 +1809,7 @@
         },
         {
           "path": "src/bridge/remoteBridgeCore.ts",
-          "fragment": "remote-permission-mode-noop"
+          "fragment": "bridge_repl_v2_reattach_fallback"
         },
         {
           "path": "src/cli/transports/transportUtils.ts",
@@ -1842,6 +1842,10 @@
         {
           "path": "src/utils/handlePromptSubmit.ts",
           "fragment": "tengu_immediate_command_executed"
+        },
+        {
+          "path": "src/hooks/useReplBridge.tsx",
+          "fragment": "tengu_immediate_command_executed"
         }
       ],
       "focusedTests": [
@@ -1866,8 +1870,20 @@
           "fragment": "tengu_bg_spare_claim"
         },
         {
-          "path": "src/daemon/ptyHost.ts",
+          "path": "src/daemon/supervisor.ts",
           "fragment": "tengu_bg_spare_enable"
+        },
+        {
+          "path": "src/bridge/bridgeMessaging.ts",
+          "fragment": "request.request.encoding"
+        },
+        {
+          "path": "src/bridge/readFileForRemote.ts",
+          "fragment": "encoding === 'base64'"
+        },
+        {
+          "path": "src/bridge/replBridge.ts",
+          "fragment": "Daemon path: query() already yields SDKMessage"
         },
         {
           "path": "src/entrypoints/sdk/controlSchemas.ts",
@@ -1922,15 +1938,15 @@
       "sourceAssertions": [
         {
           "path": "src/daemon/cli.ts",
-          "fragment": "Service lifecycle:"
+          "fragment": "export function parseKindArgs"
         },
         {
           "path": "src/daemon/service.ts",
-          "fragment": "launchctl"
+          "fragment": "export async function controlDaemonService"
         },
         {
           "path": "src/daemon/status.ts",
-          "fragment": "uptime"
+          "fragment": "export function formatBgDaemonStatus"
         },
         {
           "path": "src/daemon/main.ts",
@@ -1970,15 +1986,15 @@
         },
         {
           "path": "src/daemon/lock.ts",
-          "fragment": "yield"
+          "fragment": "export async function replaceDaemonLock"
         },
         {
           "path": "src/daemon/ptyHost.ts",
-          "fragment": "claim"
+          "fragment": "export async function runPtyHost"
         },
         {
           "path": "src/daemon/ptyClient.ts",
-          "fragment": "claim"
+          "fragment": "export function connectPtyHost"
         },
         {
           "path": "src/daemon/spare.ts",
@@ -1990,7 +2006,27 @@
         },
         {
           "path": "src/daemon/orphanReaper.ts",
-          "fragment": "roster-less pty host(s)"
+          "fragment": "export async function reapOrphanWorkers"
+        },
+        {
+          "path": "src/daemon/client.ts",
+          "fragment": "export async function isBackgroundJobAlive"
+        },
+        {
+          "path": "src/daemon/paths.ts",
+          "fragment": "getSpareClaimSocketPath"
+        },
+        {
+          "path": "src/daemon/protocol.ts",
+          "fragment": "z.literal('yield')"
+        },
+        {
+          "path": "src/daemon/rendezvous.ts",
+          "fragment": "forceRedraw()"
+        },
+        {
+          "path": "src/entrypoints/cli.tsx",
+          "fragment": "args[0] === '--bg-spare'"
         }
       ],
       "rationale": "Exact handover copy and claim telemetry bind lock-safe transient/service ownership transfer.",
@@ -2018,12 +2054,44 @@
           "fragment": "daemon"
         },
         {
-          "path": "src/components/FleetView.tsx",
-          "fragment": "background"
+          "path": "src/cli/bg.ts",
+          "fragment": "tengu_bg_respawn_unconfirmed_bail"
+        },
+        {
+          "path": "src/cli/handlers/templateJobs.ts",
+          "fragment": "export async function claimPrewarmedJob"
+        },
+        {
+          "path": "src/commands/exit/exit-noninteractive.ts",
+          "fragment": "Session keeps running. Use /stop to end it."
+        },
+        {
+          "path": "src/commands/exit/exit.tsx",
+          "fragment": "export async function stopBackgroundSession"
+        },
+        {
+          "path": "src/commands/exit/index.ts",
+          "fragment": "Detach from this background session (it keeps running)"
+        },
+        {
+          "path": "src/commands/stop/stop.tsx",
+          "fragment": "stopBackgroundSession('stop_command')"
         },
         {
           "path": "src/components/BackgroundExitDialog.tsx",
-          "fragment": "background"
+          "fragment": "choice: 'exit' | 'stay'"
+        },
+        {
+          "path": "src/components/ExitFlow.tsx",
+          "fragment": "stopBackgroundSession('keybind_exit')"
+        },
+        {
+          "path": "src/components/FleetView.tsx",
+          "fragment": "state.stateSortOrder"
+        },
+        {
+          "path": "src/daemon/hub.tsx",
+          "fragment": "bgSupervisorNoun()"
         },
         {
           "path": "src/daemon/jobs.ts",
