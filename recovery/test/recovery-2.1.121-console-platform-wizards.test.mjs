@@ -54,6 +54,7 @@ test('authenticates the retained Bedrock and Vertex wizard surface in both adjac
       ['no InvokeModel permission', 1],
       ['no aiplatform.endpoints.predict permission', 1],
       ['Pin the working models with 1M context', 2],
+      ['profiles found in your account.', 1],
     ]) {
       assert.equal(occurrences(bundle, fragment), count, fragment)
     }
@@ -67,6 +68,13 @@ test('authenticates the retained Bedrock and Vertex wizard surface in both adjac
     ),
     [0, 1],
     'AWS SDK proxy honors NO_PROXY for the resolved service URL',
+  )
+  assert.deepEqual(
+    adjacentBundles.map(bundle =>
+      occurrences(bundle, 'https://bedrock-runtime.${'),
+    ),
+    [1, 5],
+    'Bedrock runtime clients expose their resolved proxy-bypass URL',
   )
 })
 
@@ -116,6 +124,10 @@ test('recovers provider discovery, verification, model probing, and settings per
     "'tengu_vertex_setup_complete'",
     "Pin the working models with 1M context",
     "url: `https://bedrock.${data.region}.amazonaws.com`",
+    'preferFirstWorking={provider === \'Bedrock\'}',
+    'accountCandidates={wizardData.discoveredProfiles ?? []}',
+    'No ${MODEL_TIER_LABELS[pickingTier]} profiles found in your account.',
+    '? sorted.find(works)',
   ]) {
     assert.equal(source.includes(fragment), true, fragment)
   }
@@ -142,5 +154,18 @@ test('threads resolved Bedrock service URLs through AWS proxy bypass checks', ()
     '`https://bedrock-runtime.${region}.amazonaws.com`',
   ]) {
     assert.equal(bedrockSource.includes(fragment), true, fragment)
+  }
+
+  const upgradeSource = fs.readFileSync(
+    path.join(repo, 'src/utils/model/bedrockUpgrade.ts'),
+    'utf8',
+  )
+  for (const fragment of [
+    'const region =',
+    'awsRegion: region',
+    'fetchOptions: getFetchOptions({',
+    '`https://bedrock-runtime.${region}.amazonaws.com`',
+  ]) {
+    assert.equal(upgradeSource.includes(fragment), true, fragment)
   }
 })
