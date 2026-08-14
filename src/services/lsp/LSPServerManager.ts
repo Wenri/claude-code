@@ -339,15 +339,16 @@ export function createLSPServerManager(): LSPServerManager {
       return openFile(filePath, content)
     }
 
+    const version = nextDocumentVersion(fileUri)
     try {
       await server.sendNotification('textDocument/didChange', {
         textDocument: {
           uri: fileUri,
-          version: nextDocumentVersion(fileUri),
+          version,
         },
         contentChanges: [{ text: content }],
       })
-      logForDebugging(`LSP: Sent didChange for ${filePath}`)
+      logForDebugging(`LSP: Sent didChange for ${filePath} (v${version})`)
     } catch (error) {
       const err = new Error(
         `Failed to sync file change ${filePath}: ${errorMessage(error)}`,
