@@ -418,6 +418,7 @@ export async function compactConversation(
   customInstructions?: string,
   isAutoCompact: boolean = false,
   recompactionInfo?: RecompactionInfo,
+  compactingHintText?: string | null,
 ): Promise<CompactionResult> {
   try {
     if (messages.length === 0) {
@@ -455,7 +456,10 @@ export async function compactConversation(
     // Show requesting mode with up arrow and custom message
     context.setStreamMode?.('requesting')
     context.setResponseLength?.(() => 0)
-    context.onCompactProgress?.({ type: 'compact_start' })
+    context.onCompactProgress?.({
+      type: 'compact_start',
+      hintText: compactingHintText,
+    })
 
     // 3P default: true — forked-agent path reuses main conversation's prompt cache.
     // Experiment (Jan 2026) confirmed: false path is 98% cache miss, costs ~0.76% of

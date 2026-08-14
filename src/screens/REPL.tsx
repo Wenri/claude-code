@@ -1638,6 +1638,8 @@ export function REPL({
   const [spinnerMessage, setSpinnerMessage] = useState<string | null>(null);
   const [spinnerColor, setSpinnerColor] = useState<keyof Theme | null>(null);
   const [spinnerShimmerColor, setSpinnerShimmerColor] = useState<keyof Theme | null>(null);
+  const [isCompacting, setIsCompacting] = useState(false);
+  const [compactingHintText, setCompactingHintText] = useState<string | null>(null);
   const [isMessageSelectorVisible, setIsMessageSelectorVisible] = useState(false);
   const [messageSelectorPreselect, setMessageSelectorPreselect] = useState<UserMessage | undefined>(undefined);
   const [showCostDialog, setShowCostDialog] = useState(false);
@@ -1745,6 +1747,8 @@ export function REPL({
     setSpinnerMessage(null);
     setSpinnerColor(null);
     setSpinnerShimmerColor(null);
+    setIsCompacting(false);
+    setCompactingHintText(null);
     setStreamMode('responding');
     pickNewSpinnerTip();
     endInteractionSpan();
@@ -2721,11 +2725,15 @@ export function REPL({
             break;
           case 'compact_start':
             setSpinnerMessage('Compacting conversation');
+            setIsCompacting(true);
+            setCompactingHintText(event.hintText ?? null);
             break;
           case 'compact_end':
             setSpinnerMessage(null);
             setSpinnerColor(null);
             setSpinnerShimmerColor(null);
+            setIsCompacting(false);
+            setCompactingHintText(null);
             break;
         }
       },
@@ -4877,7 +4885,7 @@ export function REPL({
               {"external" === 'ant' && <TungstenLiveMonitor />}
               {feature('WEB_BROWSER_TOOL') ? WebBrowserPanelModule && <WebBrowserPanelModule.WebBrowserPanel /> : null}
               <Box flexGrow={1} />
-              {showSpinner && <SpinnerWithVerb mode={streamMode} spinnerTip={spinnerTip} responseLengthRef={responseLengthRef} apiMetricsRef={apiMetricsRef} overrideMessage={spinnerMessage} spinnerSuffix={stopHookSpinnerSuffix} verbose={verbose} loadingStartTimeRef={loadingStartTimeRef} totalPausedMsRef={totalPausedMsRef} pauseStartTimeRef={pauseStartTimeRef} overrideColor={spinnerColor} overrideShimmerColor={spinnerShimmerColor} hasActiveTools={inProgressToolUseIDs.size > 0} leaderIsIdle={!isLoading} />}
+              {showSpinner && <SpinnerWithVerb mode={streamMode} spinnerTip={spinnerTip} responseLengthRef={responseLengthRef} apiMetricsRef={apiMetricsRef} overrideMessage={spinnerMessage} isCompacting={isCompacting} compactingHintText={compactingHintText} spinnerSuffix={stopHookSpinnerSuffix} verbose={verbose} loadingStartTimeRef={loadingStartTimeRef} totalPausedMsRef={totalPausedMsRef} pauseStartTimeRef={pauseStartTimeRef} overrideColor={spinnerColor} overrideShimmerColor={spinnerShimmerColor} hasActiveTools={inProgressToolUseIDs.size > 0} leaderIsIdle={!isLoading} />}
               {!showSpinner && !isLoading && !userInputOnProcessing && !hasRunningTeammates && isBriefOnly && !viewedAgentTask && <BriefIdleStatus />}
               {isFullscreenEnvEnabled() && <PromptInputQueuedCommands />}
             </>} bottom={<Box flexDirection={feature('BUDDY') && companionNarrow ? 'column' : 'row'} width="100%" alignItems={feature('BUDDY') && companionNarrow ? undefined : 'flex-end'}>

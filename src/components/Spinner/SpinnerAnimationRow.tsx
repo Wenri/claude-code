@@ -72,6 +72,8 @@ export type SpinnerAnimationRowProps = {
   foregroundedTeammate: InProcessTeammateTaskState | undefined;
   /** Leader's turn has completed. Suppresses stall-red since responseLengthRef/hasActiveTools track leader state only. */
   leaderIsIdle?: boolean;
+  /** Compaction is an active request phase, not a stalled response. */
+  isCompacting?: boolean;
 
   // Thinking (state owned by parent, mode-dependent)
   thinkingStatus: 'thinking' | number | null;
@@ -108,7 +110,8 @@ export function SpinnerAnimationRow({
   foregroundedTeammate,
   leaderIsIdle = false,
   thinkingStatus,
-  effortSuffix
+  effortSuffix,
+  isCompacting = false
 }: SpinnerAnimationRowProps): React.ReactNode {
   const [viewportRef, time] = useAnimationFrame(reducedMotion ? null : 50);
 
@@ -133,18 +136,30 @@ export function SpinnerAnimationRow({
   // Suppress stall detection when leader is idle — responseLengthRef and
   // hasActiveTools both track leader state. When viewing an active teammate
   // while leader is idle, they'd otherwise flag a false stall after 3s.
-  // Treating leaderIsIdle like hasActiveTools resets the stall timer.
+  // Treating leaderIsIdle/compaction like hasActiveTools resets the stall timer.
   const {
     isStalled,
     stalledIntensity,
     timeSinceLastToken
-  } = useStalledAnimation(time, currentResponseLength, hasActiveTools || leaderIsIdle || mode === 'thinking', reducedMotion);
+  } = useStalledAnimation(time, currentResponseLength, hasActiveTools || leaderIsIdle || mode === 'thinking' || isCompacting, reducedMotion);
   const loggedStallThresholdsRef = useRef(new Set<number>());
+  const maxStallMsRef = useRef(0);
   if (timeSinceLastToken === 0) {
     if (loggedStallThresholdsRef.current.size > 0) {
+      logEvent('tengu_spinner_stall_cleared', {
+        max_stall_ms: Math.round(maxStallMsRef.current),
+        mode: mode as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        override_color: overrideColor != null,
+        response_length: currentResponseLength,
+        thresholds_fired: loggedStallThresholdsRef.current.size
+      });
       loggedStallThresholdsRef.current = new Set();
+      maxStallMsRef.current = 0;
     }
   } else {
+    if (timeSinceLastToken > maxStallMsRef.current) {
+      maxStallMsRef.current = timeSinceLastToken;
+    }
     for (const thresholdMs of STALL_TELEMETRY_THRESHOLDS_MS) {
       if (timeSinceLastToken >= thresholdMs && !loggedStallThresholdsRef.current.has(thresholdMs)) {
         loggedStallThresholdsRef.current.add(thresholdMs);
@@ -153,7 +168,8 @@ export function SpinnerAnimationRow({
           mode: mode as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
           override_color: overrideColor != null,
           time_since_last_token_ms: Math.round(timeSinceLastToken),
-          response_length: currentResponseLength
+          response_length: currentResponseLength,
+          render_loop_dark: timeSinceLastToken - thresholdMs > 5000
         });
       }
     }
@@ -206,7 +222,7 @@ export function SpinnerAnimationRow({
   const messageWidth = glimmerMessageWidth + 2;
   const sep = SEP_WIDTH;
   const wantsThinking = thinkingStatus !== null;
-  const wantsTimerAndTokens = verbose || hasRunningTeammates || effectiveElapsedMs > SHOW_TOKENS_AFTER_MS;
+  const wantsTimerAndTokens = verbose || hasRunningTeammates || wantsThinking || totalTokens > 0 || effectiveElapsedMs > SHOW_TOKENS_AFTER_MS;
   const availableSpace = columns - messageWidth - 5;
   let showThinking = wantsThinking && availableSpace > thinkingWidthValue;
   if (!showThinking && wantsThinking && thinkingStatus === 'thinking' && effortSuffix) {

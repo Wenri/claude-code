@@ -161,7 +161,7 @@ export type CompactProgressEvent =
       type: 'hooks_start'
       hookType: 'pre_compact' | 'post_compact' | 'session_start'
     }
-  | { type: 'compact_start' }
+  | { type: 'compact_start'; hintText?: string | null }
   | { type: 'compact_end' }
 
 /**

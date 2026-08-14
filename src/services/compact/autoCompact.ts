@@ -132,24 +132,17 @@ export function resolveAutoCompactWindow(
   }
 }
 
-function notifyAutoCompactWindowHint(
-  context: Pick<ToolUseContext, 'addNotification'>,
+function getAutoCompactWindowHint(
   model: string,
   setting?: number,
-): void {
-  if (getAutoCompactExperimentWindow(model) === undefined) return
+): string | null {
+  if (getAutoCompactExperimentWindow(model) === undefined) return null
 
   const { source, configured } = resolveAutoCompactWindow(model, setting)
   const fullWindow = getContextWindowForModel(model, getSdkBetas())
-  if (source !== 'auto' || configured >= fullWindow) return
+  if (source !== 'auto' || configured >= fullWindow) return null
 
-  context.addNotification?.({
-    key: 'autocompact-auto-hint',
-    text: `compacting at the auto ${formatTokens(configured)} window · configure with /autocompact`,
-    priority: 'immediate',
-    color: 'suggestion',
-    timeoutMs: 12_000,
-  })
+  return `Compacting at auto window (${formatTokens(configured)} tokens) · /autocompact to configure`
 }
 
 export function getEffectiveContextWindowSize(
@@ -448,7 +441,10 @@ export async function autoCompactIfNeeded(
     querySource,
   }
 
-  notifyAutoCompactWindowHint(toolUseContext, model, autoCompactWindow)
+  const compactingHintText = getAutoCompactWindowHint(
+    model,
+    autoCompactWindow,
+  )
 
   // EXPERIMENT: Try session memory compaction first
   const sessionMemoryResult = await trySessionMemoryCompaction(
@@ -486,6 +482,7 @@ export async function autoCompactIfNeeded(
       undefined, // No custom instructions for autocompact
       true, // isAutoCompact
       recompactionInfo,
+      compactingHintText,
     )
     // Reset lastSummarizedMessageId since legacy compaction replaces all messages
     // and the old message UUID will no longer exist in the new messages array
