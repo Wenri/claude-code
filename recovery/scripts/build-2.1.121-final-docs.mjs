@@ -6,6 +6,10 @@ import { fileURLToPath } from 'node:url'
 
 const repo = fileURLToPath(new URL('../..', import.meta.url))
 const caseRoot = path.join(repo, 'recovery/cases/2.1.120-to-2.1.121')
+const fullDiffCheckDiagnostic =
+  'recovery/cases/2.1.120-to-2.1.121/evidence/CHANGELOG-2.1.121.md:42: new blank line at EOF.'
+const fullDiffCheckSha256 =
+  'a45849856c08d527991e52348d5991ffb9ca17f9fc0d55e4acd4ab7246726b22'
 
 const draft = JSON.parse(
   fs.readFileSync(path.join(caseRoot, 'manifest.non-source-draft.json'), 'utf8'),
@@ -28,6 +32,23 @@ const lineage = JSON.parse(
     'utf8',
   ),
 )
+if (
+  identity.verification.diffCheck.scope !== 'full-target-tree' ||
+  identity.verification.diffCheck.sourceDiagnosticLines !== 0 ||
+  identity.verification.diffCheck.diagnosticLines !== 1 ||
+  identity.verification.diffCheck.sha256 !== fullDiffCheckSha256 ||
+  identity.verification.diffCheck.reviewed !== true
+) {
+  throw new Error('unexpected full-tree diff-check allowlist identity')
+}
+if (
+  fs.readFileSync(
+    path.join(caseRoot, 'recovered/source-freeze/diff-check.raw.txt'),
+    'utf8',
+  ) !== `${fullDiffCheckDiagnostic}\n`
+) {
+  throw new Error('unexpected full-tree diff-check diagnostic')
+}
 
 function artifact(id) {
   const value = draft.artifacts.find(entry => entry.id === id)
@@ -101,6 +122,8 @@ The incremental overlay is frozen from \`${identity.base.commit}\` to \`${identi
 - Frozen source tree: ${number(identity.source.files)} files, ${number(identity.source.bytes)} bytes, zero symlinks.
 - Authenticated target tests: ${identity.verification.targetTests.passed}/${identity.verification.targetTests.tests} passed across ${identity.verification.targetTests.files} files.
 - Syntax builds: ${identity.verification.syntaxBuilds.passed} passed, ${identity.verification.syntaxBuilds.failed} failed.
+- Source-only \`git diff --check\`: ${identity.verification.diffCheck.sourceDiagnosticLines} diagnostics.
+- Full-tree \`git diff --check\`: exactly ${identity.verification.diffCheck.diagnosticLines} reviewed acquisition-metadata diagnostic, SHA-256 \`${identity.verification.diffCheck.sha256}\`: \`${fullDiffCheckDiagnostic}\`.
 - Forward apply, complete byte comparison, reverse apply, and forward reconstruction all succeeded.
 
 ## Claim boundary
@@ -194,6 +217,8 @@ The rebuilt summary must retain ${number(coverage.accountedTokens)}/${number(cov
 ## Overlay identity
 
 The frozen overlay \`recovered/source-facing-overlay.patch\` reverses the current \`src\` tree to \`${identity.base.commit}\` and reapplies to the exact target src tree \`${identity.target.srcTree}\`. \`recovered/source-freeze/SHA256SUMS\`, \`identity.json\`, and \`source-files.sha256\` pin every handoff identity. The source-lineage verifier repeats both directions and a complete per-file byte comparison; do not substitute a different base or target commit.
+
+Source-only \`git diff --check\` must be empty. The full target tree has exactly one reviewed acquisition-metadata diagnostic: \`${fullDiffCheckDiagnostic}\`. Its exact output SHA-256 is \`${fullDiffCheckSha256}\`; \`diff-check.raw.txt\` and \`diff-check-allowlist.txt\` pin it. The freeze builder requires \`--allow-diff-check-sha256 ${fullDiffCheckSha256}\` and rejects any additional or changed diagnostic.
 
 Target source files: ${lineage.target.files}; target source manifest SHA-256: \`${lineage.target.manifestSha256}\`.
 `

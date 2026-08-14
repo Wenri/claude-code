@@ -7,6 +7,10 @@ import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 
 const defaultRepo = fileURLToPath(new URL('../..', import.meta.url))
+const fullDiffCheckDiagnostic =
+  'recovery/cases/2.1.120-to-2.1.121/evidence/CHANGELOG-2.1.121.md:42: new blank line at EOF.'
+const fullDiffCheckSha256 =
+  'a45849856c08d527991e52348d5991ffb9ca17f9fc0d55e4acd4ab7246726b22'
 function expectedTestsForRepo(repo) {
   return fs
     .readdirSync(path.join(repo, 'recovery/test'))
@@ -161,6 +165,70 @@ function main() {
   assert(
     sourceIdentity.verification.targetTests.failed === 0,
     'frozen target tests',
+  )
+  assert(
+    /^[a-f0-9]{40}$/.test(sourceIdentity.base.commit) &&
+      /^[a-f0-9]{40}$/.test(sourceIdentity.target.commit),
+    'source-freeze commit identities',
+  )
+  const expectedDiffCheck = {
+    scope: 'full-target-tree',
+    sourceDiagnosticLines: 0,
+    diagnosticLines: 1,
+    sha256: fullDiffCheckSha256,
+    reviewed: true,
+  }
+  assert(
+    JSON.stringify(sourceIdentity.verification.diffCheck) ===
+      JSON.stringify(expectedDiffCheck),
+    'source-freeze full-tree diff-check identity',
+  )
+  assert(
+    JSON.stringify(manifest.sourceFreeze.diffCheck) ===
+      JSON.stringify({
+        ...expectedDiffCheck,
+        diagnostic: fullDiffCheckDiagnostic,
+        rawOutput: 'recovered/source-freeze/diff-check.raw.txt',
+        allowlist: 'recovered/source-freeze/diff-check-allowlist.txt',
+      }),
+    'manifest full-tree diff-check allowlist',
+  )
+  assert(
+    fs.readFileSync(
+      path.join(caseRoot, manifest.sourceFreeze.diffCheck.rawOutput),
+      'utf8',
+    ) === `${fullDiffCheckDiagnostic}\n`,
+    'frozen full-tree diff-check diagnostic',
+  )
+  const runDiffCheck = extraArguments => {
+    const result = spawnSync(
+      'git',
+      [
+        'diff',
+        '--check',
+        sourceIdentity.base.commit,
+        sourceIdentity.target.commit,
+        ...extraArguments,
+      ],
+      { cwd: repo, encoding: 'utf8', maxBuffer: 128 * 1024 * 1024 },
+    )
+    if (result.error) throw result.error
+    return {
+      status: result.status,
+      output: `${result.stdout ?? ''}${result.stderr ?? ''}`,
+    }
+  }
+  const fullDiffCheck = runDiffCheck([])
+  assert(fullDiffCheck.status === 2, 'full-tree git diff --check status')
+  assert(
+    fullDiffCheck.output === `${fullDiffCheckDiagnostic}\n` &&
+      sha256(Buffer.from(fullDiffCheck.output)) === fullDiffCheckSha256,
+    'full-tree git diff --check exact allowlist',
+  )
+  const sourceDiffCheck = runDiffCheck(['--', 'src'])
+  assert(
+    sourceDiffCheck.status === 0 && sourceDiffCheck.output === '',
+    'source-only git diff --check must be clean',
   )
 
   const complete = spawnSync(

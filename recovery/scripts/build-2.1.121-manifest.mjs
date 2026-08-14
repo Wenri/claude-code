@@ -26,6 +26,10 @@ const semanticReportPath = path.join(
   'semantic/semantic-correspondence.json.gz',
 )
 const semanticSummaryPath = path.join(caseRoot, 'semantic/summary.json')
+const fullDiffCheckDiagnostic =
+  'recovery/cases/2.1.120-to-2.1.121/evidence/CHANGELOG-2.1.121.md:42: new blank line at EOF.'
+const fullDiffCheckSha256 =
+  'a45849856c08d527991e52348d5991ffb9ca17f9fc0d55e4acd4ab7246726b22'
 
 function assert(condition, message) {
   if (!condition) throw new Error(message)
@@ -110,6 +114,22 @@ for (const artifactId of ['sourceOracleBundle', 'sourceOracleMap']) {
 }
 assert(sourceIdentity.case === draft.case, 'source-freeze case identity')
 assert(sourceIdentity.target.commit === sourceLineage.targetCommit, 'target commit')
+assert(
+  JSON.stringify(sourceIdentity.verification.diffCheck) ===
+    JSON.stringify({
+      scope: 'full-target-tree',
+      sourceDiagnosticLines: 0,
+      diagnosticLines: 1,
+      sha256: fullDiffCheckSha256,
+      reviewed: true,
+    }),
+  'full-tree diff-check allowlist identity',
+)
+assert(
+  fs.readFileSync(path.join(sourceFreezeRoot, 'diff-check.raw.txt'), 'utf8') ===
+    `${fullDiffCheckDiagnostic}\n`,
+  'full-tree diff-check exact diagnostic',
+)
 assert(
   sourceIdentity.target.srcTree === sourceLineage.targetSrcGitTree,
   'target src git tree',
@@ -403,6 +423,12 @@ manifest.sourceFreeze = {
   identity: 'recovered/source-freeze/identity.json',
   identitySha256: metadata(sourceIdentityPath).sha256,
   overlay: metadata(path.join(caseRoot, 'recovered/source-facing-overlay.patch')),
+  diffCheck: {
+    ...sourceIdentity.verification.diffCheck,
+    diagnostic: fullDiffCheckDiagnostic,
+    rawOutput: 'recovered/source-freeze/diff-check.raw.txt',
+    allowlist: 'recovered/source-freeze/diff-check-allowlist.txt',
+  },
   fileAssertions: sourceFreezeAssertions,
 }
 manifest.finalization = {

@@ -1,0 +1,9 @@
+74164d71c70cb2629984fe45cea12a454c2bf97ce418a10ab5be6d2acc4d3528  recovery/test/recovery-2.1.120-official-bullets.test.mjs
+3eeeea92ae13a315de18f350f76e3564f6f4fe0835cf4f2372b71d1c7ea98589  recovery/test/recovery-2.1.120-hidden-obligations.test.mjs
+b890aad69727eb680552b4309f2f72201812b834a18733dbc2c3d3f895880de3  recovery/test/recovery-2.1.120-daemon-lifecycle.test.mjs
+24a0e8ebc85aee1f1873899bd46f8b0aca4f94ead850b69b56c71b959702b571  recovery/test/recovery-2.1.120-selection-scrollback.test.mjs
+3520b8fc07e85e337f00455df67538ad8ea1a3c2e548668a05694c2ff269437b  recovery/test/recovery-2.1.120-direct-evidence.test.mjs
+bf8706bf572535ea23abd5be493015407dee3afd9218a3eb6e218e1a44eb70d5  recovery/test/recovery-2.1.120-fleet-auto-relaunch.test.mjs
+7d7d007730dd696ffd974cfa8ec064fa06cb7ba3cfc0742a4c042d6c50ccf81a  recovery/test/recovery-2.1.120-team-memory-sync.test.mjs
+910ec59d12f8c3bc8820ab8aa3d1673efc76248871838fa12e510b847e706e89  recovery/test/recovery-2.1.120-notifications-inherited.test.mjs
+5b6f40aaf5806dfa00928e30c080e30a0c653de641e169ff308ec0e2b8fb6f2a  recovery/test/recovery-2.1.120-subagent-status-line.test.mjs

@@ -50,6 +50,7 @@ const manualOfficial = new Map([
     targetFragments: ['height:g,stickyScroll:!1'],
     sourceAssertions: [
       sr('src/components/FullscreenLayout.tsx', 'function ModalScroller('),
+      sr('src/components/FullscreenLayout.tsx', 'useCallback, useContext, useEffect'),
       sr('src/components/design-system/Tabs.tsx', 'useModalClaimScrollBox'),
       sr('src/context/modalContext.tsx', 'claimScrollBox'),
       sr('src/ink.ts', "export { FocusManager } from './ink/focus.js'"),
@@ -1059,6 +1060,7 @@ const residualRows = [
     sourceAssertions: [
       sr('src/utils/permissions/permissions.ts', 'stripAllBashFlag: getFeatureValue_CACHED_MAY_BE_STALE('),
       sr('src/utils/permissions/permissions.ts', "'tengu_bash_allowlist_strip_all'"),
+      sr('src/utils/permissions/permissions.ts', 'getFeatureValue_CACHED_MAY_BE_STALE,\n  getFeatureValue_CACHED_WITH_REFRESH,'),
     ],
     rationale: 'Retained payload and gate names bind the exact strip-all state into every auto-mode Bash decision event.',
     focusedTests: ['inherited-active-core'],
@@ -1118,6 +1120,7 @@ const residualRows = [
     sourceAssertions: [
       sr('src/QueryEngine.ts', 'state.value = yield* generator'),
       sr('src/QueryEngine.ts', 'terminal_reason: queryTerminalState.value?.reason'),
+      sr('src/QueryEngine.ts', "import { logForDebugging } from './utils/debug.js'"),
       sr('src/query.ts', "return { reason: 'tool_deferred' }"),
       sr('src/query/transitions.ts', 'export const QUERY_TERMINAL_REASONS = ['),
       sr('src/entrypoints/sdk/coreSchemas.ts', 'terminal_reason: SDKQueryTerminalReasonSchema().optional()'),
@@ -1583,6 +1586,7 @@ const residualRows = [
       sr('src/components/Message.tsx', 'messageUuid={message.uuid}'),
       sr('src/components/ResumeReturnDialog.tsx', "label: 'Resume from summary (recommended)'"),
       sr('src/components/StatusLine.tsx', "logEvent('tengu_status_line_result'"),
+      sr('src/components/StatusLine.tsx', "import { stringWidth } from '../ink/stringWidth.js'"),
       sr('src/components/permissions/AskUserQuestionPermissionRequest/AskUserQuestionPermissionRequest.tsx', 'convertImagesToBlocks(allImageAttachments, imageLimitsRef.current)'),
       sr('src/components/permissions/ExitPlanModePermissionRequest/ExitPlanModePermissionRequest.tsx', 'imageLimitsRef.current = getImageLimits(imageModel)'),
       sr('src/context/messageRating.tsx', "logEvent('tengu_message_rated'"),

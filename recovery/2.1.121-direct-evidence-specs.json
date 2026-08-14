@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "case": "2.1.120-to-2.1.121",
   "release": "2.1.121",
-  "complete": false,
+  "complete": true,
   "rows": [
     {
       "id": "B01",
@@ -256,6 +256,10 @@
         {
           "path": "src/components/FullscreenLayout.tsx",
           "fragment": "function ModalScroller("
+        },
+        {
+          "path": "src/components/FullscreenLayout.tsx",
+          "fragment": "useCallback, useContext, useEffect"
         },
         {
           "path": "src/components/design-system/Tabs.tsx",
@@ -3066,6 +3070,10 @@
         {
           "path": "src/utils/permissions/permissions.ts",
           "fragment": "'tengu_bash_allowlist_strip_all'"
+        },
+        {
+          "path": "src/utils/permissions/permissions.ts",
+          "fragment": "getFeatureValue_CACHED_MAY_BE_STALE,\n  getFeatureValue_CACHED_WITH_REFRESH,"
         }
       ],
       "rationale": "Retained payload and gate names bind the exact strip-all state into every auto-mode Bash decision event.",
@@ -3186,6 +3194,10 @@
         {
           "path": "src/QueryEngine.ts",
           "fragment": "terminal_reason: queryTerminalState.value?.reason"
+        },
+        {
+          "path": "src/QueryEngine.ts",
+          "fragment": "import { logForDebugging } from './utils/debug.js'"
         },
         {
           "path": "src/query.ts",
@@ -4121,6 +4133,10 @@
         {
           "path": "src/components/StatusLine.tsx",
           "fragment": "logEvent('tengu_status_line_result'"
+        },
+        {
+          "path": "src/components/StatusLine.tsx",
+          "fragment": "import { stringWidth } from '../ink/stringWidth.js'"
         },
         {
           "path": "src/components/permissions/AskUserQuestionPermissionRequest/AskUserQuestionPermissionRequest.tsx",

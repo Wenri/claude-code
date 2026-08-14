@@ -15,9 +15,9 @@ const TARGET_SHA256 =
 
 // Updated only after the final source tree and row catalog are frozen. The
 // deliberately impossible provisional identity makes a partial handoff fail.
-const CATALOG_BYTES = 0
+const CATALOG_BYTES = 340_038
 const CATALOG_SHA256 =
-  '0000000000000000000000000000000000000000000000000000000000000000'
+  'bf3912d74cb9920bfb5556b8aff48dc71d8d465cacea2b1a7c8119fc0b22e17a'
 const CATALOG_PATH =
   'recovery/cases/2.1.120-to-2.1.121/semantic/direct-evidence.json'
 const CHANGELOG_PATH =

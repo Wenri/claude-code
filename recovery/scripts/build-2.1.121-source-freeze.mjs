@@ -392,9 +392,19 @@ function main() {
     })
   assert(numberRows.length === changed.length, 'numstat path count')
 
-  const diffCheck = spawnSync(
+  const sourceDiffCheck = spawnSync(
     'git',
     ['diff', '--check', baseCommit, targetCommit, '--', 'src'],
+    { cwd: repo, encoding: 'utf8', maxBuffer: 128 * 1024 * 1024 },
+  )
+  assert(sourceDiffCheck.status === 0, 'source git diff --check status')
+  const sourceDiffCheckRaw =
+    `${sourceDiffCheck.stdout ?? ''}${sourceDiffCheck.stderr ?? ''}`
+  assert(sourceDiffCheckRaw.length === 0, 'source git diff --check diagnostics')
+
+  const diffCheck = spawnSync(
+    'git',
+    ['diff', '--check', baseCommit, targetCommit],
     { cwd: repo, encoding: 'utf8', maxBuffer: 128 * 1024 * 1024 },
   )
   assert([0, 2].includes(diffCheck.status), 'git diff --check status')
@@ -560,6 +570,8 @@ function main() {
       reverseToBaseTree: true,
       forwardToTargetTree: true,
       diffCheck: {
+        scope: 'full-target-tree',
+        sourceDiagnosticLines: 0,
         diagnosticLines,
         sha256: diffCheckSha256,
         reviewed: true,
