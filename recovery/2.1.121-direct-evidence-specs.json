@@ -1,0 +1,1965 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.120-to-2.1.121",
+  "release": "2.1.121",
+  "complete": false,
+  "rows": [
+    {
+      "id": "B01",
+      "category": "official",
+      "targetFragments": [
+        "alwaysLoad",
+        "When true, all tools from this server are always included in the prompt"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/mcp/types.ts",
+          "fragment": "alwaysLoad: z.boolean().optional()"
+        },
+        {
+          "path": "src/services/mcp/client.ts",
+          "fragment": "client.config.alwaysLoad === true ||"
+        },
+        {
+          "path": "src/services/mcp/client.ts",
+          "fragment": "alwaysLoadCount: count(tools, tool => tool.alwaysLoad === true)"
+        },
+        {
+          "path": "src/entrypoints/sdk/coreSchemas.ts",
+          "fragment": "Equivalent to setting defer_loading: false on the API"
+        },
+        {
+          "path": "src/entrypoints/agentSdkTypes.ts",
+          "fragment": "alwaysLoad?: boolean"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "official-owned-cluster"
+      ],
+      "rationale": "target normalized statement 19967 maps server-level alwaysLoad OR per-tool metadata into fetched MCP tools; SDK config schema descriptions are emitted in the schema block"
+    },
+    {
+      "id": "B02",
+      "category": "official",
+      "targetFragments": [
+        "Nothing to prune (no auto-installed plugins at ",
+        "tengu_hook_plugin_injected"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/plugins/dependencyResolver.ts",
+          "fragment": "findOrphanedAutoDependencies"
+        },
+        {
+          "path": "src/utils/plugins/dependencyResolver.ts",
+          "fragment": "formatOrphanedAutoDependenciesHint"
+        },
+        {
+          "path": "src/services/plugins/pluginOperations.ts",
+          "fragment": "pruneOrphanedAutoDependencies"
+        },
+        {
+          "path": "src/services/plugins/pluginOperations.ts",
+          "fragment": "pruneOrphanedAutoDeps: settings write failed"
+        },
+        {
+          "path": "src/services/plugins/pluginCliCommands.ts",
+          "fragment": "Nothing to prune (no auto-installed plugins"
+        },
+        {
+          "path": "src/services/plugins/pluginCliCommands.ts",
+          "fragment": "Not a TTY — run"
+        },
+        {
+          "path": "src/services/plugins/pluginCliCommands.ts",
+          "fragment": "tengu_plugin_prune_cli"
+        },
+        {
+          "path": "src/main.tsx",
+          "fragment": "command('prune').alias('autoremove')"
+        },
+        {
+          "path": "src/main.tsx",
+          "fragment": ".option('--prune'"
+        },
+        {
+          "path": "src/main.tsx",
+          "fragment": ".option('-y, --yes'"
+        },
+        {
+          "path": "src/utils/hooks.ts",
+          "fragment": "pluginInjectedContentChars"
+        },
+        {
+          "path": "src/utils/hooks.ts",
+          "fragment": "recordInjectedContent("
+        },
+        {
+          "path": "src/utils/hooks.ts",
+          "fragment": "tengu_hook_plugin_injected"
+        },
+        {
+          "path": "src/utils/hooks.ts",
+          "fragment": "buildPluginTelemetryFields(name, marketplace)"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "official-owned-cluster",
+        "official-residual-cluster"
+      ],
+      "rationale": "target normalized statements 10523-10524 compute reachability and the post-uninstall hint; 11025 prunes registry/settings/cache/data; 30829-30834 render dry-run/TTY confirmation; 40673 wires the command target normalized statement 28166 attributes content injected by each plugin hook after a hook batch; this supplements the recovered dependency-prune lifecycle with its target-only plugin observability path"
+    },
+    {
+      "id": "B03",
+      "category": "official",
+      "targetFragments": [
+        "Search skills",
+        "No skills match \""
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/skills/SkillsMenu.tsx",
+          "fragment": "Search skills…"
+        },
+        {
+          "path": "src/components/skills/SkillsMenu.tsx",
+          "fragment": "filteredSkills"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "hidden-obligations"
+      ],
+      "rationale": "Target-only search copy and the recovered controlled filter state bind long-list skill filtering."
+    },
+    {
+      "id": "B04",
+      "category": "official",
+      "targetFragments": [
+        "updatedToolOutput",
+        "PostToolUse hook returned updatedToolOutput that does not match",
+        "plugin_install_diff",
+        "tengu_mcp_reconcile"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/types/hooks.ts",
+          "fragment": "updatedToolOutput"
+        },
+        {
+          "path": "src/types/hooks.ts",
+          "fragment": "Prefer updatedToolOutput, which works for all tools"
+        },
+        {
+          "path": "src/utils/hooks.ts",
+          "fragment": "result.updatedToolOutput !== undefined"
+        },
+        {
+          "path": "src/utils/hooks.ts",
+          "fragment": "result.updatedToolOutput === undefined"
+        },
+        {
+          "path": "src/services/tools/toolExecution.ts",
+          "fragment": "toolOutputWasUpdated"
+        },
+        {
+          "path": "src/services/tools/toolExecution.ts",
+          "fragment": "mapper returned undefined"
+        },
+        {
+          "path": "src/services/tools/toolExecution.ts",
+          "fragment": "using original output"
+        },
+        {
+          "path": "src/tools/REPLTool/toolWrappers.ts",
+          "fragment": "'updatedToolOutput' in hookResult"
+        },
+        {
+          "path": "src/tools/REPLTool/toolWrappers.ts",
+          "fragment": "tool.outputSchema?.safeParse"
+        },
+        {
+          "path": "src/cli/print.ts",
+          "fragment": "'plugin_install_diff'"
+        },
+        {
+          "path": "src/cli/print.ts",
+          "fragment": "authoritative: false"
+        },
+        {
+          "path": "src/cli/print.ts",
+          "fragment": "caller: 'mcp_set_servers'"
+        },
+        {
+          "path": "src/cli/print.ts",
+          "fragment": "tengu_mcp_reconcile"
+        },
+        {
+          "path": "src/cli/print.ts",
+          "fragment": "toReplaceCount: toReplace.length"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "official-owned-cluster",
+        "official-residual-cluster"
+      ],
+      "rationale": "target normalized statements 12343, 17214, 17230 and 28137/28166 cover schema, REPL wrapper, ordinary-tool validation/remap, JSON parsing and deprecated-field precedence target normalized statements 40537 and 40566 reconcile MCP state after background plugin installation with caller plugin_install_diff and emit target-only reconcile cardinality telemetry"
+    },
+    {
+      "id": "B05",
+      "category": "official",
+      "targetFragments": [
+        "K8?.scrollToBottom(),dz(),X3.current=!1"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/screens/REPL.tsx",
+          "fragment": "hasScrolledAwayRef.current = !sticky"
+        },
+        {
+          "path": "src/screens/REPL.tsx",
+          "fragment": "!hasScrolledAwayRef.current"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "hidden-obligations"
+      ],
+      "rationale": "The exact target render expression clears deliberate scroll-away only at the live edge; source retains that state while typing."
+    },
+    {
+      "id": "B06",
+      "category": "official",
+      "targetFragments": [
+        "height:g,stickyScroll:!1"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/FullscreenLayout.tsx",
+          "fragment": "function ModalScroller("
+        },
+        {
+          "path": "src/components/design-system/Tabs.tsx",
+          "fragment": "useModalClaimScrollBox"
+        },
+        {
+          "path": "src/context/modalContext.tsx",
+          "fragment": "claimScrollBox"
+        },
+        {
+          "path": "src/ink.ts",
+          "fragment": "export { FocusManager } from './ink/focus.js'"
+        },
+        {
+          "path": "src/ink/components/App.tsx",
+          "fragment": "rootNode._pendingRawModeDelta"
+        },
+        {
+          "path": "src/ink/components/AppContext.ts",
+          "fragment": "focusManager"
+        },
+        {
+          "path": "src/ink/dom.ts",
+          "fragment": "pendingScrollDelta"
+        },
+        {
+          "path": "src/ink/focus.ts",
+          "fragment": "class FocusManager"
+        },
+        {
+          "path": "src/ink/hooks/use-focus.ts",
+          "fragment": "export function useFocus()"
+        },
+        {
+          "path": "src/ink/ink.tsx",
+          "fragment": "pendingScrollDelta"
+        },
+        {
+          "path": "src/screens/REPL.tsx",
+          "fragment": "modalScrollRef"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "dialog-overflow"
+      ],
+      "rationale": "The target adds a non-sticky bounded modal ScrollBox; recovered modal context, focus, and pending-delta plumbing authenticate keyboard and wheel overflow."
+    },
+    {
+      "id": "B07",
+      "category": "official",
+      "targetFragments": [
+        "softWrap"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/ink/output.ts",
+          "fragment": "packSoftWrap"
+        },
+        {
+          "path": "src/ink/screen.ts",
+          "fragment": "softWrap: Int32Array"
+        },
+        {
+          "path": "src/ink/selection.ts",
+          "fragment": "function urlRunAt("
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "hidden-obligations"
+      ],
+      "rationale": "The authenticated soft-wrap ledger grows and source packs row boundaries so selection can reconstruct a URL across wrapped rows."
+    },
+    {
+      "id": "B08",
+      "category": "official",
+      "targetFragments": [
+        "CLAUDE_CODE_FORK_SUBAGENT"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/tools/AgentTool/forkSubagent.ts",
+          "fragment": "resolveForkSubagentSource"
+        },
+        {
+          "path": "src/tools/AgentTool/forkSubagent.ts",
+          "fragment": "process.env.CLAUDE_CODE_FORK_SUBAGENT"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "hidden-obligations"
+      ],
+      "rationale": "The adjacent count change is bound to explicit environment-first fork resolution before non-interactive suppression."
+    },
+    {
+      "id": "B09",
+      "category": "official",
+      "targetFragments": [
+        "/.claude/skills/"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/permissions/permissions.ts",
+          "fragment": "mode === 'bypassPermissions'"
+        },
+        {
+          "path": "src/utils/permissions/pathValidation.ts",
+          "fragment": "checkPathSafetyForAutoEdit"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "hidden-obligations"
+      ],
+      "rationale": "The recovered 2.1.120 base already contains the target bypass ordering for protected skill, agent, and command writes; the adjacent artifact retains the authenticated path marker.",
+      "retained": true
+    },
+    {
+      "id": "B10",
+      "category": "official",
+      "targetFragments": [
+        "Enable iTerm2 clipboard access for /copy",
+        "AllowClipboardAccess"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/commands/terminalSetup/index.ts",
+          "fragment": "get description()"
+        },
+        {
+          "path": "src/commands/terminalSetup/index.ts",
+          "fragment": "process.env.__CFBundleIdentifier === 'com.googlecode.iterm2'"
+        },
+        {
+          "path": "src/commands/terminalSetup/index.ts",
+          "fragment": "Enable iTerm2 clipboard access for /copy"
+        },
+        {
+          "path": "src/commands/terminalSetup/terminalSetup.tsx",
+          "fragment": "enableITerm2ClipboardAccess"
+        },
+        {
+          "path": "src/commands/terminalSetup/terminalSetup.tsx",
+          "fragment": "AllowClipboardAccess"
+        }
+      ],
+      "sourcePathAbsences": [
+        {
+          "paths": [
+            "src/commands/terminalSetup/index.ts"
+          ],
+          "fragment": "'iTerm.app': 'iTerm2'"
+        }
+      ],
+      "focusedTests": [
+        "official-residual-cluster"
+      ],
+      "rationale": "target normalized statement 24437 removes iTerm.app from the native-hidden registration map and dynamically exposes the command in direct iTerm2, tmux, screen, and null-terminal bundle contexts Target-only iTerm preference access is implemented both in command registration and the terminal-setup flow."
+    },
+    {
+      "id": "B11",
+      "category": "official",
+      "targetFragments": [
+        "Initial-connect retry ",
+        "tengu_mcp_retry_failed_remote"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/mcp/client.ts",
+          "fragment": "const errorCode ="
+        },
+        {
+          "path": "src/services/mcp/client.ts",
+          "fragment": "errorCode,"
+        },
+        {
+          "path": "src/services/mcp/types.ts",
+          "fragment": "errorCode?: string"
+        },
+        {
+          "path": "src/services/mcp/useManageMCPConnections.ts",
+          "fragment": "MAX_INITIAL_CONNECT_RETRIES = 3"
+        },
+        {
+          "path": "src/services/mcp/useManageMCPConnections.ts",
+          "fragment": "TRANSIENT_INITIAL_CONNECT_ERROR_CODES"
+        },
+        {
+          "path": "src/services/mcp/useManageMCPConnections.ts",
+          "fragment": "Initial-connect retry ${attempt} threw"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "official-owned-cluster"
+      ],
+      "rationale": "target normalized statement 19967 preserves connection error codes and statement 23015 schedules three exponential-backoff initial retries for remote transports behind tengu_mcp_retry_failed_remote"
+    },
+    {
+      "id": "B12",
+      "category": "official",
+      "targetFragments": [
+        "Write the title in "
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/sessionTitle.ts",
+          "fragment": "getInitialSettings().language"
+        },
+        {
+          "path": "src/utils/sessionTitle.ts",
+          "fragment": "Write the title in ${language}"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "hidden-obligations"
+      ],
+      "rationale": "Target-only localized-title prompt text is generated from the configured language."
+    },
+    {
+      "id": "B13",
+      "category": "official",
+      "targetFragments": [
+        "Dropping duplicate upstream",
+        "Display-name collision on distinct upstreams"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/mcp/claudeai.ts",
+          "fragment": "normalizeUpstreamUrl"
+        },
+        {
+          "path": "src/services/mcp/claudeai.ts",
+          "fragment": "serversByUpstream"
+        },
+        {
+          "path": "src/services/mcp/claudeai.ts",
+          "fragment": "Dropping duplicate upstream"
+        },
+        {
+          "path": "src/services/mcp/claudeai.ts",
+          "fragment": "Display-name collision on distinct upstreams"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "official-owned-cluster"
+      ],
+      "rationale": "target normalized statement 14631 normalizes trailing slashes, keeps the first connector per upstream, and separately suffixes true display-name collisions"
+    },
+    {
+      "id": "B14",
+      "category": "official",
+      "targetFragments": [
+        "vertexAuthFetch",
+        "clientOptions:{transporterOptions:{fetchImplementation:",
+        "requestTls:K"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/api/vertexAuth.ts",
+          "fragment": "buildVertexGoogleAuth"
+        },
+        {
+          "path": "src/services/api/vertexAuth.ts",
+          "fragment": "fetchImplementation: vertexAuthFetch"
+        },
+        {
+          "path": "src/services/api/vertexAuth.ts",
+          "fragment": "init?.agent?.options"
+        },
+        {
+          "path": "src/services/api/vertexAuth.ts",
+          "fragment": "new ProxyAgent({ uri: proxyUrl, requestTls: tls })"
+        },
+        {
+          "path": "src/services/api/vertexAuth.ts",
+          "fragment": "new Agent({ connect: tls })"
+        },
+        {
+          "path": "src/services/api/client.ts",
+          "fragment": "await buildVertexGoogleAuth("
+        },
+        {
+          "path": "src/utils/model/vertexUpgrade.ts",
+          "fragment": "await buildVertexGoogleAuth("
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "official-runtime-settings-cluster"
+      ],
+      "rationale": "target normalized statements 6631-6633 export buildVertexGoogleAuth/vertexAuthFetch, install the GoogleAuth transporter fetch implementation, read cert/key/ca from the gaxios agent, and select Bun TLS or undici Agent/ProxyAgent"
+    },
+    {
+      "id": "B15",
+      "category": "official",
+      "targetFragments": [
+        "What's new",
+        "Recent activity",
+        "No recent activity"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/LogoV2/LogoV2.tsx",
+          "fragment": "const whatsNewFeed = createWhatsNewFeed(changelog)"
+        },
+        {
+          "path": "src/components/LogoV2/feedConfigs.tsx",
+          "fragment": "createWhatsNewFeed"
+        }
+      ],
+      "sourcePathAbsences": [
+        {
+          "paths": [
+            "src/components/LogoV2/LogoV2.tsx",
+            "src/components/LogoV2/feedConfigs.tsx"
+          ],
+          "fragment": "createRecentActivityFeed"
+        }
+      ],
+      "focusedTests": [
+        "hidden-obligations"
+      ],
+      "rationale": "Authenticated target absences remove the Recent activity feed while the retained What’s new feed is wired in every splash layout."
+    },
+    {
+      "id": "B16",
+      "category": "official",
+      "targetFragments": [
+        " (ctrl+o to expand)"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/DiagnosticsDisplay.tsx",
+          "fragment": "verbose || isTranscriptMode"
+        },
+        {
+          "path": "src/components/DiagnosticsDisplay.tsx",
+          "fragment": "<CtrlOToExpand />"
+        },
+        {
+          "path": "src/components/messages/AttachmentMessage.tsx",
+          "fragment": "isTranscriptMode={isTranscriptMode}"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "hidden-obligations"
+      ],
+      "rationale": "Target-only expansion hint is paired with the recovered transcript-aware diagnostic summary."
+    },
+    {
+      "id": "B17",
+      "category": "official",
+      "targetFragments": [
+        "Using custom redirectUri:",
+        "redirectScheme",
+        "AS rejected custom redirectUri",
+        "Cached client_id was registered for",
+        "redirectUri:this.redirectUri"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/mcp/auth.ts",
+          "fragment": "redirectUri?: string"
+        },
+        {
+          "path": "src/services/mcp/auth.ts",
+          "fragment": "Using custom redirectUri"
+        },
+        {
+          "path": "src/services/mcp/auth.ts",
+          "fragment": "getMcpOAuthCallbackSubmitter"
+        },
+        {
+          "path": "src/services/mcp/auth.ts",
+          "fragment": "onWaitingForCallback?.(submit, port, oauthState)"
+        },
+        {
+          "path": "src/services/mcp/claudeai.ts",
+          "fragment": "buildClaudeAiMcpAuthUrl"
+        },
+        {
+          "path": "src/services/mcp/claudeai.ts",
+          "fragment": "/mcp/start-auth/"
+        },
+        {
+          "path": "src/cli/print.ts",
+          "fragment": "buildClaudeAiMcpAuthUrl(config)"
+        },
+        {
+          "path": "src/cli/print.ts",
+          "fragment": "redirectScheme"
+        },
+        {
+          "path": "src/cli/print.ts",
+          "fragment": "falling back to localhost"
+        },
+        {
+          "path": "src/services/mcp/auth.ts",
+          "fragment": "normalizeRedirectOrigin"
+        },
+        {
+          "path": "src/services/mcp/auth.ts",
+          "fragment": "Cached client_id was registered for"
+        },
+        {
+          "path": "src/services/mcp/auth.ts",
+          "fragment": "forcing re-DCR"
+        },
+        {
+          "path": "src/services/mcp/auth.ts",
+          "fragment": "redirectUri: this.redirectUri"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "official-owned-cluster",
+        "official-residual-cluster"
+      ],
+      "rationale": "target normalized statement 19802 runs custom redirects without a localhost listener and exposes callback port/state; print/bridge handlers fall back to localhost when the AS rejects the URI and route claude.ai connectors to their web auth URL target normalized statements 19791 and 19804 normalize cached/current redirect origins, force dynamic client re-registration on mismatch, and persist the redirect URI with the registered client"
+    },
+    {
+      "id": "B18",
+      "category": "official",
+      "targetFragments": [
+        "user_system_prompt",
+        "gen_ai.response.finish_reasons"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/query.ts",
+          "fragment": "combineUserSystemPrompt"
+        },
+        {
+          "path": "src/services/analytics/firstPartyEventLogger.ts",
+          "fragment": "Record<string, string | number | boolean | undefined>"
+        },
+        {
+          "path": "src/services/api/claude.ts",
+          "fragment": "userSystemPrompt?: string"
+        },
+        {
+          "path": "src/services/api/logging.ts",
+          "fragment": "stopReason: stopReason ?? undefined"
+        },
+        {
+          "path": "src/utils/telemetry/betaSessionTracing.ts",
+          "fragment": "user_system_prompt: content"
+        },
+        {
+          "path": "src/utils/telemetry/sessionTracing.ts",
+          "fragment": "setAttribute('gen_ai.response.finish_reasons'"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "hidden-obligations"
+      ],
+      "rationale": "Two target-only span attributes bind stop-reason and opt-in user-system-prompt propagation from query construction through span completion."
+    },
+    {
+      "id": "B19",
+      "category": "official",
+      "targetFragments": [
+        "Dictation language:"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/moreright/useMoreRight.tsx",
+          "fragment": "ownsInput: false"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "hidden-obligations"
+      ],
+      "rationale": "The Linux artifact retains the dictation surface while the recovered platform bridge exposes the input-ownership contract used by native speech-language selection.",
+      "retained": true
+    },
+    {
+      "id": "B20",
+      "category": "official",
+      "targetFragments": [
+        "Context usage"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/moreright/useMoreRight.tsx",
+          "fragment": "onSessionRestored: async () => {}"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "hidden-obligations"
+      ],
+      "rationale": "The Linux artifact retains context usage while the recovered native bridge contract supplies the platform-owned dialog handoff.",
+      "retained": true
+    },
+    {
+      "id": "B21",
+      "category": "official",
+      "targetFragments": [
+        "image dimensions"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/imageStore.ts",
+          "fragment": "storedImagePaths.delete(oldest)"
+        },
+        {
+          "path": "src/utils/imageStore.ts",
+          "fragment": "MAX_STORED_IMAGE_PATHS"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "hidden-obligations"
+      ],
+      "rationale": "The authenticated image-processing marker is retained and the source uses a bounded path store rather than retaining unbounded image payloads.",
+      "retained": true
+    },
+    {
+      "id": "B22",
+      "category": "official",
+      "targetFragments": [
+        "jsonlJoin("
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/sessionStorage.ts",
+          "fragment": "reAppendSessionMetadataAsync"
+        },
+        {
+          "path": "src/utils/sessionStorage.ts",
+          "fragment": "const content = jsonlJoin(plan.entries)"
+        },
+        {
+          "path": "src/utils/slowOperations.ts",
+          "fragment": "export function jsonlJoin"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "hidden-obligations"
+      ],
+      "rationale": "Target-only batched JSONL serialization avoids allocating and logging a complete multi-gigabyte transcript parse."
+    },
+    {
+      "id": "B23",
+      "category": "official",
+      "targetFragments": [
+        "tool_use"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/Tool.ts",
+          "fragment": "{ kind: 'clear'; toolUseId: string }"
+        },
+        {
+          "path": "src/components/ToolProgress.tsx",
+          "fragment": "renderToolProgress"
+        },
+        {
+          "path": "src/screens/REPL.tsx",
+          "fragment": "pruneResolvedToolProgress"
+        },
+        {
+          "path": "src/tools/AgentTool/AgentTool.tsx",
+          "fragment": "kind: 'clear'"
+        },
+        {
+          "path": "src/tools/BashTool/BashTool.tsx",
+          "fragment": "kind: 'clear'"
+        },
+        {
+          "path": "src/tools/PowerShellTool/PowerShellTool.tsx",
+          "fragment": "kind: 'clear'"
+        },
+        {
+          "path": "src/utils/processUserInput/processBashCommand.tsx",
+          "fragment": "kind: 'clear'"
+        },
+        {
+          "path": "src/utils/processUserInput/processSlashCommand.tsx",
+          "fragment": "kind: 'clear'"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "hidden-obligations"
+      ],
+      "rationale": "The adjacent tool-use cardinality change is bound to an explicit clear event and result-driven pruning at every long-running tool producer."
+    },
+    {
+      "id": "B24",
+      "category": "official",
+      "targetFragments": [
+        "Working directory \""
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/Shell.ts",
+          "fragment": "setCwdState(fallback)"
+        },
+        {
+          "path": "src/utils/Shell.ts",
+          "fragment": "was deleted; shell cwd recovered"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "hidden-obligations"
+      ],
+      "rationale": "The second target working-directory diagnostic corresponds to stable-directory recovery before Bash execution retries."
+    },
+    {
+      "id": "B25",
+      "category": "official",
+      "targetFragments": [
+        "--resume"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/gracefulShutdown.ts",
+          "fragment": "sessionIdExists"
+        },
+        {
+          "path": "src/main.tsx",
+          "fragment": "resume"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "hidden-obligations"
+      ],
+      "rationale": "The authenticated resume CLI surface is retained and source guards session-dependent startup behavior in external builds.",
+      "retained": true
+    },
+    {
+      "id": "B26",
+      "category": "official",
+      "targetFragments": [
+        "JSON line"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/sessionStorage.ts",
+          "fragment": "parseTranscriptLine(line"
+        },
+        {
+          "path": "src/utils/sessionStorage.ts",
+          "fragment": "continue"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "hidden-obligations"
+      ],
+      "rationale": "The authenticated JSONL surface is retained while line-scoped parsing skips an invalid record without discarding the large session.",
+      "retained": true
+    },
+    {
+      "id": "B27",
+      "category": "official",
+      "targetFragments": [
+        "[thinking] model rejected thinking.type="
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/bootstrap/state.ts",
+          "fragment": "thinkingTypeOverrides"
+        },
+        {
+          "path": "src/services/api/claude.ts",
+          "fragment": "getRejectedThinkingType"
+        },
+        {
+          "path": "src/services/api/claude.ts",
+          "fragment": "return 'retry:thinking-type'"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "hidden-obligations"
+      ],
+      "rationale": "Target-only rejection telemetry binds the cached enabled/adaptive fallback used by opaque Bedrock profile ARNs."
+    },
+    {
+      "id": "B28",
+      "category": "official",
+      "targetFragments": [
+        "getAll(\"prompt\")"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/mcp/auth.ts",
+          "fragment": "searchParams.getAll('prompt')"
+        },
+        {
+          "path": "src/services/mcp/auth.ts",
+          "fragment": "promptValues.includes('consent') ? 'consent' : promptValues.at(-1)!"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "official-owned-cluster"
+      ],
+      "rationale": "target normalized statement 19804 collapses duplicate prompt query parameters, preferring consent when present and otherwise retaining the last value"
+    },
+    {
+      "id": "B29",
+      "category": "official",
+      "targetFragments": [
+        "forceFullReset"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/ink/ink.tsx",
+          "fragment": "this.log.forceFullReset()"
+        },
+        {
+          "path": "src/ink/log-update.ts",
+          "fragment": "forceFullReset(): void"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "hidden-obligations"
+      ],
+      "rationale": "Target-only forced reset support clears non-fullscreen redraw history instead of duplicating scrollback."
+    },
+    {
+      "id": "B30",
+      "category": "official",
+      "targetFragments": [
+        "[claudeai-mcp] Fetch failed ("
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/mcp/claudeai.ts",
+          "fragment": "await checkAndRefreshOAuthTokenIfNeeded()"
+        },
+        {
+          "path": "src/services/mcp/claudeai.ts",
+          "fragment": "withOAuth401Retry"
+        },
+        {
+          "path": "src/services/mcp/claudeai.ts",
+          "fragment": "getClaudeAIOAuthTokens()?.accessToken ?? tokens.accessToken"
+        },
+        {
+          "path": "src/services/mcp/claudeai.ts",
+          "fragment": "fetchClaudeAIMcpConfigsIfEligible.cache.clear?.()"
+        },
+        {
+          "path": "src/services/mcp/claudeai.ts",
+          "fragment": "state:"
+        },
+        {
+          "path": "src/services/mcp/claudeai.ts",
+          "fragment": "'fetch_failed'"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "official-owned-cluster"
+      ],
+      "rationale": "target normalized statement 14631 refreshes before fetch, retries a 401 with the latest token, reports failure status, and clears the rejected memoized result so startup can retry"
+    },
+    {
+      "id": "B31",
+      "category": "official",
+      "targetFragments": [
+        "session_allow_rules",
+        "internal_metadata"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/state/onChangeAppState.ts",
+          "fragment": "internalMetadataToAppState"
+        },
+        {
+          "path": "src/state/onChangeAppState.ts",
+          "fragment": "!rule.startsWith('mcp__')"
+        },
+        {
+          "path": "src/state/onChangeAppState.ts",
+          "fragment": "notifySessionInternalMetadataChanged({"
+        },
+        {
+          "path": "src/state/onChangeAppState.ts",
+          "fragment": "session_allow_rules:"
+        },
+        {
+          "path": "src/cli/transports/ccrClient.ts",
+          "fragment": "internal_metadata?: SessionInternalMetadata"
+        },
+        {
+          "path": "src/cli/transports/ccrClient.ts",
+          "fragment": "reportInternalMetadata"
+        },
+        {
+          "path": "src/cli/transports/ccrClient.ts",
+          "fragment": "internal: data?.worker?.internal_metadata ?? null"
+        },
+        {
+          "path": "src/cli/remoteIO.ts",
+          "fragment": "setSessionInternalMetadataChangedListener"
+        },
+        {
+          "path": "src/cli/remoteIO.ts",
+          "fragment": "reportInternalMetadata(metadata)"
+        },
+        {
+          "path": "src/cli/print.ts",
+          "fragment": "internalMetadataToAppState(metadata.internal ?? {})"
+        },
+        {
+          "path": "src/utils/sessionState.ts",
+          "fragment": "RestoredWorkerState"
+        },
+        {
+          "path": "src/utils/sessionState.ts",
+          "fragment": "notifySessionInternalMetadataChanged"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "official-runtime-settings-cluster"
+      ],
+      "rationale": "target normalized statements 28645-28646 filter mcp__ rules while restoring/reporting session_allow_rules; 28741/28748 coalesce and round-trip internal_metadata; 40561 applies internal state after external state on resume"
+    },
+    {
+      "id": "B32",
+      "category": "official",
+      "targetFragments": [
+        "forAnthropicAPI:!0,url:",
+        "https://aws-external-anthropic.",
+        "https://bedrock-mantle."
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/api/client.ts",
+          "fragment": "url: getApiEndpointForProxy(apiProvider, model)"
+        },
+        {
+          "path": "src/services/api/client.ts",
+          "fragment": "function getApiEndpointForProxy("
+        },
+        {
+          "path": "src/services/api/client.ts",
+          "fragment": "getVertexApiBaseUrl(getVertexRegionForModel(model))"
+        },
+        {
+          "path": "src/utils/model/vertexUpgrade.ts",
+          "fragment": "getProxyFetchOptions({"
+        },
+        {
+          "path": "src/utils/model/vertexUpgrade.ts",
+          "fragment": "getVertexApiBaseUrl(region)"
+        },
+        {
+          "path": "src/utils/proxy.ts",
+          "fragment": "opts?.url && shouldBypassProxy(opts.url)"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "official-runtime-settings-cluster"
+      ],
+      "rationale": "target normalized statements 6637-6639 resolve the active provider before constructing fetch options and pass its concrete endpoint URL to getProxyFetchOptions; statement 651 supplies Vertex regional endpoints"
+    },
+    {
+      "id": "B33",
+      "category": "official",
+      "targetFragments": [
+        "managed-settings-security"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/remoteManagedSettings/securityCheck.tsx",
+          "fragment": "setManagedSettingsSecurityPromptHandler"
+        },
+        {
+          "path": "src/services/remoteManagedSettings/securityCheck.tsx",
+          "fragment": "if (securityPromptHandler)"
+        },
+        {
+          "path": "src/services/remoteManagedSettings/securityCheck.tsx",
+          "fragment": "const result = await securityPromptHandler(newSettings)"
+        },
+        {
+          "path": "src/hooks/useManagedSettingsSecurityPrompt.ts",
+          "fragment": "useManagedSettingsSecurityPrompt"
+        },
+        {
+          "path": "src/hooks/useManagedSettingsSecurityPrompt.ts",
+          "fragment": "setManagedSettingsSecurityPromptHandler("
+        },
+        {
+          "path": "src/hooks/useManagedSettingsSecurityPrompt.ts",
+          "fragment": "setPending(null)"
+        },
+        {
+          "path": "src/screens/REPL.tsx",
+          "fragment": "'managed-settings-security'"
+        },
+        {
+          "path": "src/screens/REPL.tsx",
+          "fragment": "managedSettingsSecurityPrompt.resolve('approved')"
+        },
+        {
+          "path": "src/screens/REPL.tsx",
+          "fragment": "managedSettingsSecurityPrompt.resolve('rejected')"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "official-runtime-settings-cluster"
+      ],
+      "rationale": "target normalized statement 14008 delegates to a registered in-tree prompt handler before the standalone Ink fallback; 29153 owns pending prompt state; the REPL selects and renders managed-settings-security ahead of cost dialogs"
+    },
+    {
+      "id": "B34",
+      "category": "official",
+      "targetFragments": [
+        "fetchUtilization: GET ",
+        "401\\u2192refresh\\u2192retry succeeded"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/api/usage.ts",
+          "fragment": "withOAuth401Retry(() =>"
+        },
+        {
+          "path": "src/services/api/usage.ts",
+          "fragment": "const authResult = getAuthHeaders()"
+        },
+        {
+          "path": "src/services/api/usage.ts",
+          "fragment": "401→refresh→retry succeeded"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "official-runtime-settings-cluster"
+      ],
+      "rationale": "target normalized statement 15772 wraps the usage GET in withOAuth401Retry, rebuilds auth headers inside the retry closure, and records successful 401-refresh-retry attempts"
+    },
+    {
+      "id": "B35",
+      "category": "official",
+      "targetFragments": [
+        ".optional().catch(void 0).describe(\"Preferred OS notification channel\")",
+        ".optional().catch(void 0).describe(\"How spawned teammates execute"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/settings/types.ts",
+          "fragment": "preferredNotifChannel: z"
+        },
+        {
+          "path": "src/utils/settings/types.ts",
+          "fragment": ".catch(undefined)"
+        },
+        {
+          "path": "src/utils/settings/types.ts",
+          "fragment": "teammateMode: z"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "official-runtime-settings-cluster"
+      ],
+      "rationale": "target normalized settings schema statement 2890 adds optional().catch(void 0) to the legacy preferredNotifChannel and teammateMode enums while retaining the rest of the settings object"
+    },
+    {
+      "id": "B36",
+      "category": "official",
+      "targetFragments": [
+        "stickyScroll"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/FullscreenLayout.tsx",
+          "fragment": "maxHeight={terminalRows - MODAL_TRANSCRIPT_PEEK}"
+        },
+        {
+          "path": "src/components/FullscreenLayout.tsx",
+          "fragment": "overflow=\"hidden\""
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "dialog-overflow"
+      ],
+      "rationale": "The changed scroll-container count and bounded dialog wrapper prevent usage content clipping when no-flicker mode is disabled."
+    },
+    {
+      "id": "B37",
+      "category": "official",
+      "targetFragments": [
+        "Focus view needs the fullscreen renderer"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/commands/focus.ts",
+          "fragment": "FULLSCREEN_REQUIRED"
+        },
+        {
+          "path": "src/commands/focus.ts",
+          "fragment": "if (!isFullscreenEnvEnabled())"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "hidden-obligations"
+      ],
+      "rationale": "Target-only explanatory copy replaces the non-fullscreen unknown-command path and preserves disable behavior."
+    },
+    {
+      "id": "B38",
+      "category": "official",
+      "targetFragments": [
+        "command -v claude 2>/dev/null",
+        "[[ -x $_cc_bin ]] || _cc_bin="
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/bash/ShellSnapshot.ts",
+          "fragment": "CLAUDE_CODE_EXECPATH_ENV_VAR"
+        },
+        {
+          "path": "src/utils/bash/ShellSnapshot.ts",
+          "fragment": "isWindows ? 'claude.exe' : 'claude'"
+        },
+        {
+          "path": "src/utils/bash/ShellSnapshot.ts",
+          "fragment": "if [[ ! -x $_cc_bin ]]; then command ${funcName}"
+        },
+        {
+          "path": "src/utils/bash/ShellSnapshot.ts",
+          "fragment": "ARGV0=${argv0} \"$_cc_bin\""
+        }
+      ],
+      "sourcePathAbsences": [
+        {
+          "paths": [
+            "src/utils/embeddedTools.ts"
+          ],
+          "fragment": "embeddedSearchToolsBinaryPath"
+        }
+      ],
+      "focusedTests": [
+        "official-runtime-settings-cluster"
+      ],
+      "rationale": "target normalized statement 16576 resolves CLAUDE_CODE_EXECPATH, then the stable config-home claude executable, then the installed system command; baseline statement 16465 used command -v claude as its intermediate fallback"
+    },
+    {
+      "id": "B39",
+      "category": "official",
+      "targetFragments": [
+        "[\"-S\",\"dfs\",\"-regextype\",\"findutils-default\"]"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/bash/ShellSnapshot.ts",
+          "fragment": "'-S',"
+        },
+        {
+          "path": "src/utils/bash/ShellSnapshot.ts",
+          "fragment": "'dfs',"
+        },
+        {
+          "path": "src/utils/bash/ShellSnapshot.ts",
+          "fragment": "'findutils-default',"
+        }
+      ],
+      "sourcePathAbsences": [],
+      "focusedTests": [
+        "official-runtime-settings-cluster"
+      ],
+      "rationale": "target statement 16579 and baseline statement 16468 both invoke embedded bfs with [-S, dfs, -regextype, findutils-default] exactly once",
+      "retained": true
+    },
+    {
+      "id": "H01",
+      "category": "hidden",
+      "targetFragments": [
+        "/setup_overage_billing",
+        "tengu_extra_usage_inline_dialog_shown",
+        "tengu_ember_latch"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/commands/extra-usage/ExtraUsageDialog.tsx",
+          "fragment": "tengu_extra_usage_inline_dialog_shown"
+        },
+        {
+          "path": "src/commands/extra-usage/extra-usage-core.ts",
+          "fragment": "extractAdminRequestError"
+        },
+        {
+          "path": "src/commands/extra-usage/extra-usage.tsx",
+          "fragment": "getFeatureValue_CACHED_MAY_BE_STALE('tengu_ember_latch', false)"
+        },
+        {
+          "path": "src/components/LogoV2/AnimatedClawd.tsx",
+          "fragment": "celebrate: CELEBRATE"
+        },
+        {
+          "path": "src/services/api/extraUsage.ts",
+          "fragment": "/setup_overage_billing"
+        }
+      ],
+      "rationale": "Target-only endpoint, rollout, and dialog telemetry bind the complete inline extra-usage state machine.",
+      "focusedTests": [
+        "hidden-obligations"
+      ],
+      "sourcePathAbsences": []
+    },
+    {
+      "id": "H02",
+      "category": "hidden",
+      "targetFragments": [
+        "function _P1"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/commands/extra-usage/extra-usage-core.ts",
+          "fragment": "function extractAdminRequestError"
+        },
+        {
+          "path": "src/commands/extra-usage/extra-usage-core.ts",
+          "fragment": "for (const key of ['message', 'detail'])"
+        }
+      ],
+      "rationale": "The exact target helper is localized to safe client-error extraction before the generic admin fallback.",
+      "focusedTests": [
+        "hidden-obligations"
+      ],
+      "sourcePathAbsences": []
+    },
+    {
+      "id": "H03",
+      "category": "hidden",
+      "targetFragments": [
+        "tengu_prompt_cache_diagnosis_received"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/api/claude.ts",
+          "fragment": "diagnostics: { previous_message_id: previousMessageId ?? null }"
+        },
+        {
+          "path": "src/services/api/claude.ts",
+          "fragment": "logPromptCacheDiagnosis(cacheMissReason"
+        },
+        {
+          "path": "src/services/api/promptCacheBreakDetection.ts",
+          "fragment": "logEvent('tengu_prompt_cache_diagnosis_received'"
+        }
+      ],
+      "rationale": "Target-only diagnosis telemetry is bound to request correlation and stream/non-stream response capture.",
+      "focusedTests": [
+        "hidden-obligations"
+      ],
+      "sourcePathAbsences": []
+    },
+    {
+      "id": "H04",
+      "category": "hidden",
+      "retained": true,
+      "targetFragments": [
+        "cache-break-state-",
+        "messagesHistoryChanged",
+        "TTL flip expected"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/api/promptCacheBreakDetection.ts",
+          "fragment": "`cache-break-state-${getSessionId()}.json`"
+        },
+        {
+          "path": "src/commands/compact/compact.ts",
+          "fragment": "shouldTrackPromptCacheBreaks"
+        },
+        {
+          "path": "src/services/compact/autoCompact.ts",
+          "fragment": "shouldTrackPromptCacheBreaks"
+        },
+        {
+          "path": "src/services/compact/compact.ts",
+          "fragment": "shouldTrackPromptCacheBreaks"
+        },
+        {
+          "path": "src/services/compact/microCompact.ts",
+          "fragment": "shouldTrackPromptCacheBreaks"
+        },
+        {
+          "path": "src/tools/AgentTool/runAgent.ts",
+          "fragment": "shouldTrackPromptCacheBreaks"
+        }
+      ],
+      "rationale": "Both authenticated bundles retain the active persisted prompt-cache tracker; the changed API path exposes and consumes it completely.",
+      "focusedTests": [
+        "hidden-obligations"
+      ],
+      "sourcePathAbsences": []
+    },
+    {
+      "id": "H05",
+      "category": "hidden",
+      "targetFragments": [
+        "Skipping symlink in .worktreeinclude: ",
+        "Skipping symlinked settings.local.json: "
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/worktree.ts",
+          "fragment": "(await lstat(srcPath)).isSymbolicLink()"
+        },
+        {
+          "path": "src/utils/worktree.ts",
+          "fragment": "Skipping symlinked settings.local.json"
+        }
+      ],
+      "rationale": "Two target-only refusal diagnostics bind lstat-before-copy protection for worktree includes and local settings.",
+      "focusedTests": [
+        "hidden-obligations"
+      ],
+      "sourcePathAbsences": []
+    },
+    {
+      "id": "H06",
+      "category": "hidden",
+      "targetFragments": [
+        "loose-sk-ant",
+        "loose-bearer",
+        "loose-env-assign",
+        "loose-jwt"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/teamMemorySync/secretScanner.ts",
+          "fragment": "const LOOSE_REDACTION_RULES"
+        },
+        {
+          "path": "src/utils/debug.ts",
+          "fragment": "redactSecrets(message.trim())"
+        }
+      ],
+      "rationale": "Four target-only loose detector IDs are used only for debug redaction while the strict scan remains unchanged.",
+      "focusedTests": [
+        "hidden-obligations"
+      ],
+      "sourcePathAbsences": []
+    },
+    {
+      "id": "H07",
+      "category": "hidden",
+      "targetFragments": [
+        ".1.txt"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/debug.ts",
+          "fragment": "MAX_DEBUG_LOG_BYTES = 10 * 1024 * 1024"
+        },
+        {
+          "path": "src/utils/debug.ts",
+          "fragment": "async function rotateDebugLogIfNeeded"
+        },
+        {
+          "path": "src/utils/debug.ts",
+          "fragment": "getErrnoCode(error) !== 'EISDIR'"
+        }
+      ],
+      "rationale": "Target-only rotated suffix binds 10 MiB rotation and directory-path fallback recovery.",
+      "focusedTests": [
+        "hidden-obligations"
+      ],
+      "sourcePathAbsences": []
+    },
+    {
+      "id": "H08",
+      "category": "hidden",
+      "targetFragments": [
+        "[Speculation] Skipping symlink source ",
+        "parent dir escapes cwd via symlink",
+        "[Speculation] Failed to unlink symlink at "
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/PromptSuggestion/speculation.ts",
+          "fragment": "canonicalCwd = await realpath(cwd)"
+        },
+        {
+          "path": "src/services/PromptSuggestion/speculation.ts",
+          "fragment": "(await lstat(src)).isSymbolicLink()"
+        },
+        {
+          "path": "src/services/PromptSuggestion/speculation.ts",
+          "fragment": "canonicalParent = await realpath(existingParent)"
+        },
+        {
+          "path": "src/services/PromptSuggestion/speculation.ts",
+          "fragment": "await unlink(dest)"
+        }
+      ],
+      "rationale": "Three target-only fail-closed diagnostics bind source, parent, and destination symlink containment.",
+      "focusedTests": [
+        "hidden-obligations"
+      ],
+      "sourcePathAbsences": []
+    },
+    {
+      "id": "H09",
+      "category": "hidden",
+      "targetFragments": [
+        "[reportRenderError] React boundary caught ",
+        "tengu_idle_amber_finch",
+        "tengu_spinner_stall_cleared"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/commands/branch/branch.ts",
+          "fragment": "You are now in the branch. Use /resume"
+        },
+        {
+          "path": "src/components/Spinner/SpinnerAnimationRow.tsx",
+          "fragment": "tengu_spinner_stall_cleared"
+        },
+        {
+          "path": "src/ink/components/App.tsx",
+          "fragment": "reportRenderError(error, errorInfo)"
+        },
+        {
+          "path": "src/jobs/classifier.ts",
+          "fragment": "MOST SPECIFIC identifier"
+        },
+        {
+          "path": "src/main.tsx",
+          "fragment": "stdout is not a TTY"
+        },
+        {
+          "path": "src/services/compact/autoCompact.ts",
+          "fragment": "rapid-refill breaker"
+        },
+        {
+          "path": "src/tools/PowerShellTool/pathValidation.ts",
+          "fragment": "upstream pipeline command"
+        },
+        {
+          "path": "src/tools/PowerShellTool/readOnlyValidation.ts",
+          "fragment": "upstream pipeline command"
+        },
+        {
+          "path": "src/utils/gracefulShutdown.ts",
+          "fragment": "export function reportRenderError"
+        },
+        {
+          "path": "src/utils/idleTimeout.ts",
+          "fragment": "tengu_idle_amber_finch"
+        }
+      ],
+      "rationale": "Reviewed target-only UI/error/spinner markers and wording deltas form the finite renderer, job-label, PowerShell, compact, branch, and idle cluster.",
+      "focusedTests": [
+        "hidden-obligations"
+      ],
+      "sourcePathAbsences": []
+    },
+    {
+      "id": "H10",
+      "category": "hidden",
+      "targetFragments": [
+        "Skills, subagents, and plugins",
+        "No attribution data yet",
+        "\"attributionAgent\":\""
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/Settings/UsageContributors.tsx",
+          "fragment": "Skills, subagents, and plugins"
+        },
+        {
+          "path": "src/components/Settings/UsageContributors.tsx",
+          "fragment": "attributionAgent"
+        },
+        {
+          "path": "src/components/Settings/UsageContributors.tsx",
+          "fragment": "attributionSkill"
+        }
+      ],
+      "rationale": "Target-only attribution headings and JSONL keys bind local /usage grouping for plugins, skills, and subagents.",
+      "focusedTests": [
+        "hidden-obligations"
+      ],
+      "sourcePathAbsences": []
+    },
+    {
+      "id": "H11",
+      "category": "hidden",
+      "targetFragments": [
+        "tengu_sdk_url_host_rejected",
+        "bridge_repl_v2_reattach_fallback",
+        "remote-permission-mode-noop"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/bridge/initReplBridge.ts",
+          "fragment": "bridge_repl_v2_reattach_fallback"
+        },
+        {
+          "path": "src/bridge/remoteBridgeCore.ts",
+          "fragment": "remote-permission-mode-noop"
+        },
+        {
+          "path": "src/cli/transports/transportUtils.ts",
+          "fragment": "tengu_sdk_url_host_rejected"
+        },
+        {
+          "path": "src/components/PromptInput/PromptInput.tsx",
+          "fragment": "remote-permission-mode-noop"
+        },
+        {
+          "path": "src/main.tsx",
+          "fragment": "--sdk-url rejected"
+        },
+        {
+          "path": "src/screens/REPL.tsx",
+          "fragment": "tengu_immediate_command_executed"
+        },
+        {
+          "path": "src/utils/handlePromptSubmit.ts",
+          "fragment": "tengu_immediate_command_executed"
+        }
+      ],
+      "rationale": "Three target-only telemetry keys localize the SDK allowlist, bridge reattach, immediate dispatch, and remote permission no-op paths.",
+      "focusedTests": [
+        "hidden-obligations"
+      ],
+      "sourcePathAbsences": []
+    },
+    {
+      "id": "H12",
+      "category": "hidden",
+      "targetFragments": [
+        "tengu_bg_spare_claim",
+        "tengu_bg_spare_enable"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/daemon/supervisor.ts",
+          "fragment": "tengu_bg_spare_claim"
+        },
+        {
+          "path": "src/daemon/ptyHost.ts",
+          "fragment": "tengu_bg_spare_enable"
+        }
+      ],
+      "focusedTests": [
+        "daemon-lifecycle"
+      ],
+      "rationale": "Target-only spare-claim telemetry anchors the broader daemon/background/Fleet recovery, decomposed further by D rows.",
+      "sourcePathAbsences": []
+    },
+    {
+      "id": "H13",
+      "category": "hidden",
+      "targetFragments": [
+        "VERSION:\"2.1.121\""
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/mcp/types.ts",
+          "fragment": "alwaysLoad: z.boolean().optional()"
+        }
+      ],
+      "rationale": "The exact release version marker authenticates the target artifact; B01-B39 provide the one-to-one source-semantic decomposition.",
+      "focusedTests": [
+        "hidden-obligations"
+      ],
+      "sourcePathAbsences": []
+    },
+    {
+      "id": "D01",
+      "category": "daemon",
+      "title": "Daemon service install, start, status, log, stop, restart, and version lifecycle",
+      "targetFragments": [
+        "Usage: claude daemon [subcommand] [options]",
+        "Service lifecycle:"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/daemon/cli.ts",
+          "fragment": "Service lifecycle:"
+        },
+        {
+          "path": "src/daemon/service.ts",
+          "fragment": "launchctl"
+        },
+        {
+          "path": "src/daemon/status.ts",
+          "fragment": "uptime"
+        },
+        {
+          "path": "src/daemon/main.ts",
+          "fragment": "supervisor"
+        }
+      ],
+      "rationale": "Target-only daemon help text binds the complete per-user service lifecycle.",
+      "focusedTests": [
+        "daemon-lifecycle"
+      ],
+      "sourcePathAbsences": []
+    },
+    {
+      "id": "D02",
+      "category": "daemon",
+      "title": "Transient daemon yield and background spare adoption",
+      "targetFragments": [
+        "yielding to a foreground/service daemon",
+        "tengu_bg_spare_claim"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/daemon/supervisor.ts",
+          "fragment": "tengu_bg_spare_claim"
+        },
+        {
+          "path": "src/daemon/lock.ts",
+          "fragment": "yield"
+        },
+        {
+          "path": "src/daemon/ptyHost.ts",
+          "fragment": "claim"
+        },
+        {
+          "path": "src/daemon/ptyClient.ts",
+          "fragment": "claim"
+        }
+      ],
+      "rationale": "Exact handover copy and claim telemetry bind lock-safe transient/service ownership transfer.",
+      "focusedTests": [
+        "daemon-lifecycle"
+      ],
+      "sourcePathAbsences": []
+    },
+    {
+      "id": "D03",
+      "category": "daemon",
+      "title": "Background worker crash recovery, task ownership, and Fleet state",
+      "targetFragments": [
+        " orphaned background task(s) after restart",
+        "tengu_bg_agent_action"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/agentsFleet.ts",
+          "fragment": "daemon"
+        },
+        {
+          "path": "src/utils/backgroundHousekeeping.ts",
+          "fragment": "orphan"
+        },
+        {
+          "path": "src/components/FleetView.tsx",
+          "fragment": "background"
+        },
+        {
+          "path": "src/components/BackgroundExitDialog.tsx",
+          "fragment": "background"
+        }
+      ],
+      "rationale": "Target-only restart-orphan copy and expanded action telemetry bind background ownership recovery and Fleet UX.",
+      "focusedTests": [
+        "daemon-lifecycle"
+      ],
+      "sourcePathAbsences": []
+    },
+    {
+      "id": "R01",
+      "category": "residual",
+      "title": "Released shell/plugin gates are removed and privacy opt-out is complete",
+      "targetFragments": [
+        "tengu_cork_m4q",
+        "tengu_lapis_finch",
+        "tengu_quiet_fern:!0"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/shell/prefix.ts",
+          "fragment": "enablePromptCaching: true"
+        },
+        {
+          "path": "src/utils/plugins/hintRecommendation.ts",
+          "fragment": "isTelemetryDisabled()"
+        },
+        {
+          "path": "src/services/mcp/vscodeSdkMcp.ts",
+          "fragment": "tengu_quiet_fern: true"
+        },
+        {
+          "path": "src/utils/privacyLevel.ts",
+          "fragment": "isEnvTruthy(process.env.DO_NOT_TRACK)"
+        }
+      ],
+      "sourcePathAbsences": [
+        {
+          "paths": [
+            "src/utils/shell/prefix.ts"
+          ],
+          "fragment": "tengu_cork_m4q"
+        },
+        {
+          "paths": [
+            "src/utils/plugins/hintRecommendation.ts"
+          ],
+          "fragment": "tengu_lapis_finch"
+        }
+      ],
+      "rationale": "Two authenticated target absences and one literal-true gate prove the released paths are unconditional while DO_NOT_TRACK remains fail-closed.",
+      "focusedTests": [
+        "removed-gates"
+      ]
+    },
+    {
+      "id": "R02",
+      "category": "residual",
+      "title": "Subscription upsells honor both target suppression gates",
+      "targetFragments": [
+        "tengu_idle_amber_finch",
+        "tengu_quiet_slate_wren"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/subscriptionUpsell.ts",
+          "fragment": "tengu_idle_amber_finch"
+        },
+        {
+          "path": "src/services/rateLimitMessages.ts",
+          "fragment": "!isUpgradeSuppressed()"
+        },
+        {
+          "path": "src/components/messages/RateLimitMessage.tsx",
+          "fragment": "serverHidesUpgrade || upgradeSuppressed"
+        },
+        {
+          "path": "src/commands/upgrade/index.ts",
+          "fragment": "!isUpgradeSuppressed()"
+        },
+        {
+          "path": "src/commands/pro-trial-expired/pro-trial-expired.tsx",
+          "fragment": "!isUpgradeSuppressed()"
+        },
+        {
+          "path": "src/hooks/notifs/useCanSwitchToExistingSubscription.tsx",
+          "fragment": "!isProSwitchSuppressed()"
+        }
+      ],
+      "rationale": "Both target-only rollout keys gate every recovered upgrade and plan-switch surface.",
+      "focusedTests": [
+        "subscription-upsell-gates"
+      ],
+      "sourcePathAbsences": []
+    },
+    {
+      "id": "R03",
+      "category": "residual",
+      "title": "Runtime hardening for malformed permissions, worktrees, rewind, relaunch, help, and frame links",
+      "targetFragments": [
+        "malformed updatedPermissions ignored",
+        "path traversal or absolute path",
+        "auto_restore_cancel",
+        "jump_to_message",
+        "flush timeout (relaunch)",
+        "stdout is not a TTY",
+        "frame-link"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/queryHelpers.ts",
+          "fragment": "malformed updatedPermissions ignored"
+        },
+        {
+          "path": "src/utils/worktree.ts",
+          "fragment": "path traversal or absolute path"
+        },
+        {
+          "path": "src/screens/REPL.tsx",
+          "fragment": "lastUserMsg, 'auto_restore_cancel'"
+        },
+        {
+          "path": "src/utils/relaunch.ts",
+          "fragment": "flush timeout (relaunch)"
+        },
+        {
+          "path": "src/main.tsx",
+          "fragment": "stdout is not a TTY"
+        },
+        {
+          "path": "src/types/logs.ts",
+          "fragment": "type: 'frame-link'"
+        },
+        {
+          "path": "src/utils/sessionStorage.ts",
+          "fragment": "entry.type === 'frame-link'"
+        }
+      ],
+      "rationale": "Seven target-only diagnostics/markers bind the finite runtime-hardening set at exact source boundaries.",
+      "focusedTests": [
+        "runtime-hardening"
+      ],
+      "sourcePathAbsences": []
+    }
+  ]
+}
