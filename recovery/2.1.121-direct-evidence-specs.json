@@ -2478,6 +2478,389 @@
         "runtime-hardening"
       ],
       "sourcePathAbsences": []
+    },
+    {
+      "id": "R04",
+      "category": "residual",
+      "retained": true,
+      "title": "Dynamic loop state, cache-aware scheduling, and bounded wakeup lifetime",
+      "targetFragments": [
+        "ScheduleWakeup",
+        "loopChainStartedAt",
+        "lastScheduledFor",
+        "agedOut",
+        "cacheLeadMs",
+        "tengu_loop_dynamic_wakeup_aged_out",
+        "tengu_loop_dynamic_wakeup_scheduled",
+        "Wakeup not scheduled. Either the /loop dynamic runtime gate is off",
+        "Next wakeup scheduled for",
+        "Don't pick 300s."
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/bootstrap/state.ts",
+          "fragment": "loopChainStartedAt: Object.create(null) as Record<string, LoopChainState>"
+        },
+        {
+          "path": "src/bootstrap/state.ts",
+          "fragment": "export function getLoopChainStartedAt("
+        },
+        {
+          "path": "src/utils/cronTasks.ts",
+          "fragment": "export const PROMPT_CACHE_TTL_MS = 5 * 60 * 1000"
+        },
+        {
+          "path": "src/utils/cronTasks.ts",
+          "fragment": "recurringFrac: 0.5"
+        },
+        {
+          "path": "src/utils/cronTasks.ts",
+          "fragment": "cacheLeadMs: 15 * 1000"
+        },
+        {
+          "path": "src/utils/cronJitterConfig.ts",
+          "fragment": ".default(DEFAULT_CRON_JITTER_CONFIG.cacheLeadMs)"
+        },
+        {
+          "path": "src/utils/loopDynamic.ts",
+          "fragment": "getFeatureValue_CACHED_MAY_BE_STALE(\n    'tengu_kairos_loop_dynamic'"
+        },
+        {
+          "path": "src/utils/loopDynamic.ts",
+          "fragment": "logEvent('tengu_loop_dynamic_wakeup_scheduled'"
+        },
+        {
+          "path": "src/utils/loopDynamic.ts",
+          "fragment": "logEvent('tengu_loop_dynamic_wakeup_aged_out'"
+        },
+        {
+          "path": "src/utils/loopDynamic.ts",
+          "fragment": "kind: 'loop'"
+        },
+        {
+          "path": "src/tools/ScheduleWakeupTool/ScheduleWakeupTool.ts",
+          "fragment": "shouldDefer: true"
+        },
+        {
+          "path": "src/tools/ScheduleWakeupTool/ScheduleWakeupTool.ts",
+          "fragment": "Wakeup not scheduled. Either the /loop dynamic runtime gate is off"
+        },
+        {
+          "path": "src/tools/ScheduleWakeupTool/prompt.ts",
+          "fragment": "export const SCHEDULE_WAKEUP_TOOL_NAME = 'ScheduleWakeup'"
+        },
+        {
+          "path": "src/tools/ScheduleWakeupTool/prompt.ts",
+          "fragment": "**Don't pick 300s.**"
+        }
+      ],
+      "rationale": "Retained authenticated state, telemetry, and tool copy bind the null-prototype chain ledger, cache-aware timing, clamping, dedupe, and maximum loop lifetime.",
+      "focusedTests": [
+        "dynamic-loop"
+      ],
+      "sourcePathAbsences": []
+    },
+    {
+      "id": "R05",
+      "category": "residual",
+      "retained": true,
+      "title": "Dynamic loop registration, delivery, and both user-abort boundaries",
+      "targetFragments": [
+        "[loop/dynamic] cancelled ",
+        "self-pace next iteration",
+        "Claude resuming /loop wakeup",
+        "autonomousLoopDefault",
+        "pending loop wakeup(s) on user abort"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/tools.ts",
+          "fragment": "require('./tools/ScheduleWakeupTool/ScheduleWakeupTool.js')"
+        },
+        {
+          "path": "src/tools/ToolSearchTool/prompt.ts",
+          "fragment": "if (loopDynamic.isLoopDynamicEnabled()) return false"
+        },
+        {
+          "path": "src/hooks/useCancelRequest.ts",
+          "fragment": "loopDynamicModule?.cancelAllPendingLoopSessionCrons()"
+        },
+        {
+          "path": "src/hooks/useReplBridge.tsx",
+          "fragment": "loopDynamicModule?.cancelAllPendingLoopSessionCrons()"
+        },
+        {
+          "path": "src/hooks/useScheduledTasks.ts",
+          "fragment": "task.kind === 'loop'"
+        },
+        {
+          "path": "src/hooks/useScheduledTasks.ts",
+          "fragment": "Claude resuming /loop wakeup"
+        },
+        {
+          "path": "src/cli/print.ts",
+          "fragment": "loopDefaultModule?.resolveLoopDefaultFire(prompt) ?? prompt"
+        },
+        {
+          "path": "src/utils/cronScheduler.ts",
+          "fragment": "autonomousLoopDefault: isLoopDefaultSentinel(t.prompt)"
+        },
+        {
+          "path": "src/screens/REPL.tsx",
+          "fragment": "abortSignal: abortController?.signal,\n    isExternalLoading,"
+        }
+      ],
+      "rationale": "Retained cancellation, delivery, and analytics witnesses bind deferred tool discovery, headless and REPL consumers, both interrupt callers, and scheduler classification.",
+      "focusedTests": [
+        "dynamic-loop"
+      ],
+      "sourcePathAbsences": []
+    },
+    {
+      "id": "R06",
+      "category": "residual",
+      "retained": true,
+      "title": "Autonomous and loop.md defaults, dynamic grammar, and compaction reset",
+      "targetFragments": [
+        "<<autonomous-loop>>",
+        "<<autonomous-loop-dynamic>>",
+        "<<loop.md>>",
+        "<<loop.md-dynamic>>",
+        "Autonomous loop check",
+        "tengu_kairos_loop_prompt",
+        "tengu_kairos_loop_dynamic",
+        "resetAutonomousLoopDelivered",
+        "model self-pace",
+        "loop.md was truncated to "
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/loopDefault.ts",
+          "fragment": "export const LOOP_FILE_SENTINEL = '<<loop.md>>'"
+        },
+        {
+          "path": "src/utils/loopDefault.ts",
+          "fragment": "join(getProjectRoot(), '.claude', 'loop.md')"
+        },
+        {
+          "path": "src/utils/loopDefault.ts",
+          "fragment": "join(getClaudeConfigHomeDir(), 'loop.md')"
+        },
+        {
+          "path": "src/utils/loopDefault.ts",
+          "fragment": "export function resetAutonomousLoopDelivered(): void"
+        },
+        {
+          "path": "src/skills/bundled/loop.ts",
+          "fragment": "Omit the interval to let the model self-pace."
+        },
+        {
+          "path": "src/skills/bundled/loop.ts",
+          "fragment": "AUTONOMOUS_LOOP_DYNAMIC_SENTINEL"
+        },
+        {
+          "path": "src/skills/bundled/loop.ts",
+          "fragment": "LOOP_FILE_DYNAMIC_SENTINEL"
+        },
+        {
+          "path": "src/services/compact/postCompactCleanup.ts",
+          "fragment": "loopDefaultModule?.resetAutonomousLoopDelivered()"
+        }
+      ],
+      "sourcePathAbsences": [
+        {
+          "paths": [
+            "src/utils/loopDefault.ts"
+          ],
+          "fragment": "getOriginalCwd"
+        }
+      ],
+      "rationale": "Retained sentinel and prompt witnesses bind the exact project/user loop.md precedence, autonomous delivery reset, and fixed-versus-dynamic /loop grammar.",
+      "focusedTests": [
+        "dynamic-loop"
+      ]
+    },
+    {
+      "id": "R07",
+      "category": "residual",
+      "retained": true,
+      "title": "One-shot unclean interactive-session attribution",
+      "targetFragments": [
+        "Prior session exited uncleanly:",
+        "tengu_unclean_exit",
+        "session_age_sec",
+        "prior_version",
+        "on_current_version",
+        "prior_session_id"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/concurrentSessions.ts",
+          "fragment": "const ConcurrentSessionSchema = lazySchema(() =>"
+        },
+        {
+          "path": "src/utils/concurrentSessions.ts",
+          "fragment": "const parsed = hasScannedPriorUncleanSessions"
+        },
+        {
+          "path": "src/utils/concurrentSessions.ts",
+          "fragment": "const removed = await unlink(stalePath).then("
+        },
+        {
+          "path": "src/utils/concurrentSessions.ts",
+          "fragment": "parsed.data.kind === 'interactive'"
+        },
+        {
+          "path": "src/utils/concurrentSessions.ts",
+          "fragment": "logEvent('tengu_unclean_exit'"
+        },
+        {
+          "path": "src/utils/concurrentSessions.ts",
+          "fragment": "(left, right) => right.startedAt - left.startedAt"
+        },
+        {
+          "path": "src/utils/concurrentSessions.ts",
+          "fragment": "hasScannedPriorUncleanSessions = true"
+        }
+      ],
+      "rationale": "Retained crash telemetry binds the strict PID-file scan, parse-before-unlink proof, successful-delete gate, interactive-only event, newest-first recovery record, and one-shot latch.",
+      "focusedTests": [
+        "inherited-runtime-residuals"
+      ],
+      "sourcePathAbsences": []
+    },
+    {
+      "id": "R08",
+      "category": "residual",
+      "retained": true,
+      "title": "Default forked-agent turn bound and threshold telemetry",
+      "targetFragments": [
+        "tengu_forked_agent_default_turns_exceeded",
+        "tengu_fork_agent_query"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/forkedAgent.ts",
+          "fragment": "const DEFAULT_FORKED_AGENT_MAX_TURNS = 50"
+        },
+        {
+          "path": "src/utils/forkedAgent.ts",
+          "fragment": "const effectiveMaxTurns = maxTurns ?? DEFAULT_FORKED_AGENT_MAX_TURNS"
+        },
+        {
+          "path": "src/utils/forkedAgent.ts",
+          "fragment": "maxTurns: effectiveMaxTurns"
+        },
+        {
+          "path": "src/utils/forkedAgent.ts",
+          "fragment": "if (message.type === 'assistant')"
+        },
+        {
+          "path": "src/utils/forkedAgent.ts",
+          "fragment": "maxTurns === undefined &&"
+        },
+        {
+          "path": "src/utils/forkedAgent.ts",
+          "fragment": "logEvent('tengu_forked_agent_default_turns_exceeded'"
+        }
+      ],
+      "rationale": "Retained fork telemetry binds the implicit 50-turn cap, assistant-turn accounting, and omitted-default-only threshold signal before the existing aggregate event.",
+      "focusedTests": [
+        "inherited-runtime-residuals"
+      ],
+      "sourcePathAbsences": []
+    },
+    {
+      "id": "R09",
+      "category": "residual",
+      "retained": true,
+      "title": "Grouped model-aware Stop-hook transcript truncation",
+      "targetFragments": [
+        "Hooks: truncated Stop transcript",
+        "tengu_hook_prompt_transcript_truncated",
+        "Earlier conversation truncated to fit the hook evaluator's context window"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/hooks/execPromptHook.ts",
+          "fragment": "const STOP_HOOK_TRANSCRIPT_BUDGET_RATIO = 0.7"
+        },
+        {
+          "path": "src/utils/hooks/execPromptHook.ts",
+          "fragment": "message.message.model !== SYNTHETIC_MODEL"
+        },
+        {
+          "path": "src/utils/hooks/execPromptHook.ts",
+          "fragment": "const groups = groupMessagesByApiRound(messages)"
+        },
+        {
+          "path": "src/utils/hooks/execPromptHook.ts",
+          "fragment": "suffixStart < groups.length &&"
+        },
+        {
+          "path": "src/utils/hooks/execPromptHook.ts",
+          "fragment": "logEvent('tengu_hook_prompt_transcript_truncated'"
+        },
+        {
+          "path": "src/utils/hooks/execPromptHook.ts",
+          "fragment": "Earlier conversation truncated to fit the hook evaluator's context window"
+        },
+        {
+          "path": "src/utils/hooks/execPromptHook.ts",
+          "fragment": "const evaluatorModel = hook.model ?? getSmallFastModel()"
+        },
+        {
+          "path": "src/utils/hooks/execPromptHook.ts",
+          "fragment": "...truncateStopHookTranscript(messages, evaluatorModel)"
+        }
+      ],
+      "rationale": "Retained truncation telemetry and omission copy bind the exact 70% evaluator budget, 1M detection, real-usage threshold, complete-round suffix, newest-group floor, and fail-closed reminder.",
+      "focusedTests": [
+        "inherited-runtime-residuals"
+      ],
+      "sourcePathAbsences": []
+    },
+    {
+      "id": "R10",
+      "category": "residual",
+      "retained": true,
+      "title": "Upward-only memory threshold telemetry with RSS",
+      "targetFragments": [
+        "tengu_memory_threshold_crossed",
+        "rss_mb",
+        "heap_used_mb"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/hooks/useMemoryUsage.ts",
+          "fragment": "const priorStatusRef = useRef<MemoryUsageStatus>('normal')"
+        },
+        {
+          "path": "src/hooks/useMemoryUsage.ts",
+          "fragment": "const { heapUsed, rss } = process.memoryUsage()"
+        },
+        {
+          "path": "src/hooks/useMemoryUsage.ts",
+          "fragment": "MEMORY_STATUS_RANK[status] > MEMORY_STATUS_RANK[priorStatusRef.current]"
+        },
+        {
+          "path": "src/hooks/useMemoryUsage.ts",
+          "fragment": "logEvent('tengu_memory_threshold_crossed'"
+        },
+        {
+          "path": "src/hooks/useMemoryUsage.ts",
+          "fragment": "rss_mb: Math.round(rss / 1024 / 1024)"
+        },
+        {
+          "path": "src/hooks/useMemoryUsage.ts",
+          "fragment": "priorStatusRef.current = status"
+        }
+      ],
+      "rationale": "Retained memory telemetry binds the normal/high/critical rank, upward-only ref update, and exact rounded RSS and heap payload while preserving the existing display state.",
+      "focusedTests": [
+        "inherited-runtime-residuals"
+      ],
+      "sourcePathAbsences": []
     }
   ]
 }
