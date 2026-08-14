@@ -76,7 +76,7 @@ import { getClaudeConfigHomeDir, isEnvTruthy } from './envUtils.js'
 import { isENOENT, isFsInaccessible } from './errors.js'
 import type { FileHistorySnapshot } from './fileHistory.js'
 import { formatFileSize } from './format.js'
-import { getFsImplementation } from './fsOperations.js'
+import { getFsImplementation, tailFile } from './fsOperations.js'
 import { getWorktreePaths } from './getWorktreePaths.js'
 import { getBranch } from './git.js'
 import { gracefulShutdownSync, isShuttingDown } from './gracefulShutdown.js'
@@ -105,6 +105,7 @@ import {
 } from './slowOperations.js'
 import type { ContentReplacementRecord } from './toolResultStorage.js'
 import { validateUuid } from './uuid.js'
+import type { HookDeferredToolAttachment } from './attachments.js'
 
 // Cache MACRO.VERSION at module level to work around bun --define bug in async contexts
 // See: https://github.com/oven-sh/bun/issues/26168
@@ -116,6 +117,52 @@ type Transcript = (
   | AttachmentMessage
   | SystemMessage
 )[]
+
+/**
+ * Finds the most recent deferred tool call that has not subsequently received
+ * a tool_result. Only the final MiB is inspected because the marker and its
+ * potential result are both at the active transcript tail.
+ */
+export async function findLastDeferredToolUse(
+  transcriptPath: string,
+): Promise<HookDeferredToolAttachment | null> {
+  try {
+    const { content, bytesRead, bytesTotal } = await tailFile(
+      transcriptPath,
+      1024 * 1024,
+    )
+    const lines = content.split('\n')
+    if (bytesRead < bytesTotal) lines.shift()
+
+    let found: HookDeferredToolAttachment | null = null
+    let foundIndex = -1
+    for (let index = lines.length - 1; index >= 0; index--) {
+      const line = lines[index]!.trim()
+      if (!line.includes('"hook_deferred_tool"')) continue
+      const entry = jsonParse(line) as {
+        type?: string
+        attachment?: HookDeferredToolAttachment
+      } | null
+      if (
+        entry?.type === 'attachment' &&
+        entry.attachment?.type === 'hook_deferred_tool'
+      ) {
+        found = entry.attachment
+        foundIndex = index
+        break
+      }
+    }
+    if (!found) return null
+
+    const resultNeedle = `"tool_use_id":"${found.toolUseID}"`
+    for (let index = foundIndex + 1; index < lines.length; index++) {
+      if (lines[index]!.includes(resultNeedle)) return null
+    }
+    return found
+  } catch {
+    return null
+  }
+}
 
 // Use getOriginalCwd() at each call site instead of capturing at module load
 // time. getCwd() at import time may run before bootstrap resolves symlinks via

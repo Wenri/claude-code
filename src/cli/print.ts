@@ -44,6 +44,7 @@ import {
 } from 'src/tools/AgentTool/loadAgentsDir.js'
 import { resolveAgentTools } from 'src/tools/AgentTool/agentToolUtils.js'
 import type { Message } from 'src/types/message.js'
+import type { HookDeferredToolAttachment } from 'src/utils/attachments.js'
 import type { QueuedCommand } from 'src/types/textInputTypes.js'
 import {
   dequeue,
@@ -762,6 +763,7 @@ export async function runHeadless(
     messages: initialMessages,
     turnInterruptionState,
     agentSetting: resumedAgentSetting,
+    deferredToolUse,
   } = await loadInitialMessages(setAppState, {
     continue: options.continue,
     teleport: options.teleport,
@@ -987,6 +989,7 @@ Re-create them if still needed.
     agents,
     options,
     turnInterruptionState,
+    deferredToolUse,
   )) {
     if (transformToStreamlined) {
       // Streamlined mode: transform messages and stream immediately
@@ -1128,6 +1131,7 @@ function runHeadlessStreaming(
     workload?: string | undefined
   },
   turnInterruptionState?: TurnInterruptionState,
+  deferredToolUse?: HookDeferredToolAttachment,
 ): AsyncIterable<StdoutMessage> {
   let running = false
   let runPhase:
@@ -2447,6 +2451,7 @@ function runHeadlessStreaming(
               agents: currentAgents,
               allowedAgentTypes,
               orphanedPermission: cmd.orphanedPermission,
+              deferredToolUse,
               setSDKStatus: status => {
                 output.enqueue({
                   type: 'system',
@@ -2457,6 +2462,7 @@ function runHeadlessStreaming(
                 })
               },
             })) {
+              deferredToolUse = undefined
               // Forward messages to bridge incrementally (mid-turn) so
               // claude.ai sees progress and the connection stays alive
               // while blocked on permission requests.
@@ -5390,6 +5396,7 @@ type LoadInitialMessagesResult = {
   messages: Message[]
   turnInterruptionState?: TurnInterruptionState
   agentSetting?: string
+  deferredToolUse?: HookDeferredToolAttachment
 }
 
 async function loadInitialMessages(
@@ -5478,6 +5485,7 @@ async function loadInitialMessages(
           messages: result.messages,
           turnInterruptionState: result.turnInterruptionState,
           agentSetting: result.agentSetting,
+          deferredToolUse: result.deferredToolUse,
         }
       }
     } catch (error) {
@@ -5680,6 +5688,7 @@ async function loadInitialMessages(
         messages: result.messages,
         turnInterruptionState: result.turnInterruptionState,
         agentSetting: result.agentSetting,
+        deferredToolUse: result.deferredToolUse,
       }
     } catch (error) {
       logError(error)

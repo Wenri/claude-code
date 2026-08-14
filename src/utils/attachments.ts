@@ -85,6 +85,7 @@ import {
   getMcpSkillCommands,
 } from '../commands.js'
 import type { Command } from '../types/command.js'
+import type { PermissionMode } from '../types/permissions.js'
 import uniqBy from 'lodash-es/uniqBy.js'
 import {
   getProjectRoot,
@@ -385,6 +386,17 @@ export type HookAttachment =
     }
   | HookSystemMessageAttachment
   | HookPermissionDecisionAttachment
+  | HookDeferredToolAttachment
+
+export type HookDeferredToolAttachment = {
+  type: 'hook_deferred_tool'
+  toolUseID: string
+  toolName: string
+  toolInput: Record<string, unknown>
+  hookName: string
+  hookEvent: 'PreToolUse'
+  permissionMode: PermissionMode
+}
 
 export type HookPermissionDecisionAttachment = {
   type: 'hook_permission_decision'

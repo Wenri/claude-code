@@ -931,6 +931,51 @@ async function checkPermissionsAndCallTool(
       case 'additionalContext':
         resultingMessages.push(result.message)
         break
+      case 'defer': {
+        getStatsStore()?.observe(
+          'pre_tool_hook_duration_ms',
+          Date.now() - preToolHookStart,
+        )
+        const appState = toolUseContext.getAppState()
+        if (!toolUseContext.options.isNonInteractiveSession) {
+          logForDebugging(
+            `Hook ${result.hookName} returned permissionDecision=defer in interactive mode; ignoring (defer is print-mode only)`,
+            { level: 'warn' },
+          )
+          break
+        }
+        const toolCallCount = Array.isArray(assistantMessage.message.content)
+          ? count(
+              assistantMessage.message.content,
+              block => block.type === 'tool_use',
+            )
+          : 1
+        if (toolCallCount > 1) {
+          logForDebugging(
+            `Hook ${result.hookName} returned permissionDecision=defer but ${toolCallCount} tool calls are in this batch; ignoring (defer is solo-only — siblings would be orphaned on resume)`,
+            { level: 'warn' },
+          )
+          break
+        }
+        logEvent('tengu_pre_tool_hook_deferred', {
+          toolName: sanitizeToolNameForAnalytics(tool.name),
+          queryChainId: toolUseContext.queryTracking
+            ?.chainId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+          queryDepth: toolUseContext.queryTracking?.depth,
+        })
+        resultingMessages.push({
+          message: createAttachmentMessage({
+            type: 'hook_deferred_tool',
+            toolUseID,
+            toolName: tool.name,
+            toolInput: processedInput,
+            hookName: result.hookName,
+            hookEvent: 'PreToolUse',
+            permissionMode: appState.toolPermissionContext.mode,
+          }),
+        })
+        return resultingMessages
+      }
       case 'stop':
         getStatsStore()?.observe(
           'pre_tool_hook_duration_ms',

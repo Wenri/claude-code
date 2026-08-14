@@ -18,7 +18,10 @@ import type {
   NormalizedUserMessage,
 } from '../types/message.js'
 import { PERMISSION_MODES } from '../types/permissions.js'
-import { suppressNextSkillListing } from './attachments.js'
+import {
+  type HookDeferredToolAttachment,
+  suppressNextSkillListing,
+} from './attachments.js'
 import {
   copyFileHistoryForResume,
   type FileHistorySnapshot,
@@ -41,6 +44,7 @@ import {
   checkResumeConsistency,
   getLastSessionLog,
   getSessionIdFromLog,
+  findLastDeferredToolUse,
   isLiteLog,
   loadFullLog,
   loadMessageLogs,
@@ -177,6 +181,7 @@ export function deserializeMessages(serializedMessages: Message[]): Message[] {
  */
 export function deserializeMessagesWithInterruptDetection(
   serializedMessages: Message[],
+  preservedUnresolvedIds?: Set<string>,
 ): DeserializeResult {
   try {
     // Transform legacy attachment types before processing
@@ -200,6 +205,7 @@ export function deserializeMessagesWithInterruptDetection(
     // Filter out unresolved tool uses and any synthetic messages that follow them
     const filteredToolUses = filterUnresolvedToolUses(
       migratedMessages,
+      preservedUnresolvedIds,
     ) as NormalizedMessage[]
 
     // Filter out orphaned thinking-only assistant messages that can cause API errors
@@ -215,7 +221,9 @@ export function deserializeMessagesWithInterruptDetection(
       filteredThinking,
     ) as NormalizedMessage[]
 
-    const internalState = detectTurnInterruption(filteredMessages)
+    const internalState = preservedUnresolvedIds?.size
+      ? ({ kind: 'none' } as const)
+      : detectTurnInterruption(filteredMessages)
 
     // Transform mid-turn interruptions into interrupted_prompt by appending
     // a synthetic continuation message. This unifies both interruption kinds
@@ -492,6 +500,7 @@ export async function loadConversationForResume(
   prRepository?: string
   // Full path to the session file (for cross-directory resume)
   fullPath?: string
+  deferredToolUse?: HookDeferredToolAttachment
 } | null> {
   try {
     let log: LogOption | null = null
@@ -571,8 +580,16 @@ export async function loadConversationForResume(
     // This ensures skills survive multiple compaction cycles after resume.
     restoreSkillStateFromMessages(messages!)
 
+    const transcriptPath = log?.fullPath ?? sourceJsonlFile
+    const deferredToolUse = transcriptPath
+      ? ((await findLastDeferredToolUse(transcriptPath)) ?? undefined)
+      : undefined
+
     // Deserialize messages to handle unresolved tool uses and ensure proper format
-    const deserialized = deserializeMessagesWithInterruptDetection(messages!)
+    const deserialized = deserializeMessagesWithInterruptDetection(
+      messages!,
+      deferredToolUse ? new Set([deferredToolUse.toolUseID]) : undefined,
+    )
     messages = deserialized.messages
 
     // Process session start hooks for resume
@@ -603,6 +620,7 @@ export async function loadConversationForResume(
       prRepository: log?.prRepository,
       // Include full path for cross-directory resume
       fullPath: log?.fullPath,
+      deferredToolUse,
     }
   } catch (error) {
     logError(error as Error)

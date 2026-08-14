@@ -11,6 +11,8 @@
 // (tests call initAutoDream() in beforeEach for a fresh closure).
 
 import { feature } from 'bun:bundle'
+import { readdir } from 'fs/promises'
+import { join } from 'path'
 import type { REPLHookContext } from '../../utils/hooks/postSamplingHooks.js'
 import {
   createCacheSafeParams,
@@ -60,6 +62,7 @@ import { FILE_EDIT_TOOL_NAME } from '../../tools/FileEditTool/constants.js'
 import { FILE_WRITE_TOOL_NAME } from '../../tools/FileWriteTool/prompt.js'
 import { SHELL_TOOL_NAMES } from '../../utils/shell/shellToolUtils.js'
 import { plural } from '../../utils/stringUtils.js'
+import { errorMessage, isENOENT, toError } from '../../utils/errors.js'
 
 /* eslint-disable @typescript-eslint/no-require-imports */
 const teamMemPaths = feature('TEAMMEM')
@@ -183,6 +186,11 @@ export function initAutoDream(): void {
       logForDebugging(
         `[autoDream] skip — ${sessionIds.length} sessions since last consolidation, need ${cfg.minSessions}`,
       )
+      logEvent('tengu_auto_dream_skipped', {
+        reason: 'sessions',
+        session_count: sessionIds.length,
+        min_required: cfg.minSessions,
+      })
       return
     }
 
@@ -202,15 +210,20 @@ export function initAutoDream(): void {
         )
         return
       }
-      if (priorMtime === null) return
+      if (priorMtime === null) {
+        logEvent('tengu_auto_dream_skipped', { reason: 'lock' })
+        return
+      }
     }
 
+    const teamMemoryEnabled = teamMemPaths?.isTeamMemoryEnabled() ?? false
     logForDebugging(
       `[autoDream] firing — ${hoursSince.toFixed(1)}h since last, ${sessionIds.length} sessions to review`,
     )
     logEvent('tengu_auto_dream_fired', {
       hours_since: Math.round(hoursSince),
       sessions_since: sessionIds.length,
+      team_memory_enabled: teamMemoryEnabled,
     })
 
     const setAppState =
@@ -222,11 +235,12 @@ export function initAutoDream(): void {
       priorMtime,
       abortController,
     })
+    let phase: 'fork' | 'completion' = 'fork'
 
     try {
       const memoryRoot = getAutoMemPath()
       const transcriptDir = getProjectDir(getOriginalCwd())
-      const teamMemoryEnabled = teamMemPaths?.isTeamMemoryEnabled() ?? false
+      const dailyLogsFound = await countDailyLogs(memoryRoot)
       // Tool constraints note goes in `extra`, not the shared prompt body —
       // manual /dream runs in the main loop with normal permissions and this
       // would be misleading there.
@@ -261,10 +275,14 @@ ${sessionIds.map(id => `- ${id}`).join('\n')}`
         onMessage: makeDreamProgressWatcher(taskId, setAppState),
       })
 
+      phase = 'completion'
       completeDreamTask(taskId, setAppState)
       // Inline completion summary in the main transcript (same surface as
       // extractMemories's "Saved N memories" message).
       const dreamState = context.toolUseContext.getAppState().tasks?.[taskId]
+      const filesTouchedCount = isDreamTask(dreamState)
+        ? dreamState.filesTouched.length
+        : 0
       if (isDreamTask(dreamState) && dreamState.filesTouched.length > 0) {
         appendSystemMessage?.({
           ...createMemorySavedMessage(dreamState.filesTouched),
@@ -290,6 +308,9 @@ ${sessionIds.map(id => `- ${id}`).join('\n')}`
         cache_created: result.totalUsage.cache_creation_input_tokens,
         output: result.totalUsage.output_tokens,
         sessions_reviewed: sessionIds.length,
+        daily_logs_found: dailyLogsFound,
+        files_touched_count: filesTouchedCount,
+        team_memory_enabled: teamMemoryEnabled,
       })
     } catch (e: unknown) {
       // If the user killed from the bg-tasks dialog, DreamTask.kill already
@@ -299,11 +320,16 @@ ${sessionIds.map(id => `- ${id}`).join('\n')}`
         logForDebugging('[autoDream] aborted by user')
         return
       }
-      logForDebugging(`[autoDream] fork failed: ${(e as Error).message}`)
-      logEvent('tengu_auto_dream_failed', {})
-      failDreamTask(taskId, setAppState)
-      // Rewind mtime so time-gate passes again. Scan throttle is the backoff.
-      await rollbackConsolidationLock(priorMtime)
+      logForDebugging(`[autoDream] ${phase} failed: ${errorMessage(e)}`)
+      logEvent('tengu_auto_dream_failed', {
+        phase,
+        error_class: toError(e).name,
+      })
+      if (phase === 'fork') {
+        failDreamTask(taskId, setAppState)
+        // Rewind mtime so time-gate passes again. Scan throttle is the backoff.
+        await rollbackConsolidationLock(priorMtime)
+      }
     }
   }
 }
@@ -357,6 +383,20 @@ function makeDreamProgressWatcher(
       touchedPaths,
       setAppState,
     )
+  }
+}
+
+async function countDailyLogs(memoryRoot: string): Promise<number> {
+  try {
+    const entries = await readdir(join(memoryRoot, 'logs'), {
+      recursive: true,
+    })
+    return entries.filter(entry => entry.endsWith('.md')).length
+  } catch (error) {
+    if (!isENOENT(error)) {
+      logForDebugging(`[autoDream] countDailyLogs: ${errorMessage(error)}`)
+    }
+    return 0
   }
 }
 

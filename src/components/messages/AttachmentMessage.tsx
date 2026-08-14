@@ -324,6 +324,10 @@ export function AttachmentMessage({
       return <Line>
           {attachment.hookName} says: {attachment.content}
         </Line>;
+    case 'hook_deferred_tool':
+      return <Line color="warning">
+          {`${attachment.hookName} deferred ${attachment.toolName} · resume with -p --resume to continue`}
+        </Line>;
     case 'hook_permission_decision':
       {
         const action = attachment.decision === 'allow' ? 'Allowed' : 'Denied';
