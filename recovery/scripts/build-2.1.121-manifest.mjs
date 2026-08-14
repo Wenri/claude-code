@@ -76,6 +76,38 @@ const semanticSummary = JSON.parse(fs.readFileSync(semanticSummaryPath, 'utf8'))
 
 assert(draft.schemaVersion === 4, 'draft manifest schema')
 assert(draft.case === '2.1.120-to-2.1.121', 'draft case identity')
+assert(
+  draft.releaseAdjacency?.baseline === '2.1.120' &&
+    draft.releaseAdjacency?.target === '2.1.121',
+  'draft release adjacency',
+)
+const draftArtifacts = new Map(draft.artifacts.map(entry => [entry.id, entry]))
+const priorArtifacts = new Map(prior.artifacts.map(entry => [entry.id, entry]))
+const baselineDeclarations = draftArtifacts.get('baselineDeclarations')
+const targetDeclarations = draftArtifacts.get('targetDeclarations')
+const baselinePackageJson = draftArtifacts.get('baselinePackageJson')
+const targetPackageJson = draftArtifacts.get('targetPackageJson')
+assert(
+  baselineDeclarations?.bytes === targetDeclarations?.bytes &&
+    baselineDeclarations?.sha256 === targetDeclarations?.sha256,
+  'declaration artifact identity',
+)
+assert(
+  baselinePackageJson?.sha256 !== undefined &&
+    targetPackageJson?.sha256 !== undefined &&
+    baselinePackageJson.sha256 !== targetPackageJson.sha256,
+  'package.json adjacent artifact identity',
+)
+assert(prior.baselineOracle?.sourceMap !== undefined, 'prior baseline oracle')
+for (const artifactId of ['sourceOracleBundle', 'sourceOracleMap']) {
+  const draftArtifact = draftArtifacts.get(artifactId)
+  const priorArtifact = priorArtifacts.get(artifactId)
+  assert(
+    draftArtifact?.bytes === priorArtifact?.bytes &&
+      draftArtifact?.sha256 === priorArtifact?.sha256,
+    `${artifactId}: historical oracle identity`,
+  )
+}
 assert(sourceIdentity.case === draft.case, 'source-freeze case identity')
 assert(sourceIdentity.target.commit === sourceLineage.targetCommit, 'target commit')
 assert(
@@ -265,6 +297,7 @@ const semanticFiles = {
 const manifest = clone(draft)
 delete manifest.draft
 delete manifest.pendingSourceClosure
+manifest.baselineOracle = clone(prior.baselineOracle)
 manifest.recoveryScope = {
   platform: 'linux-x64',
   completeness: 'generated-code-complete-linux-x64-source-partial',
@@ -286,7 +319,16 @@ manifest.sourceOracle.appliedSourceTree = {
   files: appliedSourceFiles,
 }
 manifest.sourceLineage = clone(sourceLineage)
-manifest.targetAssertions.status = 'authenticated-semantic-correspondence-complete'
+manifest.targetAssertions = {
+  declarationChange: { kind: 'unchanged' },
+  packageVersionChange: {
+    baseline: draft.releaseAdjacency.baseline,
+    target: draft.releaseAdjacency.target,
+  },
+  packageJsonChange: { kind: 'exact-artifact' },
+  bundleFragments: [],
+  status: 'authenticated-semantic-correspondence-complete',
+}
 manifest.recoveredEdits = recoveredEdits
 manifest.recoveredFileAssertions = recoveredFileAssertions
 manifest.generatedRecovery.semanticCorrespondence = {

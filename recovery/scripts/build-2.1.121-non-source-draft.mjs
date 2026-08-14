@@ -97,6 +97,20 @@ function framedTree(records) {
   return hash.digest('hex')
 }
 
+function embeddedFramedTree(records) {
+  const hash = crypto.createHash('sha256')
+  for (const record of records) {
+    hash
+      .update(record.path)
+      .update('\0')
+      .update(String(record.bytes))
+      .update('\0')
+      .update(record.sha256)
+      .update('\n')
+  }
+  return hash.digest('hex')
+}
+
 function reportFiles() {
   const prefixes = [
     'attribution',
@@ -136,6 +150,25 @@ function main() {
 
   assert(inventory.artifact.version === '2.1.121', 'Bun inventory version mismatch')
   assert(packageMembers.summary.complete === true, 'Package comparison incomplete')
+  const changedPackageMembers = packageMembers.members.filter(
+    member => member.status === 'changed',
+  )
+  assert(
+    changedPackageMembers.length === 1 &&
+      changedPackageMembers[0].path === 'package/package.json',
+    'unexpected changed package members',
+  )
+  assert(
+    packageMembers.members.every(member => member.status !== 'added'),
+    'unexpected added package member',
+  )
+  const packageDelta = exactDelta.files.find(file => file.path === 'package.json')
+  assert(
+    packageDelta?.baseline.sha256 === changedPackageMembers[0].baseline.sha256 &&
+      packageDelta?.target.sha256 === changedPackageMembers[0].target.sha256 &&
+      packageDelta?.payload.path === 'diff/package.json.zstd-delta',
+    'package.json delta identity',
+  )
   assert(attribution.coverage.unaccountedTargetUtf16 === 0, 'Attribution gap')
   assert(
     readable.verification.comparisonInvariantHashesEqual === true,
@@ -428,11 +461,22 @@ function main() {
     generatedRecovery: {
       packageMembers: {
         report: 'package-members.json',
-        baselineTarball: packageMembers.artifacts.baseline,
+        baselineTarball: {
+          bytes: packageMembers.artifacts.baseline.compressedBytes,
+          sha256: packageMembers.artifacts.baseline.sha256,
+        },
         targetMembers: packageMembers.summary.targetMemberCount,
         targetMemberBytes: packageMembers.artifacts.target.unpackedMemberBytes,
         targetFramedTreeSha256: framedTree(targetMembers),
         ...packageMembers.summary,
+        changedMemberPayloads: [
+          {
+            member: 'package/package.json',
+            algorithm: exactDelta.algorithm,
+            path: packageDelta.payload.path,
+          },
+        ],
+        addedMemberPayloads: [],
       },
       exactBundleDelta: {
         algorithm: exactDelta.algorithm,
@@ -456,9 +500,10 @@ function main() {
         })),
         targetFiles: embeddedArtifacts.length,
         targetBytes: embeddedArtifacts.reduce((sum, item) => sum + item.bytes, 0),
-        targetFramedTreeSha256: framedTree(
+        targetFramedTreeSha256: embeddedFramedTree(
           embeddedArtifacts.map((item, index) => ({
             path: ['src/entrypoints/cli.js', 'image-processor.js', 'audio-capture.js'][index],
+            bytes: item.bytes,
             sha256: item.sha256,
           })),
         ),

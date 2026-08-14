@@ -309,29 +309,8 @@
     "packageMembers": {
       "report": "package-members.json",
       "baselineTarball": {
-        "version": "2.1.120",
-        "registryTarballUrl": "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.1.120.tgz",
-        "compressedBytes": 13541,
-        "sha1": "df13bd123fdbc4bb5a6a15d26305c2c60d5580b8",
-        "sha256": "9bca5e08cdd8418a7cfac44f75f7fb4f6e160caefcf6bad423a134cc6fdc4494",
-        "sha512": "23cd8d68509bc0ce614cc06fc8922450c759d76997e9d24825a69f02d97bef154ac795d6f9baaca06bf53fdc59fa6ecc9d68739c35dec5679d59ea38fb4c762a",
-        "integrity": "sha512-I82NaFCbwM5hTMBvyJIkUMdZ12mX6dJIJaafAtl77xVKx5XW+bqsoGv1P9xZ+m7MnWhznDXexWedWeo4+0x2Kg==",
-        "uncompressedTarBytes": 138240,
-        "memberCount": 7,
-        "metadataHeaderCount": 0,
-        "unpackedMemberBytes": 132031,
-        "authentication": {
-          "expectedShasum": "df13bd123fdbc4bb5a6a15d26305c2c60d5580b8",
-          "expectedIntegrity": "sha512-I82NaFCbwM5hTMBvyJIkUMdZ12mX6dJIJaafAtl77xVKx5XW+bqsoGv1P9xZ+m7MnWhznDXexWedWeo4+0x2Kg==",
-          "shasumVerified": true,
-          "integrityVerified": true,
-          "registrySignature": {
-            "keyId": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
-            "publicKeySpkiSha256": "fb190a462123443500cbcdb6519623e7179e9f38d84ad4e9362b72d2b68b62c1",
-            "signature": "MEUCIQCMm6GZ9mTq3RdRwfqoYjsct3WYduaooUMQP6xjp8ZybQIgT7APwzJ6GnvTLnzqfaEKCdwb9ynBnXw32LTgLrd5N3s=",
-            "verified": true
-          }
-        }
+        "bytes": 13541,
+        "sha256": "9bca5e08cdd8418a7cfac44f75f7fb4f6e160caefcf6bad423a134cc6fdc4494"
       },
       "targetMembers": 7,
       "targetMemberBytes": 132031,
@@ -343,7 +322,15 @@
       "changed": 1,
       "added": 0,
       "removed": 0,
-      "complete": true
+      "complete": true,
+      "changedMemberPayloads": [
+        {
+          "member": "package/package.json",
+          "algorithm": "zstd-dictionary-patch",
+          "path": "diff/package.json.zstd-delta"
+        }
+      ],
+      "addedMemberPayloads": []
     },
     "exactBundleDelta": {
       "algorithm": "zstd-dictionary-patch",
@@ -379,7 +366,7 @@
       ],
       "targetFiles": 3,
       "targetBytes": 13912228,
-      "targetFramedTreeSha256": "53db508010aa2780c3cf75b2322487082c6a08d06f3ac67def392388ef8f36a1"
+      "targetFramedTreeSha256": "c17c448cd633d81a17892613f31353afb66cbbb88b12050cc1df69050645083c"
     },
     "bunExtraction": {
       "status": "authenticated-linux-x64-bun-footer-directory",
