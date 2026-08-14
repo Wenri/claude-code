@@ -1,12 +1,17 @@
 import { randomUUID } from 'crypto'
 import type { CanUseToolFn } from '../../hooks/useCanUseTool.js'
-import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
+import {
+  type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+  logEvent,
+} from '../../services/analytics/index.js'
+import { sanitizeToolNameForAnalytics } from '../../services/analytics/metadata.js'
 import {
   resolveHookPermissionDecision,
   runPostToolUseFailureHooks,
   runPostToolUseHooks,
   runPreToolUseHooks,
 } from '../../services/tools/toolHooks.js'
+import { checkToolIsolation } from '../../services/tools/toolIsolation.js'
 import type {
   AssistantMessage,
   Message,
@@ -25,47 +30,6 @@ import type {
 } from './types.js'
 
 type InnerCall = { id: string; name: string; input: unknown }
-
-const EXCLUDED_CONNECTOR_SERVERS = new Set([
-  'cowork',
-  'workspace',
-  'session-info',
-  'mcp-registry',
-  'plugins',
-  'scheduled-tasks',
-  'dispatch',
-  'ide',
-])
-
-function classifyIsolation(tool: Tool): 'web' | 'connectors' | null {
-  if (tool.name === 'WebSearch' || tool.name === 'WebFetch') return 'web'
-  if (tool.name === 'McpSearch' || tool.name === 'McpFetch') return 'connectors'
-  const server = tool.mcpInfo?.serverName
-  if (server && !EXCLUDED_CONNECTOR_SERVERS.has(server)) return 'connectors'
-  return null
-}
-
-function isolationDenial(active: 'web' | 'connectors'): string {
-  return active === 'web'
-    ? "Connectors are unavailable in this session under your organization's web search / connector isolation policy. Start a new session to use connectors."
-    : "Web search is unavailable in this session under your organization's web search / connector isolation policy. Start a new session to use web search."
-}
-
-function checkIsolation(tool: Tool, context: ToolUseContext): string | null {
-  const latch = context.isolationLatch
-  const settings = context.getAppState().settings as Record<string, unknown>
-  const enabled =
-    getFeatureValue_CACHED_MAY_BE_STALE('tengu_doorbell_agave', false) &&
-    settings.enforce_web_search_mcp_isolation === true
-  if (!latch || !enabled) return null
-  const classification = classifyIsolation(tool)
-  if (!classification) return null
-  if (latch.current && latch.current !== classification) {
-    return isolationDenial(latch.current)
-  }
-  latch.current ??= classification
-  return null
-}
 
 function validationMessage(toolName: string, error: {
   issues: readonly {
@@ -169,8 +133,21 @@ export function createToolWrappers(
         }
         processedInput = parsed.data
 
-        const isolationError = checkIsolation(tool, context)
-        if (isolationError) return fail(isolationError)
+        const isolation = checkToolIsolation(tool, context)
+        if (isolation.denyMessage) {
+          logEvent('tengu_tool_use_isolation_latch_denied', {
+            toolName: sanitizeToolNameForAnalytics(tool.name),
+            toolUseID:
+              toolUseID as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+            isMcp: tool.isMcp ?? false,
+            isolationLatch:
+              isolation.activeLatch as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+            isolationClassifiedAs:
+              isolation.classifiedAs as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+            replInnerCall: true,
+          })
+          return fail(isolation.denyMessage)
+        }
 
         let hookPermissionResult
         let stopReason: string | undefined

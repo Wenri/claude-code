@@ -140,6 +140,7 @@ import {
   runPostToolUseHooks,
   runPreToolUseHooks,
 } from './toolHooks.js'
+import { checkToolIsolation } from './toolIsolation.js'
 
 /** Minimum total hook duration (ms) to show inline timing summary */
 export const HOOK_TIMING_DISPLAY_THRESHOLD_MS = 500
@@ -462,6 +463,55 @@ export async function* runToolUse(
         message: createUserMessage({
           content: [content],
           toolUseResult: CANCEL_MESSAGE,
+          sourceToolAssistantUUID: assistantMessage.uuid,
+        }),
+      }
+      return
+    }
+
+    const isolation = checkToolIsolation(tool, toolUseContext)
+    if (isolation.denyMessage) {
+      logEvent('tengu_tool_use_isolation_latch_denied', {
+        toolName: sanitizeToolNameForAnalytics(tool.name),
+        toolUseID:
+          toolUse.id as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        isMcp: tool.isMcp ?? false,
+        isolationLatch:
+          isolation.activeLatch as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        isolationClassifiedAs:
+          isolation.classifiedAs as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        queryChainId: toolUseContext.queryTracking
+          ?.chainId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        queryDepth: toolUseContext.queryTracking?.depth,
+        ...(mcpServerType && {
+          mcpServerType:
+            mcpServerType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        }),
+        ...(mcpServerBaseUrl && {
+          mcpServerBaseUrl:
+            mcpServerBaseUrl as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        }),
+        ...(requestId && {
+          requestId:
+            requestId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        }),
+        ...mcpToolDetailsForAnalytics(
+          tool.name,
+          mcpServerType,
+          mcpServerBaseUrl,
+        ),
+      })
+      yield {
+        message: createUserMessage({
+          content: [
+            {
+              type: 'tool_result',
+              content: `<tool_use_error>${isolation.denyMessage}</tool_use_error>`,
+              is_error: true,
+              tool_use_id: toolUse.id,
+            },
+          ],
+          toolUseResult: `Error: ${isolation.denyMessage}`,
           sourceToolAssistantUUID: assistantMessage.uuid,
         }),
       }

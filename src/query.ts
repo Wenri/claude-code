@@ -171,7 +171,7 @@ function markClassifierApiFailure(
   toolUseContext: ToolUseContext,
   querySource: QuerySource,
   message: AssistantMessage,
-): Promise<void> | undefined {
+): void {
   if (
     !jobClassifier ||
     !classifierJobState ||
@@ -179,14 +179,16 @@ function markClassifierApiFailure(
     !querySource.startsWith('repl_main_thread') ||
     toolUseContext.agentId
   ) {
-    return undefined
+    return
   }
-  return jobClassifier.markApiFailure(
-    classifierJobState,
-    getSessionId().slice(0, 8),
-    message.error,
-    getAssistantMessageText(message) ?? message.errorDetails ?? '',
-  )
+  void jobClassifier
+    .markApiFailure(
+      classifierJobState,
+      getSessionId().slice(0, 8),
+      message.error,
+      getAssistantMessageText(message) ?? message.errorDetails ?? '',
+    )
+    .catch(() => {})
 }
 
 function markClassifierTurnAborted(
@@ -665,6 +667,7 @@ async function* queryLoop(
     // loop-exit signal. If false after streaming, we're done (modulo stop-hook retry).
     const toolUseBlocks: ToolUseBlock[] = []
     let needsFollowUp = false
+    let lastStopReason: string | null = null
 
     queryCheckpoint('query_setup_start')
     const useStreamingToolExecution = config.gates.streamingToolExecution
@@ -989,6 +992,12 @@ async function* queryLoop(
                   streamingToolExecutor.addTool(toolBlock, message)
                 }
               }
+            }
+            if (
+              message.type === 'stream_event' &&
+              message.event.type === 'message_delta'
+            ) {
+              lastStopReason = message.event.delta.stop_reason
             }
 
             if (
@@ -1471,13 +1480,60 @@ async function* queryLoop(
         yield lastMessage
       }
 
+      if (
+        (lastMessage?.message.stop_reason ?? lastStopReason) === 'tool_use' &&
+        toolUseBlocks.length === 0 &&
+        !lastMessage?.isApiErrorMessage
+      ) {
+        const willRetry = state.transition?.reason !== 'malformed_tool_use_retry'
+        logEvent('tengu_malformed_tool_use_response', {
+          will_retry: willRetry,
+          model:
+            currentModel as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        })
+        if (willRetry) {
+          const recoveryMessage = createUserMessage({
+            content:
+              'Your tool call was malformed and could not be parsed. Please retry.',
+            isMeta: true,
+          })
+          yield recoveryMessage
+          const next: State = {
+            messages: [
+              ...messagesForQuery,
+              ...assistantMessages,
+              recoveryMessage,
+            ],
+            toolUseContext,
+            autoCompactTracking: tracking,
+            maxOutputTokensRecoveryCount: 0,
+            hasAttemptedReactiveCompact: false,
+            maxOutputTokensOverride: undefined,
+            pendingToolUseSummary: undefined,
+            stopHookActive,
+            turnCount,
+            transition: { reason: 'malformed_tool_use_retry' },
+          }
+          state = next
+          continue
+        }
+        const retryFailed = createAssistantAPIErrorMessage({
+          content:
+            "The model's tool call could not be parsed (retry also failed).",
+        })
+        yield retryFailed
+        void executeStopFailureHooks(retryFailed, toolUseContext)
+        void markClassifierApiFailure(toolUseContext, querySource, retryFailed)
+        return { reason: 'completed' }
+      }
+
       // Skip stop hooks when the last message is an API error (rate limit,
       // prompt-too-long, auth failure, etc.). The model never produced a
       // real response — hooks evaluating it create a death spiral:
       // error → hook blocking → retry → error → …
       if (lastMessage?.isApiErrorMessage) {
         void executeStopFailureHooks(lastMessage, toolUseContext)
-        await markClassifierApiFailure(toolUseContext, querySource, lastMessage)
+        void markClassifierApiFailure(toolUseContext, querySource, lastMessage)
         return { reason: 'completed' }
       }
 

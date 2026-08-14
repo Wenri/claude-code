@@ -79,12 +79,14 @@ import {
   getBinaryBlobSavedMessage,
   getFormatDescription,
   getLargeOutputInstructions,
+  isMcpSubagentPromptEnabled,
   persistBinaryContent,
 } from '../../utils/mcpOutputStorage.js'
 import {
   getContentSizeEstimate,
   type MCPToolResult,
   mcpContentNeedsTruncation,
+  stripMcpTextBlockMeta,
   truncateMcpContentIfNeeded,
 } from '../../utils/mcpValidation.js'
 import { WebSocketTransport } from '../../utils/mcpWebSocketTransport.js'
@@ -2938,7 +2940,7 @@ export async function transformMCPResult(
       return {
         content: transformedContent,
         type: 'contentArray',
-        schema: inferCompactSchema(transformedContent),
+        schema: inferCompactSchema(stripMcpTextBlockMeta(transformedContent)),
       }
     }
   }
@@ -3013,9 +3015,37 @@ export async function processMCPResult(
   // Generate a unique ID for the persisted file (server__tool-timestamp)
   const timestamp = Date.now()
   const persistId = `mcp-${normalizeNameForMCP(name)}-${normalizeNameForMCP(tool)}-${timestamp}`
+  const persistedContent = stripMcpTextBlockMeta(content)
+  const useSubagentPrompt = isMcpSubagentPromptEnabled()
+  const blockCount = Array.isArray(persistedContent)
+    ? persistedContent.length
+    : undefined
+  const singlePlainText =
+    useSubagentPrompt &&
+    Array.isArray(persistedContent) &&
+    persistedContent.length === 1 &&
+    persistedContent[0]?.type === 'text' &&
+    !('annotations' in persistedContent[0]) &&
+    !('_meta' in persistedContent[0])
+      ? persistedContent[0].text
+      : undefined
   // Convert to string for persistence (persistToolResult expects string or specific block types)
   const contentStr =
-    typeof content === 'string' ? content : jsonStringify(content, null, 2)
+    typeof persistedContent === 'string'
+      ? persistedContent
+      : (singlePlainText ?? jsonStringify(persistedContent, null, 2))
+  const isPlainText = type === 'toolResult' || singlePlainText !== undefined
+  const persistedAs = isPlainText ? 'text' : 'json'
+  let lineStats: { count: number; maxLen: number } | undefined
+  if (useSubagentPrompt && isPlainText) {
+    const lines = contentStr.split('\n')
+    if (lines.length > 1 && lines.at(-1) === '') lines.pop()
+    let maxLen = 0
+    for (const line of lines) {
+      if (line.length > maxLen) maxLen = line.length
+    }
+    lineStats = { count: lines.length, maxLen }
+  }
   const persistResult = await persistToolResult(contentStr, persistId)
 
   if (isPersistError(persistResult)) {
@@ -3034,13 +3064,23 @@ export async function processMCPResult(
     reason: 'file_saved',
     sizeEstimateTokens,
     persistedSizeChars: persistResult.originalSize,
+    resultType:
+      type as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    blockCount,
+    persistedAs:
+      persistedAs as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   } as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS)
 
-  const formatDescription = getFormatDescription(type, schema)
+  const formatDescription = getFormatDescription(
+    singlePlainText !== undefined ? 'toolResult' : type,
+    schema,
+  )
   return getLargeOutputInstructions(
     persistResult.filepath,
     persistResult.originalSize,
     formatDescription,
+    undefined,
+    lineStats,
   )
 }
 

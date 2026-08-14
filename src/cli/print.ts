@@ -101,6 +101,10 @@ import { parsePluginIdentifier } from 'src/utils/plugins/pluginIdentifier.js'
 import { validateUuid } from 'src/utils/uuid.js'
 import { fromArray } from 'src/utils/generators.js'
 import { ask } from 'src/QueryEngine.js'
+import {
+  createToolIsolationLatch,
+  getIsolationClassFromMessages,
+} from 'src/services/tools/toolIsolation.js'
 import type { PermissionPromptTool } from 'src/utils/queryHelpers.js'
 import {
   createFileStateCacheWithSizeLimit,
@@ -1279,6 +1283,9 @@ function runHeadlessStreaming(
   // include Assistant, User, Attachment, and Progress messages.
   // TODO: Clean up this code to avoid passing around a mutable array.
   const mutableMessages: Message[] = initialMessages
+  const isolationLatch = createToolIsolationLatch(
+    getIsolationClassFromMessages(initialMessages, tools),
+  )
 
   // Seed the readFileState cache from the transcript (content the model saw,
   // with message timestamps) so getChangedFiles can detect external edits.
@@ -2436,6 +2443,7 @@ function runHeadlessStreaming(
               getAppState,
               setAppState,
               abortController,
+              isolationLatch,
               replayUserMessages: options.replayUserMessages,
               includePartialMessages: options.includePartialMessages,
               handleElicitation: (serverName, params, elicitSignal) =>

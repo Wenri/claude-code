@@ -228,10 +228,14 @@ const inputSchema = lazySchema(() =>
   z.strictObject({
     file_path: z.string().describe('The absolute path to the file to read'),
     offset: semanticNumber(z.number().int().nonnegative().optional()).describe(
-      'The line number to start reading from. Only provide if the file is too large to read at once',
+      getFeatureValue_CACHED_MAY_BE_STALE('tengu_slate_reef', false)
+        ? 'The line number to start reading from. Provide with `limit` to read a specific line range, or alone when the file is too large to read at once.'
+        : 'The line number to start reading from. Only provide if the file is too large to read at once',
     ),
     limit: semanticNumber(z.number().int().positive().optional()).describe(
-      'The number of lines to read. Only provide if the file is too large to read at once.',
+      getFeatureValue_CACHED_MAY_BE_STALE('tengu_slate_reef', false)
+        ? 'ONLY include with offset to read a specific slice. OMIT to read the whole file (harness truncates oversized files automatically).'
+        : 'The number of lines to read. Only provide if the file is too large to read at once.',
     ),
     pages: z
       .string()
@@ -520,6 +524,14 @@ export const FileReadTool = buildTool({
     // Use expandPath for consistent path normalization with FileEditTool/FileWriteTool
     // (especially handles whitespace trimming and Windows path separators)
     const fullFilePath = expandPath(file_path)
+    const priorReadState = readFileState.get(fullFilePath)
+    if (priorReadState) {
+      logEvent('tengu_file_read_reread', {
+        priorOp: (priorReadState.offset === undefined
+          ? 'edit_write'
+          : 'read') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      })
+    }
 
     // Dedup: if we've already read this exact range and the file hasn't
     // changed on disk, return a stub instead of re-sending the full content.

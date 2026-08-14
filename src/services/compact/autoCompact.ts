@@ -1,6 +1,7 @@
 import { feature } from 'bun:bundle'
 import {
   getIsNonInteractiveSession,
+  getLastInteractionTime,
   markPostCompaction,
 } from 'src/bootstrap/state.js'
 import { getSdkBetas } from '../../bootstrap/state.js'
@@ -38,6 +39,7 @@ import { trySessionMemoryCompaction } from './sessionMemoryCompact.js'
 // Reserve this many tokens for output during compaction
 // Based on p99.99 of compact summary output being 17,387 tokens.
 const MAX_OUTPUT_TOKENS_FOR_SUMMARY = 20_000
+const COLD_COMPACT_IDLE_MS = 5_400_000
 
 // Returns the context window size minus the max output tokens for the model
 export type AutoCompactWindowSource = 'env' | 'settings' | 'auto'
@@ -46,6 +48,10 @@ export type AutoCompactWindowResolution = {
   window: number
   configured: number
   source: AutoCompactWindowSource
+}
+
+export function isColdCompact(): boolean {
+  return Date.now() - getLastInteractionTime() >= COLD_COMPACT_IDLE_MS
 }
 
 const MIN_AUTO_COMPACT_WINDOW = 100_000
@@ -441,6 +447,10 @@ export async function autoCompactIfNeeded(
     querySource,
   }
 
+  const stripNonEssential =
+    isColdCompact() &&
+    getFeatureValue_CACHED_MAY_BE_STALE('tengu_cold_compact', false)
+
   const compactingHintText = getAutoCompactWindowHint(
     model,
     autoCompactWindow,
@@ -482,6 +492,7 @@ export async function autoCompactIfNeeded(
       undefined, // No custom instructions for autocompact
       true, // isAutoCompact
       recompactionInfo,
+      stripNonEssential,
       compactingHintText,
     )
     // Reset lastSummarizedMessageId since legacy compaction replaces all messages

@@ -184,6 +184,7 @@ import { extractReadFilesFromMessages, extractBashToolsFromMessages } from '../u
 import { applyToolResultClears, resetMicrocompactState } from '../services/compact/microCompact.js';
 import { runPostCompactCleanup } from '../services/compact/postCompactCleanup.js';
 import { reconstructResultDedupState, resetResultDedupState } from '../services/tools/resultDedup.js';
+import { getIsolationClassFromMessages } from '../services/tools/toolIsolation.js';
 import { ConnectionLifecycleTracker } from '../services/api/connectionState.js';
 import { provisionContentReplacementState, reconstructContentReplacementState, type ContentReplacementRecord } from '../utils/toolResultStorage.js';
 import { partialCompactConversation } from '../services/compact/compact.js';
@@ -2002,6 +2003,9 @@ export function REPL({
 
       // Restore read file state from the message history
       restoreReadFileState(messages, log.projectPath ?? getOriginalCwd());
+      if (entrypoint !== 'fork') {
+        isolationLatchRef.current = getIsolationClassFromMessages(messages, tools);
+      }
 
       // Clear any active loading state (no queryId since we're not in a query)
       resetLoadingState();
@@ -2163,6 +2167,7 @@ export function REPL({
   useEffect(() => {
     if (initialMessages && initialMessages.length > 0) {
       restoreReadFileState(initialMessages, getOriginalCwd());
+      isolationLatchRef.current = getIsolationClassFromMessages(initialMessages, tools);
       void restoreRemoteAgentTasks({
         abortController: new AbortController(),
         getAppState: () => store.getState(),
