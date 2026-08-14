@@ -673,14 +673,39 @@
         {
           "path": "src/services/mcp/auth.ts",
           "fragment": "redirectUri: this.redirectUri"
+        },
+        {
+          "path": "src/bridge/bridgeMessaging.ts",
+          "fragment": "case 'mcp_authenticate':"
+        },
+        {
+          "path": "src/bridge/initReplBridge.ts",
+          "fragment": "onMcpAuthenticate,"
+        },
+        {
+          "path": "src/bridge/remoteBridgeCore.ts",
+          "fragment": "onMcpOauthCallbackUrl,"
+        },
+        {
+          "path": "src/bridge/replBridge.ts",
+          "fragment": "onMcpReconnect,"
+        },
+        {
+          "path": "src/hooks/useReplBridge.tsx",
+          "fragment": "async onMcpAuthenticate(serverName, redirectUri)"
+        },
+        {
+          "path": "src/services/mcp/MCPConnectionManager.tsx",
+          "fragment": "export function getMcpReconnect()"
         }
       ],
       "sourcePathAbsences": [],
       "focusedTests": [
         "official-owned-cluster",
-        "official-residual-cluster"
+        "official-residual-cluster",
+        "remote-control-boundary"
       ],
-      "rationale": "target normalized statement 19802 runs custom redirects without a localhost listener and exposes callback port/state; print/bridge handlers fall back to localhost when the AS rejects the URI and route claude.ai connectors to their web auth URL target normalized statements 19791 and 19804 normalize cached/current redirect origins, force dynamic client re-registration on mismatch, and persist the redirect URI with the registered client"
+      "rationale": "target normalized statement 19802 runs custom redirects without a localhost listener and exposes callback port/state; print/bridge handlers fall back to localhost when the AS rejects the URI and route claude.ai connectors to their web auth URL target normalized statements 19791 and 19804 normalize cached/current redirect origins, force dynamic client re-registration on mismatch, and persist the redirect URI with the registered client The recovered bridge forwards redirect-aware authentication, callback completion, reconnect, and status controls through the active MCP connection manager."
     },
     {
       "id": "B18",
@@ -1797,19 +1822,57 @@
       "category": "hidden",
       "targetFragments": [
         "tengu_sdk_url_host_rejected",
+        "is not an approved Anthropic endpoint",
+        "only wss:// and https:// are accepted",
+        "This flag is reserved for Remote Control worker processes",
         "bridge_repl_v2_reattach_fallback",
+        "fetchRemoteCredentials (post-fallback)",
+        "mcp_status",
+        "mcp_authenticate",
+        "mcp_oauth_callback_url",
+        "No OAuth flow in progress for \"",
+        "MCP connection manager not ready",
+        "tengu_claudeai_mcp_auth_started",
+        "Unable to build claude.ai connector auth URL",
+        "callbackExpected",
+        "redirectScheme",
+        "Ran immediate command without enqueue",
         "remote-permission-mode-noop",
         "Model picker shows local options in remote sessions \\u2014 pass a model name, e.g. /model sonnet",
         "No other permission modes are available in this remote session"
       ],
       "sourceAssertions": [
         {
+          "path": "src/bridge/bridgeMessaging.ts",
+          "fragment": "case 'mcp_status':"
+        },
+        {
           "path": "src/bridge/initReplBridge.ts",
-          "fragment": "reattachSessionId,"
+          "fragment": "onProactiveRefresh: async () =>"
+        },
+        {
+          "path": "src/bridge/initReplBridge.ts",
+          "fragment": "onMcpAuthenticate,"
         },
         {
           "path": "src/bridge/remoteBridgeCore.ts",
           "fragment": "bridge_repl_v2_reattach_fallback"
+        },
+        {
+          "path": "src/bridge/remoteBridgeCore.ts",
+          "fragment": "'fetchRemoteCredentials (post-fallback)'"
+        },
+        {
+          "path": "src/bridge/remoteBridgeCore.ts",
+          "fragment": "if (onProactiveRefresh) await onProactiveRefresh()"
+        },
+        {
+          "path": "src/bridge/remoteBridgeCore.ts",
+          "fragment": "initialFlushDone = isReattach"
+        },
+        {
+          "path": "src/bridge/replBridge.ts",
+          "fragment": "onMcpReconnect,"
         },
         {
           "path": "src/cli/transports/transportUtils.ts",
@@ -1832,12 +1895,40 @@
           "fragment": "nextMode === toolPermissionContext.mode"
         },
         {
+          "path": "src/constants/oauth.ts",
+          "fragment": "export const ALLOWED_OAUTH_BASE_URLS"
+        },
+        {
+          "path": "src/hooks/useReplBridge.tsx",
+          "fragment": "const sendBridgeSystemInit = useCallback"
+        },
+        {
+          "path": "src/hooks/useReplBridge.tsx",
+          "fragment": "async onMcpAuthenticate(serverName, redirectUri)"
+        },
+        {
+          "path": "src/hooks/useReplBridge.tsx",
+          "fragment": "Ran immediate command without enqueue"
+        },
+        {
+          "path": "src/main.tsx",
+          "fragment": "const APPROVED_SDK_HOSTNAMES = new Set(["
+        },
+        {
+          "path": "src/main.tsx",
+          "fragment": "logEvent('tengu_sdk_url_host_rejected', {})"
+        },
+        {
           "path": "src/main.tsx",
           "fragment": "--sdk-url rejected"
         },
         {
           "path": "src/screens/REPL.tsx",
           "fragment": "tengu_immediate_command_executed"
+        },
+        {
+          "path": "src/services/mcp/MCPConnectionManager.tsx",
+          "fragment": "export function getMcpReconnect()"
         },
         {
           "path": "src/utils/handlePromptSubmit.ts",
@@ -1849,10 +1940,12 @@
         }
       ],
       "focusedTests": [
+        "daemon-service",
         "hidden-obligations",
+        "remote-control-boundary",
         "remote-ux-and-branch"
       ],
-      "rationale": "Three target-only telemetry keys plus exact remote-session copy localize the SDK allowlist, bridge reattach, immediate dispatch, remote model guard, and permission no-op paths.",
+      "rationale": "Exact target-only endpoint, reattach, MCP-control, immediate-dispatch, and remote-session witnesses localize the SDK allowlist, env-less token refresh, reactive system init, bridge controls, model guard, and permission no-op paths.",
       "sourcePathAbsences": []
     },
     {
@@ -1862,7 +1955,8 @@
         "tengu_bg_spare_claim",
         "tengu_bg_spare_enable",
         "CLAUDE_CODE_DISABLE_AGENTS_FLEET",
-        "older CLI ignored the request"
+        "older CLI ignored the request",
+        "worker kind '"
       ],
       "sourceAssertions": [
         {
@@ -1890,6 +1984,18 @@
           "fragment": "older CLI ignored the request"
         },
         {
+          "path": "src/daemon/workerRegistry.ts",
+          "fragment": "kind !== 'heartbeat' && !isDaemonWorkerRegistryEnabled()"
+        },
+        {
+          "path": "src/daemon/workerRegistry.ts",
+          "fragment": "process.stderr.write(`worker kind '${kind}' is not available.\\n`)"
+        },
+        {
+          "path": "src/daemon/workerRegistry.ts",
+          "fragment": "process.exit(2)"
+        },
+        {
           "path": "src/utils/agentsFleet.ts",
           "fragment": "CLAUDE_CODE_DISABLE_AGENTS_FLEET"
         },
@@ -1901,7 +2007,7 @@
       "focusedTests": [
         "daemon-service"
       ],
-      "rationale": "Target-only spare-claim telemetry anchors the broader daemon/background/Fleet recovery, decomposed further by D rows.",
+      "rationale": "Target-only spare-claim telemetry and disabled worker-registry rejection anchor the broader daemon/background/Fleet recovery, decomposed further by D rows.",
       "sourcePathAbsences": []
     },
     {
