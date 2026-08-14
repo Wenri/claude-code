@@ -5,15 +5,18 @@ import { installOAuthTokens } from '../cli/handlers/auth.js';
 import { useTerminalSize } from '../hooks/useTerminalSize.js';
 import { setClipboard } from '../ink/termio/osc.js';
 import { useTerminalNotification } from '../ink/useTerminalNotification.js';
-import { Box, Link, Text } from '../ink.js';
+import { Box, Link, Text, useApp } from '../ink.js';
 import { useKeybinding } from '../keybindings/useKeybinding.js';
 import { getSSLErrorHint } from '../services/api/errorUtils.js';
 import { sendNotification } from '../services/notifier.js';
 import { OAuthService } from '../services/oauth/index.js';
 import { getOauthAccountInfo, validateForceLoginOrg } from '../utils/auth.js';
+import { openBrowser } from '../utils/browser.js';
+import { saveGlobalConfig } from '../utils/config.js';
 import { logError } from '../utils/log.js';
 import { getSettings_DEPRECATED } from '../utils/settings/settings.js';
 import { Select } from './CustomSelect/select.js';
+import { BedrockSetupWizard, VertexSetupWizard } from './ConsoleOAuthWizards.js';
 import { KeyboardShortcutHint } from './design-system/KeyboardShortcutHint.js';
 import { Spinner } from './Spinner.js';
 import TextInput from './TextInput.js';
@@ -29,6 +32,17 @@ type OAuthStatus = {
 | {
   state: 'platform_setup';
 } // Show platform setup info (Bedrock/Vertex/Foundry)
+| {
+  state: 'bedrock_wizard';
+} | {
+  state: 'bedrock_done';
+  message: string;
+} | {
+  state: 'vertex_wizard';
+} | {
+  state: 'vertex_done';
+  message: string;
+}
 | {
   state: 'ready_to_start';
 } // Flow started, waiting for browser to open
@@ -57,6 +71,7 @@ export function ConsoleOAuthFlow({
   mode = 'login',
   forceLoginMethod: forceLoginMethodProp
 }: Props): React.ReactNode {
+  const { exit } = useApp();
   const settings = getSettings_DEPRECATED() || {};
   const forceLoginMethod = forceLoginMethodProp ?? settings.forceLoginMethod;
   const orgUUID = typeof settings.forceLoginOrgUUID === 'string' ? settings.forceLoginOrgUUID : undefined;
@@ -119,14 +134,19 @@ export function ConsoleOAuthFlow({
     isActive: oauthStatus.state === 'success' && mode !== 'setup-token'
   });
 
-  // Handle Enter to continue from platform setup
+  // Restart after a successful third-party provider setup so the newly saved
+  // environment is applied from the beginning of initialization.
   useKeybinding('confirm:yes', () => {
-    setOAuthStatus({
-      state: 'idle'
-    });
+    saveGlobalConfig(current => ({
+      ...current,
+      hasCompletedOnboarding: true,
+      lastOnboardingVersion: MACRO.VERSION
+    }));
+    exit();
+    void import('../utils/relaunch.js').then(({ execRelaunch }) => execRelaunch());
   }, {
     context: 'Confirmation',
-    isActive: oauthStatus.state === 'platform_setup'
+    isActive: oauthStatus.state === 'bedrock_done' || oauthStatus.state === 'vertex_done'
   });
 
   // Handle Enter to retry on error state
@@ -450,60 +470,63 @@ function OAuthStatusMessage(t0) {
       }
     case "platform_setup":
       {
-        let t1;
-        if ($[12] === Symbol.for("react.memo_cache_sentinel")) {
-          t1 = <Text bold={true}>Using 3rd-party platforms</Text>;
-          $[12] = t1;
-        } else {
-          t1 = $[12];
-        }
-        let t2;
-        let t3;
-        if ($[13] === Symbol.for("react.memo_cache_sentinel")) {
-          t2 = <Text>Claude Code supports Amazon Bedrock, Microsoft Foundry, and Vertex AI. Set the required environment variables, then restart Claude Code.</Text>;
-          t3 = <Text>If you are part of an enterprise organization, contact your administrator for setup instructions.</Text>;
-          $[13] = t2;
-          $[14] = t3;
-        } else {
-          t2 = $[13];
-          t3 = $[14];
-        }
-        let t4;
-        if ($[15] === Symbol.for("react.memo_cache_sentinel")) {
-          t4 = <Text bold={true}>Documentation:</Text>;
-          $[15] = t4;
-        } else {
-          t4 = $[15];
-        }
-        let t5;
-        if ($[16] === Symbol.for("react.memo_cache_sentinel")) {
-          t5 = <Text>· Amazon Bedrock:{" "}<Link url="https://code.claude.com/docs/en/amazon-bedrock">https://code.claude.com/docs/en/amazon-bedrock</Link></Text>;
-          $[16] = t5;
-        } else {
-          t5 = $[16];
-        }
-        let t6;
-        if ($[17] === Symbol.for("react.memo_cache_sentinel")) {
-          t6 = <Text>· Microsoft Foundry:{" "}<Link url="https://code.claude.com/docs/en/microsoft-foundry">https://code.claude.com/docs/en/microsoft-foundry</Link></Text>;
-          $[17] = t6;
-        } else {
-          t6 = $[17];
-        }
-        let t7;
-        if ($[18] === Symbol.for("react.memo_cache_sentinel")) {
-          t7 = <Box flexDirection="column" marginTop={1}>{t4}{t5}{t6}<Text>· Vertex AI:{" "}<Link url="https://code.claude.com/docs/en/google-vertex-ai">https://code.claude.com/docs/en/google-vertex-ai</Link></Text></Box>;
-          $[18] = t7;
-        } else {
-          t7 = $[18];
-        }
-        let t8;
-        if ($[19] === Symbol.for("react.memo_cache_sentinel")) {
-          t8 = <Box flexDirection="column" gap={1} marginTop={1}>{t1}<Box flexDirection="column" gap={1}>{t2}{t3}{t7}<Box marginTop={1}><Text dimColor={true}>Press <Text bold={true}>Enter</Text> to go back to login options.</Text></Box></Box></Box>;
-          $[19] = t8;
-        } else {
-          t8 = $[19];
-        }
-        return t8;
+        return <Box flexDirection="column" gap={1} marginTop={1}>
+            <Text bold={true}>Using 3rd-party platforms</Text>
+            <Select options={[{
+              label: <Text>Amazon Bedrock · <Text dimColor={true}>interactive setup</Text></Text>,
+              value: 'bedrock'
+            }, {
+              label: <Text>Microsoft Foundry · <Text dimColor={true}>opens docs</Text></Text>,
+              value: 'foundry'
+            }, {
+              label: <Text>Google Vertex AI · <Text dimColor={true}>interactive setup</Text></Text>,
+              value: 'vertex'
+            }, {
+              label: 'Go back',
+              value: 'back'
+            }]} onChange={value => {
+              switch (value) {
+                case 'bedrock':
+                  logEvent('tengu_oauth_bedrock_wizard_launched', {});
+                  setOAuthStatus({ state: 'bedrock_wizard' });
+                  break;
+                case 'foundry':
+                  logEvent('tengu_oauth_platform_docs_opened', { platform: 'foundry' });
+                  void openBrowser('https://code.claude.com/docs/en/microsoft-foundry');
+                  setOAuthStatus({ state: 'idle' });
+                  break;
+                case 'vertex':
+                  logEvent('tengu_oauth_vertex_wizard_launched', {});
+                  setOAuthStatus({ state: 'vertex_wizard' });
+                  break;
+                default:
+                  setOAuthStatus({ state: 'idle' });
+              }
+            }} onCancel={() => setOAuthStatus({ state: 'idle' })} />
+            <Text dimColor={true}>Foundry: <Link url="https://code.claude.com/docs/en/microsoft-foundry">https://code.claude.com/docs/en/microsoft-foundry</Link></Text>
+          </Box>;
+      }
+    case "bedrock_wizard":
+      {
+        return <BedrockSetupWizard onComplete={message => setOAuthStatus({
+            state: 'bedrock_done',
+            message
+          })} onCancel={() => setOAuthStatus({ state: 'platform_setup' })} />;
+      }
+    case "bedrock_done":
+    case "vertex_done":
+      {
+        return <Box flexDirection="column" gap={1} marginTop={1}>
+            <Text color="success">{oauthStatus.message}</Text>
+            <Text dimColor={true}>Press <Text bold={true}>Enter</Text> to restart Claude Code.</Text>
+          </Box>;
+      }
+    case "vertex_wizard":
+      {
+        return <VertexSetupWizard onComplete={message => setOAuthStatus({
+            state: 'vertex_done',
+            message
+          })} onCancel={() => setOAuthStatus({ state: 'platform_setup' })} />;
       }
     case "waiting_for_login":
       {
