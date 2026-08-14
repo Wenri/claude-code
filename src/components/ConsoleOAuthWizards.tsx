@@ -766,7 +766,9 @@ async function verifyBedrock(data: BedrockWizardData): Promise<VerifyResult> {
   try {
     const provider = await getBedrockCredentialsProvider(data)
     const clientConfig = {
-      ...(await getAWSClientProxyConfig()),
+      ...(await getAWSClientProxyConfig({
+        url: `https://bedrock.${data.region}.amazonaws.com`,
+      })),
       region: data.region!,
       ...(provider && { credentials: provider }),
     }

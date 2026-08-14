@@ -551,10 +551,14 @@ export function configureGlobalAgents(): void {
  * Get AWS SDK client configuration with proxy support
  * Returns configuration object that can be spread into AWS service client constructors
  */
-export async function getAWSClientProxyConfig(): Promise<object> {
+export async function getAWSClientProxyConfig({
+  url,
+}: {
+  url?: string
+} = {}): Promise<object> {
   const proxyUrl = getProxyUrl()
 
-  if (!proxyUrl) {
+  if (!proxyUrl || (url && shouldBypassProxy(url))) {
     return {}
   }
 

@@ -66,6 +66,7 @@ test('authenticates inherited LSP, remote-shell, and upstream-proxy boundaries',
     ['payload_signing_enabled = false', 1],
     ['npm.jsr.io', 1],
     ['proxy-injected', 4],
+    ['"Accept-Encoding":"identity"', 6],
   ])
   for (const [fragment, count] of exactCounts) {
     assert.deepEqual(
@@ -74,6 +75,16 @@ test('authenticates inherited LSP, remote-shell, and upstream-proxy boundaries',
       fragment,
     )
   }
+  assert.deepEqual(
+    bundles.map(bundle => occurrences(bundle, '{url:String(')),
+    [0, 1],
+    'SSE proxy destination URL',
+  )
+  assert.deepEqual(
+    bundles.map(bundle => occurrences(bundle, '{url:$.url}')),
+    [0, 2],
+    'configured MCP proxy destination URLs',
+  )
 })
 
 test('recovers monotonic LSP document versions and stale-diagnostic rejection', () => {
@@ -119,6 +130,25 @@ test('recovers the remote Bun small-heap shell export before eval', () => {
   assert.match(
     contents,
     /CLAUDE_CODE_REMOTE[\s\S]*?export BUN_OPTIONS[\s\S]*?commandParts\.push\(`eval \$\{quotedCommand\}`\)/,
+  )
+})
+
+test('recovers destination-aware MCP proxy and identity streaming options', () => {
+  const contents = compact(source('src/services/mcp/client.ts'))
+  for (const fragment of [
+    'getProxyFetchOptions({ url: String(url) })',
+    'getProxyFetchOptions({ url: proxyUrl })',
+    "'Accept-Encoding': 'identity'",
+  ]) {
+    assert.equal(contents.includes(compact(fragment)), true, fragment)
+  }
+  assert.equal(
+    occurrences(contents, compact('getProxyFetchOptions({ url: serverRef.url })')),
+    2,
+  )
+  assert.equal(
+    occurrences(contents, compact("'Accept-Encoding': 'identity'")),
+    6,
   )
 })
 

@@ -688,6 +688,7 @@ export const connectToServer = memoize(
           requestInit: {
             headers: {
               'User-Agent': getMCPUserAgent(),
+              'Accept-Encoding': 'identity',
               ...combinedHeaders,
             },
           },
@@ -707,13 +708,14 @@ export const connectToServer = memoize(
               authHeaders.Authorization = `Bearer ${tokens.access_token}`
             }
 
-            const proxyOptions = getProxyFetchOptions()
+            const proxyOptions = getProxyFetchOptions({ url: String(url) })
             // eslint-disable-next-line eslint-plugin-n/no-unsupported-features/node-builtins
             return fetch(url, {
               ...init,
               ...proxyOptions,
               headers: {
                 'User-Agent': getMCPUserAgent(),
+                'Accept-Encoding': 'identity',
                 ...authHeaders,
                 ...init?.headers,
                 ...combinedHeaders,
@@ -732,31 +734,35 @@ export const connectToServer = memoize(
         logMCPDebug(name, `Setting up SSE-IDE transport to ${serverRef.url}`)
         // IDE servers don't need authentication
         // TODO: Use the auth token provided in the lockfile
-        const proxyOptions = getProxyFetchOptions()
-        const transportOptions: SSEClientTransportOptions =
-          proxyOptions.dispatcher
-            ? {
-                eventSourceInit: {
-                  fetch: async (url: string | URL, init?: RequestInit) => {
-                    // eslint-disable-next-line eslint-plugin-n/no-unsupported-features/node-builtins
-                    return fetch(url, {
-                      ...init,
-                      ...proxyOptions,
-                      headers: {
-                        'User-Agent': getMCPUserAgent(),
-                        ...init?.headers,
-                      },
-                    })
+        const proxyOptions = getProxyFetchOptions({ url: serverRef.url })
+        const transportOptions: SSEClientTransportOptions = {
+          requestInit: {
+            headers: {
+              'User-Agent': getMCPUserAgent(),
+              'Accept-Encoding': 'identity',
+            },
+          },
+          ...(proxyOptions.dispatcher && {
+            eventSourceInit: {
+              fetch: async (url: string | URL, init?: RequestInit) => {
+                // eslint-disable-next-line eslint-plugin-n/no-unsupported-features/node-builtins
+                return fetch(url, {
+                  ...init,
+                  ...proxyOptions,
+                  headers: {
+                    'User-Agent': getMCPUserAgent(),
+                    'Accept-Encoding': 'identity',
+                    ...init?.headers,
                   },
-                },
-              }
-            : {}
+                })
+              },
+            },
+          }),
+        }
 
         transport = new SSEClientTransport(
           new URL(serverRef.url),
-          Object.keys(transportOptions).length > 0
-            ? transportOptions
-            : undefined,
+          transportOptions,
         )
       } else if (serverRef.type === 'ws-ide') {
         const tlsOptions = getWebSocketTLSOptions()
@@ -865,7 +871,7 @@ export const connectToServer = memoize(
         const hasOAuthTokens = !!(await authProvider.tokens())
 
         // Use the auth provider with StreamableHTTPClientTransport
-        const proxyOptions = getProxyFetchOptions()
+        const proxyOptions = getProxyFetchOptions({ url: serverRef.url })
         logMCPDebug(
           name,
           `Proxy options: ${proxyOptions.dispatcher ? 'custom dispatcher' : 'default'}`,
@@ -883,6 +889,7 @@ export const connectToServer = memoize(
             ...proxyOptions,
             headers: {
               'User-Agent': getMCPUserAgent(),
+              'Accept-Encoding': 'identity',
               ...(sessionIngressToken &&
                 !hasOAuthTokens && {
                   Authorization: `Bearer ${sessionIngressToken}`,
@@ -937,7 +944,7 @@ export const connectToServer = memoize(
         // eslint-disable-next-line eslint-plugin-n/no-unsupported-features/node-builtins
         const fetchWithAuth = createClaudeAiProxyFetch(globalThis.fetch)
 
-        const proxyOptions = getProxyFetchOptions()
+        const proxyOptions = getProxyFetchOptions({ url: proxyUrl })
         const transportOptions: StreamableHTTPClientTransportOptions = {
           // Wrap fetchWithAuth with fresh timeout per request
           fetch: wrapFetchWithTimeout(fetchWithAuth),
@@ -945,6 +952,7 @@ export const connectToServer = memoize(
             ...proxyOptions,
             headers: {
               'User-Agent': getMCPUserAgent(),
+              'Accept-Encoding': 'identity',
               'X-Mcp-Client-Session-Id': getSessionId(),
             },
           },

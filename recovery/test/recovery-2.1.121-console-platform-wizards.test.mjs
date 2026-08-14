@@ -36,7 +36,8 @@ function occurrences(value, fragment) {
 }
 
 test('authenticates the retained Bedrock and Vertex wizard surface in both adjacent bundles', () => {
-  for (const bundle of bundles.map(readBundle)) {
+  const adjacentBundles = bundles.map(readBundle)
+  for (const bundle of adjacentBundles) {
     for (const [fragment, count] of [
       ['tengu_oauth_bedrock_wizard_launched', 1],
       ['tengu_oauth_vertex_wizard_launched', 1],
@@ -57,6 +58,16 @@ test('authenticates the retained Bedrock and Vertex wizard surface in both adjac
       assert.equal(occurrences(bundle, fragment), count, fragment)
     }
   }
+  assert.deepEqual(
+    adjacentBundles.map(bundle =>
+      occurrences(
+        bundle,
+        'if(!$||H.url&&om(H.url))return{};let[{NodeHttpHandler',
+      ),
+    ),
+    [0, 1],
+    'AWS SDK proxy honors NO_PROXY for the resolved service URL',
+  )
 })
 
 test('recovers platform selection, completion, and restart wiring', () => {
@@ -104,7 +115,32 @@ test('recovers provider discovery, verification, model probing, and settings per
     "'tengu_bedrock_setup_complete'",
     "'tengu_vertex_setup_complete'",
     "Pin the working models with 1M context",
+    "url: `https://bedrock.${data.region}.amazonaws.com`",
   ]) {
     assert.equal(source.includes(fragment), true, fragment)
+  }
+})
+
+test('threads resolved Bedrock service URLs through AWS proxy bypass checks', () => {
+  const proxySource = fs.readFileSync(
+    path.join(repo, 'src/utils/proxy.ts'),
+    'utf8',
+  )
+  for (const fragment of [
+    'url?: string',
+    '!proxyUrl || (url && shouldBypassProxy(url))',
+  ]) {
+    assert.equal(proxySource.includes(fragment), true, fragment)
+  }
+
+  const bedrockSource = fs.readFileSync(
+    path.join(repo, 'src/utils/model/bedrock.ts'),
+    'utf8',
+  )
+  for (const fragment of [
+    '`https://bedrock.${region}.amazonaws.com`',
+    '`https://bedrock-runtime.${region}.amazonaws.com`',
+  ]) {
+    assert.equal(bedrockSource.includes(fragment), true, fragment)
   }
 })
