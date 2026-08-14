@@ -1528,6 +1528,34 @@ const residualRows = [
     rationale: 'Retained enablement and indicator copy bind explicit hold/tap/off selection, two bounded tap timers, escape cancellation, input-safe toggle handling, three-word submission, and settings fallback compatibility.',
     focusedTests: ['settings-auth-runtime'],
   },
+  {
+    id: 'R38',
+    category: 'residual',
+    retained: true,
+    title: 'Gated feedback submission, completion, cancellation, and legacy issue flow',
+    targetFragments: [
+      'tengu_amber_lynx',
+      'Feedback sent',
+      'Reference ID: ',
+      "Couldn't send feedback: not signed in. Run /login, then retry.",
+      'Feedback / bug report cancelled',
+      'Thank you for your report!',
+      'surface:"cli"',
+    ],
+    sourceAssertions: [
+      sr('src/components/Feedback.tsx', "getFeatureValue_CACHED_MAY_BE_STALE('tengu_amber_lynx', false)"),
+      sr('src/components/Feedback.tsx', "surface: 'cli'"),
+      sr('src/components/Feedback.tsx', "Couldn't send feedback: not signed in. Run /login, then retry."),
+      sr('src/components/Feedback.tsx', '<StatusIcon status="success" withSpace />Feedback sent'),
+      sr('src/components/Feedback.tsx', "onDone('Feedback / bug report cancelled', {"),
+      sr('src/components/Feedback.tsx', "!useNewFeedbackFlow && event.key === 'return' && title"),
+    ],
+    sourcePathAbsences: [
+      absent(['src/components/Feedback.tsx'], 'useInput('),
+    ],
+    rationale: 'Retained gate, completion, and failure copy bind parallel submission/title behavior, distinct authentication/network/server errors, reference-ID UX, keyboard close/cancel semantics, and the legacy GitHub-issue return key.',
+    focusedTests: ['feedback-surface'],
+  },
 ].map(row => ({ ...row, sourcePathAbsences: row.sourcePathAbsences ?? [] }))
 
 const dedupe = (values, key) => [

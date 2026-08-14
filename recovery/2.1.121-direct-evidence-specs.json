@@ -4014,6 +4014,59 @@
         "settings-auth-runtime"
       ],
       "sourcePathAbsences": []
+    },
+    {
+      "id": "R38",
+      "category": "residual",
+      "retained": true,
+      "title": "Gated feedback submission, completion, cancellation, and legacy issue flow",
+      "targetFragments": [
+        "tengu_amber_lynx",
+        "Feedback sent",
+        "Reference ID: ",
+        "Couldn't send feedback: not signed in. Run /login, then retry.",
+        "Feedback / bug report cancelled",
+        "Thank you for your report!",
+        "surface:\"cli\""
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/Feedback.tsx",
+          "fragment": "getFeatureValue_CACHED_MAY_BE_STALE('tengu_amber_lynx', false)"
+        },
+        {
+          "path": "src/components/Feedback.tsx",
+          "fragment": "surface: 'cli'"
+        },
+        {
+          "path": "src/components/Feedback.tsx",
+          "fragment": "Couldn't send feedback: not signed in. Run /login, then retry."
+        },
+        {
+          "path": "src/components/Feedback.tsx",
+          "fragment": "<StatusIcon status=\"success\" withSpace />Feedback sent"
+        },
+        {
+          "path": "src/components/Feedback.tsx",
+          "fragment": "onDone('Feedback / bug report cancelled', {"
+        },
+        {
+          "path": "src/components/Feedback.tsx",
+          "fragment": "!useNewFeedbackFlow && event.key === 'return' && title"
+        }
+      ],
+      "sourcePathAbsences": [
+        {
+          "paths": [
+            "src/components/Feedback.tsx"
+          ],
+          "fragment": "useInput("
+        }
+      ],
+      "rationale": "Retained gate, completion, and failure copy bind parallel submission/title behavior, distinct authentication/network/server errors, reference-ID UX, keyboard close/cancel semantics, and the legacy GitHub-issue return key.",
+      "focusedTests": [
+        "feedback-surface"
+      ]
     }
   ]
 }
