@@ -3730,6 +3730,14 @@
         },
         {
           "path": "src/services/lsp/LSPServerManager.ts",
+          "fragment": "const version = nextDocumentVersion(fileUri)"
+        },
+        {
+          "path": "src/services/lsp/LSPServerManager.ts",
+          "fragment": "LSP: Sent didChange for ${filePath} (v${version})"
+        },
+        {
+          "path": "src/services/lsp/LSPServerManager.ts",
           "fragment": "getDocumentVersion(uri: string): number | undefined"
         },
         {
@@ -4355,6 +4363,93 @@
       "rationale": "Authenticated retained updater witnesses bind Bun-global package-manager detection, valid external canary selection, skip-state propagation, and truthful update reporting.",
       "focusedTests": [
         "retained-runtime-surfaces"
+      ],
+      "sourcePathAbsences": []
+    },
+    {
+      "id": "R44",
+      "category": "residual",
+      "retained": true,
+      "title": "Retained Bedrock and Vertex interactive setup wizards",
+      "targetFragments": [
+        "tengu_oauth_bedrock_wizard_launched",
+        "tengu_oauth_vertex_wizard_launched",
+        "tengu_bedrock_setup_complete",
+        "tengu_vertex_setup_complete",
+        "Calling AWS STS and Bedrock",
+        "Calling Google Cloud",
+        "Save anyway (skip verification)",
+        "Pin the working models with 1M context"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/ConsoleOAuthFlow.tsx",
+          "fragment": "state: 'bedrock_wizard'"
+        },
+        {
+          "path": "src/components/ConsoleOAuthFlow.tsx",
+          "fragment": "state: 'vertex_wizard'"
+        },
+        {
+          "path": "src/components/ConsoleOAuthFlow.tsx",
+          "fragment": "'tengu_oauth_bedrock_wizard_launched'"
+        },
+        {
+          "path": "src/components/ConsoleOAuthFlow.tsx",
+          "fragment": "'tengu_oauth_vertex_wizard_launched'"
+        },
+        {
+          "path": "src/components/ConsoleOAuthFlow.tsx",
+          "fragment": "<BedrockSetupWizard"
+        },
+        {
+          "path": "src/components/ConsoleOAuthFlow.tsx",
+          "fragment": "<VertexSetupWizard"
+        },
+        {
+          "path": "src/components/ConsoleOAuthFlow.tsx",
+          "fragment": "import('../utils/relaunch.js')"
+        },
+        {
+          "path": "src/components/ConsoleOAuthWizards.tsx",
+          "fragment": "new GetCallerIdentityCommand({})"
+        },
+        {
+          "path": "src/components/ConsoleOAuthWizards.tsx",
+          "fragment": "new ListInferenceProfilesCommand({"
+        },
+        {
+          "path": "src/components/ConsoleOAuthWizards.tsx",
+          "fragment": "GCP_CREDENTIAL_TIMEOUT_MS = 12_000"
+        },
+        {
+          "path": "src/components/ConsoleOAuthWizards.tsx",
+          "fragment": "buildVertexGoogleAuth("
+        },
+        {
+          "path": "src/components/ConsoleOAuthWizards.tsx",
+          "fragment": "no InvokeModel permission"
+        },
+        {
+          "path": "src/components/ConsoleOAuthWizards.tsx",
+          "fragment": "no aiplatform.endpoints.predict permission"
+        },
+        {
+          "path": "src/components/ConsoleOAuthWizards.tsx",
+          "fragment": "updateSettingsForSource('userSettings'"
+        },
+        {
+          "path": "src/components/ConsoleOAuthWizards.tsx",
+          "fragment": "'tengu_bedrock_setup_complete'"
+        },
+        {
+          "path": "src/components/ConsoleOAuthWizards.tsx",
+          "fragment": "'tengu_vertex_setup_complete'"
+        }
+      ],
+      "rationale": "Authenticated retained launch, verification, persistence, and completion witnesses bind provider selection, credential discovery, AWS/Vertex model probes, explicit permission diagnostics, save-without-verification, model pinning, onboarding completion, and restart wiring.",
+      "focusedTests": [
+        "console-platform-wizards"
       ],
       "sourcePathAbsences": []
     }
