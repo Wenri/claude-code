@@ -4,11 +4,13 @@ import * as React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { getLastAPIRequest } from 'src/bootstrap/state.js';
 import { logEventTo1P } from 'src/services/analytics/firstPartyEventLogger.js';
+import { getFeatureValue_CACHED_MAY_BE_STALE } from 'src/services/analytics/growthbook.js';
 import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEvent } from 'src/services/analytics/index.js';
 import { getLastAssistantMessage, normalizeMessagesForAPI } from 'src/utils/messages.js';
 import type { CommandResultDisplay } from '../commands.js';
 import { useTerminalSize } from '../hooks/useTerminalSize.js';
-import { Box, Text, useInput } from '../ink.js';
+import type { KeyboardEvent } from '../ink/events/keyboard-event.js';
+import { Box, Text } from '../ink.js';
 import { useKeybinding } from '../keybindings/useKeybinding.js';
 import { queryHaiku } from '../services/api/claude.js';
 import { startsWithApiErrorPrefix } from '../services/api/errors.js';
@@ -17,6 +19,7 @@ import { checkAndRefreshOAuthTokenIfNeeded } from '../utils/auth.js';
 import { openBrowser } from '../utils/browser.js';
 import { logForDebugging } from '../utils/debug.js';
 import { env } from '../utils/env.js';
+import { errorMessage } from '../utils/errors.js';
 import { type GitRepoState, getGitState, getIsGit } from '../utils/git.js';
 import { getAuthHeaders, getUserAgent } from '../utils/http.js';
 import { getInMemoryErrors, logError } from '../utils/log.js';
@@ -28,6 +31,7 @@ import { ConfigurableShortcutHint } from './ConfigurableShortcutHint.js';
 import { Byline } from './design-system/Byline.js';
 import { Dialog } from './design-system/Dialog.js';
 import { KeyboardShortcutHint } from './design-system/KeyboardShortcutHint.js';
+import { StatusIcon } from './design-system/StatusIcon.js';
 import TextInput from './TextInput.js';
 
 // This value was determined experimentally by testing the URL length limit
@@ -159,6 +163,12 @@ async function loadRawTranscriptJsonl(): Promise<string | null> {
     return null;
   }
 }
+
+function ErrorDisplay({ error }: { error: unknown }): React.ReactNode {
+  if (!error) return null;
+  return <Text color="error">{errorMessage(error)}</Text>;
+}
+
 export function Feedback({
   abortSignal,
   messages,
@@ -169,7 +179,7 @@ export function Feedback({
   const [step, setStep] = useState<Step>('userInput');
   const [cursorOffset, setCursorOffset] = useState(0);
   const [description, setDescription] = useState(initialDescription ?? '');
-  const [feedbackId, setFeedbackId] = useState<string | null>(null);
+  const [feedbackId, setFeedbackId] = useState<string | null | undefined>(null);
   const [error, setError] = useState<string | null>(null);
   const [envInfo, setEnvInfo] = useState<{
     isGit: boolean;
@@ -180,6 +190,7 @@ export function Feedback({
   });
   const [title, setTitle] = useState<string | null>(null);
   const textInputColumns = useTerminalSize().columns - 4;
+  const useNewFeedbackFlow = getFeatureValue_CACHED_MAY_BE_STALE('tengu_amber_lynx', false);
   useEffect(() => {
     async function loadEnvInfo() {
       const isGit = await getIsGit();
@@ -198,84 +209,35 @@ export function Feedback({
     setStep('submitting');
     setError(null);
     setFeedbackId(null);
-
-    // Get sanitized errors for the report
-    const sanitizedErrors = getSanitizedErrorLogs();
-
-    // Extract last assistant message ID from messages array
-    const lastAssistantMessage = getLastAssistantMessage(messages);
-    const lastAssistantMessageId = lastAssistantMessage?.requestId ?? null;
-    const [diskTranscripts, rawTranscriptJsonl] = await Promise.all([loadAllSubagentTranscriptsFromDisk(), loadRawTranscriptJsonl()]);
-    const teammateTranscripts = extractTeammateTranscriptsFromTasks(backgroundTasks);
-    const subagentTranscripts = {
-      ...diskTranscripts,
-      ...teammateTranscripts
-    };
-    const reportData = {
-      latestAssistantMessageId: lastAssistantMessageId,
-      message_count: messages.length,
-      datetime: new Date().toISOString(),
+    const [result, generatedTitle] = await Promise.all([submitFeedbackReport({
+      messages,
       description,
-      platform: env.platform,
-      gitRepo: envInfo.isGit,
-      terminal: env.terminal,
-      version: MACRO.VERSION,
-      transcript: normalizeMessagesForAPI(messages),
-      errors: sanitizedErrors,
-      lastApiRequest: getLastAPIRequest(),
-      ...(Object.keys(subagentTranscripts).length > 0 && {
-        subagentTranscripts
-      }),
-      ...(rawTranscriptJsonl && {
-        rawTranscriptJsonl
-      })
-    };
-    const [result, t] = await Promise.all([submitFeedback(reportData, abortSignal), generateTitle(description, abortSignal)]);
-    setTitle(t);
+      surface: 'cli',
+      backgroundTasks,
+      signal: abortSignal
+    }), useNewFeedbackFlow ? Promise.resolve(null) : generateTitle(description, abortSignal)]);
+    setTitle(generatedTitle);
     if (result.success) {
-      if (result.feedbackId) {
-        setFeedbackId(result.feedbackId);
-        logEvent('tengu_bug_report_submitted', {
-          feedback_id: result.feedbackId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          last_assistant_message_id: lastAssistantMessageId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-        });
-        // 1P-only: freeform text approved for BQ. Join on feedback_id.
-        logEventTo1P('tengu_bug_report_description', {
-          feedback_id: result.feedbackId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          description: redactSensitiveInfo(description) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-        });
-      }
+      setFeedbackId(result.feedbackId);
       setStep('done');
     } else {
       if (result.isZdrOrg) {
         setError('Feedback collection is not available for organizations with custom data retention policies.');
+      } else if (result.failureReason === 'auth_error') {
+        setError("Couldn't send feedback: not signed in. Run /login, then retry.");
       } else {
-        setError('Could not submit feedback. Please try again later.');
+        const failureDetail = result.statusCode ? ` (server returned ${result.statusCode})` : result.failureReason === 'timeout' ? ' (request timed out)' : result.failureReason === 'network_error' ? " (couldn't reach the service)" : '';
+        setError(`Couldn't send feedback${failureDetail}. If it keeps failing, you can file at ${GITHUB_ISSUES_REPO_URL} instead.`);
       }
-      // Stay on userInput step so user can retry with their content preserved
       setStep('userInput');
     }
-  }, [description, envInfo.isGit, messages]);
+  }, [abortSignal, backgroundTasks, description, messages, useNewFeedbackFlow]);
 
-  // Handle cancel - this will be called by Dialog's automatic Esc handling
   const handleCancel = useCallback(() => {
-    // Don't cancel when done - let other keys close the dialog
-    if (step === 'done') {
-      if (error) {
-        onDone('Error submitting feedback / bug report', {
-          display: 'system'
-        });
-      } else {
-        onDone('Feedback / bug report submitted', {
-          display: 'system'
-        });
-      }
-      return;
-    }
     onDone('Feedback / bug report cancelled', {
       display: 'system'
     });
-  }, [step, error, onDone]);
+  }, [onDone]);
 
   // During text input, use Settings context where only Escape (not 'n') triggers confirm:no.
   // This allows typing 'n' in the text field while still supporting Escape to cancel.
@@ -283,11 +245,13 @@ export function Feedback({
     context: 'Settings',
     isActive: step === 'userInput'
   });
-  useInput((input, key) => {
-    // Allow any key press to close the dialog when done or when there's an error
+
+  const isFinished = step === 'done' || error && step !== 'userInput';
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.ctrl || event.meta) return;
     if (step === 'done') {
-      if (key.return && title) {
-        // Open GitHub issue URL when Enter is pressed
+      event.preventDefault();
+      if (!useNewFeedbackFlow && event.key === 'return' && title) {
         const issueUrl = createGitHubIssueUrl(feedbackId ?? '', title, description, getSanitizedErrorLogs());
         void openBrowser(issueUrl);
       }
@@ -302,104 +266,121 @@ export function Feedback({
       }
       return;
     }
-
-    // When in userInput step with error, allow user to edit and retry
-    // (don't close on any keypress - they can still press Esc to cancel)
     if (error && step !== 'userInput') {
+      event.preventDefault();
       onDone('Error submitting feedback / bug report', {
         display: 'system'
       });
       return;
     }
-    if (step === 'consent' && (key.return || input === ' ')) {
+    if (step === 'consent' && (event.key === 'return' || event.key === ' ')) {
+      event.preventDefault();
       void submitReport();
     }
-  });
-  return <Dialog title="Submit Feedback / Bug Report" onCancel={handleCancel} isCancelActive={step !== 'userInput'} inputGuide={exitState => exitState.pending ? <Text>Press {exitState.keyName} again to exit</Text> : step === 'userInput' ? <Byline>
-            <KeyboardShortcutHint shortcut="Enter" action="continue" />
-            <ConfigurableShortcutHint action="confirm:no" context="Confirmation" fallback="Esc" description="cancel" />
-          </Byline> : step === 'consent' ? <Byline>
-            <KeyboardShortcutHint shortcut="Enter" action="submit" />
-            <ConfigurableShortcutHint action="confirm:no" context="Confirmation" fallback="Esc" description="cancel" />
-          </Byline> : null}>
-      {step === 'userInput' && <Box flexDirection="column" gap={1}>
-          <Text>Describe the issue below:</Text>
-          <TextInput value={description} onChange={value => {
-        setDescription(value);
-        // Clear error when user starts editing to allow retry
-        if (error) {
+  };
+  const isCancelActive = step !== 'userInput' && !isFinished;
+  const hideInputGuide = step === 'submitting' || step === 'done';
+  const inputGuide = step === 'userInput' ? <Byline>
+      <KeyboardShortcutHint shortcut="Enter" action="continue" />
+      <ConfigurableShortcutHint action="confirm:no" context="Confirmation" fallback="Esc" description="cancel" />
+    </Byline> : step === 'consent' ? <Byline>
+      <KeyboardShortcutHint shortcut="Enter" action="submit" />
+      <ConfigurableShortcutHint action="confirm:no" context="Confirmation" fallback="Esc" description="cancel" />
+    </Byline> : null;
+
+  return <Box flexDirection="column" tabIndex={0} autoFocus onKeyDown={handleKeyDown}>
+      <Dialog title="Submit Feedback / Bug Report" onCancel={handleCancel} isCancelActive={isCancelActive} hideInputGuide={hideInputGuide} inputGuide={inputGuide}>
+        {step === 'userInput' && <Box flexDirection="column" gap={1}>
+            <Text>Describe the issue below:</Text>
+            <TextInput value={description} onChange={value => {
+          setDescription(value);
+          if (error) {
+            setError(null);
+          }
+        }} columns={textInputColumns} onSubmit={() => {
           setError(null);
-        }
-      }} columns={textInputColumns} onSubmit={() => {
-        setError(null);
-        setStep('consent');
-      }} onExitMessage={() => onDone('Feedback cancelled', {
-        display: 'system'
-      })} cursorOffset={cursorOffset} onChangeCursorOffset={setCursorOffset} showCursor />
-          {error && <Box flexDirection="column" gap={1}>
-              <Text color="error">{error}</Text>
-              <Text dimColor>
-                Edit and press Enter to retry, or Esc to cancel
-              </Text>
-            </Box>}
-        </Box>}
-
-      {step === 'consent' && <Box flexDirection="column">
-          <Text>This report will include:</Text>
-          <Box marginLeft={2} flexDirection="column">
-            <Text>
-              - Your feedback / bug description:{' '}
-              <Text dimColor>{description}</Text>
-            </Text>
-            <Text>
-              - Environment info:{' '}
-              <Text dimColor>
-                {env.platform}, {env.terminal}, v{MACRO.VERSION}
-              </Text>
-            </Text>
-            {envInfo.gitState && <Text>
-                - Git repo metadata:{' '}
+          setStep('consent');
+        }} onExitMessage={() => onDone('Feedback cancelled', {
+          display: 'system'
+        })} cursorOffset={cursorOffset} onChangeCursorOffset={setCursorOffset} showCursor />
+            {error && <Box flexDirection="column" gap={1}>
+                <ErrorDisplay error={error} />
                 <Text dimColor>
-                  {envInfo.gitState.branchName}
-                  {envInfo.gitState.commitHash ? `, ${envInfo.gitState.commitHash.slice(0, 7)}` : ''}
-                  {envInfo.gitState.remoteUrl ? ` @ ${envInfo.gitState.remoteUrl}` : ''}
-                  {!envInfo.gitState.isHeadOnRemote && ', not synced'}
-                  {!envInfo.gitState.isClean && ', has local changes'}
+                  Edit and press Enter to retry, or Esc to cancel
                 </Text>
-              </Text>}
-            <Text>- Current session transcript</Text>
-          </Box>
-          <Box marginTop={1}>
-            <Text wrap="wrap" dimColor>
-              We will use your feedback to debug related issues or to improve{' '}
-              Claude Code&apos;s functionality (eg. to reduce the risk of bugs
-              occurring in the future).
-            </Text>
-          </Box>
-          <Box marginTop={1}>
-            <Text>
-              Press <Text bold>Enter</Text> to confirm and submit.
-            </Text>
-          </Box>
-        </Box>}
+              </Box>}
+          </Box>}
 
-      {step === 'submitting' && <Box flexDirection="row" gap={1}>
-          <Text>Submitting report…</Text>
-        </Box>}
+        {step === 'consent' && <Box flexDirection="column">
+            <Text>This report will include:</Text>
+            <Box marginLeft={2} flexDirection="column">
+              <Text>
+                - Your feedback / bug description:{' '}
+                <Text dimColor>{description}</Text>
+              </Text>
+              <Text>
+                - Environment info:{' '}
+                <Text dimColor>
+                  {env.platform}, {env.terminal}, v{MACRO.VERSION}
+                </Text>
+              </Text>
+              {envInfo.gitState && <Text>
+                  - Git repo metadata:{' '}
+                  <Text dimColor>
+                    {envInfo.gitState.branchName}
+                    {envInfo.gitState.commitHash ? `, ${envInfo.gitState.commitHash.slice(0, 7)}` : ''}
+                    {envInfo.gitState.remoteUrl ? ` @ ${envInfo.gitState.remoteUrl}` : ''}
+                    {!envInfo.gitState.isHeadOnRemote && ', not synced'}
+                    {!envInfo.gitState.isClean && ', has local changes'}
+                  </Text>
+                </Text>}
+              <Text>- Current session transcript</Text>
+            </Box>
+            <Box marginTop={1}>
+              <Text wrap="wrap" dimColor>
+                We will use your feedback to debug related issues or to improve{' '}
+                Claude Code&apos;s functionality (eg. to reduce the risk of bugs
+                occurring in the future).
+              </Text>
+            </Box>
+            <Box marginTop={1}>
+              <Text>
+                Press <Text bold>Enter</Text> to confirm and submit.
+              </Text>
+            </Box>
+          </Box>}
 
-      {step === 'done' && <Box flexDirection="column">
-          {error ? <Text color="error">{error}</Text> : <Text color="success">Thank you for your report!</Text>}
-          {feedbackId && <Text dimColor>Feedback ID: {feedbackId}</Text>}
-          <Box marginTop={1}>
-            <Text>Press </Text>
-            <Text bold>Enter </Text>
-            <Text>
-              to open your browser and draft a GitHub issue, or any other key to
-              close.
-            </Text>
-          </Box>
-        </Box>}
-    </Dialog>;
+        {step === 'submitting' && <Box flexDirection="row" gap={1}>
+            <Text>Submitting report…</Text>
+          </Box>}
+
+        {step === 'done' && (useNewFeedbackFlow ? <Box flexDirection="column">
+            {error ? <ErrorDisplay error={error} /> : <Text color="success"><StatusIcon status="success" withSpace />Feedback sent</Text>}
+            {feedbackId && <>
+                <Box marginTop={1}>
+                  <Text>Reference ID: <Text dimColor>{feedbackId}</Text></Text>
+                </Box>
+                <Box marginTop={1}>
+                  <Text wrap="wrap">If you&apos;re working with Anthropic support, please include the ID above.</Text>
+                </Box>
+              </>}
+            <Box marginTop={1}>
+              <Text dimColor>Press any key to close</Text>
+            </Box>
+          </Box> : <Box flexDirection="column">
+            {error ? <ErrorDisplay error={error} /> : <Text color="success">Thank you for your report!</Text>}
+            {feedbackId && <Text dimColor>Feedback ID: {feedbackId}</Text>}
+            <Box marginTop={1}>
+              <Text>Press </Text>
+              <Text bold>Enter </Text>
+              <Text>
+                to open your browser and draft a GitHub issue, or any other key to
+                close.
+              </Text>
+            </Box>
+          </Box>)}
+      </Dialog>
+    </Box>;
 }
 export function createGitHubIssueUrl(feedbackId: string, title: string, description: string, errors: Array<{
   error?: string;
