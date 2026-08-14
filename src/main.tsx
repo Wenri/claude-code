@@ -443,7 +443,9 @@ export function startDeferredPrefetches(): void {
   }
 
   // Event loop stall detector — logs when the main thread is blocked >500ms
-  if ("external" === 'ant') {
+  if (
+    getFeatureValue_CACHED_MAY_BE_STALE('tengu_drift_lantern', false)
+  ) {
     void import('./utils/eventLoopStallDetector.js').then(m => m.startEventLoopStallDetector());
   }
 }

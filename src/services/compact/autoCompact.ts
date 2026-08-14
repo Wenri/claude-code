@@ -87,7 +87,9 @@ export function isAutoCompactConfigurationEnabled(): boolean {
   return !!getFeatureValue_CACHED_MAY_BE_STALE('tengu_amber_redwood2', '')
 }
 
-function getAutoCompactExperimentWindow(model: string): number | undefined {
+export function getAutoCompactExperimentWindow(
+  model: string,
+): number | undefined {
   if (!isAutoCompactEnabled()) return undefined
   if (getCanonicalName(model) !== 'claude-opus-4-7') return undefined
 
@@ -99,6 +101,31 @@ function getAutoCompactExperimentWindow(model: string): number | undefined {
 
   const parsed = parseAutoCompactWindow(experimentValue)
   return typeof parsed === 'number' ? parsed : undefined
+}
+
+/**
+ * Reactive compaction is deliberately restricted to interactive sessions on
+ * the full 1M context window. The auto-window experiment owns the same Opus
+ * cohort, so do not let the two context-management experiments overlap.
+ */
+export function isReactiveCompactEligible(model: string): boolean {
+  if (getIsNonInteractiveSession()) return false
+  if (getContextWindowForModel(model, getSdkBetas()) !== 1_000_000) return false
+  if (getAutoCompactExperimentWindow(getCanonicalName(model)) !== undefined) {
+    return false
+  }
+  return getFeatureValue_CACHED_MAY_BE_STALE(
+    'tengu_cobalt_raccoon',
+    false,
+  )
+}
+
+export function isAutoCompactWindowOverridden(
+  model: string,
+  setting?: number,
+): boolean {
+  const { source } = resolveAutoCompactWindow(model, setting)
+  return source === 'env' || source === 'settings'
 }
 
 export function resolveAutoCompactWindow(
@@ -332,16 +359,14 @@ export async function shouldAutoCompact(
     return false
   }
 
-  // Reactive-only mode: suppress proactive autocompact, let reactive compact
-  // catch the API's prompt-too-long. feature() wrapper keeps the flag string
-  // out of external builds (REACTIVE_COMPACT is ant-only).
-  // Note: returning false here also means autoCompactIfNeeded never reaches
-  // trySessionMemoryCompaction in the query loop — the /compact call site
-  // still tries session memory first. Revisit if reactive-only graduates.
-  if (feature('REACTIVE_COMPACT')) {
-    if (getFeatureValue_CACHED_MAY_BE_STALE('tengu_cobalt_raccoon', false)) {
-      return false
-    }
+  // Reactive-only mode: suppress proactive autocompact and let the API's
+  // prompt-too-long response drive compaction. Explicit env/settings windows
+  // continue to use proactive compaction; they are user-owned overrides.
+  if (
+    isReactiveCompactEligible(model) &&
+    !isAutoCompactWindowOverridden(model, autoCompactWindow)
+  ) {
+    return false
   }
 
   // Context-collapse mode: same suppression. Collapse IS the context

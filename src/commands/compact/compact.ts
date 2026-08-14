@@ -1,4 +1,3 @@
-import { feature } from 'bun:bundle'
 import chalk from 'chalk'
 import { markPostCompaction } from 'src/bootstrap/state.js'
 import { getSystemPrompt } from '../../constants/prompts.js'
@@ -17,6 +16,7 @@ import {
   mergeHookInstructions,
   throwIfPreCompactBlocked,
 } from '../../services/compact/compact.js'
+import * as reactiveCompact from '../../services/compact/reactiveCompact.js'
 import { suppressCompactWarning } from '../../services/compact/compactWarningState.js'
 import { microcompactMessages } from '../../services/compact/microCompact.js'
 import { runPostCompactCleanup } from '../../services/compact/postCompactCleanup.js'
@@ -30,16 +30,13 @@ import { executePreCompactHooks } from '../../utils/hooks.js'
 import { logError } from '../../utils/log.js'
 import { getMessagesAfterCompactBoundary } from '../../utils/messages.js'
 import { getUpgradeMessage } from '../../utils/model/contextWindowUpgradeCheck.js'
+import { tokenCountWithEstimation } from '../../utils/tokens.js'
 import {
   buildEffectiveSystemPrompt,
   type SystemPrompt,
 } from '../../utils/systemPrompt.js'
 
-/* eslint-disable @typescript-eslint/no-require-imports */
-const reactiveCompact = feature('REACTIVE_COMPACT')
-  ? (require('../../services/compact/reactiveCompact.js') as typeof import('../../services/compact/reactiveCompact.js'))
-  : null
-/* eslint-enable @typescript-eslint/no-require-imports */
+class ReactiveCompactionError extends Error {}
 
 export const call: LocalCommandCall = async (args, context) => {
   const { abortController } = context
@@ -88,7 +85,9 @@ export const call: LocalCommandCall = async (args, context) => {
 
     // Reactive-only mode: route /compact through the reactive path.
     // Checked after session-memory (that path is cheap and orthogonal).
-    if (reactiveCompact?.isReactiveOnlyMode()) {
+    if (
+      reactiveCompact.isReactiveOnlyMode(context.options.mainLoopModel)
+    ) {
       return await compactViaReactive(
         messages,
         context,
@@ -133,6 +132,8 @@ export const call: LocalCommandCall = async (args, context) => {
       throw new Error(ERROR_MESSAGE_NOT_ENOUGH_MESSAGES)
     } else if (hasExactErrorMessage(error, ERROR_MESSAGE_INCOMPLETE_RESPONSE)) {
       throw new Error(ERROR_MESSAGE_INCOMPLETE_RESPONSE)
+    } else if (error instanceof ReactiveCompactionError) {
+      throw error
     } else {
       logError(error)
       throw new Error(`Error during compaction: ${error}`)
@@ -144,7 +145,7 @@ async function compactViaReactive(
   messages: Message[],
   context: ToolUseContext,
   customInstructions: string,
-  reactive: NonNullable<typeof reactiveCompact>,
+  reactive: typeof reactiveCompact,
 ): Promise<{
   type: 'compact'
   compactionResult: CompactionResult
@@ -155,6 +156,11 @@ async function compactViaReactive(
     hookType: 'pre_compact',
   })
   context.setSDKStatus?.('compacting')
+
+  const startTime = performance.now()
+  const preTokens = tokenCountWithEstimation(messages)
+  let postTokens: number | undefined
+  let compactError: string | undefined
 
   try {
     // Hooks and cache-param build are independent — run concurrently.
@@ -193,9 +199,17 @@ async function compactViaReactive(
         case 'aborted':
           throw new Error(ERROR_MESSAGE_USER_ABORT)
         case 'exhausted':
-        case 'error':
+          throw new ReactiveCompactionError(
+            'Compaction failed · conversation could not be reduced below the context limit',
+          )
         case 'media_unstrippable':
-          throw new Error(ERROR_MESSAGE_INCOMPLETE_RESPONSE)
+          throw new ReactiveCompactionError(
+            'Compaction failed · attached media exceeds size limits',
+          )
+        case 'error':
+          throw new ReactiveCompactionError(
+            `Error during compaction: ${outcome.detail || 'unknown error'}`,
+          )
       }
     }
 
@@ -207,6 +221,9 @@ async function compactViaReactive(
     suppressCompactWarning()
     getUserContext.cache.clear?.()
 
+    if (outcome.result.boundaryMarker.subtype === 'compact_boundary') {
+      postTokens = outcome.result.boundaryMarker.compactMetadata.postTokens
+    }
     // reactiveCompactOnPromptTooLong runs PostCompact hooks but not PreCompact
     // — both callers (here and tryReactiveCompact) run PreCompact outside so
     // they can merge its userDisplayMessage with PostCompact's here. This
@@ -224,10 +241,22 @@ async function compactViaReactive(
       },
       displayText: buildDisplayText(context, combinedMessage),
     }
+  } catch (error) {
+    compactError =
+      error instanceof Error ? error.message : 'reactive compaction failed'
+    throw error
   } finally {
     context.setStreamMode?.('requesting')
     context.setResponseLength?.(() => 0)
     context.onCompactProgress?.({ type: 'compact_end' })
+    reactive.recordCompactionTelemetry({
+      trigger: 'manual',
+      success: compactError === undefined,
+      durationMs: performance.now() - startTime,
+      preTokens,
+      postTokens,
+      error: compactError,
+    })
     context.setSDKStatus?.(null)
   }
 }
