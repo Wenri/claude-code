@@ -1837,6 +1837,9 @@
         "callbackExpected",
         "redirectScheme",
         "Ran immediate command without enqueue",
+        "bridgeSessionSeq",
+        "CLAUDE_BRIDGE_REATTACH_SESSION",
+        "late response after local resolve, or unknown id",
         "remote-permission-mode-noop",
         "Model picker shows local options in remote sessions \\u2014 pass a model name, e.g. /model sonnet",
         "No other permission modes are available in this remote session"
@@ -1847,12 +1850,44 @@
           "fragment": "case 'mcp_status':"
         },
         {
+          "path": "src/bridge/envLessBridgeConfig.ts",
+          "fragment": "return cfg.should_show_app_upgrade_message"
+        },
+        {
+          "path": "src/bridge/initReplBridge.ts",
+          "fragment": "if (reattachSessionId) {"
+        },
+        {
+          "path": "src/bridge/initReplBridge.ts",
+          "fragment": "delete process.env.CLAUDE_BRIDGE_REATTACH_SESSION"
+        },
+        {
+          "path": "src/bridge/initReplBridge.ts",
+          "fragment": "const initialHistoryCap = 200"
+        },
+        {
+          "path": "src/bridge/initReplBridge.ts",
+          "fragment": "const versionError = await checkEnvLessBridgeMinVersion()"
+        },
+        {
+          "path": "src/bridge/initReplBridge.ts",
+          "fragment": "await import('./remoteBridgeCore.js')"
+        },
+        {
+          "path": "src/bridge/initReplBridge.ts",
+          "fragment": "getToolPermissionContext?.() ?? getEmptyToolPermissionContext()"
+        },
+        {
           "path": "src/bridge/initReplBridge.ts",
           "fragment": "onProactiveRefresh: async () =>"
         },
         {
           "path": "src/bridge/initReplBridge.ts",
           "fragment": "onMcpAuthenticate,"
+        },
+        {
+          "path": "src/bridge/remoteBridgeCore.ts",
+          "fragment": "let isReattach = !!reattachSessionId"
         },
         {
           "path": "src/bridge/remoteBridgeCore.ts",
@@ -1871,12 +1906,24 @@
           "fragment": "initialFlushDone = isReattach"
         },
         {
+          "path": "src/bridge/remoteBridgeCore.ts",
+          "fragment": "if (!isReattach && initialMessages && initialMessages.length > 0)"
+        },
+        {
           "path": "src/bridge/replBridge.ts",
           "fragment": "onMcpReconnect,"
         },
         {
+          "path": "src/cli/print.ts",
+          "fragment": "getToolPermissionContext: () =>"
+        },
+        {
           "path": "src/cli/transports/transportUtils.ts",
           "fragment": "--sdk-url is the session URL"
+        },
+        {
+          "path": "src/commands/bridge/bridge.tsx",
+          "fragment": "const versionError = await checkEnvLessBridgeMinVersion()"
         },
         {
           "path": "src/commands/model/model.tsx",
@@ -1905,6 +1952,38 @@
         {
           "path": "src/hooks/useReplBridge.tsx",
           "fragment": "async onMcpAuthenticate(serverName, redirectUri)"
+        },
+        {
+          "path": "src/hooks/useReplBridge.tsx",
+          "fragment": "getToolPermissionContext: () =>"
+        },
+        {
+          "path": "src/hooks/useReplBridge.tsx",
+          "fragment": "getIsRemoteMode()"
+        },
+        {
+          "path": "src/hooks/useReplBridge.tsx",
+          "fragment": "message.subtype === 'bridge_status' &&"
+        },
+        {
+          "path": "src/hooks/useReplBridge.tsx",
+          "fragment": "lastFailureDetailRef.current === normalizedDetail"
+        },
+        {
+          "path": "src/hooks/useReplBridge.tsx",
+          "fragment": "async function persistBridgeSessionId(bridgeSessionId: string)"
+        },
+        {
+          "path": "src/hooks/useReplBridge.tsx",
+          "fragment": "bridgeSessionSeq: undefined"
+        },
+        {
+          "path": "src/hooks/useReplBridge.tsx",
+          "fragment": "pendingPermissionHandlers.delete(requestId_2)"
+        },
+        {
+          "path": "src/hooks/useReplBridge.tsx",
+          "fragment": "Hook: init cancelled during flight, tearing down"
         },
         {
           "path": "src/hooks/useReplBridge.tsx",
@@ -1939,14 +2018,57 @@
           "fragment": "tengu_immediate_command_executed"
         }
       ],
+      "sourcePathAbsences": [
+        {
+          "paths": [
+            "src/bridge/bridgeEnabled.ts"
+          ],
+          "fragment": "export function isEnvLessBridgeEnabled"
+        },
+        {
+          "paths": [
+            "src/bridge/envLessBridgeConfig.ts"
+          ],
+          "fragment": "isEnvLessBridgeEnabled"
+        },
+        {
+          "paths": [
+            "src/commands/bridge/bridge.tsx"
+          ],
+          "fragment": "isEnvLessBridgeEnabled"
+        },
+        {
+          "paths": [
+            "src/commands/bridge/bridge.tsx"
+          ],
+          "fragment": "checkBridgeMinVersion"
+        },
+        {
+          "paths": [
+            "src/bridge/initReplBridge.ts"
+          ],
+          "fragment": "import { initBridgeCore"
+        },
+        {
+          "paths": [
+            "src/bridge/initReplBridge.ts"
+          ],
+          "fragment": "previouslyFlushedUUIDs"
+        },
+        {
+          "paths": [
+            "src/hooks/useReplBridge.tsx"
+          ],
+          "fragment": "flushedUUIDsRef"
+        }
+      ],
       "focusedTests": [
         "daemon-service",
         "hidden-obligations",
         "remote-control-boundary",
         "remote-ux-and-branch"
       ],
-      "rationale": "Exact target-only endpoint, reattach, MCP-control, immediate-dispatch, and remote-session witnesses localize the SDK allowlist, env-less token refresh, reactive system init, bridge controls, model guard, and permission no-op paths.",
-      "sourcePathAbsences": []
+      "rationale": "Exact target-only endpoint, reattach, MCP-control, immediate-dispatch, and remote-session witnesses localize the SDK allowlist, env-less token refresh, reactive system init, bridge controls, model guard, and permission no-op paths."
     },
     {
       "id": "H12",
