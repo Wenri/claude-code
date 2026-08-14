@@ -13,12 +13,14 @@ type DiagnosticsAttachment = Extract<Attachment, {
 type DiagnosticsDisplayProps = {
   attachment: DiagnosticsAttachment;
   verbose: boolean;
+  isTranscriptMode: boolean;
 };
 export function DiagnosticsDisplay(t0) {
   const $ = _c(14);
   const {
     attachment,
-    verbose
+    verbose,
+    isTranscriptMode,
   } = t0;
   if (attachment.files.length === 0) {
     return null;
@@ -33,7 +35,7 @@ export function DiagnosticsDisplay(t0) {
   }
   const totalIssues = t1;
   const fileCount = attachment.files.length;
-  if (verbose) {
+  if (verbose || isTranscriptMode) {
     let t2;
     if ($[2] !== attachment.files) {
       t2 = attachment.files.map(_temp3);

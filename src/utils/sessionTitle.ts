@@ -23,6 +23,7 @@ import { safeParseJSON } from './json.js'
 import { lazySchema } from './lazySchema.js'
 import { extractTextContent } from './messages.js'
 import { isEssentialTrafficOnly } from './privacyLevel.js'
+import { getInitialSettings } from './settings/settings.js'
 import { asSystemPrompt } from './systemPromptType.js'
 
 const MAX_CONVERSATION_TEXT = 1000
@@ -97,9 +98,17 @@ export async function generateSessionTitle(
   const trimmed = description.trim()
   if (trimmed.length < MIN_TITLE_INPUT_LENGTH) return null
 
+  const language = getInitialSettings().language
+  const systemPrompt = language
+    ? [
+        SESSION_TITLE_PROMPT,
+        `Write the title in ${language}. Keep technical terms and code identifiers in their original form.`,
+      ]
+    : [SESSION_TITLE_PROMPT]
+
   try {
     const result = await queryHaiku({
-      systemPrompt: asSystemPrompt([SESSION_TITLE_PROMPT]),
+      systemPrompt: asSystemPrompt(systemPrompt),
       userPrompt: trimmed,
       outputFormat: {
         type: 'json_schema',

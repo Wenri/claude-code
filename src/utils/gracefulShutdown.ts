@@ -1,4 +1,5 @@
 import chalk from 'chalk'
+import { createHash } from 'crypto'
 import { writeSync } from 'fs'
 import memoize from 'lodash-es/memoize.js'
 import { onExit } from 'signal-exit'
@@ -30,7 +31,10 @@ import {
   wrapForMultiplexer,
 } from '../ink/termio/osc.js'
 import { shutdownDatadog } from '../services/analytics/datadog.js'
-import { shutdown1PEventLogging } from '../services/analytics/firstPartyEventLogger.js'
+import {
+  logEventTo1PAwaitable,
+  shutdown1PEventLogging,
+} from '../services/analytics/firstPartyEventLogger.js'
 import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
@@ -43,6 +47,121 @@ import { isEnvTruthy } from './envUtils.js'
 import { getCurrentSessionTitle, sessionIdExists } from './sessionStorage.js'
 import { sleep } from './sleep.js'
 import { profileReport } from './startupProfiler.js'
+
+function shortErrorHash(value: string): string {
+  return createHash('sha256').update(value).digest('hex').slice(0, 12)
+}
+
+function sanitizeErrorMessage(value: string): string {
+  return value
+    .slice(0, 500)
+    .replace(/https?:\/\/\S+/gi, '<url>')
+    .replace(/\b[\w.+-]+@[\w.-]+\.\w{2,}\b/g, '<email>')
+    .replace(
+      /\b(?:sk-ant|sk|pk|ghp|gho|ghs|ghu|github_pat|xox[bpoars])[-_][\w-]{8,}\b/gi,
+      '<key>',
+    )
+    .replace(/[A-Za-z]:\\[^\s"']*/g, '<path>')
+    .replace(/\\\\[^\s"']+/g, '<path>')
+    .replace(/(?:[^\s"'\\]+\\){2,}[^\s"']+/g, '<path>')
+    .replace(/(?:\/[^\s"':]+){2,}/g, '<path>')
+    .replace(
+      /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi,
+      '<id>',
+    )
+    .replace(/\b[0-9a-fA-F]{16,}\b/g, '<id>')
+    .replace(/\b[A-Za-z0-9+/]{32,}={0,2}/g, '<b64>')
+    .replace(/\b\d{1,3}(?:\.\d{1,3}){3}\b/g, '<ip>')
+    .replace(/\b\d{4,}\b/g, '<num>')
+}
+
+function parseErrorStack(
+  stack: string,
+  limit = 5,
+): { names: string[]; topFrame?: string } {
+  const names: string[] = []
+  let topFrame: string | undefined
+  for (const line of stack.slice(0, 4000).split('\n')) {
+    const trimmed = line.trim()
+    if (!trimmed.startsWith('at ')) continue
+    const frame = trimmed.slice(3)
+    const parenIndex = frame.indexOf(' (')
+    if (topFrame === undefined) {
+      const location = (parenIndex !== -1
+        ? frame.slice(parenIndex + 2, -1)
+        : frame
+      ).match(/([^/\\]+:\d+:\d+)\)?$/)
+      if (location) topFrame = location[1]
+    }
+    let name = parenIndex !== -1 ? frame.slice(0, parenIndex) : frame
+    name = name.replace(/^async\s+/, '').replace(/^new\s+/, '')
+    if (name.includes('/') || name.includes('\\') || /:\d/.test(name)) continue
+    if (name) names.push(name)
+    if (names.length >= limit) break
+  }
+  return { names, topFrame }
+}
+
+function getSafeErrorMetadata(error: unknown): Record<string, string> {
+  try {
+    const value = String(error instanceof Error ? error.message : error)
+    const metadata: Record<string, string> = {
+      error_message_hash: shortErrorHash(sanitizeErrorMessage(value)),
+    }
+    const code = (error as { code?: unknown } | null)?.code
+    if (typeof code === 'string' && /^[A-Z][A-Z0-9_]*$/.test(code)) {
+      metadata.error_code = code
+    }
+    if (error instanceof Error) {
+      const constructorName = error.constructor?.name
+      if (typeof constructorName === 'string') {
+        metadata.error_constructor = constructorName
+      }
+      if (typeof error.stack === 'string') {
+        const { names, topFrame } = parseErrorStack(error.stack)
+        if (names.length > 0) {
+          metadata.error_stack_hash = shortErrorHash(names.join('|'))
+        }
+        if (topFrame !== undefined) metadata.error_top_frame = topFrame
+      }
+    }
+    return metadata
+  } catch {
+    return {}
+  }
+}
+
+/** Flush a render-boundary crash before Ink tears down the process. */
+export function reportRenderError(
+  error: unknown,
+  errorInfo?: { componentStack?: string | null },
+): void {
+  const errorName = error instanceof Error ? error.name : 'unknown'
+  try {
+    logForDebugging(
+      `[reportRenderError] React boundary caught ${errorName}: ${String(error)}`,
+      { level: 'error' },
+    )
+  } catch {
+    // Never let diagnostic formatting mask the original render error.
+  }
+  const componentStack = errorInfo?.componentStack
+  void (async () => {
+    try {
+      await logEventTo1PAwaitable('tengu_uncaught_exception', {
+        error_name: errorName,
+        ...getSafeErrorMetadata(error),
+        source: 'react_render',
+        ...(componentStack && {
+          error_component_stack_hash: shortErrorHash(componentStack),
+        }),
+      })
+      await Promise.all([shutdown1PEventLogging(), shutdownDatadog()])
+    } catch {
+      // Rendering is already failing; reporting must stay best-effort.
+    }
+  })()
+}
 
 /**
  * Clean up terminal modes synchronously before process exit.

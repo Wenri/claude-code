@@ -27,7 +27,10 @@
 
 import type { Span } from '@opentelemetry/api'
 import { createHash } from 'crypto'
-import { getIsNonInteractiveSession } from '../../bootstrap/state.js'
+import {
+  getIsNonInteractiveSession,
+  getSessionId,
+} from '../../bootstrap/state.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
 import { sanitizeToolNameForAnalytics } from '../../services/analytics/metadata.js'
 import type { AssistantMessage, UserMessage } from '../../types/message.js'
@@ -57,6 +60,15 @@ const seenHashes = new Set<string>()
  * (main thread, subagents, warmup requests) have independent conversation contexts.
  */
 const lastReportedMessageHash = new Map<string, string>()
+
+// The user-supplied system prompt is useful for debugging a trace, but unlike
+// Claude Code's built-in prompt it is user content. Record it only when prompt
+// logging is explicitly enabled, and only once for each active session.
+let lastUserSystemPromptSessionId: string | undefined
+
+function isUserPromptLoggingEnabled(): boolean {
+  return isEnvTruthy(process.env.OTEL_LOG_USER_PROMPTS)
+}
 
 /**
  * Clear tracking state after compaction.
@@ -210,6 +222,8 @@ function formatMessagesForContext(messages: UserMessage[]): FormattedMessages {
 export interface LLMRequestNewContext {
   /** System prompt (typically only on first request or if changed) */
   systemPrompt?: string
+  /** User-provided replacement/append system prompt, if any */
+  userSystemPrompt?: string
   /** Query source identifying the agent/purpose (e.g., 'repl_main_thread', 'agent:builtin') */
   querySource?: string
   /** Tool schemas sent with the request */
@@ -258,13 +272,16 @@ export function addBetaLLMRequestAttributes(
     const promptHash = hashSystemPrompt(newContext.systemPrompt)
     const preview = newContext.systemPrompt.slice(0, 500)
 
-    // Always add hash, preview, and length to the span
+    // Hash and length are safe metadata. The preview and full prompt are user
+    // content and therefore follow OTEL_LOG_USER_PROMPTS.
     span.setAttribute('system_prompt_hash', promptHash)
-    span.setAttribute('system_prompt_preview', preview)
+    if (isUserPromptLoggingEnabled()) {
+      span.setAttribute('system_prompt_preview', preview)
+    }
     span.setAttribute('system_prompt_length', newContext.systemPrompt.length)
 
     // Log the full system prompt only once per unique hash this session
-    if (!seenHashes.has(promptHash)) {
+    if (isUserPromptLoggingEnabled() && !seenHashes.has(promptHash)) {
       seenHashes.add(promptHash)
 
       // Truncate for the log if needed
@@ -277,6 +294,24 @@ export function addBetaLLMRequestAttributes(
         system_prompt: truncatedPrompt,
         system_prompt_length: String(newContext.systemPrompt.length),
         ...(truncated && { system_prompt_truncated: 'true' }),
+      })
+    }
+  }
+
+  if (newContext?.userSystemPrompt && isUserPromptLoggingEnabled()) {
+    const sessionId = getSessionId()
+    if (lastUserSystemPromptSessionId !== sessionId) {
+      lastUserSystemPromptSessionId = sessionId
+      const { content, truncated } = truncateContent(
+        newContext.userSystemPrompt,
+      )
+      span.setAttributes({
+        user_system_prompt: content,
+        ...(truncated && {
+          user_system_prompt_truncated: true,
+          user_system_prompt_original_length:
+            newContext.userSystemPrompt.length,
+        }),
       })
     }
   }

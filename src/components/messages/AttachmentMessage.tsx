@@ -254,7 +254,7 @@ export function AttachmentMessage({
         return <Line>Skills restored ({skillNames})</Line>;
       }
     case 'diagnostics':
-      return <DiagnosticsDisplay attachment={attachment} verbose={verbose} />;
+      return <DiagnosticsDisplay attachment={attachment} verbose={verbose} isTranscriptMode={isTranscriptMode} />;
     case 'mcp_resource':
       return <Line>
           Read MCP resource <Text bold>{attachment.name}</Text> from{' '}

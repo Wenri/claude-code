@@ -122,6 +122,17 @@ import { createBudgetTracker, checkTokenBudget } from './query/tokenBudget.js'
 import { count } from './utils/array.js'
 import { isBgSession } from './utils/concurrentSessions.js'
 import { expandPath } from './utils/path.js'
+import { isBetaTracingEnabled } from './utils/telemetry/sessionTracing.js'
+
+function combineUserSystemPrompt(
+  customSystemPrompt: string | undefined,
+  appendSystemPrompt: string | undefined,
+): string | undefined {
+  const prompts = [customSystemPrompt, appendSystemPrompt].filter(
+    (prompt): prompt is string => Boolean(prompt),
+  )
+  return prompts.length > 0 ? prompts.join('\n\n') : undefined
+}
 
 function findCurrentTurnStart(messages: Message[]): number {
   for (let index = messages.length - 1; index >= 0; index--) {
@@ -780,6 +791,13 @@ async function* queryLoop(
                 toolUseContext.options.agentDefinitions.allowedAgentTypes,
               hasAppendSystemPrompt:
                 !!toolUseContext.options.appendSystemPrompt,
+              userSystemPrompt:
+                !toolUseContext.agentId && isBetaTracingEnabled()
+                  ? combineUserSystemPrompt(
+                      toolUseContext.options.customSystemPrompt,
+                      toolUseContext.options.appendSystemPrompt,
+                    )
+                  : undefined,
               maxOutputTokensOverride,
               fetchOverride: dumpPromptsFetch,
               mcpTools: appState.mcp.tools,

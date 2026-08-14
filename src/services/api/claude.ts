@@ -700,6 +700,8 @@ export type Options = {
   agents: AgentDefinition[]
   allowedAgentTypes?: string[]
   hasAppendSystemPrompt: boolean
+  /** User-provided system prompt content for opt-in OTel prompt tracing. */
+  userSystemPrompt?: string
   fetchOverride?: ClientOptions['fetch']
   enablePromptCaching?: boolean
   skipCacheWrite?: boolean
@@ -1591,6 +1593,7 @@ async function* queryModel(
   const newContext: LLMRequestNewContext | undefined = isBetaTracingEnabled()
     ? {
         systemPrompt: systemPrompt.join('\n\n'),
+        userSystemPrompt: options.userSystemPrompt,
         querySource: options.querySource,
         tools: jsonStringify(allTools),
       }

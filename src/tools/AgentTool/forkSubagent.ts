@@ -6,6 +6,7 @@ import {
   FORK_DIRECTIVE_PREFIX,
 } from '../../constants/xml.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
+import { logEvent } from '../../services/analytics/index.js'
 import type {
   AssistantMessage,
   Message as MessageType,
@@ -29,10 +30,35 @@ import type { BuiltInAgentDefinition } from './loadAgentsDir.js'
  * Mutually exclusive with coordinator mode — coordinator already owns the
  * orchestration role and has its own delegation model.
  */
+type ForkSubagentSource = 'disabled' | 'env' | 'gb_rollout'
+let forkSubagentSource: ForkSubagentSource | null = null
+
+function resolveForkSubagentSource(): ForkSubagentSource {
+  // The explicit environment override intentionally wins in SDK/print mode.
+  if (isEnvTruthy(process.env.CLAUDE_CODE_FORK_SUBAGENT)) return 'env'
+  if (getIsNonInteractiveSession()) return 'disabled'
+  if (getFeatureValue_CACHED_MAY_BE_STALE('tengu_copper_fox', false)) {
+    return 'gb_rollout'
+  }
+  return 'disabled'
+}
+
+export function getForkSubagentSource(): ForkSubagentSource {
+  if (forkSubagentSource !== null) return forkSubagentSource
+  const source = resolveForkSubagentSource()
+  if (source !== 'disabled') {
+    forkSubagentSource = source
+    logEvent('tengu_fork_subagent_enabled', { source })
+  }
+  return source
+}
+
+export function _resetForkSubagentSourceTelemetryForTesting(): void {
+  forkSubagentSource = null
+}
+
 export function isForkSubagentEnabled(): boolean {
-  if (getIsNonInteractiveSession()) return false
-  if (isEnvTruthy(process.env.CLAUDE_CODE_FORK_SUBAGENT)) return true
-  return getFeatureValue_CACHED_MAY_BE_STALE('tengu_copper_fox', false)
+  return getForkSubagentSource() !== 'disabled'
 }
 
 /** Synthetic agent type name used for analytics when the fork path fires. */

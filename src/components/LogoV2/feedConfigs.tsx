@@ -4,26 +4,8 @@ import * as React from 'react';
 import { Box, Text } from '../../ink.js';
 import type { Step } from '../../projectOnboardingState.js';
 import { formatCreditAmount, getCachedReferrerReward } from '../../services/api/referral.js';
-import type { LogOption } from '../../types/logs.js';
 import { getCwd } from '../../utils/cwd.js';
-import { formatRelativeTimeAgo } from '../../utils/format.js';
 import type { FeedConfig, FeedLine } from './Feed.js';
-export function createRecentActivityFeed(activities: LogOption[]): FeedConfig {
-  const lines: FeedLine[] = activities.map(log => {
-    const time = formatRelativeTimeAgo(log.modified);
-    const description = log.summary && log.summary !== 'No prompt' ? log.summary : log.firstPrompt;
-    return {
-      text: description || '',
-      timestamp: time
-    };
-  });
-  return {
-    title: 'Recent activity',
-    lines,
-    footer: lines.length > 0 ? '/resume for more' : undefined,
-    emptyMessage: 'No recent activity'
-  };
-}
 export function createWhatsNewFeed(releaseNotes: string[]): FeedConfig {
   const lines: FeedLine[] = releaseNotes.map(note => {
     if ("external" === 'ant') {

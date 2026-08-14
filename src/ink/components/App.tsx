@@ -1,10 +1,11 @@
-import React, { PureComponent, type ReactNode } from 'react';
+import React, { PureComponent, type ErrorInfo, type ReactNode } from 'react';
 import { updateLastInteractionTime } from '../../bootstrap/state.js';
 import { logForDebugging } from '../../utils/debug.js';
 import { stopCapturingEarlyInput } from '../../utils/earlyInput.js';
 import { isEnvTruthy } from '../../utils/envUtils.js';
 import { isMouseClicksDisabled } from '../../utils/fullscreen.js';
 import { logError } from '../../utils/log.js';
+import { reportRenderError } from '../../utils/gracefulShutdown.js';
 import { execFileNoThrow } from '../../utils/execFileNoThrow.js';
 import { EventEmitter } from '../events/emitter.js';
 import { InputEvent } from '../events/input-event.js';
@@ -267,7 +268,8 @@ export default class App extends PureComponent<Props, State> {
       this.handleSetRawMode(false);
     }
   }
-  override componentDidCatch(error: Error) {
+  override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    reportRenderError(error, errorInfo);
     this.handleExit(error);
   }
   handleSetRawMode = (isEnabled: boolean): void => {

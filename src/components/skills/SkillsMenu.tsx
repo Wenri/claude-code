@@ -1,6 +1,6 @@
 import figures from 'figures'
 import * as React from 'react'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import {
   type Command,
   type CommandBase,
@@ -9,8 +9,11 @@ import {
   type PromptCommand,
 } from '../../commands.js'
 import { useModalOrTerminalSize } from '../../context/modalContext.js'
+import { useSearchInput } from '../../hooks/useSearchInput.js'
 import { useTerminalSize } from '../../hooks/useTerminalSize.js'
-import { Box, Text } from '../../ink.js'
+import type { KeyboardEvent } from '../../ink/events/keyboard-event.js'
+import type { PasteEvent } from '../../ink/events/paste-event.js'
+import { Box, Text, useTerminalFocus } from '../../ink.js'
 import { getShortcutDisplay } from '../../keybindings/shortcutFormat.js'
 import { useKeybindings } from '../../keybindings/useKeybinding.js'
 import { estimateSkillFrontmatterTokens } from '../../skills/loadSkillsDir.js'
@@ -22,6 +25,7 @@ import {
 import { getSettingsForSource } from '../../utils/settings/settings.js'
 import { plural } from '../../utils/stringUtils.js'
 import { Dialog } from '../design-system/Dialog.js'
+import { SearchBox } from '../SearchBox.js'
 
 type SkillCommand = CommandBase & PromptCommand
 type SkillOverride = 'on' | 'name-only' | 'user-invocable-only' | 'off'
@@ -161,20 +165,53 @@ export function SkillsMenu({ onExit, commands }: Props): React.ReactNode {
     }
     return result
   })
-  const [selectedIndex, setSelectedIndex] = useState(0)
+  const [selectedSkill, setSelectedSkill] = useState<SkillCommand | undefined>(
+    skills[0],
+  )
+  const isTerminalFocused = useTerminalFocus()
+  const [isSearching, setIsSearching] = useState(false)
+  const isSearchingRef = useRef(isSearching)
+  const {
+    query,
+    setQuery,
+    cursorOffset,
+    handleKeyDown: handleSearchKeyDown,
+    handlePaste: handleSearchPaste,
+  } = useSearchInput({
+    isActive: isSearching,
+    onExit: () => {
+      isSearchingRef.current = false
+      setIsSearching(false)
+    },
+    passthroughCtrlKeys: ['c', 'd'],
+    useLegacyInput: false,
+  })
+  const filteredSkills = useMemo(() => {
+    if (!query) return skills
+    const normalizedQuery = query.toLowerCase()
+    return skills.filter(
+      skill =>
+        skill.name.toLowerCase().includes(normalizedQuery) ||
+        (skill.description ?? '').toLowerCase().includes(normalizedQuery) ||
+        getSkillSourceLabel(skill.source)
+          .toLowerCase()
+          .includes(normalizedQuery),
+    )
+  }, [skills, query])
+  const selectedIndex = Math.max(0, filteredSkills.indexOf(selectedSkill!))
   const { rows } = useModalOrTerminalSize(useTerminalSize())
-  const visibleCount = clamp(rows - 10, 4, skills.length)
+  const visibleCount = clamp(rows - 13, 4, filteredSkills.length)
   const windowStart = clamp(
     selectedIndex - visibleCount + 1,
     0,
-    Math.max(0, skills.length - visibleCount),
+    Math.max(0, filteredSkills.length - visibleCount),
   )
-  const visibleSkills = skills.slice(
+  const visibleSkills = filteredSkills.slice(
     windowStart,
     windowStart + visibleCount,
   )
   const hiddenAbove = windowStart
-  const hiddenBelow = skills.length - (windowStart + visibleCount)
+  const hiddenBelow = filteredSkills.length - (windowStart + visibleCount)
 
   const handleToggle = (): void => {
     return
@@ -183,8 +220,7 @@ export function SkillsMenu({ onExit, commands }: Props): React.ReactNode {
     onExit('Skills dialog dismissed', { display: 'system' })
   }
   const handleUse = (): void => {
-    const selectedSkill = skills[selectedIndex]
-    if (!selectedSkill) {
+    if (!selectedSkill || !filteredSkills.includes(selectedSkill)) {
       handleClose()
       return
     }
@@ -221,23 +257,71 @@ export function SkillsMenu({ onExit, commands }: Props): React.ReactNode {
   useKeybindings(
     {
       'select:previous': () =>
-        setSelectedIndex(
-          index => (index - 1 + skills.length) % skills.length,
+        setSelectedSkill(
+          filteredSkills[
+            (selectedIndex - 1 + filteredSkills.length) %
+              filteredSkills.length
+          ],
         ),
       'select:next': () =>
-        setSelectedIndex(index => (index + 1) % skills.length),
+        setSelectedSkill(
+          filteredSkills[(selectedIndex + 1) % filteredSkills.length],
+        ),
       'select:accept': handleToggle,
       'settings:close': handleUse,
       'settings:sortByTokens': () => {
         setSortByTokens(value => !value)
-        setSelectedIndex(0)
       },
-      'confirm:no': handleClose,
     },
     {
       context: 'Settings',
-      isActive: skills.length > 0,
+      isActive: !isSearching && filteredSkills.length > 0,
     },
+  )
+  useKeybindings(
+    { 'confirm:no': handleClose },
+    { context: 'Settings', isActive: !isSearching },
+  )
+
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent): void => {
+      if (isSearchingRef.current) {
+        handleSearchKeyDown(event)
+        return
+      }
+      if (event.ctrl || event.meta) return
+      if (event.name === 'backspace') {
+        if (!query) return
+        event.preventDefault()
+        isSearchingRef.current = true
+        setIsSearching(true)
+        setQuery(query.slice(0, -1))
+        return
+      }
+      if (event.name.length > 1 && event.name !== 'number') return
+      if (event.key.length >= 1 && event.key !== ' ') {
+        event.preventDefault()
+        isSearchingRef.current = true
+        setIsSearching(true)
+        setQuery(event.key.startsWith('/') ? event.key.slice(1) : event.key)
+      }
+    },
+    [handleSearchKeyDown, query, setQuery],
+  )
+  const handlePaste = useCallback(
+    (event: PasteEvent): void => {
+      if (isSearchingRef.current) {
+        handleSearchPaste(event)
+        return
+      }
+      const firstLine = event.text.split(/\r\n|\r|\n/, 2)[0] ?? ''
+      if (!firstLine) return
+      event.preventDefault()
+      isSearchingRef.current = true
+      setIsSearching(true)
+      setQuery(firstLine.startsWith('/') ? firstLine.slice(1) : firstLine)
+    },
+    [handleSearchPaste, setQuery],
   )
 
   if (skills.length === 0) {
@@ -255,14 +339,43 @@ export function SkillsMenu({ onExit, commands }: Props): React.ReactNode {
     )
   }
 
+  const skillCount = query
+    ? `${filteredSkills.length}/${skills.length} ${plural(skills.length, 'skill')}`
+    : `${skills.length} ${plural(skills.length, 'skill')}`
+  const inputGuide = isSearching
+    ? 'type to filter · ↓/enter to select · esc to clear'
+    : filteredSkills.length === 0
+      ? `/ to search, ${closeShortcut} to cancel`
+      : `${saveShortcut} to use, / to search, ${sortShortcut} to sort, ${closeShortcut} to close`
+
   return (
     <Dialog
       title="Skills"
-      subtitle={`${skills.length} ${plural(skills.length, 'skill')}${sortByTokens ? ' · sorted by tokens' : ''} · ${saveShortcut} to use, ${sortShortcut} to sort, ${closeShortcut} to close`}
+      subtitle={`${skillCount}${sortByTokens ? ' · sorted by tokens' : ''} · ${inputGuide}`}
       onCancel={handleClose}
+      isCancelActive={false}
       hideInputGuide
     >
-      <Box flexDirection="column">
+      <Box
+        flexDirection="column"
+        tabIndex={0}
+        autoFocus
+        onKeyDown={handleKeyDown}
+        onPaste={handlePaste}
+      >
+        <SearchBox
+          query={query}
+          isFocused={isSearching}
+          isTerminalFocused={isTerminalFocused}
+          cursorOffset={cursorOffset}
+          placeholder="Search skills…"
+        />
+        {filteredSkills.length === 0 ? (
+          <Box marginTop={1}>
+            <Text>{`No skills match "${query}"`}</Text>
+          </Box>
+        ) : (
+          <>
         {hiddenAbove > 0 && (
           <Text dimColor>
             {'  '}
@@ -310,6 +423,8 @@ export function SkillsMenu({ onExit, commands }: Props): React.ReactNode {
             {'  '}
             {figures.arrowDown} {hiddenBelow} more below
           </Text>
+        )}
+          </>
         )}
       </Box>
       {skills.some(skill => skill.source === 'plugin') && (
