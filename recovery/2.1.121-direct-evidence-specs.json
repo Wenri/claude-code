@@ -1856,7 +1856,9 @@
       "category": "hidden",
       "targetFragments": [
         "tengu_bg_spare_claim",
-        "tengu_bg_spare_enable"
+        "tengu_bg_spare_enable",
+        "CLAUDE_CODE_DISABLE_AGENTS_FLEET",
+        "older CLI ignored the request"
       ],
       "sourceAssertions": [
         {
@@ -1866,10 +1868,22 @@
         {
           "path": "src/daemon/ptyHost.ts",
           "fragment": "tengu_bg_spare_enable"
+        },
+        {
+          "path": "src/entrypoints/sdk/controlSchemas.ts",
+          "fragment": "older CLI ignored the request"
+        },
+        {
+          "path": "src/utils/agentsFleet.ts",
+          "fragment": "CLAUDE_CODE_DISABLE_AGENTS_FLEET"
+        },
+        {
+          "path": "src/utils/settings/types.ts",
+          "fragment": "disableBackgroundAgents"
         }
       ],
       "focusedTests": [
-        "daemon-lifecycle"
+        "daemon-service"
       ],
       "rationale": "Target-only spare-claim telemetry anchors the broader daemon/background/Fleet recovery, decomposed further by D rows.",
       "sourcePathAbsences": []
@@ -1901,7 +1915,9 @@
         "Service lifecycle:",
         "logs              Tail the daemon log (Ctrl-C to stop)",
         "--keep-workers  leave detached sessions running",
-        "stop              Shut down the supervisor and terminate background sessions"
+        "stop              Shut down the supervisor and terminate background sessions",
+        "service recall flag set",
+        "tengu_daemon_yield_takeover"
       ],
       "sourceAssertions": [
         {
@@ -1918,12 +1934,20 @@
         },
         {
           "path": "src/daemon/main.ts",
-          "fragment": "supervisor"
+          "fragment": "service recall flag set — draining workers and uninstalling service"
+        },
+        {
+          "path": "src/daemon/main.ts",
+          "fragment": "logEvent('tengu_daemon_yield_takeover'"
+        },
+        {
+          "path": "src/cli/update.ts",
+          "fragment": "will restart on the new version shortly; background jobs continue uninterrupted"
         }
       ],
       "rationale": "Target-only daemon help text binds the complete per-user service lifecycle.",
       "focusedTests": [
-        "daemon-lifecycle"
+        "daemon-service"
       ],
       "sourcePathAbsences": []
     },
@@ -1933,7 +1957,11 @@
       "title": "Transient daemon yield and background spare adoption",
       "targetFragments": [
         "yielding to a foreground/service daemon",
-        "tengu_bg_spare_claim"
+        "tengu_bg_spare_claim",
+        "tengu_bg_spare_claim_fail",
+        "send-claim timeout",
+        "worker-phase transition",
+        "roster-less pty host(s)"
       ],
       "sourceAssertions": [
         {
@@ -1951,11 +1979,23 @@
         {
           "path": "src/daemon/ptyClient.ts",
           "fragment": "claim"
+        },
+        {
+          "path": "src/daemon/spare.ts",
+          "fragment": "send-claim timeout"
+        },
+        {
+          "path": "src/daemon/peerCredentials.ts",
+          "fragment": "controlPeerMatchesCurrentUser"
+        },
+        {
+          "path": "src/daemon/orphanReaper.ts",
+          "fragment": "roster-less pty host(s)"
         }
       ],
       "rationale": "Exact handover copy and claim telemetry bind lock-safe transient/service ownership transfer.",
       "focusedTests": [
-        "daemon-lifecycle"
+        "daemon-service"
       ],
       "sourcePathAbsences": []
     },
@@ -1965,16 +2005,17 @@
       "title": "Background worker crash recovery, task ownership, and Fleet state",
       "targetFragments": [
         " orphaned background task(s) after restart",
-        "tengu_bg_agent_action"
+        "tengu_bg_agent_action",
+        "[sessionRestore] Auto-resuming interrupted turn for bg crash-respawn",
+        "running_background_tasks",
+        "stateSortOrder",
+        "stopped. ctrl+x again to delete.",
+        "Couldn't save order"
       ],
       "sourceAssertions": [
         {
           "path": "src/utils/agentsFleet.ts",
           "fragment": "daemon"
-        },
-        {
-          "path": "src/utils/backgroundHousekeeping.ts",
-          "fragment": "orphan"
         },
         {
           "path": "src/components/FleetView.tsx",
@@ -1983,11 +2024,27 @@
         {
           "path": "src/components/BackgroundExitDialog.tsx",
           "fragment": "background"
+        },
+        {
+          "path": "src/daemon/jobs.ts",
+          "fragment": "stateSortOrder"
+        },
+        {
+          "path": "src/state/onChangeAppState.ts",
+          "fragment": "running_background_tasks"
+        },
+        {
+          "path": "src/utils/conversationRecovery.ts",
+          "fragment": "removeInterruptedMessage"
+        },
+        {
+          "path": "src/utils/sessionRestore.ts",
+          "fragment": "Auto-resuming interrupted turn for bg crash-respawn"
         }
       ],
       "rationale": "Target-only restart-orphan copy and expanded action telemetry bind background ownership recovery and Fleet UX.",
       "focusedTests": [
-        "daemon-lifecycle"
+        "daemon-service"
       ],
       "sourcePathAbsences": []
     },
