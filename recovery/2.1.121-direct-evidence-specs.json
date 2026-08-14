@@ -1805,7 +1805,7 @@
       "sourceAssertions": [
         {
           "path": "src/bridge/initReplBridge.ts",
-          "fragment": "bridge_repl_v2_reattach_fallback"
+          "fragment": "reattachSessionId,"
         },
         {
           "path": "src/bridge/remoteBridgeCore.ts",
@@ -1813,7 +1813,7 @@
         },
         {
           "path": "src/cli/transports/transportUtils.ts",
-          "fragment": "tengu_sdk_url_host_rejected"
+          "fragment": "--sdk-url is the session URL"
         },
         {
           "path": "src/commands/model/model.tsx",

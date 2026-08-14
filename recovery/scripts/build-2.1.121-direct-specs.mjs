@@ -510,9 +510,9 @@ const hiddenRows = [
       'No other permission modes are available in this remote session',
     ],
     sourceAssertions: [
-      sr('src/bridge/initReplBridge.ts', 'bridge_repl_v2_reattach_fallback'),
+      sr('src/bridge/initReplBridge.ts', 'reattachSessionId,'),
       sr('src/bridge/remoteBridgeCore.ts', 'bridge_repl_v2_reattach_fallback'),
-      sr('src/cli/transports/transportUtils.ts', 'tengu_sdk_url_host_rejected'),
+      sr('src/cli/transports/transportUtils.ts', '--sdk-url is the session URL'),
       sr('src/commands/model/model.tsx', "getRuntimeCapabilities().workspace === 'remote'"),
       sr('src/commands/model/model.tsx', 'Model picker shows local options in remote sessions — pass a model name, e.g. /model sonnet'),
       sr('src/components/PromptInput/PromptInput.tsx', 'remote-permission-mode-noop'),
