@@ -138,6 +138,14 @@ const runbook = `# Claude Code 2.1.121 recovery runbook
 
 Run commands from the repository root. Set \`ARTIFACTS\` to the directory containing the paths recorded in \`manifest.json\`, and \`BASELINE_TARBALL\` to the authenticated 2.1.120 npm tarball.
 
+## Install pinned verifier dependencies
+
+\`\`\`sh
+pixi run npm --prefix recovery ci --ignore-scripts
+\`\`\`
+
+This installs only the exact dependency graph pinned by \`recovery/package-lock.json\`; lifecycle scripts stay disabled.
+
 ## Complete verification
 
 \`\`\`sh
