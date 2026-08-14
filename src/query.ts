@@ -7,7 +7,9 @@ import type { CanUseToolFn } from './hooks/useCanUseTool.js'
 import { FallbackTriggeredError } from './services/api/withRetry.js'
 import {
   calculateTokenWarningState,
+  getNextConsecutiveRapidRefills,
   isAutoCompactEnabled,
+  RAPID_REFILL_BREAKER_ERROR,
   type AutoCompactTrackingState,
 } from './services/compact/autoCompact.js'
 import { buildPostCompactMessages } from './services/compact/compact.js'
@@ -158,6 +160,12 @@ const snipModule = feature('HISTORY_SNIP')
 const classifierJobState = jobClassifier
   ? jobClassifier.createClassifierJobState()
   : null
+
+function sanitizeQuerySourceForAnalytics(querySource: QuerySource): string {
+  return querySource.startsWith('agent:custom:')
+    ? 'agent:custom'
+    : querySource
+}
 
 function markClassifierApiFailure(
   toolUseContext: ToolUseContext,
@@ -531,7 +539,12 @@ async function* queryLoop(
     )
 
     queryCheckpoint('query_autocompact_start')
-    const { compactionResult, consecutiveFailures } = await deps.autocompact(
+    const {
+      compactionResult,
+      consecutiveFailures,
+      consecutiveRapidRefills,
+      rapidRefillBreakerTripped,
+    } = await deps.autocompact(
       messagesForQuery,
       toolUseContext,
       {
@@ -546,6 +559,20 @@ async function* queryLoop(
       snipTokensFreed,
     )
     queryCheckpoint('query_autocompact_end')
+
+    if (rapidRefillBreakerTripped) {
+      logEvent('tengu_auto_compact_rapid_refill_breaker', {
+        consecutiveRapidRefills: tracking?.consecutiveRapidRefills ?? 0,
+        turnsSincePreviousCompact: tracking?.turnCounter ?? -1,
+        queryChainId: queryChainIdForAnalytics,
+        queryDepth: queryTracking.depth,
+      })
+      yield createAssistantAPIErrorMessage({
+        content: RAPID_REFILL_BREAKER_ERROR,
+        error: 'invalid_request',
+      })
+      return { reason: 'rapid_refill_breaker' }
+    }
 
     if (compactionResult) {
       const {
@@ -603,6 +630,7 @@ async function* queryLoop(
         turnId: deps.uuid(),
         turnCounter: 0,
         consecutiveFailures: 0,
+        consecutiveRapidRefills,
       }
 
       const postCompactMessages = buildPostCompactMessages(compactionResult)
@@ -720,6 +748,11 @@ async function* queryLoop(
         toolUseContext.options.mainLoopModel,
       )
       if (isAtBlockingLimit) {
+        logEvent('tengu_ptl_surfaced_to_user', {
+          reason: 'blocking_limit',
+          querySource: sanitizeQuerySourceForAnalytics(querySource),
+          wasGatedByPriorAttempt: false,
+        })
         yield createAssistantAPIErrorMessage({
           content: PROMPT_TOO_LONG_ERROR_MESSAGE,
           error: 'invalid_request',
@@ -1220,6 +1253,29 @@ async function* queryLoop(
       const isWithheldMedia =
         mediaRecoveryEnabled &&
         reactiveCompact?.isWithheldMediaSizeError(lastMessage)
+
+      const nextConsecutiveRapidRefills =
+        getNextConsecutiveRapidRefills(tracking)
+
+      if (
+        (isWithheld413 || isWithheldMedia) &&
+        !hasAttemptedReactiveCompact &&
+        nextConsecutiveRapidRefills >= 3
+      ) {
+        logEvent('tengu_auto_compact_rapid_refill_breaker', {
+          consecutiveRapidRefills: tracking?.consecutiveRapidRefills ?? 0,
+          turnsSincePreviousCompact: tracking?.turnCounter ?? -1,
+          queryChainId: queryChainIdForAnalytics,
+          queryDepth: queryTracking.depth,
+          reactive: true,
+        })
+        yield createAssistantAPIErrorMessage({
+          content: RAPID_REFILL_BREAKER_ERROR,
+          error: 'invalid_request',
+        })
+        return { reason: 'rapid_refill_breaker' }
+      }
+
       if (isWithheld413) {
         // First: drain all staged context-collapses. Gated on the PREVIOUS
         // transition not being collapse_drain_retry — if we already drained
@@ -1290,7 +1346,13 @@ async function* queryLoop(
           const next: State = {
             messages: postCompactMessages,
             toolUseContext,
-            autoCompactTracking: undefined,
+            autoCompactTracking: {
+              compacted: true,
+              turnId: deps.uuid(),
+              turnCounter: 0,
+              consecutiveFailures: 0,
+              consecutiveRapidRefills: nextConsecutiveRapidRefills,
+            },
             maxOutputTokensRecoveryCount,
             hasAttemptedReactiveCompact: true,
             maxOutputTokensOverride: undefined,
@@ -1308,6 +1370,13 @@ async function* queryLoop(
         // so hooks have nothing meaningful to evaluate. Running stop hooks
         // on prompt-too-long creates a death spiral: error → hook blocking
         // → retry → error → … (the hook injects more tokens each cycle).
+        if (!toolUseContext.abortController.signal.aborted) {
+          logEvent('tengu_ptl_surfaced_to_user', {
+            reason: isWithheldMedia ? 'image_error' : 'prompt_too_long',
+            querySource: sanitizeQuerySourceForAnalytics(querySource),
+            wasGatedByPriorAttempt: hasAttemptedReactiveCompact,
+          })
+        }
         yield lastMessage
         void executeStopFailureHooks(lastMessage, toolUseContext)
         void markClassifierApiFailure(toolUseContext, querySource, lastMessage)
@@ -1316,6 +1385,13 @@ async function* queryLoop(
         // reactiveCompact compiled out but contextCollapse withheld and
         // couldn't recover (staged queue empty/stale). Surface. Same
         // early-return rationale — don't fall through to stop hooks.
+        if (!toolUseContext.abortController.signal.aborted) {
+          logEvent('tengu_ptl_surfaced_to_user', {
+            reason: 'prompt_too_long',
+            querySource: sanitizeQuerySourceForAnalytics(querySource),
+            wasGatedByPriorAttempt: hasAttemptedReactiveCompact,
+          })
+        }
         yield lastMessage
         void executeStopFailureHooks(lastMessage, toolUseContext)
         void markClassifierApiFailure(toolUseContext, querySource, lastMessage)
