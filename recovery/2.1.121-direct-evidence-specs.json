@@ -4379,7 +4379,9 @@
         "Calling Google Cloud",
         "Save anyway (skip verification)",
         "Pin the working models with 1M context",
-        "if(!$||H.url&&om(H.url))return{};let[{NodeHttpHandler"
+        "profiles found in your account.",
+        "if(!$||H.url&&om(H.url))return{};let[{NodeHttpHandler",
+        "timeout:8000,fetchOptions:K({url:process.env.ANTHROPIC_BEDROCK_BASE_URL||`https://bedrock-runtime.${"
       ],
       "sourceAssertions": [
         {
@@ -4451,6 +4453,30 @@
           "fragment": "url: `https://bedrock.${data.region}.amazonaws.com`"
         },
         {
+          "path": "src/components/ConsoleOAuthWizards.tsx",
+          "fragment": "preferFirstWorking={provider === 'Bedrock'}"
+        },
+        {
+          "path": "src/components/ConsoleOAuthWizards.tsx",
+          "fragment": "accountCandidates={wizardData.discoveredProfiles ?? []}"
+        },
+        {
+          "path": "src/components/ConsoleOAuthWizards.tsx",
+          "fragment": "No ${MODEL_TIER_LABELS[pickingTier]} profiles found in your account."
+        },
+        {
+          "path": "src/utils/model/bedrockUpgrade.ts",
+          "fragment": "awsRegion: region"
+        },
+        {
+          "path": "src/utils/model/bedrockUpgrade.ts",
+          "fragment": "fetchOptions: getFetchOptions({"
+        },
+        {
+          "path": "src/utils/model/bedrockUpgrade.ts",
+          "fragment": "`https://bedrock-runtime.${region}.amazonaws.com`"
+        },
+        {
           "path": "src/utils/model/bedrock.ts",
           "fragment": "`https://bedrock.${region}.amazonaws.com`"
         },
@@ -4467,7 +4493,7 @@
           "fragment": "!proxyUrl || (url && shouldBypassProxy(url))"
         }
       ],
-      "rationale": "Authenticated launch, verification, persistence, completion, and target-only proxy witnesses bind provider selection, AWS/Vertex model probes, explicit permission diagnostics, model pinning, restart wiring, and URL-aware NO_PROXY behavior at every Bedrock control/runtime callsite.",
+      "rationale": "Authenticated launch, verification, persistence, completion, profile-selection, and target-only proxy witnesses bind provider selection, truthful Bedrock account counts and first-working defaults, AWS/Vertex model probes, model pinning, restart wiring, and URL-aware NO_PROXY behavior at every Bedrock control/runtime/upgrade callsite.",
       "focusedTests": [
         "console-platform-wizards"
       ],
