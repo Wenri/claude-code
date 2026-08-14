@@ -1,11 +1,14 @@
 import { c as _c } from "react/compiler-runtime";
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { extraUsage } from 'src/commands/extra-usage/index.js';
 import { Box, Text } from 'src/ink.js';
 import { useClaudeAiLimits } from 'src/services/claudeAiLimitsHook.js';
 import { shouldProcessMockLimits } from 'src/services/rateLimitMocking.js'; // Used for /mock-limits command
 import { getRateLimitTier, getSubscriptionType, isClaudeAISubscriber } from 'src/utils/auth.js';
 import { hasClaudeAiBillingAccess } from 'src/utils/billing.js';
+import { isEnvTruthy } from 'src/utils/envUtils.js';
+import { isUpgradeSuppressed } from 'src/utils/subscriptionUpsell.js';
+import { getFeatureValue_CACHED_MAY_BE_STALE } from 'src/services/analytics/growthbook.js';
 import { MessageResponse } from '../MessageResponse.js';
 type UpsellParams = {
   shouldShowUpsell: boolean;
@@ -14,6 +17,8 @@ type UpsellParams = {
   shouldAutoOpenRateLimitOptionsMenu: boolean;
   isTeamOrEnterprise: boolean;
   hasBillingAccess: boolean;
+  serverHidesUpgrade: boolean;
+  serverHidesOverage: boolean;
 };
 export function getUpsellMessage({
   shouldShowUpsell,
@@ -21,27 +26,35 @@ export function getUpsellMessage({
   isExtraUsageCommandEnabled,
   shouldAutoOpenRateLimitOptionsMenu,
   isTeamOrEnterprise,
-  hasBillingAccess
+  hasBillingAccess,
+  serverHidesUpgrade,
+  serverHidesOverage
 }: UpsellParams): string | null {
   if (!shouldShowUpsell) return null;
+  if (shouldAutoOpenRateLimitOptionsMenu) {
+    return 'Opening your options\u2026';
+  }
+  const canOfferExtraUsage = isExtraUsageCommandEnabled && !serverHidesOverage;
   if (isMax20x) {
-    if (isExtraUsageCommandEnabled) {
+    if (canOfferExtraUsage) {
       return '/extra-usage to finish what you\u2019re working on.';
     }
     return '/login to switch to an API usage-billed account.';
   }
-  if (shouldAutoOpenRateLimitOptionsMenu) {
-    return 'Opening your options\u2026';
-  }
-  if (!isTeamOrEnterprise && !isExtraUsageCommandEnabled) {
-    return '/upgrade to increase your usage limit.';
-  }
   if (isTeamOrEnterprise) {
-    if (!isExtraUsageCommandEnabled) return null;
+    if (!canOfferExtraUsage) return null;
     if (hasBillingAccess) {
       return '/extra-usage to finish what you\u2019re working on.';
     }
     return '/extra-usage to request more usage from your admin.';
+  }
+  if (serverHidesUpgrade) {
+    return canOfferExtraUsage
+      ? '/extra-usage to finish what you\u2019re working on.'
+      : null;
+  }
+  if (!canOfferExtraUsage) {
+    return '/upgrade to increase your usage limit.';
   }
   return '/upgrade or /extra-usage to finish what you\u2019re working on.';
 }
@@ -81,9 +94,30 @@ export function RateLimitMessage(t0) {
     t3 = $[2];
   }
   const shouldShowUpsell = t3;
-  const canSeeRateLimitOptionsUpsell = shouldShowUpsell && !isMax20x;
-  const [hasOpenedInteractiveMenu, setHasOpenedInteractiveMenu] = useState(false);
   const claudeAiLimits = useClaudeAiLimits();
+  const upgradePaths = claudeAiLimits.upgradePaths;
+  const serverHidesUpgrade = upgradePaths !== undefined && !upgradePaths.includes('upgrade_plan');
+  const serverHidesOverage = upgradePaths !== undefined && !upgradePaths.includes('overage');
+  const upgradeSuppressed = isUpgradeSuppressed();
+  const canUseClientUpgrade =
+    getFeatureValue_CACHED_MAY_BE_STALE('tengu_coral_beacon', false) &&
+    !isTeamOrEnterprise &&
+    !upgradeSuppressed &&
+    !isEnvTruthy(process.env.DISABLE_UPGRADE_COMMAND);
+  const isExtraUsageCommandEnabled = extraUsage.isEnabled();
+  const serverAllowsAnOption = upgradePaths !== undefined && (
+    (upgradePaths.includes('upgrade_plan') &&
+      !upgradeSuppressed &&
+      !isEnvTruthy(process.env.DISABLE_UPGRADE_COMMAND) &&
+      subscriptionType !== 'enterprise') ||
+    (upgradePaths.includes('overage') && isExtraUsageCommandEnabled)
+  );
+  const canSeeRateLimitOptionsUpsell =
+    shouldShowUpsell &&
+    (upgradePaths !== undefined
+      ? serverAllowsAnOption || canUseClientUpgrade
+      : !isMax20x || canUseClientUpgrade);
+  const [hasOpenedInteractiveMenu, setHasOpenedInteractiveMenu] = useState(false);
   const isCurrentlyRateLimited = claudeAiLimits.status === "rejected" && claudeAiLimits.resetsAt !== undefined && !claudeAiLimits.isUsingOverage;
   const shouldAutoOpenRateLimitOptionsMenu = canSeeRateLimitOptionsUpsell && !hasOpenedInteractiveMenu && isCurrentlyRateLimited && onOpenRateLimitOptions;
   let t4;
@@ -105,39 +139,17 @@ export function RateLimitMessage(t0) {
     t5 = $[6];
   }
   useEffect(t4, t5);
-  let t6;
-  bb0: {
-    let t7;
-    if ($[7] !== shouldAutoOpenRateLimitOptionsMenu) {
-      t7 = getUpsellMessage({
-        shouldShowUpsell,
-        isMax20x,
-        isExtraUsageCommandEnabled: extraUsage.isEnabled(),
-        shouldAutoOpenRateLimitOptionsMenu: !!shouldAutoOpenRateLimitOptionsMenu,
-        isTeamOrEnterprise,
-        hasBillingAccess: hasClaudeAiBillingAccess()
-      });
-      $[7] = shouldAutoOpenRateLimitOptionsMenu;
-      $[8] = t7;
-    } else {
-      t7 = $[8];
-    }
-    const message = t7;
-    if (!message) {
-      t6 = null;
-      break bb0;
-    }
-    let t8;
-    if ($[9] !== message) {
-      t8 = <Text dimColor={true}>{message}</Text>;
-      $[9] = message;
-      $[10] = t8;
-    } else {
-      t8 = $[10];
-    }
-    t6 = t8;
-  }
-  const upsell = t6;
+  const upsellMessage = getUpsellMessage({
+    shouldShowUpsell,
+    isMax20x,
+    isExtraUsageCommandEnabled,
+    shouldAutoOpenRateLimitOptionsMenu: !!shouldAutoOpenRateLimitOptionsMenu,
+    isTeamOrEnterprise,
+    hasBillingAccess: hasClaudeAiBillingAccess(),
+    serverHidesUpgrade: serverHidesUpgrade || upgradeSuppressed,
+    serverHidesOverage
+  });
+  const upsell = upsellMessage ? <Text dimColor={true}>{upsellMessage}</Text> : null;
   let t7;
   if ($[11] !== text) {
     t7 = <Text color="error">{text}</Text>;

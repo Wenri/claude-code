@@ -5,6 +5,7 @@ import { Text } from '../../ink.js';
 import { logEvent } from '../../services/analytics/index.js';
 import { getGlobalConfig, saveGlobalConfig } from '../../utils/config.js';
 import { useStartupNotification } from './useStartupNotification.js';
+import { isProSwitchSuppressed, isUpgradeSuppressed } from '../../utils/subscriptionUpsell.js';
 const MAX_SHOW_COUNT = 3;
 
 /**
@@ -49,10 +50,10 @@ async function getExistingClaudeSubscription(): Promise<'Max' | 'Pro' | null> {
   if (!profile) {
     return null;
   }
-  if (profile.account.has_claude_max) {
+  if (profile.account.has_claude_max && !isUpgradeSuppressed()) {
     return 'Max';
   }
-  if (profile.account.has_claude_pro) {
+  if (profile.account.has_claude_pro && !isProSwitchSuppressed()) {
     return 'Pro';
   }
   return null;

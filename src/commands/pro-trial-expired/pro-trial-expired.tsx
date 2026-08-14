@@ -8,6 +8,7 @@ import type { ToolUseContext } from '../../Tool.js'
 import type { LocalJSXCommandOnDone } from '../../types/command.js'
 import { call as extraUsageCall } from '../extra-usage/extra-usage.js'
 import { call as upgradeCall } from '../upgrade/upgrade.js'
+import { isUpgradeSuppressed } from '../../utils/subscriptionUpsell.js'
 
 type TrialExpiredChoice = 'upgrade' | 'extra-usage'
 
@@ -41,7 +42,9 @@ function ProTrialExpired({
       <Dialog title="What do you want to do?" onCancel={() => onDone()}>
         <Select<TrialExpiredChoice>
           options={[
-            { label: 'Upgrade to Max', value: 'upgrade' },
+            ...(!isUpgradeSuppressed()
+              ? [{ label: 'Upgrade to Max', value: 'upgrade' as const }]
+              : []),
             {
               label: 'Add funds to continue with extra usage',
               value: 'extra-usage',

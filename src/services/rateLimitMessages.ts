@@ -15,6 +15,7 @@ import {
   type EffortValue,
 } from '../utils/effort.js'
 import type { ClaudeAILimits } from './claudeAiLimits.js'
+import { isUpgradeSuppressed } from '../utils/subscriptionUpsell.js'
 
 const FEEDBACK_CHANNEL_ANT = '#briarpatch-cc'
 
@@ -376,7 +377,10 @@ function getWarningUpsellText(
     }
 
     // Pro/Max users: prompt to upgrade
-    if (subscriptionType === 'pro' || subscriptionType === 'max') {
+    if (
+      (subscriptionType === 'pro' || subscriptionType === 'max') &&
+      !isUpgradeSuppressed()
+    ) {
       return '/upgrade to keep using Claude Code'
     }
   }
