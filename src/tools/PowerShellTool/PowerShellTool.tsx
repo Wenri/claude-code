@@ -8,7 +8,7 @@ import { z } from 'zod/v4';
 import { getKairosActive } from '../../bootstrap/state.js';
 import { TOOL_SUMMARY_MAX_LENGTH } from '../../constants/toolLimits.js';
 import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEvent } from '../../services/analytics/index.js';
-import type { SetToolJSXFn, Tool, ToolCallProgress, ValidationResult } from '../../Tool.js';
+import type { SetToolJSXFn, Tool, ToolCallProgress, ToolUseContext, ValidationResult } from '../../Tool.js';
 import { buildTool, type ToolDef } from '../../Tool.js';
 import { backgroundExistingForegroundTask, markTaskNotified, registerForeground, spawnShellTask, unregisterForeground } from '../../tasks/LocalShellTask/LocalShellTask.js';
 import type { AgentId } from '../../types/ids.js';
@@ -447,7 +447,8 @@ export const PowerShellTool = buildTool({
     const {
       abortController,
       setAppState,
-      setToolJSX
+      setToolJSX,
+      emitToolProgress,
     } = toolUseContext;
     const isMainThread = !toolUseContext.agentId;
     let progressCounter = 0;
@@ -459,6 +460,7 @@ export const PowerShellTool = buildTool({
         // shell tasks are actually registered (and killable on agent exit).
         setAppState: toolUseContext.setAppStateForTasks ?? setAppState,
         setToolJSX,
+        emitToolProgress,
         preventCwdChanges: !isMainThread,
         isMainThread,
         toolUseId: toolUseContext.toolUseId,
@@ -654,6 +656,12 @@ export const PowerShellTool = buildTool({
       };
     } finally {
       if (setToolJSX) setToolJSX(null);
+      if (toolUseContext.toolUseId) {
+        emitToolProgress?.({
+          kind: 'clear',
+          toolUseId: toolUseContext.toolUseId,
+        });
+      }
     }
   },
   isResultTruncated(output: Out): boolean {
@@ -665,6 +673,7 @@ async function* runPowerShellCommand({
   abortController,
   setAppState,
   setToolJSX,
+  emitToolProgress,
   preventCwdChanges,
   isMainThread,
   toolUseId,
@@ -674,6 +683,7 @@ async function* runPowerShellCommand({
   abortController: AbortController;
   setAppState: (f: (prev: AppState) => AppState) => void;
   setToolJSX?: SetToolJSXFn;
+  emitToolProgress?: ToolUseContext['emitToolProgress'];
   preventCwdChanges?: boolean;
   isMainThread?: boolean;
   toolUseId?: string;
@@ -970,6 +980,9 @@ async function* runPowerShellCommand({
           shouldContinueAnimation: true,
           showSpinner: true
         });
+        if (toolUseId) {
+          emitToolProgress?.({ kind: 'background_hint', toolUseId });
+        }
       }
       yield {
         type: 'progress',

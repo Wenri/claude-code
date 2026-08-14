@@ -53,6 +53,7 @@ import type {
   MCPProgress,
   REPLToolProgress,
   SkillToolProgress,
+  ShellProgress,
   TaskOutputProgress,
   ToolProgressData,
   WebSearchProgress,
@@ -163,6 +164,30 @@ export type CompactProgressEvent =
   | { type: 'compact_start' }
   | { type: 'compact_end' }
 
+/**
+ * Transient progress rendered outside the transcript while a tool or a
+ * forked slash command is running. These entries are deliberately keyed by
+ * tool-use ID so a terminal `clear` event can release both the UI and the
+ * retained progress payload.
+ */
+export type ToolProgressEvent =
+  | { kind: 'clear'; toolUseId: string }
+  | { kind: 'background_hint'; toolUseId: string }
+  | {
+      kind: 'bash_mode_progress'
+      toolUseId: string
+      input: string
+      progress: ShellProgress | null
+      verbose: boolean
+    }
+  | {
+      kind: 'agent_progress'
+      toolUseId: string
+      progressMessages: ProgressMessage[]
+    }
+  | { kind: 'it2_setup_prompt'; toolUseId: string }
+  | { kind: 'computer_use_approval'; toolUseId: string }
+
 export type ToolUseContext = {
   options: {
     commands: Command[]
@@ -229,6 +254,7 @@ export type ToolUseContext = {
     signal: AbortSignal,
   ) => Promise<ElicitResult>
   setToolJSX?: SetToolJSXFn
+  emitToolProgress?: (event: ToolProgressEvent) => void
   addNotification?: (notif: Notification) => void
   /** Append a UI-only system message to the REPL message list. Stripped at the
    *  normalizeMessagesForAPI boundary — the Exclude<> makes that type-enforced. */

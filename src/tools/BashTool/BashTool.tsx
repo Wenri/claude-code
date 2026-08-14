@@ -714,7 +714,8 @@ export const BashTool = buildTool({
       abortController,
       getAppState,
       setAppState,
-      setToolJSX
+      setToolJSX,
+      emitToolProgress,
     } = toolUseContext;
     const stdoutAccumulator = new EndTruncatingAccumulator();
     let stderrForShellReset = '';
@@ -733,6 +734,7 @@ export const BashTool = buildTool({
         // bash tasks are actually registered (and killable on agent exit).
         setAppState: toolUseContext.setAppStateForTasks ?? setAppState,
         setToolJSX,
+        emitToolProgress,
         preventCwdChanges,
         isMainThread,
         toolUseId: toolUseContext.toolUseId,
@@ -803,6 +805,12 @@ export const BashTool = buildTool({
       wasInterrupted = result.interrupted;
     } finally {
       if (setToolJSX) setToolJSX(null);
+      if (toolUseContext.toolUseId) {
+        emitToolProgress?.({
+          kind: 'clear',
+          toolUseId: toolUseContext.toolUseId,
+        });
+      }
     }
 
     // Get final string from accumulator
@@ -930,6 +938,7 @@ async function* runShellCommand({
   abortController,
   setAppState,
   setToolJSX,
+  emitToolProgress,
   preventCwdChanges,
   isMainThread,
   toolUseId,
@@ -939,6 +948,7 @@ async function* runShellCommand({
   abortController: AbortController;
   setAppState: (f: (prev: AppState) => AppState) => void;
   setToolJSX?: SetToolJSXFn;
+  emitToolProgress?: ToolUseContext['emitToolProgress'];
   preventCwdChanges?: boolean;
   isMainThread?: boolean;
   toolUseId?: string;
@@ -1225,6 +1235,9 @@ async function* runShellCommand({
           shouldContinueAnimation: true,
           showSpinner: true
         });
+        if (toolUseId) {
+          emitToolProgress?.({ kind: 'background_hint', toolUseId });
+        }
       }
       yield {
         type: 'progress',

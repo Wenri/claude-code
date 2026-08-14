@@ -889,6 +889,12 @@ export const AgentTool = buildTool({
                 shouldContinueAnimation: true,
                 showSpinner: true
               });
+              if (toolUseContext.toolUseId) {
+                toolUseContext.emitToolProgress?.({
+                  kind: 'background_hint',
+                  toolUseId: toolUseContext.toolUseId,
+                });
+              }
             }
 
             // Race between next message and background signal
@@ -1162,6 +1168,12 @@ export const AgentTool = buildTool({
           // Clear the background hint UI
           if (toolUseContext.setToolJSX) {
             toolUseContext.setToolJSX(null);
+          }
+          if (toolUseContext.toolUseId) {
+            toolUseContext.emitToolProgress?.({
+              kind: 'clear',
+              toolUseId: toolUseContext.toolUseId,
+            });
           }
 
           // Stop foreground summarization. Idempotent — if already stopped at

@@ -228,6 +228,11 @@ async function executeForkedSlashCommand(command: CommandBase & PromptCommand, a
       shouldContinueAnimation: true,
       showSpinner: true
     });
+    context.emitToolProgress?.({
+      kind: 'agent_progress',
+      toolUseId: parentToolUseID,
+      progressMessages: [...progressMessages],
+    });
   };
 
   // Show initial "Initializing…" state
@@ -277,6 +282,7 @@ async function executeForkedSlashCommand(command: CommandBase & PromptCommand, a
   } finally {
     // Clear the progress display
     setToolJSX(null);
+    context.emitToolProgress?.({ kind: 'clear', toolUseId: parentToolUseID });
   }
   let resultText = extractResultText(agentMessages, 'Command completed');
   logForDebugging(`Forked slash command /${command.name} completed with agent ${agentId}`);

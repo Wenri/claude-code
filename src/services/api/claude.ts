@@ -128,6 +128,7 @@ import {
   getPromptCache1hAllowlist,
   getSessionId,
   getThinkingClearLatched,
+  getThinkingTypeOverride,
   setAfkModeHeaderLatched,
   setCacheDiagnosisHeaderLatched,
   setCacheEditingHeaderLatched,
@@ -135,6 +136,7 @@ import {
   setLastMainRequestId,
   setPromptCache1hAllowlist,
   setThinkingClearLatched,
+  setThinkingTypeOverride,
 } from 'src/bootstrap/state.js'
 import {
   AFK_MODE_BETA_HEADER,
@@ -210,6 +212,7 @@ import { validateBoundedIntEnvVar } from '../../utils/envValidation.js'
 import { safeParseJSON } from '../../utils/json.js'
 import { getInferenceProfileBackingModel } from '../../utils/model/bedrock.js'
 import {
+  getCanonicalName,
   normalizeModelStringForAPI,
   parseUserSpecifiedModel,
 } from '../../utils/model/model.js'
@@ -1017,6 +1020,27 @@ function isCacheDiagnosisBetaRejected(error: unknown): boolean {
   )
 }
 
+function isAfkModeBetaRejected(error: unknown): boolean {
+  return (
+    error instanceof APIError &&
+    error.status === 400 &&
+    error.message.includes(AFK_MODE_BETA_HEADER) &&
+    error.message.includes('anthropic-beta')
+  )
+}
+
+function getRejectedThinkingType(
+  error: unknown,
+): 'adaptive' | 'enabled' | null {
+  if (!(error instanceof APIError) || error.status !== 400) return null
+  const match =
+    /thinking\.type[^a-z]{1,8}(enabled|adaptive)[^]*?not supported/i.exec(
+      error.message,
+    )
+  const type = match?.[1]?.toLowerCase()
+  return type === 'adaptive' || type === 'enabled' ? type : null
+}
+
 function isMedia(
   block: BetaContentBlockParam,
 ): block is BetaImageBlockParam | BetaRequestDocumentBlock {
@@ -1718,15 +1742,24 @@ async function* queryModel(
     // IMPORTANT: Do not change the adaptive-vs-budget thinking selection below
     // without notifying the model launch DRI and research. This is a sensitive
     // setting that can greatly affect model quality and bashing.
-    if (hasThinking && modelSupportsThinking(options.model)) {
+    if (hasThinking && modelSupportsThinking(resolvedModel)) {
+      const canonicalModel = getCanonicalName(resolvedModel)
+      const adaptiveThinkingDisabled =
+        isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING) &&
+        (canonicalModel.includes('opus-4-6') ||
+          canonicalModel.includes('sonnet-4-6'))
+      const thinkingTypeOverride = getThinkingTypeOverride(options.model)
       if (
-        !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING) &&
-        modelSupportsAdaptiveThinking(options.model)
+        thinkingTypeOverride !== undefined
+          ? thinkingTypeOverride === 'adaptive'
+          : modelSupportsAdaptiveThinking(resolvedModel) &&
+            !adaptiveThinkingDisabled
       ) {
         // For models that support adaptive thinking, always use adaptive
         // thinking without a budget.
         thinking = {
           type: 'adaptive',
+          ...(thinkingConfig.display && { display: thinkingConfig.display }),
         } satisfies BetaMessageStreamParams['thinking']
       } else {
         // For models that do not support adaptive thinking, use the default
@@ -1742,6 +1775,7 @@ async function* queryModel(
         thinking = {
           budget_tokens: thinkingBudget,
           type: 'enabled',
+          ...(thinkingConfig.display && { display: thinkingConfig.display }),
         } satisfies BetaMessageStreamParams['thinking']
       }
     }
@@ -2031,6 +2065,17 @@ async function* queryModel(
         signal,
         querySource: options.querySource,
         onError: async error => {
+          if (afkHeaderLatched && isAfkModeBetaRejected(error)) {
+            afkHeaderLatched = false
+            setAfkModeHeaderLatched(false)
+            autoModeStateModule?.setAutoModeActive(false)
+            autoModeStateModule?.setAutoModeCircuitBroken(true)
+            logForDebugging(
+              '[auto-mode] server rejected afk-mode beta — dropping header and circuit-breaking auto for this session',
+              { level: 'warn' },
+            )
+            return 'retry:afk-beta'
+          }
           if (
             error instanceof APIError &&
             error.status === 400 &&
@@ -2054,6 +2099,17 @@ async function* queryModel(
               { level: 'warn' },
             )
             return 'retry:cache-diagnosis-beta'
+          }
+          const rejectedThinkingType = getRejectedThinkingType(error)
+          if (rejectedThinkingType) {
+            const fallbackThinkingType =
+              rejectedThinkingType === 'enabled' ? 'adaptive' : 'enabled'
+            setThinkingTypeOverride(options.model, fallbackThinkingType)
+            logForDebugging(
+              `[thinking] model rejected thinking.type=${rejectedThinkingType}; retrying with ${fallbackThinkingType}. For Bedrock application-inference-profile ARNs with bearer-token auth, granting bedrock:GetInferenceProfile to the token avoids this round-trip.`,
+              { level: 'warn' },
+            )
+            return 'retry:thinking-type'
           }
           const hintResult = await contextHintController?.onRequestError(
             error,

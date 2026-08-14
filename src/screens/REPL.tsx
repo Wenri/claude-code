@@ -121,7 +121,8 @@ const getCoordinatorUserContext: (mcpClients: ReadonlyArray<{
 } = feature('COORDINATOR_MODE') ? require('../coordinator/coordinatorMode.js').getCoordinatorUserContext : () => ({});
 /* eslint-enable custom-rules/no-process-env-top-level, @typescript-eslint/no-require-imports */
 import useCanUseTool from '../hooks/useCanUseTool.js';
-import type { ToolPermissionContext, Tool } from '../Tool.js';
+import type { ToolPermissionContext, Tool, ToolProgressEvent } from '../Tool.js';
+import { renderToolProgress } from '../components/ToolProgress.js';
 import { applyPermissionUpdate, applyPermissionUpdates, persistPermissionUpdate } from '../utils/permissions/PermissionUpdate.js';
 import { buildPermissionUpdates } from '../components/permissions/ExitPlanModePermissionRequest/ExitPlanModePermissionRequest.js';
 import { stripDangerousPermissionsForAutoMode } from '../utils/permissions/permissionSetup.js';
@@ -324,6 +325,41 @@ const HISTORY_STUB = {
 // up to read the start → start typing → before this fix, snapped to bottom.
 // https://anthropic.slack.com/archives/C07VBSHV7EV/p1773545449871739
 const RECENT_SCROLL_REPIN_WINDOW_MS = 3000;
+
+type ActiveToolProgress = Exclude<ToolProgressEvent, { kind: 'clear' }>;
+
+function reduceToolProgress(
+  current: Map<string, ActiveToolProgress>,
+  event: ToolProgressEvent,
+): Map<string, ActiveToolProgress> {
+  if (event.kind === 'clear') {
+    if (!current.has(event.toolUseId)) return current;
+    const next = new Map(current);
+    next.delete(event.toolUseId);
+    return next;
+  }
+  const previous = current.get(event.toolUseId);
+  if (event.kind === 'background_hint' && previous?.kind === event.kind) {
+    return current;
+  }
+  const next = new Map(current);
+  next.set(event.toolUseId, event);
+  return next;
+}
+
+function pruneResolvedToolProgress(
+  current: Map<string, ActiveToolProgress>,
+  resolvedToolUseIds: Set<string>,
+): Map<string, ActiveToolProgress> {
+  if (current.size === 0) return current;
+  let next: Map<string, ActiveToolProgress> | null = null;
+  for (const toolUseId of current.keys()) {
+    if (!resolvedToolUseIds.has(toolUseId)) continue;
+    next ??= new Map(current);
+    next.delete(toolUseId);
+  }
+  return next ?? current;
+}
 
 // Use LRU cache to prevent unbounded memory growth
 // 100 files should be sufficient for most coding sessions while preventing
@@ -1131,6 +1167,10 @@ export function REPL({
     }
     setToolJSXInternal(args);
   }, []);
+  const [toolProgress, setToolProgress] = useState<Map<string, ActiveToolProgress>>(() => new Map());
+  const emitToolProgress = useCallback((event: ToolProgressEvent) => {
+    setToolProgress(current => reduceToolProgress(current, event));
+  }, []);
   const [toolUseConfirmQueue, setToolUseConfirmQueueRaw] = useState<ToolUseConfirm[]>([]);
   const setToolUseConfirmQueue = useCallback<React.Dispatch<React.SetStateAction<ToolUseConfirm[]>>>(update => {
     setToolUseConfirmQueueRaw(current => {
@@ -1304,6 +1344,21 @@ export function REPL({
     }
     rawSetMessages(next);
   }, []);
+  useEffect(() => {
+    setToolProgress(current => {
+      if (current.size === 0) return current;
+      const resolvedToolUseIds = new Set<string>();
+      for (const message of messages) {
+        if (message.type !== 'user' || !Array.isArray(message.message.content)) continue;
+        for (const block of message.message.content) {
+          if (block.type === 'tool_result' && current.has(block.tool_use_id)) {
+            resolvedToolUseIds.add(block.tool_use_id);
+          }
+        }
+      }
+      return pruneResolvedToolProgress(current, resolvedToolUseIds);
+    });
+  }, [messages]);
   useJobStateNameSync(useCallback(name => {
     setMessages(previous => [...previous, createUserMessage({
       content: `The user named this session "${name}". This may indicate the session's focus or intent.`,
@@ -2630,6 +2685,7 @@ export function REPL({
       onChangeAPIKey: reverify,
       readFileState: readFileState.current,
       setToolJSX,
+      emitToolProgress,
       addNotification,
       appendSystemMessage: msg => setMessages(prev => [...prev, msg]),
       applyHintClears: (clearedIds, clearedContent) => {
@@ -2685,7 +2741,7 @@ export function REPL({
       contentReplacementState: contentReplacementStateRef.current,
       resultDedupState: resultDedupStateRef.current
     };
-  }, [commands, combinedInitialTools, mainThreadAgentDefinition, debug, initialMcpClients, ideInstallationStatus, dynamicMcpConfig, theme, allowedAgentTypes, store, setAppState, reverify, addNotification, setMessages, onChangeDynamicMcpConfig, resume, requestPrompt, disabled, customSystemPrompt, appendSystemPrompt, setConversationId]);
+  }, [commands, combinedInitialTools, mainThreadAgentDefinition, debug, initialMcpClients, ideInstallationStatus, dynamicMcpConfig, theme, allowedAgentTypes, store, setAppState, reverify, addNotification, setMessages, setToolJSX, emitToolProgress, onChangeDynamicMcpConfig, resume, requestPrompt, disabled, customSystemPrompt, appendSystemPrompt, setConversationId]);
 
   // Session backgrounding (Ctrl+B to background/foreground)
   const handleBackgroundQuery = useCallback(() => {
@@ -4806,6 +4862,12 @@ export function REPL({
         }} addMargin={true} verbose={verbose} />}
               {toolJSX && !(toolJSX.isLocalJSXCommand && toolJSX.isImmediate) && !toolJsxCentered && <Box flexDirection="column" width="100%">
                     {toolJSX.jsx}
+                  </Box>}
+              {!toolJSX && toolProgress.size > 0 && <Box flexDirection="column" width="100%">
+                    {Array.from(toolProgress.values()).map(progress => <React.Fragment key={progress.toolUseId}>{renderToolProgress(progress, {
+                  tools,
+                  verbose
+                })}</React.Fragment>)}
                   </Box>}
               {"external" === 'ant' && <TungstenLiveMonitor />}
               {feature('WEB_BROWSER_TOOL') ? WebBrowserPanelModule && <WebBrowserPanelModule.WebBrowserPanel /> : null}

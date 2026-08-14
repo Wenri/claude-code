@@ -268,6 +268,11 @@ type State = {
   // Session latch for prompt-cache diagnostics. Null means the eligibility
   // gate has not been evaluated for this conversation yet.
   cacheDiagnosisHeaderLatched: boolean | null
+  // Per-model fallback selected after the provider rejects one of the two
+  // supported thinking modes. Application inference profile ARNs can hide
+  // the backing model capability, so remember the successful mode for the
+  // remainder of the process and avoid repeating the failed round trip.
+  thinkingTypeOverrides: Map<string, 'adaptive' | 'enabled'>
   // Sticky-on latch for clearing thinking from prior tool loops. Triggered
   // when >1h since last API call (confirmed cache miss — no cache-hit
   // benefit to keeping thinking). Once latched, stays on so the newly-warmed
@@ -452,6 +457,7 @@ function getInitialState(): State {
     fastModeHeaderLatched: null,
     cacheEditingHeaderLatched: null,
     cacheDiagnosisHeaderLatched: null,
+    thinkingTypeOverrides: new Map(),
     thinkingClearLatched: null,
     // Current prompt ID
     promptId: null,
@@ -1893,6 +1899,19 @@ export function getCacheDiagnosisHeaderLatched(): boolean | null {
 
 export function setCacheDiagnosisHeaderLatched(v: boolean): void {
   STATE.cacheDiagnosisHeaderLatched = v
+}
+
+export function getThinkingTypeOverride(
+  model: string,
+): 'adaptive' | 'enabled' | undefined {
+  return STATE.thinkingTypeOverrides.get(model)
+}
+
+export function setThinkingTypeOverride(
+  model: string,
+  type: 'adaptive' | 'enabled',
+): void {
+  STATE.thinkingTypeOverrides.set(model, type)
 }
 
 export function getThinkingClearLatched(): boolean | null {
