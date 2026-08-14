@@ -59,7 +59,7 @@ export function ConsoleOAuthFlow({
 }: Props): React.ReactNode {
   const settings = getSettings_DEPRECATED() || {};
   const forceLoginMethod = forceLoginMethodProp ?? settings.forceLoginMethod;
-  const orgUUID = settings.forceLoginOrgUUID;
+  const orgUUID = typeof settings.forceLoginOrgUUID === 'string' ? settings.forceLoginOrgUUID : undefined;
   const forcedMethodMessage = forceLoginMethod === 'claudeai' ? 'Login method pre-selected: Subscription Plan (Claude Pro/Max)' : forceLoginMethod === 'console' ? 'Login method pre-selected: API Usage Billing (Anthropic Console)' : null;
   const terminal = useTerminalNotification();
   const [oauthStatus, setOAuthStatus] = useState<OAuthStatus>(() => {

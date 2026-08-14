@@ -40,7 +40,11 @@ import {
   triggerFastModeCooldown,
 } from '../../utils/fastMode.js'
 import { isNonCustomOpusModel } from '../../utils/model/model.js'
-import { disableKeepAlive } from '../../utils/proxy.js'
+import {
+  clearProxyAuthHelperCache,
+  disableKeepAlive,
+  getConfiguredProxyAuthHelper,
+} from '../../utils/proxy.js'
 import { sleep } from '../../utils/sleep.js'
 import type { ThinkingConfig } from '../../utils/thinking.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../analytics/growthbook.js'
@@ -831,6 +835,13 @@ function shouldRetry(error: APIError): boolean {
     getClaudeAIOAuthTokens()?.accessToken &&
     (error.status === 401 || isOAuthTokenRevokedError(error))
   ) {
+    return true
+  }
+
+  if (error.status === 407 && getConfiguredProxyAuthHelper()) {
+    clearProxyAuthHelperCache(
+      error.headers?.get('proxy-authenticate') ?? undefined,
+    )
     return true
   }
 

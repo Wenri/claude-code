@@ -11,6 +11,7 @@ import { useOptionalKeybindingContext } from '../keybindings/KeybindingContext.j
 import { keystrokesEqual } from '../keybindings/resolver.js';
 import type { ParsedKeystroke } from '../keybindings/types.js';
 import { normalizeFullWidthSpace } from '../utils/stringUtils.js';
+import { useAppState } from '../state/AppState.js';
 import { useVoiceEnabled } from './useVoiceEnabled.js';
 
 // Dead code elimination: conditional import for voice input hook.
@@ -26,9 +27,11 @@ const voiceNs: {
   }: {
     onTranscript: (t: string) => void;
     enabled: boolean;
+    mode?: 'hold' | 'tap';
   }) => ({
     state: 'idle' as const,
-    handleKeyEvent: (_fallbackMs?: number) => {}
+    handleKeyEvent: (_fallbackMs?: number) => {},
+    cancelRecording: () => {}
   })
 };
 /* eslint-enable @typescript-eslint/no-require-imports */
@@ -87,6 +90,7 @@ const DEFAULT_VOICE_KEYSTROKE: ParsedKeystroke = {
 type InsertTextHandle = {
   insert: (text: string) => void;
   setInputWithCursor: (value: string, cursor: number) => void;
+  submit: (value: string, fromKeybinding?: boolean) => void;
   cursorOffset: number;
 };
 type UseVoiceIntegrationArgs = {
@@ -113,6 +117,7 @@ type UseVoiceIntegrationResult = {
   // Undo the gap space and reset anchor refs after a failed voice activation.
   resetAnchor: () => void;
   handleKeyEvent: (fallbackMs?: number) => void;
+  cancelRecording: () => void;
   interimRange: InterimRange | null;
 };
 export function useVoiceIntegration({
@@ -228,6 +233,8 @@ export function useVoiceIntegration({
   const voiceInterimTranscript = feature('VOICE_MODE') ?
   // biome-ignore lint/correctness/useHookAtTopLevel: feature() is a compile-time constant
   useVoiceState(s_0 => s_0.voiceInterimTranscript) : '';
+  const autoSubmit = useAppState(s => s.settings.voice?.autoSubmit === true);
+  const voiceMode = useAppState(s => s.settings.voice?.mode ?? 'hold');
 
   // Set the voice anchor for focus mode (where recording starts via terminal
   // focus, not key hold). Key-hold sets the anchor in stripTrailing.
@@ -307,7 +314,10 @@ export function useVoiceIntegration({
     // Update the prefix to include this chunk so focus mode can continue
     // appending subsequent transcripts after it.
     voicePrefixRef.current = prefix_1 + leadingSpace_0 + text;
-  }, [setInputValueRaw, inputValueRef, insertTextRef]);
+    if ((voiceMode === 'tap' || autoSubmit) && text.trim().split(/\s+/).length >= 3) {
+      insertTextRef.current?.submit(newInput, true);
+    }
+  }, [setInputValueRaw, inputValueRef, insertTextRef, autoSubmit, voiceMode]);
   const voice = voiceNs.useVoice({
     onTranscript: handleVoiceTranscript,
     onError: (message: string) => {
@@ -320,7 +330,8 @@ export function useVoiceIntegration({
       });
     },
     enabled: voiceEnabled,
-    focusMode: false
+    focusMode: false,
+    mode: voiceMode
   });
 
   // Compute the character range of interim (not-yet-finalized) transcript
@@ -342,6 +353,7 @@ export function useVoiceIntegration({
     stripTrailing,
     resetAnchor,
     handleKeyEvent: voice.handleKeyEvent,
+    cancelRecording: voice.cancelRecording,
     interimRange
   };
 }
@@ -372,13 +384,17 @@ export function useVoiceIntegration({
  */
 export function useVoiceKeybindingHandler({
   voiceHandleKeyEvent,
+  voiceCancelRecording,
   stripTrailing,
   resetAnchor,
+  inputValueRef,
   isActive
 }: {
   voiceHandleKeyEvent: (fallbackMs?: number) => void;
+  voiceCancelRecording: () => void;
   stripTrailing: (maxStrip: number, opts?: StripOpts) => number;
   resetAnchor: () => void;
+  inputValueRef: React.RefObject<string>;
   isActive: boolean;
 }): {
   handleKeyDown: (e: KeyboardEvent) => void;
@@ -392,6 +408,7 @@ export function useVoiceKeybindingHandler({
   const voiceState = feature('VOICE_MODE') ?
   // biome-ignore lint/correctness/useHookAtTopLevel: feature() is a compile-time constant
   useVoiceState(s => s.voiceState) : 'idle';
+  const voiceMode = useAppState(s => s.settings.voice?.mode ?? 'hold');
 
   // Find the configured key for voice:pushToTalk from keybinding context.
   // Forward iteration with last-wins (matching the resolver): if a later
@@ -478,6 +495,13 @@ export function useVoiceKeybindingHandler({
     //     onCancel) has focus; PromptInput is mounted but focus=false.
     if (!isActive || isModalOverlayActive) return;
 
+    if (e.key === 'escape' && getVoiceState().voiceState === 'recording') {
+      e.stopImmediatePropagation();
+      voiceCancelRecording();
+      resetAnchor();
+      return;
+    }
+
     // null means the user overrode the default (null-unbind/reassign) —
     // hold-to-talk is disabled via binding. To toggle the feature
     // itself, use /voice.
@@ -502,6 +526,53 @@ export function useVoiceKeybindingHandler({
     } else {
       if (!matchesKeyboardEvent(e, voiceKeystroke)) return;
       repeatCount = 1;
+    }
+
+    if (voiceMode === 'tap') {
+      const current = getVoiceState().voiceState;
+      if (current === 'processing') {
+        if (bareChar === null) e.stopImmediatePropagation();
+        return;
+      }
+      const starting = current === 'idle';
+      if (starting && inputValueRef.current.length > 0) return;
+      e.stopImmediatePropagation();
+      const firstPress = rapidCountRef.current === 0;
+      rapidCountRef.current += repeatCount;
+      if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
+      resetTimerRef.current = setTimeout((timer, count) => {
+        timer.current = null;
+        count.current = 0;
+      }, RAPID_KEY_GAP_MS, resetTimerRef, rapidCountRef);
+      if (!firstPress) {
+        if (bareChar !== null) {
+          stripTrailing(repeatCount, {
+            char: bareChar,
+            floor: 0
+          });
+        }
+        return;
+      }
+      if (starting) {
+        if (bareChar !== null) {
+          stripTrailing(repeatCount, {
+            char: bareChar,
+            anchor: true
+          });
+        } else {
+          stripTrailing(0, {
+            anchor: true
+          });
+        }
+      } else if (bareChar !== null) {
+        stripTrailing(repeatCount, {
+          char: bareChar,
+          floor: 0
+        });
+      }
+      voiceHandleKeyEvent();
+      if (starting && getVoiceState().voiceState === 'idle') resetAnchor();
+      return;
     }
 
     // Guard: only swallow keypresses when recording was triggered by

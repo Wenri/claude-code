@@ -4,10 +4,12 @@
 // ~1.5MB when no HTTPS_PROXY/mTLS env vars are set (the common case).
 import axios, { type AxiosInstance } from 'axios'
 import type { LookupOptions } from 'dns'
+import { execa } from 'execa'
 import type { Agent } from 'http'
 import { HttpsProxyAgent, type HttpsProxyAgentOptions } from 'https-proxy-agent'
 import memoize from 'lodash-es/memoize.js'
 import type * as undici from 'undici'
+import { getIsNonInteractiveSession } from '../bootstrap/state.js'
 import { getCACertificates } from './caCerts.js'
 import { logForDebugging } from './debug.js'
 import { isEnvTruthy } from './envUtils.js'
@@ -25,6 +27,148 @@ import {
 // Under Node/undici, keepalive is a no-op for pooling, but undici
 // naturally evicts dead sockets from the pool on ECONNRESET.
 let keepAliveDisabled = false
+
+type ProxyAuthHelperConfig = {
+  helper: string | undefined
+  fromProjectOrLocal: boolean
+  trustAccepted: () => boolean
+}
+
+let proxyAuthHelperConfig: ProxyAuthHelperConfig = {
+  helper: undefined,
+  fromProjectOrLocal: false,
+  trustAccepted: () => false,
+}
+let proxyAuthHelperCache: { value: string; timestamp: number } | null = null
+let pendingProxyAuthenticate: string | undefined
+
+const DEFAULT_PROXY_AUTH_HELPER_TTL_MS = 300_000
+
+export function _setProxyAuthHelperConfig(
+  config: ProxyAuthHelperConfig,
+): void {
+  proxyAuthHelperConfig = config
+}
+
+export function getConfiguredProxyAuthHelper(): string | undefined {
+  if (!isEnvTruthy(process.env.CLAUDE_CODE_ENABLE_PROXY_AUTH_HELPER)) {
+    return undefined
+  }
+  return proxyAuthHelperConfig.helper
+}
+
+function isProxyAuthHelperFromProjectOrLocalSettings(): boolean {
+  return (
+    getConfiguredProxyAuthHelper() !== undefined &&
+    proxyAuthHelperConfig.fromProjectOrLocal
+  )
+}
+
+function getProxyAuthHelperTTL(): number {
+  const raw = process.env.CLAUDE_CODE_PROXY_AUTH_HELPER_TTL_MS
+  if (raw) {
+    const parsed = parseInt(raw, 10)
+    if (!Number.isNaN(parsed) && parsed >= 0) return parsed
+  }
+  return DEFAULT_PROXY_AUTH_HELPER_TTL_MS
+}
+
+export async function getProxyAuthFromHelper(): Promise<string | null> {
+  const helper = getConfiguredProxyAuthHelper()
+  if (!helper) return null
+
+  if (
+    isProxyAuthHelperFromProjectOrLocalSettings() &&
+    !getIsNonInteractiveSession() &&
+    !proxyAuthHelperConfig.trustAccepted()
+  ) {
+    logForDebugging(
+      'proxyAuthHelper configured in project/local settings but workspace trust not yet accepted — skipping',
+      { level: 'warn' },
+    )
+    return null
+  }
+
+  const authenticate = pendingProxyAuthenticate
+  if (
+    !authenticate &&
+    proxyAuthHelperCache &&
+    Date.now() - proxyAuthHelperCache.timestamp < getProxyAuthHelperTTL()
+  ) {
+    return proxyAuthHelperCache.value
+  }
+  pendingProxyAuthenticate = undefined
+
+  const proxyUrl = getProxyUrl()
+  let proxyHost: string | undefined
+  try {
+    proxyHost = proxyUrl ? new URL(proxyUrl).hostname : undefined
+  } catch {
+    proxyHost = undefined
+  }
+
+  const result = await execa(helper, {
+    shell: true,
+    timeout: 30_000,
+    reject: false,
+    env: {
+      ...process.env,
+      ...(proxyUrl && { CLAUDE_CODE_PROXY_URL: proxyUrl }),
+      ...(proxyHost && { CLAUDE_CODE_PROXY_HOST: proxyHost }),
+      ...(authenticate && {
+        CLAUDE_CODE_PROXY_AUTHENTICATE: authenticate,
+      }),
+    },
+  })
+
+  if (result.failed || !result.stdout?.trim()) {
+    const why = result.timedOut
+      ? 'timed out'
+      : result.failed
+        ? `exited ${result.exitCode}`
+        : 'did not return a value'
+    const stderr = result.stderr?.trim()
+    // biome-ignore lint/suspicious/noConsole: helper failures must be visible
+    console.error(
+      `proxyAuthHelper failed: ${stderr ? `${why}: ${stderr}` : why}`,
+    )
+    return proxyAuthHelperCache?.value ?? null
+  }
+
+  const value = result.stdout.trim()
+  proxyAuthHelperCache = { value, timestamp: Date.now() }
+  return value
+}
+
+export function getProxyAuthFromHelperCached(): string | null {
+  return proxyAuthHelperCache?.value ?? null
+}
+
+export function clearProxyAuthHelperCache(authenticate?: string): void {
+  proxyAuthHelperCache = null
+  pendingProxyAuthenticate = authenticate
+}
+
+export function prefetchProxyAuthFromHelperIfSafe(): void {
+  if (!getConfiguredProxyAuthHelper()) return
+  if (
+    isProxyAuthHelperFromProjectOrLocalSettings() &&
+    !proxyAuthHelperConfig.trustAccepted()
+  ) {
+    return
+  }
+  void getProxyAuthFromHelper()
+}
+
+export function _resetProxyAuthHelperForTesting(): void {
+  proxyAuthHelperConfig = {
+    helper: undefined,
+    fromProjectOrLocal: false,
+    trustAccepted: () => false,
+  }
+  proxyAuthHelperCache = null
+  pendingProxyAuthenticate = undefined
+}
 
 export function disableKeepAlive(): void {
   keepAliveDisabled = true
@@ -291,7 +435,7 @@ export function getProxyFetchOptions(opts?: {
 }): {
   tls?: TLSConfig
   dispatcher?: undici.Dispatcher
-  proxy?: string
+  proxy?: string | { url: string; headers: Record<string, string> }
   unix?: string
   keepalive?: false
 } {
@@ -315,7 +459,17 @@ export function getProxyFetchOptions(opts?: {
       if (opts?.url && shouldBypassProxy(opts.url)) {
         return { ...base, ...getTLSFetchOptions() }
       }
-      return { ...base, proxy: proxyUrl, ...getTLSFetchOptions() }
+      const proxyAuthorization = getProxyAuthFromHelperCached()
+      return {
+        ...base,
+        proxy: proxyAuthorization
+          ? {
+              url: proxyUrl,
+              headers: { 'Proxy-Authorization': proxyAuthorization },
+            }
+          : proxyUrl,
+        ...getTLSFetchOptions(),
+      }
     }
     return { ...base, dispatcher: getProxyAgent(proxyUrl) }
   }
