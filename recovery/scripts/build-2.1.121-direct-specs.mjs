@@ -1701,8 +1701,7 @@ const residualRows = [
   {
     id: 'R44',
     category: 'residual',
-    retained: true,
-    title: 'Retained Bedrock and Vertex interactive setup wizards',
+    title: 'Bedrock and Vertex interactive setup with destination-aware AWS proxying',
     targetFragments: [
       'tengu_oauth_bedrock_wizard_launched',
       'tengu_oauth_vertex_wizard_launched',
@@ -1712,6 +1711,7 @@ const residualRows = [
       'Calling Google Cloud',
       'Save anyway (skip verification)',
       'Pin the working models with 1M context',
+      'if(!$||H.url&&om(H.url))return{};let[{NodeHttpHandler',
     ],
     sourceAssertions: [
       sr('src/components/ConsoleOAuthFlow.tsx', "state: 'bedrock_wizard'"),
@@ -1730,9 +1730,32 @@ const residualRows = [
       sr('src/components/ConsoleOAuthWizards.tsx', "updateSettingsForSource('userSettings'"),
       sr('src/components/ConsoleOAuthWizards.tsx', "'tengu_bedrock_setup_complete'"),
       sr('src/components/ConsoleOAuthWizards.tsx', "'tengu_vertex_setup_complete'"),
+      sr('src/components/ConsoleOAuthWizards.tsx', 'url: `https://bedrock.${data.region}.amazonaws.com`'),
+      sr('src/utils/model/bedrock.ts', '`https://bedrock.${region}.amazonaws.com`'),
+      sr('src/utils/model/bedrock.ts', '`https://bedrock-runtime.${region}.amazonaws.com`'),
+      sr('src/utils/proxy.ts', 'url?: string'),
+      sr('src/utils/proxy.ts', '!proxyUrl || (url && shouldBypassProxy(url))'),
     ],
-    rationale: 'Authenticated retained launch, verification, persistence, and completion witnesses bind provider selection, credential discovery, AWS/Vertex model probes, explicit permission diagnostics, save-without-verification, model pinning, onboarding completion, and restart wiring.',
+    rationale: 'Authenticated launch, verification, persistence, completion, and target-only proxy witnesses bind provider selection, AWS/Vertex model probes, explicit permission diagnostics, model pinning, restart wiring, and URL-aware NO_PROXY behavior at every Bedrock control/runtime callsite.',
     focusedTests: ['console-platform-wizards'],
+  },
+  {
+    id: 'R45',
+    category: 'residual',
+    title: 'Destination-aware MCP proxy bypass and identity streaming',
+    targetFragments: [
+      '{url:String(',
+      '{url:$.url}',
+      '"Accept-Encoding":"identity"',
+    ],
+    sourceAssertions: [
+      sr('src/services/mcp/client.ts', 'getProxyFetchOptions({ url: String(url) })'),
+      sr('src/services/mcp/client.ts', 'getProxyFetchOptions({ url: serverRef.url })'),
+      sr('src/services/mcp/client.ts', 'getProxyFetchOptions({ url: proxyUrl })'),
+      sr('src/services/mcp/client.ts', "'Accept-Encoding': 'identity'"),
+    ],
+    rationale: 'Authenticated target-only URL arguments and retained identity-encoding headers bind per-destination NO_PROXY decisions for SSE, configured HTTP/SSE, and claude.ai proxy transports while preventing compressed streaming responses.',
+    focusedTests: ['lower-runtime-boundaries'],
   },
 ].map(row => ({ ...row, sourcePathAbsences: row.sourcePathAbsences ?? [] }))
 

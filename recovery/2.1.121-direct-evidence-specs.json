@@ -4369,8 +4369,7 @@
     {
       "id": "R44",
       "category": "residual",
-      "retained": true,
-      "title": "Retained Bedrock and Vertex interactive setup wizards",
+      "title": "Bedrock and Vertex interactive setup with destination-aware AWS proxying",
       "targetFragments": [
         "tengu_oauth_bedrock_wizard_launched",
         "tengu_oauth_vertex_wizard_launched",
@@ -4379,7 +4378,8 @@
         "Calling AWS STS and Bedrock",
         "Calling Google Cloud",
         "Save anyway (skip verification)",
-        "Pin the working models with 1M context"
+        "Pin the working models with 1M context",
+        "if(!$||H.url&&om(H.url))return{};let[{NodeHttpHandler"
       ],
       "sourceAssertions": [
         {
@@ -4445,11 +4445,64 @@
         {
           "path": "src/components/ConsoleOAuthWizards.tsx",
           "fragment": "'tengu_vertex_setup_complete'"
+        },
+        {
+          "path": "src/components/ConsoleOAuthWizards.tsx",
+          "fragment": "url: `https://bedrock.${data.region}.amazonaws.com`"
+        },
+        {
+          "path": "src/utils/model/bedrock.ts",
+          "fragment": "`https://bedrock.${region}.amazonaws.com`"
+        },
+        {
+          "path": "src/utils/model/bedrock.ts",
+          "fragment": "`https://bedrock-runtime.${region}.amazonaws.com`"
+        },
+        {
+          "path": "src/utils/proxy.ts",
+          "fragment": "url?: string"
+        },
+        {
+          "path": "src/utils/proxy.ts",
+          "fragment": "!proxyUrl || (url && shouldBypassProxy(url))"
         }
       ],
-      "rationale": "Authenticated retained launch, verification, persistence, and completion witnesses bind provider selection, credential discovery, AWS/Vertex model probes, explicit permission diagnostics, save-without-verification, model pinning, onboarding completion, and restart wiring.",
+      "rationale": "Authenticated launch, verification, persistence, completion, and target-only proxy witnesses bind provider selection, AWS/Vertex model probes, explicit permission diagnostics, model pinning, restart wiring, and URL-aware NO_PROXY behavior at every Bedrock control/runtime callsite.",
       "focusedTests": [
         "console-platform-wizards"
+      ],
+      "sourcePathAbsences": []
+    },
+    {
+      "id": "R45",
+      "category": "residual",
+      "title": "Destination-aware MCP proxy bypass and identity streaming",
+      "targetFragments": [
+        "{url:String(",
+        "{url:$.url}",
+        "\"Accept-Encoding\":\"identity\""
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/services/mcp/client.ts",
+          "fragment": "getProxyFetchOptions({ url: String(url) })"
+        },
+        {
+          "path": "src/services/mcp/client.ts",
+          "fragment": "getProxyFetchOptions({ url: serverRef.url })"
+        },
+        {
+          "path": "src/services/mcp/client.ts",
+          "fragment": "getProxyFetchOptions({ url: proxyUrl })"
+        },
+        {
+          "path": "src/services/mcp/client.ts",
+          "fragment": "'Accept-Encoding': 'identity'"
+        }
+      ],
+      "rationale": "Authenticated target-only URL arguments and retained identity-encoding headers bind per-destination NO_PROXY decisions for SSE, configured HTTP/SSE, and claude.ai proxy transports while preventing compressed streaming responses.",
+      "focusedTests": [
+        "lower-runtime-boundaries"
       ],
       "sourcePathAbsences": []
     }
