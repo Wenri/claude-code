@@ -1567,16 +1567,41 @@
       "targetFragments": [
         "[reportRenderError] React boundary caught ",
         "tengu_idle_amber_finch",
-        "tengu_spinner_stall_cleared"
+        "tengu_spinner_stall_cleared",
+        "lastHintSessionId",
+        "lastSessionModified",
+        "lastSessionFirstPrompt",
+        "tengu_auto_compact_rapid_refill_breaker",
+        "tengu_ptl_surfaced_to_user",
+        "Compacting at auto window (",
+        "render_loop_dark",
+        "may receive a path from an upstream pipeline command",
+        "You are now in the branch. Use /resume "
       ],
       "sourceAssertions": [
         {
+          "path": "src/Tool.ts",
+          "fragment": "type: 'compact_start'; hintText?: string | null"
+        },
+        {
           "path": "src/commands/branch/branch.ts",
-          "fragment": "You are now in the branch. Use /resume"
+          "fragment": "You are now in the branch. Use /resume ${originalSessionId} to return to the original."
+        },
+        {
+          "path": "src/components/Spinner.tsx",
+          "fragment": "isCompacting && compactingHintText"
         },
         {
           "path": "src/components/Spinner/SpinnerAnimationRow.tsx",
           "fragment": "tengu_spinner_stall_cleared"
+        },
+        {
+          "path": "src/components/WarmResumeHint.tsx",
+          "fragment": "config.lastHintSessionId"
+        },
+        {
+          "path": "src/components/WarmResumeHint.tsx",
+          "fragment": "with_fork_session: hint.variant === '1'"
         },
         {
           "path": "src/ink/components/App.tsx",
@@ -1591,16 +1616,44 @@
           "fragment": "stdout is not a TTY"
         },
         {
+          "path": "src/query.ts",
+          "fragment": "logEvent('tengu_auto_compact_rapid_refill_breaker'"
+        },
+        {
+          "path": "src/screens/REPL.tsx",
+          "fragment": "lastSessionFirstPrompt: firstPrompt"
+        },
+        {
+          "path": "src/screens/REPL.tsx",
+          "fragment": "setCompactingHintText(event.hintText ?? null)"
+        },
+        {
           "path": "src/services/compact/autoCompact.ts",
-          "fragment": "rapid-refill breaker"
+          "fragment": "rapidRefillBreakerTripped: true"
+        },
+        {
+          "path": "src/services/compact/autoCompact.ts",
+          "fragment": "Compacting at auto window (${formatTokens(configured)} tokens)"
+        },
+        {
+          "path": "src/services/compact/compact.ts",
+          "fragment": "hintText: compactingHintText"
+        },
+        {
+          "path": "src/setup.ts",
+          "fragment": "Warm-resume metadata"
         },
         {
           "path": "src/tools/PowerShellTool/pathValidation.ts",
-          "fragment": "upstream pipeline command"
+          "fragment": "const upstreamMayProducePath = hasPotentialPathOutput"
         },
         {
           "path": "src/tools/PowerShellTool/readOnlyValidation.ts",
-          "fragment": "upstream pipeline command"
+          "fragment": "export const CMDLET_ALLOWLIST"
+        },
+        {
+          "path": "src/utils/config.ts",
+          "fragment": "lastSessionFirstPrompt?: string"
         },
         {
           "path": "src/utils/gracefulShutdown.ts",
@@ -1609,13 +1662,36 @@
         {
           "path": "src/utils/idleTimeout.ts",
           "fragment": "tengu_idle_amber_finch"
+        },
+        {
+          "path": "src/utils/logoV2Utils.ts",
+          "fragment": "export function truncatePath"
         }
       ],
-      "rationale": "Reviewed target-only UI/error/spinner markers and wording deltas form the finite renderer, job-label, PowerShell, compact, branch, and idle cluster.",
-      "focusedTests": [
-        "hidden-obligations"
+      "sourcePathAbsences": [
+        {
+          "paths": [
+            "src/setup.ts",
+            "src/utils/logoV2Utils.ts"
+          ],
+          "fragment": "getRecentActivity"
+        },
+        {
+          "paths": [
+            "src/tools/PowerShellTool/readOnlyValidation.ts"
+          ],
+          "fragment": "'get-netipconfiguration':"
+        }
       ],
-      "sourcePathAbsences": []
+      "focusedTests": [
+        "autocompact-rapid-refill",
+        "compaction-spinner",
+        "hidden-obligations",
+        "powershell-pipeline-paths",
+        "remote-ux-and-branch",
+        "warm-resume"
+      ],
+      "rationale": "Reviewed target-only UI/error/spinner markers and wording deltas form the finite renderer, warm-resume, job-label, PowerShell, compact, branch, and idle cluster."
     },
     {
       "id": "H10",
@@ -1651,7 +1727,9 @@
       "targetFragments": [
         "tengu_sdk_url_host_rejected",
         "bridge_repl_v2_reattach_fallback",
-        "remote-permission-mode-noop"
+        "remote-permission-mode-noop",
+        "Model picker shows local options in remote sessions \\u2014 pass a model name, e.g. /model sonnet",
+        "No other permission modes are available in this remote session"
       ],
       "sourceAssertions": [
         {
@@ -1667,8 +1745,20 @@
           "fragment": "tengu_sdk_url_host_rejected"
         },
         {
+          "path": "src/commands/model/model.tsx",
+          "fragment": "getRuntimeCapabilities().workspace === 'remote'"
+        },
+        {
+          "path": "src/commands/model/model.tsx",
+          "fragment": "Model picker shows local options in remote sessions — pass a model name, e.g. /model sonnet"
+        },
+        {
           "path": "src/components/PromptInput/PromptInput.tsx",
           "fragment": "remote-permission-mode-noop"
+        },
+        {
+          "path": "src/components/PromptInput/PromptInput.tsx",
+          "fragment": "nextMode === toolPermissionContext.mode"
         },
         {
           "path": "src/main.tsx",
@@ -1683,10 +1773,11 @@
           "fragment": "tengu_immediate_command_executed"
         }
       ],
-      "rationale": "Three target-only telemetry keys localize the SDK allowlist, bridge reattach, immediate dispatch, and remote permission no-op paths.",
       "focusedTests": [
-        "hidden-obligations"
+        "hidden-obligations",
+        "remote-ux-and-branch"
       ],
+      "rationale": "Three target-only telemetry keys plus exact remote-session copy localize the SDK allowlist, bridge reattach, immediate dispatch, remote model guard, and permission no-op paths.",
       "sourcePathAbsences": []
     },
     {
