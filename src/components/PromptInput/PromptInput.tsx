@@ -1463,7 +1463,7 @@ function PromptInput({
     if (getRuntimeCapabilities().workspace === 'remote') {
       addNotification({
         key: 'remote-model-picker-unavailable',
-        text: 'Model picker shows local options in remote sessions — use /model <name> instead',
+        text: 'Model picker shows local options in remote sessions — pass a model name, e.g. /model sonnet',
         priority: 'medium'
       });
       return;
@@ -1538,6 +1538,18 @@ function PromptInput({
     // Compute the next mode without triggering side effects first
     logForDebugging(`[auto-mode] handleCycleMode: currentMode=${toolPermissionContext.mode} isAutoModeAvailable=${toolPermissionContext.isAutoModeAvailable} showAutoModeOptIn=${showAutoModeOptIn} timeoutPending=${!!autoModeOptInTimeoutRef.current}`);
     const nextMode = getNextPermissionMode(toolPermissionContext, teamContext);
+
+    if (
+      nextMode === toolPermissionContext.mode &&
+      getRuntimeCapabilities().workspace === 'remote'
+    ) {
+      addNotification({
+        key: 'remote-permission-mode-noop',
+        text: 'No other permission modes are available in this remote session',
+        priority: 'medium'
+      });
+      return;
+    }
 
     // Check if user is entering auto mode for the first time. Gated on the
     // persistent settings flag (hasAutoModeOptIn) rather than the broader
