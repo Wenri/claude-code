@@ -7,6 +7,9 @@ import { PromptOverlayProvider, usePromptOverlay, usePromptOverlayDialog } from 
 import { useTerminalSize } from '../hooks/useTerminalSize.js';
 import { useShortcutDisplay } from '../keybindings/useShortcutDisplay.js';
 import ScrollBox, { type ScrollBoxHandle } from '../ink/components/ScrollBox.js';
+import AppContext from '../ink/components/AppContext.js';
+import type { DOMElement } from '../ink/dom.js';
+import type { KeyboardEvent } from '../ink/events/keyboard-event.js';
 import instances from '../ink/instances.js';
 import { Box, Text } from '../ink.js';
 import type { Message } from '../types/message.js';
@@ -424,8 +427,9 @@ export function FullscreenLayout(t0) {
       t18 = modal != null && <ModalContext value={{
         rows: terminalRows - MODAL_TRANSCRIPT_PEEK - 1,
         columns: columns - 4,
-        scrollRef: modalScrollRef ?? null
-      }}><Box position="absolute" bottom={0} left={0} right={0} maxHeight={terminalRows - MODAL_TRANSCRIPT_PEEK} flexDirection="column" overflow="hidden" opaque={true}><Box flexShrink={0}><Text color="permission">{"\u2594".repeat(columns)}</Text></Box><Box flexDirection="column" paddingX={2} flexShrink={0} overflow="hidden">{modal}</Box></Box></ModalContext>;
+        scrollRef: modalScrollRef ?? null,
+        claimScrollBox: null
+      }}><Box position="absolute" bottom={0} left={0} right={0} maxHeight={terminalRows - MODAL_TRANSCRIPT_PEEK} flexDirection="column" overflow="hidden" opaque={true}><Box flexShrink={0}><Text color="permission">{"\u2594".repeat(columns)}</Text></Box><ModalScroller scrollRef={modalScrollRef} maxRows={terminalRows - MODAL_TRANSCRIPT_PEEK - 1}>{modal}</ModalScroller></Box></ModalContext>;
       $[33] = columns;
       $[34] = modal;
       $[35] = modalScrollRef;
@@ -458,6 +462,164 @@ export function FullscreenLayout(t0) {
     t8 = $[46];
   }
   return t8;
+}
+
+/**
+ * Bounds a fullscreen modal to the available terminal rows. Descendants such
+ * as Tabs may claim the shared ScrollBox after accounting for their fixed
+ * header; otherwise this wrapper owns scrolling for arbitrary dialog content.
+ */
+function ModalScroller({
+  scrollRef,
+  maxRows,
+  children,
+}: {
+  scrollRef?: React.RefObject<ScrollBoxHandle | null>;
+  maxRows: number;
+  children: ReactNode;
+}): React.ReactNode {
+  const parentContext = useContext(ModalContext);
+  const claimedRowsRef = useRef<number | null>(null);
+  const [headerRows, setHeaderRows] = useState<number | null>(null);
+  const claimScrollBox = useCallback((rows: number | null) => {
+    claimedRowsRef.current = rows;
+    setHeaderRows(rows);
+  }, []);
+  const isClaimed = headerRows !== null;
+  const maxBodyRows = maxRows - (headerRows ?? 0);
+  const localScrollRef = useRef<ScrollBoxHandle>(null);
+
+  useLayoutEffect(() => {
+    if (!scrollRef || claimedRowsRef.current !== null) return;
+    scrollRef.current = localScrollRef.current;
+    return () => {
+      if (scrollRef.current === localScrollRef.current) scrollRef.current = null;
+    };
+  }, [scrollRef]);
+
+  const [scrollState, setScrollState] = useState({
+    overflows: false,
+    above: false,
+    below: false,
+    hintTop: 0,
+    hintBottom: 0,
+  });
+
+  const updateScrollState = useCallback(() => {
+    const handle = scrollRef?.current;
+    if (!handle) return;
+    const scrollHeight = handle.getFreshScrollHeight();
+    const viewportHeight = handle.getViewportHeight() || maxBodyRows;
+    const viewportTop = localScrollRef.current?.getViewportTop() ?? 0;
+    const localViewportHeight = localScrollRef.current?.getViewportHeight() ?? 0;
+    const hintTop = Math.max(0, handle.getViewportTop() - viewportTop);
+    const hintBottom = Math.max(
+      0,
+      localViewportHeight - hintTop - viewportHeight,
+    );
+    const effectiveHeight = claimedRowsRef.current !== null
+      ? viewportHeight
+      : maxBodyRows;
+    const overflows = scrollHeight > effectiveHeight;
+    const scrollTop = handle.getScrollTop() + handle.getPendingDelta();
+    const hasScrollableRange = scrollHeight - effectiveHeight > 2;
+    const next = {
+      overflows,
+      above: hasScrollableRange && scrollTop > 0,
+      below: hasScrollableRange && scrollTop < scrollHeight - viewportHeight,
+      hintTop,
+      hintBottom,
+    };
+    setScrollState(previous =>
+      previous.overflows === next.overflows &&
+      previous.above === next.above &&
+      previous.below === next.below &&
+      previous.hintTop === next.hintTop &&
+      previous.hintBottom === next.hintBottom
+        ? previous
+        : next,
+    );
+  }, [maxBodyRows, scrollRef]);
+
+  const wrapperRef = useRef<DOMElement>(null);
+  const { focusManager } = useContext(AppContext);
+  const ensureFocused = useCallback(() => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper || !focusManager) return;
+    for (
+      let current = focusManager.activeElement ?? undefined;
+      current;
+      current = current.parentNode
+    ) {
+      if (current === wrapper) return;
+    }
+    focusManager.focus(wrapper);
+  }, [focusManager]);
+
+  useEffect(ensureFocused, [ensureFocused]);
+  useEffect(() => {
+    updateScrollState();
+    let current = scrollRef?.current ?? null;
+    let unsubscribe = current?.subscribe(updateScrollState);
+    const timer = setInterval(() => {
+      const next = scrollRef?.current ?? null;
+      if (next !== current) {
+        unsubscribe?.();
+        current = next;
+        unsubscribe = next?.subscribe(updateScrollState);
+      }
+      updateScrollState();
+      ensureFocused();
+    }, 50);
+    return () => {
+      clearInterval(timer);
+      unsubscribe?.();
+    };
+  }, [ensureFocused, scrollRef, updateScrollState]);
+
+  const nestedContext = {
+    rows: parentContext?.rows ?? maxRows,
+    columns: parentContext?.columns ?? 0,
+    scrollRef: scrollRef ?? null,
+    claimScrollBox,
+  };
+
+  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    if (event.defaultPrevented || event.ctrl || event.meta || event.shift) return;
+    const handle = scrollRef?.current;
+    if (!handle) return;
+    const scrollHeight = handle.getFreshScrollHeight();
+    const viewportHeight = handle.getViewportHeight() || maxBodyRows;
+    const effectiveHeight = claimedRowsRef.current !== null
+      ? viewportHeight
+      : maxBodyRows;
+    if (scrollHeight <= effectiveHeight) return;
+    if (event.key === 'up' || event.key === 'down') {
+      handle.scrollBy(event.key === 'down' ? 1 : -1);
+      event.preventDefault();
+    } else if (event.key === 'pageup' || event.key === 'pagedown') {
+      const amount = Math.max(1, effectiveHeight);
+      handle.scrollBy(event.key === 'pagedown' ? amount : -amount);
+      event.preventDefault();
+    } else if (event.key === 'home') {
+      handle.scrollTo(0);
+      event.preventDefault();
+    } else if (event.key === 'end') {
+      handle.scrollToBottom();
+      event.preventDefault();
+    }
+  }, [maxBodyRows, scrollRef]);
+
+  const height = !isClaimed && scrollState.overflows ? maxBodyRows : undefined;
+  return <ModalContext value={nestedContext}>
+    <Box ref={wrapperRef} flexDirection="column" flexShrink={0} onKeyDown={handleKeyDown}>
+      <ScrollBox ref={localScrollRef} flexDirection="column" flexShrink={0} height={height} stickyScroll={false}>
+        <Box flexDirection="column" paddingX={2} flexShrink={0}>{children}</Box>
+      </ScrollBox>
+      {scrollState.above && <Box position="absolute" top={scrollState.hintTop} right={1}><Text dimColor>{figures.arrowUp}</Text></Box>}
+      {scrollState.below && <Box position="absolute" bottom={scrollState.hintBottom} right={1}><Text dimColor>{figures.arrowDown}</Text></Box>}
+    </Box>
+  </ModalContext>;
 }
 
 // Slack-style pill. Absolute overlay at bottom={0} of the scrollwrap — floats

@@ -948,10 +948,8 @@ export function REPL({
   const scrollRef = useRef<ScrollBoxHandle>(null);
   // Separate ref for the modal slot's inner ScrollBox — passed through
   // FullscreenLayout → ModalContext so Tabs can attach it to its own
-  // ScrollBox for tall content (e.g. /status's MCP-server list). NOT
-  // keyboard-driven — ScrollKeybindingHandler stays on the outer ref so
-  // PgUp/PgDn/wheel always scroll the transcript behind the modal.
-  // Plumbing kept for future modal-scroll wiring.
+  // ScrollBox for tall content (e.g. /status's MCP-server list). While a
+  // centered modal is open keyboard and wheel scrolling target this ref.
   const modalScrollRef = useRef<ScrollBoxHandle>(null);
   // Timestamp of the last user-initiated scroll (wheel, PgUp/PgDn, ctrl+u,
   // End/Home, G, drag-to-scroll). Stamped in composedOnScroll — the single
@@ -4832,11 +4830,10 @@ export function REPL({
           ctrl+c-with-selection copies instead of cancelling the active task.
           Its raw useInput handler only stops propagation when a selection
           exists — without one, ctrl+c falls through to CancelRequestHandler.
-          PgUp/PgDn/wheel always scroll the transcript behind the modal —
-          the modal's inner ScrollBox is not keyboard-driven. onScroll
-          stays suppressed while a modal is showing so scroll doesn't
+          PgUp/PgDn/wheel target the modal while it is open. onScroll
+          stays suppressed while a modal is showing so modal scroll doesn't
           stamp divider/pill state. */}
-      <ScrollKeybindingHandler scrollRef={scrollRef} isActive={isFullscreenEnvEnabled() && (centeredModal != null || !focusedInputDialog || focusedInputDialog === 'tool-permission')} onScroll={centeredModal || toolPermissionOverlay || viewedAgentTask ? undefined : composedOnScroll} />
+      <ScrollKeybindingHandler scrollRef={centeredModal != null ? modalScrollRef : scrollRef} isActive={isFullscreenEnvEnabled() && (centeredModal != null || !focusedInputDialog || focusedInputDialog === 'tool-permission')} onScroll={centeredModal || toolPermissionOverlay || viewedAgentTask ? undefined : composedOnScroll} />
       {feature('MESSAGE_ACTIONS') && isFullscreenEnvEnabled() && !disableMessageActions ? <MessageActionsKeybindings handlers={messageActionHandlers} isActive={cursor !== null} /> : null}
       <CancelRequestHandler {...cancelRequestProps} />
       <MCPConnectionManager key={remountKey} dynamicMcpConfig={dynamicMcpConfig} isStrictMcpConfig={strictMcpConfig}>

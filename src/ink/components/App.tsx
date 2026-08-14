@@ -26,6 +26,8 @@ import ErrorOverview from './ErrorOverview.js';
 import StdinContext from './StdinContext.js';
 import { TerminalFocusProvider } from './TerminalFocusContext.js';
 import { TerminalSizeContext } from './TerminalSizeContext.js';
+import type { DOMElement } from '../dom.js';
+import type { FocusManager } from '../focus.js';
 
 // Platforms that support Unix-style process suspension (SIGSTOP/SIGCONT)
 const SUPPORTS_SUSPEND = process.platform !== 'win32';
@@ -146,6 +148,9 @@ type Props = {
   readonly dispatchKeyboardEvent: (parsedKey: ParsedKey) => void;
   readonly dispatchPasteEvent: (text: string) => void;
   readonly dispatchWheelEvent: (parsedKey: ParsedKey) => void;
+  readonly focusManager: FocusManager;
+  readonly rootNode: DOMElement;
+  readonly onRawModeEnter?: () => void;
 };
 
 // Multi-click detection thresholds. 500ms is the macOS default; a small
@@ -222,7 +227,9 @@ export default class App extends PureComponent<Props, State> {
       rows: this.props.terminalRows
     }}>
         <AppContext.Provider value={{
-        exit: this.handleExit
+        exit: this.handleExit,
+        focusManager: this.props.focusManager,
+        rootNode: this.props.rootNode
       }}>
           <StdinContext.Provider value={{
           stdin: this.props.stdin,
@@ -244,12 +251,19 @@ export default class App extends PureComponent<Props, State> {
       </TerminalSizeContext.Provider>;
   }
   override componentDidMount() {
+    const rootNode = this.props.rootNode;
+    const pendingRawModeDelta = rootNode._pendingRawModeDelta ?? 0;
+    rootNode._pendingRawModeDelta = 0;
+    for (let i = 0; i < pendingRawModeDelta; i++) this.handleSetRawMode(true);
+    for (let i = 0; i > pendingRawModeDelta; i--) this.handleSetRawMode(false);
+    rootNode.setRawMode = this.handleSetRawMode;
     // In accessibility mode, keep the native cursor visible for screen magnifiers and other tools
     if (this.props.stdout.isTTY && !isEnvTruthy(process.env.CLAUDE_CODE_ACCESSIBILITY)) {
       this.props.stdout.write(HIDE_CURSOR);
     }
   }
   override componentWillUnmount() {
+    this.props.rootNode.setRawMode = undefined;
     if (this.props.stdout.isTTY) {
       this.props.stdout.write(SHOW_CURSOR);
     }
@@ -265,7 +279,7 @@ export default class App extends PureComponent<Props, State> {
     }
     // ignore calling setRawMode on an handle stdin it cannot be called
     if (this.isRawModeSupported()) {
-      this.handleSetRawMode(false);
+      while (this.rawModeEnabledCount > 0) this.handleSetRawMode(false);
     }
   }
   override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
@@ -292,6 +306,7 @@ export default class App extends PureComponent<Props, State> {
         // coexist -- our handler would drain stdin before Ink's can see it.
         // The buffered text is preserved for REPL.tsx via consumeEarlyInput().
         stopCapturingEarlyInput();
+        this.props.onRawModeEnter?.();
         stdin.ref();
         stdin.setRawMode(true);
         stdin.addListener('readable', this.handleReadable);
