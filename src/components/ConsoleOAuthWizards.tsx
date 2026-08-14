@@ -294,6 +294,7 @@ function ManualModelPicker({
   onPick,
   onCancel,
   description,
+  preferFirstWorking = false,
 }: {
   provider: keyof typeof PROBE_ERROR_LABELS
   tier: ModelTier
@@ -305,6 +306,7 @@ function ManualModelPicker({
   onPick(model: string): void
   onCancel(): void
   description: string
+  preferFirstWorking?: boolean
 }): React.ReactNode {
   const [states, setStates] = useState<Record<string, ProbeState>>(() =>
     Object.fromEntries(candidates.map(model => [model, 'pending'])),
@@ -335,11 +337,13 @@ function ManualModelPicker({
       )
     : candidates
   const defaultValue = settled
-    ? works(current)
-      ? current
-      : works(fallback)
-        ? fallback
-        : sorted.find(works)
+    ? preferFirstWorking
+      ? sorted.find(works)
+      : works(current)
+        ? current
+        : works(fallback)
+          ? fallback
+          : sorted.find(works)
     : current
   const options = sorted.map(model => ({
     value: model,
@@ -381,6 +385,7 @@ function ModelPinStep({
   initial,
   existing,
   candidatesForTier,
+  accountCandidates,
   probe,
   onComplete,
   onCancel,
@@ -389,6 +394,7 @@ function ModelPinStep({
   initial: Record<ModelTier, string>
   existing: Partial<Record<ModelTier, string>>
   candidatesForTier(tier: ModelTier): string[]
+  accountCandidates?: string[]
   probe(model: string): Promise<AuthMethodResult>
   onComplete(
     pins: Pick<
@@ -439,6 +445,10 @@ function ModelPinStep({
 
   if (pickingTier) {
     const candidates = candidatesForTier(pickingTier)
+    const accountCandidateCount =
+      accountCandidates?.filter(model =>
+        model.toLowerCase().includes(pickingTier),
+      ).length ?? 0
     return (
       <ManualModelPicker
         key={pickingTier}
@@ -451,9 +461,12 @@ function ModelPinStep({
         probe={probe}
         description={
           provider === 'Bedrock'
-            ? `${candidates.filter(model => model.toLowerCase().includes(pickingTier)).length} ${MODEL_TIER_LABELS[pickingTier]} ${plural(candidates.length, 'profile')} in your account · each tested with a one-token request.`
+            ? accountCandidateCount > 0
+              ? `${accountCandidateCount} ${MODEL_TIER_LABELS[pickingTier]} ${plural(accountCandidateCount, 'profile')} in your account · each tested with a one-token request.`
+              : `No ${MODEL_TIER_LABELS[pickingTier]} profiles found in your account.`
             : `Available ${MODEL_TIER_LABELS[pickingTier]} versions on Vertex AI · each tested with a one-token request.`
         }
+        preferFirstWorking={provider === 'Bedrock'}
         onPick={model => {
           setSelected(previous => ({ ...previous, [pickingTier]: model }))
           const next = MODEL_TIERS[MODEL_TIERS.indexOf(pickingTier) + 1]
@@ -1309,6 +1322,7 @@ function BedrockPinModelsStep(): React.ReactNode {
         }
         return candidates
       }}
+      accountCandidates={wizardData.discoveredProfiles ?? []}
       probe={probe}
       onComplete={pins => {
         updateWizardData(pins)
