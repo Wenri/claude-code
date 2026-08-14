@@ -62,7 +62,11 @@ async function createBedrockClient() {
     ...(process.env.ANTHROPIC_BEDROCK_BASE_URL && {
       endpoint: process.env.ANTHROPIC_BEDROCK_BASE_URL,
     }),
-    ...(await getAWSClientProxyConfig()),
+    ...(await getAWSClientProxyConfig({
+      url:
+        process.env.ANTHROPIC_BEDROCK_BASE_URL ||
+        `https://bedrock.${region}.amazonaws.com`,
+    })),
     ...(skipAuth && {
       requestHandler: new (
         await import('@smithy/node-http-handler')
@@ -105,7 +109,11 @@ export async function createBedrockRuntimeClient() {
     ...(process.env.ANTHROPIC_BEDROCK_BASE_URL && {
       endpoint: process.env.ANTHROPIC_BEDROCK_BASE_URL,
     }),
-    ...(await getAWSClientProxyConfig()),
+    ...(await getAWSClientProxyConfig({
+      url:
+        process.env.ANTHROPIC_BEDROCK_BASE_URL ||
+        `https://bedrock-runtime.${region}.amazonaws.com`,
+    })),
     ...(skipAuth && {
       // BedrockRuntimeClient defaults to HTTP/2 without fallback
       // proxy servers may not support this, so we explicitly force HTTP/1.1
