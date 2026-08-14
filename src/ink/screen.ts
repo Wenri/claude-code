@@ -392,15 +392,13 @@ export type Screen = Size & {
   noSelect: Uint8Array
 
   /**
-   * Per-ROW soft-wrap continuation marker. softWrap[r]=N>0 means row r
-   * is a word-wrap continuation of row r-1 (the `\n` before it was
-   * inserted by wrapAnsi, not in the source), and row r-1's written
-   * content ends at absolute column N (exclusive — cells [0..N) are the
-   * fragment, past N is unwritten padding). 0 means row r is NOT a
-   * continuation (hard newline or first row). Selection copy checks
-   * softWrap[r]>0 to join row r onto row r-1 without a newline, and
-   * reads softWrap[r+1] to know row r's content end when row r+1
-   * continues from it. The content-end column is needed because an
+   * Per-ROW packed soft-wrap continuation marker. A non-zero entry for
+   * row r means it continues row r-1. The low 16 bits hold row r's
+   * absolute start column, and the high 16 bits hold row r-1's written
+   * content-end column (exclusive). 0 means row r is not a continuation.
+   * Selection copy checks softWrap[r]>0 to join row r onto row r-1 and
+   * reads the high bits of softWrap[r+1] to find row r's content end.
+   * The start/end columns are needed because an
    * unwritten cell and a written-unstyled-space are indistinguishable in
    * the packed typed array (both all-zero) — without it we'd either drop
    * the word-separator space (trim) or include trailing padding (no
@@ -412,6 +410,10 @@ export type Screen = Size & {
    * blitRegion/shiftRows.
    */
   softWrap: Int32Array
+}
+
+export function packSoftWrap(contentEnd: number, contentStart: number): number {
+  return (contentEnd << 16) | (contentStart & 0xffff)
 }
 
 function isEmptyCellByIndex(screen: Screen, index: number): boolean {

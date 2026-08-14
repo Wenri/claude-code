@@ -16,6 +16,7 @@ import {
   filterOutHyperlinkStyles,
   markNoSelectRegion,
   OSC8_PREFIX,
+  packSoftWrap,
   resetScreen,
   type Screen,
   type StylePool,
@@ -461,7 +462,10 @@ export default class Output {
               // screen.softWrap[lineY] correctly records the join point
               // even though that line's cells were never written.
               if (softWrap && from > 0 && softWrap[from] === true) {
-                prevContentEnd = x + stringWidth(lines[from - 1]!)
+                prevContentEnd = packSoftWrap(
+                  x + stringWidth(lines[from - 1]!),
+                  x,
+                )
               }
 
               lines = lines.slice(from, to)
@@ -498,7 +502,7 @@ export default class Output {
             if (softWrap) {
               const isSW = softWrap[swFrom + offsetY] === true
               swBits[lineY] = isSW ? prevContentEnd : 0
-              prevContentEnd = contentEnd
+              prevContentEnd = packSoftWrap(contentEnd, x)
             }
             offsetY++
           }
