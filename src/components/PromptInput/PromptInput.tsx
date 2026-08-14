@@ -183,6 +183,7 @@ type Props = {
   insertTextRef?: React.MutableRefObject<{
     insert: (text: string) => void;
     setInputWithCursor: (value: string, cursor: number) => void;
+    submit: (value: string, fromKeybinding?: boolean) => void;
     cursorOffset: number;
   } | null>;
   voiceInterimRange?: {
@@ -274,11 +275,13 @@ function PromptInput({
     lastInternalInputRef.current = value;
     onInputChange(value);
   }, [onInputChange]);
+  const submitRef = React.useRef<((value: string, fromKeybinding?: boolean) => void) | null>(null);
   // Expose an insertText function so callers (e.g. STT) can splice text at the
   // current cursor position instead of replacing the entire input.
   if (insertTextRef) {
     insertTextRef.current = {
       cursorOffset,
+      submit: (value: string, fromKeybinding?: boolean) => void submitRef.current?.(value, fromKeybinding),
       insert: (text: string) => {
         const needsSpace = cursorOffset === input.length && input.length > 0 && !/\s$/.test(input);
         const insertText = needsSpace ? ' ' + text : text;
@@ -1131,6 +1134,7 @@ function PromptInput({
       resetHistory
     });
   }, [promptSuggestionState, speculation, speculationSessionTimeSavedMs, teamContext, store, footerItems, suggestionsState.suggestions, onSubmitProp, onAgentSubmit, clearBuffer, resetHistory, logOutcomeAtSubmission, setAppState, markAccepted, pastedContents, removeNotification]);
+  submitRef.current = onSubmit;
   const {
     suggestions,
     selectedSuggestion,

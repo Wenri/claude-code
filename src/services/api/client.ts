@@ -24,7 +24,10 @@ import {
   getAPIProviderForModel,
   isFirstPartyAnthropicBaseUrl,
 } from 'src/utils/model/providers.js'
-import { getProxyFetchOptions } from 'src/utils/proxy.js'
+import {
+  getProxyAuthFromHelper,
+  getProxyFetchOptions,
+} from 'src/utils/proxy.js'
 import { logForDiagnosticsNoPII } from 'src/utils/diagLogs.js'
 import { logEvent } from '../analytics/index.js'
 import {
@@ -152,6 +155,7 @@ export async function getAnthropicClient({
     await configureApiKeyHeaders(defaultHeaders, getIsNonInteractiveSession())
   }
 
+  await getProxyAuthFromHelper()
   const resolvedFetch = buildFetch(fetchOverride, source)
 
   const apiProvider = getAPIProviderForModel(model)

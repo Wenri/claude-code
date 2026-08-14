@@ -17,7 +17,9 @@ import {
  * (user is still authed), so the auth memo stays correct without re-eval.
  */
 export function useVoiceEnabled(): boolean {
-  const userIntent = useAppState(s => s.settings.voiceEnabled === true)
+  const userIntent = useAppState(
+    s => (s.settings.voice?.enabled ?? s.settings.voiceEnabled) === true,
+  )
   const authVersion = useAppState(s => s.authVersion)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const authed = useMemo(hasVoiceAuth, [authVersion])

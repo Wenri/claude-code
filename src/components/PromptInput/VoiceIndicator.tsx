@@ -37,30 +37,41 @@ export function VoiceIndicator(props) {
   return t0;
 }
 function VoiceIndicatorImpl(t0) {
-  const $ = _c(2);
+  const $ = _c(3);
   const {
     voiceState
   } = t0;
+  const mode = useSettings().voice?.mode ?? 'hold';
   switch (voiceState) {
     case "recording":
       {
+        if (mode === 'tap') {
+          let t1;
+          if ($[0] === Symbol.for("react.memo_cache_sentinel")) {
+            t1 = <Text><Text color="error">● REC</Text><Text dimColor={true}> · tap to send</Text></Text>;
+            $[0] = t1;
+          } else {
+            t1 = $[0];
+          }
+          return t1;
+        }
         let t1;
-        if ($[0] === Symbol.for("react.memo_cache_sentinel")) {
+        if ($[1] === Symbol.for("react.memo_cache_sentinel")) {
           t1 = <Text dimColor={true}>listening…</Text>;
-          $[0] = t1;
+          $[1] = t1;
         } else {
-          t1 = $[0];
+          t1 = $[1];
         }
         return t1;
       }
     case "processing":
       {
         let t1;
-        if ($[1] === Symbol.for("react.memo_cache_sentinel")) {
+        if ($[2] === Symbol.for("react.memo_cache_sentinel")) {
           t1 = <ProcessingShimmer />;
-          $[1] = t1;
+          $[2] = t1;
         } else {
-          t1 = $[1];
+          t1 = $[2];
         }
         return t1;
       }

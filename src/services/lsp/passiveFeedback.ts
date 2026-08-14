@@ -187,6 +187,21 @@ export function registerLSPNotificationHandlers(
               `Received diagnostics from ${serverName}: ${diagnosticParams.diagnostics.length} diagnostic(s) for ${diagnosticParams.uri}`,
             )
 
+            if (diagnosticParams.version !== undefined) {
+              const currentVersion = manager.getDocumentVersion(
+                diagnosticParams.uri,
+              )
+              if (
+                currentVersion !== undefined &&
+                diagnosticParams.version < currentVersion
+              ) {
+                logForDebugging(
+                  `LSP Diagnostics: Dropping stale publishDiagnostics from ${serverName} for ${diagnosticParams.uri} (server v${diagnosticParams.version} < current v${currentVersion})`,
+                )
+                return
+              }
+            }
+
             // Convert LSP diagnostics to Claude format (can throw on invalid URIs)
             const diagnosticFiles =
               formatDiagnosticsForAttachment(diagnosticParams)

@@ -30,6 +30,8 @@ export type LSPServerManager = {
   ): Promise<T | undefined>
   /** Get all running server instances */
   getAllServers(): Map<string, LSPServerInstance>
+  /** Get the file extensions supported by configured LSP servers */
+  getSupportedExtensions(): string[]
   /** Synchronize file open to LSP server (sends didOpen notification) */
   openFile(filePath: string, content: string): Promise<void>
   /** Synchronize file change to LSP server (sends didChange notification) */
@@ -40,6 +42,8 @@ export type LSPServerManager = {
   closeFile(filePath: string): Promise<void>
   /** Check if a file is already open on a compatible LSP server */
   isFileOpen(filePath: string): boolean
+  /** Get the current client document version for an LSP URI */
+  getDocumentVersion(uri: string): number | undefined
 }
 
 /**
@@ -62,6 +66,13 @@ export function createLSPServerManager(): LSPServerManager {
   const extensionMap: Map<string, string[]> = new Map()
   // Track which files have been opened on which servers (URI -> server name)
   const openedFiles: Map<string, string> = new Map()
+  const documentVersions: Map<string, number> = new Map()
+
+  function nextDocumentVersion(uri: string): number {
+    const version = (documentVersions.get(uri) ?? 0) + 1
+    documentVersions.set(uri, version)
+    return version
+  }
 
   /**
    * Initialize the manager by loading all configured LSP servers.
@@ -166,6 +177,7 @@ export function createLSPServerManager(): LSPServerManager {
     servers.clear()
     extensionMap.clear()
     openedFiles.clear()
+    documentVersions.clear()
 
     const errors = results
       .map((r, i) =>
@@ -267,6 +279,10 @@ export function createLSPServerManager(): LSPServerManager {
     return servers
   }
 
+  function getSupportedExtensions(): string[] {
+    return Array.from(extensionMap.keys()).sort()
+  }
+
   async function openFile(filePath: string, content: string): Promise<void> {
     const server = await ensureServerStarted(filePath)
     if (!server) return
@@ -290,7 +306,7 @@ export function createLSPServerManager(): LSPServerManager {
         textDocument: {
           uri: fileUri,
           languageId,
-          version: 1,
+          version: nextDocumentVersion(fileUri),
           text: content,
         },
       })
@@ -327,7 +343,7 @@ export function createLSPServerManager(): LSPServerManager {
       await server.sendNotification('textDocument/didChange', {
         textDocument: {
           uri: fileUri,
-          version: 1,
+          version: nextDocumentVersion(fileUri),
         },
         contentChanges: [{ text: content }],
       })
@@ -388,6 +404,7 @@ export function createLSPServerManager(): LSPServerManager {
       })
       // Remove from tracking so file can be reopened later
       openedFiles.delete(fileUri)
+      documentVersions.delete(fileUri)
       logForDebugging(`LSP: Sent didClose for ${filePath}`)
     } catch (error) {
       const err = new Error(
@@ -404,6 +421,10 @@ export function createLSPServerManager(): LSPServerManager {
     return openedFiles.has(fileUri)
   }
 
+  function getDocumentVersion(uri: string): number | undefined {
+    return documentVersions.get(uri)
+  }
+
   return {
     initialize,
     shutdown,
@@ -411,10 +432,12 @@ export function createLSPServerManager(): LSPServerManager {
     ensureServerStarted,
     sendRequest,
     getAllServers,
+    getSupportedExtensions,
     openFile,
     changeFile,
     saveFile,
     closeFile,
     isFileOpen,
+    getDocumentVersion,
   }
 }

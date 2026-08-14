@@ -13,6 +13,7 @@ import {
   shouldAddStdinRedirect,
 } from '../bash/shellQuoting.js'
 import { logForDebugging } from '../debug.js'
+import { isEnvTruthy } from '../envUtils.js'
 import { getPlatform } from '../platform.js'
 import { getSessionEnvironmentScript } from '../sessionEnvironment.js'
 import { getSessionEnvVars } from '../sessionEnvVars.js'
@@ -176,6 +177,12 @@ export async function createBashShellProvider(
       const disableExtglobCmd = getDisableExtglobCommand(shellPath)
       if (disableExtglobCmd) {
         commandParts.push(disableExtglobCmd)
+      }
+
+      if (isEnvTruthy(process.env.CLAUDE_CODE_REMOTE)) {
+        commandParts.push(
+          'export BUN_OPTIONS="--smol${BUN_OPTIONS:+ $BUN_OPTIONS}"',
+        )
       }
 
       // When sourcing a file with aliases, they won't be expanded in the same command line
