@@ -5335,7 +5335,7 @@ export function REPL({
               // selector still shows (REPL keeps full history for
               // scrollback). Surface why nothing happened instead
               // of silently no-oping.
-              setMessages(prev => [...prev, createSystemMessage('That message is no longer in the active context (snipped or pre-compact). Choose a more recent message.', 'warning')]);
+              setMessages(prev => [...prev, createSystemMessage('That message is no longer in the active context. Choose a more recent message.', 'warning')]);
               return;
             }
             const newAbortController = createAbortController();

@@ -2045,6 +2045,18 @@ async function* queryLoop(
     if (updatedToolUseContext.options.refreshTools) {
       const refreshedTools = updatedToolUseContext.options.refreshTools()
       if (refreshedTools !== updatedToolUseContext.options.tools) {
+        const oldMcpCount = count(
+          updatedToolUseContext.options.tools,
+          tool => Boolean(tool.mcpInfo),
+        )
+        const newMcpCount = count(refreshedTools, tool => Boolean(tool.mcpInfo))
+        if (oldMcpCount !== newMcpCount) {
+          logEvent('tengu_mcp_tools_refreshed_mid_turn', {
+            oldMcpCount,
+            newMcpCount,
+            recovered: oldMcpCount === 0 && newMcpCount > 0,
+          })
+        }
         updatedToolUseContext = {
           ...updatedToolUseContext,
           options: {
