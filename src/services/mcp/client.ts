@@ -110,6 +110,7 @@ import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
 } from '../analytics/index.js'
+import { isAnalyticsToolDetailsLoggingEnabled } from '../analytics/metadata.js'
 import {
   type ElicitationWaitingState,
   runElicitationHooks,
@@ -1707,8 +1708,16 @@ export const connectToServer = memoize(
       }
     } catch (error) {
       const connectionDurationMs = Date.now() - connectStartTime
+      const errorCode =
+        error &&
+        typeof error === 'object' &&
+        'code' in error &&
+        error.code !== undefined
+          ? String(error.code)
+          : undefined
       logEvent('tengu_mcp_server_connection_failed', {
         connectionDurationMs,
+        errorCode,
         totalServers: serverStats?.totalServers || 1,
         stdioCount:
           serverStats?.stdioCount || (serverRef.type === 'stdio' ? 1 : 0),
@@ -1737,6 +1746,7 @@ export const connectToServer = memoize(
         type: 'failed' as const,
         config: serverRef,
         error: errorMessage(error),
+        errorCode,
       }
     }
   },
@@ -1852,6 +1862,7 @@ export const fetchToolsForClient = memoizeWithLRU(
         return []
       }
 
+      const startTime = Date.now()
       const result = (await client.client.request(
         { method: 'tools/list' },
         ListToolsResultSchema,
@@ -1875,7 +1886,7 @@ export const fetchToolsForClient = memoizeWithLRU(
         isEnvTruthy(process.env.CLAUDE_AGENT_SDK_MCP_NO_PREFIX)
 
       // Convert MCP tools to our Tool format
-      return toolsToProcess
+      const tools = toolsToProcess
         .map((tool): Tool => {
           const fullyQualifiedName = buildMcpToolName(client.name, tool.name)
           const requestedMaxResultSizeChars =
@@ -1900,7 +1911,9 @@ export const fetchToolsForClient = memoizeWithLRU(
                     .replace(/\s+/g, ' ')
                     .trim() || undefined
                 : undefined,
-            alwaysLoad: tool._meta?.['anthropic/alwaysLoad'] === true,
+            alwaysLoad:
+              client.config.alwaysLoad === true ||
+              tool._meta?.['anthropic/alwaysLoad'] === true,
             async description() {
               return tool.description ?? ''
             },
@@ -2118,6 +2131,25 @@ export const fetchToolsForClient = memoizeWithLRU(
           }
         })
         .filter(isIncludedMcpTool)
+      const baseUrlMetadata = mcpBaseUrlAnalytics(client.config)
+      logEvent('tengu_mcp_tools_listed', {
+        transportType: (client.config.type ??
+          'stdio') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        listDurationMs: Date.now() - startTime,
+        toolCount: tools.length,
+        alwaysLoadCount: count(tools, tool => tool.alwaysLoad === true),
+        ...baseUrlMetadata,
+        ...(isAnalyticsToolDetailsLoggingEnabled(
+          client.config.type,
+          baseUrlMetadata.mcpServerBaseUrl,
+        ) && {
+          mcpServerName:
+            normalizeNameForMCP(
+              client.name,
+            ) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        }),
+      })
+      return tools
     } catch (error) {
       logMCPError(client.name, `Failed to fetch tools: ${errorMessage(error)}`)
       return []

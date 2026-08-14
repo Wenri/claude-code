@@ -5,13 +5,21 @@ import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
 } from 'src/services/analytics/index.js'
-import { getClaudeAIOAuthTokens } from 'src/utils/auth.js'
+import {
+  checkAndRefreshOAuthTokenIfNeeded,
+  getClaudeAIOAuthTokens,
+  getOauthAccountInfo,
+} from 'src/utils/auth.js'
 import { getGlobalConfig, saveGlobalConfig } from 'src/utils/config.js'
 import { logForDebugging } from 'src/utils/debug.js'
 import { isEnvDefinedFalsy } from 'src/utils/envUtils.js'
+import { withOAuth401Retry } from 'src/utils/http.js'
 import { clearMcpAuthCache } from './client.js'
 import { normalizeNameForMCP } from './normalization.js'
-import type { ScopedMcpServerConfig } from './types.js'
+import type {
+  McpClaudeAIProxyServerConfig,
+  ScopedMcpServerConfig,
+} from './types.js'
 
 type ClaudeAIMcpServer = {
   type: 'mcp_server'
@@ -29,6 +37,29 @@ type ClaudeAIMcpServersResponse = {
 
 const FETCH_TIMEOUT_MS = 5000
 const MCP_SERVERS_BETA_HEADER = 'mcp-servers-2025-12-04'
+
+function normalizeUpstreamUrl(url: string): string {
+  try {
+    return new URL(url).href.replace(/\/+$/, '')
+  } catch {
+    return url
+  }
+}
+
+export function buildClaudeAiMcpAuthUrl(
+  config: McpClaudeAIProxyServerConfig,
+): string | null {
+  const organizationUuid = getOauthAccountInfo()?.organizationUuid
+  if (!organizationUuid || !config.id) return null
+  const baseUrl = getOauthConfig().CLAUDE_AI_ORIGIN
+  const serverId = config.id.startsWith('mcprs')
+    ? `mcpsrv${config.id.slice(5)}`
+    : config.id
+  const productSurface = encodeURIComponent(
+    process.env.CLAUDE_CODE_ENTRYPOINT || 'cli',
+  )
+  return `${baseUrl}/api/organizations/${organizationUuid}/mcp/start-auth/${serverId}?product_surface=${productSurface}`
+}
 
 /**
  * Fetches MCP server configurations from Claude.ai org configs.
@@ -48,6 +79,7 @@ export const fetchClaudeAIMcpConfigsIfEligible = memoize(
         return {}
       }
 
+      await checkAndRefreshOAuthTokenIfNeeded()
       const tokens = getClaudeAIOAuthTokens()
       if (!tokens?.accessToken) {
         logForDebugging('[claudeai-mcp] No access token')
@@ -79,15 +111,30 @@ export const fetchClaudeAIMcpConfigsIfEligible = memoize(
 
       logForDebugging(`[claudeai-mcp] Fetching from ${url}`)
 
-      const response = await axios.get<ClaudeAIMcpServersResponse>(url, {
-        headers: {
-          Authorization: `Bearer ${tokens.accessToken}`,
-          'Content-Type': 'application/json',
-          'anthropic-beta': MCP_SERVERS_BETA_HEADER,
-          'anthropic-version': '2023-06-01',
-        },
-        timeout: FETCH_TIMEOUT_MS,
-      })
+      const response = await withOAuth401Retry(() =>
+        axios.get<ClaudeAIMcpServersResponse>(url, {
+          headers: {
+            Authorization: `Bearer ${getClaudeAIOAuthTokens()?.accessToken ?? tokens.accessToken}`,
+            'Content-Type': 'application/json',
+            'anthropic-beta': MCP_SERVERS_BETA_HEADER,
+            'anthropic-version': '2023-06-01',
+          },
+          timeout: FETCH_TIMEOUT_MS,
+        }),
+      )
+
+      const serversByUpstream = new Map<string, ClaudeAIMcpServer>()
+      for (const server of response.data.data) {
+        const upstream = normalizeUpstreamUrl(server.url)
+        const duplicate = serversByUpstream.get(upstream)
+        if (duplicate) {
+          logForDebugging(
+            `[claudeai-mcp] Dropping duplicate upstream ${upstream}: keeping ${duplicate.id}, dropping ${server.id}`,
+          )
+          continue
+        }
+        serversByUpstream.set(upstream, server)
+      }
 
       const configs: Record<string, ScopedMcpServerConfig> = {}
       // Track used normalized names to detect collisions and assign (2), (3), etc. suffixes.
@@ -96,7 +143,7 @@ export const fetchClaudeAIMcpConfigsIfEligible = memoize(
       // colliding with "Example Server! (2)" which both normalize to claude_ai_Example_Server_2).
       const usedNormalizedNames = new Set<string>()
 
-      for (const server of response.data.data) {
+      for (const server of serversByUpstream.values()) {
         const baseName = `claude.ai ${server.display_name}`
 
         // Try without suffix first, then increment until we find an unused normalized name
@@ -107,6 +154,11 @@ export const fetchClaudeAIMcpConfigsIfEligible = memoize(
           count++
           finalName = `${baseName} (${count})`
           finalNormalized = normalizeNameForMCP(finalName)
+        }
+        if (count > 1) {
+          logForDebugging(
+            `[claudeai-mcp] Display-name collision on distinct upstreams: "${finalName}" (${server.id}, ${server.url})`,
+          )
         }
         usedNormalizedNames.add(finalNormalized)
 
@@ -126,8 +178,18 @@ export const fetchClaudeAIMcpConfigsIfEligible = memoize(
           'eligible' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       })
       return configs
-    } catch {
-      logForDebugging(`[claudeai-mcp] Fetch failed`)
+    } catch (error) {
+      const status = axios.isAxiosError(error)
+        ? String(error.response?.status ?? error.code ?? 'unknown')
+        : 'unknown'
+      logForDebugging(`[claudeai-mcp] Fetch failed (${status})`)
+      logEvent('tengu_claudeai_mcp_eligibility', {
+        state:
+          'fetch_failed' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        status:
+          status as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      })
+      fetchClaudeAIMcpConfigsIfEligible.cache.clear?.()
       return {}
     }
   },

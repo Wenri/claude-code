@@ -43,6 +43,7 @@ import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
 } from 'src/services/analytics/index.js'
+import { getFeatureValue_CACHED_MAY_BE_STALE } from 'src/services/analytics/growthbook.js'
 import {
   dedupClaudeAiMcpServers,
   doesEnterpriseMcpConfigExist,
@@ -88,8 +89,20 @@ import { commandBelongsToServer, excludeStalePluginClients } from './utils.js'
 
 // Constants for reconnection with exponential backoff
 const MAX_RECONNECT_ATTEMPTS = 5
+const MAX_INITIAL_CONNECT_RETRIES = 3
 const INITIAL_BACKOFF_MS = 1000
 const MAX_BACKOFF_MS = 30000
+const TRANSIENT_INITIAL_CONNECT_ERROR_CODES = new Set([
+  '500',
+  '502',
+  '503',
+  '504',
+  'ECONNREFUSED',
+  'ETIMEDOUT',
+  'ECONNRESET',
+  'ENOTFOUND',
+  'EAI_AGAIN',
+])
 
 /**
  * Create a unique key for a plugin error to enable deduplication
@@ -157,6 +170,7 @@ export function useManageMCPConnections(
 
   // Track active reconnection attempts to allow cancellation
   const reconnectTimersRef = useRef<Map<string, NodeJS.Timeout>>(new Map())
+  const initialConnectAttemptsRef = useRef<Map<string, number>>(new Map())
 
   // Dedup the --channels blocked warning per skip kind so that a user who
   // sees "run /login" (auth skip), logs in, then hits the policy gate
@@ -340,11 +354,21 @@ export function useManageMCPConnections(
       resources?: ServerResource[]
       resourceTemplates?: ServerResourceTemplate[]
     }) => {
-      updateServer({ ...client, tools, commands, resources, resourceTemplates })
+      updateServer({
+        ...client,
+        tools,
+        commands,
+        resources,
+        resourceTemplates,
+      })
 
       // Handle side effects based on client state
       switch (client.type) {
         case 'connected': {
+          initialConnectAttemptsRef.current.set(
+            client.name,
+            MAX_INITIAL_CONNECT_RETRIES,
+          )
           // Overwrite the default elicitation handler registered in connectToServer
           // with the real one (queues elicitation in AppState for UI). Registering
           // here (once per connect) instead of in a [mcpClients] effect avoids
@@ -765,7 +789,11 @@ export function useManageMCPConnections(
                       fetchResourcesForClient(client),
                       fetchResourceTemplatesForClient(client),
                     ])
-                    updateServer({ ...client, resources: newResources, resourceTemplates: newTemplates })
+                    updateServer({
+                      ...client,
+                      resources: newResources,
+                      resourceTemplates: newTemplates,
+                    })
                   }
                 } catch (error) {
                   logMCPError(
@@ -779,8 +807,60 @@ export function useManageMCPConnections(
           break
         }
 
+        case 'failed': {
+          const configType = client.config.type ?? 'stdio'
+          const attempt =
+            (initialConnectAttemptsRef.current.get(client.name) ?? 0) + 1
+          if (
+            (configType === 'http' ||
+              configType === 'sse' ||
+              configType === 'claudeai-proxy') &&
+            client.errorCode !== undefined &&
+            TRANSIENT_INITIAL_CONNECT_ERROR_CODES.has(client.errorCode) &&
+            attempt <= MAX_INITIAL_CONNECT_RETRIES &&
+            getFeatureValue_CACHED_MAY_BE_STALE(
+              'tengu_mcp_retry_failed_remote',
+              true,
+            )
+          ) {
+            initialConnectAttemptsRef.current.set(client.name, attempt)
+            const backoffMs = Math.min(
+              INITIAL_BACKOFF_MS * Math.pow(2, attempt - 1),
+              MAX_BACKOFF_MS,
+            )
+            logMCPDebug(
+              client.name,
+              `Transient ${client.errorCode} on initial connect — retry ${attempt}/${MAX_INITIAL_CONNECT_RETRIES} in ${backoffMs}ms`,
+            )
+            updateServer({
+              ...client,
+              type: 'pending',
+              reconnectAttempt: attempt,
+              maxReconnectAttempts: MAX_INITIAL_CONNECT_RETRIES,
+            })
+
+            const existingTimer = reconnectTimersRef.current.get(client.name)
+            if (existingTimer) clearTimeout(existingTimer)
+            const timer = setTimeout(() => {
+              reconnectTimersRef.current.delete(client.name)
+              if (isMcpServerDisabled(client.name)) return
+              reconnectMcpServerImpl(client.name, client.config).then(
+                onConnectionAttempt,
+                error => {
+                  logMCPError(
+                    client.name,
+                    `Initial-connect retry ${attempt} threw: ${errorMessage(error)}`,
+                  )
+                  updateServer(client)
+                },
+              )
+            }, backoffMs)
+            reconnectTimersRef.current.set(client.name, timer)
+          }
+          break
+        }
+
         case 'needs-auth':
-        case 'failed':
         case 'pending':
         case 'disabled':
           break
@@ -827,6 +907,7 @@ export function useManageMCPConnections(
         //      cache is empty → real connect attempt → spawn/OAuth just to
         //      immediately kill it. Only connected servers need cleanup.
         for (const s of stale) {
+          initialConnectAttemptsRef.current.delete(s.name)
           const timer = reconnectTimersRef.current.get(s.name)
           if (timer) {
             clearTimeout(timer)

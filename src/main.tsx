@@ -4317,15 +4317,29 @@ async function run(): Promise<CommanderCommand> {
   });
 
   // Plugin uninstall command
-  pluginCmd.command('uninstall <plugin>').alias('remove').alias('rm').description('Uninstall an installed plugin').option('-s, --scope <scope>', 'Uninstall from scope: user, project, or local', 'user').option('--keep-data', "Preserve the plugin's persistent data directory (~/.claude/plugins/data/{id}/)").addOption(coworkOption()).action(async (plugin: string, options: {
+  pluginCmd.command('uninstall <plugin>').alias('remove').alias('rm').description('Uninstall an installed plugin').option('-s, --scope <scope>', 'Uninstall from scope: user, project, or local', 'user').option('--keep-data', "Preserve the plugin's persistent data directory (~/.claude/plugins/data/{id}/)").option('--prune', 'Also remove auto-installed dependencies that are no longer needed (requires -y in non-interactive contexts)').option('-y, --yes', 'Skip the --prune confirmation prompt (required when stdin is not a TTY)').addOption(coworkOption()).action(async (plugin: string, options: {
     scope?: string;
     cowork?: boolean;
     keepData?: boolean;
+    prune?: boolean;
+    yes?: boolean;
   }) => {
     const {
       pluginUninstallHandler
     } = await import('./cli/handlers/plugins.js');
     await pluginUninstallHandler(plugin, options);
+  });
+
+  pluginCmd.command('prune').alias('autoremove').description('Remove auto-installed dependencies that are no longer needed').option('-s, --scope <scope>', 'Prune at scope: user, project, or local', 'user').option('--dry-run', 'List what would be removed without removing').option('-y, --yes', 'Skip the confirmation prompt (required when stdin is not a TTY)').addOption(coworkOption()).action(async (options: {
+    scope?: string;
+    cowork?: boolean;
+    dryRun?: boolean;
+    yes?: boolean;
+  }) => {
+    const {
+      pluginPruneHandler
+    } = await import('./cli/handlers/plugins.js');
+    await pluginPruneHandler(options);
   });
 
   // Plugin enable command

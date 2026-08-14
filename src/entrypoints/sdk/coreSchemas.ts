@@ -115,6 +115,12 @@ export const McpStdioServerConfigSchema = lazySchema(() =>
     command: z.string(),
     args: z.array(z.string()).optional(),
     env: z.record(z.string(), z.string()).optional(),
+    alwaysLoad: z
+      .boolean()
+      .describe(
+        'When true, all tools from this server are always included in the prompt and never deferred behind tool search. Equivalent to setting defer_loading: false on the API. Default: tools are deferred when tool search is enabled.',
+      )
+      .optional(),
   }),
 )
 
@@ -135,6 +141,12 @@ export const McpSSEServerConfigSchema = lazySchema(() =>
     url: z.string(),
     headers: z.record(z.string(), z.string()).optional(),
     tools: z.array(McpToolConfigSchema()).optional(),
+    alwaysLoad: z
+      .boolean()
+      .describe(
+        'When true, all tools from this server are always included in the prompt and never deferred behind tool search. Equivalent to setting defer_loading: false on the API. Default: tools are deferred when tool search is enabled.',
+      )
+      .optional(),
   }),
 )
 
@@ -144,6 +156,12 @@ export const McpHttpServerConfigSchema = lazySchema(() =>
     url: z.string(),
     headers: z.record(z.string(), z.string()).optional(),
     tools: z.array(McpToolConfigSchema()).optional(),
+    alwaysLoad: z
+      .boolean()
+      .describe(
+        'When true, all tools from this server are always included in the prompt and never deferred behind tool search. Equivalent to setting defer_loading: false on the API. Default: tools are deferred when tool search is enabled.',
+      )
+      .optional(),
   }),
 )
 
@@ -929,7 +947,16 @@ export const PostToolUseHookSpecificOutputSchema = lazySchema(() =>
   z.object({
     hookEventName: z.literal('PostToolUse'),
     additionalContext: z.string().optional(),
-    updatedMCPToolOutput: z.unknown().optional(),
+    updatedToolOutput: z
+      .unknown()
+      .describe('Replaces the tool output before it is sent to the model')
+      .optional(),
+    updatedMCPToolOutput: z
+      .unknown()
+      .describe(
+        'Replaces the output for MCP tools only. Prefer updatedToolOutput, which works for all tools',
+      )
+      .optional(),
   }),
 )
 

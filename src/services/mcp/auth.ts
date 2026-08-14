@@ -97,6 +97,11 @@ const MAX_LOCK_RETRIES = 5
 // auth-only promise available so a later callback request can await the same
 // token exchange even when it is handled by a different surface.
 const activeMcpOAuthFlows = new Map<string, Promise<void>>()
+const activeMcpOAuthPorts = new Map<number, AbortController>()
+const activeMcpOAuthCallbackSubmitters = new Map<
+  string,
+  (callbackUrl: string) => boolean
+>()
 
 export function trackMCPOAuthFlow(
   serverName: string,
@@ -116,6 +121,12 @@ export function getActiveMCPOAuthFlow(
   serverName: string,
 ): Promise<void> | undefined {
   return activeMcpOAuthFlows.get(serverName)
+}
+
+export function getMcpOAuthCallbackSubmitter(
+  serverName: string,
+): ((callbackUrl: string) => boolean) | undefined {
+  return activeMcpOAuthCallbackSubmitters.get(serverName)
 }
 
 /**
@@ -908,7 +919,12 @@ export async function performMCPOAuthFlow(
   abortSignal?: AbortSignal,
   options?: {
     skipBrowserOpen?: boolean
-    onWaitingForCallback?: (submit: (callbackUrl: string) => void) => void
+    redirectUri?: string
+    onWaitingForCallback?: (
+      submit: (callbackUrl: string) => boolean,
+      callbackPort: number,
+      state: string,
+    ) => void
   },
 ): Promise<void> {
   // XAA (SEP-990): if configured, bypass the per-server consent dance.
@@ -1013,14 +1029,26 @@ export async function performMCPOAuthFlow(
   let authorizationCodeObtained = false
 
   try {
-    // Use configured callback port for pre-configured OAuth, otherwise find an available port
+    // Custom URI schemes are handled by the SDK/bridge, so no localhost
+    // listener is needed in that mode.
     const configuredCallbackPort = serverConfig.oauth?.callbackPort
-    const port = configuredCallbackPort ?? (await findAvailablePort())
-    const redirectUri = buildRedirectUri(port)
+    const hasCustomRedirect = Boolean(options?.redirectUri)
+    const port = hasCustomRedirect
+      ? 0
+      : (configuredCallbackPort ?? (await findAvailablePort()))
+    const redirectUri = options?.redirectUri ?? buildRedirectUri(port)
     logMCPDebug(
       serverName,
-      `Using redirect port: ${port}${configuredCallbackPort ? ' (from config)' : ''}`,
+      hasCustomRedirect
+        ? `Using custom redirectUri: ${redirectUri} (no localhost listener)`
+        : `Using redirect port: ${port}${configuredCallbackPort ? ' (from config)' : ''}`,
     )
+
+    const flowController = new AbortController()
+    if (!hasCustomRedirect) {
+      activeMcpOAuthPorts.get(port)?.abort()
+      activeMcpOAuthPorts.set(port, flowController)
+    }
 
     const provider = new ClaudeAuthProvider(
       serverName,
@@ -1030,6 +1058,12 @@ export async function performMCPOAuthFlow(
       onAuthorizationUrl,
       options?.skipBrowserOpen,
     )
+    const hasConfiguredScope = Boolean(
+      serverConfig.oauth?.scopes || serverConfig.oauth?.authServerMetadataUrl,
+    )
+    if (wwwAuthParams.scope && !hasConfiguredScope) {
+      provider.markStepUpPending(wwwAuthParams.scope)
+    }
 
     // Fetch and store OAuth metadata for scope information
     try {
@@ -1062,6 +1096,7 @@ export async function performMCPOAuthFlow(
     let server: Server | null = null
     let timeoutId: NodeJS.Timeout | null = null
     let abortHandler: (() => void) | null = null
+    let callbackSubmitter: ((callbackUrl: string) => boolean) | null = null
 
     const cleanup = () => {
       if (server) {
@@ -1075,9 +1110,19 @@ export async function performMCPOAuthFlow(
         clearTimeout(timeoutId)
         timeoutId = null
       }
-      if (abortSignal && abortHandler) {
-        abortSignal.removeEventListener('abort', abortHandler)
+      if (abortHandler) {
+        abortSignal?.removeEventListener('abort', abortHandler)
+        flowController.signal.removeEventListener('abort', abortHandler)
         abortHandler = null
+      }
+      if (activeMcpOAuthPorts.get(port) === flowController) {
+        activeMcpOAuthPorts.delete(port)
+      }
+      if (
+        callbackSubmitter &&
+        activeMcpOAuthCallbackSubmitters.get(serverName) === callbackSubmitter
+      ) {
+        activeMcpOAuthCallbackSubmitters.delete(serverName)
       }
       logMCPDebug(serverName, `MCP OAuth server cleaned up`)
     }
@@ -1096,22 +1141,21 @@ export async function performMCPOAuthFlow(
         reject(error)
       }
 
-      if (abortSignal) {
-        abortHandler = () => {
-          cleanup()
-          rejectOnce(new AuthenticationCancelledError())
-        }
-        if (abortSignal.aborted) {
-          abortHandler()
-          return
-        }
-        abortSignal.addEventListener('abort', abortHandler)
+      abortHandler = () => {
+        cleanup()
+        rejectOnce(new AuthenticationCancelledError())
       }
+      if (abortSignal?.aborted || flowController.signal.aborted) {
+        abortHandler()
+        return
+      }
+      abortSignal?.addEventListener('abort', abortHandler)
+      flowController.signal.addEventListener('abort', abortHandler)
 
       // Allow manual callback URL paste for remote/browser-based environments
       // where localhost is not reachable from the user's browser.
-      if (options?.onWaitingForCallback) {
-        options.onWaitingForCallback((callbackUrl: string) => {
+      {
+        const submit = (callbackUrl: string): boolean => {
           try {
             const parsed = new URL(callbackUrl)
             const code = parsed.searchParams.get('code')
@@ -1125,12 +1169,12 @@ export async function performMCPOAuthFlow(
               rejectOnce(
                 new Error(`OAuth error: ${error} - ${errorDescription}`),
               )
-              return
+              return true
             }
 
             if (!code) {
               // Not a valid callback URL, ignore so the user can try again
-              return
+              return false
             }
 
             if (state !== oauthState) {
@@ -1138,7 +1182,7 @@ export async function performMCPOAuthFlow(
               rejectOnce(
                 new Error('OAuth state mismatch - possible CSRF attack'),
               )
-              return
+              return true
             }
 
             logMCPDebug(
@@ -1147,91 +1191,22 @@ export async function performMCPOAuthFlow(
             )
             cleanup()
             resolveOnce(code)
+            return true
           } catch {
             // Invalid URL, ignore so the user can try again
+            return false
           }
-        })
+        }
+        callbackSubmitter = submit
+        activeMcpOAuthCallbackSubmitters.set(serverName, submit)
+        options?.onWaitingForCallback?.(submit, port, oauthState)
       }
 
-      server = createServer((req, res) => {
-        const parsedUrl = parse(req.url || '', true)
-
-        if (parsedUrl.pathname === '/callback') {
-          const code = parsedUrl.query.code as string
-          const state = parsedUrl.query.state as string
-          const error = parsedUrl.query.error
-          const errorDescription = parsedUrl.query.error_description as string
-          const errorUri = parsedUrl.query.error_uri as string
-
-          // Validate OAuth state to prevent CSRF attacks
-          if (!error && state !== oauthState) {
-            res.writeHead(400, { 'Content-Type': 'text/html' })
-            res.end(
-              `<h1>Authentication Error</h1><p>Invalid state parameter. Please try again.</p><p>You can close this window.</p>`,
-            )
-            cleanup()
-            rejectOnce(new Error('OAuth state mismatch - possible CSRF attack'))
-            return
-          }
-
-          if (error) {
-            res.writeHead(200, { 'Content-Type': 'text/html' })
-            // Sanitize error messages to prevent XSS
-            const sanitizedError = xss(String(error))
-            const sanitizedErrorDescription = errorDescription
-              ? xss(String(errorDescription))
-              : ''
-            res.end(
-              `<h1>Authentication Error</h1><p>${sanitizedError}: ${sanitizedErrorDescription}</p><p>You can close this window.</p>`,
-            )
-            cleanup()
-            let errorMessage = `OAuth error: ${error}`
-            if (errorDescription) {
-              errorMessage += ` - ${errorDescription}`
-            }
-            if (errorUri) {
-              errorMessage += ` (See: ${errorUri})`
-            }
-            rejectOnce(new Error(errorMessage))
-            return
-          }
-
-          if (code) {
-            res.writeHead(200, { 'Content-Type': 'text/html' })
-            res.end(
-              `<h1>Authentication Successful</h1><p>You can close this window. Return to Claude Code.</p>`,
-            )
-            cleanup()
-            resolveOnce(code)
-          }
-        }
-      })
-
-      server.on('error', (err: NodeJS.ErrnoException) => {
-        cleanup()
-        if (err.code === 'EADDRINUSE') {
-          const findCmd =
-            getPlatform() === 'windows'
-              ? `netstat -ano | findstr :${port}`
-              : `lsof -ti:${port} -sTCP:LISTEN`
-          rejectOnce(
-            new Error(
-              `OAuth callback port ${port} is already in use — another process may be holding it. ` +
-                `Run \`${findCmd}\` to find it.`,
-            ),
-          )
-        } else {
-          rejectOnce(new Error(`OAuth callback server failed: ${err.message}`))
-        }
-      })
-
-      server.listen(port, '127.0.0.1', async () => {
+      const startSdkAuth = async () => {
         try {
           logMCPDebug(serverName, `Starting SDK auth`)
           logMCPDebug(serverName, `Server URL: ${serverConfig.url}`)
 
-          // First call to start the auth flow - should redirect
-          // Pass the scope and resource_metadata from WWW-Authenticate header if available
           const result = await sdkAuth(provider, {
             serverUrl: serverConfig.url,
             scope: wwwAuthParams.scope,
@@ -1250,13 +1225,92 @@ export async function performMCPOAuthFlow(
           cleanup()
           rejectOnce(new Error(`SDK auth failed: ${errorMessage(error)}`))
         }
-      })
+      }
 
-      // Don't let the callback server or timeout pin the event loop — if the UI
-      // component unmounts without aborting (e.g. parent intercepts Esc), we'd
-      // rather let the process exit than stay alive for 5 minutes holding the
-      // port. The abortSignal is the intended lifecycle management.
-      server.unref()
+      if (hasCustomRedirect) {
+        void startSdkAuth()
+      } else {
+        server = createServer((req, res) => {
+          const parsedUrl = parse(req.url || '', true)
+
+          if (parsedUrl.pathname === '/callback') {
+            const code = parsedUrl.query.code as string
+            const state = parsedUrl.query.state as string
+            const error = parsedUrl.query.error
+            const errorDescription = parsedUrl.query.error_description as string
+            const errorUri = parsedUrl.query.error_uri as string
+
+            // Validate OAuth state to prevent CSRF attacks
+            if (!error && state !== oauthState) {
+              res.writeHead(400, { 'Content-Type': 'text/html' })
+              res.end(
+                `<h1>Authentication Error</h1><p>Invalid state parameter. Please try again.</p><p>You can close this window.</p>`,
+              )
+              cleanup()
+              rejectOnce(
+                new Error('OAuth state mismatch - possible CSRF attack'),
+              )
+              return
+            }
+
+            if (error) {
+              res.writeHead(200, { 'Content-Type': 'text/html' })
+              // Sanitize error messages to prevent XSS
+              const sanitizedError = xss(String(error))
+              const sanitizedErrorDescription = errorDescription
+                ? xss(String(errorDescription))
+                : ''
+              res.end(
+                `<h1>Authentication Error</h1><p>${sanitizedError}: ${sanitizedErrorDescription}</p><p>You can close this window.</p>`,
+              )
+              cleanup()
+              let errorMessage = `OAuth error: ${error}`
+              if (errorDescription) {
+                errorMessage += ` - ${errorDescription}`
+              }
+              if (errorUri) {
+                errorMessage += ` (See: ${errorUri})`
+              }
+              rejectOnce(new Error(errorMessage))
+              return
+            }
+
+            if (code) {
+              res.writeHead(200, { 'Content-Type': 'text/html' })
+              res.end(
+                `<h1>Authentication Successful</h1><p>You can close this window. Return to Claude Code.</p>`,
+              )
+              cleanup()
+              resolveOnce(code)
+            }
+          }
+        })
+
+        server.on('error', (err: NodeJS.ErrnoException) => {
+          cleanup()
+          if (err.code === 'EADDRINUSE') {
+            const findCmd =
+              getPlatform() === 'windows'
+                ? `netstat -ano | findstr :${port}`
+                : `lsof -ti:${port} -sTCP:LISTEN`
+            rejectOnce(
+              new Error(
+                `OAuth callback port ${port} is already in use — another process may be holding it. ` +
+                  `Run \`${findCmd}\` to find it.`,
+              ),
+            )
+          } else {
+            rejectOnce(
+              new Error(`OAuth callback server failed: ${err.message}`),
+            )
+          }
+        })
+
+        server.listen(port, '127.0.0.1', () => void startSdkAuth())
+
+        // Don't let the callback server or timeout pin the event loop.
+        server.unref()
+      }
 
       timeoutId = setTimeout(
         (cleanup, rejectOnce) => {
@@ -1934,6 +1988,46 @@ export class ClaudeAuthProvider implements OAuthClientProvider {
   }
 
   async redirectToAuthorization(authorizationUrl: URL): Promise<void> {
+    const configuredScopes = this._pendingStepUpScope
+      ? undefined
+      : this.serverConfig.oauth?.scopes ||
+        (this.serverConfig.oauth?.authServerMetadataUrl
+          ? getScopeFromMetadata(this._metadata)
+          : undefined)
+    const authorizationScopes = authorizationUrl.searchParams.get('scope')
+    const requestedScopes = configuredScopes ?? authorizationScopes
+    if (requestedScopes !== authorizationScopes) {
+      logMCPDebug(
+        this.serverName,
+        `Overrode authorization scope from ${authorizationScopes || 'NONE'} to configured: ${requestedScopes}`,
+      )
+    }
+    const scopesWithOfflineAccess = ensureOfflineAccess(
+      requestedScopes,
+      this._metadata,
+    )
+    if (
+      scopesWithOfflineAccess !== null &&
+      scopesWithOfflineAccess !== authorizationScopes
+    ) {
+      authorizationUrl.searchParams.set('scope', scopesWithOfflineAccess)
+      if (scopesWithOfflineAccess !== configuredScopes) {
+        logMCPDebug(
+          this.serverName,
+          'Appended offline_access to authorization scope',
+        )
+      }
+    }
+
+    const promptValues = authorizationUrl.searchParams.getAll('prompt')
+    if (promptValues.length > 1) {
+      authorizationUrl.searchParams.delete('prompt')
+      authorizationUrl.searchParams.set(
+        'prompt',
+        promptValues.includes('consent') ? 'consent' : promptValues.at(-1)!,
+      )
+    }
+
     // Store the authorization URL
     this._authorizationUrl = authorizationUrl.toString()
 
@@ -1971,7 +2065,7 @@ export class ClaudeAuthProvider implements OAuthClientProvider {
     // so the next performMCPOAuthFlow can use it without an extra probe request.
     // Guard with !handleRedirection to avoid persisting during normal auth flows
     // (where the scope may come from metadata scopes_supported rather than a 401).
-    if (this._scopes && !this.handleRedirection) {
+    if (this._scopes && !this.handleRedirection && this._pendingStepUpScope) {
       const storage = getSecureStorage()
       const existingData = storage.read() || {}
       const serverKey = getServerKey(this.serverName, this.serverConfig)
@@ -2561,4 +2655,15 @@ function getScopeFromMetadata(
     return metadata.scopes_supported.join(' ')
   }
   return undefined
+}
+
+function ensureOfflineAccess(
+  scopes: string | null,
+  metadata: AuthorizationServerMetadata | undefined,
+): string | null {
+  if (scopes !== null && scopes.split(' ').includes('offline_access')) {
+    return scopes
+  }
+  if (!metadata?.scopes_supported?.includes('offline_access')) return scopes
+  return scopes === null ? 'offline_access' : `${scopes} offline_access`
 }

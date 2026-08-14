@@ -274,8 +274,12 @@ export function createToolWrappers(
           undefined,
           durationMs,
         )) {
-          if ('updatedMCPToolOutput' in hookResult) {
-            output = hookResult.updatedMCPToolOutput
+          if (
+            'updatedToolOutput' in hookResult &&
+            tool.outputSchema?.safeParse(hookResult.updatedToolOutput)
+              ?.success !== false
+          ) {
+            output = hookResult.updatedToolOutput
           }
         }
 

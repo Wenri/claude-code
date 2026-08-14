@@ -260,10 +260,12 @@ import {
 } from 'src/services/mcp/config.js'
 import {
   getActiveMCPOAuthFlow,
+  getMcpOAuthCallbackSubmitter,
   performMCPOAuthFlow,
   revokeServerTokens,
   trackMCPOAuthFlow,
 } from 'src/services/mcp/auth.js'
+import { buildClaudeAiMcpAuthUrl } from 'src/services/mcp/claudeai.js'
 import {
   runElicitationHooks,
   runElicitationResultHooks,
@@ -2941,12 +2943,6 @@ function runHeadlessStreaming(
   // Track active OAuth flows per server so we can abort a previous flow
   // when a new mcp_authenticate request arrives for the same server.
   const activeOAuthFlows = new Map<string, AbortController>()
-  // Track manual callback URL submit functions for active OAuth flows.
-  // Used when localhost is not reachable (e.g., browser-based IDEs).
-  const oauthCallbackSubmitters = new Map<
-    string,
-    (callbackUrl: string) => void
-  >()
   // Track servers where the manual callback was actually invoked (so the
   // automatic reconnect path knows to skip — the extension will reconnect).
   const oauthManualCallbackUsed = new Set<string>()
@@ -3503,7 +3499,10 @@ function runHeadlessStreaming(
             output,
           )
         } else if (message.request.subtype === 'mcp_authenticate') {
-          const { serverName } = message.request
+          const { serverName, redirectUri } =
+            message.request as typeof message.request & {
+              redirectUri?: string
+            }
           const currentAppState = getAppState()
           const config =
             getMcpConfigByName(serverName) ??
@@ -3513,6 +3512,21 @@ function runHeadlessStreaming(
             null
           if (!config) {
             sendControlResponseError(message, `Server not found: ${serverName}`)
+          } else if (config.type === 'claudeai-proxy') {
+            const authUrl = buildClaudeAiMcpAuthUrl(config)
+            if (!authUrl) {
+              sendControlResponseError(
+                message,
+                `Unable to build authentication URL for ${serverName}`,
+              )
+            } else {
+              sendControlResponseSuccess(message, {
+                authUrl,
+                requiresUserAction: true,
+                callbackExpected: false,
+              })
+              logEvent('tengu_claudeai_mcp_auth_started', {})
+            }
           } else if (config.type !== 'sse' && config.type !== 'http') {
             sendControlResponseError(
               message,
@@ -3525,40 +3539,69 @@ function runHeadlessStreaming(
               const controller = new AbortController()
               activeOAuthFlows.set(serverName, controller)
 
-              // Capture the auth URL from the callback
-              let resolveAuthUrl: (url: string) => void
-              const authUrlPromise = new Promise<string>(resolve => {
-                resolveAuthUrl = resolve
-              })
-
-              // Start the OAuth flow in the background
-              const oauthPromise = performMCPOAuthFlow(
-                serverName,
-                config,
-                url => resolveAuthUrl!(url),
-                controller.signal,
-                {
-                  skipBrowserOpen: true,
-                  onWaitingForCallback: submit => {
-                    oauthCallbackSubmitters.set(serverName, submit)
+              const startFlow = (customRedirectUri?: string) => {
+                let resolveAuthUrl: (url: string) => void
+                const authUrlPromise = new Promise<string>(resolve => {
+                  resolveAuthUrl = resolve
+                })
+                let callbackPort: number | undefined
+                let state: string | undefined
+                const oauthPromise = performMCPOAuthFlow(
+                  serverName,
+                  config,
+                  url => resolveAuthUrl!(url),
+                  controller.signal,
+                  {
+                    skipBrowserOpen: true,
+                    redirectUri: customRedirectUri,
+                    onWaitingForCallback: (_submit, port, oauthState) => {
+                      callbackPort = port
+                      state = oauthState
+                    },
                   },
-                },
-              )
+                )
+                return {
+                  oauthPromise,
+                  raced: Promise.race([
+                    authUrlPromise,
+                    oauthPromise.then(() => null as string | null),
+                  ]).then(authUrl => ({ authUrl, callbackPort, state })),
+                }
+              }
 
-              // Wait for the auth URL (or the flow to complete without needing redirect)
-              const authUrl = await Promise.race([
-                authUrlPromise,
-                oauthPromise.then(() => null as string | null),
-              ])
+              let redirectScheme: 'custom' | 'localhost' = 'localhost'
+              let flow = startFlow(redirectUri)
+              let authResult: Awaited<typeof flow.raced>
+              if (redirectUri) {
+                try {
+                  authResult = await flow.raced
+                  redirectScheme = 'custom'
+                } catch (error) {
+                  logForDebugging(
+                    `[mcp_authenticate] AS rejected custom redirectUri for ${serverName}; falling back to localhost: ${errorMessage(error)}`,
+                  )
+                  flow = startFlow()
+                  authResult = await flow.raced
+                }
+              } else {
+                authResult = await flow.raced
+              }
+              const oauthPromise = flow.oauthPromise
+              const { authUrl, callbackPort, state } = authResult
 
               if (authUrl) {
                 sendControlResponseSuccess(message, {
                   authUrl,
                   requiresUserAction: true,
+                  callbackExpected: false,
+                  redirectScheme,
+                  state,
+                  ...(redirectScheme === 'localhost' && { callbackPort }),
                 })
               } else {
                 sendControlResponseSuccess(message, {
                   requiresUserAction: false,
+                  callbackExpected: true,
                 })
               }
 
@@ -3646,7 +3689,6 @@ function runHeadlessStreaming(
                   // Clean up only if this is still the active flow
                   if (activeOAuthFlows.get(serverName) === controller) {
                     activeOAuthFlows.delete(serverName)
-                    oauthCallbackSubmitters.delete(serverName)
                     oauthManualCallbackUsed.delete(serverName)
                     oauthAuthPromises.delete(serverName)
                   }
@@ -3658,7 +3700,7 @@ function runHeadlessStreaming(
           }
         } else if (message.request.subtype === 'mcp_oauth_callback_url') {
           const { serverName, callbackUrl } = message.request
-          const submit = oauthCallbackSubmitters.get(serverName)
+          const submit = getMcpOAuthCallbackSubmitter(serverName)
           if (submit) {
             // Validate the callback URL before submitting. The submit
             // callback in auth.ts silently ignores URLs missing a code

@@ -377,6 +377,7 @@ export interface HookResult {
   sessionTitle?: string
   initialUserMessage?: string
   updatedInput?: Record<string, unknown>
+  updatedToolOutput?: unknown
   updatedMCPToolOutput?: unknown
   permissionRequestResult?: PermissionRequestResult
   elicitationResponse?: ElicitationResponse
@@ -398,6 +399,7 @@ export type AggregatedHookResult = {
   sessionTitle?: string
   initialUserMessage?: string
   updatedInput?: Record<string, unknown>
+  updatedToolOutput?: unknown
   updatedMCPToolOutput?: unknown
   permissionRequestResult?: PermissionRequestResult
   watchPaths?: string[]
@@ -685,6 +687,9 @@ function processHookJSONOutput({
         break
       case 'PostToolUse':
         result.additionalContext = json.hookSpecificOutput.additionalContext
+        if (json.hookSpecificOutput.updatedToolOutput !== undefined) {
+          result.updatedToolOutput = json.hookSpecificOutput.updatedToolOutput
+        }
         // Extract updatedMCPToolOutput if provided
         if (json.hookSpecificOutput.updatedMCPToolOutput) {
           result.updatedMCPToolOutput =
@@ -2292,10 +2297,7 @@ async function* executeHooks({
           cleanup()
           yield {
             message: createAttachmentMessage({
-              type: 'hook_cancelled',
-              hookName,
-              toolUseID,
-              hookEvent,
+              type: 'hook_cancelled', hookName, toolUseID, hookEvent,
             }),
             outcome: 'cancelled',
             hook,
@@ -2389,7 +2391,10 @@ async function* executeHooks({
         if (mcpResult.aborted) {
           yield {
             message: createAttachmentMessage({
-              type: 'hook_cancelled', hookName, toolUseID, hookEvent,
+              type: 'hook_cancelled',
+              hookName,
+              toolUseID,
+              hookEvent,
             }),
             outcome: 'cancelled' as const,
             hook,
@@ -2980,10 +2985,21 @@ async function* executeHooks({
       }
     }
 
-    // Yield updatedMCPToolOutput if provided (from PostToolUse hooks)
-    if (result.updatedMCPToolOutput) {
+    if (result.updatedToolOutput !== undefined) {
       logForDebugging(
-        `Hook ${hookEvent} (${getHookDisplayText(result.hook)}) replaced MCP tool output`,
+        `Hook ${hookEvent} (${getHookDisplayText(result.hook)}) replaced tool output`,
+      )
+      yield {
+        updatedToolOutput: result.updatedToolOutput,
+      }
+    }
+
+    if (
+      result.updatedMCPToolOutput !== undefined &&
+      result.updatedToolOutput === undefined
+    ) {
+      logForDebugging(
+        `Hook ${hookEvent} (${getHookDisplayText(result.hook)}) replaced tool output (updatedMCPToolOutput)`,
       )
       yield {
         updatedMCPToolOutput: result.updatedMCPToolOutput,
