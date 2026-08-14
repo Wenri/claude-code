@@ -4067,6 +4067,296 @@
       "focusedTests": [
         "feedback-surface"
       ]
+    },
+    {
+      "id": "R39",
+      "category": "residual",
+      "retained": true,
+      "title": "Retained UI, rating, cost, terminal, and model-aware interaction surfaces",
+      "targetFragments": [
+        "tengu_amber_lark",
+        "tengu_coral_beacon",
+        "tengu_velvet_moth",
+        "tengu_opus47_launch_shown",
+        "tengu_status_line_result",
+        "tengu_billiard_aviary",
+        "tengu_marlin_porch",
+        "tengu_slate_harbor",
+        "tengu_sage_compass2",
+        "tengu_slate_finch"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/commands/cost/cost.ts",
+          "fragment": "getFeatureValue_CACHED_MAY_BE_STALE('tengu_amber_lark', false)"
+        },
+        {
+          "path": "src/commands/rate-limit-options/rate-limit-options.tsx",
+          "fragment": "tengu_coral_beacon"
+        },
+        {
+          "path": "src/components/FeedbackSurvey/useMemorySurvey.tsx",
+          "fragment": "const MEMORY_SURVEY_PROBABILITY_GATE = 'tengu_velvet_moth'"
+        },
+        {
+          "path": "src/components/LogoV2/Opus47LaunchNotice.tsx",
+          "fragment": "logEvent('tengu_opus47_launch_shown', {})"
+        },
+        {
+          "path": "src/components/Message.tsx",
+          "fragment": "messageUuid={message.uuid}"
+        },
+        {
+          "path": "src/components/ResumeReturnDialog.tsx",
+          "fragment": "label: 'Resume from summary (recommended)'"
+        },
+        {
+          "path": "src/components/StatusLine.tsx",
+          "fragment": "logEvent('tengu_status_line_result'"
+        },
+        {
+          "path": "src/components/permissions/AskUserQuestionPermissionRequest/AskUserQuestionPermissionRequest.tsx",
+          "fragment": "convertImagesToBlocks(allImageAttachments, imageLimitsRef.current)"
+        },
+        {
+          "path": "src/components/permissions/ExitPlanModePermissionRequest/ExitPlanModePermissionRequest.tsx",
+          "fragment": "imageLimitsRef.current = getImageLimits(imageModel)"
+        },
+        {
+          "path": "src/context/messageRating.tsx",
+          "fragment": "logEvent('tengu_message_rated'"
+        },
+        {
+          "path": "src/cost-tracker.ts",
+          "fragment": "export function formatSessionCostBreakdown()"
+        },
+        {
+          "path": "src/ink/terminal.ts",
+          "fragment": "if (isFullscreenEnvEnabled()) return (decstbmSafe = false)"
+        },
+        {
+          "path": "src/tools/REPLTool/constants.ts",
+          "fragment": "entrypoint === 'cli' || entrypoint === 'remote'"
+        },
+        {
+          "path": "src/utils/advisor.ts",
+          "fragment": "CLAUDE_CODE_ENABLE_EXPERIMENTAL_ADVISOR_TOOL"
+        },
+        {
+          "path": "src/utils/effort.ts",
+          "fragment": "getSubscriptionType() === 'pro'"
+        }
+      ],
+      "rationale": "Authenticated retained feature and telemetry markers bind the exact cost, upgrade, survey, launch, status-line, rating, terminal, REPL, advisor, effort, resume, and model-aware permission surfaces asserted by the consolidated focused suite.",
+      "focusedTests": [
+        "retained-runtime-surfaces"
+      ],
+      "sourcePathAbsences": []
+    },
+    {
+      "id": "R40",
+      "category": "residual",
+      "retained": true,
+      "title": "Retained image, deep-link, resume, and plugin-settings safeguards",
+      "targetFragments": [
+        "tengu_crimson_vector",
+        "tengu_gleaming_fair",
+        "tengu_plugin_settings_premature_read",
+        "Ignoring invalid --deep-link-cwd-b64"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/tools/BashTool/utils.ts",
+          "fragment": "maybeResizeAndDownsampleImageBuffer("
+        },
+        {
+          "path": "src/utils/imagePaste.ts",
+          "fragment": "const imageLimits = getImageLimits(getMainLoopModel())"
+        },
+        {
+          "path": "src/utils/imageResizer.ts",
+          "fragment": "'claude-opus-4-7': { maxWidth: 2576, maxHeight: 2576 }"
+        },
+        {
+          "path": "src/utils/imageValidation.ts",
+          "fragment": "limits: ImageLimits = getImageLimits()"
+        },
+        {
+          "path": "src/utils/processUserInput/processUserInput.ts",
+          "fragment": "getImageLimits(context.options.mainLoopModel)"
+        },
+        {
+          "path": "src/utils/resumeReturn.ts",
+          "fragment": "CLAUDE_CODE_RESUME_TOKEN_THRESHOLD"
+        },
+        {
+          "path": "src/utils/subagentStatusLine.ts",
+          "fragment": "getSettingsAfterPluginLoad('subagentStatusLine')"
+        },
+        {
+          "path": "src/utils/deepLink/parseDeepLink.ts",
+          "fragment": "export function validateDeepLinkCwd(cwd: string)"
+        },
+        {
+          "path": "src/utils/deepLink/terminalLauncher.ts",
+          "fragment": "Buffer.from(value, 'utf8').toString('base64url')"
+        },
+        {
+          "path": "src/utils/settings/settings.ts",
+          "fragment": "export function getSettingsAfterPluginLoad"
+        },
+        {
+          "path": "src/utils/settings/settingsCache.ts",
+          "fragment": "export function isPluginSettingsInitialized()"
+        }
+      ],
+      "rationale": "Retained image-limit, resume, settings, and deep-link diagnostics bind model-specific resizing and validation, safe cwd transport and retry, token-aware return guidance, and guarded plugin-setting reads.",
+      "focusedTests": [
+        "retained-runtime-surfaces"
+      ],
+      "sourcePathAbsences": []
+    },
+    {
+      "id": "R41",
+      "category": "residual",
+      "retained": true,
+      "title": "Retained CLI configuration and scoped session-search boundaries",
+      "targetFragments": [
+        "No MCP server found with name:",
+        "allowMachLookup",
+        "rewakeMessage",
+        "https://claude.ai/customize/connectors",
+        "Rejected command with unsafe characters",
+        "gcp-cloud-workstations",
+        "aws-cloud9",
+        "skipSpill",
+        "session_search_out_of_scope",
+        "No sessions match"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/cli/handlers/mcp.tsx",
+          "fragment": "Configured servers: ${configuredNames.join(', ')}"
+        },
+        {
+          "path": "src/entrypoints/sandboxTypes.ts",
+          "fragment": "allowMachLookup: z"
+        },
+        {
+          "path": "src/schemas/hooks.ts",
+          "fragment": "rewakeMessage: z"
+        },
+        {
+          "path": "src/skills/bundled/scheduleRemoteAgents.ts",
+          "fragment": "https://claude.ai/customize/connectors"
+        },
+        {
+          "path": "src/utils/binaryCheck.ts",
+          "fragment": "[binaryCheck] Rejected command with unsafe characters"
+        },
+        {
+          "path": "src/utils/env.ts",
+          "fragment": "return 'gcp-cloud-workstations'"
+        },
+        {
+          "path": "src/utils/sandbox/sandbox-adapter.ts",
+          "fragment": "allowMachLookup: settings.sandbox?.network?.allowMachLookup"
+        },
+        {
+          "path": "src/components/LogSelector.tsx",
+          "fragment": "only show current branch"
+        },
+        {
+          "path": "src/utils/ShellCommand.ts",
+          "fragment": "background(taskId: string, options?: { skipSpill?: boolean })"
+        },
+        {
+          "path": "src/utils/agenticSessionSearch.ts",
+          "fragment": "reason: 'session_search_out_of_scope'"
+        }
+      ],
+      "rationale": "Authenticated retained CLI and search witnesses bind scoped MCP reporting, wildcard-safe sandbox configuration, async rewake metadata, connector guidance, binary validation, hosted-environment detection, bounded session search, and spill suppression.",
+      "focusedTests": [
+        "retained-runtime-surfaces"
+      ],
+      "sourcePathAbsences": []
+    },
+    {
+      "id": "R42",
+      "category": "residual",
+      "retained": true,
+      "title": "Retained Bash and remote-session termination safety",
+      "targetFragments": [
+        "tengu_review_remote_stopped",
+        "Terminate session and discard plan",
+        "net-redirect",
+        "cd-compound-write",
+        "cd-compound-redirect",
+        "process-substitution",
+        "No sed arguments",
+        "Claude Platform on AWS"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/commands/ultraplan.tsx",
+          "fragment": "logEvent('tengu_review_remote_stopped', {})"
+        },
+        {
+          "path": "src/components/tasks/BackgroundTasksDialog.tsx",
+          "fragment": "currentSelection_0.task.isRemoteReview"
+        },
+        {
+          "path": "src/components/tasks/RemoteSessionDetailDialog.tsx",
+          "fragment": "Terminate session and discard plan"
+        },
+        {
+          "path": "src/tools/BashTool/pathValidation.ts",
+          "fragment": "bashMissKind: 'cd-compound-write'"
+        },
+        {
+          "path": "src/tools/BashTool/sedValidation.ts",
+          "fragment": "throw new Error('No sed arguments')"
+        },
+        {
+          "path": "src/utils/bash/commands.ts",
+          "fragment": "dangerousRedirectionReason?: 'network_device' | 'shell_expansion'"
+        },
+        {
+          "path": "src/utils/fastMode.ts",
+          "fragment": "Fast mode is not available on Bedrock, Vertex, Foundry, or Claude Platform on AWS"
+        }
+      ],
+      "rationale": "Retained stop, redirect, process-substitution, sed, and provider copy binds truthful remote-review shutdown plus explicit Bash network/shell-expansion rejection and provider-aware fast-mode limits.",
+      "focusedTests": [
+        "retained-runtime-surfaces"
+      ],
+      "sourcePathAbsences": []
+    },
+    {
+      "id": "R43",
+      "category": "residual",
+      "retained": true,
+      "title": "Retained native updater canary and package-manager truthfulness",
+      "targetFragments": [
+        "tengu_canary",
+        "wasSkipped",
+        "/.bun/install/global/"
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/autoUpdater.ts",
+          "fragment": "executable.includes('/.bun/install/global/')"
+        },
+        {
+          "path": "src/utils/nativeInstaller/installer.ts",
+          "fragment": "getFeatureValue_CACHED_MAY_BE_STALE('tengu_canary', {})"
+        }
+      ],
+      "rationale": "Authenticated retained updater witnesses bind Bun-global package-manager detection, valid external canary selection, skip-state propagation, and truthful update reporting.",
+      "focusedTests": [
+        "retained-runtime-surfaces"
+      ],
+      "sourcePathAbsences": []
     }
   ]
 }
