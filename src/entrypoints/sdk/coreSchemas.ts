@@ -8,6 +8,7 @@
  */
 
 import { z } from 'zod/v4'
+import { QUERY_TERMINAL_REASONS } from '../../query/transitions.js'
 import { lazySchema } from '../../utils/lazySchema.js'
 
 // ============================================================================
@@ -1547,6 +1548,12 @@ export const SDKDeferredToolUseSchema = lazySchema(() =>
   }),
 )
 
+export const SDKQueryTerminalReasonSchema = lazySchema(() =>
+  z.enum(QUERY_TERMINAL_REASONS).describe(
+    'Why the query loop terminated. Unset when the loop was bypassed (local slash command) or interrupted externally (budget/retry limits checked between yields).',
+  ),
+)
+
 export const SDKResultSuccessSchema = lazySchema(() =>
   z.object({
     type: z.literal('result'),
@@ -1554,6 +1561,7 @@ export const SDKResultSuccessSchema = lazySchema(() =>
     duration_ms: z.number(),
     duration_api_ms: z.number(),
     is_error: z.boolean(),
+    api_error_status: z.number().nullable().optional(),
     num_turns: z.number(),
     result: z.string(),
     stop_reason: z.string().nullable(),
@@ -1563,6 +1571,7 @@ export const SDKResultSuccessSchema = lazySchema(() =>
     permission_denials: z.array(SDKPermissionDenialSchema()),
     structured_output: z.unknown().optional(),
     deferred_tool_use: SDKDeferredToolUseSchema().optional(),
+    terminal_reason: SDKQueryTerminalReasonSchema().optional(),
     fast_mode_state: FastModeStateSchema().optional(),
     uuid: UUIDPlaceholder(),
     session_id: z.string(),
@@ -1588,6 +1597,7 @@ export const SDKResultErrorSchema = lazySchema(() =>
     modelUsage: z.record(z.string(), ModelUsageSchema()),
     permission_denials: z.array(SDKPermissionDenialSchema()),
     errors: z.array(z.string()),
+    terminal_reason: SDKQueryTerminalReasonSchema().optional(),
     fast_mode_state: FastModeStateSchema().optional(),
     uuid: UUIDPlaceholder(),
     session_id: z.string(),

@@ -1576,6 +1576,7 @@ async function* queryLoop(
     }
 
     let shouldPreventContinuation = false
+    let shouldDeferTool = false
     let updatedToolUseContext = toolUseContext
 
     queryCheckpoint('query_tool_execution_start')
@@ -1608,6 +1609,12 @@ async function* queryLoop(
           update.message.attachment.type === 'hook_stopped_continuation'
         ) {
           shouldPreventContinuation = true
+        }
+        if (
+          update.message.type === 'attachment' &&
+          update.message.attachment.type === 'hook_deferred_tool'
+        ) {
+          shouldDeferTool = true
         }
 
         toolResults.push(
@@ -1732,6 +1739,10 @@ async function* queryLoop(
       }
       markClassifierTurnAborted(toolUseContext, querySource)
       return { reason: 'aborted_tools' }
+    }
+
+    if (shouldDeferTool) {
+      return { reason: 'tool_deferred' }
     }
 
     // If a hook indicated to prevent continuation, stop here

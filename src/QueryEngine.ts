@@ -158,6 +158,13 @@ function findCurrentTurnStart(messages: Message[]): number {
   return 0
 }
 
+async function* captureGeneratorReturn<Yield, Return>(
+  generator: AsyncGenerator<Yield, Return, unknown>,
+  state: { value?: Return },
+): AsyncGenerator<Yield, void, unknown> {
+  state.value = yield* generator
+}
+
 export type QueryEngineConfig = {
   cwd: string
   tools: Tools
@@ -842,6 +849,9 @@ export class QueryEngine {
     let deferredToolResult:
       | { id: string; name: string; input: Record<string, unknown> }
       | undefined
+    let maxTurnsResult:
+      | { turnCount: number; maxTurns: number }
+      | undefined
     // Track the last stop_reason from assistant messages
     let lastStopReason: string | null = null
     // Reference-based watermark so error_during_execution's errors[] is
@@ -853,19 +863,23 @@ export class QueryEngine {
     const initialStructuredOutputCalls = jsonSchema
       ? countToolCalls(this.mutableMessages, SYNTHETIC_OUTPUT_TOOL_NAME)
       : 0
+    const queryTerminalState: { value?: { reason: string } } = {}
 
-    for await (const message of query({
-      messages,
-      systemPrompt,
-      userContext,
-      systemContext,
-      canUseTool: wrappedCanUseTool,
-      toolUseContext: processUserInputContext,
-      fallbackModel,
-      querySource: 'sdk',
-      maxTurns,
-      taskBudget,
-    })) {
+    for await (const message of captureGeneratorReturn(
+      query({
+        messages,
+        systemPrompt,
+        userContext,
+        systemContext,
+        canUseTool: wrappedCanUseTool,
+        toolUseContext: processUserInputContext,
+        fallbackModel,
+        querySource: 'sdk',
+        maxTurns,
+        taskBudget,
+      }),
+      queryTerminalState,
+    )) {
       // Record assistant, user, and compact boundary messages
       if (
         message.type === 'assistant' ||
@@ -1030,37 +1044,11 @@ export class QueryEngine {
           }
           // Handle max turns reached signal from query.ts
           else if (message.attachment.type === 'max_turns_reached') {
-            if (persistSession) {
-              if (
-                isEnvTruthy(process.env.CLAUDE_CODE_EAGER_FLUSH) ||
-                isEnvTruthy(process.env.CLAUDE_CODE_IS_COWORK)
-              ) {
-                await flushSessionStorage()
-              }
+            maxTurnsResult = {
+              turnCount: message.attachment.turnCount,
+              maxTurns: message.attachment.maxTurns,
             }
-            yield {
-              type: 'result',
-              subtype: 'error_max_turns',
-              duration_ms: Date.now() - startTime,
-              duration_api_ms: getTotalAPIDuration(),
-              is_error: true,
-              num_turns: message.attachment.turnCount,
-              stop_reason: lastStopReason,
-              session_id: getSessionId(),
-              total_cost_usd: getTotalCost(),
-              usage: this.totalUsage,
-              modelUsage: getModelUsage(),
-              permission_denials: this.permissionDenials,
-              fast_mode_state: getFastModeState(
-                mainLoopModel,
-                initialAppState.fastMode,
-              ),
-              uuid: randomUUID(),
-              errors: [
-                `Reached maximum number of turns (${message.attachment.maxTurns})`,
-              ],
-            }
-            return
+            continue
           }
           // Yield queued_command attachments as SDK user message replays
           else if (
@@ -1286,11 +1274,39 @@ export class QueryEngine {
         modelUsage: getModelUsage(),
         permission_denials: this.permissionDenials,
         deferred_tool_use: deferredToolResult,
+        terminal_reason: queryTerminalState.value?.reason,
         fast_mode_state: getFastModeState(
           mainLoopModel,
           initialAppState.fastMode,
         ),
         uuid: randomUUID(),
+      } as SDKMessage
+      return
+    }
+
+    if (maxTurnsResult) {
+      yield {
+        type: 'result',
+        subtype: 'error_max_turns',
+        duration_ms: Date.now() - startTime,
+        duration_api_ms: getTotalAPIDuration(),
+        is_error: true,
+        num_turns: maxTurnsResult.turnCount,
+        stop_reason: lastStopReason,
+        session_id: getSessionId(),
+        total_cost_usd: getTotalCost(),
+        usage: this.totalUsage,
+        modelUsage: getModelUsage(),
+        permission_denials: this.permissionDenials,
+        terminal_reason: queryTerminalState.value?.reason,
+        fast_mode_state: getFastModeState(
+          mainLoopModel,
+          initialAppState.fastMode,
+        ),
+        uuid: randomUUID(),
+        errors: [
+          `Reached maximum number of turns (${maxTurnsResult.maxTurns})`,
+        ],
       } as SDKMessage
       return
     }
@@ -1309,6 +1325,7 @@ export class QueryEngine {
         usage: this.totalUsage,
         modelUsage: getModelUsage(),
         permission_denials: this.permissionDenials,
+        terminal_reason: queryTerminalState.value?.reason,
         fast_mode_state: getFastModeState(
           mainLoopModel,
           initialAppState.fastMode,
@@ -1336,6 +1353,7 @@ export class QueryEngine {
     // Extract the text result based on message type
     let textResult = ''
     let isApiError = false
+    let apiErrorStatus: number | null = null
 
     if (result.type === 'assistant') {
       const lastContent = last(result.message.content)
@@ -1346,12 +1364,19 @@ export class QueryEngine {
         textResult = lastContent.text
       }
       isApiError = Boolean(result.isApiErrorMessage)
+      apiErrorStatus =
+        (
+          result as typeof result & {
+            apiErrorStatus?: number
+          }
+        ).apiErrorStatus ?? null
     }
 
     yield {
       type: 'result',
       subtype: 'success',
       is_error: isApiError,
+      api_error_status: apiErrorStatus,
       duration_ms: Date.now() - startTime,
       duration_api_ms: getTotalAPIDuration(),
       num_turns: turnCount,
@@ -1363,6 +1388,7 @@ export class QueryEngine {
       modelUsage: getModelUsage(),
       permission_denials: this.permissionDenials,
       structured_output: structuredOutputFromTool,
+      terminal_reason: queryTerminalState.value?.reason,
       fast_mode_state: getFastModeState(
         mainLoopModel,
         initialAppState.fastMode,

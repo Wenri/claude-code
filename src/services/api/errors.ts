@@ -434,6 +434,24 @@ export function getAssistantMessageFromError(
     messagesForAPI?: (UserMessage | AssistantMessage)[]
   },
 ): AssistantMessage {
+  const message = getAssistantMessageFromErrorInternal(error, model, options)
+  if (error instanceof APIError && typeof error.status === 'number') {
+    const messageWithStatus = message as AssistantMessage & {
+      apiErrorStatus?: number
+    }
+    messageWithStatus.apiErrorStatus = error.status
+  }
+  return message
+}
+
+function getAssistantMessageFromErrorInternal(
+  error: unknown,
+  model: string,
+  options?: {
+    messages?: Message[]
+    messagesForAPI?: (UserMessage | AssistantMessage)[]
+  },
+): AssistantMessage {
   // Check for SDK timeout errors
   if (
     error instanceof APIConnectionTimeoutError ||
