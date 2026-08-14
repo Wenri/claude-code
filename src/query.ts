@@ -1012,6 +1012,7 @@ async function* queryLoop(
                     ...normalizeMessagesForAPI(
                       [result.message],
                       toolUseContext.options.tools,
+                      toolUseContext.options.mainLoopModel,
                     ).filter(_ => _.type === 'user'),
                   )
                 }
@@ -1678,6 +1679,7 @@ async function* queryLoop(
           ...normalizeMessagesForAPI(
             [update.message],
             toolUseContext.options.tools,
+            toolUseContext.options.mainLoopModel,
           ).filter(_ => _.type === 'user'),
         )
       }

@@ -4208,6 +4208,20 @@ function runHeadlessStreaming(
               sendControlResponseError(message, errorMessage(error))
             }
           })()
+        } else if (message.request.subtype === 'message_rated') {
+          const {
+            messageUuid,
+            sentiment,
+            surface = 'tool_use',
+            cleared = false,
+          } = message.request
+          logEvent('tengu_message_rated', {
+            message_uuid: messageUuid,
+            sentiment,
+            surface,
+            cleared,
+          })
+          sendControlResponseSuccess(message, {})
         } else if (message.request.subtype === 'side_question') {
           // Same fire-and-forget pattern as generate_session_title above —
           // the forked agent's API roundtrip must not block the stdin loop.

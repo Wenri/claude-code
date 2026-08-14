@@ -21,6 +21,7 @@ import { Box, Text, useStdin, useTheme, useTerminalFocus, useTerminalTitle, useT
 import type { TabStatusKind } from '../ink/hooks/use-tab-status.js';
 import { CostThresholdDialog } from '../components/CostThresholdDialog.js';
 import { IdleReturnDialog } from '../components/IdleReturnDialog.js';
+import { ResumeReturnDialog } from '../components/ResumeReturnDialog.js';
 import * as React from 'react';
 import { useEffect, useMemo, useRef, useState, useCallback, useDeferredValue, useLayoutEffect, type RefObject } from 'react';
 import { useNotifications } from '../context/notifications.js';
@@ -157,6 +158,10 @@ import { useMergedCommands } from '../hooks/useMergedCommands.js';
 import { useSkillsChange } from '../hooks/useSkillsChange.js';
 import { useManagePlugins } from '../hooks/useManagePlugins.js';
 import { Messages } from '../components/Messages.js';
+import {
+  MessageRatingProvider,
+  RelevantMemoryRatingInput,
+} from '../context/messageRating.js';
 import { TaskListV2 } from '../components/TaskListV2.js';
 import { TeammateViewHeader } from '../components/TeammateViewHeader.js';
 import { useTasksV2WithCollapseEffect } from '../hooks/useTasksV2.js';
@@ -182,6 +187,7 @@ import { clearSessionMetadata, resetSessionFilePointer, adoptResumedSessionFile,
 import { deserializeMessages } from '../utils/conversationRecovery.js';
 import { extractReadFilesFromMessages, extractBashToolsFromMessages } from '../utils/queryHelpers.js';
 import { applyToolResultClears, resetMicrocompactState } from '../services/compact/microCompact.js';
+import { getResumeReturnInfo } from '../utils/resumeReturn.js';
 import { runPostCompactCleanup } from '../services/compact/postCompactCleanup.js';
 import { reconstructResultDedupState, resetResultDedupState } from '../services/tools/resultDedup.js';
 import { getIsolationClassFromMessages } from '../services/tools/toolIsolation.js';
@@ -1650,6 +1656,10 @@ export function REPL({
     input: string;
     idleMinutes: number;
   } | null>(null);
+  const [resumeReturnPending, setResumeReturnPending] = useState<{
+    sessionAgeMinutes: number;
+    estimatedTokens: number;
+  } | null>(null);
   const skipIdleCheckRef = useRef(false);
   const lastQueryCompletionTimeRef = useRef(lastQueryCompletionTime);
   lastQueryCompletionTimeRef.current = lastQueryCompletionTime;
@@ -2110,6 +2120,9 @@ export function REPL({
       // Reset messages to the provided initial messages
       // Use a callback to ensure we're not dependent on stale state
       setMessages(() => messages);
+      if (entrypoint !== 'fork') {
+        setResumeReturnPending(getResumeReturnInfo(messages));
+      }
 
       // Clear any active tool JSX
       setToolJSX(null);
@@ -2168,6 +2181,7 @@ export function REPL({
     if (initialMessages && initialMessages.length > 0) {
       restoreReadFileState(initialMessages, getOriginalCwd());
       isolationLatchRef.current = getIsolationClassFromMessages(initialMessages, tools);
+      setResumeReturnPending(getResumeReturnInfo(initialMessages));
       void restoreRemoteAgentTasks({
         abortController: new AbortController(),
         getAppState: () => store.getState(),
@@ -2201,7 +2215,7 @@ export function REPL({
   // Permission and interactive dialogs can show even when toolJSX is set,
   // as long as shouldContinueAnimation is true. This prevents deadlocks when
   // agents set background hints while waiting for user interaction.
-  function getFocusedInputDialog(): 'message-selector' | 'sandbox-permission' | 'tool-permission' | 'prompt' | 'worker-sandbox-permission' | 'elicitation' | 'managed-settings-security' | 'cost' | 'idle-return' | 'init-onboarding' | 'ide-onboarding' | 'model-switch' | 'undercover-callout' | 'effort-callout' | 'remote-callout' | 'lsp-recommendation' | 'plugin-hint' | 'desktop-upsell' | 'ultraplan-choice' | 'ultraplan-launch' | undefined {
+  function getFocusedInputDialog(): 'message-selector' | 'sandbox-permission' | 'tool-permission' | 'prompt' | 'worker-sandbox-permission' | 'elicitation' | 'managed-settings-security' | 'cost' | 'resume-return' | 'idle-return' | 'init-onboarding' | 'ide-onboarding' | 'model-switch' | 'undercover-callout' | 'effort-callout' | 'remote-callout' | 'lsp-recommendation' | 'plugin-hint' | 'desktop-upsell' | 'ultraplan-choice' | 'ultraplan-launch' | undefined {
     // Exit states always take precedence
     if (isExiting || exitFlow) return undefined;
 
@@ -2221,6 +2235,7 @@ export function REPL({
     if (allowDialogsWithAnimation && elicitation.queue[0]) return 'elicitation';
     if (allowDialogsWithAnimation && managedSettingsSecurityPrompt) return 'managed-settings-security';
     if (allowDialogsWithAnimation && showingCostDialog) return 'cost';
+    if (allowDialogsWithAnimation && resumeReturnPending) return 'resume-return';
     if (allowDialogsWithAnimation && idleReturnPending) return 'idle-return';
     if (feature('ULTRAPLAN') && allowDialogsWithAnimation && !isLoading && ultraplanPendingChoice) return 'ultraplan-choice';
     if (feature('ULTRAPLAN') && allowDialogsWithAnimation && !isLoading && ultraplanLaunchPending) return 'ultraplan-launch';
@@ -4742,7 +4757,7 @@ export function REPL({
     // and transcript-mode are mutually exclusive (this early return), so
     // only one ScrollBox is ever mounted at a time.
     const transcriptScrollRef = isFullscreenEnvEnabled() && !disableVirtualScroll && !dumpMode ? scrollRef : undefined;
-    const transcriptMessagesElement = <Messages messages={transcriptMessages} tools={tools} commands={commands} verbose={true} toolJSX={null} toolUseConfirmQueue={[]} inProgressToolUseIDs={inProgressToolUseIDs} isMessageSelectorVisible={false} conversationId={conversationId} screen={screen} agentDefinitions={agentDefinitions} streamingToolUses={transcriptStreamingToolUses} showAllInTranscript={showAllInTranscript} onOpenRateLimitOptions={handleOpenRateLimitOptions} isLoading={isLoading} hidePastThinking={true} streamingThinking={streamingThinking} scrollRef={transcriptScrollRef} jumpRef={jumpRef} onSearchMatchesChange={onSearchMatchesChange} scanElement={scanElement} setPositions={setPositions} disableRenderCap={dumpMode} />;
+    const transcriptMessagesElement = <MessageRatingProvider><Messages messages={transcriptMessages} tools={tools} commands={commands} verbose={true} toolJSX={null} toolUseConfirmQueue={[]} inProgressToolUseIDs={inProgressToolUseIDs} isMessageSelectorVisible={false} conversationId={conversationId} screen={screen} agentDefinitions={agentDefinitions} streamingToolUses={transcriptStreamingToolUses} showAllInTranscript={showAllInTranscript} onOpenRateLimitOptions={handleOpenRateLimitOptions} isLoading={isLoading} hidePastThinking={true} streamingThinking={streamingThinking} scrollRef={transcriptScrollRef} jumpRef={jumpRef} onSearchMatchesChange={onSearchMatchesChange} scanElement={scanElement} setPositions={setPositions} disableRenderCap={dumpMode} /></MessageRatingProvider>;
     const transcriptToolJSX = toolJSX && <Box flexDirection="column" width="100%">
         {toolJSX.jsx}
       </Box>;
@@ -4909,7 +4924,10 @@ export function REPL({
         jumpToNew(scrollRef.current);
       }} scrollable={<>
               <TeammateViewHeader />
-              <Messages messages={displayedMessages} tools={tools} commands={commands} verbose={verbose} toolJSX={toolJSX} toolUseConfirmQueue={toolUseConfirmQueue} inProgressToolUseIDs={viewedTeammateTask ? viewedTeammateTask.inProgressToolUseIDs ?? new Set() : inProgressToolUseIDs} isMessageSelectorVisible={isMessageSelectorVisible} conversationId={conversationId} screen={screen} streamingToolUses={streamingToolUses} showAllInTranscript={showAllInTranscript} agentDefinitions={agentDefinitions} onOpenRateLimitOptions={handleOpenRateLimitOptions} isLoading={isLoading} streamingText={isLoading && !viewedAgentTask ? visibleStreamingText : null} isBriefOnly={viewedAgentTask ? false : isBriefOnly} unseenDivider={viewedAgentTask ? undefined : unseenDivider} scrollRef={isFullscreenEnvEnabled() ? scrollRef : undefined} trackStickyPrompt={isFullscreenEnvEnabled() ? true : undefined} cursor={cursor} setCursor={setCursor} cursorNavRef={cursorNavRef} />
+              <MessageRatingProvider>
+                <Messages messages={displayedMessages} tools={tools} commands={commands} verbose={verbose} toolJSX={toolJSX} toolUseConfirmQueue={toolUseConfirmQueue} inProgressToolUseIDs={viewedTeammateTask ? viewedTeammateTask.inProgressToolUseIDs ?? new Set() : inProgressToolUseIDs} isMessageSelectorVisible={isMessageSelectorVisible} conversationId={conversationId} screen={screen} streamingToolUses={streamingToolUses} showAllInTranscript={showAllInTranscript} agentDefinitions={agentDefinitions} onOpenRateLimitOptions={handleOpenRateLimitOptions} isLoading={isLoading} streamingText={isLoading && !viewedAgentTask ? visibleStreamingText : null} isBriefOnly={viewedAgentTask ? false : isBriefOnly} unseenDivider={viewedAgentTask ? undefined : unseenDivider} scrollRef={isFullscreenEnvEnabled() ? scrollRef : undefined} trackStickyPrompt={isFullscreenEnvEnabled() ? true : undefined} cursor={cursor} setCursor={setCursor} cursorNavRef={cursorNavRef} />
+                <RelevantMemoryRatingInput messages={messages} inputValue={inputValue} setInputValue={setInputValue} enabled={!isLoading && !focusedInputDialog && !cursor && !viewedAgentTask} />
+              </MessageRatingProvider>
               <AwsAuthStatusBox />
               {/* Hide the processing placeholder while a modal is showing —
                   it would sit at the last visible transcript row right above
@@ -5104,6 +5122,32 @@ export function REPL({
               hasAcknowledgedCostThreshold: true
             }));
             logEvent('tengu_cost_threshold_acknowledged', {});
+          }} />}
+                {focusedInputDialog === 'resume-return' && resumeReturnPending && <ResumeReturnDialog sessionAgeMinutes={resumeReturnPending.sessionAgeMinutes} estimatedTokens={resumeReturnPending.estimatedTokens} onDone={async action => {
+            const pending = resumeReturnPending;
+            setResumeReturnPending(null);
+            logEvent('tengu_resume_return_action', {
+              action: action as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+              sessionAgeMinutes: Math.round(pending.sessionAgeMinutes),
+              messageCount: messagesRef.current.length,
+              estimatedTokens: pending.estimatedTokens
+            });
+            if (action === 'never') {
+              saveGlobalConfig(current => {
+                if (current.resumeReturnDismissed) return current;
+                return {
+                  ...current,
+                  resumeReturnDismissed: true
+                };
+              });
+            }
+            if (action === 'compact') {
+              void onSubmitRef.current('/compact', {
+                setCursorOffset: () => {},
+                clearBuffer: () => {},
+                resetHistory: () => {}
+              });
+            }
           }} />}
                 {focusedInputDialog === 'idle-return' && idleReturnPending && <IdleReturnDialog idleMinutes={idleReturnPending.idleMinutes} totalInputTokens={getTotalInputTokens()} onDone={async action => {
             const pending = idleReturnPending;

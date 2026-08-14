@@ -18,7 +18,7 @@ import type { FeedbackSurveyResponse } from './utils.js';
 const HIDE_THANKS_AFTER_MS = 3000;
 const MEMORY_SURVEY_GATE = 'tengu_dunwich_bell';
 const MEMORY_SURVEY_EVENT = 'tengu_memory_survey_event';
-const SURVEY_PROBABILITY = 0.2;
+const MEMORY_SURVEY_PROBABILITY_GATE = 'tengu_velvet_moth';
 const TRANSCRIPT_SHARE_TRIGGER = 'memory_survey';
 const MEMORY_WORD_RE = /\bmemor(?:y|ies)\b/i;
 function hasMemoryFileRead(messages: Message[]): boolean {
@@ -205,7 +205,7 @@ export function useMemorySurvey(messages: Message[], isLoading: boolean, hasActi
     if (!memoryReadSeen.current) {
       return;
     }
-    if (Math.random() < SURVEY_PROBABILITY) {
+    if (Math.random() < getFeatureValue_CACHED_MAY_BE_STALE(MEMORY_SURVEY_PROBABILITY_GATE, 0.2)) {
       open();
     }
   }, [enabled, otherSurveyActive, state, isLoading, hasActivePrompt, lastAssistant, messages, open]);

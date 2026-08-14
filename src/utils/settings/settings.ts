@@ -10,6 +10,7 @@ import {
   getUseCoworkPlugins,
 } from '../../bootstrap/state.js'
 import { getRemoteManagedSettingsSyncFromCache } from '../../services/remoteManagedSettings/syncCacheState.js'
+import { logEvent } from '../../services/analytics/index.js'
 import { uniq } from '../array.js'
 import { logForDebugging } from '../debug.js'
 import { logForDiagnosticsNoPII } from '../diagLogs.js'
@@ -40,6 +41,7 @@ import {
   getCachedParsedFile,
   getCachedSettingsForSource,
   getPluginSettingsBase,
+  isPluginSettingsInitialized,
   getSessionSettingsCache,
   resetSettingsCache,
   setCachedParsedFile,
@@ -912,6 +914,20 @@ export function getInitialSettings(): SettingsJson {
  * @deprecated Use getInitialSettings() instead. This alias exists for backwards compatibility.
  */
 export const getSettings_DEPRECATED = getInitialSettings
+
+/**
+ * Read a setting whose value can be contributed by a plugin. Callers that
+ * consult it before plugin discovery completes would permanently cache an
+ * incomplete value, so record those premature reads for startup diagnostics.
+ */
+export function getSettingsAfterPluginLoad<K extends keyof SettingsJson>(
+  key: K,
+): SettingsJson[K] {
+  if (!isPluginSettingsInitialized()) {
+    logEvent('tengu_plugin_settings_premature_read', { key })
+  }
+  return getInitialSettings()[key]
+}
 
 export type SettingsWithSources = {
   effective: SettingsJson

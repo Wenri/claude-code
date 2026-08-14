@@ -882,7 +882,12 @@ export const BashTool = buildTool({
     // before we build the output Out object.
     let compressedStdout = strippedStdout;
     if (isImage) {
-      const resized = await resizeShellImageOutput(strippedStdout, result.outputFilePath, persistedOutputSize);
+      const resized = await resizeShellImageOutput(
+        strippedStdout,
+        result.outputFilePath,
+        persistedOutputSize,
+        toolUseContext.options.mainLoopModel,
+      );
       if (resized) {
         compressedStdout = resized;
       } else {

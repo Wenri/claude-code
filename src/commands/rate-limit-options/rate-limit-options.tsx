@@ -10,11 +10,13 @@ import type { ToolUseContext } from '../../Tool.js';
 import type { LocalJSXCommandOnDone } from '../../types/command.js';
 import { getOauthAccountInfo, getRateLimitTier, getSubscriptionType } from '../../utils/auth.js';
 import { hasClaudeAiBillingAccess } from '../../utils/billing.js';
+import { openBrowser } from '../../utils/browser.js';
 import { call as extraUsageCall } from '../extra-usage/extra-usage.js';
 import { extraUsage } from '../extra-usage/index.js';
 import upgrade from '../upgrade/index.js';
 import { call as upgradeCall } from '../upgrade/upgrade.js';
-type RateLimitOptionsMenuOptionType = 'upgrade' | 'extra-usage' | 'cancel';
+type RateLimitOptionsMenuOptionType = 'upgrade' | 'extra-usage' | 'team' | 'cancel';
+const TEAM_UPGRADE_URL = 'https://claude.ai/create/team';
 type RateLimitOptionsMenuProps = {
   onDone: (result?: string, options?: {
     display?: CommandResultDisplay | undefined;
@@ -46,26 +48,33 @@ function RateLimitOptionsMenu(t0) {
   }
   const rateLimitTier = t2;
   const hasExtraUsageEnabled = getOauthAccountInfo()?.hasExtraUsageEnabled === true;
+  const isUsageBased = getOauthAccountInfo()?.billingType === 'usage_based';
   const isMax = subscriptionType === "max";
   const isMax20x = isMax && rateLimitTier === "default_claude_max_20x";
   const isTeamOrEnterprise = subscriptionType === "team" || subscriptionType === "enterprise";
   const buyFirst = getFeatureValue_CACHED_MAY_BE_STALE("tengu_jade_anvil_4", false);
+  const showTeamUpgrade = getFeatureValue_CACHED_MAY_BE_STALE("tengu_coral_beacon", false);
+  const upgradePaths = claudeAiLimits.upgradePaths;
   let t3;
   bb0: {
     let actionOptions;
-    if ($[2] !== claudeAiLimits.overageDisabledReason || $[3] !== claudeAiLimits.overageStatus) {
+    if (true) {
       actionOptions = [];
       if (extraUsage.isEnabled()) {
         const hasBillingAccess = hasClaudeAiBillingAccess();
         const needsToRequestFromAdmin = isTeamOrEnterprise && !hasBillingAccess;
-        const isOrgSpendCapDepleted = claudeAiLimits.overageDisabledReason === "out_of_credits" || claudeAiLimits.overageDisabledReason === "org_level_disabled_until" || claudeAiLimits.overageDisabledReason === "org_service_zero_credit_limit";
-        if (needsToRequestFromAdmin && isOrgSpendCapDepleted) {} else {
+        const isOrgSpendCapDepleted = claudeAiLimits.overageDisabledReason === "out_of_credits" || claudeAiLimits.overageDisabledReason === "org_level_disabled_until" || claudeAiLimits.overageDisabledReason === "org_service_level_disabled";
+        const canOfferOverage = upgradePaths !== undefined
+          ? upgradePaths.includes('overage')
+          : !(needsToRequestFromAdmin && isOrgSpendCapDepleted);
+        if (!canOfferOverage) {} else {
           const isOverageState = claudeAiLimits.overageStatus === "rejected" || claudeAiLimits.overageStatus === "allowed_warning";
+          const usageLabel = isUsageBased ? 'usage' : 'extra usage';
           let label;
           if (needsToRequestFromAdmin) {
-            label = isOverageState ? "Request more" : "Request extra usage";
+            label = isOverageState ? "Request more" : `Request ${usageLabel}`;
           } else {
-            label = hasExtraUsageEnabled ? "Add funds to continue with extra usage" : "Switch to extra usage";
+            label = hasExtraUsageEnabled ? `Add funds to continue with ${usageLabel}` : `Switch to ${usageLabel}`;
           }
           let t4;
           if ($[5] !== label) {
@@ -81,7 +90,7 @@ function RateLimitOptionsMenu(t0) {
           actionOptions.push(t4);
         }
       }
-      if (!isMax20x && !isTeamOrEnterprise && upgrade.isEnabled()) {
+      if ((upgradePaths !== undefined ? upgradePaths.includes('upgrade_plan') : !isMax20x && !isTeamOrEnterprise) && upgrade.isEnabled()) {
         let t4;
         if ($[7] === Symbol.for("react.memo_cache_sentinel")) {
           t4 = {
@@ -94,6 +103,12 @@ function RateLimitOptionsMenu(t0) {
         }
         actionOptions.push(t4);
       }
+      if (showTeamUpgrade && !isTeamOrEnterprise && upgrade.isEnabled()) {
+        actionOptions.push({
+          label: isMax20x ? 'Switch to Team plan' : 'Upgrade to Team plan',
+          value: 'team',
+        });
+      }
       $[2] = claudeAiLimits.overageDisabledReason;
       $[3] = claudeAiLimits.overageStatus;
       $[4] = actionOptions;
@@ -103,7 +118,7 @@ function RateLimitOptionsMenu(t0) {
     let t4;
     if ($[8] === Symbol.for("react.memo_cache_sentinel")) {
       t4 = {
-        label: "Stop and wait for limit to reset",
+        label: isUsageBased ? "Stop" : "Stop and wait for limit to reset",
         value: "cancel"
       };
       $[8] = t4;
@@ -157,6 +172,13 @@ function RateLimitOptionsMenu(t0) {
           if (jsx) {
             setSubCommandJSX(jsx);
           }
+        });
+      } else if (value === 'team') {
+        logEvent('tengu_rate_limit_options_menu_select_team', {});
+        void openBrowser(TEAM_UPGRADE_URL).then(opened => {
+          onDone(opened
+            ? `Opening ${TEAM_UPGRADE_URL} in your browser. Run /login after upgrading to use your new plan.`
+            : `Could not open a browser. Visit ${TEAM_UPGRADE_URL} to upgrade, then run /login.`);
         });
       } else {
         if (value === "extra-usage") {

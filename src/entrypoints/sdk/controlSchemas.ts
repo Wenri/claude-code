@@ -823,6 +823,32 @@ export const SDKControlSubmitFeedbackResponseSchema = lazySchema(() =>
     ),
 )
 
+export const SDKControlMessageRatedRequestSchema = lazySchema(() =>
+  z
+    .object({
+      subtype: z.literal('message_rated'),
+      messageUuid: z.string().describe('UUID of the assistant message being rated.'),
+      sentiment: z
+        .enum(['positive', 'negative'])
+        .describe('User rating: positive (thumbs up) or negative (thumbs down).'),
+      surface: z
+        .enum(['tool_use', 'assistant_text'])
+        .optional()
+        .describe('Which in-conversation surface the rating came from. If omitted, logged as tool_use.'),
+      cleared: z
+        .boolean()
+        .optional()
+        .describe('True when the caller is un-rating a message (clicking the same control a second time).'),
+    })
+    .describe(
+      '@internal Records a per-message thumbs up/down rating. Logs tengu_message_rated with the same shape as the in-conversation rating controls so Desktop / IDE callers can surface their own native thumbs UI.',
+    ),
+)
+
+export const SDKControlMessageRatedResponseSchema = lazySchema(() =>
+  z.object({}).describe('@internal Empty response for message_rated.'),
+)
+
 
 // ============================================================================
 // Control Request/Response Wrappers
@@ -859,6 +885,7 @@ export const SDKControlRequestInnerSchema = lazySchema(() =>
     SDKControlGetSettingsRequestSchema(),
     SDKControlElicitationRequestSchema(),
     SDKControlSubmitFeedbackRequestSchema(),
+    SDKControlMessageRatedRequestSchema(),
     SDKControlOAuthTokenRefreshRequestSchema(),
   ]),
 )

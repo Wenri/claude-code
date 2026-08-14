@@ -73,8 +73,13 @@ import {
 } from '../../utils/errors.js'
 import { getMCPUserAgent } from '../../utils/http.js'
 import { maybeNotifyIDEConnected } from '../../utils/ide.js'
-import { maybeResizeAndDownsampleImageBuffer } from '../../utils/imageResizer.js'
+import {
+  getImageLimits,
+  type ImageLimits,
+  maybeResizeAndDownsampleImageBuffer,
+} from '../../utils/imageResizer.js'
 import { logMCPDebug, logMCPError } from '../../utils/log.js'
+import { getMainLoopModel } from '../../utils/model/model.js'
 import {
   getBinaryBlobSavedMessage,
   getFormatDescription,
@@ -2020,6 +2025,7 @@ export const fetchToolsForClient = memoizeWithLRU(
                           }
                         : undefined,
                     handleElicitation: context.handleElicitation,
+                    imageLimits: getImageLimits(context.options.mainLoopModel),
                   })
 
                   // Emit progress when tool completes successfully
@@ -2320,7 +2326,11 @@ export const fetchCommandsForClient = memoizeWithLRU(
               })
               const transformed = await Promise.all(
                 result.messages.map(message =>
-                  transformResultContent(message.content, connectedClient.name),
+                  transformResultContent(
+                    message.content,
+                    connectedClient.name,
+                    getImageLimits(getMainLoopModel()),
+                  ),
                 ),
               )
               return transformed.flat()
@@ -2726,6 +2736,7 @@ export function prefetchAllMcpResources(
 export async function transformResultContent(
   resultContent: PromptMessage['content'],
   serverName: string,
+  imageLimits: ImageLimits = getImageLimits(),
 ): Promise<Array<ContentBlockParam>> {
   switch (resultContent.type) {
     case 'text':
@@ -2756,6 +2767,7 @@ export async function transformResultContent(
         imageBuffer,
         imageBuffer.length,
         ext,
+        imageLimits,
       )
       return [
         {
@@ -2791,6 +2803,7 @@ export async function transformResultContent(
             imageBuffer,
             imageBuffer.length,
             ext,
+            imageLimits,
           )
           const content: MessageParam['content'] = []
           if (prefix) {
@@ -2911,6 +2924,7 @@ export async function transformMCPResult(
   result: unknown,
   tool: string, // Tool name for validation (e.g., "search")
   name: string, // Server name for transformation (e.g., "slack")
+  imageLimits: ImageLimits = getImageLimits(),
 ): Promise<TransformedMCPResult> {
   if (result && typeof result === 'object') {
     if ('toolResult' in result) {
@@ -2934,7 +2948,9 @@ export async function transformMCPResult(
     if ('content' in result && Array.isArray(result.content)) {
       const transformedContent = (
         await Promise.all(
-          result.content.map(item => transformResultContent(item, name)),
+          result.content.map(item =>
+            transformResultContent(item, name, imageLimits),
+          ),
         )
       ).flat()
       return {
@@ -2969,8 +2985,14 @@ export async function processMCPResult(
   result: unknown,
   tool: string, // Tool name for validation (e.g., "search")
   name: string, // Server name for IDE check and transformation (e.g., "slack")
+  imageLimits: ImageLimits = getImageLimits(),
 ): Promise<MCPToolResult> {
-  const { content, type, schema } = await transformMCPResult(result, tool, name)
+  const { content, type, schema } = await transformMCPResult(
+    result,
+    tool,
+    name,
+    imageLimits,
+  )
 
   // IDE tools are not going to the model directly, so we don't need to
   // handle large output.
@@ -3105,6 +3127,7 @@ export async function callMCPToolWithUrlElicitationRetry({
   signal,
   setAppState,
   onProgress,
+  imageLimits,
   callToolFn = callMCPTool,
   handleElicitation,
 }: {
@@ -3116,6 +3139,7 @@ export async function callMCPToolWithUrlElicitationRetry({
   signal: AbortSignal
   setAppState: (f: (prev: AppState) => AppState) => void
   onProgress?: (data: MCPProgress) => void
+  imageLimits?: ImageLimits
   /** Injectable for testing. Defaults to callMCPTool. */
   callToolFn?: (opts: {
     client: ConnectedMCPServer
@@ -3124,6 +3148,7 @@ export async function callMCPToolWithUrlElicitationRetry({
     meta?: Record<string, unknown>
     signal: AbortSignal
     onProgress?: (data: MCPProgress) => void
+    imageLimits?: ImageLimits
   }) => Promise<MCPToolCallResult>
   /** Handler for URL elicitations when no hook handles them.
    * In print/SDK mode, delegates to structuredIO. In REPL, falls back to queue. */
@@ -3143,6 +3168,7 @@ export async function callMCPToolWithUrlElicitationRetry({
         meta,
         signal,
         onProgress,
+        imageLimits,
       })
     } catch (error) {
       // The MCP SDK's Protocol creates plain McpError (not UrlElicitationRequiredError)
@@ -3319,6 +3345,7 @@ async function callMCPTool({
   meta,
   signal,
   onProgress,
+  imageLimits,
 }: {
   client: ConnectedMCPServer
   tool: string
@@ -3326,6 +3353,7 @@ async function callMCPTool({
   meta?: Record<string, unknown>
   signal: AbortSignal
   onProgress?: (data: MCPProgress) => void
+  imageLimits?: ImageLimits
 }): Promise<{
   content: MCPToolResult
   _meta?: Record<string, unknown>
@@ -3480,7 +3508,7 @@ async function callMCPTool({
       })
     }
 
-    const content = await processMCPResult(result, tool, name)
+    const content = await processMCPResult(result, tool, name, imageLimits)
     return {
       content,
       _meta: result._meta as Record<string, unknown> | undefined,

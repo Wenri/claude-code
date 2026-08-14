@@ -2,6 +2,7 @@ import { c as _c } from "react/compiler-runtime";
 import type { Base64ImageSource, ImageBlockParam } from '@anthropic-ai/sdk/resources/messages.mjs';
 import React, { Suspense, use, useCallback, useMemo, useRef, useState } from 'react';
 import { useSettings } from '../../../hooks/useSettings.js';
+import { useMainLoopModel } from '../../../hooks/useMainLoopModel.js';
 import { useTerminalSize } from '../../../hooks/useTerminalSize.js';
 import { stringWidth } from '../../../ink/stringWidth.js';
 import { useTheme } from '../../../ink.js';
@@ -12,8 +13,7 @@ import type { Question } from '../../../tools/AskUserQuestionTool/AskUserQuestio
 import { AskUserQuestionTool } from '../../../tools/AskUserQuestionTool/AskUserQuestionTool.js';
 import { type CliHighlight, getCliHighlightPromise } from '../../../utils/cliHighlight.js';
 import type { PastedContent } from '../../../utils/config.js';
-import type { ImageDimensions } from '../../../utils/imageResizer.js';
-import { maybeResizeAndDownsampleImageBlock } from '../../../utils/imageResizer.js';
+import { getImageLimits, type ImageDimensions, type ImageLimits, maybeResizeAndDownsampleImageBlock } from '../../../utils/imageResizer.js';
 import { cacheImagePath, storeImage } from '../../../utils/imageStore.js';
 import { logError } from '../../../utils/log.js';
 import { applyMarkdown } from '../../../utils/markdown.js';
@@ -99,6 +99,9 @@ function AskUserQuestionPermissionRequestBody(t0) {
     t2 = $[4];
   }
   const questions = t2;
+  const imageLimits = getImageLimits(useMainLoopModel());
+  const imageLimitsRef = useRef(imageLimits);
+  imageLimitsRef.current = imageLimits;
   const {
     rows: terminalRows
   } = useTerminalSize();
@@ -312,7 +315,7 @@ function AskUserQuestionPermissionRequestBody(t0) {
           interviewPhaseEnabled: isInPlanMode && isPlanModeInterviewPhaseEnabled()
         });
       }
-      const imageBlocks = await convertImagesToBlocks(allImageAttachments);
+      const imageBlocks = await convertImagesToBlocks(allImageAttachments, imageLimitsRef.current);
       onDone();
       toolUseConfirm.onReject(feedback, imageBlocks && imageBlocks.length > 0 ? imageBlocks : undefined);
     };
@@ -350,7 +353,7 @@ Questions asked and answers provided:\n${questionsWithAnswers_0}`;
           interviewPhaseEnabled: isInPlanMode && isPlanModeInterviewPhaseEnabled()
         });
       }
-      const imageBlocks_0 = await convertImagesToBlocks(allImageAttachments);
+      const imageBlocks_0 = await convertImagesToBlocks(allImageAttachments, imageLimitsRef.current);
       onDone();
       toolUseConfirm.onReject(feedback_0, imageBlocks_0 && imageBlocks_0.length > 0 ? imageBlocks_0 : undefined);
     };
@@ -402,7 +405,7 @@ Questions asked and answers provided:\n${questionsWithAnswers_0}`;
           annotations
         })
       };
-      const contentBlocks = await convertImagesToBlocks(allImageAttachments);
+      const contentBlocks = await convertImagesToBlocks(allImageAttachments, imageLimitsRef.current);
       onDone();
       toolUseConfirm.onAllow(updatedInput, [], undefined, contentBlocks && contentBlocks.length > 0 ? contentBlocks : undefined);
     };
@@ -627,7 +630,7 @@ function _temp2(contents) {
 function _temp(opt) {
   return opt.preview;
 }
-async function convertImagesToBlocks(images: PastedContent[]): Promise<ImageBlockParam[] | undefined> {
+async function convertImagesToBlocks(images: PastedContent[], imageLimits: ImageLimits): Promise<ImageBlockParam[] | undefined> {
   if (images.length === 0) return undefined;
   return Promise.all(images.map(async img => {
     const block: ImageBlockParam = {
@@ -638,7 +641,7 @@ async function convertImagesToBlocks(images: PastedContent[]): Promise<ImageBloc
         data: img.content
       }
     };
-    const resized = await maybeResizeAndDownsampleImageBlock(block);
+    const resized = await maybeResizeAndDownsampleImageBlock(block, imageLimits);
     return resized.block;
   }));
 }

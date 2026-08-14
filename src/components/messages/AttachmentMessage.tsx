@@ -1,6 +1,6 @@
 import { c as _c } from "react/compiler-runtime";
 // biome-ignore-all assist/source/organizeImports: ANT-ONLY import markers must not be reordered
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Ansi, Box, Text } from '../../ink.js';
 import type { Attachment } from 'src/utils/attachments.js';
 import type { NullRenderingAttachmentType } from './nullRenderingAttachments.js';
@@ -27,17 +27,30 @@ import { CtrlOToExpand } from '../CtrlOToExpand.js';
 import { FilePathLink } from '../FilePathLink.js';
 import { feature } from 'bun:bundle';
 import { useSelectedMessageBg } from '../messageActions.js';
+import { NoSelect } from '../../ink/components/NoSelect.js';
+import {
+  getMemorySynthesis,
+  getRelevantMemoryRatingMetadata,
+  isSynthesizedRelevantMemories,
+  isTinyMemoryRatingEnabled,
+  type MessageRatingSentiment,
+  useMessageRating,
+  useRateMessage,
+} from '../../context/messageRating.js';
+import { isFullscreenEnvEnabled } from '../../utils/fullscreen.js';
 type Props = {
   addMargin: boolean;
   attachment: Attachment;
   verbose: boolean;
   isTranscriptMode?: boolean;
+  messageUuid?: string;
 };
 export function AttachmentMessage({
   attachment,
   addMargin,
   verbose,
-  isTranscriptMode
+  isTranscriptMode,
+  messageUuid,
 }: Props): React.ReactNode {
   const bg = useSelectedMessageBg();
   // Hoisted to mount-time — per-message component, re-renders on every scroll.
@@ -167,6 +180,9 @@ export function AttachmentMessage({
           Loaded <Text bold>{attachment.displayPath}</Text>
         </Line>;
     case 'relevant_memories':
+      if (isTinyMemoryRatingEnabled() && isSynthesizedRelevantMemories(attachment.memories)) {
+        return <RelevantMemoriesMessage memories={attachment.memories} messageUuid={messageUuid} addMargin={addMargin} backgroundColor={bg} isTranscriptMode={isTranscriptMode} />;
+      }
       // Usually absorbed into a CollapsedReadSearchGroup (collapseReadSearch.ts)
       // so this only renders when the preceding tool was non-collapsible (Edit,
       // Write) and no group was open. Match CollapsedReadSearchContent's style:
@@ -358,6 +374,140 @@ export function AttachmentMessage({
       attachment.type satisfies NullRenderingAttachmentType | 'skill_discovery' | 'teammate_mailbox';
       return null;
   }
+}
+
+function RelevantMemoriesMessage({
+  memories,
+  messageUuid,
+  addMargin,
+  backgroundColor,
+  isTranscriptMode,
+}: {
+  memories: Array<{ path: string; content: string }>
+  messageUuid?: string
+  addMargin: boolean
+  backgroundColor: string | undefined
+  isTranscriptMode?: boolean
+}): React.ReactNode {
+  const rateMessage = useRateMessage()
+  const rating = useMessageRating(messageUuid)
+  const [hover, setHover] = useState<MessageRatingSentiment | null>(null)
+  const showRating =
+    isFullscreenEnvEnabled() &&
+    !isTranscriptMode &&
+    rateMessage !== null &&
+    messageUuid !== undefined
+  const metadata = getRelevantMemoryRatingMetadata(memories)
+
+  return (
+    <Box
+      flexDirection="column"
+      marginTop={addMargin ? 1 : 0}
+      backgroundColor={backgroundColor}
+    >
+      {memories.map((memory, index) => {
+        const lines = getMemorySynthesis(memory.content)
+          .split('\n')
+          .map(line => line.replace(/^\-\s*/, ''))
+          .filter(Boolean)
+        return (
+          <Box key={memory.path} flexDirection="column">
+            <Box flexDirection="row">
+              <Box minWidth={2}>
+                <Text color="remember">✻</Text>
+              </Box>
+              <Text bold color="remember">Recalled from memory</Text>
+              {showRating && index === 0 ? (
+                <>
+                  <Text dimColor> · </Text>
+                  <RatingControl
+                    label="[Good]"
+                    color="success"
+                    sentiment="positive"
+                    hover={hover}
+                    rating={rating}
+                    setHover={setHover}
+                    onRate={sentiment =>
+                      rateMessage(
+                        messageUuid,
+                        sentiment,
+                        'tiny_memory',
+                        metadata,
+                      )
+                    }
+                  />
+                  <Text> </Text>
+                  <RatingControl
+                    label="[Bad]"
+                    color="error"
+                    sentiment="negative"
+                    hover={hover}
+                    rating={rating}
+                    setHover={setHover}
+                    onRate={sentiment =>
+                      rateMessage(
+                        messageUuid,
+                        sentiment,
+                        'tiny_memory',
+                        metadata,
+                      )
+                    }
+                  />
+                </>
+              ) : null}
+            </Box>
+            {lines.map((line, lineIndex) => (
+              <Box
+                key={lineIndex}
+                flexDirection="row"
+                marginTop={lineIndex > 0 ? 1 : 0}
+              >
+                <Box width={4} flexShrink={0}>
+                  <Text dimColor>  · </Text>
+                </Box>
+                <Box flexShrink={1} flexGrow={1}>
+                  <Text wrap="wrap">{line}</Text>
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        )
+      })}
+    </Box>
+  )
+}
+
+function RatingControl({
+  label,
+  color,
+  sentiment,
+  hover,
+  rating,
+  setHover,
+  onRate,
+}: {
+  label: string
+  color: 'success' | 'error'
+  sentiment: MessageRatingSentiment
+  hover: MessageRatingSentiment | null
+  rating: MessageRatingSentiment | undefined
+  setHover: (sentiment: MessageRatingSentiment | null) => void
+  onRate: (sentiment: MessageRatingSentiment) => void
+}): React.ReactNode {
+  return (
+    <NoSelect
+      onClick={() => onRate(sentiment)}
+      onMouseEnter={() => setHover(sentiment)}
+      onMouseLeave={() => setHover(null)}
+    >
+      <Text
+        color={hover === sentiment ? undefined : color}
+        dimColor={rating !== undefined && rating !== sentiment}
+      >
+        {label}
+      </Text>
+    </NoSelect>
+  )
 }
 type TaskStatusAttachment = Extract<Attachment, {
   type: 'task_status';

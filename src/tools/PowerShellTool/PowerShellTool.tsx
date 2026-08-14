@@ -624,7 +624,12 @@ export const PowerShellTool = buildTool({
       let isImage = isImageOutput(stdout);
       let compressedStdout = stdout;
       if (isImage) {
-        const resized = await resizeShellImageOutput(stdout, result.outputFilePath, persistedOutputSize);
+        const resized = await resizeShellImageOutput(
+          stdout,
+          result.outputFilePath,
+          persistedOutputSize,
+          toolUseContext.options.mainLoopModel,
+        );
         if (resized) {
           compressedStdout = resized;
         } else {

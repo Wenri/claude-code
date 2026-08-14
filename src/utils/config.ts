@@ -208,6 +208,9 @@ export type GlobalConfig = {
   lastHintSessionId?: string
   lastSessionModified?: number
   lastSessionFirstPrompt?: string
+  powerupsUnlocked?: string[]
+  opus47LaunchSeenCount?: number
+  resumeReturnDismissed?: boolean
   installMethod?: InstallMethod
   autoUpdates?: boolean
   // Flag to distinguish protection-based disabling from user preference

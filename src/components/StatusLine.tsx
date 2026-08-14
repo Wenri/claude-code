@@ -35,7 +35,7 @@ export function statusLineShouldDisplay(settings: ReadonlySettings): boolean {
   if (feature('KAIROS') && getKairosActive()) return false;
   return settings?.statusLine !== undefined;
 }
-function buildStatusLineCommandInput(permissionMode: PermissionMode, exceeds200kTokens: boolean, settings: ReadonlySettings, messages: Message[], addedDirs: string[], mainLoopModel: ModelName, gitWorktree: string | null, vimMode?: VimMode, effortValue?: EffortValue, thinkingEnabled?: boolean): StatusLineCommandInput {
+function buildStatusLineCommandInput(permissionMode: PermissionMode, exceeds200kTokens: boolean, settings: ReadonlySettings, messages: Message[], addedDirs: string[], mainLoopModel: ModelName, gitWorktree: string | null, vimMode?: VimMode, effortValue?: EffortValue, thinkingEnabled?: boolean, fastMode?: boolean): StatusLineCommandInput {
   const agentType = getMainThreadAgentType();
   const worktreeSession = getCurrentWorktreeSession();
   const runtimeModel = getRuntimeMainLoopModel({
@@ -109,6 +109,7 @@ function buildStatusLineCommandInput(permissionMode: PermissionMode, exceeds200k
     thinking: {
       enabled: thinkingEnabled !== false
     },
+    fast_mode: fastMode ?? false,
     ...((rateLimits.five_hour || rateLimits.seven_day) && {
       rate_limits: rateLimits
     }),
@@ -138,6 +139,24 @@ function buildStatusLineCommandInput(permissionMode: PermissionMode, exceeds200k
     })
   };
 }
+
+function logStatusLineResultOnce(
+  pendingRef: React.MutableRefObject<boolean>,
+  text: string,
+  commandLength: number | undefined,
+): void {
+  if (!pendingRef.current) return
+  pendingRef.current = false
+  const lines = text.split('\n')
+  let visualWidth = 0
+  for (const line of lines) visualWidth = Math.max(visualWidth, stringWidth(line))
+  logEvent('tengu_status_line_result', {
+    char_length: text.length,
+    visual_width: visualWidth,
+    line_count: lines.length,
+    command_length: commandLength,
+  })
+}
 type Props = {
   // messages stays behind a ref (read only in the debounced callback);
   // lastAssistantMessageId is the actual re-render trigger.
@@ -159,6 +178,7 @@ function StatusLineInner({
   const statusLineText = useAppState(s => s.statusLineText);
   const effortValue = useAppState(s => s.effortValue);
   const thinkingEnabled = useAppState(s => s.thinkingEnabled);
+  const fastMode = useAppState(s => s.fastMode ?? false);
   const setAppState = useSetAppState();
   const settings = useSettings();
   const {
@@ -184,6 +204,8 @@ function StatusLineInner({
   effortValueRef.current = effortValue;
   const thinkingEnabledRef = useRef(thinkingEnabled);
   thinkingEnabledRef.current = thinkingEnabled;
+  const fastModeRef = useRef(fastMode);
+  fastModeRef.current = fastMode;
 
   // Track previous state to detect changes and cache expensive calculations
   const previousStateRef = useRef<{
@@ -194,6 +216,7 @@ function StatusLineInner({
     mainLoopModel: ModelName;
     effortValue: EffortValue | undefined;
     thinkingEnabled: boolean | undefined;
+    fastMode: boolean;
   }>({
     messageId: null,
     exceeds200kTokens: false,
@@ -201,7 +224,8 @@ function StatusLineInner({
     vimMode,
     mainLoopModel,
     effortValue,
-    thinkingEnabled
+    thinkingEnabled,
+    fastMode
   });
 
   // Debounce timer ref
@@ -218,7 +242,6 @@ function StatusLineInner({
     abortControllerRef.current = controller;
     const msgs = messagesRef.current;
     const logResult = logNextResultRef.current;
-    logNextResultRef.current = false;
     try {
       let exceeds200kTokens = previousStateRef.current.exceeds200kTokens;
 
@@ -229,7 +252,8 @@ function StatusLineInner({
         previousStateRef.current.messageId = currentMessageId;
         previousStateRef.current.exceeds200kTokens = exceeds200kTokens;
       }
-      const statusInput = buildStatusLineCommandInput(permissionModeRef.current, exceeds200kTokens, settingsRef.current, msgs, Array.from(addedDirsRef.current.keys()), mainLoopModelRef.current, await getGitWorktreeName(getCwd()), vimModeRef.current, effortValueRef.current, thinkingEnabledRef.current);
+      const statusInput = buildStatusLineCommandInput(permissionModeRef.current, exceeds200kTokens, settingsRef.current, msgs, Array.from(addedDirsRef.current.keys()), mainLoopModelRef.current, await getGitWorktreeName(getCwd()), vimModeRef.current, effortValueRef.current, thinkingEnabledRef.current, fastModeRef.current);
+      const commandLength = settingsRef.current?.statusLine?.command.length;
       const text = await executeStatusLineCommand(statusInput, controller.signal, undefined, logResult);
       if (!controller.signal.aborted) {
         setAppState(prev => {
@@ -239,6 +263,9 @@ function StatusLineInner({
             statusLineText: text
           };
         });
+        if (text) {
+          logStatusLineResultOnce(logNextResultRef, text, commandLength);
+        }
       }
     } catch {
       // Silently ignore errors in status line updates
@@ -258,7 +285,7 @@ function StatusLineInner({
 
   // Only trigger update when assistant message, permission mode, vim mode, or model actually changes
   useEffect(() => {
-    if (lastAssistantMessageId !== previousStateRef.current.messageId || permissionMode !== previousStateRef.current.permissionMode || vimMode !== previousStateRef.current.vimMode || mainLoopModel !== previousStateRef.current.mainLoopModel || effortValue !== previousStateRef.current.effortValue || thinkingEnabled !== previousStateRef.current.thinkingEnabled) {
+    if (lastAssistantMessageId !== previousStateRef.current.messageId || permissionMode !== previousStateRef.current.permissionMode || vimMode !== previousStateRef.current.vimMode || mainLoopModel !== previousStateRef.current.mainLoopModel || effortValue !== previousStateRef.current.effortValue || thinkingEnabled !== previousStateRef.current.thinkingEnabled || fastMode !== previousStateRef.current.fastMode) {
       // Don't update messageId here — let doUpdate handle it so
       // exceeds200kTokens is recalculated with the latest messages
       previousStateRef.current.permissionMode = permissionMode;
@@ -266,9 +293,10 @@ function StatusLineInner({
       previousStateRef.current.mainLoopModel = mainLoopModel;
       previousStateRef.current.effortValue = effortValue;
       previousStateRef.current.thinkingEnabled = thinkingEnabled;
+      previousStateRef.current.fastMode = fastMode;
       scheduleUpdate();
     }
-  }, [lastAssistantMessageId, permissionMode, vimMode, mainLoopModel, effortValue, thinkingEnabled, scheduleUpdate]);
+  }, [lastAssistantMessageId, permissionMode, vimMode, mainLoopModel, effortValue, thinkingEnabled, fastMode, scheduleUpdate]);
 
   const refreshInterval = settings?.statusLine?.refreshInterval;
   useEffect(() => {

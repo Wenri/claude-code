@@ -1,6 +1,6 @@
-import { API_IMAGE_MAX_BASE64_SIZE } from '../constants/apiLimits.js'
 import { logEvent } from '../services/analytics/index.js'
 import { formatFileSize } from './format.js'
+import { getImageLimits, type ImageLimits } from './imageResizer.js'
 
 /**
  * Information about an oversized image.
@@ -62,7 +62,10 @@ function isBase64ImageBlock(
  * @param messages - Array of messages to validate
  * @throws ImageSizeError if any image exceeds the API limit
  */
-export function validateImagesForAPI(messages: unknown[]): void {
+export function validateImagesForAPI(
+  messages: unknown[],
+  limits: ImageLimits = getImageLimits(),
+): void {
   const oversizedImages: OversizedImage[] = []
   let imageIndex = 0
 
@@ -87,10 +90,10 @@ export function validateImagesForAPI(messages: unknown[]): void {
         // Check the base64-encoded string length directly (not decoded bytes)
         // The API limit applies to the base64 payload size
         const base64Size = block.source.data.length
-        if (base64Size > API_IMAGE_MAX_BASE64_SIZE) {
+        if (base64Size > limits.maxBase64Size) {
           logEvent('tengu_image_api_validation_failed', {
             base64_size_bytes: base64Size,
-            max_bytes: API_IMAGE_MAX_BASE64_SIZE,
+            max_bytes: limits.maxBase64Size,
           })
           oversizedImages.push({ index: imageIndex, size: base64Size })
         }
@@ -99,6 +102,6 @@ export function validateImagesForAPI(messages: unknown[]): void {
   }
 
   if (oversizedImages.length > 0) {
-    throw new ImageSizeError(oversizedImages, API_IMAGE_MAX_BASE64_SIZE)
+    throw new ImageSizeError(oversizedImages, limits.maxBase64Size)
   }
 }

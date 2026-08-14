@@ -3,6 +3,7 @@ import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growt
 import { shouldIncludeFirstPartyOnlyBetas } from './betas.js'
 import { isEnvTruthy } from './envUtils.js'
 import { getInitialSettings } from './settings/settings.js'
+import { getAPIProvider } from './model/providers.js'
 
 // The SDK does not yet have types for advisor blocks.
 // TODO(hackyon): Migrate to the real anthropic SDK types when this feature ships publicly
@@ -54,7 +55,7 @@ export const ADVISOR_MODEL_OPTIONS = ['opus', 'sonnet'] as const
 
 function getAdvisorConfig(): AdvisorConfig {
   return getFeatureValue_CACHED_MAY_BE_STALE<AdvisorConfig>(
-    'tengu_sage_compass',
+    'tengu_sage_compass2',
     {},
   )
 }
@@ -64,8 +65,14 @@ export function isAdvisorEnabled(): boolean {
     return false
   }
   // The advisor beta header is first-party only (Bedrock/Vertex 400 on it).
-  if (!shouldIncludeFirstPartyOnlyBetas()) {
+  if (
+    getAPIProvider() !== 'firstParty' ||
+    !shouldIncludeFirstPartyOnlyBetas()
+  ) {
     return false
+  }
+  if (isEnvTruthy(process.env.CLAUDE_CODE_ENABLE_EXPERIMENTAL_ADVISOR_TOOL)) {
+    return true
   }
   return getAdvisorConfig().enabled ?? false
 }
@@ -92,6 +99,7 @@ export function modelSupportsAdvisor(model: string): boolean {
   const m = model.toLowerCase()
   return (
     m.includes('opus-4-6') ||
+    m.includes('opus-4-7') ||
     m.includes('sonnet-4-6') ||
     process.env.USER_TYPE === 'ant'
   )
@@ -102,6 +110,7 @@ export function isValidAdvisorModel(model: string): boolean {
   const m = model.toLowerCase()
   return (
     m.includes('opus-4-6') ||
+    m.includes('opus-4-7') ||
     m.includes('sonnet-4-6') ||
     process.env.USER_TYPE === 'ant'
   )

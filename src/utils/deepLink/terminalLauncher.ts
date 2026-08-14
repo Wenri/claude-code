@@ -231,22 +231,22 @@ export async function launchInTerminal(
   )
   const claudeArgs = ['--deep-link-origin']
   if (action.repo) {
-    claudeArgs.push('--deep-link-repo', action.repo)
+    claudeArgs.push(`--deep-link-repo=${action.repo}`)
     if (action.lastFetchMs !== undefined) {
-      claudeArgs.push('--deep-link-last-fetch', String(action.lastFetchMs))
+      claudeArgs.push(`--deep-link-last-fetch=${action.lastFetchMs}`)
     }
   }
   if (action.query) {
-    claudeArgs.push('--prefill', action.query)
+    claudeArgs.push(`--prefill=${action.query}`)
   }
 
   switch (process.platform) {
     case 'darwin':
-      return launchMacosTerminal(terminal, claudePath, claudeArgs, action.cwd)
+      return launchMacosTerminal(terminal, claudePath, claudeArgs, action)
     case 'linux':
-      return launchLinuxTerminal(terminal, claudePath, claudeArgs, action.cwd)
+      return launchLinuxTerminal(terminal, claudePath, claudeArgs, action)
     case 'win32':
-      return launchWindowsTerminal(terminal, claudePath, claudeArgs, action.cwd)
+      return launchWindowsTerminal(terminal, claudePath, action)
     default:
       return false
   }
@@ -256,15 +256,21 @@ async function launchMacosTerminal(
   terminal: TerminalInfo,
   claudePath: string,
   claudeArgs: string[],
-  cwd?: string,
+  action: {
+    query?: string
+    cwd?: string
+    repo?: string
+    lastFetchMs?: number
+  },
 ): Promise<boolean> {
+  const { cwd } = action
   switch (terminal.command) {
     // --- SHELL-STRING PATHS (AppleScript has no argv interface) ---
     // User input is shell-quoted via shellQuote(). These two are the only
     // macOS paths where shellQuote() correctness is load-bearing.
 
     case 'iTerm': {
-      const shCmd = buildShellCommand(claudePath, claudeArgs, cwd)
+      const shCmd = buildShellCommand(claudePath, action)
       // If iTerm isn't running, `tell application` launches it and iTerm's
       // default startup behavior opens a window — so `create window` would
       // make a second one. Check `running` first: if already running (even
@@ -288,7 +294,7 @@ end tell`
     }
 
     case 'Terminal': {
-      const shCmd = buildShellCommand(claudePath, claudeArgs, cwd)
+      const shCmd = buildShellCommand(claudePath, action)
       const script = `tell application "Terminal"
   do script ${appleScriptQuote(shCmd)}
   activate
@@ -311,7 +317,7 @@ end tell`
         '--window-save-state=never',
       ]
       if (cwd) args.push(`--working-directory=${cwd}`)
-      args.push('-e', claudePath, ...claudeArgs)
+      args.push('-e', claudePath, ...buildEncodedDeepLinkArgs(action))
       const { code } = await execFileNoThrow('open', args, { useCwd: false })
       if (code === 0) return true
       break
@@ -352,7 +358,7 @@ end tell`
     { name: 'Terminal.app', command: 'Terminal' },
     claudePath,
     claudeArgs,
-    cwd,
+    action,
   )
 }
 
@@ -360,8 +366,14 @@ async function launchLinuxTerminal(
   terminal: TerminalInfo,
   claudePath: string,
   claudeArgs: string[],
-  cwd?: string,
+  action: {
+    query?: string
+    cwd?: string
+    repo?: string
+    lastFetchMs?: number
+  },
 ): Promise<boolean> {
+  const { cwd } = action
   // All Linux paths are pure argv. Each terminal's --working-directory
   // (or equivalent) sets cwd natively; the command is exec'd directly.
   // For the few terminals without a cwd flag (xterm, and the opaque
@@ -394,7 +406,7 @@ async function launchLinuxTerminal(
       break
     case 'ghostty':
       args = cwd ? [`--working-directory=${cwd}`, '-e'] : ['-e']
-      args.push(claudePath, ...claudeArgs)
+      args.push(claudePath, ...buildEncodedDeepLinkArgs(action))
       break
     case 'xfce4-terminal':
     case 'mate-terminal':
@@ -403,12 +415,12 @@ async function launchLinuxTerminal(
       break
     case 'tilix':
       args = cwd ? [`--working-directory=${cwd}`, '-e'] : ['-e']
-      args.push(claudePath, ...claudeArgs)
+      args.push(claudePath, ...buildEncodedDeepLinkArgs(action))
       break
     default:
       // xterm, x-terminal-emulator, $TERMINAL — no reliable cwd flag.
       // spawn({cwd}) sets the terminal's own cwd; most inherit.
-      args = ['-e', claudePath, ...claudeArgs]
+      args = ['-e', claudePath, ...buildEncodedDeepLinkArgs(action)]
       spawnCwd = cwd
       break
   }
@@ -419,16 +431,22 @@ async function launchLinuxTerminal(
 async function launchWindowsTerminal(
   terminal: TerminalInfo,
   claudePath: string,
-  claudeArgs: string[],
-  cwd?: string,
+  action: {
+    query?: string
+    cwd?: string
+    repo?: string
+    lastFetchMs?: number
+  },
 ): Promise<boolean> {
+  const { cwd } = action
+  const claudeArgs = buildEncodedDeepLinkArgs(action)
   const args: string[] = []
 
   switch (terminal.name) {
     // --- PURE ARGV PATH ---
     case 'Windows Terminal':
-      if (cwd) args.push('-d', cwd)
-      args.push('--', claudePath, ...claudeArgs)
+      if (cwd) args.push('-d', cwd.replaceAll(';', '\\;'))
+      args.push('--', claudePath.replaceAll(';', '\\;'), ...claudeArgs)
       break
 
     // --- SHELL-STRING PATHS ---
@@ -441,20 +459,21 @@ async function launchWindowsTerminal(
       // Single-quoted PowerShell strings have NO escape sequences (only
       // '' for a literal quote). Double-quoted strings interpret backtick
       // escapes — a query containing `" could break out.
-      const cdCmd = cwd ? `Set-Location ${psQuote(cwd)}; ` : ''
       args.push(
         '-NoExit',
         '-Command',
-        `${cdCmd}& ${psQuote(claudePath)} ${claudeArgs.map(psQuote).join(' ')}`,
+        `& ${psQuote(claudePath)} ${claudeArgs.join(' ')}`,
       )
       break
     }
 
     default: {
-      const cdCmd = cwd ? `cd /d ${cmdQuote(cwd)} && ` : ''
       args.push(
+        '/d',
+        '/v:off',
+        '/s',
         '/k',
-        `${cdCmd}${cmdQuote(claudePath)} ${claudeArgs.map(a => cmdQuote(a)).join(' ')}`,
+        `"${cmdQuote(claudePath)} ${claudeArgs.map(a => cmdQuote(a)).join(' ')}"`,
       )
       break
     }
@@ -465,6 +484,7 @@ async function launchWindowsTerminal(
   // escape our already-cmdQuote'd string. Bypass it for cmd.exe only.
   return spawnDetached(terminal.command, args, {
     windowsVerbatimArguments: terminal.name === 'Command Prompt',
+    cwd,
   })
 }
 
@@ -478,23 +498,26 @@ function spawnDetached(
   args: string[],
   opts: { cwd?: string; windowsVerbatimArguments?: boolean } = {},
 ): Promise<boolean> {
-  return new Promise<boolean>(resolve => {
-    const child = spawn(command, args, {
-      detached: true,
-      stdio: 'ignore',
-      cwd: opts.cwd,
-      windowsVerbatimArguments: opts.windowsVerbatimArguments,
-    })
-    child.once('error', err => {
-      logForDebugging(`Failed to spawn ${command}: ${err.message}`, {
-        level: 'error',
+  const attempt = (cwd: string | undefined): Promise<boolean> =>
+    new Promise<boolean>(resolve => {
+      const child = spawn(command, args, {
+        detached: true,
+        stdio: 'ignore',
+        cwd,
+        windowsVerbatimArguments: opts.windowsVerbatimArguments,
       })
-      void resolve(false)
+      child.once('error', () => void resolve(false))
+      child.once('spawn', () => {
+        child.unref()
+        void resolve(true)
+      })
     })
-    child.once('spawn', () => {
-      child.unref()
-      void resolve(true)
-    })
+
+  return attempt(opts.cwd).then(async launched => {
+    if (launched) return true
+    if (opts.cwd !== undefined && (await attempt(undefined))) return true
+    logForDebugging(`Failed to spawn ${command}`, { level: 'error' })
+    return false
   })
 }
 
@@ -502,29 +525,55 @@ function spawnDetached(
  * Build a single-quoted POSIX shell command string. ONLY used by the
  * AppleScript paths (iTerm, Terminal.app) which have no argv interface.
  */
-function buildShellCommand(
-  claudePath: string,
-  claudeArgs: string[],
-  cwd?: string,
-): string {
-  const cdPrefix = cwd ? `cd ${shellQuote(cwd)} && ` : ''
-  return `${cdPrefix}${[claudePath, ...claudeArgs].map(shellQuote).join(' ')}`
+function buildEncodedDeepLinkArgs(action: {
+  query?: string
+  cwd?: string
+  repo?: string
+  lastFetchMs?: number
+}): string[] {
+  const encode = (value: string) =>
+    Buffer.from(value, 'utf8').toString('base64url')
+  const args = ['--deep-link-origin']
+  if (action.repo) args.push(`--deep-link-repo=${action.repo}`)
+  if (action.lastFetchMs !== undefined) {
+    args.push(`--deep-link-last-fetch=${action.lastFetchMs}`)
+  }
+  if (action.cwd) args.push(`--deep-link-cwd-b64=${encode(action.cwd)}`)
+  if (action.query) args.push(`--prefill-b64=${encode(action.query)}`)
+  return args
 }
 
-/**
- * POSIX single-quote escaping. Single-quoted strings have zero
- * interpretation except for the closing single quote itself.
- * Only used by buildShellCommand() for the AppleScript paths.
- */
-function shellQuote(s: string): string {
-  return `'${s.replace(/'/g, "'\\''")}'`
+function buildShellCommand(
+  claudePath: string,
+  action: {
+    query?: string
+    cwd?: string
+    repo?: string
+    lastFetchMs?: number
+  },
+): string {
+  const args = buildEncodedDeepLinkArgs(action).join(' ')
+  if (!/^[A-Za-z0-9 /._=-]+$/.test(args)) {
+    throw new Error(`Internal error: shell-safe args contain metacharacters: ${args}`)
+  }
+  if (/^[A-Za-z0-9/._-]+$/.test(claudePath)) return `${claudePath} ${args}`
+  if (/['\\!$\n]/.test(claudePath)) {
+    throw new Error(
+      `Deep-link launch unsupported: the claude binary path "${claudePath}" contains a single quote, backslash, exclamation mark, dollar sign, or newline, which cannot be portably quoted for every login shell. Reinstall claude to a path without these characters to use deep links with iTerm2 or Terminal.app.`,
+    )
+  }
+  return `'${claudePath}' ${args}`
 }
 
 /**
  * AppleScript string literal escaping (backslash then double-quote).
  */
 function appleScriptQuote(s: string): string {
-  return `"${s.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`
+  return `"${s
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, '\\n')
+    .replace(/\t/g, '\\t')}"`
 }
 
 /**
@@ -534,7 +583,12 @@ function appleScriptQuote(s: string): string {
  * strings interpret `n `t `" etc. and can be escaped out of.
  */
 function psQuote(s: string): string {
-  return `'${s.replace(/'/g, "''")}'`
+  if (/[‘’‚‛]/.test(s)) {
+    throw new Error(
+      'Cannot safely quote a Unicode single-quote variant (U+2018-U+201B) in a PowerShell path; install Windows Terminal (wt.exe).',
+    )
+  }
+  return `'${s.replace(/"/g, '').replace(/'/g, "''")}'`
 }
 
 /**
@@ -551,7 +605,7 @@ function psQuote(s: string): string {
  * \ before our closing " would eat the close-quote.
  */
 function cmdQuote(arg: string): string {
-  const stripped = arg.replace(/"/g, '').replace(/%/g, '%%')
+  const stripped = arg.replace(/[\n\t]/g, ' ').replace(/["%]/g, '')
   const escaped = stripped.replace(/(\\+)$/, '$1$1')
   return `"${escaped}"`
 }

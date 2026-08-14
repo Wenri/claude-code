@@ -64,15 +64,21 @@ export function resetSettingsCache(): void {
  * loadSettingsFromDisk reads it as the lowest-priority base.
  */
 let pluginSettingsBase: Record<string, unknown> | undefined
+let pluginSettingsInitialized = false
 
 export function getPluginSettingsBase(): Record<string, unknown> | undefined {
   return pluginSettingsBase
+}
+
+export function isPluginSettingsInitialized(): boolean {
+  return pluginSettingsInitialized
 }
 
 export function setPluginSettingsBase(
   settings: Record<string, unknown> | undefined,
 ): void {
   pluginSettingsBase = settings
+  pluginSettingsInitialized = true
 }
 
 export function clearPluginSettingsBase(): void {

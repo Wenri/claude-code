@@ -44,6 +44,8 @@ import {
   compressImageBufferWithTokenLimit,
   createImageMetadataText,
   detectImageFormatFromBuffer,
+  getImageLimits,
+  type ImageLimits,
   type ImageDimensions,
   ImageResizeError,
   maybeResizeAndDownsampleImageBuffer,
@@ -883,7 +885,12 @@ async function callInner(
   if (IMAGE_EXTENSIONS.has(ext)) {
     // Images have their own size limits (token budget + compression) —
     // don't apply the text maxSizeBytes cap.
-    const data = await readImageWithTokenBudget(resolvedFilePath, maxTokens)
+    const data = await readImageWithTokenBudget(
+      resolvedFilePath,
+      maxTokens,
+      undefined,
+      getImageLimits(context.options.mainLoopModel),
+    )
     context.nestedMemoryAttachmentTriggers?.add(fullFilePath)
 
     logFileOperation({
@@ -940,6 +947,7 @@ async function callInner(
             imgBuffer,
             imgBuffer.length,
             'jpeg',
+            getImageLimits(context.options.mainLoopModel),
           )
           return {
             type: 'image' as const,
@@ -1116,6 +1124,7 @@ export async function readImageWithTokenBudget(
   filePath: string,
   maxTokens: number = getDefaultFileReadingLimits().maxTokens,
   maxBytes?: number,
+  imageLimits: ImageLimits = getImageLimits(getMainLoopModel()),
 ): Promise<ImageResult> {
   // Read file ONCE — capped to maxBytes to avoid OOM on huge files
   const imageBuffer = await getFsImplementation().readFileBytes(
@@ -1138,6 +1147,7 @@ export async function readImageWithTokenBudget(
       imageBuffer,
       originalSize,
       detectedFormat,
+      imageLimits,
     )
     result = createImageResponse(
       resized.buffer,

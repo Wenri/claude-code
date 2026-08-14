@@ -151,6 +151,7 @@ import { stripIdeContextTags } from './displayTags.js'
 import { hasEmbeddedSearchTools } from './embeddedTools.js'
 import { formatFileSize } from './format.js'
 import { validateImagesForAPI } from './imageValidation.js'
+import { getImageLimits } from './imageResizer.js'
 import { safeParseJSON } from './json.js'
 import { logError, logMCPDebug } from './log.js'
 import { normalizeLegacyToolName } from './permissions/permissionRuleParser.js'
@@ -1908,6 +1909,7 @@ function sanitizeErrorToolResultContent(
 export function normalizeMessagesForAPI(
   messages: Message[],
   tools: Tools = [],
+  model?: string,
 ): (UserMessage | AssistantMessage)[] {
   // Build set of available tool names for filtering unavailable tool references
   const availableToolNames = new Set(tools.map(t => t.name))
@@ -2258,7 +2260,7 @@ export function normalizeMessagesForAPI(
   }
 
   // Validate all images are within API size limits before sending
-  validateImagesForAPI(sanitized)
+  validateImagesForAPI(sanitized, getImageLimits(model))
 
   return sanitized
 }

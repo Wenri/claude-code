@@ -1,6 +1,12 @@
 import { coerce } from 'semver'
 import type { Writable } from 'stream'
+import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js'
 import { env } from '../utils/env.js'
+import { isEnvTruthy } from '../utils/envUtils.js'
+import {
+  isFullscreenEnvEnabled,
+  isTmuxControlMode,
+} from '../utils/fullscreen.js'
 import { gte } from '../utils/semver.js'
 import {
   eraseViewportInPlace,
@@ -207,8 +213,28 @@ export function hasCursorUpViewportYankBug(): boolean {
 // Exported so callers can pass a sync-skip hint gated to specific modes.
 export const SYNC_OUTPUT_SUPPORTED = isSynchronizedOutputSupported()
 
+let decstbmSafe: boolean | undefined
+
 function isDecstbmSafe(): boolean {
-  return isSynchronizedOutputSupported() && process.env.ZELLIJ == null
+  if (decstbmSafe !== undefined) return decstbmSafe
+  if (!process.stdout.isTTY) return (decstbmSafe = false)
+  if (isTmuxControlMode()) return (decstbmSafe = false)
+  if (
+    !isSynchronizedOutputSupported() ||
+    process.env.ZELLIJ != null ||
+    isXtermJs()
+  ) {
+    return (decstbmSafe = false)
+  }
+  if (isFullscreenEnvEnabled()) return (decstbmSafe = false)
+  if (isEnvTruthy(process.env.CLAUDE_CODE_DECSTBM)) {
+    return (decstbmSafe = true)
+  }
+  decstbmSafe = getFeatureValue_CACHED_MAY_BE_STALE(
+    'tengu_marlin_porch',
+    false,
+  )
+  return decstbmSafe
 }
 
 // Zellij advertises synchronized output support but corrupts DECSTBM scroll

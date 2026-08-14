@@ -50,6 +50,7 @@ import {
 } from '../hooks.js'
 import {
   createImageMetadataText,
+  getImageLimits,
   ImageResizeError,
   maybeResizeAndDownsampleImageBlock,
 } from '../imageResizer.js'
@@ -335,7 +336,10 @@ async function processUserInputBase(
     for (const block of input) {
       if (block.type === 'image') {
         try {
-          const resized = await maybeResizeAndDownsampleImageBlock(block)
+          const resized = await maybeResizeAndDownsampleImageBlock(
+            block,
+            getImageLimits(context.options.mainLoopModel),
+          )
           // Collect image metadata for isMeta message
           if (resized.dimensions) {
             const metadataText = createImageMetadataText(resized.dimensions)
@@ -402,7 +406,10 @@ async function processUserInputBase(
       logEvent('tengu_pasted_image_resize_attempt', {
         original_size_bytes: pastedImage.content.length,
       })
-      const resized = await maybeResizeAndDownsampleImageBlock(imageBlock)
+      const resized = await maybeResizeAndDownsampleImageBlock(
+        imageBlock,
+        getImageLimits(context.options.mainLoopModel),
+      )
       return {
         resized,
         originalDimensions: pastedImage.dimensions,

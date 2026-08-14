@@ -27,6 +27,11 @@ import { EmergencyTip } from './EmergencyTip.js';
 import { VoiceModeNotice } from './VoiceModeNotice.js';
 import { Opus1mMergeNotice } from './Opus1mMergeNotice.js';
 import { ModelSourceNotice } from './ModelSourceNotice.js';
+import {
+  incrementOpus47LaunchSeenCount,
+  Opus47LaunchNotice,
+  useShowOpus47LaunchNotice,
+} from './Opus47LaunchNotice.js';
 import { feature } from 'bun:bundle';
 
 // Conditional require so ChannelsNotice.tsx tree-shakes when both flags are
@@ -45,6 +50,7 @@ import { useAppState } from '../../state/AppState.js';
 import { getEffortSuffix } from '../../utils/effort.js';
 import { useMainLoopModel } from '../../hooks/useMainLoopModel.js';
 import { renderModelSetting } from '../../utils/model/model.js';
+import { getCanonicalName } from '../../utils/model/model.js';
 const LEFT_PANEL_MAX_WIDTH = 50;
 export function LogoV2() {
   const $ = _c(94);
@@ -70,6 +76,7 @@ export function LogoV2() {
   const showSandboxStatus = t1;
   const showGuestPassesUpsell = useShowGuestPassesUpsell();
   const showOverageCreditUpsell = useShowOverageCreditUpsell();
+  const showOpus47LaunchNotice = useShowOpus47LaunchNotice();
   const agent = useAppState(_temp);
   const effortValue = useAppState(_temp2);
   const config = getGlobalConfig();
@@ -157,7 +164,13 @@ export function LogoV2() {
     t8 = $[12];
   }
   useEffect(t7, t8);
+  useEffect(() => {
+    if (showOpus47LaunchNotice && !showOnboarding) {
+      incrementOpus47LaunchSeenCount();
+    }
+  }, [showOpus47LaunchNotice, showOnboarding]);
   const model = useMainLoopModel();
+  const isOnOpus47 = getCanonicalName(model) === 'claude-opus-4-7';
   const fullModelDisplayName = renderModelSetting(model);
   const {
     version,
@@ -237,14 +250,7 @@ export function LogoV2() {
       t21 = $[27];
       t22 = $[28];
     }
-    let t23;
-    if ($[29] !== t18) {
-      t23 = <>{t11}{t12}{t13}{t14}<PromptCachingDisabledWarning />{t15}{t16}{t17}{t18}{t19}{t20}{t21}{t22}</>;
-      $[29] = t18;
-      $[30] = t23;
-    } else {
-      t23 = $[30];
-    }
+    const t23 = <>{t11}{t12}{t13}{t14}<PromptCachingDisabledWarning />{t15}{t16}{t17}{t18}{showOpus47LaunchNotice && <Box paddingLeft={2}><Opus47LaunchNotice isOnOpus47={isOnOpus47} /></Box>}{t19}{t20}{t21}{t22}</>;
     return t23;
   }
   const layoutMode = getLayoutMode(columns);
@@ -515,16 +521,7 @@ export function LogoV2() {
     t39 = $[88];
     t40 = $[89];
   }
-  let t41;
-  if ($[90] !== t28 || $[91] !== t35 || $[92] !== t36) {
-    t41 = <>{t28}{t29}{t30}{t31}<PromptCachingDisabledWarning />{t32}{t33}{t34}{t35}{t36}{t37}{t38}{t39}{t40}</>;
-    $[90] = t28;
-    $[91] = t35;
-    $[92] = t36;
-    $[93] = t41;
-  } else {
-    t41 = $[93];
-  }
+  const t41 = <>{t28}{t29}{t30}{t31}<PromptCachingDisabledWarning />{t32}{t33}{t34}{t35}{t36}{showOpus47LaunchNotice && !showOnboarding && <Box paddingLeft={2}><Opus47LaunchNotice isOnOpus47={isOnOpus47} /></Box>}{t37}{t38}{t39}{t40}</>;
   return t41;
 }
 function PromptCachingDisabledWarning() {
