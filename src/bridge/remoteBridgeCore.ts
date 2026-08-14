@@ -112,6 +112,7 @@ export type EnvLessBridgeParams = {
   title: string
   getAccessToken: () => string | undefined
   onAuth401?: (staleAccessToken: string) => Promise<boolean>
+  onProactiveRefresh?: () => Promise<void>
   /**
    * Converts internal Message[] → SDKMessage[] for writeMessages() and the
    * initial-flush/drain paths. Injected rather than imported — mappers.ts
@@ -159,6 +160,16 @@ export type EnvLessBridgeParams = {
     truncated?: boolean
     encoding?: 'base64'
   }>
+  onMcpAuthenticate?: (
+    serverName: string,
+    redirectUri?: string,
+  ) => Promise<unknown>
+  onMcpOauthCallbackUrl?: (
+    serverName: string,
+    callbackUrl: string,
+  ) => Promise<unknown>
+  onMcpReconnect?: (serverName: string) => Promise<unknown>
+  onMcpStatus?: () => unknown[]
   onStateChange?: (state: BridgeState, detail?: string) => void
   /**
    * When true, skip opening the SSE read stream — only the CCRClient write
@@ -197,6 +208,7 @@ export async function initEnvLessBridgeCore(
     title,
     getAccessToken,
     onAuth401,
+    onProactiveRefresh,
     toSDKMessages,
     initialHistoryCap,
     initialMessages,
@@ -212,6 +224,10 @@ export async function initEnvLessBridgeCore(
     onSetColor,
     onFileSuggestions,
     onReadFile,
+    onMcpAuthenticate,
+    onMcpOauthCallbackUrl,
+    onMcpReconnect,
+    onMcpStatus,
     onStateChange,
     outboundOnly,
     tags,
@@ -515,7 +531,7 @@ export async function initEnvLessBridgeCore(
       // so truthiness doesn't mean valid. Pass the stale token to onAuth401
       // so handleOAuth401Error's keychain-comparison can detect parallel refresh.
       const stale = getAccessToken()
-      if (onAuth401) await onAuth401(stale ?? '')
+      if (onProactiveRefresh) await onProactiveRefresh()
       return getAccessToken() ?? stale
     },
     onRefresh: (sid, oauthToken) => {
@@ -656,6 +672,10 @@ export async function initEnvLessBridgeCore(
             onSetColor,
             onFileSuggestions,
             onReadFile,
+            onMcpAuthenticate,
+            onMcpOauthCallbackUrl,
+            onMcpReconnect,
+            onMcpStatus,
             outboundOnly,
           }),
       )
@@ -813,7 +833,7 @@ export async function initEnvLessBridgeCore(
       // before our setOnClose callback). Reset so the new onConnect re-flushes.
       // (v1 scopes initialFlushDone inside the per-transport closure at
       // replBridge.ts:1027 so it resets naturally; v2 has it at outer scope.)
-      initialFlushDone = false
+      initialFlushDone = isReattach
       await rebuildTransport(
         fresh,
         code === 401 ? 'auth_401_recovery' : 'init_4091_recovery',

@@ -132,6 +132,16 @@ export type InitBridgeOptions = {
     truncated?: boolean
     encoding?: 'base64'
   }>
+  onMcpAuthenticate?: (
+    serverName: string,
+    redirectUri?: string,
+  ) => Promise<unknown>
+  onMcpOauthCallbackUrl?: (
+    serverName: string,
+    callbackUrl: string,
+  ) => Promise<unknown>
+  onMcpReconnect?: (serverName: string) => Promise<unknown>
+  onMcpStatus?: () => unknown[]
   // UUIDs already flushed in a prior bridge session. Messages with these
   // UUIDs are excluded from the initial flush to avoid poisoning the
   // server (duplicate UUIDs across sessions cause the WS to be killed).
@@ -169,6 +179,10 @@ export async function initReplBridge(
     outboundOnly,
     tags,
     onReadFile,
+    onMcpAuthenticate,
+    onMcpOauthCallbackUrl,
+    onMcpReconnect,
+    onMcpStatus,
     enableSessionPersistence,
   } = options ?? {}
 
@@ -575,6 +589,9 @@ export async function initReplBridge(
       title,
       getAccessToken: getBridgeAccessToken,
       onAuth401: handleOAuth401Error,
+      onProactiveRefresh: async () => {
+        await checkAndRefreshOAuthTokenIfNeeded()
+      },
       toSDKMessages,
       initialHistoryCap,
       initialMessages,
@@ -619,6 +636,10 @@ export async function initReplBridge(
       onSetColor,
       onFileSuggestions,
       onReadFile,
+      onMcpAuthenticate,
+      onMcpOauthCallbackUrl,
+      onMcpReconnect,
+      onMcpStatus,
       onStateChange,
       outboundOnly,
       tags,
@@ -721,6 +742,10 @@ export async function initReplBridge(
     onSetColor,
     onFileSuggestions,
     onReadFile,
+    onMcpAuthenticate,
+    onMcpOauthCallbackUrl,
+    onMcpReconnect,
+    onMcpStatus,
     onStateChange,
     perpetual,
   })

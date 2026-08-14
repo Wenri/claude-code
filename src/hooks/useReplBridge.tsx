@@ -25,6 +25,14 @@ import {
   logEvent,
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
 } from '../services/analytics/index.js';
+import {
+  getActiveMCPOAuthFlow,
+  getMcpOAuthCallbackSubmitter,
+  performMCPOAuthFlow,
+  trackMCPOAuthFlow,
+} from '../services/mcp/auth.js';
+import { buildClaudeAiMcpAuthUrl } from '../services/mcp/claudeai.js';
+import { getMcpReconnect } from '../services/mcp/MCPConnectionManager.js';
 import { useAppState, useAppStateStore, useSetAppState } from '../state/AppState.js';
 import type { Message } from '../types/message.js';
 import { AGENT_COLORS, type AgentColorName } from '../tools/AgentTool/agentColorManager.js';
@@ -144,6 +152,59 @@ export function useReplBridge(messages: Message[], setMessages: (action: React.S
   const replBridgeInitialName = feature('BRIDGE_MODE') ?
   // biome-ignore lint/correctness/useHookAtTopLevel: feature() is a compile-time constant
   useAppState(s_2 => s_2.replBridgeInitialName) : undefined;
+  const permissionMode = feature('BRIDGE_MODE') ?
+  // biome-ignore lint/correctness/useHookAtTopLevel: feature() is a compile-time constant
+  useAppState(s_3 => s_3.toolPermissionContext.mode) : undefined;
+  const fastMode = feature('BRIDGE_MODE') ?
+  // biome-ignore lint/correctness/useHookAtTopLevel: feature() is a compile-time constant
+  useAppState(s_4 => s_4.fastMode) : false;
+
+  const sendBridgeSystemInit = useCallback(() => {
+    const handle = handleRef.current
+    if (
+      !handle ||
+      !getFeatureValue_CACHED_MAY_BE_STALE('tengu_bridge_system_init', false)
+    ) {
+      return
+    }
+    void (async () => {
+      try {
+        const skills = await getSlashCommandToolSkills(getCwd())
+        const state = store.getState()
+        handle.writeSdkMessages([
+          buildSystemInitMessage({
+            tools: [],
+            mcpClients: [],
+            model: mainLoopModelRef.current,
+            permissionMode: state.toolPermissionContext.mode as PermissionMode,
+            commands: commandsRef.current.filter(isBridgeCommandAvailable),
+            agents: state.agentDefinitions.activeAgents,
+            skills,
+            plugins: [],
+            pluginErrors: [],
+            fastMode: state.fastMode,
+          }),
+        ])
+      } catch (error) {
+        logForDebugging(
+          `[bridge:repl] Failed to send system/init: ${errorMessage(error)}`,
+          { level: 'error' },
+        )
+      }
+    })()
+  }, [store])
+
+  useEffect(() => {
+    if (!replBridgeConnected || replBridgeOutboundOnly) return
+    sendBridgeSystemInit()
+  }, [
+    replBridgeConnected,
+    replBridgeOutboundOnly,
+    mainLoopModel,
+    permissionMode,
+    fastMode,
+    sendBridgeSystemInit,
+  ])
 
   // Initialize/teardown bridge when enabled state changes.
   // Passes current messages as initialMessages so the remote session
@@ -349,49 +410,7 @@ export function useReplBridge(messages: Message[], setMessages: (action: React.S
                       replBridgeError: undefined
                     };
                   });
-                  // Send system/init so remote clients (web/iOS/Android) get
-                  // session metadata. REPL uses query() directly — never hits
-                  // QueryEngine's SDKMessage layer — so this is the only path
-                  // to put system/init on the REPL-bridge wire. Skills load is
-                  // async (memoized, cheap after REPL startup); fire-and-forget
-                  // so the connected-state transition isn't blocked.
-                  if (getFeatureValue_CACHED_MAY_BE_STALE('tengu_bridge_system_init', false)) {
-                    void (async () => {
-                      try {
-                        const skills = await getSlashCommandToolSkills(getCwd());
-                        if (cancelled) return;
-                        const state_0 = store.getState();
-                        handleRef.current?.writeSdkMessages([buildSystemInitMessage({
-                          // tools/mcpClients/plugins redacted for REPL-bridge:
-                          // MCP-prefixed tool names and server names leak which
-                          // integrations the user has wired up; plugin paths leak
-                          // raw filesystem paths (username, project structure).
-                          // CCR v2 persists SDK messages to Spanner — users who
-                          // tap "Connect from phone" may not expect these on
-                          // Anthropic's servers. QueryEngine (SDK) still emits
-                          // full lists — SDK consumers expect full telemetry.
-                          tools: [],
-                          mcpClients: [],
-                          model: mainLoopModelRef.current,
-                          permissionMode: state_0.toolPermissionContext.mode as PermissionMode,
-                          // TODO: avoid the cast
-                          // Remote clients can only invoke bridge-safe commands —
-                          // advertising unsafe ones (local-jsx, unallowed local)
-                          // would let mobile/web attempt them and hit errors.
-                          commands: commandsRef.current.filter(isBridgeCommandAvailable),
-                          agents: state_0.agentDefinitions.activeAgents,
-                          skills,
-                          plugins: [],
-                          pluginErrors: [],
-                          fastMode: state_0.fastMode
-                        })]);
-                      } catch (err_0) {
-                        logForDebugging(`[bridge:repl] Failed to send system/init: ${errorMessage(err_0)}`, {
-                          level: 'error'
-                        });
-                      }
-                    })();
-                  }
+                  sendBridgeSystemInit();
                   break;
                 }
               case 'reconnecting':
@@ -551,6 +570,158 @@ export function useReplBridge(messages: Message[], setMessages: (action: React.S
               return {
                 ok: true
               };
+            },
+            onMcpStatus() {
+              return store.getState().mcp.clients.map(client => {
+                let config
+                if (client.config.type === 'sse' || client.config.type === 'http') {
+                  config = {
+                    type: client.config.type,
+                    url: client.config.url,
+                  }
+                } else if (client.config.type === 'claudeai-proxy') {
+                  config = {
+                    type: 'claudeai-proxy' as const,
+                    url: client.config.url,
+                    id: client.config.id,
+                  }
+                } else if (
+                  client.config.type === 'stdio' ||
+                  client.config.type === undefined
+                ) {
+                  config = {
+                    type: 'stdio' as const,
+                    command: client.config.command,
+                    args: client.config.args,
+                  }
+                }
+                return {
+                  name: client.name,
+                  status: client.type,
+                  config,
+                  scope: client.config.scope,
+                  serverInfo:
+                    client.type === 'connected' ? client.serverInfo : undefined,
+                  error: client.type === 'failed' ? client.error : undefined,
+                }
+              })
+            },
+            async onMcpAuthenticate(serverName, redirectUri) {
+              const config = store
+                .getState()
+                .mcp.clients.find(client => client.name === serverName)?.config
+              if (!config) throw new Error(`MCP server "${serverName}" not found`)
+              if (config.type === 'claudeai-proxy') {
+                const authUrl = buildClaudeAiMcpAuthUrl(config)
+                if (!authUrl) {
+                  throw new Error(
+                    'Unable to build claude.ai connector auth URL (missing org or server id)',
+                  )
+                }
+                logEvent('tengu_claudeai_mcp_auth_started', {})
+                return {
+                  authUrl,
+                  requiresUserAction: true,
+                  callbackExpected: false,
+                }
+              }
+              if (config.type !== 'sse' && config.type !== 'http') {
+                throw new Error(
+                  `Server type "${config.type}" does not support OAuth authentication`,
+                )
+              }
+              const startFlow = (customRedirectUri?: string) => {
+                let resolveAuthUrl: (url: string) => void
+                const authUrlPromise = new Promise<string>(resolve => {
+                  resolveAuthUrl = resolve
+                })
+                let callbackPort: number | undefined
+                let state: string | undefined
+                const oauthPromise = performMCPOAuthFlow(
+                  serverName,
+                  config,
+                  url => resolveAuthUrl!(url),
+                  undefined,
+                  {
+                    skipBrowserOpen: true,
+                    redirectUri: customRedirectUri,
+                    onWaitingForCallback: (_submit, port, oauthState) => {
+                      callbackPort = port
+                      state = oauthState
+                    },
+                  },
+                )
+                trackMCPOAuthFlow(serverName, oauthPromise)
+                return Promise.race([
+                  authUrlPromise.then(authUrl => ({
+                    authUrl,
+                    callbackPort,
+                    state,
+                  })),
+                  oauthPromise.then(() => null),
+                ])
+              }
+
+              let result: Awaited<ReturnType<typeof startFlow>> = null
+              let redirectScheme: 'custom' | 'localhost' = 'localhost'
+              if (redirectUri) {
+                try {
+                  result = await startFlow(redirectUri)
+                  redirectScheme = 'custom'
+                } catch (error) {
+                  logForDebugging(
+                    `[bridge:mcp] AS rejected custom redirectUri for ${serverName}; falling back to localhost: ${errorMessage(error)}`,
+                  )
+                }
+              }
+              if (redirectScheme === 'localhost') result = await startFlow()
+              if (!result) {
+                return {
+                  requiresUserAction: false,
+                  callbackExpected: false,
+                }
+              }
+              return {
+                authUrl: result.authUrl,
+                requiresUserAction: true,
+                callbackExpected: false,
+                redirectScheme,
+                state: result.state,
+                ...(redirectScheme === 'localhost' && {
+                  callbackPort: result.callbackPort,
+                }),
+              }
+            },
+            async onMcpOauthCallbackUrl(serverName, callbackUrl) {
+              const submit = getMcpOAuthCallbackSubmitter(serverName)
+              if (!submit) {
+                throw new Error(
+                  `No OAuth flow in progress for "${serverName}" — call mcp_authenticate first`,
+                )
+              }
+              if (!submit(callbackUrl)) {
+                throw new Error(
+                  'Invalid callback URL — no authorization code. The flow is still open; retry with the full redirect URL.',
+                )
+              }
+              const flow = getActiveMCPOAuthFlow(serverName)
+              if (flow) await flow
+            },
+            async onMcpReconnect(serverName) {
+              const reconnect = getMcpReconnect()
+              if (!reconnect) {
+                throw new Error(
+                  'MCP connection manager not ready — try again in a moment',
+                )
+              }
+              const result = await reconnect(serverName)
+              if (result.client.type !== 'connected') {
+                throw new Error(
+                  result.client.type === 'failed'
+                    ? result.client.error ?? 'Connection failed'
+                    : `Server status: ${result.client.type}`,
+                )
+              }
             },
             onSetColor(color) {
               const reset = color === 'default';
@@ -789,7 +960,7 @@ export function useReplBridge(messages: Message[], setMessages: (action: React.S
         lastWrittenIndexRef.current = 0;
       };
     }
-  }, [replBridgeEnabled, replBridgeOutboundOnly, setAppState, setMessages, addNotification]);
+  }, [replBridgeEnabled, replBridgeOutboundOnly, setAppState, setMessages, addNotification, sendBridgeSystemInit]);
 
   // Write new messages as they appear.
   // Also re-runs when replBridgeConnected changes (bridge finishes init),

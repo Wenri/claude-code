@@ -76,6 +76,7 @@ const TARGET_WITNESSES = [
   ['kill fallback', 'tengu_bg_killjob_ctrl_fallback', 0, 2],
   ['status session summary', 'bg sessions:', 0, 1],
   ['worker state machine', 'worker-phase transition', 0, 1],
+  ['disabled worker registry rejection', "worker kind '", 0, 1],
   ['rendezvous repaint fallback', "Session can't redraw right now", 0, 1],
   ['cross-platform orphan reaper', 'roster-less pty host(s)', 0, 1],
   ['fleet delete confirmation', 'stopped. ctrl+x again to delete.', 0, 1],
@@ -235,6 +236,11 @@ test('recovers worker lifecycle, takeover, service recall, and safe cleanup', ()
     'export async function isBackgroundJobAlive',
     "response.code === 'ESTARTING' && attempt < 10",
     "logEvent('tengu_bg_killjob_ctrl_fallback'",
+  ])
+  assertSourceFragments('src/daemon/workerRegistry.ts', [
+    "kind !== 'heartbeat' && !isDaemonWorkerRegistryEnabled()",
+    "process.stderr.write(`worker kind '${kind}' is not available.\\n`)",
+    'process.exit(2)',
   ])
   assertSourceFragments('src/daemon/cli.ts', [
     "export function parseKindArgs( kind: 'scheduled' | 'assistant' | 'remote-control', args: string[]",

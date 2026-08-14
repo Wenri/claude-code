@@ -26,7 +26,7 @@ import { readFileSync } from 'fs';
 import mapValues from 'lodash-es/mapValues.js';
 import uniqBy from 'lodash-es/uniqBy.js';
 import React from 'react';
-import { getOauthConfig } from './constants/oauth.js';
+import { ALLOWED_OAUTH_BASE_URLS, getOauthConfig } from './constants/oauth.js';
 import { getRemoteSessionUrl } from './constants/product.js';
 import { getSystemContext, getUserContext } from './context.js';
 import { init, initializeTelemetryAfterTrust } from './entrypoints/init.js';
@@ -952,6 +952,28 @@ async function suggestUnknownSubcommand(input: string, program: CommanderCommand
     })]);
   } catch {}
   process.exit(1);
+}
+
+const APPROVED_SDK_HOSTNAMES = new Set([
+  'api.anthropic.com',
+  'api-staging.anthropic.com',
+  ...ALLOWED_OAUTH_BASE_URLS.map(value => new URL(value).hostname),
+])
+
+function validateSdkUrl(value: string): string | null {
+  let url: URL
+  try {
+    url = new URL(value)
+  } catch {
+    return `could not parse ${JSON.stringify(value)} as a URL`
+  }
+  if (!APPROVED_SDK_HOSTNAMES.has(url.hostname)) {
+    return `host ${JSON.stringify(url.hostname)} is not an approved Anthropic endpoint`
+  }
+  if (url.protocol !== 'wss:' && url.protocol !== 'https:') {
+    return `scheme ${JSON.stringify(url.protocol)} is not permitted for host ${JSON.stringify(url.hostname)}; only wss:// and https:// are accepted`
+  }
+  return null
 }
 
 async function run(): Promise<CommanderCommand> {
@@ -1929,6 +1951,31 @@ async function run(): Promise<CommanderCommand> {
         // biome-ignore lint/suspicious/noConsole:: intentional console output
         console.error(`Error: --sdk-url requires both --input-format=stream-json and --output-format=stream-json.`);
         process.exit(1);
+      }
+      const rejection = validateSdkUrl(sdkUrl)
+      if (rejection !== null) {
+        logEvent('tengu_sdk_url_host_rejected', {})
+        await Promise.race([
+          Promise.all([shutdown1PEventLogging(), shutdownDatadog()]),
+          sleep(500, undefined, { unref: true }),
+        ]).catch(() => {})
+        // biome-ignore lint/suspicious/noConsole:: intentional console output
+        console.error(
+          chalk.red(
+            `Error: --sdk-url rejected: ${rejection}. This flag is reserved for Remote Control worker processes connecting to Anthropic's backend.`,
+          ),
+        )
+        process.exit(1)
+      }
+      await waitForPolicyLimitsToLoad()
+      if (!isPolicyAllowed('allow_remote_control')) {
+        // biome-ignore lint/suspicious/noConsole:: intentional console output
+        console.error(
+          chalk.red(
+            "Error: Remote Control is disabled by your organization's policy.",
+          ),
+        )
+        process.exit(1)
       }
     }
 
