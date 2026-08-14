@@ -58,6 +58,7 @@ import type { HookDeferredToolAttachment } from './utils/attachments.js'
 import type { AttributionState } from './utils/commitAttribution.js'
 import { getConfigValue } from './utils/settings/configSettings.js'
 import { getCwd } from './utils/cwd.js'
+import { logForDebugging } from './utils/debug.js'
 import { isBareMode, isEnvTruthy } from './utils/envUtils.js'
 import { getFastModeState } from './utils/fastMode.js'
 import {

@@ -288,6 +288,7 @@ test('recovers cold auto-compact nonessential stripping', () => {
 
 test('recovers Bash allowlist-decision telemetry', () => {
   assertSource('src/utils/permissions/permissions.ts', [
+    'getFeatureValue_CACHED_MAY_BE_STALE, getFeatureValue_CACHED_WITH_REFRESH,',
     "logEvent('tengu_auto_mode_decision'",
     "stripAllBashFlag: getFeatureValue_CACHED_MAY_BE_STALE( 'tengu_bash_allowlist_strip_all', false, )",
   ])

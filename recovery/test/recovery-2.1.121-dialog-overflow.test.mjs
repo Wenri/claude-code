@@ -65,6 +65,7 @@ test('2.1.121 adds a bounded, claimable modal scroll owner', () => {
   )
   const repl = fs.readFileSync(path.join(repo, 'src/screens/REPL.tsx'), 'utf8')
   assert.match(context, /claimScrollBox:/)
+  assert.match(layout, /useCallback, useContext, useEffect/)
   assert.match(layout, /function ModalScroller/)
   assert.match(layout, /getFreshScrollHeight\(\)/)
   assert.match(layout, /setInterval\(\(\) =>/)
