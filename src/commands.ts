@@ -140,8 +140,6 @@ const buddy = feature('BUDDY')
     ).default
   : null
 /* eslint-enable @typescript-eslint/no-require-imports */
-import thinkback from './commands/thinkback/index.js'
-import thinkbackPlay from './commands/thinkback-play/index.js'
 import permissions from './commands/permissions/index.js'
 import plan from './commands/plan/index.js'
 import fast, { fastNonInteractive } from './commands/fast/index.js'
@@ -194,7 +192,6 @@ import background from './commands/background/index.js'
 import stop, { stopNonInteractive } from './commands/stop/index.js'
 import exportCommand from './commands/export/index.js'
 import model, { modelNonInteractive } from './commands/model/index.js'
-import outputStyle from './commands/output-style/index.js'
 import remoteEnv from './commands/remote-env/index.js'
 import upgrade from './commands/upgrade/index.js'
 import {
@@ -313,7 +310,6 @@ const COMMANDS = memoize((): Command[] => [
   mobile,
   toggleMemory,
   model,
-  outputStyle,
   remoteEnv,
   plugin,
   pr_comments,
@@ -357,8 +353,6 @@ const COMMANDS = memoize((): Command[] => [
   ...(remoteControlServerCommand ? [remoteControlServerCommand] : []),
   ...(daemonCommand ? [daemonCommand] : []),
   ...(voiceCommand ? [voiceCommand] : []),
-  thinkback,
-  thinkbackPlay,
   permissions,
   plan,
   powerup,
