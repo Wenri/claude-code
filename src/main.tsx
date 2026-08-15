@@ -206,6 +206,7 @@ import { createDirectConnectSession, DirectConnectError } from './server/createD
 import { initializeLspServerManager } from './services/lsp/manager.js';
 import { shouldEnablePromptSuggestion } from './services/PromptSuggestion/promptSuggestion.js';
 import { type AppState, getDefaultAppState, IDLE_SPECULATION_STATE } from './state/AppStateStore.js';
+import { getDefaultWebBrowserState } from './utils/webBrowserState.js';
 import { onChangeAppState } from './state/onChangeAppState.js';
 import { createStore } from './state/store.js';
 import { asSessionId } from './types/ids.js';
@@ -3260,6 +3261,7 @@ async function run(): Promise<CommanderCommand> {
         approvals: new Map(),
         checking: new Set()
       },
+      webBrowser: getDefaultWebBrowserState(),
       teammateColors: {
         assignments: new Map(),
         index: 0

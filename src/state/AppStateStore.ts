@@ -27,6 +27,7 @@ import type { LoadedPlugin, PluginError } from '../types/plugin.js'
 import type { DeepImmutable } from '../types/utils.js'
 import type { AutoUpdaterResult } from '../utils/autoUpdater.js'
 import type { ClassifierApprovalsState } from '../utils/classifierApprovals.js'
+import type { WebBrowserState } from '../utils/webBrowserState.js'
 import type { TeammateColorsState } from '../utils/swarm/teammateLayoutManager.js'
 import {
   type AttributionState,
@@ -34,6 +35,7 @@ import {
 } from '../utils/commitAttribution.js'
 import type { EffortValue } from '../utils/effort.js'
 import { isAwaySummaryEnabled } from '../utils/awaySummaryEnabled.js'
+import { getDefaultWebBrowserState } from '../utils/webBrowserState.js'
 import type { FileHistoryState } from '../utils/fileHistory.js'
 import type { REPLHookContext } from '../utils/hooks/postSamplingHooks.js'
 import type { SessionHooksState } from '../utils/hooks/sessionHooks.js'
@@ -306,6 +308,9 @@ export type AppState = DeepImmutable<{
   bagelUrl?: string
   // WebBrowser tool: sticky panel visibility toggle
   bagelPanelVisible?: boolean
+  // Retained browser-view state surface. Its external-build producer is absent,
+  // but injected stores and the bundled updater facade still carry the slice.
+  webBrowser: WebBrowserState
   // chicago MCP session state. Types inlined (not imported from
   // @ant/computer-use-mcp/types) so external typecheck passes without the
   // ant-scoped dep resolved. Shapes match `AppGrant`/`CuGrantFlags`
@@ -582,6 +587,7 @@ export function getDefaultAppState(): AppState {
     imageDescriptions: new Map(),
     classifierApprovals: { approvals: new Map(), checking: new Set() },
     teammateColors: { assignments: new Map(), index: 0 },
+    webBrowser: getDefaultWebBrowserState(),
     showRemoteCallout: false,
     toolPermissionContext: {
       ...getEmptyToolPermissionContext(),
