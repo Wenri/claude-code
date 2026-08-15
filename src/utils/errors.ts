@@ -132,6 +132,24 @@ export function getErrnoCode(e: unknown): string | undefined {
   return undefined
 }
 
+/** Produce the stable, path-free error name used by runtime telemetry. */
+export function classifyTelemetryError(error: unknown): string {
+  if (
+    error instanceof TelemetrySafeError_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+  ) {
+    return error.telemetryMessage.slice(0, 200)
+  }
+  if (error instanceof Error) {
+    const errnoCode = getErrnoCode(error)
+    if (typeof errnoCode === 'string') return `Error:${errnoCode}`
+    if (error.name && error.name !== 'Error' && error.name.length > 3) {
+      return error.name.slice(0, 60)
+    }
+    return 'Error'
+  }
+  return 'UnknownError'
+}
+
 /**
  * True if the error is ENOENT (file or directory does not exist).
  * Replaces `(e as NodeJS.ErrnoException).code === 'ENOENT'`.

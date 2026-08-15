@@ -86,8 +86,8 @@ test('source expands workspace proxies only for deny and ask rules', () => {
     ),
   )
   for (const fragment of [
-    "Bash: ['mcp__workspace__bash']",
-    "WebFetch: ['mcp__workspace__web_fetch']",
+    'Bash: [WORKSPACE_BASH_TOOL_NAME]',
+    'WebFetch: [WORKSPACE_WEB_FETCH_TOOL_NAME]',
     'return aliases ? [toolName, ...aliases] : [toolName]',
     'if (aliases.includes(proxyName)) result.push(toolName)',
   ]) {

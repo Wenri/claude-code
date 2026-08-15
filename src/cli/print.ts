@@ -1,5 +1,6 @@
 // biome-ignore-all assist/source/organizeImports: ANT-ONLY import markers must not be reordered
 import { feature } from 'bun:bundle'
+import { APIError } from '@anthropic-ai/sdk'
 import { readFile, stat } from 'fs/promises'
 import { dirname } from 'path'
 import {
@@ -344,6 +345,7 @@ import { modelSupportsAutoMode } from 'src/utils/betas.js'
 import { ensureModelStringsInitialized } from 'src/utils/model/modelStrings.js'
 import {
   getSessionId,
+  getTotalAPIDuration,
   setMainLoopModelOverride,
   setMainThreadAgentType,
   switchSession,
@@ -413,7 +415,12 @@ import { isBackgroundTask } from '../tasks/types.js'
 import { stopTask } from '../tasks/stopTask.js'
 import { drainSdkEvents } from '../utils/sdkEventQueue.js'
 import { initializeGrowthBook } from '../services/analytics/growthbook.js'
-import { errorMessage, toError } from '../utils/errors.js'
+import {
+  classifyTelemetryError,
+  errorMessage,
+  toError,
+} from '../utils/errors.js'
+import { classifyAPIError } from '../services/api/errors.js'
 import { sleep } from '../utils/sleep.js'
 import { isExtractModeActive } from '../memdir/paths.js'
 
@@ -1192,6 +1199,25 @@ Re-create them if still needed.
   )
 }
 
+function getSDKCrashTelemetry(error: unknown): {
+  error_name: string
+  api_error_status: number | undefined
+  cause_name: string | undefined
+} {
+  const isAPIError = error instanceof APIError
+  return {
+    error_name: isAPIError
+      ? classifyAPIError(error)
+      : classifyTelemetryError(error),
+    api_error_status:
+      isAPIError && typeof error.status === 'number' ? error.status : undefined,
+    cause_name:
+      error instanceof Error && error.cause !== undefined
+        ? classifyTelemetryError(error.cause)
+        : undefined,
+  }
+}
+
 function runHeadlessStreaming(
   structuredIO: StructuredIO,
   mcpClients: MCPServerConnection[],
@@ -1245,6 +1271,8 @@ function runHeadlessStreaming(
   let shutdownPromptInjected = false
   let heldBackResult: StdoutMessage | null = null
   let abortController: AbortController | undefined
+  let runStartedAt: number | undefined
+  let terminalTelemetryEmitted = false
   const controlRequestAbortController = createAbortController(500)
   const pendingBashCommands = new Set<Promise<void>>()
   // Same queue sendRequest() enqueues to — one FIFO for everything.
@@ -1276,6 +1304,21 @@ function runHeadlessStreaming(
   // Dump run()'s state at SIGTERM so a stuck session's healthsweep can name
   // the do/while(waitingForAgents) poll without reading the transcript.
   registerCleanup(async () => {
+    if (
+      runStartedAt !== undefined &&
+      !abortController?.signal.aborted &&
+      !terminalTelemetryEmitted
+    ) {
+      logEvent('tengu_sdk_result', {
+        subtype: 'terminated',
+        is_error: true,
+        duration_ms: Date.now() - runStartedAt,
+        run_phase: runPhase ?? 'init',
+        exit_code: process.exitCode,
+      })
+      terminalTelemetryEmitted = true
+      runStartedAt = undefined
+    }
     const bg: Record<string, number> = {}
     for (const t of getRunningTasks(getAppState())) {
       if (isBackgroundTask(t)) bg[t.type] = (bg[t.type] ?? 0) + 1
@@ -2512,6 +2555,11 @@ function runHeadlessStreaming(
           // inside the closure.
           const cmd = command
           await runWithWorkload(cmd.workload ?? options.workload, async () => {
+            let sawRetry = false
+            let sawCompact = false
+            let retryStatus = 0
+            const apiDurationAtStart = getTotalAPIDuration()
+            runStartedAt = Date.now()
             for await (const message of ask({
               commands: uniqBy(
                 [...currentCommands, ...appState.mcp.commands],
@@ -2601,7 +2649,38 @@ function runHeadlessStreaming(
               // while blocked on permission requests.
               forwardMessagesToBridge()
 
+              if (message.type === 'system') {
+                if (message.subtype === 'api_retry') {
+                  sawRetry = true
+                  retryStatus = Math.max(
+                    retryStatus,
+                    message.error_status ?? 0,
+                  )
+                }
+                if (message.subtype === 'compact_boundary') {
+                  sawCompact = true
+                }
+              }
+
               if (message.type === 'result') {
+                if (runStartedAt !== undefined) {
+                  logEvent('tengu_sdk_result', {
+                    subtype: message.subtype,
+                    is_error: message.is_error,
+                    num_turns: message.num_turns,
+                    duration_ms: message.duration_ms,
+                    duration_api_ms:
+                      getTotalAPIDuration() - apiDurationAtStart,
+                    saw_retry: sawRetry,
+                    saw_compact: sawCompact,
+                    retry_status: sawRetry ? retryStatus : undefined,
+                    api_error_status:
+                      message.subtype === 'success'
+                        ? message.api_error_status ?? undefined
+                        : undefined,
+                  })
+                  runStartedAt = undefined
+                }
                 // Flush pending SDK events so they appear before result on the stream.
                 for (const event of drainSdkEvents()) {
                   output.enqueue(event)
@@ -2825,6 +2904,19 @@ function runHeadlessStreaming(
         }
       }
     } catch (error) {
+      logEvent('tengu_sdk_session_crash', getSDKCrashTelemetry(error))
+      if (!terminalTelemetryEmitted) {
+        logEvent('tengu_sdk_result', {
+          subtype: 'error_during_execution',
+          is_error: true,
+          num_turns: 0,
+          duration_ms: 0,
+          duration_api_ms: 0,
+          saw_retry: false,
+          saw_compact: false,
+        })
+        terminalTelemetryEmitted = true
+      }
       // Emit error result message before shutting down
       // Write directly to structuredIO to ensure immediate delivery
       try {
@@ -2862,6 +2954,10 @@ function runHeadlessStreaming(
       await structuredIO.flushInternalEvents()
       runPhase = 'finally_post_flush'
       if (!isShuttingDown()) {
+        await Promise.race([
+          structuredIO.flushDeliveryAcks(),
+          sleep(5000, undefined, { unref: true }),
+        ])
         structuredIO.sessionState.notifyStateChanged('idle')
         // Drain so the idle session_state_changed SDK event (plus any
         // terminal task_notification bookends emitted during bg-agent

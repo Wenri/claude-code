@@ -51,7 +51,7 @@ import { isAgentSwarmsEnabled } from './utils/agentSwarmsEnabled.js';
 import { count, uniq } from './utils/array.js';
 import { installAsciicastRecorder } from './utils/asciicast.js';
 import { getSubscriptionType, isClaudeAISubscriber, prefetchAwsCredentialsAndBedRockInfoIfSafe, prefetchGcpCredentialsIfSafe, validateForceLoginOrg } from './utils/auth.js';
-import { checkHasTrustDialogAccepted, getGlobalConfig, getProjectPathForConfig, getRemoteControlAtStartup, isAutoUpdaterDisabled, resetTrustDialogAcceptedCacheForTesting, saveGlobalConfig } from './utils/config.js';
+import { checkHasTrustDialogAccepted, DEFAULT_GLOBAL_CONFIG, getGlobalConfig, GLOBAL_CONFIG_KEYS, getProjectPathForConfig, getRemoteControlAtStartup, isAutoUpdaterDisabled, resetTrustDialogAcceptedCacheForTesting, saveGlobalConfig } from './utils/config.js';
 import { seedEarlyInput, stopCapturingEarlyInput } from './utils/earlyInput.js';
 import { getInitialEffortSetting } from './utils/effort.js';
 import { isAwaySummaryEnabled } from './utils/awaySummaryEnabled.js';
@@ -62,7 +62,7 @@ import { getPlatform } from './utils/platform.js';
 import { getBaseRenderOptions } from './utils/renderOptions.js';
 import { getSessionIngressAuthToken } from './utils/sessionIngressAuth.js';
 import { settingsChangeDetector } from './utils/settings/changeDetector.js';
-import { getConfigValue } from './utils/settings/configSettings.js';
+import { getConfigValue, SETTINGS_BACKED_CONFIG_KEYS } from './utils/settings/configSettings.js';
 import { skillChangeDetector } from './utils/skills/skillChangeDetector.js';
 import { sleep } from './utils/sleep.js';
 import { findClosestCommand } from './utils/suggestions/commandSuggestions.js';
@@ -181,7 +181,7 @@ import { setCwd } from 'src/utils/Shell.js';
 import { applyMainThreadAgentHooks, type ProcessedResume, processResumedConversation } from 'src/utils/sessionRestore.js';
 import { parseSettingSourcesFlag } from 'src/utils/settings/constants.js';
 import { plural } from 'src/utils/stringUtils.js';
-import { type ChannelEntry, getInitialMainLoopModel, getIsNonInteractiveSession, getSdkBetas, getSessionId, getUserMsgOptIn, setAllowedChannels, setAllowedSettingSources, setChromeFlagOverride, setClientType, setCwdState, setDirectConnectServerUrl, setFlagSettingsPath, setInitialMainLoopModel, setInlinePlugins, setIsInteractive, setKairosActive, setOriginalCwd, setProjectRoot, setQuestionPreviewFormat, setSdkBetas, setSessionBypassPermissionsMode, setSessionPersistenceDisabled, setSessionSource, setUserMsgOptIn, switchSession } from './bootstrap/state.js';
+import { type ChannelEntry, getInitialMainLoopModel, getIsNonInteractiveSession, getSdkBetas, getSessionId, getUserMsgOptIn, setAllowedChannels, setAllowedSettingSources, setChromeFlagOverride, setClientType, setCwdState, setDirectConnectServerUrl, setFlagSettingsPath, setInitialMainLoopModel, setInlinePlugins, setIsInteractive, setKairosActive, setOriginalCwd, setProjectRoot, setQuestionPreviewFormat, setSdkBetas, setSessionBypassPermissionsMode, setSessionPersistenceDisabled, setSessionSource, setSessionStartType, setUserMsgOptIn, switchSession } from './bootstrap/state.js';
 
 /* eslint-disable @typescript-eslint/no-require-imports */
 const autoModeStateModule = feature('TRANSCRIPT_CLASSIFIER') ? require('./utils/permissions/autoModeState.js') as typeof import('./utils/permissions/autoModeState.js') : null;
@@ -339,9 +339,81 @@ function getCertEnvVarTelemetry(): Record<string, boolean> {
   }
   return result;
 }
-async function logStartupTelemetry(): Promise<void> {
+
+const STARTUP_ENV_TELEMETRY_EXCLUSIONS = new Set([
+  'CLAUDE_CODE_ENTRYPOINT',
+]);
+
+const STARTUP_SETTING_TELEMETRY_EXCLUSIONS = new Set([
+  'tipsHistory',
+  'installMethod',
+  'shiftEnterKeyBindingInstalled',
+  'hasUsedBackslashReturn',
+  'hasCompletedClaudeInChromeOnboarding',
+  'remoteDialogSeen',
+  'lspRecommendationIgnoredCount',
+  'autoUpdates',
+  'autoUpdatesProtectedForNative',
+]);
+
+function getSetEnvironmentVariableNames(
+  environment: NodeJS.ProcessEnv = process.env,
+): string[] {
+  const names: string[] = [];
+  for (const name in environment) {
+    const value = environment[name];
+    if (
+      (name.startsWith('CLAUDE_CODE_') || name.startsWith('ANTHROPIC_')) &&
+      !STARTUP_ENV_TELEMETRY_EXCLUSIONS.has(name) &&
+      value !== undefined &&
+      value !== ''
+    ) {
+      names.push(name);
+    }
+  }
+  return names.sort();
+}
+
+function isDefaultStartupSetting(value: unknown, defaultValue: unknown): boolean {
+  if (value === defaultValue) return true;
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    Object.keys(value).length === 0
+  );
+}
+
+function getNondefaultSettingNames(
+  capturedGlobalConfig: ReturnType<typeof getGlobalConfig>,
+): string[] {
+  const settings = getInitialSettings() as Record<string, unknown>;
+  const globalConfig = capturedGlobalConfig as unknown as Record<
+    string,
+    unknown
+  >;
+  const defaults = DEFAULT_GLOBAL_CONFIG as unknown as Record<string, unknown>;
+  const settingsBacked = new Set<string>(SETTINGS_BACKED_CONFIG_KEYS);
+  const names: string[] = [];
+
+  for (const key of GLOBAL_CONFIG_KEYS) {
+    if (STARTUP_SETTING_TELEMETRY_EXCLUSIONS.has(key)) continue;
+    const value =
+      (settingsBacked.has(key) ? settings[key] : undefined) ?? globalConfig[key];
+    if (value === undefined || isDefaultStartupSetting(value, defaults[key])) {
+      continue;
+    }
+    names.push(key);
+  }
+  return names;
+}
+
+async function logStartupTelemetry(
+  capturedGlobalConfig = getGlobalConfig(),
+): Promise<void> {
   if (isAnalyticsDisabled()) return;
   const [isGit, worktreeCount, ghAuthStatus] = await Promise.all([getIsGit(), getWorktreeCount(), getGhAuthStatus()]);
+  const setEnvironmentVariables = getSetEnvironmentVariableNames();
+  const nondefaultSettings = getNondefaultSettingNames(capturedGlobalConfig);
   logEvent('tengu_startup_telemetry', {
     is_git: isGit,
     worktree_count: worktreeCount,
@@ -351,6 +423,11 @@ async function logStartupTelemetry(): Promise<void> {
     is_auto_bash_allowed_if_sandbox_enabled: SandboxManager.isAutoAllowBashIfSandboxedEnabled(),
     auto_updater_disabled: isAutoUpdaterDisabled(),
     prefers_reduced_motion: getInitialSettings().prefersReducedMotion ?? false,
+    theme: getConfigValue('theme', 'dark').value,
+    set_env_var_count: setEnvironmentVariables.length,
+    set_env_vars: setEnvironmentVariables.join(','),
+    nondefault_setting_count: nondefaultSettings.length,
+    nondefault_settings: nondefaultSettings.join(','),
     ...getCertEnvVarTelemetry()
   });
 }
@@ -654,6 +731,27 @@ const _pendingSSH: PendingSSH | undefined = feature('SSH_REMOTE') ? {
   local: false,
   extraCliArgs: []
 } : undefined;
+function inferSessionStartType(
+  args: readonly string[],
+): 'fresh' | 'resume' | 'continue' {
+  const separator = args.indexOf('--');
+  const options = separator === -1 ? args : args.slice(0, separator);
+  if (
+    options.includes('-r') ||
+    options.includes('--resume') ||
+    options.includes('--from-pr') ||
+    options.some(
+      arg => arg.startsWith('--resume=') || arg.startsWith('--from-pr='),
+    )
+  ) {
+    return 'resume';
+  }
+  if (options.includes('-c') || options.includes('--continue')) {
+    return 'continue';
+  }
+  return 'fresh';
+}
+
 export async function main() {
   profileCheckpoint('main_function_start');
 
@@ -882,6 +980,7 @@ export async function main() {
   // Set simplified tracking fields
   const isInteractive = !isNonInteractive;
   setIsInteractive(isInteractive);
+  setSessionStartType(inferSessionStartType(cliArgs));
 
   // Initialize entrypoint based on mode - needs to be set before any event is logged
   initializeEntrypoint(isNonInteractive);
@@ -3192,7 +3291,7 @@ async function run(): Promise<CommanderCommand> {
       numStartups: (current.numStartups ?? 0) + 1
     }));
     setImmediate(() => {
-      void logStartupTelemetry();
+      void logStartupTelemetry(getGlobalConfig());
       logSessionTelemetry();
     });
 

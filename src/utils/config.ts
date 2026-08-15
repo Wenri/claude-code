@@ -95,6 +95,7 @@ export type ProjectConfig = {
   lastTotalWebSearchRequests?: number
   lastFpsAverage?: number
   lastFpsLow1Pct?: number
+  lastGracefulShutdown?: boolean
   lastSessionId?: string
   lastModelUsage?: Record<
     string,
@@ -590,6 +591,7 @@ export type GlobalConfig = {
   remoteControlAtStartup?: boolean
   daemonInstallPromptDismissed?: boolean
   autoUploadSessions?: boolean
+  autoAddRemoteControlDaemonWorker?: boolean
   hasUsedRemoteControl?: boolean
   remoteControlUpsellSeenCount?: number
   pushNotifUpsellSeenCount?: number
@@ -723,6 +725,7 @@ export const GLOBAL_CONFIG_KEYS = [
   'prStatusFooterEnabled',
   'remoteControlAtStartup',
   'autoUploadSessions',
+  'autoAddRemoteControlDaemonWorker',
   'remoteDialogSeen',
 ] as const
 

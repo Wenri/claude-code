@@ -217,6 +217,7 @@ export async function* withRetry<T>(
     if (options.signal?.aborted) {
       throw new APIUserAbortError()
     }
+    const attemptStartedAt = Date.now()
 
     // Capture whether fast mode is active before this attempt
     // (fallback may change the state mid-loop)
@@ -546,6 +547,7 @@ export async function* withRetry<T>(
           .message as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
         status: (error as APIError).status,
         provider: getAPIProviderForStatsig(),
+        attempt_duration_ms: Date.now() - attemptStartedAt,
       })
       options.onRetry?.({
         retryInMs: delayMs,

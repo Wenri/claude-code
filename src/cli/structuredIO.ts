@@ -297,6 +297,11 @@ export class StructuredIO {
     return Promise.resolve()
   }
 
+  /** Flush pending delivery acknowledgements. No-op outside RemoteIO. */
+  flushDeliveryAcks(): Promise<void> {
+    return Promise.resolve()
+  }
+
   /** Internal-event queue depth. Overridden by RemoteIO; zero otherwise. */
   get internalEventsPending(): number {
     return 0

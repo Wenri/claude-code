@@ -869,6 +869,10 @@ export class CCRClient {
     return this.internalEventUploader.flush()
   }
 
+  flushDeliveryAcks(): Promise<void> {
+    return this.deliveryUploader.flush()
+  }
+
   /**
    * Flush pending client events (writeEvent queue). Call before close()
    * when the caller needs delivery confirmation — close() abandons the

@@ -45,6 +45,7 @@ import { isFastModeEnabled } from './utils/fastMode.js'
 import { formatDuration, formatNumber } from './utils/format.js'
 import type { EffortLevel } from './utils/effort.js'
 import type { FpsMetrics } from './utils/fpsTracker.js'
+import { isShuttingDown } from './utils/gracefulShutdown.js'
 import { getCanonicalName } from './utils/model/model.js'
 import { calculateUSDCost } from './utils/modelCost.js'
 export {
@@ -158,6 +159,7 @@ export function saveCurrentSessionCosts(fpsMetrics?: FpsMetrics): void {
     lastTotalWebSearchRequests: getTotalWebSearchRequests(),
     lastFpsAverage: fpsMetrics?.averageFps,
     lastFpsLow1Pct: fpsMetrics?.low1PctFps,
+    lastGracefulShutdown: isShuttingDown(),
     lastModelUsage: Object.fromEntries(
       Object.entries(getModelUsage()).map(([model, usage]) => [
         model,

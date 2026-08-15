@@ -101,6 +101,7 @@ type State = {
   sessionSkillAllowlist: string[] | undefined
   clientType: string
   sessionSource: string | undefined
+  sessionStartType: 'fresh' | 'resume' | 'continue'
   questionPreviewFormat: 'markdown' | 'html' | undefined
   flagSettingsPath: string | undefined
   flagSettingsInline: Record<string, unknown> | null
@@ -351,6 +352,7 @@ function getInitialState(): State {
     sessionSkillAllowlist: undefined,
     clientType: 'cli',
     sessionSource: undefined,
+    sessionStartType: 'fresh',
     questionPreviewFormat: undefined,
     sessionIngressToken: undefined,
     oauthTokenFromFd: undefined,
@@ -1163,6 +1165,16 @@ export function getClientType(): string {
 
 export function setClientType(type: string): void {
   STATE.clientType = type
+}
+
+export function getSessionStartType(): 'fresh' | 'resume' | 'continue' {
+  return STATE.sessionStartType
+}
+
+export function setSessionStartType(
+  type: 'fresh' | 'resume' | 'continue',
+): void {
+  STATE.sessionStartType = type
 }
 
 export function getSdkAgentProgressSummariesEnabled(): boolean {
