@@ -123,8 +123,8 @@ test('source routes persistence and wires all retained message-op consumers', ()
     "entry.type === 'content-replacement'",
     'getAgentTranscriptPath(entry.agentId)',
     "entry.type === 'fork-context-ref'",
-    'entry.isSidechain && entry.agentId !== undefined',
-    'const isNewUuid = !messageSet.has(entry.uuid)',
+    'transcriptEntry.isSidechain && transcriptEntry.agentId !== undefined',
+    'const isNewUuid = !messageSet.has(transcriptEntry.uuid)',
     'if (isAgentSidechain || isNewUuid)',
     'await this.persistToRemote(sessionId, entry)',
   ]) {
