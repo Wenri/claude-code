@@ -1459,14 +1459,14 @@ function _temp2(log_1) {
   if (isCurrentSession) {
     return true;
   }
-  if (log_1.customTitle) {
+  if (log_1.customTitle ?? log_1.aiTitle) {
     return true;
   }
   const fromMessages = getFirstMeaningfulUserMessageTextContent(log_1.messages);
   if (fromMessages) {
     return true;
   }
-  if (log_1.firstPrompt || log_1.customTitle) {
+  if (log_1.firstPrompt || log_1.customTitle || log_1.aiTitle) {
     return true;
   }
   return false;
@@ -1507,7 +1507,7 @@ function extractSearchableText(message: SerializedMessage): string {
 function buildSearchableText(log: LogOption): string {
   const searchableMessages = log.messages.length <= DEEP_SEARCH_MAX_MESSAGES ? log.messages : [...log.messages.slice(0, DEEP_SEARCH_CROP_SIZE), ...log.messages.slice(-DEEP_SEARCH_CROP_SIZE)];
   const messageText = searchableMessages.map(extractSearchableText).filter(Boolean).join(' ');
-  const metadata = [log.customTitle, log.summary, log.firstPrompt, log.gitBranch, log.tag, log.prNumber ? `PR #${log.prNumber}` : undefined, log.prRepository].filter(Boolean).join(' ');
+  const metadata = [log.customTitle, log.aiTitle, log.summary, log.firstPrompt, log.gitBranch, log.tag, log.prNumber ? `PR #${log.prNumber}` : undefined, log.prRepository].filter(Boolean).join(' ');
   const fullText = `${metadata} ${messageText}`.trim();
   return fullText.length > DEEP_SEARCH_MAX_TEXT_LENGTH ? fullText.slice(0, DEEP_SEARCH_MAX_TEXT_LENGTH) : fullText;
 }

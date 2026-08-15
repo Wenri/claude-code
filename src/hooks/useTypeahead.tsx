@@ -795,7 +795,7 @@ export function useTypeahead({
           const sessionId = getSessionIdFromLog(log);
           return {
             id: `resume-title-${sessionId}`,
-            displayText: log.customTitle!,
+            displayText: (log.customTitle ?? log.aiTitle)!,
             description: formatLogMetadata(log),
             metadata: {
               sessionId

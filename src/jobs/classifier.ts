@@ -12,7 +12,7 @@ import { logForDebugging } from '../utils/debug.js'
 import { getSmallFastModel } from '../utils/model/model.js'
 import { permissionBlockSignal } from '../utils/permissionBlockSignal.js'
 import {
-  cacheSessionTitle,
+  cacheAiTitle,
   getTranscriptPath,
   saveAgentName,
   worktreeStateSignal,
@@ -1043,7 +1043,7 @@ verbs like fix/add/update. Respond with ONLY the label.${avoid}`,
     { ...current, name: candidate, nameSource: 'auto', updatedAt: now },
     { name: candidate },
   )
-  cacheSessionTitle(candidate)
+  cacheAiTitle(candidate)
   void updateSessionName(candidate)
   void saveAgentName(getSessionId(), candidate, getTranscriptPath(), 'auto')
 }

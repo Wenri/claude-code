@@ -731,11 +731,14 @@ export function fireSessionMirror(filePath: string, entries: unknown[]): void {
 }
 
 const REMOTE_FLUSH_INTERVAL_MS = 10
+const sessionTitleChanged = createSignal()
+export const subscribeSessionTitleChanged = sessionTitleChanged.subscribe
 
 class Project {
   // Minimal cache for current session only (not all sessions)
   currentSessionTag: string | undefined
   currentSessionTitle: string | undefined
+  currentSessionAiTitle: string | undefined
   currentSessionAgentName: string | undefined
   currentSessionAgentColor: string | undefined
   currentSessionLastPrompt: string | undefined
@@ -1044,6 +1047,15 @@ class Project {
           this.currentSessionTitle = tailTitle || undefined
         }
       }
+      const aiTitleLine = tailLines.findLast(l =>
+        l.startsWith('{"type":"ai-title"'),
+      )
+      if (aiTitleLine) {
+        const tailAiTitle = extractLastJsonStringField(aiTitleLine, 'aiTitle')
+        if (tailAiTitle !== undefined) {
+          this.currentSessionAiTitle = tailAiTitle || undefined
+        }
+      }
     }
     const tagLine = tailLines.findLast(l => l.startsWith('{"type":"tag"'))
     if (tagLine) {
@@ -1074,6 +1086,13 @@ class Project {
       entries.push({
         type: 'custom-title',
         customTitle: this.currentSessionTitle,
+        sessionId,
+      })
+    }
+    if (this.currentSessionAiTitle) {
+      entries.push({
+        type: 'ai-title',
+        aiTitle: this.currentSessionAiTitle,
         sessionId,
       })
     }
@@ -2752,6 +2771,7 @@ export async function loadTranscriptFromFile(
       messages,
       summaries,
       customTitles,
+      aiTitles,
       tags,
       fileHistorySnapshots,
       attributionSnapshots,
@@ -2795,6 +2815,7 @@ export async function loadTranscriptFromFile(
         undefined,
         contentReplacements.get(sessionId) ?? [],
       ),
+      aiTitle: aiTitles.get(sessionId),
       contextCollapseCommits: contextCollapseCommits.filter(
         e => e.sessionId === sessionId,
       ),
@@ -3108,6 +3129,7 @@ export async function saveCustomTitle(
   // Cache for current session only (for immediate visibility)
   if (sessionId === getSessionId()) {
     getProject().currentSessionTitle = customTitle
+    sessionTitleChanged.emit()
   }
   logEvent('tengu_session_renamed', {
     source:
@@ -3121,21 +3143,15 @@ export async function saveCustomTitle(
  * Writing a separate entry type (vs. reusing `custom-title`) is load-bearing:
  * - Read preference: readers prefer `customTitle` field over `aiTitle`, so
  *   a user rename always wins regardless of append order.
- * - Resume safety: `loadTranscriptFile` only populates the `customTitles`
- *   Map from `custom-title` entries, so `restoreSessionMetadata` never
- *   caches an AI title and `reAppendSessionMetadata` never re-appends one
- *   at EOF — avoiding the clobber-on-resume bug where a stale AI title
- *   overwrites a mid-session user rename.
+ * - Resume safety: AI titles remain separate from custom titles throughout
+ *   loading and caching, so a user rename always retains precedence.
  * - CAS semantics: VS Code's `onlyIfNoCustomTitle` check scans for the
  *   `customTitle` field only, so AI can overwrite its own previous AI
  *   title but never a user title.
  * - Metrics: `tengu_session_renamed` is not fired for AI titles.
  *
- * Because the entry is never re-appended, it scrolls out of the 64KB tail
- * window once enough messages accumulate. Readers (`readLiteMetadata`,
- * `listSessionsImpl`, VS Code `fetchSessions`) fall back to scanning the
- * head buffer for `aiTitle` in that case. Both head and tail reads are
- * bounded (64KB each via `extractLastJsonStringField`), never a full scan.
+ * The current session caches and re-appends this entry so it stays within the
+ * bounded tail window used by session readers.
  *
  * Callers with a stale-write guard (e.g., VS Code client) should prefer
  * passing `persist: false` to the SDK control request and persisting
@@ -3148,6 +3164,10 @@ export function saveAiGeneratedTitle(sessionId: UUID, aiTitle: string): void {
     aiTitle,
     sessionId,
   })
+  if (sessionId === getSessionId()) {
+    getProject().currentSessionAiTitle = aiTitle
+    sessionTitleChanged.emit()
+  }
 }
 
 /**
@@ -3227,6 +3247,15 @@ export function getCurrentSessionTitle(
   return undefined
 }
 
+export function getCurrentSessionAiTitle(
+  sessionId: SessionId,
+): string | undefined {
+  if (sessionId === getSessionId()) {
+    return getProject().currentSessionAiTitle
+  }
+  return undefined
+}
+
 export function getCurrentSessionAgentColor(): string | undefined {
   return getProject().currentSessionAgentColor
 }
@@ -3242,6 +3271,7 @@ export function getCurrentSessionAgentName(): string | undefined {
  */
 export function restoreSessionMetadata(meta: {
   customTitle?: string
+  aiTitle?: string
   tag?: string
   agentName?: string
   agentColor?: string
@@ -3257,6 +3287,7 @@ export function restoreSessionMetadata(meta: {
   // ??= so --name (cacheSessionTitle) wins over the resumed
   // session's title. REPL.tsx clears before calling, so /resume is unaffected.
   if (meta.customTitle) project.currentSessionTitle ??= meta.customTitle
+  if (meta.aiTitle) project.currentSessionAiTitle ??= meta.aiTitle
   if (meta.tag !== undefined) project.currentSessionTag = meta.tag || undefined
   if (meta.agentName) project.currentSessionAgentName ??= meta.agentName
   if (meta.agentColor) project.currentSessionAgentColor ??= meta.agentColor
@@ -3280,6 +3311,7 @@ export function restoreSessionMetadata(meta: {
 export function clearSessionMetadata(): void {
   const project = getProject()
   project.currentSessionTitle = undefined
+  project.currentSessionAiTitle = undefined
   project.currentSessionTag = undefined
   project.currentSessionAgentName = undefined
   project.currentSessionAgentColor = undefined
@@ -3360,6 +3392,12 @@ export function saveAgentSetting(agentSetting: string): void {
  */
 export function cacheSessionTitle(customTitle: string): void {
   getProject().currentSessionTitle = customTitle
+  sessionTitleChanged.emit()
+}
+
+export function cacheAiTitle(aiTitle: string): void {
+  getProject().currentSessionAiTitle = aiTitle
+  sessionTitleChanged.emit()
 }
 
 /**
@@ -3464,6 +3502,7 @@ export async function loadFullLog(log: LogOption): Promise<LogOption> {
       messages,
       summaries,
       customTitles,
+      aiTitles,
       tags,
       agentNames,
       agentColors,
@@ -3511,6 +3550,7 @@ export async function loadFullLog(log: LogOption): Promise<LogOption> {
         ? summaries.get(mostRecentLeaf.uuid)
         : log.summary,
       customTitle: sessionId ? customTitles.get(sessionId) : log.customTitle,
+      aiTitle: sessionId ? aiTitles.get(sessionId) : log.aiTitle,
       tag: sessionId ? tags.get(sessionId) : log.tag,
       agentName: sessionId ? agentNames.get(sessionId) : log.agentName,
       agentColor: sessionId ? agentColors.get(sessionId) : log.agentColor,
@@ -3581,7 +3621,7 @@ export async function searchSessionsByCustomTitle(
   const normalizedQuery = query.toLowerCase().trim()
 
   const matchingLogs = logs.filter(log => {
-    const title = log.customTitle?.toLowerCase().trim()
+    const title = (log.customTitle ?? log.aiTitle)?.toLowerCase().trim()
     if (!title) return false
     return exact ? title === normalizedQuery : title.includes(normalizedQuery)
   })
@@ -4252,6 +4292,7 @@ export async function loadTranscriptFile(
   messages: Map<UUID, TranscriptMessage>
   summaries: Map<UUID, string>
   customTitles: Map<UUID, string>
+  aiTitles: Map<UUID, string>
   tags: Map<UUID, string>
   agentNames: Map<UUID, string>
   agentColors: Map<UUID, string>
@@ -4274,6 +4315,7 @@ export async function loadTranscriptFile(
   const messages = new Map<UUID, TranscriptMessage>()
   const summaries = new Map<UUID, string>()
   const customTitles = new Map<UUID, string>()
+  const aiTitles = new Map<UUID, string>()
   const tags = new Map<UUID, string>()
   const agentNames = new Map<UUID, string>()
   const agentColors = new Map<UUID, string>()
@@ -4377,6 +4419,8 @@ export async function loadTranscriptFile(
         }
       } else if (entry.type === 'custom-title' && entry.sessionId) {
         customTitles.set(entry.sessionId, entry.customTitle)
+      } else if (entry.type === 'ai-title' && entry.sessionId) {
+        aiTitles.set(entry.sessionId, entry.aiTitle)
       } else if (entry.type === 'tag' && entry.sessionId) {
         tags.set(entry.sessionId, entry.tag)
       } else if (entry.type === 'agent-name' && entry.sessionId) {
@@ -4458,6 +4502,7 @@ export async function loadTranscriptFile(
     messages,
     summaries,
     customTitles,
+    aiTitles,
     tags,
     agentNames,
     agentColors,
@@ -4640,6 +4685,7 @@ async function loadSessionFile(sessionId: UUID): Promise<{
   messages: Map<UUID, TranscriptMessage>
   summaries: Map<UUID, string>
   customTitles: Map<UUID, string>
+  aiTitles: Map<UUID, string>
   tags: Map<UUID, string>
   agentNames: Map<UUID, string>
   agentColors: Map<UUID, string>
@@ -4703,6 +4749,7 @@ export async function getLastSessionLog(
     messages,
     summaries,
     customTitles,
+    aiTitles,
     tags,
     agentNames,
     agentColors,
@@ -4764,6 +4811,7 @@ export async function getLastSessionLog(
   )
   return {
     ...log,
+    aiTitle: aiTitles.get(sessionId),
     agentName: agentNames.get(sessionId) ?? log.agentName,
     agentColor: agentColors.get(sessionId),
     mode: modes.get(sessionId) as LogOption['mode'],
@@ -5498,6 +5546,7 @@ type LiteMetadata = {
   entrypoint?: string
   isLoopSession?: boolean
   customTitle?: string
+  aiTitle?: string
   summary?: string
   tag?: string
   agentSetting?: string
@@ -5518,6 +5567,7 @@ export async function loadAllLogsFromSessionFile(
     messages,
     summaries,
     customTitles,
+    aiTitles,
     tags,
     agentNames,
     agentColors,
@@ -5584,6 +5634,7 @@ export async function loadAllLogsFromSessionFile(
       leafUuid: leafMessage.uuid,
       summary: summaries.get(leafMessage.uuid),
       customTitle: customTitles.get(sessionId),
+      aiTitle: aiTitles.get(sessionId),
       tag: tags.get(sessionId),
       agentName: agentNames.get(sessionId),
       agentColor: agentColors.get(sessionId),
@@ -5649,7 +5700,7 @@ async function getLogsWithoutIndex(
  * Reads the first and last ~64KB of a JSONL file and extracts lite metadata.
  *
  * Head (first 64KB): isSidechain, projectPath, teamName, firstPrompt.
- * Tail (last 64KB): customTitle, tag, PR link, latest gitBranch.
+ * Tail (last 64KB): customTitle, aiTitle, tag, PR link, latest gitBranch.
  *
  * Accepts a shared buffer to avoid per-file allocation overhead.
  */
@@ -5691,12 +5742,10 @@ async function readLiteMetadata(
     ''
 
   // Extract tail metadata via string search (last occurrence wins).
-  // User titles (customTitle field, from custom-title entries) win over
-  // AI titles (aiTitle field, from ai-title entries). The distinct field
-  // names mean extractLastJsonStringField naturally disambiguates.
   const customTitle =
     extractLastJsonStringField(tail, 'customTitle') ??
-    extractLastJsonStringField(head, 'customTitle') ??
+    extractLastJsonStringField(head, 'customTitle')
+  const aiTitle =
     extractLastJsonStringField(tail, 'aiTitle') ??
     extractLastJsonStringField(head, 'aiTitle')
   const summary = extractLastJsonStringField(tail, 'summary')
@@ -5732,6 +5781,7 @@ async function readLiteMetadata(
     entrypoint,
     isLoopSession,
     customTitle,
+    aiTitle,
     summary,
     tag,
     agentSetting,
@@ -5947,7 +5997,7 @@ export async function getSessionFilesLite(
 /**
  * Enriches a lite log with metadata from its JSONL file.
  * Returns the enriched log, or null if the log has no meaningful content
- * (no firstPrompt, no customTitle — e.g., metadata-only session files).
+ * (no firstPrompt or title — e.g., metadata-only session files).
  */
 async function enrichLog(
   log: LogOption,
@@ -5966,6 +6016,7 @@ async function enrichLog(
     teamName: meta.teamName,
     sessionKind: meta.sessionKind,
     customTitle: meta.customTitle,
+    aiTitle: meta.aiTitle,
     summary: meta.summary,
     tag: meta.tag,
     agentSetting: meta.agentSetting,
@@ -5979,7 +6030,7 @@ async function enrichLog(
   // prompt (e.g., large first messages that exceed the 16KB read buffer).
   // Previously these sessions were silently dropped, making them inaccessible
   // via /resume after crashes or large-context sessions.
-  if (!enriched.firstPrompt && !enriched.customTitle) {
+  if (!enriched.firstPrompt && !enriched.customTitle && !enriched.aiTitle) {
     enriched.firstPrompt = '(session)'
   }
   // Filter: skip sidechains and agent sessions

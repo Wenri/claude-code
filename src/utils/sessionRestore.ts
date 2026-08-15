@@ -335,6 +335,7 @@ type ResumeLoadResult = {
   agentColor?: string
   agentSetting?: string
   customTitle?: string
+  aiTitle?: string
   tag?: string
   mode?: 'coordinator' | 'normal'
   worktreeSession?: PersistedWorktreeSession | null

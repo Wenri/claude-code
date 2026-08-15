@@ -21,6 +21,7 @@ import {
 import {
   flushSessionStorage,
   saveAiGeneratedTitle,
+  getCurrentSessionAiTitle,
   getCurrentSessionTitle,
   getCurrentSessionFile,
   isTranscriptPersistenceDisabled,
@@ -194,9 +195,13 @@ export function deriveBackgroundSeed(
     if (intent && detail !== undefined) break
   }
   if (!foundHuman) return null
+  const sessionId = getSessionId()
+  const customTitle = getCurrentSessionTitle(sessionId)
+  const aiTitle = getCurrentSessionAiTitle(sessionId)
   return {
     intent: (intent || '(backgrounded)').slice(0, 200),
-    name: getCurrentSessionTitle(getSessionId()),
+    name: customTitle ?? aiTitle,
+    nameSource: customTitle ? 'user' : aiTitle ? 'auto' : undefined,
     detail,
   }
 }

@@ -492,6 +492,7 @@ export async function loadConversationForResume(
   agentColor?: string
   agentSetting?: string
   customTitle?: string
+  aiTitle?: string
   tag?: string
   mode?: 'coordinator' | 'normal'
   worktreeSession?: PersistedWorktreeSession | null
@@ -612,6 +613,7 @@ export async function loadConversationForResume(
       agentColor: log?.agentColor,
       agentSetting: log?.agentSetting,
       customTitle: log?.customTitle,
+      aiTitle: log?.aiTitle,
       tag: log?.tag,
       mode: log?.mode,
       worktreeSession: log?.worktreeSession,

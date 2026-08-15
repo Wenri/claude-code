@@ -51,6 +51,7 @@ import type { PermissionMode } from '../utils/permissions/PermissionMode.js'
 import {
   clearInternalEventWriter,
   getCurrentSessionAgentColor,
+  getCurrentSessionAiTitle,
   getCurrentSessionTitle,
   listLocalAgentIds,
   saveCustomTitle,
@@ -336,7 +337,7 @@ export async function initReplBridge(
   const baseUrl = getBridgeBaseUrl()
 
   // 5. Derive session title. Precedence: explicit initialName → /rename
-  // (session storage) → last meaningful user message → generated slug.
+  // → cached AI title → last meaningful user message → generated slug.
   // Cosmetic only (claude.ai session list); the model never sees it.
   // Two flags: `hasExplicitTitle` (initialName or /rename — never auto-
   // overwrite) vs. `hasTitle` (any title, including auto-derived — blocks
@@ -358,10 +359,16 @@ export async function initReplBridge(
     const customTitle = sessionId
       ? getCurrentSessionTitle(sessionId)
       : undefined
+    const aiTitle = sessionId
+      ? getCurrentSessionAiTitle(sessionId)
+      : undefined
     if (customTitle) {
       title = customTitle
       hasTitle = true
       hasExplicitTitle = true
+    } else if (aiTitle) {
+      title = aiTitle
+      hasTitle = true
     } else if (initialMessages && initialMessages.length > 0) {
       // Find the last user message that has meaningful content. Skip meta
       // (nudges), tool results, compact summaries ("This session is being
