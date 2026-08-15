@@ -727,3 +727,44 @@ test('source preserves retained skill-truncation state and notification hook', (
     'agentDefinitions, skillTruncationStats: null, skillTools: [],',
   ])
 })
+
+test('authenticates retained Bun heap-diagnostics fields', () => {
+  for (const release of releases) {
+    const bundle = readBundle(release)
+    for (const field of [
+      'objectTypeCounts',
+      'protectedObjectTypeCounts',
+      'mimalloc',
+    ]) {
+      assert.equal(
+        occurrences(bundle, field),
+        2,
+        `${release.version}: ${field} read and returned`,
+      )
+    }
+    assert.match(
+      bundle,
+      /typeof Bun<"u"\)try\{let\{heapStats:[A-Za-z_$][\w$]*\}=await import\("bun:jsc"\),[A-Za-z_$][\w$]*=[A-Za-z_$][\w$]*\(!0\);[A-Za-z_$][\w$]*=[A-Za-z_$][\w$]*\.objectTypeCounts,[A-Za-z_$][\w$]*=[A-Za-z_$][\w$]*\.protectedObjectTypeCounts,[A-Za-z_$][\w$]*=[A-Za-z_$][\w$]*\.mimalloc\|\|void 0\}catch\{\}/,
+      `${release.version}: guarded Bun heapStats(true) capture`,
+    )
+    assert.match(
+      bundle,
+      /maxRSS:[A-Za-z_$][\w$]*\.maxRSS\*\([A-Za-z_$][\w$]*\(\)==="macos"\?1:1024\)/,
+      `${release.version}: platform-aware maxRSS normalization`,
+    )
+  }
+})
+
+test('source returns exact retained Bun heap diagnostics', () => {
+  const heapDump = source('src/utils/heapDumpService.ts')
+  includesAll(heapDump, [
+    "if (typeof Bun !== 'undefined')",
+    "const { heapStats: getBunHeapStats } = await import('bun:jsc')",
+    'const bunHeapStats = getBunHeapStats(true)',
+    'objectTypeCounts = bunHeapStats.objectTypeCounts',
+    'protectedObjectTypeCounts = bunHeapStats.protectedObjectTypeCounts',
+    'mimalloc = bunHeapStats.mimalloc || undefined',
+    "maxRSS: resourceUsage.maxRSS * (getPlatform() === 'macos' ? 1 : 1024)",
+    'smapsRollup, objectTypeCounts, protectedObjectTypeCounts, mimalloc, platform:',
+  ])
+})
