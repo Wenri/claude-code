@@ -235,7 +235,12 @@ function _temp2(s_0) {
 function _temp(s) {
   return s.mainLoopModel;
 }
-async function handleFastModeShortcut(enable: boolean, getAppState: () => AppState, setAppState: (f: (prev: AppState) => AppState) => void): Promise<string> {
+export async function handleFastModeShortcut(
+  enable: boolean,
+  getAppState: () => AppState,
+  setAppState: (f: (prev: AppState) => AppState) => void,
+  source: 'shortcut' | 'bridge' = 'shortcut',
+): Promise<string> {
   const unavailableReason = getFastModeUnavailableReason();
   if (unavailableReason) {
     return `Fast mode unavailable: ${unavailableReason}`;
@@ -246,7 +251,7 @@ async function handleFastModeShortcut(enable: boolean, getAppState: () => AppSta
   applyFastMode(enable, setAppState);
   logEvent('tengu_fast_mode_toggled', {
     enabled: enable,
-    source: 'shortcut' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+    source: source as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
   });
   if (enable) {
     const fastIcon = getFastIconString(true);

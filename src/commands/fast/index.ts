@@ -11,7 +11,6 @@ const fast = {
   get description() {
     return `Toggle fast mode (${FAST_MODE_MODEL_DISPLAY} only)`
   },
-  availability: ['claude-ai', 'console'],
   isEnabled: () => isFastModeEnabled(),
   get isHidden() {
     return !isFastModeEnabled()
@@ -20,7 +19,19 @@ const fast = {
   get immediate() {
     return shouldInferenceConfigCommandBeImmediate()
   },
+  thinClientDispatch: 'control-request',
   load: () => import('./fast.js'),
+} satisfies Command
+
+export const fastNonInteractive = {
+  type: 'local',
+  name: 'fast',
+  supportsNonInteractive: true,
+  get description() {
+    return `Toggle fast mode (${FAST_MODE_MODEL_DISPLAY} only)`
+  },
+  argumentHint: '[on|off]',
+  load: () => import('./fast-noninteractive.js'),
 } satisfies Command
 
 export default fast

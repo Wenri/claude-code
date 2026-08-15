@@ -140,7 +140,7 @@ import thinkback from './commands/thinkback/index.js'
 import thinkbackPlay from './commands/thinkback-play/index.js'
 import permissions from './commands/permissions/index.js'
 import plan from './commands/plan/index.js'
-import fast from './commands/fast/index.js'
+import fast, { fastNonInteractive } from './commands/fast/index.js'
 import focus from './commands/focus.js'
 import passes from './commands/passes/index.js'
 import privacySettings from './commands/privacy-settings/index.js'
@@ -651,6 +651,7 @@ export const REMOTE_SAFE_COMMANDS: Set<Command> = new Set([
   help, // Show help
   theme, // Change terminal theme
   color, // Change agent color
+  fast, // Toggle fast mode
   usage, // Show usage info (including the /cost and /stats aliases)
   copy, // Copy last message
   btw, // Quick note
@@ -686,6 +687,7 @@ export const BRIDGE_SAFE_COMMANDS: Set<Command> = new Set(
     reloadPlugins,
     exitNonInteractive,
     stopNonInteractive,
+    fastNonInteractive,
   ].filter((c): c is Command => c !== null),
 )
 
