@@ -37,6 +37,7 @@ import {
   getMainThreadAgentHooks,
   getMainThreadAgentType,
 } from '../bootstrap/state.js'
+import { renameJob } from '../daemon/jobs.js'
 import { checkHasTrustDialogAccepted } from './config.js'
 import {
   getHooksConfigFromSnapshot,
@@ -4320,6 +4321,7 @@ export async function applyHookSessionTitle(title: string): Promise<void> {
   )
   await saveCustomTitle(sessionId, sanitized, undefined, 'hook')
   await saveAgentName(sessionId, sanitized, undefined, 'hook')
+  await renameJob(sessionId, sanitized, 'user')
 }
 
 /**
