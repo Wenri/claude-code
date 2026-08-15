@@ -10,6 +10,11 @@ import { getClipboardPath } from '../ink/termio/osc.js';
 import { type Key, useInput, useStdin } from '../ink.js';
 import { useKeybindings } from '../keybindings/useKeybinding.js';
 import { logEvent } from '../services/analytics/index.js';
+import {
+  getSessionsSinceLastShown,
+  recordTipShown,
+} from '../services/tips/tipHistory.js'
+import { getGlobalConfig } from '../utils/config.js'
 import { logForDebugging } from '../utils/debug.js';
 type Props = {
   scrollRef: RefObject<ScrollBoxHandle | null>;
@@ -68,6 +73,9 @@ const WHEEL_BOUNCE_GAP_MAX_MS = 200; // flip-back must arrive within this
 // compensate. At gap=100ms (m≈0.63): one click gives 1+15*0.63≈10.5.
 const WHEEL_MODE_STEP = 15;
 const WHEEL_MODE_CAP = 15;
+const AUTO_COPY_CONFIG_HINT_ID = 'auto-copy-config-hint'
+const AUTO_COPY_CONFIG_HINT_SESSION_GAP = 10
+const AUTO_COPY_CONFIG_HINT_MAX_USES = 5
 // Max mult growth per event. Without this, the +STEP*m term jumps mult
 // from 1→10 in one event when wheelMode engages mid-scroll (bounce
 // detected after N events in trackpad mode at mult=1). User sees scroll
@@ -407,30 +415,55 @@ export function ScrollKeybindingHandler({
   // raw-mode-enable time) has resolved by then — initializing in useRef()
   // would read getWheelBase() before the probe reply arrives over SSH.
   const wheelAccel = useRef<WheelAccelState | null>(null);
-  function showCopiedToast(text: string): void {
+  const autoCopyHintUses = useRef(-1)
+  function showCopiedToast(text: string, isAutoCopy = false): void {
     // getClipboardPath reads env synchronously — predicts what setClipboard
     // did (native pbcopy / tmux load-buffer / raw OSC 52) so we can tell
     // the user whether paste will Just Work or needs prefix+].
     const path = getClipboardPath();
     const n = text.length;
+    const unit = n === 1 ? 'char' : 'chars'
     let msg: string;
     switch (path) {
       case 'native':
-        msg = `copied ${n} chars to clipboard`;
+        msg = `copied ${n} ${unit} to clipboard`;
         break;
       case 'tmux-buffer':
-        msg = `copied ${n} chars to tmux buffer · paste with prefix + ]`;
+        msg = `copied ${n} ${unit} to tmux buffer · paste with prefix + ]`;
         break;
       case 'osc52':
-        msg = `sent ${n} chars via OSC 52 · check terminal clipboard settings if paste fails`;
+        msg = `sent ${n} ${unit} via OSC 52 · check terminal clipboard settings if paste fails`;
         break;
+    }
+    let timeoutMs = path === 'native' ? 2000 : 4000
+    if (
+      isAutoCopy &&
+      path === 'native' &&
+      getGlobalConfig().copyOnSelect === undefined
+    ) {
+      if (autoCopyHintUses.current === -1) {
+        if (
+          getSessionsSinceLastShown(AUTO_COPY_CONFIG_HINT_ID) >=
+          AUTO_COPY_CONFIG_HINT_SESSION_GAP
+        ) {
+          recordTipShown(AUTO_COPY_CONFIG_HINT_ID)
+          autoCopyHintUses.current = 0
+        } else {
+          autoCopyHintUses.current = AUTO_COPY_CONFIG_HINT_MAX_USES
+        }
+      }
+      if (autoCopyHintUses.current < AUTO_COPY_CONFIG_HINT_MAX_USES) {
+        autoCopyHintUses.current++
+        msg += ' · disable auto-copy in /config'
+        timeoutMs = 4000
+      }
     }
     addNotification({
       key: 'selection-copied',
       text: msg,
       color: 'suggestion',
       priority: 'immediate',
-      timeoutMs: path === 'native' ? 2000 : 4000
+      timeoutMs
     });
   }
   function copyAndToast(): void {
@@ -654,7 +687,7 @@ export function ScrollKeybindingHandler({
     isActive
   });
   useDragToScroll(scrollRef, selection, isActive, onScroll);
-  useCopyOnSelect(selection, isActive, showCopiedToast);
+  useCopyOnSelect(selection, isActive, text => showCopiedToast(text, true));
   useSelectionBgColor(selection);
   return null;
 }
