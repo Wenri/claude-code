@@ -4704,8 +4704,12 @@ function runHeadlessStreaming(
               const result = await runSideQuestion({
                 question,
                 cacheSafeParams,
+                threadHistory: false,
               })
-              sendControlResponseSuccess(message, { response: result.response })
+              sendControlResponseSuccess(message, {
+                response: result.response,
+                synthetic: result.synthetic,
+              })
             } catch (e) {
               sendControlResponseError(message, errorMessage(e))
             }

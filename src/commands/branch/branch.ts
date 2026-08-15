@@ -35,6 +35,8 @@ type TranscriptEntry = TranscriptMessage & {
   }
 }
 
+type ForkMessage = LocalJSXCommandContext['messages'][number]
+
 /**
  * Derive a single-line title base from the first user message.
  * Collapses whitespace — multiline first messages (pasted stacks, code)
@@ -64,9 +66,9 @@ export function deriveFirstPrompt(
  * sessionId and adding forkedFrom traceability.
  */
 export async function createFork(
-  messages: SerializedMessage[],
+  messages: ForkMessage[],
   customTitle?: string,
-  extraMessages?: SerializedMessage[],
+  extraMessages?: ForkMessage[],
 ): Promise<{
   sessionId: UUID
   title: string | undefined
@@ -268,13 +270,14 @@ async function getUniqueForkName(baseName: string): Promise<string> {
   return `${baseName} (Branch ${nextNumber})`
 }
 
-export async function call(
-  onDone: LocalJSXCommandOnDone,
+export async function branchAndResume(
   context: LocalJSXCommandContext,
-  args: string,
-): Promise<React.ReactNode> {
-  const customTitle = args?.trim() || undefined
-
+  onDone: LocalJSXCommandOnDone,
+  options: {
+    customTitle?: string
+    extraMessages?: ForkMessage[]
+  } = {},
+): Promise<boolean> {
   const originalSessionId = getSessionId()
 
   try {
@@ -284,7 +287,11 @@ export async function call(
       forkPath,
       serializedMessages,
       contentReplacementRecords,
-    } = await createFork(context.messages, customTitle)
+    } = await createFork(
+      context.messages,
+      options.customTitle,
+      options.extraMessages,
+    )
 
     // Build LogOption for resume
     const now = new Date()
@@ -292,12 +299,9 @@ export async function call(
       serializedMessages.find(m => m.type === 'user'),
     )
 
-    // Save custom title - use provided title or firstPrompt as default
-    // This ensures /status and /resume show the same session name
-    // Always add " (Branch)" suffix to make it clear this is a branched session
-    // Handle collisions by adding a number suffix (e.g., " (Branch 2)", " (Branch 3)")
-    const baseName = title ?? firstPrompt
-    const effectiveTitle = await getUniqueForkName(baseName)
+    // Explicit titles are already selected by the caller. Generated titles
+    // use the standard branch suffix and collision handling.
+    const effectiveTitle = title ?? (await getUniqueForkName(firstPrompt))
     await saveCustomTitle(sessionId, effectiveTitle, forkPath)
 
     logEvent('tengu_conversation_forked', {
@@ -321,7 +325,7 @@ export async function call(
     }
 
     // Resume into the fork
-    const titleInfo = title ? ` "${title}"` : ''
+    const titleInfo = title ? ` "${effectiveTitle}"` : ''
     const successMessage = `Branched conversation${titleInfo}. You are now in the branch. Use /resume ${originalSessionId} to return to the original.`
 
     if (context.resume) {
@@ -334,11 +338,22 @@ export async function call(
       )
     }
 
-    return null
+    return true
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'Unknown error occurred'
     onDone(`Failed to branch conversation: ${message}`)
-    return null
+    return false
   }
+}
+
+export async function call(
+  onDone: LocalJSXCommandOnDone,
+  context: LocalJSXCommandContext,
+  args: string,
+): Promise<React.ReactNode> {
+  await branchAndResume(context, onDone, {
+    customTitle: args?.trim() || undefined,
+  })
+  return null
 }
