@@ -79,6 +79,7 @@ import { headlessProfilerCheckpoint } from './utils/headlessProfiler.js'
 import { createTaskRegistry } from './utils/task/framework.js'
 import { registerStructuredOutputEnforcement } from './utils/hooks/hookHelpers.js'
 import { getInMemoryErrors } from './utils/log.js'
+import { memoryScopeForPath } from './utils/memoryFileDetection.js'
 import { countToolCalls, SYNTHETIC_MESSAGES } from './utils/messages.js'
 import { applyMessageOperation } from './utils/messageOperations.js'
 import {
@@ -110,6 +111,39 @@ import {
 const messageSelector =
   (): typeof import('src/components/MessageSelector.js') =>
     require('src/components/MessageSelector.js')
+
+const SYNTHESIS_MEMORY_PREFIX = '<synthesis:'
+
+function getSynthesisMemoryDirectory(filePath: string): string | undefined {
+  return filePath.startsWith(SYNTHESIS_MEMORY_PREFIX)
+    ? filePath.slice(SYNTHESIS_MEMORY_PREFIX.length, -1)
+    : undefined
+}
+
+function toSDKMemoryRecallMessage(
+  memories: Array<{ path: string; content: string }>,
+): SDKMessage | undefined {
+  if (memories.length === 0) return undefined
+
+  const synthesized =
+    getSynthesisMemoryDirectory(memories[0]!.path) !== undefined
+  return {
+    type: 'system',
+    subtype: 'memory_recall',
+    mode: synthesized ? 'synthesize' : 'select',
+    memories: memories.map(memory => {
+      const synthesisDirectory = getSynthesisMemoryDirectory(memory.path)
+      return {
+        path: memory.path,
+        scope:
+          memoryScopeForPath(synthesisDirectory ?? memory.path) ?? 'personal',
+        ...(synthesized ? { content: memory.content } : {}),
+      }
+    }),
+    uuid: randomUUID(),
+    session_id: getSessionId(),
+  } as SDKMessage
+}
 
 import {
   localCommandOutputToSDKAssistantMessage,
@@ -1131,8 +1165,14 @@ export class QueryEngine {
             void recordNewMessages()
           }
 
+          if (message.attachment.type === 'relevant_memories') {
+            const memoryRecall = toSDKMemoryRecallMessage(
+              message.attachment.memories,
+            )
+            if (memoryRecall) yield memoryRecall
+          }
           // Extract structured output from StructuredOutput tool calls
-          if (message.attachment.type === 'structured_output') {
+          else if (message.attachment.type === 'structured_output') {
             structuredOutputFromTool = message.attachment.data
           } else if (message.attachment.type === 'hook_deferred_tool') {
             deferredToolResult = {

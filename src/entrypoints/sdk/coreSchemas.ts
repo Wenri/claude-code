@@ -2091,6 +2091,40 @@ export const SDKToolUseSummaryMessageSchema = lazySchema(() =>
   }),
 )
 
+export const SDKMemoryRecallMessageSchema = lazySchema(() =>
+  z
+    .object({
+      type: z.literal('system'),
+      subtype: z.literal('memory_recall'),
+      mode: z
+        .enum(['select', 'synthesize'])
+        .describe(
+          "How memories were surfaced: 'select' returns full file bodies chosen by the parallel selector; 'synthesize' returns a Sonnet-authored paragraph distilled from many tiny memories.",
+        ),
+      memories: z.array(
+        z.object({
+          path: z
+            .string()
+            .describe(
+              "Absolute path to the memory file, or a synthesis sentinel of the form `<synthesis:DIR>` when mode is 'synthesize'.",
+            ),
+          scope: z.enum(['personal', 'team']),
+          content: z
+            .string()
+            .optional()
+            .describe(
+              "Synthesis paragraph. Only present when mode is 'synthesize'; always absent for 'select' (renderers lazy-load from path).",
+            ),
+        }),
+      ),
+      uuid: UUIDPlaceholder(),
+      session_id: z.string(),
+    })
+    .describe(
+      'Emitted when the memory recall supervisor surfaces relevant memories into the turn. Mirrors the CLI relevant_memories attachment so SDK renderers can show "Recalled from memory" inline.',
+    ),
+)
+
 export const SDKElicitationCompleteMessageSchema = lazySchema(() =>
   z
     .object({
@@ -2193,6 +2227,7 @@ export const SDKMessageSchema = lazySchema(() =>
     SDKSessionStateChangedMessageSchema(),
     SDKFilesPersistedEventSchema(),
     SDKToolUseSummaryMessageSchema(),
+    SDKMemoryRecallMessageSchema(),
     SDKRateLimitEventSchema(),
     SDKElicitationCompleteMessageSchema(),
     SDKPromptSuggestionMessageSchema(),
