@@ -221,11 +221,10 @@ export async function resumeAgentBackground({
   })
 
   if (meta?.name && appState.agentNameRegistry.get(meta.name) === undefined) {
-    rootSetAppState(previous => {
-      const agentNameRegistry = new Map(previous.agentNameRegistry)
-      agentNameRegistry.set(meta.name!, asAgentId(agentId))
-      return { ...previous, agentNameRegistry }
-    })
+    toolUseContext.agentLifecycle.registerName(
+      meta.name,
+      asAgentId(agentId),
+    )
   }
 
   const metadata = {

@@ -419,6 +419,7 @@ export const AgentTool = buildTool({
 
     // Resolve agent params for logging (these are already resolved in runAgent)
     const resolvedAgentModel = getAgentModel(selectedAgent.model, toolUseContext.options.mainLoopModel, isForkPath ? undefined : model, permissionMode);
+    toolUseContext.agentLifecycle.markTypeInvoked(selectedAgent.agentType);
     const agentSystemPrompt = selectedAgent.getSystemPrompt({
       toolUseContext
     });
@@ -720,14 +721,10 @@ export const AgentTool = buildTool({
       // so we don't leave a stale entry if spawn fails. Sync agents skipped —
       // coordinator is blocked, so SendMessage routing doesn't apply.
       if (name) {
-        rootSetAppState(prev => {
-          const next = new Map(prev.agentNameRegistry);
-          next.set(name, asAgentId(asyncAgentId));
-          return {
-            ...prev,
-            agentNameRegistry: next
-          };
-        });
+        toolUseContext.agentLifecycle.registerName(
+          name,
+          asAgentId(asyncAgentId),
+        );
       }
 
       // Wrap async agent execution in agent context for analytics attribution

@@ -7,6 +7,7 @@ import type { ToolUseContext } from '../Tool.js'
 import { FileReadTool } from '../tools/FileReadTool/FileReadTool.js'
 import { GrepTool } from '../tools/GrepTool/GrepTool.js'
 import { createAbortController } from './abortController.js'
+import { NOOP_AGENT_LIFECYCLE } from './agentLifecycle.js'
 import { createFileStateCacheWithSizeLimit } from './fileStateCache.js'
 import { logForDebugging } from './debug.js'
 import { getLogDisplayTitle, logError } from './log.js'
@@ -86,6 +87,7 @@ function createSearchContext(
     setAppState: () => {},
     getToolPermissionContext: () => appState.toolPermissionContext,
     setReplContext: () => {},
+    agentLifecycle: NOOP_AGENT_LIFECYCLE,
     messages: initialMessages,
     turnStartIndex: 0,
     setInProgressToolUseIDs: () => {},

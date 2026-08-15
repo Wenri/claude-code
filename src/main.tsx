@@ -3178,6 +3178,7 @@ async function run(): Promise<CommanderCommand> {
       tasks: {},
       taskDecorations: {},
       agentNameRegistry: new Map(),
+      agentTypesInvokedThisSession: new Set(),
       verbose: verbose ?? getConfigValue('verbose', false).value,
       showMessageTimestamps: getConfigValue('showMessageTimestamps', false).value,
       mainLoopModel: initialMainLoopModel,

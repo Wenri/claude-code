@@ -73,6 +73,7 @@ import { buildEffectiveSystemPrompt } from '../utils/systemPrompt.js';
 import { getSystemContext, getUserContext } from '../context.js';
 import { getMemoryFiles } from '../utils/claudemd.js';
 import { createMemorySelector } from '../memdir/findRelevantMemories.js';
+import { createAgentLifecycle } from '../utils/agentLifecycle.js';
 import { startBackgroundHousekeeping } from '../utils/backgroundHousekeeping.js';
 import { getTotalCost, saveCurrentSessionCosts, resetCostState, getStoredSessionCosts } from '../cost-tracker.js';
 import { useCostSummary } from '../costHook.js';
@@ -2679,6 +2680,7 @@ export function REPL({
       getToolPermissionContext: () => store.getState().toolPermissionContext,
       setAppState,
       setReplContext: makeSetReplContext(setAppState),
+      agentLifecycle: createAgentLifecycle(setAppState),
       replHydration: {
         kind: 'resume'
       },

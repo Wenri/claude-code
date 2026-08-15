@@ -66,6 +66,7 @@ import type { ConnectionLifecycleTracker } from './services/api/connectionState.
 import type { SystemPrompt } from './utils/systemPromptType.js'
 import type { ContentReplacementState } from './utils/toolResultStorage.js'
 import type { SessionStateManager } from './utils/sessionState.js'
+import type { AgentLifecycle } from './utils/agentLifecycle.js'
 
 // Re-export progress types for backwards compatibility
 export type {
@@ -248,6 +249,7 @@ export type ToolUseContext = {
     state: 'started' | 'completed',
   ) => void
   setReplContext(agentId: string, context: ReplContext | undefined): void
+  agentLifecycle: AgentLifecycle
   replHydration?: ReplHydration
   isolationLatch?: ReplIsolationLatch
   onPermissionDenial?: (

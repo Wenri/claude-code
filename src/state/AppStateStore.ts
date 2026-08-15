@@ -197,6 +197,9 @@ export type AppState = DeepImmutable<{
   // Name → AgentId registry populated by Agent tool when `name` is provided.
   // Latest-wins on collision. Used by SendMessage to route by name.
   agentNameRegistry: Map<string, AgentId>
+  // Agent types used during this session. /agents uses this to keep recently
+  // invoked definitions at the top of the Library tab.
+  agentTypesInvokedThisSession: Set<string>
   // Task ID that has been foregrounded - its messages are shown in main view
   foregroundedTaskId?: string
   // Task ID of in-process teammate whose transcript is being viewed (undefined = leader's view)
@@ -529,6 +532,7 @@ export function getDefaultAppState(): AppState {
     tasks: {},
     taskDecorations: {},
     agentNameRegistry: new Map(),
+    agentTypesInvokedThisSession: new Set(),
     verbose: false,
     showMessageTimestamps: false,
     mainLoopModel: null, // alias, full name (as with --model or env var), or null (default)

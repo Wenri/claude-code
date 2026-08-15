@@ -428,6 +428,7 @@ export function createSubagentContext(
     setAppStateForTasks:
       parentContext.setAppStateForTasks ?? parentContext.setAppState,
     setReplContext: parentContext.setReplContext,
+    agentLifecycle: parentContext.agentLifecycle,
     isolationLatch: overrides?.isolationLatch ?? parentContext.isolationLatch,
     // Async subagents whose setAppState is a no-op need local denial tracking
     // so the denial counter actually accumulates across retries.

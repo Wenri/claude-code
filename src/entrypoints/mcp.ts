@@ -17,6 +17,7 @@ import {
 } from '../Tool.js'
 import { getTools } from '../tools.js'
 import { createAbortController } from '../utils/abortController.js'
+import { NOOP_AGENT_LIFECYCLE } from '../utils/agentLifecycle.js'
 import { createFileStateCacheWithSizeLimit } from '../utils/fileStateCache.js'
 import { logError } from '../utils/log.js'
 import { createAssistantMessage } from '../utils/messages.js'
@@ -126,6 +127,7 @@ export async function startMCPServer(
         getAppState: () => getDefaultAppState(),
         setAppState: () => {},
         setReplContext: () => {},
+        agentLifecycle: NOOP_AGENT_LIFECYCLE,
         messages: [],
         turnStartIndex: 0,
         readFileState: readFileStateCache,

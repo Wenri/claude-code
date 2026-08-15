@@ -949,11 +949,7 @@ export async function* runAgent({
     // called TodoWrite leaves a key in AppState.todos forever (even after all
     // items complete, the value is [] but the key stays). Whale sessions
     // spawn hundreds of agents; each orphaned key is a small leak that adds up.
-    rootSetAppState(prev => {
-      if (!(agentId in prev.todos)) return prev
-      const { [agentId]: _removed, ...todos } = prev.todos
-      return { ...prev, todos }
-    })
+    toolUseContext.agentLifecycle.clearTodos(agentId)
     const replContext = toolUseContext.getAppState().replContexts[agentId]
     if (replContext) {
       replContext.clearAllTimers()

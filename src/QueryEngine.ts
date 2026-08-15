@@ -56,6 +56,7 @@ import {
   isPluginDependencyError,
 } from './types/plugin.js'
 import { createAbortController } from './utils/abortController.js'
+import { createAgentLifecycle } from './utils/agentLifecycle.js'
 import type { HookDeferredToolAttachment } from './utils/attachments.js'
 import type { AttributionState } from './utils/commitAttribution.js'
 import { getConfigValue } from './utils/settings/configSettings.js'
@@ -452,6 +453,7 @@ export class QueryEngine {
       getToolPermissionContext: () => getAppState().toolPermissionContext,
       setAppState,
       setReplContext: makeSetReplContext(setAppState),
+      agentLifecycle: createAgentLifecycle(setAppState),
       isolationLatch: this.isolationLatch,
       abortController: this.abortController,
       readFileState: this.readFileState,
@@ -734,6 +736,7 @@ export class QueryEngine {
       getToolPermissionContext: () => getAppState().toolPermissionContext,
       setAppState,
       setReplContext: makeSetReplContext(setAppState),
+      agentLifecycle: createAgentLifecycle(setAppState),
       isolationLatch: this.isolationLatch,
       abortController: this.abortController,
       readFileState: this.readFileState,

@@ -102,11 +102,7 @@ async function spawnFork(
     toolUseId: context.toolUseId,
   })
 
-  rootSetAppState(previous => {
-    const agentNameRegistry = new Map(previous.agentNameRegistry)
-    agentNameRegistry.set(name, asAgentId(agentId))
-    return { ...previous, agentNameRegistry }
-  })
+  context.agentLifecycle.registerName(name, asAgentId(agentId))
 
   const metadata = {
     prompt: directive,
