@@ -652,10 +652,10 @@ export const AgentTool = buildTool({
       name
     };
 
-    // Helper to wrap execution with a cwd override: explicit cwd arg (KAIROS)
-    // takes precedence over worktree isolation path.
+    // Explicit cwd (KAIROS) takes precedence over worktree isolation. The
+    // wrapper still installs an isolated cwd when neither is present, so a
+    // regular subagent's `cd` cannot mutate the parent session.
     const cwdOverridePath = cwd ?? worktreeInfo?.worktreePath;
-    const wrapWithCwd = <T,>(fn: () => T): T => cwdOverridePath ? runWithCwdOverride(cwdOverridePath, fn) : fn();
 
     // Helper to clean up worktree after agent completes
     const cleanupWorktreeIfNeeded = async (): Promise<{
@@ -746,7 +746,7 @@ export const AgentTool = buildTool({
       // invocation time — when this `void` fires — and survives every await
       // inside. No capture/restore needed; the detached closure sees the
       // parent turn's workload automatically, isolated from its finally.
-      void runWithAgentContext(asyncAgentContext, () => wrapWithCwd(() => runAsyncAgentLifecycle({
+      void runWithAgentContext(asyncAgentContext, () => runWithCwdOverride(cwdOverridePath, () => runAsyncAgentLifecycle({
         taskId: agentBackgroundTask.agentId,
         abortController: agentBackgroundTask.abortController!,
         makeStream: (onCacheSafeParams, onProgress) => runAgent({
@@ -799,7 +799,7 @@ export const AgentTool = buildTool({
 
       // Wrap entire sync agent execution in context for analytics attribution
       // and optionally in a worktree cwd override for filesystem isolation
-      return runWithAgentContext(syncAgentContext, () => wrapWithCwd(async () => {
+      return runWithAgentContext(syncAgentContext, () => runWithCwdOverride(cwdOverridePath, async () => {
         const agentMessages: MessageType[] = [];
         const agentStartTime = Date.now();
         const syncTracker = createProgressTracker();

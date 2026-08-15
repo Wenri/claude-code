@@ -247,11 +247,8 @@ export async function resumeAgentBackground({
     invocationEmitted: false,
   }
 
-  const wrapWithCwd = <T>(fn: () => T): T =>
-    resumedCwd ? runWithCwdOverride(resumedCwd, fn) : fn()
-
   void runWithAgentContext(asyncAgentContext, () =>
-    wrapWithCwd(() =>
+    runWithCwdOverride(resumedCwd, () =>
       runAsyncAgentLifecycle({
         taskId: agentBackgroundTask.agentId,
         abortController: agentBackgroundTask.abortController!,
