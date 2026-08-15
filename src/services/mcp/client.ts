@@ -2457,7 +2457,17 @@ export async function reconnectMcpServerImpl(
     clearKeychainCache()
 
     await clearServerCache(name, config)
-    const client = await connectToServer(name, config)
+    let client = await connectToServer(name, config)
+
+    if (client.type === 'needs-auth') {
+      logMCPDebug(
+        name,
+        "Reconnect returned 'needs-auth'; retrying once after cache clear",
+      )
+      const key = getServerCacheKey(name, config)
+      connectToServer.cache?.delete?.(key)
+      client = await connectToServer(name, config)
+    }
 
     if (client.type !== 'connected') {
       return {
