@@ -22,7 +22,7 @@ import { getModelDeprecationWarning } from '../../utils/model/deprecation.js';
 import { getCanonicalName, getDefaultMainLoopModelSetting, isOpus1mMergeEnabled, renderDefaultModelSetting, renderModelSetting } from '../../utils/model/model.js';
 import { isModelAllowed } from '../../utils/model/modelAllowlist.js';
 import { validateModel } from '../../utils/model/validateModel.js';
-import { getRelativeSettingsFilePathForSource, getSettingsForSource, getSettingsSourceForKey } from '../../utils/settings/settings.js';
+import { getEffectiveSettingSource, getRelativeSettingsFilePathForSource, getSettingsForSource } from '../../utils/settings/settings.js';
 function ModelPickerWrapper({
   onDone,
 }: {
@@ -361,7 +361,7 @@ function SetModelAndClose({
 }
 
 function getModelPinNotice(selected: string | null): string {
-  const source = getSettingsSourceForKey('model')
+  const source = getEffectiveSettingSource('model')
   const pinnedModel = source
     ? getSettingsForSource(source)?.model
     : undefined

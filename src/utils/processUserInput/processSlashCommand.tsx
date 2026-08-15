@@ -770,7 +770,7 @@ async function getMessagesForSlashCommand(commandName: string, args: string, set
       case 'prompt':
         {
           try {
-            const expansionHookResult = await processUserPromptExpansionHooks(
+            const expansionHookResult = await runUserPromptExpansionHook(
               command,
               args,
               context,
@@ -870,7 +870,7 @@ function formatCommandLoadingMetadata(command: CommandBase & PromptCommand, args
   return formatSlashCommandLoadingMetadata(command.name, args);
 }
 
-async function processUserPromptExpansionHooks(
+export async function runUserPromptExpansionHook(
   command: CommandBase & PromptCommand,
   args: string,
   context: ToolUseContext,

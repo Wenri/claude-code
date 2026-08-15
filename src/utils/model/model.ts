@@ -24,7 +24,7 @@ import { formatModelPricing, getOpus46CostTier } from '../modelCost.js'
 import {
   getRelativeSettingsFilePathForSource,
   getSettings_DEPRECATED,
-  getSettingsSourceForKey,
+  getEffectiveSettingSource,
 } from '../settings/settings.js'
 import type { PermissionMode } from '../permissions/PermissionMode.js'
 import { getAPIProvider, isDirectAnthropicAPIProvider } from './providers.js'
@@ -358,7 +358,7 @@ export function renderModelSetting(setting: ModelName | ModelAlias): string {
 export function getModelSourceSuffix(): string {
   if (getMainLoopModelOverride() !== undefined) return ''
   if (process.env.ANTHROPIC_MODEL) return ''
-  switch (getSettingsSourceForKey('model')) {
+  switch (getEffectiveSettingSource('model')) {
     case 'projectSettings':
       return ` (from ${getRelativeSettingsFilePathForSource('projectSettings')})`
     case 'policySettings':

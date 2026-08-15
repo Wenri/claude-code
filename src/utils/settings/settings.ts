@@ -1003,7 +1003,7 @@ export function getSettingsWithSources(): SettingsWithSources {
   return { effective: getInitialSettings(), sources }
 }
 
-export function getSettingsSourceForKey(
+export function getEffectiveSettingSource(
   key: keyof SettingsJson,
 ): SettingSource | null {
   const sources = getEnabledSettingSources()
@@ -1013,6 +1013,8 @@ export function getSettingsSourceForKey(
   }
   return null
 }
+
+export const getSettingsSourceForKey = getEffectiveSettingSource
 
 /**
  * Get merged settings and validation errors from all sources
