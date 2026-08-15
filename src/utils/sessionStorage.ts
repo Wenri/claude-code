@@ -1685,6 +1685,11 @@ class Project {
             if (isTranscriptMessage(entry)) {
               await this.persistToRemote(sessionId, entry)
             }
+          } else if (
+            this.internalEventWriter &&
+            isTranscriptMessage(entry)
+          ) {
+            void this.persistToRemote(sessionId, entry)
           }
         }
       }
