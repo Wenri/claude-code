@@ -2074,6 +2074,8 @@ export const fetchToolsForClient = memoizeWithLRU(
                           }
                         : undefined,
                     handleElicitation: context.handleElicitation,
+                    hasResultSizeAnnotation:
+                      hasRequestedMaxResultSizeChars,
                     imageLimits: getImageLimits(context.options.mainLoopModel),
                   })
 
@@ -3035,6 +3037,7 @@ export async function processMCPResult(
   tool: string, // Tool name for validation (e.g., "search")
   name: string, // Server name for IDE check and transformation (e.g., "slack")
   imageLimits: ImageLimits = getImageLimits(),
+  hasResultSizeAnnotation = false,
 ): Promise<MCPToolResult> {
   const { content, type, schema } = await transformMCPResult(
     result,
@@ -3046,6 +3049,10 @@ export async function processMCPResult(
   // IDE tools are not going to the model directly, so we don't need to
   // handle large output.
   if (name === 'ide') {
+    return content
+  }
+
+  if (hasResultSizeAnnotation && !contentContainsImages(content)) {
     return content
   }
 
@@ -3177,6 +3184,7 @@ export async function callMCPToolWithUrlElicitationRetry({
   signal,
   setAppState,
   onProgress,
+  hasResultSizeAnnotation = false,
   imageLimits,
   callToolFn = callMCPTool,
   handleElicitation,
@@ -3189,6 +3197,7 @@ export async function callMCPToolWithUrlElicitationRetry({
   signal: AbortSignal
   setAppState: (f: (prev: AppState) => AppState) => void
   onProgress?: (data: MCPProgress) => void
+  hasResultSizeAnnotation?: boolean
   imageLimits?: ImageLimits
   /** Injectable for testing. Defaults to callMCPTool. */
   callToolFn?: (opts: {
@@ -3198,6 +3207,7 @@ export async function callMCPToolWithUrlElicitationRetry({
     meta?: Record<string, unknown>
     signal: AbortSignal
     onProgress?: (data: MCPProgress) => void
+    hasResultSizeAnnotation?: boolean
     imageLimits?: ImageLimits
   }) => Promise<MCPToolCallResult>
   /** Handler for URL elicitations when no hook handles them.
@@ -3218,6 +3228,7 @@ export async function callMCPToolWithUrlElicitationRetry({
         meta,
         signal,
         onProgress,
+        hasResultSizeAnnotation,
         imageLimits,
       })
     } catch (error) {
@@ -3397,6 +3408,7 @@ async function callMCPTool({
   meta,
   signal,
   onProgress,
+  hasResultSizeAnnotation = false,
   imageLimits,
 }: {
   client: ConnectedMCPServer
@@ -3405,6 +3417,7 @@ async function callMCPTool({
   meta?: Record<string, unknown>
   signal: AbortSignal
   onProgress?: (data: MCPProgress) => void
+  hasResultSizeAnnotation?: boolean
   imageLimits?: ImageLimits
 }): Promise<{
   content: MCPToolResult
@@ -3557,7 +3570,13 @@ async function callMCPTool({
       })
     }
 
-    const content = await processMCPResult(result, tool, name, imageLimits)
+    const content = await processMCPResult(
+      result,
+      tool,
+      name,
+      imageLimits,
+      hasResultSizeAnnotation,
+    )
     return {
       content,
       _meta: result._meta as Record<string, unknown> | undefined,
