@@ -9,6 +9,7 @@ import { type BackgroundRemoteSessionPrecondition, checkBackgroundRemoteSessionE
 import { getCwd } from '../../utils/cwd.js';
 import { logForDebugging } from '../../utils/debug.js';
 import { logError } from '../../utils/log.js';
+import { logEvent } from '../../services/analytics/index.js';
 import { enqueuePendingNotification } from '../../utils/messageQueueManager.js';
 import { extractTag, extractTextContent } from '../../utils/messages.js';
 import { emitTaskTerminatedSdk } from '../../utils/sdkEventQueue.js';
@@ -811,6 +812,8 @@ export const RemoteAgentTask: Task = {
     let toolUseId: string | undefined;
     let description: string | undefined;
     let sessionId: string | undefined;
+    let isUltraplan = false;
+    let pollStartedAt = 0;
     let killed = false;
     updateTaskState<RemoteAgentTaskState>(taskId, setAppState, task => {
       if (task.status !== 'running') {
@@ -819,6 +822,8 @@ export const RemoteAgentTask: Task = {
       toolUseId = task.toolUseId;
       description = task.description;
       sessionId = task.sessionId;
+      isUltraplan = task.isUltraplan ?? false;
+      pollStartedAt = task.pollStartedAt;
       killed = true;
       return {
         ...task,
@@ -838,6 +843,16 @@ export const RemoteAgentTask: Task = {
       // Archive the remote session so it stops consuming cloud resources.
       if (sessionId) {
         void archiveRemoteSession(sessionId).catch(e => logForDebugging(`RemoteAgentTask archive failed: ${String(e)}`));
+      }
+      if (isUltraplan) {
+        logEvent('tengu_ultraplan_stopped', {
+          duration_ms: Date.now() - pollStartedAt
+        });
+        setAppState(state => state.ultraplanSessionUrl || state.ultraplanPendingChoice ? {
+          ...state,
+          ultraplanSessionUrl: undefined,
+          ultraplanPendingChoice: undefined
+        } : state);
       }
     }
     void evictTaskOutput(taskId);

@@ -664,6 +664,7 @@ export class StructuredIO {
         once: true,
       })
     }
+    const startedAt = Date.now()
     try {
       return await new Promise<Response>((resolve, reject) => {
         this.pendingRequests.set(requestId, {
@@ -680,6 +681,11 @@ export class StructuredIO {
         })
       })
     } finally {
+      logEvent('tengu_sdk_control_roundtrip', {
+        subtype: request.subtype,
+        duration_ms: Date.now() - startedAt,
+        aborted: signal?.aborted ?? false,
+      })
       if (signal) {
         signal.removeEventListener('abort', aborted)
       }

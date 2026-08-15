@@ -35,6 +35,7 @@ import { createMemorySelector } from './memdir/findRelevantMemories.js'
 import { hasAutoMemPathOverride } from './memdir/paths.js'
 import { query } from './query.js'
 import { categorizeRetryableAPIError } from './services/api/errors.js'
+import { logEvent } from './services/analytics/index.js'
 import type { MCPServerConnection } from './services/mcp/types.js'
 import type { AppState } from './state/AppState.js'
 import { makeSetReplContext } from './state/AppStateStore.js'
@@ -307,6 +308,7 @@ export class QueryEngine {
     setCwd(cwd)
     const persistSession = !isSessionPersistenceDisabled()
     const startTime = Date.now()
+    let firstAssistantAt = 0
 
     // Wrap canUseTool to track permission denials
     const wrappedCanUseTool: CanUseToolFn = async (
@@ -1026,6 +1028,7 @@ export class QueryEngine {
           // Tombstone messages are control signals for removing messages, skip them
           break
         case 'assistant':
+          if (!firstAssistantAt) firstAssistantAt = Date.now()
           // Capture stop_reason if already set (synthetic messages). For
           // streamed responses, this is null at content_block_stop time;
           // the real value arrives via message_delta (handled below).
@@ -1445,6 +1448,13 @@ export class QueryEngine {
             apiErrorStatus?: number
           }
         ).apiErrorStatus ?? null
+    }
+
+    if (!isApiError && firstAssistantAt) {
+      logEvent('tengu_sdk_ttft', {
+        ttft_ms: firstAssistantAt - startTime,
+        model: String(mainLoopModel),
+      })
     }
 
     yield {
