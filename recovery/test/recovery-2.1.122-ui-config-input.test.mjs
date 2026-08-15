@@ -111,6 +111,7 @@ test('source restores target image, idle-render, brief-view, and Caps Lock behav
   ]) {
     assert.ok(bridge.includes(fragment), fragment)
   }
+  assert.equal(count(bridge, 'idleStatusRendered = false'), 2)
 
   const keybindings = source('src/hooks/useGlobalKeybindings.tsx')
   for (const fragment of [
