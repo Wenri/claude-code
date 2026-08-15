@@ -151,6 +151,8 @@ async function spawnFork(
             canUseTool: context.canUseTool ?? hasPermissionsToUseTool,
             isAsync: false,
             querySource: getQuerySourceForAgent(FORK_AGENT.agentType, true),
+            spawnedBySkill:
+              context.options.spawnedBySkill ?? context.options.activeSkill,
             model: undefined,
             override: {
               systemPrompt,

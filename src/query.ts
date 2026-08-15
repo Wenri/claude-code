@@ -278,6 +278,7 @@ export type QueryParams = {
   toolUseContext: ToolUseContext
   fallbackModel?: string
   querySource: QuerySource
+  spawnedBySkill?: string
   maxOutputTokensOverride?: number
   maxTurns?: number
   skipCacheWrite?: boolean
@@ -348,6 +349,7 @@ async function* queryLoop(
     canUseTool,
     fallbackModel,
     querySource,
+    spawnedBySkill,
     maxTurns,
     skipCacheWrite,
   } = params
@@ -825,6 +827,8 @@ async function* queryLoop(
                 )
               },
               querySource,
+              spawnedBySkill,
+              activeSkill: toolUseContext.options.activeSkill,
               connection: toolUseContext.options.connection,
               messageClientPlatform:
                 toolUseContext.options.messageClientPlatform,

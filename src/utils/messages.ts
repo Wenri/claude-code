@@ -769,6 +769,9 @@ export function normalizeMessages(messages: Message[]): NormalizedMessage[] {
             error: message.error,
             isApiErrorMessage: message.isApiErrorMessage,
             advisorModel: message.advisorModel,
+            attributionAgent: message.attributionAgent,
+            attributionSkill: message.attributionSkill,
+            attributionPlugin: message.attributionPlugin,
           } as NormalizedAssistantMessage
         })
       }

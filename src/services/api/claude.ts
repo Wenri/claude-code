@@ -154,7 +154,11 @@ import {
 import type { QuerySource } from 'src/constants/querySource.js'
 import { logRawAPIRequestBody } from 'src/utils/telemetry/apiBodyLogging.js'
 import type { Notification } from 'src/context/notifications.js'
-import { addToTotalSessionCost } from 'src/cost-tracker.js'
+import {
+  addToTotalSessionCost,
+  classifyQuerySource,
+  getPluginNameFromSkillName,
+} from 'src/cost-tracker.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from 'src/services/analytics/growthbook.js'
 import type { AgentId } from 'src/types/ids.js'
 import {
@@ -723,6 +727,8 @@ export type Options = {
     clearedContent: Map<string, string>,
   ) => void
   querySource: QuerySource
+  spawnedBySkill?: string
+  activeSkill?: string
   agents: AgentDefinition[]
   allowedAgentTypes?: string[]
   hasAppendSystemPrompt: boolean
@@ -748,6 +754,45 @@ export type Options = {
   // so the model can pace itself. `remaining` is computed by the caller
   // (query.ts decrements across the agentic loop).
   taskBudget?: { total: number; remaining?: number }
+}
+
+function getMessageAttribution(
+  querySource: QuerySource | undefined,
+  spawnedBySkill: string | undefined,
+  activeSkill: string | undefined,
+): {
+  attributionAgent?: string
+  attributionSkill?: string
+  attributionPlugin?: string
+} {
+  if (!querySource) return {}
+  if (querySource.startsWith('agent:builtin:')) {
+    return {
+      attributionAgent: querySource.slice(14),
+      attributionSkill: spawnedBySkill,
+      attributionPlugin: spawnedBySkill
+        ? getPluginNameFromSkillName(spawnedBySkill)
+        : undefined,
+    }
+  }
+  if (querySource.startsWith('agent:custom:')) {
+    const agent = querySource.slice(13)
+    return {
+      attributionAgent: agent,
+      attributionSkill: spawnedBySkill,
+      attributionPlugin:
+        (spawnedBySkill
+          ? getPluginNameFromSkillName(spawnedBySkill)
+          : undefined) ?? getPluginNameFromSkillName(agent),
+    }
+  }
+  if (classifyQuerySource(querySource) === 'main' && activeSkill) {
+    return {
+      attributionSkill: activeSkill,
+      attributionPlugin: getPluginNameFromSkillName(activeSkill),
+    }
+  }
+  return {}
 }
 
 export async function queryModelWithoutStreaming({
@@ -2551,6 +2596,11 @@ async function* queryModel(
                 ),
               },
               requestId: streamRequestId ?? undefined,
+              ...getMessageAttribution(
+                options.querySource,
+                options.spawnedBySkill,
+                options.activeSkill,
+              ),
               type: 'assistant',
               uuid: randomUUID(),
               timestamp: new Date().toISOString(),
@@ -2841,6 +2891,11 @@ async function* queryModel(
                   ),
                 },
                 requestId: streamRequestId ?? undefined,
+                ...getMessageAttribution(
+                  options.querySource,
+                  options.spawnedBySkill,
+                  options.activeSkill,
+                ),
                 type: 'assistant',
                 uuid: randomUUID(),
                 timestamp: new Date().toISOString(),
@@ -3045,6 +3100,11 @@ async function* queryModel(
           ),
         },
         requestId: streamRequestId ?? undefined,
+        ...getMessageAttribution(
+          options.querySource,
+          options.spawnedBySkill,
+          options.activeSkill,
+        ),
         type: 'assistant',
         uuid: randomUUID(),
         timestamp: new Date().toISOString(),
@@ -3155,6 +3215,11 @@ async function* queryModel(
             ),
           },
           requestId: streamRequestId ?? undefined,
+          ...getMessageAttribution(
+            options.querySource,
+            options.spawnedBySkill,
+            options.activeSkill,
+          ),
           type: 'assistant',
           uuid: randomUUID(),
           timestamp: new Date().toISOString(),

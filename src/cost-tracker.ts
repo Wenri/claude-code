@@ -373,7 +373,7 @@ export function addToTotalSessionCost(
   return totalCost
 }
 
-function classifyQuerySource(
+export function classifyQuerySource(
   querySource: string | undefined,
 ): 'main' | 'subagent' | 'auxiliary' | undefined {
   if (querySource === undefined) return undefined
@@ -388,4 +388,11 @@ function classifyQuerySource(
     return 'subagent'
   }
   return 'auxiliary'
+}
+
+export function getPluginNameFromSkillName(
+  skillName: string,
+): string | undefined {
+  const separator = skillName.indexOf(':')
+  return separator > 0 ? skillName.slice(0, separator) : undefined
 }

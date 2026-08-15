@@ -616,6 +616,7 @@ export const AgentTool = buildTool({
       canUseTool,
       isAsync: shouldRunAsync,
       querySource: toolUseContext.options.querySource ?? getQuerySourceForAgent(selectedAgent.agentType, isBuiltInAgent(selectedAgent)),
+      spawnedBySkill: toolUseContext.options.spawnedBySkill ?? toolUseContext.options.activeSkill,
       model: isForkPath ? undefined : model,
       // Fork path: pass parent's system prompt AND parent's exact tool
       // array (cache-identical prefix). workerTools is rebuilt under

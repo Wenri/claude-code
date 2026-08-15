@@ -225,6 +225,10 @@ export type ToolUseContext = {
     planModeInstructions?: string
     /** Override querySource for analytics tracking */
     querySource?: QuerySource
+    /** Skill that spawned this agent, retained for message attribution. */
+    spawnedBySkill?: string
+    /** Skill active for the current main-thread turn. */
+    activeSkill?: string
     messageClientPlatform?: string
     /** Optional callback to get the latest tools (e.g., after MCP servers connect mid-query) */
     refreshTools?: () => Tools

@@ -1008,6 +1008,7 @@ async function getMessagesForPromptSlashCommand(command: CommandBase & PromptCom
   const skillPath = command.source ? `${command.source}:${command.name}` : command.name;
   const skillContent = result.filter((b): b is TextBlockParam => b.type === 'text').map(b => b.text).join('\n\n');
   addInvokedSkill(command.name, skillPath, skillContent, getAgentContext()?.agentId ?? null);
+  context.options.activeSkill = command.name;
   const metadata = formatCommandLoadingMetadata(command, args);
   const additionalAllowedTools = parseToolListFromCLI(command.allowedTools ?? []);
 

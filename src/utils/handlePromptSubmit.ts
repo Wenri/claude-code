@@ -70,6 +70,7 @@ type BaseExecutionParams = {
     input?: string,
     effort?: EffortValue,
     clientPlatform?: string,
+    activeSkill?: string,
   ) => Promise<void>
   setAppState: (updater: (prev: AppState) => AppState) => void
   onBeforeQuery?: (input: string, newMessages: Message[]) => Promise<boolean>
@@ -472,6 +473,7 @@ async function executeUserInput(params: ExecuteUserInputParams): Promise<void> {
     // mutable slot would be clobbered at the detached closure's first
     // await by this function's synchronous return path. See state.ts.
     await runWithWorkload(turnWorkload, async () => {
+      const processContext = makeContext()
       for (let i = 0; i < commands.length; i++) {
         const cmd = commands[i]!
         const isFirst = i === 0
@@ -480,7 +482,7 @@ async function executeUserInput(params: ExecuteUserInputParams): Promise<void> {
           preExpansionInput: cmd.preExpansionValue,
           mode: cmd.mode,
           setToolJSX,
-          context: makeContext(),
+          context: processContext,
           pastedContents: isFirst ? cmd.pastedContents : undefined,
           messages,
           setUserInputOnProcessing: isFirst
@@ -574,6 +576,7 @@ async function executeUserInput(params: ExecuteUserInputParams): Promise<void> {
           primaryInput,
           effort,
           clientPlatform,
+          processContext.options.activeSkill,
         )
       } else {
         // Local slash commands that skip messages (e.g., /model, /theme).

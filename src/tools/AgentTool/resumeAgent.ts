@@ -187,6 +187,7 @@ export async function resumeAgentBackground({
       selectedAgent.agentType,
       isBuiltInAgent(selectedAgent),
     ),
+    spawnedBySkill: undefined,
     model: undefined,
     // Fork resume: pass parent's system prompt (cache-identical prefix).
     // Non-fork: undefined → runAgent recomputes under wrapWithCwd so

@@ -689,6 +689,7 @@ export class QueryEngine {
     }))
 
     const mainLoopModel = modelFromUserInput ?? initialMainLoopModel
+    const activeSkill = processUserInputContext.options.activeSkill
 
     // Recreate after processing the prompt to pick up updated messages and
     // model (from slash commands).
@@ -725,6 +726,7 @@ export class QueryEngine {
         },
         maxBudgetUsd,
         messageClientPlatform: options?.clientPlatform,
+        activeSkill,
       },
       getAppState,
       getToolPermissionContext: () => getAppState().toolPermissionContext,

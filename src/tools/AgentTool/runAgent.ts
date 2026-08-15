@@ -285,6 +285,7 @@ export async function* runAgent({
   canShowPermissionPrompts,
   forkContextMessages,
   querySource,
+  spawnedBySkill,
   override,
   model,
   maxTurns,
@@ -313,6 +314,7 @@ export async function* runAgent({
   canShowPermissionPrompts?: boolean
   forkContextMessages?: Message[]
   querySource: QuerySource
+  spawnedBySkill?: string
   override?: {
     userContext?: { [k: string]: string }
     systemContext?: { [k: string]: string }
@@ -747,6 +749,7 @@ export async function* runAgent({
     mcpResources: toolUseContext.options.mcpResources,
     agentDefinitions: toolUseContext.options.agentDefinitions,
     messageClientPlatform: toolUseContext.options.messageClientPlatform,
+    spawnedBySkill,
     // Fork children (useExactTools path) need querySource on context.options
     // for the recursive-fork guard at AgentTool.tsx call() — it checks
     // options.querySource === 'agent:builtin:fork'. This survives autocompact
@@ -853,6 +856,7 @@ export async function* runAgent({
       canUseTool,
       toolUseContext: agentToolUseContext,
       querySource,
+      spawnedBySkill,
       maxTurns: maxTurns ?? agentDefinition.maxTurns,
     })) {
       onQueryProgress?.()

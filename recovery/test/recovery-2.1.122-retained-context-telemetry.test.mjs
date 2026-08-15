@@ -386,3 +386,119 @@ test('source emits every retained permission and MCP lifecycle transition', () =
     'one MCP lifecycle helper and three outcome calls',
   )
 })
+
+test('authenticates retained skill and agent message attribution', () => {
+  for (const release of releases) {
+    const bundle = readBundle(release)
+    assert.equal(
+      occurrences(bundle, 'spawnedBySkill'),
+      14,
+      `${release.version}: spawned skill propagation cardinality`,
+    )
+    assert.equal(
+      occurrences(bundle, 'activeSkill'),
+      14,
+      `${release.version}: active skill propagation cardinality`,
+    )
+    assert.equal(
+      occurrences(bundle, 'attributionAgent'),
+      8,
+      `${release.version}: agent attribution cardinality`,
+    )
+    assert.equal(
+      occurrences(bundle, 'attributionSkill'),
+      9,
+      `${release.version}: skill attribution cardinality`,
+    )
+    assert.equal(
+      occurrences(bundle, 'attributionPlugin'),
+      8,
+      `${release.version}: plugin attribution cardinality`,
+    )
+    assert.match(
+      bundle,
+      /startsWith\("agent:builtin:"\)\)return\{attributionAgent:[A-Za-z_$][\w$]*\.slice\(14\),attributionSkill:[A-Za-z_$][\w$]*,attributionPlugin:[A-Za-z_$][\w$]*\?[A-Za-z_$][\w$]*\([A-Za-z_$][\w$]*\):void 0\}/,
+      `${release.version}: built-in agent attribution`,
+    )
+    assert.match(
+      bundle,
+      /startsWith\("agent:custom:"\)\)\{let [A-Za-z_$][\w$]*=[A-Za-z_$][\w$]*\.slice\(13\);return\{attributionAgent:[A-Za-z_$][\w$]*,attributionSkill:[A-Za-z_$][\w$]*,attributionPlugin:\([A-Za-z_$][\w$]*\?[A-Za-z_$][\w$]*\([A-Za-z_$][\w$]*\):void 0\)\?\?[A-Za-z_$][\w$]*\([A-Za-z_$][\w$]*\)\}\}/,
+      `${release.version}: custom agent attribution`,
+    )
+    assert.match(
+      bundle,
+      /==="main"&&[A-Za-z_$][\w$]*\)return\{attributionSkill:[A-Za-z_$][\w$]*,attributionPlugin:[A-Za-z_$][\w$]*\([A-Za-z_$][\w$]*\)\}/,
+      `${release.version}: main-thread skill attribution`,
+    )
+  }
+})
+
+test('source preserves the exact retained attribution path', () => {
+  includesAll(source('src/cost-tracker.ts'), [
+    'export function classifyQuerySource(',
+    "const separator = skillName.indexOf(':')",
+    'return separator > 0 ? skillName.slice(0, separator) : undefined',
+  ])
+  includesAll(source('src/Tool.ts'), [
+    'spawnedBySkill?: string',
+    'activeSkill?: string',
+  ])
+  includesAll(source('src/utils/processUserInput/processSlashCommand.tsx'), [
+    'addInvokedSkill(command.name, skillPath, skillContent, getAgentContext()?.agentId ?? null); context.options.activeSkill = command.name;',
+  ])
+  includesAll(source('src/tools/SkillTool/SkillTool.ts'), [
+    "const commandName = trimmed.startsWith('/') ? trimmed.substring(1) : trimmed context.options.activeSkill = commandName",
+  ])
+  includesAll(source('src/utils/handlePromptSubmit.ts'), [
+    'const processContext = makeContext()',
+    'context: processContext',
+    'processContext.options.activeSkill',
+  ])
+  includesAll(source('src/screens/REPL.tsx'), [
+    'clientPlatform?: string, activeSkill?: string',
+    'if (activeSkill) toolUseContext.options.activeSkill = activeSkill;',
+    'effort, clientPlatform, activeSkill',
+  ])
+  includesAll(source('src/QueryEngine.ts'), [
+    'const activeSkill = processUserInputContext.options.activeSkill',
+    'messageClientPlatform: options?.clientPlatform, activeSkill,',
+  ])
+  includesAll(source('src/tools/AgentTool/AgentTool.tsx'), [
+    'spawnedBySkill: toolUseContext.options.spawnedBySkill ?? toolUseContext.options.activeSkill',
+  ])
+  includesAll(source('src/commands/fork/fork.ts'), [
+    'spawnedBySkill: context.options.spawnedBySkill ?? context.options.activeSkill',
+  ])
+  includesAll(source('src/tools/AgentTool/runAgent.ts'), [
+    'querySource, spawnedBySkill, override,',
+    'messageClientPlatform: toolUseContext.options.messageClientPlatform, spawnedBySkill,',
+    'toolUseContext: agentToolUseContext, querySource, spawnedBySkill,',
+  ])
+  includesAll(source('src/tools/AgentTool/resumeAgent.ts'), [
+    'spawnedBySkill: undefined',
+  ])
+  includesAll(source('src/query.ts'), [
+    'fallbackModel, querySource, spawnedBySkill,',
+    'querySource, spawnedBySkill, activeSkill: toolUseContext.options.activeSkill,',
+  ])
+
+  const claude = source('src/services/api/claude.ts')
+  includesAll(claude, [
+    "if (querySource.startsWith('agent:builtin:'))",
+    'attributionAgent: querySource.slice(14)',
+    "if (querySource.startsWith('agent:custom:'))",
+    'const agent = querySource.slice(13)',
+    "if (classifyQuerySource(querySource) === 'main' && activeSkill)",
+  ])
+  assert.equal(
+    occurrences(claude, 'getMessageAttribution('),
+    5,
+    'one attribution helper and four assistant message construction calls',
+  )
+
+  includesAll(source('src/utils/messages.ts'), [
+    'attributionAgent: message.attributionAgent',
+    'attributionSkill: message.attributionSkill',
+    'attributionPlugin: message.attributionPlugin',
+  ])
+})
