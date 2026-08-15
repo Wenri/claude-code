@@ -42,6 +42,7 @@ function commandSets(source) {
   const descriptors = new Map()
   const aliases = new Map()
   const sets = []
+  const arrays = []
 
   function literalProperty(object, key) {
     for (const property of object.properties ?? []) {
@@ -78,6 +79,7 @@ function commandSets(source) {
 
   function walk(node) {
     if (!node || typeof node !== 'object') return
+    if (node.type === 'ArrayExpression') arrays.push(node)
     if (node.type === 'VariableDeclarator') record(node.id, node.init)
     if (node.type === 'AssignmentExpression' && node.operator === '=') {
       record(node.left, node.right)
@@ -114,11 +116,14 @@ function commandSets(source) {
     return output
   }
 
-  return sets.map(array =>
+  const resolveArray = array =>
     identifiers(array)
       .map(identifier => descriptors.get(identifier))
-      .filter(Boolean),
-  )
+      .filter(Boolean)
+  return {
+    arrays: arrays.map(resolveArray),
+    sets: sets.map(resolveArray),
+  }
 }
 
 const remoteNames = [
@@ -176,7 +181,7 @@ const bridgeNames = [
 test('authenticates the retained remote and bridge command routing sets', () => {
   for (const release of releases) {
     const source = readBundle(release)
-    const sets = commandSets(source)
+    const { arrays, sets } = commandSets(source)
     const remote = sets.find(set => {
       const names = set.map(command => command.name)
       return names.includes('session') && names.includes('privacy-settings')
@@ -201,6 +206,28 @@ test('authenticates the retained remote and bridge command routing sets', () => 
       source,
       /name:"recap",description:"Generate a one-line session recap now"/,
       `${release.version}: retained recap descriptor`,
+    )
+    const commands = arrays.find(array => {
+      const names = array.map(command => command.name)
+      return names.includes('add-dir') && names.includes('ultrareview')
+    })
+    assert.ok(commands, `${release.version}: core command array`)
+    const commandNames = commands.map(command => command.name)
+    assert.equal(
+      commandNames.filter(name => name === 'color').length,
+      1,
+      `${release.version}: interactive color only`,
+    )
+    assert.equal(
+      commandNames.filter(name => name === 'rename').length,
+      1,
+      `${release.version}: interactive rename only`,
+    )
+    const reviewIndex = commandNames.indexOf('review')
+    assert.deepEqual(
+      commandNames.slice(reviewIndex, reviewIndex + 4),
+      ['review', 'ultrareview', 'ultraplan', 'rewind'],
+      `${release.version}: externally eligible ultraplan order`,
     )
   }
 })
@@ -295,4 +322,17 @@ test('source mirrors target command availability and text counterparts', () => {
     source,
     /const COMMANDS = memoize[\s\S]*?agents,\n  autocompact,\n  branch,/,
   )
+  const commandsStart = source.indexOf('const COMMANDS = memoize')
+  const commandsEnd = source.indexOf('export const builtInCommandNames')
+  const commands = source.slice(commandsStart, commandsEnd)
+  assert.doesNotMatch(commands, /\bcolorNonInteractive,|\brenameNonInteractive,/)
+  assert.match(
+    commands,
+    /review,\n  ultrareview,\n  \.\.\.\(ultraplan \? \[ultraplan\] : \[\]\),\n  rewind,/,
+  )
+  const internal = source.slice(
+    source.indexOf('export const INTERNAL_ONLY_COMMANDS'),
+    commandsStart,
+  )
+  assert.doesNotMatch(internal, /ultraplan/)
 })
