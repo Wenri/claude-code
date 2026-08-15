@@ -13,6 +13,10 @@ export function runWithCwdOverride<T>(cwd: string, fn: () => T): T {
   return cwdOverrideStorage.run(cwd, fn)
 }
 
+export function hasCwdOverride(): boolean {
+  return cwdOverrideStorage.getStore() !== undefined
+}
+
 /**
  * Get the current working directory
  */

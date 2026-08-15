@@ -35,7 +35,11 @@ test('2.1.90 bundle contains the incremental transcript cursor', () => {
 test('QueryEngine recovery preserves cursor, parent, and await semantics', () => {
   assert.match(
     source,
-    /const newMessages = start === 0 \? messages : messages\.slice\(start\)/,
+    /const end = transcriptCursorEnd\([\s\S]*?Math\.max\(start, initialTranscriptLength\),[\s\S]*?!forceIncompleteAssistant,[\s\S]*?\)/,
+  )
+  assert.match(
+    source,
+    /const newMessages =\s+start === 0 && end === messages\.length\s+\? messages\s+: messages\.slice\(start, end\)/,
   )
   assert.match(
     source,
@@ -58,6 +62,7 @@ test('QueryEngine recovery preserves cursor, parent, and await semantics', () =>
     /if \(message\.type === 'assistant'\) \{\s+void recordNewMessages\(\)\s+\} else \{\s+await recordNewMessages\(\)/,
   )
 
-  assert.equal(source.match(/\brecordTranscript\(/g)?.length, 2)
-  assert.equal(source.match(/\brecordNewMessages\(\)/g)?.length, 6)
+  assert.equal(source.match(/\brecordTranscript\(/g)?.length, 3)
+  assert.equal(source.match(/\brecordNewMessages\(\)/g)?.length, 7)
+  assert.equal(source.match(/\brecordNewMessages\(true\)/g)?.length, 4)
 })

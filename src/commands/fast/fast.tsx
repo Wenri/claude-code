@@ -8,9 +8,9 @@ import { FastIcon, getFastIconString } from '../../components/FastIcon.js';
 import { Box, Link, Text } from '../../ink.js';
 import { useKeybindings } from '../../keybindings/useKeybinding.js';
 import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEvent } from '../../services/analytics/index.js';
-import { type AppState, useAppState, useSetAppState } from '../../state/AppState.js';
+import { useAppState, useSetAppState } from '../../state/AppState.js';
 import type { LocalJSXCommandOnDone } from '../../types/command.js';
-import { clearFastModeCooldown, FAST_MODE_MODEL_DISPLAY, getFastModeModel, getFastModeRuntimeState, getFastModeUnavailableReason, isFastModeEnabled, isFastModeSupportedByModel, prefetchFastModeStatus } from '../../utils/fastMode.js';
+import { FAST_MODE_MODEL_DISPLAY, getFastModeRuntimeState, getFastModeUnavailableReason, isFastModeEnabled, isFastModeSupportedByModel, prefetchFastModeStatus } from '../../utils/fastMode.js';
 import { formatDuration } from '../../utils/format.js';
 import { formatModelPricing, getOpus46CostTier } from '../../utils/modelCost.js';
 import { updateSettingsForSource } from '../../utils/settings/settings.js';
@@ -235,28 +235,6 @@ function _temp2(s_0) {
 function _temp(s) {
   return s.mainLoopModel;
 }
-async function handleFastModeShortcut(enable: boolean, getAppState: () => AppState, setAppState: (f: (prev: AppState) => AppState) => void): Promise<string> {
-  const unavailableReason = getFastModeUnavailableReason();
-  if (unavailableReason) {
-    return `Fast mode unavailable: ${unavailableReason}`;
-  }
-  const {
-    mainLoopModel
-  } = getAppState();
-  applyFastMode(enable, setAppState);
-  logEvent('tengu_fast_mode_toggled', {
-    enabled: enable,
-    source: 'shortcut' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-  });
-  if (enable) {
-    const fastIcon = getFastIconString(true);
-    const modelUpdated = !isFastModeSupportedByModel(mainLoopModel) ? ` · model set to ${FAST_MODE_MODEL_DISPLAY}` : '';
-    const pricing = formatModelPricing(getOpus46CostTier(true));
-    return `${fastIcon} Fast mode ON${modelUpdated} · ${pricing}`;
-  } else {
-    return `Fast mode OFF`;
-  }
-}
 export async function call(onDone: LocalJSXCommandOnDone, context: LocalJSXCommandContext, args?: string): Promise<React.ReactNode | null> {
   if (!isFastModeEnabled()) {
     return null;
@@ -268,7 +246,7 @@ export async function call(onDone: LocalJSXCommandOnDone, context: LocalJSXComma
   await prefetchFastModeStatus();
   const arg = args?.trim().toLowerCase();
   if (arg === 'on' || arg === 'off') {
-    const result = await handleFastModeShortcut(arg === 'on', context.getAppState, context.setAppState);
+    const result = await handleFastModeShortcut(arg === 'on', context.getAppState, context.setAppState, 'shortcut');
     onDone(result);
     return null;
   }

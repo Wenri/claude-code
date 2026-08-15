@@ -9,6 +9,16 @@ The result has two explicit confidence levels:
 2. Authored TypeScript is recovered only where the minified target provides
    sufficient evidence. Erased source spelling is not invented.
 
+Keep two additional verdicts separate. The exhaustive 3,113-row semantic
+ledger has zero first-party source-runtime gaps, but it retains 153 unpinned
+dependency-runtime gaps and records the missing manifest/lockfile/hermetic
+build recipe. Therefore first-party compiled semantics are source-complete,
+while whole-bundle source reproduction is not. Exact bundle bytes are replayed
+independently from the generated delta.
+The canonical semantic supplement is 5,617,466 bytes across 118 `src/`
+paths, SHA-256
+`8db899a471f6d4bc7c8ff22c42211643e725a29d7bfb484c3713def00086498b`.
+
 ## 0. Prepare the environment
 
 From the repository root:
@@ -305,7 +315,8 @@ src/path\0bytes\0sha256\n
 The exact base is:
 
 ```text
-commit       75fb55c39164bffac8f1f5296895884a530972c8
+commit       2ba94f2c67c645119e4f33ee9a68e7e14449c238
+Git tree     8700b3ed86296df96e72a765107097b401a3bdd7
 Git src tree a5bc0fdaa01f4ddc02ee253ead2d0cc39efc2572
 files        1,903
 bytes        30,392,826

@@ -21,7 +21,7 @@ export async function call(onDone: LocalJSXCommandOnDone, context: LocalJSXComma
     context.onChangeAPIKey();
     // Signature-bearing blocks (thinking, connector_text) are bound to the API key —
     // strip them so the new key doesn't reject stale signatures.
-    context.setMessages(stripSignatureBlocks);
+    context.applyMessageOp({ type: 'update', updater: stripSignatureBlocks });
     if (success) {
       // Post-login refresh logic. Keep in sync with onboarding in src/interactiveHelpers.tsx
       // Reset cost state when switching accounts
@@ -80,7 +80,7 @@ export function Login(props) {
   }
   let t2;
   if ($[6] !== props.startingMessage || $[7] !== t1) {
-    t2 = <ConsoleOAuthFlow onDone={t1} startingMessage={props.startingMessage} />;
+    t2 = <ConsoleOAuthFlow onDone={t1} startingMessage={props.startingMessage} urlOutdent={process.platform === 'win32' ? 1 : 2} />;
     $[6] = props.startingMessage;
     $[7] = t1;
     $[8] = t2;

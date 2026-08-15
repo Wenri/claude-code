@@ -24,12 +24,69 @@ import { getDisplayedEffortLevel, modelSupportsEffort, type EffortValue } from '
 import { isFullscreenEnvEnabled } from '../utils/fullscreen.js';
 import { getGitWorktreeName } from '../utils/git.js';
 import { createBaseHookInput, executeStatusLineCommand } from '../utils/hooks.js';
+import { stringWidth } from '../ink/stringWidth.js';
 import { getLastAssistantMessage } from '../utils/messages.js';
 import { getRuntimeMainLoopModel, type ModelName, renderModelName } from '../utils/model/model.js';
 import { getCurrentSessionTitle } from '../utils/sessionStorage.js';
 import { doesMostRecentAssistantMessageExceed200k, getCurrentUsage } from '../utils/tokens.js';
 import { getCurrentWorktreeSession } from '../utils/worktree.js';
 import { isVimModeEnabled } from './PromptInput/utils.js';
+
+function logPendingStatusLineResult(
+  pendingRef: React.MutableRefObject<boolean>,
+  event: string,
+  metadata: () => Record<string, number | undefined>,
+  logFn: (event: string, metadata: Record<string, number | undefined>) => void = logEvent,
+): void {
+  if (!pendingRef.current) return;
+  pendingRef.current = false;
+  logFn(event, metadata());
+}
+
+export async function runStatusLineUpdate({
+  signal,
+  executeCommand,
+  getCommandLength,
+  pendingResultLogRef,
+  onResult,
+  logFn = logEvent,
+}: {
+  signal: AbortSignal
+  executeCommand: () => Promise<string | undefined>
+  getCommandLength: () => number | undefined
+  pendingResultLogRef: React.MutableRefObject<boolean>
+  onResult: (result: string | undefined) => void
+  logFn?: (event: string, metadata: Record<string, number | undefined>) => void
+}): Promise<void> {
+  const commandLength = getCommandLength();
+  try {
+    const result = await executeCommand();
+    if (signal.aborted) return;
+    onResult(result);
+    if (result) {
+      logPendingStatusLineResult(
+        pendingResultLogRef,
+        'tengu_status_line_result',
+        () => {
+          const lines = result.split('\n');
+          let visualWidth = 0;
+          for (const line of lines) {
+            visualWidth = Math.max(visualWidth, stringWidth(line));
+          }
+          return {
+            char_length: result.length,
+            visual_width: visualWidth,
+            line_count: lines.length,
+            command_length: commandLength,
+          };
+        },
+        logFn,
+      );
+    }
+  } catch {
+    // Status-line failures never interrupt the UI.
+  }
+}
 export function statusLineShouldDisplay(settings: ReadonlySettings): boolean {
   // Assistant mode: statusline fields (model, permission mode, cwd) reflect the
   // REPL/daemon process, not what the agent child is actually running. Hide it.
@@ -234,6 +291,7 @@ function StatusLineInner({
 
   // True when the next invocation should log its result (first run or after settings reload)
   const logNextResultRef = useRef(true);
+  const pendingResultTelemetryRef = useRef(true);
 
   // Stable update function — reads latest values from refs
   const doUpdate = useCallback(async () => {
@@ -316,6 +374,7 @@ function StatusLineInner({
       return;
     }
     logNextResultRef.current = true;
+    pendingResultTelemetryRef.current = true;
     void doUpdate();
   }, [statusLineCommand, doUpdate]);
 

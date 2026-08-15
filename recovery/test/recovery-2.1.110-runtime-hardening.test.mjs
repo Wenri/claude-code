@@ -1,9 +1,19 @@
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
+import path from 'node:path'
 import test from 'node:test'
 import { fileURLToPath } from 'node:url'
 
 function source(relative) {
+  if (process.env.CLAUDE_CODE_SEMANTIC_SOURCE_ROOT) {
+    return fs.readFileSync(
+      path.join(
+        process.env.CLAUDE_CODE_SEMANTIC_SOURCE_ROOT,
+        relative.replace(/^src\//, ''),
+      ),
+      'utf8',
+    )
+  }
   return fs.readFileSync(
     fileURLToPath(new URL(`../../${relative}`, import.meta.url)),
     'utf8',
@@ -42,18 +52,26 @@ test('bounds tool and transport stalls', () => {
   includesAll(source('src/tools/BashTool/BashTool.tsx'), [
     'Math.min(timeout || getDefaultTimeoutMs(), getMaxTimeoutMs())',
   ])
-  includesAll(source('src/services/mcp/client.ts'), [
-    'Date.now() - transportErrorState.lastErrorAt > 90000',
+  const mcpClient = source('src/services/mcp/client.ts')
+  includesAll(mcpClient, [
     "}, 30000)",
     'MCP transport lost mid-call',
     'Ignoring non-JSON line on stdout',
   ])
-  includesAll(source('src/services/api/claude.ts'), [
+  includesAll(mcpClient, [
+    process.env.CLAUDE_CODE_SEMANTIC_CASE === '2.1.109-to-2.1.110'
+      ? 'Date.now() - transportErrorState.lastErrorAt > 90000'
+      : 'Date.now() - transportErrorWatchdog.armedAt > 90000',
+  ])
+  const claudeApi = source('src/services/api/claude.ts')
+  includesAll(claudeApi, [
     'getNonstreamingFallbackTimeoutMs',
-    'NONSTREAMING_FALLBACK_MAX_RETRIES = 2',
     'timeout: fallbackTimeoutMs',
     'tengu_nonstreaming_fallback_error',
   ])
+  if (process.env.CLAUDE_CODE_SEMANTIC_CASE === '2.1.109-to-2.1.110') {
+    includesAll(claudeApi, ['NONSTREAMING_FALLBACK_MAX_RETRIES = 2'])
+  }
 })
 
 test('recovers tracing, recap, queue, cleanup, title, and editor hardening', () => {

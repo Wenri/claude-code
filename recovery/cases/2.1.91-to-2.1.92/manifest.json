@@ -792,6 +792,21 @@
         "path": "readable-diff/renames.tsv",
         "bytes": 212131,
         "sha256": "e7ffe42cfcf8b423b21401a6c0779e7f93d5aa8693323abcc65b17c83e7deeb5"
+      },
+      {
+        "path": "semantic-supplement.patch",
+        "bytes": 5567219,
+        "sha256": "43b7f3165ca0502796e26a50e821c12a47b8bc95dc78a5744361091e0adf9062"
+      },
+      {
+        "path": "semantic/source-coverage.json.gz",
+        "bytes": 239351,
+        "sha256": "940bcf1c640544ca52dcdc015a93c2d0cdc2bac170db6d367b84e52a071c2785"
+      },
+      {
+        "path": "semantic/dependency-coverage.json.gz",
+        "bytes": 10961,
+        "sha256": "4a307bb82f1a9412e31877ab0fb094c6d1151c8de849ecbcc9ff6a5e8dc7b6aa"
       }
     ]
   },
@@ -924,8 +939,9 @@
   "sourceLineage": {
     "root": "src",
     "patchSet": "2.1.91-to-2.1.92-incremental",
-    "baseCommit": "55ebd7febabb8b4b5e326668e03c97ead69228f7",
-    "baseGitTree": "ceb85b1fb08325c2fb8946d523bc3fe0f7fd5adf",
+    "baseCommit": "cb8a3dbe788589c66326d345c54d35abd5603850",
+    "baseGitTree": "f5b8d8f90f4adda730b4b0bef07d1eac30844aba",
+    "baseSourceGitTree": "ceb85b1fb08325c2fb8946d523bc3fe0f7fd5adf",
     "patchOrder": [
       "recovered/startup-and-remote-settings.patch",
       "recovered/prompt-hook-policy.patch",
@@ -972,6 +988,46 @@
     "testArtifactEnvironment": {
       "CLAUDE_CODE_2_1_91_BUNDLE": "baselineBundle",
       "CLAUDE_CODE_2_1_92_BUNDLE": "targetBundle"
+    }
+  },
+  "semanticSourceLineage": {
+    "targetCommit": "696930f29337e98869337eb59f55ead81f242abb",
+    "cumulativeSupplements": [
+      {
+        "case": "2.1.88-to-2.1.89",
+        "path": "recovery/cases/2.1.88-to-2.1.89/semantic-supplement.patch",
+        "bytes": 3512210,
+        "sha256": "adb702c880a26e1806d23bed31ffc7a1958fd0f415539ea6a8dd3c422af557f2"
+      },
+      {
+        "case": "2.1.89-to-2.1.90",
+        "path": "recovery/cases/2.1.89-to-2.1.90/semantic-supplement.patch",
+        "bytes": 5016682,
+        "sha256": "b107b8c95712ec6b8c3c7e2c06a5fe73201a1d463efd38c7acc436c8f9c602d7"
+      },
+      {
+        "case": "2.1.90-to-2.1.91",
+        "path": "recovery/cases/2.1.90-to-2.1.91/semantic-supplement.patch",
+        "bytes": 5618705,
+        "sha256": "68d1b6acd88c1e89c781e26c8b7b4e78ca1155f37ca0f0558570f67b2fc0ed24"
+      },
+      {
+        "case": "2.1.91-to-2.1.92",
+        "path": "recovery/cases/2.1.91-to-2.1.92/semantic-supplement.patch",
+        "bytes": 5567219,
+        "sha256": "43b7f3165ca0502796e26a50e821c12a47b8bc95dc78a5744361091e0adf9062"
+      }
+    ],
+    "supplement": {
+      "case": "2.1.91-to-2.1.92",
+      "path": "recovery/cases/2.1.91-to-2.1.92/semantic-supplement.patch",
+      "bytes": 5567219,
+      "sha256": "43b7f3165ca0502796e26a50e821c12a47b8bc95dc78a5744361091e0adf9062"
+    },
+    "sourceCoverage": {
+      "path": "semantic/source-coverage.json.gz",
+      "bytes": 239351,
+      "sha256": "940bcf1c640544ca52dcdc015a93c2d0cdc2bac170db6d367b84e52a071c2785"
     }
   }
 }

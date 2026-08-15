@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import figures from 'figures';
 import * as React from 'react';
+import { getWIFStatusLine, isWIFActive } from '../constants/oauth.js';
 import { color, Text } from '../ink.js';
 import type { MCPServerConnection } from '../services/mcp/types.js';
 import { getAccountInformation, isClaudeAISubscriber, shouldUseWIFAuth } from './auth.js';
@@ -227,7 +228,7 @@ export function buildAccountProperties(): Property[] {
   if (accountInfo.subscription) {
     properties.push({
       label: 'Login method',
-      value: `${accountInfo.subscription} Account`
+      value: `${accountInfo.subscription} account`
     });
   }
   if (accountInfo.tokenSource) {
@@ -273,7 +274,8 @@ export function buildAPIProviderProperties(): Property[] {
       bedrock: 'Amazon Bedrock',
       mantle: 'Amazon Bedrock (Mantle)',
       vertex: 'Google Vertex AI',
-      foundry: 'Microsoft Foundry'
+      foundry: 'Microsoft Foundry',
+      anthropicAws: 'Claude Platform on AWS'
     }[apiProvider];
     properties.push({
       label: 'API provider',
@@ -347,6 +349,30 @@ export function buildAPIProviderProperties(): Property[] {
     if (isEnvTruthy(process.env.CLAUDE_CODE_SKIP_FOUNDRY_AUTH)) {
       properties.push({
         value: 'Microsoft Foundry auth skipped'
+      });
+    }
+  } else if (apiProvider === 'anthropicAws') {
+    const anthropicAwsBaseUrl = process.env.ANTHROPIC_AWS_BASE_URL;
+    if (anthropicAwsBaseUrl) {
+      properties.push({
+        label: 'Claude Platform on AWS base URL',
+        value: anthropicAwsBaseUrl
+      });
+    }
+    const workspaceId = process.env.ANTHROPIC_AWS_WORKSPACE_ID;
+    if (workspaceId) {
+      properties.push({
+        label: 'Workspace ID',
+        value: workspaceId
+      });
+    }
+    properties.push({
+      label: 'AWS region',
+      value: getAWSRegion()
+    });
+    if (isEnvTruthy(process.env.CLAUDE_CODE_SKIP_ANTHROPIC_AWS_AUTH)) {
+      properties.push({
+        value: 'Claude Platform on AWS auth skipped'
       });
     }
   }

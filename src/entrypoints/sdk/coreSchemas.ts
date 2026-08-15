@@ -287,6 +287,14 @@ export const PermissionBehaviorSchema = lazySchema(() =>
   z.enum(['allow', 'deny', 'ask']),
 )
 
+// PreToolUse hooks may suspend a headless turn for an external actor to
+// approve or modify the pending action. This is deliberately distinct from
+// permission-rule behavior: `defer` is a hook protocol result, not a rule a
+// user can persist in settings.
+export const HookPermissionBehaviorSchema = lazySchema(() =>
+  z.enum(['allow', 'deny', 'ask', 'defer']),
+)
+
 export const PermissionRuleValueSchema = lazySchema(() =>
   z.object({
     toolName: z.string(),
@@ -1214,7 +1222,14 @@ export const AccountInfoSchema = lazySchema(() =>
       tokenSource: z.string().optional(),
       apiKeySource: z.string().optional(),
       apiProvider: z
-        .enum(['firstParty', 'bedrock', 'vertex', 'foundry', 'mantle'])
+        .enum([
+          'firstParty',
+          'bedrock',
+          'vertex',
+          'foundry',
+          'anthropicAws',
+          'mantle',
+        ])
         .optional()
         .describe(
           'Active API backend. Anthropic OAuth login only applies when "firstParty"; for 3P providers the other fields are absent and auth is external (AWS creds, gcloud ADC, etc.).',
@@ -1396,7 +1411,25 @@ export const SDKAssistantMessageErrorSchema = lazySchema(() =>
 )
 
 export const SDKStatusSchema = lazySchema(() =>
-  z.union([z.literal('compacting'), z.null()]),
+  z.union([z.literal('compacting'), z.literal('requesting'), z.null()]),
+)
+
+export const SDKMessageOriginSchema = lazySchema(() =>
+  z
+    .discriminatedUnion('kind', [
+      z.object({ kind: z.literal('human') }),
+      z.object({ kind: z.literal('channel'), server: z.string() }),
+      z.object({
+        kind: z.literal('peer'),
+        from: z.string(),
+        name: z.string().optional(),
+      }),
+      z.object({ kind: z.literal('task-notification') }),
+      z.object({ kind: z.literal('coordinator') }),
+    ])
+    .describe(
+      'Provenance of a user-role message (peer session, team lead, channel). Absent or `human` means keyboard input from the user.',
+    ),
 )
 
 // SDKUserMessage content without uuid/session_id
@@ -1435,6 +1468,7 @@ export const SDKUserMessageReplaySchema = lazySchema(() =>
     uuid: UUIDPlaceholder(),
     session_id: z.string(),
     isReplay: z.literal(true),
+    file_attachments: z.array(z.unknown()).optional(),
   }),
 )
 
@@ -1879,6 +1913,22 @@ export const SDKHookResponseMessageSchema = lazySchema(() =>
   }),
 )
 
+export const SDKPluginInstallMessageSchema = lazySchema(() =>
+  z
+    .object({
+      type: z.literal('system'),
+      subtype: z.literal('plugin_install'),
+      status: z.enum(['started', 'installed', 'failed', 'completed']),
+      name: z.string().optional(),
+      error: z.string().optional(),
+      uuid: UUIDPlaceholder(),
+      session_id: z.string(),
+    })
+    .describe(
+      'Headless plugin installation progress (CLAUDE_CODE_SYNC_PLUGIN_INSTALL). started/completed bracket the whole install; installed/failed carry a per-marketplace name.',
+    ),
+)
+
 export const SDKToolProgressMessageSchema = lazySchema(() =>
   z.object({
     type: z.literal('tool_progress'),
@@ -2040,6 +2090,40 @@ export const SDKToolUseSummaryMessageSchema = lazySchema(() =>
   }),
 )
 
+export const SDKMemoryRecallMessageSchema = lazySchema(() =>
+  z
+    .object({
+      type: z.literal('system'),
+      subtype: z.literal('memory_recall'),
+      mode: z
+        .enum(['select', 'synthesize'])
+        .describe(
+          "How memories were surfaced: 'select' returns full file bodies chosen by the parallel selector; 'synthesize' returns a Sonnet-authored paragraph distilled from many tiny memories.",
+        ),
+      memories: z.array(
+        z.object({
+          path: z
+            .string()
+            .describe(
+              "Absolute path to the memory file, or a synthesis sentinel of the form `<synthesis:DIR>` when mode is 'synthesize'.",
+            ),
+          scope: z.enum(['personal', 'team']),
+          content: z
+            .string()
+            .optional()
+            .describe(
+              "Synthesis paragraph. Only present when mode is 'synthesize'; always absent for 'select' (renderers lazy-load from path).",
+            ),
+        }),
+      ),
+      uuid: UUIDPlaceholder(),
+      session_id: z.string(),
+    })
+    .describe(
+      'Emitted when the memory recall supervisor surfaces relevant memories into the turn. Mirrors the CLI relevant_memories attachment so SDK renderers can show "Recalled from memory" inline.',
+    ),
+)
+
 export const SDKElicitationCompleteMessageSchema = lazySchema(() =>
   z
     .object({
@@ -2133,6 +2217,7 @@ export const SDKMessageSchema = lazySchema(() =>
     SDKHookStartedMessageSchema(),
     SDKHookProgressMessageSchema(),
     SDKHookResponseMessageSchema(),
+    SDKPluginInstallMessageSchema(),
     SDKToolProgressMessageSchema(),
     SDKAuthStatusMessageSchema(),
     SDKTaskNotificationMessageSchema(),
@@ -2140,8 +2225,10 @@ export const SDKMessageSchema = lazySchema(() =>
     SDKTaskUpdatedMessageSchema(),
     SDKTaskProgressMessageSchema(),
     SDKSessionStateChangedMessageSchema(),
+    SDKNotificationMessageSchema(),
     SDKFilesPersistedEventSchema(),
     SDKToolUseSummaryMessageSchema(),
+    SDKMemoryRecallMessageSchema(),
     SDKRateLimitEventSchema(),
     SDKElicitationCompleteMessageSchema(),
     SDKPromptSuggestionMessageSchema(),

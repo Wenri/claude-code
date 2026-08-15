@@ -34,6 +34,7 @@ import { get3PModelCapabilityOverride } from './model/modelSupportOverrides.js'
 import {
   getAPIProvider,
   getAPIProviderForModel,
+  isFirstPartyAnthropicBaseUrl,
   isFirstPartyCompatibleAPIProvider,
 } from './model/providers.js'
 import { getInitialSettings } from './settings/settings.js'
@@ -114,18 +115,28 @@ export function modelSupportsISP(model: string): boolean {
   if (isFirstPartyCompatibleAPIProvider(provider)) {
     return !canonical.includes('claude-3-')
   }
-  return (
-    canonical.includes('claude-opus-4') || canonical.includes('claude-sonnet-4')
-  )
+  if (
+    canonical === 'claude-haiku-4-5' ||
+    canonical.includes('claude-3-')
+  ) {
+    return false
+  }
+  return true
 }
 
 function vertexModelSupportsWebSearch(model: string): boolean {
   const canonical = getCanonicalName(model)
   // Web search only supported on Claude 4.0+ models on Vertex
   return (
-    canonical.includes('claude-opus-4') ||
-    canonical.includes('claude-sonnet-4') ||
-    canonical.includes('claude-haiku-4')
+    canonical === 'claude-opus-4-0' ||
+    canonical === 'claude-opus-4-1' ||
+    canonical === 'claude-opus-4-5' ||
+    canonical === 'claude-opus-4-6' ||
+    canonical === 'claude-opus-4-7' ||
+    canonical === 'claude-sonnet-4-0' ||
+    canonical === 'claude-sonnet-4-5' ||
+    canonical === 'claude-sonnet-4-6' ||
+    canonical === 'claude-haiku-4-5'
   )
 }
 
@@ -140,9 +151,15 @@ export function modelSupportsContextManagement(model: string): boolean {
     return !canonical.includes('claude-3-')
   }
   return (
-    canonical.includes('claude-opus-4') ||
-    canonical.includes('claude-sonnet-4') ||
-    canonical.includes('claude-haiku-4')
+    canonical === 'claude-opus-4-0' ||
+    canonical === 'claude-opus-4-1' ||
+    canonical === 'claude-opus-4-5' ||
+    canonical === 'claude-opus-4-6' ||
+    canonical === 'claude-opus-4-7' ||
+    canonical === 'claude-sonnet-4-0' ||
+    canonical === 'claude-sonnet-4-5' ||
+    canonical === 'claude-sonnet-4-6' ||
+    canonical === 'claude-haiku-4-5'
   )
 }
 
@@ -154,14 +171,14 @@ export function modelSupportsStructuredOutputs(model: string): boolean {
   if (!isFirstPartyCompatibleAPIProvider(provider)) {
     return false
   }
-  return (
-    canonical.includes('claude-sonnet-4-6') ||
-    canonical.includes('claude-sonnet-4-5') ||
-    canonical.includes('claude-opus-4-1') ||
-    canonical.includes('claude-opus-4-5') ||
-    canonical.includes('claude-opus-4-6') ||
-    canonical.includes('claude-haiku-4-5')
-  )
+  if (
+    canonical.includes('claude-3-') ||
+    canonical === 'claude-opus-4-0' ||
+    canonical === 'claude-sonnet-4-0'
+  ) {
+    return false
+  }
+  return true
 }
 
 export function modelSupportsTemperature(model: string): boolean {
@@ -175,8 +192,11 @@ export function modelSupportsAutoMode(model: string): boolean {
     // External: firstParty-only at launch (PI probes not wired for
     // Bedrock/Vertex/Foundry yet). Checked before allowModels so the GB
     // override can't enable auto mode on unsupported providers.
-    if (process.env.USER_TYPE !== 'ant' && getAPIProvider() !== 'firstParty') {
-      return false
+    if (process.env.USER_TYPE !== 'ant') {
+      const provider = getAPIProvider()
+      if (provider !== 'firstParty' && provider !== 'anthropicAws') {
+        return false
+      }
     }
     // GrowthBook override: tengu_auto_mode_config.allowModels force-enables
     // auto mode for listed models, bypassing the denylist/allowlist below.
@@ -201,7 +221,10 @@ export function modelSupportsAutoMode(model: string): boolean {
       return true
     }
     // External allowlist (firstParty already checked above).
-    return /^claude-(opus|sonnet)-4-6/.test(m)
+    return (
+      /^claude-(opus|sonnet)-4-6/.test(m) ||
+      /^claude-opus-4-7/.test(m)
+    )
   }
   return false
 }
@@ -230,7 +253,9 @@ export function getToolSearchBetaHeader(): string {
  */
 export function shouldIncludeFirstPartyOnlyBetas(): boolean {
   return (
-    (getAPIProvider() === 'firstParty' || getAPIProvider() === 'foundry') &&
+    (getAPIProvider() === 'firstParty' ||
+      getAPIProvider() === 'anthropicAws' ||
+      getAPIProvider() === 'foundry') &&
     !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS)
   )
 }
@@ -241,10 +266,10 @@ export function shouldIncludeFirstPartyOnlyBetas(): boolean {
  * treatment data is firstParty-only.
  */
 export function shouldUseGlobalCacheScope(): boolean {
-  return (
-    getAPIProvider() === 'firstParty' &&
-    !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS)
-  )
+  if (!shouldIncludeFirstPartyOnlyBetas()) return false
+  if (!isFirstPartyAnthropicBaseUrl()) return false
+  const provider = getAPIProvider()
+  return provider === 'firstParty' || provider === 'anthropicAws'
 }
 
 export const getAllModelBetas = memoize((model: string): string[] => {

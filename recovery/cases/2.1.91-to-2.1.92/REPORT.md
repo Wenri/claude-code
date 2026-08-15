@@ -31,6 +31,25 @@ case is therefore labeled `generated-complete-source-partial`: the published
 executable and package tree are exact, while source-facing TypeScript is
 limited to behavior supported by target evidence.
 
+The semantic source audit is complete under
+`compiled-ast-function-semantics-v1`. Its fail-closed ledger covers all 3,132
+changed, moved, and unresolved target structural units and reports zero
+first-party `source-runtime-gap` rows. The semantic supplement restores the
+full Bedrock wizard and the shipped hidden `/setup-bedrock` command, while the
+historical target tree and current `src/` retain equivalent owners for every
+other reachable first-party behavior. This does not reconstruct erased
+TypeScript spelling, comments, or declaration order.
+
+The final canonical semantic supplement contains 147 `src/` paths and
+5,567,219 bytes, pinned by SHA-256
+`43b7f3165ca0502796e26a50e821c12a47b8bc95dc78a5744361091e0adf9062`.
+
+Whole-bundle compilation from `src/` is still not reproducible. The ledger
+retains 185 `dependency-runtime` gaps, and the target does not pin the root
+application manifest/lockfile, dependency sources, or a hermetic build
+recipe. Separately, the exact generated delta reconstructs the authenticated
+`cli.js` byte-for-byte.
+
 | Layer | Result |
 | --- | --- |
 | Published `cli.js` | Exact, target SHA-256 `6b0b8602…5362` |
@@ -38,7 +57,8 @@ limited to behavior supported by target evidence.
 | Target generated offsets | Complete, 13,157,503 / 13,157,503 UTF-16 units |
 | Target JavaScript tokens | Complete classification, 4,247,953 / 4,247,953 |
 | Full readable bundle diff | Complete comparison view |
-| Incremental repository source | Seven patches and 17 path transitions |
+| First-party runtime semantics from source | Complete, 3,132 / 3,132 nonmatched units classified; 0 source gaps |
+| Whole-bundle dependency/build inputs | Incomplete, 185 dependency runtime gaps plus missing hermetic inputs |
 | Original authored 2.1.92 spelling | Partially unobservable |
 
 ## Baseline roles

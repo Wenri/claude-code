@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import crypto from 'node:crypto'
 import fs from 'node:fs'
+import path from 'node:path'
 import test from 'node:test'
 import { fileURLToPath } from 'node:url'
 
@@ -9,9 +10,14 @@ const BASELINE_SHA256 =
 const TARGET_SHA256 =
   '8cd052c0224ebb0f717a0820ff0a8a0616f0de6d2365de43efe9867b8143d0c0'
 
+const sourceRoot = path.resolve(
+  process.env.CLAUDE_CODE_SEMANTIC_SOURCE_ROOT ??
+    fileURLToPath(new URL('../../src', import.meta.url)),
+)
+
 function source(relative) {
   return fs.readFileSync(
-    fileURLToPath(new URL(`../../${relative}`, import.meta.url)),
+    path.join(sourceRoot, relative.replace(/^src\//, '')),
     'utf8',
   )
 }

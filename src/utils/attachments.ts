@@ -44,7 +44,7 @@ import {
   getConditionalRulesForCwdLevelDirectory,
   type MemoryFileInfo,
 } from './claudemd.js'
-import { dirname, parse, relative, resolve } from 'path'
+import { dirname, join, parse, relative, resolve } from 'path'
 import { getCwd } from 'src/utils/cwd.js'
 import { getViewedTeammateTask } from '../state/selectors.js'
 import { logError } from './log.js'
@@ -71,6 +71,10 @@ import type {
   Base64ImageSource,
 } from '@anthropic-ai/sdk/resources/messages.mjs'
 import { maybeResizeAndDownsampleImageBlock } from './imageResizer.js'
+import {
+  getImageLimits,
+  type ImageLimits,
+} from './imageLimits.js'
 import type { PastedContent } from './config.js'
 import { getGlobalConfig } from './config.js'
 import {
@@ -93,6 +97,7 @@ import {
 } from '../bootstrap/state.js'
 import { formatCommandsWithinBudget } from '../tools/SkillTool/prompt.js'
 import { getContextWindowForModel } from './context.js'
+import { getSkillUsageScore } from './suggestions/skillUsageTracking.js'
 import type { DiscoverySignal } from '../services/skillSearch/signals.js'
 // Conditional require for DCE. All skill-search string literals that would
 // otherwise leak into external builds live inside these modules. The only
@@ -117,7 +122,11 @@ import {
   FILE_READ_TOOL_NAME,
 } from 'src/tools/FileReadTool/prompt.js'
 import { getDefaultFileReadingLimits } from 'src/tools/FileReadTool/limits.js'
-import { cacheKeys, type FileStateCache } from './fileStateCache.js'
+import {
+  cacheKeys,
+  fileStateMatchesContent,
+  type FileStateCache,
+} from './fileStateCache.js'
 import {
   createAbortController,
   createChildAbortController,
@@ -144,7 +153,6 @@ import {
 } from './permissions/filesystem.js'
 import {
   generateTaskAttachments,
-  applyTaskOffsetsAndEvictions,
 } from './task/framework.js'
 import { getTaskOutputPath } from './task/diskOutput.js'
 import { drainPendingMessages } from '../tasks/LocalAgentTask/LocalAgentTask.js'
@@ -183,6 +191,8 @@ import {
 } from './mcpInstructionsDelta.js'
 import { CLAUDE_IN_CHROME_MCP_SERVER_NAME } from './claudeInChrome/common.js'
 import { CHROME_TOOL_SEARCH_INSTRUCTIONS } from './claudeInChrome/prompt.js'
+import { COMPUTER_USE_MCP_SERVER_NAME } from './computerUse/common.js'
+import { COMPUTER_USE_MCP_INSTRUCTIONS } from './computerUse/prompt.js'
 import type { MCPServerConnection } from '../services/mcp/types.js'
 import type {
   HookEvent,
@@ -238,9 +248,17 @@ import { getLocalISODate } from '../constants/common.js'
 import { getPDFPageCount } from './pdf.js'
 import { PDF_AT_MENTION_INLINE_THRESHOLD } from '../constants/apiLimits.js'
 import { isAgentSwarmsEnabled } from './agentSwarmsEnabled.js'
-import { findRelevantMemories } from '../memdir/findRelevantMemories.js'
-import { memoryAge, memoryFreshnessText } from '../memdir/memoryAge.js'
-import { getAutoMemPath, isAutoMemoryEnabled } from '../memdir/paths.js'
+import {
+  findRelevantMemories,
+  synthesizeRelevantMemories,
+} from '../memdir/findRelevantMemories.js'
+import { memoryFreshnessText } from '../memdir/memoryAge.js'
+import {
+  getAutoMemPath,
+  isAutoMemoryEnabled,
+  isTinyMemoryEnabled,
+} from '../memdir/paths.js'
+import { stampTinyMemoryRead } from '../memdir/tinyMemoryStamps.js'
 import { getAgentMemoryDir } from '../tools/AgentTool/agentMemory.js'
 import {
   readUnreadMessages,
@@ -360,6 +378,7 @@ export type AsyncHookResponseAttachment = {
 
 export type HookAttachment =
   | HookCancelledAttachment
+  | HookDeferredToolAttachment
   | {
       type: 'hook_blocking_error'
       blockingError: HookBlockingError
@@ -396,6 +415,16 @@ export type HookDeferredToolAttachment = {
   hookName: string
   hookEvent: 'PreToolUse'
   permissionMode: PermissionMode
+}
+
+export type HookDeferredToolAttachment = {
+  type: 'hook_deferred_tool'
+  toolUseID: string
+  toolName: string
+  toolInput: Record<string, unknown>
+  hookName: string
+  hookEvent: 'PreToolUse'
+  permissionMode: ToolPermissionContext['mode']
 }
 
 export type HookPermissionDecisionAttachment = {
@@ -565,6 +594,7 @@ export type Attachment =
       prompt: string | Array<ContentBlockParam>
       source_uuid?: UUID
       imagePasteIds?: number[]
+      fileAttachments?: unknown[]
       /** Original queue mode — 'prompt' for user messages, 'task-notification' for system events */
       commandMode?: string
       /** Provenance carried from QueuedCommand so mid-turn drains preserve it */
@@ -708,7 +738,6 @@ export type Attachment =
     }
   | {
       type: 'ultrathink_effort'
-      level: 'high'
     }
   | {
       type: 'deferred_tools_delta'
@@ -777,6 +806,7 @@ export async function getAttachments(
   querySource?: QuerySource,
   options?: { skipSkillDiscovery?: boolean; planSlugSeed?: string },
 ): Promise<Attachment[]> {
+  const imageLimits = getImageLimits(toolUseContext.options.mainLoopModel)
   if (
     isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_ATTACHMENTS) ||
     isEnvTruthy(process.env.CLAUDE_CODE_SIMPLE)
@@ -785,7 +815,7 @@ export async function getAttachments(
     // getAttachmentMessages runs — returning [] here silently drops them.
     // Coworker runs with --bare and depends on task-notification for
     // mid-tool-call notifications from Local*Task/Remote*Task.
-    return getQueuedCommandAttachments(queuedCommands)
+    return getQueuedCommandAttachments(queuedCommands, imageLimits)
   }
 
   // This will slow down submissions
@@ -854,7 +884,9 @@ export async function getAttachments(
     // main thread gets agentId===undefined, subagents get their own agentId.
     // Must run for all threads or subagent notifications drain into the void
     // (removed from queue by removeFromQueue but never attached).
-    maybe('queued_commands', () => getQueuedCommandAttachments(queuedCommands)),
+    maybe('queued_commands', () =>
+      getQueuedCommandAttachments(queuedCommands, imageLimits),
+    ),
     maybe('date_change', () =>
       Promise.resolve(getDateChangeAttachments(messages)),
     ),
@@ -1078,6 +1110,7 @@ const INLINE_NOTIFICATION_MODES = new Set(['prompt', 'task-notification'])
 
 export async function getQueuedCommandAttachments(
   queuedCommands: QueuedCommand[],
+  imageLimits: ImageLimits,
 ): Promise<Attachment[]> {
   if (!queuedCommands) {
     return []
@@ -1092,7 +1125,10 @@ export async function getQueuedCommandAttachments(
   )
   return Promise.all(
     filtered.map(async _ => {
-      const imageBlocks = await buildImageContentBlocks(_.pastedContents)
+      const imageBlocks = await buildImageContentBlocks(
+        _.pastedContents,
+        imageLimits,
+      )
       let prompt: string | Array<ContentBlockParam> = _.value
       if (imageBlocks.length > 0) {
         // Build content block array with text + images so the model sees them
@@ -1107,6 +1143,7 @@ export async function getQueuedCommandAttachments(
         prompt,
         source_uuid: _.uuid,
         imagePasteIds: getImagePasteIds(_.pastedContents),
+        fileAttachments: _.fileAttachments,
         commandMode: _.mode,
         origin: _.origin,
         isMeta: _.isMeta,
@@ -1122,8 +1159,7 @@ export function getAgentPendingMessageAttachments(
   if (!agentId) return []
   const drained = drainPendingMessages(
     agentId,
-    toolUseContext.getAppState,
-    toolUseContext.setAppStateForTasks ?? toolUseContext.setAppState,
+    toolUseContext.taskRegistry,
   )
   return drained.map(msg => ({
     type: 'queued_command' as const,
@@ -1135,6 +1171,7 @@ export function getAgentPendingMessageAttachments(
 
 async function buildImageContentBlocks(
   pastedContents: Record<number, PastedContent> | undefined,
+  imageLimits: ImageLimits,
 ): Promise<ImageBlockParam[]> {
   if (!pastedContents) {
     return []
@@ -1154,7 +1191,10 @@ async function buildImageContentBlocks(
           data: img.content,
         },
       }
-      const resized = await maybeResizeAndDownsampleImageBlock(imageBlock)
+      const resized = await maybeResizeAndDownsampleImageBlock(
+        imageBlock,
+        imageLimits,
+      )
       return resized.block
     }),
   )
@@ -1487,7 +1527,7 @@ function getUltrathinkEffortAttachment(input: string | null): Attachment[] {
     return []
   }
   logEvent('tengu_ultrathink', {})
-  return [{ type: 'ultrathink_effort', level: 'high' }]
+  return [{ type: 'ultrathink_effort' }]
 }
 
 // Exported for compact.ts — the gate must be identical at both call sites.
@@ -1618,6 +1658,10 @@ export function getMcpInstructionsDeltaAttachment(
       block: CHROME_TOOL_SEARCH_INSTRUCTIONS,
     })
   }
+  clientSide.push({
+    serverName: COMPUTER_USE_MCP_SERVER_NAME,
+    block: COMPUTER_USE_MCP_INSTRUCTIONS,
+  })
 
   const delta = getMcpInstructionsDelta(mcpClients, messages ?? [], clientSide)
   if (!delta) return []
@@ -1787,6 +1831,7 @@ export function memoryFilesToAttachments(
         offset: undefined,
         limit: undefined,
         isPartialView: memoryFile.contentDiffersFromDisk,
+        keepContent: true,
       })
 
 
@@ -2144,6 +2189,9 @@ export async function getChangedFiles(
         const result = await FileReadTool.call(fileInput, toolUseContext)
         // Extract only the changed section
         if (result.data.type === 'text') {
+          if (fileStateMatchesContent(fileState, result.data.file.content)) {
+            return null
+          }
           const snippet = getSnippetForTwoFileDiff(
             fileState.content,
             result.data.file.content,
@@ -2164,7 +2212,12 @@ export async function getChangedFiles(
         // For non-text files (images), apply the same token limit logic as FileReadTool
         if (result.data.type === 'image') {
           try {
-            const data = await readImageWithTokenBudget(normalizedPath)
+            const data = await readImageWithTokenBudget(
+              normalizedPath,
+              undefined,
+              undefined,
+              getImageLimits(toolUseContext.options.mainLoopModel),
+            )
             return {
               type: 'edited_image_file' as const,
               filename: normalizedPath,
@@ -2236,8 +2289,8 @@ async function getNestedMemoryAttachments(
 async function getRelevantMemoryAttachments(
   input: string,
   agents: AgentDefinition[],
+  memorySelector: NonNullable<ToolUseContext['memorySelector']>,
   readFileState: FileStateCache,
-  recentTools: readonly string[],
   signal: AbortSignal,
   alreadySurfaced: ReadonlySet<string>,
 ): Promise<Attachment[]> {
@@ -2252,13 +2305,47 @@ async function getRelevantMemoryAttachments(
   })
   const dirs = memoryDirs.length > 0 ? memoryDirs : [getAutoMemPath()]
 
+  if (isTinyMemoryEnabled()) {
+    const memories = (
+      await Promise.all(
+        dirs.map(dir =>
+          synthesizeRelevantMemories(
+            input,
+            dir,
+            memorySelector,
+            signal,
+          ).catch(() => null),
+        ),
+      )
+    )
+      .map((result, index) => {
+        if (result === null) return null
+        const memoryDir = dirs[index]!
+        for (const filename of result.citedMemories) {
+          void stampTinyMemoryRead(join(memoryDir, filename))
+        }
+        const sources = result.citedMemories.join(', ')
+        return {
+          path: `<synthesis:${memoryDir}>`,
+          content: sources
+            ? `${result.synthesis}\n\nSources: ${sources}`
+            : result.synthesis,
+          mtimeMs: Date.now(),
+          header: 'Recalled from your persistent memory system:',
+        }
+      })
+      .filter(result => result !== null)
+    if (memories.length === 0) return []
+    return [{ type: 'relevant_memories' as const, memories }]
+  }
+
   const allResults = await Promise.all(
     dirs.map(dir =>
       findRelevantMemories(
         input,
         dir,
+        memorySelector,
         signal,
-        recentTools,
         alreadySurfaced,
       ).catch(() => []),
     ),
@@ -2366,9 +2453,7 @@ export async function readMemoriesForSurfacing(
  */
 export function memoryHeader(path: string, mtimeMs: number): string {
   const staleness = memoryFreshnessText(mtimeMs)
-  return staleness
-    ? `${staleness}\n\nMemory: ${path}:`
-    : `Memory (saved ${memoryAge(mtimeMs)}): ${path}:`
+  return staleness ? `${staleness}\n\nMemory: ${path}:` : `Memory: ${path}:`
 }
 
 /**
@@ -2392,6 +2477,14 @@ export type MemoryPrefetch = {
   [Symbol.dispose](): void
 }
 
+const MEMORY_SELECTOR_EXCLUDED_QUERY_SOURCES = new Set<QuerySource>([
+  'extract_memories',
+  'auto_dream',
+  'prompt_suggestion',
+  'speculation',
+  'compact',
+])
+
 /**
  * Starts the relevant memory search as an async prefetch.
  * Extracts the last real user prompt from messages (skipping isMeta system
@@ -2401,10 +2494,15 @@ export type MemoryPrefetch = {
 export function startRelevantMemoryPrefetch(
   messages: ReadonlyArray<Message>,
   toolUseContext: ToolUseContext,
+  querySource?: QuerySource,
 ): MemoryPrefetch | undefined {
   if (
+    !toolUseContext.memorySelector ||
+    toolUseContext.agentId ||
     !isAutoMemoryEnabled() ||
-    !getFeatureValue_CACHED_MAY_BE_STALE('tengu_moth_copse', false)
+    !getFeatureValue_CACHED_MAY_BE_STALE('tengu_moth_copse', false) ||
+    (querySource !== undefined &&
+      MEMORY_SELECTOR_EXCLUDED_QUERY_SOURCES.has(querySource))
   ) {
     return undefined
   }
@@ -2432,8 +2530,8 @@ export function startRelevantMemoryPrefetch(
   const promise = getRelevantMemoryAttachments(
     input,
     toolUseContext.options.agentDefinitions.activeAgents,
+    toolUseContext.memorySelector,
     toolUseContext.readFileState,
-    collectRecentSuccessfulTools(messages, lastUserMessage),
     controller.signal,
     surfaced.paths,
   ).catch(e => {
@@ -2449,11 +2547,15 @@ export function startRelevantMemoryPrefetch(
     consumedOnIteration: -1,
     [Symbol.dispose]() {
       controller.abort()
+      const usage = toolUseContext.memorySelector?.lastUsage
       logEvent('tengu_memdir_prefetch_collected', {
         hidden_by_first_iteration:
           handle.settledAt !== null && handle.consumedOnIteration === 0,
         consumed_on_iteration: handle.consumedOnIteration,
         latency_ms: (handle.settledAt ?? Date.now()) - firedAt,
+        cache_read_input_tokens: usage?.cacheReadInputTokens,
+        cache_creation_input_tokens: usage?.cacheCreationInputTokens,
+        selector_turn_count: usage?.turnCount,
       })
     },
   }
@@ -2785,7 +2887,11 @@ async function getSkillListingAttachments(
     toolUseContext.options.mainLoopModel,
     getSdkBetas(),
   )
-  const content = formatCommandsWithinBudget(newSkills, contextWindowTokens)
+  const content = formatCommandsWithinBudget(
+    newSkills,
+    contextWindowTokens,
+    command => getSkillUsageScore(command.name),
+  )
 
   return [
     {
@@ -2808,8 +2914,8 @@ export function extractAtMentionedFiles(content: string): string[] {
   // Example: 'check @"my file.txt" please' would extract "my file.txt"
 
   // Two patterns: quoted paths and regular paths
-  const quotedAtMentionRegex = /(^|\s)@"([^"]+)"/g
-  const regularAtMentionRegex = /(^|\s)@([^\s]+)\b/g
+  const quotedAtMentionRegex = /(^|[\s。、？！])@"([^"]+)"/g
+  const regularAtMentionRegex = /(^|[\s。、？！])@([^\s]+)\b/g
 
   const quotedMatches: string[] = []
   const regularMatches: string[] = []
@@ -2839,7 +2945,7 @@ export function extractAtMentionedFiles(content: string): string[] {
 export function extractMcpResourceMentions(content: string): string[] {
   // Extract MCP resources mentioned with @ symbol in format @server:uri
   // Example: "@server1:resource/path" would extract "server1:resource/path"
-  const atMentionRegex = /(^|\s)@([^\s]+:[^\s]+)\b/g
+  const atMentionRegex = /(^|[\s。、？！])@([^\s]+:[^\s]+)\b/g
   const matches = content.match(atMentionRegex) || []
 
   // Remove the prefix (everything before @) from each match
@@ -2856,7 +2962,7 @@ export function extractAgentMentions(content: string): string[] {
   const results: string[] = []
 
   // Match quoted format: @"<type> (agent)"
-  const quotedAgentRegex = /(^|\s)@"([\w:.@-]+) \(agent\)"/g
+  const quotedAgentRegex = /(^|[\s。、？！])@"([\w:.@-]+) \(agent\)"/g
   let match
   while ((match = quotedAgentRegex.exec(content)) !== null) {
     if (match[2]) {
@@ -2865,7 +2971,7 @@ export function extractAgentMentions(content: string): string[] {
   }
 
   // Match unquoted format: @agent-<type>
-  const unquotedAgentRegex = /(^|\s)@(agent-[\w:.@-]+)/g
+  const unquotedAgentRegex = /(^|[\s。、？！])@(agent-[\w:.@-]+)/g
   const unquotedMatches = content.match(unquotedAgentRegex) || []
   for (const m of unquotedMatches) {
     results.push(m.slice(m.indexOf('@') + 1))
@@ -3486,12 +3592,10 @@ async function getTaskReminderAttachments(
 async function getUnifiedTaskAttachments(
   toolUseContext: ToolUseContext,
 ): Promise<Attachment[]> {
-  const appState = toolUseContext.getAppState()
   const { attachments, updatedTaskOffsets, evictedTaskIds } =
-    await generateTaskAttachments(appState)
+    await generateTaskAttachments(toolUseContext.taskRegistry.all())
 
-  applyTaskOffsetsAndEvictions(
-    toolUseContext.setAppState,
+  toolUseContext.taskRegistry.applyOffsetsAndEvict(
     updatedTaskOffsets,
     evictedTaskIds,
   )

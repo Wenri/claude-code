@@ -39,6 +39,17 @@ export function isBridgeEnabled(): boolean {
 }
 
 /**
+ * Whether the signed-in account is entitled to Remote Control, independent of
+ * whether this particular process may start another Remote Control session.
+ */
+export function hasBridgeEntitlement(): boolean {
+  return (
+    isClaudeAISubscriber() &&
+    getFeatureValue_CACHED_MAY_BE_STALE('tengu_ccr_bridge', false)
+  )
+}
+
+/**
  * Blocking entitlement check for Remote Control.
  *
  * Returns cached `true` immediately (fast path). If the disk cache says
@@ -229,9 +240,19 @@ export function checkBridgeMinVersion(): string | null {
  * config.ts → growthbook.ts import cycle (growthbook.ts → user.ts → config.ts).
  */
 export function getCcrAutoConnectDefault(): boolean {
+  if (isRunningInRemoteEnvironment()) return false
+  if (isPersistentRemoteSessionEnabled()) return true
   return feature('CCR_AUTO_CONNECT')
     ? getFeatureValue_CACHED_MAY_BE_STALE('tengu_cobalt_harbor', false)
     : false
+}
+
+/**
+ * Compatibility name shipped with the original persistent Remote Control
+ * rollout. External builds fold this to false.
+ */
+export function isPersistentRemoteSessionEnabled(): boolean {
+  return feature('CCR_AUTO_CONNECT') ? true : false
 }
 
 /**

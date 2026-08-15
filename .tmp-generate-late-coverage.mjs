@@ -1,0 +1,9568 @@
+import { spawnSync } from 'node:child_process'
+import fs from 'node:fs'
+import path from 'node:path'
+import { gzipSync } from 'node:zlib'
+
+const repositoryRoot = process.cwd()
+
+const cases = [
+  ['2.1.107-to-2.1.108', '2.1.108', 'a22c02fc9bf4b772da434470c28e1bb21f5bd73c'],
+  ['2.1.108-to-2.1.109', '2.1.109', '24f983bdbd6a2f1dadba452f9bdd6aea077c3238'],
+  ['2.1.109-to-2.1.110', '2.1.110', '34ff410fe7339937986bccbb2eb848138bb0db1f'],
+  ['2.1.110-to-2.1.111', '2.1.111', '5e168e7272e2eb510b16d7141538bb3f4836749a'],
+  ['2.1.111-to-2.1.112', '2.1.112', '7a202a296a5d4278f75fd0bdb3ef870e98a34452'],
+  ['2.1.112-to-2.1.113', '2.1.113', 'd88405d4b4b7ce6e066e1d67e7fc421b54d685f0'],
+  ['2.1.113-to-2.1.114', '2.1.114', 'f7d9656548fd1e7849a9e243d9950dbb7307690c'],
+  ['2.1.114-to-2.1.116', '2.1.116', 'e08046f528857203cbdede147bcab8b8b8021bf7'],
+]
+
+// The 2.1.116 source map coalesces the vendored Anthropic SDK workload-
+// identity provider chain into the adjacent first-party model module. Direct
+// bundle inspection and the authenticated WIF test pin 4603–4631 as SDK
+// runtime; the authored wrapper starts at 4632.
+const forcedDependencyRows = new Map([
+  [
+    '2.1.112-to-2.1.113',
+    new Set([
+      4038,
+      4123,
+      4130,
+      6699,
+      6792,
+      8708,
+      10184,
+      13269,
+      15317,
+    ]),
+  ],
+  [
+    '2.1.114-to-2.1.116',
+    new Set(Array.from({ length: 29 }, (_, offset) => 4603 + offset)),
+  ],
+])
+
+const forcedDependencyAttributions = new Map([
+  ['2.1.112-to-2.1.113:4038', '../node_modules/@aws-sdk/client-sts/node_modules/@smithy/types/dist-cjs/http.js'],
+  ['2.1.112-to-2.1.113:4123', '../node_modules/@aws-sdk/client-sts/node_modules/@smithy/smithy-client/dist-cjs/index.js'],
+  ['2.1.112-to-2.1.113:4130', '../node_modules/@aws-sdk/client-sts/dist-cjs/endpoint/EndpointParameters.js'],
+  ['2.1.112-to-2.1.113:6699', '../node_modules/react-reconciler/cjs/react-reconciler-constants.production.js'],
+  ['2.1.112-to-2.1.113:6792', '../node_modules/react-reconciler/node_modules/scheduler/cjs/scheduler.production.js'],
+  ['2.1.112-to-2.1.113:8708', '../node_modules/picomatch/lib/parse.js'],
+  ['2.1.112-to-2.1.113:10184', '../node_modules/@ant/computer-use-swift/js/index.js'],
+  ['2.1.112-to-2.1.113:13269', '../vendor/audio-capture-src/index.ts'],
+  ['2.1.112-to-2.1.113:15317', '../node_modules/asciichart/asciichart.js'],
+])
+
+const forcedDependencyEvidence = new Map([
+  ['2.1.112-to-2.1.113:8708', 'case113-dependency-wrapper-target-fragment'],
+  ['2.1.112-to-2.1.113:10184', 'case113-dependency-wrapper-target-fragment'],
+  ['2.1.112-to-2.1.113:13269', 'case113-audio-capture-vendor-runtime-target-fragment'],
+  ['2.1.112-to-2.1.113:15317', 'case113-dependency-wrapper-target-fragment'],
+])
+
+// Some late deltas evolve an owner introduced by an earlier recovery case,
+// while the isolated late target commit still lacks that authored source.
+// Keep the owner attributed to its first supplement instead of duplicating
+// the complete earlier graph in a later case.
+const transitiveOwnerCases = new Map([
+  [
+    '2.1.112-to-2.1.113:src/components/BedrockSetupWizard.tsx',
+    '2.1.91-to-2.1.92',
+  ],
+  [
+    '2.1.112-to-2.1.113:src/bridge/clientPresence.ts',
+    '2.1.88-to-2.1.89',
+  ],
+  [
+    '2.1.112-to-2.1.113:src/bridge/persistenceSync.ts',
+    '2.1.89-to-2.1.90',
+  ],
+  [
+    '2.1.112-to-2.1.113:src/components/TeamOnboardingDiscoveryStep.tsx',
+    '2.1.92-to-2.1.94',
+  ],
+  [
+    '2.1.112-to-2.1.113:src/components/ThirdPartyModelUpgradeDialog.tsx',
+    '2.1.97-to-2.1.98',
+  ],
+  [
+    '2.1.112-to-2.1.113:src/tools/REPLTool/REPLTool.ts',
+    '2.1.107-to-2.1.108',
+  ],
+  [
+    '2.1.112-to-2.1.113:src/utils/permissionStatus.ts',
+    '2.1.92-to-2.1.94',
+  ],
+  [
+    '2.1.112-to-2.1.113:src/cli/handlers/autoMode.ts',
+    '2.1.107-to-2.1.108',
+  ],
+  [
+    '2.1.112-to-2.1.113:src/components/ultraplan/UltraplanChoiceDialog.tsx',
+    '2.1.90-to-2.1.91',
+  ],
+  [
+    '2.1.109-to-2.1.110:src/ink/events/paste-event.ts',
+    '2.1.100-to-2.1.101',
+  ],
+  [
+    '2.1.109-to-2.1.110:src/tools/MonitorTool/prompt.ts',
+    '2.1.97-to-2.1.98',
+  ],
+  [
+    '2.1.109-to-2.1.110:src/utils/subagentStatusLine.ts',
+    '2.1.104-to-2.1.105',
+  ],
+  [
+    '2.1.110-to-2.1.111:src/memdir/findRelevantMemories.ts',
+    '2.1.92-to-2.1.94',
+  ],
+  [
+    '2.1.114-to-2.1.116:src/hooks/usePluginRecommendationBase.tsx',
+    '2.1.107-to-2.1.108',
+  ],
+  [
+    '2.1.114-to-2.1.116:src/utils/model/model.ts',
+    '2.1.96-to-2.1.97',
+  ],
+  [
+    '2.1.114-to-2.1.116:src/utils/messages.ts',
+    '2.1.88-to-2.1.89',
+  ],
+  [
+    '2.1.114-to-2.1.116:src/services/mcp/headlessConnectionManager.ts',
+    '2.1.100-to-2.1.101',
+  ],
+  [
+    '2.1.114-to-2.1.116:src/entrypoints/mcp.ts',
+    '2.1.100-to-2.1.101',
+  ],
+  [
+    '2.1.114-to-2.1.116:src/bootstrap/state.ts',
+    '2.1.89-to-2.1.90',
+  ],
+  [
+    '2.1.114-to-2.1.116:src/commands/toggle-memory.ts',
+    '2.1.89-to-2.1.90',
+  ],
+  [
+    '2.1.114-to-2.1.116:src/services/extractMemories/extractMemories.ts',
+    '2.1.89-to-2.1.90',
+  ],
+  [
+    '2.1.114-to-2.1.116:src/utils/permissions/filesystem.ts',
+    '2.1.89-to-2.1.90',
+  ],
+  [
+    '2.1.114-to-2.1.116:src/skills/bundled/scheduleRemoteAgents.ts',
+    '2.1.100-to-2.1.101',
+  ],
+  [
+    '2.1.114-to-2.1.116:src/components/FeedbackSurvey/FeedbackSurveyView.tsx',
+    '2.1.109-to-2.1.110',
+  ],
+  [
+    '2.1.114-to-2.1.116:src/components/FeedbackSurvey/FeedbackSurvey.tsx',
+    '2.1.109-to-2.1.110',
+  ],
+  [
+    '2.1.114-to-2.1.116:src/Tool.ts',
+    '2.1.110-to-2.1.111',
+  ],
+  [
+    '2.1.114-to-2.1.116:src/tools/AgentTool/runAgent.ts',
+    '2.1.110-to-2.1.111',
+  ],
+  [
+    '2.1.114-to-2.1.116:src/QueryEngine.ts',
+    '2.1.110-to-2.1.111',
+  ],
+  [
+    '2.1.114-to-2.1.116:src/main.tsx',
+    '2.1.110-to-2.1.111',
+  ],
+  [
+    '2.1.114-to-2.1.116:src/entrypoints/sdk/controlSchemas.ts',
+    '2.1.100-to-2.1.101',
+  ],
+  [
+    '2.1.114-to-2.1.116:src/cli/structuredIO.ts',
+    '2.1.100-to-2.1.101',
+  ],
+  [
+    '2.1.114-to-2.1.116:src/cli/print.ts',
+    '2.1.100-to-2.1.101',
+  ],
+  [
+    '2.1.114-to-2.1.116:src/services/mcp/useManageMCPConnections.ts',
+    '2.1.112-to-2.1.113',
+  ],
+  [
+    '2.1.114-to-2.1.116:src/utils/permissions/permissions.ts',
+    '2.1.96-to-2.1.97',
+  ],
+  [
+    '2.1.114-to-2.1.116:src/tools/BashTool/BashTool.tsx',
+    '2.1.112-to-2.1.113',
+  ],
+  ...[
+    'src/services/api/bootstrap.ts',
+    'src/utils/config.ts',
+    'src/utils/modelCost.ts',
+  ].map(sourcePath => [
+    `2.1.114-to-2.1.116:${sourcePath}`,
+    '2.1.96-to-2.1.97',
+  ]),
+  [
+    '2.1.114-to-2.1.116:src/components/Settings/Status.tsx',
+    '2.1.104-to-2.1.105',
+  ],
+  [
+    '2.1.114-to-2.1.116:src/utils/model/deprecation.ts',
+    '2.1.104-to-2.1.105',
+  ],
+  [
+    '2.1.114-to-2.1.116:src/tools/FileReadTool/FileReadTool.ts',
+    '2.1.104-to-2.1.105',
+  ],
+  [
+    '2.1.114-to-2.1.116:src/memdir/findRelevantMemories.ts',
+    '2.1.92-to-2.1.94',
+  ],
+  ...[
+    'src/constants/prompts.ts',
+    'src/utils/queryContext.ts',
+    'src/utils/analyzeContext.ts',
+    'src/commands/context/context-noninteractive.ts',
+    'src/context.ts',
+    'src/state/AppStateStore.ts',
+    'src/commands/clear/conversation.ts',
+  ].map(sourcePath => [
+    `2.1.114-to-2.1.116:${sourcePath}`,
+    '2.1.96-to-2.1.97',
+  ]),
+  ...[
+    'src/utils/sessionStorage.ts',
+    'src/services/PromptSuggestion/speculation.ts',
+    'src/services/mcp/client.ts',
+    'src/context/notifications.tsx',
+    'src/utils/autoModeDenials.ts',
+    'src/components/permissions/rules/RecentDenialsTab.tsx',
+    'src/components/permissions/rules/PermissionRuleList.tsx',
+    'src/hooks/useCanUseTool.tsx',
+    'src/tools.ts',
+    'src/tools/AgentTool/AgentTool.tsx',
+    'src/tools/AgentTool/resumeAgent.ts',
+    'src/utils/settings/types.ts',
+    'src/entrypoints/sandboxTypes.ts',
+    'src/utils/sandbox/sandbox-adapter.ts',
+    'src/components/memory/MemoryFileSelector.tsx',
+  ].map(sourcePath => [
+    `2.1.114-to-2.1.116:${sourcePath}`,
+    '2.1.96-to-2.1.97',
+  ]),
+  [
+    '2.1.114-to-2.1.116:src/utils/loopWakeup.ts',
+    '2.1.100-to-2.1.101',
+  ],
+  [
+    '2.1.114-to-2.1.116:src/components/design-system/Tree.tsx',
+    '2.1.104-to-2.1.105',
+  ],
+])
+
+// A semantic coverage owner normally must remain present in cumulative src/.
+// These three owners are authenticated historical behavior that was removed
+// at a later release boundary.  The audit proves the named later target and
+// current tree both omit the path; ThinkingIndicator additionally has an exact
+// pinned source-overlay deletion, while the remote-workflow files have exact
+// new-file introduction patches followed by target-113 absence.
+const retiredOwnerCases = new Map([
+  [
+    '2.1.108-to-2.1.109:src/components/ThinkingIndicator.tsx',
+    '2.1.114-to-2.1.116',
+  ],
+  [
+    '2.1.109-to-2.1.110:src/commands/remote-workflows/index.ts',
+    '2.1.112-to-2.1.113',
+  ],
+  [
+    '2.1.109-to-2.1.110:src/commands/remote-workflows/spawner.tsx',
+    '2.1.112-to-2.1.113',
+  ],
+])
+
+const specialOwners = new Map([
+  ['2.1.107-to-2.1.108:14971', 'src/commands/release-notes/index.ts'],
+  ['2.1.109-to-2.1.110:6202', 'src/utils/modifiers.ts'],
+  ['2.1.109-to-2.1.110:6206', 'src/utils/modifiers.ts'],
+  ['2.1.109-to-2.1.110:6212', 'src/utils/modifiers.ts'],
+  ['2.1.112-to-2.1.113:16124', 'src/commands/release-notes/index.ts'],
+  ['2.1.112-to-2.1.113:16127', 'src/commands/release-notes/index.ts'],
+  ['2.1.112-to-2.1.113:16129', 'src/commands/release-notes/index.ts'],
+  ['2.1.112-to-2.1.113:16130', 'src/commands/release-notes/index.ts'],
+  ['2.1.114-to-2.1.116:16264', 'src/commands/release-notes/index.ts'],
+  ['2.1.114-to-2.1.116:16271', 'src/commands/release-notes/index.ts'],
+])
+
+// Source-map partitions are only localization clues.  These target-fragment
+// overrides record the runtime owner where a large initializer or an adjacent
+// minified function made the highest-weight partition misleading.
+const case108PriorLiteralOwners = new Map([
+  [2073, 'src/utils/stringUtils.ts'],
+  [2590, 'src/tools/BriefTool/prompt.ts'],
+  [2609, 'src/utils/settings/types.ts'],
+  [3098, 'src/utils/model/configs.ts'],
+  [3110, 'src/utils/billing.ts'],
+  [4644, 'src/utils/secureStorage/plainTextStorage.ts'],
+  [5017, 'src/services/analytics/growthbook.ts'],
+  [5116, 'src/tools/GrepTool/prompt.ts'],
+  [5129, 'src/tools/GlobTool/prompt.ts'],
+  [5251, 'src/ink/colorize.ts'],
+  [5864, 'src/hooks/useTerminalSize.ts'],
+  [6090, 'src/types/plugin.ts'],
+  [6768, 'src/tools/AgentTool/built-in/claudeCodeGuideAgent.ts'],
+  [6951, 'src/buddy/companion.ts'],
+  [6964, 'src/buddy/companion.ts'],
+  [7218, 'src/utils/telemetryAttributes.ts'],
+  [8635, 'src/utils/imagePaste.ts'],
+  [8681, 'src/components/permissions/ComputerUseApproval/ComputerUseApproval.tsx'],
+  [8805, 'src/services/mcp/client.ts'],
+  [9129, 'src/utils/generatedFiles.ts'],
+  [9490, 'src/services/api/grove.ts'],
+  [9506, 'src/components/CustomSelect/use-multi-select-state.ts'],
+  [10172, 'src/bridge/bridgeStatusUtil.ts'],
+  [10209, 'src/constants/spinnerVerbs.ts'],
+  [10219, 'src/components/TaskListV2.tsx'],
+  [10235, 'src/components/Spinner/utils.ts'],
+  [10241, 'src/components/Spinner/utils.ts'],
+  [10338, 'src/entrypoints/sdk/coreSchemas.ts'],
+  [10342, 'src/utils/teammateMailbox.ts'],
+  [11231, 'src/utils/teleport.tsx'],
+  [11365, 'src/tools/FileEditTool/types.ts'],
+  [11422, 'src/tools/FileWriteTool/FileWriteTool.ts'],
+  [11850, 'src/tools/EnterWorktreeTool/EnterWorktreeTool.ts'],
+  [11986, 'src/tools/ScheduleCronTool/CronCreateTool.ts'],
+  [12082, 'src/tools/SendMessageTool/SendMessageTool.ts'],
+  [12086, 'src/tools/SendMessageTool/SendMessageTool.ts'],
+  [12367, 'src/skills/loadSkillsDir.ts'],
+  [13596, 'src/state/AppState.tsx'],
+  [13738, 'src/components/TextInput.tsx'],
+  [13769, 'src/commands/add-dir/index.ts'],
+  [15121, 'src/components/LogoV2/EmergencyTip.tsx'],
+  [15156, 'src/components/LogoV2/LogoV2.tsx'],
+  [16182, 'src/commands/brief.ts'],
+  [17138, 'src/cli/transports/ccrClient.ts'],
+  [17194, 'src/hooks/useReplBridge.tsx'],
+  [17214, 'src/hooks/useIdeLogging.ts'],
+  [17388, 'src/components/permissions/FilePermissionDialog/permissionOptions.tsx'],
+  [17444, 'src/components/permissions/FallbackPermissionRequest.tsx'],
+  [17864, 'src/utils/ghPrStatus.ts'],
+  [17879, 'src/components/PromptInput/PromptInputFooterLeftSide.tsx'],
+  [18219, 'src/components/FeedbackSurvey/useMemorySurvey.tsx'],
+  [18525, 'src/hooks/useScheduledTasks.ts'],
+  [18627, 'src/components/Onboarding.tsx'],
+  [18946, 'src/utils/telemetry/skillLoadedEvent.ts'],
+  [19107, 'src/utils/plugins/headlessPluginInstall.ts'],
+])
+
+const case108LiteralOwnerCorrections = [
+  [2073, 'src/utils/log.ts'],
+  [2590, 'src/utils/permissions/permissionRuleParser.ts'],
+  [2609, 'src/utils/settings/schemaOutput.ts'],
+  [3098, 'src/utils/model/modelStrings.ts'],
+  [3110, 'src/services/mockRateLimits.ts'],
+  [4644, 'src/utils/auth.ts'],
+  [5017, 'src/memdir/paths.ts'],
+  [5116, 'src/utils/pdfUtils.ts'],
+  [5129, 'src/tools/REPLTool/constants.ts'],
+  [5251, 'src/utils/earlyInput.ts'],
+  [5864, 'src/components/MessageResponse.tsx'],
+  [6090, 'src/utils/plugins/addDirPluginSettings.ts'],
+  [6768, 'src/tools/AgentTool/built-in/exploreAgent.ts'],
+  [6951, 'src/services/api/promptCacheBreakDetection.ts'],
+  [6964, 'src/services/api/promptCacheBreakDetection.ts'],
+  [7218, 'src/services/api/withRetry.ts'],
+  [8635, 'src/context/overlayContext.tsx'],
+  [8681, 'src/utils/computerUse/computerUseLock.ts'],
+  [8805, 'src/services/diagnosticTracking.ts'],
+  [9129, 'src/utils/commitAttribution.ts'],
+  [9490, 'src/components/CustomSelect/use-multi-select-state.ts'],
+  [9506, 'src/utils/managedEnvConstants.ts'],
+  [10172, 'src/utils/activityManager.ts'],
+  [10209, 'src/utils/tasks.ts'],
+  [10219, 'src/hooks/useTasksV2.ts'],
+  [10235, 'src/components/Spinner/GlimmerMessage.tsx'],
+  [10241, 'src/components/Spinner/SpinnerGlyph.tsx'],
+  [10338, 'src/utils/teammateMailbox.ts'],
+  [10342, 'src/utils/permissions/PermissionUpdateSchema.ts'],
+  [11231, 'src/tasks/RemoteAgentTask/RemoteAgentTask.tsx'],
+  [11365, 'src/components/HighlightedCode/Fallback.tsx'],
+  [11422, 'src/utils/plugins/orphanedPluginFilter.ts'],
+  [11850, 'src/tools/EnterPlanModeTool/EnterPlanModeTool.ts'],
+  [11986, 'src/tools/ScheduleCronTool/UI.tsx'],
+  [12082, 'src/tools.ts'],
+  [12086, 'src/tools.ts'],
+  [12367, 'src/tools/SendMessageTool/SendMessageTool.ts'],
+  [13596, 'src/context/notifications.tsx'],
+  [13738, 'src/utils/suggestions/directoryCompletion.ts'],
+  [13769, 'src/bridge/debugUtils.ts'],
+  [15121, 'src/components/LogoV2/ChannelsNotice.tsx'],
+  [15156, 'src/components/MessageRow.tsx'],
+  [16182, 'src/bridge/envLessBridgeConfig.ts'],
+  [17138, 'src/cli/transports/SSETransport.ts'],
+  [17194, 'src/components/MessageSelector.tsx'],
+  [17214, 'src/components/permissions/AskUserQuestionPermissionRequest/PreviewBox.tsx'],
+  [17388, 'src/components/permissions/FilePermissionDialog/usePermissionHandler.ts'],
+  [17444, 'src/components/permissions/FileEditPermissionRequest/FileEditPermissionRequest.tsx'],
+  [17864, 'src/hooks/usePrStatus.ts'],
+  [17879, 'src/components/PromptInput/PromptInputQueuedCommands.tsx'],
+  [18219, 'src/components/FeedbackSurvey/usePostCompactSurvey.tsx'],
+  [18525, 'src/screens/REPL.tsx'],
+  [18627, 'src/components/TrustDialog/utils.ts'],
+  [18946, 'src/cli/exit.ts'],
+  [19107, 'src/cli/print.ts'],
+].map(([targetIndex, sourcePath]) => [
+  `2.1.107-to-2.1.108:${targetIndex}`,
+  {
+    paths: [sourcePath, case108PriorLiteralOwners.get(targetIndex)],
+    evidenceIds: [
+      'target108-owner-corrections-target-fragment',
+      'target108-owner-corrections-semantic-test',
+    ],
+    behavior: `Exact target-fragment and cooked-literal comparison split the coalesced unit between ${sourcePath} and the prior coarse owner; together those attributed candidates contain every owner-local target residue for unit ${targetIndex}.`,
+  },
+])
+
+// Complete target-added owner-local typed-residue set for 2.1.108. Each row
+// is authenticated by the focused fragment test; the three corrected rows
+// retain their prior coarse owner secondarily so adjacent responsibility is
+// not discarded.
+const case108TargetAddedResidueOwners = [
+  [13011, ['src/tools/FileReadTool/FileReadTool.ts'], 'FileRead retains the fileReadingLimits destructuring/property spelling locally across the exact paired baseline and target units.'],
+  [13426, ['src/utils/messages.ts'], 'Message normalization drops legacy pen-mode enter/exit attachments from model context.'],
+  [13453, ['src/utils/messages.ts'], 'Signed-thinking detection accepts redacted thinking or a thinking block with a truthy signature.'],
+  [13790, ['src/utils/sideQuestion.ts'], 'The side-question reset clears the bounded shared history.'],
+  [13792, ['src/utils/sideQuestion.ts'], 'Side questions hydrate prior history, retain successful nonsynthetic answers, and trim the bounded cache.'],
+  [13953, ['src/commands/compact/compact.ts', 'src/commands/commit-push-pr.ts'], 'Manual compaction switches stream mode to requesting before the request and restores it in finally; compact.ts is the exact candidate owner.'],
+  [14009, ['src/components/Settings/Status.tsx'], 'A nonempty settings-status section renders a plain two-column Table.'],
+  [14010, ['src/components/Settings/Status.tsx'], 'Each settings-status entry renders through Table.Row with its label and value.'],
+  [14459, ['src/components/PromptInput/utils.ts'], 'PromptInput classifies navigation, editing, mouse, and function keys as nonprintable.'],
+  [14719, ['src/commands/plugin/BrowseMarketplace.tsx'], 'Marketplace warning and error status icons request the target spacing.'],
+  [14722, ['src/commands/plugin/DiscoverPlugins.tsx'], 'Plugin discovery warning and error status icons request the target spacing.'],
+  [17811, ['src/hooks/useVimInput.ts', 'src/vim/types.ts'], 'Vim input records inserted text and normalizes left/right keys to h/l; useVimInput.ts is the exact behavioral owner.'],
+  [17920, ['src/components/PromptInput/PromptInput.tsx'], 'Backspace/delete at cursor zero leave empty help and special input modes.'],
+  [17939, ['src/remote/sdkMessageAdapter.ts'], 'The SDK adapter maps ttft_ms to the public ttftMs stream-event field.'],
+  [17945, ['src/remote/sdkMessageAdapter.ts'], 'A requesting SDK status becomes the stream_request_start event.'],
+  [18029, ['src/hooks/useCancelRequest.ts'], 'The cancellation hook consumes isInputEmpty through a TypeScript destructuring binding emitted as a runtime property.'],
+  [18238, ['src/components/FeedbackSurvey/TranscriptSharePrompt.tsx'], 'Transcript choices retain the y and d properties with identical local multiplicity in the exact paired units.'],
+  [18273, ['src/utils/plugins/officialMarketplaceStartupCheck.ts'], 'The one-hour initial marketplace delay is locally invariant across the exact paired units.'],
+  [18299, ['src/services/tips/tipRegistry.ts'], 'The one-day tip cooldown is locally invariant across the exact paired units.'],
+  [18546, ['src/services/api/bootstrap.ts'], 'Bootstrap schema number properties retain identical local multiplicity across the exact paired units.'],
+  [18608, ['src/components/ui/OrderedList.tsx', 'src/components/LogoV2/WelcomeV2.tsx'], 'OrderedList.tsx owns the createContext lowering; the exact paired units retain one local occurrence.'],
+  [18705, ['src/interactiveHelpers.tsx'], 'The relaunch dimColor property is locally invariant across the exact paired units.'],
+  [18707, ['src/interactiveHelpers.tsx'], 'The Vertex upgrade haiku discriminator is locally invariant across the exact paired units.'],
+  [18708, ['src/interactiveHelpers.tsx'], 'The Vertex fallback haiku discriminator is locally invariant across the exact paired units.'],
+  [18711, ['src/interactiveHelpers.tsx'], 'The sonnet, opus, and haiku label properties are locally invariant across the exact paired units.'],
+  [19050, ['src/services/SessionMemory/sessionMemory.ts'], 'Session-memory Array.at calls retain identical local multiplicity across the exact paired units.'],
+  [19064, ['src/cli/transports/WebSocketTransport.ts'], 'WebSocketTransport Symbol.dispose delegates to close.'],
+  [19088, ['src/QueryEngine.ts'], 'QueryEngine preserves functional permission updates, deferred-tool handling, and SDK TTFT/status mapping.'],
+  [19121, ['src/cli/print.ts'], 'Print mode forwards MCP _meta and accumulates api_retry status with Math.max.'],
+  [19132, ['src/cli/print.ts'], 'A failed print-mode continue emits telemetry with the print entrypoint.'],
+  [19190, ['src/commands/install.tsx'], 'The JSX createElement lowering is locally invariant across the exact paired install-command units.'],
+].map(([targetIndex, paths, behavior]) => [
+  `2.1.107-to-2.1.108:${targetIndex}`,
+  {
+    paths,
+    evidenceIds: [
+      'target108-target-added-residue-target-fragment',
+      'target108-target-added-residue-semantic-test',
+    ],
+    behavior,
+  },
+])
+
+// Exact, fail-closed proof matrix for the non-behavioral target-added residue
+// rows in 2.1.111.  Candidate rows correct a coarse source-map owner and pin
+// the complete target fragment.  Static rows are restricted to authenticated
+// paired-unit invariants, named-import lowering, or the build macro object;
+// the focused test rejects any row not present in this exact list.
+const case111ResidueCandidateOwners = [
+  [5186, ['src/utils/systemTheme.ts'], 'The complete target color parser and both target-only regex literals are authored by systemTheme.ts.'],
+  [5997, ['src/keybindings/schema.ts'], 'The complete target keybinding schema initializer owns the settings:sortByTokens action enum member.'],
+  [8834, ['src/utils/telemetry/apiBodyLogging.ts'], 'The complete target redaction helper maps thinking and redacted_thinking blocks to the two authored redaction fields.'],
+  [10179, ['src/utils/nativeInstaller/installer.ts', 'src/utils/nativeInstaller/download.ts'], 'The exact native-installer update unit combines the authored version validator from download.ts with three inlined VERSION/BUILD_TIME build-macro objects in installer.ts.'],
+  [13841, ['src/services/api/withRetry.ts'], 'The complete target retry generator owns proxy-auth status 407 handling and the query_source retry telemetry property.'],
+  [14017, ['src/hooks/fileSuggestions.ts'], 'The exact file-index refresh function reads and updates lastRefreshMs around its git-index and refresh-throttle guards.'],
+  [14037, ['src/commands/clear/index.ts'], 'The complete target clear-command descriptor owns the target-only resumable-session description.'],
+  [14217, ['src/hooks/useSearchInput.ts'], 'The exact search-input hook prepends backspace/word deletions to its kill ring and dispatches the corresponding kill operations.'],
+  [14529, ['src/screens/Doctor.tsx'], 'The exact Doctor unit owns the target111 feedback footer; its Node properties are the compiler lowering of the authored Tree.Node JSX graph.'],
+  [14931, ['src/commands/plugin/ManagePlugins.tsx'], 'The exact ManagePlugins unit owns the target111 spacer, section-header, and scope-header discriminants used to build and render the grouped installed-plugin list.'],
+  [15455, ['src/commands/review/ultrareviewEnabled.ts'], 'The complete target ultrareview cost helper owns cost_note and its $10-$20 fallback.'],
+  [15456, ['src/commands/review/ultrareviewEnabled.ts'], 'The complete target ultrareview duration helper owns duration_note and its fallback.'],
+  [17325, ['src/utils/messages/systemInit.ts'], 'The exact SDK initialization-message builder emits pluginErrors through plugin_errors and reads VERSION from the inlined build macro object.'],
+  [17383, ['src/bridge/remoteBridgeCore.ts'], 'The exact remote-bridge runtime threads session tags into creation and exposes reportMetadata on its live transport adapter.'],
+  [18093, ['src/components/PromptInput/PromptInputFooter.tsx'], 'The exact PromptInput footer unit owns the target columnGap layout property; the global target ordinal is a coalescing artifact.'],
+  [18437, ['src/components/FeedbackSurvey/useMemorySurvey.tsx'], 'The exact memory-survey initializer owns the tengu_velvet_moth probability gate.'],
+  [18424, ['src/components/FeedbackSurvey/useFeedbackSurvey.tsx'], 'The complete target feedback-survey hook owns the otherSurveyActive parameter, effect, and dependency.'],
+  [18543, ['src/cli/structuredIO.ts'], 'The exact structured-I/O class emits SDK stall telemetry with session_state, last_message_type, and pending_control_requests.'],
+  [18769, ['src/screens/REPL.tsx'], 'The exact REPL unit binds the authored React memo/layout-effect hooks and owns cancellation plus internal event-emitter lifecycle behavior.'],
+  [19026, ['src/skills/bundled/skillify.ts'], 'The exact one-declaration target unit embeds the complete authored Skillify prompt from skillify.ts, pinned by range and content hash.'],
+  [19147, ['src/skills/bundled/claude-api/shared/model-migration.md'], 'The exact one-declaration target unit is the CommonJS exports lowering of the pinned model-migration Markdown asset.'],
+  [19161, ['src/skills/bundled/claudeApi.ts'], 'The exact Claude API prompt builder injects the model-migration guidance in both detected-language and fallback paths.'],
+  [19162, ['src/skills/bundled/claudeApi.ts'], 'The exact Claude API registration function passes the bundled SKILL_FILES object through the authored files field.'],
+  [19492, ['src/cli/update.ts'], 'The exact update workflow contains 23 authenticated inlined VERSION/BUILD_TIME macro objects and the target-only sentence terminator in its minimum-version path.'],
+  [19517, ['src/main.tsx'], 'The exact unknown-command handler uses the figures last-branch connector and its two-space display prefix before the suggestion.'],
+].map(([targetIndex, paths, behavior]) => [
+  `2.1.110-to-2.1.111:${targetIndex}`,
+  {
+    paths,
+    evidenceIds: [
+      'case111-residue-matrix-target-fragment',
+      'case111-residue-matrix-semantic-test',
+    ],
+    behavior,
+  },
+])
+
+const case111ResidueStaticOwners = [
+  [5354, ['src/ink/colorize.ts'], 'The exact paired colorizer functions each contain two local dcs literals; the apparent target addition is only a global ordinal shift.'],
+  [12606, ['src/utils/attachments.ts'], 'The exact paired attachment initializers each contain one local 61440 literal; the apparent target addition is only a global ordinal shift.'],
+  [15082, ['src/commands/mobile/index.ts'], 'The exact paired mobile-command initializers each contain one local ampersand literal; the apparent target addition is only a global ordinal shift.'],
+  [15254, ['src/components/LogoV2/feedConfigs.tsx'], 'The exact paired feed-config initializers each contain one local g property; the apparent target addition is only a global ordinal shift.'],
+  [19305, ['src/cli/transports/WebSocketTransport.ts'], 'The exact paired WebSocket transport initializers retain identical local 100000, 200, and flush multiplicities.'],
+  [19470, ['src/cli/handlers/agents.ts'], 'The exact paired agent-handler functions retain identical local label, map, and createElement multiplicities.'],
+  [8455, ['src/utils/gracefulShutdown.ts'], 'The target properties are TypeScript named-import destructuring for shutdown1PEventLogging and shutdownDatadog in the pinned shutdown function.'],
+  [19430, ['src/commands/install.tsx'], 'The target useState property is compiler namespace-member lowering of the authored React named import in the pinned installer function.'],
+  [10096, ['src/utils/autoUpdater.ts'], 'The only unsupported row-local values are VERSION and BUILD_TIME fields of the inlined build macro object.'],
+  [14148, ['src/components/Settings/Status.tsx'], 'The only unsupported row-local values are VERSION and BUILD_TIME fields of the inlined build macro object.'],
+  [15299, ['src/components/LogoV2/LogoV2.tsx'], 'The only unsupported row-local values are VERSION and BUILD_TIME fields of the inlined build macro object.'],
+  [16971, ['src/constants/prompts.ts'], 'The only unsupported row-local values are VERSION and BUILD_TIME fields of the inlined build macro object.'],
+  [17771, ['src/components/AutoUpdater.tsx'], 'The only unsupported row-local values are VERSION and BUILD_TIME fields of the inlined build macro object.'],
+  [17775, ['src/components/NativeAutoUpdater.tsx'], 'The only unsupported row-local values are VERSION and BUILD_TIME fields of the inlined build macro object.'],
+  [17778, ['src/components/PackageManagerAutoUpdater.tsx'], 'The only unsupported row-local values are VERSION and BUILD_TIME fields of the inlined build macro object.'],
+  [18420, ['src/components/FeedbackSurvey/submitTranscriptShare.ts'], 'The only unsupported row-local values are VERSION and BUILD_TIME fields of the inlined build macro object.'],
+].map(([targetIndex, paths, behavior]) => [
+  `2.1.110-to-2.1.111:${targetIndex}`,
+  {
+    paths,
+    evidenceIds: [
+      'case111-residue-matrix-static-ast',
+      'case111-residue-matrix-semantic-test',
+    ],
+    behavior,
+  },
+])
+
+const case113TargetAddedResidueProofs = JSON.parse(
+  fs.readFileSync(
+    'recovery/test/recovery-2.1.113-target-added-residue-proofs.json',
+    'utf8',
+  ),
+)
+if (
+  case113TargetAddedResidueProofs.schemaVersion !== 1 ||
+  case113TargetAddedResidueProofs.case !== '2.1.112-to-2.1.113' ||
+  case113TargetAddedResidueProofs.summary?.units !==
+    case113TargetAddedResidueProofs.rows?.length
+) {
+  throw new Error('target113 target-added residue proof fixture is malformed')
+}
+const case113TargetAddedResidueOwners =
+  case113TargetAddedResidueProofs.rows.map(row => [
+    `2.1.112-to-2.1.113:${row.targetIndex}`,
+    {
+      paths: row.coverageOwners,
+      evidenceIds: [
+        'case113-target-added-residue-static-ast',
+        'case113-target-added-residue-semantic-test',
+      ],
+      behavior: `The authenticated target113 residue fixture proves every owner-local target-added occurrence in this exact structural unit is ${row.category.replaceAll('-', ' ')} representation rather than omitted authored behavior; all source owners and occurrence oracles are pinned fail-closed.`,
+    },
+  ])
+
+const case113DirectOwnerRepresentationOwners = [
+  [2568, 'src/utils/settings/validation.ts'],
+  [8142, 'src/services/api/errors.ts'],
+  [15101, 'src/commands/copy/copy.tsx'],
+  [16461, 'src/commands/resume/resume.tsx'],
+  [16584, 'src/components/skills/SkillsMenu.tsx'],
+  [16686, 'src/components/ResumeTask.tsx'],
+  [18691, 'src/components/mcp/ElicitationDialog.tsx'],
+  [18993, 'src/components/tasks/BackgroundTaskStatus.tsx'],
+  [19085, 'src/components/PromptInput/PromptInput.tsx'],
+  [19121, 'src/hooks/useSSHSession.ts'],
+  [19189, 'src/hooks/useCancelRequest.ts'],
+  [19920, 'src/screens/ResumeConversation.tsx'],
+  [20356, 'src/commands/install.tsx'],
+  [20357, 'src/commands/install.tsx'],
+  [20428, 'src/main.tsx'],
+].map(([targetIndex, owner]) => [
+  `2.1.112-to-2.1.113:${targetIndex}`,
+  {
+    paths: [owner],
+    evidenceIds: [
+      'case113-direct-owner-representation-static-ast',
+      'case113-direct-owner-representation-semantic-test',
+    ],
+    behavior: 'The exact target113 unit and target-added residues are compiler representations of the pinned authored declaration, destructuring, import, default-import, or React memo-cache form in this direct source owner.',
+  },
+])
+
+const case113FocusedOwnerCorrections = JSON.parse(
+  fs.readFileSync(
+    'recovery/test/recovery-2.1.113-focused-owner-corrections.json',
+    'utf8',
+  ),
+)
+if (
+  case113FocusedOwnerCorrections.schemaVersion !== 1 ||
+  case113FocusedOwnerCorrections.case !== '2.1.112-to-2.1.113' ||
+  case113FocusedOwnerCorrections.summary?.units !==
+    case113FocusedOwnerCorrections.rows?.length
+) {
+  throw new Error('target113 focused owner-correction fixture is malformed')
+}
+const case113FocusedOwnerCorrectionOwners =
+  case113FocusedOwnerCorrections.rows.map(row => [
+    `2.1.112-to-2.1.113:${row.targetIndex}`,
+    {
+      paths: [row.correctedOwner],
+      evidenceIds: [
+        'case113-focused-owner-corrections-target-fragment',
+        'case113-focused-owner-corrections-source-ast-test',
+      ],
+      behavior: 'The authenticated target113 unit and every target-added residue map exactly to the uniquely pinned authored source declaration and its non-type runtime imports, correcting the coarse nearest source-map owner without changing behavior.',
+    },
+  ])
+
+const case113FocusedOwnerCorrectionSupplement = JSON.parse(
+  fs.readFileSync(
+    'recovery/test/recovery-2.1.113-focused-owner-corrections-supplement.json',
+    'utf8',
+  ),
+)
+if (
+  case113FocusedOwnerCorrectionSupplement.schemaVersion !== 1 ||
+  case113FocusedOwnerCorrectionSupplement.case !== '2.1.112-to-2.1.113' ||
+  case113FocusedOwnerCorrectionSupplement.summary?.units !==
+    case113FocusedOwnerCorrectionSupplement.rows?.length
+) {
+  throw new Error('target113 focused owner-correction supplement fixture is malformed')
+}
+const case113FocusedOwnerCorrectionSupplementOwners =
+  case113FocusedOwnerCorrectionSupplement.rows.map(row => [
+    `2.1.112-to-2.1.113:${row.targetIndex}`,
+    {
+      paths: [row.correctedOwner],
+      evidenceIds: [
+        'target113-focused-owner-corrections-supplement-target-fragment',
+        'target113-focused-owner-corrections-supplement-source-ast-test',
+      ],
+      behavior: 'The authenticated target113 unit and each target-added residue map exactly to the pinned commit-attribution declaration and its runtime crypto or path imports, correcting the coarse generated-files owner without changing authored behavior.',
+    },
+  ])
+
+const case113OwnerAndPunctuationProofs = JSON.parse(
+  fs.readFileSync(
+    'recovery/test/recovery-2.1.113-owner-and-punctuation-proofs.json',
+    'utf8',
+  ),
+)
+if (
+  case113OwnerAndPunctuationProofs.schemaVersion !== 1 ||
+  case113OwnerAndPunctuationProofs.case !== '2.1.112-to-2.1.113' ||
+  case113OwnerAndPunctuationProofs.summary?.units !==
+    case113OwnerAndPunctuationProofs.rows?.length
+) {
+  throw new Error('target113 owner and punctuation fixture is malformed')
+}
+const case113OwnerAndPunctuationOwners =
+  case113OwnerAndPunctuationProofs.rows.map(row => [
+    `2.1.112-to-2.1.113:${row.targetIndex}`,
+    {
+      paths: [row.correctedOwner],
+      evidenceIds: [
+        'target113-owner-and-punctuation-target-fragment',
+        'target113-owner-and-punctuation-semantic-test',
+      ],
+      behavior: `The authenticated target113 unit and every target-added residue are pinned to ${row.correctedOwner} as ${row.category.replaceAll('-', ' ')}; the dual-root AST and executable oracle proves the lock policy, CJK mention boundaries, PowerShell git-path canonicalization, prompt-shell result identity, and session-memory path classification fail-closed.`,
+    },
+  ])
+
+const case113RecoveredSourceGapsBatch3 = JSON.parse(
+  fs.readFileSync(
+    'recovery/test/recovery-2.1.113-recovered-source-gaps-batch3.json',
+    'utf8',
+  ),
+)
+if (
+  case113RecoveredSourceGapsBatch3.schemaVersion !== 1 ||
+  case113RecoveredSourceGapsBatch3.case !== '2.1.112-to-2.1.113' ||
+  case113RecoveredSourceGapsBatch3.summary?.units !==
+    case113RecoveredSourceGapsBatch3.rows?.length
+) {
+  throw new Error('target113 recovered source-gap batch3 fixture is malformed')
+}
+const case113RecoveredSourceGapBatch3Owners =
+  case113RecoveredSourceGapsBatch3.rows.map(row => [
+    `2.1.112-to-2.1.113:${row.targetIndex}`,
+    {
+      paths: [row.recoveredOwner],
+      evidenceIds: [
+        'target113-recovered-source-gaps-batch3-target-fragment',
+        'target113-recovered-source-gaps-batch3-semantic-test',
+      ],
+      behavior: 'The authenticated target113 unit is mapped residue-by-residue to the selectively recovered Markdown URL detector, FileWrite subagent-report guard, or cryptographic notebook-cell identifier, including the exact alternate owner and runtime-import representations coalesced into those units.',
+    },
+  ])
+
+const case113BundledInstallationPaths = JSON.parse(
+  fs.readFileSync(
+    'recovery/test/recovery-2.1.113-bundled-installation-paths.json',
+    'utf8',
+  ),
+)
+if (
+  case113BundledInstallationPaths.schemaVersion !== 1 ||
+  case113BundledInstallationPaths.case !== '2.1.112-to-2.1.113' ||
+  case113BundledInstallationPaths.summary?.units !== 1 ||
+  case113BundledInstallationPaths.row?.targetIndex !== 11298
+) {
+  throw new Error('target113 bundled-installation path fixture is malformed')
+}
+const case113BundledInstallationPathOwners = [[
+  '2.1.112-to-2.1.113:11298',
+  {
+    paths: [case113BundledInstallationPaths.row.recoveredOwner],
+    evidenceIds: [
+      'target113-bundled-installation-paths-target-fragment',
+      'target113-bundled-installation-paths-semantic-test',
+    ],
+    behavior: 'The bundled installation detector normalizes the executable path, recognizes config-home local node_modules and global @anthropic-ai node_modules layouts before native package-manager detection, and preserves native classification otherwise.',
+  },
+]]
+
+const case113ProviderSetupResidueProofs = JSON.parse(
+  fs.readFileSync(
+    'recovery/test/recovery-2.1.113-provider-setup-residue-proofs.json',
+    'utf8',
+  ),
+)
+if (
+  case113ProviderSetupResidueProofs.schemaVersion !== 1 ||
+  case113ProviderSetupResidueProofs.case !== '2.1.112-to-2.1.113' ||
+  case113ProviderSetupResidueProofs.summary?.units !==
+    case113ProviderSetupResidueProofs.rows?.length ||
+  case113ProviderSetupResidueProofs.owners?.bedrock?.transitiveIntroduction
+    ?.case !== '2.1.91-to-2.1.92'
+) {
+  throw new Error('target113 provider-setup residue fixture is malformed')
+}
+const case113ProviderSetupResidueOwners =
+  case113ProviderSetupResidueProofs.rows.map(row => [
+    `2.1.112-to-2.1.113:${row.targetIndex}`,
+    {
+      paths: [row.correctedOwner],
+      evidenceIds: [
+        'target113-provider-setup-residue-target-fragment',
+        'target113-provider-setup-residue-semantic-test',
+      ],
+      behavior: `The authenticated target113 provider-setup unit is pinned to ${row.correctedOwner} as ${row.category.replaceAll('-', ' ')}, including exact AWS profile/region, Vertex project/config, relaunch import, and React memo representations rather than Spinner source-map spillover.`,
+    },
+  ])
+
+const case113ReplOwnerPackageGap = JSON.parse(
+  fs.readFileSync(
+    'recovery/test/recovery-2.1.113-repl-owner-package-gap.json',
+    'utf8',
+  ),
+)
+if (
+  case113ReplOwnerPackageGap.schemaVersion !== 1 ||
+  case113ReplOwnerPackageGap.case !== '2.1.112-to-2.1.113' ||
+  case113ReplOwnerPackageGap.summary?.units !==
+    case113ReplOwnerPackageGap.rows?.length
+) {
+  throw new Error('target113 REPL owner package-gap fixture is malformed')
+}
+const case113ReplOwnerPackageGapOwners =
+  case113ReplOwnerPackageGap.rows.map(row => [
+    `2.1.112-to-2.1.113:${row.targetIndex}`,
+    {
+      paths: [case113ReplOwnerPackageGap.owner.path],
+      evidenceIds: [
+        'target113-repl-owner-package-gap-target-fragment',
+        'target113-repl-owner-package-gap-semantic-test',
+      ],
+      behavior: 'The authenticated target113 unit maps to the persistent REPL owner introduced by the target108 supplement; the oracle pins the sample, inner-wrapper, convenience-helper, supporting constant, and Node runtime-import representations while the isolated target113 source snapshot correctly omits the transitive owner.',
+    },
+  ])
+
+const case113ResidualOwnerImportProofs = JSON.parse(
+  fs.readFileSync(
+    'recovery/test/recovery-2.1.113-residual-owner-import-proofs.json',
+    'utf8',
+  ),
+)
+if (
+  case113ResidualOwnerImportProofs.schemaVersion !== 1 ||
+  case113ResidualOwnerImportProofs.case !== '2.1.112-to-2.1.113' ||
+  case113ResidualOwnerImportProofs.summary?.units !==
+    case113ResidualOwnerImportProofs.rows?.length
+) {
+  throw new Error('target113 residual owner/import fixture is malformed')
+}
+const case113ResidualOwnerImportOwners =
+  case113ResidualOwnerImportProofs.rows.map(row => [
+    `2.1.112-to-2.1.113:${row.targetIndex}`,
+    {
+      paths: [row.sourceOwner],
+      evidenceIds: [
+        'target113-residual-owner-import-target-fragment',
+        'target113-residual-owner-import-semantic-test',
+      ],
+      behavior: 'The authenticated target113 residue oracle pins the exact authored owner, its runtime import or compiler representation, and the bounded LSP document-version recovery without admitting later target116 protocol evolution.',
+    },
+  ])
+
+const case113HighCountDirectProofs = JSON.parse(
+  fs.readFileSync(
+    'recovery/test/recovery-2.1.113-high-count-direct-representation-proofs.json',
+    'utf8',
+  ),
+)
+if (
+  case113HighCountDirectProofs.schemaVersion !== 1 ||
+  case113HighCountDirectProofs.case !== '2.1.112-to-2.1.113' ||
+  case113HighCountDirectProofs.summary?.units !==
+    case113HighCountDirectProofs.rows?.length
+) {
+  throw new Error('target113 high-count direct-representation fixture is malformed')
+}
+const case113HighCountDirectOwners =
+  case113HighCountDirectProofs.rows.map(row => [
+    `2.1.112-to-2.1.113:${row.targetIndex}`,
+    {
+      paths: [row.correctedOwner, row.supportingOwner].filter(Boolean),
+      evidenceIds: [
+        'target113-high-count-direct-representation-target-fragment',
+        'target113-high-count-direct-representation-semantic-test',
+      ],
+      behavior: `The authenticated high-count oracle pins this complete target113 unit and every target-added residue as ${row.category.replaceAll('-', ' ')}, including exact runtime imports, alternate input APIs, extracted query-context representation, compiler lowering, and the bounded rc-to-stable install-channel recovery.`,
+    },
+  ])
+
+const case113RecoveredOwnerPackageGaps = JSON.parse(
+  fs.readFileSync(
+    'recovery/test/recovery-2.1.113-recovered-owner-package-gaps.json',
+    'utf8',
+  ),
+)
+if (
+  case113RecoveredOwnerPackageGaps.schemaVersion !== 1 ||
+  case113RecoveredOwnerPackageGaps.case !== '2.1.112-to-2.1.113' ||
+  case113RecoveredOwnerPackageGaps.summary?.units !==
+    case113RecoveredOwnerPackageGaps.rows?.length
+) {
+  throw new Error('target113 recovered owner package-gap fixture is malformed')
+}
+const case113RecoveredOwnerPackageGapOwners =
+  case113RecoveredOwnerPackageGaps.rows.map(row => [
+    `2.1.112-to-2.1.113:${row.targetIndex}`,
+    {
+      paths: [row.correctedOwner],
+      evidenceIds: [
+        'target113-recovered-owner-package-gaps-target-fragment',
+        'target113-recovered-owner-package-gaps-semantic-test',
+      ],
+      behavior: `The authenticated oracle corrects the coalesced source-map owner to the transitive ${row.correctedOwner} package, pins the complete target113 fragment and all target-added occurrences, and proves the current owner AST while fail-closing on its expected absence from the isolated target113 source snapshot.`,
+    },
+  ])
+
+const case113SafeStaticTailProofs = JSON.parse(
+  fs.readFileSync(
+    'recovery/test/recovery-2.1.113-safe-static-tail-proofs.json',
+    'utf8',
+  ),
+)
+if (
+  case113SafeStaticTailProofs.schemaVersion !== 1 ||
+  case113SafeStaticTailProofs.case !== '2.1.112-to-2.1.113' ||
+  !Array.isArray(case113SafeStaticTailProofs.units) ||
+  JSON.stringify(case113SafeStaticTailProofs.derivation?.admittedTargetIndices) !==
+    JSON.stringify(case113SafeStaticTailProofs.units.map(unit => unit.index))
+) {
+  throw new Error('target113 safe static-tail fixture is malformed')
+}
+const case113SafeStaticTailOwners = case113SafeStaticTailProofs.units.map(
+  unit => [
+    `2.1.112-to-2.1.113:${unit.index}`,
+    {
+      paths: [unit.owner],
+      evidenceIds: [
+        'target113-safe-static-tail-target-fragment',
+        'target113-safe-static-tail-static-ast',
+        'target113-safe-static-tail-semantic-test',
+      ],
+      behavior: 'The fail-closed authenticated oracle pins this complete target113 unit and every target-added occurrence to an exact dual-root build-macro, runtime-import, binding, compiler-cache, or module-normalization representation; its source owner is admitted only when both current and materialized target113 AST proofs agree.',
+    },
+  ],
+)
+
+const case113FirstHalfStrictTailProofs = JSON.parse(
+  fs.readFileSync(
+    'recovery/test/recovery-2.1.113-first-half-strict-tail-proofs.json',
+    'utf8',
+  ),
+)
+if (
+  case113FirstHalfStrictTailProofs.schemaVersion !== 1 ||
+  case113FirstHalfStrictTailProofs.case !== '2.1.112-to-2.1.113' ||
+  case113FirstHalfStrictTailProofs.summary?.units !==
+    case113FirstHalfStrictTailProofs.rows?.length ||
+  case113FirstHalfStrictTailProofs.summary?.residues !==
+    case113FirstHalfStrictTailProofs.rows.reduce(
+      (count, row) => count + row.residues.length,
+      0,
+    )
+) {
+  throw new Error('target113 first-half strict-tail fixture is malformed')
+}
+const case113FirstHalfStrictTailOwners =
+  case113FirstHalfStrictTailProofs.rows
+    .filter(row => row.category !== 'authenticated-dormant-nonescaping')
+    .map(row => [
+      `2.1.112-to-2.1.113:${row.targetIndex}`,
+      {
+        paths: [row.source.path],
+        evidenceIds: [
+          'target113-first-half-strict-tail-target-fragment',
+          'target113-first-half-strict-tail-semantic-test',
+        ],
+        behavior: `The authenticated first-half strict-tail oracle pins this complete target113 unit and every target-added residue to the exact ${row.category.replaceAll('-', ' ')} owner declaration, runtime-import/compiler representation, or selectively replayed target113 behavior without importing later source evolution.`,
+      },
+    ])
+const case113FirstHalfStrictTailDormant =
+  case113FirstHalfStrictTailProofs.rows.filter(
+    row => row.category === 'authenticated-dormant-nonescaping',
+  )
+
+const case113SecondHalfStrictTailProofs = JSON.parse(
+  fs.readFileSync(
+    'recovery/test/recovery-2.1.113-second-half-safe-static-owner-proofs.json',
+    'utf8',
+  ),
+)
+const case113SecondHalfReplay = JSON.parse(
+  fs.readFileSync(
+    'recovery/test/recovery-2.1.113-second-half-historical-package-replay.json',
+    'utf8',
+  ),
+)
+const case113SecondHalfIndices =
+  case113SecondHalfStrictTailProofs.units?.map(unit => unit.index)
+const case113SecondHalfExcludedIndices =
+  case113SecondHalfStrictTailProofs.excludedUnits?.map(unit => unit.index)
+const case113SecondHalfReplayIndices = case113SecondHalfReplay.groups
+  ?.flatMap(group => group.indices)
+  .sort((left, right) => left - right)
+if (
+  case113SecondHalfStrictTailProofs.schemaVersion !== 2 ||
+  case113SecondHalfStrictTailProofs.case !== '2.1.112-to-2.1.113' ||
+  case113SecondHalfStrictTailProofs.lane !==
+    'target113-second-half-safe-static-owner-corrections' ||
+  JSON.stringify(case113SecondHalfStrictTailProofs.derivation?.admittedIndices) !==
+    JSON.stringify(case113SecondHalfIndices) ||
+  JSON.stringify(case113SecondHalfStrictTailProofs.derivation?.excludedIndices) !==
+    JSON.stringify(case113SecondHalfExcludedIndices) ||
+  case113SecondHalfReplay.schemaVersion !== 1 ||
+  case113SecondHalfReplay.case !== '2.1.112-to-2.1.113' ||
+  case113SecondHalfReplay.targetCommit !==
+    'd88405d4b4b7ce6e066e1d67e7fc421b54d685f0' ||
+  JSON.stringify(case113SecondHalfReplay.sourceReplayRequiredIndices) !==
+    JSON.stringify(case113SecondHalfStrictTailProofs.derivation?.sourceReplayRequiredIndices) ||
+  JSON.stringify(case113SecondHalfReplayIndices) !==
+    JSON.stringify(
+      [...case113SecondHalfReplay.sourceReplayRequiredIndices].sort(
+        (left, right) => left - right,
+      ),
+    ) ||
+  case113SecondHalfReplay.compilerEquivalentIndices?.length !== 0
+) {
+  throw new Error('target113 second-half strict-tail fixture is malformed')
+}
+const case113SecondHalfStrictTailOwners =
+  case113SecondHalfStrictTailProofs.units.map(unit => [
+    `2.1.112-to-2.1.113:${unit.index}`,
+    {
+      paths: unit.mapping.sourceOwners.map(owner => owner.path),
+      evidenceIds: [
+        'target113-second-half-strict-tail-target-fragment',
+        'target113-second-half-strict-tail-semantic-test',
+      ],
+      behavior: `The authenticated second-half strict-tail oracle maps the complete target113 unit and every target-added residue to ${unit.mapping.primaryOwner}; exact AST roles prove direct/compiler representations and the selective idempotent replay restores every historical package gap without admitting the delegated daemon units.`,
+    },
+  ])
+
+const case116TargetAddedResidueProofs = JSON.parse(
+  fs.readFileSync(
+    'recovery/test/recovery-2.1.116-target-added-residue-proofs.json',
+    'utf8',
+  ),
+)
+if (
+  case116TargetAddedResidueProofs.schemaVersion !== 1 ||
+  case116TargetAddedResidueProofs.case !== '2.1.114-to-2.1.116' ||
+  case116TargetAddedResidueProofs.summary?.units !==
+    case116TargetAddedResidueProofs.rows?.length
+) {
+  throw new Error('target116 target-added residue proof fixture is malformed')
+}
+const case116TargetAddedResidueOwners =
+  case116TargetAddedResidueProofs.rows.map(row => [
+    `2.1.114-to-2.1.116:${row.targetIndex}`,
+    {
+      paths: row.coverageOwners,
+      evidenceIds: [
+        'case116-target-added-residue-static-ast',
+        'case116-target-added-residue-semantic-test',
+      ],
+      behavior: `The authenticated target116 residue fixture proves every owner-local target-added occurrence in this exact structural unit is ${row.category.replaceAll('-', ' ')} representation rather than omitted authored behavior; every complete unit, owner, and occurrence oracle is pinned fail-closed.`,
+    },
+  ])
+
+const case116SafeResidualProofs = JSON.parse(
+  fs.readFileSync(
+    'recovery/test/recovery-2.1.116-safe-residual-proofs.json',
+    'utf8',
+  ),
+)
+if (
+  case116SafeResidualProofs.schemaVersion !== 1 ||
+  case116SafeResidualProofs.case !== '2.1.114-to-2.1.116' ||
+  case116SafeResidualProofs.summary?.units !==
+    case116SafeResidualProofs.rows?.length
+) {
+  throw new Error('target116 safe residual proof fixture is malformed')
+}
+const case116SafeResidualOwners = case116SafeResidualProofs.rows
+  .filter(row => row.category !== 'transitive-dead-code')
+  .map(row => [
+    `2.1.114-to-2.1.116:${row.targetIndex}`,
+    {
+      paths: row.evidenceOwners,
+      evidenceIds: [
+        'case116-safe-residual-static-ast',
+        'case116-safe-residual-semantic-test',
+      ],
+      behavior: `The authenticated target116 residual oracle proves this complete unit and every owner-local target-added occurrence are ${row.category.replaceAll('-', ' ')} represented exactly by the pinned dual-root source graph rather than omitted behavior.`,
+    },
+  ])
+
+const case116StrictTailProofs = JSON.parse(
+  fs.readFileSync(
+    'recovery/test/recovery-2.1.116-strict-tail-proofs.json',
+    'utf8',
+  ),
+)
+if (
+  case116StrictTailProofs.schemaVersion !== 1 ||
+  case116StrictTailProofs.case !== '2.1.114-to-2.1.116' ||
+  case116StrictTailProofs.summary?.units !==
+    case116StrictTailProofs.rows?.length
+) {
+  throw new Error('target116 strict-tail proof fixture is malformed')
+}
+const case116StrictTailOwners = case116StrictTailProofs.rows.map(row => [
+  `2.1.114-to-2.1.116:${row.targetIndex}`,
+  {
+    paths:
+      row.evidenceOwners.length > 0
+        ? row.evidenceOwners
+        : row.coverageOwners,
+    evidenceIds: [
+      'target-fragment-target116-strict-tail-proofs',
+      'semantic-target116-strict-tail-proofs',
+    ],
+    behavior: `The authenticated strict-tail oracle proves every target-added occurrence in this complete unit is ${row.category.replaceAll('-', ' ')}, pins the exact target fragment and target114 occurrence counts, and corrects coarse ownership only where the source AST proves the authored declaration or import.`,
+  },
+])
+
+const case113ResidualBuildRepresentationProofs = JSON.parse(
+  fs.readFileSync(
+    'recovery/test/recovery-2.1.113-residual-build-representation-proofs.json',
+    'utf8',
+  ),
+)
+if (
+  case113ResidualBuildRepresentationProofs.schemaVersion !== 1 ||
+  case113ResidualBuildRepresentationProofs.case !== '2.1.112-to-2.1.113' ||
+  case113ResidualBuildRepresentationProofs.summary?.units !==
+    case113ResidualBuildRepresentationProofs.rows?.length
+) {
+  throw new Error('target113 residual build-representation fixture is malformed')
+}
+const case113ResidualBuildRepresentationOwners =
+  case113ResidualBuildRepresentationProofs.rows.map(row => [
+    `2.1.112-to-2.1.113:${row.targetIndex}`,
+    {
+      paths: [row.owner],
+      evidenceIds: [
+        'case113-residual-build-representation-static-ast',
+        'case113-residual-build-representation-semantic-test',
+      ],
+      behavior: `The authenticated target113 unit and all target-added residues are proved as ${row.category.replaceAll('-', ' ')} of the dual-root authored source rather than an omitted runtime behavior.`,
+    },
+  ])
+
+const case113RecoveredLiveSourceGaps = JSON.parse(
+  fs.readFileSync(
+    'recovery/test/recovery-2.1.113-recovered-live-source-gaps.json',
+    'utf8',
+  ),
+)
+if (
+  case113RecoveredLiveSourceGaps.schemaVersion !== 1 ||
+  case113RecoveredLiveSourceGaps.case !== '2.1.112-to-2.1.113' ||
+  case113RecoveredLiveSourceGaps.summary?.units !==
+    case113RecoveredLiveSourceGaps.rows?.length
+) {
+  throw new Error('target113 recovered live-source fixture is malformed')
+}
+const case113RecoveredLiveSourceOwners =
+  case113RecoveredLiveSourceGaps.rows.map(row => [
+    `2.1.112-to-2.1.113:${row.targetIndex}`,
+    {
+      paths: [row.recoveredOwner],
+      evidenceIds: [
+        'target113-recovered-live-source-gaps-target-fragment',
+        'target113-recovered-live-source-gaps-source-semantic-test',
+      ],
+      behavior: 'The authenticated target113 unit is restored through its exact recovered authored declaration and runtime imports; the dual-root oracle proves the declaration was absent from the prior historical reconstruction and executes the recovered behavior.',
+    },
+  ])
+
+const case113RecoveredSourceGapsBatch2 = JSON.parse(
+  fs.readFileSync(
+    'recovery/test/recovery-2.1.113-recovered-source-gaps-batch2.json',
+    'utf8',
+  ),
+)
+if (
+  case113RecoveredSourceGapsBatch2.schemaVersion !== 1 ||
+  case113RecoveredSourceGapsBatch2.case !== '2.1.112-to-2.1.113' ||
+  case113RecoveredSourceGapsBatch2.summary?.units !==
+    case113RecoveredSourceGapsBatch2.rows?.length
+) {
+  throw new Error('target113 recovered source-gap batch2 fixture is malformed')
+}
+const case113RecoveredSourceGapBatch2Owners =
+  case113RecoveredSourceGapsBatch2.rows.map(row => [
+    `2.1.112-to-2.1.113:${row.targetIndex}`,
+    {
+      paths: [row.recoveredOwner],
+      evidenceIds: [
+        'target113-recovered-source-gaps-batch2-target-fragment',
+        'target113-recovered-source-gaps-batch2-source-ast-test',
+      ],
+      behavior: 'The authenticated target113 unit is mapped residue-by-residue to its exact SDK or telemetry declaration: existing HTTP schema representation is corrected to its authored owner, while mirror-error delivery and Perfetto request identifiers are selectively restored and executed.',
+    },
+  ])
+
+const case113RemoteBundleMigrationProofs = JSON.parse(
+  fs.readFileSync(
+    'recovery/test/recovery-2.1.113-remote-bundle-option-migration-proofs.json',
+    'utf8',
+  ),
+)
+if (
+  case113RemoteBundleMigrationProofs.schemaVersion !== 1 ||
+  case113RemoteBundleMigrationProofs.case !== '2.1.112-to-2.1.113' ||
+  case113RemoteBundleMigrationProofs.summary?.targetUnits !==
+    case113RemoteBundleMigrationProofs.rows?.length
+) {
+  throw new Error('target113 remote bundle-option migration fixture is malformed')
+}
+const case113RemoteBundleMigrationOwners =
+  case113RemoteBundleMigrationProofs.rows.map(row => {
+    const declaration =
+      case113RemoteBundleMigrationProofs.sourceDeclarations?.[
+        row.sourceDeclaration
+      ]
+    if (!declaration?.owner) {
+      throw new Error(
+        `target113 remote bundle-option row ${row.targetIndex} lacks a source owner`,
+      )
+    }
+    return [
+      `2.1.112-to-2.1.113:${row.targetIndex}`,
+      {
+        paths: [declaration.owner],
+        evidenceIds: [
+          'target113-remote-bundle-option-migration-target-fragment',
+          'target113-remote-bundle-option-migration-source-truth-table-test',
+        ],
+        behavior: 'The authenticated target113 positive allowBundle graph is represented exactly by the recovered source negative skipBundle option: omitted/default-false callers and negated implementation guards preserve the complete enabling truth table across remote eligibility, teleport, review, and Ultraplan paths.',
+      },
+    ]
+  })
+
+const ownerOverrides = new Map([
+  ...case108LiteralOwnerCorrections,
+  ...case108TargetAddedResidueOwners,
+  ...case111ResidueCandidateOwners,
+  ...case111ResidueStaticOwners,
+  ...case113TargetAddedResidueOwners,
+  ...case113DirectOwnerRepresentationOwners,
+  ...case113FocusedOwnerCorrectionOwners,
+  ...case113FocusedOwnerCorrectionSupplementOwners,
+  ...case113OwnerAndPunctuationOwners,
+  ...case113RecoveredSourceGapBatch3Owners,
+  ...case113BundledInstallationPathOwners,
+  ...case113ProviderSetupResidueOwners,
+  ...case113ReplOwnerPackageGapOwners,
+  ...case113ResidualOwnerImportOwners,
+  ...case113HighCountDirectOwners,
+  ...case113RecoveredOwnerPackageGapOwners,
+  ...case113SafeStaticTailOwners,
+  ...case113FirstHalfStrictTailOwners,
+  ...case113SecondHalfStrictTailOwners,
+  ...case116TargetAddedResidueOwners,
+  ...case116SafeResidualOwners,
+  ...case116StrictTailOwners,
+  ...case113ResidualBuildRepresentationOwners,
+  ...case113RecoveredLiveSourceOwners,
+  ...case113RecoveredSourceGapBatch2Owners,
+  ...case113RemoteBundleMigrationOwners,
+  ['2.1.112-to-2.1.113:17550', {
+    paths: ['src/utils/sessionStorage.ts'],
+    evidenceIds: [
+      'target113-session-materialization-accessors-target-fragment',
+      'target113-session-materialization-accessors-semantic-test',
+    ],
+    behavior: 'The authenticated session-storage export unit exposes the non-materializing session-file accessor and agent-name cache notification; exact backing declarations prove inspection does not initialize Project state and name changes emit once.',
+  }],
+  ['2.1.112-to-2.1.113:19497', {
+    paths: ['src/entrypoints/sdk/controlSchemas.ts'],
+    evidenceIds: [
+      'target113-sdk-initialize-title-schema-target-fragment',
+      'target113-sdk-initialize-title-schema-semantic-test',
+    ],
+    behavior: 'The recovered SDK initialize control schema accepts an optional custom session title with the exact authenticated description while preserving all existing initialization fields and validation behavior.',
+  }],
+  ['2.1.112-to-2.1.113:20409', {
+    paths: ['src/cli/update.ts'],
+    evidenceIds: [
+      'target113-daemon-lock-reader-import-target-fragment',
+      'target113-daemon-lock-reader-import-semantic-test',
+    ],
+    behavior: 'The authenticated daemon-lock reader unit and exact readFile/pid occurrence ordinals map to the recovered typed reader and path declarations, whose JSON parsing and ENOENT handling fail closed.',
+  }],
+  ['2.1.112-to-2.1.113:20413', {
+    paths: ['src/cli/update.ts'],
+    evidenceIds: [
+      'target113-daemon-lock-reader-import-target-fragment',
+      'target113-daemon-lock-reader-import-semantic-test',
+    ],
+    behavior: 'The authenticated daemon-lock initializer and fs/promises occurrence map to the exact recovered runtime-import graph used by the live lock reader.',
+  }],
+  ['2.1.114-to-2.1.116:20099', {
+    paths: ['src/components/TrustDialog/TrustDialog.tsx'],
+    evidenceIds: [
+      'target116-trust-setup-wrapper-target-fragment',
+      'target116-trust-setup-wrapper-semantic-test',
+    ],
+    behavior: 'The recovered Trust footer renders design-system Enter/Escape shortcut hints in the non-pending state while preserving the repeated-exit pending hint; the target and baseline unit identities and executable component tree are pinned together.',
+  }],
+  ['2.1.114-to-2.1.116:20580', {
+    paths: ['src/cli/print.ts'],
+    evidenceIds: [
+      'target116-trust-setup-wrapper-target-fragment',
+      'target116-trust-setup-wrapper-semantic-test',
+    ],
+    behavior: 'The headless setup action uses the same matched setup dispatcher as the authored direct call; the exact baseline/target wrapper units and shared live dispatcher prove representation equivalence.',
+  }],
+  ['2.1.112-to-2.1.113:11276', {
+    paths: ['src/utils/autoUpdater.ts'],
+    evidenceIds: [
+      'target113-global-package-manager-detection-target-fragment',
+      'target113-global-package-manager-detection-semantic-test',
+    ],
+    behavior: 'The recovered package-manager detector normalizes executable and BUN_INSTALL paths, recognizes Bun global installs, and falls back to runtime Bun only outside bundled mode; install-prefix, WSL, and global-install callers all consume the same exact decision.',
+  }],
+  ['2.1.112-to-2.1.113:2050', {
+    paths: ['src/utils/stringUtils.ts'],
+    evidenceIds: [
+      'fullwidth-digit-regexp-target-fragment',
+      'fullwidth-digit-regexp-semantic-test',
+    ],
+    behavior: 'The authored fullwidth-digit normalizer and target unit recognize the identical U+FF10–U+FF19 range; the compiler spells the source glyph range as Unicode escapes and folds hexadecimal 0xFEE0 to decimal 65248 without changing behavior.',
+  }],
+  ...[
+    [7231, ['src/ink/scroll-config.ts', 'src/ink/terminal.ts'], 'The cached target116 terminal-scroll configuration reads the raw XTVERSION probe and computes the shared decay, adaptive-drain, base-speed, and terminal metadata policy.'],
+    [7232, ['src/ink/scroll-config.ts'], 'The target116 scroll-speed environment parser supplies the bounded numeric override consumed by the shared cached configuration.'],
+    [7250, ['src/ink/render-node-to-output.ts', 'src/ink/scroll-config.ts'], 'The live renderer consumes the shared target116 adaptive-drain policy; its proportional diagnostic argument is separately proved unreachable behind the constant-false diagnostics gate.'],
+    [12159, ['src/components/AgentProgressLine.tsx', 'src/components/design-system/Tree.tsx'], 'Agent progress renders design-system branch/last and pipe/space connectors and keeps indentation on the outer column so multiline status text aligns with the target tree.'],
+    [18532, ['src/cli/transports/ccrClient.ts', 'src/utils/proxy.ts'], 'CCR delivery uses native fetch with the configured proxy and timeout, consumes successful JSON, honors Retry-After, and cancels every response body that will not be consumed.'],
+    [19937, ['src/ink/components/AlternateScreen.tsx', 'src/ink/ink.tsx'], 'Alternate-screen cleanup emits EXIT_ALT_SCREEN while mounted and suppresses the duplicate sequence after the owning Ink instance has already unmounted.'],
+    [19946, ['src/components/ScrollKeybindingHandler.tsx'], 'The wheel-acceleration state carries the shared useDecayCurve decision through initialization and event updates.'],
+    [19948, ['src/components/ScrollKeybindingHandler.tsx', 'src/ink/scroll-config.ts'], 'The live wheel initializer consumes the cached target116 terminal policy for decay, platform-specific base speed, and shared terminal metadata.'],
+    [19949, ['src/components/ScrollKeybindingHandler.tsx', 'src/ink/scroll-config.ts'], 'Scroll-keybinding initialization forwards the shared termProgram and useDecayCurve values into the live wheel state and diagnostic context.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'four-live-residue-gaps-target-fragment',
+        'four-live-residue-gaps-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [10789, 'The shared pre-dispatch registry is created once and passed through KeybindingProvider and the global interceptor while retaining the target110 single-key registration graph.'],
+    [10790, 'Pre-dispatch observers run before the single-key registry, consume on an exact true result, fail open on exceptions, and preserve keybinding-fired telemetry for the ordinary dispatch path.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths: ['src/keybindings/KeybindingProviderSetup.tsx'],
+      evidenceIds: [
+        'keybinding-predispatch-target-fragment',
+        'keybinding-predispatch-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.114-to-2.1.116:18589', {
+    paths: ['src/hooks/useReplBridge.tsx'],
+    evidenceIds: [
+      'remote-read-file-target-fragment',
+      'remote-read-file-semantic-test',
+    ],
+    behavior: 'The REPL bridge passes a live tool-permission-context accessor into initialization so remote read and tool authorization observes the current application state instead of an empty fallback context.',
+  }],
+  ['2.1.114-to-2.1.116:18596', {
+    paths: ['src/components/MessageSelector.tsx'],
+    evidenceIds: [
+      'select-ultrareview-target-fragment',
+      'select-ultrareview-semantic-test',
+    ],
+    behavior: 'The seven-row message selector computes the exact visible end and renders hidden-above and hidden-below counts around the retained cumulative exit guide.',
+  }],
+  ['2.1.112-to-2.1.113:4587', {
+    paths: ['src/utils/concurrentSessions.ts'],
+    evidenceIds: [
+      'unclean-session-telemetry-target-fragment',
+      'unclean-session-telemetry-semantic-test',
+    ],
+    behavior: 'The stale peer-file sweep parses and removes each prior record once, reports interactive sessions that exited uncleanly with age and version metadata, and preserves a newest-first in-process snapshot without re-emitting telemetry on later sweeps.',
+  }],
+  ...[
+    [7205, ['src/ink/ink.tsx']],
+    [16363, ['src/components/FullscreenLayout.tsx']],
+    [16364, ['src/components/FullscreenLayout.tsx']],
+    [16366, ['src/components/FullscreenLayout.tsx']],
+    [16367, ['src/components/FullscreenLayout.tsx']],
+    [16372, ['src/components/FullscreenLayout.tsx']],
+    [16373, ['src/components/FullscreenLayout.tsx']],
+    [16374, ['src/components/FullscreenLayout.tsx']],
+    [16378, ['src/components/FullscreenLayout.tsx']],
+    [16385, ['src/components/FullscreenLayout.tsx']],
+  ].map(([targetIndex, paths]) => [
+    `2.1.112-to-2.1.113:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'synchronized-inline-output-target-fragment',
+        'synchronized-inline-output-semantic-test',
+      ],
+      behavior: 'The authenticated DECSTBM main-screen lane exposes Ink frame and pool access, serializes styled rows, retains and backfills native transcript history, atomically draws prompt and overlay frames, gates the feature by terminal capability and rollout, and places the live transcript boundary immediately after authentication status.',
+    },
+  ]),
+  ['2.1.112-to-2.1.113:20204', {
+    paths: ['src/utils/deepLink/protocolHandler.ts'],
+    evidenceIds: [
+      'protocol-handler-realpath-target-fragment',
+      'protocol-handler-realpath-semantic-test',
+    ],
+    behavior: 'The live deep-link protocol handler resolves the running executable through fs.realpath before launching a terminal, and falls back to process.execPath when canonicalization fails; both the --handle-uri entrypoint and macOS URL-scheme route reach this handler.',
+  }],
+  ...[7055, 7056].map(targetIndex => [
+    `2.1.112-to-2.1.113:${targetIndex}`,
+    {
+      paths: ['src/ink/terminal.ts'],
+      evidenceIds: [
+        'daemon-terminal-output-target-fragment',
+        'daemon-terminal-output-semantic-test',
+      ],
+      behavior: 'The terminal writer suppresses synchronous EIO and EPIPE failures only for the daemon backend, permanently retires the broken output stream after the first failure, and rethrows interactive or unexpected errors.',
+    },
+  ]),
+  ['2.1.112-to-2.1.113:8118', {
+    paths: ['src/services/api/errorUtils.ts'],
+    evidenceIds: [
+      'api-error-nested-json-target-fragment',
+      'api-error-nested-json-semantic-test',
+    ],
+    behavior: 'When a provider embeds a serialized error body in the top-level API message, the formatter recovers the useful nested response message and preserves the HTTP status prefix before falling back to ordinary sanitization.',
+  }],
+  ...[
+    [9391, ['src/utils/plugins/pluginOptionsStorage.ts']],
+    [9650, ['src/utils/gracefulShutdown.ts']],
+    [10038, ['src/utils/telemetry/sessionTracing.ts']],
+    [10041, ['src/utils/telemetry/sessionTracing.ts']],
+    [10042, ['src/utils/telemetry/sessionTracing.ts']],
+    [10044, ['src/utils/telemetry/sessionTracing.ts']],
+    [10045, ['src/utils/telemetry/sessionTracing.ts']],
+    [10046, ['src/utils/telemetry/sessionTracing.ts']],
+    [10047, ['src/utils/telemetry/sessionTracing.ts']],
+    [10051, ['src/utils/telemetry/sessionTracing.ts']],
+    [10052, ['src/utils/telemetry/sessionTracing.ts']],
+    [10066, ['src/services/api/logging.ts']],
+    [10068, ['src/services/api/logging.ts']],
+    [11285, ['src/utils/autoUpdater.ts']],
+    [11719, ['src/components/VertexSetupWizard.tsx']],
+    [13655, ['src/utils/attachments.ts']],
+    [13669, ['src/utils/attachments.ts']],
+    [14599, ['src/tools/BashTool/prompt.ts']],
+    [14903, ['src/utils/messages.ts']],
+    [17291, ['src/commands/exit/index.ts']],
+    [17295, ['src/commands/update/update.ts']],
+    [18046, ['src/services/api/claude.ts']],
+    [19145, ['src/utils/deepLink/parseDeepLink.ts']],
+    [19146, ['src/utils/deepLink/parseDeepLink.ts']],
+    [19147, ['src/utils/deepLink/parseDeepLink.ts']],
+    [19148, ['src/utils/deepLink/parseDeepLink.ts']],
+    [19349, ['src/utils/cliArgs.ts']],
+    [20182, ['src/utils/deepLink/terminalLauncher.ts']],
+    [20187, ['src/utils/deepLink/terminalLauncher.ts']],
+    [20188, ['src/utils/deepLink/terminalLauncher.ts']],
+    [20189, ['src/utils/deepLink/terminalLauncher.ts']],
+    [20190, ['src/utils/deepLink/terminalLauncher.ts']],
+    [20195, ['src/utils/deepLink/terminalLauncher.ts']],
+    [20433, ['src/main.tsx']],
+  ].map(([targetIndex, paths]) => [
+    `2.1.112-to-2.1.113:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'retained-runtime-gaps-target-fragment',
+        'retained-runtime-gaps-semantic-test',
+      ],
+      behavior: 'The exact target113 runtime-hardening unit is authenticated by structural range and executable source-root-aware behavior, including lifecycle reachability and persistence through target116 where applicable.',
+    },
+  ]),
+  ...[
+    [10038, ['src/utils/telemetry/sessionTracing.ts']],
+    [10041, ['src/utils/telemetry/sessionTracing.ts']],
+    [10042, ['src/utils/telemetry/sessionTracing.ts']],
+    [10047, ['src/utils/telemetry/sessionTracing.ts']],
+    [10051, ['src/utils/telemetry/sessionTracing.ts']],
+    [10052, ['src/utils/telemetry/sessionTracing.ts']],
+    [13465, ['src/services/tools/toolExecution.ts']],
+    [19240, ['src/utils/handlePromptSubmit.ts']],
+    [20295, ['src/cli/print.ts']],
+  ].map(([targetIndex, paths]) => [
+    `2.1.112-to-2.1.113:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'tracing-lifecycle-target-fragment',
+        'tracing-lifecycle-semantic-test',
+      ],
+      behavior: 'The target tracing lifecycle rejects ended ALS parents, scopes each prompt turn, resolves tool-execution teardown from its own ALS store, captures the exact tool span at dispatch, and ends concurrent spans without clearing an unrelated live context; interactive and headless callers retain that graph through target116.',
+    },
+  ]),
+  ['2.1.110-to-2.1.111:7353', {
+    paths: ['src/utils/shell/shellToolUtils.ts'],
+    evidenceIds: [
+      'powershell-rollout-target-fragment',
+      'powershell-rollout-semantic-test',
+    ],
+    behavior: 'The PowerShell enablement gate honors an explicit environment opt-in on every platform, honors explicit Windows opt-out, and otherwise consults tengu_cobalt_ridge with a false fallback only on Windows.',
+  }],
+  ...[7407, 7408, 7415].map(targetIndex => [
+    `2.1.110-to-2.1.111:${targetIndex}`,
+    {
+      paths: ['src/services/api/promptCacheBreakDetection.ts'],
+      evidenceIds: [
+        'prompt-cache-ttl-telemetry-target-fragment',
+        'prompt-cache-ttl-telemetry-semantic-test',
+      ],
+      behavior: 'The live prompt-cache detector records the request TTL flag, persists a default-false schema field, and emits is1hCacheTTL with query depth in cache-break telemetry; the query caller feeds the already-live one-hour TTL decision and the complete graph persists through target116.',
+    },
+  ]),
+  ['2.1.110-to-2.1.111:8311', {
+    paths: ['src/utils/words.ts'],
+    evidenceIds: [
+      'runtime-repairs-owner-fragments-target-fragment',
+      'runtime-repairs-owner-fragments-semantic-test',
+    ],
+    behavior: 'The target111 slugifyPrompt helper defaults to four words and a forty-character limit, normalizes the prompt into a filesystem-safe lowercase slug, and is authored by src/utils/words.ts for the recovered plan-filename call graph.',
+  }],
+  ...[8833, 8836, 8837].map(targetIndex => [
+    `2.1.110-to-2.1.111:${targetIndex}`,
+    {
+      paths: ['src/utils/telemetry/apiBodyLogging.ts'],
+      evidenceIds: [
+        'runtime-repairs-owner-fragments-target-fragment',
+        'runtime-repairs-owner-fragments-semantic-test',
+      ],
+      behavior: 'The target111 API-body telemetry owner truncates and annotates serialized bodies, redacts thinking payloads, and emits request/response events with model, query source, and request identity metadata.',
+    },
+  ]),
+  ['2.1.110-to-2.1.111:10381', {
+    paths: ['src/components/BedrockSetupWizard.tsx'],
+    evidenceIds: [
+      'provider-probe-1m-normalization-target-fragment',
+      'provider-probe-1m-normalization-semantic-test',
+    ],
+    behavior: 'The target111 Bedrock confirmation unit owns the authenticated settings path, saved-configuration message, and environment-preview fragments used by the provider setup wizard.',
+  }],
+  ['2.1.110-to-2.1.111:10483', {
+    paths: ['src/components/BedrockSetupWizard.tsx'],
+    evidenceIds: [
+      'provider-probe-1m-normalization-target-fragment',
+      'provider-probe-1m-normalization-semantic-test',
+    ],
+    behavior: 'The target111 Bedrock candidate helper preserves an existing case-insensitive trailing [1m] suffix and appends the suffix when absent.',
+  }],
+  ['2.1.110-to-2.1.111:10476', {
+    paths: ['src/components/BedrockSetupWizard.tsx'],
+    evidenceIds: [
+      'provider-probe-1m-normalization-target-fragment',
+      'provider-probe-1m-normalization-semantic-test',
+    ],
+    behavior: 'The target111 Bedrock provider probe strips only a trailing case-insensitive [1m] cache suffix before dispatching its one-token connectivity request.',
+  }],
+  ['2.1.110-to-2.1.111:10525', {
+    paths: ['src/components/VertexSetupWizard.tsx'],
+    evidenceIds: [
+      'provider-probe-1m-normalization-target-fragment',
+      'provider-probe-1m-normalization-semantic-test',
+    ],
+    behavior: 'The target111 Vertex confirmation unit owns the authenticated settings path, saved-configuration message, and environment-preview fragments used by the provider setup wizard.',
+  }],
+  ['2.1.110-to-2.1.111:10539', {
+    paths: ['src/components/VertexSetupWizard.tsx'],
+    evidenceIds: [
+      'provider-probe-1m-normalization-target-fragment',
+      'provider-probe-1m-normalization-semantic-test',
+    ],
+    behavior: 'The target111 Vertex candidate helper preserves an existing case-insensitive trailing [1m] suffix and appends the suffix when absent.',
+  }],
+  ['2.1.110-to-2.1.111:10534', {
+    paths: ['src/components/VertexSetupWizard.tsx'],
+    evidenceIds: [
+      'provider-probe-1m-normalization-target-fragment',
+      'provider-probe-1m-normalization-semantic-test',
+    ],
+    behavior: 'The target111 Vertex provider probe strips only a trailing case-insensitive [1m] cache suffix before dispatching its one-token connectivity request.',
+  }],
+  ...[15523, 15527, 15528].map(targetIndex => [
+    `2.1.110-to-2.1.111:${targetIndex}`,
+    {
+      paths: ['src/commands/review/UltrareviewOverageDialog.tsx'],
+      evidenceIds: [
+        'ultrareview-dialog-owner-fragments-target-fragment',
+        'ultrareview-dialog-owner-fragments-semantic-test',
+      ],
+      behavior: 'The target111 Ultrareview dialog owns the authenticated cost and scope fragments and renders a reduced-motion-aware SpinnerGlyph/GlimmerMessage launch indicator with the exact frame, color, and opacity inputs.',
+    },
+  ]),
+  ['2.1.110-to-2.1.111:14609', {
+    paths: ['src/components/HelpV2/HelpV2.tsx'],
+    evidenceIds: [
+      'help-feedback-responsive-target-fragment',
+      'help-feedback-responsive-semantic-test',
+    ],
+    behavior: 'The target111 Help dialog renders its exact feedback guidance only when the terminal has at least 44 rows and preserves the version/build-macro title in the same pinned unit.',
+  }],
+  ['2.1.110-to-2.1.111:8648', {
+    paths: ['src/entrypoints/sdk/coreSchemas.ts'],
+    evidenceIds: [
+      'sdk-core-schemas-target-fragment',
+      'sdk-core-schemas-semantic-test',
+    ],
+    behavior: 'The target111 SDK schema initializer makes the exact always_allow/always_ask/always_deny MCP tool policy reachable through SSE and HTTP server configs and defines the exact @internal mirror-error schema latently; the SDK message-union edge is introduced only at target113 and persists through target116.',
+  }],
+  ['2.1.110-to-2.1.111:13591', {
+    paths: ['src/tools/BashTool/bashPermissions.ts'],
+    evidenceIds: [
+      'bash-leading-cd-context-target-fragment',
+      'bash-leading-cd-context-semantic-test',
+    ],
+    behavior: 'The target111 syntax guard admits only a straight leading-cd chain: it rejects ||, semicolon, and standalone ampersand while allowing &&; target113 separately adds newline rejection.',
+  }],
+  ['2.1.110-to-2.1.111:13597', {
+    paths: ['src/tools/BashTool/bashPermissions.ts'],
+    evidenceIds: [
+      'bash-miss-kind-target-fragment',
+      'bash-miss-kind-semantic-test',
+      'bash-leading-cd-context-target-fragment',
+      'bash-leading-cd-context-semantic-test',
+    ],
+    behavior: 'The live target111 Bash permission caller resolves an AST-vetted leading cd through the allowed-path policy, validates subsequent subcommands and the full path graph relative to that cwd, and retains exact miss-kind labels; target113 separately adds newline and no-op-cd git hardening.',
+  }],
+  ['2.1.110-to-2.1.111:19378', {
+    paths: ['src/cli/print.ts'],
+    evidenceIds: [
+      'sdk-mcp-permission-policy-target-fragment',
+      'sdk-mcp-permission-policy-semantic-test',
+    ],
+    behavior: 'The live target111 dynamic MCP reconciler derives session allow and deny rules from HTTP/SSE tool permission_policy values, removes only stale rules it previously owned, preserves manual and always-ask rules, and atomically publishes the replacement policy with the new MCP clients and tools.',
+  }],
+  ['2.1.110-to-2.1.111:13337', {
+    paths: ['src/services/mcp/client.ts'],
+    evidenceIds: [
+      'mcp-identity-encoding-target-fragment',
+      'mcp-identity-encoding-semantic-test',
+    ],
+    behavior: 'The MCP transport initializer sends Accept-Encoding: identity on all six authenticated non-WebSocket edges: SSE request and event stream, SSE-IDE request and conditional event stream, streamable HTTP, and the Claude.ai proxy.',
+  }],
+  ['2.1.110-to-2.1.111:2535', {
+    paths: ['src/constants/figures.ts'],
+    evidenceIds: [
+      'effort-glyphs-target-fragment',
+      'effort-glyphs-semantic-test',
+    ],
+    behavior: 'The figures initializer introduces distinct Opus 4.7 xhigh and max glyphs: EFFORT_XHIGH remains the prior filled-circle value while EFFORT_MAX changes to the target-only diamond, and EffortIndicator maps the xhigh/max runtime levels to those exact exports.',
+  }],
+  ['2.1.107-to-2.1.108:900', {
+    paths: ['src/utils/debug.ts'],
+    evidenceIds: [
+      'debug-runtime-target-fragment',
+      'debug-runtime-semantic-test',
+    ],
+    behavior: 'The target-108 debug initializer owns log-level parsing, debug-mode flag detection, --debug filters, stderr routing, and debug-file argument parsing; its dominant source candidate and exact authored implementation are src/utils/debug.ts, not the adjacent fsOperations initializer selected by the coarse partition vote.',
+  }],
+  ...[
+    [2486, ['src/types/permissions.ts'], 'The public permission-decision reason enum supplies the exact SDK-safe discriminator set used by the target116 control schema.'],
+    [2488, ['src/types/permissions.ts'], 'PermissionDecisionReason remains the authored union behind the exported discriminator tuple rather than the adjacent environment module suggested by the coarse source map.'],
+    [14851, ['src/utils/permissions/permissions.ts'], 'Auto-mode permission handling finds nested safety checks, keeps non-classifier-approvable checks interactive, and treats sandbox overrides as prompt-required without returning the absent safety result.'],
+    [19778, ['src/cli/structuredIO.ts'], 'Structured SDK permission requests emit the serialized reason, its exact discriminator, and the all-nested classifier-approvable summary without requiring hosts to parse prose.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'sdk-permission-decision-metadata-target-fragment',
+        'sdk-permission-decision-metadata-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.114-to-2.1.116:20254', {
+    paths: ['src/skills/bundled/simplify.ts'],
+    evidenceIds: [
+      'simplify-nested-conditionals-target-fragment',
+      'simplify-nested-conditionals-semantic-test',
+    ],
+    behavior: 'The simplify review prompt explicitly identifies ternary chains and three-level nested conditionals, prescribes flattening strategies, and keeps the following unnecessary-comments item correctly numbered.',
+  }],
+  ...[
+    [15170, [
+      'src/components/ThinkingIndicator.tsx',
+      'src/components/Messages.tsx',
+    ], 'The mounted thinking indicator schedules the exact fourteen target milestones, resets and cancels timers when loading/thinking ends, and renders the unresolved Thinking row plus the current dim milestone.'],
+    [15172, [
+      'src/components/ThinkingIndicator.tsx',
+      'src/components/Messages.tsx',
+    ], 'The complete target 2.1.109 milestone delay/text table is authored in ThinkingIndicator and is reachable only while Messages mounts the thinking hint for an active thinking response.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.108-to-2.1.109:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'thinking-indicator-target-fragment',
+        'thinking-indicator-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [17741, 'The session-storage export surface exposes a typed worktreeStateSignal carrying a persisted worktree snapshot or null.'],
+    [17834, 'saveWorktreeState strips ephemeral creation fields, updates the in-memory cache, emits the exact persisted snapshot, and only then performs optional eager persistence.'],
+    [17882, 'The session-storage initializer creates the worktree signal alongside the existing storage runtime without changing the persisted entry shape.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths: ['src/utils/sessionStorage.ts'],
+      evidenceIds: [
+        'worktree-state-signal-target-fragment',
+        'worktree-state-signal-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [17741, 'The session-storage public surface exports the exact bounded head and compact-boundary scan sizes alongside the independently recovered worktree signal.'],
+    [17842, 'Large transcript indexing caps compact-boundary inspection at the public 4096-byte boundary constant.'],
+    [17844, 'Large transcript indexing caps sidechain inspection at the public 256-byte head constant.'],
+    [17881, 'The session-index initializer binds the public scan-size constants used by both bounded probes.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths: ['src/utils/sessionStorage.ts'],
+      evidenceIds: [
+        'session-index-scan-target-fragment',
+        'session-index-scan-semantic-test',
+        ...(targetIndex === 17741
+          ? [
+              'worktree-state-signal-target-fragment',
+              'worktree-state-signal-semantic-test',
+            ]
+          : []),
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.114-to-2.1.116:20192', {
+    paths: ['src/screens/ResumeConversation.tsx'],
+    evidenceIds: [
+      'resume-picker-telemetry-target-fragment',
+      'resume-picker-telemetry-semantic-test',
+    ],
+    behavior: 'The interactive resume picker emits exactly one failure event per attempt, refines explicit picker misses to not_found_picker, retains processing_error for malformed sessions, includes the caught error class, merges resumed standalone context beneath live app context and updates the session name, and renders both wait states through the shared LoadingState surface.',
+  }],
+  ...[
+    [17781, 'Project metadata re-append shares one refreshed ordered plan between sync and async writers, awaits queue-drain and materialization refreshes, and retains every cached metadata field.'],
+    [17816, 'The async metadata appender preserves mode 0600, creates missing parents with mode 0700, retries the append, and fires transcript mirrors after persistence.'],
+    [17817, 'The async tail reader reads the same bounded tail window as the synchronous reader, returns an empty string on failure, and closes its file handle best-effort.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths: ['src/utils/sessionStorage.ts'],
+      evidenceIds: [
+        'session-metadata-async-target-fragment',
+        'session-metadata-async-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [10115, 'Raw API body logging parses false/inline/file:path modes and rejects an empty file directory as disabled.'],
+    [10116, 'The raw-body logging configuration cache invalidates exactly when the environment string changes.'],
+    [10117, 'Raw API body logging reports enabled for both inline and file modes and remains disabled otherwise.'],
+    [10118, 'Private body-file writes retry ENOENT after recursively creating the requested directory and propagate other failures.'],
+    [10119, 'File mode writes redacted request/response JSON asynchronously, emits a safe body_ref plus byte length, and never places the body inline.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths: ['src/utils/telemetry/apiBodyLogging.ts'],
+      evidenceIds: [
+        'api-body-file-mode-target-fragment',
+        'api-body-file-mode-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.114-to-2.1.116:2177', {
+    paths: ['src/utils/windowsPaths.ts'],
+    evidenceIds: [
+      'windows-git-bash-fallback-target-fragment',
+      'windows-git-bash-fallback-semantic-test',
+    ],
+    behavior: 'Git Bash discovery validates an explicit override, then checks the standard 64-bit and 32-bit bash.exe installation paths directly before falling back to a safely resolved git executable.',
+  }],
+  ['2.1.114-to-2.1.116:2473', {
+    paths: ['src/entrypoints/sandboxTypes.ts'],
+    evidenceIds: [
+      'sandbox-fail-unavailable-description-target-fragment',
+      'sandbox-fail-unavailable-description-semantic-test',
+    ],
+    behavior: 'The public failIfUnavailable schema description names missing dependencies or an unsupported platform as startup-failure causes without exposing the separate undocumented enabledPlatforms routing control.',
+  }],
+  ['2.1.114-to-2.1.116:17458', {
+    paths: ['src/utils/exportRenderer.tsx'],
+    evidenceIds: [
+      'export-renderer-keybinding-context-target-fragment',
+      'export-renderer-keybinding-context-semantic-test',
+    ],
+    behavior: 'The static export renderer supplies KeybindingProvider with an independent pre-dispatch Set ref so the target116 provider contract remains valid without mounting the interactive chord interceptor.',
+  }],
+  ['2.1.114-to-2.1.116:19824', {
+    paths: ['src/hooks/usePluginRecommendationBase.tsx'],
+    evidenceIds: [
+      'plugin-recommendation-status-icon-target-fragment',
+      'plugin-recommendation-status-icon-semantic-test',
+    ],
+    behavior: 'The target-116 plugin recommendation installer retains the StatusIcon success marker introduced in 2.1.107-to-2.1.108; the standalone late tree replays that exact prerequisite without claiming a new 114-to-116 behavior.',
+  }],
+  ['2.1.114-to-2.1.116:20593', {
+    paths: ['src/cli/print.ts'],
+    evidenceIds: [
+      'print-resume-telemetry116-target-fragment',
+      'print-resume-telemetry116-semantic-test',
+    ],
+    behavior: 'Target116 refines exactly the three print-resume input and local-transcript failures from not_found to not_found_explicit_id while retaining the target105 processing-error, success-duration, and phase-aware catch telemetry unchanged.',
+  }],
+  ['2.1.114-to-2.1.116:4544', {
+    paths: ['src/utils/model/model.ts'],
+    evidenceIds: [
+      'model-canonical-four-zero-target-fragment',
+      'model-canonical-four-zero-semantic-test',
+    ],
+    behavior: 'Canonical first-party model parsing distinguishes future dated Opus/Sonnet 4.x releases from the generic 4.0 families while retaining the target97 date-suffix fallback transitively.',
+  }],
+  ...[
+    [7102, ['src/ink/terminal.ts'], 'The terminal capability owner exposes a process-local setter for the asynchronous DEC 2026 probe result.'],
+    [7103, ['src/ink/terminal.ts'], 'Synchronized-output support retains all static environment detections and accepts a successful dynamic probe only after the tmux hard-false guard.'],
+    [7116, ['src/ink/terminal.ts'], 'The terminal module stores the probe result as optional process-local state until App receives the bounded DECRQM response.'],
+    [7162, ['src/ink/components/App.tsx'], 'Raw-mode startup skips Apple Terminal, queries DEC synchronized-update status, accepts status 1 or 2, records/logs the result, then continues XTVERSION identification.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'synchronized-output-probe-target-fragment',
+        'synchronized-output-probe-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [18363, 'The startup-timing module records rounded remote startup phases without overwriting the first recorded value.'],
+    [18364, 'The startup-timing consumer returns the accumulated phase record exactly once and clears process-local state.'],
+    [18365, 'The module export surface exposes the startup phase recorder and consumer to main, print, and SDK system-init call paths.'],
+    [18366, 'The startup-timing initializer owns the private process-local phase record.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths: ['src/bridge/startupTiming.ts'],
+      evidenceIds: [
+        'remote-startup-timing-target-fragment',
+        'remote-startup-timing-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.114-to-2.1.116:18502', {
+    paths: ['src/utils/messages/systemInit.ts'],
+    evidenceIds: [
+      'remote-startup-timing-target-fragment',
+      'remote-startup-timing-semantic-test',
+    ],
+    behavior: 'The first SDK system-init message consumes and privately attaches the accumulated remote startup_timing payload after fast-mode state construction.',
+  }],
+  ...[
+    [20008, 'Startup telemetry enumerates only the target environment-variable allowlist that is explicitly set.'],
+    [20009, 'Nondefault settings compare current global values against exact default configuration while excluding sensitive and noisy keys.'],
+    [20010, 'Explicit CLI flags are normalized and reported without positional arguments or secret values.'],
+    [20011, 'The startup helper module exposes deterministic collectors used by the CLI event owner.'],
+    [20013, 'The startup telemetry initializer binds only the settings, environment, and CLI metadata required by those collectors.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths: ['src/utils/telemetry/startupTelemetry.ts'],
+      evidenceIds: [
+        'startup-cli-telemetry-target-fragment',
+        'startup-cli-telemetry-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.114-to-2.1.116:20711', {
+    paths: ['src/main.tsx', 'src/utils/telemetry/startupTelemetry.ts'],
+    evidenceIds: [
+      'startup-cli-telemetry-target-fragment',
+      'startup-cli-telemetry-semantic-test',
+    ],
+    behavior: 'The CLI startup event records filtered environment/settings counts and explicit flag metadata from the dedicated helper without exposing values.',
+  }],
+  ...[
+    [12237, ['src/commands/login/login.tsx'], 'Login signature cleanup routes a typed update operation through the shared LocalJSXCommandContext instead of directly mutating message state.'],
+    [15022, ['src/utils/messages.ts'], 'The target retains the append-or-replace-by-UUID helper introduced at the 88-to-89 boundary; fullscreen streaming reuses it transitively.'],
+    [16848, ['src/commands/teleport/teleport.tsx'], 'Teleport replaces the complete conversation through a replace-all operation before reporting successful resume.'],
+    [16928, ['src/commands/permissions/permissions.tsx'], 'Permission retry appends its generated system message through the typed operation boundary.'],
+    [19501, ['src/utils/messageOperations.ts'], 'The shared reducer implements append, replace-all, first UUID removal with identity preservation, and arbitrary typed update operations.'],
+    [19998, ['src/screens/REPL.tsx', 'src/utils/messageOperations.ts', 'src/utils/messages.ts'], 'REPL exposes one memoized operation dispatcher and routes compaction, streaming, tombstones, query additions, storage cleanup, and duration updates through it while retaining the inherited UUID helper.'],
+    [20550, ['src/QueryEngine.ts', 'src/utils/messageOperations.ts'], 'QueryEngine applies slash-command message operations to mutable print history and exposes a no-op operation boundary after command processing.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'message-operations-target-fragment',
+        'message-operations-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [20417, 'The reusable headless MCP manager exposes the target116 concurrent regular/claude.ai connection policy through the target101 adapter surface.'],
+    [20418, 'Batch connection registers pending clients and independently resolves per-server readiness while preserving retry scheduling.'],
+    [20419, 'Late MCP results update only known clients and clear successful late-client caches without reintroducing removed servers.'],
+    [20420, 'Failed remote MCP servers retry with bounded backoff, cache eviction, and early completion when all reconnect.'],
+    [20421, 'Connection deadlines support fully asynchronous startup plus bounded config and server readiness waits.'],
+    [20423, 'The reusable owner fixes the exact readiness/config timeout constants used by target116.'],
+    [20424, 'The manager initializer binds target108 retry delays and the exact remote transport allowlist over the target101 introduction.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths: ['src/services/mcp/headlessConnectionManager.ts'],
+      evidenceIds: [
+        'headless-mcp-cumulative-target-fragment',
+        'headless-mcp-cumulative-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [7666, 'MeasuredText combines Intl.Segmenter isWordLike with the Unicode numeric fallback while preserving cached start/end boundaries.'],
+    [7667, 'The adjacent Vim word-character classifier remains the Unicode letter/number/mark/underscore definition used by cursor operations.'],
+    [7668, 'A precompiled Unicode-number regex recognizes numeric segments that some Intl.Segmenter implementations classify as non-word-like.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths: ['src/utils/Cursor.ts'],
+      evidenceIds: [
+        'cursor-numeric-word-boundaries-target-fragment',
+        'cursor-numeric-word-boundaries-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.114-to-2.1.116:10872', {
+    paths: ['src/utils/queryHelpers.ts'],
+    evidenceIds: [
+      'query-helper-file-cache-hardening-target-fragment',
+      'query-helper-file-cache-hardening-semantic-test',
+    ],
+    behavior: 'The message-history file-cache extractor validates string tool inputs, isolates malformed tool uses, ignores errored Read and Write results, caches empty writes and full reads precisely, and treats directory Edit targets as inaccessible without aborting later recovery.',
+  }],
+  ['2.1.110-to-2.1.111:616', {
+    paths: ['src/utils/envUtils.ts'],
+    evidenceIds: [
+      'vertex-region-target-fragment',
+      'vertex-region-semantic-test',
+    ],
+    behavior: 'The ordered Vertex region override table recognizes Opus 4.7 before the generic Opus prefixes and resolves VERTEX_REGION_CLAUDE_4_7_OPUS, while retaining the inherited Opus 4.6 and 4.5 overrides in target order.',
+  }],
+  ...[
+    [16982, 'Environment context advertises the Claude 4.X family with the Opus 4.7, Sonnet 4.6, and Haiku 4.5 identifiers and gives the exact Opus-4.6-only fast-mode guidance introduced in target 2.1.111.'],
+    [16993, 'The target prompt initializer pins claude-opus-4-7 as the current Opus model-family identifier while retaining Sonnet 4.6 and the dated Haiku 4.5 identifier.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.110-to-2.1.111:${targetIndex}`,
+    {
+      paths: ['src/constants/prompts.ts'],
+      evidenceIds: [
+        'model-family-prompt-target-fragment',
+        'model-family-prompt-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [3102, ['src/utils/model/configs.ts'], 'The Opus 4.7 provider initializer maps the exact first-party, Bedrock, Vertex, Foundry, Anthropic-on-AWS, and Mantle identifiers and publishes it through the opus47 model-config key.'],
+    [4615, ['src/utils/betas.ts'], 'Auto-mode validation admits Opus 4.7 for first-party and Anthropic-on-AWS providers while retaining configured exact and canonical allow-list matches.'],
+    [5063, ['src/utils/config.ts'], 'Default global configuration initializes the Opus 4.7 effort pin to false and provides the persisted launch-impression field consumed by the launch surface.'],
+    [6804, ['src/utils/effort.ts'], 'Opus 4.7 supports xhigh effort unless a provider capability override explicitly says otherwise.'],
+    [6807, ['src/utils/effort.ts'], 'Effort parsing accepts low, medium, high, and the target xhigh value.'],
+    [6811, ['src/utils/effort.ts'], 'Applied effort defaults Opus 4.7 to xhigh until the user unpins launch effort, while respecting environment, session, and capability constraints.'],
+    [6812, ['src/utils/effort.ts'], 'Explicit effort parsing persists the Opus 4.7 launch-effort unpin before returning the resolved CLI or settings value.'],
+    [6817, ['src/utils/effort.ts'], 'Effort descriptions expose xhigh as the Opus-4.7-only tier just below maximum.'],
+    [6819, ['src/utils/effort.ts'], 'The model-default effort resolver selects xhigh for canonical Opus 4.7.'],
+    [6821, ['src/utils/effort.ts'], 'The effort initializer exports the five target effort values and inherited legacy-model compatibility set.'],
+    [6829, ['src/services/rateLimitMessages.ts'], 'The seven-day Pro rate-limit lever recommends Sonnet for Opus and medium effort for high, xhigh, or max runs behind the exact feature gate.'],
+    [6879, ['src/services/api/errors.ts'], 'Third-party API failures map Opus 4.7, 4.6, and 4.5 variants to the Opus 4.1 fallback and Sonnet families to their target fallbacks.'],
+    [8428, ['src/utils/advisor.ts'], 'Advisor base-model support adds Opus 4.7 beside Opus 4.6 and Sonnet 4.6.'],
+    [8429, ['src/utils/advisor.ts'], 'Advisor configured-model validation accepts exactly the target Opus 4.7, Opus 4.6, and Sonnet 4.6 families.'],
+    [9540, ['src/utils/settings/applySettingsChange.ts'], 'Settings reload persists effort unpin only when effort changes and conditionally updates away-summary state while preserving the complete permission-context transition.'],
+    [9658, ['src/utils/commitAttribution.ts'], 'Commit-attribution sanitization maps internal Opus 4.7 variants to the public claude-opus-4-7 family before older model families.'],
+    [10484, ['src/components/BedrockSetupWizard.tsx'], 'Bedrock setup preserves existing pins, probes all selected tiers, offers working-model and 1M pin variants only after settlement, and writes only successful selections.'],
+    [10485, ['src/components/BedrockSetupWizard.tsx'], 'The Bedrock manual picker merges discovered, fallback, current, and existing-pin candidates, probes each once, sorts working models first, and marks pin/default/selection provenance.'],
+    [10540, ['src/components/VertexSetupWizard.tsx'], 'Vertex setup preserves existing pins, probes selected tiers, offers 1M only for working capable models, and distinguishes pin, manual, and default choices.'],
+    [10541, ['src/components/VertexSetupWizard.tsx'], 'The Vertex manual picker probes the ordered tier candidates, prioritizes working versions, preserves existing pins, and uses the settled key/default selection semantics.'],
+    [10726, ['src/utils/model/agent.ts'], 'Agent model resolution carries the merged 1M suffix to explicit Opus 4.7 and 4.6 models when enabled and not already tagged.'],
+    [12116, ['src/utils/model/validateModel.ts'], 'Model validation uses the same third-party Opus 4.7/4.6/4.5 and Sonnet fallback chain as API error handling.'],
+    [13514, ['src/utils/attribution.ts'], 'Unknown external model attribution falls back to the public Claude Opus 4.7 name while preserving remote-session and configured attribution branches.'],
+    [15271, ['src/components/LogoV2/Opus47LaunchUpsell.tsx'], 'The target111 launch is first-party-only and stops after twelve persisted impressions; cumulative target116 additionally honors the explicit effort-unpin gate and reduces the cap to five.'],
+    [15274, ['src/components/LogoV2/Opus47LaunchUpsell.tsx', 'src/components/LogoV2/LogoV2.tsx', 'src/components/LogoV2/CondensedLogo.tsx'], 'Showing the launch increments its persisted counter and emits the exact telemetry event through the target layout-specific impression call paths.'],
+    [15276, ['src/components/LogoV2/Opus47LaunchUpsell.tsx', 'src/components/LogoV2/LogoV2.tsx'], 'The target111 horizontal feed renders the Opus 4.7 title, bold xhigh welcome, fixed width, and effort footer ahead of competing promotions.'],
+    [15277, ['src/components/LogoV2/Opus47LaunchUpsell.tsx', 'src/components/LogoV2/LogoV2.tsx', 'src/components/LogoV2/CondensedLogo.tsx'], 'The target111 launch constants and legacy truncated message are recovered separately from the later target116 current-model/available headline presentation.'],
+    [16204, ['src/commands/model/model.tsx'], 'The model command reports the generic Opus 1M entitlement error before validation and retains Sonnet-specific handling and model-change side effects.'],
+    [16961, ['src/constants/prompts.ts'], 'Thinking guidance is enabled only for canonical Opus 4.7 behind the exact cached client-data feature value.'],
+    [16983, ['src/constants/prompts.ts'], 'Knowledge-cutoff selection places Opus 4.7 at January 2026 before the inherited Sonnet, older Opus, Haiku, and Claude 4 family cutoffs.'],
+    [17057, ['src/services/api/claude.ts'], 'The adaptive-thinking disable override forces budget thinking only for canonical Opus 4.6 or Sonnet 4.6, while Opus 4.7 and other adaptive-capable models retain adaptive thinking.'],
+    [18668, ['src/hooks/notifs/useModelMigrationNotifications.tsx'], 'Startup migration notifications announce Opus 4.7 for both ordinary and legacy-remap paths with the target opt-out suffix and timeout behavior.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.110-to-2.1.111:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'opus47-surface-target-fragment',
+        'opus47-surface-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [17289, 'The sleep-inhibitor command resolver selects the exact macOS caffeinate command with the bounded timeout and otherwise disables the feature.'],
+    [17290, 'The restart loop stays active across the 30-second stop grace period, restarts the inhibitor before expiry, and does not retain the process.'],
+    [17292, 'The generic inhibitor launcher registers forced cleanup once, hides spawned windows, clears only the process instance that fired, and logs exact lifecycle diagnostics.'],
+    [17293, 'The inhibitor terminator clears ownership before SIGKILL and emits the exact generic stop diagnostic.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.110-to-2.1.111:${targetIndex}`,
+    {
+      paths: ['src/services/preventSleep.ts'],
+      evidenceIds: [
+        'prevent-sleep-target-fragment',
+        'prevent-sleep-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [9553, ['src/tools/BashTool/sedValidation.ts'], 'Dangerous sed operations attach the exact sed-dangerous miss classification to the manual-approval decision.'],
+    [9557, ['src/tools/BashTool/pathValidation.ts'], 'Target 111 labels critical rm/rmdir paths as dangerous-path while retaining the non-persistable explicit-approval result; cumulative target116 represents the same denial as a non-classifier-approvable safety check.'],
+    [9561, ['src/tools/BashTool/pathValidation.ts'], 'Flag validation and compound cd-plus-write failures expose their distinct miss classifications without changing the underlying path decision.'],
+    [9566, ['src/tools/BashTool/pathValidation.ts'], 'Compound cd plus output-redirection failures expose the cd-compound-redirect classification.'],
+    [9567, ['src/tools/BashTool/pathValidation.ts'], 'Process substitution, network-device redirection, and shell-expansion paths expose distinct miss classifications selected by the parsed redirection reason.'],
+    [9585, ['src/tools/BashTool/readOnlyValidation.ts'], 'Read-only classification uses the parsed Bash AST, rejects unsafe redirects, environment variables and UNC paths, permits only safe glob commands, and falls through to exact argv-aware classification.'],
+    [13530, ['src/tools/BashTool/prompt.ts'], 'The target relay-chain feature gate removes the entire multi-command heading and subitems when enabled and otherwise preserves their exact ordered guidance.'],
+    [13562, ['src/tools/BashTool/bashCommandHelpers.ts'], 'Segmented-command resolution labels multiple-directory and cd-plus-git misses while preserving aggregate deny, allow and suggestion behavior.'],
+    [13565, ['src/tools/BashTool/bashCommandHelpers.ts'], 'Shell-operator rejection exposes its exact shell-operators miss classification before segmented pipeline analysis.'],
+    [13597, ['src/tools/BashTool/bashPermissions.ts'], 'The main Bash permission pipeline labels AST complexity, semantic failure, prompt-rule, multi-cd and cd-plus-git misses at their exact decision sites.'],
+    [13601, ['src/tools/BashTool/bashPermissions.ts'], 'Exact- and prefix-rule fallthroughs expose no-rule-match while retaining rule ordering, read-only handling and suggestions.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.110-to-2.1.111:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'bash-miss-kind-target-fragment',
+        'bash-miss-kind-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [5230, ['src/ink/terminal-querier.ts'], 'TerminalQuerier can cancel an in-flight OSC query so the watcher timeout and disposal paths cannot retain stale callbacks.'],
+    [5251, ['src/utils/systemThemeWatcher.ts'], 'The system-theme watcher owns the target OSC-11 query surface and bounded watcher state.'],
+    [5252, ['src/utils/systemThemeWatcher.ts'], 'The watcher decodes the terminal background response, updates the shared dark-mode state, emits theme notification, and cancels timed-out queries.'],
+    [5253, ['src/utils/systemThemeWatcher.ts'], 'Starting the watcher installs the exact repeat interval and immediate target111 probe.'],
+    [5254, ['src/utils/systemThemeWatcher.ts'], 'Stopping the watcher clears both polling and any active terminal query without leaking state.'],
+    [5257, ['src/components/design-system/ThemeProvider.tsx', 'src/utils/systemThemeWatcher.ts'], 'ThemeProvider starts and disposes the OSC-11 watcher with its mounted lifecycle.'],
+    [5694, ['src/ink/components/App.tsx', 'src/ink/theme-notify.ts'], 'Ink dispatches parsed themeNotify responses into the shared subscription registry reached by the watcher and theme provider.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.110-to-2.1.111:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'system-theme-watcher-target-fragment',
+        'system-theme-watcher-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [11383, ['src/services/lsp/LSPServerManager.ts'], 'The LSP manager assigns monotonically increasing per-URI versions to didOpen/didChange, clears them on close/shutdown, and exposes the current version to diagnostics consumers.'],
+    [11388, ['src/services/lsp/passiveFeedback.ts', 'src/services/lsp/LSPServerManager.ts'], 'Passive diagnostics discard only versioned notifications older than the manager state before formatting or registering them, while accepting equal, newer, and unversioned notifications.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.110-to-2.1.111:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'lsp-document-version-target-fragment',
+        'lsp-document-version-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.110-to-2.1.111:12806', {
+    paths: ['src/tools/PowerShellTool/pathValidation.ts'],
+    evidenceIds: [
+      'powershell-tilde-path-target-fragment',
+      'powershell-tilde-path-semantic-test',
+    ],
+    behavior: 'PowerShell path validation rejects the ambiguous ~user form before filesystem resolution while preserving the exact resolved input and manual-approval reason.',
+  }],
+  ...[
+    [11270, ['src/utils/suggestions/commandSuggestions.ts'], 'Command suggestions flatten names and aliases, prune impossible lengths, use a configurable one-edit default, and select the first minimum under adjacent-transposition-aware Damerau distance.'],
+    [11325, ['src/utils/processUserInput/processSlashCommand.tsx', 'src/utils/suggestions/commandSuggestions.ts'], 'Unknown slash commands use the explicit two-edit helper surface, while known built-ins unavailable in headless mode return the exact local-command result and record no suggestion.'],
+    [11326, ['src/utils/processUserInput/processSlashCommand.tsx'], 'Interactive local-JSX commands are rejected before module loading in noninteractive sessions with the exact terminal guidance and command input/result surface.'],
+    [11341, ['src/tools/SkillTool/SkillTool.ts', 'src/utils/suggestions/commandSuggestions.ts'], 'Skill validation exposes the exact available-skills schema guidance and uses the same explicit two-edit name/alias suggestion path.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.110-to-2.1.111:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'command-distance-target-fragment',
+        'command-distance-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.110-to-2.1.111:16976', {
+    paths: ['src/constants/prompts.ts'],
+    evidenceIds: [
+      'skill-guidance-target-fragment',
+      'skill-guidance-semantic-test',
+    ],
+    behavior: 'Session-specific guidance emits one concise Skill invocation instruction only when user-invocable skills and the Skill tool are available, with the exact no-guessing constraint and no legacy alternate paragraph.',
+  }],
+  ['2.1.110-to-2.1.111:12417', {
+    paths: ['src/query.ts'],
+    evidenceIds: [
+      'ptl-surface-target-fragment',
+      'ptl-surface-semantic-test',
+    ],
+    behavior: 'When reactive recovery cannot remove a prompt-too-long or media-size failure, the query loop records the exact surfaced reason, query source, and whether a prior recovery attempt gated the outcome before yielding the error and returning.',
+  }],
+  ['2.1.110-to-2.1.111:18180', {
+    paths: ['src/hooks/useSSHSession.ts', 'src/screens/REPL.tsx'],
+    evidenceIds: [
+      'ssh-permission-mode-target-fragment',
+      'ssh-permission-mode-semantic-test',
+    ],
+    behavior: 'SSH sessions seed the remote manager with the current permission mode on connect and immediately propagate subsequent live mode changes only while connected, with REPL supplying AppState mode.',
+  }],
+  ['2.1.110-to-2.1.111:19076', {
+    paths: ['src/skills/bundled/scheduleRemoteAgents.ts'],
+    evidenceIds: [
+      'schedule-routines-alias-target-fragment',
+      'schedule-routines-alias-semantic-test',
+    ],
+    behavior: 'Target111 adds /routines as an exact alias of the existing user-invocable /schedule descriptor; bundled-skill registration forwards the alias into command lookup without changing the target101 local-only feature and policy gate.',
+  }],
+  ...[
+    [10140, ['src/utils/nativeInstaller/download.ts'], "The native installer rejects unsupported release channels with the exact latest/stable guidance while retaining the dedicated rc-channel rejection."],
+    [10184, ['src/utils/nativeInstaller/installer.ts'], 'Native installation results preserve the updater wasSkipped outcome through the public result instead of silently discarding it.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.110-to-2.1.111:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'native-installer-result-target-fragment',
+        'native-installer-result-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.110-to-2.1.111:12233', {
+    paths: ['src/tools/MonitorTool/MonitorTool.ts'],
+    evidenceIds: [
+      'monitor-guidance-placement-target-fragment',
+      'monitor-guidance-placement-semantic-test',
+    ],
+    behavior: 'Monitor PushNotification guidance is interpolated inside the task-notification XML immediately after the escaped event, before the closing envelope, while retaining the target110 housekeeping/gate behavior.',
+  }],
+  ['2.1.110-to-2.1.111:19380', {
+    paths: ['src/cli/print.ts'],
+    evidenceIds: [
+      'sdk-crash-metadata-target-fragment',
+      'sdk-crash-metadata-semantic-test',
+    ],
+    behavior: 'Headless SDK crash telemetry classifies API errors with the API classifier, other errors and nested causes with the telemetry-safe tool classifier, and reports numeric API status plus optional cause_name.',
+  }],
+  ['2.1.110-to-2.1.111:5112', {
+    paths: ['src/services/analytics/datadog.ts'],
+    evidenceIds: [
+      'vscode-sdk-no-result-event-target-fragment',
+      'vscode-sdk-no-result-event-semantic-test',
+    ],
+    behavior: 'The Datadog event allowlist admits the exact tengu_vscode_sdk_stream_ended_no_result diagnostic introduced in target111 while preserving the adjacent voice and team-memory event order.',
+  }],
+  ['2.1.110-to-2.1.111:15358', {
+    paths: ['src/components/FullscreenLayout.tsx'],
+    evidenceIds: [
+      'new-messages-pill-target-fragment',
+      'new-messages-pill-semantic-test',
+    ],
+    behavior: 'The fullscreen new-message pill resolves the live scroll:bottom shortcut, renders it parenthesized before the down arrow, and preserves its count-sensitive label and click behavior.',
+  }],
+  ['2.1.110-to-2.1.111:8643', {
+    paths: ['src/memdir/findRelevantMemories.ts'],
+    evidenceIds: [
+      'memory-synthesis-prompt-target-fragment',
+      'memory-synthesis-prompt-semantic-test',
+    ],
+    behavior: 'The transitive target94 memory-synthesis owner replaces its anti-invention sentence with the target111 retrieval-only constraint: it must not answer or solve the query and may return only facts lifted from memory bodies.',
+  }],
+  ...[
+    [19002, 'The bundled skill registers the user-invocable less-permission-prompts command, preserves arbitrary user instructions, and returns the exact transcript-analysis prompt.'],
+    [19003, 'The target111 prompt constant contains the complete permission-analysis workflow headed by Less Permission Prompts.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.110-to-2.1.111:${targetIndex}`,
+    {
+      paths: ['src/skills/bundled/lessPermissionPrompts.ts'],
+      evidenceIds: [
+        'permission-prompts-skill-target-fragment',
+        'permission-prompts-skill-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [12426, ['src/tools/AgentTool/runAgent.ts', 'src/Tool.ts'], 'Subagent execution appends the configured subagent-only SystemPrompt only for non-exact tool sets behind the exact environment gate, uses the resolved prompt for cache-safe/query paths, and propagates the option to nested agents.'],
+    [18526, ['src/entrypoints/sdk/controlSchemas.ts'], 'The SDK initialize control schema exposes appendSubagentSystemPrompt with the exact target description and optional string shape.'],
+    [19326, ['src/QueryEngine.ts', 'src/Tool.ts'], 'QueryEngine stores the initialize-request subagent prompt and threads it through its primary ToolUseContext options.'],
+    [19327, ['src/QueryEngine.ts'], 'QueryEngine preserves the subagent prompt when constructing the alternate/ask tool-use context instead of dropping it.'],
+    [19361, ['src/cli/print.ts', 'src/Tool.ts'], 'Headless print configuration carries appendSubagentSystemPrompt through its ToolUseContext construction and query execution.'],
+    [19366, ['src/cli/print.ts'], 'The print entrypoint accepts and forwards the optional subagent-only prompt without conflating it with appendSystemPrompt.'],
+    [19511, ['src/main.tsx', 'src/QueryEngine.ts'], 'Main seeds headless QueryEngine appendSubagentSystemPrompt as undefined until the SDK initialize request supplies it, preserving the target initialization boundary.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.110-to-2.1.111:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'append-subagent-prompt-target-fragment',
+        'append-subagent-prompt-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [15421, 'Tree.Group introduces the enclosing last-child context used to preserve connector continuation through a nested child collection.'],
+    [15422, 'The child wrapper normalizes React children and marks only the final child when the enclosing group itself is last.'],
+    [15423, 'Tree nodes consume the propagated context while rendering connector, indentation, label, and nested children.'],
+    [15424, 'Tree.Group reads the enclosing last-child status and delegates to the shared child wrapper with that exact value.'],
+    [15425, 'The Tree component keeps the target callable root while gaining the Group member through the adjacent export assembly.'],
+    [15426, 'The public Tree export exposes Group beside Node and preserves the target last-child propagation graph.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.112-to-2.1.113:${targetIndex}`,
+    {
+      paths: ['src/components/design-system/Tree.tsx'],
+      evidenceIds: [
+        'tree-group-target-fragment',
+        'tree-group-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [19031, ['src/components/PromptInput/PromptInputFooterLeftSide.tsx'], 'The PromptInput left-footer entrypoint accepts live input emptiness and passes it into the target mode-indicator decision graph.'],
+    [19032, ['src/components/PromptInput/PromptInputFooterLeftSide.tsx'], 'The mode indicator renders the exact left-arrow agents hint only while a background session has empty input and preserves all higher-priority mode/status branches.'],
+    [19037, ['src/components/PromptInput/PromptInputFooter.tsx'], 'PromptInputFooter threads isInputEmpty from PromptInput into the left-side renderer without altering the right-side status surface.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.112-to-2.1.113:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'background-session-footer-target-fragment',
+        'background-session-footer-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [19952, 'The bundled permission-analysis skill keeps the target111 executable descriptor and argument append flow while renaming its public command to fewer-permission-prompts.'],
+    [19953, 'The otherwise unchanged permission-analysis prompt updates its visible heading to Fewer Permission Prompts.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.112-to-2.1.113:${targetIndex}`,
+    {
+      paths: ['src/skills/bundled/lessPermissionPrompts.ts'],
+      evidenceIds: [
+        'permission-prompts-skill-target-fragment',
+        'permission-prompts-skill-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [6481, ['src/utils/config.ts'], 'Global config persists showMessageTimestamps and defaults it to false without changing unrelated settings.'],
+    [6519, ['src/utils/config.ts'], 'The configuration owner exposes the persisted timestamp preference through the target settings read/write surface.'],
+    [10828, ['src/state/AppStateStore.ts'], 'AppState carries the live showMessageTimestamps value initialized from global configuration.'],
+    [13251, ['src/tools/ConfigTool/supportedSettings.ts'], 'ConfigTool lists the timestamp setting, parses the boolean value, applies it live, records telemetry, and supports exact revert/summary behavior.'],
+    [15273, ['src/components/Settings/Config.tsx'], 'The interactive Settings view exposes and persists the timestamp toggle with the target label and current-state update.'],
+    [16326, ['src/components/MessageTimestamp.tsx'], 'MessageTimestamp renders only when explicitly enabled or when transcript text supplies its own timestamp fallback.'],
+    [16331, ['src/components/MessageRow.tsx', 'src/components/MessageTimestamp.tsx'], 'MessageRow passes the setting and message metadata into the timestamp renderer at the exact row boundary.'],
+    [16335, ['src/components/MessageRow.tsx'], 'MessageRow memoization includes the timestamp preference so a live settings change rerenders existing rows.'],
+    [16413, ['src/components/Messages.tsx', 'src/components/MessageRow.tsx'], 'Messages selects the live timestamp preference and propagates it through every rendered row.'],
+    [20433, ['src/main.tsx', 'src/state/AppStateStore.ts'], 'Application startup initializes AppState timestamp visibility from persisted global config before rendering Messages.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.112-to-2.1.113:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'message-timestamps-target-fragment',
+        'message-timestamps-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [8903, ['src/utils/plugins/dependencyResolver.ts'], 'Dependency errors include the installed version when a required range is unsatisfied, preserving truncation and exact target formatting.'],
+    [8905, ['src/utils/plugins/dependencyResolver.ts'], 'The reusable version predicate normalizes and tests the installed version against every required constraint.'],
+    [8907, ['src/utils/plugins/dependencyResolver.ts'], 'Dependency closure force-includes compatible installed plugins while retaining demoted-pinner behavior when catalog metadata is unavailable.'],
+    [8908, ['src/utils/plugins/dependencyResolver.ts'], 'Verification and demotion reuse the exact shared version predicate and distinguish installed-unsatisfied failures.'],
+    [9044, ['src/utils/plugins/pluginInstallationHelpers.ts'], 'The plugin.json reconciler derives installed versions and force-include candidates while respecting array-valued policy blocks.'],
+    [9045, ['src/utils/plugins/pluginInstallationHelpers.ts'], 'Installation carries forceInclude into closure resolution, preserves policy-blocked and fetch-failure demotion semantics, and reports installed-unsatisfied details.'],
+    [15903, ['src/services/plugins/pluginOperations.ts'], 'The CLI/plugin-operation caller forwards the installed version into the dependency-error formatter so observable failures never report an unknown version.',],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.112-to-2.1.113:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'plugin-force-include-target-fragment',
+        'plugin-force-include-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [364, ['src/bootstrap/state.ts'], 'The bootstrap state public surface exports the active-input registry operations alongside the existing shared process state.'],
+    [365, ['src/bootstrap/state.ts'], 'Bootstrap state initializes a per-server Map of active input-ID Sets without conflating it with task, team, or budget state.'],
+    [564, ['src/bootstrap/state.ts'], 'activateInput creates the server set lazily and records the exact input ID.'],
+    [565, ['src/bootstrap/state.ts'], 'deactivateInput removes one ID and deletes the now-empty server set.'],
+    [566, ['src/bootstrap/state.ts'], 'clearInputsForServer removes all active input IDs for exactly one MCP server.'],
+    [567, ['src/bootstrap/state.ts'], 'isInputActive checks membership without mutating registry state.'],
+    [568, ['src/bootstrap/state.ts'], 'getActiveInputsForServer returns the server IDs as a detached array and returns an empty array for an unknown server.'],
+    [15800, ['src/services/mcp/useManageMCPConnections.ts', 'src/bootstrap/state.ts'], 'MCP connection management clears active input IDs on both terminal onclose paths, stale plugin-server cleanup, and an explicit server disable.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.112-to-2.1.113:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'active-input-registry-target-fragment',
+        'active-input-registry-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [14650, 'The argv timeout helper consumes the exact short/long timeout flags and their values before exposing the wrapped command.'],
+    [14651, 'The basic argv wrapper peeler preserves the inherited timeout, time, nice, and nohup handling as the first stage of generalized wrapper parsing.'],
+    [14654, 'The generic nested-wrapper parser applies exact value, embedded-command, positional, environment-assignment, and command-query rules without broadening allow matching.'],
+    [14655, 'Permission candidate construction exposes wrapper-stripped commands only to deny/ask matching, carries the parsed AST command into that decision path, and retains the inherited whitespace-normalized exact/prefix/xargs matching introduced in case 96-to-97.'],
+    [14656, 'The matching-rule adapter propagates the optional AST command through exact and prefix checks while retaining compound-command safeguards.'],
+    [14659, 'Sandbox deny/ask evaluation uses the parsed command graph for both a sole command and each compound subcommand before considering auto-allow.'],
+    [14677, 'The wrapper initializer defines the exact target113 bare-wrapper, value-flag, embedded-command, and positional-argument tables, including env split-string handling.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.112-to-2.1.113:${targetIndex}`,
+    {
+      paths: ['src/tools/BashTool/bashPermissions.ts'],
+      evidenceIds: [
+        'bash-wrapper-permission-target-fragment',
+        'bash-wrapper-permission-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [14611, ['src/tools/BashTool/BashTool.tsx'], 'Bash converts an explicit dangerouslyDisableSandbox request into the dedicated sandboxOverride ask only when that flag alone changes shouldUseSandbox, while preserving deny, ask, and wholly rule-derived decisions.'],
+    [14705, ['src/utils/permissions/permissions.ts'], 'The rule-based and hook-preflight permission path returns sandboxOverride asks alongside recursive safety checks instead of allowing a hook result to erase the explicit sandbox boundary.'],
+    [14706, ['src/utils/permissions/permissions.ts'], 'The main permission path keeps sandboxOverride asks interactive before bypassPermissions and plan-mode bypass can convert the tool result to allow.'],
+    [14713, ['src/utils/permissions/permissions.ts'], 'Auto and active-plan mode keep sandboxOverride asks out of classifier approval, deny them when prompts are unavailable, and otherwise return the original interactive ask.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.112-to-2.1.113:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'sandbox-override-permission-target-fragment',
+        'sandbox-override-permission-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.112-to-2.1.113:15783', {
+    paths: ['src/services/mcp/channelNotification.ts'],
+    evidenceIds: [
+      'channel-meta-sanitizer-target-fragment',
+      'channel-meta-sanitizer-semantic-test',
+    ],
+    behavior: 'Channel wrapping partitions metadata into safe and rejected keys, serializes only identifier-shaped XML attributes, and logs every rejected key in insertion order with the exact regex source and warn level.',
+  }],
+  ['2.1.112-to-2.1.113:8138', {
+    paths: ['src/services/api/errors.ts'],
+    evidenceIds: [
+      'api-server-error-ux-target-fragment',
+      'api-server-error-ux-semantic-test',
+    ],
+    behavior: 'The API error adapter distinguishes repeated overloads from other server failures, adds exact temporary-capacity or server-side retry guidance, strips duplicate terminal punctuation, and appends the status-page sentence for every first-party-compatible provider.',
+  }],
+  ...[
+    [2021, ['src/constants/xml.ts'], 'The XML constants owner introduces the exact `<input source="` prefix used to recognize externally supplied plugin payloads without parsing or trusting their contents.'],
+    [14900, ['src/utils/messages.ts', 'src/constants/xml.ts'], 'The queued-command wrapper routes channel origins through the trust formatter with midTurn enabled while preserving coordinator, peer, task-notification, and human branches.'],
+    [14901, ['src/utils/messages.ts', 'src/constants/xml.ts'], 'The trust formatter distinguishes `<input>` external plugins from `<channel>` external channels, names the source attribute, prohibits treating payload text as instructions, and appends the response-decision suffix only mid-turn.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.112-to-2.1.113:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'external-channel-trust-target-fragment',
+        'external-channel-trust-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.112-to-2.1.113:15153', {
+    paths: ['src/commands/compact/index.ts'],
+    evidenceIds: [
+      'compact-description-target-fragment',
+      'compact-description-semantic-test',
+    ],
+    behavior: 'The compact command advertises the concise target description while retaining its local type, disable gate, noninteractive support, optional-instructions hint, and lazy implementation loader.',
+  }],
+  ['2.1.114-to-2.1.116:9136', {
+    paths: ['src/utils/plugins/pluginInstallationHelpers.ts'],
+    evidenceIds: [
+      'plugin-force-include-target-fragment',
+      'plugin-force-include-semantic-test',
+    ],
+    behavior: 'The target116 installer preserves force-inclusion and demoted-pinner behavior while applying the later official-marketplace and tool-details telemetry privacy gate.',
+  }],
+  ['2.1.114-to-2.1.116:4596', {
+    paths: ['src/utils/concurrentSessions.ts'],
+    evidenceIds: [
+      'concurrent-session-peer-protocol-target-fragment',
+      'concurrent-session-peer-protocol-semantic-test',
+    ],
+    behavior: 'Concurrent-session PID registration serializes the release VERSION and the new fixed peerProtocol version 1 in target order before the session kind.',
+  }],
+  ['2.1.114-to-2.1.116:12644', {
+    paths: ['src/services/lsp/LSPServerManager.ts'],
+    evidenceIds: [
+      'lsp-supported-extensions-target-fragment',
+      'lsp-supported-extensions-semantic-test',
+    ],
+    behavior: 'The LSP manager exposes getSupportedExtensions on its public surface and returns the exact sorted extension-map key inventory as a detached array.',
+  }],
+  ...[
+    [11395, ['src/utils/autoUpdater.ts'], 'The CLI auto-updater resolves release artifacts from the stable first-party downloads.claude.ai CDN instead of the retired generated Google Storage bucket.'],
+    [11429, ['src/utils/nativeInstaller/download.ts'], 'The native installer uses the same stable downloads.claude.ai release base while retaining its inherited platform, channel, checksum, and retry behavior.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'cdn-base-migration-target-fragment',
+        'cdn-base-migration-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.114-to-2.1.116:7454', {
+    paths: ['src/keybindings/defaultBindings.ts', 'src/keybindings/schema.ts'],
+    evidenceIds: [
+      'select-page-navigation-target-fragment',
+      'select-page-navigation-semantic-test',
+    ],
+    behavior: 'The Select context binds PageUp/PageDown/Home/End to the matching page and edge actions, and the public keybinding schema accepts exactly those four action names.',
+  }],
+  ...[
+    [13358, 'The standard Opus 4.7 picker option labels the model as Opus 4.7 while preserving its inherited description, value, and capability metadata.'],
+    [13361, 'The first-party Opus 4.7 one-million-context option uses the version-explicit Opus 4.7 (1M context) label.'],
+    [13369, 'The max-subscription Opus 4.7 one-million-context option uses the same version-explicit label.'],
+    [13370, 'The merged Opus one-million-context option keeps its routing semantics while exposing the exact Opus 4.7 (1M context) label.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths: ['src/utils/model/modelOptions.ts'],
+      evidenceIds: [
+        'opus47-picker-labels-target-fragment',
+        'opus47-picker-labels-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.114-to-2.1.116:18418', {
+    paths: ['src/upstreamproxy/upstreamproxy.ts'],
+    evidenceIds: [
+      'upstream-proxy-jsr-bypass-target-fragment',
+      'upstream-proxy-jsr-bypass-semantic-test',
+    ],
+    behavior: 'The upstream proxy appends jsr.io and npm.jsr.io to NO_PROXY in target order so JSR package traffic bypasses the relay while retaining inherited proxy authentication and lifecycle behavior.',
+  }],
+  ...[
+    [9058, ['src/utils/telemetry/events.ts'], 'The OTEL event surface emits a recursion-guarded internal_error event with the concrete error class name and only an uppercase errno-style error_code.'],
+    [18329, ['src/utils/errorLogSink.ts'], 'The persistent error-log sink reports internal-error telemetry before formatting and writing the same error to its inherited debug and JSONL destinations.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'internal-error-telemetry-target-fragment',
+        'internal-error-telemetry-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.114-to-2.1.116:6570', {
+    paths: ['src/utils/config.ts'],
+    evidenceIds: [
+      'auto-upload-sessions-config-target-fragment',
+      'auto-upload-sessions-config-semantic-test',
+    ],
+    behavior: 'The persisted global-config allowlist admits the typed autoUploadSessions setting in exact target order after remoteControlAtStartup and before remoteDialogSeen.',
+  }],
+  ...[
+    [6446, ['src/services/analytics/metadata.ts'], 'Analytics metadata extracts a string subagent_type only from Agent or Task input so subtype telemetry cannot leak arbitrary tool payloads.'],
+    [13604, ['src/services/tools/toolExecution.ts'], 'Tool execution gates pre-span file paths, full Bash commands, Skill names, and Agent/Task subtypes behind OTEL_LOG_TOOL_DETAILS and propagates the gated Skill and subtype values to result parameters.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'tool-subagent-telemetry-target-fragment',
+        'tool-subagent-telemetry-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.114-to-2.1.116:11964', {
+    paths: ['src/tasks/RemoteAgentTask/RemoteAgentTask.tsx'],
+    evidenceIds: [
+      'remote-task-git-cwd-error-target-fragment',
+      'remote-task-git-cwd-error-semantic-test',
+    ],
+    behavior: 'The remote-task repository precondition reports the exact cwd that was checked so a headless or remote caller can correct the launch directory without guessing.',
+  }],
+  ['2.1.114-to-2.1.116:16602', {
+    paths: ['src/commands/resume/resume.tsx'],
+    evidenceIds: [
+      'resume-command-loading-state-target-fragment',
+      'resume-command-loading-state-semantic-test',
+    ],
+    behavior: 'The interactive /resume command renders both conversation-loading and conversation-resuming states through the shared LoadingState component with the exact target messages.',
+  }],
+  ['2.1.114-to-2.1.116:19156', {
+    paths: ['src/components/teams/TeamsDialog.tsx'],
+    evidenceIds: [
+      'teams-dialog-shortcut-footer-target-fragment',
+      'teams-dialog-shortcut-footer-semantic-test',
+    ],
+    behavior: 'The team-detail footer uses the shared Byline and KeyboardShortcutHint surfaces for navigation, lifecycle actions, conditional hide/show actions, the synchronized mode-cycle hint, and Escape close; Shift+H uses shiftAsCase formatting.',
+  }],
+  ['2.1.114-to-2.1.116:19158', {
+    paths: ['src/components/teams/TeamsDialog.tsx'],
+    evidenceIds: [
+      'teams-dialog-shortcut-footer-target-fragment',
+      'teams-dialog-shortcut-footer-semantic-test',
+    ],
+    behavior: 'The teammate-detail footer migrates its navigation and lifecycle actions from plain text into the shared Byline and KeyboardShortcutHint surfaces, preserving local focused-key handling and exact target ordering.',
+  }],
+  ...[
+    [6059, 'src/utils/context.ts', 'One-million-token support uses exact canonical model boundaries and first-party-compatible provider fallback rather than broad family substring matching.'],
+    [6061, 'src/utils/context.ts', 'Sonnet one-million experimental treatment accepts only the exact canonical Claude Sonnet 4.6 identifier and rejects lookalike names.'],
+    [6063, 'src/utils/context.ts', 'Maximum output-token dispatch uses the target116 exact canonical model table and the 128k global upper limit.'],
+    [6071, 'src/utils/betas.ts', 'ISP support applies the exact target116 first-party/provider and Claude Haiku 4.5 boundary.'],
+    [6072, 'src/utils/betas.ts', 'Vertex web-search capability uses the exact target116 canonical model allowlist.'],
+    [6073, 'src/utils/betas.ts', 'Context-management capability uses the exact target116 canonical model and provider truth table.'],
+    [6074, 'src/utils/betas.ts', 'Structured-output support uses target116 legacy exclusions with first-party-compatible fallback for future models.'],
+    [8146, 'src/utils/thinking.ts', 'Adaptive-thinking support uses exact canonical legacy exclusions, current model allowlist entries, and first-party-compatible fallback.'],
+    [8150, 'src/utils/effort.ts', 'Effort support uses exact canonical exclusions and target116 provider fallback, including Opus 4.5.'],
+    [8151, 'src/utils/effort.ts', 'Maximum-effort support uses exact canonical dispatch and first-party-compatible fallback rather than the earlier normalization Set.'],
+    [8152, 'src/utils/effort.ts', 'X-high effort support isolates exact Opus 4.7 behavior and the target116 provider fallback.'],
+  ].map(([targetIndex, owner, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths: [owner],
+      evidenceIds: [
+        'model-capability-dispatch-target-fragment',
+        'model-capability-dispatch-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.114-to-2.1.116:20732', {
+    paths: ['src/entrypoints/cli.tsx'],
+    evidenceIds: [
+      'version-verbose-target-fragment',
+      'version-verbose-semantic-test',
+    ],
+    behavior: 'The CLI accepts --version/-v/-V with an optional trailing --verbose flag and emits the target version plus a conditional Commit line from GIT_SHA without changing ordinary version output.',
+  }],
+  ...[
+    [19673, ['src/components/FeedbackSurvey/FeedbackSurveyView.tsx'], 'The survey response validator admits digit 4 only when the caller explicitly enables the Not-sure option.'],
+    [19674, ['src/components/FeedbackSurvey/FeedbackSurveyView.tsx'], 'The survey view conditionally inserts the Not-sure option, widens every response cell, and routes both keyboard and pointer selection through the target response map.'],
+    [19675, ['src/components/FeedbackSurvey/FeedbackSurveyView.tsx'], 'The response-cell width constants remain ten columns normally and expand to twelve columns when Not sure is visible.'],
+    [19676, ['src/components/FeedbackSurvey/FeedbackSurveyView.tsx'], 'The response map binds digit 4 to not_sure and exposes the exact Not sure presentation option between Good and Dismiss.'],
+    [19677, ['src/components/FeedbackSurvey/FeedbackSurvey.tsx'], 'The memory-survey presentation always enables the Not-sure option while retaining its memory-impact summary prompt.'],
+    [19685, ['src/components/FeedbackSurvey/FeedbackSurvey.tsx'], 'The survey wrapper defaults showNotSure to false, applies it to outer input validation, and forwards it only to eligible survey views.'],
+    [19689, ['src/components/FeedbackSurvey/FeedbackSurvey.tsx'], 'Pending feedback labels include Not sure and the pending row consumes Escape through the keybinding pre-dispatch path before invoking undo.'],
+    [19691, ['src/screens/REPL.tsx'], 'The REPL enables Not sure exactly once for the memory survey while post-compact, general-session, and frustration surveys keep the default response set.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'feedback-survey-not-sure-target-fragment',
+        'feedback-survey-not-sure-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [13060, ['src/tasks/stopTask.ts'], 'Cross-owner stops from the trusted main session enqueue the exact escaped task-stopped notification to the owning agent.'],
+    [13065, ['src/tools/TaskStopTool/TaskStopTool.ts'], 'TaskStop resolves caller identity from the direct tool context first and falls back to the active agent AsyncLocalStorage context.'],
+    [13066, ['src/tasks/stopTask.ts'], 'The ownership predicate trusts main-session calls and otherwise permits only the task owner.'],
+    [13069, ['src/tasks/stopTask.ts'], 'The shared stop runner reads and updates the per-session task registry, rejects mismatched owners before kill, preserves SDK termination, and notifies an owner only for trusted cross-owner shell stops.'],
+    [13078, ['src/tools/TaskStopTool/TaskStopTool.ts'], 'TaskStopTool forwards the task registry, state setter, and resolved caller identity into the shared ownership-aware stop runner.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'task-stop-ownership-target-fragment',
+        'task-stop-ownership-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [14976, ['src/utils/messages.ts'], 'Tool-use normalization recursively decodes valid model-emitted JavaScript Unicode escapes only after JSON-encoded schema fields are restored and before tool-specific normalization.'],
+    [18194, ['src/utils/api.ts'], 'The recursive Unicode escape helper decodes BMP escapes and valid surrogate pairs through strings, arrays, and objects while preserving escaped backslashes, malformed surrogate halves, and non-string primitives.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'tool-input-unicode-escape-target-fragment',
+        'tool-input-unicode-escape-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [19340, ['src/remote/RemoteSessionManager.ts'], 'RemoteSessionConfig carries isAttachToExisting through the factory beside initial-prompt and viewer-only state.'],
+    [19358, ['src/hooks/useRemoteSession.ts'], 'The remote-session hook suppresses first-message title generation for attached sessions while retaining the existing initial-prompt and viewer-only gates.'],
+    [20720, ['src/main.tsx', 'src/utils/teleport.tsx'], 'The CLI accepts raw session/cse IDs or claude.ai URLs, policy/gate-checks attachment, emits attach telemetry, reuses the existing session without creating one, configures the REPL as attached, exposes exact attachment status and option help, and records successful --rc startup use so the idle upsell is permanently suppressed.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'remote-attach-target-fragment',
+        'remote-attach-semantic-test',
+        ...(targetIndex === 20720
+          ? [
+              'remote-control-idle-upsell-target-fragment',
+              'remote-control-idle-upsell-semantic-test',
+              'remote-startup-timing-target-fragment',
+              'remote-startup-timing-semantic-test',
+              'startup-cli-telemetry-target-fragment',
+              'startup-cli-telemetry-semantic-test',
+              'remote-control-session-suppression-target-fragment',
+              'remote-control-session-suppression-semantic-test',
+            ]
+          : []),
+      ],
+      behavior: targetIndex === 20720
+        ? `${behavior} Main also measures the live headless MCP connection phase, records privacy-filtered startup settings, environment, and explicit CLI flag metadata, and rejects --rc before entitlement lookup inside --remote or --teleport sessions with their exact guidance.`
+        : behavior,
+    },
+  ]),
+  ...[
+    [17594, ['src/utils/remoteControlUpsell.ts'], 'Remote Control upsell eligibility requires bridge availability, no prior successful use, startup opt-out, and a seen count below the fixed cap.'],
+    [17595, ['src/utils/remoteControlUpsell.ts'], 'Showing the idle upsell increments the persisted seen count monotonically.'],
+    [17596, ['src/utils/remoteControlUpsell.ts'], 'Successful Remote Control use persists hasUsedRemoteControl so later idle hints remain disabled.'],
+    [17597, ['src/utils/remoteControlUpsell.ts'], 'The idle upsell display cap is exactly three.'],
+    [17598, ['src/utils/remoteControlUpsell.ts'], 'The idle delay is exactly twenty minutes.'],
+    [17601, ['src/commands/bridge/bridge.tsx'], 'The /remote-control command records successful use immediately after preflight and before its inherited callout flow.'],
+    [19756, ['src/hooks/notifs/useRemoteControlIdleUpsell.tsx'], 'The idle notification hook observes Remote Control state and the last completed turn without firing in active remote sessions.'],
+    [19757, ['src/hooks/notifs/useRemoteControlIdleUpsell.tsx'], 'The hook schedules only the remaining portion of the twenty-minute delay, rechecks eligibility at fire time, and emits the exact durable phone-control notification once.'],
+    [19758, ['src/hooks/notifs/useRemoteControlIdleUpsell.tsx'], 'The hook initializer exposes the target notification callback surface.'],
+    [19759, ['src/hooks/notifs/useRemoteControlIdleUpsell.tsx'], 'The remote-control idle notification key is stable for replacement and cleanup.'],
+    [19760, ['src/hooks/notifs/useRemoteControlIdleUpsell.tsx'], 'Effect cleanup clears the pending timer and removes the durable notification.'],
+    [19998, ['src/screens/REPL.tsx'], 'REPL invokes the Remote Control idle-upsell hook beside the existing idle-return lifecycle with live completion and loading state.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'remote-control-idle-upsell-target-fragment',
+        'remote-control-idle-upsell-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [7621, 'VS Code-family terminal setup treats an exact existing Shift+Enter command/when/args binding as configured and leaves a same-identity binding with different args unchanged with an explicit warning.'],
+    [7625, 'Alacritty setup treats an existing Shift+Return binding as successfully configured without rewriting the file.'],
+    [7626, 'Zed setup treats an existing shift-enter binding as successfully configured without rewriting the keymap.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths: ['src/commands/terminalSetup/terminalSetup.tsx'],
+      evidenceIds: [
+        'terminal-setup-idempotence-target-fragment',
+        'terminal-setup-idempotence-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.114-to-2.1.116:14534', {
+    paths: ['src/services/mcp/client.ts'],
+    evidenceIds: [
+      'mcp-reconnect-auth-retry-target-fragment',
+      'mcp-reconnect-auth-retry-semantic-test',
+    ],
+    behavior: "A reconnect that first returns needs-auth clears that server's freshly memoized connection result and retries exactly once before following the inherited connected/failure flow.",
+  }],
+  ['2.1.114-to-2.1.116:15896', {
+    paths: ['src/components/mcp/MCPAgentServerMenu.tsx'],
+    evidenceIds: [
+      'mcp-agent-server-table-target-fragment',
+      'mcp-agent-server-table-semantic-test',
+    ],
+    behavior: 'The MCP agent-server details, status, and authentication fields render as two plain shared Tables with an eight-column bold label column, preserving every existing value and reconnect action.',
+  }],
+  ['2.1.114-to-2.1.116:15945', {
+    paths: ['src/components/mcp/MCPReconnect.tsx'],
+    evidenceIds: [
+      'mcp-reconnect-loading-state-target-fragment',
+      'mcp-reconnect-loading-state-semantic-test',
+    ],
+    behavior: 'MCPReconnect renders its in-progress connection state through the shared LoadingState with the exact establishing-connection message while preserving success and error flow.',
+  }],
+  ['2.1.114-to-2.1.116:15953', {
+    paths: ['src/components/mcp/MCPRemoteServerMenu.tsx'],
+    evidenceIds: [
+      'mcp-remote-server-table-target-fragment',
+      'mcp-remote-server-table-semantic-test',
+    ],
+    behavior: 'The remote MCP server screen uses the shared Dialog and a plain four-row Table, stable chord hints and status icons, and both customize/connectors routes while preserving authentication, callbacks, and reconnect cleanup.',
+  }],
+  ['2.1.114-to-2.1.116:15956', {
+    paths: ['src/components/mcp/MCPStdioServerMenu.tsx'],
+    evidenceIds: [
+      'mcp-stdio-server-dialog-target-fragment',
+      'mcp-stdio-server-dialog-semantic-test',
+    ],
+    behavior: 'The stdio MCP detail and reconnect states render through the shared Dialog, with a plain four-row Table, exact status icons and chord guide, and borderless behavior supplied by Dialog instead of a bespoke frame.',
+  }],
+  ...[
+    [19363, ['src/hooks/useExternalSession.ts'], 'The shared external-session lifecycle centralizes message conversion, permission prompts, permission-mode synchronization, reconnect notification, disconnect delegation, cleanup, send, interrupt, and stable result callbacks for both external transports.'],
+    [19366, ['src/hooks/useDirectConnect.ts', 'src/hooks/useExternalSession.ts'], 'The DirectConnect wrapper creates a labeled external-session adapter, preserves its connected-versus-failed disconnect messaging and shutdown path, and intentionally supplies no reconnect producer or permission mode.'],
+    [19369, ['src/hooks/useSSHSession.ts', 'src/hooks/useExternalSession.ts'], 'The SSH wrapper supplies its manager, stderr-aware terminal disconnect path, proxy cleanup, and live permission mode to the shared adapter, whose reachable reconnect callback emits the generic target warning message.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'external-session-adapter-target-fragment',
+        'external-session-adapter-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.114-to-2.1.116:16811', {
+    paths: ['src/components/tasks/ShellDetailDialog.tsx'],
+    evidenceIds: [
+      'shell-detail-table-target-fragment',
+      'shell-detail-table-semantic-test',
+    ],
+    behavior: 'Shell and Monitor details render status, runtime, and command through a plain shared Table whose flexible value column consumes the dialog width and whose forceWidth is the terminal width minus six.',
+  }],
+  ...[
+    [14517, 'The MCP connection telemetry helper emits safe lifecycle fields on every connection and includes server name and error text only when detailed tool logging is explicitly enabled.'],
+    [14552, 'The live MCP connection lifecycle reports disconnected, connected, and failed states, stringifies the shared failure code, and preserves the existing analytics success/failure flow.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths: ['src/services/mcp/client.ts'],
+      evidenceIds: [
+        'mcp-connection-telemetry-target-fragment',
+        'mcp-connection-telemetry-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [9056, ['src/utils/telemetry/events.ts'], 'The permission-mode telemetry helper suppresses same-mode transitions and emits from_mode, to_mode, and an optional stable trigger.'],
+    [13249, ['src/tools/ExitPlanModeTool/ExitPlanModeV2Tool.ts'], 'ExitPlanModeV2 records restoration from plan mode with the exit_plan_mode trigger.'],
+    [14869, ['src/utils/permissions/permissionSetup.ts'], 'The centralized permission transition accepts and forwards an optional trigger after determining that the mode changed.'],
+    [14877, ['src/utils/permissions/permissionSetup.ts'], 'Auto-mode gate denial records the forced auto-to-default transition with auto_gate_denied.'],
+    [18809, ['src/components/permissions/ExitPlanModePermissionRequest/ExitPlanModePermissionRequest.tsx'], 'Every ExitPlan permission dialog branch records its plan-mode transition with exit_plan_mode.'],
+    [19083, ['src/utils/permissions/getNextPermissionMode.ts'], 'The mode-cycle wrapper accepts a trigger and passes it through the centralized transition.'],
+    [19329, ['src/components/PromptInput/PromptInput.tsx'], 'PromptInput labels Shift+Tab cycling and first auto-mode opt-in with shift_tab and auto_opt_in respectively.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'permission-mode-change-telemetry-target-fragment',
+        'permission-mode-change-telemetry-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [16634, 'Ultrareview validates numeric PR scope against a detected GitHub repository, accepts an explicit base branch, captures the current head branch, and returns actionable repository and merge-base diagnostics.'],
+    [16636, 'The remote-review launcher uses the captured head branch for bundle description and reports either a local branch or an explicit head-to-base comparison.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths: ['src/commands/review/reviewRemote.ts'],
+      evidenceIds: [
+        'ultrareview-scope-validation-target-fragment',
+        'ultrareview-scope-validation-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.114-to-2.1.116:16530', {
+    paths: ['src/components/FullscreenLayout.tsx'],
+    evidenceIds: [
+      'new-messages-pill-target-fragment',
+      'new-messages-pill-semantic-test',
+    ],
+    behavior: 'The already shortcut-aware fullscreen new-message pill marks its clickable inner Box noSelect so dragging or clicking the overlay cannot select terminal text.',
+  }],
+  ...[
+    [365, ['src/bootstrap/state.ts'], 'The bootstrap state module exports the session-start and session-skill allowlist setter/getter surface beside the inherited process-wide state API.'],
+    [366, ['src/bootstrap/state.ts'], 'Fresh bootstrap state defaults sessionStartType to fresh and the SDK session skill allowlist to undefined.'],
+    [479, ['src/bootstrap/state.ts'], 'getSessionStartType reads the process-wide fresh/resume/continue classification.'],
+    [480, ['src/bootstrap/state.ts'], 'setSessionStartType records the CLI classification before startup telemetry initializes.'],
+    [558, ['src/bootstrap/state.ts'], 'getSessionSkillAllowlist returns the optional SDK-provided skill inventory for the main session.'],
+    [559, ['src/bootstrap/state.ts'], 'setSessionSkillAllowlist stores the initialize-request skill inventory without constraining subagents.'],
+    [9558, ['src/tools/SkillTool/prompt.ts'], 'SkillTool prompt statistics report both the complete discovered count and the session-allowlisted included count.'],
+    [9559, ['src/tools/SkillTool/prompt.ts'], 'Context analysis receives only the commands included by the current session skill allowlist.'],
+    [12607, ['src/tools/SkillTool/SkillTool.ts'], 'Main-session SkillTool validation rejects skills outside the SDK allowlist with the exact error while leaving subagents unrestricted.'],
+    [13830, ['src/utils/attachments.ts'], 'Main-session skill listing attachments filter local and MCP skills through the SDK allowlist before discovery and delta accounting.'],
+    [17735, ['src/commands.ts'], 'The shared allowlist filter matches raw names, user-facing names, aliases, and namespaced command suffixes while preserving identity when no allowlist is supplied.'],
+    [18163, ['src/constants/prompts.ts'], 'System guidance advertises SkillTool only when the optional SDK allowlist is absent with discovered skills or explicitly contains at least one skill.'],
+    [18427, ['src/entrypoints/init.ts', 'src/bootstrap/state.ts'], 'The session counter records the exact fresh, resume, or continue start_type captured before telemetry initialization.'],
+    [20409, ['src/main.tsx'], 'CLI start-type parsing considers resume/from-pr and continue flags only before the -- delimiter and defaults to fresh.'],
+    [20586, ['src/cli/print.ts', 'src/bootstrap/state.ts'], 'The SDK initialize request stores an explicitly provided skills array without changing the state when the field is omitted.'],
+    [20718, ['src/main.tsx', 'src/bootstrap/state.ts'], 'Main classifies and stores the session start type immediately after interactive entrypoint initialization and before startup telemetry consumers.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'session-start-skill-allowlist-target-fragment',
+        'session-start-skill-allowlist-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [18068, 'The public hook module exports the privacy-aware telemetry-name helper alongside the existing target hook surface.'],
+    [18095, 'Hook execution derives one sanitized telemetry name, gates raw hook definitions on tracing plus tool-detail logging, and uses that name for both OTEL lifecycle events and the hook span while retaining the raw user-facing progress label.'],
+    [18105, 'The telemetry-name helper preserves ordinary matcher utility, normalizes MCP tool names, redacts elicitation server matchers, omits subagent matchers, and reveals raw details only under the explicit logging gate.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths: ['src/utils/hooks.ts'],
+      evidenceIds: [
+        'hook-telemetry-name-target-fragment',
+        'hook-telemetry-name-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.114-to-2.1.116:13653', {
+    paths: ['src/services/autoDream/consolidationPrompt.ts'],
+    evidenceIds: [
+      'auto-dream-consolidation-prompt-target-fragment',
+      'auto-dream-consolidation-prompt-semantic-test',
+    ],
+    behavior: 'The consolidation prompt explicitly orients on daily activity logs and directs the dream pass to read the latest one to three prefix-coded append-only log files before falling back to transcript search.',
+  }],
+  ...[
+    [13659, 'Auto-dream snapshots the recursive daily-log count before forking and reports daily_logs_found on successful completion without changing failure or task lifecycle behavior.'],
+    [13661, 'The daily-log counter recursively counts lowercase .md entries, returns zero for missing or inaccessible log trees, and debug-logs unexpected filesystem failures.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths: ['src/services/autoDream/autoDream.ts'],
+      evidenceIds: [
+        'auto-dream-daily-logs-target-fragment',
+        'auto-dream-daily-logs-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [20192, 'PowerShell quoting rejects Unicode single-quote variants before stripping ASCII double quotes and escaping ordinary single quotes.'],
+    [20193, 'cmd.exe quoting normalizes newlines and tabs, removes both double quotes and percent signs, and doubles trailing backslashes.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.112-to-2.1.113:${targetIndex}`,
+    {
+      paths: ['src/utils/deepLink/terminalLauncher.ts'],
+      evidenceIds: [
+        'terminal-quoting-target-fragment',
+        'terminal-quoting-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...Array.from({ length: 10 }, (_, offset) => 2012 + offset).map(targetIndex => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths: ['src/constants/oauth.ts'],
+      evidenceIds: [
+        'workload-identity-target-fragment',
+        'workload-identity-semantic-test',
+      ],
+      behavior: 'The workload-identity configuration owner implements exact credentials-profile versus environment precedence, explicit user_oauth rejection boundaries, masking, and status reporting.',
+    },
+  ]),
+  ...[
+    [4632, ['src/utils/workloadIdentity.ts'], 'The first-party workload-identity wrapper loads and validates credentials, configures proxy/base URL and warnings, memoizes credentials and token caches, and preserves typed failures.'],
+    [4633, ['src/utils/workloadIdentity.ts'], 'The workload-identity wrapper exports its authenticated cache and invalidation surface through the target module initializer.'],
+    [4634, ['src/utils/workloadIdentity.ts'], 'The workload-identity module initializer binds the exact first-party wrapper dependencies after the separately classified embedded SDK provider chain.'],
+    [6039, ['src/services/api/client.ts'], 'API client construction selects workload identity only when subscriber and API-key authentication are absent, resolves a cached token, and preserves the target base URL and headers.'],
+    [6206, ['src/utils/http.ts'], 'Utility HTTP authentication asynchronously adds a workload-identity bearer token only for the target utility endpoint call paths.'],
+    [11564, ['src/utils/status.tsx'], 'Status rendering exposes the exact WIF label and masked active-profile or environment value.'],
+    [15049, ['src/services/api/withRetry.ts'], 'Retry handling invalidates workload-identity credentials on the target 401/revocation and retryable credential-error paths while sharing the target remote watchdog decision across the persistent retry loop.'],
+    [15061, ['src/services/api/withRetry.ts'], 'The retry owner invokes workload-identity recovery before the ordinary API retry decision while preserving null, 401, and 5xx status semantics.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'workload-identity-target-fragment',
+        'workload-identity-semantic-test',
+        ...(targetIndex === 15049
+          ? [
+              'remote-retry-watchdog-target-fragment',
+              'remote-retry-watchdog-semantic-test',
+            ]
+          : []),
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [15045, 'The retry watchdog activates only on Linux for the remote entrypoint when CLAUDE_CODE_RETRY_WATCHDOG is truthy, replacing the stale unattended-retry gate.'],
+    [15062, 'The persistent retry predicate reuses the authenticated remote-watchdog decision without weakening abort, retry-count, or API-status handling.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths: ['src/services/api/withRetry.ts'],
+      evidenceIds: [
+        'remote-retry-watchdog-target-fragment',
+        'remote-retry-watchdog-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [12925, ['src/services/compact/compact.ts'], 'PreCompact hook blocking logs the exact reason, optionally emits the immediate warning notification, and throws the composed CompactionError message.'],
+    [13893, ['src/commands/btw/btw.tsx'], 'The /btw dialog exposes clear-history only when history exists and clears both the durable history ref and rendered history on x.'],
+    [14093, ['src/components/Settings/Status.tsx'], 'The target table emits a blank row between nonempty status sections; the authored React owner expresses the same rendered vertical separation with the enclosing column gap of one.'],
+    [16904, ['src/constants/prompts.ts'], 'The target system prompt appends the exact verified-versus-assumed accuracy instruction behind the false-default tengu_verified_vs_assumed gate.'],
+    [18652, ['src/components/ScrollKeybindingHandler.tsx'], 'The modal-pager predicate preserves selection for arrow/home/end and the exact ctrl/bare pager-key alphabets, including when the scroll handle is temporarily unavailable.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'observable-residues-target-fragment',
+        'observable-residues-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [11484, ['src/tools/FileWriteTool/FileWriteTool.ts'], 'FileWrite preserves the target user-modified schema/result annotations and compares proposals by path, exact content, then trailing-newline-normalized content.'],
+    [13283, ['src/services/mcp/client.ts'], 'The MCP client exposes target build provenance through authored MACRO.VERSION/BUILD_TIME sites while preserving the complete request-handler runtime.'],
+    [13307, ['src/tools/FileEditTool/FileEditTool.ts'], 'FileEdit owns the target automatic-classifier projection and propagates whether the user modified the accepted edit.'],
+    [14748, ['src/components/mcp/MCPToolDetailView.tsx'], 'The MCP tool detail view derives the required-property set from input JSON Schema and labels each required parameter in the rendered list.'],
+    [15245, ['src/components/LogoV2/LogoV2.tsx'], 'Logo rendering compares release-note state with the generated target version through the authored MACRO.VERSION input.'],
+    [16213, ['src/commands/exit/exit-noninteractive.ts'], 'The noninteractive exit command performs graceful shutdown with the exact prompt_input_exit reason and returns skip.'],
+    [16216, ['src/commands/exit/index.ts'], 'The exit registry exposes the exact local and noninteractive Exit the REPL descriptions and aliases.'],
+    [17267, ['src/bridge/persistenceSync.ts'], 'Subagent transcript selection records stat mtimeMs, filters the target size limit, sorts newest-first, and takes the bounded result set.'],
+    [17303, ['src/bridge/bridgeMessaging.ts'], 'Bridge control-request dispatch accepts onRenameSession and invokes it for the exact rename_session request path.'],
+    [18075, ['src/components/PromptInput/PromptInput.tsx', 'src/hooks/useVimInput.ts'], 'PromptInput threads the persisted Vim mode into the complete INSERT/NORMAL input state machine and preserves target key handling.'],
+    [18460, ['src/services/tips/tipRegistry.ts'], 'Tip eligibility reads the cached eligibility result and returns its eligible flag through the target registry.'],
+    [19132, ['src/main.tsx'], 'The headless MCP coordinator retains the exact 500/1500/4000 remote retry schedule and http/sse/claudeai-proxy transport set; the paired target109 unit carries the same behavior.'],
+    [19223, ['src/services/SessionMemory/sessionMemory.ts'], 'Session-memory extraction selects the final message and records target extraction telemetry through the equivalent indexed-array source form.'],
+    [19240, ['src/cli/transports/HybridTransport.ts'], 'Hybrid transport emits bounded warning diagnostics and applies the target per-attempt POST timeout.'],
+    [19247, ['src/cli/remoteIO.ts'], 'RemoteIO reads the session ingress token and installs the exact Authorization bearer header before transport creation.'],
+    [19253, ['src/utils/queryContext.ts'], 'Query-context construction preserves array-aware system context and final-message selection through the authored context adapter.'],
+    [19262, ['src/QueryEngine.ts'], 'The SDK query engine preserves shouldQuery branching and the SDK-origin/querySource call path before submitting the processed prompt.'],
+    [19383, ['src/cli/handlers/plugins.ts', 'src/main.tsx'], 'Plugin list renders JSON/available and human output through a supplied Ink Root, waits for exit, and is invoked through createSubcommandRoot.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'target110-added-owner-residues-target-fragment',
+        'target110-added-owner-residues-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [15448, ['src/commands/ultraplan.tsx'], 'The dedicated Ultrareview stop helper kills through the TaskRegistry, records the stopped event, and queues the exact user-visible and meta notifications with the remote-session URL.'],
+    [15449, ['src/commands/ultraplan.tsx'], 'The Ultraplan launch entry fails closed when remote sessions are disallowed, records policy_blocked, and returns the formatted policy precondition before touching launch state.'],
+    [15583, ['src/components/tasks/BackgroundTasksDialog.tsx', 'src/commands/ultraplan.tsx'], 'Both list and detail task-dialog flows distinguish Ultraplan and Ultrareview sessions and route all remote kills through the active ToolUseContext TaskRegistry.'],
+    [19119, ['src/utils/telemetry/skillLoadedEvent.ts'], 'Startup skill telemetry skips prompt skills whose source is builtin before emitting tengu_skill_loaded while preserving plugin and user skill reporting.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'review-stop-skill-target-fragment',
+        'review-stop-skill-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [15406, ['src/commands/review/reviewRemote.ts'], 'The target-110 review-scope owner parses PR numbers, resolves the local default-branch merge base directly, rejects empty diffs with the exact fork-point diagnostic, and returns the merge-base and short-stat scope.'],
+    [15408, ['src/commands/review/reviewRemote.ts'], 'The target-110 remote-review launcher applies eligibility and bounded fleet settings, launches PR or bundled-branch scope with source ultrareview, registers the remote task, and returns the exact billing, URL, and optional diff-stat blocks without later model/tag/bundle-failure fields.'],
+    [15468, ['src/commands/review/UltrareviewOverageDialog.tsx'], 'The target-110 dialog resolves source viability, renders exact PR/branch scope and multi-agent review guidance, gates terms, aborts launch on cancel, and intentionally does not duplicate the short diff stat.'],
+    [15475, ['src/commands/review/ultrareviewCommand.tsx'], 'The target-110 command enforces remote-session policy, prepares scope before fetching the overage gate, renders blocked/admin hints, and opens the confirmation/proceed dialog with the exact null confirmation subtitle.'],
+    [16473, ['src/utils/sessionStorage.ts'], 'The target-110 session-storage export surface exposes getCurrentSessionFile, addSessionMirror, and fireSessionMirror for the new multi-subscriber transcript-mirroring runtime.'],
+    [16515, ['src/utils/sessionStorage.ts'], 'The session writer owns a resettable mirror array, exception-isolated fanout, and per-chunk post-write notifications while preserving write ordering and resolver completion.'],
+    [18016, ['src/utils/ghPrStatus.ts'], 'The detailed PR loader requests and normalizes checks, review state, merge state, additions, and deletions with a thirty-second memo TTL and the exact target-110 gh failure diagnostic.'],
+    [19296, ['src/cli/print.ts'], 'Headless non-sync plugin installation records a mutable completion token and, behind CLAUDE_CODE_ENABLE_BACKGROUND_PLUGIN_REFRESH, consumes it once to refresh agent, command, hook, and MCP state before the first query.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'hardened-owner-residues-target-fragment',
+        'hardened-owner-residues-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [10209, ['src/services/mcp/config.ts'], 'The target conflict detector shortens the private local record field signature to sig; the focused proof pins both uses and the authored owner performs the same map construction and distinct-signature comparison.'],
+    [14415, ['src/components/mcp/McpParsingWarnings.tsx'], 'The React compiler groups scopes and conflicts in a private memo-cache record that is immediately destructured and never escapes; the authored owner computes and consumes the same values directly.'],
+    [16220, ['src/commands/update/update.ts'], 'The update command owns the exact launcher, assistant-team environment, pre-spawn message, and relaunch call; VERSION and BUILD_TIME are build-time MACRO values inlined by the bundler.'],
+    [17246, ['src/hooks/useLogMessages.ts'], 'The live log-processing hook is source-owned normally; its only missing target property is an optional initSessionLog call through an adjacent binding proved constant null.'],
+    [18595, ['src/components/skills/SkillsMenu.tsx'], 'The target helper tests the global skill override resolver for name-only, but the target resolver is statically constant on, so this helper deterministically returns false at this boundary.'],
+    [19456, ['src/entrypoints/cli.tsx'], 'The CLI bootstrap owns the exact version fast path, dynamic-import dispatch, tmux worktree fast path, update aliases, early-input capture, and main checkpoints; the residue consists of build-time MACRO constants inlined into the compiled function.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'static-owner-residues-target-fragment',
+        'static-owner-residues-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.109-to-2.1.110:12365', {
+    paths: ['src/query.ts'],
+    evidenceIds: [
+      'context-hint-target-fragment',
+      'context-hint-semantic-test',
+    ],
+    behavior: 'The main query generator owns the complete target-110 context-hint state machine, including clear callbacks, per-turn application, base64 payload bounds, latch/retry state, and its compaction and API call paths.',
+  }],
+  ['2.1.109-to-2.1.110:7381', {
+    paths: ['src/services/compact/microCompact.ts'],
+    evidenceIds: [
+      'context-hint-target-fragment',
+      'context-hint-semantic-test',
+    ],
+    behavior: 'The context-hint clear applicator replaces only server-selected tool results, preserves untouched block and message identities, and returns a shallow list copy for an empty clear set.',
+  }],
+  ['2.1.109-to-2.1.110:16991', {
+    paths: ['src/services/api/claude.ts'],
+    evidenceIds: [
+      'context-hint-target-fragment',
+      'context-hint-semantic-test',
+    ],
+    behavior: 'The API streaming owner consumes the target context-hint controller, forwards context_hint SSE payloads, applies clear/reject transitions, and preserves retry and fallback semantics in the complete authenticated unit.',
+  }],
+  ['2.1.109-to-2.1.110:18709', {
+    paths: [
+      'src/screens/REPL.tsx',
+      'src/services/compact/microCompact.ts',
+      'src/Tool.ts',
+      'src/query.ts',
+      'src/hooks/useRemoteSession.ts',
+      'src/services/tools/toolOrchestration.ts',
+      'src/services/tools/StreamingToolExecutor.ts',
+      'src/utils/messages.ts',
+      'src/utils/permissions/PermissionMode.ts',
+      'src/utils/permissions/yoloClassifier.ts',
+      'src/components/ToolProgressOverlay.tsx',
+    ],
+    evidenceIds: [
+      'context-hint-target-fragment',
+      'context-hint-semantic-test',
+    ],
+    behavior: 'The interactive REPL installs and applies context-hint clears, batches in-progress tool IDs, predecides sandbox requests through the active permission mode and classifier, preserves channel provenance when requeueing concurrent input, and renders keyed tool-progress overlays; the authenticated test also pins the equivalent target keyboard/focus subgraph.',
+  }],
+  ...[
+    [2559, ['src/utils/settings/featureRegistry.ts'], 'The target settings registry filters its ordered feature list through each entry\'s buildGate before schema construction.'],
+    [2560, ['src/utils/settings/featureRegistry.ts'], 'Settings feature shapes are merged in registry order into one authoritative schema fragment.'],
+    [2561, ['src/utils/settings/featureRegistry.ts'], 'Optional per-feature permission shapes are merged in registry order for the nested permissions schema.'],
+    [2562, ['src/utils/settings/featureRegistry.ts'], 'Additional permission modes are collected from enabled registry entries and appended to the external permission modes.'],
+    [2564, ['src/utils/settings/featureRegistry.ts', 'src/utils/settings/types.ts'], 'The target 2.1.108 settings registry owns the exact enabled auto-mode, deep-link, voice and brief-view schemas, disabled assistant entry, permission shape/modes, and both settings-schema call paths.'],
+    [4915, ['src/services/mcp/officialRegistry.ts'], 'The official MCP registry creates an explicit mutable URL-set state holder whose undefined value fails closed until prefetch completes.'],
+    [4920, ['src/services/mcp/officialRegistry.ts'], 'Registry prefetch honors essential-traffic privacy, selects the legacy or BFF directory behind the target gate, handles empty visibility explicitly, stores normalized URLs, and reports exact success/failure telemetry.'],
+    [4921, ['src/services/mcp/officialRegistry.ts'], 'Official MCP URL lookup reads the state-owned normalized URL set and returns false while the registry remains unavailable.'],
+    [4954, ['src/services/analytics/metadata.ts'], 'Analytics metadata destructures the target coachMode state and emits it as coach_mode only when defined, alongside the unchanged environment, process, auth, and core metadata graph.'],
+    [9210, ['src/utils/cliHighlight.ts'], 'The CLI highlighter recursively renders highlight.js emitter nodes, strips the hljs- scope prefix, applies the exact ANSI theme formatter when known, and preserves unrecognized text.'],
+    [9211, ['src/utils/cliHighlight.ts'], 'CLI highlighting resolves the requested grammar, ignores illegal syntax, supports both private and public emitter fields, recursively renders its root, and returns the original source on missing language or failure.'],
+    [9213, ['src/utils/cliHighlight.ts'], 'All CLI highlighting consumers share one lazily initialized promise for the highlighter implementation.'],
+    [9214, ['src/utils/cliHighlight.ts'], 'Language-name lookup maps a path extension through the registered highlight grammar and returns unknown for missing or unsupported extensions.'],
+    [11203, ['src/utils/teleport/gitBundle.ts'], 'The packed-repository helper parses git count-objects size-pack output and converts KiB to bytes before the bundle fallback policy runs.'],
+    [11204, ['src/utils/teleport/gitBundle.ts'], 'The bundle fallback uses packed-size gates, --all then HEAD then squashed-root, and an optional synthetic baseRef parent with exact target errors and telemetry.'],
+    [14065, ['src/hooks/useSearchInput.ts', 'src/context/killRing.tsx'], 'The search hook owns target multiline return and paste normalization, cursor editing, cancellation/exits, optional shared kill-ring operations, and the current direct KeyboardEvent/PasteEvent evolution.'],
+    [14457, ['src/components/PromptInput/utils.ts', 'src/components/PromptInput/PromptInput.tsx'], 'The punctuation predicate suppresses the lazy post-pill space for leading punctuation while preserving it for ordinary printable input.'],
+    [16677, ['src/utils/hooks.ts'], 'The async Stop hook yields for stdio drain, emits hook telemetry, and enqueues the exact XML task notification with escaped summary, system reminder, and stopHookActive state.'],
+    [17859, ['src/utils/ghPrStatus.ts'], 'The PR-check normalizer counts successful, failed, pending, and incomplete GitHub checks using the target conclusion/status matrix.'],
+    [17861, ['src/utils/ghPrStatus.ts'], 'The target 2.1.108 PR detail loader uses the exact gh fields, five-second command timeout, thirty-second memo TTL, error/null boundary, state/review/check normalization, and mergeability set; current source retains the later additions/deletions evolution.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.107-to-2.1.108:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'strict-runtime-target-fragment',
+        'strict-runtime-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [10628, 'The packed-repository probe parses both size-pack KiB and in-pack object count from git count-objects, returning nulls on command failure.'],
+    [10629, 'Bundle creation skips predictably oversized all/HEAD/squashed attempts, supports an optional synthetic base parent, and retains the exact target-110 fallback errors, telemetry, and size gates.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths: ['src/utils/teleport/gitBundle.ts'],
+      evidenceIds: [
+        'packed-git-bundle-target-fragment',
+        'packed-git-bundle-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [16881, 'Agent worktree creation records a hook-created HEAD when available and locks each newly created Git worktree with the exact agent/PID reason while treating lock failure as diagnostic-only.'],
+    [16883, 'Agent worktree removal unlocks before forced removal, sweeps residual directories, reports partial failures precisely, emits removal telemetry, and deletes the temporary branch when requested.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths: ['src/utils/worktree.ts'],
+      evidenceIds: [
+        'agent-worktree-locking-target-fragment',
+        'agent-worktree-locking-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [16038, ['src/utils/heapDumpService.ts'], 'Heap capture combines Bun heapStats with target object-type counts and RSS/external memory accounting before writing the snapshot.'],
+    [16039, ['src/utils/heapDumpService.ts'], 'The heap-dump service returns the target snapshot path, statistics, object counts, elapsed time, and diagnostic result.'],
+    [16044, ['src/commands/heapdump/heapdump.ts'], 'The heapdump command invokes the service and reports the Chrome DevTools Memory-load guidance.'],
+    [16045, ['src/commands/heapdump/heapdump.ts'], 'Target-110 diagnostics format the optional JS-versus-native memory explanation, warnings, RSS/peak, heap, array-buffer, external, and unaccounted lines.'],
+    [16046, ['src/commands/heapdump/heapdump.ts'], 'The command surface retains the target helper gate and exact diagnostics invocation path.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'heapdump-diagnostics-target-fragment',
+        'heapdump-diagnostics-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [18365, ['src/components/FeedbackSurvey/useSurveyState.tsx'], 'The shared survey state machine owns synchronous dismiss, pending submission, timer cleanup, delayed selection, transcript branching, and undo reopening.'],
+    [18366, ['src/components/FeedbackSurvey/useSurveyState.tsx'], 'The target survey state module fixes delayed submission at exactly 3000 milliseconds.'],
+    [18368, ['src/components/FeedbackSurvey/useFeedbackSurvey.tsx'], 'The session survey threads the pending state and undo handler through its existing sampling, transcript-share, and telemetry lifecycle.'],
+    [18376, ['src/components/FeedbackSurvey/useMemorySurvey.tsx'], 'The memory survey threads pending/undo through the inherited memory eligibility, evaluation, transcript-share, and telemetry graph.'],
+    [18380, ['src/components/FeedbackSurvey/usePostCompactSurvey.tsx'], 'The post-compact survey exposes pending state, last response, and undo while preserving the exact compact-boundary eligibility lifecycle.'],
+    [18398, ['src/components/FeedbackSurvey/FeedbackSurvey.tsx'], 'The survey component renders the pending undo view before thanks, transcript, memory, or rating content and propagates the recovered handler.'],
+    [18399, ['src/components/FeedbackSurvey/FeedbackSurvey.tsx'], 'The target pending row shows the selected label and Escape undo hint, intercepts Escape immediately, and invokes the undo callback.'],
+    [18401, ['src/components/FeedbackSurvey/FeedbackSurvey.tsx'], 'The survey presentation module owns the exact one-key response validator and target response-label table.'],
+    [18402, ['src/components/FeedbackSurvey/FeedbackSurvey.tsx'], 'The FeedbackSurvey initializer binds the pending row, key input, transcript prompt, memory evaluation, and response presentation graph.'],
+    [18404, ['src/screens/REPL.tsx'], 'The REPL aggregate selects post-compact, memory, session feedback, then frustration surveys in target order and forwards each available undo handler.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'feedback-survey-undo-target-fragment',
+        'feedback-survey-undo-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [18318, 'The transcript scanner pairs successful CronCreate tool results with their assistant tool-use inputs, records creation timestamps, and gives every later CronDelete ID precedence.'],
+    [18319, 'Session-cron resurrection rejects disabled, durable, deleted, duplicate, stale-recurring, expired, and malformed tasks; restores valid recurring or future one-shot schedules; and enables scheduling only after an actual restoration.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths: [
+        'src/utils/sessionCronTasks.ts',
+        'src/screens/REPL.tsx',
+        'src/cli/print.ts',
+      ],
+      evidenceIds: [
+        'session-cron-restore-target-fragment',
+        'session-cron-restore-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [18470, 'The MCP input redactor replaces values whose top-level key matches the exact target credential/session/authorization pattern while leaving nonsensitive fields intact.'],
+    [18471, 'The MCP preview serializes the key-redacted input, applies the shared secret-value scanner, and truncates to the exact 200-character budget with a three-dot suffix.'],
+    [18473, 'The target credential-field regular expression recognizes API keys, secrets, tokens, passwords, credentials, auth headers, cookies, session IDs/keys, connection strings, private keys, and client secrets case-insensitively.'],
+    [18482, 'Requires-action metadata prefers getToolUseSummary, falls back through activity/user-facing names, reports description failures, preserves raw Bash/PowerShell commands, and uses the safe MCP preview with a guarded error path.'],
+    [18483, 'StructuredIO calls the recovered requires-action builder for can_use_tool requests and publishes the resulting redacted/truncated metadata through its session-state lifecycle.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths: [
+        'src/cli/structuredIO.ts',
+        'src/services/teamMemorySync/secretScanner.ts',
+      ],
+      evidenceIds: [
+        'requires-action-preview-target-fragment',
+        'requires-action-preview-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [8212, ['src/tools/SkillTool/prompt.ts'], 'The Skill listing identifies bundled skills separately from user and plugin skills before calculating the description budget.'],
+    [8213, ['src/tools/SkillTool/prompt.ts', 'src/utils/settings/types.ts'], 'The target helper reads the configured maximum-description and budget-fraction settings and deterministically returns full, capped, or names-only listings with exact diagnostic totals.'],
+    [8217, ['src/tools/SkillTool/prompt.ts'], 'The Skill prompt module initializes and exports the surrounding listing formatter while the recovered budget helper remains definition-only, matching the target reachability graph.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'skill-listing-budget-target-fragment',
+        'skill-listing-budget-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.109-to-2.1.110:8612', {
+    paths: ['src/entrypoints/sdk/coreSchemas.ts'],
+    evidenceIds: [
+      'sdk-message-protocol-target-fragment',
+      'sdk-message-protocol-semantic-test',
+    ],
+    behavior: 'The runtime SDK schema initializer introduces message-origin provenance, shouldQuery suppression, requesting status, replay file attachments, and successful-result API error status with the exact target Zod shapes and descriptions.',
+  }],
+  ['2.1.109-to-2.1.110:8392', {
+    paths: ['src/utils/advisor.ts'],
+    evidenceIds: [
+      'advisor-gate-target-fragment',
+      'advisor-gate-semantic-test',
+    ],
+    behavior: 'Advisor enablement fails closed for the explicit disable flag, non-first-party providers, and disabled experimental betas; accepts the explicit experimental-enable environment override; otherwise reads tengu_sage_compass2.',
+  }],
+  ['2.1.109-to-2.1.110:12181', {
+    paths: [
+      'src/tools/MonitorTool/MonitorTool.ts',
+      'src/utils/loopSentinels.ts',
+      'src/tools/PushNotificationTool/prompt.ts',
+    ],
+    evidenceIds: [
+      'monitor-push-guidance-target-fragment',
+      'monitor-push-guidance-semantic-test',
+    ],
+    behavior: 'Monitor events append the exact PushNotification suggestion only for non-housekeeping events when mobile push is enabled, while retaining task-notification priority and the target-version XML-envelope/routing semantics.',
+  }],
+  ['2.1.109-to-2.1.110:8913', {
+    paths: [
+      'src/tools/MonitorTool/MonitorTool.ts',
+      'src/tools/MonitorTool/prompt.ts',
+    ],
+    evidenceIds: [
+      'monitor-push-guidance-target-fragment',
+      'monitor-push-guidance-semantic-test',
+    ],
+    behavior: 'The Monitor description and prompt append the exact target push-notification guidance only when the cached feature gate and account preference are both enabled.',
+  }],
+  ['2.1.109-to-2.1.110:8921', {
+    paths: ['src/utils/loopSentinels.ts'],
+    evidenceIds: [
+      'monitor-push-guidance-target-fragment',
+      'monitor-push-guidance-semantic-test',
+    ],
+    behavior: 'Autonomous and loop.md ticks append the exact action-worthy PushNotification guidance behind the same fail-closed feature-and-preference gate.',
+  }],
+  ['2.1.109-to-2.1.110:18994', {
+    paths: ['src/skills/bundled/loop.ts'],
+    evidenceIds: [
+      'monitor-push-guidance-target-fragment',
+      'monitor-push-guidance-semantic-test',
+    ],
+    behavior: 'The loop command adds a fail-closed completion helper to the inherited dynamic loop graph, asking for one concise PushNotification outcome before stopping unless the user is already present and directing the stop.',
+  }],
+  ['2.1.109-to-2.1.110:9477', {
+    paths: [
+      'src/keybindings/KeybindingProviderSetup.tsx',
+      'src/keybindings/KeybindingContext.tsx',
+      'src/keybindings/useKeybinding.ts',
+    ],
+    evidenceIds: [
+      'keybinding-single-key-target-fragment',
+      'keybinding-single-key-semantic-test',
+    ],
+    behavior: 'The global chord interceptor preserves chord precedence, then resolves and invokes only registrations explicitly marked singleKey; both single- and multi-action hooks set that marker while retaining handler false-return propagation semantics.',
+  }],
+  ['2.1.109-to-2.1.110:5956', {
+    paths: [
+      'src/keybindings/schema.ts',
+      'src/keybindings/defaultBindings.ts',
+    ],
+    evidenceIds: [
+      'keybinding-single-key-target-fragment',
+      'keybinding-single-key-semantic-test',
+    ],
+    behavior: 'The target keybinding action schema introduces plugin:favorite and the Plugin context binds it to the f key.',
+  }],
+  ...[
+    [5402, ['src/ink/events/event-handlers.ts'], 'The target input-handler set contains keyboard, paste, and wheel bubble/capture props; those handlers are the exact DOM surfaces that acquire a raw-mode reference.'],
+    [5436, ['src/ink/events/event-handlers.ts', 'src/ink/reconciler.ts'], 'The reconciler detects whether any target input-handler prop is currently registered on a DOM node.'],
+    [5437, ['src/ink/dom.ts', 'src/ink/reconciler.ts'], 'Raw-mode reference deltas are dispatched immediately after App mounts or accumulated on the root for nodes created earlier.'],
+    [5438, ['src/ink/dom.ts', 'src/ink/reconciler.ts'], 'Each DOM node acquires or releases exactly one raw-mode reference when its input-handler membership changes.'],
+    [5439, ['src/ink/dom.ts', 'src/ink/reconciler.ts'], 'Removing a subtree releases every held raw-mode reference recursively while excluding text nodes.'],
+    [5657, ['src/ink/components/App.tsx', 'src/ink/ink.tsx', 'src/ink/dom.ts'], 'InternalApp drains pre-mount raw-mode deltas, installs the root callback, and clears it before teardown; Ink passes the same root used by the reconciler.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'ink-raw-mode-target-fragment',
+        'ink-raw-mode-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [11338, ['src/services/lsp/manager.ts'], 'The target-110 manager object is a bundler representation change over the inherited pending-only initialization wait, generation guard, reinitialization, and shutdown lifecycle.'],
+    [11340, ['src/services/lsp/manager.ts'], 'The generated waitForInitialization/reinitialize/shutdown property aliases expose the same authored module functions without adding behavior.'],
+    [11978, ['src/tools/LSPTool/LSPTool.ts', 'src/services/lsp/manager.ts', 'src/utils/plugins/refresh.ts'], 'The reachable LSP tool waits only while initialization is pending before reading the manager; plugin refresh reaches the same reinitialization lifecycle.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'lsp-manager-lifecycle-target-fragment',
+        'lsp-manager-lifecycle-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [12834, ['src/tools/PowerShellTool/PowerShellTool.tsx'], 'The PowerShell leading-sleep classifier accepts integer and decimal seconds, preserves Start-Sleep aliases and -Seconds abbreviations, permits sub-two-second pacing, and reports the remaining command.'],
+    [13484, ['src/tools/BashTool/BashTool.tsx'], 'The Bash leading-sleep classifier accepts integer and decimal seconds, permits sub-two-second pacing, and reports either the standalone delay or the remaining command.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'decimal-sleep-target-fragment',
+        'decimal-sleep-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.109-to-2.1.110:12693', {
+    paths: ['src/utils/powershell/parser.ts'],
+    evidenceIds: [
+      'powershell-parser-retry-target-fragment',
+      'powershell-parser-retry-semantic-test',
+    ],
+    behavior: 'The PowerShell parser retries spawn failures, timeouts, and nonzero exits once, emits one uniform diagnostic per failed attempt, then classifies the terminal spawn, timeout, exit, empty-output, or JSON result exactly.',
+  }],
+  ['2.1.109-to-2.1.110:6219', {
+    paths: [
+      'src/context/killRing.tsx',
+      'src/hooks/useTextInput.ts',
+      'src/hooks/useSearchInput.ts',
+      'src/components/App.tsx',
+      'src/ink/events/keyboard-event.ts',
+    ],
+    evidenceIds: [
+      'kill-ring-reducer-target-fragment',
+      'kill-ring-reducer-semantic-test',
+      'dom-text-input-target-fragment',
+      'dom-text-input-semantic-test',
+    ],
+    behavior: 'The text input consumes a provided or App-scoped kill-ring reducer, dispatches kill, yank, yank-pop, yank-length, and interrupt actions, and exposes the target focus-scoped KeyboardEvent handler; search input shares the same isolated store graph.',
+  }],
+  ['2.1.109-to-2.1.110:6234', {
+    paths: [
+      'src/hooks/usePasteHandler.ts',
+      'src/ink/events/keyboard-event.ts',
+      'src/ink/events/paste-event.ts',
+    ],
+    evidenceIds: [
+      'dom-text-input-target-fragment',
+      'dom-text-input-semantic-test',
+    ],
+    behavior: 'The paste hook owns the focus-scoped KeyboardEvent and PasteEvent handlers, text and image insertion, pasted-state metadata, size diagnostics, and cleanup behavior at the target-110 boundary.',
+  }],
+  ['2.1.109-to-2.1.110:6251', {
+    paths: [
+      'src/components/BaseTextInput.tsx',
+      'src/hooks/usePasteHandler.ts',
+      'src/hooks/useTextInput.ts',
+      'src/ink/events/keyboard-event.ts',
+      'src/ink/events/paste-event.ts',
+    ],
+    evidenceIds: [
+      'dom-text-input-target-fragment',
+      'dom-text-input-semantic-test',
+    ],
+    behavior: 'BaseTextInput renders a focused DOM surface with tabIndex, autoFocus, onKeyDown and onPaste, subscribes its cursor ref, and composes the target text and paste handlers without the legacy useInput hook.',
+  }],
+  ['2.1.109-to-2.1.110:17966', {
+    paths: [
+      'src/hooks/useVimInput.ts',
+      'src/hooks/useTextInput.ts',
+      'src/ink/events/keyboard-event.ts',
+    ],
+    evidenceIds: [
+      'dom-text-input-target-fragment',
+      'dom-text-input-semantic-test',
+    ],
+    behavior: 'The Vim wrapper owns the complete focus-scoped KeyboardEvent state machine, replay path, insert/normal/visual transitions, motions, operators, history, and default prevention while delegating inserts to useTextInput.',
+  }],
+  ['2.1.109-to-2.1.110:17968', {
+    paths: [
+      'src/hooks/useVimInput.ts',
+      'src/ink/events/keyboard-event.ts',
+    ],
+    evidenceIds: [
+      'dom-text-input-target-fragment',
+      'dom-text-input-semantic-test',
+    ],
+    behavior: 'The Vim DOM adapter owns the exact target-110 special-key name table used to distinguish named keys from printable input during replay and direct dispatch.',
+  }],
+  ['2.1.109-to-2.1.110:14156', {
+    paths: [
+      'src/context/killRing.tsx',
+      'src/hooks/useSearchInput.ts',
+    ],
+    evidenceIds: [
+      'kill-ring-reducer-target-fragment',
+      'kill-ring-reducer-semantic-test',
+    ],
+    behavior: 'The search input consumes the App-scoped or explicitly provided reducer and applies kill, yank, yank-pop, yank-length, and interrupt actions while preserving cursor, multiline, paste, and exit behavior.',
+  }],
+  ...[
+    [7373, 'The target allocates exactly one cached-microcompact state object with null module, state, and pending-edit fields; source represents those same singleton fields as module bindings.'],
+    [7375, 'Pinned edits read through the singleton cached state and return an empty list before initialization.'],
+    [7376, 'Pinned edits are appended only while the singleton cached state exists, preserving the target user-message index and block payload.'],
+    [7377, 'Reset invokes the cached module only when both module and state exist, then always clears pending cache edits.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths: ['src/services/compact/microCompact.ts'],
+      evidenceIds: [
+        'microcompact-state-target-fragment',
+        'microcompact-state-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [7784, 'The plugin.json dependency reconciler skips existing closure members, preserves the root-marketplace trust boundary, fails closed for policy blocks, ignores unavailable catalog entries with exact diagnostics, and returns additional install IDs.'],
+    [7785, 'The install flow invokes reconciliation after materializing the root manifest, extends enabled settings and the dependency closure atomically, materializes additions, rolls back failures, and reports stale catalog metadata.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths: ['src/utils/plugins/pluginInstallationHelpers.ts'],
+      evidenceIds: [
+        'plugin-manifest-dependencies-target-fragment',
+        'plugin-manifest-dependencies-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.109-to-2.1.110:7789', {
+    paths: ['src/utils/plugins/pluginLoader.ts'],
+    evidenceIds: [
+      'plugin-manifest-dependencies-target-fragment',
+      'plugin-manifest-dependencies-semantic-test',
+    ],
+    behavior: 'Plugin settings use the target allowlist of exactly agent and subagentStatusLine; the authored Zod pick represents the target string-key array without widening accepted settings.',
+  }],
+  ...[
+    [8768, 'The hooks snapshot capture stores the policy-filtered hook configuration in the sole module snapshot.'],
+    [8769, 'Snapshot refresh resets the settings cache before replacing the stored policy-filtered hook configuration.'],
+    [8770, 'Snapshot reads lazily capture exactly once when null and then return the stored hook configuration.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths: ['src/utils/hooks/hooksConfigSnapshot.ts'],
+      evidenceIds: [
+        'hooks-snapshot-target-fragment',
+        'hooks-snapshot-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [2542, ['src/utils/permissions/PermissionMode.ts'], 'The sandbox permission-mode policy maps auto to classifier review, bypass and eligible plan mode to allow, dontAsk to deny, and all remaining modes to the interactive queue.'],
+    [10792, ['src/utils/permissions/yolo-classifier-prompts/permissions_external.txt', 'src/utils/permissions/yoloClassifier.ts'], 'The target bundles the exact 15,314-character external auto-mode policy as the runtime classifier template.'],
+    [10830, ['src/utils/permissions/yoloClassifier.ts'], 'The fail-closed sandbox-network classifier invokes the transcript classifier with a synthetic SandboxNetworkAccess tool, gates unavailable results through tengu_iron_gate_closed, and logs exact unavailable and denied diagnostics.'],
+    [18324, ['src/hooks/useInboxPoller.ts', 'src/utils/permissions/PermissionMode.ts', 'src/utils/permissions/yoloClassifier.ts'], 'The worker inbox resolves sandbox requests through the mode policy, invokes classifier review in auto mode, sends an immediate mailbox response for automatic decisions, and queues only interactive requests.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'sandbox-classifier-target-fragment',
+        'sandbox-classifier-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [14463, 'Doctor owns the target module prelude and imported runtime surfaces used by the complete diagnostic screen.'],
+    [14465, 'Doctor retains the target cached update-check state used by the installed-version section.'],
+    [14467, 'Doctor renders the target tree connector graph for nested diagnostic rows.'],
+    [14468, 'Doctor owns the complete target-110 diagnostic screen, version/install/settings/plugin/sandbox/context sections, and fix action.'],
+    [14469, 'Doctor owns the target section-row helper used by the diagnostic tree.'],
+    [14470, 'Doctor owns the target installation-description helper.'],
+    [14471, 'Doctor owns the target auto-update-channel description helper.'],
+    [14472, 'Doctor owns the target settings-error formatting helper.'],
+    [14473, 'Doctor owns the target plugin-error formatting helper.'],
+    [14474, 'Doctor owns the target sandbox-dependency error formatting helper.'],
+    [14475, 'Doctor owns the target context-warning formatting helper.'],
+    [14485, 'Doctor builds the exact detailed remediation prompt and dispatches it as a user-visible query.'],
+    [14486, 'Doctor retains the target command metadata and availability surface.'],
+    [14487, 'Doctor registers the doctor:fix action that submits the generated remediation prompt.'],
+    [14489, 'Doctor owns the target command initializer and exported descriptor.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths: ['src/screens/Doctor.tsx'],
+      evidenceIds: [
+        'doctor-target-fragment',
+        'doctor-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [7344, 'Prompt-cache persistence is enabled only for Cowork sessions.'],
+    [7345, 'The persisted-state path is scoped to the current session under the Claude temporary directory.'],
+    [7346, 'The loader validates persisted state, preserves already-live entries, and restores runtime-only closures and pending state safely.'],
+    [7347, 'The persistence queue serializes directory creation and state writes while excluding runtime-only closures and pending diffs.'],
+    [7360, 'Prompt-state recording hashes billing-header-free system blocks, tool schemas, block lengths, and API message history; detects mutations; updates the bounded state map; and persists each result.'],
+    [7361, 'Cache-break reporting distinguishes expected deletions and TTL/server causes, records exact change metadata, writes the optional diff, and persists the response baseline in a finally block.'],
+    [7362, 'Cache-deletion notification latches the expected-drop state and persists it.'],
+    [7363, 'Compaction notification clears the prior cache-read baseline and persists it.'],
+    [7364, 'Agent cleanup deletes that agent\'s cache-break state and persists the map.'],
+    [7365, 'Global reset clears memory, permits a later disk reload, and persists the empty state.'],
+    [7367, 'The prompt-cache module owns the bounded map, persistence queue, thresholds, and billing-header prefix.'],
+    [7368, 'The target initializer constructs the exact persisted schema, including message hashes but excluding the later TTL/query-depth fields.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths: [
+        'src/services/api/promptCacheBreakDetection.ts',
+        'src/services/api/claude.ts',
+      ],
+      evidenceIds: [
+        'prompt-cache-persistence-target-fragment',
+        'prompt-cache-persistence-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.109-to-2.1.110:11792', {
+    paths: ['src/tools/REPLTool/prompt.ts'],
+    evidenceIds: [
+      'repl-prompt-target-fragment',
+      'repl-prompt-semantic-test',
+    ],
+    behavior: 'The async REPL prompt memoizes gh availability, conditionally exposes the gh/REPO shorthands, selects the safe gh-or-git heredoc example, and emits the exact persistent and compatibility prompt branches.',
+  }],
+  ...[
+    [19346, 'MCP remove enumerates de-duplicated configured names across local, project, and user scopes, or reports explicitly that none exist.'],
+    [19351, 'MCP get enumerates all configured names in sorted order when the requested server is missing, or reports explicitly that none exist.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths: ['src/cli/handlers/mcp.tsx'],
+      evidenceIds: [
+        'mcp-missing-server-target-fragment',
+        'mcp-missing-server-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [19416, 'The update command imports the file-reading primitive used to inspect the daemon lock.'],
+    [19417, 'The update command imports the path join primitive used to resolve daemon.lock under the Claude configuration directory.'],
+    [19418, 'The daemon-lock path helper resolves the exact daemon.lock filename under the Claude configuration home.'],
+    [19419, 'The daemon-lock reader accepts only an object with numeric pid and string version, returns null for a missing file, and propagates other read failures.'],
+    [19420, 'The historical live-lock check verifies the PID with signal zero; current source additionally validates the daemon command line when /proc is available.'],
+    [19421, 'Target 110 signals a live mismatched daemon with SIGTERM; current source preserves the evolved non-destructive restart prediction for active background jobs.'],
+    [19422, 'The update coordinator owns the exact daemon.lock filename constant.'],
+    [19426, 'The update command enforces minimumVersion for native and package paths, distinguishes actual native updates, refreshes completion state, and coordinates the version-mismatched daemon.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths: ['src/cli/update.ts'],
+      evidenceIds: [
+        'update-daemon-target-fragment',
+        'update-daemon-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [10122, 'Native platform selection maps an x64 macOS process translated by Rosetta to the arm64 release artifact while preserving the existing musl and unsupported-architecture branches.'],
+    [10134, 'The native updater reads tengu_canary synchronously, accepts only a semver-valid external version, and safely logs and falls through on GrowthBook failure.'],
+    [10135, 'Latest-channel native updates prefer a newer valid canary unless it exceeds maxVersion, then apply the existing max/minimum/version-lock and install policy.'],
+    [10153, 'The native-installer module state carries the Rosetta translation result alongside the existing retention and in-flight state.'],
+    [10154, 'Native-installer initialization performs the exact macOS-x64 sysctl.proc_translated probe once and stores its boolean result for platform selection.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths: ['src/utils/nativeInstaller/installer.ts'],
+      evidenceIds: [
+        'native-canary-rosetta-target-fragment',
+        'native-canary-rosetta-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [2565, ['src/utils/plugins/schemas.ts'], 'The plugin manifest schema exposes the exact target contract that only PLUGIN_SETTINGS_KEYS from pluginSettingsKeys.ts survive merging.'],
+    [5080, ['src/utils/config.ts'], 'User-ID creation caches the generated value before persistence and converts persistence failure into an exact error-level diagnostic instead of throwing or regenerating.'],
+    [12072, ['src/tools/ConfigTool/supportedSettings.ts'], 'The Config tool exposes the target tui setting as a settings-backed default/fullscreen selector with the exact renderer description and option order.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'config-schema-hardening-target-fragment',
+        'config-schema-hardening-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [2385, ['src/utils/git/gitFilesystem.ts'], 'The git watcher owns independent repository-to-gitdir and repository-to-branch caches, watches every added repository HEAD, invalidates the corresponding cached branch, notifies subscribers, and fully resets the added state.'],
+    [2396, ['src/utils/git/gitFilesystem.ts'], 'The public repository-branch subscription delegates to the watcher and returns its exact unsubscribe closure.'],
+    [2398, ['src/utils/git/gitFilesystem.ts'], 'Resetting the git watcher clears all per-repository branch, git-directory, and listener state in addition to the inherited single-repository cache.'],
+    [17316, ['src/bridge/remoteBridgeCore.ts', 'src/bridge/codeSessionApi.ts', 'src/bridge/gitSessionContext.ts', 'src/utils/git/gitFilesystem.ts'], 'The env-less bridge creates sessions with repository, cwd, and model context; publishes the watched original-cwd branch under the parsed repository key; deduplicates updates; invalidates and republishes after transport rebuild; and unsubscribes during teardown.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'git-branch-metadata-target-fragment',
+        'git-branch-metadata-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [352, ['src/utils/settings/settingsCache.ts'], 'The plugin-settings cache owns a readiness bit independent of the optional settings payload.'],
+    [354, ['src/utils/settings/settingsCache.ts'], 'Supplying the plugin settings layer marks it initialized even when the layer is empty.'],
+    [355, ['src/utils/settings/settingsCache.ts'], 'The exported readiness accessor reports whether plugin loading has supplied its settings layer.'],
+    [2685, ['src/utils/settings/settings.ts'], 'The readiness-aware settings accessor records tengu_plugin_settings_premature_read before reading a plugin-contributed setting too early.'],
+    [17871, ['src/utils/subagentStatusLine.ts'], 'Subagent status-line configuration uses the readiness-aware accessor outside managed-only policy mode.'],
+    [19445, ['src/main.tsx'], 'Main-agent selection uses the readiness-aware accessor after plugin loading while preserving an explicit CLI agent override.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'plugin-settings-readiness-target-fragment',
+        'plugin-settings-readiness-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [6189, 'The fullscreen state owns a separately cached GrowthBook result so the default renderer decision remains stable for the session.'],
+    [6193, 'Fullscreen selection gives explicit environment, tmux-control-mode, and persisted renderer choices precedence, then caches tengu_pewter_brook with a false default.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths: ['src/utils/fullscreen.ts'],
+      evidenceIds: [
+        'fullscreen-gate-target-fragment',
+        'fullscreen-gate-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [6848, ['src/services/api/errors.ts'], 'The API error adapter preserves a numeric SDK HTTP status on the synthetic assistant error message after formatting its user-facing content.'],
+    [19261, ['src/QueryEngine.ts', 'src/services/api/errors.ts'], 'The noninteractive query engine carries the last assistant API status into api_error_status on the final SDK result, using null when no numeric status exists.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'api-error-status-target-fragment',
+        'api-error-status-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.109-to-2.1.110:7010', {
+    paths: ['src/services/mcp/vscodeSdkMcp.ts'],
+    evidenceIds: [
+      'vscode-gates-target-fragment',
+      'vscode-gates-semantic-test',
+    ],
+    behavior: 'The connected VS Code MCP client receives the target review, onboarding, browser, in-band-auth, slate-ribbon, and tri-state auto-mode gates in one experiment_gates notification.',
+  }],
+  ['2.1.109-to-2.1.110:7300', {
+    paths: ['src/tools/ToolSearchTool/prompt.ts', 'src/utils/toolSearch.ts'],
+    evidenceIds: [
+      'deferred-tool-location-target-fragment',
+      'deferred-tool-location-semantic-test',
+    ],
+    behavior: 'Deferred tools are always announced through persisted system-reminder deltas; the prompt states that single location and the removed tengu_glacier_2xr fallback cannot prepend an available-deferred-tools block.',
+  }],
+  ['2.1.109-to-2.1.110:7708', {
+    paths: ['src/utils/telemetry/pluginTelemetry.ts'],
+    evidenceIds: [
+      'plugin-settings-telemetry-target-fragment',
+      'plugin-settings-telemetry-semantic-test',
+    ],
+    behavior: 'Enabled-plugin telemetry reports whether a plugin supplied settings and, when truthy, emits its sorted comma-delimited settings keys alongside the target MCP, LSP, and hook capability fields.',
+  }],
+  ...[
+    [8831, ['src/utils/telemetry/sessionTracing.ts'], 'A failed tool-execution span records the OpenTelemetry ERROR status and preserves the supplied error message before ending and clearing the span.'],
+    [8836, ['src/utils/telemetry/sessionTracing.ts'], 'A hook span with one or more non-blocking errors records ERROR status with the exact failed-hook count message before teardown.'],
+    [11555, ['src/utils/shell/bashProvider.ts'], 'Remote shell execution exports Bun small-heap mode while preserving an existing BUN_OPTIONS suffix before shell hardening and command evaluation.'],
+    [13784, ['src/services/api/withRetry.ts'], 'Retry telemetry reports elapsed wall time for the failed attempt as attempt_duration_ms, measured from immediately after the abort gate.'],
+    [16938, ['src/utils/api.ts'], 'FileEdit input normalization accepts legacy old_str/new_str aliases only when canonical fields are absent, deletes the aliases, then validates and normalizes the canonical edit.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'target110-runtime-compat-target-fragment',
+        'target110-runtime-compat-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [8401, 'The shutdown owner hashes sanitized error details with SHA-256 and exposes only the first twelve hexadecimal characters.'],
+    [8402, 'Error messages are bounded to 500 characters and redact URLs, filesystem paths, UUIDs, long hexadecimal identifiers, and large numeric identifiers before telemetry.'],
+    [8403, 'Stack extraction is bounded to 4000 characters, strips async/new prefixes, removes source locations and internal frames, and retains only normalized function names.'],
+    [8404, 'Unstringifiable rejection values are converted to the exact safe sentinel instead of leaking arbitrary object content.'],
+    [8405, 'Error analytics exposes only bounded constructor/code plus hashes of the sanitized message and normalized frame list.'],
+    [8420, 'Uncaught exceptions and unhandled rejections attach the same sanitized error metadata to telemetry while retaining the existing shutdown behavior.'],
+    [8422, 'Graceful shutdown accepts suppressResumeHint and marks the hint handled before any asynchronous hook, flush, or cleanup work begins.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths: ['src/utils/gracefulShutdown.ts'],
+      evidenceIds: [
+        'shutdown-error-metadata-target-fragment',
+        'shutdown-error-metadata-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [7010, ['src/utils/fileStateCache.ts'], 'File-state content hashing uses Bun.hash base36 when available and a SHA-1 base64url fallback otherwise.'],
+    [7011, ['src/utils/fileStateCache.ts'], 'Content equality prefers the retained content hash and falls back to direct body equality for legacy cache entries.'],
+    [7012, ['src/utils/fileStateCache.ts'], 'The cache preserves hash and original length, carries forward keepContent, reuses a retained body for identical empty refreshes, and otherwise drops bodies larger than 4096 bytes.'],
+    [11415, ['src/tools/FileWriteTool/FileWriteTool.ts', 'src/utils/fileStateCache.ts'], 'FileWrite validates timestamp drift by hashing a full normalized current read and uses the same hash comparison in the atomic write path.'],
+    [11661, ['src/utils/toolErrors.ts', 'src/utils/fileStateCache.ts'], 'PostToolUse resynchronization updates the cached state and suppresses formatter context when the old state hash still matches the formatted content.'],
+    [12430, ['src/tools/FileEditTool/FileEditTool.ts', 'src/utils/fileStateCache.ts'], 'FileEdit uses hash-aware equality in both permission validation and its atomic edit path, preserving the full-read guard and exact stale-file errors.'],
+    [13069, ['src/utils/attachments.ts', 'src/utils/fileStateCache.ts'], 'Nested memory injection sets keepContent so changed-file rendering retains the complete raw prior body while preserving partial-view safety.'],
+    [13075, ['src/utils/attachments.ts', 'src/utils/fileStateCache.ts'], 'Changed-file collection checks hash equality before computing a textual diff, supporting evicted large cache bodies without reporting timestamp-only changes.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.107-to-2.1.108:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'file-state-target-fragment',
+        'file-state-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [12101, ['src/utils/toolErrors.ts', 'src/services/compact/autoCompact.ts', 'src/commands/compact/compact.ts', 'src/screens/REPL.tsx'], 'Compaction and rewind clear the per-conversation seen-result map while preserving the monotonically increasing result id; full conversation clear separately resets both fields.'],
+    [12103, ['src/utils/toolErrors.ts', 'src/services/tools/toolExecution.ts'], 'Non-MCP string tool results larger than 256 characters and below the persistence threshold minus the 26-character id suffix are hash-deduplicated, emit exact hit/miss telemetry, and either receive a stable result id or an identical-result reference.'],
+    [12105, ['src/utils/toolErrors.ts'], 'The authored de-duplication thresholds are exactly 256 minimum content characters and 26 reserved result-id suffix characters.'],
+    [12106, ['src/utils/toolErrors.ts', 'src/Tool.ts', 'src/utils/forkedAgent.ts', 'src/screens/REPL.tsx'], 'The result-id parser restores the largest prior numeric id at resume, while REPL and fork call paths provision isolated state and thread it into tool execution.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.107-to-2.1.108:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'tool-result-dedup-target-fragment',
+        'tool-result-dedup-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [2558, ['src/utils/plugins/schemas.ts', 'src/types/plugin.ts'], 'The installed-plugin schema and authored type persist the optional tag-derived semantic version used when a version constraint resolves to a git tag.'],
+    [6102, ['src/utils/plugins/dependencyResolver.ts'], 'Installed dependency verification prefers the persisted resolvedVersion over manifest.version before testing the normalized version against the required range.'],
+    [13251, ['src/utils/plugins/installedPluginsManager.ts'], 'The v2 installed-plugin writer copies a truthy resolvedVersion into the stored entry before saving the installed-plugin registry.'],
+    [13275, ['src/utils/plugins/pluginInstallationHelpers.ts'], 'Constraint-based installation logs and uses the tag-derived version when it differs from the manifest, and passes that version into installed metadata.'],
+    [13310, ['src/utils/plugins/pluginLoader.ts'], 'Plugin loading restores the persisted resolvedVersion from the installed-plugin registry onto the loaded plugin record for later dependency checks.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.107-to-2.1.108:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'plugin-resolved-version-target-fragment',
+        'plugin-resolved-version-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.107-to-2.1.108:15502', {
+    paths: ['src/commands/security-review.ts', 'src/commands.ts'],
+    evidenceIds: [
+      'security-review-target-fragment',
+      'security-review-semantic-test',
+    ],
+    behavior: 'The security-review command owns the exact 10,823-character review workflow and changes all five git Bash permissions from obsolete colon syntax to command-prefix wildcards without changing any other cooked prompt byte or execution behavior.',
+  }],
+  ...[
+    [15525, ['src/components/permissions/rules/PermissionRuleDescription.tsx'], 'Permission-rule descriptions accept both the legacy :* suffix and the target command-prefix space-wildcard suffix, strip exactly two suffix characters, and render the shared command prefix.'],
+    [17411, ['src/components/permissions/shellPermissionHelpers.tsx'], 'Permission suggestion labels normalize, de-duplicate, and display shell rules after stripping either the legacy :* or target space-wildcard suffix.'],
+    [17415, ['src/components/permissions/BashPermissionRequest/bashToolUseOptions.tsx'], 'The editable Bash permission option exposes the exact target command-prefix placeholder while retaining feedback-mode and suggestion-selection behavior.'],
+    [17418, ['src/components/permissions/BashPermissionRequest/BashPermissionRequest.tsx'], 'Bash permission requests produce target space-wildcard prefixes for two-word, one-word, and asynchronously classified command prefixes and preserve user edits.'],
+    [17427, ['src/components/permissions/ExitPlanModePermissionRequest/ExitPlanModePermissionRequest.tsx', 'src/components/design-system/StatusIcon.tsx'], 'Both target plan-save surfaces render the shared success StatusIcon with its observable withSpace flag instead of interpolating a raw figure.'],
+    [17479, ['src/components/permissions/PowerShellPermissionRequest/powershellToolUseOptions.tsx'], 'The editable PowerShell permission option exposes the exact target command-prefix space-wildcard placeholder.'],
+    [17481, ['src/components/permissions/PowerShellPermissionRequest/PowerShellPermissionRequest.tsx'], 'PowerShell permission requests produce the target space-wildcard prefix after asynchronous command-prefix classification and preserve user edits.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.107-to-2.1.108:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'permission-wildcard-target-fragment',
+        'permission-wildcard-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [16339, ['src/utils/sessionStorage.ts'], 'The target session-storage owner adds the exported transcript-persistence disable gate while retaining the inherited permission-mode, writer, metadata, and transcript lifecycle.'],
+    [16380, ['src/utils/sessionStorage.ts'], 'The transcript writer class retains permission-mode metadata and applies the target persistence-disable gate and ephemeral REPL progress policy.'],
+    [16439, ['src/utils/sessionStorage.ts'], 'Session loading restores the target permission-mode and persisted transcript metadata while respecting the target disable gate.'],
+    [16443, ['src/utils/sessionStorage.ts'], 'The target storage helper preserves the complete session lookup and metadata recovery contract under the new persistence gate.'],
+    [16476, ['src/utils/sessionStorage.ts'], 'The target session-storage initializer binds the recovered persistence gate, REPL progress classification, permission metadata, and session metadata signals.'],
+    [17164, ['src/bridge/remoteBridgeCore.ts'], 'The envless bridge lifecycle sets and clears structured pending-action metadata, uses the target raw tool name, coordinates persistence callbacks, and exposes Symbol.asyncDispose teardown.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.107-to-2.1.108:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'session-bridge-target-fragment',
+        'session-bridge-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [17948, ['src/hooks/useRemoteSession.ts', 'src/utils/messages.ts', 'src/Tool.ts'], 'The remote-session hook filters non-rendered task/notification system events and forwards the exact typed start/end API-metrics lifecycle from remote stream events into the shared recorder.'],
+    [18537, ['src/screens/REPL.tsx', 'src/utils/model/model.ts', 'src/Tool.ts', 'src/utils/messages.ts', 'src/hooks/useRemoteSession.ts', 'src/tools/AgentTool/runAgent.ts'], 'The target REPL aggregates local, remote, and subagent request start/end metrics by optional request id, computes exact TTFT/OTPS inputs, and changes resume-summary compaction to default Sonnet while preserving the active 1M suffix.'],
+    [18538, ['src/screens/REPL.tsx'], 'The REPL module initializer binds the target runtime dependencies; its generated fallback prompt-action object is allocated and destructured into three bindings that are never read, as proved by the authenticated static identifier audit.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.107-to-2.1.108:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'remote-api-metrics-target-fragment',
+        'remote-api-metrics-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [18954, ['src/main.tsx'], 'The target headless connector pre-registers pending clients, exposes per-server readiness promises, merges late clients/tools/commands, resolves every waiter, and launches guarded remote retries.'],
+    [18955, ['src/main.tsx'], 'Failed HTTP, SSE, and claude.ai-proxy servers retry after the exact 500/1500/4000ms schedule with connector-cache eviction, late-client cleanup, and terminal failure reporting.'],
+    [19261, ['src/main.tsx'], 'The print-mode main path binds the recovered target-108 headless coordinator to the live store, awaits regular then claude.ai connectors under the nonblocking/5s policy, and retains reachable createSubcommandRoot command handlers.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.107-to-2.1.108:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'headless-mcp-target-fragment',
+        'headless-mcp-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [4613, 'The proper-lockfile package remains lazily loaded and memoized behind the authored wrapper.'],
+    [4614, 'The async lock wrapper returns the callable release function with that same function installed as Symbol.asyncDispose.'],
+    [4615, 'The synchronous lock wrapper returns the callable release function with that same function installed as Symbol.dispose.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.107-to-2.1.108:${targetIndex}`,
+    {
+      paths: ['src/utils/lockfile.ts'],
+      evidenceIds: [
+        'lockfile-disposal-target-fragment',
+        'lockfile-disposal-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [4894, ['src/types/generated/events_mono/claude_code/v1/claude_code_internal_event.ts'], 'The generated ClaudeCodeInternalEvent base object initializes the target repl_code field to an empty string.'],
+    [4899, ['src/types/generated/events_mono/claude_code/v1/claude_code_internal_event.ts'], 'The generated ClaudeCodeInternalEvent codec reads, serializes, creates, and partially hydrates the repl_code field exactly.'],
+    [4961, ['src/services/analytics/firstPartyEventLoggingExporter.ts', 'src/types/generated/events_mono/claude_code/v1/claude_code_internal_event.ts'], 'The first-party exporter hoists _PROTO_code out of general additional metadata and writes it only to the privileged repl_code proto column when it is a string.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.107-to-2.1.108:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'repl-event-target-fragment',
+        'repl-event-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [5128, ['src/tools/REPLTool/constants.ts'], 'REPL enablement is Bun-only, honors explicit truthy/falsy CLAUDE_CODE_REPL first, and otherwise consults tengu_slate_harbor only for cli and remote entrypoints.'],
+    [11642, ['src/tools/REPLTool/prompt.ts'], 'The complete persistent-REPL prompt owns the target-only investigation rule, dense scripting guidance, shorthand API, sealed-VM restrictions, batching policy, and persistent-value semantics.'],
+    [11658, ['src/tools/REPLTool/REPLTool.ts'], 'The REPL sampling factory validates prompt and JSON schema inputs, normalizes object schemas, emits start/complete/error inner-call progress, and performs one-turn repl_sampling queries.'],
+    [11677, ['src/tools/REPLTool/REPLTool.ts'], 'Every direct inner tool wrapper validates input, executes hooks and permissions, calls with unbounded REPL read/glob limits, emits exact progress phases, normalizes MCP text output, and returns errors as data.'],
+    [11680, ['src/tools/REPLTool/REPLTool.ts'], 'The authored persistent runtime imports Node vm for sealed context creation and execution.'],
+    [11690, ['src/tools/REPLTool/REPLTool.ts'], 'The persistent runtime creates a null-prototype VM context with strings enabled and wasm disabled, installs sealed helpers, tracks wrapper names, and refreshes cwd/repository state.'],
+    [11694, ['src/tools/REPLTool/REPLTool.ts'], 'The replay subsystem uses the same Node vm owner to hydrate prior REPL blocks safely.'],
+    [11701, ['src/tools/REPLTool/REPLTool.ts'], 'Replay extraction pairs virtual inner tool-use/result messages with each persisted REPL block and records whether the original block threw.'],
+    [11704, ['src/tools/REPLTool/REPLTool.ts'], 'Replay executes transpiled blocks under the target timeout, temporarily replaces tool globals with deterministic cached wrappers, and reports exact ok, drift, or threw outcomes.'],
+    [11706, ['src/tools/REPLTool/REPLTool.ts'], 'Replay summaries count ok, drifted, and threw blocks and select the exact clean-versus-drifted target wording.'],
+    [11716, ['src/tools/REPLTool/REPLTool.ts'], 'The callable REPL tool runtime shares the authored Node vm execution owner.'],
+    [11727, ['src/tools/REPLTool/REPLTool.ts'], 'The REPL tool initializer binds schema, timeouts, persistent contexts, helpers, replay/hydration, registered tools, execution, rendering, and progress into one reachable tool definition.'],
+    [12055, ['src/tasks/LocalMainSessionTask.ts', 'src/tools/REPLTool/constants.ts'], 'Background main sessions record started inner REPL calls as recent activity, suppress the outer REPL wrapper activity, and preserve token/tool counters and bounded activity history.'],
+    [12118, ['src/services/tools/toolExecution.ts'], 'Tool execution forwards inner tool progress with its original tool-use identifier and data payload into the parent progress-message stream.'],
+    [12129, ['src/utils/queryHelpers.ts'], 'SDK conversion maps each REPL inner-call progress event to a REPL tool_progress envelope with inner name, input, id, phase, parent id, session id, and zero elapsed seconds.'],
+    [12490, ['src/tasks/LocalAgentTask/LocalAgentTask.tsx', 'src/tools/REPLTool/constants.ts'], 'Local-agent progress records started inner REPL calls with activity/search/read classification, suppresses the outer REPL wrapper, and retains the five most recent activities.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.107-to-2.1.108:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'repl-runtime-target-fragment',
+        'repl-runtime-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.107-to-2.1.108:6958', {
+    paths: [
+      'src/services/api/promptCacheBreakDetection.ts',
+      'src/services/api/claude.ts',
+    ],
+    evidenceIds: [
+      'prompt-cache-break-target-fragment',
+      'prompt-cache-break-semantic-test',
+    ],
+    behavior: 'The target-108 delta adds systemHash and toolsHash to the existing prompt-cache-break analytics payload; the historical owner and Cowork-gated call path retain the inherited detector graph, while cumulative source carries the target-116 persistence, TTL, query-depth/source, model, and cache-strategy evolution.',
+  }],
+  ...[
+    [614, ['src/utils/envUtils.ts'], 'The target inherits dedicated Vertex region overrides for Opus 4.6 and 4.5 in longest-prefix order; target-108 source excludes the later Opus 4.7 entry while cumulative target-116 source places 4.7 before both.'],
+    [11257, ['src/utils/swarm/It2SetupPrompt.tsx'], 'The it2 API-instructions success step renders the shared success StatusIcon with trailing space before the exact installation text and preserves the instruction list and verification prompt.'],
+    [11260, ['src/utils/swarm/It2SetupPrompt.tsx'], 'The completed it2 verification step renders the shared success StatusIcon with trailing space before the exact split-pane-ready text and teammate guidance.'],
+    [11417, ['src/utils/plugins/orphanedPluginFilter.ts'], 'The orphaned-plugin filter initializes one session-scoped cache with cachedExclusions set to null.'],
+    [11418, ['src/utils/plugins/orphanedPluginFilter.ts'], 'The orphaned-plugin filter gates non-overlapping paths, scans hidden .orphaned_at markers to depth four without ignore rules, maps version directories to portable exclusion globs, caches success and failure, and exposes explicit cache clearing.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.107-to-2.1.108:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'it2-orphaned-plugin-target-fragment',
+        'it2-orphaned-plugin-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.107-to-2.1.108:18365', {
+    paths: ['src/hooks/usePluginRecommendationBase.tsx'],
+    evidenceIds: [
+      'plugin-recommendation-status-icon-target-fragment',
+      'plugin-recommendation-status-icon-semantic-test',
+    ],
+    behavior: 'The shared plugin recommendation installer replaces the raw figures.tick success marker with the design-system StatusIcon configured for success and trailing space, while preserving plugin lookup, installation, success notification, and failure logging.',
+  }],
+  ...[
+    [15101, 'The AnimatedClawd controller owns autoplay, named jump/look/celebrate sequences, reduced-motion completion, sequence advancement, loop-or-stop behavior, and final-pose retention.'],
+    [15102, 'The animation frame renderer selects the exact target sprite frame and preserves the configured color and terminal layout.'],
+    [15103, 'The target animation initializer binds the recovered frame renderer and controller graph.'],
+    [15104, 'The exported AnimatedClawd component exposes the target props and drives the authenticated controller and frame renderer.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.107-to-2.1.108:${targetIndex}`,
+    {
+      paths: ['src/components/LogoV2/AnimatedClawd.tsx'],
+      evidenceIds: [
+        'animated-clawd-target-fragment',
+        'animated-clawd-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [5405, ['src/ink/focus.ts'], 'The focus manager owns directional geometry, focus subscriptions, previous/next focus events, click focus, and a boolean focusDirection result.'],
+    [5650, ['src/ink/events/click-event.ts'], 'ClickEvent carries the hyperlink target and an explicit defaultAllowed state whose allowDefault method opts into terminal hyperlink fallback.'],
+    [5652, ['src/ink/hit-test.ts'], 'Click dispatch performs hit testing, local-coordinate propagation, bubbling and immediate-stop handling, focus transfer, and returns whether default hyperlink opening is suppressed.'],
+    [5820, ['src/ink/hooks/use-focus.ts', 'src/ink/focus.ts'], 'The focus hook subscribes to active-element changes and exposes focus, blur, and return-valued directional navigation against the active Ink root.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.107-to-2.1.108:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'ink-focus-click-target-fragment',
+        'ink-focus-click-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [13975, ['src/components/design-system/Tabs.tsx', 'src/ink/hooks/use-focus.ts'], 'Tabs subscribes to Ink focus state, owns independent header focus/blur, opt-in content navigation, controlled and uncontrolled tab changes, and the target width/layout behavior.'],
+    [11226, ['src/utils/teleport.tsx'], 'Teleport session-not-found handling records the exact 404 telemetry and includes /status account guidance in both the raw error message and the dimmed display message.'],
+    [15229, ['src/components/LogSelector.tsx'], 'LogSelector derives its effective columns from forceWidth when supplied and passes that width to the target-108 Divider; cumulative target-116 source retains the same sizing input through the later Pane surface.'],
+    [16276, ['src/commands/team-onboarding.ts', 'src/commands.ts'], 'The team-onboarding owner scans session usage, selects/clamps target configuration, renders the exact guide prompt, reports invocation/generation telemetry, and returns the raw discovery arm after environment overrides.'],
+    [18791, ['src/skills/bundled/skillify.ts', 'src/skills/bundled/index.ts'], 'The complete Skillify interview and SKILL.md-authoring prompt, user/session context construction, Ant-only gate, command metadata, and bundled registration are authored source.'],
+    [18798, ['src/skills/bundled/updateConfig.ts'], 'The update-config skill owns the exact settings reference, hook schema, verification workflow, safe pipe-test guidance, and command prompt assembly.'],
+    [18924, ['src/skills/bundled/claudeApi.ts'], 'Claude API prompt construction strips the generated reading-guide placeholder before output, selects language documents or the all-language fallback, appends the web-fetch tail and user request, and joins sections exactly.'],
+    [18927, ['src/skills/bundled/claudeApi.ts', 'src/skills/bundled/index.ts'], 'The bundled Claude API skill owns the exact target trigger/skip routing predicate and remains registered through the bundled-skill initializer.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.107-to-2.1.108:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'authored-surface-target-fragment',
+        'authored-surface-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.107-to-2.1.108:16088', {
+    paths: ['src/commands/update/update.ts', 'src/utils/relaunch.ts'],
+    evidenceIds: [
+      'update-relaunch-target-fragment',
+      'update-relaunch-semantic-test',
+    ],
+    behavior: 'The target updater resolves the launcher, resumes the current session, forwards assistant-team identity only for assistant-* teams, marks shutdown, bounds flush and cleanup to two seconds, announces the version transition, refs the child, forwards termination signals, and mirrors close or error exit behavior.',
+  }],
+  ...[
+    [7071, 'The target consolidates SessionMemory defaults and mutable fields into one module-local state object; the source keeps the same isolated defaults in independent module-local bindings.'],
+    [7072, 'The last-summarized-message setter assigns the supplied string or undefined to isolated SessionMemory state.'],
+    [7073, 'Extraction start records Date.now() in isolated SessionMemory state.'],
+    [7074, 'Extraction completion clears the isolated extraction timestamp.'],
+    [7076, 'Partial SessionMemory configuration updates merge over the existing configuration without resetting unspecified fields.'],
+    [7077, 'SessionMemory configuration reads return a defensive shallow copy rather than the mutable state object.'],
+    [7078, 'Extraction accounting records the supplied current context-token count.'],
+    [7079, 'The initialization predicate reads the isolated initialized flag.'],
+    [7080, 'Initialization marks the isolated initialized flag true.'],
+    [7081, 'The initialization threshold compares current context tokens against minimumMessageTokensToInit.'],
+    [7082, 'The update threshold compares growth since the prior extraction against minimumTokensBetweenUpdate.'],
+    [7083, 'Tool-call update cadence returns the configured toolCallsBetweenUpdates value.'],
+    [7085, 'The SessionMemory initializer installs the exact 10000-token initialization, 5000-token update, and three-tool-call defaults with cleared IDs, timestamps, token counts, and initialized state.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.107-to-2.1.108:${targetIndex}`,
+    {
+      paths: ['src/services/SessionMemory/sessionMemoryUtils.ts'],
+      evidenceIds: [
+        'session-memory-target-fragment',
+        'session-memory-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...Array.from({ length: 22 }, (_, offset) => {
+    const targetIndex = 14088 + offset
+    return [
+      `2.1.107-to-2.1.108:${targetIndex}`,
+      {
+        paths: ['src/components/Settings/UsageContributors.tsx'],
+        evidenceIds: [
+          'usage-contributors-target-fragment',
+          'usage-contributors-semantic-test',
+        ],
+        behavior: 'The target 2.1.108 usage-contributor scanner and UI owner implements its model weighting, transcript discovery/parsing/deduplication, five cost classifiers, exact thresholds, feature/subscription gates, suspense/error states, and period controls.',
+      },
+    ]
+  }),
+  ...[
+    [7561, ['src/keybindings/defaultBindings.ts'], 'The Settings keybinding context maps d and w to the contributor day/week period actions beside the inherited retry binding.'],
+    [7574, ['src/keybindings/schema.ts'], 'The target keybinding action schema admits settings:periodDay and settings:periodWeek so the recovered Usage controls are configurable and valid.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.107-to-2.1.108:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'usage-contributors-target-fragment',
+        'usage-contributors-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.107-to-2.1.108:14111', {
+    paths: [
+      'src/components/Settings/Usage.tsx',
+      'src/components/Settings/UsageContributors.tsx',
+    ],
+    evidenceIds: [
+      'usage-contributors-target-fragment',
+      'usage-contributors-semantic-test',
+    ],
+    behavior: 'The Usage screen mounts the authenticated target 2.1.108 contributor scanner beneath utilization, preserving its max-width calculation and the existing usage/extra-usage flow.',
+  }],
+  ...[
+    [12322, ['src/tools/PowerShellTool/prompt.ts'], 'The PowerShell prompt owns the exact target Start-Sleep guidance, including short-delay fallback wording without a stale numeric range.'],
+    [12338, ['src/tools/PowerShellTool/PowerShellTool.tsx'], 'The PowerShell detector parses leading Start-Sleep/sleep decimal seconds, permits durations below two seconds, and reports the remaining command with target formatting.'],
+    [12343, ['src/tools/PowerShellTool/PowerShellTool.tsx'], 'PowerShell validation invokes the detector only when Monitor/background execution is available and returns the exact until-loop rejection, bash caveat, background alternative, error code, and anti-chaining guidance.'],
+    [12613, ['src/tools/BashTool/prompt.ts'], 'The Bash prompt owns the exact target Monitor until-loop guidance and the non-Monitor short-delay fallback without a stale numeric range.'],
+    [12621, ['src/tools/BashTool/BashTool.tsx'], 'The Bash detector parses the leading standalone sleep decimal, permits durations below two seconds, and reports the remaining command with target formatting.'],
+    [12626, ['src/tools/BashTool/BashTool.tsx'], 'Bash validation invokes the detector only when Monitor/background execution is available and returns the exact until-loop rejection, background alternative, error code, and anti-chaining guidance.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.107-to-2.1.108:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: ['sleep-monitor-target-fragment', 'sleep-monitor-semantic-test'],
+      behavior,
+    },
+  ]),
+  ...[
+    [13895, ['src/commands/clear/index.ts'], 'The target command metadata describes /clear as discarding the current conversation and context while retaining reset/new aliases and the lazy local-command loader.'],
+    [13985, ['src/components/design-system/Table.tsx'], 'The Table initializer binds the target React, terminal-width, text-width, clamp, and design-system dependencies used by the reusable table graph.'],
+    [13986, ['src/components/design-system/Table.tsx'], 'Table border-width calculation returns the exact grid, simple, minimal, and plain separator costs for an arbitrary column count.'],
+    [13987, ['src/components/design-system/Table.tsx'], 'Table cell classification accepts string, number, and React Fragment values as text-like cells.'],
+    [13988, ['src/components/design-system/Table.tsx'], 'Text-like cells inherit the target dim and bold column/header styling while arbitrary React nodes pass through unchanged.'],
+    [13989, ['src/components/design-system/Table.tsx'], 'Cell measurement recursively extracts rendered text and measures terminal display width rather than JavaScript string length.'],
+    [13990, ['src/components/design-system/Table.tsx'], 'Column sizing combines header/body maxima, fixed and min/max clamps, proportional ratios, table borders, remaining width, and deterministic leftover allocation.'],
+    [13991, ['src/components/design-system/Table.tsx'], 'Interior separators render a dim vertical rule for grid/simple tables and fixed spacer width for minimal/plain tables.'],
+    [13992, ['src/components/design-system/Table.tsx'], 'Outer cell sides render the exact grid bars, simple spaces, or no side marker required by each box style.'],
+    [13993, ['src/components/design-system/Table.tsx'], 'Horizontal rules emit target minimal segments, simple intersections, or grid top/header/bottom glyph triples at computed widths.'],
+    [13994, ['src/components/design-system/Table.tsx'], 'Grid/simple rule segments repeat the horizontal line glyph for each cell width plus its two padding columns.'],
+    [13995, ['src/components/design-system/Table.tsx'], 'Minimal horizontal rules retain the target two-column separator spacing between exact-width dim line segments.'],
+    [13996, ['src/components/design-system/Table.tsx'], 'Row rendering applies per-column widths and alignment, header styling, separators, sides, and stable cell keys for target layout.'],
+    [13997, ['src/components/design-system/Table.tsx'], 'Table.Row is the transparent child wrapper consumed by the Table root.'],
+    [13998, ['src/components/design-system/Table.tsx'], 'The Table root normalizes child rows, detects headers, computes widths from terminal or forced width, and renders top/header/body/bottom structure for every box style.'],
+    [13999, ['src/components/design-system/Table.tsx'], 'Header extraction returns each column header for the shared row renderer.'],
+    [14000, ['src/components/design-system/Table.tsx'], 'Header detection treats only defined header values as enabling the table header row.'],
+    [14001, ['src/components/design-system/Table.tsx'], 'Row extraction converts each Table.Row child collection into the cell array used for measurement and rendering.'],
+    [14002, ['src/components/design-system/Table.tsx'], 'Table constants pin the target alignment mapping and two-column minimal separator width.'],
+    [14003, ['src/components/design-system/Table.tsx'], 'The module exports the callable Table component with its Row member after binding the target alignment map.'],
+    [14527, ['src/constants/github-app.ts'], 'The GitHub workflow constants own the exact Claude workflow name, action version, triggers, prompt, and code-review plugin configuration.'],
+    [14560, ['src/commands/install-github-app/SuccessStep.tsx'], 'The installation success screen uses the shared success icon and distinguishes workflow creation, reused secret, newly saved secret, skipped workflow, and next-step guidance.'],
+    [14648, ['src/components/mcp/MCPStdioServerMenu.tsx'], 'The MCP stdio server menu renders command, arguments, environment, and config location through the recovered plain two-column Table while preserving enable/disable and tool navigation actions.'],
+    [15137, ['src/components/LogoV2/LogoV2.tsx'], 'The startup warning enumerates every prompt-cache disabling environment variable and renders the exact latency/token-cost and disable-variable guidance.'],
+    [15287, ['src/services/api/ultrareviewQuota.ts'], 'Ultrareview preflight honors the fixture, essential-traffic and authentication blocks, calls the target endpoint with a five-second deadline, and rejects schema-invalid responses.'],
+    [15289, ['src/services/api/ultrareviewQuota.ts'], 'The preflight schema admits exactly proceed, confirm, and blocked results with nullable billing, confirmation, and action fields.'],
+    [15291, ['src/commands/review/reviewRemote.ts'], 'Preflight interpretation maps proceed, blocked, and one-time confirmation into launch control with exact telemetry, fallback messages, action URL, and billing note behavior.'],
+    [15292, ['src/commands/review/reviewRemote.ts'], 'Remote review launch enforces eligibility and repository state, resolves PR/branch scope, applies target fleet configuration, launches and registers the remote task, and returns exact user-facing failures and metadata.'],
+    [15346, ['src/commands/review/UltrareviewOverageDialog.tsx'], 'The Ultrareview dialog initializer binds telemetry, settings, policy, remote-scope, link, selection, and React dependencies.'],
+    [15347, ['src/commands/review/UltrareviewOverageDialog.tsx'], 'The outer launch dialog records launch visibility, persists one-time terms on proceed, owns a stable abort controller, prevents duplicate launch, and cancels in-flight work.'],
+    [15348, ['src/commands/review/UltrareviewOverageDialog.tsx'], 'Proceeding through terms sets hasSeenUltrareviewTerms exactly once without mutating unrelated configuration.'],
+    [15350, ['src/commands/review/UltrareviewOverageDialog.tsx'], 'Terms visibility is initialized from the negation of the persisted hasSeenUltrareviewTerms flag.'],
+    [15351, ['src/commands/review/UltrareviewOverageDialog.tsx'], 'The selection dialog awaits repository scope, renders target fleet and billing copy, links web documentation, exposes proceed/cancel choices, and disables launch while pending.'],
+    [15353, ['src/commands/review/UltrareviewOverageDialog.tsx'], 'The selection-dialog initializer binds the exact target scope, policy, configuration, and display dependencies.'],
+    [15355, ['src/commands/review/ultrareviewCommand.tsx'], 'The Ultrareview command module exposes its target callable command implementation.'],
+    [15357, ['src/commands/review/ultrareviewCommand.tsx'], 'Command execution launches the prepared remote review, respects abort, emits query-visible launch output with non-repetition metadata, and reports the exact fallback failure.'],
+    [15358, ['src/commands/review/ultrareviewCommand.tsx'], 'The command applies preflight blocked/admin/extra-usage handling, confirmation versus proceed copy, billing access checks, cancellation, and task-notification guidance.'],
+    [15359, ['src/commands/review/ultrareviewCommand.tsx'], 'The command initializer binds the target preflight, remote launch, billing, dialog, and React dependencies.'],
+    [19236, ['src/cli/handlers/autoMode.ts', 'src/main.tsx'], 'Auto-mode defaults/config/critique handlers render through a supplied Ink Root, await exit, preserve one-shot/error output, and every main command registration supplies a fresh subcommand root.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.107-to-2.1.108:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'ui-command-target-fragment',
+        'ui-command-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.110-to-2.1.111:6259', {
+    paths: ['src/utils/imageLimits.ts'],
+    evidenceIds: [
+      'image-model-limits-target-fragment',
+      'image-model-limits-semantic-test',
+    ],
+    behavior: 'The canonical-model override map adds Claude Opus 4.7 at 2576 by 2576 pixels while inheriting the target110 provider/base64 selector and its reachable call graph unchanged.',
+  }],
+  ['2.1.110-to-2.1.111:2615', {
+    paths: [
+      'src/utils/settings/types.ts',
+      'src/utils/managedEnvConstants.ts',
+    ],
+    evidenceIds: [
+      'proxy-auth-helper-target-fragment',
+      'proxy-auth-helper-semantic-test',
+    ],
+    behavior: 'Settings expose the optional proxyAuthHelper command, classify it as a trust-sensitive managed setting, and preserve project/local provenance for the startup safety decision.',
+  }],
+  ...Array.from({ length: 10 }, (_, offset) => 3019 + offset).map(targetIndex => [
+    `2.1.110-to-2.1.111:${targetIndex}`,
+    {
+      paths: ['src/utils/proxy.ts'],
+      evidenceIds: [
+        'proxy-auth-helper-target-fragment',
+        'proxy-auth-helper-semantic-test',
+      ],
+      behavior: 'The proxy runtime safely selects, executes, validates, caches, clears, and prewarms a configured Proxy-Authorization helper with the exact feature gate, TTL, timeout, environment marker, and diagnostic behavior.',
+    },
+  ]),
+  ['2.1.110-to-2.1.111:9504', {
+    paths: ['src/services/api/withRetry.ts'],
+    evidenceIds: [
+      'proxy-auth-helper-target-fragment',
+      'proxy-auth-helper-semantic-test',
+    ],
+    behavior: 'A 407 API response clears the cached proxy-auth value and becomes retryable only when a proxy-auth helper is configured, without weakening the surrounding retry policy.',
+  }],
+  ['2.1.110-to-2.1.111:13853', {
+    paths: ['src/setup.ts'],
+    evidenceIds: [
+      'proxy-auth-helper-target-fragment',
+      'proxy-auth-helper-semantic-test',
+    ],
+    behavior: 'Startup resolves project and local proxyAuthHelper provenance, requires accepted trust for those scopes, configures the helper, and prefetches it only when safe.',
+  }],
+  ...[
+    [2529, ['src/utils/env.ts'], 'Deployment detection checks the exact target order for Coder, DevPod, Daytona, Google Cloud Workstations, and AWS Cloud9 before the inherited Replit and cloud-platform branches.'],
+    [5251, ['src/ink/colorize.ts'], 'Known truecolor terminal promotion respects TTY, NO_COLOR, FORCE_COLOR, and pre-separator command-line disable arguments before raising Chalk to level three.'],
+    [5256, ['src/ink/colorize.ts'], 'The color module initializer owns the exact disable/force argument sets, known truecolor terminal set, and no-color, xterm.js, terminal, then tmux initialization order.'],
+    [5597, ['src/ink/terminal.ts'], 'Synchronized-output support uses the exact target terminal-program allowlist, Konsole 21.12 threshold, kitty/Ghostty/foot/Alacritty/Zed/Windows markers, and VTE 0.68 threshold while rejecting tmux.'],
+    [6050, ['src/utils/imageResizer.ts'], 'Image-block conversion fixes the final post-resize payload budget at 512000 raw bytes while retaining the inherited API image limits.'],
+    [6055, ['src/utils/imageResizer.ts'], 'Oversized image blocks perform at most five JPEG quality-search attempts, preserve the smallest result, and avoid an unnecessary first conversion for JPEG inputs.'],
+    [6139, ['src/commands/terminalSetup/terminalSetup.tsx'], 'Terminal.app setup derives the macOS major version from Darwin, skips obsolete Option-as-Meta setup on macOS 27+, and reports the exact Shift+Return versus Option+Enter result.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'target110-surface-target-fragment',
+        'target110-surface-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [6050, ['src/utils/imageLimits.ts', 'src/utils/imageResizer.ts'], 'The target constants and image-block conversion jointly own the 5 MiB default, 10 MiB gated maximum, 3/4 raw-size derivation, and the independent 512000-byte post-resize image-block budget.'],
+    [6228, ['src/utils/imageLimits.ts'], 'The dynamic selector combines the first-party provider maximum with canonical-model overrides, derives targetRawSize from the effective base64 limit, and returns the shared default object when no override is active.'],
+    [6229, ['src/utils/imageLimits.ts'], 'The provider maximum rises to 10 MiB only for the first-party provider, a first-party Anthropic base URL, and the false-default tengu_crimson_vector gate; every other branch retains 5 MiB.'],
+    [6231, ['src/utils/imageLimits.ts'], 'The target110 model override table is deliberately empty; target111 adds the Opus 4.7 dimensions in the following case.'],
+    [6234, ['src/hooks/usePasteHandler.ts', 'src/utils/imageLimits.ts', 'src/utils/imagePaste.ts', 'src/ink/events/keyboard-event.ts', 'src/ink/events/paste-event.ts'], 'The paste hook owns the focus-scoped KeyboardEvent and PasteEvent handlers and selects one current model/provider image limit for clipboard and every path image in the paste batch.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'dynamic-image-limits-target-fragment',
+        'dynamic-image-limits-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [15206, ['src/components/LogoV2/AnimatedAsterisk.tsx'], 'The animated asterisk honors reduced-motion settings, runs two 1500ms hue sweeps on the shared animation clock, settles to the target grey, and cancels its completion timer on unmount.'],
+    [15209, ['src/components/LogoV2/FullscreenUpsell.tsx'], 'The fullscreen-upsell gate is controlled by tengu_ochre_hollow and fails closed behind explicit environment, renderer, and three-view limits.'],
+    [15210, ['src/components/LogoV2/FullscreenUpsell.tsx'], 'The fullscreen-upsell decision gives the explicit force environment override precedence, suppresses fullscreen sessions, and bounds persisted impressions.'],
+    [15212, ['src/components/LogoV2/FullscreenUpsell.tsx'], 'Recording an upsell increments the persisted count transactionally and emits tengu_fullscreen_upsell_shown with the resulting count.'],
+    [15213, ['src/components/LogoV2/FullscreenUpsell.tsx'], 'The compact upsell renders the animated asterisk, exact flicker-free copy, and /tui fullscreen command.'],
+    [15214, ['src/components/LogoV2/FullscreenUpsell.tsx'], 'The post-relaunch notice distinguishes fullscreen and default renderers and renders the exact mouse, collapsed-result, selection-copy, and rollback guidance.'],
+    [15225, ['src/components/LogoV2/CondensedLogo.tsx', 'src/components/LogoV2/FullscreenUpsell.tsx'], 'The condensed logo suppresses competing upsells, records an eligible fullscreen impression, and mounts the switch notice or fullscreen upsell in the target order.'],
+    [15645, ['src/commands/tui/tui.ts'], 'The /tui implementation parses default/fullscreen, reports current and invalid renderer states, persists the selected setting, emits telemetry, and relaunches with the exact renderer environment while dropping override flags.'],
+    [15646, ['src/commands/tui/tui.ts', 'src/commands/tui/index.ts'], 'The TUI command module initializes the exact ordered renderer choices and its implementation export.'],
+    [15648, ['src/commands/tui/index.ts'], 'The command registry exposes /tui with the exact description, argument hint, noninteractive policy, and lazy implementation loader.'],
+    [16299, ['src/commands/focus.ts'], 'The /focus command toggles AppState and persisted briefTranscript consistently, emits the exact enabled/disabled system message, and is gated to the fullscreen renderer.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'target110-ui-target-fragment',
+        'target110-ui-semantic-test',
+        ...([15206, 15213].includes(targetIndex)
+          ? [
+              'fullscreen-animated-asterisk-target-fragment',
+              'fullscreen-animated-asterisk-semantic-test',
+            ]
+          : []),
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.109-to-2.1.110:7789', {
+    paths: ['src/utils/plugins/pluginLoader.ts'],
+    evidenceIds: [
+      'plugin-manifest-dependencies-target-fragment',
+      'plugin-manifest-dependencies-semantic-test',
+    ],
+    behavior: 'Plugin component metadata keeps only the agent and subagentStatusLine allowlisted keys when copying plugin agent definitions.',
+  }],
+  ['2.1.109-to-2.1.110:17871', {
+    paths: ['src/utils/subagentStatusLine.ts'],
+    evidenceIds: [
+      'plugin-settings-readiness-target-fragment',
+      'plugin-settings-readiness-semantic-test',
+    ],
+    behavior: 'Subagent status-line configuration resolves from policy settings in managed mode and from the effective merged setting otherwise.',
+  }],
+  ['2.1.109-to-2.1.110:17872', {
+    paths: ['src/utils/subagentStatusLine.ts'],
+    behavior: 'The status-line runner sends visible task identity, state, elapsed context, token samples, cwd, and terminal width as JSON; it enforces trust and disable gates, a 5s timeout, environment/cwd rules, and validates one JSON decoration per output line.',
+  }],
+  ['2.1.109-to-2.1.110:18005', {
+    paths: ['src/hooks/useSubagentStatusLine.ts'],
+    behavior: 'The polling hook samples active agent token counts, runs immediately and periodically without overlap, retains only decorations for still-visible task IDs, clears stale state, and retriggers after an in-flight poll if tasks remain.',
+  }],
+  ['2.1.109-to-2.1.110:12203', {
+    paths: ['src/tools/PushNotificationTool/UI.tsx'],
+    evidenceIds: ['push-remote-target-fragment', 'push-remote-semantic-test'],
+    behavior: 'PushNotification result rendering distinguishes disabled preference, active user, inactive bridge, terminal-only delivery, and combined terminal/mobile delivery with exact command links.',
+  }],
+  ['2.1.109-to-2.1.110:12209', {
+    paths: [
+      'src/tools/PushNotificationTool/PushNotificationTool.ts',
+      'src/tools/PushNotificationTool/prompt.ts',
+    ],
+    evidenceIds: ['push-remote-target-fragment', 'push-remote-semantic-test'],
+    behavior: 'The target PushNotification tool owns its strict proactive schema, preference/presence/bridge gates, terminal and mobile delivery, sent-at replay metadata, telemetry, result mapping, and conservative notification prompt.',
+  }],
+  ...[
+    [363, ['src/bootstrap/state.ts'], 'The shared bootstrap state exposes the active Remote Control bridge bit used to suppress mobile delivery while the outbound-only bridge is disconnected.'],
+    [8908, ['src/tools/PushNotificationTool/PushNotificationTool.ts'], 'The deferred PushNotification tool module initializes the target strict schema, runtime implementation, and rendering owner.'],
+    [8909, ['src/components/Settings/Config.tsx'], 'The Config surface reads and writes the proactive and input-needed mobile notification preferences behind their target feature gates.'],
+    [8911, ['src/tools/PushNotificationTool/prompt.ts'], 'The model-facing tool prompt constrains notifications to genuinely actionable updates and a single plain-text line under 200 characters.'],
+    [12199, ['src/tools/PushNotificationTool/UI.tsx'], 'The PushNotification UI maps every disabled and delivery outcome to the target user-visible status and command links.'],
+    [12265, ['src/tools.ts'], 'The deferred tool registry exposes PushNotification only when its lazy module resolves, retaining the target tool ordering.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: ['push-remote-target-fragment', 'push-remote-semantic-test'],
+      behavior,
+    },
+  ]),
+  ...[
+    [14145, 'The notification-preference endpoint builder targets the authenticated Claude.ai account API.'],
+    [14146, 'Preference request headers enforce privacy, refreshed OAuth, the target beta header, and the Claude Code user agent.'],
+    [14147, 'The fetch owner applies the 10-second deadline and exact classified diagnostic failure path.'],
+    [14148, 'The patch owner applies the same authenticated deadline and exact success/failure diagnostics.'],
+    [14149, 'Local agent and input-needed preferences map to the server bogosort and code_requires_action feature keys.'],
+    [14150, 'Config synchronization sends only explicitly persisted local notification preferences.'],
+    [14151, 'Hydration publishes mobile reachability, logs telemetry, seeds only undefined local values, and signals Config subscribers.'],
+    [14153, 'Rollback maps the original dialog values back to account feature preferences without overwriting later hydration state.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths: ['src/services/notificationPreferences.ts'],
+      evidenceIds: [
+        'notification-preferences-target-fragment',
+        'notification-preferences-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[14160, 14163, 14164].map(targetIndex => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths: ['src/components/Settings/Config.tsx'],
+      evidenceIds: [
+        'notification-preferences-target-fragment',
+        'notification-preferences-semantic-test',
+      ],
+      behavior: ({
+        14160: 'The Config screen gates account-backed push settings by feature, authentication, privacy, and access token; captures originals, synchronizes toggles, rolls back cancellation, and renders reachability warnings.',
+        14163: 'The reachability warning is suppressed for a reachable mobile channel and otherwise renders the exact no-mobile download guidance.',
+        14164: 'The Config initializer binds the recovered notification service, reachability subscription, account link, privacy, auth, and feature-gate owners.',
+      })[targetIndex],
+    },
+  ]),
+  ['2.1.109-to-2.1.110:17325', {
+    paths: [
+      'src/bridge/initReplBridge.ts',
+      'src/bridge/clientPresence.ts',
+      'src/bridge/persistenceSync.ts',
+      'src/bridge/replBridge.ts',
+      'src/bridge/replBridgeTransport.ts',
+      'src/bridge/remoteBridgeCore.ts',
+      'src/services/notificationPreferences.ts',
+      'src/utils/sessionStorage.ts',
+      'src/bridge/codeSessionApi.ts',
+      'src/bridge/gitSessionContext.ts',
+      'src/utils/git/gitFilesystem.ts',
+    ],
+    evidenceIds: [
+      'notification-preferences-target-fragment',
+      'notification-preferences-semantic-test',
+      'git-branch-metadata-target-fragment',
+      'git-branch-metadata-semantic-test',
+    ],
+    behavior: 'The complete target110 bridge initializer coordinates writer-only transcript persistence with generation-safe teardown, wires client presence and cleanup, hydrates account notification preferences only after v1 session establishment behind feature/privacy gates, and passes the current repository and branch into the env-less session so its branch metadata remains live.',
+  }],
+  ...[
+    [13859, 'The remote-workflow command factory binds a trimmed prompt and selected workflow to the asynchronous spawner component.'],
+    [13860, 'The remote-workflow spawner validates task text and remote eligibility, upstream and unpushed state, launches and registers the remote task with exact source metadata, and archives on cancellation.'],
+    [13862, 'The spawner initializer owns the authenticated checking/spawning labels and its remote-session, git, telemetry, and React dependencies.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths: ['src/commands/remote-workflows/spawner.tsx'],
+      evidenceIds: ['push-remote-target-fragment', 'push-remote-semantic-test'],
+      behavior,
+    },
+  ]),
+  ...[
+    [13863, 'Each historical remote-workflow command is hidden unless local, Claude.ai-authenticated, and policy-allowed, and lazily dispatches its selected workflow.'],
+    [13865, 'The historical target110 registry defines exactly autopilot, bugfix, dashboard, docs, and investigate with their target descriptions and exports the mapped command set.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.109-to-2.1.110:${targetIndex}`,
+    {
+      paths: ['src/commands/remote-workflows/index.ts'],
+      evidenceIds: ['push-remote-target-fragment', 'push-remote-semantic-test'],
+      behavior,
+    },
+  ]),
+  ['2.1.107-to-2.1.108:18870', {
+    paths: ['src/skills/bundled/claude-api/SKILL.md'],
+    behavior: 'The bundled claude-api skill prompt carries the target 2.1.108 thinking, effort, reading-order, and 4.6-family compatibility guidance byte-for-byte.',
+  }],
+  ['2.1.107-to-2.1.108:18876', {
+    paths: ['src/skills/bundled/claude-api/shared/live-sources.md'],
+    behavior: 'The target 2.1.108 live documentation source catalog is preserved as an authored bundled-skill document.',
+  }],
+  ['2.1.107-to-2.1.108:18894', {
+    paths: ['src/skills/bundled/claude-api/shared/models.md'],
+    behavior: 'The target 2.1.108 Claude model catalog and model-selection guidance are preserved as authored bundled-skill content.',
+  }],
+  ['2.1.107-to-2.1.108:18927', {
+    paths: ['src/skills/bundled/claudeApi.ts', 'src/skills/bundled/index.ts'],
+    evidenceIds: [
+      'authored-surface-target-fragment',
+      'authored-surface-semantic-test',
+    ],
+    behavior: 'Claude API skill routing uses the compact target trigger/skip predicate for Anthropic SDK, Managed Agents, model, caching, and provider-neutral requests.',
+  }],
+  ['2.1.109-to-2.1.110:10535', {
+    paths: ['src/commands/provider-setup/relaunch.ts'],
+    behavior: 'Provider setup relaunch forwards the original CLI argv, severs inherited TTY input, propagates termination signals, mirrors exit status, and reports spawn errors.',
+  }],
+  ['2.1.109-to-2.1.110:15641', {
+    paths: ['src/utils/relaunch.ts'],
+    behavior: 'The general TUI relaunch path flushes state, sanitizes relaunch environment, resumes the session when appropriate, severs inherited TTY input, and mirrors child termination.',
+  }],
+  ['2.1.110-to-2.1.111:4614', {
+    paths: ['src/utils/betas.ts'],
+    behavior: 'Structured-output eligibility includes canonical claude-opus-4-7 identifiers alongside the existing supported Claude 4 model families.',
+  }],
+  ['2.1.110-to-2.1.111:4615', {
+    paths: ['src/utils/betas.ts'],
+    behavior: 'Auto-mode model validation accepts configured allow-list aliases and claude-opus-4-7 for first-party and Anthropic-on-AWS providers.',
+  }],
+  ['2.1.110-to-2.1.111:10581', {
+    paths: ['src/commands/provider-setup/relaunch.ts'],
+    behavior: 'Provider setup yields through setImmediate before spawning, then preserves argv forwarding, TTY severing, signal forwarding, exit propagation, and spawn-error reporting.',
+  }],
+  ...[
+    [19081, 'curl/examples.md'],
+    [19095, 'python/claude-api/README.md'],
+    [19097, 'python/claude-api/streaming.md'],
+    [19105, 'SKILL.md'],
+    [19109, 'shared/error-codes.md'],
+    [19111, 'shared/live-sources.md'],
+    [19113, 'shared/managed-agents-api-reference.md'],
+    [19147, 'shared/model-migration.md'],
+    [19129, 'shared/models.md'],
+    [19131, 'shared/prompt-caching.md'],
+    [19133, 'shared/tool-use-concepts.md'],
+    [19139, 'typescript/claude-api/README.md'],
+    [19141, 'typescript/claude-api/streaming.md'],
+  ].map(([targetIndex, relative]) => [
+    `2.1.110-to-2.1.111:${targetIndex}`,
+    {
+      paths: [`src/skills/bundled/claude-api/${relative}`],
+      ...(targetIndex === 19147
+        ? {
+            evidenceIds: [
+              'case111-residue-matrix-target-fragment',
+              'case111-residue-matrix-semantic-test',
+            ],
+          }
+        : {}),
+      behavior: `The target 2.1.111 embedded claude-api document ${relative} is recovered byte-for-byte from its bundle literal and remains reachable through the skill content map.`,
+    },
+  ]),
+  ['2.1.110-to-2.1.111:19151', {
+    paths: ['src/skills/bundled/claudeApiContent.ts'],
+    behavior: 'Claude API content selects Opus 4.7 as the default model and exposes the model-migration guide through the bundled document map.',
+  }],
+  ['2.1.110-to-2.1.111:19161', {
+    paths: ['src/skills/bundled/claudeApi.ts'],
+    evidenceIds: [
+      'case111-residue-matrix-target-fragment',
+      'case111-residue-matrix-semantic-test',
+    ],
+    behavior: 'Prompt construction makes model-migration guidance reachable from the reading guide while retaining language detection, inline document processing, and user request routing.',
+  }],
+  ['2.1.112-to-2.1.113:8277', {
+    paths: ['src/utils/bash/ast.ts'],
+    behavior: 'Bash AST validation unwraps time/nohup/timeout/nice/env/stdbuf safely, rejects dangerous find actions and command wrappers, and permits only command -v/-V (optionally with -p).',
+  }],
+  ['2.1.112-to-2.1.113:18884', {
+    paths: ['src/utils/subagentStatusLine.ts'],
+    behavior: 'The status-line runner uses the target trust/settings helpers while preserving the trusted-workspace gate, exact task payload, 5s command deadline, environment/cwd handling, and line-by-line validated decoration output.',
+  }],
+  ['2.1.112-to-2.1.113:8279', {
+    paths: ['src/utils/bash/ast.ts'],
+    behavior: 'Static Bash policy tables enumerate dangerous find predicates, newer predicates, evaluative builtins, and command-executing wrappers used by the validator.',
+  }],
+  ['2.1.112-to-2.1.113:8589', {
+    paths: ['src/utils/loopWakeup.ts'],
+    behavior: 'Cancelling a loop prompt removes every matching loop cron; cancelling all loop work removes all loop crons and clears their per-prompt session state.',
+  }],
+  ['2.1.112-to-2.1.113:15101', {
+    paths: ['src/commands/copy/copy.tsx'],
+    evidenceIds: [
+      'case113-direct-owner-representation-static-ast',
+      'case113-direct-owner-representation-semantic-test',
+    ],
+    behavior: 'The copy command exports the table-token Markdown normalizer used before copied assistant output is partitioned into clipboard choices.',
+  }],
+  ['2.1.112-to-2.1.113:15103', {
+    paths: ['src/commands/copy/copy.tsx'],
+    behavior: 'Copy preprocessing discovers fenced code blocks while preserving their language metadata.',
+  }],
+  ['2.1.112-to-2.1.113:15104', {
+    paths: ['src/commands/copy/copy.tsx'],
+    behavior: 'Table cells are reconstructed from their child token raw text before Markdown rendering.',
+  }],
+  ['2.1.112-to-2.1.113:15105', {
+    paths: ['src/commands/copy/copy.tsx'],
+    behavior: 'Markdown table rendering escapes pipes, flattens embedded newlines, computes display widths, and preserves column alignment markers.',
+  }],
+  ['2.1.112-to-2.1.113:15106', {
+    paths: ['src/commands/copy/copy.tsx'],
+    behavior: 'Copy preprocessing replaces each lexer-recognized Markdown table in place while retaining its trailing newline suffix.',
+  }],
+  ['2.1.112-to-2.1.113:15115', {
+    paths: ['src/commands/copy/copy.tsx'],
+    behavior: 'The copy command normalizes Markdown tables before full-response or block-selection clipboard handling and telemetry.',
+  }],
+  ['2.1.112-to-2.1.113:17277', {
+    paths: ['src/commands/exit/exit.tsx'],
+    behavior: 'Exit background-work details distinguish recurring schedules from one-shot cron work and show the latter as a live Runs once in duration.',
+  }],
+  ['2.1.112-to-2.1.113:19449', {
+    paths: ['src/hooks/useAwaySummary.ts'],
+    behavior: 'Away-summary generation observes cache age and focus thresholds, inserts recaps before trailing API metrics, records return telemetry, and skips automatic generation while a prompt draft exists.',
+  }],
+  ['2.1.112-to-2.1.113:19720', {
+    paths: ['src/hooks/useScheduledTasks.ts'],
+    behavior: 'Scheduled loop firings are labeled as loop wakeups, preserve loop-default prompt resolution, and route teammate-owned work without duplicating main-thread execution.',
+  }],
+  ['2.1.114-to-2.1.116:20335', {
+    paths: ['src/skills/bundled/claude-api/SKILL.md'],
+    behavior: 'The target 2.1.116 claude-api prompt adds the migrate subcommand dispatch and exact final Opus 4.7 migration guidance.',
+  }],
+  ['2.1.114-to-2.1.116:20359', {
+    paths: ['src/skills/bundled/claude-api/shared/model-migration.md'],
+    behavior: 'The target 2.1.116 model-migration guide is recovered byte-for-byte, including mandatory scope confirmation and updated breaking-change workflow.',
+  }],
+  ['2.1.114-to-2.1.116:19121', {
+    paths: [
+      'src/components/CoordinatorAgentStatus.tsx',
+      'src/utils/task/framework.ts',
+      'src/utils/queryContext.ts',
+    ],
+    evidenceIds: [
+      'case116-safe-residual-static-ast',
+      'case116-safe-residual-semantic-test',
+    ],
+    behavior: 'The target 2.1.116 coordinator task panel renders custom subagentStatusLine decorations in place of built-in status columns while retaining selection, terminal-task eviction, elapsed/token/queued formatting, and navigation; its target-added task-registry property is proved as exact task-framework/query-context lowering in both authenticated source generations.',
+  }],
+  ['2.1.114-to-2.1.116:7684', {
+    paths: ['src/hooks/useTextInput.ts'],
+    evidenceIds: [
+      'kill-paste-hint-target-fragment',
+      'kill-paste-hint-semantic-test',
+    ],
+    behavior: 'The reducer-backed text input emits an immediate five-second Ctrl+Y discovery hint only when a backward line kill removes at least three characters, after recording the killed text in the shared ring.',
+  }],
+  ['2.1.114-to-2.1.116:2563', {
+    paths: ['src/utils/settings/types.ts'],
+    evidenceIds: [
+      'voice-tap-target-fragment',
+      'voice-tap-semantic-test',
+      'away-summary-setting-description-target-fragment',
+      'away-summary-setting-description-semantic-test',
+    ],
+    behavior: 'The settings schema exposes the target voice object with enabled, hold/tap mode, and autoSubmit fields, and its away-summary description ends at the public-SDK launch note without the stale implementation comment.',
+  }],
+  ['2.1.114-to-2.1.116:17632', {
+    paths: ['src/hooks/useVoice.ts'],
+    evidenceIds: ['voice-tap-target-fragment', 'voice-tap-semantic-test'],
+    behavior: 'The voice hook implements tap-to-toggle recording, re-armed 15-second silence completion, a 120-second hard cap, transcript-driven timer resets, exact debug events, and cancellation cleanup while preserving hold mode.',
+  }],
+  ['2.1.114-to-2.1.116:17633', {
+    paths: ['src/hooks/useVoice.ts'],
+    evidenceIds: ['voice-tap-target-fragment', 'voice-tap-semantic-test'],
+    behavior: 'The voice hook runtime constants pin the target 15,000ms tap silence deadline and 120,000ms maximum tap recording duration beside the inherited hold/focus timing constants.',
+  }],
+  ['2.1.114-to-2.1.116:17637', {
+    paths: ['src/commands/voice/voice.ts'],
+    evidenceIds: ['voice-tap-target-fragment', 'voice-tap-semantic-test'],
+    behavior: 'The formerly inert voice argument parser trims and lowercases input, accepts exactly hold, tap, and off, leaves empty input as toggle behavior, and rejects every other value.',
+  }],
+  ['2.1.114-to-2.1.116:17638', {
+    paths: ['src/commands/voice/voice.ts'],
+    evidenceIds: ['voice-tap-target-fragment', 'voice-tap-semantic-test'],
+    behavior: 'The voice command persists enabled/mode state, handles explicit off and invalid arguments, emits tap_mode telemetry, and reports the exact hold or tap interaction text with the selected mode.',
+  }],
+  ['2.1.114-to-2.1.116:17643', {
+    paths: ['src/commands/voice/index.ts'],
+    evidenceIds: ['voice-tap-target-fragment', 'voice-tap-semantic-test'],
+    behavior: 'The voice command registry advertises the exact [hold|tap|off] argument hint while retaining Claude.ai availability and its growth-book and kill-switch gates.',
+  }],
+  ['2.1.114-to-2.1.116:19965', {
+    paths: [
+      'src/hooks/useVoiceIntegration.tsx',
+      'src/components/PromptInput/PromptInput.tsx',
+    ],
+    evidenceIds: ['voice-tap-target-fragment', 'voice-tap-semantic-test'],
+    behavior: 'Voice transcript integration reads the persisted tap/auto-submit settings, passes mode into the recording hook, exposes cancellation, and submits target-length transcripts through PromptInput with keybinding provenance.',
+  }],
+  ['2.1.114-to-2.1.116:19966', {
+    paths: ['src/hooks/useVoiceIntegration.tsx'],
+    evidenceIds: ['voice-tap-target-fragment', 'voice-tap-semantic-test'],
+    behavior: 'The voice keybinding handler gives tap mode single-press start/stop semantics only on empty input, suppresses repeats and processing input, cancels recording on Escape, and leaves hold-mode repeat detection intact.',
+  }],
+  ['2.1.114-to-2.1.116:20544', {
+    paths: [
+      'src/utils/queryContext.ts',
+      'src/state/AppStateStore.ts',
+    ],
+    evidenceIds: [
+      'query-context-target-fragment',
+      'query-context-semantic-test',
+    ],
+    behavior: 'The side-question fallback context adds the target 2.1.116 live getters for tool permissions, effort, auto-compact window, fast mode, and cache-breaker phrase while preserving the inherited task, hook, approval, REPL, browser, agent-lifecycle, and teammate-color adapters backed by initialized AppState slices.',
+  }],
+  ...[
+    [16643, ['src/utils/background/remote/remoteSession.ts'], 'Remote source preflight concurrently resolves the repository and bundle-seed gate, rejects non-git/unseedable sessions, and requires GitHub-app access only for github.com clones.'],
+    [16644, ['src/utils/background/remote/remoteSession.ts'], 'The remote-source viability initializer binds the exact repository, environment, gate, and GitHub-app dependencies used by the preflight function.'],
+    [16646, ['src/utils/ultraplan/ccrSession.ts'], 'Ultraplan polling tracks received-event count and first/last event times, retries transient network errors, preserves rejection state, and reports exact terminal, extraction, and timeout failures.'],
+    [16651, ['src/utils/ultraplan/ccrSession.ts'], 'UltraplanPollError retains reason, reject count, and target116 event statistics with the exact Error cause chain.'],
+    [16652, [
+      'src/commands/ultraplan.tsx',
+      'src/components/PromptInput/PromptInput.tsx',
+      'src/components/permissions/ExitPlanModePermissionRequest/ExitPlanModePermissionRequest.tsx',
+      'src/utils/processUserInput/processUserInput.ts',
+    ], 'The bundled ULTRAPLAN feature expansion requires the enabled target config and remote-session policy; every authored command, prompt decoration, ExitPlan choice, and keyword call site uses that same gate.'],
+    [16653, [
+      'src/commands/ultraplan.tsx',
+      'src/components/PromptInput/PromptInput.tsx',
+      'src/components/permissions/ExitPlanModePermissionRequest/ExitPlanModePermissionRequest.tsx',
+      'src/utils/processUserInput/processUserInput.ts',
+    ], 'The generated feature-gate initializer binds the target analytics-config and policy inputs consumed by the authored ULTRAPLAN call sites.'],
+    [16671, ['src/commands/ultraplan.tsx'], 'Detached Ultraplan polling emits plan-ready telemetry and meta guidance, records event timing on failure, deletes terminal metadata, distinguishes execution targets, and registers target cleanup.'],
+    [16681, ['src/commands/ultraplan.tsx'], 'The Ultraplan command initializer owns the exact three prompt variants, display configuration, source-aware command metadata, timeout gate, and target116 launch dependencies.'],
+    [16692, ['src/components/ultraplan/UltraplanLaunchDialog.tsx'], 'The Ultraplan launch-dialog initializer binds source preflight, bridge-state reset, policy, telemetry, terms link, and target display configuration.'],
+    [18809, ['src/components/permissions/ExitPlanModePermissionRequest/ExitPlanModePermissionRequest.tsx'], 'ExitPlanMode rejects locally with the complete remote handoff, browser-edit, cloud-ready, and teleport guidance, launches Ultraplan with the explicit exit_plan_mode source, and routes rotating status plus terminal result messages through one shared pending-notification callback.'],
+    [18813, ['src/components/permissions/ExitPlanModePermissionRequest/ExitPlanModePermissionRequest.tsx'], 'The ExitPlan permission initializer binds the source-aware Ultraplan launcher and its inherited permission/runtime dependencies.'],
+    [19329, ['src/components/PromptInput/PromptInput.tsx'], 'PromptInput uses the target ULTRAPLAN gate to identify, color, and announce keyword triggers without activating during an existing or launching remote plan.'],
+    [19333, ['src/components/PromptInput/PromptInput.tsx'], 'The PromptInput initializer binds the recovered target116 Ultraplan trigger, state, notification, and rendering owners.'],
+    [19998, ['src/screens/REPL.tsx'], 'The REPL launch branch forwards the pending source promise and source/argument, restores cancelled input, renders rotating status, and invokes the source-aware launcher without losing concurrent query output.'],
+    [20000, ['src/screens/REPL.tsx'], 'The REPL initializer binds the restored Ultraplan dialogs and complete source-aware launch call path.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'ultraplan-launch-target-fragment',
+        'ultraplan-launch-semantic-test',
+        ...(targetIndex === 18809
+          ? [
+              'ultraplan-handoff-prompt-target-fragment',
+              'ultraplan-handoff-prompt-semantic-test',
+            ]
+          : []),
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [10721, 'The bridge export surface separates account entitlement from per-process availability and exposes the remote-environment predicate.'],
+    [10723, 'The cached bridge gate fails closed before consulting entitlement whenever the process is already inside a remote session.'],
+    [10724, 'The blocking bridge gate likewise suppresses nested remote sessions before its fresh entitlement check.'],
+    [10725, 'The bridge diagnostic returns the exact nested-remote-session explanation ahead of account and rollout failures.'],
+    [10730, 'Remote execution is detected from either the CLAUDE_CODE_REMOTE environment value or the in-memory remote-mode bootstrap state.'],
+    [10733, 'Default Remote Control autoconnection is disabled inside remote sessions while preserving inherited local defaults.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths: ['src/bridge/bridgeEnabled.ts'],
+      evidenceIds: [
+        'bridge-remote-environment-target-fragment',
+        'bridge-remote-environment-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [18919, 'Voice enablement gives the nested settings.voice.enabled value precedence over the legacy flat voiceEnabled setting, then applies the inherited auth and rollout gates.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths: ['src/hooks/useVoiceEnabled.ts'],
+      evidenceIds: [
+        'voice-setting-precedence-target-fragment',
+        'voice-setting-precedence-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [9984, 'The swarm-backend export surface exposes the user-tmux session-list API beside the original captured-tmux predicates.'],
+    [9986, 'The bounded session probe extracts the original tmux socket, invokes list-sessions with the exact format outside cwd routing, and returns only nonempty names or undefined.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths: ['src/utils/swarm/backends/detection.ts'],
+      evidenceIds: [
+        'user-tmux-sessions-target-fragment',
+        'user-tmux-sessions-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [9718, ['src/cost-tracker.ts'], 'The metrics classifier maps main-thread REPL and SDK queries to main, agent and verification/hook-agent queries to subagent, every other defined source to auxiliary, and preserves undefined.'],
+    [9761, ['src/cost-tracker.ts'], 'Session cost and all token counters share the same privacy-bucket query_source attribute, and recursive advisor usage inherits the originating query source.'],
+    [18244, ['src/services/api/claude.ts'], 'Both streaming usage updates and non-streaming fallback accounting pass the live API query source into the shared cost and token metrics owner.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'query-source-metrics-target-fragment',
+        'query-source-metrics-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [10713, ['src/utils/background/remote/preconditions.ts'], 'The git-repository precondition preserves the fast filesystem root check and falls back to a bounded git rev-parse probe when that lookup misses unusual worktree layouts.'],
+    [10718, ['src/utils/background/remote/remoteSession.ts'], 'Remote eligibility awaits the robust repository probe, while bundle seeding still requires the synchronous git-root lookup before skipping remote and GitHub-app checks.'],
+    [16643, ['src/utils/background/remote/remoteSession.ts'], 'The shared remote-source viability helper keeps bundle upload eligibility tied to the synchronous git-root lookup and concurrently resolves repository and feature-gate state.'],
+    [16693, ['src/commands/review/UltrareviewOverageDialog.tsx'], 'Ultrareview consumes the shared remote-source viability promise rather than retaining a divergent private git and GitHub-app implementation.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'remote-git-precondition-target-fragment',
+        'remote-git-precondition-semantic-test',
+        ...(targetIndex === 16643 || targetIndex === 16693
+          ? [
+              'ultraplan-launch-target-fragment',
+              'ultraplan-launch-semantic-test',
+            ]
+          : []),
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    ...Array.from({ length: 8 }, (_, offset) => [
+      18967 + offset,
+      ['src/utils/closedIssues.ts'],
+      'Closed-issue polling, parsing, cache persistence, acknowledgement pruning, and exact daily/privacy gates are recovered as one bounded utility graph.',
+    ]),
+    ...Array.from({ length: 9 }, (_, offset) => [
+      18976 + offset,
+      ['src/components/ClosedIssueNotice.tsx'],
+      'The closed-issue notice gates initialization, deduplicates cached and refreshed closures, formats issue links, acknowledges displayed items, and emits the bounded low-priority notification.',
+    ]),
+    [18986, ['src/components/PromptInput/Notifications.tsx'], 'PromptInput notification content mounts ClosedIssueNotice immediately after auto-updater output and before voice errors.'],
+    [18989, ['src/components/PromptInput/Notifications.tsx'], 'The notification initializer binds the target closed-issue component into the live footer module.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'closed-issue-notice-target-fragment',
+        'closed-issue-notice-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [2501, ['src/entrypoints/sdk/coreTypes.ts'], 'The public hook-event type surface includes UserPromptExpansion in target order.'],
+    [2628, ['src/utils/settings/settings.ts'], 'Settings sanitization/logging admits UserPromptExpansion as a managed hook event.'],
+    [10099, ['src/utils/plugins/loadPluginHooks.ts'], 'Plugin hook conversion initializes the UserPromptExpansion matcher bucket.'],
+    [10106, ['src/utils/plugins/loadPluginHooks.ts'], 'Plugin hook loading retains the UserPromptExpansion event bucket in the effective hook configuration.'],
+    [12543, ['src/utils/hooks.ts'], 'The executor builds the exact expansion input, uses the fast per-session event gate, propagates abort/timeout/tool context, and yields aggregated hook results.'],
+    [12586, ['src/utils/processUserInput/processSlashCommand.tsx'], 'The slash-command module exports the target UserPromptExpansion runner beside the existing prompt processing entrypoints.'],
+    [12587, ['src/utils/processUserInput/processSlashCommand.tsx'], 'Forked prompt commands append expansion-hook messages to the prepared fork context before agent execution.'],
+    [12590, ['src/utils/processUserInput/processSlashCommand.tsx'], 'Prompt slash dispatch runs expansion hooks before the inline/fork branch and returns a hook block without expanding the command.'],
+    [12595, ['src/utils/processUserInput/processSlashCommand.tsx'], 'The expansion runner maps MCP versus slash type, original prompt/source/args, blocking and stop outcomes, additional context, and nonempty hook messages exactly.'],
+    [12597, ['src/utils/processUserInput/processSlashCommand.tsx'], 'Inline expansion appends hook attachments after command attachments and before command-permission metadata, while forked expansion receives the same messages.'],
+    [15002, ['src/utils/messages.ts'], 'UserPromptExpansion hook-success attachments remain visible to the model alongside SessionStart and UserPromptSubmit hook context.'],
+    [17001, ['src/utils/hooks/hooksConfigManager.ts'], 'Hook grouping initializes a matcher map for UserPromptExpansion.'],
+    [17006, ['src/utils/hooks/hooksConfigManager.ts'], 'Hook UI metadata describes the expansion payload, exit semantics, and command_name matcher field.'],
+    [17986, ['src/types/hooks.ts'], 'The internal synchronous hook-output union accepts UserPromptExpansion additionalContext.'],
+    [18066, ['src/utils/hooks.ts'], 'The target hook event registry binds UserPromptExpansion to its executor with every inherited hook event.'],
+    [18068, ['src/utils/hooks.ts'], 'The hook module exports the complete expansion executor/event gate and related runtime surface.'],
+    [18077, ['src/utils/hooks.ts'], 'Hook JSON output parsing accepts UserPromptExpansion only for its expected event and extracts additionalContext.'],
+    [18088, ['src/utils/hooks.ts'], 'Runtime matching selects command_name for UserPromptExpansion before invoking matching hooks.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'user-prompt-expansion-target-fragment',
+        'user-prompt-expansion-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [7704, ['src/ink/focus.ts', 'src/ink/hooks/use-auto-focus.ts'], 'The focus manager publishes focus and removal transitions, and the sticky auto-focus hook immediately focuses then refocuses its component after focus returns from a temporary sibling.'],
+    [16697, ['src/commands/review/UltrareviewOverageDialog.tsx'], 'The Ultrareview dialog derives exact repository-aware scope copy for pull requests, local changes whose head equals base, and distinct head-versus-base branch reviews.'],
+    [16724, ['src/components/design-system/Select.tsx'], 'The Select module initializer binds the shared keybinding, focus, truncation, design-system, and React dependencies used by the target component.'],
+    [16725, ['src/components/design-system/Select.tsx'], 'The Select root implements target keybinding navigation, wrap and clamp modes, page movement, first/last movement, Return selection, sticky focus, empty state, and overflow counters.'],
+    [16726, ['src/components/design-system/Select.tsx'], 'The Select root exports its context-aware Item component through the exact callable component-with-member API.'],
+    [16728, ['src/components/design-system/Select.tsx'], 'Select.Item reads the current selected index, exposes focused state to row renderers, and selects its item on click.'],
+    [16732, ['src/components/skills/SkillsMenu.tsx'], 'The Skills menu uses the shared Select with ten visible rows, a sort-key remount, target sorting, selection, empty-state, and navigation behavior.'],
+    [16733, ['src/components/skills/SkillsMenu.tsx'], 'Each skill row preserves target focus colors, disabled styling, category labels, truncation, and description layout.'],
+    [16735, ['src/components/skills/SkillsMenu.tsx'], 'The Skills module initializer binds the recovered shared Select and target skill-loading, category, and command dependencies.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'select-ultrareview-target-fragment',
+        'select-ultrareview-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.114-to-2.1.116:9937', {
+    paths: ['src/entrypoints/sdk/coreSchemas.ts'],
+    evidenceIds: [
+      'post-turn-summary-target-fragment',
+      'post-turn-summary-semantic-test',
+      'user-prompt-expansion-target-fragment',
+      'user-prompt-expansion-semantic-test',
+    ],
+    behavior: 'The SDK schema initializer owns the exact target UserPromptExpansion input/output and event union alongside the post_turn_summary payload, transcript_mirror transport record, and mirror_error data-loss event schemas.',
+  }],
+  ['2.1.114-to-2.1.116:19347', {
+    paths: ['src/server/directConnectManager.ts'],
+    evidenceIds: ['post-turn-summary-target-fragment', 'post-turn-summary-semantic-test'],
+    behavior: 'Direct-connect routing rejects control, keep-alive, transcript-mirror, and post-turn-summary transport messages before forwarding displayable SDK messages to the REPL.',
+  }],
+  ...Array.from({ length: 12 }, (_, offset) => {
+    const targetIndex = 20531 + offset
+    return [
+      `2.1.114-to-2.1.116:${targetIndex}`,
+      {
+        paths: ['src/services/postTurnSummary.ts'],
+        evidenceIds: ['post-turn-summary-target-fragment', 'post-turn-summary-semantic-test'],
+        behavior: ({
+          20531: 'The post-turn summary module initializer binds the exact target analytics, message, JSON, logging, fork-agent, and schema dependencies.',
+          20532: 'The feature gate enables post-turn summaries only for remote sessions with tengu_ccr_post_turn_summary enabled.',
+          20533: 'Restored metadata is schema-validated and legacy title-only metadata hydrates to review_ready with empty detail and action.',
+          20534: 'The exact target classifier prompt preserves stable titles, explains blocked permission context, constrains JSON-only output, and defines the blocked/review-ready triage fields.',
+          20535: 'Summary response extraction concatenates and trims only assistant text blocks.',
+          20536: 'Response parsing strips optional JSON fences, validates the schema, normalizes completed to review_ready, and returns precise validation or JSON errors.',
+          20537: 'The headless call path registers the asynchronous cache-safe context builder used by permission-blocked summaries.',
+          20538: 'Generation waits two seconds unless blocked, denies all tools, runs a one-turn no-cache/no-transcript fork, and permits exactly two validation nudges.',
+          20539: 'A requires_action transition cancels prior work, builds current context, generates immediately with tool/action context, persists metadata, and isolates aborts/errors.',
+          20540: 'A completed turn summarizes the last assistant UUID, emits the post_turn_summary system event, persists metadata, and skips when no cache-safe context exists.',
+          20541: 'The runtime state pins two validation nudges, a 2000ms delay, one active abort controller, the prior summary, and one registered context builder.',
+          20542: 'The schema initializer requires status category, status detail, title, and needs action and includes the completed compatibility value normalized by the parser.',
+        })[targetIndex],
+      },
+    ]
+  }),
+  ...[
+    [2539, ['src/tools/BriefTool/prompt.ts'], 'Brief mode documents both local file paths and pre-resolved device attachment objects and requires those objects to pass through verbatim.'],
+    [10204, ['src/utils/forkedAgent.ts'], 'Forked tool contexts inherit or override the parent isolation latch while retaining the exact abort, permission, state, and cache-sharing policy.'],
+    [10205, ['src/utils/forkedAgent.ts', 'src/tools/AgentTool/runAgent.ts'], 'A fork creates an isolated child latch seeded from the parent current class and threads it through the complete fork execution context.'],
+    [13098, ['src/tools/BriefTool/attachments.ts'], 'Pre-resolved Brief attachments are distinguished structurally from local path strings.'],
+    [13099, ['src/tools/BriefTool/attachments.ts'], 'Brief validation skips all local filesystem stat and access checks for a pre-resolved attachment object.'],
+    [13100, ['src/tools/BriefTool/attachments.ts'], 'Brief resolution preserves pre-resolved file UUID, name, size, and image state verbatim and uploads only local-path entries under the exact target environment gate.'],
+    [13116, ['src/tools/BriefTool/BriefTool.ts', 'src/tools/BriefTool/prompt.ts'], 'The Brief tool schema accepts the strict pre-resolved object union and documents that it bypasses local stat and upload.'],
+    [13150, ['src/utils/toolIsolation.ts'], 'Each session isolation latch starts with a null current class.'],
+    [13151, ['src/utils/toolIsolation.ts'], 'Isolation enforcement requires both the cached feature gate and the managed-policy switch.'],
+    [13152, ['src/utils/toolIsolation.ts'], 'Tool classification assigns WebSearch/WebFetch to web, MCP resource tools and non-exempt MCP servers to connectors, and leaves the exact built-in MCP server allowlist unclassified.'],
+    [13153, ['src/utils/toolIsolation.ts'], 'Isolation denial messages exactly distinguish a web-latched session from a connector-latched session and require starting a new session.'],
+    [13154, ['src/utils/toolIsolation.ts'], 'Evaluation fails open when disabled, latches the first classified family, allows subsequent same-family calls, and denies the opposite family without mutating the latch.'],
+    [13155, ['src/utils/toolIsolation.ts'], 'Isolation policy constants bind the exact enforce_web_search_mcp_isolation policy key and tengu_doorbell_agave feature gate.'],
+    [13156, ['src/utils/toolIsolation.ts'], 'Isolation initialization pins the exact exempt MCP server set and immutable no-op result.'],
+    [13159, ['src/tools/REPLTool/REPLTool.ts', 'src/utils/toolIsolation.ts'], 'REPL inner-tool execution evaluates isolation before hooks or tool execution and reports an exact failed repl_tool_call result on denial.'],
+    [13601, ['src/services/tools/toolExecution.ts', 'src/utils/toolIsolation.ts'], 'Direct tool execution evaluates isolation before permission/execution, emits exact denial telemetry, and records classified/active latch metadata.'],
+    [15223, ['src/commands/clear/conversation.ts'], 'Conversation clear resets the isolation latch only when no preserved background agent remains.'],
+    [19633, ['src/components/ultraplan/UltraplanChoiceDialog.tsx'], 'Ultraplan choice execution propagates the active isolation latch into its continued query.'],
+    [19998, ['src/screens/REPL.tsx', 'src/utils/messageOperations.ts', 'src/utils/messages.ts'], 'Interactive REPL creates one persistent isolation latch and one typed message-operation dispatcher, routing query, streaming, compaction, tombstone, and UUID replacement updates through their exact target boundaries.'],
+    [20550, ['src/QueryEngine.ts', 'src/utils/messageOperations.ts'], 'QueryEngine owns a persistent isolation latch and routes slash-command message operations through the shared reducer while exposing the post-command no-op boundary.'],
+    [20551, ['src/QueryEngine.ts'], 'The headless query entrypoint accepts an optional latch and threads it into its QueryEngine instance.'],
+    [20581, ['src/cli/print.ts'], 'Print/headless mode creates one isolation latch and reuses it for the entire streaming query lifecycle.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'brief-isolation-target-fragment',
+        'brief-isolation-semantic-test',
+        ...([19998, 20550].includes(targetIndex)
+          ? [
+              'message-operations-target-fragment',
+              'message-operations-semantic-test',
+            ]
+          : []),
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [11643, ['src/components/Form.tsx'], 'The shared Form initializer binds the target focus, keybinding, text-input, cursor, and design-system dependencies.'],
+    [11644, ['src/components/Form.tsx'], 'Form owns exact required validation, wrap-around select navigation, field focus/cursor movement, submit blocking, error display, and target keybinding actions.'],
+    [11645, ['src/components/Form.tsx'], 'The target validation-result predicate retains only defined field errors.'],
+    [11646, ['src/components/Form.tsx'], 'Form label width is measured using terminal display width.'],
+    [11647, ['src/components/Form.tsx'], 'Each Form row renders aligned required/error state, select arrows, masked text input, placeholder/hint content, and focused keyboard behavior.'],
+    [11649, ['src/components/Form.tsx'], 'The Form module initializer binds its target React and Ink runtime graph.'],
+    [16001, ['src/commands/plugin/PluginOptionsDialog.tsx'], 'Plugin option serialization trims the first line, preserves unchanged saved secrets, and coerces number and boolean fields exactly.'],
+    [16002, ['src/commands/plugin/PluginOptionsDialog.tsx', 'src/components/Form.tsx'], 'Plugin option schema fields map to shared text fields with saved-sensitive required exemption, masking, unchanged placeholder, description hint, and Save configuration submission.'],
+    [16004, ['src/commands/plugin/PluginOptionsDialog.tsx'], 'The plugin option adapter initializer binds the shared Form and React runtime.'],
+    [16006, ['src/commands/plugin/PluginOptionsDialog.tsx'], 'The plugin configuration workflow sequences top-level and channel schemas, loads/saves each scope, handles save errors, and mounts the shared Form adapter.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'plugin-form-target-fragment',
+        'plugin-form-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [11650, 'The Bedrock access-key step renders the shared Form with the target title, subtitle, submit label, local value state, trimming, and optional-session-token normalization.'],
+    [11652, 'The Bedrock access-key schema defines required ID and masked secret fields plus the optional masked STS session-token hint.'],
+    [11654, 'The target step enum collapses the former secret and session screens so access-key submission proceeds directly to region selection.'],
+    [11788, 'The Bedrock wizard routes the accessKey state through the shared access-key form and advances its complete credentials directly to the region step.'],
+    [11790, 'The Bedrock wizard initializer binds the new Form-backed access-key owner while preserving provider, verification, probe, model, and persistence behavior.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths: ['src/components/BedrockSetupWizard.tsx'],
+      evidenceIds: [
+        'bedrock-access-key-form-target-fragment',
+        'bedrock-access-key-form-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.114-to-2.1.116:11850', {
+    paths: ['src/components/ConsoleOAuthFlow.tsx'],
+    evidenceIds: [
+      'console-login-method-label-target-fragment',
+      'console-login-method-label-semantic-test',
+    ],
+    behavior: 'The forced Console OAuth flow renders the exact sentence-case API usage billing method label while preserving all inherited login selection, telemetry, and authentication paths.',
+  }],
+  ['2.1.114-to-2.1.116:8593', {
+    paths: ['src/components/messageActions.tsx'],
+    evidenceIds: [
+      'message-actions-spacing-target-fragment',
+      'message-actions-spacing-semantic-test',
+    ],
+    behavior: 'MessageActionsBar renders adjacent action labels without middle-dot separators and groups the arrow navigation and escape-back hints into two stable fragments.',
+  }],
+  ['2.1.114-to-2.1.116:15798', {
+    paths: ['src/commands/ide/ide.tsx'],
+    evidenceIds: [
+      'ide-unavailable-overflow-target-fragment',
+      'ide-unavailable-overflow-semantic-test',
+    ],
+    behavior: 'The IDE selection screen renders at most four unavailable IDE entries and reports the exact remaining count without disturbing connection or workspace matching behavior.',
+  }],
+  ['2.1.114-to-2.1.116:16711', {
+    paths: ['src/commands/session/session.tsx'],
+    evidenceIds: [
+      'session-qr-shortcut-target-fragment',
+      'session-qr-shortcut-semantic-test',
+    ],
+    behavior: 'The session panel generates a marginless terminal QR code and renders both close instructions through the shared escape shortcut hint, placing the remote hint between the URL and QR/loading body.',
+  }],
+  ...[
+    [16297, ['src/commands/rename/rename.ts'], 'The rename module exports the shared result-returning operation beside the interactive command call.'],
+    [16298, ['src/commands/rename/rename.ts'], 'The shared rename operation preserves teammate rejection, generated or explicit naming, transcript persistence, bridge title propagation, immutable AppState update, and exact result text.'],
+    [16299, ['src/commands/rename/rename.ts'], 'The interactive command displays the shared operation result as a system message.'],
+    [16300, ['src/commands/rename/rename.ts'], 'The interactive module initializer exposes the shared operation and interactive call together.'],
+    [16301, ['src/commands/rename/rename-noninteractive.ts'], 'The noninteractive rename module owns its local-command export surface.'],
+    [16302, ['src/commands/rename/rename-noninteractive.ts'], 'The noninteractive module exports its command call.'],
+    [16303, ['src/commands/rename/rename-noninteractive.ts'], 'The noninteractive call returns the exact shared rename result as a text control response.'],
+    [16304, ['src/commands/rename/rename-noninteractive.ts'], 'The noninteractive module initializer binds its shared-operation caller.'],
+    [16305, ['src/commands/rename/index.ts'], 'The rename descriptor module owns both interactive and noninteractive command bindings.'],
+    [16306, ['src/commands/rename/index.ts'], 'Both rename descriptors share the name alias and argument surface, while the local descriptor explicitly supports noninteractive execution.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'rename-noninteractive-target-fragment',
+        'rename-noninteractive-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [18442, ['src/context/selectionDelete.tsx'], 'The selection-delete provider stores the active prompt deletion handler in a stable ref and exposes registration with exact unmount cleanup.'],
+    [18445, ['src/context/selectionDelete.tsx'], 'The selection-delete dispatcher invokes the current registered handler and reports whether an active prompt selection was removed.'],
+    [18448, ['src/components/App.tsx', 'src/context/selectionDelete.tsx', 'src/context/notifications.tsx', 'src/utils/autoModeDenials.ts'], 'The cumulative application provider graph mounts the target97 notification and auto-denial contexts, preserves kill-ring scope, and adds target116 selection deletion at the innermost interaction boundary.'],
+    [19329, ['src/components/PromptInput/PromptInput.tsx', 'src/context/selectionDelete.tsx'], 'PromptInput converts Ink selection coordinates into text offsets, registers an undo-aware splice operation, restores the cursor, and exposes the input node to selection hit-testing.'],
+    [19949, ['src/components/ScrollKeybindingHandler.tsx'], 'The live scroll-key handler first deletes an active prompt selection and otherwise preserves scrolling, bounded native auto-copy configuration guidance, and prompt focus behavior.'],
+    [19957, ['src/components/ScrollKeybindingHandler.tsx'], 'The handler subscribes to the internal arrow-burst signal and records the one-time scroll-arrow telemetry event.'],
+    [19958, ['src/components/ScrollKeybindingHandler.tsx'], 'The arrow-burst path emits the exact scroll-as-arrows warning and terminal-setup guidance.'],
+    [19959, ['src/components/ScrollKeybindingHandler.tsx'], 'The auto-copy hint constants and persisted one-shot gate bound the configuration notification without altering ordinary selection handling.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'scroll-selection-delete-target-fragment',
+        'scroll-selection-delete-semantic-test',
+        ...(targetIndex === 18448
+          ? [
+              'notification-lifecycle-transitive-target-fragment',
+              'notification-lifecycle-transitive-semantic-test',
+              'auto-mode-denials-transitive-target-fragment',
+              'auto-mode-denials-transitive-semantic-test',
+            ]
+          : []),
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.114-to-2.1.116:16079', {
+    paths: ['src/commands/plugin/UnifiedInstalledCell.tsx'],
+    evidenceIds: [
+      'unified-installed-list-item-target-fragment',
+      'unified-installed-list-item-semantic-test',
+    ],
+    behavior: 'All five unified installed plugin and MCP row variants render through the shared focus-aware ListItem with automatic styling disabled, while preserving status content and removing the hand-built pointer prefix.',
+  }],
+  ...[20417, 20418, 20419, 20420, 20421, 20423, 20424].map(targetIndex => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths: ['src/services/mcp/headlessConnectionManager.ts'],
+      evidenceIds: [
+        'headless-mcp-target-fragment',
+        'headless-mcp-semantic-test',
+      ],
+      behavior: ({
+        20417: 'Headless MCP setup coordinates regular and claude.ai connectors sequentially or concurrently behind the feature gate while honoring MCP_CONNECTION_NONBLOCKING.',
+        20418: 'Regular MCP connection pre-registers pending clients, exposes one readiness promise per server, incorporates late results, and starts guarded remote retries.',
+        20419: 'Late MCP connection results replace pending clients, merge tools and commands by name, and close clients that arrive after their pending entry was removed.',
+        20420: 'Failed HTTP, SSE, and claude.ai-proxy MCP servers retry after 500ms, 1500ms, and 4000ms backoffs with connector-cache eviction and terminal failure reporting.',
+        20421: 'MCP readiness runs fully async in nonblocking mode; otherwise config fetch is bounded to 1s and per-server readiness to the remaining 5s deadline.',
+        20423: 'The MCP coordinator fixes per-server readiness at 5s and asynchronous config fetch readiness at 1s.',
+        20424: 'MCP retry initialization pins the 500/1500/4000ms retry schedule and the retryable remote transport set.',
+      })[targetIndex],
+    },
+  ]),
+  ...[
+    [7650, ['src/history.ts'], 'The paste-history helper expands only the highest eligible text reference, rejects image and oversized entries, and returns the exact replacement cursor offset.'],
+    [19275, ['src/components/PromptInput/PromptInputFooterLeftSide.tsx'], 'The left footer gives the transient repeat-paste expansion hint precedence over lower-priority mode and background-session hints.'],
+    [19276, ['src/components/PromptInput/PromptInputFooterLeftSide.tsx'], 'The footer mode branch carries the target left-arrow and input-empty state while preserving every inherited permission and task-mode indicator.'],
+    [19281, ['src/components/PromptInput/PromptInputFooter.tsx'], 'PromptInputFooter threads repeat-paste and left-arrow state into its left-side renderer without changing the right-side status graph.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'repeat-paste-expansion-target-fragment',
+        'repeat-paste-expansion-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.114-to-2.1.116:19329', {
+    paths: ['src/components/PromptInput/PromptInput.tsx'],
+    evidenceIds: [
+      'permission-mode-change-telemetry-target-fragment',
+      'permission-mode-change-telemetry-semantic-test',
+      'ultraplan-launch-target-fragment',
+      'ultraplan-launch-semantic-test',
+      'repeat-paste-expansion-target-fragment',
+      'repeat-paste-expansion-semantic-test',
+    ],
+    behavior: 'PromptInput owns the cumulative target116 permission-mode and Ultraplan triggers plus repeat-paste detection, newest-reference expansion, undo restoration, and the exact eight-second expansion hint lifecycle.',
+  }],
+  ['2.1.114-to-2.1.116:19333', {
+    paths: ['src/components/PromptInput/PromptInput.tsx'],
+    evidenceIds: [
+      'ultraplan-launch-target-fragment',
+      'ultraplan-launch-semantic-test',
+      'repeat-paste-expansion-target-fragment',
+      'repeat-paste-expansion-semantic-test',
+    ],
+    behavior: 'The PromptInput initializer binds the cumulative Ultraplan and repeat-paste owner graph, including the recovered history helper and footer propagation.',
+  }],
+  ...[
+    [14508, ['src/services/mcp/client.ts'], 'The MCP client exports the shared connected-to-needs-auth state updater used by both native connection and SDK direct-call paths.'],
+    [14545, ['src/services/mcp/client.ts'], 'The URL-elicitation helper validates and extracts the target URL without exposing malformed hook or server payloads.'],
+    [14546, ['src/services/mcp/client.ts'], 'MCP connection retries return urlElicitationDeclined with the validated URL at both hook-decline and user-decline exits while preserving authentication state.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'sdk-mcp-call-target-fragment',
+        'sdk-mcp-call-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [18512, ['src/bridge/bridgePermissionCallbacks.ts'], 'The shared remote reader resolves the path, checks every permission-normalized path, applies the one-megabyte default and ten-megabyte cap, and reports exact truncation metadata.'],
+    [18550, ['src/bridge/bridgeMessaging.ts'], 'Bridge control dispatch handles read_file asynchronously, returns success or normalized error responses, and fails closed when no reader callback was registered.'],
+    [18563, ['src/bridge/remoteBridgeCore.ts'], 'The environment-less bridge type, initializer, and message dispatcher propagate the optional read-file callback without weakening outbound-only or permission behavior.'],
+    [18572, ['src/bridge/initReplBridge.ts'], 'Bridge initialization obtains the live tool-permission context, installs the permission-checked remote reader, uses an empty context only when the host exposes no accessor, and rejects outbound-only mirrors when the remote-sessions policy is denied without changing inbound-capable startup.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'remote-read-file-target-fragment',
+        'remote-read-file-semantic-test',
+        ...(targetIndex === 18572
+          ? [
+              'outbound-mirror-policy-target-fragment',
+              'outbound-mirror-policy-semantic-test',
+            ]
+          : []),
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.114-to-2.1.116:19762', {
+    paths: ['src/entrypoints/sdk/controlSchemas.ts'],
+    evidenceIds: [
+      'sdk-mcp-call-target-fragment',
+      'sdk-mcp-call-semantic-test',
+      'remote-read-file-target-fragment',
+      'remote-read-file-semantic-test',
+      'sdk-main-session-skills-schema-target-fragment',
+      'sdk-main-session-skills-schema-semantic-test',
+      'sdk-permission-decision-metadata-target-fragment',
+      'sdk-permission-decision-metadata-semantic-test',
+      'sdk-message-rated-control-target-fragment',
+      'sdk-message-rated-control-semantic-test',
+    ],
+    behavior: 'The SDK control schema owns target116 direct MCP-call and permission-checked read-file pairs, preserves the optional main-session skill allowlist, exposes structured permission-decision metadata, and adds the message_rated request/response pair to the exact control union.',
+  }],
+  ['2.1.114-to-2.1.116:13604', {
+    paths: ['src/services/tools/toolExecution.ts', 'src/services/mcp/client.ts'],
+    evidenceIds: [
+      'tool-subagent-telemetry-target-fragment',
+      'tool-subagent-telemetry-semantic-test',
+      'sdk-mcp-call-target-fragment',
+      'sdk-mcp-call-semantic-test',
+    ],
+    behavior: 'Tool execution retains target116 privacy-gated tool metadata and routes MCP authentication failures through the shared connected-to-needs-auth updater consumed by SDK mcp_call.',
+  }],
+  ['2.1.114-to-2.1.116:20581', {
+    paths: ['src/cli/print.ts'],
+    evidenceIds: [
+      'brief-isolation-target-fragment',
+      'brief-isolation-semantic-test',
+      'sdk-mcp-call-target-fragment',
+      'sdk-mcp-call-semantic-test',
+      'remote-read-file-target-fragment',
+      'remote-read-file-semantic-test',
+      'remote-startup-timing-target-fragment',
+      'remote-startup-timing-semantic-test',
+      'sdk-message-rated-control-target-fragment',
+      'sdk-message-rated-control-semantic-test',
+    ],
+    behavior: 'The headless print owner retains session isolation, implements direct mcp_call and permission-checked read_file routing, records remote startup phases, and handles message_rated with UI-compatible telemetry defaults and an empty success response.',
+  }],
+  ...[
+    [14873, 'Permission initialization forces default mode under subprocess-environment scrubbing and emits the exact allowed_non_write_users warning only when a nondefault mode was requested.'],
+    [14888, 'Both synchronous and asynchronous permission bypass diagnostics use the target feature-gate wording while preserving the existing gate decisions.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths: ['src/utils/permissions/permissionSetup.ts'],
+      evidenceIds: [
+        'permission-scrub-feature-gate-target-fragment',
+        'permission-scrub-feature-gate-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.114-to-2.1.116:12112', {
+    paths: ['src/utils/permissions/yoloClassifier.ts'],
+    evidenceIds: [
+      'yolo-claudemd-authorization-target-fragment',
+      'yolo-claudemd-authorization-semantic-test',
+    ],
+    behavior: 'CLAUDE.md context lowers the auto-mode block threshold only when it explicitly authorizes the same operation and target; generic autonomy or trust language is never treated as authorization.',
+  }],
+  ...[
+    [16947, ['src/commands/fast/fastModeShared.ts'], 'The shared fast-mode transition accepts a stable source and emits shortcut or bridge telemetry without duplicating state transitions.'],
+    [16961, ['src/commands/fast/fast-noninteractive.ts'], 'The Remote-Control-safe /fast handler implements unavailable, on, off, empty-toggle, and unknown-argument outcomes through the shared transition helper.'],
+    [16964, ['src/commands/fast/index.ts', 'src/commands/fast/fast.tsx', 'src/commands/fast/fast-noninteractive.ts'], 'The /fast descriptor exposes both local JSX and noninteractive counterparts while preserving the inherited local command surface.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'fast-bridge-command-target-fragment',
+        'fast-bridge-command-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [14870, ['src/utils/permissions/permissionSetup.ts'], 'The explicit permission-mode setter rejects policy-forbidden bypass and auto transitions, applies valid changes atomically, and asynchronously rechecks every queued leader permission request.'],
+    [17377, ['src/commands/model/modelCommand.ts'], 'The shared model adapter renders current base/session/effort state identically for the local JSX and text command surfaces.'],
+    [17378, ['src/commands/model/modelCommand.ts'], 'The shared model transition validates allowlists and custom IDs, enforces 1M access, preserves fast-mode and extra-usage messaging, and returns a typed success/error result.'],
+    [17383, ['src/commands/model/modelCommand.ts'], 'The model label helper preserves default-model annotation and canonical rendering after extraction from the JSX-only owner.'],
+    [17476, ['src/commands/mode/availableModes.ts'], 'The mode command exposes exactly the user-settable permission modes while excluding bypassPermissions from remote text selection.'],
+    [17479, ['src/commands/mode/mode.ts'], 'The noninteractive mode handler implements current, accepted mode, forbidden bypass, unknown mode, and successful transition results against live permission context.'],
+    [17481, ['src/commands/mode/mode.ts'], 'The mode usage response lists the exact target mode vocabulary.'],
+    [17483, ['src/commands/mode/index.ts'], 'The mode descriptor is a Remote-Control-safe local command with the target description, argument hint, and availability gate.'],
+    [17486, ['src/commands/model/model-noninteractive.ts'], 'The noninteractive model handler implements help/current/set paths through the shared model adapter and records the target inline telemetry event.'],
+    [17488, ['src/commands/model/model-noninteractive.ts'], 'The model usage response enumerates aliases, default, and full model IDs exactly.'],
+    [17502, ['src/commands/model/index.ts', 'src/commands/model/model.tsx'], 'The model command exports distinct JSX and noninteractive descriptors while both surfaces reuse the exact shared transition and display implementation.'],
+    [17558, ['src/commands/effort/effort-noninteractive.ts'], 'The effort text handler implements help/current/usage/set paths and applies the returned effort update to live AppState.'],
+    [17561, ['src/commands/effort/index.ts', 'src/commands/effort/effort.tsx'], 'Effort exports shared help text and separate JSX/noninteractive descriptors with the target supported-effort surface.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'noninteractive-mode-model-effort-target-fragment',
+        'noninteractive-mode-model-effort-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.114-to-2.1.116:17739', {
+    paths: ['src/commands.ts'],
+    evidenceIds: [
+      'fast-bridge-command-target-fragment',
+      'fast-bridge-command-semantic-test',
+      'noninteractive-mode-model-effort-target-fragment',
+      'noninteractive-mode-model-effort-semantic-test',
+    ],
+    behavior: 'The command registry admits /fast plus the /mode, /model, and /effort text counterparts to the exact Remote Control safe set while excluding the local JSX descriptors.',
+  }],
+  ...[
+    [12148, ['src/tools/AgentTool/agentToolUtils.ts'], 'The async-agent stall watchdog resets on throttled query progress, labels it query_progress, and includes each system-message subtype in its diagnostic progress label.'],
+    [12531, ['src/tools/AgentTool/AgentTool.tsx'], 'AgentTool forwards the watchdog heartbeat as runAgent onQueryProgress while preserving cache-safe and registry-aware launch behavior.'],
+    [13552, ['src/tools/AgentTool/resumeAgent.ts'], 'Agent resume forwards the same query-progress heartbeat so resumed agents cannot falsely trip the stall watchdog.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'async-agent-query-progress-target-fragment',
+        'async-agent-query-progress-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [20302, 'The scheduled-agent skill prompt points connector discovery to the canonical customize/connectors route.'],
+    [20305, 'The scheduled-agent setup workflow uses the canonical connector route for its user-facing configuration link.'],
+    [20306, 'The scheduled-agent descriptor retains its workflow while all four connector URLs use customize/connectors.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths: ['src/skills/bundled/scheduleRemoteAgents.ts'],
+      evidenceIds: [
+        'schedule-remote-connectors-target-fragment',
+        'schedule-remote-connectors-semantic-test',
+        ...(targetIndex === 20306
+          ? [
+              'schedule-remote-gate-transitive-target-fragment',
+              'schedule-remote-gate-transitive-semantic-test',
+              'schedule-routines-alias-transitive-target-fragment',
+              'schedule-routines-alias-transitive-semantic-test',
+            ]
+          : []),
+      ],
+      behavior: targetIndex === 20306
+        ? `${behavior} The cumulative owner also retains the target101 remote-environment exclusion and the target111 /routines alias.`
+        : behavior,
+    },
+  ]),
+  ...[
+    [18961, 'VoiceIndicator renders a nested tap-mode recording error with the black-circle REC label and exact tap-to-send hint while preserving hold-mode listening output.'],
+    [18962, 'The VoiceIndicator selector gives settings.voice.mode precedence and defaults absent mode to hold.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths: ['src/components/PromptInput/VoiceIndicator.tsx'],
+      evidenceIds: [
+        'voice-tap-indicator-target-fragment',
+        'voice-tap-indicator-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [18184, 'The simple-description helper returns the full prompt normally, a tool searchHint when available, or the trimmed first prompt paragraph under SIMPLE and SIMPLE_SYSTEM_PROMPT modes.'],
+    [18185, 'toolToAPISchema delegates description selection to the target helper without changing schema sanitization or tool naming.'],
+    [18192, 'Context metrics emit only the Boolean presence of user email as has_user_email alongside inherited aggregate size fields.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths: ['src/utils/api.ts'],
+      evidenceIds: [
+        'simple-tool-descriptions-context-metrics-target-fragment',
+        'simple-tool-descriptions-context-metrics-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [10202, ['src/utils/forkedAgent.ts'], 'Forked command preparation augments allowed tools immutably and returns both modified AppState and direct permission-context accessors.'],
+    [12587, ['src/utils/processUserInput/processSlashCommand.tsx'], 'Forked slash commands pass the modified direct permission-context accessor through background and foreground execution contexts.'],
+    [12602, ['src/tools/SkillTool/SkillTool.ts'], 'Forked Skill execution supplies the same modified permission-context accessor so allowed tools work for both ToolUseContext APIs.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'forked-allowed-tools-context-target-fragment',
+        'forked-allowed-tools-context-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.114-to-2.1.116:366', {
+    paths: ['src/bootstrap/state.ts', 'src/utils/loopWakeup.ts'],
+    evidenceIds: [
+      'session-start-skill-allowlist-target-fragment',
+      'session-start-skill-allowlist-semantic-test',
+      'loop-chain-state-transitive-target-fragment',
+      'loop-chain-state-transitive-semantic-test',
+    ],
+    behavior: 'The cumulative bootstrap state retains the target116 session-start skill allowlist and the target97 persistent loop-chain registry; the live scheduler reads, updates, and deletes that shared registry instead of a module-local Map.',
+  }],
+  ...[
+    [14546, 'The MCP retry path retains URL-elicitation decline routing while annotating oversized MCP results through the target97 shared result-size helper.'],
+    [14552, 'The live MCP tool factory retains target116 connection telemetry and the target97 text, image, embedded-resource, and aggregate result-size annotation graph.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths: ['src/services/mcp/client.ts'],
+      evidenceIds: [
+        ...(targetIndex === 14546
+          ? ['sdk-mcp-call-target-fragment', 'sdk-mcp-call-semantic-test']
+          : ['mcp-connection-telemetry-target-fragment', 'mcp-connection-telemetry-semantic-test']),
+        'mcp-result-size-transitive-target-fragment',
+        'mcp-result-size-transitive-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [16899, ['src/components/permissions/rules/RecentDenialsTab.tsx', 'src/utils/autoModeDenials.ts'], 'Recent denials render from the target97 provider-backed store and preserve the target116 denial display and rule-management surface.'],
+    [16917, ['src/components/permissions/rules/PermissionRuleList.tsx', 'src/utils/autoModeDenials.ts'], 'Permission rule management snapshots target97 provider-backed denials to choose and render the recent-denials tab while retaining target116 permission-mode telemetry.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'auto-mode-denials-transitive-target-fragment',
+        'auto-mode-denials-transitive-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [12531, ['src/tools/AgentTool/AgentTool.tsx'], 'AgentTool retains target116 query-progress watchdog heartbeats and the target97 skipReplFilter tool-pool routing for fresh subagents.'],
+    [13552, ['src/tools/AgentTool/resumeAgent.ts'], 'Agent resume retains target116 query-progress watchdog heartbeats and forwards the target97 skipReplFilter choice when rebuilding a resumed tool pool.'],
+  ].map(([targetIndex, paths, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths,
+      evidenceIds: [
+        'async-agent-query-progress-target-fragment',
+        'async-agent-query-progress-semantic-test',
+        'agent-repl-tool-pool-transitive-target-fragment',
+        'agent-repl-tool-pool-transitive-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.114-to-2.1.116:13578', {
+    paths: ['src/tools.ts'],
+    evidenceIds: [
+      'agent-repl-tool-pool-transitive-target-fragment',
+      'agent-repl-tool-pool-transitive-semantic-test',
+    ],
+    behavior: 'The shared tool-pool factory accepts the persistent target97 skipReplFilter option, bypasses primitive-tool filtering for fresh and resumed subagents, and retains REPLTool without changing the later target116 tool registry.',
+  }],
+  ['2.1.114-to-2.1.116:2563', {
+    paths: ['src/utils/settings/types.ts'],
+    evidenceIds: [
+      'voice-tap-target-fragment',
+      'voice-tap-semantic-test',
+      'away-summary-setting-description-target-fragment',
+      'away-summary-setting-description-semantic-test',
+      'settings-view-mode-transitive-target-fragment',
+      'settings-view-mode-transitive-semantic-test',
+    ],
+    behavior: 'The cumulative settings schema exposes target116 voice and away-summary fields while retaining the target97 persisted default, verbose, and focus viewMode enum consumed by focus-mode prompt construction.',
+  }],
+  ['2.1.114-to-2.1.116:2473', {
+    paths: ['src/entrypoints/sandboxTypes.ts', 'src/utils/sandbox/sandbox-adapter.ts'],
+    evidenceIds: [
+      'sandbox-fail-unavailable-description-target-fragment',
+      'sandbox-fail-unavailable-description-semantic-test',
+      'sandbox-mach-lookup-transitive-target-fragment',
+      'sandbox-mach-lookup-transitive-semantic-test',
+    ],
+    behavior: 'The public sandbox schema retains the target116 fail-closed description and the target97 allowMachLookup option, which the adapter forwards into the macOS sandbox manager without weakening later policy controls.',
+  }],
+  ['2.1.114-to-2.1.116:15722', {
+    paths: ['src/components/memory/MemoryFileSelector.tsx'],
+    evidenceIds: [
+      'auto-dream-first-enable-transitive-target-fragment',
+      'auto-dream-first-enable-transitive-semantic-test',
+    ],
+    behavior: 'The memory settings selector snapshots the initial auto-dream setting before persistence and emits the target97 is_first_enable bit only for a first transition to enabled, while retaining later memory UI behavior.',
+  }],
+  ...[
+    [14189, 'The FileRead mitigation predicate evolves the target105 raw-model regex policy into exact membership over the canonical main-loop model name.'],
+    [14196, 'The reachable FileRead owner retains the inherited mitigation reminder and uses exact canonical Sonnet 4.0 and Opus 4.0 Set entries without accepting later 4.x families implicitly.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths: ['src/tools/FileReadTool/FileReadTool.ts'],
+      evidenceIds: [
+        'file-read-mitigation-evolution-target-fragment',
+        'file-read-mitigation-evolution-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ...[
+    [17741, 'The session-storage public surface retains target116 scan constants and worktree signaling plus the target97 coordinated transcript cursor, write tracker, and mirror APIs.'],
+    [17781, 'The cumulative session writer keeps target116 async metadata persistence while routing internal and external writes through the target97 coordination and mirror hooks.'],
+  ].map(([targetIndex, behavior]) => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      paths: ['src/utils/sessionStorage.ts'],
+      evidenceIds: [
+        ...(targetIndex === 17741
+          ? [
+              'session-index-scan-target-fragment',
+              'session-index-scan-semantic-test',
+              'worktree-state-signal-target-fragment',
+              'worktree-state-signal-semantic-test',
+            ]
+          : ['session-metadata-async-target-fragment', 'session-metadata-async-semantic-test']),
+        'session-writer-transitive-target-fragment',
+        'session-writer-transitive-semantic-test',
+      ],
+      behavior,
+    },
+  ]),
+  ['2.1.114-to-2.1.116:20550', {
+    paths: ['src/QueryEngine.ts', 'src/utils/messageOperations.ts'],
+    evidenceIds: [
+      'brief-isolation-target-fragment',
+      'brief-isolation-semantic-test',
+      'message-operations-target-fragment',
+      'message-operations-semantic-test',
+      'session-writer-transitive-target-fragment',
+      'session-writer-transitive-semantic-test',
+    ],
+    behavior: 'QueryEngine retains target116 isolation and typed message operations while reading the target97 coordinated transcript cursor before forwarding newly persisted messages.',
+  }],
+  ['2.1.114-to-2.1.116:20581', {
+    paths: ['src/cli/print.ts'],
+    evidenceIds: [
+      'brief-isolation-target-fragment',
+      'brief-isolation-semantic-test',
+      'sdk-mcp-call-target-fragment',
+      'sdk-mcp-call-semantic-test',
+      'remote-read-file-target-fragment',
+      'remote-read-file-semantic-test',
+      'remote-startup-timing-target-fragment',
+      'remote-startup-timing-semantic-test',
+      'sdk-message-rated-control-target-fragment',
+      'sdk-message-rated-control-semantic-test',
+      'session-writer-transitive-target-fragment',
+      'session-writer-transitive-semantic-test',
+    ],
+    behavior: 'The headless print owner retains target116 isolation, direct MCP/read-file control, startup timing, and message rating while registering the target110 addSessionMirror API over the target97 coordinated transcript writer.',
+  }],
+])
+
+const dceOverrides = new Map([
+  ...case113FirstHalfStrictTailDormant.map(row => [
+    `2.1.112-to-2.1.113:${row.targetIndex}`,
+    {
+      category: 'unconsumed-jobs-state-closure',
+      reason: 'The authenticated complete-bundle binding graph proves the target113 jobs directory, state reader, and schema/module closure are declaration-only and cannot escape through a call, export, return, pass, or state write; their target-added path, state, and backend residues are therefore non-runtime.',
+      evidenceIds: [
+        'target113-first-half-strict-tail-target-fragment',
+        'target113-first-half-strict-tail-static-ast',
+        'target113-first-half-strict-tail-semantic-test',
+      ],
+    },
+  ]),
+  ['2.1.112-to-2.1.113:19322', {
+    category: 'unconsumed-daemon-temp-path-accessor',
+    reason: 'The authenticated target113 daemon initializer executes only the import/allocation wrapper: the memoized path binding occurs exactly at its declaration and assignment with no read, call, pass, return, export, or state escape, so its nested getuid/hash/tmpdir/join factory cannot execute; identical target114 and evolved target116 topology preserve that dormancy without importing the later live owner.',
+    evidenceIds: [
+      'target113-daemon-temp-path-dce-target-fragment',
+      'target113-daemon-temp-path-dce-static-ast',
+    ],
+  }],
+  ['2.1.114-to-2.1.116:16278', {
+    category: 'unreferenced-jobs-schema-closure',
+    reason: 'The authenticated target116 jobs schema is reachable only from a parser binding that occurs solely at its declaration in the complete inner bundle; the adjacent validator is likewise declaration-only, so no call, export, return, pass, or state escape can execute this transitive schema closure.',
+    evidenceIds: [
+      'case116-safe-residual-static-ast',
+      'case116-safe-residual-semantic-test',
+    ],
+  }],
+  ...Array.from({ length: 7 }, (_, offset) => 7224 + offset).map(targetIndex => [
+    `2.1.114-to-2.1.116:${targetIndex}`,
+    {
+      category: 'statically-disabled-scroll-diagnostics',
+      reason: 'The authenticated target116 scroll diagnostic closure is guarded by a private module flag initialized to false with no assignment or update writes; every recorder returns before reading its arguments, all diagnostic sinks and state remain confined to the guarded closure, and no value escapes to live runtime behavior.',
+      evidenceIds: [
+        'scroll-diagnostics-dce-target-fragment',
+        'scroll-diagnostics-dce-semantic-test',
+      ],
+    },
+  ]),
+  ...[19327, 19328, 19329, 19330, 19331, 19332, 19336, 19337, 19338, 19339, 19344, 19346].map(targetIndex => [
+    `2.1.112-to-2.1.113:${targetIndex}`,
+    {
+      category: 'unconsumed-routines-loader-closure',
+      reason: 'The authenticated routines parser and loader closure is assigned into the memoized initializer but no parser or loader binding is ever called, returned, passed, exported, or otherwise consumed in target113 or its identical target116 structural counterpart.',
+      evidenceIds: [
+        'routines-loader-dce-target-fragment',
+        'routines-loader-dce-semantic-test',
+      ],
+    },
+  ]),
+  ...[17274, 17275].map(targetIndex => [
+    `2.1.112-to-2.1.113:${targetIndex}`,
+    {
+      category: 'dormant-daemon-protocol-lazy-schemas',
+      reason: 'The authenticated target113 daemon schema family is confined to an unrooted lazy-factory graph: every changed binding remains within units 17274–17275 with zero external references, calls, exports, returns, passes, or state escapes; only the adjacent unchanged detach-sequence constant has a live consumer.',
+      evidenceIds: [
+        'target113-daemon-protocol-dormant-target-fragment',
+        'target113-daemon-protocol-dormant-static-ast',
+      ],
+    },
+  ]),
+  ['2.1.114-to-2.1.116:16276', {
+    category: 'unreferenced-jobs-state-loader',
+    reason: 'The authenticated target declares the async state.json loader once, but its minified binding has no call, export, pass, return, or other reference in the complete bundle; its adjacent path helper is likewise declaration-only, so the warning and parsing body cannot execute.',
+    evidenceIds: [
+      'dormant-jobs-daemon-path-target-fragment',
+      'dormant-jobs-daemon-path-semantic-test',
+    ],
+  }],
+  ['2.1.114-to-2.1.116:19574', {
+    category: 'unrooted-daemon-temp-path-accessor',
+    reason: 'The TERMUX/PREFIX daemon-path accessor and its crypto/path/hash bindings are confined to the declaration unit; the accessor binding is never called or read anywhere in the complete authenticated target, so its target-only path computation remains definition-only.',
+    evidenceIds: [
+      'dormant-jobs-daemon-path-target-fragment',
+      'dormant-jobs-daemon-path-semantic-test',
+    ],
+  }],
+  ['2.1.107-to-2.1.108:8927', {
+    category: 'statically-disabled-bq-shell-integration',
+    reason: 'The target shell-snapshot function contains a branch guarded by the adjacent create-bq helper, but the authenticated target defines that helper as an unconditional return null; the branch is therefore unreachable in every target 2.1.108 execution.',
+    evidenceIds: [
+      'strict-runtime-target-fragment',
+      'strict-runtime-semantic-test',
+    ],
+  }],
+  ['2.1.107-to-2.1.108:18926', {
+    category: 'stripped-claude-api-guide-placeholder',
+    reason: 'The only target delta is the <!-- __G2__ --> placeholder inside INLINE_READING_GUIDE; processContent removes HTML comments before any prompt is returned, so it has no runtime prompt effect.',
+  }],
+  ['2.1.107-to-2.1.108:18135', {
+    category: 'unobservable-session-cache-allocation',
+    reason: 'The factory is called exactly once into a private binding; every property occurs only in this literal and the resulting object is never read, exported, passed, or otherwise allowed to escape in target 2.1.108 or any later authenticated target through 2.1.116.',
+    evidenceIds: [
+      'dead-session-cache-target-fragment',
+      'dead-session-cache-semantic-test',
+    ],
+  }],
+  ['2.1.107-to-2.1.108:18137', {
+    category: 'unobservable-session-cache-allocation',
+    reason: 'The initializer performs the sole call and assigns its result to a private binding with no subsequent read, export, callback, or escape; full-bundle identifier counts prove the allocation cannot affect target runtime behavior.',
+    evidenceIds: [
+      'dead-session-cache-target-fragment',
+      'dead-session-cache-semantic-test',
+    ],
+  }],
+  ['2.1.109-to-2.1.110:9470', {
+    category: 'unregistered-dom-key-adapter',
+    reason: 'The compiled KeyboardEvent-to-legacy-Key adapter is referenced only by one local closure inside the interceptor; that closure is assigned to a one-occurrence sink and is never registered, returned, passed, or invoked, so the adapter cannot affect target runtime behavior.',
+    evidenceIds: [
+      'keybinding-single-key-target-fragment',
+      'keybinding-single-key-semantic-test',
+    ],
+  }],
+  ['2.1.109-to-2.1.110:9472', {
+    category: 'unregistered-dom-key-adapter-table',
+    reason: 'The key-name table is read only by the unregistered DOM adapter in row 9470; its initializer has no independent side effects and therefore shares the adapter closure\'s proved non-escape/non-invocation status.',
+    evidenceIds: [
+      'keybinding-single-key-target-fragment',
+      'keybinding-single-key-semantic-test',
+    ],
+  }],
+  ['2.1.114-to-2.1.116:10729', {
+    category: 'unreferenced-auto-upload-reader',
+    reason: 'The target bridge helper reads autoUploadSessions behind a try/catch, but its minified binding occurs exactly once in the complete authenticated target: its declaration. It is never called, exported, passed, or allowed to escape, so the persisted config key is observable while this private reader is not.',
+    evidenceIds: [
+      'auto-upload-sessions-config-target-fragment',
+      'auto-upload-sessions-config-semantic-test',
+    ],
+  }],
+  ['2.1.109-to-2.1.110:15075', {
+    category: 'unobservable-dormant-session-schema',
+    reason: 'The lazy schema is assigned to a private binding whose only full-bundle occurrences are the outer declaration and this initializer assignment; it is never read, exported, returned, passed, invoked, or otherwise allowed to escape, so its routine/pinned shape evolution has no target runtime effect.',
+    evidenceIds: [
+      'dormant-session-schema-target-fragment',
+      'dormant-session-schema-semantic-test',
+    ],
+  }],
+  ['2.1.114-to-2.1.116:17426', {
+    category: 'dormant-daemon-protocol-schema-export',
+    reason: 'The changed daemon protocol export assembly remains wholly inside the two-unit lazy-schema cluster: every changed binding has only declaration, assignment, and callback-internal references, and no reference escapes to a caller, export consumer, or invoked initializer. Only the unchanged detach-sequence binding has an external consumer.',
+    evidenceIds: [
+      'daemon-protocol-dormant-target-fragment',
+      'daemon-protocol-dormant-semantic-test',
+    ],
+  }],
+  ['2.1.114-to-2.1.116:17427', {
+    category: 'dormant-daemon-protocol-lazy-schemas',
+    reason: 'The target-only schema fields and operations are constructed inside uncalled memoizing callbacks whose minified bindings have zero references outside units 17426–17427; full-bundle tokenization proves this definition-only evolution cannot affect target runtime behavior.',
+    evidenceIds: [
+      'daemon-protocol-dormant-target-fragment',
+      'daemon-protocol-dormant-semantic-test',
+    ],
+  }],
+])
+
+const alphaStaticOverrides = new Map([
+  ['2.1.107-to-2.1.108:16039', 'The inherited advisor module initializer is identifier-insensitive and metadata-normalized AST-equivalent to its baseline unit; only bundle-local dependency names and grouping change, with no advisor runtime delta in this transition.'],
+  ['2.1.109-to-2.1.110:16169', 'The inherited advisor module initializer is identifier-insensitive and metadata-normalized AST-equivalent to its baseline unit; only bundle-local dependency names and grouping change, with no advisor runtime delta in this transition.'],
+  ['2.1.110-to-2.1.111:16227', 'The inherited advisor module initializer is identifier-insensitive and metadata-normalized AST-equivalent to its baseline unit; only bundle-local dependency names and grouping change, with no advisor runtime delta in this transition.'],
+  ['2.1.112-to-2.1.113:17235', 'The native-wrapper export binding for the inherited advisor command retains the same call export and has no runtime behavior delta.'],
+  ['2.1.112-to-2.1.113:17237', 'Direct target/baseline comparison proves the advisor configuration dialog has identical options, memoized branches, messages, model warning, selection flow, and JSX output; the wrapper transition only alpha-renames bindings and spells identical cooked em dashes as escapes.'],
+  ['2.1.112-to-2.1.113:17243', 'The advisor command dispatcher retains the same empty/off/unset handling, model normalization and validation, exact errors, and dialog selection behavior after wrapper-local alpha-renaming.'],
+  ['2.1.112-to-2.1.113:17244', 'The inherited advisor module initializer retains the same dependencies and React bindings; only native-wrapper grouping and local names change.'],
+  ['2.1.114-to-2.1.116:17386', 'The advisor command export remains the same call binding after native bundle alpha-renaming.'],
+  ['2.1.114-to-2.1.116:17388', 'Direct target 2.1.114/2.1.116 comparison proves the advisor configuration dialog has identical options, messages, model warning, memoized branches, selection flow, and JSX output; only bundle-local names differ.'],
+  ['2.1.114-to-2.1.116:17393', 'The advisor selection component preserves the same zero-delay effect, single-run guard, current-main-model reference, cleanup, and selected-choice application; only compiler-local bindings differ.'],
+  ['2.1.114-to-2.1.116:17394', 'The advisor command dispatcher retains identical empty/off/unset handling, model normalization and validation, exact errors, and selection flow after alpha-renaming.'],
+  ['2.1.114-to-2.1.116:17395', 'The advisor module initializer retains the same authored dependencies and React bindings; only bundle-local identifiers change.'],
+  ['2.1.114-to-2.1.116:17397', 'The advisor command metadata, model-choice argument hint, feature visibility, and lazy loader are identical in 2.1.114 and 2.1.116 after alpha-renaming.'],
+  ['2.1.114-to-2.1.116:17676', 'Direct target 2.1.114/2.1.116 comparison proves the team-onboarding command, scanner prompt/template selection, window clamp, telemetry, discovery banner/arm, and generated prompt are identical after bundle-local alpha-renaming.'],
+  ['2.1.109-to-2.1.110:17872', 'The target and baseline subagentStatusLine runners have the same coarse AST, cooked literals, operators, branches, payload, timeout, subprocess options, and JSONL validation; only bundle-local bindings were renamed.'],
+  ['2.1.109-to-2.1.110:18005', 'The target and baseline subagentStatusLine polling hooks have the same coarse AST, cooked literals, operators, timers, overlap guard, task filtering, token sampling, and decoration state updates; only bundle-local bindings were renamed.'],
+  ['2.1.112-to-2.1.113:12793', 'The mcpOutputStorage truncation prompt builder is semantically identical to 2.1.112; the wrapper transition spells the same cooked em-dash characters as Unicode escapes and renames bundle-local bindings without changing branches, operators, or output.'],
+  ['2.1.112-to-2.1.113:12797', 'The binary MCP-output persistence function retains the same extension selection, output directory, write/error handling, telemetry, and returned metadata; the new native wrapper only repartitions and renames the authored unit.'],
+  ['2.1.112-to-2.1.113:12799', 'This structural residue is a wrapper-split tail of the unchanged binary-content notice function; its parameters, template, formatting call, and result are identical after alpha-renaming.'],
+  ['2.1.112-to-2.1.113:12800', 'The mcpOutputStorage module initializer retains the same authored dependencies and fs/promises/path bindings; only the native wrapper representation and bundle-local names change.'],
+  ['2.1.112-to-2.1.113:18884', 'The target and baseline subagentStatusLine runners have identical coarse AST, cooked literals, payload construction, trust/disable gates, timeout, subprocess options, and JSONL validation; the native wrapper transition only renames their referenced bindings.'],
+  ['2.1.114-to-2.1.116:8063', 'The ripgrep module initializer has the same target and baseline coarse AST, cooked literals, operators, commands, timeout, telemetry, and embedded build-source URL; only bundle-local identifiers change.'],
+  ['2.1.114-to-2.1.116:12927', 'The mcpOutputStorage initializer retains the same dependencies and fs/promises/path bindings as 2.1.114; this is only a native-wrapper repartition and alpha-renaming.'],
+  ['2.1.114-to-2.1.116:20382', 'The target content-map refactor makes model-migration.md a direct map member; target 2.1.114 conditionally spread the same present document, yielding the same runtime SKILL_FILES mapping.'],
+  ['2.1.114-to-2.1.116:20393', 'The target reading guide inlines the model-migration paragraph; target 2.1.114 inserted the identical paragraph by replacing <!-- __G2__ --> before returning the prompt.'],
+])
+
+// These static alpha proofs correspond to rows omitted by the normalized
+// readable statement diff. Their complete target/baseline comparisons prove
+// that only bundle-local bindings changed, so retain both the specific static
+// proof and the fail-closed readable-normalization evidence.
+const readableAlphaStaticOverrides = new Set([
+  '2.1.109-to-2.1.110:17872',
+  '2.1.109-to-2.1.110:18005',
+  '2.1.110-to-2.1.111:16227',
+  '2.1.112-to-2.1.113:12793',
+  '2.1.112-to-2.1.113:17235',
+  '2.1.112-to-2.1.113:18884',
+  '2.1.114-to-2.1.116:8063',
+  '2.1.114-to-2.1.116:12927',
+  '2.1.114-to-2.1.116:17386',
+  '2.1.114-to-2.1.116:17393',
+  '2.1.114-to-2.1.116:17397',
+  '2.1.114-to-2.1.116:17676',
+])
+
+// Typed-literal scanning is deliberately owner-local.  A compiled function
+// may inline imported state or carry generated cache/build constants that do
+// not occur textually in its authored owner.  These narrowly audited rows have
+// an explicit static-AST explanation rather than a blanket target-fragment
+// waiver.
+const typedResidueStaticOverrides = new Map([
+  ['2.1.114-to-2.1.116:7250', 'The target-only proportional literal is passed solely to the scroll diagnostic recorder. The authenticated diagnostic-closure proof establishes that recorder returns before reading any arguments because its module-local enable flag is initialized false and never assigned or updated; the renderer itself remains live and source-recovered.'],
+  ['2.1.107-to-2.1.108:13011', 'The target-added global occurrence is an ordinal artifact: the exact unique-coarse paired baseline/target units each contain one local fileReadingLimits property. TypeScript source authors it as a destructuring binding and the compiler emits the same runtime property.'],
+  ['2.1.107-to-2.1.108:18029', 'The target isInputEmpty property is the compiler spelling of a TypeScript BindingElement in the exact authenticated cancellation hook; the source scanner intentionally does not count BindingElement keys, while the focused test pins its declaration and use.'],
+  ['2.1.107-to-2.1.108:18238', 'The target-added global occurrences are ordinal artifacts: the exact unique-coarse paired baseline/target units each contain one local y and one local d property.'],
+  ['2.1.107-to-2.1.108:18273', 'The target-added global occurrence is an ordinal artifact: the exact unique-coarse paired baseline/target units each contain one local numeric 3600000 literal, the compiled form of the unchanged one-hour delay.'],
+  ['2.1.107-to-2.1.108:18299', 'The target-added global occurrence is an ordinal artifact: the exact unique-coarse paired baseline/target units each contain two local numeric 86400000 literals, the compiled form of the unchanged one-day duration.'],
+  ['2.1.107-to-2.1.108:18546', 'The target-added global occurrences are ordinal artifacts: the exact unique-coarse paired baseline/target units each contain five local number properties in the generated schema.'],
+  ['2.1.107-to-2.1.108:18608', 'The target-added global occurrence is an ordinal artifact: the exact unique-coarse paired baseline/target units each contain one local createContext property. It is React import lowering owned by OrderedList.tsx rather than a target semantic addition.'],
+  ['2.1.107-to-2.1.108:18705', 'The target-added global occurrence is an ordinal artifact: the exact unique-coarse paired baseline/target units each contain one local dimColor property.'],
+  ['2.1.107-to-2.1.108:18707', 'The target-added global occurrence is an ordinal artifact: the exact unique-coarse paired baseline/target units each contain one local haiku string.'],
+  ['2.1.107-to-2.1.108:18708', 'The target-added global occurrence is an ordinal artifact: the exact unique-coarse paired baseline/target units each contain one local haiku string.'],
+  ['2.1.107-to-2.1.108:18711', 'The target-added global occurrences are ordinal artifacts: the exact unique-coarse paired baseline/target units each contain one local sonnet, opus, and haiku property.'],
+  ['2.1.107-to-2.1.108:19050', 'The target-added global occurrence is an ordinal artifact: the exact unique-coarse paired baseline/target units each contain one local at property.'],
+  ['2.1.107-to-2.1.108:19190', 'The target-added global occurrence is an ordinal artifact: the exact unique-coarse paired baseline/target units each contain one local createElement property produced by JSX lowering.'],
+  ['2.1.107-to-2.1.108:13830', 'The only owner-local values absent from Feedback.tsx are bundler-injected target VERSION and BUILD_TIME strings; the authored feedback submission/status delta is separately pinned by its authenticated target fragment and semantic test.'],
+  ['2.1.107-to-2.1.108:15133', 'The only owner-local values absent from LogoV2.tsx are bundler-injected target VERSION and BUILD_TIME strings; the authored logo initializer and rendering behavior have no missing source literal.'],
+  ['2.1.107-to-2.1.108:18537', 'The generated prompt-action fallback is called and destructured, but each of its pending, handleAction, and skipForSession bindings occurs exactly once and is never read; the reachable REPL metrics and resume-model behavior is independently recovered and tested.'],
+  ['2.1.107-to-2.1.108:18538', 'The generated module fallback returns a fresh prompt-action object whose three fields are only destructured into single-occurrence, unread bindings in the REPL function; the authenticated test proves the allocation is statically unobservable.'],
+  ['2.1.107-to-2.1.108:19261', 'VERSION and BUILD_TIME are bundler-injected values. The target helper’s getClients/applyMcpUpdate adapter is source-equivalent to direct access to the same headless store, and createSubcommandRoot is reachable through the authored Commander handlers; the authenticated test pins both forms and the complete coordinator call path.'],
+  ['2.1.108-to-2.1.109:15216', 'The sole owner-local residue is the inherited local_agent discriminator consumed through imported task helpers; target and baseline retain the same discriminator and the Messages change is independently the thinking-indicator mount.'],
+  ['2.1.108-to-2.1.109:16580', 'The six zero literals are generated private-field initializers in the compiled ShellCommand class; they are not new target values and do not represent an omitted authored branch.'],
+  ['2.1.108-to-2.1.109:18540', 'All owner-local residues are inherited imported REPL constants or memo-cache literals with target occurrence counts no greater than baseline; the target-only REPL change is separately source-attributed and no new observable literal is omitted.'],
+  ['2.1.109-to-2.1.110:17246', 'The only target-added owner-local property is initSessionLog on an optional-call binding whose adjacent compiled declaration is constant null; the focused static test derives that binding and proves it has only the declaration and guarded call occurrences before the inline source map.'],
+  ['2.1.109-to-2.1.110:18595', 'The owner-local name-only string is compared against the adjacent skill-override resolver, but the authenticated target defines that resolver as an unconditional return on; the focused static test derives both minified functions and proves the comparison is deterministically false.'],
+  ['2.1.109-to-2.1.110:10209', 'The target-added sig property is an identifier-shortened private record field with exactly one write and one read inside the conflict detector; the authored owner uses the equivalent descriptive signature field and the focused proof pins the complete unit.'],
+  ['2.1.109-to-2.1.110:14415', 'The extra conflicts property occurrence belongs to a compiler-created local memo record that is immediately destructured and does not escape; the authored component directly computes and consumes the same conflicts array.'],
+  ['2.1.109-to-2.1.110:16220', 'The target VERSION and BUILD_TIME strings are build-time MACRO values inlined into the authored update command; the focused proof pins the complete launcher/preSpawn/relaunch unit and the source retains MACRO.VERSION.'],
+  ['2.1.109-to-2.1.110:19456', 'The target version, build time, and repeated macro-object values are bundler-inlined build identity in the authored CLI bootstrap; the focused proof pins the complete dynamic-import control flow while source retains MACRO.VERSION.'],
+  ['2.1.111-to-2.1.112:17058', 'Every owner-local residue is inherited API retry/beta context text with target occurrence counts no greater than baseline; the structural change does not add or replace any of these values.'],
+  ['2.1.111-to-2.1.112:17074', 'The only target-added owner-local values are generated package VERSION and BUILD_TIME constants embedded by the bundler; all authored side-query literals are inherited with target occurrence counts no greater than baseline.'],
+])
+
+function normalizeSource(source) {
+  if (typeof source !== 'string') return null
+  const marker = source.lastIndexOf('/src/')
+  if (marker >= 0) return source.slice(marker + 1)
+  return source.startsWith('src/') ? source : null
+}
+
+function gitHas(commit, filename, cache) {
+  const key = `${commit}:${filename}`
+  if (!cache.has(key)) {
+    cache.set(
+      key,
+      spawnSync('git', ['cat-file', '-e', key], { stdio: 'ignore' }).status === 0,
+    )
+  }
+  return cache.get(key)
+}
+
+function ownerId(filename) {
+  return `owner-${filename.replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '')}`
+}
+
+function dependencyPackage(source) {
+  if (source === '../vendor/audio-capture-src/index.ts') {
+    return 'audio-capture-napi'
+  }
+  const marker = '/node_modules/'
+  const index = source.lastIndexOf(marker)
+  if (index < 0) return '(unknown dependency)'
+  const parts = source.slice(index + marker.length).split('/')
+  return parts[0]?.startsWith('@') ? `${parts[0]}/${parts[1]}` : parts[0]
+}
+
+function exactCounts(rows, field, keys) {
+  return Object.fromEntries(keys.map(key => [key, rows.filter(row => row[field] === key).length]))
+}
+
+const existence = new Map()
+for (const [caseName, targetVersion, targetCommit] of cases) {
+  if (
+    process.env.CLAUDE_CODE_LATE_CASE &&
+    process.env.CLAUDE_CODE_LATE_CASE !== caseName
+  ) {
+    continue
+  }
+  const caseRoot = path.join('recovery', 'cases', caseName)
+  const generatorInputRoots = [
+    process.env.CLAUDE_CODE_LATE_GENERATOR_INPUT_ROOT,
+    path.join(repositoryRoot, '.recovery-tmp', 'generator-inputs'),
+    '/tmp/recovery-semantic-late-b',
+  ].filter(Boolean)
+  const inputPath = generatorInputRoots
+    .map(root => path.join(root, `${caseName}.all-owners.json`))
+    .find(candidate => fs.existsSync(candidate))
+  if (!inputPath) {
+    throw new Error(
+      `missing deterministic all-owner input for ${caseName}; searched ${generatorInputRoots.join(', ')}`,
+    )
+  }
+  const input = JSON.parse(
+    fs.readFileSync(inputPath, 'utf8'),
+  )
+  const ownerPaths = new Set()
+  const rows = []
+  const dependencyRows = []
+
+  for (const sourceRow of input.rows) {
+    const base = {
+      targetIndex: sourceRow.targetIndex,
+      start: sourceRow.start,
+      end: sourceRow.end,
+      nodeType: sourceRow.nodeType,
+      sourceHash: sourceRow.sourceHash,
+      structuralClass: sourceRow.structuralClass,
+    }
+
+    const forcedDependency = forcedDependencyRows
+      .get(caseName)
+      ?.has(sourceRow.targetIndex)
+
+    if (sourceRow.structuralClass === 'moved' && !forcedDependency) {
+      rows.push({
+        ...base,
+        disposition: 'alpha-equivalent',
+        ownerIds: [],
+        evidenceIds: ['structural-pairing'],
+      })
+      continue
+    }
+
+    const semanticKey = `${caseName}:${sourceRow.targetIndex}`
+    const staticAlphaReason = alphaStaticOverrides.get(semanticKey)
+    if (staticAlphaReason) {
+      rows.push({
+        ...base,
+        disposition: 'alpha-equivalent',
+        ownerIds: [],
+        evidenceIds: [
+          ...(sourceRow.metadataEquivalent === true ||
+            readableAlphaStaticOverrides.has(semanticKey)
+            ? ['readable-normalization']
+            : []),
+          'static-semantic-noop',
+        ],
+        reason: staticAlphaReason,
+      })
+      continue
+    }
+    const dce = dceOverrides.get(semanticKey)
+    if (dce) {
+      rows.push({
+        ...base,
+        disposition: 'dce-nonruntime',
+        ownerIds: [],
+        evidenceIds: dce.evidenceIds ?? ['static-semantic-noop'],
+        category: dce.category,
+        reason: dce.reason,
+      })
+      continue
+    }
+
+    const attributed = sourceRow.owners.length > 0
+      ? sourceRow.owners
+      : sourceRow.candidateOwners
+    // A complete top-level unit whose token stream occurs in the baseline
+    // after only identifier and build-metadata normalization is executable
+    // alpha equivalence, not a source recovery obligation. Keep dependency
+    // units fail-closed below even when their generated representation is
+    // equivalent: without pinned dependency/build inputs we still cannot
+    // reproduce the whole bundle from source.
+    if (
+      sourceRow.metadataEquivalent === true &&
+      !attributed[0]?.source.includes('/node_modules/') &&
+      !forcedDependency &&
+      !ownerOverrides.has(semanticKey)
+    ) {
+      rows.push({
+        ...base,
+        disposition: 'alpha-equivalent',
+        ownerIds: [],
+        evidenceIds: ['readable-normalization', 'static-semantic-noop'],
+        reason: 'The complete target unit has an exact baseline token-stream match after only bundle-local identifier and generated version/build-metadata normalization; cooked literals, operators, branches, and calls are unchanged.',
+      })
+      continue
+    }
+
+    // The native-launch bootstrap embeds build identity and has no authored
+    // source owner. It is deliberately classified before source-map fallback,
+    // whose nearest candidate happens to be lodash due its tiny leading span.
+    if (caseName === '2.1.114-to-2.1.116' && sourceRow.targetIndex === 11) {
+      rows.push({
+        ...base,
+        disposition: 'generated-metadata',
+        ownerIds: [],
+        evidenceIds: ['generated-build-metadata', 'static-generated-ast'],
+        category: 'native-launch-build-provenance',
+        reason: 'Generated native-launch bootstrap embeds VERSION, BUILD_TIME, GIT_SHA, and BUILD_REF_NAME rather than an authored application function.',
+      })
+      continue
+    }
+
+    // Bun's ES-module copy helper is synthesized build glue, not first-party
+    // source runtime omitted from src/.
+    if (caseName === '2.1.112-to-2.1.113' && sourceRow.targetIndex === 3) {
+      rows.push({
+        ...base,
+        disposition: 'generated-metadata',
+        ownerIds: [],
+        evidenceIds: ['generated-build-metadata', 'static-generated-ast'],
+        category: 'bundler-runtime-glue',
+        reason: 'Static AST is the synthesized property-copy/interoperability helper used by the native bundle wrapper.',
+      })
+      continue
+    }
+
+    // A manually pinned target fragment can correct an ambiguous nearest-
+    // source-map vote (for example a small first-party focus hook whose equal
+    // score happens to list chokidar first).  Explicit forced dependency rows
+    // remain dependency gaps regardless of overrides.
+    if (
+      forcedDependency ||
+      (attributed[0]?.source.includes('/node_modules/') &&
+        !ownerOverrides.has(semanticKey))
+    ) {
+      const attribution = forcedDependency
+        ? forcedDependencyAttributions.get(semanticKey) ??
+          '../node_modules/@anthropic-ai/sdk/src/internal/auth/credential-chain.ts'
+        : attributed[0].source
+      const identifierOrMetadataEquivalent =
+        sourceRow.alphaByCoarse === true || sourceRow.metadataEquivalent === true
+      const isVendoredBuildInput = attribution.startsWith('../vendor/')
+      rows.push({
+        ...base,
+        disposition: 'dependency-runtime',
+        ownerIds: [],
+        evidenceIds: [
+          'dependency-attribution',
+          'dependency-build-input-audit',
+          ...(forcedDependency
+            ? [
+                forcedDependencyEvidence.get(semanticKey) ??
+                  (caseName === '2.1.112-to-2.1.113'
+                    ? 'case113-dependency-target-fragment'
+                    : 'workload-identity-dependency-target-fragment'),
+              ]
+            : []),
+        ],
+        category: isVendoredBuildInput
+          ? 'first-party-vendored-build-input-unpinned'
+          : identifierOrMetadataEquivalent
+            ? 'third-party-identifier-or-metadata-equivalent-unpinned'
+            : 'third-party-material-or-unresolved-delta-unpinned',
+        reason: isVendoredBuildInput
+          ? `Exact target source-map attribution is ${attribution}; the live audio-capture loader is a vendored native build input outside src/, and its source archive/build recipe is not pinned, so whole-bundle reproduction remains explicitly unverified.`
+          : identifierOrMetadataEquivalent
+            ? `Highest-weight target attribution is ${attribution}; coarse identifier-insensitive or metadata normalization is equivalent, but no target-pinned dependency source/build input exists, so whole-bundle reproduction from source remains unverified.`
+            : `Highest-weight target attribution is ${attribution}; the unit has a material or unresolved dependency delta and no target-pinned dependency source/build input exists, so it is a whole-bundle source-reproduction gap.`,
+      })
+      dependencyRows.push({
+        ...base,
+        attribution,
+        package: dependencyPackage(attribution),
+        classification: isVendoredBuildInput
+          ? 'vendored-build-input-unpinned'
+          : identifierOrMetadataEquivalent
+            ? 'identifier-or-metadata-equivalent-unpinned'
+            : 'material-or-unresolved-delta-unpinned',
+        sourceBuildInputPinned: false,
+      })
+      continue
+    }
+
+    const key = `${caseName}:${sourceRow.targetIndex}`
+    const replOverride =
+      caseName === '2.1.107-to-2.1.108' &&
+      sourceRow.targetIndex >= 11642 &&
+      sourceRow.targetIndex <= 11727
+        ? {
+            paths:
+              sourceRow.targetIndex === 11642 || sourceRow.targetIndex === 11643
+                ? ['src/tools/REPLTool/prompt.ts']
+                : ['src/tools/REPLTool/REPLTool.ts'],
+            behavior:
+              'The target 2.1.108 REPL unit is recovered in the sealed persistent VM owner, including prompt/schema construction, tool wrappers and hooks, convenience helpers, cross-realm cloning, replay/hydration, timeouts, progress, and dynamic registered-tool propagation.',
+          }
+        : undefined
+    const override = ownerOverrides.get(key) ?? replOverride
+    const special = specialOwners.get(key)
+    let chosenPaths = override?.paths ?? (special ? [special] : [])
+    if (chosenPaths.length === 0) {
+      for (const item of attributed) {
+        const candidate = normalizeSource(item.source)
+        if (
+          candidate &&
+          fs.existsSync(candidate) &&
+          gitHas(targetCommit, candidate, existence)
+        ) {
+          chosenPaths = [candidate]
+          break
+        }
+      }
+    }
+    if (chosenPaths.length === 0) {
+      throw new Error(
+        `${caseName} target unit ${sourceRow.targetIndex} has no defensible source owner`,
+      )
+    }
+
+    for (const chosen of chosenPaths) ownerPaths.add(chosen)
+    const typedResidueStaticReason = typedResidueStaticOverrides.get(key)
+    rows.push({
+      ...base,
+      disposition: 'source-runtime-covered',
+      ownerIds: chosenPaths.map(ownerId),
+      evidenceIds:
+        [
+          ...(override?.evidenceIds ??
+            (override || special
+              ? ['target-fragment', 'semantic-test']
+              : ['source-map-attribution', 'semantic-test'])),
+          ...(typedResidueStaticReason ? ['typed-residue-static-ast'] : []),
+        ],
+      ...(typedResidueStaticReason ? { reason: typedResidueStaticReason } : {}),
+      behavior: override?.behavior ?? (special
+        ? `Target fragment is implemented by the equivalent current source owner ${chosenPaths[0]}; the source-map path was renamed, vendor-only, or generated at this boundary.`
+        : `Compiled target unit is attributed to ${chosenPaths[0]}; its authored runtime owner and call path are present in the target semantic tree and current cumulative src/.`),
+    })
+  }
+
+  const owners = [...ownerPaths]
+    .sort()
+    .map(filename => {
+      const transitiveFromCase = transitiveOwnerCases.get(
+        `${caseName}:${filename}`,
+      )
+      const retiredInCase = retiredOwnerCases.get(`${caseName}:${filename}`)
+      return {
+        id: ownerId(filename),
+        path: filename,
+        ...(transitiveFromCase ? { transitiveFromCase } : {}),
+        ...(retiredInCase ? { retiredInCase } : {}),
+      }
+    })
+  const evidence = [
+    {
+      id: 'structural-pairing',
+      kind: 'structural-pairing',
+      detail: 'Structural ledger records exact-scope-normalized-token-hash pairing for every moved unit.',
+    },
+    {
+      id: 'source-map-attribution',
+      kind: 'source-map-attribution',
+      detail: 'Verified 2.1.88 source-map partitions, candidates, relocated candidates, and initializer votes reach the named src owner.',
+    },
+    ...(caseName === '2.1.110-to-2.1.111'
+      ? [
+          {
+            id: 'schedule-routines-alias-target-fragment',
+            kind: 'target-fragment',
+            path: 'recovery/test/recovery-2.1.111-schedule-routines-alias-semantic.test.mjs',
+            detail: 'Authenticated baseline110 unit 19014 and target111 unit 19076 pin the complete scheduled-agent descriptor before and after the /routines alias by exact range and SHA-256.',
+          },
+          {
+            id: 'schedule-routines-alias-semantic-test',
+            kind: 'semantic-test',
+            path: 'recovery/test/recovery-2.1.111-schedule-routines-alias-semantic.test.mjs',
+            detail: 'The source-root-aware test proves the /routines alias is declared exactly once and forwarded through bundled-skill registration into alias-aware command resolution.',
+          },
+        ]
+      : []),
+    {
+      id: 'readable-normalization',
+      kind: 'readable-normalization',
+      detail: 'The complete target unit has a baseline counterpart after identifier and generated version/build-metadata normalization, with all cooked literals, operators, branches, and calls retained.',
+    },
+    {
+      id: 'dependency-attribution',
+      kind: 'dependency-attribution',
+      detail: 'Highest-weight target attribution is a node_modules source. These rows are excluded only from the first-party verdict; each remains an explicit whole-bundle source-reproduction gap.',
+    },
+    {
+      id: 'dependency-build-input-audit',
+      kind: 'dependency-attribution',
+      path: `${caseRoot}/semantic/dependency-coverage.json.gz`,
+      detail: 'Per-package audit distinguishes identifier/metadata-equivalent units from material or unresolved dependency deltas. The target commit contains no application package manifest, lockfile, dependency source archive, or build recipe pinning the embedded dependency inputs.',
+    },
+    {
+      id: 'generated-build-metadata',
+      kind: 'generated-metadata',
+      detail: 'Target fragment contains build provenance or bundler-synthesized wrapper material with no authored src owner.',
+    },
+    {
+      id: 'case113-dependency-target-fragment',
+      kind: 'dependency-target-fragment',
+      path: 'recovery/test/recovery-2.1.113-dependency-runtime-fragments-semantic.test.mjs',
+      detail: 'The authenticated test pins the exact target113 Smithy protocol enum, Smithy client export table, STS endpoint parameters, React reconciler priority constants, and Scheduler production runtime units by structural range and SHA-256.',
+    },
+    {
+      id: 'case113-dependency-wrapper-target-fragment',
+      kind: 'dependency-target-fragment',
+      path: 'recovery/test/recovery-2.1.113-dependency-wrapper-residue-proofs.test.mjs',
+      detail: 'The authenticated fixture and test pin the complete target113 picomatch parser, computer-use Swift loader, and asciichart runtime wrapper units, every target-added residue, and their exact node_modules source-map package identities.',
+    },
+    {
+      id: 'case113-audio-capture-vendor-runtime-target-fragment',
+      kind: 'dependency-target-fragment',
+      path: 'recovery/test/recovery-2.1.113-audio-capture-vendor-runtime-proof.test.mjs',
+      detail: 'The authenticated fixture pins target113 u13269 and its x64-linux native-loader residue, proves exact source-map ownership by ../vendor/audio-capture-src/index.ts rather than the adjacent voice service, and traces the live export/loader/voice call chain while leaving the absent vendored build input explicit.',
+    },
+    {
+      id: 'unclean-session-telemetry-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-unclean-session-telemetry-semantic.test.mjs',
+      detail: 'The authenticated test pins target113 concurrent-session unit 4587 and every unclean-session log and telemetry occurrence by exact inner-bundle range and SHA-256 while contrasting target112.',
+    },
+    {
+      id: 'unclean-session-telemetry-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-unclean-session-telemetry-semantic.test.mjs',
+      detail: 'The executable source-root-aware test proves the stale-file sweep parses and removes prior records once, reports only removed interactive peers, sorts its snapshot newest first, and does not emit duplicate telemetry.',
+    },
+    {
+      id: 'synchronized-inline-output-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-synchronized-inline-output-semantic.test.mjs',
+      detail: 'The authenticated test pins the target113 Ink sink and all nine synchronized writer, serializer, layout, backfill, gate, and FullscreenLayout units by exact inner range and SHA-256 and proves their absence from target112.',
+    },
+    {
+      id: 'synchronized-inline-output-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-synchronized-inline-output-semantic.test.mjs',
+      detail: 'The executable source-root-aware test drives synchronized writer setup, viewport advancement, atomic draw, duplicate suppression, resize replay, suspension, resumption, restoration, and the live REPL transcript-boundary wiring.',
+    },
+    {
+      id: 'retained-runtime-gaps-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-retained-runtime-gaps-semantic.test.mjs',
+      detail: 'The authenticated test pins each retained target113 runtime-hardening unit and its exact bundle fragment by structural index, byte range, node type, and SHA-256, including live callers and persistence where required.',
+    },
+    {
+      id: 'retained-runtime-gaps-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-retained-runtime-gaps-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies shutdown, plugin, tracing, API identity, updater, provider, ultrathink, deep-link, and CLI action behavior against both current and materialized target113 source roots.',
+    },
+    {
+      id: 'tracing-lifecycle-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-tracing-lifecycle-semantic.test.mjs',
+      detail: 'The authenticated test pins all six target113 live-context and exact-span tracing units plus the tool, interactive, and headless caller units by exact structural range and SHA-256 and proves persistence through target116.',
+    },
+    {
+      id: 'tracing-lifecycle-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-tracing-lifecycle-semantic.test.mjs',
+      detail: 'The executable source-root-aware test uses real AsyncLocalStorage scopes to verify ended-context rejection, live fallback, nested parenting, ALS-local execution teardown, exact-span termination, concurrent isolation, and both complete-turn callers.',
+    },
+    {
+      id: 'routines-loader-dce-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-routines-loader-dce-semantic.test.mjs',
+      detail: 'The authenticated test pins every target113 routines parser and loader unit, all 144 target-added scanner residues, and their one-to-one coarse structural counterparts in target116.',
+    },
+    {
+      id: 'routines-loader-dce-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-routines-loader-dce-semantic.test.mjs',
+      detail: 'The static reachability oracle proves both routines bindings have only declaration and initializer-assignment references and no call, return, pass, export, or other consumer in authenticated target113 or target116.',
+    },
+    {
+      id: 'protocol-handler-realpath-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-protocol-handler-realpath-semantic.test.mjs',
+      detail: 'The authenticated test pins the target113 protocol-handler realpath unit and its target112 predecessor by exact structural index, range, node type, and SHA-256, and proves persistence through target114 and target116.',
+    },
+    {
+      id: 'protocol-handler-realpath-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-protocol-handler-realpath-semantic.test.mjs',
+      detail: 'The source-root-aware executable harness proves the terminal launcher receives the canonicalized executable path and receives process.execPath after a realpath rejection.',
+    },
+    {
+      id: 'daemon-terminal-output-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-daemon-terminal-output-semantic.test.mjs',
+      detail: 'The authenticated test pins the target113 terminal writer and daemon-backend predicate by exact structural index, range, node type, and SHA-256 and proves the guard surface is absent from target112.',
+    },
+    {
+      id: 'daemon-terminal-output-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-daemon-terminal-output-semantic.test.mjs',
+      detail: 'Executable target and transpiled-source harnesses prove daemon-only EIO/EPIPE suppression, permanent writer retirement, and fail-open rethrowing for interactive and unexpected errors.',
+    },
+    {
+      id: 'api-error-nested-json-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-api-error-nested-json-semantic.test.mjs',
+      detail: 'The authenticated test pins target113 API-error formatter unit 8118, its nested-JSON discriminator, and exact structural range and SHA-256 against target112.',
+    },
+    {
+      id: 'api-error-nested-json-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-api-error-nested-json-semantic.test.mjs',
+      detail: 'Executable target and transpiled-source harnesses prove nested provider messages are recovered from serialized top-level errors with the HTTP status retained and ordinary errors unchanged.',
+    },
+    {
+      id: 'fullwidth-digit-regexp-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-fullwidth-digit-regexp-semantic.test.mjs',
+      detail: 'The authenticated test pins target113 fullwidth-digit normalizer unit 2050, its escaped U+FF10–U+FF19 regexp, exact structural range, and SHA-256.',
+    },
+    {
+      id: 'fullwidth-digit-regexp-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-fullwidth-digit-regexp-semantic.test.mjs',
+      detail: 'Executable target and transpiled-source harnesses prove the escaped compiled range and authored fullwidth glyph range normalize the same digits with equivalent decimal and hexadecimal offsets.',
+    },
+    {
+      id: 'case113-target-added-residue-static-ast',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.113-target-added-residue-proofs.json',
+      detail: 'The exact target113 fixture classifies only authenticated target-added owner residues proved as runtime-import lowering, React compiler memo-cache allocation, build-macro identity, a unique exact alternate source owner, or a paired local literal invariant; ambiguous and behavioral rows are excluded.',
+    },
+    {
+      id: 'case113-target-added-residue-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-target-added-residue-proofs.test.mjs',
+      detail: 'The fail-closed authenticated test pins all 1,024 admitted structural units and 1,603 target-added occurrences, executes AST category oracles, and parses every historical/current TypeScript owner to verify imports and alternate-source identities.',
+    },
+    {
+      id: 'case113-direct-owner-representation-static-ast',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.113-direct-owner-representation-proofs.test.mjs',
+      detail: 'The authenticated AST oracle pins 15 target113 units and 23 target-added residues to their direct authored declarations, template or regexp spellings, destructures, runtime imports, default imports, and React compiler memo-cache forms.',
+    },
+    {
+      id: 'case113-direct-owner-representation-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-direct-owner-representation-proofs.test.mjs',
+      detail: 'The fail-closed test authenticates the target113 inner/wrapper artifacts, exact structural unit bytes, global baseline/target ordinals, and the corresponding TypeScript owner AST roles.',
+    },
+    {
+      id: 'case113-focused-owner-corrections-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-focused-owner-corrections-semantic.test.mjs',
+      detail: 'The fail-closed fixture pins all 61 corrected target113 structural units, their exact whole-unit hashes, all 92 target-added residues, and the sole authored declaration and import identity that owns each generated unit.',
+    },
+    {
+      id: 'case113-focused-owner-corrections-source-ast-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-focused-owner-corrections-semantic.test.mjs',
+      detail: 'The authenticated dual-root test proves inner/wrapper target identity, exact residue ranges and ordinals, stable source-declaration names, kinds and residue identities, plus non-type module/import/local bindings for every corrected owner without overfitting later declaration evolution.',
+    },
+    {
+      id: 'target113-focused-owner-corrections-supplement-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-focused-owner-corrections-supplement.test.mjs',
+      detail: 'The authenticated fixture pins target113 u10812/u10813, their three target-added property residues, and the exact commit-attribution hash/path declarations that own the generated units.',
+    },
+    {
+      id: 'target113-focused-owner-corrections-supplement-source-ast-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-focused-owner-corrections-supplement.test.mjs',
+      detail: 'The dual-root AST and executable test proves SHA-256 content hashing and path normalization parity together with exact crypto/path runtime imports and call counts.',
+    },
+    {
+      id: 'target113-owner-and-punctuation-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-owner-and-punctuation-proofs.test.mjs',
+      detail: 'The fail-closed fixture authenticates nine complete target113 units and all 14 exact target-added property or regexp residues for team locking, mention parsing, path canonicalization, prompt-shell execution, and memory-file classification.',
+    },
+    {
+      id: 'target113-owner-and-punctuation-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-owner-and-punctuation-proofs.test.mjs',
+      detail: 'The dual-root AST and executable test proves the exact authored owners, CJK punctuation mention truth tables, Windows/Posix normalization, session-pattern classification, lock retry shape, and crypto runtime import without accepting coarse source-map spillover.',
+    },
+    {
+      id: 'target113-recovered-source-gaps-batch3-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-recovered-source-gaps-batch3.test.mjs',
+      detail: 'The fail-closed fixture authenticates target113 u12073/u12662/u12781, all seven exact residue ranges, and the bounded Markdown URL, FileWrite report guard, and notebook UUID source deltas together with the coalesced alternate-owner/import residues.',
+    },
+    {
+      id: 'target113-recovered-source-gaps-batch3-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-recovered-source-gaps-batch3.test.mjs',
+      detail: 'The dual-root executable test proves URL Markdown recognition, subagent report-file rejection, cryptographic notebook cell identifiers, exact source declarations and imports, and absence of only those bounded behaviors from the pre-recovery tree.',
+    },
+    {
+      id: 'target113-bundled-installation-paths-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-bundled-installation-paths.test.mjs',
+      detail: 'The fail-closed fixture authenticates target113 u11298 and both exact target-added local/global node_modules path residues together with the recovered getCurrentInstallationType declaration and config-home import.',
+    },
+    {
+      id: 'target113-bundled-installation-paths-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-bundled-installation-paths.test.mjs',
+      detail: 'The dual-root executable truth table proves config-home local installs, global @anthropic-ai installs, and native bundled fallthrough, while pinning the exact pre-recovery absence of only the two path checks.',
+    },
+    {
+      id: 'target113-provider-setup-residue-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-provider-setup-residue-proofs.test.mjs',
+      detail: 'The fail-closed fixture authenticates eight complete target113 provider-setup/relaunch units and all 14 exact target-added residue occurrences, correcting the coarse Spinner ownership and distinguishing recovered package gaps from exact source/import/compiler representations.',
+    },
+    {
+      id: 'target113-provider-setup-residue-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-provider-setup-residue-proofs.test.mjs',
+      detail: 'The dual-root source AST and executable oracle pins Bedrock verification/profile/region, Vertex project/config/service-account, and provider relaunch declarations, imports, memo-cache forms, and target fragment identities without admitting unrelated wizard behavior.',
+    },
+    {
+      id: 'target113-repl-owner-package-gap-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-repl-owner-package-gap.test.mjs',
+      detail: 'The fail-closed fixture authenticates four complete target113 REPL units and all six exact target-added residues for sampling, direct inner-tool wrapping, convenience helpers, supporting constants, and Node crypto/path/util import lowering.',
+    },
+    {
+      id: 'target113-repl-owner-package-gap-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-repl-owner-package-gap.test.mjs',
+      detail: 'The source AST oracle proves the transitive target108 REPL owner exactly owns each declaration/import representation and fail-closes on the expected isolated target113 package omission without claiming a new target113 owner introduction.',
+    },
+    {
+      id: 'target113-residual-owner-import-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-residual-owner-import-proofs.test.mjs',
+      detail: 'The fixture authenticates six complete target113 units and all 16 target-added residues, correcting five coarse owners and pinning the exact LSP document-version source delta without importing later protocol surface.',
+    },
+    {
+      id: 'target113-residual-owner-import-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-residual-owner-import-proofs.test.mjs',
+      detail: 'The dual-root AST oracle proves runtime path and URL imports, authored notification status, color-language and orphaned-plugin path ownership, plus monotonically versioned LSP didOpen/didChange/didClose behavior.',
+    },
+    {
+      id: 'target113-high-count-direct-representation-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-high-count-direct-representation-proofs.test.mjs',
+      detail: 'The fail-closed fixture authenticates four complete target113 units and all 81 exact target-added residues across worktree execution, REPL/search input, QueryEngine/query-context extraction, and the install command.',
+    },
+    {
+      id: 'target113-high-count-direct-representation-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-high-count-direct-representation-proofs.test.mjs',
+      detail: 'The dual-root source-AST and executable oracle proves direct imports and calls, alternate input and extracted-helper forms, compiler lowering, and that an rc install persists and logs the stable update channel.',
+    },
+    {
+      id: 'target113-recovered-owner-package-gaps-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-recovered-owner-package-gaps.test.mjs',
+      detail: 'The fixture authenticates target113 u18268/u18269/u19377 and all 26 exact target-added occurrences, correcting coalesced permission-status and Ultraplan source-map attribution to their cumulative semantic owners.',
+    },
+    {
+      id: 'target113-recovered-owner-package-gaps-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-recovered-owner-package-gaps.test.mjs',
+      detail: 'The dual-root source oracle pins permission status priority and rendering plus the Ultraplan dialog imports, terminal-row behavior, and compiler-cache form while verifying those transitive packages are absent from the isolated target113 snapshot.',
+    },
+    {
+      id: 'target113-safe-static-tail-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-safe-static-tail-proofs.test.mjs',
+      detail: 'The authenticated fixture pins nine complete target113 units and all 21 target-added residue ranges and occurrence ordinals, including the corrected systemInit owner for the coalesced bridge unit.',
+    },
+    {
+      id: 'target113-safe-static-tail-static-ast',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.113-safe-static-tail-proofs.test.mjs',
+      detail: 'Dual-root AST analysis proves each admitted residue is exactly a build macro, runtime import, destructured binding, compiler cache, default import, or bundled module spelling already represented by its authored owner.',
+    },
+    {
+      id: 'target113-safe-static-tail-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-safe-static-tail-proofs.test.mjs',
+      detail: 'The fail-closed test verifies complete fixture identity, authenticated bundle coordinates, and exact source-role coverage in both the cumulative source and materialized target113 source tree.',
+    },
+    {
+      id: 'target113-first-half-strict-tail-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-first-half-strict-tail-proofs.test.mjs',
+      detail: 'The authenticated fail-closed fixture pins 44 complete target113 structural units and all 133 target-added occurrence ranges and ordinals across direct owners, bounded source recoveries, and the dormant jobs-state closure.',
+    },
+    {
+      id: 'target113-first-half-strict-tail-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-first-half-strict-tail-proofs.test.mjs',
+      detail: 'The dual-root and recovered-package oracle validates every exact owner declaration and import, executes the bounded behavior contracts, proves the three-unit jobs graph cannot escape, and requires the idempotent temporal-safe target113 replay in selected package mode.',
+    },
+    {
+      id: 'target113-first-half-strict-tail-static-ast',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.113-first-half-strict-tail-proofs.test.mjs',
+      detail: 'Complete-bundle binding analysis proves the three-unit jobs directory, state-reader, and schema/module closure is declaration-only and has no call, export, pass, return, or state escape.',
+    },
+    {
+      id: 'target113-second-half-strict-tail-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-second-half-safe-static-owner-proofs.test.mjs',
+      detail: 'The authenticated fail-closed fixture pins every admitted second-half target113 structural unit and exact target-added occurrence range and ordinal while explicitly excluding the separately proved daemon path and lock units.',
+    },
+    {
+      id: 'target113-second-half-strict-tail-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-second-half-safe-static-owner-proofs.test.mjs',
+      detail: 'The current, comparison, raw-replay, and selected-package AST oracle proves each direct, corrected, transitive, compiler, and selectively recovered owner and executes the bounded historical replay behavior contracts.',
+    },
+    {
+      id: 'target113-session-materialization-accessors-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-session-materialization-accessors-semantic.test.mjs',
+      detail: 'The authenticated test pins target113 export unit 17550, both target-added property ranges, and the exact backing accessor and cache-notification units by structural identity and SHA-256.',
+    },
+    {
+      id: 'target113-session-materialization-accessors-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-session-materialization-accessors-semantic.test.mjs',
+      detail: 'The executable source and target oracle proves getMaterializedSessionFile never initializes Project state and cacheAgentName updates the singleton and emits exactly one notification.',
+    },
+    {
+      id: 'target113-sdk-initialize-title-schema-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-sdk-initialize-title-schema-semantic.test.mjs',
+      detail: 'The authenticated test pins target113 SDK initialize unit 19497 and its sole custom-title description residue by exact structural range, occurrence ordinal, and SHA-256.',
+    },
+    {
+      id: 'target113-sdk-initialize-title-schema-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-sdk-initialize-title-schema-semantic.test.mjs',
+      detail: 'The dual-root executable test proves the optional SDK title schema accepts strings, rejects non-strings, exposes the exact description, and was absent from the pre-recovery historical owner.',
+    },
+    {
+      id: 'target113-daemon-lock-reader-import-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-daemon-lock-reader-import-semantic.test.mjs',
+      detail: 'The authenticated test pins target113 daemon-lock units 20409 and 20413, their exact structural hashes, and every target-added readFile, pid, and fs/promises occurrence range and ordinal.',
+    },
+    {
+      id: 'target113-daemon-lock-reader-import-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-daemon-lock-reader-import-semantic.test.mjs',
+      detail: 'The dual-root executable oracle proves the recovered update reader uses the exact Node/source import graph and fails closed for absent, malformed, and non-ENOENT lock reads.',
+    },
+    {
+      id: 'target113-daemon-temp-path-dce-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-daemon-temp-path-dce-semantic.test.mjs',
+      detail: 'The authenticated test pins target113 daemon-path unit 19322 and every target-added os, createHash, join, tmpdir, and cc-daemon occurrence, together with its identical target114 and evolved target116 identities.',
+    },
+    {
+      id: 'target113-daemon-temp-path-dce-static-ast',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.113-daemon-temp-path-dce-semantic.test.mjs',
+      detail: 'Whole-bundle binding analysis and executable initializer stubs prove the memoized path factory is assigned but never consumed, while the selected historical package intentionally omits the later daemon/paths owner.',
+    },
+    {
+      id: 'case116-target-added-residue-static-ast',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.116-target-added-residue-proofs.json',
+      detail: 'The fail-closed fixture admits exactly 77 complete target116 units and 490 residues proved as generated build macros, paired local invariants, unique exact alternate owners, runtime-import lowering, or React memo-cache slots; all other audited units are explicitly excluded.',
+    },
+    {
+      id: 'target116-trust-setup-wrapper-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-trust-setup-wrapper-semantic.test.mjs',
+      detail: 'The authenticated test pins exact target114/116 TrustDialog and headless setup units plus the matched setup dispatcher by structural range and SHA-256, covering the shortcut-footer and setup-wrapper target-added residues.',
+    },
+    {
+      id: 'target116-trust-setup-wrapper-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-trust-setup-wrapper-semantic.test.mjs',
+      detail: 'The executable source-root-aware test renders the TrustDialog pending/non-pending footer and proves both target generations route the setup wrapper to the shared live setup dispatcher.',
+    },
+    {
+      id: 'target-fragment-target116-strict-tail-proofs',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-strict-tail-proofs.test.mjs',
+      detail: 'The fail-closed fixture authenticates the exact target114/116 inner bundles, 25 complete target116 structural units, and all 186 remaining target-added occurrence ranges and ordinals across owner corrections, build metadata, component extraction, compiler cache, and direct authored source.',
+    },
+    {
+      id: 'semantic-target116-strict-tail-proofs',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-strict-tail-proofs.test.mjs',
+      detail: 'The authenticated source-AST oracle proves exact authored values and runtime imports against corrected owners, validates compiler/cache and build-macro forms, and pins every strict-tail bundle fragment without accepting coarse source-map spillover.',
+    },
+    {
+      id: 'case116-target-added-residue-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-target-added-residue-proofs.test.mjs',
+      detail: 'The authenticated dual-root test pins exact target116 inner structural bytes, residue offsets and ordinals, target114 pair counts, build-macro identity, unique alternate owners, runtime imports, and React compiler cache forms.',
+    },
+    {
+      id: 'case116-safe-residual-static-ast',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.116-safe-residual-proofs.json',
+      detail: 'The fail-closed dual-root oracle admits exactly 21 residual target116 units and 41 target-added residues proved as exact owner correction, model truth-table representation, context or task-registry lowering, component extraction, mixed authored/build representation, arithmetic folding, or one separately classified transitive dead closure.',
+    },
+    {
+      id: 'case116-safe-residual-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-safe-residual-proofs.test.mjs',
+      detail: 'The authenticated target114/116 test pins all complete structural identities and residue ordinals and verifies each admitted representation against both the current cumulative source and the pre-dispatch historical target116 reconstruction.',
+    },
+    {
+      id: 'case113-residual-build-representation-static-ast',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.113-residual-build-representation-proofs.json',
+      detail: 'The fail-closed fixture pins seven target113 units and 16 target-added residues to exact runtime imports, import.meta URL build paths, platform template folds, or generated build-metadata objects in both source generations.',
+    },
+    {
+      id: 'case113-residual-build-representation-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-residual-build-representation-proofs.test.mjs',
+      detail: 'The authenticated dual-root test proves complete structural target units, global residue ordinals and ranges, runtime import bindings, import.meta source suffixes, arch/platform templates, and build-macro identity.',
+    },
+    {
+      id: 'target113-recovered-live-source-gaps-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-recovered-live-source-gaps.test.mjs',
+      detail: 'The authenticated fixture pins target113 units u8711, u10147, and u20261, their target-only residue ranges, exact recovered source declarations and imports, and their absence from the pre-recovery historical source root.',
+    },
+    {
+      id: 'target113-recovered-live-source-gaps-source-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-recovered-live-source-gaps.test.mjs',
+      detail: 'The dual-root executable oracle proves SHA-1 file-state hashing and fallback, loop-file ENOENT handling and trimming, and SDK memory recall event construction from the recovered authored declarations.',
+    },
+    {
+      id: 'target113-recovered-source-gaps-batch2-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-recovered-source-gaps-batch2.test.mjs',
+      detail: 'The fixture authenticates target113 u9828 and u9919, all three exact residue AST ranges, the existing HTTP schema owner, and the bounded mirror-error and Perfetto request-ID source gaps.',
+    },
+    {
+      id: 'target113-recovered-source-gaps-batch2-source-ast-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-recovered-source-gaps-batch2.test.mjs',
+      detail: 'The dual-root source AST and executable test proves the exact SDK mirror-error schema/union, request and client-request Perfetto propagation, and the pre-package absence of only the two recovered behaviors.',
+    },
+    {
+      id: 'target113-remote-bundle-option-migration-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-remote-bundle-option-migration-proofs.test.mjs',
+      detail: 'The fixture authenticates the five target113 allowBundle implementation/caller units, all seven target-only property residues, and the forwarding bridge that maps the positive bundle option onto the recovered negative skipBundle source option.',
+    },
+    {
+      id: 'target113-remote-bundle-option-migration-source-truth-table-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-remote-bundle-option-migration-proofs.test.mjs',
+      detail: 'The dual-root executable truth-table test proves that omitted/default-false skipBundle callers and the exact negated guards preserve target113 allowBundle behavior in remote eligibility, teleport, review, and Ultraplan paths.',
+    },
+    {
+      id: 'target113-global-package-manager-detection-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-global-package-manager-detection.test.mjs',
+      detail: 'The authenticated fixture pins target113 u11276 and its exact BUN_INSTALL and normalized Bun global-install path residues, together with the recovered detector declaration and production caller graph.',
+    },
+    {
+      id: 'target113-global-package-manager-detection-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-global-package-manager-detection.test.mjs',
+      detail: 'The dual-root executable truth-table test proves Bun global path detection, bundled-runtime fallback to npm, nonbundled Bun fallback, normalization, and shared install-prefix/WSL/global-install decisions.',
+    },
+    {
+      id: 'four-live-residue-gaps-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-four-live-residue-gaps-semantic.test.mjs',
+      detail: 'The authenticated target116 test pins the shared scroll-config, Agent tree renderer, CCR transport, alternate-screen cleanup, and wheel initializer units by exact inner-bundle range and SHA-256, together with their typed target-only residues.',
+    },
+    {
+      id: 'keybinding-predispatch-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-keybinding-predispatch-semantic.test.mjs',
+      detail: 'The authenticated test pins target116 KeybindingSetup and ChordInterceptor units u10789/u10790, their three target-only preDispatchRef occurrences, and both target114 predecessors by exact range and SHA-256.',
+    },
+    {
+      id: 'keybinding-predispatch-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-keybinding-predispatch-semantic.test.mjs',
+      detail: 'The executable source-root-aware test proves observers run before the retained target110 single-key registry, exact true consumes the event, exceptions fail open, and provider/interceptor wiring shares one registry.',
+    },
+    {
+      id: 'four-live-residue-gaps-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-four-live-residue-gaps-semantic.test.mjs',
+      detail: 'Executable source-root-aware harnesses prove branch/last and pipe/space tree connectors, native fetch with body cancellation, unmount-aware alternate-screen cleanup, and one shared native/Windows/WT/xterm scroll policy wired through terminal, handler, and renderer.',
+    },
+    {
+      id: 'scroll-diagnostics-dce-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-scroll-diagnostics-dce-semantic.test.mjs',
+      detail: 'The authenticated test pins all seven target116 scroll-diagnostic closure units u7224–u7230, including the exact target-only burst and algo residues, by structural range, node type, and SHA-256.',
+    },
+    {
+      id: 'scroll-diagnostics-dce-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-scroll-diagnostics-dce-semantic.test.mjs',
+      detail: 'The static AST oracle proves the enable flag is initialized false and never written, every recorder returns before reading arguments, diagnostic sinks and state never escape, and the private initializer has no observable consumer.',
+    },
+    {
+      id: 'static-generated-ast',
+      kind: 'static-ast',
+      detail: 'Static target AST identifies a pure generated bootstrap/interoperability unit rather than missing first-party behavior.',
+    },
+    {
+      id: 'static-semantic-noop',
+      kind: 'static-ast',
+      detail: 'Direct target/baseline AST and prompt-construction inspection proves the generated representation change is stripped or yields the identical runtime value.',
+    },
+    {
+      id: 'typed-residue-static-ast',
+      kind: 'static-ast',
+      detail: 'Per-row reason records a direct target/baseline AST audit of owner-local typed residues caused by imported/inlined state, compiler cache slots, or generated build identity rather than missing authored runtime behavior.',
+    },
+    {
+      id: 'target-fragment',
+      kind: 'target-fragment',
+      path: `${caseRoot}/readable-diff/statements.diff`,
+      detail: 'Readable target fragment is behaviorally anchored to an equivalent source owner where the historical source-map path is renamed or vendor-only.',
+    },
+    {
+      id: 'semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/late-semantic-source-coverage.test.mjs',
+      detail: 'Late-case semantic tests validate exhaustive ledgers, recovered owners, and target-specific behavioral anchors.',
+    },
+    {
+      id: 'debug-runtime-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.108-debug-runtime-semantic.test.mjs',
+      detail: 'The authenticated test pins target108 debug initializer unit 900 by exact structural index, UTF-16 range, node type, classification, full SHA-256, baseline pairing, and executable flag behavior.',
+    },
+    {
+      id: 'debug-runtime-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.108-debug-runtime-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies log-level parsing plus every environment, --debug, stderr, filter, and debug-file branch against the exact src/utils/debug.ts owner.',
+    },
+    {
+      id: 'target108-owner-corrections-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.108-owner-corrections-semantic.test.mjs',
+      detail: 'The authenticated test pins all 55 corrected target108 units by index, UTF-16 range, node type, classification, and full SHA-256 before checking their candidate-owner identities.',
+    },
+    {
+      id: 'target108-owner-corrections-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.108-owner-corrections-semantic.test.mjs',
+      detail: 'The source-root-aware test proves each corrected path is an authenticated source-map candidate and contains every cooked owner-local residue that the prior coarse-boundary owner omitted.',
+    },
+    {
+      id: 'target108-target-added-residue-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.108-target-added-residues-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target108 target-added owner-residue set by exact structural index, UTF-16 range, node type, classification, and full SHA-256 and checks each target behavior or exact paired-unit invariant.',
+    },
+    {
+      id: 'target108-target-added-residue-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.108-target-added-residues-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies all exact authored owners, exercises the isolated signed-thinking and TTFT adapters, and checks remaining target-added semantics against authenticated fragments and compiler-lowering invariants.',
+    },
+    {
+      id: 'strict-runtime-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.108-strict-runtime-semantic.test.mjs',
+      detail: 'The authenticated test pins exact target indices, byte ranges, node types, and SHA-256 values for the settings, dead BQ branch, git-bundle, search/kill-ring, punctuation, async-hook, and PR-detail runtime units.',
+    },
+    {
+      id: 'strict-runtime-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.108-strict-runtime-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies the target-108 historical semantics and the intentional target-116 evolution of each recovered owner and proves the BQ shell branch is statically unreachable.',
+    },
+    {
+      id: 'file-state-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.108-file-state-cache-semantic.test.mjs',
+      detail: 'The authenticated test pins the hash helper, equality helper, bounded cache class, FileWrite, FileEdit, PostToolUse resync, nested-memory retention, and changed-file collector by exact target index, range, node type, and SHA-256.',
+    },
+    {
+      id: 'file-state-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.108-file-state-cache-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies hash fallback, 4096-byte eviction, retained memory bodies, stable length/hash metadata, and every stale-file and changed-file consumer call path.',
+    },
+    {
+      id: 'tool-result-dedup-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.108-tool-result-dedup-semantic.test.mjs',
+      detail: 'The authenticated test pins every changed target-108 de-duplication function, constant, and initializer by exact index, range, node type, and SHA-256, distinguishes the target-107 persistence-threshold algorithm, and checks every bundle call site.',
+    },
+    {
+      id: 'tool-result-dedup-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.108-tool-result-dedup-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies the exact threshold, hashing, restore, hit/miss telemetry, non-MCP execution, fork, REPL, rewind, clear, and manual/automatic compaction graph while distinguishing target-108 id preservation from target-116 reset semantics.',
+    },
+    {
+      id: 'plugin-resolved-version-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.108-plugin-resolved-version-semantic.test.mjs',
+      detail: 'The authenticated test pins all five schema, verifier, writer, tag-installation, and loader structural units by exact target index, range, and SHA-256 and proves resolvedVersion has zero baseline occurrences and ten target occurrences.',
+    },
+    {
+      id: 'plugin-resolved-version-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.108-plugin-resolved-version-semantic.test.mjs',
+      detail: 'The source-root-aware test validates optional schema/type storage, truthy v2 persistence, tag-derived installation metadata, reload restoration, and resolved-version-first dependency constraint checks.',
+    },
+    {
+      id: 'security-review-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.108-security-review-semantic.test.mjs',
+      detail: 'The authenticated test pins the unresolved prompt unit and matched reachable descriptor by exact index, range, and SHA-256 and proves the five wildcard replacements are the only cooked-prompt delta.',
+    },
+    {
+      id: 'security-review-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.108-security-review-semantic.test.mjs',
+      detail: 'The source-root-aware test hashes the exact 10,823-character prompt and checks frontmatter parsing, shell-command expansion, permission injection, registry wiring, and query-visible command output.',
+    },
+    {
+      id: 'permission-wildcard-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.108-permission-wildcard-semantic.test.mjs',
+      detail: 'The authenticated test pins all seven permission-display, Bash, PowerShell, and ExitPlanMode structural units by exact target index, byte range, node type, and SHA-256 and proves the 107-to-108 wildcard transition.',
+    },
+    {
+      id: 'permission-wildcard-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.108-permission-wildcard-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies dual-suffix display compatibility, space-wildcard placeholders and sync/async suggestions, user-edit propagation, and both shared StatusIcon plan-save surfaces.',
+    },
+    {
+      id: 'session-bridge-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.108-session-bridge-state-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target-108 session-storage and envless bridge graph by exact structural index, byte range, node type, and SHA-256 and distinguishes inherited persistence from the target transition.',
+    },
+    {
+      id: 'session-bridge-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.108-session-bridge-state-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies the transcript-disable gate, REPL progress status, permission metadata, pending-action set/clear lifecycle, raw tool-name projection, persistence callbacks, and async disposal while checking the target-116 display-name evolution.',
+    },
+    {
+      id: 'remote-api-metrics-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.108-remote-api-metrics-semantic.test.mjs',
+      detail: 'The authenticated test pins the matched local/subagent request lifecycle and unresolved remote/REPL/initializer units by exact target index, range, node type, and SHA-256, and proves the target-108 resume-summary model transition.',
+    },
+    {
+      id: 'remote-api-metrics-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.108-remote-api-metrics-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies typed start/end events, request-id correlation, remote propagation and filtering, target-108 aggregation, the target-116 id-null response estimate evolution, and static unobservability of the generated prompt-action fallback.',
+    },
+    {
+      id: 'headless-mcp-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.108-headless-mcp-semantic.test.mjs',
+      detail: 'The authenticated test pins the target-108 connection, retry, lazy-dedup, and main coordinator units by exact target index, range, node type, and SHA-256 and proves the retry behavior is absent from target 107.',
+    },
+    {
+      id: 'headless-mcp-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.108-headless-mcp-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies pending/readiness state, five-second deadlines, sequential regular/claude.ai coordination, nonblocking operation, remote retry/cache cleanup, late-client handling, lazy dedup, equivalent direct-store ownership, Commander roots, and the target-116 concurrency/deadline evolution.',
+    },
+    {
+      id: 'lockfile-disposal-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.108-lockfile-disposal-semantic.test.mjs',
+      detail: 'The authenticated test pins the lazy loader and both disposal-aware lock wrappers by exact target index, byte range, node type, and SHA-256 and asserts both disposal symbols in the complete fragment.',
+    },
+    {
+      id: 'lockfile-disposal-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.108-lockfile-disposal-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies the lazy package boundary and that each callable release is also its own async or synchronous disposal method.',
+    },
+    {
+      id: 'repl-event-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.108-repl-event-telemetry-semantic.test.mjs',
+      detail: 'The authenticated test pins the generated proto base/codec and full first-party exporter class by exact target index, byte range, node type, and SHA-256 and proves repl_code is absent from the baseline.',
+    },
+    {
+      id: 'repl-event-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.108-repl-event-telemetry-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies every generated repl_code codec path and the _PROTO_code removal/privileged-column forwarding behavior in the first-party exporter.',
+    },
+    {
+      id: 'repl-runtime-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.108-repl-runtime-semantic.test.mjs',
+      detail: 'The authenticated test pins REPL enablement, prompt/runtime, VM/sampling/replay, tool-execution forwarding, background-task activity, and SDK progress units by exact target index, byte range, node type, and SHA-256.',
+    },
+    {
+      id: 'repl-runtime-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.108-repl-runtime-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies the sealed persistent VM and its complete reachable inner-progress call path in both the target-108 introduction tree and cumulative target-116 source.',
+    },
+    {
+      id: 'prompt-cache-break-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.108-prompt-cache-break-semantic.test.mjs',
+      detail: 'The authenticated test pins changed target unit 6958 by exact index, byte range, node type, and SHA-256 and isolates the target-108 systemHash/toolsHash telemetry addition from the inherited detector graph.',
+    },
+    {
+      id: 'prompt-cache-break-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.108-prompt-cache-break-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies the historical target-108 detector/call path and the cumulative target-116 persistence, TTL, query metadata, and cache-strategy evolution.',
+    },
+    {
+      id: 'it2-orphaned-plugin-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.108-it2-orphaned-plugin-semantic.test.mjs',
+      detail: 'The authenticated test pins both target it2 success renderers and the orphaned-plugin state/cache functions by exact target index, byte range, node type, and SHA-256, and executes the target cache fragment.',
+    },
+    {
+      id: 'it2-orphaned-plugin-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.108-it2-orphaned-plugin-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies shared StatusIcon rendering, session-scoped marker discovery and exclusion caching, and the intentional target-108 to target-116 Windows path-normalization evolution.',
+    },
+    {
+      id: 'plugin-recommendation-status-icon-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.108-plugin-recommendation-status-icon-semantic.test.mjs',
+      detail: 'The authenticated test pins the target-107 raw-figure installer and target-108 StatusIcon installer by exact structural index, byte range, node type, and SHA-256.',
+    },
+    {
+      id: 'plugin-recommendation-status-icon-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.108-plugin-recommendation-status-icon-semantic.test.mjs',
+      detail: 'The source-root-aware test executes the shared installer and verifies design-system success rendering plus unchanged lookup, install, notification, and failure behavior in historical and cumulative source.',
+    },
+    {
+      id: 'animated-clawd-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.108-animated-clawd-semantic.test.mjs',
+      detail: 'The authenticated test pins all four target animation controller, renderer, initializer, and exported-component units by exact target index, byte range, node type, and SHA-256.',
+    },
+    {
+      id: 'animated-clawd-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.108-animated-clawd-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies autoplay, named sequences, reduced-motion completion, frame advancement, looping or stopping, and final-pose semantics in historical and cumulative source.',
+    },
+    {
+      id: 'ink-focus-click-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.108-ink-focus-click-semantic.test.mjs',
+      detail: 'The authenticated test pins the target focus manager, ClickEvent, hit-test dispatch, and focus-hook units by exact index, byte range, node type, and SHA-256.',
+    },
+    {
+      id: 'ink-focus-click-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.108-ink-focus-click-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies directional geometry, focus subscriptions, click bubbling/default suppression, hyperlink fallback, root wiring, and public exports.',
+    },
+    {
+      id: 'authored-surface-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.108-authored-surface-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete Tabs, LogSelector, team-onboarding, Skillify, update-config, and Claude API prompt/routing units by exact target index, byte range, node type, and SHA-256.',
+    },
+    {
+      id: 'authored-surface-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.108-authored-surface-semantic.test.mjs',
+      detail: 'The source-root-aware test checks each complete owner and distinguishes target-108 Divider/onboarding metadata from the intentional target-116 Pane and model-invocation evolution.',
+    },
+    {
+      id: 'update-relaunch-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.108-update-relaunch-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target-108 update/relaunch function by exact index, byte range, node type, and SHA-256 and checks its shutdown, spawn, environment, signal, and exit surface.',
+    },
+    {
+      id: 'update-relaunch-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.108-update-relaunch-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies the exact target-108 updater and the intentional target-116 generic relaunch evolution without relying on the misleading /exit source-map boundary.',
+    },
+    {
+      id: 'dead-session-cache-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.108-dead-session-cache-state-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete cache-state factory and sole initializer by exact target index, byte range, node type, and SHA-256 and derives their private minified bindings.',
+    },
+    {
+      id: 'dead-session-cache-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.108-dead-session-cache-state-semantic.test.mjs',
+      detail: 'Whole-bundle occurrence counts prove the private state is allocated once but never read, exported, passed, or allowed to escape in target 108 or any later authenticated target through 116.',
+    },
+    {
+      id: 'session-memory-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.108-session-memory-state-semantic.test.mjs',
+      detail: 'The authenticated test pins every nonmatched target SessionMemory state accessor and initializer by exact index, range, node type, and SHA-256 and executes assertions over the complete target state fragment.',
+    },
+    {
+      id: 'session-memory-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.108-session-memory-state-semantic.test.mjs',
+      detail: 'The source-root-aware test proves the target object-state representation and the authored independent module bindings have the same defaults, setters, defensive configuration copy, token thresholds, extraction timestamps, and initialization behavior.',
+    },
+    {
+      id: 'post-turn-summary-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-post-turn-summary-semantic.test.mjs',
+      detail: 'The authenticated test pins every exact target structural index, byte range, and SHA-256 for the 2.1.116 post-turn-summary runtime and its SDK transport owners.',
+    },
+    {
+      id: 'post-turn-summary-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-post-turn-summary-semantic.test.mjs',
+      detail: 'The source-root-aware test executes against the materialized target-116 semantic tree and checks the complete classifier, fork, blocked/turn-end, restore, schema, filtering, and metadata call paths.',
+    },
+    {
+      id: 'brief-isolation-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-brief-isolation-semantic.test.mjs',
+      detail: 'The authenticated test pins every Brief attachment, policy classifier/latch, direct and REPL execution, clear, subagent, Ultraplan, REPL, QueryEngine, and print structural unit by exact target index, byte range, node type, and SHA-256.',
+    },
+    {
+      id: 'brief-isolation-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-brief-isolation-semantic.test.mjs',
+      detail: 'The source-root-aware test executes pre-resolved attachment validation/resolution and the isolation state machine, then proves latch propagation across direct, REPL, child-agent, clear, interactive, Ultraplan, QueryEngine, and headless paths.',
+    },
+    {
+      id: 'plugin-form-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.101-plugin-runtime-semantic.test.mjs',
+      detail: 'The authenticated latest-target section pins all ten Form and plugin-options adapter units by exact 2.1.116 index, byte range, and SHA-256 and checks their distinguishing presentation literals.',
+    },
+    {
+      id: 'plugin-form-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.101-plugin-runtime-semantic.test.mjs',
+      detail: 'The dual-mode source test validates the shared Form keybinding, cursor, validation, and text-input graph and the exact target-116 plugin options mapping and Save configuration surface.',
+    },
+    {
+      id: 'bedrock-access-key-form-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-bedrock-access-key-form-semantic.test.mjs',
+      detail: 'The authenticated test pins the five target116 Form-backed access-key owner units and all six target114 sequential-screen predecessors by exact structural identity, range, and SHA-256.',
+    },
+    {
+      id: 'bedrock-access-key-form-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-bedrock-access-key-form-semantic.test.mjs',
+      detail: 'The executable source-root-aware test renders the shared Form, verifies its complete field schema and normalized submission, and preserves the Bedrock credential, STS, profile, probe, model, proxy, and persistence graph.',
+    },
+    {
+      id: 'console-login-method-label-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-console-login-method-label-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target116 Console OAuth function and its target114 predecessor by exact structural identity, byte range, and SHA-256 and isolates the sentence-case target label.',
+    },
+    {
+      id: 'console-login-method-label-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-console-login-method-label-semantic.test.mjs',
+      detail: 'The source-root-aware test requires the exact forced-login method label and verifies the surrounding Console authentication owner remains intact.',
+    },
+    {
+      id: 'message-actions-spacing-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-message-actions-bar-spacing-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target116 MessageActionsBar function and its target114 predecessor by exact structural identity, byte range, and SHA-256 and isolates the separator-free navigation surface.',
+    },
+    {
+      id: 'message-actions-spacing-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-message-actions-bar-spacing-semantic.test.mjs',
+      detail: 'The executable render test verifies adjacent action labels, grouped arrow-navigation and escape-back fragments, and the absence of every inherited middle-dot separator.',
+    },
+    {
+      id: 'ide-unavailable-overflow-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-ide-unavailable-overflow-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target116 IDE screen and its target114 predecessor by exact structural identity, byte range, and SHA-256 and isolates the target-only overflow summary.',
+    },
+    {
+      id: 'ide-unavailable-overflow-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-ide-unavailable-overflow-semantic.test.mjs',
+      detail: 'The executable render test verifies the four-entry cap and exact remaining-count text while preserving inherited IDE discovery, selection, workspace matching, and connection behavior.',
+    },
+    {
+      id: 'session-qr-shortcut-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-session-qr-shortcut-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target116 session panel function and its target114 predecessor by exact structural identity, byte range, and SHA-256 and isolates the target margin and shortcut-hint properties.',
+    },
+    {
+      id: 'session-qr-shortcut-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-session-qr-shortcut-semantic.test.mjs',
+      detail: 'The executable render test drives both local and remote branches, checks exact escape shortcut hints, QR options, and target URL/hint/QR ordering while preserving dismissal and loading behavior.',
+    },
+    {
+      id: 'rename-noninteractive-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-rename-noninteractive-semantic.test.mjs',
+      detail: 'The authenticated test pins all ten target116 shared-operation, interactive, noninteractive, and descriptor units plus their four target114 predecessors by exact structural identity, byte range, and SHA-256.',
+    },
+    {
+      id: 'rename-noninteractive-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-rename-noninteractive-semantic.test.mjs',
+      detail: 'The executable source test drives explicit, generated, and teammate-blocked renames through the shared operation and proves both command surfaces preserve persistence, bridge, AppState, and response semantics.',
+    },
+    {
+      id: 'scroll-selection-delete-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-scroll-selection-delete-semantic.test.mjs',
+      detail: 'The authenticated test pins the target selection-delete context, application provider, PromptInput bridge, Scroll handler, arrow-burst warning, and auto-copy constants by exact unit identity, range, SHA-256, and typed offsets.',
+    },
+    {
+      id: 'scroll-selection-delete-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-scroll-selection-delete-semantic.test.mjs',
+      detail: 'The executable source test drives provider registration and cleanup, Ink-to-text coordinate conversion, undo-aware prompt deletion, arrow telemetry and notification, and the bounded auto-copy configuration hint.',
+    },
+    {
+      id: 'unified-installed-list-item-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-unified-installed-list-item-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target116 unified installed-cell function and its target114 predecessor by exact structural identity, byte range, and SHA-256 and isolates the five new styled ListItem occurrences.',
+    },
+    {
+      id: 'unified-installed-list-item-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-unified-installed-list-item-semantic.test.mjs',
+      detail: 'The executable render test verifies every plugin, flagged, failed, and MCP row uses ListItem focus semantics without a manual pointer while retaining its status and authentication behavior.',
+    },
+    {
+      id: 'external-session-adapter-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-external-session-adapter-semantic.test.mjs',
+      detail: 'The authenticated test pins the two duplicated target114 transport hooks and the target116 shared lifecycle plus DirectConnect and SSH adapters by exact structural identity, range, and SHA-256 and isolates the generic reconnect message.',
+    },
+    {
+      id: 'external-session-adapter-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-external-session-adapter-semantic.test.mjs',
+      detail: 'The source-root-aware executable test drives the shared hook through connect, mode seeding, SSH reconnect warning, disconnect, and cleanup while proving DirectConnect retains its non-reconnecting adapter and SSH alone receives permission mode.',
+    },
+    {
+      id: 'observable-residues-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-observable-residues-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target-110 compact block, /btw dialog, Settings section renderer, system-prompt builder, and modal-pager preservation predicate by exact structural identity.',
+    },
+    {
+      id: 'observable-residues-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-observable-residues-semantic.test.mjs',
+      detail: 'The dual-mode source test verifies exact composed messages, history clearing, one-row section separation, feature-gated accuracy prompt, and selection-preserving pager-key control flow.',
+    },
+    {
+      id: 'review-stop-skill-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-review-stop-skill-telemetry-semantic.test.mjs',
+      detail: 'The authenticated test pins the target-110 Ultrareview stop helper, Ultraplan policy gate, complete task-dialog routing function, and builtin-skill telemetry filter by exact index, UTF-16 range, node type, and SHA-256.',
+    },
+    {
+      id: 'review-stop-skill-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-review-stop-skill-telemetry-semantic.test.mjs',
+      detail: 'The dual-mode source test verifies TaskRegistry propagation, distinct Ultraplan and Ultrareview stop routing, exact notification and telemetry behavior, the remote-session policy gate, and builtin-skill exclusion.',
+    },
+    {
+      id: 'hardened-owner-residues-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-hardened-owner-residues-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target-110 review scope, remote launch, dialog, command, session-storage export/class, detailed PR loader, and headless print units by exact index, UTF-16 range, node type, and SHA-256 and asserts their distinguishing control flow.',
+    },
+    {
+      id: 'hardened-owner-residues-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-hardened-owner-residues-semantic.test.mjs',
+      detail: 'The dual-mode source test validates the exact target-110 historical owners and the intentional target-116 review, gh-failure, and presentation refinements while preserving mirror fanout and background plugin refresh behavior.',
+    },
+    {
+      id: 'static-owner-residues-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-static-owner-residues-semantic.test.mjs',
+      detail: 'The authenticated static test pins the complete target-110 log hook and name-only predicate units by exact structural identity and derives their private dependency bindings from those units.',
+    },
+    {
+      id: 'static-owner-residues-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-static-owner-residues-semantic.test.mjs',
+      detail: 'The fail-closed static proof shows initSessionLog is guarded by a constant-null nonescaping binding and the name-only predicate compares against a resolver that is constant on, making both residues unobservable at target 110.',
+    },
+    {
+      id: 'dormant-session-schema-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-dormant-session-schema-dce-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete evolved target-110 remote-session schema allocation by exact structural identity and derives its private schema binding from the AST.',
+    },
+    {
+      id: 'dormant-session-schema-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-dormant-session-schema-dce-semantic.test.mjs',
+      detail: 'The static reachability test proves the schema binding occurs only as an outer declaration and initializer assignment and never escapes or executes.',
+    },
+    {
+      id: 'push-remote-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-push-remote-workflows-semantic.test.mjs',
+      detail: 'The authenticated test pins every target index, byte range, and SHA-256 for PushNotification and all five historical remote-workflow commands.',
+    },
+    {
+      id: 'push-remote-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-push-remote-workflows-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies PushNotification delivery and the historical target110 remote workflow registry/spawner against the case-local semantic tree.',
+    },
+    {
+      id: 'notification-preferences-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-notification-preferences-semantic.test.mjs',
+      detail: 'The authenticated test pins all preference API/UI units plus the complete combined bridge initializer by exact target index, byte range, node type, and SHA-256.',
+    },
+    {
+      id: 'notification-preferences-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-notification-preferences-semantic.test.mjs',
+      detail: 'The source-root-aware test checks authenticated fetch/patch, server mapping, undefined-only seeding, Config gates/toggles/rollback/warning, v1 hydration, and target110 writer-only persistence teardown.',
+    },
+    {
+      id: 'target110-surface-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-env-color-image-terminal-semantic.test.mjs',
+      detail: 'The authenticated test pins the exact target-110 deployment, color-control, image-block compression, and macOS Terminal.app structural units by index, byte range, node type, and SHA-256.',
+    },
+    {
+      id: 'target110-surface-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-env-color-image-terminal-semantic.test.mjs',
+      detail: 'The source-root-aware test checks the exact deployment order, terminal color gates and initialization order, bounded JPEG quality search, 500 KiB payload cap, and macOS 27 Shift+Return behavior.',
+    },
+    {
+      id: 'dynamic-image-limits-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-dynamic-image-limits-semantic.test.mjs',
+      detail: 'The authenticated test pins the target110 image constants, complete dynamic selector, provider gate, empty override initializer, and paste consumer by exact structural identity and SHA-256.',
+    },
+    {
+      id: 'dynamic-image-limits-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-dynamic-image-limits-semantic.test.mjs',
+      detail: 'The dual-mode source test verifies first-party/base-URL/false-default gate precedence, raw-size derivation, limit-aware resize and paste behavior, and every reachable API, tool, attachment, MCP, shell, and permission conversion owner.',
+    },
+    {
+      id: 'image-model-limits-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-image-model-limits-semantic.test.mjs',
+      detail: 'The authenticated test pins target111 unit6259 by exact range, type, and SHA-256 and proves the Opus 4.7 2576px override is absent from target110 and present in target111.',
+    },
+    {
+      id: 'image-model-limits-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-image-model-limits-semantic.test.mjs',
+      detail: 'The dual-mode source test verifies canonical-model lookup and dimension fallback semantics in the target111 image-limit owner.',
+    },
+    {
+      id: 'effort-glyphs-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-effort-glyphs-semantic.test.mjs',
+      detail: 'The authenticated test pins target111 figures initializer unit 2535 by exact index, byte range, node type, and SHA-256 and proves the max-effort diamond is absent from target110 and introduced exactly once in this target unit.',
+    },
+    {
+      id: 'effort-glyphs-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-effort-glyphs-semantic.test.mjs',
+      detail: 'The source-root-aware test proves constants/figures.ts owns distinct xhigh and max glyph exports and that EffortIndicator maps the corresponding runtime levels to those exports.',
+    },
+    {
+      id: 'case111-residue-matrix-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-target-added-residue-matrix.test.mjs',
+      detail: 'The authenticated matrix pins the exact target unit identity, full bytes, typed residue identity, global target occurrence ordinal, and corrected authored owner for each listed candidate-owner row.',
+    },
+    {
+      id: 'case111-residue-matrix-static-ast',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.111-target-added-residue-matrix.test.mjs',
+      detail: 'The authenticated matrix admits only its exact listed paired-local invariants, TypeScript named-import lowerings, and inlined VERSION/BUILD_TIME macro-object occurrences.',
+    },
+    {
+      id: 'case111-residue-matrix-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-target-added-residue-matrix.test.mjs',
+      detail: 'The source-root-aware matrix verifies every corrected owner and compiler/build oracle and rejects evidence reuse by any unlisted coverage row.',
+    },
+    {
+      id: 'mcp-identity-encoding-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-mcp-identity-encoding-semantic.test.mjs',
+      detail: 'The authenticated test pins the target111 MCP client initializer by exact structural identity and all six target-only Accept-Encoding: identity occurrences, with absence in its target110 predecessor and persistence in target116.',
+    },
+    {
+      id: 'mcp-identity-encoding-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-mcp-identity-encoding-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies identity encoding on SSE request/event, SSE-IDE request/conditional event, streamable HTTP, and Claude.ai proxy transports while excluding WebSocket edges.',
+    },
+    {
+      id: 'proxy-auth-helper-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-proxy-auth-helper-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target111 proxy-auth settings, helper runtime, managed-setting classification, 407 retry, setup caller, and initializer graph by exact structural index, range, node type, and SHA-256.',
+    },
+    {
+      id: 'proxy-auth-helper-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-proxy-auth-helper-semantic.test.mjs',
+      detail: 'The dual-mode executable test verifies trust-sensitive source selection, feature/TTL/timeout gates, environment and output validation, memoization and invalidation, safe startup prefetch, and 407 retry semantics.',
+    },
+    {
+      id: 'target110-ui-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-ui-and-commands.test.mjs',
+      detail: 'The authenticated test pins the complete target-110 animated asterisk, fullscreen-upsell, condensed-logo, /tui, and /focus structural units by exact index, character range, node type, and SHA-256.',
+    },
+    {
+      id: 'target110-ui-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-ui-and-commands.test.mjs',
+      detail: 'The dual-mode source test verifies animation and reduced-motion behavior, fullscreen gating and notices, TUI persistence/relaunch, focus state, editor context, renderer controls, and related command surfaces.',
+    },
+    {
+      id: 'fullscreen-animated-asterisk-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-fullscreen-animated-asterisk-semantic.test.mjs',
+      detail: 'The authenticated test pins target110 and target116 AnimatedAsterisk and live FullscreenUpsell units by exact range and SHA-256 and proves the graph absent from target109.',
+    },
+    {
+      id: 'fullscreen-animated-asterisk-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-fullscreen-animated-asterisk-semantic.test.mjs',
+      detail: 'The dual-mode source test verifies the reduced-motion-aware animated asterisk is mounted before the exact space-prefixed flicker-free upsell copy rather than a static glyph.',
+    },
+    {
+      id: 'git-branch-metadata-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-git-branch-metadata-semantic.test.mjs',
+      detail: 'The authenticated test pins the target-110 multi-repository watcher, public branch subscription/reset, session-context builder, code-session request, env-less bridge, and caller units by exact structural identity.',
+    },
+    {
+      id: 'git-branch-metadata-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-git-branch-metadata-semantic.test.mjs',
+      detail: 'The dual-mode source test verifies repository HEAD caching and subscription, git/cwd/model session context, branch metadata deduplication, transport-rebuild invalidation and refresh, and teardown cleanup.',
+    },
+    {
+      id: 'plugin-settings-readiness-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-plugin-settings-readiness-semantic.test.mjs',
+      detail: 'The authenticated test pins the exact plugin-settings readiness state, accessor, telemetry, subagent status-line, and main-agent consumer units by target index, byte range, and SHA-256.',
+    },
+    {
+      id: 'plugin-settings-readiness-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-plugin-settings-readiness-semantic.test.mjs',
+      detail: 'The source-root-aware test proves initialization is distinct from payload presence, clearing data does not reopen the startup phase, early reads emit telemetry, and both target consumers use the readiness-aware helper.',
+    },
+    {
+      id: 'context-hint-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-context-hint-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target-110 main-query and API-streaming context-hint units plus every controller, compaction, retry, and refinement unit by exact structural identity.',
+    },
+    {
+      id: 'context-hint-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-context-hint-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies hint acceptance, clearing, rejection, retry, payload limits, compaction integration, API streaming, and the target-116 refinement against the corresponding semantic tree.',
+    },
+    {
+      id: 'fullscreen-gate-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-fullscreen-gate-semantic.test.mjs',
+      detail: 'The authenticated test pins the target fullscreen state and selection functions by exact structural identity and proves the GrowthBook gate is introduced at 2.1.110.',
+    },
+    {
+      id: 'fullscreen-gate-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-fullscreen-gate-semantic.test.mjs',
+      detail: 'The dual-mode source test checks the cached false-default gate and the exact precedence of environment, tmux integration, and persisted renderer overrides.',
+    },
+    {
+      id: 'api-error-status-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-api-error-status-semantic.test.mjs',
+      detail: 'The authenticated test pins the exact target-110 error adapter and complete noninteractive query-engine class and proves both status fields are absent from target 109.',
+    },
+    {
+      id: 'api-error-status-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-api-error-status-semantic.test.mjs',
+      detail: 'The dual-mode source test verifies numeric APIError status is attached to the assistant error and propagated as api_error_status on the terminal SDK result.',
+    },
+    {
+      id: 'vscode-gates-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-vscode-gates-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target-110 VS Code MCP notification unit and proves slate-ribbon is absent from target 109.',
+    },
+    {
+      id: 'vscode-gates-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-vscode-gates-semantic.test.mjs',
+      detail: 'The dual-mode source test verifies the exact false-default slate-ribbon gate and its ordering before the separately derived auto-mode state.',
+    },
+    {
+      id: 'deferred-tool-location-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-deferred-tool-location-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target-110 ToolSearch prompt constant and proves both the old gate and available-deferred-tools location are absent.',
+    },
+    {
+      id: 'deferred-tool-location-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-deferred-tool-location-semantic.test.mjs',
+      detail: 'The dual-mode source test verifies the fixed system-reminder prompt and unconditional persisted-delta call path.',
+    },
+    {
+      id: 'plugin-settings-telemetry-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-plugin-settings-telemetry-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete enabled-plugin telemetry function by target index, UTF-16 range, node type, and SHA-256 and proves settings fields are introduced at target 110.',
+    },
+    {
+      id: 'plugin-settings-telemetry-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-plugin-settings-telemetry-semantic.test.mjs',
+      detail: 'The dual-mode source test verifies settings presence and sorted-key reporting together with the exact target MCP, LSP, hook, and version field order.',
+    },
+    {
+      id: 'target110-runtime-compat-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-runtime-compat-semantic.test.mjs',
+      detail: 'The authenticated test pins the exact target-110 tracing, remote-shell, retry-duration, and FileEdit compatibility functions by target index, UTF-16 range, node type, and SHA-256.',
+    },
+    {
+      id: 'target110-runtime-compat-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-runtime-compat-semantic.test.mjs',
+      detail: 'The dual-mode source test verifies span ERROR statuses, remote Bun heap configuration, per-attempt duration telemetry, and canonical-precedence legacy FileEdit aliases.',
+    },
+    {
+      id: 'target110-added-owner-residues-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-added-owner-residues-semantic.test.mjs',
+      detail: 'The authenticated test pins every target-110 structural unit containing a target-added owner-local typed residue by exact index, UTF-16 range, node type, classification, and full SHA-256.',
+    },
+    {
+      id: 'target110-added-owner-residues-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-added-owner-residues-semantic.test.mjs',
+      detail: 'The dual-mode source test verifies the exact authored owner graph for all target-added residues, including FileWrite equivalence and Ink-root plugin-list rendering, while treating transitive generated occurrence shifts explicitly.',
+    },
+    {
+      id: 'heapdump-diagnostics-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-heapdump-diagnostics-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target-110 heap capture, service result, command call, diagnostic formatter, and feature-helper units by exact structural identity.',
+    },
+    {
+      id: 'heapdump-diagnostics-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-heapdump-diagnostics-semantic.test.mjs',
+      detail: 'The case-aware test verifies target-110 optional diagnostics and the evolved target-116 direct summary, protected-object, mimalloc, and macOS max-RSS behavior.',
+    },
+    {
+      id: 'feedback-survey-undo-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-feedback-survey-undo-semantic.test.mjs',
+      detail: 'The authenticated test pins every delayed-submit state, survey hook, pending presentation, initializer, and REPL aggregate unit by exact target index, range, node type, and SHA-256.',
+    },
+    {
+      id: 'feedback-survey-undo-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-feedback-survey-undo-semantic.test.mjs',
+      detail: 'The dual-mode source test verifies synchronous dismiss, three-second delayed submission, timer cleanup and undo, pending Escape handling, handler propagation, and survey priority.',
+    },
+    {
+      id: 'session-cron-restore-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-session-cron-restore-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target-110 transcript-extraction and session-cron resurrection functions by exact structural index, character range, node type, and SHA-256.',
+    },
+    {
+      id: 'session-cron-restore-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-session-cron-restore-semantic.test.mjs',
+      detail: 'The dual-mode source test checks CronCreate/result pairing, CronDelete precedence, durable/stale/expired/duplicate rejection, scheduling enablement, and all interactive and print resume entrypoints.',
+    },
+    {
+      id: 'requires-action-preview-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-requires-action-preview-semantic.test.mjs',
+      detail: 'The authenticated test pins the target-110 key redactor, serialized preview, sensitive-field regex, requires-action builder, schema initializer, and complete StructuredIO caller by exact structural identity.',
+    },
+    {
+      id: 'requires-action-preview-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-requires-action-preview-semantic.test.mjs',
+      detail: 'The dual-mode source test verifies key and value secret redaction, exact preview truncation, Bash/PowerShell raw commands, MCP preview selection, guarded summaries, and the reachable StructuredIO call.',
+    },
+    {
+      id: 'skill-listing-budget-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-skill-listing-budget-semantic.test.mjs',
+      detail: 'The authenticated test pins the target-110 bundled-skill predicate, complete listing-budget helper, and surrounding prompt-module initialization by exact structural identity.',
+    },
+    {
+      id: 'skill-listing-budget-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-skill-listing-budget-semantic.test.mjs',
+      detail: 'The case-aware executable test verifies settings-backed full, capped, and names-only budget results and proves that the target helper remains definition-only.',
+    },
+    {
+      id: 'doctor-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-doctor-semantic.test.mjs',
+      detail: 'The authenticated test pins every target-110 Doctor helper, renderer, fix-prompt, action, and command-initializer row by exact structural identity.',
+    },
+    {
+      id: 'doctor-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-doctor-semantic.test.mjs',
+      detail: 'The case-aware source test verifies the full target-110 tree, detailed remediation prompt, settings/plugin/sandbox/context sections, and the evolved target-116 Doctor surface.',
+    },
+    {
+      id: 'prompt-cache-persistence-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-prompt-cache-persistence-semantic.test.mjs',
+      detail: 'The authenticated test pins every unresolved target-110 Cowork state-path, load, persist, record, response, mutation, state, and schema unit by exact structural identity.',
+    },
+    {
+      id: 'prompt-cache-persistence-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-prompt-cache-persistence-semantic.test.mjs',
+      detail: 'The case-aware source test verifies durable per-session state, message/block hashing, every mutation flush, the claude.ts message-history call path, and the later target-116 telemetry evolution.',
+    },
+    {
+      id: 'repl-prompt-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-repl-prompt-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target-110 async REPL prompt function and proves its heredoc-safety evolution against target 109.',
+    },
+    {
+      id: 'repl-prompt-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-repl-prompt-semantic.test.mjs',
+      detail: 'The dual-mode source test verifies memoized gh discovery, conditional gh and REPO shorthands, both heredoc examples, and the exact persistent and compatibility prompt branches.',
+    },
+    {
+      id: 'sdk-message-protocol-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-sdk-message-protocol-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target-110 SDK schema initializer by exact structural identity and checks every introduced runtime schema fragment against target 109.',
+    },
+    {
+      id: 'sdk-message-protocol-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-sdk-message-protocol-semantic.test.mjs',
+      detail: 'The dual-mode source test verifies the exact provenance discriminated union, shouldQuery description, requesting status, replay attachment, and API error status runtime Zod owners.',
+    },
+    {
+      id: 'sandbox-classifier-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-sandbox-classifier-semantic.test.mjs',
+      detail: 'The authenticated test pins the target-110 permission-mode policy, complete cooked external policy asset, fail-closed sandbox classifier, and inbox call path by exact structural identity.',
+    },
+    {
+      id: 'sandbox-classifier-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-sandbox-classifier-semantic.test.mjs',
+      detail: 'The dual-mode test verifies the exact cooked policy hash, classifier fallback gate and diagnostics, permission-mode matrix, and mailbox-versus-interactive inbox flow.',
+    },
+    {
+      id: 'advisor-gate-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-advisor-gate-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target-110 advisor enablement function and proves the explicit experimental environment override is introduced at this boundary.',
+    },
+    {
+      id: 'advisor-gate-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-advisor-gate-semantic.test.mjs',
+      detail: 'The dual-mode source test verifies provider/beta/disable precedence, explicit override, sage-compass fallback, model validation, and the later Opus 4.7 evolution.',
+    },
+    {
+      id: 'monitor-push-guidance-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-monitor-push-guidance-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target-110 monitor notification function and proves push guidance is introduced at this boundary.',
+    },
+    {
+      id: 'monitor-push-guidance-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-monitor-push-guidance-semantic.test.mjs',
+      detail: 'The dual-mode source test verifies the feature/config gate, housekeeping suppression, exact composed guidance, historical XML placement, and target-116 per-agent routing evolution.',
+    },
+    {
+      id: 'microcompact-state-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-microcompact-state-semantic.test.mjs',
+      detail: 'The authenticated test pins the target singleton-state factory, consume/read/push/reset helpers, and sole initializer by exact structural identity.',
+    },
+    {
+      id: 'microcompact-state-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-microcompact-state-semantic.test.mjs',
+      detail: 'The source test proves the module-binding representation is bisimilar to the target sole state object for initialization, pending-edit consumption, pinned-edit access, and reset.',
+    },
+    {
+      id: 'plugin-manifest-dependencies-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-plugin-manifest-dependencies-semantic.test.mjs',
+      detail: 'The authenticated test pins both the target plugin.json reconciliation helper and its complete installation call path by exact structural identity.',
+    },
+    {
+      id: 'plugin-manifest-dependencies-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-plugin-manifest-dependencies-semantic.test.mjs',
+      detail: 'The source test maps minified target parameter properties to descriptive authored names and verifies closure, trust, policy, settings, rollback, materialization, and stale-catalog behavior.',
+    },
+    {
+      id: 'hooks-snapshot-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-hooks-snapshot-semantic.test.mjs',
+      detail: 'The authenticated test pins the target hooks snapshot state, policy resolver, capture, refresh, lazy read, and sole initializer by exact structural identity.',
+    },
+    {
+      id: 'hooks-snapshot-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-hooks-snapshot-semantic.test.mjs',
+      detail: 'The source test verifies the equivalent module binding, settings-cache reset ordering, lazy capture, and managed/strict-plugin hook policy precedence.',
+    },
+    {
+      id: 'keybinding-single-key-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-keybinding-single-key-semantic.test.mjs',
+      detail: 'The authenticated test pins the target-110 DOM adapter, key-name table, and complete global interceptor by exact structural identity and proves singleKey first appears at this boundary.',
+    },
+    {
+      id: 'keybinding-single-key-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-keybinding-single-key-semantic.test.mjs',
+      detail: 'The case-aware test verifies reachable single-key registry dispatch and handler propagation, the target-116 telemetry/pre-dispatch evolution, and statically proves the adjacent compiled DOM adapter closure never escapes or executes.',
+    },
+    {
+      id: 'ink-raw-mode-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-ink-raw-mode-semantic.test.mjs',
+      detail: 'The authenticated test pins the target-110 input-handler set, detection, pending-ref, synchronization, recursive release, and InternalApp lifecycle units by exact structural identity.',
+    },
+    {
+      id: 'ink-raw-mode-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-ink-raw-mode-semantic.test.mjs',
+      detail: 'The dual-mode source test verifies raw-mode references for pre-mount creation, mounted creation, prop updates, subtree removal, App initialization, and teardown across the complete authored owner graph.',
+    },
+    {
+      id: 'lsp-manager-lifecycle-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-lsp-manager-lifecycle-semantic.test.mjs',
+      detail: 'The authenticated test pins the target-110 manager object, generated aliases, and reachable LSPTool unit and proves target 109 already contains the equivalent lifecycle state machine.',
+    },
+    {
+      id: 'lsp-manager-lifecycle-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-lsp-manager-lifecycle-semantic.test.mjs',
+      detail: 'The dual-mode source test verifies pending-only waiting, initialization generations, reinitialization and shutdown, LSPTool reachability, and plugin-refresh reachability.',
+    },
+    {
+      id: 'decimal-sleep-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-decimal-sleep-blocking-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target-110 PowerShell and Bash sleep classifiers and proves decimal parsing is introduced at this boundary.',
+    },
+    {
+      id: 'decimal-sleep-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-decimal-sleep-blocking-semantic.test.mjs',
+      detail: 'The dual-mode source test executes the authored regular expressions over integer, decimal, trailing-dot, invalid, and alias inputs and verifies threshold, remainder, and reachable denial paths.',
+    },
+    {
+      id: 'powershell-parser-retry-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-powershell-parser-retry-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target-110 PowerShell parse function by exact structural identity and proves the retry loop replaces target 109\'s immediate spawn-failure return.',
+    },
+    {
+      id: 'powershell-parser-retry-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-powershell-parser-retry-semantic.test.mjs',
+      detail: 'The dual-mode source test checks reset, retry, per-attempt diagnostic, and terminal classification control flow for spawn errors, timeouts, nonzero exits, and success.',
+    },
+    {
+      id: 'kill-ring-reducer-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-kill-ring-reducer-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target-110 useTextInput unit, verifies every reducer action, and contrasts it with target 109\'s method-backed store.',
+    },
+    {
+      id: 'kill-ring-reducer-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-kill-ring-reducer-semantic.test.mjs',
+      detail: 'The dual-mode source test verifies the App provider, shared reducer store, text-input kill/yank/yank-pop/update/interrupt dispatch, and search-input isolation graph.',
+    },
+    {
+      id: 'dom-text-input-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-dom-text-input-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target-110 text input, paste handler, BaseTextInput, Vim handler, and Vim special-key table by exact index, range, node type, and SHA-256.',
+    },
+    {
+      id: 'dom-text-input-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-dom-text-input-semantic.test.mjs',
+      detail: 'The dual-mode source test verifies the focused KeyboardEvent/PasteEvent surface, handler return graph, paste/default-prevention behavior, and the target-110 versus target-116 key-name, focus, and replay evolution.',
+    },
+    {
+      id: 'mcp-missing-server-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-mcp-missing-server-semantic.test.mjs',
+      detail: 'The authenticated test pins both complete target-110 missing-server handlers by exact structural identity and proves their configured-name diagnostics are introduced at this boundary.',
+    },
+    {
+      id: 'mcp-missing-server-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-mcp-missing-server-semantic.test.mjs',
+      detail: 'The dual-mode source test verifies de-duplicated local/project/user enumeration for remove, all-config enumeration for get, sorting, quoting, and the empty-configuration branch.',
+    },
+    {
+      id: 'update-daemon-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-update-daemon-semantic.test.mjs',
+      detail: 'The authenticated test pins the target-110 daemon imports, lock path/reader, live-PID and SIGTERM helpers, daemon filename, and complete update coordinator by exact index, range, type, and SHA-256.',
+    },
+    {
+      id: 'update-daemon-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-update-daemon-semantic.test.mjs',
+      detail: 'The case-aware source test verifies minimum-version gating, actual-update detection, historical signaling, and the target-116 process-identity and background-job-safe restart evolution.',
+    },
+    {
+      id: 'native-canary-rosetta-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-native-canary-rosetta-semantic.test.mjs',
+      detail: 'The authenticated test pins the target-110 platform selector, canary reader, full native update coordinator, module state, and Rosetta initializer by exact structural identity.',
+    },
+    {
+      id: 'native-canary-rosetta-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-native-canary-rosetta-semantic.test.mjs',
+      detail: 'The dual-mode source test verifies canary validation/precedence/maxVersion protection and the one-time macOS x64 sysctl translation probe feeding arm64 artifact selection.',
+    },
+    {
+      id: 'config-schema-hardening-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-config-schema-hardening-semantic.test.mjs',
+      detail: 'The authenticated test pins the target-110 plugin manifest schema initializer, getOrCreateUserID function, and complete Config-tool setting table by exact structural identity.',
+    },
+    {
+      id: 'config-schema-hardening-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-config-schema-hardening-semantic.test.mjs',
+      detail: 'The dual-mode source test verifies the observable plugin-settings description, in-memory user-ID cache/non-throwing persistence diagnostic, and exact settings-backed tui selector.',
+    },
+    {
+      id: 'agent-worktree-locking-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-agent-worktree-locking-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target-110 create/remove agent-worktree functions and confirms their observable lock/unlock graph persists in target 116.',
+    },
+    {
+      id: 'agent-worktree-locking-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-agent-worktree-locking-semantic.test.mjs',
+      detail: 'The dual-mode source test verifies hook HEAD capture, reasoned worktree locking, diagnostic-only lock failure, unlock-before-remove, residual cleanup, telemetry, and branch deletion.',
+    },
+    {
+      id: 'packed-git-bundle-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-packed-git-bundle-semantic.test.mjs',
+      detail: 'The authenticated test pins the target-110 packed-repository probe and complete fallback function, and distinguishes the later target-116 empty-diff/stash-failure evolution.',
+    },
+    {
+      id: 'packed-git-bundle-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-packed-git-bundle-semantic.test.mjs',
+      detail: 'The case-aware source test checks size/object gates, skip order, optional synthetic parent, target-110 nonfatal stash behavior, and current target-116 empty-diff protection.',
+    },
+    {
+      id: 'shutdown-error-metadata-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.110-shutdown-error-metadata-semantic.test.mjs',
+      detail: 'The authenticated test pins every target-110 sanitizer, stack normalizer, safe-string, metadata, rejection handler, and shutdown-option unit by exact index, range, and SHA-256.',
+    },
+    {
+      id: 'shutdown-error-metadata-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.110-shutdown-error-metadata-semantic.test.mjs',
+      detail: 'The dual-mode source test checks all bounds and redaction classes, safe fallbacks, exact metadata fields, both exception paths, and pre-async resume-hint suppression.',
+    },
+    {
+      id: 'voice-tap-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-voice-tap-semantic.test.mjs',
+      detail: 'The authenticated test pins the exact target settings, voice hook/constants, command/parser, registry, and integration units and proves their absence or inert form in target 2.1.114.',
+    },
+    {
+      id: 'voice-tap-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-voice-tap-semantic.test.mjs',
+      detail: 'The source-root-aware test checks the complete tap command, timers, transcript submission, cancellation, and keybinding call path against the case-local target-116 semantic tree.',
+    },
+    {
+      id: 'kill-paste-hint-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-kill-paste-hint-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target-116 text-input function by exact structural index, byte range, node type, and SHA-256 and proves the hint strings are absent from target 114.',
+    },
+    {
+      id: 'kill-paste-hint-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-kill-paste-hint-semantic.test.mjs',
+      detail: 'The source-root-aware test checks that a substantial backward-line kill is recorded before the immediate five-second Ctrl+Y paste-discovery notification is emitted.',
+    },
+    {
+      id: 'usage-contributors-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.108-usage-contributors-semantic.test.mjs',
+      detail: 'The authenticated test pins every target index, byte range, and SHA-256 for the complete target-108 usage-contributor scanner, classifier, UI, and Usage-screen reachability cluster.',
+    },
+    {
+      id: 'usage-contributors-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.108-usage-contributors-semantic.test.mjs',
+      detail: 'The source-root-aware test checks transcript parsing, model/cost weighting, all five behavior classifiers, thresholds, gating, error states, controls, and Usage-screen mounting in the case-local target-108 tree.',
+    },
+    {
+      id: 'sleep-monitor-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.108-sleep-monitor-semantic.test.mjs',
+      detail: 'The authenticated test pins the exact six target-108 Bash/PowerShell prompt, detector, and validation structural units and their byte SHA-256 values.',
+    },
+    {
+      id: 'sleep-monitor-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.108-sleep-monitor-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies target-108 decimal parsing, two-second gates, exact Monitor until-loop guidance, fallback prompt text, validation messages, and the target-116 fractional-regex evolution.',
+    },
+    {
+      id: 'ui-command-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.108-ui-command-semantic.test.mjs',
+      detail: 'The authenticated test pins all target-108 clear metadata, Table graph, GitHub success/workflow, MCP menu, cache warning, Ultrareview preflight/dialog/command, and auto-mode handler structural units by exact index, range, and SHA-256.',
+    },
+    {
+      id: 'ui-command-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.108-ui-command-semantic.test.mjs',
+      detail: 'The source-root-aware test checks the full reusable Table algorithm and MCP caller, GitHub and cache output, root-rendered auto-mode call path, and authenticated Ultrareview preflight, launch, billing, and one-time terms flow.',
+    },
+    {
+      id: 'user-prompt-expansion-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-user-prompt-expansion-semantic.test.mjs',
+      detail: 'The authenticated test pins all nineteen exact target-116 UserPromptExpansion structural indices, byte ranges, and SHA-256 values and proves absence from target 114.',
+    },
+    {
+      id: 'user-prompt-expansion-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-user-prompt-expansion-semantic.test.mjs',
+      detail: 'The source-root-aware test checks the complete SDK/settings/plugin protocol, event matching/output parsing/registry, and pre-expansion inline/fork blocking, context, and message call paths.',
+    },
+    {
+      id: 'query-context-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-query-context-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target-116 side-question fallback function and proves exactly five live getters were introduced after target 114.',
+    },
+    {
+      id: 'query-context-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-query-context-semantic.test.mjs',
+      detail: 'The source-root-aware test checks the new live getters, complete inherited registry/lifecycle adapter graph, identity-preserving updates, and initialized AppState backing slices.',
+    },
+    {
+      id: 'ultraplan-launch-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.98-ultraplan-launch-semantic.test.mjs',
+      detail: 'The authenticated test pins the target116 source-preflight, polling/error, feature gate, command, ExitPlan, PromptInput, and REPL structural units by exact inner offset and SHA-256.',
+    },
+    {
+      id: 'ultraplan-launch-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.98-ultraplan-launch-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies source-aware launch, repository preflight, dialog/bridge behavior, keyword and ExitPlan propagation, polling event statistics, rotating status, metadata cleanup, and bounded archive call paths.',
+    },
+    {
+      id: 'ultraplan-handoff-prompt-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-ultraplan-handoff-prompt-semantic.test.mjs',
+      detail: 'The authenticated test pins target116 ExitPlan function 18809 and target114 predecessor 18599 by exact structural identity, range, and SHA-256 and isolates both complete old and new handoff messages.',
+    },
+    {
+      id: 'ultraplan-handoff-prompt-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-ultraplan-handoff-prompt-semantic.test.mjs',
+      detail: 'The executable source test drives the actual recovered response branch, verifies local rejection with full remote/browser/teleport guidance, and proves one callback delivers progress and terminal notifications.',
+    },
+    {
+      id: 'select-ultrareview-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-select-ultrareview-semantic.test.mjs',
+      detail: 'The authenticated test pins the exact target-116 focus subscription, Ultrareview scope, Select root/item, and Skills-menu structural indices, byte ranges, node types, and SHA-256 values and proves their boundary behavior against target 114.',
+    },
+    {
+      id: 'select-ultrareview-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-select-ultrareview-semantic.test.mjs',
+      detail: 'The source-root-aware test checks sticky focus, complete Select navigation/paging/wrap/empty/overflow behavior, Skills integration and row rendering, and repository-aware Ultrareview copy against the case-local target-116 semantic tree.',
+    },
+    {
+      id: 'thinking-indicator-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.109-thinking-indicator-semantic.test.mjs',
+      detail: 'The authenticated test pins both target-109 ThinkingIndicator structural units by exact index, range, class, and byte SHA-256 and checks the complete fourteen-entry milestone table.',
+    },
+    {
+      id: 'thinking-indicator-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.109-thinking-indicator-semantic.test.mjs',
+      detail: 'The source-root-aware test validates timer setup and cleanup, complete milestone content, active-thinking mount reachability in the historical tree, and the intentional target-116 removal in cumulative current source.',
+    },
+    {
+      id: 'bash-leading-cd-context-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-bash-leading-cd-context-semantic.test.mjs',
+      detail: 'The authenticated test pins target111 leading-cd guard unit 13591 and live caller 13597, their target110 predecessor, and the target113/116 hardening units by exact range, node type, and SHA-256.',
+    },
+    {
+      id: 'bash-leading-cd-context-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-bash-leading-cd-context-semantic.test.mjs',
+      detail: 'The source-root-aware executable test verifies target111 cwd propagation and fail-closed syntax independently from target113 newline, no-op-cd git, and pipe deny-order hardening retained in cumulative source.',
+    },
+    {
+      id: 'sdk-mcp-permission-policy-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-sdk-mcp-permission-policy-semantic.test.mjs',
+      detail: 'The authenticated test pins target111 dynamic MCP reconcile unit 19378 by exact range, node type, SHA-256, and all fourteen target-added permission-policy residue ranges and raw values, with baseline policyRules absence.',
+    },
+    {
+      id: 'sdk-mcp-permission-policy-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-sdk-mcp-permission-policy-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies dynamic allow/deny replacement, stale-rule removal, preservation of manual, always-ask, and non-session rules, and atomic reconciliation with MCP clients and tools.',
+    },
+    {
+      id: 'sdk-core-schemas-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-sdk-core-schemas-semantic.test.mjs',
+      detail: 'The authenticated test pins target111 SDK schema unit 8648 and its target110 predecessor by exact range, node type, and SHA-256, plus exact policy, transport, mirror-error, and message-union subfragments.',
+    },
+    {
+      id: 'sdk-core-schemas-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-sdk-core-schemas-semantic.test.mjs',
+      detail: 'The source-root-aware test executes the MCP policy and mirror-error schemas and distinguishes target111 live policy/latent mirror topology from the target113 union edge and target116 persistence.',
+    },
+    {
+      id: 'powershell-rollout-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-ui-platform.test.mjs',
+      detail: 'The authenticated test pins target111 PowerShell rollout unit 7353 by exact structural index, byte range, node type, and SHA-256 and proves tengu_cobalt_ridge is absent from target110.',
+    },
+    {
+      id: 'powershell-rollout-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-ui-platform.test.mjs',
+      detail: 'The source-root-aware test verifies the authored shellToolUtils owner and executes the environment, platform, and feature-flag branches of the PowerShell enablement gate.',
+    },
+    {
+      id: 'prompt-cache-ttl-telemetry-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-prompt-cache-ttl-telemetry-semantic.test.mjs',
+      detail: 'The authenticated test pins target111 detector units 7407, 7408, and 7415 plus live helper/caller units 17041 and 17057 by exact structural identity and verifies all six target-added is1hCacheTTL residue offsets, baseline absence, and persistence through target116.',
+    },
+    {
+      id: 'prompt-cache-ttl-telemetry-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-prompt-cache-ttl-telemetry-semantic.test.mjs',
+      detail: 'The executable source-root-aware test drives prompt-state TTL and query-depth recording, emitted cache-break telemetry, the default-false persisted schema, the target111 helper caller, and its later target116 caller evolution.',
+    },
+    {
+      id: 'runtime-repairs-owner-fragments-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-runtime-repairs.test.mjs',
+      detail: 'The authenticated test pins target111 slug unit 8311 and API-body telemetry units 8833, 8836, and 8837 by exact structural identity, UTF-16 range, SHA-256, and every target-added residue range and raw value, with the slug fragment absent from target110.',
+    },
+    {
+      id: 'runtime-repairs-owner-fragments-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-runtime-repairs.test.mjs',
+      detail: 'The executable source-root-aware test drives slug defaults and bounds, body truncation metadata, request/response event metadata, redaction-owner source, and the recovered plan-filename call graph.',
+    },
+    {
+      id: 'provider-probe-1m-normalization-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-provider-probe-1m-normalization-semantic.test.mjs',
+      detail: 'The authenticated test pins target111 Bedrock units 10381, 10476, and 10483 plus Vertex units 10525, 10534, and 10539 by exact structural identity, UTF-16 range, SHA-256, and every target-added literal range, raw value, baseline count, and target ordinal.',
+    },
+    {
+      id: 'provider-probe-1m-normalization-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-provider-probe-1m-normalization-semantic.test.mjs',
+      detail: 'The executable source-root-aware test drives both provider probes, proves exact trailing-suffix stripping and candidate-suffix preservation/append behavior, and authenticates each wizard confirmation owner fragment.',
+    },
+    {
+      id: 'ultrareview-dialog-owner-fragments-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-ultrareview.test.mjs',
+      detail: 'The authenticated test pins target111 Ultrareview dialog units 15523, 15527, and 15528 by exact structural identity, UTF-16 range, SHA-256, and every target-added cost, scope, and launch-indicator residue range and raw value.',
+    },
+    {
+      id: 'ultrareview-dialog-owner-fragments-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-ultrareview.test.mjs',
+      detail: 'The source-root-aware test verifies the temporally correct target111 cost/scope flow and the reduced-motion-aware SpinnerGlyph/GlimmerMessage launch animation while keeping later remote-source viability out of the historical tree.',
+    },
+    {
+      id: 'help-feedback-responsive-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-help-feedback-responsive-semantic.test.mjs',
+      detail: 'The authenticated test pins target111 Help unit 14609 by exact structural identity, UTF-16 range, SHA-256, and all three target-added version, build-time, and feedback residue ranges and raw values, with feedback absent from target110.',
+    },
+    {
+      id: 'help-feedback-responsive-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-help-feedback-responsive-semantic.test.mjs',
+      detail: 'The executable source-root-aware test renders the exact target Help unit at 43 and 44 rows and proves the recovered responsive source contract.',
+    },
+    {
+      id: 'vertex-region-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-vertex-region-semantic.test.mjs',
+      detail: 'The authenticated test pins the exact target-111 Vertex override table structural identity and proves Opus 4.7 is absent from target 110.',
+    },
+    {
+      id: 'vertex-region-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-vertex-region-semantic.test.mjs',
+      detail: 'The source-root-aware test validates the complete target prefix order and environment-variable fallback behavior.',
+    },
+    {
+      id: 'model-family-prompt-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-model-family-prompt-semantic.test.mjs',
+      detail: 'The authenticated test pins the exact target-111 model-family environment prompt and initializer units and proves both new guidance strings are absent from target 110.',
+    },
+    {
+      id: 'model-family-prompt-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-model-family-prompt-semantic.test.mjs',
+      detail: 'The source-root-aware test validates the Claude 4.X model catalog, Opus 4.7 identifier, and exact Opus-4.6-only fast-mode guidance.',
+    },
+    {
+      id: 'opus47-surface-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-opus47-surface-semantic.test.mjs',
+      detail: 'The authenticated test pins all thirty-one Opus 4.7 launch, effort, provider, fallback, attribution, command, prompt, and migration structural units by exact index, byte range, node type, and SHA-256 and proves their observable values are absent from target 110.',
+    },
+    {
+      id: 'opus47-surface-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-opus47-surface-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies the complete provider/effort/fallback call graph and keeps the target111 twelve-impression logo/feed introduction distinct from the target116 five-impression, unpin-aware two-headline presentation.',
+    },
+    {
+      id: 'prevent-sleep-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-prevent-sleep-semantic.test.mjs',
+      detail: 'The authenticated test pins every changed target-111 sleep-inhibitor function by exact structural identity and proves the generic diagnostics and grace-period lifecycle are absent from target 110.',
+    },
+    {
+      id: 'prevent-sleep-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-prevent-sleep-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies the 30-second unrefed stop grace, macOS command selection, restart behavior, one-shot cleanup registration, spawn ownership, and forced shutdown semantics retained through target 116.',
+    },
+    {
+      id: 'bash-miss-kind-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-bash-miss-kind-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete changed Bash miss-reason, AST read-only, and relay-prompt structural unit set and proves every introduced classification and feature key is absent from target 110.',
+    },
+    {
+      id: 'bash-miss-kind-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-bash-miss-kind-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies each owner-local classification, the exact relay-chain conditional, the parsed-AST read-only safety flow, and the deliberate target111 dangerous-path to target116 safety-check evolution.',
+    },
+    {
+      id: 'system-theme-watcher-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-system-theme-watcher-semantic.test.mjs',
+      detail: 'The authenticated test pins every target111 OSC-11 watcher, query-cancellation and provider unit and the reachable inherited Ink theme-notification dispatch.',
+    },
+    {
+      id: 'system-theme-watcher-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-system-theme-watcher-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies actual watcher probe, notification, cancellation and disposal behavior while keeping target111 immediate probing distinct from target116 initial-probe latching.',
+    },
+    {
+      id: 'lsp-document-version-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-lsp-document-version-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target111 LSP manager and passive-diagnostics structural units and proves the version API and stale-notification diagnostic are absent from target110.',
+    },
+    {
+      id: 'lsp-document-version-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-lsp-document-version-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies monotonic independent URI versions, open/change/close/shutdown lifecycle, and strict older-than filtering before diagnostic delivery.',
+    },
+    {
+      id: 'powershell-tilde-path-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-powershell-tilde-path-semantic.test.mjs',
+      detail: 'The authenticated test pins the exact target111 PowerShell path-validation unit and proves the ~user rejection branch is absent from target110.',
+    },
+    {
+      id: 'powershell-tilde-path-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-powershell-tilde-path-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies the ambiguous ~user form is rejected before backtick, provider, UNC, variable, and ordinary path resolution.',
+    },
+    {
+      id: 'command-distance-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-command-distance-semantic.test.mjs',
+      detail: 'The authenticated test pins all four target111 command-distance, noninteractive slash-command, and Skill schema structural units by exact index, range, node type, and byte SHA-256 and proves every distinctive surface is absent from target110.',
+    },
+    {
+      id: 'command-distance-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-command-distance-semantic.test.mjs',
+      detail: 'The source-root-aware executable test verifies bounded name and alias matching, adjacent transpositions, length pruning, explicit two-edit call sites, and both pre-load noninteractive command rejection paths.',
+    },
+    {
+      id: 'skill-guidance-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-skill-guidance-semantic.test.mjs',
+      detail: 'The authenticated test pins the exact target111 session-guidance structural unit and proves the legacy alternate Skill explanation remains in target110 but is removed from target111.',
+    },
+    {
+      id: 'skill-guidance-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-skill-guidance-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies the concise no-guessing guidance is gated by both available commands and the Skill tool and that the stale legacy wording is absent.',
+    },
+    {
+      id: 'ptl-surface-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-ptl-surface-telemetry-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target111 query-loop structural unit by exact index, range, node type, and SHA-256 and proves the failure-surface event is absent from target110.',
+    },
+    {
+      id: 'ptl-surface-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-ptl-surface-telemetry-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies prompt-too-long versus media reason selection, query-source attribution, prior-attempt gating, and event ordering before the error is yielded.',
+    },
+    {
+      id: 'ssh-permission-mode-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-ssh-permission-mode-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target111 SSH-session hook structural unit by exact index, range, node type, and SHA-256 and verifies its ref/effect/connected callback setPermissionMode graph.',
+    },
+    {
+      id: 'ssh-permission-mode-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-ssh-permission-mode-semantic.test.mjs',
+      detail: 'The source-root-aware executable test verifies disconnected mode changes are retained, connect seeds the retained mode, connected changes propagate immediately, and REPL supplies AppState permission mode.',
+    },
+    {
+      id: 'native-installer-result-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-native-installer-result-semantic.test.mjs',
+      detail: 'The authenticated test pins the target111 native download-channel and public installer-result structural units by exact index, range, node type, and SHA-256 and proves the new surfaces are absent from target110.',
+    },
+    {
+      id: 'native-installer-result-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-native-installer-result-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies arbitrary channels use the exact latest/stable guidance, rc retains its dedicated rejection, and wasSkipped is preserved in the returned installation result.',
+    },
+    {
+      id: 'monitor-guidance-placement-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-monitor-guidance-placement-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target111 Monitor notification structural unit by exact index, byte range, node type, and SHA-256 and contrasts target110 placement outside the XML envelope.',
+    },
+    {
+      id: 'monitor-guidance-placement-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-monitor-guidance-placement-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies escaped event content is followed by optional push guidance and only then the task-notification close, retaining the housekeeping and feature-gate conditions.',
+    },
+    {
+      id: 'sdk-crash-metadata-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-sdk-crash-metadata-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target111 SDK crash metadata helper by exact structural index, range, node type, and SHA-256 and proves cause_name is absent from target110.',
+    },
+    {
+      id: 'sdk-crash-metadata-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-sdk-crash-metadata-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies API versus generic classification, numeric status extraction, defined-cause classification, exact metadata keys, and use at the tengu_sdk_session_crash call site.',
+    },
+    {
+      id: 'vscode-sdk-no-result-event-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-vscode-sdk-no-result-event-semantic.test.mjs',
+      detail: 'The authenticated test pins the target111 Datadog allowlist structural unit by exact index, range, node type, and SHA-256 and proves the event string is absent from target110.',
+    },
+    {
+      id: 'vscode-sdk-no-result-event-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-vscode-sdk-no-result-event-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies the exact no-result event is an ALLOWED_EVENTS member in the target order between voice and team-memory diagnostics.',
+    },
+    {
+      id: 'memory-synthesis-prompt-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-memory-synthesis-prompt-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target111 synthesis-prompt structural unit by exact index, range, node type, and SHA-256 and contrasts the target110 anti-invention sentence with the new retrieval-only constraint.',
+    },
+    {
+      id: 'memory-synthesis-prompt-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-memory-synthesis-prompt-semantic.test.mjs',
+      detail: 'The source-root-aware test proves the synthesis owner is supplied by the target94 supplement and the cumulative source contains exactly the target111 retrieval-only sentence; only the deliberately non-cumulative isolated own111 source assertion is skipped.',
+    },
+    {
+      id: 'permission-prompts-skill-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-permission-prompts-skill-semantic.test.mjs',
+      detail: 'The authenticated test pins both target111 skill-introduction units and both target113 rename units by exact index, range, node type, and SHA-256, proves absence at target110, and verifies the renamed surface persists through target116.',
+    },
+    {
+      id: 'permission-prompts-skill-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-permission-prompts-skill-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies boundary-correct public names and headings, bundled registration, user-invocable metadata, the complete prompt prefix, and exact additional-instructions append behavior.',
+    },
+    {
+      id: 'append-subagent-prompt-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-append-subagent-prompt-semantic.test.mjs',
+      detail: 'The authenticated test pins all seven target111 SDK schema, QueryEngine, print, main, and runAgent structural units by exact index, byte range, classification, and SHA-256 and proves the prompt/flag surface is absent from target110 and retained by target116.',
+    },
+    {
+      id: 'append-subagent-prompt-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-append-subagent-prompt-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies SDK request mutation, both query contexts, headless seeding, the non-exact/environment gate, cache-safe resolved prompt, query use, and nested subagent option propagation.',
+    },
+    {
+      id: 'tree-group-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-tree-group-semantic.test.mjs',
+      detail: 'The authenticated test pins all six target-113 Tree.Group structural units by exact index, range, class, and byte SHA-256 and proves Group is absent from target 112.',
+    },
+    {
+      id: 'tree-group-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-tree-group-semantic.test.mjs',
+      detail: 'The source-root-aware executable test verifies true and false enclosing-last propagation and pins the complete frozen Tree owner.',
+    },
+    {
+      id: 'message-timestamps-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-message-timestamps-semantic.test.mjs',
+      detail: 'The authenticated test pins all ten target113 timestamp config, AppState, settings, Messages, row, renderer, and startup structural units by exact index, range, node type, and byte SHA-256 and proves the complete surface is absent from target112.',
+    },
+    {
+      id: 'message-timestamps-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-message-timestamps-semantic.test.mjs',
+      detail: 'The source-root-aware executable test verifies false defaults, both settings mutation paths, live AppState propagation, row memoization, and explicit-setting versus transcript-text fallback rendering.',
+    },
+    {
+      id: 'plugin-force-include-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-plugin-force-include-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target113 introduction and target116 persistence/evolution unit sets by exact index, range, classification, and SHA-256 and proves every distinctive force-include and demoted-pinner marker is absent from target112.',
+    },
+    {
+      id: 'plugin-force-include-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-plugin-force-include-semantic.test.mjs',
+      detail: 'The source-root-aware executable test verifies installed-version constraints, force-inclusion, policy blocking, catalog/fetch fallback, installed-version error forwarding, and the later target116 telemetry-privacy evolution.',
+    },
+    {
+      id: 'active-input-registry-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-active-input-registry-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target113 active-input state/export/helper unit set and the MCP lifecycle caller by exact index, byte range, classification, and SHA-256 and proves the registry is absent from target112.',
+    },
+    {
+      id: 'active-input-registry-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-active-input-registry-semantic.test.mjs',
+      detail: 'The source-root-aware executable test verifies per-server activation, deactivation, empty-set cleanup, detached enumeration, whole-server clearing, and all four reachable MCP cleanup edges.',
+    },
+    {
+      id: 'bash-wrapper-permission-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-bash-wrapper-permission-semantic.test.mjs',
+      detail: 'The authenticated test pins all seven target113 wrapper-table, parser, candidate, matching, and sandbox caller units by exact index, byte range, classification, and SHA-256 and proves the generalized wrapper graph is absent from target112.',
+    },
+    {
+      id: 'bash-wrapper-permission-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-bash-wrapper-permission-semantic.test.mjs',
+      detail: 'The executable source-root-aware test drives nested value, command-string, positional, environment, deny/ask, and sandbox cases while proving wrapper peeling never broadens allow rules.',
+    },
+    {
+      id: 'sandbox-override-permission-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-sandbox-override-permission-semantic.test.mjs',
+      detail: 'The authenticated test pins the target113 Bash producer and all three permission consumers by exact structural index, byte range, node type, and SHA-256, and proves the producer and consumer discriminators are absent from target112.',
+    },
+    {
+      id: 'sandbox-override-permission-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-sandbox-override-permission-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies the flag-only sandbox transition, rule-result preservation, both bypass-immune gates, recursive safety routing, and the release-appropriate auto-mode sandbox behavior.',
+    },
+    {
+      id: 'channel-meta-sanitizer-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-channel-meta-sanitizer-semantic.test.mjs',
+      detail: 'The authenticated test pins target113 channel wrapper unit 15783 and each hardened diagnostic literal by exact structural identity, byte range, and SHA-256, proves absence from target112, and verifies persistence through target116.',
+    },
+    {
+      id: 'channel-meta-sanitizer-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-channel-meta-sanitizer-semantic.test.mjs',
+      detail: 'The executable source-root-aware harness verifies safe XML attribute serialization, rejected-key removal, ordered diagnostic names, exact regex source, warn level, and no diagnostic for an all-safe payload.',
+    },
+    {
+      id: 'api-server-error-ux-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-api-server-error-ux-semantic.test.mjs',
+      detail: 'The authenticated test pins target113 API error unit 8138 plus every hardened guidance string and punctuation regex occurrence by exact structural/typed ranges and SHA-256 while contrasting target112 and proving the adjacent refusal helper is static-equivalent.',
+    },
+    {
+      id: 'api-server-error-ux-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-api-server-error-ux-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies repeated overload, ordinary 5xx, punctuation normalization, compatible-provider status suffixes, and third-party omission against both the recovered owner and authenticated bundle slices.',
+    },
+    {
+      id: 'external-channel-trust-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-external-channel-trust-semantic.test.mjs',
+      detail: 'The authenticated test pins the target113 XML-prefix, queued-command dispatch, and trust-wrapper structural units plus every hardened typed occurrence by exact range and SHA-256 while proving the distinctive surface absent from target112.',
+    },
+    {
+      id: 'external-channel-trust-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-external-channel-trust-semantic.test.mjs',
+      detail: 'The executable source-root-aware test exercises channel and plugin payloads in initial and mid-turn modes, verifies source-tag labeling and the exact non-instruction trust boundary, and proves the reachable queued-channel call edge.',
+    },
+    {
+      id: 'compact-description-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-compact-description-semantic.test.mjs',
+      detail: 'The authenticated test pins the target113 compact descriptor initializer and its hardened description occurrence by exact range and SHA-256 while contrasting the complete target112 command initializer.',
+    },
+    {
+      id: 'compact-description-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-compact-description-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies the concise description and preserves the compact command type, enablement gate, noninteractive support, argument hint, and lazy loader.',
+    },
+    {
+      id: 'terminal-quoting-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-terminal-quoting-semantic.test.mjs',
+      detail: 'The authenticated test pins both target-113 Windows quoting structural units by exact index, range, class, and byte SHA-256 and contrasts target-112 percent handling.',
+    },
+    {
+      id: 'terminal-quoting-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-terminal-quoting-semantic.test.mjs',
+      detail: 'The source-root-aware test validates Unicode single-quote rejection, ASCII quote handling, newline/tab normalization, percent removal, and trailing-backslash doubling.',
+    },
+    {
+      id: 'workload-identity-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-workload-identity-semantic.test.mjs',
+      detail: 'The authenticated test pins every first-party WIF structural unit and all twenty-nine embedded SDK provider units by exact index, range, class, and byte SHA-256, and proves the boundary against target 114.',
+    },
+    {
+      id: 'workload-identity-dependency-target-fragment',
+      kind: 'dependency-target-fragment',
+      path: 'recovery/test/recovery-2.1.116-workload-identity-semantic.test.mjs',
+      detail: 'The authenticated test pins all twenty-nine embedded Anthropic SDK credential-provider units 4603–4631 by exact index, range, structural class, and byte SHA-256, correcting the coalesced first-party source-map partition without claiming dependency build inputs.',
+    },
+    {
+      id: 'concurrent-session-peer-protocol-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-concurrent-session-peer-protocol-semantic.test.mjs',
+      detail: 'The authenticated test pins target116 concurrent-session registration by exact structural index, range, node type, and SHA-256 and separately pins the peerProtocol property occurrence from the hardened typed audit.',
+    },
+    {
+      id: 'concurrent-session-peer-protocol-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-concurrent-session-peer-protocol-semantic.test.mjs',
+      detail: 'The source-root-aware test proves peerProtocol is absent from target114, fixed to version 1 in target116, and serialized after MACRO.VERSION and before kind in the authored PID record.',
+    },
+    {
+      id: 'lsp-supported-extensions-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-lsp-supported-extensions-semantic.test.mjs',
+      detail: 'The authenticated test pins the target116 LSP manager structural unit and the getSupportedExtensions property occurrence by exact ranges and SHA-256 while contrasting the target114 owner.',
+    },
+    {
+      id: 'lsp-supported-extensions-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-lsp-supported-extensions-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies the public manager type, closure, return expression, and object member all preserve sorted extension-map keys.',
+    },
+    {
+      id: 'cdn-base-migration-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-cdn-base-migration-semantic.test.mjs',
+      detail: 'The authenticated test pins both target116 release-base structural units and hardened URL occurrences by exact indices, byte ranges, and SHA-256 while proving the legacy Google Storage base in target114.',
+    },
+    {
+      id: 'cdn-base-migration-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-cdn-base-migration-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies both CLI auto-update and native-installer owners share the exact downloads.claude.ai release base and no longer retain the retired bucket URL.',
+    },
+    {
+      id: 'select-page-navigation-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-select-page-navigation-keybindings-semantic.test.mjs',
+      detail: 'The authenticated test pins the target116 keybinding initializer and all eight hardened Select binding/action occurrences by exact ranges and SHA-256 while contrasting both target114 owner units.',
+    },
+    {
+      id: 'select-page-navigation-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-select-page-navigation-keybindings-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies PageUp/PageDown/Home/End defaults and schema membership for the corresponding page and edge actions while leaving the inherited Select handler closure unchanged.',
+    },
+    {
+      id: 'opus47-picker-labels-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-opus47-picker-labels-semantic.test.mjs',
+      detail: 'The authenticated test pins all four target116 picker-option structural units and hardened label occurrences by exact indices, ranges, and SHA-256 while contrasting their target114 predecessors.',
+    },
+    {
+      id: 'opus47-picker-labels-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-opus47-picker-labels-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies the standard and three one-million-context Opus 4.7 options expose version-explicit labels without changing option routing or unrelated available-model behavior.',
+    },
+    {
+      id: 'upstream-proxy-jsr-bypass-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-upstream-proxy-jsr-bypass-semantic.test.mjs',
+      detail: 'The authenticated test pins target116 upstream-proxy unit 18418, its target114 predecessor, and the exact jsr.io and npm.jsr.io hardened occurrences by byte range and SHA-256.',
+    },
+    {
+      id: 'upstream-proxy-jsr-bypass-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-upstream-proxy-jsr-bypass-semantic.test.mjs',
+      detail: 'The executable source-root-aware test drives upstream-proxy initialization and relay setup and proves both JSR hosts are appended to NO_PROXY in target order without disturbing inherited proxy behavior.',
+    },
+    {
+      id: 'away-summary-setting-description-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-away-summary-setting-description-semantic.test.mjs',
+      detail: 'The authenticated test pins target116 settings-schema unit 2563, its target114 predecessor, and the exact hardened awaySummaryEnabled description range by SHA-256.',
+    },
+    {
+      id: 'away-summary-setting-description-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-away-summary-setting-description-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies the away-summary setting description terminates at the public-SDK launch sentence and omits the stale voiceHandsfree implementation note.',
+    },
+    {
+      id: 'bridge-remote-environment-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-bridge-remote-environment-semantic.test.mjs',
+      detail: 'The authenticated test pins all six target116 bridge export, cached, blocking, diagnostic, remote-helper, and autoconnect units plus their exact hardened occurrences and target114 predecessors.',
+    },
+    {
+      id: 'bridge-remote-environment-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-bridge-remote-environment-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies environment and in-memory remote detection, independent entitlement, fail-closed cached and blocking gates, the exact diagnostic, and autoconnect suppression.',
+    },
+    {
+      id: 'voice-setting-precedence-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-voice-setting-precedence-semantic.test.mjs',
+      detail: 'The authenticated test pins target116 useVoiceEnabled unit 18919, its target114 predecessor, and the hardened ninth voice-property occurrence by exact range and SHA-256.',
+    },
+    {
+      id: 'voice-setting-precedence-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-voice-setting-precedence-semantic.test.mjs',
+      detail: 'The executable source-root-aware test proves nested voice.enabled overrides the legacy setting while missing nested values fall back and auth and rollout gates remain mandatory.',
+    },
+    {
+      id: 'user-tmux-sessions-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-user-tmux-sessions-semantic.test.mjs',
+      detail: 'The authenticated test pins the target116 swarm-backend export and session-list helper units plus every hardened API, command, and format occurrence by exact range and SHA-256 while contrasting target114.',
+    },
+    {
+      id: 'user-tmux-sessions-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-user-tmux-sessions-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies original-socket parsing, bounded cwd-independent tmux invocation, nonempty-line filtering, and undefined unavailable/failure outcomes.',
+    },
+    {
+      id: 'query-source-metrics-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-query-source-metrics-semantic.test.mjs',
+      detail: 'The authenticated test pins the target116 query-source classifier, cost/token counter, live API caller, and matched VCR behavior plus the hardened auxiliary occurrence by exact ranges and SHA-256.',
+    },
+    {
+      id: 'query-source-metrics-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-query-source-metrics-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies main, subagent, auxiliary, and undefined privacy buckets across cost and all token metrics, recursive advisor propagation, and both streaming and fallback API call paths.',
+    },
+    {
+      id: 'remote-git-precondition-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-remote-git-precondition-semantic.test.mjs',
+      detail: 'The authenticated test pins target116 async repository helper and eligibility units, the inherited shared viability function and review consumer, and the hardened rev-parse occurrence by exact ranges and SHA-256.',
+    },
+    {
+      id: 'remote-git-precondition-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-remote-git-precondition-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies fast-path and fallback repository detection, strict bundle viability, fallback-aware ordinary eligibility, and the shared Ultrareview call path.',
+    },
+    {
+      id: 'closed-issue-notice-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-closed-issue-notice-semantic.test.mjs',
+      detail: 'The authenticated test pins all nineteen target116 closed-issue utility, notice, live notification, and initializer units by exact structural range and SHA-256 and proves the complete graph absent from target114.',
+    },
+    {
+      id: 'closed-issue-notice-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-closed-issue-notice-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies privacy and daily gates, gh query arguments, completed-only cache persistence, acknowledgement pruning, cache/refreshed deduplication, exact linked messages, feature gating, and the live footer edge.',
+    },
+    {
+      id: 'internal-error-telemetry-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-internal-error-telemetry-semantic.test.mjs',
+      detail: 'The authenticated test pins target116 helper unit 9058 and live error-sink caller unit 18329 by exact range and SHA-256, contrasts the exact target114 caller, and proves the single added internal_error occurrence.',
+    },
+    {
+      id: 'internal-error-telemetry-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-internal-error-telemetry-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies class-name selection, uppercase errno filtering, synchronous recursion suppression, and the call edge before persistent error formatting.',
+    },
+    {
+      id: 'auto-upload-sessions-config-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-auto-upload-sessions-config-semantic.test.mjs',
+      detail: 'The authenticated test pins target116 config initializer unit 6570 and private reader unit 10729 by exact identity, proves the two target-only autoUploadSessions occurrences, and derives the reader binding for fail-closed occurrence counting.',
+    },
+    {
+      id: 'auto-upload-sessions-config-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-auto-upload-sessions-config-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies the typed persisted global key and exact ordering, while proving the compiled reader has only its declaration and no call, export, callback, or escape.',
+    },
+    {
+      id: 'tool-subagent-telemetry-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-tool-subagent-telemetry-semantic.test.mjs',
+      detail: 'The authenticated test pins the target116 subagent extractor unit 6446 and live tool-execution unit 13604 by exact range and SHA-256 and proves the target-only subagent_type occurrence.',
+    },
+    {
+      id: 'tool-subagent-telemetry-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-tool-subagent-telemetry-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies Agent/Task string-only extraction and the privacy-gated span and result metadata paths for file, Bash, Skill, and subagent details.',
+    },
+    {
+      id: 'remote-task-git-cwd-error-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-remote-task-git-cwd-error-semantic.test.mjs',
+      detail: 'The authenticated test pins target116 remote-task unit 11964 and its target114 predecessor by exact range and SHA-256 and proves both target-only checked-cwd string halves.',
+    },
+    {
+      id: 'remote-task-git-cwd-error-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-remote-task-git-cwd-error-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies the live repository error includes the exact cwd while preserving every adjacent remote-task validation branch.',
+    },
+    {
+      id: 'remote-attach-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-remote-attach-semantic.test.mjs',
+      detail: 'The authenticated test pins target116 config unit 19340, remote hook unit 19358, and main/CLI unit 20720 by exact range and SHA-256 and proves every distinctive attachment anchor is absent from target114.',
+    },
+    {
+      id: 'remote-attach-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-remote-attach-semantic.test.mjs',
+      detail: 'The executable source-root-aware test exercises description, empty, raw session ID, cse URL, and whitespace cases and verifies config propagation, title suppression, source/branch order, telemetry, status text, and CLI help.',
+    },
+    {
+      id: 'remote-control-idle-upsell-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-remote-control-idle-upsell-semantic.test.mjs',
+      detail: 'The authenticated test pins the target116 eligibility, counters, command edge, notification hook, and REPL caller units plus every distinctive target-only occurrence by exact range and SHA-256.',
+    },
+    {
+      id: 'remote-control-idle-upsell-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-remote-control-idle-upsell-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies eligibility precedence, monotonic cap persistence, used-state suppression, twenty-minute scheduling, single notification emission, cleanup, bridge command, REPL, and successful --rc call paths.',
+    },
+    {
+      id: 'terminal-setup-idempotence-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-terminal-setup-idempotence-semantic.test.mjs',
+      detail: 'The authenticated test pins the three target116 terminal-setup functions and their target114 predecessors by exact structural identity and hardened success/warning ranges.',
+    },
+    {
+      id: 'terminal-setup-idempotence-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-terminal-setup-idempotence-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies exact/conflicting VS Code args and idempotent Alacritty and Zed existing-binding behavior without rewrites.',
+    },
+    {
+      id: 'mcp-reconnect-auth-retry-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-mcp-reconnect-auth-retry-semantic.test.mjs',
+      detail: 'The authenticated test pins target116 reconnect unit 14534, its target114 predecessor, and the exact target-only needs-auth retry sentence by range and SHA-256.',
+    },
+    {
+      id: 'mcp-reconnect-auth-retry-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-mcp-reconnect-auth-retry-semantic.test.mjs',
+      detail: 'The executable source-root-aware test drives needs-auth to connected and repeated needs-auth outcomes, proving one cache-key deletion and a hard one-retry cap.',
+    },
+    {
+      id: 'mcp-agent-server-table-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-mcp-agent-server-table-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target116 Table-based MCP agent-server menu and its target114 Box-label predecessor by exact structural range and SHA-256.',
+    },
+    {
+      id: 'mcp-agent-server-table-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-mcp-agent-server-table-semantic.test.mjs',
+      detail: 'The executable render test verifies the two plain Table groups, exact bold eight-column label layout, all detail/status/auth rows, and preservation of inherited actions.',
+    },
+    {
+      id: 'mcp-reconnect-loading-state-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-mcp-reconnect-loading-state-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target116 MCPReconnect function and its target114 predecessor by exact structural identity, range, and SHA-256 and isolates the shared LoadingState message.',
+    },
+    {
+      id: 'mcp-reconnect-loading-state-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-mcp-reconnect-loading-state-semantic.test.mjs',
+      detail: 'The executable source render verifies the shared LoadingState surface and exact message while preserving the reconnect owner\'s success, authentication, failure, and error paths.',
+    },
+    {
+      id: 'mcp-remote-server-table-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-mcp-remote-server-table-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target116 remote MCP Dialog/Table function and target114 Box-label predecessor by exact structural identity, range, SHA-256, and hardened connector-route and layout occurrences.',
+    },
+    {
+      id: 'mcp-remote-server-table-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-mcp-remote-server-table-semantic.test.mjs',
+      detail: 'The executable source render verifies one plain four-row Table, shared Dialog input guide, status/auth icon semantics, borderless padding, customize fallback, and callback, cleanup, and reconnect anchors.',
+    },
+    {
+      id: 'mcp-stdio-server-dialog-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-mcp-stdio-server-dialog-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target116 stdio MCP Dialog/Table function and target114 predecessor by exact structural identity, ranges, SHA-256, and every hardened Dialog, shortcut, status-icon, and row occurrence.',
+    },
+    {
+      id: 'mcp-stdio-server-dialog-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-mcp-stdio-server-dialog-semantic.test.mjs',
+      detail: 'The executable source render verifies normal and reconnect Dialog states, border hiding, input-guide suppression, four exact Table rows, target shortcut chords, and status-icon properties.',
+    },
+    {
+      id: 'shell-detail-table-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-shell-detail-table-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target116 Table-based ShellDetailDialog and target114 Text/Box predecessor by exact structural identity, range, and SHA-256, including every hardened typed Table occurrence.',
+    },
+    {
+      id: 'shell-detail-table-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-shell-detail-table-semantic.test.mjs',
+      detail: 'The executable source render verifies exact status, runtime, and command rows, flexible ratio geometry, plain box style, and terminal-width-derived forceWidth.',
+    },
+    {
+      id: 'mcp-connection-telemetry-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-mcp-server-connection-telemetry-semantic.test.mjs',
+      detail: 'The authenticated test pins target116 helper unit 14517 and live connection owner 14552 by exact range and SHA-256, including the hardened lifecycle property occurrences.',
+    },
+    {
+      id: 'mcp-connection-telemetry-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-mcp-server-connection-telemetry-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies safe always-on fields, detailed-field privacy gating, rounded durations, shared error codes, and exactly three live lifecycle calls.',
+    },
+    {
+      id: 'permission-mode-change-telemetry-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-permission-mode-change-telemetry-semantic.test.mjs',
+      detail: 'The authenticated test pins the target116 telemetry helper and all seven live transition owners by exact structural ranges and SHA-256 and proves the stable trigger literals.',
+    },
+    {
+      id: 'permission-mode-change-telemetry-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-permission-mode-change-telemetry-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies same-mode suppression and every centralized, cycle, gate, Shift+Tab, auto-opt-in, and ExitPlan trigger edge.',
+    },
+    {
+      id: 'ultrareview-scope-validation-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-ultrareview-scope-validation-semantic.test.mjs',
+      detail: 'The authenticated test pins target116 scope parser unit 16634 and launch unit 16636 plus their target114 predecessors by exact range and SHA-256 and proves every distinctive validation branch.',
+    },
+    {
+      id: 'ultrareview-scope-validation-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-ultrareview-scope-validation-semantic.test.mjs',
+      detail: 'The executable source-root-aware test drives missing/non-GitHub/GitHub PRs, explicit/default base failures, and successful head/base scope while checking the launch and dialog consumers.',
+    },
+    {
+      id: 'new-messages-pill-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-new-messages-pill-semantic.test.mjs',
+      detail: 'The authenticated test pins the target111 shortcut introduction and target116 noSelect evolution by exact structural index, byte range, node type, and SHA-256 and proves each boundary by occurrence-count deltas.',
+    },
+    {
+      id: 'new-messages-pill-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-new-messages-pill-semantic.test.mjs',
+      detail: 'The source-root-aware test keeps the transitive scroll-bottom shortcut and the later noSelect JSX property as separate authored deltas while verifying the cumulative current owner has both.',
+    },
+    {
+      id: 'session-start-skill-allowlist-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-session-start-skill-allowlist-semantic.test.mjs',
+      detail: 'The authenticated test pins all sixteen target116 structural units and every hardened typed-property/literal occurrence for session start classification and SDK skill allowlisting by exact ranges and SHA-256 while proving the graph absent from target114.',
+    },
+    {
+      id: 'session-start-skill-allowlist-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-session-start-skill-allowlist-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies argv delimiter handling, raw/user-facing/alias/namespaced skill matching, main-session-only validation, SDK state propagation, telemetry, listings, attachments, and prompt guidance.',
+    },
+    {
+      id: 'worktree-state-signal-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-worktree-state-signal-semantic.test.mjs',
+      detail: 'The authenticated test pins the target116 session-storage export, save runner, initializer, and typed worktreeStateSignal occurrence by exact structural identity and proves the signal absent from target114.',
+    },
+    {
+      id: 'worktree-state-signal-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-worktree-state-signal-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies ephemeral field stripping, emission before optional persistence, null exit state, and the no-session-file path.',
+    },
+    {
+      id: 'session-metadata-async-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-session-metadata-async-semantic.test.mjs',
+      detail: 'The authenticated test pins the project, sync tail reader, new async appender/reader, and all hardened planner property occurrences by exact indices, ranges, classifications, and SHA-256.',
+    },
+    {
+      id: 'session-metadata-async-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-session-metadata-async-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies sync/async plan identity, refreshed SDK title/tag precedence, ordered metadata fields, awaited queue/materialization paths, filesystem retry modes, tail reads, and mirror delivery.',
+    },
+    {
+      id: 'api-body-file-mode-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-api-body-file-mode-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target116 raw API body configuration, cache, enablement, file-writer, dispatcher, and hardened body_ref occurrence by exact indices, ranges, and SHA-256 while contrasting target114 inline-only behavior.',
+    },
+    {
+      id: 'api-body-file-mode-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-api-body-file-mode-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies disabled and inline compatibility, redaction, safe IDs, private file references, byte lengths, ENOENT mkdir/retry, and asynchronous write diagnostics.',
+    },
+    {
+      id: 'print-resume-telemetry116-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.105-print-resume-telemetry-semantic.test.mjs',
+      detail: 'The authenticated test pins complete target114 unit 20307 and target116 unit 20593 by exact byte range and SHA-256, proving the only telemetry refinement is the three explicit-ID failure-reason literals while all other outcomes persist.',
+    },
+    {
+      id: 'print-resume-telemetry116-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.105-print-resume-telemetry-semantic.test.mjs',
+      detail: 'The source-root-aware executable test drives every authored print-resume outcome and requires historical target105/114 roots to emit not_found while current target116 emits not_found_explicit_id for the three explicit lookup failures.',
+    },
+    {
+      id: 'windows-git-bash-fallback-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-windows-git-bash-fallback-semantic.test.mjs',
+      detail: 'The authenticated test pins the target116 Windows-path initializer and both hardened cooked path occurrences by exact structural and typed ranges and SHA-256, and proves each direct fallback is newly observable relative to target114.',
+    },
+    {
+      id: 'windows-git-bash-fallback-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-windows-git-bash-fallback-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies explicit override precedence, 64/32-bit standard installation discovery before process execution, and the cumulative current safe where.exe-derived fallback.',
+    },
+    {
+      id: 'sandbox-fail-unavailable-description-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-sandbox-fail-unavailable-description-semantic.test.mjs',
+      detail: 'The authenticated test pins target116 sandbox schema unit 2473 and the complete hardened failIfUnavailable description occurrence by exact range and SHA-256 while proving the prior enabledPlatforms wording exists only in target114.',
+    },
+    {
+      id: 'sandbox-fail-unavailable-description-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-sandbox-fail-unavailable-description-semantic.test.mjs',
+      detail: 'The source-root-aware executable test instantiates SandboxSettingsSchema and verifies its runtime Zod description exactly, including exclusion of the undocumented enabledPlatforms clause.',
+    },
+    {
+      id: 'cursor-numeric-word-boundaries-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-cursor-numeric-word-boundaries-semantic.test.mjs',
+      detail: 'The authenticated test pins the target116 MeasuredText and adjacent word-classifier units plus the hardened Unicode-number regex occurrence by exact ranges and SHA-256 while contrasting target114.',
+    },
+    {
+      id: 'cursor-numeric-word-boundaries-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-cursor-numeric-word-boundaries-semantic.test.mjs',
+      detail: 'The executable source-root-aware harness verifies Intl.Segmenter fallback classification for multiple Unicode numeric categories, nonnumeric fractions, cache reuse, and unchanged ordinary word behavior.',
+    },
+    {
+      id: 'query-helper-file-cache-hardening-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-query-helper-file-cache-hardening-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target116 extractor structural unit plus both hardened malformed-tool diagnostic occurrences by exact ranges and SHA-256 while contrasting target114.',
+    },
+    {
+      id: 'query-helper-file-cache-hardening-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-query-helper-file-cache-hardening-semantic.test.mjs',
+      detail: 'The executable source-root-aware harness verifies strict inputs, per-tool-use continuation, result-error gates, empty writes, Read offset semantics, unchanged stubs, and inaccessible or directory Edit handling.',
+    },
+    {
+      id: 'hook-telemetry-name-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-hook-telemetry-name-semantic.test.mjs',
+      detail: 'The authenticated test pins the target116 hook export, execution runner, helper, and typed getTelemetryHookName property occurrence by exact indices, ranges, node types, and SHA-256 while contrasting target114.',
+    },
+    {
+      id: 'hook-telemetry-name-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-hook-telemetry-name-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies detailed versus redacted matcher names, MCP tool/server handling, subagent privacy, OTEL and span routing, gated definitions, and unchanged user-facing progress names.',
+    },
+    {
+      id: 'auto-dream-consolidation-prompt-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-auto-dream-consolidation-prompt-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target116 consolidation prompt owner and its target114 predecessor plus the changed template-literal token by exact structural identity, byte range, and SHA-256.',
+    },
+    {
+      id: 'auto-dream-consolidation-prompt-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-auto-dream-consolidation-prompt-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies exact daily-log orientation, one-to-three-day and prefix-code guidance in private and team-memory prompt modes while preserving the inherited team-memory instructions.',
+    },
+    {
+      id: 'auto-dream-daily-logs-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-auto-dream-daily-logs-semantic.test.mjs',
+      detail: 'The authenticated test pins the target116 auto-dream runner, daily-log helper, and typed daily_logs_found property occurrence by exact structural identity and proves the telemetry is absent from target114.',
+    },
+    {
+      id: 'auto-dream-daily-logs-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-auto-dream-daily-logs-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies recursive lowercase-markdown counting, missing and inaccessible tree handling, unexpected I/O diagnostics, pre-fork snapshot order, and successful completion telemetry.',
+    },
+    {
+      id: 'workload-identity-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-workload-identity-semantic.test.mjs',
+      detail: 'The source-root-aware test validates configuration precedence, masking/status, wrapper and token cache, API and utility authentication call paths, and retry invalidation while keeping embedded SDK rows dependency-incomplete.',
+    },
+    {
+      id: 'remote-retry-watchdog-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-remote-retry-watchdog-semantic.test.mjs',
+      detail: 'The authenticated test pins target116 watchdog helper unit 15045, main retry caller 15049, and persistent predicate 15062 by exact ranges and SHA-256 and isolates the target-only environment property.',
+    },
+    {
+      id: 'remote-retry-watchdog-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-remote-retry-watchdog-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies Linux, remote-entrypoint, and truthy watchdog precedence while preserving abort, WIF, proxy-auth, onError, and ordinary retry behavior.',
+    },
+    {
+      id: 'repeat-paste-expansion-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-repeat-paste-expansion-semantic.test.mjs',
+      detail: 'The authenticated test pins the target116 history helper, both footer layers, PromptInput, and initializer units by exact structural identity and proves the hint and state absent from target114.',
+    },
+    {
+      id: 'repeat-paste-expansion-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-repeat-paste-expansion-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies highest-reference selection, text-only and 100,000-character eligibility, replacement cursor placement, owner propagation, precedence, and the eight-second hint lifecycle.',
+    },
+    {
+      id: 'background-session-footer-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-background-session-footer-semantic.test.mjs',
+      detail: 'The authenticated test pins all three target113 footer units and their target112 predecessors by exact identity and proves the background-session input edge is newly observable at this boundary.',
+    },
+    {
+      id: 'background-session-footer-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.113-background-session-footer-semantic.test.mjs',
+      detail: 'The executable test drives the actual minified background-and-empty-input gate through all four truth-table combinations and verifies the historical and additive current source-owner graphs.',
+    },
+    {
+      id: 'sdk-mcp-call-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-sdk-mcp-call-semantic.test.mjs',
+      detail: 'The authenticated test pins the MCP auth updater, URL extractor and decline result, SDK schema, tool-execution caller, and headless print handler units by exact target116 identity while contrasting target114.',
+    },
+    {
+      id: 'sdk-mcp-call-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-sdk-mcp-call-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies qualified server/tool resolution, SDK-server denial, direct MCP success, session-scoped abort, shared auth state, session expiry, URL elicitation, and decline propagation.',
+    },
+    {
+      id: 'remote-read-file-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-remote-read-file-semantic.test.mjs',
+      detail: 'The authenticated test pins the permission-checked reader, bridge message/core/init propagation, SDK read-file schemas, and direct print handler units by exact target116 structural identity while contrasting all target114 predecessors.',
+    },
+    {
+      id: 'remote-read-file-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-remote-read-file-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies every normalized permission path, default and capped byte limits, truncation, async bridge success/error dispatch, missing-callback failure, SDK schema reachability, and live permission-context propagation.',
+    },
+    {
+      id: 'outbound-mirror-policy-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-outbound-mirror-policy-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target114 and target116 bridge-initializer units 18361 and 18572 by exact byte range and SHA-256 and isolates the target-only outbound mirror policy branch and messages.',
+    },
+    {
+      id: 'outbound-mirror-policy-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-outbound-mirror-policy-semantic.test.mjs',
+      detail: 'The executable source-root-aware test drives the actual bridge initializer, proves denied outbound-only mirrors fail before connection startup with exact policy feedback, and proves inbound-capable startup bypasses the added policy check.',
+    },
+    {
+      id: 'permission-scrub-feature-gate-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-permission-scrub-feature-gate-semantic.test.mjs',
+      detail: 'The authenticated test pins both target116 permission-setup units and their target114 predecessors by exact ranges and hashes, including the scrub condition and feature-gate wording.',
+    },
+    {
+      id: 'permission-scrub-feature-gate-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-permission-scrub-feature-gate-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies scrub-mode coercion, precise warning scope, sync and async bypass diagnostics, and preservation of the permission transition graph.',
+    },
+    {
+      id: 'yolo-claudemd-authorization-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-yolo-claudemd-authorization-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target116 CLAUDE.md message builder and its target114 predecessor by exact structural identity, byte range, and SHA-256.',
+    },
+    {
+      id: 'yolo-claudemd-authorization-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-yolo-claudemd-authorization-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies exact same-operation/same-target authorization language and rejects generic autonomy, no-ask, and trust language as block-threshold exceptions.',
+    },
+    {
+      id: 'fast-bridge-command-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-fast-bridge-command-semantic.test.mjs',
+      detail: 'The authenticated test pins the shared transition, noninteractive handler, descriptor, and bridge-safe registry units and proves the counterpart absent from target114.',
+    },
+    {
+      id: 'fast-bridge-command-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-fast-bridge-command-semantic.test.mjs',
+      detail: 'The executable source-root-aware test drives unavailable, on, off, toggle, and invalid arguments and distinguishes bridge versus shortcut telemetry sources.',
+    },
+    {
+      id: 'noninteractive-mode-model-effort-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-noninteractive-mode-model-effort-semantic.test.mjs',
+      detail: 'The authenticated test pins the permission setter, shared model adapter, mode/model/effort handlers and descriptors, and registry unit by exact index, structural range, classification, and SHA-256 with hardened target-only literal ranges.',
+    },
+    {
+      id: 'noninteractive-mode-model-effort-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-noninteractive-mode-model-effort-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies policy-safe mode transitions and queue rechecks, shared model validation/state/fast-mode behavior, effort updates, descriptor separation, and exact Remote Control safe registry membership.',
+    },
+    {
+      id: 'async-agent-query-progress-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-async-agent-query-progress-watchdog-semantic.test.mjs',
+      detail: 'The authenticated test pins the target116 watchdog, AgentTool launch, and resume callers plus their target114 predecessors by exact range and SHA-256.',
+    },
+    {
+      id: 'async-agent-query-progress-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-async-agent-query-progress-watchdog-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies throttled query-progress heartbeats, stall reset timing, system subtype labels, and both fresh and resumed runAgent callback paths.',
+    },
+    {
+      id: 'schedule-remote-connectors-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-schedule-remote-connectors-route-semantic.test.mjs',
+      detail: 'The authenticated test pins the three changed scheduled-agent units and proves all four settings/connectors URLs migrate at the 114-to-116 boundary.',
+    },
+    {
+      id: 'schedule-remote-connectors-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-schedule-remote-connectors-route-semantic.test.mjs',
+      detail: 'The source-root-aware test requires all scheduled-agent connector guidance to use the canonical customize/connectors route without altering scheduling semantics.',
+    },
+    {
+      id: 'schedule-remote-gate-transitive-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.101-schedule-remote-gate-semantic.test.mjs',
+      detail: 'The authenticated lineage test pins the target101 scheduled-agent descriptor where the remote-environment exclusion first appears and proves it persists into target116.',
+    },
+    {
+      id: 'schedule-remote-gate-transitive-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.101-schedule-remote-gate-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies the schedule skill is disabled for truthy CLAUDE_CODE_REMOTE without changing its feature and policy gates.',
+    },
+    {
+      id: 'schedule-routines-alias-transitive-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.111-schedule-routines-alias-semantic.test.mjs',
+      detail: 'The authenticated lineage test pins the target111 descriptor where /routines first becomes an alias of /schedule and proves the alias persists into target116.',
+    },
+    {
+      id: 'schedule-routines-alias-transitive-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.111-schedule-routines-alias-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies the exact alias declaration and bundled-skill registration path while retaining the earlier remote and policy gates.',
+    },
+    {
+      id: 'loop-chain-state-transitive-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.97-loop-chain-state-semantic.test.mjs',
+      detail: 'The authenticated lineage test pins the target97 shared loop registry and target101 live scheduler, then proves the same accessors and cancellation path persist in target116.',
+    },
+    {
+      id: 'loop-chain-state-transitive-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.97-loop-chain-state-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies persistent per-prompt started/scheduled/aged-out state, updates, cancellation deletion, and the absence of a divergent module-local Map.',
+    },
+    {
+      id: 'notification-lifecycle-transitive-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.97-notification-lifecycle-semantic.test.mjs',
+      detail: 'The authenticated lineage test pins the target97 notification provider, lifecycle hook, context, and App wrapper and proves that provider-scoped graph persists in target116.',
+    },
+    {
+      id: 'notification-lifecycle-transitive-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.97-notification-lifecycle-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies shared mount counting, last-consumer timer cleanup, isolated provider state, and cumulative App reachability.',
+    },
+    {
+      id: 'mcp-result-size-transitive-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.97-mcp-result-size-annotation-semantic.test.mjs',
+      detail: 'The authenticated lineage test pins the four target97 MCP size helpers/factory units and proves all four annotation propagation flags persist in authenticated target116.',
+    },
+    {
+      id: 'mcp-result-size-transitive-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.97-mcp-result-size-annotation-semantic.test.mjs',
+      detail: 'The executable test covers small/large text, image, embedded resource, multi-part aggregation, pre-annotated values, and the current image-limit integration.',
+    },
+    {
+      id: 'auto-mode-denials-transitive-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.97-auto-mode-denials-provider-semantic.test.mjs',
+      detail: 'The authenticated lineage test pins the target97 denial provider, hooks, consumers, App wrapper, and tool-permission caller and proves provider-scoped storage and signatures persist in target116.',
+    },
+    {
+      id: 'auto-mode-denials-transitive-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.97-auto-mode-denials-provider-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies provider-local add/clear state, recent-denial rendering, rule-list snapshot reads, and permission-handler recording without a module-global store.',
+    },
+    {
+      id: 'agent-repl-tool-pool-transitive-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.97-agent-repl-tool-pool-semantic.test.mjs',
+      detail: 'The authenticated lineage test pins target97 fresh/resumed Agent callers and the shared tool-pool option that first bypasses primitive-tool hiding for subagents while retaining REPLTool.',
+    },
+    {
+      id: 'agent-repl-tool-pool-transitive-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.97-agent-repl-tool-pool-semantic.test.mjs',
+      detail: 'The source-root-aware test proves fresh and resumed agents request skipReplFilter, bypass primitive-tool hiding, and retain REPLTool, while ordinary tool-pool callers keep the default filtering path.',
+    },
+    {
+      id: 'settings-view-mode-transitive-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.97-settings-view-mode-semantic.test.mjs',
+      detail: 'The authenticated lineage test pins the target97 settings schema unit where the persisted viewMode enum first appears and distinguishes the target96 predecessor.',
+    },
+    {
+      id: 'settings-view-mode-transitive-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.97-settings-view-mode-semantic.test.mjs',
+      detail: 'The source-root-aware test validates default, verbose, and focus values, optional persistence, focus-mode prompt consumption, and coexistence with the cumulative target116 settings surface.',
+    },
+    {
+      id: 'sandbox-mach-lookup-transitive-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.97-sandbox-mach-lookup-semantic.test.mjs',
+      detail: 'The authenticated lineage test pins the target97 public schema, adapter conversion, and manager-forwarding units for allowMachLookup and their target96 predecessors.',
+    },
+    {
+      id: 'sandbox-mach-lookup-transitive-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.97-sandbox-mach-lookup-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies optional schema parsing and exact adapter-to-manager propagation while preserving later sandbox hardening.',
+    },
+    {
+      id: 'auto-dream-first-enable-transitive-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.97-auto-dream-first-enable-semantic.test.mjs',
+      detail: 'The authenticated lineage test pins the target97 MemoryFileSelector unit where first-enable telemetry is introduced and contrasts the exact target96 predecessor.',
+    },
+    {
+      id: 'auto-dream-first-enable-transitive-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.97-auto-dream-first-enable-semantic.test.mjs',
+      detail: 'The executable source-root-aware test proves the initial setting is sampled before persistence and is_first_enable is true only for the first transition to enabled.',
+    },
+    {
+      id: 'file-read-mitigation-evolution-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-file-read-mitigation-evolution-semantic.test.mjs',
+      detail: 'The authenticated test pins the target114 regex predicate and FileRead owner plus the target116 canonical predicate and owner by exact structural identity, range, and SHA-256.',
+    },
+    {
+      id: 'file-read-mitigation-evolution-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-file-read-mitigation-evolution-semantic.test.mjs',
+      detail: 'The source-root-aware test requires canonical Sonnet 4.0 and Opus 4.0 Set entries, rejects unsuffixed aliases, and preserves the inherited reachable reminder gate.',
+    },
+    {
+      id: 'session-writer-transitive-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.97-session-writer-coordination-semantic.test.mjs',
+      detail: 'The authenticated lineage test pins the complete target97 writer/cursor/mirror graph, the target110 addSessionMirror evolution, and every persistent target116 unit by exact range and hash.',
+    },
+    {
+      id: 'session-writer-transitive-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.97-session-writer-coordination-semantic.test.mjs',
+      detail: 'The source-root-aware test exercises ordered internal/external writes, cursor readers, mirror delivery, QueryEngine/useLogMessages/speculation consumers, and the cumulative addSessionMirror API.',
+    },
+    {
+      id: 'voice-tap-indicator-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-voice-tap-indicator-semantic.test.mjs',
+      detail: 'The authenticated test pins the target116 tap-aware indicator and nested voice-mode selector plus the target114 always-listening predecessor by exact identity.',
+    },
+    {
+      id: 'voice-tap-indicator-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-voice-tap-indicator-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies nested mode selection, hold fallback, tap recording BLACK_CIRCLE REC presentation, and unchanged warmup and processing states.',
+    },
+    {
+      id: 'daemon-protocol-dormant-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-daemon-protocol-dormant-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete baseline and target daemon export/schema unit pairs and tokenizes every changed binding and exact target-only operation.',
+    },
+    {
+      id: 'daemon-protocol-dormant-semantic-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.116-daemon-protocol-dormant-semantic.test.mjs',
+      detail: 'AST and full-bundle reference analysis prove all changed schemas remain inside uncalled lazy callbacks with zero external references; only the unchanged detach-sequence binding escapes.',
+    },
+    {
+      id: 'target113-daemon-protocol-dormant-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.113-daemon-protocol-dormant-semantic.test.mjs',
+      detail: 'The authenticated test pins target113 units 17274–17275, their complete target-added residue sets, and the adjacent live detach constant by exact range, structural identity, and SHA-256.',
+    },
+    {
+      id: 'target113-daemon-protocol-dormant-static-ast',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.113-daemon-protocol-dormant-semantic.test.mjs',
+      detail: 'Full-bundle AST and binding-reference analysis proves the target113 daemon schema family is an unrooted lazy-factory closure with no external references; only the unchanged detach constant escapes.',
+    },
+    {
+      id: 'simple-tool-descriptions-context-metrics-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-simple-tool-descriptions-context-metrics-semantic.test.mjs',
+      detail: 'The authenticated test pins the target116 description helper, API-schema caller, and context-metrics unit plus both target114 predecessors and every hardened typed occurrence.',
+    },
+    {
+      id: 'simple-tool-descriptions-context-metrics-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-simple-tool-descriptions-context-metrics-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies full, searchHint, first-paragraph, blank-fallback description modes and Boolean-only email-presence telemetry.',
+    },
+    {
+      id: 'forked-allowed-tools-context-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-forked-allowed-tools-context-semantic.test.mjs',
+      detail: 'The authenticated test pins the forked-context helper and both slash/Skill callers against their target114 predecessors by exact structural identity.',
+    },
+    {
+      id: 'forked-allowed-tools-context-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-forked-allowed-tools-context-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies immutable de-duplicated allowed-tool augmentation through both AppState and direct permission accessors for forked slash commands and skills.',
+    },
+    {
+      id: 'model-canonical-four-zero-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-model-canonical-four-zero-semantic.test.mjs',
+      detail: 'The authenticated test pins the target116 canonical-model parser and its target114 predecessor by exact structural identity while distinguishing the inherited target97 date-suffix fallback.',
+    },
+    {
+      id: 'model-canonical-four-zero-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-model-canonical-four-zero-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies exact generic Opus and Sonnet 4.0 canonicalization, future dated 4.x preservation, and cumulative date-suffix removal.',
+    },
+    {
+      id: 'synchronized-output-probe-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-synchronized-output-probe-semantic.test.mjs',
+      detail: 'The authenticated test pins the target116 synchronized-output setter, capability predicate, state initializer, and live App probe by exact structural identity and typed occurrence.',
+    },
+    {
+      id: 'synchronized-output-probe-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-synchronized-output-probe-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies DEC 2026 status handling, Apple Terminal suppression, probe ordering, and the tmux hard-false precedence.',
+    },
+    {
+      id: 'remote-startup-timing-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-remote-startup-timing-semantic.test.mjs',
+      detail: 'The authenticated test pins the startup-timing module, SDK system-init consumer, three print phase writers, and main MCP-connect writer by exact target116 structural identity.',
+    },
+    {
+      id: 'remote-startup-timing-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-remote-startup-timing-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies first-write phase accumulation, one-shot consumption, private startup_timing attachment, and all four reachable phase measurements.',
+    },
+    {
+      id: 'startup-cli-telemetry-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-startup-cli-telemetry-semantic.test.mjs',
+      detail: 'The authenticated test pins the target116 startup telemetry collectors, startup event, main call path, and initializer units by exact ranges and SHA-256.',
+    },
+    {
+      id: 'startup-cli-telemetry-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-startup-cli-telemetry-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies allowlisted environment counts, nondefault setting filtering, explicit flag metadata, and value privacy.',
+    },
+    {
+      id: 'remote-control-session-suppression-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-remote-control-session-suppression-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target116 main CLI unit and its target114 predecessor while locating both exact target-only remote-session suppression messages.',
+    },
+    {
+      id: 'remote-control-session-suppression-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-remote-control-session-suppression-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies --remote precedence, --teleport guidance, entitlement fallback, ignored-flag warning, and successful-use marking.',
+    },
+    {
+      id: 'message-operations-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-message-operations-semantic.test.mjs',
+      detail: 'The authenticated test pins the target116 message-operation reducer and every login, permission, teleport, REPL, and QueryEngine caller plus the inherited UUID helper.',
+    },
+    {
+      id: 'message-operations-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-message-operations-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies append, replace-all, UUID removal, arbitrary update, identity preservation, and typed operation routing across interactive and headless paths.',
+    },
+    {
+      id: 'resume-command-loading-state-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-resume-command-loading-state-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target116 /resume command unit and its target114 predecessor by exact range and SHA-256 and proves both loading branches migrate together.',
+    },
+    {
+      id: 'resume-command-loading-state-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-resume-command-loading-state-semantic.test.mjs',
+      detail: 'The executable source-root-aware test extracts both actual branches and verifies LoadingState receives the exact loading and resuming messages without legacy Spinner rows.',
+    },
+    {
+      id: 'teams-dialog-shortcut-footer-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-teams-dialog-shortcut-footer-semantic.test.mjs',
+      detail: 'The authenticated test pins target116 TeamDetailView u19156 and TeammateDetailView u19158 plus both target114 predecessors by exact structural range and SHA-256 and locates every target shortcut fragment.',
+    },
+    {
+      id: 'teams-dialog-shortcut-footer-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-teams-dialog-shortcut-footer-semantic.test.mjs',
+      detail: 'The executable source-root-aware test renders both team and teammate detail views, both hide/show capability branches, and verifies exact Byline shortcut ordering, local focus handling, and Shift+H formatting.',
+    },
+    {
+      id: 'model-capability-dispatch-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-model-capability-dispatch-semantic.test.mjs',
+      detail: 'The authenticated test pins eleven exact target116 context, beta, adaptive-thinking, effort, max-effort, and x-high capability units and their target114 predecessors by inner-bundle range and SHA-256.',
+    },
+    {
+      id: 'model-capability-dispatch-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-model-capability-dispatch-semantic.test.mjs',
+      detail: 'The executable dual-root test verifies exact canonical model allow/deny boundaries, third-party overrides, compatible-provider fallback, 128k output caps, Bun-era model aliases, and future/unknown model behavior across all four authored owners.',
+    },
+    {
+      id: 'version-verbose-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-version-verbose-semantic.test.mjs',
+      detail: 'The authenticated test pins target116 CLI main unit u20732 and target114 predecessor u20445 by exact inner range and SHA-256, including the optional --verbose and Commit output fragments.',
+    },
+    {
+      id: 'version-verbose-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-version-verbose-semantic.test.mjs',
+      detail: 'The executable source-root-aware test runs --version, -v, and -V with and without --verbose and verifies GIT_SHA is printed only in verbose version mode.',
+    },
+    {
+      id: 'feedback-survey-not-sure-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-feedback-survey-not-sure-semantic.test.mjs',
+      detail: 'The authenticated test pins all eight target116 Not-sure validator, view, response-map, wrapper, label, memory, and REPL units plus their target114 predecessors.',
+    },
+    {
+      id: 'feedback-survey-not-sure-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-feedback-survey-not-sure-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies default rejection, explicit enablement, option order and width, keyboard and pointer selection, wrapper propagation, memory eligibility, and pending-label rendering.',
+    },
+    {
+      id: 'sdk-main-session-skills-schema-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-sdk-control-schema-telemetry-semantic.test.mjs',
+      detail: 'The authenticated test pins target116 SDK control-schema unit 19762 and the exact main-session skills description that is absent from target114.',
+    },
+    {
+      id: 'sdk-main-session-skills-schema-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-sdk-control-schema-telemetry-semantic.test.mjs',
+      detail: 'The executable source-root-aware test parses valid and invalid initialize requests and proves the optional skill allowlist preserves exact values and its main-session-only contract.',
+    },
+    {
+      id: 'sdk-permission-decision-metadata-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-sdk-control-schema-telemetry-semantic.test.mjs',
+      detail: 'The authenticated test pins target116 reason-type units 2486/2488, live permission unit 14851, schema unit 19762, and structured sender unit 19778 by exact range and SHA-256.',
+    },
+    {
+      id: 'sdk-permission-decision-metadata-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-sdk-control-schema-telemetry-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies recursive safety checks, sandbox-override routing, the public reason discriminator tuple, schema validation, and SDK sender metadata without prose parsing.',
+    },
+    {
+      id: 'sdk-message-rated-control-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-sdk-control-schema-telemetry-semantic.test.mjs',
+      detail: 'The authenticated test pins target116 control-schema unit 19762 and headless print unit 20581 for the complete message_rated request, response, union, and handler graph.',
+    },
+    {
+      id: 'sdk-message-rated-control-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-sdk-control-schema-telemetry-semantic.test.mjs',
+      detail: 'The executable source-root-aware test validates rating inputs and verifies target UI-compatible surface and cleared defaults, telemetry fields, and the empty control success response.',
+    },
+    {
+      id: 'simplify-nested-conditionals-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-simplify-nested-conditionals-semantic.test.mjs',
+      detail: 'The authenticated test pins target116 simplify unit 20254 and its target114 predecessor by exact range, structural identity, and SHA-256.',
+    },
+    {
+      id: 'simplify-nested-conditionals-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-simplify-nested-conditionals-semantic.test.mjs',
+      detail: 'The source-root-aware test verifies the exact nested-conditionals review text, recommended flattening strategies, item order, and following comment-item renumbering.',
+    },
+    {
+      id: 'task-stop-ownership-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-task-stop-ownership-semantic.test.mjs',
+      detail: 'The authenticated test pins the target116 notification, caller resolver, ownership predicate, stop runner, and TaskStopTool units plus their target114 predecessors and every target-added typed ownership value.',
+    },
+    {
+      id: 'task-stop-ownership-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-task-stop-ownership-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies trusted, matching, and mismatched callers; pre-kill rejection; registry notification suppression; cross-owner notification; and direct versus AsyncLocalStorage caller identity.',
+    },
+    {
+      id: 'tool-input-unicode-escape-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-tool-input-unicode-escape-semantic.test.mjs',
+      detail: 'The authenticated test pins the target116 recursive decoder and live message-normalization caller plus the target114 predecessor by exact structural identity and SHA-256.',
+    },
+    {
+      id: 'tool-input-unicode-escape-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-tool-input-unicode-escape-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies nested BMP and surrogate-pair decoding, escaped-backslash and malformed-surrogate preservation, and exact ordering before tool-specific normalization.',
+    },
+    {
+      id: 'dormant-jobs-daemon-path-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-dormant-jobs-daemon-path-semantic.test.mjs',
+      detail: 'The authenticated test pins target116 jobs-loader unit 16276 and daemon-path declaration unit 19574 by exact structural identity, bytes, and target-only literals.',
+    },
+    {
+      id: 'dormant-jobs-daemon-path-semantic-test',
+      kind: 'static-ast',
+      path: 'recovery/test/recovery-2.1.116-dormant-jobs-daemon-path-semantic.test.mjs',
+      detail: 'Full-bundle identifier tokenization proves the jobs loader and daemon temp-path accessor have no call, export, read, or escaping reference, while every nested helper binding remains confined to its declaration cluster.',
+    },
+    {
+      id: 'export-renderer-keybinding-context-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-export-renderer-keybinding-context-semantic.test.mjs',
+      detail: 'The authenticated test pins the target116 static export provider and its target114 predecessor by exact structural range and SHA-256.',
+    },
+    {
+      id: 'export-renderer-keybinding-context-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-export-renderer-keybinding-context-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies a distinct pre-dispatch Set ref is passed into the static KeybindingProvider while preserving headless rendering.',
+    },
+    {
+      id: 'session-index-scan-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-session-index-scan-semantic.test.mjs',
+      detail: 'The authenticated test pins the target116 session-storage export, scanner, loader, and initializer units plus both public scan constants by exact identity.',
+    },
+    {
+      id: 'session-index-scan-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-session-index-scan-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies 256-byte head and 4096-byte compact-boundary scans and the exact four scanner references.',
+    },
+    {
+      id: 'resume-picker-telemetry-target-fragment',
+      kind: 'target-fragment',
+      path: 'recovery/test/recovery-2.1.116-resume-picker-telemetry-semantic.test.mjs',
+      detail: 'The authenticated test pins the complete target116 resume-picker function and its target114 predecessor by exact range and SHA-256.',
+    },
+    {
+      id: 'resume-picker-telemetry-semantic-test',
+      kind: 'semantic-test',
+      path: 'recovery/test/recovery-2.1.116-resume-picker-telemetry-semantic.test.mjs',
+      detail: 'The executable source-root-aware test verifies context merge/name restoration, not_found_picker, processing_error, load_error, de-duplication, caught error-name reporting, and both shared LoadingState rows.',
+    },
+  ]
+  const evidenceIds = evidence.map(item => item.id)
+  if (new Set(evidenceIds).size !== evidenceIds.length) {
+    throw new Error(`${caseName}: evidence catalog contains duplicate IDs`)
+  }
+  const evidenceById = new Map(evidence.map(item => [item.id, item]))
+  const usedEvidenceIds = new Set(
+    rows.flatMap(row => row.evidenceIds ?? []),
+  )
+  for (const evidenceId of usedEvidenceIds) {
+    if (!evidenceById.has(evidenceId)) {
+      throw new Error(`${caseName}: row references unknown evidence ${evidenceId}`)
+    }
+  }
+  const caseEvidence = evidence.filter(item => usedEvidenceIds.has(item.id))
+  const dispositions = [
+    'alpha-equivalent',
+    'dependency-runtime',
+    'generated-metadata',
+    'dce-nonruntime',
+    'source-runtime-covered',
+    'source-runtime-gap',
+  ]
+  const coverage = {
+    schemaVersion: 1,
+    case: caseName,
+    targetVersion,
+    targetCommit,
+    criterion: 'compiled-ast-function-semantics-v1',
+    summary: {
+      nonmatchedUnits: rows.length,
+      byStructuralClass: exactCounts(rows, 'structuralClass', ['changed', 'moved', 'unresolved']),
+      byDisposition: exactCounts(rows, 'disposition', dispositions),
+      sourceRuntimeGaps: 0,
+      dependencyRuntimeGaps: rows.filter(row => row.disposition === 'dependency-runtime').length,
+    },
+    owners,
+    evidence: caseEvidence,
+    rows,
+  }
+  const outputDirectory = path.join(caseRoot, 'semantic')
+  fs.mkdirSync(outputDirectory, { recursive: true })
+  const dependencyGroups = new Map()
+  for (const row of dependencyRows) {
+    const group = dependencyGroups.get(row.package) ?? {
+      package: row.package,
+      attributedSources: new Set(),
+      rows: [],
+    }
+    group.attributedSources.add(row.attribution)
+    group.rows.push({
+      targetIndex: row.targetIndex,
+      sourceHash: row.sourceHash,
+      structuralClass: row.structuralClass,
+      classification: row.classification,
+    })
+    dependencyGroups.set(row.package, group)
+  }
+  const identifierOrMetadataEquivalent = dependencyRows.filter(
+    row => row.classification === 'identifier-or-metadata-equivalent-unpinned',
+  ).length
+  const dependencyAudit = {
+    schemaVersion: 1,
+    case: caseName,
+    targetVersion,
+    targetCommit,
+    criterion: 'whole-bundle-dependency-build-input-v1',
+    summary: {
+      dependencyRows: dependencyRows.length,
+      identifierOrMetadataEquivalent,
+      materialOrUnresolvedDelta:
+        dependencyRows.length - identifierOrMetadataEquivalent,
+      pinnedSourceBuildInputs: 0,
+      dependencyRuntimeGaps: dependencyRows.length,
+      exactTargetBundleArtifactRecoverable: true,
+      wholeBundleSemanticEquivalentFromSrc: false,
+    },
+    buildInputAudit: {
+      applicationManifestOrLockfileInTargetCommit: false,
+      dependencySourceArchivePinned: false,
+      dependencyBuildRecipePinned: false,
+      exactTargetBundleArtifactRecoverable: true,
+      conclusion: dependencyRows.length === 0
+        ? 'No structurally nonmatched dependency runtime units occur in this case, but the target still lacks a pinned application dependency graph and build recipe, so whole-bundle reproduction from source is unproved.'
+        : 'The exact target bundle bytes remain recoverable through the generated delta, but the embedded dependency source and build inputs are not pinned; every dependency row is therefore a whole-bundle source-reproduction gap.',
+    },
+    groups: [...dependencyGroups.values()]
+      .sort((left, right) => left.package.localeCompare(right.package))
+      .map(group => ({
+        package: group.package,
+        attributedSources: [...group.attributedSources].sort(),
+        summary: {
+          dependencyRows: group.rows.length,
+          identifierOrMetadataEquivalent: group.rows.filter(
+            row => row.classification === 'identifier-or-metadata-equivalent-unpinned',
+          ).length,
+          materialOrUnresolvedDelta: group.rows.filter(
+            row => row.classification === 'material-or-unresolved-delta-unpinned',
+          ).length,
+          vendoredBuildInputUnpinned: group.rows.filter(
+            row => row.classification === 'vendored-build-input-unpinned',
+          ).length,
+          sourceBuildInputPinned: false,
+        },
+        artifactRecovery: 'exact-target-bundle-bytes-only',
+        gap: 'No target-pinned dependency source/build input can reproduce these embedded runtime units from source.',
+        rows: group.rows,
+      })),
+  }
+  fs.writeFileSync(
+    path.join(outputDirectory, 'dependency-coverage.json.gz'),
+    gzipSync(`${JSON.stringify(dependencyAudit, null, 2)}\n`, { level: 9, mtime: 0 }),
+  )
+  fs.writeFileSync(
+    path.join(outputDirectory, 'source-coverage.json.gz'),
+    gzipSync(`${JSON.stringify(coverage, null, 2)}\n`, { level: 9, mtime: 0 }),
+  )
+  console.log(caseName, JSON.stringify(coverage.summary))
+}

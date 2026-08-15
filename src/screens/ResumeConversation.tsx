@@ -6,7 +6,7 @@ import { useTerminalSize } from 'src/hooks/useTerminalSize.js';
 import { getOriginalCwd, switchSession } from '../bootstrap/state.js';
 import type { Command } from '../commands.js';
 import { LogSelector } from '../components/LogSelector.js';
-import { Spinner } from '../components/Spinner.js';
+import { LoadingState } from '../components/design-system/LoadingState.js';
 import { restoreCostStateForSession } from '../cost-tracker.js';
 import { setClipboard } from '../ink/termio/osc.js';
 import { Box, Text } from '../ink.js';
@@ -26,6 +26,7 @@ import { renameRecordingForSession } from '../utils/asciicast.js';
 import { updateSessionName } from '../utils/concurrentSessions.js';
 import { loadConversationForResume } from '../utils/conversationRecovery.js';
 import { checkCrossProjectResume } from '../utils/crossProjectResume.js';
+import { toError } from '../utils/errors.js';
 import type { FileHistorySnapshot } from '../utils/fileHistory.js';
 import { logError } from '../utils/log.js';
 import { createSystemMessage } from '../utils/messages.js';
@@ -91,6 +92,7 @@ export function ResumeConversation({
     rows
   } = useTerminalSize();
   const agentDefinitions = useAppState(s => s.agentDefinitions);
+  const existingStandaloneAgentContext = useAppState(s => s.standaloneAgentContext);
   const setAppState = useSetAppState();
   const [logs, setLogs] = React.useState<LogOption[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -106,6 +108,8 @@ export function ResumeConversation({
   } | null>(null);
   const [crossProjectCommand, setCrossProjectCommand] = React.useState<string | null>(null);
   const sessionLogResultRef = React.useRef<SessionLogResult | null>(null);
+  const reloadRequestRef = React.useRef(0);
+  const [reloadGeneration, setReloadGeneration] = React.useState(0);
   // Mirror of logs.length so loadMoreLogs can compute value indices outside
   // the setLogs updater (keeping it pure per React's contract).
   const logCountRef = React.useRef(0);
@@ -158,14 +162,25 @@ export function ResumeConversation({
   }, []);
   const loadLogs = React.useCallback((allProjects: boolean) => {
     setLoading(true);
+    const generation = ++reloadRequestRef.current;
+    const previousResult = sessionLogResultRef.current;
+    sessionLogResultRef.current = null;
+    setReloadGeneration(previous => previous + 1);
     const promise = allProjects ? loadAllProjectsMessageLogsProgressive() : loadSameRepoMessageLogsProgressive(worktreePaths);
     promise.then(result_2 => {
+      if (reloadRequestRef.current !== generation) return;
       sessionLogResultRef.current = result_2;
       logCountRef.current = result_2.logs.length;
       setLogs(result_2.logs);
     }).catch(error_0 => {
+      if (reloadRequestRef.current !== generation) return;
+      if (previousResult !== null) {
+        sessionLogResultRef.current = previousResult;
+      }
+      setLogs(previous => previous.slice());
       logError(error_0);
     }).finally(() => {
+      if (reloadRequestRef.current !== generation) return;
       setLoading(false);
     });
   }, [worktreePaths]);
@@ -190,11 +205,20 @@ export function ResumeConversation({
         return;
       }
     }
+    let failureAlreadyLogged = false;
+    let failureReason = 'load_error';
     try {
       const result_3 = await loadConversationForResume(log_0, undefined);
       if (!result_3) {
+        logEvent('tengu_session_resumed', {
+          entrypoint: 'picker' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+          success: false,
+          failure_reason: 'not_found_picker'
+        });
+        failureAlreadyLogged = true;
         throw new Error('Failed to load conversation');
       }
+      failureReason = 'processing_error';
       if (feature('COORDINATOR_MODE')) {
         /* eslint-disable @typescript-eslint/no-require-imports */
         const coordinatorModule = require('../coordinator/coordinatorMode.js') as typeof import('../coordinator/coordinatorMode.js');
@@ -246,14 +270,18 @@ export function ResumeConversation({
         /* eslint-enable @typescript-eslint/no-require-imports */
         saveMode(isCoordinatorMode() ? 'coordinator' : 'normal');
       }
-      const standaloneAgentContext = computeStandaloneAgentContext(result_3.agentName, result_3.agentColor);
+      const resumedStandaloneAgentContext = computeStandaloneAgentContext(result_3.agentName, result_3.agentColor);
+      const standaloneAgentContext = existingStandaloneAgentContext ? {
+        ...resumedStandaloneAgentContext,
+        ...existingStandaloneAgentContext
+      } : resumedStandaloneAgentContext;
       if (standaloneAgentContext) {
         setAppState(prev_2 => ({
           ...prev_2,
           standaloneAgentContext
         }));
       }
-      void updateSessionName(result_3.agentName);
+      void updateSessionName(standaloneAgentContext?.name);
       restoreSessionMetadata(forkSession ? {
         ...result_3,
         worktreeSession: undefined
@@ -285,10 +313,14 @@ export function ResumeConversation({
         mainThreadAgentDefinition: resolvedAgentDef
       });
     } catch (e) {
-      logEvent('tengu_session_resumed', {
-        entrypoint: 'picker' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        success: false
-      });
+      if (!failureAlreadyLogged) {
+        logEvent('tengu_session_resumed', {
+          entrypoint: 'picker' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+          success: false,
+          failure_reason: failureReason,
+          error_name: toError(e).name
+        });
+      }
       logError(e as Error);
       throw e;
     }
@@ -301,22 +333,16 @@ export function ResumeConversation({
       strictMcpConfig
     })} strictMcpConfig={strictMcpConfig} systemPrompt={systemPrompt} appendSystemPrompt={appendSystemPrompt} mainThreadAgentDefinition={resumeData.mainThreadAgentDefinition} autoConnectIdeFlag={autoConnectIdeFlag} disableSlashCommands={disableSlashCommands} taskListId={taskListId} thinkingConfig={thinkingConfig} onTurnComplete={onTurnComplete} />;
   }
-  if (loading) {
-    return <Box>
-        <Spinner />
-        <Text> Loading conversations…</Text>
-      </Box>;
+  if (loading && (logs.length === 0 || filteredLogs.length === 0)) {
+    return <LoadingState message="Loading conversations…" />;
   }
   if (resuming) {
-    return <Box>
-        <Spinner />
-        <Text> Resuming conversation…</Text>
-      </Box>;
+    return <LoadingState message="Resuming conversation…" />;
   }
-  if (filteredLogs.length === 0) {
+  if (filteredLogs.length === 0 && !loading) {
     return <NoConversationsMessage />;
   }
-  return <LogSelector logs={filteredLogs} maxHeight={rows} onCancel={onCancel} onSelect={onSelect} onLogsChanged={isResumeWithRenameEnabled ? () => loadLogs(showAllProjects) : undefined} onLoadMore={loadMoreLogs} initialSearchQuery={initialSearchQuery} showAllProjects={showAllProjects} onToggleAllProjects={handleToggleAllProjects} onAgenticSearch={agenticSessionSearch} />;
+  return <LogSelector logs={filteredLogs} maxHeight={rows} onCancel={onCancel} onSelect={onSelect} onLogsChanged={isResumeWithRenameEnabled ? () => loadLogs(showAllProjects) : undefined} onLoadMore={loadMoreLogs} initialSearchQuery={initialSearchQuery} showAllProjects={showAllProjects} onToggleAllProjects={handleToggleAllProjects} onAgenticSearch={agenticSessionSearch} isLoading={loading} reloadGeneration={reloadGeneration} />;
 }
 function NoConversationsMessage() {
   const $ = _c(2);

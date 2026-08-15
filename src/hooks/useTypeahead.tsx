@@ -42,7 +42,7 @@ const AT_TOKEN_HEAD_RE = /^@[\p{L}\p{N}\p{M}_\-./\\()[\]~:]*/u;
 const PATH_CHAR_HEAD_RE = /^[\p{L}\p{N}\p{M}_\-./\\()[\]~:]+/u;
 const TOKEN_WITH_AT_RE = /(@[\p{L}\p{N}\p{M}_\-./\\()[\]~:]*|[\p{L}\p{N}\p{M}_\-./\\()[\]~:]+)$/u;
 const TOKEN_WITHOUT_AT_RE = /[\p{L}\p{N}\p{M}_\-./\\()[\]~:]+$/u;
-const HAS_AT_SYMBOL_RE = /(^|\s)@([\p{L}\p{N}\p{M}_\-./\\()[\]~:]*|"[^"]*"?)$/u;
+const HAS_AT_SYMBOL_RE = /(^|[\s。、？！])@([\p{L}\p{N}\p{M}_\-./\\()[\]~:]*|"[^"]*"?)$/u;
 const HASH_CHANNEL_RE = /(^|\s)#([a-z0-9][a-z0-9_-]*)$/;
 
 // Type guard for path completion metadata
@@ -130,6 +130,7 @@ type Props = {
   suppressSuggestions?: boolean;
   markAccepted: () => void;
   onModeChange?: (mode: PromptInputMode) => void;
+  sessionEnvVars?: Map<string, string>;
 };
 type UseTypeaheadResult = {
   suggestions: SuggestionItem[];
@@ -220,7 +221,7 @@ export function applyShellSuggestion(suggestion: SuggestionItem, input: string, 
   onInputChange(newInput);
   setCursorOffset(wordStart + replacementText.length);
 }
-const DM_MEMBER_RE = /(^|\s)@[\w-]*$/;
+const DM_MEMBER_RE = /(^|[\s。、？！])@[\w-]*$/;
 function applyTriggerSuggestion(suggestion: SuggestionItem, input: string, cursorOffset: number, triggerRe: RegExp, onInputChange: (value: string) => void, setCursorOffset: (offset: number) => void): void {
   const m = input.slice(0, cursorOffset).match(triggerRe);
   if (!m || m.index === undefined) return;
@@ -235,13 +236,13 @@ let currentShellCompletionAbortController: AbortController | null = null;
 /**
  * Generate bash shell completion suggestions
  */
-async function generateBashSuggestions(input: string, cursorOffset: number): Promise<SuggestionItem[]> {
+async function generateBashSuggestions(input: string, cursorOffset: number, sessionEnvVars?: Map<string, string>): Promise<SuggestionItem[]> {
   try {
     if (currentShellCompletionAbortController) {
       currentShellCompletionAbortController.abort();
     }
     currentShellCompletionAbortController = new AbortController();
-    const suggestions = await getShellCompletions(input, cursorOffset, currentShellCompletionAbortController.signal);
+    const suggestions = await getShellCompletions(input, cursorOffset, currentShellCompletionAbortController.signal, sessionEnvVars);
     return suggestions;
   } catch {
     // Silent failure - don't break UX
@@ -316,7 +317,7 @@ export function extractCompletionToken(text: string, cursorPos: number, includeA
   // Fast path for @ tokens: use lastIndexOf to avoid expensive $ anchor scan
   if (includeAtSymbol) {
     const atIdx = textBeforeCursor.lastIndexOf('@');
-    if (atIdx >= 0 && (atIdx === 0 || /\s/.test(textBeforeCursor[atIdx - 1]!))) {
+    if (atIdx >= 0 && (atIdx === 0 || /[\s。、？！]/.test(textBeforeCursor[atIdx - 1]!))) {
       const fromAt = textBeforeCursor.substring(atIdx);
       const atHeadMatch = fromAt.match(AT_TOKEN_HEAD_RE);
       if (atHeadMatch && atHeadMatch[0].length === fromAt.length) {
@@ -395,7 +396,8 @@ export function useTypeahead({
   },
   suppressSuggestions = false,
   markAccepted,
-  onModeChange
+  onModeChange,
+  sessionEnvVars
 }: Props): UseTypeaheadResult {
   const {
     addNotification
@@ -681,7 +683,7 @@ export function useTypeahead({
     // Check for @ to trigger team member / named subagent suggestions
     // Must check before @ file symbol to prevent conflict
     // Skip in bash mode - @ has no special meaning in shell commands
-    const atMatch = mode !== 'bash' ? value.substring(0, effectiveCursorOffset).match(/(^|\s)@([\w-]*)$/) : null;
+    const atMatch = mode !== 'bash' ? value.substring(0, effectiveCursorOffset).match(DM_MEMBER_RE) : null;
     if (atMatch) {
       const partialName = (atMatch[2] ?? '').toLowerCase();
       // Imperative read — reading at call-time fixes staleness for
@@ -1208,7 +1210,7 @@ export function useTypeahead({
       if (mode === 'bash') {
         suggestionType = 'shell';
         // This should be very fast, taking <10ms
-        const bashSuggestions = await generateBashSuggestions(input, cursorOffset);
+        const bashSuggestions = await generateBashSuggestions(input, cursorOffset, sessionEnvVars);
         if (bashSuggestions.length === 1) {
           // If single suggestion, apply it immediately
           const suggestion = bashSuggestions[0];

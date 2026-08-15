@@ -424,8 +424,9 @@ The required source identities are:
 files   1,933
 bytes   30,699,758
 sha256  47eb501c55779f8661dcd50c6b86c298fd85711ebe81300dd43b0a1539d58dad
-commit  a8e39191fe9098c7750f6d55190502a760d5f7d9
+commit  71adf7f36c3522c296770374910eb1834dfe5d59
 tree    c19e46029d1f5e75e67b25203b10ac093fdded6f
+src     c333e6b77392e2bc5e7750a6246a9375caa5703a
 
 2.1.101 applied overlay
 files   1,933
@@ -480,3 +481,18 @@ bacffcb4d409504294be4b76273965a646ec412a465bf2dd4c7ed48f6b0309eb
 2.1.101 framed package tree SHA-256
 31db03d726238058bb691208a6e0c3698ff0e2384c1ef7c4d9a5925e5736d154
 ```
+
+## Semantic source reproduction check
+
+Run the fail-closed semantic audit after acquiring the adjacent artifacts:
+
+```sh
+pixi run node recovery/scripts/audit-source-reproduction.mjs \
+  --case "$CASE/manifest.json" \
+  --repo . \
+  --artifacts "$RECOVERY_ARTIFACTS"
+```
+
+Require all 2,522 nonmatched units to be classified, zero first-party source
+runtime gaps, and 16 explicitly unresolved dependency-runtime gaps. Missing
+root dependency/build inputs keep the whole-bundle-from-source verdict false.

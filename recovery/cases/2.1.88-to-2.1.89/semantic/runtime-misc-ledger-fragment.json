@@ -1,0 +1,202 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.88-to-2.1.89",
+  "criterion": "compiled-ast-function-semantics-v1",
+  "mergeInto": "semantic/source-coverage.json.gz",
+  "owners": [
+    {
+      "id": "owner-runtime-misc-auto-updater",
+      "path": "src/utils/autoUpdater.ts",
+      "anchor": "permission denied"
+    },
+    {
+      "id": "owner-runtime-misc-worktree",
+      "path": "src/utils/worktree.ts",
+      "anchor": "^bg-[a-zA-Z0-9._-]{1,55}-[0-9a-f]{8}$"
+    },
+    {
+      "id": "owner-runtime-misc-suggestions",
+      "path": "src/hooks/unifiedSuggestions.ts",
+      "anchor": "result.item.type === 'mcp_resource' ? 0.15 : 0"
+    },
+    {
+      "id": "owner-runtime-misc-auto-compact",
+      "path": "src/services/compact/autoCompact.ts",
+      "anchor": "shouldUseColdCompaction"
+    },
+    {
+      "id": "owner-runtime-misc-compact",
+      "path": "src/services/compact/compact.ts",
+      "anchor": "stripNonEssentialCompactAttachments"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "evidence-runtime-misc-target-fragments",
+      "kind": "target-fragment",
+      "path": "recovery/test/recovery-2.1.89-runtime-misc-semantic.test.mjs",
+      "detail": "Authenticated 2.1.89 bundle SHA-256, exact structural coordinates and hashes, and target runtime branches are pinned for updater permissions, background worktrees, MCP ranking, and cold compaction."
+    },
+    {
+      "id": "evidence-runtime-misc-semantic-test",
+      "kind": "semantic-test",
+      "path": "recovery/test/recovery-2.1.89-runtime-misc-semantic.test.mjs",
+      "detail": "Source assertions pin the equivalent first-party owners, observable constants, branch order, data filtering, flag propagation, telemetry, and historical supplement."
+    }
+  ],
+  "rows": [
+    {
+      "targetIndex": 9404,
+      "start": 7845995,
+      "end": 7848517,
+      "nodeType": "FunctionDeclaration",
+      "sourceHash": "e3d19fbc5dee5bee057de6eb9783790fa8961f06a72553b1589bcb19c58cc2e7",
+      "structuralClass": "unresolved",
+      "disposition": "source-runtime-covered",
+      "ownerIds": [
+        "owner-runtime-misc-auto-updater"
+      ],
+      "evidenceIds": [
+        "evidence-runtime-misc-target-fragments",
+        "evidence-runtime-misc-semantic-test"
+      ],
+      "behavior": "The installer attempts the global npm or bun install without a divergent permissions preflight; if failed output reports EACCES, EPERM, or permission denied it returns no_permissions instead of generic install_failed."
+    },
+    {
+      "targetIndex": 12135,
+      "start": 9468931,
+      "end": 9469029,
+      "nodeType": "FunctionDeclaration",
+      "sourceHash": "944d21ea0c9f09f1a98752a6500a808b6e62578a149de76211f5024477d8ba7a",
+      "structuralClass": "unresolved",
+      "disposition": "source-runtime-covered",
+      "ownerIds": [
+        "owner-runtime-misc-compact"
+      ],
+      "evidenceIds": [
+        "evidence-runtime-misc-target-fragments",
+        "evidence-runtime-misc-semantic-test"
+      ],
+      "behavior": "Cold compaction removes attachment messages except queued_command attachments."
+    },
+    {
+      "targetIndex": 12140,
+      "start": 9469814,
+      "end": 9473732,
+      "nodeType": "FunctionDeclaration",
+      "sourceHash": "d0f285903e2cb8b52c76c69c1c868b72e5cbb3653275abbedd7b17bf122be7c3",
+      "structuralClass": "unresolved",
+      "disposition": "source-runtime-covered",
+      "ownerIds": [
+        "owner-runtime-misc-compact"
+      ],
+      "evidenceIds": [
+        "evidence-runtime-misc-target-fragments",
+        "evidence-runtime-misc-semantic-test"
+      ],
+      "behavior": "Full conversation compaction accepts and propagates the stripNonEssential flag and records it in tengu_compact telemetry."
+    },
+    {
+      "targetIndex": 12144,
+      "start": 9477798,
+      "end": 9480972,
+      "nodeType": "FunctionDeclaration",
+      "sourceHash": "b2fa0834df805d32c0d87f4e23313600f2b842bbb06e50a839764aee7ccf0159",
+      "structuralClass": "unresolved",
+      "disposition": "source-runtime-covered",
+      "ownerIds": [
+        "owner-runtime-misc-compact"
+      ],
+      "evidenceIds": [
+        "evidence-runtime-misc-target-fragments",
+        "evidence-runtime-misc-semantic-test"
+      ],
+      "behavior": "The cold path disables prompt-cache sharing and filters nonessential attachments before the regular streaming summary request."
+    },
+    {
+      "targetIndex": 12187,
+      "start": 9496061,
+      "end": 9496104,
+      "nodeType": "FunctionDeclaration",
+      "sourceHash": "0f5fae2f44bd2defe5059d0adf3d361aca8d42d0755786a827623c2e4fd27b71",
+      "structuralClass": "unresolved",
+      "disposition": "source-runtime-covered",
+      "ownerIds": [
+        "owner-runtime-misc-auto-compact"
+      ],
+      "evidenceIds": [
+        "evidence-runtime-misc-target-fragments",
+        "evidence-runtime-misc-semantic-test"
+      ],
+      "behavior": "A session becomes eligible for cold compaction after 5,400,000 milliseconds."
+    },
+    {
+      "targetIndex": 12192,
+      "start": 9497105,
+      "end": 9498451,
+      "nodeType": "FunctionDeclaration",
+      "sourceHash": "64cb5f6fce3fc10d142ae8aca490bcc11b4742ea2477fad2cc5d91619edceba4",
+      "structuralClass": "unresolved",
+      "disposition": "source-runtime-covered",
+      "ownerIds": [
+        "owner-runtime-misc-auto-compact"
+      ],
+      "evidenceIds": [
+        "evidence-runtime-misc-target-fragments",
+        "evidence-runtime-misc-semantic-test"
+      ],
+      "behavior": "Legacy autocompaction enables stripping only when the session-age predicate and tengu_cold_compact gate are both true, then passes the flag to full compaction."
+    },
+    {
+      "targetIndex": 12193,
+      "start": 9498451,
+      "end": 9498554,
+      "nodeType": "VariableDeclaration",
+      "sourceHash": "37a7c713827ff37f9e826f6f35f5e9dc35388607fc66c49a16ddbb68ffc2fd9f",
+      "structuralClass": "unresolved",
+      "disposition": "source-runtime-covered",
+      "ownerIds": [
+        "owner-runtime-misc-auto-compact"
+      ],
+      "evidenceIds": [
+        "evidence-runtime-misc-target-fragments",
+        "evidence-runtime-misc-semantic-test"
+      ],
+      "behavior": "The cold-compaction age threshold is exactly 5,400,000 milliseconds."
+    },
+    {
+      "targetIndex": 15821,
+      "start": 11472391,
+      "end": 11472761,
+      "nodeType": "VariableDeclaration",
+      "sourceHash": "61e3b722e275d51811941320d0d77b925357adb939a096b4ab733323f0c1286b",
+      "structuralClass": "unresolved",
+      "disposition": "source-runtime-covered",
+      "ownerIds": [
+        "owner-runtime-misc-worktree"
+      ],
+      "evidenceIds": [
+        "evidence-runtime-misc-target-fragments",
+        "evidence-runtime-misc-semantic-test"
+      ],
+      "behavior": "Stale background-agent worktrees matching bg-<bounded slug>-<8 lowercase hex> are eligible for guarded ephemeral-worktree cleanup."
+    },
+    {
+      "targetIndex": 16745,
+      "start": 11989478,
+      "end": 11990476,
+      "nodeType": "FunctionDeclaration",
+      "sourceHash": "b56a9d316418be9f31079de9e1709c2b7f1b7a5b26d83ca9e4aad13a67cd70a1",
+      "structuralClass": "unresolved",
+      "disposition": "source-runtime-covered",
+      "ownerIds": [
+        "owner-runtime-misc-suggestions"
+      ],
+      "evidenceIds": [
+        "evidence-runtime-misc-target-fragments",
+        "evidence-runtime-misc-semantic-test"
+      ],
+      "behavior": "Unified suggestions add a 0.15 score penalty to MCP resources so equally matched files rank first."
+    }
+  ]
+}

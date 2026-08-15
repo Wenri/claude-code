@@ -320,7 +320,7 @@ export function BackgroundTasksDialog({
     await DreamTask.kill(taskId_2, setAppState);
   }
   async function killRemoteAgentTask(taskId_3: string): Promise<void> {
-    await RemoteAgentTask.kill(taskId_3, setAppState);
+    await RemoteAgentTask.kill(taskId_3, toolUseContext.taskRegistry, setAppState);
   }
 
   // Wrap onDone in useEffectEvent to get a stable reference that always calls

@@ -133,6 +133,7 @@ export function resetYankState(): void {
 // Pre-compiled regex patterns for Vim word detection (avoid creating in hot loops)
 export const VIM_WORD_CHAR_REGEX = /^[\p{L}\p{N}\p{M}_]$/u
 export const WHITESPACE_REGEX = /\s/
+const NUMBER_CHAR_REGEX = /\p{N}/u
 
 // Exported helper functions for Vim character classification
 export const isVimWordChar = (ch: string): boolean =>
@@ -1237,10 +1238,12 @@ export class MeasuredText {
     if (!this.wordBoundariesCache) {
       this.wordBoundariesCache = []
       for (const segment of getWordSegmenter().segment(this.text)) {
+        const isWordLike =
+          segment.isWordLike || NUMBER_CHAR_REGEX.test(segment.segment)
         this.wordBoundariesCache.push({
           start: segment.index,
           end: segment.index + segment.segment.length,
-          isWordLike: segment.isWordLike ?? false,
+          isWordLike,
         })
       }
     }

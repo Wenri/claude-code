@@ -7,6 +7,8 @@ import { isMouseClicksDisabled } from '../../utils/fullscreen.js';
 import { logError } from '../../utils/log.js';
 import { reportRenderError } from '../../utils/gracefulShutdown.js';
 import { execFileNoThrow } from '../../utils/execFileNoThrow.js';
+import type { DOMElement } from '../dom.js';
+import type { FocusManager } from '../focus.js';
 import { EventEmitter } from '../events/emitter.js';
 import { InputEvent } from '../events/input-event.js';
 import { TerminalFocusEvent } from '../events/terminal-focus-event.js';
@@ -138,6 +140,7 @@ type Props = {
   // fullscreen) re-enters alt-screen + mouse tracking. Idempotent on the
   // terminal side. Optional so testing.tsx doesn't need to stub it.
   readonly onStdinResume?: () => void;
+  readonly onRawModeEnter?: () => void;
   // Receives the declared native-cursor position from useDeclaredCursor
   // so ink.tsx can park the terminal cursor there after each frame.
   // Enables IME composition at the input caret and lets screen readers /
@@ -482,7 +485,7 @@ export default class App extends PureComponent<Props, State> {
     // it, SGR mouse sequences would appear as garbled text at the
     // shell prompt while suspended.
     if (this.props.stdout.isTTY) {
-      this.props.stdout.write(SHOW_CURSOR + DFE + DISABLE_MOUSE_TRACKING);
+      this.props.stdout.write(SHOW_CURSOR + DFE + DISABLE_THEME_NOTIFY + DISABLE_MOUSE_TRACKING);
     }
 
     // Emit suspend event for Claude Code to handle. Mostly just has a notification

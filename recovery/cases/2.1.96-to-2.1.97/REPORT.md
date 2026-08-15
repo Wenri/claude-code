@@ -252,3 +252,14 @@ syntax and semantic tests, exact bundle reconstruction, complete attribution
 and structural accounting, readable-diff invariants, and the exact 20-member
 package tree. With every later-release bundle supplied to its target-backed
 tests, the repository-wide recovery suite passes all 122 tests with no skips.
+
+## Semantic source audit
+
+The fail-closed `compiled-ast-function-semantics-v1` ledger accounts for all
+4,450 structurally nonmatched target units. It reports zero first-party source
+runtime gaps, so the first-party target behavior is semantically reproduced by
+the historical source plus
+[`semantic-supplement.patch`](./semantic-supplement.patch). The 35 changed
+dependency-runtime units remain gaps because the historical source tree has no
+pinned application dependency manifest, lockfile, or hermetic build recipe;
+whole-bundle semantic equivalence from source is therefore not claimed.

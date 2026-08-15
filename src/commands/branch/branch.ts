@@ -15,6 +15,7 @@ import type {
   SerializedMessage,
   TranscriptMessage,
 } from '../../types/logs.js'
+import type { Message } from '../../types/message.js'
 import {
   getProjectDir,
   getTranscriptPath,
@@ -65,7 +66,7 @@ export function deriveFirstPrompt(
  */
 export async function createFork(
   customTitle?: string,
-  extraMessages?: SerializedMessage[],
+  extraMessages?: Message[],
 ): Promise<{
   sessionId: UUID
   title: string | undefined
@@ -255,13 +256,11 @@ async function getUniqueForkName(baseName: string): Promise<string> {
   return `${baseName} (Branch ${nextNumber})`
 }
 
-export async function call(
-  onDone: LocalJSXCommandOnDone,
+export async function branchAndResume(
   context: LocalJSXCommandContext,
-  args: string,
-): Promise<React.ReactNode> {
-  const customTitle = args?.trim() || undefined
-
+  onDone: LocalJSXCommandOnDone,
+  options: { customTitle?: string; extraMessages?: Message[] } = {},
+): Promise<boolean> {
   const originalSessionId = getSessionId()
 
   try {
@@ -271,7 +270,7 @@ export async function call(
       forkPath,
       serializedMessages,
       contentReplacementRecords,
-    } = await createFork(customTitle)
+    } = await createFork(options.customTitle, options.extraMessages)
 
     // Build LogOption for resume
     const now = new Date()
@@ -321,11 +320,22 @@ export async function call(
       )
     }
 
-    return null
+    return true
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'Unknown error occurred'
     onDone(`Failed to branch conversation: ${message}`)
-    return null
+    return false
   }
+}
+
+export async function call(
+  onDone: LocalJSXCommandOnDone,
+  context: LocalJSXCommandContext,
+  args: string,
+): Promise<React.ReactNode> {
+  await branchAndResume(context, onDone, {
+    customTitle: args?.trim() || undefined,
+  })
+  return null
 }

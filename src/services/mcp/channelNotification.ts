@@ -17,6 +17,7 @@
  */
 
 import type { ServerCapabilities } from '@modelcontextprotocol/sdk/types.js'
+import partition from 'lodash-es/partition.js'
 import { z } from 'zod/v4'
 import { type ChannelEntry, getAllowedChannels } from '../../bootstrap/state.js'
 import { CHANNEL_TAG } from '../../constants/xml.js'
@@ -24,6 +25,7 @@ import {
   getClaudeAIOAuthTokens,
   getSubscriptionType,
 } from '../../utils/auth.js'
+import { logForDebugging } from '../../utils/debug.js'
 import { lazySchema } from '../../utils/lazySchema.js'
 import { parsePluginIdentifier } from '../../utils/plugins/pluginIdentifier.js'
 import { getSettingsForSource } from '../../utils/settings/settings.js'
@@ -108,8 +110,17 @@ export function wrapChannelMessage(
   content: string,
   meta?: Record<string, string>,
 ): string {
-  const attrs = Object.entries(meta ?? {})
-    .filter(([k]) => SAFE_META_KEY.test(k))
+  const [safeEntries, droppedEntries] = partition(
+    Object.entries(meta ?? {}),
+    ([key]) => SAFE_META_KEY.test(key),
+  )
+  if (droppedEntries.length > 0) {
+    logForDebugging(
+      `[channel] ${serverName}: dropped ${droppedEntries.length} meta key(s) that don't match ${SAFE_META_KEY.source}: ${droppedEntries.map(([key]) => key).join(', ')}`,
+      { level: 'warn' },
+    )
+  }
+  const attrs = safeEntries
     .map(([k, v]) => ` ${k}="${escapeXmlAttr(v)}"`)
     .join('')
   return `<${CHANNEL_TAG} source="${escapeXmlAttr(serverName)}"${attrs}>\n${content}\n</${CHANNEL_TAG}>`

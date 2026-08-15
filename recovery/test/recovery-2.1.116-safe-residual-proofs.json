@@ -1,0 +1,905 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.114-to-2.1.116",
+  "artifact": {
+    "baselineInnerSha256": "cba93e10c9ecc179f51548d8888094a759d6da48824d4dc3d0753af63a912e16",
+    "targetInnerSha256": "d0a9d925342a1b75871d59deb72c9e9d0e8da65880c14ae484867cf456cbe91a",
+    "structuralGzipSha256": "77ae38f5e31dc5ac6eac074f18253d4c67b20fa8a07e00d3caf31519af44fb16"
+  },
+  "derivation": {
+    "unsupportedScanSha256": "e3d065a66daad3af2b796893266b7ba2ea1a786cbc9ae29eed5e31d75348f0ff",
+    "policy": "Admit only complete unsupported units whose every residue has a pinned inner-bundle oracle plus an exact dual-root source representation, authenticated compiler/build transform, or transitive dead-code proof; all source-gap, sibling-owned, mixed-risk, and unproven units fail closed."
+  },
+  "excludedUnsupportedTargetIndices": [
+    6059,
+    6063,
+    6072,
+    6073,
+    6074,
+    8146,
+    8150,
+    8151,
+    8152,
+    8843,
+    10175,
+    10177,
+    12604,
+    14795,
+    15168,
+    15241,
+    15286,
+    15708,
+    15709,
+    16049,
+    16436,
+    16437,
+    16459,
+    16513,
+    16586,
+    17054,
+    17056,
+    17211,
+    17218,
+    17219,
+    17276,
+    17410,
+    18171,
+    18181,
+    18589,
+    18596,
+    19158,
+    19221,
+    19224,
+    19681,
+    19684,
+    19706,
+    19714,
+    20099,
+    20130,
+    20580,
+    20696,
+    20697,
+    20698,
+    20703,
+    20732
+  ],
+  "summary": {
+    "categories": {
+      "arithmetic-constant-folding": {
+        "units": 1,
+        "residues": 1
+      },
+      "component-extraction": {
+        "units": 2,
+        "residues": 2
+      },
+      "context-getter-lowering": {
+        "units": 10,
+        "residues": 20
+      },
+      "direct-authored-source": {
+        "units": 2,
+        "residues": 2
+      },
+      "exact-owner-correction": {
+        "units": 1,
+        "residues": 1
+      },
+      "mixed-mcp-representation": {
+        "units": 1,
+        "residues": 6
+      },
+      "mixed-update-representation": {
+        "units": 1,
+        "residues": 5
+      },
+      "model-family-truth-table": {
+        "units": 1,
+        "residues": 2
+      },
+      "task-registry-lowering": {
+        "units": 1,
+        "residues": 1
+      },
+      "transitive-dead-code": {
+        "units": 1,
+        "residues": 1
+      }
+    },
+    "proofs": {
+      "arithmetic-fold": 1,
+      "build-macro": 8,
+      "compiler-boolean": 1,
+      "component-extraction": 2,
+      "context-getter-lowering": 20,
+      "exact-owner-source": 2,
+      "exact-source": 3,
+      "model-family-truth-table": 2,
+      "task-registry-lowering": 1,
+      "transitive-dce": 1
+    },
+    "units": 21,
+    "residues": 41,
+    "excludedUnits": 51
+  },
+  "rows": [
+    {
+      "targetIndex": 6694,
+      "category": "exact-owner-correction",
+      "sourceMapOwners": [
+        "src/ink/termio/osc.ts"
+      ],
+      "evidenceOwners": [
+        "src/ink/terminal-querier.ts"
+      ],
+      "target": [
+        "unresolved",
+        3052490,
+        3052577,
+        "FunctionDeclaration",
+        "23e7a68726e91bb9eab2639375baa3d43bf435937a8ae51aa2895b44c6f1382d"
+      ],
+      "residues": [
+        [
+          "string",
+          "$p",
+          3052530,
+          3052532,
+          0,
+          1,
+          "exact-owner-source"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 8167,
+      "category": "model-family-truth-table",
+      "sourceMapOwners": [
+        "src/utils/thinking.ts"
+      ],
+      "evidenceOwners": [
+        "src/utils/effort.ts"
+      ],
+      "target": [
+        "unresolved",
+        3877375,
+        3877547,
+        "FunctionDeclaration",
+        "9df9f0726ca869336b3c934920090be6f86605db0638acc70d3cbcf3126e7ad9"
+      ],
+      "residues": [
+        [
+          "string",
+          "claude-opus-4-7",
+          3877410,
+          3877427,
+          17,
+          21,
+          "model-family-truth-table"
+        ],
+        [
+          "string",
+          "claude-opus-4-6",
+          3877449,
+          3877466,
+          19,
+          22,
+          "model-family-truth-table"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 13225,
+      "category": "context-getter-lowering",
+      "sourceMapOwners": [
+        "src/tools/WebSearchTool/WebSearchTool.ts"
+      ],
+      "evidenceOwners": [
+        "src/tools/WebSearchTool/WebSearchTool.ts",
+        "src/utils/queryContext.ts"
+      ],
+      "target": [
+        "unresolved",
+        8410409,
+        8414979,
+        "VariableDeclaration",
+        "fce730d4561aa2ac74437945c1d3c8610fcfea1f0101719990b7d73e56ef003b"
+      ],
+      "residues": [
+        [
+          "property",
+          "getEffortValue",
+          8413494,
+          8413508,
+          0,
+          5,
+          "context-getter-lowering"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 13680,
+      "category": "context-getter-lowering",
+      "sourceMapOwners": [
+        "src/query.ts"
+      ],
+      "evidenceOwners": [
+        "src/query.ts",
+        "src/utils/queryContext.ts"
+      ],
+      "target": [
+        "unresolved",
+        8661458,
+        8676492,
+        "FunctionDeclaration",
+        "a8bd5ef1e8303e938e61bec2c279ec7be5382722c13ed1f56eb9c32572abab79"
+      ],
+      "residues": [
+        [
+          "property",
+          "getAutoCompactWindow",
+          8665104,
+          8665124,
+          0,
+          3,
+          "context-getter-lowering"
+        ],
+        [
+          "property",
+          "getFastMode",
+          8665612,
+          8665623,
+          0,
+          3,
+          "context-getter-lowering"
+        ],
+        [
+          "property",
+          "getEffortValue",
+          8666149,
+          8666163,
+          0,
+          6,
+          "context-getter-lowering"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 13688,
+      "category": "context-getter-lowering",
+      "sourceMapOwners": [
+        "src/tools/AgentTool/runAgent.ts"
+      ],
+      "evidenceOwners": [
+        "src/tools/AgentTool/runAgent.ts",
+        "src/utils/queryContext.ts"
+      ],
+      "target": [
+        "unresolved",
+        8678774,
+        8685196,
+        "FunctionDeclaration",
+        "373fbcf714e7d7d0dfdaef92a62d4ec742b62ba4921eadd8435f15607d6a3f02"
+      ],
+      "residues": [
+        [
+          "property",
+          "onQueryProgress",
+          8679128,
+          8679143,
+          1,
+          3,
+          "context-getter-lowering"
+        ],
+        [
+          "property",
+          "getToolPermissionContext",
+          8680311,
+          8680335,
+          20,
+          27,
+          "context-getter-lowering"
+        ],
+        [
+          "property",
+          "getEffortValue",
+          8680521,
+          8680535,
+          0,
+          7,
+          "context-getter-lowering"
+        ],
+        [
+          "property",
+          "getToolPermissionContext",
+          8682928,
+          8682952,
+          20,
+          28,
+          "context-getter-lowering"
+        ],
+        [
+          "property",
+          "getEffortValue",
+          8682956,
+          8682970,
+          0,
+          8,
+          "context-getter-lowering"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 13804,
+      "category": "context-getter-lowering",
+      "sourceMapOwners": [
+        "src/utils/attachments.ts"
+      ],
+      "evidenceOwners": [
+        "src/utils/attachments.ts",
+        "src/utils/queryContext.ts"
+      ],
+      "target": [
+        "unresolved",
+        8734988,
+        8735926,
+        "FunctionDeclaration",
+        "f6c65e616823365e5c07954a6dc0db520dd71057d2ca79f9ee2e7ac212618c3b"
+      ],
+      "residues": [
+        [
+          "property",
+          "getToolPermissionContext",
+          8735215,
+          8735239,
+          20,
+          29,
+          "context-getter-lowering"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 13869,
+      "category": "context-getter-lowering",
+      "sourceMapOwners": [
+        "src/utils/plugins/loadPluginCommands.ts"
+      ],
+      "evidenceOwners": [
+        "src/utils/plugins/loadPluginCommands.ts",
+        "src/utils/queryContext.ts"
+      ],
+      "target": [
+        "unresolved",
+        8756150,
+        8758569,
+        "FunctionDeclaration",
+        "541374b4a184bb782d9907c2545383f20a827a6019a42afa80b346a69c76cb28"
+      ],
+      "residues": [
+        [
+          "property",
+          "getToolPermissionContext",
+          8758132,
+          8758156,
+          20,
+          30,
+          "context-getter-lowering"
+        ],
+        [
+          "property",
+          "getToolPermissionContext",
+          8758167,
+          8758191,
+          20,
+          31,
+          "context-getter-lowering"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 14099,
+      "category": "context-getter-lowering",
+      "sourceMapOwners": [
+        "src/tools/PowerShellTool/powershellPermissions.ts"
+      ],
+      "evidenceOwners": [
+        "src/tools/PowerShellTool/powershellPermissions.ts",
+        "src/utils/queryContext.ts"
+      ],
+      "target": [
+        "unresolved",
+        8888681,
+        8896609,
+        "FunctionDeclaration",
+        "956169d85308eccb2789357fb40762832d68c51dc62f4c9906d456dde762c3b9"
+      ],
+      "residues": [
+        [
+          "property",
+          "getToolPermissionContext",
+          8888713,
+          8888737,
+          20,
+          32,
+          "context-getter-lowering"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 14142,
+      "category": "context-getter-lowering",
+      "sourceMapOwners": [
+        "src/skills/loadSkillsDir.ts"
+      ],
+      "evidenceOwners": [
+        "src/skills/loadSkillsDir.ts",
+        "src/utils/queryContext.ts"
+      ],
+      "target": [
+        "unresolved",
+        8922666,
+        8923982,
+        "FunctionDeclaration",
+        "f5b174a5a328be9082da377e0774d3fb593097382fcdd301e2e40a80dcd2c701"
+      ],
+      "residues": [
+        [
+          "property",
+          "getToolPermissionContext",
+          8923638,
+          8923662,
+          20,
+          33,
+          "context-getter-lowering"
+        ],
+        [
+          "property",
+          "getToolPermissionContext",
+          8923673,
+          8923697,
+          20,
+          34,
+          "context-getter-lowering"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 14214,
+      "category": "context-getter-lowering",
+      "sourceMapOwners": [
+        "src/services/compact/compact.ts"
+      ],
+      "evidenceOwners": [
+        "src/services/compact/compact.ts",
+        "src/utils/queryContext.ts"
+      ],
+      "target": [
+        "unresolved",
+        8962201,
+        8965184,
+        "FunctionDeclaration",
+        "964497244700fa634dbe68b15665a34958ac352ce0c4fc3a120fe7e5cdd4e78d"
+      ],
+      "residues": [
+        [
+          "property",
+          "getEffortValue",
+          8964464,
+          8964478,
+          0,
+          9,
+          "context-getter-lowering"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 16278,
+      "category": "transitive-dead-code",
+      "sourceMapOwners": [
+        "src/commands/release-notes/index.ts"
+      ],
+      "evidenceOwners": [],
+      "target": [
+        "unresolved",
+        10305861,
+        10307061,
+        "VariableDeclaration",
+        "2bc87b2b4d4b79f05dcddfe86191cde0d1a52d513d8fc9f2f3eb447149a1036c"
+      ],
+      "residues": [
+        [
+          "property",
+          "sock",
+          10306841,
+          10306845,
+          0,
+          1,
+          "transitive-dce"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 16855,
+      "category": "context-getter-lowering",
+      "sourceMapOwners": [
+        "src/commands/security-review.ts"
+      ],
+      "evidenceOwners": [
+        "src/commands/security-review.ts",
+        "src/utils/queryContext.ts"
+      ],
+      "target": [
+        "unresolved",
+        10597666,
+        10598411,
+        "VariableDeclaration",
+        "6dbaa9cf0024774865763520bf24a06d2ced5876edf6a62f2500fcdb7ac88791"
+      ],
+      "residues": [
+        [
+          "property",
+          "getToolPermissionContext",
+          10598083,
+          10598107,
+          20,
+          46,
+          "context-getter-lowering"
+        ],
+        [
+          "property",
+          "getToolPermissionContext",
+          10598118,
+          10598142,
+          20,
+          47,
+          "context-getter-lowering"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 16965,
+      "category": "component-extraction",
+      "sourceMapOwners": [
+        "src/components/Passes/Passes.tsx"
+      ],
+      "evidenceOwners": [
+        "src/components/Passes/Passes.tsx"
+      ],
+      "target": [
+        "unresolved",
+        10637629,
+        10640638,
+        "FunctionDeclaration",
+        "6fc6ccf97472ee750f9cdf23930daa0da528ca79db44a49d200234e284aa1a9e"
+      ],
+      "residues": [
+        [
+          "property",
+          "pass",
+          10639801,
+          10639805,
+          7,
+          15,
+          "component-extraction"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 16966,
+      "category": "component-extraction",
+      "sourceMapOwners": [
+        "src/components/Passes/Passes.tsx"
+      ],
+      "evidenceOwners": [
+        "src/components/Passes/Passes.tsx"
+      ],
+      "target": [
+        "unresolved",
+        10640638,
+        10641610,
+        "FunctionDeclaration",
+        "b875ce019387081ad5bc8900285fccbed837baa80b6932e4ed950506a8f538de"
+      ],
+      "residues": [
+        [
+          "property",
+          "pass",
+          10640670,
+          10640674,
+          7,
+          16,
+          "component-extraction"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 17447,
+      "category": "mixed-update-representation",
+      "sourceMapOwners": [
+        "src/components/WorktreeExitDialog.tsx"
+      ],
+      "evidenceOwners": [
+        "src/commands/update/update.ts"
+      ],
+      "target": [
+        "unresolved",
+        10851729,
+        10852987,
+        "VariableDeclaration",
+        "694ebf10fcaa39144e4e4c4e1b7a94f2de0d1aa9d0acfbc160254fbd929aebe9"
+      ],
+      "residues": [
+        [
+          "string",
+          "Cannot /update — this session was resumed from a different project directory. Restart manually with --resume to continue on the latest version.",
+          10852168,
+          10852318,
+          0,
+          1,
+          "exact-owner-source"
+        ],
+        [
+          "string",
+          "2.1.116",
+          10852763,
+          10852772,
+          0,
+          78,
+          "build-macro"
+        ],
+        [
+          "string",
+          "2026-04-20T13:57:26Z",
+          10852852,
+          10852874,
+          0,
+          78,
+          "build-macro"
+        ],
+        [
+          "property",
+          "GIT_SHA",
+          10852875,
+          10852882,
+          0,
+          80,
+          "build-macro"
+        ],
+        [
+          "string",
+          "9e176d0772418b8b88475d39fb86c651a12f4aad",
+          10852883,
+          10852925,
+          0,
+          78,
+          "build-macro"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 18000,
+      "category": "context-getter-lowering",
+      "sourceMapOwners": [
+        "src/utils/hooks/execAgentHook.ts"
+      ],
+      "evidenceOwners": [
+        "src/utils/hooks/execAgentHook.ts",
+        "src/utils/queryContext.ts"
+      ],
+      "target": [
+        "unresolved",
+        11112513,
+        11116197,
+        "FunctionDeclaration",
+        "e904f070fe9eef491a1e287ede0c05ba7f2fd6a352d2426eff5e134b6cc6d8ee"
+      ],
+      "residues": [
+        [
+          "property",
+          "getToolPermissionContext",
+          11113813,
+          11113837,
+          20,
+          50,
+          "context-getter-lowering"
+        ],
+        [
+          "property",
+          "getToolPermissionContext",
+          11113851,
+          11113875,
+          20,
+          51,
+          "context-getter-lowering"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 18654,
+      "category": "direct-authored-source",
+      "sourceMapOwners": [
+        "src/components/permissions/AskUserQuestionPermissionRequest/SubmitQuestionsView.tsx"
+      ],
+      "evidenceOwners": [
+        "src/components/permissions/AskUserQuestionPermissionRequest/SubmitQuestionsView.tsx"
+      ],
+      "target": [
+        "unresolved",
+        11499901,
+        11502311,
+        "FunctionDeclaration",
+        "87f8ab36eef1d496f5e8b3c27ead70de39d44f99f900c15986f67b321a59e7d5"
+      ],
+      "residues": [
+        [
+          "string",
+          "You have not answered all questions",
+          11500586,
+          11500623,
+          0,
+          1,
+          "exact-source"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 19071,
+      "category": "direct-authored-source",
+      "sourceMapOwners": [
+        "src/hooks/useTypeahead.tsx"
+      ],
+      "evidenceOwners": [
+        "src/hooks/useTypeahead.tsx"
+      ],
+      "target": [
+        "unresolved",
+        11701858,
+        11714506,
+        "FunctionDeclaration",
+        "3c5c07ea6fa424ea26ec532f1841cb7b3c24efcabd487c4f1d1daed583edcfce"
+      ],
+      "residues": [
+        [
+          "property",
+          "templates",
+          11702694,
+          11702703,
+          2,
+          4,
+          "exact-source"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 19121,
+      "category": "task-registry-lowering",
+      "sourceMapOwners": [
+        "src/components/CoordinatorAgentStatus.tsx"
+      ],
+      "evidenceOwners": [
+        "src/components/CoordinatorAgentStatus.tsx",
+        "src/utils/task/framework.ts",
+        "src/utils/queryContext.ts"
+      ],
+      "target": [
+        "unresolved",
+        11726724,
+        11728305,
+        "FunctionDeclaration",
+        "533de2efa92222805d7f63f3b5247f9303cfec3ae861629ee669321b82a3bcb4"
+      ],
+      "residues": [
+        [
+          "property",
+          "evictTerminal",
+          11727188,
+          11727201,
+          5,
+          6,
+          "task-registry-lowering"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 19751,
+      "category": "arithmetic-constant-folding",
+      "sourceMapOwners": [
+        "src/services/tips/tipRegistry.ts"
+      ],
+      "evidenceOwners": [
+        "src/services/tips/tipRegistry.ts"
+      ],
+      "target": [
+        "unresolved",
+        11987872,
+        11999392,
+        "VariableDeclaration",
+        "629e9f0c33fd2c6e4063079b4d4a5a27c86b687eb05bb3cf5c34d75260b16cdf"
+      ],
+      "residues": [
+        [
+          "number",
+          "86400000",
+          11996632,
+          11996640,
+          19,
+          20,
+          "arithmetic-fold"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 20615,
+      "category": "mixed-mcp-representation",
+      "sourceMapOwners": [
+        "src/entrypoints/mcp.ts"
+      ],
+      "evidenceOwners": [
+        "src/entrypoints/mcp.ts"
+      ],
+      "target": [
+        "unresolved",
+        12978009,
+        12980158,
+        "FunctionDeclaration",
+        "9a67219d69b714c532e7cca9e70cb43ee9006523812a239abf622658b6fbd482"
+      ],
+      "residues": [
+        [
+          "string",
+          "2.1.116",
+          12978282,
+          12978291,
+          0,
+          109,
+          "build-macro"
+        ],
+        [
+          "string",
+          "2026-04-20T13:57:26Z",
+          12978371,
+          12978393,
+          0,
+          109,
+          "build-macro"
+        ],
+        [
+          "property",
+          "GIT_SHA",
+          12978394,
+          12978401,
+          0,
+          111,
+          "build-macro"
+        ],
+        [
+          "string",
+          "9e176d0772418b8b88475d39fb86c651a12f4aad",
+          12978402,
+          12978444,
+          0,
+          109,
+          "build-macro"
+        ],
+        [
+          "property",
+          "arguments",
+          12978782,
+          12978791,
+          27,
+          29,
+          "exact-source"
+        ],
+        [
+          "number",
+          "1",
+          12979278,
+          12979279,
+          23163,
+          23225,
+          "compiler-boolean"
+        ]
+      ]
+    }
+  ]
+}

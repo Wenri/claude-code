@@ -1,0 +1,370 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.112-to-2.1.113",
+  "artifact": {
+    "targetInnerSha256": "4a3c3636c8cb19ef42d6319e5c6ef9b029f5de148b84f22315d159052d6c5eba",
+    "targetWrapperSha256": "dda4d89e787fa455706e4f41beffc8e58d42b9094c4d155fcbf62e3f19036681",
+    "targetWrapperPrefixLength": 87,
+    "targetWrapperSuffixLength": 3,
+    "structuralGzipSha256": "383448923995bb86060ce91beac2bc5adac35817a0cdff35b533135c7d24345f"
+  },
+  "proof": {
+    "target": "complete authenticated target unit and every exact target-added residue occurrence",
+    "source": "exact named TypeScript AST declaration kind, accepted dual-root declaration hash, authored residue identity, and required runtime import",
+    "classification": "exact alternate owner, direct current owner, compiler-lowered runtime import, or bounded recovered source gap"
+  },
+  "summary": {
+    "units": 6,
+    "residues": 16,
+    "alternateOwnerUnits": 5,
+    "directOwnerUnits": 1,
+    "compilerOrImportResidues": 14,
+    "authoredResidues": 1,
+    "recoveredSourceGapResidues": 1
+  },
+  "rows": [
+    {
+      "targetIndex": 12186,
+      "currentOwners": [
+        "owner-src-tasks-RemoteAgentTask-RemoteAgentTask-tsx"
+      ],
+      "sourceOwner": "src/components/FilePathLink.tsx",
+      "classification": "exact-alternate-owner-with-compiler-import-lowering",
+      "target": {
+        "classification": "unresolved",
+        "start": 7702726,
+        "end": 7702979,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "c9cfe6ea39288e2a16b16b5ae5d7e9c938b9832829721391e52bdd7db27d77ba"
+      },
+      "source": {
+        "declaration": "FilePathLink",
+        "declarationKind": "FunctionDeclaration",
+        "acceptedDeclarationSha256": [
+          "a3929e58c64fae9369a43f6fab9e3d8cbdc7f35bf7bc7017443933c724f64ab7"
+        ],
+        "imports": [
+          {
+            "module": "react/compiler-runtime",
+            "imported": "c",
+            "local": "_c"
+          },
+          {
+            "module": "url",
+            "imported": "pathToFileURL",
+            "local": "pathToFileURL"
+          }
+        ]
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "c",
+          "start": 7702751,
+          "end": 7702752,
+          "classification": "compiler-lowered-runtime-import"
+        },
+        {
+          "kind": "property",
+          "value": "pathToFileURL",
+          "start": 7702802,
+          "end": 7702815,
+          "classification": "compiler-lowered-runtime-import"
+        }
+      ]
+    },
+    {
+      "targetIndex": 12230,
+      "currentOwners": [
+        "owner-src-tasks-RemoteAgentTask-RemoteAgentTask-tsx"
+      ],
+      "sourceOwner": "src/components/messages/UserImageMessage.tsx",
+      "classification": "exact-alternate-owner-with-compiler-import-lowering",
+      "target": {
+        "classification": "unresolved",
+        "start": 7714808,
+        "end": 7715582,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "4c65e42909fcfcdca67b6a3a60cd5af3339f3759f34a9e2dec8049aaef513d92"
+      },
+      "source": {
+        "declaration": "UserImageMessage",
+        "declarationKind": "FunctionDeclaration",
+        "acceptedDeclarationSha256": [
+          "9921895e55868e03d1880fa95da343a2504b2f957934df0a862a1596dede5df4",
+          "fa3187339f57600149f5b41fe5a7700094515f0682ca0560b49b020a432c8603"
+        ],
+        "imports": [
+          {
+            "module": "react/compiler-runtime",
+            "imported": "c",
+            "local": "_c"
+          },
+          {
+            "module": "url",
+            "imported": "pathToFileURL",
+            "local": "pathToFileURL"
+          }
+        ]
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "c",
+          "start": 7714834,
+          "end": 7714835,
+          "classification": "compiler-lowered-runtime-import"
+        },
+        {
+          "kind": "property",
+          "value": "pathToFileURL",
+          "start": 7715090,
+          "end": 7715103,
+          "classification": "compiler-lowered-runtime-import"
+        }
+      ]
+    },
+    {
+      "targetIndex": 12240,
+      "currentOwners": [
+        "owner-src-components-messages-UserTeammateMessage-tsx"
+      ],
+      "sourceOwner": "src/components/messages/UserAgentNotificationMessage.tsx",
+      "classification": "exact-alternate-owner-with-compiler-import-lowering",
+      "target": {
+        "classification": "unresolved",
+        "start": 7718086,
+        "end": 7718614,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "cccedf259a9a8fb28c526e1a59dfd907070fc754728166c8711ecdc2aa4c4e9f"
+      },
+      "source": {
+        "declaration": "UserAgentNotificationMessage",
+        "declarationKind": "FunctionDeclaration",
+        "acceptedDeclarationSha256": [
+          "771700f7fcb6d9b6e60d289a7e6b4a3b4f61c39cbcca7ab0abbd363b3096183c"
+        ],
+        "imports": [
+          {
+            "module": "react/compiler-runtime",
+            "imported": "c",
+            "local": "_c"
+          }
+        ]
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "c",
+          "start": 7718112,
+          "end": 7718113,
+          "classification": "compiler-lowered-runtime-import"
+        },
+        {
+          "kind": "string",
+          "value": "status",
+          "start": 7718267,
+          "end": 7718275,
+          "classification": "exact-authored-source"
+        }
+      ]
+    },
+    {
+      "targetIndex": 12517,
+      "currentOwners": [
+        "owner-src-services-lsp-LSPServerManager-ts"
+      ],
+      "sourceOwner": "src/services/lsp/LSPServerManager.ts",
+      "classification": "direct-current-owner-with-import-lowering-and-recovered-source-gap",
+      "target": {
+        "classification": "unresolved",
+        "start": 7915997,
+        "end": 7919766,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "57c2238c8963776f2cd2b1861886a09bb21313f4065652c85c20537c565ab5a6"
+      },
+      "source": {
+        "declaration": "createLSPServerManager",
+        "declarationKind": "FunctionDeclaration",
+        "acceptedDeclarationSha256": [
+          "e10a4b41d6839064ea7c71273db8d7e5cfee5f9768337009a5fafb6c273156ab",
+          "a79aa71c2838fbbfecf2f804aad9b7fe1afa4aa2fe55515d0d06ab463fb1b9c7",
+          "d7989ce0b0e86fcf21d02c52921563b11a78dfb0f3f90351451ac636960c2744"
+        ],
+        "gapAbsentDeclarationSha256": [
+          "d7989ce0b0e86fcf21d02c52921563b11a78dfb0f3f90351451ac636960c2744"
+        ],
+        "imports": [
+          {
+            "module": "url",
+            "imported": "pathToFileURL",
+            "local": "pathToFileURL"
+          }
+        ]
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "pathToFileURL",
+          "start": 7918004,
+          "end": 7918017,
+          "classification": "compiler-lowered-runtime-import"
+        },
+        {
+          "kind": "property",
+          "value": "pathToFileURL",
+          "start": 7918550,
+          "end": 7918563,
+          "classification": "compiler-lowered-runtime-import"
+        },
+        {
+          "kind": "string",
+          "value": " (v",
+          "start": 7918775,
+          "end": 7918778,
+          "classification": "recovered-source-gap"
+        },
+        {
+          "kind": "property",
+          "value": "pathToFileURL",
+          "start": 7919007,
+          "end": 7919020,
+          "classification": "compiler-lowered-runtime-import"
+        },
+        {
+          "kind": "property",
+          "value": "pathToFileURL",
+          "start": 7919230,
+          "end": 7919243,
+          "classification": "compiler-lowered-runtime-import"
+        },
+        {
+          "kind": "property",
+          "value": "pathToFileURL",
+          "start": 7919502,
+          "end": 7919515,
+          "classification": "compiler-lowered-runtime-import"
+        }
+      ],
+      "supplement": {
+        "operation": "apply-document-version-hunks-only",
+        "owner": "src/services/lsp/LSPServerManager.ts",
+        "selectors": [
+          "interface: add getDocumentVersion(uri: string): number | undefined",
+          "after openedFiles: add documentVersions and nextDocumentVersion",
+          "shutdown: add documentVersions.clear()",
+          "didOpen: replace version: 1 with version: nextDocumentVersion(fileUri)",
+          "didChange: bind nextDocumentVersion(fileUri), use version, and append (v${version}) to the log",
+          "didClose: add documentVersions.delete(fileUri)",
+          "before return object: add getDocumentVersion",
+          "return object: add getDocumentVersion"
+        ],
+        "laterTemporalExclusions": [
+          "LSPServerManager.getSupportedExtensions signature",
+          "getSupportedExtensions declaration",
+          "getSupportedExtensions return-object member"
+        ]
+      }
+    },
+    {
+      "targetIndex": 12573,
+      "currentOwners": [
+        "owner-src-tools-FileEditTool-types-ts"
+      ],
+      "sourceOwner": "src/native-ts/color-diff/index.ts",
+      "classification": "exact-alternate-owner-with-import-lowering",
+      "target": {
+        "classification": "unresolved",
+        "start": 7939152,
+        "end": 7939715,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "0166923c2989af127f7fc4dd0372d3e28b4c0a6dde8e508d5d72843e8031949c"
+      },
+      "source": {
+        "declaration": "detectLanguage",
+        "declarationKind": "FunctionDeclaration",
+        "acceptedDeclarationSha256": [
+          "748132b39566177eba540cc3d7714a08db20fa55afb9dd295dc4a701fcccfd74"
+        ],
+        "imports": [
+          {
+            "module": "path",
+            "imported": "basename",
+            "local": "basename"
+          }
+        ]
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "basename",
+          "start": 7939180,
+          "end": 7939188,
+          "classification": "compiler-lowered-runtime-import"
+        }
+      ]
+    },
+    {
+      "targetIndex": 12664,
+      "currentOwners": [
+        "owner-src-tools-FileWriteTool-FileWriteTool-ts"
+      ],
+      "sourceOwner": "src/utils/plugins/orphanedPluginFilter.ts",
+      "classification": "exact-alternate-owner-with-import-lowering",
+      "target": {
+        "classification": "unresolved",
+        "start": 7973363,
+        "end": 7973843,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "3cdb827872edf03cec577ca5e9ae4cb8d6e3bd61153e46c1ba4727ebed776edc"
+      },
+      "source": {
+        "declaration": "getGlobExclusionsForPluginCache",
+        "declarationKind": "FunctionDeclaration",
+        "acceptedDeclarationSha256": [
+          "1dc243c124962b0d709d99d4ed20de5edbbe1cc9d2771e6d6cbcd250ac89b88a"
+        ],
+        "imports": [
+          {
+            "module": "path",
+            "imported": "dirname",
+            "local": "dirname"
+          },
+          {
+            "module": "path",
+            "imported": "isAbsolute",
+            "local": "isAbsolute"
+          },
+          {
+            "module": "path",
+            "imported": "relative",
+            "local": "relative"
+          }
+        ]
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "dirname",
+          "start": 7973679,
+          "end": 7973686,
+          "classification": "compiler-lowered-runtime-import"
+        },
+        {
+          "kind": "property",
+          "value": "isAbsolute",
+          "start": 7973707,
+          "end": 7973717,
+          "classification": "compiler-lowered-runtime-import"
+        },
+        {
+          "kind": "property",
+          "value": "relative",
+          "start": 7973724,
+          "end": 7973732,
+          "classification": "compiler-lowered-runtime-import"
+        }
+      ]
+    }
+  ]
+}

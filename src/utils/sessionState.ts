@@ -83,13 +83,13 @@ let permissionModeListener: PermissionModeChangedListener | null = null
 export function setSessionStateChangedListener(
   cb: SessionStateChangedListener | null,
 ): void {
-  stateListener = cb
+  defaultSessionState.onStateChanged = cb
 }
 
 export function setSessionMetadataChangedListener(
   cb: SessionMetadataChangedListener | null,
 ): void {
-  metadataListener = cb
+  defaultSessionState.onMetadataChanged = cb
 }
 
 export function setSessionInternalMetadataChangedListener(
@@ -108,7 +108,7 @@ export function setSessionInternalMetadataChangedListener(
 export function setPermissionModeChangedListener(
   cb: PermissionModeChangedListener | null,
 ): void {
-  permissionModeListener = cb
+  defaultSessionState.onPermissionModeChanged = cb
 }
 
 let hasPendingAction = false
@@ -116,7 +116,7 @@ let hasTaskSummary = false
 let currentState: SessionState = 'idle'
 
 export function getSessionState(): SessionState {
-  return currentState
+  return defaultSessionState.getState()
 }
 
 export function notifySessionStateChanged(
@@ -194,5 +194,5 @@ export function notifySessionInternalMetadataChanged(
  * silently bypass them.
  */
 export function notifyPermissionModeChanged(mode: PermissionMode): void {
-  permissionModeListener?.(mode)
+  defaultSessionState.notifyPermissionModeChanged(mode)
 }

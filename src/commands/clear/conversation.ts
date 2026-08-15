@@ -23,6 +23,10 @@ import {
 import { isLocalShellTask } from '../../tasks/LocalShellTask/guards.js'
 import { asAgentId } from '../../types/ids.js'
 import type { Message } from '../../types/message.js'
+import {
+  clearMemorySelectorState,
+  type MemorySelectorState,
+} from '../../memdir/findRelevantMemories.js'
 import { createEmptyAttributionState } from '../../utils/commitAttribution.js'
 import type { FileStateCache } from '../../utils/fileStateCache.js'
 import type { ReplIsolationLatch } from '../../tools/REPLTool/types.js'
@@ -47,6 +51,11 @@ import {
   initTaskOutputAsSymlink,
 } from '../../utils/task/diskOutput.js'
 import { getCurrentWorktreeSession } from '../../utils/worktree.js'
+import {
+  resetToolResultDedupState,
+  type ToolResultDedupState,
+} from '../../utils/toolErrors.js'
+import type { ToolIsolationLatch } from '../../utils/toolIsolation.js'
 import { clearSessionCaches } from './caches.js'
 import {
   clearResultDedupState,
@@ -58,6 +67,8 @@ export async function clearConversation({
   readFileState,
   discoveredSkillNames,
   loadedNestedMemoryPaths,
+  sessionEnvVars,
+  memorySelector,
   getAppState,
   setAppState,
   setConversationId,
@@ -68,6 +79,8 @@ export async function clearConversation({
   readFileState: FileStateCache
   discoveredSkillNames?: Set<string>
   loadedNestedMemoryPaths?: Set<string>
+  sessionEnvVars?: Map<string, string>
+  memorySelector?: MemorySelectorState
   getAppState?: () => AppState
   setAppState?: (f: (prev: AppState) => AppState) => void
   setConversationId?: (id: UUID) => void
@@ -135,7 +148,7 @@ export async function clearConversation({
   // Clear all session-related caches. Per-agent state for preserved background
   // tasks (invoked skills, pending permission callbacks, dump state, cache-break
   // tracking) is retained so those agents keep functioning.
-  clearSessionCaches(preservedAgentIds)
+  clearSessionCaches(preservedAgentIds, setAppState)
 
   setCwd(getOriginalCwd())
   readFileState.clear()
@@ -182,6 +195,7 @@ export async function clearConversation({
         ...prev,
         tasks: nextTasks,
         attribution: createEmptyAttributionState(),
+        cacheBreakerPhrase: undefined,
         // Clear standalone agent context (name/color set by /rename, /color)
         // so the new session doesn't display the old session's identity badge
         standaloneAgentContext: undefined,

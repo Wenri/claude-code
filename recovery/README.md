@@ -65,9 +65,56 @@ Each case has simultaneous completeness levels that must not be conflated:
 - **native authenticated**: from 2.1.113 onward, the selected signed platform
   executable and its Bun/JSC/native ranges are authenticated and independently
   verified; the executable is not falsely presented as reconstructed source;
-- **authored-source partial**: useful TypeScript patches and source
-  attribution are recovered where the target supports them, but erased names,
-  types, comments, formatting, and exact module placement are not observable.
+- **first-party semantic complete**: the canonical semantic supplement and
+  exhaustive unit ledger reproduce every observable first-party change at
+  compiled AST/function semantics. Identifier spelling, independent
+  declaration/function order, comments, formatting, and erased types do not
+  affect this result; literals and property keys, branches, calls and call
+  paths, prompts, rendering, state, and side effects do;
+- **whole-bundle source incomplete**: embedded dependency runtime is still a
+  recorded gap because the historical trees contain no root application
+  manifest, dependency lock/source archive, or hermetic build definition; and
+- **authored text unobservable**: original names, types, comments, formatting,
+  and exact module placement erased by compilation are not claimed.
+
+## Semantic reproduction from `src/`
+
+An exhaustive 2026-08-10 audit rechecked all 21 transitions using compiled
+AST/function behavior as the source-reproduction criterion. It does not
+require minified byte identity or preserve variable names, function order,
+comments, formatting, or erased TypeScript syntax.
+
+- All 21 adjacent generated recoveries replay the authenticated target
+  `cli.js` byte-for-byte; this is a separate artifact-recovery result.
+- Every changed, moved, or unresolved target structural unit has a pinned
+  index, byte range, AST-node type, and source hash. Each unit is classified
+  as identifier/order-only equivalence, dependency runtime, generated
+  metadata, statically unreachable code, recovered first-party runtime, or a
+  blocking first-party gap.
+- Every recoverable first-party gap found by the audit is implemented in a
+  case-local `semantic-supplement.patch` at the release where it first
+  appears. The gate applies each supplement to its pinned historical commit,
+  syntax-builds its source files, and verifies zero remaining first-party
+  runtime gaps through the full ancestry.
+- Whole-bundle semantic reproduction from `src/` remains false for all cases:
+  embedded dependency units and their target versions/build inputs are not
+  pinned, and no historical target has a complete root application manifest,
+  lockfile, dependency source archive, and build configuration.
+
+The machine-readable gap ledger is
+[`source-reproduction-gaps.json`](./source-reproduction-gaps.json), and the
+full case table and fixes are in
+[`SOURCE_REPRODUCTION_AUDIT.md`](./SOURCE_REPRODUCTION_AUDIT.md). Run the
+non-conflating audit with:
+
+```sh
+pixi run node recovery/scripts/audit-source-reproduction.mjs
+```
+
+Use `--require-exact-source` when a failing gate is desired until whole-bundle
+semantic equivalence is possible. It currently fails on the recorded
+dependency/build-input gaps; it does not turn byte identity into the semantic
+criterion.
 
 For the current target, start with the
 [`2.1.119 report`](./cases/2.1.118-to-2.1.119/REPORT.md),
@@ -86,6 +133,8 @@ For the current target, start with the
 | `readable-diff/` | Binding-aware full bundle diff, structural diff, and rename map |
 | `semantic/` | Reviewed obligations and whole-bundle/source correspondence |
 | `recovered/` | Target-backed source-facing patches and executable models |
+| `semantic/` | Exhaustive nonmatched-unit source coverage and dependency/build-input gap ledgers |
+| `semantic-supplement.patch` | First-party behavior missing from the legacy readable overlay, applied at its introduction commit |
 
 ## Current source-tree state
 
@@ -96,8 +145,16 @@ baseline plus cumulative source-facing overlays for 2.1.89, 2.1.90, 2.1.91,
 2.1.116, 2.1.117, 2.1.118, and 2.1.119.
 Upstream skipped 2.1.93, 2.1.95, 2.1.99, 2.1.102, 2.1.103, 2.1.106, and
 2.1.115.
-Those overlays are partial behavioral recoveries, not claims of the exact
-authored TypeScript trees.
+The legacy `recovered/` overlays are not claims of the exact authored
+TypeScript trees. The newer canonical semantic supplements close the
+observable first-party behaviors that those narrower overlays omitted. Exact
+authored spelling and whole-bundle dependency/build provenance remain separate
+claims.
+
+The release-by-release descriptions below document the original readable
+overlay series. Statements that a behavior was then available only in the
+generated bundle are superseded by the case's audited semantic supplement and
+coverage ledger; the case report records the final disposition.
 
 The 2.1.114 exact wrapper and embedded-JavaScript recovery is complete. Its
 source-facing overlay is applied, so the repository `src/` carries the
@@ -492,7 +549,10 @@ pixi run node recovery/scripts/verify-complete-recovery.mjs \
 It verifies the 2.1.88 source-oracle correspondence, Bun container and raw
 ranges, target overlay lineage, all case/output hashes, exact embedded-code
 and wrapper reconstruction, attribution coverage, structural token accounting,
-readable-diff invariants, and target-backed tests.
+readable-diff invariants, target-backed tests, and the complete semantic
+ancestry. It reports byte-exact generated replay, first-party semantic source
+equivalence, and whole-bundle dependency/build-input equivalence separately;
+`complete-recovery-verified` never conflates those results.
 
 The source-lineage gate reverses and reapplies the patch inside its own
 temporary workspace, so the checked-out tree remains at 2.1.119. For an
@@ -622,7 +682,7 @@ non-bijective mappings, class dual bindings, and unresolved capture. It
 emits a normalized full diff and proves a comparison invariant before and
 after rewriting.
 
-### 9. Recover incremental source-facing edits
+### 9. Recover and audit incremental source semantics
 
 Map high-value changed regions back through baseline ownership, preserve
 target operators/literals/call order/control flow, distinguish exact text
@@ -631,6 +691,13 @@ target helpers. Pin a unique target fragment for every claimed edit.
 
 Reverse patches in reverse order and verify the complete predecessor tree;
 then reapply them in order and byte-compare the complete successor tree.
+
+For semantic completeness, also ledger every target structural unit not
+classified as an exact match. Identifier/order-only equivalence, dependency
+runtime, generated metadata, and DCE require direct evidence; reachable
+first-party units require a historical source owner and target-backed semantic
+test. Any `source-runtime-gap` fails the case until a case-local semantic
+supplement fixes it.
 
 ### 10. Make the claims executable
 
@@ -655,5 +722,6 @@ gate must close:
 - `unresolved`: deliberately unpaired, but still present in the exact target;
 - `unobservable`: information absent from the published artifact.
 
-A complete generated recovery can coexist with a partial authored-source
-recovery. That distinction is the central safety property of this method.
+A byte-exact generated recovery, first-party semantic source recovery,
+whole-bundle source build, and exact original authored text are four different
+claims. Keeping them separate is the central safety property of this method.

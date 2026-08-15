@@ -4,3 +4,6 @@
 
 # Recovery-tool dependencies
 recovery/node_modules/
+
+# Local recovery artifacts, authenticated bundles, and scratch worktrees
+.recovery-tmp/

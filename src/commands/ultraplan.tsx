@@ -204,7 +204,7 @@ function startDetachedPoll(taskId: string, sessionId: string, url: string, getAp
       // isBackgroundTask before the pill can render the phase state.
       // Failure path has no dialog, so it owns the status transition here.
       if (failed) {
-        updateTaskState<RemoteAgentTaskState>(taskId, setAppState, t => t.status !== 'running' ? t : {
+        taskRegistry.update<RemoteAgentTaskState>(taskId, t => t.status !== 'running' ? t : {
           ...t,
           status: 'failed',
           endTime: Date.now()
@@ -223,6 +223,9 @@ function buildLaunchMessage(disconnectedBridge?: boolean): string {
 function buildSessionReadyMessage(url: string): string {
   return `${DIAMOND_OPEN} ultraplan · Monitor progress in Claude Code on the web ${url}\nYou can continue working — when the ${DIAMOND_OPEN} fills, press ↓ to view results`;
 }
+function buildPlanReadyMessage(url: string): string {
+  return `${DIAMOND_OPEN} ultraplan ready · ${url}\nPress ↓ to view results`;
+}
 function buildAlreadyActiveMessage(url: string | undefined): string {
   return url ? `ultraplan: already polling. Open ${url} to check status, or wait for the plan to land here.` : 'ultraplan: already launching. Please wait for the session to start.';
 }
@@ -234,10 +237,10 @@ function buildAlreadyActiveMessage(url: string | undefined): string {
  * shouldStop callback sees the killed status on its next tick and throws;
  * the catch block early-returns when status !== 'running'.
  */
-export async function stopUltraplan(taskId: string, sessionId: string, setAppState: (f: (prev: AppState) => AppState) => void): Promise<void> {
+export async function stopUltraplan(taskId: string, sessionId: string, taskRegistry: TaskRegistry, setAppState: (f: (prev: AppState) => AppState) => void): Promise<void> {
   // RemoteAgentTask.kill archives the session (with .catch) — no separate
   // archive call needed here.
-  await RemoteAgentTask.kill(taskId, setAppState);
+  await RemoteAgentTask.kill(taskId, taskRegistry, setAppState);
   setAppState(prev => prev.ultraplanSessionUrl || prev.ultraplanPendingChoice || prev.ultraplanLaunching ? {
     ...prev,
     ultraplanSessionUrl: undefined,
@@ -424,6 +427,7 @@ async function launchDetached(opts: {
             ? 'create_api_fail'
             : 'teleport_null') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
       });
+      const failureMessage = bundleFailMsg ?? createFailMsg
       enqueuePendingNotification({
         value: `ultraplan: session creation failed${failureMessage ? ` — ${failureMessage}` : '. See --debug for details.'}`,
         mode: 'task-notification'
@@ -456,8 +460,7 @@ async function launchDetached(opts: {
       command: arg,
       context: {
         abortController: new AbortController(),
-        getAppState,
-        setAppState
+        taskRegistry: createTaskRegistry(getAppState, setAppState)
       },
       isUltraplan: true
     });

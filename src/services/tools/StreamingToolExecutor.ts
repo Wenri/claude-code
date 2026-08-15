@@ -9,7 +9,7 @@ import { findToolByName, type Tools, type ToolUseContext } from '../../Tool.js'
 import { BASH_TOOL_NAME } from '../../tools/BashTool/toolName.js'
 import type { AssistantMessage, Message } from '../../types/message.js'
 import { createChildAbortController } from '../../utils/abortController.js'
-import { runToolUse } from './toolExecution.js'
+import { getUnavailableToolHint, runToolUse } from './toolExecution.js'
 
 type MessageUpdate = {
   message?: Message
@@ -76,6 +76,11 @@ export class StreamingToolExecutor {
   addTool(block: ToolUseBlock, assistantMessage: AssistantMessage): void {
     const toolDefinition = findToolByName(this.toolDefinitions, block.name)
     if (!toolDefinition) {
+      const unavailableHint = getUnavailableToolHint(
+        block.name,
+        this.toolDefinitions,
+        this.toolUseContext.agentId,
+      )
       this.tools.push({
         id: block.id,
         block,
@@ -88,12 +93,12 @@ export class StreamingToolExecutor {
             content: [
               {
                 type: 'tool_result',
-                content: `<tool_use_error>Error: No such tool available: ${block.name}</tool_use_error>`,
+                content: `<tool_use_error>Error: No such tool available: ${block.name}${unavailableHint}</tool_use_error>`,
                 is_error: true,
                 tool_use_id: block.id,
               },
             ],
-            toolUseResult: `Error: No such tool available: ${block.name}`,
+            toolUseResult: `Error: No such tool available: ${block.name}${unavailableHint}`,
             sourceToolAssistantUUID: assistantMessage.uuid,
           }),
         ],
@@ -264,9 +269,10 @@ export class StreamingToolExecutor {
    */
   private async executeTool(tool: TrackedTool): Promise<void> {
     tool.status = 'executing'
-    this.toolUseContext.setInProgressToolUseIDs(prev =>
-      new Set(prev).add(tool.id),
-    )
+    this.toolUseContext.setInProgressToolUseIDs({
+      action: 'add',
+      ids: [tool.id],
+    })
     this.updateInterruptibleState()
 
     const messages: Message[] = []
@@ -522,9 +528,8 @@ function markToolUseAsComplete(
   toolUseContext: ToolUseContext,
   toolUseID: string,
 ) {
-  toolUseContext.setInProgressToolUseIDs(prev => {
-    const next = new Set(prev)
-    next.delete(toolUseID)
-    return next
+  toolUseContext.setInProgressToolUseIDs({
+    action: 'remove',
+    ids: [toolUseID],
   })
 }

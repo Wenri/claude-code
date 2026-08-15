@@ -9,6 +9,16 @@ The result is generated/package-complete and authored-source-partial:
 2. Authored TypeScript is recovered only where the minified target provides
    enough evidence. Erased source spelling is not invented.
 
+The checked semantic ledger makes a separate runtime claim: all 2,109
+nonmatched structural units are classified, every reachable first-party
+runtime change has an equivalent historical/current source owner, and there
+are zero first-party source gaps. It deliberately leaves 223 dependency
+runtime/build-input gaps, so it does not claim that `src/` alone can compile
+the whole bundle. Exact `cli.js` bytes come only from the generated delta.
+The canonical semantic supplement is 5,013,030 bytes across 115 `src/`
+paths, SHA-256
+`29541c49fa45d5cf8dd11acb87217e3d5548b61efe59df86670c9a5c6895e6ca`.
+
 ## 0. Prepare the recovery environment
 
 From the repository root:
@@ -264,7 +274,8 @@ src/path\0bytes\0sha256\n
 The recovered 2.1.89 base is pinned by:
 
 ```text
-commit       270279c6f5b850207f695e554f1122591c4dde65
+commit       ae5a27f9446042e9df589189889c110703ab351c
+Git tree     46958b696b39b12fca05d9483c1e65916b5a78b1
 Git src tree 55f942c4be314b91e0230a034750717d7bb8132f
 files        1,903
 bytes        30,388,323

@@ -24,7 +24,7 @@ import { getRainbowColor } from '../../utils/thinking.js'
 import { logError } from '../../utils/log.js'
 
 const COMMON_HELP_ARGS = ['help', '-h', '--help']
-const HELP =
+export const HELP =
   'Usage: /effort [low|medium|high|xhigh|max|auto]\n\nEffort levels:\n- low: Quick, straightforward implementation\n- medium: Balanced approach with standard testing\n- high: Comprehensive implementation with extensive testing\n- xhigh: Extended reasoning with thorough analysis (Opus 4.7 only)\n- max: Maximum capability with deepest reasoning (Opus 4.6/4.7 only)\n- auto: Use the default effort level for your model'
 
 type EffortCommandResult = {

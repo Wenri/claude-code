@@ -8,6 +8,8 @@ import type { Styles } from '../styles.js';
 import '../global.d.ts';
 import Box from './Box.js';
 export type ScrollBoxHandle = {
+  /** Internal host node used by the synchronized main-screen renderer. */
+  getDomElement: () => DOMElement | null;
   scrollTo: (y: number) => void;
   scrollBy: (dy: number) => void;
   /**
@@ -116,6 +118,9 @@ function ScrollBox({
     });
   }
   useImperativeHandle(ref, (): ScrollBoxHandle => ({
+    getDomElement() {
+      return domRef.current;
+    },
     scrollTo(y: number) {
       const el = domRef.current;
       if (!el) return;

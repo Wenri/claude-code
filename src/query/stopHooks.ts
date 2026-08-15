@@ -40,6 +40,7 @@ import { enqueueSdkEvent } from '../utils/sdkEventQueue.js'
 import type { SystemPrompt } from '../utils/systemPromptType.js'
 import { getTaskListId, listTasks } from '../utils/tasks.js'
 import { getAgentName, getTeamName, isTeammate } from '../utils/teammate.js'
+import { enqueueSdkEvent } from '../utils/sdkEventQueue.js'
 
 /* eslint-disable @typescript-eslint/no-require-imports */
 const extractMemoriesModule = feature('EXTRACT_MEMORIES')

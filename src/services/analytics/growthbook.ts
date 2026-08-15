@@ -1035,7 +1035,7 @@ export async function refreshGrowthBookFeatures(): Promise<void> {
       return
     }
 
-    await growthBookClient.refreshFeatures()
+    await growthBookClient.refreshFeatures({ skipCache: true })
 
     // Guard: if this client was replaced during the in-flight refresh
     // (e.g. refreshGrowthBookAfterAuthChange ran), skip processing the

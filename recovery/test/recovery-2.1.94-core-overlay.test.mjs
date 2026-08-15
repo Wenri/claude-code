@@ -1,10 +1,17 @@
 import assert from 'node:assert/strict'
 import crypto from 'node:crypto'
 import fs from 'node:fs'
+import path from 'node:path'
 import test from 'node:test'
 import { fileURLToPath } from 'node:url'
 
-const sourceRoot = fileURLToPath(new URL('../../src/', import.meta.url))
+const repositoryRoot = fileURLToPath(new URL('../..', import.meta.url))
+const caseName = '2.1.92-to-2.1.94'
+const semanticCase = process.env.CLAUDE_CODE_SEMANTIC_CASE
+const historical = semanticCase === caseName
+const sourceRoot = process.env.CLAUDE_CODE_SEMANTIC_SOURCE_ROOT
+  ? path.resolve(process.env.CLAUDE_CODE_SEMANTIC_SOURCE_ROOT)
+  : path.join(repositoryRoot, 'src')
 const baselineBundlePath = process.env.CLAUDE_CODE_2_1_92_BUNDLE
 const targetBundlePath = process.env.CLAUDE_CODE_2_1_94_BUNDLE
 const BASELINE_BUNDLE_SHA256 =
@@ -13,7 +20,7 @@ const TARGET_BUNDLE_SHA256 =
   '11fa0f142edee45aa24ad60b071345847da6c8b2372d338037fe8c4fd4469564'
 
 function readSource(relativePath) {
-  const source = fs.readFileSync(`${sourceRoot}${relativePath}`, 'utf8')
+  const source = fs.readFileSync(path.join(sourceRoot, relativePath), 'utf8')
   const sourceMap = source.indexOf('//# sourceMappingURL=')
   return sourceMap === -1 ? source : source.slice(0, sourceMap)
 }
@@ -158,10 +165,18 @@ test('recovers plugin metadata, skill hooks, stable names, and prompt session ti
     commands,
     /typeof frontmatter\.name === 'string'[\s\S]*?frontmatter\.name\.trim\(\)[\s\S]*?\|\| basename\(skillsPath\)/,
   )
-  assert.match(
-    pluginLoader,
-    /if \(installPath && \(await pathExists\(installPath\)\)\) \{[\s\S]*?pluginPath = installPath/,
-  )
+  if (historical) {
+    assert.match(
+      pluginLoader,
+      /if \(installPath && \(await pathExists\(installPath\)\)\) \{[\s\S]*?pluginPath = installPath/,
+    )
+  } else {
+    assert.match(pluginLoader, /loadPluginFromMarketplaceEntryCacheOnly/)
+    assert.match(
+      pluginLoader,
+      /installPath &&[\s\S]*?await pathExists\(installPath\)[\s\S]*?pluginPath = installPath/,
+    )
+  }
   assert.match(
     coreSchemas,
     /UserPromptSubmitHookSpecificOutputSchema[\s\S]*?sessionTitle: z\.string\(\)\.optional\(\)/,

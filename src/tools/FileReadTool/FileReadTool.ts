@@ -10,6 +10,7 @@ import {
 } from '../../constants/apiLimits.js'
 import { hasBinaryExtension } from '../../constants/files.js'
 import { memoryFreshnessNote } from '../../memdir/memoryAge.js'
+import { stampTinyMemoryRead } from '../../memdir/tinyMemoryStamps.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
 import { logEvent } from '../../services/analytics/index.js'
 import {
@@ -50,6 +51,10 @@ import {
   ImageResizeError,
   maybeResizeAndDownsampleImageBuffer,
 } from '../../utils/imageResizer.js'
+import {
+  getImageLimits,
+  type ImageLimits,
+} from '../../utils/imageLimits.js'
 import { lazySchema } from '../../utils/lazySchema.js'
 import { logError } from '../../utils/log.js'
 import { isAutoMemFile } from '../../utils/memoryFileDetection.js'
@@ -79,6 +84,7 @@ import { BASH_TOOL_NAME } from '../BashTool/toolName.js'
 import { getDefaultFileReadingLimits } from './limits.js'
 import {
   DESCRIPTION,
+  getFileUnchangedStub,
   FILE_READ_TOOL_NAME,
   getFileUnchangedStub,
   LINE_FORMAT_INSTRUCTION,
@@ -421,6 +427,27 @@ export const FileReadTool = buildTool({
   extractSearchText() {
     return ''
   },
+  stripForStorage(output) {
+    if (typeof output !== 'object' || output === null) return output
+    switch (output.type) {
+      case 'text':
+        if (output.file.content === '') return output
+        return { ...output, file: { ...output.file, content: '' } }
+      case 'image':
+        if (output.file.base64 === '') return output
+        return { ...output, file: { ...output.file, base64: '' } }
+      case 'pdf':
+        if (output.file.base64 === '') return output
+        return { ...output, file: { ...output.file, base64: '' } }
+      case 'notebook': {
+        const { cells } = output.file
+        if (cells.length === 0 || cells[0] == null) return output
+        return { ...output, file: { ...output.file, cells: Array(cells.length) } }
+      }
+      default:
+        return output
+    }
+  },
   renderToolUseErrorMessage,
   async validateInput({ file_path, pages }, toolUseContext: ToolUseContext) {
     // Validate pages parameter (pure string parsing, no I/O)
@@ -745,8 +772,20 @@ function formatFileLines(file: { content: string; startLine: number }): string {
 export const CYBER_RISK_MITIGATION_REMINDER =
   '\n\n<system-reminder>\nWhenever you read a file, you should consider whether it would be considered malware. You CAN and SHOULD provide analysis of malware, what it is doing. But you MUST refuse to improve or augment the code. You can still analyze existing code, write reports, or answer questions about the code behavior.\n</system-reminder>\n'
 
-// Models where cyber risk mitigation should be skipped
-const MITIGATION_EXEMPT_MODELS = new Set(['claude-opus-4-6'])
+const CYBER_RISK_MITIGATION_MODELS = new Set([
+  'claude-3-opus',
+  'claude-3-sonnet',
+  'claude-3-haiku',
+  'claude-3-5-sonnet',
+  'claude-3-5-haiku',
+  'claude-3-7-sonnet',
+  'claude-sonnet-4-0',
+  'claude-sonnet-4-5',
+  'claude-opus-4-0',
+  'claude-opus-4-1',
+  'claude-opus-4-5',
+  'claude-haiku-4-5',
+])
 
 function shouldIncludeFileReadMitigation(model: string): boolean {
   const shortName = getCanonicalName(model)
@@ -916,6 +955,7 @@ async function callInner(
 
   // --- PDF ---
   if (isPDFExtension(ext)) {
+    const imageLimits = getImageLimits(context.options.mainLoopModel)
     if (pages) {
       const parsedRange = parsePDFPageRange(pages)
       const extractResult = await extractPDFPages(
@@ -1061,6 +1101,7 @@ async function callInner(
     limit,
   })
   context.nestedMemoryAttachmentTriggers?.add(fullFilePath)
+  await stampTinyMemoryRead(fullFilePath)
 
   // Snapshot before iterating — a listener that unsubscribes mid-callback
   // would splice the live array and skip the next listener.

@@ -1,0 +1,265 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.112-to-2.1.113",
+  "artifact": {
+    "targetInnerSha256": "4a3c3636c8cb19ef42d6319e5c6ef9b029f5de148b84f22315d159052d6c5eba",
+    "targetWrapperSha256": "dda4d89e787fa455706e4f41beffc8e58d42b9094c4d155fcbf62e3f19036681",
+    "targetWrapperPrefixLength": 87,
+    "targetWrapperSuffixLength": 3,
+    "structuralGzipSha256": "383448923995bb86060ce91beac2bc5adac35817a0cdff35b533135c7d24345f"
+  },
+  "proof": {
+    "target": "complete authenticated units, exact allowBundle AST occurrences, forwarding bridge, and executable eligibility truth table",
+    "source": "exact dual-root declarations, skipBundle AST inversion, omitted-negative-option call graph, and executable truth table",
+    "mapping": "source skipBundle is the logical complement of target allowBundle; target allowBundle:true callers therefore map to an omitted source skipBundle option whose default is false"
+  },
+  "summary": {
+    "targetUnits": 5,
+    "targetResidues": 7,
+    "bridgeUnits": 1,
+    "bridgeResidues": 2
+  },
+  "sourceDeclarations": {
+    "eligibilityCore": {
+      "owner": "src/utils/background/remote/remoteSession.ts",
+      "name": "checkBackgroundRemoteSessionEligibility",
+      "forms": [
+        {
+          "name": "materialized-target113",
+          "sha256": "67f28c8c826949b0cd2827be6d46ddd62fa7c5283f4c47d161bb01835f80fb7e"
+        },
+        {
+          "name": "current-recovered",
+          "sha256": "ff3ccc6a6c40605c8a01c7c0822f5b446e6392522a14edb990c59bbfa44e69f0"
+        }
+      ],
+      "contract": "skipBundle defaults false and exactly one !skipBundle guard controls the bundle eligibility gate"
+    },
+    "eligibilityWrapper": {
+      "owner": "src/tasks/RemoteAgentTask/RemoteAgentTask.tsx",
+      "name": "checkRemoteAgentEligibility",
+      "forms": [
+        {
+          "name": "dual-root-invariant",
+          "sha256": "57e13ec2311f2e19a47a4b6816cb4a7e15f751ae77c34e658fbadeea33c55358"
+        }
+      ],
+      "contract": "skipBundle defaults false and is forwarded unchanged to eligibilityCore"
+    },
+    "teleportWrapper": {
+      "owner": "src/utils/teleport.tsx",
+      "name": "teleportToRemoteWithErrorHandling",
+      "forms": [
+        {
+          "name": "materialized-target113",
+          "sha256": "960c760debae6ad602911b2c3e2a62a626f50e81adbe73672fd630aa859fda1e"
+        },
+        {
+          "name": "current-recovered",
+          "sha256": "ea4527db3ef1812ff28fcfd289791d5c17db510c3d30be8ed57dcd697db4f1e3"
+        }
+      ],
+      "contract": "teleportToRemote call omits skipBundle and therefore selects its false/allowing value"
+    },
+    "teleportCore": {
+      "owner": "src/utils/teleport.tsx",
+      "name": "teleportToRemote",
+      "forms": [
+        {
+          "name": "materialized-target113",
+          "sha256": "50c8b9c959041ebb7057460e0c2de7474c92f296b955ae08f92055f54d9f21b2"
+        },
+        {
+          "name": "current-recovered",
+          "sha256": "6e0b323d7bf8bc6cc7ea5d8d884fa715809d3bcd6b4f4812e93770628e4332f9"
+        }
+      ],
+      "contract": "optional skipBundle appears in the option type and exactly two !options.skipBundle guards replace the two target allowBundle guards"
+    },
+    "reviewCaller": {
+      "owner": "src/commands/review/reviewRemote.ts",
+      "name": "launchRemoteReview",
+      "forms": [
+        {
+          "name": "materialized-target113",
+          "sha256": "9e8f9b6627e624aa64d3cac0a61bb766cab97a76d368e5650bac375cd06855ff"
+        },
+        {
+          "name": "current-recovered",
+          "sha256": "4acde6db1968d4ec2ec82b62317a8bd3935afa53db7e19d33e3222cb92283ed7"
+        }
+      ],
+      "contract": "eligibility call omits skipBundle, selecting false and therefore the target allowBundle:true behavior"
+    },
+    "ultraplanCaller": {
+      "owner": "src/commands/ultraplan.tsx",
+      "name": "launchDetached",
+      "forms": [
+        {
+          "name": "materialized-target113",
+          "sha256": "c66d9d549521b2e78635ff66fba3bab6cd8872d3a6b318a78053f7d02bb38912"
+        },
+        {
+          "name": "current-recovered",
+          "sha256": "33d0e1a540c506d79afacaa4d4d160d97e047357ac554e0482cdb3949dd2cd51"
+        }
+      ],
+      "contract": "both eligibility and teleport calls omit skipBundle, selecting false and therefore the two target allowBundle:true behaviors"
+    }
+  },
+  "rows": [
+    {
+      "targetIndex": 10616,
+      "priorOwnerPaths": [
+        "hooks/toolPermission/permissionLogging.ts"
+      ],
+      "sourceDeclaration": "eligibilityCore",
+      "mapping": "positive-guard-to-negated-guard",
+      "target": {
+        "classification": "unresolved",
+        "start": 6229703,
+        "end": 6230423,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "33ae30bdd1c1baa1b6ff43e139a61cc7e7fcb2fa73b516cd04d6dca0f50c8bcb"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "allowBundle",
+          "start": 6229723,
+          "end": 6229734
+        }
+      ]
+    },
+    {
+      "targetIndex": 11845,
+      "priorOwnerPaths": [
+        "utils/teleport.tsx"
+      ],
+      "sourceDeclaration": "teleportWrapper",
+      "mapping": "enabled-literal-to-omitted-negative-option",
+      "target": {
+        "classification": "unresolved",
+        "start": 7538874,
+        "end": 7539069,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "634d83b56216e052d61721c8977ff8d1d87cb6f6f2abb211611409482c447833"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "allowBundle",
+          "start": 7539003,
+          "end": 7539014
+        }
+      ]
+    },
+    {
+      "targetIndex": 11848,
+      "priorOwnerPaths": [
+        "utils/teleport.tsx"
+      ],
+      "sourceDeclaration": "teleportCore",
+      "mapping": "two-positive-guards-to-two-negated-guards",
+      "target": {
+        "classification": "unresolved",
+        "start": 7541318,
+        "end": 7547936,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "0091ef5a02b3afe106332357fb93f420e7993f4f065fdf97103b2ec6598039c1"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "allowBundle",
+          "start": 7544784,
+          "end": 7544795
+        },
+        {
+          "kind": "property",
+          "value": "allowBundle",
+          "start": 7544834,
+          "end": 7544845
+        }
+      ]
+    },
+    {
+      "targetIndex": 16495,
+      "priorOwnerPaths": [
+        "commands/review/reviewRemote.ts"
+      ],
+      "sourceDeclaration": "reviewCaller",
+      "mapping": "enabled-literal-to-omitted-wrapper-negative-option",
+      "target": {
+        "classification": "unresolved",
+        "start": 10416003,
+        "end": 10418352,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "ef31ee9b964e222d59013396769d4db69709536e412481d052cfcd8b6ff1c9b5"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "allowBundle",
+          "start": 10416099,
+          "end": 10416110
+        }
+      ]
+    },
+    {
+      "targetIndex": 16538,
+      "priorOwnerPaths": [
+        "commands/ultraplan.tsx"
+      ],
+      "sourceDeclaration": "ultraplanCaller",
+      "mapping": "two-enabled-literals-to-two-omitted-negative-options",
+      "target": {
+        "classification": "unresolved",
+        "start": 10436378,
+        "end": 10438345,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "85d7626ce476ccd4197759f96e3d920e1268e731ba448bc8c271b3cf21977a5d"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "allowBundle",
+          "start": 10436511,
+          "end": 10436522
+        },
+        {
+          "kind": "property",
+          "value": "allowBundle",
+          "start": 10436994,
+          "end": 10437005
+        }
+      ]
+    }
+  ],
+  "bridge": {
+    "targetIndex": 11855,
+    "disposition": "already-alpha-equivalent-forwarding-bridge",
+    "sourceDeclaration": "eligibilityWrapper",
+    "target": {
+      "classification": "unresolved",
+      "start": 7550208,
+      "end": 7550346,
+      "nodeType": "FunctionDeclaration",
+      "sourceHash": "d54ca05bfd9d176ac49f8db0bd1620ad73b300ba53fb0f93acecd8438d52c4de"
+    },
+    "residues": [
+      {
+        "kind": "property",
+        "value": "allowBundle",
+        "start": 7550228,
+        "end": 7550239
+      },
+      {
+        "kind": "property",
+        "value": "allowBundle",
+        "start": 7550267,
+        "end": 7550278
+      }
+    ]
+  }
+}

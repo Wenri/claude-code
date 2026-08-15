@@ -7,22 +7,15 @@ import { LayoutDisplay, LayoutEdge, type LayoutNode } from './layout/node.js'
 import { nodeCache, pendingClears } from './node-cache.js'
 import type Output from './output.js'
 import renderBorder from './render-border.js'
+import { getScrollConfig } from './scroll-config.js'
 import type { Screen } from './screen.js'
 import {
   type StyledSegment,
   squashTextNodesToSegments,
 } from './squash-text-nodes.js'
 import type { Color } from './styles.js'
-import { isXtermJs } from './terminal.js'
 import { widestLine } from './widest-line.js'
 import wrapText from './wrap-text.js'
-
-// Matches detectXtermJsWheel() in ScrollKeybindingHandler.tsx — the curve
-// and drain must agree on terminal detection. TERM_PROGRAM check is the sync
-// fallback; isXtermJs() is the authoritative XTVERSION-probe result.
-function isXtermJsHost(): boolean {
-  return process.env.TERM_PROGRAM === 'vscode' || isXtermJs()
-}
 
 // Per-frame scratch: set when any node's yoga position/size differs from
 // its cached value, or a child was removed. Read by ink.tsx to decide
@@ -832,7 +825,7 @@ function renderNodeToOutput(
             haveClamp &&
             ((pending < 0 && cur < cMin) || (pending > 0 && cur > cMax))
           const eff = pastClamp ? Math.min(4, innerHeight >> 3) : innerHeight
-          cur += isXtermJsHost()
+          cur += getScrollConfig().useAdaptiveDrain
             ? drainAdaptive(node, pending, eff)
             : drainProportional(node, pending, eff)
         } else if (pending === 0) {

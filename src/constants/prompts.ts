@@ -280,7 +280,29 @@ function getSimpleSystemSection(): string {
   return ['# System', ...prependBullets(items)].join(`\n`)
 }
 
-function getSimpleDoingTasksSection(): string {
+export function isCommunicationStyleEnabled(model: string): boolean {
+  if (!getCanonicalName(model).includes('opus-4-6')) return false
+  return getGlobalConfig().clientDataCache?.quiet_salted_ember === 'true'
+}
+
+export function getCommunicationStyleSection(model: string): string | null {
+  if (!isCommunicationStyleEnabled(model)) return null
+  return `# Text output (does not apply to tool calls)
+Assume users can't see most tool calls or thinking — only your text output. Before your first tool call, state in one sentence what you're about to do. While working, give short updates at key moments: when you find something, when you change direction, or when you hit a blocker. Brief is good — silent is not. One sentence per update is almost always enough.
+
+Don't narrate your internal deliberation. User-facing text should be relevant communication to the user, not a running commentary on your thought process. State results and decisions directly, and focus user-facing text on relevant updates for the user.
+
+When you do write updates, write so the reader can pick up cold: complete sentences, no unexplained jargon or shorthand from earlier in the session. But keep it tight — a clear sentence is better than a clear paragraph.
+
+End-of-turn summary: one or two sentences. What changed and what's next. Nothing else.
+
+Match responses to the task: a simple question gets a direct answer, not headers and sections.
+
+In code: default to writing no comments. Never write multi-paragraph docstrings or multi-line comment blocks — one short line max. Don't create planning, decision, or analysis documents unless the user asks for them — work from conversation context, not intermediate files.`
+}
+
+function getSimpleDoingTasksSection(model: string): string {
+  const communicationStyle = isCommunicationStyleEnabled(model)
   const codeStyleSubitems = [
     `Don't add features, refactor, or introduce abstractions beyond what the task requires. A bug fix doesn't need surrounding cleanup; a one-shot operation doesn't need a helper. Don't design for hypothetical future requirements. Three similar lines is better than a premature abstraction. No half-finished implementations either.`,
     `Don't add error handling, fallbacks, or validation for scenarios that can't happen. Trust internal code and framework guarantees. Only validate at system boundaries (user input, external APIs). Don't use feature flags or backwards-compatibility shims when you can just change the code.`,
@@ -358,7 +380,10 @@ Examples of the kind of risky actions that warrant user confirmation:
 When you encounter an obstacle, do not use destructive actions as a shortcut to simply make it go away. For instance, try to identify root causes and fix underlying issues rather than bypassing safety checks (e.g. --no-verify). If you discover unexpected state like unfamiliar files, branches, or configuration, investigate before deleting or overwriting, as it may represent the user's in-progress work. For example, typically resolve merge conflicts rather than discarding changes; similarly, if a lock file exists, investigate what process holds it rather than deleting it. In short: only take risky actions carefully, and when in doubt, ask before acting. Follow both the spirit and letter of these instructions - measure twice, cut once.`
 }
 
-function getUsingYourToolsSection(enabledTools: Set<string>): string {
+function getUsingYourToolsSection(
+  enabledTools: Set<string>,
+  model: string,
+): string {
   const taskToolName = [TASK_CREATE_TOOL_NAME, TODO_WRITE_TOOL_NAME].find(n =>
     enabledTools.has(n),
   )
@@ -436,6 +461,7 @@ function getDiscoverSkillsGuidance(): string | null {
 function getSessionSpecificGuidanceSection(
   enabledTools: Set<string>,
   skillToolCommands: Command[],
+  model: string,
 ): string | null {
   const sessionSkillAllowlist = getSessionSkillAllowlist()
   const hasSkills =
@@ -492,7 +518,7 @@ function getSessionSpecificGuidanceSection(
   return ['# Session-specific guidance', ...prependBullets(items)].join('\n')
 }
 
-function getSimpleToneAndStyleSection(): string {
+function getSimpleToneAndStyleSection(model: string): string {
   const items = [
     `Only use emojis if the user explicitly requests it. Avoid using emojis in all communication unless asked.`,
     process.env.USER_TYPE === 'ant'
@@ -592,8 +618,19 @@ ${CYBER_RISK_INSTRUCTION}`,
     systemPromptSection('thinking_guidance', () =>
       getThinkingGuidanceSection(model),
     ),
+    ...(isCommunicationStyleEnabled(model)
+      ? [
+          systemPromptSection('anti_verbosity', () =>
+            getCommunicationStyleSection(model),
+          ),
+        ]
+      : []),
     systemPromptSection('session_guidance', () =>
-      getSessionSpecificGuidanceSection(enabledTools, skillToolCommands),
+      getSessionSpecificGuidanceSection(
+        enabledTools,
+        skillToolCommands,
+        model,
+      ),
     ),
     ...(options?.excludeDynamicSections
       ? []
@@ -640,7 +677,7 @@ ${CYBER_RISK_INSTRUCTION}`,
     ),
     // Numeric length anchors — research shows ~1.2% output token reduction vs
     // qualitative "be concise". Ant-only to measure quality impact first.
-    ...(process.env.USER_TYPE === 'ant'
+    ...(isCommunicationStyleEnabled(model)
       ? [
           systemPromptSection(
             'numeric_length_anchors',
@@ -698,6 +735,44 @@ ${CYBER_RISK_INSTRUCTION}`,
     // --- Dynamic content (registry-managed) ---
     ...resolvedDynamicSections,
   ].filter(s => s !== null)
+}
+
+/**
+ * Build the machine-specific sections omitted by excludeDynamicSections so
+ * callers can re-inject them into the first user message.
+ */
+export async function getExcludedDynamicSectionsContent(
+  model: string,
+  additionalWorkingDirectories?: string[],
+): Promise<Record<string, string>> {
+  const [envInfo, memory] = await Promise.all([
+    computeSimpleEnvInfo(model, additionalWorkingDirectories),
+    loadMemoryPrompt(),
+  ])
+  const result: Record<string, string> = {}
+  if (envInfo) {
+    const [heading, body] = splitPromptHeading(envInfo)
+    result[heading] = body
+  }
+  if (memory) {
+    const [heading, body] = splitPromptHeading(memory)
+    result[heading] = body
+  }
+  return result
+}
+
+function splitPromptHeading(section: string): [string, string] {
+  const newline = section.indexOf('\n')
+  const heading = newline === -1 ? section : section.slice(0, newline)
+  if (!heading.startsWith('# ')) {
+    throw new Error(
+      `getExcludedDynamicSectionsContent: expected section body to start with a "# <heading>" line, got "${heading}"`,
+    )
+  }
+  return [
+    heading.slice(2),
+    newline === -1 ? '' : section.slice(newline + 1),
+  ]
 }
 
 function getMcpInstructions(mcpClients: MCPServerConnection[]): string | null {

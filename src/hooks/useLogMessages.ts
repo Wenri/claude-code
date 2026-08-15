@@ -8,6 +8,7 @@ import {
   cleanMessagesForLogging,
   isChainParticipant,
   recordTranscript,
+  transcriptCursorEnd,
 } from '../utils/sessionStorage.js'
 
 /**
@@ -16,8 +17,13 @@ import {
  *
  * @param messages The current conversation messages
  * @param ignore When true, messages will not be recorded to the transcript
+ * @param isLoading When true, hold an unfinished assistant behind the cursor
  */
-export function useLogMessages(messages: Message[], ignore: boolean = false) {
+export function useLogMessages(
+  messages: Message[],
+  ignore: boolean = false,
+  isLoading: boolean = false,
+) {
   const teamContext = useAppState(s => s.teamContext)
 
   // messages is append-only between compactions, so track where we left off
@@ -31,6 +37,10 @@ export function useLogMessages(messages: Message[], ignore: boolean = false) {
   // Guard against stale async .then() overwriting a fresher sync update when
   // an incremental render fires before the compaction .then() resolves.
   const callSeqRef = useRef(0)
+  // Tracks the furthest safe cursor independently of the current array shape.
+  // In particular, ignored resume history must not make a trailing unfinished
+  // assistant block later messages when recording begins.
+  const lastSeenLengthRef = useRef(0)
 
   useEffect(() => {
     if (getRuntimeCapabilities().remote?.kind === 'ccr') return
@@ -59,11 +69,24 @@ export function useLogMessages(messages: Message[], ignore: boolean = false) {
       prevLength > messages.length
 
     const startIndex = isIncremental ? prevLength : 0
-    if (startIndex === messages.length) return
+    const scanStart =
+      isIncremental || wasFirstRender
+        ? lastSeenLengthRef.current
+        : startIndex
+    const endIndex = transcriptCursorEnd(
+      messages,
+      Math.max(startIndex, scanStart),
+      isLoading,
+    )
+    if (!isIncremental) lastSeenLengthRef.current = endIndex
+    if (endIndex === startIndex) return
 
     // Full array on first call + after compaction: recordTranscript's own
     // O(n) dedup loop handles messagesToKeep interleaving correctly there.
-    const slice = startIndex === 0 ? messages : messages.slice(startIndex)
+    const slice =
+      startIndex === 0 && endIndex === messages.length
+        ? messages
+        : messages.slice(startIndex, endIndex)
     const parentHint = isIncremental ? lastParentUuidRef.current : undefined
 
     // Fire and forget - we don't want to block the UI.
@@ -115,7 +138,13 @@ export function useLogMessages(messages: Message[], ignore: boolean = false) {
       if (last) lastParentUuidRef.current = last.uuid as UUID
     }
 
-    lastRecordedLengthRef.current = messages.length
+    lastRecordedLengthRef.current = endIndex
     firstMessageUuidRef.current = currentFirstUuid
-  }, [messages, ignore, teamContext?.teamName, teamContext?.selfAgentName])
+  }, [
+    messages,
+    ignore,
+    isLoading,
+    teamContext?.teamName,
+    teamContext?.selfAgentName,
+  ])
 }

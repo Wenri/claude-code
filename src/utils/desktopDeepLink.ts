@@ -8,7 +8,7 @@ import { execFileNoThrow } from './execFileNoThrow.js'
 import { pathExists } from './file.js'
 import { gte as semverGte } from './semver.js'
 
-const MIN_DESKTOP_VERSION = '1.1.2396'
+const MIN_DESKTOP_VERSION = '1.1.9669'
 
 function isDevMode(): boolean {
   if ((process.env.NODE_ENV as string) === 'development') {
@@ -210,13 +210,18 @@ export async function openCurrentSessionInDesktop(): Promise<{
 }> {
   const sessionId = getSessionId()
 
-  // Check if Desktop is installed
-  const installed = await isDesktopInstalled()
-  if (!installed) {
+  const installStatus = await getDesktopInstallStatus()
+  if (installStatus.status === 'not-installed') {
     return {
       success: false,
       error:
         'Claude Desktop is not installed. Install it from https://claude.ai/download',
+    }
+  }
+  if (installStatus.status === 'version-too-old') {
+    return {
+      success: false,
+      error: `Claude Desktop ${installStatus.version} is too old to resume this session. Please update to ${MIN_DESKTOP_VERSION} or later.`,
     }
   }
 

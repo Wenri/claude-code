@@ -120,7 +120,11 @@ export async function createDefaultEnvironment(): Promise<boolean> {
   let accessToken: string, orgUUID: string
   try {
     ;({ accessToken, orgUUID } = await prepareApiRequest())
-  } catch {
+  } catch (error) {
+    logForDebugging(
+      `[web-setup] Failed to create default environment: ${error}`,
+      { level: 'warn' },
+    )
     return false
   }
 
@@ -162,7 +166,11 @@ export async function createDefaultEnvironment(): Promise<boolean> {
       { headers, timeout: 15000, validateStatus: () => true },
     )
     return response.status >= 200 && response.status < 300
-  } catch {
+  } catch (error) {
+    logForDebugging(
+      `[web-setup] Failed to create default environment: ${error}`,
+      { level: 'warn' },
+    )
     return false
   }
 }

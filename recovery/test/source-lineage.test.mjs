@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import crypto from 'node:crypto'
-import { spawnSync } from 'node:child_process'
+import { execFileSync, spawnSync } from 'node:child_process'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
@@ -65,6 +65,13 @@ function sourceTree(root) {
   }
 }
 
+function git(repository, ...arguments_) {
+  return execFileSync('git', arguments_, {
+    cwd: repository,
+    encoding: 'utf8',
+  }).trim()
+}
+
 function createFixture() {
   const root = fs.mkdtempSync(
     path.join(os.tmpdir(), 'source-lineage-test-'),
@@ -90,6 +97,16 @@ function createFixture() {
     'export const stable = true\n',
   )
   const base = sourceTree(repository)
+  git(repository, 'init', '-q')
+  git(repository, 'config', 'user.name', 'Recovery Test')
+  git(repository, 'config', 'user.email', 'recovery-test@example.invalid')
+  git(repository, 'add', 'src')
+  git(repository, 'commit', '-qm', 'fixture base')
+  const gitBase = {
+    baseCommit: git(repository, 'rev-parse', 'HEAD'),
+    baseGitTree: git(repository, 'rev-parse', 'HEAD^{tree}'),
+    baseSourceGitTree: git(repository, 'rev-parse', 'HEAD:src'),
+  }
 
   write(
     path.join(repository, 'src', 'example.ts'),
@@ -198,6 +215,7 @@ function createFixture() {
   return {
     artifacts,
     base,
+    gitBase,
     manifest,
     manifestPath,
     repository,
@@ -249,7 +267,16 @@ test('verifies an incremental source lineage in both directions', () => {
     assert.deepEqual(report.sourceTree.base, fixture.base)
     assert.deepEqual(report.sourceTree.target, fixture.target)
     assert.deepEqual(report.sourceTree.repository, fixture.target)
-    assert.equal(report.sourceTree.byteComparison, 'exact')
+    assert.equal(
+      report.sourceTree.byteComparison,
+      'reconstructed-overlay-to-repository-src-exact',
+    )
+    assert.equal(report.sourceTree.targetBundleComparison, 'not-performed')
+    assert.equal(
+      report.sourceTree.reproducesAuthenticatedTargetBundleExactly,
+      false,
+    )
+    assert.equal(report.gitBase, null)
     assert.deepEqual(report.syntaxChecks, [
       'src/example.ts',
       'src/new.ts',
@@ -271,6 +298,68 @@ test('verifies an incremental source lineage in both directions', () => {
       report.tests.artifactEnvironment.LINEAGE_TEST_ARTIFACT.artifact,
       'targetBundle',
     )
+  } finally {
+    fs.rmSync(fixture.root, { recursive: true, force: true })
+  }
+})
+
+test('pins the reversible source base to reachable Git objects', () => {
+  const fixture = createFixture()
+  try {
+    rewriteManifest(fixture, manifest => {
+      Object.assign(manifest.sourceLineage, fixture.gitBase)
+    })
+    const result = invoke(fixture)
+    assert.equal(result.status, 0, result.stderr)
+    const report = JSON.parse(result.stdout)
+    assert.deepEqual(report.gitBase, {
+      commit: fixture.gitBase.baseCommit,
+      tree: fixture.gitBase.baseGitTree,
+      sourceTree: fixture.gitBase.baseSourceGitTree,
+      sourceComparison: 'exact',
+    })
+  } finally {
+    fs.rmSync(fixture.root, { recursive: true, force: true })
+  }
+})
+
+test('rejects a dangling or mismatched Git base declaration', () => {
+  const fixture = createFixture()
+  try {
+    rewriteManifest(fixture, manifest => {
+      Object.assign(manifest.sourceLineage, fixture.gitBase, {
+        baseCommit: '0'.repeat(40),
+      })
+    })
+    let result = invoke(fixture)
+    assert.notEqual(result.status, 0)
+    assert.match(
+      result.stderr,
+      /rev-parse.*failed|unknown revision|Needed a single revision/,
+    )
+
+    rewriteManifest(fixture, manifest => {
+      Object.assign(manifest.sourceLineage, fixture.gitBase, {
+        baseSourceGitTree: fixture.gitBase.baseGitTree,
+      })
+    })
+    result = invoke(fixture)
+    assert.notEqual(result.status, 0)
+    assert.match(result.stderr, /sourceLineage\.baseSourceGitTree/)
+  } finally {
+    fs.rmSync(fixture.root, { recursive: true, force: true })
+  }
+})
+
+test('requires the complete Git base field set', () => {
+  const fixture = createFixture()
+  try {
+    rewriteManifest(fixture, manifest => {
+      manifest.sourceLineage.baseCommit = fixture.gitBase.baseCommit
+    })
+    const result = invoke(fixture)
+    assert.notEqual(result.status, 0)
+    assert.match(result.stderr, /git base must provide/)
   } finally {
     fs.rmSync(fixture.root, { recursive: true, force: true })
   }

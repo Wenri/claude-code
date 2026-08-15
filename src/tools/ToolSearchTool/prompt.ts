@@ -1,6 +1,5 @@
 import { feature } from 'bun:bundle'
 import { isReplBridgeActive } from '../../bootstrap/state.js'
-import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
 import type { Tool } from '../../Tool.js'
 import { AGENT_TOOL_NAME } from '../AgentTool/constants.js'
 
@@ -31,20 +30,7 @@ import { TOOL_SEARCH_TOOL_NAME } from './constants.js'
 
 const PROMPT_HEAD = `Fetches full schema definitions for deferred tools so they can be called.
 
-`
-
-// Matches isDeferredToolsDeltaEnabled in toolSearch.ts (not imported —
-// toolSearch.ts imports from this file). When enabled: tools announced
-// via system-reminder attachments. When disabled: prepended
-// <available-deferred-tools> block (pre-gate behavior).
-function getToolLocationHint(): string {
-  const deltaEnabled =
-    process.env.USER_TYPE === 'ant' ||
-    getFeatureValue_CACHED_MAY_BE_STALE('tengu_glacier_2xr', false)
-  return deltaEnabled
-    ? 'Deferred tools appear by name in <system-reminder> messages.'
-    : 'Deferred tools appear by name in <available-deferred-tools> messages.'
-}
+Deferred tools appear by name in <system-reminder> messages.`
 
 const PROMPT_TAIL = ` Until fetched, only the name is known — there is no parameter schema, so the tool cannot be invoked. This tool takes a query, matches it against the deferred tool list, and returns the matched tools' complete JSONSchema definitions inside a <functions> block. Once a tool's schema appears in that result, it is callable exactly like any tool defined at the top of the prompt.
 
@@ -127,8 +113,8 @@ export function isDeferredTool(tool: Tool): boolean {
 }
 
 /**
- * Format one deferred-tool line for the <available-deferred-tools> user
- * message. Search hints (tool.searchHint) are not rendered — the
+ * Format one deferred-tool line for the deferred-tools system reminder.
+ * Search hints (tool.searchHint) are not rendered — the
  * hints A/B (exp_xenhnnmn0smrx4, stopped Mar 21) showed no benefit.
  */
 export function formatDeferredToolLine(tool: Tool): string {
@@ -136,5 +122,5 @@ export function formatDeferredToolLine(tool: Tool): string {
 }
 
 export function getPrompt(): string {
-  return PROMPT_HEAD + getToolLocationHint() + PROMPT_TAIL
+  return PROMPT_HEAD + PROMPT_TAIL
 }

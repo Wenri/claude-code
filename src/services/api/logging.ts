@@ -408,6 +408,18 @@ export function logAPIError({
     })
   }
 
+  if (attempt > 1) {
+    void logOTelEvent('api_retries_exhausted', {
+      model: model,
+      error: errStr,
+      ...(status !== undefined ? { status_code: status } : {}),
+      total_attempts: String(attempt),
+      total_retry_duration_ms: String(durationMsIncludingRetries),
+      speed: fastMode ? 'fast' : 'normal',
+      ...(querySource ? { query_source: querySource } : {}),
+    })
+  }
+
   // Pass the span to correctly match responses to requests when beta tracing is enabled
   endLLMRequestSpan(llmSpan, {
     success: false,
@@ -846,6 +858,8 @@ export function logAPISuccessAndDuration({
     cacheReadTokens: usage.cache_read_input_tokens,
     cacheCreationTokens: usage.cache_creation_input_tokens,
     attempt,
+    requestId: requestId ?? undefined,
+    clientRequestId,
     modelOutput,
     thinkingOutput,
     hasToolCall,

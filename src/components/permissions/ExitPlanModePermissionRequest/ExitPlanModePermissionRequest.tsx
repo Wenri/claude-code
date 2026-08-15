@@ -1,6 +1,5 @@
 import { feature } from 'bun:bundle';
 import type { UUID } from 'crypto';
-import figures from 'figures';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useNotifications } from 'src/context/notifications.js';
 import { useMainLoopModel } from '../../../hooks/useMainLoopModel.js';
@@ -50,6 +49,7 @@ import type { Base64ImageSource, ImageBlockParam } from '@anthropic-ai/sdk/resou
 import type { PastedContent } from '../../../utils/config.js';
 import { getImageLimits, type ImageDimensions, maybeResizeAndDownsampleImageBlock } from '../../../utils/imageResizer.js';
 import { cacheImagePath, storeImage } from '../../../utils/imageStore.js';
+import { StatusIcon } from '../../design-system/StatusIcon.js';
 type ResponseValue = 'yes-bypass-permissions' | 'yes-accept-edits' | 'yes-accept-edits-keep-context' | 'yes-default-keep-context' | 'yes-resume-auto-mode' | 'yes-auto-clear-context' | 'ultraplan' | 'no';
 
 /**
@@ -172,8 +172,8 @@ export function ExitPlanModePermissionRequest({
       filename: filename || 'Pasted image',
       dimensions
     };
-    cacheImagePath(newContent);
-    void storeImage(newContent);
+    cacheImagePath(newContent, setAppState);
+    void storeImage(newContent, setAppState);
     setPastedContents(prev => ({
       ...prev,
       [pasteId]: newContent
@@ -370,6 +370,7 @@ export function ExitPlanModePermissionRequest({
         planStructureVariant,
         hasFeedback: !!acceptFeedback
       });
+      logPermissionModeChanged({ from: 'plan', to: mode, trigger: 'exit_plan_mode' });
 
       // Set initial message - REPL will handle context clear and fresh query
       // Add verification instruction if the feature is enabled
@@ -416,6 +417,7 @@ export function ExitPlanModePermissionRequest({
         planStructureVariant,
         hasFeedback: !!acceptFeedback
       });
+      logPermissionModeChanged({ from: 'plan', to: 'auto', trigger: 'exit_plan_mode' });
       setHasExitedPlanMode(true);
       setNeedsPlanModeExitAttachment(true);
       autoModeStateModule?.setAutoModeActive(true);
@@ -454,6 +456,7 @@ export function ExitPlanModePermissionRequest({
         planStructureVariant,
         hasFeedback: !!acceptFeedback
       });
+      logPermissionModeChanged({ from: 'plan', to: keepContextMode, trigger: 'exit_plan_mode' });
       setHasExitedPlanMode(true);
       setNeedsPlanModeExitAttachment(true);
       onDone();
@@ -475,6 +478,7 @@ export function ExitPlanModePermissionRequest({
         planStructureVariant,
         hasFeedback: !!acceptFeedback
       });
+      logPermissionModeChanged({ from: 'plan', to: standardMode, trigger: 'exit_plan_mode' });
       setHasExitedPlanMode(true);
       setNeedsPlanModeExitAttachment(true);
       onDone();
@@ -498,6 +502,7 @@ export function ExitPlanModePermissionRequest({
       // Convert pasted images to ImageBlockParam[] with resizing
       let imageBlocks: ImageBlockParam[] | undefined;
       if (hasImages) {
+        const imageLimits = getImageLimits(getMainLoopModel());
         imageBlocks = await Promise.all(imageAttachments.map(async img => {
           const block: ImageBlockParam = {
             type: 'image',
@@ -558,7 +563,7 @@ export function ExitPlanModePermissionRequest({
             {isV2 && planFilePath && <Text dimColor> · {getDisplayPath(planFilePath)}</Text>}
             {showSaveMessage && <>
                 <Text dimColor>{' · '}</Text>
-                <Text color="success">{figures.tick}Plan saved!</Text>
+                <Text color="success"><StatusIcon status="success" withSpace />Plan saved!</Text>
               </>}
           </Box>}
       </Box>);
@@ -677,7 +682,7 @@ export function ExitPlanModePermissionRequest({
           </Box>
           {showSaveMessage && <Box>
               <Text dimColor>{' · '}</Text>
-              <Text color="success">{figures.tick}Plan saved!</Text>
+              <Text color="success"><StatusIcon status="success" withSpace />Plan saved!</Text>
             </Box>}
         </Box>}
     </Box>;

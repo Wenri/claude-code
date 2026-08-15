@@ -339,6 +339,7 @@ export function getCompactUserSummaryMessage(
   suppressFollowUpQuestions?: boolean,
   transcriptPath?: string,
   recentMessagesPreserved?: boolean,
+  replVmWasCleared?: boolean,
 ): string {
   const formattedSummary = formatCompactSummary(summary)
 
@@ -352,6 +353,10 @@ ${formattedSummary}`
 
   if (recentMessagesPreserved) {
     baseSummary += `\n\nRecent messages are preserved verbatim.`
+  }
+
+  if (replVmWasCleared) {
+    baseSummary += `\n\nYour REPL VM state has been cleared as part of this compaction. Variables defined in REPL calls before this point are no longer accessible — redefine any you still need.`
   }
 
   if (suppressFollowUpQuestions) {

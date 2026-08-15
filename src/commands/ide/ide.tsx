@@ -166,7 +166,7 @@ function IDEScreen(t0) {
   }
   let t9;
   if ($[28] !== unavailableIDEs) {
-    t9 = unavailableIDEs.length > 0 && <Box marginTop={1} flexDirection="column"><Text dimColor={true}>Found {unavailableIDEs.length} other running IDE(s). However, their workspace/project directories do not match the current cwd.</Text><Box marginTop={1} flexDirection="column">{unavailableIDEs.map(_temp3)}</Box></Box>;
+    t9 = unavailableIDEs.length > 0 && <Box marginTop={1} flexDirection="column"><Text dimColor={true}>Found {unavailableIDEs.length} other running IDE(s). However, their workspace/project directories do not match the current cwd.</Text><Box marginTop={1} flexDirection="column">{unavailableIDEs.slice(0, 4).map(_temp3)}{unavailableIDEs.length > 4 && <Box paddingLeft={3}><Text dimColor={true}>…and {unavailableIDEs.length - 4} more</Text></Box>}</Box></Box>;
     $[28] = unavailableIDEs;
     $[29] = t9;
   } else {

@@ -1,0 +1,206 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.112-to-2.1.113",
+  "artifact": {
+    "targetInnerSha256": "4a3c3636c8cb19ef42d6319e5c6ef9b029f5de148b84f22315d159052d6c5eba",
+    "targetWrapperSha256": "dda4d89e787fa455706e4f41beffc8e58d42b9094c4d155fcbf62e3f19036681",
+    "targetWrapperPrefixLength": 87,
+    "targetWrapperSuffixLength": 3,
+    "structuralGzipSha256": "383448923995bb86060ce91beac2bc5adac35817a0cdff35b533135c7d24345f"
+  },
+  "proof": {
+    "target": "complete authenticated target unit and every exact target-added residue occurrence",
+    "source": "exact bounded recovered source AST, required imports, and unchanged coalesced-owner residue identities",
+    "historical": "exact pre-recovery declaration or call form with the bounded semantic gap absent",
+    "classification": "per-residue recovered source gap, exact alternate owner, or compiler-lowered runtime import"
+  },
+  "summary": {
+    "units": 3,
+    "residues": 7,
+    "recoveredSourceGapResidues": 3,
+    "exactAlternateOwnerResidues": 3,
+    "compilerLoweredImportResidues": 1
+  },
+  "rows": [
+    {
+      "targetIndex": 12073,
+      "priorOwnerIds": [
+        "owner-src-tasks-RemoteAgentTask-RemoteAgentTask-tsx"
+      ],
+      "recoveredOwner": "src/components/Markdown.tsx",
+      "target": {
+        "classification": "unresolved",
+        "start": 7667776,
+        "end": 7667938,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "6809f17630ae3fade716e93279bac1ff8bbf854446abd07523e61044b681a70b"
+      },
+      "declaration": {
+        "name": "MD_SYNTAX_RE",
+        "kind": "VariableDeclaration",
+        "sha256": "7081674601b07943fc7c381e21ae51bb11cc81c484aa8b14d080a52e5ec118e7",
+        "historicalSha256": "f8c5f12d431cbb8334be63be6b967b47b9e3aed88971c3f6dd198fdae4361788"
+      },
+      "residues": [
+        {
+          "kind": "regexp",
+          "value": {
+            "flags": "",
+            "pattern": "[#*`|[>\\-_~]|\\n\\n|(?:^|\\n) {0,3}\\d+\\. |https?:\\/\\/|www\\."
+          },
+          "target": {
+            "start": 7667877,
+            "end": 7667935
+          },
+          "classification": "recovered-source-gap"
+        }
+      ],
+      "supplement": {
+        "operation": "replace-one-regexp-declaration",
+        "selector": "const MD_SYNTAX_RE = /[#*`|[>\\-_~]|\\n\\n|(?:^|\\n) {0,3}\\d+\\. /",
+        "replacement": "const MD_SYNTAX_RE = /[#*`|[>\\-_~]|\\n\\n|(?:^|\\n) {0,3}\\d+\\. |https?:\\/\\/|www\\./"
+      }
+    },
+    {
+      "targetIndex": 12662,
+      "priorOwnerIds": [
+        "owner-src-services-teamMemorySync-teamMemSecretGuard-ts"
+      ],
+      "recoveredOwner": "src/tools/FileWriteTool/FileWriteTool.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 7967633,
+        "end": 7973318,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "c432d7b176feefee60c69187efddf0805d24f304119b86dfe342d33f2becb581"
+      },
+      "declaration": {
+        "name": "FileWriteTool",
+        "kind": "VariableDeclaration",
+        "historicalSha256": "0a6a33cd03ddc931c4b2a96ebcdbb02f279c53d42c88f514af341a56d0cce65a"
+      },
+      "recoveredStatement": {
+        "kind": "IfStatement",
+        "contains": "tengu_sub_nomdrep_q7k",
+        "sha256": "7c4a5e63f0b229f6d3f3281eccb25e97e3a470840afc2be5143dadad32b3dcf0"
+      },
+      "sourceImports": [
+        {
+          "module": "path",
+          "imported": "basename",
+          "local": "basename"
+        },
+        {
+          "module": "path",
+          "imported": "dirname",
+          "local": "dirname"
+        }
+      ],
+      "residues": [
+        {
+          "kind": "property",
+          "value": "basename",
+          "target": {
+            "start": 7970033,
+            "end": 7970041
+          },
+          "classification": "recovered-source-gap"
+        },
+        {
+          "kind": "property",
+          "value": "stat",
+          "target": {
+            "start": 7970616,
+            "end": 7970620
+          },
+          "classification": "exact-alternate-owner"
+        },
+        {
+          "kind": "property",
+          "value": "dirname",
+          "target": {
+            "start": 7971397,
+            "end": 7971404
+          },
+          "classification": "exact-alternate-owner"
+        },
+        {
+          "kind": "property",
+          "value": "mkdir",
+          "target": {
+            "start": 7971549,
+            "end": 7971554
+          },
+          "classification": "exact-alternate-owner"
+        }
+      ],
+      "supplement": {
+        "operation": "extend-one-path-import-and-insert-one-guard",
+        "importSelector": "import { dirname, sep } from 'path'",
+        "importReplacement": "import { basename, dirname, sep } from 'path'",
+        "guardAnchor": "const fullFilePath = expandPath(file_path)",
+        "laterTemporalExclusions": []
+      }
+    },
+    {
+      "targetIndex": 12781,
+      "priorOwnerIds": [
+        "owner-src-tools-NotebookEditTool-NotebookEditTool-ts"
+      ],
+      "recoveredOwner": "src/tools/NotebookEditTool/NotebookEditTool.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 8017827,
+        "end": 8024209,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "4c6538bfdc9c0267877428f78b9438781a2bc9c27b5eb97430e87d27d0c4a268"
+      },
+      "declaration": {
+        "name": "NotebookEditTool",
+        "kind": "VariableDeclaration",
+        "historicalSha256": "2945a1534900a05c2c734522c5070bdf160100e36a141aac1b0719e6e49a249a"
+      },
+      "sourceImports": [
+        {
+          "module": "path",
+          "imported": "extname",
+          "local": "extname"
+        },
+        {
+          "module": "crypto",
+          "imported": "randomUUID",
+          "local": "randomUUID"
+        }
+      ],
+      "recoveredExpression": "randomUUID().slice(0, 8)",
+      "historicalExpression": "Math.random().toString(36).substring(2, 15)",
+      "residues": [
+        {
+          "kind": "property",
+          "value": "extname",
+          "target": {
+            "start": 8020928,
+            "end": 8020935
+          },
+          "classification": "compiler-lowered-runtime-import"
+        },
+        {
+          "kind": "property",
+          "value": "randomUUID",
+          "target": {
+            "start": 8023146,
+            "end": 8023156
+          },
+          "classification": "recovered-source-gap"
+        }
+      ],
+      "supplement": {
+        "operation": "insert-one-import-and-replace-one-expression",
+        "importAnchor": "import { feature } from 'bun:bundle'",
+        "import": "import { randomUUID } from 'crypto'",
+        "expressionSelector": "Math.random().toString(36).substring(2, 15)",
+        "expressionReplacement": "randomUUID().slice(0, 8)"
+      }
+    }
+  ]
+}

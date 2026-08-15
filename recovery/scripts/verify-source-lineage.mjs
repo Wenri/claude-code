@@ -9,6 +9,7 @@ import { pathToFileURL } from 'node:url'
 import { parse } from 'acorn'
 
 const SHA256_PATTERN = /^[a-f0-9]{64}$/
+const GIT_OBJECT_PATTERN = /^[a-f0-9]{40}$/
 const ENVIRONMENT_NAME_PATTERN = /^[A-Za-z_][A-Za-z0-9_]*$/
 const FORBIDDEN_TEST_ENVIRONMENT_NAMES = new Set([
   'BUN_OPTIONS',
@@ -363,6 +364,105 @@ function run(command, arguments_, options = {}) {
     )
   }
   return result
+}
+
+function singleLine(result, label) {
+  const value = result.stdout.trim()
+  if (value.length === 0 || value.includes('\n') || value.includes('\r')) {
+    throw new Error(`${label}: expected exactly one output line`)
+  }
+  return value
+}
+
+function normalizeGitBase(lineage) {
+  const fields = ['baseCommit', 'baseGitTree', 'baseSourceGitTree']
+  const present = fields.filter(field => lineage[field] !== undefined)
+  if (present.length === 0) return null
+  if (present.length !== fields.length) {
+    throw new Error(
+      `sourceLineage git base must provide ${fields.join(', ')} together`,
+    )
+  }
+  for (const field of fields) {
+    if (
+      typeof lineage[field] !== 'string' ||
+      !GIT_OBJECT_PATTERN.test(lineage[field])
+    ) {
+      throw new Error(`sourceLineage.${field} must be a lowercase Git SHA-1`)
+    }
+  }
+  return Object.fromEntries(fields.map(field => [field, lineage[field]]))
+}
+
+function verifyGitBase(
+  repositoryRoot,
+  temporaryRoot,
+  gitBase,
+  reconstructedBase,
+) {
+  if (!gitBase) return null
+  const commitExpression = `${gitBase.baseCommit}^{commit}`
+  const treeExpression = `${gitBase.baseCommit}^{tree}`
+  const sourceExpression = `${gitBase.baseCommit}:src`
+  const commit = singleLine(
+    run('git', ['rev-parse', '--verify', commitExpression], {
+      cwd: repositoryRoot,
+    }),
+    'sourceLineage.baseCommit',
+  )
+  assertEqual(commit, gitBase.baseCommit, 'sourceLineage.baseCommit identity')
+  const tree = singleLine(
+    run('git', ['rev-parse', '--verify', treeExpression], {
+      cwd: repositoryRoot,
+    }),
+    'sourceLineage.baseGitTree',
+  )
+  assertEqual(tree, gitBase.baseGitTree, 'sourceLineage.baseGitTree')
+  const sourceTree = singleLine(
+    run('git', ['rev-parse', '--verify', sourceExpression], {
+      cwd: repositoryRoot,
+    }),
+    'sourceLineage.baseSourceGitTree',
+  )
+  assertEqual(
+    sourceTree,
+    gitBase.baseSourceGitTree,
+    'sourceLineage.baseSourceGitTree',
+  )
+  run('git', ['merge-base', '--is-ancestor', gitBase.baseCommit, 'HEAD'], {
+    cwd: repositoryRoot,
+  })
+
+  const archive = path.join(temporaryRoot, 'git-base.tar')
+  const extracted = path.join(temporaryRoot, 'git-base')
+  fs.mkdirSync(extracted)
+  run(
+    'git',
+    [
+      'archive',
+      '--format=tar',
+      `--output=${archive}`,
+      gitBase.baseCommit,
+      '--',
+      'src',
+    ],
+    { cwd: repositoryRoot },
+  )
+  run('tar', ['-xf', archive, '-C', extracted], {
+    cwd: repositoryRoot,
+  })
+  const committedBase = summarizeSourceTree(path.join(extracted, 'src'))
+  assertTreesByteEqual(
+    committedBase,
+    reconstructedBase,
+    'reconstructed base versus pinned Git source tree',
+  )
+  return {
+    commit,
+    tree,
+    sourceTree,
+    sourceComparison: 'exact',
+  }
 }
 
 function applyPatch(patch, workspace, reverse) {
@@ -824,6 +924,7 @@ export function verifySourceLineage({
     lineage.target ?? lineage.targetTree,
     'sourceLineage.target',
   )
+  const gitBaseDeclaration = normalizeGitBase(lineage)
   const caseRoot = path.dirname(resolvedManifest)
   const patches = normalizePatchEntries(
     manifest,
@@ -851,6 +952,7 @@ export function verifySourceLineage({
   let base
   let reconstructed
   let checkedSyntax
+  let gitBase
   try {
     const workspace = path.join(temporaryRoot, 'workspace')
     fs.mkdirSync(workspace)
@@ -867,6 +969,12 @@ export function verifySourceLineage({
     }
     base = summarizeSourceTree(path.join(workspace, 'src'))
     assertTreeSummary(base, expectedBase, 'recovered base source tree')
+    gitBase = verifyGitBase(
+      resolvedRepository,
+      temporaryRoot,
+      gitBaseDeclaration,
+      base,
+    )
 
     for (const patch of patches) {
       applyPatch(patch, workspace, false)
@@ -916,8 +1024,11 @@ export function verifySourceLineage({
       base: baseSummary,
       target: targetSummary,
       repository: publicTreeSummary(repositoryTarget),
-      byteComparison: 'exact',
+      byteComparison: 'reconstructed-overlay-to-repository-src-exact',
+      targetBundleComparison: 'not-performed',
+      reproducesAuthenticatedTargetBundleExactly: false,
     },
+    gitBase,
     patches: patches.map(({ path: patchPath, bytes, sha256: digest }) => ({
       path: patchPath,
       bytes,

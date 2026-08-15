@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.112-to-2.1.113",
+  "derivation": {
+    "scan": "authenticated 2.1.112 baseline versus authenticated 2.1.113 inner bundle",
+    "policy": "Admit only complete strict-tail units whose exact target-added residue tuples are pinned and whose semantic source role is present in both the cumulative source and materialized target113 replay; all absent, partial, or role-mismatched units fail closed.",
+    "admittedTargetIndices": [14733, 18205, 15026, 15960, 18296, 19391, 19513, 19858, 20360]
+  },
+  "units": [
+    {
+      "index": 14733,
+      "owner": "src/utils/permissions/permissionSetup.ts",
+      "proofs": [{ "kind": "binding-element", "name": "resolvedPath", "minimumReferences": 1, "covers": [0] }],
+      "structural": { "classification": "unresolved", "start": 9242989, "end": 9243106, "nodeType": "FunctionDeclaration", "sourceHash": "96c204a01ddbf2cad1e8acbbc65df7509df01c34a0f84702bfdf3e52dfacca2c" },
+      "residues": [
+        { "kind": "property", "value": "resolvedPath", "start": 9243036, "end": 9243048, "baselineOccurrenceCount": 75, "targetOccurrenceNumber": 77 }
+      ],
+      "sourceHashes": { "current": "943cc03e07612db460234d52c2e0ed8ff3acabce6d8f3902235f41b433c430c3", "materializedTarget113": "295e18e05ff38fd60d60b09dc05563f3664da56d92bcbd08e2d491c0c1e9d0ad" }
+    },
+    {
+      "index": 18205,
+      "owner": "src/upstreamproxy/relay.ts",
+      "proofs": [{ "kind": "module-import", "module": "node:net", "bundledModule": "net", "minimumReferences": 1, "covers": [0] }],
+      "structural": { "classification": "unresolved", "start": 11296723, "end": 11296774, "nodeType": "VariableDeclaration", "sourceHash": "8e5f7542e1021e9c600dc67417ab11b940c3c8b26403844525131dbca39da91c" },
+      "residues": [
+        { "kind": "string", "value": "net", "start": 11296765, "end": 11296770, "baselineOccurrenceCount": 18, "targetOccurrenceNumber": 21 }
+      ],
+      "sourceHashes": { "current": "b54fc7ed3ebc552e52bc5834d2f29cdbb54e2bd0f32d560ba7e22c6729dd3d9b", "materializedTarget113": "f08e9cec87d252afc6a4edadd5c4e9b6a1ed137b1025328158e56e23b13282b6" }
+    },
+    {
+      "index": 15026,
+      "owner": "src/components/Feedback.tsx",
+      "proofs": [{ "kind": "build-macro-version", "minimumReferences": 2, "covers": [0, 1, 2, 3] }],
+      "structural": { "classification": "unresolved", "start": 9372000, "end": 9378887, "nodeType": "FunctionDeclaration", "sourceHash": "cd7d5ad388a3f5bb9685505c8d2ea0c76690b73b635dd7cda8fed56bf92bab61" },
+      "residues": [
+        { "kind": "string", "value": "2.1.113", "start": 9372966, "end": 9372975, "baselineOccurrenceCount": 0, "targetOccurrenceNumber": 57 },
+        { "kind": "string", "value": "2026-04-17T18:18:28Z", "start": 9373055, "end": 9373077, "baselineOccurrenceCount": 0, "targetOccurrenceNumber": 57 },
+        { "kind": "string", "value": "2.1.113", "start": 9376886, "end": 9376895, "baselineOccurrenceCount": 0, "targetOccurrenceNumber": 58 },
+        { "kind": "string", "value": "2026-04-17T18:18:28Z", "start": 9376975, "end": 9376997, "baselineOccurrenceCount": 0, "targetOccurrenceNumber": 58 }
+      ],
+      "sourceHashes": { "current": "a931f7d860975f10d1053fa3c897bd12d4362008558b0a189ee5b61ba167d2ea", "materializedTarget113": "b3b647a231d8ddbd9e244e59868fe5379ca083604ff8eda3cf89006145049eb0" }
+    },
+    {
+      "index": 15960,
+      "owner": "src/utils/plugins/validatePlugin.ts",
+      "proofs": [{ "kind": "named-import", "name": "readFile", "module": "fs/promises", "minimumReferences": 2, "covers": [0, 1] }],
+      "structural": { "classification": "unresolved", "start": 10133726, "end": 10136231, "nodeType": "FunctionDeclaration", "sourceHash": "776826bfb40b6bacc11bc98fddd5e4c28b728c5abae353467323447c6bf26ba2" },
+      "residues": [
+        { "kind": "property", "value": "readFile", "start": 10133795, "end": 10133803, "baselineOccurrenceCount": 66, "targetOccurrenceNumber": 135 },
+        { "kind": "property", "value": "readFile", "start": 10135274, "end": 10135282, "baselineOccurrenceCount": 66, "targetOccurrenceNumber": 136 }
+      ],
+      "sourceHashes": { "current": "af033fcad5bcc2390a643f0fb906f7dca1f6efba5e5fec0f6de75447d4dfcaa3", "materializedTarget113": "1511c98a1cd5e8585e686b3ceace2a0e4c42dbd68e2fa2a1b05546766f0819eb" }
+    },
+    {
+      "index": 18296,
+      "owner": "src/utils/messages/systemInit.ts",
+      "proofs": [
+        { "kind": "build-macro-version", "minimumReferences": 1, "covers": [0, 1] },
+        { "kind": "named-import", "name": "randomUUID", "module": "crypto", "minimumReferences": 1, "covers": [2] }
+      ],
+      "structural": { "classification": "unresolved", "start": 11322900, "end": 11324060, "nodeType": "FunctionDeclaration", "sourceHash": "e6f268b2039b68b6e54a897f9d44a082f82df14b3c5f1f6063d51a91b3fa63ac" },
+      "residues": [
+        { "kind": "string", "value": "2.1.113", "start": 11323472, "end": 11323481, "baselineOccurrenceCount": 0, "targetOccurrenceNumber": 87 },
+        { "kind": "string", "value": "2026-04-17T18:18:28Z", "start": 11323561, "end": 11323583, "baselineOccurrenceCount": 0, "targetOccurrenceNumber": 87 },
+        { "kind": "property", "value": "randomUUID", "start": 11323872, "end": 11323882, "baselineOccurrenceCount": 20, "targetOccurrenceNumber": 103 }
+      ],
+      "sourceHashes": { "current": "e28767d3e43d8f4e52880c65986f0e498b2c8301d38b3503e520d187cacd7a37", "materializedTarget113": "b2bbc955ce242057dec10a11d1c42c467411c2b6d2cb8f0e72445809e3daf642" }
+    },
+    {
+      "index": 19391,
+      "owner": "src/components/FeedbackSurvey/submitTranscriptShare.ts",
+      "proofs": [
+        { "kind": "named-import", "name": "stat", "module": "fs/promises", "minimumReferences": 1, "covers": [0] },
+        { "kind": "named-import", "name": "readFile", "module": "fs/promises", "minimumReferences": 1, "covers": [1] },
+        { "kind": "build-macro-version", "minimumReferences": 1, "covers": [2, 3] }
+      ],
+      "structural": { "classification": "unresolved", "start": 11857816, "end": 11859233, "nodeType": "FunctionDeclaration", "sourceHash": "afe365473ef2659f4d906ad2a36cf75fadb4b794c1dd20b85ecaf800884b5be8" },
+      "residues": [
+        { "kind": "property", "value": "stat", "start": 11858024, "end": 11858028, "baselineOccurrenceCount": 97, "targetOccurrenceNumber": 182 },
+        { "kind": "property", "value": "readFile", "start": 11858054, "end": 11858062, "baselineOccurrenceCount": 66, "targetOccurrenceNumber": 166 },
+        { "kind": "string", "value": "2.1.113", "start": 11858487, "end": 11858496, "baselineOccurrenceCount": 0, "targetOccurrenceNumber": 100 },
+        { "kind": "string", "value": "2026-04-17T18:18:28Z", "start": 11858576, "end": 11858598, "baselineOccurrenceCount": 0, "targetOccurrenceNumber": 100 }
+      ],
+      "sourceHashes": { "current": "97f473e6a775d8e0abc2804086e72b31a61e7fa51f4aa6924bd3d26990e8ae54", "materializedTarget113": "8d0ab63a4c41cfb81c7e5e204ee2d77008313bf500422f46ece0a275a5ea3616" }
+    },
+    {
+      "index": 19513,
+      "owner": "src/cli/structuredIO.ts",
+      "proofs": [{ "kind": "named-import", "name": "randomUUID", "module": "crypto", "minimumReferences": 3, "covers": [0, 1, 2] }],
+      "structural": { "classification": "unresolved", "start": 11926300, "end": 11934769, "nodeType": "ClassDeclaration", "sourceHash": "2d2d338ed49870eb0ef6fb2dc40b9d36c110ba01fd1aeddba947678dcd745c5b" },
+      "residues": [
+        { "kind": "property", "value": "randomUUID", "start": 11931107, "end": 11931117, "baselineOccurrenceCount": 20, "targetOccurrenceNumber": 125 },
+        { "kind": "property", "value": "randomUUID", "start": 11932282, "end": 11932292, "baselineOccurrenceCount": 20, "targetOccurrenceNumber": 126 },
+        { "kind": "property", "value": "randomUUID", "start": 11934100, "end": 11934110, "baselineOccurrenceCount": 20, "targetOccurrenceNumber": 127 }
+      ],
+      "sourceHashes": { "current": "810a0d39469db548dd5fadb2b48a7a7fcad2d885c2c770dc66ef3e7307936086", "materializedTarget113": "7027317032209d29fcf0cec0833390771edf736cd25fbefb5de5999909332c31" }
+    },
+    {
+      "index": 19858,
+      "owner": "src/components/ClaudeInChromeOnboarding.tsx",
+      "proofs": [{ "kind": "named-import", "name": "c", "module": "react/compiler-runtime", "minimumReferences": 1, "covers": [0] }],
+      "structural": { "classification": "unresolved", "start": 12113961, "end": 12116112, "nodeType": "FunctionDeclaration", "sourceHash": "4009f47e51706efb544c3aa905e2a9cec407d321f29bf6db34c9fba1600c229e" },
+      "residues": [
+        { "kind": "property", "value": "c", "start": 12113987, "end": 12113988, "baselineOccurrenceCount": 164, "targetOccurrenceNumber": 756 }
+      ],
+      "sourceHashes": { "current": "cc704f07f4cc4eb6b8f5f74ed900dc51eda6b3bc1cc5e18db21d555f30ff30a3", "materializedTarget113": "155712bf6ce0cccd621a66a2554a1668381de70aabd0a72f7a187d94c2594985" }
+    },
+    {
+      "index": 20360,
+      "owner": "src/commands/install.tsx",
+      "proofs": [
+        { "kind": "module-import", "module": "node:os", "bundledModule": "os", "minimumReferences": 1, "covers": [0] },
+        { "kind": "default-import", "module": "react", "name": "React", "minimumReferences": 1, "covers": [1] }
+      ],
+      "structural": { "classification": "unresolved", "start": 12881669, "end": 12882092, "nodeType": "VariableDeclaration", "sourceHash": "04281ae6a7365b4cbaa048470535976b06206418fba20804dd12a89ac2d0bb18" },
+      "residues": [
+        { "kind": "string", "value": "os", "start": 12881756, "end": 12881760, "baselineOccurrenceCount": 71, "targetOccurrenceNumber": 86 },
+        { "kind": "property", "value": "default", "start": 12882014, "end": 12882021, "baselineOccurrenceCount": 5335, "targetOccurrenceNumber": 5369 }
+      ],
+      "sourceHashes": { "current": "0322170774db0a508df455ba6ef7e60b63fb71a01809841e64728100a6e87c1c", "materializedTarget113": "d492c8fa81903aa8bee6a929aebe714c2151f16fba06deafdf3e5179a3f4af2b" }
+    }
+  ]
+}

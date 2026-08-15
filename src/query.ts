@@ -6,6 +6,7 @@ import type {
 import type { CanUseToolFn } from './hooks/useCanUseTool.js'
 import { FallbackTriggeredError } from './services/api/withRetry.js'
 import {
+  AUTOCOMPACT_THRASH_MESSAGE,
   calculateTokenWarningState,
   getNextConsecutiveRapidRefills,
   isAutoCompactEnabled,
@@ -30,6 +31,7 @@ import {
 } from 'src/services/analytics/index.js'
 import { ImageSizeError } from './utils/imageValidation.js'
 import { ImageResizeError } from './utils/imageResizer.js'
+import { getImageLimits } from './utils/imageLimits.js'
 import { findToolByName, type ToolUseContext } from './Tool.js'
 import { asSystemPrompt, type SystemPrompt } from './utils/systemPromptType.js'
 import type {
@@ -60,6 +62,7 @@ import {
   getAssistantMessageText,
   stripSignatureBlocks,
 } from './utils/messages.js'
+import { validateImagesForAPI } from './utils/imageValidation.js'
 import { generateToolUseSummary } from './services/toolUseSummary/toolUseSummaryGenerator.js'
 import { prependUserContext, appendSystemContext } from './utils/api.js'
 import {
@@ -269,6 +272,37 @@ function isWithheldMaxOutputTokens(
   return msg?.type === 'assistant' && msg.apiError === 'max_output_tokens'
 }
 
+type MalformedToolUseRecovery =
+  | { kind: 'retry'; message: string }
+  | { kind: 'failed'; message: string }
+
+function getMalformedToolUseRecovery(
+  stopReason: string | null | undefined,
+  toolUseBlockCount: number,
+  isApiErrorMessage: boolean | undefined,
+  previousTransitionReason: string | undefined,
+): MalformedToolUseRecovery | undefined {
+  if (
+    stopReason !== 'tool_use' ||
+    toolUseBlockCount !== 0 ||
+    isApiErrorMessage
+  ) {
+    return undefined
+  }
+
+  if (previousTransitionReason === 'malformed_tool_use_retry') {
+    return {
+      kind: 'failed',
+      message: "The model's tool call could not be parsed (retry also failed).",
+    }
+  }
+
+  return {
+    kind: 'retry',
+    message: 'Your tool call was malformed and could not be parsed. Please retry.',
+  }
+}
+
 export type QueryParams = {
   messages: Message[]
   systemPrompt: SystemPrompt
@@ -281,6 +315,7 @@ export type QueryParams = {
   maxOutputTokensOverride?: number
   maxTurns?: number
   skipCacheWrite?: boolean
+  stopHookActive?: boolean
   // API task_budget (output_config.task_budget, beta task-budgets-2026-03-13).
   // Distinct from the tokenBudget +500k auto-continue feature. `total` is the
   // budget for the whole agentic turn; `remaining` is computed per iteration
@@ -361,7 +396,7 @@ async function* queryLoop(
     toolUseContext: params.toolUseContext,
     maxOutputTokensOverride: params.maxOutputTokensOverride,
     autoCompactTracking: undefined,
-    stopHookActive: undefined,
+    stopHookActive: params.stopHookActive,
     maxOutputTokensRecoveryCount: 0,
     hasAttemptedReactiveCompact: false,
     turnCount: 1,
@@ -392,6 +427,7 @@ async function* queryLoop(
   using pendingMemoryPrefetch = startRelevantMemoryPrefetch(
     state.messages,
     state.toolUseContext,
+    querySource,
   )
 
   // eslint-disable-next-line no-constant-condition
@@ -753,6 +789,7 @@ async function* queryLoop(
       const { isAtBlockingLimit } = calculateTokenWarningState(
         tokenCountWithEstimation(messagesForQuery) - snipTokensFreed,
         toolUseContext.options.mainLoopModel,
+        toolUseContext.getAppState().autoCompactWindow,
       )
       if (isAtBlockingLimit) {
         logEvent('tengu_ptl_surfaced_to_user', {
@@ -850,6 +887,7 @@ async function* queryLoop(
               skipCacheWrite,
               agentId: toolUseContext.agentId,
               addNotification: toolUseContext.addNotification,
+              onHintCleared: toolUseContext.applyHintClears,
               ...(params.taskBudget && {
                 taskBudget: {
                   total: params.taskBudget.total,
@@ -939,6 +977,12 @@ async function* queryLoop(
                 }
               }
             }
+            if (
+              message.type === 'stream_event' &&
+              message.event.type === 'message_delta'
+            ) {
+              lastStreamStopReason = message.event.delta.stop_reason
+            }
             // Withhold recoverable errors (prompt-too-long, max-output-tokens)
             // until we know whether recovery (collapse drain / reactive
             // compact / truncation retry) can succeed. Still pushed to
@@ -1011,6 +1055,15 @@ async function* queryLoop(
               for (const result of streamingToolExecutor.getCompletedResults()) {
                 if (result.message) {
                   yield result.message
+                  const normalizedMessages = normalizeMessagesForAPI(
+                    [result.message],
+                    toolUseContext.options.tools,
+                  )
+                  validateImagesForAPI(
+                    normalizedMessages,
+                    getImageLimits(toolUseContext.options.mainLoopModel)
+                      .maxBase64Size,
+                  )
                   toolResults.push(
                     ...normalizeMessagesForAPI(
                       [result.message],
@@ -1678,6 +1731,21 @@ async function* queryLoop(
           shouldDeferTool = true
         }
 
+        if (
+          update.message.type === 'attachment' &&
+          update.message.attachment.type === 'hook_deferred_tool'
+        ) {
+          wasToolDeferred = true
+        }
+
+        const normalizedMessages = normalizeMessagesForAPI(
+          [update.message],
+          toolUseContext.options.tools,
+        )
+        validateImagesForAPI(
+          normalizedMessages,
+          getImageLimits(toolUseContext.options.mainLoopModel).maxBase64Size,
+        )
         toolResults.push(
           ...normalizeMessagesForAPI(
             [update.message],

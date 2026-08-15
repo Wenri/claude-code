@@ -27,7 +27,11 @@ import {
   GIT_READ_ONLY_COMMANDS,
   validateFlags,
 } from '../../utils/shell/readOnlyCommandValidation.js'
-import { COMMON_PARAMETERS } from './commonParameters.js'
+import {
+  COMMON_PARAMETERS,
+  SAFE_ACTION_PREFERENCE_VALUES,
+  isActionPreferenceParameter,
+} from './commonParameters.js'
 
 const DOTNET_READ_ONLY_FLAGS = new Set([
   '--version',
@@ -1421,6 +1425,10 @@ export function isAllowlistedCommand(
   // Verb-Noun canonical name (either directly or via alias).
   const isCmdlet = canonical.includes('-')
 
+  if (isCmdlet && hasUnsafeActionPreference(cmd.args, cmd.elementTypes)) {
+    return false
+  }
+
   // SECURITY: if allowAllFlags is set, skip flag validation (command's entire
   // flag surface is read-only). Otherwise, missing/empty safeFlags means
   // "positional args only, reject all flags" — NOT "accept everything".
@@ -1756,6 +1764,26 @@ function isDockerSafe(args: string[]): boolean {
     }
   }
 
+  // Docker CLI global connection flags can redirect an otherwise read-only
+  // command to an attacker-controlled daemon or configuration/TLS context.
+  for (const arg of args) {
+    if (arg[0] === '-' && arg[1] !== '-') {
+      for (let i = 1; i < arg.length; i++) {
+        if (arg[i] === 'H') return false
+        if (arg[i]?.toLowerCase() === 'c') return false
+      }
+    }
+    const lower = arg.toLowerCase()
+    if (
+      lower.startsWith('--host') ||
+      lower.startsWith('--context') ||
+      lower.startsWith('--config') ||
+      lower.startsWith('--tls')
+    ) {
+      return false
+    }
+  }
+
   const oneWordKey = `docker ${args[0]?.toLowerCase()}`
 
   // Fast path: EXTERNAL_READONLY_COMMANDS entries ('docker ps', 'docker images')
@@ -1781,6 +1809,34 @@ function isDockerSafe(args: string[]): boolean {
     return false
   }
   return validateFlags(flagArgs, 0, config)
+}
+
+function hasUnsafeActionPreference(
+  args: string[],
+  elementTypes?: ParsedCommandElement['elementTypes'],
+): boolean {
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i]!
+    if (!isPowerShellParameter(arg, elementTypes?.[i + 1])) continue
+    const normalized = (arg[0] === '-' ? arg : '-' + arg.slice(1))
+    const colonIndex = normalized.indexOf(':')
+    const parameter = (colonIndex > 0
+      ? normalized.slice(0, colonIndex)
+      : normalized
+    ).toLowerCase()
+    if (!isActionPreferenceParameter(parameter)) continue
+    const value = (colonIndex > 0
+      ? normalized.slice(colonIndex + 1)
+      : (args[i + 1] ?? '')
+    )
+      .toLowerCase()
+      .replace(/^['"]|['"]$/g, '')
+      .trim()
+    if (value.length > 0 && !SAFE_ACTION_PREFERENCE_VALUES.has(value)) {
+      return true
+    }
+  }
+  return false
 }
 
 function isDotnetSafe(args: string[]): boolean {

@@ -20,14 +20,20 @@ import { toError } from './errors.js'
 import { getDesktopPath } from './file.js'
 import { getFsImplementation } from './fsOperations.js'
 import { logError } from './log.js'
+import { getPlatform } from './platform.js'
 import { jsonStringify } from './slowOperations.js'
 
-export type HeapDumpResult = {
-  success: boolean
-  heapPath?: string
-  diagPath?: string
-  error?: string
-}
+export type HeapDumpResult =
+  | {
+      success: true
+      heapPath: string
+      diagPath: string
+      diagnostics: MemoryDiagnostics
+    }
+  | {
+      success: false
+      error: string
+    }
 
 /**
  * Memory diagnostics captured alongside heap dump.
@@ -76,6 +82,9 @@ export type MemoryDiagnostics = {
     recommendation: string
   }
   smapsRollup?: string // Linux only - detailed memory breakdown
+  objectTypeCounts?: Record<string, number>
+  protectedObjectTypeCounts?: Record<string, number>
+  mimalloc?: unknown
   platform: string
   nodeVersion: string
   ccVersion: string
@@ -124,6 +133,21 @@ export async function captureMemoryDiagnostics(
     smapsRollup = await readFile('/proc/self/smaps_rollup', 'utf8')
   } catch {
     // Not on Linux or no access - this is fine
+  }
+
+  let objectTypeCounts: Record<string, number> | undefined
+  let protectedObjectTypeCounts: Record<string, number> | undefined
+  let mimalloc: unknown
+  if (typeof Bun !== 'undefined') {
+    try {
+      const { heapStats } = await import('bun:jsc')
+      const stats = heapStats(true)
+      objectTypeCounts = stats.objectTypeCounts
+      protectedObjectTypeCounts = stats.protectedObjectTypeCounts
+      mimalloc = stats.mimalloc || undefined
+    } catch {
+      // Not available in every Bun runtime.
+    }
   }
 
   // Calculate native memory (RSS - heap) and growth rate
@@ -190,7 +214,8 @@ export async function captureMemoryDiagnostics(
       available: space.space_available_size,
     })),
     resourceUsage: {
-      maxRSS: resourceUsage.maxRSS * 1024, // Convert KB to bytes
+      // macOS reports bytes; Linux and Windows report kilobytes.
+      maxRSS: resourceUsage.maxRSS * (getPlatform() === 'macos' ? 1 : 1024),
       userCPUTime: resourceUsage.userCPUTime,
       systemCPUTime: resourceUsage.systemCPUTime,
     },
@@ -205,6 +230,9 @@ export async function captureMemoryDiagnostics(
           : 'No obvious leak indicators. Check heap snapshot for retained objects.',
     },
     smapsRollup,
+    objectTypeCounts,
+    protectedObjectTypeCounts,
+    mimalloc,
     platform: process.platform,
     nodeVersion: process.version,
     ccVersion: MACRO.VERSION,
@@ -263,7 +291,7 @@ export async function performHeapDump(
       success: true,
     })
 
-    return { success: true, heapPath, diagPath }
+    return { success: true, heapPath, diagPath, diagnostics }
   } catch (err) {
     const error = toError(err)
     logError(error)

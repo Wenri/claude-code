@@ -1,4 +1,5 @@
 import { LRUCache } from 'lru-cache'
+import { createHash } from 'crypto'
 import { normalize } from 'path'
 
 export type FileState = {
@@ -12,6 +13,12 @@ export type FileState = {
   // Edit/Write must require an explicit Read first. `content` here holds the
   // RAW disk bytes (for getChangedFiles diffing), not what the model saw.
   isPartialView?: boolean
+  // Large file bodies may be dropped from the cache while retaining a stable
+  // content fingerprint. Memory files opt out because changed-file rendering
+  // needs their complete prior body.
+  keepContent?: boolean
+  contentHash?: string
+  contentLength?: number
 }
 
 // Default max entries for read file state caches
@@ -20,6 +27,22 @@ export const READ_FILE_STATE_CACHE_SIZE = 100
 // Default size limit for file state caches (25MB)
 // This prevents unbounded memory growth from large file contents
 const DEFAULT_MAX_CACHE_SIZE_BYTES = 25 * 1024 * 1024
+const MAX_INLINE_FILE_STATE_CONTENT_BYTES = 4096
+
+function hashFileStateContent(content: string): string {
+  if (typeof Bun !== 'undefined') return Bun.hash(content).toString(36)
+  return createHash('sha1').update(content).digest('base64url')
+}
+
+export function fileStateMatchesContent(
+  state: FileState,
+  content: string,
+): boolean {
+  if (state.contentHash !== undefined) {
+    return state.contentHash === hashFileStateContent(content)
+  }
+  return state.content === content
+}
 
 /**
  * A file state cache that normalizes all path keys before access.
@@ -43,7 +66,31 @@ export class FileStateCache {
   }
 
   set(key: string, value: FileState): this {
-    this.cache.set(normalize(key), value)
+    const normalizedKey = normalize(key)
+    const previous = this.cache.get(normalizedKey)
+    const keepContent = value.keepContent ?? previous?.keepContent
+    const contentHash = value.contentHash ?? hashFileStateContent(value.content)
+    const contentLength = value.contentLength ?? value.content.length
+    const contentBeforeLimit =
+      keepContent &&
+      value.content === '' &&
+      contentHash === previous?.contentHash &&
+      previous.content
+        ? previous.content
+        : value.content
+    const content =
+      keepContent ||
+      Buffer.byteLength(contentBeforeLimit) <=
+        MAX_INLINE_FILE_STATE_CONTENT_BYTES
+        ? contentBeforeLimit
+        : ''
+    this.cache.set(normalizedKey, {
+      ...value,
+      keepContent,
+      contentHash,
+      contentLength,
+      content,
+    })
     return this
   }
 

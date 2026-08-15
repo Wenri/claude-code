@@ -9,6 +9,7 @@ import { findToolByName } from '../../Tool.js';
 import type { AgentToolResult } from '../../tools/AgentTool/agentToolUtils.js';
 import type { AgentDefinition } from '../../tools/AgentTool/loadAgentsDir.js';
 import { SYNTHETIC_OUTPUT_TOOL_NAME } from '../../tools/SyntheticOutputTool/SyntheticOutputTool.js';
+import { REPL_TOOL_NAME } from '../../tools/REPLTool/constants.js';
 import { asAgentId } from '../../types/ids.js';
 import type { Message } from '../../types/message.js';
 import { createAbortController, createChildAbortController } from '../../utils/abortController.js';
@@ -17,7 +18,7 @@ import { getToolSearchOrReadInfo } from '../../utils/collapseReadSearch.js';
 import { enqueuePendingNotification } from '../../utils/messageQueueManager.js';
 import { getAgentTranscriptPath } from '../../utils/sessionStorage.js';
 import { evictTaskOutput, getTaskOutputPath, initTaskOutputAsSymlink } from '../../utils/task/diskOutput.js';
-import { PANEL_GRACE_MS, registerTask, updateTaskState } from '../../utils/task/framework.js';
+import { PANEL_GRACE_MS, type TaskRegistry } from '../../utils/task/framework.js';
 import { emitTaskProgress } from '../../utils/task/sdkProgress.js';
 import type { TaskState } from '../types.js';
 export type ToolActivity = {
@@ -65,7 +66,31 @@ export function getTokenCountFromTracker(tracker: ProgressTracker): number {
  * from Tool.getActivityDescription() at recording time.
  */
 export type ActivityDescriptionResolver = (toolName: string, input: Record<string, unknown>) => string | undefined;
-export function updateProgressFromMessage(tracker: ProgressTracker, message: Message, resolveActivityDescription?: ActivityDescriptionResolver, tools?: Tools): void {
+export function updateProgressFromMessage(tracker: ProgressTracker, message: Message | {
+  type: 'progress';
+  data: {
+    type: string;
+    phase?: string;
+    toolName?: string;
+    toolInput?: Record<string, unknown>;
+  };
+}, resolveActivityDescription?: ActivityDescriptionResolver, tools?: Tools): void {
+  if (message.type === 'progress' && message.data.type === 'repl_tool_call' && message.data.phase === 'start') {
+    const { toolName, toolInput } = message.data as {
+      toolName: string;
+      toolInput: Record<string, unknown>;
+    };
+    const classification = tools ? getToolSearchOrReadInfo(toolName, toolInput, tools) : undefined;
+    tracker.recentActivities.push({
+      toolName,
+      input: toolInput,
+      activityDescription: resolveActivityDescription?.(toolName, toolInput),
+      isSearch: classification?.isSearch,
+      isRead: classification?.isRead
+    });
+    if (tracker.recentActivities.length > MAX_RECENT_ACTIVITIES) tracker.recentActivities.shift();
+    return;
+  }
   if (message.type !== 'assistant') {
     return;
   }
@@ -77,7 +102,7 @@ export function updateProgressFromMessage(tracker: ProgressTracker, message: Mes
     if (content.type === 'tool_use') {
       tracker.toolUseCount++;
       // Omit StructuredOutput from preview - it's an internal tool
-      if (content.name !== SYNTHETIC_OUTPUT_TOOL_NAME) {
+      if (content.name !== SYNTHETIC_OUTPUT_TOOL_NAME && content.name !== REPL_TOOL_NAME) {
         const input = content.input as Record<string, unknown>;
         const classification = tools ? getToolSearchOrReadInfo(content.name, input, tools) : undefined;
         tracker.recentActivities.push({
@@ -117,6 +142,7 @@ export type LocalAgentTaskState = TaskStateBase & {
   type: 'local_agent';
   agentId: string;
   prompt: string;
+  cwd?: string;
   selectedAgent?: AgentDefinition;
   agentType: string;
   model?: string;
@@ -245,19 +271,19 @@ export function queuePendingMessage(taskId: string, msg: string, setAppState: (f
  * queuePendingMessage and resumeAgentBackground route the prompt to the
  * agent's API input but don't touch the display.
  */
-export function appendMessageToLocalAgent(taskId: string, message: Message, setAppState: (f: (prev: AppState) => AppState) => void): void {
-  updateTaskState<LocalAgentTaskState>(taskId, setAppState, task => ({
+export function appendMessageToLocalAgent(taskId: string, message: Message, taskRegistry: TaskRegistry): void {
+  taskRegistry.update<LocalAgentTaskState>(taskId, task => ({
     ...task,
     messages: [...(task.messages ?? []), message]
   }));
 }
-export function drainPendingMessages(taskId: string, getAppState: () => AppState, setAppState: (f: (prev: AppState) => AppState) => void): string[] {
-  const task = getAppState().tasks[taskId];
+export function drainPendingMessages(taskId: string, taskRegistry: TaskRegistry): string[] {
+  const task = taskRegistry.get<LocalAgentTaskState>(taskId);
   if (!isLocalAgentTask(task) || task.pendingMessages.length === 0) {
     return [];
   }
   const drained = task.pendingMessages;
-  updateTaskState<LocalAgentTaskState>(taskId, setAppState, t => ({
+  taskRegistry.update<LocalAgentTaskState>(taskId, t => ({
     ...t,
     pendingMessages: []
   }));
@@ -272,7 +298,8 @@ export function enqueueAgentNotification({
   description,
   status,
   error,
-  setAppState,
+  taskRegistry,
+  abortSpeculation,
   finalMessage,
   usage,
   toolUseId,
@@ -283,7 +310,8 @@ export function enqueueAgentNotification({
   description: string;
   status: 'completed' | 'failed' | 'killed';
   error?: string;
-  setAppState: SetAppState;
+  taskRegistry: TaskRegistry;
+  abortSpeculation?: () => void;
   finalMessage?: string;
   usage?: {
     totalTokens: number;
@@ -298,7 +326,7 @@ export function enqueueAgentNotification({
   // If the task was already marked as notified (e.g., by TaskStopTool), skip
   // enqueueing to avoid sending redundant messages to the model.
   let shouldEnqueue = false;
-  updateTaskState<LocalAgentTaskState>(taskId, setAppState, task => {
+  taskRegistry.update<LocalAgentTaskState>(taskId, task => {
     if (task.notified) {
       return task;
     }
@@ -315,7 +343,7 @@ export function enqueueAgentNotification({
   // Abort any active speculation — background task state changed, so speculated
   // results may reference stale task output. The prompt suggestion text is
   // preserved; only the pre-computed response is discarded.
-  abortSpeculation(setAppState);
+  abortSpeculation?.();
   const summary = status === 'completed' ? `Agent "${description}" completed` : status === 'failed' ? `Agent "${description}" failed: ${error || 'Unknown error'}` : `Agent "${description}" was stopped`;
   const outputPath = getTaskOutputPath(taskId);
   const toolUseIdLine = toolUseId ? `\n<${TOOL_USE_ID_TAG}>${toolUseId}</${TOOL_USE_ID_TAG}>` : '';
@@ -343,17 +371,17 @@ export function enqueueAgentNotification({
 export const LocalAgentTask: Task = {
   name: 'LocalAgentTask',
   type: 'local_agent',
-  async kill(taskId, setAppState) {
-    killAsyncAgent(taskId, setAppState);
+  async kill(taskId, taskRegistry) {
+    killAsyncAgent(taskId, taskRegistry);
   }
 };
 
 /**
  * Kill an agent task. No-op if already killed/completed.
  */
-export function killAsyncAgent(taskId: string, setAppState: SetAppState): void {
+export function killAsyncAgent(taskId: string, taskRegistry: TaskRegistry): void {
   let killed = false;
-  updateTaskState<LocalAgentTaskState>(taskId, setAppState, task => {
+  taskRegistry.update<LocalAgentTaskState>(taskId, task => {
     if (task.status !== 'running') {
       return task;
     }
@@ -379,10 +407,10 @@ export function killAsyncAgent(taskId: string, setAppState: SetAppState): void {
  * Kill all running agent tasks.
  * Used by ESC cancellation in coordinator mode to stop all subagents.
  */
-export function killAllRunningAgentTasks(tasks: Record<string, TaskState>, setAppState: SetAppState): void {
+export function killAllRunningAgentTasks(tasks: Record<string, TaskState>, taskRegistry: TaskRegistry): void {
   for (const [taskId, task] of Object.entries(tasks)) {
     if (task.type === 'local_agent' && task.status === 'running') {
-      killAsyncAgent(taskId, setAppState);
+      killAsyncAgent(taskId, taskRegistry);
     }
   }
 }
@@ -392,8 +420,8 @@ export function killAllRunningAgentTasks(tasks: Record<string, TaskState>, setAp
  * Used by chat:killAgents bulk kill to suppress per-agent async notifications
  * when a single aggregate message is sent instead.
  */
-export function markAgentsNotified(taskId: string, setAppState: SetAppState): void {
-  updateTaskState<LocalAgentTaskState>(taskId, setAppState, task => {
+export function markAgentsNotified(taskId: string, taskRegistry: TaskRegistry): void {
+  taskRegistry.update<LocalAgentTaskState>(taskId, task => {
     if (task.notified) {
       return task;
     }
@@ -409,8 +437,8 @@ export function markAgentsNotified(taskId: string, setAppState: SetAppState): vo
  * Preserves the existing summary field so that background summarization
  * results are not clobbered by progress updates from assistant messages.
  */
-export function updateAgentProgress(taskId: string, progress: AgentProgress, setAppState: SetAppState): void {
-  updateTaskState<LocalAgentTaskState>(taskId, setAppState, task => {
+export function updateAgentProgress(taskId: string, progress: AgentProgress, taskRegistry: TaskRegistry): void {
+  taskRegistry.update<LocalAgentTaskState>(taskId, task => {
     if (task.status !== 'running') {
       return task;
     }
@@ -429,14 +457,14 @@ export function updateAgentProgress(taskId: string, progress: AgentProgress, set
  * Update the background summary for an agent task.
  * Called by the periodic summarization service to store a 1-2 sentence progress summary.
  */
-export function updateAgentSummary(taskId: string, summary: string, setAppState: SetAppState): void {
+export function updateAgentSummary(taskId: string, summary: string, taskRegistry: TaskRegistry): void {
   let captured: {
     tokenCount: number;
     toolUseCount: number;
     startTime: number;
     toolUseId: string | undefined;
   } | null = null;
-  updateTaskState<LocalAgentTaskState>(taskId, setAppState, task => {
+  taskRegistry.update<LocalAgentTaskState>(taskId, task => {
     if (task.status !== 'running') {
       return task;
     }
@@ -482,9 +510,9 @@ export function updateAgentSummary(taskId: string, summary: string, setAppState:
 /**
  * Complete an agent task with result.
  */
-export function completeAgentTask(result: AgentToolResult, setAppState: SetAppState): void {
+export function completeAgentTask(result: AgentToolResult, taskRegistry: TaskRegistry): void {
   const taskId = result.agentId;
-  updateTaskState<LocalAgentTaskState>(taskId, setAppState, task => {
+  taskRegistry.update<LocalAgentTaskState>(taskId, task => {
     if (task.status !== 'running') {
       return task;
     }
@@ -507,8 +535,8 @@ export function completeAgentTask(result: AgentToolResult, setAppState: SetAppSt
 /**
  * Fail an agent task with error.
  */
-export function failAgentTask(taskId: string, error: string, setAppState: SetAppState): void {
-  updateTaskState<LocalAgentTaskState>(taskId, setAppState, task => {
+export function failAgentTask(taskId: string, error: string, taskRegistry: TaskRegistry): void {
+  taskRegistry.update<LocalAgentTaskState>(taskId, task => {
     if (task.status !== 'running') {
       return task;
     }
@@ -541,7 +569,7 @@ export function registerAsyncAgent({
   description,
   prompt,
   selectedAgent,
-  setAppState,
+  taskRegistry,
   parentAbortController,
   toolUseId,
   cwd
@@ -550,7 +578,7 @@ export function registerAsyncAgent({
   description: string;
   prompt: string;
   selectedAgent: AgentDefinition;
-  setAppState: SetAppState;
+  taskRegistry: TaskRegistry;
   parentAbortController?: AbortController;
   toolUseId?: string;
   cwd?: string;
@@ -565,6 +593,7 @@ export function registerAsyncAgent({
     status: 'running',
     agentId,
     prompt,
+    cwd,
     selectedAgent,
     agentType: selectedAgent.agentType ?? 'general-purpose',
     abortController,
@@ -582,12 +611,12 @@ export function registerAsyncAgent({
 
   // Register cleanup handler
   const unregisterCleanup = registerCleanup(async () => {
-    killAsyncAgent(agentId, setAppState);
+    killAsyncAgent(agentId, taskRegistry);
   });
   taskState.unregisterCleanup = unregisterCleanup;
 
   // Register task in AppState
-  registerTask(taskState, setAppState);
+  taskRegistry.register(taskState);
   return taskState;
 }
 
@@ -605,17 +634,19 @@ export function registerAgentForeground({
   description,
   prompt,
   selectedAgent,
-  setAppState,
+  taskRegistry,
   autoBackgroundMs,
-  toolUseId
+  toolUseId,
+  cwd
 }: {
   agentId: string;
   description: string;
   prompt: string;
   selectedAgent: AgentDefinition;
-  setAppState: SetAppState;
+  taskRegistry: TaskRegistry;
   autoBackgroundMs?: number;
   toolUseId?: string;
+  cwd?: string;
 }): {
   taskId: string;
   backgroundSignal: Promise<void>;
@@ -624,7 +655,7 @@ export function registerAgentForeground({
   void initTaskOutputAsSymlink(agentId, getAgentTranscriptPath(asAgentId(agentId)));
   const abortController = createAbortController();
   const unregisterCleanup = registerCleanup(async () => {
-    killAsyncAgent(agentId, setAppState);
+    killAsyncAgent(agentId, taskRegistry);
   });
   const taskState: LocalAgentTaskState = {
     ...createTaskStateBase(agentId, 'local_agent', description, toolUseId),
@@ -632,6 +663,7 @@ export function registerAgentForeground({
     status: 'running',
     agentId,
     prompt,
+    cwd,
     selectedAgent,
     agentType: selectedAgent.agentType ?? 'general-purpose',
     abortController,
@@ -653,27 +685,18 @@ export function registerAgentForeground({
     resolveBackgroundSignal = resolve;
   });
   backgroundSignalResolvers.set(agentId, resolveBackgroundSignal!);
-  registerTask(taskState, setAppState);
+  taskRegistry.register(taskState);
 
   // Auto-background after timeout if configured
   let cancelAutoBackground: (() => void) | undefined;
   if (autoBackgroundMs !== undefined && autoBackgroundMs > 0) {
-    const timer = setTimeout((setAppState, agentId) => {
+    const timer = setTimeout((taskRegistry, agentId) => {
       // Mark task as backgrounded and resolve the signal
-      setAppState(prev => {
-        const prevTask = prev.tasks[agentId];
-        if (!isLocalAgentTask(prevTask) || prevTask.isBackgrounded) {
-          return prev;
-        }
+      taskRegistry.update<LocalAgentTaskState>(agentId, prevTask => {
+        if (prevTask.isBackgrounded) return prevTask;
         return {
-          ...prev,
-          tasks: {
-            ...prev.tasks,
-            [agentId]: {
-              ...prevTask,
-              isBackgrounded: true
-            }
-          }
+          ...prevTask,
+          isBackgrounded: true
         };
       });
       const resolver = backgroundSignalResolvers.get(agentId);
@@ -681,7 +704,7 @@ export function registerAgentForeground({
         resolver();
         backgroundSignalResolvers.delete(agentId);
       }
-    }, autoBackgroundMs, setAppState, agentId);
+    }, autoBackgroundMs, taskRegistry, agentId);
     cancelAutoBackground = () => clearTimeout(timer);
   }
   return {
@@ -695,28 +718,17 @@ export function registerAgentForeground({
  * Background a specific foreground agent task.
  * @returns true if backgrounded successfully, false otherwise
  */
-export function backgroundAgentTask(taskId: string, getAppState: () => AppState, setAppState: SetAppState): boolean {
-  const state = getAppState();
-  const task = state.tasks[taskId];
+export function backgroundAgentTask(taskId: string, taskRegistry: TaskRegistry): boolean {
+  const task = taskRegistry.get<LocalAgentTaskState>(taskId);
   if (!isLocalAgentTask(task) || task.isBackgrounded) {
     return false;
   }
 
   // Update state to mark as backgrounded
-  setAppState(prev => {
-    const prevTask = prev.tasks[taskId];
-    if (!isLocalAgentTask(prevTask)) {
-      return prev;
-    }
+  taskRegistry.update<LocalAgentTaskState>(taskId, prevTask => {
     return {
-      ...prev,
-      tasks: {
-        ...prev.tasks,
-        [taskId]: {
-          ...prevTask,
-          isBackgrounded: true
-        }
-      }
+      ...prevTask,
+      isBackgrounded: true
     };
   });
 
@@ -732,28 +744,14 @@ export function backgroundAgentTask(taskId: string, getAppState: () => AppState,
 /**
  * Unregister a foreground agent task when the agent completes without being backgrounded.
  */
-export function unregisterAgentForeground(taskId: string, setAppState: SetAppState): void {
+export function unregisterAgentForeground(taskId: string, taskRegistry: TaskRegistry): void {
   // Clean up the background signal resolver
   backgroundSignalResolvers.delete(taskId);
   let cleanupFn: (() => void) | undefined;
-  setAppState(prev => {
-    const task = prev.tasks[taskId];
-    // Only remove if it's a foreground task (not backgrounded)
-    if (!isLocalAgentTask(task) || task.isBackgrounded) {
-      return prev;
-    }
-
-    // Capture cleanup function to call outside of updater
-    cleanupFn = task.unregisterCleanup;
-    const {
-      [taskId]: removed,
-      ...rest
-    } = prev.tasks;
-    return {
-      ...prev,
-      tasks: rest
-    };
-  });
+  const task = taskRegistry.get<LocalAgentTaskState>(taskId);
+  if (!task || task.isBackgrounded) return;
+  cleanupFn = task.unregisterCleanup;
+  taskRegistry.remove(taskId);
 
   // Call cleanup outside of the state updater (avoid side effects in updater)
   cleanupFn?.();

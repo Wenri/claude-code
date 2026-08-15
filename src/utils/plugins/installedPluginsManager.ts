@@ -1057,7 +1057,7 @@ function getPluginVersionFromManifest(
     const manifest = jsonParse(manifestContent)
     return manifest.version || 'unknown'
   } catch {
-    logForDebugging(`Could not read version from manifest for ${pluginId}`)
+    logForDebugging(`Could not extract version from manifest for ${pluginId}`)
     return 'unknown'
   }
 }
@@ -1126,21 +1126,18 @@ export async function migrateFromEnabledPlugins(): Promise<void> {
     })
   }
 
-  // Check if main file exists and has V2 format
   const rawFileData = readInstalledPluginsFileRaw()
   const fileExists = rawFileData !== null
   const isV2Format = fileExists && rawFileData?.version === 2
+  if (pluginScopeFromSettings.size === 0 && !fileExists) return
 
   if (pluginScopeFromSettings.size === 0 && !fileExists) return
 
   // If file exists with V2 format, check if we can skip the expensive migration
   if (isV2Format && rawFileData) {
-    // Check if all plugins from settings already exist
-    // (The expensive getPluginById/getGitCommitSha only runs for missing plugins)
     const existingData = InstalledPluginsFileSchemaV2().safeParse(
       rawFileData.data,
     )
-
     if (existingData?.success) {
       const plugins = existingData.data.plugins
       const allPluginsExist = [...pluginScopeFromSettings.keys()].every(id => {
@@ -1177,14 +1174,9 @@ export async function migrateFromEnabledPlugins(): Promise<void> {
 
   // Step 2: Start with existing data (or start empty if no file exists)
   let v2Plugins: InstalledPluginsMapV2 = {}
-
   if (fileExists) {
-    // File exists - load existing data
-    const existingData = loadInstalledPluginsV2()
-    v2Plugins = { ...existingData.plugins }
+    v2Plugins = { ...loadInstalledPluginsV2().plugins }
   }
-
-  // Step 3: Update V2 scopes based on settings.json (settings is source of truth)
   let updatedCount = 0
   let addedCount = 0
 
@@ -1207,9 +1199,7 @@ export async function migrateFromEnabledPlugins(): Promise<void> {
 
   for (const [pluginId, scopeInfo] of pluginScopeFromSettings) {
     const existingInstallations = v2Plugins[pluginId]
-
     if (existingInstallations && existingInstallations.length > 0) {
-      // Plugin exists in V2 - update scope if different (settings is source of truth)
       const existingEntry = existingInstallations[0]
       let changed = false
       if (
@@ -1263,7 +1253,10 @@ export async function migrateFromEnabledPlugins(): Promise<void> {
       if (!pluginName || !marketplace) {
         continue
       }
-
+      if (changed) updatedCount++
+    } else {
+      const { name: pluginName, marketplace } = parsePluginIdentifier(pluginId)
+      if (!pluginName || !marketplace) continue
       try {
         logForDebugging(
           `Looking up plugin ${pluginId} in marketplace ${marketplace}`,
@@ -1291,12 +1284,6 @@ export async function migrateFromEnabledPlugins(): Promise<void> {
           const sanitizedName = pluginName.replace(/[^a-zA-Z0-9-_]/g, '-')
           const pluginCachePath = join(cachePath, sanitizedName)
 
-          // Read the cache directory directly — readdir is the first real
-          // operation, not a pre-check. Its ENOENT tells us the cache
-          // doesn't exist; its result gates the manifest read below.
-          // Not a TOCTOU — downstream operations handle ENOENT gracefully,
-          // so a race (dir removed between readdir and read) degrades to
-          // version='unknown', not a crash.
           let dirEntries: string[]
           try {
             dirEntries = (
@@ -1312,7 +1299,6 @@ export async function migrateFromEnabledPlugins(): Promise<void> {
 
           installPath = pluginCachePath
 
-          // Only read manifest if the .claude-plugin dir is present
           if (dirEntries.includes('.claude-plugin')) {
             version = getPluginVersionFromManifest(pluginCachePath, pluginId)
           }
@@ -1349,7 +1335,6 @@ export async function migrateFromEnabledPlugins(): Promise<void> {
     }
   }
 
-  // Step 4: Save to single file (V2 format)
   if (!fileExists || updatedCount > 0 || addedCount > 0) {
     const v2Data: InstalledPluginsFileV2 = { version: 2, plugins: v2Plugins }
     saveInstalledPluginsV2(v2Data)

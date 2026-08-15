@@ -10,6 +10,7 @@ import type { UUID } from 'crypto'
 import type { z } from 'zod/v4'
 import type { Command } from './commands.js'
 import type { CanUseToolFn } from './hooks/useCanUseTool.js'
+import type { MemorySelectorState } from './memdir/findRelevantMemories.js'
 import type { ThinkingConfig } from './utils/thinking.js'
 
 export type ToolInputJSONSchema = {
@@ -64,6 +65,8 @@ import type { ResultDedupState } from './services/tools/resultDedup.js'
 import type { ConnectionLifecycleTracker } from './services/api/connectionState.js'
 import type { SystemPrompt } from './utils/systemPromptType.js'
 import type { ContentReplacementState } from './utils/toolResultStorage.js'
+import type { ToolResultDedupState } from './utils/toolErrors.js'
+import type { ToolIsolationLatch } from './utils/toolIsolation.js'
 
 // Re-export progress types for backwards compatibility
 export type {
@@ -77,9 +80,13 @@ export type {
 }
 
 import type { SpinnerMode } from './components/Spinner.js'
+import type { ToolProgressOverlayEvent } from './components/ToolProgressOverlay.js'
 import type { QuerySource } from './constants/querySource.js'
-import type { SDKStatus } from './entrypoints/agentSdkTypes.js'
+import type { HookEvent, SDKStatus } from './entrypoints/agentSdkTypes.js'
 import type { AppState } from './state/AppState.js'
+import type { SetClassifierApprovals } from './utils/classifierApprovals.js'
+import type { SessionStateManager } from './utils/sessionState.js'
+import type { TmuxSocket } from './utils/shell/shellProvider.js'
 import type {
   HookProgress,
   PromptRequest,
@@ -95,6 +102,13 @@ import type {
 import type { AttributionState } from './utils/commitAttribution.js'
 import type { FileHistoryState } from './utils/fileHistory.js'
 import type { Theme, ThemeName } from './utils/theme.js'
+import type { TaskRegistry } from './utils/task/framework.js'
+import type { HookCommand } from './utils/settings/types.js'
+import type { BashRerunAliases } from './tools/BashTool/rerunAliases.js'
+import type {
+  ReplHydration,
+  ReplRuntimeContext,
+} from './tools/REPLTool/types.js'
 
 export type QueryChainTracking = {
   chainId: string
@@ -144,6 +158,8 @@ export type ToolPermissionContext = DeepImmutable<{
   awaitAutomatedChecksBeforeDialog?: boolean
   /** Stores the permission mode before model-initiated plan mode entry, so it can be restored on exit */
   prePlanMode?: PermissionMode
+  /** Remote sessions may edit selected non-settings files under .claude. */
+  isRemoteMode?: boolean
 }>
 
 export const getEmptyToolPermissionContext: () => ToolPermissionContext =
@@ -247,6 +263,23 @@ export type ToolUseContext = {
    * fall back to setAppState.
    */
   setAppStateForTasks?: (f: (prev: AppState) => AppState) => void
+  /** Update only the computer-use session slice without sharing arbitrary UI state. */
+  setComputerUseMcpState?: (
+    f: (
+      prev: AppState['computerUseMcpState'],
+    ) => AppState['computerUseMcpState'],
+  ) => void
+  /** Operation-oriented session hook mutations used by the bundled loop UI. */
+  sessionHooksRegistry?: {
+    add(
+      sessionId: string,
+      event: HookEvent,
+      matcher: string,
+      hook: HookCommand,
+      skillRoot?: string,
+    ): void
+    remove(sessionId: string, event: HookEvent, hook: HookCommand): void
+  }
   /**
    * Optional handler for URL elicitations triggered by tool call errors (-32042).
    * In print/SDK mode, this delegates to structuredIO.handleElicitation.
@@ -278,29 +311,41 @@ export type ToolUseContext = {
    * re-inject the same CLAUDE.md dozens of times.
    */
   loadedNestedMemoryPaths?: Set<string>
+  memorySelector?: MemorySelectorState
+  bashRerunAliases?: BashRerunAliases
+  isolationLatch?: ToolIsolationLatch
   dynamicSkillDirTriggers?: Set<string>
   /** Skill names surfaced via skill_discovery this session. Telemetry only (feeds was_discovered). */
   discoveredSkillNames?: Set<string>
   /** Session-local aliases for exact Bash command reruns. */
   bashRerunAliases?: BashRerunAliases
   userModified?: boolean
-  setInProgressToolUseIDs: (f: (prev: Set<string>) => Set<string>) => void
+  setInProgressToolUseIDs: (action: InProgressToolUseIDsAction) => void
   /** Only wired in interactive (REPL) contexts; SDK/QueryEngine don't set this. */
   setHasInterruptibleToolInProgress?: (v: boolean) => void
+  /** Increment/reset the spinner's response counter without exposing UI state. */
+  addResponseLength: (delta: number) => void
+  resetResponseLength: () => void
+  /** Compatibility adapter retained for older callers during source recovery. */
   setResponseLength: (f: (prev: number) => number) => void
-  /** Ant-only: push a new API metrics entry for OTPS tracking.
-   *  Called by subagent streaming when a new API request starts. */
-  pushApiMetricsEntry?: (ttftMs: number) => void
+  /** SDK-scoped environment overrides shared by shell providers for this session. */
+  sessionEnvVars?: Map<string, string>
+  tmuxSocket?: TmuxSocket
+  onCommandLifecycle?: (
+    uuid: string,
+    state: 'started' | 'completed',
+  ) => void
+  sessionState?: SessionStateManager
+  emitToolProgress?: (event: ToolProgressOverlayEvent) => void
+  /** Ant-only: record the start/end of an API request for TTFT/OTPS tracking. */
+  pushApiMetricsEntry?: (event: ApiMetricsEvent) => void
   setStreamMode?: (mode: SpinnerMode) => void
   onCompactProgress?: (event: CompactProgressEvent) => void
   setSDKStatus?: (status: SDKStatus) => void
   openMessageSelector?: () => void
-  updateFileHistoryState: (
-    updater: (prev: FileHistoryState) => FileHistoryState,
-  ) => void
-  updateAttributionState: (
-    updater: (prev: AttributionState) => AttributionState,
-  ) => void
+  getFileHistoryState: () => FileHistoryState | undefined
+  applyFileHistoryOp: (operation: FileHistoryOp) => void
+  applyAttributionOp: (operation: AttributionOp) => void
   setConversationId?: (id: UUID) => void
   agentId?: AgentId // Only set for subagents; use getSessionId() for session ID. Hooks use this to distinguish subagent calls.
   agentType?: string // Subagent type name. For the main thread's --agent type, hooks fall back to getMainThreadAgentType().
@@ -371,6 +416,10 @@ export type ToolUseContext = {
    */
   renderedSystemPrompt?: SystemPrompt
 }
+
+export type ApiMetricsEvent =
+  | { type: 'start'; ttftMs: number; id?: string }
+  | { type: 'end'; outputTokens: number; id?: string }
 
 // Re-export ToolProgressData from centralized location
 export type { ToolProgressData }
@@ -472,6 +521,8 @@ export type Tool<
   // Optional because TungstenTool doesn't define this. TODO: Make it required.
   // When we do that, we can also go through and make this a bit more type-safe.
   outputSchema?: z.ZodType<unknown>
+  /** Remove large render-only fields before older tool results are retained. */
+  stripForStorage?(output: Output): Output
   inputsEquivalent?(a: z.infer<Input>, b: z.infer<Input>): boolean
   isConcurrencySafe(input: z.infer<Input>): boolean
   isEnabled(): boolean

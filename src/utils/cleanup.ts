@@ -5,6 +5,7 @@ import { logEvent } from '../services/analytics/index.js'
 import { CACHE_PATHS } from './cachePaths.js'
 import { logForDebugging } from './debug.js'
 import { getClaudeConfigHomeDir } from './envUtils.js'
+import { isENOENT } from './errors.js'
 import { type FsOperations, getFsImplementation } from './fsOperations.js'
 import { cleanupOldImageCaches } from './imageStore.js'
 import * as lockfile from './lockfile.js'
@@ -318,6 +319,25 @@ async function cleanupSingleDirectory(
     await tryRmdir(dirPath, fsImpl)
   }
 
+  return result
+}
+
+async function cleanupOldHfiAuthFile(): Promise<CleanupResult> {
+  const result: CleanupResult = { messages: 0, errors: 0 }
+  const cutoffDate = getCutoffDate()
+  if (cutoffDate === null) return result
+
+  const authFile = join(getClaudeConfigHomeDir(), 'hfi-auth.json')
+  try {
+    if (await unlinkIfOld(authFile, cutoffDate, getFsImplementation())) {
+      result.messages++
+    }
+  } catch (error) {
+    if (!isENOENT(error)) {
+      logError(error as Error)
+      result.errors++
+    }
+  }
   return result
 }
 

@@ -1,0 +1,2390 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.112-to-2.1.113",
+  "artifact": {
+    "targetInnerSha256": "4a3c3636c8cb19ef42d6319e5c6ef9b029f5de148b84f22315d159052d6c5eba",
+    "structuralGzipSha256": "383448923995bb86060ce91beac2bc5adac35817a0cdff35b533135c7d24345f"
+  },
+  "proof": {
+    "target": "complete structural unit slice authenticated by SHA-256",
+    "source": "exact named TypeScript AST declaration kind and residue identities, invariant across source roots",
+    "imports": "exact non-type import module/imported/local triples"
+  },
+  "summary": {
+    "units": 61,
+    "residues": 92
+  },
+  "rows": [
+    {
+      "targetIndex": 2360,
+      "currentOwners": [
+        "owner-src-utils-git-gitFilesystem-ts"
+      ],
+      "correctedOwner": "src/utils/which.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 961669,
+        "end": 961810,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "26ce43f034cb803602d77a245cec98de9207d88a4095a78096e4fd2c45552711"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "execFileSync",
+          "start": 961700,
+          "end": 961712
+        }
+      ],
+      "source": {
+        "declaration": "whichNodeSync",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "child_process",
+            "imported": "execFileSync",
+            "local": "execFileSync"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 4561,
+      "currentOwners": [
+        "owner-src-utils-model-model-ts"
+      ],
+      "correctedOwner": "src/utils/teammateContext.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 2040205,
+        "end": 2040278,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "28fff557d199522842bc016338a368e380df8d1ae299206fd8fd1983e98168a9"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "AsyncLocalStorage",
+          "start": 2040258,
+          "end": 2040275
+        }
+      ],
+      "source": {
+        "declaration": "teammateContextStorage",
+        "declarationKind": "VariableDeclaration",
+        "imports": [
+          {
+            "module": "async_hooks",
+            "imported": "AsyncLocalStorage",
+            "local": "AsyncLocalStorage"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 6063,
+      "currentOwners": [
+        "owner-src-utils-secureStorage-plainTextStorage-ts"
+      ],
+      "correctedOwner": "src/utils/secureStorage/keychainPrefetch.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 2758588,
+        "end": 2758824,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "3f5444e2d39e745e14e73a2d8654cbc830fa7096f123108b60928a05a6593b15"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "execFile",
+          "start": 2758633,
+          "end": 2758641
+        }
+      ],
+      "source": {
+        "declaration": "spawnSecurity",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "child_process",
+            "imported": "execFile",
+            "local": "execFile"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 6153,
+      "currentOwners": [
+        "owner-src-utils-auth-ts"
+      ],
+      "correctedOwner": "src/utils/workloadContext.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 2783047,
+        "end": 2783121,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "098b1ab970c241945512395874901ef82a1fc1e7f9381aaffb25973bcf08eef1"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "AsyncLocalStorage",
+          "start": 2783101,
+          "end": 2783118
+        }
+      ],
+      "source": {
+        "declaration": "workloadStorage",
+        "declarationKind": "VariableDeclaration",
+        "imports": [
+          {
+            "module": "async_hooks",
+            "imported": "AsyncLocalStorage",
+            "local": "AsyncLocalStorage"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 6468,
+      "currentOwners": [
+        "owner-src-services-analytics-growthbook-ts"
+      ],
+      "correctedOwner": "src/memdir/paths.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 2976402,
+        "end": 2976788,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "5037b98a52d676be4196426406593f9dd2d7f193d97240e3727fd6e2a108c16c"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "homedir",
+          "start": 2976572,
+          "end": 2976579
+        }
+      ],
+      "source": {
+        "declaration": "validateMemoryPath",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "os",
+            "imported": "homedir",
+            "local": "homedir"
+          },
+          {
+            "module": "path",
+            "imported": "isAbsolute",
+            "local": "isAbsolute"
+          },
+          {
+            "module": "path",
+            "imported": "join",
+            "local": "join"
+          },
+          {
+            "module": "path",
+            "imported": "normalize",
+            "local": "normalize"
+          },
+          {
+            "module": "path",
+            "imported": "sep",
+            "local": "sep"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 6879,
+      "currentOwners": [
+        "owner-src-ink-events-event-handlers-ts"
+      ],
+      "correctedOwner": "src/ink/events/dispatcher.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 3237836,
+        "end": 3238095,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "7e5363ac6420c4b24f327ff092be270f3dee983815e31c842c3cc05570b2cb87"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "DiscreteEventPriority",
+          "start": 3237945,
+          "end": 3237966
+        },
+        {
+          "kind": "property",
+          "value": "ContinuousEventPriority",
+          "start": 3238031,
+          "end": 3238054
+        },
+        {
+          "kind": "property",
+          "value": "DefaultEventPriority",
+          "start": 3238073,
+          "end": 3238093
+        }
+      ],
+      "source": {
+        "declaration": "getEventPriority",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "react-reconciler/constants.js",
+            "imported": "ContinuousEventPriority",
+            "local": "ContinuousEventPriority"
+          },
+          {
+            "module": "react-reconciler/constants.js",
+            "imported": "DefaultEventPriority",
+            "local": "DefaultEventPriority"
+          },
+          {
+            "module": "react-reconciler/constants.js",
+            "imported": "DiscreteEventPriority",
+            "local": "DiscreteEventPriority"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 6880,
+      "currentOwners": [
+        "owner-src-ink-events-event-handlers-ts"
+      ],
+      "correctedOwner": "src/ink/events/dispatcher.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 3238095,
+        "end": 3238920,
+        "nodeType": "ClassDeclaration",
+        "sourceHash": "56611860c33aa2e68bf7f979875ef2b02dc1ff3d86e3ecb9fd26f51e1cb3245c"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "DefaultEventPriority",
+          "start": 3238148,
+          "end": 3238168
+        },
+        {
+          "kind": "property",
+          "value": "NoEventPriority",
+          "start": 3238248,
+          "end": 3238263
+        },
+        {
+          "kind": "property",
+          "value": "DefaultEventPriority",
+          "start": 3238364,
+          "end": 3238384
+        },
+        {
+          "kind": "property",
+          "value": "ContinuousEventPriority",
+          "start": 3238838,
+          "end": 3238861
+        }
+      ],
+      "source": {
+        "declaration": "Dispatcher",
+        "declarationKind": "ClassDeclaration",
+        "imports": [
+          {
+            "module": "react-reconciler/constants.js",
+            "imported": "ContinuousEventPriority",
+            "local": "ContinuousEventPriority"
+          },
+          {
+            "module": "react-reconciler/constants.js",
+            "imported": "DefaultEventPriority",
+            "local": "DefaultEventPriority"
+          },
+          {
+            "module": "react-reconciler/constants.js",
+            "imported": "NoEventPriority",
+            "local": "NoEventPriority"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 7502,
+      "currentOwners": [
+        "owner-src-utils-imageResizer-ts"
+      ],
+      "correctedOwner": "src/utils/tempfile.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 3626361,
+        "end": 3626552,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "daf22786dd0775ed113ad0ece2ec79f8ecef283b7011c958b0d9e488011d0984"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "createHash",
+          "start": 3626428,
+          "end": 3626438
+        },
+        {
+          "kind": "property",
+          "value": "randomUUID",
+          "start": 3626501,
+          "end": 3626511
+        }
+      ],
+      "source": {
+        "declaration": "generateTempFilePath",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "crypto",
+            "imported": "createHash",
+            "local": "createHash"
+          },
+          {
+            "module": "crypto",
+            "imported": "randomUUID",
+            "local": "randomUUID"
+          },
+          {
+            "module": "os",
+            "imported": "tmpdir",
+            "local": "tmpdir"
+          },
+          {
+            "module": "path",
+            "imported": "join",
+            "local": "join"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 8296,
+      "currentOwners": [
+        "owner-src-utils-shell-readOnlyCommandValidation-ts"
+      ],
+      "correctedOwner": "src/utils/permissions/pathValidation.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 3986132,
+        "end": 3986220,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "ff85c57b7d13090e25db4ef8248363f0d9e498c29d6e8b41b9fc9f66964d5846"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "homedir",
+          "start": 3986190,
+          "end": 3986197
+        }
+      ],
+      "source": {
+        "declaration": "expandTilde",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "os",
+            "imported": "homedir",
+            "local": "homedir"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 8300,
+      "currentOwners": [
+        "owner-src-utils-shell-readOnlyCommandValidation-ts"
+      ],
+      "correctedOwner": "src/utils/permissions/pathValidation.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 3987702,
+        "end": 3988090,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "f135b95313cc5be75d8fee0de117b23c2ef8c1926c896b64728120859e2a24ae"
+      },
+      "residues": [
+        {
+          "kind": "regexp",
+          "value": {
+            "flags": "i",
+            "pattern": "^\\/private\\/(etc|var|tmp|home)(\\/|$)"
+          },
+          "start": 3987827,
+          "end": 3987866
+        },
+        {
+          "kind": "string",
+          "value": "/$1$2",
+          "start": 3987867,
+          "end": 3987874
+        },
+        {
+          "kind": "property",
+          "value": "homedir",
+          "start": 3987973,
+          "end": 3987980
+        }
+      ],
+      "source": {
+        "declaration": "isDangerousRemovalPath",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "os",
+            "imported": "homedir",
+            "local": "homedir"
+          },
+          {
+            "module": "path",
+            "imported": "dirname",
+            "local": "dirname"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 8349,
+      "currentOwners": [
+        "owner-src-utils-permissions-pathValidation-ts"
+      ],
+      "correctedOwner": "src/utils/sdkEventQueue.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 3994823,
+        "end": 3994943,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "ebb4222479681718f4a83261aa1ed3cc34657634b7d548a3719317ddbfaf1c3a"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "randomUUID",
+          "start": 3994911,
+          "end": 3994921
+        }
+      ],
+      "source": {
+        "declaration": "drainSdkEvents",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "crypto",
+            "imported": "randomUUID",
+            "local": "randomUUID"
+          },
+          {
+            "module": "../bootstrap/state.js",
+            "imported": "getSessionId",
+            "local": "getSessionId"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 9466,
+      "currentOwners": [
+        "owner-src-tools-SkillTool-prompt-ts"
+      ],
+      "correctedOwner": "src/utils/readFileInRange.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 4800707,
+        "end": 4801106,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "c740e36361f7bba9494e34675e8d5642f6c2c7390576c9bc61d8be4ab3e6fe8c"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "readFile",
+          "start": 4800997,
+          "end": 4801005
+        }
+      ],
+      "source": {
+        "declaration": "readFileInRange",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "fs/promises",
+            "imported": "stat",
+            "local": "fsStat"
+          },
+          {
+            "module": "fs/promises",
+            "imported": "readFile",
+            "local": "readFile"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 9468,
+      "currentOwners": [
+        "owner-src-tools-SkillTool-prompt-ts"
+      ],
+      "correctedOwner": "src/utils/readFileInRange.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 4802020,
+        "end": 4802091,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "4927327a7459c7ded081911bf9424b8340c34e985a31a5e7e1e24b8d60184342"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "fstat",
+          "start": 4802040,
+          "end": 4802045
+        }
+      ],
+      "source": {
+        "declaration": "streamOnOpen",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "fs",
+            "imported": "fstat",
+            "local": "fstat"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 9471,
+      "currentOwners": [
+        "owner-src-tools-SkillTool-prompt-ts"
+      ],
+      "correctedOwner": "src/utils/readFileInRange.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 4803986,
+        "end": 4804547,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "09db941f6290a1918caf8111c07ff885940b46a3ddfd96a8047dc7c0690f5b1a"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "createReadStream",
+          "start": 4804057,
+          "end": 4804073
+        }
+      ],
+      "source": {
+        "declaration": "readFileInRangeStreaming",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "fs",
+            "imported": "createReadStream",
+            "local": "createReadStream"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 9509,
+      "currentOwners": [
+        "owner-src-tools-SkillTool-prompt-ts"
+      ],
+      "correctedOwner": "src/utils/words.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 4811335,
+        "end": 4811395,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "c5c32e9b7860a052d09a5f15618fbbdfb7c012d006ada683fa26eb3ba6ad146d"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "randomBytes",
+          "start": 4811362,
+          "end": 4811373
+        }
+      ],
+      "source": {
+        "declaration": "randomInt",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "crypto",
+            "imported": "randomBytes",
+            "local": "randomBytes"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 9523,
+      "currentOwners": [
+        "owner-src-utils-words-ts"
+      ],
+      "correctedOwner": "src/utils/plans.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 4819484,
+        "end": 4820199,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "c4633bbb9e0143b844c24624a89720467cdf33941f081cb8e2e189fc6222dd42"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "readFile",
+          "start": 4819611,
+          "end": 4819619
+        },
+        {
+          "kind": "property",
+          "value": "writeFile",
+          "start": 4820036,
+          "end": 4820045
+        }
+      ],
+      "source": {
+        "declaration": "copyPlanForResume",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "fs/promises",
+            "imported": "writeFile",
+            "local": "writeFile"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 9524,
+      "currentOwners": [
+        "owner-src-utils-words-ts"
+      ],
+      "correctedOwner": "src/utils/plans.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 4820199,
+        "end": 4820399,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "f3f6964be9fa29fb92179ce61e90253d111d0fdad802c9f0a08a3b65ddeb6e9d"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "copyFile",
+          "start": 4820338,
+          "end": 4820346
+        }
+      ],
+      "source": {
+        "declaration": "copyPlanForFork",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "fs/promises",
+            "imported": "copyFile",
+            "local": "copyFile"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 9527,
+      "currentOwners": [
+        "owner-src-utils-words-ts"
+      ],
+      "correctedOwner": "src/utils/plans.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 4821155,
+        "end": 4821551,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "9cfa67e2f5795f4f23fe0db16b28026d362a354ab4b5715cd4c943451839a6e4"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "randomUUID",
+          "start": 4821424,
+          "end": 4821434
+        }
+      ],
+      "source": {
+        "declaration": "persistFileSnapshotIfRemote",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "crypto",
+            "imported": "randomUUID",
+            "local": "randomUUID"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 9564,
+      "currentOwners": [
+        "owner-src-utils-jetbrains-ts"
+      ],
+      "correctedOwner": "src/utils/idePathConversion.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 4825861,
+        "end": 4826419,
+        "nodeType": "ClassDeclaration",
+        "sourceHash": "d1074760027d08665c22fc3374665910b3e6a180f7f3a698c08357631e9573f9"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "execFileSync",
+          "start": 4826089,
+          "end": 4826101
+        },
+        {
+          "kind": "property",
+          "value": "execFileSync",
+          "start": 4826313,
+          "end": 4826325
+        }
+      ],
+      "source": {
+        "declaration": "WindowsToWSLConverter",
+        "declarationKind": "ClassDeclaration",
+        "imports": [
+          {
+            "module": "child_process",
+            "imported": "execFileSync",
+            "local": "execFileSync"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 9629,
+      "currentOwners": [
+        "owner-src-tools-SkillTool-prompt-ts"
+      ],
+      "correctedOwner": "src/utils/telemetry/betaSessionTracing.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 4847315,
+        "end": 4847399,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "0421f49449c117b20b445c0097790dc5f47d9fd5ee8ee1c2c66ff2ceb862b5f6"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "createHash",
+          "start": 4847342,
+          "end": 4847352
+        }
+      ],
+      "source": {
+        "declaration": "shortHash",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "crypto",
+            "imported": "createHash",
+            "local": "createHash"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 9770,
+      "currentOwners": [
+        "owner-src-utils-claudeInChrome-common-ts"
+      ],
+      "correctedOwner": "src/utils/sessionEnvironment.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 4910581,
+        "end": 4910879,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "421d02ad2282b7b5159d646fe7e2da65a95c6e3af1dbc2a2448ec2fcf46e52b4"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "writeFile",
+          "start": 4910774,
+          "end": 4910783
+        }
+      ],
+      "source": {
+        "declaration": "clearCwdEnvFiles",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "fs/promises",
+            "imported": "readdir",
+            "local": "readdir"
+          },
+          {
+            "module": "fs/promises",
+            "imported": "writeFile",
+            "local": "writeFile"
+          },
+          {
+            "module": "path",
+            "imported": "join",
+            "local": "join"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 9772,
+      "currentOwners": [
+        "owner-src-utils-claudeInChrome-common-ts"
+      ],
+      "correctedOwner": "src/utils/sessionEnvironment.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 4910949,
+        "end": 4911852,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "7d97eadde2cfb3345126f1de4e800602167fd9e455efe7f655551f00be4b1ce3"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "readFile",
+          "start": 4911061,
+          "end": 4911069
+        },
+        {
+          "kind": "property",
+          "value": "readFile",
+          "start": 4911398,
+          "end": 4911406
+        }
+      ],
+      "source": {
+        "declaration": "getSessionEnvironmentScript",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "fs/promises",
+            "imported": "readdir",
+            "local": "readdir"
+          },
+          {
+            "module": "fs/promises",
+            "imported": "readFile",
+            "local": "readFile"
+          },
+          {
+            "module": "path",
+            "imported": "join",
+            "local": "join"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 9815,
+      "currentOwners": [
+        "owner-src-memdir-memoryTypes-ts"
+      ],
+      "correctedOwner": "src/memdir/memoryScan.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 4941899,
+        "end": 4942589,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "9aa533365ac6764c54924ba91d34f40fe9cbf93dcd9924b292170f640190d0bd"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "readdir",
+          "start": 4941967,
+          "end": 4941974
+        },
+        {
+          "kind": "property",
+          "value": "basename",
+          "start": 4942029,
+          "end": 4942037
+        }
+      ],
+      "source": {
+        "declaration": "scanMemoryFiles",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "fs/promises",
+            "imported": "readdir",
+            "local": "readdir"
+          },
+          {
+            "module": "path",
+            "imported": "basename",
+            "local": "basename"
+          },
+          {
+            "module": "path",
+            "imported": "join",
+            "local": "join"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 9838,
+      "currentOwners": [
+        "owner-src-entrypoints-sdk-coreSchemas-ts"
+      ],
+      "correctedOwner": "src/utils/teammateMailbox.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 4989902,
+        "end": 4990259,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "70db1f8049087f2cd0c913798ed4c817338132b7551c945360e4bf9fd00d5b46"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "readFile",
+          "start": 4990005,
+          "end": 4990013
+        }
+      ],
+      "source": {
+        "declaration": "readMailbox",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "fs/promises",
+            "imported": "readFile",
+            "local": "readFile"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 9840,
+      "currentOwners": [
+        "owner-src-entrypoints-sdk-coreSchemas-ts"
+      ],
+      "correctedOwner": "src/utils/teammateMailbox.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 4990420,
+        "end": 4991097,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "db1148fefeb92344c9baee4939f880249af4cb5e036b6c758ad05b623943dc0f"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "writeFile",
+          "start": 4990581,
+          "end": 4990590
+        },
+        {
+          "kind": "property",
+          "value": "writeFile",
+          "start": 4990911,
+          "end": 4990920
+        }
+      ],
+      "source": {
+        "declaration": "writeToMailbox",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "fs/promises",
+            "imported": "writeFile",
+            "local": "writeFile"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 9841,
+      "currentOwners": [
+        "owner-src-entrypoints-sdk-coreSchemas-ts"
+      ],
+      "correctedOwner": "src/utils/teammateMailbox.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 4991097,
+        "end": 4992210,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "76b3bdca43665b657fb085315ea35cd890d2eac85643c6c27b36a2e710672cab"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "writeFile",
+          "start": 4991813,
+          "end": 4991822
+        }
+      ],
+      "source": {
+        "declaration": "markMessageAsReadByIndex",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "fs/promises",
+            "imported": "writeFile",
+            "local": "writeFile"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 9842,
+      "currentOwners": [
+        "owner-src-entrypoints-sdk-coreSchemas-ts"
+      ],
+      "correctedOwner": "src/utils/teammateMailbox.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 4992210,
+        "end": 4993216,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "8c0868f72f9ea6af256c6cb9cd46f117f7b53c54b57ec8e6f3b9f68e936d27a2"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "writeFile",
+          "start": 4992842,
+          "end": 4992851
+        }
+      ],
+      "source": {
+        "declaration": "markMessagesAsRead",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "fs/promises",
+            "imported": "writeFile",
+            "local": "writeFile"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 9843,
+      "currentOwners": [
+        "owner-src-entrypoints-sdk-coreSchemas-ts"
+      ],
+      "correctedOwner": "src/utils/teammateMailbox.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 4993216,
+        "end": 4993510,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "75b40f2e63f571cb736f46c16484e639bd706341a02765ce3ce697e77f274fc8"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "writeFile",
+          "start": 4993322,
+          "end": 4993331
+        }
+      ],
+      "source": {
+        "declaration": "clearMailbox",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "fs/promises",
+            "imported": "writeFile",
+            "local": "writeFile"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 9869,
+      "currentOwners": [
+        "owner-src-entrypoints-sdk-coreSchemas-ts"
+      ],
+      "correctedOwner": "src/utils/teammateMailbox.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 4997201,
+        "end": 4997513,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "b621f3563a1b64bf8d4a19d3dc960ec5632aa3efbf539d00956c6b25451787dc"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "writeFile",
+          "start": 4997401,
+          "end": 4997410
+        }
+      ],
+      "source": {
+        "declaration": "markMessagesAsReadByPredicate",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "fs/promises",
+            "imported": "writeFile",
+            "local": "writeFile"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 10085,
+      "currentOwners": [
+        "owner-src-utils-contextAnalysis-ts"
+      ],
+      "correctedOwner": "src/utils/uuid.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 5055843,
+        "end": 5055929,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "0dc9eefeea148e5fa321e9f35bbf9b27edf758ae52a06744fbdaad3bd913b87c"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "randomBytes",
+          "start": 5055868,
+          "end": 5055879
+        }
+      ],
+      "source": {
+        "declaration": "createAgentId",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "crypto",
+            "imported": "randomBytes",
+            "local": "randomBytes"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 10650,
+      "currentOwners": [
+        "owner-src-services-api-grove-ts"
+      ],
+      "correctedOwner": "src/components/CustomSelect/use-multi-select-state.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 6238627,
+        "end": 6241256,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "1200303a19e8b1f8e389c4985e2ba6f5a6eb7d355ec7392b16c5f03099cdd458"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "isDeepStrictEqual",
+          "start": 6238947,
+          "end": 6238964
+        }
+      ],
+      "source": {
+        "declaration": "useMultiSelectState",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "util",
+            "imported": "isDeepStrictEqual",
+            "local": "isDeepStrictEqual"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 10804,
+      "currentOwners": [
+        "owner-src-services-PromptSuggestion-speculation-ts"
+      ],
+      "correctedOwner": "src/utils/generatedFiles.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 6328909,
+        "end": 6329285,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "608650dcb5fefb0e6bb53e3e456d329f2901987cb3026d426b39ac09d65bc22f"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "posix",
+          "start": 6328934,
+          "end": 6328939
+        },
+        {
+          "kind": "property",
+          "value": "posix",
+          "start": 6328968,
+          "end": 6328973
+        },
+        {
+          "kind": "property",
+          "value": "basename",
+          "start": 6329003,
+          "end": 6329011
+        }
+      ],
+      "source": {
+        "declaration": "isGeneratedFile",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "path",
+            "imported": "basename",
+            "local": "basename"
+          },
+          {
+            "module": "path",
+            "imported": "extname",
+            "local": "extname"
+          },
+          {
+            "module": "path",
+            "imported": "posix",
+            "local": "posix"
+          },
+          {
+            "module": "path",
+            "imported": "sep",
+            "local": "sep"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 10835,
+      "currentOwners": [
+        "owner-src-services-PromptSuggestion-speculation-ts"
+      ],
+      "correctedOwner": "src/utils/renderOptions.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 6339669,
+        "end": 6339956,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "f97b6718f2d8e130cac2ef915d63012406c650b9b9b4ef50a1926281cac940b9"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "openSync",
+          "start": 6339845,
+          "end": 6339853
+        },
+        {
+          "kind": "property",
+          "value": "ReadStream",
+          "start": 6339880,
+          "end": 6339890
+        }
+      ],
+      "source": {
+        "declaration": "getStdinOverride",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "fs",
+            "imported": "openSync",
+            "local": "openSync"
+          },
+          {
+            "module": "tty",
+            "imported": "ReadStream",
+            "local": "ReadStream"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 11238,
+      "currentOwners": [
+        "owner-src-services-oauth-auth-code-listener-ts"
+      ],
+      "correctedOwner": "src/services/oauth/crypto.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 7137176,
+        "end": 7137223,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "b987ed2df146eeca355aa4100a61c40aa41e87ca4ac21b8390686ed94664bfb8"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "randomBytes",
+          "start": 7137206,
+          "end": 7137217
+        }
+      ],
+      "source": {
+        "declaration": "generateCodeVerifier",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "crypto",
+            "imported": "randomBytes",
+            "local": "randomBytes"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 11239,
+      "currentOwners": [
+        "owner-src-services-oauth-auth-code-listener-ts"
+      ],
+      "correctedOwner": "src/services/oauth/crypto.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 7137223,
+        "end": 7137305,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "9388414553f7dba1b03534f196629e387016bdcae5e71e4c52a4590c3900d706"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "createHash",
+          "start": 7137249,
+          "end": 7137259
+        }
+      ],
+      "source": {
+        "declaration": "generateCodeChallenge",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "crypto",
+            "imported": "createHash",
+            "local": "createHash"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 11240,
+      "currentOwners": [
+        "owner-src-services-oauth-auth-code-listener-ts"
+      ],
+      "correctedOwner": "src/services/oauth/crypto.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 7137305,
+        "end": 7137352,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "ad83ee9772f735d0eb4f2d6089ff82ff9863de4735faa5a4dd65d94e8e3d2fc2"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "randomBytes",
+          "start": 7137335,
+          "end": 7137346
+        }
+      ],
+      "source": {
+        "declaration": "generateState",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "crypto",
+            "imported": "randomBytes",
+            "local": "randomBytes"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 12481,
+      "currentOwners": [
+        "owner-src-tools-SkillTool-SkillTool-ts"
+      ],
+      "correctedOwner": "src/utils/plugins/lspPluginIntegration.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 7847177,
+        "end": 7847318,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "cd233b71e682802eae5f10626e2622006bb7a792c985f3fae30efc8468d7d88c"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "relative",
+          "start": 7847241,
+          "end": 7847249
+        }
+      ],
+      "source": {
+        "declaration": "validatePathWithinPlugin",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "path",
+            "imported": "relative",
+            "local": "relative"
+          },
+          {
+            "module": "path",
+            "imported": "resolve",
+            "local": "resolve"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 12538,
+      "currentOwners": [
+        "owner-src-services-teamMemorySync-secretScanner-ts"
+      ],
+      "correctedOwner": "src/utils/fileOperationAnalytics.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 7930018,
+        "end": 7930102,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "462d6a337b772f48084c862cc323d7d21b625d68f5926c23bb3f37c34643dba2"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "createHash",
+          "start": 7930045,
+          "end": 7930055
+        }
+      ],
+      "source": {
+        "declaration": "hashFilePath",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "crypto",
+            "imported": "createHash",
+            "local": "createHash"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 12539,
+      "currentOwners": [
+        "owner-src-services-teamMemorySync-secretScanner-ts"
+      ],
+      "correctedOwner": "src/utils/fileOperationAnalytics.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 7930102,
+        "end": 7930174,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "49899abbc13dca286ad1e0fdbefad1b6c78d589ecaf90e3d0368e9c24dcb8f98"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "createHash",
+          "start": 7930129,
+          "end": 7930139
+        }
+      ],
+      "source": {
+        "declaration": "hashFileContent",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "crypto",
+            "imported": "createHash",
+            "local": "createHash"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 12910,
+      "currentOwners": [
+        "owner-src-tools-WebFetchTool-WebFetchTool-ts"
+      ],
+      "correctedOwner": "src/utils/listSessionsImpl.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 8292894,
+        "end": 8293311,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "25f7af122baa3f31e2b3fada92652aca78dd0d65a9bd7ca53b0de29aad37f84e"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "readdir",
+          "start": 8292942,
+          "end": 8292949
+        },
+        {
+          "kind": "property",
+          "value": "stat",
+          "start": 8293189,
+          "end": 8293193
+        }
+      ],
+      "source": {
+        "declaration": "listCandidates",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "fs/promises",
+            "imported": "readdir",
+            "local": "readdir"
+          },
+          {
+            "module": "fs/promises",
+            "imported": "stat",
+            "local": "stat"
+          },
+          {
+            "module": "path",
+            "imported": "join",
+            "local": "join"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 13530,
+      "currentOwners": [
+        "owner-src-query-config-ts"
+      ],
+      "correctedOwner": "src/query/deps.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 8611035,
+        "end": 8611124,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "c2d1191a9e1c83519951e8ad8cdffe0ccc728b6e65d6ca820ed210c78932dc34"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "randomUUID",
+          "start": 8611112,
+          "end": 8611122
+        }
+      ],
+      "source": {
+        "declaration": "productionDeps",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "crypto",
+            "imported": "randomUUID",
+            "local": "randomUUID"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 14980,
+      "currentOwners": [
+        "owner-src-utils-messages-ts"
+      ],
+      "correctedOwner": "src/ink/components/ScrollBox.tsx",
+      "target": {
+        "classification": "unresolved",
+        "start": 9355818,
+        "end": 9357725,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "422e2f661064dcda71ff9b78ca8d502d0e28bd6d00980ca29426bc63f9ab2422"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "getDomElement",
+          "start": 9357330,
+          "end": 9357343
+        }
+      ],
+      "source": {
+        "declaration": "ScrollBox",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "react",
+            "imported": "useImperativeHandle",
+            "local": "useImperativeHandle"
+          },
+          {
+            "module": "react",
+            "imported": "useRef",
+            "local": "useRef"
+          },
+          {
+            "module": "react",
+            "imported": "useState",
+            "local": "useState"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 15395,
+      "currentOwners": [
+        "owner-src-components-Stats-tsx"
+      ],
+      "correctedOwner": "src/components/Settings/Settings.tsx",
+      "target": {
+        "classification": "unresolved",
+        "start": 9768486,
+        "end": 9770298,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "4e25a9579b2a48a6d6bd2cccaa8e2b54bc91cd907f70ec79887e76191516c641"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "c",
+          "start": 9768512,
+          "end": 9768513
+        },
+        {
+          "kind": "string",
+          "value": "status",
+          "start": 9769094,
+          "end": 9769102
+        },
+        {
+          "kind": "string",
+          "value": "usage",
+          "start": 9769573,
+          "end": 9769580
+        }
+      ],
+      "source": {
+        "declaration": "Settings",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "react/compiler-runtime",
+            "imported": "c",
+            "local": "_c"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 15596,
+      "currentOwners": [
+        "owner-src-components-memory-MemoryFileSelector-tsx"
+      ],
+      "correctedOwner": "src/components/memory/MemoryUpdateNotification.tsx",
+      "target": {
+        "classification": "unresolved",
+        "start": 9837999,
+        "end": 9838186,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "1b2f89bfe210bf54a51216b06f28c98e2995e4028c21e183f0b7cded0e40a9e2"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "homedir",
+          "start": 9838025,
+          "end": 9838032
+        },
+        {
+          "kind": "property",
+          "value": "relative",
+          "start": 9838114,
+          "end": 9838122
+        }
+      ],
+      "source": {
+        "declaration": "getRelativeMemoryPath",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "os",
+            "imported": "homedir",
+            "local": "homedir"
+          },
+          {
+            "module": "path",
+            "imported": "relative",
+            "local": "relative"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 15600,
+      "currentOwners": [
+        "owner-src-components-memory-MemoryFileSelector-tsx"
+      ],
+      "correctedOwner": "src/utils/editor.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 9838329,
+        "end": 9838411,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "627aa324c68680ceb1ee10513f03dfe2dca6b82a34a9242529025dccb2c8ad1b"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "basename",
+          "start": 9838355,
+          "end": 9838363
+        }
+      ],
+      "source": {
+        "declaration": "classifyGuiEditor",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "path",
+            "imported": "basename",
+            "local": "basename"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 15602,
+      "currentOwners": [
+        "owner-src-components-memory-MemoryFileSelector-tsx"
+      ],
+      "correctedOwner": "src/utils/editor.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 9838530,
+        "end": 9839104,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "41f8da23f7d383b653969870cf25557a01ff981399d7092def873821b2949df1"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "spawn",
+          "start": 9838694,
+          "end": 9838699
+        },
+        {
+          "kind": "property",
+          "value": "basename",
+          "start": 9838862,
+          "end": 9838870
+        },
+        {
+          "kind": "property",
+          "value": "spawnSync",
+          "start": 9838971,
+          "end": 9838980
+        }
+      ],
+      "source": {
+        "declaration": "openFileInExternalEditor",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "child_process",
+            "imported": "spawn",
+            "local": "spawn"
+          },
+          {
+            "module": "child_process",
+            "imported": "spawnSync",
+            "local": "spawnSync"
+          },
+          {
+            "module": "path",
+            "imported": "basename",
+            "local": "basename"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 16124,
+      "currentOwners": [
+        "owner-src-commands-release-notes-index-ts"
+      ],
+      "correctedOwner": "src/commands/release-notes/release-notes.tsx",
+      "target": {
+        "classification": "unresolved",
+        "start": 10248128,
+        "end": 10248222,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "3d43b928fb246f10acb9f07335dd18a4fe435991a51e79aa93826aca80b06e63"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "join",
+          "start": 10248194,
+          "end": 10248198
+        }
+      ],
+      "source": {
+        "declaration": "formatReleaseNotes",
+        "declarationKind": "FunctionDeclaration",
+        "imports": []
+      }
+    },
+    {
+      "targetIndex": 16451,
+      "currentOwners": [
+        "owner-src-utils-agenticSessionSearch-ts"
+      ],
+      "correctedOwner": "src/utils/crossProjectResume.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 10405835,
+        "end": 10406224,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "d82dcd98a539b29e974e1674085ece532b791e44f33240b210f4f1688265f4c9"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "sep",
+          "start": 10405998,
+          "end": 10406001
+        }
+      ],
+      "source": {
+        "declaration": "checkCrossProjectResume",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "path",
+            "imported": "sep",
+            "local": "sep"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 17776,
+      "currentOwners": [
+        "owner-src-utils-task-diskOutput-ts"
+      ],
+      "correctedOwner": "src/Task.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 11026377,
+        "end": 11026483,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "be8c55f91b46c3f0da7be26f563f26914c1585c6d8e55c0aabe7a6abfb6b82d2"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "randomBytes",
+          "start": 11026411,
+          "end": 11026422
+        }
+      ],
+      "source": {
+        "declaration": "generateTaskId",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "crypto",
+            "imported": "randomBytes",
+            "local": "randomBytes"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 17849,
+      "currentOwners": [
+        "owner-src-utils-hooks-execHttpHook-ts"
+      ],
+      "correctedOwner": "src/utils/hooks.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 11053410,
+        "end": 11053978,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "fef5b8994b0cda1e39296f51426cc332c57337bdf4192b3beaaa7dcd2ad6e4d0"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "randomUUID",
+          "start": 11053898,
+          "end": 11053908
+        }
+      ],
+      "source": {
+        "declaration": "executeStopHooks",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "crypto",
+            "imported": "randomUUID",
+            "local": "randomUUID"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 17852,
+      "currentOwners": [
+        "owner-src-utils-hooks-execHttpHook-ts"
+      ],
+      "correctedOwner": "src/utils/hooks.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 11054045,
+        "end": 11054226,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "364684dc1c289f30887462a635164edd5f5962ab2e4adf4cf0c4985e3461c545"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "randomUUID",
+          "start": 11054190,
+          "end": 11054200
+        }
+      ],
+      "source": {
+        "declaration": "executeTeammateIdleHooks",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "crypto",
+            "imported": "randomUUID",
+            "local": "randomUUID"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 17853,
+      "currentOwners": [
+        "owner-src-utils-hooks-execHttpHook-ts"
+      ],
+      "correctedOwner": "src/utils/hooks.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 11054226,
+        "end": 11054475,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "6cca40d7a96d9a7351176e38de51b5a6b50dd2249f919b517c9cf065efad514f"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "randomUUID",
+          "start": 11054422,
+          "end": 11054432
+        }
+      ],
+      "source": {
+        "declaration": "executeTaskCreatedHooks",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "crypto",
+            "imported": "randomUUID",
+            "local": "randomUUID"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 17854,
+      "currentOwners": [
+        "owner-src-utils-hooks-execHttpHook-ts"
+      ],
+      "correctedOwner": "src/utils/hooks.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 11054475,
+        "end": 11054726,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "79f8a1eeec54631c3b320a2abc2fddd75082b7ed4ce67e37293a20dd87e27860"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "randomUUID",
+          "start": 11054673,
+          "end": 11054683
+        }
+      ],
+      "source": {
+        "declaration": "executeTaskCompletedHooks",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "crypto",
+            "imported": "randomUUID",
+            "local": "randomUUID"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 17865,
+      "currentOwners": [
+        "owner-src-utils-hooks-execHttpHook-ts"
+      ],
+      "correctedOwner": "src/utils/hooks.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 11056728,
+        "end": 11057047,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "66de83e28f7ad50a80fba6eed290426af313eaf89b8f2c69a8033e4c176ef49d"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "randomUUID",
+          "start": 11056954,
+          "end": 11056964
+        }
+      ],
+      "source": {
+        "declaration": "executeUserPromptSubmitHooks",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "crypto",
+            "imported": "randomUUID",
+            "local": "randomUUID"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 18567,
+      "currentOwners": [
+        "owner-src-components-permissions-FilePermissionDialog-permissionOptions-tsx"
+      ],
+      "correctedOwner": "src/components/permissions/FilePermissionDialog/FilePermissionDialog.tsx",
+      "target": {
+        "classification": "unresolved",
+        "start": 11475130,
+        "end": 11477829,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "abafbc5565501fc09e894193b84fa2a3ed65a629dfd5df299626589d5aa87595"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "resolvedPath",
+          "start": 11475582,
+          "end": 11475594
+        },
+        {
+          "kind": "property",
+          "value": "relative",
+          "start": 11476687,
+          "end": 11476695
+        }
+      ],
+      "source": {
+        "declaration": "FilePermissionDialog",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "path",
+            "imported": "relative",
+            "local": "relative"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 18612,
+      "currentOwners": [
+        "owner-src-components-permissions-FallbackPermissionRequest-tsx"
+      ],
+      "correctedOwner": "src/components/permissions/FileEditPermissionRequest/FileEditPermissionRequest.tsx",
+      "target": {
+        "classification": "unresolved",
+        "start": 11514869,
+        "end": 11516709,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "44ae09d167de6a9c4a6f4074edec1af244c78295a04c2220916466b00e22d20e"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "c",
+          "start": 11514895,
+          "end": 11514896
+        },
+        {
+          "kind": "property",
+          "value": "relative",
+          "start": 11515238,
+          "end": 11515246
+        },
+        {
+          "kind": "property",
+          "value": "basename",
+          "start": 11515317,
+          "end": 11515325
+        }
+      ],
+      "source": {
+        "declaration": "FileEditPermissionRequest",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "react/compiler-runtime",
+            "imported": "c",
+            "local": "_c"
+          },
+          {
+            "module": "path",
+            "imported": "relative",
+            "local": "relative"
+          },
+          {
+            "module": "path",
+            "imported": "basename",
+            "local": "basename"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 19098,
+      "currentOwners": [
+        "owner-src-remote-RemoteSessionManager-ts"
+      ],
+      "correctedOwner": "src/remote/remotePermissionBridge.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 11749431,
+        "end": 11749862,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "37d6a18f01559202f8b44a07e444aa3f2b5b3b7020a3c93b4f9f825b0c4ef6df"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "randomUUID",
+          "start": 11749482,
+          "end": 11749492
+        },
+        {
+          "kind": "string",
+          "value": "message",
+          "start": 11749526,
+          "end": 11749535
+        }
+      ],
+      "source": {
+        "declaration": "createSyntheticAssistantMessage",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "crypto",
+            "imported": "randomUUID",
+            "local": "randomUUID"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 19394,
+      "currentOwners": [
+        "owner-src-components-FeedbackSurvey-submitTranscriptShare-ts"
+      ],
+      "correctedOwner": "src/components/FeedbackSurvey/useSurveyState.tsx",
+      "target": {
+        "classification": "unresolved",
+        "start": 11859415,
+        "end": 11860790,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "282633b573c2471b716f5d8aab0f595a19b10313afedacc3b9f3e1b5bdda68e4"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "randomUUID",
+          "start": 11859641,
+          "end": 11859651
+        },
+        {
+          "kind": "property",
+          "value": "randomUUID",
+          "start": 11859983,
+          "end": 11859993
+        },
+        {
+          "kind": "property",
+          "value": "open",
+          "start": 11860729,
+          "end": 11860733
+        }
+      ],
+      "source": {
+        "declaration": "useSurveyState",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "crypto",
+            "imported": "randomUUID",
+            "local": "randomUUID"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 19410,
+      "currentOwners": [
+        "owner-src-components-FeedbackSurvey-useMemorySurvey-tsx"
+      ],
+      "correctedOwner": "src/components/FeedbackSurvey/usePostCompactSurvey.tsx",
+      "target": {
+        "classification": "unresolved",
+        "start": 11868712,
+        "end": 11870194,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "cd15bcb0b2b82d0302ee4b154526dfa37963280f5f67e849ba33207efb19e192"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "c",
+          "start": 11868744,
+          "end": 11868745
+        },
+        {
+          "kind": "property",
+          "value": "open",
+          "start": 11869162,
+          "end": 11869166
+        }
+      ],
+      "source": {
+        "declaration": "usePostCompactSurvey",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "react/compiler-runtime",
+            "imported": "c",
+            "local": "_c"
+          },
+          {
+            "module": "./useSurveyState.js",
+            "imported": "useSurveyState",
+            "local": "useSurveyState"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 20113,
+      "currentOwners": [
+        "owner-src-skills-bundled-claudeApiContent-ts"
+      ],
+      "correctedOwner": "src/skills/bundled/claudeApi.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 12706164,
+        "end": 12706423,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "ac2ad51aa27b8839da87de194e13aeec9037ebc2f59820d34ebfa3700d1e19f3"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "readdir",
+          "start": 12706214,
+          "end": 12706221
+        }
+      ],
+      "source": {
+        "declaration": "detectLanguage",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "fs/promises",
+            "imported": "readdir",
+            "local": "readdir"
+          }
+        ]
+      }
+    },
+    {
+      "targetIndex": 20272,
+      "currentOwners": [
+        "owner-src-utils-idleTimeout-ts"
+      ],
+      "correctedOwner": "src/utils/sessionUrl.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 12795996,
+        "end": 12796353,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "bbc99a74bedd10fd3da5b38356d557e2dd03228059fafd5d9c2112ff6791d274"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": ".jsonl",
+          "start": 12796040,
+          "end": 12796048
+        },
+        {
+          "kind": "property",
+          "value": "randomUUID",
+          "start": 12796071,
+          "end": 12796081
+        },
+        {
+          "kind": "property",
+          "value": "randomUUID",
+          "start": 12796263,
+          "end": 12796273
+        }
+      ],
+      "source": {
+        "declaration": "parseSessionIdentifier",
+        "declarationKind": "FunctionDeclaration",
+        "imports": [
+          {
+            "module": "crypto",
+            "imported": "randomUUID",
+            "local": "randomUUID"
+          }
+        ]
+      }
+    }
+  ]
+}

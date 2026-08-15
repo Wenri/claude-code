@@ -1,0 +1,374 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.112-to-2.1.113",
+  "artifact": {
+    "targetInnerSha256": "4a3c3636c8cb19ef42d6319e5c6ef9b029f5de148b84f22315d159052d6c5eba",
+    "targetWrapperSha256": "dda4d89e787fa455706e4f41beffc8e58d42b9094c4d155fcbf62e3f19036681",
+    "targetWrapperPrefixLength": 87,
+    "targetWrapperSuffixLength": 3,
+    "structuralGzipSha256": "383448923995bb86060ce91beac2bc5adac35817a0cdff35b533135c7d24345f"
+  },
+  "proof": {
+    "target": "complete authenticated target units and every exact target-added residue occurrence",
+    "source": "bounded named declarations, switch clauses, runtime imports, and compiler-cache representation",
+    "historical": "the Bedrock owner is a transitive Target92 source package intentionally absent from raw and recovered Target113 trees; Vertex and relaunch remain exact retained Target113 owners",
+    "classification": "recovered package gap, exact alternate source, React memo cache, or compiler-lowered runtime import"
+  },
+  "summary": {
+    "units": 8,
+    "residues": 14,
+    "recoveredPackageGapResidues": 4,
+    "exactAlternateSourceResidues": 7,
+    "reactMemoCacheResidues": 2,
+    "compilerLoweredImportResidues": 1
+  },
+  "owners": {
+    "bedrock": {
+      "path": "src/components/BedrockSetupWizard.tsx",
+      "observedMainSha256": "53f7147275fde40d88e2f27bbeb0c5c12661c2be46dff21d6fe4997062f6c199",
+      "historicalPackageState": "absent",
+      "transitiveIntroduction": {
+        "case": "2.1.91-to-2.1.92",
+        "path": "recovery/cases/2.1.91-to-2.1.92/semantic-supplement.patch",
+        "supplementSha256": "43b7f3165ca0502796e26a50e821c12a47b8bc95dc78a5744361091e0adf9062",
+        "ownerSha256": "681b15198095a07e80a94b32647ae57a595d93f23a1125e617a4205e4e36fa81",
+        "unchangedTarget113Rows": [11641, 11659, 11668]
+      }
+    },
+    "vertex": {
+      "path": "src/components/VertexSetupWizard.tsx",
+      "observedMainSha256": "346ba8278d2835f97c7c19b459e42a32bfde5ba44e2d81868decd62bde61ba06",
+      "historicalPackageState": "present",
+      "historicalSha256": [
+        "346ba8278d2835f97c7c19b459e42a32bfde5ba44e2d81868decd62bde61ba06"
+      ]
+    },
+    "relaunch": {
+      "path": "src/utils/relaunch.ts",
+      "historicalPackageState": "present",
+      "observedMainSha256": "f2b7190dc1856d4178ff76547714cea86fd2ded3705a9cea56731e9342758c1a",
+      "historicalSha256": [
+        "14858f01df39aba918e9cbb74b38ed09de30b6efc7a53b4cf5cf6aa8ea2440c5",
+        "1fcc3baafce925f4ab87eac37268c808a83fe122e7894d2eddd8dfeb7f60561a"
+      ]
+    }
+  },
+  "rows": [
+    {
+      "targetIndex": 11641,
+      "targetName": "naK",
+      "priorOwnerIds": ["owner-src-components-Spinner-tsx"],
+      "correctedOwner": "src/components/BedrockSetupWizard.tsx",
+      "category": "recovered-owner-package-gap",
+      "target": {
+        "classification": "unresolved",
+        "start": 7430807,
+        "end": 7431529,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "31bb8e299e93c05a67ab9470827c51216022426c812f052e3237f6b3a7cdcf97"
+      },
+      "source": {
+        "declaration": "verifyBedrockSetup",
+        "kind": "FunctionDeclaration",
+        "sha256": "01009a5816713a222a00b052ec6033496c81608195ecfa0d0b5bfd5d1d30315d"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "anthropic",
+          "start": 7431377,
+          "end": 7431388,
+          "baselineOccurrenceCount": 3,
+          "targetOccurrenceNumber": 4,
+          "classification": "recovered-source-gap"
+        }
+      ]
+    },
+    {
+      "targetIndex": 11659,
+      "targetName": "HsK",
+      "priorOwnerIds": ["owner-src-components-Spinner-tsx"],
+      "correctedOwner": "src/components/BedrockSetupWizard.tsx",
+      "category": "recovered-owner-package-gap",
+      "target": {
+        "classification": "unresolved",
+        "start": 7442961,
+        "end": 7443320,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "f0d377f5e9f8ceaaf2945f841d1da13fac425109e7324eca0f72a261e5a4f5c1"
+      },
+      "source": {
+        "declaration": "discoverAwsProfiles",
+        "kind": "FunctionDeclaration",
+        "sha256": "31123bf49fe22004418321928de628eb81d905718e0123b5f15b5beea20d2126",
+        "imports": [
+          {"module":"node:fs/promises","imported":"readFile","local":"readFile"},
+          {"module":"node:os","imported":"homedir","local":"homedir"}
+        ]
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "homedir",
+          "start": 7443002,
+          "end": 7443009,
+          "baselineOccurrenceCount": 10,
+          "targetOccurrenceNumber": 57,
+          "classification": "recovered-source-gap"
+        },
+        {
+          "kind": "property",
+          "value": "readFile",
+          "start": 7443195,
+          "end": 7443203,
+          "baselineOccurrenceCount": 66,
+          "targetOccurrenceNumber": 88,
+          "classification": "recovered-source-gap"
+        }
+      ]
+    },
+    {
+      "targetIndex": 11668,
+      "targetName": "AsK",
+      "priorOwnerIds": ["owner-src-components-Spinner-tsx"],
+      "correctedOwner": "src/components/BedrockSetupWizard.tsx",
+      "category": "recovered-owner-package-gap-with-react-cache",
+      "target": {
+        "classification": "unresolved",
+        "start": 7447948,
+        "end": 7449654,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "80eb791756dafd443fef7bab0a71bfa30cea12422b4c1a5676b9417665fdd2ca"
+      },
+      "source": {
+        "declaration": "BedrockSetupWizard",
+        "kind": "FunctionDeclaration",
+        "switchCase": "region",
+        "switchCaseSha256": "047ae6d87c7e6f54b86527a7f2715297d810acdf39d2ee4d9af12b8e4175b4ab"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "c",
+          "start": 7447973,
+          "end": 7447974,
+          "baselineOccurrenceCount": 164,
+          "targetOccurrenceNumber": 248,
+          "classification": "react-memo-cache"
+        },
+        {
+          "kind": "string",
+          "value": "us-east-1",
+          "start": 7449178,
+          "end": 7449189,
+          "baselineOccurrenceCount": 12,
+          "targetOccurrenceNumber": 13,
+          "classification": "recovered-source-gap"
+        }
+      ]
+    },
+    {
+      "targetIndex": 11710,
+      "targetName": "SsK",
+      "priorOwnerIds": ["owner-src-components-Spinner-tsx"],
+      "correctedOwner": "src/components/VertexSetupWizard.tsx",
+      "category": "exact-alternate-source",
+      "target": {
+        "classification": "unresolved",
+        "start": 7470819,
+        "end": 7471321,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "85c6544b9bc1fb68a5a7700663fb694379a31eace301160fc60a1ef4d96d9a8f"
+      },
+      "source": {
+        "declaration": "discoverGcloudProjects",
+        "kind": "FunctionDeclaration",
+        "sha256": "596150adfc0d40b342b29257b5798365d981218f263c3c27fc2be9af0dc1f579",
+        "imports": [
+          {"module":"node:fs/promises","imported":"readdir","local":"readdir"},
+          {"module":"node:fs/promises","imported":"readFile","local":"readFile"}
+        ]
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "readdir",
+          "start": 7470953,
+          "end": 7470960,
+          "baselineOccurrenceCount": 44,
+          "targetOccurrenceNumber": 55,
+          "classification": "exact-alternate-source"
+        },
+        {
+          "kind": "property",
+          "value": "readFile",
+          "start": 7471022,
+          "end": 7471030,
+          "baselineOccurrenceCount": 66,
+          "targetOccurrenceNumber": 89,
+          "classification": "exact-alternate-source"
+        },
+        {
+          "kind": "property",
+          "value": "readFile",
+          "start": 7471177,
+          "end": 7471185,
+          "baselineOccurrenceCount": 66,
+          "targetOccurrenceNumber": 90,
+          "classification": "exact-alternate-source"
+        }
+      ]
+    },
+    {
+      "targetIndex": 11711,
+      "targetName": "sc9",
+      "priorOwnerIds": ["owner-src-components-Spinner-tsx"],
+      "correctedOwner": "src/components/VertexSetupWizard.tsx",
+      "category": "exact-alternate-source",
+      "target": {
+        "classification": "unresolved",
+        "start": 7471321,
+        "end": 7471386,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "e1bf8358cb41e86fdb91fa8e87eb2351a7eb5c1c7c1dbd5926be37e92db4de04"
+      },
+      "source": {
+        "declaration": "getGcloudConfigDir",
+        "kind": "FunctionDeclaration",
+        "sha256": "94aaa196da1201d132c7387eefd79a97a3424afb8a458c43256aa8c7bbacb667",
+        "imports": [
+          {"module":"node:os","imported":"homedir","local":"homedir"}
+        ]
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "homedir",
+          "start": 7471356,
+          "end": 7471363,
+          "baselineOccurrenceCount": 10,
+          "targetOccurrenceNumber": 58,
+          "classification": "exact-alternate-source"
+        }
+      ]
+    },
+    {
+      "targetIndex": 11722,
+      "targetName": "gsK",
+      "priorOwnerIds": ["owner-src-components-Spinner-tsx"],
+      "correctedOwner": "src/components/VertexSetupWizard.tsx",
+      "category": "exact-alternate-source-with-react-cache",
+      "target": {
+        "classification": "unresolved",
+        "start": 7477597,
+        "end": 7479389,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "cb94a249783f64d6aac291b7b70f5b52b72395dd660bf33f5eac9165392f8f68"
+      },
+      "source": {
+        "declaration": "VertexSetupWizard",
+        "kind": "FunctionDeclaration",
+        "switchCase": "serviceAccount",
+        "switchCaseSha256": "607dfe46c49b8c4682c9b03ad28ec3e1b157e3f13d5a9c5204bc014e903921d7",
+        "supportingDeclaration": "expandVertexKeyFile",
+        "supportingDeclarationSha256": "0655523a6dc43f8f69393ba3baa0669354207b08ea55fe5bad1b1c2252217152",
+        "imports": [
+          {"module":"node:os","imported":"homedir","local":"homedir"}
+        ]
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "c",
+          "start": 7477622,
+          "end": 7477623,
+          "baselineOccurrenceCount": 164,
+          "targetOccurrenceNumber": 258,
+          "classification": "react-memo-cache"
+        },
+        {
+          "kind": "property",
+          "value": "homedir",
+          "start": 7478038,
+          "end": 7478045,
+          "baselineOccurrenceCount": 10,
+          "targetOccurrenceNumber": 59,
+          "classification": "exact-alternate-source"
+        }
+      ]
+    },
+    {
+      "targetIndex": 11736,
+      "targetName": "_Q$",
+      "priorOwnerIds": ["owner-src-components-Spinner-tsx"],
+      "correctedOwner": "src/utils/relaunch.ts",
+      "category": "exact-alternate-source",
+      "target": {
+        "classification": "unresolved",
+        "start": 7482059,
+        "end": 7482168,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "47c464d30a19a18cf8f12abf1c55c045a028a7b9db9436fcff824137d2576936"
+      },
+      "source": {
+        "declaration": "severTtyInputForRelaunch",
+        "kind": "FunctionDeclaration",
+        "sha256": "186dbac17f8e64f2bb36bb067ba68926e985ecf6698326df3aacddb9ccb5a204",
+        "imports": [
+          {"module":"fs","imported":"closeSync","local":"closeSync"},
+          {"module":"tty","imported":"isatty","local":"isatty"}
+        ]
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "isatty",
+          "start": 7482132,
+          "end": 7482138,
+          "baselineOccurrenceCount": 7,
+          "targetOccurrenceNumber": 8,
+          "classification": "exact-alternate-source"
+        },
+        {
+          "kind": "property",
+          "value": "closeSync",
+          "start": 7482146,
+          "end": 7482155,
+          "baselineOccurrenceCount": 11,
+          "targetOccurrenceNumber": 14,
+          "classification": "exact-alternate-source"
+        }
+      ]
+    },
+    {
+      "targetIndex": 11739,
+      "targetName": "QIH",
+      "priorOwnerIds": ["owner-src-components-Spinner-tsx"],
+      "correctedOwner": "src/utils/relaunch.ts",
+      "category": "compiler-lowered-runtime-import",
+      "target": {
+        "classification": "unresolved",
+        "start": 7482682,
+        "end": 7482789,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "33ed4df1271231a6beff7424adc19b7bf4227eaae2bbf1d098156b1b50a1b69f"
+      },
+      "source": {
+        "imports": [
+          {"module":"tty","targetModule":"tty","imported":"isatty","local":"isatty"}
+        ]
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "tty",
+          "start": 7482780,
+          "end": 7482785,
+          "baselineOccurrenceCount": 6,
+          "targetOccurrenceNumber": 8,
+          "classification": "compiler-lowered-runtime-import"
+        }
+      ]
+    }
+  ]
+}

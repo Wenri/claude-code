@@ -336,6 +336,10 @@ export function AttachmentMessage({
       return <Line color="warning">
           {attachment.hookName} hook stopped continuation: {attachment.message}
         </Line>;
+    case 'hook_deferred_tool':
+      return <Line color="warning">
+          {attachment.hookName} deferred {attachment.toolName} · resume with -p --resume to continue
+        </Line>;
     case 'hook_system_message':
       return <Line>
           {attachment.hookName} says: {attachment.content}

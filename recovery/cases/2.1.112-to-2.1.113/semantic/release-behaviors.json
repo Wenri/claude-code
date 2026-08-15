@@ -1,0 +1,274 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.112-to-2.1.113",
+  "targetVersion": "2.1.113",
+  "criterion": "published-release-runtime-behaviors-v1",
+  "behaviors": [
+    {
+      "id": 1,
+      "behavior": "The wrapper package dispatches to a per-platform native Claude executable instead of publishing cli.js directly.",
+      "disposition": "generated-metadata",
+      "owners": [],
+      "evidence": ["package topology and Bun native-container inventory; not a first-party src runtime function"]
+    },
+    {
+      "id": 2,
+      "behavior": "sandbox.network.deniedDomains takes precedence over broader allowed-domain wildcards.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/utils/settings/types.ts", "src/utils/sandbox/sandbox-adapter.ts"],
+      "evidence": ["target deniedDomains schema and network-policy fragments; recovery overlay semantic tests"]
+    },
+    {
+      "id": 3,
+      "behavior": "Shift+Up/Down extends a selection and scrolls the fullscreen viewport when the selection crosses its visible edge.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/components/PromptInput/PromptInput.tsx", "src/components/FullscreenLayout.tsx"],
+      "evidence": ["target fullscreen selection key-handler and scroll-ref fragments"]
+    },
+    {
+      "id": 4,
+      "behavior": "Ctrl+A and Ctrl+E move to the beginning/end of the current logical line in multiline input.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/hooks/useTextInput.ts"],
+      "evidence": ["target logical-line cursor helpers and multiline key-handler fragments"]
+    },
+    {
+      "id": 5,
+      "behavior": "Ctrl+Backspace removes the preceding word on Windows.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/hooks/useTextInput.ts"],
+      "evidence": ["target Windows modifier normalization and word-delete branch"]
+    },
+    {
+      "id": 6,
+      "behavior": "Wrapped URLs preserve OSC 8 hyperlink spans across terminal lines.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/utils/sliceAnsi.ts", "src/ink/render-node-to-output.ts"],
+      "evidence": ["target OSC 8 open/close carryover fragments and line-render semantic tests"]
+    },
+    {
+      "id": 7,
+      "behavior": "Escape cancels pending /loop wakeups and the resumed event is labelled 'Claude resuming /loop wakeup'.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/utils/loopWakeup.ts", "src/hooks/useCancelRequest.ts", "src/hooks/useScheduledTasks.ts"],
+      "evidence": ["target loop cancellation and wakeup-label fragments; late semantic source-coverage test"]
+    },
+    {
+      "id": 8,
+      "behavior": "/extra-usage can be invoked from Remote Control clients.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/hooks/useReplBridge.tsx", "src/commands/extra-usage/extra-usage-core.ts"],
+      "evidence": ["target remote slash-command dispatch and extra-usage call fragments"]
+    },
+    {
+      "id": 9,
+      "behavior": "Remote Control clients can request @-file completion suggestions.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/hooks/useReplBridge.tsx", "src/hooks/fileSuggestions.ts"],
+      "evidence": ["target file-suggestions control request/response fragments"]
+    },
+    {
+      "id": 10,
+      "behavior": "/ultrareview prepares checks concurrently, shows a diffstat, and renders an animated launching state.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/commands/review/ultrareviewCommand.tsx", "src/commands/review/reviewRemote.ts", "src/commands/review/UltrareviewOverageDialog.tsx"],
+      "evidence": ["target Promise.all launch, shortstat, 50ms animation, glimmer, and spinner fragments; late semantic source-coverage test"]
+    },
+    {
+      "id": 11,
+      "behavior": "A subagent that stops producing stream events fails after ten minutes instead of hanging indefinitely.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/tools/AgentTool/runAgent.ts"],
+      "evidence": ["target ten-minute async-agent stream watchdog fragment"]
+    },
+    {
+      "id": 12,
+      "behavior": "A multiline Bash command whose first line is a comment displays the complete command in the transcript.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/tools/BashTool/BashTool.tsx", "src/tools/BashTool/bashSecurity.ts"],
+      "evidence": ["target comment-leading command-label fragment and spoof-prevention overlay test"]
+    },
+    {
+      "id": 13,
+      "behavior": "A no-op 'cd <current-directory> && git ...' compound is treated like the underlying git command and no longer triggers an avoidable permission prompt.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/utils/bash/ast.ts", "src/tools/BashTool/prompt.ts"],
+      "evidence": ["target no-op directory compound behavior and exact prompt guidance; late semantic source-coverage test"]
+    },
+    {
+      "id": 14,
+      "behavior": "macOS /private/etc, /private/var, /private/tmp, and /private/home are dangerous removal targets under Bash(rm:*) rules.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/tools/BashTool/bashPermissions.ts"],
+      "evidence": ["target macOS private-path canonicalization fragment and overlay tests"]
+    },
+    {
+      "id": 15,
+      "behavior": "Bash deny checks cannot be bypassed with env, sudo, watch, ionice, setsid, taskset, or similar command wrappers.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/utils/bash/ast.ts", "src/tools/BashTool/bashPermissions.ts"],
+      "evidence": ["target wrapper-unwrapping/deny fragments; late semantic source-coverage test"]
+    },
+    {
+      "id": 16,
+      "behavior": "Broad Bash(find:*) allow rules do not auto-approve find predicates that execute commands or modify/delete files.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/utils/bash/ast.ts", "src/tools/BashTool/bashPermissions.ts"],
+      "evidence": ["target -exec/-execdir/-ok/-okdir/-delete checks and argument-predicate skip logic; late semantic source-coverage test"]
+    },
+    {
+      "id": 17,
+      "behavior": "Each concurrent MCP call retains its own timeout watchdog; a message for one call cannot disarm another call's timer.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/services/mcp/client.ts"],
+      "evidence": ["target per-request MCP timeout map and clear-by-request-id fragments"]
+    },
+    {
+      "id": 18,
+      "behavior": "Cmd+Backspace and Ctrl+U delete from the cursor to the beginning of the current line.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/hooks/useTextInput.ts"],
+      "evidence": ["target line-start deletion keybinding fragments"]
+    },
+    {
+      "id": 19,
+      "behavior": "Markdown table cells may contain inline-code spans with a pipe character without splitting the cell.",
+      "disposition": "dependency-runtime",
+      "owners": [],
+      "evidence": ["first attributed runtime owner is the bundled marked table lexer; first-party src/utils/markdown.ts delegates parsing unchanged"]
+    },
+    {
+      "id": 20,
+      "behavior": "Session recap generation is suppressed while the prompt contains an unsent draft.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/hooks/useAwaySummary.ts", "src/screens/REPL.tsx"],
+      "evidence": ["target draft-input guard and '[awaySummary] skipped: draft input present' fragment; late semantic source-coverage test"]
+    },
+    {
+      "id": 21,
+      "behavior": "/copy Full response normalizes markdown table widths and escapes cell pipes for paste targets such as GitHub, Notion, and Slack.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/commands/copy/copy.tsx"],
+      "evidence": ["target table-normalization and escaped-pipe fragments; late semantic source-coverage test"]
+    },
+    {
+      "id": 22,
+      "behavior": "Messages entered while viewing a running subagent remain visible in that transcript and are attributed to the user rather than the parent assistant.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/components/tasks/RemoteSessionDetailDialog.tsx", "src/screens/REPL.tsx"],
+      "evidence": ["target active-subagent transcript ownership and input-routing fragments"]
+    },
+    {
+      "id": 23,
+      "behavior": "dangerouslyDisableSandbox still requires a permission decision before a Bash command runs outside the sandbox.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/tools/BashTool/shouldUseSandbox.ts", "src/tools/BashTool/BashTool.tsx"],
+      "evidence": ["target sandbox-disable permission branch and prompt fragments"]
+    },
+    {
+      "id": 24,
+      "behavior": "/effort auto confirmation reports 'Effort level set to max', matching the status label.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/components/PromptInput/Notifications.tsx", "src/utils/thinking.ts"],
+      "evidence": ["target effort-auto confirmation literal and effective-effort mapping"]
+    },
+    {
+      "id": 25,
+      "behavior": "The copy toast counts grapheme clusters rather than UTF-16 code units and uses singular 'char' for one grapheme.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/utils/intl.ts", "src/components/ScrollKeybindingHandler.tsx"],
+      "evidence": ["target grapheme Segmenter/count helper and toast branch; late semantic source-coverage test"]
+    },
+    {
+      "id": 26,
+      "behavior": "/insights tolerates Windows EBUSY filesystem failures while collecting usage data.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/commands/insights.ts", "src/utils/sessionStorage.ts"],
+      "evidence": ["target per-input filesystem error isolation; native Windows runtime supplies the EBUSY condition"]
+    },
+    {
+      "id": 27,
+      "behavior": "Exit confirmation labels recurring schedules with cron text and one-shot schedules with a countdown from createdAt to the next run.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/commands/exit/exit.tsx", "src/components/ExitFlow.tsx", "src/components/BackgroundWorkExitDialog.tsx"],
+      "evidence": ["target pH8/Ly1 at 10,789,130–10,789,481, including 'Runs once in', mostSignificantOnly, and prompt truncation to 50; late semantic source-coverage test"]
+    },
+    {
+      "id": 28,
+      "behavior": "Fullscreen slash/@ completion overlays sit flush with the prompt border.",
+      "disposition": "dependency-runtime",
+      "owners": [],
+      "evidence": ["target and baseline SuggestionsOverlay/PromptInputFooterSuggestions are alpha-identical; the fix is in the bundled Ink/native layout runtime"]
+    },
+    {
+      "id": 29,
+      "behavior": "output_config.effort from CLAUDE_CODE_EXTRA_BODY is removed for unsupported subagent models and Vertex requests.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/services/api/claude.ts", "src/utils/api.ts"],
+      "evidence": ["target effort-capability and Vertex request-body filtering fragments"]
+    },
+    {
+      "id": 30,
+      "behavior": "The prompt cursor remains visible under NO_COLOR by using raw inverse-video ANSI instead of color-dependent styling.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/ink/colorize.ts"],
+      "evidence": ["target ESC[7m/ESC[27m cursor fragment; late semantic source-coverage test"]
+    },
+    {
+      "id": 31,
+      "behavior": "ToolSearch gives an exact pasted MCP tool name priority over sibling descriptions that merely contain the same text.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/tools/ToolSearchTool/ToolSearchTool.ts"],
+      "evidence": ["target exact-name ranking branch before description scoring"]
+    },
+    {
+      "id": 32,
+      "behavior": "Compaction of a resumed long-context session retains the effective long-context model instead of issuing an ineligible standard-context request.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/query.ts", "src/services/compact/compact.ts", "src/utils/tokens.ts"],
+      "evidence": ["target restored-message token check, compact cache-safe model propagation, and runtime model selection fragments"]
+    },
+    {
+      "id": 33,
+      "behavior": "Plugin installation rejects a dependency whose requested range conflicts with an already installed plugin and reports range-conflict.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/services/plugins/pluginOperations.ts", "src/utils/plugins/pluginInstallationHelpers.ts"],
+      "evidence": ["target dependency-range intersection and range-conflict result fragments"]
+    },
+    {
+      "id": 34,
+      "behavior": "Refine with Ultraplan writes the created remote session URL into the local transcript.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/commands/ultraplan.tsx"],
+      "evidence": ["target Ultraplan launch/approval transcript messages include the session URL"]
+    },
+    {
+      "id": 35,
+      "behavior": "An SDK image block that cannot be processed degrades to a text placeholder instead of terminating the session.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/utils/attachments.ts", "src/components/messages/AttachmentMessage.tsx"],
+      "evidence": ["target image-processing catch and placeholder conversion fragments"]
+    },
+    {
+      "id": 36,
+      "behavior": "Remote Control forwards and renders live subagent tool-use/tool-result transcript messages.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/hooks/useRemoteSession.ts", "src/remote/sdkMessageAdapter.ts"],
+      "evidence": ["target useRemoteSession unit around target index 19112 and SDK tool-result conversion/stream-event handling"]
+    },
+    {
+      "id": 37,
+      "behavior": "Remote Control sessions are archived during Claude Code shutdown before the environment is deregistered.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/bridge/bridgeMain.ts"],
+      "evidence": ["target shutdown collects active/initial session IDs, awaits archiveSession for each, then deregisters"]
+    },
+    {
+      "id": 38,
+      "behavior": "Opus 4.7 requests through a Bedrock Application Inference Profile ARN avoid unsupported thinking.type.enabled payloads.",
+      "disposition": "source-runtime-covered",
+      "owners": ["src/utils/betas.ts", "src/utils/model/bedrockModelUpgrade.tsx", "src/services/api/claude.ts"],
+      "evidence": ["target Bedrock inference-profile provider detection and thinking-payload filtering fragments"]
+    }
+  ]
+}

@@ -12,8 +12,7 @@ export async function call(): Promise<{ type: 'text'; value: string }> {
   if (!isKeybindingCustomizationEnabled()) {
     return {
       type: 'text',
-      value:
-        'Keybinding customization is not enabled. This feature is currently in preview.',
+      value: 'Keybinding customization is disabled in this environment.',
     }
   }
 

@@ -274,8 +274,9 @@ The lineage gate reverse-applies the patch to reproduce the exact 2.1.100
 source tree, reapplies it, byte-compares the complete result with the
 repository, Bun-builds all 16 changed source paths, and runs five
 target-backed semantic tests. The base is additionally pinned to commit
-`a8e39191fe9098c7750f6d55190502a760d5f7d9` and Git tree
-`c19e46029d1f5e75e67b25203b10ac093fdded6f`.
+`71adf7f36c3522c296770374910eb1834dfe5d59`, full Git tree
+`c19e46029d1f5e75e67b25203b10ac093fdded6f`, and `src` Git tree
+`c333e6b77392e2bc5e7750a6246a9375caa5703a`.
 
 This gate proves reproducibility of the chosen source overlay. It does not
 upgrade that overlay into a claim that the complete original TypeScript tree
@@ -315,3 +316,14 @@ semantic tests  5
 
 For the complete construction procedure, see
 [`RECOVERY_RUNBOOK.md`](./RECOVERY_RUNBOOK.md).
+
+## Semantic source audit
+
+The fail-closed `compiled-ast-function-semantics-v1` ledger accounts for all
+2,522 structurally nonmatched target units. It reports zero first-party source
+runtime gaps, so the first-party target behavior is semantically reproduced by
+the historical source plus
+[`semantic-supplement.patch`](./semantic-supplement.patch). The 16 changed
+dependency-runtime units remain gaps because the historical source tree has no
+pinned application dependency manifest, lockfile, or hermetic build recipe;
+whole-bundle semantic equivalence from source is therefore not claimed.

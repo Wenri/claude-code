@@ -9,7 +9,7 @@ import { getPlatform } from './platform.js'
 
 // Track warnings to avoid spam — bounded to prevent unbounded memory growth
 export const MAX_WARNING_KEYS = 1000
-const warningCounts = new Map<string, number>()
+const installedWarningHandlers = new Set<(warning: Error) => void>()
 
 // Check if running from a build directory (development mode)
 // This is a sync version of the logic in getCurrentInstallationType()
@@ -45,37 +45,23 @@ function isInternalWarning(warning: Error): boolean {
   return INTERNAL_WARNINGS.some(pattern => pattern.test(warningStr))
 }
 
-// Store reference to our warning handler so we can detect if it's already installed
-let warningHandler: ((warning: Error) => void) | null = null
-
 // For testing only - allows resetting the warning handler state
 export function resetWarningHandler(): void {
-  if (warningHandler) {
-    process.removeListener('warning', warningHandler)
+  for (const handler of installedWarningHandlers) {
+    process.removeListener('warning', handler)
   }
-  warningHandler = null
-  warningCounts.clear()
+  installedWarningHandlers.clear()
 }
 
-export function initializeWarningHandler(): void {
-  // Only set up handler once - check if our handler is already installed
-  const currentListeners = process.listeners('warning')
-  if (warningHandler && currentListeners.includes(warningHandler)) {
-    return
-  }
-
+export function initializeWarningHandler(): { uninstall(): void } {
   // For external users, remove default Node.js handler to suppress stderr output
-  // For internal users, only keep default warnings for development builds
-  // Check development mode directly to avoid async call in init
-  // This preserves the same logic as getCurrentInstallationType() without async
-  const isDevelopment =
-    process.env.NODE_ENV === 'development' || isRunningFromBuildDirectory()
-  if (!isDevelopment) {
+  // For internal users, only keep default warnings for build-directory runs.
+  if (!isRunningFromBuildDirectory()) {
     process.removeAllListeners('warning')
   }
 
-  // Create and store our warning handler
-  warningHandler = (warning: Error) => {
+  const warningCounts = new Map<string, number>()
+  const warningHandler = (warning: Error) => {
     try {
       const warningKey = `${warning.name}: ${warning.message.slice(0, 50)}`
       const count = warningCounts.get(warningKey) || 0
@@ -92,17 +78,12 @@ export function initializeWarningHandler(): void {
 
       const isInternal = isInternalWarning(warning)
 
-      // Always log to Statsig for monitoring
-      // Include full details for ant users only, since they may contain code or filepaths
+      // Always log the safe warning class/count fields for monitoring.
       logEvent('tengu_node_warning', {
         is_internal: isInternal ? 1 : 0,
         occurrence_count: count + 1,
         classname:
           warning.name as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        ...(process.env.USER_TYPE === 'ant' && {
-          message:
-            warning.message as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        }),
       })
 
       // In debug mode, show all warnings with context
@@ -118,4 +99,11 @@ export function initializeWarningHandler(): void {
 
   // Install the warning handler
   process.on('warning', warningHandler)
+  installedWarningHandlers.add(warningHandler)
+  return {
+    uninstall() {
+      process.removeListener('warning', warningHandler)
+      installedWarningHandlers.delete(warningHandler)
+    },
+  }
 }

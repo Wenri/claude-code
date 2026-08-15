@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.114-to-2.1.116",
+  "criterion": "exact-embedded-claude-api-content-v1",
+  "documentChanges": [
+    {
+      "path": "SKILL.md",
+      "baseline": {
+        "bytes": 32354,
+        "sha256": "dd90198646c03171814a1064709688090064a0df19657fe43f966e72314c4fd8"
+      },
+      "target": {
+        "bytes": 32620,
+        "sha256": "227c6f4f52204e63f8e93351ef1eb8c5a362b6abff0a142956237b6d9cdb14a2"
+      },
+      "owner": "src/skills/bundled/claude-api/SKILL.md"
+    },
+    {
+      "path": "shared/model-migration.md",
+      "baseline": {
+        "bytes": 65666,
+        "sha256": "695d8c4ed28a5638a10523c09269a88fb21e2e12e90118c783c59f594fbe382d"
+      },
+      "target": {
+        "bytes": 65876,
+        "sha256": "6d9c882d5a0f8ef292ca9d52aae98e5ced80115b881d5ed3d92a4494823badbc"
+      },
+      "owner": "src/skills/bundled/claude-api/shared/model-migration.md"
+    }
+  ],
+  "routingChanges": [
+    {
+      "owner": "src/skills/bundled/claudeApiContent.ts",
+      "behavior": "The present model-migration document becomes a direct map member; runtime content is unchanged."
+    },
+    {
+      "owner": "src/skills/bundled/claudeApi.ts",
+      "behavior": "The identical model-migration reading-guide entry is inlined instead of placeholder replacement.",
+      "targetSha256": "9e9ea7f482145c309295a62875d829a3df083d738b348dc61cf21c2ba25fc35f"
+    }
+  ]
+}

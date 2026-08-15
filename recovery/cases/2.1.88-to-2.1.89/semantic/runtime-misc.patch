@@ -1,0 +1,203 @@
+diff --git a/src/hooks/unifiedSuggestions.ts b/src/hooks/unifiedSuggestions.ts
+index 9fdd5a4..368dcb6 100644
+--- a/src/hooks/unifiedSuggestions.ts
++++ b/src/hooks/unifiedSuggestions.ts
+@@ -187,7 +187,9 @@ export async function generateUnifiedSuggestions(
+     for (const result of fuseResults) {
+       scoredResults.push({
+         source: result.item,
+-        score: result.score ?? 0.5,
++        score:
++          (result.score ?? 0.5) +
++          (result.item.type === 'mcp_resource' ? 0.15 : 0),
+       })
+     }
+   }
+diff --git a/src/services/compact/autoCompact.ts b/src/services/compact/autoCompact.ts
+index cb9791e..64a34f7 100644
+--- a/src/services/compact/autoCompact.ts
++++ b/src/services/compact/autoCompact.ts
+@@ -1,6 +1,6 @@
+ import { feature } from 'bun:bundle'
+ import { markPostCompaction } from 'src/bootstrap/state.js'
+-import { getSdkBetas } from '../../bootstrap/state.js'
++import { getSdkBetas, getTotalDuration } from '../../bootstrap/state.js'
+ import type { QuerySource } from '../../constants/querySource.js'
+ import type { ToolUseContext } from '../../Tool.js'
+ import type { Message } from '../../types/message.js'
+@@ -134,9 +134,17 @@ export const MANUAL_COMPACT_BUFFER_TOKENS = 3_000
+ const MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES = 3
+ const RAPID_REFILL_TURN_LIMIT = 3
+ const MAX_CONSECUTIVE_RAPID_REFILLS = 3
++const COLD_COMPACT_MIN_SESSION_MS = 90 * 60 * 1000
+ 
+ export const AUTOCOMPACT_THRASH_MESSAGE = `Autocompact is thrashing: the context refilled to the limit within ${RAPID_REFILL_TURN_LIMIT} turns of the previous compact, ${MAX_CONSECUTIVE_RAPID_REFILLS} times in a row. A file being read or a tool output is likely too large for the context window. Try reading in smaller chunks, or use /clear to start fresh.`
+ 
++export function shouldUseColdCompaction(): boolean {
++  return (
++    getTotalDuration() >= COLD_COMPACT_MIN_SESSION_MS &&
++    getFeatureValue_CACHED_MAY_BE_STALE('tengu_cold_compact', false)
++  )
++}
++
+ export function getAutoCompactThreshold(
+   model: string,
+   autoCompactWindow?: number,
+@@ -410,6 +418,7 @@ export async function autoCompactIfNeeded(
+     }
+   }
+ 
++  const stripNonEssential = shouldUseColdCompaction()
+   try {
+     const compactionResult = await compactConversation(
+       messages,
+@@ -419,6 +428,7 @@ export async function autoCompactIfNeeded(
+       undefined, // No custom instructions for autocompact
+       true, // isAutoCompact
+       recompactionInfo,
++      stripNonEssential,
+     )
+ 
+     // Reset lastSummarizedMessageId since legacy compaction replaces all messages
+diff --git a/src/services/compact/compact.ts b/src/services/compact/compact.ts
+index f8f86ea..e172752 100644
+--- a/src/services/compact/compact.ts
++++ b/src/services/compact/compact.ts
+@@ -222,6 +222,16 @@ export function stripReinjectedAttachments(messages: Message[]): Message[] {
+   return messages
+ }
+ 
++export function stripNonEssentialCompactAttachments(
++  messages: Message[],
++): Message[] {
++  return messages.filter(
++    message =>
++      message.type !== 'attachment' ||
++      message.attachment.type === 'queued_command',
++  )
++}
++
+ export const ERROR_MESSAGE_NOT_ENOUGH_MESSAGES =
+   'Not enough messages to compact.'
+ const MAX_PTL_RETRIES = 3
+@@ -392,6 +402,7 @@ export async function compactConversation(
+   customInstructions?: string,
+   isAutoCompact: boolean = false,
+   recompactionInfo?: RecompactionInfo,
++  stripNonEssential: boolean = false,
+ ): Promise<CompactionResult> {
+   try {
+     if (messages.length === 0) {
+@@ -455,6 +466,7 @@ export async function compactConversation(
+         context,
+         preCompactTokenCount,
+         cacheSafeParams: retryCacheSafeParams,
++        stripNonEssential,
+       })
+       summary = getAssistantMessageText(summaryResponse)
+       if (!summary?.startsWith(PROMPT_TOO_LONG_ERROR_MESSAGE)) break
+@@ -649,6 +661,7 @@ export async function compactConversation(
+ 
+     logEvent('tengu_compact', {
+       preCompactTokenCount,
++      stripNonEssential,
+       // Kept for continuity — semantically the compact API call's total usage
+       postCompactTokenCount: compactionCallTotalTokens,
+       truePostCompactTokenCount,
+@@ -1140,6 +1153,7 @@ async function streamCompactSummary({
+   context,
+   preCompactTokenCount,
+   cacheSafeParams,
++  stripNonEssential = false,
+ }: {
+   messages: Message[]
+   summaryRequest: UserMessage
+@@ -1147,15 +1161,15 @@ async function streamCompactSummary({
+   context: ToolUseContext
+   preCompactTokenCount: number
+   cacheSafeParams: CacheSafeParams
++  stripNonEssential?: boolean
+ }): Promise<AssistantMessage> {
+   // When prompt cache sharing is enabled, use forked agent to reuse the
+   // main conversation's cached prefix (system prompt, tools, context messages).
+   // Falls back to regular streaming path on failure.
+   // 3P default: true — see comment at the other tengu_compact_cache_prefix read above.
+-  const promptCacheSharingEnabled = getFeatureValue_CACHED_MAY_BE_STALE(
+-    'tengu_compact_cache_prefix',
+-    true,
+-  )
++  const promptCacheSharingEnabled =
++    !stripNonEssential &&
++    getFeatureValue_CACHED_MAY_BE_STALE('tengu_compact_cache_prefix', true)
+   // Send keep-alive signals during compaction to prevent remote session
+   // WebSocket idle timeouts from dropping bridge connections. Compaction
+   // API calls can take 5-10+ seconds, during which no other messages
+@@ -1289,13 +1303,17 @@ async function streamCompactSummary({
+           )
+         : [FileReadTool]
+ 
++      const compactMessages = [
++        ...getMessagesAfterCompactBoundary(messages),
++        summaryRequest,
++      ]
++      const messagesForSummary = stripNonEssential
++        ? stripNonEssentialCompactAttachments(compactMessages)
++        : compactMessages
+       const streamingGen = queryModelWithStreaming({
+         messages: normalizeMessagesForAPI(
+           stripImagesFromMessages(
+-            stripReinjectedAttachments([
+-              ...getMessagesAfterCompactBoundary(messages),
+-              summaryRequest,
+-            ]),
++            stripReinjectedAttachments(messagesForSummary),
+           ),
+           context.options.tools,
+         ),
+diff --git a/src/utils/autoUpdater.ts b/src/utils/autoUpdater.ts
+index 2a5fc6f..895ee2a 100644
+--- a/src/utils/autoUpdater.ts
++++ b/src/utils/autoUpdater.ts
+@@ -493,11 +493,6 @@ To fix this issue:
+       return 'install_failed'
+     }
+ 
+-    const { hasPermissions } = await checkGlobalInstallPermissions()
+-    if (!hasPermissions) {
+-      return 'no_permissions'
+-    }
+-
+     // Use specific version if provided, otherwise use latest
+     const packageSpec = specificVersion
+       ? `${MACRO.PACKAGE_URL}@${specificVersion}`
+@@ -512,8 +507,17 @@ To fix this issue:
+       { cwd: homedir() },
+     )
+     if (installResult.code !== 0) {
++      const combinedOutput = `${installResult.stdout} ${installResult.stderr}`
++      if (/\b(EACCES|EPERM|permission denied)\b/i.test(combinedOutput)) {
++        logError(
++          new AutoUpdaterError(
++            'Insufficient permissions for global npm install.',
++          ),
++        )
++        return 'no_permissions'
++      }
+       const error = new AutoUpdaterError(
+-        `Failed to install new version of claude: ${installResult.stdout} ${installResult.stderr}`,
++        `Failed to install new version of claude: ${combinedOutput}`,
+       )
+       logError(error)
+       return 'install_failed'
+diff --git a/src/utils/worktree.ts b/src/utils/worktree.ts
+index 5e07ba7..1152033 100644
+--- a/src/utils/worktree.ts
++++ b/src/utils/worktree.ts
+@@ -1038,6 +1038,7 @@ const EPHEMERAL_WORKTREE_PATTERNS = [
+   // Template job worktrees: job-<templateName>-<8hex>. Prefix distinguishes
+   // from user-named EnterWorktree slugs that happen to end in 8 hex.
+   /^job-[a-zA-Z0-9._-]{1,55}-[0-9a-f]{8}$/,
++  /^bg-[a-zA-Z0-9._-]{1,55}-[0-9a-f]{8}$/,
+ ]
+ 
+ /**

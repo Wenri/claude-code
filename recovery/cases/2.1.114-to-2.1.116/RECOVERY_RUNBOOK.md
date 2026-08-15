@@ -478,12 +478,13 @@ pixi run node recovery/scripts/verify-complete-recovery.mjs \
   --repo .
 ```
 
-Require all nine statuses:
+Require all ten statuses:
 
 ```text
 evidence-verified
 bun-container-verified
 source-lineage-verified
+source-reproduction-audit-verified
 exact-delta-verified
 attribution-report-verified
 structural-ledger-verified

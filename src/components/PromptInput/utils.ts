@@ -35,25 +35,35 @@ export function getNewlineInstructions(): string {
  * with whitespace — i.e., a normal letter/digit/symbol the user typed.
  * Used to gate the lazy space inserted after an image pill.
  */
-export function isNonSpacePrintable(input: string, key: Key): boolean {
+export function isNonSpacePrintable(
+  input: string,
+  event: KeyboardEvent,
+): boolean {
   if (
-    key.ctrl ||
-    key.meta ||
-    key.escape ||
-    key.return ||
-    key.tab ||
-    key.backspace ||
-    key.delete ||
-    key.upArrow ||
-    key.downArrow ||
-    key.leftArrow ||
-    key.rightArrow ||
-    key.pageUp ||
-    key.pageDown ||
-    key.home ||
-    key.end
+    event.ctrl ||
+    event.meta ||
+    [
+      'escape',
+      'return',
+      'tab',
+      'backspace',
+      'delete',
+      'up',
+      'down',
+      'left',
+      'right',
+      'pageup',
+      'pagedown',
+      'home',
+      'end',
+    ].includes(event.name)
   ) {
     return false
   }
   return input.length > 0 && !/^\s/.test(input) && !input.startsWith('\x1b')
+}
+
+/** Punctuation that attaches to the preceding image/file pill without a gap. */
+export function isLeadingPunctuation(input: string): boolean {
+  return input.length > 0 && '.,?!:;)]'.includes(input.charAt(0))
 }

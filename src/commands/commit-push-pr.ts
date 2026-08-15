@@ -166,6 +166,18 @@ const command = {
       promptContent,
       {
         ...context,
+        getToolPermissionContext() {
+          const permissionContext =
+            context.getToolPermissionContext?.() ??
+            context.getAppState().toolPermissionContext
+          return {
+            ...permissionContext,
+            alwaysAllowRules: {
+              ...permissionContext.alwaysAllowRules,
+              command: ALLOWED_TOOLS,
+            },
+          }
+        },
         getAppState() {
           const appState = context.getAppState()
           return {

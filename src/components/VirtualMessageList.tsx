@@ -14,6 +14,7 @@ import { ScrollChromeContext } from './FullscreenLayout.js';
 // Rows of breathing room above the target when we scrollTo.
 const HEADROOM = 3;
 import { logForDebugging } from '../utils/debug.js';
+import { logError } from '../utils/log.js';
 import { sleep } from '../utils/sleep.js';
 import { renderableSearchText } from '../utils/transcriptSearch.js';
 import { isNavigableMessage, type MessageActionsNav, type MessageActionsState, type NavigableMessage, stripSystemReminders, toolCallOf } from './messageActions.js';
@@ -221,6 +222,40 @@ function VirtualItem({
     </TextHoverColorContext.Provider>
   </Box>;
 }
+
+function makeSiblingKeysUnique(keys: string[]): string[] {
+  const uniqueKeys = keys.slice()
+  const counts = new Map<string, number>()
+  let hasDuplicates = false
+
+  for (let index = 0; index < uniqueKeys.length; index++) {
+    const key = uniqueKeys[index]!
+    const count = counts.get(key)
+    if (count === undefined) {
+      counts.set(key, 1)
+    } else {
+      hasDuplicates = true
+      counts.set(key, count + 1)
+      uniqueKeys[index] = `${key}#${count}`
+    }
+  }
+
+  if (hasDuplicates) {
+    const duplicateCounts = [...counts]
+      .filter(([, count]) => count > 1)
+      .slice(0, 3)
+    logError(
+      new Error(
+        `VirtualMessageList: duplicate sibling keys (leaks DOM nodes via mapRemainingChildren overwrite): ${duplicateCounts
+          .map(([key, count]) => `${key} ×${count}`)
+          .join(', ')}`,
+      ),
+    )
+  }
+
+  return uniqueKeys
+}
+
 export function VirtualMessageList({
   messages,
   scrollRef,
@@ -242,7 +277,10 @@ export function VirtualMessageList({
 }: Props): React.ReactNode {
   const renderItemRef = useRef(renderItem);
   renderItemRef.current = renderItem;
-  const keys = useMemo(() => messages.map(itemKey), [messages, itemKey]);
+  const keys = useMemo(
+    () => makeSiblingKeysUnique(messages.map(itemKey)),
+    [messages, itemKey],
+  );
   const {
     range,
     topSpacer,

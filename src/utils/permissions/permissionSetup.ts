@@ -600,10 +600,12 @@ export function transitionPermissionMode(
   fromMode: string,
   toMode: string,
   context: ToolPermissionContext,
+  trigger?: string,
 ): ToolPermissionContext {
   // plan→plan (SDK set_permission_mode) would wrongly hit the leave branch below
   if (fromMode === toMode) return context
 
+  logPermissionModeChanged({ from: fromMode, to: toMode, trigger })
   handlePlanModeTransition(fromMode, toMode)
   handleAutoModeTransition(fromMode, toMode)
 
@@ -645,6 +647,67 @@ export function transitionPermissionMode(
   }
 
   return context
+}
+
+export type SetPermissionModeResult =
+  | { ok: true; mode: PermissionMode }
+  | { ok: false; error: string }
+
+/**
+ * Validate and apply an explicit permission-mode change outside the TUI mode
+ * carousel. Policy checks happen before transitionPermissionMode so rejected
+ * requests cannot partially activate auto or bypass-permissions state.
+ */
+export function setPermissionMode(
+  mode: PermissionMode,
+  currentContext: ToolPermissionContext,
+  setToolPermissionContext: (
+    updater: (previous: ToolPermissionContext) => ToolPermissionContext,
+  ) => void,
+): SetPermissionModeResult {
+  if (mode === 'bypassPermissions') {
+    if (isBypassPermissionsModeDisabled()) {
+      return {
+        ok: false,
+        error:
+          'Cannot set permission mode to bypassPermissions because it is disabled by settings or configuration',
+      }
+    }
+    if (!currentContext.isBypassPermissionsModeAvailable) {
+      return {
+        ok: false,
+        error:
+          'Cannot set permission mode to bypassPermissions because the session was not launched with --dangerously-skip-permissions',
+      }
+    }
+  }
+
+  if (mode === 'auto' && !isAutoModeGateEnabled()) {
+    const reason = getAutoModeUnavailableReason()
+    return {
+      ok: false,
+      error: reason
+        ? `Cannot set permission mode to auto: ${getAutoModeUnavailableNotification(reason)}`
+        : 'Cannot set permission mode to auto',
+    }
+  }
+
+  setToolPermissionContext(previous => {
+    if (previous.mode === mode) return previous
+    return {
+      ...transitionPermissionMode(previous.mode, mode, previous),
+      mode,
+    }
+  })
+  setImmediate(() => {
+    getLeaderToolUseConfirmQueue()?.(currentQueue => {
+      currentQueue.forEach(item => {
+        void item.recheckPermission()
+      })
+      return currentQueue
+    })
+  })
+  return { ok: true, mode }
 }
 
 /**
@@ -697,6 +760,23 @@ export function initialPermissionModeFromCLI({
   dangerouslySkipPermissions: boolean | undefined
   agentPermissionMode?: PermissionMode
 }): { mode: PermissionMode; notification?: string } {
+  if (isScrubEnabled()) {
+    const nonDefaultModeRequested = Boolean(
+      dangerouslySkipPermissions ||
+        (permissionModeCli && permissionModeCli !== 'default'),
+    )
+    const notification =
+      'Permission mode forced to default — CLAUDE_CODE_SUBPROCESS_ENV_SCRUB is set ' +
+      '(allowed_non_write_users hardening). Declare allowedTools explicitly, or set CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=0 to opt out.'
+    if (nonDefaultModeRequested) {
+      process.stderr.write(`⚠ ${notification}\n`)
+    }
+    return {
+      mode: 'default',
+      notification: nonDefaultModeRequested ? notification : undefined,
+    }
+  }
+
   const settings = getSettings_DEPRECATED() || {}
 
   // Check GrowthBook gate first - highest precedence
@@ -795,7 +875,7 @@ export function initialPermissionModeFromCLI({
   for (const mode of orderedModes) {
     if (mode === 'bypassPermissions' && disableBypassPermissionsMode) {
       if (growthBookDisableBypassPermissionsMode) {
-        logForDebugging('bypassPermissions mode is disabled by Statsig gate', {
+        logForDebugging('bypassPermissions mode is disabled by feature gate', {
           level: 'warn',
         })
         notification =
@@ -1267,6 +1347,11 @@ export async function verifyAutoModeGateAccess(
     if (inAuto) {
       autoModeStateModule?.setAutoModeActive(false)
       setNeedsAutoModeExitAttachment(true)
+      logPermissionModeChanged({
+        from: 'auto',
+        to: 'default',
+        trigger: 'auto_gate_denied',
+      })
       return {
         ...applyPermissionUpdate(restoreDangerousPermissions(ctx), {
           type: 'setMode',
@@ -1485,7 +1570,7 @@ export async function checkAndDisableBypassPermissions(
 
   // Gate is enabled, need to disable bypassPermissions mode
   logForDebugging(
-    'bypassPermissions mode is being disabled by Statsig gate (async check)',
+    'bypassPermissions mode is being disabled by feature gate (async check)',
     { level: 'warn' },
   )
 

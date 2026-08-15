@@ -234,8 +234,9 @@ The lineage gate reverse-applies the patch to reproduce the exact 2.1.98
 tree, reapplies it, byte-compares the result with the repository, Bun-builds
 all three changed source paths, and runs four target-backed semantic tests.
 The base is additionally pinned to commit
-`c5ede2d8970b8e236f724a8788e7ddbfd71a25b7` and Git tree
-`5be7981c901c7a586d1f1a2e8517a81cbb6c4adc`.
+`5ecd35c9e33fc10ec040d98e15eff6da20b569e0`, full Git tree
+`5be7981c901c7a586d1f1a2e8517a81cbb6c4adc`, and `src` Git tree
+`fd41ca07c4ca03756801b218462eab83c6fa3baf`.
 
 ## Verification
 
@@ -271,3 +272,14 @@ semantic tests  4
 
 For the complete construction procedure, see
 [`RECOVERY_RUNBOOK.md`](./RECOVERY_RUNBOOK.md).
+
+## Semantic source audit
+
+The fail-closed `compiled-ast-function-semantics-v1` ledger accounts for all 80
+structurally nonmatched target units and reports zero first-party source
+runtime gaps. The first-party target behavior is therefore semantically
+reproduced by the historical source plus
+[`semantic-supplement.patch`](./semantic-supplement.patch). No changed unit is
+classified as dependency runtime, but the historical source tree still lacks
+a pinned application dependency manifest, lockfile, and hermetic build recipe;
+whole-bundle semantic equivalence from source is therefore not claimed.

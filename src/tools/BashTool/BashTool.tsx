@@ -35,6 +35,7 @@ import type { ExecResult } from '../../utils/ShellCommand.js';
 import { SandboxManager } from '../../utils/sandbox/sandbox-adapter.js';
 import { semanticBoolean } from '../../utils/semanticBoolean.js';
 import { semanticNumber } from '../../utils/semanticNumber.js';
+import { isBashRerunEnabled } from './rerunAliases.js';
 import { EndTruncatingAccumulator, plural } from '../../utils/stringUtils.js';
 import { getTaskOutputPath } from '../../utils/task/diskOutput.js';
 import { TaskOutput } from '../../utils/task/TaskOutput.js';
@@ -53,6 +54,7 @@ import { shouldUseSandbox } from './shouldUseSandbox.js';
 import { BASH_TOOL_NAME } from './toolName.js';
 import { BackgroundHint, renderToolResultMessage, renderToolUseErrorMessage, renderToolUseMessage, renderToolUseProgressMessage, renderToolUseQueuedMessage } from './UI.js';
 import { buildImageToolResult, isImageOutput, resetCwdIfOutsideProject, resizeShellImageOutput, stdErrAppendShellResetMessage, stripEmptyLines } from './utils.js';
+import { getImageLimits } from '../../utils/imageLimits.js';
 const EOL = '\n';
 
 // Progress display constants
@@ -382,10 +384,25 @@ export function detectBlockedSleepPattern(command: string): string | null {
  * - Prefix patterns: "npm run test:*"
  */
 
+function isRuleBasedPermissionDecision(
+  reason: PermissionDecisionReason | undefined,
+): boolean {
+  if (reason?.type === 'rule') return true;
+  if (reason?.type === 'subcommandResults') {
+    return [...reason.reasons.values()].every(result =>
+      isRuleBasedPermissionDecision(result.decisionReason)
+    );
+  }
+  return false;
+}
+
 type SimulatedSedEditResult = {
   data: Out;
 };
-type SimulatedSedEditContext = Pick<ToolUseContext, 'readFileState' | 'updateFileHistoryState'>;
+type SimulatedSedEditContext = Pick<
+  ToolUseContext,
+  'readFileState' | 'getFileHistoryState' | 'applyFileHistoryOp'
+>;
 
 function isRuleBasedPermissionDecision(
   reason: PermissionDecisionReason | undefined,
@@ -437,7 +454,12 @@ async function applySedEdit(simulatedEdit: {
 
   // Track file history before making changes (for undo support)
   if (fileHistoryEnabled() && parentMessage) {
-    await fileHistoryTrackEdit(toolUseContext.updateFileHistoryState, absoluteFilePath, parentMessage.uuid);
+    await fileHistoryTrackEdit(
+      toolUseContext.getFileHistoryState,
+      toolUseContext.applyFileHistoryOp,
+      absoluteFilePath,
+      parentMessage.uuid,
+    );
   }
 
   // Detect line endings and write new content
@@ -733,12 +755,16 @@ export const BashTool = buildTool({
         // Use the always-shared task channel so async agents' background
         // bash tasks are actually registered (and killable on agent exit).
         setAppState: toolUseContext.setAppStateForTasks ?? setAppState,
+        taskRegistry: toolUseContext.taskRegistry,
+        abortSpeculation: toolUseContext.abortSpeculation,
         setToolJSX,
         emitToolProgress,
         preventCwdChanges,
         isMainThread,
         toolUseId: toolUseContext.toolUseId,
-        agentId: toolUseContext.agentId
+        agentId: toolUseContext.agentId,
+        sessionEnvVars: toolUseContext.sessionEnvVars,
+        tmuxSocket: toolUseContext.tmuxSocket
       });
 
       // Consume the generator and capture the return value
@@ -800,7 +826,13 @@ export const BashTool = buildTool({
         // stderr is merged into stdout (merged fd); outputWithSbFailures
         // already has the full output. Pass '' for stdout to avoid
         // duplication in getErrorParts() and processBashCommand.
-        throw new ShellError('', outputWithSbFailures, result.code, result.interrupted);
+        throw new ShellError(
+          '',
+          outputWithSbFailures,
+          result.code,
+          result.interrupted,
+          outputWithSbFailures !== (result.stdout || ''),
+        );
       }
       wasInterrupted = result.interrupted;
     } finally {
@@ -942,22 +974,30 @@ async function* runShellCommand({
   input,
   abortController,
   setAppState,
+  taskRegistry,
+  abortSpeculation,
   setToolJSX,
   emitToolProgress,
   preventCwdChanges,
   isMainThread,
   toolUseId,
-  agentId
+  agentId,
+  sessionEnvVars,
+  tmuxSocket
 }: {
   input: BashToolInput;
   abortController: AbortController;
   setAppState: (f: (prev: AppState) => AppState) => void;
+  taskRegistry: ToolUseContext['taskRegistry'];
+  abortSpeculation?: ToolUseContext['abortSpeculation'];
   setToolJSX?: SetToolJSXFn;
   emitToolProgress?: ToolUseContext['emitToolProgress'];
   preventCwdChanges?: boolean;
   isMainThread?: boolean;
   toolUseId?: string;
   agentId?: AgentId;
+  sessionEnvVars?: Map<string, string>;
+  tmuxSocket?: ToolUseContext['tmuxSocket'];
 }): AsyncGenerator<{
   type: 'progress';
   output: string;
@@ -1011,7 +1051,9 @@ async function* runShellCommand({
     },
     preventCwdChanges,
     shouldUseSandbox: shouldUseSandbox(input),
-    shouldAutoBackground
+    shouldAutoBackground,
+    sessionEnvVars,
+    tmuxSocket
   });
 
   // Start the command execution
@@ -1032,7 +1074,9 @@ async function* runShellCommand({
         // actually use it during the spawn process
         throw new Error('getAppState not available in runShellCommand context');
       },
-      setAppState
+      setAppState,
+      taskRegistry,
+      abortSpeculation
     });
     return handle.taskId;
   }
@@ -1044,7 +1088,7 @@ async function* runShellCommand({
     // would overwrite tasks[taskId], emit a duplicate task_started SDK event,
     // and leak the first cleanup callback.
     if (foregroundTaskId) {
-      if (!backgroundExistingForegroundTask(foregroundTaskId, shellCommand, description || command, setAppState, toolUseId)) {
+      if (!backgroundExistingForegroundTask(foregroundTaskId, shellCommand, description || command, taskRegistry, abortSpeculation, toolUseId)) {
         return;
       }
       backgroundShellId = foregroundTaskId;
@@ -1162,7 +1206,7 @@ async function* runShellCommand({
         // Check result.backgroundTaskId (not the closure var) to also cover
         // Ctrl+B, which calls shellCommand.background() directly.
         if (result.backgroundTaskId !== undefined) {
-          markTaskNotified(result.backgroundTaskId, setAppState);
+          markTaskNotified(result.backgroundTaskId, taskRegistry);
           const fixedResult: ExecResult = {
             ...result,
             backgroundTaskId: undefined
@@ -1183,7 +1227,7 @@ async function* runShellCommand({
         // Command has completed - return the actual result
         // If we registered as a foreground task, unregister it
         if (foregroundTaskId) {
-          unregisterForeground(foregroundTaskId, setAppState);
+          unregisterForeground(foregroundTaskId, taskRegistry);
         }
         // Clean up stream resources for foreground commands
         // (backgrounded commands are cleaned up by LocalShellTask)
@@ -1232,7 +1276,7 @@ async function* runShellCommand({
             description: description || command,
             shellCommand,
             agentId
-          }, setAppState, toolUseId);
+          }, taskRegistry, toolUseId);
         }
         setToolJSX({
           jsx: <BackgroundHint />,

@@ -32,72 +32,61 @@ import { BASH_MAX_OUTPUT_DEFAULT, BASH_MAX_OUTPUT_UPPER_LIMIT } from '../utils/s
 import { TASK_MAX_OUTPUT_DEFAULT, TASK_MAX_OUTPUT_UPPER_LIMIT } from '../utils/task/outputFormatting.js';
 import { getXDGStateHome } from '../utils/xdg.js';
 type Props = {
-  onDone: (result?: string, options?: {
-    display?: CommandResultDisplay;
-  }) => void;
-};
+  onDone: (
+    result?: string,
+    options?: { display?: CommandResultDisplay; shouldQuery?: boolean },
+  ) => void
+}
+
 type AgentInfo = {
   activeAgents: Array<{
-    agentType: string;
-    source: SettingSource | 'built-in' | 'plugin';
-  }>;
-  userAgentsDir: string;
-  projectAgentsDir: string;
-  userDirExists: boolean;
-  projectDirExists: boolean;
-  failedFiles?: Array<{
-    path: string;
-    error: string;
-  }>;
-};
+    agentType: string
+    source: SettingSource | 'built-in' | 'plugin'
+  }>
+  userAgentsDir: string
+  projectAgentsDir: string
+  userDirExists: boolean
+  projectDirExists: boolean
+  failedFiles: Array<{ path: string; error: string }>
+}
+
 type VersionLockInfo = {
-  enabled: boolean;
-  locks: LockInfo[];
-  locksDir: string;
-  staleLocksCleaned: number;
-};
-function DistTagsDisplay(t0) {
-  const $ = _c(8);
-  const {
-    promise
-  } = t0;
-  const distTags = use(promise);
+  enabled: boolean
+  locks: LockInfo[]
+  locksDir: string
+  staleLocksCleaned: number
+}
+
+type DistTagsResult = {
+  tags: NpmDistTags
+  isNative: boolean
+}
+
+function DistTagsDisplay({
+  promise,
+}: {
+  promise: Promise<DistTagsResult>
+}): React.ReactNode {
+  const { tags: distTags, isNative } = use(promise)
+
   if (!distTags.latest) {
-    let t1;
-    if ($[0] === Symbol.for("react.memo_cache_sentinel")) {
-      t1 = <Text dimColor={true}>└ Failed to fetch versions</Text>;
-      $[0] = t1;
-    } else {
-      t1 = $[0];
-    }
-    return t1;
+    return isNative && isEssentialTrafficOnly() ? (
+      <Tree.Node dimColor>
+        Version check skipped (essential-traffic-only mode)
+      </Tree.Node>
+    ) : (
+      <Tree.Node dimColor>Failed to fetch versions</Tree.Node>
+    )
   }
-  let t1;
-  if ($[1] !== distTags.stable) {
-    t1 = distTags.stable && <Text>└ Stable version: {distTags.stable}</Text>;
-    $[1] = distTags.stable;
-    $[2] = t1;
-  } else {
-    t1 = $[2];
-  }
-  let t2;
-  if ($[3] !== distTags.latest) {
-    t2 = <Text>└ Latest version: {distTags.latest}</Text>;
-    $[3] = distTags.latest;
-    $[4] = t2;
-  } else {
-    t2 = $[4];
-  }
-  let t3;
-  if ($[5] !== t1 || $[6] !== t2) {
-    t3 = <>{t1}{t2}</>;
-    $[5] = t1;
-    $[6] = t2;
-    $[7] = t3;
-  } else {
-    t3 = $[7];
-  }
-  return t3;
+
+  return (
+    <Tree.Group>
+      {distTags.stable && (
+        <Tree.Node>Stable version: {distTags.stable}</Tree.Node>
+      )}
+      <Tree.Node>Latest version: {distTags.latest}</Tree.Node>
+    </Tree.Group>
+  )
 }
 
 function BackgroundServerDetails({ promise }: { promise: Promise<BgDaemonStatus> }) {
@@ -152,155 +141,215 @@ export function Doctor(t0) {
   } else {
     t1 = $[1];
   }
-  const tools = t1;
-  const [diagnostic, setDiagnostic] = useState(null);
-  const [agentInfo, setAgentInfo] = useState(null);
-  const [contextWarnings, setContextWarnings] = useState(null);
-  const [versionLockInfo, setVersionLockInfo] = useState(null);
-  const validationErrors = useSettingsErrors();
-  let t2;
-  if ($[2] === Symbol.for("react.memo_cache_sentinel")) {
-    t2 = getDoctorDiagnostic().then(_temp6);
-    $[2] = t2;
-  } else {
-    t2 = $[2];
+  for (const warning of getCachedKeybindingWarnings()) {
+    issues.push(
+      `- Keybinding (${getKeybindingsPath()}): ${warning.message}${warning.suggestion ? `\n  Suggested fix: ${warning.suggestion}` : ''}`,
+    )
   }
-  const distTagsPromise = t2;
-  const autoUpdatesChannel = getInitialSettings()?.autoUpdatesChannel ?? "latest";
-  let t3;
-  if ($[3] !== validationErrors) {
-    t3 = validationErrors.filter(_temp7);
-    $[3] = validationErrors;
-    $[4] = t3;
-  } else {
-    t3 = $[4];
+  for (const file of agentInfo?.failedFiles ?? []) {
+    issues.push(`- Agent file failed to parse: ${file.path}\n  Error: ${file.error}`)
   }
-  const errorsExcludingMcp = t3;
-  let t4;
-  if ($[5] === Symbol.for("react.memo_cache_sentinel")) {
-    const envVars = [{
-      name: "BASH_MAX_OUTPUT_LENGTH",
-      default: BASH_MAX_OUTPUT_DEFAULT,
-      upperLimit: BASH_MAX_OUTPUT_UPPER_LIMIT
-    }, {
-      name: "TASK_MAX_OUTPUT_LENGTH",
-      default: TASK_MAX_OUTPUT_DEFAULT,
-      upperLimit: TASK_MAX_OUTPUT_UPPER_LIMIT
-    }, {
-      name: "CLAUDE_CODE_MAX_OUTPUT_TOKENS",
-      ...getModelMaxOutputTokens("claude-opus-4-6")
-    }];
-    t4 = envVars.map(_temp8).filter(_temp9);
-    $[5] = t4;
-  } else {
-    t4 = $[5];
+  for (const error of validationErrors) {
+    const location = [error.file, error.path].filter(Boolean).join(' › ')
+    issues.push(
+      `- Settings${location ? ` (${location})` : ''}: ${error.message}${error.suggestion ? `\n  Suggested fix: ${error.suggestion}` : ''}`,
+    )
   }
-  const envValidationErrors = t4;
-  let t5;
-  let t6;
-  if ($[6] !== agentDefinitions || $[7] !== toolPermissionContext || $[8] !== tools) {
-    t5 = () => {
-      getDoctorDiagnostic({
-        probeKeychain: true
-      }).then(setDiagnostic);
-      (async () => {
-        const userAgentsDir = join(getClaudeConfigHomeDir(), "agents");
-        const projectAgentsDir = join(getOriginalCwd(), ".claude", "agents");
-        const {
-          activeAgents,
-          allAgents,
-          failedFiles
-        } = agentDefinitions;
-        const [userDirExists, projectDirExists] = await Promise.all([pathExists(userAgentsDir), pathExists(projectAgentsDir)]);
-        const agentInfoData = {
-          activeAgents: activeAgents.map(_temp0),
-          userAgentsDir,
-          projectAgentsDir,
-          userDirExists,
-          projectDirExists,
-          failedFiles
-        };
-        setAgentInfo(agentInfoData);
-        const warnings = await checkContextWarnings(tools, {
-          activeAgents,
-          allAgents,
-          failedFiles
-        }, async () => toolPermissionContext);
-        setContextWarnings(warnings);
-        if (isPidBasedLockingEnabled()) {
-          const locksDir = join(getXDGStateHome(), "claude", "locks");
-          const staleLocksCleaned = cleanupStaleLocks(locksDir);
-          const locks = getAllLockInfo(locksDir);
-          setVersionLockInfo({
-            enabled: true,
-            locks,
-            locksDir,
-            staleLocksCleaned
-          });
-        } else {
-          setVersionLockInfo({
-            enabled: false,
-            locks: [],
-            locksDir: "",
-            staleLocksCleaned: 0
-          });
-        }
-      })();
-    };
-    t6 = [toolPermissionContext, tools, agentDefinitions];
-    $[6] = agentDefinitions;
-    $[7] = toolPermissionContext;
-    $[8] = tools;
-    $[9] = t5;
-    $[10] = t6;
-  } else {
-    t5 = $[9];
-    t6 = $[10];
+  for (const error of pluginErrors) {
+    const label = [
+      'plugin' in error && error.plugin,
+      error.source,
+    ]
+      .filter(Boolean)
+      .join(' @ ')
+    issues.push(
+      `- Plugin${label ? ` (${label})` : ''}: ${getPluginErrorMessage(error)}`,
+    )
   }
-  useEffect(t5, t6);
-  let t7;
-  if ($[11] !== onDone) {
-    t7 = () => {
-      onDone("Claude Code diagnostics dismissed", {
-        display: "system"
-      });
-    };
-    $[11] = onDone;
-    $[12] = t7;
-  } else {
-    t7 = $[12];
-  }
-  const handleDismiss = t7;
-  let t8;
-  if ($[13] !== handleDismiss) {
-    t8 = {
-      "confirm:yes": handleDismiss,
-      "confirm:no": handleDismiss
-    };
-    $[13] = handleDismiss;
-    $[14] = t8;
-  } else {
-    t8 = $[14];
-  }
-  let t9;
-  if ($[15] === Symbol.for("react.memo_cache_sentinel")) {
-    t9 = {
-      context: "Confirmation"
-    };
-    $[15] = t9;
-  } else {
-    t9 = $[15];
-  }
-  useKeybindings(t8, t9);
-  if (!diagnostic) {
-    let t10;
-    if ($[16] === Symbol.for("react.memo_cache_sentinel")) {
-      t10 = <Pane><Text dimColor={true}>Checking installation status…</Text></Pane>;
-      $[16] = t10;
-    } else {
-      t10 = $[16];
+  if (
+    SandboxManager.isSupportedPlatform() &&
+    SandboxManager.isSandboxEnabledInSettings() &&
+    SandboxManager.isPlatformInEnabledList()
+  ) {
+    for (const error of SandboxManager.checkDependencies().errors) {
+      issues.push(
+        `- Sandbox: ${error}\n  (See /sandbox for install instructions)`,
+      )
     }
-    return t10;
+  }
+  for (const warning of [
+    contextWarnings?.claudeMdWarning,
+    contextWarnings?.agentWarning,
+    contextWarnings?.unreachableRulesWarning,
+  ]) {
+    if (warning) {
+      issues.push(`- ${warning.message}\n  ${warning.details.join('\n  ')}`)
+    }
+  }
+  for (const warning of envValidationErrors) {
+    issues.push(`- Environment variable ${warning.name}: ${warning.message}`)
+  }
+
+  if (issues.length === 0) return null
+  return [
+    'Help me fix the issues reported by /doctor below.',
+    '',
+    'For each issue: briefly explain what the fix will do, then ask me to confirm before running any shell command that deletes files, modifies global config, or changes my installation. Safe read-only checks are fine without asking. If a suggested fix looks wrong for my setup, say so instead of running it.',
+    '',
+    issues.join('\n'),
+  ].join('\n')
+}
+
+export function Doctor({ onDone }: Props): React.ReactNode {
+  const agentDefinitions = useAppState(state => state.agentDefinitions)
+  const toolPermissionContext = useAppState(state => state.toolPermissionContext)
+  const pluginErrors = useAppState(state => state.plugins.errors)
+  const { rows } = useModalOrTerminalSize(useTerminalSize())
+  const modalScrollRef = useModalScrollRef()
+
+  useExitOnCtrlCDWithKeybindings()
+
+  const [diagnostic, setDiagnostic] = useState<DiagnosticInfo | null>(null)
+  const [agentInfo, setAgentInfo] = useState<AgentInfo | null>(null)
+  const [contextWarnings, setContextWarnings] =
+    useState<ContextWarnings | null>(null)
+  const [versionLockInfo, setVersionLockInfo] =
+    useState<VersionLockInfo | null>(null)
+  const validationErrors = useSettingsErrors()
+  const distTagsPromise = useMemo(async (): Promise<DistTagsResult> => {
+    const isNative =
+      (await getDoctorDiagnostic()).installationType === 'native'
+    const fetchDistTags = isNative ? getGcsDistTags : getNpmDistTags
+    return {
+      tags: await fetchDistTags().catch(() => ({ latest: null, stable: null })),
+      isNative,
+    }
+  }, [])
+  const autoUpdatesChannel = getInitialSettings()?.autoUpdatesChannel ?? 'latest'
+  const errorsExcludingMcp = validationErrors.filter(
+    error => error.mcpErrorMetadata === undefined,
+  )
+  const envValidationErrors = useMemo(
+    () =>
+      [
+        {
+          name: 'BASH_MAX_OUTPUT_LENGTH',
+          default: BASH_MAX_OUTPUT_DEFAULT,
+          upperLimit: BASH_MAX_OUTPUT_UPPER_LIMIT,
+        },
+        {
+          name: 'TASK_MAX_OUTPUT_LENGTH',
+          default: TASK_MAX_OUTPUT_DEFAULT,
+          upperLimit: TASK_MAX_OUTPUT_UPPER_LIMIT,
+        },
+        {
+          name: 'CLAUDE_CODE_MAX_OUTPUT_TOKENS',
+          ...getModelMaxOutputTokens('claude-opus-4-6'),
+        },
+      ]
+        .map(variable => ({
+          name: variable.name,
+          ...validateBoundedIntEnvVar(
+            variable.name,
+            process.env[variable.name],
+            variable.default,
+            variable.upperLimit,
+          ),
+        }))
+        .filter(result => result.status !== 'valid'),
+    [],
+  )
+
+  useEffect(() => {
+    void getDoctorDiagnostic({ probeKeychain: true }).then(setDiagnostic)
+    void (async () => {
+      const userAgentsDir = join(getClaudeConfigHomeDir(), 'agents')
+      const projectAgentsDir = join(getOriginalCwd(), '.claude', 'agents')
+      const { activeAgents, allAgents, failedFiles } = agentDefinitions
+      const [userDirExists, projectDirExists] = await Promise.all([
+        pathExists(userAgentsDir),
+        pathExists(projectAgentsDir),
+      ])
+      setAgentInfo({
+        activeAgents: activeAgents.map(agent => ({
+          agentType: agent.agentType,
+          source: agent.source,
+        })),
+        userAgentsDir,
+        projectAgentsDir,
+        userDirExists,
+        projectDirExists,
+        failedFiles: failedFiles ?? [],
+      })
+      setContextWarnings(
+        await checkContextWarnings(
+          { activeAgents, allAgents, failedFiles },
+          async () => toolPermissionContext,
+        ),
+      )
+      if (isPidBasedLockingEnabled()) {
+        const locksDir = join(getXDGStateHome(), 'claude', 'locks')
+        setVersionLockInfo({
+          enabled: true,
+          locks: getAllLockInfo(locksDir),
+          locksDir,
+          staleLocksCleaned: cleanupStaleLocks(locksDir),
+        })
+      } else {
+        setVersionLockInfo({
+          enabled: false,
+          locks: [],
+          locksDir: '',
+          staleLocksCleaned: 0,
+        })
+      }
+    })()
+  }, [toolPermissionContext, agentDefinitions])
+
+  const handleDismiss = useCallback(() => {
+    onDone('Claude Code diagnostics dismissed', { display: 'system' })
+  }, [onDone])
+  const doctorFixPrompt = useMemo(
+    () =>
+      buildDoctorFixPrompt(
+        diagnostic,
+        agentInfo,
+        errorsExcludingMcp,
+        pluginErrors,
+        contextWarnings,
+        envValidationErrors,
+      ),
+    [
+      diagnostic,
+      agentInfo,
+      errorsExcludingMcp,
+      pluginErrors,
+      contextWarnings,
+      envValidationErrors,
+    ],
+  )
+
+  useKeybindings(
+    { 'confirm:yes': handleDismiss, 'confirm:no': handleDismiss },
+    { context: 'Confirmation' },
+  )
+  useKeybindings(
+    {
+      'doctor:fix': () => {
+        if (doctorFixPrompt) {
+          onDone(doctorFixPrompt, { display: 'user', shouldQuery: true })
+        }
+      },
+    },
+    { context: 'Doctor', isActive: doctorFixPrompt !== null },
+  )
+
+  if (!diagnostic) {
+    return (
+      <Pane>
+        <Text dimColor>Checking installation status…</Text>
+      </Pane>
+    )
   }
   let t10;
   if ($[17] === Symbol.for("react.memo_cache_sentinel")) {
@@ -539,8 +588,27 @@ export function Doctor(t0) {
   }
   return t41;
 }
-function _temp18(detail_2, i_8) {
-  return <Text key={i_8} dimColor={true}>{"    "}└ {detail_2}</Text>;
+
+function ContextWarning({
+  warning,
+}: {
+  warning: { message: string; details: string[] }
+}): React.ReactNode {
+  return (
+    <Tree.Node color="warning" label={warning.message}>
+      {warning.details.map((detail, index) =>
+        detail.startsWith('(') ? (
+          <Connector key={index} connectors={['space', 'space']}>
+            <Text dimColor>{detail}</Text>
+          </Connector>
+        ) : (
+          <Tree.Node key={index} dimColor>
+            {detail}
+          </Tree.Node>
+        ),
+      )}
+    </Tree.Node>
+  )
 }
 function _temp17(detail_1, i_7) {
   return <Text key={i_7} dimColor={true}>{"    "}└ {detail_1}</Text>;

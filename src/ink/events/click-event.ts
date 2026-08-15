@@ -28,11 +28,25 @@ export class ClickEvent extends Event {
    * clicks on empty terminal space don't toggle state.
    */
   readonly cellIsBlank: boolean
+  /** OSC 8 hyperlink under the clicked cell, when present. */
+  readonly hyperlinkUrl: string | undefined
+  /** Whether terminal-native hyperlink handling may proceed. */
+  defaultAllowed = false
 
-  constructor(col: number, row: number, cellIsBlank: boolean) {
+  allowDefault(): void {
+    this.defaultAllowed = true
+  }
+
+  constructor(
+    col: number,
+    row: number,
+    cellIsBlank: boolean,
+    hyperlinkUrl?: string,
+  ) {
     super()
     this.col = col
     this.row = row
     this.cellIsBlank = cellIsBlank
+    this.hyperlinkUrl = hyperlinkUrl
   }
 }

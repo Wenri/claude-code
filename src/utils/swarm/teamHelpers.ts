@@ -11,6 +11,7 @@ import { gitExe } from '../git.js'
 import { lazySchema } from '../lazySchema.js'
 import type { PermissionMode } from '../permissions/PermissionMode.js'
 import { jsonParse, jsonStringify } from '../slowOperations.js'
+import { lock } from '../lockfile.js'
 import { getTasksDir, notifyTasksUpdated } from '../tasks.js'
 import { getAgentName, getTeamName, isTeammate } from '../teammate.js'
 import { type BackendType, isPaneBackend } from './backends/types.js'
@@ -93,6 +94,11 @@ export type Input = z.infer<ReturnType<typeof inputSchema>>
 // Export SpawnTeamOutput as Output for backward compatibility
 export type Output = SpawnTeamOutput
 
+const TEAM_FILE_LOCK_OPTIONS = {
+  realpath: false,
+  retries: { retries: 10, minTimeout: 5, maxTimeout: 100 },
+}
+
 /**
  * Sanitizes a name for use in tmux window names, worktree paths, and file paths.
  * Replaces all non-alphanumeric characters with hyphens and lowercases.
@@ -169,16 +175,82 @@ function writeTeamFile(teamName: string, teamFile: TeamFile): void {
   writeFileSync(getTeamFilePath(teamName), jsonStringify(teamFile, null, 2))
 }
 
+function teamDoesNotExistError(teamName: string): Error {
+  return new Error(
+    `Team "${teamName}" does not exist. Call spawnTeam first to create the team.`,
+  )
+}
+
+export async function updateTeamFile<T>(
+  teamName: string,
+  updater: (teamFile: TeamFile) => T | false,
+): Promise<T | undefined> {
+  const teamFilePath = getTeamFilePath(teamName)
+  let release: (() => Promise<void>) | undefined
+  try {
+    release = await lock(teamFilePath, {
+      lockfilePath: `${teamFilePath}.lock`,
+      ...TEAM_FILE_LOCK_OPTIONS,
+    })
+  } catch (error) {
+    if (getErrnoCode(error) === 'ENOENT') {
+      throw teamDoesNotExistError(teamName)
+    }
+    throw error
+  }
+
+  try {
+    const teamFile = await readTeamFileAsync(teamName)
+    if (!teamFile) throw teamDoesNotExistError(teamName)
+    const result = updater(teamFile)
+    if (result === false) return
+    await writeTeamFileAsync(teamName, teamFile)
+    return result
+  } finally {
+    try {
+      await release()
+    } catch (error) {
+      logForDebugging(
+        `[TeammateTool] updateTeamFile lock release failed: ${errorMessage(error)}`,
+      )
+    }
+  }
+}
+
+export async function removeTeamMember(
+  teamName: string,
+  agentId: string,
+): Promise<void> {
+  try {
+    await updateTeamFile(teamName, teamFile => {
+      const memberIndex = teamFile.members.findIndex(
+        member => member.agentId === agentId,
+      )
+      if (memberIndex === -1) return false
+      teamFile.members.splice(memberIndex, 1)
+    })
+  } catch (error) {
+    logForDebugging(
+      `[TeammateTool] removeTeamMember(${agentId}) failed: ${errorMessage(error)}`,
+    )
+  }
+}
+
 /**
  * Writes a team file (async — for tool handlers)
  */
 export async function writeTeamFileAsync(
   teamName: string,
   teamFile: TeamFile,
+  options?: { exclusive?: boolean },
 ): Promise<void> {
   const teamDir = getTeamDir(teamName)
   await mkdir(teamDir, { recursive: true })
-  await writeFile(getTeamFilePath(teamName), jsonStringify(teamFile, null, 2))
+  await writeFile(
+    getTeamFilePath(teamName),
+    jsonStringify(teamFile, null, 2),
+    options?.exclusive ? { flag: 'wx' } : undefined,
+  )
 }
 
 /**
@@ -456,32 +528,26 @@ export async function setMemberActive(
   memberName: string,
   isActive: boolean,
 ): Promise<void> {
-  const teamFile = await readTeamFileAsync(teamName)
-  if (!teamFile) {
+  try {
+    await updateTeamFile(teamName, teamFile => {
+      const member = teamFile.members.find(m => m.name === memberName)
+      if (!member) {
+        logForDebugging(
+          `[TeammateTool] Cannot set member active: member ${memberName} not found in team ${teamName}`,
+        )
+        return false
+      }
+      if (member.isActive === isActive) return false
+      member.isActive = isActive
+      logForDebugging(
+        `[TeammateTool] Set member ${memberName} in team ${teamName} to ${isActive ? 'active' : 'idle'}`,
+      )
+    })
+  } catch (error) {
     logForDebugging(
-      `[TeammateTool] Cannot set member active: team ${teamName} not found`,
+      `[TeammateTool] Cannot set member active: ${errorMessage(error)}`,
     )
-    return
   }
-
-  const member = teamFile.members.find(m => m.name === memberName)
-  if (!member) {
-    logForDebugging(
-      `[TeammateTool] Cannot set member active: member ${memberName} not found in team ${teamName}`,
-    )
-    return
-  }
-
-  // Only write if the value is actually changing
-  if (member.isActive === isActive) {
-    return
-  }
-
-  member.isActive = isActive
-  await writeTeamFileAsync(teamName, teamFile)
-  logForDebugging(
-    `[TeammateTool] Set member ${memberName} in team ${teamName} to ${isActive ? 'active' : 'idle'}`,
-  )
 }
 
 /**

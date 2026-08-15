@@ -34,7 +34,7 @@ import {
   getIsNonInteractiveSession,
   getSessionId,
 } from '../../bootstrap/state.js'
-import { getOauthConfig } from '../../constants/oauth.js'
+import { getOauthConfig, isWIFActive } from '../../constants/oauth.js'
 import { isDebugToStdErr, logForDebugging } from '../../utils/debug.js'
 import {
   getAWSRegion,
@@ -42,6 +42,10 @@ import {
   isEnvDefinedFalsy,
   isEnvTruthy,
 } from '../../utils/envUtils.js'
+import {
+  getWIFCredentials,
+  getWIFTokenCache,
+} from '../../utils/workloadIdentity.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../analytics/growthbook.js'
 import {
   buildVertexGoogleAuth,
@@ -286,6 +290,46 @@ export async function getAnthropicClient({
     }
     // we have always been lying about the return type - this doesn't support batching or models
     return new AnthropicFoundry(foundryArgs) as unknown as Anthropic
+  }
+  if (apiProvider === 'anthropicAws') {
+    const { AnthropicAws } = await import('@anthropic-ai/aws-sdk')
+    const skipAuth = isEnvTruthy(
+      process.env.CLAUDE_CODE_SKIP_ANTHROPIC_AWS_AUTH,
+    )
+    const { value: authorizationHeader, rest: headersWithoutAuthorization } =
+      extractAuthorizationHeader(ARGS.defaultHeaders)
+    const anthropicAwsApiKey = skipAuth ? authorizationHeader : undefined
+    const anthropicAwsArgs: ConstructorParameters<typeof AnthropicAws>[0] = {
+      ...ARGS,
+      defaultHeaders: headersWithoutAuthorization,
+      ...(skipAuth &&
+        !anthropicAwsApiKey && {
+          skipAuth: true,
+        }),
+      ...(anthropicAwsApiKey && {
+        apiKey:
+          anthropicAwsApiKey.match(/^Bearer (.+)$/i)?.[1] ??
+          anthropicAwsApiKey,
+        defaultHeaders: {
+          ...headersWithoutAuthorization,
+          Authorization: anthropicAwsApiKey,
+        },
+      }),
+      ...(isDebugToStdErr() && { logger: createStderrLogger() }),
+    }
+
+    if (
+      !process.env.ANTHROPIC_AWS_API_KEY &&
+      !skipAuth
+    ) {
+      const cachedCredentials = await refreshAndGetAwsCredentials()
+      if (cachedCredentials) {
+        anthropicAwsArgs.awsAccessKey = cachedCredentials.accessKeyId
+        anthropicAwsArgs.awsSecretAccessKey = cachedCredentials.secretAccessKey
+        anthropicAwsArgs.awsSessionToken = cachedCredentials.sessionToken
+      }
+    }
+    return new AnthropicAws(anthropicAwsArgs) as unknown as Anthropic
   }
   if (apiProvider === 'vertex') {
     // Refresh GCP credentials if gcpAuthRefresh is configured and credentials are expired

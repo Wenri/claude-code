@@ -32,9 +32,13 @@ import { useMainLoopModel } from '../../hooks/useMainLoopModel.js';
 import { usePromptSuggestion } from '../../hooks/usePromptSuggestion.js';
 import { useTerminalSize } from '../../hooks/useTerminalSize.js';
 import { useTypeahead } from '../../hooks/useTypeahead.js';
+import type { DOMElement } from '../../ink/dom.js';
+import { nodeCache, type CachedLayout } from '../../ink/node-cache.js';
 import type { BorderTextOptions } from '../../ink/render-border.js';
+import { selectionBounds, type SelectionState } from '../../ink/selection.js';
 import { stringWidth } from '../../ink/stringWidth.js';
-import { Box, type ClickEvent, type Key, Text, useInput } from '../../ink.js';
+import { Box, type ClickEvent, Text, useInput } from '../../ink.js';
+import type { KeyboardEvent } from '../../ink/events/keyboard-event.js';
 import { useOptionalKeybindingContext } from '../../keybindings/KeybindingContext.js';
 import { getShortcutDisplay } from '../../keybindings/shortcutFormat.js';
 import { useKeybinding, useKeybindings } from '../../keybindings/useKeybinding.js';
@@ -69,6 +73,7 @@ import { getFastModeUnavailableReason, isFastModeAvailable, isFastModeCooldown, 
 import { isFullscreenEnvEnabled } from '../../utils/fullscreen.js';
 import type { PromptInputHelpers } from '../../utils/handlePromptSubmit.js';
 import { getImageFromClipboard, PASTE_THRESHOLD } from '../../utils/imagePaste.js';
+import { getImageLimits } from '../../utils/imageLimits.js';
 import type { ImageDimensions } from '../../utils/imageResizer.js';
 import { cacheImagePath, storeImage } from '../../utils/imageStore.js';
 import { isMacosOptionChar, MACOS_OPTION_SPECIAL_CHARS } from '../../utils/keyboardShortcuts.js';
@@ -100,7 +105,7 @@ import { isUltraplanEnabled } from '../../utils/ultraplan/config.js';
 import { AutoModeOptInDialog } from '../AutoModeOptInDialog.js';
 import { BridgeDialog } from '../BridgeDialog.js';
 import { ConfigurableShortcutHint } from '../ConfigurableShortcutHint.js';
-import { getVisibleAgentTasks, useCoordinatorTaskCount } from '../CoordinatorAgentStatus.js';
+import { getDecoratedVisibleAgentTasks, useCoordinatorTaskCount } from '../CoordinatorAgentStatus.js';
 import { getEffortNotificationText } from '../EffortIndicator.js';
 import { getFastIconString } from '../FastIcon.js';
 import { GlobalSearchDialog } from '../GlobalSearchDialog.js';
@@ -124,7 +129,24 @@ import { useMaybeTruncateInput } from './useMaybeTruncateInput.js';
 import { usePromptInputPlaceholder } from './usePromptInputPlaceholder.js';
 import { useShowFastIconHint } from './useShowFastIconHint.js';
 import { useSwarmBanner } from './useSwarmBanner.js';
-import { isNonSpacePrintable, isVimModeEnabled } from './utils.js';
+import {
+  isLeadingPunctuation,
+  isNonSpacePrintable,
+  isVimModeEnabled,
+} from './utils.js';
+
+export function preserveDecoratedTaskSelection(
+  selectedIndex: number,
+  previousTaskIds: readonly string[],
+  currentTaskIds: readonly string[],
+): number {
+  if (selectedIndex < 1) return selectedIndex;
+  for (let i = Math.min(selectedIndex, previousTaskIds.length) - 1; i >= 0; i--) {
+    const currentIndex = currentTaskIds.indexOf(previousTaskIds[i]!);
+    if (currentIndex !== -1) return currentIndex + 1;
+  }
+  return 0;
+}
 type Props = {
   debug: boolean;
   ideSelection: IDESelection | undefined;
@@ -190,6 +212,7 @@ type Props = {
     start: number;
     end: number;
   } | null;
+  sessionEnvVars?: Map<string, string>;
 };
 
 // Bottom slot has maxHeight="50%"; reserve lines for footer, border, status.
@@ -244,7 +267,8 @@ function PromptInput({
   hasSuppressedDialogs,
   isLocalJSXCommandActive = false,
   insertTextRef,
-  voiceInterimRange
+  voiceInterimRange,
+  sessionEnvVars
 }: Props): React.ReactNode {
   const mainLoopModel = useMainLoopModel();
   // A local-jsx command (e.g., /mcp while agent is running) renders a full-
@@ -1155,7 +1179,8 @@ function PromptInput({
     suggestionsState,
     suppressSuggestions: isSearchingHistory || historyIndex > 0,
     markAccepted,
-    onModeChange
+    onModeChange,
+    sessionEnvVars
   });
 
   // Track if prompt suggestion should be shown (computed later with terminal width).
@@ -1197,10 +1222,10 @@ function PromptInput({
     };
 
     // Cache path immediately (fast) so links work on render
-    cacheImagePath(newContent);
+    cacheImagePath(newContent, setAppState);
 
     // Store image to disk in background
-    void storeImage(newContent);
+    void storeImage(newContent, setAppState);
 
     // Update UI
     setPastedContents(prev => ({
@@ -1306,10 +1331,12 @@ function PromptInput({
       insertTextAtCursor(text);
     }
   }
-  const lazySpaceInputFilter = useCallback((input: string, key: Key): string => {
+  const lazySpaceInputFilter = useCallback((input: string, key: KeyboardEvent): string => {
     if (!pendingSpaceAfterPillRef.current) return input;
     pendingSpaceAfterPillRef.current = false;
-    if (isNonSpacePrintable(input, key)) return ' ' + input;
+    if (isNonSpacePrintable(input, key) && !isLeadingPunctuation(input)) {
+      return ' ' + input;
+    }
     return input;
   }, []);
   function insertTextAtCursor(text: string) {
@@ -1451,6 +1478,15 @@ function PromptInput({
       });
     }
   }, [input, cursorOffset, stashedPrompt, trackAndSetInput, setStashedPrompt, pastedContents, setPastedContents]);
+
+  const handleClearInput = useCallback(() => {
+    trackAndSetInput('');
+    setCursorOffset(0);
+    clearBuffer();
+    resetHistory();
+    onModeChange('prompt');
+    setPastedContents({});
+  }, [trackAndSetInput, clearBuffer, resetHistory, onModeChange, setPastedContents]);
 
   // Handler for chat:modelPicker - toggle model picker
   const showRemoteFastModeUnavailable = useCallback(() => {
@@ -1647,7 +1683,7 @@ function PromptInput({
 
     const {
       context: preparedContext
-    } = cyclePermissionMode(toolPermissionContext, teamContext);
+    } = cyclePermissionMode(toolPermissionContext, teamContext, 'shift_tab');
     logEvent('tengu_mode_cycle', {
       to: nextMode as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
     });
@@ -1704,7 +1740,7 @@ function PromptInput({
       // Now that the user accepted, apply the full transition: activate the
       // auto mode backend (classifier, beta headers) and strip dangerous
       // permissions (e.g. Bash(*) always-allow rules).
-      const strippedContext = transitionPermissionMode(previousModeBeforeAuto ?? toolPermissionContext.mode, 'auto', toolPermissionContext);
+      const strippedContext = transitionPermissionMode(previousModeBeforeAuto ?? toolPermissionContext.mode, 'auto', toolPermissionContext, 'auto_opt_in');
       setAppState(prev => ({
         ...prev,
         toolPermissionContext: {
@@ -1758,7 +1794,7 @@ function PromptInput({
 
   // Handler for chat:imagePaste - paste image from clipboard
   const handleImagePaste = useCallback(() => {
-    void getImageFromClipboard().then(imageData => {
+    void getImageFromClipboard(getImageLimits(mainLoopModel)).then(imageData => {
       if (imageData) {
         onImagePaste(imageData.base64, imageData.mediaType);
       } else {
@@ -1772,7 +1808,7 @@ function PromptInput({
         });
       }
     });
-  }, [addNotification, onImagePaste]);
+  }, [addNotification, onImagePaste, mainLoopModel]);
 
   // Register chat:submit handler directly in the handler registry (not via
   // useKeybindings) so that only the ChordInterceptor can invoke it for chord
@@ -1802,11 +1838,12 @@ function PromptInput({
     'chat:newline': handleNewline,
     'chat:externalEditor': handleExternalEditor,
     'chat:stash': handleStash,
+    'chat:clearInput': handleClearInput,
     'chat:modelPicker': handleModelPicker,
     'chat:thinkingToggle': handleThinkingToggle,
     'chat:cycleMode': handleCycleMode,
     'chat:imagePaste': handleImagePaste
-  }), [handleUndo, handleNewline, handleExternalEditor, handleStash, handleModelPicker, handleThinkingToggle, handleCycleMode, handleImagePaste]);
+  }), [handleUndo, handleNewline, handleExternalEditor, handleStash, handleClearInput, handleModelPicker, handleThinkingToggle, handleCycleMode, handleImagePaste]);
   useKeybindings(chatHandlers, {
     context: 'Chat',
     isActive: !isModalOverlayActive
@@ -2150,6 +2187,25 @@ function PromptInput({
     });
     setCursorOffset(offset);
   }, [input, textInputColumns, isSearchingHistory, cursorOffset, maxVisibleLines]);
+  const inputContainerRef = useRef<DOMElement | null>(null);
+  const selectionDeleteHandlerRef = useRef<((selection: SelectionState) => boolean) | null>(null);
+  selectionDeleteHandlerRef.current = selection => {
+    if (!input || isSearchingHistory || isModalOverlayActive) return false;
+    const containerElement = inputContainerRef.current;
+    const container = containerElement ? nodeCache.get(containerElement) : undefined;
+    if (!container) return false;
+    const offsets = getPromptSelectionOffsets(selection, container, input, textInputColumns, cursorOffset, maxVisibleLines);
+    if (!offsets) return false;
+    pushToBuffer(input, cursorOffset, pastedContents);
+    trackAndSetInput(input.slice(0, offsets.start) + input.slice(offsets.end));
+    setCursorOffset(offsets.start);
+    return true;
+  };
+  const selectionDelete = useSelectionDelete();
+  useEffect(() => {
+    selectionDelete.setHandler(selection => selectionDeleteHandlerRef.current?.(selection) ?? false);
+    return () => selectionDelete.setHandler(null);
+  }, [selectionDelete]);
   const handleOpenTasksDialog = useCallback((taskId?: string) => setShowBashesDialog(taskId ?? true), [setShowBashesDialog]);
   const placeholder = showPromptSuggestion && promptSuggestion ? promptSuggestion : defaultPlaceholder;
 
@@ -2408,14 +2464,14 @@ function PromptInput({
           </Text>
           <Box flexDirection="row" width="100%">
             <PromptInputModeIndicator mode={mode} isLoading={isLoading} viewingAgentName={viewingAgentName} viewingAgentColor={viewingAgentColor} />
-            <Box flexGrow={1} flexShrink={1} onClick={handleInputClick}>
+            <Box ref={inputContainerRef} flexGrow={1} flexShrink={1} tabIndex={-1} onClick={handleInputClick}>
               {textInputElement}
             </Box>
           </Box>
           <Text color={swarmBanner.bgColor}>{'─'.repeat(columns)}</Text>
         </> : <Box flexDirection="row" alignItems="flex-start" justifyContent="flex-start" borderColor={getBorderColor()} borderStyle="round" borderLeft={false} borderRight={false} borderBottom width="100%" borderText={buildBorderText(showFastIcon ?? false, showFastIconHint, fastModeCooldown)}>
           <PromptInputModeIndicator mode={mode} isLoading={isLoading} viewingAgentName={viewingAgentName} viewingAgentColor={viewingAgentColor} />
-          <Box flexGrow={1} flexShrink={1} onClick={handleInputClick}>
+          <Box ref={inputContainerRef} flexGrow={1} flexShrink={1} tabIndex={-1} onClick={handleInputClick}>
             {textInputElement}
           </Box>
         </Box>}

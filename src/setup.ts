@@ -388,6 +388,17 @@ export async function setup(
   // "process started" signal for release health monitoring.
   logEvent('tengu_started', {})
 
+  const proxyAuthHelper = (getSettings_DEPRECATED() || {}).proxyAuthHelper
+  _setProxyAuthHelperConfig({
+    helper: proxyAuthHelper,
+    fromProjectOrLocal:
+      getSettingsForSource('projectSettings')?.proxyAuthHelper ===
+        proxyAuthHelper ||
+      getSettingsForSource('localSettings')?.proxyAuthHelper === proxyAuthHelper,
+    trustAccepted: checkHasTrustDialogAccepted,
+  })
+  prefetchProxyAuthFromHelperIfSafe()
+
   void prefetchApiKeyFromApiKeyHelperIfSafe(getIsNonInteractiveSession()) // Prefetch safely - only executes if trust already confirmed
   const proxyAuthHelper = (getSettings_DEPRECATED() || {}).proxyAuthHelper
   _setProxyAuthHelperConfig({
@@ -482,6 +493,8 @@ export async function setup(
         projectConfig.lastTotalCacheReadInputTokens,
       last_session_fps_average: projectConfig.lastFpsAverage,
       last_session_fps_low_1_pct: projectConfig.lastFpsLow1Pct,
+      last_session_graceful_shutdown:
+        projectConfig.lastGracefulShutdown ?? false,
       last_session_id:
         projectConfig.lastSessionId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       ...projectConfig.lastSessionMetrics,

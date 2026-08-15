@@ -1,0 +1,2454 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.112-to-2.1.113",
+  "artifact": {
+    "baselinePackageRecipe": "npm pack @anthropic-ai/claude-code@2.1.112",
+    "baselinePackageSha256": "84379969ea53a0e5fd231a8f77debe4c7cb17dd971f4809d10d33f9aeca5de09",
+    "baselineSha256": "bc3358282800e3e99daa8e71ac5b7b1566bd0d7ca7eb94f714a7859365d3163f",
+    "targetPackageRecipe": "npm pack @anthropic-ai/claude-code@2.1.113 and npm pack @anthropic-ai/claude-code-linux-x64@2.1.113; extract the Bun entrypoint per recovery/cases/2.1.112-to-2.1.113/RECOVERY_RUNBOOK.md",
+    "targetWrapperPackageSha256": "6df6e9f0b174c36f8de71539099f0553ff73c49b0fcac3125f3a9447758cbbbb",
+    "targetLinuxX64PackageSha256": "0b703a2b15e2988138b1b8d86e73228ee2aab00253ac21ffcdc828becb42d010",
+    "targetInnerSha256": "4a3c3636c8cb19ef42d6319e5c6ef9b029f5de148b84f22315d159052d6c5eba",
+    "targetWrapperSha256": "dda4d89e787fa455706e4f41beffc8e58d42b9094c4d155fcbf62e3f19036681",
+    "targetWrapperPrefixLength": 87,
+    "targetWrapperSuffixLength": 3,
+    "structuralGzipSha256": "383448923995bb86060ce91beac2bc5adac35817a0cdff35b533135c7d24345f",
+    "strictTailCurrentSha256": "9cdec157ae2216dcec8b945e16a927ec133e3a6a1337ec173d771924dad0c80d",
+    "packageScanCurrentSha256": "4df4212b1116170b913655e5bca7adda5348f906e9dab2e804277b7c879f8b0f"
+  },
+  "summary": {
+    "units": 44,
+    "residues": 133,
+    "dualRootUnits": 15,
+    "recoveredGapUnits": 26,
+    "dormantUnits": 3,
+    "packageOnlyUnits": 4
+  },
+  "packageRecipes": {
+    "replayHelper": "recovery/test/replay-target113-first-half-strict-tail.mjs",
+    "replayHelperSha256": "4e43d0a4444cc6c18976bd49d630638b10f229521d15e631898a0f493987483d",
+    "replayExport": "replayTarget113FirstHalfStrictTail",
+    "invocation": "after materializing a target113 tree, invoke the selective upsert helper in both the fallback return branch and the normal return branch",
+    "idempotence": "parse each destination, replace a declaration by stable name when present or insert it once when absent; merge and deduplicate imports; then assert each row evidence contract",
+    "prohibition": "never copy a current whole file into a historical target package: owners evolved after target113",
+    "authenticatedTarget113Only": [
+      15571,
+      15572,
+      16723
+    ],
+    "selectiveOwners": {
+      "src/services/teamMemorySync/index.ts": "upsert reapRemoteTombstones",
+      "src/tools/BashTool/bashCommandHelpers.ts": "replace only the authenticated git-after-cd decision-reason literal in segmentedCommandPermissionResult",
+      "src/tools/BashTool/bashPermissions.ts": "replace only the authenticated target113 bashToolHasPermission decision-reason literal",
+      "src/components/design-system/Table.tsx": "upsert Border plus horizontalSegment and minimalSegment closure",
+      "src/components/SearchBox.tsx": "upsert SearchBox and renderSearchBoxQuery plus Cursor/stringWidth/ClickEvent imports",
+      "src/components/Settings/UsageContributors.tsx": "upsert scanRecentUsageRecords, findTranscriptFiles, readUsageRecords, UsageContributorsResult, BehaviorRow and their target113 local type/constant/helper closure",
+      "src/screens/Doctor.tsx": "upsert authenticated target113 DistTagsDisplay, Doctor, and buildDoctorFixPrompt templates; the prompt sandbox predicate has supported+enabled only and must not include isPlatformInEnabledList",
+      "src/components/LogoV2/AnimatedClawd.tsx": "upsert AnimatedClawd plus its props, sequence, and hook closure",
+      "src/utils/agenticSessionSearch.ts": "upsert createSessionSearchCanUseTool and agenticSessionSearch plus import/context closure",
+      "src/commands/ultraplan.tsx": "upsert only the target113 command-module call source/sourcePromise hunk",
+      "src/utils/relaunch.ts": "upsert only args?: string[] and target113 args forwarding; do not import the later cwd hunk",
+      "src/components/ExportDialog.tsx": "upsert normalizeExportPath and writeExportFile plus path/fs imports; upsert the two export.tsx helper callsites",
+      "src/commands/team-onboarding.ts": "upsert scanSessionUsage, readMcpServers, generateUsageData plus target113 constant/import closure"
+    },
+    "manualComparison": "with CLAUDE_CODE_SEMANTIC_TARGET_COMMIT unset, point CLAUDE_CODE_SEMANTIC_SOURCE_ROOT at .recovery-tmp/target113-materialized/src to prove a recovered-source-gap is absent or stale",
+    "historicalFinal": "with CLAUDE_CODE_SEMANTIC_TARGET_COMMIT set, point CLAUDE_CODE_SEMANTIC_SOURCE_ROOT at <raw target + supplement>/src; every non-dormant recovered owner is mandatory"
+  },
+  "supportFiles": {
+    "src/commands/export/export.tsx": {
+      "reason": "both the argument and dialog export paths invoke the recovered authenticated writeExportFile helper",
+      "recoveredFileSha256": "4db2db0e1f72ba99b20c4ebeae980599c4ce1c2716cc774834b29344c900746e",
+      "comparisonFileSha256": "503bc98c62d62581a24b543bf18e28d4e390d532912e28ba781a8e6e4f7020fe",
+      "evidence": [
+        "writeExportFile",
+        "await writeExportFile(filename, content)"
+      ]
+    }
+  },
+  "dormantGraph": {
+    "declarations": {
+      "jobsDirectory": "X36",
+      "jobPath": "tt$",
+      "readJobState": "et$",
+      "schema": "pG1"
+    },
+    "identifierOccurrences": {
+      "X36": 2,
+      "tt$": 1,
+      "et$": 1,
+      "pG1": 3
+    },
+    "proof": "tt$ and et$ occur only at their declarations; pG1 occurs at its declaration/assignment and inside dead et$; no residue-bearing consumer escapes"
+  },
+  "rows": [
+    {
+      "targetIndex": 14340,
+      "targetName": "hostAdapterModule",
+      "priorOwnerId": "owner-src-utils-computerUse-gates-ts",
+      "category": "authenticated-dual-root-source",
+      "target": {
+        "classification": "unresolved",
+        "start": 9042536,
+        "end": 9042595,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "e26a92bb2154e1677e335fc00b82630529ef3a87e74b221dcd52b0c8af2f040b"
+      },
+      "source": {
+        "path": "src/utils/computerUse/hostAdapter.ts",
+        "declaration": "hostAdapterModule",
+        "evidence": [
+          "from 'util'",
+          "format"
+        ],
+        "recoveredFileSha256": "626832db90747e5a25d4d071f5665e7d7d83d1a01cae1553eb90753f92098259",
+        "comparisonState": "present",
+        "comparisonFileSha256": "626832db90747e5a25d4d071f5665e7d7d83d1a01cae1553eb90753f92098259"
+      },
+      "residueDigest": "35fa742c6e1946d9765088219a8507b5e83e82adf356586f8080c06412b054c8",
+      "residues": [
+        [
+          "string",
+          "util",
+          9042585,
+          9042591,
+          39,
+          41,
+          "dual-root-source"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 14369,
+      "targetName": "tryGetInstalledAppNames",
+      "priorOwnerId": "owner-src-utils-computerUse-appNames-ts",
+      "category": "authenticated-dual-root-source",
+      "target": {
+        "classification": "unresolved",
+        "start": 9051135,
+        "end": 9051480,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "593b5a3e3f9b895685048fd2ad996489218dfb1ee1fc352f7f4f575729131314"
+      },
+      "source": {
+        "path": "src/utils/computerUse/mcpServer.ts",
+        "declaration": "tryGetInstalledAppNames",
+        "evidence": [
+          "tryGetInstalledAppNames",
+          "homedir"
+        ],
+        "recoveredFileSha256": "b824f358562f7759ec1221a071a85be1cbb003894a87223ef4d87cee19f183b5",
+        "comparisonState": "present",
+        "comparisonFileSha256": "b824f358562f7759ec1221a071a85be1cbb003894a87223ef4d87cee19f183b5"
+      },
+      "residueDigest": "b0fff00695522add76c00664b249f0fb7c715d79e4f3442fd3aac92c4affc340",
+      "residues": [
+        [
+          "property",
+          "homedir",
+          9051469,
+          9051476,
+          10,
+          66,
+          "dual-root-source"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 14438,
+      "targetName": "FileEditTool",
+      "priorOwnerId": "owner-src-utils-plugins-installedPluginsManager-ts",
+      "category": "authenticated-dual-root-source",
+      "target": {
+        "classification": "unresolved",
+        "start": 9097611,
+        "end": 9103884,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "5bc72af04a702b64a29461a88c4da709c0fbd0962c99cd576e667b81120f552b"
+      },
+      "source": {
+        "path": "src/tools/FileEditTool/FileEditTool.ts",
+        "declaration": "FileEditTool",
+        "evidence": [
+          "FileEditTool",
+          "isAbsolute",
+          "mkdir",
+          "dirname"
+        ],
+        "recoveredFileSha256": "bcea981da5de20683e91174d48b6943ca31cab28fce1fee52f3ec0f710358ef7",
+        "comparisonState": "present",
+        "comparisonFileSha256": "24c62492cb109578d7ac5d326807c37e11fa4548d8cf40a4963ddcdc17953249"
+      },
+      "residueDigest": "8e6ceb59db70f36ab57ea9ddb7cdf4020b07ce231da0264515ecb5d7e9aa21df",
+      "residues": [
+        [
+          "property",
+          "stat",
+          9099346,
+          9099350,
+          97,
+          141,
+          "dual-root-source"
+        ],
+        [
+          "property",
+          "isAbsolute",
+          9100476,
+          9100486,
+          31,
+          62,
+          "dual-root-source"
+        ],
+        [
+          "property",
+          "isAbsolute",
+          9100908,
+          9100918,
+          31,
+          63,
+          "dual-root-source"
+        ],
+        [
+          "property",
+          "isAbsolute",
+          9101284,
+          9101294,
+          31,
+          64,
+          "dual-root-source"
+        ],
+        [
+          "property",
+          "mkdir",
+          9102097,
+          9102102,
+          50,
+          85,
+          "dual-root-source"
+        ],
+        [
+          "property",
+          "dirname",
+          9102107,
+          9102114,
+          74,
+          161,
+          "dual-root-source"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 14551,
+      "targetName": "reapRemoteTombstones",
+      "priorOwnerId": "owner-src-services-teamMemorySync-index-ts",
+      "category": "recovered-source-gap",
+      "target": {
+        "classification": "unresolved",
+        "start": 9143308,
+        "end": 9143638,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "78739a3f88b3b8c80643499261334dfda3dcb4f3fb04b626bf698a51e496bf48"
+      },
+      "source": {
+        "path": "src/services/teamMemorySync/index.ts",
+        "declaration": "reapRemoteTombstones",
+        "evidence": [
+          "reapRemoteTombstones",
+          "unlink"
+        ],
+        "recoveredFileSha256": "b2399391e4e6c2ee837cf5f9de20f1ffa20706ddc636c478cfd357a30f9032ee",
+        "comparisonState": "present",
+        "comparisonFileSha256": "8d808458dafa4968a4660b7e7ba69b2393a134098078cad0842eab500219b3a0"
+      },
+      "residueDigest": "a4482b5b9614775e5331506e2f95a370525b7368e16b6338d6bb58c633bdee2c",
+      "residues": [
+        [
+          "property",
+          "unlink",
+          9143477,
+          9143483,
+          17,
+          44,
+          "recovered-source-gap"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 14630,
+      "targetName": "segmentedCommandPermissionResult",
+      "priorOwnerId": "owner-src-tools-BashTool-bashCommandHelpers-ts",
+      "category": "recovered-source-gap",
+      "target": {
+        "classification": "unresolved",
+        "start": 9196757,
+        "end": 9198282,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "ec937ec9d550e516c9f3dc3cf41caf14ee79ad806fedc585f8a2d38432437642"
+      },
+      "source": {
+        "path": "src/tools/BashTool/bashCommandHelpers.ts",
+        "declaration": "segmentedCommandPermissionResult",
+        "evidence": [
+          "segmentedCommandPermissionResult",
+          "This command changes directory before running git, which can execute untrusted hooks from the target directory. Approve only if you trust it."
+        ],
+        "recoveredFileSha256": "a69066bb894d19f903a0ba5fd8a3d6d631c1344d0a057498d712c86d5635dadf",
+        "comparisonState": "present",
+        "comparisonFileSha256": "81f309ed0d93162a6df3e946bbeb0516f91df313ce4bb8229959c30fc1e141b0"
+      },
+      "residueDigest": "62a7b606ea59a2c7fc27c0034b684ccf4067156f1bd5689b8865dfcb1b7804b7",
+      "residues": [
+        [
+          "string",
+          "This command changes directory before running git, which can execute untrusted hooks from the target directory. Approve only if you trust it.",
+          9197646,
+          9197789,
+          0,
+          1,
+          "recovered-source-gap"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 14662,
+      "targetName": "resolveLeadingCdWorkingDirectory",
+      "priorOwnerId": "owner-src-tools-BashTool-bashPermissions-ts",
+      "category": "recovered-source-gap",
+      "target": {
+        "classification": "unresolved",
+        "start": 9207957,
+        "end": 9208383,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "3599fc264da39ec032ba94919a3e3fff77448688b1ca576cf83b81e2a07fe004"
+      },
+      "source": {
+        "path": "src/tools/BashTool/bashPermissions.ts",
+        "declaration": "resolveLeadingCdWorkingDirectory",
+        "evidence": [
+          "resolveLeadingCdWorkingDirectory",
+          "resolvedPath",
+          "isAbsolute",
+          "permissionCwd = resolvedCwd",
+          "pathCommandHasCd = false"
+        ],
+        "recoveredFileSha256": "481ecf08f97b5308bef940f2af34d2efa6e8cccf7ac3a730797cf45e81ab91f5",
+        "comparisonState": "present",
+        "comparisonFileSha256": "c94ed08858594b55a2d02cbd334f72dc15b82f5087989d24076f4b0b39afb7e1"
+      },
+      "residueDigest": "03129dd7dd75d6662b212dc077b2978241d0ed257e1833ee6873623c61c52e71",
+      "residues": [
+        [
+          "property",
+          "isAbsolute",
+          9208159,
+          9208169,
+          31,
+          65,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "resolvedPath",
+          9208294,
+          9208306,
+          75,
+          76,
+          "recovered-source-gap"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 14666,
+      "targetName": "cdPathResolvesToCwd",
+      "priorOwnerId": "owner-src-tools-BashTool-bashPermissions-ts",
+      "category": "recovered-source-gap",
+      "target": {
+        "classification": "unresolved",
+        "start": 9209205,
+        "end": 9209507,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "b56343b4414062efe472cab0751cc7c92eddc3894b5cbb3635d5690ab8099212"
+      },
+      "source": {
+        "path": "src/tools/BashTool/bashPermissions.ts",
+        "declaration": "cdPathResolvesToCwd",
+        "evidence": [
+          "cdPathResolvesToCwd",
+          "isAbsolute",
+          "astCdCommandsKeepCurrentDirectory",
+          "textualCdCommandsKeepCurrentDirectory"
+        ],
+        "recoveredFileSha256": "481ecf08f97b5308bef940f2af34d2efa6e8cccf7ac3a730797cf45e81ab91f5",
+        "comparisonState": "present",
+        "comparisonFileSha256": "c94ed08858594b55a2d02cbd334f72dc15b82f5087989d24076f4b0b39afb7e1"
+      },
+      "residueDigest": "f556a1e7312466aac0ba86f9a6aec4c5ef822194fd48ac48ebd4fe48c551fb24",
+      "residues": [
+        [
+          "property",
+          "isAbsolute",
+          9209269,
+          9209279,
+          31,
+          66,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "isAbsolute",
+          9209425,
+          9209435,
+          31,
+          67,
+          "recovered-source-gap"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 14672,
+      "targetName": "bashToolHasPermission",
+      "priorOwnerId": "owner-src-tools-BashTool-bashPermissions-ts",
+      "category": "recovered-source-gap",
+      "packageOnly": true,
+      "target": {
+        "classification": "unresolved",
+        "start": 9210494,
+        "end": 9215749,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "6ecf8ba409f2d4d30d8b7598a7bb5598e831c302f3c8b8e0a7c59d700de3a31e"
+      },
+      "source": {
+        "path": "src/tools/BashTool/bashPermissions.ts",
+        "declaration": "bashToolHasPermission",
+        "evidence": [
+          "bashToolHasPermission",
+          "adjustedForLeadingCd && i === 0 ? cwd : permissionCwd",
+          "This command changes directory before running git, which can execute untrusted hooks from the target directory. Approve only if you trust it."
+        ],
+        "recoveredFileSha256": "481ecf08f97b5308bef940f2af34d2efa6e8cccf7ac3a730797cf45e81ab91f5",
+        "comparisonState": "present",
+        "comparisonFileSha256": "c94ed08858594b55a2d02cbd334f72dc15b82f5087989d24076f4b0b39afb7e1"
+      },
+      "residueDigest": "cc8c0fc8b26ae898894b3faa826907d0dc83b49a2cc180004c984fde331bf424",
+      "residues": [
+        [
+          "string",
+          "This command changes directory before running git, which can execute untrusted hooks from the target directory. Approve only if you trust it.",
+          9213484,
+          9213627,
+          0,
+          2,
+          "recovered-source-gap"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 14996,
+      "targetName": "createFork",
+      "priorOwnerId": "owner-src-commands-branch-branch-ts",
+      "category": "authenticated-dual-root-source",
+      "target": {
+        "classification": "unresolved",
+        "start": 9361082,
+        "end": 9362511,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "3aac0435ae3fa23387b4603cd29ee6540a3ac82efd11384d2deb7aa6c21766f9"
+      },
+      "source": {
+        "path": "src/commands/branch/branch.ts",
+        "declaration": "createFork",
+        "evidence": [
+          "createFork",
+          "randomUUID"
+        ],
+        "recoveredFileSha256": "b52a29330a964c655f08d9ba2806772666f3def7fbdf0da137212ca4c0e2bc6a",
+        "comparisonState": "present",
+        "comparisonFileSha256": "2057914b1e06d2bfe6c2b2773b849b895e11fd24c39183b31b9bd4343a7352f2"
+      },
+      "residueDigest": "d28ab3c885c61c41b4982f4966dbb5a7abab20f0763ae8f377bc734f38595cf9",
+      "residues": [
+        [
+          "property",
+          "randomUUID",
+          9361116,
+          9361126,
+          20,
+          74,
+          "dual-root-source"
+        ],
+        [
+          "property",
+          "mkdir",
+          9361172,
+          9361177,
+          50,
+          88,
+          "dual-root-source"
+        ],
+        [
+          "property",
+          "stat",
+          9361228,
+          9361232,
+          97,
+          150,
+          "dual-root-source"
+        ],
+        [
+          "property",
+          "readFile",
+          9361421,
+          9361429,
+          66,
+          127,
+          "dual-root-source"
+        ],
+        [
+          "property",
+          "writeFile",
+          9362373,
+          9362382,
+          28,
+          77,
+          "dual-root-source"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 15156,
+      "targetName": "describeAutoCompactWindow",
+      "priorOwnerId": "owner-src-commands-compact-index-ts",
+      "category": "authenticated-dual-root-source",
+      "target": {
+        "classification": "unresolved",
+        "start": 9423038,
+        "end": 9423603,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "2ccc2932eb45c24e07762d665ce54c684bf9dadd32a986d37cbfce1ab9a11fc3"
+      },
+      "source": {
+        "path": "src/commands/autocompact/autocompact-noninteractive.ts",
+        "declaration": "describeAutoCompactWindow",
+        "evidence": [
+          "describeAutoCompactWindow",
+          "join"
+        ],
+        "recoveredFileSha256": "5dfdb9f4005de2fd71a8fbadca0e36ef5c4aff49826cf203b63a570b4345015b",
+        "comparisonState": "present",
+        "comparisonFileSha256": "5dfdb9f4005de2fd71a8fbadca0e36ef5c4aff49826cf203b63a570b4345015b"
+      },
+      "residueDigest": "56f8aa990cd74f930184700ec900988926d932e1b810ad77b9919a206b85bb01",
+      "residues": [
+        [
+          "property",
+          "join",
+          9423593,
+          9423597,
+          1619,
+          1635,
+          "dual-root-source"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 15189,
+      "targetName": "Border",
+      "priorOwnerId": "owner-src-commands-compact-index-ts",
+      "category": "recovered-source-gap",
+      "target": {
+        "classification": "unresolved",
+        "start": 9435828,
+        "end": 9436773,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "19958f873e6a60d57fda7b9451ffe63c4960c4c69aa50ea3d6a0931ac474046a"
+      },
+      "source": {
+        "path": "src/components/design-system/Table.tsx",
+        "declaration": "Border",
+        "evidence": [
+          "function Border",
+          "join"
+        ],
+        "recoveredFileSha256": "6ed22e106b243b0034b79fb3515953ede4a5e6f0bd713fdd2bb61f0b5a36edc0",
+        "comparisonState": "absent"
+      },
+      "residueDigest": "e2bcc023c1f93368a79f98b7aa8bd6c066d2a1bc6674647ff0ab7ceb80f29cb8",
+      "residues": [
+        [
+          "property",
+          "c",
+          9435854,
+          9435855,
+          164,
+          384,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "join",
+          9436243,
+          9436247,
+          1619,
+          1636,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "join",
+          9436409,
+          9436413,
+          1619,
+          1637,
+          "recovered-source-gap"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 15254,
+      "targetName": "SearchBox",
+      "priorOwnerId": "owner-src-components-LanguagePicker-tsx",
+      "category": "recovered-source-gap",
+      "target": {
+        "classification": "unresolved",
+        "start": 9461666,
+        "end": 9463398,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "35533cea881367c48043300b09a2c198d1bb7e17a990dec5748fa96a3b6d8f25"
+      },
+      "source": {
+        "path": "src/components/SearchBox.tsx",
+        "declaration": "SearchBox",
+        "evidence": [
+          "SearchBox",
+          "highlights",
+          "prefixDim",
+          "onCursorOffsetChange",
+          "Cursor.fromText"
+        ],
+        "recoveredFileSha256": "0cd393ba0638c25c2794ec3cccce31447e19819d45dfdc60584f41d2598be335",
+        "comparisonState": "present",
+        "comparisonFileSha256": "ee45b2a89f0e04b3894aecbe61e0f73d1f24893aba5bafeb2f1c3594edee81b1"
+      },
+      "residueDigest": "11b713ab1f589aa0bf4fdd8463526633f93d5baf770b9975b6fdfc9d9bde0982",
+      "residues": [
+        [
+          "property",
+          "c",
+          9461691,
+          9461692,
+          164,
+          398,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "onCursorOffsetChange",
+          9461822,
+          9461842,
+          0,
+          1,
+          "recovered-source-gap"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 15293,
+      "targetName": "scanRecentUsageRecords",
+      "priorOwnerId": "owner-src-components-LogoV2-OverageCreditUpsell-tsx",
+      "category": "recovered-source-gap",
+      "target": {
+        "classification": "unresolved",
+        "start": 9504592,
+        "end": 9505060,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "62dab1b56a0c80494615b99770fe128538cfa5b9796981095f03c1516cdb3fde"
+      },
+      "source": {
+        "path": "src/components/Settings/UsageContributors.tsx",
+        "declaration": "scanRecentUsageRecords",
+        "evidence": [
+          "scanRecentUsageRecords",
+          "readdir"
+        ],
+        "recoveredFileSha256": "ae6722934a5cdba2a7244247aca2156b68b568a29d867c91bbf7e70ede0f7b09",
+        "comparisonState": "absent"
+      },
+      "residueDigest": "b7ffbced6080eee012865179001b8ea39178d30f5a824482ae5947334c17e712",
+      "residues": [
+        [
+          "property",
+          "readdir",
+          9504673,
+          9504680,
+          44,
+          68,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "join",
+          9504791,
+          9504795,
+          1619,
+          1639,
+          "recovered-source-gap"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 15294,
+      "targetName": "findTranscriptFiles",
+      "priorOwnerId": "owner-src-components-LogoV2-OverageCreditUpsell-tsx",
+      "category": "recovered-source-gap",
+      "target": {
+        "classification": "unresolved",
+        "start": 9505060,
+        "end": 9505582,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "c70762e5579be4434d23bf46dba114793a38d359f3f8eb5d67516eb5fff5252b"
+      },
+      "source": {
+        "path": "src/components/Settings/UsageContributors.tsx",
+        "declaration": "findTranscriptFiles",
+        "evidence": [
+          "findTranscriptFiles",
+          "extname"
+        ],
+        "recoveredFileSha256": "ae6722934a5cdba2a7244247aca2156b68b568a29d867c91bbf7e70ede0f7b09",
+        "comparisonState": "absent"
+      },
+      "residueDigest": "724b460fb7ca898e95d1d6fd73110ab0d612c98e137caaae5936c4356c6dbf1f",
+      "residues": [
+        [
+          "property",
+          "readdir",
+          9505104,
+          9505111,
+          44,
+          69,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "extname",
+          9505217,
+          9505224,
+          13,
+          21,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "join",
+          9505255,
+          9505259,
+          1619,
+          1640,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "join",
+          9505361,
+          9505365,
+          1619,
+          1641,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "readdir",
+          9505404,
+          9505411,
+          44,
+          70,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "extname",
+          9505447,
+          9505454,
+          13,
+          22,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "join",
+          9505483,
+          9505487,
+          1619,
+          1642,
+          "recovered-source-gap"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 15295,
+      "targetName": "readUsageRecords",
+      "priorOwnerId": "owner-src-components-LogoV2-OverageCreditUpsell-tsx",
+      "category": "recovered-source-gap",
+      "target": {
+        "classification": "unresolved",
+        "start": 9505582,
+        "end": 9506417,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "a10e65505cac6f7e13c6aa5802467f2a30ec0f1075ba217fa17d73faac806c07"
+      },
+      "source": {
+        "path": "src/components/Settings/UsageContributors.tsx",
+        "declaration": "readUsageRecords",
+        "evidence": [
+          "readUsageRecords",
+          "readFile"
+        ],
+        "recoveredFileSha256": "ae6722934a5cdba2a7244247aca2156b68b568a29d867c91bbf7e70ede0f7b09",
+        "comparisonState": "absent"
+      },
+      "residueDigest": "1ebfe1cc1771fefc58b20a6435e9e09ef711e54998292a99f363b0c6d2a58c69",
+      "residues": [
+        [
+          "property",
+          "stat",
+          9505628,
+          9505632,
+          97,
+          151,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "readFile",
+          9505762,
+          9505770,
+          66,
+          129,
+          "recovered-source-gap"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 15306,
+      "targetName": "UsageContributorsResult",
+      "priorOwnerId": "owner-src-components-LogoV2-OverageCreditUpsell-tsx",
+      "category": "recovered-source-gap",
+      "target": {
+        "classification": "unresolved",
+        "start": 9509174,
+        "end": 9512208,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "5f959a2beba2afcfa416d994f7ed226393454b1db74c2d913bf3f34e7af2c2a2"
+      },
+      "source": {
+        "path": "src/components/Settings/UsageContributors.tsx",
+        "declaration": "UsageContributorsResult",
+        "evidence": [
+          "UsageContributorsResult",
+          "stat"
+        ],
+        "recoveredFileSha256": "ae6722934a5cdba2a7244247aca2156b68b568a29d867c91bbf7e70ede0f7b09",
+        "comparisonState": "absent"
+      },
+      "residueDigest": "5cebf09bfb1a995a87c2c4f0a14120730c1203809d2e91257babd006cc7ac860",
+      "residues": [
+        [
+          "property",
+          "c",
+          9509200,
+          9509201,
+          164,
+          403,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "stat",
+          9511249,
+          9511253,
+          97,
+          152,
+          "recovered-source-gap"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 15309,
+      "targetName": "BehaviorRow",
+      "priorOwnerId": "owner-src-components-LogoV2-OverageCreditUpsell-tsx",
+      "category": "recovered-source-gap",
+      "target": {
+        "classification": "unresolved",
+        "start": 9512690,
+        "end": 9513483,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "ff612f167a6ef2ea06a9517809985af3a9082bc6f44a23900ecda854b3ec66fb"
+      },
+      "source": {
+        "path": "src/components/Settings/UsageContributors.tsx",
+        "declaration": "BehaviorRow",
+        "evidence": [
+          "BehaviorRow",
+          "copy.body"
+        ],
+        "recoveredFileSha256": "ae6722934a5cdba2a7244247aca2156b68b568a29d867c91bbf7e70ede0f7b09",
+        "comparisonState": "absent"
+      },
+      "residueDigest": "528446dd9b6d8c21ac6ff94bd4a819c00f7d9819d8b7f4bff0a25b41c074d846",
+      "residues": [
+        [
+          "property",
+          "c",
+          9512716,
+          9512717,
+          164,
+          405,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "stat",
+          9512723,
+          9512727,
+          97,
+          153,
+          "recovered-source-gap"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 15429,
+      "targetName": "ContextVisualization",
+      "priorOwnerId": "owner-src-components-ContextVisualization-tsx",
+      "category": "authenticated-dual-root-source",
+      "target": {
+        "classification": "unresolved",
+        "start": 9777841,
+        "end": 9783606,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "2c19bcef2ea47d1bebd13e942ab2be53a5b1341b581cc4798adeb5cb2b4a16b6"
+      },
+      "source": {
+        "path": "src/components/ContextVisualization.tsx",
+        "declaration": "ContextVisualization",
+        "evidence": [
+          "ContextVisualization",
+          "messageBreakdown"
+        ],
+        "recoveredFileSha256": "d3280bd9ee288a5071ca96203a253bbddcceba4c1ca67e9f739bb3ff88ca5898",
+        "comparisonState": "present",
+        "comparisonFileSha256": "d3280bd9ee288a5071ca96203a253bbddcceba4c1ca67e9f739bb3ff88ca5898"
+      },
+      "residueDigest": "3818fea3332d5a35d7d696e0bc63d3c8f31c3c245e58ee8d04d63cad8790dfb0",
+      "residues": [
+        [
+          "property",
+          "c",
+          9777867,
+          9777868,
+          164,
+          420,
+          "dual-root-source"
+        ],
+        [
+          "property",
+          "variant",
+          9781343,
+          9781350,
+          5,
+          6,
+          "dual-root-source"
+        ],
+        [
+          "string",
+          "tree",
+          9781351,
+          9781357,
+          10,
+          64,
+          "dual-root-source"
+        ],
+        [
+          "property",
+          "variant",
+          9781524,
+          9781531,
+          5,
+          7,
+          "dual-root-source"
+        ],
+        [
+          "string",
+          "tree",
+          9781532,
+          9781538,
+          10,
+          65,
+          "dual-root-source"
+        ],
+        [
+          "property",
+          "variant",
+          9781591,
+          9781598,
+          5,
+          8,
+          "dual-root-source"
+        ],
+        [
+          "string",
+          "tree",
+          9781599,
+          9781605,
+          10,
+          66,
+          "dual-root-source"
+        ],
+        [
+          "property",
+          "variant",
+          9782511,
+          9782518,
+          5,
+          9,
+          "dual-root-source"
+        ],
+        [
+          "string",
+          "tree",
+          9782519,
+          9782525,
+          10,
+          67,
+          "dual-root-source"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 15430,
+      "targetName": "inputTokensTreeCallback",
+      "priorOwnerId": "owner-src-components-ContextVisualization-tsx",
+      "category": "authenticated-dual-root-source",
+      "target": {
+        "classification": "unresolved",
+        "start": 9783606,
+        "end": 9783788,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "a45ce6dec2bb636a48c7e5e34d5c0ddda09bbe1170ce017d036238d6f2c6bd40"
+      },
+      "source": {
+        "path": "src/components/ContextVisualization.tsx",
+        "declaration": "inputTokensTreeCallback",
+        "evidence": [
+          "ContextVisualization",
+          "toolCallTokens"
+        ],
+        "recoveredFileSha256": "d3280bd9ee288a5071ca96203a253bbddcceba4c1ca67e9f739bb3ff88ca5898",
+        "comparisonState": "present",
+        "comparisonFileSha256": "d3280bd9ee288a5071ca96203a253bbddcceba4c1ca67e9f739bb3ff88ca5898"
+      },
+      "residueDigest": "614a1d970a82057f5ea51c3f09ad70e72fa7b52b59970638c4be0b0ca654a234",
+      "residues": [
+        [
+          "property",
+          "variant",
+          9783759,
+          9783766,
+          5,
+          10,
+          "dual-root-source"
+        ],
+        [
+          "string",
+          "tree",
+          9783767,
+          9783773,
+          10,
+          68,
+          "dual-root-source"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 15433,
+      "targetName": "outputTokensTreeCallback",
+      "priorOwnerId": "owner-src-components-ContextVisualization-tsx",
+      "category": "authenticated-dual-root-source",
+      "target": {
+        "classification": "unresolved",
+        "start": 9784104,
+        "end": 9784286,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "3dc6eed0e1f410195bd63515d51afaf4f48e64d9350a7cce0275b8f5dc584159"
+      },
+      "source": {
+        "path": "src/components/ContextVisualization.tsx",
+        "declaration": "outputTokensTreeCallback",
+        "evidence": [
+          "ContextVisualization",
+          "assistantMessageTokens"
+        ],
+        "recoveredFileSha256": "d3280bd9ee288a5071ca96203a253bbddcceba4c1ca67e9f739bb3ff88ca5898",
+        "comparisonState": "present",
+        "comparisonFileSha256": "d3280bd9ee288a5071ca96203a253bbddcceba4c1ca67e9f739bb3ff88ca5898"
+      },
+      "residueDigest": "07976f90cc33b845a00dc141adbf58a0f44f914e190f581bf9c55d07937f4d9f",
+      "residues": [
+        [
+          "property",
+          "variant",
+          9784257,
+          9784264,
+          5,
+          11,
+          "dual-root-source"
+        ],
+        [
+          "string",
+          "tree",
+          9784265,
+          9784271,
+          10,
+          69,
+          "dual-root-source"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 15511,
+      "targetName": "KeybindingWarnings",
+      "priorOwnerId": "owner-src-commands-diff-index-ts",
+      "category": "authenticated-dual-root-source",
+      "target": {
+        "classification": "unresolved",
+        "start": 9807286,
+        "end": 9807874,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "ad1601f4df6bdf3452905fa0ea3d6372b25debc629c6661878cedda8d7aea81e"
+      },
+      "source": {
+        "path": "src/components/KeybindingWarnings.tsx",
+        "declaration": "KeybindingWarnings",
+        "evidence": [
+          "KeybindingWarnings",
+          "getCachedKeybindingWarnings"
+        ],
+        "recoveredFileSha256": "bbcf508d8ce62d053e09551a71c3c8b68d316b5809cb2c9c15897558db74ad5c",
+        "comparisonState": "present",
+        "comparisonFileSha256": "bbcf508d8ce62d053e09551a71c3c8b68d316b5809cb2c9c15897558db74ad5c"
+      },
+      "residueDigest": "7cd07fa4b3b9121e606c34e6bac1be852058b1408eeb98daa9d2dae1b428d5c3",
+      "residues": [
+        [
+          "property",
+          "c",
+          9807311,
+          9807312,
+          164,
+          427,
+          "dual-root-source"
+        ],
+        [
+          "property",
+          "variant",
+          9807817,
+          9807824,
+          5,
+          12,
+          "dual-root-source"
+        ],
+        [
+          "string",
+          "tree",
+          9807825,
+          9807831,
+          10,
+          70,
+          "dual-root-source"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 15516,
+      "targetName": "McpConfigErrorSection",
+      "priorOwnerId": "owner-src-components-mcp-McpParsingWarnings-tsx",
+      "category": "authenticated-dual-root-source",
+      "target": {
+        "classification": "unresolved",
+        "start": 9808260,
+        "end": 9809564,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "1e842c6ae9b7fe1ca3cd4f75f9ce5f768bd2baed2f3380860a49f8e5fab506b6"
+      },
+      "source": {
+        "path": "src/components/mcp/McpParsingWarnings.tsx",
+        "declaration": "McpConfigErrorSection",
+        "evidence": [
+          "McpConfigErrorSection",
+          "parsingErrors"
+        ],
+        "recoveredFileSha256": "b2fd34ee8a0f3558987b392c981280be7f79d41a71281a66f0ad633b880ac7bb",
+        "comparisonState": "present",
+        "comparisonFileSha256": "b2fd34ee8a0f3558987b392c981280be7f79d41a71281a66f0ad633b880ac7bb"
+      },
+      "residueDigest": "116b3954ae64268e931f27e5990a0bc0984d6531d57d7d66898f342d592ce69b",
+      "residues": [
+        [
+          "property",
+          "c",
+          9808286,
+          9808287,
+          164,
+          428,
+          "dual-root-source"
+        ],
+        [
+          "property",
+          "variant",
+          9809337,
+          9809344,
+          5,
+          13,
+          "dual-root-source"
+        ],
+        [
+          "string",
+          "tree",
+          9809345,
+          9809351,
+          10,
+          71,
+          "dual-root-source"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 15531,
+      "targetName": "SandboxDoctorSection",
+      "priorOwnerId": "owner-src-components-sandbox-SandboxDoctorSection-tsx",
+      "category": "authenticated-dual-root-source",
+      "target": {
+        "classification": "unresolved",
+        "start": 9812396,
+        "end": 9813416,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "d5a9ae9e6396c5c03a6985f57a401f47c9a07276b2b1c1b429df3eec25b30d03"
+      },
+      "source": {
+        "path": "src/components/sandbox/SandboxDoctorSection.tsx",
+        "declaration": "SandboxDoctorSection",
+        "evidence": [
+          "SandboxDoctorSection",
+          "checkDependencies"
+        ],
+        "recoveredFileSha256": "bcd8d5f51382e4704f3ba9d5287939dc9f5dfa6393d5f7c1f6907481175e0001",
+        "comparisonState": "present",
+        "comparisonFileSha256": "bcd8d5f51382e4704f3ba9d5287939dc9f5dfa6393d5f7c1f6907481175e0001"
+      },
+      "residueDigest": "01e8d84273c780e8c475f01e01add8194221ab91f14ddc63c642bb3d1aa56b1e",
+      "residues": [
+        [
+          "property",
+          "c",
+          9812421,
+          9812422,
+          164,
+          430,
+          "dual-root-source"
+        ],
+        [
+          "property",
+          "variant",
+          9813046,
+          9813053,
+          5,
+          14,
+          "dual-root-source"
+        ],
+        [
+          "string",
+          "tree",
+          9813054,
+          9813060,
+          10,
+          72,
+          "dual-root-source"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 15570,
+      "targetName": "DistTagsDisplay",
+      "priorOwnerId": "owner-src-screens-Doctor-tsx",
+      "category": "recovered-source-gap",
+      "target": {
+        "classification": "unresolved",
+        "start": 9821464,
+        "end": 9822173,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "2435671ea7a67173360cc424b2a50e36c61a7c28ec308c56dc539fbb119892e6"
+      },
+      "source": {
+        "path": "src/screens/Doctor.tsx",
+        "declaration": "DistTagsDisplay",
+        "evidence": [
+          "DistTagsDisplay",
+          "Tree.Group"
+        ],
+        "recoveredFileSha256": "af98e67482542129b132c00edfee717b5499902f2a8fa24d0704136cc6c9cd22",
+        "comparisonState": "present",
+        "comparisonFileSha256": "5406e0fcb70fef030ea3af06717d13416c032075ead8828cf4347ee673ab80ca"
+      },
+      "residueDigest": "03fc9b4bb3582ca5539144ae33cab41bc77497390a35033be63179759d9a680c",
+      "residues": [
+        [
+          "property",
+          "c",
+          9821490,
+          9821491,
+          164,
+          433,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "Group",
+          9822115,
+          9822120,
+          0,
+          2,
+          "recovered-source-gap"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 15571,
+      "targetName": "Doctor",
+      "priorOwnerId": "owner-src-screens-Doctor-tsx",
+      "category": "recovered-source-gap",
+      "packageOnly": true,
+      "target": {
+        "classification": "unresolved",
+        "start": 9822173,
+        "end": 9829944,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "d003cfebfd7d405ce4ff87aebe4c192b8a3f78f096c29a87cec9e0a3ac987afc"
+      },
+      "source": {
+        "path": "src/screens/Doctor.tsx",
+        "declaration": "Doctor",
+        "evidence": [
+          "function Doctor",
+          "Checking for updates…",
+          "buildDoctorFixPrompt"
+        ],
+        "recoveredFileSha256": "af98e67482542129b132c00edfee717b5499902f2a8fa24d0704136cc6c9cd22",
+        "comparisonState": "present",
+        "comparisonFileSha256": "5406e0fcb70fef030ea3af06717d13416c032075ead8828cf4347ee673ab80ca"
+      },
+      "residueDigest": "b3d8aef4a9f2fc93d9d473214ad5fa5a77fbe765ee59bb5978ed8587c05cfae1",
+      "residues": [
+        [
+          "property",
+          "join",
+          9823034,
+          9823038,
+          1619,
+          1661,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "join",
+          9823060,
+          9823064,
+          1619,
+          1662,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "join",
+          9823430,
+          9823434,
+          1619,
+          1663,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "variant",
+          9824210,
+          9824217,
+          5,
+          15,
+          "recovered-source-gap"
+        ],
+        [
+          "string",
+          "tree",
+          9824218,
+          9824224,
+          10,
+          73,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "variant",
+          9825157,
+          9825164,
+          5,
+          16,
+          "recovered-source-gap"
+        ],
+        [
+          "string",
+          "tree",
+          9825165,
+          9825171,
+          10,
+          74,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "variant",
+          9825968,
+          9825975,
+          5,
+          17,
+          "recovered-source-gap"
+        ],
+        [
+          "string",
+          "tree",
+          9825976,
+          9825982,
+          10,
+          75,
+          "recovered-source-gap"
+        ],
+        [
+          "string",
+          "Checking for updates…",
+          9826408,
+          9826436,
+          0,
+          1,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "variant",
+          9826761,
+          9826768,
+          5,
+          18,
+          "recovered-source-gap"
+        ],
+        [
+          "string",
+          "tree",
+          9826769,
+          9826775,
+          10,
+          76,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "variant",
+          9827169,
+          9827176,
+          5,
+          19,
+          "recovered-source-gap"
+        ],
+        [
+          "string",
+          "tree",
+          9827177,
+          9827183,
+          10,
+          77,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "variant",
+          9827834,
+          9827841,
+          5,
+          20,
+          "recovered-source-gap"
+        ],
+        [
+          "string",
+          "tree",
+          9827842,
+          9827848,
+          10,
+          78,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "variant",
+          9828316,
+          9828323,
+          5,
+          21,
+          "recovered-source-gap"
+        ],
+        [
+          "string",
+          "tree",
+          9828324,
+          9828330,
+          10,
+          79,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "variant",
+          9828856,
+          9828863,
+          5,
+          22,
+          "recovered-source-gap"
+        ],
+        [
+          "string",
+          "tree",
+          9828864,
+          9828870,
+          10,
+          80,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "variant",
+          9829358,
+          9829365,
+          5,
+          23,
+          "recovered-source-gap"
+        ],
+        [
+          "string",
+          "tree",
+          9829366,
+          9829372,
+          10,
+          81,
+          "recovered-source-gap"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 15572,
+      "targetName": "buildDoctorFixPrompt",
+      "priorOwnerId": "owner-src-screens-Doctor-tsx",
+      "category": "recovered-source-gap",
+      "packageOnly": true,
+      "target": {
+        "classification": "unresolved",
+        "start": 9829944,
+        "end": 9831391,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "3a94c5503e887a8481f1286bdae079ed40b90de7f6ee79e73d9c1c308f997bff"
+      },
+      "source": {
+        "path": "src/screens/Doctor.tsx",
+        "declaration": "buildDoctorFixPrompt",
+        "evidence": [
+          "buildDoctorFixPrompt",
+          "Suggested fix:",
+          "issues.join"
+        ],
+        "recoveredFileSha256": "af98e67482542129b132c00edfee717b5499902f2a8fa24d0704136cc6c9cd22",
+        "comparisonState": "present",
+        "comparisonFileSha256": "5406e0fcb70fef030ea3af06717d13416c032075ead8828cf4347ee673ab80ca"
+      },
+    "residueDigest": "de543ae4223defbcd15d1cfd1319a19fd304765874e9dd8c276789462c744c73",
+      "residues": [
+        [
+          "property",
+          "join",
+          9830339,
+          9830343,
+          1619,
+          1664,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "join",
+          9830534,
+          9830538,
+          1619,
+          1665,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "join",
+          9830882,
+          9830886,
+          1619,
+          1666,
+          "recovered-source-gap"
+        ],
+        [
+      "property",
+      "join",
+      9831381,
+      9831385,
+      1619,
+      1668,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "join",
+      9831370,
+      9831374,
+      1619,
+      1667,
+          "recovered-source-gap"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 15823,
+      "targetName": "MCPToolDetailView",
+      "priorOwnerId": "owner-src-components-mcp-MCPToolDetailView-tsx",
+      "category": "authenticated-dual-root-source",
+      "target": {
+        "classification": "unresolved",
+        "start": 9999793,
+        "end": 10003131,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "8f0e2cd51798b80b0fb8ab767340cba70afa5f22740236dd6a7996b8192ce536"
+      },
+      "source": {
+        "path": "src/components/mcp/MCPToolDetailView.tsx",
+        "declaration": "MCPToolDetailView",
+        "evidence": [
+          "MCPToolDetailView",
+          "required"
+        ],
+        "recoveredFileSha256": "0b0ac602b93d1fb9fef8b72bcd71ef8c09eb76809c83fc18a250ded3faa4ee0b",
+        "comparisonState": "present",
+        "comparisonFileSha256": "0b0ac602b93d1fb9fef8b72bcd71ef8c09eb76809c83fc18a250ded3faa4ee0b"
+      },
+      "residueDigest": "feee420ea6634d2bcb1050be3e3313306b0252ee9cdc00179b95db8fa87251d2",
+      "residues": [
+        [
+          "property",
+          "c",
+          9999819,
+          9999820,
+          164,
+          463,
+          "dual-root-source"
+        ],
+        [
+          "string",
+          "required",
+          10002469,
+          10002479,
+          29,
+          34,
+          "dual-root-source"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 16133,
+      "targetName": "jobsDirectory",
+      "priorOwnerId": "owner-src-commands-release-notes-index-ts",
+      "category": "authenticated-dormant-nonescaping",
+      "target": {
+        "classification": "unresolved",
+        "start": 10250248,
+        "end": 10250292,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "2ac443ada16fbfd1d63db8854c9659f12702e454bbf54f4fccd5cca7d7bd9362"
+      },
+      "source": null,
+      "residueDigest": "afeb4b1cdbb8a616c13e5ff1860287f580b7f751f357c4383a27fc81bf802832",
+      "residues": [
+        [
+          "property",
+          "join",
+          10250274,
+          10250278,
+          1619,
+          1743,
+          "authenticated-dormant-nonescaping"
+        ],
+        [
+          "string",
+          "jobs",
+          10250284,
+          10250290,
+          0,
+          1,
+          "authenticated-dormant-nonescaping"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 16135,
+      "targetName": "readJobState",
+      "priorOwnerId": "owner-src-commands-release-notes-index-ts",
+      "category": "authenticated-dormant-nonescaping",
+      "target": {
+        "classification": "unresolved",
+        "start": 10250333,
+        "end": 10250657,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "cdb8629ef210c83f41b82616e5fb5c3476712a551e0e9c3f4d5960aed1585f06"
+      },
+      "source": null,
+      "residueDigest": "ac30fe273f9ef52c1e67fdca807f8f86edc93b4d75297576251102b5ed3680d7",
+      "residues": [
+        [
+          "property",
+          "readFile",
+          10250391,
+          10250399,
+          66,
+          141,
+          "authenticated-dormant-nonescaping"
+        ],
+        [
+          "property",
+          "join",
+          10250404,
+          10250408,
+          1619,
+          1745,
+          "authenticated-dormant-nonescaping"
+        ],
+        [
+          "string",
+          "state.json",
+          10250411,
+          10250423,
+          0,
+          1,
+          "authenticated-dormant-nonescaping"
+        ],
+        [
+          "property",
+          "readFile",
+          10250438,
+          10250446,
+          66,
+          142,
+          "authenticated-dormant-nonescaping"
+        ],
+        [
+          "property",
+          "join",
+          10250451,
+          10250455,
+          1619,
+          1746,
+          "authenticated-dormant-nonescaping"
+        ],
+        [
+          "string",
+          "order",
+          10250458,
+          10250465,
+          6,
+          7,
+          "authenticated-dormant-nonescaping"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 16137,
+      "targetName": "jobsStateModule",
+      "priorOwnerId": "owner-src-commands-release-notes-index-ts",
+      "category": "authenticated-dormant-nonescaping",
+      "target": {
+        "classification": "unresolved",
+        "start": 10250673,
+        "end": 10251786,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "59e79c4244308eec71a2e43dd73617f95688d473f6485bc0522a2d664288a80a"
+      },
+      "source": null,
+      "residueDigest": "21a085660480d4d712ff2c84c00a3a8fedcbfd4af0b024bceccbe3ce0e76d632",
+      "residues": [
+        [
+          "property",
+          "backend",
+          10251591,
+          10251598,
+          19,
+          20,
+          "authenticated-dormant-nonescaping"
+        ],
+        [
+          "string",
+          "daemon",
+          10251614,
+          10251622,
+          1,
+          4,
+          "authenticated-dormant-nonescaping"
+        ],
+        [
+          "property",
+          "sortOrder",
+          10251641,
+          10251650,
+          1,
+          2,
+          "authenticated-dormant-nonescaping"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 16263,
+      "targetName": "AnimatedClawd",
+      "priorOwnerId": "owner-src-components-LogoV2-feedConfigs-tsx",
+      "category": "recovered-source-gap",
+      "target": {
+        "classification": "unresolved",
+        "start": 10294466,
+        "end": 10294989,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "8570e05ef15ad414c789f018ecddf7de02d26c2ce4a82ddb225f463c382a484b"
+      },
+      "source": {
+        "path": "src/components/LogoV2/AnimatedClawd.tsx",
+        "declaration": "AnimatedClawd",
+        "evidence": [
+          "AnimatedClawd",
+          "sequence",
+          "onComplete"
+        ],
+        "recoveredFileSha256": "7a40c7b01c7756d111cacd331dc5c86d8465c39b57ec81e229e45754e5da822f",
+        "comparisonState": "present",
+        "comparisonFileSha256": "e705c42026fd6e73ec823975644e65dcbfebceb4f9e52c4ead5e1c04e66734f0"
+      },
+      "residueDigest": "5fe99da5fb794f19e46c09cbbd30dcf346047284bb311addbbd695ad7b11617c",
+      "residues": [
+        [
+          "property",
+          "c",
+          10294492,
+          10294493,
+          164,
+          494,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "sequence",
+          10294571,
+          10294579,
+          23,
+          24,
+          "recovered-source-gap"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 16428,
+      "targetName": "LogSelector",
+      "priorOwnerId": "owner-src-components-LogSelector-tsx",
+      "category": "authenticated-dual-root-source",
+      "target": {
+        "classification": "unresolved",
+        "start": 10384299,
+        "end": 10399215,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "3eca490daa9f27095eecc17dcc1b9553383598d6e2c7c1b62dd3ac096e96b5a6"
+      },
+      "source": {
+        "path": "src/components/LogSelector.tsx",
+        "declaration": "LogSelector",
+        "evidence": [
+          "LogSelector",
+          "getWorktreePaths",
+          "current worktree"
+        ],
+        "recoveredFileSha256": "199ad6769c435e95de09954de49f1573199f5643c19ded8705fc85e78903385c",
+        "comparisonState": "present",
+        "comparisonFileSha256": "3bb7d64fb588951ab7249c1d61495d76e2402af870322224dea6491abb8093bd"
+      },
+      "residueDigest": "b24492b3934c74b7b291bdbbd57902c3c8c9e6e136ecbe81f43c19b3b12520cd",
+      "residues": [
+        [
+          "property",
+          "sep",
+          10386157,
+          10386160,
+          116,
+          124,
+          "dual-root-source"
+        ],
+        [
+          "property",
+          "sep",
+          10386875,
+          10386878,
+          116,
+          125,
+          "dual-root-source"
+        ],
+        [
+          "property",
+          "basename",
+          10393320,
+          10393328,
+          46,
+          93,
+          "dual-root-source"
+        ],
+        [
+          "property",
+          "basename",
+          10393411,
+          10393419,
+          46,
+          94,
+          "dual-root-source"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 16446,
+      "targetName": "createSessionSearchCanUseTool",
+      "priorOwnerId": "owner-src-utils-agenticSessionSearch-ts",
+      "category": "recovered-source-gap",
+      "target": {
+        "classification": "unresolved",
+        "start": 10402815,
+        "end": 10403212,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "dec26817284ac22afc949510cd400e9fa570d9bfff63570eaabfef615146084a"
+      },
+      "source": {
+        "path": "src/utils/agenticSessionSearch.ts",
+        "declaration": "createSessionSearchCanUseTool",
+        "evidence": [
+          "createSessionSearchCanUseTool",
+          "sep"
+        ],
+        "recoveredFileSha256": "372faf6f287864965b59910fc3304a457cb9c0e9c41adb734ff7d15f6c119c0b",
+        "comparisonState": "present",
+        "comparisonFileSha256": "699c204f288470566ac8782f0458f1b16fa0dbf09ed528fb7076797acb84c26c"
+      },
+      "residueDigest": "73674260944d100e80ba77b361cc742dee4e33a3c2ae0e780c71d9876751e989",
+      "residues": [
+        [
+          "property",
+          "sep",
+          10403133,
+          10403136,
+          116,
+          126,
+          "recovered-source-gap"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 16448,
+      "targetName": "agenticSessionSearch",
+      "priorOwnerId": "owner-src-utils-agenticSessionSearch-ts",
+      "category": "recovered-source-gap",
+      "target": {
+        "classification": "unresolved",
+        "start": 10403409,
+        "end": 10404966,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "49979f5034f6858577559756903edf4d610d7db254bea6c847f65b2a3cab0531"
+      },
+      "source": {
+        "path": "src/utils/agenticSessionSearch.ts",
+        "declaration": "agenticSessionSearch",
+        "evidence": [
+          "agenticSessionSearch",
+          "dirname"
+        ],
+        "recoveredFileSha256": "372faf6f287864965b59910fc3304a457cb9c0e9c41adb734ff7d15f6c119c0b",
+        "comparisonState": "present",
+        "comparisonFileSha256": "699c204f288470566ac8782f0458f1b16fa0dbf09ed528fb7076797acb84c26c"
+      },
+      "residueDigest": "7952da0a5fd35b907594bdf93487a58d52b5aeed620128c3999d9045eaec6287",
+      "residues": [
+        [
+          "property",
+          "dirname",
+          10403507,
+          10403514,
+          74,
+          172,
+          "recovered-source-gap"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 16454,
+      "targetName": "getWorktreePaths",
+      "priorOwnerId": "owner-src-utils-agenticSessionSearch-ts",
+      "category": "authenticated-dual-root-source",
+      "target": {
+        "classification": "unresolved",
+        "start": 10406279,
+        "end": 10406828,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "96ff8bd8a77ca45bb14da63aa7dd457ef7ee8c51b7be2afbc6090171691cb047"
+      },
+      "source": {
+        "path": "src/utils/getWorktreePaths.ts",
+        "declaration": "getWorktreePaths",
+        "evidence": [
+          "getWorktreePaths",
+          "normalize",
+          "sep"
+        ],
+        "recoveredFileSha256": "12b8a2183473b8e3e5e123229cfc2fd231ccce34059bba757d7d0c1cb268dd76",
+        "comparisonState": "present",
+        "comparisonFileSha256": "12b8a2183473b8e3e5e123229cfc2fd231ccce34059bba757d7d0c1cb268dd76"
+      },
+      "residueDigest": "61fe93674fc8c7c4cb4534425fee3398be137fe70027eb576cafa3c36b878036",
+      "residues": [
+        [
+          "property",
+          "normalize",
+          10406604,
+          10406613,
+          74,
+          84,
+          "dual-root-source"
+        ],
+        [
+          "property",
+          "sep",
+          10406747,
+          10406750,
+          116,
+          128,
+          "dual-root-source"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 16539,
+      "targetName": "ultraplanCommandModule",
+      "priorOwnerId": "owner-src-commands-ultraplan-tsx",
+      "category": "recovered-source-gap",
+      "packageOnly": true,
+      "target": {
+        "classification": "unresolved",
+        "start": 10438345,
+        "end": 10439148,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "2b3a7dfddada2ea5c3050fae60b306066d6d08202718e15d40c851789ff1eca9"
+      },
+      "source": {
+        "path": "src/commands/ultraplan.tsx",
+        "declaration": "ultraplanCommandModule",
+        "evidence": [
+          "source: 'slash'",
+          "ultraplanLaunchPending"
+        ],
+        "recoveredFileSha256": "b6a9b95cec6569d8455b01bdf4637cc081a8496b978cb7ae2a2d6e31c5117f4f",
+        "comparisonState": "present",
+        "comparisonFileSha256": "9eae618db51c22822c6a541dc32e72cb0812ea8e271c1a60a3a2c7f6ec9fd49a"
+      },
+      "residueDigest": "641f1d3d079391c5dee311d9d0204db9c092cb7c98de9786800b04894e7fd774",
+      "residues": [
+        [
+          "string",
+          "slash",
+          10438615,
+          10438622,
+          12,
+          13,
+          "recovered-source-gap"
+        ],
+        [
+          "string",
+          "slash",
+          10439083,
+          10439090,
+          12,
+          14,
+          "recovered-source-gap"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 16723,
+      "targetName": "relaunch",
+      "priorOwnerId": "owner-src-commands-theme-index-ts",
+      "category": "recovered-source-gap",
+      "target": {
+        "classification": "unresolved",
+        "start": 10541145,
+        "end": 10542009,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "0f68ad69a5c54aca55323c310c42531122c32930eb1608969fb2245aa82cf2e3"
+      },
+      "source": {
+        "path": "src/utils/relaunch.ts",
+        "declaration": "relaunch",
+        "evidence": [
+          "relaunch",
+          "spawn",
+          "constants",
+          "args?: string[]"
+        ],
+        "recoveredFileSha256": "f2b7190dc1856d4178ff76547714cea86fd2ded3705a9cea56731e9342758c1a",
+        "comparisonState": "present",
+        "comparisonFileSha256": "14858f01df39aba918e9cbb74b38ed09de30b6efc7a53b4cf5cf6aa8ea2440c5"
+      },
+      "residueDigest": "63a2f4f42b5e27bd0a63715367c66b62de58be399b13a3b53a4c1aa75f55bb7d",
+      "residues": [
+        [
+          "property",
+          "stat",
+          10541275,
+          10541279,
+          97,
+          160,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "spawn",
+          10541638,
+          10541643,
+          14,
+          23,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "constants",
+          10541852,
+          10541861,
+          86,
+          93,
+          "recovered-source-gap"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 16725,
+      "targetName": "childProcessModule",
+      "priorOwnerId": "owner-src-commands-theme-index-ts",
+      "category": "authenticated-dual-root-source",
+      "target": {
+        "classification": "unresolved",
+        "start": 10542025,
+        "end": 10542148,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "513a61174b0fc230dbe3e403966a63dec0fc090cd86876b6d69e09bd573f9584"
+      },
+      "source": {
+        "path": "src/utils/relaunch.ts",
+        "declaration": "childProcessModule",
+        "evidence": [
+          "from 'child_process'"
+        ],
+        "recoveredFileSha256": "f2b7190dc1856d4178ff76547714cea86fd2ded3705a9cea56731e9342758c1a",
+        "comparisonState": "present",
+        "comparisonFileSha256": "14858f01df39aba918e9cbb74b38ed09de30b6efc7a53b4cf5cf6aa8ea2440c5"
+      },
+      "residueDigest": "bd904014ea9e5ab022fa8ff53ab30d7d8dee37f1f4fd1e9d7ad7817263aa4853",
+      "residues": [
+        [
+          "string",
+          "child_process",
+          10542084,
+          10542099,
+          37,
+          42,
+          "dual-root-source"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 16949,
+      "targetName": "updateAgentFile",
+      "priorOwnerId": "owner-src-components-agents-agentFileUtils-ts",
+      "category": "recovered-source-gap",
+      "target": {
+        "classification": "unresolved",
+        "start": 10640287,
+        "end": 10640741,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "d4ad61d012f2174043f9196b8285c9a4e324ab5c457873d403d3364046717de1"
+      },
+      "source": {
+        "path": "src/components/agents/agentFileUtils.ts",
+        "declaration": "updateAgentFile",
+        "evidence": [
+          "updateAgentFile",
+          "readFile"
+        ],
+        "recoveredFileSha256": "7cd94fc7a46acbe435f8309eb94ecf1a7518a563503f9fa08771343a4d47cd4b",
+        "comparisonState": "present",
+        "comparisonFileSha256": "38f0c9c8d51b36289cb10d4643783f009849210020e8991d274011ab6721089f"
+      },
+      "residueDigest": "52eaf02373937dc94c2a6a93b852e7e01f3e51f505f524ffe0fba5a0565f1246",
+      "residues": [
+        [
+          "property",
+          "readFile",
+          10640406,
+          10640414,
+          66,
+          143,
+          "recovered-source-gap"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 17299,
+      "targetName": "normalizeExportPath",
+      "priorOwnerId": "owner-src-components-WorktreeExitDialog-tsx",
+      "category": "recovered-source-gap",
+      "target": {
+        "classification": "unresolved",
+        "start": 10792081,
+        "end": 10792149,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "f7a60554c713c1c6d7af852b889fc8200b8276fb5ef8458cba814db75b4ac22e"
+      },
+      "source": {
+        "path": "src/components/ExportDialog.tsx",
+        "declaration": "normalizeExportPath",
+        "evidence": [
+          "normalizeExportPath",
+          "extname"
+        ],
+        "recoveredFileSha256": "f3be4cecc435a012d1292fc9f25aff5a3f805e23d4a731f65fc9928a76962165",
+        "comparisonState": "present",
+        "comparisonFileSha256": "bc536e61347155fb6c8040b45b53c0bc281bff7ad5601a46bb98facbf88820c7"
+      },
+      "residueDigest": "db394ef9b3148401d5560178e5abf175f863045860d74de49601655ad3dd5234",
+      "residues": [
+        [
+          "property",
+          "extname",
+          10792107,
+          10792114,
+          13,
+          23,
+          "recovered-source-gap"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 17300,
+      "targetName": "writeExportFile",
+      "priorOwnerId": "owner-src-components-WorktreeExitDialog-tsx",
+      "category": "recovered-source-gap",
+      "target": {
+        "classification": "unresolved",
+        "start": 10792149,
+        "end": 10792278,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "e5239f9ca0c5655b9c699b8fd0ddfc81de160fb7abad74ef43b7b6d1df2fd2d3"
+      },
+      "source": {
+        "path": "src/components/ExportDialog.tsx",
+        "declaration": "writeExportFile",
+        "evidence": [
+          "writeExportFile",
+          "mkdir",
+          "dirname"
+        ],
+        "recoveredFileSha256": "f3be4cecc435a012d1292fc9f25aff5a3f805e23d4a731f65fc9928a76962165",
+        "comparisonState": "present",
+        "comparisonFileSha256": "bc536e61347155fb6c8040b45b53c0bc281bff7ad5601a46bb98facbf88820c7"
+      },
+      "residueDigest": "c4fc15441c73995e2c32864dfb428d105ce995d50b9adf517b062cdf6ae70542",
+      "residues": [
+        [
+          "property",
+          "mkdir",
+          10792203,
+          10792208,
+          50,
+          104,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "dirname",
+          10792213,
+          10792220,
+          74,
+          174,
+          "recovered-source-gap"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 17478,
+      "targetName": "scanSessionUsage",
+      "priorOwnerId": "owner-src-commands-remote-setup-index-ts",
+      "category": "recovered-source-gap",
+      "target": {
+        "classification": "unresolved",
+        "start": 10849154,
+        "end": 10850723,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "a5ba13c2db76c27124adc05b1f38fac8249f351a99ff44a96d4b58a12e905197"
+      },
+      "source": {
+        "path": "src/commands/team-onboarding.ts",
+        "declaration": "scanSessionUsage",
+        "evidence": [
+          "scanSessionUsage",
+          "readdir",
+          "extname"
+        ],
+        "recoveredFileSha256": "fcb075ca50fca9dd3b6629504ade9bebf59ef767b203e97d129a94b46557cab0",
+        "comparisonState": "absent"
+      },
+      "residueDigest": "121ed0a3e82645572477f34759f8728883fdcbca7b2aa4d66546bf0552d98b6e",
+      "residues": [
+        [
+          "property",
+          "readdir",
+          10849325,
+          10849332,
+          44,
+          80,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "extname",
+          10849394,
+          10849401,
+          13,
+          24,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "join",
+          10849435,
+          10849439,
+          1619,
+          1847,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "stat",
+          10849463,
+          10849467,
+          97,
+          161,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "readFile",
+          10849588,
+          10849596,
+          66,
+          147,
+          "recovered-source-gap"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 17484,
+      "targetName": "readMcpServers",
+      "priorOwnerId": "owner-src-commands-remote-setup-index-ts",
+      "category": "recovered-source-gap",
+      "target": {
+        "classification": "unresolved",
+        "start": 10851377,
+        "end": 10851712,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "411aeb8865e5a6062f290f98e55866eb4693f018c012a37560b828f9c82c8b51"
+      },
+      "source": {
+        "path": "src/commands/team-onboarding.ts",
+        "declaration": "readMcpServers",
+        "evidence": [
+          "readMcpServers",
+          "readFile"
+        ],
+        "recoveredFileSha256": "fcb075ca50fca9dd3b6629504ade9bebf59ef767b203e97d129a94b46557cab0",
+        "comparisonState": "absent"
+      },
+      "residueDigest": "ba727c93356a82f851f506627af0ffb2b4668326a4b0ea7b0f13fdf112025aaf",
+      "residues": [
+        [
+          "property",
+          "readFile",
+          10851419,
+          10851427,
+          66,
+          148,
+          "recovered-source-gap"
+        ],
+        [
+          "property",
+          "join",
+          10851432,
+          10851436,
+          1619,
+          1848,
+          "recovered-source-gap"
+        ]
+      ]
+    },
+    {
+      "targetIndex": 17485,
+      "targetName": "generateUsageData",
+      "priorOwnerId": "owner-src-commands-remote-setup-index-ts",
+      "category": "recovered-source-gap",
+      "target": {
+        "classification": "unresolved",
+        "start": 10851712,
+        "end": 10852505,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "1e6f753e0c67ab7b94af65795e9310e830b8dad1531075c17eed2e32074a955f"
+      },
+      "source": {
+        "path": "src/commands/team-onboarding.ts",
+        "declaration": "generateUsageData",
+        "evidence": [
+          "generateUsageData",
+          "basename"
+        ],
+        "recoveredFileSha256": "fcb075ca50fca9dd3b6629504ade9bebf59ef767b203e97d129a94b46557cab0",
+        "comparisonState": "absent"
+      },
+      "residueDigest": "bc261245dae995fc0a864d7e75223556b99146553f58c3272f1848dd3837c8be",
+      "residues": [
+        [
+          "property",
+          "basename",
+          10852255,
+          10852263,
+          46,
+          97,
+          "recovered-source-gap"
+        ]
+      ]
+    }
+  ]
+}

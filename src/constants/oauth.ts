@@ -1,4 +1,99 @@
+import fs from 'fs'
+import path from 'path'
 import { isEnvTruthy } from 'src/utils/envUtils.js'
+import { isENOENT } from 'src/utils/errors.js'
+
+const WIF_ENVIRONMENT_VARIABLES = [
+  'ANTHROPIC_FEDERATION_RULE_ID',
+  'ANTHROPIC_ORGANIZATION_ID',
+  'ANTHROPIC_IDENTITY_TOKEN',
+  'ANTHROPIC_IDENTITY_TOKEN_FILE',
+] as const
+
+type WIFPrecedenceSource = 'credentials-file' | 'env-quad'
+
+function readWIFTextFile(filePath: string): string | null {
+  try {
+    return fs.readFileSync(filePath, 'utf-8')
+  } catch (error) {
+    if (isENOENT(error)) return null
+    throw error
+  }
+}
+
+function getAnthropicConfigDirectory(): string | null {
+  const configured = process.env.ANTHROPIC_CONFIG_DIR?.trim()
+  if (configured) return configured
+  const xdg = process.env.XDG_CONFIG_HOME?.trim()
+  if (xdg) return path.join(xdg, 'anthropic')
+  const home = process.env.HOME?.trim()
+  return home ? path.join(home, '.config', 'anthropic') : null
+}
+
+function getAnthropicProfile(configDirectory: string): string {
+  return (
+    process.env.ANTHROPIC_PROFILE?.trim() ||
+    readWIFTextFile(path.join(configDirectory, 'active_config'))?.trim() ||
+    'default'
+  )
+}
+
+function getAnthropicProfileConfigPath(): string | null {
+  const configDirectory = getAnthropicConfigDirectory()
+  if (configDirectory === null) return null
+  return path.join(
+    configDirectory,
+    'configs',
+    `${getAnthropicProfile(configDirectory)}.json`,
+  )
+}
+
+export function getWIFPrecedenceSource(): WIFPrecedenceSource | null {
+  const configPath = getAnthropicProfileConfigPath()
+  const configText = configPath !== null ? readWIFTextFile(configPath) : null
+  if (configText !== null) {
+    let parsed: { authentication?: { type?: unknown } } | undefined
+    try {
+      parsed = JSON.parse(configText) as {
+        authentication?: { type?: unknown }
+      }
+    } catch {}
+    const authenticationType = parsed?.authentication?.type
+    if (authenticationType === 'oidc_federation') return 'credentials-file'
+    if (authenticationType !== undefined) return null
+  }
+  if (
+    WIF_ENVIRONMENT_VARIABLES.some(name => process.env[name]?.trim())
+  ) {
+    return 'env-quad'
+  }
+  return null
+}
+
+export function isWIFActive(): boolean {
+  return getWIFPrecedenceSource() !== null
+}
+
+function maskWIFIdentifier(value: string): string {
+  return value.length <= 6 ? value : `…${value.slice(-6)}`
+}
+
+export function getWIFStatusLine(): string {
+  const source = getWIFPrecedenceSource()
+  if (source === 'env-quad') {
+    const organizationId = process.env.ANTHROPIC_ORGANIZATION_ID
+    const federationRuleId = process.env.ANTHROPIC_FEDERATION_RULE_ID
+    if (!organizationId || !federationRuleId) {
+      return 'incomplete config (need FEDERATION_RULE_ID + ORGANIZATION_ID)'
+    }
+    return `env-quad · org ${maskWIFIdentifier(organizationId)} · rule ${maskWIFIdentifier(federationRuleId)}`
+  }
+  if (source === 'credentials-file') {
+    const configDirectory = getAnthropicConfigDirectory()
+    return `credentials-file · profile ${configDirectory ? getAnthropicProfile(configDirectory) : 'default'}`
+  }
+  return 'inactive'
+}
 
 // Default to prod config, override with test/staging if enabled
 type OauthConfigType = 'prod' | 'staging' | 'local'

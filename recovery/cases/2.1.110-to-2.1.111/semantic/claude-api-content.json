@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.110-to-2.1.111",
+  "criterion": "exact-embedded-claude-api-content-v1",
+  "documentChanges": [
+    {
+      "path": "SKILL.md",
+      "baseline": {
+        "bytes": 28806,
+        "sha256": "73a164187d52c60d984ee21287e76721b19176d3a99f2a38830abe9c7c9e0d1c"
+      },
+      "target": {
+        "bytes": 32354,
+        "sha256": "dd90198646c03171814a1064709688090064a0df19657fe43f966e72314c4fd8"
+      },
+      "owner": "src/skills/bundled/claude-api/SKILL.md"
+    },
+    {
+      "path": "curl/examples.md",
+      "baseline": {
+        "bytes": 6390,
+        "sha256": "de7db56ef83ec865b14851c891470b850257728265bffd1c5721613447666c59"
+      },
+      "target": {
+        "bytes": 6437,
+        "sha256": "274ea5c3b297ce9735106dd5ae7757242fef431f092131094af94706a4e2c049"
+      },
+      "owner": "src/skills/bundled/claude-api/curl/examples.md"
+    },
+    {
+      "path": "python/claude-api/README.md",
+      "baseline": {
+        "bytes": 12045,
+        "sha256": "3ed9c86237b6d320fd852a307986aad4151a53a6990f1b28fe473ae3397ce780"
+      },
+      "target": {
+        "bytes": 12103,
+        "sha256": "7ebb772bc2cfd28ab71907832210552a7fdad7b87d44977ca93fbec4d98376ab"
+      },
+      "owner": "src/skills/bundled/claude-api/python/claude-api/README.md"
+    },
+    {
+      "path": "python/claude-api/streaming.md",
+      "baseline": {
+        "bytes": 5198,
+        "sha256": "216e6845432aad98d72d282523b1131c1c25553472d7575c7197702fb7817189"
+      },
+      "target": {
+        "bytes": 5209,
+        "sha256": "e762387c36e38f5f1e388a917751e400ed29a68bd54f807359269e32640c13db"
+      },
+      "owner": "src/skills/bundled/claude-api/python/claude-api/streaming.md"
+    },
+    {
+      "path": "shared/error-codes.md",
+      "baseline": {
+        "bytes": 7090,
+        "sha256": "11cc407ed391415b4e26cb0d65a80638cc3d7f4eabc149513bb44234adab0fcc"
+      },
+      "target": {
+        "bytes": 7695,
+        "sha256": "dcf733d8cdbe4e7e9d4a3014fc99c6803d3af464d141089d4aa251d9b77308f7"
+      },
+      "owner": "src/skills/bundled/claude-api/shared/error-codes.md"
+    },
+    {
+      "path": "shared/live-sources.md",
+      "baseline": {
+        "bytes": 16185,
+        "sha256": "152c0556d66d79e70aa9ac65b80f6f1108a4bfc52cc21161a134db1b4721bb3b"
+      },
+      "target": {
+        "bytes": 16403,
+        "sha256": "790a3649f06e5e18650967f5f677727eceba584d8f4cf22ba3bacd2a8fe4d14c"
+      },
+      "owner": "src/skills/bundled/claude-api/shared/live-sources.md"
+    },
+    {
+      "path": "shared/managed-agents-api-reference.md",
+      "baseline": {
+        "bytes": 16767,
+        "sha256": "cf1dc9d8165da0a4a741d274778c88a2915157fab49667158effc293d80cf6be"
+      },
+      "target": {
+        "bytes": 16816,
+        "sha256": "6bf5d5d52a77b6a148cfe2b40c2a28c5561f25399d887476a10411afe9a6ec4e"
+      },
+      "owner": "src/skills/bundled/claude-api/shared/managed-agents-api-reference.md"
+    },
+    {
+      "path": "shared/model-migration.md",
+      "baseline": null,
+      "target": {
+        "bytes": 65666,
+        "sha256": "695d8c4ed28a5638a10523c09269a88fb21e2e12e90118c783c59f594fbe382d"
+      },
+      "owner": "src/skills/bundled/claude-api/shared/model-migration.md"
+    },
+    {
+      "path": "shared/models.md",
+      "baseline": {
+        "bytes": 7114,
+        "sha256": "2f65572aa97faaa0b5b987aa5460a6dfe6fbcd387633c09d98993cd8b37024ec"
+      },
+      "target": {
+        "bytes": 7560,
+        "sha256": "0d08f60e064e104d537d66181e50c692343fbd3a4a19cd9946ff0bb557709dcc"
+      },
+      "owner": "src/skills/bundled/claude-api/shared/models.md"
+    },
+    {
+      "path": "shared/prompt-caching.md",
+      "baseline": {
+        "bytes": 9773,
+        "sha256": "e71e24994f603385f307e10f7dd6e83897419f00b25b7cfb3dc94ec764c7ca67"
+      },
+      "target": {
+        "bytes": 9783,
+        "sha256": "1ed4b531b10dfb65b85e967045c7ed704dd36b2113a8c5b4f94d2ed0631891e3"
+      },
+      "owner": "src/skills/bundled/claude-api/shared/prompt-caching.md"
+    },
+    {
+      "path": "shared/tool-use-concepts.md",
+      "baseline": {
+        "bytes": 16722,
+        "sha256": "81790a54f7175a4c6f38a186871004f252c3826bfc2f244798589f9fc215824f"
+      },
+      "target": {
+        "bytes": 16733,
+        "sha256": "a3341ac9bdbb56bf2f733796cc6ac4abb146cbc0f8801b3ab528155faabe294b"
+      },
+      "owner": "src/skills/bundled/claude-api/shared/tool-use-concepts.md"
+    },
+    {
+      "path": "typescript/claude-api/README.md",
+      "baseline": {
+        "bytes": 9814,
+        "sha256": "e0a2772459520f4ede3f16c6feb228bb1302632fdeadde7cf13c058f3135d90c"
+      },
+      "target": {
+        "bytes": 9872,
+        "sha256": "a79e19e5a93741acebedd68cdddeea02eb558afbec05358ebd99bfcf3ef71a1f"
+      },
+      "owner": "src/skills/bundled/claude-api/typescript/claude-api/README.md"
+    },
+    {
+      "path": "typescript/claude-api/streaming.md",
+      "baseline": {
+        "bytes": 5569,
+        "sha256": "d806e5bb7e3e204fba3e9e3910e9b6298adc1f661015e68eb0c4fee366d68e25"
+      },
+      "target": {
+        "bytes": 5580,
+        "sha256": "6cd349983590525911e694233e6e30cf5e2660ce46095ed5d138f7209a3ba30c"
+      },
+      "owner": "src/skills/bundled/claude-api/typescript/claude-api/streaming.md"
+    }
+  ],
+  "routingChanges": [
+    {
+      "owner": "src/skills/bundled/claudeApiContent.ts",
+      "behavior": "Default OPUS_ID/OPUS_NAME move to Claude Opus 4.7 and model-migration content becomes available."
+    },
+    {
+      "owner": "src/skills/bundled/claudeApi.ts",
+      "behavior": "Prompt construction replaces __G2__ with the model-migration reading-guide entry."
+    }
+  ]
+}

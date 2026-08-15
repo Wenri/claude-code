@@ -21,15 +21,19 @@ import { createAbortController } from './abortController.js'
 import type { PastedContent } from './config.js'
 import { logForDebugging } from './debug.js'
 import type { EffortValue } from './effort.js'
-import type { FileHistoryState } from './fileHistory.js'
 import { fileHistoryEnabled, fileHistoryMakeSnapshot } from './fileHistory.js'
 import { gracefulShutdownSync } from './gracefulShutdown.js'
 import { enqueue } from './messageQueueManager.js'
+import { extractTextContent } from './messages.js'
 import { resolveSkillModelOverride } from './model/model.js'
 import type { ProcessUserInputContext } from './processUserInput/processUserInput.js'
 import { processUserInput } from './processUserInput/processUserInput.js'
 import type { QueryGuard } from './QueryGuard.js'
 import { queryCheckpoint, startQueryProfile } from './queryProfiler.js'
+import {
+  endInteractionSpan,
+  runWithInteractionSpan,
+} from './telemetry/sessionTracing.js'
 import { runWithWorkload } from './workloadContext.js'
 
 function exit(): void {
@@ -461,6 +465,13 @@ async function executeUserInput(params: ExecuteUserInputParams): Promise<void> {
       commands.every(c => c.workload === firstWorkload)
         ? firstWorkload
         : undefined
+    const firstInput = commands[0]?.value
+    const interactionPrompt =
+      typeof firstInput === 'string'
+        ? firstInput
+        : firstInput
+          ? extractTextContent(firstInput, '\n')
+          : ''
 
     // Wrap the entire turn (processUserInput loop + onQuery) in an
     // AsyncLocalStorage context. This is the ONLY way to correctly
@@ -470,7 +481,8 @@ async function executeUserInput(params: ExecuteUserInputParams): Promise<void> {
     // context — isolated from the parent's continuation. A process-global
     // mutable slot would be clobbered at the detached closure's first
     // await by this function's synchronous return path. See state.ts.
-    await runWithWorkload(turnWorkload, async () => {
+    await runWithWorkload(turnWorkload, () =>
+      runWithInteractionSpan(interactionPrompt, async () => {
       for (let i = 0; i < commands.length; i++) {
         const cmd = commands[i]!
         const isFirst = i === 0
@@ -525,14 +537,11 @@ async function executeUserInput(params: ExecuteUserInputParams): Promise<void> {
       queryCheckpoint('query_process_user_input_end')
       if (fileHistoryEnabled()) {
         queryCheckpoint('query_file_history_snapshot_start')
+        const snapshotContext = makeContext()
         newMessages.filter(selectableUserMessagesFilter).forEach(message => {
           void fileHistoryMakeSnapshot(
-            (updater: (prev: FileHistoryState) => FileHistoryState) => {
-              setAppState(prev => ({
-                ...prev,
-                fileHistory: updater(prev.fileHistory),
-              }))
-            },
+            snapshotContext.getFileHistoryState,
+            snapshotContext.applyFileHistoryOp,
             message.uuid,
           )
         })
@@ -588,6 +597,7 @@ async function executeUserInput(params: ExecuteUserInputParams): Promise<void> {
         })
         resetHistory()
         setAbortController(null)
+        endInteractionSpan()
       }
 
       // Handle nextInput from commands that want to chain (e.g., /discover activation)
@@ -598,7 +608,8 @@ async function executeUserInput(params: ExecuteUserInputParams): Promise<void> {
           params.onInputChange(nextInput)
         }
       }
-    }) // end runWithWorkload — ALS context naturally scoped, no finally needed
+      }),
+    )
   } finally {
     // Safety net: release the guard reservation if processUserInput threw
     // or onQuery was skipped. No-op if onQuery already ran (guard is idle
@@ -611,5 +622,6 @@ async function executeUserInput(params: ExecuteUserInputParams): Promise<void> {
     // turn's resetLoadingState. Harmless when onQuery ran: setMessages grew
     // displayedMessages past the baseline, so REPL.tsx already hid it.
     setUserInputOnProcessing(undefined)
+    endInteractionSpan()
   }
 }

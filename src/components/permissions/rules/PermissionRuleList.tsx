@@ -13,7 +13,7 @@ import { useSearchInput } from '../../../hooks/useSearchInput.js';
 import type { KeyboardEvent } from '../../../ink/events/keyboard-event.js';
 import { Box, Text, useTerminalFocus } from '../../../ink.js';
 import { useKeybinding } from '../../../keybindings/useKeybinding.js';
-import { type AutoModeDenial, getAutoModeDenials } from '../../../utils/autoModeDenials.js';
+import { type AutoModeDenial, useAutoModeDenials } from '../../../utils/autoModeDenials.js';
 import type { PermissionBehavior, PermissionRule, PermissionRuleValue } from '../../../utils/permissions/PermissionRule.js';
 import { permissionRuleValueToString } from '../../../utils/permissions/permissionRuleParser.js';
 import { deletePermissionRule, getAllowRules, getAskRules, getDenyRules, permissionRuleSourceDisplayString } from '../../../utils/permissions/permissions.js';
@@ -477,13 +477,8 @@ export function PermissionRuleList(t0) {
     initialTab,
     onRetryDenials
   } = t0;
-  let t1;
-  if ($[0] === Symbol.for("react.memo_cache_sentinel")) {
-    t1 = getAutoModeDenials();
-    $[0] = t1;
-  } else {
-    t1 = $[0];
-  }
+  const { getDenials } = useAutoModeDenials();
+  const t1 = useMemo(getDenials, [getDenials]);
   const hasDenials = t1.length > 0;
   const defaultTab = initialTab ?? (hasDenials ? "recent" : "allow");
   let t2;

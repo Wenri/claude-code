@@ -7,6 +7,7 @@ import { logEvent } from 'src/services/analytics/index.js';
 import { useAppState } from 'src/state/AppState.js';
 import { getLastApiCompletionTimestamp, getRuntimeCapabilities } from '../../bootstrap/state.js';
 import { useVoiceState } from '../../context/voice.js';
+import { getLastApiCompletionTimestamp } from '../../bootstrap/state.js';
 import type { VerificationStatus } from '../../hooks/useApiKeyVerification.js';
 import { useIdeConnectionStatus } from '../../hooks/useIdeConnectionStatus.js';
 import type { IDESelection } from '../../hooks/useIdeSelection.js';
@@ -14,6 +15,7 @@ import { useMainLoopModel } from '../../hooks/useMainLoopModel.js';
 import { useVoiceEnabled } from '../../hooks/useVoiceEnabled.js';
 import { Box, Text } from '../../ink.js';
 import { useClaudeAiLimits } from '../../services/claudeAiLimitsHook.js';
+import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js';
 import { calculateTokenWarningState } from '../../services/compact/autoCompact.js';
 import { useCompactWarningSuppression } from '../../services/compact/compactWarningHook.js';
 import type { MCPServerConnection } from '../../services/mcp/types.js';
@@ -40,6 +42,19 @@ const VoiceIndicator: typeof import('./VoiceIndicator.js').VoiceIndicator = feat
 /* eslint-enable @typescript-eslint/no-require-imports */
 
 export const FOOTER_TEMPORARY_STATUS_TIMEOUT = 5000;
+const UNCACHED_TOKEN_WARNING_THRESHOLD = 50_000;
+const UNCACHED_TOKEN_WARNING_IDLE_MS = 3_600_000;
+
+export function formatUncachedTokenWarning(
+  tokenUsage: number,
+  lastApiCompletionTimestamp: number | null,
+  now = Date.now(),
+): string | null {
+  if (lastApiCompletionTimestamp === null) return null;
+  if (tokenUsage < UNCACHED_TOKEN_WARNING_THRESHOLD) return null;
+  if (now - lastApiCompletionTimestamp <= UNCACHED_TOKEN_WARNING_IDLE_MS) return null;
+  return `~${Math.round(tokenUsage / 1000)}k uncached · /clear to start fresh`;
+}
 type Props = {
   apiKeyStatus: VerificationStatus;
   isAutoUpdating: boolean;
@@ -77,15 +92,8 @@ export function Notifications(t0) {
   }
   const tokenUsage = t3;
   const mainLoopModel = useMainLoopModel();
-  let t4;
-  if ($[2] !== mainLoopModel || $[3] !== tokenUsage) {
-    t4 = calculateTokenWarningState(tokenUsage, mainLoopModel);
-    $[2] = mainLoopModel;
-    $[3] = tokenUsage;
-    $[4] = t4;
-  } else {
-    t4 = $[4];
-  }
+  const autoCompactWindow = useAppState(state => state.autoCompactWindow);
+  const t4 = calculateTokenWarningState(tokenUsage, mainLoopModel, autoCompactWindow);
   const isShowingCompactMessage = t4.isAboveWarningThreshold;
   const suppressTokenWarning = useCompactWarningSuppression();
   const isBriefOnly = useAppState(state => state.isBriefOnly);
@@ -193,7 +201,6 @@ export function Notifications(t0) {
     $[18] = ideSelection;
     $[19] = isAutoUpdating;
     $[20] = isShowingCompactMessage;
-    $[21] = mainLoopModel;
     $[22] = mcpClients;
     $[23] = notifications;
     $[25] = onChangeIsUpdating;

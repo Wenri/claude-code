@@ -138,9 +138,14 @@ import thinkback from './commands/thinkback/index.js'
 import thinkbackPlay from './commands/thinkback-play/index.js'
 import permissions from './commands/permissions/index.js'
 import plan from './commands/plan/index.js'
-import fast from './commands/fast/index.js'
+import fast, { fastNonInteractive } from './commands/fast/index.js'
 import focus from './commands/focus.js'
 import passes from './commands/passes/index.js'
+import powerup from './commands/powerup/index.js'
+import {
+  setupBedrock,
+  setupVertex,
+} from './commands/provider-setup/index.js'
 import privacySettings from './commands/privacy-settings/index.js'
 import hooks from './commands/hooks/index.js'
 import branch from './commands/branch/index.js'
@@ -187,7 +192,8 @@ import exit, { exitNonInteractive } from './commands/exit/index.js'
 import background from './commands/background/index.js'
 import stop, { stopNonInteractive } from './commands/stop/index.js'
 import exportCommand from './commands/export/index.js'
-import model from './commands/model/index.js'
+import model, { modelNonInteractive } from './commands/model/index.js'
+import mode from './commands/mode/index.js'
 import outputStyle from './commands/output-style/index.js'
 import remoteEnv from './commands/remote-env/index.js'
 import upgrade from './commands/upgrade/index.js'
@@ -219,6 +225,7 @@ const usageReport: Command = {
 import oauthRefresh from './commands/oauth-refresh/index.js'
 import debugToolCall from './commands/debug-tool-call/index.js'
 import { getSettingSourceName } from './utils/settings/constants.js'
+import { getSettingsForSource } from './utils/settings/settings.js'
 import {
   type Command,
   getCommandName,
@@ -306,12 +313,14 @@ const COMMANDS = memoize((): Command[] => [
   mcp,
   memory,
   mobile,
+  mode,
   model,
   outputStyle,
   remoteEnv,
   plugin,
   pr_comments,
   releaseNotes,
+  recap,
   reloadPlugins,
   rename,
   renameNonInteractive,
@@ -321,7 +330,9 @@ const COMMANDS = memoize((): Command[] => [
   status,
   statusline,
   stickers,
+  teamOnboarding,
   theme,
+  toggleMemory,
   tui,
   update,
   feedback,
@@ -356,10 +367,15 @@ const COMMANDS = memoize((): Command[] => [
   powerup,
   privacySettings,
   hooks,
+  stopHook,
+  loops,
   exportCommand,
   sandboxToggle,
   ...(!isUsing3PServices() ? [logout, login()] : []),
   passes,
+  powerup,
+  setupBedrock,
+  setupVertex,
   ...(peersCmd ? [peersCmd] : []),
   tasks,
   recap,
@@ -585,22 +601,67 @@ export function getMcpSkillCommands(
   return []
 }
 
+export type SkillOverride =
+  | 'on'
+  | 'name-only'
+  | 'user-invocable-only'
+  | 'off'
+
+/**
+ * Resolve the effective listing/invocation override for a skill. Managed and
+ * flag settings are authoritative. Plugin skills ignore user/project/local
+ * overrides, matching the locked state shown by the skills settings UI.
+ */
+export function getSkillOverride(command: Command): SkillOverride {
+  const policyOverride = getSettingsForSource('policySettings')
+    ?.skillOverrides?.[command.name]
+  if (policyOverride) return policyOverride
+
+  const flagOverride = getSettingsForSource('flagSettings')?.skillOverrides?.[
+    command.name
+  ]
+  if (flagOverride) return flagOverride
+
+  if (command.disableModelInvocation) return 'user-invocable-only'
+  if (command.source === 'plugin') return 'on'
+
+  return (
+    getSettingsForSource('localSettings')?.skillOverrides?.[command.name] ??
+    getSettingsForSource('projectSettings')?.skillOverrides?.[command.name] ??
+    getSettingsForSource('userSettings')?.skillOverrides?.[command.name] ??
+    'on'
+  )
+}
+
+export function isSkillDisabledForModelInvocation(command: Command): boolean {
+  const override = getSkillOverride(command)
+  return override === 'user-invocable-only' || override === 'off'
+}
+
+export function isSkillHidden(command: Command): boolean {
+  return getSkillOverride(command) === 'off'
+}
+
+function isSkillToolCommand(command: Command): boolean {
+  return (
+    command.type === 'prompt' &&
+    !command.disableModelInvocation &&
+    !isSkillDisabledForModelInvocation(command) &&
+    (command.source === 'builtin' ||
+      command.loadedFrom === 'bundled' ||
+      command.loadedFrom === 'skills' ||
+      command.loadedFrom === 'commands_DEPRECATED' ||
+      command.hasUserSpecifiedDescription ||
+      Boolean(command.whenToUse))
+  )
+}
+
 // SkillTool shows ALL prompt-based commands that the model can invoke
 // This includes both skills (from /skills/) and commands (from /commands/)
 export const getSkillToolCommands = memoize(
   async (cwd: string): Promise<Command[]> => {
     const allCommands = await getCommands(cwd)
-    return allCommands.filter(
-      cmd =>
-        cmd.type === 'prompt' &&
-        !cmd.disableModelInvocation &&
-        (cmd.source === 'builtin' ||
-          cmd.loadedFrom === 'bundled' ||
-          cmd.loadedFrom === 'skills' ||
-          cmd.loadedFrom === 'commands_DEPRECATED' ||
-          cmd.hasUserSpecifiedDescription ||
-          cmd.whenToUse),
-    )
+    return allCommands.filter(isSkillToolCommand)
   },
 )
 
@@ -615,6 +676,7 @@ export const getSlashCommandToolSkills = memoize(
         cmd =>
           cmd.type === 'prompt' &&
           cmd.source !== 'builtin' &&
+          !isSkillHidden(cmd) &&
           (cmd.hasUserSpecifiedDescription || cmd.whenToUse) &&
           (cmd.loadedFrom === 'skills' ||
             cmd.loadedFrom === 'plugin' ||

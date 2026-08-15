@@ -244,3 +244,18 @@ package sha256  eb72a564decf7f00f8ba598bc7d3d8ecec452d1f220ff07e1fbcafd7184e110a
 source files    1933
 semantic tests  10
 ```
+
+## Semantic source reproduction check
+
+Run the fail-closed semantic audit after acquiring the adjacent artifacts:
+
+```sh
+pixi run node recovery/scripts/audit-source-reproduction.mjs \
+  --case "$CASE/manifest.json" \
+  --repo . \
+  --artifacts "$RECOVERY_ARTIFACTS"
+```
+
+Require all 5,643 nonmatched units to be classified, zero first-party source
+runtime gaps, and 24 explicitly unresolved dependency-runtime gaps. Missing
+root dependency/build inputs keep the whole-bundle-from-source verdict false.

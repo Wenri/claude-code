@@ -53,6 +53,13 @@ function guessMimeType(filename: string): string {
   return MIME_BY_EXT[ext] ?? 'application/octet-stream'
 }
 
+export function escapeContentDispositionFilename(filename: string): string {
+  return filename
+    .replace(/[\r\n]/g, '')
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+}
+
 function debug(msg: string): void {
   logForDebugging(`[brief:upload] ${msg}`)
 }
@@ -129,7 +136,7 @@ export async function uploadBriefAttachment(
     const body = Buffer.concat([
       Buffer.from(
         `--${boundary}\r\n` +
-          `Content-Disposition: form-data; name="file"; filename="${filename}"\r\n` +
+          `Content-Disposition: form-data; name="file"; filename="${escapeContentDispositionFilename(filename)}"\r\n` +
           `Content-Type: ${mimeType}\r\n\r\n`,
       ),
       content,

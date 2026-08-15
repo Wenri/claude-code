@@ -14,10 +14,9 @@ import type {
 } from 'src/entrypoints/agentSdkTypes.js'
 import type { Message } from 'src/types/message.js'
 import type { PermissionResult } from 'src/utils/permissions/PermissionResult.js'
-import { permissionBehaviorSchema } from 'src/utils/permissions/PermissionRule.js'
 import { permissionUpdateSchema } from 'src/utils/permissions/PermissionUpdateSchema.js'
 import type { AppState } from '../state/AppState.js'
-import type { AttributionState } from '../utils/commitAttribution.js'
+import type { AttributionOp } from '../utils/commitAttribution.js'
 
 export function isHookEvent(value: string): value is HookEvent {
   return HOOK_EVENTS.includes(value as HookEvent)
@@ -45,6 +44,10 @@ export type PromptResponse = {
   prompt_response: string // request id
   selected: string
 }
+
+const hookPermissionBehaviorSchema = lazySchema(() =>
+  z.enum(['allow', 'deny', 'ask', 'defer']),
+)
 
 // Sync hook response schema
 export const syncHookResponseSchema = lazySchema(() =>
@@ -222,9 +225,7 @@ type _assertSDKTypesMatch = Assert<
 /** Context passed to callback hooks for state access */
 export type HookCallbackContext = {
   getAppState: () => AppState
-  updateAttributionState: (
-    updater: (prev: AttributionState) => AttributionState,
-  ) => void
+  applyAttributionOp: (operation: AttributionOp) => void
 }
 
 /** Hook that is a callback. */
@@ -284,7 +285,7 @@ export type HookResult = {
   outcome: 'success' | 'blocking' | 'non_blocking_error' | 'cancelled'
   preventContinuation?: boolean
   stopReason?: string
-  permissionBehavior?: 'ask' | 'deny' | 'allow' | 'passthrough'
+  permissionBehavior?: 'ask' | 'deny' | 'allow' | 'defer' | 'passthrough'
   hookPermissionDecisionReason?: string
   additionalContext?: string
   sessionTitle?: string
@@ -302,7 +303,7 @@ export type AggregatedHookResult = {
   preventContinuation?: boolean
   stopReason?: string
   hookPermissionDecisionReason?: string
-  permissionBehavior?: PermissionResult['behavior']
+  permissionBehavior?: PermissionResult['behavior'] | 'defer'
   additionalContexts?: string[]
   sessionTitle?: string
   initialUserMessage?: string

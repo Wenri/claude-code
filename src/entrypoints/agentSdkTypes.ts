@@ -303,6 +303,7 @@ export type CronJitterConfig = {
   oneShotFloorMs: number
   oneShotMinuteMod: number
   recurringMaxAgeMs: number
+  cacheLeadMs: number
 }
 
 /**

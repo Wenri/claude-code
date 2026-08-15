@@ -12,6 +12,7 @@ import type { ThemeName } from '../utils/theme.js'
 import type { LogOption } from './logs.js'
 import type { Message } from './message.js'
 import type { PluginManifest } from './plugin.js'
+import type { MessageOperation } from '../utils/messageOperations.js'
 
 export type LocalCommandResult =
   | { type: 'text'; value: string }
@@ -81,6 +82,7 @@ type LocalCommand = {
 export type LocalJSXCommandContext = ToolUseContext & {
   canUseTool?: CanUseToolFn
   setMessages: (updater: (prev: Message[]) => Message[]) => void
+  applyMessageOp: (operation: MessageOperation) => void
   options: {
     dynamicMcpConfig?: Record<string, ScopedMcpServerConfig>
     ideInstallationStatus: IDEExtensionInstallationStatus | null

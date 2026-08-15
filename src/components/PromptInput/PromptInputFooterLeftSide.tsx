@@ -40,6 +40,7 @@ import { isFullscreenEnvEnabled } from '../../utils/fullscreen.js';
 import { isXtermJs } from '../../ink/terminal.js';
 import { useHasSelection, useSelection } from '../../ink/hooks/use-selection.js';
 import { getGlobalConfig, saveGlobalConfig } from '../../utils/config.js';
+import { isBgSession } from '../../utils/concurrentSessions.js';
 import { getPlatform } from '../../utils/platform.js';
 import { PrBadge } from '../PrBadge.js';
 import { isBgSession } from '../../utils/concurrentSessions.js';
@@ -397,6 +398,11 @@ function ModeIndicator({
     parts.push(<ProactiveCountdown key="proactive" />);
   } else if (!hasTeammatePills && showHint) {
     parts.push(...hintParts);
+  }
+  if (isBgSession() && isInputEmpty) {
+    parts.push(<Text dimColor key="bg-detach">
+        {figures.arrowLeft} for agents
+      </Text>);
   }
 
   // When we have teammate pills, always render them on their own line above other parts

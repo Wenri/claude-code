@@ -16,9 +16,11 @@ import { validateBoundedIntEnvVar } from '../../utils/envValidation.js'
 import { hasExactErrorMessage } from '../../utils/errors.js'
 import { formatTokens } from '../../utils/format.js'
 import type { CacheSafeParams } from '../../utils/forkedAgent.js'
+import { formatTokens } from '../../utils/format.js'
 import { logError } from '../../utils/log.js'
 import { getCanonicalName } from '../../utils/model/model.js'
 import { tokenCountWithEstimation } from '../../utils/tokens.js'
+import { resetToolResultDedupState } from '../../utils/toolErrors.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../analytics/growthbook.js'
 import { getMaxOutputTokensForModel } from '../api/claude.js'
 import {
@@ -192,6 +194,20 @@ export function getEffectiveContextWindowSize(
   )
 
   return contextWindow - reservedTokensForSummary
+}
+
+function notifyAutoCompactExperimentWindow(
+  context: ToolUseContext,
+  model: string,
+  setting?: number,
+): void {
+  const { source, configured } = resolveAutoCompactWindow(model, setting)
+  if (source !== 'experiment') return
+  context.addNotification?.({
+    key: 'autocompact-experiment-hint',
+    text: `compacted at ${formatTokens(configured)} · override with CLAUDE_CODE_AUTO_COMPACT_WINDOW=1000000`,
+    priority: 'medium',
+  })
 }
 
 export type AutoCompactTrackingState = {
@@ -488,6 +504,11 @@ export async function autoCompactIfNeeded(
     recompactionInfo.autoCompactThreshold,
   )
   if (sessionMemoryResult) {
+    notifyAutoCompactExperimentWindow(
+      toolUseContext,
+      model,
+      autoCompactWindow,
+    )
     // Reset lastSummarizedMessageId since session memory compaction prunes messages
     // and the old message UUID will no longer exist after the REPL replaces messages
     setLastSummarizedMessageId(undefined)
@@ -500,6 +521,7 @@ export async function autoCompactIfNeeded(
       notifyCompaction(querySource ?? 'compact', toolUseContext.agentId)
     }
     markPostCompaction()
+    resetToolResultDedupState(toolUseContext.resultDedupState)
     return {
       wasCompacted: true,
       compactionResult: sessionMemoryResult,
@@ -508,6 +530,7 @@ export async function autoCompactIfNeeded(
     }
   }
 
+  const stripNonEssential = shouldUseColdCompaction()
   try {
     const compactionResult = await compactConversation(
       messages,

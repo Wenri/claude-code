@@ -2,8 +2,13 @@ import { feature } from 'bun:bundle'
 import type { QuerySource } from '../../constants/querySource.js'
 import { clearSystemPromptSections } from '../../constants/systemPromptSections.js'
 import { getUserContext } from '../../context.js'
+import type { AppState } from '../../state/AppStateStore.js'
 import { clearSpeculativeChecks } from '../../tools/BashTool/bashPermissions.js'
-import { clearClassifierApprovals } from '../../utils/classifierApprovals.js'
+import {
+  clearClassifierApprovals,
+  createClassifierApprovalsSetter,
+} from '../../utils/classifierApprovals.js'
+import { resetAutonomousLoopDelivered } from '../../utils/loopSentinels.js'
 import { resetGetMemoryFilesCache } from '../../utils/claudemd.js'
 import { clearSessionMessagesCache } from '../../utils/sessionStorage.js'
 import { clearBetaTracingState } from '../../utils/telemetry/betaSessionTracing.js'
@@ -72,9 +77,12 @@ export function runPostCompactCleanup(
     // clear so all compaction paths behave consistently.
     getUserContext.cache.clear?.()
     resetGetMemoryFilesCache('compact')
+    resetAutonomousLoopDelivered()
   }
   clearSystemPromptSections()
-  clearClassifierApprovals()
+  clearClassifierApprovals(
+    setAppState ? createClassifierApprovalsSetter(setAppState) : undefined,
+  )
   clearSpeculativeChecks()
   // Intentionally NOT calling resetSentSkillNames(): re-injecting the full
   // skill_listing (~4K tokens) post-compact is pure cache_creation. The

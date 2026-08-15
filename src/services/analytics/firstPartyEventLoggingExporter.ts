@@ -720,6 +720,7 @@ export class FirstPartyEventLoggingExporter implements LogRecordExporter {
         _PROTO_skill_name,
         _PROTO_plugin_name,
         _PROTO_marketplace_name,
+        _PROTO_code,
         ...rest
       } = formatted.additional
       const additionalMetadata = stripProtoFields(rest)
@@ -748,6 +749,8 @@ export class FirstPartyEventLoggingExporter implements LogRecordExporter {
             typeof _PROTO_marketplace_name === 'string'
               ? _PROTO_marketplace_name
               : undefined,
+          repl_code:
+            typeof _PROTO_code === 'string' ? _PROTO_code : undefined,
           additional_metadata:
             Object.keys(additionalMetadata).length > 0
               ? Buffer.from(jsonStringify(additionalMetadata)).toString(

@@ -161,3 +161,11 @@ export async function shouldShowAppUpgradeMessage(): Promise<boolean> {
   const cfg = await getEnvLessBridgeConfig()
   return cfg.should_show_app_upgrade_message
 }
+
+// Stable names exposed by the Remote Control config module. Keep the
+// env-less names above for descriptive internal call sites.
+export {
+  DEFAULT_ENV_LESS_BRIDGE_CONFIG as DEFAULT_REPL_BRIDGE_CONFIG,
+  checkEnvLessBridgeMinVersion as checkReplBridgeMinVersion,
+  getEnvLessBridgeConfig as getReplBridgeConfig,
+}

@@ -492,6 +492,7 @@ Require these statuses:
 evidence-verified
 bun-container-verified
 source-lineage-verified
+source-reproduction-audit-verified
 exact-delta-verified
 attribution-report-verified
 structural-ledger-verified

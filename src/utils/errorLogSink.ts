@@ -20,6 +20,7 @@ import { logForDebugging } from './debug.js'
 import { getFsImplementation } from './fsOperations.js'
 import { attachErrorLogSink, dateToFilename } from './log.js'
 import { jsonStringify } from './slowOperations.js'
+import { logInternalErrorEvent } from './telemetry/events.js'
 
 const DATE = dateToFilename(new Date())
 
@@ -150,6 +151,7 @@ function extractServerMessage(data: unknown): string | undefined {
  * Implementation for logError - writes error to debug log and file.
  */
 function logErrorImpl(error: Error): void {
+  logInternalErrorEvent(error)
   const errorStr = error.stack || error.message
 
   // Enrich axios errors with request URL, status, and server message for debugging

@@ -21,7 +21,7 @@ test('bounds async-agent stream stalls with the exact configurable timeout', () 
   )
   assert.match(
     agentToolUtils,
-    /resetStallWatchdog\(\)\s+for await \(const message of makeStream\(onCacheSafeParams\)\) \{\s+lastMessageType = message\.type\s+resetStallWatchdog\(\)/,
+    /resetStallWatchdog\(\)\s+for await \(const message of makeStream\(\s*onCacheSafeParams,\s*onQueryProgress,?\s*\)\) \{\s+lastMessageType =\s+message\.type === 'system'[\s\S]*?: message\.type\s+resetStallWatchdog\(\)/,
   )
 })
 
@@ -44,7 +44,7 @@ test('aborts, fails, and reports stalled async agents once', () => {
   )
   assert.match(
     agentToolUtils,
-    /failAsyncAgent\(taskId, message, rootSetAppState\)[\s\S]*?status: 'failed',[\s\S]*?error: message,[\s\S]*?finalMessage: extractPartialResult\(agentMessages\)/,
+    /failAsyncAgent\(taskId, message, toolUseContext\.taskRegistry\)[\s\S]*?status: 'failed',[\s\S]*?error: message,[\s\S]*?finalMessage: extractPartialResult\(agentMessages\)/,
   )
 })
 

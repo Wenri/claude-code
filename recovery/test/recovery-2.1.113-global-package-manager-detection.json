@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.112-to-2.1.113",
+  "artifact": {
+    "targetInnerSha256": "4a3c3636c8cb19ef42d6319e5c6ef9b029f5de148b84f22315d159052d6c5eba",
+    "targetWrapperSha256": "dda4d89e787fa455706e4f41beffc8e58d42b9094c4d155fcbf62e3f19036681",
+    "targetWrapperPrefixLength": 87,
+    "targetWrapperSuffixLength": 3,
+    "structuralGzipSha256": "383448923995bb86060ce91beac2bc5adac35817a0cdff35b533135c7d24345f"
+  },
+  "proof": {
+    "target": "complete authenticated target unit and all three exact target-added residue occurrences",
+    "source": "exact recovered detector declaration, bundled-mode import, and both production callers",
+    "historical": "detector/import/residues are absent and both callers use the prior runtime-only decision",
+    "semantic": "the recovered and minified target detectors agree over the Bun-path/runtime/bundled truth table"
+  },
+  "summary": {
+    "units": 1,
+    "residues": 3,
+    "recoveredSourceGapResidues": 3
+  },
+  "row": {
+    "targetIndex": 11276,
+    "priorOwnerIds": [
+      "owner-src-utils-autoUpdater-ts"
+    ],
+    "recoveredOwner": "src/utils/autoUpdater.ts",
+    "target": {
+      "classification": "unresolved",
+      "start": 7145228,
+      "end": 7145493,
+      "nodeType": "FunctionDeclaration",
+      "sourceHash": "b8d734733e4c3a2596f941ce615048140a832607c682e2dd988dbd24215ae943"
+    },
+    "sourceImport": {
+      "module": "./bundledMode.js",
+      "imported": "isInBundledMode",
+      "local": "isInBundledMode"
+    },
+    "declaration": {
+      "name": "detectGlobalPackageManager",
+      "kind": "FunctionDeclaration",
+      "sha256": "9e92323c9e911234c4e5831c47b984bbe0b2267df6165ac241cd8783da3bd9a6",
+      "residues": [
+        {
+          "kind": "property",
+          "value": "BUN_INSTALL",
+          "target": {
+            "start": 7145300,
+            "end": 7145311
+          },
+          "source": {
+            "relativeStart": 145,
+            "relativeEnd": 156
+          },
+          "classification": "recovered-source-gap"
+        },
+        {
+          "kind": "string",
+          "value": "/.bun/install/global/",
+          "target": {
+            "start": 7145369,
+            "end": 7145392
+          },
+          "source": {
+            "relativeStart": 243,
+            "relativeEnd": 266
+          },
+          "classification": "recovered-source-gap"
+        },
+        {
+          "kind": "string",
+          "value": "/install/global/",
+          "target": {
+            "start": 7145413,
+            "end": 7145431
+          },
+          "source": {
+            "tokenKind": "TemplateTail",
+            "relativeStart": 336,
+            "relativeEnd": 354
+          },
+          "classification": "recovered-source-gap"
+        }
+      ]
+    },
+    "callers": [
+      {
+        "name": "getInstallationPrefix",
+        "sha256": "5a8bb1ace48bc8d26243e309c35398d20ea19f2ae5a44a832798b613a562d45e",
+        "historicalSha256": "c20f57f06f99218d9228fc401998bb1097ccb7d21e4d2a3a1726b30e57052bb7",
+        "detectorCalls": 1
+      },
+      {
+        "name": "installGlobalPackage",
+        "sha256": "acff6cf2d0b11cd9eee2175569f78315df6cc7d77932562a73455affb398ca51",
+        "historicalSha256": "3021ac2f967e01d409a42d6d40b0ba337294256e3de22ae9639bf2aee1312792",
+        "detectorCalls": 1
+      }
+    ],
+    "historical": {
+      "state": "declaration-import-and-residues-absent"
+    },
+    "supplement": {
+      "operation": "one import, one declaration insertion, and three exact caller replacements",
+      "importAnchor": "import { type ReleaseChannel, saveGlobalConfig } from './config.js'",
+      "declarationAnchor": "async function getInstallationPrefix(): Promise<string | null> {",
+      "callerReplacements": [
+        "const isBun = env.isRunningWithBun() -> const isBun = detectGlobalPackageManager() === 'bun'",
+        "after removeClaudeAliasesFromShellConfigs(): const packageManager = detectGlobalPackageManager()",
+        "!env.isRunningWithBun() && env.isNpmFromWindowsPath() -> packageManager === 'npm' && env.isNpmFromWindowsPath()",
+        "remove later const packageManager = env.isRunningWithBun() ? 'bun' : 'npm'"
+      ],
+      "laterTemporalExclusions": [
+        "Homebrew cask version resolution",
+        "Windows retired binary cleanup",
+        "downloads.claude.ai GCS endpoint migration"
+      ]
+    }
+  }
+}

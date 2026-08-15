@@ -878,9 +878,13 @@ export async function acceptSpeculation(
       timestamp: new Date().toISOString(),
       timeSavedMs,
     }
-    void appendFile(getTranscriptPath(), jsonStringify(entry) + '\n', {
-      mode: 0o600,
-    }).catch(() => {
+    void trackSessionWrite(() =>
+      appendFile(getTranscriptPath(), jsonStringify(entry) + '\n', {
+        mode: 0o600,
+      }).then(() => {
+        fireSessionMirror(getTranscriptPath(), [entry])
+      }),
+    ).catch(() => {
       logForDebugging(
         '[Speculation] Failed to write speculation-accept to transcript',
       )

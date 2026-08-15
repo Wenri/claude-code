@@ -10,7 +10,7 @@ import { extractBaseline } from './extract-baseline.mjs'
 function usage() {
   console.error(
     'Usage: verify-recovered-patches.mjs --case manifest.json ' +
-      '--artifacts DIR',
+      '--artifacts DIR [--repo DIR]',
   )
 }
 
@@ -120,7 +120,10 @@ function main() {
 
   const manifestPath = path.resolve(args.case)
   const caseRoot = path.dirname(manifestPath)
-  const repositoryRoot = path.resolve(caseRoot, '../../..')
+  const toolingRoot = path.resolve(caseRoot, '../../..')
+  const repositoryRoot = args.repo
+    ? path.resolve(args.repo)
+    : toolingRoot
   const artifactsRoot = path.resolve(args.artifacts)
   const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
   const validation = manifest.recoveryValidation
@@ -352,7 +355,7 @@ function main() {
     }
 
     const testFiles = validation.testFiles.map(relative =>
-      safeRelativePath(repositoryRoot, relative, 'test file'),
+      safeRelativePath(toolingRoot, relative, 'test file'),
     )
     const testEnvironment = { ...process.env }
     for (const [name, artifactId] of Object.entries(
@@ -365,7 +368,7 @@ function main() {
       ).filename
     }
     const tests = run(process.execPath, ['--test', ...testFiles], {
-      cwd: repositoryRoot,
+      cwd: toolingRoot,
       env: testEnvironment,
     })
 

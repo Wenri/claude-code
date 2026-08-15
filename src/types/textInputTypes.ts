@@ -2,7 +2,7 @@ import type { ContentBlockParam } from '@anthropic-ai/sdk/resources/messages.mjs
 import type { UUID } from 'crypto'
 import type React from 'react'
 import type { PermissionResult } from '../entrypoints/agentSdkTypes.js'
-import type { Key } from '../ink.js'
+import type { KeyboardEvent } from '../ink/events/keyboard-event.js'
 import type { PastedContent } from '../utils/config.js'
 import type { ImageDimensions } from '../utils/imageResizer.js'
 import type { TextHighlight } from '../utils/textHighlighting.js'
@@ -91,6 +91,12 @@ export type BaseTextInputProps = {
    */
   readonly onExitMessage?: (show: boolean, key?: string) => void
 
+  /** Called when left is pressed while the input is empty. */
+  readonly onLeftArrowOnEmpty?: () => void
+
+  /** Controls the first-press message for the empty-input left action. */
+  readonly onLeftArrowOnEmptyMessage?: (show: boolean) => void
+
   /**
    * Optional callback when left is pressed with an empty input.
    */
@@ -142,6 +148,9 @@ export type BaseTextInputProps = {
    * Optional callback when a large text (over 800 chars) is pasted
    */
   readonly onPaste?: (text: string) => void
+
+  /** Runs before the input's own DOM keyboard handler. */
+  readonly onKeyDownBefore?: (event: KeyboardEvent) => void
 
   /**
    * Callback when the pasting state changes
@@ -208,7 +217,7 @@ export type BaseTextInputProps = {
    * (possibly transformed) input string; returning '' for a non-empty
    * input drops the event.
    */
-  readonly inputFilter?: (input: string, key: Key) => string
+  readonly inputFilter?: (input: string, event: KeyboardEvent) => string
 }
 
 /**
@@ -235,7 +244,7 @@ export type VimMode = 'INSERT' | 'NORMAL' | 'VISUAL' | 'VISUAL LINE'
  * Common properties for input hook results
  */
 export type BaseInputState = {
-  onInput: (input: string, key: Key) => void
+  handleKeyDown: (event: KeyboardEvent) => void
   renderedValue: string
   offset: number
   setOffset: (offset: number) => void
@@ -309,6 +318,8 @@ export type QueuePriority = 'now' | 'next' | 'later'
 export type QueuedCommand = {
   value: string | Array<ContentBlockParam>
   mode: PromptInputMode
+  /** Raw file metadata forwarded by SDK/headless transports for replay. */
+  fileAttachments?: unknown[]
   /** Defaults to the priority implied by `mode` when enqueued. */
   priority?: QueuePriority
   clientPlatform?: string

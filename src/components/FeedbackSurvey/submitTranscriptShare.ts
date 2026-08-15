@@ -12,7 +12,7 @@ import {
   loadSubagentTranscripts,
   MAX_TRANSCRIPT_READ_BYTES,
 } from '../../utils/sessionStorage.js'
-import { jsonStringify } from '../../utils/slowOperations.js'
+import { serializeWrappedContent } from '../../utils/wrappedContentSerializer.js'
 import { redactSensitiveInfo } from '../Feedback.js'
 
 type TranscriptShareResult = {
@@ -25,6 +25,27 @@ export type TranscriptShareTrigger =
   | 'good_feedback_survey'
   | 'frustration'
   | 'memory_survey'
+
+function sanitizeFeedbackValue(value: unknown): unknown {
+  if (typeof value === 'string') return redactSensitiveInfo(value)
+  if (Array.isArray(value)) return value.map(sanitizeFeedbackValue)
+  if (value !== null && typeof value === 'object') {
+    const sanitized: Record<string, unknown> = {}
+    for (const [key, fieldValue] of Object.entries(value)) {
+      if (typeof fieldValue === 'string') {
+        const prefix = `${key}: `
+        const withPrefix = redactSensitiveInfo(prefix + fieldValue)
+        sanitized[key] = withPrefix.startsWith(prefix)
+          ? withPrefix.slice(prefix.length)
+          : redactSensitiveInfo(fieldValue)
+      } else {
+        sanitized[key] = sanitizeFeedbackValue(fieldValue)
+      }
+    }
+    return sanitized
+  }
+  return value
+}
 
 export async function submitTranscriptShare(
   messages: Message[],
@@ -57,19 +78,39 @@ export async function submitTranscriptShare(
       // File may not exist
     }
 
+    const sanitizedRawTranscript = rawTranscriptJsonl
+      ?.split('\n')
+      .map(line => {
+        if (!line) return line
+        try {
+          return JSON.stringify(sanitizeFeedbackValue(JSON.parse(line)))
+        } catch {
+          return redactSensitiveInfo(line)
+        }
+      })
+      .join('\n')
     const data = {
-      trigger,
-      version: MACRO.VERSION,
-      platform: process.platform,
-      transcript,
-      subagentTranscripts:
-        Object.keys(subagentTranscripts).length > 0
-          ? subagentTranscripts
-          : undefined,
-      rawTranscriptJsonl,
+      ...(sanitizeFeedbackValue({
+        trigger,
+        version: MACRO.VERSION,
+        platform: process.platform,
+        transcript,
+        subagentTranscripts:
+          Object.keys(subagentTranscripts).length > 0
+            ? subagentTranscripts
+            : undefined,
+      }) as Record<string, unknown>),
+      rawTranscriptJsonl: sanitizedRawTranscript,
     }
 
-    const content = redactSensitiveInfo(jsonStringify(data))
+    const body = serializeWrappedContent(
+      data,
+      new Set(['transcript']),
+      new Set(['subagentTranscripts']),
+      {
+        extraOuterFields: { appearance_id: appearanceId },
+      },
+    )
 
     await checkAndRefreshOAuthTokenIfNeeded()
 
@@ -86,7 +127,7 @@ export async function submitTranscriptShare(
 
     const response = await axios.post(
       'https://api.anthropic.com/api/claude_code_shared_session_transcripts',
-      { content, appearance_id: appearanceId },
+      body,
       {
         headers,
         timeout: 30000,

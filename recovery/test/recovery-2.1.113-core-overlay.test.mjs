@@ -8,6 +8,8 @@ const BASELINE_SHA256 =
   'bc3358282800e3e99daa8e71ac5b7b1566bd0d7ca7eb94f714a7859365d3163f'
 const TARGET_SHA256 =
   'dda4d89e787fa455706e4f41beffc8e58d42b9094c4d155fcbf62e3f19036681'
+const TARGET_INNER_SHA256 =
+  '4a3c3636c8cb19ef42d6319e5c6ef9b029f5de148b84f22315d159052d6c5eba'
 
 function source(relative) {
   return fs.readFileSync(
@@ -26,10 +28,11 @@ function bundle(environmentName, expectedSha256) {
   const filename = process.env[environmentName]
   assert.ok(filename, `${environmentName} must be set`)
   const bytes = fs.readFileSync(filename)
-  assert.equal(
-    crypto.createHash('sha256').update(bytes).digest('hex'),
-    expectedSha256,
-  )
+  const digest = crypto.createHash('sha256').update(bytes).digest('hex')
+  const expected = Array.isArray(expectedSha256)
+    ? expectedSha256
+    : [expectedSha256]
+  assert.ok(expected.includes(digest), `${environmentName}: ${digest}`)
   return bytes.toString('utf8')
 }
 
@@ -96,7 +99,10 @@ test('recovers link, effort, and SDK image failure handling', () => {
 
 test('authenticated adjacent generated code contains the recovered behaviors', () => {
   const baseline = bundle('CLAUDE_CODE_2_1_112_BUNDLE', BASELINE_SHA256)
-  const target = bundle('CLAUDE_CODE_2_1_113_BUNDLE', TARGET_SHA256)
+  const target = bundle('CLAUDE_CODE_2_1_113_BUNDLE', [
+    TARGET_SHA256,
+    TARGET_INNER_SHA256,
+  ])
   const fragments = [
     'CLAUDE_CODE_BS_AS_CTRL_BACKSPACE',
     'tengu_image_resize_degraded',

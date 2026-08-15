@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.88-to-2.1.89",
+  "criterion": "compiled-ast-function-semantics-v1",
+  "mergeInto": "semantic/source-coverage.json.gz",
+  "owners": [
+    {
+      "id": "owner-src-utils-execa-ts",
+      "path": "src/utils/execa.ts",
+      "anchor": "not found or is in an unsafe location (current directory)"
+    },
+    {
+      "id": "owner-src-utils-bash-shellQuote-ts",
+      "path": "src/utils/bash/shellQuote.ts",
+      "anchor": "export function quote(args: ReadonlyArray<unknown>): string"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "evidence-process-wrappers-target-fragments",
+      "kind": "target-fragment",
+      "path": "recovery/test/recovery-2.1.89-process-wrappers-semantic.test.mjs",
+      "detail": "Pins the authenticated target89 bundle, exact structural coordinates and hashes, both Windows-safe argv process façades, and the reachable shell-argument quote helper; when available it also pins the exact target116 inner-bundle evolution."
+    },
+    {
+      "id": "evidence-process-wrappers-semantic-test",
+      "kind": "semantic-test",
+      "path": "recovery/test/recovery-2.1.89-process-wrappers-semantic.test.mjs",
+      "detail": "Historical and current source assertions prove the safe async/sync resolution order, every target-reachable argv caller, and string-valued swarm quote call graph."
+    }
+  ],
+  "rows": [
+    {
+      "targetIndex": 2308,
+      "start": 942362,
+      "end": 942547,
+      "nodeType": "FunctionDeclaration",
+      "sourceHash": "96b49525efcb9e5abcb6379627b034e262c329d5d714499cd5ba9511b2a3f6b0",
+      "structuralClass": "unresolved",
+      "disposition": "source-runtime-covered",
+      "ownerIds": [
+        "owner-src-utils-execa-ts"
+      ],
+      "evidenceIds": [
+        "target89-owner-residue-target-fragments",
+        "target89-owner-residue-semantic-test",
+        "evidence-process-wrappers-target-fragments",
+        "evidence-process-wrappers-semantic-test"
+      ],
+      "behavior": "The async argv façade resolves command names with the cwd-safe Windows lookup, throws before spawning on null, and otherwise delegates the resolved or original executable with the unchanged argv/options."
+    },
+    {
+      "targetIndex": 2309,
+      "start": 942547,
+      "end": 942729,
+      "nodeType": "FunctionDeclaration",
+      "sourceHash": "518566352b251c5759e0b3bc9813965a1d752ceb55dc3cd4c3af244a90f6a3c2",
+      "structuralClass": "unresolved",
+      "disposition": "source-runtime-covered",
+      "ownerIds": [
+        "owner-src-utils-execa-ts"
+      ],
+      "evidenceIds": [
+        "target89-owner-residue-target-fragments",
+        "target89-owner-residue-semantic-test",
+        "evidence-process-wrappers-target-fragments",
+        "evidence-process-wrappers-semantic-test"
+      ],
+      "behavior": "The synchronous argv façade has the same cwd-safe Windows lookup and failure order before delegating to the synchronous process primitive."
+    },
+    {
+      "targetIndex": 9810,
+      "start": 8121055,
+      "end": 8121224,
+      "nodeType": "FunctionDeclaration",
+      "sourceHash": "c01f848fd47313c815f2404d8f447875a2ff89997e5fb85373890f1562fbf893",
+      "structuralClass": "unresolved",
+      "disposition": "source-runtime-covered",
+      "ownerIds": [
+        "owner-src-utils-bash-shellQuote-ts"
+      ],
+      "evidenceIds": [
+        "target89-owner-residue-target-fragments",
+        "target89-owner-residue-semantic-test",
+        "evidence-process-wrappers-target-fragments",
+        "evidence-process-wrappers-semantic-test"
+      ],
+      "behavior": "The shell-quote owner is reached by the teammate flag, environment, and pane command builders with string-valued arrays; the target helper preserves safe tokens and single-quotes/escapes every other value."
+    }
+  ]
+}

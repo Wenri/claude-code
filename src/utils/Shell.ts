@@ -36,15 +36,46 @@ import { onCwdChangedForHooks } from './hooks/fileChangedWatcher.js'
 import { getClaudeTempDirName } from './permissions/filesystem.js'
 import { getPlatform } from './platform.js'
 import { SandboxManager } from './sandbox/sandbox-adapter.js'
+import {
+  getEmbeddedSeccompFileDescriptor,
+  SECCOMP_CHILD_FD,
+} from './sandbox/seccomp.js'
+import { parseForSecurity } from './bash/ast.js'
 import { invalidateSessionEnvCache } from './sessionEnvironment.js'
 import { createBashShellProvider } from './shell/bashProvider.js'
 import { getCachedPowerShellPath } from './shell/powershellDetection.js'
 import { createPowerShellProvider } from './shell/powershellProvider.js'
-import type { ShellProvider, ShellType } from './shell/shellProvider.js'
-import { subprocessEnv } from './subprocessEnv.js'
+import type {
+  ShellProvider,
+  ShellType,
+  TmuxSocket,
+} from './shell/shellProvider.js'
+import {
+  enforceScriptCaps,
+  isScrubEnabled,
+  isScrubSandboxAvailable,
+  scrubSandboxConfig,
+  subprocessEnv,
+} from './subprocessEnv.js'
 import { posixPathToWindowsPath } from './windowsPaths.js'
 
 const DEFAULT_TIMEOUT = 30 * 60 * 1000 // 30 minutes
+
+type SpawnStdio = Array<'pipe' | number | undefined>
+
+function getSpawnStdio(
+  usePipeMode: boolean,
+  outputFileDescriptor: number | undefined,
+  seccompFileDescriptor: number | undefined,
+): SpawnStdio {
+  const stdio: SpawnStdio = usePipeMode
+    ? ['pipe', 'pipe', 'pipe']
+    : ['pipe', outputFileDescriptor, outputFileDescriptor]
+  if (seccompFileDescriptor !== undefined) {
+    stdio[SECCOMP_CHILD_FD] = seccompFileDescriptor
+  }
+  return stdio
+}
 
 export type ShellConfig = {
   provider: ShellProvider
@@ -214,6 +245,9 @@ export type ExecOptions = {
   shouldAutoBackground?: boolean
   /** When provided, stdout is piped (not sent to file) and this callback fires on each data chunk. */
   onStdout?: (data: string) => void
+  /** Per-session environment overrides applied only to spawned commands. */
+  sessionEnvVars?: Map<string, string>
+  tmuxSocket?: TmuxSocket
 }
 
 /**
@@ -233,6 +267,8 @@ export async function exec(
     shouldUseSandbox,
     shouldAutoBackground,
     onStdout,
+    sessionEnvVars,
+    tmuxSocket,
   } = options ?? {}
   const commandTimeout = timeout || DEFAULT_TIMEOUT
 
@@ -316,11 +352,54 @@ export async function exec(
   const isSandboxedPowerShell = shouldUseSandbox && shellType === 'powershell'
   const sandboxBinShell = isSandboxedPowerShell ? '/bin/sh' : binShell
 
+  if (isScrubEnabled()) {
+    const parsed = await parseForSecurity(command)
+    enforceScriptCaps(
+      parsed.kind === 'simple'
+        ? parsed.commands.map(simple => simple.text).join('\n')
+        : command,
+    )
+  }
+
   if (shouldUseSandbox) {
+    let customConfig
+    if (isScrubEnabled() && isScrubSandboxAvailable()) {
+      const scrub = scrubSandboxConfig()
+      const scrubFs = scrub.filesystem!
+      const baseFs = SandboxManager.getConfig()?.filesystem
+      const writeRestrictions = SandboxManager.getFsWriteConfig()
+      const unique = <T>(values: T[]): T[] => [...new Set(values)]
+      const denyWrite = scrubFs.denyWrite ?? []
+      const allowWrite = unique([
+        ...(scrubFs.allowWrite ?? []),
+        ...(baseFs?.allowWrite ?? []).filter(path => path !== '/' && path),
+      ])
+      const inheritedDenyWithinAllow =
+        writeRestrictions.denyWithinAllow.filter(
+          path =>
+            allowWrite.some(
+              allowed => path === allowed || path.startsWith(`${allowed}/`),
+            ) &&
+            !denyWrite.some(
+              denied => path === denied || path.startsWith(`${denied}/`),
+            ),
+        )
+      customConfig = {
+        ...scrub,
+        filesystem: {
+          allowWrite,
+          denyWrite: unique([...denyWrite, ...inheritedDenyWithinAllow]),
+          denyRead: unique([
+            ...(scrubFs.denyRead ?? []),
+            ...(baseFs?.denyRead ?? []),
+          ]),
+        },
+      }
+    }
     commandString = await SandboxManager.wrapWithSandbox(
       commandString,
       sandboxBinShell,
-      undefined,
+      customConfig,
       abortSignal,
     )
     // Create sandbox temp directory for sandboxed processes with secure permissions
@@ -332,11 +411,19 @@ export async function exec(
     }
   }
 
+  const seccompFileDescriptor = shouldUseSandbox
+    ? await getEmbeddedSeccompFileDescriptor()
+    : undefined
+
   const spawnBinary = isSandboxedPowerShell ? '/bin/sh' : binShell
   const shellArgs = isSandboxedPowerShell
     ? ['-c', commandString]
     : provider.getSpawnArgs(commandString)
-  const envOverrides = await provider.getEnvironmentOverrides(command)
+  const envOverrides = await provider.getEnvironmentOverrides(
+    command,
+    sessionEnvVars,
+    tmuxSocket,
+  )
   const traceparent = getCurrentTraceparent()
 
   // When onStdout is provided, use pipe mode: stdout flows through
@@ -390,9 +477,11 @@ export async function exec(
           : {}),
       },
       cwd,
-      stdio: usePipeMode
-        ? ['pipe', 'pipe', 'pipe']
-        : ['pipe', outputHandle?.fd, outputHandle?.fd],
+      stdio: getSpawnStdio(
+        usePipeMode,
+        outputHandle?.fd,
+        seccompFileDescriptor,
+      ),
       // Don't pass the signal - we'll handle termination ourselves with tree-kill
       detached: provider.detached,
       // Prevent visible console window on Windows (no-op on other platforms)

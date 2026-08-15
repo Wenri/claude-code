@@ -296,3 +296,18 @@ The exact output identities are:
 2.1.98 framed package tree SHA-256
 850b956fe51eb41bb07b0a3fcc59b1c18cf3aa7cb06bab6961d0d290c096c8f0
 ```
+
+## Semantic source reproduction check
+
+Run the fail-closed semantic audit after acquiring the adjacent artifacts:
+
+```sh
+pixi run node recovery/scripts/audit-source-reproduction.mjs \
+  --case "$CASE/manifest.json" \
+  --repo . \
+  --artifacts "$RECOVERY_ARTIFACTS"
+```
+
+Require all 2,509 nonmatched units to be classified, zero first-party source
+runtime gaps, and 18 explicitly unresolved dependency-runtime gaps. Missing
+root dependency/build inputs keep the whole-bundle-from-source verdict false.

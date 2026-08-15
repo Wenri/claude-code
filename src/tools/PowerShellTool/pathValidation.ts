@@ -22,6 +22,7 @@ import {
   checkPathSafetyForAutoEdit,
   checkReadableInternalPath,
   matchingRuleForInput,
+  normalizeCaseForComparison,
   pathInAllowedWorkingPath,
 } from '../../utils/permissions/filesystem.js'
 import type { PermissionResult } from '../../utils/permissions/PermissionResult.js'
@@ -1036,6 +1037,18 @@ function validatePath(
   // are correctly detected.
   const normalizedPath = cleanPath.replace(/\\/g, '/')
 
+  if (/^~[^/]/.test(normalizedPath)) {
+    return {
+      allowed: false,
+      resolvedPath: normalizedPath,
+      decisionReason: {
+        type: 'other',
+        reason:
+          'Paths beginning with ~user cannot be statically validated and require manual approval',
+      },
+    }
+  }
+
   // SECURITY: Backtick (`) is PowerShell's escape character. It is a no-op in
   // many positions (e.g., `/ === /) but defeats Node.js path checks like
   // isAbsolute(). Redirection targets use raw .Extent.Text which preserves
@@ -1752,6 +1765,36 @@ function checkPathConstraintsForStatement(
     // Port: remove-item (and aliases rm/del/ri/rd/rmdir/erase → resolveToCanonical)
     // on a dangerous path → deny (not ask). User cannot approve system32 deletion.
     const isRemoval = resolveToCanonical(cmd.name) === 'remove-item'
+
+    if (
+      isRemoval &&
+      cmd.args.some(arg => {
+        const normalized = (arg.length > 0 ? '-' + arg.slice(1) : arg).toLowerCase()
+        const colonIndex = normalized.indexOf(':')
+        const parameter =
+          colonIndex > 0 ? normalized.slice(0, colonIndex) : normalized
+        return parameter.length >= 2 && '-recurse'.startsWith(parameter)
+      })
+    ) {
+      const normalizedCwd = normalizeCaseForComparison(cwd)
+      for (const filePath of paths) {
+        const resolved = isAbsolute(filePath)
+          ? resolve(filePath)
+          : resolve(cwd, filePath)
+        const normalizedTarget = normalizeCaseForComparison(resolved)
+        if (
+          normalizedTarget === normalizedCwd ||
+          normalizedCwd.startsWith(normalizedTarget + '/') ||
+          normalizedCwd.startsWith(normalizedTarget + '\\')
+        ) {
+          firstAsk ??= {
+            behavior: 'ask',
+            message: `Remove-Item -Recurse targeting '${filePath}' would delete the working directory including .git and .claude — requires manual approval`,
+          }
+          break
+        }
+      }
+    }
 
     for (const filePath of paths) {
       // Hard-deny removal of dangerous system paths (/, ~, /etc, etc.).

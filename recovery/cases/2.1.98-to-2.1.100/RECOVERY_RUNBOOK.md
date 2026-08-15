@@ -362,3 +362,18 @@ d490cc3e923832683cd899cce6375cb9b3ce734bc72321d0bfea43470d5799be
 2.1.100 framed package tree SHA-256
 77664e78764fb8a12061576b840eb3efa6cd9f0405b6189f6c8b2edca33a83f7
 ```
+
+## Semantic source reproduction check
+
+Run the fail-closed semantic audit after acquiring the adjacent artifacts:
+
+```sh
+pixi run node recovery/scripts/audit-source-reproduction.mjs \
+  --case "$CASE/manifest.json" \
+  --repo . \
+  --artifacts "$RECOVERY_ARTIFACTS"
+```
+
+Require all 80 nonmatched units to be classified and zero first-party source
+runtime gaps. Although no changed unit is dependency-runtime, missing root
+dependency/build inputs keep the whole-bundle-from-source verdict false.

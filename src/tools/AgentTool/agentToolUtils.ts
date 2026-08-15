@@ -763,13 +763,14 @@ export async function runAsyncAgentLifecycle({
       stopSummarization?.()
       logAgentCompletion('watchdog_stall')
       const message = `Agent stalled: no progress for ${stallTimeoutMs / 1000}s (stream watchdog did not recover)`
-      failAsyncAgent(taskId, message, rootSetAppState)
+      failAsyncAgent(taskId, message, toolUseContext.taskRegistry)
       enqueueAgentNotification({
         taskId,
         description,
         status: 'failed',
         error: message,
-        setAppState: rootSetAppState,
+        taskRegistry: toolUseContext.taskRegistry,
+        abortSpeculation: toolUseContext.abortSpeculation,
         toolUseId: toolUseContext.toolUseId,
         finalMessage: extractPartialResult(agentMessages),
       })
@@ -799,7 +800,7 @@ export async function runAsyncAgentLifecycle({
             taskId,
             asAgentId(taskId),
             params,
-            rootSetAppState,
+            toolUseContext.taskRegistry,
           )
           stopSummarization = stop
         }
@@ -865,7 +866,7 @@ export async function runAsyncAgentLifecycle({
       updateAsyncAgentProgress(
         taskId,
         getProgressUpdate(tracker),
-        rootSetAppState,
+        toolUseContext.taskRegistry,
       )
       const lastToolName = getLastToolUseName(message)
       if (lastToolName) {
@@ -892,7 +893,7 @@ export async function runAsyncAgentLifecycle({
     // immediately. classifyHandoffIfNeeded (API call) and getWorktreeResult
     // (git exec) are notification embellishments that can hang — they must
     // not gate the status transition (gh-20236).
-    completeAsyncAgent(agentResult, rootSetAppState)
+    completeAsyncAgent(agentResult, toolUseContext.taskRegistry)
 
     let finalMessage = extractTextContent(agentResult.content, '\n')
 
@@ -917,7 +918,8 @@ export async function runAsyncAgentLifecycle({
       taskId,
       description,
       status: 'completed',
-      setAppState: rootSetAppState,
+      taskRegistry: toolUseContext.taskRegistry,
+      abortSpeculation: toolUseContext.abortSpeculation,
       finalMessage,
       usage: {
         totalTokens: getTokenCountFromTracker(tracker),
@@ -938,7 +940,7 @@ export async function runAsyncAgentLifecycle({
       // but only this catch handler has agentMessages, so the notification
       // must fire unconditionally. Transition status BEFORE worktree cleanup
       // so TaskOutput unblocks even if git hangs (gh-20236).
-      killAsyncAgent(taskId, rootSetAppState)
+      killAsyncAgent(taskId, toolUseContext.taskRegistry)
       logEvent('tengu_agent_tool_terminated', {
         agent_type:
           metadata.agentType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -956,7 +958,8 @@ export async function runAsyncAgentLifecycle({
         taskId,
         description,
         status: 'killed',
-        setAppState: rootSetAppState,
+        taskRegistry: toolUseContext.taskRegistry,
+        abortSpeculation: toolUseContext.abortSpeculation,
         toolUseId: toolUseContext.toolUseId,
         finalMessage: partialResult,
         ...worktreeResult,
@@ -977,7 +980,8 @@ export async function runAsyncAgentLifecycle({
       description,
       status: 'failed',
       error: msg,
-      setAppState: rootSetAppState,
+      taskRegistry: toolUseContext.taskRegistry,
+      abortSpeculation: toolUseContext.abortSpeculation,
       toolUseId: toolUseContext.toolUseId,
       finalMessage: extractPartialResult(agentMessages),
       ...worktreeResult,

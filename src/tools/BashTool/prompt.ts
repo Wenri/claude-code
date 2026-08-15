@@ -8,6 +8,7 @@ import { isLeanPromptEnabled } from '../../utils/leanPrompt.js'
 import { shouldIncludeGitInstructions } from '../../utils/gitSettings.js'
 import { getClaudeTempDir } from '../../utils/permissions/filesystem.js'
 import { SandboxManager } from '../../utils/sandbox/sandbox-adapter.js'
+import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
 import { jsonStringify } from '../../utils/slowOperations.js'
 import {
   getDefaultBashTimeoutMs,
@@ -26,6 +27,7 @@ import { GREP_TOOL_NAME } from '../GrepTool/prompt.js'
 import { TodoWriteTool } from '../TodoWriteTool/TodoWriteTool.js'
 import { isBashRerunEnabled } from './rerun.js'
 import { BASH_TOOL_NAME } from './toolName.js'
+import { isBashRerunEnabled } from './rerunAliases.js'
 
 export function getDefaultTimeoutMs(): number {
   return getDefaultBashTimeoutMs()

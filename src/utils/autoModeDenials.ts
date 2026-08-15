@@ -4,6 +4,8 @@
  */
 
 import { feature } from 'bun:bundle'
+import type * as React from 'react'
+import { createContext, createElement, useContext, useRef } from 'react'
 
 export type AutoModeDenial = {
   toolName: string
@@ -15,16 +17,37 @@ export type AutoModeDenial = {
   timestamp: number
 }
 
-let DENIALS: readonly AutoModeDenial[] = []
 const MAX_DENIALS = 20
 
-export function recordAutoModeDenial(denial: AutoModeDenial): void {
-  if (!feature('TRANSCRIPT_CLASSIFIER')) return
-  DENIALS = [denial, ...DENIALS.slice(0, MAX_DENIALS - 1)]
+type AutoModeDenialsApi = {
+  getDenials: () => readonly AutoModeDenial[]
+  recordDenial: (denial: AutoModeDenial) => void
 }
 
-export function getAutoModeDenials(): readonly AutoModeDenial[] {
-  return DENIALS
+const AutoModeDenialsContext = createContext<AutoModeDenialsApi>({
+  getDenials: () => [],
+  recordDenial: () => {},
+})
+
+export function AutoModeDenialsProvider({
+  children,
+}: {
+  children: React.ReactNode
+}): React.ReactNode {
+  const denials = useRef<readonly AutoModeDenial[]>([])
+  const api = useRef<AutoModeDenialsApi>({
+    getDenials: () => denials.current,
+    recordDenial: denial => {
+      if (!feature('TRANSCRIPT_CLASSIFIER')) return
+      denials.current = [denial, ...denials.current.slice(0, MAX_DENIALS - 1)]
+    },
+  }).current
+
+  return createElement(AutoModeDenialsContext.Provider, { value: api }, children)
+}
+
+export function useAutoModeDenials(): AutoModeDenialsApi {
+  return useContext(AutoModeDenialsContext)
 }
 
 export function removeAutoModeDenial(denial: AutoModeDenial): void {

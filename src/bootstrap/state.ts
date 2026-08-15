@@ -88,6 +88,7 @@ type State = {
   initialMainLoopModel: ModelSetting
   modelStrings: ModelStrings | null
   isInteractive: boolean
+  hasStreamingInput: boolean
   kairosActive: boolean
   // When true, ensureToolResultPairing throws on mismatch instead of
   // repairing with synthetic placeholders. HFI opts in at startup so
@@ -95,12 +96,19 @@ type State = {
   // tool_results.
   strictToolResultPairing: boolean
   sdkAgentProgressSummariesEnabled: boolean
+  memoryToggledOff: boolean
+  teamMemoryServerStatus:
+    | 'has-content'
+    | 'empty'
+    | 'not-available'
+    | undefined
   userMsgOptIn: boolean
   memoryToggledOff: boolean
   teamMemoryServerStatus: TeamMemoryServerStatus
   sessionSkillAllowlist: string[] | undefined
   clientType: string
   sessionSource: string | undefined
+  sessionStartType: 'fresh' | 'resume' | 'continue'
   questionPreviewFormat: 'markdown' | 'html' | undefined
   flagSettingsPath: string | undefined
   flagSettingsInline: Record<string, unknown> | null
@@ -222,10 +230,15 @@ type State = {
   }>
   // SDK-provided betas (e.g., context-1m-2025-08-07)
   sdkBetas: string[] | undefined
+  // SDK host callback used to obtain a fresh access token after a 401 when
+  // the CLI only has an externally supplied access token (no refresh token).
+  sdkOAuthTokenRefreshCallback: (() => Promise<string | null>) | null
   // Main thread agent type (from --agent flag or settings)
   mainThreadAgentType: string | undefined
   // Frontmatter hooks from the main thread agent.
   mainThreadAgentHooks: HooksSettings | undefined
+  // SDK-provided allowlist for skills available to the main session.
+  sessionSkillAllowlist: string[] | undefined
   // Remote mode (--remote flag)
   isRemoteMode: boolean
   // Whether the interactive Remote Control bridge is connected. Outbound-only
@@ -245,6 +258,8 @@ type State = {
   // allowlist, 'server' → allowlist always fails (schema is plugin-only).
   // Either kind needs entry.dev to bypass allowlist.
   allowedChannels: ChannelEntry[]
+  // Active channel inputs grouped by MCP server name.
+  activeInputs: Map<string, Set<string>>
   // True if any entry in allowedChannels came from
   // --dangerously-load-development-channels (so ChannelsNotice can name the
   // right flag in policy-blocked messages)
@@ -341,15 +356,19 @@ function getInitialState(): State {
     initialMainLoopModel: null,
     modelStrings: null,
     isInteractive: false,
+    hasStreamingInput: false,
     kairosActive: false,
     strictToolResultPairing: false,
     sdkAgentProgressSummariesEnabled: false,
+    memoryToggledOff: false,
+    teamMemoryServerStatus: undefined,
     userMsgOptIn: false,
     memoryToggledOff: false,
     teamMemoryServerStatus: undefined,
     sessionSkillAllowlist: undefined,
     clientType: 'cli',
     sessionSource: undefined,
+    sessionStartType: 'fresh',
     questionPreviewFormat: undefined,
     sessionIngressToken: undefined,
     oauthTokenFromFd: undefined,
@@ -434,9 +453,11 @@ function getInitialState(): State {
     slowOperations: [],
     // SDK-provided betas
     sdkBetas: undefined,
+    sdkOAuthTokenRefreshCallback: null,
     // Main thread agent type
     mainThreadAgentType: undefined,
     mainThreadAgentHooks: undefined,
+    sessionSkillAllowlist: undefined,
     // Remote mode
     isRemoteMode: false,
     replBridgeActive: false,
@@ -450,6 +471,7 @@ function getInitialState(): State {
     additionalDirectoriesForClaudeMd: [],
     // Channel server allowlist from --channels flag
     allowedChannels: [],
+    activeInputs: new Map(),
     hasDevChannels: false,
     // Session project dir (null = derive from originalCwd)
     sessionProjectDir: null,
@@ -719,6 +741,10 @@ export function setStatsStore(
  * come if the user is idle (e.g. permission dialog waiting for input).
  */
 let interactionTimeDirty = false
+const userInteraction = createSignal()
+
+/** Subscribe to batched user-interaction pulses. */
+export const onUserInteraction = userInteraction.subscribe
 
 export function updateLastInteractionTime(immediate?: boolean): void {
   if (immediate) {
@@ -946,6 +972,18 @@ export function setSdkBetas(betas: string[] | undefined): void {
   STATE.sdkBetas = betas
 }
 
+export function getSdkOAuthTokenRefreshCallback(): (() => Promise<
+  string | null
+>) | null {
+  return STATE.sdkOAuthTokenRefreshCallback
+}
+
+export function setSdkOAuthTokenRefreshCallback(
+  callback: (() => Promise<string | null>) | null,
+): void {
+  STATE.sdkOAuthTokenRefreshCallback = callback
+}
+
 export function resetCostState(): void {
   STATE.totalCostUSD = 0
   STATE.totalAPIDuration = 0
@@ -1151,6 +1189,24 @@ export function setIsInteractive(value: boolean): void {
   STATE.isInteractive = value
 }
 
+export function getSessionStartType(): 'fresh' | 'resume' | 'continue' {
+  return STATE.sessionStartType
+}
+
+export function setSessionStartType(
+  value: 'fresh' | 'resume' | 'continue',
+): void {
+  STATE.sessionStartType = value
+}
+
+export function getHasStreamingInput(): boolean {
+  return STATE.hasStreamingInput
+}
+
+export function setHasStreamingInput(value: boolean): void {
+  STATE.hasStreamingInput = value
+}
+
 export function getClientType(): string {
   return STATE.clientType
 }
@@ -1165,6 +1221,28 @@ export function getSdkAgentProgressSummariesEnabled(): boolean {
 
 export function setSdkAgentProgressSummariesEnabled(value: boolean): void {
   STATE.sdkAgentProgressSummariesEnabled = value
+}
+
+export function getMemoryToggledOff(): boolean {
+  return STATE.memoryToggledOff
+}
+
+export function setMemoryToggledOff(value: boolean): void {
+  STATE.memoryToggledOff = value
+}
+
+export function getTeamMemoryServerStatus():
+  | 'has-content'
+  | 'empty'
+  | 'not-available'
+  | undefined {
+  return STATE.teamMemoryServerStatus
+}
+
+export function setTeamMemoryServerStatus(
+  status: 'has-content' | 'empty' | 'not-available',
+): void {
+  STATE.teamMemoryServerStatus = status
 }
 
 export function getKairosActive(): boolean {
@@ -1812,6 +1890,14 @@ export function setMainThreadAgentHooks(hooks: HooksSettings | undefined): void 
   STATE.mainThreadAgentHooks = hooks
 }
 
+export function getSessionSkillAllowlist(): string[] | undefined {
+  return STATE.sessionSkillAllowlist
+}
+
+export function setSessionSkillAllowlist(skills: string[] | undefined): void {
+  STATE.sessionSkillAllowlist = skills
+}
+
 export function getIsRemoteMode(): boolean {
   return STATE.isRemoteMode
 }
@@ -1872,6 +1958,31 @@ export function getAllowedChannels(): ChannelEntry[] {
 
 export function setAllowedChannels(entries: ChannelEntry[]): void {
   STATE.allowedChannels = entries
+}
+
+export function activateInput(serverName: string, inputId: string): void {
+  let inputs = STATE.activeInputs.get(serverName)
+  if (!inputs) {
+    inputs = new Set()
+    STATE.activeInputs.set(serverName, inputs)
+  }
+  inputs.add(inputId)
+}
+
+export function deactivateInput(serverName: string, inputId: string): void {
+  STATE.activeInputs.get(serverName)?.delete(inputId)
+}
+
+export function clearInputsForServer(serverName: string): void {
+  STATE.activeInputs.delete(serverName)
+}
+
+export function isInputActive(serverName: string, inputId: string): boolean {
+  return STATE.activeInputs.get(serverName)?.has(inputId) ?? false
+}
+
+export function getActiveInputsForServer(serverName: string): Set<string> {
+  return STATE.activeInputs.get(serverName) ?? new Set()
 }
 
 export function getHasDevChannels(): boolean {

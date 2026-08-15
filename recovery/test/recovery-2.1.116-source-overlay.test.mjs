@@ -51,19 +51,22 @@ function includesAdded(path, fragments) {
   }
 }
 
-test('source-facing overlay is stable and matches exactly one tree orientation', () => {
+test('source-facing overlay is stable and matches exactly one indexed tree orientation', () => {
   assert.equal(
     crypto.createHash('sha256').update(overlay).digest('hex'),
     '01487cd46ad03070321671860afdfacc445c3de21f7bef50f56d1e221c7405b1',
   )
   assert.equal(Buffer.byteLength(overlay), 962_068)
-  const forward = spawnSync('git', ['apply', '--check', overlayPath], {
+  // The shared working tree is intentionally a cumulative semantic overlay;
+  // test the checked-in target snapshot rather than unrelated unstaged source
+  // recovery from other release boundaries.
+  const forward = spawnSync('git', ['apply', '--check', '--cached', overlayPath], {
     cwd: repo,
     encoding: 'utf8',
   })
   const reverse = spawnSync(
     'git',
-    ['apply', '--reverse', '--check', overlayPath],
+    ['apply', '--reverse', '--check', '--cached', overlayPath],
     { cwd: repo, encoding: 'utf8' },
   )
   assert.notEqual(
@@ -280,13 +283,22 @@ test('recovers branching, relaunch, resume error, and large-session scanning', (
   ])
   includesAdded('src/utils/sessionStorage.ts', [
     'TRANSCRIPT_SCAN_CHUNK_SIZE = 1024 * 1024',
-    'SIDECHAIN_PROBE_BYTES = 256',
-    'COMPACT_BOUNDARY_PROBE_BYTES = 4096',
     'function scanLargeTranscript',
     'selectedOffsets',
     'jsonParse(buf.toString',
     'logError(error)',
   ])
+  const sessionStorage = fs.readFileSync(
+    fileURLToPath(
+      new URL('../../src/utils/sessionStorage.ts', import.meta.url),
+    ),
+    'utf8',
+  )
+  assert.match(sessionStorage, /export const INDEX_HEAD_SCAN_BYTES = 256/)
+  assert.match(
+    sessionStorage,
+    /export const INDEX_BOUNDARY_SCAN_BYTES = 4096/,
+  )
 })
 
 test('recovers GitHub hints and dangerous-path safety classification', () => {

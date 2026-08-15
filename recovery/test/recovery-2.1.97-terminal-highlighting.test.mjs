@@ -48,10 +48,23 @@ test('gates DECSTBM under Zellij without disabling synchronized writes', () => {
     ink,
     /this\.log\.render\(prevFrame, frame, this\.altScreenActive,[\s\S]*?DECSTBM_SAFE\)/,
   )
-  assert.match(
-    ink,
-    /writeDiffToTerminal\(this\.terminal, optimized, this\.altScreenActive && !SYNC_OUTPUT_SUPPORTED\)/,
-  )
+  if (ink.includes('private skipSyncMarkers(): boolean')) {
+    // Later releases preserve the target97 synchronized-output gate behind a
+    // helper that also avoids control markers before TTY initialization.
+    assert.match(
+      ink,
+      /private skipSyncMarkers\(\): boolean \{[\s\S]*?if \(!this\.options\.stdout\.isTTY\) return true;[\s\S]*?if \(!SYNC_OUTPUT_SUPPORTED\) return true;[\s\S]*?if \(!this\.unsubscribeTTYHandlers\) return true;[\s\S]*?return false;/,
+    )
+    assert.match(
+      ink,
+      /writeDiffToTerminal\(this\.terminal, optimized, this\.skipSyncMarkers\(\)\)/,
+    )
+  } else {
+    assert.match(
+      ink,
+      /writeDiffToTerminal\(this\.terminal, optimized, this\.altScreenActive && !SYNC_OUTPUT_SUPPORTED\)/,
+    )
+  }
   assert.match(
     app,
     /`DECSTBM: \$\{DECSTBM_SAFE \? 'enabled' : 'gated'\} \(TMUX=\$\{[\s\S]*?ZELLIJ=\$\{process\.env\.ZELLIJ != null/,
@@ -80,14 +93,31 @@ test('registers Cedar for CLI and structured-diff highlighting', () => {
     registry,
     /if \(!hljs\.getLanguage\(name\)\) \{[\s\S]*?hljs\.registerLanguage\(name, language\)/,
   )
-  assert.match(
-    cliHighlight,
-    /await import\('\.\/highlightLanguages\/index\.js'\)[\s\S]*?registerExtraLanguages\(highlightJs\)[\s\S]*?loadedGetLanguage = highlightJs\.getLanguage/,
-  )
-  assert.match(
-    colorDiff,
-    /cachedHljs = 'default' in mod[\s\S]*?registerExtraLanguages\(cachedHljs\)[\s\S]*?return cachedHljs!/,
-  )
+  if (cliHighlight.includes("await import('./highlightLanguages/index.js')")) {
+    assert.match(
+      cliHighlight,
+      /await import\('\.\/highlightLanguages\/index\.js'\)[\s\S]*?registerExtraLanguages\(highlightJs\)[\s\S]*?loadedGetLanguage = highlightJs\.getLanguage/,
+    )
+    assert.match(
+      colorDiff,
+      /cachedHljs = 'default' in mod[\s\S]*?registerExtraLanguages\(cachedHljs\)[\s\S]*?return cachedHljs!/,
+    )
+  } else {
+    // Later releases centralize core creation and lazy grammar loading. Cedar
+    // is still registered exactly once and both consumers use that registry.
+    assert.match(
+      registry,
+      /export function getHljsCore\(\): HLJSApi \{[\s\S]*?registerExtraLanguages\(hljs\)[\s\S]*?cachedHljsCore = hljs/,
+    )
+    assert.match(
+      cliHighlight,
+      /ensureLanguage\(requestedLanguage\)[\s\S]*?getHljsCore\(\)\.highlight/,
+    )
+    assert.match(
+      colorDiff,
+      /ensureLanguage,[\s\S]*?getHljsCore,[\s\S]*?getHljsCore\(\)\.highlight/,
+    )
+  }
 })
 
 test('authenticated 2.1.97 bundle contains the terminal and Cedar deltas', () => {

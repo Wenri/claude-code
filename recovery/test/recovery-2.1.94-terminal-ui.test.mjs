@@ -1,10 +1,17 @@
 import assert from 'node:assert/strict'
 import crypto from 'node:crypto'
 import fs from 'node:fs'
+import path from 'node:path'
 import test from 'node:test'
 import { fileURLToPath } from 'node:url'
 
-const sourceRoot = fileURLToPath(new URL('../../src/', import.meta.url))
+const repositoryRoot = fileURLToPath(new URL('../..', import.meta.url))
+const caseName = '2.1.92-to-2.1.94'
+const semanticCase = process.env.CLAUDE_CODE_SEMANTIC_CASE
+const historical = semanticCase === caseName
+const sourceRoot = process.env.CLAUDE_CODE_SEMANTIC_SOURCE_ROOT
+  ? path.resolve(process.env.CLAUDE_CODE_SEMANTIC_SOURCE_ROOT)
+  : path.join(repositoryRoot, 'src')
 const baselineBundlePath = process.env.CLAUDE_CODE_2_1_92_BUNDLE
 const targetBundlePath = process.env.CLAUDE_CODE_2_1_94_BUNDLE
 const BASELINE_BUNDLE_SHA256 =
@@ -13,7 +20,7 @@ const TARGET_BUNDLE_SHA256 =
   '11fa0f142edee45aa24ad60b071345847da6c8b2372d338037fe8c4fd4469564'
 
 function readSource(relativePath) {
-  const source = fs.readFileSync(`${sourceRoot}${relativePath}`, 'utf8')
+  const source = fs.readFileSync(path.join(sourceRoot, relativePath), 'utf8')
   const sourceMap = source.indexOf('//# sourceMappingURL=')
   return sourceMap === -1 ? source : source.slice(0, sourceMap)
 }
@@ -117,7 +124,7 @@ test('normalizes Shift+Space and resolves tmux XTVERSION to the outer terminal',
   )
   assert.match(
     app,
-    /\.then\(async \(\[r\]\) => \{[\s\S]*?process\.env\.TMUX && name\.startsWith\('tmux '\)/,
+    /\.then\(async \(\[r(?:,\s*\w+)?\]\) => \{[\s\S]*?process\.env\.TMUX && name\.startsWith\('tmux '\)/,
   )
   assert.match(
     app,
@@ -169,16 +176,24 @@ test('keeps wrapped thinking text under the prompt instead of the pointer', () =
     source,
     /<Box flexShrink=\{0\}><Text color=\{pointerColor\}>\{figures\.pointer\} <\/Text><\/Box>/,
   )
-  assert.match(
-    source,
-    /<Box flexDirection="row">\{t2\}\{t3\}<\/Box>/,
-  )
-  assert.match(
-    source,
-    /<Box flexDirection="row">\{t2\}<Text>\{parts\}<\/Text><\/Box>/,
-  )
-  assert.doesNotMatch(source, /t4 = <Text>\{t2\}\{t3\}<\/Text>/)
-  assert.doesNotMatch(source, /t3 = <Text>\{t2\}\{parts\}<\/Text>/)
+  if (historical) {
+    assert.match(
+      source,
+      /<Box flexDirection="row">\{t2\}\{t3\}<\/Box>/,
+    )
+    assert.match(
+      source,
+      /<Box flexDirection="row">\{t2\}<Text>\{parts\}<\/Text><\/Box>/,
+    )
+    assert.doesNotMatch(source, /t4 = <Text>\{t2\}\{t3\}<\/Text>/)
+    assert.doesNotMatch(source, /t3 = <Text>\{t2\}\{parts\}<\/Text>/)
+  } else {
+    assert.match(source, /content = <Text>\{parts\}<\/Text>/)
+    assert.match(
+      source,
+      /<Box flexDirection="row">\{t1\}\{t2\}<\/Box>/,
+    )
+  }
 
   const target = requiredBundle(
     targetBundlePath,
@@ -203,7 +218,9 @@ test('derives virtual-list keys from the current messages identity', () => {
   const source = readSource('components/VirtualMessageList.tsx')
   assert.match(
     source,
-    /const keys = useMemo\(\(\) => messages\.map\(itemKey\), \[messages, itemKey\]\)/,
+    historical
+      ? /const keys = useMemo\(\(\) => messages\.map\(itemKey\), \[messages, itemKey\]\)/
+      : /const keys = useMemo\([\s\S]*?makeSiblingKeysUnique\(messages\.map\(itemKey\)\)[\s\S]*?\[messages, itemKey\]/,
   )
   assert.doesNotMatch(source, /keysRef|prevMessagesRef|prevItemKeyRef/)
 

@@ -153,6 +153,7 @@ export function sanitizeSurfaceKey(surfaceKey: string): string {
  */
 export function sanitizeModelName(shortName: string): string {
   // Map internal variants to public equivalents based on model family
+  if (shortName.includes('opus-4-7')) return 'claude-opus-4-7'
   if (shortName.includes('opus-4-6')) return 'claude-opus-4-6'
   if (shortName.includes('opus-4-5')) return 'claude-opus-4-5'
   if (shortName.includes('opus-4-1')) return 'claude-opus-4-1'
@@ -190,6 +191,34 @@ export type AttributionState = {
   escapeCount: number
   escapeCountAtLastCommit: number
 }
+
+export type AttributionOp =
+  | {
+      kind: 'trackEdit'
+      surface: string
+      filePath: string
+      oldContent: string
+      newContent: string
+      userModified: boolean
+      mtime?: number
+    }
+  | {
+      kind: 'trackBulk'
+      surface: string
+      changes: ReadonlyArray<{
+        path: string
+        type: 'modified' | 'created' | 'deleted'
+        oldContent: string
+        newContent: string
+        mtime?: number
+      }>
+    }
+  | {
+      kind: 'commitBoundary'
+      promptCountAtLastCommit: number
+      permissionPromptCountAtLastCommit: number
+      escapeCountAtLastCommit: number
+    }
 
 /**
  * Summary of Claude's contribution for a commit.
@@ -538,6 +567,36 @@ export function trackBulkFileChanges(
   return {
     ...state,
     fileStates: newFileStates,
+  }
+}
+
+export function applyAttributionOp(
+  state: AttributionState,
+  operation: AttributionOp,
+): AttributionState {
+  switch (operation.kind) {
+    case 'trackEdit':
+      return trackFileModification(
+        { ...state, surface: operation.surface },
+        operation.filePath,
+        operation.oldContent,
+        operation.newContent,
+        operation.userModified,
+        operation.mtime,
+      )
+    case 'trackBulk':
+      return trackBulkFileChanges(
+        { ...state, surface: operation.surface },
+        operation.changes,
+      )
+    case 'commitBoundary':
+      return {
+        ...state,
+        promptCountAtLastCommit: operation.promptCountAtLastCommit,
+        permissionPromptCountAtLastCommit:
+          operation.permissionPromptCountAtLastCommit,
+        escapeCountAtLastCommit: operation.escapeCountAtLastCommit,
+      }
   }
 }
 

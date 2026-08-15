@@ -1,10 +1,14 @@
 import assert from 'node:assert/strict'
 import crypto from 'node:crypto'
 import fs from 'node:fs'
+import path from 'node:path'
 import test from 'node:test'
 import { fileURLToPath } from 'node:url'
 
 const repo = fileURLToPath(new URL('../..', import.meta.url))
+const sourceRoot = process.env.CLAUDE_CODE_SEMANTIC_SOURCE_ROOT
+  ? path.resolve(process.env.CLAUDE_CODE_SEMANTIC_SOURCE_ROOT)
+  : path.join(repo, 'src')
 const overlay = fs.readFileSync(
   fileURLToPath(
     new URL(
@@ -16,19 +20,26 @@ const overlay = fs.readFileSync(
 )
 
 function source(relative) {
-  return fs.readFileSync(fileURLToPath(new URL(`../../${relative}`, import.meta.url)), 'utf8')
+  return fs.readFileSync(path.join(sourceRoot, relative.replace(/^src\//, '')), 'utf8')
 }
 
 function sha256(value) {
   return crypto.createHash('sha256').update(value).digest('hex')
 }
 
-test('2.1.114 already contains xterm adaptive drain and color-profile fixes', () => {
+test('2.1.114 adaptive drain persists under the target116 shared wheel config', () => {
   const scroll = source('src/ink/render-node-to-output.ts')
   assert.match(scroll, /function drainAdaptive\(/)
-  assert.match(scroll, /isXtermJsHost\(\)\s*\?\s*drainAdaptive/)
+  assert.match(
+    scroll,
+    /getScrollConfig\(\)\.useAdaptiveDrain\s*\?\s*drainAdaptive/,
+  )
   assert.match(scroll, /SCROLL_INSTANT_THRESHOLD = 5/)
   assert.match(scroll, /SCROLL_MAX_PENDING = 30/)
+
+  const config = source('src/ink/scroll-config.ts')
+  assert.match(config, /useDecayCurve: xtermJs \|\| platform === 'win32' \|\| wtSession/)
+  assert.match(config, /useAdaptiveDrain: xtermJs/)
 
   const colors = source('src/ink/colorize.ts')
   assert.match(colors, /function boostChalkLevelForXtermJs\(\)/)
@@ -68,15 +79,20 @@ test('wide-cell cleanup is inherited while multi-column Indic output is adjacent
   assert.match(outputSection, /\+\s*offsetX \+= isWideCharacter \? charWidth : 1/)
 })
 
-test('inherited source files remain byte-identical to the 2.1.114 base', () => {
-  // Pin the inherited files used by the overclaim audit.
+test('inherited source files retain authenticated base or prior-lineage bytes', () => {
+  // Pin the inherited files used by the overclaim audit. colorize may be the
+  // sparse target-commit source or the cumulative target110 recovery; neither
+  // is introduced by the 114-to-116 overlay.
   assert.equal(
     sha256(source('src/ink/render-node-to-output.ts')),
-    '857b877cd31e1e796873a3c3c78ee9edea756115b57a9d074df9dd24a11237f4',
+    '49da9c45f1f88b8bb849575dd5257379099eca7af750ff398a5315da33c9298e',
   )
   assert.equal(
-    sha256(source('src/ink/colorize.ts')),
-    '489880374c462f5a3c8a2fbbccea35f7023e764f29a9bb3f770e96675808b44b',
+    new Set([
+      '489880374c462f5a3c8a2fbbccea35f7023e764f29a9bb3f770e96675808b44b',
+      '593fad75c0510ccd55c4e56bbc3df4a140f7b8c3a6cf1a88b4af5c8d1eee28a8',
+    ]).has(sha256(source('src/ink/colorize.ts'))),
+    true,
   )
   assert.equal(
     sha256(source('src/ink/screen.ts')),

@@ -1,13 +1,11 @@
 import { roughTokenCountEstimation } from '../services/tokenEstimation.js'
-import type { Tool, ToolPermissionContext } from '../Tool.js'
+import type { ToolPermissionContext } from '../Tool.js'
 import type { AgentDefinitionsResult } from '../tools/AgentTool/loadAgentsDir.js'
-import { countMcpToolTokens } from './analyzeContext.js'
 import {
   getLargeMemoryFiles,
   getMemoryFiles,
   MAX_MEMORY_CHARACTER_COUNT,
 } from './claudemd.js'
-import { getMainLoopModel } from './model/model.js'
 import { permissionRuleValueToString } from './permissions/permissionRuleParser.js'
 import { detectUnreachableRules } from './permissions/shadowedRuleDetection.js'
 import { SandboxManager } from './sandbox/sandbox-adapter.js'
@@ -18,14 +16,8 @@ import {
 import { plural } from './stringUtils.js'
 
 // Thresholds (matching status notices and existing patterns)
-const MCP_TOOLS_THRESHOLD = 25_000 // 15k tokens
-
 export type ContextWarning = {
-  type:
-    | 'claudemd_files'
-    | 'agent_descriptions'
-    | 'mcp_tools'
-    | 'unreachable_rules'
+  type: 'claudemd_files' | 'agent_descriptions' | 'unreachable_rules'
   severity: 'warning' | 'error'
   message: string
   details: string[]
@@ -36,7 +28,6 @@ export type ContextWarning = {
 export type ContextWarnings = {
   claudeMdWarning: ContextWarning | null
   agentWarning: ContextWarning | null
-  mcpWarning: ContextWarning | null
   unreachableRulesWarning: ContextWarning | null
 }
 
@@ -114,99 +105,6 @@ async function checkAgentDescriptions(
 }
 
 /**
- * Check MCP tools token count
- */
-async function checkMcpTools(
-  tools: Tool[],
-  getToolPermissionContext: () => Promise<ToolPermissionContext>,
-  agentInfo: AgentDefinitionsResult | null,
-): Promise<ContextWarning | null> {
-  const mcpTools = tools.filter(tool => tool.isMcp)
-
-  // Note: MCP tools are loaded asynchronously and may not be available
-  // when doctor command runs, as it executes before MCP connections are established
-  if (mcpTools.length === 0) {
-    return null
-  }
-
-  try {
-    // Use the existing countMcpToolTokens function from analyzeContext
-    const model = getMainLoopModel()
-    const { mcpToolTokens, mcpToolDetails } = await countMcpToolTokens(
-      tools,
-      getToolPermissionContext,
-      agentInfo,
-      model,
-    )
-
-    if (mcpToolTokens <= MCP_TOOLS_THRESHOLD) {
-      return null
-    }
-
-    // Group tools by server
-    const toolsByServer = new Map<string, { count: number; tokens: number }>()
-
-    for (const tool of mcpToolDetails) {
-      // Extract server name from tool name (format: mcp__servername__toolname)
-      const parts = tool.name.split('__')
-      const serverName = parts[1] || 'unknown'
-
-      const current = toolsByServer.get(serverName) || { count: 0, tokens: 0 }
-      toolsByServer.set(serverName, {
-        count: current.count + 1,
-        tokens: current.tokens + tool.tokens,
-      })
-    }
-
-    // Sort servers by token count
-    const sortedServers = Array.from(toolsByServer.entries()).sort(
-      (a, b) => b[1].tokens - a[1].tokens,
-    )
-
-    const details = sortedServers
-      .slice(0, 5)
-      .map(
-        ([name, info]) =>
-          `${name}: ${info.count} tools (~${info.tokens.toLocaleString()} tokens)`,
-      )
-
-    if (sortedServers.length > 5) {
-      details.push(`(${sortedServers.length - 5} more servers)`)
-    }
-
-    return {
-      type: 'mcp_tools',
-      severity: 'warning',
-      message: `Large MCP tools context (~${mcpToolTokens.toLocaleString()} tokens > ${MCP_TOOLS_THRESHOLD.toLocaleString()})`,
-      details,
-      currentValue: mcpToolTokens,
-      threshold: MCP_TOOLS_THRESHOLD,
-    }
-  } catch (_error) {
-    // If token counting fails, fall back to character-based estimation
-    const estimatedTokens = mcpTools.reduce((total, tool) => {
-      const chars = (tool.name?.length || 0) + tool.description.length
-      return total + roughTokenCountEstimation(chars.toString())
-    }, 0)
-
-    if (estimatedTokens <= MCP_TOOLS_THRESHOLD) {
-      return null
-    }
-
-    return {
-      type: 'mcp_tools',
-      severity: 'warning',
-      message: `Large MCP tools context (~${estimatedTokens.toLocaleString()} tokens estimated > ${MCP_TOOLS_THRESHOLD.toLocaleString()})`,
-      details: [
-        `${mcpTools.length} MCP tools detected (token count estimated)`,
-      ],
-      currentValue: estimatedTokens,
-      threshold: MCP_TOOLS_THRESHOLD,
-    }
-  }
-}
-
-/**
  * Check for unreachable permission rules (e.g., specific allow rules shadowed by tool-wide ask rules)
  */
 async function checkUnreachableRules(
@@ -244,22 +142,19 @@ async function checkUnreachableRules(
  * Check all context warnings for the doctor command
  */
 export async function checkContextWarnings(
-  tools: Tool[],
   agentInfo: AgentDefinitionsResult | null,
   getToolPermissionContext: () => Promise<ToolPermissionContext>,
 ): Promise<ContextWarnings> {
-  const [claudeMdWarning, agentWarning, mcpWarning, unreachableRulesWarning] =
+  const [claudeMdWarning, agentWarning, unreachableRulesWarning] =
     await Promise.all([
       checkClaudeMdFiles(),
       checkAgentDescriptions(agentInfo),
-      checkMcpTools(tools, getToolPermissionContext, agentInfo),
       checkUnreachableRules(getToolPermissionContext),
     ])
 
   return {
     claudeMdWarning,
     agentWarning,
-    mcpWarning,
     unreachableRulesWarning,
   }
 }

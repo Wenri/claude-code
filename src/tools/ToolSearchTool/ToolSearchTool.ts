@@ -365,6 +365,7 @@ export const ToolSearchTool = buildTool({
       matches: string[],
       queryType: 'select' | 'keyword',
     ): void {
+      const mcp = getAppState().mcp
       logEvent('tengu_tool_search_outcome', {
         query:
           query as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -374,6 +375,14 @@ export const ToolSearchTool = buildTool({
         totalDeferredTools: deferredTools.length,
         maxResults: max_results,
         hasMatches: matches.length > 0,
+        mcpServersConfigured: mcp.clients.length,
+        mcpServersConnected: mcp.clients.filter(
+          client => client.type === 'connected',
+        ).length,
+        mcpServersPending: mcp.clients.filter(
+          client => client.type === 'pending',
+        ).length,
+        mcpToolsInPool: tools.filter(tool => Boolean(tool.mcpInfo)).length,
       })
     }
 

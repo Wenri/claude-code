@@ -1,0 +1,890 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.112-to-2.1.113",
+  "targetCommit": "d88405d4b4b7ce6e066e1d67e7fc421b54d685f0",
+  "policy": "Every admitted historical source gap, including transitive u20404, is replayed. Apply exact operations once or accept an already-identical recovered state; every other state fails closed. No compiler-equivalence substitutions are admitted.",
+  "sourceReplayRequiredIndices": [
+    17927,
+    18153,
+    18361,
+    18599,
+    18785,
+    18796,
+    18839,
+    19234,
+    19417,
+    19427,
+    19684,
+    19685,
+    19741,
+    20034,
+    20146,
+    20149,
+    20241,
+    20404
+  ],
+  "compilerEquivalentIndices": [],
+  "candidateSha256ByGroup": {
+    "u17927": {
+      "src/utils/worktree.ts": [
+        "c6b239ea0b3a5740e98cfe7cf629505a910ac182ac3ac67e56e70ef4245f664e"
+      ]
+    },
+    "u18153": {
+      "src/bridge/bridgeMain.ts": [
+        "44d0467a44e513e376ef4049689b12ad5a428b44b8ef30d2d5511d7a95440dcd"
+      ]
+    },
+    "u18361": {
+      "src/bridge/initReplBridge.ts": [
+        "ee6834b479b9eab35844be498adbd12910b931a54970acba9027b7d14e9f4362"
+      ],
+      "src/utils/sessionStorage.ts": [
+        "838178d67e816e26417a7ec522ee32574590453db99321601b498f0acea321ee",
+        "cc7398a249e45aa3ab48450c7718bc72ec7f298e67c58864b5f48b27bb7c9498"
+      ],
+      "src/bridge/persistenceSync.ts": [
+        "9bfa33d324fc73528ba7f784f3187444c83f0c46b61bd70fa6e786a82ea8bf5c"
+      ]
+    },
+    "u18599": {
+      "src/components/permissions/ExitPlanModePermissionRequest/ExitPlanModePermissionRequest.tsx": [
+        "db6765181a751ddde587642a833e85b4f1db2b99d38550a961f70ff089931054"
+      ]
+    },
+    "u18785-u18796": {
+      "src/utils/suggestions/commandSuggestions.ts": [
+        "24ef5e9d091baa03dce5048ed2cb17c97d384b88461897b068bfe6f077c7e4a4"
+      ]
+    },
+    "u18839": {
+      "src/hooks/useTypeahead.tsx": [
+        "f51da2769b85bc7db3b907e1f8677b3c1dceaf2e5b67139dac62925dfdb6c165"
+      ]
+    },
+    "u19234": {
+      "src/utils/processUserInput/processUserInput.ts": [
+        "5e6c0d2daf0812e4b2c65c81e121246f23dfa860e7e1ee4133222334badb2476"
+      ]
+    },
+    "u19417": {
+      "src/components/FeedbackSurvey/FeedbackSurveyView.tsx": [
+        "5d90d7075e647df0f1cc87b65784474ef26c04b3173f5baf337fdb2d7ba79fdc"
+      ]
+    },
+    "u19427": {
+      "src/components/FeedbackSurvey/TranscriptSharePrompt.tsx": [
+        "0733e85792a42bd0f5eb420d13fb8445c1370c653cbc501be5ae74f75d996ba0"
+      ]
+    },
+    "u19684-u19685": {
+      "src/components/ScrollKeybindingHandler.tsx": [
+        "7bb44aebd4ea9d42c727459e32cb1b72567e0677de919f752178eef1363a9c60"
+      ]
+    },
+    "u19741": {
+      "src/services/api/bootstrap.ts": [
+        "e7ed9ec31c01fbbb80f10ed3d1da281e3b6bbf3365cfff2de07000173ef859f2"
+      ]
+    },
+    "u20034": {
+      "src/skills/bundled/scheduleRemoteAgents.ts": [
+        "b5fca8d37b0b215124e7262566934150effa395f2f3cdaa2b2330c1ae99e0297"
+      ]
+    },
+    "mcp-headless-manager": {
+      "src/services/mcp/headlessConnectionManager.ts": [
+        "1f012b3aefef3c14739cd176d4487484760480b965b7edff6c43c612a193413b"
+      ],
+      "src/main.tsx": [
+        "da77b1d7bd5cb3a07a29157d6a0a52e1612bf75a1294bc678359a109f40cfdcd",
+        "0385b66ea2f9b6914723fd5f7a7600bc41e0c28f5540214981bfc67966e51ea3"
+      ]
+    },
+    "u20241": {
+      "src/setup.ts": [
+        "9cfbaa416ba1ead885419f65ac85985b8320e668d94f19507d04bf7383ab192e"
+      ]
+    },
+    "u20404": {
+      "src/cli/handlers/autoMode.ts": [
+        "e6a581e866d1a0fc63a8c18764a8ebdf7f0c32492b0f1da009ad50723f462afc"
+      ],
+      "src/cli/handlers/util.tsx": [
+        "bc1d549c9ac0f8ba7cb35ef12d2f504ef52af340f36d347141369c3a1da7b9d5"
+      ],
+      "src/main.tsx": [
+        "0385b66ea2f9b6914723fd5f7a7600bc41e0c28f5540214981bfc67966e51ea3"
+      ]
+    }
+  },
+  "groups": [
+    {
+      "id": "u17927",
+      "indices": [
+        17927
+      ],
+      "classification": "source-replay-required",
+      "primaryOwner": "src/utils/worktree.ts",
+      "rawOwnerSha256": [
+        "5244316ff91888da595b0127abfd024aad07e741f92572cc7597cfca1418c7c4"
+      ],
+      "dependencies": [],
+      "operations": [
+        {
+          "op": "replace-exact",
+          "path": "src/utils/worktree.ts",
+          "before": "  symlink,\n  utimes,\n} from 'fs/promises'",
+          "after": "  symlink,\n  utimes,\n  writeFile,\n} from 'fs/promises'"
+        },
+        {
+          "op": "replace-exact",
+          "path": "src/utils/worktree.ts",
+          "before": "  getCommonDir,\n  readWorktreeHeadSha,",
+          "after": "  getCommonDir,\n  isValidGitSha,\n  readWorktreeHeadSha,"
+        },
+        {
+          "op": "insert-before",
+          "path": "src/utils/worktree.ts",
+          "anchor": "function worktreesDir(repoRoot: string): string {",
+          "content": "const WORKTREE_BASELINE_FILE = 'CLAUDE_BASE'\n\n"
+        },
+        {
+          "op": "insert-before",
+          "path": "src/utils/worktree.ts",
+          "anchor": "/**\n * Creates a new git worktree for the given slug, or resumes it if it already exists.",
+          "content": "async function resolveWorktreeGitDir(\n  worktreePath: string,\n): Promise<string | null> {\n  try {\n    const gitPointer = (await readFile(join(worktreePath, '.git'), 'utf-8'))\n      .trim()\n    if (!gitPointer.startsWith('gitdir:')) {\n      return null\n    }\n    return resolve(worktreePath, gitPointer.slice('gitdir:'.length).trim())\n  } catch {\n    return null\n  }\n}\n\nasync function writeWorktreeBaseline(\n  worktreePath: string,\n  baseSha: string,\n): Promise<void> {\n  const gitDir = await resolveWorktreeGitDir(worktreePath)\n  if (!gitDir) {\n    logForDebugging(\n      `[worktree] cannot write baseline: gitdir unresolvable for ${worktreePath}`,\n    )\n    return\n  }\n  try {\n    await writeFile(join(gitDir, WORKTREE_BASELINE_FILE), baseSha, 'utf-8')\n  } catch (error) {\n    logForDebugging(\n      `[worktree] failed to write baseline to ${gitDir}: ${error}`,\n    )\n  }\n}\n\nasync function readWorktreeBaseline(\n  worktreePath: string,\n): Promise<string | null> {\n  const gitDir = await resolveWorktreeGitDir(worktreePath)\n  if (!gitDir) {\n    return null\n  }\n  try {\n    const baseline = (\n      await readFile(join(gitDir, WORKTREE_BASELINE_FILE), 'utf-8')\n    ).trim()\n    return isValidGitSha(baseline) ? baseline : null\n  } catch {\n    return null\n  }\n}\n\n"
+        },
+        {
+          "op": "replace-exact",
+          "path": "src/utils/worktree.ts",
+          "before": "  if (existingHead) {\n    return {\n      worktreePath,\n      worktreeBranch,\n      headCommit: existingHead,\n      existed: true,\n    }\n  }",
+          "after": "  if (existingHead) {\n    const baseline = await readWorktreeBaseline(worktreePath)\n    return {\n      worktreePath,\n      worktreeBranch,\n      headCommit: baseline ?? existingHead,\n      existed: true,\n    }\n  }"
+        },
+        {
+          "op": "replace-exact",
+          "path": "src/utils/worktree.ts",
+          "before": "  return {\n    worktreePath,\n    worktreeBranch,\n    headCommit: baseSha,\n    baseBranch,\n    existed: false,\n  }\n}\n\n/**\n * Copy gitignored files specified in .worktreeinclude from base repo to worktree.",
+          "after": "  await writeWorktreeBaseline(worktreePath, baseSha)\n\n  return {\n    worktreePath,\n    worktreeBranch,\n    headCommit: baseSha,\n    baseBranch,\n    existed: false,\n  }\n}\n\n/**\n * Copy gitignored files specified in .worktreeinclude from base repo to worktree."
+        }
+      ],
+      "candidateRequiredFragments": [
+        "const WORKTREE_BASELINE_FILE = 'CLAUDE_BASE'",
+        "async function writeWorktreeBaseline(",
+        "await writeFile(join(gitDir, WORKTREE_BASELINE_FILE), baseSha, 'utf-8')",
+        "headCommit: baseline ?? existingHead",
+        "await writeWorktreeBaseline(worktreePath, baseSha)"
+      ],
+      "behaviorContract": {
+        "create": "persist the resolved base SHA beside the worktree gitdir",
+        "resume": "prefer a validated persisted baseline over the mutable worktree HEAD",
+        "failure": "log and continue when the gitdir or baseline write is unavailable"
+      }
+    },
+    {
+      "id": "u18153",
+      "indices": [
+        18153
+      ],
+      "classification": "source-replay-required",
+      "primaryOwner": "src/bridge/bridgeMain.ts",
+      "rawOwnerSha256": [
+        "8ab48ce786f7188a0038992c9c5e3ee2a4ffdc1fc3f18dea8a928cba5cdca5c7"
+      ],
+      "dependencies": [],
+      "operations": [
+        {
+          "op": "replace-exact",
+          "path": "src/bridge/bridgeMain.ts",
+          "before": "import { sleep } from '../utils/sleep.js'\nimport { createAgentWorktree, removeAgentWorktree } from '../utils/worktree.js'",
+          "after": "import { sleep } from '../utils/sleep.js'\nimport { plural } from '../utils/stringUtils.js'\nimport {\n  createAgentWorktree,\n  getAgentWorktreeChanges,\n  removeAgentWorktree,\n} from '../utils/worktree.js'"
+        },
+        {
+          "op": "insert-before",
+          "path": "src/bridge/bridgeMain.ts",
+          "anchor": "export async function runBridgeLoop",
+          "content": "type BridgeWorktree = {\n  worktreePath: string\n  worktreeBranch?: string\n  headCommit?: string\n  gitRoot?: string\n  hookBased?: boolean\n}\n\nasync function cleanupBridgeWorktree(\n  worktree: BridgeWorktree,\n  logger: BridgeLogger,\n  options?: { force?: boolean },\n): Promise<void> {\n  const forceCleanup =\n    options?.force || (worktree.hookBased && worktree.headCommit === undefined)\n  const { dirty, commitsAhead, gitError } = forceCleanup\n    ? { dirty: false, commitsAhead: 0, gitError: false }\n    : await getAgentWorktreeChanges(\n        worktree.worktreePath,\n        worktree.headCommit,\n      )\n\n  if (dirty || commitsAhead > 0) {\n    const commitSummary = `${commitsAhead} ${plural(commitsAhead, 'commit')}`\n    const reason = gitError\n      ? 'git error checking changes'\n      : dirty && commitsAhead > 0\n        ? `uncommitted changes · ${commitSummary}`\n        : dirty\n          ? 'uncommitted changes'\n          : commitSummary\n    logger.logStatus(`kept worktree ${worktree.worktreePath} · ${reason}`)\n    logForDebugging(\n      `[bridge:worktree] kept ${worktree.worktreePath} dirty=${dirty} commitsAhead=${commitsAhead} gitError=${!!gitError}`,\n    )\n    return\n  }\n\n  if (\n    await removeAgentWorktree(\n      worktree.worktreePath,\n      worktree.worktreeBranch,\n      worktree.gitRoot,\n      worktree.hookBased,\n      'bridge',\n    )\n  ) {\n    logger.logStatus(`removed worktree ${worktree.worktreePath}`)\n  } else {\n    logger.logStatus(\n      `worktree removal failed, kept: ${worktree.worktreePath}`,\n    )\n  }\n}\n\n"
+        },
+        {
+          "op": "replace-exact",
+          "path": "src/bridge/bridgeMain.ts",
+          "before": "  const sessionWorktrees = new Map<\n    string,\n    {\n      worktreePath: string\n      worktreeBranch?: string\n      gitRoot?: string\n      hookBased?: boolean\n    }\n  >()",
+          "after": "  const sessionWorktrees = new Map<string, BridgeWorktree>()"
+        },
+        {
+          "op": "replace-exact",
+          "path": "src/bridge/bridgeMain.ts",
+          "before": "                worktreePath: wt.worktreePath,\n                worktreeBranch: wt.worktreeBranch,\n                gitRoot: wt.gitRoot,",
+          "after": "                worktreePath: wt.worktreePath,\n                worktreeBranch: wt.worktreeBranch,\n                headCommit: wt.headCommit,\n                gitRoot: wt.gitRoot,"
+        },
+        {
+          "op": "replace-exact",
+          "path": "src/bridge/bridgeMain.ts",
+          "before": "        trackCleanup(\n          removeAgentWorktree(\n            wt.worktreePath,\n            wt.worktreeBranch,\n            wt.gitRoot,\n            wt.hookBased,\n          ).catch((err: unknown) =>\n            logger.logVerbose(\n              `Failed to remove worktree ${wt.worktreePath}: ${errorMessage(err)}`,\n            ),\n          ),\n        )",
+          "after": "        trackCleanup(cleanupBridgeWorktree(wt, logger))"
+        },
+        {
+          "op": "replace-exact",
+          "path": "src/bridge/bridgeMain.ts",
+          "before": "              trackCleanup(\n                removeAgentWorktree(\n                  wt.worktreePath,\n                  wt.worktreeBranch,\n                  wt.gitRoot,\n                  wt.hookBased,\n                ).catch((err: unknown) =>\n                  logger.logVerbose(\n                    `Failed to remove worktree ${wt.worktreePath}: ${errorMessage(err)}`,\n                  ),\n                ),\n              )",
+          "after": "              trackCleanup(cleanupBridgeWorktree(wt, logger, { force: true }))"
+        },
+        {
+          "op": "replace-exact",
+          "path": "src/bridge/bridgeMain.ts",
+          "before": "        remainingWorktrees.map(wt =>\n          removeAgentWorktree(\n            wt.worktreePath,\n            wt.worktreeBranch,\n            wt.gitRoot,\n            wt.hookBased,\n          ),\n        ),",
+          "after": "        remainingWorktrees.map(wt => cleanupBridgeWorktree(wt, logger)),"
+        }
+      ],
+      "candidateRequiredFragments": [
+        "async function cleanupBridgeWorktree(",
+        "getAgentWorktreeChanges(",
+        "const { dirty, commitsAhead, gitError }",
+        "cleanupBridgeWorktree(wt, logger)",
+        "cleanupBridgeWorktree(wt, logger, { force: true })"
+      ],
+      "behaviorContract": {
+        "dirtyOrAhead": "preserve worktree and report reason",
+        "clean": "remove worktree with bridge owner",
+        "force": "skip dirty probe after failed spawn"
+      }
+    },
+    {
+      "id": "u18361",
+      "indices": [
+        18361
+      ],
+      "classification": "source-replay-required",
+      "primaryOwner": "src/bridge/initReplBridge.ts",
+      "rawOwnerSha256": [
+        "b9bbdf173013c26653b5cfd8d68b5f04758bb3ebc630b67f360991fcc7bc7d7f"
+      ],
+      "dependencies": [
+        "src/utils/sessionStorage.ts",
+        "src/bridge/persistenceSync.ts"
+      ],
+      "operations": [
+        {
+          "op": "replace-exact",
+          "path": "src/bridge/initReplBridge.ts",
+          "before": "import {\n  getCurrentSessionTitle,\n  saveCustomTitle,\n} from '../utils/sessionStorage.js'",
+          "after": "import {\n  clearInternalEventWriter,\n  getCurrentSessionTitle,\n  listAllSubagentTranscriptIdsFromDisk,\n  saveCustomTitle,\n  setInternalEventReader,\n  setInternalEventWriter,\n} from '../utils/sessionStorage.js'"
+        },
+        {
+          "op": "insert-before",
+          "path": "src/bridge/initReplBridge.ts",
+          "anchor": "import type { BridgeState, ReplBridgeHandle } from './replBridge.js'",
+          "content": "import { syncPersistence } from './persistenceSync.js'\n"
+        },
+        {
+          "op": "replace-exact",
+          "path": "src/bridge/initReplBridge.ts",
+          "before": "  tags?: string[]\n}",
+          "after": "  tags?: string[]\n  enableSessionPersistence?: boolean\n}"
+        },
+        {
+          "op": "replace-exact",
+          "path": "src/bridge/initReplBridge.ts",
+          "before": "    outboundOnly,\n    tags,\n  } = options ?? {}",
+          "after": "    outboundOnly,\n    tags,\n    enableSessionPersistence,\n  } = options ?? {}"
+        },
+        {
+          "op": "insert-after",
+          "path": "src/bridge/initReplBridge.ts",
+          "anchor": "  } = options ?? {}\n",
+          "content": "  let persistenceGeneration = 0\n  const persistenceCallbacks = {\n    onTransportPersistenceReady: (\n      writer: Parameters<typeof setInternalEventWriter>[0],\n      readers: Parameters<typeof syncPersistence>[1],\n    ): void => {\n      const generation = ++persistenceGeneration\n      void (async () => {\n        try {\n          const subagentIds =\n            await listAllSubagentTranscriptIdsFromDisk()\n          await syncPersistence(writer, readers, subagentIds)\n        } catch (error) {\n          logForDebugging(\n            `[bridge:repl] Persistence sync failed: ${errorMessage(error)}`,\n            { level: 'error' },\n          )\n        }\n        if (generation !== persistenceGeneration) {\n          logForDebugging(\n            '[bridge:repl] Transport torn down during sync — skipping writer install',\n          )\n          return\n        }\n        setInternalEventWriter(writer)\n        setInternalEventReader(readers.readMain, readers.readSubagents)\n        logForDebugging(\n          '[bridge:repl] Session persistence enabled — transcript writer + hydrate readers registered',\n        )\n      })()\n    },\n    onTransportPersistenceTeardown: (): void => {\n      persistenceGeneration++\n      clearInternalEventWriter()\n    },\n  }\n\n"
+        },
+        {
+          "op": "replace-exact",
+          "path": "src/bridge/initReplBridge.ts",
+          "before": "      outboundOnly,\n      tags,\n    })",
+          "after": "      outboundOnly,\n      tags,\n      ...(enableSessionPersistence ? persistenceCallbacks : {}),\n    })"
+        },
+        {
+          "op": "replace-exact",
+          "path": "src/bridge/initReplBridge.ts",
+          "before": "    onStateChange,\n    perpetual,\n  })",
+          "after": "    onStateChange,\n    perpetual,\n    ...(enableSessionPersistence ? persistenceCallbacks : {}),\n  })"
+        },
+        {
+          "op": "insert-after",
+          "path": "src/utils/sessionStorage.ts",
+          "anchor": "export function setInternalEventWriter(writer: InternalEventWriter): void {\n  getProject().setInternalEventWriter(writer)\n}\n",
+          "content": "/** Stop forwarding new transcript entries to a transport that was torn down. */\nexport function clearInternalEventWriter(): void {\n  getProject().clearInternalEventWriter()\n}\n\n"
+        },
+        {
+          "op": "insert-after",
+          "path": "src/utils/sessionStorage.ts",
+          "anchor": "  setInternalEventWriter(writer: InternalEventWriter): void {\n    this.internalEventWriter = writer\n    logForDebugging(\n      'CCR v2 internal event writer registered for transcript persistence',\n    )\n    // Use fast flush interval for CCR v2\n    this.FLUSH_INTERVAL_MS = REMOTE_FLUSH_INTERVAL_MS\n  }\n",
+          "content": "  clearInternalEventWriter(): void {\n    if (!this.internalEventWriter) return\n    this.internalEventWriter = null\n    logForDebugging('CCR v2 internal event writer cleared')\n  }\n\n"
+        },
+        {
+          "op": "insert-before",
+          "path": "src/utils/sessionStorage.ts",
+          "anchor": "// Exported so useLogMessages",
+          "content": "/**\n * List the current session's on-disk subagent IDs without loading their\n * transcripts. Persistence sync stats and reads only the newest eligible\n * files, so eagerly parsing every transcript would defeat that bound.\n */\nexport async function listAllSubagentTranscriptIdsFromDisk(): Promise<\n  string[]\n> {\n  const subagentsDir = join(\n    getSessionProjectDir() ?? getProjectDir(getOriginalCwd()),\n    getSessionId(),\n    'subagents',\n  )\n  let entries: Dirent[]\n  try {\n    entries = await readdir(subagentsDir, { withFileTypes: true })\n  } catch {\n    return []\n  }\n  return entries\n    .filter(\n      entry =>\n        entry.isFile() &&\n        entry.name.startsWith('agent-') &&\n        entry.name.endsWith('.jsonl'),\n    )\n    .map(entry => entry.name.slice('agent-'.length, -'.jsonl'.length))\n}\n\n"
+        },
+        {
+          "op": "add-file",
+          "path": "src/bridge/persistenceSync.ts",
+          "content": "import { stat } from 'fs/promises'\nimport type { InternalEvent } from '../cli/transports/ccrClient.js'\nimport type { Entry, TranscriptMessage } from '../types/logs.js'\nimport type { AgentId } from '../types/ids.js'\nimport { logForDebugging } from '../utils/debug.js'\nimport { isFsInaccessible } from '../utils/errors.js'\nimport { readLinesReverse } from '../utils/fsOperations.js'\nimport {\n  getAgentTranscriptPath,\n  getTranscriptPath,\n  isTranscriptMessage,\n} from '../utils/sessionStorage.js'\nimport { SKIP_PRECOMPACT_THRESHOLD } from '../utils/sessionStoragePortable.js'\nimport { isCompactBoundaryMessage } from '../utils/messages.js'\n\nexport type InternalEventWriter = (\n  eventType: string,\n  payload: Record<string, unknown>,\n  options?: { isCompaction?: boolean; agentId?: string },\n) => Promise<void>\n\nexport type InternalEventReaders = {\n  readMain(): Promise<InternalEvent[] | null>\n  readSubagents(): Promise<InternalEvent[] | null>\n}\n\nconst MAX_RECENT_SUBAGENT_TRANSCRIPTS = 20\n\n/**\n * Bring a newly connected CCR transport up to date from the local transcript\n * before installing it as the live persistence writer. Server UUIDs are\n * removed so reconnecting cannot duplicate events already accepted by CCR.\n */\nexport async function syncPersistence(\n  writeInternalEvent: InternalEventWriter,\n  readers: InternalEventReaders,\n  subagentIds: string[],\n): Promise<{ uploadedMain: number; uploadedSubagents: number }> {\n  const [mainEvents, subagentEvents] = await Promise.all([\n    readers.readMain(),\n    readers.readSubagents(),\n  ])\n  const serverEventIds = new Set<string>()\n  for (const event of mainEvents ?? []) {\n    const uuid = event.payload.uuid\n    if (typeof uuid === 'string') serverEventIds.add(uuid)\n  }\n  for (const event of subagentEvents ?? []) {\n    const uuid = event.payload.uuid\n    if (typeof uuid === 'string') serverEventIds.add(uuid)\n  }\n\n  logForDebugging(\n    `[persistence-sync] Server has ${serverEventIds.size} events since compaction`,\n  )\n  const onWriteFailure = (error: unknown): void => {\n    logForDebugging(`[persistence-sync] Write failed: ${error}`)\n  }\n\n  const mainEntries = await readLocalAfterCompaction(\n    getTranscriptPath(),\n    serverEventIds,\n  )\n  for (const entry of mainEntries) {\n    void writeInternalEvent('transcript', entry, {\n      ...(isCompactBoundaryMessage(entry) && { isCompaction: true }),\n    }).catch(onWriteFailure)\n  }\n\n  let uploadedSubagents = 0\n  for (const { agentId, path } of await selectRecentSubagentTranscripts(\n    subagentIds,\n  )) {\n    const entries = await readLocalAfterCompaction(path, serverEventIds)\n    for (const entry of entries) {\n      void writeInternalEvent('transcript', entry, {\n        ...(isCompactBoundaryMessage(entry) && { isCompaction: true }),\n        agentId,\n      }).catch(onWriteFailure)\n    }\n    uploadedSubagents += entries.length\n  }\n\n  logForDebugging(\n    `[persistence-sync] Uploaded ${mainEntries.length} main + ${uploadedSubagents} subagent entries`,\n  )\n  return {\n    uploadedMain: mainEntries.length,\n    uploadedSubagents,\n  }\n}\n\nasync function selectRecentSubagentTranscripts(\n  agentIds: string[],\n): Promise<Array<{ agentId: string; path: string }>> {\n  const candidates = await Promise.all(\n    agentIds.map(async agentId => {\n      const path = getAgentTranscriptPath(agentId as AgentId)\n      try {\n        const file = await stat(path)\n        return {\n          agentId,\n          path,\n          size: file.size,\n          mtimeMs: file.mtimeMs,\n        }\n      } catch {\n        return null\n      }\n    }),\n  )\n\n  return candidates\n    .filter(candidate => candidate !== null)\n    .filter(candidate => candidate.size <= SKIP_PRECOMPACT_THRESHOLD)\n    .sort((a, b) => b.mtimeMs - a.mtimeMs)\n    .slice(0, MAX_RECENT_SUBAGENT_TRANSCRIPTS)\n}\n\nasync function readLocalAfterCompaction(\n  path: string,\n  serverEventIds: Set<string>,\n): Promise<TranscriptMessage[]> {\n  const entries: TranscriptMessage[] = []\n  try {\n    for await (const line of readLinesReverse(path)) {\n      let value: unknown\n      try {\n        value = JSON.parse(line)\n      } catch {\n        continue\n      }\n      if (!isPersistableTranscriptMessage(value)) continue\n      if (isCompactBoundaryMessage(value)) break\n      if (!serverEventIds.has(value.uuid)) entries.push(value)\n    }\n  } catch (error) {\n    if (isFsInaccessible(error)) return []\n    throw error\n  }\n  return entries.reverse()\n}\n\nfunction isPersistableTranscriptMessage(\n  value: unknown,\n): value is TranscriptMessage {\n  return (\n    typeof value === 'object' &&\n    value !== null &&\n    'type' in value &&\n    'uuid' in value &&\n    typeof value.uuid === 'string' &&\n    isTranscriptMessage(value as Entry)\n  )\n}\n",
+          "contentSha256": "9bfa33d324fc73528ba7f784f3187444c83f0c46b61bd70fa6e786a82ea8bf5c"
+        }
+      ],
+      "candidateRequiredFragments": [
+        "enableSessionPersistence?: boolean",
+        "const persistenceCallbacks = {",
+        "await syncPersistence(writer, readers, subagentIds)",
+        "setInternalEventReader(readers.readMain, readers.readSubagents)",
+        "Session persistence enabled — transcript writer + hydrate readers registered",
+        "...(enableSessionPersistence ? persistenceCallbacks : {})"
+      ],
+      "behaviorContract": {
+        "ordering": "disk-to-server sync completes before live writer/readers install",
+        "teardown": "generation invalidates in-flight sync and clears writer",
+        "paths": "callbacks are passed to env-less and v1 transports"
+      }
+    },
+    {
+      "id": "u18599",
+      "indices": [
+        18599
+      ],
+      "classification": "source-replay-required",
+      "primaryOwner": "src/components/permissions/ExitPlanModePermissionRequest/ExitPlanModePermissionRequest.tsx",
+      "rawOwnerSha256": [
+        "51c0242c885b4d40f393fbdfeda1bfa2631e21459297d7a1c6418696d9f6bb5a"
+      ],
+      "dependencies": [],
+      "operations": [
+        {
+          "op": "replace-exact",
+          "path": "src/components/permissions/ExitPlanModePermissionRequest/ExitPlanModePermissionRequest.tsx",
+          "before": "      toolUseConfirm.onReject('Plan being refined via Ultraplan — please wait for the result.');\n      void launchUltraplan({\n        blurb: '',\n        seedPlan: currentPlan,\n        getAppState: store.getState,\n        setAppState: store.setState,\n        signal: new AbortController().signal\n      }).then(msg => enqueuePendingNotification({\n        value: msg,\n        mode: 'task-notification'\n      })).catch(logError);\n",
+          "after": "      toolUseConfirm.onReject(\"I'm sending this plan to Ultraplan to be refined remotely. Let me know it's been handed off and that a web link will appear here in a moment — I can use that to edit and iterate on the plan in the browser once the plan has been generated. I can continue to work here in the meantime; Claude Code will notify me when the cloud plan is ready for review, and I have the option to teleport the plan back here for implementation post-approval.\");\n      const onStatusMessage = (message: string) =>\n        enqueuePendingNotification({\n          value: message,\n          mode: 'task-notification',\n        });\n      void launchUltraplan({\n        arg: '',\n        source: 'exit_plan_mode',\n        seedPlan: currentPlan,\n        getAppState: store.getState,\n        setAppState: store.setState,\n        signal: new AbortController().signal,\n        onStatusMessage,\n      }).then(onStatusMessage).catch(logError);\n"
+        }
+      ],
+      "candidateRequiredFragments": [
+        "source: 'exit_plan_mode'",
+        "arg: ''",
+        "onStatusMessage,",
+        ").then(onStatusMessage).catch(logError)"
+      ],
+      "behaviorContract": {
+        "launch": "sets the authenticated exit_plan_mode source and forwards status messages",
+        "failure": "detached launch rejection is logged"
+      }
+    },
+    {
+      "id": "u18785-u18796",
+      "indices": [
+        18785,
+        18796
+      ],
+      "classification": "source-replay-required",
+      "primaryOwner": "src/utils/suggestions/commandSuggestions.ts",
+      "rawOwnerSha256": [
+        "717ee7941db01777413d47d49d0bb40f60456b07c11bc771ec0cbe32d5a049cf"
+      ],
+      "dependencies": [],
+      "operations": [
+        {
+          "op": "replace-exact",
+          "path": "src/utils/suggestions/commandSuggestions.ts",
+          "before": "  const match = beforeCursor.match(/\\s\\/([a-zA-Z0-9_:-]*)$/)",
+          "after": "  const match = beforeCursor.match(/[\\s。、？！]\\/([a-zA-Z0-9_:-]*)$/)"
+        },
+        {
+          "op": "replace-exact",
+          "path": "src/utils/suggestions/commandSuggestions.ts",
+          "before": "  const regex = /(^|[\\s])(\\/[a-zA-Z][a-zA-Z0-9:\\-_]*)/g",
+          "after": "  const regex = /(^|[\\s。、？！])(\\/[a-zA-Z][a-zA-Z0-9:\\-_]*)/g"
+        }
+      ],
+      "candidateRequiredFragments": [
+        "beforeCursor.match(/[\\s。、？！]\\/([a-zA-Z0-9_:-]*)$/)",
+        "/(^|[\\s。、？！])(\\/[a-zA-Z][a-zA-Z0-9:\\-_]*)/g"
+      ],
+      "behaviorContract": {
+        "token": "slash commands may begin after whitespace or CJK punctuation",
+        "ranges": "range scanning uses the same authenticated boundary set"
+      }
+    },
+    {
+      "id": "u18839",
+      "indices": [
+        18839
+      ],
+      "classification": "source-replay-required",
+      "primaryOwner": "src/hooks/useTypeahead.tsx",
+      "rawOwnerSha256": [
+        "a6f55e5dc61637b892979ce76acf921135f26ea646711cbd6c9d62e25ca7afca"
+      ],
+      "dependencies": [],
+      "operations": [
+        {
+          "op": "replace-exact",
+          "path": "src/hooks/useTypeahead.tsx",
+          "before": "    if (atIdx >= 0 && (atIdx === 0 || /\\s/.test(textBeforeCursor[atIdx - 1]!))) {",
+          "after": "    if (atIdx >= 0 && (atIdx === 0 || /[\\s。、？！]/.test(textBeforeCursor[atIdx - 1]!))) {"
+        }
+      ],
+      "candidateRequiredFragments": [
+        "/[\\s。、？！]/.test(textBeforeCursor[atIdx - 1]!)"
+      ],
+      "behaviorContract": {
+        "boundary": "at-symbol completion recognizes whitespace and authenticated CJK punctuation boundaries"
+      }
+    },
+    {
+      "id": "u19234",
+      "indices": [
+        19234
+      ],
+      "classification": "source-replay-required",
+      "primaryOwner": "src/utils/processUserInput/processUserInput.ts",
+      "rawOwnerSha256": [
+        "f9974daad4f77378fd2d1d7068611bd9589fcfd276da322f404b736cc27d90f4"
+      ],
+      "dependencies": [],
+      "operations": [
+        {
+          "op": "replace-exact",
+          "path": "src/utils/processUserInput/processUserInput.ts",
+          "before": "    const slashResult = await processSlashCommand(\n      `/ultraplan ${rewritten}`,\n      precedingInputBlocks,\n      imageContentBlocks,\n      [],\n      context,\n      setToolJSX,\n      uuid,\n      isAlreadyProcessing,\n      canUseTool,\n    )\n    return addImageMetadataMessage(slashResult, imageMetadataTexts)\n  }\n\n",
+          "after": "    const slashResult = await processSlashCommand(\n      `/ultraplan ${rewritten}`,\n      precedingInputBlocks,\n      imageContentBlocks,\n      [],\n      context,\n      setToolJSX,\n      uuid,\n      isAlreadyProcessing,\n      canUseTool,\n    )\n    context.setAppState(state =>\n      state.ultraplanLaunchPending\n        ? {\n            ...state,\n            ultraplanLaunchPending: {\n              ...state.ultraplanLaunchPending,\n              source: 'keyword',\n            },\n          }\n        : state,\n    )\n    return addImageMetadataMessage(slashResult, imageMetadataTexts)\n  }\n\n"
+        }
+      ],
+      "candidateRequiredFragments": [
+        "ultraplanLaunchPending:",
+        "source: 'keyword'"
+      ],
+      "behaviorContract": {
+        "route": "after /ultraplan rewriting, pending state records keyword source without creating state when launch is absent"
+      }
+    },
+    {
+      "id": "u19417",
+      "indices": [
+        19417
+      ],
+      "classification": "source-replay-required",
+      "primaryOwner": "src/components/FeedbackSurvey/FeedbackSurveyView.tsx",
+      "rawOwnerSha256": [
+        "2307bbad58362eaa0b134b2e3b8d749bb70549f6b51676b38e569f88c011a78e"
+      ],
+      "dependencies": [],
+      "operations": [
+        {
+          "op": "replace-exact",
+          "path": "src/components/FeedbackSurvey/FeedbackSurveyView.tsx",
+          "before": "import { Box, Text } from '../../ink.js';",
+          "after": "import { Box, Button, Text } from '../../ink.js';"
+        },
+        {
+          "op": "replace-exact",
+          "path": "src/components/FeedbackSurvey/FeedbackSurveyView.tsx",
+          "before": "  message?: string;\n};",
+          "after": "  message?: React.ReactNode;\n  messageBold?: boolean;\n  mountDelayMs?: number;\n};"
+        },
+        {
+          "op": "insert-before",
+          "path": "src/components/FeedbackSurvey/FeedbackSurveyView.tsx",
+          "anchor": "const DEFAULT_MESSAGE = 'How is Claude doing this session? (optional)';",
+          "content": "const RESPONSE_OPTIONS = [{ key: '1', label: 'Bad' }, { key: '2', label: 'Fine' }, { key: '3', label: 'Good' }, { key: '0', label: 'Dismiss' }] as const;\nconst RESPONSE_WIDTH = 10;\n"
+        },
+        {
+          "op": "replace-region",
+          "path": "src/components/FeedbackSurvey/FeedbackSurveyView.tsx",
+          "startAnchor": "export function FeedbackSurveyView(t0) {",
+          "endAnchor": "  return t10;\n}",
+          "beforeSha256": "ce75fd3507edcd083209dd282214d1c4996eb63434741870c34a43aaac7dd830",
+          "replacement": "export function FeedbackSurveyView(t0) {\n  const $ = _c(19);\n  const {\n    onSelect,\n    inputValue,\n    setInputValue,\n    message: t1,\n    messageBold: t2,\n    mountDelayMs\n  } = t0;\n  const message = t1 === undefined ? DEFAULT_MESSAGE : t1;\n  const messageBold = t2 === undefined ? true : t2;\n  let t3;\n  if ($[0] !== onSelect) {\n    t3 = digit => onSelect(inputToResponse[digit]);\n    $[0] = onSelect;\n    $[1] = t3;\n  } else {\n    t3 = $[1];\n  }\n  let t4;\n  if ($[2] !== inputValue || $[3] !== mountDelayMs || $[4] !== setInputValue || $[5] !== t3) {\n    t4 = {\n      inputValue,\n      setInputValue,\n      isValidDigit: isValidResponseInput,\n      onDigit: t3,\n      mountDelayMs\n    };\n    $[2] = inputValue;\n    $[3] = mountDelayMs;\n    $[4] = setInputValue;\n    $[5] = t3;\n    $[6] = t4;\n  } else {\n    t4 = $[6];\n  }\n  useDebouncedDigitInput(t4);\n  let t5;\n  if ($[7] === Symbol.for(\"react.memo_cache_sentinel\")) {\n    t5 = <Box minWidth={2}><Text color=\"ansi:cyan\">●</Text></Box>;\n    $[7] = t5;\n  } else {\n    t5 = $[7];\n  }\n  let t6;\n  if ($[8] !== message || $[9] !== messageBold) {\n    t6 = <Box>{t5}<Text bold={messageBold} wrap=\"wrap\">{message}</Text></Box>;\n    $[8] = message;\n    $[9] = messageBold;\n    $[10] = t6;\n  } else {\n    t6 = $[10];\n  }\n  let t7;\n  if ($[11] !== onSelect || $[12] !== setInputValue) {\n    t7 = RESPONSE_OPTIONS.map(({ key, label }) => <Box key={key} width={RESPONSE_WIDTH}><Button tabIndex={-1} onAction={() => {\n      setInputValue('');\n      onSelect(inputToResponse[key]);\n    }}>{({ hovered }) => <Text backgroundColor={hovered ? 'userMessageBackgroundHover' : undefined}><Text color=\"ansi:cyan\">{key}</Text>: {label}</Text>}</Button></Box>);\n    $[11] = onSelect;\n    $[12] = setInputValue;\n    $[13] = t7;\n  } else {\n    t7 = $[13];\n  }\n  let t8;\n  if ($[14] !== t7) {\n    t8 = <Box marginLeft={2}>{t7}</Box>;\n    $[14] = t7;\n    $[15] = t8;\n  } else {\n    t8 = $[15];\n  }\n  let t9;\n  if ($[16] !== t6 || $[17] !== t8) {\n    t9 = <Box flexDirection=\"column\" marginTop={1}>{t6}{t8}</Box>;\n    $[16] = t6;\n    $[17] = t8;\n    $[18] = t9;\n  } else {\n    t9 = $[18];\n  }\n  return t9;\n}"
+        }
+      ],
+      "candidateRequiredFragments": [
+        "import { Box, Button, Text } from '../../ink.js';",
+        "messageBold?: boolean;",
+        "mountDelayMs?: number;",
+        "<Button tabIndex={-1}",
+        "({ hovered }) => <Text backgroundColor={hovered ? 'userMessageBackgroundHover' : undefined}>"
+      ],
+      "behaviorContract": {
+        "options": "each survey response is an actionable Button",
+        "hover": "hovered options use the authenticated user-message hover background",
+        "input": "mount delay is forwarded to debounced digit input"
+      }
+    },
+    {
+      "id": "u19427",
+      "indices": [
+        19427
+      ],
+      "classification": "source-replay-required",
+      "primaryOwner": "src/components/FeedbackSurvey/TranscriptSharePrompt.tsx",
+      "rawOwnerSha256": [
+        "65a4acca4da44102a2b5b115a15f7944454443738253b943be11ce4520dc570d"
+      ],
+      "dependencies": [],
+      "operations": [
+        {
+          "op": "replace-exact",
+          "path": "src/components/FeedbackSurvey/TranscriptSharePrompt.tsx",
+          "before": "const RESPONSE_INPUTS = ['1', '2', '3'] as const;",
+          "after": "const RESPONSE_INPUTS = ['y', 'n', 'd'] as const;"
+        },
+        {
+          "op": "replace-exact",
+          "path": "src/components/FeedbackSurvey/TranscriptSharePrompt.tsx",
+          "before": "const inputToResponse: Record<ResponseInput, TranscriptShareResponse> = {\n  '1': 'yes',\n  '2': 'no',\n  '3': 'dont_ask_again'\n} as const;",
+          "after": "const inputToResponse: Record<ResponseInput, TranscriptShareResponse> = {\n  y: 'yes',\n  n: 'no',\n  d: 'dont_ask_again'\n} as const;"
+        },
+        {
+          "op": "replace-exact",
+          "path": "src/components/FeedbackSurvey/TranscriptSharePrompt.tsx",
+          "before": "const isValidResponseInput = (input: string): input is ResponseInput => (RESPONSE_INPUTS as readonly string[]).includes(input);",
+          "after": "const isValidResponseInput = (input: string): input is ResponseInput => (RESPONSE_INPUTS as readonly string[]).includes(input.toLowerCase());"
+        },
+        {
+          "op": "replace-exact",
+          "path": "src/components/FeedbackSurvey/TranscriptSharePrompt.tsx",
+          "before": "    t1 = digit => onSelect(inputToResponse[digit]);",
+          "after": "    t1 = digit => {\n      const normalized = digit.toLowerCase();\n      if (isValidResponseInput(normalized)) onSelect(inputToResponse[normalized]);\n    };"
+        },
+        {
+          "op": "replace-exact",
+          "path": "src/components/FeedbackSurvey/TranscriptSharePrompt.tsx",
+          "before": "color=\"ansi:cyan\">1</Text>: Yes",
+          "after": "color=\"ansi:cyan\">y</Text>: Yes"
+        },
+        {
+          "op": "replace-exact",
+          "path": "src/components/FeedbackSurvey/TranscriptSharePrompt.tsx",
+          "before": "color=\"ansi:cyan\">2</Text>: No",
+          "after": "color=\"ansi:cyan\">n</Text>: No"
+        },
+        {
+          "op": "replace-exact",
+          "path": "src/components/FeedbackSurvey/TranscriptSharePrompt.tsx",
+          "before": "color=\"ansi:cyan\">3</Text>: Don't ask again",
+          "after": "color=\"ansi:cyan\">d</Text>: Don't ask again"
+        }
+      ],
+      "candidateRequiredFragments": [
+        "const RESPONSE_INPUTS = ['y', 'n', 'd'] as const",
+        "y: 'yes'",
+        "n: 'no'",
+        "d: 'dont_ask_again'",
+        "input.toLowerCase()",
+        "normalized = digit.toLowerCase()"
+      ],
+      "behaviorContract": {
+        "keys": {
+          "y": "yes",
+          "n": "no",
+          "d": "dont_ask_again"
+        },
+        "normalization": "typed input is case-insensitive"
+      }
+    },
+    {
+      "id": "u19684-u19685",
+      "indices": [
+        19684,
+        19685
+      ],
+      "classification": "source-replay-required",
+      "primaryOwner": "src/components/ScrollKeybindingHandler.tsx",
+      "rawOwnerSha256": [
+        "50007963c6e06951d28fd95ad12b5b241c22123bb8a693022a6065e1f41b075a"
+      ],
+      "dependencies": [],
+      "operations": [
+        {
+          "op": "replace-exact",
+          "path": "src/components/ScrollKeybindingHandler.tsx",
+          "before": "function initAndLogWheelAccel(): WheelAccelState {\n  const xtermJs = isXtermJs();\n  const base = readScrollSpeedBase();\n  logForDebugging(`wheel accel: ${xtermJs ? 'decay (xterm.js)' : 'window (native)'} · base=${base} · TERM_PROGRAM=${process.env.TERM_PROGRAM ?? 'unset'}`);\n  return initWheelAccel(xtermJs, base);\n}",
+          "after": "function initAndLogWheelAccel(): WheelAccelState {\n  const xtermJs = isXtermJs();\n  const base = readScrollSpeedBase();\n  logForDebugging(`wheel accel: ${xtermJs ? 'decay' : 'window (native)'} · base=${base} · platform=${'linux'} · TERM_PROGRAM=${process.env.TERM_PROGRAM ?? 'unset'}`);\n  return initWheelAccel(xtermJs, base);\n}"
+        },
+        {
+          "op": "insert-before",
+          "path": "src/components/ScrollKeybindingHandler.tsx",
+          "anchor": "  // Modal pager keys",
+          "content": "  function extendSelection(move: FocusMove): boolean | void {\n    if (!selection.hasSelection()) return false;\n    if (move === 'up' || move === 'down') {\n      const s = scrollRef.current;\n      const state = selection.getState();\n      if (s && state?.anchor && state.focus) {\n        const top = s.getViewportTop();\n        const bottom = top + s.getViewportHeight() - 1;\n        const anchorInViewport = state.anchor.row >= top && state.anchor.row <= bottom;\n        const extendingAbove = anchorInViewport && move === 'up' && state.focus.row <= top;\n        const extendingBelow = anchorInViewport && move === 'down' && state.focus.row >= bottom;\n        if (extendingAbove || extendingBelow) {\n          const max = Math.max(0, s.getScrollHeight() - s.getViewportHeight());\n          const canScroll = extendingAbove ? s.getScrollTop() > 0 : s.getScrollTop() < max;\n          if (s.getPendingDelta() === 0 && canScroll) {\n            const scrolledOff = extendingAbove ? state.scrolledOffAbove : state.scrolledOffBelow;\n            if (scrolledOff.length > 0) {\n              state.scrolledOffAbove = [];\n              state.scrolledOffBelow = [];\n              state.scrolledOffAboveSW = [];\n              state.scrolledOffBelowSW = [];\n              state.virtualAnchorRow = undefined;\n            }\n            if (extendingAbove) {\n              selection.captureScrolledRows(bottom, bottom, 'below');\n              selection.shiftAnchor(1, top, bottom);\n              s.scrollBy(-1);\n            } else {\n              selection.captureScrolledRows(top, top, 'above');\n              selection.shiftAnchor(-1, top, bottom);\n              s.scrollBy(1);\n            }\n            onScroll?.(false, s);\n          }\n          return;\n        }\n      }\n    }\n    selection.moveFocus(move);\n  }\n  useKeybindings({\n    'selection:extendLeft': () => extendSelection('left'),\n    'selection:extendRight': () => extendSelection('right'),\n    'selection:extendUp': () => extendSelection('up'),\n    'selection:extendDown': () => extendSelection('down'),\n    'selection:extendLineStart': () => extendSelection('lineStart'),\n    'selection:extendLineEnd': () => extendSelection('lineEnd')\n  }, {\n    context: 'Scroll',\n    isActive: isActive\n  });\n\n"
+        },
+        {
+          "op": "replace-exact",
+          "path": "src/components/ScrollKeybindingHandler.tsx",
+          "before": "    const move = selectionFocusMoveForKey(key_0);\n    if (move) {\n      selection.moveFocus(move);\n      event_0.stopImmediatePropagation();\n      return;\n    }\n",
+          "after": ""
+        }
+      ],
+      "candidateRequiredFragments": [
+        "${xtermJs ? 'decay' : 'window (native)'}",
+        " · platform=${'linux'}",
+        "function extendSelection(move: FocusMove)",
+        "state.virtualAnchorRow = undefined",
+        "'selection:extendUp': () => extendSelection('up')",
+        "selection.captureScrolledRows(bottom, bottom, 'below')"
+      ],
+      "behaviorContract": {
+        "wheelLogging": "log authenticated decay/window mode, base, fixed linux platform, and terminal program",
+        "edge": "extension scrolls one row when focus reaches viewport edge",
+        "staleBuffers": "clears scrolled-off buffers and virtualAnchorRow before direction reversal"
+      }
+    },
+    {
+      "id": "u19741",
+      "indices": [
+        19741
+      ],
+      "classification": "source-replay-required",
+      "primaryOwner": "src/services/api/bootstrap.ts",
+      "rawOwnerSha256": [
+        "947aee6acdef6f1cb6310b3953063ad7c7985757bff7f57df6679a9bb440a7d5"
+      ],
+      "dependencies": [],
+      "operations": [
+        {
+          "op": "insert-before",
+          "path": "src/services/api/bootstrap.ts",
+          "anchor": "  }),\n)",
+          "content": "    additional_model_costs: z\n      .record(\n        z\n          .object({\n            input_tokens: z.number(),\n            output_tokens: z.number(),\n            prompt_cache_write_tokens: z.number(),\n            prompt_cache_read_tokens: z.number(),\n            web_search_requests: z.number().nullish(),\n          })\n          .transform(value => ({\n            inputTokens: value.input_tokens,\n            outputTokens: value.output_tokens,\n            promptCacheWriteTokens: value.prompt_cache_write_tokens,\n            promptCacheReadTokens: value.prompt_cache_read_tokens,\n            webSearchRequests: value.web_search_requests ?? 0.01,\n          })),\n      )\n      .nullish(),\n"
+        },
+        {
+          "op": "replace-exact",
+          "path": "src/services/api/bootstrap.ts",
+          "before": "    const additionalModelOptions = response.additional_model_options ?? []\n",
+          "after": "    const additionalModelOptions = response.additional_model_options ?? []\n    const additionalModelCosts = response.additional_model_costs ?? {}\n"
+        },
+        {
+          "op": "replace-exact",
+          "path": "src/services/api/bootstrap.ts",
+          "before": "      isEqual(config.additionalModelOptionsCache, additionalModelOptions)\n",
+          "after": "      isEqual(config.additionalModelOptionsCache, additionalModelOptions) &&\n      isEqual(config.additionalModelCostsCache, additionalModelCosts)\n"
+        },
+        {
+          "op": "replace-exact",
+          "path": "src/services/api/bootstrap.ts",
+          "before": "      additionalModelOptionsCache: additionalModelOptions,\n",
+          "after": "      additionalModelOptionsCache: additionalModelOptions,\n      additionalModelCostsCache: additionalModelCosts,\n"
+        }
+      ],
+      "candidateRequiredFragments": [
+        "additional_model_costs: z",
+        "input_tokens: z.number()",
+        "web_search_requests: z.number().nullish()",
+        "webSearchRequests: value.web_search_requests ?? 0.01",
+        "additionalModelCostsCache: additionalModelCosts"
+      ],
+      "behaviorContract": {
+        "transform": "snake-case costs become cached camel-case values",
+        "default": "missing web_search_requests costs 0.01"
+      }
+    },
+    {
+      "id": "u20034",
+      "indices": [
+        20034
+      ],
+      "classification": "source-replay-required",
+      "primaryOwner": "src/skills/bundled/scheduleRemoteAgents.ts",
+      "rawOwnerSha256": [
+        "130d3f1f34fbe1c6536b145930ab4383ff5dde17fb7918d8a4fcc3a9bdfb7e58"
+      ],
+      "dependencies": [],
+      "operations": [
+        {
+          "op": "insert-after",
+          "path": "src/skills/bundled/scheduleRemoteAgents.ts",
+          "anchor": "import { logForDebugging } from '../../utils/debug.js'\n",
+          "content": "import { isEnvTruthy } from '../../utils/envUtils.js'\n"
+        },
+        {
+          "op": "replace-exact",
+          "path": "src/skills/bundled/scheduleRemoteAgents.ts",
+          "before": "    name: 'schedule',\n",
+          "after": "    name: 'schedule',\n    aliases: ['routines'],\n"
+        },
+        {
+          "op": "replace-exact",
+          "path": "src/skills/bundled/scheduleRemoteAgents.ts",
+          "before": "    isEnabled: () =>\n      getFeatureValue_CACHED_MAY_BE_STALE('tengu_surreal_dali', false) &&",
+          "after": "    isEnabled: () =>\n      !isEnvTruthy(process.env.CLAUDE_CODE_REMOTE) &&\n      getFeatureValue_CACHED_MAY_BE_STALE('tengu_surreal_dali', false) &&"
+        },
+        {
+          "op": "replace-exact",
+          "path": "src/skills/bundled/scheduleRemoteAgents.ts",
+          "before": "          const webSetupEnabled = getFeatureValue_CACHED_MAY_BE_STALE(\n            'tengu_cobalt_lantern',\n            false,\n          )",
+          "after": "          const webSetupEnabled = getFeatureValue_CACHED_MAY_BE_STALE(\n            'tengu_cobalt_lantern',\n            false,\n          ) && isPolicyAllowed('allow_quick_web_setup')"
+        }
+      ],
+      "candidateRequiredFragments": [
+        "aliases: ['routines']",
+        "!isEnvTruthy(process.env.CLAUDE_CODE_REMOTE)",
+        "isPolicyAllowed('allow_quick_web_setup')"
+      ],
+      "behaviorContract": {
+        "alias": "routines resolves to schedule",
+        "availability": "disabled in remote process and requires remote-session policy",
+        "webSetup": "quick setup text requires policy permission"
+      }
+    },
+    {
+      "id": "mcp-headless-manager",
+      "indices": [
+        20146,
+        20149
+      ],
+      "classification": "source-replay-required",
+      "primaryOwner": "src/services/mcp/headlessConnectionManager.ts",
+      "rawOwnerSha256": [],
+      "dependencies": [
+        "src/main.tsx"
+      ],
+      "operations": [
+        {
+          "op": "add-file",
+          "path": "src/services/mcp/headlessConnectionManager.ts",
+          "content": "import pickBy from 'lodash-es/pickBy.js'\nimport uniqBy from 'lodash-es/uniqBy.js'\nimport type { Command } from '../../commands.js'\nimport type { AppState } from '../../state/AppStateStore.js'\nimport type { Tool } from '../../Tool.js'\nimport { getFeatureValue_CACHED_MAY_BE_STALE } from '../analytics/growthbook.js'\nimport { logForDebugging } from '../../utils/debug.js'\nimport { isEnvTruthy } from '../../utils/envUtils.js'\nimport { sleep } from '../../utils/sleep.js'\nimport {\n  clearServerCache,\n  connectToServer,\n  getMcpToolsCommandsAndResources,\n  getServerCacheKey,\n} from './client.js'\nimport {\n  dedupClaudeAiMcpServers,\n  getMcpServerSignature,\n} from './config.js'\nimport type {\n  MCPServerConnection,\n  ScopedMcpServerConfig,\n  ServerResource,\n} from './types.js'\nimport {\n  excludeCommandsByServer,\n  excludeResourcesByServer,\n} from './utils.js'\n\ntype McpState = AppState['mcp']\n\nexport type HeadlessMcpStateAdapter = {\n  getClients: () => McpState['clients']\n  applyMcpUpdate: (update: (state: McpState) => McpState) => void\n}\n\ntype CreateHeadlessMcpConnectionManagerOptions = {\n  regularMcpConfigs: Record<string, ScopedMcpServerConfig>\n  claudeaiConfigPromise: Promise<Record<string, ScopedMcpServerConfig>>\n  state: HeadlessMcpStateAdapter\n}\n\nconst MCP_SERVER_READINESS_TIMEOUT_MS = 5_000\nconst MCP_REMOTE_RETRY_DELAYS_MS = [500, 1_500, 4_000]\nconst RETRYABLE_REMOTE_MCP_TYPES = new Set([\n  'http',\n  'sse',\n  'claudeai-proxy',\n])\n\nexport function createHeadlessMcpConnectionManager({\n  regularMcpConfigs,\n  claudeaiConfigPromise,\n  state,\n}: CreateHeadlessMcpConnectionManagerOptions): { connect: () => Promise<void> } {\n  const nonblocking = isEnvTruthy(process.env.MCP_CONNECTION_NONBLOCKING)\n\n  async function connect(): Promise<void> {\n    await connectWithMcpDeadline(\n      nonblocking,\n      connectMcpBatch(regularMcpConfigs, 'regular', state),\n      '--mcp-config servers',\n    )\n    const claudeAi = claudeaiConfigPromise.then(claudeaiConfigs =>\n      connectClaudeAiMcp({ claudeaiConfigs, regularMcpConfigs, state }),\n    )\n    await connectWithMcpDeadline(\n      nonblocking,\n      claudeAi,\n      'claude.ai connectors',\n    )\n  }\n\n  return { connect }\n}\n\nfunction connectMcpBatch(\n  configs: Record<string, ScopedMcpServerConfig>,\n  label: string,\n  state: HeadlessMcpStateAdapter,\n): Promise<void>[] {\n  const names = Object.keys(configs)\n  if (names.length === 0) return []\n\n  state.applyMcpUpdate(previous => ({\n    ...previous,\n    clients: [\n      ...previous.clients,\n      ...Object.entries(configs).map(([name, config]) => ({\n        name,\n        type: 'pending' as const,\n        config,\n      })),\n    ],\n  }))\n\n  const readinessResolvers = new Map<string, () => void>()\n  const readiness = names.map(\n    name =>\n      new Promise<void>(resolve => readinessResolvers.set(name, resolve)),\n  )\n\n  void getMcpToolsCommandsAndResources(connection => {\n    updateMcpConnection(state, connection)\n    readinessResolvers.get(connection.client.name)?.()\n  }, configs)\n    .catch(error => {\n      logForDebugging(`[MCP] ${label} connect error: ${error}`)\n    })\n    .finally(() => {\n      for (const resolve of readinessResolvers.values()) resolve()\n      if (\n        getFeatureValue_CACHED_MAY_BE_STALE(\n          'tengu_mcp_retry_failed_remote',\n          true,\n        )\n      ) {\n        void retryFailedRemoteMcpServers(configs, state).catch(error => {\n          logForDebugging(`[MCP] ${label} retry error: ${error}`)\n        })\n      }\n    })\n\n  return readiness\n}\n\nfunction updateMcpConnection(\n  state: HeadlessMcpStateAdapter,\n  {\n    client,\n    tools,\n    commands,\n  }: {\n    client: MCPServerConnection\n    tools: Tool[]\n    commands: Command[]\n  },\n): void {\n  state.applyMcpUpdate(previous => {\n    if (!previous.clients.some(existing => existing.name === client.name)) {\n      if (client.type === 'connected') {\n        void clearServerCache(client.name, client.config).catch(() => {})\n      }\n      return previous\n    }\n    return {\n      ...previous,\n      clients: previous.clients.map(existing =>\n        existing.name === client.name ? client : existing,\n      ),\n      tools: uniqBy([...previous.tools, ...tools], 'name'),\n      commands: uniqBy([...previous.commands, ...commands], 'name'),\n    }\n  })\n}\n\nasync function retryFailedRemoteMcpServers(\n  configs: Record<string, ScopedMcpServerConfig>,\n  state: HeadlessMcpStateAdapter,\n): Promise<void> {\n  const retryable = Object.entries(configs).filter(([, config]) =>\n    RETRYABLE_REMOTE_MCP_TYPES.has(config.type ?? ''),\n  )\n  if (retryable.length === 0) return\n\n  for (const delayMs of MCP_REMOTE_RETRY_DELAYS_MS) {\n    await sleep(delayMs)\n    const failed = retryable.filter(([name]) =>\n      state\n        .getClients()\n        .some(client => client.name === name && client.type === 'failed'),\n    )\n    if (failed.length === 0) {\n      logForDebugging('[MCP] Retry: all remote servers connected, stopping')\n      return\n    }\n    logForDebugging(\n      `[MCP] Retry: ${failed.length} failed remote server(s) after ${delayMs}ms backoff`,\n    )\n    for (const [name, config] of failed) {\n      connectToServer.cache.delete(getServerCacheKey(name, config))\n    }\n    await getMcpToolsCommandsAndResources(\n      connection => updateMcpConnection(state, connection),\n      Object.fromEntries(failed),\n    )\n  }\n\n  const stillFailed = retryable.filter(([name]) =>\n    state\n      .getClients()\n      .some(client => client.name === name && client.type === 'failed'),\n  )\n  if (stillFailed.length > 0) {\n    logForDebugging(\n      `[MCP] Retry: ${stillFailed.length} remote server(s) still failed after all retries: ${stillFailed.map(([name]) => name).join(', ')}`,\n    )\n  }\n}\n\nasync function connectWithMcpDeadline(\n  nonblocking: boolean,\n  connection: Promise<void>[] | Promise<Promise<void>[]>,\n  label: string,\n): Promise<void> {\n  if (nonblocking) {\n    void Promise.resolve(connection).catch(() => {})\n    logForDebugging(\n      `[MCP] ${label} running fully async (MCP_CONNECTION_NONBLOCKING)`,\n    )\n    return\n  }\n\n  const startedAt = Date.now()\n  let readiness: Promise<void>[]\n  if (Array.isArray(connection)) {\n    readiness = connection\n  } else {\n    let timer: ReturnType<typeof setTimeout> | undefined\n    const result = await Promise.race([\n      connection,\n      new Promise<'deadline'>(resolve => {\n        timer = setTimeout(\n          value => value('deadline'),\n          MCP_SERVER_READINESS_TIMEOUT_MS,\n          resolve,\n        )\n      }),\n    ])\n    if (timer) clearTimeout(timer)\n    if (result === 'deadline') {\n      void connection.catch(() => {})\n      logForDebugging(\n        `[MCP] ${label} not ready after ${MCP_SERVER_READINESS_TIMEOUT_MS}ms — proceeding; background connection continues`,\n      )\n      return\n    }\n    readiness = result\n  }\n\n  const remainingMs = Math.max(\n    0,\n    MCP_SERVER_READINESS_TIMEOUT_MS - (Date.now() - startedAt),\n  )\n  const notReady = await waitForMcpReadiness(readiness, remainingMs)\n  if (notReady > 0) {\n    logForDebugging(\n      `[MCP] ${label}: ${notReady}/${readiness.length} not ready after ${MCP_SERVER_READINESS_TIMEOUT_MS}ms — proceeding; background connection continues`,\n    )\n  }\n}\n\nasync function connectClaudeAiMcp({\n  claudeaiConfigs,\n  regularMcpConfigs,\n  state,\n}: {\n  claudeaiConfigs: Record<string, ScopedMcpServerConfig>\n  regularMcpConfigs: Record<string, ScopedMcpServerConfig>\n  state: HeadlessMcpStateAdapter\n}): Promise<void>[] {\n  if (Object.keys(claudeaiConfigs).length > 0) {\n    const claudeAiSignatures = new Set<string>()\n    for (const config of Object.values(claudeaiConfigs)) {\n      const signature = getMcpServerSignature(config)\n      if (signature) claudeAiSignatures.add(signature)\n    }\n    const suppressed = new Set<string>()\n    for (const [name, config] of Object.entries(regularMcpConfigs)) {\n      if (!name.startsWith('plugin:')) continue\n      const signature = getMcpServerSignature(config)\n      if (signature && claudeAiSignatures.has(signature)) suppressed.add(name)\n    }\n    if (suppressed.size > 0) {\n      logForDebugging(\n        `[MCP] Lazy dedup: suppressing ${suppressed.size} plugin server(s) that duplicate claude.ai connectors: ${[...suppressed].join(', ')}`,\n      )\n      for (const client of state.getClients()) {\n        if (!suppressed.has(client.name) || client.type !== 'connected') continue\n        client.client.onclose = undefined\n        void clearServerCache(client.name, client.config).catch(() => {})\n      }\n      state.applyMcpUpdate(previous => {\n        const clients = previous.clients.filter(\n          client => !suppressed.has(client.name),\n        )\n        const tools = previous.tools.filter(\n          tool => !tool.mcpInfo || !suppressed.has(tool.mcpInfo.serverName),\n        )\n        let commands = [...previous.commands]\n        let resources = previous.resources as Record<string, ServerResource[]>\n        for (const name of suppressed) {\n          commands = excludeCommandsByServer(commands, name)\n          resources = excludeResourcesByServer(resources, name)\n        }\n        return { ...previous, clients, tools, commands, resources }\n      })\n    }\n  }\n\n  const nonPluginConfigs = pickBy(\n    regularMcpConfigs,\n    (_config, name) => !name.startsWith('plugin:'),\n  )\n  const { servers } = dedupClaudeAiMcpServers(\n    claudeaiConfigs,\n    nonPluginConfigs,\n  )\n  return connectMcpBatch(servers, 'claudeai', state)\n}\n\nasync function waitForMcpReadiness(\n  readiness: Promise<void>[],\n  timeoutMs: number,\n): Promise<number> {\n  if (readiness.length === 0) return 0\n  let timer: ReturnType<typeof setTimeout> | undefined\n  const deadline = new Promise<'deadline'>(resolve => {\n    timer = setTimeout(value => value('deadline'), timeoutMs, resolve)\n  })\n  try {\n    const results = await Promise.all(\n      readiness.map(connection =>\n        Promise.race([\n          connection.then(\n            () => 'settled' as const,\n            () => 'settled' as const,\n          ),\n          deadline,\n        ]),\n      ),\n    )\n    return results.filter(result => result === 'deadline').length\n  } finally {\n    if (timer) clearTimeout(timer)\n  }\n}\n",
+          "contentSha256": "1f012b3aefef3c14739cd176d4487484760480b965b7edff6c43c612a193413b"
+        },
+        {
+          "op": "insert-after",
+          "path": "src/main.tsx",
+          "anchor": "import { prefetchOfficialMcpUrls } from './services/mcp/officialRegistry.js';\n",
+          "content": "import { createHeadlessMcpConnectionManager } from './services/mcp/headlessConnectionManager.js';\n"
+        },
+        {
+          "op": "replace-region",
+          "path": "src/main.tsx",
+          "startAnchor": "      // Print-mode MCP: per-server incremental push into headlessStore.",
+          "endAnchor": "      profileCheckpoint('after_connectMcp_claudeai');",
+          "beforeSha256": "ea48edd4b991296be8ded335360a0f30e3bbf33bad629110c1fd8dc3c8ccbb75",
+          "replacement": "      const headlessMcpConnectionManager = createHeadlessMcpConnectionManager({\n        regularMcpConfigs,\n        claudeaiConfigPromise,\n        state: {\n          getClients: () => headlessStore.getState().mcp.clients,\n          applyMcpUpdate: update => {\n            headlessStore.setState(previous => ({\n              ...previous,\n              mcp: update(previous.mcp),\n            }))\n          },\n        },\n      })\n      profileCheckpoint('before_connectMcp')\n      await headlessMcpConnectionManager.connect()\n      profileCheckpoint('after_connectMcp_claudeai')"
+        }
+      ],
+      "candidateRequiredFragments": [
+        "const MCP_SERVER_READINESS_TIMEOUT_MS = 5_000",
+        "const MCP_REMOTE_RETRY_DELAYS_MS = [500, 1_500, 4_000]",
+        "new Set([\n  'http',\n  'sse',\n  'claudeai-proxy',",
+        "async function connectWithMcpDeadline(",
+        "Math.max(\n    0,\n    MCP_SERVER_READINESS_TIMEOUT_MS - (Date.now() - startedAt)"
+      ],
+      "behaviorContract": {
+        "nonblocking": "connection promise is detached with rejection consumed",
+        "deadline": "one 5s budget covers config fetch and server readiness",
+        "retry": "http, sse, and claudeai-proxy retry at 500/1500/4000ms",
+        "integration": "headless main delegates exactly once to the manager"
+      }
+    },
+    {
+      "id": "u20241",
+      "indices": [
+        20241
+      ],
+      "classification": "source-replay-required",
+      "primaryOwner": "src/setup.ts",
+      "rawOwnerSha256": [
+        "43a7f88331f6136e5bb096c63a33ce99bbbdb5108696a97f017d3c1eb8ef1e35"
+      ],
+      "dependencies": [],
+      "operations": [
+        {
+          "op": "replace-exact",
+          "path": "src/setup.ts",
+          "before": "import { getCurrentProjectConfig, getGlobalConfig } from './utils/config.js'",
+          "after": "import {\n  checkHasTrustDialogAccepted,\n  getCurrentProjectConfig,\n  getGlobalConfig,\n} from './utils/config.js'"
+        },
+        {
+          "op": "insert-before",
+          "path": "src/setup.ts",
+          "anchor": "import { saveWorktreeState } from './utils/sessionStorage.js'",
+          "content": "import {\n  _setProxyAuthHelperConfig,\n  prefetchProxyAuthFromHelperIfSafe,\n} from './utils/proxy.js'\n"
+        },
+        {
+          "op": "insert-after",
+          "path": "src/setup.ts",
+          "anchor": "import { saveWorktreeState } from './utils/sessionStorage.js'\n",
+          "content": "import {\n  getSettings_DEPRECATED,\n  getSettingsForSource,\n} from './utils/settings/settings.js'\n"
+        },
+        {
+          "op": "insert-after",
+          "path": "src/setup.ts",
+          "anchor": "  logEvent('tengu_started', {})\n",
+          "content": "\n  const proxyAuthHelper = (getSettings_DEPRECATED() || {}).proxyAuthHelper\n  _setProxyAuthHelperConfig({\n    helper: proxyAuthHelper,\n    fromProjectOrLocal:\n      getSettingsForSource('projectSettings')?.proxyAuthHelper ===\n        proxyAuthHelper ||\n      getSettingsForSource('localSettings')?.proxyAuthHelper === proxyAuthHelper,\n    trustAccepted: checkHasTrustDialogAccepted,\n  })\n  prefetchProxyAuthFromHelperIfSafe()\n"
+        },
+        {
+          "op": "insert-after",
+          "path": "src/setup.ts",
+          "anchor": "      last_session_fps_low_1_pct: projectConfig.lastFpsLow1Pct,\n",
+          "content": "      last_session_graceful_shutdown:\n        projectConfig.lastGracefulShutdown ?? false,\n"
+        }
+      ],
+      "candidateRequiredFragments": [
+        "getSettingsForSource('localSettings')?.proxyAuthHelper === proxyAuthHelper",
+        "trustAccepted: checkHasTrustDialogAccepted",
+        "prefetchProxyAuthFromHelperIfSafe()",
+        "last_session_graceful_shutdown:"
+      ],
+      "behaviorContract": {
+        "provenance": "project/local helper is marked untrusted until trust accepted",
+        "prefetch": "proxy helper prefetch happens immediately after startup beacon",
+        "telemetry": "previous graceful-shutdown state is reported"
+      }
+    },
+    {
+      "id": "u20404",
+      "indices": [
+        20404
+      ],
+      "classification": "source-replay-required",
+      "primaryOwner": "src/cli/handlers/autoMode.ts",
+      "rawOwnerSha256": [
+        "9e018a6599d62a72c2828e4580336a0c4b42b31bb85502e1096ce81fb8730a26"
+      ],
+      "dependencies": [
+        "src/cli/handlers/util.tsx",
+        "src/main.tsx"
+      ],
+      "transitiveFromCase": "2.1.107-to-2.1.108",
+      "operations": [
+        {
+          "op": "replace-file",
+          "path": "src/cli/handlers/autoMode.ts",
+          "beforeSha256": "9e018a6599d62a72c2828e4580336a0c4b42b31bb85502e1096ce81fb8730a26",
+          "afterSha256": "e6a581e866d1a0fc63a8c18764a8ebdf7f0c32492b0f1da009ad50723f462afc",
+          "content": "/**\n * Auto mode subcommand handlers — dump default/merged classifier rules and\n * critique user-written rules. Dynamically imported when `claude auto-mode ...` runs.\n */\n\nimport chalk from 'chalk'\nimport React from 'react'\nimport { Text, useApp, type Root } from '../../ink.js'\nimport { cliError } from '../exit.js'\nimport { errorMessage } from '../../utils/errors.js'\nimport {\n  getMainLoopModel,\n  parseUserSpecifiedModel,\n} from '../../utils/model/model.js'\nimport {\n  type AutoModeRules,\n  buildDefaultExternalSystemPrompt,\n  getDefaultExternalAutoModeRules,\n} from '../../utils/permissions/yoloClassifier.js'\nimport { getAutoModeConfig } from '../../utils/settings/settings.js'\nimport { sideQuery } from '../../utils/sideQuery.js'\nimport { jsonStringify } from '../../utils/slowOperations.js'\n\nfunction RenderOnceAndExit({ children }: { children: React.ReactNode }) {\n  const { exit } = useApp()\n  React.useLayoutEffect(() => {\n    const timer = setTimeout(exit, 0)\n    return () => clearTimeout(timer)\n  }, [exit])\n  return React.createElement(React.Fragment, null, children)\n}\n\nasync function renderAndExit(root: Root, value: React.ReactNode): Promise<void> {\n  root.render(React.createElement(RenderOnceAndExit, null, React.createElement(Text, null, value)))\n  await root.waitUntilExit()\n}\n\nasync function writeRules(root: Root, rules: AutoModeRules): Promise<void> {\n  await renderAndExit(root, jsonStringify(rules, null, 2))\n}\n\nexport async function autoModeDefaultsHandler(root: Root): Promise<void> {\n  await writeRules(root, getDefaultExternalAutoModeRules())\n}\n\n/**\n * Dump the effective auto mode config: user settings where provided, external\n * defaults otherwise. Per-section REPLACE semantics — matches how\n * buildYoloSystemPrompt resolves the external template (a non-empty user\n * section replaces that section's defaults entirely; an empty/absent section\n * falls through to defaults).\n */\nexport async function autoModeConfigHandler(root: Root): Promise<void> {\n  const config = getAutoModeConfig()\n  const defaults = getDefaultExternalAutoModeRules()\n  await writeRules(root, {\n    allow: config?.allow?.length ? config.allow : defaults.allow,\n    soft_deny: config?.soft_deny?.length\n      ? config.soft_deny\n      : defaults.soft_deny,\n    environment: config?.environment?.length\n      ? config.environment\n      : defaults.environment,\n  })\n}\n\nconst CRITIQUE_SYSTEM_PROMPT =\n  'You are an expert reviewer of auto mode classifier rules for Claude Code.\\n' +\n  '\\n' +\n  'Claude Code has an \"auto mode\" that uses an AI classifier to decide whether ' +\n  'tool calls should be auto-approved or require user confirmation. Users can ' +\n  'write custom rules in three categories:\\n' +\n  '\\n' +\n  '- **allow**: Actions the classifier should auto-approve\\n' +\n  '- **soft_deny**: Actions the classifier should block (require user confirmation)\\n' +\n  \"- **environment**: Context about the user's setup that helps the classifier make decisions\\n\" +\n  '\\n' +\n  \"Your job is to critique the user's custom rules for clarity, completeness, \" +\n  'and potential issues. The classifier is an LLM that reads these rules as ' +\n  'part of its system prompt.\\n' +\n  '\\n' +\n  'For each rule, evaluate:\\n' +\n  '1. **Clarity**: Is the rule unambiguous? Could the classifier misinterpret it?\\n' +\n  \"2. **Completeness**: Are there gaps or edge cases the rule doesn't cover?\\n\" +\n  '3. **Conflicts**: Do any of the rules conflict with each other?\\n' +\n  '4. **Actionability**: Is the rule specific enough for the classifier to act on?\\n' +\n  '\\n' +\n  'Be concise and constructive. Only comment on rules that could be improved. ' +\n  'If all rules look good, say so.'\n\nexport async function autoModeCritiqueHandler(root: Root, options: { model?: string }): Promise<void> {\n  const config = getAutoModeConfig()\n  const hasCustomRules =\n    (config?.allow?.length ?? 0) > 0 ||\n    (config?.soft_deny?.length ?? 0) > 0 ||\n    (config?.environment?.length ?? 0) > 0\n\n  if (!hasCustomRules) {\n    await renderAndExit(\n      root,\n      'No custom auto mode rules found.\\n\\n' +\n        'Add rules to your settings file under autoMode.{allow, soft_deny, environment}.\\n' +\n        'Run `claude auto-mode defaults` to see the default rules for reference.',\n    )\n    return\n  }\n\n  const model = options.model\n    ? parseUserSpecifiedModel(options.model)\n    : getMainLoopModel()\n\n  const defaults = getDefaultExternalAutoModeRules()\n  const classifierPrompt = buildDefaultExternalSystemPrompt()\n\n  const userRulesSummary =\n    formatRulesForCritique('allow', config?.allow ?? [], defaults.allow) +\n    formatRulesForCritique(\n      'soft_deny',\n      config?.soft_deny ?? [],\n      defaults.soft_deny,\n    ) +\n    formatRulesForCritique(\n      'environment',\n      config?.environment ?? [],\n      defaults.environment,\n    )\n\n  root.render(React.createElement(Text, null, 'Analyzing your auto mode rules…', '\\n\\n'))\n\n  let response\n  try {\n    response = await sideQuery({\n      querySource: 'auto_mode_critique',\n      model,\n      system: CRITIQUE_SYSTEM_PROMPT,\n      skipSystemPromptPrefix: true,\n      max_tokens: 4096,\n      messages: [\n        {\n          role: 'user',\n          content:\n            'Here is the full classifier system prompt that the auto mode classifier receives:\\n\\n' +\n            '<classifier_system_prompt>\\n' +\n            classifierPrompt +\n            '\\n</classifier_system_prompt>\\n\\n' +\n            \"Here are the user's custom rules that REPLACE the corresponding default sections:\\n\\n\" +\n            userRulesSummary +\n            '\\nPlease critique these custom rules.',\n        },\n      ],\n    })\n  } catch (error) {\n    root.unmount()\n    return cliError(chalk.red('Failed to analyze rules: ' + errorMessage(error)))\n  }\n\n  const textBlock = response.content.find(block => block.type === 'text')\n  const output = textBlock?.type === 'text' ? textBlock.text : 'No critique was generated. Please try again.'\n  await renderAndExit(root, output)\n}\n\nfunction formatRulesForCritique(\n  section: string,\n  userRules: string[],\n  defaultRules: string[],\n): string {\n  if (userRules.length === 0) return ''\n  const customLines = userRules.map(r => '- ' + r).join('\\n')\n  const defaultLines = defaultRules.map(r => '- ' + r).join('\\n')\n  return (\n    '## ' +\n    section +\n    ' (custom rules replacing defaults)\\n' +\n    'Custom:\\n' +\n    customLines +\n    '\\n\\n' +\n    'Defaults being replaced:\\n' +\n    defaultLines +\n    '\\n\\n'\n  )\n}\n"
+        },
+        {
+          "op": "replace-prefix",
+          "path": "src/cli/handlers/util.tsx",
+          "suffixMarker": "//# sourceMappingURL",
+          "beforeSha256": "1a131fc8e66b163a8d1155d32963c962b1e3ee32f59f930c6f13d20cb1a3f10d",
+          "afterSha256": "e88753e99794f95f6e727f7bb5b8f55fbc72d5d81983876c1323a56f58d9d271",
+          "content": "import { c as _c } from \"react/compiler-runtime\";\n/**\n * Miscellaneous subcommand handlers — extracted from main.tsx for lazy loading.\n * setup-token, doctor, install\n */\n/* eslint-disable custom-rules/no-process-exit -- CLI subcommand handlers intentionally exit */\n\nimport { cwd } from 'process';\nimport React from 'react';\nimport { WelcomeV2 } from '../../components/LogoV2/WelcomeV2.js';\nimport { useManagePlugins } from '../../hooks/useManagePlugins.js';\nimport { Box, Text, createRoot, type Root } from '../../ink.js';\nimport { KeybindingSetup } from '../../keybindings/KeybindingProviderSetup.js';\nimport { logEvent } from '../../services/analytics/index.js';\nimport { MCPConnectionManager } from '../../services/mcp/MCPConnectionManager.js';\nimport { AppStateProvider } from '../../state/AppState.js';\nimport { onChangeAppState } from '../../state/onChangeAppState.js';\nimport { isAnthropicAuthEnabled } from '../../utils/auth.js';\nimport { getBaseRenderOptions } from '../../utils/renderOptions.js';\n\nexport function createSubcommandRoot(): Promise<Root> {\n  return createRoot({\n    ...getBaseRenderOptions(false),\n    patchConsole: false,\n  })\n}\nexport async function setupTokenHandler(root: Root): Promise<void> {\n  logEvent('tengu_setup_token_command', {});\n  const showAuthWarning = !isAnthropicAuthEnabled();\n  const {\n    ConsoleOAuthFlow\n  } = await import('../../components/ConsoleOAuthFlow.js');\n  await new Promise<void>(resolve => {\n    root.render(<AppStateProvider onChangeAppState={onChangeAppState}>\n        <KeybindingSetup>\n          <Box flexDirection=\"column\" gap={1}>\n            <WelcomeV2 />\n            {showAuthWarning && <Box flexDirection=\"column\">\n                <Text color=\"warning\">\n                  Warning: You already have authentication configured via\n                  environment variable or API key helper.\n                </Text>\n                <Text color=\"warning\">\n                  The setup-token command will create a new OAuth token which\n                  you can use instead.\n                </Text>\n              </Box>}\n            <ConsoleOAuthFlow onDone={() => {\n            void resolve();\n          }} mode=\"setup-token\" startingMessage=\"This will guide you through long-lived (1-year) auth token setup for your Claude account. Claude subscription required.\" />\n          </Box>\n        </KeybindingSetup>\n      </AppStateProvider>);\n  });\n  root.unmount();\n  process.exit(0);\n}\n\n// DoctorWithPlugins wrapper + doctor handler\nconst DoctorLazy = React.lazy(() => import('../../screens/Doctor.js').then(m => ({\n  default: m.Doctor\n})));\nfunction DoctorWithPlugins(t0) {\n  const $ = _c(2);\n  const {\n    onDone\n  } = t0;\n  useManagePlugins();\n  let t1;\n  if ($[0] !== onDone) {\n    t1 = <React.Suspense fallback={null}><DoctorLazy onDone={onDone} /></React.Suspense>;\n    $[0] = onDone;\n    $[1] = t1;\n  } else {\n    t1 = $[1];\n  }\n  return t1;\n}\nexport async function doctorHandler(root: Root): Promise<void> {\n  logEvent('tengu_doctor_command', {});\n  await new Promise<void>(resolve => {\n    root.render(<AppStateProvider>\n        <KeybindingSetup>\n          <MCPConnectionManager dynamicMcpConfig={undefined} isStrictMcpConfig={false}>\n            <DoctorWithPlugins onDone={() => {\n            void resolve();\n          }} />\n          </MCPConnectionManager>\n        </KeybindingSetup>\n      </AppStateProvider>);\n  });\n  root.unmount();\n  process.exit(0);\n}\n\n// install handler\nexport async function installHandler(target: string | undefined, options: {\n  force?: boolean;\n}): Promise<void> {\n  const {\n    setup\n  } = await import('../../setup.js');\n  await setup(cwd(), 'default', false, false, undefined, false);\n  const {\n    install\n  } = await import('../../commands/install.js');\n  await new Promise<void>(resolve => {\n    const args: string[] = [];\n    if (target) args.push(target);\n    if (options.force) args.push('--force');\n    void install.call(result => {\n      void resolve();\n      process.exit(result.includes('failed') ? 1 : 0);\n    }, {}, args);\n  });\n}\n"
+        },
+        {
+          "op": "replace-region",
+          "path": "src/main.tsx",
+          "startAnchor": "      autoModeCmd.command('defaults')",
+          "endAnchor": "        await autoModeCritiqueHandler(options);\n        process.exit();\n      });",
+          "beforeSha256": "278e31b0f5089caa49928289c2a2a3a0974dc469ed5830bd5256eb637a9ea145",
+          "replacement": "      autoModeCmd.command('defaults').description('Print the default auto mode environment, allow, and deny rules as JSON').action(async () => {\n        const [{\n          autoModeDefaultsHandler\n        }, {\n          createSubcommandRoot\n        }] = await Promise.all([import('./cli/handlers/autoMode.js'), import('./cli/handlers/util.js')]);\n        await autoModeDefaultsHandler(await createSubcommandRoot());\n        process.exit(0);\n      });\n      autoModeCmd.command('config').description('Print the effective auto mode config as JSON: your settings where set, defaults otherwise').action(async () => {\n        const [{\n          autoModeConfigHandler\n        }, {\n          createSubcommandRoot\n        }] = await Promise.all([import('./cli/handlers/autoMode.js'), import('./cli/handlers/util.js')]);\n        await autoModeConfigHandler(await createSubcommandRoot());\n        process.exit(0);\n      });\n      autoModeCmd.command('critique').description('Get AI feedback on your custom auto mode rules').option('--model <model>', 'Override which model is used').action(async options => {\n        const [{\n          autoModeCritiqueHandler\n        }, {\n          createSubcommandRoot\n        }] = await Promise.all([import('./cli/handlers/autoMode.js'), import('./cli/handlers/util.js')]);\n        await autoModeCritiqueHandler(await createSubcommandRoot(), options);\n        process.exit();\n      });"
+        }
+      ],
+      "candidateRequiredFragments": [
+        "function RenderOnceAndExit",
+        "React.createElement(React.Fragment",
+        "async function renderAndExit(root: Root",
+        "autoModeCritiqueHandler(root: Root",
+        "await renderAndExit(root, output)"
+      ],
+      "behaviorContract": {
+        "rendering": "all output renders through an Ink Root and waits for exit",
+        "errors": "critique failures unmount and use cliError",
+        "integration": "all three Commander actions create and await a subcommand root"
+      }
+    }
+  ]
+}

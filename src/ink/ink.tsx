@@ -9,6 +9,7 @@ import { onExit } from 'signal-exit';
 import { flushInteractionTime } from 'src/bootstrap/state.js';
 import { getYogaCounters } from 'src/native-ts/yoga-layout/index.js';
 import { logForDebugging } from 'src/utils/debug.js';
+import { isEnvTruthy } from 'src/utils/envUtils.js';
 import { logError } from 'src/utils/log.js';
 import { format } from 'util';
 import { colorize } from './colorize.js';
@@ -36,8 +37,8 @@ import { CellWidth, CharPool, cellAt, createScreen, HyperlinkPool, isEmptyCellAt
 import { applySearchHighlight } from './searchHighlight.js';
 import { applySelectionOverlay, captureScrolledRows, clearSelection, createSelectionState, extendSelection, type FocusMove, findPlainTextUrlAt, getSelectedText, hasSelection, isSelectionWhollyOffscreen, moveFocus, type SelectionState, selectLineAt, selectWordAt, shiftAnchor, shiftSelection, startSelection, updateSelection } from './selection.js';
 import { DECSTBM_SAFE, SYNC_OUTPUT_SUPPORTED, supportsExtendedKeys, type Terminal, writeDiffToTerminal } from './terminal.js';
-import { CURSOR_HOME, cursorMove, cursorPosition, DISABLE_KITTY_KEYBOARD, DISABLE_MODIFY_OTHER_KEYS, ENABLE_KITTY_KEYBOARD, ENABLE_MODIFY_OTHER_KEYS, ERASE_SCREEN } from './termio/csi.js';
-import { DBP, DFE, DISABLE_MOUSE_TRACKING, ENABLE_MOUSE_TRACKING, ENTER_ALT_SCREEN, EXIT_ALT_SCREEN, SHOW_CURSOR } from './termio/dec.js';
+import { CURSOR_HOME, cursorMove, cursorPosition, DISABLE_KITTY_KEYBOARD, DISABLE_MODIFY_OTHER_KEYS, ENABLE_KITTY_KEYBOARD, ENABLE_MODIFY_OTHER_KEYS, ERASE_SCREEN, RESET_SCROLL_REGION } from './termio/csi.js';
+import { DBP, DFE, DISABLE_MOUSE_TRACKING, DISABLE_THEME_NOTIFY, ENABLE_MOUSE_TRACKING, ENTER_ALT_SCREEN, EXIT_ALT_SCREEN, HIDE_CURSOR, SHOW_CURSOR } from './termio/dec.js';
 import { CLEAR_ITERM2_PROGRESS, CLEAR_TAB_STATUS, setClipboard, supportsTabStatus, wrapForMultiplexer } from './termio/osc.js';
 import { TerminalWriteProvider } from './useTerminalNotification.js';
 
@@ -95,7 +96,7 @@ export default class Ink {
   private exitPromise?: Promise<void>;
   private restoreConsole?: () => void;
   private restoreStderr?: () => void;
-  private readonly unsubscribeTTYHandlers?: () => void;
+  private unsubscribeTTYHandlers?: () => void;
   private terminalColumns: number;
   private terminalRows: number;
   private currentNode: ReactNode = null;
@@ -142,10 +143,18 @@ export default class Ink {
   // Fired alongside the terminal repaint whenever the selection mutates
   // so UI (e.g. footer hints) can react to selection appearing/clearing.
   private readonly selectionListeners = new Set<() => void>();
+  /**
+   * Optional main-screen renderer installed by FullscreenLayout's
+   * synchronized-output lane. Returning true means the sink wrote the frame;
+   * returning "tick" additionally requests a prompt follow-up frame.
+   */
+  frameSink: ((frame: Frame, stylePool: StylePool) => boolean | 'tick') | null = null;
   // DOM nodes currently under the pointer (mode-1003 motion). Held here
   // so App.tsx's handleMouseEvent is stateless — dispatchHover diffs
   // against this set and mutates it in place.
   private readonly hoveredNodes = new Set<dom.DOMElement>();
+  private hasRendered = false;
+  private isExiting = false;
   // Set by <AlternateScreen> via setAltScreenActive(). Controls the
   // renderer's cursor.y clamping (keeps cursor in-viewport to avoid
   // LF-induced scroll when screen.height === terminalRows) and gates
@@ -194,6 +203,12 @@ export default class Ink {
       stdout: options.stdout,
       stderr: options.stderr
     };
+    // A previous process can leave DECSTBM active after an ungraceful exit.
+    // Reset the scrolling margins without moving the user's cursor, then make
+    // the cursor visible before the synchronized main-screen renderer starts.
+    if (options.stdout === process.stdout && options.stdout.isTTY) {
+      options.stdout.write('\x1b7' + RESET_SCROLL_REGION + '\x1b8' + SHOW_CURSOR);
+    }
     this.terminalColumns = options.stdout.columns || 80;
     this.terminalRows = options.stdout.rows || 24;
     this.altScreenParkPatch = makeAltScreenParkPatch(this.terminalRows);
@@ -229,14 +244,6 @@ export default class Ink {
     this.unsubscribeExit = onExit(this.unmount, {
       alwaysLast: false
     });
-    if (options.stdout.isTTY) {
-      options.stdout.on('resize', this.handleResize);
-      process.on('SIGCONT', this.handleResume);
-      this.unsubscribeTTYHandlers = () => {
-        options.stdout.off('resize', this.handleResize);
-        process.off('SIGCONT', this.handleResume);
-      };
-    }
     this.rootNode = dom.createNode('ink-root');
     this.focusManager = new FocusManager((target, event) => dispatcher.dispatchDiscrete(target, event));
     this.rootNode.focusManager = this.focusManager;
@@ -434,10 +441,33 @@ export default class Ink {
     // without the pop we'd accumulate depth on each editor round-trip).
     this.options.stdout.write('\x1b[?1004h' + (supportsExtendedKeys() ? DISABLE_KITTY_KEYBOARD + ENABLE_KITTY_KEYBOARD + ENABLE_MODIFY_OTHER_KEYS : ''));
   }
+
+  private ensureInteractive = (): void => {
+    if (this.unsubscribeTTYHandlers || !this.options.stdout.isTTY) return;
+    if (!isEnvTruthy(process.env.CLAUDE_CODE_ACCESSIBILITY)) {
+      this.options.stdout.write(HIDE_CURSOR);
+    }
+    this.options.stdout.on('resize', this.handleResize);
+    process.on('SIGCONT', this.handleResume);
+    this.unsubscribeTTYHandlers = () => {
+      this.options.stdout.off('resize', this.handleResize);
+      process.off('SIGCONT', this.handleResume);
+    };
+  };
+
+  private skipSyncMarkers(): boolean {
+    if (!this.options.stdout.isTTY) return true;
+    if (!SYNC_OUTPUT_SUPPORTED) return true;
+    if (!this.unsubscribeTTYHandlers) return true;
+    return false;
+  }
+
   onRender() {
     if (this.isUnmounted || this.isPaused) {
       return;
     }
+    if (this.hasRendered && !this.isExiting) this.ensureInteractive();
+    this.hasRendered = true;
     // Entering a render cancels any pending drain tick — this render will
     // handle the drain (and re-schedule below if needed). Prevents a
     // wheel-event-triggered render AND a drain-timer render both firing.
@@ -471,6 +501,26 @@ export default class Ink {
       overlayActive
     });
     const rendererMs = performance.now() - renderStart;
+
+    // The synchronized main-screen renderer owns physical terminal output,
+    // but it still consumes Ink's fully rendered screen buffer. Falling
+    // through on false lets AlternateScreen keep the ordinary diff path.
+    if (this.frameSink) {
+      const sinkResult = this.frameSink(frame, this.stylePool);
+      if (sinkResult) {
+        this.backFrame = this.frontFrame;
+        this.frontFrame = frame;
+        this.prevFrameContaminated = false;
+        if (sinkResult === 'tick') {
+          this.drainTimer = setTimeout(() => this.onRender(), FRAME_INTERVAL_MS >> 2);
+        }
+        this.options.onFrame?.({
+          durationMs: performance.now() - renderStart,
+          flickers: []
+        });
+        return;
+      }
+    }
 
     // Sticky/auto-follow scrolled the ScrollBox this frame. Translate the
     // selection by the same delta so the highlight stays anchored to the
@@ -754,7 +804,7 @@ export default class Ink {
       }
     }
     const tWrite = performance.now();
-    writeDiffToTerminal(this.terminal, optimized, !SYNC_OUTPUT_SUPPORTED);
+    writeDiffToTerminal(this.terminal, optimized, this.skipSyncMarkers());
     const writeMs = performance.now() - tWrite;
 
     // Explicit invalidations are consumed by this frame. Stable overlays are
@@ -886,6 +936,7 @@ export default class Ink {
     this.altScreenActive = active;
     this.altScreenMouseTracking = active && mouseTracking;
     if (active) {
+      this.ensureInteractive();
       this.resetFramesForAltScreen();
     } else {
       this.repaint();
@@ -893,6 +944,18 @@ export default class Ink {
   }
   get isAltScreenActive(): boolean {
     return this.altScreenActive;
+  }
+
+  getStylePool(): StylePool {
+    return this.stylePool;
+  }
+
+  getCharPool(): CharPool {
+    return this.charPool;
+  }
+
+  getHyperlinkPool(): HyperlinkPool {
+    return this.hyperlinkPool;
   }
 
   /**
@@ -1287,11 +1350,25 @@ export default class Ink {
   dispatchClick(col: number, row: number): boolean {
     if (!this.altScreenActive) return false;
     const blank = isEmptyCellAt(this.frontFrame.screen, col, row);
-    return dispatchClick(this.rootNode, col, row, blank);
+    const hyperlink = this.getHyperlinkAt(col, row);
+    return dispatchClick(this.rootNode, col, row, blank, hyperlink);
   }
   dispatchHover(col: number, row: number): void {
     if (!this.altScreenActive) return;
     dispatchHover(this.rootNode, col, row, this.hoveredNodes);
+  }
+  dispatchPasteEvent(text: string): void {
+    const target = this.focusManager.activeElement ?? this.rootNode;
+    dispatcher.dispatchDiscrete(target, new PasteEvent(text));
+  }
+  dispatchWheelEvent(parsedKey: ParsedKey): void {
+    const target = this.focusManager.activeElement ?? this.rootNode;
+    const deltaY = parsedKey.name === 'wheeldown' ? 1 : -1;
+    dispatcher.dispatchContinuous(target, new WheelEvent(deltaY, {
+      ctrl: parsedKey.ctrl,
+      shift: parsedKey.shift,
+      meta: parsedKey.meta || parsedKey.option
+    }));
   }
   dispatchKeyboardEvent(parsedKey: ParsedKey): void {
     const target = this.focusManager.activeElement ?? this.rootNode;
@@ -1496,6 +1573,7 @@ export default class Ink {
     if (this.isUnmounted) {
       return;
     }
+    this.isExiting = true;
     this.onRender();
     this.unsubscribeExit();
     if (typeof this.restoreConsole === 'function') {
@@ -1507,7 +1585,7 @@ export default class Ink {
     // Non-TTY environments don't handle erasing ansi escapes well, so it's better to
     // only render last frame of non-static output
     const diff = this.log.renderPreviousOutput_DEPRECATED(this.frontFrame);
-    writeDiffToTerminal(this.terminal, optimize(diff));
+    writeDiffToTerminal(this.terminal, optimize(diff), this.skipSyncMarkers());
 
     // Clean up terminal modes synchronously before process exit.
     // React's componentWillUnmount won't run in time when process.exit() is called,
@@ -1534,6 +1612,7 @@ export default class Ink {
       writeSync(1, DISABLE_KITTY_KEYBOARD);
       // Disable focus events (DECSET 1004)
       writeSync(1, DFE);
+      writeSync(1, DISABLE_THEME_NOTIFY);
       // Disable bracketed paste mode
       writeSync(1, DBP);
       // Show cursor

@@ -19,6 +19,7 @@ import type { TaskState } from '../tasks/types.js'
 import type { AgentColorName } from '../tools/AgentTool/agentColorManager.js'
 import type { AgentDefinitionsResult } from '../tools/AgentTool/loadAgentsDir.js'
 import type { AllowedPrompt } from '../tools/ExitPlanModeTool/ExitPlanModeV2Tool.js'
+import type { ReplRuntimeContext } from '../tools/REPLTool/types.js'
 import type { AgentId } from '../types/ids.js'
 import type { Message, UserMessage } from '../types/message.js'
 import type { MemoryWriteSurveyRecord } from '../memdir/memoryWriteSurvey.js'
@@ -87,6 +88,17 @@ export type SpeculationState =
     }
 
 export const IDLE_SPECULATION_STATE: SpeculationState = { status: 'idle' }
+
+export type SkillTruncationStats = {
+  cappedSkills: string[]
+  budgetMode: 'fits' | 'names-only' | 'truncate'
+  maxDescLen: number
+  budgetTruncatedSkills: string[]
+  totalChars: number
+  rawTotalChars: number
+  budget: number
+  budgetFromEnv: boolean
+}
 
 export type FooterItem =
   | 'tasks'
@@ -185,6 +197,33 @@ export type AppState = DeepImmutable<{
   // Name → AgentId registry populated by Agent tool when `name` is provided.
   // Latest-wins on collision. Used by SendMessage to route by name.
   agentNameRegistry: Map<string, AgentId>
+  // Agent definitions selected during this process. The /agents library uses
+  // this to keep recently invoked agents at the top of the all-sources view.
+  agentTypesInvokedThisSession: Set<string>
+  storedImagePaths: Map<number, string>
+  imageDescriptions: Map<number, string>
+  classifierApprovals: {
+    approvals: Map<
+      string,
+      {
+        classifier: 'bash' | 'auto-mode'
+        matchedRule?: string
+        reason?: string
+      }
+    >
+    checking: Set<string>
+  }
+  teammateColors: {
+    assignments: Map<string, AgentColorName>
+    index: number
+  }
+  webBrowser: {
+    view: unknown
+    logs: unknown[]
+    unreadErrors: number
+    unreadWarnings: number
+    cleanupRegistered: boolean
+  }
   // Task ID that has been foregrounded - its messages are shown in main view
   foregroundedTaskId?: string
   // Task ID of in-process teammate whose transcript is being viewed (undefined = leader's view)
@@ -240,8 +279,11 @@ export type AppState = DeepImmutable<{
     needsRefresh: boolean
   }
   agentDefinitions: AgentDefinitionsResult
+  skillTruncationStats: SkillTruncationStats | null
   fileHistory: FileHistoryState
   attribution: AttributionState
+  /** Cache-key generation for the internal prompt-cache breaker. */
+  cacheBreakerPhrase?: string
   todos: { [agentId: string]: TodoList }
   remoteAgentTaskSuggestions: { summary: string; task: string }[]
   notifications: {
@@ -508,6 +550,22 @@ export function getDefaultAppState(): AppState {
     tasks: {},
     taskDecorations: {},
     agentNameRegistry: new Map(),
+    agentTypesInvokedThisSession: new Set(),
+    classifierApprovals: {
+      approvals: new Map(),
+      checking: new Set(),
+    },
+    teammateColors: {
+      assignments: new Map(),
+      index: 0,
+    },
+    webBrowser: {
+      view: undefined,
+      logs: [],
+      unreadErrors: 0,
+      unreadWarnings: 0,
+      cleanupRegistered: false,
+    },
     verbose: false,
     showMessageTimestamps: false,
     mainLoopModel: null, // alias, full name (as with --model or env var), or null (default)
@@ -548,12 +606,14 @@ export function getDefaultAppState(): AppState {
     },
     agent: undefined,
     agentDefinitions: { activeAgents: [], allAgents: [] },
+    skillTruncationStats: null,
     fileHistory: {
       snapshots: [],
       trackedFiles: new Set(),
       snapshotSequence: 0,
     },
     attribution: createEmptyAttributionState(),
+    cacheBreakerPhrase: undefined,
     mcp: {
       clients: [],
       tools: [],
@@ -574,6 +634,7 @@ export function getDefaultAppState(): AppState {
       needsRefresh: false,
     },
     todos: {},
+    replContexts: {},
     remoteAgentTaskSuggestions: [],
     notifications: {
       current: null,
@@ -614,5 +675,7 @@ export function getDefaultAppState(): AppState {
     effortValue: undefined,
     activeOverlays: new Set<string>(),
     fastMode: false,
+    storedImagePaths: new Map(),
+    imageDescriptions: new Map(),
   }
 }

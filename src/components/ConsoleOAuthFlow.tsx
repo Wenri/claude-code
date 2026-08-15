@@ -10,6 +10,7 @@ import { useKeybinding } from '../keybindings/useKeybinding.js';
 import { getSSLErrorHint } from '../services/api/errorUtils.js';
 import { sendNotification } from '../services/notifier.js';
 import { OAuthService } from '../services/oauth/index.js';
+import { openBrowser } from '../utils/browser.js';
 import { getOauthAccountInfo, validateForceLoginOrg } from '../utils/auth.js';
 import { openBrowser } from '../utils/browser.js';
 import { saveGlobalConfig } from '../utils/config.js';
@@ -25,13 +26,26 @@ type Props = {
   startingMessage?: string;
   mode?: 'login' | 'setup-token';
   forceLoginMethod?: 'claudeai' | 'console';
+  urlOutdent?: number;
 };
 type OAuthStatus = {
   state: 'idle';
 } // Initial state, waiting to select login method
 | {
   state: 'platform_setup';
-} // Show platform setup info (Bedrock/Vertex/Foundry)
+} // Choose Bedrock interactive setup or open another provider's docs
+| {
+  state: 'bedrock_wizard';
+} | {
+  state: 'bedrock_done';
+  message: string;
+}
+| {
+  state: 'vertex_wizard';
+} | {
+  state: 'vertex_done';
+  message: string;
+}
 | {
   state: 'bedrock_wizard';
 } | {
@@ -69,7 +83,8 @@ export function ConsoleOAuthFlow({
   onDone,
   startingMessage,
   mode = 'login',
-  forceLoginMethod: forceLoginMethodProp
+  forceLoginMethod: forceLoginMethodProp,
+  urlOutdent = 0
 }: Props): React.ReactNode {
   const { exit } = useApp();
   const settings = getSettings_DEPRECATED() || {};
@@ -323,9 +338,11 @@ export function ConsoleOAuthFlow({
                 <KeyboardShortcutHint shortcut="c" action="copy" parens />
               </Text>}
           </Box>
-          <Link url={oauthStatus.url}>
-            <Text dimColor>{oauthStatus.url}</Text>
-          </Link>
+          <Box marginX={effectiveUrlOutdent ? -effectiveUrlOutdent : undefined}>
+            <Link url={oauthStatus.url}>
+              <Text dimColor>{oauthStatus.url}</Text>
+            </Link>
+          </Box>
         </Box>}
       {mode === 'setup-token' && oauthStatus.state === 'success' && oauthStatus.token && <Box key="tokenOutput" flexDirection="column" gap={1} paddingTop={1}>
             <Text color="success">
@@ -528,6 +545,22 @@ function OAuthStatusMessage(t0) {
             message
           })} onCancel={() => setOAuthStatus({ state: 'platform_setup' })} />;
       }
+    case "bedrock_wizard":
+      return <BedrockSetupWizard onComplete={message => setOAuthStatus({
+        state: "bedrock_done",
+        message
+      })} onCancel={() => setOAuthStatus({ state: "platform_setup" })} />;
+    case "vertex_wizard":
+      return <VertexSetupWizard onComplete={message => setOAuthStatus({
+        state: "vertex_done",
+        message
+      })} onCancel={() => setOAuthStatus({ state: "platform_setup" })} />;
+    case "bedrock_done":
+    case "vertex_done":
+      return <Box flexDirection="column" gap={1} marginTop={1}>
+          <Text color="success">{oauthStatus.message}</Text>
+          <Text dimColor={true}>Press <Text bold={true}>Enter</Text> to restart Claude Code.</Text>
+        </Box>;
     case "waiting_for_login":
       {
         let t1;

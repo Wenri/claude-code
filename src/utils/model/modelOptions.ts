@@ -153,7 +153,7 @@ function getOpus47Option(): ModelOption {
   const is3P = !isDirectAnthropicAPIProvider()
   return {
     value: is3P ? getModelStrings().opus47 : 'opus',
-    label: 'Opus',
+    label: 'Opus 4.7',
     description: `Opus 4.7 · Most capable for complex work${is3P ? '' : ` · ${formatModelPricing(COST_TIER_5_25)}`}`,
     descriptionForModel: 'Opus 4.7 - most capable for complex work',
   }
@@ -187,7 +187,7 @@ export function getOpus47_1MOption(): ModelOption {
   const is3P = !isDirectAnthropicAPIProvider()
   return {
     value: is3P ? getModelStrings().opus47 + '[1m]' : 'opus[1m]',
-    label: 'Opus (1M context)',
+    label: 'Opus 4.7 (1M context)',
     description: `Opus 4.7 for long sessions${is3P ? '' : ` · ${formatModelPricing(COST_TIER_5_25)}`}`,
     descriptionForModel:
       'Opus 4.7 with 1M context window - for long sessions with large codebases',
@@ -262,7 +262,7 @@ export function getMaxOpus47_1MOption(): ModelOption {
   const billingInfo = isClaudeAISubscriber() ? ' · Billed as extra usage' : ''
   return {
     value: 'opus[1m]',
-    label: 'Opus (1M context)',
+    label: 'Opus 4.7 (1M context)',
     description: `Opus 4.7 with 1M context${billingInfo}`,
   }
 }
@@ -271,7 +271,7 @@ function getMergedOpus1MOption(fastMode = false): ModelOption {
   const is3P = !isDirectAnthropicAPIProvider()
   return {
     value: is3P ? getModelStrings().opus47 + '[1m]' : 'opus[1m]',
-    label: 'Opus (1M context)',
+    label: 'Opus 4.7 (1M context)',
     description: 'Opus 4.7 with 1M context · Most capable for complex work',
     descriptionForModel:
       'Opus 4.7 with 1M context - most capable for complex work',
@@ -516,6 +516,20 @@ export function getModelOptions(fastMode = false): ModelOption[] {
   for (const opt of getGlobalConfig().additionalModelOptionsCache ?? []) {
     if (!options.some(existing => existing.value === opt.value)) {
       options.push(opt)
+    }
+  }
+
+  const { availableModels } = getSettings_DEPRECATED() ?? {}
+  if (availableModels) {
+    for (const configuredModel of availableModels) {
+      const model = configuredModel.trim()
+      if (
+        !model.startsWith('anthropic.') ||
+        options.some(existing => existing.value === model)
+      ) {
+        continue
+      }
+      options.push({ value: model, label: model, description: 'Custom model' })
     }
   }
 

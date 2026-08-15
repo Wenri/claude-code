@@ -1,0 +1,3777 @@
+{
+  "schemaVersion": 2,
+  "case": "2.1.112-to-2.1.113",
+  "lane": "target113-second-half-safe-static-owner-corrections",
+  "derivation": {
+    "policy": "Fail closed over the exact strict-tail request plus packaged-tree additions. Historical source gaps are admitted only through authenticated target structure plus selective, fail-closed Target113 source replay; historical owner hashes prove the gap, never the behavior. Daemon-path/lock runtime units remain delegated.",
+    "strictTailRequestedIndices": [
+      17590,
+      17681,
+      17806,
+      17927,
+      17929,
+      17941,
+      17944,
+      18280,
+      18303,
+      18305,
+      18451,
+      18785,
+      18796,
+      18839,
+      18844,
+      19028,
+      19030,
+      19220,
+      19322,
+      19417,
+      19434,
+      19454,
+      19672,
+      19684,
+      19726,
+      19795,
+      19798,
+      19801,
+      19803,
+      19839,
+      19875,
+      19921,
+      20211,
+      20294,
+      20319,
+      20323,
+      20393,
+      20404,
+      20409,
+      20413
+    ],
+    "packageOnlyIndices": [
+      18153,
+      18361,
+      18599,
+      19234,
+      19427,
+      19685,
+      19741,
+      20034,
+      20146,
+      20149,
+      20241
+    ],
+    "allAuditedIndices": [
+      17590,
+      17681,
+      17806,
+      17927,
+      17929,
+      17941,
+      17944,
+      18153,
+      18280,
+      18303,
+      18305,
+      18361,
+      18451,
+      18599,
+      18785,
+      18796,
+      18839,
+      18844,
+      19028,
+      19030,
+      19220,
+      19234,
+      19322,
+      19417,
+      19427,
+      19434,
+      19454,
+      19672,
+      19684,
+      19685,
+      19726,
+      19741,
+      19795,
+      19798,
+      19801,
+      19803,
+      19839,
+      19875,
+      19921,
+      20034,
+      20146,
+      20149,
+      20211,
+      20241,
+      20294,
+      20319,
+      20323,
+      20393,
+      20404,
+      20409,
+      20413
+    ],
+    "admittedIndices": [
+      17590,
+      17681,
+      17806,
+      17927,
+      17929,
+      17941,
+      17944,
+      18153,
+      18280,
+      18303,
+      18305,
+      18361,
+      18451,
+      18599,
+      18785,
+      18796,
+      18839,
+      18844,
+      19028,
+      19030,
+      19220,
+      19234,
+      19417,
+      19427,
+      19434,
+      19454,
+      19672,
+      19684,
+      19685,
+      19726,
+      19741,
+      19795,
+      19798,
+      19801,
+      19803,
+      19839,
+      19875,
+      19921,
+      20034,
+      20146,
+      20149,
+      20211,
+      20241,
+      20294,
+      20319,
+      20323,
+      20393,
+      20404
+    ],
+    "excludedIndices": [
+      19322,
+      20409,
+      20413
+    ],
+    "sourceReplayRequiredIndices": [
+      17927,
+      18153,
+      18361,
+      18599,
+      18785,
+      18796,
+      18839,
+      19234,
+      19417,
+      19427,
+      19684,
+      19685,
+      19741,
+      20034,
+      20146,
+      20149,
+      20241,
+      20404
+    ],
+    "compilerEquivalentIndices": [],
+    "integratedScanReconciliation": {
+      "path": ".recovery-tmp/target113-first-integrated.scan.json",
+      "sha256": "c0a6004e113326c84e689d252773f39a3954f46da99d7239a33571bda6c68698",
+      "scannerResidueCount": 112,
+      "fixtureResidueCount": 114,
+      "unitCounts": {
+        "17590": {
+          "scanner": 8,
+          "fixture": 10,
+          "fixtureOnlyAuthenticatedAuxiliary": [
+            "string:\"\\\"type\\\":\\\"custom-title\\\"\"@10950785",
+            "string:\"\\\"type\\\":\\\"tag\\\"\"@10950957"
+          ],
+          "reason": "The integrated source-owner scan omits the two type-discriminator literals, but both remain exact authenticated target-added residues inside the same pinned Project class unit."
+        },
+        "19684": {
+          "scanner": 3,
+          "fixture": 3
+        },
+        "20404": {
+          "scanner": 10,
+          "fixture": 10
+        }
+      }
+    }
+  },
+  "artifacts": {
+    "baselineBundleSha256": "bc3358282800e3e99daa8e71ac5b7b1566bd0d7ca7eb94f714a7859365d3163f",
+    "targetWrapperSha256": "dda4d89e787fa455706e4f41beffc8e58d42b9094c4d155fcbf62e3f19036681",
+    "targetInnerSha256": "4a3c3636c8cb19ef42d6319e5c6ef9b029f5de148b84f22315d159052d6c5eba",
+    "structuralDeltaSha256": "383448923995bb86060ce91beac2bc5adac35817a0cdff35b533135c7d24345f",
+    "strictTailScanSha256": "9cdec157ae2216dcec8b945e16a927ec133e3a6a1337ec173d771924dad0c80d",
+    "currentScanSha256": "386eec79ab7adfbace2d48269451bad427d84ec46e822eea173c4b2ceb707d5f",
+    "packageScanSha256": "4df4212b1116170b913655e5bca7adda5348f906e9dab2e804277b7c879f8b0f",
+    "targetCommit": "d88405d4b4b7ce6e066e1d67e7fc421b54d685f0"
+  },
+  "evidenceCatalog": {
+    "auth-structural-fragment": "Structural region identity and exact authenticated target fragment hash.",
+    "auth-baseline-target-ordinal": "Exact literal/property/regexp occurrence exceeds the authenticated baseline count and lands at the pinned target offsets.",
+    "current-owner-hash": "Current cumulative source owner has the pinned whole-file SHA-256.",
+    "historical-owner-hash": "Materialized/final Target113 source owner has a pinned whole-file SHA-256.",
+    "historical-owner-absence": "The final Target113 source tree intentionally lacks this later recovered owner; authenticated target evidence remains authoritative.",
+    "current-only-owner-recovery": "A later cumulative source recovery provides an exact static owner for a Target113 bundle unit.",
+    "owner-correction": "The direct semantic owner corrects the scan neighborhood attribution.",
+    "package-scan-owner": "The final packaged-tree scan, rather than the current-source strict tail, exposed this complete unit.",
+    "target-helper-source-callsite": "The authenticated target contains a stronger compiler helper while the source owner pins its readLiteMetadata callsite.",
+    "supporting-dependency-owner": "A secondary source owner explains the bundled dependency residue in the primary module neighborhood.",
+    "live-risk-exclusion": "Stateful daemon path/lock behavior is excluded from this static lane and delegated.",
+    "historical-package-gap": "The raw Target113 source owner is pinned and proven to omit target-authenticated behavior.",
+    "target113-source-replay": "A selective fail-closed replay recipe restores only target-authenticated behavior and passes raw Target113 plus candidate validation.",
+    "compiler-equivalence-proof": "Exact compiler-equivalence proof; intentionally unused because every historical source gap requires source replay."
+  },
+  "units": [
+    {
+      "index": 17590,
+      "origin": "strict-tail-current",
+      "behavior": "session transcript append and metadata re-append owner",
+      "mapping": {
+        "primaryOwner": "src/utils/sessionStorage.ts",
+        "ownerKind": "direct",
+        "sourceOwners": [
+          {
+            "path": "src/utils/sessionStorage.ts",
+            "role": "primary",
+            "currentSha256": "a82f5020bfe1baf5bf63b780808478bed5d2617696780ba8b6cf794ed666e252",
+            "historicalPresence": "present",
+            "historicalSha256": [
+              "3f750dde07fd58875c411bc9fe16c6689390c5fc97e400a1bd3de3e7358360f2",
+              "fc0dcba187e1c3d0925951c6034d13a9f5316311b8e0770c2d30f348cc691b27",
+              "838178d67e816e26417a7ec522ee32574590453db99321601b498f0acea321ee",
+              "cc7398a249e45aa3ab48450c7718bc72ec7f298e67c58864b5f48b27bb7c9498"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-owner-hash"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 10947713,
+        "end": 10957918,
+        "nodeType": "ClassDeclaration",
+        "sourceHash": "420936f565b7daaf175d8b82164d08fa769e56bf268bf31e71f961112471132d"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "appendFile",
+          "start": 10949540,
+          "end": 10949550,
+          "baselineOccurrenceCount": 5,
+          "targetOccurrenceNumber": 11
+        },
+        {
+          "kind": "property",
+          "value": "mkdir",
+          "start": 10949582,
+          "end": 10949587,
+          "baselineOccurrenceCount": 50,
+          "targetOccurrenceNumber": 110
+        },
+        {
+          "kind": "property",
+          "value": "dirname",
+          "start": 10949591,
+          "end": 10949598,
+          "baselineOccurrenceCount": 74,
+          "targetOccurrenceNumber": 177
+        },
+        {
+          "kind": "property",
+          "value": "appendFile",
+          "start": 10949636,
+          "end": 10949646,
+          "baselineOccurrenceCount": 5,
+          "targetOccurrenceNumber": 12
+        },
+        {
+          "kind": "string",
+          "value": "\"type\":\"custom-title\"",
+          "start": 10950785,
+          "end": 10950808,
+          "baselineOccurrenceCount": 1,
+          "targetOccurrenceNumber": 2
+        },
+        {
+          "kind": "string",
+          "value": "\"customTitle\":\"",
+          "start": 10950822,
+          "end": 10950839,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "kind": "string",
+          "value": "\"type\":\"tag\"",
+          "start": 10950957,
+          "end": 10950971,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "kind": "string",
+          "value": "\"tag\":\"",
+          "start": 10950985,
+          "end": 10950994,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "kind": "property",
+          "value": "readFile",
+          "start": 10953387,
+          "end": 10953395,
+          "baselineOccurrenceCount": 66,
+          "targetOccurrenceNumber": 154
+        },
+        {
+          "kind": "property",
+          "value": "writeFile",
+          "start": 10953533,
+          "end": 10953542,
+          "baselineOccurrenceCount": 28,
+          "targetOccurrenceNumber": 99
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/sessionStorage.ts",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "appendEntry(",
+            "reAppendSessionMetadata(",
+            "\"type\":\"custom-title\"",
+            "\"type\":\"tag\""
+          ],
+          "declarationName": "Project"
+        }
+      ]
+    },
+    {
+      "index": 17681,
+      "origin": "strict-tail-current",
+      "behavior": "type-scoped reverse summary extraction helper at readLiteMetadata callsite",
+      "mapping": {
+        "primaryOwner": "src/utils/sessionStorage.ts",
+        "ownerKind": "direct",
+        "sourceOwners": [
+          {
+            "path": "src/utils/sessionStorage.ts",
+            "role": "primary",
+            "currentSha256": "a82f5020bfe1baf5bf63b780808478bed5d2617696780ba8b6cf794ed666e252",
+            "historicalPresence": "present",
+            "historicalSha256": [
+              "3f750dde07fd58875c411bc9fe16c6689390c5fc97e400a1bd3de3e7358360f2",
+              "fc0dcba187e1c3d0925951c6034d13a9f5316311b8e0770c2d30f348cc691b27",
+              "838178d67e816e26417a7ec522ee32574590453db99321601b498f0acea321ee",
+              "cc7398a249e45aa3ab48450c7718bc72ec7f298e67c58864b5f48b27bb7c9498"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-owner-hash",
+        "target-helper-source-callsite"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 10990547,
+        "end": 10990763,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "869582355055f30659af201cd8ae81aef533c0d5d4dc28a91aa98ab895ca89b7"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "\"type\":\"",
+          "start": 10990574,
+          "end": 10990582,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/sessionStorage.ts",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "extractLastJsonStringField(tail, 'summary')"
+          ],
+          "declarationName": "readLiteMetadata"
+        }
+      ]
+    },
+    {
+      "index": 17806,
+      "origin": "strict-tail-current",
+      "behavior": "agent-hook identity and resolved-path execution",
+      "mapping": {
+        "primaryOwner": "src/utils/hooks/execAgentHook.ts",
+        "ownerKind": "direct",
+        "sourceOwners": [
+          {
+            "path": "src/utils/hooks/execAgentHook.ts",
+            "role": "primary",
+            "currentSha256": "459b91cbf2d0bf1fdaefce78ab1a0e570b443016acccf04019e210994d6b3984",
+            "historicalPresence": "present",
+            "historicalSha256": [
+              "9c3f510d3123da7f858eff7746b2bd9b1529f3f25d401cb7776e38b76d53bb58"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-owner-hash"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 11040230,
+        "end": 11043736,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "cbe55cc3d9130a63a5fe587ca35d16cf18918abb1727465bd54eb3ad653c94b9"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "randomUUID",
+          "start": 11040289,
+          "end": 11040299,
+          "baselineOccurrenceCount": 20,
+          "targetOccurrenceNumber": 78
+        },
+        {
+          "kind": "property",
+          "value": "resolvedPath",
+          "start": 11040348,
+          "end": 11040360,
+          "baselineOccurrenceCount": 75,
+          "targetOccurrenceNumber": 78
+        },
+        {
+          "kind": "property",
+          "value": "randomUUID",
+          "start": 11041340,
+          "end": 11041350,
+          "baselineOccurrenceCount": 20,
+          "targetOccurrenceNumber": 79
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/hooks/execAgentHook.ts",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "randomUUID()"
+          ],
+          "declarationName": "execAgentHook"
+        }
+      ]
+    },
+    {
+      "index": 17927,
+      "origin": "strict-tail-current",
+      "behavior": "worktree baseline write",
+      "mapping": {
+        "primaryOwner": "src/utils/worktree.ts",
+        "ownerKind": "historical-package-gap",
+        "sourceOwners": [
+          {
+            "path": "src/utils/worktree.ts",
+            "role": "primary",
+            "currentSha256": "80ba4fabba4806046979973f96bb82c3f70ce376e49ac301a57a266427c3fa56",
+            "historicalPresence": "replayed",
+            "historicalSha256": [
+              "c6b239ea0b3a5740e98cfe7cf629505a910ac182ac3ac67e56e70ef4245f664e"
+            ],
+            "rawHistoricalPresence": "present",
+            "rawHistoricalSha256": [
+              "5244316ff91888da595b0127abfd024aad07e741f92572cc7597cfca1418c7c4"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-package-gap",
+        "target113-source-replay"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 11101937,
+        "end": 11102176,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "8ab5e3b09532b36e05820162996f4c8c98b6ef62c567947867f5247b4a3322b9"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "writeFile",
+          "start": 11102075,
+          "end": 11102084,
+          "baselineOccurrenceCount": 28,
+          "targetOccurrenceNumber": 100
+        }
+      ],
+      "replayRecipeId": "u17927",
+      "sourceAssertions": [
+        {
+          "path": "src/utils/worktree.ts",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "writeFile"
+          ],
+          "declarationName": "writeWorktreeBaseline"
+        }
+      ]
+    },
+    {
+      "index": 17929,
+      "origin": "strict-tail-current",
+      "behavior": "worktree create-or-resume flow",
+      "mapping": {
+        "primaryOwner": "src/utils/worktree.ts",
+        "ownerKind": "direct",
+        "sourceOwners": [
+          {
+            "path": "src/utils/worktree.ts",
+            "role": "primary",
+            "currentSha256": "80ba4fabba4806046979973f96bb82c3f70ce376e49ac301a57a266427c3fa56",
+            "historicalPresence": "replayed",
+            "historicalSha256": [
+              "c6b239ea0b3a5740e98cfe7cf629505a910ac182ac3ac67e56e70ef4245f664e"
+            ],
+            "rawHistoricalPresence": "present",
+            "rawHistoricalSha256": [
+              "5244316ff91888da595b0127abfd024aad07e741f92572cc7597cfca1418c7c4"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-owner-hash"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 11102336,
+        "end": 11105245,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "8c55dd29c15af66b8993b76ae30431e85820a40bbdedf14d0207ec9eb4a6d07d"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "readdir",
+          "start": 11102540,
+          "end": 11102547,
+          "baselineOccurrenceCount": 44,
+          "targetOccurrenceNumber": 89
+        },
+        {
+          "kind": "property",
+          "value": "rm",
+          "start": 11103576,
+          "end": 11103578,
+          "baselineOccurrenceCount": 30,
+          "targetOccurrenceNumber": 53
+        },
+        {
+          "kind": "property",
+          "value": "mkdir",
+          "start": 11103783,
+          "end": 11103788,
+          "baselineOccurrenceCount": 50,
+          "targetOccurrenceNumber": 118
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/worktree.ts",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "readdir",
+            "mkdir"
+          ],
+          "declarationName": "getOrCreateWorktree"
+        }
+      ]
+    },
+    {
+      "index": 17941,
+      "origin": "strict-tail-current",
+      "behavior": "current-session worktree cleanup",
+      "mapping": {
+        "primaryOwner": "src/utils/worktree.ts",
+        "ownerKind": "direct",
+        "sourceOwners": [
+          {
+            "path": "src/utils/worktree.ts",
+            "role": "primary",
+            "currentSha256": "80ba4fabba4806046979973f96bb82c3f70ce376e49ac301a57a266427c3fa56",
+            "historicalPresence": "replayed",
+            "historicalSha256": [
+              "c6b239ea0b3a5740e98cfe7cf629505a910ac182ac3ac67e56e70ef4245f664e"
+            ],
+            "rawHistoricalPresence": "present",
+            "rawHistoricalSha256": [
+              "5244316ff91888da595b0127abfd024aad07e741f92572cc7597cfca1418c7c4"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-owner-hash"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 11110839,
+        "end": 11111875,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "14db71a2b88cf0469a0588a544f8d30cee77fe0d0e8663ddc2af6230e3df95cf"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "rm",
+          "start": 11111259,
+          "end": 11111261,
+          "baselineOccurrenceCount": 30,
+          "targetOccurrenceNumber": 54
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/worktree.ts",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "rm("
+          ],
+          "declarationName": "cleanupWorktree"
+        }
+      ]
+    },
+    {
+      "index": 17944,
+      "origin": "strict-tail-current",
+      "behavior": "agent worktree removal",
+      "mapping": {
+        "primaryOwner": "src/utils/worktree.ts",
+        "ownerKind": "direct",
+        "sourceOwners": [
+          {
+            "path": "src/utils/worktree.ts",
+            "role": "primary",
+            "currentSha256": "80ba4fabba4806046979973f96bb82c3f70ce376e49ac301a57a266427c3fa56",
+            "historicalPresence": "replayed",
+            "historicalSha256": [
+              "c6b239ea0b3a5740e98cfe7cf629505a910ac182ac3ac67e56e70ef4245f664e"
+            ],
+            "rawHistoricalPresence": "present",
+            "rawHistoricalSha256": [
+              "5244316ff91888da595b0127abfd024aad07e741f92572cc7597cfca1418c7c4"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-owner-hash"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 11113278,
+        "end": 11114450,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "05987e48a47da1c5ee3a92b89fc5685ace25cbc900095fcb2917fb1930f3d93c"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "rm",
+          "start": 11113917,
+          "end": 11113919,
+          "baselineOccurrenceCount": 30,
+          "targetOccurrenceNumber": 55
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/worktree.ts",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "rm("
+          ],
+          "declarationName": "removeAgentWorktree"
+        }
+      ]
+    },
+    {
+      "index": 18153,
+      "origin": "package-only-final-root",
+      "behavior": "bridge worktree dirty-state cleanup guard",
+      "mapping": {
+        "primaryOwner": "src/bridge/bridgeMain.ts",
+        "ownerKind": "historical-package-gap",
+        "sourceOwners": [
+          {
+            "path": "src/bridge/bridgeMain.ts",
+            "role": "primary",
+            "currentSha256": "a3e676030faa1f05b8c584aa3133b814239708c0639888d12da677f1eb5a1f45",
+            "historicalPresence": "replayed",
+            "historicalSha256": [
+              "44d0467a44e513e376ef4049689b12ad5a428b44b8ef30d2d5511d7a95440dcd"
+            ],
+            "rawHistoricalPresence": "present",
+            "rawHistoricalSha256": [
+              "8ab48ce786f7188a0038992c9c5e3ee2a4ffdc1fc3f18dea8a928cba5cdca5c7"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "package-scan-owner",
+        "historical-package-gap",
+        "target113-source-replay"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 11235619,
+        "end": 11236302,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "c46cc58602eeda13e7c5840dead76724ed59433ad0298942bab70f4640a7663a"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "dirty",
+          "start": 11235735,
+          "end": 11235740,
+          "baselineOccurrenceCount": 80,
+          "targetOccurrenceNumber": 81
+        }
+      ],
+      "replayRecipeId": "u18153",
+      "sourceAssertions": [
+        {
+          "path": "src/bridge/bridgeMain.ts",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "getAgentWorktreeChanges",
+            "dirty",
+            "commitsAhead"
+          ],
+          "declarationName": "cleanupBridgeWorktree"
+        }
+      ]
+    },
+    {
+      "index": 18280,
+      "origin": "strict-tail-current",
+      "behavior": "permission answer-status formatting",
+      "mapping": {
+        "primaryOwner": "src/utils/permissionStatus.ts",
+        "ownerKind": "current-only-recovered",
+        "sourceOwners": [
+          {
+            "path": "src/utils/permissionStatus.ts",
+            "role": "primary",
+            "currentSha256": "df1f9f54165596c0d90eed4fbd0da37c4da22df91213dd4c6ae0f30eceef35bb",
+            "historicalPresence": "absent",
+            "historicalSha256": []
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-owner-absence",
+        "current-only-owner-recovery",
+        "owner-correction"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 11320142,
+        "end": 11320665,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "58f98c84d84a9898b0fecf9d59c2e44922b869ee5311bdfaff731d5202d29b7d"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "answer: ",
+          "start": 11320342,
+          "end": 11320350,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/permissionStatus.ts",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "answer: "
+          ],
+          "declarationName": "formatPermissionStatus"
+        }
+      ]
+    },
+    {
+      "index": 18303,
+      "origin": "strict-tail-current",
+      "behavior": "bridge client-presence UUID",
+      "mapping": {
+        "primaryOwner": "src/bridge/clientPresence.ts",
+        "ownerKind": "current-only-recovered",
+        "sourceOwners": [
+          {
+            "path": "src/bridge/clientPresence.ts",
+            "role": "primary",
+            "currentSha256": "f68e8c90c69ec25cbc642fe4e3bc42afbef4794ae5c0eb919d73cadf91079c31",
+            "historicalPresence": "absent",
+            "historicalSha256": []
+          }
+        ],
+        "transitiveIntroduction": {
+          "case": "2.1.88-to-2.1.89",
+          "evidence": "recovery/test/recovery-2.1.89-semantic-source-coverage.test.mjs"
+        }
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-owner-absence",
+        "current-only-owner-recovery",
+        "owner-correction"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 11325081,
+        "end": 11325150,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "57f9294ae1bf8001629b14d2e986d7a448ae0a1ca02b36fa5062732bb27f286c"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "randomUUID",
+          "start": 11325135,
+          "end": 11325145,
+          "baselineOccurrenceCount": 20,
+          "targetOccurrenceNumber": 104
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/bridge/clientPresence.ts",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "randomUUID()"
+          ],
+          "declarationName": "clientId"
+        }
+      ]
+    },
+    {
+      "index": 18305,
+      "origin": "strict-tail-current",
+      "behavior": "recent subagent transcript selection",
+      "mapping": {
+        "primaryOwner": "src/bridge/persistenceSync.ts",
+        "ownerKind": "historical-replay-dependency",
+        "sourceOwners": [
+          {
+            "path": "src/bridge/persistenceSync.ts",
+            "role": "primary",
+            "currentSha256": "9bfa33d324fc73528ba7f784f3187444c83f0c46b61bd70fa6e786a82ea8bf5c",
+            "historicalPresence": "replayed",
+            "historicalSha256": [
+              "9bfa33d324fc73528ba7f784f3187444c83f0c46b61bd70fa6e786a82ea8bf5c"
+            ],
+            "rawHistoricalPresence": "absent"
+          }
+        ],
+        "transitiveIntroduction": {
+          "case": "2.1.89-to-2.1.90",
+          "evidence": "recovery/test/recovery-2.1.90-persistence-bridge-semantic.test.mjs",
+          "role": "first-introduction provenance; Target113 replay closes the package dependency"
+        }
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-package-gap",
+        "target113-source-replay",
+        "owner-correction"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 11325904,
+        "end": 11326179,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "b114cb78b6bcfdec614790dd3f3ef197d3cbe6fe5e3041c6a7bb437d9db30f5e"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "stat",
+          "start": 11326000,
+          "end": 11326004,
+          "baselineOccurrenceCount": 97,
+          "targetOccurrenceNumber": 171
+        }
+      ],
+      "replayRecipeId": "u18361",
+      "sourceAssertions": [
+        {
+          "path": "src/bridge/persistenceSync.ts",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "stat(path)"
+          ],
+          "declarationName": "selectRecentSubagentTranscripts"
+        }
+      ]
+    },
+    {
+      "index": 18361,
+      "origin": "package-only-final-root",
+      "behavior": "bridge transport persistence writer/reader registration",
+      "mapping": {
+        "primaryOwner": "src/bridge/initReplBridge.ts",
+        "ownerKind": "historical-package-gap",
+        "sourceOwners": [
+          {
+            "path": "src/bridge/initReplBridge.ts",
+            "role": "primary",
+            "currentSha256": "dd1eefed98ad7b06c2a6273aeaac8a77eea6d62120ace9bdc8098f16924244c0",
+            "historicalPresence": "replayed",
+            "historicalSha256": [
+              "ee6834b479b9eab35844be498adbd12910b931a54970acba9027b7d14e9f4362"
+            ],
+            "rawHistoricalPresence": "present",
+            "rawHistoricalSha256": [
+              "b9bbdf173013c26653b5cfd8d68b5f04758bb3ebc630b67f360991fcc7bc7d7f"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "package-scan-owner",
+        "historical-package-gap",
+        "target113-source-replay"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 11371401,
+        "end": 11375234,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "54ebbe27c878b664496f301575b31c1dc5549f8f48b0b48e2e341267fab415b5"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "readMain",
+          "start": 11371973,
+          "end": 11371981,
+          "baselineOccurrenceCount": 2,
+          "targetOccurrenceNumber": 3
+        },
+        {
+          "kind": "property",
+          "value": "readSubagents",
+          "start": 11371984,
+          "end": 11371997,
+          "baselineOccurrenceCount": 2,
+          "targetOccurrenceNumber": 3
+        },
+        {
+          "kind": "string",
+          "value": "[bridge:repl] Session persistence enabled — transcript writer + hydrate readers registered",
+          "start": 11372001,
+          "end": 11372098,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        }
+      ],
+      "replayRecipeId": "u18361",
+      "sourceAssertions": [
+        {
+          "path": "src/bridge/initReplBridge.ts",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "persistenceCallbacks",
+            "setInternalEventReader(readers.readMain, readers.readSubagents)"
+          ],
+          "declarationName": "initReplBridge"
+        }
+      ]
+    },
+    {
+      "index": 18451,
+      "origin": "strict-tail-current",
+      "behavior": "AskUserQuestion permission renderer",
+      "mapping": {
+        "primaryOwner": "src/components/permissions/AskUserQuestionPermissionRequest/AskUserQuestionPermissionRequest.tsx",
+        "ownerKind": "direct",
+        "sourceOwners": [
+          {
+            "path": "src/components/permissions/AskUserQuestionPermissionRequest/AskUserQuestionPermissionRequest.tsx",
+            "role": "primary",
+            "currentSha256": "db070be11cfae8a7619737bd19c0d9da4fc3b2772fef791a2f29671562d7d08e",
+            "historicalPresence": "present",
+            "historicalSha256": [
+              "20b3babd6357b4c55608b87bf901edcc18b0bfb035ff09998dffdc7de3264b12"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-owner-hash"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 11427666,
+        "end": 11435664,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "f995fb22625c0f749d633448d9e941c61d9ad0bd3c74dbe2dbfd371a52bbc8cb"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "c",
+          "start": 11427692,
+          "end": 11427693,
+          "baselineOccurrenceCount": 164,
+          "targetOccurrenceNumber": 641
+        },
+        {
+          "kind": "property",
+          "value": "rows",
+          "start": 11427977,
+          "end": 11427981,
+          "baselineOccurrenceCount": 55,
+          "targetOccurrenceNumber": 68
+        },
+        {
+          "kind": "number",
+          "value": "119",
+          "start": 11435584,
+          "end": 11435587,
+          "baselineOccurrenceCount": 27,
+          "targetOccurrenceNumber": 28
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/permissions/AskUserQuestionPermissionRequest/AskUserQuestionPermissionRequest.tsx",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "globalContentHeight",
+            "terminalRows"
+          ],
+          "declarationName": "AskUserQuestionPermissionRequestBody"
+        }
+      ]
+    },
+    {
+      "index": 18599,
+      "origin": "package-only-final-root",
+      "behavior": "exit-plan-mode ultraplan launch source",
+      "mapping": {
+        "primaryOwner": "src/components/permissions/ExitPlanModePermissionRequest/ExitPlanModePermissionRequest.tsx",
+        "ownerKind": "historical-package-gap",
+        "sourceOwners": [
+          {
+            "path": "src/components/permissions/ExitPlanModePermissionRequest/ExitPlanModePermissionRequest.tsx",
+            "role": "primary",
+            "currentSha256": "0845da714c932299fd2a95ce6a3ca1ad6980a146d54acac0fa353c6d75bbe7cb",
+            "historicalPresence": "replayed",
+            "historicalSha256": [
+              "db6765181a751ddde587642a833e85b4f1db2b99d38550a961f70ff089931054"
+            ],
+            "rawHistoricalPresence": "present",
+            "rawHistoricalSha256": [
+              "51c0242c885b4d40f393fbdfeda1bfa2631e21459297d7a1c6418696d9f6bb5a"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "package-scan-owner",
+        "historical-package-gap",
+        "target113-source-replay"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 11495450,
+        "end": 11504802,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "6165cf7f88b218c95110bec8bd36c1fde34e7f0352354ccd2ec8f5be16bccb8b"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "exit_plan_mode",
+          "start": 11497785,
+          "end": 11497801,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        }
+      ],
+      "replayRecipeId": "u18599",
+      "sourceAssertions": [
+        {
+          "path": "src/components/permissions/ExitPlanModePermissionRequest/ExitPlanModePermissionRequest.tsx",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "source: 'exit_plan_mode'",
+            "onStatusMessage"
+          ],
+          "declarationName": "ExitPlanModePermissionRequest"
+        }
+      ]
+    },
+    {
+      "index": 18785,
+      "origin": "strict-tail-current",
+      "behavior": "slash-command token extraction",
+      "mapping": {
+        "primaryOwner": "src/utils/suggestions/commandSuggestions.ts",
+        "ownerKind": "historical-package-gap",
+        "sourceOwners": [
+          {
+            "path": "src/utils/suggestions/commandSuggestions.ts",
+            "role": "primary",
+            "currentSha256": "8052cc123ac01af6bbcd49db8253ccd810517d97ac0cbe334706fb832e5f685a",
+            "historicalPresence": "replayed",
+            "historicalSha256": [
+              "24ef5e9d091baa03dce5048ed2cb17c97d384b88461897b068bfe6f077c7e4a4"
+            ],
+            "rawHistoricalPresence": "present",
+            "rawHistoricalSha256": [
+              "717ee7941db01777413d47d49d0bb40f60456b07c11bc771ec0cbe32d5a049cf"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-package-gap",
+        "target113-source-replay"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 11607750,
+        "end": 11608061,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "608392b498374e9ca2b1b3ec2e528cb568b899436aec6ec22d843bd52f2f3b3a"
+      },
+      "residues": [
+        {
+          "kind": "regexp",
+          "value": {
+            "flags": "",
+            "pattern": "[\\s\\u3002\\u3001\\uFF1F\\uFF01]\\/([a-zA-Z0-9_:-]*)$"
+          },
+          "start": 11607826,
+          "end": 11607876,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        }
+      ],
+      "replayRecipeId": "u18785-u18796",
+      "sourceAssertions": [
+        {
+          "path": "src/utils/suggestions/commandSuggestions.ts",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "[\\s。、？！]\\/([a-zA-Z0-9_:-]*)$"
+          ],
+          "declarationName": "findMidInputSlashCommand"
+        }
+      ]
+    },
+    {
+      "index": 18796,
+      "origin": "strict-tail-current",
+      "behavior": "slash-command range scanning",
+      "mapping": {
+        "primaryOwner": "src/utils/suggestions/commandSuggestions.ts",
+        "ownerKind": "historical-package-gap",
+        "sourceOwners": [
+          {
+            "path": "src/utils/suggestions/commandSuggestions.ts",
+            "role": "primary",
+            "currentSha256": "8052cc123ac01af6bbcd49db8253ccd810517d97ac0cbe334706fb832e5f685a",
+            "historicalPresence": "replayed",
+            "historicalSha256": [
+              "24ef5e9d091baa03dce5048ed2cb17c97d384b88461897b068bfe6f077c7e4a4"
+            ],
+            "rawHistoricalPresence": "present",
+            "rawHistoricalSha256": [
+              "717ee7941db01777413d47d49d0bb40f60456b07c11bc771ec0cbe32d5a049cf"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-package-gap",
+        "target113-source-replay"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 11611535,
+        "end": 11611748,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "a828f28790d086f1d803bb4697ce57935b03fa599b644ebdbeba8b27fad0bb34"
+      },
+      "residues": [
+        {
+          "kind": "regexp",
+          "value": {
+            "flags": "g",
+            "pattern": "(^|[\\s\\u3002\\u3001\\uFF1F\\uFF01])(\\/[a-zA-Z][a-zA-Z0-9:\\-_]*)"
+          },
+          "start": 11611562,
+          "end": 11611625,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        }
+      ],
+      "replayRecipeId": "u18785-u18796",
+      "sourceAssertions": [
+        {
+          "path": "src/utils/suggestions/commandSuggestions.ts",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "(^|[\\s。、？！])(\\/[a-zA-Z][a-zA-Z0-9:\\-_]*)"
+          ],
+          "declarationName": "findSlashCommandPositions"
+        }
+      ]
+    },
+    {
+      "index": 18839,
+      "origin": "strict-tail-current",
+      "behavior": "typeahead Unicode token boundary",
+      "mapping": {
+        "primaryOwner": "src/hooks/useTypeahead.tsx",
+        "ownerKind": "historical-package-gap",
+        "sourceOwners": [
+          {
+            "path": "src/hooks/useTypeahead.tsx",
+            "role": "primary",
+            "currentSha256": "e2d57d7351831befbb07e917cb4a4a922b2462592ba36cd242c32643c79272a3",
+            "historicalPresence": "replayed",
+            "historicalSha256": [
+              "f51da2769b85bc7db3b907e1f8677b3c1dceaf2e5b67139dac62925dfdb6c165"
+            ],
+            "rawHistoricalPresence": "present",
+            "rawHistoricalSha256": [
+              "a6f55e5dc61637b892979ce76acf921135f26ea646711cbd6c9d62e25ca7afca"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-package-gap",
+        "target113-source-replay"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 11620862,
+        "end": 11621501,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "0ddc8ab2d37805716e0dc6a5af9a9540d5e3553fadee5b843c8627c5ab1257fe"
+      },
+      "residues": [
+        {
+          "kind": "regexp",
+          "value": {
+            "flags": "",
+            "pattern": "[\\s\\u3002\\u3001\\uFF1F\\uFF01]"
+          },
+          "start": 11621140,
+          "end": 11621170,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        }
+      ],
+      "replayRecipeId": "u18839",
+      "sourceAssertions": [
+        {
+          "path": "src/hooks/useTypeahead.tsx",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "/[\\s。、？！]/"
+          ],
+          "declarationName": "extractCompletionToken"
+        }
+      ]
+    },
+    {
+      "index": 18844,
+      "origin": "strict-tail-current",
+      "behavior": "typeahead at-mention matchers",
+      "mapping": {
+        "primaryOwner": "src/hooks/useTypeahead.tsx",
+        "ownerKind": "direct",
+        "sourceOwners": [
+          {
+            "path": "src/hooks/useTypeahead.tsx",
+            "role": "primary",
+            "currentSha256": "e2d57d7351831befbb07e917cb4a4a922b2462592ba36cd242c32643c79272a3",
+            "historicalPresence": "replayed",
+            "historicalSha256": [
+              "f51da2769b85bc7db3b907e1f8677b3c1dceaf2e5b67139dac62925dfdb6c165"
+            ],
+            "rawHistoricalPresence": "present",
+            "rawHistoricalSha256": [
+              "a6f55e5dc61637b892979ce76acf921135f26ea646711cbd6c9d62e25ca7afca"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-owner-hash"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 11633723,
+        "end": 11634251,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "b9954d28920234d9cac831575a480a1e99017936d73e0a3f95c5dd0be9d4d3f7"
+      },
+      "residues": [
+        {
+          "kind": "regexp",
+          "value": {
+            "flags": "u",
+            "pattern": "(^|[\\s\\u3002\\u3001\\uFF1F\\uFF01])@([\\p{L}\\p{N}\\p{M}_\\-./\\\\()[\\]~:]*|\"[^\"]*\"?)$"
+          },
+          "start": 11634083,
+          "end": 11634163,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "kind": "regexp",
+          "value": {
+            "flags": "",
+            "pattern": "(^|[\\s\\u3002\\u3001\\uFF1F\\uFF01])@([\\w-]*)$"
+          },
+          "start": 11634204,
+          "end": 11634248,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/hooks/useTypeahead.tsx",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "@([\\p{L}\\p{N}\\p{M}"
+          ],
+          "declarationName": "HAS_AT_SYMBOL_RE"
+        },
+        {
+          "path": "src/hooks/useTypeahead.tsx",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "@[\\w-]*"
+          ],
+          "declarationName": "DM_MEMBER_RE"
+        }
+      ]
+    },
+    {
+      "index": 19028,
+      "origin": "strict-tail-current",
+      "behavior": "pull-request status hook",
+      "mapping": {
+        "primaryOwner": "src/hooks/usePrStatus.ts",
+        "ownerKind": "corrected",
+        "sourceOwners": [
+          {
+            "path": "src/hooks/usePrStatus.ts",
+            "role": "primary",
+            "currentSha256": "dfa1cc7e479e075ad69ad70ce1d1949fdb1a6fa9ef198a25b5ab8f150ce7c48b",
+            "historicalPresence": "present",
+            "historicalSha256": [
+              "dfa1cc7e479e075ad69ad70ce1d1949fdb1a6fa9ef198a25b5ab8f150ce7c48b"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-owner-hash",
+        "owner-correction"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 11695067,
+        "end": 11695758,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "1887dd51ac0cc62700443abbcdb74d750dae207233153080e3ab34fc797ba9d5"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "pr",
+          "start": 11695425,
+          "end": 11695427,
+          "baselineOccurrenceCount": 15,
+          "targetOccurrenceNumber": 16
+        },
+        {
+          "kind": "property",
+          "value": "pr",
+          "start": 11695451,
+          "end": 11695453,
+          "baselineOccurrenceCount": 15,
+          "targetOccurrenceNumber": 17
+        },
+        {
+          "kind": "property",
+          "value": "pr",
+          "start": 11695500,
+          "end": 11695502,
+          "baselineOccurrenceCount": 15,
+          "targetOccurrenceNumber": 18
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/hooks/usePrStatus.ts",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "const result = await fetchPrStatus()",
+            "setPrStatus(prev =>"
+          ],
+          "declarationName": "usePrStatus"
+        }
+      ]
+    },
+    {
+      "index": 19030,
+      "origin": "strict-tail-current",
+      "behavior": "initial pull-request status state",
+      "mapping": {
+        "primaryOwner": "src/hooks/usePrStatus.ts",
+        "ownerKind": "corrected",
+        "sourceOwners": [
+          {
+            "path": "src/hooks/usePrStatus.ts",
+            "role": "primary",
+            "currentSha256": "dfa1cc7e479e075ad69ad70ce1d1949fdb1a6fa9ef198a25b5ab8f150ce7c48b",
+            "historicalPresence": "present",
+            "historicalSha256": [
+              "dfa1cc7e479e075ad69ad70ce1d1949fdb1a6fa9ef198a25b5ab8f150ce7c48b"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-owner-hash",
+        "owner-correction"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 11695801,
+        "end": 11695871,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "d440cd107440becaed6a0151d7131de0540051dfb5f28202b667c5f24830ada9"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "pr",
+          "start": 11695846,
+          "end": 11695848,
+          "baselineOccurrenceCount": 15,
+          "targetOccurrenceNumber": 19
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/hooks/usePrStatus.ts",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "number: null",
+            "reviewState: null"
+          ],
+          "declarationName": "INITIAL_STATE"
+        }
+      ]
+    },
+    {
+      "index": 19220,
+      "origin": "strict-tail-current",
+      "behavior": "text-prompt UUID and message construction",
+      "mapping": {
+        "primaryOwner": "src/utils/processUserInput/processTextPrompt.ts",
+        "ownerKind": "corrected",
+        "sourceOwners": [
+          {
+            "path": "src/utils/processUserInput/processTextPrompt.ts",
+            "role": "primary",
+            "currentSha256": "1599be7720ac9ef173dcc1bf06ca9d9b8a21c0c876743110a67abf6ef72dd8ec",
+            "historicalPresence": "present",
+            "historicalSha256": [
+              "1599be7720ac9ef173dcc1bf06ca9d9b8a21c0c876743110a67abf6ef72dd8ec"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-owner-hash",
+        "owner-correction"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 11798072,
+        "end": 11798740,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "5d83ab200a26cbc3715e6c3c645db4829b0bb246d7f9e90b1a209e7b0693281b"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "randomUUID",
+          "start": 11798110,
+          "end": 11798120,
+          "baselineOccurrenceCount": 20,
+          "targetOccurrenceNumber": 117
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/processUserInput/processTextPrompt.ts",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "randomUUID()"
+          ],
+          "declarationName": "processTextPrompt"
+        }
+      ]
+    },
+    {
+      "index": 19234,
+      "origin": "package-only-final-root",
+      "behavior": "ultraplan keyword routing",
+      "mapping": {
+        "primaryOwner": "src/utils/processUserInput/processUserInput.ts",
+        "ownerKind": "historical-package-gap",
+        "sourceOwners": [
+          {
+            "path": "src/utils/processUserInput/processUserInput.ts",
+            "role": "primary",
+            "currentSha256": "d0f9004194ad31544212e4a0982c78a16ff9e4682f2e2373979f3360f91d07ea",
+            "historicalPresence": "replayed",
+            "historicalSha256": [
+              "5e6c0d2daf0812e4b2c65c81e121246f23dfa860e7e1ee4133222334badb2476"
+            ],
+            "rawHistoricalPresence": "present",
+            "rawHistoricalSha256": [
+              "f9974daad4f77378fd2d1d7068611bd9589fcfd276da322f404b736cc27d90f4"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "package-scan-owner",
+        "historical-package-gap",
+        "target113-source-replay"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 11803012,
+        "end": 11806246,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "b9e3adb9ce0cde0f2f2611e91b6afcabdc6fb306e998673ad50f4cf36f1e1863"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "keyword",
+          "start": 11805276,
+          "end": 11805285,
+          "baselineOccurrenceCount": 63,
+          "targetOccurrenceNumber": 64
+        }
+      ],
+      "replayRecipeId": "u19234",
+      "sourceAssertions": [
+        {
+          "path": "src/utils/processUserInput/processUserInput.ts",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "source: 'keyword'",
+            "ultraplanLaunchPending"
+          ],
+          "declarationName": "processUserInputBase"
+        }
+      ]
+    },
+    {
+      "index": 19417,
+      "origin": "strict-tail-current",
+      "behavior": "feedback survey option renderer",
+      "mapping": {
+        "primaryOwner": "src/components/FeedbackSurvey/FeedbackSurveyView.tsx",
+        "ownerKind": "historical-package-gap",
+        "sourceOwners": [
+          {
+            "path": "src/components/FeedbackSurvey/FeedbackSurveyView.tsx",
+            "role": "primary",
+            "currentSha256": "d443f76b0cd22bf38a977f5f7e929078b98659664b9ca3bc06cd58609849332d",
+            "historicalPresence": "replayed",
+            "historicalSha256": [
+              "5d90d7075e647df0f1cc87b65784474ef26c04b3173f5baf337fdb2d7ba79fdc"
+            ],
+            "rawHistoricalPresence": "present",
+            "rawHistoricalSha256": [
+              "2307bbad58362eaa0b134b2e3b8d749bb70549f6b51676b38e569f88c011a78e"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-package-gap",
+        "target113-source-replay"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 11870791,
+        "end": 11872151,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "b9ea89ec8d1313db6b616019d3da01f9ad66b4a254d70972e723734ad3660bf6"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "c",
+          "start": 11870817,
+          "end": 11870818,
+          "baselineOccurrenceCount": 164,
+          "targetOccurrenceNumber": 709
+        },
+        {
+          "kind": "property",
+          "value": "hovered",
+          "start": 11871706,
+          "end": 11871713,
+          "baselineOccurrenceCount": 4,
+          "targetOccurrenceNumber": 6
+        }
+      ],
+      "replayRecipeId": "u19417",
+      "sourceAssertions": [
+        {
+          "path": "src/components/FeedbackSurvey/FeedbackSurveyView.tsx",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "hovered"
+          ],
+          "declarationName": "FeedbackSurveyView"
+        }
+      ]
+    },
+    {
+      "index": 19427,
+      "origin": "package-only-final-root",
+      "behavior": "transcript-share response key map",
+      "mapping": {
+        "primaryOwner": "src/components/FeedbackSurvey/TranscriptSharePrompt.tsx",
+        "ownerKind": "historical-package-gap",
+        "sourceOwners": [
+          {
+            "path": "src/components/FeedbackSurvey/TranscriptSharePrompt.tsx",
+            "role": "primary",
+            "currentSha256": "1da72207a983bf60939be8668f98522382e224aff0d02e5ffadbdc87f771db4f",
+            "historicalPresence": "replayed",
+            "historicalSha256": [
+              "0733e85792a42bd0f5eb420d13fb8445c1370c653cbc501be5ae74f75d996ba0"
+            ],
+            "rawHistoricalPresence": "present",
+            "rawHistoricalSha256": [
+              "65a4acca4da44102a2b5b115a15f7944454443738253b943be11ce4520dc570d"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "package-scan-owner",
+        "historical-package-gap",
+        "target113-source-replay"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 11874993,
+        "end": 11875111,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "39108009e14d8bcd73a931554d65922065381259fb6434baf6f5cb5791c945b9"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "y",
+          "start": 11875074,
+          "end": 11875075,
+          "baselineOccurrenceCount": 164,
+          "targetOccurrenceNumber": 165
+        }
+      ],
+      "replayRecipeId": "u19427",
+      "sourceAssertions": [
+        {
+          "path": "src/components/FeedbackSurvey/TranscriptSharePrompt.tsx",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "['y', 'n', 'd']"
+          ],
+          "declarationName": "RESPONSE_INPUTS"
+        }
+      ]
+    },
+    {
+      "index": 19434,
+      "origin": "strict-tail-current",
+      "behavior": "REPL survey arbitration renderer",
+      "mapping": {
+        "primaryOwner": "src/screens/REPL.tsx",
+        "ownerKind": "direct",
+        "sourceOwners": [
+          {
+            "path": "src/screens/REPL.tsx",
+            "role": "primary",
+            "currentSha256": "d46cc3509eae81697cd2712247823ee05adfc4c59d8eb3d0ffd0c4d8add8f180",
+            "historicalPresence": "present",
+            "historicalSha256": [
+              "2599b19e700485f0f647792d453f37257c9d9f1e3d81912d88e481f840a49862"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-owner-hash"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 11878918,
+        "end": 11881254,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "8d0d124279dcecd272b2f2ca50134a80b8cd485615579c7fb819613640006d7b"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "c",
+          "start": 11878944,
+          "end": 11878945,
+          "baselineOccurrenceCount": 164,
+          "targetOccurrenceNumber": 715
+        },
+        {
+          "kind": "string",
+          "value": "feedback",
+          "start": 11880300,
+          "end": 11880310,
+          "baselineOccurrenceCount": 6,
+          "targetOccurrenceNumber": 7
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/screens/REPL.tsx",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "FeedbackSurvey",
+            "feedbackSurvey"
+          ],
+          "declarationName": "REPL"
+        }
+      ]
+    },
+    {
+      "index": 19454,
+      "origin": "strict-tail-current",
+      "behavior": "Chrome notification module with filesystem-backed setup dependency",
+      "mapping": {
+        "primaryOwner": "src/hooks/useChromeExtensionNotification.tsx",
+        "ownerKind": "corrected",
+        "sourceOwners": [
+          {
+            "path": "src/hooks/useChromeExtensionNotification.tsx",
+            "role": "primary",
+            "currentSha256": "761e1adfc59640e915a601401fcc0d2b84cdbed7180f4c3d192be95cc1ca2fde",
+            "historicalPresence": "present",
+            "historicalSha256": [
+              "761e1adfc59640e915a601401fcc0d2b84cdbed7180f4c3d192be95cc1ca2fde"
+            ]
+          },
+          {
+            "path": "src/utils/claudeInChrome/setup.ts",
+            "role": "supporting",
+            "currentSha256": "7fc393b314c4492d7a2e6f97a63319deb7cba97d0afa81f9ee8e1c84e544d238",
+            "historicalPresence": "present",
+            "historicalSha256": [
+              "bcb0e5a2dd2f317dd82e42bbf585caaa24f2962fbc8a495c9acbd853db434639"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-owner-hash",
+        "owner-correction",
+        "supporting-dependency-owner"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 11885128,
+        "end": 11885198,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "a106679f87856f6b8d5a66617593561d39f9c176a720cb2104d12d5b46ac7f36"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "fs",
+          "start": 11885176,
+          "end": 11885180,
+          "baselineOccurrenceCount": 93,
+          "targetOccurrenceNumber": 101
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/hooks/useChromeExtensionNotification.tsx",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "isChromeExtensionInstalled"
+          ],
+          "declarationName": "useChromeExtensionNotification"
+        },
+        {
+          "path": "src/utils/claudeInChrome/setup.ts",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "fs/promises"
+          ],
+          "declarationName": "setupClaudeInChrome"
+        }
+      ]
+    },
+    {
+      "index": 19672,
+      "origin": "strict-tail-current",
+      "behavior": "alternate-screen lifecycle renderer",
+      "mapping": {
+        "primaryOwner": "src/ink/components/AlternateScreen.tsx",
+        "ownerKind": "corrected",
+        "sourceOwners": [
+          {
+            "path": "src/ink/components/AlternateScreen.tsx",
+            "role": "primary",
+            "currentSha256": "08ecf14e015a51e99c65dfc26324240fdc3a243b7cf8d11df56f72f33c303957",
+            "historicalPresence": "present",
+            "historicalSha256": [
+              "e1960dc7c13f0c23514b7a443e8d63d58f37ff71584ed76e204540b8cd8e2fa4"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-owner-hash",
+        "owner-correction"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 11977508,
+        "end": 11978111,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "dc45ab8d878a29ae02b73fe4e47925662bb4c7a36039fcdc715beae34cf993e4"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "c",
+          "start": 11977534,
+          "end": 11977535,
+          "baselineOccurrenceCount": 164,
+          "targetOccurrenceNumber": 737
+        },
+        {
+          "kind": "property",
+          "value": "useInsertionEffect",
+          "start": 11977909,
+          "end": 11977927,
+          "baselineOccurrenceCount": 7,
+          "targetOccurrenceNumber": 8
+        },
+        {
+          "kind": "property",
+          "value": "rows",
+          "start": 11977942,
+          "end": 11977946,
+          "baselineOccurrenceCount": 55,
+          "targetOccurrenceNumber": 77
+        },
+        {
+          "kind": "property",
+          "value": "height",
+          "start": 11978030,
+          "end": 11978036,
+          "baselineOccurrenceCount": 405,
+          "targetOccurrenceNumber": 410
+        },
+        {
+          "kind": "property",
+          "value": "flexShrink",
+          "start": 11978052,
+          "end": 11978062,
+          "baselineOccurrenceCount": 97,
+          "targetOccurrenceNumber": 101
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/ink/components/AlternateScreen.tsx",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "useInsertionEffect",
+            "size?.rows",
+            "flexShrink"
+          ],
+          "declarationName": "AlternateScreen"
+        }
+      ]
+    },
+    {
+      "index": 19684,
+      "origin": "strict-tail-current",
+      "behavior": "wheel acceleration platform logging",
+      "mapping": {
+        "primaryOwner": "src/components/ScrollKeybindingHandler.tsx",
+        "ownerKind": "historical-package-gap",
+        "sourceOwners": [
+          {
+            "path": "src/components/ScrollKeybindingHandler.tsx",
+            "role": "primary",
+            "currentSha256": "1da0d7ab2f336208b173be3faa9eaf0219fa849b027d166ca10ae3aa5562415a",
+            "historicalPresence": "replayed",
+            "historicalSha256": [
+              "7bb44aebd4ea9d42c727459e32cb1b72567e0677de919f752178eef1363a9c60"
+            ],
+            "rawHistoricalPresence": "present",
+            "rawHistoricalSha256": [
+              "50007963c6e06951d28fd95ad12b5b241c22123bb8a693022a6065e1f41b075a"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-package-gap",
+        "target113-source-replay"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 11980386,
+        "end": 11980614,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "65e747ce432809b904dbf44d2d35519b5a25e7f4cd2ea74c6efd9fb839feab8e"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "decay",
+          "start": 11980481,
+          "end": 11980488,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "kind": "string",
+          "value": " · platform=",
+          "start": 11980522,
+          "end": 11980537,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "kind": "string",
+          "value": "linux",
+          "start": 11980539,
+          "end": 11980546,
+          "baselineOccurrenceCount": 89,
+          "targetOccurrenceNumber": 91
+        }
+      ],
+      "replayRecipeId": "u19684-u19685",
+      "sourceAssertions": [
+        {
+          "path": "src/components/ScrollKeybindingHandler.tsx",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "'decay'",
+            " · platform="
+          ],
+          "declarationName": "initAndLogWheelAccel",
+          "requiredAnyFragments": [
+            "${'linux'}",
+            "config.platform"
+          ]
+        }
+      ]
+    },
+    {
+      "index": 19685,
+      "origin": "package-only-final-root",
+      "behavior": "scroll keybindings and virtual anchor state",
+      "mapping": {
+        "primaryOwner": "src/components/ScrollKeybindingHandler.tsx",
+        "ownerKind": "historical-package-gap",
+        "sourceOwners": [
+          {
+            "path": "src/components/ScrollKeybindingHandler.tsx",
+            "role": "primary",
+            "currentSha256": "1da0d7ab2f336208b173be3faa9eaf0219fa849b027d166ca10ae3aa5562415a",
+            "historicalPresence": "replayed",
+            "historicalSha256": [
+              "7bb44aebd4ea9d42c727459e32cb1b72567e0677de919f752178eef1363a9c60"
+            ],
+            "rawHistoricalPresence": "present",
+            "rawHistoricalSha256": [
+              "50007963c6e06951d28fd95ad12b5b241c22123bb8a693022a6065e1f41b075a"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "package-scan-owner",
+        "historical-package-gap",
+        "target113-source-replay"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 11980614,
+        "end": 11984863,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "187393e832f60a48abfacadef35fff7acbb7cc2e4ba57751cc334a893ca85712"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "virtualAnchorRow",
+          "start": 11984034,
+          "end": 11984050,
+          "baselineOccurrenceCount": 10,
+          "targetOccurrenceNumber": 11
+        }
+      ],
+      "replayRecipeId": "u19684-u19685",
+      "sourceAssertions": [
+        {
+          "path": "src/components/ScrollKeybindingHandler.tsx",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "virtualAnchorRow",
+            "selection:extendUp"
+          ],
+          "declarationName": "ScrollKeybindingHandler"
+        }
+      ]
+    },
+    {
+      "index": 19726,
+      "origin": "strict-tail-current",
+      "behavior": "detailed-transcript footer",
+      "mapping": {
+        "primaryOwner": "src/screens/REPL.tsx",
+        "ownerKind": "direct",
+        "sourceOwners": [
+          {
+            "path": "src/screens/REPL.tsx",
+            "role": "primary",
+            "currentSha256": "d46cc3509eae81697cd2712247823ee05adfc4c59d8eb3d0ffd0c4d8add8f180",
+            "historicalPresence": "present",
+            "historicalSha256": [
+              "2599b19e700485f0f647792d453f37257c9d9f1e3d81912d88e481f840a49862"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-owner-hash"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 12000678,
+        "end": 12002055,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "6c47447a71480a0af72e0abac7a1dcfdf2c00e4589d8f606f50e37b02a1b8f0f"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "c",
+          "start": 12000704,
+          "end": 12000705,
+          "baselineOccurrenceCount": 164,
+          "targetOccurrenceNumber": 738
+        },
+        {
+          "kind": "string",
+          "value": "Showing detailed transcript",
+          "start": 12001124,
+          "end": 12001153,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "kind": "string",
+          "value": "n/N to navigate",
+          "start": 12001278,
+          "end": 12001295,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "kind": "string",
+          "value": "v to ",
+          "start": 12001377,
+          "end": 12001382,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/screens/REPL.tsx",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "Showing detailed transcript",
+            "n/N to navigate"
+          ],
+          "declarationName": "TranscriptModeFooter"
+        }
+      ]
+    },
+    {
+      "index": 19741,
+      "origin": "package-only-final-root",
+      "behavior": "API bootstrap additional-model-cost schema",
+      "mapping": {
+        "primaryOwner": "src/services/api/bootstrap.ts",
+        "ownerKind": "historical-package-gap",
+        "sourceOwners": [
+          {
+            "path": "src/services/api/bootstrap.ts",
+            "role": "primary",
+            "currentSha256": "e7ed9ec31c01fbbb80f10ed3d1da281e3b6bbf3365cfff2de07000173ef859f2",
+            "historicalPresence": "replayed",
+            "historicalSha256": [
+              "e7ed9ec31c01fbbb80f10ed3d1da281e3b6bbf3365cfff2de07000173ef859f2"
+            ],
+            "rawHistoricalPresence": "present",
+            "rawHistoricalSha256": [
+              "947aee6acdef6f1cb6310b3953063ad7c7985757bff7f57df6679a9bb440a7d5"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "package-scan-owner",
+        "historical-package-gap",
+        "target113-source-replay"
+      ],
+      "structural": {
+        "classification": "changed",
+        "start": 12064663,
+        "end": 12065449,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "8422a744cdbb10b966fd4035c1b757030bf97071146fc6b29572f8dfb381263c"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "number",
+          "start": 12065057,
+          "end": 12065063,
+          "baselineOccurrenceCount": 439,
+          "targetOccurrenceNumber": 450
+        },
+        {
+          "kind": "property",
+          "value": "number",
+          "start": 12065083,
+          "end": 12065089,
+          "baselineOccurrenceCount": 439,
+          "targetOccurrenceNumber": 451
+        },
+        {
+          "kind": "property",
+          "value": "number",
+          "start": 12065121,
+          "end": 12065127,
+          "baselineOccurrenceCount": 439,
+          "targetOccurrenceNumber": 452
+        },
+        {
+          "kind": "property",
+          "value": "number",
+          "start": 12065158,
+          "end": 12065164,
+          "baselineOccurrenceCount": 439,
+          "targetOccurrenceNumber": 453
+        },
+        {
+          "kind": "property",
+          "value": "number",
+          "start": 12065190,
+          "end": 12065196,
+          "baselineOccurrenceCount": 439,
+          "targetOccurrenceNumber": 454
+        }
+      ],
+      "replayRecipeId": "u19741",
+      "sourceAssertions": [
+        {
+          "path": "src/services/api/bootstrap.ts",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "additional_model_costs",
+            "webSearchRequests"
+          ],
+          "declarationName": "bootstrapResponseSchema"
+        }
+      ]
+    },
+    {
+      "index": 19795,
+      "origin": "strict-tail-current",
+      "behavior": "press-enter continuation prompt",
+      "mapping": {
+        "primaryOwner": "src/components/PressEnterToContinue.tsx",
+        "ownerKind": "corrected",
+        "sourceOwners": [
+          {
+            "path": "src/components/PressEnterToContinue.tsx",
+            "role": "primary",
+            "currentSha256": "ad510d7d3fb3618e2684d1751f3786a8559dcf3890e25828d988bebd4dc984ce",
+            "historicalPresence": "present",
+            "historicalSha256": [
+              "ad510d7d3fb3618e2684d1751f3786a8559dcf3890e25828d988bebd4dc984ce"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-owner-hash",
+        "owner-correction"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 12097845,
+        "end": 12098068,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "d704c144019d2b0a0811cb6d991a9a40b080be2ea5e949d2ab2d026e4cf043f4"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "c",
+          "start": 12097870,
+          "end": 12097871,
+          "baselineOccurrenceCount": 164,
+          "targetOccurrenceNumber": 748
+        },
+        {
+          "kind": "string",
+          "value": "permission",
+          "start": 12097956,
+          "end": 12097968,
+          "baselineOccurrenceCount": 70,
+          "targetOccurrenceNumber": 72
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/PressEnterToContinue.tsx",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "color=\"permission\""
+          ],
+          "declarationName": "PressEnterToContinue"
+        }
+      ]
+    },
+    {
+      "index": 19798,
+      "origin": "strict-tail-current",
+      "behavior": "ordered-list item context consumer",
+      "mapping": {
+        "primaryOwner": "src/components/ui/OrderedListItem.tsx",
+        "ownerKind": "corrected",
+        "sourceOwners": [
+          {
+            "path": "src/components/ui/OrderedListItem.tsx",
+            "role": "primary",
+            "currentSha256": "1f6b8771f99311aa40a3c83fb83c0da6dd3d04a77c286a1157628d044374c6cf",
+            "historicalPresence": "present",
+            "historicalSha256": [
+              "1f6b8771f99311aa40a3c83fb83c0da6dd3d04a77c286a1157628d044374c6cf"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-owner-hash",
+        "owner-correction"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 12098130,
+        "end": 12098509,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "aec8d590dfea1bf0ef5e3c4b8a2cdbfa0033acc4210cd4c6ce033caf07df1c6b"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "c",
+          "start": 12098156,
+          "end": 12098157,
+          "baselineOccurrenceCount": 164,
+          "targetOccurrenceNumber": 749
+        },
+        {
+          "kind": "property",
+          "value": "useContext",
+          "start": 12098191,
+          "end": 12098201,
+          "baselineOccurrenceCount": 78,
+          "targetOccurrenceNumber": 79
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/ui/OrderedListItem.tsx",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "useContext"
+          ],
+          "declarationName": "OrderedListItem"
+        }
+      ]
+    },
+    {
+      "index": 19801,
+      "origin": "strict-tail-current",
+      "behavior": "ordered-list provider",
+      "mapping": {
+        "primaryOwner": "src/components/ui/OrderedList.tsx",
+        "ownerKind": "corrected",
+        "sourceOwners": [
+          {
+            "path": "src/components/ui/OrderedList.tsx",
+            "role": "primary",
+            "currentSha256": "3fe2040de1489809c83b1874def2c5e6e33f6f38f4dfb0c62054ae7934d20d34",
+            "historicalPresence": "present",
+            "historicalSha256": [
+              "3fe2040de1489809c83b1874def2c5e6e33f6f38f4dfb0c62054ae7934d20d34"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-owner-hash",
+        "owner-correction"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 12098610,
+        "end": 12099320,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "8de67c68e64d44fe4a2491a768f2d7cda21f3871f822976494da76002955f6f0"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "c",
+          "start": 12098636,
+          "end": 12098637,
+          "baselineOccurrenceCount": 164,
+          "targetOccurrenceNumber": 750
+        },
+        {
+          "kind": "property",
+          "value": "useContext",
+          "start": 12098670,
+          "end": 12098680,
+          "baselineOccurrenceCount": 78,
+          "targetOccurrenceNumber": 80
+        },
+        {
+          "kind": "property",
+          "value": "Provider",
+          "start": 12099073,
+          "end": 12099081,
+          "baselineOccurrenceCount": 46,
+          "targetOccurrenceNumber": 47
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/ui/OrderedList.tsx",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "OrderedListContext.Provider"
+          ],
+          "declarationName": "OrderedListComponent"
+        }
+      ]
+    },
+    {
+      "index": 19803,
+      "origin": "strict-tail-current",
+      "behavior": "ordered-list context initializer",
+      "mapping": {
+        "primaryOwner": "src/components/ui/OrderedList.tsx",
+        "ownerKind": "corrected",
+        "sourceOwners": [
+          {
+            "path": "src/components/ui/OrderedList.tsx",
+            "role": "primary",
+            "currentSha256": "3fe2040de1489809c83b1874def2c5e6e33f6f38f4dfb0c62054ae7934d20d34",
+            "historicalPresence": "present",
+            "historicalSha256": [
+              "3fe2040de1489809c83b1874def2c5e6e33f6f38f4dfb0c62054ae7934d20d34"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-owner-hash",
+        "owner-correction"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 12099339,
+        "end": 12099449,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "5832532edb6d32bef8cda0001bcd8753178e63e99308f719ec61a23ae4287e51"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "createContext",
+          "start": 12099399,
+          "end": 12099412,
+          "baselineOccurrenceCount": 46,
+          "targetOccurrenceNumber": 47
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/ui/OrderedList.tsx",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "createContext"
+          ],
+          "declarationName": "OrderedListContext"
+        }
+      ]
+    },
+    {
+      "index": 19839,
+      "origin": "strict-tail-current",
+      "behavior": "team onboarding discovery step",
+      "mapping": {
+        "primaryOwner": "src/components/TeamOnboardingDiscoveryStep.tsx",
+        "ownerKind": "current-only-recovered",
+        "sourceOwners": [
+          {
+            "path": "src/components/TeamOnboardingDiscoveryStep.tsx",
+            "role": "primary",
+            "currentSha256": "669403bb23af7a634d865d7ac97a4114143ce97dcfb12489e89b9497976cf469",
+            "historicalPresence": "absent",
+            "historicalSha256": []
+          }
+        ],
+        "transitiveIntroduction": {
+          "case": "2.1.92-to-2.1.94",
+          "evidence": "recovery/test/recovery-2.1.94-runtime-owner-graph-semantic.test.mjs"
+        }
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-owner-absence",
+        "current-only-owner-recovery",
+        "owner-correction"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 12109886,
+        "end": 12110627,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "15eb754fc5905446a8add06fa16f0d664feba7519854371dbda2848044820eec"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "c",
+          "start": 12109912,
+          "end": 12109913,
+          "baselineOccurrenceCount": 164,
+          "targetOccurrenceNumber": 753
+        },
+        {
+          "kind": "property",
+          "value": "width",
+          "start": 12110525,
+          "end": 12110530,
+          "baselineOccurrenceCount": 550,
+          "targetOccurrenceNumber": 551
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/TeamOnboardingDiscoveryStep.tsx",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "width="
+          ],
+          "declarationName": "TeamOnboardingDiscoveryStep"
+        }
+      ]
+    },
+    {
+      "index": 19875,
+      "origin": "strict-tail-current",
+      "behavior": "third-party model upgrade dialog",
+      "mapping": {
+        "primaryOwner": "src/components/ThirdPartyModelUpgradeDialog.tsx",
+        "ownerKind": "current-only-recovered",
+        "sourceOwners": [
+          {
+            "path": "src/components/ThirdPartyModelUpgradeDialog.tsx",
+            "role": "primary",
+            "currentSha256": "a1a6cb7f89763c0d17f0af7fdd55302378b0a3a6de6c35d864cf7e9b1071c194",
+            "historicalPresence": "absent",
+            "historicalSha256": []
+          }
+        ],
+        "transitiveIntroduction": {
+          "case": "2.1.97-to-2.1.98",
+          "evidence": "recovery/test/recovery-2.1.98-vertex-model-upgrade-semantic.test.mjs"
+        }
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-owner-absence",
+        "current-only-owner-recovery",
+        "owner-correction"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 12120513,
+        "end": 12122178,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "a40051c9e5c2610023f7f78768440c560ff759e5a8481ccfdcb2c6ad66988c42"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "c",
+          "start": 12120539,
+          "end": 12120540,
+          "baselineOccurrenceCount": 164,
+          "targetOccurrenceNumber": 757
+        },
+        {
+          "kind": "string",
+          "value": "permission",
+          "start": 12122096,
+          "end": 12122108,
+          "baselineOccurrenceCount": 70,
+          "targetOccurrenceNumber": 73
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/ThirdPartyModelUpgradeDialog.tsx",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "color=\"permission\""
+          ],
+          "declarationName": "ThirdPartyModelUpgradeDialog"
+        }
+      ]
+    },
+    {
+      "index": 19921,
+      "origin": "strict-tail-current",
+      "behavior": "empty resume-conversation state",
+      "mapping": {
+        "primaryOwner": "src/screens/ResumeConversation.tsx",
+        "ownerKind": "direct",
+        "sourceOwners": [
+          {
+            "path": "src/screens/ResumeConversation.tsx",
+            "role": "primary",
+            "currentSha256": "1072f7d1c092329ef17225f1fde389e8439af2454082150d12283e13b02dc140",
+            "historicalPresence": "present",
+            "historicalSha256": [
+              "afdc19d802919e1fed7520c91ac269d9d836d0d2c7712c8972d5f7f5dc92af24"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-owner-hash"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 12144244,
+        "end": 12144868,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "4c5dedc7f8a46715f8e6cd80b14fc3a484742ac7914bfc0e0d57c869eb088f7e"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "c",
+          "start": 12144269,
+          "end": 12144270,
+          "baselineOccurrenceCount": 164,
+          "targetOccurrenceNumber": 760
+        },
+        {
+          "kind": "string",
+          "value": "title",
+          "start": 12144806,
+          "end": 12144813,
+          "baselineOccurrenceCount": 75,
+          "targetOccurrenceNumber": 76
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/screens/ResumeConversation.tsx",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "No conversations found to resume."
+          ],
+          "declarationName": "NoConversationsMessage"
+        }
+      ]
+    },
+    {
+      "index": 20034,
+      "origin": "package-only-final-root",
+      "behavior": "schedule command routines alias",
+      "mapping": {
+        "primaryOwner": "src/skills/bundled/scheduleRemoteAgents.ts",
+        "ownerKind": "historical-package-gap",
+        "sourceOwners": [
+          {
+            "path": "src/skills/bundled/scheduleRemoteAgents.ts",
+            "role": "primary",
+            "currentSha256": "57e056dc05b864340c4274258194da0ad1fdb2d11f7b0f1c2f3af37a91bf6523",
+            "historicalPresence": "replayed",
+            "historicalSha256": [
+              "b5fca8d37b0b215124e7262566934150effa395f2f3cdaa2b2330c1ae99e0297"
+            ],
+            "rawHistoricalPresence": "present",
+            "rawHistoricalSha256": [
+              "130d3f1f34fbe1c6536b145930ab4383ff5dde17fb7918d8a4fcc3a9bdfb7e58"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "package-scan-owner",
+        "historical-package-gap",
+        "target113-source-replay"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 12267075,
+        "end": 12269528,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "1a4eb623399dacdce41362e73caff17749bc111e4e94d520a3733d097ba6a86c"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "routines",
+          "start": 12267119,
+          "end": 12267129,
+          "baselineOccurrenceCount": 2,
+          "targetOccurrenceNumber": 3
+        }
+      ],
+      "replayRecipeId": "u20034",
+      "sourceAssertions": [
+        {
+          "path": "src/skills/bundled/scheduleRemoteAgents.ts",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "aliases: ['routines']",
+            "CLAUDE_CODE_REMOTE"
+          ],
+          "declarationName": "registerScheduleRemoteAgentsSkill"
+        }
+      ]
+    },
+    {
+      "index": 20146,
+      "origin": "package-only-final-root",
+      "behavior": "MCP nonblocking readiness deadline",
+      "mapping": {
+        "primaryOwner": "src/services/mcp/headlessConnectionManager.ts",
+        "ownerKind": "historical-package-gap",
+        "sourceOwners": [
+          {
+            "path": "src/services/mcp/headlessConnectionManager.ts",
+            "role": "primary",
+            "currentSha256": "0d79d3897cd4256a4d1c75de03ead1e176a7ec7a55f110b52893142ebfadefaf",
+            "historicalPresence": "replayed",
+            "historicalSha256": [
+              "1f012b3aefef3c14739cd176d4487484760480b965b7edff6c43c612a193413b"
+            ],
+            "rawHistoricalPresence": "absent",
+            "rawHistoricalSha256": []
+          },
+          {
+            "path": "src/main.tsx",
+            "role": "integration",
+            "currentSha256": "50d53e447da8e167289c87ede75b9544ced2ab861c8f7b2e735a8af438df3660",
+            "historicalPresence": "replayed",
+            "historicalSha256": [
+              "0385b66ea2f9b6914723fd5f7a7600bc41e0c28f5540214981bfc67966e51ea3"
+            ],
+            "rawHistoricalPresence": "present",
+            "rawHistoricalSha256": [
+              "c219450ce5d221c8e998f93d111de84f15d7a9994430628ab14d2434f6d81a70",
+              "0d8cf7de76e7b6a5a477d6fce9fa313ea170adf350164a025ba37d24e1ec93be"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "package-scan-owner",
+        "historical-package-gap",
+        "target113-source-replay"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 12724229,
+        "end": 12724830,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "c2f879a65fcd2ca3c6942d522d0e0377a6bc3a4d33d1067d0a71288bcf5bf2cd"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "max",
+          "start": 12724670,
+          "end": 12724673,
+          "baselineOccurrenceCount": 715,
+          "targetOccurrenceNumber": 728
+        }
+      ],
+      "replayRecipeId": "mcp-headless-manager",
+      "sourceAssertions": [
+        {
+          "path": "src/services/mcp/headlessConnectionManager.ts",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "Math.max",
+            "MCP_SERVER_READINESS_TIMEOUT_MS"
+          ],
+          "declarationName": "connectWithMcpDeadline"
+        },
+        {
+          "path": "src/main.tsx",
+          "astRole": "authored-import-or-integration-fragment",
+          "requiredFragments": [
+            "createHeadlessMcpConnectionManager"
+          ]
+        }
+      ]
+    },
+    {
+      "index": 20149,
+      "origin": "package-only-final-root",
+      "behavior": "retryable MCP transports",
+      "mapping": {
+        "primaryOwner": "src/services/mcp/headlessConnectionManager.ts",
+        "ownerKind": "historical-package-gap",
+        "sourceOwners": [
+          {
+            "path": "src/services/mcp/headlessConnectionManager.ts",
+            "role": "primary",
+            "currentSha256": "0d79d3897cd4256a4d1c75de03ead1e176a7ec7a55f110b52893142ebfadefaf",
+            "historicalPresence": "replayed",
+            "historicalSha256": [
+              "1f012b3aefef3c14739cd176d4487484760480b965b7edff6c43c612a193413b"
+            ],
+            "rawHistoricalPresence": "absent",
+            "rawHistoricalSha256": []
+          },
+          {
+            "path": "src/main.tsx",
+            "role": "integration",
+            "currentSha256": "50d53e447da8e167289c87ede75b9544ced2ab861c8f7b2e735a8af438df3660",
+            "historicalPresence": "replayed",
+            "historicalSha256": [
+              "0385b66ea2f9b6914723fd5f7a7600bc41e0c28f5540214981bfc67966e51ea3"
+            ],
+            "rawHistoricalPresence": "present",
+            "rawHistoricalSha256": [
+              "c219450ce5d221c8e998f93d111de84f15d7a9994430628ab14d2434f6d81a70",
+              "0d8cf7de76e7b6a5a477d6fce9fa313ea170adf350164a025ba37d24e1ec93be"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "package-scan-owner",
+        "historical-package-gap",
+        "target113-source-replay"
+      ],
+      "structural": {
+        "classification": "changed",
+        "start": 12725758,
+        "end": 12725881,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "432e3ac0c927dc0f66ceb5ef84b3d46310fb1d66b5e0e2e0ff960b4e759a8c4d"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "http",
+          "start": 12725847,
+          "end": 12725853,
+          "baselineOccurrenceCount": 130,
+          "targetOccurrenceNumber": 218
+        }
+      ],
+      "replayRecipeId": "mcp-headless-manager",
+      "sourceAssertions": [
+        {
+          "path": "src/services/mcp/headlessConnectionManager.ts",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "'http'",
+            "'sse'",
+            "'claudeai-proxy'"
+          ],
+          "declarationName": "RETRYABLE_REMOTE_MCP_TYPES"
+        }
+      ]
+    },
+    {
+      "index": 20211,
+      "origin": "strict-tail-current",
+      "behavior": "computer-use MCP bundled CLI path",
+      "mapping": {
+        "primaryOwner": "src/utils/computerUse/setup.ts",
+        "ownerKind": "corrected",
+        "sourceOwners": [
+          {
+            "path": "src/utils/computerUse/setup.ts",
+            "role": "primary",
+            "currentSha256": "0791278fd2ed2acac6818206aec1ea6c8bcbfadfcdbbac746af17400ad240d63",
+            "historicalPresence": "present",
+            "historicalSha256": [
+              "0791278fd2ed2acac6818206aec1ea6c8bcbfadfcdbbac746af17400ad240d63"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-owner-hash",
+        "owner-correction"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 12740462,
+        "end": 12740819,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "7d340e213702713dd04507a799290dac172c4543e8eb56780a80b68fd87f3948"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "join",
+          "start": 12740557,
+          "end": 12740561,
+          "baselineOccurrenceCount": 1619,
+          "targetOccurrenceNumber": 2177
+        },
+        {
+          "kind": "property",
+          "value": "fileURLToPath",
+          "start": 12740566,
+          "end": 12740579,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 9
+        },
+        {
+          "kind": "string",
+          "value": "file:///home/runner/work/claude-cli-internal/claude-cli-internal/src/utils/computerUse/setup.ts",
+          "start": 12740580,
+          "end": 12740677,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        },
+        {
+          "kind": "string",
+          "value": "..",
+          "start": 12740679,
+          "end": 12740683,
+          "baselineOccurrenceCount": 77,
+          "targetOccurrenceNumber": 78
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/utils/computerUse/setup.ts",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "fileURLToPath(import.meta.url)",
+            "'..'"
+          ],
+          "declarationName": "setupComputerUseMCP"
+        }
+      ]
+    },
+    {
+      "index": 20241,
+      "origin": "package-only-final-root",
+      "behavior": "startup setup local-settings branch",
+      "mapping": {
+        "primaryOwner": "src/setup.ts",
+        "ownerKind": "historical-package-gap",
+        "sourceOwners": [
+          {
+            "path": "src/setup.ts",
+            "role": "primary",
+            "currentSha256": "9cfbaa416ba1ead885419f65ac85985b8320e668d94f19507d04bf7383ab192e",
+            "historicalPresence": "replayed",
+            "historicalSha256": [
+              "9cfbaa416ba1ead885419f65ac85985b8320e668d94f19507d04bf7383ab192e"
+            ],
+            "rawHistoricalPresence": "present",
+            "rawHistoricalSha256": [
+              "43a7f88331f6136e5bb096c63a33ce99bbbdb5108696a97f017d3c1eb8ef1e35"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "package-scan-owner",
+        "historical-package-gap",
+        "target113-source-replay"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 12750970,
+        "end": 12755374,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "f553114744b8df97f83d5480c34f7123a14f608e77672dd179322a47b11e9ede"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "localSettings",
+          "start": 12754121,
+          "end": 12754136,
+          "baselineOccurrenceCount": 109,
+          "targetOccurrenceNumber": 110
+        }
+      ],
+      "replayRecipeId": "u20241",
+      "sourceAssertions": [
+        {
+          "path": "src/setup.ts",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "getSettingsForSource('localSettings')",
+            "prefetchProxyAuthFromHelperIfSafe"
+          ],
+          "declarationName": "setup"
+        }
+      ]
+    },
+    {
+      "index": 20294,
+      "origin": "strict-tail-current",
+      "behavior": "headless print/query runtime",
+      "mapping": {
+        "primaryOwner": "src/cli/print.ts",
+        "ownerKind": "direct",
+        "sourceOwners": [
+          {
+            "path": "src/cli/print.ts",
+            "role": "primary",
+            "currentSha256": "6f196646546f085cbd3abe5b999fd13f61c74f363cbbe120cae14d6e4c6696d9",
+            "historicalPresence": "present",
+            "historicalSha256": [
+              "bdcbb933479f5b2d2f675ed45cda5db4a7e05de58d14ea382cdb8132bf85e649"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-owner-hash"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 12800395,
+        "end": 12806766,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "ee1bedabeea2e113fbaa8d5307d3b71907e668957fcf57437b340a452eb97331"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "randomUUID",
+          "start": 12801715,
+          "end": 12801725,
+          "baselineOccurrenceCount": 20,
+          "targetOccurrenceNumber": 149
+        },
+        {
+          "kind": "property",
+          "value": "randomUUID",
+          "start": 12802633,
+          "end": 12802643,
+          "baselineOccurrenceCount": 20,
+          "targetOccurrenceNumber": 150
+        },
+        {
+          "kind": "property",
+          "value": "randomUUID",
+          "start": 12802840,
+          "end": 12802850,
+          "baselineOccurrenceCount": 20,
+          "targetOccurrenceNumber": 151
+        },
+        {
+          "kind": "property",
+          "value": "randomUUID",
+          "start": 12803086,
+          "end": 12803096,
+          "baselineOccurrenceCount": 20,
+          "targetOccurrenceNumber": 152
+        },
+        {
+          "kind": "property",
+          "value": "trigger",
+          "start": 12803176,
+          "end": 12803183,
+          "baselineOccurrenceCount": 64,
+          "targetOccurrenceNumber": 74
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/cli/print.ts",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "randomUUID()",
+            "options.setupTrigger"
+          ],
+          "declarationName": "runHeadless"
+        }
+      ]
+    },
+    {
+      "index": 20319,
+      "origin": "strict-tail-current",
+      "behavior": "teleport progress renderer",
+      "mapping": {
+        "primaryOwner": "src/components/TeleportProgress.tsx",
+        "ownerKind": "corrected",
+        "sourceOwners": [
+          {
+            "path": "src/components/TeleportProgress.tsx",
+            "role": "primary",
+            "currentSha256": "cb70ead98b1766dc7fc887504ecec87ea872ddbbd9e54ab162438a9411b6e8dc",
+            "historicalPresence": "present",
+            "historicalSha256": [
+              "cb70ead98b1766dc7fc887504ecec87ea872ddbbd9e54ab162438a9411b6e8dc"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-owner-hash",
+        "owner-correction"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 12861228,
+        "end": 12862374,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "21c5ceb79f29cb5cf14d6c44370ef06f370bd619a4185d6610e237f9edb56c15"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "c",
+          "start": 12861254,
+          "end": 12861255,
+          "baselineOccurrenceCount": 164,
+          "targetOccurrenceNumber": 762
+        },
+        {
+          "kind": "property",
+          "value": "width",
+          "start": 12861934,
+          "end": 12861939,
+          "baselineOccurrenceCount": 550,
+          "targetOccurrenceNumber": 552
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/TeleportProgress.tsx",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "width={2}",
+            "flexDirection=\"column\""
+          ],
+          "declarationName": "TeleportProgress"
+        }
+      ]
+    },
+    {
+      "index": 20323,
+      "origin": "strict-tail-current",
+      "behavior": "MCP desktop import dialog",
+      "mapping": {
+        "primaryOwner": "src/components/MCPServerDesktopImportDialog.tsx",
+        "ownerKind": "direct",
+        "sourceOwners": [
+          {
+            "path": "src/components/MCPServerDesktopImportDialog.tsx",
+            "role": "primary",
+            "currentSha256": "f074300d0d7d0143df344088e63766faff8d4fdd0b18d055f7469647b7f45b1d",
+            "historicalPresence": "present",
+            "historicalSha256": [
+              "f074300d0d7d0143df344088e63766faff8d4fdd0b18d055f7469647b7f45b1d"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-owner-hash"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 12863064,
+        "end": 12865780,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "c20289576b68a61585d4b28a445b008befd74b8c07a10ad9e0b4f0fb0d10c36c"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "c",
+          "start": 12863090,
+          "end": 12863091,
+          "baselineOccurrenceCount": 164,
+          "targetOccurrenceNumber": 763
+        },
+        {
+          "kind": "property",
+          "value": "useEffect",
+          "start": 12863442,
+          "end": 12863451,
+          "baselineOccurrenceCount": 411,
+          "targetOccurrenceNumber": 413
+        },
+        {
+          "kind": "property",
+          "value": "Fragment",
+          "start": 12865723,
+          "end": 12865731,
+          "baselineOccurrenceCount": 266,
+          "targetOccurrenceNumber": 267
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/components/MCPServerDesktopImportDialog.tsx",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "useEffect",
+            "<>"
+          ],
+          "declarationName": "MCPServerDesktopImportDialog"
+        }
+      ]
+    },
+    {
+      "index": 20393,
+      "origin": "strict-tail-current",
+      "behavior": "agents command group renderer",
+      "mapping": {
+        "primaryOwner": "src/cli/handlers/agents.ts",
+        "ownerKind": "direct",
+        "sourceOwners": [
+          {
+            "path": "src/cli/handlers/agents.ts",
+            "role": "primary",
+            "currentSha256": "8f68c19182ef00910b5e4900e6b37bd0c52768efd214a919f5070e747641f827",
+            "historicalPresence": "present",
+            "historicalSha256": [
+              "8f68c19182ef00910b5e4900e6b37bd0c52768efd214a919f5070e747641f827"
+            ]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-owner-hash"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 12897233,
+        "end": 12897730,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "6a207aae159433926ec2f2d14a48afd69ba9c730c8a9be44d663588443022f64"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "c",
+          "start": 12897259,
+          "end": 12897260,
+          "baselineOccurrenceCount": 164,
+          "targetOccurrenceNumber": 770
+        },
+        {
+          "kind": "property",
+          "value": "default",
+          "start": 12897369,
+          "end": 12897376,
+          "baselineOccurrenceCount": 5335,
+          "targetOccurrenceNumber": 5422
+        },
+        {
+          "kind": "property",
+          "value": "default",
+          "start": 12897469,
+          "end": 12897476,
+          "baselineOccurrenceCount": 5335,
+          "targetOccurrenceNumber": 5423
+        },
+        {
+          "kind": "property",
+          "value": "default",
+          "start": 12897634,
+          "end": 12897641,
+          "baselineOccurrenceCount": 5335,
+          "targetOccurrenceNumber": 5424
+        },
+        {
+          "kind": "property",
+          "value": "flexDirection",
+          "start": 12897659,
+          "end": 12897672,
+          "baselineOccurrenceCount": 1077,
+          "targetOccurrenceNumber": 1082
+        },
+        {
+          "kind": "string",
+          "value": "column",
+          "start": 12897673,
+          "end": 12897681,
+          "baselineOccurrenceCount": 896,
+          "targetOccurrenceNumber": 901
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/cli/handlers/agents.ts",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "getAgentDefinitionsWithOverrides",
+            "lines.join"
+          ],
+          "declarationName": "agentsHandler"
+        }
+      ]
+    },
+    {
+      "index": 20404,
+      "origin": "strict-tail-current",
+      "behavior": "auto-mode critique handler",
+      "mapping": {
+        "primaryOwner": "src/cli/handlers/autoMode.ts",
+        "ownerKind": "historical-package-gap",
+        "sourceOwners": [
+          {
+            "path": "src/cli/handlers/autoMode.ts",
+            "role": "primary",
+            "currentSha256": "94aed03fb5901e0da19b29946e6e3b8a50995803ac08d21daf1d6b6a61e97013",
+            "historicalPresence": "replayed",
+            "historicalSha256": [
+              "e6a581e866d1a0fc63a8c18764a8ebdf7f0c32492b0f1da009ad50723f462afc"
+            ],
+            "replayCandidateSha256": "e6a581e866d1a0fc63a8c18764a8ebdf7f0c32492b0f1da009ad50723f462afc",
+            "rawHistoricalPresence": "present",
+            "rawHistoricalSha256": [
+              "9e018a6599d62a72c2828e4580336a0c4b42b31bb85502e1096ce81fb8730a26"
+            ]
+          },
+          {
+            "path": "src/cli/handlers/util.tsx",
+            "role": "supporting-dependency",
+            "currentSha256": "06e8bd420799e931a5d0254e4a3e3b4b80e62f1410910d22fa1d634810a2557f",
+            "historicalPresence": "replayed",
+            "historicalSha256": [
+              "bc1d549c9ac0f8ba7cb35ef12d2f504ef52af340f36d347141369c3a1da7b9d5"
+            ],
+            "replayCandidateSha256": "bc1d549c9ac0f8ba7cb35ef12d2f504ef52af340f36d347141369c3a1da7b9d5",
+            "rawHistoricalPresence": "present",
+            "rawHistoricalSha256": [
+              "68f1e9fb6d6cf6d4e67a2ffddcd4f9495871e90954edc7cb90c091ac1a55c0ac"
+            ]
+          },
+          {
+            "path": "src/main.tsx",
+            "role": "integration",
+            "currentSha256": "50d53e447da8e167289c87ede75b9544ced2ab861c8f7b2e735a8af438df3660",
+            "historicalPresence": "replayed",
+            "historicalSha256": [
+              "0385b66ea2f9b6914723fd5f7a7600bc41e0c28f5540214981bfc67966e51ea3"
+            ],
+            "replayCandidateSha256": "0385b66ea2f9b6914723fd5f7a7600bc41e0c28f5540214981bfc67966e51ea3",
+            "rawHistoricalPresence": "present",
+            "rawHistoricalSha256": [
+              "c219450ce5d221c8e998f93d111de84f15d7a9994430628ab14d2434f6d81a70",
+              "0d8cf7de76e7b6a5a477d6fce9fa313ea170adf350164a025ba37d24e1ec93be"
+            ]
+          }
+        ],
+        "transitiveFromCase": "2.1.107-to-2.1.108"
+      },
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "current-owner-hash",
+        "historical-package-gap",
+        "target113-source-replay",
+        "supporting-dependency-owner"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 12899025,
+        "end": 12900429,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "d8cd7b1e04c67a8327713ea6a6f022f5188ac1b925b506e42368efc071fa277e"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "default",
+          "start": 12899165,
+          "end": 12899172,
+          "baselineOccurrenceCount": 5335,
+          "targetOccurrenceNumber": 5433
+        },
+        {
+          "kind": "property",
+          "value": "createElement",
+          "start": 12899173,
+          "end": 12899186,
+          "baselineOccurrenceCount": 8123,
+          "targetOccurrenceNumber": 8127
+        },
+        {
+          "kind": "property",
+          "value": "default",
+          "start": 12899199,
+          "end": 12899206,
+          "baselineOccurrenceCount": 5335,
+          "targetOccurrenceNumber": 5434
+        },
+        {
+          "kind": "property",
+          "value": "createElement",
+          "start": 12899207,
+          "end": 12899220,
+          "baselineOccurrenceCount": 8123,
+          "targetOccurrenceNumber": 8128
+        },
+        {
+          "kind": "property",
+          "value": "default",
+          "start": 12899646,
+          "end": 12899653,
+          "baselineOccurrenceCount": 5335,
+          "targetOccurrenceNumber": 5435
+        },
+        {
+          "kind": "property",
+          "value": "createElement",
+          "start": 12899654,
+          "end": 12899667,
+          "baselineOccurrenceCount": 8123,
+          "targetOccurrenceNumber": 8129
+        },
+        {
+          "kind": "property",
+          "value": "default",
+          "start": 12900337,
+          "end": 12900344,
+          "baselineOccurrenceCount": 5335,
+          "targetOccurrenceNumber": 5436
+        },
+        {
+          "kind": "property",
+          "value": "createElement",
+          "start": 12900345,
+          "end": 12900358,
+          "baselineOccurrenceCount": 8123,
+          "targetOccurrenceNumber": 8130
+        },
+        {
+          "kind": "property",
+          "value": "default",
+          "start": 12900371,
+          "end": 12900378,
+          "baselineOccurrenceCount": 5335,
+          "targetOccurrenceNumber": 5437
+        },
+        {
+          "kind": "property",
+          "value": "createElement",
+          "start": 12900379,
+          "end": 12900392,
+          "baselineOccurrenceCount": 8123,
+          "targetOccurrenceNumber": 8131
+        }
+      ],
+      "sourceAssertions": [
+        {
+          "path": "src/cli/handlers/autoMode.ts",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "sideQuery",
+            "auto_mode_critique",
+            "React.createElement",
+            "renderAndExit"
+          ],
+          "declarationName": "autoModeCritiqueHandler"
+        },
+        {
+          "path": "src/cli/handlers/util.tsx",
+          "astRole": "named-authored-declaration",
+          "requiredFragments": [
+            "createRoot",
+            "getBaseRenderOptions",
+            "patchConsole: false"
+          ],
+          "declarationName": "createSubcommandRoot"
+        },
+        {
+          "path": "src/main.tsx",
+          "astRole": "authored-integration-fragment",
+          "requiredFragments": [
+            "autoModeDefaultsHandler(await createSubcommandRoot())",
+            "autoModeConfigHandler(await createSubcommandRoot())",
+            "autoModeCritiqueHandler(await createSubcommandRoot(), options)"
+          ]
+        }
+      ],
+      "replayRecipeId": "u20404"
+    }
+  ],
+  "excludedUnits": [
+    {
+      "index": 19322,
+      "origin": "strict-tail-current",
+      "reason": "daemon-path-initializer-live-risk",
+      "delegatedLane": "target113-live-risk",
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "live-risk-exclusion"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 11830478,
+        "end": 11830736,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "8c6112d86eefe2587586bea33706006bbf072036d668d9e1759d5a0791d6e48a"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "os",
+          "start": 11830543,
+          "end": 11830547,
+          "baselineOccurrenceCount": 71,
+          "targetOccurrenceNumber": 80
+        },
+        {
+          "kind": "property",
+          "value": "createHash",
+          "start": 11830615,
+          "end": 11830625,
+          "baselineOccurrenceCount": 17,
+          "targetOccurrenceNumber": 48
+        },
+        {
+          "kind": "property",
+          "value": "join",
+          "start": 11830685,
+          "end": 11830689,
+          "baselineOccurrenceCount": 1619,
+          "targetOccurrenceNumber": 2120
+        },
+        {
+          "kind": "property",
+          "value": "tmpdir",
+          "start": 11830694,
+          "end": 11830700,
+          "baselineOccurrenceCount": 3,
+          "targetOccurrenceNumber": 9
+        },
+        {
+          "kind": "string",
+          "value": "cc-daemon-",
+          "start": 11830704,
+          "end": 11830714,
+          "baselineOccurrenceCount": 0,
+          "targetOccurrenceNumber": 1
+        }
+      ]
+    },
+    {
+      "index": 20409,
+      "origin": "strict-tail-current",
+      "reason": "daemon-lock-reader-live-risk",
+      "delegatedLane": "target113-live-risk",
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "live-risk-exclusion"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 12901875,
+        "end": 12902106,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "2d8a221cfdca9ece97e34147f1d9a338135efc18ac8f19bbe3245ae962823959"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "readFile",
+          "start": 12901918,
+          "end": 12901926,
+          "baselineOccurrenceCount": 66,
+          "targetOccurrenceNumber": 174
+        },
+        {
+          "kind": "property",
+          "value": "pid",
+          "start": 12902041,
+          "end": 12902044,
+          "baselineOccurrenceCount": 136,
+          "targetOccurrenceNumber": 137
+        }
+      ]
+    },
+    {
+      "index": 20413,
+      "origin": "strict-tail-current",
+      "reason": "daemon-lock-import-graph-live-risk",
+      "delegatedLane": "target113-live-risk",
+      "evidenceIds": [
+        "auth-structural-fragment",
+        "auth-baseline-target-ordinal",
+        "live-risk-exclusion"
+      ],
+      "structural": {
+        "classification": "unresolved",
+        "start": 12902377,
+        "end": 12902461,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "2393d19cdd3ff9e7afd2df1ff90c5e2bb1f67fb4af9e1244c0fd34c7c88d59fa"
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "fs/promises",
+          "start": 12902424,
+          "end": 12902437,
+          "baselineOccurrenceCount": 156,
+          "targetOccurrenceNumber": 165
+        }
+      ]
+    }
+  ],
+  "historicalPackageReplayFixture": "recovery-2.1.113-second-half-historical-package-replay.json"
+}

@@ -1,11 +1,11 @@
 import axios from 'axios';
-import { readFile, stat } from 'fs/promises';
 import * as React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { getLastAPIRequest } from 'src/bootstrap/state.js';
 import { logEventTo1P } from 'src/services/analytics/firstPartyEventLogger.js';
 import { getFeatureValue_CACHED_MAY_BE_STALE } from 'src/services/analytics/growthbook.js';
 import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEvent } from 'src/services/analytics/index.js';
+import { getFeatureValue_CACHED_MAY_BE_STALE } from 'src/services/analytics/growthbook.js';
 import { getLastAssistantMessage, normalizeMessagesForAPI } from 'src/utils/messages.js';
 import type { CommandResultDisplay } from '../commands.js';
 import { useTerminalSize } from '../hooks/useTerminalSize.js';
@@ -21,11 +21,13 @@ import { logForDebugging } from '../utils/debug.js';
 import { env } from '../utils/env.js';
 import { errorMessage } from '../utils/errors.js';
 import { type GitRepoState, getGitState, getIsGit } from '../utils/git.js';
+import { tailFile } from '../utils/fsOperations.js';
 import { getAuthHeaders, getUserAgent } from '../utils/http.js';
 import { getInMemoryErrors, logError } from '../utils/log.js';
 import { isEssentialTrafficOnly } from '../utils/privacyLevel.js';
-import { extractTeammateTranscriptsFromTasks, getTranscriptPath, loadAllSubagentTranscriptsFromDisk, MAX_TRANSCRIPT_READ_BYTES } from '../utils/sessionStorage.js';
+import { extractTeammateTranscriptsFromTasks, getTranscriptPath, loadAllSubagentTranscriptsFromDisk } from '../utils/sessionStorage.js';
 import { jsonStringify } from '../utils/slowOperations.js';
+import { serializeWrappedContent } from '../utils/wrappedContentSerializer.js';
 import { asSystemPrompt } from '../utils/systemPromptType.js';
 import { ConfigurableShortcutHint } from './ConfigurableShortcutHint.js';
 import { Byline } from './design-system/Byline.js';
@@ -37,6 +39,8 @@ import TextInput from './TextInput.js';
 // This value was determined experimentally by testing the URL length limit
 const GITHUB_URL_LIMIT = 7250;
 const GITHUB_ISSUES_REPO_URL = "external" === 'ant' ? 'https://github.com/anthropics/claude-cli-internal/issues' : 'https://github.com/anthropics/claude-code/issues';
+const RAW_TRANSCRIPT_TAIL_BYTES = 4 * 1024 * 1024;
+const MAX_FEEDBACK_PAYLOAD_BYTES = 8 * 1024 * 1024;
 type Props = {
   abortSignal: AbortSignal;
   messages: Message[];
@@ -148,17 +152,15 @@ function getSanitizedErrorLogs(): Array<{
 }
 async function loadRawTranscriptJsonl(): Promise<string | null> {
   try {
-    const transcriptPath = getTranscriptPath();
-    const {
-      size
-    } = await stat(transcriptPath);
-    if (size > MAX_TRANSCRIPT_READ_BYTES) {
-      logForDebugging(`Skipping raw transcript read: file too large (${size} bytes)`, {
-        level: 'warn'
-      });
-      return null;
+    const { content, bytesRead, bytesTotal } = await tailFile(
+      getTranscriptPath(),
+      RAW_TRANSCRIPT_TAIL_BYTES,
+    );
+    if (bytesRead < bytesTotal) {
+      const firstNewline = content.indexOf('\n');
+      return firstNewline >= 0 ? content.slice(firstNewline + 1) : null;
     }
-    return await readFile(transcriptPath, 'utf-8');
+    return content;
   } catch {
     return null;
   }
@@ -221,6 +223,13 @@ export function Feedback({
       setFeedbackId(result.feedbackId);
       setStep('done');
     } else {
+      if (result.failureReason) {
+        logEvent('tengu_bug_report_failed', {
+          reason: result.failureReason as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+          status_code: String(result.statusCode ?? '') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+          first_attempt_too_large: String(!initialResult.success && initialResult.payloadTooLarge === true) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        });
+      }
       if (result.isZdrOrg) {
         setError('Feedback collection is not available for organizations with custom data retention policies.');
       } else if (result.failureReason === 'auth_error') {
@@ -264,6 +273,7 @@ export function Feedback({
           display: 'system'
         });
       }
+      onDone(error ? 'Error submitting feedback / bug report' : 'Feedback / bug report submitted', { display: 'system' });
       return;
     }
     if (error && step !== 'userInput') {
@@ -507,7 +517,18 @@ function sanitizeAndLogError(err: unknown): void {
     logError(new Error(errorString));
   }
 }
-async function submitFeedback(data: FeedbackData, signal?: AbortSignal): Promise<{
+const FEEDBACK_ARRAY_FIELDS = new Set(['transcript']);
+const FEEDBACK_TRANSCRIPT_MAP_FIELDS = new Set(['subagentTranscripts']);
+
+function serializeFeedbackPayload(data: FeedbackData): Buffer {
+  return serializeWrappedContent(
+    data,
+    FEEDBACK_ARRAY_FIELDS,
+    FEEDBACK_TRANSCRIPT_MAP_FIELDS,
+  );
+}
+
+type FeedbackSubmissionResult = {
   success: boolean;
   feedbackId?: string;
   isZdrOrg?: boolean;

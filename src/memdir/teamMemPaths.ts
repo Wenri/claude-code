@@ -90,6 +90,12 @@ export function getTeamMemPath(): string {
   return (join(getAutoMemPath(), 'team') + sep).normalize('NFC')
 }
 
+/** Team memory is usable for this cwd only after the server reports content. */
+export function isTeamMemoryActiveForCwd(): boolean {
+  if (!isTeamMemoryEnabled()) return false
+  return getTeamMemoryServerStatus() === 'has-content'
+}
+
 /**
  * Returns the team memory entrypoint: <memoryBase>/projects/<sanitized-project-root>/memory/team/MEMORY.md
  * Lives as a subdirectory of the auto-memory directory, scoped per-project.

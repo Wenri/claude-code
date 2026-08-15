@@ -20,17 +20,17 @@ export type CommandNameCandidate = {
 export function findClosestCommand(
   input: string,
   commands: CommandNameCandidate[],
+  { maxEditDistance = 1 }: { maxEditDistance?: number } = {},
 ): string | undefined {
   const names = commands.flatMap(command => [
     command.name,
     ...(command.aliases ?? []),
   ])
-  const maxDistance = input.length <= 3 ? 1 : 2
   let best: string | undefined
-  let bestDistance = maxDistance + 1
+  let bestDistance = maxEditDistance + 1
 
   for (const name of names) {
-    if (Math.abs(name.length - input.length) > maxDistance) continue
+    if (Math.abs(name.length - input.length) > maxEditDistance) continue
     const distance = levenshteinDistance(input, name)
     if (distance < bestDistance) {
       bestDistance = distance
@@ -43,22 +43,36 @@ export function findClosestCommand(
 
 function levenshteinDistance(left: string, right: string): number {
   if (left === right) return 0
-  const row = Array.from({ length: right.length + 1 }, (_, index) => index)
+  const matrix = Array.from({ length: left.length + 1 }, (_, leftIndex) =>
+    Array.from({ length: right.length + 1 }, (_, rightIndex) =>
+      leftIndex === 0 ? rightIndex : rightIndex === 0 ? leftIndex : 0,
+    ),
+  )
 
   for (let leftIndex = 1; leftIndex <= left.length; leftIndex++) {
-    let diagonal = row[0]!
-    row[0] = leftIndex
     for (let rightIndex = 1; rightIndex <= right.length; rightIndex++) {
-      const previous = row[rightIndex]!
-      row[rightIndex] =
-        left[leftIndex - 1] === right[rightIndex - 1]
-          ? diagonal
-          : 1 + Math.min(diagonal, row[rightIndex]!, row[rightIndex - 1]!)
-      diagonal = previous
+      const substitutionCost =
+        left[leftIndex - 1] === right[rightIndex - 1] ? 0 : 1
+      matrix[leftIndex]![rightIndex] = Math.min(
+        matrix[leftIndex - 1]![rightIndex]! + 1,
+        matrix[leftIndex]![rightIndex - 1]! + 1,
+        matrix[leftIndex - 1]![rightIndex - 1]! + substitutionCost,
+      )
+      if (
+        leftIndex > 1 &&
+        rightIndex > 1 &&
+        left[leftIndex - 1] === right[rightIndex - 2] &&
+        left[leftIndex - 2] === right[rightIndex - 1]
+      ) {
+        matrix[leftIndex]![rightIndex] = Math.min(
+          matrix[leftIndex]![rightIndex]!,
+          matrix[leftIndex - 2]![rightIndex - 2]! + 1,
+        )
+      }
     }
   }
 
-  return row[right.length]!
+  return matrix[left.length]![right.length]!
 }
 
 // Treat these characters as word separators for command search
@@ -199,7 +213,7 @@ export function findMidInputSlashCommand(
   // Lookbehind (?<=\s) is avoided — it defeats YARR JIT in JSC, and the
   // interpreter scans O(n) even with the $ anchor. Capture the whitespace
   // instead and offset match.index by 1.
-  const match = beforeCursor.match(/\s\/([a-zA-Z0-9_:-]*)$/)
+  const match = beforeCursor.match(/[\s。、？！]\/([a-zA-Z0-9_:-]*)$/)
   if (!match || match.index === undefined) {
     return null
   }
@@ -641,7 +655,7 @@ export function findSlashCommandPositions(
 ): Array<{ start: number; end: number }> {
   const positions: Array<{ start: number; end: number }> = []
   // Match /command patterns preceded by whitespace or start-of-string
-  const regex = /(^|[\s])(\/[a-zA-Z][a-zA-Z0-9:\-_]*)/g
+  const regex = /(^|[\s。、？！])(\/[a-zA-Z][a-zA-Z0-9:\-_]*)/g
   let match: RegExpExecArray | null = null
   while ((match = regex.exec(text)) !== null) {
     const precedingChar = match[1] ?? ''

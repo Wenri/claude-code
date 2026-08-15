@@ -2,9 +2,14 @@ import assert from 'node:assert/strict'
 import crypto from 'node:crypto'
 import fs from 'node:fs'
 import test from 'node:test'
+import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const sourceRoot = fileURLToPath(new URL('../../src/', import.meta.url))
+const repositoryRoot = fileURLToPath(new URL('../..', import.meta.url))
+const sourceRoot = path.resolve(
+  process.env.CLAUDE_CODE_SEMANTIC_SOURCE_ROOT ??
+    path.join(repositoryRoot, 'src'),
+)
 const baselineBundlePath = process.env.CLAUDE_CODE_2_1_104_BUNDLE
 const targetBundlePath = process.env.CLAUDE_CODE_2_1_105_BUNDLE
 const BASELINE_BUNDLE_SHA256 =
@@ -13,7 +18,7 @@ const TARGET_BUNDLE_SHA256 =
   '8bc6a637870babb5cb539da24e4bcbbd3e2c399b93d91b319ee42d0f26b03f75'
 
 function source(relativePath) {
-  return fs.readFileSync(`${sourceRoot}${relativePath}`, 'utf8')
+  return fs.readFileSync(path.join(sourceRoot, relativePath), 'utf8')
 }
 
 function requiredBundle(filename, label, expectedSha256) {
@@ -159,10 +164,19 @@ test('surfaces connection retry errors and validates keybindings deeply', () => 
     assert.match(errors, new RegExp(`'${code}'`))
   }
   assert.match(errors, /export function isNetworkConnectionError/)
-  assert.match(
-    errorUI,
-    /retryAttempt < 4 && !isNetworkConnectionError\(error\)/,
-  )
+  if (errorUI.includes('const hidden =')) {
+    assert.match(
+      errorUI,
+      /retryAttempt < 4 && !isNetworkConnectionError\(error\)/,
+    )
+  } else {
+    assert.match(
+      errorUI,
+      /retryAttempt < maxRetries && !isNetworkConnectionError\(error\)/,
+    )
+    assert.match(errorUI, /extractConnectionErrorDetails\(error\)\?\.isSSLError/)
+    assert.match(errorUI, /!rateLimitInfo/)
+  }
   assert.match(
     keybindings,
     /return KeybindingBlockSchema\(\)\.safeParse\(obj\)\.success/,

@@ -1,7 +1,6 @@
 import { tmpdir } from 'os'
 import { join } from 'path'
 import { join as posixJoin } from 'path/posix'
-import { getSessionEnvVars } from '../sessionEnvVars.js'
 import type { ShellProvider } from './shellProvider.js'
 
 /**
@@ -100,7 +99,10 @@ export function createPowerShellProvider(shellPath: string): ShellProvider {
       return buildPowerShellArgs(commandString)
     },
 
-    async getEnvironmentOverrides(): Promise<Record<string, string>> {
+    async getEnvironmentOverrides(
+      _command: string,
+      sessionEnvVars?: Map<string, string>,
+    ): Promise<Record<string, string>> {
       const env: Record<string, string> = {}
       // Apply session env vars set via /env (child processes only, not
       // the REPL). Without this, `/env PATH=...` affects Bash tool
@@ -109,8 +111,10 @@ export function createPowerShellProvider(shellPath: string): ShellProvider {
       // Ordering: session vars FIRST so the sandbox TMPDIR below can't be
       // overridden by `/env TMPDIR=...`. bashProvider.ts has these in the
       // opposite order (pre-existing), but sandbox isolation should win.
-      for (const [key, value] of getSessionEnvVars()) {
-        env[key] = value
+      if (sessionEnvVars) {
+        for (const [key, value] of sessionEnvVars) {
+          env[key] = value
+        }
       }
       if (currentSandboxTmpDir) {
         // PowerShell on Linux/macOS honors TMPDIR for [System.IO.Path]::GetTempPath()

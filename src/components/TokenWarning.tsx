@@ -8,6 +8,7 @@ import { calculateTokenWarningState, getEffectiveContextWindowSize, isAutoCompac
 import { useCompactWarningSuppression } from '../services/compact/compactWarningHook.js';
 import { isEnvTruthy } from '../utils/envUtils.js';
 import { getUpgradeMessage } from '../utils/model/contextWindowUpgradeCheck.js';
+import { useAppState } from '../state/AppState.js';
 type Props = {
   tokenUsage: number;
   model: string;
@@ -86,19 +87,21 @@ function CollapseLabel(t0) {
   return t5;
 }
 export function TokenWarning(t0) {
-  const $ = _c(13);
+  const $ = _c(14);
   const {
     tokenUsage,
     model
   } = t0;
+  const autoCompactWindow = useAppState(state => state.autoCompactWindow);
   let t1;
-  if ($[0] !== model || $[1] !== tokenUsage) {
-    t1 = calculateTokenWarningState(tokenUsage, model);
-    $[0] = model;
-    $[1] = tokenUsage;
-    $[2] = t1;
+  if ($[0] !== autoCompactWindow || $[1] !== model || $[2] !== tokenUsage) {
+    t1 = calculateTokenWarningState(tokenUsage, model, autoCompactWindow);
+    $[0] = autoCompactWindow;
+    $[1] = model;
+    $[2] = tokenUsage;
+    $[3] = t1;
   } else {
-    t1 = $[2];
+    t1 = $[3];
   }
   const {
     percentLeft,
@@ -110,19 +113,19 @@ export function TokenWarning(t0) {
     return null;
   }
   let t2;
-  if ($[3] === Symbol.for("react.memo_cache_sentinel")) {
+  if ($[4] === Symbol.for("react.memo_cache_sentinel")) {
     t2 = isAutoCompactEnabled();
-    $[3] = t2;
+    $[4] = t2;
   } else {
-    t2 = $[3];
+    t2 = $[4];
   }
   const showAutoCompactWarning = t2;
   let t3;
-  if ($[4] === Symbol.for("react.memo_cache_sentinel")) {
+  if ($[5] === Symbol.for("react.memo_cache_sentinel")) {
     t3 = getUpgradeMessage("warning");
-    $[4] = t3;
+    $[5] = t3;
   } else {
-    t3 = $[4];
+    t3 = $[5];
   }
   const upgradeMessage = t3;
   let displayPercentLeft = percentLeft;
@@ -142,38 +145,38 @@ export function TokenWarning(t0) {
     }
   }
   if (reactiveOnlyMode || collapseMode) {
-    const effectiveWindow = getEffectiveContextWindowSize(model);
+    const effectiveWindow = getEffectiveContextWindowSize(model, autoCompactWindow);
     let t4;
-    if ($[5] !== effectiveWindow || $[6] !== tokenUsage) {
+    if ($[6] !== effectiveWindow || $[7] !== tokenUsage) {
       t4 = Math.round((effectiveWindow - tokenUsage) / effectiveWindow * 100);
-      $[5] = effectiveWindow;
-      $[6] = tokenUsage;
-      $[7] = t4;
+      $[6] = effectiveWindow;
+      $[7] = tokenUsage;
+      $[8] = t4;
     } else {
-      t4 = $[7];
+      t4 = $[8];
     }
     displayPercentLeft = Math.max(0, t4);
   }
   if (collapseMode && feature("CONTEXT_COLLAPSE")) {
     let t4;
-    if ($[8] === Symbol.for("react.memo_cache_sentinel")) {
+    if ($[9] === Symbol.for("react.memo_cache_sentinel")) {
       t4 = <Box flexDirection="row"><CollapseLabel upgradeMessage={upgradeMessage} /></Box>;
-      $[8] = t4;
+      $[9] = t4;
     } else {
-      t4 = $[8];
+      t4 = $[9];
     }
     return t4;
   }
   const autocompactLabel = reactiveOnlyMode ? `${100 - displayPercentLeft}% context used` : `${displayPercentLeft}% until auto-compact`;
   let t4;
-  if ($[9] !== autocompactLabel || $[10] !== isAboveErrorThreshold || $[11] !== percentLeft) {
+  if ($[10] !== autocompactLabel || $[11] !== isAboveErrorThreshold || $[12] !== percentLeft) {
     t4 = <Box flexDirection="row">{showAutoCompactWarning ? <Text dimColor={true} wrap="truncate">{upgradeMessage ? `${autocompactLabel} \u00b7 ${upgradeMessage}` : autocompactLabel}</Text> : <Text color={isAboveErrorThreshold ? "error" : "warning"} wrap="truncate">{upgradeMessage ? `Context low (${percentLeft}% remaining) \u00b7 ${upgradeMessage}` : isEnvTruthy(process.env.DISABLE_COMPACT) ? `Context low (${percentLeft}% remaining)` : `Context low (${percentLeft}% remaining) \u00b7 Run /compact to compact & continue`}</Text>}</Box>;
-    $[9] = autocompactLabel;
-    $[10] = isAboveErrorThreshold;
-    $[11] = percentLeft;
-    $[12] = t4;
+    $[10] = autocompactLabel;
+    $[11] = isAboveErrorThreshold;
+    $[12] = percentLeft;
+    $[13] = t4;
   } else {
-    t4 = $[12];
+    t4 = $[13];
   }
   return t4;
 }

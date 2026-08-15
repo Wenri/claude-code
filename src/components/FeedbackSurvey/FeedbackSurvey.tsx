@@ -2,35 +2,51 @@ import { c as _c } from "react/compiler-runtime";
 import React from 'react';
 import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEvent } from 'src/services/analytics/index.js';
 import { Box, Text } from '../../ink.js';
+import { useAppState } from '../../state/AppState.js';
+import { useKeybindingPreDispatch } from '../../keybindings/useKeybinding.js';
+import { truncateToLines } from '../../utils/stringUtils.js';
+import { KeyboardShortcutHint } from '../design-system/KeyboardShortcutHint.js';
 import { FeedbackSurveyView, isValidResponseInput } from './FeedbackSurveyView.js';
 import type { TranscriptShareResponse } from './TranscriptSharePrompt.js';
 import { TranscriptSharePrompt } from './TranscriptSharePrompt.js';
 import { useDebouncedDigitInput } from './useDebouncedDigitInput.js';
 import type { FeedbackSurveyResponse } from './utils.js';
 type Props = {
-  state: 'closed' | 'open' | 'thanks' | 'transcript_prompt' | 'submitting' | 'submitted';
+  state: 'closed' | 'open' | 'pending' | 'thanks' | 'transcript_prompt' | 'submitting' | 'submitted';
   lastResponse: FeedbackSurveyResponse | null;
   handleSelect: (selected: FeedbackSurveyResponse) => void;
+  handleUndo: () => void;
   handleTranscriptSelect?: (selected: TranscriptShareResponse) => void;
   inputValue: string;
   setInputValue: (value: string) => void;
   onRequestFeedback?: () => void;
   message?: string;
+  memoryEvaluation?: MemorySurveyEvaluation;
+  showNotSure?: boolean;
+};
+type MemorySurveyEvaluation = {
+  memory_impact_summary?: string | null;
 };
 export function FeedbackSurvey(t0) {
-  const $ = _c(16);
+  const $ = _c(17);
   const {
     state,
     lastResponse,
     handleSelect,
+    handleUndo,
     handleTranscriptSelect,
     inputValue,
     setInputValue,
     onRequestFeedback,
-    message
+    message,
+    memoryEvaluation,
+    showNotSure = false
   } = t0;
   if (state === "closed") {
     return null;
+  }
+  if (state === 'pending') {
+    return <FeedbackSurveyPending lastResponse={lastResponse} onUndo={handleUndo} />;
   }
   if (state === "thanks") {
     let t1;
@@ -70,7 +86,7 @@ export function FeedbackSurvey(t0) {
     if (!handleTranscriptSelect) {
       return null;
     }
-    if (inputValue && !["1", "2", "3"].includes(inputValue)) {
+    if (inputValue && !['y', 'n', 'd'].includes(inputValue.toLowerCase())) {
       return null;
     }
     let t1;
@@ -85,21 +101,64 @@ export function FeedbackSurvey(t0) {
     }
     return t1;
   }
-  if (inputValue && !isValidResponseInput(inputValue)) {
+  if (inputValue && !isValidResponseInput(inputValue, showNotSure)) {
     return null;
   }
+  if (memoryEvaluation) {
+    return <MemorySurveyView evaluation={memoryEvaluation} onSelect={handleSelect} inputValue={inputValue} setInputValue={setInputValue} />;
+  }
   let t1;
-  if ($[11] !== handleSelect || $[12] !== inputValue || $[13] !== message || $[14] !== setInputValue) {
-    t1 = <FeedbackSurveyView onSelect={handleSelect} inputValue={inputValue} setInputValue={setInputValue} message={message} />;
+  if ($[11] !== handleSelect || $[12] !== inputValue || $[13] !== message || $[14] !== setInputValue || $[15] !== showNotSure) {
+    t1 = <FeedbackSurveyView onSelect={handleSelect} inputValue={inputValue} setInputValue={setInputValue} message={message} showNotSure={showNotSure} />;
     $[11] = handleSelect;
     $[12] = inputValue;
     $[13] = message;
     $[14] = setInputValue;
-    $[15] = t1;
+    $[15] = showNotSure;
+    $[16] = t1;
   } else {
-    t1 = $[15];
+    t1 = $[16];
   }
   return t1;
+}
+const RESPONSE_LABELS: Partial<Record<FeedbackSurveyResponse, string>> = {
+  bad: 'Bad',
+  fine: 'Fine',
+  good: 'Good',
+  not_sure: 'Not sure'
+};
+function FeedbackSurveyPending({
+  lastResponse,
+  onUndo
+}: {
+  lastResponse: FeedbackSurveyResponse | null;
+  onUndo: () => void;
+}) {
+  useKeybindingPreDispatch((_input, key) => {
+    if (key.escape) {
+      onUndo();
+      return true;
+    }
+  });
+  const responseLabel = lastResponse && lastResponse !== 'dismissed' ? RESPONSE_LABELS[lastResponse] ?? '' : '';
+  return <Box marginTop={1}><Text dimColor>Feedback: <Text color="text">{responseLabel}</Text> {' · ' }<KeyboardShortcutHint chord="escape" action="undo" /></Text></Box>;
+}
+function MemorySurveyView({
+  evaluation,
+  onSelect,
+  inputValue,
+  setInputValue
+}: {
+  evaluation: MemorySurveyEvaluation;
+  onSelect: (selected: FeedbackSurveyResponse) => void;
+  inputValue: string;
+  setInputValue: (value: string) => void;
+}) {
+  const verbose = useAppState(state_0 => state_0.verbose);
+  const rawSummary = evaluation.memory_impact_summary?.trim();
+  const summary = rawSummary && !verbose ? truncateToLines(rawSummary, 4) : rawSummary;
+  const prompt = summary ? <>{summary} <Text dimColor>Did this help? (optional)</Text></> : 'Did this help? (optional)';
+  return <FeedbackSurveyView onSelect={onSelect} inputValue={inputValue} setInputValue={setInputValue} message={prompt} messageBold={false} showNotSure={true} />;
 }
 type ThanksProps = {
   lastResponse: FeedbackSurveyResponse | null;
@@ -141,6 +200,7 @@ function FeedbackSurveyThanks(t0) {
       isValidDigit: isFollowUpDigit,
       enabled: t1,
       once: true,
+      mountDelayMs: 0,
       onDigit: t2
     };
     $[3] = inputValue;

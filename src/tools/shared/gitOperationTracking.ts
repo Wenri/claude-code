@@ -13,6 +13,8 @@ import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
 } from '../../services/analytics/index.js'
+import { execFileNoThrow } from '../../utils/execFileNoThrow.js'
+import { safeParseJSON } from '../../utils/json.js'
 
 /**
  * Build a regex that matches `git <subcmd>` while tolerating git's global
@@ -31,6 +33,8 @@ const GIT_PUSH_RE = gitCmdRe('push')
 const GIT_CHERRY_PICK_RE = gitCmdRe('cherry-pick')
 const GIT_MERGE_RE = gitCmdRe('merge', '(?!-)')
 const GIT_REBASE_RE = gitCmdRe('rebase')
+const GH_PR_CHECKOUT_RE =
+  /\bgh\s+pr\s+checkout\b[^&|;]*\s(\d+)(?=\s|$|[&|;])/
 const GH_COMMAND_RE =
   /(?:^|[;&|]|\b(?:then|do)\b)\s*gh\s+(?!auth\b|help\b|version\b|alias\b|completion\b|config\b)/
 const RATE_LIMIT_RE =
@@ -114,6 +118,37 @@ async function linkCurrentSessionToPr(
     prInfo.prUrl,
     prInfo.prRepository,
   )
+}
+
+async function linkPrInfoToCurrentSession(
+  prInfo: NonNullable<ReturnType<typeof parsePrUrl>>,
+): Promise<void> {
+  const [{ linkSessionToPR }, { getSessionId }] = await Promise.all([
+    import('../../utils/sessionStorage.js'),
+    import('../../bootstrap/state.js'),
+  ])
+  const sessionId = getSessionId()
+  if (!sessionId) return
+  await linkSessionToPR(
+    sessionId as `${string}-${string}-${string}-${string}-${string}`,
+    prInfo.prNumber,
+    prInfo.prUrl,
+    prInfo.prRepository,
+  )
+}
+
+async function linkCurrentSessionToPr(prNumber?: string): Promise<void> {
+  const args = ['pr', 'view', ...(prNumber ? [prNumber] : []), '--json', 'url']
+  const { code, stdout } = await execFileNoThrow('gh', args, {
+    timeout: 5000,
+    preserveOutputOnError: false,
+    useCwd: true,
+  })
+  if (code !== 0) return
+  const parsed = safeParseJSON(stdout) as { url?: unknown } | null
+  if (typeof parsed?.url !== 'string') return
+  const prInfo = parsePrUrl(parsed.url)
+  if (prInfo) await linkPrInfoToCurrentSession(prInfo)
 }
 
 // Exported for testing purposes
@@ -272,6 +307,12 @@ export function trackGitOperations(
         void linkCurrentSessionToPr(prInfo)
       }
     }
+  }
+  const checkoutMatch = command.match(GH_PR_CHECKOUT_RE)
+  if (checkoutMatch?.[1]) {
+    void linkCurrentSessionToPr(checkoutMatch[1]).catch(() => {})
+  } else if (GIT_PUSH_RE.test(command) && !prHit) {
+    void linkCurrentSessionToPr().catch(() => {})
   }
   if (command.match(/\bglab\s+mr\s+create\b/)) {
     logEvent('tengu_git_operation', {

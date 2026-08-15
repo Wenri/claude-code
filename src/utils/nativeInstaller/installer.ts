@@ -10,6 +10,7 @@
  * - Support for both JS and native builds
  */
 
+import { spawnSync } from 'node:child_process'
 import { constants as fsConstants, type Stats } from 'fs'
 import {
   access,
@@ -30,10 +31,12 @@ import {
 } from 'fs/promises'
 import { homedir } from 'os'
 import { basename, delimiter, dirname, join, resolve } from 'path'
+import * as semver from 'semver'
 import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
 } from 'src/services/analytics/index.js'
+import { getFeatureValue_CACHED_MAY_BE_STALE } from 'src/services/analytics/growthbook.js'
 import { getMaxVersion, shouldSkipVersion } from '../autoUpdater.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
 import { registerCleanup } from '../cleanupRegistry.js'
@@ -75,6 +78,13 @@ import {
 
 export const VERSION_RETENTION_COUNT = 2
 
+const isRosettaTranslated =
+  process.platform === 'darwin' &&
+  process.arch === 'x64' &&
+  spawnSync('sysctl', ['-n', 'sysctl.proc_translated'], {
+    encoding: 'utf8',
+  }).stdout?.trim() === '1'
+
 // 7 days in milliseconds - used for mtime-based lock stale timeout.
 // This is long enough to survive laptop sleep durations while still
 // allowing cleanup of abandoned locks from crashed processes within a reasonable time.
@@ -90,7 +100,7 @@ export function getPlatform(): string {
   // Use env.platform which already handles platform detection and defaults to 'linux'
   const os = env.platform
 
-  const arch =
+  let arch =
     process.arch === 'x64' ? 'x64' : process.arch === 'arm64' ? 'arm64' : null
 
   if (!arch) {
@@ -101,6 +111,8 @@ export function getPlatform(): string {
     )
     throw error
   }
+
+  if (isRosettaTranslated) arch = 'arm64'
 
   // Check for musl on Linux and adjust platform accordingly
   if (os === 'linux' && envDynamic.isMuslEnvironment()) {
@@ -552,6 +564,27 @@ async function updateLatest(
   }
 
   // Check if max version is set (server-side kill switch for auto-updates)
+  const maxVersion = await getMaxVersion()
+  if (channelOrVersion === 'latest') {
+    const canaryVersion = getCanaryVersion()
+    const canaryExceedsMaxVersion =
+      canaryVersion && maxVersion && gt(canaryVersion, maxVersion)
+    if (
+      canaryVersion &&
+      gt(canaryVersion, version) &&
+      !canaryExceedsMaxVersion
+    ) {
+      logForDebugging(
+        `Native installer: canary ${canaryVersion} active, overriding ${version}`,
+      )
+      version = canaryVersion
+    } else if (canaryExceedsMaxVersion) {
+      logForDebugging(
+        `Native installer: canary ${canaryVersion} exceeds maxVersion ${maxVersion}, not applying`,
+      )
+    }
+  }
+
   if (!forceReinstall) {
     if (maxVersion && gt(version, maxVersion)) {
       logForDebugging(

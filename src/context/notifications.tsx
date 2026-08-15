@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import { useCallback, useEffect } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef } from 'react';
 import { useAppStateStore, useSetAppState } from 'src/state/AppState.js';
 import type { Theme } from '../utils/theme.js';
 type Priority = 'low' | 'medium' | 'high' | 'immediate';
@@ -33,14 +33,33 @@ type RemoveNotificationFn = (key: string) => void;
 export type Notification = TextNotification | JSXNotification;
 const DEFAULT_TIMEOUT_MS = 8000;
 
-// Track current timeout to clear it when immediate notifications arrive
-let currentTimeoutId: NodeJS.Timeout | null = null;
+type NotificationLifecycle = {
+  currentTimeoutId: { current: NodeJS.Timeout | null };
+  mountCount: { current: number };
+};
+
+const NotificationLifecycleContext = createContext<NotificationLifecycle | null>(null);
+
+export function NotificationProvider({ children }: { children: React.ReactNode }): React.ReactNode {
+  const lifecycle = useRef<NotificationLifecycle>({
+    currentTimeoutId: { current: null },
+    mountCount: { current: 0 }
+  }).current;
+  return <NotificationLifecycleContext.Provider value={lifecycle}>{children}</NotificationLifecycleContext.Provider>;
+}
+
 export function useNotifications(): {
   addNotification: AddNotificationFn;
   removeNotification: RemoveNotificationFn;
 } {
   const store = useAppStateStore();
   const setAppState = useSetAppState();
+  const providerLifecycle = useContext(NotificationLifecycleContext);
+  const fallbackLifecycle = useRef<NotificationLifecycle>({
+    currentTimeoutId: { current: null },
+    mountCount: { current: 0 }
+  }).current;
+  const { currentTimeoutId, mountCount } = providerLifecycle ?? fallbackLifecycle;
 
   // Process queue when current notification finishes or queue changes
   const processQueue = useCallback(() => {
@@ -49,8 +68,8 @@ export function useNotifications(): {
       if (prev.notifications.current !== null || !next) {
         return prev;
       }
-      currentTimeoutId = setTimeout((setAppState, nextKey, processQueue) => {
-        currentTimeoutId = null;
+      currentTimeoutId.current = setTimeout((setAppState, nextKey, processQueue, currentTimeoutId) => {
+        currentTimeoutId.current = null;
         setAppState(prev => {
           // Compare by key instead of reference to handle re-created notifications
           if (prev.notifications.current?.key !== nextKey) {
@@ -65,7 +84,7 @@ export function useNotifications(): {
           };
         });
         processQueue();
-      }, next.timeoutMs ?? DEFAULT_TIMEOUT_MS, setAppState, next.key, processQueue);
+      }, next.timeoutMs ?? DEFAULT_TIMEOUT_MS, setAppState, next.key, processQueue, currentTimeoutId);
       return {
         ...prev,
         notifications: {
@@ -74,19 +93,19 @@ export function useNotifications(): {
         }
       };
     });
-  }, [setAppState]);
+  }, [setAppState, currentTimeoutId]);
   const addNotification = useCallback<AddNotificationFn>((notif: Notification) => {
     // Handle immediate priority notifications
     if (notif.priority === 'immediate') {
       // Clear any existing timeout since we're showing a new immediate notification
-      if (currentTimeoutId) {
-        clearTimeout(currentTimeoutId);
-        currentTimeoutId = null;
+      if (currentTimeoutId.current) {
+        clearTimeout(currentTimeoutId.current);
+        currentTimeoutId.current = null;
       }
 
       // Set up timeout for the immediate notification
-      currentTimeoutId = setTimeout((setAppState, notif, processQueue) => {
-        currentTimeoutId = null;
+      currentTimeoutId.current = setTimeout((setAppState, notif, processQueue, currentTimeoutId) => {
+        currentTimeoutId.current = null;
         setAppState(prev => {
           // Compare by key instead of reference to handle re-created notifications
           if (prev.notifications.current?.key !== notif.key) {
@@ -101,7 +120,7 @@ export function useNotifications(): {
           };
         });
         processQueue();
-      }, notif.timeoutMs ?? DEFAULT_TIMEOUT_MS, setAppState, notif, processQueue);
+      }, notif.timeoutMs ?? DEFAULT_TIMEOUT_MS, setAppState, notif, processQueue, currentTimeoutId);
 
       // Show the immediate notification right away
       setAppState(prev => ({
@@ -124,12 +143,12 @@ export function useNotifications(): {
         if (prev.notifications.current?.key === notif.key) {
           const folded = notif.fold(prev.notifications.current, notif);
           // Reset timeout for the folded notification
-          if (currentTimeoutId) {
-            clearTimeout(currentTimeoutId);
-            currentTimeoutId = null;
+          if (currentTimeoutId.current) {
+            clearTimeout(currentTimeoutId.current);
+            currentTimeoutId.current = null;
           }
-          currentTimeoutId = setTimeout((setAppState, foldedKey, processQueue) => {
-            currentTimeoutId = null;
+          currentTimeoutId.current = setTimeout((setAppState, foldedKey, processQueue, currentTimeoutId) => {
+            currentTimeoutId.current = null;
             setAppState(p => {
               if (p.notifications.current?.key !== foldedKey) {
                 return p;
@@ -143,7 +162,7 @@ export function useNotifications(): {
               };
             });
             processQueue();
-          }, folded.timeoutMs ?? DEFAULT_TIMEOUT_MS, setAppState, folded.key, processQueue);
+          }, folded.timeoutMs ?? DEFAULT_TIMEOUT_MS, setAppState, folded.key, processQueue, currentTimeoutId);
           return {
             ...prev,
             notifications: {
@@ -174,9 +193,9 @@ export function useNotifications(): {
       const shouldAdd = !queuedKeys.has(notif.key) && prev.notifications.current?.key !== notif.key;
       if (!shouldAdd) return prev;
       const invalidatesCurrent = prev.notifications.current !== null && notif.invalidates?.includes(prev.notifications.current.key);
-      if (invalidatesCurrent && currentTimeoutId) {
-        clearTimeout(currentTimeoutId);
-        currentTimeoutId = null;
+      if (invalidatesCurrent && currentTimeoutId.current) {
+        clearTimeout(currentTimeoutId.current);
+        currentTimeoutId.current = null;
       }
       return {
         ...prev,
@@ -189,7 +208,7 @@ export function useNotifications(): {
 
     // Process queue after adding the notification
     processQueue();
-  }, [setAppState, processQueue]);
+  }, [setAppState, processQueue, currentTimeoutId]);
   const removeNotification = useCallback<RemoveNotificationFn>((key: string) => {
     setAppState(prev => {
       const isCurrent = prev.notifications.current?.key === key;
@@ -197,9 +216,9 @@ export function useNotifications(): {
       if (!isCurrent && !inQueue) {
         return prev;
       }
-      if (isCurrent && currentTimeoutId) {
-        clearTimeout(currentTimeoutId);
-        currentTimeoutId = null;
+      if (isCurrent && currentTimeoutId.current) {
+        clearTimeout(currentTimeoutId.current);
+        currentTimeoutId.current = null;
       }
       return {
         ...prev,
@@ -210,7 +229,7 @@ export function useNotifications(): {
       };
     });
     processQueue();
-  }, [setAppState, processQueue]);
+  }, [setAppState, processQueue, currentTimeoutId]);
 
   // Process queue on mount if there are notifications in the initial state.
   // Imperative read (not useAppState) — a subscription in a mount-only
@@ -218,9 +237,17 @@ export function useNotifications(): {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   // biome-ignore lint/correctness/useExhaustiveDependencies: mount-only effect, store is a stable context ref
   useEffect(() => {
+    mountCount.current++;
     if (store.getState().notifications.queue.length > 0) {
       processQueue();
     }
+    return () => {
+      mountCount.current--;
+      if (mountCount.current === 0 && currentTimeoutId.current) {
+        clearTimeout(currentTimeoutId.current);
+        currentTimeoutId.current = null;
+      }
+    };
   }, []);
   return {
     addNotification,

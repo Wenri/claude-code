@@ -17,6 +17,10 @@ import type {
 import { accumulateUsage, updateUsage } from 'src/services/api/claude.js'
 import type { NonNullableUsage } from 'src/services/api/logging.js'
 import { EMPTY_USAGE } from 'src/services/api/logging.js'
+import {
+  type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+  logEvent,
+} from 'src/services/analytics/index.js'
 import stripAnsi from 'strip-ansi'
 import type { Command } from './commands.js'
 import { getSlashCommandToolSkills } from './commands.js'
@@ -31,6 +35,7 @@ import {
 } from './cost-tracker.js'
 import type { CanUseToolFn } from './hooks/useCanUseTool.js'
 import { loadMemoryPrompt } from './memdir/memdir.js'
+import { createMemorySelectorState } from './memdir/findRelevantMemories.js'
 import { hasAutoMemPathOverride } from './memdir/paths.js'
 import { query } from './query.js'
 import { categorizeRetryableAPIError } from './services/api/errors.js'
@@ -49,6 +54,7 @@ import type { ReplIsolationLatch } from './tools/REPLTool/types.js'
 import { SYNTHETIC_OUTPUT_TOOL_NAME } from './tools/SyntheticOutputTool/SyntheticOutputTool.js'
 import type { Message } from './types/message.js'
 import type { OrphanedPermission } from './types/textInputTypes.js'
+import type { HookDeferredToolAttachment } from './utils/attachments.js'
 import {
   getPluginErrorMessage,
   isPluginDependencyError,
@@ -62,7 +68,7 @@ import { logForDebugging } from './utils/debug.js'
 import { isBareMode, isEnvTruthy } from './utils/envUtils.js'
 import { getFastModeState } from './utils/fastMode.js'
 import {
-  type FileHistoryState,
+  applyFileHistoryOp,
   fileHistoryEnabled,
   fileHistoryMakeSnapshot,
 } from './utils/fileHistory.js'
@@ -73,7 +79,9 @@ import {
 import { headlessProfilerCheckpoint } from './utils/headlessProfiler.js'
 import { registerStructuredOutputEnforcement } from './utils/hooks/hookHelpers.js'
 import { getInMemoryErrors } from './utils/log.js'
+import { memoryScopeForPath } from './utils/memoryFileDetection.js'
 import { countToolCalls, SYNTHETIC_MESSAGES } from './utils/messages.js'
+import { applyMessageOperation } from './utils/messageOperations.js'
 import {
   getMainLoopModel,
   parseUserSpecifiedModel,
@@ -90,13 +98,28 @@ import {
   isChainParticipant,
   isLoggableMessage,
   recordTranscript,
+  transcriptCursorEnd,
 } from './utils/sessionStorage.js'
+import type { SessionStateManager } from './utils/sessionState.js'
 import { asSystemPrompt } from './utils/systemPromptType.js'
 import { resolveThemeSetting } from './utils/systemTheme.js'
+import {
+  restoreToolResultDedupState,
+  type ToolResultDedupState,
+} from './utils/toolErrors.js'
+import { createTaskRegistry } from './utils/task/framework.js'
+import {
+  createToolIsolationLatch,
+  type ToolIsolationLatch,
+} from './utils/toolIsolation.js'
 import {
   shouldEnableThinkingByDefault,
   type ThinkingConfig,
 } from './utils/thinking.js'
+import {
+  createBashRerunAliases,
+  type BashRerunAliases,
+} from './tools/BashTool/rerunAliases.js'
 
 // Lazy: MessageSelector.tsx pulls React/ink; only needed for message filtering at query time
 /* eslint-disable @typescript-eslint/no-require-imports */
@@ -144,19 +167,35 @@ const snipProjection = feature('HISTORY_SNIP')
   : null
 /* eslint-enable @typescript-eslint/no-require-imports */
 
-function findCurrentTurnStart(messages: Message[]): number {
-  for (let index = messages.length - 1; index >= 0; index--) {
-    const message = messages[index]
-    if (
-      message?.type === 'user' &&
-      !message.isMeta &&
-      !message.toolUseResult &&
-      !message.isCompactSummary
-    ) {
-      return index
-    }
-  }
-  return 0
+const SYNTHESIS_MEMORY_PREFIX = '<synthesis:'
+
+function getSynthesisMemoryDirectory(path: string): string | undefined {
+  return path.startsWith(SYNTHESIS_MEMORY_PREFIX)
+    ? path.slice(SYNTHESIS_MEMORY_PREFIX.length, -1)
+    : undefined
+}
+
+function getSdkMemoryRecallEvent(
+  memories: Array<{ path: string; content: string }>,
+): SDKMessage | undefined {
+  if (memories.length === 0) return undefined
+  const isSynthesis = getSynthesisMemoryDirectory(memories[0]!.path) !== undefined
+  return {
+    type: 'system',
+    subtype: 'memory_recall',
+    mode: isSynthesis ? 'synthesize' : 'select',
+    memories: memories.map(memory => {
+      const synthesisDirectory = getSynthesisMemoryDirectory(memory.path)
+      return {
+        path: memory.path,
+        scope:
+          memoryScopeForPath(synthesisDirectory ?? memory.path) ?? 'personal',
+        ...(isSynthesis && { content: memory.content }),
+      }
+    }),
+    uuid: randomUUID(),
+    session_id: getSessionId(),
+  } as SDKMessage
 }
 
 async function* captureGeneratorReturn<Yield, Return>(
@@ -169,6 +208,7 @@ async function* captureGeneratorReturn<Yield, Return>(
 export type QueryEngineConfig = {
   cwd: string
   tools: Tools
+  refreshTools?: () => Tools
   commands: Command[]
   mcpClients: MCPServerConnection[]
   agents: AgentDefinition[]
@@ -236,6 +276,7 @@ export class QueryEngine {
   private hasHandledOrphanedPermission = false
   private hasHandledDeferredToolResume = false
   private readFileState: FileStateCache
+  private resultDedupState: ToolResultDedupState
   // Turn-scoped skill discovery tracking (feeds was_discovered on
   // tengu_skill_tool_invocation). Must persist across the two
   // processUserInputContext rebuilds inside submitMessage, but is cleared
@@ -264,6 +305,7 @@ export class QueryEngine {
       cwd,
       commands,
       tools,
+      refreshTools,
       mcpClients,
       verbose = false,
       thinkingConfig,
@@ -295,6 +337,7 @@ export class QueryEngine {
     setCwd(cwd)
     const persistSession = !isSessionPersistenceDisabled()
     const startTime = Date.now()
+    let firstAssistantAt = 0
 
     // Wrap canUseTool to track permission denials
     const wrappedCanUseTool: CanUseToolFn = async (
@@ -390,6 +433,25 @@ export class QueryEngine {
       registerStructuredOutputEnforcement(setAppState, getSessionId())
     }
 
+    const setReplContext: NonNullable<ToolUseContext['setReplContext']> = (
+      agentId,
+      replContext,
+    ) => {
+      setAppState(previous => {
+        if (replContext === undefined) {
+          if (!(agentId in previous.replContexts)) return previous
+          const { [agentId]: _discarded, ...replContexts } =
+            previous.replContexts
+          return { ...previous, replContexts }
+        }
+        if (previous.replContexts[agentId] === replContext) return previous
+        return {
+          ...previous,
+          replContexts: { ...previous.replContexts, [agentId]: replContext },
+        }
+      })
+    }
+
     let processUserInputContext: ProcessUserInputContext = {
       messages: this.mutableMessages,
       turnStartIndex: 0,
@@ -403,12 +465,21 @@ export class QueryEngine {
       setMessages: fn => {
         this.mutableMessages = fn(this.mutableMessages)
       },
+      applyMessageOp: operation => {
+        this.mutableMessages = applyMessageOperation(
+          this.mutableMessages,
+          operation,
+        )
+      },
       onChangeAPIKey: () => {},
       handleElicitation: this.config.handleElicitation,
+      onCommandLifecycle: this.config.onCommandLifecycle,
+      sessionState: this.config.sessionState,
       options: {
         commands,
         debug: false, // we use stdout, so don't want to clobber it
         tools,
+        refreshTools,
         verbose,
         mainLoopModel: initialMainLoopModel,
         thinkingConfig: initialThinkingConfig,
@@ -438,27 +509,32 @@ export class QueryEngine {
       isolationLatch: this.isolationLatch,
       abortController: this.abortController,
       readFileState: this.readFileState,
+      resultDedupState: this.resultDedupState,
       nestedMemoryAttachmentTriggers: new Set<string>(),
       loadedNestedMemoryPaths: this.loadedNestedMemoryPaths,
+      sessionEnvVars: this.sessionEnvVars,
+      tmuxSocket: this.tmuxSocket,
+      memorySelector: this.memorySelector,
+      bashRerunAliases: this.bashRerunAliases,
+      isolationLatch: this.isolationLatch,
       dynamicSkillDirTriggers: new Set<string>(),
       discoveredSkillNames: this.discoveredSkillNames,
       bashRerunAliases: this.bashRerunAliases,
       setInProgressToolUseIDs: () => {},
+      addResponseLength: () => {},
+      resetResponseLength: () => {},
       setResponseLength: () => {},
-      updateFileHistoryState: (
-        updater: (prev: FileHistoryState) => FileHistoryState,
-      ) => {
+      getFileHistoryState: () => getAppState().fileHistory,
+      applyFileHistoryOp: operation => {
         setAppState(prev => {
-          const updated = updater(prev.fileHistory)
+          const updated = applyFileHistoryOp(prev.fileHistory, operation)
           if (updated === prev.fileHistory) return prev
           return { ...prev, fileHistory: updated }
         })
       },
-      updateAttributionState: (
-        updater: (prev: AttributionState) => AttributionState,
-      ) => {
+      applyAttributionOp: operation => {
         setAppState(prev => {
-          const updated = updater(prev.attribution)
+          const updated = applyAttributionOp(prev.attribution, operation)
           if (updated === prev.attribution) return prev
           return { ...prev, attribution: updated }
         })
@@ -586,12 +662,23 @@ export class QueryEngine {
     const messages = [...this.mutableMessages]
     let transcriptCursor = 0
     let lastRecordedUuid: UUID | undefined
-    const recordNewMessages = (): Promise<UUID | null> => {
+    const initialTranscriptLength = messages.length
+    const recordNewMessages = (
+      forceIncompleteAssistant: boolean = false,
+    ): Promise<UUID | null> => {
       const start = transcriptCursor
-      if (start >= messages.length) return Promise.resolve(null)
+      const end = transcriptCursorEnd(
+        messages,
+        Math.max(start, initialTranscriptLength),
+        !forceIncompleteAssistant,
+      )
+      if (start >= end) return Promise.resolve(null)
 
-      const newMessages = start === 0 ? messages : messages.slice(start)
-      transcriptCursor = messages.length
+      const newMessages =
+        start === 0 && end === messages.length
+          ? messages
+          : messages.slice(start, end)
+      transcriptCursor = end
       const startingParentUuid = lastRecordedUuid
       for (let index = newMessages.length - 1; index >= 0; index--) {
         const message = newMessages[index]!
@@ -667,14 +754,18 @@ export class QueryEngine {
     // model (from slash commands).
     processUserInputContext = {
       messages,
-      turnStartIndex: findCurrentTurnStart(messages),
+      turnStartIndex: 0,
       setMessages: () => {},
+      applyMessageOp: () => {},
       onChangeAPIKey: () => {},
       handleElicitation: this.config.handleElicitation,
+      onCommandLifecycle: this.config.onCommandLifecycle,
+      sessionState: this.config.sessionState,
       options: {
         commands,
         debug: false,
         tools,
+        refreshTools,
         verbose,
         mainLoopModel,
         thinkingConfig: initialThinkingConfig,
@@ -704,15 +795,24 @@ export class QueryEngine {
       isolationLatch: this.isolationLatch,
       abortController: this.abortController,
       readFileState: this.readFileState,
+      resultDedupState: this.resultDedupState,
       nestedMemoryAttachmentTriggers: new Set<string>(),
       loadedNestedMemoryPaths: this.loadedNestedMemoryPaths,
+      sessionEnvVars: this.sessionEnvVars,
+      tmuxSocket: this.tmuxSocket,
+      memorySelector: this.memorySelector,
+      bashRerunAliases: this.bashRerunAliases,
+      isolationLatch: this.isolationLatch,
       dynamicSkillDirTriggers: new Set<string>(),
       discoveredSkillNames: this.discoveredSkillNames,
       bashRerunAliases: this.bashRerunAliases,
       setInProgressToolUseIDs: () => {},
+      addResponseLength: () => {},
+      resetResponseLength: () => {},
       setResponseLength: () => {},
-      updateFileHistoryState: processUserInputContext.updateFileHistoryState,
-      updateAttributionState: processUserInputContext.updateAttributionState,
+      getFileHistoryState: processUserInputContext.getFileHistoryState,
+      applyFileHistoryOp: processUserInputContext.applyFileHistoryOp,
+      applyAttributionOp: processUserInputContext.applyAttributionOp,
       setSDKStatus,
     }
 
@@ -839,12 +939,8 @@ export class QueryEngine {
         .filter(messageSelector().selectableUserMessagesFilter)
         .forEach(message => {
           void fileHistoryMakeSnapshot(
-            (updater: (prev: FileHistoryState) => FileHistoryState) => {
-              setAppState(prev => ({
-                ...prev,
-                fileHistory: updater(prev.fileHistory),
-              }))
-            },
+            processUserInputContext.getFileHistoryState,
+            processUserInputContext.applyFileHistoryOp,
             message.uuid,
           )
         })
@@ -896,6 +992,9 @@ export class QueryEngine {
         message.type === 'user' ||
         (message.type === 'system' && message.subtype === 'compact_boundary')
       ) {
+        if (message.type === 'assistant' && firstAssistantAt === 0) {
+          firstAssistantAt = Date.now()
+        }
         // Before writing a compact boundary, flush any in-memory-only
         // messages up through the preservedSegment tail. Attachments and
         // progress are now recorded inline (their switch cases below), but
@@ -944,6 +1043,10 @@ export class QueryEngine {
           hasAcknowledgedInitialMessages = true
           for (const msgToAck of messagesToAck) {
             if (msgToAck.type === 'user') {
+              const fileAttachments =
+                options?.uuid === msgToAck.uuid
+                  ? options.fileAttachments
+                  : undefined
               yield {
                 type: 'user',
                 message: msgToAck.message,
@@ -952,6 +1055,9 @@ export class QueryEngine {
                 uuid: msgToAck.uuid,
                 timestamp: msgToAck.timestamp,
                 isReplay: true,
+                ...(fileAttachments?.length
+                  ? { file_attachments: fileAttachments }
+                  : {}),
               } as SDKUserMessageReplay
             }
           }
@@ -1014,6 +1120,7 @@ export class QueryEngine {
             if (message.event.delta.stop_reason != null) {
               lastStopReason = message.event.delta.stop_reason
             }
+            if (persistSession) void recordNewMessages()
           }
           if (message.event.type === 'message_stop') {
             // Accumulate current message usage into total
@@ -1042,11 +1149,24 @@ export class QueryEngine {
             void recordNewMessages()
           }
 
+          if (message.attachment.type === 'relevant_memories') {
+            const memoryRecall = getSdkMemoryRecallEvent(
+              message.attachment.memories,
+            )
+            if (memoryRecall) yield memoryRecall
+          }
           // Extract structured output from StructuredOutput tool calls
-          if (message.attachment.type === 'structured_output') {
+          else if (message.attachment.type === 'structured_output') {
             structuredOutputFromTool = message.attachment.data
           } else if (message.attachment.type === 'hook_deferred_tool') {
             deferredToolResult = {
+              id: message.attachment.toolUseID,
+              name: message.attachment.toolName,
+              input: message.attachment.toolInput,
+            }
+          }
+          else if (message.attachment.type === 'hook_deferred_tool') {
+            deferredToolUseFromQuery = {
               id: message.attachment.toolUseID,
               name: message.attachment.toolName,
               input: message.attachment.toolInput,
@@ -1076,6 +1196,9 @@ export class QueryEngine {
               uuid: message.attachment.source_uuid || message.uuid,
               timestamp: message.timestamp,
               isReplay: true,
+              ...(message.attachment.fileAttachments?.length
+                ? { file_attachments: message.attachment.fileAttachments }
+                : {}),
             } as SDKUserMessageReplay
           }
           break
@@ -1160,6 +1283,7 @@ export class QueryEngine {
       // Check if USD budget has been exceeded
       if (maxBudgetUsd !== undefined && getTotalCost() >= maxBudgetUsd) {
         if (persistSession) {
+          await recordNewMessages(true)
           if (
             isEnvTruthy(process.env.CLAUDE_CODE_EAGER_FLUSH) ||
             isEnvTruthy(process.env.CLAUDE_CODE_IS_COWORK)
@@ -1203,6 +1327,7 @@ export class QueryEngine {
         )
         if (callsThisQuery >= maxRetries) {
           if (persistSession) {
+            await recordNewMessages(true)
             if (
               isEnvTruthy(process.env.CLAUDE_CODE_EAGER_FLUSH) ||
               isEnvTruthy(process.env.CLAUDE_CODE_IS_COWORK)
@@ -1260,6 +1385,7 @@ export class QueryEngine {
     // The desktop app kills the CLI process immediately after receiving the
     // result message, so any unflushed writes would be lost.
     if (persistSession) {
+      await recordNewMessages(true)
       if (
         isEnvTruthy(process.env.CLAUDE_CODE_EAGER_FLUSH) ||
         isEnvTruthy(process.env.CLAUDE_CODE_IS_COWORK)
@@ -1443,6 +1569,7 @@ export async function* ask({
   clientPlatform,
   cwd,
   tools,
+  refreshTools,
   mcpClients,
   verbose = false,
   thinkingConfig,
@@ -1453,6 +1580,8 @@ export async function* ask({
   mutableMessages = [],
   getReadFileCache,
   setReadFileCache,
+  sessionEnvVars,
+  tmuxSocket,
   customSystemPrompt,
   appendSystemPrompt,
   appendSubagentSystemPrompt,
@@ -1469,6 +1598,8 @@ export async function* ask({
   replayUserMessages = false,
   includePartialMessages = false,
   handleElicitation,
+  onCommandLifecycle,
+  sessionState,
   agents = [],
   allowedAgentTypes,
   setSDKStatus,
@@ -1482,6 +1613,7 @@ export async function* ask({
   clientPlatform?: string
   cwd: string
   tools: Tools
+  refreshTools?: () => Tools
   verbose?: boolean
   mcpClients: MCPServerConnection[]
   thinkingConfig?: ThinkingConfig
@@ -1508,6 +1640,8 @@ export async function* ask({
   replayUserMessages?: boolean
   includePartialMessages?: boolean
   handleElicitation?: ToolUseContext['handleElicitation']
+  onCommandLifecycle?: ToolUseContext['onCommandLifecycle']
+  sessionState: SessionStateManager
   agents?: AgentDefinition[]
   allowedAgentTypes?: string[]
   setSDKStatus?: (status: SDKStatus) => void
@@ -1517,6 +1651,7 @@ export async function* ask({
   const engine = new QueryEngine({
     cwd,
     tools,
+    refreshTools,
     commands,
     mcpClients,
     agents,
@@ -1526,6 +1661,8 @@ export async function* ask({
     setAppState,
     initialMessages: mutableMessages,
     readFileCache: cloneFileStateCache(getReadFileCache()),
+    sessionEnvVars,
+    tmuxSocket,
     customSystemPrompt,
     appendSystemPrompt,
     appendSubagentSystemPrompt,
@@ -1541,6 +1678,8 @@ export async function* ask({
     jsonSchema,
     verbose,
     handleElicitation,
+    onCommandLifecycle,
+    sessionState,
     replayUserMessages,
     includePartialMessages,
     setSDKStatus,

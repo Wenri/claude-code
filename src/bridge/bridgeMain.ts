@@ -7,6 +7,7 @@ import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
 } from '../services/analytics/index.js'
+import { getCooMetadataForAnalytics } from '../services/analytics/metadata.js'
 import { isInBundledMode } from '../utils/bundledMode.js'
 import { logForDebugging } from '../utils/debug.js'
 import { logForDiagnosticsNoPII } from '../utils/diagLogs.js'
@@ -594,15 +595,17 @@ export async function runBridgeLoop(
           // tag). archiveSession hits /v1/sessions/{id}/archive which is the
           // compat surface and validates TagSession (session_*). Re-tag — same
           // UUID underneath.
-          trackCleanup(
-            api
-              .archiveSession(compatId)
-              .catch((err: unknown) =>
-                logger.logVerbose(
-                  `Failed to archive session ${sessionId}: ${errorMessage(err)}`,
+          if (status === 'completed') {
+            trackCleanup(
+              api
+                .archiveSession(compatId)
+                .catch((err: unknown) =>
+                  logger.logVerbose(
+                    `Failed to archive session ${sessionId}: ${errorMessage(err)}`,
+                  ),
                 ),
-              ),
-          )
+            )
+          }
           logForDebugging(
             `[bridge:session] Session ${status}, returning to idle (multi-session mode)`,
           )
@@ -1019,6 +1022,7 @@ export async function runBridgeLoop(
               sessionWorktrees.set(sessionId, {
                 worktreePath: wt.worktreePath,
                 worktreeBranch: wt.worktreeBranch,
+                headCommit: wt.headCommit,
                 gitRoot: wt.gitRoot,
                 hookBased: wt.hookBased,
                 headCommit: wt.headCommit,
@@ -1118,6 +1122,7 @@ export async function runBridgeLoop(
 
           const spawnDurationMs = Date.now() - spawnStartTime
           logEvent('tengu_bridge_session_started', {
+            ...getCooMetadataForAnalytics(),
             active_sessions: activeSessions.size,
             spawn_mode:
               spawnModeAtDecision as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -2201,9 +2206,8 @@ export async function bridgeMain(args: string[]): Promise<void> {
       ? process.env.CLAUDE_BRIDGE_SESSION_INGRESS_URL
       : baseUrl
 
-  const { getBranch, getRemoteUrl, findGitRoot } = await import(
-    '../utils/git.js'
-  )
+  const { getBranch, getRemoteUrl, findGitRoot, redactGitRemoteCredentials } =
+    await import('../utils/git.js')
 
   // Precheck worktree availability for the first-run dialog and the `w`
   // toggle. Unconditional so we know upfront whether worktree is an option.
@@ -2426,7 +2430,7 @@ export async function bridgeMain(args: string[]): Promise<void> {
   }
 
   logForDebugging(
-    `[bridge:init] bridgeId=${bridgeId}${reuseEnvironmentId ? ` reuseEnvironmentId=${reuseEnvironmentId}` : ''} dir=${dir} branch=${branch} gitRepoUrl=${gitRepoUrl} machine=${machineName}`,
+    `[bridge:init] bridgeId=${bridgeId}${reuseEnvironmentId ? ` reuseEnvironmentId=${reuseEnvironmentId}` : ''} dir=${dir} branch=${branch} gitRepoUrl=${redactGitRemoteCredentials(gitRepoUrl)} machine=${machineName}`,
   )
   logForDebugging(
     `[bridge:init] apiBaseUrl=${baseUrl} sessionIngressUrl=${sessionIngressUrl}`,

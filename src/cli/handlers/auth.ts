@@ -8,6 +8,8 @@ import {
   clearAuthRelatedCaches,
   performLogout,
 } from '../../commands/logout/logout.js'
+import React from 'react'
+import { Text, type Root } from '../../ink.js'
 import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
@@ -258,10 +260,13 @@ export async function authLogin({
   }
 }
 
-export async function authStatus(opts: {
-  json?: boolean
-  text?: boolean
-}): Promise<void> {
+export async function authStatus(
+  root: Root,
+  opts: {
+    json?: boolean
+    text?: boolean
+  },
+): Promise<void> {
   const { source: authTokenSource, hasToken } = getAuthTokenSource()
   const { source: apiKeySource } = getAnthropicApiKeyWithSource()
   const hasApiKeyEnvVar =
@@ -288,12 +293,13 @@ export async function authStatus(opts: {
     authMethod = 'claude.ai'
   }
 
+  let renderedOutput: React.ReactNode
   if (opts.text) {
     const properties = [
       ...buildAccountProperties(),
       ...buildAPIProviderProperties(),
     ]
-    let hasAuthProperty = false
+    const lines: string[] = []
     for (const prop of properties) {
       const value =
         typeof prop.value === 'string'
@@ -304,21 +310,15 @@ export async function authStatus(opts: {
       if (value === null || value === 'none') {
         continue
       }
-      hasAuthProperty = true
-      if (prop.label) {
-        process.stdout.write(`${prop.label}: ${value}\n`)
-      } else {
-        process.stdout.write(`${value}\n`)
-      }
+      lines.push(prop.label ? `${prop.label}: ${value}` : value)
     }
-    if (!hasAuthProperty && hasApiKeyEnvVar) {
-      process.stdout.write('API key: ANTHROPIC_API_KEY\n')
+    if (lines.length === 0 && hasApiKeyEnvVar) {
+      lines.push('API key: ANTHROPIC_API_KEY')
     }
     if (!loggedIn) {
-      process.stdout.write(
-        'Not logged in. Run claude auth login to authenticate.\n',
-      )
+      lines.push('Not logged in. Run claude auth login to authenticate.')
     }
+    renderedOutput = React.createElement(Text, null, lines.join('\n'))
   } else {
     const apiProvider = getAPIProvider()
     const resolvedApiKeySource =
@@ -342,12 +342,19 @@ export async function authStatus(opts: {
       output.subscriptionType = subscriptionType ?? null
     }
 
-    process.stdout.write(jsonStringify(output, null, 2) + '\n')
+    renderedOutput = React.createElement(
+      Text,
+      null,
+      jsonStringify(output, null, 2),
+    )
   }
+
+  root.render(React.createElement(React.Fragment, null, renderedOutput))
+  await root.waitUntilExit()
   process.exit(loggedIn ? 0 : 1)
 }
 
-export async function authLogout(): Promise<void> {
+export async function authLogout(root: Root): Promise<void> {
   try {
     await performLogout({ clearOnboarding: false })
   } catch (err) {
@@ -355,6 +362,16 @@ export async function authLogout(): Promise<void> {
     process.stderr.write(`Logout failed: ${errorMessage(err)}\n`)
     process.exit(1)
   }
-  process.stdout.write('Successfully logged out from your Anthropic account.\n')
-  process.exit(0)
+  root.render(
+    React.createElement(
+      React.Fragment,
+      null,
+      React.createElement(
+        Text,
+        null,
+        'Successfully logged out from your Anthropic account.',
+      ),
+    ),
+  )
+  await root.waitUntilExit()
 }

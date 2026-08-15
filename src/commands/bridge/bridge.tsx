@@ -17,6 +17,7 @@ import { useAppState, useSetAppState } from '../../state/AppState.js';
 import type { ToolUseContext } from '../../Tool.js';
 import type { LocalJSXCommandContext, LocalJSXCommandOnDone } from '../../types/command.js';
 import { logForDebugging } from '../../utils/debug.js';
+import { markRemoteControlUsed } from '../../utils/remoteControlUpsell.js';
 type Props = {
   onDone: LocalJSXCommandOnDone;
   name?: string;
@@ -67,6 +68,7 @@ function BridgeToggle(t0) {
           });
           return;
         }
+        markRemoteControlUsed();
         if (shouldShowRemoteCallout()) {
           setAppState(prev => {
             if (prev.showRemoteCallout) {

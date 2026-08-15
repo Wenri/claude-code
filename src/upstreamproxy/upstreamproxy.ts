@@ -79,6 +79,7 @@ export async function initUpstreamProxy(opts?: {
   tokenPath?: string
   systemCaPath?: string
   caBundlePath?: string
+  awsConfigPath?: string
   ccrBaseUrl?: string
   awsConfigPath?: string
 }): Promise<UpstreamProxyState> {

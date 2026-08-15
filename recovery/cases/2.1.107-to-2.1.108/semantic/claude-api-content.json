@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.107-to-2.1.108",
+  "criterion": "exact-embedded-claude-api-content-v1",
+  "documentChanges": [
+    {
+      "path": "SKILL.md",
+      "baseline": {
+        "bytes": 28674,
+        "sha256": "0122320b5f36c9dcccc141798d0fc52da4bedaa923d7b64990fba9f1d8dd5b2b"
+      },
+      "target": {
+        "bytes": 28806,
+        "sha256": "73a164187d52c60d984ee21287e76721b19176d3a99f2a38830abe9c7c9e0d1c"
+      },
+      "owner": "src/skills/bundled/claude-api/SKILL.md"
+    },
+    {
+      "path": "shared/live-sources.md",
+      "baseline": {
+        "bytes": 16157,
+        "sha256": "a6b26a647d075ce7e1948865d1d422086df00b2ba2fda5a900511053a1ab9753"
+      },
+      "target": {
+        "bytes": 16185,
+        "sha256": "152c0556d66d79e70aa9ac65b80f6f1108a4bfc52cc21161a134db1b4721bb3b"
+      },
+      "owner": "src/skills/bundled/claude-api/shared/live-sources.md"
+    },
+    {
+      "path": "shared/models.md",
+      "baseline": {
+        "bytes": 7115,
+        "sha256": "2a18cf78b18d7e62e6e64810f4d3f28225e024fd1cfa4928dcb5d23dcc50d4d9"
+      },
+      "target": {
+        "bytes": 7114,
+        "sha256": "2f65572aa97faaa0b5b987aa5460a6dfe6fbcd387633c09d98993cd8b37024ec"
+      },
+      "owner": "src/skills/bundled/claude-api/shared/models.md"
+    }
+  ],
+  "routingChanges": [
+    {
+      "owner": "src/skills/bundled/claudeApi.ts",
+      "behavior": "Compact Anthropic/Managed Agents trigger and skip routing replaces the earlier verbose description.",
+      "targetSha256": "574e8fd08e0ffe57735890c21fa19c9f492c8d5be8d54c94e25e539cba84f11a"
+    },
+    {
+      "owner": "src/skills/bundled/claudeApi.ts",
+      "behavior": "The __G2__ reading-guide placeholder is removed by HTML-comment processing and is non-runtime.",
+      "targetSha256": "a1a7c4f6f6d859598cedb6810ce716dc8aae83fbef83a4f05ca1becd9927acb9"
+    }
+  ]
+}

@@ -1,5 +1,7 @@
 import { feature } from 'bun:bundle'
 import { APIUserAbortError } from '@anthropic-ai/sdk'
+import { realpath } from 'node:fs/promises'
+import { isAbsolute, resolve } from 'node:path'
 import type { z } from 'zod/v4'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
 import {
@@ -55,6 +57,8 @@ import {
   createPermissionRequestMessage,
   getRuleByContentsForTool,
 } from '../../utils/permissions/permissions.js'
+import { pathInAllowedWorkingPath } from '../../utils/permissions/filesystem.js'
+import { validatePath } from '../../utils/permissions/pathValidation.js'
 import {
   parsePermissionRule,
   type ShellPermissionRule,
@@ -74,7 +78,10 @@ import {
   stripSafeHeredocSubstitutions,
 } from './bashSecurity.js'
 import { checkPermissionMode } from './modeValidation.js'
-import { checkPathConstraints } from './pathValidation.js'
+import {
+  checkDangerousRemovalPaths,
+  checkPathConstraints,
+} from './pathValidation.js'
 import { checkSedConstraints } from './sedValidation.js'
 import { shouldUseSandbox } from './shouldUseSandbox.js'
 
@@ -218,6 +225,17 @@ const BARE_SHELL_PREFIXES = new Set([
   'nohup',
   'timeout',
   'time',
+  'watch',
+  'ionice',
+  'chrt',
+  'setsid',
+  'taskset',
+  'strace',
+  'ltrace',
+  'script',
+  'flock',
+  'unshare',
+  'nsenter',
   // privilege escalation — sudo:* from `sudo -u foo ...` would auto-approve
   // any future sudo invocation
   'sudo',
@@ -427,7 +445,46 @@ const SAFE_ENV_VARS = new Set([
   'TIME_STYLE', // time display format for ls
   'BLOCK_SIZE', // block size for du/df
   'BLOCKSIZE', // alternative block size
+  'COLUMNS',
+  'LINES',
+  'CLICOLOR',
+  'CLICOLOR_FORCE',
+  'CI',
+  'DEBIAN_FRONTEND',
+  'GIT_TERMINAL_PROMPT',
 ])
+
+export function isSafeEnvironmentVariable(name: string): boolean {
+  return SAFE_ENV_VARS.has(name)
+}
+
+/**
+ * Whether a nominally read-only command is prefixed by an environment
+ * assignment that can change what gets executed. Prefer the parsed command
+ * when available; the fallback deliberately accepts only the small literal
+ * assignment grammar used by the published runtime.
+ */
+function hasUnsafeEnvironmentVariables(
+  input: z.infer<typeof BashTool.inputSchema>,
+  astCommand?: SimpleCommand,
+): boolean {
+  if (astCommand) {
+    return astCommand.envVars.some(env => !isSafeEnvironmentVariable(env.name))
+  }
+
+  const assignmentStart = /^([A-Za-z_][A-Za-z0-9_]*)\+?=/
+  const safeAssignment =
+    /^[A-Za-z_][A-Za-z0-9_]*\+?=(?:"[^"$`\\]*"|'[^']*'|[A-Za-z0-9_./:+-]*)[ \t]+/
+  let command = input.command
+  while (true) {
+    const assignment = command.match(assignmentStart)
+    if (!assignment) return false
+    if (!isSafeEnvironmentVariable(assignment[1]!)) return true
+    const consumed = command.match(safeAssignment)
+    if (!consumed) return true
+    command = command.slice(consumed[0].length)
+  }
+}
 
 /**
  * ANT-ONLY environment variables that are safe to strip from commands.
@@ -667,15 +724,7 @@ function skipTimeoutFlags(a: readonly string[]): number {
   return i
 }
 
-/**
- * Argv-level counterpart to stripSafeWrappers. Strips the same wrapper
- * commands (timeout, time, nice, nohup) from AST-derived argv. Env vars
- * are already separated into SimpleCommand.envVars so no env-var stripping.
- *
- * KEEP IN SYNC with SAFE_WRAPPER_PATTERNS above — if you add a wrapper
- * there, add it here too.
- */
-export function stripWrappersFromArgv(argv: string[]): string[] {
+function stripBasicWrappersFromArgv(argv: string[]): string[] {
   // SECURITY: Consume optional `--` after wrapper options, matching what the
   // wrapper does. Otherwise `['nohup','--','rm','--','-/../foo']` yields `--`
   // as baseCmd and skips path validation. See SAFE_WRAPPER_PATTERNS comment.
@@ -697,6 +746,281 @@ export function stripWrappersFromArgv(argv: string[]): string[] {
     } else {
       return a
     }
+  }
+}
+
+const WRAPPER_VALUE_FLAGS: Record<string, ReadonlySet<string>> = {
+  env: new Set(['-u', '-C', '--unset', '--chdir']),
+  sudo: new Set([
+    '-u',
+    '-g',
+    '-U',
+    '-C',
+    '-D',
+    '-h',
+    '-p',
+    '-r',
+    '-R',
+    '-t',
+    '-T',
+    '--user',
+    '--group',
+    '--other-user',
+    '--close-from',
+    '--chdir',
+    '--host',
+    '--prompt',
+    '--role',
+    '--chroot',
+    '--type',
+    '--command-timeout',
+    '-a',
+    '--auth-type',
+  ]),
+  doas: new Set(['-a', '-u', '-C']),
+  pkexec: new Set(['--user']),
+  watch: new Set(['-n', '--interval', '--equexit']),
+  ionice: new Set([
+    '-c',
+    '-n',
+    '-p',
+    '-P',
+    '-u',
+    '--class',
+    '--classdata',
+    '--pid',
+    '--pgid',
+    '--uid',
+  ]),
+  setsid: new Set(),
+  taskset: new Set(['-c', '--cpu-list']),
+  chrt: new Set([
+    '-p',
+    '--pid',
+    '-T',
+    '-P',
+    '-D',
+    '--sched-runtime',
+    '--sched-period',
+    '--sched-deadline',
+  ]),
+  strace: new Set([
+    '-e',
+    '-o',
+    '-p',
+    '-s',
+    '-E',
+    '-P',
+    '-S',
+    '-a',
+    '-b',
+    '-I',
+    '-u',
+    '-X',
+    '-O',
+    '-U',
+    '--output',
+    '--trace',
+    '--expr',
+    '--attach',
+    '--string-limit',
+    '--env',
+    '--trace-path',
+    '--columns',
+    '--user',
+    '--interruptible',
+    '--detach-on',
+    '--const-print-style',
+    '--summary-sort-by',
+    '--summary-syscall-overhead',
+    '--summary-columns',
+  ]),
+  ltrace: new Set([
+    '-a',
+    '-A',
+    '-e',
+    '-l',
+    '-n',
+    '-o',
+    '-p',
+    '-s',
+    '-u',
+    '-x',
+    '-D',
+    '-F',
+    '--align',
+    '--config',
+    '--debug',
+    '--indent',
+    '--library',
+    '--output',
+    '--string-max',
+    '-w',
+    '--where',
+  ]),
+  flock: new Set(['-w', '-E', '--timeout', '--wait', '--conflict-exit-code']),
+  script: new Set([
+    '-E',
+    '-T',
+    '-m',
+    '-o',
+    '-O',
+    '-B',
+    '-I',
+    '--echo',
+    '--log-timing',
+    '--logging-format',
+    '--output-limit',
+    '--log-out',
+    '--log-io',
+    '--log-in',
+  ]),
+  unshare: new Set([
+    '-R',
+    '-w',
+    '-S',
+    '-G',
+    '--setuid',
+    '--setgid',
+    '--root',
+    '--wd',
+    '--propagation',
+    '--setgroups',
+    '--monotonic',
+    '--boottime',
+  ]),
+  nsenter: new Set(['-t', '-S', '-G', '--target', '--setuid', '--setgid']),
+  exec: new Set(['-a']),
+  command: new Set(),
+}
+
+const WRAPPER_COMMAND_FLAGS: Partial<
+  Record<string, ReadonlySet<string>>
+> = {
+  env: new Set(['-S', '--split-string']),
+  flock: new Set(['-c', '--command']),
+  script: new Set(['-c', '--command']),
+}
+
+const WRAPPER_POSITIONAL_ARGUMENTS: Partial<
+  Record<string, (value: string) => boolean>
+> = {
+  chrt: value => /^\d+$/.test(value),
+  taskset: value => /^(0x[\da-f]+|\d+)$/i.test(value),
+  flock: () => true,
+  script: () => true,
+}
+
+const ENV_ASSIGNMENT_ARG = /^[A-Za-z_][A-Za-z0-9_]*\+?=/
+
+/**
+ * Returns the command executed by nested argv-style wrappers. This is used
+ * only for deny/ask matching and AST-vetted sandbox checks; it never broadens
+ * an allow rule.
+ */
+export function stripWrappersFromArgv(argv: string[]): string[] {
+  let args = argv.slice()
+
+  for (;;) {
+    while (args[0] !== undefined && ENV_ASSIGNMENT_ARG.test(args[0])) {
+      args = args.slice(1)
+    }
+    args = stripBasicWrappersFromArgv(args)
+
+    const wrapper = args[0]
+    if (wrapper === undefined) return args
+    const valueFlags = WRAPPER_VALUE_FLAGS[wrapper]
+    if (valueFlags === undefined) return args
+
+    const commandFlags = WRAPPER_COMMAND_FLAGS[wrapper]
+    const positionalArgument = WRAPPER_POSITIONAL_ARGUMENTS[wrapper]
+    let index = 1
+    let embeddedCommand: string | undefined
+    let consumedPositionalArgument = false
+
+    while (index < args.length) {
+      const arg = args[index]!
+      if (arg === '--') {
+        index++
+        if (
+          !consumedPositionalArgument &&
+          positionalArgument !== undefined &&
+          index + 1 < args.length &&
+          positionalArgument(args[index]!)
+        ) {
+          consumedPositionalArgument = true
+          index++
+          continue
+        }
+        break
+      }
+
+      if (commandFlags !== undefined) {
+        if (commandFlags.has(arg) && args[index + 1] !== undefined) {
+          const value = args[index + 1]!.trim()
+          if (value !== '') {
+            embeddedCommand = value
+            break
+          }
+          index += 2
+          continue
+        }
+        const equals = arg.indexOf('=')
+        if (equals > 0 && commandFlags.has(arg.slice(0, equals))) {
+          const value = arg.slice(equals + 1).trim()
+          if (value !== '') {
+            embeddedCommand = value
+            break
+          }
+          index++
+          continue
+        }
+        if (
+          arg.length > 2 &&
+          arg[1] !== '-' &&
+          commandFlags.has(arg.slice(0, 2))
+        ) {
+          const value = arg.slice(2).trim()
+          if (value !== '') {
+            embeddedCommand = value
+            break
+          }
+          index++
+          continue
+        }
+      }
+
+      if (arg.startsWith('-') && (arg !== '-' || positionalArgument === undefined)) {
+        if (wrapper === 'command' && (arg === '-v' || arg === '-V')) {
+          return args
+        }
+        index +=
+          valueFlags.has(arg) && index + 1 < args.length ? 2 : 1
+        continue
+      }
+      if (wrapper === 'env' && ENV_ASSIGNMENT_ARG.test(arg)) {
+        index++
+        continue
+      }
+      if (
+        !consumedPositionalArgument &&
+        positionalArgument?.(arg) &&
+        index + 1 < args.length
+      ) {
+        consumedPositionalArgument = true
+        index++
+        continue
+      }
+      break
+    }
+
+    if (embeddedCommand !== undefined) {
+      args = embeddedCommand.trim().split(/\s+/)
+      if (args.length === 0 || args[0] === '') return argv.slice()
+      continue
+    }
+    if (index >= args.length) return args
+    args = args.slice(index)
   }
 }
 
@@ -782,7 +1106,12 @@ function filterRulesByContentsMatchingInput(
   {
     stripAllEnvVars = false,
     skipCompoundCheck = false,
-  }: { stripAllEnvVars?: boolean; skipCompoundCheck?: boolean } = {},
+    astCommand,
+  }: {
+    stripAllEnvVars?: boolean
+    skipCompoundCheck?: boolean
+    astCommand?: SimpleCommand
+  } = {},
 ): PermissionRule[] {
   const command = input.command.trim()
 
@@ -824,6 +1153,24 @@ function filterRulesByContentsMatchingInput(
   //
   // Without iteration, single-pass compositions miss multi-layer interleaving.
   if (stripAllEnvVars) {
+    const parsed = astCommand
+      ? astCommand.argv
+      : (() => {
+          const result = tryParseShellCommand(commandWithoutRedirections)
+          return result.success
+            ? result.tokens.filter(
+                (token): token is string => typeof token === 'string',
+              )
+            : []
+        })()
+    const wrapperStrippedArgv = stripWrappersFromArgv(parsed)
+    if (
+      wrapperStrippedArgv.length > 0 &&
+      wrapperStrippedArgv[0] !== parsed[0]
+    ) {
+      commandsToTry.push(wrapperStrippedArgv.join(' '))
+    }
+
     const seen = new Set(commandsToTry)
     let startIdx = 0
 
@@ -875,11 +1222,13 @@ function filterRulesByContentsMatchingInput(
         switch (bashRule.type) {
           case 'exact':
             return bashRule.command === cmdToMatch
-          case 'prefix':
+          case 'prefix': {
+            const normalizedPrefix = bashRule.prefix.replace(/[ \t]+/g, ' ')
+            const normalizedCommand = cmdToMatch.replace(/[ \t]+/g, ' ')
             switch (matchMode) {
               // In 'exact' mode, only return true if the command exactly matches the prefix rule
               case 'exact':
-                return bashRule.prefix === cmdToMatch
+                return normalizedPrefix === normalizedCommand
               case 'prefix': {
                 // SECURITY: Don't allow prefix rules to match compound commands.
                 // e.g., Bash(cd:*) must NOT match "cd /path && python3 evil.py".
@@ -893,10 +1242,10 @@ function filterRulesByContentsMatchingInput(
                 }
                 // Ensure word boundary: prefix must be followed by space or end of string
                 // This prevents "ls:*" from matching "lsof" or "lsattr"
-                if (cmdToMatch === bashRule.prefix) {
+                if (normalizedCommand === normalizedPrefix) {
                   return true
                 }
-                if (cmdToMatch.startsWith(bashRule.prefix + ' ')) {
+                if (normalizedCommand.startsWith(normalizedPrefix + ' ')) {
                   return true
                 }
                 // Also match "xargs <prefix>" for bare xargs with no flags.
@@ -904,14 +1253,15 @@ function filterRulesByContentsMatchingInput(
                 // and deny rules like Bash(rm:*) to block "xargs rm file".
                 // Natural word-boundary: "xargs -n1 grep" does NOT start with
                 // "xargs grep " so flagged xargs invocations are not matched.
-                const xargsPrefix = 'xargs ' + bashRule.prefix
-                if (cmdToMatch === xargsPrefix) {
+                const xargsPrefix = 'xargs ' + normalizedPrefix
+                if (normalizedCommand === xargsPrefix) {
                   return true
                 }
-                return cmdToMatch.startsWith(xargsPrefix + ' ')
+                return normalizedCommand.startsWith(xargsPrefix + ' ')
               }
             }
             break
+          }
           case 'wildcard':
             // SECURITY FIX: In exact match mode, wildcards must NOT match because we're
             // checking the full unparsed command. Wildcard matching on unparsed commands
@@ -938,7 +1288,10 @@ function matchingRulesForInput(
   input: z.infer<typeof BashTool.inputSchema>,
   toolPermissionContext: ToolPermissionContext,
   matchMode: 'exact' | 'prefix',
-  { skipCompoundCheck = false }: { skipCompoundCheck?: boolean } = {},
+  {
+    skipCompoundCheck = false,
+    astCommand,
+  }: { skipCompoundCheck?: boolean; astCommand?: SimpleCommand } = {},
 ) {
   const denyRuleByContents = getRuleByContentsForTool(
     toolPermissionContext,
@@ -951,7 +1304,7 @@ function matchingRulesForInput(
     input,
     denyRuleByContents,
     matchMode,
-    { stripAllEnvVars: true, skipCompoundCheck: true },
+    { stripAllEnvVars: true, skipCompoundCheck: true, astCommand },
   )
 
   const askRuleByContents = getRuleByContentsForTool(
@@ -963,7 +1316,7 @@ function matchingRulesForInput(
     input,
     askRuleByContents,
     matchMode,
-    { stripAllEnvVars: true, skipCompoundCheck: true },
+    { stripAllEnvVars: true, skipCompoundCheck: true, astCommand },
   )
 
   const allowRuleByContents = getRuleByContentsForTool(
@@ -1036,6 +1389,7 @@ export const bashToolCheckExactMatchPermission = (
   const decisionReason = {
     type: 'other' as const,
     reason: 'This command requires approval',
+    bashMissKind: 'no-rule-match',
   }
   return {
     behavior: 'passthrough',
@@ -1052,6 +1406,7 @@ export const bashToolCheckPermission = (
   toolPermissionContext: ToolPermissionContext,
   compoundCommandHasCd?: boolean,
   astCommand?: SimpleCommand,
+  cwd = getCwd(),
 ): PermissionResult => {
   const command = input.command.trim()
 
@@ -1077,6 +1432,7 @@ export const bashToolCheckPermission = (
   const { matchingDenyRules, matchingAskRules, matchingAllowRules } =
     matchingRulesForInput(input, toolPermissionContext, 'prefix', {
       skipCompoundCheck: astCommand !== undefined,
+      astCommand,
     })
 
   // 2a. Deny if command has a deny rule
@@ -1111,7 +1467,7 @@ export const bashToolCheckPermission = (
   // parseCommandArguments to return [] and silently skip path validation).
   const pathResult = checkPathConstraints(
     input,
-    getCwd(),
+    cwd,
     toolPermissionContext,
     compoundCommandHasCd,
     astCommand?.redirects,
@@ -1151,7 +1507,7 @@ export const bashToolCheckPermission = (
   }
 
   // 7. Check read-only rules
-  if (BashTool.isReadOnly(input)) {
+  if (BashTool.isReadOnly(input) && !hasUnsafeEnvironmentVariables(input, astCommand)) {
     return {
       behavior: 'allow',
       updatedInput: input,
@@ -1166,6 +1522,7 @@ export const bashToolCheckPermission = (
   const decisionReason = {
     type: 'other' as const,
     reason: 'This command requires approval',
+    bashMissKind: 'no-rule-match',
   }
   return {
     behavior: 'passthrough',
@@ -1185,7 +1542,8 @@ export async function checkCommandAndSuggestRules(
   toolPermissionContext: ToolPermissionContext,
   commandPrefixResult: CommandPrefixResult | null | undefined,
   compoundCommandHasCd?: boolean,
-  astParseSucceeded?: boolean,
+  astCommand?: SimpleCommand,
+  cwd = getCwd(),
 ): Promise<PermissionResult> {
   // 1. Check exact match first
   const exactMatchResult = bashToolCheckExactMatchPermission(
@@ -1201,6 +1559,8 @@ export async function checkCommandAndSuggestRules(
     input,
     toolPermissionContext,
     compoundCommandHasCd,
+    astCommand,
+    cwd,
   )
   // 2a. Deny/ask if command was explictly denied/asked
   if (
@@ -1215,7 +1575,7 @@ export async function checkCommandAndSuggestRules(
   // hidden substitutions or structural tricks, so the legacy regex-based
   // validators (backslash-escaped operators, etc.) would only add FPs.
   if (
-    !astParseSucceeded &&
+    !astCommand &&
     !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_COMMAND_INJECTION_CHECK)
   ) {
     const safetyResult = await bashCommandIsSafeAsync(input.command)
@@ -1270,6 +1630,7 @@ export async function checkCommandAndSuggestRules(
 function checkSandboxAutoAllow(
   input: z.infer<typeof BashTool.inputSchema>,
   toolPermissionContext: ToolPermissionContext,
+  commands: SimpleCommand[],
 ): PermissionResult {
   const command = input.command.trim()
 
@@ -1278,6 +1639,7 @@ function checkSandboxAutoAllow(
     input,
     toolPermissionContext,
     'prefix',
+    { astCommand: commands.length === 1 ? commands[0] : undefined },
   )
 
   // Return immediately if there's an explicit deny rule on the full command
@@ -1300,14 +1662,14 @@ function checkSandboxAutoAllow(
   // Otherwise a wildcard ask rule matching the full command (e.g., Bash(*echo*))
   // would return 'ask' before a prefix deny rule on a subcommand (e.g., Bash(rm:*))
   // gets checked, downgrading a deny to an ask.
-  const subcommands = splitCommand(command)
-  if (subcommands.length > 1) {
+  if (commands.length > 1) {
     let firstAskRule: PermissionRule | undefined
-    for (const sub of subcommands) {
+    for (const subcommand of commands) {
       const subResult = matchingRulesForInput(
-        { command: sub },
+        { command: subcommand.text },
         toolPermissionContext,
         'prefix',
+        { astCommand: subcommand },
       )
       // Deny takes priority — return immediately
       if (subResult.matchingDenyRules[0] !== undefined) {
@@ -1359,6 +1721,66 @@ function checkSandboxAutoAllow(
 }
 
 /**
+ * Applies sandbox auto-allow to an AST-vetted command while preserving the
+ * security checks whose inputs are lost by the legacy string-based path.
+ */
+function checkAstSandboxAutoAllow(
+  input: z.infer<typeof BashTool.inputSchema>,
+  toolPermissionContext: ToolPermissionContext,
+  commands: SimpleCommand[],
+): PermissionResult | null {
+  if (
+    !SandboxManager.isSandboxingEnabled() ||
+    !SandboxManager.isAutoAllowBashIfSandboxedEnabled() ||
+    !shouldUseSandbox(input)
+  ) {
+    return null
+  }
+
+  const result = checkSandboxAutoAllow(input, toolPermissionContext, commands)
+  if (result.behavior === 'passthrough') return null
+
+  const assignmentStart = /^([A-Za-z_][A-Za-z0-9_]*)\+?=/
+  const hasUnsafeEnvironment = commands.some(
+    command =>
+      command.envVars.some(env => !isSafeEnvironmentVariable(env.name)) ||
+      command.argv.some(argument => {
+        const assignment = argument.match(assignmentStart)
+        return (
+          assignment !== null &&
+          !isSafeEnvironmentVariable(assignment[1]!)
+        )
+      }),
+  )
+  const hasNetworkDeviceRedirect = commands.some(command =>
+    command.redirects.some(redirect =>
+      /^\/dev\/(tcp|udp)\//.test(redirect.target),
+    ),
+  )
+  if (hasUnsafeEnvironment || hasNetworkDeviceRedirect) return null
+
+  let hasCd = false
+  let hasRemoval = false
+  for (const command of commands) {
+    const [name, ...args] = stripWrappersFromArgv(command.argv)
+    if (name === 'cd') {
+      hasCd = true
+      continue
+    }
+    if (name !== 'rm' && name !== 'rmdir') continue
+    hasRemoval = true
+    if (
+      checkDangerousRemovalPaths(name, args, getCwd()).behavior !==
+      'passthrough'
+    ) {
+      return null
+    }
+  }
+  if (hasCd && hasRemoval) return null
+  return result
+}
+
+/**
  * Filter out `cd ${cwd}` prefix subcommands, keeping astCommands aligned.
  * Extracted to keep bashToolHasPermission under Bun's feature() DCE
  * complexity threshold — inlining this breaks pendingClassifierCheck
@@ -1379,6 +1801,143 @@ function filterCdCwdSubcommands(
     astCommandsByIdx.push(astCommands?.[i])
   }
   return { subcommands, astCommandsByIdx }
+}
+
+/**
+ * A leading `cd` can safely establish the base directory for the commands
+ * that follow only when the compound syntax cannot redirect execution into a
+ * different branch. `&&` is the sole accepted operator: `||`, `;`, newlines,
+ * and a standalone `&` can all make the inferred working directory diverge
+ * from the directory Bash actually uses.
+ */
+function canUseLeadingCdAsWorkingDirectory(command: string): boolean {
+  if (command.includes('||') || command.includes(';')) return false
+  if (command.includes('\n')) return false
+  if (command.replaceAll('&&', '').includes('&')) return false
+  return true
+}
+
+function isExplicitCdPath(value: string): boolean {
+  return (
+    isAbsolute(value) ||
+    value.startsWith('./') ||
+    value.startsWith('../') ||
+    value === '.' ||
+    value === '..'
+  )
+}
+
+/**
+ * Resolve an AST-vetted leading `cd` for use as the base directory of later
+ * subcommands. Fail closed for shell expansions, redirects, globs, flags, or
+ * paths outside the session's allowed working directories.
+ */
+function resolveLeadingCdWorkingDirectory(
+  command: SimpleCommand | undefined,
+  cwd: string,
+  toolPermissionContext: ToolPermissionContext,
+): string | null {
+  if (!command) return null
+  if (command.envVars.length > 0 || command.redirects.length > 0) return null
+  if (command.argv.length !== 2 || command.argv[0] !== 'cd') return null
+
+  const target = command.argv[1]!
+  if (target.startsWith('-') || !isExplicitCdPath(target)) return null
+  if (/[*?[\]]/.test(target)) return null
+
+  const { allowed, resolvedPath } = validatePath(
+    target,
+    cwd,
+    toolPermissionContext,
+    'read',
+  )
+  if (!allowed) return null
+  if (
+    !pathInAllowedWorkingPath(resolvedPath, toolPermissionContext, [
+      resolvedPath,
+    ])
+  ) {
+    return null
+  }
+  return resolvedPath
+}
+
+function parseSimpleCdPath(command: string): string | null {
+  const trimmed = command.trim()
+  if (!trimmed.startsWith('cd ')) return null
+  const argument = trimmed.slice(3).trim()
+  if (!argument) return null
+  const quote = argument[0]
+  if (quote === '"' || quote === "'") {
+    if (argument.length < 2 || argument.at(-1) !== quote) return null
+    const unquoted = argument.slice(1, -1)
+    if (unquoted.includes(quote)) return null
+    return unquoted
+  }
+  return /\s/.test(argument) ? null : argument
+}
+
+async function normalizedRealpath(value: string): Promise<string | null> {
+  const result = await realpath(value).catch(() => null)
+  if (result === null) return null
+  return getPlatform() === 'windows' ? result.toLowerCase() : result
+}
+
+async function cdPathResolvesToCwd(
+  target: string,
+  cwd: string,
+  normalizedCwd: string,
+): Promise<boolean> {
+  if (target.startsWith('-') || !isExplicitCdPath(target)) return false
+  if (
+    target.includes('$') ||
+    /[*?[]/.test(target) ||
+    (getPlatform() === 'windows' && target.includes('%'))
+  ) {
+    return false
+  }
+  const absoluteTarget = isAbsolute(target) ? target : resolve(cwd, target)
+  const normalizedTarget = await normalizedRealpath(absoluteTarget)
+  return normalizedTarget !== null && normalizedTarget === normalizedCwd
+}
+
+async function astCdCommandsKeepCurrentDirectory(
+  astCommands: (SimpleCommand | undefined)[],
+  subcommands: string[],
+  cwd: string,
+): Promise<boolean> {
+  const normalizedCwd = await normalizedRealpath(cwd)
+  if (normalizedCwd === null) return false
+  let foundCd = false
+  for (let index = 0; index < subcommands.length; index++) {
+    if (!isNormalizedCdCommand(subcommands[index]!)) continue
+    foundCd = true
+    const command = astCommands[index]
+    if (!command) return false
+    if (command.envVars.length > 0 || command.redirects.length > 0) return false
+    if (command.argv.length !== 2 || command.argv[0] !== 'cd') return false
+    const target = parseSimpleCdPath(subcommands[index]!)
+    if (target === null) return false
+    if (!(await cdPathResolvesToCwd(target, cwd, normalizedCwd))) return false
+  }
+  return foundCd
+}
+
+async function textualCdCommandsKeepCurrentDirectory(
+  subcommands: string[],
+  cwd: string,
+): Promise<boolean> {
+  const normalizedCwd = await normalizedRealpath(cwd)
+  if (normalizedCwd === null) return false
+  let foundCd = false
+  for (const subcommand of subcommands) {
+    if (!isNormalizedCdCommand(subcommand.trim())) continue
+    foundCd = true
+    const target = parseSimpleCdPath(subcommand)
+    if (target === null) return false
+    if (!(await cdPathResolvesToCwd(target, cwd, normalizedCwd))) return false
+  }
+  return foundCd
 }
 
 /**
@@ -1748,6 +2307,7 @@ export async function bashToolHasPermission(
     const decisionReason: PermissionDecisionReason = {
       type: 'other' as const,
       reason: astResult.reason,
+      bashMissKind: 'too-complex',
     }
     logEvent('tengu_bash_ast_too_complex', {
       nodeTypeId: nodeTypeId(astResult.nodeType),
@@ -1781,9 +2341,18 @@ export async function bashToolHasPermission(
         astResult.commands,
       )
       if (earlyExit !== null) return earlyExit
+      if (sem.kind === 'newline-hash') {
+        const sandboxResult = checkAstSandboxAutoAllow(
+          input,
+          appState.toolPermissionContext,
+          astResult.commands,
+        )
+        if (sandboxResult) return sandboxResult
+      }
       const decisionReason: PermissionDecisionReason = {
         type: 'other' as const,
         reason: sem.reason,
+        bashMissKind: 'semantics',
       }
       return {
         behavior: 'ask',
@@ -1826,21 +2395,12 @@ export async function bashToolHasPermission(
     }
   }
 
-  // Check sandbox auto-allow (which respects explicit deny/ask rules)
-  // Only call this if sandboxing and auto-allow are both enabled
-  if (
-    SandboxManager.isSandboxingEnabled() &&
-    SandboxManager.isAutoAllowBashIfSandboxedEnabled() &&
-    shouldUseSandbox(input)
-  ) {
-    const sandboxAutoAllowResult = checkSandboxAutoAllow(
-      input,
-      appState.toolPermissionContext,
-    )
-    if (sandboxAutoAllowResult.behavior !== 'passthrough') {
-      return sandboxAutoAllowResult
-    }
-  }
+  const sandboxAutoAllowResult = checkAstSandboxAutoAllow(
+    input,
+    appState.toolPermissionContext,
+    astCommands ?? [],
+  )
+  if (sandboxAutoAllowResult) return sandboxAutoAllowResult
 
   // Check exact match first
   const exactMatchResult = bashToolCheckExactMatchPermission(
@@ -1955,6 +2515,7 @@ export async function bashToolHasPermission(
           decisionReason: {
             type: 'other',
             reason: `Required by Bash prompt rule: "${askResult.matchedDescription}"`,
+            bashMissKind: 'prompt-ask-rule',
           },
           suggestions,
           ...(feature('BASH_CLASSIFIER')
@@ -1979,6 +2540,7 @@ export async function bashToolHasPermission(
       bashToolHasPermission(i, context, getCommandSubcommandPrefixFn),
     { isNormalizedCdCommand, isNormalizedGitCommand },
     astRoot,
+    subcommands => textualCdCommandsKeepCurrentDirectory(subcommands, getCwd()),
   )
   if (commandOperatorResult.behavior !== 'passthrough') {
     // SECURITY FIX: When pipe segment processing returns 'allow', we must still validate
@@ -2187,6 +2749,7 @@ export async function bashToolHasPermission(
       type: 'other' as const,
       reason:
         'Multiple directory changes in one command require approval for clarity',
+      bashMissKind: 'multi-cd',
     }
     return {
       behavior: 'ask',
@@ -2198,6 +2761,32 @@ export async function bashToolHasPermission(
   // Track if compound command contains cd for security validation
   // This prevents bypassing path checks via: cd .claude/ && mv test.txt settings.json
   const compoundCommandHasCd = cdCommands.length > 0
+  let permissionCwd = cwd
+  let pathCommandHasCd = compoundCommandHasCd
+  let adjustedForLeadingCd = false
+
+  // When an AST-vetted `cd` is the first command in a straight `&&` chain,
+  // validate later paths relative to the directory Bash will actually use.
+  // This remains fail-closed for legacy parsing, branches, background jobs,
+  // redirects, expansions, globs, and paths outside allowed working roots.
+  if (
+    compoundCommandHasCd &&
+    subcommands.length > 1 &&
+    subcommands.length === rawSubcommands.length &&
+    isNormalizedCdCommand(subcommands[0]!) &&
+    canUseLeadingCdAsWorkingDirectory(input.command)
+  ) {
+    const resolvedCwd = resolveLeadingCdWorkingDirectory(
+      astCommandsByIdx[0],
+      cwd,
+      appState.toolPermissionContext,
+    )
+    if (resolvedCwd !== null) {
+      permissionCwd = resolvedCwd
+      pathCommandHasCd = false
+      adjustedForLeadingCd = true
+    }
+  }
 
   // SECURITY: Block compound commands that have both cd AND git
   // This prevents sandbox escape via: cd /malicious/dir && git status
@@ -2210,11 +2799,19 @@ export async function bashToolHasPermission(
     const hasGitCommand = subcommands.some(cmd =>
       isNormalizedGitCommand(cmd.trim()),
     )
-    if (hasGitCommand) {
+    if (
+      hasGitCommand &&
+      !(await astCdCommandsKeepCurrentDirectory(
+        astCommandsByIdx,
+        subcommands,
+        cwd,
+      ))
+    ) {
       const decisionReason = {
         type: 'other' as const,
         reason:
-          'Compound commands with cd and git require approval to prevent bare repository attacks',
+          'This command changes directory before running git, which can execute untrusted hooks from the target directory. Approve only if you trust it.',
+        bashMissKind: 'cd-git-compound',
       }
       return {
         behavior: 'ask',
@@ -2240,8 +2837,9 @@ export async function bashToolHasPermission(
     bashToolCheckPermission(
       { command },
       appState.toolPermissionContext,
-      compoundCommandHasCd,
+      pathCommandHasCd,
       astCommandsByIdx[i],
+      adjustedForLeadingCd && i === 0 ? cwd : permissionCwd,
     ),
   )
 
@@ -2275,11 +2873,13 @@ export async function bashToolHasPermission(
   // that can silently hide redirect operators).
   const pathResult = checkPathConstraints(
     input,
-    getCwd(),
+    permissionCwd,
     appState.toolPermissionContext,
-    compoundCommandHasCd,
+    pathCommandHasCd,
     astRedirects,
-    astCommands,
+    astCommandsByIdx
+      .slice(adjustedForLeadingCd ? 1 : 0)
+      .filter((command): command is SimpleCommand => command !== undefined),
   )
   if (pathResult.behavior === 'deny') {
     return pathResult
@@ -2408,8 +3008,9 @@ export async function bashToolHasPermission(
       { command: subcommands[0]! },
       appState.toolPermissionContext,
       commandSubcommandPrefix,
-      compoundCommandHasCd,
-      astSubcommands !== null,
+      pathCommandHasCd,
+      astCommandsByIdx[0],
+      permissionCwd,
     )
     // If command wasn't allowed, attach pending classifier check.
     // At this point, 'ask' can only come from bashCommandIsSafe (security check inside
@@ -2433,7 +3034,8 @@ export async function bashToolHasPermission(
 
   // Check subcommand permission results
   const subcommandResults: Map<string, PermissionResult> = new Map()
-  for (const subcommand of subcommands) {
+  for (let subcommandIndex = 0; subcommandIndex < subcommands.length; subcommandIndex++) {
+    const subcommand = subcommands[subcommandIndex]!
     subcommandResults.set(
       subcommand,
       await checkCommandAndSuggestRules(
@@ -2444,8 +3046,11 @@ export async function bashToolHasPermission(
         },
         appState.toolPermissionContext,
         commandSubcommandPrefix?.subcommandPrefixes.get(subcommand),
-        compoundCommandHasCd,
-        astSubcommands !== null,
+        pathCommandHasCd,
+        astCommandsByIdx[subcommandIndex],
+        adjustedForLeadingCd && subcommandIndex === 0
+          ? cwd
+          : permissionCwd,
       ),
     )
   }

@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.112-to-2.1.113",
+  "artifact": {
+    "baselineSha256": "bc3358282800e3e99daa8e71ac5b7b1566bd0d7ca7eb94f714a7859365d3163f",
+    "targetInnerSha256": "4a3c3636c8cb19ef42d6319e5c6ef9b029f5de148b84f22315d159052d6c5eba",
+    "targetWrapperSha256": "dda4d89e787fa455706e4f41beffc8e58d42b9094c4d155fcbf62e3f19036681",
+    "targetWrapperPrefixLength": 87,
+    "targetWrapperSuffixLength": 3,
+    "structuralGzipSha256": "383448923995bb86060ce91beac2bc5adac35817a0cdff35b533135c7d24345f"
+  },
+  "summary": {
+    "units": 3,
+    "residues": 26,
+    "recoveredOwnerResidues": 23,
+    "reactCompilerResidues": 3
+  },
+  "owners": {
+    "permissionStatus": {
+      "path": "src/utils/permissionStatus.ts",
+      "recoveredFileSha256": "df1f9f54165596c0d90eed4fbd0da37c4da22df91213dd4c6ae0f30eceef35bb",
+      "comparisonState": "absent"
+    },
+    "ultraplanChoice": {
+      "path": "src/components/ultraplan/UltraplanChoiceDialog.tsx",
+      "recoveredFileSha256": "0f64a84d9e87b9a8861ad5d703d8e0e849779d7cff6bb751db5867ebadb6afae",
+      "comparisonState": "absent"
+    }
+  },
+  "rows": [
+    {
+      "targetIndex": 18268,
+      "correctedOwner": "src/utils/permissionStatus.ts",
+      "priorOwner": "src/services/preventSleep.ts",
+      "category": "recovered-owner-package-gap",
+      "target": {
+        "classification": "unresolved",
+        "start": 11314283,
+        "end": 11314679,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "a92a2a04db4be3a1823188b6be619bd5663f979b585f86036e889db330833c97"
+      },
+      "source": {
+        "representation": "PermissionStatusSource, STATUS_PRIORITY, statusBySource, and the priority recomputation singleton"
+      },
+      "residueDigest": "a1bda91812e1ff30be7da07dfb29cd974930c4d0319cfd7acda2f0ab78dd7d7d",
+      "residues": [
+        ["string", "sandbox", 11314308, 11314317, 2, 3, "recovered-owner"],
+        ["string", "hook-prompt", 11314331, 11314344, 0, 1, "recovered-owner"],
+        ["string", "worker-sandbox", 11314345, 11314361, 0, 1, "recovered-owner"],
+        ["property", "sandbox", 11314401, 11314408, 49, 51, "recovered-owner"],
+        ["string", "hook-prompt", 11314430, 11314443, 0, 2, "recovered-owner"],
+        ["string", "worker-sandbox", 11314449, 11314465, 0, 2, "recovered-owner"]
+      ]
+    },
+    {
+      "targetIndex": 18269,
+      "targetName": "cQ7",
+      "correctedOwner": "src/utils/permissionStatus.ts",
+      "priorOwner": "src/services/preventSleep.ts",
+      "category": "recovered-owner-package-gap",
+      "target": {
+        "classification": "unresolved",
+        "start": 11314679,
+        "end": 11315138,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "4e95288507b335620206944859b0bd7e811eb70aebe0ac86a5872196a9f8a4da"
+      },
+      "source": {
+        "declaration": "usePermissionStatus",
+        "kind": "FunctionDeclaration",
+        "sha256": "a5d7211a5dc1b88dc78a7b597af532b487e3482907cc48b906d79fe20c8b4404",
+        "useEffectCalls": 4
+      },
+      "residueDigest": "b242bcfd5b67244b740ed2ac4a35a753304ac0329243f55787c31534f6d660de",
+      "residues": [
+        ["property", "sandboxHost", 11314699, 11314710, 0, 1, "recovered-owner"],
+        ["property", "promptTitle", 11314713, 11314724, 0, 1, "recovered-owner"],
+        ["property", "elicitationServer", 11314727, 11314744, 0, 1, "recovered-owner"],
+        ["property", "workerSandboxHost", 11314747, 11314764, 0, 1, "recovered-owner"],
+        ["string", "allow network: ", 11314821, 11314836, 0, 1, "recovered-owner"],
+        ["string", "sandbox", 11314847, 11314856, 2, 4, "recovered-owner"],
+        ["string", "respond: ", 11314910, 11314919, 0, 1, "recovered-owner"],
+        ["string", "hook-prompt", 11314930, 11314943, 0, 3, "recovered-owner"],
+        ["string", "allow network: ", 11314997, 11315012, 0, 2, "recovered-owner"],
+        ["string", "worker-sandbox", 11315023, 11315039, 0, 3, "recovered-owner"],
+        ["string", "MCP input: ", 11315093, 11315104, 0, 1, "recovered-owner"]
+      ]
+    },
+    {
+      "targetIndex": 19377,
+      "targetName": "GH_",
+      "correctedOwner": "src/components/ultraplan/UltraplanChoiceDialog.tsx",
+      "priorOwner": "src/components/SessionBackgroundHint.tsx",
+      "category": "recovered-owner-package-gap-with-react-cache",
+      "target": {
+        "classification": "unresolved",
+        "start": 11851844,
+        "end": 11855762,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "5122b0b793d1200d03ab4e9779cd33bac6617f8068ef59eb118e621e02c9be6f"
+      },
+      "source": {
+        "declaration": "UltraplanChoiceDialog",
+        "kind": "FunctionDeclaration",
+        "sha256": "9ceb42c739a1e9f3874f5f87cadd7765f53579f1c136d4eb9cbeecb52f719b67",
+        "imports": [
+          ["fs/promises", "stat", "stat"],
+          ["fs/promises", "writeFile", "writeFile"],
+          ["path", "join", "join"]
+        ],
+        "terminalRowsBinding": true,
+        "jsxRepresentation": true
+      },
+      "residueDigest": "5a199e3e7ad5f981de86908e8fdba7eada02d25ed2799304b3e5461407d82dcd",
+      "residues": [
+        ["property", "c", 11851870, 11851871, 164, 707, "react-compiler-cache"],
+        ["property", "join", 11852441, 11852445, 1619, 2124, "recovered-owner"],
+        ["property", "stat", 11852523, 11852527, 97, 181, "recovered-owner"],
+        ["property", "join", 11852925, 11852929, 1619, 2125, "recovered-owner"],
+        ["property", "writeFile", 11852970, 11852979, 28, 109, "recovered-owner"],
+        ["property", "rows", 11853234, 11853238, 55, 76, "recovered-owner"],
+        ["property", "join", 11854126, 11854130, 1619, 2126, "recovered-owner"],
+        ["number", "46", 11855374, 11855376, 182, 183, "react-compiler-cache"],
+        ["number", "49", 11855705, 11855707, 203, 204, "react-compiler-cache"]
+      ]
+    }
+  ]
+}

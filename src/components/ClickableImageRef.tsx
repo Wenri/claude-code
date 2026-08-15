@@ -4,7 +4,7 @@ import { pathToFileURL } from 'url';
 import Link from '../ink/components/Link.js';
 import { supportsHyperlinks } from '../ink/supports-hyperlinks.js';
 import { Text } from '../ink.js';
-import { getStoredImagePath } from '../utils/imageStore.js';
+import { useAppState } from '../state/AppState.js';
 import type { Theme } from '../utils/theme.js';
 type Props = {
   imageId: number;
@@ -21,52 +21,60 @@ type Props = {
  * - Image file is not found in the store
  */
 export function ClickableImageRef(t0) {
-  const $ = _c(13);
+  const $ = _c(15);
   const {
     imageId,
     backgroundColor,
     isSelected: t1
   } = t0;
   const isSelected = t1 === undefined ? false : t1;
-  const imagePath = getStoredImagePath(imageId);
+  const imagePath = useAppState(state => state.storedImagePaths.get(imageId) ?? null) ?? null;
   const displayText = `[Image #${imageId}]`;
   if (imagePath && supportsHyperlinks()) {
-    const fileUrl = pathToFileURL(imagePath).href;
     let t2;
+    if ($[0] !== imagePath) {
+      t2 = pathToFileURL(imagePath);
+      $[0] = imagePath;
+      $[1] = t2;
+    } else {
+      t2 = $[1];
+    }
+    const fileUrl = t2.href;
     let t3;
-    if ($[0] !== backgroundColor || $[1] !== displayText || $[2] !== isSelected) {
-      t2 = <Text backgroundColor={backgroundColor} inverse={isSelected}>{displayText}</Text>;
-      t3 = <Text backgroundColor={backgroundColor} inverse={isSelected} bold={isSelected}>{displayText}</Text>;
-      $[0] = backgroundColor;
-      $[1] = displayText;
-      $[2] = isSelected;
-      $[3] = t2;
-      $[4] = t3;
-    } else {
-      t2 = $[3];
-      t3 = $[4];
-    }
     let t4;
-    if ($[5] !== fileUrl || $[6] !== t2 || $[7] !== t3) {
-      t4 = <Link url={fileUrl} fallback={t2}>{t3}</Link>;
-      $[5] = fileUrl;
-      $[6] = t2;
-      $[7] = t3;
-      $[8] = t4;
+    if ($[2] !== backgroundColor || $[3] !== displayText || $[4] !== isSelected) {
+      t3 = <Text backgroundColor={backgroundColor} inverse={isSelected}>{displayText}</Text>;
+      t4 = <Text backgroundColor={backgroundColor} inverse={isSelected} bold={isSelected}>{displayText}</Text>;
+      $[2] = backgroundColor;
+      $[3] = displayText;
+      $[4] = isSelected;
+      $[5] = t3;
+      $[6] = t4;
     } else {
-      t4 = $[8];
+      t3 = $[5];
+      t4 = $[6];
     }
-    return t4;
+    let t5;
+    if ($[7] !== fileUrl || $[8] !== t3 || $[9] !== t4) {
+      t5 = <Link url={fileUrl} fallback={t3}>{t4}</Link>;
+      $[7] = fileUrl;
+      $[8] = t3;
+      $[9] = t4;
+      $[10] = t5;
+    } else {
+      t5 = $[10];
+    }
+    return t5;
   }
   let t2;
-  if ($[9] !== backgroundColor || $[10] !== displayText || $[11] !== isSelected) {
+  if ($[11] !== backgroundColor || $[12] !== displayText || $[13] !== isSelected) {
     t2 = <Text backgroundColor={backgroundColor} inverse={isSelected}>{displayText}</Text>;
-    $[9] = backgroundColor;
-    $[10] = displayText;
-    $[11] = isSelected;
-    $[12] = t2;
+    $[11] = backgroundColor;
+    $[12] = displayText;
+    $[13] = isSelected;
+    $[14] = t2;
   } else {
-    t2 = $[12];
+    t2 = $[14];
   }
   return t2;
 }

@@ -5,6 +5,7 @@ import figures from 'figures';
 import * as React from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEvent } from 'src/services/analytics/index.js';
+import { CompactionError } from 'src/services/compact/compact.js';
 import { useAppState } from 'src/state/AppState.js';
 import { type DiffStats, fileHistoryCanRestore, fileHistoryEnabled, fileHistoryGetDiffStats } from 'src/utils/fileHistory.js';
 import { logError } from 'src/utils/log.js';
@@ -68,6 +69,12 @@ export function MessageSelector({
 
   // Orient the selected message as the middle of the visible options
   const firstVisibleIndex = Math.max(0, Math.min(selectedIndex - Math.floor(MAX_VISIBLE_MESSAGES / 2), messageOptions.length - MAX_VISIBLE_MESSAGES));
+  const lastVisibleIndex = Math.min(
+    messageOptions.length,
+    firstVisibleIndex + MAX_VISIBLE_MESSAGES,
+  );
+  const hiddenAbove = firstVisibleIndex;
+  const hiddenBelow = messageOptions.length - lastVisibleIndex;
   const hasMessagesToSelect = messageOptions.length > 1;
   const [messageToRestore, setMessageToRestore] = useState<UserMessage | undefined>(preselectedMessage);
   const [diffStatsForRestore, setDiffStatsForRestore] = useState<DiffStats | undefined>(undefined);
@@ -200,7 +207,9 @@ export function MessageSelector({
         setMessageToRestore(undefined);
         onClose();
       } catch (error_1) {
-        logError(error_1 as Error);
+        if (!(error_1 instanceof CompactionError)) {
+          logError(error_1 as Error);
+        }
         setIsRestoring(false);
         setRestoringOption(null);
         setMessageToRestore(undefined);
@@ -355,8 +364,13 @@ export function MessageSelector({
               </Text> : <Text>
                 Restore and fork the conversation to the point before…
               </Text>}
+            {hiddenAbove > 0 && <Box paddingLeft={1}>
+                <Text dimColor>
+                  {figures.arrowUp} {hiddenAbove} more above
+                </Text>
+              </Box>}
             <Box width="100%" flexDirection="column">
-              {messageOptions.slice(firstVisibleIndex, firstVisibleIndex + MAX_VISIBLE_MESSAGES).map((msg, visibleOptionIndex) => {
+              {messageOptions.slice(firstVisibleIndex, lastVisibleIndex).map((msg, visibleOptionIndex) => {
             const optionIndex = firstVisibleIndex + visibleOptionIndex;
             const isSelected = optionIndex === selectedIndex;
             const isCurrent = msg.uuid === currentUUID;
@@ -389,6 +403,11 @@ export function MessageSelector({
                     </Box>;
           })}
             </Box>
+            {hiddenBelow > 0 && <Box paddingLeft={1}>
+                <Text dimColor>
+                  {figures.arrowDown} {hiddenBelow} more below
+                </Text>
+              </Box>}
           </>}
         {!messageToRestore && <Text dimColor italic>
             {exitState.pending ? <>Press {exitState.keyName} again to exit</> : <>

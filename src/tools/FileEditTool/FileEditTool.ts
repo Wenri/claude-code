@@ -19,9 +19,10 @@ import type { ToolUseContext } from '../../Tool.js'
 import { buildTool, type ToolDef } from '../../Tool.js'
 import { getCwd } from '../../utils/cwd.js'
 import { logForDebugging } from '../../utils/debug.js'
-import { countLinesChanged } from '../../utils/diff.js'
+import { countLinesChanged, getPatchForDisplay } from '../../utils/diff.js'
 import { isEnvTruthy } from '../../utils/envUtils.js'
 import { isENOENT } from '../../utils/errors.js'
+import { fileStateMatchesContent } from '../../utils/fileStateCache.js'
 import {
   FILE_NOT_FOUND_CWD_NOTE,
   findSimilarFile,
@@ -56,6 +57,10 @@ import type { PermissionDecision } from '../../utils/permissions/PermissionResul
 import { matchWildcardPattern } from '../../utils/permissions/shellRuleMatching.js'
 import { validateInputForSettingsFileEdit } from '../../utils/settings/validateEditTool.js'
 import { NOTEBOOK_EDIT_TOOL_NAME } from '../NotebookEditTool/constants.js'
+import {
+  EDIT_SUCCESS_SUFFIX,
+  isNoRereadEnabled,
+} from '../FileReadTool/prompt.js'
 import {
   FILE_EDIT_TOOL_NAME,
   FILE_UNEXPECTEDLY_MODIFIED_ERROR,
@@ -117,6 +122,11 @@ export const FileEditTool = buildTool({
   },
   get outputSchema() {
     return outputSchema()
+  },
+  stripForStorage(output) {
+    if (typeof output !== 'object' || output === null) return output
+    if ((output.originalFile ?? '') === '') return output
+    return { ...output, originalFile: '' }
   },
   toAutoClassifierInput(input) {
     return `${input.file_path}: ${input.new_string}`
@@ -316,7 +326,7 @@ export const FileEditTool = buildTool({
         const isFullRead =
           readTimestamp.offset === undefined &&
           readTimestamp.limit === undefined
-        if (isFullRead && fileContent === readTimestamp.content) {
+        if (isFullRead && fileStateMatchesContent(readTimestamp, fileContent)) {
           // Content unchanged, safe to proceed
         } else {
           return {
@@ -412,7 +422,8 @@ export const FileEditTool = buildTool({
     {
       readFileState,
       userModified,
-      updateFileHistoryState,
+      getFileHistoryState,
+      applyFileHistoryOp,
       dynamicSkillDirTriggers,
       setAppState,
       agentId,
@@ -458,7 +469,8 @@ export const FileEditTool = buildTool({
       // check (idempotent v1 backup keyed on content hash; if staleness fails
       // later we just have an unused backup, not corrupt state).
       await fileHistoryTrackEdit(
-        updateFileHistoryState,
+        getFileHistoryState,
+        applyFileHistoryOp,
         absoluteFilePath,
         parentMessage.uuid,
       )
@@ -485,7 +497,7 @@ export const FileEditTool = buildTool({
           lastRead.offset === undefined &&
           lastRead.limit === undefined
         const contentUnchanged =
-          isFullRead && originalFileContents === lastRead.content
+          isFullRead && fileStateMatchesContent(lastRead, originalFileContents)
         if (!contentUnchanged) {
           throw new Error(FILE_UNEXPECTEDLY_MODIFIED_ERROR)
         }
@@ -504,13 +516,31 @@ export const FileEditTool = buildTool({
     )
 
     // 4. Generate patch
-    const { patch, updatedFile } = getPatchForEdit({
+    const editResult = getPatchForEdit({
       filePath: absoluteFilePath,
       fileContents: originalFileContents,
       oldString: actualOldString,
       newString: actualNewString,
       replaceAll: replace_all,
     })
+    const updatedFile = stampTinyMemoryWrite(
+      absoluteFilePath,
+      editResult.updatedFile,
+    )
+    const patch =
+      updatedFile === editResult.updatedFile
+        ? editResult.patch
+        : getPatchForDisplay({
+            filePath: absoluteFilePath,
+            fileContents: originalFileContents,
+            edits: [
+              {
+                old_string: originalFileContents,
+                new_string: updatedFile,
+                replace_all: false,
+              },
+            ],
+          })
 
     // 5. Write to disk
     writeTextContent(absoluteFilePath, updatedFile, encoding, endings)

@@ -13,23 +13,21 @@ import {
   parseUserSpecifiedModel,
 } from '../../utils/model/model.js'
 import { jsonStringify } from '../../utils/slowOperations.js'
+import { getErrnoCode, getErrnoPath } from '../../utils/errors.js'
 import { getResolvedTeammateMode } from '../../utils/swarm/backends/registry.js'
 import { TEAM_LEAD_NAME } from '../../utils/swarm/constants.js'
 import type { TeamFile } from '../../utils/swarm/teamHelpers.js'
 import {
   getTeamFilePath,
-  readTeamFile,
   registerTeamForSessionCleanup,
   sanitizeName,
   writeTeamFileAsync,
 } from '../../utils/swarm/teamHelpers.js'
-import { assignTeammateColor } from '../../utils/swarm/teammateLayoutManager.js'
 import {
   ensureTasksDir,
   resetTaskList,
   setLeaderTeamName,
 } from '../../utils/tasks.js'
-import { generateWordSlug } from '../../utils/words.js'
 import { TEAM_CREATE_TOOL_NAME } from './constants.js'
 import { getPrompt } from './prompt.js'
 import { renderToolUseMessage } from './UI.js'
@@ -56,20 +54,6 @@ export type Output = {
 }
 
 export type Input = z.infer<InputSchema>
-
-/**
- * Generates a unique team name by checking if the provided name already exists.
- * If the name already exists, generates a new word slug.
- */
-function generateUniqueTeamName(providedName: string): string {
-  // If the team doesn't exist, use the provided name
-  if (!readTeamFile(providedName)) {
-    return providedName
-  }
-
-  // Team exists, generate a new unique name
-  return generateWordSlug()
-}
 
 export const TeamCreateTool: Tool<InputSchema, Output> = buildTool({
   name: TEAM_CREATE_TOOL_NAME,
@@ -139,8 +123,7 @@ export const TeamCreateTool: Tool<InputSchema, Output> = buildTool({
       )
     }
 
-    // If team already exists, generate a unique name instead of failing
-    const finalTeamName = generateUniqueTeamName(team_name)
+    const finalTeamName = team_name
 
     // Generate a deterministic agent ID for the team lead
     const leadAgentId = formatAgentId(TEAM_LEAD_NAME, finalTeamName)
@@ -174,7 +157,19 @@ export const TeamCreateTool: Tool<InputSchema, Output> = buildTool({
       ],
     }
 
-    await writeTeamFileAsync(finalTeamName, teamFile)
+    try {
+      await writeTeamFileAsync(finalTeamName, teamFile, { exclusive: true })
+    } catch (error) {
+      if (
+        getErrnoCode(error) === 'EEXIST' &&
+        getErrnoPath(error) === teamFilePath
+      ) {
+        throw new Error(
+          `Team "${finalTeamName}" already exists at ${teamFilePath}. Choose a different team_name, or run TeamDelete on the existing team first.`,
+        )
+      }
+      throw error
+    }
     // Track for session-end cleanup — teams were left on disk forever
     // unless explicitly TeamDelete'd (gh-32730).
     registerTeamForSessionCleanup(finalTeamName)
@@ -190,6 +185,8 @@ export const TeamCreateTool: Tool<InputSchema, Output> = buildTool({
     // to a different directory than tmux/iTerm2 teammates expect.
     setLeaderTeamName(sanitizeName(finalTeamName))
 
+    const leadColor = context.teammateColors.assign(leadAgentId)
+
     // Update AppState with team context
     setAppState(prev => ({
       ...prev,
@@ -201,7 +198,7 @@ export const TeamCreateTool: Tool<InputSchema, Output> = buildTool({
           [leadAgentId]: {
             name: TEAM_LEAD_NAME,
             agentType: leadAgentType,
-            color: assignTeammateColor(leadAgentId),
+            color: leadColor,
             tmuxSessionName: '',
             tmuxPaneId: '',
             cwd: getCwd(),

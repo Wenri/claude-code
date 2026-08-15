@@ -12,7 +12,9 @@ import { getOriginalCwd } from '../bootstrap/state.js'
 import { logForDebugging } from '../utils/debug.js'
 import { errorMessage } from '../utils/errors.js'
 import { jsonStringify } from '../utils/slowOperations.js'
+import { getCwd } from '../utils/cwd.js'
 import { extractErrorDetail } from './debugUtils.js'
+import type { GitSessionContext } from './gitSessionContext.js'
 
 const ANTHROPIC_VERSION = '2023-06-01'
 

@@ -250,18 +250,25 @@ export async function installChromeNativeHostManifest(
 
   // Restart the native host if we have rewritten any manifest
   if (anyManifestUpdated) {
-    void isChromeExtensionInstalled().then(isInstalled => {
-      if (isInstalled) {
+    void isChromeExtensionInstalled()
+      .then(isInstalled => {
+        if (isInstalled) {
+          logForDebugging(
+            `[Claude in Chrome] First-time install detected, opening reconnect page in browser`,
+          )
+          void openInChrome(CHROME_EXTENSION_RECONNECT_URL)
+        } else {
+          logForDebugging(
+            `[Claude in Chrome] First-time install detected, but extension not installed, skipping reconnect`,
+          )
+        }
+      })
+      .catch(error =>
         logForDebugging(
-          `[Claude in Chrome] First-time install detected, opening reconnect page in browser`,
-        )
-        void openInChrome(CHROME_EXTENSION_RECONNECT_URL)
-      } else {
-        logForDebugging(
-          `[Claude in Chrome] First-time install detected, but extension not installed, skipping reconnect`,
-        )
-      }
-    })
+          `[Claude in Chrome] Failed to check extension installation during manifest install: ${error}`,
+          { level: 'error' },
+        ),
+      )
   }
 }
 
@@ -361,21 +368,28 @@ exec ${command}
  */
 function isChromeExtensionInstalled_CACHED_MAY_BE_STALE(): boolean {
   // Update cache in background without blocking
-  void isChromeExtensionInstalled().then(isInstalled => {
-    // Only persist positive detections — see docstring. The cost of a stale
-    // `true` is one silent MCP connection attempt per session; the cost of a
-    // stale `false` is auto-enable never working again without manual repair.
-    if (!isInstalled) {
-      return
-    }
-    const config = getGlobalConfig()
-    if (config.cachedChromeExtensionInstalled !== isInstalled) {
-      saveGlobalConfig(prev => ({
-        ...prev,
-        cachedChromeExtensionInstalled: isInstalled,
-      }))
-    }
-  })
+  void isChromeExtensionInstalled()
+    .then(isInstalled => {
+      // Only persist positive detections — see docstring. The cost of a stale
+      // `true` is one silent MCP connection attempt per session; the cost of a
+      // stale `false` is auto-enable never working again without manual repair.
+      if (!isInstalled) {
+        return
+      }
+      const config = getGlobalConfig()
+      if (config.cachedChromeExtensionInstalled !== isInstalled) {
+        saveGlobalConfig(prev => ({
+          ...prev,
+          cachedChromeExtensionInstalled: isInstalled,
+        }))
+      }
+    })
+    .catch(error =>
+      logForDebugging(
+        `[Claude in Chrome] Failed to check extension installation during cache refresh: ${error}`,
+        { level: 'error' },
+      ),
+    )
 
   // Return cached value immediately from disk
   const cached = getGlobalConfig().cachedChromeExtensionInstalled

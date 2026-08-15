@@ -9,6 +9,17 @@ The result has two explicit confidence levels:
 2. Authored TypeScript is recovered only where the minified target provides
    sufficient evidence. Erased source spelling is not invented.
 
+Keep the semantic and build-input verdicts separate. The exhaustive
+3,132-row ledger has zero first-party source-runtime gaps, including exact
+owners for the Bedrock wizard and hidden `/setup-bedrock` command. It retains
+185 unpinned dependency-runtime gaps and records the absent root
+manifest/lockfile and hermetic recipe, so `src/` does not reproduce the whole
+bundle. Exact `cli.js` bytes are independently replayed from the generated
+delta.
+The canonical semantic supplement is 5,567,219 bytes across 147 `src/`
+paths, SHA-256
+`43b7f3165ca0502796e26a50e821c12a47b8bc95dc78a5744361091e0adf9062`.
+
 ## 0. Prepare the environment
 
 From the repository root:
@@ -340,7 +351,8 @@ src/path\0bytes\0sha256\n
 The exact base is:
 
 ```text
-commit       55ebd7febabb8b4b5e326668e03c97ead69228f7
+commit       cb8a3dbe788589c66326d345c54d35abd5603850
+Git tree     f5b8d8f90f4adda730b4b0bef07d1eac30844aba
 Git src tree ceb85b1fb08325c2fb8946d523bc3fe0f7fd5adf
 files        1,930
 bytes        30,661,962

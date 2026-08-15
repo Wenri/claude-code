@@ -1,18 +1,40 @@
 import assert from 'node:assert/strict'
 import crypto from 'node:crypto'
 import fs from 'node:fs'
+import path from 'node:path'
 import test from 'node:test'
 import { fileURLToPath } from 'node:url'
 import { runInNewContext } from 'node:vm'
+import { gunzipSync } from 'node:zlib'
 
 const BASELINE_SHA256 =
   'cc686e832fdfb97841608875a918043db5d565a2110821b8fc4cd9fad12ea861'
 const TARGET_SHA256 =
   '8cd052c0224ebb0f717a0820ff0a8a0616f0de6d2365de43efe9867b8143d0c0'
 
+const structural = JSON.parse(
+  gunzipSync(
+    fs.readFileSync(
+      fileURLToPath(
+        new URL(
+          '../cases/2.1.110-to-2.1.111/structural/generated-delta.json.gz',
+          import.meta.url,
+        ),
+      ),
+    ),
+  ),
+)
+
+const sourceRoot = path.resolve(
+  process.env.CLAUDE_CODE_SEMANTIC_SOURCE_ROOT ??
+    fileURLToPath(new URL('../../src', import.meta.url)),
+)
+const historicalSource =
+  process.env.CLAUDE_CODE_SEMANTIC_CASE === '2.1.110-to-2.1.111'
+
 function source(relative) {
   return fs.readFileSync(
-    fileURLToPath(new URL(`../../${relative}`, import.meta.url)),
+    path.join(sourceRoot, relative.replace(/^src\//, '')),
     'utf8',
   )
 }
@@ -82,12 +104,22 @@ test('recovers theme, skill sorting, input clearing, and transcript controls', (
   ])
 
   const input = source('src/hooks/useTextInput.ts')
-  includesAll(input, [
-    'function killInput(): Cursor',
-    "['u', killInput]",
-    'pushToKillRing(cursor.text',
-    "return Cursor.fromText('', columns, 0)",
-  ])
+  includesAll(
+    input,
+    historicalSource
+      ? [
+          'function killInput(): Cursor',
+          "['u', killInput]",
+          'pushToKillRing(cursor.text',
+          "return Cursor.fromText('', columns, 0)",
+        ]
+      : [
+          'function killToLineStart(): Cursor',
+          "['u', killToLineStart]",
+          "killRing.dispatch({ type: 'kill', text: killed, direction: 'prepend' })",
+          'return newCursor',
+        ],
+  )
 
   includesAll(source('src/screens/REPL.tsx'), [
     '[ to print output',
@@ -122,13 +154,25 @@ test('coordinates surveys and preserves a renamed session across clear', () => {
 })
 
 test('linkifies ordinary output with bounded OSC 8-safe handling', () => {
-  includesAll(source('src/components/shell/OutputLine.tsx'), [
-    "import { OSC8_PREFIX } from '../../ink/screen.js'",
-    'const MAX_LINKIFY_LENGTH = 100_000',
-    'if (content.length > MAX_LINKIFY_LENGTH)',
-    'if (content.includes(OSC8_PREFIX))',
-    'const formatted = linkifyUrlsInText(tryJsonFormatContent(content))',
-  ])
+  includesAll(
+    source('src/components/shell/OutputLine.tsx'),
+    historicalSource
+      ? [
+          "import { OSC8_PREFIX } from '../../ink/screen.js'",
+          'const MAX_LINKIFY_LENGTH = 100_000',
+          'if (content.length > MAX_LINKIFY_LENGTH)',
+          'if (content.includes(OSC8_PREFIX))',
+          'const formatted = linkifyUrlsInText(tryJsonFormatContent(content))',
+        ]
+      : [
+          "import { OSC8_PREFIX } from '../../ink/screen.js'",
+          'const MAX_LINKIFY_LENGTH = 100_000',
+          'if (content.length > MAX_LINKIFY_LENGTH)',
+          'if (!content.includes(OSC8_PREFIX)) return linkifyLine(content)',
+          '.map(line => (line.includes(OSC8_PREFIX) ? line : linkifyLine(line)))',
+          'const formatted = linkifyUrlsInText(tryJsonFormatContent(content))',
+        ],
+  )
 
   const mcpUI = source('src/tools/MCPTool/UI.tsx')
   assert.equal(mcpUI.includes('linkifyUrls={true}'), false)
@@ -167,12 +211,15 @@ test('hardens notifications and enables the PowerShell rollout', () => {
 })
 
 test('allows narrow read-only globs and registers the permission skill', () => {
-  includesAll(source('src/tools/BashTool/readOnlyValidation.ts'), [
-    'const READ_ONLY_GLOB_COMMANDS = new Set',
-    "expansion === 'glob'",
-    '!READ_ONLY_GLOB_COMMANDS.has(commandName)',
-    'return isCommandReadOnly(subcmd)',
-  ])
+  includesAll(
+    source('src/tools/BashTool/readOnlyValidation.ts'),
+    [
+      'const READ_ONLY_GLOB_COMMANDS = new Set',
+      "expansion === 'glob'",
+      "return READ_ONLY_GLOB_COMMANDS.has(parsedCommand.argv[0] ?? '')",
+      'return isCommandReadOnly(parsedCommand.text)',
+    ],
+  )
   includesAll(source('src/skills/bundled/index.ts'), [
     'registerLessPermissionPromptsSkill',
     'registerLessPermissionPromptsSkill()',
@@ -205,4 +252,68 @@ test('authenticated adjacent bundles contain the UI and platform replacement', (
   // The environment-variable spelling was already latent in 2.1.110; the
   // source overlay recovers the new default Windows rollout semantics.
   assert.equal(target.includes('CLAUDE_CODE_USE_POWERSHELL_TOOL'), true)
+
+  const region = structural.regions[7353]
+  assert.equal(region.classification, 'unresolved')
+  assert.deepEqual(
+    [
+      region.target.nodeType,
+      region.target.start,
+      region.target.end,
+      region.target.sourceHash,
+    ],
+    [
+      'FunctionDeclaration',
+      4957773,
+      4957942,
+      '0c89656bb26efff09638d5e13c1c6592f5055fa21bda6a5ce7070bed11346f84',
+    ],
+  )
+  const powerShellGate = target.slice(4957773, 4957942)
+  assert.equal(
+    crypto.createHash('sha256').update(powerShellGate).digest('hex'),
+    region.target.sourceHash,
+  )
+  assert.equal(baseline.includes('tengu_cobalt_ridge'), false)
+  assert.equal(powerShellGate.includes('"tengu_cobalt_ridge"'), true)
+
+  function executePowerShellGate({ envValue, featureValue, platform }) {
+    const featureCalls = []
+    const result = runInNewContext(`${powerShellGate}; ly6()`, {
+      S6: value => value === '1',
+      c5: value => value === '0',
+      process: {
+        env:
+          envValue === undefined
+            ? {}
+            : { CLAUDE_CODE_USE_POWERSHELL_TOOL: envValue },
+      },
+      u8: (key, fallback) => {
+        featureCalls.push([key, fallback])
+        return featureValue ?? fallback
+      },
+      y1: () => platform,
+    })
+    return { featureCalls, result }
+  }
+
+  assert.deepEqual(
+    executePowerShellGate({ envValue: '1', platform: 'linux' }),
+    { featureCalls: [], result: true },
+  )
+  assert.deepEqual(
+    executePowerShellGate({ envValue: '1', platform: 'windows' }),
+    { featureCalls: [], result: true },
+  )
+  assert.deepEqual(
+    executePowerShellGate({ envValue: '0', platform: 'windows' }),
+    { featureCalls: [], result: false },
+  )
+  assert.deepEqual(
+    executePowerShellGate({ featureValue: true, platform: 'windows' }),
+    {
+      featureCalls: [['tengu_cobalt_ridge', false]],
+      result: true,
+    },
+  )
 })

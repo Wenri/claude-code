@@ -782,6 +782,7 @@ export async function powershellToolHasPermission(
     // `Invoke-Ex`<nl>pression` rejoins, strip remaining backticks (escape
     // chars — ``x → x), then split on actual statement/grouping separators.
     const backtickStripped = command
+      .replace(/<#[\s\S]*?#>/g, ' ')
       .replace(/`[\r\n]+\s*/g, '')
       .replace(/`/g, '')
     for (const fragment of backtickStripped.split(/[;|\n\r{}()&]+/)) {
@@ -958,6 +959,22 @@ export async function powershellToolHasPermission(
       type: 'other' as const,
       reason:
         'Command contains a `#Requires` directive that may trigger module loading',
+    }
+    decisions.push({
+      behavior: 'ask',
+      message: createPermissionRequestMessage(
+        POWERSHELL_TOOL_NAME,
+        decisionReason,
+      ),
+      decisionReason,
+      suggestions: suggestionForExactCommand(command),
+    })
+  }
+  if (parsed.hasBackgroundJob) {
+    const decisionReason: PermissionDecisionReason = {
+      type: 'other' as const,
+      reason:
+        'Command uses the background job operator (`&`) which spawns a child PowerShell process',
     }
     decisions.push({
       behavior: 'ask',
@@ -1216,21 +1233,26 @@ export async function powershellToolHasPermission(
           'Command writes to a git-internal path (HEAD, objects/, refs/, hooks/, .git/) and runs git. This could plant a malicious hook that git then executes.',
       })
     }
-    // SECURITY: Archive-extraction TOCTOU. isCurrentDirectoryBareGitRepo
-    // checks at permission-eval time; `tar -xf x.tar; git status` extracts
-    // bare-repo indicators AFTER the check, BEFORE git runs. Unlike write
-    // cmdlets (where we inspect args for git-internal paths), archive
-    // contents are opaque — any extraction in a compound with git must ask.
-    const hasArchiveExtractor = allSubCommands.some(({ element }) =>
-      GIT_SAFETY_ARCHIVE_EXTRACTORS.has(element.name.toLowerCase()),
+  }
+
+  // Archive contents are opaque. In any compound command, an extractor can
+  // plant symlinks or configuration that redirects the path operations which
+  // follow it. The git-specific message calls out the stronger hook/bare-repo
+  // execution risk.
+  const hasArchiveExtractor = allSubCommands.some(({ element }) => {
+    const lower = element.name.toLowerCase()
+    const basename = lower.slice(
+      Math.max(lower.lastIndexOf('\\'), lower.lastIndexOf('/')) + 1,
     )
-    if (hasArchiveExtractor) {
-      decisions.push({
-        behavior: 'ask',
-        message:
-          'Compound command extracts an archive and runs git. Archive contents may plant bare-repository indicators (HEAD, hooks/, refs/) that git then treats as the repository root.',
-      })
-    }
+    return GIT_SAFETY_ARCHIVE_EXTRACTORS.has(basename)
+  })
+  if (hasArchiveExtractor && allSubCommands.length > 1) {
+    decisions.push({
+      behavior: 'ask',
+      message: hasGitSubCommand
+        ? 'Compound command extracts an archive and runs git. Archive contents may plant bare-repository indicators (HEAD, hooks/, refs/) that git then treats as the repository root.'
+        : 'Compound command extracts an archive followed by other commands. Archive contents (symlinks, config files) cannot be validated and may redirect subsequent path operations.',
+    })
   }
 
   // .git/ writes are dangerous even WITHOUT a git subcommand — a planted

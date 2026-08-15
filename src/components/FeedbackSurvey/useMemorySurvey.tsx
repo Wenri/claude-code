@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { isFeedbackSurveyDisabled } from 'src/services/analytics/config.js';
 import { getFeatureValue_CACHED_MAY_BE_STALE } from 'src/services/analytics/growthbook.js';
 import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEvent } from 'src/services/analytics/index.js';
@@ -15,6 +15,16 @@ import { submitTranscriptShare } from './submitTranscriptShare.js';
 import type { TranscriptShareResponse } from './TranscriptSharePrompt.js';
 import { useSurveyState } from './useSurveyState.js';
 import type { FeedbackSurveyResponse } from './utils.js';
+import { useAppState } from '../../state/AppState.js';
+type MemorySurveyEvaluation = {
+  classification: string;
+  evidence_type?: string;
+  memory_impact_summary?: string | null;
+};
+type LastMemoryEvaluation = {
+  assistantUuid: string;
+  evaluation: MemorySurveyEvaluation;
+};
 const HIDE_THANKS_AFTER_MS = 3000;
 const MEMORY_SURVEY_GATE = 'tengu_dunwich_bell';
 const MEMORY_SURVEY_EVENT = 'tengu_memory_survey_event';
@@ -44,6 +54,15 @@ function hasMemoryFileRead(messages: Message[]): boolean {
   }
   return false;
 }
+function getMemorySurveyProbability(): number {
+  return getFeatureValue_CACHED_MAY_BE_STALE(MEMORY_SURVEY_PROBABILITY_GATE, DEFAULT_SURVEY_PROBABILITY);
+}
+function isValidMemorySurveyClassification(classification: string): boolean {
+  return classification === 'helped' || classification === 'harmed' || classification === 'neutral';
+}
+function isMemorySurveyEligible(): boolean {
+  return getFeatureValue_CACHED_MAY_BE_STALE(MEMORY_SURVEY_GATE, false) && isAutoMemoryEnabled() && !isFeedbackSurveyDisabled() && isPolicyAllowed('allow_product_feedback') && !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY);
+}
 export function useMemorySurvey(messages: Message[], isLoading: boolean, hasActivePrompt = false, {
   enabled = true,
   otherSurveyActive = false
@@ -51,9 +70,11 @@ export function useMemorySurvey(messages: Message[], isLoading: boolean, hasActi
   enabled?: boolean;
   otherSurveyActive?: boolean;
 } = {}): {
-  state: 'closed' | 'open' | 'thanks' | 'transcript_prompt' | 'submitting' | 'submitted';
+  state: 'closed' | 'open' | 'pending' | 'thanks' | 'transcript_prompt' | 'submitting' | 'submitted';
   lastResponse: FeedbackSurveyResponse | null;
+  evaluation: MemorySurveyEvaluation | null;
   handleSelect: (selected: FeedbackSurveyResponse) => void;
+  handleUndo: () => void;
   handleTranscriptSelect: (selected: TranscriptShareResponse) => void;
 } {
   // Track assistant message UUIDs that were already evaluated so we don't
@@ -64,10 +85,18 @@ export function useMemorySurvey(messages: Message[], isLoading: boolean, hasActi
   const memoryReadSeen = useRef(false);
   const messagesRef = useRef(messages);
   messagesRef.current = messages;
+  const lastMemoryEvaluation = useAppState(state_0 => (state_0 as unknown as {
+    lastMemoryEvaluation?: LastMemoryEvaluation;
+  }).lastMemoryEvaluation);
+  const [evaluation, setEvaluation] = useState<MemorySurveyEvaluation | null>(null);
+  const evaluationRef = useRef<MemorySurveyEvaluation | null>(null);
   const onOpen = useCallback((appearanceId: string) => {
+    const currentEvaluation = evaluationRef.current;
     logEvent(MEMORY_SURVEY_EVENT, {
       event_type: 'appeared' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      appearance_id: appearanceId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+      appearance_id: appearanceId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      judge_classification: currentEvaluation?.classification as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      judge_evidence_type: currentEvaluation?.evidence_type as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
     });
     void logOTelEvent('feedback_survey', {
       event_type: 'appeared',
@@ -76,10 +105,13 @@ export function useMemorySurvey(messages: Message[], isLoading: boolean, hasActi
     });
   }, []);
   const onSelect = useCallback((appearanceId_0: string, selected: FeedbackSurveyResponse) => {
+    const currentEvaluation = evaluationRef.current;
     logEvent(MEMORY_SURVEY_EVENT, {
       event_type: 'responded' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       appearance_id: appearanceId_0 as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      response: selected as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+      response: selected as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      judge_classification: currentEvaluation?.classification as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      judge_evidence_type: currentEvaluation?.evidence_type as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
     });
     void logOTelEvent('feedback_survey', {
       event_type: 'responded',
@@ -143,6 +175,7 @@ export function useMemorySurvey(messages: Message[], isLoading: boolean, hasActi
     lastResponse,
     open,
     handleSelect,
+    handleUndo,
     handleTranscriptSelect
   } = useSurveyState({
     otherSurveyActive,
@@ -155,8 +188,45 @@ export function useMemorySurvey(messages: Message[], isLoading: boolean, hasActi
   });
   const lastAssistant = useMemo(() => getLastAssistantMessage(messages), [messages]);
   useEffect(() => {
-    if (!enabled) return;
-
+    if (messages.length === 0) {
+      evaluationRef.current = null;
+      setEvaluation(null);
+      return;
+    }
+    if (state !== 'closed' || isLoading || hasActivePrompt || otherSurveyActive) {
+      return;
+    }
+    if (!enabled || !MEMORY_SURVEY_JUDGE_ENABLED || !isMemorySurveyEligible()) {
+      return;
+    }
+    if (!lastAssistant || !lastMemoryEvaluation) {
+      return;
+    }
+    if (lastMemoryEvaluation.assistantUuid !== lastAssistant.uuid) {
+      return;
+    }
+    if (seenAssistantUuids.current.has(lastAssistant.uuid)) {
+      return;
+    }
+    seenAssistantUuids.current.add(lastAssistant.uuid);
+    const nextEvaluation = lastMemoryEvaluation.evaluation;
+    if (!isValidMemorySurveyClassification(nextEvaluation.classification)) {
+      return;
+    }
+    if (!memoryReadSeen.current) {
+      memoryReadSeen.current = hasMemoryFileRead(messagesRef.current);
+    }
+    if (!memoryReadSeen.current) {
+      return;
+    }
+    if (nextEvaluation.classification !== 'harmed' && !MEMORY_SURVEY_FORCE_SHOW && Math.random() >= getMemorySurveyProbability()) {
+      return;
+    }
+    evaluationRef.current = nextEvaluation;
+    setEvaluation(nextEvaluation);
+    open();
+  }, [enabled, otherSurveyActive, state, isLoading, hasActivePrompt, lastAssistant, lastMemoryEvaluation, messages.length, open]);
+  useEffect(() => {
     // /clear resets messages but REPL stays mounted — reset refs so a memory
     // read from the previous conversation doesn't leak into the new one.
     if (messages.length === 0) {
@@ -170,21 +240,7 @@ export function useMemorySurvey(messages: Message[], isLoading: boolean, hasActi
     if (otherSurveyActive) {
       return;
     }
-
-    // 3P default: survey off (no GrowthBook on Bedrock/Vertex/Foundry).
-    if (!getFeatureValue_CACHED_MAY_BE_STALE(MEMORY_SURVEY_GATE, false)) {
-      return;
-    }
-    if (!isAutoMemoryEnabled()) {
-      return;
-    }
-    if (isFeedbackSurveyDisabled()) {
-      return;
-    }
-    if (!isPolicyAllowed('allow_product_feedback')) {
-      return;
-    }
-    if (isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY)) {
+    if (!enabled || MEMORY_SURVEY_JUDGE_ENABLED || !isMemorySurveyEligible()) {
       return;
     }
     if (!lastAssistant || seenAssistantUuids.current.has(lastAssistant.uuid)) {
@@ -212,7 +268,9 @@ export function useMemorySurvey(messages: Message[], isLoading: boolean, hasActi
   return {
     state,
     lastResponse,
+    evaluation,
     handleSelect,
+    handleUndo,
     handleTranscriptSelect
   };
 }

@@ -417,6 +417,10 @@ export const AgentTool = buildTool({
 
     // Resolve agent params for logging (these are already resolved in runAgent)
     const resolvedAgentModel = getAgentModel(selectedAgent.model, toolUseContext.options.mainLoopModel, isForkPath ? undefined : model, permissionMode);
+    rootSetAppState(previous => previous.agentTypesInvokedThisSession.has(selectedAgent.agentType) ? previous : {
+      ...previous,
+      agentTypesInvokedThisSession: new Set(previous.agentTypesInvokedThisSession).add(selectedAgent.agentType)
+    });
     logEvent('tengu_agent_tool_selected', {
       agent_type: selectedAgent.agentType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       model: resolvedAgentModel as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -575,7 +579,9 @@ export const AgentTool = buildTool({
       ...appState.toolPermissionContext,
       mode: selectedAgent.permissionMode ?? 'acceptEdits'
     };
-    const workerTools = assembleToolPool(workerPermissionContext, appState.mcp.tools);
+    const workerTools = assembleToolPool(workerPermissionContext, appState.mcp.tools, {
+      skipReplFilter: true
+    });
 
     // Create a stable agent ID early so it can be used for worktree slug
     const earlyAgentId = createAgentId();
@@ -699,7 +705,8 @@ export const AgentTool = buildTool({
         description,
         prompt,
         selectedAgent,
-        setAppState: rootSetAppState,
+        taskRegistry: toolUseContext.taskRegistry,
+        cwd: cwdOverridePath,
         // Don't link to parent's abort controller -- background agents should
         // survive when the user presses ESC to cancel the main thread.
         // They are killed explicitly via chat:killAgents.
@@ -832,7 +839,8 @@ export const AgentTool = buildTool({
             description,
             prompt,
             selectedAgent,
-            setAppState: rootSetAppState,
+            taskRegistry: toolUseContext.taskRegistry,
+            cwd: cwdOverridePath,
             toolUseId: toolUseContext.toolUseId,
             autoBackgroundMs: getAutoBackgroundMs() || undefined
           });
@@ -863,7 +871,7 @@ export const AgentTool = buildTool({
           onCacheSafeParams: summaryTaskId && getSdkAgentProgressSummariesEnabled() ? (params: CacheSafeParams) => {
             const {
               stop
-            } = startAgentSummarization(summaryTaskId, syncAgentId, params, rootSetAppState);
+            } = startAgentSummarization(summaryTaskId, syncAgentId, params, toolUseContext.taskRegistry);
             stopForegroundSummarization = stop;
           } : undefined
         })[Symbol.asyncIterator]();
@@ -951,7 +959,7 @@ export const AgentTool = buildTool({
                       onCacheSafeParams: getSdkAgentProgressSummariesEnabled() ? (params: CacheSafeParams) => {
                         const {
                           stop
-                        } = startAgentSummarization(backgroundedTaskId, asAgentId(backgroundedTaskId), params, rootSetAppState);
+                        } = startAgentSummarization(backgroundedTaskId, asAgentId(backgroundedTaskId), params, toolUseContext.taskRegistry);
                         stopBackgroundedSummarization = stop;
                       } : undefined
                     })) {
@@ -959,7 +967,7 @@ export const AgentTool = buildTool({
 
                       // Track progress for backgrounded agents
                       updateProgressFromMessage(tracker, msg, resolveActivity2, toolUseContext.options.tools);
-                      updateAsyncAgentProgress(backgroundedTaskId, getProgressUpdate(tracker), rootSetAppState);
+                      updateAsyncAgentProgress(backgroundedTaskId, getProgressUpdate(tracker), toolUseContext.taskRegistry);
                       const lastToolName = getLastToolUseName(msg);
                       if (lastToolName) {
                         emitTaskProgress(tracker, backgroundedTaskId, toolUseContext.toolUseId, description, startTime, lastToolName);
@@ -971,7 +979,7 @@ export const AgentTool = buildTool({
                     // unblocks immediately. classifyHandoffIfNeeded and
                     // cleanupWorktreeIfNeeded can hang — they must not gate
                     // the status transition (gh-20236).
-                    completeAsyncAgent(agentResult, rootSetAppState);
+                    completeAsyncAgent(agentResult, toolUseContext.taskRegistry);
 
                     // Extract text from agent result content for the notification
                     let finalMessage = extractTextContent(agentResult.content, '\n');
@@ -996,7 +1004,8 @@ export const AgentTool = buildTool({
                       taskId: backgroundedTaskId,
                       description,
                       status: 'completed',
-                      setAppState: rootSetAppState,
+                      taskRegistry: toolUseContext.taskRegistry,
+                      abortSpeculation: toolUseContext.abortSpeculation,
                       finalMessage,
                       usage: {
                         totalTokens: getTokenCountFromTracker(tracker),
@@ -1010,7 +1019,7 @@ export const AgentTool = buildTool({
                     if (error instanceof AbortError) {
                       // Transition status BEFORE worktree cleanup so
                       // TaskOutput unblocks even if git hangs (gh-20236).
-                      killAsyncAgent(backgroundedTaskId, rootSetAppState);
+                      killAsyncAgent(backgroundedTaskId, toolUseContext.taskRegistry);
                       logEvent('tengu_agent_tool_terminated', {
                         agent_type: metadata.agentType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
                         model: metadata.resolvedAgentModel as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -1025,7 +1034,8 @@ export const AgentTool = buildTool({
                         taskId: backgroundedTaskId,
                         description,
                         status: 'killed',
-                        setAppState: rootSetAppState,
+                        taskRegistry: toolUseContext.taskRegistry,
+                        abortSpeculation: toolUseContext.abortSpeculation,
                         toolUseId: toolUseContext.toolUseId,
                         finalMessage: partialResult,
                         ...worktreeResult
@@ -1033,14 +1043,15 @@ export const AgentTool = buildTool({
                       return;
                     }
                     const errMsg = errorMessage(error);
-                    failAsyncAgent(backgroundedTaskId, errMsg, rootSetAppState);
+                    failAsyncAgent(backgroundedTaskId, errMsg, toolUseContext.taskRegistry);
                     const worktreeResult = await cleanupWorktreeIfNeeded();
                     enqueueAgentNotification({
                       taskId: backgroundedTaskId,
                       description,
                       status: 'failed',
                       error: errMsg,
-                      setAppState: rootSetAppState,
+                      taskRegistry: toolUseContext.taskRegistry,
+                      abortSpeculation: toolUseContext.abortSpeculation,
                       toolUseId: toolUseContext.toolUseId,
                       ...worktreeResult
                     });
@@ -1091,7 +1102,7 @@ export const AgentTool = buildTool({
                 // enabled, so updateAgentSummary reads correct token/tool counts
                 // instead of zeros.
                 if (getSdkAgentProgressSummariesEnabled()) {
-                  updateAsyncAgentProgress(foregroundTaskId, getProgressUpdate(syncTracker), rootSetAppState);
+                  updateAsyncAgentProgress(foregroundTaskId, getProgressUpdate(syncTracker), toolUseContext.taskRegistry);
                 }
               }
             }
@@ -1180,7 +1191,7 @@ export const AgentTool = buildTool({
 
           // Unregister foreground task if agent completed without being backgrounded
           if (foregroundTaskId) {
-            unregisterAgentForeground(foregroundTaskId, rootSetAppState);
+            unregisterAgentForeground(foregroundTaskId, toolUseContext.taskRegistry);
             // Notify SDK consumers (e.g. VS Code subagent panel) that this
             // foreground agent is done. Goes through drainSdkEvents() — does
             // NOT trigger the print.ts XML task_notification parser or the LLM loop.

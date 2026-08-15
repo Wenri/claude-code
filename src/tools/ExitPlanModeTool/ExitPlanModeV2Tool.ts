@@ -31,6 +31,8 @@ import {
   persistFileSnapshotIfRemote,
 } from '../../utils/plans.js'
 import { jsonStringify } from '../../utils/slowOperations.js'
+import { enqueueSdkEvent } from '../../utils/sdkEventQueue.js'
+import { logPermissionModeChanged } from '../../utils/telemetry/events.js'
 import {
   getAgentName,
   getTeamName,
@@ -298,7 +300,7 @@ export const ExitPlanModeV2Tool: Tool<InputSchema, Output> = buildTool({
       const appState = context.getAppState()
       const agentTaskId = findInProcessTeammateTaskId(agentName, appState)
       if (agentTaskId) {
-        setAwaitingPlanApproval(agentTaskId, context.setAppState, true)
+        setAwaitingPlanApproval(agentTaskId, context.taskRegistry, true)
       }
 
       return {
@@ -345,12 +347,22 @@ export const ExitPlanModeV2Tool: Tool<InputSchema, Output> = buildTool({
       }
     }
     if (gateFallbackNotification) {
+      const text = `plan exit → default · ${gateFallbackNotification}`
       context.addNotification?.({
         key: 'auto-mode-gate-plan-exit-fallback',
-        text: `plan exit → default · ${gateFallbackNotification}`,
+        text,
         priority: 'immediate',
         color: 'warning',
         timeoutMs: 10000,
+      })
+      enqueueSdkEvent({
+        type: 'system',
+        subtype: 'notification',
+        key: 'auto-mode-gate-plan-exit-fallback',
+        text,
+        priority: 'immediate',
+        color: 'warning',
+        timeout_ms: 10000,
       })
     }
 
@@ -377,6 +389,11 @@ export const ExitPlanModeV2Tool: Tool<InputSchema, Output> = buildTool({
           setNeedsAutoModeExitAttachment(true)
         }
       }
+      logPermissionModeChanged({
+        from: 'plan',
+        to: restoreMode,
+        trigger: 'exit_plan_mode',
+      })
       // If restoring to a non-auto mode and permissions were stripped (either
       // from entering plan from auto, or from shouldPlanUseAutoMode),
       // restore them. If restoring to auto, keep them stripped.

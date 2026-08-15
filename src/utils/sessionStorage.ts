@@ -63,6 +63,7 @@ import type {
   SystemMessage,
   UserMessage,
 } from '../types/message.js'
+import type { PermissionMode } from '../types/permissions.js'
 import type { QueueOperationMessage } from '../types/messageQueueTypes.js'
 import type { PermissionMode } from '../types/permissions.js'
 import { uniq } from './array.js'
@@ -188,6 +189,39 @@ const forkContextCache = new Map<UUID, Message[]>()
 const SKIP_FIRST_PROMPT_PATTERN =
   /^(?:\s*<[a-z][\w-]*[\s>]|\[Request interrupted by user[^\]]*\])/
 
+type AppendEntryPolicy =
+  | 'always'
+  | 'route-by-agent'
+  | 'dedup-transcript'
+
+export const ENTRY_APPEND_POLICY: Record<string, AppendEntryPolicy> = {
+  user: 'dedup-transcript',
+  assistant: 'dedup-transcript',
+  attachment: 'dedup-transcript',
+  system: 'dedup-transcript',
+  progress: 'dedup-transcript',
+  summary: 'always',
+  'custom-title': 'always',
+  'ai-title': 'always',
+  'last-prompt': 'always',
+  'task-summary': 'always',
+  tag: 'always',
+  'agent-name': 'always',
+  'agent-color': 'always',
+  'agent-setting': 'always',
+  'pr-link': 'always',
+  'file-history-snapshot': 'always',
+  'attribution-snapshot': 'always',
+  'speculation-accept': 'always',
+  mode: 'always',
+  'permission-mode': 'always',
+  'worktree-state': 'always',
+  'queue-operation': 'always',
+  'marble-origami-commit': 'always',
+  'marble-origami-snapshot': 'always',
+  'content-replacement': 'route-by-agent',
+}
+
 /**
  * Type guard to check if an entry is a transcript message.
  * Transcript messages include user, assistant, attachment, and system messages.
@@ -216,6 +250,34 @@ export function isTranscriptMessage(entry: Entry): entry is TranscriptMessage {
  */
 export function isChainParticipant(m: Pick<Message, 'type'>): boolean {
   return m.type !== 'progress'
+}
+
+/**
+ * Return the transcript cursor that is safe to persist.
+ *
+ * While a response is streaming, its assistant message is added before the
+ * final message_delta fills in stop_reason. Keep that open message (and any
+ * later entries) behind the cursor until the response is complete. Terminal
+ * paths can disable the guard to force the remaining entries through.
+ */
+export function transcriptCursorEnd(
+  messages: Message[],
+  startIndex: number,
+  stopAtIncompleteAssistant: boolean,
+): number {
+  if (!stopAtIncompleteAssistant) return messages.length
+
+  for (let index = startIndex; index < messages.length; index++) {
+    const message = messages[index]!
+    if (
+      message.type === 'assistant' &&
+      message.message.stop_reason === null
+    ) {
+      return index
+    }
+  }
+
+  return messages.length
 }
 
 type LegacyProgressEntry = {
@@ -250,6 +312,7 @@ const EPHEMERAL_PROGRESS_TYPES = new Set([
   'bash_progress',
   'powershell_progress',
   'mcp_progress',
+  'repl_tool_call',
   ...(feature('PROACTIVE') || feature('KAIROS')
     ? (['sleep_progress'] as const)
     : []),
@@ -515,6 +578,18 @@ export function getNodeEnv(): string {
   return process.env.NODE_ENV || 'development'
 }
 
+/** Shared transcript-persistence gate used by storage and bridge callers. */
+export function isTranscriptPersistenceDisabled(): boolean {
+  const allowTestPersistence = isEnvTruthy(
+    process.env.TEST_ENABLE_SESSION_PERSISTENCE,
+  )
+  return (
+    (getNodeEnv() === 'test' && !allowTestPersistence) ||
+    isSessionPersistenceDisabled() ||
+    isEnvTruthy(process.env.CLAUDE_CODE_SKIP_PROMPT_HISTORY)
+  )
+}
+
 // exported for testing
 export function getUserType(): string {
   return process.env.USER_TYPE || 'external'
@@ -732,6 +807,8 @@ export function fireSessionMirror(filePath: string, entries: unknown[]): void {
 
 const REMOTE_FLUSH_INTERVAL_MS = 10
 
+type SessionMirror = (filePath: string, entries: Entry[]) => void
+
 class Project {
   // Minimal cache for current session only (not all sessions)
   currentSessionTag: string | undefined
@@ -830,6 +907,10 @@ class Project {
     }
   }
 
+  trackExternalWrite<T>(fn: () => Promise<T>): Promise<T> {
+    return this.trackWrite(fn)
+  }
+
   private enqueueWrite(filePath: string, entry: Entry): Promise<void> {
     return new Promise<void>(resolve => {
       let queue = this.writeQueues.get(filePath)
@@ -879,6 +960,8 @@ class Project {
       }
       const batch = queue.splice(0)
       let resolvedCount = 0
+      const mirrorEntries: Entry[] | undefined =
+        this.mirrors.length > 0 ? [] : undefined
 
       try {
         let content = ''
@@ -1274,9 +1357,9 @@ class Project {
    * buffered entries. Called on the first user/assistant message.
    */
   private async materializeSessionFile(): Promise<void> {
-    // Guard here too — reAppendSessionMetadata writes via appendEntryToFile
-    // (not appendEntry) so it would bypass the per-entry persistence check
-    // and create a metadata-only file despite --no-session-persistence.
+    // Guard here too — metadata re-append writes directly (not through
+    // appendEntry), so it would otherwise bypass the per-entry persistence
+    // check and create a metadata-only file despite --no-session-persistence.
     if (this.shouldSkipPersistence()) return
     this.ensureCurrentSessionFile()
     // mode/agentSetting are cache-only pre-materialization; write them now.
@@ -1318,6 +1401,7 @@ class Project {
         // Not in a git repo or git command failed
         gitBranch = undefined
       }
+      void refreshRepoCheckoutBranches()
 
       // Get slug if one exists for this session (used for plan files, etc.)
       void refreshRepoBranches()
@@ -1550,9 +1634,27 @@ class Project {
       if (entry.type === 'queue-operation') {
         // Queue operations are always appended to the session file
         void this.enqueueWrite(sessionFile, entry)
-      } else {
-        // At this point, entry must be a TranscriptMessage (user/assistant/attachment/system)
-        // All other entry types have been handled above
+        return
+      }
+      case 'route-by-agent': {
+        const targetFile =
+          entry.type === 'content-replacement' && entry.agentId
+            ? getAgentTranscriptPath(entry.agentId)
+            : sessionFile
+        void this.enqueueWrite(targetFile, entry)
+        return
+      }
+      case 'dedup-transcript': {
+        if (entry.type !== 'progress' && !isTranscriptMessage(entry)) {
+          logError(
+            new Error(
+              `appendEntry invariant: dedup-transcript policy on non-transcript type '${entry.type}'`,
+            ),
+          )
+          return
+        }
+
+        const messageSet = await getSessionMessages(sessionId)
         const isAgentSidechain =
           entry.isSidechain && entry.agentId !== undefined
         const targetFile = isAgentSidechain
@@ -1590,8 +1692,11 @@ class Project {
             if (isTranscriptMessage(entry)) {
               await this.persistToRemote(sessionId, entry)
             }
+          } else if (this.internalEventWriter && isTranscriptMessage(entry)) {
+            await this.persistToRemote(sessionId, entry)
           }
         }
+        return
       }
     }
   }
@@ -2814,6 +2919,10 @@ export async function loadTranscriptFromFile(
     )
   }
 
+  if (messages.length === 0) {
+    throw new Error('No messages found in JSON file')
+  }
+
   return convertToLogOption(
     messages,
     0,
@@ -2943,6 +3052,7 @@ function convertToLogOption(
     messageCount: countVisibleMessages(transcript),
     isSidechain: firstMessage.isSidechain,
     teamName: firstMessage.teamName,
+    sessionKind: firstMessage.sessionKind,
     agentName: firstMessage.agentName,
     agentSetting,
     leafUuid: lastMessage.uuid,
@@ -3089,6 +3199,7 @@ export async function saveCustomTitle(
   // Cache for current session only (for immediate visibility)
   if (sessionId === getSessionId()) {
     getProject().currentSessionTitle = customTitle
+    sessionTitleChanged.emit()
   }
   logEvent('tengu_session_renamed', {
     source:
@@ -3300,6 +3411,7 @@ export async function saveAgentName(
   if (sessionId === getSessionId()) {
     getProject().currentSessionAgentName = agentName
     void updateSessionName(agentName)
+    sessionAgentNameChanged.emit()
   }
   logEvent('tengu_agent_name_set', {
     source:
@@ -3341,6 +3453,12 @@ export function saveAgentSetting(agentSetting: string): void {
  */
 export function cacheSessionTitle(customTitle: string): void {
   getProject().currentSessionTitle = customTitle
+  sessionTitleChanged.emit()
+}
+
+export function cacheAgentName(agentName: string): void {
+  getProject().currentSessionAgentName = agentName
+  sessionAgentNameChanged.emit()
 }
 
 /**
@@ -3512,6 +3630,7 @@ export async function loadFullLog(log: LogOption): Promise<LogOption> {
       gitBranch: mostRecentLeaf?.gitBranch ?? log.gitBranch,
       isSidechain: transcript[0]?.isSidechain ?? log.isSidechain,
       teamName: transcript[0]?.teamName ?? log.teamName,
+      sessionKind: transcript[0]?.sessionKind ?? log.sessionKind,
       leafUuid: mostRecentLeaf?.uuid ?? log.leafUuid,
       fileHistorySnapshots: buildFileHistorySnapshotChain(
         fileHistorySnapshots,
@@ -5212,6 +5331,35 @@ export async function loadAllSubagentTranscriptsFromDisk(): Promise<{
   return loadSubagentTranscripts(agentIds)
 }
 
+/**
+ * List the current session's on-disk subagent IDs without loading their
+ * transcripts. Persistence sync stats and reads only the newest eligible
+ * files, so eagerly parsing every transcript would defeat that bound.
+ */
+export async function listAllSubagentTranscriptIdsFromDisk(): Promise<
+  string[]
+> {
+  const subagentsDir = join(
+    getSessionProjectDir() ?? getProjectDir(getOriginalCwd()),
+    getSessionId(),
+    'subagents',
+  )
+  let entries: Dirent[]
+  try {
+    entries = await readdir(subagentsDir, { withFileTypes: true })
+  } catch {
+    return []
+  }
+  return entries
+    .filter(
+      entry =>
+        entry.isFile() &&
+        entry.name.startsWith('agent-') &&
+        entry.name.endsWith('.jsonl'),
+    )
+    .map(entry => entry.name.slice('agent-'.length, -'.jsonl'.length))
+}
+
 // Exported so useLogMessages can sync-compute the last loggable uuid
 // without awaiting recordTranscript's return value (race-free hint tracking).
 export function isLoggableMessage(m: Message): boolean {
@@ -5234,13 +5382,68 @@ export function isLoggableMessage(m: Message): boolean {
       m.attachment.type === 'deferred_tools_delta' ||
       m.attachment.type === 'mcp_instructions_delta' ||
       m.attachment.type === 'agent_listing_delta' ||
-      m.attachment.type === 'companion_intro'
+      m.attachment.type === 'companion_intro' ||
+      m.attachment.type === 'skill_listing'
     ) {
       return true
     }
     return false
   }
   return true
+}
+
+/**
+ * Return the most recent still-pending PreToolUse defer marker from the last
+ * MiB of a transcript. A later tool_result for the same tool_use_id makes the
+ * marker stale, so resumed sessions never execute a completed tool twice.
+ */
+export async function findDeferredToolUse(
+  path: string,
+): Promise<
+  | Extract<
+      import('./attachments.js').HookAttachment,
+      { type: 'hook_deferred_tool' }
+    >
+  | null
+> {
+  try {
+    const { content, bytesRead, bytesTotal } = await tailFile(path, 1_048_576)
+    const lines = content.split('\n')
+    if (bytesRead < bytesTotal) lines.shift()
+
+    let marker:
+      | Extract<
+          import('./attachments.js').HookAttachment,
+          { type: 'hook_deferred_tool' }
+        >
+      | null = null
+    let markerIndex = -1
+    for (let index = lines.length - 1; index >= 0; index--) {
+      const line = lines[index]!.trim()
+      if (!line.includes('"hook_deferred_tool"')) continue
+      const parsed = jsonParse(line) as {
+        type?: string
+        attachment?: import('./attachments.js').HookAttachment
+      }
+      if (
+        parsed?.type === 'attachment' &&
+        parsed.attachment?.type === 'hook_deferred_tool'
+      ) {
+        marker = parsed.attachment
+        markerIndex = index
+        break
+      }
+    }
+    if (!marker) return null
+
+    const completedToolResult = `"tool_use_id":"${marker.toolUseID}"`
+    for (let index = markerIndex + 1; index < lines.length; index++) {
+      if (lines[index]!.includes(completedToolResult)) return null
+    }
+    return marker
+  } catch {
+    return null
+  }
 }
 
 function collectReplIds(messages: readonly Message[]): Set<string> {

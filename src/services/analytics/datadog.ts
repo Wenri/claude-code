@@ -11,7 +11,7 @@ import { getEventMetadata } from './metadata.js'
 
 const DATADOG_LOGS_ENDPOINT =
   'https://http-intake.logs.us5.datadoghq.com/api/v2/logs'
-const DATADOG_CLIENT_TOKEN = 'pubbbf48e6d78dae54bceaa4acf463299bf'
+const DATADOG_CLIENT_TOKEN = 'pubea5604404508cdd34afb69e6f42a05bc'
 const DEFAULT_FLUSH_INTERVAL_MS = 15000
 const MAX_BATCH_SIZE = 100
 const NETWORK_TIMEOUT_MS = 5000
@@ -33,7 +33,9 @@ const DATADOG_ALLOWED_EVENTS = new Set([
   'tengu_compact_failed',
   'tengu_exit',
   'tengu_flicker',
+  'tengu_headless_mcp_prewait',
   'tengu_init',
+  'tengu_mcp_tools_refreshed_mid_turn',
   'tengu_model_fallback_triggered',
   'tengu_oauth_error',
   'tengu_oauth_success',
@@ -46,6 +48,13 @@ const DATADOG_ALLOWED_EVENTS = new Set([
   'tengu_oauth_token_refresh_lock_releasing',
   'tengu_oauth_token_refresh_lock_released',
   'tengu_query_error',
+  'tengu_sdk_control_roundtrip',
+  'tengu_sdk_init_handshake',
+  'tengu_sdk_result',
+  'tengu_sdk_schema_violation',
+  'tengu_sdk_session_crash',
+  'tengu_sdk_stall',
+  'tengu_sdk_ttft',
   'tengu_session_file_read',
   'tengu_started',
   'tengu_tool_use_error',
@@ -57,15 +66,18 @@ const DATADOG_ALLOWED_EVENTS = new Set([
   'tengu_unhandled_rejection',
   'tengu_voice_recording_started',
   'tengu_voice_toggled',
+  'tengu_vscode_sdk_stream_ended_no_result',
   'tengu_team_mem_sync_pull',
   'tengu_team_mem_sync_push',
   'tengu_team_mem_sync_started',
   'tengu_team_mem_entries_capped',
+  'tengu_timer',
 ])
 
 const TAG_FIELDS = [
   'arch',
   'clientType',
+  'entrypoint',
   'errorType',
   'http_status_range',
   'http_status',
@@ -74,6 +86,7 @@ const TAG_FIELDS = [
   'platform',
   'provider',
   'skillMode',
+  'coachMode',
   'subscriptionType',
   'toolName',
   'userBucket',

@@ -8,7 +8,7 @@ import { stringWidth } from '../../../ink/stringWidth.js';
 import { useTheme } from '../../../ink.js';
 import { useKeybindings } from '../../../keybindings/useKeybinding.js';
 import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEvent } from '../../../services/analytics/index.js';
-import { useAppState } from '../../../state/AppState.js';
+import { useAppState, useSetAppState } from '../../../state/AppState.js';
 import type { Question } from '../../../tools/AskUserQuestionTool/AskUserQuestionTool.js';
 import { AskUserQuestionTool } from '../../../tools/AskUserQuestionTool/AskUserQuestionTool.js';
 import { type CliHighlight, getCliHighlightPromise } from '../../../utils/cliHighlight.js';
@@ -172,6 +172,7 @@ function AskUserQuestionPermissionRequestBody(t0) {
     t6 = $[15];
   }
   const [pastedContentsByQuestion, setPastedContentsByQuestion] = useState(t6);
+  const setAppState = useSetAppState();
   const nextPasteIdRef = useRef(0);
   let t7;
   if ($[16] === Symbol.for("react.memo_cache_sentinel")) {
@@ -186,8 +187,8 @@ function AskUserQuestionPermissionRequestBody(t0) {
         filename: filename || "Pasted image",
         dimensions
       };
-      cacheImagePath(newContent);
-      storeImage(newContent);
+      cacheImagePath(newContent, setAppState);
+      storeImage(newContent, setAppState);
       setPastedContentsByQuestion(prev => ({
         ...prev,
         [questionText]: {

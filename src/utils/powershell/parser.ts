@@ -1,4 +1,4 @@
-import { execa } from 'execa'
+import { execa } from '../execa.js'
 import { logForDebugging } from '../debug.js'
 import { memoizeWithLRU } from '../memoize.js'
 import { getCachedPowerShellPath } from '../shell/powershellDetection.js'
@@ -194,6 +194,8 @@ export type ParsedPowerShellCommand = {
    * `#Requires -Modules <name>` triggers module loading from PSModulePath.
    */
   hasScriptRequirements?: boolean
+  /** Whether any pipeline in the script uses PowerShell's background-job operator. */
+  hasBackgroundJob?: boolean
 }
 
 // ---------------------------------------------------------------------------
@@ -271,6 +273,7 @@ type RawParsedOutput = {
   typeLiterals?: string[]
   hasUsingStatements?: boolean
   hasScriptRequirements?: boolean
+  hasBackgroundJob?: boolean
 }
 
 // This is the canonical copy of the parse script. There is no separate .ps1 file.
@@ -408,6 +411,10 @@ foreach ($tok in $tokens) {
 }
 
 $statements = [System.Collections.ArrayList]::new()
+$script:hasBg = $false
+foreach ($p in $ast.FindAll({param($n) $n -is [System.Management.Automation.Language.PipelineBaseAst]}, $true)) {
+    if ($p.PSObject.Properties['Background'] -and $p.Background) { $script:hasBg = $true; break }
+}
 
 function Process-BlockStatements {
     param($Block)
@@ -562,6 +569,7 @@ $output = @{
     typeLiterals = @($typeLiterals)
     hasUsingStatements = [bool]$hasUsingStatements
     hasScriptRequirements = [bool]$hasScriptRequirements
+    hasBackgroundJob = [bool]$script:hasBg
 }
 
 $output | ConvertTo-Json -Depth 10 -Compress
@@ -1122,6 +1130,9 @@ function transformRawOutput(raw: RawParsedOutput): ParsedPowerShellCommand {
   if (raw.hasScriptRequirements) {
     result.hasScriptRequirements = true
   }
+  if (raw.hasBackgroundJob) {
+    result.hasBackgroundJob = true
+  }
   return result
 }
 
@@ -1190,7 +1201,10 @@ async function parsePowerShellCommandImpl(
   let stderr = ''
   let code: number | null = null
   let timedOut = false
+  let spawnError: string | null = null
   for (let attempt = 0; attempt < 2; attempt++) {
+    spawnError = null
+    timedOut = false
     try {
       const result = await execa(pwshPath, args, {
         timeout: parseTimeoutMs,
@@ -1201,18 +1215,26 @@ async function parsePowerShellCommandImpl(
       timedOut = result.timedOut
       code = result.failed ? (result.exitCode ?? 1) : 0
     } catch (e: unknown) {
-      logForDebugging(
-        `PowerShell parser: failed to spawn pwsh: ${e instanceof Error ? e.message : e}`,
-      )
-      return makeInvalidResult(
-        command,
-        `Failed to spawn PowerShell: ${e instanceof Error ? e.message : e}`,
-        'PwshSpawnError',
-      )
+      spawnError = e instanceof Error ? e.message : String(e)
+      code = null
     }
-    if (!timedOut) break
+    if (code === 0) break
     logForDebugging(
-      `PowerShell parser: pwsh timed out after ${parseTimeoutMs}ms (attempt ${attempt + 1})`,
+      `PowerShell parser: ${
+        spawnError
+          ? `failed to spawn pwsh: ${spawnError}`
+          : timedOut
+            ? `pwsh timed out after ${parseTimeoutMs}ms`
+            : `pwsh exited ${code}: ${stderr}`
+      } (attempt ${attempt + 1})`,
+    )
+  }
+
+  if (spawnError) {
+    return makeInvalidResult(
+      command,
+      `Failed to spawn PowerShell: ${spawnError}`,
+      'PwshSpawnError',
     )
   }
 

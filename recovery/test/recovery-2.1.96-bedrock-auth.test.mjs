@@ -1,10 +1,15 @@
 import assert from 'node:assert/strict'
 import crypto from 'node:crypto'
 import fs from 'node:fs'
+import path from 'node:path'
 import test from 'node:test'
 import { fileURLToPath } from 'node:url'
 
-const sourceRoot = fileURLToPath(new URL('../../src/', import.meta.url))
+const repositoryRoot = fileURLToPath(new URL('../..', import.meta.url))
+const semanticCase = process.env.CLAUDE_CODE_SEMANTIC_CASE
+const sourceRoot = process.env.CLAUDE_CODE_SEMANTIC_SOURCE_ROOT
+  ? `${path.resolve(process.env.CLAUDE_CODE_SEMANTIC_SOURCE_ROOT)}/`
+  : `${path.join(repositoryRoot, 'src')}/`
 const baselineBundlePath = process.env.CLAUDE_CODE_2_1_94_BUNDLE
 const targetBundlePath = process.env.CLAUDE_CODE_2_1_96_BUNDLE
 const BASELINE_BUNDLE_SHA256 =
@@ -131,4 +136,51 @@ test('published onboarding and model-upgrade probes use the Bedrock apiKey optio
     ),
     true,
   )
+})
+
+test('onboarding and model-upgrade probes have reachable source owners using apiKey', () => {
+  const wizard = fs.readFileSync(
+    `${sourceRoot}components/BedrockSetupWizard.tsx`,
+    'utf8',
+  )
+  const upgrades = fs.readFileSync(
+    `${sourceRoot}utils/model/bedrockModelUpgrade.tsx`,
+    'utf8',
+  )
+  const oauth = fs.readFileSync(
+    `${sourceRoot}components/ConsoleOAuthFlow.tsx`,
+    'utf8',
+  )
+  const setup = fs.readFileSync(
+    `${sourceRoot}interactiveHelpers.tsx`,
+    'utf8',
+  )
+
+  assert.match(
+    wizard,
+    /data\.authMethod === 'bearer'[\s\S]*?new AnthropicBedrock\(\{[\s\S]*?apiKey: data\.bearerToken/,
+  )
+  assert.doesNotMatch(
+    wizard,
+    /data\.authMethod === 'bearer'[\s\S]{0,300}?skipAuth:[\s\S]{0,100}?defaultHeaders/,
+  )
+  assert.match(
+    upgrades,
+    /process\.env\.AWS_BEARER_TOKEN_BEDROCK[\s\S]*?new AnthropicBedrock\(\{[\s\S]*?apiKey: process\.env\.AWS_BEARER_TOKEN_BEDROCK/,
+  )
+  assert.doesNotMatch(
+    upgrades,
+    /AWS_BEARER_TOKEN_BEDROCK[\s\S]{0,400}?defaultHeaders:\s*\{\s*Authorization/,
+  )
+  assert.match(
+    upgrades,
+    /probeBedrockModelAvailability[\s\S]*?max_tokens: 1[\s\S]*?status[^\n]*=== 429/,
+  )
+  assert.match(oauth, /<BedrockSetupWizard/)
+  if (semanticCase === '2.1.94-to-2.1.96') {
+    assert.match(setup, /runBedrockModelChecks\(root\)/)
+  } else {
+    assert.match(setup, /runBedrockUpgradeCheck\(root\)/)
+    assert.match(setup, /runBedrockFallbackCheck\(root\)/)
+  }
 })

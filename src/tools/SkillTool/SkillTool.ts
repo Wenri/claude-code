@@ -2,13 +2,17 @@ import { feature } from 'bun:bundle'
 import type { ToolResultBlockParam } from '@anthropic-ai/sdk/resources/index.mjs'
 import uniqBy from 'lodash-es/uniqBy.js'
 import { dirname } from 'path'
-import { getProjectRoot } from 'src/bootstrap/state.js'
+import {
+  getProjectRoot,
+  getSessionSkillAllowlist,
+} from 'src/bootstrap/state.js'
 import {
   builtInCommandNames,
   filterCommandsBySkillAllowlist,
   findCommand,
   getCommandName,
   getCommands,
+  getSkillOverride,
   type PromptCommand,
 } from 'src/commands.js'
 import type {
@@ -28,13 +32,17 @@ import type {
   UserMessage,
 } from 'src/types/message.js'
 import { logForDebugging } from 'src/utils/debug.js'
+import { isEnvTruthy } from 'src/utils/envUtils.js'
 import type { PermissionDecision } from 'src/utils/permissions/PermissionResult.js'
 import { getRuleByContentsForTool } from 'src/utils/permissions/permissions.js'
 import {
   isOfficialMarketplaceName,
   parsePluginIdentifier,
 } from 'src/utils/plugins/pluginIdentifier.js'
-import { buildPluginCommandTelemetryFields } from 'src/utils/telemetry/pluginTelemetry.js'
+import {
+  buildPluginCommandTelemetryFields,
+  buildSkillTelemetryFields,
+} from 'src/utils/telemetry/pluginTelemetry.js'
 import { z } from 'zod/v4'
 import {
   addInvokedSkill,
@@ -252,9 +260,15 @@ async function executeForkedSkill(
       ...buildPluginCommandTelemetryFields(command.pluginInfo),
     }),
   })
+  logSkillActivated(commandName, command)
 
-  const { modifiedGetAppState, baseAgent, promptMessages, skillContent } =
-    await prepareForkedCommandContext(command, args || '', context)
+  const {
+    modifiedGetAppState,
+    modifiedGetToolPermissionContext,
+    baseAgent,
+    promptMessages,
+    skillContent,
+  } = await prepareForkedCommandContext(command, args || '', context)
 
   // Merge skill's effort into the agent definition so runAgent applies it
   const agentDefinition =
@@ -277,6 +291,7 @@ async function executeForkedSkill(
       toolUseContext: {
         ...context,
         getAppState: modifiedGetAppState,
+        getToolPermissionContext: modifiedGetToolPermissionContext,
       },
       canUseTool,
       isAsync: false,
@@ -343,7 +358,9 @@ export const inputSchema = lazySchema(() =>
   z.object({
     skill: z
       .string()
-      .describe('The skill name. E.g., "commit", "review-pr", or "pdf"'),
+      .describe(
+        'The name of a skill from the available-skills list. Do not guess names.',
+      ),
     args: z.string().optional().describe('Optional arguments for the skill'),
   }),
 )
@@ -421,6 +438,8 @@ export const SkillTool: Tool<InputSchema, Output, Progress> = buildTool({
     const normalizedCommandName = hasLeadingSlash
       ? trimmed.substring(1)
       : trimmed
+    const sessionSkillAllowlist =
+      context.agentId === undefined ? getSessionSkillAllowlist() : undefined
 
     // Remote canonical skill handling (ant-only experimental). Intercept
     // `_canonical_<slug>` names before local command lookup since remote
@@ -461,6 +480,7 @@ export const SkillTool: Tool<InputSchema, Output, Progress> = buildTool({
           name: getCommandName(command),
           aliases: command.aliases,
         })),
+        { maxEditDistance: 2 },
       )
       return {
         result: false,
@@ -818,6 +838,7 @@ export const SkillTool: Tool<InputSchema, Output, Progress> = buildTool({
           ...buildPluginCommandTelemetryFields(command.pluginInfo),
         }),
     })
+    logSkillActivated(commandName, command)
 
     // Get the tool use ID from the parent message for linking newMessages
     const toolUseID = getToolUseIDFromParentMessage(
@@ -1026,6 +1047,31 @@ function skillHasOnlySafeProperties(command: Command): boolean {
     return false
   }
   return true
+}
+
+function logSkillActivated(
+  commandName: string,
+  command: Command | undefined,
+): void {
+  const source = command?.type === 'prompt' ? command.source : undefined
+  const pluginInfo = command?.type === 'prompt' ? command.pluginInfo : undefined
+  const marketplace = pluginInfo
+    ? parsePluginIdentifier(pluginInfo.repository).marketplace
+    : undefined
+  const canLogDetails =
+    source === 'builtin' ||
+    source === 'bundled' ||
+    (source === 'plugin' && isOfficialMarketplaceName(marketplace)) ||
+    isEnvTruthy(process.env.OTEL_LOG_TOOL_DETAILS)
+
+  void logOTelEvent('skill_activated', {
+    'skill.name': canLogDetails ? commandName : 'custom_skill',
+    ...(source && { 'skill.source': source }),
+    ...(command?.kind && { 'skill.kind': command.kind }),
+    ...(canLogDetails &&
+      pluginInfo && { 'plugin.name': pluginInfo.pluginManifest.name }),
+    ...(canLogDetails && marketplace && { 'marketplace.name': marketplace }),
+  })
 }
 
 function isOfficialMarketplaceSkill(command: PromptCommand): boolean {

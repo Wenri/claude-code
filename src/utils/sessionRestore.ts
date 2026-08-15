@@ -29,6 +29,7 @@ import type {
   PersistedWorktreeSession,
 } from '../types/logs.js'
 import type { Message } from '../types/message.js'
+import type { PermissionMode } from '../types/permissions.js'
 import { renameRecordingForSession } from './asciicast.js'
 import { clearMemoryFileCaches } from './claudemd.js'
 import {
@@ -45,6 +46,9 @@ import { fileHistoryRestoreStateFromLog } from './fileHistory.js'
 import { createSystemMessage } from './messages.js'
 import { parseUserSpecifiedModel } from './model/model.js'
 import { getPlansDirectory } from './plans.js'
+import { setAutoModeActive } from './permissions/autoModeState.js'
+import { permissionModeFromString } from './permissions/PermissionMode.js'
+import { isAutoModeGateEnabled } from './permissions/permissionSetup.js'
 import { setCwd } from './Shell.js'
 import {
   isRestrictedToPluginOnly,
@@ -337,6 +341,7 @@ type ResumeLoadResult = {
   customTitle?: string
   tag?: string
   mode?: 'coordinator' | 'normal'
+  permissionMode?: PermissionMode
   worktreeSession?: PersistedWorktreeSession | null
   prNumber?: number
   prUrl?: string
@@ -429,6 +434,29 @@ export function exitRestoredWorktree(): void {
 }
 
 /**
+ * Restore the transcript's permission mode unless the current invocation
+ * explicitly selected one. Modes that should never be inherited across
+ * sessions are ignored, and auto mode is restored only while its live gate
+ * remains available.
+ */
+export function getRestoredPermissionMode(
+  value: string | undefined,
+  permissionModeCliSet: boolean,
+): PermissionMode | undefined {
+  if (permissionModeCliSet || !value) return undefined
+
+  const mode = permissionModeFromString(value)
+  if (mode === 'default' && value !== 'default') return undefined
+  if (mode === 'plan' || mode === 'bypassPermissions') return undefined
+  if (mode === 'default') return undefined
+  if (mode === 'auto') {
+    if (!isAutoModeGateEnabled()) return undefined
+    setAutoModeActive(true)
+  }
+  return mode
+}
+
+/**
  * Process a loaded conversation for resume/continue.
  *
  * Handles coordinator mode matching, session ID setup, agent restoration,
@@ -450,6 +478,7 @@ export async function processResumedConversation(
     currentCwd: string
     cliAgents: AgentDefinition[]
     initialState: AppState
+    permissionModeCliSet: boolean
   },
 ): Promise<ProcessedResume> {
   // Match coordinator/normal mode to the resumed session
@@ -559,6 +588,10 @@ export async function processResumedConversation(
     context.cliAgents,
     context.agentDefinitions,
   )
+  const restoredPermissionMode = getRestoredPermissionMode(
+    result.permissionMode,
+    context.permissionModeCliSet,
+  )
 
   let initialMessage = context.initialState.initialMessage
   if (
@@ -588,6 +621,12 @@ export async function processResumedConversation(
       ...context.initialState,
       initialMessage,
       ...(resumedAgentType && { agent: resumedAgentType }),
+      ...(restoredPermissionMode && {
+        toolPermissionContext: {
+          ...context.initialState.toolPermissionContext,
+          mode: restoredPermissionMode,
+        },
+      }),
       ...(restoredAttribution && { attribution: restoredAttribution }),
       ...(standaloneAgentContext && { standaloneAgentContext }),
       agentDefinitions: refreshedAgentDefs,

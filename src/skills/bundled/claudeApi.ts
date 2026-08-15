@@ -108,6 +108,9 @@ The relevant documentation for your detected language is included below in \`<do
 **Long-running conversations (may exceed context window):**
 → Refer to \`{lang}/claude-api/README.md\` — see Compaction section
 
+**Migrating to a newer model or replacing a retired model:**
+→ Refer to \`shared/model-migration.md\`
+
 **Prompt caching / optimize caching / "why is my cache hit rate low":**
 → Refer to \`shared/prompt-caching.md\` + \`{lang}/claude-api/README.md\` (Prompt Caching section)
 
@@ -120,8 +123,11 @@ The relevant documentation for your detected language is included below in \`<do
 **File uploads across multiple requests:**
 → Refer to \`{lang}/claude-api/README.md\` + \`{lang}/claude-api/files-api.md\`
 
-**Agent with built-in tools (file/web/terminal) (Python & TypeScript only):**
-→ Refer to \`{lang}/agent-sdk/README.md\` + \`{lang}/agent-sdk/patterns.md\`
+**Agent design (tool surface, context management, caching strategy):**
+→ Refer to \`shared/agent-design.md\`
+
+**Managed Agents (server-managed stateful agents):**
+→ Refer to \`shared/managed-agents-overview.md\` and the rest of the \`shared/managed-agents-*.md\` files. For Python, TypeScript, and cURL, language-specific code examples live in \`{lang}/managed-agents/README.md\`. Java, Go, Ruby, and PHP also support the API — translate the calls using your SDK's patterns from \`{lang}/claude-api.md\`. C# does not currently have Managed Agents support; use raw HTTP from \`curl/managed-agents.md\` as a reference.
 
 **Error handling:**
 → Refer to \`shared/error-codes.md\`
@@ -181,9 +187,9 @@ export function registerClaudeApiSkill(): void {
   registerBundledSkill({
     name: 'claude-api',
     description:
-      'Build apps with the Claude API or Anthropic SDK.\n' +
-      'TRIGGER when: code imports `anthropic`/`@anthropic-ai/sdk`/`claude_agent_sdk`, or user asks to use Claude API, Anthropic SDKs, or Agent SDK.\n' +
-      'DO NOT TRIGGER when: code imports `openai`/other AI SDK, general programming, or ML/data-science tasks.',
+      'Build, debug, and optimize Claude API / Anthropic SDK apps. Apps built with this skill should include prompt caching. Also handles migrating existing Claude API code between Claude model versions (4.5 → 4.6, 4.6 → 4.7, retired-model replacements).\n' +
+      'TRIGGER when: code imports `anthropic`/`@anthropic-ai/sdk`; user asks for the Claude API, Anthropic SDK, or Managed Agents; user adds/modifies/tunes a Claude feature (caching, thinking, compaction, tool use, batch, files, citations, memory) or model (Opus/Sonnet/Haiku) in a file; questions about prompt caching / cache hit rate in an Anthropic SDK project.\n' +
+      'SKIP: file imports `openai`/other-provider SDK, filename like `*-openai.py`/`*-generic.py`, provider-neutral code, general programming/ML.',
     allowedTools: ['Read', 'Grep', 'Glob', 'WebFetch'],
     userInvocable: true,
     async getPromptForCommand(args) {

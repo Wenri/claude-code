@@ -54,6 +54,7 @@ import {
   ImageResizeError,
   maybeResizeAndDownsampleImageBlock,
 } from '../imageResizer.js'
+import { getImageLimits } from '../imageLimits.js'
 import { storeImages } from '../imageStore.js'
 import {
   createCommandInputMessage,
@@ -314,6 +315,7 @@ async function processUserInputBase(
   skipAttachments?: boolean,
   preExpansionInput?: string,
 ): Promise<ProcessUserInputBaseResult> {
+  const imageLimits = getImageLimits(context.options.mainLoopModel)
   let inputString: string | null = null
   let precedingInputBlocks: ContentBlockParam[] = []
 
@@ -387,7 +389,7 @@ async function processUserInputBase(
   // Store images to disk so Claude can reference the path in context
   // (for manipulation with CLI tools, uploading to PRs, etc.)
   const storedImagePaths = pastedContents
-    ? await storeImages(pastedContents)
+    ? await storeImages(pastedContents, context.setAppState)
     : new Map<number, string>()
 
   // Resize pasted images to ensure they fit within API limits (parallel processing)

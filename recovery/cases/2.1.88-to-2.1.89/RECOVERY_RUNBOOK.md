@@ -623,10 +623,30 @@ The final gate must report:
 
 - source state `verified-recovered-overlay`;
 - four applied source files;
+- semantic criterion `compiled-ast-function-semantics-v1`;
+- first-party semantic equivalence `true` with zero source-runtime gaps;
+- whole-bundle semantic equivalence `false`, with the missing dependency and
+  hermetic build inputs reported explicitly;
 - 19 exact package members;
 - zero unaccounted target UTF-16 units;
 - 4,197,802 / 4,197,802 classified target tokens; and
 - all tests passing with the target bundle supplied.
+
+The semantic source ledger can also be checked independently:
+
+```sh
+pixi run node recovery/scripts/audit-source-reproduction.mjs \
+  --case recovery/cases/2.1.88-to-2.1.89/manifest.json \
+  --artifacts "$ARTIFACTS"
+```
+
+This applies the content-addressed semantic supplement at its introduction
+commit, syntax-builds its 76 authored TypeScript inputs, verifies all 3,283
+nonmatched target units (444 first-party runtime owners, 149 explicit
+dependency/build-input gaps, and zero first-party gaps), and replays the exact
+generated delta. `--require-exact-source` is intentionally fail-closed
+because the published application dependency graph and production build
+configuration are not recoverable from `src/` or the npm package.
 
 ## 15. Final repository checks and publication
 

@@ -191,7 +191,10 @@ export function formatConstraintIntersectionError(
   subject: 'Plugin' | 'Dependency',
   dependency: string,
   ranges: string[],
-  reason: Extract<ConstraintIntersection, { ok: false }>['reason'],
+  reason:
+    | Extract<ConstraintIntersection, { ok: false }>['reason']
+    | 'installed-unsatisfied',
+  installed?: string,
 ): string {
   const displayedRanges = truncateConstraintText(
     sanitizeConstraintText(ranges.join(', ')),
@@ -204,6 +207,8 @@ export function formatConstraintIntersectionError(
       return `${subject} "${displayedDependency}" has version requirements too complex to intersect — simplify the ranges: ${displayedRanges}`
     case 'invalid':
       return `${subject} "${displayedDependency}" has an invalid version requirement among: ${displayedRanges}`
+    case 'installed-unsatisfied':
+      return `${subject} "${displayedDependency}" is installed at ${truncateConstraintText(sanitizeConstraintText(installed ?? 'an unknown version'))}, which does not satisfy: ${displayedRanges}`
   }
 }
 
@@ -214,6 +219,21 @@ export function formatNoMatchingTagError(
 ): string {
   const displayedRange = truncateConstraintText(sanitizeConstraintText(range))
   return `${subject} "${sanitizeConstraintText(dependency)}" has no git tag satisfying ${displayedRange}`
+}
+
+/**
+ * Check an installed plugin version against a dependency range. Installed
+ * versions may be loose semver strings, so normalize them the same way as the
+ * load-time dependency verifier before evaluating the range.
+ */
+export function satisfiesVersionConstraint(
+  version: string | undefined,
+  range: string,
+): boolean {
+  const normalized = version
+    ? (semver.valid(version) ?? semver.coerce(version)?.version)
+    : undefined
+  return normalized !== undefined && semver.satisfies(normalized, range)
 }
 
 /**
@@ -291,6 +311,7 @@ export async function resolveDependencyClosure(
   lookup: (id: PluginId) => Promise<DependencyLookupResult | null>,
   alreadyEnabled: ReadonlySet<PluginId>,
   allowedCrossMarketplaces: ReadonlySet<string> = new Set(),
+  forceInclude?: ReadonlySet<PluginId>,
 ): Promise<ResolutionResult> {
   const rootMarketplace = parsePluginIdentifier(rootId).marketplace
   const closure: PluginId[] = []
@@ -308,12 +329,19 @@ export async function resolveDependencyClosure(
     // installed_plugins.json stale) would return an empty closure and
     // `cacheAndRegisterPlugin` would never fire — user sees
     // "✔ Successfully installed" but nothing materializes.
-    if (id !== rootId && alreadyEnabled.has(id)) return null
+    if (
+      id !== rootId &&
+      alreadyEnabled.has(id) &&
+      !forceInclude?.has(id)
+    ) {
+      return null
+    }
     // Security: block auto-install across marketplace boundaries. Runs AFTER
     // the alreadyEnabled check — if the user manually installed a cross-mkt
     // dep, it's in alreadyEnabled and we never reach this.
     const idMarketplace = parsePluginIdentifier(id).marketplace
     if (
+      !alreadyEnabled.has(id) &&
       idMarketplace !== rootMarketplace &&
       !(idMarketplace && allowedCrossMarketplaces.has(idMarketplace))
     ) {
@@ -332,6 +360,12 @@ export async function resolveDependencyClosure(
 
     const entry = await lookup(id)
     if (!entry) {
+      if (id !== rootId && alreadyEnabled.has(id)) {
+        logForDebugging(
+          `resolveDependencyClosure: force-included ${id} has no catalog entry; skipping (pinner stays demoted)`,
+        )
+        return null
+      }
       return { ok: false, reason: 'not-found', missing: id, requiredBy }
     }
 
@@ -428,13 +462,7 @@ export function verifyAndDemote(plugins: readonly LoadedPlugin[]): {
           const installed =
             installedPlugin?.resolvedVersion ??
             installedPlugin?.manifest.version
-          const normalizedInstalled = installed
-            ? (semver.valid(installed) ?? semver.coerce(installed)?.version)
-            : undefined
-          if (
-            normalizedInstalled === undefined ||
-            !semver.satisfies(normalizedInstalled, required)
-          ) {
+          if (!satisfiesVersionConstraint(installed, required)) {
             enabled.delete(p.source)
             const count = enabledByName.get(p.name) ?? 0
             if (count <= 1) enabledByName.delete(p.name)

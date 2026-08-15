@@ -8,6 +8,7 @@ import {
   type Tool,
 } from '@modelcontextprotocol/sdk/types.js'
 import { getDefaultAppState } from 'src/state/AppStateStore.js'
+import { AGENT_COLORS } from '../tools/AgentTool/agentColorManager.js'
 import review from '../commands/review.js'
 import type { Command } from '../commands.js'
 import {
@@ -16,6 +17,7 @@ import {
   type ToolUseContext,
 } from '../Tool.js'
 import { getTools } from '../tools.js'
+import { createSkillState, setSkillState } from '../skills/loadSkillsDir.js'
 import { createAbortController } from '../utils/abortController.js'
 import { createFileStateCacheWithSizeLimit } from '../utils/fileStateCache.js'
 import { logError } from '../utils/log.js'
@@ -28,22 +30,64 @@ import { getErrorParts } from '../utils/toolErrors.js'
 import { zodToJsonSchema } from '../utils/zodToJsonSchema.js'
 
 type ToolInput = Tool['inputSchema']
-type ToolOutput = Tool['outputSchema']
 
 const MCP_COMMANDS: Command[] = [review]
+
+const MCP_TASK_REGISTRY = {
+  register() {},
+  update() {},
+  remove() {},
+  evictTerminal() {},
+  applyOffsetsAndEvict() {},
+  get() {
+    return undefined
+  },
+  all() {
+    return {}
+  },
+}
+
+const MCP_SESSION_HOOKS_REGISTRY = {
+  add() {},
+  addFunction() {
+    return ''
+  },
+  remove() {},
+  removeFunction() {},
+  clear() {},
+}
+
+const MCP_AGENT_LIFECYCLE = {
+  markTypeInvoked() {},
+  registerName() {},
+  clearTodos() {},
+}
+
+const MCP_TEAMMATE_COLORS = {
+  assign: () => AGENT_COLORS[0],
+  get: () => undefined,
+  clear() {},
+}
 
 export async function startMCPServer(
   cwd: string,
   debug: boolean,
   verbose: boolean,
 ): Promise<void> {
+  setCwd(cwd)
+  const server = createMCPServer(debug, verbose)
+  const transport = new StdioServerTransport()
+  await server.connect(transport)
+}
+
+export function createMCPServer(debug: boolean, verbose: boolean): Server {
+  setSkillState(createSkillState())
   // Use size-limited LRU cache for readFileState to prevent unbounded memory growth
   // 100 files and 25MB limit should be sufficient for MCP server operations
   const READ_FILE_STATE_CACHE_SIZE = 100
   const readFileStateCache = createFileStateCacheWithSizeLimit(
     READ_FILE_STATE_CACHE_SIZE,
   )
-  setCwd(cwd)
   const server = new Server(
     {
       name: 'claude/tengu',
@@ -64,23 +108,7 @@ export async function startMCPServer(
       const tools = getTools(toolPermissionContext)
       return {
         tools: await Promise.all(
-          tools.map(async tool => {
-            let outputSchema: ToolOutput | undefined
-            if (tool.outputSchema) {
-              const convertedSchema = zodToJsonSchema(tool.outputSchema)
-              // MCP SDK requires outputSchema to have type: "object" at root level
-              // Skip schemas with anyOf/oneOf at root (from z.union, z.discriminatedUnion, etc.)
-              // See: https://github.com/anthropics/claude-code/issues/8014
-              if (
-                typeof convertedSchema === 'object' &&
-                convertedSchema !== null &&
-                'type' in convertedSchema &&
-                convertedSchema.type === 'object'
-              ) {
-                outputSchema = convertedSchema as ToolOutput
-              }
-            }
-            return {
+          tools.map(async tool => ({
               ...tool,
               description: await tool.prompt({
                 getToolPermissionContext: async () => toolPermissionContext,
@@ -88,9 +116,8 @@ export async function startMCPServer(
                 agents: [],
               }),
               inputSchema: zodToJsonSchema(tool.inputSchema) as ToolInput,
-              outputSchema,
-            }
-          }),
+              outputSchema: undefined,
+            })),
         ),
       }
     },
@@ -109,7 +136,7 @@ export async function startMCPServer(
 
       // Assume MCP servers do not read messages separately from the tool
       // call arguments.
-      const toolUseContext: ToolUseContext = {
+      const toolUseContext = {
         abortController: createAbortController(),
         options: {
           commands: MCP_COMMANDS,
@@ -130,10 +157,12 @@ export async function startMCPServer(
         turnStartIndex: 0,
         readFileState: readFileStateCache,
         setInProgressToolUseIDs: () => {},
-        setResponseLength: () => {},
-        updateFileHistoryState: () => {},
-        updateAttributionState: () => {},
-      }
+        addResponseLength: () => {},
+        resetResponseLength: () => {},
+        getFileHistoryState: () => undefined,
+        applyFileHistoryOp: () => {},
+        applyAttributionOp: () => {},
+      } as unknown as ToolUseContext
 
       // TODO: validate input types with zod
       try {
@@ -189,10 +218,5 @@ export async function startMCPServer(
     },
   )
 
-  async function runServer() {
-    const transport = new StdioServerTransport()
-    await server.connect(transport)
-  }
-
-  return await runServer()
+  return server
 }

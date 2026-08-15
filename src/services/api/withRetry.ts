@@ -6,6 +6,7 @@ import {
   APIUserAbortError,
 } from '@anthropic-ai/sdk'
 import type { QuerySource } from 'src/constants/querySource.js'
+import { isWIFActive } from 'src/constants/oauth.js'
 import type { SystemAPIErrorMessage } from 'src/types/message.js'
 import { getSdkOAuthTokenRefreshCallback } from '../../bootstrap/state.js'
 import { isAwsCredentialsProviderError } from 'src/utils/aws.js'
@@ -47,6 +48,10 @@ import {
 } from '../../utils/proxy.js'
 import { sleep } from '../../utils/sleep.js'
 import type { ThinkingConfig } from '../../utils/thinking.js'
+import {
+  getWIFTokenCache,
+  WorkloadIdentityError,
+} from '../../utils/workloadIdentity.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../analytics/growthbook.js'
 import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -101,9 +106,9 @@ function shouldRetry529(querySource: QuerySource | undefined): boolean {
   )
 }
 
-// CLAUDE_CODE_UNATTENDED_RETRY: for unattended sessions (ant-only). Retries 429/529
-// indefinitely with higher backoff and periodic keep-alive yields so the host
-// environment does not mark the session idle mid-wait.
+// Remote Linux workers can opt into indefinite 429/529 retries with higher
+// backoff and periodic keep-alive yields so the host does not mark the session
+// idle mid-wait.
 // TODO(ANT-344): the keep-alive via SystemAPIErrorMessage yields is a stopgap
 // until there's a dedicated keep-alive channel.
 const PERSISTENT_MAX_BACKOFF_MS = 5 * 60 * 1000
@@ -112,9 +117,11 @@ const HEARTBEAT_INTERVAL_MS = 30_000
 const MAX_RETRY_AFTER_MS = 60_000
 
 function isPersistentRetryEnabled(): boolean {
-  return feature('UNATTENDED_RETRY')
-    ? isEnvTruthy(process.env.CLAUDE_CODE_UNATTENDED_RETRY)
-    : false
+  return (
+    getPlatform() === 'linux' &&
+    process.env.CLAUDE_CODE_ENTRYPOINT === 'remote' &&
+    isEnvTruthy(process.env.CLAUDE_CODE_RETRY_WATCHDOG)
+  )
 }
 
 function isTransientCapacityError(error: unknown): boolean {
@@ -217,6 +224,7 @@ export async function* withRetry<T>(
     if (options.signal?.aborted) {
       throw new APIUserAbortError()
     }
+    const attemptStartTime = Date.now()
 
     // Capture whether fast mode is active before this attempt
     // (fallback may change the state mid-loop)
@@ -546,6 +554,7 @@ export async function* withRetry<T>(
           .message as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
         status: (error as APIError).status,
         provider: getAPIProviderForStatsig(),
+        attempt_duration_ms: Date.now() - attemptStartTime,
       })
       options.onRetry?.({
         retryInMs: delayMs,

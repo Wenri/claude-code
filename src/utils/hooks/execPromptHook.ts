@@ -222,11 +222,31 @@ Always include a "reason" field.`,
 
       cleanupSignal()
 
+      if (response.isApiErrorMessage) {
+        const apiError = extractTextContent(response.message.content).trim()
+        logForDebugging(`Hooks: prompt-hook evaluator API error: ${apiError}`, {
+          level: 'error',
+        })
+        return {
+          hook,
+          outcome: 'non_blocking_error',
+          message: createAttachmentMessage({
+            type: 'hook_non_blocking_error',
+            hookName,
+            toolUseID: effectiveToolUseID,
+            hookEvent,
+            stderr: `Hook evaluator API error: ${apiError}`,
+            stdout: '',
+            exitCode: 1,
+          }),
+        }
+      }
+
       // Extract text content from response
       const content = extractTextContent(response.message.content)
 
       // Update response length for spinner display
-      toolUseContext.setResponseLength(length => length + content.length)
+      toolUseContext.addResponseLength(content.length)
 
       const fullResponse = content.trim()
       logForDebugging(`Hooks: Model response: ${fullResponse}`)

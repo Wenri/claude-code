@@ -712,6 +712,21 @@
         "path": "readable-diff/renames.tsv",
         "bytes": 210227,
         "sha256": "20898c022b816d0f09e4c1505a5a2d9d0c162f5684937622690fce4a7956f9c7"
+      },
+      {
+        "path": "semantic/source-coverage.json.gz",
+        "bytes": 242611,
+        "sha256": "3f9341f025786c874ba15b9ad1fdc1a1ccb3c5406fc487550eed33d8e470c5a1"
+      },
+      {
+        "path": "semantic/dependency-coverage.json.gz",
+        "bytes": 9309,
+        "sha256": "2c30fd21b0bb1a4776b3d8b4f1e6194246ffd16927d2989f8caf96ca375db117"
+      },
+      {
+        "path": "semantic-supplement.patch",
+        "bytes": 5618705,
+        "sha256": "68d1b6acd88c1e89c781e26c8b7b4e78ca1155f37ca0f0558570f67b2fc0ed24"
       }
     ]
   },
@@ -731,20 +746,20 @@
       "bytes": 2647,
       "sha256": "15c795a8ef056ba9707072547a9fd089a00195dc1390168460360906699347df"
     },
-      {
-        "path": "recovered/feedback-availability.patch",
-        "bytes": 11842,
-        "sha256": "14ad9cf869c82345976c0f0557c947b78a7c8c88f079a9d693eb2a5411d37f4d"
+    {
+      "path": "recovered/feedback-availability.patch",
+      "bytes": 11842,
+      "sha256": "14ad9cf869c82345976c0f0557c947b78a7c8c88f079a9d693eb2a5411d37f4d"
     },
     {
       "path": "recovered/input-permission-schema.patch",
       "bytes": 3509,
       "sha256": "6c4da6e85dbe997d66e7920fa35c2d7377def0709bbd787e94bd396b1d5abde1"
     },
-      {
-        "path": "recovered/mcp-result-override.patch",
-        "bytes": 5640,
-        "sha256": "f7d57b0f707cfd70c7b515ab18e5b07ebc54699afe7d7c2dc5983b53a62fce54"
+    {
+      "path": "recovered/mcp-result-override.patch",
+      "bytes": 5640,
+      "sha256": "f7d57b0f707cfd70c7b515ab18e5b07ebc54699afe7d7c2dc5983b53a62fce54"
     },
     {
       "path": "recovered/multiline-deep-links.patch",
@@ -775,8 +790,9 @@
   "sourceLineage": {
     "root": "src",
     "patchSet": "2.1.90-to-2.1.91-incremental",
-    "baseCommit": "75fb55c39164bffac8f1f5296895884a530972c8",
-    "baseGitTree": "a5bc0fdaa01f4ddc02ee253ead2d0cc39efc2572",
+    "baseCommit": "2ba94f2c67c645119e4f33ee9a68e7e14449c238",
+    "baseGitTree": "8700b3ed86296df96e72a765107097b401a3bdd7",
+    "baseSourceGitTree": "a5bc0fdaa01f4ddc02ee253ead2d0cc39efc2572",
     "patchOrder": [
       "recovered/mcp-result-override.patch",
       "recovered/skill-shell-policy.patch",
@@ -961,5 +977,39 @@
         "claude-api-agent-design"
       ]
     }
-  ]
+  ],
+  "semanticSourceLineage": {
+    "targetCommit": "cb8a3dbe788589c66326d345c54d35abd5603850",
+    "cumulativeSupplements": [
+      {
+        "case": "2.1.88-to-2.1.89",
+        "path": "recovery/cases/2.1.88-to-2.1.89/semantic-supplement.patch",
+        "bytes": 3512210,
+        "sha256": "adb702c880a26e1806d23bed31ffc7a1958fd0f415539ea6a8dd3c422af557f2"
+      },
+      {
+        "case": "2.1.89-to-2.1.90",
+        "path": "recovery/cases/2.1.89-to-2.1.90/semantic-supplement.patch",
+        "bytes": 5016682,
+        "sha256": "b107b8c95712ec6b8c3c7e2c06a5fe73201a1d463efd38c7acc436c8f9c602d7"
+      },
+      {
+        "case": "2.1.90-to-2.1.91",
+        "path": "recovery/cases/2.1.90-to-2.1.91/semantic-supplement.patch",
+        "bytes": 5618705,
+        "sha256": "68d1b6acd88c1e89c781e26c8b7b4e78ca1155f37ca0f0558570f67b2fc0ed24"
+      }
+    ],
+    "supplement": {
+      "case": "2.1.90-to-2.1.91",
+      "path": "recovery/cases/2.1.90-to-2.1.91/semantic-supplement.patch",
+      "bytes": 5618705,
+      "sha256": "68d1b6acd88c1e89c781e26c8b7b4e78ca1155f37ca0f0558570f67b2fc0ed24"
+    },
+    "sourceCoverage": {
+      "path": "semantic/source-coverage.json.gz",
+      "bytes": 242611,
+      "sha256": "3f9341f025786c874ba15b9ad1fdc1a1ccb3c5406fc487550eed33d8e470c5a1"
+    }
+  }
 }

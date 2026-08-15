@@ -150,12 +150,12 @@ export function onChangeAppState({
         !oldState.isUltraplanMode
           ? true
           : null
-      notifySessionMetadataChanged({
+      sessionState?.notifyMetadataChanged({
         permission_mode: newExternal,
         is_ultraplan_mode: isUltraplan,
       })
     }
-    notifyPermissionModeChanged(newMode)
+    sessionState?.notifyPermissionModeChanged(newMode)
   }
 
   const prevSessionAllowRules =

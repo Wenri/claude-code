@@ -1,9 +1,18 @@
 import assert from 'node:assert/strict'
 import crypto from 'node:crypto'
 import fs from 'node:fs'
+import path from 'node:path'
 import test from 'node:test'
 import { fileURLToPath } from 'node:url'
 
+const repositoryRoot = fileURLToPath(new URL('../..', import.meta.url))
+const caseName = '2.1.107-to-2.1.108'
+const semanticCase = process.env.CLAUDE_CODE_SEMANTIC_CASE
+const historical = semanticCase === caseName
+const sourceRoot = path.resolve(
+  process.env.CLAUDE_CODE_SEMANTIC_SOURCE_ROOT ??
+    repositoryRoot,
+)
 const baselineBundlePath = process.env.CLAUDE_CODE_2_1_107_BUNDLE
 const targetBundlePath = process.env.CLAUDE_CODE_2_1_108_BUNDLE
 const BASELINE_BUNDLE_SHA256 =
@@ -12,10 +21,10 @@ const TARGET_BUNDLE_SHA256 =
   'dc82842f51ef4c3af458c56a2e12efbfce2a3f20f615b19bece30d983d14fe73'
 
 function source(relative) {
-  return fs.readFileSync(
-    fileURLToPath(new URL(`../../${relative}`, import.meta.url)),
-    'utf8',
-  )
+  const sourceRelative = process.env.CLAUDE_CODE_SEMANTIC_SOURCE_ROOT
+    ? relative.replace(/^src\//, '')
+    : relative
+  return fs.readFileSync(path.join(sourceRoot, sourceRelative), 'utf8')
 }
 
 function requiredBundle(filename, label, expectedSha256) {
@@ -123,9 +132,16 @@ test('recovers API status distinctions and terminal input handling', () => {
   ]) {
     assert.equal(earlyInput.includes(introducer), true, introducer)
   }
-  assert.match(paste, /const event = new InputEvent\(\{/)
-  assert.match(paste, /isPasted: true/)
-  assert.match(paste, /onInput\(event\.input, event\.key\)/)
+  if (historical) {
+    assert.match(paste, /const event = new InputEvent\(\{/)
+    assert.match(paste, /isPasted: true/)
+    assert.match(paste, /onInput\(event\.input, event\.key\)/)
+  } else {
+    assert.match(paste, /handlePaste: \(event: PasteEvent\) => void/)
+    assert.match(paste, /function handleKeyDown\(event: KeyboardEvent\)/)
+    assert.match(paste, /nextHandleKeyDown\(event\)/)
+    assert.match(paste, /event\.preventDefault\(\)/)
+  }
 })
 
 test('recovers the smaller UI, shell, title, and auto-mode fixes', () => {

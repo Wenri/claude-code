@@ -28,7 +28,7 @@ type Props = {
     display?: CommandResultDisplay;
   }) => void;
 };
-export function AgentsMenu(t0) {
+function LegacyAgentsMenu(t0) {
   const $ = _c(157);
   const {
     tools,
@@ -767,6 +767,8 @@ export function AgentsMenu(t0) {
       }
   }
 }
+
+export { AgentsMenu } from './AgentsRuntimeMenu.js'
 function _temp0(a_5) {
   return a_5.source === "plugin";
 }

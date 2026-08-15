@@ -43,14 +43,16 @@ import {
   getPluginSettingsBase,
   isPluginSettingsInitialized,
   getSessionSettingsCache,
+  isPluginSettingsBaseInitialized,
   resetSettingsCache,
   setCachedParsedFile,
   setCachedSettingsForSource,
   setSessionSettingsCache,
 } from './settingsCache.js'
 import { type SettingsJson, SettingsSchema } from './types.js'
+import { settingsChanged } from './settingsSignal.js'
 import {
-  filterInvalidPermissionRules,
+  filterInvalidSettingsEntries,
   formatZodError,
   type SettingsWithErrors,
   type ValidationError,
@@ -257,16 +259,16 @@ function parseSettingsFileUncached(path: string): {
 
     // Filter invalid permission rules before schema validation so one bad
     // rule doesn't cause the entire settings file to be rejected.
-    const ruleWarnings = filterInvalidPermissionRules(data, path)
+    const entryWarnings = filterInvalidSettingsEntries(data, path)
 
     const result = SettingsSchema().safeParse(data)
 
     if (!result.success) {
       const errors = formatZodError(result.error, path)
-      return { settings: null, errors: [...ruleWarnings, ...errors] }
+      return { settings: null, errors: [...entryWarnings, ...errors] }
     }
 
-    return { settings: result.data, errors: ruleWarnings }
+    return { settings: result.data, errors: entryWarnings }
   } catch (error) {
     handleFileSystemError(error, path)
     return { settings: null, errors: [] }
@@ -429,20 +431,36 @@ function getSettingsForSourceUncached(
 
   // For flagSettings, merge in any inline settings set via the SDK
   if (source === 'flagSettings') {
-    const inlineSettings = getFlagSettingsInline()
+    const { settings: inlineSettings } = parseSdkInlineSettings()
     if (inlineSettings) {
-      const parsed = SettingsSchema().safeParse(inlineSettings)
-      if (parsed.success) {
-        return mergeWith(
-          fileSettings || {},
-          parsed.data,
-          settingsMergeCustomizer,
-        ) as SettingsJson
-      }
+      return mergeWith(
+        fileSettings || {},
+        inlineSettings,
+        settingsMergeCustomizer,
+      ) as SettingsJson
     }
   }
 
   return fileSettings
+}
+
+function parseSdkInlineSettings(): SettingsWithErrors {
+  const inlineSettings = getFlagSettingsInline()
+  if (!inlineSettings) return { settings: null, errors: [] }
+
+  const cloned = structuredClone(inlineSettings)
+  const warnings = filterInvalidSettingsEntries(cloned, 'SDK inline settings')
+  const parsed = SettingsSchema().safeParse(cloned)
+  if (!parsed.success) {
+    return {
+      settings: null,
+      errors: [
+        ...warnings,
+        ...formatZodError(parsed.error, 'SDK inline settings'),
+      ],
+    }
+  }
+  return { settings: parsed.data, errors: warnings }
 }
 
 /**
@@ -589,6 +607,12 @@ export function updateSettingsForSource(
 
     // Invalidate the session cache since settings have been updated
     resetSettingsCache()
+
+    try {
+      settingsChanged.emit(source)
+    } catch (error) {
+      logError(error)
+    }
 
     if (source === 'localSettings') {
       // Okay to add to gitignore async without awaiting
@@ -865,16 +889,20 @@ function loadSettingsFromDisk(): SettingsWithErrors {
 
       // For flagSettings, also merge any inline settings set via the SDK
       if (source === 'flagSettings') {
-        const inlineSettings = getFlagSettingsInline()
-        if (inlineSettings) {
-          const parsed = SettingsSchema().safeParse(inlineSettings)
-          if (parsed.success) {
-            mergedSettings = mergeWith(
-              mergedSettings,
-              parsed.data,
-              settingsMergeCustomizer,
-            )
+        const { settings: inlineSettings, errors } = parseSdkInlineSettings()
+        for (const error of errors) {
+          const errorKey = `${error.file}:${error.path}:${error.message}`
+          if (!seenErrors.has(errorKey)) {
+            seenErrors.add(errorKey)
+            allErrors.push(error)
           }
+        }
+        if (inlineSettings) {
+          mergedSettings = mergeWith(
+            mergedSettings,
+            inlineSettings,
+            settingsMergeCustomizer,
+          )
         }
       }
     }
@@ -908,6 +936,23 @@ function loadSettingsFromDisk(): SettingsWithErrors {
 export function getInitialSettings(): SettingsJson {
   const { settings } = getSettingsWithErrors()
   return settings || {}
+}
+
+/**
+ * Read a setting whose value may be contributed by a plugin.
+ *
+ * Callers that run before plugin loading completes still receive the current
+ * settings snapshot, but record the premature read so ordering regressions are
+ * observable.
+ */
+export function getSettingsAfterPluginLoad<K extends keyof SettingsJson>(
+  key: K,
+): SettingsJson[K] {
+  if (!isPluginSettingsBaseInitialized()) {
+    logEvent('tengu_plugin_settings_premature_read', { key })
+  }
+  const { settings } = getSettingsWithErrors()
+  return (settings || {})[key]
 }
 
 /**
@@ -1016,6 +1061,15 @@ export function hasSkipDangerousModePermissionPrompt(): boolean {
  */
 export function hasAutoModeOptIn(): boolean {
   if (feature('TRANSCRIPT_CLASSIFIER')) {
+    if (
+      getSettingsForSource('policySettings')?.permissions?.defaultMode ===
+      'auto'
+    ) {
+      logForDebugging(
+        '[auto-mode] hasAutoModeOptIn=true policy defaultMode=auto implies consent',
+      )
+      return true
+    }
     const user = getSettingsForSource('userSettings')?.skipAutoPermissionPrompt
     const local =
       getSettingsForSource('localSettings')?.skipAutoPermissionPrompt

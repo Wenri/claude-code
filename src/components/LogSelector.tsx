@@ -10,7 +10,9 @@ import { useTerminalSize } from '../hooks/useTerminalSize.js';
 import { useModalOrTerminalSize } from '../context/modalContext.js';
 import { applyColor } from '../ink/colorize.js';
 import type { Color } from '../ink/styles.js';
-import { Box, Text, useInput, useTerminalFocus, useTheme } from '../ink.js';
+import { Box, Text, useTerminalFocus, useTheme } from '../ink.js';
+import type { KeyboardEvent } from '../ink/events/keyboard-event.js';
+import type { PasteEvent } from '../ink/events/paste-event.js';
 import { useKeybinding } from '../keybindings/useKeybinding.js';
 import { logEvent } from '../services/analytics/index.js';
 import type { LogOption, SerializedMessage } from '../types/logs.js';
@@ -279,7 +281,9 @@ export function LogSelector(t0) {
   const {
     query: searchQuery,
     setQuery: setSearchQuery,
-    cursorOffset: searchCursorOffset
+    cursorOffset: searchCursorOffset,
+    handleKeyDown: handleSearchKeyDown,
+    handlePaste: handleSearchPaste,
   } = useSearchInput(t14);
   const deferredSearchQuery = React.useDeferredValue(searchQuery);
   const [debouncedDeepSearchQuery, setDebouncedDeepSearchQuery] = React.useState("");
@@ -305,6 +309,15 @@ export function LogSelector(t0) {
   React.useEffect(t15, t16);
   const [deepSearchResults, setDeepSearchResults] = React.useState(null);
   const [isSearching, setIsSearching] = React.useState(false);
+  React.useEffect(() => {
+    if (reloadGeneration === 0) return;
+    agenticSearchAbortRef.current?.abort();
+    setAgenticSearchState(previous => previous.status === "idle" ? previous : {
+      status: "idle"
+    });
+    setIsAgenticSearchOptionFocused(false);
+    setDeepSearchResults(null);
+  }, [reloadGeneration]);
   let t17;
   let t18;
   if ($[17] === Symbol.for("react.memo_cache_sentinel")) {
@@ -1042,145 +1055,111 @@ export function LogSelector(t0) {
     t52 = $[130];
   }
   useKeybinding("confirm:no", t50, t52);
-  let t53;
-  if ($[131] !== agenticSearchState.status || $[132] !== branchFilterEnabled || $[133] !== focusedLog || $[134] !== handleAgenticSearch || $[135] !== hasMultipleWorktrees || $[136] !== hasTags || $[137] !== isAgenticSearchOptionFocused || $[138] !== onAgenticSearch || $[139] !== onToggleAllProjects || $[140] !== searchQuery || $[141] !== setSearchQuery || $[142] !== showAllProjects || $[143] !== showAllWorktrees || $[144] !== tagTabs || $[145] !== uniqueTags || $[146] !== viewMode) {
-    t53 = (input, key) => {
-      if (viewMode === "preview") {
+  function handleKeyDown(event: KeyboardEvent): void {
+    if (viewMode === 'preview' || agenticSearchState.status === 'searching') return;
+    if (viewMode === 'rename') return;
+    if (viewMode === 'search') {
+      handleSearchKeyDown(event);
+      if (event.ctrl && event.key === 'n') {
+        event.preventDefault();
+        exitSearchMode();
+      }
+      return;
+    }
+    if (isAgenticSearchOptionFocused) {
+      if (event.key === 'return') {
+        event.preventDefault();
+        void handleAgenticSearch();
+        setIsAgenticSearchOptionFocused(false);
         return;
       }
-      if (agenticSearchState.status === "searching") {
+      if (event.key === 'down') {
+        event.preventDefault();
+        setIsAgenticSearchOptionFocused(false);
+        if (displayedLogs.length === 0) setViewMode('search');
         return;
       }
-      if (viewMode === "rename") {} else {
-        if (viewMode === "search") {
-          if (input.toLowerCase() === "n" && key.ctrl) {
-            exitSearchMode();
-          } else {
-            if (key.return || key.downArrow) {
-              if (searchQuery.trim() && onAgenticSearch && false && agenticSearchState.status !== "results") {
-                setIsAgenticSearchOptionFocused(true);
-              }
-            }
-          }
-        } else {
-          if (isAgenticSearchOptionFocused) {
-            if (key.return) {
-              handleAgenticSearch();
-              setIsAgenticSearchOptionFocused(false);
-              return;
-            } else {
-              if (key.downArrow) {
-                setIsAgenticSearchOptionFocused(false);
-                return;
-              } else {
-                if (key.upArrow) {
-                  setViewMode("search");
-                  setIsAgenticSearchOptionFocused(false);
-                  return;
-                }
-              }
-            }
-          }
-          if (hasTags && key.tab) {
-            const offset = key.shift ? -1 : 1;
-            setSelectedTagIndex(prev => {
-              const current = prev < tagTabs.length ? prev : 0;
-              const newIndex = (current + tagTabs.length + offset) % tagTabs.length;
-              const newTab = tagTabs[newIndex];
-              logEvent("tengu_session_tag_filter_changed", {
-                is_all: newTab === "All",
-                tag_count: uniqueTags.length
-              });
-              return newIndex;
-            });
-            return;
-          }
-          const keyIsNotCtrlOrMeta = !key.ctrl && !key.meta;
-          const lowerInput = input.toLowerCase();
-          if (lowerInput === "a" && key.ctrl && onToggleAllProjects) {
-            onToggleAllProjects();
-            logEvent("tengu_session_all_projects_toggled", {
-              enabled: !showAllProjects
-            });
-          } else {
-            if (lowerInput === "b" && key.ctrl) {
-              const newEnabled = !branchFilterEnabled;
-              setBranchFilterEnabled(newEnabled);
-              logEvent("tengu_session_branch_filter_toggled", {
-                enabled: newEnabled
-              });
-            } else {
-              if (lowerInput === "w" && key.ctrl && hasMultipleWorktrees) {
-                const newValue = !showAllWorktrees;
-                setShowAllWorktrees(newValue);
-                logEvent("tengu_session_worktree_filter_toggled", {
-                  enabled: newValue
-                });
-              } else {
-                if (lowerInput === "/" && keyIsNotCtrlOrMeta) {
-                  setViewMode("search");
-                  logEvent("tengu_session_search_toggled", {
-                    enabled: true
-                  });
-                } else {
-                  if (lowerInput === "r" && key.ctrl && focusedLog) {
-                    setViewMode("rename");
-                    setRenameValue("");
-                    logEvent("tengu_session_rename_started", {});
-                  } else {
-                    if (lowerInput === "v" && key.ctrl && focusedLog) {
-                      setPreviewLog(focusedLog);
-                      setViewMode("preview");
-                      logEvent("tengu_session_preview_opened", {
-                        messageCount: focusedLog.messageCount
-                      });
-                    } else {
-                      if (focusedLog && keyIsNotCtrlOrMeta && input.length > 0 && !/^\s+$/.test(input)) {
-                        setViewMode("search");
-                        setSearchQuery(input);
-                        logEvent("tengu_session_search_toggled", {
-                          enabled: true
-                        });
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
+      if (event.key === 'up') {
+        event.preventDefault();
+        setViewMode('search');
+        setIsAgenticSearchOptionFocused(false);
+        return;
       }
-    };
-    $[131] = agenticSearchState.status;
-    $[132] = branchFilterEnabled;
-    $[133] = focusedLog;
-    $[134] = handleAgenticSearch;
-    $[135] = hasMultipleWorktrees;
-    $[136] = hasTags;
-    $[137] = isAgenticSearchOptionFocused;
-    $[138] = onAgenticSearch;
-    $[139] = onToggleAllProjects;
-    $[140] = searchQuery;
-    $[141] = setSearchQuery;
-    $[142] = showAllProjects;
-    $[143] = showAllWorktrees;
-    $[144] = tagTabs;
-    $[145] = uniqueTags;
-    $[146] = viewMode;
-    $[147] = t53;
-  } else {
-    t53 = $[147];
+    }
+    if (
+      displayedLogs.length === 0 &&
+      !isAgenticSearchOptionFocused &&
+      (event.key === 'up' || event.key === 'down' || event.key === 'return')
+    ) {
+      event.preventDefault();
+      setViewMode('search');
+      return;
+    }
+    const unmodified = !event.ctrl && !event.meta;
+    const lowerKey = event.key.toLowerCase();
+    if (event.ctrl && event.key === 'a' && onToggleAllProjects) {
+      event.preventDefault();
+      onToggleAllProjects();
+      logEvent('tengu_session_all_projects_toggled', { enabled: showAllProjects });
+    } else if (event.ctrl && event.key === 'b') {
+      event.preventDefault();
+      const enabled = !branchFilterEnabled;
+      setBranchFilterEnabled(enabled);
+      logEvent('tengu_session_branch_filter_toggled', { enabled: !enabled });
+    } else if (event.ctrl && event.key === 'w' && hasMultipleWorktrees) {
+      event.preventDefault();
+      const enabled = !showAllWorktrees;
+      setShowAllWorktrees(enabled);
+      logEvent('tengu_session_worktree_filter_toggled', { enabled: !enabled });
+    } else if (lowerKey === '/' && unmodified) {
+      event.preventDefault();
+      setViewMode('search');
+      setIsAgenticSearchOptionFocused(false);
+      logEvent('tengu_session_search_toggled', { enabled: true });
+    } else if (event.ctrl && event.key === 'r' && focusedLog) {
+      event.preventDefault();
+      setViewMode('rename');
+      setRenameValue('');
+      logEvent('tengu_session_rename_started', {});
+    } else if (
+      ((event.key === ' ' && unmodified) || (event.ctrl && event.key === 'v')) &&
+      focusedLog &&
+      !isAgenticSearchOptionFocused
+    ) {
+      event.preventDefault();
+      setPreviewLog(focusedLog);
+      setViewMode('preview');
+      logEvent('tengu_session_preview_opened', {
+        messageCount: focusedLog.messageCount,
+      });
+    } else if (unmodified && event.key.length === 1 && event.key !== ' ') {
+      event.preventDefault();
+      setViewMode('search');
+      setIsAgenticSearchOptionFocused(false);
+      setSearchQuery(event.key);
+      logEvent('tengu_session_search_toggled', { enabled: true });
+    }
   }
-  let t54;
-  if ($[148] === Symbol.for("react.memo_cache_sentinel")) {
-    t54 = {
-      isActive: true
-    };
-    $[148] = t54;
-  } else {
-    t54 = $[148];
+
+  function handlePaste(event: PasteEvent): void {
+    if (viewMode === 'search') {
+      handleSearchPaste(event);
+      return;
+    }
+    const text = (event.text.split(/\r\n|\r|\n/, 2)[0] ?? '').trim();
+    if (
+      viewMode === 'preview' ||
+      viewMode === 'rename' ||
+      agenticSearchState.status === 'searching' ||
+      isAgenticSearchOptionFocused ||
+      !focusedLog ||
+      !text
+    ) return;
+    event.preventDefault();
+    setViewMode('search');
+    setSearchQuery(text);
+    logEvent('tengu_session_search_toggled', { enabled: true });
   }
-  useInput(t53, t54);
   let filterIndicators;
   if ($[149] !== branchFilterEnabled || $[150] !== currentBranch || $[151] !== hasMultipleWorktrees || $[152] !== showAllWorktrees) {
     filterIndicators = [];
@@ -1251,22 +1230,7 @@ export function LogSelector(t0) {
     return t58;
   }
   const t57 = maxHeight - 1;
-  let t60;
-  if ($[166] !== usableColumns || $[167] !== displayedLogs.length || $[168] !== effectiveTagIndex || $[169] !== focusedIndex || $[170] !== hasTags || $[171] !== showAllProjects || $[172] !== tagTabs || $[173] !== viewMode || $[174] !== visibleCount) {
-    t60 = hasTags ? <TagTabs tabs={tagTabs} selectedIndex={effectiveTagIndex} availableWidth={usableColumns} showAllProjects={showAllProjects} /> : <Box flexShrink={0}><Text bold={true} color="suggestion">Resume Session{viewMode === "list" && displayedLogs.length > visibleCount && <Text dimColor={true}>{" "}({focusedIndex} of {displayedLogs.length})</Text>}</Text></Box>;
-    $[166] = usableColumns;
-    $[167] = displayedLogs.length;
-    $[168] = effectiveTagIndex;
-    $[169] = focusedIndex;
-    $[170] = hasTags;
-    $[171] = showAllProjects;
-    $[172] = tagTabs;
-    $[173] = viewMode;
-    $[174] = visibleCount;
-    $[175] = t60;
-  } else {
-    t60 = $[175];
-  }
+  const t60 = hasTags ? <TagTabs tabs={tagTabs} selectedIndex={effectiveTagIndex} availableWidth={usableColumns} showAllProjects={showAllProjects} /> : <Box flexShrink={0}><Text bold={true} color="suggestion">Resume Session{isLoading && <Text dimColor={true}> · Refreshing…</Text>}{viewMode === "list" && displayedLogs.length > visibleCount && <Text dimColor={true}>{" "}({focusedIndex} of {displayedLogs.length})</Text>}</Text></Box>;
   const t61 = viewMode === "search";
   let t62;
   if ($[176] !== isTerminalFocused || $[177] !== searchCursorOffset || $[178] !== searchQuery || $[179] !== t61) {

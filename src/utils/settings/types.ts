@@ -9,6 +9,13 @@ import {
 } from '../permissions/PermissionMode.js'
 import { MarketplaceSourceSchema } from '../plugins/schemas.js'
 import { CLAUDE_CODE_SETTINGS_SCHEMA_URL } from './constants.js'
+import {
+  getEnabledSettingFeatures,
+  getSettingFeaturePermissionModes,
+  getSettingFeaturePermissionsShape,
+  getSettingFeatureShape,
+  type SettingFeatureKey,
+} from './featureRegistry.js'
 import { PermissionRuleSchema } from './permissionValidation.js'
 
 // Re-export hook schemas and types from centralized location for backward compatibility
@@ -46,7 +53,8 @@ export const EnvironmentVariablesSchema = lazySchema(() =>
 /**
  * Schema for permissions section
  */
-export const PermissionsSchema = lazySchema(() =>
+function buildPermissionsSchema(features: readonly SettingFeatureKey[]) {
+  return (
   z
     .object({
       allow: z
@@ -64,11 +72,10 @@ export const PermissionsSchema = lazySchema(() =>
           'List of permission rules that should always prompt for confirmation',
         ),
       defaultMode: z
-        .enum(
-          feature('TRANSCRIPT_CLASSIFIER')
-            ? PERMISSION_MODES
-            : EXTERNAL_PERMISSION_MODES,
-        )
+        .enum([
+          ...EXTERNAL_PERMISSION_MODES,
+          ...getSettingFeaturePermissionModes(features),
+        ])
         .optional()
         .describe('Default permission mode when Claude Code needs access'),
       disableBypassPermissionsMode: z
@@ -83,12 +90,18 @@ export const PermissionsSchema = lazySchema(() =>
               .describe('Disable auto mode'),
           }
         : {}),
+      ...getSettingFeaturePermissionsShape(features),
       additionalDirectories: z
         .array(z.string())
         .optional()
         .describe('Additional directories to include in the permission scope'),
     })
-    .passthrough(),
+    .passthrough()
+  )
+}
+
+export const PermissionsSchema = lazySchema(() =>
+  buildPermissionsSchema(getEnabledSettingFeatures()),
 )
 
 /**
@@ -259,7 +272,8 @@ export const CUSTOMIZATION_SURFACES = [
   'mcp',
 ] as const
 
-export const SettingsSchema = lazySchema(() =>
+function buildSettingsSchema(features: readonly SettingFeatureKey[]) {
+  return (
   z
     .object({
       $schema: z
@@ -841,7 +855,7 @@ export const SettingsSchema = lazySchema(() =>
         .boolean()
         .optional()
         .describe(
-          '@internal When false, the session recap (shown when you return after being away for 5+ minutes) is disabled. When absent or true, recap is enabled. Hidden from public SDK types until external launch; mirrors voiceHandsfree pattern above.',
+          '@internal When false, the session recap (shown when you return after being away for 5+ minutes) is disabled. When absent or true, recap is enabled. Hidden from public SDK types until external launch.',
         ),
       tui: z
         .enum(['default', 'fullscreen'])
@@ -1293,7 +1307,12 @@ export const SettingsSchema = lazySchema(() =>
         .optional()
         .describe('Allow Claude to push proactive mobile notifications'),
     })
-    .passthrough(),
+    .passthrough()
+  )
+}
+
+export const SettingsSchema = lazySchema(() =>
+  buildSettingsSchema(getEnabledSettingFeatures()),
 )
 
 /**

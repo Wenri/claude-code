@@ -11,10 +11,21 @@ import AppContext from '../ink/components/AppContext.js';
 import type { DOMElement } from '../ink/dom.js';
 import type { KeyboardEvent } from '../ink/events/keyboard-event.js';
 import instances from '../ink/instances.js';
+import { nodeCache } from '../ink/node-cache.js';
+import Output from '../ink/output.js';
+import renderNodeToOutput, { resetLayoutShifted } from '../ink/render-node-to-output.js';
+import { CellWidth, cellAt, createScreen, type Screen, type StylePool } from '../ink/screen.js';
+import { isSynchronizedOutputSupported } from '../ink/terminal.js';
+import { CURSOR_HOME, cursorPosition, ERASE_LINE, ERASE_SCREEN, ERASE_SCROLLBACK, RESET_SCROLL_REGION, setScrollRegion } from '../ink/termio/csi.js';
+import { BSU, ESU, HIDE_CURSOR, SHOW_CURSOR } from '../ink/termio/dec.js';
+import { LINK_END, link } from '../ink/termio/osc.js';
 import { Box, Text } from '../ink.js';
+import { useShortcutDisplay } from '../keybindings/useShortcutDisplay.js';
+import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js';
 import type { Message } from '../types/message.js';
 import { openBrowser, openPath } from '../utils/browser.js';
-import { isFullscreenEnvEnabled } from '../utils/fullscreen.js';
+import { isEnvTruthy } from '../utils/envUtils.js';
+import { isFullscreenEnvEnabled, isTmuxControlMode } from '../utils/fullscreen.js';
 import { plural } from '../utils/stringUtils.js';
 import { isNullRenderingAttachment } from './messages/nullRenderingAttachments.js';
 import { Label } from './design-system/Label.js';
@@ -260,6 +271,603 @@ export function computeUnseenDivider(messages: readonly Message[], dividerIndex:
   };
 }
 
+type SynchronizedOutputStream = {
+  write: (value: string) => unknown;
+};
+
+type SynchronizedViewport = {
+  lines: string[];
+  scrollTop: number;
+  scrollHeight: number;
+  transcriptEnd: number;
+};
+
+type SynchronizedLayout = {
+  contentHeight: number;
+  bottomTop: number;
+  bottomLines: string[];
+  overlayLines: string[];
+};
+
+// BEGIN TARGET113_SYNCHRONIZED_OUTPUT_WRITER
+const SGR_RESET = '\x1b[0m';
+const ERASE_TO_END_OF_LINE = '\x1b[K';
+const PUMP_BATCH_SIZE = 100;
+const MAX_NATIVE_HISTORY = 10_000;
+const MIN_BOTTOM_ROWS = 4;
+
+/**
+ * Owns the physical main-screen viewport while Ink continues to render the
+ * logical frame. DECSTBM confines native scrolling to the transcript rows;
+ * synchronized updates make each repaint atomic.
+ */
+export class SynchronizedOutputWriter {
+  private buffer = '';
+  private lastFrame = '';
+  private syncOpen = false;
+  private suspended = false;
+  private restored = false;
+  private tailSlack = 0;
+  private contentOverlayRows = 0;
+  private overlayRatchet = 0;
+  private readonly onScreen: string[] = [];
+  private replayPending = false;
+  private committedTop = 0;
+  private readonly nativeHistory: string[] = [];
+  private pumpCursor = -1;
+  private backfillNeeded = false;
+  private gapRange: { from: number; to: number } | null = null;
+  private suspendedCols = 0;
+  private suspendedRows = 0;
+  private contentHeight: number;
+
+  constructor(
+    private readonly out: SynchronizedOutputStream,
+    public cols: number,
+    public rows: number
+  ) {
+    this.contentHeight = Math.max(2, rows - MIN_BOTTOM_ROWS);
+  }
+
+  setup(): void {
+    this.resetTransientState();
+    this.buffer += HIDE_CURSOR;
+    this.buffer += '\n'.repeat(this.rows - this.contentHeight);
+    this.buffer += setScrollRegion(1, Math.max(2, this.contentHeight));
+    for (let row = this.contentHeight; row < this.rows; row++) {
+      this.clearLine(row);
+    }
+    this.commitImmediate();
+  }
+
+  suspend(): void {
+    this.suspended = true;
+    this.suspendedCols = this.cols;
+    this.suspendedRows = this.rows;
+    this.buffer += RESET_SCROLL_REGION;
+    this.commitImmediate();
+  }
+
+  resume(cols: number, rows: number): void {
+    this.suspended = false;
+    const sizeChanged = cols !== this.suspendedCols || rows !== this.suspendedRows;
+    this.cols = cols;
+    this.rows = rows;
+    this.contentHeight = Math.max(2, rows - MIN_BOTTOM_ROWS);
+    this.buffer += HIDE_CURSOR;
+    this.buffer += setScrollRegion(1, this.contentHeight);
+    this.buffer += CURSOR_HOME;
+    if (sizeChanged) {
+      this.buffer += ERASE_SCREEN + ERASE_SCROLLBACK + CURSOR_HOME;
+      this.resetTransientState();
+      this.replayPending = true;
+      this.pumpCursor = this.nativeHistory.length > 0 ? 0 : -1;
+      this.lastFrame = '';
+    }
+    this.commitImmediate();
+  }
+
+  restore(): void {
+    if (this.restored) return;
+    this.restored = true;
+    this.buffer += SGR_RESET;
+    for (let row = this.contentHeight; row < this.rows; row++) {
+      this.clearLine(row);
+    }
+    this.buffer += RESET_SCROLL_REGION;
+    this.buffer += cursorPosition(this.contentHeight + 1, 1);
+    this.buffer += SHOW_CURSOR;
+    this.commitImmediate();
+  }
+
+  syncViewport(viewport: SynchronizedViewport, contentHeight: number): void {
+    if (this.suspended || this.pumpCursor >= 0) return;
+    if (!this.syncOpen && isSynchronizedOutputSupported()) {
+      this.buffer += BSU;
+      this.syncOpen = true;
+    }
+    this.restoreUnderContentOverlay();
+    if (this.replayPending) {
+      this.replayPending = false;
+      this.committedTop = Math.min(viewport.scrollTop, viewport.transcriptEnd);
+    }
+
+    const nextCommittedTop = Math.min(viewport.scrollTop, viewport.transcriptEnd);
+    const advanced = Math.max(0, nextCommittedTop - this.committedTop);
+    if (advanced > 0) {
+      const shifted = Math.min(advanced, this.onScreen.length);
+      if (shifted > 0) {
+        this.buffer += cursorPosition(this.contentHeight, 1);
+        this.buffer += '\n'.repeat(shifted);
+        for (let i = 0; i < shifted; i++) {
+          this.nativeHistory.push(this.onScreen.shift()!);
+        }
+        if (this.nativeHistory.length > MAX_NATIVE_HISTORY) {
+          this.nativeHistory.splice(0, this.nativeHistory.length - MAX_NATIVE_HISTORY);
+        }
+      }
+      const representedTop = this.committedTop + shifted;
+      this.committedTop = nextCommittedTop;
+      if (representedTop < nextCommittedTop) {
+        this.gapRange = { from: representedTop, to: nextCommittedTop };
+      }
+      if (this.nativeHistory.length === 0 && nextCommittedTop > 0) {
+        this.backfillNeeded = true;
+      }
+    }
+
+    if (contentHeight !== this.contentHeight) {
+      this.contentHeight = contentHeight;
+      this.buffer += setScrollRegion(1, Math.max(2, contentHeight));
+    }
+    const lineOffset = Math.max(0, this.committedTop - viewport.scrollTop);
+    const height = this.contentHeight;
+    const visibleCount = Math.min(viewport.lines.length, height);
+    const availableCount = Math.max(0, visibleCount - lineOffset);
+    const newlyAllocated = Math.max(0, height - this.onScreen.length);
+    if (this.onScreen.length > height) this.onScreen.length = height;
+    while (this.onScreen.length < height) this.onScreen.push('');
+    for (let row = 0; row < height; row++) {
+      const line = row < availableCount ? viewport.lines[lineOffset + row]! : '';
+      if (row < height - newlyAllocated && this.onScreen[row] === line) continue;
+      this.buffer += cursorPosition(row + 1, 1) + line + SGR_RESET + ERASE_TO_END_OF_LINE;
+      this.onScreen[row] = line;
+    }
+    this.tailSlack = Math.max(0, height - availableCount);
+  }
+
+  draw(layout: SynchronizedLayout): void {
+    if (this.suspended) return;
+    const wasSyncOpen = this.syncOpen;
+    if (!this.syncOpen && isSynchronizedOutputSupported()) this.buffer += BSU;
+    const frameStart = this.buffer.length;
+    this.buffer += HIDE_CURSOR;
+    this.restoreUnderContentOverlay();
+    if (layout.contentHeight !== this.contentHeight) {
+      this.contentHeight = layout.contentHeight;
+      this.buffer += setScrollRegion(1, Math.max(2, layout.contentHeight));
+    }
+    for (let row = this.contentHeight; row < this.rows; row++) this.clearLine(row);
+    if (this.tailSlack > 0) {
+      const firstSlackRow = this.contentHeight - this.tailSlack;
+      for (let row = firstSlackRow; row < this.contentHeight; row++) this.clearLine(row);
+    }
+    this.writeOverlayLines(layout.bottomTop, layout.bottomLines);
+
+    const overlayCount = layout.overlayLines.length;
+    if (overlayCount > 0) {
+      this.overlayRatchet = Math.max(this.overlayRatchet, overlayCount);
+      const overlayTop = Math.max(0, this.rows - this.overlayRatchet);
+      this.writeOverlayLines(overlayTop, layout.overlayLines);
+      for (let row = overlayTop + overlayCount; row < this.rows; row++) this.clearLine(row);
+      this.contentOverlayRows = Math.max(0, this.contentHeight - Math.max(0, overlayTop - 1));
+    } else {
+      this.overlayRatchet = 0;
+      this.contentOverlayRows = 0;
+    }
+
+    const frame = this.buffer.slice(frameStart);
+    if (!wasSyncOpen && frame === this.lastFrame) {
+      this.buffer = '';
+      this.syncOpen = false;
+      return;
+    }
+    this.lastFrame = frame;
+    if (isSynchronizedOutputSupported()) this.buffer += ESU;
+    this.syncOpen = false;
+    this.commitImmediate();
+  }
+
+  computeLayout(bottomLines: string[], overlayLines: string[]): SynchronizedLayout {
+    const bottomHeight = Math.max(MIN_BOTTOM_ROWS, bottomLines.length);
+    return {
+      contentHeight: Math.max(2, this.rows - bottomHeight),
+      bottomTop: this.rows - bottomHeight,
+      bottomLines,
+      overlayLines
+    };
+  }
+
+  handleResize(cols: number, rows: number): 'noop' | 'replay' | 'adjust' {
+    if (cols === this.cols && rows === this.rows) return 'noop';
+    if (this.suspended) {
+      this.cols = cols;
+      this.rows = rows;
+      return 'noop';
+    }
+    const widthChanged = cols !== this.cols;
+    const oldRows = this.rows;
+    this.cols = cols;
+    this.rows = rows;
+    const contentHeight = Math.max(2, rows - MIN_BOTTOM_ROWS);
+    this.contentHeight = contentHeight;
+    if (widthChanged || rows < oldRows) {
+      this.buffer += RESET_SCROLL_REGION + ERASE_SCREEN + ERASE_SCROLLBACK + CURSOR_HOME;
+      this.buffer += setScrollRegion(1, Math.max(2, contentHeight));
+      this.resetTransientState();
+      this.replayPending = true;
+      this.pumpCursor = this.nativeHistory.length > 0 ? 0 : -1;
+      this.lastFrame = '';
+      this.commitImmediate();
+      return 'replay';
+    }
+    this.buffer += setScrollRegion(1, Math.max(2, contentHeight));
+    this.lastFrame = '';
+    this.commitImmediate();
+    return 'adjust';
+  }
+
+  tickPump(): boolean {
+    if (this.pumpCursor < 0) return false;
+    this.buffer += setScrollRegion(1, 2);
+    const end = Math.min(this.pumpCursor + PUMP_BATCH_SIZE, this.nativeHistory.length);
+    for (; this.pumpCursor < end; this.pumpCursor++) {
+      this.buffer += cursorPosition(1, 1) + this.nativeHistory[this.pumpCursor] + SGR_RESET + ERASE_TO_END_OF_LINE;
+      this.buffer += cursorPosition(2, 1) + '\n';
+    }
+    this.buffer += setScrollRegion(1, Math.max(2, this.contentHeight));
+    this.lastFrame = '';
+    this.commitImmediate();
+    if (this.pumpCursor >= this.nativeHistory.length) this.pumpCursor = -1;
+    return this.pumpCursor >= 0;
+  }
+
+  consumeBackfillNeeded(): boolean {
+    if (!this.backfillNeeded) return false;
+    this.backfillNeeded = false;
+    return true;
+  }
+
+  consumeGapRange(): { from: number; to: number } | null {
+    const range = this.gapRange;
+    this.gapRange = null;
+    return range;
+  }
+
+  primeBackfill(lines: string[]): void {
+    if (lines.length === 0) return;
+    const oldLength = this.nativeHistory.length;
+    for (const line of lines) this.nativeHistory.push(line);
+    if (this.nativeHistory.length > MAX_NATIVE_HISTORY) {
+      const excess = this.nativeHistory.length - MAX_NATIVE_HISTORY;
+      this.nativeHistory.splice(0, excess);
+      this.pumpCursor = Math.max(0, oldLength - excess);
+    } else {
+      this.pumpCursor = oldLength;
+    }
+    this.replayPending = true;
+    if (oldLength > 0) this.onScreen.length = 0;
+  }
+
+  switchTranscript(): void {
+    this.buffer += RESET_SCROLL_REGION + ERASE_SCREEN + ERASE_SCROLLBACK;
+    this.buffer += CURSOR_HOME;
+    this.buffer += setScrollRegion(1, Math.max(2, this.contentHeight));
+    this.resetTransientState();
+    this.nativeHistory.length = 0;
+    this.pumpCursor = -1;
+    this.replayPending = true;
+    this.lastFrame = '';
+    this.commitImmediate();
+  }
+
+  restoreUnderContentOverlay(): void {
+    const count = this.contentOverlayRows;
+    if (count === 0) return;
+    this.contentOverlayRows = 0;
+    const onScreenLength = this.onScreen.length;
+    for (let i = 0; i < count; i++) {
+      const row = this.contentHeight - 1 - i;
+      if (row < 0) break;
+      this.buffer += cursorPosition(row + 1, 1) + ERASE_LINE;
+      const sourceRow = onScreenLength - 1 - i;
+      if (sourceRow >= 0) this.buffer += this.onScreen[sourceRow] + SGR_RESET;
+    }
+  }
+
+  private resetTransientState(): void {
+    this.tailSlack = 0;
+    this.contentOverlayRows = 0;
+    this.overlayRatchet = 0;
+    this.onScreen.length = 0;
+    this.committedTop = 0;
+  }
+
+  private clearLine(row: number): void {
+    this.buffer += cursorPosition(row + 1, 1) + ERASE_LINE;
+  }
+
+  private writeOverlayLines(top: number, lines: string[]): void {
+    for (let i = 0; i < lines.length; i++) {
+      this.buffer += cursorPosition(top + i + 1, 1) + lines[i] + SGR_RESET + ERASE_TO_END_OF_LINE;
+    }
+  }
+
+  private commitImmediate(): void {
+    if (this.buffer.length === 0) return;
+    this.out.write(this.buffer);
+    this.buffer = '';
+  }
+
+  _onScreen(): string[] {
+    return this.onScreen;
+  }
+
+  _committedTop(): number {
+    return this.committedTop;
+  }
+
+  _pumpCursor(): number {
+    return this.pumpCursor;
+  }
+
+  _nativeHistory(): string[] {
+    return this.nativeHistory;
+  }
+
+  _commitForTest(): void {
+    this.commitImmediate();
+  }
+
+  _transient(): { tailSlack: number; overlayRows: number } {
+    return { tailSlack: this.tailSlack, overlayRows: this.contentOverlayRows };
+  }
+}
+// END TARGET113_SYNCHRONIZED_OUTPUT_WRITER
+
+export function serializeSynchronizedRow(screen: Screen, stylePool: StylePool, row: number): string {
+  let lastColumn = -1;
+  for (let column = screen.width - 1; column >= 0; column--) {
+    const cell = cellAt(screen, column, row)!;
+    if (cell.width === CellWidth.SpacerTail) continue;
+    if (cell.char === ' ' && (cell.styleId & 1) === 0 && cell.hyperlink === undefined) continue;
+    lastColumn = column;
+    break;
+  }
+  if (lastColumn < 0) return '';
+
+  let result = '';
+  let previousStyle = stylePool.none;
+  let previousHyperlink: string | undefined;
+  for (let column = 0; column <= lastColumn; column++) {
+    const cell = cellAt(screen, column, row)!;
+    if (cell.width === CellWidth.SpacerTail || cell.width === CellWidth.SpacerHead) continue;
+    if (cell.hyperlink !== previousHyperlink) {
+      if (previousHyperlink !== undefined) result += LINK_END;
+      if (cell.hyperlink !== undefined) result += link(cell.hyperlink);
+      previousHyperlink = cell.hyperlink;
+    }
+    result += stylePool.transition(previousStyle, cell.styleId);
+    previousStyle = cell.styleId;
+    result += cell.char;
+  }
+  if (previousHyperlink !== undefined) result += LINK_END;
+  if (previousStyle !== stylePool.none) result += SGR_RESET;
+  return result;
+}
+
+const SynchronizedTranscriptEndContext = createContext<RefObject<DOMElement | null> | null>(null);
+
+/** Zero-height marker that separates committed transcript from live UI. */
+export function SynchronizedOutputTranscriptEnd(): ReactNode {
+  const suppliedRef = useContext(SynchronizedTranscriptEndContext);
+  const fallbackRef = useRef<DOMElement | null>(null);
+  return <Box ref={suppliedRef ?? fallbackRef} height={0} />;
+}
+
+function renderFrameLines(frame: Frame, stylePool: StylePool, element: DOMElement | null): string[] {
+  if (!element) return [];
+  const rect = nodeCache.get(element);
+  if (!rect || rect.height <= 0) return [];
+  const lines: string[] = [];
+  const end = Math.min(rect.y + rect.height, frame.screen.height);
+  for (let row = Math.max(0, rect.y); row < end; row++) {
+    lines.push(serializeSynchronizedRow(frame.screen, stylePool, row));
+  }
+  return lines;
+}
+
+function offsetWithin(element: DOMElement | null, parent: DOMElement): number | undefined {
+  if (!element) return undefined;
+  let offset = 0;
+  let current: DOMElement | undefined = element;
+  while (current && current.parentNode !== parent) {
+    offset += current.yogaNode?.getComputedTop() ?? 0;
+    current = current.parentNode;
+  }
+  return current ? offset : undefined;
+}
+
+function renderHistoryLines(
+  scrollElement: DOMElement,
+  from: number,
+  to: number,
+  columns: number,
+  stylePool: StylePool
+): string[] {
+  const content = scrollElement.childNodes[0];
+  if (!content || content.nodeName === '#text') return [];
+  if ((scrollElement.scrollHeight ?? 0) <= 0 || to <= from) return [];
+  const ink = instances.get(process.stdout);
+  if (!ink) return [];
+  const endRow = Math.ceil(to);
+  const startRow = Math.max(0, Math.floor(from), endRow - MAX_NATIVE_HISTORY);
+  const renderHeight = endRow - startRow;
+  if (renderHeight <= 0) return [];
+  const screen = createScreen(
+    columns,
+    renderHeight,
+    stylePool,
+    ink.getCharPool(),
+    ink.getHyperlinkPool()
+  );
+  const output = new Output({ width: columns, height: renderHeight, stylePool, screen });
+  output.clip({ x1: undefined, x2: undefined, y1: 0, y2: renderHeight });
+  resetLayoutShifted();
+  const cachedContentRect = nodeCache.get(content);
+  renderNodeToOutput(content, output, { offsetX: 0, offsetY: -startRow, prevScreen: undefined });
+  output.unclip();
+  dropSynchronizedHistoryCache(content);
+  if (cachedContentRect) nodeCache.set(content, cachedContentRect);
+  const rendered = output.get();
+  content.dirty = true;
+  const lines: string[] = [];
+  for (let row = 0; row < renderHeight; row++) {
+    lines.push(serializeSynchronizedRow(rendered, stylePool, row));
+  }
+  return lines;
+}
+
+function dropSynchronizedHistoryCache(element: DOMElement): void {
+  nodeCache.delete(element);
+  for (const child of element.childNodes) {
+    if (child.nodeName !== '#text') dropSynchronizedHistoryCache(child);
+  }
+}
+
+function SynchronizedOutputLayout({
+  scrollable,
+  bottom,
+  pushUp,
+  overlay,
+  scrollRef
+}: {
+  scrollable: ReactNode;
+  bottom: ReactNode;
+  pushUp: ReactNode;
+  overlay: ReactNode;
+  scrollRef?: RefObject<ScrollBoxHandle | null>;
+}): ReactNode {
+  const { columns, rows } = useTerminalSize();
+  const writerRef = useRef<SynchronizedOutputWriter | null>(null);
+  const bottomRef = useRef<DOMElement | null>(null);
+  const overlayRef = useRef<DOMElement | null>(null);
+  const transcriptEndRef = useRef<DOMElement | null>(null);
+  const fallbackScrollRef = useRef<ScrollBoxHandle | null>(null);
+  const activeScrollRef = scrollRef ?? fallbackScrollRef;
+
+  useInsertionEffect(() => {
+    const ink = instances.get(process.stdout);
+    if (!ink) return;
+    const writer = new SynchronizedOutputWriter(process.stdout, columns, rows);
+    writer.setup();
+    writerRef.current = writer;
+    let altScreenWasActive = false;
+    ink.frameSink = (frame: Frame, stylePool: StylePool) => {
+      const activeWriter = writerRef.current;
+      if (!activeWriter) return false;
+      if (ink.isAltScreenActive) {
+        if (!altScreenWasActive) {
+          activeWriter.suspend();
+          altScreenWasActive = true;
+        }
+        return false;
+      }
+      if (altScreenWasActive) {
+        altScreenWasActive = false;
+        activeWriter.resume(activeWriter.cols, activeWriter.rows);
+      }
+
+      const pumpPending = activeWriter.tickPump();
+      const bottomLines = renderFrameLines(frame, stylePool, bottomRef.current);
+      const overlayLines = renderFrameLines(frame, stylePool, overlayRef.current);
+      const layout = activeWriter.computeLayout(bottomLines, overlayLines);
+      const scrollElement = activeScrollRef.current?.getDomElement() ?? null;
+      if (scrollElement) {
+        const rect = nodeCache.get(scrollElement);
+        const lines: string[] = [];
+        if (rect && rect.height > 0) {
+          const end = Math.min(rect.y + rect.height, frame.screen.height);
+          for (let row = rect.y; row < end; row++) {
+            lines.push(serializeSynchronizedRow(frame.screen, stylePool, row));
+          }
+        }
+        const scrollHeight = scrollElement.scrollHeight ?? 0;
+        const transcriptEnd = offsetWithin(transcriptEndRef.current, scrollElement) ?? scrollHeight;
+        activeWriter.syncViewport({
+          lines,
+          scrollTop: scrollElement.scrollTop ?? 0,
+          scrollHeight,
+          transcriptEnd
+        }, layout.contentHeight);
+      }
+
+      let backfilled = false;
+      if (scrollElement) {
+        const gap = activeWriter.consumeGapRange();
+        const needsBackfill = activeWriter.consumeBackfillNeeded();
+        if (gap || needsBackfill) {
+          const from = gap ? gap.from : 0;
+          const to = gap ? gap.to : scrollElement.scrollTop ?? 0;
+          const lines = renderHistoryLines(scrollElement, from, to, activeWriter.cols, ink.getStylePool());
+          if (lines.length > 0) {
+            activeWriter.primeBackfill(lines);
+            backfilled = true;
+          }
+        }
+      }
+      activeWriter.draw(layout);
+      return pumpPending || backfilled ? 'tick' : true;
+    };
+    return () => {
+      ink.frameSink = null;
+      writer.restore();
+      writerRef.current = null;
+    };
+    // The sink owns its writer for the lifetime of this layout instance.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const sizeRef = useRef({ cols: columns, rows });
+  useLayoutEffect(() => {
+    if (columns === sizeRef.current.cols && rows === sizeRef.current.rows) return;
+    sizeRef.current = { cols: columns, rows };
+    writerRef.current?.handleResize(columns, rows);
+  }, [columns, rows]);
+
+  return <Box flexDirection="column" height={rows} width="100%" flexShrink={0}>
+    <ScrollBox ref={(handle: ScrollBoxHandle | null) => {
+      activeScrollRef.current = handle;
+    }} flexGrow={1} flexDirection="column" stickyScroll={true}>
+      <SynchronizedTranscriptEndContext value={transcriptEndRef}>{scrollable}</SynchronizedTranscriptEndContext>
+    </ScrollBox>
+    <Box ref={bottomRef} flexDirection="column" flexShrink={0} minHeight={MIN_BOTTOM_ROWS} maxHeight={rows - 2}>{pushUp}{bottom}</Box>
+    {overlay != null ? <Box ref={overlayRef} flexDirection="column" flexShrink={0} position="absolute" bottom={0} left={0} right={0} opaque={true}>{overlay}</Box> : null}
+  </Box>;
+}
+
+let synchronizedInlineOutputEnabled: boolean | undefined;
+
+export function isSynchronizedInlineOutputEnabled(): boolean {
+  if (synchronizedInlineOutputEnabled !== undefined) return synchronizedInlineOutputEnabled;
+  if (!process.stdout.isTTY) return synchronizedInlineOutputEnabled = false;
+  if (isTmuxControlMode()) return synchronizedInlineOutputEnabled = false;
+  if (!isSynchronizedOutputSupported() || process.env.ZELLIJ != null) return synchronizedInlineOutputEnabled = false;
+  if (isFullscreenEnvEnabled()) return synchronizedInlineOutputEnabled = false;
+  if (isEnvTruthy(process.env.CLAUDE_CODE_DECSTBM)) return synchronizedInlineOutputEnabled = true;
+  return synchronizedInlineOutputEnabled = getFeatureValue_CACHED_MAY_BE_STALE('tengu_marlin_porch', false);
+}
+
 /**
  * Layout wrapper for the REPL. In fullscreen mode, puts scrollable
  * content in a sticky-scroll box and pins bottom content via flexbox.
@@ -449,6 +1057,28 @@ export function FullscreenLayout(t0) {
       t19 = $[41];
     }
     return t19;
+  }
+  if (isSynchronizedInlineOutputEnabled()) {
+    const synchronizedScrollable = <ScrollChromeContext value={chromeCtx}>{scrollable}</ScrollChromeContext>;
+    const pushUp = overlay != null ? <Box flexDirection="column" flexShrink={0}>
+      <Text color="permission">{"\u2594".repeat(columns)}</Text>
+      {overlay}
+    </Box> : null;
+    const synchronizedBottom = <><SuggestionsOverlay /><DialogOverlay />{bottom}</>;
+    const synchronizedModal = modal != null ? <ModalContext value={{
+      rows: terminalRows - MODAL_TRANSCRIPT_PEEK - 1,
+      columns: columns - 4,
+      scrollRef: modalScrollRef ?? null
+    }}><Box flexDirection="column" paddingX={2}>{modal}</Box></ModalContext> : null;
+    return <PromptOverlayProvider>
+      <SynchronizedOutputLayout
+        scrollRef={scrollRef}
+        scrollable={synchronizedScrollable}
+        pushUp={pushUp}
+        bottom={synchronizedBottom}
+        overlay={synchronizedModal}
+      />
+    </PromptOverlayProvider>;
   }
   let t8;
   if ($[42] !== bottom || $[43] !== modal || $[44] !== overlay || $[45] !== scrollable) {

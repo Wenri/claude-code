@@ -1,6 +1,7 @@
 import { feature } from 'bun:bundle'
 import type { Anthropic } from '@anthropic-ai/sdk'
 import {
+  getExcludedDynamicSectionsContent,
   getSystemPrompt,
   SYSTEM_PROMPT_DYNAMIC_BOUNDARY,
 } from 'src/constants/prompts.js'
@@ -1241,7 +1242,7 @@ export async function analyzeContextUsage(
   const totalIncludingReserved = actualUsage
 
   // Use API total if available, otherwise fall back to estimated total
-  const finalTotalTokens = totalFromAPI ?? totalIncludingReserved
+  const finalTotalTokens = totalFromAPI ?? actualUsage
 
   // Pre-calculate grid based on model context window and terminal width
   // For narrow screens (< 80 cols), use 5x5 for 200k models, 5x10 for 1M+ models

@@ -20,9 +20,10 @@ import type { ToolUseContext } from '../../Tool.js'
 import { buildTool, type ToolDef } from '../../Tool.js'
 import { getCwd } from '../../utils/cwd.js'
 import { logForDebugging } from '../../utils/debug.js'
-import { countLinesChanged, getPatchForDisplay } from '../../utils/diff.js'
+import { countLinesChanged, getPatchFromContents } from '../../utils/diff.js'
 import { isEnvTruthy } from '../../utils/envUtils.js'
 import { isENOENT } from '../../utils/errors.js'
+import { fileStateMatchesContent } from '../../utils/fileStateCache.js'
 import {
   getFileModificationTime,
   isPerforceReadOnly,
@@ -55,6 +56,10 @@ import {
   isNoRereadEnabled,
 } from '../FileReadTool/prompt.js'
 import { gitDiffSchema, hunkSchema } from '../FileEditTool/types.js'
+import {
+  EDIT_SUCCESS_SUFFIX,
+  isNoRereadEnabled,
+} from '../FileReadTool/prompt.js'
 import { FILE_WRITE_TOOL_NAME, getWriteToolDescription } from './prompt.js'
 import {
   getToolUseSummary,
@@ -135,8 +140,24 @@ export const FileWriteTool = buildTool({
   get outputSchema(): OutputSchema {
     return outputSchema()
   },
+  stripForStorage(output) {
+    if (typeof output !== 'object' || output === null) return output
+    if (output.type !== 'update') return output
+    if (output.content === '' && (output.originalFile ?? '') === '') {
+      return output
+    }
+    return { ...output, content: '', originalFile: null }
+  },
   toAutoClassifierInput(input) {
     return `${input.file_path}: ${input.content}`
+  },
+  inputsEquivalent(input1, input2) {
+    if (input1.file_path !== input2.file_path) return false
+    if (input1.content === input2.content) return true
+    return (
+      input1.content.replace(/\n+$/, '') ===
+      input2.content.replace(/\n+$/, '')
+    )
   },
   getPath(input): string {
     return input.file_path
@@ -254,11 +275,22 @@ export const FileWriteTool = buildTool({
     // block is always reached when the file exists.
     const lastWriteTime = Math.floor(fileMtimeMs)
     if (lastWriteTime > readTimestamp.timestamp) {
-      return {
-        result: false,
-        message:
-          'File has been modified since read, either by the user or by a linter. Read it again before attempting to write it.',
-        errorCode: 3,
+      const isFullRead =
+        (readTimestamp.offset ?? 1) <= 1 && readTimestamp.limit === undefined
+      let contentUnchanged = false
+      if (isFullRead) {
+        const current = (await fs.readFileBytes(fullFilePath))
+          .toString('utf8')
+          .replaceAll('\r\n', '\n')
+        contentUnchanged = fileStateMatchesContent(readTimestamp, current)
+      }
+      if (!contentUnchanged) {
+        return {
+          result: false,
+          message:
+            'File has been modified since read, either by the user or by a linter. Read it again before attempting to write it.',
+          errorCode: 3,
+        }
       }
     }
 
@@ -268,7 +300,8 @@ export const FileWriteTool = buildTool({
     { file_path, content },
     {
       readFileState,
-      updateFileHistoryState,
+      getFileHistoryState,
+      applyFileHistoryOp,
       dynamicSkillDirTriggers,
       userModified,
       setAppState,
@@ -308,7 +341,8 @@ export const FileWriteTool = buildTool({
       // check (idempotent v1 backup keyed on content hash; if staleness fails
       // later we just have an unused backup, not corrupt state).
       await fileHistoryTrackEdit(
-        updateFileHistoryState,
+        getFileHistoryState,
+        applyFileHistoryOp,
         fullFilePath,
         parentMessage.uuid,
       )
@@ -339,7 +373,7 @@ export const FileWriteTool = buildTool({
           lastRead.offset === undefined &&
           lastRead.limit === undefined
         // meta.content is CRLF-normalized — matches readFileState's normalized form.
-        if (!isFullRead || meta.content !== lastRead.content) {
+        if (!isFullRead || !fileStateMatchesContent(lastRead, meta.content)) {
           throw new Error(FILE_UNEXPECTEDLY_MODIFIED_ERROR)
         }
       }
@@ -347,6 +381,8 @@ export const FileWriteTool = buildTool({
 
     const enc = meta?.encoding ?? 'utf8'
     const oldContent = meta?.content ?? null
+
+    content = stampTinyMemoryWrite(fullFilePath, content)
 
     // Write is a full content replacement — the model sent explicit line endings
     // in `content` and meant them. Do not rewrite them. Previously we preserved
@@ -410,16 +446,11 @@ export const FileWriteTool = buildTool({
     }
 
     if (oldContent) {
-      const patch = getPatchForDisplay({
+      const patch = getPatchFromContents({
         filePath: file_path,
-        fileContents: oldContent,
-        edits: [
-          {
-            old_string: oldContent,
-            new_string: content,
-            replace_all: false,
-          },
-        ],
+        oldContent,
+        newContent: content,
+        convertTabs: true,
       })
 
       const data = {

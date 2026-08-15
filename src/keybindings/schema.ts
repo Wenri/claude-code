@@ -29,6 +29,9 @@ export const KEYBINDING_CONTEXTS = [
   'ModelPicker',
   'Select',
   'Plugin',
+  'Scroll',
+  'MessageActions',
+  'Doctor',
 ] as const
 
 /**
@@ -56,6 +59,9 @@ export const KEYBINDING_CONTEXT_DESCRIPTIONS: Record<
   ModelPicker: 'When the model picker is open',
   Select: 'When a select/list component is focused',
   Plugin: 'When the plugin dialog is open',
+  Scroll: 'When a scrollable view is focused (fullscreen layout)',
+  MessageActions: 'When the message actions menu is open (fullscreen layout)',
+  Doctor: 'When the /doctor diagnostics screen is open',
 }
 
 /**
@@ -73,6 +79,7 @@ export const KEYBINDING_ACTIONS = [
   'app:redraw',
   'app:globalSearch',
   'app:quickOpen',
+  'app:openFrame',
   // History navigation
   'history:search',
   'history:previous',
@@ -91,6 +98,7 @@ export const KEYBINDING_ACTIONS = [
   'chat:stash',
   'chat:imagePaste',
   'chat:messageActions',
+  'chat:clearInput',
   // Autocomplete menu actions
   'autocomplete:accept',
   'autocomplete:dismiss',
@@ -157,12 +165,18 @@ export const KEYBINDING_ACTIONS = [
   // Select component actions (distinct from confirm: to avoid collisions)
   'select:next',
   'select:previous',
+  'select:pageUp',
+  'select:pageDown',
+  'select:first',
+  'select:last',
   'select:accept',
   'select:cancel',
   // Plugin dialog actions
   'plugin:toggle',
   'plugin:favorite',
   'plugin:install',
+  // Doctor diagnostics actions
+  'doctor:fix',
   // Permission dialog actions
   'permission:toggleDebug',
   // Settings config panel actions
@@ -174,7 +188,27 @@ export const KEYBINDING_ACTIONS = [
   'settings:sortByTokens',
   // Voice actions
   'voice:pushToTalk',
+  'scroll:pageUp',
+  'scroll:pageDown',
+  'scroll:lineUp',
+  'scroll:lineDown',
+  'scroll:top',
+  'scroll:bottom',
+  'scroll:halfPageUp',
+  'scroll:halfPageDown',
+  'scroll:fullPageUp',
+  'scroll:fullPageDown',
+  'selection:copy',
+  'selection:clear',
+  'selection:extendLeft',
+  'selection:extendRight',
+  'selection:extendUp',
+  'selection:extendDown',
+  'selection:extendLineStart',
+  'selection:extendLineEnd',
 ] as const
+
+const MESSAGE_ACTION_PATTERN = /^messageActions:[a-zA-Z0-9:\-_]+$/
 
 /**
  * Schema for a single keybinding block.
@@ -200,6 +234,12 @@ export const KeybindingBlockSchema = lazySchema(() =>
                 .regex(/^command:[a-zA-Z0-9:\-_]+$/)
                 .describe(
                   'Command binding (e.g., "command:help", "command:compact"). Executes the slash command as if typed.',
+                ),
+              z
+                .string()
+                .regex(MESSAGE_ACTION_PATTERN)
+                .describe(
+                  'Message action binding (e.g., "messageActions:copy"). Triggers a registered message action.',
                 ),
               z.null().describe('Set to null to unbind a default shortcut'),
             ])

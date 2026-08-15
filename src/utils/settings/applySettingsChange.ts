@@ -1,5 +1,6 @@
 import type { AppState } from '../../state/AppState.js'
 import { isAwaySummaryEnabled } from '../awaySummaryEnabled.js'
+import { saveGlobalConfig } from '../config.js'
 import { logForDebugging } from '../debug.js'
 import { updateHooksConfigSnapshot } from '../hooks/hooksConfigSnapshot.js'
 import {
@@ -75,11 +76,19 @@ export function applySettingsChange(
     const prevEffort = prev.settings.effortLevel
     const newEffort = newSettings.effortLevel
     const effortChanged = prevEffort !== newEffort
+    const awaySummaryEnabled = isAwaySummaryEnabled()
+
+    if (effortChanged) {
+      saveGlobalConfig(config =>
+        config.unpinOpus47LaunchEffort
+          ? config
+          : { ...config, unpinOpus47LaunchEffort: true },
+      )
+    }
 
     return {
       ...prev,
       settings: newSettings,
-      awaySummaryEnabled: isAwaySummaryEnabled(),
       toolPermissionContext: newContext,
       // Only propagate a defined new value — when the disk key is absent
       // (e.g. /effort max for non-ants writes undefined; --effort CLI flag),
@@ -88,6 +97,9 @@ export function applySettingsChange(
       // be true and we'd wipe a session-scoped value held in effortValue.
       ...(effortChanged && newEffort !== undefined
         ? { effortValue: newEffort }
+        : {}),
+      ...(prev.awaySummaryEnabled !== awaySummaryEnabled
+        ? { awaySummaryEnabled }
         : {}),
     }
   })

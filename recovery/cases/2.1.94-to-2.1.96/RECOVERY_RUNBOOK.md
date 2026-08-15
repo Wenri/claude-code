@@ -12,6 +12,16 @@ The result has two explicit confidence levels:
    sufficient placement evidence. Erased spelling and module boundaries are
    not invented.
 
+The exhaustive 75-row semantic ledger has zero first-party source-runtime
+gaps and pins reachable owners for all three Bedrock `apiKey` sites. It still
+records two dependency-runtime gaps plus the absent root manifest/lockfile and
+hermetic build recipe. Therefore first-party compiled semantics are complete,
+whole-bundle source reproduction is not, and exact `cli.js` bytes remain a
+separate generated-delta replay claim.
+The canonical semantic supplement is 4,321,868 bytes across 106 `src/`
+paths, SHA-256
+`dba122f721559133bdad7970c15ccda26c9dfcef2c5d0e82de65dbffdb2c1542`.
+
 ## 0. Prepare the environment
 
 From the repository root:
@@ -308,7 +318,8 @@ src/path\0bytes\0sha256\n
 The exact base is:
 
 ```text
-commit       2cc50a9dfd84bb423fe8b79c7248cb9d24a7dc61
+commit       7edbf6deb50ef0c59765d3e6d05170b52915dac1
+Git tree     56bc88e147fe777986d9dded4323152fd0d36f1d
 Git src tree 5d91a61b7dccef04ad1218df9729d1cb855d4b22
 files        1,931
 bytes        30,686,905

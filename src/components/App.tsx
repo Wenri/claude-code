@@ -1,9 +1,13 @@
 import { c as _c } from "react/compiler-runtime";
 import React from 'react';
 import { FpsMetricsProvider } from '../context/fpsMetrics.js';
+import { KillRingProvider } from '../context/killRing.js';
+import { NotificationProvider } from '../context/notifications.js';
+import { SelectionDeleteProvider } from '../context/selectionDelete.js';
 import { StatsProvider, type StatsStore } from '../context/stats.js';
 import { type AppState, AppStateProvider } from '../state/AppState.js';
 import { onChangeAppState } from '../state/onChangeAppState.js';
+import { AutoModeDenialsProvider } from '../utils/autoModeDenials.js';
 import type { FpsMetrics } from '../utils/fpsTracker.js';
 type Props = {
   getFpsMetrics: () => FpsMetrics | undefined;
@@ -26,7 +30,7 @@ export function App(t0) {
   } = t0;
   let t1;
   if ($[0] !== children || $[1] !== initialState) {
-    t1 = <AppStateProvider initialState={initialState} onChangeAppState={onChangeAppState}>{children}</AppStateProvider>;
+    t1 = <AppStateProvider initialState={initialState} onChangeAppState={onChangeAppState}><NotificationProvider><AutoModeDenialsProvider><KillRingProvider><SelectionDeleteProvider>{children}</SelectionDeleteProvider></KillRingProvider></AutoModeDenialsProvider></NotificationProvider></AppStateProvider>;
     $[0] = children;
     $[1] = initialState;
     $[2] = t1;

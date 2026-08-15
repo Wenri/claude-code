@@ -22,10 +22,12 @@ import {
 } from '../utils/inProcessTeammateHelpers.js'
 import { createAssistantMessage } from '../utils/messages.js'
 import {
+  getSandboxPermissionModeDecision,
   permissionModeFromString,
   toExternalPermissionMode,
 } from '../utils/permissions/PermissionMode.js'
 import { applyPermissionUpdate } from '../utils/permissions/PermissionUpdate.js'
+import { classifySandboxNetworkAccess } from '../utils/permissions/yoloClassifier.js'
 import { jsonStringify } from '../utils/slowOperations.js'
 import { isInsideTmux } from '../utils/swarm/backends/detection.js'
 import {
@@ -35,7 +37,10 @@ import {
 import type { PaneBackendType } from '../utils/swarm/backends/types.js'
 import { TEAM_LEAD_NAME } from '../utils/swarm/constants.js'
 import { getLeaderToolUseConfirmQueue } from '../utils/swarm/leaderPermissionBridge.js'
-import { sendPermissionResponseViaMailbox } from '../utils/swarm/permissionSync.js'
+import {
+  sendPermissionResponseViaMailbox,
+  sendSandboxPermissionResponseViaMailbox,
+} from '../utils/swarm/permissionSync.js'
 import {
   removeTeammateFromTeamFile,
   setMemberMode,
@@ -70,6 +75,7 @@ import {
   processMailboxPermissionResponse,
   processSandboxPermissionResponse,
 } from './useSwarmPermissionPoller.js'
+import { useTaskRegistry } from './useTaskRegistry.js'
 
 /**
  * Get the agent name to poll for messages.
@@ -133,6 +139,7 @@ export function useInboxPoller({
   const onSubmitTeammateMessage = onSubmitMessage
   const store = useAppStateStore()
   const setAppState = useSetAppState()
+  const taskRegistry = useTaskRegistry()
   const inboxMessageCount = useAppState(s => s.inbox.messages.length)
   const terminal = useTerminalNotification()
 
@@ -405,6 +412,34 @@ export function useInboxPoller({
         `[InboxPoller] Found ${sandboxPermissionRequests.length} sandbox permission request(s)`,
       )
 
+      const { mode, isBypassPermissionsModeAvailable } =
+        currentAppState.toolPermissionContext
+      const modeDecision = getSandboxPermissionModeDecision(
+        mode,
+        isBypassPermissionsModeAvailable,
+      )
+      const teamName = currentAppState.teamContext?.teamName
+
+      async function resolveSandboxRequest(host: string): Promise<boolean | null> {
+        switch (modeDecision) {
+          case 'allow':
+            return true
+          case 'deny':
+            return false
+          case 'classify':
+            return classifySandboxNetworkAccess(
+              host,
+              undefined,
+              [],
+              getAllBaseTools(),
+              currentAppState.toolPermissionContext,
+              new AbortController().signal,
+            )
+          case 'ask':
+            return null
+        }
+      }
+
       const newSandboxRequests: Array<{
         requestId: string
         workerId: string
@@ -422,6 +457,23 @@ export function useInboxPoller({
         if (!parsed.hostPattern?.host) {
           logForDebugging(
             `[InboxPoller] Invalid sandbox permission request: missing hostPattern.host`,
+          )
+          continue
+        }
+
+        const autoDecision = await resolveSandboxRequest(
+          parsed.hostPattern.host,
+        )
+        if (autoDecision !== null) {
+          logForDebugging(
+            `[InboxPoller] Auto-resolving sandbox request ${parsed.requestId} (mode=${mode}, allow=${autoDecision})`,
+          )
+          void sendSandboxPermissionResponseViaMailbox(
+            parsed.workerName,
+            parsed.requestId,
+            parsed.hostPattern.host,
+            autoDecision,
+            teamName,
           )
           continue
         }
@@ -647,7 +699,7 @@ export function useInboxPoller({
               timestamp: new Date().toISOString(),
               permissionMode: modeToInherit,
             },
-            setAppState,
+            taskRegistry,
           )
         }
 
@@ -868,6 +920,7 @@ export function useInboxPoller({
     focusedInputDialog,
     onSubmitTeammateMessage,
     setAppState,
+    taskRegistry,
     terminal,
     store,
   ])

@@ -19,7 +19,7 @@ import {
   getClientType,
   getParentSessionId as getParentSessionIdFromState,
 } from '../../bootstrap/state.js'
-import { isEnvTruthy } from '../../utils/envUtils.js'
+import { getCooEnvironment, isEnvTruthy } from '../../utils/envUtils.js'
 import { isOfficialMcpUrl } from '../mcp/officialRegistry.js'
 import { isClaudeAISubscriber, getSubscriptionType } from '../../utils/auth.js'
 import { getRepoRemoteHash } from '../../utils/git.js'
@@ -55,6 +55,24 @@ import { feature } from 'bun:bundle'
  * intentional as it's only used for type-casting to document developer intent.
  */
 export type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS = never
+
+/** Build the optional COO fields shared by startup/bridge events. */
+export function getCooMetadataForAnalytics(): {
+  cooNamespace?: AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+  cooCluster?: AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+} {
+  const { namespace, cluster } = getCooEnvironment()
+  return {
+    ...(namespace && {
+      cooNamespace:
+        namespace as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    }),
+    ...(cluster && {
+      cooCluster:
+        cluster as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    }),
+  }
+}
 
 /**
  * Sanitizes tool names for analytics logging to avoid PII exposure.
@@ -230,6 +248,27 @@ export function extractSkillName(
       .skill as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
   }
 
+  return undefined
+}
+
+/**
+ * Extract the selected subagent type from Agent/Task tool input.
+ * This value is only consumed by callers after the tool-details privacy gate.
+ */
+export function extractSubagentType(
+  toolName: string,
+  input: unknown,
+): AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS | undefined {
+  if (toolName !== 'Agent' && toolName !== 'Task') return undefined
+  if (
+    typeof input === 'object' &&
+    input !== null &&
+    'subagent_type' in input &&
+    typeof (input as { subagent_type: unknown }).subagent_type === 'string'
+  ) {
+    return (input as { subagent_type: string })
+      .subagent_type as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+  }
   return undefined
 }
 
@@ -492,6 +531,7 @@ export type EventMetadata = {
   rh?: string // Hashed repo remote URL (first 16 chars of SHA256), for joining with server-side data
   kairosActive?: true // KAIROS assistant mode active (ant-only; set in main.tsx after gate check)
   skillMode?: 'discovery' | 'coach' | 'discovery_and_coach' // Which skill surfacing mechanism(s) are gated on (ant-only; for BQ session segmentation)
+  coachMode?: string
   observerMode?: 'backseat' | 'skillcoach' | 'both' // Which observer classifiers are gated on (ant-only; for BQ cohort splits on tengu_backseat_* events)
 }
 
@@ -804,6 +844,7 @@ export function to1PEventFormat(
     rh,
     kairosActive,
     skillMode,
+    coachMode,
     observerMode,
     ...coreFields
   } = metadata
@@ -966,6 +1007,7 @@ export function to1PEventFormat(
       ...(rh && { rh }),
       ...(kairosActive && { is_assistant_mode: true }),
       ...(skillMode && { skill_mode: skillMode }),
+      ...(coachMode && { coach_mode: coachMode }),
       ...(observerMode && { observer_mode: observerMode }),
       ...additionalMetadata,
     },

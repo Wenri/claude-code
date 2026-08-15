@@ -1,7 +1,7 @@
 import { feature } from 'bun:bundle'
 import { basename } from 'path'
 import { useCallback, useEffect, useRef } from 'react'
-import { getSessionId } from '../../bootstrap/state.js'
+import { clearInputsForServer, getSessionId } from '../../bootstrap/state.js'
 import type { Command } from '../../commands.js'
 import type { Tool } from '../../Tool.js'
 import {
@@ -178,6 +178,11 @@ export function useManageMCPConnections(
   const channelWarnedKindsRef = useRef<
     Set<'disabled' | 'auth' | 'policy' | 'marketplace' | 'allowlist'>
   >(new Set())
+  // A late managed-settings refresh can temporarily change the gate result
+  // after a channel handler has already been installed. Keep track of that
+  // successful registration so a non-transient skip cannot silently drop all
+  // subsequent channel messages.
+  const registeredChannelServersRef = useRef<Set<string>>(new Set())
   // Channel permission callbacks — constructed once, stable ref. Stored in
   // AppState so interactiveHandler can subscribe. The pending Map lives inside
   // the closure (not module-level, not AppState — functions-in-state is brittle).
@@ -507,7 +512,10 @@ export function useManageMCPConnections(
               }
 
               void reconnectWithBackoff()
+              clearInputsForServer(client.name)
             } else {
+              registeredChannelServersRef.current.delete(client.name)
+              clearInputsForServer(client.name)
               updateServer({ ...client, type: 'failed' })
             }
           }
@@ -532,90 +540,95 @@ export function useManageMCPConnections(
               entry?.kind === 'plugin'
                 ? (`${entry.name}@${entry.marketplace}` as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS)
                 : undefined
-            // Skip capability-miss — every non-channel MCP server trips it.
-            if (gate.action === 'register' || gate.kind !== 'capability') {
-              logEvent('tengu_mcp_channel_gate', {
-                registered: gate.action === 'register',
-                skip_kind:
-                  gate.action === 'skip'
-                    ? (gate.kind as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS)
-                    : undefined,
-                entry_kind:
-                  entry?.kind as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-                is_dev: entry?.dev ?? false,
-                plugin: pluginId,
-              })
+            let registered = false
+            const registerChannelHandlers = () => {
+              registeredChannelServersRef.current.add(client.name)
+              client.client.setNotificationHandler(
+                ChannelMessageNotificationSchema(),
+                async notification => {
+                  const { content, meta } = notification.params
+                  logMCPDebug(
+                    client.name,
+                    `notifications/claude/channel: ${content.slice(0, 80)}`,
+                  )
+                  logEvent('tengu_mcp_channel_message', {
+                    content_length: content.length,
+                    meta_key_count: Object.keys(meta ?? {}).length,
+                    entry_kind:
+                      entry?.kind as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+                    is_dev: entry?.dev ?? false,
+                    plugin: pluginId,
+                  })
+                  enqueue({
+                    mode: 'prompt',
+                    value: wrapChannelMessage(client.name, content, meta),
+                    priority: 'next',
+                    isMeta: true,
+                    origin: { kind: 'channel', server: client.name },
+                    skipSlashCommands: true,
+                  })
+                },
+              )
+              // Permission-reply handler — separate event, separate
+              // capability. Only registers if the server declares
+              // claude/channel/permission (same opt-in check as the send
+              // path in interactiveHandler.ts). Server parses the user's
+              // reply and emits {request_id, behavior}; no regex on our
+              // side, text in the general channel can't accidentally match.
+              if (
+                client.capabilities?.experimental?.[
+                  'claude/channel/permission'
+                ] !== undefined
+              ) {
+                client.client.setNotificationHandler(
+                  ChannelPermissionNotificationSchema(),
+                  async notification => {
+                    const { request_id, behavior } = notification.params
+                    const resolved =
+                      channelPermCallbacksRef.current?.resolve(
+                        request_id,
+                        behavior,
+                        client.name,
+                      ) ?? false
+                    logMCPDebug(
+                      client.name,
+                      `notifications/claude/channel/permission: ${request_id} → ${behavior} (${resolved ? 'matched pending' : 'no pending entry — stale or unknown ID'})`,
+                    )
+                  },
+                )
+              }
             }
             switch (gate.action) {
               case 'register':
                 logMCPDebug(client.name, 'Channel notifications registered')
-                client.client.setNotificationHandler(
-                  ChannelMessageNotificationSchema(),
-                  async notification => {
-                    const { content, meta } = notification.params
-                    logMCPDebug(
-                      client.name,
-                      `notifications/claude/channel: ${content.slice(0, 80)}`,
-                    )
-                    logEvent('tengu_mcp_channel_message', {
-                      content_length: content.length,
-                      meta_key_count: Object.keys(meta ?? {}).length,
-                      entry_kind:
-                        entry?.kind as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-                      is_dev: entry?.dev ?? false,
-                      plugin: pluginId,
-                    })
-                    enqueue({
-                      mode: 'prompt',
-                      value: wrapChannelMessage(client.name, content, meta),
-                      priority: 'next',
-                      isMeta: true,
-                      origin: { kind: 'channel', server: client.name },
-                      skipSlashCommands: true,
-                    })
-                  },
-                )
-                // Permission-reply handler — separate event, separate
-                // capability. Only registers if the server declares
-                // claude/channel/permission (same opt-in check as the send
-                // path in interactiveHandler.ts). Server parses the user's
-                // reply and emits {request_id, behavior}; no regex on our
-                // side, text in the general channel can't accidentally match.
-                if (
-                  client.capabilities?.experimental?.[
-                    'claude/channel/permission'
-                  ] !== undefined
-                ) {
-                  client.client.setNotificationHandler(
-                    ChannelPermissionNotificationSchema(),
-                    async notification => {
-                      const { request_id, behavior } = notification.params
-                      const resolved =
-                        channelPermCallbacksRef.current?.resolve(
-                          request_id,
-                          behavior,
-                          client.name,
-                        ) ?? false
-                      logMCPDebug(
-                        client.name,
-                        `notifications/claude/channel/permission: ${request_id} → ${behavior} (${resolved ? 'matched pending' : 'no pending entry — stale or unknown ID'})`,
-                      )
-                    },
-                  )
-                }
+                registerChannelHandlers()
+                registered = true
                 break
-              case 'skip':
-                // Idempotent teardown so a register→skip re-gate (e.g.
-                // effect re-runs after /logout) actually removes the live
-                // handler. Without this, mid-session demotion is one-way:
-                // the gate says skip but the earlier handler keeps enqueuing.
-                // Map.delete — safe when never registered.
-                client.client.removeNotificationHandler(
-                  'notifications/claude/channel',
+              case 'skip': {
+                const isTransientSkip =
+                  gate.kind === 'auth' ||
+                  gate.kind === 'disabled' ||
+                  gate.kind === 'capability'
+                const wasRegistered = registeredChannelServersRef.current.has(
+                  client.name,
                 )
-                client.client.removeNotificationHandler(
-                  CHANNEL_PERMISSION_METHOD,
-                )
+                if (isTransientSkip) {
+                  registeredChannelServersRef.current.delete(client.name)
+                  client.client.removeNotificationHandler(
+                    'notifications/claude/channel',
+                  )
+                  client.client.removeNotificationHandler(
+                    CHANNEL_PERMISSION_METHOD,
+                  )
+                } else if (wasRegistered) {
+                  logMCPDebug(
+                    client.name,
+                    `Channel gate says skip:${gate.kind} but was previously registered — preserving handler`,
+                  )
+                  registerChannelHandlers()
+                  registered = true
+                  break
+                }
                 logMCPDebug(
                   client.name,
                   `Channel notifications skipped: ${gate.reason}`,
@@ -655,6 +668,24 @@ export function useManageMCPConnections(
                   })
                 }
                 break
+              }
+            }
+            // Skip capability-miss — every non-channel MCP server trips it.
+            if (
+              registered ||
+              (gate.action === 'skip' && gate.kind !== 'capability')
+            ) {
+              logEvent('tengu_mcp_channel_gate', {
+                registered,
+                skip_kind:
+                  gate.action === 'skip'
+                    ? (gate.kind as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS)
+                    : undefined,
+                entry_kind:
+                  entry?.kind as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+                is_dev: entry?.dev ?? false,
+                plugin: pluginId,
+              })
             }
           }
 
@@ -913,6 +944,8 @@ export function useManageMCPConnections(
             clearTimeout(timer)
             reconnectTimersRef.current.delete(s.name)
           }
+          registeredChannelServersRef.current.delete(s.name)
+          clearInputsForServer(s.name)
           if (s.type === 'connected') {
             s.client.onclose = undefined
             void clearServerCache(s.name, s.config).catch(() => {})
@@ -1201,6 +1234,8 @@ export function useManageMCPConnections(
         // Persist disabled state to disk FIRST before clearing cache
         // This is important because the onclose handler checks disk state
         setMcpServerEnabled(serverName, false)
+        registeredChannelServersRef.current.delete(serverName)
+        clearInputsForServer(serverName)
 
         // Disabling: disconnect and clean up if currently connected
         if (client.type === 'connected') {

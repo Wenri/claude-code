@@ -263,6 +263,60 @@ with a new baseline extraction after applying the same patch chain. This
 state is reported as `verified-recovered-overlay`. The normalized full-bundle
 diff is not executable and is never applied to `src/`.
 
+## Semantic source recovery audit
+
+The broader audit uses compiled function/AST behavior as the source
+criterion. Binding spelling, independent declaration order, comments,
+formatting, and erased TypeScript annotations are ignored. Literals,
+property names, calls, branches, feature gates, state changes, rendering,
+prompts, and other observable effects are not.
+
+That audit found runtime behavior outside the original four-file Bash
+overlay. The canonical
+[`semantic-supplement.patch`](./semantic-supplement.patch) recovers the
+missing first-party owners, including deferred-tool suspension and replay,
+inbound SDK/headless `fileAttachments` queueing and replay,
+bridge presence, headless MCP behavior, cold compaction, updater permission
+classification, plugin symlink handling, session metadata/resume filtering,
+computer-use and permission prompts, the Windows-safe async/sync process
+façades, the reachable teammate shell-quote graph, and the associated UI/SDK
+paths.
+
+The fail-closed semantic ledger classifies every one of the 3,283 target
+units that was not an exact structural match:
+
+| Disposition | Units |
+| --- | ---: |
+| Identifier/order-equivalent AST | 2,627 |
+| First-party runtime recovered in `src/` | 444 |
+| Generated/runtime metadata with exact structural proof | 62 |
+| Statically non-observable published branch | 1 |
+| Third-party runtime with unpinned build inputs | 149 |
+| First-party source runtime gaps | 0 |
+
+The hardened literal/property pass authenticates 221 first-party residue
+units with exact target coordinates, hashes, and aggregate control/operator
+signatures. Three ambiguous coarse partition votes contain compiler-embedded
+`signal-exit`/`execa` implementation; their exact fragments are paired with
+the authenticated first-party import/call boundaries, while the dependency
+ledger still retains the unpinned whole-build-input limitation.
+
+The current 3,509,833-byte canonical supplement has SHA-256
+`4f4b6d8fb3d856a5c9ee902b95992033223b9a63abd67bc421235a933e4aa84b`
+and applies three-way to target commit `ae5a27f…`. Its manifest descriptor is
+deliberately left for the final cumulative-lineage pin. All 76 changed
+TypeScript inputs syntax-build. Focused tests compare authenticated target
+fragments, structural coordinates/hashes, cooked prompt values, and the
+recovered source call paths.
+
+This proves first-party semantic equivalence for the recovery delta; it does
+not claim a hermetic whole-bundle build from `src/`. The historical tree has
+no root application manifest, dependency lock/source archive, or production
+bundler configuration. The 149 nonmatched dependency units and that missing
+build graph remain explicit whole-bundle source-build gaps. Independently,
+the checked generated delta still reconstructs the published `cli.js`
+byte-for-byte.
+
 ## Reusable recovery and verification
 
 The complete construction and replay procedure, including every regeneration
@@ -298,7 +352,10 @@ Expected status:
   "sourceTree": {
     "state": "verified-recovered-overlay",
     "patchSet": "bun-input",
-    "files": 4
+    "files": 4,
+    "semanticCriterion": "compiled-ast-function-semantics-v1",
+    "firstPartySemanticEquivalentFromSrc": true,
+    "wholeBundleSemanticEquivalentFromSrc": false
   },
   "checks": {
     "evidence": "evidence-verified",
@@ -318,7 +375,8 @@ The verified run reports:
 - exact target bundle SHA-256 `a9950e…`;
 - zero unaccounted target UTF-16 units;
 - 4,197,802 / 4,197,802 classified target tokens; and
-- 30 / 30 tests passing with the target artifact supplied.
+- all legacy and semantic recovery tests passing with the target artifact
+  supplied.
 
 To reconstruct and keep the exact package tree:
 
@@ -352,9 +410,11 @@ Each stage also has an independent CLI and verifier:
 | Structural target-to-baseline pairings | Exact, candidate, or unresolved as labeled |
 | Full normalized bundle comparison | Verified comparison representation |
 | Recovered Bash/parser behavior | Equivalent within target-backed tests |
+| Recovered first-party compiled function/AST behavior | Semantically equivalent; zero ledger gaps |
+| Whole published bundle compiled from `src/` | Not reproducible: dependency/build inputs are unpinned |
 | Recovered TypeScript names, types, and file placement | Inferred |
 | Original erased comments, formatting, types, and module boundaries | Unobservable |
 
-There is no missing published target code. Further work can expand the
-human-facing TypeScript reconstruction feature by feature, but it cannot turn
-erased information into an exact-source claim.
+There is no missing published target code, and no remaining first-party
+semantic delta gap. Erased spelling and comments remain unobservable, while
+the absent dependency/build graph prevents a whole-bundle source-build claim.

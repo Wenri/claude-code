@@ -19,6 +19,14 @@ export function getGraphemeSegmenter(): Intl.Segmenter {
   return graphemeSegmenter
 }
 
+/** Count user-perceived characters rather than UTF-16 code units. */
+export function countGraphemes(text: string): number {
+  if (!text) return 0
+  let count = 0
+  for (const _segment of getGraphemeSegmenter().segment(text)) count += 1
+  return count
+}
+
 /**
  * Extract the first grapheme cluster from a string.
  * Returns '' for empty strings.

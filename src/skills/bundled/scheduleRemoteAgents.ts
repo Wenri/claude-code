@@ -431,7 +431,7 @@ export function registerScheduleRemoteAgentsSkill(): void {
           const webSetupEnabled = getFeatureValue_CACHED_MAY_BE_STALE(
             'tengu_cobalt_lantern',
             false,
-          )
+          ) && isPolicyAllowed('allow_quick_web_setup')
           const msg = webSetupEnabled
             ? `GitHub not connected for ${repo.owner}/${repo.name} \u2014 run /web-setup to sync your GitHub credentials, or install the Claude GitHub App at https://claude.ai/code/onboarding?magic=github-app-setup.`
             : `Claude GitHub App not installed on ${repo.owner}/${repo.name} \u2014 install at https://claude.ai/code/onboarding?magic=github-app-setup if your trigger needs this repo.`

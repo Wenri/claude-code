@@ -202,6 +202,7 @@ export async function sideQuery(opts: SideQueryOptions): Promise<BetaMessage> {
       ...(betas.length > 0 && { betas }),
       ...extraBodyParams,
       metadata: getAPIMetadata(),
+      ...extraBodyParams,
     },
     { signal },
   )

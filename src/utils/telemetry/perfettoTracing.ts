@@ -475,6 +475,8 @@ export function endLLMRequestPerfettoSpan(
     cacheReadTokens?: number
     cacheCreationTokens?: number
     messageId?: string
+    requestId?: string
+    clientRequestId?: string
     success?: boolean
     error?: string
     /** Time spent in pre-request setup (client creation, retries) before the successful attempt */
@@ -536,6 +538,8 @@ export function endLLMRequestPerfettoSpan(
     cache_read_tokens: cacheReadTokens,
     cache_creation_tokens: metadata.cacheCreationTokens,
     message_id: metadata.messageId ?? pending.args.message_id,
+    request_id: metadata.requestId,
+    client_request_id: metadata.clientRequestId,
     success: metadata.success ?? true,
     error: metadata.error,
     duration_ms: duration / 1000,

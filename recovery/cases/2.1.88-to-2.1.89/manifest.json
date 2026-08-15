@@ -10,6 +10,28 @@
     "authoredSourceTextObservable": false,
     "unresolved": "All published target bytes and tokens are present in the recovery. The structural ledger deliberately leaves 406,460 target tokens without a defensible baseline pairing, and the minified package cannot reveal erased TypeScript names, types, comments, formatting, or exact module placement."
   },
+  "semanticSourceLineage": {
+    "targetCommit": "ae5a27f9446042e9df589189889c110703ab351c",
+    "cumulativeSupplements": [
+      {
+        "case": "2.1.88-to-2.1.89",
+        "path": "recovery/cases/2.1.88-to-2.1.89/semantic-supplement.patch",
+        "bytes": 3512210,
+        "sha256": "adb702c880a26e1806d23bed31ffc7a1958fd0f415539ea6a8dd3c422af557f2"
+      }
+    ],
+    "supplement": {
+      "case": "2.1.88-to-2.1.89",
+      "path": "recovery/cases/2.1.88-to-2.1.89/semantic-supplement.patch",
+      "bytes": 3512210,
+      "sha256": "adb702c880a26e1806d23bed31ffc7a1958fd0f415539ea6a8dd3c422af557f2"
+    },
+    "sourceCoverage": {
+      "path": "semantic/source-coverage.json.gz",
+      "bytes": 208855,
+      "sha256": "4285a62a85469f6f16c322aeb14658d52aa532d8fd0eaf72570866398a0e02c0"
+    }
+  },
   "artifacts": [
     {
       "id": "baselineBundle",
@@ -285,6 +307,21 @@
         "path": "readable-diff/renames.tsv",
         "bytes": 192638,
         "sha256": "4d91e9ba21815cbe8348068e35380a70c1ae105dcb921d9e9de306f04b533e4f"
+      },
+      {
+        "path": "semantic-supplement.patch",
+        "bytes": 3512210,
+        "sha256": "adb702c880a26e1806d23bed31ffc7a1958fd0f415539ea6a8dd3c422af557f2"
+      },
+      {
+        "path": "semantic/source-coverage.json.gz",
+        "bytes": 208855,
+        "sha256": "4285a62a85469f6f16c322aeb14658d52aa532d8fd0eaf72570866398a0e02c0"
+      },
+      {
+        "path": "semantic/dependency-coverage.json.gz",
+        "bytes": 9228,
+        "sha256": "f7ba8b8618050c352059e2cebea1eb7555f5b374abb0cf4193d5d59739d14274"
       }
     ]
   },

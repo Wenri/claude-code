@@ -29,6 +29,23 @@ case is therefore labeled `generated-complete-source-partial`: the published
 executable and package tree are exact, while source-facing TypeScript is
 limited to behavior supported by target evidence.
 
+The semantic source audit is complete under
+`compiled-ast-function-semantics-v1`. Its fail-closed ledger covers all 3,113
+changed, moved, and unresolved target structural units and reports zero
+first-party `source-runtime-gap` rows. The historical target tree and current
+`src/` therefore contain an equivalent owner for every reachable first-party
+runtime behavior, without claiming the erased authored spelling or layout.
+
+The final canonical semantic supplement contains 118 `src/` paths and
+5,617,466 bytes, pinned by SHA-256
+`8db899a471f6d4bc7c8ff22c42211643e725a29d7bfb484c3713def00086498b`.
+
+That first-party verdict is not a whole-bundle source-build verdict. There
+are 153 `dependency-runtime` gaps, and the historical release does not pin a
+complete root application manifest/lockfile, dependency source archive, or
+hermetic build recipe. The exact generated delta independently reconstructs
+the published `cli.js` byte-for-byte.
+
 | Layer | Result |
 | --- | --- |
 | Published `cli.js` | Exact, target SHA-256 `b4bf141f…` |
@@ -36,7 +53,8 @@ limited to behavior supported by target evidence.
 | Target generated offsets | Complete, 13,098,272 / 13,098,272 UTF-16 units |
 | Target JavaScript tokens | Complete classification, 4,222,365 / 4,222,365 |
 | Full readable bundle diff | Complete comparison view |
-| Incremental repository source | Ten patches, 21 modified and 27 added files |
+| First-party runtime semantics from source | Complete, 3,113 / 3,113 nonmatched units classified; 0 source gaps |
+| Whole-bundle dependency/build inputs | Incomplete, 153 dependency runtime gaps plus missing hermetic inputs |
 | Original authored 2.1.91 spelling | Partially unobservable |
 
 ## Baseline roles

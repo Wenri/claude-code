@@ -16,6 +16,7 @@ import { isBgSession } from '../utils/concurrentSessions.js'
 import { logForDebugging } from '../utils/debug.js'
 import { isFullscreenEnvEnabled } from '../utils/fullscreen.js'
 import { createAwaySummaryMessage } from '../utils/messages.js'
+import { getPromptInputValue } from '../utils/promptInputState.js'
 
 const DEFAULT_DELAY_MS = 180_000
 const MIN_CONFIGURED_DELAY_MS = 30_000

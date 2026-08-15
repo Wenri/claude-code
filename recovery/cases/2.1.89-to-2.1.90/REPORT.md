@@ -26,6 +26,25 @@ is therefore labeled `generated-complete-source-partial`: the published
 executable and package are exact, while source-facing TypeScript is bounded
 to behavior supported directly by target evidence.
 
+The semantic source audit is now complete under the narrower
+`compiled-ast-function-semantics-v1` criterion. Its fail-closed ledger covers
+all 2,109 changed, moved, and unresolved target structural units and reports
+zero first-party `source-runtime-gap` rows. The historical target tree plus
+the pinned semantic supplement, and current `src/`, contain equivalent owners
+for every reachable first-party runtime behavior; this does not claim the
+original TypeScript spelling, declaration order, comments, or formatting.
+
+The final canonical semantic supplement contains 115 `src/` paths and
+5,013,030 bytes, pinned by SHA-256
+`29541c49fa45d5cf8dd11acb87217e3d5548b61efe59df86670c9a5c6895e6ca`.
+
+Whole-bundle compilation from `src/` remains incomplete. The ledger retains
+223 `dependency-runtime` gaps, including the bundled
+`vendor/modifiers-napi-src` loader, because the target dependency sources,
+root application manifest/lockfile, and hermetic build recipe are not pinned.
+This is independent of the exact generated replay: the Zstandard delta still
+reconstructs the authenticated `cli.js` byte-for-byte.
+
 | Layer | Result |
 | --- | --- |
 | Published `cli.js` | Exact, target SHA-256 `06918590…` |
@@ -33,7 +52,8 @@ to behavior supported directly by target evidence.
 | Target generated offsets | Complete, 13,064,141 / 13,064,141 UTF-16 units |
 | Target JavaScript tokens | Complete classification, 4,213,780 / 4,213,780 |
 | Full readable bundle diff | Complete comparison view |
-| Incremental repository source | Six patches, nine 2.1.90 files |
+| First-party runtime semantics from source | Complete, 2,109 / 2,109 nonmatched units classified; 0 source gaps |
+| Whole-bundle dependency/build inputs | Incomplete, 223 dependency runtime gaps plus missing hermetic inputs |
 | Original authored 2.1.90 spelling | Partially unobservable |
 
 ## Two baselines, kept separate

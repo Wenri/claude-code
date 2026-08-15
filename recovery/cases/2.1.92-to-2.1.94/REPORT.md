@@ -30,6 +30,24 @@ case is therefore labeled `generated-complete-source-partial`: the published
 executable and package tree are exact, while source-facing TypeScript is
 limited to behavior supported by target evidence.
 
+The semantic source audit is complete under
+`compiled-ast-function-semantics-v1`. Its fail-closed ledger covers all 1,795
+changed, moved, and unresolved target structural units and reports zero
+first-party `source-runtime-gap` rows. The semantic supplement restores the
+Bedrock model-upgrade discovery, availability probes, prompt, persistence,
+fallback, and startup call path; the historical target tree and current
+`src/` retain equivalent owners for every reachable first-party behavior.
+
+The final canonical semantic supplement contains 151 `src/` paths and
+4,983,928 bytes, pinned by SHA-256
+`c41b3e10567b9870e9b6dfeed737b3169c2c7439b6d18bfbb27b55a9a8009892`.
+
+This is not a whole-bundle source-build claim. The ledger retains 189
+`dependency-runtime` gaps, and the historical target has no complete root
+application manifest/lockfile, dependency source archive, or hermetic build
+recipe. The exact generated replay remains an independent byte-for-byte
+reconstruction of the authenticated `cli.js`.
+
 | Layer | Result |
 | --- | --- |
 | Published `cli.js` | Exact, target SHA-256 `11fa0f14…9564` |
@@ -37,7 +55,8 @@ limited to behavior supported by target evidence.
 | Target generated offsets | Complete, 13,243,887 / 13,243,887 UTF-16 units |
 | Target JavaScript tokens | Complete classification, 4,266,602 / 4,266,602 |
 | Full readable bundle diff | Complete comparison view |
-| Incremental repository source | Partial, 9 reversible patches across 44 paths |
+| First-party runtime semantics from source | Complete, 1,795 / 1,795 nonmatched units classified; 0 source gaps |
+| Whole-bundle dependency/build inputs | Incomplete, 189 dependency runtime gaps plus missing hermetic inputs |
 | Original authored 2.1.94 spelling | Partially unobservable |
 
 ## Published-version adjacency

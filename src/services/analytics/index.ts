@@ -77,11 +77,16 @@ export type AnalyticsSink = {
   ) => Promise<void>
 }
 
-// Event queue for events logged before sink is attached
-const eventQueue: QueuedEvent[] = []
+type AnalyticsState = {
+  eventQueue: QueuedEvent[]
+  sink: AnalyticsSink | null
+}
 
-// Sink - initialized during app startup
-let sink: AnalyticsSink | null = null
+export function createAnalyticsState(): AnalyticsState {
+  return { eventQueue: [], sink: null }
+}
+
+let globalAnalyticsState = createAnalyticsState()
 
 /**
  * Attach the analytics sink that will receive all events.
@@ -93,29 +98,23 @@ let sink: AnalyticsSink | null = null
  * the default command) without coordination.
  */
 export function attachAnalyticsSink(newSink: AnalyticsSink): void {
-  if (sink !== null) {
+  const state = globalAnalyticsState
+  if (state.sink !== null) {
     return
   }
-  sink = newSink
+  state.sink = newSink
 
   // Drain the queue asynchronously to avoid blocking startup
-  if (eventQueue.length > 0) {
-    const queuedEvents = [...eventQueue]
-    eventQueue.length = 0
-
-    // Log queue size for ants to help debug analytics initialization timing
-    if (process.env.USER_TYPE === 'ant') {
-      sink.logEvent('analytics_sink_attached', {
-        queued_event_count: queuedEvents.length,
-      })
-    }
+  if (state.eventQueue.length > 0) {
+    const queuedEvents = state.eventQueue
+    state.eventQueue = []
 
     queueMicrotask(() => {
       for (const event of queuedEvents) {
         if (event.async) {
-          void sink!.logEventAsync(event.eventName, event.metadata)
+          void newSink.logEventAsync(event.eventName, event.metadata)
         } else {
-          sink!.logEvent(event.eventName, event.metadata)
+          newSink.logEvent(event.eventName, event.metadata)
         }
       }
     })
@@ -136,11 +135,12 @@ export function logEvent(
   // to avoid accidentally logging code/filepaths
   metadata: LogEventMetadata,
 ): void {
-  if (sink === null) {
-    eventQueue.push({ eventName, metadata, async: false })
+  const state = globalAnalyticsState
+  if (state.sink === null) {
+    state.eventQueue.push({ eventName, metadata, async: false })
     return
   }
-  sink.logEvent(eventName, metadata)
+  state.sink.logEvent(eventName, metadata)
 }
 
 /**
@@ -156,11 +156,12 @@ export async function logEventAsync(
   // intentionally no strings, to avoid accidentally logging code/filepaths
   metadata: LogEventMetadata,
 ): Promise<void> {
-  if (sink === null) {
-    eventQueue.push({ eventName, metadata, async: true })
+  const state = globalAnalyticsState
+  if (state.sink === null) {
+    state.eventQueue.push({ eventName, metadata, async: true })
     return
   }
-  await sink.logEventAsync(eventName, metadata)
+  await state.sink.logEventAsync(eventName, metadata)
 }
 
 /**
@@ -168,6 +169,5 @@ export async function logEventAsync(
  * @internal
  */
 export function _resetForTesting(): void {
-  sink = null
-  eventQueue.length = 0
+  globalAnalyticsState = createAnalyticsState()
 }

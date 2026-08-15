@@ -44,7 +44,7 @@ async function getReviewSourceViability(): Promise<ReviewSourceViability> {
 }
 
 function formatReviewSourceViability(
-  source: ReviewSourceViability,
+  source: RemoteSourceViability,
 ): string | null {
   if (!source.bundleSeedEnabled) return null
   return source.cloneViable
@@ -62,9 +62,36 @@ type Props = {
 
 type ContentProps = Pick<Props, 'body' | 'scope' | 'onCancel'> & {
   showTerms: boolean
-  sourcePromise: Promise<ReviewSourceViability | null> | null
+  sourcePromise: Promise<RemoteSourceViability | null> | null
   isLaunching: boolean
   onSelect: (value: string) => void
+}
+
+function UltrareviewLaunchIndicator(): React.ReactNode {
+  const reducedMotion = useSettings().prefersReducedMotion ?? false
+  const [ref, time] = useAnimationFrame(reducedMotion ? null : 50)
+  const glimmerIndex =
+    reducedMotion ? -100 : 19 - (Math.floor(time / 200) % 29)
+  const frame = Math.floor(time / 120)
+
+  return (
+    <Box ref={ref} flexDirection="row" columnGap={1}>
+      <SpinnerGlyph
+        frame={frame}
+        messageColor="inactive"
+        reducedMotion={reducedMotion}
+        time={time}
+      />
+      <GlimmerMessage
+        message="Launching"
+        mode="responding"
+        messageColor="inactive"
+        glimmerIndex={glimmerIndex}
+        flashOpacity={0}
+        shimmerColor="subtle"
+      />
+    </Box>
+  )
 }
 
 function UltrareviewDialogContent({
@@ -126,7 +153,7 @@ function UltrareviewDialogContent({
     <Box flexDirection="column" gap={1}>
       {details}
       {isLaunching ? (
-        <Text color="background">Launching…</Text>
+        <UltrareviewLaunchIndicator />
       ) : (
         <Select
           options={[
@@ -156,7 +183,7 @@ export function UltrareviewOverageDialog({
     () => !getGlobalConfig().hasSeenUltrareviewTerms,
   )
   const [sourcePromise] = useState(() =>
-    showTerms ? getReviewSourceViability().catch(() => null) : null,
+    showTerms ? getRemoteSourceViability().catch(() => null) : null,
   )
   const [isLaunching, setIsLaunching] = useState(false)
   const abortControllerRef = useRef(new AbortController())

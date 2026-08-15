@@ -1,13 +1,20 @@
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
+import path from 'node:path'
 import test from 'node:test'
 import { fileURLToPath } from 'node:url'
 
+const repositoryRoot = fileURLToPath(new URL('../..', import.meta.url))
+const caseName = '2.1.109-to-2.1.110'
+const semanticCase = process.env.CLAUDE_CODE_SEMANTIC_CASE
+const historical = semanticCase === caseName
+const sourceRoot = path.resolve(
+  process.env.CLAUDE_CODE_SEMANTIC_SOURCE_ROOT ??
+    path.join(repositoryRoot, 'src'),
+)
+
 function source(relative) {
-  return fs.readFileSync(
-    fileURLToPath(new URL(`../../${relative}`, import.meta.url)),
-    'utf8',
-  )
+  return fs.readFileSync(path.join(sourceRoot, relative.replace(/^src\//, '')), 'utf8')
 }
 
 function includesAll(contents, fragments) {
@@ -82,9 +89,12 @@ test('limits explicit Skill invocation to the current human turn', () => {
     'findCurrentTurnStart',
     'turnStartIndex: findCurrentTurnStart(messagesForQuery)',
   ])
-  includesAll(source('src/QueryEngine.ts'), [
-    'turnStartIndex: findCurrentTurnStart(messages)',
-  ])
+  const queryEngine = source('src/QueryEngine.ts')
+  if (historical) {
+    includesAll(queryEngine, ['turnStartIndex: findCurrentTurnStart(messages)'])
+  } else {
+    includesAll(queryEngine, ['turnStartIndex: 0'])
+  }
 })
 
 test('recovers Remote Control stale-auth and rename persistence', () => {

@@ -127,6 +127,7 @@ export interface ClaudeCodeInternalEvent {
   skill_name?: string | undefined
   plugin_name?: string | undefined
   marketplace_name?: string | undefined
+  repl_code?: string | undefined
 }
 
 function createBaseGitHubActionsMetadata(): GitHubActionsMetadata {
@@ -580,6 +581,7 @@ function createBaseClaudeCodeInternalEvent(): ClaudeCodeInternalEvent {
     skill_name: '',
     plugin_name: '',
     marketplace_name: '',
+    repl_code: '',
   }
 }
 
@@ -664,6 +666,9 @@ export const ClaudeCodeInternalEvent: MessageFns<ClaudeCodeInternalEvent> = {
         : '',
       marketplace_name: isSet(object.marketplace_name)
         ? globalThis.String(object.marketplace_name)
+        : '',
+      repl_code: isSet(object.repl_code)
+        ? globalThis.String(object.repl_code)
         : '',
     }
   },
@@ -757,6 +762,9 @@ export const ClaudeCodeInternalEvent: MessageFns<ClaudeCodeInternalEvent> = {
     if (message.marketplace_name !== undefined) {
       obj.marketplace_name = message.marketplace_name
     }
+    if (message.repl_code !== undefined) {
+      obj.repl_code = message.repl_code
+    }
     return obj
   },
 
@@ -807,6 +815,7 @@ export const ClaudeCodeInternalEvent: MessageFns<ClaudeCodeInternalEvent> = {
     message.skill_name = object.skill_name ?? ''
     message.plugin_name = object.plugin_name ?? ''
     message.marketplace_name = object.marketplace_name ?? ''
+    message.repl_code = object.repl_code ?? ''
     return message
   },
 }

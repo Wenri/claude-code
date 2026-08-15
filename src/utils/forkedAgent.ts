@@ -20,7 +20,7 @@ import {
 } from '../services/analytics/index.js'
 import { accumulateUsage, updateUsage } from '../services/api/claude.js'
 import { EMPTY_USAGE, type NonNullableUsage } from '../services/api/logging.js'
-import type { ToolUseContext } from '../Tool.js'
+import type { ToolPermissionContext, ToolUseContext } from '../Tool.js'
 import type { AgentDefinition } from '../tools/AgentTool/loadAgentsDir.js'
 import { createBashRerunAliases } from '../tools/BashTool/rerun.js'
 import type { AgentId } from '../types/ids.js'
@@ -44,6 +44,8 @@ import {
   cloneContentReplacementState,
 } from './toolResultStorage.js'
 import { createAgentId } from './uuid.js'
+import { createBashRerunAliases } from '../tools/BashTool/rerunAliases.js'
+import { createToolResultDedupState } from './toolErrors.js'
 
 const DEFAULT_FORKED_AGENT_MAX_TURNS = 50
 
@@ -144,6 +146,26 @@ export function createCacheSafeParams(
   }
 }
 
+/** Adds allowed tools to a permission context without mutating the parent. */
+export function addAllowedToolsToPermissionContext(
+  permissionContext: ToolPermissionContext,
+  allowedTools: string[],
+): ToolPermissionContext {
+  if (allowedTools.length === 0) return permissionContext
+  return {
+    ...permissionContext,
+    alwaysAllowRules: {
+      ...permissionContext.alwaysAllowRules,
+      command: [
+        ...new Set([
+          ...(permissionContext.alwaysAllowRules.command || []),
+          ...allowedTools,
+        ]),
+      ],
+    },
+  }
+}
+
 /**
  * Creates a modified getAppState that adds allowed tools to the permission context.
  * This is used by forked skill/command execution to grant tool permissions.
@@ -157,19 +179,10 @@ export function createGetAppStateWithAllowedTools(
     const appState = baseGetAppState()
     return {
       ...appState,
-      toolPermissionContext: {
-        ...appState.toolPermissionContext,
-        alwaysAllowRules: {
-          ...appState.toolPermissionContext.alwaysAllowRules,
-          command: [
-            ...new Set([
-              ...(appState.toolPermissionContext.alwaysAllowRules.command ||
-                []),
-              ...allowedTools,
-            ]),
-          ],
-        },
-      },
+      toolPermissionContext: addAllowedToolsToPermissionContext(
+        appState.toolPermissionContext,
+        allowedTools,
+      ),
     }
   }
 }
@@ -182,6 +195,8 @@ export type PreparedForkedContext = {
   skillContent: string
   /** Modified getAppState with allowed tools */
   modifiedGetAppState: ToolUseContext['getAppState']
+  /** Modified permission-context accessor with allowed tools */
+  modifiedGetToolPermissionContext: ToolUseContext['getToolPermissionContext']
   /** The general-purpose agent to use */
   baseAgent: AgentDefinition
   /** Initial prompt messages */
@@ -211,6 +226,14 @@ export async function prepareForkedCommandContext(
     context.getAppState,
     allowedTools,
   )
+  const modifiedGetToolPermissionContext =
+    allowedTools.length === 0
+      ? context.getToolPermissionContext
+      : () =>
+          addAllowedToolsToPermissionContext(
+            context.getToolPermissionContext!(),
+            allowedTools,
+          )
 
   // Use command.agent if specified, otherwise 'general-purpose'
   const agentTypeName = command.agent ?? 'general-purpose'
@@ -230,6 +253,7 @@ export async function prepareForkedCommandContext(
   return {
     skillContent,
     modifiedGetAppState,
+    modifiedGetToolPermissionContext,
     baseAgent,
     promptMessages,
   }
@@ -307,6 +331,10 @@ export type SubagentContextOverrides = {
    * state reconstructed from the resumed sidechain so the same results
    * are re-replaced (prompt cache stability). */
   contentReplacementState?: ContentReplacementState
+  /** Replay state used to hydrate a fork/resumed REPL VM. */
+  replHydration?: ToolUseContext['replHydration']
+  /** Override the session web-search/connector isolation latch. */
+  isolationLatch?: ToolUseContext['isolationLatch']
 }
 
 /**
@@ -387,6 +415,11 @@ export function createSubagentContext(
     ),
     nestedMemoryAttachmentTriggers: new Set<string>(),
     loadedNestedMemoryPaths: new Set<string>(),
+    sessionEnvVars: parentContext.sessionEnvVars,
+    tmuxSocket: parentContext.tmuxSocket,
+    bashRerunAliases: createBashRerunAliases(),
+    isolationLatch: overrides?.isolationLatch ?? parentContext.isolationLatch,
+    resultDedupState: createToolResultDedupState(),
     dynamicSkillDirTriggers: new Set<string>(),
     // Per-subagent: tracks skills surfaced by discovery for was_discovered telemetry (SkillTool.ts:116)
     discoveredSkillNames: new Set<string>(),
@@ -415,9 +448,14 @@ export function createSubagentContext(
 
     // AppState access
     getAppState,
+    getToolPermissionContext: () => getAppState().toolPermissionContext,
     setAppState: overrides?.shareSetAppState
       ? parentContext.setAppState
       : () => {},
+    taskRegistry: parentContext.taskRegistry,
+    setClassifierApprovals: parentContext.setClassifierApprovals,
+    setReplContext: parentContext.setReplContext,
+    replHydration: overrides?.replHydration,
     // Task registration/kill must always reach the root store, even when
     // setAppState is a no-op — otherwise async agents' background bash tasks
     // are never registered and never killed (PPID=1 zombie).
@@ -433,16 +471,21 @@ export function createSubagentContext(
 
     // Mutation callbacks - no-op by default
     setInProgressToolUseIDs: () => {},
+    addResponseLength: overrides?.shareSetResponseLength
+      ? parentContext.addResponseLength
+      : () => {},
+    resetResponseLength: overrides?.shareSetResponseLength
+      ? parentContext.resetResponseLength
+      : () => {},
     setResponseLength: overrides?.shareSetResponseLength
       ? parentContext.setResponseLength
       : () => {},
     pushApiMetricsEntry: overrides?.shareSetResponseLength
       ? parentContext.pushApiMetricsEntry
       : undefined,
-    updateFileHistoryState: () => {},
-    // Attribution is scoped and functional (prev => next) — safe to share even
-    // when setAppState is stubbed. Concurrent calls compose via React's state queue.
-    updateAttributionState: parentContext.updateAttributionState,
+    getFileHistoryState: () => undefined,
+    applyFileHistoryOp: () => {},
+    applyAttributionOp: parentContext.applyAttributionOp,
 
     // UI callbacks - undefined for subagents (can't control parent UI)
     addNotification: undefined,
@@ -581,6 +624,8 @@ export async function runForkedAgent({
       if (message.type === 'assistant') {
         assistantTurns++
       }
+
+      if (message.type === 'assistant') assistantTurnCount++
 
       logForDebugging(
         `Forked agent [${forkLabel}] received message: type=${message.type}`,

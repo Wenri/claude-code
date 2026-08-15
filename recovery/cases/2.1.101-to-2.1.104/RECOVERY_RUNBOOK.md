@@ -243,3 +243,17 @@ source files    1933
 semantic tests  4
 ```
 
+## Semantic source reproduction check
+
+Run the fail-closed semantic audit after acquiring the adjacent artifacts:
+
+```sh
+pixi run node recovery/scripts/audit-source-reproduction.mjs \
+  --case "$CASE/manifest.json" \
+  --repo . \
+  --artifacts "$RECOVERY_ARTIFACTS"
+```
+
+Require all 79 nonmatched units to be classified and zero first-party source
+runtime gaps. Although no changed unit is dependency-runtime, missing root
+dependency/build inputs keep the whole-bundle-from-source verdict false.

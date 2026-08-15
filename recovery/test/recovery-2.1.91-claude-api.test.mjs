@@ -6,13 +6,19 @@ import test from 'node:test'
 import { fileURLToPath } from 'node:url'
 
 const repositoryRoot = fileURLToPath(new URL('../../', import.meta.url))
+const caseName = '2.1.90-to-2.1.91'
+const semanticCase = process.env.CLAUDE_CODE_SEMANTIC_CASE
+const sourceRoot = process.env.CLAUDE_CODE_SEMANTIC_SOURCE_ROOT
+  ? path.resolve(process.env.CLAUDE_CODE_SEMANTIC_SOURCE_ROOT)
+  : path.join(repositoryRoot, 'src')
+const historical = semanticCase === caseName
 const contentRoot = path.join(
-  repositoryRoot,
-  'src/skills/bundled/claude-api',
+  sourceRoot,
+  'skills/bundled/claude-api',
 )
 const contentModulePath = path.join(
-  repositoryRoot,
-  'src/skills/bundled/claudeApiContent.ts',
+  sourceRoot,
+  'skills/bundled/claudeApiContent.ts',
 )
 const targetBundlePath = process.env.CLAUDE_CODE_2_1_91_BUNDLE
 
@@ -156,24 +162,27 @@ test('recovers every 2.1.91 claude-api document byte-for-byte', () => {
   const targetBundle = targetBundleBytes.toString('utf8')
 
   const expectedPaths = expectedContent.map(([relativePath]) => relativePath)
-  assert.deepEqual(listFiles(contentRoot), [...expectedPaths].sort())
+  if (historical) {
+    assert.deepEqual(listFiles(contentRoot), [...expectedPaths].sort())
+  }
 
   let totalBytes = 0
   for (const [relativePath, binding, bytes, expectedSha256] of expectedContent) {
-    const source = fs.readFileSync(path.join(contentRoot, relativePath))
-    totalBytes += source.length
-    assert.equal(source.length, bytes, `${relativePath} byte length`)
-    assert.equal(sha256(source), expectedSha256, `${relativePath} SHA-256`)
-
     const targetLiteral = Buffer.from(
       decodeStringAssignment(targetBundle, binding),
       'utf8',
     )
-    assert.deepEqual(
-      source,
-      targetLiteral,
-      `${relativePath} differs from target binding ${binding}`,
-    )
+    totalBytes += targetLiteral.length
+    assert.equal(targetLiteral.length, bytes, `${relativePath} target byte length`)
+    assert.equal(sha256(targetLiteral), expectedSha256, `${relativePath} target SHA-256`)
+    if (historical) {
+      const source = fs.readFileSync(path.join(contentRoot, relativePath))
+      assert.deepEqual(
+        source,
+        targetLiteral,
+        `${relativePath} differs from target binding ${binding}`,
+      )
+    }
   }
   assert.equal(totalBytes, 261679)
 })
@@ -193,11 +202,39 @@ test('wires all recovered target documents into the bundled skill', () => {
     /'shared\/agent-design\.md': sharedAgentDesign/,
   )
 
-  for (const [relativePath] of expectedContent.slice(1)) {
-    assert.equal(
-      contentModule.includes(`'${relativePath}'`),
-      true,
-      `${relativePath} is not present in SKILL_FILES`,
+  if (historical) {
+    for (const [relativePath] of expectedContent.slice(1)) {
+      assert.equal(
+        contentModule.includes(`'${relativePath}'`),
+        true,
+        `${relativePath} is not present in target91 SKILL_FILES`,
+      )
+    }
+    return
+  }
+
+  for (const [relativePath, binding] of [
+    ['curl/managed-agents.md', 'curlManagedAgents'],
+    ['python/managed-agents/README.md', 'pythonManagedAgents'],
+    ['typescript/managed-agents/README.md', 'typescriptManagedAgents'],
+    ['shared/model-migration.md', 'sharedModelMigration'],
+    ['shared/managed-agents-overview.md', 'sharedManagedAgentsOverview'],
+  ]) {
+    assert.ok(
+      contentModule.includes(`'${relativePath}': ${binding}`),
+      `${relativePath} is not present in current SKILL_FILES`,
+    )
+  }
+  assert.equal(contentModule.includes("'python/agent-sdk/README.md'"), false)
+  assert.equal(contentModule.includes("'typescript/agent-sdk/README.md'"), false)
+  const mappedPaths = [...contentModule.matchAll(/^  '([^']+\.md)':/gm)].map(
+    match => match[1],
+  )
+  assert.ok(mappedPaths.length > expectedContent.length)
+  for (const relativePath of mappedPaths) {
+    assert.ok(
+      fs.existsSync(path.join(contentRoot, relativePath)),
+      `${relativePath} has no current document owner`,
     )
   }
 })

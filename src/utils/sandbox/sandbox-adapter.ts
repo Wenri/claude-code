@@ -58,6 +58,7 @@ import { errorMessage } from '../errors.js'
 import { getClaudeTempDir } from '../permissions/filesystem.js'
 import type { PermissionRuleValue } from '../permissions/PermissionRule.js'
 import { ripgrepCommand } from '../ripgrep.js'
+import { getEmbeddedSeccompConfig } from './seccomp.js'
 
 // Local copies to avoid circular dependency
 // (permissions.ts imports SandboxManager, bashPermissions.ts imports permissions.ts)
@@ -389,6 +390,7 @@ export function convertToSandboxRuntimeConfig(
     enableWeakerNetworkIsolation:
       settings.sandbox?.enableWeakerNetworkIsolation,
     ripgrep: ripgrepConfig,
+    seccomp: getEmbeddedSeccompConfig(),
   }
 }
 
@@ -908,6 +910,7 @@ export interface ISandboxManager {
   }): Promise<void>
   getFsReadConfig(): FsReadRestrictionConfig
   getFsWriteConfig(): FsWriteRestrictionConfig
+  getConfig(): SandboxRuntimeConfig | undefined
   getNetworkRestrictionConfig(): NetworkRestrictionConfig
   getAllowUnixSockets(): string[] | undefined
   getAllowLocalBinding(): boolean | undefined
@@ -958,6 +961,7 @@ export const SandboxManager: ISandboxManager = {
   // Forward to base sandbox manager
   getFsReadConfig: BaseSandboxManager.getFsReadConfig,
   getFsWriteConfig: BaseSandboxManager.getFsWriteConfig,
+  getConfig: BaseSandboxManager.getConfig,
   getNetworkRestrictionConfig: BaseSandboxManager.getNetworkRestrictionConfig,
   getIgnoreViolations: BaseSandboxManager.getIgnoreViolations,
   getLinuxGlobPatternWarnings,

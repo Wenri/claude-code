@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.112-to-2.1.113",
+  "artifact": {
+    "targetInnerSha256": "4a3c3636c8cb19ef42d6319e5c6ef9b029f5de148b84f22315d159052d6c5eba",
+    "targetWrapperSha256": "dda4d89e787fa455706e4f41beffc8e58d42b9094c4d155fcbf62e3f19036681",
+    "targetWrapperPrefixLength": 87,
+    "targetWrapperSuffixLength": 3,
+    "structuralGzipSha256": "383448923995bb86060ce91beac2bc5adac35817a0cdff35b533135c7d24345f"
+  },
+  "proof": {
+    "target": "complete authenticated target units, exact target residue AST occurrences, and executable behavior",
+    "source": "exact dual-root declarations, runtime imports, source call occurrences, and executable behavior",
+    "classification": "exact alternate owner; both target units are adjacent declarations in the commit-attribution module"
+  },
+  "summary": {
+    "units": 2,
+    "residues": 3
+  },
+  "rows": [
+    {
+      "targetIndex": 10812,
+      "priorOwnerPaths": [
+        "utils/generatedFiles.ts"
+      ],
+      "correctedOwner": "src/utils/commitAttribution.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 6331087,
+        "end": 6331159,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "86f6f2f7d32782186437768c5cd96cce4cf7c05a541df69ecb8f1f15a1ea97f9"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "createHash",
+          "start": 6331114,
+          "end": 6331124
+        }
+      ],
+      "source": {
+        "declaration": "computeContentHash",
+        "declarationKind": "FunctionDeclaration",
+        "declarationSha256": "b78f71e9630fd9751f17dcbe4088acb5f6064b3e605ebd3fbfe1320132a02476",
+        "imports": [
+          {
+            "module": "crypto",
+            "imported": "createHash",
+            "local": "createHash"
+          }
+        ],
+        "callCounts": {
+          "createHash": 1
+        }
+      }
+    },
+    {
+      "targetIndex": 10813,
+      "priorOwnerPaths": [
+        "utils/generatedFiles.ts"
+      ],
+      "correctedOwner": "src/utils/commitAttribution.ts",
+      "target": {
+        "classification": "unresolved",
+        "start": 6331159,
+        "end": 6331467,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "9d26efa74b70a1b549826c18a0ec4e253b276945a2514a82b983a986c59bdfd7"
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "relative",
+          "start": 6331341,
+          "end": 6331349
+        },
+        {
+          "kind": "property",
+          "value": "relative",
+          "start": 6331421,
+          "end": 6331429
+        }
+      ],
+      "source": {
+        "declaration": "normalizeFilePath",
+        "declarationKind": "FunctionDeclaration",
+        "declarationSha256": "fd14114440b6609ee89fb500fade879bf86707b609744841f92854ea1073a79e",
+        "imports": [
+          {
+            "module": "path",
+            "imported": "isAbsolute",
+            "local": "isAbsolute"
+          },
+          {
+            "module": "path",
+            "imported": "relative",
+            "local": "relative"
+          },
+          {
+            "module": "path",
+            "imported": "sep",
+            "local": "sep"
+          }
+        ],
+        "callCounts": {
+          "relative": 2
+        }
+      }
+    }
+  ]
+}

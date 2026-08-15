@@ -7,13 +7,44 @@
  */
 
 import { formatAPIError } from '../services/api/errorUtils.js'
-import type { NonNullableUsage } from '../services/api/logging.js'
+import {
+  EMPTY_USAGE,
+  type NonNullableUsage,
+} from '../services/api/logging.js'
 import type { Message, SystemAPIErrorMessage } from '../types/message.js'
+import { createChildAbortController } from './abortController.js'
+import { isAbortError } from './errors.js'
 import { type CacheSafeParams, runForkedAgent } from './forkedAgent.js'
-import { createUserMessage, extractTextContent } from './messages.js'
+import {
+  createAssistantMessage,
+  createUserMessage,
+  extractTextContent,
+} from './messages.js'
 
 // Pattern to detect "/btw" at start of input (case-insensitive, word boundary)
 const BTW_PATTERN = /^\/btw\b/gi
+const MAX_SIDE_QUESTION_HISTORY = 20
+
+export type SideQuestionHistoryEntry = {
+  question: string
+  response: string
+}
+
+let sideQuestionHistory: SideQuestionHistoryEntry[] = []
+
+export function getSideQuestionHistory(): SideQuestionHistoryEntry[] {
+  return sideQuestionHistory
+}
+
+export function clearSideQuestionHistory(): void {
+  sideQuestionHistory = []
+}
+
+export function setSideQuestionHistory(
+  history: SideQuestionHistoryEntry[],
+): void {
+  sideQuestionHistory = history
+}
 
 /**
  * Find positions of "/btw" keyword at the start of text for highlighting.
@@ -42,7 +73,16 @@ export function findBtwTriggerPositions(text: string): Array<{
 
 export type SideQuestionResult = {
   response: string | null
+  synthetic: boolean
   usage: NonNullableUsage
+  aborted?: boolean
+}
+
+export type SideQuestionRetry = {
+  retryAttempt: number
+  maxRetries: number
+  retryInMs: number
+  status: number | undefined
 }
 
 /**
@@ -53,9 +93,15 @@ export type SideQuestionResult = {
 export async function runSideQuestion({
   question,
   cacheSafeParams,
+  parentController,
+  onRetry,
+  threadHistory = true,
 }: {
   question: string
   cacheSafeParams: CacheSafeParams
+  parentController?: AbortController
+  onRetry?: (retry: SideQuestionRetry) => void
+  threadHistory?: boolean
 }): Promise<SideQuestionResult> {
   // Wrap the question with instructions to answer without tools
   const wrappedQuestion = `<system-reminder>This is a side question from the user. You must answer this question directly in a single response.
@@ -77,27 +123,71 @@ Simply answer the question with the information you have.</system-reminder>
 
 ${question}`
 
-  const agentResult = await runForkedAgent({
-    promptMessages: [createUserMessage({ content: wrappedQuestion })],
-    // Do NOT override thinkingConfig — thinking is part of the API cache key,
-    // and diverging from the main thread's config busts the prompt cache.
-    // Adaptive thinking on a quick Q&A has negligible overhead.
-    cacheSafeParams,
-    canUseTool: async () => ({
-      behavior: 'deny' as const,
-      message: 'Side questions cannot use tools',
-      decisionReason: { type: 'other' as const, reason: 'side_question' },
-    }),
-    querySource: 'side_question',
-    forkLabel: 'side_question',
-    maxTurns: 1, // Single turn only - no tool use loops
-    // No future request shares this suffix; skip writing cache entries.
-    skipCacheWrite: true,
-  })
+  const abortController = parentController
+    ? createChildAbortController(parentController)
+    : new AbortController()
+  const historyMessages = threadHistory
+    ? sideQuestionHistory.flatMap(entry => [
+        createUserMessage({ content: entry.question }),
+        createAssistantMessage({ content: entry.response }),
+      ])
+    : []
 
-  return {
-    response: extractSideQuestionResponse(agentResult.messages),
-    usage: agentResult.totalUsage,
+  try {
+    const agentResult = await runForkedAgent({
+      promptMessages: [
+        ...historyMessages,
+        createUserMessage({ content: wrappedQuestion }),
+      ],
+      cacheSafeParams,
+      canUseTool: async () => ({
+        behavior: 'deny' as const,
+        message: 'Side questions cannot use tools',
+        decisionReason: { type: 'other' as const, reason: 'side_question' },
+      }),
+      querySource: 'side_question',
+      forkLabel: 'side_question',
+      maxTurns: 1,
+      skipCacheWrite: true,
+      skipTranscript: true,
+      overrides: { abortController },
+      onMessage: onRetry
+        ? message => {
+            if (
+              message.type === 'system' &&
+              'subtype' in message &&
+              message.subtype === 'api_error'
+            ) {
+              onRetry({
+                retryAttempt: message.retryAttempt,
+                maxRetries: message.maxRetries,
+                retryInMs: message.retryInMs,
+                status: message.error.status,
+              })
+            }
+          }
+        : undefined,
+    })
+    const { response, synthetic } = extractSideQuestionResponse(
+      agentResult.messages,
+    )
+    if (threadHistory && response && !synthetic) {
+      sideQuestionHistory = [
+        ...sideQuestionHistory,
+        { question, response },
+      ].slice(-MAX_SIDE_QUESTION_HISTORY)
+    }
+    return { response, synthetic, usage: agentResult.totalUsage }
+  } catch (error) {
+    if (isAbortError(error) || abortController.signal.aborted) {
+      return {
+        response: null,
+        synthetic: false,
+        usage: { ...EMPTY_USAGE },
+        aborted: true,
+      }
+    }
+    throw error
   }
 }
 
@@ -122,7 +212,10 @@ ${question}`
  *   - API error exhausts retries → query yields system api_error + user
  *     interruption, no assistant message at all.
  */
-function extractSideQuestionResponse(messages: Message[]): string | null {
+function extractSideQuestionResponse(messages: Message[]): {
+  response: string | null
+  synthetic: boolean
+} {
   // Flatten all assistant content blocks across the per-block messages.
   const assistantBlocks = messages.flatMap(m =>
     m.type === 'assistant' ? m.message.content : [],
@@ -131,13 +224,16 @@ function extractSideQuestionResponse(messages: Message[]): string | null {
   if (assistantBlocks.length > 0) {
     // Concatenate all text blocks (there's normally at most one, but be safe).
     const text = extractTextContent(assistantBlocks, '\n\n').trim()
-    if (text) return text
+    if (text) return { response: text, synthetic: false }
 
     // No text — check if the model tried to call a tool despite instructions.
     const toolUse = assistantBlocks.find(b => b.type === 'tool_use')
     if (toolUse) {
       const toolName = 'name' in toolUse ? toolUse.name : 'a tool'
-      return `(The model tried to call ${toolName} instead of answering directly. Try rephrasing or ask in the main conversation.)`
+      return {
+        response: `(The model tried to call ${toolName} instead of answering directly. Try rephrasing or ask in the main conversation.)`,
+        synthetic: true,
+      }
     }
   }
 
@@ -148,8 +244,11 @@ function extractSideQuestionResponse(messages: Message[]): string | null {
       m.type === 'system' && 'subtype' in m && m.subtype === 'api_error',
   )
   if (apiErr) {
-    return `(API error: ${formatAPIError(apiErr.error)})`
+    return {
+      response: `(API error: ${formatAPIError(apiErr.error)})`,
+      synthetic: true,
+    }
   }
 
-  return null
+  return { response: null, synthetic: false }
 }

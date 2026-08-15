@@ -48,8 +48,8 @@ export async function fetchOfficialMarketplaceFromGcs(
   installLocation: string,
   marketplacesCacheDir: string,
 ): Promise<string | null> {
-  // Defense in depth: this function does `rm(installLocation, {recursive})`
-  // during the atomic swap. A corrupted known_marketplaces.json (gh-32793 —
+  // Defense in depth: this function replaces installLocation during the
+  // atomic swap. A corrupted known_marketplaces.json (gh-32793 —
   // Windows path read on WSL, literal tilde, manual edit) could point at the
   // user's project. Refuse any path outside the marketplaces cache dir.
   // Same guard as refreshMarketplace() at marketplaceManager.ts:~2392 but

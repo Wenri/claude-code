@@ -31,6 +31,8 @@ const cronTools = feature('AGENT_TRIGGERS')
       require('./tools/ScheduleCronTool/CronCreateTool.js').CronCreateTool,
       require('./tools/ScheduleCronTool/CronDeleteTool.js').CronDeleteTool,
       require('./tools/ScheduleCronTool/CronListTool.js').CronListTool,
+      require('./tools/ScheduleWakeupTool/ScheduleWakeupTool.js')
+        .ScheduleWakeupTool,
     ]
   : []
 const ScheduleWakeupTool = feature('AGENT_TRIGGERS')
@@ -271,13 +273,20 @@ export function filterToolsByDenyRules<
   return tools.filter(tool => !getDenyRuleForTool(permissionContext, tool))
 }
 
-export const getTools = (permissionContext: ToolPermissionContext): Tools => {
+type ToolPoolOptions = {
+  skipReplFilter?: boolean
+}
+
+export const getTools = (
+  permissionContext: ToolPermissionContext,
+  options?: ToolPoolOptions,
+): Tools => {
   // Simple mode: only Bash, Read, and Edit tools
   if (isEnvTruthy(process.env.CLAUDE_CODE_SIMPLE)) {
     // --bare + REPL mode: REPL wraps Bash/Read/Edit/etc inside the VM, so
     // return REPL instead of the raw primitives. Matches the non-bare path
     // below which also hides REPL_ONLY_TOOLS when REPL is enabled.
-    if (isReplModeEnabled() && REPLTool) {
+    if (isReplModeEnabled() && !options?.skipReplFilter && REPLTool) {
       const replSimple: Tool[] = [REPLTool]
       if (
         feature('COORDINATOR_MODE') &&
@@ -318,7 +327,7 @@ export const getTools = (permissionContext: ToolPermissionContext): Tools => {
 
   // When REPL mode is enabled, hide primitive tools from direct use.
   // They're still accessible inside REPL via the VM context.
-  if (isReplModeEnabled()) {
+  if (isReplModeEnabled() && !options?.skipReplFilter) {
     const replEnabled = allowedTools.some(tool =>
       toolMatchesName(tool, REPL_TOOL_NAME),
     )
@@ -361,8 +370,9 @@ export const getTools = (permissionContext: ToolPermissionContext): Tools => {
 export function assembleToolPool(
   permissionContext: ToolPermissionContext,
   mcpTools: Tools,
+  options?: ToolPoolOptions,
 ): Tools {
-  const builtInTools = getTools(permissionContext)
+  const builtInTools = getTools(permissionContext, options)
 
   // Filter out MCP tools that are in the deny list
   const allowedMcpTools = filterToolsByDenyRules(mcpTools, permissionContext)

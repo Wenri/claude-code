@@ -27,7 +27,42 @@ async function segmentedCommandPermissionResult(
     input: z.infer<typeof BashTool.inputSchema>,
   ) => Promise<PermissionResult>,
   checkers: CommandIdentityCheckers,
+  cdCommandsKeepCurrentDirectory?: (
+    subcommands: string[],
+  ) => Promise<boolean>,
 ): Promise<PermissionResult> {
+  const segmentResults = new Map<string, PermissionResult>()
+
+  // Evaluate every segment first so an explicit deny takes precedence over
+  // the compound-command safety prompts below.
+  for (const segment of segments) {
+    const trimmedSegment = segment.trim()
+    if (!trimmedSegment) continue
+    const segmentResult = await bashToolHasPermissionFn({
+      ...input,
+      command: trimmedSegment,
+    })
+    segmentResults.set(trimmedSegment, segmentResult)
+  }
+
+  const deniedSegment = Array.from(segmentResults.entries()).find(
+    ([, result]) => result.behavior === 'deny',
+  )
+  if (deniedSegment) {
+    const [segmentCommand, segmentResult] = deniedSegment
+    return {
+      behavior: 'deny',
+      message:
+        segmentResult.behavior === 'deny'
+          ? segmentResult.message
+          : `Permission denied for: ${segmentCommand}`,
+      decisionReason: {
+        type: 'subcommandResults',
+        reasons: segmentResults,
+      },
+    }
+  }
+
   // Check for multiple cd commands across all segments
   const cdCommands = segments.filter(segment => {
     const trimmed = segment.trim()
@@ -38,6 +73,7 @@ async function segmentedCommandPermissionResult(
       type: 'other' as const,
       reason:
         'Multiple directory changes in one command require approval for clarity',
+      bashMissKind: 'multi-cd',
     }
     return {
       behavior: 'ask',
@@ -55,10 +91,12 @@ async function segmentedCommandPermissionResult(
   {
     let hasCd = false
     let hasGit = false
+    const compoundSubcommands: string[] = []
     for (const segment of segments) {
       const subcommands = splitCommand_DEPRECATED(segment)
       for (const sub of subcommands) {
         const trimmed = sub.trim()
+        compoundSubcommands.push(trimmed)
         if (checkers.isNormalizedCdCommand(trimmed)) {
           hasCd = true
         }
@@ -67,51 +105,22 @@ async function segmentedCommandPermissionResult(
         }
       }
     }
-    if (hasCd && hasGit) {
+    if (
+      hasCd &&
+      hasGit &&
+      !(await cdCommandsKeepCurrentDirectory?.(compoundSubcommands))
+    ) {
       const decisionReason = {
         type: 'other' as const,
         reason:
-          'Compound commands with cd and git require approval to prevent bare repository attacks',
+          'This command changes directory before running git, which can execute untrusted hooks from the target directory. Approve only if you trust it.',
+        bashMissKind: 'cd-git-compound',
       }
       return {
         behavior: 'ask',
         decisionReason,
         message: createPermissionRequestMessage(BashTool.name, decisionReason),
       }
-    }
-  }
-
-  const segmentResults = new Map<string, PermissionResult>()
-
-  // Check each segment through the full permission system
-  for (const segment of segments) {
-    const trimmedSegment = segment.trim()
-    if (!trimmedSegment) continue // Skip empty segments
-
-    const segmentResult = await bashToolHasPermissionFn({
-      ...input,
-      command: trimmedSegment,
-    })
-    segmentResults.set(trimmedSegment, segmentResult)
-  }
-
-  // Check if any segment is denied (after evaluating all)
-  const deniedSegment = Array.from(segmentResults.entries()).find(
-    ([, result]) => result.behavior === 'deny',
-  )
-
-  if (deniedSegment) {
-    const [segmentCommand, segmentResult] = deniedSegment
-    return {
-      behavior: 'deny',
-      message:
-        segmentResult.behavior === 'deny'
-          ? segmentResult.message
-          : `Permission denied for: ${segmentCommand}`,
-      decisionReason: {
-        type: 'subcommandResults',
-        reasons: segmentResults,
-      },
     }
   }
 
@@ -185,6 +194,9 @@ export async function checkCommandOperatorPermissions(
   ) => Promise<PermissionResult>,
   checkers: CommandIdentityCheckers,
   astRoot: Node | null | typeof PARSE_ABORTED,
+  cdCommandsKeepCurrentDirectory?: (
+    subcommands: string[],
+  ) => Promise<boolean>,
 ): Promise<PermissionResult> {
   const parsed =
     astRoot && astRoot !== PARSE_ABORTED
@@ -198,6 +210,7 @@ export async function checkCommandOperatorPermissions(
     bashToolHasPermissionFn,
     checkers,
     parsed,
+    cdCommandsKeepCurrentDirectory,
   )
 }
 
@@ -212,6 +225,9 @@ async function bashToolCheckCommandOperatorPermissions(
   ) => Promise<PermissionResult>,
   checkers: CommandIdentityCheckers,
   parsed: IParsedCommand,
+  cdCommandsKeepCurrentDirectory?: (
+    subcommands: string[],
+  ) => Promise<boolean>,
 ): Promise<PermissionResult> {
   // 1. Check for unsafe compound commands (subshells, command groups).
   const tsAnalysis = parsed.getTreeSitterAnalysis()
@@ -230,6 +246,7 @@ async function bashToolCheckCommandOperatorPermissions(
         safetyResult.behavior === 'ask' && safetyResult.message
           ? safetyResult.message
           : 'This command uses shell operators that require approval for safety',
+      bashMissKind: 'shell-operators',
     }
     return {
       behavior: 'ask',
@@ -261,5 +278,6 @@ async function bashToolCheckCommandOperatorPermissions(
     segments,
     bashToolHasPermissionFn,
     checkers,
+    cdCommandsKeepCurrentDirectory,
   )
 }

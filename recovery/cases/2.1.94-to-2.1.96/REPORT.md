@@ -25,15 +25,30 @@ published package.
   target-backed semantic tests.
 
 The exact original 2.1.96 TypeScript tree is not uniquely recoverable.
-Neither adjacent package provides a source map. Two of the three changed
-Bedrock call sites live in target-only modules absent from both the 2.1.88
-source oracle and the current source tree, so their original filenames and
-module boundaries are unobservable. Their runtime bytes remain exact in the
-bundle recovery and are covered by target-fragment assertions and tests.
+Neither adjacent package provides a source map, so original filenames,
+module boundaries, spelling, comments, and layout remain partly unobservable.
+The formerly generated-only Bedrock onboarding and model-upgrade call sites
+now have equivalent, reachable historical and current source owners.
 
 The case is therefore labeled `generated-complete-source-partial`: the
 published executable and package tree are exact, while source-facing
 TypeScript is limited to behavior with a defensible authored placement.
+
+The semantic source audit is complete under
+`compiled-ast-function-semantics-v1`. Its fail-closed ledger covers all 75
+unresolved target structural units and reports zero first-party
+`source-runtime-gap` rows. The historical target plus its semantic supplement,
+and current `src/`, preserve all three Bedrock `apiKey` call paths.
+
+The final canonical semantic supplement contains 106 `src/` paths and
+4,321,868 bytes, pinned by SHA-256
+`dba122f721559133bdad7970c15ccda26c9dfcef2c5d0e82de65dbffdb2c1542`.
+
+Whole-bundle compilation from `src/` remains incomplete: two embedded
+`dependency-runtime` units lack pinned target dependency sources, and the
+historical target has no complete root manifest/lockfile or hermetic build
+recipe. The exact generated delta separately reconstructs the authenticated
+`cli.js` byte-for-byte.
 
 | Layer | Result |
 | --- | --- |
@@ -42,7 +57,8 @@ TypeScript is limited to behavior with a defensible authored placement.
 | Target generated offsets | Complete, 13,244,035 / 13,244,035 UTF-16 units |
 | Target JavaScript tokens | Complete classification, 4,266,673 / 4,266,673 |
 | Full readable bundle diff | Complete comparison view |
-| Incremental repository source | Partial, one reversible patch on one path |
+| First-party runtime semantics from source | Complete, 75 / 75 nonmatched units classified; 0 source gaps |
+| Whole-bundle dependency/build inputs | Incomplete, 2 dependency runtime gaps plus missing hermetic inputs |
 | Original authored 2.1.96 spelling | Partially unobservable |
 
 ## Published-version adjacency

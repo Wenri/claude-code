@@ -59,7 +59,10 @@ import {
 } from '../../utils/forkedAgent.js'
 import { registerFrontmatterHooks } from '../../utils/hooks/registerFrontmatterHooks.js'
 import { clearSessionHooks } from '../../utils/hooks/sessionHooks.js'
-import { executeSubagentStartHooks } from '../../utils/hooks.js'
+import {
+  executeStopHooks,
+  executeSubagentStartHooks,
+} from '../../utils/hooks.js'
 import { createUserMessage } from '../../utils/messages.js'
 import { getAgentModel } from '../../utils/model/agent.js'
 import type { ModelAlias } from '../../utils/model/aliases.js'
@@ -87,6 +90,19 @@ import type { ContentReplacementState } from '../../utils/toolResultStorage.js'
 import { createAgentId } from '../../utils/uuid.js'
 import { resolveAgentTools } from './agentToolUtils.js'
 import { type AgentDefinition, isBuiltInAgent } from './loadAgentsDir.js'
+
+const TASK_MANAGEMENT_TOOL_NAMES = new Set([
+  'TodoWrite',
+  'TaskCreate',
+  'TaskUpdate',
+  'TaskGet',
+  'TaskList',
+])
+
+function shouldFilterTaskManagementTools(isTeammate: boolean): boolean {
+  if (isTeammate) return false
+  return getFeatureValue_CACHED_MAY_BE_STALE('tengu_shale_finch', false)
+}
 
 /**
  * Initialize agent-specific MCP servers
@@ -283,6 +299,7 @@ export async function* runAgent({
   resumePersistedCount,
   transcriptSubdir,
   onQueryProgress,
+  isTeammate = false,
 }: {
   agentDefinition: AgentDefinition
   promptMessages: Message[]
@@ -349,6 +366,9 @@ export async function* runAgent({
    * during long single-block streams (e.g. thinking) where no assistant
    * message is yielded for >60s. */
   onQueryProgress?: () => void
+  /** Whether this invocation is an in-process teammate. Teammates retain the
+   * task-management tools in their prompt so they can coordinate shared work. */
+  isTeammate?: boolean
 }): AsyncGenerator<Message, void> {
   // Track subagent usage for feature discovery
 
@@ -523,6 +543,10 @@ export async function* runAgent({
   const resolvedTools = useExactTools
     ? availableTools
     : resolveAgentTools(agentDefinition, availableTools, isAsync).resolvedTools
+  const promptTools =
+    !useExactTools && shouldFilterTaskManagementTools(isTeammate)
+      ? resolvedTools.filter(tool => !TASK_MANAGEMENT_TOOL_NAMES.has(tool.name))
+      : resolvedTools
 
   const additionalWorkingDirectories = Array.from(
     appState.toolPermissionContext.additionalWorkingDirectories.keys(),
@@ -536,7 +560,7 @@ export async function* runAgent({
           toolUseContext,
           resolvedAgentModel,
           additionalWorkingDirectories,
-          resolvedTools,
+          promptTools,
         ),
       )
   const agentSystemPrompt =
@@ -548,6 +572,16 @@ export async function* runAgent({
           toolUseContext.options.appendSubagentSystemPrompt,
         ])
       : baseAgentSystemPrompt
+
+  const subagentSystemPrompt =
+    !useExactTools &&
+    isEnvTruthy(process.env.CLAUDE_CODE_ENABLE_APPEND_SUBAGENT_PROMPT) &&
+    toolUseContext.options.appendSubagentSystemPrompt
+      ? asSystemPrompt([
+          ...agentSystemPrompt,
+          toolUseContext.options.appendSubagentSystemPrompt,
+        ])
+      : agentSystemPrompt
 
   // Determine abortController:
   // - Override takes precedence
@@ -746,6 +780,10 @@ export async function* runAgent({
     criticalSystemReminder_EXPERIMENTAL:
       agentDefinition.criticalSystemReminder_EXPERIMENTAL,
     contentReplacementState,
+    replHydration: override?.replHydration,
+    isolationLatch: {
+      current: toolUseContext.isolationLatch?.current ?? null,
+    },
   })
 
   if (override?.replHydration) {
@@ -760,7 +798,7 @@ export async function* runAgent({
   // Expose cache-safe params for background summarization (prompt cache sharing)
   if (onCacheSafeParams) {
     onCacheSafeParams({
-      systemPrompt: agentSystemPrompt,
+      systemPrompt: subagentSystemPrompt,
       userContext: resolvedUserContext,
       systemContext: resolvedSystemContext,
       toolUseContext: agentToolUseContext,
@@ -820,7 +858,7 @@ export async function* runAgent({
   try {
     for await (const message of query({
       messages: initialMessages,
-      systemPrompt: agentSystemPrompt,
+      systemPrompt: subagentSystemPrompt,
       userContext: resolvedUserContext,
       systemContext: resolvedSystemContext,
       canUseTool,
@@ -836,8 +874,26 @@ export async function* runAgent({
         message.event.type === 'message_start' &&
         message.ttftMs != null
       ) {
-        toolUseContext.pushApiMetricsEntry?.(message.ttftMs)
+        apiMetricsEntryId = randomUUID()
+        toolUseContext.pushApiMetricsEntry?.({
+          type: 'start',
+          ttftMs: message.ttftMs,
+          id: apiMetricsEntryId,
+        })
         continue
+      }
+      if (
+        message.type === 'stream_event' &&
+        message.event.type === 'message_delta' &&
+        message.event.usage.output_tokens != null &&
+        apiMetricsEntryId != null
+      ) {
+        toolUseContext.pushApiMetricsEntry?.({
+          type: 'end',
+          outputTokens: message.event.usage.output_tokens,
+          id: apiMetricsEntryId,
+        })
+        apiMetricsEntryId = undefined
       }
 
       // Yield attachment messages (e.g., structured_output) without recording them
@@ -903,6 +959,11 @@ export async function* runAgent({
     // Clean up prompt cache tracking state for this agent
     if (shouldTrackPromptCacheBreaks()) {
       cleanupAgentTracking(agentId)
+    }
+    const replContext = toolUseContext.getAppState().replContexts[agentId]
+    if (replContext) {
+      replContext.clearAllTimers()
+      toolUseContext.setReplContext?.(agentId, undefined)
     }
     // Release cloned file state cache memory
     agentToolUseContext.readFileState.clear()

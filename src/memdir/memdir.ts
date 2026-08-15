@@ -1,7 +1,11 @@
 import { feature } from 'bun:bundle'
 import { join } from 'path'
 import { getFsImplementation } from '../utils/fsOperations.js'
-import { getAutoMemPath, isAutoMemoryEnabled } from './paths.js'
+import {
+  getAutoMemPath,
+  isAutoMemoryEnabled,
+  isTinyMemoryEnabled,
+} from './paths.js'
 
 /* eslint-disable @typescript-eslint/no-require-imports */
 const teamMemPaths = feature('TEAMMEM')
@@ -253,6 +257,8 @@ export function buildMemoryLines(
     '',
     ...WHEN_TO_ACCESS_SECTION,
     '',
+    ...RECALLED_MEMORIES_IN_TOOL_RESULTS_SECTION,
+    '',
     ...TRUSTING_RECALL_SECTION,
     '',
     '## Memory and other forms of persistence',
@@ -269,6 +275,161 @@ export function buildMemoryLines(
   }
 
   return lines
+}
+
+export function buildTinyMemoryLines(
+  displayName: string,
+  memoryDir: string,
+  searchingPastContext: string[],
+  extraGuidelines?: string[],
+): string[] {
+  const howToSave = [
+    '## How to save memories',
+    '',
+    "Write each memory to its own file. Use a 3-4 word filename that describes what the memory is about (e.g., `prefers-bun-over-npm.md`, `compliance-driven-rewrite.md`). Don't prefix the filename with the memory type — that's already in the frontmatter — and don't restate the memory body in the filename. Use this frontmatter format:",
+    '',
+    ...TINY_MEMORY_FRONTMATTER_EXAMPLE,
+    '',
+    '- Do not write duplicate memories. First check if there is an existing memory that already covers what you want to save.',
+    '- Delete existing memories that are superceded by the memory you have saved.',
+  ]
+  const lines = [
+    `# ${displayName}`,
+    '',
+    `You have a persistent, file-based memory system at \`${memoryDir}\`. ${DIR_EXISTS_GUIDANCE}`,
+    '',
+    "You should build up this memory system over time so that future conversations can have a complete picture of who the user is, how they'd like to collaborate with you, what behaviors to avoid or repeat, and the context behind the work the user gives you.",
+    '',
+    'If the user explicitly asks you to remember something, save it immediately as whichever type fits best. If they ask you to forget something, find and remove the relevant entry.',
+    '',
+    '## Memory files',
+    '',
+    '### Granularity',
+    "Each memory file should contain one paragraph about a single fact that you'd like to remember for future sessions. If you wish to record multiple facts, save these into separate memory files. Avoid writing one very long paragraph into a single memory file — that is a sign that you should probably break up the memory into multiple memory files.",
+    '',
+    '### Immutability',
+    'Memory files should be treated as immutable. You should never edit a memory file in-place to update it. Instead, delete any memory files that have become stale or invalid and create new memory files in their place. Make sure you are careful that no useful information is lost in this switch.',
+    '',
+    ...TINY_MEMORY_TYPES_SECTION_INDIVIDUAL,
+    ...WHAT_NOT_TO_SAVE_SECTION,
+    '',
+    ...howToSave,
+    '',
+    ...TINY_MEMORY_WHEN_TO_ACCESS_SECTION,
+    '',
+    ...TINY_MEMORY_RECALLED_TOOL_RESULTS_SECTION,
+    '',
+    ...TRUSTING_RECALL_SECTION,
+    '',
+    '## Memory and other forms of persistence',
+    'Memory is one of several persistence mechanisms available to you as you assist the user in a given conversation. The distinction is often that memory can be recalled in future conversations and should not be used for persisting information that is only useful within the scope of the current conversation.',
+    '- When to use or update a plan instead of memory: If you are about to start a non-trivial implementation task and would like to reach alignment with the user on your approach you should use a Plan rather than saving this information to memory. Similarly, if you already have a plan within the conversation and you have changed your approach persist that change by updating the plan rather than saving a memory.',
+    '- When to use or update tasks instead of memory: When you need to break your work in current conversation into discrete steps or keep track of your progress use tasks instead of saving to memory. Tasks are great for persisting information about the work that needs to be done in the current conversation, but memory should be reserved for information that will be useful in future conversations.',
+    '',
+    ...(extraGuidelines ?? []),
+    '',
+  ]
+  lines.push(...searchingPastContext)
+  return lines
+}
+
+export function buildTinyCombinedMemoryPrompt(
+  privateDir: string,
+  teamDir: string,
+  searchingPastContext: string[],
+  extraGuidelines?: string[],
+): string {
+  const howToSave = [
+    '## How to save memories',
+    '',
+    "Write each memory to its own file in the chosen directory (private or team, per the type's scope guidance). Use a 3-4 word filename that describes what the memory is about (e.g., `prefers-bun-over-npm.md`, `compliance-driven-rewrite.md`). Don't prefix the filename with the memory type — that's already in the frontmatter — and don't restate the memory body in the filename. Use this frontmatter format:",
+    '',
+    ...TINY_MEMORY_FRONTMATTER_EXAMPLE,
+    '',
+    '- Do not write duplicate memories. First check if there is an existing memory that already covers what you want to save.',
+    '- Delete existing memories that are superceded by the memory you have saved.',
+  ]
+  return [
+    '# Memory',
+    '',
+    `You have a persistent, file-based memory system with two directories: a private directory at \`${privateDir}\` and a shared team directory at \`${teamDir}\`. ${DIRS_EXIST_GUIDANCE}`,
+    '',
+    "You should build up this memory system over time so that future conversations can have a complete picture of who the user is, how they'd like to collaborate with you, what behaviors to avoid or repeat, and the context behind the work the user gives you.",
+    '',
+    'If the user explicitly asks you to remember something, save it immediately as whichever type fits best. If they ask you to forget something, find and remove the relevant entry.',
+    '',
+    '## Memory files',
+    '',
+    '### Granularity',
+    "Each memory file should contain one paragraph about a single fact that you'd like to remember for future sessions. If you wish to record multiple facts, save these into separate memory files. Avoid writing one very long paragraph into a single memory file — that is a sign that you should probably break up the memory into multiple memory files.",
+    '',
+    '### Immutability',
+    'Memory files should be treated as immutable. You should never edit a memory file in-place to update it. Instead, delete any memory files that have become stale or invalid and create new memory files in their place. Make sure you are careful that no useful information is lost in this switch.',
+    '',
+    '## Memory scope',
+    '',
+    'There are two scope levels:',
+    '',
+    `- private: memories that are private between you and the current user. They persist across conversations with only this specific user and are stored at the root \`${privateDir}\`.`,
+    `- team: memories that are shared with and contributed by all of the users who work within this project directory. Team memories are synced at the beginning of every session and they are stored at \`${teamDir}\`.`,
+    '',
+    ...TINY_MEMORY_TYPES_SECTION_COMBINED,
+    ...WHAT_NOT_TO_SAVE_SECTION,
+    '- You MUST avoid saving sensitive data within shared team memories. For example, never save API keys or user credentials.',
+    '',
+    ...howToSave,
+    '',
+    ...TINY_MEMORY_WHEN_TO_ACCESS_SECTION,
+    '',
+    ...TINY_MEMORY_RECALLED_TOOL_RESULTS_SECTION,
+    '',
+    ...TRUSTING_RECALL_SECTION,
+    '',
+    '## Memory and other forms of persistence',
+    'Memory is one of several persistence mechanisms available to you as you assist the user in a given conversation. The distinction is often that memory can be recalled in future conversations and should not be used for persisting information that is only useful within the scope of the current conversation.',
+    '- When to use or update a plan instead of memory: If you are about to start a non-trivial implementation task and would like to reach alignment with the user on your approach you should use a Plan rather than saving this information to memory. Similarly, if you already have a plan within the conversation and you have changed your approach persist that change by updating the plan rather than saving a memory.',
+    '- When to use or update tasks instead of memory: When you need to break your work in current conversation into discrete steps or keep track of your progress use tasks instead of saving to memory. Tasks are great for persisting information about the work that needs to be done in the current conversation, but memory should be reserved for information that will be useful in future conversations.',
+    ...(extraGuidelines ?? []),
+    '',
+    ...searchingPastContext,
+  ].join('\n')
+}
+
+export function buildTinyMemoryPruningPrompt(
+  memoryDir: string,
+  extra?: string,
+  teamMemoryEnabled = false,
+): string {
+  return `# Dream: Memory Pruning
+
+You are performing a dream — a pruning pass over your memory files. The job is small: delete stale or invalidated memories, and collapse duplicates.
+
+Memory directory: \`${memoryDir}\`
+${DIR_EXISTS_GUIDANCE}
+
+Memory files are immutable: never edit them in place. Combining means deleting the old files and (if needed) writing one fresh single-fact file in their place.
+
+## What to do
+
+1. \`find ${memoryDir} -name '*.md'\` to enumerate every memory file (including any \`team/\` subdirectory).
+2. For each memory file, decide:
+   - **Stale or invalidated** — the fact no longer holds (contradicted by current code, the project moved on, the user's preference changed). Delete the file.
+   - **Duplicate or near-duplicate** — another memory already covers the same fact. Delete the redundant copies. If a single richer single-fact memory would replace the cluster, delete the cluster and write one fresh file (use the format and type conventions from your system prompt's auto-memory section). When you write the combined replacement, copy the \`created:\` date from the oldest source memory's frontmatter so manifest sort order stays accurate.
+   - **Still good** — leave it alone.${
+    teamMemoryEnabled
+      ? "\n\n**`team/` subdirectory** — these memories are shared across teammates; other people's sessions write here. Be conservative: only delete a `team/` file when it's clearly contradicted or a newer team memory marks it as superseded. Do NOT delete a team memory just because you don't recognize it or it isn't relevant to your recent sessions — a teammate may rely on it. Do not move personal memories into `team/`."
+      : ''
+  }
+
+Return a brief summary of what you deleted, combined, or left alone. If nothing changed, say so.${
+    extra
+      ? `
+
+## Additional context
+
+${extra}`
+      : ''
+  }`
 }
 
 /**

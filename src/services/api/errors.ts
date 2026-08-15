@@ -35,6 +35,7 @@ import {
 } from 'src/utils/model/providers.js'
 import { getIsNonInteractiveSession } from '../../bootstrap/state.js'
 import {
+  API_MAX_REQUEST_SIZE,
   API_PDF_MAX_PAGES,
   PDF_TARGET_RAW_SIZE,
 } from '../../constants/apiLimits.js'
@@ -137,7 +138,8 @@ export function isMediaSizeError(raw: string): boolean {
   return (
     (raw.includes('image exceeds') && raw.includes('maximum')) ||
     (raw.includes('image dimensions exceed') && raw.includes('many-image')) ||
-    /maximum of \d+ PDF pages/.test(raw)
+    /maximum of \d+ PDF pages/.test(raw) ||
+    raw.includes('request_too_large')
   )
 }
 
@@ -193,7 +195,7 @@ export function getImageTooLargeErrorMessage(): string {
     : 'Image was too large. Double press esc to go back and try again with a smaller image.'
 }
 export function getRequestTooLargeErrorMessage(): string {
-  const limits = `max ${formatFileSize(PDF_TARGET_RAW_SIZE)}`
+  const limits = `max ${formatFileSize(API_MAX_REQUEST_SIZE)}`
   return getIsNonInteractiveSession()
     ? `Request too large (${limits}). Try with a smaller file.`
     : `Request too large (${limits}). Double press esc to go back and try with a smaller file.`
@@ -962,15 +964,16 @@ function getAssistantMessageFromErrorInternal(
     })
   }
 
-  const statusHint =
-    getAPIProvider() === 'firstParty' ? ` · check ${CLAUDE_STATUS_PAGE}` : ''
+  const statusHint = isFirstPartyCompatibleAPIProvider()
+    ? ` If it persists, check ${CLAUDE_STATUS_PAGE}.`
+    : ''
 
   if (
     error instanceof Error &&
     error.message.includes(REPEATED_529_ERROR_MESSAGE)
   ) {
     return createAssistantAPIErrorMessage({
-      content: `${API_ERROR_MESSAGE_PREFIX}: ${REPEATED_529_ERROR_MESSAGE}${statusHint}`,
+      content: `${API_ERROR_MESSAGE_PREFIX}: ${REPEATED_529_ERROR_MESSAGE}. The API is at capacity — this is usually temporary. Try again in a moment.${statusHint}`,
       error: 'server_error',
     })
   }
@@ -980,8 +983,9 @@ function getAssistantMessageFromErrorInternal(
     typeof error.status === 'number' &&
     error.status >= 500
   ) {
+    const detail = formatAPIError(error).replace(/[.!?\u2026]+$/, '')
     return createAssistantAPIErrorMessage({
-      content: `${API_ERROR_MESSAGE_PREFIX}: ${formatAPIError(error)}${statusHint}`,
+      content: `${API_ERROR_MESSAGE_PREFIX}: ${detail}. This is a server-side issue, usually temporary — try again in a moment.${statusHint}`,
       error: 'server_error',
     })
   }
@@ -1016,8 +1020,15 @@ function get3PModelFallbackSuggestion(model: string): string | undefined {
   }
   // @[MODEL LAUNCH]: Add a fallback suggestion chain for the new model → previous version for 3P
   const m = model.toLowerCase()
-  // If the failing model looks like an Opus 4.6 variant, suggest the default Opus (4.1 for 3P)
-  if (m.includes('opus-4-6') || m.includes('opus_4_6')) {
+  // If the failing model looks like a recent Opus variant, suggest the default Opus (4.1 for 3P)
+  if (
+    m.includes('opus-4-7') ||
+    m.includes('opus_4_7') ||
+    m.includes('opus-4-6') ||
+    m.includes('opus_4_6') ||
+    m.includes('opus-4-5') ||
+    m.includes('opus_4_5')
+  ) {
     return getModelStrings().opus41
   }
   // If the failing model looks like a Sonnet 4.6 variant, suggest Sonnet 4.5
@@ -1123,6 +1134,12 @@ export function classifyAPIError(error: unknown): string {
     error.message.includes('many-image')
   ) {
     return 'image_too_large'
+  }
+
+  if (error instanceof APIError && error.status === 413) {
+    return error.message.toLowerCase().includes('context window')
+      ? 'prompt_too_long'
+      : 'request_too_large'
   }
 
   // Tool use errors (400)

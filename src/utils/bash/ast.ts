@@ -450,8 +450,7 @@ export function parseForSecurityFromAst(
     // `enable`, `hash` leaked with Bash(*). Fail closed: too-complex → ask.
     return {
       kind: 'too-complex',
-      reason:
-        'Parser aborted (timeout or resource limit) — possible adversarial input',
+      reason: 'Parser aborted (timeout, resource limit, or over-length)',
       nodeType: 'PARSE_ABORT',
     }
   }
@@ -542,6 +541,7 @@ function collectCommands(
     // nothing mutates caller's scope. For `list`/`program`, the `&&`/`;`
     // chain mutates caller's scope (sequential); fork only on `||`/`&`.
     let scope = isPipeline ? new Map(varScope) : varScope
+    let conditionallyUnset: Set<string> | null = null
     for (const child of node.children) {
       if (!child) continue
       if (SEPARATOR_TYPES.has(child.type)) {
@@ -551,15 +551,30 @@ function collectCommands(
           child.type === '|&' ||
           child.type === '&'
         ) {
+          if (child.type === '||') {
+            conditionallyUnset ??= new Set<string>()
+            for (const name of varScope.keys()) conditionallyUnset.add(name)
+          }
           // For pipeline: varScope is untouched (we started with a copy).
           // For list/program: snapshot is non-null (pre-scan set it).
           // `|`/`|&` only appear under `pipeline` nodes; `||`/`&` under list.
           scope = new Map(snapshot ?? varScope)
+        } else if (conditionallyUnset !== null) {
+          for (const name of conditionallyUnset) {
+            varScope.set(name, VAR_PLACEHOLDER)
+          }
+          conditionallyUnset = null
+          scope = varScope
         }
         continue
       }
       const err = collectCommands(child, commands, scope)
       if (err) return err
+    }
+    if (conditionallyUnset !== null) {
+      for (const name of conditionallyUnset) {
+        varScope.set(name, VAR_PLACEHOLDER)
+      }
     }
     return null
   }
@@ -758,6 +773,7 @@ function collectCommands(
       const err = collectCommands(c, commands, bodyScope)
       if (err) return err
     }
+    mergeConditionalScope(varScope, bodyScope)
     return null
   }
 
@@ -807,6 +823,7 @@ function collectCommands(
           const err = collectCommands(c, commands, bodyScope)
           if (err) return err
         }
+        mergeConditionalScope(varScope, bodyScope)
         continue
       }
       if (child.type === 'elif_clause' || child.type === 'else_clause') {
@@ -826,13 +843,14 @@ function collectCommands(
           const err = collectCommands(c, commands, branchScope)
           if (err) return err
         }
+        mergeConditionalScope(varScope, branchScope)
         continue
       }
       // Condition (seenThen=false) or then-body (seenThen=true).
       // Condition uses REAL varScope (always runs). Then-body uses a COPY.
       // Special-case `while read VAR`: after condition `read VAR` is
       // collected, track VAR in the REAL scope so the body COPY inherits it.
-      const targetScope = seenThen ? new Map(varScope) : varScope
+      const targetScope = new Map(varScope)
       const before = commands.length
       const err = collectCommands(child, commands, targetScope)
       if (err) return err
@@ -874,6 +892,26 @@ function collectCommands(
             }
           }
         }
+        for (const [name, value] of targetScope) {
+          const existing = varScope.get(name)
+          if (
+            existing !== undefined &&
+            !containsAnyPlaceholder(existing) &&
+            containsAnyPlaceholder(value)
+          ) {
+            return {
+              kind: 'too-complex',
+              reason: `'${name}' was tracked as literal '${existing}' but condition may modify it (||/pipeline/unset) — cannot prove downstream value`,
+              nodeType: node.type,
+            }
+          }
+          varScope.set(name, value)
+        }
+        for (const name of varScope.keys()) {
+          if (!targetScope.has(name)) varScope.set(name, VAR_PLACEHOLDER)
+        }
+      } else {
+        mergeConditionalScope(varScope, targetScope)
       }
     }
     return null
@@ -1083,6 +1121,12 @@ function walkFileRedirect(
       fd = Number(child.text)
     } else if (child.type in REDIRECT_OPS) {
       op = REDIRECT_OPS[child.type] ?? null
+    } else if (target !== null) {
+      return {
+        kind: 'too-complex',
+        reason: 'Redirect has multiple targets — post-redirect args swallowed',
+        nodeType: node.type,
+      }
     } else if (child.type === 'word' || child.type === 'number') {
       // SECURITY: `number` nodes can contain expansion children via the
       // `NN#<expansion>` arithmetic-base grammar quirk — same issue as
@@ -1094,6 +1138,9 @@ function walkFileRedirect(
       // `concatenation` node for brace targets (caught by the default
       // branch below), but check `word` text too for defense-in-depth.
       if (BRACE_EXPANSION_RE.test(child.text)) return tooComplex(child)
+      if (/(?:^|[^\\])(?:\\\\)*[`$]/.test(child.text)) {
+        return tooComplex(child)
+      }
       // Unescape backslash sequences — same as walkArgument. Bash quote
       // removal turns `\X` → `X`. Without this, `cat < /proc/self/\environ`
       // stores target `/proc/self/\environ` which evades PROC_ENVIRON_RE,
@@ -1121,6 +1168,28 @@ function walkFileRedirect(
     return {
       kind: 'too-complex',
       reason: 'Unrecognized redirect shape',
+      nodeType: node.type,
+    }
+  }
+  if (containsAnyPlaceholder(target)) {
+    return {
+      kind: 'too-complex',
+      reason: 'Redirect target contains $(cmd) output — path is runtime-determined',
+      nodeType: node.type,
+    }
+  }
+  if (target.includes('\n')) {
+    return {
+      kind: 'too-complex',
+      reason: 'Redirect target contains newline — potential path traversal',
+      nodeType: node.type,
+    }
+  }
+  if (target.startsWith('!')) {
+    return {
+      kind: 'too-complex',
+      reason:
+        'Redirect target starts with ! — zsh clobber or history expansion',
       nodeType: node.type,
     }
   }
@@ -1177,6 +1246,18 @@ function walkHeredocRedirect(node: Node): ParseForSecurityResult | null {
     return {
       kind: 'too-complex',
       reason: 'Heredoc with unquoted delimiter undergoes shell expansion',
+      nodeType: 'heredoc_redirect',
+    }
+  }
+
+  if (
+    startText !== null &&
+    (startText.startsWith("'") || startText.startsWith('"')) &&
+    startText.slice(1, -1).includes('\\')
+  ) {
+    return {
+      kind: 'too-complex',
+      reason: 'Quoted heredoc delimiter contains backslash',
       nodeType: 'heredoc_redirect',
     }
   }
@@ -1422,6 +1503,13 @@ function walkArgument(
           nodeType: 'word',
         }
       }
+      if (/(?:^|[^\\])(?:\\\\)*[`$]/.test(node.text)) {
+        return {
+          kind: 'too-complex',
+          reason: 'Word contains unescaped ` or $ — parser missed expansion',
+          nodeType: 'word',
+        }
+      }
       return node.text.replace(/\\(.)/g, '$1')
     }
 
@@ -1553,6 +1641,20 @@ function walkString(
         sawLiteralContent = true
         break
       case DOLLAR:
+        if (
+          node.children[node.children.indexOf(child) + 1]?.type ===
+            'string_content' &&
+          node.children[
+            node.children.indexOf(child) + 1
+          ]?.text.startsWith('[')
+        ) {
+          return {
+            kind: 'too-complex',
+            reason:
+              'Legacy $[...] arithmetic inside double-quotes — recursive subscript eval',
+            nodeType: 'string',
+          }
+        }
         // A bare dollar sign before closing quote or a non-name char is
         // literal in bash. tree-sitter emits it as a standalone node.
         result += DOLLAR
@@ -2014,6 +2116,21 @@ function resolveSimpleExpansion(
  * $VAR correctly rejects as bare arg.
  * `VAR=/etc && VAR+=$(cmd)` must not leave VAR looking static.
  */
+function mergeConditionalScope(
+  varScope: Map<string, string>,
+  branchScope: Map<string, string>,
+): void {
+  for (const [name, value] of branchScope) {
+    const existing = varScope.get(name)
+    if (existing !== undefined && existing !== value) {
+      varScope.set(name, VAR_PLACEHOLDER)
+    }
+  }
+  for (const name of varScope.keys()) {
+    if (!branchScope.has(name)) varScope.set(name, VAR_PLACEHOLDER)
+  }
+}
+
 function applyVarToScope(
   varScope: Map<string, string>,
   ev: { name: string; value: string; isAppend: boolean },
@@ -2188,6 +2305,81 @@ const BARE_SUBSCRIPT_NAME_BUILTINS = new Set(['read', 'unset'])
  */
 const READ_DATA_FLAGS = new Set(['-p', '-d', '-n', '-N', '-t', '-u', '-i'])
 
+/**
+ * `find` predicates that execute commands or write/delete files. These must
+ * not inherit a broad Bash(find:*) allow rule merely because the executable
+ * itself is read-oriented in the common case.
+ */
+const DANGEROUS_FIND_PREDICATES = new Set([
+  '-exec',
+  '-execdir',
+  '-ok',
+  '-okdir',
+  '-delete',
+  '-fprint',
+  '-fprint0',
+  '-fprintf',
+  '-fls',
+])
+
+/** Predicates whose following argv element is data, not another predicate. */
+const FIND_ARGUMENT_PREDICATES = new Set([
+  '-name',
+  '-iname',
+  '-path',
+  '-ipath',
+  '-lname',
+  '-ilname',
+  '-regex',
+  '-iregex',
+  '-wholename',
+  '-iwholename',
+  '-samefile',
+  '-newer',
+  '-anewer',
+  '-cnewer',
+  '-perm',
+  '-user',
+  '-group',
+  '-uid',
+  '-gid',
+  '-size',
+  '-type',
+  '-xtype',
+  '-fstype',
+  '-inum',
+  '-links',
+  '-used',
+  '-context',
+  '-amin',
+  '-cmin',
+  '-mmin',
+  '-atime',
+  '-ctime',
+  '-mtime',
+  '-mindepth',
+  '-maxdepth',
+  '-printf',
+  '-regextype',
+])
+
+const FIND_NEWER_PREDICATE_RE = /^-newer[aBcm][aBcmt]$/
+
+/** Programs whose positional operand is another command to execute. */
+const COMMAND_WRAPPERS = new Set([
+  'watch',
+  'ionice',
+  'chrt',
+  'setsid',
+  'taskset',
+  'strace',
+  'ltrace',
+  'script',
+  'flock',
+  'unshare',
+  'nsenter',
+])
+
 // SHELL_KEYWORDS imported from bashParser.ts — shell reserved words can never
 // be legitimate argv[0]; if they appear, the parser mis-parsed a compound
 // command. Reject to avoid nonsense argv reaching downstream.
@@ -2203,7 +2395,9 @@ const PROC_ENVIRON_RE = /\/proc\/.*\/environ/
  */
 const NEWLINE_HASH_RE = /\n[ \t]*#/
 
-export type SemanticCheckResult = { ok: true } | { ok: false; reason: string }
+export type SemanticCheckResult =
+  | { ok: true }
+  | { ok: false; reason: string; kind?: 'newline-hash' }
 
 /**
  * Post-argv semantic checks. Run after parseForSecurity returns 'simple' to
@@ -2211,6 +2405,12 @@ export type SemanticCheckResult = { ok: true } | { ok: false; reason: string }
  * content. Returns the first failure or {ok: true}.
  */
 export function checkSemantics(commands: SimpleCommand[]): SemanticCheckResult {
+  // Preserve the newline/hash failure until all commands have been checked.
+  // More specific semantic failures (for example jq system() or an eval-like
+  // builtin) take precedence, while this marker lets the permission layer
+  // retain the sandbox auto-allow behavior for this one parser differential.
+  let newlineHashFailure: SemanticCheckResult | null = null
+
   for (const cmd of commands) {
     // Strip safe wrapper commands (nohup, time, timeout N, nice -n N) so
     // `nohup eval "..."` and `timeout 5 jq 'system(...)'` are checked
@@ -2559,8 +2759,9 @@ export function checkSemantics(commands: SimpleCommand[]): SemanticCheckResult {
     // TODO: remove once downstream path validation operates on argv.
     for (const arg of cmd.argv) {
       if (arg.includes('\n') && NEWLINE_HASH_RE.test(arg)) {
-        return {
+        newlineHashFailure ??= {
           ok: false,
+          kind: 'newline-hash',
           reason:
             'Newline followed by # inside a quoted argument can hide arguments from path validation',
         }
@@ -2568,8 +2769,9 @@ export function checkSemantics(commands: SimpleCommand[]): SemanticCheckResult {
     }
     for (const ev of cmd.envVars) {
       if (ev.value.includes('\n') && NEWLINE_HASH_RE.test(ev.value)) {
-        return {
+        newlineHashFailure ??= {
           ok: false,
+          kind: 'newline-hash',
           reason:
             'Newline followed by # inside an env var value can hide arguments from path validation',
         }
@@ -2577,8 +2779,9 @@ export function checkSemantics(commands: SimpleCommand[]): SemanticCheckResult {
     }
     for (const r of cmd.redirects) {
       if (r.target.includes('\n') && NEWLINE_HASH_RE.test(r.target)) {
-        return {
+        newlineHashFailure ??= {
           ok: false,
+          kind: 'newline-hash',
           reason:
             'Newline followed by # inside a redirect target can hide arguments from path validation',
         }
@@ -2616,6 +2819,25 @@ export function checkSemantics(commands: SimpleCommand[]): SemanticCheckResult {
       }
     }
 
+    if (name === 'find') {
+      for (let i = 1; i < a.length; i++) {
+        const arg = a[i]!
+        if (
+          FIND_ARGUMENT_PREDICATES.has(arg) ||
+          FIND_NEWER_PREDICATE_RE.test(arg)
+        ) {
+          i++
+          continue
+        }
+        if (DANGEROUS_FIND_PREDICATES.has(arg)) {
+          return {
+            ok: false,
+            reason: `find with '${arg}' executes commands or modifies files — cannot be auto-allowed by a Bash(find:*) prefix rule`,
+          }
+        }
+      }
+    }
+
     if (ZSH_DANGEROUS_BUILTINS.has(name)) {
       return {
         ok: false,
@@ -2627,7 +2849,12 @@ export function checkSemantics(commands: SimpleCommand[]): SemanticCheckResult {
       // `command -v foo` / `command -V foo` are POSIX existence checks that
       // only print paths — they never execute argv[1]. Bare `command foo`
       // does bypass function/alias lookup (the concern), so keep blocking it.
-      if (name === 'command' && (a[1] === '-v' || a[1] === '-V')) {
+      if (
+        name === 'command' &&
+        (a[1] === '-v' ||
+          a[1] === '-V' ||
+          (a[1] === '-p' && (a[2] === '-v' || a[2] === '-V')))
+      ) {
         // fall through to remaining checks
       } else if (
         name === 'fc' &&
@@ -2655,6 +2882,13 @@ export function checkSemantics(commands: SimpleCommand[]): SemanticCheckResult {
       }
     }
 
+    if (COMMAND_WRAPPERS.has(name) && a.length > 1) {
+      return {
+        ok: false,
+        reason: `'${name}' runs its argument as a command — cannot be statically analyzed`,
+      }
+    }
+
     // /proc/*/environ exposes env vars (including secrets) of other processes.
     // Check argv and redirect targets — `cat /proc/self/environ` and
     // `cat < /proc/self/environ` both read it.
@@ -2675,5 +2909,6 @@ export function checkSemantics(commands: SimpleCommand[]): SemanticCheckResult {
       }
     }
   }
+  if (newlineHashFailure) return newlineHashFailure
   return { ok: true }
 }

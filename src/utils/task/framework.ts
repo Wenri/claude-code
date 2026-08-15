@@ -217,7 +217,9 @@ export function getRunningTasks(state: AppState): TaskState[] {
  * Generate attachments for tasks with new output or status changes.
  * Called by the framework to create push notifications.
  */
-export async function generateTaskAttachments(state: AppState): Promise<{
+export async function generateTaskAttachments(
+  tasks: Record<string, TaskState>,
+): Promise<{
   attachments: TaskAttachment[]
   // Only the offset patch — NOT the full task. The task may transition to
   // completed during getTaskOutputDelta's async disk read, and spreading the
@@ -228,8 +230,6 @@ export async function generateTaskAttachments(state: AppState): Promise<{
   const attachments: TaskAttachment[] = []
   const updatedTaskOffsets: Record<string, number> = {}
   const evictedTaskIds: string[] = []
-  const tasks = state.tasks ?? {}
-
   for (const taskState of Object.values(tasks)) {
     if (taskState.notified) {
       switch (taskState.status) {
@@ -326,7 +326,7 @@ export async function pollTasks(
 ): Promise<void> {
   const state = getAppState()
   const { attachments, updatedTaskOffsets, evictedTaskIds } =
-    await generateTaskAttachments(state)
+    await generateTaskAttachments(state.tasks)
 
   applyTaskOffsetsAndEvictions(setAppState, updatedTaskOffsets, evictedTaskIds)
 

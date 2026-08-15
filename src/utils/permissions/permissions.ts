@@ -549,10 +549,12 @@ export const hasPermissionsToUseTool: CanUseToolFn = async (
       // auto. classifierApprovable safetyChecks (sensitive-file paths) fall
       // through to the classifier — the fast-paths below naturally don't fire
       // because the tool's own checkPermissions still returns 'ask'.
-      if (
-        result.decisionReason?.type === 'safetyCheck' &&
-        !result.decisionReason.classifierApprovable
-      ) {
+      const safetyCheck = findSafetyCheck(
+        result.decisionReason,
+        reason => !reason.classifierApprovable,
+      )
+      const sandboxOverride = result.decisionReason?.type === 'sandboxOverride'
+      if (safetyCheck || sandboxOverride) {
         if (appState.toolPermissionContext.shouldAvoidPermissionPrompts) {
           return {
             behavior: 'deny',
@@ -564,7 +566,7 @@ export const hasPermissionsToUseTool: CanUseToolFn = async (
             },
           }
         }
-        return result
+        if (safetyCheck) return result
       }
       if (tool.requiresUserInteraction?.() && result.behavior === 'ask') {
         return result
@@ -674,7 +676,7 @@ export const hasPermissionsToUseTool: CanUseToolFn = async (
 
       // Run the auto mode classifier
       const action = formatActionForClassifier(tool.name, input)
-      setClassifierChecking(toolUseID)
+      setClassifierChecking(context.setClassifierApprovals, toolUseID)
       let classifierResult
       try {
         classifierResult = await classifyYoloAction(
@@ -685,7 +687,7 @@ export const hasPermissionsToUseTool: CanUseToolFn = async (
           context.abortController.signal,
         )
       } finally {
-        clearClassifierChecking(toolUseID)
+        clearClassifierChecking(context.setClassifierApprovals, toolUseID)
       }
 
       // Notify ants when classifier error dumped prompts (will be in /share)
@@ -1146,7 +1148,8 @@ export async function checkRuleBasedPermissions(
   // allow. checkPathSafetyForAutoEdit returns {type:'safetyCheck'} for these.
   if (
     toolPermissionResult?.behavior === 'ask' &&
-    toolPermissionResult.decisionReason?.type === 'safetyCheck'
+    (findSafetyCheck(toolPermissionResult.decisionReason) ||
+      toolPermissionResult.decisionReason?.type === 'sandboxOverride')
   ) {
     return toolPermissionResult
   }
@@ -1174,6 +1177,32 @@ export function getPermissionRequestHookRuleOverride(
     return ruleCheck
   }
   return null
+}
+
+type SafetyCheckDecisionReason = Extract<
+  PermissionDecisionReason,
+  { type: 'safetyCheck' }
+>
+
+/**
+ * Find a safety check anywhere in a permission decision, including compound
+ * Bash decisions whose subcommands carry their own nested reasons.
+ */
+export function findSafetyCheck(
+  reason: PermissionDecisionReason | undefined,
+  predicate: (reason: SafetyCheckDecisionReason) => boolean = () => true,
+): SafetyCheckDecisionReason | undefined {
+  if (!reason) return undefined
+  if (reason.type === 'safetyCheck') {
+    return predicate(reason) ? reason : undefined
+  }
+  if (reason.type === 'subcommandResults') {
+    for (const result of reason.reasons.values()) {
+      const safetyCheck = findSafetyCheck(result.decisionReason, predicate)
+      if (safetyCheck) return safetyCheck
+    }
+  }
+  return undefined
 }
 
 async function hasPermissionsToUseToolInner(
@@ -1275,7 +1304,8 @@ async function hasPermissionsToUseToolInner(
   // checkPathSafetyForAutoEdit returns {type:'safetyCheck'} for these paths.
   if (
     toolPermissionResult?.behavior === 'ask' &&
-    toolPermissionResult.decisionReason?.type === 'safetyCheck'
+    (findSafetyCheck(toolPermissionResult.decisionReason) ||
+      toolPermissionResult.decisionReason?.type === 'sandboxOverride')
   ) {
     return toolPermissionResult
   }

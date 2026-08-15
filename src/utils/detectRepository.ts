@@ -57,7 +57,7 @@ export async function detectCurrentRepositoryWithHost(
 
     const parsed = parseGitRemote(remoteUrl)
     logForDebugging(
-      `Parsed repository: ${parsed ? `${parsed.host}/${parsed.owner}/${parsed.name}` : null} from URL: ${remoteUrl}`,
+      `Parsed repository: ${parsed ? `${parsed.host}/${parsed.owner}/${parsed.name}` : null} from URL: ${redactGitRemoteCredentials(remoteUrl)}`,
     )
     repositoryWithHostCache.set(cwd, parsed)
     return parsed

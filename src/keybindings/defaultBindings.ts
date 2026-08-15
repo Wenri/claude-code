@@ -39,7 +39,6 @@ export const DEFAULT_BINDINGS: KeybindingBlock[] = [
       // will show an error if users try to override these keys.
       'ctrl+c': 'app:interrupt',
       'ctrl+d': 'app:exit',
-      'ctrl+l': 'app:redraw',
       'ctrl+t': 'app:toggleTodos',
       'ctrl+o': 'app:toggleTranscript',
       ...(feature('KAIROS') || feature('KAIROS_BRIEF')
@@ -64,6 +63,7 @@ export const DEFAULT_BINDINGS: KeybindingBlock[] = [
     context: 'Chat',
     bindings: {
       escape: 'chat:cancel',
+      'ctrl+l': 'chat:clearInput',
       // ctrl+x chord prefix avoids shadowing readline editing keys (ctrl+a/b/e/f/...).
       'ctrl+x ctrl+k': 'chat:killAgents',
       [MODE_CYCLE_KEY]: 'chat:cycleMode',
@@ -71,6 +71,7 @@ export const DEFAULT_BINDINGS: KeybindingBlock[] = [
       'meta+o': 'chat:fastMode',
       'meta+t': 'chat:thinkingToggle',
       enter: 'chat:submit',
+      'ctrl+j': 'chat:newline',
       up: 'history:previous',
       down: 'history:next',
       // Editing shortcuts (defined here, migration in progress)
@@ -131,6 +132,14 @@ export const DEFAULT_BINDINGS: KeybindingBlock[] = [
       w: 'settings:periodWeek',
       // Sort skills by estimated token cost
       t: 'settings:sortByTokens',
+      'ctrl+u': 'scroll:halfPageUp',
+      'ctrl+d': 'scroll:halfPageDown',
+    },
+  },
+  {
+    context: 'Doctor',
+    bindings: {
+      f: 'doctor:fix',
     },
   },
   {
@@ -146,7 +155,7 @@ export const DEFAULT_BINDINGS: KeybindingBlock[] = [
       tab: 'confirm:nextField',
       space: 'confirm:toggle',
       // Cycle modes (used in file permission dialogs and teams dialog)
-      'shift+tab': 'confirm:cycleMode',
+      [MODE_CYCLE_KEY]: 'confirm:cycleMode',
       // Toggle permission explanation in permission dialogs
       'ctrl+e': 'confirm:toggleExplanation',
       // Toggle permission debug info
@@ -172,6 +181,22 @@ export const DEFAULT_BINDINGS: KeybindingBlock[] = [
       // q — pager convention (less, tmux copy-mode). Transcript is a modal
       // reading view with no prompt, so q-as-literal-char has no owner.
       q: 'transcript:exit',
+      'ctrl+u': 'scroll:halfPageUp',
+      'ctrl+d': 'scroll:halfPageDown',
+      'ctrl+b': 'scroll:fullPageUp',
+      'ctrl+f': 'scroll:fullPageDown',
+      'ctrl+n': 'scroll:lineDown',
+      'ctrl+p': 'scroll:lineUp',
+      g: 'scroll:top',
+      'shift+g': 'scroll:bottom',
+      j: 'scroll:lineDown',
+      k: 'scroll:lineUp',
+      space: 'scroll:fullPageDown',
+      b: 'scroll:fullPageUp',
+      up: 'scroll:lineUp',
+      down: 'scroll:lineDown',
+      home: 'scroll:top',
+      end: 'scroll:bottom',
     },
   },
   {
@@ -216,6 +241,12 @@ export const DEFAULT_BINDINGS: KeybindingBlock[] = [
       // useInput so they can conditionally propagate.
       'ctrl+shift+c': 'selection:copy',
       'cmd+c': 'selection:copy',
+      'shift+left': 'selection:extendLeft',
+      'shift+right': 'selection:extendRight',
+      'shift+up': 'selection:extendUp',
+      'shift+down': 'selection:extendDown',
+      'shift+home': 'selection:extendLineStart',
+      'shift+end': 'selection:extendLineEnd',
     },
   },
   {
@@ -331,6 +362,10 @@ export const DEFAULT_BINDINGS: KeybindingBlock[] = [
       k: 'select:previous',
       'ctrl+n': 'select:next',
       'ctrl+p': 'select:previous',
+      pageup: 'select:pageUp',
+      pagedown: 'select:pageDown',
+      home: 'select:first',
+      end: 'select:last',
       enter: 'select:accept',
       escape: 'select:cancel',
     },

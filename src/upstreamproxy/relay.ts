@@ -183,7 +183,10 @@ function startBunRelay(
   // silently dropped. When the kernel buffer fills, we queue the tail and
   // let the drain handler flush it. Per-socket because the adapter closure
   // outlives individual handler calls.
-  type BunState = ConnState & { writeBuf: Uint8Array[] }
+  type BunState = ConnState & {
+    writeBuf: Uint8Array[]
+    endAfterDrain: boolean
+  }
 
   // eslint-disable-next-line custom-rules/require-bun-typeof-guard -- caller dispatches on typeof Bun
   const server = Bun.listen<BunState>({
@@ -191,7 +194,11 @@ function startBunRelay(
     port: 0,
     socket: {
       open(sock) {
-        sock.data = { ...newConnState(), writeBuf: [] }
+        sock.data = {
+          ...newConnState(),
+          writeBuf: [],
+          endAfterDrain: false,
+        }
       },
       data(sock, data) {
         const st = sock.data
@@ -208,7 +215,13 @@ function startBunRelay(
             const n = sock.write(bytes)
             if (n < bytes.length) st.writeBuf.push(bytes.subarray(n))
           },
-          end: () => sock.end(),
+          end: () => {
+            if (st.writeBuf.length > 0) {
+              st.endAfterDrain = true
+              return
+            }
+            sock.end()
+          },
         }
         handleData(adapter, st, data, wsUrl, authHeader, wsAuthHeader)
       },
@@ -222,6 +235,10 @@ function startBunRelay(
             return
           }
           st.writeBuf.shift()
+        }
+        if (st.endAfterDrain) {
+          st.endAfterDrain = false
+          sock.end()
         }
       },
       close(sock) {

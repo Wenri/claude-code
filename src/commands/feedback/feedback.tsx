@@ -6,6 +6,7 @@ import type { LocalJSXCommandOnDone } from '../../types/command.js';
 import type { Message } from '../../types/message.js';
 import { isEnvTruthy } from '../../utils/envUtils.js';
 import { isEssentialTrafficOnly } from '../../utils/privacyLevel.js';
+import { getAuthHeaders } from '../../utils/http.js';
 
 const ISSUES_URL = 'https://github.com/anthropics/claude-code/issues';
 
@@ -30,6 +31,9 @@ export function getFeedbackUnavailableReason(): string | null {
   }
   if (!isPolicyAllowed('allow_product_feedback')) {
     return "/feedback has been disabled by your organization's policy";
+  }
+  if (getAuthHeaders().error) {
+    return `/feedback requires Anthropic credentials (OAuth or API key). Report issues at ${ISSUES_URL}`;
   }
   return null;
 }

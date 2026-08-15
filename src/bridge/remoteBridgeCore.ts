@@ -36,6 +36,10 @@ import {
   type InternalEventWriter,
   type ReplBridgeTransport,
 } from './replBridgeTransport.js'
+import type {
+  InternalEventReaders,
+  InternalEventWriter,
+} from './persistenceSync.js'
 import { buildCCRv2SdkUrl } from './workSecret.js'
 import { toCompatSessionId } from './sessionIdCompat.js'
 import { FlushGate } from './flushGate.js'
@@ -59,6 +63,7 @@ import {
 } from './bridgeMessaging.js'
 import { logBridgeSkip } from './debugUtils.js'
 import { logForDebugging } from '../utils/debug.js'
+import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js'
 import { logForDiagnosticsNoPII } from '../utils/diagLogs.js'
 import { isInProtectedNamespace } from '../utils/envUtils.js'
 import { errorMessage } from '../utils/errors.js'
@@ -123,6 +128,7 @@ export type EnvLessBridgeParams = {
   initialHistoryCap: number
   initialMessages?: Message[]
   onInboundMessage?: (msg: SDKMessage) => void | Promise<void>
+  onSessionEstablished?: (sessionId: string) => void
   /**
    * Fired on each title-worthy user message seen in writeMessages() until
    * the callback returns true (done). Mirrors replBridge.ts's onUserMessage —
@@ -213,6 +219,7 @@ export async function initEnvLessBridgeCore(
     initialHistoryCap,
     initialMessages,
     onInboundMessage,
+    onSessionEstablished,
     onUserMessage,
     onSessionEstablished,
     onPermissionResponse,
@@ -1060,6 +1067,7 @@ export async function initEnvLessBridgeCore(
     })
   } else {
     logEvent('tengu_bridge_repl_started', {
+      ...getCooMetadataForAnalytics(),
       has_initial_messages: !!(initialMessages && initialMessages.length > 0),
       v2: true,
       expires_in_s: credentials.expires_in,
@@ -1068,7 +1076,7 @@ export async function initEnvLessBridgeCore(
   }
 
   // ── 10. Handle ──────────────────────────────────────────────────────────
-  return {
+  const handle = {
     bridgeSessionId: sessionId,
     environmentId: '',
     sessionIngressUrl: credentials.api_base_url,
@@ -1314,7 +1322,11 @@ export async function initEnvLessBridgeCore(
       unregister()
       await teardown(options)
     },
+    [Symbol.asyncDispose]() {
+      return handle.teardown()
+    },
   }
+  return handle
 }
 
 // ─── Session API (v2 /code/sessions, no env) ─────────────────────────────────

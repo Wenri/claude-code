@@ -162,7 +162,9 @@ export async function resumeAgentBackground({
   }
   const workerTools = isResumedFork
     ? toolUseContext.options.tools
-    : assembleToolPool(workerPermissionContext, appState.mcp.tools)
+    : assembleToolPool(workerPermissionContext, appState.mcp.tools, {
+        skipReplFilter: true,
+      })
 
   const runAgentParams: Parameters<typeof runAgent>[0] = {
     agentDefinition: selectedAgent,
@@ -204,7 +206,7 @@ export async function resumeAgentBackground({
     description: uiDescription,
     prompt,
     selectedAgent,
-    setAppState: rootSetAppState,
+    taskRegistry: toolUseContext.taskRegistry,
     toolUseId: toolUseContext.toolUseId,
     cwd: resumedCwd,
   })

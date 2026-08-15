@@ -1,16 +1,66 @@
 // Shared logic for stopping a running task.
 // Used by TaskStopTool (LLM-invoked) and SDK stop_task control request.
 
-import type { AppState } from '../state/AppState.js'
+import {
+  STATUS_TAG,
+  SUMMARY_TAG,
+  TASK_ID_TAG,
+  TASK_NOTIFICATION_TAG,
+  TOOL_USE_ID_TAG,
+} from '../constants/xml.js'
 import type { TaskStateBase } from '../Task.js'
 import { getTaskByType } from '../tasks.js'
+import { asAgentId, type AgentId } from '../types/ids.js'
+import { enqueuePendingNotification } from '../utils/messageQueueManager.js'
 import { emitTaskTerminatedSdk } from '../utils/sdkEventQueue.js'
+import type { TaskRegistry } from '../utils/task/framework.js'
+import { escapeXml } from '../utils/xml.js'
 import { isLocalShellTask } from './LocalShellTask/guards.js'
+
+function enqueueTaskStoppedByMainNotification({
+  taskId,
+  toolUseId,
+  description,
+  ownerAgentId,
+}: {
+  taskId: string
+  toolUseId?: string
+  description: string
+  ownerAgentId: AgentId
+}): void {
+  const summary = `Task "${description}" was stopped by main session`
+  const toolUseIdLine = toolUseId
+    ? `\n<${TOOL_USE_ID_TAG}>${escapeXml(toolUseId)}</${TOOL_USE_ID_TAG}>`
+    : ''
+  const message = `<${TASK_NOTIFICATION_TAG}>
+<${TASK_ID_TAG}>${escapeXml(taskId)}</${TASK_ID_TAG}>${toolUseIdLine}
+<${STATUS_TAG}>stopped</${STATUS_TAG}>
+<${SUMMARY_TAG}>${escapeXml(summary)}</${SUMMARY_TAG}>
+</${TASK_NOTIFICATION_TAG}>`
+  enqueuePendingNotification({
+    value: message,
+    mode: 'task-notification',
+    priority: 'next',
+    agentId: asAgentId(ownerAgentId),
+  })
+}
+
+function canCallerStopTask(
+  callerAgentId: AgentId | undefined,
+  ownerAgentId: AgentId | undefined,
+): boolean {
+  if (callerAgentId === undefined) return true
+  return callerAgentId === ownerAgentId
+}
 
 export class StopTaskError extends Error {
   constructor(
     message: string,
-    public readonly code: 'not_found' | 'not_running' | 'unsupported_type',
+    public readonly code:
+      | 'not_found'
+      | 'not_running'
+      | 'not_owner'
+      | 'unsupported_type',
   ) {
     super(message)
     this.name = 'StopTaskError'
@@ -18,8 +68,9 @@ export class StopTaskError extends Error {
 }
 
 type StopTaskContext = {
-  getAppState: () => AppState
-  setAppState: (f: (prev: AppState) => AppState) => void
+  taskRegistry: TaskRegistry
+  setAppState: import('../Task.js').SetAppState
+  callerAgentId?: AgentId
 }
 
 type StopTaskResult = {
@@ -39,9 +90,10 @@ export async function stopTask(
   taskId: string,
   context: StopTaskContext,
 ): Promise<StopTaskResult> {
-  const { getAppState, setAppState } = context
-  const appState = getAppState()
-  const task = appState.tasks?.[taskId] as TaskStateBase | undefined
+  const { taskRegistry, setAppState, callerAgentId } = context
+  const task = taskRegistry.get(taskId) as
+    | (TaskStateBase & { agentId?: AgentId })
+    | undefined
 
   if (!task) {
     throw new StopTaskError(`No task found with ID: ${taskId}`, 'not_found')
@@ -54,6 +106,13 @@ export async function stopTask(
     )
   }
 
+  if (!canCallerStopTask(callerAgentId, task.agentId)) {
+    throw new StopTaskError(
+      `Task ${taskId} is owned by ${task.agentId ?? 'main session'}; agent ${callerAgentId} cannot stop it.`,
+      'not_owner',
+    )
+  }
+
   const taskImpl = getTaskByType(task.type)
   if (!taskImpl) {
     throw new StopTaskError(
@@ -62,26 +121,17 @@ export async function stopTask(
     )
   }
 
-  await taskImpl.kill(taskId, setAppState)
+  await taskImpl.kill(taskId, taskRegistry, setAppState)
 
   // Bash: suppress the "exit code 137" notification (noise). Agent tasks: don't
   // suppress — the AbortError catch sends a notification carrying
   // extractPartialResult(agentMessages), which is the payload not noise.
   if (isLocalShellTask(task)) {
     let suppressed = false
-    setAppState(prev => {
-      const prevTask = prev.tasks[taskId]
-      if (!prevTask || prevTask.notified) {
-        return prev
-      }
+    taskRegistry.update(taskId, prevTask => {
+      if (prevTask.notified) return prevTask
       suppressed = true
-      return {
-        ...prev,
-        tasks: {
-          ...prev.tasks,
-          [taskId]: { ...prevTask, notified: true },
-        },
-      }
+      return { ...prevTask, notified: true }
     })
     // Suppressing the XML notification also suppresses print.ts's parsed
     // task_notification SDK event — emit it directly so SDK consumers see
@@ -92,6 +142,19 @@ export async function stopTask(
         summary: task.description,
       })
     }
+  }
+
+  if (
+    isLocalShellTask(task) &&
+    task.agentId !== undefined &&
+    callerAgentId !== task.agentId
+  ) {
+    enqueueTaskStoppedByMainNotification({
+      taskId,
+      toolUseId: task.toolUseId,
+      description: task.description,
+      ownerAgentId: task.agentId,
+    })
   }
 
   const command = isLocalShellTask(task) ? task.command : task.description

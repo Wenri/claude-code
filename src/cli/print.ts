@@ -2,6 +2,7 @@
 import { feature } from 'bun:bundle'
 import { readFile, stat } from 'fs/promises'
 import { dirname } from 'path'
+import { recordRemoteStartupPhase } from 'src/bridge/startupTiming.js'
 import {
   downloadUserSettings,
   redownloadUserSettings,
@@ -31,6 +32,12 @@ import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
 } from 'src/services/analytics/index.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from 'src/services/analytics/growthbook.js'
+import {
+  hydratePostTurnSummary,
+  setPostTurnSummaryContextBuilder,
+  triggerBlockedPostTurnSummary,
+  triggerPostTurnSummary,
+} from 'src/services/postTurnSummary.js'
 import { logForDebugging } from 'src/utils/debug.js'
 import {
   logForDiagnosticsNoPII,
@@ -55,7 +62,6 @@ import {
   subscribeToCommandQueue,
   getCommandsByMaxPriority,
 } from 'src/utils/messageQueueManager.js'
-import { notifyCommandLifecycle } from 'src/utils/commandLifecycle.js'
 import {
   getSessionState,
   notifySessionStateChanged,
@@ -113,6 +119,7 @@ import {
 } from 'src/utils/fileStateCache.js'
 import { expandPath } from 'src/utils/path.js'
 import { extractReadFilesFromMessages } from 'src/utils/queryHelpers.js'
+import { createToolIsolationLatch } from 'src/utils/toolIsolation.js'
 import { registerHookEventHandler } from 'src/utils/hooks/hookEvents.js'
 import { executeFilePersistence } from 'src/utils/filePersistence/filePersistence.js'
 import { finalizePendingAsyncHooks } from 'src/utils/hooks/AsyncHookRegistry.js'
@@ -154,7 +161,10 @@ import type { ReplBridgeHandle } from 'src/bridge/replBridge.js'
 import { getRemoteSessionUrl } from 'src/constants/product.js'
 import { buildBridgeConnectUrl } from 'src/bridge/bridgeStatusUtil.js'
 import { extractInboundMessageFields } from 'src/bridge/inboundMessages.js'
-import { resolveAndPrepend } from 'src/bridge/inboundAttachments.js'
+import {
+  extractInboundAttachments,
+  resolveAndPrepend,
+} from 'src/bridge/inboundAttachments.js'
 import type { CanUseToolFn } from 'src/hooks/useCanUseTool.js'
 import { hasPermissionsToUseTool } from 'src/utils/permissions/permissions.js'
 import { safeParseJSON } from 'src/utils/json.js'
@@ -163,12 +173,14 @@ import {
   permissionPromptToolResultToPermissionDecision,
 } from 'src/utils/permissions/PermissionPromptToolResultSchema.js'
 import { createAbortController } from 'src/utils/abortController.js'
+import { DEFAULT_IMAGE_LIMITS } from 'src/utils/imageLimits.js'
 import { createCombinedAbortSignal } from 'src/utils/combinedAbortSignal.js'
 import {
   generateSessionTitle,
   isSessionTitleGenerationDisabled,
 } from 'src/utils/sessionTitle.js'
 import { restoreSessionCronTasks } from 'src/utils/sessionCronTasks.js'
+import { cancelAllPendingLoopSessionCrons } from 'src/utils/loopWakeup.js'
 import { buildSideQuestionFallbackParams } from 'src/utils/queryContext.js'
 import { runSideQuestion } from 'src/utils/sideQuestion.js'
 import {
@@ -215,7 +227,10 @@ import {
   type PromptVariant,
 } from 'src/services/PromptSuggestion/promptSuggestion.js'
 import { getLastCacheSafeParams } from 'src/utils/forkedAgent.js'
-import { getAccountInformation } from 'src/utils/auth.js'
+import {
+  getAccountInformation,
+  SDK_OAUTH_REFRESH_ENTRYPOINTS,
+} from 'src/utils/auth.js'
 import { OAuthService } from 'src/services/oauth/index.js'
 import { installOAuthTokens } from 'src/cli/handlers/auth.js'
 import { getAPIProvider } from 'src/utils/model/providers.js'
@@ -253,7 +268,9 @@ import {
 } from 'src/utils/sessionStorage.js'
 import { incrementPromptCount } from 'src/utils/commitAttribution.js'
 import {
+  callMCPToolWithUrlElicitationRetry,
   setupSdkMcpClients,
+  cleanupMcpClients,
   connectToServer,
   clearServerCache,
   fetchCommandsForClient,
@@ -316,6 +333,7 @@ import {
 import {
   createUserMessage,
   createModelSwitchBreadcrumbs,
+  extractTextContent,
   getContentText,
 } from 'src/utils/messages.js'
 import { collectContextData } from 'src/commands/context/context-noninteractive.js'
@@ -356,9 +374,14 @@ import {
   type ChannelEntry,
 } from 'src/bootstrap/state.js'
 import { runWithWorkload, WORKLOAD_CRON } from 'src/utils/workloadContext.js'
+import {
+  endInteractionSpan,
+  runWithInteractionSpan,
+} from 'src/utils/telemetry/sessionTracing.js'
 import type { UUID } from 'crypto'
 import { randomUUID } from 'crypto'
 import type { ContentBlockParam } from '@anthropic-ai/sdk/resources/messages.mjs'
+import { APIError } from '@anthropic-ai/sdk'
 import type { AppState } from 'src/state/AppStateStore.js'
 import {
   fileHistoryRewind,
@@ -406,12 +429,17 @@ import {
 } from '../utils/teammateMailbox.js'
 import { removeTeammateFromTeamFile } from '../utils/swarm/teamHelpers.js'
 import { unassignTeammateTasks } from '../utils/tasks.js'
-import { getRunningTasks } from '../utils/task/framework.js'
+import {
+  createTaskRegistry,
+  getRunningTasks,
+} from '../utils/task/framework.js'
 import { isBackgroundTask } from '../tasks/types.js'
 import { stopTask } from '../tasks/stopTask.js'
 import { drainSdkEvents } from '../utils/sdkEventQueue.js'
 import { initializeGrowthBook } from '../services/analytics/growthbook.js'
 import { errorMessage, toError } from '../utils/errors.js'
+import { classifyAPIError } from '../services/api/errors.js'
+import { classifyToolError } from '../services/tools/toolExecution.js'
 import { sleep } from '../utils/sleep.js'
 import { isExtractModeActive } from '../memdir/paths.js'
 
@@ -426,6 +454,9 @@ const proactiveModule =
     : null
 const cronSchedulerModule = feature('AGENT_TRIGGERS')
   ? (require('../utils/cronScheduler.js') as typeof import('../utils/cronScheduler.js'))
+  : null
+const loopDefaultsModule = feature('AGENT_TRIGGERS')
+  ? (require('../utils/loopSentinels.js') as typeof import('../utils/loopSentinels.js'))
   : null
 const cronJitterConfigModule = feature('AGENT_TRIGGERS')
   ? (require('../utils/cronJitterConfig.js') as typeof import('../utils/cronJitterConfig.js'))
@@ -465,6 +496,30 @@ const SDK_OAUTH_REFRESH_ENTRYPOINTS = new Set([
 ])
 const receivedMessageUuidsOrder: UUID[] = []
 
+function getSdkCrashMetadata(error: unknown): {
+  error_name: AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+  api_error_status?: number
+  cause_name?: AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+} {
+  const isApiError = error instanceof APIError
+  const errorName = isApiError
+    ? classifyAPIError(error)
+    : classifyToolError(error)
+  const apiErrorStatus =
+    isApiError && typeof error.status === 'number' ? error.status : undefined
+  const causeName =
+    error instanceof Error && error.cause !== undefined
+      ? classifyToolError(error.cause)
+      : undefined
+  return {
+    error_name:
+      errorName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    api_error_status: apiErrorStatus,
+    cause_name:
+      causeName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+  }
+}
+
 function trackReceivedMessageUuid(uuid: UUID): boolean {
   if (receivedMessageUuids.has(uuid)) {
     return false // duplicate
@@ -482,6 +537,31 @@ function trackReceivedMessageUuid(uuid: UUID): boolean {
     }
   }
   return true // new UUID
+}
+
+const PERMISSION_DISPLAY_META_KEY = 'anthropic/permissionDisplay'
+
+type PermissionDisplayMetadata = {
+  title?: string
+  displayName?: string
+  description?: string
+}
+
+/** Parse the optional MCP elicitation display metadata without trusting its shape. */
+function getPermissionDisplayMetadata(
+  meta: unknown,
+): PermissionDisplayMetadata | undefined {
+  if (meta == null || typeof meta !== 'object') return undefined
+  const value = (meta as Record<string, unknown>)[PERMISSION_DISPLAY_META_KEY]
+  if (value == null || typeof value !== 'object') return undefined
+  const record = value as Record<string, unknown>
+  const stringField = (key: string) =>
+    typeof record[key] === 'string' ? (record[key] as string) : undefined
+  return {
+    title: stringField('title'),
+    displayName: stringField('displayName'),
+    description: stringField('description'),
+  }
 }
 
 type PromptValue = string | ContentBlockParam[]
@@ -518,8 +598,25 @@ export function canBatchWith(
     next !== undefined &&
     next.mode === 'prompt' &&
     next.workload === head.workload &&
-    next.isMeta === head.isMeta
+    next.isMeta === head.isMeta &&
+    next.shouldQuery === head.shouldQuery &&
+    areMessageOriginsEqual(head.origin, next.origin)
   )
+}
+
+function areMessageOriginsEqual(
+  left: QueuedCommand['origin'],
+  right: QueuedCommand['origin'],
+): boolean {
+  if (left === right) return true
+  if (!left || !right || left.kind !== right.kind) return false
+  if (left.kind === 'peer' && right.kind === 'peer') {
+    return left.from === right.from
+  }
+  if (left.kind === 'channel' && right.kind === 'channel') {
+    return left.server === right.server
+  }
+  return true
 }
 
 function isSyntheticSessionTitleInput(text: string): boolean {
@@ -629,6 +726,7 @@ export async function runHeadless(
     setupTrigger?: 'init' | 'maintenance' | undefined
     sessionStartHooksPromise?: ReturnType<typeof processSessionStartHooks>
     setSDKStatus?: (status: SDKStatus) => void
+    sessionState: SessionStateManager
   },
 ): Promise<void> {
   if (
@@ -724,6 +822,7 @@ export async function runHeadless(
     return
   }
 
+  setHasStreamingInput(typeof inputPrompt !== 'string')
   const structuredIO = getStructuredIO(inputPrompt, options)
 
   if (
@@ -752,6 +851,26 @@ export async function runHeadless(
   const sandboxUnavailableReason = SandboxManager.getSandboxUnavailableReason()
   if (sandboxUnavailableReason) {
     if (SandboxManager.isSandboxRequired()) {
+      if (options.outputFormat === 'stream-json') {
+        await structuredIO.write({
+          type: 'result',
+          subtype: 'error_during_execution',
+          duration_ms: 0,
+          duration_api_ms: 0,
+          is_error: true,
+          num_turns: 0,
+          stop_reason: null,
+          session_id: getSessionId(),
+          total_cost_usd: 0,
+          usage: EMPTY_USAGE,
+          modelUsage: {},
+          permission_denials: [],
+          uuid: randomUUID(),
+          errors: [
+            `Sandbox required but unavailable: ${sandboxUnavailableReason}. Set sandbox.failIfUnavailable=false to allow unsandboxed execution.`,
+          ],
+        })
+      }
       process.stderr.write(
         `\nError: sandbox required but unavailable: ${sandboxUnavailableReason}\n` +
           `  sandbox.failIfUnavailable is set — refusing to start without a working sandbox.\n\n`,
@@ -833,6 +952,7 @@ export async function runHeadless(
   const {
     messages: initialMessages,
     turnInterruptionState,
+    deferredToolUse,
     agentSetting: resumedAgentSetting,
     deferredToolUse,
   } = await loadInitialMessages(setAppState, {
@@ -909,7 +1029,6 @@ export async function runHeadless(
     const result = await handleRewindFiles(
       options.rewindFiles as UUID,
       currentAppState,
-      setAppState,
       false,
     )
     if (!result.canRewind) {
@@ -932,9 +1051,16 @@ export async function runHeadless(
     (Boolean(validateUuid(options.resume)) || options.resume.endsWith('.jsonl'))
   const isUsingSdkUrl = Boolean(options.sdkUrl)
 
-  if (!inputPrompt && !hasValidResumeSessionId && !isUsingSdkUrl) {
+  if (
+    !inputPrompt &&
+    !isUsingSdkUrl &&
+    !deferredToolUse &&
+    !hookInitialUserMessage
+  ) {
     process.stderr.write(
-      `Error: Input must be provided either through stdin or as a prompt argument when using --print\n`,
+      hasValidResumeSessionId || options.continue
+        ? `Error: No deferred tool marker found in the resumed session. Either the session was not deferred, the marker is stale (tool already ran), or it exceeds the tail-scan window. Provide a prompt to continue the conversation.\n`
+        : `Error: Input must be provided either through stdin or as a prompt argument when using --print\n`,
     )
     gracefulShutdownSync(1)
     return
@@ -1164,6 +1290,46 @@ Re-create them if still needed.
   )
 }
 
+export async function waitForPendingMcpBeforeFirstCommand(
+  getAppState: () => AppState,
+  timeoutMs = 2_000,
+): Promise<void> {
+  const initialMcp = getAppState().mcp
+  const pendingBefore = initialMcp.clients.filter(
+    client => client.type === 'pending',
+  ).length
+  const toolsBefore = initialMcp.tools.length
+  if (pendingBefore === 0) return
+
+  const start = Date.now()
+  const deadline = start + timeoutMs
+  while (Date.now() < deadline) {
+    if (getAppState().mcp.clients.every(client => client.type !== 'pending')) {
+      break
+    }
+    await sleep(50)
+  }
+
+  const mcp = getAppState().mcp
+  logEvent('tengu_headless_mcp_prewait', {
+    pendingBefore,
+    toolsBefore,
+    waitedMs: Date.now() - start,
+    pendingAfter: mcp.clients.filter(client => client.type === 'pending').length,
+    toolsAfter: mcp.tools.length,
+    mcpNonBlocking: isEnvTruthy(process.env.MCP_CONNECTION_NONBLOCKING),
+  })
+}
+
+function thinkingConfigForMaxTokens(
+  maxThinkingTokens: number | null,
+  display: 'summarized' | 'omitted' | undefined,
+): ThinkingConfig | undefined {
+  if (maxThinkingTokens === null) return undefined
+  if (maxThinkingTokens === 0) return { type: 'disabled' }
+  return { type: 'enabled', budgetTokens: maxThinkingTokens, display }
+}
+
 function runHeadlessStreaming(
   structuredIO: StructuredIO,
   mcpClients: MCPServerConnection[],
@@ -1177,6 +1343,7 @@ function runHeadlessStreaming(
   subscribeAppState: (listener: () => void) => () => void,
   agents: AgentDefinition[],
   options: {
+    outputFormat: string | undefined
     verbose: boolean | undefined
     jsonSchema: Record<string, unknown> | undefined
     permissionPromptToolName: string | undefined
@@ -1254,7 +1421,7 @@ function runHeadlessStreaming(
     logForDiagnosticsNoPII('info', 'run_state_at_shutdown', {
       run_active: running,
       run_phase: runPhase,
-      worker_status: getSessionState(),
+      worker_status: structuredIO.sessionState.getState(),
       internal_events_pending: structuredIO.internalEventsPending,
       bg_tasks: bg,
     })
@@ -1268,7 +1435,7 @@ function runHeadlessStreaming(
   // The wrapper's body was fully redundant (it enqueued here AND called
   // notifySessionMetadataChanged, both of which onChangeAppState now covers);
   // keeping it would double-emit status messages.
-  setPermissionModeChangedListener(newMode => {
+  structuredIO.sessionState.onPermissionModeChanged = newMode => {
     // Only emit for SDK-exposed modes.
     if (
       newMode === 'default' ||
@@ -1287,7 +1454,7 @@ function runHeadlessStreaming(
         session_id: getSessionId(),
       })
     }
-  })
+  }
 
   // Prompt suggestion tracking (push model)
   const suggestionState: {
@@ -1367,6 +1534,9 @@ function runHeadlessStreaming(
     cwd(),
     READ_FILE_STATE_CACHE_SIZE,
   )
+  const sessionEnvVars = new Map<string, string>()
+  const tmuxSocket: ToolUseContext['tmuxSocket'] = undefined
+  const isolationLatch = createToolIsolationLatch()
 
   // Client-supplied readFileState seeds (via seed_read_state control request).
   // The stdin IIFE runs concurrently with ask() — a seed arriving mid-turn
@@ -1439,6 +1609,10 @@ function runHeadlessStreaming(
     }
   })
   let activeUserSpecifiedModel = options.userSpecifiedModel
+  const thinkingDisplay =
+    options.thinkingConfig?.type !== 'disabled'
+      ? options.thinkingConfig?.display
+      : undefined
 
   function injectModelSwitchBreadcrumbs(
     modelArg: string,
@@ -1722,6 +1896,29 @@ function runHeadlessStreaming(
           }),
       ) as Record<string, McpServerConfigForProcessTransport>)
     : {}
+
+  setPostTurnSummaryContextBuilder(async () => {
+    const state = getAppState()
+    const params = await buildSideQuestionFallbackParams({
+      tools: buildAllTools(state),
+      commands,
+      mcpClients: [
+        ...state.mcp.clients,
+        ...sdkClients,
+        ...dynamicMcpState.clients,
+      ],
+      messages: mutableMessages,
+      readFileState,
+      getAppState,
+      setAppState,
+      customSystemPrompt: options.systemPrompt,
+      appendSystemPrompt: options.appendSystemPrompt,
+      excludeDynamicSections: options.excludeDynamicSections,
+      thinkingConfig: options.thinkingConfig,
+      agents,
+    })
+    return { ...params, forkContextMessages: [...mutableMessages] }
+  })
 
   // Shared tool assembly for ask() and the get_context_usage control request.
   // Closes over the mutable sdkTools/dynamicMcpState bindings so both call
@@ -2007,7 +2204,9 @@ function runHeadlessStreaming(
   }
 
   // NOTE: Nested function required - needs closure access to applyMcpServerChanges and updateSdkMcp
-  async function installPluginsAndApplyMcpInBackground(): Promise<void> {
+  async function installPluginsAndApplyMcpInBackground(
+    onProgress?: Parameters<typeof installPluginsForHeadless>[0],
+  ): Promise<boolean> {
     try {
       // Join point for user settings (fired at runHeadless entry) and managed
       // settings (fired in main.tsx preAction). downloadUserSettings() caches
@@ -2035,23 +2234,64 @@ function runHeadlessStreaming(
           'plugin_install_diff',
         )
       }
+      return pluginsInstalled
     } catch (error) {
       logError(error)
+      return false
     }
+  }
+
+  function kickOffBackgroundPluginInstall(
+    install: () => Promise<boolean>,
+  ): { needsRefresh: boolean } {
+    const state = { needsRefresh: false }
+    void install()
+      .then(changed => {
+        state.needsRefresh = changed
+      })
+      .catch(logError)
+    return state
   }
 
   // Background plugin installation for all headless users
   // Installs marketplaces from extraKnownMarketplaces and missing enabled plugins
   // CLAUDE_CODE_SYNC_PLUGIN_INSTALL=true: resolved in run() before the first
   // query so plugins are guaranteed available on the first ask().
-  let pluginInstallPromise: Promise<void> | null = null
+  let pluginInstallPromise: Promise<boolean> | null = null
+  let backgroundPluginInstall: { needsRefresh: boolean } | null = null
+  let pluginInstallProgress:
+    | ((progress: {
+        status: 'started' | 'installed' | 'failed' | 'completed'
+        name?: string
+        error?: string
+      }) => void)
+    | undefined
   // --bare / SIMPLE: skip plugin install. Scripted calls don't add plugins
   // mid-session; the next interactive run reconciles.
   if (!isBareMode()) {
     if (isEnvTruthy(process.env.CLAUDE_CODE_SYNC_PLUGIN_INSTALL)) {
-      pluginInstallPromise = installPluginsAndApplyMcpInBackground()
+      pluginInstallProgress =
+        options.outputFormat === 'stream-json'
+          ? progress => {
+              void structuredIO.write({
+                type: 'system',
+                subtype: 'plugin_install',
+                status: progress.status,
+                name: progress.name,
+                error: progress.error,
+                uuid: randomUUID(),
+                session_id: getSessionId(),
+              })
+            }
+          : undefined
+      pluginInstallProgress?.({ status: 'started' })
+      pluginInstallPromise = installPluginsAndApplyMcpInBackground(progress =>
+        pluginInstallProgress?.(progress),
+      )
     } else {
-      void installPluginsAndApplyMcpInBackground()
+      backgroundPluginInstall = kickOffBackgroundPluginInstall(
+        installPluginsAndApplyMcpInBackground,
+      )
     }
   }
 
@@ -2193,6 +2433,7 @@ function runHeadlessStreaming(
     idleTimeout.stop()
 
     headlessProfilerCheckpoint('run_entry')
+    recordRemoteStartupPhase('first_message_read_ms', performance.now())
     // TODO(custom-tool-refactor): Should move to the init message, like browser
 
     await updateSdkMcp()
@@ -2203,38 +2444,62 @@ function runHeadlessStreaming(
     // Awaiting here guarantees plugins are available before the first ask().
     // If CLAUDE_CODE_SYNC_PLUGIN_INSTALL_TIMEOUT_MS is set, races against that
     // deadline and proceeds without plugins on timeout (logging an error).
-    if (pluginInstallPromise) {
-      const timeoutMs = parseInt(
-        process.env.CLAUDE_CODE_SYNC_PLUGIN_INSTALL_TIMEOUT_MS || '',
-        10,
-      )
-      if (timeoutMs > 0) {
-        const timeout = sleep(timeoutMs).then(() => 'timeout' as const)
-        const result = await Promise.race([pluginInstallPromise, timeout])
-        if (result === 'timeout') {
-          logError(
-            new Error(
-              `CLAUDE_CODE_SYNC_PLUGIN_INSTALL: plugin installation timed out after ${timeoutMs}ms`,
-            ),
-          )
-          logEvent('tengu_sync_plugin_install_timeout', {
-            timeout_ms: timeoutMs,
-          })
+    try {
+      if (pluginInstallPromise) {
+        const pluginInstallStartedAt = performance.now()
+        const timeoutMs = parseInt(
+          process.env.CLAUDE_CODE_SYNC_PLUGIN_INSTALL_TIMEOUT_MS || '',
+          10,
+        )
+        if (timeoutMs > 0) {
+          const timeout = sleep(timeoutMs).then(() => 'timeout' as const)
+          const result = await Promise.race([pluginInstallPromise, timeout])
+          if (result === 'timeout') {
+            logError(
+              new Error(
+                `CLAUDE_CODE_SYNC_PLUGIN_INSTALL: plugin installation timed out after ${timeoutMs}ms`,
+              ),
+            )
+            logEvent('tengu_sync_plugin_install_timeout', {
+              timeout_ms: timeoutMs,
+            })
+          }
+        } else {
+          await pluginInstallPromise
         }
-      } else {
-        await pluginInstallPromise
+        recordRemoteStartupPhase(
+          'plugin_install_ms',
+          performance.now() - pluginInstallStartedAt,
+        )
+        pluginInstallPromise = null
+
+        // Refresh commands, agents, and hooks now that plugins are installed
+        await refreshPluginState()
+
+        // Set up hot-reload for plugin hooks now that the initial install is done.
+        // In sync-install mode, setup.ts skips this to avoid racing with the install.
+        const { setupPluginHookHotReload } = await import(
+          '../utils/plugins/loadPluginHooks.js'
+        )
+        setupPluginHookHotReload()
       }
-      pluginInstallPromise = null
+    } finally {
+      pluginInstallProgress?.({ status: 'completed' })
+      pluginInstallProgress = undefined
+    }
 
-      // Refresh commands, agents, and hooks now that plugins are installed
-      await refreshPluginState()
-
-      // Set up hot-reload for plugin hooks now that the initial install is done.
-      // In sync-install mode, setup.ts skips this to avoid racing with the install.
-      const { setupPluginHookHotReload } = await import(
-        '../utils/plugins/loadPluginHooks.js'
-      )
-      setupPluginHookHotReload()
+    if (
+      isEnvTruthy(
+        process.env.CLAUDE_CODE_ENABLE_BACKGROUND_PLUGIN_REFRESH,
+      ) &&
+      backgroundPluginInstall?.needsRefresh
+    ) {
+      backgroundPluginInstall.needsRefresh = false
+      try {
+        await refreshPluginState()
+      } catch (error) {
+        logError(error)
+      }
     }
 
     // Only main-thread commands (agentId===undefined) — subagent
@@ -2300,6 +2565,9 @@ function runHeadlessStreaming(
                   parent_tool_use_id: null,
                   uuid: c.uuid,
                   isReplay: true,
+                  ...(c.fileAttachments?.length
+                    ? { file_attachments: c.fileAttachments }
+                    : {}),
                 } satisfies SDKUserMessageReplay)
               }
             }
@@ -2333,7 +2601,7 @@ function runHeadlessStreaming(
           const allTools = buildAllTools(appState)
 
           for (const uuid of batchUuids) {
-            notifyCommandLifecycle(uuid, 'started')
+            structuredIO.onCommandLifecycle?.(uuid, 'started')
           }
 
           // Task notifications arrive when background agents complete.
@@ -2463,6 +2731,11 @@ function runHeadlessStreaming(
           const turnStartTime = feature('FILE_PERSISTENCE')
             ? Date.now()
             : undefined
+          let sawSdkRetry = false
+          let sawSdkCompact = false
+          let sdkRetryStatus = 0
+          const sdkApiDurationStart = getTotalAPIDuration()
+          sdkResultTelemetryLogged = false
 
           headlessProfilerCheckpoint('before_ask')
           startQueryProfile()
@@ -2472,8 +2745,15 @@ function runHeadlessStreaming(
           // const-capture: TS loses `while ((command = dequeue()))` narrowing
           // inside the closure.
           const cmd = command
-          await runWithWorkload(cmd.workload ?? options.workload, async () => {
-            for await (const message of ask({
+          const turnAbortController = abortController!
+          const interactionPrompt =
+            typeof input === 'string'
+              ? input
+              : extractTextContent(input, '\n')
+          await runWithWorkload(cmd.workload ?? options.workload, () =>
+            runWithInteractionSpan(interactionPrompt, async () => {
+              try {
+                for await (const message of ask({
               commands: uniqBy(
                 [...currentCommands, ...appState.mcp.commands],
                 'name',
@@ -2495,6 +2775,9 @@ function runHeadlessStreaming(
               fallbackModel: options.fallbackModel,
               jsonSchema: getInitJsonSchema() ?? options.jsonSchema,
               mutableMessages,
+              sessionEnvVars,
+              tmuxSocket,
+              isolationLatch,
               getReadFileCache: () =>
                 pendingSeeds.size === 0
                   ? readFileState
@@ -2532,6 +2815,8 @@ function runHeadlessStreaming(
                   'elicitationId' in params ? params.elicitationId : undefined,
                   getPermissionDisplay(params._meta),
                 ),
+              onCommandLifecycle: structuredIO.onCommandLifecycle,
+              sessionState: structuredIO.sessionState,
               agents: currentAgents,
               allowedAgentTypes,
               orphanedPermission: cmd.orphanedPermission,
@@ -2552,7 +2837,38 @@ function runHeadlessStreaming(
               // while blocked on permission requests.
               forwardMessagesToBridge()
 
+              if (message.type === 'system') {
+                if (message.subtype === 'api_retry') {
+                  sawSdkRetry = true
+                  sdkRetryStatus = Math.max(
+                    sdkRetryStatus,
+                    message.error_status ?? 0,
+                  )
+                }
+                if (message.subtype === 'compact_boundary') {
+                  sawSdkCompact = true
+                }
+              }
+
               if (message.type === 'result') {
+                logEvent('tengu_sdk_result', {
+                  subtype:
+                    message.subtype as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+                  is_error: message.is_error,
+                  num_turns: message.num_turns,
+                  duration_ms: message.duration_ms,
+                  duration_api_ms:
+                    getTotalAPIDuration() - sdkApiDurationStart,
+                  saw_retry: sawSdkRetry,
+                  saw_compact: sawSdkCompact,
+                  retry_status: sawSdkRetry ? sdkRetryStatus : undefined,
+                  api_error_status:
+                    message.subtype === 'success'
+                      ? (message as { api_error_status?: number })
+                          .api_error_status
+                      : undefined,
+                })
+                sdkResultTelemetryLogged = true
                 // Flush pending SDK events so they appear before result on the stream.
                 for (const event of drainSdkEvents()) {
                   output.enqueue(event)
@@ -2584,11 +2900,15 @@ function runHeadlessStreaming(
                 }
                 output.enqueue(message)
               }
-            }
-          }) // end runWithWorkload
+                }
+              } finally {
+                endInteractionSpan()
+              }
+            }),
+          )
 
           for (const uuid of batchUuids) {
-            notifyCommandLifecycle(uuid, 'completed')
+            structuredIO.onCommandLifecycle?.(uuid, 'completed')
           }
 
           // Forward messages to bridge after each turn
@@ -2598,7 +2918,7 @@ function runHeadlessStreaming(
           if (feature('FILE_PERSISTENCE') && turnStartTime !== undefined) {
             void executeFilePersistence(
               turnStartTime,
-              abortController.signal,
+              turnAbortController.signal,
               result => {
                 output.enqueue({
                   type: 'system' as const,
@@ -2767,6 +3087,20 @@ function runHeadlessStreaming(
         }
       }
     } catch (error) {
+      logEvent('tengu_sdk_session_crash', getSdkCrashMetadata(error))
+      if (!sdkResultTelemetryLogged) {
+        logEvent('tengu_sdk_result', {
+          subtype:
+            'error_during_execution' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+          is_error: true,
+          num_turns: 0,
+          duration_ms: 0,
+          duration_api_ms: 0,
+          saw_retry: false,
+          saw_compact: false,
+        })
+        sdkResultTelemetryLogged = true
+      }
       // Emit error result message before shutting down
       // Write directly to structuredIO to ensure immediate delivery
       try {
@@ -2804,7 +3138,13 @@ function runHeadlessStreaming(
       await structuredIO.flushInternalEvents()
       runPhase = 'finally_post_flush'
       if (!isShuttingDown()) {
-        notifySessionStateChanged('idle')
+        await Promise.race([
+          structuredIO.flushDeliveryAcks(),
+          sleep(5000, undefined, { unref: true }),
+        ])
+      }
+      if (!isShuttingDown()) {
+        structuredIO.sessionState.notifyStateChanged('idle')
         // Drain so the idle session_state_changed SDK event (plus any
         // terminal task_notification bookends emitted during bg-agent
         // teardown) reach the output stream before we block on the next
@@ -2814,6 +3154,9 @@ function runHeadlessStreaming(
         for (const event of drainSdkEvents()) {
           output.enqueue(event)
         }
+        triggerPostTurnSummary(mutableMessages, message =>
+          structuredIO.write(message),
+        )
       }
       running = false
       // Start idle timer when we finish processing and are waiting for input
@@ -3023,6 +3366,11 @@ function runHeadlessStreaming(
         unsubscribeSkillChanges()
         unsubscribeAuthStatus?.()
         statusListeners.delete(rateLimitListener)
+        await cleanupMcpClients([
+          ...getAppState().mcp.clients,
+          ...sdkClients,
+          ...dynamicMcpState.clients,
+        ])
         output.done()
       }
     }
@@ -3039,6 +3387,19 @@ function runHeadlessStreaming(
         void run()
       }
     })
+  }
+
+  if (deferredToolUse) {
+    logForDebugging(
+      `[print.ts] Auto-resuming deferred tool: ${deferredToolUse.toolName} (${deferredToolUse.toolUseID})`,
+    )
+    enqueue({
+      mode: 'prompt',
+      value: 'Continue from where you left off.',
+      uuid: randomUUID(),
+      isMeta: true,
+    })
+    void run()
   }
 
   // Cron scheduler: runs scheduled_tasks.json tasks in SDK/-p mode.
@@ -3170,7 +3531,7 @@ function runHeadlessStreaming(
         message.type !== 'user' &&
         message.type !== 'control_response'
       ) {
-        notifyCommandLifecycle(eventId, 'completed')
+        structuredIO.onCommandLifecycle?.(eventId, 'completed')
       }
 
       if (message.type === 'control_request') {
@@ -3294,21 +3655,15 @@ function runHeadlessStreaming(
               : requestedModel
           activeUserSpecifiedModel = model
           setMainLoopModelOverride(model)
-          notifySessionMetadataChanged({ model })
+          structuredIO.sessionState.notifyMetadataChanged({ model })
           injectModelSwitchBreadcrumbs(requestedModel, model)
 
           sendControlResponseSuccess(message)
         } else if (message.request.subtype === 'set_max_thinking_tokens') {
-          if (message.request.max_thinking_tokens === null) {
-            options.thinkingConfig = undefined
-          } else if (message.request.max_thinking_tokens === 0) {
-            options.thinkingConfig = { type: 'disabled' }
-          } else {
-            options.thinkingConfig = {
-              type: 'enabled',
-              budgetTokens: message.request.max_thinking_tokens,
-            }
-          }
+          options.thinkingConfig = thinkingConfigForMaxTokens(
+            message.request.max_thinking_tokens,
+            thinkingDisplay,
+          )
           sendControlResponseSuccess(message)
         } else if (message.request.subtype === 'mcp_status') {
           sendControlResponseSuccess(message, {
@@ -3467,7 +3822,6 @@ function runHeadlessStreaming(
           const result = await handleRewindFiles(
             message.request.user_message_id as UUID,
             appState,
-            setAppState,
             message.request.dry_run ?? false,
           )
           if (result.canRewind || message.request.dry_run) {
@@ -3699,6 +4053,116 @@ function runHeadlessStreaming(
                   ? (result.client.error ?? 'Connection failed')
                   : `Server status: ${result.client.type}`
               sendControlResponseError(message, errorMessage)
+            }
+          }
+        } else if (message.request.subtype === 'mcp_call') {
+          const { tool, arguments: args } = message.request
+          const mcpInfo = mcpInfoFromString(tool)
+          if (!mcpInfo || !mcpInfo.toolName) {
+            sendControlResponseError(
+              message,
+              `Not a fully-qualified MCP tool name: ${tool}`,
+            )
+          } else {
+            const currentAppState = getAppState()
+            const client = [
+              ...currentAppState.mcp.clients,
+              ...sdkClients,
+              ...dynamicMcpState.clients,
+            ].find(
+              candidate =>
+                candidate.type === 'connected' &&
+                normalizeNameForMCP(candidate.name) === mcpInfo.serverName,
+            )
+
+            if (!client || client.type !== 'connected') {
+              sendControlResponseError(
+                message,
+                `MCP server not connected: ${mcpInfo.serverName}`,
+              )
+            } else if (client.config.type === 'sdk') {
+              sendControlResponseError(
+                message,
+                'mcp_call does not support SDK MCP servers. ' +
+                  `SDK servers are caller-provided — invoke ${mcpInfo.serverName} directly.`,
+              )
+            } else {
+              const rawToolName = [
+                ...currentAppState.mcp.tools,
+                ...dynamicMcpState.tools,
+              ].find(candidate => toolMatchesName(candidate, tool))?.mcpInfo
+                ?.toolName
+              const toolName = rawToolName ?? mcpInfo.toolName
+
+              void (async () => {
+                if (controlAbortController.signal.aborted) return
+                const callAbortController = createAbortController()
+                const onAbort = () =>
+                  callAbortController.abort(controlAbortController.signal.reason)
+                controlAbortController.signal.addEventListener(
+                  'abort',
+                  onAbort,
+                  { once: true },
+                )
+                try {
+                  const result = await callMCPToolWithUrlElicitationRetry({
+                    client,
+                    clientConnection: client,
+                    tool: toolName,
+                    args: args ?? {},
+                    imageLimits: DEFAULT_IMAGE_LIMITS,
+                    signal: callAbortController.signal,
+                    setAppState,
+                    handleElicitation: async () => ({ action: 'cancel' }),
+                  })
+                  if (controlAbortController.signal.aborted) return
+                  if (result.urlElicitationDeclined) {
+                    sendControlResponseError(
+                      message,
+                      `URL elicitation required (open URL, then retry mcp_call): ${result.urlElicitationDeclined.url}` +
+                        (typeof result.content === 'string'
+                          ? ` — ${result.content}`
+                          : ''),
+                    )
+                  } else {
+                    sendControlResponseSuccess(message, {
+                      content: result.content,
+                      structuredContent: result.structuredContent,
+                      _meta: result._meta,
+                    })
+                  }
+                } catch (error) {
+                  if (controlAbortController.signal.aborted) return
+                  if (error instanceof McpAuthError) {
+                    markMcpServerNeedsAuth(error.serverName, setAppState)
+                  }
+
+                  let messageText =
+                    error instanceof Error ? error.message : String(error)
+                  if (error instanceof McpSessionExpiredError) {
+                    messageText =
+                      `MCP session expired for ${mcpInfo.serverName} — ` +
+                      `send mcp_reconnect and retry mcp_call: ${messageText}`
+                  } else if (
+                    error instanceof McpError &&
+                    error.code === ErrorCode.UrlElicitationRequired
+                  ) {
+                    const urls = extractUrlElicitations(error).map(
+                      elicitation => elicitation.url,
+                    )
+                    messageText =
+                      urls.length > 0
+                        ? `URL elicitation required (open URL, then retry mcp_call): ${urls.join(', ')} — ${messageText}`
+                        : `URL elicitation required (no URL in error data): ${messageText}`
+                  }
+                  sendControlResponseError(message, messageText)
+                } finally {
+                  controlAbortController.signal.removeEventListener(
+                    'abort',
+                    onAbort,
+                  )
+                }
+              })()
             }
           }
         } else if (message.request.subtype === 'mcp_toggle') {
@@ -4294,7 +4758,7 @@ function runHeadlessStreaming(
           if (newModel !== prevModel) {
             activeUserSpecifiedModel = newModel
             const modelArg = incoming.model ? String(incoming.model) : 'default'
-            notifySessionMetadataChanged({ model: newModel })
+            structuredIO.sessionState.notifyMetadataChanged({ model: newModel })
             injectModelSwitchBreadcrumbs(modelArg, newModel)
           }
 
@@ -4323,7 +4787,7 @@ function runHeadlessStreaming(
           const { task_id: taskId } = message.request
           try {
             await stopTask(taskId, {
-              getAppState,
+              taskRegistry: createTaskRegistry(getAppState, setAppState),
               setAppState,
             })
             sendControlResponseSuccess(message, {})
@@ -4517,6 +4981,23 @@ function runHeadlessStreaming(
               sendControlResponseError(message, errorMessage(error))
             }
           })()
+        } else if (message.request.subtype === 'message_rated') {
+          const {
+            messageUuid,
+            sentiment,
+            surface = 'tool_use',
+            cleared = false,
+          } = message.request
+          logEvent('tengu_message_rated', {
+            message_uuid:
+              messageUuid as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+            sentiment:
+              sentiment as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+            surface:
+              surface as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+            cleared,
+          })
+          sendControlResponseSuccess(message, {})
         } else if (
           (feature('PROACTIVE') || feature('KAIROS')) &&
           (message.request as { subtype: string }).subtype === 'set_proactive'
@@ -4583,6 +5064,7 @@ function runHeadlessStreaming(
                     structuredIO.injectControlResponse(response)
                   },
                   onInterrupt() {
+                    cancelAllPendingLoopSessionCrons()
                     abortController?.abort()
                   },
                   onSetModel(model) {
@@ -4592,16 +5074,10 @@ function runHeadlessStreaming(
                     setMainLoopModelOverride(resolved)
                   },
                   onSetMaxThinkingTokens(maxTokens) {
-                    if (maxTokens === null) {
-                      options.thinkingConfig = undefined
-                    } else if (maxTokens === 0) {
-                      options.thinkingConfig = { type: 'disabled' }
-                    } else {
-                      options.thinkingConfig = {
-                        type: 'enabled',
-                        budgetTokens: maxTokens,
-                      }
-                    }
+                    options.thinkingConfig = thinkingConfigForMaxTokens(
+                      maxTokens,
+                      thinkingDisplay,
+                    )
                   },
                   onStateChange(state, detail) {
                     if (state === 'failed') {
@@ -4723,6 +5199,7 @@ function runHeadlessStreaming(
             logForDebugging(
               `Sending acknowledgment for duplicate user message: ${message.uuid}`,
             )
+            const fileAttachments = extractInboundAttachments(message)
             output.enqueue({
               type: 'user',
               message: message.message,
@@ -4731,13 +5208,16 @@ function runHeadlessStreaming(
               uuid: message.uuid,
               timestamp: message.timestamp,
               isReplay: true,
+              ...(fileAttachments.length > 0 && {
+                file_attachments: fileAttachments,
+              }),
             } as SDKUserMessageReplay)
           }
           // Historical dup = transcript already has this turn's output, so it
           // ran but its lifecycle was never closed (interrupted before ack).
           // Runtime dups don't need this — the original enqueue path closes them.
           if (existsInSession) {
-            notifyCommandLifecycle(message.uuid, 'completed')
+            structuredIO.onCommandLifecycle?.(message.uuid, 'completed')
           }
           // Don't enqueue duplicate messages for execution
           continue
@@ -4787,6 +5267,7 @@ function runHeadlessStreaming(
         }
       }
 
+      const fileAttachments = extractInboundAttachments(message)
       enqueue({
         mode: 'prompt' as const,
         // file_attachments rides the protobuf catchall from the web composer.
@@ -4825,6 +5306,11 @@ function runHeadlessStreaming(
       unsubscribeSkillChanges()
       unsubscribeAuthStatus?.()
       statusListeners.delete(rateLimitListener)
+      await cleanupMcpClients([
+        ...getAppState().mcp.clients,
+        ...sdkClients,
+        ...dynamicMcpState.clients,
+      ])
       output.done()
     }
   })()
@@ -5278,7 +5764,6 @@ async function handleInitializeRequest(
 async function handleRewindFiles(
   userMessageId: UUID,
   appState: AppState,
-  setAppState: (updater: (prev: AppState) => AppState) => void,
   dryRun: boolean,
 ): Promise<RewindFilesResult> {
   if (!fileHistoryEnabled()) {
@@ -5305,14 +5790,7 @@ async function handleRewindFiles(
   }
 
   try {
-    await fileHistoryRewind(
-      updater =>
-        setAppState(prev => ({
-          ...prev,
-          fileHistory: updater(prev.fileHistory),
-        })),
-      userMessageId,
-    )
+    await fileHistoryRewind(() => appState.fileHistory, userMessageId)
   } catch (error) {
     return {
       canRewind: false,
@@ -5626,6 +6104,7 @@ function emitLoadError(
 type LoadInitialMessagesResult = {
   messages: Message[]
   turnInterruptionState?: TurnInterruptionState
+  deferredToolUse?: HookDeferredToolAttachment
   agentSetting?: string
   deferredToolUse?: HookDeferredToolAttachment
 }
@@ -5715,6 +6194,7 @@ async function loadInitialMessages(
         return {
           messages: result.messages,
           turnInterruptionState: result.turnInterruptionState,
+          deferredToolUse: result.deferredToolUse,
           agentSetting: result.agentSetting,
           deferredToolUse: result.deferredToolUse,
         }
@@ -5839,6 +6319,7 @@ async function loadInitialMessages(
           if (typeof metadata.external?.model === 'string') {
             setMainLoopModelOverride(metadata.external.model)
           }
+          hydratePostTurnSummary(metadata.post_turn_summary)
         }
       } else if (
         parsedSessionId.isUrl &&
@@ -5970,6 +6451,7 @@ async function loadInitialMessages(
       return {
         messages: result.messages,
         turnInterruptionState: result.turnInterruptionState,
+        deferredToolUse: result.deferredToolUse,
         agentSetting: result.agentSetting,
         deferredToolUse: result.deferredToolUse,
       }
@@ -6005,6 +6487,7 @@ function getStructuredIO(
   options: {
     sdkUrl: string | undefined
     replayUserMessages?: boolean
+    sessionState: SessionStateManager
   },
 ): StructuredIO {
   let inputStream: AsyncIterable<string>
@@ -6032,8 +6515,17 @@ function getStructuredIO(
 
   // Use RemoteIO if sdkUrl is provided, otherwise use regular StructuredIO
   return options.sdkUrl
-    ? new RemoteIO(options.sdkUrl, inputStream, options.replayUserMessages)
-    : new StructuredIO(inputStream, options.replayUserMessages)
+    ? new RemoteIO(
+        options.sdkUrl,
+        inputStream,
+        options.replayUserMessages,
+        options.sessionState,
+      )
+    : new StructuredIO(
+        inputStream,
+        options.replayUserMessages,
+        options.sessionState,
+      )
 }
 
 /**

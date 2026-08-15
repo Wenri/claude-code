@@ -932,8 +932,9 @@
   "sourceLineage": {
     "root": "src",
     "patchSet": "2.1.101-to-2.1.104-incremental",
-    "baseCommit": "c11fa1426ae3c00459d9e274deb9f952bdebaefa",
+    "baseCommit": "f03f4b89f427a311c3ae6493a5e392ef612f5d26",
     "baseGitTree": "23e6df32f497685a3b3a251334e151c62ef1d1a4",
+    "baseSourceGitTree": "5c88ff8c6f8a06461646f71f86fba56a7d9399d9",
     "patchOrder": [
       "recovered/streaming-idle-and-partial-yield.patch"
     ],
@@ -1069,6 +1070,21 @@
         "path": "readable-diff/renames.tsv",
         "bytes": 115032,
         "sha256": "d09975ba0aa60730ce998010fc85fda6ae60cd9a8f54b751ff6d154e8438a527"
+      },
+      {
+        "path": "semantic-supplement.patch",
+        "bytes": 18821,
+        "sha256": "44b5ec955eee89528bdeb2c0d33d4d3fb8cfbc70f3478e1d3c73fb5f70e54339"
+      },
+      {
+        "path": "semantic/source-coverage.json.gz",
+        "bytes": 6264,
+        "sha256": "af8b372de8c6cd027322fffca00ab99bcd9b615128826c0ca54a98dd0b625b66"
+      },
+      {
+        "path": "semantic/dependency-coverage.json.gz",
+        "bytes": 488,
+        "sha256": "96871bf2406285aca57cec49b0a23dc6644822918975995f496bbc91be97939a"
       }
     ]
   },
@@ -1172,5 +1188,87 @@
       "bytes": 11791,
       "sha256": "2b1e28f28c8b7e9394881ea5cad167792c097fd0acf3cb418e922fcc6de5fe71"
     }
-  ]
+  ],
+  "semanticSourceLineage": {
+    "targetCommit": "0d70d13694c24c8dbe822d6f5705a0449e1d0a34",
+    "cumulativeSupplements": [
+      {
+        "case": "2.1.88-to-2.1.89",
+        "path": "recovery/cases/2.1.88-to-2.1.89/semantic-supplement.patch",
+        "bytes": 3512210,
+        "sha256": "adb702c880a26e1806d23bed31ffc7a1958fd0f415539ea6a8dd3c422af557f2"
+      },
+      {
+        "case": "2.1.89-to-2.1.90",
+        "path": "recovery/cases/2.1.89-to-2.1.90/semantic-supplement.patch",
+        "bytes": 5016682,
+        "sha256": "b107b8c95712ec6b8c3c7e2c06a5fe73201a1d463efd38c7acc436c8f9c602d7"
+      },
+      {
+        "case": "2.1.90-to-2.1.91",
+        "path": "recovery/cases/2.1.90-to-2.1.91/semantic-supplement.patch",
+        "bytes": 5618705,
+        "sha256": "68d1b6acd88c1e89c781e26c8b7b4e78ca1155f37ca0f0558570f67b2fc0ed24"
+      },
+      {
+        "case": "2.1.91-to-2.1.92",
+        "path": "recovery/cases/2.1.91-to-2.1.92/semantic-supplement.patch",
+        "bytes": 5567219,
+        "sha256": "43b7f3165ca0502796e26a50e821c12a47b8bc95dc78a5744361091e0adf9062"
+      },
+      {
+        "case": "2.1.92-to-2.1.94",
+        "path": "recovery/cases/2.1.92-to-2.1.94/semantic-supplement.patch",
+        "bytes": 4985553,
+        "sha256": "5184c64ed80aceb89ebed6bce2072fff918e0a5a008b1969d95f718a811658d0"
+      },
+      {
+        "case": "2.1.94-to-2.1.96",
+        "path": "recovery/cases/2.1.94-to-2.1.96/semantic-supplement.patch",
+        "bytes": 4321868,
+        "sha256": "dba122f721559133bdad7970c15ccda26c9dfcef2c5d0e82de65dbffdb2c1542"
+      },
+      {
+        "case": "2.1.96-to-2.1.97",
+        "path": "recovery/cases/2.1.96-to-2.1.97/semantic-supplement.patch",
+        "bytes": 3458612,
+        "sha256": "d99083ce418556083209341fa4c7d88956b8b23b56ee6751f1c3f2dc93aa919e"
+      },
+      {
+        "case": "2.1.97-to-2.1.98",
+        "path": "recovery/cases/2.1.97-to-2.1.98/semantic-supplement.patch",
+        "bytes": 3442582,
+        "sha256": "231100dc4e997dd1f43a1bf51dc548bf50d4c24cf0352f82a149ddf42d88a822"
+      },
+      {
+        "case": "2.1.98-to-2.1.100",
+        "path": "recovery/cases/2.1.98-to-2.1.100/semantic-supplement.patch",
+        "bytes": 19916,
+        "sha256": "89199551a490880dc4ccd3677350841d4c8452a01837fb336d2572a3ed906a1b"
+      },
+      {
+        "case": "2.1.100-to-2.1.101",
+        "path": "recovery/cases/2.1.100-to-2.1.101/semantic-supplement.patch",
+        "bytes": 2302473,
+        "sha256": "5f09c2856c494d70c5712be1c4091e2099772bfbbc2e30690aedcb1e0c36f2b0"
+      },
+      {
+        "case": "2.1.101-to-2.1.104",
+        "path": "recovery/cases/2.1.101-to-2.1.104/semantic-supplement.patch",
+        "bytes": 18821,
+        "sha256": "44b5ec955eee89528bdeb2c0d33d4d3fb8cfbc70f3478e1d3c73fb5f70e54339"
+      }
+    ],
+    "supplement": {
+      "case": "2.1.101-to-2.1.104",
+      "path": "recovery/cases/2.1.101-to-2.1.104/semantic-supplement.patch",
+      "bytes": 18821,
+      "sha256": "44b5ec955eee89528bdeb2c0d33d4d3fb8cfbc70f3478e1d3c73fb5f70e54339"
+    },
+    "sourceCoverage": {
+      "path": "semantic/source-coverage.json.gz",
+      "bytes": 6264,
+      "sha256": "af8b372de8c6cd027322fffca00ab99bcd9b615128826c0ca54a98dd0b625b66"
+    }
+  }
 }

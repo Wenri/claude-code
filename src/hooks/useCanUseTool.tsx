@@ -26,7 +26,8 @@ import { createPermissionContext, createPermissionQueueOps } from './toolPermiss
 import { logPermissionDecision } from './toolPermission/permissionLogging.js';
 export type CanUseToolFn<Input extends Record<string, unknown> = Record<string, unknown>> = (tool: ToolType, input: Input, toolUseContext: ToolUseContext, assistantMessage: AssistantMessage, toolUseID: string, forceDecision?: PermissionDecision<Input>) => Promise<PermissionDecision<Input>>;
 function useCanUseTool(setToolUseConfirmQueue, setToolPermissionContext) {
-  const $ = _c(3);
+  const $ = _c(4);
+  const { recordDenial } = useAutoModeDenials();
   let t0;
   if ($[0] !== setToolPermissionContext || $[1] !== setToolUseConfirmQueue) {
     t0 = async (tool, input, toolUseContext, assistantMessage, toolUseID, forceDecision) => {
@@ -44,7 +45,7 @@ function useCanUseTool(setToolUseConfirmQueue, setToolPermissionContext) {
             return;
           }
           if (feature("TRANSCRIPT_CLASSIFIER") && result.decisionReason?.type === "classifier" && result.decisionReason.classifier === "auto-mode") {
-            setYoloClassifierApproval(toolUseID, result.decisionReason.reason);
+            setYoloClassifierApproval(toolUseContext.setClassifierApprovals, toolUseID, result.decisionReason.reason);
           }
           ctx.logDecision({
             decision: "accept",
@@ -78,7 +79,7 @@ function useCanUseTool(setToolUseConfirmQueue, setToolPermissionContext) {
                 source: "config"
               });
               if (feature("TRANSCRIPT_CLASSIFIER") && result.decisionReason?.type === "classifier" && result.decisionReason.classifier === "auto-mode") {
-                recordAutoModeDenial({
+                recordDenial({
                   toolName: tool.name,
                   display: description,
                   inputKey,
@@ -142,7 +143,7 @@ function useCanUseTool(setToolUseConfirmQueue, setToolPermissionContext) {
                     }).command);
                     const matchedRule = raceResult.result.matchedDescription ?? undefined;
                     if (matchedRule) {
-                      setClassifierApproval(toolUseID, matchedRule);
+                      setClassifierApproval(toolUseContext.setClassifierApprovals, toolUseID, matchedRule);
                     }
                     ctx.logDecision({
                       decision: "accept",
@@ -182,7 +183,7 @@ function useCanUseTool(setToolUseConfirmQueue, setToolPermissionContext) {
           resolve(ctx.cancelAndAbort(undefined, true));
         }
       }).finally(() => {
-        clearClassifierChecking(toolUseID);
+        clearClassifierChecking(toolUseContext.setClassifierApprovals, toolUseID);
       });
       });
       if (previousDenial) {
@@ -202,7 +203,7 @@ function useCanUseTool(setToolUseConfirmQueue, setToolPermissionContext) {
     $[1] = setToolUseConfirmQueue;
     $[2] = t0;
   } else {
-    t0 = $[2];
+    t0 = $[3];
   }
   return t0;
 }

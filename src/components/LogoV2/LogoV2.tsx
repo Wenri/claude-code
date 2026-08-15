@@ -133,7 +133,7 @@ export function LogoV2() {
   let t6;
   if ($[6] !== showGuestPassesUpsell) {
     t5 = () => {
-      if (showGuestPassesUpsell && !showOnboarding && !isCondensedMode) {
+      if (showGuestPassesUpsell && !showOnboarding && !showOpus47LaunchUpsell && !isCondensedMode) {
         incrementGuestPassesSeenCount();
       }
     };
@@ -150,7 +150,7 @@ export function LogoV2() {
   let t8;
   if ($[9] !== showGuestPassesUpsell || $[10] !== showOverageCreditUpsell) {
     t7 = () => {
-      if (showOverageCreditUpsell && !showOnboarding && !showGuestPassesUpsell && !isCondensedMode) {
+      if (showOverageCreditUpsell && !showOnboarding && !showOpus47LaunchUpsell && !showGuestPassesUpsell && !isCondensedMode) {
         incrementOverageCreditUpsellSeenCount();
       }
     };

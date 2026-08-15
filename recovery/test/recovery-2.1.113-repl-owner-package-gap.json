@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.112-to-2.1.113",
+  "artifact": {
+    "targetInnerSha256": "4a3c3636c8cb19ef42d6319e5c6ef9b029f5de148b84f22315d159052d6c5eba",
+    "targetWrapperSha256": "dda4d89e787fa455706e4f41beffc8e58d42b9094c4d155fcbf62e3f19036681",
+    "targetWrapperPrefixLength": 87,
+    "targetWrapperSuffixLength": 3,
+    "structuralGzipSha256": "383448923995bb86060ce91beac2bc5adac35817a0cdff35b533135c7d24345f"
+  },
+  "proof": {
+    "target": "complete authenticated target unit and every exact target-added residue occurrence",
+    "source": "exact REPL owner file, named AST declaration or module import, supporting constant, and semantic anchor identities",
+    "historical": "the exact owner file is absent from the materialized target113 source package",
+    "classification": "same-owner source refactor or compiler-lowered import inside a historical source-package gap"
+  },
+  "summary": {
+    "units": 4,
+    "residues": 6,
+    "historicalPackageGapUnits": 4,
+    "importLoweredResidues": 3,
+    "authoredResidues": 3
+  },
+  "owner": {
+    "path": "src/tools/REPLTool/REPLTool.ts",
+    "observedMainSha256": "c76970fdac60d14a762fd541124eb064ef27dad95e27ce37ac7b5d0699ee35f0",
+    "historicalPackageState": "absent"
+  },
+  "rows": [
+    {
+      "targetIndex": 12996,
+      "currentOwners": [
+        "owner-src-tools-BriefTool-BriefTool-ts"
+      ],
+      "classification": "exact-owner-refactored-source-with-import-lowering-and-historical-package-gap",
+      "target": {
+        "classification": "unresolved",
+        "start": 8314357,
+        "end": 8315540,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "4d731cb61b0c06820eed8bbbcf4a8c7a41c87c7c4a5fb532a85808b6b4a49254"
+      },
+      "source": {
+        "declaration": "sampleWithHaiku",
+        "declarationKind": "FunctionDeclaration",
+        "declarationSha256": "019680de900f6f627be0d2d6b67ce3b5f83140d4db336bf4abdc0c6cff099258",
+        "imports": [
+          {
+            "module": "node:crypto",
+            "imported": "randomUUID",
+            "local": "randomUUID"
+          }
+        ],
+        "requiredStrings": [
+          "haiku: prompt must be a string",
+          "haiku: schema must be JSON-serializable",
+          "haiku: schema must be an object",
+          "repl_sampling"
+        ]
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "randomUUID",
+          "start": 8314706,
+          "end": 8314716,
+          "classification": "compiler-lowered-runtime-import"
+        }
+      ]
+    },
+    {
+      "targetIndex": 13015,
+      "currentOwners": [
+        "owner-src-tools-BriefTool-BriefTool-ts"
+      ],
+      "classification": "exact-alternate-owner-with-import-lowering-and-historical-package-gap",
+      "target": {
+        "classification": "unresolved",
+        "start": 8325765,
+        "end": 8328335,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "540462740fdf5366ae2c4a2ab14958a4cf4b111e492e246a1de0b2d6722d9f1d"
+      },
+      "source": {
+        "declaration": "createInnerToolWrapper",
+        "declarationKind": "FunctionDeclaration",
+        "declarationSha256": "168f54d5fdf985a7b61e0c9e015e24ede038e319e39f120830f23d3824f9300b",
+        "imports": [
+          {
+            "module": "node:crypto",
+            "imported": "randomUUID",
+            "local": "randomUUID"
+          }
+        ],
+        "supportingDeclarations": [
+          {
+            "name": "MAX_READ_BYTES",
+            "kind": "VariableDeclaration",
+            "sha256": "6b52ffb9d6c876a10138da11cbae0046dd2ba9d0d1e3e63af9e0cb50821b95f3"
+          }
+        ],
+        "requiredStrings": [
+          "type"
+        ]
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "randomUUID",
+          "start": 8325844,
+          "end": 8325854,
+          "classification": "compiler-lowered-runtime-import"
+        },
+        {
+          "kind": "number",
+          "value": 268435456,
+          "start": 8327162,
+          "end": 8327171,
+          "classification": "exact-authored-supporting-constant"
+        },
+        {
+          "kind": "string",
+          "value": "type",
+          "start": 8327438,
+          "end": 8327444,
+          "classification": "exact-authored-source"
+        }
+      ]
+    },
+    {
+      "targetIndex": 13022,
+      "currentOwners": [
+        "owner-src-tools-BriefTool-BriefTool-ts"
+      ],
+      "classification": "exact-alternate-owner-with-import-lowering-and-historical-package-gap",
+      "target": {
+        "classification": "unresolved",
+        "start": 8332155,
+        "end": 8334256,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "9bf86661c2483867f7332ba5cde6e56c4f2eca7cdf8946e0c396f21d9a898c68"
+      },
+      "source": {
+        "declaration": "installConvenienceHelpers",
+        "declarationKind": "FunctionDeclaration",
+        "declarationSha256": "24607b54c8f47e46dbe1f771930ee942f5bcb39689d06906a047746918057d7d",
+        "imports": [
+          {
+            "module": "node:path",
+            "imported": "isAbsolute",
+            "local": "isAbsolute"
+          }
+        ],
+        "requiredStrings": [
+          "files_with_matches",
+          "output_mode"
+        ]
+      },
+      "residues": [
+        {
+          "kind": "property",
+          "value": "isAbsolute",
+          "start": 8332216,
+          "end": 8332226,
+          "classification": "compiler-lowered-runtime-import"
+        }
+      ]
+    },
+    {
+      "targetIndex": 13061,
+      "currentOwners": [
+        "owner-src-tools-BriefTool-BriefTool-ts"
+      ],
+      "classification": "exact-alternate-owner-module-initializer-with-import-lowering-and-historical-package-gap",
+      "target": {
+        "classification": "unresolved",
+        "start": 8342943,
+        "end": 8348382,
+        "nodeType": "VariableDeclaration",
+        "sourceHash": "641fe7004da0ab9b8e2e2d0dabb31c16fe5092280a086fabebba1b22c55e6a49"
+      },
+      "source": {
+        "moduleInitializer": true,
+        "imports": [
+          {
+            "module": "node:util",
+            "targetModule": "util",
+            "imported": "inspect",
+            "local": "inspect",
+            "statementSha256": "adf72e1cd4edfb0758bdcadd1c4af71957851984968106942c7efc35951bd1dd"
+          }
+        ]
+      },
+      "residues": [
+        {
+          "kind": "string",
+          "value": "util",
+          "start": 8343077,
+          "end": 8343083,
+          "classification": "compiler-lowered-runtime-import-module"
+        }
+      ]
+    }
+  ],
+  "supplement": {
+    "operation": "coverage-proof-only-until-complete-owner-cluster-is-reconstructed",
+    "reason": "the four rows authenticate the REPL owner and historical package omission, but do not authenticate a complete target113 source file or its required state/caller/type integration",
+    "requiredOwnerCluster": [
+      "src/tools/REPLTool/REPLTool.ts",
+      "src/tools/REPLTool/prompt.ts",
+      "src/tools/REPLTool/types.ts",
+      "src/Tool.ts",
+      "src/state/AppStateStore.ts",
+      "src/tools.ts"
+    ],
+    "knownLaterTemporalExclusionsFromObservedMain": [
+      "sampleWithHaiku enablePromptCaching false option",
+      "createInnerToolWrapper tool-isolation denial block",
+      "createInnerToolWrapper deadline onToolStart/onToolEnd lifecycle",
+      "installConvenienceHelpers shQuote helper",
+      "installConvenienceHelpers direct haiku/opus/sonnet registrations"
+    ]
+  }
+}

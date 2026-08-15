@@ -73,6 +73,7 @@ async function executeForkedSlashCommand(command: CommandBase & PromptCommand, a
   logEvent('tengu_slash_command_forked', {
     command_name: command.name as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
     invocation_trigger: 'user-slash' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    ...buildSkillTelemetryFields(command.source, command.loadedFrom, command.kind, command.createdBy),
     ...(command.pluginInfo && {
       _PROTO_plugin_name: command.pluginInfo.pluginManifest.name as AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
       ...(pluginMarketplace && {
@@ -84,6 +85,7 @@ async function executeForkedSlashCommand(command: CommandBase & PromptCommand, a
   const {
     skillContent,
     modifiedGetAppState,
+    modifiedGetToolPermissionContext,
     baseAgent,
     promptMessages
   } = await prepareForkedCommandContext(command, args, context);
@@ -161,6 +163,7 @@ async function executeForkedSlashCommand(command: CommandBase & PromptCommand, a
         toolUseContext: {
           ...context,
           getAppState: modifiedGetAppState,
+          getToolPermissionContext: modifiedGetToolPermissionContext,
           abortController: bgAbortController
         },
         canUseTool,
@@ -245,7 +248,8 @@ async function executeForkedSlashCommand(command: CommandBase & PromptCommand, a
       promptMessages,
       toolUseContext: {
         ...context,
-        getAppState: modifiedGetAppState
+        getAppState: modifiedGetAppState,
+        getToolPermissionContext: modifiedGetToolPermissionContext
       },
       canUseTool,
       isAsync: false,
@@ -344,10 +348,32 @@ export async function processSlashCommand(inputString: string, precedingInputBlo
       // Not a file path — treat as command name
     }
     if (looksLikeCommand(commandName) && !isFilePath) {
+      if (
+        context.options.isNonInteractiveSession &&
+        builtInCommandNames().has(commandName)
+      ) {
+        const message = `/${commandName} isn't available in this environment.`
+        logEvent('tengu_input_slash_invalid', {
+          input: commandName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+          had_suggestion: false,
+        })
+        return {
+          messages: [
+            createCommandInputMessage(
+              `/${commandName}${parsedArgs ? ` ${parsedArgs}` : ''}`,
+            ),
+            createCommandInputMessage(
+              `<local-command-stdout>${message}</local-command-stdout>`,
+            ),
+          ],
+          shouldQuery: false,
+          resultText: message,
+        }
+      }
       const suggestion = findClosestCommand(commandName, context.options.commands.filter(command => !command.isHidden).map(command => ({
         name: getCommandName(command),
         aliases: command.aliases
-      })));
+      })), { maxEditDistance: 2 });
       logEvent('tengu_input_slash_invalid', {
         input: commandName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
         had_suggestion: Boolean(suggestion)
@@ -588,6 +614,20 @@ async function getMessagesForSlashCommand(commandName: string, args: string, set
       command
     };
   }
+  if (command.type === 'local-jsx' && context.options.isNonInteractiveSession) {
+    const message = `/${getCommandName(command)} opens an interactive panel and isn't available in this environment. Run it from the Claude Code terminal instead.`
+    return {
+      messages: [
+        createCommandInputMessage(formatCommandInput(command, args)),
+        createCommandInputMessage(
+          `<local-command-stdout>${message}</local-command-stdout>`,
+        ),
+      ],
+      shouldQuery: false,
+      command,
+      resultText: message,
+    }
+  }
   try {
     switch (command.type) {
       case 'local-jsx':
@@ -653,14 +693,6 @@ async function getMessagesForSlashCommand(commandName: string, args: string, set
               canUseTool
             }, args, commandName)).then(jsx => {
               if (jsx == null) return;
-              if (context.options.isNonInteractiveSession) {
-                void resolve({
-                  messages: [],
-                  shouldQuery: false,
-                  command
-                });
-                return;
-              }
               // Guard: if onDone fired during mod.call() (early-exit path
               // that calls onDone then returns JSX), skip setToolJSX. This
               // chain is fire-and-forget — the outer Promise resolves when

@@ -65,7 +65,7 @@ export async function fetchEnvironments(): Promise<EnvironmentResource[]> {
   } catch (error) {
     const err = toError(error)
     logError(err)
-    throw new Error(`Failed to fetch environments: ${err.message}`)
+    throw err
   }
 }
 

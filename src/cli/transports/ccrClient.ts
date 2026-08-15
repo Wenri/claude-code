@@ -7,7 +7,7 @@ import { decodeJwtExpiry } from '../../bridge/jwtUtils.js'
 import { logForDebugging } from '../../utils/debug.js'
 import { logForDiagnosticsNoPII } from '../../utils/diagLogs.js'
 import { errorMessage, getErrnoCode } from '../../utils/errors.js'
-import { createAxiosInstance } from '../../utils/proxy.js'
+import { getProxyFetchOptions } from '../../utils/proxy.js'
 import {
   registerSessionActivityCallback,
   unregisterSessionActivityCallback,
@@ -43,11 +43,6 @@ const DEFAULT_HEARTBEAT_INTERVAL_MS = 20_000
  * connecting mid-stream sees complete text, not a fragment.
  */
 const STREAM_EVENT_FLUSH_INTERVAL_MS = 100
-
-/** Hoisted axios validateStatus callback to avoid per-request closure allocation. */
-function alwaysValidStatus(): boolean {
-  return true
-}
 
 export type CCRInitFailReason =
   | 'no_auth_headers'
@@ -274,8 +269,6 @@ export class CCRClient {
   private currentState: SessionState | null = null
   private readonly sessionBaseUrl: string
   private readonly sessionId: string
-  private readonly http = createAxiosInstance({ keepAlive: true })
-
   // stream_event delay buffer — accumulates content deltas for up to
   // STREAM_EVENT_FLUSH_INTERVAL_MS before enqueueing (reduces POST count
   // and enables text_delta coalescing). Mirrors HybridTransport's pattern.
@@ -574,22 +567,21 @@ export class CCRClient {
     if (Object.keys(authHeaders).length === 0) return { ok: false }
 
     try {
-      const response = await this.http[method](
-        `${this.sessionBaseUrl}${path}`,
-        body,
-        {
-          headers: {
-            ...authHeaders,
-            'Content-Type': 'application/json',
-            'anthropic-version': '2023-06-01',
-            'User-Agent': getClaudeCodeUserAgent(),
-          },
-          validateStatus: alwaysValidStatus,
-          timeout,
+      const response = await fetch(`${this.sessionBaseUrl}${path}`, {
+        method: method.toUpperCase(),
+        headers: {
+          ...authHeaders,
+          'Content-Type': 'application/json',
+          'anthropic-version': '2023-06-01',
+          'User-Agent': getClaudeCodeUserAgent(),
         },
-      )
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(timeout),
+        ...getProxyFetchOptions(),
+      })
+      void response.body?.cancel()
 
-      if (response.status >= 200 && response.status < 300) {
+      if (response.ok) {
         this.consecutiveAuthFailures = 0
         return { ok: true }
       }
@@ -631,8 +623,8 @@ export class CCRClient {
         status: response.status,
       })
       if (response.status === 429) {
-        const raw = response.headers?.['retry-after']
-        const seconds = typeof raw === 'string' ? parseInt(raw, 10) : NaN
+        const raw = response.headers.get('retry-after')
+        const seconds = raw ? parseInt(raw, 10) : NaN
         if (!isNaN(seconds) && seconds >= 0) {
           return { ok: false, retryAfterMs: seconds * 1000 }
         }
@@ -854,6 +846,10 @@ export class CCRClient {
     return this.internalEventUploader.flush()
   }
 
+  flushDeliveryAcks(): Promise<void> {
+    return this.deliveryUploader.flush()
+  }
+
   /**
    * Flush pending client events (writeEvent queue). Call before close()
    * when the caller needs delivery confirmation — close() abandons the
@@ -943,14 +939,14 @@ export class CCRClient {
     for (let attempt = 1; attempt <= 10; attempt++) {
       let response
       try {
-        response = await this.http.get<T>(url, {
+        response = await fetch(url, {
           headers: {
             ...authHeaders,
             'anthropic-version': '2023-06-01',
             'User-Agent': getClaudeCodeUserAgent(),
           },
-          validateStatus: alwaysValidStatus,
-          timeout: 30_000,
+          signal: AbortSignal.timeout(30_000),
+          ...getProxyFetchOptions(),
         })
       } catch (error) {
         logForDebugging(
@@ -965,9 +961,10 @@ export class CCRClient {
         continue
       }
 
-      if (response.status >= 200 && response.status < 300) {
-        return response.data
+      if (response.ok) {
+        return (await response.json()) as T
       }
+      void response.body?.cancel()
       if (response.status === 409) {
         this.handleEpochMismatch()
       }

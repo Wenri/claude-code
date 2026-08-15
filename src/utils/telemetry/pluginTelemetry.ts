@@ -100,6 +100,32 @@ export type InvocationTrigger =
 /** Where a skill invocation executes. */
 export type SkillExecutionContext = 'fork' | 'inline' | 'remote'
 
+export function buildSkillTelemetryFields(
+  source?: string,
+  loadedFrom?: string,
+  kind?: string,
+  createdBy?: string,
+): Record<string, AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS> {
+  return {
+    ...(source && {
+      skill_source:
+        source as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    }),
+    ...(loadedFrom && {
+      skill_loaded_from:
+        loadedFrom as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    }),
+    ...(kind && {
+      skill_kind:
+        kind as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    }),
+    ...(createdBy && {
+      skill_created_by:
+        createdBy as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    }),
+  }
+}
+
 /** How a plugin install was initiated. */
 export type InstallSource =
   | 'cli-explicit'
@@ -213,8 +239,19 @@ export function logPluginsEnabledForSession(
         (plugin.skillsPath ? 1 : 0) + (plugin.skillsPaths?.length ?? 0),
       command_path_count:
         (plugin.commandsPath ? 1 : 0) + (plugin.commandsPaths?.length ?? 0),
-      has_mcp: plugin.manifest.mcpServers !== undefined,
+      agent_path_count:
+        (plugin.agentsPath ? 1 : 0) + (plugin.agentsPaths?.length ?? 0),
+      has_mcp: plugin.mcpServers !== undefined,
+      has_lsp: plugin.lspServers !== undefined,
       has_hooks: plugin.hooksConfig !== undefined,
+      has_settings: plugin.settings !== undefined,
+      ...(plugin.settings && {
+        settings_keys: Object.keys(plugin.settings)
+          .sort()
+          .join(
+            ',',
+          ) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      }),
       ...(plugin.manifest.version && {
         version: plugin.manifest
           .version as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,

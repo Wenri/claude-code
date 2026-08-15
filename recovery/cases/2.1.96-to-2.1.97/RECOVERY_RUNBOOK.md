@@ -422,3 +422,18 @@ For a later version, change only release-specific inputs and assertions:
 
 Do not weaken hashes, reuse stale ledgers, apply an ancestor source map to
 target offsets, or turn uncertain module placement into asserted source.
+
+## Semantic source reproduction check
+
+Run the fail-closed semantic audit after acquiring the adjacent artifacts:
+
+```sh
+pixi run node recovery/scripts/audit-source-reproduction.mjs \
+  --case "$CASE/manifest.json" \
+  --repo . \
+  --artifacts "$RECOVERY_ARTIFACTS"
+```
+
+Require all 4,450 nonmatched units to be classified, zero first-party source
+runtime gaps, and 35 explicitly unresolved dependency-runtime gaps. Missing
+root dependency/build inputs keep the whole-bundle-from-source verdict false.

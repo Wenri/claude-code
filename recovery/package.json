@@ -3,6 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "audit:source": "node scripts/audit-source-reproduction.mjs",
+    "audit:source:require-exact": "node scripts/audit-source-reproduction.mjs --require-exact-source",
     "test": "node --test test/*.test.mjs"
   },
   "dependencies": {

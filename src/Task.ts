@@ -2,6 +2,7 @@ import { randomBytes } from 'crypto'
 import type { AppState } from './state/AppState.js'
 import type { AgentId } from './types/ids.js'
 import { getTaskOutputPath } from './utils/task/diskOutput.js'
+import type { TaskRegistry } from './utils/task/framework.js'
 
 export type TaskType =
   | 'local_bash'
@@ -37,8 +38,8 @@ export type SetAppState = (f: (prev: AppState) => AppState) => void
 
 export type TaskContext = {
   abortController: AbortController
-  getAppState: () => AppState
-  setAppState: SetAppState
+  taskRegistry: TaskRegistry
+  abortSpeculation?: () => void
 }
 
 // Base fields shared by all task states
@@ -54,6 +55,7 @@ export type TaskStateBase = {
   outputFile: string
   outputOffset: number
   notified: boolean
+  skipTranscript?: boolean
 }
 
 export type LocalShellSpawnInput = {
@@ -72,7 +74,11 @@ export type LocalShellSpawnInput = {
 export type Task = {
   name: string
   type: TaskType
-  kill(taskId: string, setAppState: SetAppState): Promise<void>
+  kill(
+    taskId: string,
+    taskRegistry: TaskRegistry,
+    setAppState: SetAppState,
+  ): Promise<void>
 }
 
 // Task ID prefixes

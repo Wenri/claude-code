@@ -49,6 +49,11 @@ export type DOMElement = {
   // Stored separately from attributes so handler identity changes don't
   // mark dirty and defeat the blit optimization.
   _eventHandlers?: Record<string, unknown>
+  // Whether this node currently owns one raw-mode reference because it has
+  // at least one keyboard, paste, or wheel handler.
+  _holdsRawModeRef?: boolean
+  // Absolute descendants may render outside an ancestor's own rectangle.
+  hasAbsoluteDescendant?: boolean
 
   // Scroll state for overflow: 'scroll' boxes. scrollTop is the number of
   // rows the content is scrolled down by. scrollHeight/scrollViewportHeight
@@ -153,6 +158,13 @@ export const appendChildNode = (
     )
   }
 
+  if (
+    childNode.style.position === 'absolute' ||
+    childNode.hasAbsoluteDescendant
+  ) {
+    markAbsoluteDescendant(node)
+  }
+
   markDirty(node)
 }
 
@@ -166,6 +178,13 @@ export const insertBeforeNode = (
   }
 
   newChildNode.parentNode = node
+
+  if (
+    newChildNode.style.position === 'absolute' ||
+    (newChildNode.nodeName !== '#text' && newChildNode.hasAbsoluteDescendant)
+  ) {
+    markAbsoluteDescendant(node)
+  }
 
   const index = node.childNodes.indexOf(beforeChildNode)
 
@@ -273,8 +292,21 @@ export const setStyle = (node: DOMNode, style: Styles): void => {
   if (stylesEqual(node.style, style)) {
     return
   }
+  const becameAbsolute =
+    style.position === 'absolute' && node.style.position !== 'absolute'
   node.style = style
+  if (becameAbsolute && node.parentNode) {
+    markAbsoluteDescendant(node.parentNode)
+  }
   markDirty(node)
+}
+
+function markAbsoluteDescendant(node: DOMElement): void {
+  let current: DOMElement | undefined = node
+  while (current && !current.hasAbsoluteDescendant) {
+    current.hasAbsoluteDescendant = true
+    current = current.parentNode
+  }
 }
 
 export const setTextStyles = (

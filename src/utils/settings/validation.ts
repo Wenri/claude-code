@@ -1,4 +1,5 @@
 import type { ConfigScope } from 'src/services/mcp/types.js'
+import { HOOK_EVENTS } from 'src/entrypoints/agentSdkTypes.js'
 import type { ZodError, ZodIssue } from 'zod/v4'
 import { jsonParse } from '../slowOperations.js'
 import { plural } from '../stringUtils.js'
@@ -60,6 +61,7 @@ export type ValidationError = {
   suggestion?: string
   /** Link to relevant documentation */
   docLink?: string
+  severity?: 'fatal' | 'warning'
   /** MCP-specific metadata - only present for MCP configuration errors */
   mcpErrorMetadata?: {
     /** Which configuration scope this error came from */
@@ -262,4 +264,55 @@ export function filterInvalidPermissionRules(
     })
   }
   return warnings
+}
+
+const VALID_HOOK_EVENTS = new Set<string>(HOOK_EVENTS)
+
+/**
+ * Remove unknown hook event keys before schema validation. A misspelled hook
+ * must not invalidate otherwise usable settings, but it must remain visible
+ * to the caller as an actionable warning.
+ */
+export function filterInvalidHookEvents(
+  data: unknown,
+  filePath: string,
+): ValidationError[] {
+  if (!data || typeof data !== 'object') return []
+  const obj = data as Record<string, unknown>
+  if (
+    !obj.hooks ||
+    typeof obj.hooks !== 'object' ||
+    Array.isArray(obj.hooks)
+  ) {
+    return []
+  }
+
+  const hooks = obj.hooks as Record<string, unknown>
+  const warnings: ValidationError[] = []
+  for (const event of Object.keys(hooks)) {
+    if (VALID_HOOK_EVENTS.has(event)) continue
+    delete hooks[event]
+    warnings.push({
+      file: filePath,
+      path: `hooks.${event}`,
+      message: `Unknown hook event "${event}" was ignored. Valid events: ${HOOK_EVENTS.join(', ')}`,
+      severity: 'warning',
+      invalidValue: event,
+      docLink: 'https://code.claude.com/docs/en/hooks',
+    })
+  }
+  if (warnings.length > 0 && Object.keys(hooks).length === 0) {
+    delete obj.hooks
+  }
+  return warnings
+}
+
+export function filterInvalidSettingsEntries(
+  data: unknown,
+  filePath: string,
+): ValidationError[] {
+  return [
+    ...filterInvalidPermissionRules(data, filePath),
+    ...filterInvalidHookEvents(data, filePath),
+  ]
 }

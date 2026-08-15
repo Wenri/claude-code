@@ -211,10 +211,9 @@ export async function detectTerminal(): Promise<TerminalInfo | null> {
  *           are inherently shell-interpreted; no argv interface exists)
  *   Windows — PowerShell -Command, cmd.exe /k (no argv exec mode)
  *
- * For pure-argv paths: claudePath, --prefill, query, cwd travel as distinct
- * argv elements end-to-end. No sh -c. No shellQuote(). The terminal does
- * chdir(cwd) and execvp(claude, argv). Spaces/quotes/metacharacters in
- * query or cwd are preserved by argv boundaries with zero interpretation.
+ * Deep-link cwd and prompt values are base64url-encoded before they enter any
+ * terminal-specific argv or shell-string path. The launched CLI decodes and
+ * validates them before changing cwd or seeding input.
  */
 export async function launchInTerminal(
   claudePath: string,
@@ -255,6 +254,24 @@ export async function launchInTerminal(
     default:
       return false
   }
+}
+
+export function buildDeepLinkLaunchArgs(action: {
+  query?: string
+  cwd?: string
+  repo?: string
+  lastFetchMs?: number
+}): string[] {
+  const encode = (value: string): string =>
+    Buffer.from(value, 'utf8').toString('base64url')
+  const args = ['--deep-link-origin']
+  if (action.repo) args.push(`--deep-link-repo=${action.repo}`)
+  if (action.lastFetchMs !== undefined) {
+    args.push(`--deep-link-last-fetch=${action.lastFetchMs}`)
+  }
+  if (action.cwd) args.push(`--deep-link-cwd-b64=${encode(action.cwd)}`)
+  if (action.query) args.push(`--prefill-b64=${encode(action.query)}`)
+  return args
 }
 
 async function launchMacosTerminal(
@@ -446,6 +463,8 @@ async function launchWindowsTerminal(
   const { cwd } = action
   const claudeArgs = buildEncodedDeepLinkArgs(action)
   const args: string[] = []
+  const shellSafeArgs = buildDeepLinkLaunchArgs(action)
+  const cwd = action.cwd
 
   switch (terminal.name) {
     // --- PURE ARGV PATH ---
@@ -453,6 +472,7 @@ async function launchWindowsTerminal(
       if (cwd) args.push('-d', cwd.replaceAll(';', '\\;'))
       args.push('--', claudePath.replaceAll(';', '\\;'), ...claudeArgs)
       break
+    }
 
     // --- SHELL-STRING PATHS ---
     // PowerShell -Command and cmd /k take a command string. No argv exec
@@ -611,12 +631,12 @@ function psQuote(s: string): string {
  * character, so an embedded " breaks out of the quoted region and exposes
  * metacharacters (& | < > ^) to cmd.exe interpretation = command injection.
  *
- * Strategy: strip " from the input (it cannot be safely represented in a
- * cmd.exe double-quoted string). Escape % as %% to prevent environment
- * variable expansion (%PATH% etc.) which cmd.exe performs even inside
- * double quotes. Trailing backslashes are still doubled because the
- * *child process* (claude.exe) uses CommandLineToArgvW, where a trailing
- * \ before our closing " would eat the close-quote.
+ * Strategy: normalize line-breaking whitespace and strip both " and % from
+ * the input; neither can be safely represented in the command string. A raw
+ * % would trigger cmd.exe environment-variable expansion even inside double
+ * quotes. Trailing backslashes are still doubled because the *child process*
+ * (claude.exe) uses CommandLineToArgvW, where a trailing \ before our closing
+ * " would eat the close-quote.
  */
 function cmdQuote(arg: string): string {
   const stripped = arg.replace(/[\n\t]/g, ' ').replace(/["%]/g, '')

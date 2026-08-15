@@ -9,7 +9,7 @@ import type {
 } from '../utils/plugins/schemas.js'
 import type { HooksSettings } from '../utils/settings/types.js'
 
-export type { PluginAuthor, PluginManifest, CommandMetadata }
+export type { PluginAuthor, PluginManifest, PluginMonitor, CommandMetadata }
 
 /**
  * Definition for a built-in plugin that ships with the CLI.
@@ -79,6 +79,7 @@ export type LoadedPlugin = {
   monitors?: PluginMonitor[]
   mcpServers?: Record<string, McpServerConfig>
   lspServers?: Record<string, LspServerConfig>
+  monitors?: PluginMonitor[]
   settings?: Record<string, unknown>
 }
 
@@ -114,6 +115,13 @@ export type PluginComponent =
  * error creation sites are refactored.
  */
 export type PluginError =
+  | {
+      type: 'path-traversal'
+      source: string
+      plugin?: string
+      path: string
+      component: PluginComponent
+    }
   | {
       type: 'path-not-found'
       source: string

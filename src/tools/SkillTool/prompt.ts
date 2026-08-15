@@ -3,6 +3,7 @@ import type { Command } from 'src/commands.js'
 import {
   filterCommandsBySkillAllowlist,
   getCommandName,
+  getSkillOverride,
   getSkillToolCommands,
   getSlashCommandToolSkills,
 } from 'src/commands.js'
@@ -86,16 +87,21 @@ const MIN_DESC_LENGTH = 20
 export function formatCommandsWithinBudget(
   commands: Command[],
   contextWindowTokens?: number,
+  _getUsageScore?: (command: Command) => number,
 ): string {
   if (commands.length === 0) return ''
 
   const budget = getCharBudget(contextWindowTokens)
 
   // Try full descriptions first
-  const fullEntries = commands.map(cmd => ({
-    cmd,
-    full: formatCommandDescription(cmd),
-  }))
+  const nameOnlyIndices = new Set<number>()
+  const fullEntries = commands.map((cmd, index) => {
+    if (getSkillOverride(cmd) === 'name-only') {
+      nameOnlyIndices.add(index)
+      return { cmd, full: `- ${cmd.name}` }
+    }
+    return { cmd, full: formatCommandDescription(cmd) }
+  })
   // join('\n') produces N-1 newlines for N entries
   const fullTotal =
     fullEntries.reduce((sum, e) => sum + stringWidth(e.full), 0) +
@@ -106,13 +112,13 @@ export function formatCommandsWithinBudget(
   }
 
   // Partition into bundled (never truncated) and rest
-  const bundledIndices = new Set<number>()
+  const bundledIndices = new Set<number>(nameOnlyIndices)
   const restCommands: Command[] = []
   for (let i = 0; i < commands.length; i++) {
     const cmd = commands[i]!
     if (cmd.type === 'prompt' && cmd.source === 'bundled') {
       bundledIndices.add(i)
-    } else {
+    } else if (!nameOnlyIndices.has(i)) {
       restCommands.push(cmd)
     }
   }

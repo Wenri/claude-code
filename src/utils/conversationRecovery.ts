@@ -37,11 +37,13 @@ import {
   NO_RESPONSE_REQUESTED,
   normalizeMessages,
 } from './messages.js'
+import type { HookDeferredToolAttachment } from './attachments.js'
 import { copyPlanForResume } from './plans.js'
 import { processSessionStartHooks } from './sessionStart.js'
 import {
   buildConversationChain,
   checkResumeConsistency,
+  findDeferredToolUse,
   getLastSessionLog,
   getSessionIdFromLog,
   findLastDeferredToolUse,
@@ -494,6 +496,7 @@ export async function loadConversationForResume(
   customTitle?: string
   tag?: string
   mode?: 'coordinator' | 'normal'
+  permissionMode?: PermissionMode
   worktreeSession?: PersistedWorktreeSession | null
   prNumber?: number
   prUrl?: string
@@ -614,6 +617,7 @@ export async function loadConversationForResume(
       customTitle: log?.customTitle,
       tag: log?.tag,
       mode: log?.mode,
+      permissionMode: log?.permissionMode,
       worktreeSession: log?.worktreeSession,
       prNumber: log?.prNumber,
       prUrl: log?.prUrl,

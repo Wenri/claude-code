@@ -268,7 +268,7 @@ Generate and reverse-check the consolidated patch from the pinned 2.1.107
 source tree:
 
 ```sh
-BASE_COMMIT=6e9f7050132092af2c4ef32236964ab230a82c9d
+BASE_COMMIT=3848dd0b1826c7ccf5a5716541ed5d9b7dc93f08
 test "$(git rev-parse "$BASE_COMMIT:src")" = \
   2af47254e97b933170d606a9199cb6c1c3bcad34
 

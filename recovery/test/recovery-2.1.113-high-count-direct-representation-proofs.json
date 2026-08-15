@@ -1,0 +1,223 @@
+{
+  "schemaVersion": 1,
+  "case": "2.1.112-to-2.1.113",
+  "artifact": {
+    "baselineSha256": "bc3358282800e3e99daa8e71ac5b7b1566bd0d7ca7eb94f714a7859365d3163f",
+    "targetInnerSha256": "4a3c3636c8cb19ef42d6319e5c6ef9b029f5de148b84f22315d159052d6c5eba",
+    "targetWrapperSha256": "dda4d89e787fa455706e4f41beffc8e58d42b9094c4d155fcbf62e3f19036681",
+    "targetWrapperPrefixLength": 87,
+    "targetWrapperSuffixLength": 3,
+    "structuralGzipSha256": "383448923995bb86060ce91beac2bc5adac35817a0cdff35b533135c7d24345f"
+  },
+  "proof": {
+    "target": "complete authenticated target units and every exact target-added residue occurrence",
+    "source": "named declarations, authored imports and calls, alternate input APIs, extracted query context, and JSX default-import lowering",
+    "comparison": "a distinct materialized target113 root pins exact retained declarations plus the extracted query-context and install rc omissions",
+    "classification": "exact direct source, alternate source API, extracted helper representation, compiler lowering, or recovered source gap"
+  },
+  "summary": {
+    "units": 4,
+    "residues": 81,
+    "directSourceResidues": 41,
+    "alternateSourceResidues": 6,
+    "extractedHelperResidues": 2,
+    "compilerLoweredResidues": 30,
+    "recoveredSourceGapResidues": 1,
+    "streamRequestStatusResidues": 1
+  },
+  "rows": [
+    {
+      "targetIndex": 17949,
+      "targetName": "rI1",
+      "correctedOwner": "src/utils/worktree.ts",
+      "category": "exact-direct-source",
+      "target": {
+        "classification": "unresolved",
+        "start": 11116061,
+        "end": 11120154,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "4987131fc9ce5c176af6d0c39ba94951d4e66f40dbe6dd1d4146834582b11562"
+      },
+      "source": {
+        "declaration": "execIntoTmuxWorktree",
+        "kind": "FunctionDeclaration",
+        "recoveredSha256": "a7a3887b6f4f6d2b1723740608542e90afc338b704e36bd5e515f440f058c67f",
+        "comparisonSha256": "a7a3887b6f4f6d2b1723740608542e90afc338b704e36bd5e515f440f058c67f",
+        "imports": [
+          ["child_process", "spawnSync", "spawnSync"],
+          ["path", "basename", "basename"]
+        ],
+        "directCallCounts": {"spawnSync": 15, "basename": 2},
+        "requiredStrings": ["Install tmux with: sudo apt install tmux"]
+      },
+      "residueDigest": "3fa8cfe82be7d4b4fbc4ab1656e630f577ebaff23a70f116d2cc976fcc1164f8",
+      "residues": [
+        ["property", "spawnSync", 11116089, 11116098, 3, 9, "runtime-import-call"],
+        ["string", "Error: tmux is not installed. Install tmux with: sudo apt install tmux", 11116177, 11116249, 0, 1, "source-assembled-string"],
+        ["property", "basename", 11116921, 11116929, 46, 102, "runtime-import-call"],
+        ["property", "basename", 11117093, 11117101, 46, 103, "runtime-import-call"],
+        ["property", "spawnSync", 11117616, 11117625, 3, 10, "runtime-import-call"],
+        ["property", "spawnSync", 11117970, 11117979, 3, 11, "runtime-import-call"],
+        ["property", "spawnSync", 11119169, 11119178, 3, 12, "runtime-import-call"],
+        ["property", "spawnSync", 11119266, 11119275, 3, 13, "runtime-import-call"],
+        ["property", "spawnSync", 11119331, 11119340, 3, 14, "runtime-import-call"],
+        ["property", "spawnSync", 11119405, 11119414, 3, 15, "runtime-import-call"],
+        ["property", "spawnSync", 11119470, 11119479, 3, 16, "runtime-import-call"],
+        ["property", "spawnSync", 11119536, 11119545, 3, 17, "runtime-import-call"],
+        ["property", "spawnSync", 11119599, 11119608, 3, 18, "runtime-import-call"],
+        ["property", "spawnSync", 11119674, 11119683, 3, 19, "runtime-import-call"],
+        ["property", "spawnSync", 11119765, 11119774, 3, 20, "runtime-import-call"],
+        ["property", "spawnSync", 11119840, 11119849, 3, 21, "runtime-import-call"],
+        ["property", "spawnSync", 11119937, 11119946, 3, 22, "runtime-import-call"],
+        ["property", "spawnSync", 11120085, 11120094, 3, 23, "runtime-import-call"]
+      ]
+    },
+    {
+      "targetIndex": 19732,
+      "targetName": "dX6",
+      "correctedOwner": "src/screens/REPL.tsx",
+      "supportingOwner": "src/hooks/useSearchInput.ts",
+      "category": "alternate-source-api",
+      "target": {
+        "classification": "unresolved",
+        "start": 12004183,
+        "end": 12061108,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "46d11ca5b4e7deeefb5dc8cc9228de8564cc548e070a1a4bf73d0179e9e5b831"
+      },
+      "source": {
+        "declaration": "REPL",
+        "kind": "FunctionDeclaration",
+        "recoveredSha256": "b32c8f57d8951084036a1c109f09f77c92528f154916f217eabe7628ffa4b851",
+        "comparisonSha256": "64c5a89521a5c21d47fedae892d70f655dede2dd8616ef03905411572b70bafe",
+        "imports": [
+          ["path", "dirname", "dirname"],
+          ["fs/promises", "writeFile", "writeFile"],
+          ["react", "useLayoutEffect", "useLayoutEffect"],
+          ["crypto", "randomUUID", "randomUUID"]
+        ],
+        "minimumDirectCalls": {"randomUUID": 7, "dirname": 1, "writeFile": 1, "useLayoutEffect": 1},
+        "alternateInputApi": ["useSearchInput", "autoFocus", "onKeyDown", "onPaste", "stopImmediatePropagation"]
+      },
+      "residueDigest": "f499a87f4a3ae568b69161accf4d42e227b1e46b34afd98d18025d7ec32b5ac7",
+      "residues": [
+        ["property", "randomUUID", 12013976, 12013986, 20, 128, "runtime-import-call"],
+        ["property", "dirname", 12017865, 12017872, 74, 191, "runtime-import-call"],
+        ["property", "useLayoutEffect", 12020914, 12020929, 24, 25, "runtime-import-call"],
+        ["property", "randomUUID", 12022816, 12022826, 20, 129, "runtime-import-call"],
+        ["property", "randomUUID", 12022870, 12022880, 20, 130, "runtime-import-call"],
+        ["property", "randomUUID", 12028775, 12028785, 20, 131, "runtime-import-call"],
+        ["property", "randomUUID", 12029933, 12029943, 20, 132, "runtime-import-call"],
+        ["property", "randomUUID", 12039511, 12039521, 20, 133, "runtime-import-call"],
+        ["property", "focus", 12046387, 12046392, 100, 103, "alternate-input-api"],
+        ["property", "activeElement", 12046408, 12046421, 28, 29, "alternate-input-api"],
+        ["property", "blur", 12046430, 12046434, 7, 8, "alternate-input-api"],
+        ["property", "preventDefault", 12046791, 12046805, 258, 259, "alternate-input-api"],
+        ["property", "preventDefault", 12046854, 12046868, 258, 260, "alternate-input-api"],
+        ["property", "preventDefault", 12046901, 12046915, 258, 261, "alternate-input-api"],
+        ["property", "writeFile", 12047258, 12047267, 28, 113, "runtime-import-call"],
+        ["property", "randomUUID", 12060666, 12060676, 20, 134, "runtime-import-call"]
+      ]
+    },
+    {
+      "targetIndex": 20264,
+      "targetName": "W1_",
+      "correctedOwner": "src/QueryEngine.ts",
+      "supportingOwner": "src/utils/queryContext.ts",
+      "category": "current-extracted-helper-historical-gap",
+      "target": {
+        "classification": "unresolved",
+        "start": 12776114,
+        "end": 12793796,
+        "nodeType": "ClassDeclaration",
+        "sourceHash": "d55b1e39728edb12a5480c3ead4fc554c8f81a7d02dd3ee17f2d38853f21b7fc"
+      },
+      "source": {
+        "declaration": "QueryEngine",
+        "kind": "ClassDeclaration",
+        "recoveredSha256": "344f4a9030612f7c12acc27a905cb1e6aec528ad30fe9d7cbf0a6f29e290bcc1",
+        "comparisonSha256": "27a72270e7e235278aaa3c9b6c36f1c99fc08495f228f90346f8f2772f1db09d",
+        "imports": [["crypto", "randomUUID", "randomUUID"]],
+        "minimumDirectCalls": {"randomUUID": 7},
+        "requiredSwitchCase": "stream_request_start",
+        "supportingRepresentation": "abortSpeculation: () => abortSpeculation(setAppState)"
+      },
+      "residueDigest": "8de1625e88a4c37eb4aee58796de26148e23b7267b5257a06b695f64dfbdc335",
+      "residues": [
+        ["property", "abortSpeculation", 12779104, 12779120, 30, 31, "extracted-query-context"],
+        ["property", "randomUUID", 12780784, 12780794, 20, 136, "runtime-import-call"],
+        ["property", "randomUUID", 12781406, 12781416, 20, 137, "runtime-import-call"],
+        ["property", "abortSpeculation", 12783533, 12783549, 30, 32, "extracted-query-context"],
+        ["property", "randomUUID", 12786153, 12786163, 20, 138, "runtime-import-call"],
+        ["property", "randomUUID", 12788371, 12788381, 20, 139, "runtime-import-call"],
+        ["string", "status", 12789341, 12789349, 46, 74, "stream-request-status-branch"],
+        ["property", "randomUUID", 12789378, 12789388, 20, 140, "runtime-import-call"],
+        ["property", "randomUUID", 12790602, 12790612, 20, 141, "runtime-import-call"],
+        ["property", "randomUUID", 12791237, 12791247, 20, 142, "runtime-import-call"],
+        ["property", "randomUUID", 12791972, 12791982, 20, 143, "runtime-import-call"],
+        ["property", "randomUUID", 12792333, 12792343, 20, 144, "runtime-import-call"],
+        ["property", "randomUUID", 12792760, 12792770, 20, 145, "runtime-import-call"],
+        ["property", "randomUUID", 12793581, 12793591, 20, 146, "runtime-import-call"]
+      ]
+    },
+    {
+      "targetIndex": 20358,
+      "targetName": "cs1",
+      "correctedOwner": "src/commands/install.tsx",
+      "category": "recovered-source-gap-with-compiler-lowering",
+      "target": {
+        "classification": "unresolved",
+        "start": 12877447,
+        "end": 12881646,
+        "nodeType": "FunctionDeclaration",
+        "sourceHash": "35fd1b2b7f730d5b2a0e8fefa61e03644b7d5e567589d4a3cdf2fd50f5bade77"
+      },
+      "source": {
+        "declaration": "Install",
+        "kind": "FunctionDeclaration",
+        "recoveredSha256": "972b1a52c238067d0e602979d430e0866d0bb4da863a7127e4b6272409f8394e",
+        "comparisonSha256": "6d0bfa27b115b540dfe248e106b9e3e1639eb19a3c97261dd0ee291556609bf9",
+        "imports": [["react", "useEffect", "useEffect"]],
+        "directCallCounts": {"useEffect": 2},
+        "jsxElementCount": 30,
+        "recoveredBehavior": "target rc is accepted and persisted as stable"
+      },
+      "residueDigest": "bed17faf42c74ac95d639e10c13fe5bcbc314ed1a5bb6a811bfdb3cec9dda181",
+      "residues": [
+        ["property", "useEffect", 12877539, 12877548, 411, 414, "runtime-import-call"],
+        ["string", "rc", 12878199, 12878203, 5, 6, "recovered-source-gap"],
+        ["property", "useEffect", 12879402, 12879411, 411, 415, "runtime-import-call"],
+        ["property", "default", 12879635, 12879642, 5335, 5339, "jsx-default-import-lowering"],
+        ["property", "default", 12879720, 12879727, 5335, 5340, "jsx-default-import-lowering"],
+        ["property", "default", 12879824, 12879831, 5335, 5341, "jsx-default-import-lowering"],
+        ["property", "default", 12879932, 12879939, 5335, 5342, "jsx-default-import-lowering"],
+        ["property", "default", 12880055, 12880062, 5335, 5343, "jsx-default-import-lowering"],
+        ["property", "default", 12880166, 12880173, 5335, 5344, "jsx-default-import-lowering"],
+        ["property", "default", 12880238, 12880245, 5335, 5345, "jsx-default-import-lowering"],
+        ["property", "default", 12880296, 12880303, 5335, 5346, "jsx-default-import-lowering"],
+        ["property", "default", 12880328, 12880335, 5335, 5347, "jsx-default-import-lowering"],
+        ["property", "default", 12880389, 12880396, 5335, 5348, "jsx-default-import-lowering"],
+        ["property", "default", 12880482, 12880489, 5335, 5349, "jsx-default-import-lowering"],
+        ["property", "default", 12880576, 12880583, 5335, 5350, "jsx-default-import-lowering"],
+        ["property", "default", 12880608, 12880615, 5335, 5351, "jsx-default-import-lowering"],
+        ["property", "default", 12880662, 12880669, 5335, 5352, "jsx-default-import-lowering"],
+        ["property", "default", 12880718, 12880725, 5335, 5353, "jsx-default-import-lowering"],
+        ["property", "default", 12880750, 12880757, 5335, 5354, "jsx-default-import-lowering"],
+        ["property", "default", 12880805, 12880812, 5335, 5355, "jsx-default-import-lowering"],
+        ["property", "default", 12880856, 12880863, 5335, 5356, "jsx-default-import-lowering"],
+        ["property", "default", 12880927, 12880934, 5335, 5357, "jsx-default-import-lowering"],
+        ["property", "default", 12880968, 12880975, 5335, 5358, "jsx-default-import-lowering"],
+        ["property", "default", 12881023, 12881030, 5335, 5359, "jsx-default-import-lowering"],
+        ["property", "default", 12881092, 12881099, 5335, 5360, "jsx-default-import-lowering"],
+        ["property", "default", 12881171, 12881178, 5335, 5361, "jsx-default-import-lowering"],
+        ["property", "default", 12881247, 12881254, 5335, 5362, "jsx-default-import-lowering"],
+        ["property", "default", 12881305, 12881312, 5335, 5363, "jsx-default-import-lowering"],
+        ["property", "default", 12881337, 12881344, 5335, 5364, "jsx-default-import-lowering"],
+        ["property", "default", 12881396, 12881403, 5335, 5365, "jsx-default-import-lowering"],
+        ["property", "default", 12881463, 12881470, 5335, 5366, "jsx-default-import-lowering"],
+        ["property", "default", 12881517, 12881524, 5335, 5367, "jsx-default-import-lowering"],
+        ["property", "default", 12881558, 12881565, 5335, 5368, "jsx-default-import-lowering"]
+      ]
+    }
+  ]
+}

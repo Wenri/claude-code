@@ -22,6 +22,7 @@ import {
   TuiSwitchNotice,
   useShowFullscreenUpsell,
 } from './FullscreenUpsell.js';
+import { useShowOpus47LaunchUpsell } from './Opus47LaunchUpsell.js';
 export function CondensedLogo() {
   const $ = _c(29);
   const {
@@ -40,13 +41,14 @@ export function CondensedLogo() {
   const agentName = agent ?? agentNameFromSettings;
   const showGuestPassesUpsell = useShowGuestPassesUpsell();
   const showOverageCreditUpsell = useShowOverageCreditUpsell();
+  const showOpus47LaunchUpsell = useShowOpus47LaunchUpsell();
   const justSwitchedTui = process.env.CLAUDE_CODE_TUI_JUST_SWITCHED !== undefined;
   const showFullscreenUpsell = useShowFullscreenUpsell() && !justSwitchedTui;
   let t0;
   let t1;
   if ($[0] !== showGuestPassesUpsell) {
     t0 = () => {
-      if (showGuestPassesUpsell) {
+      if (showGuestPassesUpsell && !showOpus47LaunchUpsell) {
         incrementGuestPassesSeenCount();
       }
     };
@@ -63,7 +65,7 @@ export function CondensedLogo() {
   let t3;
   if ($[3] !== showGuestPassesUpsell || $[4] !== showOverageCreditUpsell) {
     t2 = () => {
-      if (showOverageCreditUpsell && !showGuestPassesUpsell) {
+      if (showOverageCreditUpsell && !showGuestPassesUpsell && !showOpus47LaunchUpsell) {
         incrementOverageCreditUpsellSeenCount();
       }
     };
@@ -78,7 +80,7 @@ export function CondensedLogo() {
   }
   useEffect(t2, t3);
   useEffect(() => {
-    if (showFullscreenUpsell && !showGuestPassesUpsell && !showOverageCreditUpsell) {
+    if (showFullscreenUpsell && !showOpus47LaunchUpsell && !showGuestPassesUpsell && !showOverageCreditUpsell) {
       incrementFullscreenUpsellSeenCount();
     }
   }, [showFullscreenUpsell, showGuestPassesUpsell, showOverageCreditUpsell]);
@@ -163,7 +165,7 @@ export function CondensedLogo() {
   } else {
     t12 = $[28];
   }
-  return <Box flexDirection="column">{t12}{justSwitchedTui && <Box paddingLeft={2} flexDirection="column" marginTop={1}><TuiSwitchNotice /></Box>}{!showGuestPassesUpsell && !showOverageCreditUpsell && showFullscreenUpsell && <Box paddingLeft={2} flexDirection="column" marginTop={1}><FullscreenUpsell /></Box>}</Box>;
+  return <Box flexDirection="column">{t12}{justSwitchedTui && <Box paddingLeft={2} flexDirection="column" marginTop={1}><TuiSwitchNotice /></Box>}{!showOpus47LaunchUpsell && !showGuestPassesUpsell && !showOverageCreditUpsell && showFullscreenUpsell && <Box paddingLeft={2} flexDirection="column" marginTop={1}><FullscreenUpsell /></Box>}</Box>;
 }
 function _temp2(s_0) {
   return s_0.effortValue;

@@ -54,6 +54,7 @@ export const TEAMMATE_MESSAGE_TAG = 'teammate-message'
 // XML tag name for external channel messages
 export const CHANNEL_MESSAGE_TAG = 'channel-message'
 export const CHANNEL_TAG = 'channel'
+export const EXTERNAL_PLUGIN_INPUT_PREFIX = '<input source="'
 
 // XML tag name for cross-session UDS messages (another Claude session's inbox)
 export const CROSS_SESSION_MESSAGE_TAG = 'cross-session-message'

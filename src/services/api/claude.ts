@@ -76,6 +76,8 @@ import { isEnvTruthy } from '../../utils/envUtils.js'
 import { errorMessage, toError } from '../../utils/errors.js'
 import { computeFingerprintFromMessages } from '../../utils/fingerprint.js'
 import { captureAPIRequest, logError } from '../../utils/log.js'
+import { getImageLimits } from '../../utils/imageLimits.js'
+import { validateImagesForAPI } from '../../utils/imageValidation.js'
 import {
   createAssistantAPIErrorMessage,
   createUserMessage,
@@ -158,10 +160,8 @@ import { getFeatureValue_CACHED_MAY_BE_STALE } from 'src/services/analytics/grow
 import type { AgentId } from 'src/types/ids.js'
 import {
   ADVISOR_TOOL_INSTRUCTIONS,
-  getExperimentAdvisorModels,
   isAdvisorEnabled,
-  isValidAdvisorModel,
-  modelSupportsAdvisor,
+  resolveAdvisorModel,
 } from 'src/utils/advisor.js'
 import { getAgentContext } from 'src/utils/agentContext.js'
 import { isClaudeAISubscriber } from 'src/utils/auth.js'
@@ -225,6 +225,7 @@ import {
   isBetaTracingEnabled,
   recordLLMRequestAttempt,
   type LLMRequestNewContext,
+  recordLLMRequestAttempt,
   startLLMRequestSpan,
 } from '../../utils/telemetry/sessionTracing.js'
 /* eslint-enable @typescript-eslint/no-require-imports */
@@ -1121,6 +1122,16 @@ export function stripExcessMediaItems(
   }) as (UserMessage | AssistantMessage)[]
 }
 
+function isAfkModeBetaRejection(error: unknown): boolean {
+  return Boolean(
+    AFK_MODE_BETA_HEADER &&
+      error instanceof APIError &&
+      error.status === 400 &&
+      error.message.includes(AFK_MODE_BETA_HEADER) &&
+      error.message.includes('anthropic-beta'),
+  )
+}
+
 async function* queryModel(
   messages: Message[],
   systemPrompt: SystemPrompt,
@@ -1185,43 +1196,9 @@ async function* queryModel(
     betas.push(ADVISOR_BETA_HEADER)
   }
 
-  let advisorModel: string | undefined
-  if (isAgenticQuery && isAdvisorEnabled()) {
-    let advisorOption = options.advisorModel
-
-    const advisorExperiment = getExperimentAdvisorModels()
-    if (advisorExperiment !== undefined) {
-      if (
-        normalizeModelStringForAPI(advisorExperiment.baseModel) ===
-        normalizeModelStringForAPI(options.model)
-      ) {
-        // Override the advisor model if the base model matches. We
-        // should only have experiment models if the user cannot
-        // configure it themselves.
-        advisorOption = advisorExperiment.advisorModel
-      }
-    }
-
-    if (advisorOption) {
-      const normalizedAdvisorModel = normalizeModelStringForAPI(
-        parseUserSpecifiedModel(advisorOption),
-      )
-      if (!modelSupportsAdvisor(options.model)) {
-        logForDebugging(
-          `[AdvisorTool] Skipping advisor - base model ${options.model} does not support advisor`,
-        )
-      } else if (!isValidAdvisorModel(normalizedAdvisorModel)) {
-        logForDebugging(
-          `[AdvisorTool] Skipping advisor - ${normalizedAdvisorModel} is not a valid advisor model`,
-        )
-      } else {
-        advisorModel = normalizedAdvisorModel
-        logForDebugging(
-          `[AdvisorTool] Server-side tool enabled with ${advisorModel} as the advisor model`,
-        )
-      }
-    }
-  }
+  const advisorModel = isAgenticQuery
+    ? resolveAdvisorModel(options.advisorModel, options.model)
+    : undefined
 
   // Check if tool search is enabled (checks mode, model support, and threshold for auto mode)
   // This is async because it may need to calculate MCP tool description sizes for TstAuto mode
@@ -1573,16 +1550,20 @@ async function* queryModel(
   })
 
   // Only latch from agentic queries so a classifier call doesn't flip the
-  // main thread's context_management mid-turn.
+  // main thread's context_management mid-turn. While the context-hint beta is
+  // active, its rejection path owns the latch; otherwise retain the TTL path.
   let thinkingClearLatched = getThinkingClearLatched() === true
   if (!thinkingClearLatched && isAgenticQuery) {
-    const lastCompletion = getLastApiCompletionTimestamp()
-    if (
-      lastCompletion !== null &&
-      Date.now() - lastCompletion > CACHE_TTL_1HOUR_MS
-    ) {
-      thinkingClearLatched = true
-      setThinkingClearLatched(true)
+    if (!contextHintController?.active) {
+      const lastCompletion = getLastApiCompletionTimestamp()
+      if (
+        lastCompletion !== null &&
+        Date.now() - lastCompletion > CACHE_TTL_1HOUR_MS
+      ) {
+        thinkingClearLatched = true
+        setThinkingClearLatched(true)
+        contextHintController?.logThinkingClearLatched('ttl', 0)
+      }
     }
   }
 
@@ -1747,6 +1728,7 @@ async function* queryModel(
     const hasThinking =
       thinkingConfig.type !== 'disabled' &&
       !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_THINKING)
+    const thinkingDisplay = hasThinking ? thinkingConfig.display : undefined
     let thinking: BetaMessageStreamParams['thinking'] | undefined = undefined
 
     // IMPORTANT: Do not change the adaptive-vs-budget thinking selection below
@@ -1790,12 +1772,17 @@ async function* queryModel(
       }
     }
 
+    if (thinking && thinkingDisplay) {
+      const redactThinkingIndex = betasParams.indexOf(
+        REDACT_THINKING_BETA_HEADER,
+      )
+      if (redactThinkingIndex !== -1) {
+        betasParams.splice(redactThinkingIndex, 1)
+      }
+    }
+
     // Get API context management strategies if enabled
-    const contextManagement = getAPIContextManagement({
-      hasThinking,
-      isRedactThinkingActive: betasParams.includes(REDACT_THINKING_BETA_HEADER),
-      clearAllThinking: thinkingClearLatched,
-    })
+    const contextManagement = getAPIContextManagement({ hasThinking })
 
     const enablePromptCaching =
       options.enablePromptCaching ?? getPromptCachingEnabled(retryContext.model)
@@ -3076,6 +3063,9 @@ async function* queryModel(
       })
 
       try {
+        firstAttemptRequestId =
+          streamRequestId ??
+          (failedRequestId !== 'unknown' ? failedRequestId : null)
         // Fall back to non-streaming mode
         firstAttemptRequestId =
           streamRequestId ?? (failedRequestId !== 'unknown' ? failedRequestId : null)

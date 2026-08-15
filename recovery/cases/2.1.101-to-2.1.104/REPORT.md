@@ -157,3 +157,14 @@ pixi run node recovery/scripts/verify-complete-recovery.mjs \
 ```
 
 Expected status: `complete-recovery-verified`.
+
+## Semantic source audit
+
+The fail-closed `compiled-ast-function-semantics-v1` ledger accounts for all 79
+structurally nonmatched target units and reports zero first-party source
+runtime gaps. The first-party target behavior is therefore semantically
+reproduced by the historical source plus
+[`semantic-supplement.patch`](./semantic-supplement.patch). No changed unit is
+classified as dependency runtime, but the historical source tree still lacks
+a pinned application dependency manifest, lockfile, and hermetic build recipe;
+whole-bundle semantic equivalence from source is therefore not claimed.

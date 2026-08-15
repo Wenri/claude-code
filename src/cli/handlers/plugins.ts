@@ -27,6 +27,7 @@ import {
 import { getPluginErrorMessage } from '../../types/plugin.js'
 import { logForDebugging } from '../../utils/debug.js'
 import { errorMessage } from '../../utils/errors.js'
+import { gracefulShutdown } from '../../utils/gracefulShutdown.js'
 import { logError } from '../../utils/log.js'
 import { clearAllCaches } from '../../utils/plugins/cacheUtils.js'
 import { formatDependencyCountSuffix } from '../../utils/plugins/dependencyResolver.js'
@@ -80,45 +81,69 @@ export function handleMarketplaceError(error: unknown, action: string): never {
   cliError(`${figures.cross} Failed to ${action}: ${errorMessage(error)}`)
 }
 
-function printValidationResult(result: ValidationResult): void {
+function formatValidationResult(result: ValidationResult): string[] {
+  const lines: string[] = []
   if (result.errors.length > 0) {
-    // biome-ignore lint/suspicious/noConsole:: intentional console output
-    console.log(
-      `${figures.cross} Found ${result.errors.length} ${plural(result.errors.length, 'error')}:\n`,
+    lines.push(
+      `${figures.cross} Found ${result.errors.length} ${plural(result.errors.length, 'error')}:`,
+      '',
     )
     result.errors.forEach(error => {
-      // biome-ignore lint/suspicious/noConsole:: intentional console output
-      console.log(`  ${figures.pointer} ${error.path}: ${error.message}`)
+      lines.push(`  ${figures.pointer} ${error.path}: ${error.message}`)
     })
-    // biome-ignore lint/suspicious/noConsole:: intentional console output
-    console.log('')
+    lines.push('')
   }
   if (result.warnings.length > 0) {
-    // biome-ignore lint/suspicious/noConsole:: intentional console output
-    console.log(
-      `${figures.warning} Found ${result.warnings.length} ${plural(result.warnings.length, 'warning')}:\n`,
+    lines.push(
+      `${figures.warning} Found ${result.warnings.length} ${plural(result.warnings.length, 'warning')}:`,
+      '',
     )
     result.warnings.forEach(warning => {
-      // biome-ignore lint/suspicious/noConsole:: intentional console output
-      console.log(`  ${figures.pointer} ${warning.path}: ${warning.message}`)
+      lines.push(`  ${figures.pointer} ${warning.path}: ${warning.message}`)
     })
-    // biome-ignore lint/suspicious/noConsole:: intentional console output
-    console.log('')
+    lines.push('')
   }
+  return lines
+}
+
+function PromiseLines({ promise }: { promise: Promise<string[]> }): React.ReactNode {
+  return React.createElement(
+    Box,
+    null,
+    React.createElement(Text, null, React.use(promise).join('\n')),
+  )
+}
+
+function MarketplaceUpdateResult({
+  promise,
+}: {
+  promise: Promise<{ messages: string[]; success: string }>
+}): React.ReactNode {
+  const { messages, success } = React.use(promise)
+  return React.createElement(
+    Box,
+    null,
+    React.createElement(Text, null, [...messages, success].join('\n')),
+  )
+}
+
+function PluginInstallResult({ promise }: { promise: Promise<string> }): React.ReactNode {
+  return React.createElement(
+    Box,
+    null,
+    React.createElement(Text, null, figures.tick, ' ', React.use(promise)),
+  )
 }
 
 // plugin validate
 export async function pluginValidateHandler(
+  root: Root,
   manifestPath: string,
   options: { cowork?: boolean },
 ): Promise<void> {
   if (options.cowork) setUseCoworkPlugins(true)
   try {
     const result = await validateManifest(manifestPath)
-
-    // biome-ignore lint/suspicious/noConsole:: intentional console output
-    console.log(`Validating ${result.fileType} manifest: ${result.filePath}\n`)
-    printValidationResult(result)
 
     // If this is a plugin manifest located inside a .claude-plugin directory,
     // also validate the plugin's content files (skills, agents, commands,
@@ -129,11 +154,6 @@ export async function pluginValidateHandler(
       const manifestDir = dirname(result.filePath)
       if (basename(manifestDir) === '.claude-plugin') {
         contentResults = await validatePluginContents(dirname(manifestDir))
-        for (const r of contentResults) {
-          // biome-ignore lint/suspicious/noConsole:: intentional console output
-          console.log(`Validating ${r.fileType}: ${r.filePath}\n`)
-          printValidationResult(r)
-        }
       }
     }
 
@@ -142,17 +162,34 @@ export async function pluginValidateHandler(
       result.warnings.length > 0 ||
       contentResults.some(r => r.warnings.length > 0)
 
-    if (allSuccess) {
-      cliOk(
-        hasWarnings
-          ? `${figures.tick} Validation passed with warnings`
-          : `${figures.tick} Validation passed`,
+    const lines = [
+      `Validating ${result.fileType} manifest: ${result.filePath}`,
+      '',
+      ...formatValidationResult(result),
+    ]
+    for (const contentResult of contentResults) {
+      lines.push(
+        `Validating ${contentResult.fileType}: ${contentResult.filePath}`,
+        '',
+        ...formatValidationResult(contentResult),
       )
-    } else {
-      // biome-ignore lint/suspicious/noConsole:: intentional console output
-      console.log(`${figures.cross} Validation failed`)
-      process.exit(1)
     }
+    lines.push(
+      allSuccess
+        ? hasWarnings
+          ? `${figures.tick} Validation passed with warnings`
+          : `${figures.tick} Validation passed`
+        : `${figures.cross} Validation failed`,
+    )
+    root.render(
+      React.createElement(
+        Box,
+        null,
+        React.createElement(Text, null, lines.join('\n')),
+      ),
+    )
+    await root.waitUntilExit()
+    process.exit(allSuccess ? 0 : 1)
   } catch (error) {
     logError(error)
     // biome-ignore lint/suspicious/noConsole:: intentional console output
@@ -250,7 +287,7 @@ function renderPluginTagResult(
 }
 
 // plugin list (lines 5217–5416)
-export async function pluginListHandler(options: {
+export async function pluginListHandler(root: Root, options: {
   json?: boolean
   available?: boolean
   cowork?: boolean
@@ -436,26 +473,44 @@ export async function pluginListHandler(options: {
         // Silently ignore marketplace loading errors
       }
 
-      cliOk(jsonStringify({ installed: plugins, available }, null, 2))
+      root.render(
+        React.createElement(
+          Box,
+          null,
+          React.createElement(
+            Text,
+            null,
+            jsonStringify({ installed: plugins, available }, null, 2),
+          ),
+        ),
+      )
     } else {
-      cliOk(jsonStringify(plugins, null, 2))
+      root.render(
+        React.createElement(
+          Box,
+          null,
+          React.createElement(Text, null, jsonStringify(plugins, null, 2)),
+        ),
+      )
     }
+    await root.waitUntilExit()
+    return
   }
 
+  const lines: string[] = []
   if (pluginIds.length === 0 && inlinePlugins.length === 0) {
     // inlineLoadErrors can exist with zero inline plugins (e.g. --plugin-dir
     // points at a nonexistent path). Don't early-exit over them — fall
     // through to the session section so the failure is visible.
     if (inlineLoadErrors.length === 0) {
-      cliOk(
+      lines.push(
         'No plugins installed. Use `claude plugin install` to install a plugin.',
       )
     }
   }
 
   if (pluginIds.length > 0) {
-    // biome-ignore lint/suspicious/noConsole:: intentional console output
-    console.log('Installed plugins:\n')
+    lines.push('Installed plugins:', '')
   }
 
   for (const pluginId of pluginIds.sort()) {
@@ -479,26 +534,19 @@ export async function pluginListHandler(options: {
       const version = installation.version || 'unknown'
       const scope = installation.scope
 
-      // biome-ignore lint/suspicious/noConsole:: intentional console output
-      console.log(`  ${figures.pointer} ${pluginId}`)
-      // biome-ignore lint/suspicious/noConsole:: intentional console output
-      console.log(`    Version: ${version}`)
-      // biome-ignore lint/suspicious/noConsole:: intentional console output
-      console.log(`    Scope: ${scope}`)
-      // biome-ignore lint/suspicious/noConsole:: intentional console output
-      console.log(`    Status: ${status}`)
+      lines.push(`  ${figures.pointer} ${pluginId}`)
+      lines.push(`    Version: ${version}`)
+      lines.push(`    Scope: ${scope}`)
+      lines.push(`    Status: ${status}`)
       for (const error of pluginErrors) {
-        // biome-ignore lint/suspicious/noConsole:: intentional console output
-        console.log(`    Error: ${getPluginErrorMessage(error)}`)
+        lines.push(`    Error: ${getPluginErrorMessage(error)}`)
       }
-      // biome-ignore lint/suspicious/noConsole:: intentional console output
-      console.log('')
+      lines.push('')
     }
   }
 
   if (inlinePlugins.length > 0 || inlineLoadErrors.length > 0) {
-    // biome-ignore lint/suspicious/noConsole:: intentional console output
-    console.log('Session-only plugins (--plugin-dir):\n')
+    lines.push('Session-only plugins (--plugin-dir):', '')
     for (const p of inlinePlugins) {
       // Same dirName≠manifestName fallback as the JSON path above — error
       // sources use the dir basename but p.source uses the manifest name.
@@ -509,42 +557,47 @@ export async function pluginListHandler(options: {
         pErrors.length > 0
           ? `${figures.cross} loaded with errors`
           : `${figures.tick} loaded`
-      // biome-ignore lint/suspicious/noConsole:: intentional console output
-      console.log(`  ${figures.pointer} ${p.source}`)
-      // biome-ignore lint/suspicious/noConsole:: intentional console output
-      console.log(`    Version: ${p.manifest.version ?? 'unknown'}`)
-      // biome-ignore lint/suspicious/noConsole:: intentional console output
-      console.log(`    Path: ${p.path}`)
-      // biome-ignore lint/suspicious/noConsole:: intentional console output
-      console.log(`    Status: ${status}`)
+      lines.push(`  ${figures.pointer} ${p.source}`)
+      lines.push(`    Version: ${p.manifest.version ?? 'unknown'}`)
+      lines.push(`    Path: ${p.path}`)
+      lines.push(`    Status: ${status}`)
       for (const e of pErrors) {
-        // biome-ignore lint/suspicious/noConsole:: intentional console output
-        console.log(`    Error: ${getPluginErrorMessage(e)}`)
+        lines.push(`    Error: ${getPluginErrorMessage(e)}`)
       }
-      // biome-ignore lint/suspicious/noConsole:: intentional console output
-      console.log('')
+      lines.push('')
     }
     // Path-level failures: no LoadedPlugin object exists. Show them so
     // `--plugin-dir /typo` doesn't just silently produce nothing.
     for (const e of inlineLoadErrors.filter(e =>
       e.source.startsWith('inline['),
     )) {
-      // biome-ignore lint/suspicious/noConsole:: intentional console output
-      console.log(
-        `  ${figures.pointer} ${e.source}: ${figures.cross} ${getPluginErrorMessage(e)}\n`,
+      lines.push(
+        `  ${figures.pointer} ${e.source}: ${figures.cross} ${getPluginErrorMessage(e)}`,
+        '',
       )
     }
   }
 
-  cliOk()
+  root.render(
+    React.createElement(
+      Box,
+      null,
+      React.createElement(Text, null, lines.join('\n')),
+    ),
+  )
+  await root.waitUntilExit()
 }
 
 // marketplace add (lines 5433–5487)
 export async function marketplaceAddHandler(
+  root: Root,
   source: string,
   options: { cowork?: boolean; sparse?: string[]; scope?: string },
 ): Promise<void> {
   if (options.cowork) setUseCoworkPlugins(true)
+  let marketplaceSource: MarketplaceSource
+  let settingSource: ReturnType<typeof scopeToSettingSource>
+  let scope: string
   try {
     const parsed = await parseMarketplaceInput(source)
 
@@ -559,15 +612,15 @@ export async function marketplaceAddHandler(
     }
 
     // Validate scope
-    const scope = options.scope ?? 'user'
+    scope = options.scope ?? 'user'
     if (scope !== 'user' && scope !== 'project' && scope !== 'local') {
       cliError(
         `${figures.cross} Invalid scope '${scope}'. Use: user, project, or local`,
       )
     }
-    const settingSource = scopeToSettingSource(scope)
+    settingSource = scopeToSettingSource(scope)
 
-    let marketplaceSource = parsed
+    marketplaceSource = parsed
 
     if (options.sparse && options.sparse.length > 0) {
       if (
@@ -628,12 +681,53 @@ export async function marketplaceAddHandler(
         : `${figures.tick} Successfully added marketplace: ${name} (declared in ${scope} settings)${dependencySuffix}`,
     )
   } catch (error) {
-    handleMarketplaceError(error, 'add marketplace')
+    return handleMarketplaceError(error, 'add marketplace')
   }
+
+  const resultPromise = (async (): Promise<string[]> => {
+    try {
+      const messages: string[] = []
+      const { name, alreadyMaterialized, resolvedSource } =
+        await addMarketplaceSource(marketplaceSource, message => {
+          messages.push(message)
+        })
+
+      saveMarketplaceToSettings(name, { source: resolvedSource }, settingSource)
+      clearAllCaches()
+
+      let sourceType = marketplaceSource.source
+      if (marketplaceSource.source === 'github') {
+        sourceType =
+          marketplaceSource.repo as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+      }
+      logEvent('tengu_marketplace_added', {
+        source_type:
+          sourceType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      })
+      messages.push(
+        alreadyMaterialized
+          ? `${figures.tick} Marketplace '${name}' already on disk — declared in ${scope} settings`
+          : `${figures.tick} Successfully added marketplace: ${name} (declared in ${scope} settings)`,
+      )
+      return messages
+    } catch (error) {
+      return handleMarketplaceError(error, 'add marketplace')
+    }
+  })()
+
+  root.render(
+    React.createElement(
+      React.Suspense,
+      { fallback: React.createElement(Text, null, 'Adding marketplace…') },
+      React.createElement(PromiseLines, { promise: resultPromise }),
+    ),
+  )
+  await root.waitUntilExit()
+  process.exit(0)
 }
 
 // marketplace list (lines 5497–5565)
-export async function marketplaceListHandler(options: {
+export async function marketplaceListHandler(root: Root, options: {
   json?: boolean
   cowork?: boolean
 }): Promise<void> {
@@ -642,6 +736,7 @@ export async function marketplaceListHandler(options: {
     const config = await loadKnownMarketplacesConfig()
     const names = Object.keys(config)
 
+    let output: React.ReactNode
     if (options.json) {
       const marketplaces = names.sort().map(name => {
         const marketplace = config[name]
@@ -657,44 +752,40 @@ export async function marketplaceListHandler(options: {
           installLocation: marketplace?.installLocation,
         }
       })
-      cliOk(jsonStringify(marketplaces, null, 2))
-    }
+      output = React.createElement(
+        Text,
+        null,
+        jsonStringify(marketplaces, null, 2),
+      )
+    } else if (names.length === 0) {
+      output = React.createElement(Text, null, 'No marketplaces configured')
+    } else {
+      const lines = ['Configured marketplaces:', '']
+      names.forEach(name => {
+        const marketplace = config[name]
+        lines.push(`  ${figures.pointer} ${name}`)
 
-    if (names.length === 0) {
-      cliOk('No marketplaces configured')
-    }
-
-    // biome-ignore lint/suspicious/noConsole:: intentional console output
-    console.log('Configured marketplaces:\n')
-    names.forEach(name => {
-      const marketplace = config[name]
-      // biome-ignore lint/suspicious/noConsole:: intentional console output
-      console.log(`  ${figures.pointer} ${name}`)
-
-      if (marketplace?.source) {
-        const src = marketplace.source
-        if (src.source === 'github') {
-          // biome-ignore lint/suspicious/noConsole:: intentional console output
-          console.log(`    Source: GitHub (${src.repo})`)
-        } else if (src.source === 'git') {
-          // biome-ignore lint/suspicious/noConsole:: intentional console output
-          console.log(`    Source: Git (${src.url})`)
-        } else if (src.source === 'url') {
-          // biome-ignore lint/suspicious/noConsole:: intentional console output
-          console.log(`    Source: URL (${src.url})`)
-        } else if (src.source === 'directory') {
-          // biome-ignore lint/suspicious/noConsole:: intentional console output
-          console.log(`    Source: Directory (${src.path})`)
-        } else if (src.source === 'file') {
-          // biome-ignore lint/suspicious/noConsole:: intentional console output
-          console.log(`    Source: File (${src.path})`)
+        if (marketplace?.source) {
+          const src = marketplace.source
+          if (src.source === 'github') {
+            lines.push(`    Source: GitHub (${src.repo})`)
+          } else if (src.source === 'git') {
+            lines.push(`    Source: Git (${src.url})`)
+          } else if (src.source === 'url') {
+            lines.push(`    Source: URL (${src.url})`)
+          } else if (src.source === 'directory') {
+            lines.push(`    Source: Directory (${src.path})`)
+          } else if (src.source === 'file') {
+            lines.push(`    Source: File (${src.path})`)
+          }
         }
-      }
-      // biome-ignore lint/suspicious/noConsole:: intentional console output
-      console.log('')
-    })
+        lines.push('')
+      })
+      output = React.createElement(Text, null, lines.join('\n'))
+    }
 
-    cliOk()
+    root.render(React.createElement(Box, null, output))
+    await root.waitUntilExit()
   } catch (error) {
     handleMarketplaceError(error, 'list marketplaces')
   }
@@ -702,6 +793,7 @@ export async function marketplaceListHandler(options: {
 
 // marketplace remove (lines 5576–5598)
 export async function marketplaceRemoveHandler(
+  root: Root,
   name: string,
   options: { cowork?: boolean },
 ): Promise<void> {
@@ -715,7 +807,20 @@ export async function marketplaceRemoveHandler(
         name as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
     })
 
-    cliOk(`${figures.tick} Successfully removed marketplace: ${name}`)
+    root.render(
+      React.createElement(
+        Box,
+        null,
+        React.createElement(
+          Text,
+          null,
+          figures.tick,
+          ' Successfully removed marketplace: ',
+          name,
+        ),
+      ),
+    )
+    await root.waitUntilExit()
   } catch (error) {
     handleMarketplaceError(error, 'remove marketplace')
   }
@@ -723,58 +828,82 @@ export async function marketplaceRemoveHandler(
 
 // marketplace update (lines 5609–5672)
 export async function marketplaceUpdateHandler(
+  root: Root,
   name: string | undefined,
   options: { cowork?: boolean },
 ): Promise<void> {
   if (options.cowork) setUseCoworkPlugins(true)
-  try {
-    if (name) {
-      // biome-ignore lint/suspicious/noConsole:: intentional console output
-      console.log(`Updating marketplace: ${name}...`)
-
-      await refreshMarketplace(name, message => {
-        // biome-ignore lint/suspicious/noConsole:: intentional console output
-        console.log(message)
+  let fallback: string
+  let resultPromise: Promise<{ messages: string[]; success: string }>
+  if (name) {
+    fallback = `Updating marketplace: ${name}...`
+    const messages: string[] = []
+    resultPromise = refreshMarketplace(name, message => {
+      messages.push(message)
+    })
+      .then(() => {
+        clearAllCaches()
+        logEvent('tengu_marketplace_updated', {
+          marketplace_name:
+            name as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        })
+        return {
+          messages,
+          success: `${figures.tick} Successfully updated marketplace: ${name}`,
+        }
       })
-
-      clearAllCaches()
-
-      logEvent('tengu_marketplace_updated', {
-        marketplace_name:
-          name as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      })
-
-      cliOk(`${figures.tick} Successfully updated marketplace: ${name}`)
-    } else {
-      const config = await loadKnownMarketplacesConfig()
-      const marketplaceNames = Object.keys(config)
-
-      if (marketplaceNames.length === 0) {
-        cliOk('No marketplaces configured')
-      }
-
-      // biome-ignore lint/suspicious/noConsole:: intentional console output
-      console.log(`Updating ${marketplaceNames.length} marketplace(s)...`)
-
-      await refreshAllMarketplaces()
-      clearAllCaches()
-
-      logEvent('tengu_marketplace_updated_all', {
-        count:
-          marketplaceNames.length as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      })
-
-      cliOk(
-        `${figures.tick} Successfully updated ${marketplaceNames.length} marketplace(s)`,
-      )
+      .catch(error => handleMarketplaceError(error, 'update marketplace(s)'))
+  } else {
+    let config: Awaited<ReturnType<typeof loadKnownMarketplacesConfig>>
+    try {
+      config = await loadKnownMarketplacesConfig()
+    } catch (error) {
+      return handleMarketplaceError(error, 'update marketplace(s)')
     }
-  } catch (error) {
-    handleMarketplaceError(error, 'update marketplace(s)')
+    const marketplaceNames = Object.keys(config)
+    if (marketplaceNames.length === 0) {
+      root.render(
+        React.createElement(
+          Box,
+          null,
+          React.createElement(Text, null, 'No marketplaces configured'),
+        ),
+      )
+      await root.waitUntilExit()
+      process.exit(0)
+      return
+    }
+    fallback = `Updating ${marketplaceNames.length} marketplace(s)...`
+    resultPromise = refreshAllMarketplaces()
+      .then(() => {
+        clearAllCaches()
+        logEvent('tengu_marketplace_updated_all', {
+          count:
+            marketplaceNames.length as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+        })
+        return {
+          messages: [],
+          success: `${figures.tick} Successfully updated ${marketplaceNames.length} marketplace(s)`,
+        }
+      })
+      .catch(error => handleMarketplaceError(error, 'update marketplace(s)'))
   }
+  root.render(
+    React.createElement(
+      React.Suspense,
+      { fallback: React.createElement(Text, null, fallback) },
+      React.createElement(MarketplaceUpdateResult, {
+        promise: resultPromise,
+      }),
+    ),
+  )
+  await root.waitUntilExit()
+  process.exit(0)
 }
 
 // plugin install (lines 5690–5721)
 export async function pluginInstallHandler(
+  root: Root,
   plugin: string,
   options: { scope?: string; cowork?: boolean },
 ): Promise<void> {
@@ -806,11 +935,30 @@ export async function pluginInstallHandler(
     scope: scope as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   })
 
-  await installPlugin(plugin, scope as 'user' | 'project' | 'local')
+  const resultPromise = installPlugin(
+    plugin,
+    scope as 'user' | 'project' | 'local',
+  )
+  root.render(
+    React.createElement(
+      React.Suspense,
+      {
+        fallback: React.createElement(
+          Text,
+          null,
+          `Installing plugin "${plugin}"...`,
+        ),
+      },
+      React.createElement(PluginInstallResult, { promise: resultPromise }),
+    ),
+  )
+  await root.waitUntilExit()
+  await gracefulShutdown(0)
 }
 
 // plugin uninstall (lines 5738–5769)
 export async function pluginUninstallHandler(
+  root: Root,
   plugin: string,
   options: {
     scope?: string
@@ -844,13 +992,22 @@ export async function pluginUninstallHandler(
     scope: scope as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   })
 
-  await uninstallPlugin(
+  const message = await uninstallPlugin(
     plugin,
     scope as 'user' | 'project' | 'local',
     options.keepData,
     options.prune,
     options.yes,
   )
+  root.render(
+    React.createElement(
+      Box,
+      null,
+      React.createElement(Text, null, figures.tick, ' ', message),
+    ),
+  )
+  await root.waitUntilExit()
+  process.exit(0)
 }
 
 export async function pluginPruneHandler(options: {
@@ -885,6 +1042,7 @@ export async function pluginPruneHandler(options: {
 
 // plugin enable (lines 5783–5818)
 export async function pluginEnableHandler(
+  root: Root,
   plugin: string,
   options: { scope?: string; cowork?: boolean },
 ): Promise<void> {
@@ -922,11 +1080,20 @@ export async function pluginEnableHandler(
       'auto') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   })
 
-  await enablePlugin(plugin, scope)
+  const message = await enablePlugin(plugin, scope)
+  root.render(
+    React.createElement(
+      Box,
+      null,
+      React.createElement(Text, null, figures.tick, ' ', message),
+    ),
+  )
+  await root.waitUntilExit()
 }
 
 // plugin disable (lines 5833–5902)
 export async function pluginDisableHandler(
+  root: Root,
   plugin: string | undefined,
   options: { scope?: string; cowork?: boolean; all?: boolean },
 ): Promise<void> {
@@ -949,7 +1116,16 @@ export async function pluginDisableHandler(
     // Distinguishable from the specific-plugin branch by plugin_name IS NULL.
     logEvent('tengu_plugin_disable_command', {})
 
-    await disableAllPlugins()
+    const message = await disableAllPlugins()
+    root.render(
+      React.createElement(
+        Box,
+        null,
+        React.createElement(Text, null, message),
+      ),
+    )
+    await root.waitUntilExit()
+    process.exit(0)
     return
   }
 
@@ -986,7 +1162,16 @@ export async function pluginDisableHandler(
       'auto') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   })
 
-  await disablePlugin(plugin!, scope)
+  const message = await disablePlugin(plugin!, scope)
+  root.render(
+    React.createElement(
+      Box,
+      null,
+      React.createElement(Text, null, message),
+    ),
+  )
+  await root.waitUntilExit()
+  process.exit(0)
 }
 
 // plugin update (lines 5918–5948)

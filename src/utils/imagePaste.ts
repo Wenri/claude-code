@@ -383,6 +383,7 @@ export function asImageFilePath(text: string): string | null {
  */
 export async function tryReadImageFromPath(
   text: string,
+  limits: ImageLimits,
 ): Promise<(ImageWithDimensions & { path: string }) | null> {
   const imageLimits = getImageLimits(getMainLoopModel())
   // Strip terminal added spaces or quotes to dragged in paths

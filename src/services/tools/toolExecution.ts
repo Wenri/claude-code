@@ -11,6 +11,7 @@ import {
 import {
   extractMcpToolDetails,
   extractSkillName,
+  extractSubagentType,
   extractToolInputForTelemetry,
   getFileExtensionForAnalytics,
   getFileExtensionsFromBashCommand,
@@ -23,6 +24,7 @@ import {
   getCodeEditToolDecisionCounter,
   getStatsStore,
 } from '../../bootstrap/state.js'
+import { ALL_AGENT_DISALLOWED_TOOLS } from '../../constants/tools.js'
 import {
   buildCodeEditToolAttributes,
   isCodeEditingTool,
@@ -109,9 +111,12 @@ import {
   startToolSpan,
 } from '../../utils/telemetry/sessionTracing.js'
 import {
+  applyToolResultDedup,
   formatError,
   formatZodValidationError,
+  resyncReadFileStateAfterPostToolUse,
 } from '../../utils/toolErrors.js'
+import { evaluateToolIsolation } from '../../utils/toolIsolation.js'
 import {
   processPreMappedToolResultBlock,
   processToolResultBlock,
@@ -123,6 +128,7 @@ import {
   isToolSearchToolAvailable,
 } from '../../utils/toolSearch.js'
 import {
+  markMcpServerNeedsAuth,
   McpAuthError,
   McpToolCallError_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
 } from '../mcp/client.js'
@@ -346,6 +352,32 @@ function getMcpServerBaseUrlFromToolName(
   return getLoggingSafeMcpBaseUrl(serverConnection.config)
 }
 
+export function getUnavailableToolHint(
+  toolName: string,
+  tools: readonly Tool[],
+  agentId: string | undefined,
+): string {
+  if (
+    isReplModeEnabled() &&
+    REPL_ONLY_TOOLS.has(toolName) &&
+    findToolByName(tools, REPL_TOOL_NAME)
+  ) {
+    return `. ${toolName} is only available inside ${REPL_TOOL_NAME}. Use ${REPL_TOOL_NAME} with code: await ${toolName}({...}).`
+  }
+  const registeredTool = findToolByName(getAllBaseTools(), toolName)
+  if (
+    agentId &&
+    registeredTool &&
+    ALL_AGENT_DISALLOWED_TOOLS.has(registeredTool.name)
+  ) {
+    return `. ${toolName} is not available inside subagents. Complete the task with the tools provided and return findings to the orchestrator.`
+  }
+  if (registeredTool) {
+    return `. ${toolName} exists but is not enabled in this context. Use one of the available tools instead.`
+  }
+  return ''
+}
+
 export async function* runToolUse(
   toolUse: ToolUseBlock,
   assistantMessage: AssistantMessage,
@@ -380,6 +412,11 @@ export async function* runToolUse(
   // Check if the tool exists
   if (!tool) {
     const sanitizedToolName = sanitizeToolNameForAnalytics(toolName)
+    const unavailableHint = getUnavailableToolHint(
+      toolName,
+      toolUseContext.options.tools,
+      toolUseContext.agentId,
+    )
     logForDebugging(`Unknown tool ${toolName}: ${toolUse.id}`)
     logEvent('tengu_tool_use_error', {
       error:
@@ -415,12 +452,12 @@ export async function* runToolUse(
         content: [
           {
             type: 'tool_result',
-            content: `<tool_use_error>Error: No such tool available: ${toolName}</tool_use_error>`,
+            content: `<tool_use_error>Error: No such tool available: ${toolName}${unavailableHint}</tool_use_error>`,
             is_error: true,
             tool_use_id: toolUse.id,
           },
         ],
-        toolUseResult: `Error: No such tool available: ${toolName}`,
+        toolUseResult: `Error: No such tool available: ${toolName}${unavailableHint}`,
         sourceToolAssistantUUID: assistantMessage.uuid,
       }),
     }
@@ -1073,21 +1110,35 @@ async function checkPermissionsAndCallTool(
 
   const toolAttributes: Record<string, string | number | boolean> = {}
   if (processedInput && typeof processedInput === 'object') {
-    if (tool.name === FILE_READ_TOOL_NAME && 'file_path' in processedInput) {
+    if (
+      tool.name === FILE_READ_TOOL_NAME &&
+      'file_path' in processedInput &&
+      isToolDetailsLoggingEnabled()
+    ) {
       toolAttributes.file_path = String(processedInput.file_path)
     } else if (
       (tool.name === FILE_EDIT_TOOL_NAME ||
         tool.name === FILE_WRITE_TOOL_NAME) &&
-      'file_path' in processedInput
+      'file_path' in processedInput &&
+      isToolDetailsLoggingEnabled()
     ) {
       toolAttributes.file_path = String(processedInput.file_path)
-    } else if (tool.name === BASH_TOOL_NAME && 'command' in processedInput) {
+    } else if (
+      tool.name === BASH_TOOL_NAME &&
+      'command' in processedInput &&
+      isToolDetailsLoggingEnabled()
+    ) {
       const bashInput = processedInput as BashToolInput
       toolAttributes.full_command = bashInput.command
+    } else if (isToolDetailsLoggingEnabled()) {
+      const skillName = extractSkillName(tool.name, processedInput)
+      if (skillName) toolAttributes.skill_name = skillName
+      const subagentType = extractSubagentType(tool.name, processedInput)
+      if (subagentType) toolAttributes.subagent_type = subagentType
     }
   }
 
-  startToolSpan(
+  const toolSpan = startToolSpan(
     tool.name,
     toolAttributes,
     isBetaTracingEnabled() ? jsonStringify(processedInput) : undefined,
@@ -1178,7 +1229,7 @@ async function checkPermissionsAndCallTool(
     logForDebugging(`${tool.name} tool permission denied`)
     const decisionInfo = toolUseContext.toolDecisions?.get(toolUseID)
     endToolBlockedOnUserSpan('reject', decisionInfo?.source || 'unknown')
-    endToolSpan()
+    endToolSpan(toolSpan)
 
     logEvent('tengu_tool_use_can_use_tool_rejected', {
       messageID:
@@ -1391,6 +1442,10 @@ async function checkPermissionsAndCallTool(
     if (skillName) {
       toolParameters.skill_name = skillName
     }
+    const subagentType = extractSubagentType(tool.name, processedInput)
+    if (subagentType) {
+      toolParameters.subagent_type = subagentType
+    }
   }
 
   const decisionInfo = toolUseContext.toolDecisions?.get(toolUseID)
@@ -1476,11 +1531,17 @@ async function checkPermissionsAndCallTool(
       const contentAttributes: Record<string, string | number | boolean> = {}
 
       // Read tool: capture file_path and content
-      if (tool.name === FILE_READ_TOOL_NAME && 'content' in result.data) {
-        if ('file_path' in processedInput) {
-          contentAttributes.file_path = String(processedInput.file_path)
+      if (tool.name === FILE_READ_TOOL_NAME) {
+        const readResult = result.data
+        if (readResult.type === 'text') {
+          if (
+            isToolDetailsLoggingEnabled() &&
+            'file_path' in processedInput
+          ) {
+            contentAttributes.file_path = String(processedInput.file_path)
+          }
+          contentAttributes.content = readResult.file.content
         }
-        contentAttributes.content = String(result.data.content)
       }
 
       // Edit/Write tools: capture file_path and diff
@@ -1489,14 +1550,24 @@ async function checkPermissionsAndCallTool(
           tool.name === FILE_WRITE_TOOL_NAME) &&
         'file_path' in processedInput
       ) {
-        contentAttributes.file_path = String(processedInput.file_path)
+        if (isToolDetailsLoggingEnabled()) {
+          contentAttributes.file_path = String(processedInput.file_path)
+        }
 
         // For Edit, capture the actual changes made
-        if (tool.name === FILE_EDIT_TOOL_NAME && 'diff' in result.data) {
-          contentAttributes.diff = String(result.data.diff)
+        if (
+          isToolDetailsLoggingEnabled() &&
+          tool.name === FILE_EDIT_TOOL_NAME &&
+          'structuredPatch' in result.data
+        ) {
+          contentAttributes.diff = jsonStringify(result.data.structuredPatch)
         }
         // For Write, capture the written content
-        if (tool.name === FILE_WRITE_TOOL_NAME && 'content' in processedInput) {
+        if (
+          isToolDetailsLoggingEnabled() &&
+          tool.name === FILE_WRITE_TOOL_NAME &&
+          'content' in processedInput
+        ) {
           contentAttributes.content = String(processedInput.content)
         }
       }
@@ -1504,10 +1575,12 @@ async function checkPermissionsAndCallTool(
       // Bash tool: capture command
       if (tool.name === BASH_TOOL_NAME && 'command' in processedInput) {
         const bashInput = processedInput as BashToolInput
-        contentAttributes.bash_command = bashInput.command
+        if (isToolDetailsLoggingEnabled()) {
+          contentAttributes.bash_command = bashInput.command
+        }
         // Also capture output if available
-        if ('output' in result.data) {
-          contentAttributes.output = String(result.data.output)
+        if ('stdout' in result.data) {
+          contentAttributes.output = String(result.data.stdout)
         }
       }
 
@@ -1533,14 +1606,34 @@ async function checkPermissionsAndCallTool(
       result.data && typeof result.data === 'object'
         ? jsonStringify(result.data)
         : String(result.data ?? '')
-    endToolSpan(toolResultStr)
+    endToolSpan(toolSpan, toolResultStr)
 
     // Map the tool result to API format once and cache it. This block is reused
     // by addToolResult (skipping the remap) and measured here for analytics.
-    const mappedToolResultBlock = tool.mapToolResultToToolResultBlockParam(
+    const rawMappedToolResultBlock = tool.mapToolResultToToolResultBlockParam(
       result.data,
       toolUseID,
     )
+    const mappedToolResultBlock = isMcpTool(tool)
+      ? rawMappedToolResultBlock
+      : applyToolResultDedup(
+          rawMappedToolResultBlock,
+          tool.name,
+          toolUseContext.resultDedupState,
+          tool.maxResultSizeChars,
+        )
+    if (bashRerunAlias !== undefined) {
+      const footer = formatBashRerunFooter(bashRerunAlias)
+      if (typeof mappedToolResultBlock.content === 'string') {
+        mappedToolResultBlock.content +=
+          (mappedToolResultBlock.content ? '\n' : '') + footer
+      } else if (Array.isArray(mappedToolResultBlock.content)) {
+        mappedToolResultBlock.content = [
+          ...mappedToolResultBlock.content,
+          { type: 'text', text: footer },
+        ]
+      }
+    }
     const mappedContent = mappedToolResultBlock.content
     const toolResultSizeBytes = !mappedContent
       ? 0
@@ -1780,6 +1873,15 @@ async function checkPermissionsAndCallTool(
       }
     }
     const postToolHookDurationMs = Date.now() - postToolHookStart
+    if (hadPostToolUseHookResult) {
+      const resyncMessage = resyncReadFileStateAfterPostToolUse(
+        tool.name,
+        toolUseID,
+        processedInput,
+        toolUseContext.readFileState,
+      )
+      if (resyncMessage) resultingMessages.push({ message: resyncMessage })
+    }
     if (postToolHookDurationMs >= SLOW_PHASE_LOG_THRESHOLD_MS) {
       logForDebugging(
         `Slow PostToolUse hooks: ${postToolHookDurationMs}ms for ${tool.name} (${postToolHookInfos.length} hooks)`,
@@ -1875,6 +1977,13 @@ async function checkPermissionsAndCallTool(
         resultingMessages.push({ message })
       }
     }
+    if (result.newTools && result.newTools.length > 0) {
+      const names = new Set(toolUseContext.options.tools.map(item => item.name))
+      toolUseContext.options.tools = [
+        ...toolUseContext.options.tools,
+        ...result.newTools.filter(item => !names.has(item.name)),
+      ]
+    }
     // If hook indicated to prevent continuation after successful execution, yield a stop reason message
     if (shouldPreventContinuation) {
       resultingMessages.push({
@@ -1912,38 +2021,12 @@ async function checkPermissionsAndCallTool(
       success: false,
       error: errorMessage(error),
     })
-    endToolSpan()
+    endToolSpan(toolSpan)
 
     // Handle MCP auth errors by updating the client status to 'needs-auth'
     // This updates the /mcp display to show the server needs re-authorization
     if (error instanceof McpAuthError) {
-      toolUseContext.setAppState(prevState => {
-        const serverName = error.serverName
-        const existingClientIndex = prevState.mcp.clients.findIndex(
-          c => c.name === serverName,
-        )
-        if (existingClientIndex === -1) {
-          return prevState
-        }
-        const existingClient = prevState.mcp.clients[existingClientIndex]
-        // Only update if client was connected (don't overwrite other states)
-        if (!existingClient || existingClient.type !== 'connected') {
-          return prevState
-        }
-        const updatedClients = [...prevState.mcp.clients]
-        updatedClients[existingClientIndex] = {
-          name: serverName,
-          type: 'needs-auth' as const,
-          config: existingClient.config,
-        }
-        return {
-          ...prevState,
-          mcp: {
-            ...prevState.mcp,
-            clients: updatedClients,
-          },
-        }
-      })
+      markMcpServerNeedsAuth(error.serverName, toolUseContext.setAppState)
     }
 
     if (!(error instanceof AbortError)) {

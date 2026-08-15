@@ -469,6 +469,7 @@ export async function installPluginOp(
             result.dep,
             result.ranges,
             result.why,
+            result.installed,
           ),
         }
       case 'no-matching-tag':
@@ -979,6 +980,29 @@ export async function updatePluginOp(
       (marketplace.source.source === 'github' ||
         marketplace.source.source === 'git' ||
         marketplace.source.source === 'url')
+    ) {
+      try {
+        await refreshMarketplace(marketplaceName, undefined, {
+          skipIfRecent: true,
+        })
+      } catch (error) {
+        refreshWarning = `marketplace not refreshed (${errorMessage(error)})`
+        logForDebugging(
+          `Failed to refresh marketplace '${marketplaceName}' before update; using cached data: ${errorMessage(error)}`,
+          { level: 'warn' },
+        )
+      }
+    }
+  }
+
+  let refreshWarning: string | undefined
+  if (marketplaceName) {
+    const source = (await loadKnownMarketplacesConfig())[marketplaceName]?.source
+    if (
+      source &&
+      (source.source === 'github' ||
+        source.source === 'git' ||
+        source.source === 'url')
     ) {
       try {
         await refreshMarketplace(marketplaceName, undefined, {

@@ -128,6 +128,28 @@ export function isDefaultMode(mode: PermissionMode | undefined): boolean {
   return mode === 'default' || mode === undefined
 }
 
+export type SandboxPermissionModeDecision =
+  | 'allow'
+  | 'deny'
+  | 'classify'
+  | 'ask'
+
+/** Decide whether a sandbox-network request can bypass the interactive queue. */
+export function getSandboxPermissionModeDecision(
+  mode: PermissionMode,
+  isBypassPermissionsModeAvailable: boolean,
+): SandboxPermissionModeDecision {
+  if (mode === 'auto') return 'classify'
+  if (
+    mode === 'bypassPermissions' ||
+    (mode === 'plan' && isBypassPermissionsModeAvailable)
+  ) {
+    return 'allow'
+  }
+  if (mode === 'dontAsk') return 'deny'
+  return 'ask'
+}
+
 export function permissionModeShortTitle(mode: PermissionMode): string {
   return getModeConfig(mode).shortTitle
 }

@@ -286,8 +286,9 @@ export default class Output {
     // and since clear is damage-only, the ghost survives diff. Normal-
     // flow clears don't need this — a normal-flow node's old position
     // can't have been painted on top of a sibling's current position.
-    const absoluteClears: Rectangle[] = []
-    for (const operation of this.operations) {
+    const absoluteClears: Array<{ rect: Rectangle; opIndex: number }> = []
+    for (let opIndex = 0; opIndex < this.operations.length; opIndex++) {
+      const operation = this.operations[opIndex]!
       if (operation.type !== 'clear') continue
       const { x, y, width, height } = operation.region
       const startX = Math.max(0, x)
@@ -302,12 +303,13 @@ export default class Output {
         height: maxY - startY,
       }
       screen.damage = screen.damage ? unionRect(screen.damage, rect) : rect
-      if (operation.fromAbsolute) absoluteClears.push(rect)
+      if (operation.fromAbsolute) absoluteClears.push({ rect, opIndex })
     }
 
     const clips: Clip[] = []
 
-    for (const operation of this.operations) {
+    for (let operationIndex = 0; operationIndex < this.operations.length; operationIndex++) {
+      const operation = this.operations[operationIndex]!
       switch (operation.type) {
         case 'clear':
           // handled in pass 1
@@ -363,7 +365,10 @@ export default class Output {
           // Absolute nodes overlay normal-flow siblings, so prevScreen in
           // that region holds the absolute node's stale paint — blitting
           // it back would ghost. See absoluteClears collection above.
-          if (absoluteClears.length === 0) {
+          const laterAbsoluteClears = absoluteClears.filter(
+            clear => clear.opIndex > operationIndex,
+          )
+          if (laterAbsoluteClears.length === 0) {
             blitRegion(screen, src, startX, startY, maxX, maxY)
             blitCells += (maxY - startY) * (maxX - startX)
             continue
@@ -372,8 +377,8 @@ export default class Output {
           for (let row = startY; row <= maxY; row++) {
             const excluded =
               row < maxY &&
-              absoluteClears.some(
-                r =>
+              laterAbsoluteClears.some(
+                ({ rect: r }) =>
                   row >= r.y &&
                   row < r.y + r.height &&
                   startX >= r.x &&

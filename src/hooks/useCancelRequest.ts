@@ -20,6 +20,7 @@ import type { ConnectionSummary } from '../services/api/connectionState.js'
 import { useNotifications } from '../context/notifications.js'
 import { useIsOverlayActive } from '../context/overlayContext.js'
 import { useCommandQueue } from '../hooks/useCommandQueue.js'
+import { useTaskRegistry } from '../hooks/useTaskRegistry.js'
 import { getShortcutDisplay } from '../keybindings/shortcutFormat.js'
 import { useKeybinding } from '../keybindings/useKeybinding.js'
 import type { Screen } from '../screens/REPL.js'
@@ -35,6 +36,7 @@ import {
   hasCommandsInQueue,
 } from '../utils/messageQueueManager.js'
 import { emitTaskTerminatedSdk } from '../utils/sdkEventQueue.js'
+import { cancelAllPendingLoopSessionCrons } from '../utils/loopWakeup.js'
 
 /* eslint-disable @typescript-eslint/no-require-imports */
 const loopDynamicModule = feature('AGENT_TRIGGERS')
@@ -61,7 +63,7 @@ type CancelRequestHandlerProps = {
   isSearchingHistory?: boolean
   isHelpOpen?: boolean
   inputMode?: PromptInputMode
-  inputValue?: string
+  isInputEmpty?: boolean
   streamMode?: SpinnerMode
   getConnectionSummary?: () => ConnectionSummary | undefined
 }
@@ -85,12 +87,13 @@ export function CancelRequestHandler(props: CancelRequestHandlerProps): null {
     isSearchingHistory,
     isHelpOpen,
     inputMode,
-    inputValue,
+    isInputEmpty,
     streamMode,
     getConnectionSummary,
   } = props
   const store = useAppStateStore()
   const setAppState = useSetAppState()
+  const taskRegistry = useTaskRegistry()
   const queuedCommandsLength = useCommandQueue().length
   const { addNotification, removeNotification } = useNotifications()
   const lastKillAgentsPressRef = useRef<number>(0)
@@ -152,7 +155,7 @@ export function CancelRequestHandler(props: CancelRequestHandlerProps): null {
   // rather than cancel the request. Let PromptInput handle mode exit.
   // This only applies to Escape, not Ctrl+C which should always cancel.
   const isInSpecialModeWithEmptyInput =
-    inputMode !== undefined && inputMode !== 'prompt' && !inputValue
+    inputMode !== undefined && inputMode !== 'prompt' && isInputEmpty
   // When viewing a teammate's transcript, let useBackgroundTaskNavigation handle Escape
   const isViewingTeammate = viewSelectionMode === 'viewing-agent'
   // Context guards: other screens/overlays handle their own cancel
@@ -195,10 +198,10 @@ export function CancelRequestHandler(props: CancelRequestHandlerProps): null {
       ([, t]) => t.type === 'local_agent' && t.status === 'running',
     )
     if (running.length === 0) return false
-    killAllRunningAgentTasks(tasks, setAppState)
+    killAllRunningAgentTasks(tasks, taskRegistry)
     const descriptions: string[] = []
     for (const [taskId, task] of running) {
-      markAgentsNotified(taskId, setAppState)
+      markAgentsNotified(taskId, taskRegistry)
       descriptions.push(task.description)
       emitTaskTerminatedSdk(taskId, 'stopped', {
         toolUseId: task.toolUseId,
@@ -212,7 +215,7 @@ export function CancelRequestHandler(props: CancelRequestHandlerProps): null {
     enqueuePendingNotification({ value: summary, mode: 'task-notification' })
     onAgentsKilled()
     return true
-  }, [store, setAppState, onAgentsKilled])
+  }, [store, taskRegistry, onAgentsKilled])
 
   // Ctrl+C (app:interrupt). Scoped to teammate-view: killing agents from the
   // main prompt stays a deliberate gesture (chat:killAgents), not a

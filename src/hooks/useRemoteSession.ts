@@ -305,11 +305,7 @@ export function useRemoteSession({
               }
             }
             if (resultIds.length > 0) {
-              setInProgressToolUseIDs(prev => {
-                const next = new Set(prev)
-                for (const id of resultIds) next.delete(id)
-                return next.size === prev.size ? prev : next
-              })
+              setInProgressToolUseIDs({ action: 'remove', ids: resultIds })
             }
           }
         }
@@ -342,13 +338,7 @@ export function useRemoteSession({
               .filter(block => block.type === 'tool_use')
               .map(block => block.id)
             if (toolUseIds.length > 0) {
-              setInProgressToolUseIDs(prev => {
-                const next = new Set(prev)
-                for (const id of toolUseIds) {
-                  next.add(id)
-                }
-                return next
-              })
+              setInProgressToolUseIDs({ action: 'add', ids: toolUseIds })
             }
           }
 
@@ -366,6 +356,9 @@ export function useRemoteSession({
               },
               setStreamMode,
               setStreamingToolUses,
+              undefined,
+              undefined,
+              recordApiMetricsEvent,
             )
           } else {
             logForDebugging(
@@ -475,7 +468,7 @@ export function useRemoteSession({
         writeTaskCount()
         // Same for tool_use IDs: missed tool_result during the gap would
         // leave stale spinner state forever.
-        setInProgressToolUseIDs?.(prev => (prev.size > 0 ? new Set() : prev))
+        setInProgressToolUseIDs?.({ action: 'clear' })
       },
       onDisconnected: () => {
         logForDebugging('[useRemoteSession] Disconnected')
@@ -483,7 +476,7 @@ export function useRemoteSession({
         setIsLoading(false)
         runningTaskIdsRef.current.clear()
         writeTaskCount()
-        setInProgressToolUseIDs?.(prev => (prev.size > 0 ? new Set() : prev))
+        setInProgressToolUseIDs?.({ action: 'clear' })
       },
       onError: error => {
         logForDebugging(`[useRemoteSession] Error: ${error.message}`)
@@ -558,6 +551,7 @@ export function useRemoteSession({
     setInProgressToolUseIDs,
     setConnStatus,
     writeTaskCount,
+    recordApiMetricsEvent,
   ])
 
   // Send a user message to the remote session

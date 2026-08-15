@@ -1,6 +1,53 @@
 import chalk from 'chalk'
 import type { Color, TextStyles } from './styles.js'
 
+const NO_COLOR_ARGUMENTS = new Set([
+  '--no-color',
+  '--no-colors',
+  '--color=false',
+  '--color=never',
+])
+const FORCE_COLOR_ARGUMENTS = new Set([
+  '--color',
+  '--colors',
+  '--color=true',
+  '--color=always',
+  '--color=256',
+  '--color=16m',
+  '--color=full',
+  '--color=truecolor',
+])
+const TRUECOLOR_TERMS = new Set([
+  'alacritty',
+  'contour',
+  'foot',
+  'ghostty',
+  'rio',
+  'wezterm',
+  'xterm-ghostty',
+  'xterm-kitty',
+])
+
+function hasArgumentBeforeDoubleDash(argumentsToFind: Set<string>): boolean {
+  const separatorIndex = process.argv.indexOf('--')
+  const argumentsToCheck =
+    separatorIndex === -1 ? process.argv : process.argv.slice(0, separatorIndex)
+  return argumentsToCheck.some(argument => argumentsToFind.has(argument))
+}
+
+function disableChalkForNoColor(): boolean {
+  if (
+    process.env.NO_COLOR &&
+    process.env.FORCE_COLOR === undefined &&
+    !hasArgumentBeforeDoubleDash(FORCE_COLOR_ARGUMENTS) &&
+    chalk.level > 0
+  ) {
+    chalk.level = 0
+    return true
+  }
+  return false
+}
+
 /**
  * xterm.js (VS Code, Cursor, code-server, Coder) has supported truecolor
  * since 2017, but code-server/Coder containers often don't set
@@ -19,6 +66,23 @@ import type { Color, TextStyles } from './styles.js'
  */
 function boostChalkLevelForXtermJs(): boolean {
   if (process.env.TERM_PROGRAM === 'vscode' && chalk.level === 2) {
+    chalk.level = 3
+    return true
+  }
+  return false
+}
+
+function boostChalkLevelForKnownTruecolorTerminal(): boolean {
+  if (
+    !process.stdout.isTTY ||
+    process.env.NO_COLOR ||
+    process.env.FORCE_COLOR !== undefined ||
+    hasArgumentBeforeDoubleDash(NO_COLOR_ARGUMENTS)
+  ) {
+    return false
+  }
+  const term = process.env.TERM
+  if (term && TRUECOLOR_TERMS.has(term) && chalk.level < 3) {
     chalk.level = 3
     return true
   }
@@ -58,7 +122,10 @@ function clampChalkLevelForTmux(): boolean {
 // Computed once at module load — terminal/tmux environment doesn't change mid-session.
 // Order matters: boost first so the tmux clamp can re-clamp if tmux is running
 // inside a VS Code terminal. Exported for debugging — tree-shaken if unused.
+export const CHALK_DISABLED_FOR_NO_COLOR = disableChalkForNoColor()
 export const CHALK_BOOSTED_FOR_XTERMJS = boostChalkLevelForXtermJs()
+export const CHALK_BOOSTED_FOR_TRUECOLOR_TERM =
+  boostChalkLevelForKnownTruecolorTerminal()
 export const CHALK_CLAMPED_FOR_TMUX = clampChalkLevelForTmux()
 
 export type ColorType = 'foreground' | 'background'
@@ -183,7 +250,10 @@ export function applyTextStyles(text: string, styles: TextStyles): string {
   // So we apply: text modifiers first, then foreground, then background last.
 
   if (styles.inverse) {
-    result = chalk.inverse(result)
+    // Inverse is also the terminal cursor. Chalk suppresses every style under
+    // NO_COLOR, which made the cursor disappear entirely; emit this structural
+    // terminal control directly so disabling colors does not disable input.
+    result = `\x1B[7m${result}\x1B[27m`
   }
 
   if (styles.strikethrough) {
