@@ -1,5 +1,6 @@
 import React, { type RefObject, useEffect, useRef } from 'react';
 import { useNotifications } from '../context/notifications.js';
+import { useSelectionDelete } from '../context/selectionDelete.js';
 import { useCopyOnSelect, useSelectionBgColor } from '../hooks/useCopyOnSelect.js';
 import type { ScrollBoxHandle } from '../ink/components/ScrollBox.js';
 import { useSelection } from '../ink/hooks/use-selection.js';
@@ -388,6 +389,7 @@ export function ScrollKeybindingHandler({
   isModal = false
 }: Props): React.ReactNode {
   const selection = useSelection();
+  const selectionDelete = useSelectionDelete();
   const {
     addNotification
   } = useNotifications();
@@ -654,6 +656,14 @@ export function ScrollKeybindingHandler({
       copyAndToast();
       event_0.stopImmediatePropagation();
       return;
+    }
+    if (!isModal && (key_0.backspace || key_0.delete) && !key_0.ctrl && !key_0.meta && !key_0.shift && !key_0.super) {
+      const state = selection.getState();
+      if (state && selectionDelete.tryDelete(state)) {
+        selection.clearSelection();
+        event_0.stopImmediatePropagation();
+        return;
+      }
     }
     const move = selectionFocusMoveForKey(key_0);
     if (move) {

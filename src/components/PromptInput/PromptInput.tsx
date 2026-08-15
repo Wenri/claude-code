@@ -5,6 +5,7 @@ import * as path from 'path';
 import * as React from 'react';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { useNotifications } from 'src/context/notifications.js';
+import { useSelectionDelete } from 'src/context/selectionDelete.js';
 import { useCommandQueue } from 'src/hooks/useCommandQueue.js';
 import { type IDEAtMentioned, useIdeAtMentioned } from 'src/hooks/useIdeAtMentioned.js';
 import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEvent } from 'src/services/analytics/index.js';
@@ -33,7 +34,10 @@ import { usePromptSuggestion } from '../../hooks/usePromptSuggestion.js';
 import { useTerminalSize } from '../../hooks/useTerminalSize.js';
 import { useTypeahead } from '../../hooks/useTypeahead.js';
 import type { BorderTextOptions } from '../../ink/render-border.js';
+import type { DOMElement } from '../../ink/dom.js';
 import instances from '../../ink/instances.js';
+import { nodeCache } from '../../ink/node-cache.js';
+import { selectionBounds, type SelectionState } from '../../ink/selection.js';
 import { stringWidth } from '../../ink/stringWidth.js';
 import { Box, type ClickEvent, type Key, Text, useInput } from '../../ink.js';
 import { useOptionalKeybindingContext } from '../../keybindings/KeybindingContext.js';
@@ -2206,6 +2210,38 @@ function PromptInput({
     });
     setCursorOffset(offset);
   }, [input, textInputColumns, isSearchingHistory, cursorOffset, maxVisibleLines]);
+  const inputContainerRef = useRef<DOMElement | null>(null);
+  const deleteSelectionRef = useRef<((selection: SelectionState) => boolean) | null>(null);
+  deleteSelectionRef.current = selection => {
+    if (!input || isSearchingHistory || isModalOverlayActive) return false;
+    const inputContainer = inputContainerRef.current;
+    const bounds = inputContainer ? nodeCache.get(inputContainer) : undefined;
+    const selected = selectionBounds(selection);
+    if (!bounds || !selected) return false;
+    const {
+      start,
+      end
+    } = selected;
+    if (start.row < bounds.y || end.row < bounds.y || start.row >= bounds.y + bounds.height || end.row >= bounds.y + bounds.height) return false;
+    const cursor = Cursor.fromText(input, textInputColumns, cursorOffset);
+    const viewportStart = cursor.getViewportStartLine(maxVisibleLines);
+    const toOffset = (row: number, column: number) => cursor.measuredText.getOffsetFromPosition({
+      line: row - bounds.y + viewportStart,
+      column: Math.max(0, column - bounds.x)
+    });
+    const startOffset = Math.max(0, toOffset(start.row, start.col));
+    const endOffset = Math.min(input.length, toOffset(end.row, end.col + 1));
+    if (endOffset <= startOffset) return false;
+    pushToBuffer(input, cursorOffset, pastedContents);
+    trackAndSetInput(input.slice(0, startOffset) + input.slice(endOffset));
+    setCursorOffset(startOffset);
+    return true;
+  };
+  const selectionDelete = useSelectionDelete();
+  useEffect(() => {
+    selectionDelete.setHandler(selection => deleteSelectionRef.current?.(selection) ?? false);
+    return () => selectionDelete.setHandler(null);
+  }, [selectionDelete]);
   const handleOpenTasksDialog = useCallback((taskId?: string) => setShowBashesDialog(taskId ?? true), [setShowBashesDialog]);
   const placeholder = showPromptSuggestion && promptSuggestion ? promptSuggestion : defaultPlaceholder;
 
@@ -2470,14 +2506,14 @@ function PromptInput({
           </Text>
           <Box flexDirection="row" width="100%">
             <PromptInputModeIndicator mode={mode} isLoading={isLoading} viewingAgentName={viewingAgentName} viewingAgentColor={viewingAgentColor} />
-            <Box flexGrow={1} flexShrink={1} onClick={handleInputClick}>
+            <Box ref={inputContainerRef} flexGrow={1} flexShrink={1} tabIndex={-1} onClick={handleInputClick}>
               {textInputElement}
             </Box>
           </Box>
           <Text color={swarmBanner.bgColor}>{'─'.repeat(columns)}</Text>
         </> : <Box flexDirection="row" alignItems="flex-start" justifyContent="flex-start" borderColor={getBorderColor()} borderStyle="round" borderLeft={false} borderRight={false} borderBottom width="100%" borderText={buildBorderText(fastModeTag)}>
           <PromptInputModeIndicator mode={mode} isLoading={isLoading} viewingAgentName={viewingAgentName} viewingAgentColor={viewingAgentColor} />
-          <Box flexGrow={1} flexShrink={1} onClick={handleInputClick}>
+          <Box ref={inputContainerRef} flexGrow={1} flexShrink={1} tabIndex={-1} onClick={handleInputClick}>
             {textInputElement}
           </Box>
         </Box>}
