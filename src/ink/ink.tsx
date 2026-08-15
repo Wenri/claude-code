@@ -1307,7 +1307,8 @@ export default class Ink {
   }
   dispatchHover(col: number, row: number): void {
     if (!this.altScreenActive) return;
-    dispatchHover(this.rootNode, col, row, this.hoveredNodes);
+    const blank = isCellBlank(this.frontFrame.screen, col, row);
+    dispatchHover(this.rootNode, col, row, this.hoveredNodes, blank);
   }
   dispatchKeyboardEvent(parsedKey: ParsedKey): void {
     const target = this.focusManager.activeElement ?? this.rootNode;

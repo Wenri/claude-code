@@ -43,6 +43,10 @@ export type DOMElement = {
 
   // When true, this node needs re-rendering
   dirty: boolean
+  // Sticky ancestor marker used by pointer hit testing. Absolute-positioned
+  // descendants can paint outside an ancestor's own layout rectangle, so a
+  // miss on that rectangle cannot prune the subtree when this is set.
+  hasAbsoluteDescendant?: boolean
   // Set by the reconciler's hideInstance/unhideInstance; survives style updates.
   isHidden?: boolean
   // Event handlers set by the reconciler for the capture/bubble dispatcher.
@@ -135,6 +139,14 @@ export const createNode = (nodeName: ElementNames): DOMElement => {
   return node
 }
 
+function markHasAbsoluteDescendant(node: DOMElement): void {
+  let current: DOMElement | undefined = node
+  while (current && !current.hasAbsoluteDescendant) {
+    current.hasAbsoluteDescendant = true
+    current = current.parentNode
+  }
+}
+
 export const appendChildNode = (
   node: DOMElement,
   childNode: DOMElement,
@@ -153,6 +165,13 @@ export const appendChildNode = (
     )
   }
 
+  if (
+    childNode.style.position === 'absolute' ||
+    childNode.hasAbsoluteDescendant
+  ) {
+    markHasAbsoluteDescendant(node)
+  }
+
   markDirty(node)
 }
 
@@ -166,6 +185,14 @@ export const insertBeforeNode = (
   }
 
   newChildNode.parentNode = node
+
+  if (
+    newChildNode.style.position === 'absolute' ||
+    (newChildNode.nodeName !== '#text' &&
+      newChildNode.hasAbsoluteDescendant)
+  ) {
+    markHasAbsoluteDescendant(node)
+  }
 
   const index = node.childNodes.indexOf(beforeChildNode)
 
@@ -273,7 +300,12 @@ export const setStyle = (node: DOMNode, style: Styles): void => {
   if (stylesEqual(node.style, style)) {
     return
   }
+  const becameAbsolute =
+    style.position === 'absolute' && node.style.position !== 'absolute'
   node.style = style
+  if (becameAbsolute && node.parentNode) {
+    markHasAbsoluteDescendant(node.parentNode)
+  }
   markDirty(node)
 }
 
