@@ -35,7 +35,12 @@ import {
   getSessionId,
 } from '../../bootstrap/state.js'
 import { getOauthConfig } from '../../constants/oauth.js'
-import { isDebugToStdErr, logForDebugging } from '../../utils/debug.js'
+import {
+  getMinDebugLogLevel,
+  isDebugToStdErr,
+  logForDebugging,
+} from '../../utils/debug.js'
+import { jsonStringify } from '../../utils/slowOperations.js'
 import {
   getAWSRegion,
   getVertexRegionForModel,
@@ -516,6 +521,23 @@ export class StreamIdleTimeoutError extends Error {
   }
 }
 
+function getVerboseRequestAuthDetails(headers: Headers): {
+  auth: string
+  headers: Record<string, string>
+} {
+  const authorization = headers.get('authorization')
+  const auth = authorization
+    ? `${authorization.includes(' ') ? authorization.slice(0, authorization.indexOf(' ')) : '<opaque>'} ***`
+    : 'none'
+  const selectedHeaders: Record<string, string> = {}
+  headers.forEach((value, name) => {
+    if (name === 'anthropic-beta' || name.startsWith('x-anthropic-')) {
+      selectedHeaders[name] = value
+    }
+  })
+  return { auth, headers: selectedHeaders }
+}
+
 function addStreamIdleTimeout(
   body: ReadableStream<Uint8Array>,
   idleMs: number,
@@ -666,6 +688,12 @@ function buildFetch(
       logForDebugging(
         `[API REQUEST] ${new URL(url).pathname}${id ? ` ${CLIENT_REQUEST_ID_HEADER}=${id}` : ''} source=${source ?? 'unknown'}`,
       )
+      if (getMinDebugLogLevel() === 'verbose') {
+        logForDebugging(
+          `[API REQUEST AUTH] ${jsonStringify(getVerboseRequestAuthDetails(headers))}`,
+          { level: 'verbose' },
+        )
+      }
     } catch {
       // never let logging crash the fetch
     }

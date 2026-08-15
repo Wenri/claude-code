@@ -175,7 +175,7 @@ import {
 import { CLAUDE_IN_CHROME_MCP_SERVER_NAME } from 'src/utils/claudeInChrome/common.js'
 import { CHROME_TOOL_SEARCH_INSTRUCTIONS } from 'src/utils/claudeInChrome/prompt.js'
 import { getMaxThinkingTokensForModel } from 'src/utils/context.js'
-import { logForDebugging } from 'src/utils/debug.js'
+import { getMinDebugLogLevel, logForDebugging } from 'src/utils/debug.js'
 import { logForDiagnosticsNoPII } from 'src/utils/diagLogs.js'
 import { type EffortValue, modelSupportsEffort } from 'src/utils/effort.js'
 import {
@@ -853,6 +853,23 @@ function getNonstreamingFallbackTimeoutMs(): number {
   return isEnvTruthy(process.env.CLAUDE_CODE_REMOTE) ? 120_000 : 300_000
 }
 
+function logAPIRequestDetail(
+  params: BetaMessageStreamParams & { anthropic_beta?: unknown },
+): void {
+  if (getMinDebugLogLevel() !== 'verbose') return
+  logForDebugging(
+    `[API REQUEST DETAIL] ${jsonStringify({
+      model: params.model,
+      thinking: params.thinking,
+      output_config: params.output_config,
+      temperature: params.temperature,
+      betas: params.betas ?? [],
+      anthropic_beta: params.anthropic_beta,
+    })}`,
+    { level: 'verbose' },
+  )
+}
+
 function isValidNonStreamingMessage(value: unknown): value is BetaMessage {
   return (
     typeof value === 'object' &&
@@ -910,13 +927,14 @@ export async function* executeNonStreamingRequest(
     async (anthropic, attempt, context) => {
       const start = Date.now()
       const retryParams = paramsFromContext(context)
-      captureRequest(retryParams)
       onAttempt(attempt, start, retryParams.max_tokens)
 
       const adjustedParams = adjustParamsForNonStreaming(
         retryParams,
         MAX_NON_STREAMING_TOKENS,
       )
+      logAPIRequestDetail(adjustedParams)
+      captureRequest(adjustedParams)
 
       try {
         // biome-ignore lint/plugin: non-streaming API call
@@ -2008,6 +2026,7 @@ async function* queryModel(
         queryCheckpoint('query_client_creation_end')
 
         const params = paramsFromContext(context)
+        logAPIRequestDetail(params)
         captureAPIRequest(params, options.querySource) // Capture for bug reports
         logRawAPIRequestBody(params, options.querySource)
 
