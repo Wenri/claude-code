@@ -76,7 +76,12 @@ const VALID_CONTEXTS: KeybindingContextName[] = [
   'ModelPicker',
   'Select',
   'Plugin',
+  'Scroll',
+  'MessageActions',
+  'Doctor',
 ]
+
+const MESSAGE_ACTION_BINDING_PATTERN = /^messageActions:[a-zA-Z0-9:\-_]+$/
 
 /**
  * Type guard to check if a string is a valid context name.
@@ -215,6 +220,32 @@ function validateBlock(
           context: contextName,
           action,
           suggestion: 'Move this binding to a block with "context": "Chat"',
+        })
+      }
+    } else if (
+      typeof action === 'string' &&
+      action.startsWith('messageActions:')
+    ) {
+      if (!MESSAGE_ACTION_BINDING_PATTERN.test(action)) {
+        warnings.push({
+          type: 'invalid_action',
+          severity: 'warning',
+          message: `Invalid messageActions binding "${action}" for "${key}": action name may only contain alphanumeric characters, colons, hyphens, and underscores`,
+          key,
+          context: contextName,
+          action,
+        })
+      }
+      if (contextName && contextName !== 'MessageActions') {
+        warnings.push({
+          type: 'invalid_action',
+          severity: 'warning',
+          message: `messageActions binding "${action}" must be in "MessageActions" context, not "${contextName}"`,
+          key,
+          context: contextName,
+          action,
+          suggestion:
+            'Move this binding to a block with "context": "MessageActions"',
         })
       }
     } else if (action === 'voice:pushToTalk') {
