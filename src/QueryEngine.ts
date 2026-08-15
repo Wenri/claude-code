@@ -93,6 +93,7 @@ import {
 } from './utils/processUserInput/processUserInput.js'
 import { fetchSystemPromptParts } from './utils/queryContext.js'
 import { setCwd } from './utils/Shell.js'
+import { getSessionEnvVars } from './utils/sessionEnvVars.js'
 import {
   flushSessionStorage,
   isChainParticipant,
@@ -101,6 +102,7 @@ import {
   transcriptCursorEnd,
 } from './utils/sessionStorage.js'
 import { asSystemPrompt } from './utils/systemPromptType.js'
+import { DEFAULT_TMUX_SOCKET } from './utils/tmuxSocket.js'
 import { resolveThemeSetting } from './utils/systemTheme.js'
 import {
   shouldEnableThinkingByDefault,
@@ -220,6 +222,8 @@ export type QueryEngineConfig = {
   setAppState: (f: (prev: AppState) => AppState) => void
   initialMessages?: Message[]
   readFileCache: FileStateCache
+  sessionEnvVars?: ToolUseContext['sessionEnvVars']
+  tmuxSocket?: ToolUseContext['tmuxSocket']
   customSystemPrompt?: string | string[]
   appendSystemPrompt?: string
   appendSubagentSystemPrompt?: string
@@ -291,6 +295,8 @@ export class QueryEngine {
   private loadedNestedMemoryPaths = new Set<string>()
   private memorySelector = createMemorySelector()
   private isolationLatch: ReplIsolationLatch
+  private sessionEnvVars: NonNullable<ToolUseContext['sessionEnvVars']>
+  private tmuxSocket: NonNullable<ToolUseContext['tmuxSocket']>
 
   constructor(config: QueryEngineConfig) {
     this.config = config
@@ -299,6 +305,8 @@ export class QueryEngine {
     this.permissionDenials = []
     this.readFileState = config.readFileCache
     this.isolationLatch = config.isolationLatch ?? { current: null }
+    this.sessionEnvVars = config.sessionEnvVars ?? getSessionEnvVars()
+    this.tmuxSocket = config.tmuxSocket ?? DEFAULT_TMUX_SOCKET
     this.totalUsage = EMPTY_USAGE
   }
 
@@ -501,6 +509,8 @@ export class QueryEngine {
       getAutoCompactWindow: () => getAppState().autoCompactWindow,
       getFastMode: () => getAppState().fastMode,
       getCacheBreakerPhrase: () => getAppState().cacheBreakerPhrase,
+      sessionEnvVars: this.sessionEnvVars,
+      tmuxSocket: this.tmuxSocket,
       setAppState,
       setToolPermissionContext: value =>
         setAppState(previous => {
@@ -814,6 +824,8 @@ export class QueryEngine {
       getAutoCompactWindow: () => getAppState().autoCompactWindow,
       getFastMode: () => getAppState().fastMode,
       getCacheBreakerPhrase: () => getAppState().cacheBreakerPhrase,
+      sessionEnvVars: this.sessionEnvVars,
+      tmuxSocket: this.tmuxSocket,
       setAppState,
       setToolPermissionContext: value =>
         setAppState(previous => {
@@ -1652,6 +1664,8 @@ export async function* ask({
   mutableMessages = [],
   getReadFileCache,
   setReadFileCache,
+  sessionEnvVars,
+  tmuxSocket,
   customSystemPrompt,
   appendSystemPrompt,
   appendSubagentSystemPrompt,
@@ -1708,6 +1722,8 @@ export async function* ask({
   setAppState: (f: (prev: AppState) => AppState) => void
   getReadFileCache: () => FileStateCache
   setReadFileCache: (cache: FileStateCache) => void
+  sessionEnvVars?: ToolUseContext['sessionEnvVars']
+  tmuxSocket?: ToolUseContext['tmuxSocket']
   abortController?: AbortController
   isolationLatch?: ReplIsolationLatch
   replayUserMessages?: boolean
@@ -1733,6 +1749,8 @@ export async function* ask({
     setAppState,
     initialMessages: mutableMessages,
     readFileCache: cloneFileStateCache(getReadFileCache()),
+    sessionEnvVars,
+    tmuxSocket,
     customSystemPrompt,
     appendSystemPrompt,
     appendSubagentSystemPrompt,

@@ -16,10 +16,8 @@ import { logForDebugging } from '../debug.js'
 import { isEnvTruthy } from '../envUtils.js'
 import { getPlatform } from '../platform.js'
 import { getSessionEnvironmentScript } from '../sessionEnvironment.js'
-import { getSessionEnvVars } from '../sessionEnvVars.js'
 import {
   ensureSocketInitialized,
-  getClaudeTmuxEnv,
   hasTmuxToolBeenUsed,
 } from '../tmuxSocket.js'
 import { windowsPathToPosixPath } from '../windowsPaths.js'
@@ -214,6 +212,8 @@ export async function createBashShellProvider(
 
     async getEnvironmentOverrides(
       command: string,
+      sessionEnvVars,
+      tmuxSocket,
     ): Promise<Record<string, string>> {
       // TMUX SOCKET ISOLATION (DEFERRED):
       // We initialize Claude's tmux socket ONLY AFTER the Tmux tool has been used
@@ -226,18 +226,23 @@ export async function createBashShellProvider(
       // See tmuxSocket.ts for the full isolation architecture documentation.
       const commandUsesTmux = command.includes('tmux')
       if (
+        tmuxSocket &&
         process.env.USER_TYPE === 'ant' &&
         (hasTmuxToolBeenUsed() || commandUsesTmux)
       ) {
         await ensureSocketInitialized()
       }
-      const claudeTmuxEnv = getClaudeTmuxEnv()
+      const claudeTmuxEnv = tmuxSocket?.getTmuxEnv() ?? null
       const env: Record<string, string> = {}
       // CRITICAL: Override TMUX to isolate ALL tmux commands to Claude's socket.
       // This is NOT the user's TMUX value - it points to Claude's isolated socket.
       // When null (before socket initializes), user's TMUX is preserved.
       if (claudeTmuxEnv) {
         env.TMUX = claudeTmuxEnv
+      }
+      // Apply session env vars set via /env (child processes only, not the REPL).
+      for (const [key, value] of sessionEnvVars ?? []) {
+        env[key] = value
       }
       if (currentSandboxTmpDir) {
         let posixTmpDir = currentSandboxTmpDir
@@ -251,10 +256,6 @@ export async function createBashShellProvider(
         // heredocs work in sandboxed zsh commands.
         // Safe to set unconditionally — non-zsh shells ignore TMPPREFIX.
         env.TMPPREFIX = posixJoin(posixTmpDir, 'zsh')
-      }
-      // Apply session env vars set via /env (child processes only, not the REPL)
-      for (const [key, value] of getSessionEnvVars()) {
-        env[key] = value
       }
       return env
     },

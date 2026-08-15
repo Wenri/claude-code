@@ -221,6 +221,8 @@ import {
   type PromptVariant,
 } from 'src/services/PromptSuggestion/promptSuggestion.js'
 import { getLastCacheSafeParams } from 'src/utils/forkedAgent.js'
+import { getSessionEnvVars } from 'src/utils/sessionEnvVars.js'
+import { DEFAULT_TMUX_SOCKET } from 'src/utils/tmuxSocket.js'
 import { getAccountInformation } from 'src/utils/auth.js'
 import { OAuthService } from 'src/services/oauth/index.js'
 import { installOAuthTokens } from 'src/cli/handlers/auth.js'
@@ -1497,6 +1499,8 @@ function runHeadlessStreaming(
   const isolationLatch = createToolIsolationLatch(
     getIsolationClassFromMessages(initialMessages, tools),
   )
+  const sessionEnvVars = getSessionEnvVars()
+  const tmuxSocket = DEFAULT_TMUX_SOCKET
 
   // Seed the readFileState cache from the transcript (content the model saw,
   // with message timestamps) so getChangedFiles can detect external edits.
@@ -2752,6 +2756,8 @@ function runHeadlessStreaming(
                 }
                 pendingSeeds.clear()
               },
+              sessionEnvVars,
+              tmuxSocket,
               customSystemPrompt: getEffectiveSystemPrompt(),
               appendSystemPrompt: options.appendSystemPrompt,
               appendSubagentSystemPrompt: options.appendSubagentSystemPrompt,

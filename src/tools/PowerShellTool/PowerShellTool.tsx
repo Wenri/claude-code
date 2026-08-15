@@ -464,7 +464,8 @@ export const PowerShellTool = buildTool({
         preventCwdChanges: !isMainThread,
         isMainThread,
         toolUseId: toolUseContext.toolUseId,
-        agentId: toolUseContext.agentId
+        agentId: toolUseContext.agentId,
+        sessionEnvVars: toolUseContext.sessionEnvVars
       });
       let generatorResult;
       do {
@@ -690,7 +691,8 @@ async function* runPowerShellCommand({
   preventCwdChanges,
   isMainThread,
   toolUseId,
-  agentId
+  agentId,
+  sessionEnvVars
 }: {
   input: PowerShellToolInput;
   abortController: AbortController;
@@ -701,6 +703,7 @@ async function* runPowerShellCommand({
   isMainThread?: boolean;
   toolUseId?: string;
   agentId?: AgentId;
+  sessionEnvVars?: ToolUseContext['sessionEnvVars'];
 }): AsyncGenerator<{
   type: 'progress';
   output: string;
@@ -770,7 +773,8 @@ async function* runPowerShellCommand({
         command,
         dangerouslyDisableSandbox
       }),
-      shouldAutoBackground
+      shouldAutoBackground,
+      sessionEnvVars
     });
   } catch (e) {
     logError(e);

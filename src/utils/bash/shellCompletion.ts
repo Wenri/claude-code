@@ -186,6 +186,7 @@ async function getCompletionsForShell(
   prefix: string,
   completionType: ShellCompletionType,
   abortSignal: AbortSignal,
+  sessionEnvVars?: ReadonlyMap<string, string>,
 ): Promise<SuggestionItem[]> {
   let command: string
 
@@ -200,6 +201,7 @@ async function getCompletionsForShell(
 
   const shellCommand = await Shell.exec(command, abortSignal, 'bash', {
     timeout: SHELL_COMPLETION_TIMEOUT_MS,
+    sessionEnvVars,
   })
   const result = await shellCommand.result
   return result.stdout
@@ -222,6 +224,7 @@ export async function getShellCompletions(
   input: string,
   cursorOffset: number,
   abortSignal: AbortSignal,
+  sessionEnvVars?: ReadonlyMap<string, string>,
 ): Promise<SuggestionItem[]> {
   const shellType = getShellType()
 
@@ -242,6 +245,7 @@ export async function getShellCompletions(
       prefix,
       completionType,
       abortSignal,
+      sessionEnvVars,
     )
 
     // Add inputSnapshot to all suggestions so we can detect when input changes

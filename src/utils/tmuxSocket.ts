@@ -30,6 +30,7 @@ import { toError } from './errors.js'
 import { execFileNoThrow } from './execFileNoThrow.js'
 import { logError } from './log.js'
 import { getPlatform } from './platform.js'
+import type { TmuxSocketFacade } from './shell/shellProvider.js'
 
 // Constants for tmux socket management
 const TMUX_COMMAND = 'tmux'
@@ -137,6 +138,11 @@ export function getClaudeTmuxEnv(): string | null {
     return null
   }
   return `${socketPath},${serverPid},0`
+}
+
+/** Default facade threaded through root ToolUseContexts and inherited by subagents. */
+export const DEFAULT_TMUX_SOCKET: TmuxSocketFacade = {
+  getTmuxEnv: getClaudeTmuxEnv,
 }
 
 /**

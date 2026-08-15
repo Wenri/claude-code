@@ -73,6 +73,8 @@ import { buildEffectiveSystemPrompt } from '../utils/systemPrompt.js';
 import { getSystemContext, getUserContext } from '../context.js';
 import { getMemoryFiles } from '../utils/claudemd.js';
 import { createMemorySelector } from '../memdir/findRelevantMemories.js';
+import { getSessionEnvVars } from '../utils/sessionEnvVars.js';
+import { DEFAULT_TMUX_SOCKET } from '../utils/tmuxSocket.js';
 import { createAgentLifecycle } from '../utils/agentLifecycle.js';
 import { makeSetClassifierApprovals } from '../utils/classifierApprovals.js';
 import { createTeammateColors } from '../utils/swarm/teammateLayoutManager.js';
@@ -2228,6 +2230,8 @@ export function REPL({
   // the next discovery cycle re-injects it. Cleared in clearConversation.
   const loadedNestedMemoryPathsRef = useRef(new Set<string>());
   const memorySelectorRef = useRef(createMemorySelector());
+  const sessionEnvVarsRef = useRef(getSessionEnvVars());
+  const tmuxSocketRef = useRef(DEFAULT_TMUX_SOCKET);
   const isolationLatchRef = useRef<'web' | 'connectors' | null>(null);
 
   // Helper to restore read file state from messages (used for resume flows)
@@ -2737,6 +2741,8 @@ export function REPL({
       getAutoCompactWindow: () => store.getState().autoCompactWindow,
       getFastMode: () => store.getState().fastMode,
       getCacheBreakerPhrase: () => store.getState().cacheBreakerPhrase,
+      sessionEnvVars: sessionEnvVarsRef.current,
+      tmuxSocket: tmuxSocketRef.current,
       setAppState,
       setToolPermissionContext: value =>
         setAppState(previous => {
@@ -5399,7 +5405,7 @@ export function REPL({
                       {}
                       <PromptInput debug={debug} ideSelection={ideSelection} hasSuppressedDialogs={!!hasSuppressedDialogs} isLocalJSXCommandActive={isShowingLocalJSXCommand} getToolUseContext={getToolUseContext} toolPermissionContext={toolPermissionContext} setToolPermissionContext={setToolPermissionContext} apiKeyStatus={apiKeyStatus} commands={commands} agents={agentDefinitions.activeAgents} isLoading={isLoading} onExit={handleExit} onLeftArrowOnEmpty={isBgSession() ? () => void handleExit() : !isLoading && isFgLeftArrowAgentsAvailable() && getGlobalConfig().leftArrowOpensAgents !== false ? handleOpenAgents : undefined} verbose={verbose} messages={messages} input={inputValue} onInputChange={setInputValue} mode={inputMode} onModeChange={setInputMode} stashedPrompt={stashedPrompt} setStashedPrompt={setStashedPrompt} submitCount={submitCount} onShowMessageSelector={handleShowMessageSelector} onMessageActionsEnter={
             // Works during isLoading — edit cancels first; uuid selection survives appends.
-            feature('MESSAGE_ACTIONS') && isFullscreenEnvEnabled() && !disableMessageActions ? enterMessageActions : undefined} mcpClients={mcpClients} pastedContents={pastedContents} setPastedContents={setPastedContents} onInputOverlayActiveChange={setIsInputOverlayActive} initialVimMode={vimModeRef.current} onVimModeChange={handleVimModeChange} showBashesDialog={showBashesDialog} setShowBashesDialog={setShowBashesDialog} onSubmit={onSubmit} onAgentSubmit={onAgentSubmit} insertTextRef={feature('VOICE_MODE') ? insertTextRef : undefined} voiceInterimRange={voice.interimRange} />
+            feature('MESSAGE_ACTIONS') && isFullscreenEnvEnabled() && !disableMessageActions ? enterMessageActions : undefined} mcpClients={mcpClients} pastedContents={pastedContents} setPastedContents={setPastedContents} onInputOverlayActiveChange={setIsInputOverlayActive} initialVimMode={vimModeRef.current} onVimModeChange={handleVimModeChange} showBashesDialog={showBashesDialog} setShowBashesDialog={setShowBashesDialog} onSubmit={onSubmit} onAgentSubmit={onAgentSubmit} insertTextRef={feature('VOICE_MODE') ? insertTextRef : undefined} voiceInterimRange={voice.interimRange} sessionEnvVars={sessionEnvVarsRef.current} />
                       <SessionBackgroundHint onBackgroundSession={handleBackgroundSession} isLoading={isLoading} />
                     </>}
                 {cursor &&

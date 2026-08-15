@@ -39,7 +39,12 @@ import { invalidateSessionEnvCache } from './sessionEnvironment.js'
 import { createBashShellProvider } from './shell/bashProvider.js'
 import { getCachedPowerShellPath } from './shell/powershellDetection.js'
 import { createPowerShellProvider } from './shell/powershellProvider.js'
-import type { ShellProvider, ShellType } from './shell/shellProvider.js'
+import type {
+  SessionEnvironmentVariables,
+  ShellProvider,
+  ShellType,
+  TmuxSocketFacade,
+} from './shell/shellProvider.js'
 import {
   enforceScriptCaps,
   getScrubSandboxConfig,
@@ -220,6 +225,8 @@ export type ExecOptions = {
   shouldAutoBackground?: boolean
   /** When provided, stdout is piped (not sent to file) and this callback fires on each data chunk. */
   onStdout?: (data: string) => void
+  sessionEnvVars?: SessionEnvironmentVariables
+  tmuxSocket?: TmuxSocketFacade
 }
 
 /**
@@ -239,6 +246,8 @@ export async function exec(
     shouldUseSandbox,
     shouldAutoBackground,
     onStdout,
+    sessionEnvVars,
+    tmuxSocket,
   } = options ?? {}
   const commandTimeout = timeout || DEFAULT_TIMEOUT
 
@@ -391,7 +400,11 @@ export async function exec(
   const shellArgs = isSandboxedPowerShell
     ? ['-c', commandString]
     : provider.getSpawnArgs(commandString)
-  const envOverrides = await provider.getEnvironmentOverrides(command)
+  const envOverrides = await provider.getEnvironmentOverrides(
+    command,
+    sessionEnvVars,
+    tmuxSocket,
+  )
   const traceparent = getCurrentTraceparent()
 
   // When onStdout is provided, use pipe mode: stdout flows through

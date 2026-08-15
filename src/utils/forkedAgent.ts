@@ -461,6 +461,8 @@ export function createSubagentContext(
     getAutoCompactWindow: parentContext.getAutoCompactWindow,
     getFastMode: parentContext.getFastMode,
     getCacheBreakerPhrase: parentContext.getCacheBreakerPhrase,
+    sessionEnvVars: parentContext.sessionEnvVars,
+    tmuxSocket: parentContext.tmuxSocket,
     setAppState: overrides?.shareSetAppState
       ? parentContext.setAppState
       : () => {},

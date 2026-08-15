@@ -252,6 +252,10 @@ export type ToolUseContext = {
   getAutoCompactWindow(): number | undefined
   getFastMode(): boolean | undefined
   getCacheBreakerPhrase(): string | undefined
+  /** Per-session environment overrides inherited by child shell processes. */
+  sessionEnvVars?: ReadonlyMap<string, string>
+  /** Injectable facade for the session's isolated tmux socket. */
+  tmuxSocket?: { getTmuxEnv(): string | null }
   setAppState(f: (prev: AppState) => AppState): void
   setToolPermissionContext(
     context:

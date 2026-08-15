@@ -189,6 +189,7 @@ type Props = {
     start: number;
     end: number;
   } | null;
+  sessionEnvVars?: ReadonlyMap<string, string>;
 };
 
 // Bottom slot has maxHeight="50%"; reserve lines for footer, border, status.
@@ -240,7 +241,8 @@ function PromptInput({
   hasSuppressedDialogs,
   isLocalJSXCommandActive = false,
   insertTextRef,
-  voiceInterimRange
+  voiceInterimRange,
+  sessionEnvVars
 }: Props): React.ReactNode {
   const mainLoopModel = useMainLoopModel();
   // A local-jsx command (e.g., /mcp while agent is running) renders a full-
@@ -1161,7 +1163,8 @@ function PromptInput({
     suggestionsState,
     suppressSuggestions: isSearchingHistory || historyIndex > 0,
     markAccepted,
-    onModeChange
+    onModeChange,
+    sessionEnvVars
   });
 
   // Track if prompt suggestion should be shown (computed later with terminal width).

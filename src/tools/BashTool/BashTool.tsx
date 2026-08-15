@@ -738,7 +738,9 @@ export const BashTool = buildTool({
         preventCwdChanges,
         isMainThread,
         toolUseId: toolUseContext.toolUseId,
-        agentId: toolUseContext.agentId
+        agentId: toolUseContext.agentId,
+        sessionEnvVars: toolUseContext.sessionEnvVars,
+        tmuxSocket: toolUseContext.tmuxSocket
       });
 
       // Consume the generator and capture the return value
@@ -949,7 +951,9 @@ async function* runShellCommand({
   preventCwdChanges,
   isMainThread,
   toolUseId,
-  agentId
+  agentId,
+  sessionEnvVars,
+  tmuxSocket
 }: {
   input: BashToolInput;
   abortController: AbortController;
@@ -960,6 +964,8 @@ async function* runShellCommand({
   isMainThread?: boolean;
   toolUseId?: string;
   agentId?: AgentId;
+  sessionEnvVars?: ToolUseContext['sessionEnvVars'];
+  tmuxSocket?: ToolUseContext['tmuxSocket'];
 }): AsyncGenerator<{
   type: 'progress';
   output: string;
@@ -1013,7 +1019,9 @@ async function* runShellCommand({
     },
     preventCwdChanges,
     shouldUseSandbox: shouldUseSandbox(input),
-    shouldAutoBackground
+    shouldAutoBackground,
+    sessionEnvVars,
+    tmuxSocket
   });
 
   // Start the command execution

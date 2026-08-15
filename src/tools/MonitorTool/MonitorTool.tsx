@@ -213,6 +213,8 @@ async function runMonitor(
     preventCwdChanges: true,
     shouldUseSandbox: shouldUseSandbox({ command }),
     onStdout: batcher.onData,
+    sessionEnvVars: context.sessionEnvVars,
+    tmuxSocket: context.tmuxSocket,
   })
   const handle = await spawnShellTask(
     {
