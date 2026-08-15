@@ -300,6 +300,7 @@ import { useModelMigrationNotifications } from 'src/hooks/notifs/useModelMigrati
 import { useCanSwitchToExistingSubscription } from 'src/hooks/notifs/useCanSwitchToExistingSubscription.js';
 import { useTeammateLifecycleNotification } from 'src/hooks/notifs/useTeammateShutdownNotification.js';
 import { useFastModeNotification } from 'src/hooks/notifs/useFastModeNotification.js';
+import { useSkillTruncationNotification } from 'src/hooks/notifs/useSkillTruncationNotification.js';
 import { useAdvisorNotification } from 'src/hooks/notifs/useAdvisorNotification.js';
 import { AutoRunIssueNotification, shouldAutoRunIssue, getAutoRunIssueReasonText, getAutoRunCommand, type AutoRunIssueReason } from '../utils/autoRunIssue.js';
 import type { HookProgress } from '../types/hooks.js';
@@ -835,6 +836,7 @@ export function REPL({
   useDeprecationWarningNotification(mainLoopModel);
   useNpmDeprecationNotification();
   useSkillTools();
+  useSkillTruncationNotification();
   useAntOrgWarningNotification();
   useInstallMessages();
   useChromeExtensionNotification();

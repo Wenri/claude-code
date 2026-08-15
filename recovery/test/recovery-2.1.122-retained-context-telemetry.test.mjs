@@ -683,3 +683,47 @@ test('source threads auto-compact window state through analysis and UI', () => {
     '{formatTokens(rawMaxTokens)} tokens',
   ])
 })
+
+test('authenticates the retained skill-truncation notification state surface', () => {
+  for (const release of releases) {
+    const bundle = readBundle(release)
+    assert.equal(
+      occurrences(bundle, 'skillTruncationStats'),
+      3,
+      `${release.version}: default, selector, and interactive initial state`,
+    )
+    assert.match(
+      bundle,
+      /agentDefinitions:\{activeAgents:\[\],allAgents:\[\]\},skillTruncationStats:null/,
+      `${release.version}: default AppState value`,
+    )
+    assert.match(
+      bundle,
+      /\{addNotification:[A-Za-z_$][\w$]*,removeNotification:[A-Za-z_$][\w$]*\}=[A-Za-z_$][\w$]*\(\),[A-Za-z_$][\w$]*=[A-Za-z_$][\w$]*\([A-Za-z_$][\w$]*\),[A-Za-z_$][\w$]*,[A-Za-z_$][\w$]*;if\([\s\S]{0,180}?\)[A-Za-z_$][\w$]*=\(\)=>\{\},[A-Za-z_$][\w$]*=\[[A-Za-z_$][\w$]*,[A-Za-z_$][\w$]*,[A-Za-z_$][\w$]*\][\s\S]{0,180}?\.useEffect\([A-Za-z_$][\w$]*,[A-Za-z_$][\w$]*\)/,
+      `${release.version}: retained no-op effect dependency shape`,
+    )
+    assert.match(
+      bundle,
+      /function [A-Za-z_$][\w$]*\([A-Za-z_$][\w$]*\)\{return [A-Za-z_$][\w$]*\.skillTruncationStats\}/,
+      `${release.version}: retained AppState selector`,
+    )
+  }
+})
+
+test('source preserves retained skill-truncation state and notification hook', () => {
+  includesAll(source('src/state/AppStateStore.ts'), [
+    'skillTruncationStats: unknown | null',
+    'skillTruncationStats: null',
+  ])
+  includesAll(source('src/hooks/notifs/useSkillTruncationNotification.ts'), [
+    'const { addNotification, removeNotification } = useNotifications()',
+    'const skillTruncationStats = useAppState(state => state.skillTruncationStats)',
+    'useEffect(() => {}, [ skillTruncationStats, addNotification, removeNotification, ])',
+  ])
+  includesAll(source('src/screens/REPL.tsx'), [
+    'useSkillTools(); useSkillTruncationNotification(); useAntOrgWarningNotification();',
+  ])
+  includesAll(source('src/main.tsx'), [
+    'agentDefinitions, skillTruncationStats: null, skillTools: [],',
+  ])
+})

@@ -260,6 +260,10 @@ export type AppState = DeepImmutable<{
     needsRefresh: boolean
   }
   agentDefinitions: AgentDefinitionsResult
+  // Retained external-build state surface. The producer and notification body
+  // are internal-only, so authenticated external bundles initialize this to
+  // null while still selecting it from the REPL notification hook.
+  skillTruncationStats: unknown | null
   // Per-skill tools assembled by the skills-as-tools experiment. Empty in
   // builds where the experiment module is compiled out.
   skillTools: Tool[]
@@ -573,6 +577,7 @@ export function getDefaultAppState(): AppState {
     },
     agent: undefined,
     agentDefinitions: { activeAgents: [], allAgents: [] },
+    skillTruncationStats: null,
     skillTools: [],
     fileHistory: {
       snapshots: [],

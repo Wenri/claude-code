@@ -3196,6 +3196,7 @@ async function run(): Promise<CommanderCommand> {
       toolPermissionContext: effectiveToolPermissionContext,
       agent: mainThreadAgentDefinition?.agentType,
       agentDefinitions,
+      skillTruncationStats: null,
       skillTools: [],
       mcp: {
         clients: [],
