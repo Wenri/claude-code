@@ -1020,13 +1020,34 @@ export function useManageMCPConnections(
         // Suppress claude.ai connectors that duplicate an enabled manual server.
         // Keys never collide (`slack` vs `claude.ai Slack`) so the merge below
         // won't catch this — need content-based dedup by URL signature.
-        if (Object.keys(claudeaiConfigs).length > 0) {
-          const { servers: dedupedClaudeAi } = dedupClaudeAiMcpServers(
-            claudeaiConfigs,
-            configs,
-          )
-          claudeaiConfigs = dedupedClaudeAi
-        }
+        const {
+          servers: dedupedClaudeAi,
+          suppressed: suppressedClaudeAiConnectors,
+        } = dedupClaudeAiMcpServers(claudeaiConfigs, configs)
+        setAppState(prevState => {
+          const previous = prevState.mcp.suppressedClaudeAiConnectors
+          if (
+            previous.length === suppressedClaudeAiConnectors.length &&
+            previous.every(
+              (item, index) =>
+                item.name === suppressedClaudeAiConnectors[index]?.name &&
+                item.duplicateOf ===
+                  suppressedClaudeAiConnectors[index]?.duplicateOf &&
+                item.duplicateOfScope ===
+                  suppressedClaudeAiConnectors[index]?.duplicateOfScope,
+            )
+          ) {
+            return prevState
+          }
+          return {
+            ...prevState,
+            mcp: {
+              ...prevState.mcp,
+              suppressedClaudeAiConnectors,
+            },
+          }
+        })
+        claudeaiConfigs = dedupedClaudeAi
 
         if (Object.keys(claudeaiConfigs).length > 0) {
           // Add claude.ai servers as pending immediately so they show up in UI

@@ -277,6 +277,7 @@ type State = {
   // the backing model capability, so remember the successful mode for the
   // remainder of the process and avoid repeating the failed round trip.
   thinkingTypeOverrides: Map<string, 'adaptive' | 'enabled'>
+  inferenceProfileBackingModels: Map<string, string | null>
   // Sticky-on latch for clearing thinking from prior tool loops. Triggered
   // when >1h since last API call (confirmed cache miss — no cache-hit
   // benefit to keeping thinking). Once latched, stays on so the newly-warmed
@@ -463,6 +464,7 @@ function getInitialState(): State {
     cacheEditingHeaderLatched: null,
     cacheDiagnosisHeaderLatched: null,
     thinkingTypeOverrides: new Map(),
+    inferenceProfileBackingModels: new Map(),
     thinkingClearLatched: null,
     // Current prompt ID
     promptId: null,
@@ -1941,6 +1943,19 @@ export function setThinkingTypeOverride(
   type: 'adaptive' | 'enabled',
 ): void {
   STATE.thinkingTypeOverrides.set(model, type)
+}
+
+export function getInferenceProfileBackingModelCached(
+  profileId: string,
+): string | null | undefined {
+  return STATE.inferenceProfileBackingModels.get(profileId)
+}
+
+export function setInferenceProfileBackingModel(
+  profileId: string,
+  model: string | null,
+): void {
+  STATE.inferenceProfileBackingModels.set(profileId, model)
 }
 
 export function getThinkingClearLatched(): boolean | null {

@@ -64,6 +64,7 @@ export function deriveFirstPrompt(
  * sessionId and adding forkedFrom traceability.
  */
 export async function createFork(
+  messages: SerializedMessage[],
   customTitle?: string,
   extraMessages?: SerializedMessage[],
 ): Promise<{
@@ -105,6 +106,8 @@ export async function createFork(
     outputError = toError(error)
   })
   const lines = createInterface({ input, crlfDelay: Infinity })
+  const activeMessageUuids = new Set(messages.map(message => message.uuid))
+  const activeTranscriptEntries = new Map<UUID, TranscriptEntry>()
   const cleanupOutput = async (): Promise<void> => {
     output.destroy()
     await unlink(forkSessionPath).catch(() => {})
@@ -126,22 +129,12 @@ export async function createFork(
       } catch {
         continue
       }
-      if (isTranscriptMessage(entry) && !entry.isSidechain) {
-        const forkedEntry: TranscriptEntry = {
-          ...entry,
-          sessionId: forkSessionId,
-          parentUuid,
-          isSidechain: false,
-          forkedFrom: {
-            sessionId: originalSessionId,
-            messageUuid: entry.uuid,
-          },
-        }
-        const serializedMessage = { ...entry, sessionId: forkSessionId }
-        serializedMessages.push(serializedMessage)
-        lastMessage = entry
-        await writeLine(`${jsonStringify(forkedEntry)}\n`)
-        if (entry.type !== 'progress') parentUuid = entry.uuid
+      if (
+        isTranscriptMessage(entry) &&
+        !entry.isSidechain &&
+        activeMessageUuids.has(entry.uuid)
+      ) {
+        activeTranscriptEntries.set(entry.uuid, entry)
       } else if (
         entry.type === 'content-replacement' &&
         entry.sessionId === originalSessionId
@@ -155,6 +148,26 @@ export async function createFork(
   } finally {
     lines.close()
     input.destroy()
+  }
+
+  for (const message of messages) {
+    const entry = activeTranscriptEntries.get(message.uuid)
+    if (!entry) continue
+    const forkedEntry: TranscriptEntry = {
+      ...entry,
+      sessionId: forkSessionId,
+      parentUuid,
+      isSidechain: false,
+      forkedFrom: {
+        sessionId: originalSessionId,
+        messageUuid: entry.uuid,
+      },
+    }
+    const serializedMessage = { ...entry, sessionId: forkSessionId }
+    serializedMessages.push(serializedMessage)
+    lastMessage = entry
+    await writeLine(`${jsonStringify(forkedEntry)}\n`)
+    if (entry.type !== 'progress') parentUuid = entry.uuid
   }
 
   if (lastMessage === null) {
@@ -271,7 +284,7 @@ export async function call(
       forkPath,
       serializedMessages,
       contentReplacementRecords,
-    } = await createFork(customTitle)
+    } = await createFork(context.messages, customTitle)
 
     // Build LogOption for resume
     const now = new Date()

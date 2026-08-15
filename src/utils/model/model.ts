@@ -32,6 +32,8 @@ import { LIGHTNING_BOLT } from '../../constants/figures.js'
 import { isModelAllowed } from './modelAllowlist.js'
 import { type ModelAlias, isModelAlias } from './aliases.js'
 import { capitalize } from '../stringUtils.js'
+import { getInferenceProfileBackingModelCached } from '../../bootstrap/state.js'
+import { extractModelIdFromArn } from './bedrock.js'
 
 export type ModelShortName = string
 export type ModelName = string
@@ -283,7 +285,15 @@ export function firstPartyNameToCanonical(name: ModelName): ModelShortName {
 export function getCanonicalName(fullModelName: ModelName): ModelShortName {
   // Resolve overridden model IDs (e.g. Bedrock ARNs) back to canonical names.
   // resolved is always a 1P-format ID, so firstPartyNameToCanonical can handle it.
-  return firstPartyNameToCanonical(resolveOverriddenModel(fullModelName))
+  const resolved = resolveOverriddenModel(fullModelName)
+  if (resolved !== fullModelName) return firstPartyNameToCanonical(resolved)
+  if (fullModelName.includes('application-inference-profile')) {
+    const backingModel = getInferenceProfileBackingModelCached(
+      extractModelIdFromArn(fullModelName),
+    )
+    if (backingModel) return firstPartyNameToCanonical(backingModel)
+  }
+  return firstPartyNameToCanonical(resolved)
 }
 
 // @[MODEL LAUNCH]: Update the default model description strings shown to users.

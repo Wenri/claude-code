@@ -516,6 +516,25 @@ export function configureTaskBudgetParams(
   }
 }
 
+function configureOutputFormatParams(
+  outputFormat: BetaJSONOutputFormat | undefined,
+  outputConfig: BetaOutputConfig,
+  betas: string[],
+  model: string,
+): void {
+  if (
+    !outputFormat ||
+    'format' in outputConfig ||
+    !modelSupportsStructuredOutputs(model)
+  ) {
+    return
+  }
+  outputConfig.format = outputFormat
+  if (!betas.includes(STRUCTURED_OUTPUTS_BETA_HEADER)) {
+    betas.push(STRUCTURED_OUTPUTS_BETA_HEADER)
+  }
+}
+
 export function getAPIMetadata() {
   // https://docs.google.com/document/d/1dURO9ycXXQCBS0V4Vhl4poDBRgkelFc5t2BNPoEgH5Q/edit?tab=t.0#heading=h.5g7nec5b09w5
   let extra: JsonObject = {}
@@ -1716,7 +1735,7 @@ async function* queryModel(
       outputConfig,
       extraBodyParams,
       betasParams,
-      options.model,
+      resolvedModel,
     )
 
     configureTaskBudgetParams(
@@ -1727,16 +1746,12 @@ async function* queryModel(
 
     // Merge outputFormat into extraBodyParams.output_config alongside effort
     // Requires structured-outputs beta header per SDK (see parse() in messages.mjs)
-    if (options.outputFormat && !('format' in outputConfig)) {
-      outputConfig.format = options.outputFormat as BetaJSONOutputFormat
-      // Add beta header if not already present and provider supports it
-      if (
-        modelSupportsStructuredOutputs(options.model) &&
-        !betasParams.includes(STRUCTURED_OUTPUTS_BETA_HEADER)
-      ) {
-        betasParams.push(STRUCTURED_OUTPUTS_BETA_HEADER)
-      }
-    }
+    configureOutputFormatParams(
+      options.outputFormat as BetaJSONOutputFormat | undefined,
+      outputConfig,
+      betasParams,
+      options.model,
+    )
 
     // Retry context gets preference because it tries to course correct if we exceed the context window limit
     const maxOutputTokens =

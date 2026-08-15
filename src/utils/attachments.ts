@@ -48,10 +48,14 @@ import { dirname, parse, relative, resolve } from 'path'
 import { getCwd } from 'src/utils/cwd.js'
 import { getViewedTeammateTask } from '../state/selectors.js'
 import { logError } from './log.js'
+import { logAtMention } from './telemetry/events.js'
 import { logAntError } from './debug.js'
 import { isENOENT, toError } from './errors.js'
-import type { DiagnosticFile } from '../services/diagnosticTracking.js'
-import { diagnosticTracker } from '../services/diagnosticTracking.js'
+import {
+  type DiagnosticFile,
+  DiagnosticTrackingService,
+  diagnosticTracker,
+} from '../services/diagnosticTracking.js'
 import type {
   AttachmentMessage,
   Message,
@@ -1969,6 +1973,7 @@ async function processAtMentionedFiles(
               }
               const stdout = names.join('\n')
               logEvent('tengu_at_mention_extracting_directory_success', {})
+              logAtMention({ mentionType: 'directory', success: true })
 
               return {
                 type: 'directory' as const,
@@ -1977,6 +1982,7 @@ async function processAtMentionedFiles(
                 displayPath: relative(getCwd(), absoluteFilename),
               }
             } catch {
+              logEvent('tengu_at_mention_extracting_directory_error', {})
               return null
             }
           }
@@ -1997,6 +2003,7 @@ async function processAtMentionedFiles(
         )
       } catch {
         logEvent('tengu_at_mention_extracting_filename_error', {})
+        logAtMention({ mentionType: 'file', success: false })
       }
     }),
   )
@@ -2016,10 +2023,12 @@ function processAgentMentions(
 
     if (!agentDef) {
       logEvent('tengu_at_mention_agent_not_found', {})
+      logAtMention({ mentionType: 'agent', success: false })
       return null
     }
 
     logEvent('tengu_at_mention_agent_success', {})
+    logAtMention({ mentionType: 'agent', success: true })
 
     return {
       type: 'agent_mention' as const,
@@ -2049,6 +2058,7 @@ async function processMcpResourceAttachments(
 
         if (!serverName || !uri) {
           logEvent('tengu_at_mention_mcp_resource_error', {})
+          logAtMention({ mentionType: 'mcp_resource', success: false })
           return null
         }
 
@@ -2056,6 +2066,7 @@ async function processMcpResourceAttachments(
         const client = mcpClients.find(c => c.name === serverName)
         if (!client || client.type !== 'connected') {
           logEvent('tengu_at_mention_mcp_resource_error', {})
+          logAtMention({ mentionType: 'mcp_resource', success: false })
           return null
         }
 
@@ -2065,6 +2076,7 @@ async function processMcpResourceAttachments(
         const resourceInfo = serverResources.find(r => r.uri === uri)
         if (!resourceInfo) {
           logEvent('tengu_at_mention_mcp_resource_error', {})
+          logAtMention({ mentionType: 'mcp_resource', success: false })
           return null
         }
 
@@ -2074,6 +2086,7 @@ async function processMcpResourceAttachments(
           })
 
           logEvent('tengu_at_mention_mcp_resource_success', {})
+          logAtMention({ mentionType: 'mcp_resource', success: true })
 
           return {
             type: 'mcp_resource' as const,
@@ -2085,11 +2098,13 @@ async function processMcpResourceAttachments(
           }
         } catch (error) {
           logEvent('tengu_at_mention_mcp_resource_error', {})
+          logAtMention({ mentionType: 'mcp_resource', success: false })
           logError(error)
           return null
         }
       } catch {
         logEvent('tengu_at_mention_mcp_resource_error', {})
+        logAtMention({ mentionType: 'mcp_resource', success: false })
         return null
       }
     }),
@@ -2898,6 +2913,22 @@ export function parseAtMentionedFileLines(
   return { filename: filename ?? mention, lineStart, lineEnd }
 }
 
+function logLSPDiagnosticsInjected(
+  files: DiagnosticFile[],
+  source: 'ide-mcp' | 'lsp',
+): void {
+  logEvent('tengu_lsp_diagnostics_injected', {
+    diagnostics_chars:
+      DiagnosticTrackingService.formatDiagnosticsBlock(files).length,
+    diagnostic_count: files.reduce(
+      (total, file) => total + file.diagnostics.length,
+      0,
+    ),
+    file_count: files.length,
+    source,
+  })
+}
+
 async function getDiagnosticAttachments(
   toolUseContext: ToolUseContext,
 ): Promise<Attachment[]> {
@@ -2914,6 +2945,7 @@ async function getDiagnosticAttachments(
     return []
   }
 
+  logLSPDiagnosticsInjected(newDiagnostics, 'ide-mcp')
   return [
     {
       type: 'diagnostics',
@@ -2951,11 +2983,14 @@ async function getLSPDiagnosticAttachments(
     )
 
     // Convert each diagnostic set to an attachment
-    const attachments: Attachment[] = diagnosticSets.map(({ files }) => ({
-      type: 'diagnostics' as const,
-      files,
-      isNew: true,
-    }))
+    const attachments: Attachment[] = diagnosticSets.map(({ files }) => {
+      logLSPDiagnosticsInjected(files, 'lsp')
+      return {
+        type: 'diagnostics' as const,
+        files,
+        isNew: true,
+      }
+    })
 
     // Clear delivered diagnostics from registry to prevent memory leak
     // Follows same pattern as removeDeliveredAsyncHooks
@@ -3143,6 +3178,9 @@ export async function generateFileAttachment(
         // File hasn't been modified, return already_read_file attachment
         // This tells the system the file is already in context and doesn't need to be sent to API
         logEvent(successEventName, {})
+        if (mode === 'at-mention') {
+          logAtMention({ mentionType: 'file', success: true })
+        }
         return {
           type: 'already_read_file',
           filename,
@@ -3201,6 +3239,7 @@ export async function generateFileAttachment(
         }
         const result = await FileReadTool.call(truncatedInput, toolUseContext)
         logEvent(successEventName, {})
+        logAtMention({ mentionType: 'file', success: true })
 
         return {
           type: 'file' as const,
@@ -3211,6 +3250,7 @@ export async function generateFileAttachment(
         }
       } catch {
         logEvent(errorEventName, {})
+        logAtMention({ mentionType: 'file', success: false })
         return null
       }
     }
@@ -3224,6 +3264,9 @@ export async function generateFileAttachment(
     try {
       const result = await FileReadTool.call(fileInput, toolUseContext)
       logEvent(successEventName, {})
+      if (mode === 'at-mention') {
+        logAtMention({ mentionType: 'file', success: true })
+      }
       return {
         type: 'file',
         filename,
@@ -3241,6 +3284,9 @@ export async function generateFileAttachment(
     }
   } catch {
     logEvent(errorEventName, {})
+    if (mode === 'at-mention') {
+      logAtMention({ mentionType: 'file', success: false })
+    }
     return null
   }
 }

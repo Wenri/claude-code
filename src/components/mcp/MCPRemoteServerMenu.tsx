@@ -102,9 +102,9 @@ export function MCPRemoteServerMenu({
       if (success) {
         onComplete?.(`Authentication successful. Connected to ${server.name}.`);
       } else if (result.client.type === 'needs-auth') {
-        onComplete?.('Authentication successful, but server still requires authentication. You may need to manually restart Claude Code.');
+        onComplete?.(`Tried reconnecting, but ${server.name} is still unauthorized. Make sure the browser sign-in completed, then try again from /mcp.`);
       } else {
-        onComplete?.('Authentication successful, but server reconnection failed. You may need to manually restart Claude Code for the changes to take effect.');
+        onComplete?.(`Tried reconnecting to ${server.name}, but the connection failed. Restart Claude Code to retry.`);
       }
     } catch (err) {
       logEvent('tengu_claudeai_mcp_auth_completed', {
@@ -281,11 +281,11 @@ export function MCPRemoteServerMenu({
           const message = isEffectivelyAuthenticated ? `Authentication successful. Reconnected to ${server.name}.` : `Authentication successful. Connected to ${server.name}.`;
           onComplete?.(message);
         } else if (result_0.client.type === 'needs-auth') {
-          onComplete?.('Authentication successful, but server still requires authentication. You may need to manually restart Claude Code.');
+          onComplete?.(`Tried reconnecting, but ${server.name} is still unauthorized. Make sure the browser sign-in completed, then try again from /mcp.`);
         } else {
           // result.client.type === 'failed'
           logMCPDebug(server.name, `Reconnection failed after authentication`);
-          onComplete?.('Authentication successful, but server reconnection failed. You may need to manually restart Claude Code for the changes to take effect.');
+          onComplete?.(`Tried reconnecting to ${server.name}, but the connection failed. Restart Claude Code to retry.`);
         }
       }
     } catch (err_1) {

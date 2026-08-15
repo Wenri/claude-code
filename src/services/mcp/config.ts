@@ -355,25 +355,42 @@ export function dedupClaudeAiMcpServers(
   manualServers: Record<string, ScopedMcpServerConfig>,
 ): {
   servers: Record<string, ScopedMcpServerConfig>
-  suppressed: Array<{ name: string; duplicateOf: string }>
+  suppressed: Array<{
+    name: string
+    duplicateOf: string
+    duplicateOfScope: ConfigScope
+  }>
 } {
-  const manualSigs = new Map<string, string>()
+  const manualSigs = new Map<
+    string,
+    { name: string; scope: ConfigScope }
+  >()
   for (const [name, config] of Object.entries(manualServers)) {
     if (isMcpServerDisabled(name)) continue
     const sig = getMcpServerSignature(config)
-    if (sig && !manualSigs.has(sig)) manualSigs.set(sig, name)
+    if (sig && !manualSigs.has(sig)) {
+      manualSigs.set(sig, { name, scope: config.scope })
+    }
   }
 
   const servers: Record<string, ScopedMcpServerConfig> = {}
-  const suppressed: Array<{ name: string; duplicateOf: string }> = []
+  const suppressed: Array<{
+    name: string
+    duplicateOf: string
+    duplicateOfScope: ConfigScope
+  }> = []
   for (const [name, config] of Object.entries(claudeAiServers)) {
     const sig = getMcpServerSignature(config)
     const manualDup = sig !== null ? manualSigs.get(sig) : undefined
     if (manualDup !== undefined) {
       logForDebugging(
-        `Suppressing claude.ai connector "${name}": duplicates manually-configured "${manualDup}"`,
+        `Suppressing claude.ai connector "${name}": duplicates manually-configured "${manualDup.name}"`,
       )
-      suppressed.push({ name, duplicateOf: manualDup })
+      suppressed.push({
+        name,
+        duplicateOf: manualDup.name,
+        duplicateOfScope: manualDup.scope,
+      })
       continue
     }
     servers[name] = config
@@ -1330,10 +1347,16 @@ export async function getClaudeCodeMcpConfigs(
 export async function getAllMcpConfigs(): Promise<{
   servers: Record<string, ScopedMcpServerConfig>
   errors: PluginError[]
+  suppressedClaudeAiConnectors: Array<{
+    name: string
+    duplicateOf: string
+    duplicateOfScope: ConfigScope
+  }>
 }> {
   // In enterprise mode, don't load claude.ai servers (enterprise has exclusive control)
   if (doesEnterpriseMcpConfigExist()) {
-    return getClaudeCodeMcpConfigs()
+    const result = await getClaudeCodeMcpConfigs()
+    return { ...result, suppressedClaudeAiConnectors: [] }
   }
 
   // Kick off the claude.ai fetch before getClaudeCodeMcpConfigs so it overlaps
@@ -1350,7 +1373,10 @@ export async function getAllMcpConfigs(): Promise<{
   // Suppress claude.ai connectors that duplicate an enabled manual server.
   // Keys never collide (`slack` vs `claude.ai Slack`) so the merge below
   // won't catch this — need content-based dedup by URL signature.
-  const { servers: dedupedClaudeAi } = dedupClaudeAiMcpServers(
+  const {
+    servers: dedupedClaudeAi,
+    suppressed: suppressedClaudeAiConnectors,
+  } = dedupClaudeAiMcpServers(
     claudeaiMcpServers,
     claudeCodeServers,
   )
@@ -1358,7 +1384,7 @@ export async function getAllMcpConfigs(): Promise<{
   // Merge with claude.ai having lowest precedence
   const servers = Object.assign({}, dedupedClaudeAi, claudeCodeServers)
 
-  return { servers, errors }
+  return { servers, errors, suppressedClaudeAiConnectors }
 }
 
 /**

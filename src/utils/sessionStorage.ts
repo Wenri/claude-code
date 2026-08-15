@@ -1323,6 +1323,10 @@ class Project {
       void refreshRepoBranches()
       const sessionId = getSessionId()
       const slug = getPlanSlugCache().get(sessionId)
+      const persistedMessageUuids =
+        isSidechain || this.shouldSkipPersistence()
+          ? null
+          : await getSessionMessages(sessionId)
 
       for (const message of messages) {
         const isCompactBoundary = isCompactBoundaryMessage(message)
@@ -1335,7 +1339,15 @@ class Project {
           'sourceToolAssistantUUID' in message &&
           message.sourceToolAssistantUUID
         ) {
-          effectiveParentUuid = message.sourceToolAssistantUUID
+          const sourceToolAssistantUuid = message.sourceToolAssistantUUID
+          if (
+            persistedMessageUuids === null ||
+            persistedMessageUuids.has(sourceToolAssistantUuid)
+          ) {
+            effectiveParentUuid = sourceToolAssistantUuid
+          } else {
+            logEvent('tengu_phantom_parent_write', {})
+          }
         }
         if (effectiveParentUuid === message.uuid) {
           logEvent('tengu_chain_self_reference_write', {})
@@ -1754,6 +1766,13 @@ export async function recordTranscript(
   const messageSet = await getSessionMessages(sessionId)
   const newMessages: typeof cleanedMessages = []
   let startingParentUuid: UUID | undefined = startingParentUuidHint
+  if (
+    startingParentUuid &&
+    !isTranscriptPersistenceDisabled() &&
+    !messageSet.has(startingParentUuid)
+  ) {
+    logEvent('tengu_phantom_parent_hint', {})
+  }
   let seenNewMessage = false
   for (const m of cleanedMessages) {
     if (messageSet.has(m.uuid as UUID)) {
@@ -4154,14 +4173,23 @@ function scanLargeTranscript(
 
       selectedOffsets = new Set<number>()
       const seen = new Set<number>()
+      let hasPhantomParent = false
       const addChain = (startIndex: number | undefined): void => {
         let messageIndex = startIndex
         while (messageIndex !== undefined && !seen.has(messageIndex)) {
           seen.add(messageIndex)
           selectedOffsets!.add(messageOffsets[messageIndex]!)
           const parentUuid = parentUuids[messageIndex]
-          messageIndex =
-            parentUuid === null ? undefined : uuidToMessageIndex.get(parentUuid)
+          if (parentUuid === null) {
+            messageIndex = undefined
+            break
+          }
+          const parentIndex = uuidToMessageIndex.get(parentUuid)
+          if (parentIndex === undefined) {
+            hasPhantomParent = true
+            break
+          }
+          messageIndex = parentIndex
         }
       }
       addChain(leafIndex >= 0 ? leafIndex : undefined)
@@ -4170,6 +4198,13 @@ function scanLargeTranscript(
           ? uuidToMessageIndex.get(lastCheckpointLeafUuid)
           : undefined,
       )
+      if (hasPhantomParent) {
+        logEvent('tengu_transcript_phantom_parent', {
+          total_offsets: messageOffsets.length,
+          walked_slots: selectedOffsets.size,
+        })
+        selectedOffsets = null
+      }
     }
 
     const offsetsToParse = selectedOffsets ?? new Set(messageOffsets)

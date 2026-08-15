@@ -347,10 +347,11 @@ export const ToolSearchTool = buildTool({
   get outputSchema(): OutputSchema {
     return outputSchema()
   },
-  async call(input, { options: { tools }, getAppState }) {
+  async call(input, { options: { tools, refreshTools }, getAppState }) {
     const { query, max_results = 5 } = input
 
-    const deferredTools = tools.filter(isDeferredTool)
+    const currentTools = refreshTools?.() ?? tools
+    const deferredTools = currentTools.filter(isDeferredTool)
     maybeInvalidateCache(deferredTools)
 
     // Check for MCP servers still connecting
@@ -394,7 +395,7 @@ export const ToolSearchTool = buildTool({
       for (const toolName of requested) {
         const tool =
           findToolByName(deferredTools, toolName) ??
-          findToolByName(tools, toolName)
+          findToolByName(currentTools, toolName)
         if (tool) {
           if (!found.includes(tool.name)) found.push(tool.name)
         } else {
@@ -431,7 +432,7 @@ export const ToolSearchTool = buildTool({
     const matches = await searchToolsWithKeywords(
       query,
       deferredTools,
-      tools,
+      currentTools,
       max_results,
     )
 

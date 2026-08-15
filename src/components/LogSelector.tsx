@@ -13,6 +13,7 @@ import type { Color } from '../ink/styles.js';
 import { Box, Text, useInput, useTerminalFocus, useTheme } from '../ink.js';
 import { useKeybinding } from '../keybindings/useKeybinding.js';
 import { logEvent } from '../services/analytics/index.js';
+import { parsePrUrl, PR_URL_RE } from '../tools/shared/gitOperationTracking.js';
 import type { LogOption, SerializedMessage } from '../types/logs.js';
 import { formatLogMetadata, truncateToWidth } from '../utils/format.js';
 import { getWorktreePaths } from '../utils/getWorktreePaths.js';
@@ -64,6 +65,12 @@ type LogTreeNode = TreeNode<{
 function normalizeAndTruncateToWidth(text: string, maxWidth: number): string {
   const normalized = text.replace(/\s+/g, ' ').trim();
   return truncateToWidth(normalized, maxWidth);
+}
+function normalizePrUrls(query: string): string {
+  return query.replace(new RegExp(`${PR_URL_RE.source}[^,\\s"]*`, 'g'), url => {
+    const pr = parsePrUrl(url);
+    return pr ? `PR #${pr.prNumber} ${pr.prRepository}` : url;
+  });
 }
 
 // Width of prefixes that TreeSelect will add
@@ -281,7 +288,8 @@ export function LogSelector(t0) {
     setQuery: setSearchQuery,
     cursorOffset: searchCursorOffset
   } = useSearchInput(t14);
-  const deferredSearchQuery = React.useDeferredValue(searchQuery);
+  const normalizedSearchQuery = normalizePrUrls(searchQuery);
+  const deferredSearchQuery = React.useDeferredValue(normalizedSearchQuery);
   const [debouncedDeepSearchQuery, setDebouncedDeepSearchQuery] = React.useState("");
   let t15;
   let t16;
@@ -422,13 +430,13 @@ export function LogSelector(t0) {
   const baseFilteredLogs = filtered;
   let t22;
   bb0: {
-    if (!searchQuery) {
+    if (!normalizedSearchQuery) {
       t22 = baseFilteredLogs;
       break bb0;
     }
     let t23;
-    if ($[39] !== baseFilteredLogs || $[40] !== searchQuery) {
-      const query = searchQuery.toLowerCase();
+    if ($[39] !== baseFilteredLogs || $[40] !== normalizedSearchQuery) {
+      const query = normalizedSearchQuery.toLowerCase();
       t23 = baseFilteredLogs.filter(log_5 => {
         const displayedTitle = getLogDisplayTitle(log_5).toLowerCase();
         const branch_0 = (log_5.gitBranch || "").toLowerCase();
@@ -437,7 +445,7 @@ export function LogSelector(t0) {
         return displayedTitle.includes(query) || branch_0.includes(query) || tag.includes(query) || prInfo.includes(query);
       });
       $[39] = baseFilteredLogs;
-      $[40] = searchQuery;
+      $[40] = normalizedSearchQuery;
       $[41] = t23;
     } else {
       t23 = $[41];
@@ -807,7 +815,7 @@ export function LogSelector(t0) {
       });
       ;
       try {
-        const results_0 = await onAgenticSearch(searchQuery, logs, abortController.signal);
+        const results_0 = await onAgenticSearch(normalizedSearchQuery, logs, abortController.signal);
         if (abortController.signal.aborted) {
           return;
         }

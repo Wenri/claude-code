@@ -199,6 +199,7 @@ export async function clearConversation({
           commands: [],
           resources: {},
           resourceTemplates: {},
+          suppressedClaudeAiConnectors: [],
           pluginReconnectKey: prev.mcp.pluginReconnectKey,
         },
       }

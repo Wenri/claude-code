@@ -76,10 +76,10 @@ const GH_PR_ACTIONS: readonly { re: RegExp; action: PrAction; op: string }[] = [
  * Parse PR info from a GitHub PR URL.
  * Returns { prNumber, prUrl, prRepository } or null if not a valid PR URL.
  */
-const PR_URL_RE =
+export const PR_URL_RE =
   /https?:\/\/[^/\s"]+\/([^\s"]+?)\/(?:pull|pull-requests|-\/merge_requests)\/(\d+)/
 
-function parsePrUrl(
+export function parsePrUrl(
   url: string,
 ): { prNumber: number; prUrl: string; prRepository: string } | null {
   const match = url.match(PR_URL_RE)

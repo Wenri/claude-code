@@ -164,10 +164,9 @@ export async function countMessagesTokensWithAPI(
         source: 'count_tokens',
       })
 
-      const filteredBetas =
-        getAPIProvider() === 'vertex'
-          ? betas.filter(b => VERTEX_COUNT_TOKENS_ALLOWED_BETAS.has(b))
-          : betas
+      const filteredBetas = betas.filter(b =>
+        VERTEX_COUNT_TOKENS_ALLOWED_BETAS.has(b),
+      )
 
       const response = await anthropic.beta.messages.countTokens({
         model: normalizeModelStringForAPI(model),

@@ -5,6 +5,7 @@ import type { Command } from '../commands.js'
 import type { ChannelPermissionCallbacks } from '../services/mcp/channelPermissions.js'
 import type { ElicitationRequestEvent } from '../services/mcp/elicitationHandler.js'
 import type {
+  ConfigScope,
   MCPServerConnection,
   ServerResource,
   ServerResourceTemplate,
@@ -200,6 +201,11 @@ export type AppState = DeepImmutable<{
     commands: Command[]
     resources: Record<string, ServerResource[]>
     resourceTemplates: Record<string, ServerResourceTemplate[]>
+    suppressedClaudeAiConnectors: Array<{
+      name: string
+      duplicateOf: string
+      duplicateOfScope: ConfigScope
+    }>
     /**
      * Incremented by /reload-plugins to trigger MCP effects to re-run
      * and pick up newly-enabled plugin MCP servers. Effects read this
@@ -560,6 +566,7 @@ export function getDefaultAppState(): AppState {
       commands: [],
       resources: {},
       resourceTemplates: {},
+      suppressedClaudeAiConnectors: [],
       pluginReconnectKey: 0,
     },
     plugins: {

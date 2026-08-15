@@ -20,7 +20,7 @@ export function redactIfDisabled(content: string): string {
 
 export async function logOTelEvent(
   eventName: string,
-  metadata: { [key: string]: string | undefined } = {},
+  metadata: Attributes = {},
 ): Promise<void> {
   const eventLogger = getEventLogger()
   if (!eventLogger) {
@@ -71,5 +71,18 @@ export async function logOTelEvent(
   eventLogger.emit({
     body: `claude_code.${eventName}`,
     attributes,
+  })
+}
+
+export function logAtMention({
+  mentionType,
+  success,
+}: {
+  mentionType: 'file' | 'directory' | 'agent' | 'mcp_resource'
+  success: boolean
+}): void {
+  void logOTelEvent('at_mention', {
+    mention_type: mentionType,
+    success: String(success),
   })
 }

@@ -280,10 +280,14 @@ async function connectClaudeAiMcp({
     regularMcpConfigs,
     (_, name) => !name.startsWith('plugin:'),
   )
-  const { servers } = dedupClaudeAiMcpServers(
+  const { servers, suppressed } = dedupClaudeAiMcpServers(
     claudeaiConfigs,
     nonPluginConfigs,
   )
+  state.applyMcpUpdate(mcp => ({
+    ...mcp,
+    suppressedClaudeAiConnectors: suppressed,
+  }))
   return connectMcpBatch(servers, 'claudeai', state)
 }
 

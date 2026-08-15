@@ -179,8 +179,16 @@ export async function getAnthropicClient({
     const skipAuth = isEnvTruthy(
       process.env.CLAUDE_CODE_SKIP_BEDROCK_AUTH,
     )
-    const { value: authorizationHeader, rest: headersWithoutAuthorization } =
+    const { value: authorizationHeader, rest } =
       extractAuthorizationHeader(ARGS.defaultHeaders)
+    const headersWithoutAuthorization = process.env
+      .ANTHROPIC_BEDROCK_SERVICE_TIER
+      ? {
+          ...rest,
+          'X-Amzn-Bedrock-Service-Tier':
+            process.env.ANTHROPIC_BEDROCK_SERVICE_TIER,
+        }
+      : rest
     const bedrockApiKey = process.env.AWS_BEARER_TOKEN_BEDROCK
       ? `Bearer ${process.env.AWS_BEARER_TOKEN_BEDROCK}`
       : skipAuth

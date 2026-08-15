@@ -3859,13 +3859,11 @@ Read the team config to discover your teammates' names. Check the task list peri
     case 'diagnostics': {
       if (attachment.files.length === 0) return []
 
-      // Use the centralized diagnostic formatting
-      const diagnosticSummary =
-        DiagnosticTrackingService.formatDiagnosticsSummary(attachment.files)
-
       return wrapMessagesInSystemReminder([
         createUserMessage({
-          content: `<new-diagnostics>The following new diagnostic issues were detected:\n\n${diagnosticSummary}</new-diagnostics>`,
+          content: DiagnosticTrackingService.formatDiagnosticsBlock(
+            attachment.files,
+          ),
           isMeta: true,
         }),
       ])
