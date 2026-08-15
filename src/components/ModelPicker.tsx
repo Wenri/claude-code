@@ -285,7 +285,7 @@ export function ModelPicker(t0) {
   }
   let t18;
   if ($[44] !== sessionModel) {
-    t18 = sessionModel && <Text dimColor={true}>Currently using {modelDisplayString(sessionModel)} for this session (set by plan mode). Selecting a model will undo this.</Text>;
+    t18 = sessionModel && <Text dimColor={true}>Currently using {modelDisplayString(sessionModel)} for this session only. Selecting a model will undo this.</Text>;
     $[44] = sessionModel;
     $[45] = t18;
   } else {

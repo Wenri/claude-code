@@ -52,13 +52,14 @@ export async function ensureFleetGateHydrated(): Promise<void> {
   if (
     isFleetDisabled() ||
     hasGrowthBookEnvOverride('tengu_slate_meadow') ||
-    'tengu_slate_meadow' in getGrowthBookConfigOverrides()
+    ('tengu_slate_meadow' in getGrowthBookConfigOverrides() &&
+      'tengu_quiet_harbor' in getGrowthBookConfigOverrides())
   ) {
     return
   }
   await withTimeout(
     initializeGrowthBook(),
-    300,
+    1500,
     'gb-before-fleet-gate',
   ).catch(() => {})
 }
@@ -112,7 +113,7 @@ export function fleetGateRejected(operation: string): never {
   process.stderr.write(
     typeof Bun === 'undefined'
       ? "Background sessions need the native Claude Code build.\nRun 'claude install' to switch.\n"
-      : `'${operation}' is not available in this release.\n`,
+      : `'${operation}' is not enabled. If this is unexpected, retry in a moment.\n`,
   )
   process.exit(1)
 }
