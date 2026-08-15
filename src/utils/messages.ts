@@ -4704,6 +4704,19 @@ export function getMessagesAfterCompactBoundary<
   return sliced
 }
 
+export function appendOrReplaceMessageByUuid(
+  messages: Message[],
+  message: Message,
+): Message[] {
+  if (messages.findLastIndex(existing => existing.uuid === message.uuid) === -1) {
+    return [...messages, message]
+  }
+  return [
+    ...messages.filter(existing => existing.uuid !== message.uuid),
+    message,
+  ]
+}
+
 export function shouldShowUserMessage(
   message: NormalizedMessage,
   isTranscriptMode: boolean,

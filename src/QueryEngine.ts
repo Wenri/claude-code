@@ -77,6 +77,7 @@ import { headlessProfilerCheckpoint } from './utils/headlessProfiler.js'
 import { registerStructuredOutputEnforcement } from './utils/hooks/hookHelpers.js'
 import { getInMemoryErrors } from './utils/log.js'
 import { countToolCalls, SYNTHETIC_MESSAGES } from './utils/messages.js'
+import { applyMessageOperation } from './utils/messageOperations.js'
 import {
   getMainLoopModel,
   parseUserSpecifiedModel,
@@ -419,6 +420,12 @@ export class QueryEngine {
       setMessages: fn => {
         this.mutableMessages = fn(this.mutableMessages)
       },
+      applyMessageOp: operation => {
+        this.mutableMessages = applyMessageOperation(
+          this.mutableMessages,
+          operation,
+        )
+      },
       onChangeAPIKey: () => {},
       handleElicitation: this.config.handleElicitation,
       onCommandLifecycle: this.config.onCommandLifecycle,
@@ -701,6 +708,7 @@ export class QueryEngine {
       messages,
       turnStartIndex: findCurrentTurnStart(messages),
       setMessages: () => {},
+      applyMessageOp: () => {},
       onChangeAPIKey: () => {},
       handleElicitation: this.config.handleElicitation,
       onCommandLifecycle: this.config.onCommandLifecycle,

@@ -21,7 +21,10 @@ export async function call(onDone: LocalJSXCommandOnDone, context: LocalJSXComma
     context.onChangeAPIKey();
     // Signature-bearing blocks (thinking, connector_text) are bound to the API key —
     // strip them so the new key doesn't reject stale signatures.
-    context.setMessages(stripSignatureBlocks);
+    context.applyMessageOp({
+      type: 'update',
+      updater: stripSignatureBlocks
+    });
     if (success) {
       // Post-login refresh logic. Keep in sync with onboarding in src/interactiveHelpers.tsx
       // Reset cost state when switching accounts

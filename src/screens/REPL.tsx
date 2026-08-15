@@ -141,7 +141,8 @@ import { getConfigValue } from '../utils/settings/configSettings.js';
 import { hasConsoleBillingAccess } from '../utils/billing.js';
 import { logEvent, type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS } from 'src/services/analytics/index.js';
 import { getFeatureValue_CACHED_MAY_BE_STALE } from 'src/services/analytics/growthbook.js';
-import { textForResubmit, handleMessageFromStream, type StreamingToolUse, type StreamingThinking, isCompactBoundaryMessage, getMessagesAfterCompactBoundary, getContentText, createUserMessage, createAssistantMessage, createTurnDurationMessage, createAgentsKilledMessage, createApiMetricsMessage, createSystemMessage, createCommandInputMessage, formatCommandInputTags } from '../utils/messages.js';
+import { textForResubmit, handleMessageFromStream, type StreamingToolUse, type StreamingThinking, isCompactBoundaryMessage, getMessagesAfterCompactBoundary, appendOrReplaceMessageByUuid, getContentText, createUserMessage, createAssistantMessage, createTurnDurationMessage, createAgentsKilledMessage, createApiMetricsMessage, createSystemMessage, createCommandInputMessage, formatCommandInputTags } from '../utils/messages.js';
+import { applyMessageOperation, type MessageOperation } from '../utils/messageOperations.js';
 import { generateSessionTitle } from '../utils/sessionTitle.js';
 import { BASH_INPUT_TAG, COMMAND_MESSAGE_TAG, COMMAND_NAME_TAG, LOCAL_COMMAND_STDERR_TAG, LOCAL_COMMAND_STDOUT_TAG } from '../constants/xml.js';
 import { escapeXml } from '../utils/xml.js';
@@ -1353,6 +1354,9 @@ export function REPL({
     }
     rawSetMessages(next);
   }, []);
+  const applyMessageOp = useCallback((operation: MessageOperation) => {
+    setMessages(previous => applyMessageOperation(previous, operation));
+  }, [setMessages]);
   useEffect(() => {
     setToolProgress(current => {
       if (current.size === 0) return current;
@@ -2688,6 +2692,7 @@ export function REPL({
       messages,
       turnStartIndex: 0,
       setMessages,
+      applyMessageOp,
       updateFileHistoryState(updater: (prev: FileHistoryState) => FileHistoryState) {
         // Perf: skip the setState when the updater returns the same reference
         // (e.g. fileHistoryTrackEdit returns `state` when the file is already
@@ -2721,7 +2726,10 @@ export function REPL({
       setToolJSX,
       emitToolProgress,
       addNotification,
-      appendSystemMessage: msg => setMessages(prev => [...prev, msg]),
+      appendSystemMessage: msg => applyMessageOp({
+        type: 'append',
+        messages: [msg]
+      }),
       applyHintClears: (clearedIds, clearedContent) => {
         setMessages(prev => applyToolResultClears(prev, clearedIds, clearedContent));
       },
@@ -2781,7 +2789,7 @@ export function REPL({
       contentReplacementState: contentReplacementStateRef.current,
       resultDedupState: resultDedupStateRef.current
     };
-  }, [commands, combinedInitialTools, mainThreadAgentDefinition, debug, initialMcpClients, ideInstallationStatus, dynamicMcpConfig, theme, allowedAgentTypes, store, setAppState, reverify, addNotification, setMessages, setToolJSX, emitToolProgress, onChangeDynamicMcpConfig, resume, requestPrompt, disabled, customSystemPrompt, appendSystemPrompt, setConversationId]);
+  }, [commands, combinedInitialTools, mainThreadAgentDefinition, debug, initialMcpClients, ideInstallationStatus, dynamicMcpConfig, theme, allowedAgentTypes, store, setAppState, reverify, addNotification, setMessages, applyMessageOp, setToolJSX, emitToolProgress, onChangeDynamicMcpConfig, resume, requestPrompt, disabled, customSystemPrompt, appendSystemPrompt, setConversationId]);
 
   // Session backgrounding (Ctrl+B to background/foreground)
   const handleBackgroundQuery = useCallback(() => {
@@ -2853,11 +2861,17 @@ export function REPL({
         // are O(n) per render, so drop everything before the previous
         // boundary to keep n bounded across multi-day sessions.
         if (isFullscreenEnvEnabled()) {
-          setMessages(old => [...getMessagesAfterCompactBoundary(old, {
-            includeSnipped: true
-          }), newMessage]);
+          applyMessageOp({
+            type: 'update',
+            updater: old => [...getMessagesAfterCompactBoundary(old, {
+              includeSnipped: true
+            }), newMessage]
+          });
         } else {
-          setMessages(() => [newMessage]);
+          applyMessageOp({
+            type: 'replace-all',
+            messages: [newMessage]
+          });
         }
         // Bump conversationId so Messages.tsx row keys change and
         // stale memoized rows remount with post-compact content.
@@ -2877,17 +2891,28 @@ export function REPL({
         // — each carries distinct state the UI needs (e.g. subagent tool
         // history). Replacing those leaves the AgentTool UI stuck at
         // "Initializing…" because it renders the full progress trail.
-        setMessages(oldMessages => {
-          const last = oldMessages.at(-1);
-          if (last?.type === 'progress' && last.parentToolUseID === newMessage.parentToolUseID && last.data.type === newMessage.data.type) {
-            const copy = oldMessages.slice();
-            copy[copy.length - 1] = newMessage;
-            return copy;
+        applyMessageOp({
+          type: 'update',
+          updater: oldMessages => {
+            const last = oldMessages.at(-1);
+            if (last?.type === 'progress' && last.parentToolUseID === newMessage.parentToolUseID && last.data.type === newMessage.data.type) {
+              const copy = oldMessages.slice();
+              copy[copy.length - 1] = newMessage;
+              return copy;
+            }
+            return [...oldMessages, newMessage];
           }
-          return [...oldMessages, newMessage];
+        });
+      } else if (isFullscreenEnvEnabled()) {
+        applyMessageOp({
+          type: 'update',
+          updater: oldMessages => appendOrReplaceMessageByUuid(oldMessages, newMessage)
         });
       } else {
-        setMessages(oldMessages => [...oldMessages, newMessage]);
+        applyMessageOp({
+          type: 'append',
+          messages: [newMessage]
+        });
       }
       // Block ticks on API errors to prevent tick → error → tick
       // runaway loops (e.g., auth failure, rate limit, blocking limit).
@@ -2905,7 +2930,10 @@ export function REPL({
       // for OTPS). No separate metrics update needed here.
       setResponseLength(length => length + newContent.length);
     }, setStreamMode, setStreamingToolUses, tombstonedMessage => {
-      setMessages(oldMessages => oldMessages.filter(m => m !== tombstonedMessage));
+      applyMessageOp({
+        type: 'remove-by-uuid',
+        uuid: tombstonedMessage.uuid
+      });
       void removeTranscriptMessage(tombstonedMessage.uuid);
     }, setStreamingThinking, metrics => {
       const now = Date.now();
@@ -2918,7 +2946,7 @@ export function REPL({
         endResponseLength: baseline
       });
     }, onStreamingText);
-  }, [setMessages, setResponseLength, setStreamMode, setStreamingToolUses, setStreamingThinking, onStreamingText]);
+  }, [applyMessageOp, setResponseLength, setStreamMode, setStreamingToolUses, setStreamingThinking, onStreamingText]);
   const onQueryImpl = useCallback(async (messagesIncludingNewMessages: MessageType[], newMessages: MessageType[], abortController: AbortController, shouldQuery: boolean, additionalAllowedTools: string[], mainLoopModelParam: string, effort?: EffortValue, clientPlatform?: string, activeSkill?: string) => {
     // Prepare IDE integration for new prompt. Read mcpClients fresh from
     // store — useManageMCPConnections may have populated it since the
