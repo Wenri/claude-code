@@ -7,6 +7,7 @@ import {
 import { getLocalISODate } from './constants/common.js'
 import { BASH_TOOL_NAME } from './tools/BashTool/toolName.js'
 import { POWERSHELL_TOOL_NAME } from './tools/PowerShellTool/toolName.js'
+import { getOauthAccountInfo } from './utils/auth.js'
 import {
   filterInjectedMemoryFiles,
   getClaudeMds,
@@ -184,15 +185,22 @@ export const getUserContext = memoize(
     // instead of importing claudemd.ts directly, which would create a
     // cycle through permissions/filesystem → permissions → yoloClassifier).
     setCachedClaudeMdContent(claudeMd || null)
+    const userEmail = process.env.ANTHROPIC_UNIX_SOCKET
+      ? undefined
+      : getOauthAccountInfo()?.emailAddress
 
     logForDiagnosticsNoPII('info', 'user_context_completed', {
       duration_ms: Date.now() - startTime,
       claudemd_length: claudeMd?.length ?? 0,
       claudemd_disabled: Boolean(shouldDisableClaudeMd),
+      has_user_email: Boolean(userEmail),
     })
 
     return {
       ...(claudeMd && { claudeMd }),
+      ...(userEmail && {
+        userEmail: `The user's email address is ${userEmail}.`,
+      }),
       currentDate: `Today's date is ${getLocalISODate()}.`,
     }
   },

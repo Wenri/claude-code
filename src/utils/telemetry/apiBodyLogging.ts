@@ -1,13 +1,64 @@
+import { randomUUID } from 'node:crypto'
+import { mkdir, writeFile } from 'node:fs/promises'
+import { join, resolve } from 'node:path'
 import type { AssistantMessage } from '../../types/message.js'
 import type { QuerySource } from '../../constants/querySource.js'
+import { logForDebugging } from '../debug.js'
 import { isEnvTruthy } from '../envUtils.js'
+import { isENOENT } from '../errors.js'
 import { jsonStringify } from '../slowOperations.js'
 import { logOTelEvent } from './events.js'
 
 const MAX_RAW_BODY_LENGTH = 60 * 1024
 
+type RawAPIBodyLoggingConfig =
+  | { mode: 'disabled' }
+  | { mode: 'inline' }
+  | { mode: 'file'; dir: string }
+
+let rawAPIBodyLoggingCache:
+  | { raw: string | undefined; config: RawAPIBodyLoggingConfig }
+  | undefined
+
+function parseRawAPIBodyLoggingConfig(
+  raw: string | undefined,
+): RawAPIBodyLoggingConfig {
+  if (raw?.startsWith('file:')) {
+    const dir = raw.slice('file:'.length)
+    return dir
+      ? { mode: 'file', dir: resolve(dir) }
+      : { mode: 'disabled' }
+  }
+  return isEnvTruthy(raw) ? { mode: 'inline' } : { mode: 'disabled' }
+}
+
+function getRawAPIBodyLoggingConfig(): RawAPIBodyLoggingConfig {
+  const raw = process.env.OTEL_LOG_RAW_API_BODIES
+  if (!rawAPIBodyLoggingCache || rawAPIBodyLoggingCache.raw !== raw) {
+    rawAPIBodyLoggingCache = {
+      raw,
+      config: parseRawAPIBodyLoggingConfig(raw),
+    }
+  }
+  return rawAPIBodyLoggingCache.config
+}
+
 function isRawAPIBodyLoggingEnabled(): boolean {
-  return isEnvTruthy(process.env.OTEL_LOG_RAW_API_BODIES)
+  return getRawAPIBodyLoggingConfig().mode !== 'disabled'
+}
+
+async function writeBodyFile(
+  dir: string,
+  filename: string,
+  serialized: string,
+): Promise<void> {
+  try {
+    await writeFile(filename, serialized)
+  } catch (error) {
+    if (!isENOENT(error)) throw error
+    await mkdir(dir, { recursive: true })
+    await writeFile(filename, serialized)
+  }
 }
 
 function logBody(
@@ -15,7 +66,30 @@ function logBody(
   value: unknown,
   metadata: Record<string, string | undefined>,
 ): void {
+  const config = getRawAPIBodyLoggingConfig()
+  if (config.mode === 'disabled') return
   const serialized = jsonStringify(value)
+
+  if (config.mode === 'file') {
+    const kind = eventName === 'api_request_body' ? 'request' : 'response'
+    const candidate = metadata.request_id ?? randomUUID()
+    const requestId = /^[A-Za-z0-9_-]+$/.test(candidate)
+      ? candidate
+      : randomUUID()
+    const filename = join(config.dir, `${requestId}.${kind}.json`)
+    void writeBodyFile(config.dir, filename, serialized).catch(error =>
+      logForDebugging(`OTEL raw body file write failed: ${error}`, {
+        level: 'error',
+      }),
+    )
+    void logOTelEvent(eventName, {
+      body_ref: filename,
+      body_length: String(Buffer.byteLength(serialized)),
+      ...metadata,
+    })
+    return
+  }
+
   const truncated = serialized.length > MAX_RAW_BODY_LENGTH
   void logOTelEvent(eventName, {
     body: truncated

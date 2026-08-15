@@ -419,6 +419,9 @@ export const AgentTool = buildTool({
 
     // Resolve agent params for logging (these are already resolved in runAgent)
     const resolvedAgentModel = getAgentModel(selectedAgent.model, toolUseContext.options.mainLoopModel, isForkPath ? undefined : model, permissionMode);
+    const agentSystemPrompt = selectedAgent.getSystemPrompt({
+      toolUseContext
+    });
     logEvent('tengu_agent_tool_selected', {
       agent_type: selectedAgent.agentType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       model: resolvedAgentModel as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -427,7 +430,8 @@ export const AgentTool = buildTool({
       is_built_in_agent: isBuiltInAgent(selectedAgent),
       is_resume: false,
       is_async: (run_in_background === true || selectedAgent.background === true) && !isBackgroundTasksDisabled,
-      is_fork: isForkPath
+      is_fork: isForkPath,
+      agent_system_prompt_chars: agentSystemPrompt.length
     });
 
     // Resolve effective isolation mode (explicit param overrides agent def)
@@ -518,9 +522,7 @@ export const AgentTool = buildTool({
         const additionalWorkingDirectories = Array.from(appState.toolPermissionContext.additionalWorkingDirectories.keys());
 
         // All agents have getSystemPrompt - pass toolUseContext to all
-        const agentPrompt = selectedAgent.getSystemPrompt({
-          toolUseContext
-        });
+        const agentPrompt = agentSystemPrompt;
 
         // Log agent memory loaded event for subagents
         if (selectedAgent.memory) {
