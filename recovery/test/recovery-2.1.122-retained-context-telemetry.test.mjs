@@ -172,3 +172,49 @@ test('source maps session dimensions and loads plugin themes before metrics', ()
     'const enabled = plugins ?? (await loadAllPluginsCacheOnly()).enabled',
   ])
 })
+
+test('authenticates retained SDK REPL progress and user-origin normalization', () => {
+  for (const release of releases) {
+    const bundle = readBundle(release)
+    assert.equal(
+      occurrences(bundle, 'repl_call'),
+      1,
+      `${release.version}: REPL progress envelope cardinality`,
+    )
+    assert.equal(
+      occurrences(bundle, 'inner_tool_name'),
+      1,
+      `${release.version}: REPL inner-tool name cardinality`,
+    )
+    assert.match(
+      bundle,
+      /type:"tool_progress",tool_use_id:[\s\S]{0,250}tool_name:"REPL"[\s\S]{0,250}elapsed_time_seconds:0,repl_call:\{inner_tool_name:[\s\S]{0,500}inner_tool_input:[\s\S]{0,500}inner_tool_use_id:[\s\S]{0,500}phase:/,
+      `${release.version}: exact REPL tool-progress shape`,
+    )
+    assert.match(
+      bundle,
+      /tool_use_result:[\s\S]{0,300}\.\.\.[A-Za-z_$][\w$]*\.origin&&\{origin:[A-Za-z_$][\w$]*\.origin\}/,
+      `${release.version}: SDK user origin forwarding`,
+    )
+  }
+})
+
+test('source emits exact retained SDK REPL progress and user origins', () => {
+  const queryHelpers = source('src/utils/queryHelpers.ts')
+  includesAll(queryHelpers, [
+    "message.data.type === 'repl_tool_call'",
+    "type: 'tool_progress'",
+    "tool_name: 'REPL'",
+    'elapsed_time_seconds: 0',
+    'inner_tool_name: message.data.toolName',
+    'inner_tool_input: message.data.toolInput',
+    'inner_tool_use_id: message.data.toolUseId',
+    'phase: message.data.phase',
+    '...(_.origin && { origin: _.origin })',
+  ])
+  assert.equal(
+    occurrences(queryHelpers, '...(_.origin && { origin: _.origin })'),
+    2,
+    'origin is forwarded for nested and top-level user messages',
+  )
+})

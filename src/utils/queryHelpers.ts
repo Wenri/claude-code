@@ -155,9 +155,26 @@ export function* normalizeMessage(message: Message): Generator<SDKMessage> {
                 tool_use_result: _.mcpMeta
                   ? { content: _.toolUseResult, ..._.mcpMeta }
                   : _.toolUseResult,
+                ...(_.origin && { origin: _.origin }),
               }
               break
           }
+        }
+      } else if (message.data.type === 'repl_tool_call') {
+        yield {
+          type: 'tool_progress',
+          tool_use_id: message.toolUseID,
+          tool_name: 'REPL',
+          parent_tool_use_id: message.parentToolUseID,
+          elapsed_time_seconds: 0,
+          repl_call: {
+            inner_tool_name: message.data.toolName,
+            inner_tool_input: message.data.toolInput,
+            inner_tool_use_id: message.data.toolUseId,
+            phase: message.data.phase,
+          },
+          session_id: getSessionId(),
+          uuid: message.uuid,
         }
       } else if (
         message.data.type === 'bash_progress' ||
@@ -218,6 +235,7 @@ export function* normalizeMessage(message: Message): Generator<SDKMessage> {
           tool_use_result: _.mcpMeta
             ? { content: _.toolUseResult, ..._.mcpMeta }
             : _.toolUseResult,
+          ...(_.origin && { origin: _.origin }),
         }
       }
       return
