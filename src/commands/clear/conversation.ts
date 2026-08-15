@@ -61,6 +61,7 @@ export async function clearConversation({
   setMessages,
   readFileState,
   discoveredSkillNames,
+  discoveredRemoteSkills,
   loadedNestedMemoryPaths,
   memorySelector,
   getAppState,
@@ -72,6 +73,7 @@ export async function clearConversation({
   setMessages: (updater: (prev: Message[]) => Message[]) => void
   readFileState: FileStateCache
   discoveredSkillNames?: Set<string>
+  discoveredRemoteSkills?: Map<string, unknown>
   loadedNestedMemoryPaths?: Set<string>
   memorySelector?: MemorySelector
   getAppState?: () => AppState
@@ -146,6 +148,7 @@ export async function clearConversation({
   setCwd(getOriginalCwd())
   readFileState.clear()
   discoveredSkillNames?.clear()
+  discoveredRemoteSkills?.clear()
   loadedNestedMemoryPaths?.clear()
   resetMemorySelector(memorySelector)
   if (resultDedupState) clearResultDedupState(resultDedupState)

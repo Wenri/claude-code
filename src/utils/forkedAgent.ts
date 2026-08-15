@@ -391,6 +391,8 @@ export function createSubagentContext(
     dynamicSkillDirTriggers: new Set<string>(),
     // Per-subagent: tracks skills surfaced by discovery for was_discovered telemetry (SkillTool.ts:116)
     discoveredSkillNames: new Set<string>(),
+    discoveredRemoteSkills:
+      parentContext.discoveredRemoteSkills ?? new Map<string, unknown>(),
     memorySelector: createMemorySelector(),
     bashRerunAliases: createBashRerunAliases(),
     toolDecisions: undefined,

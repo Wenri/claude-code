@@ -246,6 +246,7 @@ export class QueryEngine {
   // at the start of each submitMessage to avoid unbounded growth across
   // many turns in SDK mode.
   private discoveredSkillNames = new Set<string>()
+  private discoveredRemoteSkills = new Map<string, unknown>()
   private bashRerunAliases = createBashRerunAliases()
   private loadedNestedMemoryPaths = new Set<string>()
   private memorySelector = createMemorySelector()
@@ -459,6 +460,7 @@ export class QueryEngine {
       memorySelector: this.memorySelector,
       dynamicSkillDirTriggers: new Set<string>(),
       discoveredSkillNames: this.discoveredSkillNames,
+      discoveredRemoteSkills: this.discoveredRemoteSkills,
       bashRerunAliases: this.bashRerunAliases,
       setInProgressToolUseIDs: () => {},
       setResponseLength: () => {},
@@ -740,6 +742,7 @@ export class QueryEngine {
       memorySelector: this.memorySelector,
       dynamicSkillDirTriggers: new Set<string>(),
       discoveredSkillNames: this.discoveredSkillNames,
+      discoveredRemoteSkills: this.discoveredRemoteSkills,
       bashRerunAliases: this.bashRerunAliases,
       setInProgressToolUseIDs: () => {},
       setResponseLength: () => {},

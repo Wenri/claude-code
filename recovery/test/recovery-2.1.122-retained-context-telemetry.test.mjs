@@ -502,3 +502,55 @@ test('source preserves the exact retained attribution path', () => {
     'attributionPlugin: message.attributionPlugin',
   ])
 })
+
+test('authenticates retained remote-skill conversation state', () => {
+  for (const release of releases) {
+    const bundle = readBundle(release)
+    assert.equal(
+      occurrences(bundle, 'discoveredRemoteSkills'),
+      10,
+      `${release.version}: remote-skill state cardinality`,
+    )
+    assert.match(
+      bundle,
+      /discoveredRemoteSkills:[A-Za-z_$][\w$]*\.discoveredRemoteSkills\?\?new Map/,
+      `${release.version}: subagent context inheritance`,
+    )
+    assert.match(
+      bundle,
+      /discoveredSkillNames:[A-Za-z_$][\w$]*,discoveredRemoteSkills:[A-Za-z_$][\w$]*,loadedNestedMemoryPaths:[A-Za-z_$][\w$]*/,
+      `${release.version}: clear-conversation state input`,
+    )
+    assert.match(
+      bundle,
+      /\.clear\(\),[A-Za-z_$][\w$]*\?\.clear\(\),[A-Za-z_$][\w$]*\?\.clear\(\),[A-Za-z_$][\w$]*\?\.clear\(\)/,
+      `${release.version}: clear-conversation state reset`,
+    )
+    assert.match(
+      bundle,
+      /discoveredSkillNames=new Set;discoveredRemoteSkills=new Map;loadedNestedMemoryPaths=new Set/,
+      `${release.version}: SDK conversation state allocation`,
+    )
+  }
+})
+
+test('source retains remote-skill state across contexts and clears', () => {
+  includesAll(source('src/Tool.ts'), [
+    'discoveredRemoteSkills?: Map<string, unknown>',
+  ])
+  includesAll(source('src/utils/forkedAgent.ts'), [
+    'discoveredRemoteSkills: parentContext.discoveredRemoteSkills ?? new Map<string, unknown>()',
+  ])
+  includesAll(source('src/commands/clear/conversation.ts'), [
+    'discoveredRemoteSkills?: Map<string, unknown>',
+    'discoveredRemoteSkills?.clear()',
+  ])
+  includesAll(source('src/screens/REPL.tsx'), [
+    'const discoveredRemoteSkillsRef = useRef(new Map<string, unknown>());',
+    'discoveredRemoteSkills: discoveredRemoteSkillsRef.current',
+  ])
+  includesAll(source('src/QueryEngine.ts'), [
+    'private discoveredRemoteSkills = new Map<string, unknown>()',
+    'discoveredRemoteSkills: this.discoveredRemoteSkills',
+  ])
+})

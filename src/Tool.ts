@@ -298,6 +298,8 @@ export type ToolUseContext = {
   dynamicSkillDirTriggers?: Set<string>
   /** Skill names surfaced via skill_discovery this session. Telemetry only (feeds was_discovered). */
   discoveredSkillNames?: Set<string>
+  /** Remote skills discovered for this conversation. */
+  discoveredRemoteSkills?: Map<string, unknown>
   /** Per-conversation persistent-memory selector cache and usage state. */
   memorySelector?: MemorySelector
   /** Session-local aliases for exact Bash command reruns. */

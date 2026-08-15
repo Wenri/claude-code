@@ -2163,6 +2163,7 @@ export function REPL({
   // before onQuery builds its own context, and discovery on turn N must
   // still attribute a SkillTool call on turn N+k. Cleared in clearConversation.
   const discoveredSkillNamesRef = useRef(new Set<string>());
+  const discoveredRemoteSkillsRef = useRef(new Map<string, unknown>());
   const bashRerunAliasesRef = useRef(createBashRerunAliases());
   // Session-level dedup for nested_memory CLAUDE.md attachments.
   // readFileState is a 100-entry LRU; once it evicts a CLAUDE.md path,
@@ -2732,6 +2733,7 @@ export function REPL({
       memorySelector: memorySelectorRef.current,
       dynamicSkillDirTriggers: new Set<string>(),
       discoveredSkillNames: discoveredSkillNamesRef.current,
+      discoveredRemoteSkills: discoveredRemoteSkillsRef.current,
       bashRerunAliases: bashRerunAliasesRef.current,
       setResponseLength,
       pushApiMetricsEntry: "external" === 'ant' ? (ttftMs: number) => {
@@ -3315,6 +3317,7 @@ export function REPL({
           setMessages,
           readFileState: readFileState.current,
           discoveredSkillNames: discoveredSkillNamesRef.current,
+          discoveredRemoteSkills: discoveredRemoteSkillsRef.current,
           loadedNestedMemoryPaths: loadedNestedMemoryPathsRef.current,
           memorySelector: memorySelectorRef.current,
           getAppState: () => store.getState(),
@@ -5192,6 +5195,7 @@ export function REPL({
                 setMessages,
                 readFileState: readFileState.current,
                 discoveredSkillNames: discoveredSkillNamesRef.current,
+                discoveredRemoteSkills: discoveredRemoteSkillsRef.current,
                 loadedNestedMemoryPaths: loadedNestedMemoryPathsRef.current,
                 memorySelector: memorySelectorRef.current,
                 getAppState: () => store.getState(),
