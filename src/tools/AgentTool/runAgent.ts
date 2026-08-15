@@ -5,6 +5,11 @@ import uniqBy from 'lodash-es/uniqBy.js'
 import { logForDebugging } from 'src/utils/debug.js'
 import { getProjectRoot, getSessionId } from '../../bootstrap/state.js'
 import { getCommand, getSkillToolCommands, hasCommand } from '../../commands.js'
+import { TASK_CREATE_TOOL_NAME } from '../TaskCreateTool/constants.js'
+import { TASK_GET_TOOL_NAME } from '../TaskGetTool/constants.js'
+import { TASK_LIST_TOOL_NAME } from '../TaskListTool/constants.js'
+import { TASK_UPDATE_TOOL_NAME } from '../TaskUpdateTool/constants.js'
+import { TODO_WRITE_TOOL_NAME } from '../TodoWriteTool/constants.js'
 import {
   DEFAULT_AGENT_PROMPT,
   enhanceSystemPromptWithEnvDetails,
@@ -87,6 +92,19 @@ import type { ContentReplacementState } from '../../utils/toolResultStorage.js'
 import { createAgentId } from '../../utils/uuid.js'
 import { resolveAgentTools } from './agentToolUtils.js'
 import { type AgentDefinition, isBuiltInAgent } from './loadAgentsDir.js'
+
+const SUBAGENT_TASK_TOOL_NAMES = new Set([
+  TODO_WRITE_TOOL_NAME,
+  TASK_CREATE_TOOL_NAME,
+  TASK_UPDATE_TOOL_NAME,
+  TASK_GET_TOOL_NAME,
+  TASK_LIST_TOOL_NAME,
+])
+
+function shouldFilterSubagentTaskTools(isTeammate: boolean): boolean {
+  if (isTeammate) return false
+  return getFeatureValue_CACHED_MAY_BE_STALE('tengu_shale_finch', false)
+}
 
 /**
  * Initialize agent-specific MCP servers
@@ -283,6 +301,7 @@ export async function* runAgent({
   resumePersistedCount,
   transcriptSubdir,
   onQueryProgress,
+  isTeammate = false,
 }: {
   agentDefinition: AgentDefinition
   promptMessages: Message[]
@@ -349,6 +368,8 @@ export async function* runAgent({
    * during long single-block streams (e.g. thinking) where no assistant
    * message is yielded for >60s. */
   onQueryProgress?: () => void
+  /** In-process teammates retain task-management tools when shale-finch is enabled. */
+  isTeammate?: boolean
 }): AsyncGenerator<Message, void> {
   // Track subagent usage for feature discovery
 
@@ -520,9 +541,15 @@ export async function* runAgent({
     }
   }
 
-  const resolvedTools = useExactTools
+  const baseResolvedTools = useExactTools
     ? availableTools
     : resolveAgentTools(agentDefinition, availableTools, isAsync).resolvedTools
+  const resolvedTools =
+    !useExactTools && shouldFilterSubagentTaskTools(isTeammate)
+      ? baseResolvedTools.filter(
+          tool => !SUBAGENT_TASK_TOOL_NAMES.has(tool.name),
+        )
+      : baseResolvedTools
 
   const additionalWorkingDirectories = Array.from(
     appState.toolPermissionContext.additionalWorkingDirectories.keys(),

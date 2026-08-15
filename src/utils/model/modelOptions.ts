@@ -1,10 +1,12 @@
 // biome-ignore-all assist/source/organizeImports: ANT-ONLY import markers must not be reordered
 import { getInitialMainLoopModel } from '../../bootstrap/state.js'
 import {
+  getSubscriptionType,
   isClaudeAISubscriber,
   isMaxSubscriber,
   isTeamPremiumSubscriber,
 } from '../auth.js'
+import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
 import { getModelStrings } from './modelStrings.js'
 import {
   COST_TIER_3_15,
@@ -240,11 +242,22 @@ function getHaikuOption(): ModelOption {
     : getHaiku35Option()
 }
 
+function getOpusUsageSuffix(): string {
+  if (
+    getSubscriptionType() === 'pro' &&
+    getFeatureValue_CACHED_MAY_BE_STALE('tengu_gypsum_kite', false)
+  ) {
+    return ' · ~2× usage vs Sonnet'
+  }
+  return ''
+}
+
 function getMaxOpusOption(fastMode = false): ModelOption {
+  const is3P = !isDirectAnthropicAPIProvider()
   return {
     value: 'opus',
     label: 'Opus',
-    description: 'Opus 4.7 · Most capable for complex work',
+    description: `Opus 4.7 · Most capable for complex work${getOpusUsageSuffix()}${is3P || !fastMode ? '' : ` · ${formatModelPricing(COST_TIER_5_25)}`}`,
   }
 }
 
@@ -259,11 +272,13 @@ export function getMaxSonnet46_1MOption(): ModelOption {
 }
 
 export function getMaxOpus47_1MOption(): ModelOption {
+  const is3P = !isDirectAnthropicAPIProvider()
   const billingInfo = isClaudeAISubscriber() ? ' · Billed as extra usage' : ''
+  const shouldShowPricing = billingInfo !== '' && !is3P
   return {
     value: 'opus[1m]',
-    label: 'Opus (1M context)',
-    description: `Opus 4.7 with 1M context${billingInfo}`,
+    label: 'Opus 4.7 (1M context)',
+    description: `Opus 4.7 with 1M context${getOpusUsageSuffix()}${billingInfo}${shouldShowPricing ? ` · ${formatModelPricing(COST_TIER_5_25)}` : ''}`,
   }
 }
 
@@ -271,8 +286,8 @@ function getMergedOpus1MOption(fastMode = false): ModelOption {
   const is3P = !isDirectAnthropicAPIProvider()
   return {
     value: is3P ? getModelStrings().opus47 + '[1m]' : 'opus[1m]',
-    label: 'Opus (1M context)',
-    description: 'Opus 4.7 with 1M context · Most capable for complex work',
+    label: 'Opus 4.7 (1M context)',
+    description: `Opus 4.7 with 1M context · Most capable for complex work${getOpusUsageSuffix()}${is3P || !fastMode ? '' : ` · ${formatModelPricing(COST_TIER_5_25)}`}`,
     descriptionForModel:
       'Opus 4.7 with 1M context - most capable for complex work',
   }

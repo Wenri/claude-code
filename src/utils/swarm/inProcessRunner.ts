@@ -1219,6 +1219,7 @@ export async function runInProcessTeammate(
             availableTools: toolUseContext.options.tools,
             allowedTools,
             contentReplacementState: teammateReplacementState,
+            isTeammate: true,
           })) {
             // Check lifecycle abort first (kills whole teammate)
             if (abortController.signal.aborted) {
