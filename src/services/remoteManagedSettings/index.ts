@@ -31,7 +31,8 @@ import {
   SettingsSchema,
 } from '../../utils/settings/types.js'
 import { sleep } from '../../utils/sleep.js'
-import { jsonStringify } from '../../utils/slowOperations.js'
+import { clone, jsonStringify } from '../../utils/slowOperations.js'
+import { filterInvalidSettingsEntries } from '../../utils/settings/validation.js'
 import { getClaudeCodeUserAgent } from '../../utils/userAgent.js'
 import { getRetryDelay } from '../api/withRetry.js'
 import {
@@ -330,8 +331,11 @@ async function fetchRemoteManagedSettings(
       }
     }
 
-    // Full validation of settings structure
-    const settingsValidation = SettingsSchema().safeParse(parsed.data.settings)
+    // Full validation of settings structure. Malformed hook entries are
+    // ignored without invalidating unrelated remote settings.
+    const sanitizedSettings = clone(parsed.data.settings)
+    filterInvalidSettingsEntries(sanitizedSettings, 'remote managed settings')
+    const settingsValidation = SettingsSchema().safeParse(sanitizedSettings)
     if (!settingsValidation.success) {
       logForDebugging(
         `Remote settings: Settings validation failed - ${settingsValidation.error.message}`,
@@ -345,7 +349,7 @@ async function fetchRemoteManagedSettings(
     logForDebugging('Remote settings: Fetched successfully')
     return {
       success: true,
-      settings: settingsValidation.data,
+      settings: parsed.data.settings,
       checksum: parsed.data.checksum,
     }
   } catch (error) {
@@ -468,9 +472,23 @@ async function fetchAndLoadRemoteManagedSettings(): Promise<RemoteManagedSetting
 
     if (hasContent) {
       // Check for dangerous settings changes before applying
+      const sanitizedCachedSettings = cachedSettings
+        ? clone(cachedSettings)
+        : cachedSettings
+      if (sanitizedCachedSettings) {
+        filterInvalidSettingsEntries(
+          sanitizedCachedSettings,
+          'remote managed settings',
+        )
+      }
+      const sanitizedNewSettings = clone(newSettings)
+      filterInvalidSettingsEntries(
+        sanitizedNewSettings,
+        'remote managed settings',
+      )
       const securityResult = await checkManagedSettingsSecurity(
-        cachedSettings,
-        newSettings,
+        sanitizedCachedSettings,
+        sanitizedNewSettings,
       )
       if (!handleSecurityCheckResult(securityResult)) {
         // User rejected - don't apply settings, return cached or null

@@ -45,7 +45,7 @@ const MODEL_IMAGE_LIMIT_OVERRIDES: Record<
   string,
   Partial<ImageLimits>
 > = {
-  'claude-opus-4-7': { maxWidth: 2576, maxHeight: 2576 },
+  'claude-opus-4-7': { maxWidth: 2000, maxHeight: 2000 },
 }
 
 /** Resolve the image envelope for the request model and current API endpoint. */

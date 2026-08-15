@@ -357,6 +357,7 @@ export async function runBridgeLoop(
   let generalErrorStart: number | null = null
   let lastPollErrorTime: number | null = null
   let statusUpdateTimer: ReturnType<typeof setInterval> | null = null
+  let idleStatusRendered = false
   // Set by BridgeFatalError and give-up paths so the shutdown block can
   // skip the resume message (resume is impossible after env expiry/auth
   // failure/sustained connection errors).
@@ -419,9 +420,14 @@ export async function runBridgeLoop(
     }
 
     if (activeSessions.size === 0) {
-      logger.updateIdleStatus()
+      if (!idleStatusRendered) {
+        idleStatusRendered = true
+        logger.updateIdleStatus()
+      }
       return
     }
+
+    idleStatusRendered = false
 
     // Show the most recently started session that is still actively working.
     // Sessions whose current activity is 'result' or 'error' are between
@@ -656,6 +662,7 @@ export async function runBridgeLoop(
         logEvent('tengu_bridge_reconnected', {
           disconnected_ms: disconnectedMs,
         })
+        idleStatusRendered = false
       }
 
       connBackoff = 0

@@ -781,13 +781,20 @@ function getCustomTips(): Tip[] {
   }))
 }
 
+export function shouldExcludeDefaultSpinnerTips(
+  override: { excludeDefault?: boolean; tips: string[] } | undefined,
+): boolean {
+  if (!override?.excludeDefault) return false
+  return override.tips.length > 0
+}
+
 export async function getRelevantTips(context?: TipContext): Promise<Tip[]> {
   const settings = getInitialSettings()
   const override = settings.spinnerTipsOverride
   const customTips = getCustomTips()
 
   // If excludeDefault is true and there are custom tips, skip built-in tips entirely
-  if (override?.excludeDefault && customTips.length > 0) {
+  if (shouldExcludeDefaultSpinnerTips(override)) {
     return customTips
   }
 

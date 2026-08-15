@@ -50,7 +50,7 @@ import {
 } from './settingsCache.js'
 import { type SettingsJson, SettingsSchema } from './types.js'
 import {
-  filterInvalidPermissionRules,
+  filterInvalidSettingsEntries,
   formatZodError,
   type SettingsWithErrors,
   type ValidationError,
@@ -257,7 +257,7 @@ function parseSettingsFileUncached(path: string): {
 
     // Filter invalid permission rules before schema validation so one bad
     // rule doesn't cause the entire settings file to be rejected.
-    const ruleWarnings = filterInvalidPermissionRules(data, path)
+    const ruleWarnings = filterInvalidSettingsEntries(data, path)
 
     const result = SettingsSchema().safeParse(data)
 
@@ -283,7 +283,7 @@ function parseParentManagedSettings(): {
   }
 
   const clonedSettings = clone(parentSettings)
-  const ruleWarnings = filterInvalidPermissionRules(
+  const ruleWarnings = filterInvalidSettingsEntries(
     clonedSettings,
     'parent managed settings',
   )
@@ -301,6 +301,46 @@ function parseParentManagedSettings(): {
   return Object.keys(result.data).length > 0
     ? { settings: result.data, errors: ruleWarnings }
     : { settings: null, errors: ruleWarnings }
+}
+
+function parseRemoteManagedSettingsFromCache(): SettingsJson | null {
+  const remoteSettings = getRemoteManagedSettingsSyncFromCache()
+  if (!remoteSettings || Object.keys(remoteSettings).length === 0) return null
+
+  const sanitizedRemoteSettings = clone(remoteSettings)
+  filterInvalidSettingsEntries(
+    sanitizedRemoteSettings,
+    'remote managed settings',
+  )
+  const result = SettingsSchema().safeParse(sanitizedRemoteSettings)
+  return result.success && Object.keys(result.data).length > 0
+    ? result.data
+    : null
+}
+
+function parseFlagSettingsInline(): {
+  settings: SettingsJson | null
+  errors: ValidationError[]
+} {
+  const inlineSettings = getFlagSettingsInline()
+  if (!inlineSettings) return { settings: null, errors: [] }
+
+  const sanitizedInlineSettings = clone(inlineSettings)
+  const warnings = filterInvalidSettingsEntries(
+    sanitizedInlineSettings,
+    'SDK inline settings',
+  )
+  const result = SettingsSchema().safeParse(sanitizedInlineSettings)
+  if (!result.success) {
+    return {
+      settings: null,
+      errors: [
+        ...warnings,
+        ...formatZodError(result.error, 'SDK inline settings'),
+      ],
+    }
+  }
+  return { settings: result.data, errors: warnings }
 }
 
 /**
@@ -394,10 +434,8 @@ function getSettingsForSourceUncached(
 ): SettingsJson | null {
   // For policySettings: first source wins (remote > HKLM/plist > file > parent > HKCU)
   if (source === 'policySettings') {
-    const remoteSettings = getRemoteManagedSettingsSyncFromCache()
-    if (remoteSettings && Object.keys(remoteSettings).length > 0) {
-      return remoteSettings
-    }
+    const remoteSettings = parseRemoteManagedSettingsFromCache()
+    if (remoteSettings) return remoteSettings
 
     const mdmResult = getMdmSettings()
     if (Object.keys(mdmResult.settings).length > 0) {
@@ -429,16 +467,13 @@ function getSettingsForSourceUncached(
 
   // For flagSettings, merge in any inline settings set via the SDK
   if (source === 'flagSettings') {
-    const inlineSettings = getFlagSettingsInline()
+    const { settings: inlineSettings } = parseFlagSettingsInline()
     if (inlineSettings) {
-      const parsed = SettingsSchema().safeParse(inlineSettings)
-      if (parsed.success) {
-        return mergeWith(
-          fileSettings || {},
-          parsed.data,
-          settingsMergeCustomizer,
-        ) as SettingsJson
-      }
+      return mergeWith(
+        fileSettings || {},
+        inlineSettings,
+        settingsMergeCustomizer,
+      ) as SettingsJson
     }
   }
 
@@ -459,10 +494,7 @@ export function getPolicySettingsOrigin():
   | 'hkcu'
   | null {
   // 1. Remote (highest)
-  const remoteSettings = getRemoteManagedSettingsSyncFromCache()
-  if (remoteSettings && Object.keys(remoteSettings).length > 0) {
-    return 'remote'
-  }
+  if (parseRemoteManagedSettingsFromCache()) return 'remote'
 
   // 2. Admin-only MDM (HKLM / macOS plist)
   const mdmResult = getMdmSettings()
@@ -768,7 +800,14 @@ function loadSettingsFromDisk(): SettingsWithErrors {
         // 1. Remote (highest priority)
         const remoteSettings = getRemoteManagedSettingsSyncFromCache()
         if (remoteSettings && Object.keys(remoteSettings).length > 0) {
-          const result = SettingsSchema().safeParse(remoteSettings)
+          const sanitizedRemoteSettings = clone(remoteSettings)
+          policyErrors.push(
+            ...filterInvalidSettingsEntries(
+              sanitizedRemoteSettings,
+              'remote managed settings',
+            ),
+          )
+          const result = SettingsSchema().safeParse(sanitizedRemoteSettings)
           if (result.success) {
             policySettings = result.data
           } else {
@@ -865,13 +904,20 @@ function loadSettingsFromDisk(): SettingsWithErrors {
 
       // For flagSettings, also merge any inline settings set via the SDK
       if (source === 'flagSettings') {
-        const inlineSettings = getFlagSettingsInline()
-        if (inlineSettings) {
-          const parsed = SettingsSchema().safeParse(inlineSettings)
-          if (parsed.success) {
+        const { settings: inlineSettings, errors: inlineErrors } =
+          parseFlagSettingsInline()
+        if (inlineSettings || inlineErrors.length > 0) {
+          for (const warning of inlineErrors) {
+            const errorKey = `${warning.file}:${warning.path}:${warning.message}`
+            if (!seenErrors.has(errorKey)) {
+              seenErrors.add(errorKey)
+              allErrors.push(warning)
+            }
+          }
+          if (inlineSettings) {
             mergedSettings = mergeWith(
               mergedSettings,
-              parsed.data,
+              inlineSettings,
               settingsMergeCustomizer,
             )
           }
