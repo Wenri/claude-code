@@ -89,6 +89,17 @@ export type SpeculationState =
 
 export const IDLE_SPECULATION_STATE: SpeculationState = { status: 'idle' }
 
+export type MemoryEvaluation = {
+  classification: 'helped' | 'harmed' | 'neutral' | string
+  evidence_type?: string
+  memory_impact_summary?: string | null
+}
+
+export type LastMemoryEvaluation = {
+  assistantUuid: string
+  evaluation: MemoryEvaluation
+}
+
 export type FooterItem =
   | 'tasks'
   | 'tmux'
@@ -378,6 +389,7 @@ export type AppState = DeepImmutable<{
     summary: string
     paths: string[]
   }>
+  lastMemoryEvaluation?: LastMemoryEvaluation | null
   memoryWriteQueue: MemoryWriteSurveyRecord[]
   // Worker sandbox permission requests (leader side) - for network access approval
   workerSandboxPermissions: {

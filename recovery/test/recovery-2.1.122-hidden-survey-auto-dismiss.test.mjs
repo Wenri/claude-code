@@ -113,7 +113,7 @@ test('source auto-dismiss closes only an open survey and reports memory timeout'
 
   for (const fragment of [
     'const AUTO_DISMISS_AFTER_MS = 60_000',
-    "event_type: 'timeout'",
+    "logSurveyEvent('timeout', appearanceId_0)",
     "survey_type: 'memory'",
     'autoDismissAfterMs: AUTO_DISMISS_AFTER_MS',
     'onAutoDismiss',

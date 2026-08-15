@@ -2,104 +2,75 @@ import { c as _c } from "react/compiler-runtime";
 import React from 'react';
 import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEvent } from 'src/services/analytics/index.js';
 import { Box, Text } from '../../ink.js';
+import { usePreDispatch } from '../../keybindings/useKeybinding.js';
+import type { MemoryEvaluation } from '../../state/AppStateStore.js';
+import { KeyboardShortcutHint } from '../design-system/KeyboardShortcutHint.js';
 import { FeedbackSurveyView, isValidResponseInput } from './FeedbackSurveyView.js';
+import { MemoryEvaluationSurveyView } from './MemoryEvaluationSurveyView.js';
 import type { TranscriptShareResponse } from './TranscriptSharePrompt.js';
 import { TranscriptSharePrompt } from './TranscriptSharePrompt.js';
 import { useDebouncedDigitInput } from './useDebouncedDigitInput.js';
 import type { FeedbackSurveyResponse } from './utils.js';
 type Props = {
-  state: 'closed' | 'open' | 'thanks' | 'transcript_prompt' | 'submitting' | 'submitted';
+  state: 'closed' | 'open' | 'pending' | 'thanks' | 'transcript_prompt' | 'submitting' | 'submitted';
   lastResponse: FeedbackSurveyResponse | null;
   handleSelect: (selected: FeedbackSurveyResponse) => void;
+  handleUndo?: () => void;
   handleTranscriptSelect?: (selected: TranscriptShareResponse) => void;
   inputValue: string;
   setInputValue: (value: string) => void;
   onRequestFeedback?: () => void;
   message?: string;
+  memoryEvaluation?: MemoryEvaluation;
+  showNotSure?: boolean;
 };
-export function FeedbackSurvey(t0) {
-  const $ = _c(16);
-  const {
-    state,
-    lastResponse,
-    handleSelect,
-    handleTranscriptSelect,
-    inputValue,
-    setInputValue,
-    onRequestFeedback,
-    message
-  } = t0;
-  if (state === "closed") {
+export function FeedbackSurvey({
+  state,
+  lastResponse,
+  handleSelect,
+  handleUndo,
+  handleTranscriptSelect,
+  inputValue,
+  setInputValue,
+  onRequestFeedback,
+  message,
+  memoryEvaluation,
+  showNotSure = false
+}: Props): React.ReactNode {
+  if (state === 'closed') {
     return null;
   }
-  if (state === "thanks") {
-    let t1;
-    if ($[0] !== inputValue || $[1] !== lastResponse || $[2] !== onRequestFeedback || $[3] !== setInputValue) {
-      t1 = <FeedbackSurveyThanks lastResponse={lastResponse} inputValue={inputValue} setInputValue={setInputValue} onRequestFeedback={onRequestFeedback} />;
-      $[0] = inputValue;
-      $[1] = lastResponse;
-      $[2] = onRequestFeedback;
-      $[3] = setInputValue;
-      $[4] = t1;
-    } else {
-      t1 = $[4];
+  if (state === 'pending') {
+    if (!handleUndo) {
+      return null;
     }
-    return t1;
+    return <FeedbackSurveyPending lastResponse={lastResponse} onUndo={handleUndo} />;
   }
-  if (state === "submitted") {
-    let t1;
-    if ($[5] === Symbol.for("react.memo_cache_sentinel")) {
-      t1 = <Box marginTop={1}><Text color="success">{"\u2713"} Thanks for sharing your transcript!</Text></Box>;
-      $[5] = t1;
-    } else {
-      t1 = $[5];
-    }
-    return t1;
+  if (state === 'thanks') {
+    return <FeedbackSurveyThanks lastResponse={lastResponse} inputValue={inputValue} setInputValue={setInputValue} onRequestFeedback={onRequestFeedback} />;
   }
-  if (state === "submitting") {
-    let t1;
-    if ($[6] === Symbol.for("react.memo_cache_sentinel")) {
-      t1 = <Box marginTop={1}><Text dimColor={true}>Sharing transcript{"\u2026"}</Text></Box>;
-      $[6] = t1;
-    } else {
-      t1 = $[6];
-    }
-    return t1;
+  if (state === 'submitted') {
+    return <Box marginTop={1}><Text color="success">✓ Thanks for sharing your transcript!</Text></Box>;
   }
-  if (state === "transcript_prompt") {
+  if (state === 'submitting') {
+    return <Box marginTop={1}><Text dimColor>Sharing transcript…</Text></Box>;
+  }
+  if (state === 'transcript_prompt') {
     if (!handleTranscriptSelect) {
       return null;
     }
-    if (inputValue && !["1", "2", "3"].includes(inputValue)) {
+    if (inputValue && !["1", "2", "3"].includes(inputValue.toLowerCase())) {
       return null;
     }
-    let t1;
-    if ($[7] !== handleTranscriptSelect || $[8] !== inputValue || $[9] !== setInputValue) {
-      t1 = <TranscriptSharePrompt onSelect={handleTranscriptSelect} inputValue={inputValue} setInputValue={setInputValue} />;
-      $[7] = handleTranscriptSelect;
-      $[8] = inputValue;
-      $[9] = setInputValue;
-      $[10] = t1;
-    } else {
-      t1 = $[10];
-    }
-    return t1;
+    return <TranscriptSharePrompt onSelect={handleTranscriptSelect} inputValue={inputValue} setInputValue={setInputValue} />;
   }
-  if (inputValue && !isValidResponseInput(inputValue)) {
+  if (inputValue && !isValidResponseInput(inputValue, showNotSure)) {
     return null;
   }
-  let t1;
-  if ($[11] !== handleSelect || $[12] !== inputValue || $[13] !== message || $[14] !== setInputValue) {
-    t1 = <FeedbackSurveyView onSelect={handleSelect} inputValue={inputValue} setInputValue={setInputValue} message={message} />;
-    $[11] = handleSelect;
-    $[12] = inputValue;
-    $[13] = message;
-    $[14] = setInputValue;
-    $[15] = t1;
-  } else {
-    t1 = $[15];
+  if (memoryEvaluation) {
+    return <MemoryEvaluationSurveyView evaluation={memoryEvaluation} onSelect={handleSelect} inputValue={inputValue} setInputValue={setInputValue} />;
   }
-  return t1;
+  return <FeedbackSurveyView onSelect={handleSelect} inputValue={inputValue} setInputValue={setInputValue} message={message} showNotSure={showNotSure} />;
 }
 type ThanksProps = {
   lastResponse: FeedbackSurveyResponse | null;
@@ -107,6 +78,28 @@ type ThanksProps = {
   setInputValue: (value: string) => void;
   onRequestFeedback?: () => void;
 };
+const RESPONSE_LABELS: Partial<Record<FeedbackSurveyResponse, string>> = {
+  bad: 'Bad',
+  fine: 'Fine',
+  good: 'Good',
+  not_sure: 'Unsure'
+};
+function FeedbackSurveyPending({
+  lastResponse,
+  onUndo
+}: {
+  lastResponse: FeedbackSurveyResponse | null;
+  onUndo: () => void;
+}): React.ReactNode {
+  usePreDispatch((_input, key) => {
+    if (key.escape) {
+      onUndo();
+      return true;
+    }
+  });
+  const label = lastResponse && lastResponse !== 'dismissed' ? RESPONSE_LABELS[lastResponse] : '';
+  return <Box marginTop={1}><Text dimColor>Feedback: <Text color="text">{label}</Text>{' · '}<KeyboardShortcutHint shortcut="Esc" action="undo" /></Text></Box>;
+}
 const isFollowUpDigit = (char: string): char is '1' => char === '1';
 function FeedbackSurveyThanks(t0) {
   const $ = _c(12);
@@ -141,6 +134,7 @@ function FeedbackSurveyThanks(t0) {
       isValidDigit: isFollowUpDigit,
       enabled: t1,
       once: true,
+      mountDelayMs: 0,
       onDigit: t2
     };
     $[3] = inputValue;

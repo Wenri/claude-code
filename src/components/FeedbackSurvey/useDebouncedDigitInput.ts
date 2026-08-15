@@ -1,11 +1,11 @@
 import { useEffect, useRef } from 'react'
-import { normalizeFullWidthDigits } from '../../utils/stringUtils.js'
 
 // Delay before accepting a digit as a response, to prevent accidental
 // submissions when users start messages with numbers (e.g., numbered lists).
 // Short enough to feel instant for intentional presses, long enough to
 // cancel when the user types more characters.
 const DEFAULT_DEBOUNCE_MS = 400
+const DEFAULT_MOUNT_DELAY_MS = 600
 
 /**
  * Detects when the user types a single valid digit into the prompt input,
@@ -23,6 +23,7 @@ export function useDebouncedDigitInput<T extends string = string>({
   enabled = true,
   once = false,
   debounceMs = DEFAULT_DEBOUNCE_MS,
+  mountDelayMs = DEFAULT_MOUNT_DELAY_MS,
 }: {
   inputValue: string
   setInputValue: (value: string) => void
@@ -31,10 +32,18 @@ export function useDebouncedDigitInput<T extends string = string>({
   enabled?: boolean
   once?: boolean
   debounceMs?: number
+  mountDelayMs?: number
 }): void {
   const initialInputValue = useRef(inputValue)
   const hasTriggeredRef = useRef(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const mountedAtRef = useRef<number | null>(enabled ? Date.now() : null)
+  const wasEnabledRef = useRef(enabled)
+
+  if (enabled && !wasEnabledRef.current) {
+    mountedAtRef.current = Date.now()
+  }
+  wasEnabledRef.current = enabled
 
   // Latest-ref pattern so callers can pass inline callbacks without causing
   // the effect to re-run (which would reset the debounce timer every render).
@@ -51,23 +60,33 @@ export function useDebouncedDigitInput<T extends string = string>({
       debounceRef.current = null
     }
 
-    if (inputValue !== initialInputValue.current) {
-      const lastChar = normalizeFullWidthDigits(inputValue.slice(-1))
-      if (callbacksRef.current.isValidDigit(lastChar)) {
-        const trimmed = inputValue.slice(0, -1)
+    if (
+      mountedAtRef.current !== null &&
+      Date.now() - mountedAtRef.current < mountDelayMs
+    ) {
+      return
+    }
+
+    if (inputValue !== initialInputValue.current && inputValue.length === 1) {
+      const normalizedInput = inputValue.normalize('NFKC')
+      if (callbacksRef.current.isValidDigit(normalizedInput)) {
         debounceRef.current = setTimeout(
-          (debounceRef, hasTriggeredRef, callbacksRef, trimmed, lastChar) => {
+          (
+            debounceRef,
+            hasTriggeredRef,
+            callbacksRef,
+            normalizedInput,
+          ) => {
             debounceRef.current = null
             hasTriggeredRef.current = true
-            callbacksRef.current.setInputValue(trimmed)
-            callbacksRef.current.onDigit(lastChar)
+            callbacksRef.current.setInputValue('')
+            callbacksRef.current.onDigit(normalizedInput)
           },
           debounceMs,
           debounceRef,
           hasTriggeredRef,
           callbacksRef,
-          trimmed,
-          lastChar,
+          normalizedInput,
         )
       }
     }
@@ -78,5 +97,5 @@ export function useDebouncedDigitInput<T extends string = string>({
         debounceRef.current = null
       }
     }
-  }, [inputValue, enabled, once, debounceMs])
+  }, [inputValue, enabled, once, debounceMs, mountDelayMs])
 }
