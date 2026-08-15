@@ -12,7 +12,7 @@
  */
 
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js'
-import { isEnvTruthy } from '../utils/envUtils.js'
+import { isEnvDefinedFalsy, isEnvTruthy } from '../utils/envUtils.js'
 
 export const MEMORY_TYPES = [
   'user',
@@ -36,7 +36,10 @@ export const MEMORY_TYPE_SUMMARIES: Record<MemoryType, string> = {
 }
 
 export function isLeanMemoryPromptEnabled(): boolean {
-  if (isEnvTruthy(process.env.CLAUDE_CODE_LEAN_PROMPT)) return true
+  if (isEnvTruthy(process.env.CLAUDE_CODE_SIMPLE_SYSTEM_PROMPT)) return true
+  if (isEnvDefinedFalsy(process.env.CLAUDE_CODE_SIMPLE_SYSTEM_PROMPT)) {
+    return false
+  }
   return getFeatureValue_CACHED_MAY_BE_STALE('tengu_ochre_finch', false)
 }
 
