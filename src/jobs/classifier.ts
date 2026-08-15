@@ -34,7 +34,7 @@ import {
   writeJobState,
   type JobState,
 } from '../daemon/jobs.js'
-import { sendRendezvous } from '../daemon/rendezvous.js'
+import { sendRv } from '../daemon/rendezvous.js'
 import { sleep } from '../utils/sleep.js'
 
 export const LINK_SCAN_MAX_BYTES = 4_194_304
@@ -788,7 +788,7 @@ async function writeStateAndNotify(
   patch: Record<string, unknown>,
 ): Promise<void> {
   await writeJobState(jobDir, state)
-  if (Object.keys(patch).length) sendRendezvous({ type: 'state', patch })
+  if (Object.keys(patch).length) sendRv({ type: 'state', patch })
 }
 
 export function markTurnActive(

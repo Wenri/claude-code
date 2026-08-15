@@ -35,7 +35,7 @@ function handleLine(line: string): void {
   if (!message || typeof message !== 'object' || 'role' in message) return
   const value = message as Record<string, unknown>
   if (value.type === 'shutdown') {
-    sendRendezvous({ type: 'shutting-down' })
+    sendRv({ type: 'shutting-down' })
     const bridge = getReplBridgeHandle()
     const pending: Promise<unknown>[] = []
     if (bridge) {
@@ -87,7 +87,7 @@ async function markJobReadyAfterInkMount(): Promise<void> {
   ) {
     return
   }
-  sendRendezvous({
+  sendRv({
     type: 'state',
     patch: { state: 'running', tempo: 'idle' },
   })
@@ -144,7 +144,7 @@ export function stopRendezvousServer(): void {
   server = undefined
 }
 
-export function sendRendezvous(message: unknown): boolean {
+export function sendRv(message: unknown): boolean {
   if (!activeSocket || activeSocket.destroyed) return false
   try {
     activeSocket.write(`${JSON.stringify(message)}\n`)
@@ -153,3 +153,5 @@ export function sendRendezvous(message: unknown): boolean {
     return false
   }
 }
+
+export const sendRendezvous = sendRv
