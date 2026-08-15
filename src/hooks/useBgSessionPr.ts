@@ -1,7 +1,11 @@
 import { watch, type FSWatcher } from 'fs'
 import { useEffect, useState } from 'react'
-import { getIsRemoteMode, getSessionId } from '../bootstrap/state.js'
-import { getJobDir, readJobState } from '../daemon/jobs.js'
+import { getIsRemoteMode } from '../bootstrap/state.js'
+import {
+  getCurrentJobShort,
+  getJobDir,
+  readJobState,
+} from '../daemon/jobs.js'
 import { isBgSession } from '../utils/concurrentSessions.js'
 import { logForDebugging } from '../utils/debug.js'
 import { errorMessage } from '../utils/errors.js'
@@ -16,7 +20,7 @@ export function useBgSessionPr(): BgSessionPr | null {
 
   useEffect(() => {
     if (!isBgSession() || getIsRemoteMode()) return
-    const jobDir = getJobDir(getSessionId().slice(0, 8))
+    const jobDir = getJobDir(getCurrentJobShort())
     let watcher: FSWatcher | undefined
     const synchronize = async () => {
       const child = (await readJobState(jobDir))?.children?.[0]

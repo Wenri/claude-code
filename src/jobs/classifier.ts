@@ -25,6 +25,7 @@ import {
   updateSessionName,
 } from '../utils/concurrentSessions.js'
 import {
+  getCurrentJobShort,
   getJobDir,
   isSettledJob,
   isTerminalState,
@@ -1428,14 +1429,14 @@ export function ensurePermissionBridge(state: ClassifierJobState): void {
   state.permissionBridgeSubscribed = true
   permissionBlockSignal.subscribe(needs => {
     if (!isBgSession()) return
-    const short = getSessionId().slice(0, 8)
+    const short = getCurrentJobShort()
     state.bridgeWriteChain = state.bridgeWriteChain.then(() =>
       setPermissionBlock(short, needs).catch(() => {}),
     )
   })
   worktreeStateSignal.subscribe(worktree => {
     if (!isBgSession()) return
-    const short = getSessionId().slice(0, 8)
+    const short = getCurrentJobShort()
     state.bridgeWriteChain = state.bridgeWriteChain.then(() =>
       setWorktreeOwnership(short, worktree).catch(() => {}),
     )

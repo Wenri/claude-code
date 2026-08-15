@@ -1,6 +1,7 @@
 import { feature } from 'bun:bundle'
-import { getMainThreadAgentType, getSessionId } from '../bootstrap/state.js'
+import { getMainThreadAgentType } from '../bootstrap/state.js'
 import { getReplBridgeHandle } from '../bridge/replBridgeHandle.js'
+import { getCurrentJobShort } from '../daemon/jobs.js'
 import { getShortcutDisplay } from '../keybindings/shortcutFormat.js'
 import { isExtractModeActive } from '../memdir/paths.js'
 import {
@@ -217,7 +218,7 @@ export async function* handleStopHooks(
     const classification = jobClassifierModule!
       .classifyAndPush(
         classifierState,
-        getSessionId().slice(0, 8),
+        getCurrentJobShort(),
         mainThreadAgent?.agentType ?? 'bg',
         '',
         turnAssistantMessages,

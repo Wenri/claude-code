@@ -121,6 +121,7 @@ import {
 import { createBudgetTracker, checkTokenBudget } from './query/tokenBudget.js'
 import { count } from './utils/array.js'
 import { isBgSession } from './utils/concurrentSessions.js'
+import { getCurrentJobShort } from './daemon/jobs.js'
 import { expandPath } from './utils/path.js'
 import { isBetaTracingEnabled } from './utils/telemetry/sessionTracing.js'
 
@@ -185,7 +186,7 @@ function markClassifierApiFailure(
   void jobClassifier
     .markApiFailure(
       classifierJobState,
-      getSessionId().slice(0, 8),
+      getCurrentJobShort(),
       message.error,
       getAssistantMessageText(message) ?? message.errorDetails ?? '',
     )
@@ -207,7 +208,7 @@ function markClassifierTurnAborted(
   }
   jobClassifier.markTurnAborted(
     classifierJobState,
-    getSessionId().slice(0, 8),
+    getCurrentJobShort(),
   )
 }
 
@@ -1237,7 +1238,7 @@ async function* queryLoop(
       )
       void jobClassifier.markTurnActive(
         classifierJobState,
-        getSessionId().slice(0, 8),
+        getCurrentJobShort(),
         lastUserMessage?.type === 'user' &&
           typeof lastUserMessage.message.content === 'string'
           ? lastUserMessage.message.content
@@ -1538,6 +1539,20 @@ async function* queryLoop(
       // real response — hooks evaluating it create a death spiral:
       // error → hook blocking → retry → error → …
       if (lastMessage?.isApiErrorMessage) {
+        if (
+          jobClassifier &&
+          classifierJobState &&
+          isBgSession() &&
+          querySource.startsWith('repl_main_thread') &&
+          !toolUseContext.agentId
+        ) {
+          await jobClassifier.markApiFailure(
+            classifierJobState,
+            getCurrentJobShort(),
+            lastMessage.error,
+            getAssistantMessageText(lastMessage) ?? '',
+          )
+        }
         void executeStopFailureHooks(lastMessage, toolUseContext)
         void markClassifierApiFailure(toolUseContext, querySource, lastMessage)
         return { reason: 'completed' }

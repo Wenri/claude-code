@@ -6,6 +6,7 @@ import { getAdditionalDirectoriesForClaudeMd, setAdditionalDirectoriesForClaudeM
 import type { LocalJSXCommandContext } from '../../commands.js';
 import { MessageResponse } from '../../components/MessageResponse.js';
 import { AddWorkspaceDirectory } from '../../components/permissions/rules/AddWorkspaceDirectory.js';
+import { appendCurrentJobRespawnFlag } from '../../daemon/jobs.js';
 import { Box, Text } from '../../ink.js';
 import type { LocalJSXCommandOnDone } from '../../types/command.js';
 import { applyPermissionUpdate, persistPermissionUpdate } from '../../utils/permissions/PermissionUpdate.js';
@@ -94,6 +95,7 @@ export async function call(onDone: LocalJSXCommandOnDone, context: LocalJSXComma
     }
     SandboxManager.refreshConfig();
     void recordSessionAlias(path);
+    void appendCurrentJobRespawnFlag('--add-dir', path);
     let message: string;
     if (remember) {
       try {

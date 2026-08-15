@@ -1,7 +1,11 @@
 import { watch, type FSWatcher } from 'fs'
 import { useEffect } from 'react'
 import { getSessionId } from '../bootstrap/state.js'
-import { getJobDir, readJobState } from '../daemon/jobs.js'
+import {
+  getCurrentJobShort,
+  getJobDir,
+  readJobState,
+} from '../daemon/jobs.js'
 import { isBgSession, updateSessionName } from '../utils/concurrentSessions.js'
 import { logForDebugging } from '../utils/debug.js'
 import { errorMessage } from '../utils/errors.js'
@@ -36,7 +40,7 @@ export function useJobStateNameSync(onName?: (name: string) => void): void {
   useEffect(() => {
     if (isBgSession()) return
     const sessionId = getSessionId()
-    const jobDir = getJobDir(sessionId.slice(0, 8))
+    const jobDir = getJobDir(getCurrentJobShort())
     let watcher: FSWatcher | undefined
     const synchronize = async () => {
       const state = await readJobState(jobDir)

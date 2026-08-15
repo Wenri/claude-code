@@ -7,6 +7,8 @@ import instances from '../ink/instances.js'
 import { CURSOR_HOME, ERASE_SCREEN } from '../ink/termio/csi.js'
 import { runCleanupFunctions } from '../utils/cleanupRegistry.js'
 import { logForDebugging } from '../utils/debug.js'
+import { isENOENT } from '../utils/errors.js'
+import { logError } from '../utils/log.js'
 import { enqueue } from '../utils/messageQueueManager.js'
 import { readJobState, writeJobState } from './jobs.js'
 
@@ -68,6 +70,35 @@ function handleLine(line: string): void {
   }
 }
 
+async function markJobReadyAfterInkMount(): Promise<void> {
+  const jobDir = process.env.CLAUDE_JOB_DIR
+  if (!jobDir) return
+  const socket = activeSocket
+  for (let attempt = 0; !instances.has(process.stdout); attempt++) {
+    if (attempt >= 60 || activeSocket !== socket) return
+    await delay(500)
+  }
+  const state = await readJobState(jobDir)
+  if (
+    !state ||
+    state.tempo === 'active' ||
+    state.tempo === 'blocked' ||
+    !['starting', 'resuming', 'adopted', 'crashed'].includes(state.state)
+  ) {
+    return
+  }
+  sendRendezvous({
+    type: 'state',
+    patch: { state: 'running', tempo: 'idle' },
+  })
+  await writeJobState(jobDir, {
+    ...state,
+    state: 'running',
+    tempo: 'idle',
+    updatedAt: new Date().toISOString(),
+  })
+}
+
 export async function startRendezvousServer(): Promise<void> {
   const path = process.env.CLAUDE_BG_RENDEZVOUS_SOCK
   if (!path || server) return
@@ -76,6 +107,9 @@ export async function startRendezvousServer(): Promise<void> {
   server = createServer((socket) => {
     activeSocket?.destroy()
     activeSocket = socket
+    void markJobReadyAfterInkMount().catch(error => {
+      if (!isENOENT(error)) logError(error)
+    })
     socket.on('error', () => socket.destroy())
     socket.once('close', () => {
       if (activeSocket === socket) activeSocket = undefined

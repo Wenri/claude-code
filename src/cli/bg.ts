@@ -107,6 +107,13 @@ import {
 } from '../daemon/protocol.js'
 
 const BG_FLAGS = ['--bg', '--background']
+const CTRL_B = 2
+const CTRL_Z = 26
+const DETACH_KEY = 100
+const KITTY_CTRL_B = Buffer.from('\x1B[98;5u', 'latin1')
+const MODIFY_OTHER_KEYS_CTRL_B = Buffer.from('\x1B[27;5;98~', 'latin1')
+const KITTY_CTRL_Z = Buffer.from('\x1B[122;5u', 'latin1')
+const MODIFY_OTHER_KEYS_CTRL_Z = Buffer.from('\x1B[27;5;122~', 'latin1')
 
 function enterAttachedTerminal(decModes: number[] = []): string {
   return (
@@ -1156,6 +1163,18 @@ export function detachSuffixLength(buffer: Buffer): number {
   return 0
 }
 
+function bufferMatchesAt(
+  buffer: Buffer,
+  offset: number,
+  sequence: Buffer,
+): boolean {
+  return (
+    buffer.length - offset >= sequence.length &&
+    buffer.compare(sequence, 0, sequence.length, offset, offset + sequence.length) ===
+      0
+  )
+}
+
 async function attachTerminal(
   short: string,
   options: {
@@ -1230,11 +1249,30 @@ async function attachTerminal(
         if (inputPrefix) {
           inputPrefix = false
           if (index > start) socket.write(chunk.subarray(start, index))
-          if (byte === 100) return finish({ outcome: 'detached' })
-          socket.write(Buffer.from([2, byte]))
+          if (byte === DETACH_KEY) return finish({ outcome: 'detached' })
+          socket.write(Buffer.from([CTRL_B, byte]))
           start = index + 1
-        } else if (byte === 2) {
+          continue
+        }
+        if (
+          byte === CTRL_Z ||
+          bufferMatchesAt(chunk, index, KITTY_CTRL_Z) ||
+          bufferMatchesAt(chunk, index, MODIFY_OTHER_KEYS_CTRL_Z)
+        ) {
           if (index > start) socket.write(chunk.subarray(start, index))
+          return finish({ outcome: 'detached' })
+        }
+        const prefixLength =
+          byte === CTRL_B
+            ? 1
+            : bufferMatchesAt(chunk, index, KITTY_CTRL_B)
+              ? KITTY_CTRL_B.length
+              : bufferMatchesAt(chunk, index, MODIFY_OTHER_KEYS_CTRL_B)
+                ? MODIFY_OTHER_KEYS_CTRL_B.length
+                : 0
+        if (prefixLength) {
+          if (index > start) socket.write(chunk.subarray(start, index))
+          index += prefixLength - 1
           start = index + 1
           inputPrefix = true
         }

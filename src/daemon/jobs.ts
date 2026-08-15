@@ -11,11 +11,13 @@ import {
 } from 'fs/promises'
 import { basename, dirname, join } from 'path'
 import { z } from 'zod/v4'
+import { getSessionId } from '../bootstrap/state.js'
 import { logForDebugging } from '../utils/debug.js'
 import { getClaudeConfigHomeDir } from '../utils/envUtils.js'
 import { isENOENT } from '../utils/errors.js'
 import { safeParseJSON } from '../utils/json.js'
 import { lazySchema } from '../utils/lazySchema.js'
+import { logError } from '../utils/log.js'
 
 export const STATE_FILE = 'state.json'
 
@@ -110,6 +112,12 @@ export function getJobsDir(): string {
 
 export function getJobDir(id: string): string {
   return join(getJobsDir(), id)
+}
+
+export function getCurrentJobShort(): string {
+  const jobDir = process.env.CLAUDE_JOB_DIR
+  if (jobDir) return basename(jobDir)
+  return getSessionId().slice(0, 8)
 }
 
 const jobStateCache = new Map<string, JobState | null>()
@@ -335,19 +343,105 @@ export async function renameJob(
   name: string,
   source: 'user' | 'auto' = 'user',
 ): Promise<void> {
-  const jobDir = getJobDir(sessionId.slice(0, 8))
+  const isCurrentSession = sessionId === getSessionId()
+  const jobDir = getJobDir(
+    isCurrentSession ? getCurrentJobShort() : sessionId.slice(0, 8),
+  )
   const first = await readJobState(jobDir)
-  if (!first || first.sessionId !== sessionId || first.name === name) return
+  if (
+    !first ||
+    (!isCurrentSession && first.sessionId !== sessionId) ||
+    first.name === name
+  ) {
+    return
+  }
   invalidateJobState(jobDir)
   const latest = (await readJobState(jobDir)) ?? first
-  if (latest.sessionId !== sessionId || latest.name === name) return
+  if (
+    (!isCurrentSession && latest.sessionId !== sessionId) ||
+    latest.name === name
+  ) {
+    return
+  }
   if (source === 'auto' && latest.name) return
   await writeJobState(jobDir, {
     ...latest,
     name,
     nameSource: source,
     updatedAt: new Date().toISOString(),
-  }).catch(() => {})
+  }).catch(error => {
+    if (!isENOENT(error)) logError(error)
+  })
+}
+
+export async function setCurrentJobRespawnFlag(
+  flag: string,
+  aliases: readonly string[],
+  value: string | null,
+): Promise<void> {
+  const jobDir = process.env.CLAUDE_JOB_DIR
+  if (!jobDir) return
+  invalidateJobState(jobDir)
+  const state = await readJobState(jobDir)
+  if (!state?.respawnFlags) return
+
+  const names = [flag, ...aliases]
+  const filtered: string[] = []
+  for (let index = 0; index < state.respawnFlags.length; index++) {
+    const argument = state.respawnFlags[index]!
+    if (
+      names.some(
+        name => argument === name || argument.startsWith(`${name}=`),
+      )
+    ) {
+      if (!argument.includes('=') && state.respawnFlags[index + 1] !== undefined) {
+        index++
+      }
+      continue
+    }
+    filtered.push(argument)
+  }
+
+  const next = value === null ? filtered : [...filtered, flag, value]
+  if (
+    next.length === state.respawnFlags.length &&
+    next.every((argument, index) => argument === state.respawnFlags[index])
+  ) {
+    return
+  }
+  await writeJobState(jobDir, {
+    ...state,
+    respawnFlags: next,
+    updatedAt: new Date().toISOString(),
+  }).catch(error => {
+    if (!isENOENT(error)) logError(error)
+  })
+}
+
+export async function appendCurrentJobRespawnFlag(
+  flag: string,
+  value: string,
+): Promise<void> {
+  const jobDir = process.env.CLAUDE_JOB_DIR
+  if (!jobDir) return
+  invalidateJobState(jobDir)
+  const state = await readJobState(jobDir)
+  if (!state?.respawnFlags) return
+  for (let index = 0; index < state.respawnFlags.length - 1; index++) {
+    if (
+      state.respawnFlags[index] === flag &&
+      state.respawnFlags[index + 1] === value
+    ) {
+      return
+    }
+  }
+  await writeJobState(jobDir, {
+    ...state,
+    respawnFlags: [...state.respawnFlags, flag, value],
+    updatedAt: new Date().toISOString(),
+  }).catch(error => {
+    if (!isENOENT(error)) logError(error)
+  })
 }
 
 export async function writeJobOrder(

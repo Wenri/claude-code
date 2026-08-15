@@ -1,4 +1,5 @@
 import { setMainLoopModelOverride } from '../bootstrap/state.js'
+import { setCurrentJobRespawnFlag } from '../daemon/jobs.js'
 import {
   clearApiKeyHelperCache,
   clearAwsCredentialsCache,
@@ -157,6 +158,7 @@ export function onChangeAppState({
       })
     }
     notifyPermissionModeChanged(newMode)
+    void setCurrentJobRespawnFlag('--permission-mode', [], newMode)
   }
 
   const prevSessionAllowRules =
@@ -187,6 +189,7 @@ export function onChangeAppState({
       updateSettingsForSource('localSettings', { model: undefined })
     }
     setMainLoopModelOverride(selected)
+    void setCurrentJobRespawnFlag('--model', ['-m'], selected)
   }
 
   // expandedView → persist as showExpandedTodos + showSpinnerTree for backwards compat
