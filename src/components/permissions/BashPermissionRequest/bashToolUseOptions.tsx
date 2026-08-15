@@ -87,7 +87,7 @@ export function bashToolUseOptions({
         type: 'input',
         label: 'Yes, and don\u2019t ask again for',
         value: 'yes-prefix-edited',
-        placeholder: 'command prefix (e.g., npm run:*)',
+        placeholder: 'command prefix (e.g., npm run *)',
         initialValue: editablePrefix,
         onChange: onEditablePrefixChange,
         allowEmptySubmitToCancel: true,
