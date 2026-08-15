@@ -24,6 +24,7 @@ import {
   getClaudeAIOAuthTokens,
   getSubscriptionType,
 } from '../../utils/auth.js'
+import { logForDebugging } from '../../utils/debug.js'
 import { lazySchema } from '../../utils/lazySchema.js'
 import { parsePluginIdentifier } from '../../utils/plugins/pluginIdentifier.js'
 import { getSettingsForSource } from '../../utils/settings/settings.js'
@@ -108,8 +109,16 @@ export function wrapChannelMessage(
   content: string,
   meta?: Record<string, string>,
 ): string {
-  const attrs = Object.entries(meta ?? {})
-    .filter(([k]) => SAFE_META_KEY.test(k))
+  const entries = Object.entries(meta ?? {})
+  const accepted = entries.filter(([key]) => SAFE_META_KEY.test(key))
+  const dropped = entries.filter(([key]) => !SAFE_META_KEY.test(key))
+  if (dropped.length > 0) {
+    logForDebugging(
+      `[channel] ${serverName}: dropped ${dropped.length} meta key(s) that don't match ${SAFE_META_KEY.source}: ${dropped.map(([key]) => key).join(', ')}`,
+      { level: 'warn' },
+    )
+  }
+  const attrs = accepted
     .map(([k, v]) => ` ${k}="${escapeXmlAttr(v)}"`)
     .join('')
   return `<${CHANNEL_TAG} source="${escapeXmlAttr(serverName)}"${attrs}>\n${content}\n</${CHANNEL_TAG}>`
