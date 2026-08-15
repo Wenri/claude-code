@@ -6,8 +6,10 @@ type SurveyState = 'closed' | 'open' | 'thanks' | 'transcript_prompt' | 'submitt
 type UseSurveyStateOptions = {
   hideThanksAfterMs: number;
   otherSurveyActive?: boolean;
+  autoDismissAfterMs?: number;
   onOpen: (appearanceId: string) => void | Promise<void>;
   onSelect: (appearanceId: string, selected: FeedbackSurveyResponse) => void | Promise<void>;
+  onAutoDismiss?: (appearanceId: string) => void;
   shouldShowTranscriptPrompt?: (selected: FeedbackSurveyResponse) => boolean;
   onTranscriptPromptShown?: (appearanceId: string, surveyResponse: FeedbackSurveyResponse) => void;
   onTranscriptSelect?: (appearanceId: string, selected: TranscriptShareResponse, surveyResponse: FeedbackSurveyResponse | null) => boolean | Promise<boolean>;
@@ -15,8 +17,10 @@ type UseSurveyStateOptions = {
 export function useSurveyState({
   hideThanksAfterMs,
   otherSurveyActive = false,
+  autoDismissAfterMs,
   onOpen,
   onSelect,
+  onAutoDismiss,
   shouldShowTranscriptPrompt,
   onTranscriptPromptShown,
   onTranscriptSelect
@@ -55,6 +59,19 @@ export function useSurveyState({
       setState('closed');
     }
   }, [otherSurveyActive, state]);
+  const onAutoDismissRef = useRef(onAutoDismiss);
+  onAutoDismissRef.current = onAutoDismiss;
+  useEffect(() => {
+    if (state !== 'open' || !autoDismissAfterMs) {
+      return;
+    }
+    const timeout = setTimeout((currentAppearanceId, callbackRef, setState_0, setLastResponse_0) => {
+      setState_0('closed');
+      setLastResponse_0(null);
+      callbackRef.current?.(currentAppearanceId);
+    }, autoDismissAfterMs, appearanceId.current, onAutoDismissRef, setState, setLastResponse);
+    return () => clearTimeout(timeout);
+  }, [state, autoDismissAfterMs]);
   const handleSelect = useCallback((selected: FeedbackSurveyResponse): boolean => {
     setLastResponse(selected);
     lastResponseRef.current = selected;

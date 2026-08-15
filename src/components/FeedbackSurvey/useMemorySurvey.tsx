@@ -16,6 +16,7 @@ import type { TranscriptShareResponse } from './TranscriptSharePrompt.js';
 import { useSurveyState } from './useSurveyState.js';
 import type { FeedbackSurveyResponse } from './utils.js';
 const HIDE_THANKS_AFTER_MS = 3000;
+const AUTO_DISMISS_AFTER_MS = 60_000;
 const MEMORY_SURVEY_GATE = 'tengu_dunwich_bell';
 const MEMORY_SURVEY_EVENT = 'tengu_memory_survey_event';
 const MEMORY_SURVEY_PROBABILITY_GATE = 'tengu_velvet_moth';
@@ -72,6 +73,17 @@ export function useMemorySurvey(messages: Message[], isLoading: boolean, hasActi
     void logOTelEvent('feedback_survey', {
       event_type: 'appeared',
       appearance_id: appearanceId,
+      survey_type: 'memory'
+    });
+  }, []);
+  const onAutoDismiss = useCallback((appearanceId_0: string) => {
+    logEvent(MEMORY_SURVEY_EVENT, {
+      event_type: 'timeout' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      appearance_id: appearanceId_0 as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+    });
+    void logOTelEvent('feedback_survey', {
+      event_type: 'timeout',
+      appearance_id: appearanceId_0,
       survey_type: 'memory'
     });
   }, []);
@@ -147,8 +159,10 @@ export function useMemorySurvey(messages: Message[], isLoading: boolean, hasActi
   } = useSurveyState({
     otherSurveyActive,
     hideThanksAfterMs: HIDE_THANKS_AFTER_MS,
+    autoDismissAfterMs: AUTO_DISMISS_AFTER_MS,
     onOpen,
     onSelect,
+    onAutoDismiss,
     shouldShowTranscriptPrompt,
     onTranscriptPromptShown,
     onTranscriptSelect
