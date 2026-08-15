@@ -30,6 +30,7 @@ import { errorMessage, TeleportOperationError, toError } from './errors.js';
 import { execFileNoThrow } from './execFileNoThrow.js';
 import { truncateToWidth } from './format.js';
 import { findGitRoot, getDefaultBranch, getIsClean, gitExe } from './git.js';
+import { isSafeRefName } from './git/gitFilesystem.js';
 import { safeParseJSON } from './json.js';
 import { logError } from './log.js';
 import { createSystemMessage, createUserMessage, extractTextContent } from './messages.js';
@@ -322,6 +323,12 @@ export async function checkOutTeleportedSessionBranch(branch?: string): Promise<
     const currentBranch = await getCurrentBranch();
     logForDebugging(`Current branch before teleport: '${currentBranch}'`);
     if (branch) {
+      if (!isSafeRefName(branch)) {
+        throw new TeleportOperationError(
+          `Invalid branch name from remote session: ${branch}`,
+          chalk.red('Invalid branch name from remote session\n'),
+        );
+      }
       logForDebugging(`Switching to branch '${branch}'...`);
       await fetchFromOrigin(branch);
       await checkoutBranch(branch);
