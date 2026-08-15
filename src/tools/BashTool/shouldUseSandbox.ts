@@ -3,6 +3,10 @@ import { splitCommand_DEPRECATED } from '../../utils/bash/commands.js'
 import { SandboxManager } from '../../utils/sandbox/sandbox-adapter.js'
 import { getSettings_DEPRECATED } from '../../utils/settings/settings.js'
 import {
+  isScrubSandboxAvailable,
+  isSubprocessEnvScrubEnabled,
+} from '../../utils/subprocessEnv.js'
+import {
   BINARY_HIJACK_VARS,
   bashPermissionRule,
   matchWildcardPattern,
@@ -128,6 +132,10 @@ function containsExcludedCommand(command: string): boolean {
 }
 
 export function shouldUseSandbox(input: Partial<SandboxInput>): boolean {
+  if (isSubprocessEnvScrubEnabled() && isScrubSandboxAvailable()) {
+    return true
+  }
+
   if (!SandboxManager.isSandboxingEnabled()) {
     return false
   }

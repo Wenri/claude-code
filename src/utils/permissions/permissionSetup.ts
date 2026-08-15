@@ -63,6 +63,7 @@ import { gracefulShutdown } from '../gracefulShutdown.js'
 import { getMainLoopModel } from '../model/model.js'
 import { getPlatform } from '../platform.js'
 import { isBashToolEnabled } from '../shell/shellToolUtils.js'
+import { isSubprocessEnvScrubEnabled } from '../subprocessEnv.js'
 import {
   CROSS_PLATFORM_CODE_EXEC,
   DANGEROUS_BASH_PATTERNS,
@@ -697,6 +698,24 @@ export function initialPermissionModeFromCLI({
   dangerouslySkipPermissions: boolean | undefined
   agentPermissionMode?: PermissionMode
 }): { mode: PermissionMode; notification?: string } {
+  if (isSubprocessEnvScrubEnabled()) {
+    const requestedNonDefault = Boolean(
+      dangerouslySkipPermissions ||
+        (permissionModeCli && permissionModeCli !== 'default') ||
+        (agentPermissionMode && agentPermissionMode !== 'default'),
+    )
+    const warning =
+      'Permission mode forced to default — CLAUDE_CODE_SUBPROCESS_ENV_SCRUB is set ' +
+      '(allowed_non_write_users hardening). Declare allowedTools explicitly, or set CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=0 to opt out.'
+    if (requestedNonDefault) {
+      process.stderr.write(`⚠ ${warning}\n`)
+    }
+    return {
+      mode: 'default',
+      notification: requestedNonDefault ? warning : undefined,
+    }
+  }
+
   const settings = getSettings_DEPRECATED() || {}
 
   // Check GrowthBook gate first - highest precedence

@@ -21,6 +21,7 @@
 import { SHELL_KEYWORDS } from './bashParser.js'
 import type { Node } from './parser.js'
 import { PARSE_ABORTED, parseCommandRaw } from './parser.js'
+import { isSubprocessEnvScrubEnabled } from '../subprocessEnv.js'
 
 export type Redirect = {
   op: '>' | '>>' | '<' | '<<' | '>&' | '>|' | '<&' | '&>' | '&>>' | '<<<'
@@ -93,6 +94,17 @@ const VAR_PLACEHOLDER = '__TRACKED_VAR__'
  */
 function containsAnyPlaceholder(value: string): boolean {
   return value.includes(CMDSUB_PLACEHOLDER) || value.includes(VAR_PLACEHOLDER)
+}
+
+function containsExpansionNode(node: Node): boolean {
+  for (const child of node.children) {
+    if (!child) continue
+    if (child.type === 'simple_expansion' || child.type === 'expansion') {
+      return true
+    }
+    if (containsExpansionNode(child)) return true
+  }
+  return false
 }
 
 /**
@@ -691,6 +703,8 @@ function collectCommands(
   }
 
   if (node.type === 'for_statement') {
+    if (isSubprocessEnvScrubEnabled()) return tooComplex(node)
+
     // `for VAR in WORD...; do BODY; done` — iterate BODY once per word.
     // Body commands extracted once; every iteration runs the same commands.
     //
@@ -762,6 +776,13 @@ function collectCommands(
   }
 
   if (node.type === 'if_statement' || node.type === 'while_statement') {
+    if (
+      node.type === 'while_statement' &&
+      isSubprocessEnvScrubEnabled()
+    ) {
+      return tooComplex(node)
+    }
+
     // `if COND; then BODY; [elif...; else...;] fi`
     // `while COND; do BODY; done`
     // Extract condition command(s) + all branch/body commands. All get
@@ -1259,11 +1280,23 @@ function walkCommand(
         break
       }
       case 'command_name': {
-        const arg = walkArgument(
-          child.children[0] ?? child,
-          innerCommands,
-          varScope,
-        )
+        const commandName = child.children[0] ?? child
+        if (isSubprocessEnvScrubEnabled()) {
+          if (
+            commandName.type === 'simple_expansion' ||
+            commandName.type === 'expansion'
+          ) {
+            return tooComplex(commandName)
+          }
+          if (
+            (commandName.type === 'string' ||
+              commandName.type === 'concatenation') &&
+            containsExpansionNode(commandName)
+          ) {
+            return tooComplex(commandName)
+          }
+        }
+        const arg = walkArgument(commandName, innerCommands, varScope)
         if (typeof arg !== 'string') return arg
         argv.push(arg)
         break

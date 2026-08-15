@@ -43,6 +43,8 @@ import { createPowerShellProvider } from './shell/powershellProvider.js'
 import type { ShellProvider, ShellType } from './shell/shellProvider.js'
 import {
   enforceScriptCaps,
+  getScrubSandboxConfig,
+  isScrubSandboxAvailable,
   isSubprocessEnvScrubEnabled,
   subprocessEnv,
 } from './subprocessEnv.js'
@@ -331,10 +333,50 @@ export async function exec(
   }
 
   if (shouldUseSandbox) {
+    let scrubConfig
+    if (isSubprocessEnvScrubEnabled() && isScrubSandboxAvailable()) {
+      const base = getScrubSandboxConfig()
+      const scrubDenyWrite = base.filesystem.denyWrite
+      const configuredFilesystem = SandboxManager.getConfig()?.filesystem
+      const allowWrite = [
+        ...new Set([
+          ...base.filesystem.allowWrite,
+          ...(configuredFilesystem?.allowWrite ?? []).filter(
+            path => path !== '/' && path.length > 0,
+          ),
+        ]),
+      ]
+      const denyWithinAllow = SandboxManager.getFsWriteConfig().denyWithinAllow.filter(
+        deniedPath =>
+          allowWrite.some(
+            allowedPath =>
+              deniedPath === allowedPath ||
+              deniedPath.startsWith(`${allowedPath}/`),
+          ) &&
+          !scrubDenyWrite.some(
+            scrubbedPath =>
+              deniedPath === scrubbedPath ||
+              deniedPath.startsWith(`${scrubbedPath}/`),
+          ),
+      )
+      scrubConfig = {
+        ...base,
+        filesystem: {
+          allowWrite,
+          denyWrite: [...new Set([...scrubDenyWrite, ...denyWithinAllow])],
+          denyRead: [
+            ...new Set([
+              ...base.filesystem.denyRead,
+              ...(configuredFilesystem?.denyRead ?? []),
+            ]),
+          ],
+        },
+      }
+    }
     commandString = await SandboxManager.wrapWithSandbox(
       commandString,
       sandboxBinShell,
-      undefined,
+      scrubConfig,
       abortSignal,
     )
     // Create sandbox temp directory for sandboxed processes with secure permissions

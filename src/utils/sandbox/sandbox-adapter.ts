@@ -58,6 +58,10 @@ import { errorMessage } from '../errors.js'
 import { getClaudeTempDir } from '../permissions/filesystem.js'
 import type { PermissionRuleValue } from '../permissions/PermissionRule.js'
 import { ripgrepCommand } from '../ripgrep.js'
+import {
+  isScrubSandboxAvailable,
+  isSubprocessEnvScrubEnabled,
+} from '../subprocessEnv.js'
 
 // Local copies to avoid circular dependency
 // (permissions.ts imports SandboxManager, bashPermissions.ts imports permissions.ts)
@@ -367,17 +371,28 @@ export function convertToSandboxRuntimeConfig(
     argv0,
   }
 
+  const scrubSandboxActive =
+    isSubprocessEnvScrubEnabled() &&
+    isScrubSandboxAvailable() &&
+    !getSandboxEnabledSetting()
+
   return {
-    network: {
-      allowedDomains,
-      deniedDomains,
-      allowUnixSockets: settings.sandbox?.network?.allowUnixSockets,
-      allowAllUnixSockets: settings.sandbox?.network?.allowAllUnixSockets,
-      allowLocalBinding: settings.sandbox?.network?.allowLocalBinding,
-      allowMachLookup: settings.sandbox?.network?.allowMachLookup,
-      httpProxyPort: settings.sandbox?.network?.httpProxyPort,
-      socksProxyPort: settings.sandbox?.network?.socksProxyPort,
-    },
+    network: scrubSandboxActive
+      ? {
+          allowedDomains: undefined,
+          deniedDomains: [],
+          allowAllUnixSockets: true,
+        }
+      : {
+          allowedDomains,
+          deniedDomains,
+          allowUnixSockets: settings.sandbox?.network?.allowUnixSockets,
+          allowAllUnixSockets: settings.sandbox?.network?.allowAllUnixSockets,
+          allowLocalBinding: settings.sandbox?.network?.allowLocalBinding,
+          allowMachLookup: settings.sandbox?.network?.allowMachLookup,
+          httpProxyPort: settings.sandbox?.network?.httpProxyPort,
+          socksProxyPort: settings.sandbox?.network?.socksProxyPort,
+        },
     filesystem: {
       denyRead,
       allowRead,
@@ -385,7 +400,10 @@ export function convertToSandboxRuntimeConfig(
       denyWrite,
     },
     ignoreViolations: settings.sandbox?.ignoreViolations,
-    enableWeakerNestedSandbox: settings.sandbox?.enableWeakerNestedSandbox,
+    enableWeakerNestedSandbox:
+      isSubprocessEnvScrubEnabled() && isScrubSandboxAvailable()
+        ? false
+        : settings.sandbox?.enableWeakerNestedSandbox,
     enableWeakerNetworkIsolation:
       settings.sandbox?.enableWeakerNetworkIsolation,
     ripgrep: ripgrepConfig,
@@ -479,6 +497,7 @@ function getSandboxEnabledSetting(): boolean {
 }
 
 function isAutoAllowBashIfSandboxedEnabled(): boolean {
+  if (isSubprocessEnvScrubEnabled()) return false
   const settings = getSettings_DEPRECATED()
   return settings?.sandbox?.autoAllowBashIfSandboxed ?? true
 }
@@ -542,6 +561,13 @@ function isPlatformInEnabledList(): boolean {
  * This checks the user's enabled setting, platform support, and enabledPlatforms restriction
  */
 function isSandboxingEnabled(): boolean {
+  if (
+    isSubprocessEnvScrubEnabled() &&
+    !getSandboxEnabledSetting()
+  ) {
+    return isScrubSandboxAvailable()
+  }
+
   if (!isSupportedPlatform()) {
     return false
   }
@@ -930,6 +956,7 @@ export interface ISandboxManager {
   getSandboxViolationStore(): SandboxViolationStore
   annotateStderrWithSandboxFailures(command: string, stderr: string): string
   getLinuxGlobPatternWarnings(): string[]
+  getConfig(): SandboxRuntimeConfig | undefined
   refreshConfig(): void
   reset(): Promise<void>
 }
@@ -961,6 +988,12 @@ export const SandboxManager: ISandboxManager = {
   getNetworkRestrictionConfig: BaseSandboxManager.getNetworkRestrictionConfig,
   getIgnoreViolations: BaseSandboxManager.getIgnoreViolations,
   getLinuxGlobPatternWarnings,
+  getConfig: (): SandboxRuntimeConfig | undefined =>
+    (
+      BaseSandboxManager as typeof BaseSandboxManager & {
+        getConfig(): SandboxRuntimeConfig | undefined
+      }
+    ).getConfig(),
   isSupportedPlatform,
   getAllowUnixSockets: BaseSandboxManager.getAllowUnixSockets,
   getAllowLocalBinding: BaseSandboxManager.getAllowLocalBinding,

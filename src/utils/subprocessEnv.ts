@@ -1,4 +1,9 @@
+import { appendFile, mkdir, open } from 'fs/promises'
+import { homedir, tmpdir } from 'os'
+import { dirname, join, posix, resolve } from 'path'
+import { getOriginalCwd } from '../bootstrap/state.js'
 import { isEnvDefinedFalsy, isEnvTruthy } from './envUtils.js'
+import { whichSync } from './which.js'
 
 /**
  * Env vars to strip from subprocess environments when running inside GitHub
@@ -68,8 +73,42 @@ const GHA_SUBPROCESS_SCRUB = [
 // upstreamproxy module graph (upstreamproxy.ts + relay.ts) via a static import.
 let _getUpstreamProxyEnv: (() => Record<string, string>) | undefined
 let scrubEnabled: boolean | undefined
+let scrubSandboxAvailable: boolean | undefined
 let scriptCaps: Record<string, number> | null | undefined
 const scriptCallCounts = new Map<string, number>()
+
+const DOT_ENV_FILES = [
+  '.env',
+  '.env.local',
+  '.env.development',
+  '.env.development.local',
+  '.env.test',
+  '.env.test.local',
+  '.env.production',
+  '.env.production.local',
+] as const
+const SCRUB_WRITABLE_ROOTS = [
+  'home',
+  'root',
+  'tmp',
+  'var',
+  'opt',
+  'run',
+  'mnt',
+].map(path => `/${path}`)
+
+type ScrubPaths = {
+  home: string
+  originalCwd: string
+  claudeConfigDir?: string
+  runnerFileCommandsDir?: string
+  workspace?: string
+  GITHUB_ACTION_PATH?: string
+  GITHUB_EVENT_PATH?: string
+  pathDirs?: string[]
+}
+
+let scrubPaths: ScrubPaths | undefined
 
 const MCP_ALLOWED_ENV_VARS =
   process.platform === 'win32'
@@ -216,6 +255,11 @@ export function isSubprocessEnvScrubEnabled(): boolean {
   return scrubEnabled
 }
 
+export function isScrubSandboxAvailable(): boolean {
+  if (scrubSandboxAvailable !== undefined) return scrubSandboxAvailable
+  return Boolean(whichSync('bwrap'))
+}
+
 function shouldScrubSubprocessEnv(): boolean {
   if (isSubprocessEnvScrubEnabled()) return true
   if (isEnvDefinedFalsy(process.env.CLAUDE_CODE_SUBPROCESS_ENV_SCRUB)) {
@@ -274,6 +318,263 @@ function getScriptCaps(): Record<string, number> | null {
     scriptCaps = null
   }
   return scriptCaps
+}
+
+export function resetScriptCapsForTesting(): void {
+  scriptCallCounts.clear()
+  scriptCaps = undefined
+}
+
+export function resetSubprocessEnvScrubForTesting(): void {
+  scrubEnabled = undefined
+  scrubSandboxAvailable = undefined
+  scrubPaths = undefined
+  resetScriptCapsForTesting()
+}
+
+export function setScrubPathsForTesting(paths: ScrubPaths): void {
+  scrubPaths = paths
+}
+
+export async function initializeSubprocessEnvScrub(): Promise<void> {
+  if (!isSubprocessEnvScrubEnabled()) return
+
+  const home = homedir()
+  const originalCwd = getOriginalCwd()
+  const runnerFileCommandsDir = process.env.GITHUB_ENV
+    ? dirname(process.env.GITHUB_ENV)
+    : undefined
+  const workspace = process.env.GITHUB_WORKSPACE
+
+  scrubSandboxAvailable = Boolean(whichSync('bwrap'))
+  scrubPaths = {
+    home,
+    originalCwd,
+    claudeConfigDir: process.env.CLAUDE_CONFIG_DIR,
+    runnerFileCommandsDir,
+    workspace,
+    GITHUB_ACTION_PATH: process.env.GITHUB_ACTION_PATH,
+    GITHUB_EVENT_PATH: process.env.GITHUB_EVENT_PATH,
+    pathDirs: (process.env.PATH ?? '')
+      .split(':')
+      .map(path => (path ? posix.normalize(path).replace(/\/+$/, '') : path))
+      .filter(
+        path =>
+          Boolean(path) &&
+          SCRUB_WRITABLE_ROOTS.some(root => path.startsWith(`${root}/`)),
+      ),
+  }
+  getScriptCaps()
+
+  if (!whichSync('bwrap')) {
+    throw new Error(
+      'bubblewrap is required for subprocess env scrubbing and isolation. Install with: sudo apt-get install -y bubblewrap, or set CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=0 to disable (loses subprocess isolation).',
+    )
+  }
+
+  const claudeTempDir = join(
+    process.env.CLAUDE_CODE_TMPDIR || tmpdir(),
+    process.platform === 'win32'
+      ? 'claude'
+      : `claude-${process.getuid?.() ?? 0}`,
+  )
+  await mkdir(claudeTempDir, { recursive: true, mode: 0o700 }).catch(() => {})
+
+  const filesToStub = [
+    `${home}/.gitconfig`,
+    `${home}/.bash_profile`,
+    `${home}/.bashrc`,
+    `${home}/.bash_aliases`,
+    `${home}/.profile`,
+    `${home}/.zshrc`,
+    `${home}/.bunfig.toml`,
+    `${home}/.netrc`,
+    `${home}/.npmrc`,
+    `${home}/.yarnrc`,
+    `${home}/.yarnrc.yml`,
+    `${originalCwd}/.npmrc`,
+    `${originalCwd}/.yarnrc`,
+    `${originalCwd}/.yarnrc.yml`,
+    `${originalCwd}/bunfig.toml`,
+    `${originalCwd}/package.json`,
+    `${originalCwd}/.gitmodules`,
+    `${originalCwd}/package-lock.json`,
+    `${originalCwd}/yarn.lock`,
+    `${originalCwd}/pnpm-lock.yaml`,
+    '/tmp/inline-comments-buffer.jsonl',
+    ...DOT_ENV_FILES.map(filename => `${originalCwd}/${filename}`),
+  ]
+  for (const filename of filesToStub) {
+    try {
+      await mkdir(dirname(filename), { recursive: true })
+      await (await open(filename, 'a')).close()
+    } catch {
+      // Best effort: the sandbox config still denies writes to every path.
+    }
+  }
+
+  const directoriesToStub = [
+    `${home}/.config/gh`,
+    `${home}/.config/git`,
+    `${home}/.config/pip`,
+    `${home}/.pip`,
+    `${originalCwd}/.claude/commands`,
+    `${originalCwd}/.claude/agents`,
+    `${originalCwd}/node_modules/.bin`,
+    ...(runnerFileCommandsDir ? [runnerFileCommandsDir] : []),
+    ...(scrubPaths.pathDirs ?? []),
+  ]
+  for (const directory of directoriesToStub) {
+    try {
+      await mkdir(directory, { recursive: true })
+    } catch {
+      // Best effort: the sandbox config still denies writes to every path.
+    }
+  }
+
+  if (workspace && resolve(workspace) !== resolve(originalCwd)) {
+    await mkdir(`${workspace}/.git/hooks`).catch(() => {})
+    await mkdir(`${workspace}/.git/modules`).catch(() => {})
+    await mkdir(`${workspace}/.git/info`).catch(() => {})
+    await mkdir(`${workspace}/.github`, { recursive: true }).catch(() => {})
+    for (const filename of [
+      `${workspace}/.git/config`,
+      `${workspace}/.git/info/exclude`,
+      `${workspace}/.gitmodules`,
+    ]) {
+      try {
+        await (await open(filename, 'a')).close()
+      } catch {
+        // Best effort: the sandbox config still denies writes to every path.
+      }
+    }
+  }
+
+  const excludedStubNames = [
+    'bunfig.toml',
+    'package.json',
+    '.npmrc',
+    '.yarnrc',
+    '.yarnrc.yml',
+    '.gitmodules',
+    'package-lock.json',
+    'yarn.lock',
+    'pnpm-lock.yaml',
+    ...DOT_ENV_FILES,
+  ]
+  await mkdir(`${originalCwd}/.git/info`).catch(() => {})
+  await mkdir(`${originalCwd}/.git/modules`).catch(() => {})
+  try {
+    await appendFile(
+      `${originalCwd}/.git/info/exclude`,
+      `\n# claude-code scrub-mode stubs\n${excludedStubNames
+        .map(filename => `/${filename}`)
+        .join('\n')}\n`,
+    )
+  } catch {
+    // The working directory does not have to be a git repository.
+  }
+}
+
+export function getScrubSandboxConfig(): {
+  filesystem: {
+    allowWrite: string[]
+    denyRead: string[]
+    denyWrite: string[]
+  }
+} {
+  const home = scrubPaths?.home ?? homedir()
+  const originalCwd = scrubPaths?.originalCwd ?? getOriginalCwd()
+  const actionPath =
+    scrubPaths?.GITHUB_ACTION_PATH ?? process.env.GITHUB_ACTION_PATH
+  const runnerFileCommandsDir =
+    scrubPaths?.runnerFileCommandsDir ??
+    (process.env.GITHUB_ENV ? dirname(process.env.GITHUB_ENV) : undefined)
+  const workspace = scrubPaths?.workspace ?? process.env.GITHUB_WORKSPACE
+  const workspaceDeny =
+    workspace && resolve(workspace) !== resolve(originalCwd)
+      ? [
+          `${workspace}/.git/hooks`,
+          `${workspace}/.git/config`,
+          `${workspace}/.git/modules`,
+          `${workspace}/.git/info/exclude`,
+          `${workspace}/.gitmodules`,
+          `${workspace}/.github`,
+        ]
+      : []
+  const actionRoot =
+    actionPath && actionPath.includes('/_actions/')
+      ? actionPath.slice(0, actionPath.indexOf('/_actions/') + 9)
+      : undefined
+
+  return {
+    filesystem: {
+      allowWrite: SCRUB_WRITABLE_ROOTS,
+      denyRead: [
+        '/run/docker.sock',
+        '/run/containerd/containerd.sock',
+        '/run/podman/podman.sock',
+        '/run/buildkit/buildkitd.sock',
+        '/run/dbus',
+        '/run/user',
+      ],
+      denyWrite: [
+        `${home}/.bash_profile`,
+        `${home}/.bashrc`,
+        `${home}/.bash_aliases`,
+        `${home}/.bash_login`,
+        `${home}/.bash_logout`,
+        `${home}/.profile`,
+        `${home}/.zshrc`,
+        `${home}/.zprofile`,
+        `${home}/.zshenv`,
+        `${home}/.zlogin`,
+        `${home}/.zlogout`,
+        `${home}/.claude`,
+        `${home}/.claude.json`,
+        scrubPaths?.claudeConfigDir ?? process.env.CLAUDE_CONFIG_DIR,
+        `${home}/.gitconfig`,
+        `${home}/.config/git`,
+        `${home}/.bunfig.toml`,
+        `${originalCwd}/bunfig.toml`,
+        `${originalCwd}/package.json`,
+        ...DOT_ENV_FILES.map(filename => `${originalCwd}/${filename}`),
+        `${home}/.npmrc`,
+        `${originalCwd}/.npmrc`,
+        `${home}/.yarnrc`,
+        `${home}/.yarnrc.yml`,
+        `${originalCwd}/.yarnrc`,
+        `${originalCwd}/.yarnrc.yml`,
+        `${home}/.config/pip`,
+        `${home}/.pip`,
+        `${originalCwd}/package-lock.json`,
+        `${originalCwd}/yarn.lock`,
+        `${originalCwd}/pnpm-lock.yaml`,
+        `${originalCwd}/node_modules/.bin`,
+        `${originalCwd}/.git/modules`,
+        `${originalCwd}/scripts`,
+        `${originalCwd}/.claude`,
+        `${originalCwd}/.github`,
+        `${home}/.local/bin`,
+        `${home}/runners`,
+        `${home}/actions-runner`,
+        '/tmp/inline-comments-buffer.jsonl',
+        ...(scrubPaths?.pathDirs ?? []),
+        runnerFileCommandsDir,
+        actionPath,
+        actionRoot,
+        scrubPaths?.GITHUB_EVENT_PATH ?? process.env.GITHUB_EVENT_PATH,
+        `${home}/.config/gh`,
+        `${home}/.netrc`,
+        `${home}/.ssh`,
+        `${originalCwd}/.git/hooks`,
+        `${originalCwd}/.git/config`,
+        `${originalCwd}/.gitmodules`,
+        `${originalCwd}/.git/info/exclude`,
+        ...workspaceDeny,
+      ].filter((path): path is string => Boolean(path)),
+    },
+  }
 }
 
 export function enforceScriptCaps(command: string): void {
