@@ -545,6 +545,18 @@ export function canBatchWith(
   )
 }
 
+export function kickOffBackgroundPluginInstall(
+  install: () => Promise<boolean>,
+): { needsRefresh: boolean } {
+  const state = { needsRefresh: false }
+  void install()
+    .then(needsRefresh => {
+      state.needsRefresh = needsRefresh
+    })
+    .catch(logError)
+  return state
+}
+
 function originsEqual(
   left: QueuedCommand['origin'],
   right: QueuedCommand['origin'],
@@ -2197,18 +2209,6 @@ function runHeadlessStreaming(
     return pluginsInstalled
   }
 
-  function trackBackgroundPluginRefresh(
-    install: () => Promise<boolean>,
-  ): { needsRefresh: boolean } {
-    const state = { needsRefresh: false }
-    void install()
-      .then(needsRefresh => {
-        state.needsRefresh = needsRefresh
-      })
-      .catch(logError)
-    return state
-  }
-
   // Background plugin installation for all headless users
   // Installs marketplaces from extraKnownMarketplaces and missing enabled plugins
   // CLAUDE_CODE_SYNC_PLUGIN_INSTALL=true: resolved in run() before the first
@@ -2245,7 +2245,7 @@ function runHeadlessStreaming(
         pluginInstallProgress?.(event),
       )
     } else {
-      backgroundPluginRefresh = trackBackgroundPluginRefresh(
+      backgroundPluginRefresh = kickOffBackgroundPluginInstall(
         installPluginsAndApplyMcpInBackground,
       )
     }
@@ -2535,7 +2535,7 @@ function runHeadlessStreaming(
 
           if (shouldPrewaitForMcp) {
             shouldPrewaitForMcp = false
-            await prewaitForHeadlessMcp(getAppState)
+            await waitForPendingMcpBeforeFirstCommand(getAppState)
           }
 
           // Combine all MCP clients. appState.mcp is populated incrementally
@@ -5287,7 +5287,9 @@ function runHeadlessStreaming(
   return output
 }
 
-async function prewaitForHeadlessMcp(
+export { runHeadlessStreaming as _runHeadlessStreamingForTesting }
+
+export async function waitForPendingMcpBeforeFirstCommand(
   getState: () => AppState,
   timeoutMs = 2000,
 ): Promise<void> {
