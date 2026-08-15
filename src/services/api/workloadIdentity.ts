@@ -916,6 +916,51 @@ export function withCredentialsLock(
   }
 }
 
+function clearRejectedUserOAuthRefreshToken(
+  provider: TokenProvider,
+  credentialsPath: string,
+): TokenProvider {
+  const readCredentials = async (): Promise<StoredCredentials | null> => {
+    try {
+      return JSON.parse(
+        await readFile(credentialsPath, 'utf8'),
+      ) as StoredCredentials
+    } catch {
+      return null
+    }
+  }
+
+  return async options => {
+    const refreshToken = (await readCredentials())?.refresh_token
+    try {
+      return await provider(options)
+    } catch (error) {
+      if (
+        error instanceof WorkloadIdentityError &&
+        (error.statusCode === 400 || error.statusCode === 401) &&
+        typeof error.body === 'string' &&
+        error.body.includes('"invalid_grant"') &&
+        typeof refreshToken === 'string' &&
+        refreshToken
+      ) {
+        try {
+          const current = await readCredentials()
+          if (current && current.refresh_token === refreshToken) {
+            await atomicWriteCredentials(credentialsPath, {
+              ...current,
+              refresh_token: undefined,
+            })
+            logEvent('tengu_wif_user_oauth_refresh_token_cleared', {})
+          }
+        } catch (clearError) {
+          logForDebugging(errorMessage(clearError), { level: 'error' })
+        }
+      }
+      throw error
+    }
+  }
+}
+
 async function acquireCredentialsLock(
   directory: string,
 ): Promise<() => Promise<void>> {
@@ -976,7 +1021,10 @@ export function getWIFCredentials(): Promise<ResolvedCredentials | null> {
         fetch: (url, init) =>
           fetch(url, {
             ...init,
-            ...getProxyFetchOptions({ forAnthropicAPI: true }),
+            ...getProxyFetchOptions({
+              forAnthropicAPI: true,
+              url: String(url),
+            }),
           }),
         userAgent: getUserAgent(),
         onSafetyWarning: warning =>
@@ -989,7 +1037,10 @@ export function getWIFCredentials(): Promise<ResolvedCredentials | null> {
         credentialsPath
       ) {
         resolved.provider = withCredentialsLock(
-          resolved.provider,
+          clearRejectedUserOAuthRefreshToken(
+            resolved.provider,
+            credentialsPath,
+          ),
           credentialsPath,
         )
       }

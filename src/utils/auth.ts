@@ -22,6 +22,7 @@ import {
   shouldUseMockSubscription,
 } from '../services/mockRateLimits.js'
 import {
+  isInvalidGrantError,
   isOAuthTokenExpired,
   refreshOAuthToken,
   shouldUseClaudeAIAuth,
@@ -1313,6 +1314,22 @@ export function saveOAuthTokensIfNeeded(tokens: OAuthTokens): {
   }
 }
 
+function clearRejectedOAuthRefreshToken(refreshToken: string): void {
+  try {
+    const secureStorage = getSecureStorage()
+    clearKeychainCache()
+    const storageData = secureStorage.read() || {}
+    const oauthData = storageData.claudeAiOauth
+    if (!oauthData || oauthData.refreshToken !== refreshToken) return
+    storageData.claudeAiOauth = { ...oauthData, refreshToken: '' }
+    secureStorage.update(storageData)
+    getClaudeAIOAuthTokens.cache?.clear?.()
+    logEvent('tengu_oauth_refresh_token_cleared_invalid_grant', {})
+  } catch (error) {
+    logError(error)
+  }
+}
+
 export const getClaudeAIOAuthTokens = memoize((): OAuthTokens | null => {
   // --bare: API-key-only. No OAuth env tokens, no keychain, no credentials file.
   if (isBareMode()) return null
@@ -1686,6 +1703,10 @@ async function checkAndRefreshOAuthTokenIfNeededImpl(
     ) {
       logEvent('tengu_oauth_token_refresh_race_recovered', {})
       return true
+    }
+
+    if (isInvalidGrantError(error) && currentTokens?.refreshToken) {
+      clearRejectedOAuthRefreshToken(currentTokens.refreshToken)
     }
 
     return false

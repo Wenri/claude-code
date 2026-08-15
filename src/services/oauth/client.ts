@@ -288,6 +288,22 @@ export async function refreshOAuthToken(
   }
 }
 
+export function isInvalidGrantError(error: unknown): boolean {
+  if (!axios.isAxiosError(error) || !error.response) return false
+  const status = error.response.status
+  if (status !== 400 && status !== 401) return false
+  const data = error.response.data
+  if (!data || typeof data !== 'object') return false
+  const oauthError = (data as { error?: unknown }).error
+  const type =
+    typeof oauthError === 'string'
+      ? oauthError
+      : oauthError && typeof oauthError === 'object'
+        ? (oauthError as { type?: unknown }).type
+        : undefined
+  return type === 'invalid_grant'
+}
+
 export async function fetchAndStoreUserRoles(
   accessToken: string,
 ): Promise<void> {
