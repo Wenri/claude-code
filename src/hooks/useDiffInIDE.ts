@@ -27,6 +27,7 @@ import {
 } from '../utils/ide.js'
 import { WindowsToWSLConverter } from '../utils/idePathConversion.js'
 import { logError } from '../utils/log.js'
+import { normalizeLegacyToolName } from '../utils/permissions/permissionRuleParser.js'
 import { getPlatform } from '../utils/platform.js'
 
 type Props = {
@@ -41,6 +42,7 @@ type Props = {
   filePath: string
   edits: FileEdit[]
   editMode: 'single' | 'multiple'
+  toolName: string
 }
 
 export function useDiffInIDE({
@@ -49,6 +51,7 @@ export function useDiffInIDE({
   filePath,
   edits,
   editMode,
+  toolName,
 }: Props): {
   closeTabInIDE: () => void
   showingDiffInIDE: boolean
@@ -93,18 +96,22 @@ export function useDiffInIDE({
         return
       }
 
-      logEvent('tengu_ext_diff_accepted', {})
-
       const newEdits = computeEditsFromContents(
         filePath,
         oldContent,
         newContent,
         editMode,
       )
+      const metadata = {
+        ideName,
+        toolName: normalizeLegacyToolName(toolName),
+        editCount: edits.length,
+        isNewFile: oldContent === '',
+      }
 
       if (newEdits.length === 0) {
         // No changes -- edit was rejected (eg. reverted)
-        logEvent('tengu_ext_diff_rejected', {})
+        logEvent('tengu_ext_diff_rejected', metadata)
         // We close the tab here because 'no' no longer auto-closes
         const ideClient = getConnectedIdeClient(
           toolUseContext.options.mcpClients,
@@ -124,6 +131,7 @@ export function useDiffInIDE({
       }
 
       // File was modified - edit was accepted
+      logEvent('tengu_ext_diff_accepted', metadata)
       onChange(
         { type: 'accept-once' },
         {

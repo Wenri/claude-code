@@ -139,13 +139,15 @@ export function FilePermissionDialog<T extends ToolInput = ToolInput>({
       new_string: e.new_string,
       replace_all: e.replace_all || false
     })),
-    editMode: ideDiffConfig.editMode || 'single'
+    editMode: ideDiffConfig.editMode || 'single',
+    toolName: toolUseConfirm.tool.name
   } : {
     onChange: () => {},
     toolUseContext,
     filePath: '',
     edits: [],
-    editMode: 'single' as const
+    editMode: 'single' as const,
+    toolName: toolUseConfirm.tool.name
   };
   const {
     closeTabInIDE,
