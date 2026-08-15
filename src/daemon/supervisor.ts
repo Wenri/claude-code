@@ -1161,6 +1161,9 @@ export class BackgroundHandle {
       detail: `${detail}; respawning`,
     })
     this.procStart = undefined
+    const notice = `\r\n\x1b[2m[worker crashed (${detail}) — respawning…]\x1b[0m\r\n`
+    this.pushRing(notice)
+    this.stream.emit(notice)
     this.respawnTimer = setTimeout(() => {
       this.respawnTimer = undefined
       if (this.phase.kind !== 'retiring' && this.phase.kind !== 'retired') {

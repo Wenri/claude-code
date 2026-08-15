@@ -632,6 +632,7 @@ class ManagedWorker {
       this.log(this.id, `exited permanently code=${code} uptime=${uptime}ms — will not respawn`)
       logEvent('tengu_daemon_worker_permanent_exit', {
         exit_code: code ?? undefined,
+        uptime_ms: uptime,
         worker_kind: this.kind,
       })
       return
@@ -649,6 +650,7 @@ class ManagedWorker {
       logEvent('tengu_daemon_worker_crash', {
         consecutive: this.crashes,
         exit_code: code ?? undefined,
+        uptime_ms: uptime,
         worker_kind: this.kind,
       })
       this.scheduleRespawn(wait)
