@@ -50,6 +50,7 @@ import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
   logEvent,
 } from '../../services/analytics/index.js'
+import { isToolDetailsLoggingEnabled } from '../../services/analytics/metadata.js'
 import { getAgentContext } from '../../utils/agentContext.js'
 import { errorMessage } from '../../utils/errors.js'
 import {
@@ -68,6 +69,7 @@ import { resolveSkillModelOverride } from '../../utils/model/model.js'
 import { recordSkillUsage } from '../../utils/suggestions/skillUsageTracking.js'
 import { escapeRegExp } from '../../utils/stringUtils.js'
 import { findClosestCommand } from '../../utils/suggestions/commandSuggestions.js'
+import { logOTelEvent } from '../../utils/telemetry/events.js'
 import {
   getTeamArtifactAnalyticsMetadata,
   getTeamArtifactAuthor,
@@ -255,6 +257,7 @@ async function executeForkedSkill(
       ...buildPluginCommandTelemetryFields(command.pluginInfo),
     }),
   })
+  logSkillActivated(commandName, command)
 
   const { modifiedGetAppState, baseAgent, promptMessages, skillContent } =
     await prepareForkedCommandContext(command, args || '', context)
@@ -812,6 +815,7 @@ export const SkillTool: Tool<InputSchema, Output, Progress> = buildTool({
           ...buildPluginCommandTelemetryFields(command.pluginInfo),
         }),
     })
+    logSkillActivated(commandName, command)
 
     // Get the tool use ID from the parent message for linking newMessages
     const toolUseID = getToolUseIDFromParentMessage(
@@ -1029,6 +1033,32 @@ function isOfficialMarketplaceSkill(command: PromptCommand): boolean {
   return isOfficialMarketplaceName(
     parsePluginIdentifier(command.pluginInfo.repository).marketplace,
   )
+}
+
+function logSkillActivated(
+  commandName: string,
+  command: Command | undefined,
+): void {
+  const source = command?.type === 'prompt' ? command.source : undefined
+  const pluginInfo =
+    command?.type === 'prompt' ? command.pluginInfo : undefined
+  const marketplace = pluginInfo
+    ? parsePluginIdentifier(pluginInfo.repository).marketplace
+    : undefined
+  const canLogNames =
+    source === 'builtin' ||
+    source === 'bundled' ||
+    (source === 'plugin' && isOfficialMarketplaceName(marketplace)) ||
+    isToolDetailsLoggingEnabled()
+
+  void logOTelEvent('skill_activated', {
+    'skill.name': canLogNames ? commandName : 'custom_skill',
+    ...(source && { 'skill.source': source }),
+    ...(command?.kind && { 'skill.kind': command.kind }),
+    ...(canLogNames &&
+      pluginInfo && { 'plugin.name': pluginInfo.pluginManifest.name }),
+    ...(canLogNames && marketplace && { 'marketplace.name': marketplace }),
+  })
 }
 
 /**

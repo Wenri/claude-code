@@ -586,3 +586,50 @@ test('source retains assistant UUIDs in message lookups', () => {
     'assistantUuidByToolUseID: new Map(), normalizedMessageCount: 0',
   ])
 })
+
+test('authenticates retained skill activation telemetry', () => {
+  for (const release of releases) {
+    const bundle = readBundle(release)
+    assert.equal(
+      occurrences(bundle, 'skill_activated'),
+      1,
+      `${release.version}: skill activation event literal cardinality`,
+    )
+    assert.equal(
+      occurrences(bundle, 'custom_skill'),
+      1,
+      `${release.version}: redacted custom skill literal cardinality`,
+    )
+
+    const helper = bundle.match(
+      /function ([A-Za-z_$][\w$]*)\([^)]*\)\{let [\s\S]{0,500}?"skill_activated",\{"skill\.name":[\s\S]{0,600}?"marketplace\.name":[\s\S]{0,100}?\}\}\)\}/,
+    )
+    assert.ok(helper, `${release.version}: exact skill activation helper shape`)
+    assert.equal(
+      occurrences(bundle, `${helper[1]}(`),
+      3,
+      `${release.version}: helper definition plus fork and inline calls`,
+    )
+  }
+})
+
+test('source emits exact skill activation metadata after both SkillTool events', () => {
+  const skillTool = source('src/tools/SkillTool/SkillTool.ts')
+  includesAll(skillTool, [
+    "const source = command?.type === 'prompt' ? command.source : undefined",
+    "const pluginInfo = command?.type === 'prompt' ? command.pluginInfo : undefined",
+    'parsePluginIdentifier(pluginInfo.repository).marketplace',
+    "source === 'builtin' || source === 'bundled' || (source === 'plugin' && isOfficialMarketplaceName(marketplace)) || isToolDetailsLoggingEnabled()",
+    "void logOTelEvent('skill_activated', { 'skill.name': canLogNames ? commandName : 'custom_skill', ...(source && { 'skill.source': source }), ...(command?.kind && { 'skill.kind': command.kind }), ...(canLogNames && pluginInfo && { 'plugin.name': pluginInfo.pluginManifest.name }), ...(canLogNames && marketplace && { 'marketplace.name': marketplace }), })",
+  ])
+  assert.equal(
+    occurrences(skillTool, 'logSkillActivated('),
+    3,
+    'one helper and exactly two SkillTool calls',
+  )
+  assert.equal(
+    occurrences(skillTool, '}) logSkillActivated(commandName, command)'),
+    2,
+    'fork and inline calls immediately follow their invocation events',
+  )
+})
