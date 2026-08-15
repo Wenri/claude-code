@@ -652,6 +652,7 @@ export async function runHeadless(
     agent: string | undefined
     workload: string | undefined
     setupTrigger?: 'init' | 'maintenance' | undefined
+    configuredMcpServerCount: number
     sessionStartHooksPromise?: ReturnType<typeof processSessionStartHooks>
     setSDKStatus?: (status: SDKStatus) => void
   },
@@ -718,6 +719,12 @@ export async function runHeadless(
   // Start headless profiler for first turn
   headlessProfilerStartTurn()
   headlessProfilerCheckpoint('runHeadless_entry')
+  logEvent('tengu_timer', {
+    event: 'startup',
+    durationMs: Math.round(process.uptime() * 1000),
+    mcpNonBlocking: isEnvTruthy(process.env.MCP_CONNECTION_NONBLOCKING),
+    mcpClientCount: options.configuredMcpServerCount,
+  })
 
   // Check Grove requirements for non-interactive consumer subscribers
   if (await isQualifiedForGrove()) {

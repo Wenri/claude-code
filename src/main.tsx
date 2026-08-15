@@ -2981,6 +2981,7 @@ async function run(): Promise<CommanderCommand> {
         agent: agentCli,
         workload: options.workload,
         setupTrigger: setupTrigger ?? undefined,
+        configuredMcpServerCount: Object.keys(regularMcpConfigs).length,
         sessionStartHooksPromise
       });
       return;
