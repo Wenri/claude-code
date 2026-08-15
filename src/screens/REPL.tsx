@@ -72,6 +72,7 @@ import { getSystemPrompt } from '../constants/prompts.js';
 import { buildEffectiveSystemPrompt } from '../utils/systemPrompt.js';
 import { getSystemContext, getUserContext } from '../context.js';
 import { getMemoryFiles } from '../utils/claudemd.js';
+import { createMemorySelector } from '../memdir/findRelevantMemories.js';
 import { startBackgroundHousekeeping } from '../utils/backgroundHousekeeping.js';
 import { getTotalCost, saveCurrentSessionCosts, resetCostState, getStoredSessionCosts } from '../cost-tracker.js';
 import { useCostSummary } from '../costHook.js';
@@ -2167,6 +2168,7 @@ export function REPL({
   // readFileState is a 100-entry LRU; once it evicts a CLAUDE.md path,
   // the next discovery cycle re-injects it. Cleared in clearConversation.
   const loadedNestedMemoryPathsRef = useRef(new Set<string>());
+  const memorySelectorRef = useRef(createMemorySelector());
   const isolationLatchRef = useRef<'web' | 'connectors' | null>(null);
 
   // Helper to restore read file state from messages (used for resume flows)
@@ -2727,6 +2729,7 @@ export function REPL({
       onInstallIDEExtension: setIDEToInstallExtension,
       nestedMemoryAttachmentTriggers: new Set<string>(),
       loadedNestedMemoryPaths: loadedNestedMemoryPathsRef.current,
+      memorySelector: memorySelectorRef.current,
       dynamicSkillDirTriggers: new Set<string>(),
       discoveredSkillNames: discoveredSkillNamesRef.current,
       bashRerunAliases: bashRerunAliasesRef.current,
@@ -3312,6 +3315,7 @@ export function REPL({
           readFileState: readFileState.current,
           discoveredSkillNames: discoveredSkillNamesRef.current,
           loadedNestedMemoryPaths: loadedNestedMemoryPathsRef.current,
+          memorySelector: memorySelectorRef.current,
           getAppState: () => store.getState(),
           setAppState,
           setConversationId,
@@ -5188,6 +5192,7 @@ export function REPL({
                 readFileState: readFileState.current,
                 discoveredSkillNames: discoveredSkillNamesRef.current,
                 loadedNestedMemoryPaths: loadedNestedMemoryPathsRef.current,
+                memorySelector: memorySelectorRef.current,
                 getAppState: () => store.getState(),
                 setAppState,
                 setConversationId,
@@ -5249,7 +5254,7 @@ export function REPL({
 
                 {focusedInputDialog === 'desktop-upsell' && <DesktopUpsellStartup onDone={() => setShowDesktopUpsellStartup(false)} />}
 
-                {feature('ULTRAPLAN') ? focusedInputDialog === 'ultraplan-choice' && ultraplanPendingChoice && <UltraplanChoiceDialog plan={ultraplanPendingChoice.plan} sessionId={ultraplanPendingChoice.sessionId} taskId={ultraplanPendingChoice.taskId} setMessages={setMessages} readFileState={readFileState.current} discoveredSkillNames={discoveredSkillNamesRef.current} loadedNestedMemoryPaths={loadedNestedMemoryPathsRef.current} getAppState={() => store.getState()} setConversationId={setConversationId} resultDedupState={resultDedupStateRef.current} isolationLatch={isolationLatchRef} /> : null}
+                {feature('ULTRAPLAN') ? focusedInputDialog === 'ultraplan-choice' && ultraplanPendingChoice && <UltraplanChoiceDialog plan={ultraplanPendingChoice.plan} sessionId={ultraplanPendingChoice.sessionId} taskId={ultraplanPendingChoice.taskId} setMessages={setMessages} readFileState={readFileState.current} discoveredSkillNames={discoveredSkillNamesRef.current} loadedNestedMemoryPaths={loadedNestedMemoryPathsRef.current} memorySelector={memorySelectorRef.current} getAppState={() => store.getState()} setConversationId={setConversationId} resultDedupState={resultDedupStateRef.current} isolationLatch={isolationLatchRef} /> : null}
 
                 {feature('ULTRAPLAN') ? focusedInputDialog === 'ultraplan-launch' && ultraplanLaunchPending && <UltraplanLaunchDialog sourcePromise={ultraplanLaunchPending.sourcePromise} onChoice={(choice, opts) => {
             const {

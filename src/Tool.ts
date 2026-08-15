@@ -59,6 +59,7 @@ import type {
   WebSearchProgress,
 } from './types/tools.js'
 import type { FileStateCache } from './utils/fileStateCache.js'
+import type { MemorySelector } from './memdir/findRelevantMemories.js'
 import type { DenialTrackingState } from './utils/permissions/denialTracking.js'
 import type { ResultDedupState } from './services/tools/resultDedup.js'
 import type { ConnectionLifecycleTracker } from './services/api/connectionState.js'
@@ -285,6 +286,8 @@ export type ToolUseContext = {
   dynamicSkillDirTriggers?: Set<string>
   /** Skill names surfaced via skill_discovery this session. Telemetry only (feeds was_discovered). */
   discoveredSkillNames?: Set<string>
+  /** Per-conversation persistent-memory selector cache and usage state. */
+  memorySelector?: MemorySelector
   /** Session-local aliases for exact Bash command reruns. */
   bashRerunAliases?: BashRerunAliases
   userModified?: boolean

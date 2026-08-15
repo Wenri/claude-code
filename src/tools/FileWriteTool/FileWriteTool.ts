@@ -2,6 +2,7 @@ import { basename, dirname, sep } from 'path'
 import { logEvent } from 'src/services/analytics/index.js'
 import { z } from 'zod/v4'
 import { captureMemoryWrite } from '../../memdir/memoryWriteSurvey.js'
+import { prepareAutoMemoryContent } from '../../memdir/tinyMemoryStamps.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
 import { diagnosticTracker } from '../../services/diagnosticTracking.js'
 import {
@@ -347,6 +348,7 @@ export const FileWriteTool = buildTool({
 
     const enc = meta?.encoding ?? 'utf8'
     const oldContent = meta?.content ?? null
+    content = prepareAutoMemoryContent(fullFilePath, content)
 
     // Write is a full content replacement — the model sent explicit line endings
     // in `content` and meant them. Do not rewrite them. Previously we preserved

@@ -392,6 +392,7 @@ async function* queryLoop(
   using pendingMemoryPrefetch = startRelevantMemoryPrefetch(
     state.messages,
     state.toolUseContext,
+    querySource,
   )
 
   // eslint-disable-next-line no-constant-condition

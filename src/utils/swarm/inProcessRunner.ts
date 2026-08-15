@@ -33,6 +33,7 @@ import {
 import { resetMicrocompactState } from '../../services/compact/microCompact.js'
 import type { AppState } from '../../state/AppState.js'
 import type { Tool, ToolUseContext } from '../../Tool.js'
+import { createMemorySelector } from '../../memdir/findRelevantMemories.js'
 import { appendTeammateMessage } from '../../tasks/InProcessTeammateTask/InProcessTeammateTask.js'
 import type {
   InProcessTeammateTaskState,
@@ -1085,6 +1086,7 @@ export async function runInProcessTeammate(
         const isolatedContext: ToolUseContext = {
           ...toolUseContext,
           readFileState: cloneFileStateCache(toolUseContext.readFileState),
+          memorySelector: createMemorySelector(),
           onCompactProgress: undefined,
           setStreamMode: undefined,
         }

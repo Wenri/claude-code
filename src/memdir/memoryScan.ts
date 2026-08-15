@@ -8,6 +8,7 @@ import { readdir } from 'fs/promises'
 import { basename, join } from 'path'
 import { parseFrontmatter } from '../utils/frontmatterParser.js'
 import { readFileInRange } from '../utils/readFileInRange.js'
+import { isTinyMemoryEnabled } from './paths.js'
 import { type MemoryType, parseMemoryType } from './memoryTypes.js'
 
 export type MemoryHeader = {
@@ -16,10 +17,27 @@ export type MemoryHeader = {
   mtimeMs: number
   description: string | null
   type: MemoryType | undefined
+  created: string | null
+  last_read: string | null
+  /** Tiny-memory mode gives the selector the complete memory body. */
+  content: string | null
 }
 
 const MAX_MEMORY_FILES = 200
+const MAX_TINY_MEMORY_FILES = 250
 const FRONTMATTER_MAX_LINES = 30
+const TINY_MEMORY_MAX_LINES = 200
+
+function parseCreatedDate(value: unknown): number | null {
+  if (typeof value !== 'string') return null
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
+  if (!match) return null
+  const year = Number(match[1])
+  const month = Number(match[2])
+  const day = Number(match[3])
+  const timestamp = new Date(year, month - 1, day).getTime()
+  return Number.isNaN(timestamp) ? null : timestamp
+}
 
 /**
  * Scan a memory directory for .md files, read their frontmatter, and return
@@ -36,6 +54,8 @@ export async function scanMemoryFiles(
   memoryDir: string,
   signal: AbortSignal,
 ): Promise<MemoryHeader[]> {
+  const tinyMemory = isTinyMemoryEnabled()
+  const maxLines = tinyMemory ? TINY_MEMORY_MAX_LINES : FRONTMATTER_MAX_LINES
   try {
     const entries = await readdir(memoryDir, { recursive: true })
     const mdFiles = entries.filter(
@@ -48,17 +68,31 @@ export async function scanMemoryFiles(
         const { content, mtimeMs } = await readFileInRange(
           filePath,
           0,
-          FRONTMATTER_MAX_LINES,
+          maxLines,
           undefined,
           signal,
         )
-        const { frontmatter } = parseFrontmatter(content, filePath)
+        const { frontmatter, content: body } = parseFrontmatter(
+          content,
+          filePath,
+        )
         return {
           filename: relativePath,
           filePath,
-          mtimeMs,
+          mtimeMs:
+            (tinyMemory ? parseCreatedDate(frontmatter.created) : null) ??
+            mtimeMs,
           description: frontmatter.description || null,
           type: parseMemoryType(frontmatter.type),
+          created:
+            typeof frontmatter.created === 'string'
+              ? frontmatter.created
+              : null,
+          last_read:
+            typeof frontmatter.last_read === 'string'
+              ? frontmatter.last_read
+              : null,
+          content: tinyMemory ? body.trim() || null : null,
         }
       }),
     )
@@ -70,7 +104,7 @@ export async function scanMemoryFiles(
       )
       .map(r => r.value)
       .sort((a, b) => b.mtimeMs - a.mtimeMs)
-      .slice(0, MAX_MEMORY_FILES)
+      .slice(0, tinyMemory ? MAX_TINY_MEMORY_FILES : MAX_MEMORY_FILES)
   } catch {
     return []
   }
@@ -86,9 +120,13 @@ export function formatMemoryManifest(memories: MemoryHeader[]): string {
     .map(m => {
       const tag = m.type ? `[${m.type}] ` : ''
       const ts = new Date(m.mtimeMs).toISOString()
+      const prefix = `- ${tag}${m.filename} (${ts})`
+      if (m.content !== null) {
+        return `${prefix}\n  ${m.content.replace(/\n/g, '\n  ')}`
+      }
       return m.description
-        ? `- ${tag}${m.filename} (${ts}): ${m.description}`
-        : `- ${tag}${m.filename} (${ts})`
+        ? `${prefix}: ${m.description}`
+        : prefix
     })
     .join('\n')
 }

@@ -44,6 +44,7 @@ import {
   cloneContentReplacementState,
 } from './toolResultStorage.js'
 import { createAgentId } from './uuid.js'
+import { createMemorySelector } from '../memdir/findRelevantMemories.js'
 
 const DEFAULT_FORKED_AGENT_MAX_TURNS = 50
 
@@ -390,6 +391,7 @@ export function createSubagentContext(
     dynamicSkillDirTriggers: new Set<string>(),
     // Per-subagent: tracks skills surfaced by discovery for was_discovered telemetry (SkillTool.ts:116)
     discoveredSkillNames: new Set<string>(),
+    memorySelector: createMemorySelector(),
     bashRerunAliases: createBashRerunAliases(),
     toolDecisions: undefined,
     // Budget decisions: override > clone of parent > undefined (feature off).

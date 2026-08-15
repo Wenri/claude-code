@@ -44,7 +44,7 @@ import {
   getConditionalRulesForCwdLevelDirectory,
   type MemoryFileInfo,
 } from './claudemd.js'
-import { dirname, parse, relative, resolve } from 'path'
+import { dirname, join, parse, relative, resolve } from 'path'
 import { getCwd } from 'src/utils/cwd.js'
 import { getViewedTeammateTask } from '../state/selectors.js'
 import { logError } from './log.js'
@@ -248,9 +248,18 @@ import { getLocalISODate } from '../constants/common.js'
 import { getPDFPageCount } from './pdf.js'
 import { PDF_AT_MENTION_INLINE_THRESHOLD } from '../constants/apiLimits.js'
 import { isAgentSwarmsEnabled } from './agentSwarmsEnabled.js'
-import { findRelevantMemories } from '../memdir/findRelevantMemories.js'
-import { memoryAge, memoryFreshnessText } from '../memdir/memoryAge.js'
-import { getAutoMemPath, isAutoMemoryEnabled } from '../memdir/paths.js'
+import {
+  findRelevantMemories,
+  synthesizeRelevantMemories,
+  type MemorySelector,
+} from '../memdir/findRelevantMemories.js'
+import { memoryFreshnessText } from '../memdir/memoryAge.js'
+import {
+  getAutoMemPath,
+  isAutoMemoryEnabled,
+  isTinyMemoryEnabled,
+} from '../memdir/paths.js'
+import { markTinyMemoryRead } from '../memdir/tinyMemoryStamps.js'
 import { getAgentMemoryDir } from '../tools/AgentTool/agentMemory.js'
 import {
   readUnreadMessages,
@@ -306,6 +315,14 @@ export const RELEVANT_MEMORIES_CONFIG = {
   // re-surfacing is valid.
   MAX_SESSION_BYTES: 60 * 1024,
 } as const
+
+const MEMORY_PREFETCH_EXCLUDED_QUERY_SOURCES = new Set<string>([
+  'extract_memories',
+  'auto_dream',
+  'prompt_suggestion',
+  'speculation',
+  'compact',
+])
 
 export const VERIFY_PLAN_REMINDER_CONFIG = {
   TURNS_BETWEEN_REMINDERS: 10,
@@ -2260,8 +2277,8 @@ async function getNestedMemoryAttachments(
 async function getRelevantMemoryAttachments(
   input: string,
   agents: AgentDefinition[],
+  selector: MemorySelector,
   readFileState: FileStateCache,
-  recentTools: readonly string[],
   signal: AbortSignal,
   alreadySurfaced: ReadonlySet<string>,
 ): Promise<Attachment[]> {
@@ -2276,13 +2293,46 @@ async function getRelevantMemoryAttachments(
   })
   const dirs = memoryDirs.length > 0 ? memoryDirs : [getAutoMemPath()]
 
+  if (isTinyMemoryEnabled()) {
+    const memories = (
+      await Promise.all(
+        dirs.map(dir =>
+          synthesizeRelevantMemories(input, dir, selector, signal).catch(
+            () => null,
+          ),
+        ),
+      )
+    )
+      .map((result, index) => {
+        if (result === null) return null
+        const dir = dirs[index]
+        if (dir === undefined) return null
+        for (const filename of result.citedMemories) {
+          void markTinyMemoryRead(join(dir, filename))
+        }
+        const sources = result.citedMemories.join(', ')
+        return {
+          path: `<synthesis:${dir}>`,
+          content: sources
+            ? `${result.synthesis}\n\nSources: ${sources}`
+            : result.synthesis,
+          mtimeMs: Date.now(),
+          header: 'Recalled from your persistent memory system:',
+        }
+      })
+      .filter(memory => memory !== null)
+
+    if (memories.length === 0) return []
+    return [{ type: 'relevant_memories' as const, memories }]
+  }
+
   const allResults = await Promise.all(
     dirs.map(dir =>
       findRelevantMemories(
         input,
         dir,
+        selector,
         signal,
-        recentTools,
         alreadySurfaced,
       ).catch(() => []),
     ),
@@ -2392,7 +2442,7 @@ export function memoryHeader(path: string, mtimeMs: number): string {
   const staleness = memoryFreshnessText(mtimeMs)
   return staleness
     ? `${staleness}\n\nMemory: ${path}:`
-    : `Memory (saved ${memoryAge(mtimeMs)}): ${path}:`
+    : `Memory: ${path}:`
 }
 
 /**
@@ -2425,10 +2475,15 @@ export type MemoryPrefetch = {
 export function startRelevantMemoryPrefetch(
   messages: ReadonlyArray<Message>,
   toolUseContext: ToolUseContext,
+  querySource: QuerySource,
 ): MemoryPrefetch | undefined {
+  const selector = toolUseContext.memorySelector
   if (
+    !selector ||
+    toolUseContext.agentId ||
     !isAutoMemoryEnabled() ||
-    !getFeatureValue_CACHED_MAY_BE_STALE('tengu_moth_copse', false)
+    !getFeatureValue_CACHED_MAY_BE_STALE('tengu_moth_copse', false) ||
+    MEMORY_PREFETCH_EXCLUDED_QUERY_SOURCES.has(querySource)
   ) {
     return undefined
   }
@@ -2456,8 +2511,8 @@ export function startRelevantMemoryPrefetch(
   const promise = getRelevantMemoryAttachments(
     input,
     toolUseContext.options.agentDefinitions.activeAgents,
+    selector,
     toolUseContext.readFileState,
-    collectRecentSuccessfulTools(messages, lastUserMessage),
     controller.signal,
     surfaced.paths,
   ).catch(e => {
@@ -2473,11 +2528,15 @@ export function startRelevantMemoryPrefetch(
     consumedOnIteration: -1,
     [Symbol.dispose]() {
       controller.abort()
+      const usage = selector.lastUsage
       logEvent('tengu_memdir_prefetch_collected', {
         hidden_by_first_iteration:
           handle.settledAt !== null && handle.consumedOnIteration === 0,
         consumed_on_iteration: handle.consumedOnIteration,
         latency_ms: (handle.settledAt ?? Date.now()) - firedAt,
+        cache_read_input_tokens: usage?.cacheReadInputTokens,
+        cache_creation_input_tokens: usage?.cacheCreationInputTokens,
+        selector_turn_count: usage?.turnCount,
       })
     },
   }

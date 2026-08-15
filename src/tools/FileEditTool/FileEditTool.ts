@@ -1,6 +1,7 @@
 import { dirname, isAbsolute, sep } from 'path'
 import { logEvent } from 'src/services/analytics/index.js'
 import { captureMemoryWrite } from '../../memdir/memoryWriteSurvey.js'
+import { prepareAutoMemoryContent } from '../../memdir/tinyMemoryStamps.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
 import { diagnosticTracker } from '../../services/diagnosticTracking.js'
 import {
@@ -19,7 +20,7 @@ import type { ToolUseContext } from '../../Tool.js'
 import { buildTool, type ToolDef } from '../../Tool.js'
 import { getCwd } from '../../utils/cwd.js'
 import { logForDebugging } from '../../utils/debug.js'
-import { countLinesChanged } from '../../utils/diff.js'
+import { countLinesChanged, getPatchForDisplay } from '../../utils/diff.js'
 import { isEnvTruthy } from '../../utils/envUtils.js'
 import { isENOENT } from '../../utils/errors.js'
 import {
@@ -504,13 +505,31 @@ export const FileEditTool = buildTool({
     )
 
     // 4. Generate patch
-    const { patch, updatedFile } = getPatchForEdit({
+    const editResult = getPatchForEdit({
       filePath: absoluteFilePath,
       fileContents: originalFileContents,
       oldString: actualOldString,
       newString: actualNewString,
       replaceAll: replace_all,
     })
+    const updatedFile = prepareAutoMemoryContent(
+      absoluteFilePath,
+      editResult.updatedFile,
+    )
+    const patch =
+      updatedFile === editResult.updatedFile
+        ? editResult.patch
+        : getPatchForDisplay({
+            filePath: absoluteFilePath,
+            fileContents: originalFileContents,
+            edits: [
+              {
+                old_string: originalFileContents,
+                new_string: updatedFile,
+                replace_all: false,
+              },
+            ],
+          })
 
     // 5. Write to disk
     writeTextContent(absoluteFilePath, updatedFile, encoding, endings)

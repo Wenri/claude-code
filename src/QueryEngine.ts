@@ -31,6 +31,7 @@ import {
 } from './cost-tracker.js'
 import type { CanUseToolFn } from './hooks/useCanUseTool.js'
 import { loadMemoryPrompt } from './memdir/memdir.js'
+import { createMemorySelector } from './memdir/findRelevantMemories.js'
 import { hasAutoMemPathOverride } from './memdir/paths.js'
 import { query } from './query.js'
 import { categorizeRetryableAPIError } from './services/api/errors.js'
@@ -246,6 +247,7 @@ export class QueryEngine {
   private discoveredSkillNames = new Set<string>()
   private bashRerunAliases = createBashRerunAliases()
   private loadedNestedMemoryPaths = new Set<string>()
+  private memorySelector = createMemorySelector()
   private isolationLatch: ReplIsolationLatch
 
   constructor(config: QueryEngineConfig) {
@@ -452,6 +454,7 @@ export class QueryEngine {
       readFileState: this.readFileState,
       nestedMemoryAttachmentTriggers: new Set<string>(),
       loadedNestedMemoryPaths: this.loadedNestedMemoryPaths,
+      memorySelector: this.memorySelector,
       dynamicSkillDirTriggers: new Set<string>(),
       discoveredSkillNames: this.discoveredSkillNames,
       bashRerunAliases: this.bashRerunAliases,
@@ -730,6 +733,7 @@ export class QueryEngine {
       readFileState: this.readFileState,
       nestedMemoryAttachmentTriggers: new Set<string>(),
       loadedNestedMemoryPaths: this.loadedNestedMemoryPaths,
+      memorySelector: this.memorySelector,
       dynamicSkillDirTriggers: new Set<string>(),
       discoveredSkillNames: this.discoveredSkillNames,
       bashRerunAliases: this.bashRerunAliases,

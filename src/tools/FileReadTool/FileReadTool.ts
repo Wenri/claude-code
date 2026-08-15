@@ -10,6 +10,7 @@ import {
 } from '../../constants/apiLimits.js'
 import { hasBinaryExtension } from '../../constants/files.js'
 import { memoryFreshnessNote } from '../../memdir/memoryAge.js'
+import { markTinyMemoryRead } from '../../memdir/tinyMemoryStamps.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
 import { logEvent } from '../../services/analytics/index.js'
 import {
@@ -1061,6 +1062,7 @@ async function callInner(
     limit,
   })
   context.nestedMemoryAttachmentTriggers?.add(fullFilePath)
+  void markTinyMemoryRead(fullFilePath)
 
   // Snapshot before iterating — a listener that unsubscribes mid-callback
   // would splice the live array and skip the next listener.

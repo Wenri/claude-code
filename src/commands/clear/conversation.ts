@@ -5,6 +5,10 @@
 import { feature } from 'bun:bundle'
 import { randomUUID, type UUID } from 'crypto'
 import {
+  resetMemorySelector,
+  type MemorySelector,
+} from '../../memdir/findRelevantMemories.js'
+import {
   getLastMainRequestId,
   getOriginalCwd,
   getSessionId,
@@ -58,6 +62,7 @@ export async function clearConversation({
   readFileState,
   discoveredSkillNames,
   loadedNestedMemoryPaths,
+  memorySelector,
   getAppState,
   setAppState,
   setConversationId,
@@ -68,6 +73,7 @@ export async function clearConversation({
   readFileState: FileStateCache
   discoveredSkillNames?: Set<string>
   loadedNestedMemoryPaths?: Set<string>
+  memorySelector?: MemorySelector
   getAppState?: () => AppState
   setAppState?: (f: (prev: AppState) => AppState) => void
   setConversationId?: (id: UUID) => void
@@ -141,6 +147,7 @@ export async function clearConversation({
   readFileState.clear()
   discoveredSkillNames?.clear()
   loadedNestedMemoryPaths?.clear()
+  resetMemorySelector(memorySelector)
   if (resultDedupState) clearResultDedupState(resultDedupState)
   if (isolationLatch) isolationLatch.current = null
 

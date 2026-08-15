@@ -1,4 +1,5 @@
 import { markPostCompaction } from '../../bootstrap/state.js'
+import { resetMemorySelector } from '../../memdir/findRelevantMemories.js'
 import type { QuerySource } from '../../constants/querySource.js'
 import type { ToolUseContext } from '../../Tool.js'
 import type {
@@ -556,6 +557,7 @@ export async function reactiveCompactOnPromptTooLong(
   const preCompactReadFileState = cacheToObject(toolUseContext.readFileState)
   toolUseContext.readFileState.clear()
   toolUseContext.loadedNestedMemoryPaths?.clear()
+  resetMemorySelector(toolUseContext.memorySelector)
 
   if (shouldTrackPromptCacheBreaks()) {
     notifyCompaction(
