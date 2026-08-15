@@ -112,10 +112,11 @@ function PromptInputFooter({
   const isFullscreen = isFullscreenEnvEnabled();
   const briefTranscript = useAppState(state => state.briefTranscript);
   const isShort = isFullscreen && rows < 24;
-  const footerStates = [
+  const modeLabels = [
+    "external" === 'ant' && isUndercover() && 'undercover',
     isBgSession() && 'background',
     isFullscreen && briefTranscript && 'focus',
-  ].filter(Boolean);
+  ].filter(isTruthy);
 
   // Pill highlights when tasks is the active footer item AND no specific
   // agent row is selected. When coordinatorTaskIndex >= 0 the pointer has
@@ -146,22 +147,42 @@ function PromptInputFooter({
     return <PromptInputHelpMenu dimColor={true} fixedWidth={true} paddingX={2} />;
   }
   return <>
-      <Box width={columns} flexWrap="wrap" alignItems="flex-end" paddingLeft={2} paddingRight={isFullscreen ? 1 : 2} columnGap={1}>
+      <Box width={columns} flexWrap="wrap" alignItems="flex-start" paddingLeft={2} paddingRight={isFullscreen ? 1 : 2} columnGap={1}>
         <Box flexDirection="column" flexShrink={1}>
           {mode === 'prompt' && !isShort && !exitMessage.show && !isPasting && statusLineShouldDisplay(settings) && <StatusLine messagesRef={messagesRef} lastAssistantMessageId={lastAssistantMessageId} vimMode={vimMode} />}
           <PromptInputFooterLeftSide exitMessage={exitMessage} leftArrowPending={leftArrowPending} vimMode={vimMode} hideVimModeIndicator={!isShort && statusLineShouldDisplay(settings) && (settings?.statusLine?.hideVimModeIndicator ?? false)} mode={mode} toolPermissionContext={toolPermissionContext} suppressHint={suppressHint} isInputEmpty={!suppressHintFromProps} isLoading={isLoading} tasksSelected={pillSelected} teamsSelected={teamsSelected} teammateFooterIndex={teammateFooterIndex} tmuxSelected={tmuxSelected} isPasting={isPasting} showExpandPasteHint={showExpandPasteHint} isSearching={isSearching} historyQuery={historyQuery} setHistoryQuery={setHistoryQuery} historyFailedMatch={historyFailedMatch} onOpenTasksDialog={onOpenTasksDialog} />
         </Box>
-        <Box flexShrink={0} marginLeft="auto" gap={1}>
-          {isFullscreen ? null : <Notifications apiKeyStatus={apiKeyStatus} debug={debug} isAutoUpdating={isAutoUpdating} verbose={verbose} messages={messages} onChangeIsUpdating={onChangeIsUpdating} ideSelection={ideSelection} mcpClients={mcpClients} isInputWrapped={isInputWrapped} />}
-          {"external" === 'ant' && isUndercover() && <Text dimColor>undercover</Text>}
-          <BridgeStatusIndicator bridgeSelected={bridgeSelected} />
-          {footerStates.length > 0 && <Text dimColor>{footerStates.join(' & ')}</Text>}
-        </Box>
+        <PromptInputFooterRightSide
+          notifications={isFullscreen ? null : <Notifications apiKeyStatus={apiKeyStatus} debug={debug} isAutoUpdating={isAutoUpdating} verbose={verbose} messages={messages} onChangeIsUpdating={onChangeIsUpdating} ideSelection={ideSelection} mcpClients={mcpClients} isInputWrapped={isInputWrapped} />}
+          bridgeSelected={bridgeSelected}
+          modeLabels={modeLabels}
+        />
       </Box>
       {isForkSubagentEnabled() && <CoordinatorTaskPanel />}
     </>;
 }
 export default memo(PromptInputFooter);
+function isTruthy(value: string | false): value is string {
+  return Boolean(value);
+}
+type PromptInputFooterRightSideProps = {
+  notifications: ReactNode;
+  bridgeSelected: boolean;
+  modeLabels: string[];
+};
+function PromptInputFooterRightSide({
+  notifications,
+  bridgeSelected,
+  modeLabels
+}: PromptInputFooterRightSideProps): ReactNode {
+  return <Box flexShrink={0} marginLeft="auto" flexDirection="column" alignItems="flex-end">
+      {notifications}
+      <Box gap={1}>
+        <BridgeStatusIndicator bridgeSelected={bridgeSelected} />
+        {modeLabels.length > 0 && <Text dimColor>{modeLabels.join(' & ')}</Text>}
+      </Box>
+    </Box>;
+}
 type BridgeStatusProps = {
   bridgeSelected: boolean;
 };

@@ -143,6 +143,11 @@ export const initializeDatadog = memoize(async (): Promise<boolean> => {
   }
 })
 
+export function resetDatadogInit(): void {
+  initializeDatadog.cache?.clear?.()
+  datadogInitialized = null
+}
+
 /**
  * Flush remaining Datadog logs and shut down.
  * Called from gracefulShutdown() before process.exit() since
