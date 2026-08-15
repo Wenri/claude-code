@@ -416,7 +416,10 @@ import {
 } from '../utils/teammateMailbox.js'
 import { removeTeammateFromTeamFile } from '../utils/swarm/teamHelpers.js'
 import { unassignTeammateTasks } from '../utils/tasks.js'
-import { getRunningTasks } from '../utils/task/framework.js'
+import {
+  createTaskRegistry,
+  getRunningTasks,
+} from '../utils/task/framework.js'
 import { isBackgroundTask } from '../tasks/types.js'
 import { stopTask } from '../tasks/stopTask.js'
 import { drainSdkEvents } from '../utils/sdkEventQueue.js'
@@ -4598,7 +4601,7 @@ function runHeadlessStreaming(
           const { task_id: taskId } = message.request
           try {
             await stopTask(taskId, {
-              getAppState,
+              taskRegistry: createTaskRegistry(getAppState, setAppState),
               setAppState,
             })
             sendControlResponseSuccess(message, {})

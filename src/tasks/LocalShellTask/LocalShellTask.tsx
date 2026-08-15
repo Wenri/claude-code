@@ -173,7 +173,7 @@ function enqueueShellNotification(taskId: string, description: string, status: '
 export const LocalShellTask: Task = {
   name: 'LocalShellTask',
   type: 'local_bash',
-  async kill(taskId, setAppState) {
+  async kill(taskId, _taskRegistry, setAppState) {
     killTask(taskId, setAppState);
   }
 };

@@ -156,6 +156,7 @@ import { useQueueProcessor } from '../hooks/useQueueProcessor.js';
 import { useWakeRouter } from '../hooks/useWakeRouter.js';
 import { useMailboxBridge } from '../hooks/useMailboxBridge.js';
 import { queryCheckpoint, logQueryProfileReport } from '../utils/queryProfiler.js';
+import { createTaskRegistry } from '../utils/task/framework.js';
 import type { Message as MessageType, UserMessage, ProgressMessage, HookResultMessage, PartialCompactDirection } from '../types/message.js';
 import { query } from '../query.js';
 import { mergeClients, useMergedClients } from '../hooks/useMergedClients.js';
@@ -748,6 +749,7 @@ export function REPL({
   }, [viewingAgentTaskId, needsBootstrap, setAppState]);
   const store = useAppStateStore();
   const teammateColors = useMemo(() => createTeammateColors(() => store.getState(), setAppState), [store, setAppState]);
+  const taskRegistry = useMemo(() => createTaskRegistry(() => store.getState(), setAppState), [store, setAppState]);
   const terminal = useTerminalNotification();
   const mainLoopModel = useMainLoopModel();
 
@@ -2722,6 +2724,7 @@ export function REPL({
       setReplContext: makeSetReplContext(setAppState),
       agentLifecycle: createAgentLifecycle(setAppState),
       teammateColors,
+      taskRegistry,
       replHydration: {
         kind: 'resume'
       },
@@ -2817,7 +2820,7 @@ export function REPL({
       contentReplacementState: contentReplacementStateRef.current,
       resultDedupState: resultDedupStateRef.current
     };
-  }, [commands, combinedInitialTools, mainThreadAgentDefinition, debug, initialMcpClients, ideInstallationStatus, dynamicMcpConfig, theme, allowedAgentTypes, store, setAppState, teammateColors, reverify, addNotification, setMessages, applyMessageOp, setToolJSX, emitToolProgress, onChangeDynamicMcpConfig, resume, requestPrompt, disabled, customSystemPrompt, appendSystemPrompt, setConversationId, addResponseLength, resetResponseLength, recordApiMetricsEvent]);
+  }, [commands, combinedInitialTools, mainThreadAgentDefinition, debug, initialMcpClients, ideInstallationStatus, dynamicMcpConfig, theme, allowedAgentTypes, store, setAppState, teammateColors, taskRegistry, reverify, addNotification, setMessages, applyMessageOp, setToolJSX, emitToolProgress, onChangeDynamicMcpConfig, resume, requestPrompt, disabled, customSystemPrompt, appendSystemPrompt, setConversationId, addResponseLength, resetResponseLength, recordApiMetricsEvent]);
 
   // Session backgrounding (Ctrl+B to background/foreground)
   const handleBackgroundQuery = useCallback(() => {

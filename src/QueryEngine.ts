@@ -76,6 +76,7 @@ import {
   type FileStateCache,
 } from './utils/fileStateCache.js'
 import { headlessProfilerCheckpoint } from './utils/headlessProfiler.js'
+import { createTaskRegistry } from './utils/task/framework.js'
 import { registerStructuredOutputEnforcement } from './utils/hooks/hookHelpers.js'
 import { getInMemoryErrors } from './utils/log.js'
 import { countToolCalls, SYNTHETIC_MESSAGES } from './utils/messages.js'
@@ -465,6 +466,7 @@ export class QueryEngine {
       setReplContext: makeSetReplContext(setAppState),
       agentLifecycle: createAgentLifecycle(setAppState),
       teammateColors: createTeammateColors(getAppState, setAppState),
+      taskRegistry: createTaskRegistry(getAppState, setAppState),
       isolationLatch: this.isolationLatch,
       abortController: this.abortController,
       readFileState: this.readFileState,
@@ -752,6 +754,7 @@ export class QueryEngine {
       setReplContext: makeSetReplContext(setAppState),
       agentLifecycle: createAgentLifecycle(setAppState),
       teammateColors: createTeammateColors(getAppState, setAppState),
+      taskRegistry: createTaskRegistry(getAppState, setAppState),
       isolationLatch: this.isolationLatch,
       abortController: this.abortController,
       readFileState: this.readFileState,

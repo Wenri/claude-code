@@ -72,6 +72,7 @@ import type { ContentReplacementState } from './utils/toolResultStorage.js'
 import type { SessionStateManager } from './utils/sessionState.js'
 import type { AgentLifecycle } from './utils/agentLifecycle.js'
 import type { SetClassifierApprovals } from './utils/classifierApprovals.js'
+import type { TaskRegistry } from './utils/task/framework.js'
 import type { TeammateColors } from './utils/swarm/teammateLayoutManager.js'
 
 // Re-export progress types for backwards compatibility
@@ -258,6 +259,7 @@ export type ToolUseContext = {
   setReplContext(agentId: string, context: ReplContext | undefined): void
   agentLifecycle: AgentLifecycle
   teammateColors: TeammateColors
+  taskRegistry: TaskRegistry
   replHydration?: ReplHydration
   isolationLatch?: ReplIsolationLatch
   onPermissionDenial?: (

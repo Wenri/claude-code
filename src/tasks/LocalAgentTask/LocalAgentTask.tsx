@@ -343,7 +343,7 @@ export function enqueueAgentNotification({
 export const LocalAgentTask: Task = {
   name: 'LocalAgentTask',
   type: 'local_agent',
-  async kill(taskId, setAppState) {
+  async kill(taskId, _taskRegistry, setAppState) {
     killAsyncAgent(taskId, setAppState);
   }
 };

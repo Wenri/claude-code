@@ -1,7 +1,10 @@
 import { z } from 'zod/v4'
 import type { TaskStateBase } from '../../Task.js'
 import { buildTool, type ToolDef } from '../../Tool.js'
-import { stopTask } from '../../tasks/stopTask.js'
+import {
+  getTaskStopCallerAgentId,
+  stopTask,
+} from '../../tasks/stopTask.js'
 import { lazySchema } from '../../utils/lazySchema.js'
 import { jsonStringify } from '../../utils/slowOperations.js'
 import { DESCRIPTION, TASK_STOP_TOOL_NAME } from './prompt.js'
@@ -68,8 +71,7 @@ export const TaskStopTool = buildTool({
       }
     }
 
-    const appState = getAppState()
-    const task = appState.tasks?.[id] as TaskStateBase | undefined
+    const task = getAppState().tasks?.[id] as TaskStateBase | undefined
 
     if (!task) {
       return {
@@ -106,7 +108,7 @@ export const TaskStopTool = buildTool({
   renderToolResultMessage,
   async call(
     { task_id, shell_id },
-    { getAppState, setAppState, abortController },
+    toolUseContext,
   ) {
     // Support both task_id and shell_id (deprecated KillShell compat)
     const id = task_id ?? shell_id
@@ -115,8 +117,9 @@ export const TaskStopTool = buildTool({
     }
 
     const result = await stopTask(id, {
-      getAppState,
-      setAppState,
+      taskRegistry: toolUseContext.taskRegistry,
+      setAppState: toolUseContext.setAppState,
+      callerAgentId: getTaskStopCallerAgentId(toolUseContext),
     })
 
     return {

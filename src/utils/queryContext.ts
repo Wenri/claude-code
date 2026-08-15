@@ -28,6 +28,7 @@ import type { FileStateCache } from './fileStateCache.js'
 import type { CacheSafeParams } from './forkedAgent.js'
 import { getMainLoopModel } from './model/model.js'
 import { asSystemPrompt } from './systemPromptType.js'
+import { createTaskRegistry } from './task/framework.js'
 import {
   shouldEnableThinkingByDefault,
   type ThinkingConfig,
@@ -198,6 +199,7 @@ export async function buildSideQuestionFallbackParams({
     setReplContext: makeSetReplContext(setAppState),
     agentLifecycle: createAgentLifecycle(setAppState),
     teammateColors: createTeammateColors(getAppState, setAppState),
+    taskRegistry: createTaskRegistry(getAppState, setAppState),
     messages: forkContextMessages,
     turnStartIndex: 0,
     setInProgressToolUseIDs: () => {},

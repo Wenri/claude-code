@@ -2,6 +2,7 @@ import { randomBytes } from 'crypto'
 import type { AppState } from './state/AppState.js'
 import type { AgentId } from './types/ids.js'
 import { getTaskOutputPath } from './utils/task/diskOutput.js'
+import type { TaskRegistry } from './utils/task/framework.js'
 
 export type TaskType =
   | 'local_bash'
@@ -54,6 +55,7 @@ export type TaskStateBase = {
   outputFile: string
   outputOffset: number
   notified: boolean
+  agentId?: string
 }
 
 export type LocalShellSpawnInput = {
@@ -67,12 +69,15 @@ export type LocalShellSpawnInput = {
 }
 
 // What getTaskByType dispatches for: kill. spawn/render were never
-// called polymorphically (removed in #22546). All six kill implementations
-// use only setAppState — getAppState/abortController were dead weight.
+// called polymorphically (removed in #22546).
 export type Task = {
   name: string
   type: TaskType
-  kill(taskId: string, setAppState: SetAppState): Promise<void>
+  kill(
+    taskId: string,
+    taskRegistry: TaskRegistry,
+    setAppState: SetAppState,
+  ): Promise<void>
 }
 
 // Task ID prefixes

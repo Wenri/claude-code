@@ -27,6 +27,7 @@ import { getMainLoopModel } from '../utils/model/model.js'
 import { hasPermissionsToUseTool } from '../utils/permissions/permissions.js'
 import { setCwd } from '../utils/Shell.js'
 import { jsonStringify } from '../utils/slowOperations.js'
+import { createTaskRegistry } from '../utils/task/framework.js'
 import { getErrorParts } from '../utils/toolErrors.js'
 import { zodToJsonSchema } from '../utils/zodToJsonSchema.js'
 
@@ -132,6 +133,7 @@ export async function startMCPServer(
         setReplContext: () => {},
         agentLifecycle: NOOP_AGENT_LIFECYCLE,
         teammateColors: NOOP_TEAMMATE_COLORS,
+        taskRegistry: createTaskRegistry(() => getDefaultAppState(), () => {}),
         messages: [],
         turnStartIndex: 0,
         readFileState: readFileStateCache,

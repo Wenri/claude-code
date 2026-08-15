@@ -20,6 +20,7 @@ import { expandPath } from './path.js'
 import { getSessionIdFromLog } from './sessionStorage.js'
 import { jsonParse } from './slowOperations.js'
 import { asSystemPrompt } from './systemPromptType.js'
+import { createTaskRegistry } from './task/framework.js'
 import type { CanUseToolFn } from '../hooks/useCanUseTool.js'
 
 const MAX_TURNS = 20
@@ -92,6 +93,7 @@ function createSearchContext(
     setReplContext: () => {},
     agentLifecycle: NOOP_AGENT_LIFECYCLE,
     teammateColors: NOOP_TEAMMATE_COLORS,
+    taskRegistry: createTaskRegistry(() => appState, () => {}),
     messages: initialMessages,
     turnStartIndex: 0,
     setInProgressToolUseIDs: () => {},

@@ -808,7 +808,7 @@ function startRemoteSessionPolling(taskId: string, context: TaskContext): () => 
 export const RemoteAgentTask: Task = {
   name: 'RemoteAgentTask',
   type: 'remote_agent',
-  async kill(taskId, setAppState) {
+  async kill(taskId, _taskRegistry, setAppState) {
     let toolUseId: string | undefined;
     let description: string | undefined;
     let sessionId: string | undefined;
