@@ -438,8 +438,16 @@ export function getProxyFetchOptions(opts?: {
   proxy?: string | { url: string; headers: Record<string, string> }
   unix?: string
   keepalive?: false
+  timeout?: false
 } {
-  const base = keepAliveDisabled ? ({ keepalive: false } as const) : {}
+  const base = {
+    ...(keepAliveDisabled && { keepalive: false as const }),
+    ...(opts?.forAnthropicAPI &&
+      typeof Bun !== 'undefined' &&
+      !isEnvTruthy(process.env.API_FORCE_IDLE_TIMEOUT) && {
+        timeout: false as const,
+      }),
+  }
 
   // ANTHROPIC_UNIX_SOCKET tunnels through the `claude ssh` auth proxy, which
   // hardcodes the upstream to the Anthropic API. Scope to the Anthropic API
