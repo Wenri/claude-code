@@ -42,7 +42,11 @@ import {
 } from '../../utils/messages.js'
 import { getClaudeTempDir } from '../../utils/permissions/filesystem.js'
 import { extractReadFilesFromMessages } from '../../utils/queryHelpers.js'
-import { getTranscriptPath } from '../../utils/sessionStorage.js'
+import {
+  fireSessionMirror,
+  getTranscriptPath,
+  trackSessionWrite,
+} from '../../utils/sessionStorage.js'
 import { SHELL_TOOL_NAMES } from '../../utils/shell/shellToolUtils.js'
 import { jsonStringify } from '../../utils/slowOperations.js'
 import {
@@ -878,9 +882,13 @@ export async function acceptSpeculation(
       timestamp: new Date().toISOString(),
       timeSavedMs,
     }
-    void appendFile(getTranscriptPath(), jsonStringify(entry) + '\n', {
-      mode: 0o600,
-    }).catch(() => {
+    void trackSessionWrite(() =>
+      appendFile(getTranscriptPath(), jsonStringify(entry) + '\n', {
+        mode: 0o600,
+      }).then(() => {
+        fireSessionMirror(getTranscriptPath(), [entry])
+      }),
+    ).catch(() => {
       logForDebugging(
         '[Speculation] Failed to write speculation-accept to transcript',
       )

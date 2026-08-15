@@ -748,6 +748,10 @@ export function fireSessionMirror(filePath: string, entries: unknown[]): void {
   getProject().fireMirror(filePath, entries)
 }
 
+export function trackSessionWrite<T>(write: () => Promise<T>): Promise<T> {
+  return getProject().trackExternalWrite(write)
+}
+
 const REMOTE_FLUSH_INTERVAL_MS = 10
 const sessionAgentNameChanged = createSignal()
 export const subscribeSessionAgentNameChanged =
@@ -852,6 +856,10 @@ class Project {
     } finally {
       this.decrementPendingWrites()
     }
+  }
+
+  trackExternalWrite<T>(write: () => Promise<T>): Promise<T> {
+    return this.trackWrite(write)
   }
 
   private enqueueWrite(filePath: string, entry: Entry): Promise<void> {
