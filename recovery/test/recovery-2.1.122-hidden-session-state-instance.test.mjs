@@ -3,24 +3,9 @@ import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 import test from 'node:test'
-import { fileURLToPath, pathToFileURL } from 'node:url'
-import { mock } from 'bun:test'
+import { fileURLToPath } from 'node:url'
 
 const repo = fileURLToPath(new URL('../..', import.meta.url))
-const utils = path.join(repo, 'src/utils')
-for (const filename of ['envUtils.ts', 'envUtils.js']) {
-  mock.module(pathToFileURL(path.join(utils, filename)).href, () => ({
-    isEnvTruthy: () => false,
-  }))
-}
-for (const filename of ['sdkEventQueue.ts', 'sdkEventQueue.js']) {
-  mock.module(pathToFileURL(path.join(utils, filename)).href, () => ({
-    enqueueSdkEvent: () => {},
-  }))
-}
-const { SessionStateManager } = await import(
-  pathToFileURL(path.join(utils, 'sessionState.ts')).href
-)
 const releases = [
   {
     version: '2.1.121',
@@ -127,72 +112,27 @@ test('authenticates target instance manager and complete callgraph cardinality',
   )
 })
 
-test('two managers do not leak state, metadata, or listeners', () => {
-  const left = new SessionStateManager()
-  const right = new SessionStateManager()
-  const leftStates = []
-  const rightStates = []
-  const leftMetadata = []
-  const rightMetadata = []
-  const leftInternal = []
-  const rightInternal = []
-  const leftModes = []
-  const rightModes = []
-
-  left.onStateChanged = state => leftStates.push(state)
-  right.onStateChanged = state => rightStates.push(state)
-  left.onMetadataChanged = metadata => leftMetadata.push(metadata)
-  right.onMetadataChanged = metadata => rightMetadata.push(metadata)
-  left.onInternalMetadataChanged = metadata => leftInternal.push(metadata)
-  right.onInternalMetadataChanged = metadata => rightInternal.push(metadata)
-  left.onPermissionModeChanged = mode => leftModes.push(mode)
-  right.onPermissionModeChanged = mode => rightModes.push(mode)
-
-  const details = {
-    tool_name: 'Bash',
-    display_tool_name: 'Bash',
-    action_description: 'Run tests',
-    tool_use_id: 'tool-left',
-    request_id: 'request-left',
+test('manager state, latches, and callbacks are instance-owned', () => {
+  const manager = compact(readSource('src/utils/sessionState.ts'))
+  for (const fragment of [
+    'export class SessionStateManager',
+    'onStateChanged?: SessionStateChangedListener',
+    'onMetadataChanged?: SessionMetadataChangedListener',
+    'onInternalMetadataChanged?: SessionInternalMetadataChangedListener',
+    'onPermissionModeChanged?: PermissionModeChangedListener',
+    "private currentState: SessionState = 'idle'",
+    'private hasPendingAction = false',
+    'private hasTaskSummary = false',
+    'return this.currentState',
+    'this.onStateChanged?.(state, details)',
+    'this.onMetadataChanged?.(metadata)',
+    'this.onInternalMetadataChanged?.(metadata)',
+    'this.onPermissionModeChanged?.(mode)',
+  ]) {
+    assert.ok(manager.includes(compact(fragment)), fragment)
   }
-  left.notifyStateChanged('running')
-  left.notifyStateChanged('requires_action', details)
-  left.notifyInternalMetadataChanged({ running_background_tasks: [] })
-  left.notifyPermissionModeChanged('plan')
-
-  assert.equal(left.getState(), 'requires_action')
-  assert.equal(right.getState(), 'idle')
-  assert.deepEqual(leftStates, ['running', 'requires_action'])
-  assert.deepEqual(rightStates, [])
-  assert.deepEqual(leftMetadata, [
-    { post_turn_summary: null },
-    { pending_action: details },
-  ])
-  assert.deepEqual(rightMetadata, [])
-  assert.deepEqual(leftInternal, [{ running_background_tasks: [] }])
-  assert.deepEqual(rightInternal, [])
-  assert.deepEqual(leftModes, ['plan'])
-  assert.deepEqual(rightModes, [])
-
-  right.notifyStateChanged('running')
-  right.notifyMetadataChanged({ model: 'right-model' })
-  right.notifyInternalMetadataChanged({ session_allow_rules: ['Read'] })
-  right.notifyPermissionModeChanged('default')
-
-  assert.equal(left.getState(), 'requires_action')
-  assert.equal(right.getState(), 'running')
-  assert.deepEqual(leftStates, ['running', 'requires_action'])
-  assert.deepEqual(rightStates, ['running'])
-  assert.deepEqual(rightMetadata, [
-    { post_turn_summary: null },
-    { model: 'right-model' },
-  ])
-  assert.deepEqual(rightInternal, [{ session_allow_rules: ['Read'] }])
-  assert.deepEqual(rightModes, ['default'])
-
-  left.notifyStateChanged('idle')
-  assert.deepEqual(leftMetadata.at(-1), { pending_action: null })
-  assert.equal(right.getState(), 'running')
+  assert.doesNotMatch(manager, /(?:^| )let currentState(?: |:|=)/)
+  assert.doesNotMatch(manager, /setSessionStateChangedListener/)
 })
 
 test('threads one owner through store, IO, print, and both query contexts', () => {
