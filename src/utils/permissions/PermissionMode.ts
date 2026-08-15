@@ -128,6 +128,32 @@ export function isDefaultMode(mode: PermissionMode | undefined): boolean {
   return mode === 'default' || mode === undefined
 }
 
+export type SandboxPermissionBehavior =
+  | 'allow'
+  | 'deny'
+  | 'classify'
+  | 'ask'
+
+/**
+ * Resolve how a team lead should handle a teammate's sandbox-network prompt.
+ * Modes that already encode a user decision can answer the worker directly;
+ * only default/accept-edits mode needs to surface the interactive dialog.
+ */
+export function getSandboxPermissionBehavior(
+  mode: PermissionMode,
+  isBypassPermissionsModeAvailable: boolean,
+): SandboxPermissionBehavior {
+  if (mode === 'auto') return 'classify'
+  if (
+    mode === 'bypassPermissions' ||
+    (mode === 'plan' && isBypassPermissionsModeAvailable)
+  ) {
+    return 'allow'
+  }
+  if (mode === 'dontAsk') return 'deny'
+  return 'ask'
+}
+
 export function permissionModeShortTitle(mode: PermissionMode): string {
   return getModeConfig(mode).shortTitle
 }
