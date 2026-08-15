@@ -40,7 +40,7 @@ function compact(contents) {
   return contents.replaceAll(/\s+/g, ' ').trim()
 }
 
-test('authenticated adjacent bundles retain all three print startup paths', () => {
+test('authenticated adjacent bundles retain print startup and input preflight paths', () => {
   for (const release of releases) {
     const bundle = readBundle(release)
     const subscriber = bundle.match(
@@ -65,10 +65,15 @@ test('authenticated adjacent bundles retain all three print startup paths', () =
       /outputFormat==="stream-json"\)await [\w$]+\.write\(\{type:"result",subtype:"error_during_execution",duration_ms:0,duration_api_ms:0,is_error:!0,num_turns:0,stop_reason:null,session_id:[\w$]+\(\),total_cost_usd:0,usage:[\w$]+,modelUsage:\{\},permission_denials:\[\],uuid:[\w$]+\.randomUUID\(\),errors:\[`Sandbox required but unavailable: \$\{[\w$]+\}\. Set sandbox\.failIfUnavailable=false to allow unsandboxed execution\.`\]\}\)/,
       `${release.version}: structured sandbox-required result`,
     )
+    assert.match(
+      bundle,
+      /let [\w$]+=typeof [\w$]+\.resume==="string"&&[\w$]+\.resume\.trim\(\)\.length>0,[\w$]+=Boolean\([\w$]+\.sdkUrl\);if\(![\w$]+&&![\w$]+&&![\w$]+&&![\w$]+\)\{process\.stderr\.write\([\w$]+\|\|[\w$]+\.continue\?`Error: No deferred tool marker found in the resumed session\. Either the session was not deferred, the marker is stale \(tool already ran\), or it exceeds the tail-scan window\. Provide a prompt to continue the conversation\.\n`:`Error: Input must be provided either through stdin or as a prompt argument when using --print\n`\)/,
+      `${release.version}: input/deferred/hook preflight and resume copy`,
+    )
   }
 })
 
-test('source reconstructs idle dispatch, deferred resume, and SDK error result', () => {
+test('source reconstructs print startup and input preflight', () => {
   const source = fs.readFileSync(path.join(repo, 'src/cli/print.ts'), 'utf8')
   const normalized = compact(source)
 
@@ -86,6 +91,10 @@ test('source reconstructs idle dispatch, deferred resume, and SDK error result',
     "subtype: 'error_during_execution'",
     'usage: EMPTY_USAGE',
     'Sandbox required but unavailable: ${sandboxUnavailableReason}. Set sandbox.failIfUnavailable=false to allow unsandboxed execution.',
+    "typeof options.resume === 'string' && options.resume.trim().length > 0",
+    '!deferredToolUse',
+    '!hookInitialUserMessage',
+    'Error: No deferred tool marker found in the resumed session. Either the session was not deferred, the marker is stale (tool already ran), or it exceeds the tail-scan window. Provide a prompt to continue the conversation.',
   ]) {
     assert.ok(normalized.includes(compact(fragment)), fragment)
   }
@@ -94,4 +103,5 @@ test('source reconstructs idle dispatch, deferred resume, and SDK error result',
     source,
     /if \(deferredToolUse\)[\s\S]+?Auto-resuming deferred tool[\s\S]+?isMeta: true,[\s\S]+?void run\(\)[\s\S]+?Cron scheduler/,
   )
+  assert.doesNotMatch(source, /hasValidResumeSessionId|validateUuid/)
 })
