@@ -270,7 +270,7 @@ function BtwSideQuestion({
               {history.length > 0 && (
                 <KeyboardShortcutHint shortcut="x" action="clear history" />
               )}
-              <KeyboardShortcutHint shortcut="escape" action="dismiss" />
+              <KeyboardShortcutHint shortcut="Esc" action="dismiss" />
             </Byline>
           </Text>
         )}
