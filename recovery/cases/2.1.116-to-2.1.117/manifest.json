@@ -307,7 +307,8 @@
     "root": "src",
     "patchSet": "2.1.116-to-2.1.117-incremental",
     "baseCommit": "e08046f528857203cbdede147bcab8b8b8021bf7",
-    "baseGitTree": "6f4e63ccc6cf7a3ff146f1b2d46b94136f0b00cf",
+    "baseGitTree": "67420dc837cc579923df04d97a3c77c4abae0876",
+    "baseSourceGitTree": "6f4e63ccc6cf7a3ff146f1b2d46b94136f0b00cf",
     "patchOrder": [
       "recovered/source-facing-overlay.patch"
     ],

@@ -180,21 +180,25 @@ function main() {
         ],
         repositoryRoot,
       )
-  const sourceReproductionAudit = runJson(
-    path.join(scripts, 'audit-source-reproduction.mjs'),
-    [
-      '--artifacts',
-      artifactsRoot,
-      '--case',
-      manifestPath,
-      '--repo',
-      toolingRoot,
-      '--ledger',
-      path.join(toolingRoot, 'recovery/source-reproduction-gaps.json'),
-    ],
-    repositoryRoot,
-  )
-  const sourceReproduction = sourceReproductionAudit.results[0]
+  const hasLegacySourceReproduction =
+    manifest.semanticSourceLineage !== undefined
+  const sourceReproductionAudit = hasLegacySourceReproduction
+    ? runJson(
+        path.join(scripts, 'audit-source-reproduction.mjs'),
+        [
+          '--artifacts',
+          artifactsRoot,
+          '--case',
+          manifestPath,
+          '--repo',
+          toolingRoot,
+          '--ledger',
+          path.join(toolingRoot, 'recovery/source-reproduction-gaps.json'),
+        ],
+        repositoryRoot,
+      )
+    : null
+  const sourceReproduction = sourceReproductionAudit?.results[0] ?? null
   const exactBundleDelta = runJson(
     path.join(scripts, 'build-exact-delta.mjs'),
     [
@@ -480,7 +484,7 @@ function main() {
           evidence: evidence.status,
           bunExtraction: bunExtraction?.status ?? null,
           sourcePatches: sourcePatches.status,
-          sourceReproduction: sourceReproductionAudit.status,
+          sourceReproduction: sourceReproductionAudit?.status ?? null,
           exactBundleDelta: exactBundleDelta.status,
           attribution: attribution.status,
           structural: structural.status,
@@ -505,37 +509,44 @@ function main() {
             sourcePatches.appliedSourceTree?.files.length ??
             sourcePatches.target?.files ??
             0,
-          semanticCriterion:
-            sourceReproduction.sourceReproduction.criterion,
-          semanticAncestryCasesVerified:
-            sourceReproductionAudit.ancestryCasesVerified,
-          firstPartySemanticEquivalentFromSrc:
-            sourceReproduction.sourceReproduction
-              .firstPartySemanticEquivalentFromSrc,
-          wholeBundleSemanticEquivalentFromSrc:
-            sourceReproduction.sourceReproduction
-              .wholeBundleSemanticEquivalentFromSrc,
-          semanticBuildInputs:
-            sourceReproduction.sourceReproduction.buildInputs,
-          semanticTargetCommit:
-            sourceReproduction.sourceReproduction.targetCommit,
-          semanticSupplements:
-            sourceReproduction.sourceReproduction.cumulativeSupplements,
-          semanticCoverage:
-            sourceReproduction.sourceReproduction.coverage,
-          semanticEvidenceTests:
-            sourceReproduction.sourceReproduction.semanticEvidenceTests,
-          semanticLiteralResidueAudit:
-            sourceReproduction.sourceReproduction
-              .semanticLiteralResidueAudit,
-          semanticAncestryEvidenceTests:
-            sourceReproductionAudit.semanticEvidenceTests,
-          currentSourceSemanticEvidenceTests:
-            sourceReproductionAudit.currentSourceSemanticEvidenceTests,
-          currentSourceSemanticOwnerSyntax:
-            sourceReproductionAudit.currentSourceSemanticOwnerSyntax,
-          byteExactSourceBuildClaimed:
-            sourceReproduction.sourceReproduction.byteExactSourceBuildClaimed,
+          ...(sourceReproductionAudit === null
+            ? {}
+            : {
+                semanticCriterion:
+                  sourceReproduction.sourceReproduction.criterion,
+                semanticAncestryCasesVerified:
+                  sourceReproductionAudit.ancestryCasesVerified,
+                firstPartySemanticEquivalentFromSrc:
+                  sourceReproduction.sourceReproduction
+                    .firstPartySemanticEquivalentFromSrc,
+                wholeBundleSemanticEquivalentFromSrc:
+                  sourceReproduction.sourceReproduction
+                    .wholeBundleSemanticEquivalentFromSrc,
+                semanticBuildInputs:
+                  sourceReproduction.sourceReproduction.buildInputs,
+                semanticTargetCommit:
+                  sourceReproduction.sourceReproduction.targetCommit,
+                semanticSupplements:
+                  sourceReproduction.sourceReproduction
+                    .cumulativeSupplements,
+                semanticCoverage:
+                  sourceReproduction.sourceReproduction.coverage,
+                semanticEvidenceTests:
+                  sourceReproduction.sourceReproduction
+                    .semanticEvidenceTests,
+                semanticLiteralResidueAudit:
+                  sourceReproduction.sourceReproduction
+                    .semanticLiteralResidueAudit,
+                semanticAncestryEvidenceTests:
+                  sourceReproductionAudit.semanticEvidenceTests,
+                currentSourceSemanticEvidenceTests:
+                  sourceReproductionAudit.currentSourceSemanticEvidenceTests,
+                currentSourceSemanticOwnerSyntax:
+                  sourceReproductionAudit.currentSourceSemanticOwnerSyntax,
+                byteExactSourceBuildClaimed:
+                  sourceReproduction.sourceReproduction
+                    .byteExactSourceBuildClaimed,
+              }),
         },
         bundle: {
           bytes: exactBundleDelta.target.bytes,

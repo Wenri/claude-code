@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict'
+import { execFileSync } from 'node:child_process'
 import crypto from 'node:crypto'
 import fs from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 import test from 'node:test'
 import { fileURLToPath } from 'node:url'
@@ -52,6 +54,58 @@ function compressedJson(relative) {
 function sha256(value) {
   return crypto.createHash('sha256').update(value).digest('hex')
 }
+
+const historicalSemanticRoots = new Map()
+
+function historicalSemanticSource(caseName, relative) {
+  let root = historicalSemanticRoots.get(caseName)
+  if (root === undefined) {
+    const manifest = JSON.parse(source(
+      `recovery/cases/${caseName}/manifest.json`,
+    ))
+    const lineage = manifest.semanticSourceLineage
+    const supplement = lineage?.supplement
+    assert.equal(manifest.case, caseName)
+    assert.match(lineage?.targetCommit ?? '', /^[a-f0-9]{40}$/)
+    assert.deepEqual(
+      [supplement?.case, supplement?.path],
+      [caseName, `recovery/cases/${caseName}/semantic-supplement.patch`],
+    )
+    const patchFile = path.join(repositoryRoot, supplement.path)
+    const patchValue = fs.readFileSync(patchFile)
+    assert.equal(patchValue.length, supplement.bytes)
+    assert.equal(sha256(patchValue), supplement.sha256)
+
+    root = fs.mkdtempSync(path.join(os.tmpdir(), 'late-semantic-source-'))
+    try {
+      execFileSync(
+        'git',
+        ['clone', '--quiet', '--shared', '--no-checkout', repositoryRoot, root],
+        { stdio: 'pipe' },
+      )
+      execFileSync(
+        'git',
+        ['checkout', '--quiet', '--detach', lineage.targetCommit],
+        { cwd: root, stdio: 'pipe' },
+      )
+      execFileSync('git', ['apply', '--3way', patchFile], {
+        cwd: root,
+        stdio: 'pipe',
+      })
+    } catch (error) {
+      fs.rmSync(root, { recursive: true, force: true })
+      throw error
+    }
+    historicalSemanticRoots.set(caseName, root)
+  }
+  return fs.readFileSync(path.join(root, relative))
+}
+
+test.after(() => {
+  for (const root of historicalSemanticRoots.values()) {
+    fs.rmSync(root, { recursive: true, force: true })
+  }
+})
 
 test('late semantic ledgers classify every nonmatched structural unit fail-closed', () => {
   for (const [caseName, expectedRows, expectedDependencyGaps] of lateCases) {
@@ -273,11 +327,10 @@ test('late claude-api embedded documents and routing are exact source owners', (
     }
   }
   for (const [relative, expected] of latest) {
-    const value = fs.readFileSync(path.join(
-      repositoryRoot,
-      'src/skills/bundled/claude-api',
-      relative,
-    ))
+    const value = historicalSemanticSource(
+      '2.1.114-to-2.1.116',
+      `src/skills/bundled/claude-api/${relative}`,
+    )
     assert.equal(value.length, expected.bytes, relative)
     assert.equal(sha256(value), expected.sha256, relative)
   }
@@ -325,13 +378,39 @@ test('inherited generated-only loop and provider commands have real cumulative o
     'cancelAllPendingLoopSessionCrons',
   ]) assert.ok(loop.includes(fragment), fragment)
 
+  const historicalWakeup = historicalSemanticSource(
+    '2.1.107-to-2.1.108',
+    'src/tools/ScheduleWakeupTool/ScheduleWakeupTool.ts',
+  )
+  assert.ok(
+    historicalWakeup.includes(
+      'scheduleLoopWakeup(delaySeconds, prompt, reason)',
+    ),
+  )
+  assert.ok(historicalWakeup.includes('shouldDefer: true'))
   const wakeup = source('src/tools/ScheduleWakeupTool/ScheduleWakeupTool.ts')
-  assert.ok(wakeup.includes('scheduleLoopWakeup(delaySeconds, prompt, reason)'))
+  assert.match(
+    wakeup,
+    /scheduleLoopWakeup\(\s*delaySeconds,\s*prompt,\s*reason,?\s*\)/,
+  )
   assert.ok(wakeup.includes('shouldDefer: true'))
+  const historicalToolSearch = historicalSemanticSource(
+    '2.1.107-to-2.1.108',
+    'src/tools/ToolSearchTool/prompt.ts',
+  )
+  assert.ok(
+    historicalToolSearch.includes(
+      'if (isLoopDynamicEnabled()) return false',
+    ),
+  )
   const toolSearch = source('src/tools/ToolSearchTool/prompt.ts')
   assert.ok(toolSearch.includes("feature('AGENT_TRIGGERS')"))
   assert.ok(toolSearch.includes('tool.name === SCHEDULE_WAKEUP_TOOL_NAME'))
-  assert.ok(toolSearch.includes('if (isLoopDynamicEnabled()) return false'))
+  assert.ok(
+    toolSearch.includes(
+      'if (loopDynamic.isLoopDynamicEnabled()) return false',
+    ),
+  )
   const commands = source('src/commands.ts')
   assert.ok(commands.includes('setupBedrock'))
   assert.ok(commands.includes('setupVertex'))
@@ -356,19 +435,54 @@ test('2.1.112 and 2.1.113 source gaps retain exact runtime semantics', () => {
   const copy = source('src/commands/copy/copy.tsx')
   assert.ok(copy.includes('normalizeTablesInMarkdown(texts[age]!)'))
   assert.ok(copy.includes("cell.replace(/\\|/g, '\\\\|')"))
+  const historicalScroll = historicalSemanticSource(
+    '2.1.114-to-2.1.116',
+    'src/components/ScrollKeybindingHandler.tsx',
+  )
+  assert.ok(historicalScroll.includes('countGraphemes(text)'))
+  assert.ok(historicalScroll.includes("n === 1 ? 'char' : 'chars'"))
   const scroll = source('src/components/ScrollKeybindingHandler.tsx')
-  assert.ok(scroll.includes('countGraphemes(text)'))
-  assert.ok(scroll.includes("n === 1 ? 'char' : 'chars'"))
+  const countsGraphemes = scroll.includes('countGraphemes(text)')
+  const countsCodeUnits = scroll.includes('const n = text.length')
+  assert.notEqual(countsGraphemes, countsCodeUnits)
+  if (countsGraphemes) {
+    assert.ok(scroll.includes("n === 1 ? 'char' : 'chars'"))
+  } else {
+    for (const fragment of [
+      'copied ${n} chars to clipboard',
+      'copied ${n} chars to tmux buffer',
+      'sent ${n} chars via OSC 52',
+    ]) assert.ok(scroll.includes(fragment), fragment)
+  }
   const color = source('src/ink/colorize.ts')
   assert.ok(color.includes('`\\x1B[7m${result}\\x1B[27m`'))
-  const review = source('src/commands/review/UltrareviewOverageDialog.tsx')
-  for (const fragment of [
+  const historicalReview = historicalSemanticSource(
+    '2.1.112-to-2.1.113',
+    'src/commands/review/UltrareviewOverageDialog.tsx',
+  )
+  const animatedReviewFragments = [
     'useAnimationFrame(reducedMotion ? null : 50)',
     '19 - (Math.floor(time / 200) % 29)',
     'Math.floor(time / 120)',
     'message="Launching"',
     'shimmerColor="subtle"',
-  ]) assert.ok(review.includes(fragment), fragment)
+  ]
+  for (const fragment of animatedReviewFragments) {
+    assert.ok(historicalReview.includes(fragment), fragment)
+  }
+  const review = source('src/commands/review/UltrareviewOverageDialog.tsx')
+  const staticReviewFragments = [
+    'const [isLaunching, setIsLaunching] = useState(false)',
+    'setIsLaunching(true)',
+    'onProceed(abortControllerRef.current.signal)',
+    'setIsLaunching(false)',
+    '<Text color="background">Launching…</Text>',
+  ]
+  assert.ok(
+    animatedReviewFragments.every(fragment => review.includes(fragment)) ||
+      staticReviewFragments.every(fragment => review.includes(fragment)),
+    'current ultrareview launch indicator has neither the historical animation nor the 2.1.121 stateful replacement',
+  )
 
   const bashPrompt = source('src/tools/BashTool/prompt.ts')
   assert.ok(
@@ -391,8 +505,11 @@ test('2.1.112 and 2.1.113 source gaps retain exact runtime semantics', () => {
     "find with '${arg}' executes commands or modifies files",
   ]) assert.ok(bashAst.includes(fragment), fragment)
 
-  const away = source('src/hooks/useAwaySummary.ts')
-  for (const fragment of [
+  const historicalAway = historicalSemanticSource(
+    '2.1.114-to-2.1.116',
+    'src/hooks/useAwaySummary.ts',
+  )
+  const historicalAwayFragments = [
     'MIN_USER_MESSAGES = 3',
     'MIN_USER_MESSAGES_SINCE_RECAP = 2',
     "should1hCacheTTL('repl_main_thread')",
@@ -406,7 +523,31 @@ test('2.1.112 and 2.1.113 source gaps retain exact runtime semantics', () => {
     'scrolledBeforeSubmit: lastScrollAtRef.current > focusedAt',
     "getPromptInputValue() !== ''",
     '[awaySummary] skipped: draft input present',
-  ]) assert.ok(away.includes(fragment), fragment)
+  ]
+  for (const fragment of historicalAwayFragments) {
+    assert.ok(historicalAway.includes(fragment), fragment)
+  }
+  const away = source('src/hooks/useAwaySummary.ts')
+  const evolvedAwayFragments = [
+    'MIN_TOTAL_USER_TURNS = 3',
+    'MIN_USER_TURNS_SINCE_RECAP = 2',
+    "should1hCacheTTL('repl_main_thread')",
+    "'tengu_sedge_lantern_config'",
+    'cacheTtl * 0.9',
+    'Math.min(delayRef.current, cacheTtl * 0.8)',
+    'hasLatestRecap',
+    '(disable recaps in /config)',
+    "message.type === 'system' && message.subtype === 'api_metrics'",
+    "logEvent('tengu_return_to_session'",
+    'scrolledBeforeSubmit: (lastUserScrollAtRef.current ?? 0) > focusedAt',
+    "(draftInputRef?.current ?? '') !== ''",
+    '[awaySummary] skipped: draft input present',
+  ]
+  assert.ok(
+    historicalAwayFragments.every(fragment => away.includes(fragment)) ||
+      evolvedAwayFragments.every(fragment => away.includes(fragment)),
+    'current away-summary hook has neither the historical flow nor the 2.1.121 eligibility/draft-input evolution',
+  )
   const awayService = source('src/services/awaySummary.ts')
   for (const fragment of [
     'getLastCacheSafeParams()',
@@ -419,12 +560,31 @@ test('2.1.112 and 2.1.113 source gaps retain exact runtime semantics', () => {
     'skipTranscript: true',
     'Recap in under 40 words',
   ]) assert.ok(awayService.includes(fragment), fragment)
+  const historicalRepl = historicalSemanticSource(
+    '2.1.107-to-2.1.108',
+    'src/screens/REPL.tsx',
+  )
+  const historicalReplFragments = [
+    'isLoading, lastUserScrollTsRef)',
+    'setPromptInputValue(consumeEarlyInput())',
+    'usePromptInputValue()',
+    'useIsPromptInputEmpty()',
+    'useRef(getPromptInputValue())',
+  ]
+  for (const fragment of historicalReplFragments) {
+    assert.ok(historicalRepl.includes(fragment), fragment)
+  }
   const repl = source('src/screens/REPL.tsx')
-  assert.ok(repl.includes('isLoading, lastUserScrollTsRef)'))
-  assert.ok(repl.includes('setPromptInputValue(consumeEarlyInput())'))
-  assert.ok(repl.includes('usePromptInputValue()'))
-  assert.ok(repl.includes('useIsPromptInputEmpty()'))
-  assert.ok(repl.includes('useRef(getPromptInputValue())'))
+  const controlledInputFragments = [
+    'const [inputValue, setInputValueRaw] = useState(() => consumeEarlyInput())',
+    'const inputValueRef = useRef(inputValue)',
+    'useAwaySummary(messages, setMessages, isLoading, lastUserScrollTsRef, !isRemoteSession, inputValueRef)',
+  ]
+  assert.ok(
+    historicalReplFragments.every(fragment => repl.includes(fragment)) ||
+      controlledInputFragments.every(fragment => repl.includes(fragment)),
+    'current REPL has neither the historical prompt-input store wiring nor the 2.1.121 controlled-input wiring',
+  )
   const promptInput = source('src/utils/promptInputState.ts')
   for (const fragment of [
     "createStore({ value: '' })",
@@ -436,14 +596,29 @@ test('2.1.112 and 2.1.113 source gaps retain exact runtime semantics', () => {
   assert.ok(cancelRequest.includes('isInputEmpty?: boolean'))
   assert.ok(cancelRequest.includes("inputMode !== 'prompt' && isInputEmpty"))
 
-  const exit = source('src/commands/exit/exit.tsx')
+  const historicalExit = historicalSemanticSource(
+    '2.1.112-to-2.1.113',
+    'src/commands/exit/exit.tsx',
+  )
   for (const fragment of [
     'getSessionCronTasks()',
     'computeNextCronRun(fields, new Date(task.createdAt))',
     'Runs once in ${formatDuration(remainingMs, { mostSignificantOnly: true })}',
     "label: 'scheduled task'",
     'truncate(task.prompt, 50, true)',
-  ]) assert.ok(exit.includes(fragment), fragment)
+  ]) assert.ok(historicalExit.includes(fragment), fragment)
+  const exit = source('src/commands/exit/exit.tsx')
+  assert.ok(exit.includes('getSessionBackgroundExitItems()'))
+  const sessionCronTasks = source('src/utils/sessionCronTasks.ts')
+  for (const fragment of [
+    'getSessionCronTasks()',
+    'computeNextCronRun(parsed, new Date(task.createdAt))',
+    'return `Runs once in ${formatDuration(',
+    '{ mostSignificantOnly: true }',
+    "label: 'scheduled task'",
+    'SESSION_CRON_PROMPT_WIDTH = 50',
+    'task.prompt,',
+  ]) assert.ok(sessionCronTasks.includes(fragment), fragment)
   const backgroundExit = source('src/components/BackgroundWorkExitDialog.tsx')
   for (const fragment of [
     "'tengu_exit_background_work_prompt'",
@@ -504,8 +679,11 @@ test('late mcpOutputStorage behavior is structurally stable and cumulatively own
   ]) assert.ok(storage.includes(fragment), fragment)
 })
 
-test('2.1.116 headless MCP coordinator preserves deadline, concurrency, retry, and cleanup semantics', () => {
-  const main = source('src/main.tsx')
+test('2.1.116 headless MCP coordinator remains exact across its 2.1.121 module extraction', () => {
+  const historicalMain = historicalSemanticSource(
+    '2.1.114-to-2.1.116',
+    'src/main.tsx',
+  )
   for (const fragment of [
     'MCP_SERVER_READINESS_TIMEOUT_MS = 5_000',
     'MCP_CONFIG_FETCH_TIMEOUT_MS = 1_000',
@@ -518,5 +696,23 @@ test('2.1.116 headless MCP coordinator preserves deadline, concurrency, retry, a
     'connectWithMcpDeadline(mcpConnectionNonblocking, claudeAi',
     'client.client.onclose = undefined',
     'clearServerCache(client.name, client.config)',
-  ]) assert.ok(main.includes(fragment), fragment)
+  ]) assert.ok(historicalMain.includes(fragment), fragment)
+
+  const main = source('src/main.tsx')
+  assert.ok(main.includes('createHeadlessMcpConnectionManager'))
+  assert.ok(main.includes('await headlessMcp.connect()'))
+  const manager = source('src/services/mcp/headlessConnectionManager.ts')
+  for (const fragment of [
+    'CONNECTION_DEADLINE_MS = 5_000',
+    'CONFIG_FETCH_DEADLINE_MS = 1_000',
+    'RETRY_DELAYS_MS = [500, 1_500, 4_000]',
+    "'tengu_mcp_retry_failed_remote'",
+    'MCP_CONNECTION_NONBLOCKING',
+    'setImmediate(() =>',
+    'await Promise.all([',
+    "connectMcpBatch(regularMcpConfigs, 'regular', state)",
+    'claudeaiConfigPromise.then(claudeaiConfigs =>',
+    'client.client.onclose = undefined',
+    'clearServerCache(client.name, client.config)',
+  ]) assert.ok(manager.includes(fragment), fragment)
 })

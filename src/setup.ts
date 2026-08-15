@@ -400,17 +400,6 @@ export async function setup(
   prefetchProxyAuthFromHelperIfSafe()
 
   void prefetchApiKeyFromApiKeyHelperIfSafe(getIsNonInteractiveSession()) // Prefetch safely - only executes if trust already confirmed
-  const proxyAuthHelper = (getSettings_DEPRECATED() || {}).proxyAuthHelper
-  _setProxyAuthHelperConfig({
-    helper: proxyAuthHelper,
-    fromProjectOrLocal:
-      getSettingsForSource('projectSettings')?.proxyAuthHelper ===
-        proxyAuthHelper ||
-      getSettingsForSource('localSettings')?.proxyAuthHelper ===
-        proxyAuthHelper,
-    trustAccepted: checkHasTrustDialogAccepted,
-  })
-  prefetchProxyAuthFromHelperIfSafe()
   profileCheckpoint('setup_after_prefetch')
 
   // Fetch release notes for the interactive startup UI. Warm-resume metadata

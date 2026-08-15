@@ -53,7 +53,6 @@ let watcherStarted = false
 // is a recovery action for the too-many-entries case. Other permanent
 // failures remain suppressed until session restart.
 let pushSuppressedReason: string | null = null
-export const UNLINK_RECOVERABLE_REASONS = new Set(['http_413'])
 
 /**
  * Permanent = retry without user action will fail the same way.

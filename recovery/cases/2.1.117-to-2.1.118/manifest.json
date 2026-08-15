@@ -4400,6 +4400,7 @@
     "root": "src",
     "baseCommit": "ff0339d35906735273ae3130a187bb8e30581871",
     "baseGitTree": "c9e15117699a700016fee35a941dc3896208819f",
+    "baseSourceGitTree": "0a502684416e0456b87f51879f02178d480c8b7c",
     "patchSet": "2.1.117-to-2.1.118-incremental",
     "patchOrder": [
       "recovered/source-facing-overlay.patch"

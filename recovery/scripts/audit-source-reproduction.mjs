@@ -141,6 +141,10 @@ function caseManifestPaths(repositoryRoot) {
       filename: path.join(casesRoot, entry.name, 'manifest.json'),
       versions: caseVersions(entry.name),
     }))
+    .filter(item => {
+      const manifest = readJson(item.filename, `${item.caseName} manifest`)
+      return manifest.semanticSourceLineage !== undefined
+    })
     .sort((left, right) => compareVersion(left.versions.baseline, right.versions.baseline))
 }
 
