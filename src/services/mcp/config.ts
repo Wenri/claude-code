@@ -5,7 +5,10 @@ import memoize from 'lodash-es/memoize.js'
 import { dirname, join, parse } from 'path'
 import type { PluginError } from '../../types/plugin.js'
 import { getPluginErrorMessage } from '../../types/plugin.js'
-import { isClaudeInChromeMCPServer } from '../../utils/claudeInChrome/common.js'
+import {
+  CLAUDE_IN_CHROME_MCP_SERVER_NAME,
+  isClaudeInChromeMCPServer,
+} from '../../utils/claudeInChrome/common.js'
 import {
   getCurrentProjectConfig,
   getGlobalConfig,
@@ -944,6 +947,7 @@ export function getProjectMcpConfigsFromCwd(): {
     filePath: mcpJsonPath,
     expandVars: true,
     scope: 'project',
+    filterReservedNames: false,
   })
 
   // Missing .mcp.json is expected, but malformed files should report errors
@@ -1397,11 +1401,18 @@ export function parseMcpConfig(params: {
   expandVars: boolean
   scope: ConfigScope
   filePath?: string
+  filterReservedNames?: boolean
 }): {
   config: McpJsonConfig | null
   errors: ValidationError[]
 } {
-  const { configObject, expandVars, scope, filePath } = params
+  const {
+    configObject,
+    expandVars,
+    scope,
+    filePath,
+    filterReservedNames = true,
+  } = params
   const schemaResult = McpJsonConfigSchema().safeParse(configObject)
   if (!schemaResult.success) {
     return {
@@ -1423,6 +1434,24 @@ export function parseMcpConfig(params: {
   const validatedServers: Record<string, McpServerConfig> = {}
 
   for (const [name, config] of Object.entries(schemaResult.data.mcpServers)) {
+    if (
+      filterReservedNames &&
+      name === CLAUDE_IN_CHROME_MCP_SERVER_NAME &&
+      config.type !== 'sdk'
+    ) {
+      errors.push({
+        ...(filePath && { file: filePath }),
+        path: `mcpServers.${name}`,
+        message: `"${name}" is a reserved MCP name`,
+        mcpErrorMetadata: {
+          scope,
+          serverName: name,
+          severity: 'warning',
+        },
+      })
+      continue
+    }
+
     let configToCheck = config
 
     if (expandVars) {
@@ -1462,11 +1491,12 @@ export function parseMcpConfigFromFilePath(params: {
   filePath: string
   expandVars: boolean
   scope: ConfigScope
+  filterReservedNames?: boolean
 }): {
   config: McpJsonConfig | null
   errors: ValidationError[]
 } {
-  const { filePath, expandVars, scope } = params
+  const { filePath, expandVars, scope, filterReservedNames } = params
   const fs = getFsImplementation()
 
   let configContent: string
@@ -1541,6 +1571,7 @@ export function parseMcpConfigFromFilePath(params: {
     expandVars,
     scope,
     filePath,
+    filterReservedNames,
   })
 }
 
