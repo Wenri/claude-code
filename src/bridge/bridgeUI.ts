@@ -123,7 +123,6 @@ export function createBridgeLogger(options: {
   /** Clear any currently displayed status lines. */
   function clearStatusLines(): void {
     if (statusLineCount <= 0) return
-    logForDebugging(`[bridge:ui] clearStatusLines count=${statusLineCount}`)
     // Move cursor up to the start of the status block, then erase everything below
     write(`\x1b[${statusLineCount}A`) // cursor up N lines
     write('\x1b[J') // erase from cursor to end of screen

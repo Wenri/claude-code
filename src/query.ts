@@ -750,11 +750,12 @@ async function* queryLoop(
       ) &&
       !collapseOwnsIt
     ) {
-      const { isAtBlockingLimit } = calculateTokenWarningState(
+      const pressure = calculateTokenWarningState(
         tokenCountWithEstimation(messagesForQuery) - snipTokensFreed,
         toolUseContext.options.mainLoopModel,
+        toolUseContext.getAppState().autoCompactWindow,
       )
-      if (isAtBlockingLimit) {
+      if (pressure.level === 'blocked') {
         logEvent('tengu_ptl_surfaced_to_user', {
           reason: 'blocking_limit',
           querySource: sanitizeQuerySourceForAnalytics(querySource),

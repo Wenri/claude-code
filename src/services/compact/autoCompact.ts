@@ -211,7 +211,6 @@ export type AutoCompactTrackingState = {
 
 export const AUTOCOMPACT_BUFFER_TOKENS = 13_000
 export const WARNING_THRESHOLD_BUFFER_TOKENS = 20_000
-export const ERROR_THRESHOLD_BUFFER_TOKENS = 20_000
 export const MANUAL_COMPACT_BUFFER_TOKENS = 3_000
 
 // Stop trying autocompact after this many consecutive failures.
@@ -242,19 +241,40 @@ export function getAutoCompactThreshold(
     autoCompactWindow,
   )
 
+  return getAutoCompactThresholdForWindow(
+    effectiveContextWindow,
+    getAutoCompactPressureConfig(),
+  )
+}
+
+type AutoCompactPressureConfig = {
+  enabled: boolean
+  testPctOverride?: number
+  testBlockingOverride?: number
+}
+
+export type TokenPressure =
+  | { level: 'ok' }
+  | { level: 'warn' | 'compact' | 'blocked'; pctLeft: number }
+
+function getAutoCompactThresholdForWindow(
+  effectiveContextWindow: number,
+  config: AutoCompactPressureConfig,
+): number {
   const autocompactThreshold =
     effectiveContextWindow - AUTOCOMPACT_BUFFER_TOKENS
+  const envPercent = config.testPctOverride
 
-  // Override for easier testing of autocompact
-  const envPercent = process.env.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE
-  if (envPercent) {
-    const parsed = parseFloat(envPercent)
-    if (!isNaN(parsed) && parsed > 0 && parsed <= 100) {
-      const percentageThreshold = Math.floor(
-        effectiveContextWindow * (parsed / 100),
-      )
-      return Math.min(percentageThreshold, autocompactThreshold)
-    }
+  if (
+    envPercent !== undefined &&
+    !isNaN(envPercent) &&
+    envPercent > 0 &&
+    envPercent <= 100
+  ) {
+    const percentageThreshold = Math.floor(
+      effectiveContextWindow * (envPercent / 100),
+    )
+    return Math.min(percentageThreshold, autocompactThreshold)
   }
 
   return autocompactThreshold
@@ -264,57 +284,57 @@ export function calculateTokenWarningState(
   tokenUsage: number,
   model: string,
   autoCompactWindow?: number,
-): {
-  percentLeft: number
-  isAboveWarningThreshold: boolean
-  isAboveErrorThreshold: boolean
-  isAboveAutoCompactThreshold: boolean
-  isAtBlockingLimit: boolean
-} {
-  const autoCompactThreshold = getAutoCompactThreshold(model, autoCompactWindow)
-  const threshold = isAutoCompactEnabled()
+): TokenPressure {
+  const config = getAutoCompactPressureConfig()
+  const configuredWindow = config.enabled ? autoCompactWindow : undefined
+  return calculateTokenPressure(
+    tokenUsage,
+    getEffectiveContextWindowSize(model, configuredWindow),
+    config,
+  )
+}
+
+function calculateTokenPressure(
+  tokenUsage: number,
+  effectiveContextWindow: number,
+  config: AutoCompactPressureConfig,
+): TokenPressure {
+  const autoCompactThreshold = getAutoCompactThresholdForWindow(
+    effectiveContextWindow,
+    config,
+  )
+  const warningBase = config.enabled
     ? autoCompactThreshold
-    : getEffectiveContextWindowSize(model, autoCompactWindow)
-
-  const percentLeft = Math.max(
-    0,
-    Math.round(((threshold - tokenUsage) / threshold) * 100),
-  )
-
-  const warningThreshold = threshold - WARNING_THRESHOLD_BUFFER_TOKENS
-  const errorThreshold = threshold - ERROR_THRESHOLD_BUFFER_TOKENS
-
-  const isAboveWarningThreshold = tokenUsage >= warningThreshold
-  const isAboveErrorThreshold = tokenUsage >= errorThreshold
-
-  const isAboveAutoCompactThreshold =
-    isAutoCompactEnabled() && tokenUsage >= autoCompactThreshold
-
-  const actualContextWindow = getEffectiveContextWindowSize(
-    model,
-    autoCompactWindow,
-  )
-  const defaultBlockingLimit =
-    actualContextWindow - MANUAL_COMPACT_BUFFER_TOKENS
-
-  // Allow override for testing
-  const blockingLimitOverride = process.env.CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE
-  const parsedOverride = blockingLimitOverride
-    ? parseInt(blockingLimitOverride, 10)
-    : NaN
+    : effectiveContextWindow
+  const warningThreshold = warningBase - WARNING_THRESHOLD_BUFFER_TOKENS
   const blockingLimit =
-    !isNaN(parsedOverride) && parsedOverride > 0
-      ? parsedOverride
-      : defaultBlockingLimit
+    config.testBlockingOverride !== undefined &&
+    !isNaN(config.testBlockingOverride) &&
+    config.testBlockingOverride > 0
+      ? config.testBlockingOverride
+      : effectiveContextWindow - MANUAL_COMPACT_BUFFER_TOKENS
+  const pctLeft = Math.max(
+    0,
+    Math.round(((warningBase - tokenUsage) / warningBase) * 100),
+  )
 
-  const isAtBlockingLimit = tokenUsage >= blockingLimit
+  if (tokenUsage >= blockingLimit) return { level: 'blocked', pctLeft }
+  if (config.enabled && tokenUsage >= autoCompactThreshold) {
+    return { level: 'compact', pctLeft }
+  }
+  if (tokenUsage >= warningThreshold) return { level: 'warn', pctLeft }
+  return { level: 'ok' }
+}
 
+function getAutoCompactPressureConfig(): AutoCompactPressureConfig {
+  const pctOverride = process.env.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE
+  const blockingOverride = process.env.CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE
   return {
-    percentLeft,
-    isAboveWarningThreshold,
-    isAboveErrorThreshold,
-    isAboveAutoCompactThreshold,
-    isAtBlockingLimit,
+    enabled: isAutoCompactEnabled(),
+    testPctOverride: pctOverride ? parseFloat(pctOverride) : undefined,
+    testBlockingOverride: blockingOverride
+      ? parseInt(blockingOverride, 10)
+      : undefined,
   }
 }
 
@@ -395,23 +415,21 @@ export async function shouldAutoCompact(
   }
 
   const tokenCount = tokenCountWithEstimation(messages) - snipTokensFreed
-  const threshold = getAutoCompactThreshold(model, autoCompactWindow)
+  const pressure = calculateTokenWarningState(
+    tokenCount,
+    model,
+    autoCompactWindow,
+  )
   const effectiveWindow = getEffectiveContextWindowSize(
     model,
     autoCompactWindow,
   )
 
   logForDebugging(
-    `autocompact: tokens=${tokenCount} threshold=${threshold} effectiveWindow=${effectiveWindow}${snipTokensFreed > 0 ? ` snipFreed=${snipTokensFreed}` : ''}`,
+    `autocompact: tokens=${tokenCount} level=${pressure.level} effectiveWindow=${effectiveWindow}`,
   )
 
-  const { isAboveAutoCompactThreshold } = calculateTokenWarningState(
-    tokenCount,
-    model,
-    autoCompactWindow,
-  )
-
-  return isAboveAutoCompactThreshold
+  return pressure.level === 'compact' || pressure.level === 'blocked'
 }
 
 export async function autoCompactIfNeeded(
