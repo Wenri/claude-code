@@ -23,6 +23,7 @@ import type { Message } from '../types/message.js'
 import { createAbortController } from './abortController.js'
 import { createAgentLifecycle } from './agentLifecycle.js'
 import { makeSetClassifierApprovals } from './classifierApprovals.js'
+import { createTeammateColors } from './swarm/teammateLayoutManager.js'
 import type { FileStateCache } from './fileStateCache.js'
 import type { CacheSafeParams } from './forkedAgent.js'
 import { getMainLoopModel } from './model/model.js'
@@ -196,6 +197,7 @@ export async function buildSideQuestionFallbackParams({
     setClassifierApprovals: makeSetClassifierApprovals(setAppState),
     setReplContext: makeSetReplContext(setAppState),
     agentLifecycle: createAgentLifecycle(setAppState),
+    teammateColors: createTeammateColors(getAppState, setAppState),
     messages: forkContextMessages,
     turnStartIndex: 0,
     setInProgressToolUseIDs: () => {},

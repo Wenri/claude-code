@@ -3259,6 +3259,10 @@ async function run(): Promise<CommanderCommand> {
         approvals: new Map(),
         checking: new Set()
       },
+      teammateColors: {
+        assignments: new Map(),
+        index: 0
+      },
       fileHistory: {
         snapshots: [],
         trackedFiles: new Set(),

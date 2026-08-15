@@ -58,6 +58,7 @@ import {
 import { createAbortController } from './utils/abortController.js'
 import { createAgentLifecycle } from './utils/agentLifecycle.js'
 import { makeSetClassifierApprovals } from './utils/classifierApprovals.js'
+import { createTeammateColors } from './utils/swarm/teammateLayoutManager.js'
 import type { HookDeferredToolAttachment } from './utils/attachments.js'
 import type { AttributionState } from './utils/commitAttribution.js'
 import { getConfigValue } from './utils/settings/configSettings.js'
@@ -463,6 +464,7 @@ export class QueryEngine {
       setClassifierApprovals: makeSetClassifierApprovals(setAppState),
       setReplContext: makeSetReplContext(setAppState),
       agentLifecycle: createAgentLifecycle(setAppState),
+      teammateColors: createTeammateColors(getAppState, setAppState),
       isolationLatch: this.isolationLatch,
       abortController: this.abortController,
       readFileState: this.readFileState,
@@ -748,6 +750,7 @@ export class QueryEngine {
       setClassifierApprovals: makeSetClassifierApprovals(setAppState),
       setReplContext: makeSetReplContext(setAppState),
       agentLifecycle: createAgentLifecycle(setAppState),
+      teammateColors: createTeammateColors(getAppState, setAppState),
       isolationLatch: this.isolationLatch,
       abortController: this.abortController,
       readFileState: this.readFileState,

@@ -23,7 +23,6 @@ import {
   sanitizeName,
   writeTeamFileAsync,
 } from '../../utils/swarm/teamHelpers.js'
-import { assignTeammateColor } from '../../utils/swarm/teammateLayoutManager.js'
 import {
   ensureTasksDir,
   resetTaskList,
@@ -190,6 +189,8 @@ export const TeamCreateTool: Tool<InputSchema, Output> = buildTool({
     // to a different directory than tmux/iTerm2 teammates expect.
     setLeaderTeamName(sanitizeName(finalTeamName))
 
+    const leadColor = context.teammateColors.assign(leadAgentId)
+
     // Update AppState with team context
     setAppState(prev => ({
       ...prev,
@@ -201,7 +202,7 @@ export const TeamCreateTool: Tool<InputSchema, Output> = buildTool({
           [leadAgentId]: {
             name: TEAM_LEAD_NAME,
             agentType: leadAgentType,
-            color: assignTeammateColor(leadAgentId),
+            color: leadColor,
             tmuxSessionName: '',
             tmuxPaneId: '',
             cwd: getCwd(),

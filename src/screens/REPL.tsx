@@ -75,6 +75,7 @@ import { getMemoryFiles } from '../utils/claudemd.js';
 import { createMemorySelector } from '../memdir/findRelevantMemories.js';
 import { createAgentLifecycle } from '../utils/agentLifecycle.js';
 import { makeSetClassifierApprovals } from '../utils/classifierApprovals.js';
+import { createTeammateColors } from '../utils/swarm/teammateLayoutManager.js';
 import { startBackgroundHousekeeping } from '../utils/backgroundHousekeeping.js';
 import { getTotalCost, saveCurrentSessionCosts, resetCostState, getStoredSessionCosts } from '../cost-tracker.js';
 import { useCostSummary } from '../costHook.js';
@@ -746,6 +747,7 @@ export function REPL({
     });
   }, [viewingAgentTaskId, needsBootstrap, setAppState]);
   const store = useAppStateStore();
+  const teammateColors = useMemo(() => createTeammateColors(() => store.getState(), setAppState), [store, setAppState]);
   const terminal = useTerminalNotification();
   const mainLoopModel = useMainLoopModel();
 
@@ -2692,6 +2694,7 @@ export function REPL({
       setClassifierApprovals: makeSetClassifierApprovals(setAppState),
       setReplContext: makeSetReplContext(setAppState),
       agentLifecycle: createAgentLifecycle(setAppState),
+      teammateColors,
       replHydration: {
         kind: 'resume'
       },
@@ -2796,7 +2799,7 @@ export function REPL({
       contentReplacementState: contentReplacementStateRef.current,
       resultDedupState: resultDedupStateRef.current
     };
-  }, [commands, combinedInitialTools, mainThreadAgentDefinition, debug, initialMcpClients, ideInstallationStatus, dynamicMcpConfig, theme, allowedAgentTypes, store, setAppState, reverify, addNotification, setMessages, applyMessageOp, setToolJSX, emitToolProgress, onChangeDynamicMcpConfig, resume, requestPrompt, disabled, customSystemPrompt, appendSystemPrompt, setConversationId]);
+  }, [commands, combinedInitialTools, mainThreadAgentDefinition, debug, initialMcpClients, ideInstallationStatus, dynamicMcpConfig, theme, allowedAgentTypes, store, setAppState, teammateColors, reverify, addNotification, setMessages, applyMessageOp, setToolJSX, emitToolProgress, onChangeDynamicMcpConfig, resume, requestPrompt, disabled, customSystemPrompt, appendSystemPrompt, setConversationId]);
 
   // Session backgrounding (Ctrl+B to background/foreground)
   const handleBackgroundQuery = useCallback(() => {

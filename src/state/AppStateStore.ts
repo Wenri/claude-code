@@ -27,6 +27,7 @@ import type { LoadedPlugin, PluginError } from '../types/plugin.js'
 import type { DeepImmutable } from '../types/utils.js'
 import type { AutoUpdaterResult } from '../utils/autoUpdater.js'
 import type { ClassifierApprovalsState } from '../utils/classifierApprovals.js'
+import type { TeammateColorsState } from '../utils/swarm/teammateLayoutManager.js'
 import {
   type AttributionState,
   createEmptyAttributionState,
@@ -358,6 +359,7 @@ export type AppState = DeepImmutable<{
   storedImagePaths: Map<number, string>
   imageDescriptions: Map<number, string>
   classifierApprovals: ClassifierApprovalsState
+  teammateColors: TeammateColorsState
   teamContext?: {
     teamName: string
     teamFilePath: string
@@ -579,6 +581,7 @@ export function getDefaultAppState(): AppState {
     storedImagePaths: new Map(),
     imageDescriptions: new Map(),
     classifierApprovals: { approvals: new Map(), checking: new Set() },
+    teammateColors: { assignments: new Map(), index: 0 },
     showRemoteCallout: false,
     toolPermissionContext: {
       ...getEmptyToolPermissionContext(),

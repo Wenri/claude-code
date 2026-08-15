@@ -57,7 +57,6 @@ import {
   writeTeamFileAsync,
 } from '../../utils/swarm/teamHelpers.js'
 import {
-  assignTeammateColor,
   createTeammatePaneInSwarmView,
   enablePaneBorderStatus,
   isInsideTmux,
@@ -379,7 +378,7 @@ async function handleSpawnSplitPane(
   const insideTmux = await isInsideTmux()
 
   // Assign a unique color to this teammate
-  const teammateColor = assignTeammateColor(teammateId)
+  const teammateColor = context.teammateColors.assign(teammateId)
 
   // Create a pane in the swarm view
   // - Inside tmux: splits current window (leader on left, teammates on right)
@@ -581,7 +580,7 @@ async function handleSpawnSeparateWindow(
   await ensureSession(SWARM_SESSION_NAME)
 
   // Assign a unique color to this teammate
-  const teammateColor = assignTeammateColor(teammateId)
+  const teammateColor = context.teammateColors.assign(teammateId)
 
   // Create a new window for this teammate
   const createWindowResult = await execFileNoThrow(TMUX_COMMAND, [
@@ -871,7 +870,7 @@ async function handleSpawnInProcess(
   const teammateId = formatAgentId(sanitizedName, teamName)
 
   // Assign a unique color to this teammate
-  const teammateColor = assignTeammateColor(teammateId)
+  const teammateColor = context.teammateColors.assign(teammateId)
 
   // Look up custom agent definition if agent_type is provided
   let agentDefinition: CustomAgentDefinition | undefined
@@ -939,12 +938,15 @@ async function handleSpawnInProcess(
 
   // Track the teammate in AppState's teamContext
   // Auto-register leader if spawning without prior spawnTeam call
-  setAppState(prev => {
-    const needsLeaderSetup = !prev.teamContext?.leadAgentId
-    const leadAgentId = needsLeaderSetup
-      ? formatAgentId(TEAM_LEAD_NAME, teamName)
-      : prev.teamContext!.leadAgentId
+  const currentLeadAgentId = getAppState().teamContext?.leadAgentId
+  const needsLeaderSetup = !currentLeadAgentId
+  const leadAgentId =
+    currentLeadAgentId ?? formatAgentId(TEAM_LEAD_NAME, teamName)
+  const leadColor = needsLeaderSetup
+    ? context.teammateColors.assign(leadAgentId)
+    : undefined
 
+  setAppState(prev => {
     // Build teammates map, including leader if needed for inbox polling
     const existingTeammates = prev.teamContext?.teammates || {}
     const leadEntry = needsLeaderSetup
@@ -952,7 +954,7 @@ async function handleSpawnInProcess(
           [leadAgentId]: {
             name: TEAM_LEAD_NAME,
             agentType: TEAM_LEAD_NAME,
-            color: assignTeammateColor(leadAgentId),
+            color: leadColor,
             tmuxSessionName: 'in-process',
             tmuxPaneId: 'leader',
             cwd: getCwd(),

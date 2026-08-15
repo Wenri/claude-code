@@ -430,6 +430,7 @@ export function createSubagentContext(
     setClassifierApprovals: parentContext.setClassifierApprovals,
     setReplContext: parentContext.setReplContext,
     agentLifecycle: parentContext.agentLifecycle,
+    teammateColors: parentContext.teammateColors,
     isolationLatch: overrides?.isolationLatch ?? parentContext.isolationLatch,
     // Async subagents whose setAppState is a no-op need local denial tracking
     // so the denial counter actually accumulates across retries.

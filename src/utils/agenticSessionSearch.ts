@@ -9,6 +9,7 @@ import { GrepTool } from '../tools/GrepTool/GrepTool.js'
 import { createAbortController } from './abortController.js'
 import { NOOP_AGENT_LIFECYCLE } from './agentLifecycle.js'
 import { NOOP_SET_CLASSIFIER_APPROVALS } from './classifierApprovals.js'
+import { NOOP_TEAMMATE_COLORS } from './swarm/teammateLayoutManager.js'
 import { createFileStateCacheWithSizeLimit } from './fileStateCache.js'
 import { logForDebugging } from './debug.js'
 import { getLogDisplayTitle, logError } from './log.js'
@@ -90,6 +91,7 @@ function createSearchContext(
     getToolPermissionContext: () => appState.toolPermissionContext,
     setReplContext: () => {},
     agentLifecycle: NOOP_AGENT_LIFECYCLE,
+    teammateColors: NOOP_TEAMMATE_COLORS,
     messages: initialMessages,
     turnStartIndex: 0,
     setInProgressToolUseIDs: () => {},
