@@ -193,7 +193,7 @@ import type { ContentBlockParam, ImageBlockParam } from '@anthropic-ai/sdk/resou
 import type { ProcessUserInputContext } from '../utils/processUserInput/processUserInput.js';
 import type { PastedContent } from '../utils/config.js';
 import { copyPlanForFork, copyPlanForResume, getCachedPlanSlug, setPlanSlug } from '../utils/plans.js';
-import { clearSessionMetadata, resetSessionFilePointer, adoptResumedSessionFile, removeTranscriptMessage, restoreSessionMetadata, getCurrentSessionAiTitle, getCurrentSessionTitle, subscribeSessionTitleChanged, isEphemeralToolProgress, isLoggableMessage, saveWorktreeState, getAgentTranscript, savePermissionMode } from '../utils/sessionStorage.js';
+import { clearSessionMetadata, resetSessionFilePointer, adoptResumedSessionFile, removeTranscriptMessage, restoreSessionMetadata, getCurrentSessionAiTitle, getCurrentSessionAgentName, getCurrentSessionTitle, subscribeSessionAgentNameChanged, subscribeSessionTitleChanged, isEphemeralToolProgress, isLoggableMessage, saveWorktreeState, getAgentTranscript, savePermissionMode } from '../utils/sessionStorage.js';
 import { deserializeMessages } from '../utils/conversationRecovery.js';
 import { extractReadFilesFromMessages, extractBashToolsFromMessages } from '../utils/queryHelpers.js';
 import { applyToolResultClears, resetMicrocompactState } from '../services/compact/microCompact.js';
@@ -1259,6 +1259,20 @@ export function REPL({
   const terminalTitleFromRename = useAppState(s => s.settings.terminalTitleFromRename) !== false;
   const sessionTitle = React.useSyncExternalStore(subscribeSessionTitleChanged, () => terminalTitleFromRename ? getCurrentSessionTitle(getSessionId()) : undefined);
   const aiTitle = React.useSyncExternalStore(subscribeSessionTitleChanged, () => getCurrentSessionAiTitle(getSessionId()));
+  useEffect(() => subscribeSessionAgentNameChanged(() => {
+    const agentName = getCurrentSessionAgentName();
+    if (!agentName) return;
+    setAppState(prev => {
+      if (prev.standaloneAgentContext?.name === agentName) return prev;
+      return {
+        ...prev,
+        standaloneAgentContext: {
+          ...prev.standaloneAgentContext,
+          name: agentName
+        }
+      };
+    });
+  }), [setAppState]);
   const [haikuTitle, setHaikuTitle] = useState<string>();
   // Gates the one-shot Haiku call that generates the tab title. Seeded true
   // on resume (initialMessages present) so we don't re-title a resumed

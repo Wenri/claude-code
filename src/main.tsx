@@ -142,7 +142,7 @@ import { countFilesRoundedRg } from './utils/ripgrep.js';
 import { clearMemoryFileCaches } from './utils/claudemd.js';
 import { resetHooksConfigSnapshot } from './utils/hooks/hooksConfigSnapshot.js';
 import { processSessionStartHooks, processSetupHooks } from './utils/sessionStart.js';
-import { cacheSessionTitle, getSessionIdFromLog, loadTranscriptFromFile, saveAgentSetting, saveMode, searchSessionsByCustomTitle, sessionIdExists } from './utils/sessionStorage.js';
+import { cacheAgentName, cacheSessionTitle, getSessionIdFromLog, loadTranscriptFromFile, saveAgentSetting, saveMode, searchSessionsByCustomTitle, sessionIdExists } from './utils/sessionStorage.js';
 import { ensureMdmSettingsLoaded } from './utils/settings/mdm/settings.js';
 import { getInitialSettings, getManagedSettingsKeysForLogging, getSettingsAfterPluginLoad, getSettingsForSource, getSettingsWithErrors } from './utils/settings/settings.js';
 import { resetSettingsCache } from './utils/settings/settingsCache.js';
@@ -2318,6 +2318,7 @@ async function run(): Promise<CommanderCommand> {
     const sessionNameArg = options.name?.trim();
     if (sessionNameArg) {
       cacheSessionTitle(sessionNameArg);
+      cacheAgentName(sessionNameArg);
     }
 
     // Ant model aliases (capybara-fast etc.) resolve via the

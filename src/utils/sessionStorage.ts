@@ -731,6 +731,9 @@ export function fireSessionMirror(filePath: string, entries: unknown[]): void {
 }
 
 const REMOTE_FLUSH_INTERVAL_MS = 10
+const sessionAgentNameChanged = createSignal()
+export const subscribeSessionAgentNameChanged =
+  sessionAgentNameChanged.subscribe
 const sessionTitleChanged = createSignal()
 export const subscribeSessionTitleChanged = sessionTitleChanged.subscribe
 
@@ -3355,6 +3358,7 @@ export async function saveAgentName(
   if (sessionId === getSessionId()) {
     getProject().currentSessionAgentName = agentName
     void updateSessionName(agentName)
+    sessionAgentNameChanged.emit()
   }
   logEvent('tengu_agent_name_set', {
     source:
@@ -3402,6 +3406,11 @@ export function cacheSessionTitle(customTitle: string): void {
 export function cacheAiTitle(aiTitle: string): void {
   getProject().currentSessionAiTitle = aiTitle
   sessionTitleChanged.emit()
+}
+
+export function cacheAgentName(agentName: string): void {
+  getProject().currentSessionAgentName = agentName
+  sessionAgentNameChanged.emit()
 }
 
 /**
