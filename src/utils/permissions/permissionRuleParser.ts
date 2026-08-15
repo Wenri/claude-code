@@ -31,9 +31,12 @@ const LEGACY_TOOL_NAME_ALIASES: Record<string, string> = {
 // Built-in tools that may be implemented by the workspace MCP proxy. Rules
 // and hooks written against the built-in name must continue to cover the
 // corresponding proxied tool.
+export const WORKSPACE_BASH_TOOL_NAME = 'mcp__workspace__bash'
+export const WORKSPACE_WEB_FETCH_TOOL_NAME = 'mcp__workspace__web_fetch'
+
 const TOOL_PROXY_ALIASES: Record<string, string[]> = {
-  Bash: ['mcp__workspace__bash'],
-  WebFetch: ['mcp__workspace__web_fetch'],
+  Bash: [WORKSPACE_BASH_TOOL_NAME],
+  WebFetch: [WORKSPACE_WEB_FETCH_TOOL_NAME],
 }
 
 export function normalizeLegacyToolName(name: string): string {

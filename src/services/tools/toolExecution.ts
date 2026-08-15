@@ -79,6 +79,7 @@ import { executePermissionDeniedHooks } from '../../utils/hooks.js'
 import { logError } from '../../utils/log.js'
 import { expandPath } from '../../utils/path.js'
 import { checkEditableInternalPath } from '../../utils/permissions/filesystem.js'
+import { WORKSPACE_BASH_TOOL_NAME } from '../../utils/permissions/permissionRuleParser.js'
 import {
   CANCEL_MESSAGE,
   createProgressMessage,
@@ -1378,6 +1379,25 @@ async function checkPermissionsAndCallTool(
         }),
         ...('dangerouslyDisableSandbox' in bashInput && {
           dangerouslyDisableSandbox: bashInput.dangerouslyDisableSandbox,
+        }),
+      }
+    } else if (
+      tool.name === WORKSPACE_BASH_TOOL_NAME &&
+      'command' in processedInput &&
+      typeof processedInput.command === 'string'
+    ) {
+      const workspaceBashInput = processedInput as {
+        command: string
+        timeout_ms?: number
+      }
+      const commandParts = workspaceBashInput.command.trim().split(/\s+/)
+      const bashCommand = commandParts[0] || ''
+
+      toolParameters = {
+        bash_command: bashCommand,
+        full_command: workspaceBashInput.command,
+        ...(workspaceBashInput.timeout_ms !== undefined && {
+          timeout: workspaceBashInput.timeout_ms,
         }),
       }
     }
