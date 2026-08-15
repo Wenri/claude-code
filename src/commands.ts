@@ -200,7 +200,7 @@ import {
 import rateLimitOptions from './commands/rate-limit-options/index.js'
 import proTrialExpired from './commands/pro-trial-expired/index.js'
 import statusline from './commands/statusline.js'
-import effort from './commands/effort/index.js'
+import effort, { effortNonInteractive } from './commands/effort/index.js'
 import { isAgentsFleetEnabled } from './utils/agentsFleet.js'
 // insights.ts is 113KB (3200 lines, includes diffLines/html rendering). Lazy
 // shim defers the heavy module until /insights is actually invoked.
@@ -651,6 +651,7 @@ export const REMOTE_SAFE_COMMANDS: Set<Command> = new Set([
   help, // Show help
   theme, // Change terminal theme
   color, // Change agent color
+  effort, // Change reasoning effort
   fast, // Toggle fast mode
   usage, // Show usage info (including the /cost and /stats aliases)
   copy, // Copy last message
@@ -687,6 +688,7 @@ export const BRIDGE_SAFE_COMMANDS: Set<Command> = new Set(
     reloadPlugins,
     exitNonInteractive,
     stopNonInteractive,
+    effortNonInteractive,
     fastNonInteractive,
   ].filter((c): c is Command => c !== null),
 )
