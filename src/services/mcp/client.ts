@@ -3472,21 +3472,18 @@ async function callMCPTool({
       transportErrorState?.activeCallWatchdogs.delete(transportErrorWatchdog)
     })
 
-    if ('isError' in result && result.isError) {
+    if (result.isError) {
       let errorDetails = 'Unknown error'
-      if (
-        'content' in result &&
-        Array.isArray(result.content) &&
-        result.content.length > 0
-      ) {
-        const firstContent = result.content[0]
-        if (
-          firstContent &&
-          typeof firstContent === 'object' &&
-          'text' in firstContent
-        ) {
-          errorDetails = firstContent.text
-        }
+      if (Array.isArray(result.content) && result.content.length > 0) {
+        const textBlocks = result.content
+          .filter(
+            block =>
+              block !== null &&
+              typeof block === 'object' &&
+              'text' in block,
+          )
+          .map(block => block.text)
+        if (textBlocks.length > 0) errorDetails = textBlocks.join('\n')
       } else if ('error' in result) {
         // Fallback for legacy error format
         errorDetails = String(result.error)
@@ -3495,7 +3492,7 @@ async function callMCPTool({
       throw new McpToolCallError_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS(
         errorDetails,
         'MCP tool returned error',
-        '_meta' in result && result._meta ? { _meta: result._meta } : undefined,
+        result._meta ? { _meta: result._meta } : undefined,
       )
     }
     const elapsed = Date.now() - toolStartTime
