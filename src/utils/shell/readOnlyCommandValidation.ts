@@ -1383,6 +1383,46 @@ export const GH_READ_ONLY_COMMANDS: Record<string, ExternalCommandConfig> = {
 // DOCKER_READ_ONLY_COMMANDS — docker inspect/logs read-only commands
 // ---------------------------------------------------------------------------
 
+const DOCKER_CONNECTION_FLAGS = [
+  '-H',
+  '-c',
+  '--host',
+  '--context',
+  '--config',
+  '--tlscacert',
+  '--tlscert',
+  '--tlskey',
+]
+
+const DOCKER_SHORT_CONNECTION_FLAGS = new Set(
+  DOCKER_CONNECTION_FLAGS.filter((flag) => flag.length === 2).map(
+    (flag) => flag[1],
+  ),
+)
+
+function dockerArgsAreDangerous(args: string[]): boolean {
+  return args.some((arg) => {
+    if (
+      DOCKER_CONNECTION_FLAGS.some(
+        (flag) =>
+          arg === flag ||
+          arg.startsWith(`${flag}=`) ||
+          (flag.length === 2 && arg.length > 2 && arg.startsWith(flag)),
+      )
+    ) {
+      return true
+    }
+
+    const shortFlagBundle = arg.match(/^-([A-Za-z]+)/)?.[1]
+    if (shortFlagBundle !== undefined && shortFlagBundle.length >= 2) {
+      for (const flag of shortFlagBundle) {
+        if (DOCKER_SHORT_CONNECTION_FLAGS.has(flag)) return true
+      }
+    }
+    return false
+  })
+}
+
 export const DOCKER_READ_ONLY_COMMANDS: Record<string, ExternalCommandConfig> =
   {
     'docker logs': {
@@ -1397,6 +1437,8 @@ export const DOCKER_READ_ONLY_COMMANDS: Record<string, ExternalCommandConfig> =
         '--until': 'string',
         '--details': 'none',
       },
+      additionalCommandIsDangerousCallback: (_rawCommand, args) =>
+        dockerArgsAreDangerous(args),
     },
     'docker inspect': {
       safeFlags: {
@@ -1406,6 +1448,8 @@ export const DOCKER_READ_ONLY_COMMANDS: Record<string, ExternalCommandConfig> =
         '--size': 'none',
         '-s': 'none',
       },
+      additionalCommandIsDangerousCallback: (_rawCommand, args) =>
+        dockerArgsAreDangerous(args),
     },
   }
 
