@@ -1,10 +1,12 @@
 import { readdir } from 'fs/promises'
+import { logEvent } from '../../services/analytics/index.js'
 import { getCwd } from '../../utils/cwd.js'
 import { registerBundledSkill } from '../bundledSkills.js'
-
-// claudeApiContent.js bundles 247KB of .md strings. Lazy-load inside
-// getPromptForCommand so they only enter memory when /claude-api is invoked.
-type SkillContent = typeof import('./claudeApiContent.js')
+import {
+  SKILL_FILES,
+  SKILL_MODEL_VARS,
+  SKILL_PROMPT,
+} from './claudeApiContent.js'
 
 type DetectedLanguage =
   | 'python'
@@ -54,14 +56,13 @@ async function detectLanguage(): Promise<DetectedLanguage | null> {
 
 function getFilesForLanguage(
   lang: DetectedLanguage,
-  content: SkillContent,
 ): string[] {
-  return Object.keys(content.SKILL_FILES).filter(
+  return Object.keys(SKILL_FILES).filter(
     path => path.startsWith(`${lang}/`) || path.startsWith('shared/'),
   )
 }
 
-function processContent(md: string, content: SkillContent): string {
+export function processSkillMarkdown(md: string): string {
   // Strip HTML comments. Loop to handle nested comments.
   let out = md
   let prev
@@ -73,21 +74,26 @@ function processContent(md: string, content: SkillContent): string {
   out = out.replace(
     /\{\{(\w+)\}\}/g,
     (match, key: string) =>
-      (content.SKILL_MODEL_VARS as Record<string, string>)[key] ?? match,
+      (SKILL_MODEL_VARS as Record<string, string>)[key] ?? match,
   )
   return out
 }
 
-function buildInlineReference(
-  filePaths: string[],
-  content: SkillContent,
-): string {
+function getProcessedFiles(): Record<string, string> {
+  const files: Record<string, string> = {}
+  for (const [filePath, markdown] of Object.entries(SKILL_FILES)) {
+    files[filePath] = processSkillMarkdown(markdown)
+  }
+  return files
+}
+
+function buildInlineReference(filePaths: string[]): string {
   const sections: string[] = []
   for (const filePath of filePaths.sort()) {
-    const md = content.SKILL_FILES[filePath]
+    const md = SKILL_FILES[filePath]
     if (!md) continue
     sections.push(
-      `<doc path="${filePath}">\n${processContent(md, content).trim()}\n</doc>`,
+      `<doc path="${filePath}">\n${processSkillMarkdown(md).trim()}\n</doc>`,
     )
   }
   return sections.join('\n\n')
@@ -108,6 +114,9 @@ The relevant documentation for your detected language is included below in \`<do
 **Long-running conversations (may exceed context window):**
 → Refer to \`{lang}/claude-api/README.md\` — see Compaction section
 
+**Migrating to a newer model or replacing a retired model:**
+→ Refer to \`shared/model-migration.md\`
+
 **Prompt caching / optimize caching / "why is my cache hit rate low":**
 → Refer to \`shared/prompt-caching.md\` + \`{lang}/claude-api/README.md\` (Prompt Caching section)
 
@@ -120,8 +129,14 @@ The relevant documentation for your detected language is included below in \`<do
 **File uploads across multiple requests:**
 → Refer to \`{lang}/claude-api/README.md\` + \`{lang}/claude-api/files-api.md\`
 
-**Agent with built-in tools (file/web/terminal) (Python & TypeScript only):**
-→ Refer to \`{lang}/agent-sdk/README.md\` + \`{lang}/agent-sdk/patterns.md\`
+**Agent design (tool surface, context management, caching strategy):**
+→ Refer to \`shared/agent-design.md\`
+
+**Anthropic CLI (\`ant\`) — terminal access, version-controlled agent/environment YAML, scripting:**
+→ Refer to \`shared/anthropic-cli.md\`
+
+**Managed Agents (server-managed stateful agents):**
+→ Refer to \`shared/managed-agents-overview.md\` and the rest of the \`shared/managed-agents-*.md\` files. For Python, TypeScript, and cURL, language-specific code examples live in \`{lang}/managed-agents/README.md\`. Java, Go, Ruby, and PHP also support the API — translate the calls using your SDK's patterns from \`{lang}/claude-api.md\`. C# does not currently have Managed Agents support; use raw HTTP from \`curl/managed-agents.md\` as a reference.
 
 **Error handling:**
 → Refer to \`shared/error-codes.md\`
@@ -132,10 +147,9 @@ The relevant documentation for your detected language is included below in \`<do
 function buildPrompt(
   lang: DetectedLanguage | null,
   args: string,
-  content: SkillContent,
 ): string {
   // Take the SKILL.md content up to the "Reading Guide" section
-  const cleanPrompt = processContent(content.SKILL_PROMPT, content)
+  const cleanPrompt = processSkillMarkdown(SKILL_PROMPT)
   const readingGuideIdx = cleanPrompt.indexOf('## Reading Guide')
   const basePrompt =
     readingGuideIdx !== -1
@@ -145,12 +159,12 @@ function buildPrompt(
   const parts: string[] = [basePrompt]
 
   if (lang) {
-    const filePaths = getFilesForLanguage(lang, content)
+    const filePaths = getFilesForLanguage(lang)
     const readingGuide = INLINE_READING_GUIDE.replace(/\{lang\}/g, lang)
     parts.push(readingGuide)
     parts.push(
-      '---\n\n## Included Documentation\n\n' +
-        buildInlineReference(filePaths, content),
+        '---\n\n## Included Documentation\n\n' +
+        buildInlineReference(filePaths),
     )
   } else {
     // No language detected — include all docs and let the model ask
@@ -160,7 +174,7 @@ function buildPrompt(
     )
     parts.push(
       '---\n\n## Included Documentation\n\n' +
-        buildInlineReference(Object.keys(content.SKILL_FILES), content),
+        buildInlineReference(Object.keys(SKILL_FILES)),
     )
   }
 
@@ -177,19 +191,33 @@ function buildPrompt(
   return parts.join('\n\n')
 }
 
+const KNOWN_SUBCOMMANDS = ['migrate', 'managed-agents-onboard'] as const
+
+export function matchSubcommand(args: string): string {
+  const candidate = args.trim().toLowerCase().split(/\s+/)[0] ?? ''
+  return KNOWN_SUBCOMMANDS.find(subcommand => subcommand === candidate) ?? 'none'
+}
+
+export const CLAUDE_API_SKILL_DESCRIPTION =
+  'Build, debug, and optimize Claude API / Anthropic SDK apps. Apps built with this skill should include prompt caching. Also handles migrating existing Claude API code between Claude model versions (4.5 → 4.6, 4.6 → 4.7, retired-model replacements).\n' +
+  'TRIGGER when: code imports `anthropic`/`@anthropic-ai/sdk`; user asks for the Claude API, Anthropic SDK, or Managed Agents; user adds/modifies/tunes a Claude feature (caching, thinking, compaction, tool use, batch, files, citations, memory) or model (Opus/Sonnet/Haiku) in a file; questions about prompt caching / cache hit rate in an Anthropic SDK project.\n' +
+  'SKIP: file imports `openai`/other-provider SDK, filename like `*-openai.py`/`*-generic.py`, provider-neutral code, general programming/ML.'
+
 export function registerClaudeApiSkill(): void {
   registerBundledSkill({
     name: 'claude-api',
-    description:
-      'Build apps with the Claude API or Anthropic SDK.\n' +
-      'TRIGGER when: code imports `anthropic`/`@anthropic-ai/sdk`/`claude_agent_sdk`, or user asks to use Claude API, Anthropic SDKs, or Agent SDK.\n' +
-      'DO NOT TRIGGER when: code imports `openai`/other AI SDK, general programming, or ML/data-science tasks.',
+    description: CLAUDE_API_SKILL_DESCRIPTION,
     allowedTools: ['Read', 'Grep', 'Glob', 'WebFetch'],
     userInvocable: true,
+    files: getProcessedFiles(),
     async getPromptForCommand(args) {
-      const content = await import('./claudeApiContent.js')
       const lang = await detectLanguage()
-      const prompt = buildPrompt(lang, args, content)
+      logEvent('tengu_claude_api_skill_loaded', {
+        detected_lang: lang ?? 'none',
+        subcommand: matchSubcommand(args),
+        has_args: args.trim().length > 0,
+      })
+      const prompt = buildPrompt(lang, args)
       return [{ type: 'text', text: prompt }]
     },
   })
