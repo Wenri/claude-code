@@ -1,9 +1,9 @@
-import { randomUUID } from 'crypto'
-import { mkdir, readFile, rename, rm, writeFile } from 'fs/promises'
+import { mkdir, readFile } from 'fs/promises'
 import { dirname } from 'path'
 import { setTimeout as delay } from 'timers/promises'
 import { z } from 'zod/v4'
 import { parseCronExpression } from '../utils/cron.js'
+import { atomicWriteFile } from '../utils/atomicWrite.js'
 import { isDaemonWorkerRegistryEnabled } from '../utils/agentsFleet.js'
 import {
   DEFAULT_CRON_JITTER_CONFIG,
@@ -114,7 +114,6 @@ async function writeScheduledStatus(
   tasks: ScheduledWorkerStatus['tasks'],
 ): Promise<void> {
   const path = getScheduledStatusPath()
-  const temporary = `${path}.tmp.${process.pid}.${randomUUID()}`
   const status: ScheduledWorkerStatus = {
     workerPid: process.pid,
     writtenAt: Date.now(),
@@ -122,11 +121,8 @@ async function writeScheduledStatus(
   }
   try {
     await mkdir(dirname(path), { recursive: true })
-    await writeFile(temporary, JSON.stringify(status))
-    await rename(temporary, path)
-  } catch {
-    await rm(temporary, { force: true }).catch(() => {})
-  }
+    await atomicWriteFile(path, JSON.stringify(status))
+  } catch {}
 }
 
 export async function readScheduledStatus(): Promise<ScheduledWorkerStatus | null> {

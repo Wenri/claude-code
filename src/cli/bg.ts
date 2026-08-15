@@ -1,6 +1,6 @@
 import { randomBytes, randomUUID } from 'crypto'
 import chalk from 'chalk'
-import { mkdir, readdir, rename, rm, unlink, writeFile } from 'fs/promises'
+import { mkdir, readdir, rm, unlink, writeFile } from 'fs/promises'
 import { connect } from 'net'
 import { join } from 'path'
 import { setTimeout as delay } from 'timers/promises'
@@ -9,6 +9,7 @@ import {
   getAgentDefinitionsWithOverrides,
 } from '../tools/AgentTool/loadAgentsDir.js'
 import { getCwd } from '../utils/cwd.js'
+import { atomicWriteFile } from '../utils/atomicWrite.js'
 import {
   getMainLoopModelOverride,
   getSessionId,
@@ -443,9 +444,7 @@ export async function preSeedReplBgJob(
 let daemonWasReachable = false
 
 async function atomicDispatch(path: string, dispatch: Dispatch): Promise<void> {
-  const temporary = `${path}.tmp.${process.pid}.${randomBytes(4).toString('hex')}`
-  await writeFile(temporary, JSON.stringify(dispatch), 'utf8')
-  await rename(temporary, path)
+  await atomicWriteFile(path, JSON.stringify(dispatch), 0o600)
 }
 
 type DispatchResult =

@@ -1,5 +1,5 @@
-import { randomBytes, randomUUID } from 'crypto'
-import { copyFile, readFile, rename, unlink, writeFile } from 'fs/promises'
+import { randomUUID } from 'crypto'
+import { readFile, unlink } from 'fs/promises'
 import { basename, dirname, sep } from 'path'
 import type { StructuredPatchHunk } from 'diff'
 import { z } from 'zod/v4'
@@ -7,6 +7,7 @@ import { getIsRemoteMode } from '../bootstrap/state.js'
 import { getDynamicConfig_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js'
 import { isPolicyAllowed } from '../services/policyLimits/index.js'
 import { isENOENT, toError } from '../utils/errors.js'
+import { atomicWriteFile } from '../utils/atomicWrite.js'
 import { parseFrontmatter } from '../utils/frontmatterParser.js'
 import { logForDebugging } from '../utils/debug.js'
 import { getAutoMemEntrypoint, getAutoMemPath, isAutoMemoryEnabled } from './paths.js'
@@ -158,7 +159,7 @@ export async function undoMemoryWrite(
       return
     }
     if (record.isEdit && record.beforeContent !== null) {
-      await atomicWriteUtf8(record.filePath, record.beforeContent)
+      await atomicWriteFile(record.filePath, record.beforeContent)
       return
     }
     await unlink(record.filePath)
@@ -198,31 +199,5 @@ async function removeMemoryEntrypointLink(filePath: string): Promise<void> {
   const lines = contents.split('\n')
   const filtered = lines.filter(line => !lineLinksToFile(line, filename))
   if (filtered.length === lines.length) return
-  await atomicWriteUtf8(entrypoint, filtered.join('\n'))
-}
-
-async function atomicWriteUtf8(path: string, contents: string): Promise<void> {
-  const temporary = `${path}.tmp.${randomBytes(4).toString('hex')}`
-  try {
-    await writeFile(temporary, contents, 'utf8')
-    try {
-      await rename(temporary, path)
-    } catch (error) {
-      const code = (error as NodeJS.ErrnoException).code
-      if (
-        code === 'EXDEV' ||
-        code === 'EPERM' ||
-        code === 'EEXIST' ||
-        code === 'EBUSY'
-      ) {
-        await copyFile(temporary, path)
-        await unlink(temporary).catch(() => {})
-      } else {
-        throw error
-      }
-    }
-  } catch (error) {
-    await unlink(temporary).catch(() => {})
-    throw error
-  }
+  await atomicWriteFile(entrypoint, filtered.join('\n'))
 }

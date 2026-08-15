@@ -1,8 +1,8 @@
-import { randomBytes } from 'crypto'
-import { mkdir, readFile, rename, rm, writeFile } from 'fs/promises'
+import { mkdir, readFile } from 'fs/promises'
 import { basename, dirname } from 'path'
 import { z } from 'zod/v4'
 import { isENOENT } from '../utils/errors.js'
+import { atomicWriteFile } from '../utils/atomicWrite.js'
 import { parseCronExpression, cronToHuman } from '../utils/cron.js'
 import {
   remoteControlWorkerSchema,
@@ -120,14 +120,7 @@ async function readRawConfig(path?: string): Promise<{
 
 async function atomicWrite(path: string, value: string): Promise<void> {
   await mkdir(dirname(path), { recursive: true })
-  const temporary = `${path}.tmp.${process.pid}.${randomBytes(4).toString('hex')}`
-  try {
-    await writeFile(temporary, value, 'utf8')
-    await rename(temporary, path)
-  } catch (error) {
-    await rm(temporary, { force: true }).catch(() => {})
-    throw error
-  }
+  await atomicWriteFile(path, value)
 }
 
 function scheduledSection(existing: Record<string, unknown>): {

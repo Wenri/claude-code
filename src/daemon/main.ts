@@ -27,6 +27,7 @@ import {
   isDaemonWorkerRegistryEnabled,
 } from '../utils/agentsFleet.js'
 import { isInBundledMode } from '../utils/bundledMode.js'
+import { atomicWriteFile } from '../utils/atomicWrite.js'
 import { logForDebugging } from '../utils/debug.js'
 import { errorMessage, getErrnoCode, isENOENT } from '../utils/errors.js'
 import { logError } from '../utils/log.js'
@@ -691,25 +692,14 @@ async function writeDaemonStatus(
   workers: Record<string, { pid: number; startedAt: number }>,
 ): Promise<void> {
   const path = getDaemonStatusPath()
-  const temporary = `${path}.tmp.${process.pid}`
   const status = {
     supervisorPid: process.pid,
     writtenAt: Date.now(),
     workers,
   }
   try {
-    await writeFile(temporary, JSON.stringify(status, null, 2), 'utf8')
-    try {
-      await rename(temporary, path)
-    } catch (error) {
-      const code = (error as NodeJS.ErrnoException).code
-      if (code !== 'EEXIST' && code !== 'EPERM' && code !== 'EXDEV') throw error
-      await unlink(path).catch(() => {})
-      await rename(temporary, path)
-    }
-  } catch {
-    await unlink(temporary).catch(() => {})
-  }
+    await atomicWriteFile(path, JSON.stringify(status, null, 2))
+  } catch {}
 }
 
 async function removeDaemonStatus(): Promise<void> {

@@ -67,7 +67,10 @@ import {
   getAgentDefinitionsWithOverrides,
   isCustomAgent,
 } from '../tools/AgentTool/loadAgentsDir.js'
-import { getProjectDir } from '../utils/sessionStoragePortable.js'
+import {
+  canonicalizePath,
+  getProjectDir,
+} from '../utils/sessionStoragePortable.js'
 import {
   expandPastedTextRefs,
   formatPastedTextRef,
@@ -101,6 +104,13 @@ import {
 import { PASTE_THRESHOLD } from '../utils/imagePaste.js'
 import { editPromptInEditor } from '../utils/promptEditor.js'
 import { registerCleanup } from '../utils/cleanupRegistry.js'
+import {
+  cleanupFleetDrafts,
+  deleteFleetDraft,
+  loadFleetDraft,
+  saveFleetDraft,
+  saveFleetDraftSync,
+} from '../utils/fleetDraft.js'
 import { isEnvDefinedFalsy, isEnvTruthy } from '../utils/envUtils.js'
 import { isMouseTrackingEnabled, isTmuxControlMode } from '../utils/fullscreen.js'
 import {
@@ -1027,6 +1037,16 @@ export function FleetView({
   initialGroupMode?: 'directory' | 'state'
 }): React.ReactNode {
   const rootCwd = getCwd()
+  const [draftCwd, setDraftCwd] = useState(rootCwd)
+  useEffect(() => {
+    let cancelled = false
+    void canonicalizePath(rootCwd).then(canonical => {
+      if (!cancelled && canonical !== rootCwd) setDraftCwd(canonical)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [rootCwd])
   const [jobs, setJobs] = useState<FleetJob[] | null>(lastJobs)
   const jobsRef = useRef(jobs)
   jobsRef.current = jobs
@@ -1038,6 +1058,27 @@ export function FleetView({
   const [query, setQuery] = useState(initialQuery)
   const queryRef = useRef(query)
   queryRef.current = query
+  useEffect(() => {
+    const timeout = setTimeout(
+      (currentQuery: typeof queryRef, cwd: string) => {
+        const value = currentQuery.current
+        if (value) void saveFleetDraft(cwd, value)
+        else void deleteFleetDraft(cwd)
+      },
+      300,
+      queryRef,
+      draftCwd,
+    )
+    return () => clearTimeout(timeout)
+  }, [query, draftCwd, queryRef])
+  useEffect(
+    () =>
+      registerCleanup(() => {
+        const value = queryRef.current
+        if (value) saveFleetDraftSync(draftCwd, value)
+      }),
+    [draftCwd, queryRef],
+  )
   const [queryCursor, setQueryCursor] = useState(initialQuery.length)
   const [pastedContents, setPastedContents] = useState<
     Record<number, PastedContent>
@@ -2199,6 +2240,7 @@ export function FleetView({
       setPendingJobs(current => [...current, optimistic])
       queryRef.current = ''
       setQuery('')
+      void deleteFleetDraft(draftCwd)
       setQueryCursor(0)
       setPastedContents({})
       void (canClaim
@@ -2514,7 +2556,8 @@ export async function mountFleetView(root: Root): Promise<void> {
   const alternateScreen = shouldUseFleetAlternateScreen()
   let initialJobId = process.env.CLAUDE_AGENTS_SELECT
   delete process.env.CLAUDE_AGENTS_SELECT
-  let initialQuery: string | undefined
+  let initialQuery = await loadFleetDraft(await canonicalizePath(getCwd()))
+  void cleanupFleetDrafts()
   let initialError: string | undefined
   try {
     for (;;) {

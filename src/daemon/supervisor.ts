@@ -15,6 +15,7 @@ import chokidar, { type FSWatcher } from 'chokidar'
 import { logEvent } from '../services/analytics/index.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js'
 import { bgSupervisorNoun } from '../utils/agentsFleet.js'
+import { atomicWriteFile } from '../utils/atomicWrite.js'
 import { logForDebugging } from '../utils/debug.js'
 import { getErrnoCode, isENOENT } from '../utils/errors.js'
 import {
@@ -1280,12 +1281,11 @@ function writeRoster(handles: Map<string, BackgroundHandle>): Promise<void> {
       workers,
     }
     await mkdir(dirname(getRosterPath()), { recursive: true, mode: 0o700 })
-    const temporary = `${getRosterPath()}.tmp.${process.pid}`
-    await writeFile(temporary, JSON.stringify(manifest, null, 2), {
-      encoding: 'utf8',
-      mode: 0o600,
-    })
-    await rename(temporary, getRosterPath())
+    await atomicWriteFile(
+      getRosterPath(),
+      JSON.stringify(manifest, null, 2),
+      0o600,
+    )
   })
   rosterWrite = next.catch(() => {})
   return next

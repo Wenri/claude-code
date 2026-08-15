@@ -11,6 +11,7 @@ import * as lockfile from './lockfile.js'
 import { logError } from './log.js'
 import { cleanupOldVersions } from './nativeInstaller/index.js'
 import { cleanupOldPastes } from './pasteStore.js'
+import { cleanupFleetDrafts } from './fleetDraft.js'
 import { getProjectsDir } from './sessionStorage.js'
 import { getSettingsWithAllErrors } from './settings/allErrors.js'
 import { isSettingSourceEnabled } from './settings/constants.js'
@@ -641,6 +642,7 @@ export async function cleanupOldMessageFilesInBackground(): Promise<void> {
   await cleanupOldShellSnapshots()
   await cleanupOldBackups()
   await cleanupOldHfiAuth()
+  await cleanupFleetDrafts()
   const cutoffDate = getCutoffDate()
   if (cutoffDate !== null) {
     await cleanupOldPastes(cutoffDate)

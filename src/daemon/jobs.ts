@@ -1,18 +1,15 @@
-import { randomBytes } from 'crypto'
 import { watch } from 'fs'
 import {
-  copyFile,
   mkdir,
   readFile,
   readdir,
-  rename,
-  rm,
   writeFile,
 } from 'fs/promises'
 import { basename, dirname, join } from 'path'
 import { z } from 'zod/v4'
 import { getSessionId } from '../bootstrap/state.js'
 import { logForDebugging } from '../utils/debug.js'
+import { atomicWriteFile } from '../utils/atomicWrite.js'
 import { getClaudeConfigHomeDir } from '../utils/envUtils.js'
 import { isENOENT } from '../utils/errors.js'
 import { safeParseJSON } from '../utils/json.js'
@@ -192,30 +189,6 @@ export function watchJobState(id: string, callback: () => void): () => void {
   }
 }
 
-async function atomicWrite(path: string, contents: string): Promise<void> {
-  const temporary = join(
-    dirname(path),
-    `.${basename(path)}.tmp.${randomBytes(4).toString('hex')}`,
-  )
-  try {
-    await writeFile(temporary, contents, { encoding: 'utf-8' })
-    try {
-      await rename(temporary, path)
-    } catch (error) {
-      const code = (error as NodeJS.ErrnoException).code
-      if (code === 'EPERM' || code === 'EEXIST' || code === 'EXDEV') {
-        await copyFile(temporary, path)
-        await rm(temporary, { force: true }).catch(() => {})
-      } else {
-        throw error
-      }
-    }
-  } catch (error) {
-    await rm(temporary, { force: true }).catch(() => {})
-    throw error
-  }
-}
-
 export async function writeJobState(
   jobDir: string,
   state: JobState,
@@ -226,7 +199,10 @@ export async function writeJobState(
     stateSortOrder: _stateSortOrder,
     ...persisted
   } = state
-  await atomicWrite(join(jobDir, STATE_FILE), JSON.stringify(persisted, null, 2))
+  await atomicWriteFile(
+    join(jobDir, STATE_FILE),
+    JSON.stringify(persisted, null, 2),
+  )
   invalidateJobState(jobDir)
 }
 
@@ -321,7 +297,7 @@ export async function readPins(): Promise<Set<string>> {
 export async function writePins(pins: Set<string>): Promise<void> {
   const path = getPinsPath()
   await mkdir(dirname(path), { recursive: true })
-  await atomicWrite(path, JSON.stringify([...pins], null, 2))
+  await atomicWriteFile(path, JSON.stringify([...pins], null, 2))
 }
 
 let pinWriteChain = Promise.resolve()

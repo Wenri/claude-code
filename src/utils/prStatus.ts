@@ -1,8 +1,9 @@
-import { mkdir, readFile, rename, writeFile } from 'fs/promises'
+import { mkdir, readFile } from 'fs/promises'
 import { dirname, join } from 'path'
 import { getClaudeConfigHomeDir } from './envUtils.js'
 import { execFileNoThrow } from './execFileNoThrow.js'
 import { logForDebugging } from './debug.js'
+import { atomicWriteFile } from './atomicWrite.js'
 
 export type PrState = 'OPEN' | 'CLOSED' | 'MERGED' | 'DRAFT'
 export type PrReview =
@@ -295,9 +296,7 @@ async function persistCache(statuses: Map<string, PrStatus | null>) {
   lastCacheJson = json
   const path = cachePath()
   await mkdir(dirname(path), { recursive: true })
-  const temporary = `${path}.tmp.${process.pid}`
-  await writeFile(temporary, json, 'utf8')
-  await rename(temporary, path)
+  await atomicWriteFile(path, json)
 }
 
 export async function readPrStatusCache(): Promise<Map<string, PrStatus>> {
