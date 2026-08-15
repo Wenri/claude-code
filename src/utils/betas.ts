@@ -11,6 +11,7 @@ import {
   CLI_INTERNAL_BETA_HEADER,
   CONTEXT_1M_BETA_HEADER,
   CONTEXT_MANAGEMENT_BETA_HEADER,
+  EFFORT_BETA_HEADER,
   INTERLEAVED_THINKING_BETA_HEADER,
   PROMPT_CACHING_SCOPE_BETA_HEADER,
   REDACT_THINKING_BETA_HEADER,
@@ -28,6 +29,7 @@ import {
   shouldUseWIFAuth,
 } from './auth.js'
 import { has1mContext } from './context.js'
+import { logForDebugging } from './debug.js'
 import { isEnvDefinedFalsy, isEnvTruthy } from './envUtils.js'
 import { getCanonicalName } from './model/model.js'
 import { get3PModelCapabilityOverride } from './model/modelSupportOverrides.js'
@@ -43,6 +45,17 @@ import { getInitialSettings } from './settings/settings.js'
  * Only betas in this list can be passed via SDK options.
  */
 const ALLOWED_SDK_BETAS = [CONTEXT_1M_BETA_HEADER]
+
+const THIRD_PARTY_COMPATIBLE_BETA_HEADERS = new Set([
+  CLAUDE_CODE_20250219_BETA_HEADER,
+  INTERLEAVED_THINKING_BETA_HEADER,
+  CONTEXT_1M_BETA_HEADER,
+  CONTEXT_MANAGEMENT_BETA_HEADER,
+  STRUCTURED_OUTPUTS_BETA_HEADER,
+  WEB_SEARCH_BETA_HEADER,
+  EFFORT_BETA_HEADER,
+  TOOL_SEARCH_BETA_HEADER_3P,
+])
 
 /**
  * Filter betas to only include those in the allowlist.
@@ -229,8 +242,11 @@ export function getToolSearchBetaHeader(): string {
  * and may not be supported by proxies or other providers.
  */
 export function shouldIncludeFirstPartyOnlyBetas(): boolean {
+  const provider = getAPIProvider()
   return (
-    (getAPIProvider() === 'firstParty' || getAPIProvider() === 'foundry') &&
+    (provider === 'firstParty' ||
+      provider === 'anthropicAws' ||
+      provider === 'foundry') &&
     !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS)
   )
 }
@@ -446,8 +462,24 @@ export function getMergedBetas(
     return baseBetas
   }
 
-  // Merge SDK betas without duplicates (already filtered by filterAllowedSdkBetas)
-  return [...baseBetas, ...sdkBetas.filter(b => !baseBetas.includes(b))]
+  let compatibleSdkBetas = sdkBetas
+  if (!shouldIncludeFirstPartyOnlyBetas()) {
+    compatibleSdkBetas = sdkBetas.filter(beta => {
+      if (THIRD_PARTY_COMPATIBLE_BETA_HEADERS.has(beta)) return true
+      logForDebugging(`SDK beta '${beta}' dropped on 3P`, { level: 'debug' })
+      return false
+    })
+  }
+
+  return [
+    ...baseBetas,
+    ...compatibleSdkBetas.filter(beta => !baseBetas.includes(beta)),
+  ]
+}
+
+export function filterBetasForProvider(betas: string[]): string[] {
+  if (shouldIncludeFirstPartyOnlyBetas()) return betas
+  return betas.filter(beta => THIRD_PARTY_COMPATIBLE_BETA_HEADERS.has(beta))
 }
 
 export function clearBetasCaches(): void {

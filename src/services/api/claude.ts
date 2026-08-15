@@ -58,6 +58,7 @@ import {
 } from '../../utils/api.js'
 import { getOauthAccountInfo } from '../../utils/auth.js'
 import {
+  filterBetasForProvider,
   getBedrockExtraBodyParamsBetas,
   getMergedBetas,
   getModelBetas,
@@ -1932,7 +1933,10 @@ async function* queryModel(
       system,
       tools: allTools,
       tool_choice: options.toolChoice,
-      ...(useBetas && !simulateProxyUsage && { betas: betasParams }),
+      ...(useBetas &&
+        !simulateProxyUsage && {
+          betas: filterBetasForProvider(betasParams),
+        }),
       metadata: getAPIMetadata(),
       max_tokens: maxOutputTokens,
       thinking,
