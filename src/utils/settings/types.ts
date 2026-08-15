@@ -841,7 +841,7 @@ export const SettingsSchema = lazySchema(() =>
         .boolean()
         .optional()
         .describe(
-          '@internal When false, the session recap (shown when you return after being away for 5+ minutes) is disabled. When absent or true, recap is enabled. Hidden from public SDK types until external launch; mirrors voiceHandsfree pattern above.',
+          '@internal When false, the session recap (shown when you return after being away for 5+ minutes) is disabled. When absent or true, recap is enabled. Hidden from public SDK types until external launch.',
         ),
       tui: z
         .enum(['default', 'fullscreen'])
