@@ -20,6 +20,7 @@ import { logError } from '../../utils/log.js'
 import { getCanonicalName } from '../../utils/model/model.js'
 import { tokenCountWithEstimation } from '../../utils/tokens.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../analytics/growthbook.js'
+import { logEvent } from '../analytics/index.js'
 import { getMaxOutputTokensForModel } from '../api/claude.js'
 import {
   notifyCompaction,
@@ -552,6 +553,9 @@ export async function autoCompactIfNeeded(
         `autocompact: circuit breaker tripped after ${nextFailures} consecutive failures — skipping future attempts this session`,
         { level: 'warn' },
       )
+      logEvent('tengu_auto_compact_circuit_breaker', {
+        consecutiveFailures: nextFailures,
+      })
     }
     return { wasCompacted: false, consecutiveFailures: nextFailures }
   }
