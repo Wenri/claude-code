@@ -1094,7 +1094,7 @@ export async function cleanupWorktree(): Promise<void> {
         logForDebugging(`Removed hook-based worktree at: ${worktreePath}`)
       } else {
         logForDebugging(
-          `No WorktreeRemove hook configured, hook-based worktree left at: ${worktreePath}`,
+          `WorktreeRemove hook did not remove worktree, left at: ${worktreePath}`,
           { level: 'warn' },
         )
       }
@@ -1110,10 +1110,25 @@ export async function cleanupWorktree(): Promise<void> {
           { cwd: originalCwd },
         )
 
+      let directoryRemoved = removeCode === 0
+      await rm(worktreePath, { recursive: true, force: true }).then(
+        () => {
+          directoryRemoved = true
+        },
+        error => {
+          logForDebugging(
+            `[worktree] residual dir cleanup failed for ${worktreePath}: ${error}`,
+          )
+        },
+      )
+
       if (removeCode !== 0) {
-        logForDebugging(`Failed to remove linked worktree: ${removeError}`, {
-          level: 'error',
-        })
+        logForDebugging(
+          directoryRemoved
+            ? `git worktree remove failed (${removeError.trim()}); rm sweep cleared ${worktreePath}`
+            : `Failed to remove linked worktree: ${removeError}`,
+          { level: directoryRemoved ? 'debug' : 'error' },
+        )
       } else {
         logForDebugging(`Removed linked worktree at: ${worktreePath}`)
       }
