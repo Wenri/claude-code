@@ -64,6 +64,7 @@ import { getMainLoopModel } from '../model/model.js'
 import { getPlatform } from '../platform.js'
 import { isBashToolEnabled } from '../shell/shellToolUtils.js'
 import { isSubprocessEnvScrubEnabled } from '../subprocessEnv.js'
+import { logPermissionModeChanged } from '../telemetry/events.js'
 import {
   CROSS_PLATFORM_CODE_EXEC,
   DANGEROUS_BASH_PATTERNS,
@@ -596,15 +597,18 @@ export function restoreDangerousPermissions(
  * @param fromMode The current permission mode
  * @param toMode The target permission mode
  * @param context The current tool permission context
+ * @param trigger Optional source of the transition for telemetry
  */
 export function transitionPermissionMode(
   fromMode: string,
   toMode: string,
   context: ToolPermissionContext,
+  trigger?: string,
 ): ToolPermissionContext {
   // plan→plan (SDK set_permission_mode) would wrongly hit the leave branch below
   if (fromMode === toMode) return context
 
+  logPermissionModeChanged({ from: fromMode, to: toMode, trigger })
   handlePlanModeTransition(fromMode, toMode)
   handleAutoModeTransition(fromMode, toMode)
 
@@ -1286,6 +1290,11 @@ export async function verifyAutoModeGateAccess(
     if (inAuto) {
       autoModeStateModule?.setAutoModeActive(false)
       setNeedsAutoModeExitAttachment(true)
+      logPermissionModeChanged({
+        from: 'auto',
+        to: 'default',
+        trigger: 'auto_gate_denied',
+      })
       return {
         ...applyPermissionUpdate(restoreDangerousPermissions(ctx), {
           type: 'setMode',

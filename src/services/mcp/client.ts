@@ -117,7 +117,11 @@ import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
 } from '../analytics/index.js'
-import { isAnalyticsToolDetailsLoggingEnabled } from '../analytics/metadata.js'
+import {
+  isAnalyticsToolDetailsLoggingEnabled,
+  isToolDetailsLoggingEnabled,
+} from '../analytics/metadata.js'
+import { logOTelEvent } from '../../utils/telemetry/events.js'
 import {
   type ElicitationWaitingState,
   runElicitationHooks,
@@ -157,6 +161,29 @@ import type {
   ServerResource,
   ServerResourceTemplate,
 } from './types.js'
+
+function logMcpServerConnection(
+  serverName: string,
+  serverRef: ScopedMcpServerConfig,
+  result: {
+    status: 'connected' | 'failed' | 'disconnected'
+    durationMs: number
+    errorCode?: string
+    error?: string
+  },
+): void {
+  void logOTelEvent('mcp_server_connection', {
+    status: result.status,
+    transport_type: serverRef.type ?? 'stdio',
+    server_scope: serverRef.scope,
+    duration_ms: String(Math.round(result.durationMs)),
+    ...(result.errorCode && { error_code: result.errorCode }),
+    ...(isToolDetailsLoggingEnabled() && {
+      server_name: serverName,
+      ...(result.error && { error: result.error }),
+    }),
+  })
+}
 
 /**
  * Custom error class to indicate that an MCP tool call failed due to
@@ -1497,6 +1524,10 @@ export const connectToServer = memoize(
           name,
           `${transportType.toUpperCase()} connection closed after ${Math.floor(uptime / 1000)}s (${hasErrorOccurred ? 'with errors' : 'cleanly'})`,
         )
+        logMcpServerConnection(name, serverRef, {
+          status: 'disconnected',
+          durationMs: uptime,
+        })
 
         // Clear the memoization cache so next operation reconnects
         const key = getServerCacheKey(name, serverRef)
@@ -1698,6 +1729,10 @@ export const connectToServer = memoize(
       }
 
       const connectionDurationMs = Date.now() - connectStartTime
+      logMcpServerConnection(name, serverRef, {
+        status: 'connected',
+        durationMs: connectionDurationMs,
+      })
       logEvent('tengu_mcp_server_connection_succeeded', {
         connectionDurationMs,
         transportType: (serverRef.type ??
@@ -1730,6 +1765,12 @@ export const connectToServer = memoize(
         error.code !== undefined
           ? String(error.code)
           : undefined
+      logMcpServerConnection(name, serverRef, {
+        status: 'failed',
+        durationMs: connectionDurationMs,
+        errorCode,
+        error: errorMessage(error),
+      })
       logEvent('tengu_mcp_server_connection_failed', {
         connectionDurationMs,
         errorCode,

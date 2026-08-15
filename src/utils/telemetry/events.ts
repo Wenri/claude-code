@@ -74,6 +74,24 @@ export async function logOTelEvent(
   })
 }
 
+export function logPermissionModeChanged({
+  from,
+  to,
+  trigger,
+}: {
+  from: string
+  to: string
+  trigger?: string
+}): void {
+  if (from === to) return
+
+  void logOTelEvent('permission_mode_changed', {
+    from_mode: from,
+    to_mode: to,
+    ...(trigger && { trigger }),
+  })
+}
+
 export function logAtMention({
   mentionType,
   success,

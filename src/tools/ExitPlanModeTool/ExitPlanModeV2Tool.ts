@@ -31,6 +31,7 @@ import {
   persistFileSnapshotIfRemote,
 } from '../../utils/plans.js'
 import { jsonStringify } from '../../utils/slowOperations.js'
+import { logPermissionModeChanged } from '../../utils/telemetry/events.js'
 import {
   getAgentName,
   getTeamName,
@@ -392,6 +393,11 @@ export const ExitPlanModeV2Tool: Tool<InputSchema, Output> = buildTool({
           permissionSetupModule?.restoreDangerousPermissions(baseContext) ??
           baseContext
       }
+      logPermissionModeChanged({
+        from: 'plan',
+        to: restoreMode,
+        trigger: 'exit_plan_mode',
+      })
       return {
         ...prev,
         toolPermissionContext: {

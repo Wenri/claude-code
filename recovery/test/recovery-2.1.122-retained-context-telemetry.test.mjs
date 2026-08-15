@@ -289,3 +289,100 @@ test('source propagates compact outcomes through the SDK status callback', () =>
     "compactResult: compactError ? 'failed' : 'success'",
   ])
 })
+
+test('authenticates retained permission-mode and MCP lifecycle events', () => {
+  for (const release of releases) {
+    const bundle = readBundle(release)
+    assert.equal(
+      occurrences(bundle, 'permission_mode_changed'),
+      1,
+      `${release.version}: permission-mode event definition`,
+    )
+    assert.equal(
+      occurrences(bundle, 'auto_gate_denied'),
+      1,
+      `${release.version}: auto-gate transition trigger`,
+    )
+    assert.equal(
+      occurrences(bundle, 'mcp_server_connection'),
+      3,
+      `${release.version}: unified plus legacy MCP connection events`,
+    )
+    assert.equal(
+      occurrences(bundle, 'transport_type'),
+      1,
+      `${release.version}: unified MCP transport field`,
+    )
+    assert.match(
+      bundle,
+      /"permission_mode_changed",\{from_mode:[A-Za-z_$][\w$]*\.from,to_mode:[A-Za-z_$][\w$]*\.to,\.\.\.[A-Za-z_$][\w$]*\.trigger&&\{trigger:[A-Za-z_$][\w$]*\.trigger\}\}/,
+      `${release.version}: exact permission-mode event shape`,
+    )
+    assert.match(
+      bundle,
+      /"mcp_server_connection",\{status:[A-Za-z_$][\w$]*\.status,transport_type:[A-Za-z_$][\w$]*\.type\?\?"stdio",server_scope:[A-Za-z_$][\w$]*\.scope,duration_ms:String\(Math\.round\([A-Za-z_$][\w$]*\.durationMs\)\),\.\.\.[A-Za-z_$][\w$]*\.errorCode&&\{error_code:[A-Za-z_$][\w$]*\.errorCode\},\.\.\.[A-Za-z_$][\w$]*\(\)&&\{server_name:[A-Za-z_$][\w$]*,\.\.\.[A-Za-z_$][\w$]*\.error&&\{error:[A-Za-z_$][\w$]*\.error\}\}\}/,
+      `${release.version}: exact privacy-gated MCP lifecycle shape`,
+    )
+    assert.match(
+      bundle,
+      /status:"disconnected",durationMs:[A-Za-z_$][\w$]*\}/,
+      `${release.version}: MCP disconnect lifecycle call`,
+    )
+    assert.match(
+      bundle,
+      /status:"connected",durationMs:[A-Za-z_$][\w$]*\}\),[A-Za-z_$][\w$]*\("tengu_mcp_server_connection_succeeded"/,
+      `${release.version}: MCP connected lifecycle call ordering`,
+    )
+    assert.match(
+      bundle,
+      /status:"failed",durationMs:[A-Za-z_$][\w$]*,errorCode:[A-Za-z_$][\w$]*,error:[A-Za-z_$][\w$]*\([A-Za-z_$][\w$]*\)\}\),[A-Za-z_$][\w$]*\("tengu_mcp_server_connection_failed"/,
+      `${release.version}: MCP failed lifecycle call ordering`,
+    )
+  }
+})
+
+test('source emits every retained permission and MCP lifecycle transition', () => {
+  includesAll(source('src/utils/telemetry/events.ts'), [
+    "if (from === to) return void logOTelEvent('permission_mode_changed', { from_mode: from, to_mode: to, ...(trigger && { trigger }), })",
+  ])
+
+  const permissionSetup = source('src/utils/permissions/permissionSetup.ts')
+  includesAll(permissionSetup, [
+    'logPermissionModeChanged({ from: fromMode, to: toMode, trigger })',
+    "from: 'auto', to: 'default', trigger: 'auto_gate_denied'",
+  ])
+  includesAll(source('src/utils/permissions/getNextPermissionMode.ts'), [
+    'toolPermissionContext, trigger,',
+  ])
+  includesAll(source('src/components/PromptInput/PromptInput.tsx'), [
+    "cyclePermissionMode(toolPermissionContext, teamContext, 'shift_tab')",
+    "toolPermissionContext, 'auto_opt_in'",
+  ])
+  includesAll(source('src/tools/ExitPlanModeTool/ExitPlanModeV2Tool.ts'), [
+    "from: 'plan', to: restoreMode, trigger: 'exit_plan_mode'",
+  ])
+
+  const exitRequest = source(
+    'src/components/permissions/ExitPlanModePermissionRequest/ExitPlanModePermissionRequest.tsx',
+  )
+  assert.equal(
+    occurrences(exitRequest, "trigger: 'exit_plan_mode'"),
+    4,
+    'every retained ExitPlanMode request outcome is attributed',
+  )
+
+  const mcpClient = source('src/services/mcp/client.ts')
+  includesAll(mcpClient, [
+    "void logOTelEvent('mcp_server_connection', { status: result.status, transport_type: serverRef.type ?? 'stdio', server_scope: serverRef.scope, duration_ms: String(Math.round(result.durationMs))",
+    '...(result.errorCode && { error_code: result.errorCode })',
+    '...(isToolDetailsLoggingEnabled() && { server_name: serverName, ...(result.error && { error: result.error })',
+    "status: 'disconnected', durationMs: uptime",
+    "status: 'connected', durationMs: connectionDurationMs",
+    "status: 'failed', durationMs: connectionDurationMs, errorCode, error: errorMessage(error)",
+  ])
+  assert.equal(
+    occurrences(mcpClient, 'logMcpServerConnection('),
+    4,
+    'one MCP lifecycle helper and three outcome calls',
+  )
+})

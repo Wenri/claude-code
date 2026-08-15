@@ -98,6 +98,7 @@ export function getNextPermissionMode(
 export function cyclePermissionMode(
   toolPermissionContext: ToolPermissionContext,
   teamContext?: { leadAgentId: string },
+  trigger?: string,
 ): { nextMode: PermissionMode; context: ToolPermissionContext } {
   const nextMode = getNextPermissionMode(toolPermissionContext, teamContext)
   return {
@@ -106,6 +107,7 @@ export function cyclePermissionMode(
       toolPermissionContext.mode,
       nextMode,
       toolPermissionContext,
+      trigger,
     ),
   }
 }

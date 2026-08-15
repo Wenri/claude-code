@@ -1694,7 +1694,7 @@ function PromptInput({
 
     const {
       context: preparedContext
-    } = cyclePermissionMode(toolPermissionContext, teamContext);
+    } = cyclePermissionMode(toolPermissionContext, teamContext, 'shift_tab');
     logEvent('tengu_mode_cycle', {
       to: nextMode as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
     });
@@ -1751,7 +1751,7 @@ function PromptInput({
       // Now that the user accepted, apply the full transition: activate the
       // auto mode backend (classifier, beta headers) and strip dangerous
       // permissions (e.g. Bash(*) always-allow rules).
-      const strippedContext = transitionPermissionMode(previousModeBeforeAuto ?? toolPermissionContext.mode, 'auto', toolPermissionContext);
+      const strippedContext = transitionPermissionMode(previousModeBeforeAuto ?? toolPermissionContext.mode, 'auto', toolPermissionContext, 'auto_opt_in');
       setAppState(prev => ({
         ...prev,
         toolPermissionContext: {

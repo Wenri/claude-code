@@ -36,6 +36,7 @@ import { getPlan, getPlanFilePath } from '../../../utils/plans.js';
 import { editFileInEditor, editPromptInEditor } from '../../../utils/promptEditor.js';
 import { getCurrentSessionTitle, getTranscriptPath, saveAgentName, saveCustomTitle } from '../../../utils/sessionStorage.js';
 import { getSettings_DEPRECATED } from '../../../utils/settings/settings.js';
+import { logPermissionModeChanged } from '../../../utils/telemetry/events.js';
 import { isUltraplanEnabled } from '../../../utils/ultraplan/config.js';
 import { type OptionWithDescription, Select } from '../../CustomSelect/index.js';
 import { Markdown } from '../../Markdown.js';
@@ -363,6 +364,11 @@ export function ExitPlanModePermissionRequest({
         interviewPhaseEnabled: isPlanModeInterviewPhaseEnabled(),
         hasFeedback: !!acceptFeedback
       });
+      logPermissionModeChanged({
+        from: 'plan',
+        to: mode,
+        trigger: 'exit_plan_mode'
+      });
 
       // Set initial message - REPL will handle context clear and fresh query
       // Add verification instruction if the feature is enabled
@@ -411,6 +417,11 @@ export function ExitPlanModePermissionRequest({
       setHasExitedPlanMode(true);
       setNeedsPlanModeExitAttachment(true);
       autoModeStateModule?.setAutoModeActive(true);
+      logPermissionModeChanged({
+        from: 'plan',
+        to: 'auto',
+        trigger: 'exit_plan_mode'
+      });
       setAppState(prev => ({
         ...prev,
         toolPermissionContext: stripDangerousPermissionsForAutoMode({
@@ -438,6 +449,11 @@ export function ExitPlanModePermissionRequest({
     };
     const keepContextMode = keepContextModes[value];
     if (keepContextMode) {
+      logPermissionModeChanged({
+        from: 'plan',
+        to: keepContextMode,
+        trigger: 'exit_plan_mode'
+      });
       logEvent('tengu_plan_exit', {
         planLengthChars: currentPlan.length,
         outcome: value as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
@@ -459,6 +475,11 @@ export function ExitPlanModePermissionRequest({
     };
     const standardMode = standardModes[value];
     if (standardMode) {
+      logPermissionModeChanged({
+        from: 'plan',
+        to: standardMode,
+        trigger: 'exit_plan_mode'
+      });
       logEvent('tengu_plan_exit', {
         planLengthChars: currentPlan.length,
         outcome: value as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
