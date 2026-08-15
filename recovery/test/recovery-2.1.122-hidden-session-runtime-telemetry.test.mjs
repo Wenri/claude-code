@@ -132,6 +132,49 @@ test('source preserves start classification and startup inventory telemetry', ()
   assert.ok(config.includes("'autoAddRemoteControlDaemonWorker'"))
 })
 
+test('preserves target config-key order in startup telemetry', () => {
+  const expectedOrder = [
+    'autoScrollEnabled',
+    'showTurnDuration',
+    'externalEditorContext',
+    'showMessageTimestamps',
+    'diffTool',
+    'env',
+    'tipsHistory',
+    'todoFeatureEnabled',
+    'showExpandedTodos',
+    'briefTranscript',
+    'messageIdleNotifThresholdMs',
+  ]
+
+  for (const release of releases) {
+    const bundle = readBundle(release)
+    assert.ok(
+      bundle.includes(expectedOrder.map(key => `"${key}"`).join(',')),
+      `${release.version}: retained GLOBAL_CONFIG_KEYS order`,
+    )
+  }
+
+  const config = source('src/utils/config.ts')
+  let previousIndex = -1
+  for (const key of expectedOrder) {
+    const index = config.indexOf(`'${key}'`, previousIndex + 1)
+    assert.ok(index > previousIndex, `${key}: exact source order`)
+    previousIndex = index
+  }
+
+  const main = source('src/main.tsx')
+  assert.ok(main.includes('for (const key of GLOBAL_CONFIG_KEYS)'))
+  assert.ok(
+    main.includes("nondefault_settings: nondefaultSettings.join(',')"),
+  )
+  assert.equal(
+    main.includes('nondefaultSettings.sort('),
+    false,
+    'startup telemetry preserves GLOBAL_CONFIG_KEYS insertion order',
+  )
+})
+
 test('source tracks prior graceful exit only for local persisted sessions', () => {
   const tracker = source('src/cost-tracker.ts')
   assert.ok(tracker.includes('lastGracefulShutdown: isShuttingDown()'))
