@@ -292,6 +292,29 @@ export function createToolWrappers(
             result: output,
           },
         })
+        const imageResult = output as {
+          type?: unknown
+          file?: { base64?: unknown; type?: unknown }
+        }
+        if (
+          output !== null &&
+          typeof output === 'object' &&
+          imageResult.type === 'image' &&
+          imageResult.file !== null &&
+          typeof imageResult.file === 'object' &&
+          typeof imageResult.file.base64 === 'string' &&
+          imageResult.file.base64.length > 0 &&
+          typeof imageResult.file.type === 'string'
+        ) {
+          const base64Length = imageResult.file.base64.length
+          return {
+            ...output,
+            file: {
+              ...imageResult.file,
+              base64: `[${base64Length} base64 chars — rendered as image in REPL result]`,
+            },
+          }
+        }
         return output
       } catch (error) {
         const message = formatError(error)
