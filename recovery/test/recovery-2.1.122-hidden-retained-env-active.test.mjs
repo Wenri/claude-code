@@ -102,7 +102,9 @@ test('source tracks background completion and refreshes once before a turn', () 
     fs.readFileSync(path.join(repo, 'src/cli/print.ts'), 'utf8'),
   )
   for (const fragment of [
-    'async function installPluginsAndApplyMcpInBackground():Promise<boolean>',
+    'async function installPluginsAndApplyMcpInBackground(',
+    'onProgress?:(event:HeadlessPluginInstallProgress)=>void',
+    '):Promise<boolean>',
     'let pluginsInstalled=false',
     'return pluginsInstalled',
     'const state={needsRefresh:false}',
