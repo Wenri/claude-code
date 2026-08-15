@@ -1214,7 +1214,14 @@ export const AccountInfoSchema = lazySchema(() =>
       tokenSource: z.string().optional(),
       apiKeySource: z.string().optional(),
       apiProvider: z
-        .enum(['firstParty', 'bedrock', 'vertex', 'foundry', 'mantle'])
+        .enum([
+          'firstParty',
+          'bedrock',
+          'vertex',
+          'foundry',
+          'anthropicAws',
+          'mantle',
+        ])
         .optional()
         .describe(
           'Active API backend. Anthropic OAuth login only applies when "firstParty"; for 3P providers the other fields are absent and auth is external (AWS creds, gcloud ADC, etc.).',
@@ -1518,8 +1525,8 @@ export const SDKRateLimitInfoSchema = lazySchema(() =>
           'group_zero_credit_limit',
           'member_zero_credit_limit',
           'org_service_level_disabled',
-          'org_service_zero_credit_limit',
           'no_limits_configured',
+          'fetch_error',
           'unknown',
         ])
         .optional(),
