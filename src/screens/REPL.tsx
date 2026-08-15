@@ -142,6 +142,7 @@ import { hasConsoleBillingAccess } from '../utils/billing.js';
 import { logEvent, type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS } from 'src/services/analytics/index.js';
 import { getFeatureValue_CACHED_MAY_BE_STALE } from 'src/services/analytics/growthbook.js';
 import { textForResubmit, handleMessageFromStream, type StreamingToolUse, type StreamingThinking, isCompactBoundaryMessage, getMessagesAfterCompactBoundary, appendOrReplaceMessageByUuid, getContentText, createUserMessage, createAssistantMessage, createTurnDurationMessage, createAgentsKilledMessage, createApiMetricsMessage, createSystemMessage, createCommandInputMessage, formatCommandInputTags } from '../utils/messages.js';
+import { tokenCountWithEstimation } from '../utils/tokens.js';
 import { applyMessageOperation, type MessageOperation } from '../utils/messageOperations.js';
 import { generateSessionTitle } from '../utils/sessionTitle.js';
 import { BASH_INPUT_TAG, COMMAND_MESSAGE_TAG, COMMAND_NAME_TAG, LOCAL_COMMAND_STDERR_TAG, LOCAL_COMMAND_STDOUT_TAG } from '../constants/xml.js';
@@ -1317,11 +1318,7 @@ export function REPL({
   }, [setToolUseConfirmQueue]);
   const [messages, rawSetMessages] = useState<MessageType[]>(initialMessages ?? []);
   const messagesRef = useRef(messages);
-  // Stores the willowMode variant that was shown (or false if no hint shown).
-  // Captured at hint_shown time so hint_converted telemetry reports the same
-  // variant — the GrowthBook value shouldn't change mid-session, but reading
-  // it once guarantees consistency between the paired events.
-  const idleHintShownRef = useRef<string | false>(false);
+  const idleHintShownRef = useRef(false);
   // Wrap setMessages so messagesRef is always current the instant the
   // call returns — not when React later processes the batch.  Apply the
   // updater eagerly against the ref, then hand React the computed value
@@ -3481,10 +3478,9 @@ export function REPL({
       if (matchingCommand?.name === 'clear' && idleHintShownRef.current) {
         logEvent('tengu_idle_return_action', {
           action: 'hint_converted' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          variant: idleHintShownRef.current as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
           idleMinutes: Math.round((Date.now() - lastQueryCompletionTimeRef.current) / 60_000),
           messageCount: messagesRef.current.length,
-          totalInputTokens: getTotalInputTokens()
+          contextTokens: tokenCountWithEstimation(getMessagesAfterCompactBoundary(messagesRef.current))
         });
         idleHintShownRef.current = false;
       }
@@ -4353,13 +4349,13 @@ export function REPL({
     if (willowMode !== 'hint' && willowMode !== 'hint_v2') return;
     if (getGlobalConfig().idleReturnDismissed) return;
     const tokenThreshold = Number(process.env.CLAUDE_CODE_IDLE_TOKEN_THRESHOLD ?? 100_000);
-    if (getTotalInputTokens() < tokenThreshold) return;
+    if (tokenCountWithEstimation(getMessagesAfterCompactBoundary(messagesRef.current)) < tokenThreshold) return;
     const idleThresholdMs = Number(process.env.CLAUDE_CODE_IDLE_THRESHOLD_MINUTES ?? 75) * 60_000;
     const elapsed = Date.now() - lastQueryCompletionTime;
     const remaining = idleThresholdMs - elapsed;
     const timer = setTimeout((lqct, addNotif, msgsRef, mode, hintRef) => {
       if (msgsRef.current.length === 0) return;
-      const totalTokens = getTotalInputTokens();
+      const totalTokens = tokenCountWithEstimation(getMessagesAfterCompactBoundary(msgsRef.current));
       const formattedTokens = formatTokens(totalTokens);
       const idleMinutes = (Date.now() - lqct) / 60_000;
       addNotif({
@@ -4378,13 +4374,12 @@ export function REPL({
         // handles dismissal. 0x7FFFFFFF = setTimeout max (~24.8 days).
         timeoutMs: 0x7fffffff
       });
-      hintRef.current = mode;
+      hintRef.current = true;
       logEvent('tengu_idle_return_action', {
         action: 'hint_shown' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        variant: mode as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
         idleMinutes: Math.round(idleMinutes),
         messageCount: msgsRef.current.length,
-        totalInputTokens: totalTokens
+        contextTokens: totalTokens
       });
     }, Math.max(0, remaining), lastQueryCompletionTime, addNotification, messagesRef, willowMode, idleHintShownRef);
     return () => {
