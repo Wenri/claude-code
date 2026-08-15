@@ -11,6 +11,7 @@ import { startAgentSummarization } from '../../services/AgentSummary/agentSummar
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js';
 import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEvent } from '../../services/analytics/index.js';
 import { clearDumpState } from '../../services/api/dumpPrompts.js';
+import { isMcpTool } from '../../services/mcp/utils.js';
 import { completeAgentTask as completeAsyncAgent, createActivityDescriptionResolver, createProgressTracker, enqueueAgentNotification, failAgentTask as failAsyncAgent, getProgressUpdate, getTokenCountFromTracker, isLocalAgentTask, killAsyncAgent, registerAgentForeground, registerAsyncAgent, unregisterAgentForeground, updateAgentProgress as updateAsyncAgentProgress, updateProgressFromMessage } from '../../tasks/LocalAgentTask/LocalAgentTask.js';
 import { checkRemoteAgentEligibility, formatPreconditionError, getRemoteTaskSessionUrl, registerRemoteAgentTask } from '../../tasks/RemoteAgentTask/RemoteAgentTask.js';
 import { assembleToolPool } from '../../tools.js';
@@ -366,6 +367,7 @@ export const AgentTool = buildTool({
     // Capture for type narrowing — `let selectedAgent` prevents TS from
     // narrowing property types across the if-else assignment above.
     const requiredMcpServers = selectedAgent.requiredMcpServers;
+    const sdkMcpTools = toolUseContext.options.tools.filter(isMcpTool);
 
     // Check if required MCP servers have tools available
     // A server that's connected but not authenticated won't have any tools
@@ -394,7 +396,7 @@ export const AgentTool = buildTool({
 
       // Get servers that actually have tools (meaning they're connected AND authenticated)
       const serversWithTools: string[] = [];
-      for (const tool of currentAppState.mcp.tools) {
+      for (const tool of currentAppState.mcp.tools.concat(sdkMcpTools)) {
         if (tool.name?.startsWith('mcp__')) {
           // Extract server name from tool name (format: mcp__serverName__toolName)
           const parts = tool.name.split('__');
@@ -575,7 +577,11 @@ export const AgentTool = buildTool({
       ...appState.toolPermissionContext,
       mode: selectedAgent.permissionMode ?? 'acceptEdits'
     };
-    const workerTools = assembleToolPool(workerPermissionContext, appState.mcp.tools);
+    const currentAppState = toolUseContext.getAppState();
+    const workerTools = assembleToolPool(workerPermissionContext, currentAppState.mcp.tools.concat(sdkMcpTools), {
+      skipReplFilter: true,
+      skillTools: currentAppState.skillTools
+    });
 
     // Create a stable agent ID early so it can be used for worktree slug
     const earlyAgentId = createAgentId();

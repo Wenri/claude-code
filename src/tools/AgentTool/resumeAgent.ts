@@ -6,6 +6,7 @@ import type { CanUseToolFn } from '../../hooks/useCanUseTool.js'
 import type { ToolUseContext } from '../../Tool.js'
 import { registerAsyncAgent } from '../../tasks/LocalAgentTask/LocalAgentTask.js'
 import { assembleToolPool } from '../../tools.js'
+import { isMcpTool } from '../../services/mcp/utils.js'
 import { asAgentId } from '../../types/ids.js'
 import { runWithAgentContext } from '../../utils/agentContext.js'
 import { runWithCwdOverride } from '../../utils/cwd.js'
@@ -160,9 +161,18 @@ export async function resumeAgentBackground({
     ...appState.toolPermissionContext,
     mode: selectedAgent.permissionMode ?? 'acceptEdits',
   }
+  const sdkMcpTools = toolUseContext.options.tools.filter(isMcpTool)
+  const currentAppState = toolUseContext.getAppState()
   const workerTools = isResumedFork
     ? toolUseContext.options.tools
-    : assembleToolPool(workerPermissionContext, appState.mcp.tools)
+    : assembleToolPool(
+        workerPermissionContext,
+        currentAppState.mcp.tools.concat(sdkMcpTools),
+        {
+          skipReplFilter: true,
+          skillTools: currentAppState.skillTools,
+        },
+      )
 
   const runAgentParams: Parameters<typeof runAgent>[0] = {
     agentDefinition: selectedAgent,

@@ -112,6 +112,12 @@ const skillSearchModules = feature('EXPERIMENTAL_SKILL_SEARCH')
         require('../services/skillSearch/prefetch.js') as typeof import('../services/skillSearch/prefetch.js'),
     }
   : null
+const skillToolsModule = feature('SKILLS_AS_TOOLS')
+  ? (require('../tools/SkillTool/SkillTool.js') as Pick<
+      typeof import('../tools/SkillTool/SkillTool.js'),
+      'isSkillsAsToolsEnabled'
+    >)
+  : null
 const autoModeStateModule = feature('TRANSCRIPT_CLASSIFIER')
   ? (require('./permissions/autoModeState.js') as typeof import('./permissions/autoModeState.js'))
   : null
@@ -2719,6 +2725,10 @@ export function filterToBundledAndMcp(commands: Command[]): Command[] {
 async function getSkillListingAttachments(
   toolUseContext: ToolUseContext,
 ): Promise<Attachment[]> {
+  if (skillToolsModule?.isSkillsAsToolsEnabled()) {
+    return []
+  }
+
   if (process.env.NODE_ENV === 'test') {
     return []
   }

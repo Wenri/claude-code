@@ -88,6 +88,16 @@ import {
 } from './UI.js'
 
 /**
+ * Build-time gate for exposing each skill as its own model tool. The external
+ * release compiles this to false; callers use it alongside a conditional
+ * module import so the experimental builder is eliminated completely.
+ */
+export function isSkillsAsToolsEnabled(): boolean {
+  if (feature('SKILLS_AS_TOOLS')) return true
+  return false
+}
+
+/**
  * Gets all commands including MCP skills/prompts from AppState.
  * SkillTool needs this because getCommands() only returns local/bundled skills.
  */

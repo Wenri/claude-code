@@ -1764,6 +1764,7 @@ function runHeadlessStreaming(
     const assembledTools = assembleToolPool(
       appState.toolPermissionContext,
       appState.mcp.tools,
+      { skillTools: appState.skillTools },
     )
     let allTools = uniqBy(
       mergeAndFilterTools(

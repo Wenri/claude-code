@@ -158,6 +158,7 @@ import { useMergedTools } from '../hooks/useMergedTools.js';
 import { mergeAndFilterTools } from '../utils/toolPool.js';
 import { useMergedCommands } from '../hooks/useMergedCommands.js';
 import { useSkillsChange } from '../hooks/useSkillsChange.js';
+import { useSkillTools } from '../hooks/useSkillTools.js';
 import { useManagePlugins } from '../hooks/useManagePlugins.js';
 import { Messages } from '../components/Messages.js';
 import {
@@ -830,6 +831,7 @@ export function REPL({
   useAdvisorNotification();
   useDeprecationWarningNotification(mainLoopModel);
   useNpmDeprecationNotification();
+  useSkillTools();
   useAntOrgWarningNotification();
   useInstallMessages();
   useChromeExtensionNotification();
@@ -2637,7 +2639,9 @@ export function REPL({
     // for mid-query tool list updates.
     const computeTools = () => {
       const state = store.getState();
-      const assembled = assembleToolPool(state.toolPermissionContext, state.mcp.tools);
+      const assembled = assembleToolPool(state.toolPermissionContext, state.mcp.tools, {
+        skillTools: state.skillTools
+      });
       const merged = mergeAndFilterTools(combinedInitialTools, assembled, state.toolPermissionContext.mode);
       if (!mainThreadAgentDefinition) return merged;
       return resolveAgentTools(mainThreadAgentDefinition, merged, false, true).resolvedTools;

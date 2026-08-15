@@ -246,6 +246,9 @@ export type AppState = DeepImmutable<{
     needsRefresh: boolean
   }
   agentDefinitions: AgentDefinitionsResult
+  // Per-skill tools assembled by the skills-as-tools experiment. Empty in
+  // builds where the experiment module is compiled out.
+  skillTools: Tool[]
   fileHistory: FileHistoryState
   attribution: AttributionState
   todos: { [agentId: string]: TodoList }
@@ -554,6 +557,7 @@ export function getDefaultAppState(): AppState {
     },
     agent: undefined,
     agentDefinitions: { activeAgents: [], allAgents: [] },
+    skillTools: [],
     fileHistory: {
       snapshots: [],
       trackedFiles: new Set(),

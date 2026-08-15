@@ -3072,6 +3072,7 @@ async function run(): Promise<CommanderCommand> {
       toolPermissionContext: effectiveToolPermissionContext,
       agent: mainThreadAgentDefinition?.agentType,
       agentDefinitions,
+      skillTools: [],
       mcp: {
         clients: [],
         tools: [],
