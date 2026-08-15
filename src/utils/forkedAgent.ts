@@ -524,10 +524,13 @@ export async function runForkedAgent({
   } = cacheSafeParams
 
   // Create isolated context to prevent mutation of parent state
-  const isolatedToolUseContext = createSubagentContext(
-    toolUseContext,
-    overrides,
-  )
+  const isolatedToolUseContext = createSubagentContext(toolUseContext, {
+    ...overrides,
+    isolationLatch: overrides?.isolationLatch ?? {
+      current: toolUseContext.isolationLatch?.current ?? null,
+      exemptServers: toolUseContext.isolationLatch?.exemptServers,
+    },
+  })
 
   // Do NOT filterIncompleteToolCalls here — it drops the whole assistant on
   // partial tool batches, orphaning the paired results (API 400). Dangling

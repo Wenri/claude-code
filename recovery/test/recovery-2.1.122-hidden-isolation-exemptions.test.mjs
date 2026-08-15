@@ -100,4 +100,13 @@ test('recovers the per-session exemption union and initialize dispatch', () => {
 
   const types = source('src/tools/REPLTool/types.ts')
   assert.ok(types.includes('exemptServers?: Set<string>'))
+
+  const forkedAgent = source('src/utils/forkedAgent.ts')
+  for (const fragment of [
+    'isolationLatch: overrides?.isolationLatch ?? {',
+    'current: toolUseContext.isolationLatch?.current ?? null',
+    'exemptServers: toolUseContext.isolationLatch?.exemptServers',
+  ]) {
+    assert.ok(forkedAgent.includes(compact(fragment)), fragment)
+  }
 })
