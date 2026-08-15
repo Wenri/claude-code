@@ -311,6 +311,7 @@ import {
   filterToolsByServer,
 } from 'src/services/mcp/utils.js'
 import { setupVscodeSdkMcp } from 'src/services/mcp/vscodeSdkMcp.js'
+import { setupCcdSessionSdkMcp } from 'src/services/mcp/ccdSessionSdkMcp.js'
 import { getAllMcpConfigs } from 'src/services/mcp/config.js'
 import {
   isQualifiedForGrove,
@@ -1762,6 +1763,7 @@ function runHeadlessStreaming(
 
       // Set up the special internal VSCode MCP server if necessary.
       setupVscodeSdkMcp(sdkClients)
+      setupCcdSessionSdkMcp(sdkClients)
     }
   }
 
