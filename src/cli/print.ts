@@ -1845,6 +1845,22 @@ function runHeadlessStreaming(
     return allTools
   }
 
+  const systemPromptGrowthBookFeature = isEnvTruthy(
+    process.env.CLAUDE_CODE_REMOTE,
+  )
+    ? process.env.CLAUDE_CODE_SYSTEM_PROMPT_GB_FEATURE
+    : undefined
+  const getEffectiveSystemPrompt = (): string | undefined => {
+    if (!systemPromptGrowthBookFeature) return options.systemPrompt
+    const override = getFeatureValue_CACHED_MAY_BE_STALE(
+      systemPromptGrowthBookFeature,
+      '',
+    )
+    return typeof override === 'string' && override.length > 0
+      ? override
+      : options.systemPrompt
+  }
+
   // Bridge handle for remote-control (SDK control message).
   // Mirrors the REPL's useReplBridge hook: the handle is created when
   // `remote_control` is enabled and torn down when disabled.
@@ -2635,7 +2651,7 @@ function runHeadlessStreaming(
                 }
                 pendingSeeds.clear()
               },
-              customSystemPrompt: options.systemPrompt,
+              customSystemPrompt: getEffectiveSystemPrompt(),
               appendSystemPrompt: options.appendSystemPrompt,
               appendSubagentSystemPrompt: options.appendSubagentSystemPrompt,
               forwardSubagentText: options.forwardSubagentText,
@@ -3630,7 +3646,7 @@ function runHeadlessStreaming(
                 mainLoopModel: getMainLoopModel(),
                 tools: buildAllTools(appState),
                 agentDefinitions: appState.agentDefinitions,
-                customSystemPrompt: options.systemPrompt,
+                customSystemPrompt: getEffectiveSystemPrompt(),
                 appendSystemPrompt: options.appendSystemPrompt,
                 excludeDynamicSections: options.excludeDynamicSections,
               },
@@ -4668,7 +4684,7 @@ function runHeadlessStreaming(
                     readFileState,
                     getAppState,
                     setAppState,
-                    customSystemPrompt: options.systemPrompt,
+                    customSystemPrompt: getEffectiveSystemPrompt(),
                     appendSystemPrompt: options.appendSystemPrompt,
                     excludeDynamicSections: options.excludeDynamicSections,
                     planModeInstructions: options.planModeInstructions,
