@@ -938,6 +938,12 @@ export async function teleportToRemote(options: {
     initialMessage,
     signal
   } = options;
+  if (!isPolicyAllowed('allow_remote_sessions')) {
+    options.onCreateFail?.(
+      "Remote sessions are disabled by your organization's policy.",
+    );
+    return null;
+  }
   try {
     // Check authentication
     await checkAndRefreshOAuthTokenIfNeeded();
