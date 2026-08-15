@@ -2208,9 +2208,12 @@ export async function bridgeMain(args: string[]): Promise<void> {
       ? process.env.CLAUDE_BRIDGE_SESSION_INGRESS_URL
       : baseUrl
 
-  const { getBranch, getRemoteUrl, findGitRoot } = await import(
-    '../utils/git.js'
-  )
+  const {
+    getBranch,
+    getRemoteUrl,
+    findGitRoot,
+    redactGitRemoteCredentials,
+  } = await import('../utils/git.js')
 
   // Precheck worktree availability for the first-run dialog and the `w`
   // toggle. Unconditional so we know upfront whether worktree is an option.
@@ -2433,7 +2436,7 @@ export async function bridgeMain(args: string[]): Promise<void> {
   }
 
   logForDebugging(
-    `[bridge:init] bridgeId=${bridgeId}${reuseEnvironmentId ? ` reuseEnvironmentId=${reuseEnvironmentId}` : ''} dir=${dir} branch=${branch} gitRepoUrl=${gitRepoUrl} machine=${machineName}`,
+    `[bridge:init] bridgeId=${bridgeId}${reuseEnvironmentId ? ` reuseEnvironmentId=${reuseEnvironmentId}` : ''} dir=${dir} branch=${branch} gitRepoUrl=${redactGitRemoteCredentials(gitRepoUrl)} machine=${machineName}`,
   )
   logForDebugging(
     `[bridge:init] apiBaseUrl=${baseUrl} sessionIngressUrl=${sessionIngressUrl}`,

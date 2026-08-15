@@ -282,6 +282,14 @@ export const getRemoteUrl = async (): Promise<string | null> => {
   return getCachedRemoteUrl()
 }
 
+export function redactGitRemoteCredentials<T extends string | null | undefined>(
+  remoteUrl: T,
+): T {
+  return (remoteUrl == null
+    ? remoteUrl
+    : remoteUrl.replace(/:\/\/[^/]*@/, '://***@')) as T
+}
+
 /**
  * Normalizes a git remote URL to a canonical form for hashing.
  * Converts SSH and HTTPS URLs to the same format: host/owner/repo (lowercase, no .git)
