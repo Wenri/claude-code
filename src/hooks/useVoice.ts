@@ -325,7 +325,6 @@ export function useVoice({
     }
     toggleTriggeredRef.current = false
     silenceTimedOutRef.current = false
-    toggleTriggeredRef.current = false
     voiceModule?.stopRecording()
     if (connectionRef.current) {
       connectionRef.current.close()
@@ -365,15 +364,6 @@ export function useVoice({
     // for sessions WITH speech; focusTriggered enables filtering sessions WITHOUT.
     const focusTriggered = focusTriggeredRef.current
     focusTriggeredRef.current = false
-    toggleTriggeredRef.current = false
-    if (toggleSilenceTimerRef.current) {
-      clearTimeout(toggleSilenceTimerRef.current)
-      toggleSilenceTimerRef.current = null
-    }
-    if (toggleMaxDurationTimerRef.current) {
-      clearTimeout(toggleMaxDurationTimerRef.current)
-      toggleMaxDurationTimerRef.current = null
-    }
     updateState('processing')
     voiceModule?.stopRecording()
     // Capture duration BEFORE the finalize round-trip so that the WebSocket
@@ -661,43 +651,6 @@ export function useVoice({
     )
   }
 
-  function armToggleSilenceTimer(): void {
-    if (toggleSilenceTimerRef.current) {
-      clearTimeout(toggleSilenceTimerRef.current)
-    }
-    toggleSilenceTimerRef.current = setTimeout(
-      (timerRef, stateRef, toggleTriggeredRef, finishRecording) => {
-        timerRef.current = null
-        if (stateRef.current === 'recording' && toggleTriggeredRef.current) {
-          logForDebugging('[voice] Toggle silence timeout — auto-finishing')
-          finishRecording()
-        }
-      },
-      TOGGLE_SILENCE_TIMEOUT_MS,
-      toggleSilenceTimerRef,
-      stateRef,
-      toggleTriggeredRef,
-      finishRecording,
-    )
-  }
-
-  function armToggleMaxDurationTimer(): void {
-    toggleMaxDurationTimerRef.current = setTimeout(
-      (timerRef, stateRef, toggleTriggeredRef, finishRecording) => {
-        timerRef.current = null
-        if (stateRef.current === 'recording' && toggleTriggeredRef.current) {
-          logForDebugging('[voice] Toggle max-duration cap — auto-finishing')
-          finishRecording()
-        }
-      },
-      TOGGLE_MAX_DURATION_MS,
-      toggleMaxDurationTimerRef,
-      stateRef,
-      toggleTriggeredRef,
-      finishRecording,
-    )
-  }
-
   // ── Focus-driven recording ──────────────────────────────────────────
   // In focus mode, start recording when the terminal gains focus and
   // stop when it loses focus. This enables a "multi-clauding army"
@@ -778,7 +731,6 @@ export function useVoice({
     recordingStartRef.current = Date.now()
     accumulatedRef.current = ''
     seenRepeatRef.current = false
-    toggleTriggeredRef.current = false
     hasAudioSignalRef.current = false
     retryUsedRef.current = false
     silentDropRetriedRef.current = false
@@ -937,9 +889,6 @@ export function useVoice({
                 // User is actively speaking — reset the silence timer.
                 armFocusSilenceTimer()
               } else {
-                if (toggleTriggeredRef.current) {
-                  armToggleSilenceTimer()
-                }
                 // Hold-to-talk: accumulate final transcripts separated by spaces
                 if (accumulatedRef.current) {
                   accumulatedRef.current += ' '
@@ -962,8 +911,6 @@ export function useVoice({
               // active speech and tears down the session.
               if (focusTriggeredRef.current) {
                 armFocusSilenceTimer()
-              } else if (toggleTriggeredRef.current) {
-                armToggleSilenceTimer()
               }
               // Show accumulated finals + current interim as live preview
               const interim = text.trim()
@@ -1295,13 +1242,6 @@ export function useVoice({
       cleanup()
     }
   }, [enabled, cleanup])
-
-  const cancelRecording = useCallback(() => {
-    if (stateRef.current === 'idle') return
-    logForDebugging('[voice] cancelRecording: discarding without submit')
-    cleanup()
-    updateState('idle')
-  }, [cleanup])
 
   return {
     state,

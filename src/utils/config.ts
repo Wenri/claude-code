@@ -44,7 +44,6 @@ const ccrAutoConnect = feature('CCR_AUTO_CONNECT')
 
 /* eslint-enable @typescript-eslint/no-require-imports */
 import type { ImageDimensions } from './imageResizer.js'
-import type { ModelCosts } from './modelCost.js'
 import type { ModelOption } from './model/modelOptions.js'
 import type { ModelCosts } from './modelCost.js'
 import { jsonParse, jsonStringify } from './slowOperations.js'
@@ -96,7 +95,6 @@ export type ProjectConfig = {
   lastTotalWebSearchRequests?: number
   lastFpsAverage?: number
   lastFpsLow1Pct?: number
-  lastGracefulShutdown?: boolean
   lastSessionId?: string
   lastModelUsage?: Record<
     string,
@@ -269,7 +267,6 @@ export type GlobalConfig = {
   showTurnDuration: boolean // Controls whether to show turn duration message (e.g., "Cooked for 1m 6s")
   showMessageTimestamps: boolean // Stamp assistant messages with their arrival time
   unpinOpus47LaunchEffort?: boolean // Whether the user has explicitly changed Opus 4.7's launch effort
-  opus47LaunchSeenCount?: number
   /**
    * @deprecated Use settings.env instead.
    */
@@ -277,13 +274,6 @@ export type GlobalConfig = {
   hasSeenTasksHint?: boolean // Whether the user has seen the tasks hint
   hasUsedStash?: boolean // Whether the user has used the stash feature (Ctrl+S)
   hasUsedBackgroundTask?: boolean // Whether the user has backgrounded a task (Ctrl+B)
-  hasUsedRemoteControl?: boolean // Whether the user has connected Remote Control
-  remoteControlUpsellSeenCount?: number // Number of idle Remote Control upsells shown (capped by the upsell policy)
-  closedIssuesLastChecked?: number // Timestamp of the last GitHub closed-issue poll
-  closedIssuesAcknowledged?: number[] // Closed issue numbers already shown to the user
-  powerupsUnlocked?: string[] // Completed /powerup interactive lesson IDs
-  bedrockDeclinedUpgrades?: Partial<Record<'sonnet' | 'opus' | 'haiku', string>>
-  vertexDeclinedUpgrades?: Partial<Record<'sonnet' | 'opus' | 'haiku', string>>
   queuedCommandUpHintCount?: number // Counter for how many times the user has seen the queued command up hint
   diffTool?: DiffTool // Which tool to use for displaying diffs (terminal or vscode)
 
@@ -469,7 +459,6 @@ export type GlobalConfig = {
 
   // Idle-return dialog tracking
   idleReturnDismissed?: boolean // "Don't ask again" picked
-  resumeReturnDismissed?: boolean // "Don't ask again" picked when resuming a large, old session
 
   // Opus 4.5 Pro migration tracking
   opusProMigrationComplete?: boolean
@@ -605,9 +594,6 @@ export type GlobalConfig = {
   remoteControlUpsellSeenCount?: number
   pushNotifUpsellSeenCount?: number
 
-  // Automatically mirror eligible sessions to Remote Control.
-  autoUploadSessions?: boolean
-
   // Cached extra usage disabled reason from the last API response
   // undefined = no cache, null = extra usage enabled, string = disabled reason.
   cachedExtraUsageDisabledReason?: string | null
@@ -688,7 +674,6 @@ function createDefaultGlobalConfig(): GlobalConfig {
     cachedGrowthBookFeatures: {},
     respectGitignore: true,
     copyFullResponse: false,
-    unpinOpus47LaunchEffort: false,
   }
 }
 
@@ -739,7 +724,6 @@ export const GLOBAL_CONFIG_KEYS = [
   'remoteControlAtStartup',
   'autoUploadSessions',
   'remoteDialogSeen',
-  'powerupsUnlocked',
 ] as const
 
 export type GlobalConfigKey = (typeof GLOBAL_CONFIG_KEYS)[number]
@@ -780,10 +764,6 @@ export function checkHasTrustDialogAccepted(): boolean {
 }
 
 function computeTrustDialogAccepted(): boolean {
-  if (isEnvTruthy(process.env.CLAUDE_CODE_SANDBOXED)) {
-    return true
-  }
-
   // Check session-level trust (for home directory case where trust is not persisted)
   // When running from home dir, trust dialog is shown but acceptance is stored
   // in memory only. This allows hooks and other features to work during the session.
@@ -1835,7 +1815,7 @@ export function formatAutoUpdaterDisabledReason(
     case 'development':
       return 'development build'
     case 'env':
-      return `set by env: ${reason.envVar}`
+      return `${reason.envVar} set`
     case 'config':
       return 'config'
   }
@@ -1866,14 +1846,11 @@ export function getAutoUpdaterDisabledReason(): AutoUpdaterDisabledReason | null
   return null
 }
 
-let generatedUserID: string | undefined
-
 export function getOrCreateUserID(): string {
   const config = getGlobalConfig()
   if (config.userID) {
     return config.userID
   }
-  if (generatedUserID) return generatedUserID
 
   if (generatedUserID) {
     return generatedUserID

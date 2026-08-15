@@ -14,7 +14,6 @@ import { getAPIProvider } from 'src/utils/model/providers.js'
 import {
   getSdkOAuthTokenRefreshCallback,
   getIsNonInteractiveSession,
-  getSdkOAuthTokenRefreshCallback,
   preferThirdPartyAuthentication,
   setOauthTokenFromFd,
 } from '../bootstrap/state.js'
@@ -28,7 +27,6 @@ import {
   shouldUseClaudeAIAuth,
 } from '../services/oauth/client.js'
 import { getOauthProfileFromOauthToken } from '../services/oauth/getOauthProfile.js'
-import { execa as safeExeca } from './execa.js'
 import type { OAuthTokens, SubscriptionType } from '../services/oauth/types.js'
 import {
   getWIFPrecedenceSource,
@@ -87,12 +85,6 @@ import { clearToolSchemaCache } from './toolSchemaCache.js'
 
 /** Default TTL for API key helper cache in milliseconds (5 minutes) */
 const DEFAULT_API_KEY_HELPER_TTL = 5 * 60 * 1000
-
-export const SDK_OAUTH_REFRESH_ENTRYPOINTS = new Set([
-  'claude-desktop',
-  'local-agent',
-  'claude-vscode',
-])
 
 /**
  * CCR and Claude Desktop spawn the CLI with OAuth and should never fall back
@@ -160,8 +152,7 @@ export function isAnthropicAuthEnabled(): boolean {
     isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK) ||
     isEnvTruthy(process.env.CLAUDE_CODE_USE_MANTLE) ||
     isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX) ||
-    isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY) ||
-    isEnvTruthy(process.env.CLAUDE_CODE_USE_ANTHROPIC_AWS)
+    isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY)
 
   // Check if user has configured an external API key source
   // This allows externally-provided API keys to work (without requiring proxy configuration)
@@ -1183,7 +1174,7 @@ export async function saveApiKey(apiKey: string): Promise<void> {
     // Process monitors only see "security -i", not the password
     const command = `add-generic-password -U -a "${username}" -s "${storageServiceName}" -X "${hexValue}"\n`
 
-    const result = await safeExeca('security', ['-i'], {
+    const result = await execa('security', ['-i'], {
       input: command,
       reject: false,
       timeout: 5000,
@@ -1744,8 +1735,7 @@ export function is1PApiCustomer(): boolean {
     isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK) ||
     isEnvTruthy(process.env.CLAUDE_CODE_USE_MANTLE) ||
     isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX) ||
-    isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY) ||
-    isEnvTruthy(process.env.CLAUDE_CODE_USE_ANTHROPIC_AWS)
+    isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY)
   ) {
     return false
   }
@@ -1885,8 +1875,7 @@ export function isUsing3PServices(): boolean {
     isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK) ||
     isEnvTruthy(process.env.CLAUDE_CODE_USE_MANTLE) ||
     isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX) ||
-    isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY) ||
-    isEnvTruthy(process.env.CLAUDE_CODE_USE_ANTHROPIC_AWS)
+    isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY)
   )
 }
 
@@ -2085,28 +2074,11 @@ export async function validateForceLoginOrg(): Promise<OrgValidationResult> {
     return { valid: true }
   }
 
-  const requiredOrgSetting =
+  const requiredOrgUuid =
     getSettingsForSource('policySettings')?.forceLoginOrgUUID
   if (requiredOrgUuid === undefined) {
     return { valid: true }
   }
-  const requiredOrgUuids =
-    typeof requiredOrgSetting === 'string'
-      ? [requiredOrgSetting]
-      : requiredOrgSetting
-  if (requiredOrgUuids.length === 0) {
-    return {
-      valid: false,
-      message:
-        'forceLoginOrgUUID in managed settings is set to an empty array.\n' +
-        'No organizations are permitted. This is almost certainly a misconfiguration.\n' +
-        'Contact your administrator.',
-    }
-  }
-  const requiredOrgDescription =
-    requiredOrgUuids.length === 1
-      ? `organization ${requiredOrgUuids[0]}`
-      : `one of these organizations: ${requiredOrgUuids.join(', ')}`
 
   const requiredOrgUuids =
     typeof requiredOrgUuid === 'string' ? [requiredOrgUuid] : requiredOrgUuid

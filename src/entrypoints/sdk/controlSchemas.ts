@@ -8,7 +8,6 @@
  */
 
 import { z } from 'zod/v4'
-import { PERMISSION_DECISION_REASON_TYPES } from '../../types/permissions.js'
 import { lazySchema } from '../../utils/lazySchema.js'
 import {
   AccountInfoSchema,
@@ -175,12 +174,7 @@ export const SDKControlPermissionRequestSchema = lazySchema(() =>
       display_name: z.string().optional(),
       tool_use_id: z.string(),
       agent_id: z.string().optional(),
-      description: z
-        .string()
-        .optional()
-        .describe(
-          "Permission-display subtitle from _meta['anthropic/permissionDisplay'].description. Mirrors can_use_tool.description.",
-        ),
+      description: z.string().optional(),
     })
     .describe('Requests permission to use a tool with the given input.'),
 )
@@ -253,32 +247,6 @@ export const SDKControlMcpStatusResponseSchema = lazySchema(() =>
     })
     .describe(
       'Response containing the current status of all MCP server connections.',
-    ),
-)
-
-export const SDKControlMcpCallRequestSchema = lazySchema(() =>
-  z
-    .object({
-      subtype: z.literal('mcp_call'),
-      tool: z
-        .string()
-        .describe('Fully-qualified MCP tool name, e.g. mcp__server__tool_name.'),
-      arguments: z.record(z.string(), z.unknown()).optional(),
-    })
-    .describe(
-      'Invokes an MCP tool via the subprocess MCP client without a model turn. No permission check (control channel is trusted, same as other subtypes). SDK-type MCP servers (config.type === "sdk") are rejected — they are caller-provided, so the caller can invoke them directly without the subprocess round-trip. Result content passes through the same processing as model-turn MCP calls. Session expiry is not retried automatically; callers can mcp_reconnect and retry. UrlElicitationRequired (-32042) tries Elicitation hooks; if no hook resolves, the call errors with the URL in the message — open it out-of-band, then retry mcp_call.',
-    ),
-)
-
-export const SDKControlMcpCallResponseSchema = lazySchema(() =>
-  z
-    .object({
-      content: z.unknown(),
-      structuredContent: z.record(z.string(), z.unknown()).optional(),
-      _meta: z.record(z.string(), z.unknown()).optional(),
-    })
-    .describe(
-      'MCP tool result — the content array, structuredContent, and _meta from CallToolResult. Content passes through the same processing as model-turn MCP calls (large results may be truncated or redirected to a file). Caller interprets.',
     ),
 )
 
@@ -592,7 +560,7 @@ export const SDKControlSeedReadStateRequestSchema = lazySchema(() =>
       mtime: z.number(),
     })
     .describe(
-      'Seeds the readFileState cache with a path+mtime entry. Use when a prior Read was removed from context so Edit validation would fail despite the client having observed the Read. The mtime lets the CLI detect if the file changed since the seeded Read — same staleness check as the normal path.',
+      'Seeds the readFileState cache with a path+mtime entry. Use when a prior Read was removed from context (e.g. by snip) so Edit validation would fail despite the client having observed the Read. The mtime lets the CLI detect if the file changed since the seeded Read — same staleness check as the normal path.',
     ),
 )
 

@@ -20,7 +20,7 @@ import { saveCurrentProjectConfig } from './config.js'
 import { logEvent } from '../services/analytics/index.js'
 import { getCwd } from './cwd.js'
 import { logForDebugging } from './debug.js'
-import { errorMessage, getErrnoCode, isENOENT } from './errors.js'
+import { errorMessage, getErrnoCode } from './errors.js'
 import { execFileNoThrow, execFileNoThrowWithCwd } from './execFileNoThrow.js'
 import { parseGitConfigValue } from './git/gitConfigParser.js'
 import {
@@ -167,34 +167,9 @@ export type WorktreeSession = {
 }
 
 let currentWorktreeSession: WorktreeSession | null = null
-let resumeWorktreeName: string | null = null
-
-function setCurrentWorktreeSessionValue(
-  session: WorktreeSession | null,
-): void {
-  currentWorktreeSession = session
-  // A restored pre-existing worktree is already encoded in the session being
-  // resumed, so it must not be repeated as a fresh --worktree argument.
-  if (session && !session.enteredExisting) {
-    resumeWorktreeName = session.worktreeName
-  }
-}
 
 export function getCurrentWorktreeSession(): WorktreeSession | null {
   return currentWorktreeSession
-}
-
-export function getResumeWorktreeName(): string | null {
-  if (currentWorktreeSession) {
-    return currentWorktreeSession.enteredExisting
-      ? null
-      : currentWorktreeSession.worktreeName
-  }
-  return resumeWorktreeName
-}
-
-function clearResumeWorktreeName(): void {
-  resumeWorktreeName = null
 }
 
 /**
@@ -203,11 +178,11 @@ function clearResumeWorktreeName(): void {
  * state (cwd, originalCwd).
  */
 export function restoreWorktreeSession(session: WorktreeSession | null): void {
-  setCurrentWorktreeSessionValue(session)
+  currentWorktreeSession = session
 }
 
 function setCurrentWorktreeSession(session: WorktreeSession | null): void {
-  setCurrentWorktreeSessionValue(session)
+  currentWorktreeSession = session
   saveCurrentProjectConfig(current => ({
     ...current,
     activeWorktreeSession: session ?? undefined,
@@ -246,8 +221,6 @@ const GIT_NO_PROMPT_ENV = {
   GIT_TERMINAL_PROMPT: '0',
   GIT_ASKPASS: '',
 }
-
-const WORKTREE_BASELINE_FILE = 'CLAUDE_BASE'
 
 function worktreesDir(repoRoot: string): string {
   return join(repoRoot, '.claude', 'worktrees')
@@ -1121,7 +1094,7 @@ export async function cleanupWorktree(): Promise<void> {
         logForDebugging(`Removed hook-based worktree at: ${worktreePath}`)
       } else {
         logForDebugging(
-          `WorktreeRemove hook did not remove worktree, left at: ${worktreePath}`,
+          `No WorktreeRemove hook configured, hook-based worktree left at: ${worktreePath}`,
           { level: 'warn' },
         )
       }
@@ -1136,22 +1109,11 @@ export async function cleanupWorktree(): Promise<void> {
           ['worktree', 'remove', '--force', worktreePath],
           { cwd: originalCwd },
         )
-      let directoryRemoved = true
-      try {
-        await rm(worktreePath, { recursive: true, force: false })
-      } catch (error) {
-        directoryRemoved = false
-        logForDebugging(
-          `[worktree] residual dir cleanup failed for ${worktreePath}: ${error}`,
-        )
-      }
+
       if (removeCode !== 0) {
-        logForDebugging(
-          directoryRemoved
-            ? `git worktree remove failed (${removeError.trim()}); rm sweep cleared ${worktreePath}`
-            : `Failed to remove linked worktree: ${removeError}`,
-          { level: directoryRemoved ? 'debug' : 'error' },
-        )
+        logForDebugging(`Failed to remove linked worktree: ${removeError}`, {
+          level: 'error',
+        })
       } else {
         logForDebugging(`Removed linked worktree at: ${worktreePath}`)
       }
@@ -1159,7 +1121,6 @@ export async function cleanupWorktree(): Promise<void> {
 
     // Clear the session
     setCurrentWorktreeSession(null)
-    clearResumeWorktreeName()
 
     // Delete the temporary worktree branch (git-based only)
     if (!hookBased && worktreeBranch) {
@@ -1215,14 +1176,8 @@ export async function createAgentWorktree(
     logForDebugging(
       `Created hook-based agent worktree at: ${hookResult.worktreePath}`,
     )
-    const head = await execFileNoThrowWithCwd(gitExe(), ['rev-parse', 'HEAD'], {
-      cwd: hookResult.worktreePath,
-    })
-    return {
-      worktreePath: hookResult.worktreePath,
-      hookBased: true,
-      headCommit: head.code === 0 ? head.stdout.trim() : undefined,
-    }
+
+    return { worktreePath: hookResult.worktreePath, hookBased: true }
   }
 
   // Fall back to git worktree
@@ -1424,9 +1379,6 @@ const EPHEMERAL_WORKTREE_PATTERNS = [
   // Template job worktrees: job-<templateName>-<8hex>. Prefix distinguishes
   // from user-named EnterWorktree slugs that happen to end in 8 hex.
   /^job-[a-zA-Z0-9._-]{1,55}-[0-9a-f]{8}$/,
-  // Background-agent worktrees use the same bounded slug + random suffix
-  // shape as template jobs, but carry a distinct prefix.
-  /^bg-[a-zA-Z0-9._-]{1,55}-[0-9a-f]{8}$/,
 ]
 
 async function hasGoneUpstreamWithoutUniqueCommits(
@@ -1492,6 +1444,8 @@ async function findDefaultRemoteBranchForCleanup(
  * - Only touches slugs matching ephemeral patterns (never user-named worktrees)
  * - Skips the current session's worktree
  * - Fail-closed: skips if git status fails or shows tracked changes
+ *   (-uno: untracked files in a 30-day-old crashed agent worktree are build
+ *   artifacts; skipping the untracked scan is 5-10× faster on large repos)
  * - Fail-closed: skips if any commits aren't reachable from a remote
  *
  * `git worktree remove --force` handles both the directory and git's internal

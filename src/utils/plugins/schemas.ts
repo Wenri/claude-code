@@ -79,16 +79,6 @@ export const BLOCKED_OFFICIAL_NAME_PATTERN =
  */
 const NON_ASCII_PATTERN = /[^\u0020-\u007E]/
 
-const ALLOWED_OFFICIAL_GIT_PROTOCOLS = new Set([
-  'https:',
-  'http:',
-  'git:',
-  'git+https:',
-  'git+http:',
-  'git+ssh:',
-  'ssh:',
-])
-
 /**
  * Check if a marketplace name impersonates an official Anthropic/Claude marketplace.
  *
@@ -117,28 +107,6 @@ export function isBlockedOfficialName(name: string): boolean {
  */
 export const OFFICIAL_GITHUB_ORG = 'anthropics'
 
-function isOfficialAnthropicGitSource(value: string): boolean {
-  const source = value.trim()
-  const scpStyle = /^git@github\.com:anthropics\/(.+)$/i.exec(source)
-  if (scpStyle) {
-    return !(scpStyle[1] ?? '').split('/').includes('..')
-  }
-
-  try {
-    const url = new URL(source)
-    if (!ALLOWED_OFFICIAL_GIT_PROTOCOLS.has(url.protocol.toLowerCase())) {
-      return false
-    }
-    if (url.pathname.split('/').includes('..')) return false
-    return (
-      url.hostname.toLowerCase() === 'github.com' &&
-      url.pathname.toLowerCase().startsWith(`/${OFFICIAL_GITHUB_ORG}/`)
-    )
-  } catch {
-    return false
-  }
-}
-
 /**
  * Validate that a marketplace with a reserved name comes from the official source.
  *
@@ -164,10 +132,7 @@ export function validateOfficialNameSource(
   if (source.source === 'github') {
     // Verify the repo is from the official org
     const repo = source.repo || ''
-    if (
-      !repo.toLowerCase().startsWith(`${OFFICIAL_GITHUB_ORG}/`) ||
-      repo.split('/').includes('..')
-    ) {
+    if (!repo.toLowerCase().startsWith(`${OFFICIAL_GITHUB_ORG}/`)) {
       return `The name '${name}' is reserved for official Anthropic marketplaces. Only repositories from 'github.com/${OFFICIAL_GITHUB_ORG}/' can use this name.`
     }
     return null // Valid: reserved name from official GitHub source
@@ -175,7 +140,13 @@ export function validateOfficialNameSource(
 
   // Check for git URL source type
   if (source.source === 'git' && source.url) {
-    if (isOfficialAnthropicGitSource(source.url)) {
+    const url = source.url.toLowerCase()
+    // Check for HTTPS URL format: https://github.com/anthropics/...
+    // or SSH format: git@github.com:anthropics/...
+    const isHttpsAnthropics = url.includes('github.com/anthropics/')
+    const isSshAnthropics = url.includes('git@github.com:anthropics/')
+
+    if (isHttpsAnthropics || isSshAnthropics) {
       return null // Valid: reserved name from official git URL
     }
 
@@ -927,65 +898,6 @@ const PluginManifestLspServerSchema = lazySchema(() =>
           'Array of LSP server configurations (paths or inline definitions)',
         ),
     ]),
-  }),
-)
-
-export const PluginMonitorSchema = lazySchema(() =>
-  z.strictObject({
-    name: z
-      .string()
-      .min(1)
-      .describe(
-        'Identifier for this monitor, unique within the plugin. Used to dedupe so re-arming (plugin reload, repeat skill invoke) does not spawn duplicates.',
-      ),
-    command: z
-      .string()
-      .min(1)
-      .describe(
-        'Shell command to run as a persistent background monitor. Each stdout line is delivered to the model as a <task_notification> event; the process runs for the session lifetime. ${CLAUDE_PLUGIN_ROOT}, ${CLAUDE_PLUGIN_DATA}, ${user_config.*}, and ${ENV_VAR} are substituted. Runs in the session cwd — prefix with `cd "${CLAUDE_PLUGIN_ROOT}" && ` if the script needs its own directory.',
-      ),
-    description: z
-      .string()
-      .min(1)
-      .describe(
-        'Short human-readable description of what is being monitored (shown in task panel and notification summary).',
-      ),
-    when: z
-      .union([
-        z.literal('always'),
-        z.string().startsWith('on-skill-invoke:').refine(value => value.length > 16, {
-          message: 'on-skill-invoke: must specify a skill name',
-        }),
-      ])
-      .default('always')
-      .describe(
-        'Arm trigger. "always" arms at session start and on plugin reload. "on-skill-invoke:<skill>" arms the first time that skill is dispatched (via Skill tool or slash command).',
-      ),
-  }),
-)
-
-export const PluginMonitorsSchema = lazySchema(() =>
-  z
-    .array(PluginMonitorSchema())
-    .refine(
-      monitors =>
-        new Set(monitors.map(monitor => monitor.name)).size === monitors.length,
-      { message: 'Monitor names must be unique within a plugin' },
-    ),
-)
-
-const PluginManifestMonitorsSchema = lazySchema(() =>
-  z.object({
-    monitors: z
-      .union([
-        RelativeJSONPath().describe(
-          'Path to a JSON file containing the monitors array, relative to the plugin root',
-        ),
-        PluginMonitorsSchema(),
-      ])
-      .describe(
-        'Background watch scripts the host arms as persistent Monitor tasks (unsandboxed, same trust tier as hooks) so plugins need not instruct the model to arm them. When omitted, monitors/monitors.json at the plugin root is loaded if present.',
-      ),
   }),
 )
 

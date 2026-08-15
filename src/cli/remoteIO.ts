@@ -4,6 +4,7 @@ import { URL } from 'url'
 import { getSessionId } from '../bootstrap/state.js'
 import { getPollIntervalConfig } from '../bridge/pollConfig.js'
 import { registerCleanup } from '../utils/cleanupRegistry.js'
+import { setCommandLifecycleListener } from '../utils/commandLifecycle.js'
 import { isDebugMode, logForDebugging } from '../utils/debug.js'
 import { logForDiagnosticsNoPII } from '../utils/diagLogs.js'
 import { isEnvTruthy } from '../utils/envUtils.js'
@@ -47,10 +48,9 @@ export class RemoteIO extends StructuredIO {
     streamUrl: string,
     initialPrompt?: AsyncIterable<string>,
     replayUserMessages?: boolean,
-    sessionState?: SessionStateManager,
   ) {
     const inputStream = new PassThrough({ encoding: 'utf8' })
-    super(inputStream, replayUserMessages, sessionState)
+    super(inputStream, replayUserMessages)
     this.inputStream = inputStream
     this.url = new URL(streamUrl)
 
@@ -159,13 +159,13 @@ export class RemoteIO extends StructuredIO {
         started: 'processing',
         completed: 'processed',
       } as const
-      this.onCommandLifecycle = (uuid, state) => {
+      setCommandLifecycleListener((uuid, state) => {
         this.ccrClient?.reportDelivery(uuid, LIFECYCLE_TO_DELIVERY[state])
-      }
-      this.sessionState.onStateChanged = (state, details) => {
+      })
+      setSessionStateChangedListener((state, details) => {
         this.ccrClient?.reportState(state, details)
-      }
-      this.sessionState.onMetadataChanged = metadata => {
+      })
+      setSessionMetadataChangedListener(metadata => {
         this.ccrClient?.reportMetadata(metadata)
       })
       setSessionInternalMetadataChangedListener(metadata => {
@@ -223,10 +223,6 @@ export class RemoteIO extends StructuredIO {
 
   override flushInternalEvents(): Promise<void> {
     return this.ccrClient?.flushInternalEvents() ?? Promise.resolve()
-  }
-
-  override flushDeliveryAcks(): Promise<void> {
-    return this.ccrClient?.flushDeliveryAcks() ?? Promise.resolve()
   }
 
   override get internalEventsPending(): number {

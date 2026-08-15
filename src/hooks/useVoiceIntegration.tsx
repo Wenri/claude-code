@@ -10,7 +10,6 @@ import { useInput } from '../ink.js';
 import { useOptionalKeybindingContext } from '../keybindings/KeybindingContext.js';
 import { keystrokesEqual } from '../keybindings/resolver.js';
 import type { ParsedKeystroke } from '../keybindings/types.js';
-import { useAppState } from '../state/AppState.js';
 import { normalizeFullWidthSpace } from '../utils/stringUtils.js';
 import { useAppState } from '../state/AppState.js';
 import { useVoiceEnabled } from './useVoiceEnabled.js';
@@ -95,7 +94,7 @@ type InsertTextHandle = {
   cursorOffset: number;
 };
 type UseVoiceIntegrationArgs = {
-  setInputValueRaw: (value: string) => void;
+  setInputValueRaw: React.Dispatch<React.SetStateAction<string>>;
   inputValueRef: React.RefObject<string>;
   insertTextRef: React.RefObject<InsertTextHandle | null>;
 };
@@ -228,8 +227,6 @@ export function useVoiceIntegration({
   // render loops never hit a cold keychain spawn.
   // biome-ignore lint/correctness/useHookAtTopLevel: feature() is a compile-time constant
   const voiceEnabled = feature('VOICE_MODE') ? useVoiceEnabled() : false;
-  const autoSubmit = useAppState(s => s.settings.voice?.autoSubmit === true);
-  const voiceMode = useAppState(s => s.settings.voice?.mode ?? 'hold');
   const voiceState = feature('VOICE_MODE') ?
   // biome-ignore lint/correctness/useHookAtTopLevel: feature() is a compile-time constant
   useVoiceState(s => s.voiceState) : 'idle' as const;
@@ -399,7 +396,6 @@ export function useVoiceKeybindingHandler({
   resetAnchor: () => void;
   inputValueRef: React.RefObject<string>;
   isActive: boolean;
-  inputValueRef: React.RefObject<string>;
 }): {
   handleKeyDown: (e: KeyboardEvent) => void;
 } {
@@ -474,10 +470,8 @@ export function useVoiceKeybindingHandler({
   useEffect(() => {
     if (voiceState !== 'recording') {
       isHoldActiveRef.current = false;
-      if (voiceMode !== 'tap') {
-        rapidCountRef.current = 0;
-        charsInInputRef.current = 0;
-      }
+      rapidCountRef.current = 0;
+      charsInInputRef.current = 0;
       recordingFloorRef.current = 0;
       setVoiceState(prev => {
         if (!prev.voiceWarmingUp) return prev;
@@ -487,7 +481,7 @@ export function useVoiceKeybindingHandler({
         };
       });
     }
-  }, [voiceState, voiceMode, setVoiceState]);
+  }, [voiceState, setVoiceState]);
   const handleKeyDown = (e: KeyboardEvent): void => {
     if (!voiceEnabled) return;
 

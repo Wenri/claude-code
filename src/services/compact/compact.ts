@@ -20,7 +20,6 @@ import {
   isFileUnchangedStub,
 } from '../../tools/FileReadTool/prompt.js'
 import { ToolSearchTool } from '../../tools/ToolSearchTool/ToolSearchTool.js'
-import { clearMemorySelectorState } from '../../memdir/findRelevantMemories.js'
 import type { AgentId } from '../../types/ids.js'
 import type {
   AssistantMessage,
@@ -79,7 +78,6 @@ import {
   reAppendSessionMetadata,
 } from '../../utils/sessionStorage.js'
 import { sleep } from '../../utils/sleep.js'
-import { enqueueSdkEvent } from '../../utils/sdkEventQueue.js'
 import { jsonStringify } from '../../utils/slowOperations.js'
 /* eslint-enable @typescript-eslint/no-require-imports */
 import { asSystemPrompt } from '../../utils/systemPromptType.js'
@@ -98,7 +96,6 @@ import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
 } from '../analytics/index.js'
-import { logCompactionEvent } from '../../utils/telemetry/events.js'
 import {
   getMaxOutputTokensForModel,
   queryModelWithStreaming,
@@ -138,8 +135,6 @@ const MAX_COMPACT_STREAMING_RETRIES = 2
 export const ERROR_MESSAGE_COMPACTION_BLOCKED =
   'Compaction blocked by PreCompact hook'
 
-export class CompactionError extends Error {}
-
 export function throwIfPreCompactBlocked(
   hookResult: { blockedBy?: string },
   context: Pick<ToolUseContext, 'addNotification'>,
@@ -156,7 +151,7 @@ export function throwIfPreCompactBlocked(
       color: 'warning',
     })
   }
-  throw new CompactionError(
+  throw new Error(
     `${ERROR_MESSAGE_COMPACTION_BLOCKED}: ${hookResult.blockedBy}`,
   )
 }
@@ -523,17 +518,12 @@ export async function compactConversation(
   stripNonEssential: boolean = false,
   compactingHintText?: string | null,
 ): Promise<CompactionResult> {
-  let compactError: string | undefined
-  let preTokens: number | undefined
-  let postTokens: number | undefined
-  const startedAt = performance.now()
   try {
     if (messages.length === 0) {
       throw new Error(ERROR_MESSAGE_NOT_ENOUGH_MESSAGES)
     }
 
     const preCompactTokenCount = tokenCountWithEstimation(messages)
-    preTokens = preCompactTokenCount
 
     const appState = context.getAppState()
     void logPermissionContextForAnts(appState.toolPermissionContext, 'summary')
@@ -661,7 +651,6 @@ export async function compactConversation(
     // Clear the cache
     context.readFileState.clear()
     context.loadedNestedMemoryPaths?.clear()
-    clearMemorySelectorState(context.memorySelector)
 
     // Intentionally NOT resetting sentSkillNames: re-injecting the full
     // skill_listing (~4K tokens) post-compact is pure cache_creation with
@@ -759,9 +748,6 @@ export async function compactConversation(
           summary,
           suppressFollowUpQuestions,
           transcriptPath,
-          undefined,
-          context.getAppState().replContexts[context.agentId ?? 'main'] !==
-            undefined,
         ),
         isCompactSummary: true,
         isVisibleInTranscriptOnly: true,
@@ -785,10 +771,6 @@ export async function compactConversation(
       ...postCompactFileAttachments,
       ...hookMessages,
     ])
-    const durationMs = Math.round(performance.now() - startedAt)
-    boundaryMarker.compactMetadata.postTokens = truePostCompactTokenCount
-    boundaryMarker.compactMetadata.durationMs = durationMs
-    postTokens = truePostCompactTokenCount
 
     // Extract compaction API usage metrics
     const compactionUsage = getTokenUsage(summaryResponse)
@@ -897,8 +879,6 @@ export async function compactConversation(
       compactionUsage,
     }
   } catch (error) {
-    compactError =
-      error instanceof Error ? error.message : 'compaction failed'
     // Only show the error notification for manual /compact.
     // Auto-compact failures are retried on the next turn and the
     // notification is confusing when compaction eventually succeeds.
@@ -908,20 +888,9 @@ export async function compactConversation(
     throw error
   } finally {
     context.setStreamMode?.('requesting')
-    context.resetResponseLength?.()
+    context.setResponseLength?.(() => 0)
     context.onCompactProgress?.({ type: 'compact_end' })
-    logCompactionEvent({
-      trigger: isAutoCompact ? 'auto' : 'manual',
-      success: !compactError,
-      durationMs: performance.now() - startedAt,
-      preTokens,
-      postTokens,
-      error: compactError,
-    })
-    context.setSDKStatus?.(null, {
-      compactResult: compactError ? 'failed' : 'success',
-      ...(compactError && { compactError }),
-    })
+    context.setSDKStatus?.(null)
   }
 }
 
@@ -940,10 +909,6 @@ export async function partialCompactConversation(
   userFeedback?: string,
   direction: PartialCompactDirection = 'from',
 ): Promise<CompactionResult> {
-  let compactError: string | undefined
-  let preTokens: number | undefined
-  let postTokens: number | undefined
-  const startedAt = performance.now()
   try {
     const messagesToSummarize =
       direction === 'up_to'
@@ -975,7 +940,6 @@ export async function partialCompactConversation(
     }
 
     const preCompactTokenCount = tokenCountWithEstimation(allMessages)
-    preTokens = preCompactTokenCount
 
     context.onCompactProgress?.({
       type: 'hooks_start',
@@ -1003,7 +967,7 @@ export async function partialCompactConversation(
     }
 
     context.setStreamMode?.('requesting')
-    context.resetResponseLength?.()
+    context.setResponseLength?.(() => 0)
     context.onCompactProgress?.({ type: 'compact_start' })
 
     const compactPrompt = getPartialCompactPrompt(customInstructions, direction)
@@ -1088,7 +1052,6 @@ export async function partialCompactConversation(
     const preCompactReadFileState = cacheToObject(context.readFileState)
     context.readFileState.clear()
     context.loadedNestedMemoryPaths?.clear()
-    clearMemorySelectorState(context.memorySelector)
     // Intentionally NOT resetting sentSkillNames — see compactConversation()
     // for rationale (~4K tokens saved per compact event).
 
@@ -1200,14 +1163,7 @@ export async function partialCompactConversation(
     const transcriptPath = getTranscriptPath()
     const summaryMessages: UserMessage[] = [
       createUserMessage({
-        content: getCompactUserSummaryMessage(
-          summary,
-          false,
-          transcriptPath,
-          undefined,
-          context.getAppState().replContexts[context.agentId ?? 'main'] !==
-            undefined,
-        ),
+        content: getCompactUserSummaryMessage(summary, false, transcriptPath),
         isCompactSummary: true,
         ...(messagesToKeep.length > 0
           ? {
@@ -1251,15 +1207,6 @@ export async function partialCompactConversation(
       context.abortController.signal,
     )
 
-    postTokens = tokenCountWithEstimation([
-      boundaryMarker,
-      ...summaryMessages,
-      ...(messagesToKeep ?? []),
-      ...postCompactFileAttachments,
-      ...hookMessages,
-    ])
-    boundaryMarker.compactMetadata.postTokens = postTokens
-
     // 'from': prefix-preserving → boundary; 'up_to': suffix → last summary
     const anchorUuid =
       direction === 'up_to'
@@ -1281,26 +1228,13 @@ export async function partialCompactConversation(
       compactionUsage,
     }
   } catch (error) {
-    compactError =
-      error instanceof Error ? error.message : 'partial compaction failed'
     addErrorNotificationIfNeeded(error, context)
     throw error
   } finally {
     context.setStreamMode?.('requesting')
-    context.resetResponseLength?.()
+    context.setResponseLength?.(() => 0)
     context.onCompactProgress?.({ type: 'compact_end' })
-    logCompactionEvent({
-      trigger: 'manual',
-      success: !compactError,
-      durationMs: performance.now() - startedAt,
-      preTokens,
-      postTokens,
-      error: compactError,
-    })
-    context.setSDKStatus?.(null, {
-      compactResult: compactError ? 'failed' : 'success',
-      ...(compactError && { compactError }),
-    })
+    context.setSDKStatus?.(null)
   }
 }
 
@@ -1317,14 +1251,6 @@ function addErrorNotificationIfNeeded(
     )
   ) {
     context.addNotification?.({
-      key: 'error-compacting-conversation',
-      text: 'Error compacting conversation',
-      priority: 'immediate',
-      color: 'error',
-    })
-    enqueueSdkEvent({
-      type: 'system',
-      subtype: 'notification',
       key: 'error-compacting-conversation',
       text: 'Error compacting conversation',
       priority: 'immediate',
@@ -1470,7 +1396,7 @@ async function streamCompactSummary({
       // Reset state for retry
       let hasStartedStreaming = false
       let response: AssistantMessage | undefined
-      context.resetResponseLength?.()
+      context.setResponseLength?.(() => 0)
 
       // Check if tool search is enabled using the main loop's tools list.
       // context.options.tools includes MCP tools merged via useMergedTools.
@@ -1519,13 +1445,6 @@ async function streamCompactSummary({
         ? stripNonEssentialCompactContent(mediaStripped)
         : mediaStripped
 
-      const compactMessages = [
-        ...getMessagesAfterCompactBoundary(messages),
-        summaryRequest,
-      ]
-      const messagesForSummary = stripNonEssential
-        ? stripNonEssentialCompactAttachments(compactMessages)
-        : compactMessages
       const streamingGen = queryModelWithStreaming({
         messages: normalizeMessagesForAPI(
           compactMessages,
@@ -1578,7 +1497,7 @@ async function streamCompactSummary({
           event.event.delta.type === 'text_delta'
         ) {
           const charactersStreamed = event.event.delta.text.length
-          context.addResponseLength?.(charactersStreamed)
+          context.setResponseLength?.(length => length + charactersStreamed)
         }
 
         if (event.type === 'assistant') {
@@ -1605,7 +1524,7 @@ async function streamCompactSummary({
       }
 
       logForDebugging(
-        `Compact streaming failed. hasStartedStreaming=${hasStartedStreaming}`,
+        `Compact streaming failed after ${attempt} attempts. hasStartedStreaming=${hasStartedStreaming}`,
         { level: 'error' },
       )
       logEvent('tengu_compact_failed', {

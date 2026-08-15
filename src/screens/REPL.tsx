@@ -34,11 +34,9 @@ import { updateLastInteractionTime, getLastInteractionTime, getOriginalCwd, getP
 import { asSessionId, asAgentId } from '../types/ids.js';
 import { logForDebugging } from '../utils/debug.js';
 import { QueryGuard } from '../utils/QueryGuard.js';
-import { createPermissionQueueSetter, usePermissionStatus } from '../utils/permissionStatus.js';
 import { isEnvTruthy } from '../utils/envUtils.js';
 import { formatTokens, truncateToWidth } from '../utils/format.js';
 import { consumeEarlyInput } from '../utils/earlyInput.js';
-import { getPromptInputValue, setPromptInputValue, useIsPromptInputEmpty, usePromptInputValue } from '../utils/promptInputState.js';
 import { setMemberActive } from '../utils/swarm/teamHelpers.js';
 import { isSwarmWorker, generateSandboxRequestId, sendSandboxPermissionRequestViaMailbox, sendSandboxPermissionResponseViaMailbox } from '../utils/swarm/permissionSync.js';
 import { registerSandboxPermissionCallback } from '../hooks/useSwarmPermissionPoller.js';
@@ -53,7 +51,6 @@ import { useReplBridge } from '../hooks/useReplBridge.js';
 import { type Command, type CommandResultDisplay, type ResumeEntrypoint, builtInCommandNames, getCommandName, isCommandEnabled } from '../commands.js';
 import type { PromptInputMode, QueuedCommand, VimMode } from '../types/textInputTypes.js';
 import { MessageSelector, selectableUserMessagesFilter, messagesAfterAreOnlySynthetic } from '../components/MessageSelector.js';
-import { RecalledMemoryRatingInput } from '../components/messages/RecalledMemory.js';
 import { useIdeLogging } from '../hooks/useIdeLogging.js';
 import { PermissionRequest, type ToolUseConfirm } from '../components/permissions/PermissionRequest.js';
 import { ElicitationDialog } from '../components/mcp/ElicitationDialog.js';
@@ -75,7 +72,6 @@ import { getSystemPrompt } from '../constants/prompts.js';
 import { buildEffectiveSystemPrompt } from '../utils/systemPrompt.js';
 import { getSystemContext, getUserContext } from '../context.js';
 import { getMemoryFiles } from '../utils/claudemd.js';
-import { createMemorySelectorState } from '../memdir/findRelevantMemories.js';
 import { startBackgroundHousekeeping } from '../utils/backgroundHousekeeping.js';
 import { getTotalCost, saveCurrentSessionCosts, resetCostState, getStoredSessionCosts } from '../cost-tracker.js';
 import { useCostSummary } from '../costHook.js';
@@ -99,7 +95,6 @@ import { errorMessage } from '../utils/errors.js';
 import { permissionBlockSignal } from '../utils/permissionBlockSignal.js';
 import { useJobStateNameSync } from '../hooks/useJobStateNameSync.js';
 import { isHumanTurn } from '../utils/messagePredicates.js';
-import { fireCompanionObserver } from '../buddy/observer.js';
 import { logError } from '../utils/log.js';
 // Dead code elimination: conditional imports
 /* eslint-disable custom-rules/no-process-env-top-level, @typescript-eslint/no-require-imports */
@@ -132,8 +127,6 @@ import useCanUseTool from '../hooks/useCanUseTool.js';
 import type { ToolPermissionContext, Tool, ToolProgressEvent } from '../Tool.js';
 import { renderToolProgress } from '../components/ToolProgress.js';
 import { applyPermissionUpdate, applyPermissionUpdates, persistPermissionUpdate } from '../utils/permissions/PermissionUpdate.js';
-import { getSandboxPermissionModeDecision } from '../utils/permissions/PermissionMode.js';
-import { classifySandboxNetworkAccess } from '../utils/permissions/yoloClassifier.js';
 import { buildPermissionUpdates } from '../components/permissions/ExitPlanModePermissionRequest/ExitPlanModePermissionRequest.js';
 import { stripDangerousPermissionsForAutoMode } from '../utils/permissions/permissionSetup.js';
 import { getScratchpadDir, isScratchpadEnabled } from '../utils/permissions/filesystem.js';
@@ -146,8 +139,7 @@ import { getConfigValue } from '../utils/settings/configSettings.js';
 import { hasConsoleBillingAccess } from '../utils/billing.js';
 import { logEvent, type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS } from 'src/services/analytics/index.js';
 import { getFeatureValue_CACHED_MAY_BE_STALE } from 'src/services/analytics/growthbook.js';
-import { textForResubmit, handleMessageFromStream, type StreamingToolUse, type StreamingThinking, isCompactBoundaryMessage, getMessagesAfterCompactBoundary, getContentText, createUserMessage, createAssistantMessage, createTurnDurationMessage, createAgentsKilledMessage, createApiMetricsMessage, createSystemMessage, createCommandInputMessage, formatCommandInputTags, isChannelMessageOrigin, stripToolUseResultsForStorage, appendOrReplaceMessageByUuid } from '../utils/messages.js';
-import { applyMessageOperation, type MessageOperation } from '../utils/messageOperations.js';
+import { textForResubmit, handleMessageFromStream, type StreamingToolUse, type StreamingThinking, isCompactBoundaryMessage, getMessagesAfterCompactBoundary, getContentText, createUserMessage, createAssistantMessage, createTurnDurationMessage, createAgentsKilledMessage, createApiMetricsMessage, createSystemMessage, createCommandInputMessage, formatCommandInputTags } from '../utils/messages.js';
 import { generateSessionTitle } from '../utils/sessionTitle.js';
 import { BASH_INPUT_TAG, COMMAND_MESSAGE_TAG, COMMAND_NAME_TAG, LOCAL_COMMAND_STDERR_TAG, LOCAL_COMMAND_STDOUT_TAG } from '../constants/xml.js';
 import { escapeXml } from '../utils/xml.js';
@@ -166,8 +158,7 @@ import { useMergedTools } from '../hooks/useMergedTools.js';
 import { mergeAndFilterTools } from '../utils/toolPool.js';
 import { useMergedCommands } from '../hooks/useMergedCommands.js';
 import { useSkillsChange } from '../hooks/useSkillsChange.js';
-import { useManagePlugins, usePluginMonitors } from '../hooks/useManagePlugins.js';
-import { useTaskRegistry } from '../hooks/useTaskRegistry.js';
+import { useManagePlugins } from '../hooks/useManagePlugins.js';
 import { Messages } from '../components/Messages.js';
 import {
   MessageRatingProvider,
@@ -204,14 +195,11 @@ import { reconstructResultDedupState, resetResultDedupState } from '../services/
 import { getIsolationClassFromMessages } from '../services/tools/toolIsolation.js';
 import { ConnectionLifecycleTracker } from '../services/api/connectionState.js';
 import { provisionContentReplacementState, reconstructContentReplacementState, type ContentReplacementRecord } from '../utils/toolResultStorage.js';
-import { restoreToolResultDedupState } from '../utils/toolErrors.js';
-import { createBashRerunAliases } from '../tools/BashTool/rerunAliases.js';
-import { createToolIsolationLatch } from '../utils/toolIsolation.js';
 import { partialCompactConversation } from '../services/compact/compact.js';
 import type { LogOption } from '../types/logs.js';
 import type { AgentColorName } from '../tools/AgentTool/agentColorManager.js';
-import { applyFileHistoryOp, fileHistoryMakeSnapshot, fileHistoryRewind, type FileHistorySnapshot, copyFileHistoryForResume, fileHistoryEnabled, fileHistoryHasAnyChanges } from '../utils/fileHistory.js';
-import { applyAttributionOp, incrementPromptCount } from '../utils/commitAttribution.js';
+import { fileHistoryMakeSnapshot, type FileHistoryState, fileHistoryRewind, type FileHistorySnapshot, copyFileHistoryForResume, fileHistoryEnabled, fileHistoryHasAnyChanges } from '../utils/fileHistory.js';
+import { type AttributionState, incrementPromptCount } from '../utils/commitAttribution.js';
 import { recordAttributionSnapshot } from '../utils/sessionStorage.js';
 import { computeStandaloneAgentContext, restoreAgentFromSession, restoreSessionStateFromLog, restoreWorktreeForResume, exitRestoredWorktree } from '../utils/sessionRestore.js';
 import { restoreSessionCronTasks } from '../utils/sessionCronTasks.js';
@@ -238,12 +226,11 @@ import type { SandboxAskCallback, NetworkHostPattern } from '../utils/sandbox/sa
 import { type IDEExtensionInstallationStatus, closeOpenDiffs, getConnectedIdeClient, type IdeType } from '../utils/ide.js';
 import { useIDEIntegration } from '../hooks/useIDEIntegration.js';
 import exit from '../commands/exit/index.js';
-import { getScheduledBackgroundItems } from '../commands/exit/exit.js';
 import { ExitFlow } from '../components/ExitFlow.js';
 import { getCurrentWorktreeSession } from '../utils/worktree.js';
 import { popAllEditable, enqueue, type SetAppState, getCommandQueue, getCommandQueueLength, getMainThreadCommandQueueLength, removeByFilter } from '../utils/messageQueueManager.js';
 import { useCommandQueue } from '../hooks/useCommandQueue.js';
-import { renderToolProgressOverlay, type ToolProgressOverlayEvent, type VisibleToolProgressOverlayEvent } from '../components/ToolProgressOverlay.js';
+import { SessionBackgroundHint } from '../components/SessionBackgroundHint.js';
 import { startBackgroundSession } from '../tasks/LocalMainSessionTask.js';
 import { useSessionBackgrounding } from '../hooks/useSessionBackgrounding.js';
 import { diagnosticTracker } from '../services/diagnosticTracking.js';
@@ -259,7 +246,6 @@ const UndercoverAutoCallout = "external" === 'ant' ? require('../components/Unde
 /* eslint-enable custom-rules/no-process-env-top-level, @typescript-eslint/no-require-imports */
 import { activityManager } from '../utils/activityManager.js';
 import { createAbortController } from '../utils/abortController.js';
-import { createClassifierApprovalsSetter } from '../utils/classifierApprovals.js';
 import { MCPConnectionManager } from 'src/services/mcp/MCPConnectionManager.js';
 import { useFeedbackSurvey } from 'src/components/FeedbackSurvey/useFeedbackSurvey.js';
 import { useMemorySurvey } from 'src/components/FeedbackSurvey/useMemorySurvey.js';
@@ -305,7 +291,6 @@ import { AwsAuthStatusBox } from '../components/AwsAuthStatusBox.js';
 import { useRateLimitWarningNotification } from 'src/hooks/notifs/useRateLimitWarningNotification.js';
 import { useDeprecationWarningNotification } from 'src/hooks/notifs/useDeprecationWarningNotification.js';
 import { useNpmDeprecationNotification } from 'src/hooks/notifs/useNpmDeprecationNotification.js';
-import { useSkillTruncationNotification } from 'src/hooks/notifs/useSkillTruncationNotification.js';
 import { useIDEStatusIndicator } from 'src/hooks/notifs/useIDEStatusIndicator.js';
 import { useModelMigrationNotifications } from 'src/hooks/notifs/useModelMigrationNotifications.js';
 import { useCanSwitchToExistingSubscription } from 'src/hooks/notifs/useCanSwitchToExistingSubscription.js';
@@ -334,29 +319,11 @@ import { useMessageActions, MessageActionsKeybindings, MessageActionsBar, type M
 import { setClipboard } from '../ink/termio/osc.js';
 import type { ScrollBoxHandle } from '../ink/components/ScrollBox.js';
 import { createAttachmentMessage, getQueuedCommandAttachments } from '../utils/attachments.js';
-import { getImageLimits } from '../utils/imageLimits.js';
 
 // Stable empty array for hooks that accept MCPServerConnection[] — avoids
 // creating a new [] literal on every render in remote mode, which would
 // cause useEffect dependency changes and infinite re-render loops.
 const EMPTY_MCP_CLIENTS: MCPServerConnection[] = [];
-
-function updateToolProgressOverlays(
-  previous: Map<string, VisibleToolProgressOverlayEvent>,
-  event: ToolProgressOverlayEvent,
-): Map<string, VisibleToolProgressOverlayEvent> {
-  if (event.kind === 'clear') {
-    if (!previous.has(event.toolUseId)) return previous;
-    const next = new Map(previous);
-    next.delete(event.toolUseId);
-    return next;
-  }
-  const prior = previous.get(event.toolUseId);
-  if (event.kind === 'background_hint' && prior?.kind === event.kind) return previous;
-  const next = new Map(previous);
-  next.set(event.toolUseId, event);
-  return next;
-}
 
 // Stable stub for useAssistantHistory's non-KAIROS branch — avoids a new
 // function identity each render, which would break composedOnScroll's memo.
@@ -491,9 +458,7 @@ function TranscriptSearchBar({
 }): React.ReactNode {
   const {
     query,
-    cursorOffset,
-    handleKeyDown,
-    handlePaste,
+    cursorOffset
   } = useSearchInput({
     isActive: true,
     initialQuery,
@@ -550,7 +515,7 @@ function TranscriptSearchBar({
   }, [query, warmDone]);
   const off = cursorOffset;
   const cursorChar = off < query.length ? query[off] : ' ';
-  return <Box borderTopDimColor borderBottom={false} borderLeft={false} borderRight={false} borderStyle="single" marginTop={1} paddingLeft={2} tabIndex={0} autoFocus onKeyDown={handleKeyDown} onPaste={handlePaste} width="100%"
+  return <Box borderTopDimColor borderBottom={false} borderLeft={false} borderRight={false} borderStyle="single" marginTop={1} paddingLeft={2} width="100%"
   // applySearchHighlight scans the whole screen buffer. The query
   // text rendered here IS on screen — /foo matches its own 'foo' in
   // the bar. With no content matches that's the ONLY visible match →
@@ -742,7 +707,6 @@ export function REPL({
   const ultraplanLaunchPending = useAppState(s => s.ultraplanLaunchPending);
   const viewingAgentTaskId = useAppState(s => s.viewingAgentTaskId);
   const setAppState = useSetAppState();
-  const taskRegistry = useTaskRegistry();
 
   // Bootstrap: retained local_agent that hasn't loaded disk yet → read
   // sidechain JSONL and UUID-merge with whatever stream has appended so far.
@@ -778,22 +742,9 @@ export function REPL({
   const terminal = useTerminalNotification();
   const mainLoopModel = useMainLoopModel();
 
-  // Keep the prompt-bar agent identity synchronized when /rename or an
-  // automatic session name updates the session metadata after mount.
-  useEffect(() => subscribeSessionAgentNameChanged(() => {
-    const name = getCurrentSessionAgentName();
-    if (!name) return;
-    setAppState(prev => {
-      if (prev.standaloneAgentContext?.name === name) return prev;
-      return {
-        ...prev,
-        standaloneAgentContext: {
-          ...prev.standaloneAgentContext,
-          name
-        }
-      };
-    });
-  }), [setAppState]);
+  // Note: standaloneAgentContext is initialized in main.tsx (via initialState) or
+  // ResumeConversation.tsx (via setAppState before rendering REPL) to avoid
+  // useEffect-based state initialization on mount (per CLAUDE.md guidelines)
 
   // Local state for commands (hot-reloadable when skill files change)
   const [localCommands, setLocalCommands] = useState(initialCommands);
@@ -879,7 +830,6 @@ export function REPL({
   useAdvisorNotification();
   useDeprecationWarningNotification(mainLoopModel);
   useNpmDeprecationNotification();
-  useSkillTruncationNotification();
   useAntOrgWarningNotification();
   useInstallMessages();
   useChromeExtensionNotification();
@@ -926,9 +876,6 @@ export function REPL({
   // Allow Claude in Chrome MCP to send prompts through MCP notifications
   // and sync permission mode changes to the Chrome extension
   usePromptsFromClaudeInChrome(isRemoteSession ? EMPTY_MCP_CLIENTS : mcpClients, toolPermissionContext.mode);
-  useEffect(() => {
-    savePermissionMode(toolPermissionContext.mode);
-  }, [toolPermissionContext.mode]);
 
   useEffect(() => {
     savePermissionMode(toolPermissionContext.mode);
@@ -958,8 +905,6 @@ export function REPL({
       allowedAgentTypes: resolved.allowedAgentTypes
     };
   }, [mainThreadAgentDefinition, mergedTools]);
-  const toolsRef = useRef(tools);
-  toolsRef.current = tools;
 
   // Merge commands from local state, plugins, and MCP
   const commandsWithPlugins = useMergedCommands(localCommands, plugins.commands as Command[]);
@@ -1271,12 +1216,6 @@ export function REPL({
     resolve: (response: PromptResponse) => void;
     reject: (error: Error) => void;
   }>>([]);
-  usePermissionStatus({
-    sandboxHost: sandboxPermissionRequestQueue[0]?.hostPattern.host,
-    promptTitle: promptQueue[0]?.title,
-    workerSandboxHost: workerSandboxPermissions.queue[0]?.host,
-    elicitationServer: elicitation.queue[0]?.serverName
-  });
 
   const sandboxHost = sandboxPermissionRequestQueue[0]?.hostPattern.host;
   const promptTitle = promptQueue[0]?.title;
@@ -1305,7 +1244,7 @@ export function REPL({
   // the agent name, which wins over the Haiku-extracted topic;
   // all fall back to the product name.
   const terminalTitleFromRename = useAppState(s => s.settings.terminalTitleFromRename) !== false;
-  const sessionTitle = React.useSyncExternalStore(subscribeSessionTitleChanged, () => terminalTitleFromRename ? getCurrentSessionTitle(getSessionId()) : undefined);
+  const sessionTitle = terminalTitleFromRename ? getCurrentSessionTitle(getSessionId()) : undefined;
   const [haikuTitle, setHaikuTitle] = useState<string>();
   // Gates the one-shot Haiku call that generates the tab title. Seeded true
   // on resume (initialMessages present) so we don't re-title a resumed
@@ -1571,7 +1510,7 @@ export function REPL({
     // inputValueRef before React commits — e.g. the auto-restore finally
     // block's `=== ''` guard — see the fresh value, not the stale render.
     inputValueRef.current = value;
-    setPromptInputValue(value);
+    setInputValueRaw(value);
     setIsPromptInputActive(value.trim().length > 0);
   }, [setIsPromptInputActive, repinScroll, trySuggestBgPRIntercept]);
 
@@ -1595,59 +1534,8 @@ export function REPL({
     // Keep commands that CCR lists OR that are in the local-safe set
     setLocalCommands(prev => prev.filter(cmd => remoteCommandSet.has(cmd.name) || REMOTE_SAFE_COMMANDS.has(cmd)));
   }, [setLocalCommands]);
-  const [inProgressToolUseIDs, setInProgressToolUseIDsState] = useState<Set<string>>(new Set());
-  const setInProgressToolUseIDs = useCallback((action: InProgressToolUseIDsAction) => {
-    setInProgressToolUseIDsState(previous => {
-      switch (action.action) {
-        case 'add': {
-          const next = new Set(previous);
-          for (const id of action.ids) next.add(id);
-          return next;
-        }
-        case 'remove': {
-          const next = new Set(previous);
-          for (const id of action.ids) next.delete(id);
-          return next.size === previous.size ? previous : next;
-        }
-        case 'clear':
-          return previous.size > 0 ? new Set() : previous;
-      }
-    });
-  }, []);
+  const [inProgressToolUseIDs, setInProgressToolUseIDs] = useState<Set<string>>(new Set());
   const hasInterruptibleToolInProgressRef = useRef(false);
-  // API performance metrics ref for ant-only spinner display (TTFT/OTPS).
-  // Accumulates metrics from all API requests in a turn for P50 aggregation.
-  const apiMetricsRef = useRef<Array<{
-    id?: string;
-    ttftMs: number;
-    firstTokenTime: number;
-    lastTokenTime: number;
-    responseLengthBaseline: number;
-    endResponseLength: number;
-    outputTokens?: number;
-  }>>([]);
-  const recordApiMetricsEvent = useCallback((event: ApiMetricsEvent) => {
-    if (event.type === 'start') {
-      const now = Date.now();
-      const baseline = responseLengthRef.current;
-      apiMetricsRef.current.push({
-        id: event.id,
-        ttftMs: event.ttftMs,
-        firstTokenTime: now,
-        lastTokenTime: now,
-        responseLengthBaseline: baseline,
-        endResponseLength: baseline
-      });
-      return;
-    }
-    const entry = event.id != null ? apiMetricsRef.current.find(item => item.id === event.id) : apiMetricsRef.current.findLast(item => item.id == null);
-    if (!entry) return;
-    entry.outputTokens = event.outputTokens;
-    entry.lastTokenTime = Date.now();
-    if (event.id == null) {
-      responseLengthRef.current = Math.max(responseLengthRef.current, entry.responseLengthBaseline + event.outputTokens * 4);
-    }
-  }, []);
 
   // Remote session hook - manages WebSocket connection and message handling for --remote mode
   const remoteSession = useRemoteSession({
@@ -1680,8 +1568,7 @@ export function REPL({
     setMessages,
     setIsLoading: setIsExternalLoading,
     setToolUseConfirmQueue,
-    tools: combinedInitialTools,
-    permissionMode: toolPermissionContext.mode
+    tools: combinedInitialTools
   });
 
   // Use whichever remote mode is active
@@ -1710,6 +1597,19 @@ export function REPL({
   // Ref instead of state to avoid triggering React re-renders on every
   // streaming text_delta. The spinner reads this via its animation timer.
   const responseLengthRef = useRef(0);
+  // API performance metrics ref for ant-only spinner display (TTFT/OTPS).
+  // Accumulates metrics from all API requests in a turn for P50 aggregation.
+  const apiMetricsRef = useRef<Array<{
+    ttftMs: number;
+    firstTokenTime: number;
+    lastTokenTime: number;
+    responseLengthBaseline: number;
+    // Tracks responseLengthRef at the time of the last content addition.
+    // Updated by both streaming deltas and subagent message content.
+    // lastTokenTime is also updated at the same time, so the OTPS
+    // denominator correctly includes subagent processing time.
+    endResponseLength: number;
+  }>>([]);
   const setResponseLength = useCallback((f: (prev: number) => number) => {
     const prev = responseLengthRef.current;
     responseLengthRef.current = f(prev);
@@ -2000,8 +1900,9 @@ export function REPL({
     handleSelect: (selected: 'dismissed' | 'bad' | 'fine' | 'good') => {
       // Reset the ref when a new survey response comes in
       didAutoRunIssueRef.current = false;
-      feedbackSurveyOriginal.handleSelect(selected);
-      if (selected === 'bad' && shouldAutoRunIssue('feedback_survey_bad')) {
+      const showedTranscriptPrompt = feedbackSurveyOriginal.handleSelect(selected);
+      // Auto-run /issue for "bad" if transcript prompt wasn't shown
+      if (selected === 'bad' && !showedTranscriptPrompt && shouldAutoRunIssue('feedback_survey_bad')) {
         setAutoRunIssueReason('feedback_survey_bad');
         didAutoRunIssueRef.current = true;
       }
@@ -2175,8 +2076,7 @@ export function REPL({
         void restoreRemoteAgentTasks({
           abortController: new AbortController(),
           getAppState: () => store.getState(),
-          setAppState,
-          taskRegistry
+          setAppState
         });
         restoreSessionCronTasks(messages);
       } else {
@@ -2252,8 +2152,6 @@ export function REPL({
   // it exactly once, then feed that stable reference into useRef.
   const [initialReadFileState] = useState(() => createFileStateCacheWithSizeLimit(READ_FILE_STATE_CACHE_SIZE));
   const readFileState = useRef(initialReadFileState);
-  const bashRerunAliases = useRef(createBashRerunAliases());
-  const isolationLatch = useRef(createToolIsolationLatch());
   const bashTools = useRef(new Set<string>());
   const bashToolsProcessedIdx = useRef(0);
   // Session-scoped skill discovery tracking (feeds was_discovered on
@@ -2290,30 +2188,9 @@ export function REPL({
       void restoreRemoteAgentTasks({
         abortController: new AbortController(),
         getAppState: () => store.getState(),
-        setAppState,
-        taskRegistry
+        setAppState
       });
       restoreSessionCronTasks(initialMessages);
-      if (getFeatureValue_CACHED_MAY_BE_STALE('tengu_gleaming_fair', false)) {
-        const thresholdMinutes = Number(process.env.CLAUDE_CODE_RESUME_THRESHOLD_MINUTES ?? 70);
-        const tokenThreshold = Number(process.env.CLAUDE_CODE_RESUME_TOKEN_THRESHOLD ?? 100_000);
-        const oneMinuteAgo = Date.now() - 60_000;
-        const lastOldConversationTimestamp = initialMessages.findLast(message => (message.type === 'user' || message.type === 'assistant') && Date.parse(message.timestamp) < oneMinuteAgo)?.timestamp;
-        if (lastOldConversationTimestamp && !getGlobalConfig().resumeReturnDismissed) {
-          const sessionAgeMinutes = (Date.now() - Date.parse(lastOldConversationTimestamp)) / 60_000;
-          if (sessionAgeMinutes >= thresholdMinutes) {
-            void import('../utils/tokens.js').then(({ tokenCountWithEstimation }) => {
-              const estimatedTokens = tokenCountWithEstimation(initialMessages);
-              if (estimatedTokens >= tokenThreshold) {
-                setResumeReturnPending({
-                  sessionAgeMinutes,
-                  estimatedTokens
-                });
-              }
-            });
-          }
-        }
-      }
     }
     // Only run on mount - initialMessages shouldn't change during component lifetime
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -2363,7 +2240,6 @@ export function REPL({
     if (allowDialogsWithAnimation && showingCostDialog) return 'cost';
     if (allowDialogsWithAnimation && resumeReturnPending) return 'resume-return';
     if (allowDialogsWithAnimation && idleReturnPending) return 'idle-return';
-    if (allowDialogsWithAnimation && resumeReturnPending) return 'resume-return';
     if (feature('ULTRAPLAN') && allowDialogsWithAnimation && !isLoading && ultraplanPendingChoice) return 'ultraplan-choice';
     if (feature('ULTRAPLAN') && allowDialogsWithAnimation && !isLoading && ultraplanLaunchPending) return 'ultraplan-launch';
 
@@ -2554,7 +2430,7 @@ export function REPL({
     isSearchingHistory,
     isHelpOpen,
     inputMode,
-    isInputEmpty,
+    inputValue,
     streamMode
   };
   useEffect(() => {
@@ -2571,21 +2447,6 @@ export function REPL({
     }
   }, [messages, showCostDialog, haveShownCostDialog]);
   const sandboxAskCallback: SandboxAskCallback = useCallback(async (hostPattern: NetworkHostPattern) => {
-    const currentState = store.getState();
-    const {
-      mode,
-      isBypassPermissionsModeAvailable
-    } = currentState.toolPermissionContext;
-    switch (getSandboxPermissionModeDecision(mode, isBypassPermissionsModeAvailable)) {
-      case 'allow':
-        return true;
-      case 'deny':
-        return false;
-      case 'classify':
-        return classifySandboxNetworkAccess(hostPattern.host, hostPattern.port, messagesRef.current, toolsRef.current, currentState.toolPermissionContext, new AbortController().signal);
-      case 'ask':
-        break;
-    }
     // If running as a swarm worker, forward the request to the leader via mailbox
     if (isAgentSwarmsEnabled() && isSwarmWorker()) {
       const requestId = generateSandboxRequestId();
@@ -2818,11 +2679,12 @@ export function REPL({
       messages,
       turnStartIndex: 0,
       setMessages,
-      applyMessageOp,
-      getFileHistoryState: () => store.getState().fileHistory,
-      applyFileHistoryOp(operation) {
+      updateFileHistoryState(updater: (prev: FileHistoryState) => FileHistoryState) {
+        // Perf: skip the setState when the updater returns the same reference
+        // (e.g. fileHistoryTrackEdit returns `state` when the file is already
+        // tracked). Otherwise every no-op call would notify all store listeners.
         setAppState(prev => {
-          const updated = applyFileHistoryOp(prev.fileHistory, operation);
+          const updated = updater(prev.fileHistory);
           if (updated === prev.fileHistory) return prev;
           return {
             ...prev,
@@ -2830,9 +2692,9 @@ export function REPL({
           };
         });
       },
-      applyAttributionOp(operation) {
+      updateAttributionState(updater: (prev: AttributionState) => AttributionState) {
         setAppState(prev => {
-          const updated = applyAttributionOp(prev.attribution, operation);
+          const updated = updater(prev.attribution);
           if (updated === prev.attribution) return prev;
           return {
             ...prev,
@@ -2861,16 +2723,21 @@ export function REPL({
       onInstallIDEExtension: setIDEToInstallExtension,
       nestedMemoryAttachmentTriggers: new Set<string>(),
       loadedNestedMemoryPaths: loadedNestedMemoryPathsRef.current,
-      sessionEnvVars: sessionEnvVarsRef.current,
-      tmuxSocket: tmuxSocketRef.current,
-      memorySelector: memorySelectorRef.current,
-      bashRerunAliases: bashRerunAliases.current,
-      isolationLatch: isolationLatch.current,
       dynamicSkillDirTriggers: new Set<string>(),
       discoveredSkillNames: discoveredSkillNamesRef.current,
       bashRerunAliases: bashRerunAliasesRef.current,
       setResponseLength,
-      pushApiMetricsEntry: "external" === 'ant' ? recordApiMetricsEvent : undefined,
+      pushApiMetricsEntry: "external" === 'ant' ? (ttftMs: number) => {
+        const now = Date.now();
+        const baseline = responseLengthRef.current;
+        apiMetricsRef.current.push({
+          ttftMs,
+          firstTokenTime: now,
+          lastTokenTime: now,
+          responseLengthBaseline: baseline,
+          endResponseLength: baseline
+        });
+      } : undefined,
       setStreamMode,
       onCompactProgress: event => {
         switch (event.type) {
@@ -2924,7 +2791,7 @@ export function REPL({
         appendSystemPrompt
       });
       toolUseContext.renderedSystemPrompt = systemPrompt;
-      const notificationAttachments = await getQueuedCommandAttachments(removedNotifications, getImageLimits(mainLoopModel)).catch(() => []);
+      const notificationAttachments = await getQueuedCommandAttachments(removedNotifications).catch(() => []);
       const notificationMessages = notificationAttachments.map(createAttachmentMessage);
 
       // Deduplicate: if the query loop already yielded a notification into
@@ -2950,12 +2817,14 @@ export function REPL({
           querySource: getQuerySourceForREPL()
         },
         description: terminalTitle,
-        taskRegistry,
+        setAppState,
         agentDefinition: mainThreadAgentDefinition
       });
     })();
-  }, [abortController, mainLoopModel, toolPermissionContext, mainThreadAgentDefinition, getToolUseContext, customSystemPrompt, appendSystemPrompt, canUseTool, setAppState, taskRegistry]);
-  useSessionBackgrounding({
+  }, [abortController, mainLoopModel, toolPermissionContext, mainThreadAgentDefinition, getToolUseContext, customSystemPrompt, appendSystemPrompt, canUseTool, setAppState]);
+  const {
+    handleBackgroundSession
+  } = useSessionBackgrounding({
     setMessages,
     setIsLoading: setIsExternalLoading,
     resetLoadingState,
@@ -2973,14 +2842,11 @@ export function REPL({
         // are O(n) per render, so drop everything before the previous
         // boundary to keep n bounded across multi-day sessions.
         if (isFullscreenEnvEnabled()) {
-          applyMessageOp({
-            type: 'update',
-            updater: old => [...getMessagesAfterCompactBoundary(old, {
-              includeSnipped: true
-            }), newMessage]
-          });
+          setMessages(old => [...getMessagesAfterCompactBoundary(old, {
+            includeSnipped: true
+          }), newMessage]);
         } else {
-          applyMessageOp({ type: 'replace-all', messages: [newMessage] });
+          setMessages(() => [newMessage]);
         }
         // Bump conversationId so Messages.tsx row keys change and
         // stale memoized rows remount with post-compact content.
@@ -3000,27 +2866,17 @@ export function REPL({
         // — each carries distinct state the UI needs (e.g. subagent tool
         // history). Replacing those leaves the AgentTool UI stuck at
         // "Initializing…" because it renders the full progress trail.
-        applyMessageOp({
-          type: 'update',
-          updater: oldMessages => {
-            const last = oldMessages.at(-1);
-            if (last?.type === 'progress' && last.parentToolUseID === newMessage.parentToolUseID && last.data.type === newMessage.data.type) {
-              const copy = oldMessages.slice();
-              copy[copy.length - 1] = newMessage;
-              return copy;
-            }
-            return [...oldMessages, newMessage];
+        setMessages(oldMessages => {
+          const last = oldMessages.at(-1);
+          if (last?.type === 'progress' && last.parentToolUseID === newMessage.parentToolUseID && last.data.type === newMessage.data.type) {
+            const copy = oldMessages.slice();
+            copy[copy.length - 1] = newMessage;
+            return copy;
           }
+          return [...oldMessages, newMessage];
         });
       } else {
-        if (isFullscreenEnvEnabled()) {
-          applyMessageOp({
-            type: 'update',
-            updater: oldMessages => appendOrReplaceMessageByUuid(oldMessages, newMessage)
-          });
-        } else {
-          applyMessageOp({ type: 'append', messages: [newMessage] });
-        }
+        setMessages(oldMessages => [...oldMessages, newMessage]);
       }
       // Block ticks on API errors to prevent tick → error → tick
       // runaway loops (e.g., auth failure, rate limit, blocking limit).
@@ -3038,9 +2894,17 @@ export function REPL({
       // for OTPS). No separate metrics update needed here.
       setResponseLength(length => length + newContent.length);
     }, setStreamMode, setStreamingToolUses, tombstonedMessage => {
-      applyMessageOp({
-        type: 'remove-by-uuid',
-        uuid: tombstonedMessage.uuid
+      setMessages(oldMessages => oldMessages.filter(m => m !== tombstonedMessage));
+      void removeTranscriptMessage(tombstonedMessage.uuid);
+    }, setStreamingThinking, metrics => {
+      const now = Date.now();
+      const baseline = responseLengthRef.current;
+      apiMetricsRef.current.push({
+        ...metrics,
+        firstTokenTime: now,
+        lastTokenTime: now,
+        responseLengthBaseline: baseline,
+        endResponseLength: baseline
       });
     }, onStreamingText);
   }, [setMessages, setResponseLength, setStreamMode, setStreamingToolUses, setStreamingThinking, onStreamingText]);
@@ -3194,15 +3058,10 @@ export function REPL({
       systemContext,
       canUseTool,
       toolUseContext,
-      stopHookActive,
       querySource: getQuerySourceForREPL()
     })) {
       onQueryEvent(event);
     }
-    applyMessageOp({
-      type: 'update',
-      updater: currentMessages => stripToolUseResultsForStorage(currentMessages, toolUseContext.options.tools)
-    });
     if (feature('BUDDY')) {
       void fireCompanionObserver(messagesRef.current, reaction => setAppState(prev => prev.companionReaction === reaction ? prev : {
         ...prev,
@@ -3220,7 +3079,7 @@ export function REPL({
       // streaming-only content. endResponseLength tracks content added by
       // streaming deltas only, excluding subagent/compaction inflation.
       const otpsValues = entries.map(e => {
-        const delta = e.outputTokens ?? Math.round((e.endResponseLength - e.responseLengthBaseline) / 4);
+        const delta = Math.round((e.endResponseLength - e.responseLengthBaseline) / 4);
         const samplingMs = e.lastTokenTime - e.firstTokenTime;
         return samplingMs > 0 ? Math.round(delta / (samplingMs / 1000)) : 0;
       });
@@ -3272,33 +3131,26 @@ export function REPL({
     if (thisGeneration === null) {
       logEvent('tengu_concurrent_onquery_detected', {});
 
-      // Preserve the provenance and processing policy of messages that arrive
-      // while a turn is active. Hidden system meta messages stay suppressed,
-      // while channel-origin meta messages remain visible and are requeued as
-      // non-slash-command input exactly like their original delivery path.
-      let enqueued = false;
-      for (const message of newMessages) {
-        if (message.type !== 'user') continue;
-        if (message.isMeta && !isChannelMessageOrigin(message.origin)) continue;
-        const text = getContentText(message.message.content);
-        if (text === null) continue;
+      // Extract and enqueue user message text, skipping meta messages
+      // (e.g. expanded skill content, tick prompts) that should not be
+      // replayed as user-visible text.
+      newMessages.filter((m): m is UserMessage => m.type === 'user' && !m.isMeta).map(_ => getContentText(_.message.content)).filter(_ => _ !== null).forEach((msg, i) => {
         enqueue({
           value: msg,
           mode: 'prompt',
           clientPlatform
         });
-        if (!enqueued) {
-          enqueued = true;
+        if (i === 0) {
           logEvent('tengu_concurrent_onquery_enqueued', {});
         }
-      }
+      });
       return;
     }
     try {
       // isLoading is derived from queryGuard — tryStart() above already
       // transitioned dispatching→running, so no setter call needed here.
       resetTimingRefs();
-      applyMessageOp({ type: 'append', messages: newMessages });
+      setMessages(oldMessages => [...oldMessages, ...newMessages]);
       responseLengthRef.current = 0;
       if (feature('TOKEN_BUDGET')) {
         const parsedBudget = input ? parseTokenBudget(input) : null;
@@ -3393,10 +3245,7 @@ export function REPL({
               swarmBudgetInfoRef.current = budgetInfo;
             }
           } else {
-            applyMessageOp({
-              type: 'update',
-              updater: prev => [...prev, createTurnDurationMessage(turnDurationMs, budgetInfo, count(prev, isLoggableMessage))]
-            });
+            setMessages(prev => [...prev, createTurnDurationMessage(turnDurationMs, budgetInfo, count(prev, isLoggableMessage))]);
           }
         }
         // Clear the controller so CancelRequestHandler's canCancelRunningTask
@@ -3459,8 +3308,6 @@ export function REPL({
           readFileState: readFileState.current,
           discoveredSkillNames: discoveredSkillNamesRef.current,
           loadedNestedMemoryPaths: loadedNestedMemoryPathsRef.current,
-          sessionEnvVars: sessionEnvVarsRef.current,
-          memorySelector: memorySelectorRef.current,
           getAppState: () => store.getState(),
           setAppState,
           setConversationId,
@@ -3507,16 +3354,12 @@ export function REPL({
 
       // Create file history snapshot for code rewind
       if (fileHistoryEnabled()) {
-        void fileHistoryMakeSnapshot(
-          () => store.getState().fileHistory,
-          operation => {
-            setAppState(prev => ({
-              ...prev,
-              fileHistory: applyFileHistoryOp(prev.fileHistory, operation)
-            }));
-          },
-          initialMsg.message.uuid
-        );
+        void fileHistoryMakeSnapshot((updater: (prev: FileHistoryState) => FileHistoryState) => {
+          setAppState(prev => ({
+            ...prev,
+            fileHistory: updater(prev.fileHistory)
+          }));
+        }, initialMsg.message.uuid);
       }
 
       // Ensure SessionStart hook context is available before the first API
@@ -3569,7 +3412,6 @@ export function REPL({
     // Re-pin scroll to bottom on submit so the user always sees the new
     // exchange (matches OpenCode's auto-scroll behavior).
     repinScroll();
-    setResumeReturnPending(current => current === null ? current : null);
 
     // Resume loop mode if paused
     if (feature('PROACTIVE') || feature('KAIROS')) {
@@ -3981,9 +3823,9 @@ export function REPL({
     if (isLocalAgentTask(task)) {
       appendMessageToLocalAgent(task.id, createUserMessage({
         content: input
-      }), taskRegistry);
+      }), setAppState);
       if (task.status === 'running') {
-        queuePendingMessage(task.id, input, taskRegistry);
+        queuePendingMessage(task.id, input, setAppState);
       } else {
         void resumeAgentBackground({
           agentId: task.id,
@@ -4002,12 +3844,12 @@ export function REPL({
         });
       }
     } else {
-      injectUserMessageToTeammate(task.id, input, taskRegistry);
+      injectUserMessageToTeammate(task.id, input, setAppState);
     }
     setInputValue('');
     helpers.setCursorOffset(0);
     helpers.clearBuffer();
-  }, [setAppState, setInputValue, getToolUseContext, canUseTool, mainLoopModel, addNotification, taskRegistry]);
+  }, [setAppState, setInputValue, getToolUseContext, canUseTool, mainLoopModel, addNotification]);
 
   // Handlers for auto-run /issue or /good-claude (defined after onSubmit)
   const handleAutoRunIssue = useCallback(() => {
@@ -4046,14 +3888,13 @@ export function REPL({
   onSubmitRef.current = onSubmit;
   const hasOpenedRateLimitOptionsRef = useRef(false);
   const handleOpenRateLimitOptions = useCallback(() => {
-    if (hasOpenedRateLimitOptionsRef.current) return false;
+    if (hasOpenedRateLimitOptionsRef.current) return;
     hasOpenedRateLimitOptionsRef.current = true;
     void onSubmitRef.current('/rate-limit-options', {
       setCursorOffset: () => {},
       clearBuffer: () => {},
       resetHistory: () => {}
     });
-    return true;
   }, []);
   const openingAgentsRef = useRef(false);
   const handleOpenAgents = useCallback(() => {
@@ -4288,7 +4129,7 @@ export function REPL({
   // Don't record conversation if we only have initial messages; optimizes
   // the case where user resumes a conversation then quites before doing
   // anything else
-  useLogMessages(messages, messages.length === initialMessages?.length, isLoading);
+  useLogMessages(messages, messages.length === initialMessages?.length);
 
   // REPL Bridge: replicate user/assistant messages to the bridge session
   // for remote access via claude.ai. No-op in external builds or when not enabled.
@@ -4542,13 +4383,12 @@ export function REPL({
   const voice = feature('VOICE_MODE') ?
   // biome-ignore lint/correctness/useHookAtTopLevel: feature() is a compile-time constant
   useVoiceIntegration({
-    setInputValueRaw: setPromptInputValue,
+    setInputValueRaw,
     inputValueRef,
     insertTextRef
   }) : {
     stripTrailing: () => 0,
     handleKeyEvent: () => {},
-    cancelRecording: () => {},
     resetAnchor: () => {},
     cancelRecording: () => {},
     interimRange: null
@@ -5019,12 +4859,25 @@ export function REPL({
   const viewedTeammateTask = viewedTask && isInProcessTeammateTask(viewedTask) ? viewedTask : undefined;
   const viewedAgentTask = viewedTeammateTask ?? (viewedTask && isLocalAgentTask(viewedTask) ? viewedTask : undefined);
 
+  // Bypass useDeferredValue when streaming text is showing so Messages renders
+  // the final message in the same frame streaming text clears. Also bypass when
+  // not loading — deferredMessages only matters during streaming (keeps input
+  // responsive); after the turn ends, showing messages immediately prevents a
+  // jitter gap where the spinner is gone but the answer hasn't appeared yet.
+  // Only reducedMotion users keep the deferred path during loading.
+  const usesSyncMessages = showStreamingText || !isLoading;
   // When viewing an agent, never fall through to leader — empty until
   // bootstrap/stream fills. Closes the see-leader-type-agent footgun.
-  // Messages owns the deferred render selection. Keep this array current so
-  // its wrapper can switch synchronously when streaming text clears or a turn
-  // finishes without remounting the transcript subtree.
-  const displayedMessages = viewedAgentTask ? viewedAgentTask.messages ?? [] : messages;
+  const displayedMessages = viewedAgentTask ? viewedAgentTask.messages ?? [] : usesSyncMessages ? messages : deferredMessages;
+  // Show the placeholder until the real user message appears in
+  // displayedMessages. userInputOnProcessing stays set for the whole turn
+  // (cleared in resetLoadingState); this length check hides it once
+  // displayedMessages grows past the baseline captured at submit time.
+  // Covers both gaps: before setMessages is called (processUserInput), and
+  // while deferredMessages lags behind messages. Suppressed when viewing an
+  // agent — displayedMessages is a different array there, and onAgentSubmit
+  // doesn't use the placeholder anyway.
+  const placeholderText = userInputOnProcessing && !viewedAgentTask && displayedMessages.length <= userInputBaselineRef.current ? userInputOnProcessing : undefined;
   const toolPermissionOverlay = focusedInputDialog === 'tool-permission' ? <PermissionRequest key={toolUseConfirmQueue[0]?.toolUseID} onDone={() => setToolUseConfirmQueue(([_, ...tail]) => tail)} onReject={handleQueuedCommandOnCancel} toolUseConfirm={toolUseConfirmQueue[0]!} toolUseContext={getToolUseContext(messages, messages, abortController ?? createAbortController(), mainLoopModel)} verbose={verbose} workerBadge={toolUseConfirmQueue[0]?.workerBadge} setStickyFooter={isFullscreenEnvEnabled() ? setPermissionStickyFooter : undefined} /> : null;
 
   // Narrow terminals: companion collapses to a one-liner that REPL stacks
@@ -5088,10 +4941,7 @@ export function REPL({
               {!disabled && placeholderText && !centeredModal && <UserTextMessage param={{
           text: placeholderText,
           type: 'text'
-        }} addMargin={true} verbose={verbose} /> : null} tools={tools} commands={commands} verbose={verbose} toolJSX={toolJSX} toolUseConfirmQueue={toolUseConfirmQueue} inProgressToolUseIDs={viewedTeammateTask ? viewedTeammateTask.inProgressToolUseIDs ?? new Set() : inProgressToolUseIDs} isMessageSelectorVisible={isMessageSelectorVisible} conversationId={conversationId} screen={screen} streamingToolUses={streamingToolUses} showAllInTranscript={showAllInTranscript} agentDefinitions={agentDefinitions} onOpenRateLimitOptions={handleOpenRateLimitOptions} isLoading={isLoading} streamingText={isLoading && !viewedAgentTask ? visibleStreamingText : null} isBriefOnly={viewedAgentTask ? false : isBriefOnly} unseenDivider={viewedAgentTask ? undefined : unseenDivider} scrollRef={isFullscreenEnvEnabled() || isSynchronizedInlineOutputEnabled() ? scrollRef : undefined} trackStickyPrompt={isFullscreenEnvEnabled() ? true : undefined} cursor={cursor} setCursor={setCursor} cursorNavRef={cursorNavRef} />
-              {isTinyMemoryEnabled() && isFullscreenEnvEnabled() && <RecalledMemoryRatingInput messages={displayedMessages} inputValue={inputValue} setInputValue={setInputValue} enabled={!disabled && !focusedInputDialog && !viewedAgentTask} />}
-              <AwsAuthStatusBox />
-              <SynchronizedOutputTranscriptEnd />
+        }} addMargin={true} verbose={verbose} />}
               {toolJSX && !(toolJSX.isLocalJSXCommand && toolJSX.isImmediate) && !toolJsxCentered && <Box flexDirection="column" width="100%">
                     {toolJSX.jsx}
                   </Box>}
@@ -5334,8 +5184,6 @@ export function REPL({
                 readFileState: readFileState.current,
                 discoveredSkillNames: discoveredSkillNamesRef.current,
                 loadedNestedMemoryPaths: loadedNestedMemoryPathsRef.current,
-                sessionEnvVars: sessionEnvVarsRef.current,
-                memorySelector: memorySelectorRef.current,
                 getAppState: () => store.getState(),
                 setAppState,
                 setConversationId,
@@ -5352,32 +5200,6 @@ export function REPL({
               clearBuffer: () => {},
               resetHistory: () => {}
             });
-          }} />}
-                {focusedInputDialog === 'resume-return' && resumeReturnPending && <ResumeReturnDialog sessionAgeMinutes={resumeReturnPending.sessionAgeMinutes} estimatedTokens={resumeReturnPending.estimatedTokens} onDone={async action => {
-            const pending = resumeReturnPending;
-            setResumeReturnPending(null);
-            logEvent('tengu_resume_return_action', {
-              action: action as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-              sessionAgeMinutes: Math.round(pending.sessionAgeMinutes),
-              messageCount: messagesRef.current.length,
-              estimatedTokens: pending.estimatedTokens
-            });
-            if (action === 'never') {
-              saveGlobalConfig(current => {
-                if (current.resumeReturnDismissed) return current;
-                return {
-                  ...current,
-                  resumeReturnDismissed: true
-                };
-              });
-            }
-            if (action === 'compact') {
-              void onSubmitRef.current('/compact', {
-                setCursorOffset: () => {},
-                clearBuffer: () => {},
-                resetHistory: () => {}
-              });
-            }
           }} />}
                 {focusedInputDialog === 'ide-onboarding' && <IdeOnboardingDialog onDone={() => setShowIdeOnboarding(false)} installationStatus={ideInstallationStatus} />}
                 {"external" === 'ant' && focusedInputDialog === 'model-switch' && AntModelSwitchCallout && <AntModelSwitchCallout onDone={(selection: string, modelAlias?: string) => {
@@ -5495,15 +5317,18 @@ export function REPL({
                       <PromptInput debug={debug} ideSelection={ideSelection} hasSuppressedDialogs={!!hasSuppressedDialogs} isLocalJSXCommandActive={isShowingLocalJSXCommand} getToolUseContext={getToolUseContext} toolPermissionContext={toolPermissionContext} setToolPermissionContext={setToolPermissionContext} apiKeyStatus={apiKeyStatus} commands={commands} agents={agentDefinitions.activeAgents} isLoading={isLoading} onExit={handleExit} onLeftArrowOnEmpty={isBgSession() ? () => void handleExit() : !isLoading && isFgLeftArrowAgentsAvailable() && getGlobalConfig().leftArrowOpensAgents !== false ? handleOpenAgents : undefined} verbose={verbose} messages={messages} input={inputValue} onInputChange={setInputValue} mode={inputMode} onModeChange={setInputMode} stashedPrompt={stashedPrompt} setStashedPrompt={setStashedPrompt} submitCount={submitCount} onShowMessageSelector={handleShowMessageSelector} onMessageActionsEnter={
             // Works during isLoading — edit cancels first; uuid selection survives appends.
             feature('MESSAGE_ACTIONS') && isFullscreenEnvEnabled() && !disableMessageActions ? enterMessageActions : undefined} mcpClients={mcpClients} pastedContents={pastedContents} setPastedContents={setPastedContents} vimMode={vimMode} setVimMode={setVimMode} showBashesDialog={showBashesDialog} setShowBashesDialog={setShowBashesDialog} onSubmit={onSubmit} onAgentSubmit={onAgentSubmit} isSearchingHistory={isSearchingHistory} setIsSearchingHistory={setIsSearchingHistory} helpOpen={isHelpOpen} setHelpOpen={setIsHelpOpen} insertTextRef={feature('VOICE_MODE') ? insertTextRef : undefined} voiceInterimRange={voice.interimRange} />
+                      <SessionBackgroundHint onBackgroundSession={handleBackgroundSession} isLoading={isLoading} />
                     </>}
                 {cursor &&
           // inputValue is REPL state; typed text survives the round-trip.
           <MessageActionsBar cursor={cursor} />}
                 {focusedInputDialog === 'message-selector' && <MessageSelector messages={messages} preselectedMessage={messageSelectorPreselect} onPreRestore={onCancel} onRestoreCode={async (message: UserMessage) => {
-            await fileHistoryRewind(
-              () => store.getState().fileHistory,
-              message.uuid
-            );
+            await fileHistoryRewind((updater: (prev: FileHistoryState) => FileHistoryState) => {
+              setAppState(prev => ({
+                ...prev,
+                fileHistory: updater(prev.fileHistory)
+              }));
+            }, message.uuid);
           }} onSummarize={async (message: UserMessage, feedback?: string, direction: PartialCompactDirection = 'from') => {
             // Project snipped messages so the compact model
             // doesn't summarize content that was intentionally removed.

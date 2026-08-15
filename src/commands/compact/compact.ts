@@ -9,7 +9,6 @@ import {
 } from '../../services/api/promptCacheBreakDetection.js'
 import {
   type CompactionResult,
-  CompactionError,
   compactConversation,
   ERROR_MESSAGE_INCOMPLETE_RESPONSE,
   ERROR_MESSAGE_NOT_ENOUGH_MESSAGES,
@@ -23,7 +22,6 @@ import { microcompactMessages } from '../../services/compact/microCompact.js'
 import { runPostCompactCleanup } from '../../services/compact/postCompactCleanup.js'
 import { trySessionMemoryCompaction } from '../../services/compact/sessionMemoryCompact.js'
 import { setLastSummarizedMessageId } from '../../services/SessionMemory/sessionMemoryUtils.js'
-import { roughTokenCountEstimationForMessages } from '../../services/tokenEstimation.js'
 import type { ToolUseContext } from '../../Tool.js'
 import type { LocalCommandCall } from '../../types/command.js'
 import type { Message } from '../../types/message.js'
@@ -37,8 +35,6 @@ import {
   buildEffectiveSystemPrompt,
   type SystemPrompt,
 } from '../../utils/systemPrompt.js'
-import { logCompactionEvent } from '../../utils/telemetry/events.js'
-import { resetToolResultDedupState } from '../../utils/toolErrors.js'
 
 class ReactiveCompactionError extends Error {}
 
@@ -130,10 +126,6 @@ export const call: LocalCommandCall = async (args, context) => {
       displayText: buildDisplayText(context, result.userDisplayMessage),
     }
   } catch (error) {
-    context.setSDKStatus?.(null, {
-      compactResult: 'failed',
-      compactError: error instanceof Error ? error.message : String(error),
-    })
     if (abortController.signal.aborted) {
       throw new Error('Compaction canceled.')
     } else if (hasExactErrorMessage(error, ERROR_MESSAGE_NOT_ENOUGH_MESSAGES)) {
@@ -144,10 +136,7 @@ export const call: LocalCommandCall = async (args, context) => {
       throw error
     } else {
       logError(error)
-      throw new Error(
-        `Error during compaction: ${error instanceof Error ? error.message : String(error)}`,
-        { cause: error },
-      )
+      throw new Error(`Error during compaction: ${error}`)
     }
   }
 }
@@ -167,10 +156,6 @@ async function compactViaReactive(
     hookType: 'pre_compact',
   })
   context.setSDKStatus?.('compacting')
-  const startedAt = performance.now()
-  let compactError: string | undefined
-  const preTokens = roughTokenCountEstimationForMessages(messages)
-  let postTokens: number | undefined
 
   const startTime = performance.now()
   const preTokens = tokenCountWithEstimation(messages)
@@ -195,7 +180,7 @@ async function compactViaReactive(
     )
 
     context.setStreamMode?.('requesting')
-    context.resetResponseLength?.()
+    context.setResponseLength?.(() => 0)
     context.onCompactProgress?.({ type: 'compact_start' })
 
     const outcome = await reactive.reactiveCompactOnPromptTooLong(
@@ -205,8 +190,9 @@ async function compactViaReactive(
     )
 
     if (!outcome.ok) {
-      // The outer catch maps abort/too-few failures and preserves the richer
-      // CompactionError details for failures the user can act on.
+      // The outer catch in `call` translates these: aborted → "Compaction
+      // canceled." (via abortController.signal.aborted check), NOT_ENOUGH →
+      // re-thrown as-is, everything else → "Error during compaction: …".
       switch (outcome.reason) {
         case 'too_few_groups':
           throw new Error(ERROR_MESSAGE_NOT_ENOUGH_MESSAGES)
@@ -225,14 +211,6 @@ async function compactViaReactive(
             `Error during compaction: ${outcome.detail || 'unknown error'}`,
           )
       }
-    }
-
-    const boundary = outcome.result.boundaryMarker
-    if (
-      boundary.subtype === 'compact_boundary' &&
-      'compactMetadata' in boundary
-    ) {
-      postTokens = boundary.compactMetadata.postTokens
     }
 
     // Mirrors the post-success cleanup in tryReactiveCompact, minus
@@ -269,7 +247,7 @@ async function compactViaReactive(
     throw error
   } finally {
     context.setStreamMode?.('requesting')
-    context.resetResponseLength?.()
+    context.setResponseLength?.(() => 0)
     context.onCompactProgress?.({ type: 'compact_end' })
     reactive.recordCompactionTelemetry({
       trigger: 'manual',

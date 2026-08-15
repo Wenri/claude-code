@@ -1,22 +1,14 @@
 import axios from 'axios'
 import { constants as fsConstants } from 'fs'
-import {
-  access,
-  readdir,
-  rename,
-  rm,
-  stat,
-  writeFile,
-} from 'fs/promises'
+import { access, writeFile } from 'fs/promises'
 import { homedir } from 'os'
-import { dirname, join } from 'path'
+import { join } from 'path'
 import { getDynamicConfig_BLOCKS_ON_INIT } from 'src/services/analytics/growthbook.js'
 import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
 } from 'src/services/analytics/index.js'
 import { type ReleaseChannel, saveGlobalConfig } from './config.js'
-import { isInBundledMode } from './bundledMode.js'
 import { logForDebugging } from './debug.js'
 import { env } from './env.js'
 import { getClaudeConfigHomeDir } from './envUtils.js'
@@ -37,7 +29,7 @@ import {
 import { jsonParse } from './slowOperations.js'
 
 const GCS_BUCKET_URL =
-  'https://downloads.claude.ai/claude-code-releases'
+  'https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases'
 
 class AutoUpdaterError extends ClaudeError {}
 
@@ -276,21 +268,6 @@ async function releaseLock(): Promise<void> {
   }
 }
 
-function detectGlobalPackageManager(): 'bun' | 'npm' {
-  const execPath = process.execPath.replace(/\\/g, '/')
-  const bunInstall = (process.env.BUN_INSTALL ?? '')
-    .replace(/\\/g, '/')
-    .replace(/\/+$/, '')
-  if (
-    execPath.includes('/.bun/install/global/') ||
-    (bunInstall !== '' &&
-      execPath.startsWith(`${bunInstall}/install/global/`))
-  ) {
-    return 'bun'
-  }
-  return env.isRunningWithBun() && !isInBundledMode() ? 'bun' : 'npm'
-}
-
 async function getInstallationPrefix(): Promise<string | null> {
   // Run from home directory to avoid reading project-level .npmrc/.bunfig.toml
   const isBun = getGlobalPackageManager() === 'bun'
@@ -468,42 +445,6 @@ export async function getLatestHomebrewVersion(
 }
 
 /**
- * Resolve the version Homebrew currently advertises for a cask. Homebrew's
- * cask metadata is authoritative for package-manager installations, while the
- * GCS channel remains a fail-open fallback when the public formula API is
- * unavailable.
- */
-export async function getLatestVersionFromHomebrewCask(
-  caskName: string,
-): Promise<string | null> {
-  if (process.env.NODE_ENV === 'test') return null
-  try {
-    const response = await axios.get(
-      `https://formulae.brew.sh/api/cask/${caskName}.json`,
-      { timeout: 5000, responseType: 'json' },
-    )
-    const version = (response.data as { version?: unknown } | null)?.version
-    return typeof version === 'string' ? version : null
-  } catch (error) {
-    logForDebugging(
-      `Failed to fetch ${caskName} from formulae.brew.sh: ${error}`,
-    )
-    return null
-  }
-}
-
-export async function getLatestVersionForHomebrew(
-  caskName: string,
-  channel: ReleaseChannel,
-): Promise<string | null> {
-  const [homebrewVersion, gcsVersion] = await Promise.all([
-    getLatestVersionFromHomebrewCask(caskName),
-    getLatestVersionFromGcs(channel),
-  ])
-  return homebrewVersion ?? gcsVersion
-}
-
-/**
  * Get available versions from GCS bucket (for native installations).
  * Fetches both latest and stable channel pointers.
  */
@@ -578,7 +519,6 @@ export async function installGlobalPackage(
 
   try {
     await removeClaudeAliasesFromShellConfigs()
-    const packageManager = detectGlobalPackageManager()
     // Check if we're using npm from Windows path in WSL
     const packageManager = getGlobalPackageManager()
     if (packageManager === 'npm' && env.isNpmFromWindowsPath()) {
@@ -602,6 +542,11 @@ To fix this issue:
       return 'install_failed'
     }
 
+    const { hasPermissions } = await checkGlobalInstallPermissions()
+    if (!hasPermissions) {
+      return 'no_permissions'
+    }
+
     // Use specific version if provided, otherwise use latest
     const packageSpec = specificVersion
       ? `${MACRO.PACKAGE_URL}@${specificVersion}`
@@ -614,29 +559,9 @@ To fix this issue:
       ['install', '-g', packageSpec],
       { cwd: homedir() },
     )
-    if (retiredWindowsBinaries.length > 0 && installResult.code !== 0) {
-      for (const [original, retired] of retiredWindowsBinaries) {
-        await rename(retired, original).catch(error =>
-          logError(
-            new AutoUpdaterError(
-              `Failed to restore ${original} after install failure: ${error}`,
-            ),
-          ),
-        )
-      }
-    }
     if (installResult.code !== 0) {
-      const combinedOutput = `${installResult.stdout} ${installResult.stderr}`
-      if (/\b(EACCES|EPERM|permission denied)\b/i.test(combinedOutput)) {
-        logError(
-          new AutoUpdaterError(
-            'Insufficient permissions for global npm install.',
-          ),
-        )
-        return 'no_permissions'
-      }
       const error = new AutoUpdaterError(
-        `Failed to install new version of claude: ${combinedOutput}`,
+        `Failed to install new version of claude: ${installResult.stdout} ${installResult.stderr}`,
       )
       logError(error)
       return 'install_failed'

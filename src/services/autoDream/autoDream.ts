@@ -24,8 +24,6 @@ import {
 } from '../../utils/messages.js'
 import type { Message } from '../../types/message.js'
 import { logForDebugging } from '../../utils/debug.js'
-import { errorMessage, isFsInaccessible, toError } from '../../utils/errors.js'
-import { count } from '../../utils/array.js'
 import type { ToolUseContext } from '../../Tool.js'
 import { logEvent } from '../analytics/index.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../analytics/growthbook.js'
@@ -228,16 +226,17 @@ export function initAutoDream(): void {
       team_memory_enabled: teamMemoryEnabled,
     })
 
-    const { taskRegistry } = context.toolUseContext
+    const setAppState =
+      context.toolUseContext.setAppStateForTasks ??
+      context.toolUseContext.setAppState
     const abortController = new AbortController()
-    const taskId = registerDreamTask(taskRegistry, {
+    const taskId = registerDreamTask(setAppState, {
       sessionsReviewing: sessionIds.length,
       priorMtime,
       abortController,
     })
     let phase: 'fork' | 'completion' = 'fork'
 
-    let phase: 'fork' | 'completion' = 'fork'
     try {
       const memoryRoot = getAutoMemPath()
       const transcriptDir = getProjectDir(getOriginalCwd())
@@ -273,7 +272,7 @@ ${sessionIds.map(id => `- ${id}`).join('\n')}`
         forkLabel: 'auto_dream',
         skipTranscript: true,
         overrides: { abortController },
-        onMessage: makeDreamProgressWatcher(taskId, taskRegistry),
+        onMessage: makeDreamProgressWatcher(taskId, setAppState),
       })
 
       phase = 'completion'
@@ -343,7 +342,7 @@ ${sessionIds.map(id => `- ${id}`).join('\n')}`
  */
 function makeDreamProgressWatcher(
   taskId: string,
-  taskRegistry: TaskRegistry,
+  setAppState: import('../../Task.js').SetAppState,
 ): (msg: Message) => void {
   return msg => {
     if (msg.type !== 'assistant') return
@@ -382,7 +381,7 @@ function makeDreamProgressWatcher(
       taskId,
       { text: text.trim(), toolUseCount },
       touchedPaths,
-      taskRegistry,
+      setAppState,
     )
   }
 }

@@ -48,7 +48,6 @@ import {
   isSyntheticMessage,
 } from '../utils/messages.js'
 import type { PermissionMode } from '../utils/permissions/PermissionMode.js'
-import { isEssentialTrafficOnly } from '../utils/privacyLevel.js'
 import {
   clearInternalEventWriter,
   getCurrentSessionAgentColor,
@@ -58,7 +57,6 @@ import {
   setInternalEventReader,
   setInternalEventWriter,
 } from '../utils/sessionStorage.js'
-import { getSessionIngressAuthHeaders } from '../utils/sessionIngressAuth.js'
 import {
   extractConversationText,
   generateSessionTitle,
@@ -83,10 +81,6 @@ import {
   updateBridgeSessionTitle,
   updateBridgeSessionColorTag,
 } from './createSession.js'
-import {
-  cleanupBridgeClientPresence,
-  wireBridgeClientPresence,
-} from './clientPresence.js'
 import { logBridgeSkip } from './debugUtils.js'
 import { checkEnvLessBridgeMinVersion } from './envLessBridgeConfig.js'
 import { readFileForRemote } from './readFileForRemote.js'
@@ -99,7 +93,6 @@ import { syncLocalTranscriptEvents } from './sessionPersistenceSync.js'
 import { setCseShimGate, toCompatSessionId } from './sessionIdCompat.js'
 
 export type InitBridgeOptions = {
-  getToolPermissionContext?: () => ToolPermissionContext
   onInboundMessage?: (msg: SDKMessage) => void | Promise<void>
   onPermissionResponse?: (response: SDKControlResponse) => void
   onInterrupt?: () => void
@@ -147,7 +140,6 @@ export async function initReplBridge(
 ): Promise<ReplBridgeHandle | null> {
   const {
     onInboundMessage,
-    getToolPermissionContext,
     onPermissionResponse,
     onInterrupt,
     onSetModel,
@@ -584,21 +576,6 @@ export async function initReplBridge(
       }
     },
     onInboundMessage,
-    onSessionEstablished: sessionId => {
-      wireBridgeClientPresence(
-        toInfraSessionId(sessionId),
-        sessionIngressUrl,
-        getSessionIngressAuthHeaders,
-      )
-      if (
-        getFeatureValue_CACHED_MAY_BE_STALE(
-          'tengu_kairos_push_notifications',
-          false,
-        ) && !isEssentialTrafficOnly()
-      ) {
-        void hydrateNotificationPreferences()
-      }
-    },
     onPermissionResponse,
     onInterrupt,
     onSetModel,

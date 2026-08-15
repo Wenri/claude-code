@@ -551,13 +551,6 @@ async function uploadTeamMemory(
     }
 
     const endpoint = getTeamMemorySyncEndpoint(repoSlug)
-    const body: {
-      entries: Record<string, string>
-      soft_delete_keys?: string[]
-    } = { entries }
-    if (softDeleteKeys && softDeleteKeys.length > 0) {
-      body.soft_delete_keys = [...softDeleteKeys]
-    }
     const response = await axios.put(
       endpoint,
       body,
@@ -1181,7 +1174,7 @@ export async function pushTeamMemory(
       const batchSoftDeleteKeys = batchIndex === 0 ? softDeleteKeys : []
       result = await uploadTeamMemory(
         state,
-        state.repoSlug,
+        repoSlug,
         batch,
         state.lastKnownChecksum,
         batchSoftDeleteKeys,

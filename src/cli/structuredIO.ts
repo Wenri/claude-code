@@ -49,14 +49,13 @@ import type {
 } from 'src/utils/permissions/PermissionResult.js'
 import {
   checkRuleBasedPermissions,
-  findSafetyCheck,
   getPermissionRequestHookRuleOverride,
   hasPermissionsToUseTool,
 } from 'src/utils/permissions/permissions.js'
 import { writeToStdout } from 'src/utils/process.js'
 import { jsonStringify } from 'src/utils/slowOperations.js'
-import { redactSecrets } from 'src/services/teamMemorySync/secretScanner.js'
 import { z } from 'zod/v4'
+import { notifyCommandLifecycle } from '../utils/commandLifecycle.js'
 import { normalizeControlMessageKeys } from '../utils/controlMessageCompat.js'
 import { executePermissionRequestHooks } from '../utils/hooks.js'
 import {
@@ -82,29 +81,6 @@ export const SANDBOX_NETWORK_ACCESS_TOOL_NAME = 'SandboxNetworkAccess'
 const OAUTH_TOKEN_REFRESH_TIMEOUT_MS = 30_000
 const STALL_TIMEOUT_MS = 300_000
 const SDK_SCHEMA_SAMPLE_RATE = 0.01
-
-const SENSITIVE_MCP_INPUT_KEY =
-  /api[_-]?key|secret|token|password|passwd|credential|bearer|authorization|auth[_-]?header|cookie|session[_-]?(id|key)|connection[_-]?string|private[_-]?key|client[_-]?secret/i
-
-function redactMcpInputFields(
-  input: Record<string, unknown>,
-): Record<string, unknown> {
-  const redacted: Record<string, unknown> = {}
-  for (const [key, value] of Object.entries(input)) {
-    redacted[key] = SENSITIVE_MCP_INPUT_KEY.test(key) ? '[REDACTED]' : value
-  }
-  return redacted
-}
-
-function getMcpInputPreview(
-  input: Record<string, unknown>,
-  maxLength = 200,
-): string {
-  const serialized = redactSecrets(jsonStringify(redactMcpInputFields(input)))
-  return serialized.length > maxLength
-    ? `${serialized.slice(0, maxLength - 3)}...`
-    : serialized
-}
 
 function serializeDecisionReason(
   reason: PermissionDecisionReason | undefined,
@@ -256,8 +232,6 @@ type PendingRequest<T> = {
 // entry is evicted. This bounds memory in very long sessions while keeping
 // enough history to catch duplicate control_response deliveries.
 const MAX_RESOLVED_TOOL_USE_IDS = 1000
-const SDK_STALL_TIMEOUT_MS = 300_000
-const SDK_SCHEMA_SAMPLE_RATE = 0.01
 
 export class StructuredIO {
   readonly structuredInput: AsyncGenerator<StdinMessage | SDKMessage>
@@ -284,16 +258,8 @@ export class StructuredIO {
   // error from the API.
   private readonly resolvedToolUseIds = new Set<string>()
   private prependedLines: string[] = []
-  private stallTimer?: NodeJS.Timeout
-  private stallFired = false
-  private readonly createdAt = Date.now()
   private onControlRequestSent?: (request: SDKControlRequest) => void
   private onControlRequestResolved?: (requestId: string) => void
-  onCommandLifecycle?: (
-    uuid: string,
-    state: 'started' | 'completed',
-  ) => void
-  readonly sessionState: SessionStateManager
 
   // sendRequest() and print.ts both enqueue here; the drain loop is the
   // only writer. Prevents control_request from overtaking queued stream_events.
@@ -302,10 +268,8 @@ export class StructuredIO {
   constructor(
     private readonly input: AsyncIterable<string>,
     private readonly replayUserMessages?: boolean,
-    sessionState?: SessionStateManager,
   ) {
     this.input = input
-    this.sessionState = sessionState ?? new SessionStateManager()
     this.structuredInput = this.read()
   }
 
@@ -328,10 +292,6 @@ export class StructuredIO {
 
   /** Flush pending internal events. No-op for non-remote IO. Overridden by RemoteIO. */
   flushInternalEvents(): Promise<void> {
-    return Promise.resolve()
-  }
-
-  flushDeliveryAcks(): Promise<void> {
     return Promise.resolve()
   }
 
@@ -513,7 +473,7 @@ export class StructuredIO {
             ? message.uuid
             : undefined
         if (uuid) {
-          this.onCommandLifecycle?.(uuid, 'completed')
+          notifyCommandLifecycle(uuid, 'completed')
         }
         const request = this.pendingRequests.get(message.response.request_id)
         if (!request) {
@@ -656,44 +616,6 @@ export class StructuredIO {
     writeToStdout(ndjsonSafeStringify(message) + '\n')
   }
 
-  resetStallWatchdog(): void {
-    this.stallFired = false
-  }
-
-  protected trackWrite(message: StdoutMessage): void {
-    if (this.stallTimer) clearTimeout(this.stallTimer)
-    if (message.type !== 'result' && !this.stallFired) {
-      this.stallTimer = setTimeout(
-        lastMessageType => {
-          if (this.sessionState.getState() !== 'running') return
-          this.stallFired = true
-          logEvent('tengu_sdk_stall', {
-            session_age_ms: Date.now() - this.createdAt,
-            session_state:
-              this.sessionState.getState() as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-            last_message_type:
-              lastMessageType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-            pending_control_requests: this.pendingRequests.size,
-          })
-        },
-        SDK_STALL_TIMEOUT_MS,
-        message.type,
-      )
-      this.stallTimer.unref()
-    }
-    if (message.type !== 'system' && Math.random() < SDK_SCHEMA_SAMPLE_RATE) {
-      const parsed = StdoutMessageSchema().safeParse(message)
-      if (!parsed.success) {
-        logEvent('tengu_sdk_schema_violation', {
-          message_type:
-            message.type as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          error_path: (parsed.error.issues[0]?.path.join('.') ??
-            '') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        })
-      }
-    }
-  }
-
   private async sendRequest<Response>(
     request: SDKControlRequest['request'],
     schema: z.Schema,
@@ -735,7 +657,6 @@ export class StructuredIO {
         once: true,
       })
     }
-    const startedAt = Date.now()
     try {
       return await new Promise<Response>((resolve, reject) => {
         this.pendingRequests.set(requestId, {
@@ -752,12 +673,6 @@ export class StructuredIO {
         })
       })
     } finally {
-      logEvent('tengu_sdk_control_roundtrip', {
-        subtype:
-          request.subtype as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        duration_ms: Date.now() - startedAt,
-        aborted: signal?.aborted ?? false,
-      })
       if (signal) {
         signal.removeEventListener('abort', aborted)
       }
@@ -819,8 +734,6 @@ export class StructuredIO {
 
         // Start the SDK permission prompt immediately (don't wait for hooks)
         const requestId = randomUUID()
-        const decisionReason = mainPermissionResult.decisionReason
-        const safetyCheck = findSafetyCheck(decisionReason)
         onPermissionPrompt?.(
           buildRequiresActionDetails(tool, input, toolUseID, requestId),
         )
@@ -902,7 +815,7 @@ export class StructuredIO {
         // Only transition back to 'running' if no other permission prompts
         // are pending (concurrent tool execution can have multiple in-flight).
         if (this.getPendingPermissionRequests().length === 0) {
-          this.sessionState.notifyStateChanged('running')
+          notifySessionStateChanged('running')
         }
         parentSignal.removeEventListener('abort', onParentAbort)
       }

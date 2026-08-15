@@ -40,7 +40,6 @@ import { shutdown1PEventLogging } from './services/analytics/firstPartyEventLogg
 import { type DownloadResult, downloadSessionFiles, type FilesApiConfig, parseFileSpecs } from './services/api/filesApi.js';
 import { prefetchPassesEligibility } from './services/api/referral.js';
 import { prefetchOfficialMcpUrls } from './services/mcp/officialRegistry.js';
-import { createHeadlessMcpConnectionManager } from './services/mcp/headlessConnectionManager.js';
 import type { McpSdkServerConfig, McpServerConfig, ScopedMcpServerConfig } from './services/mcp/types.js';
 import { isPolicyAllowed, loadPolicyLimits, refreshPolicyLimits, waitForPolicyLimitsToLoad } from './services/policyLimits/index.js';
 import { loadRemoteManagedSettings, refreshRemoteManagedSettings, validateRemoteManagedSettingsRefresh } from './services/remoteManagedSettings/index.js';
@@ -72,7 +71,6 @@ import { computeInitialTeamContext } from './utils/swarm/reconnection.js';
 import { initializeWarningHandler } from './utils/warningHandler.js';
 import { initializeAiAgentEnvironment } from './utils/userAgent.js';
 import { isWorktreeModeEnabled } from './utils/worktreeModeEnabled.js';
-import { updateHooksConfigSnapshot } from './utils/hooks/hooksConfigSnapshot.js';
 
 // Lazy require to avoid circular dependency: teammate.ts -> AppState.tsx -> ... -> main.tsx
 /* eslint-disable @typescript-eslint/no-require-imports */
@@ -93,7 +91,6 @@ import { recordRemoteStartupPhase } from './bridge/startupTiming.js';
 import { isAnalyticsDisabled } from 'src/services/analytics/config.js';
 import { getFeatureValue_CACHED_MAY_BE_STALE } from 'src/services/analytics/growthbook.js';
 import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEvent } from 'src/services/analytics/index.js';
-import { getCooMetadataForAnalytics } from 'src/services/analytics/metadata.js';
 import { initializeAnalyticsGates } from 'src/services/analytics/sink.js';
 import { getOriginalCwd, setAdditionalDirectoriesForClaudeMd, setIsRemoteMode, setMainLoopModelOverride, setMainThreadAgentType, setParentManagedSettings, setTeleportedSessionInfo } from './bootstrap/state.js';
 import { filterCommandsForRemoteMode, getCommands } from './commands.js';
@@ -123,7 +120,6 @@ import { loadConversationForResume } from './utils/conversationRecovery.js';
 import { buildDeepLinkBanner } from './utils/deepLink/banner.js';
 import { validateDeepLinkCwd, validateDeepLinkQuery } from './utils/deepLink/parseDeepLink.js';
 import { hasNodeOption, isBareMode, isEnvTruthy, isInProtectedNamespace } from './utils/envUtils.js';
-import { getNoFlickerEnvVar } from './utils/fullscreen.js';
 import { refreshExampleCommands } from './utils/exampleCommands.js';
 import type { FpsMetrics } from './utils/fpsTracker.js';
 import { getWorktreePaths } from './utils/getWorktreePaths.js';
@@ -142,8 +138,6 @@ import { initializeVersionedPlugins } from './utils/plugins/installedPluginsMana
 import { getManagedPluginNames } from './utils/plugins/managedPlugins.js';
 import { getGlobExclusionsForPluginCache } from './utils/plugins/orphanedPluginFilter.js';
 import { getPluginSeedDirs } from './utils/plugins/pluginDirectories.js';
-import { loadPluginLspServers } from './utils/plugins/lspPluginIntegration.js';
-import { loadPluginMcpServers } from './utils/plugins/mcpPluginIntegration.js';
 import { countFilesRoundedRg } from './utils/ripgrep.js';
 import { clearMemoryFileCaches } from './utils/claudemd.js';
 import { resetHooksConfigSnapshot } from './utils/hooks/hooksConfigSnapshot.js';
@@ -158,7 +152,6 @@ import type { ValidationError } from './utils/settings/validation.js';
 import { DEFAULT_TASKS_MODE_TASK_LIST_ID, TASK_STATUSES } from './utils/tasks.js';
 import { logPluginLoadErrors, logPluginsEnabledForSession } from './utils/telemetry/pluginTelemetry.js';
 import { logSkillsLoaded } from './utils/telemetry/skillLoadedEvent.js';
-import { collectExplicitCliFlags, collectNonDefaultSettings, collectSetEnvVars } from './utils/telemetry/startupTelemetry.js';
 import { generateTempFilePath } from './utils/tempfile.js';
 import { validateUuid } from './utils/uuid.js';
 // Plugin startup checks are now handled non-blockingly in REPL.tsx
@@ -218,14 +211,11 @@ import { createStore } from './state/store.js';
 import { asSessionId } from './types/ids.js';
 import { filterAllowedSdkBetas } from './utils/betas.js';
 import { isInBundledMode, isRunningWithBun } from './utils/bundledMode.js';
-import { clearMemoryFileCaches } from './utils/claudemd.js';
 import { logForDiagnosticsNoPII } from './utils/diagLogs.js';
 import { filterExistingPaths, getKnownPathsForRepo } from './utils/githubRepoPathMapping.js';
 import { clearPluginCache, loadAllPluginsCacheOnly } from './utils/plugins/pluginLoader.js';
 import { migrateChangelogFromConfig } from './utils/releaseNotes.js';
 import { SandboxManager } from './utils/sandbox/sandbox-adapter.js';
-import { markRemoteControlUsed } from './utils/remoteControlUpsell.js';
-import { SessionStateManager } from './utils/sessionState.js';
 import { fetchSession, prepareApiRequest } from './utils/teleport/api.js';
 import { checkOutTeleportedSessionBranch, processMessagesForTeleportResume, teleportToRemoteWithErrorHandling, validateGitState, validateSessionRepository } from './utils/teleport.js';
 import { shouldEnableThinkingByDefault, type ThinkingConfig } from './utils/thinking.js';
@@ -318,21 +308,11 @@ if ("external" !== 'ant' && isBeingDebugged()) {
 function logSessionTelemetry(): void {
   const model = parseUserSpecifiedModel(getInitialMainLoopModel() ?? getDefaultMainLoopModel());
   void logSkillsLoaded(getCwd(), getContextWindowForModel(model, getSdkBetas()));
-  void loadAllPluginsCacheOnly().then(async ({
+  void loadAllPluginsCacheOnly().then(({
     enabled,
     errors
   }) => {
     const managedNames = getManagedPluginNames();
-    await Promise.all(enabled.map(async plugin => {
-      if (!plugin.mcpServers) {
-        const servers = await loadPluginMcpServers(plugin, []);
-        if (servers) plugin.mcpServers = servers;
-      }
-      if (!plugin.lspServers) {
-        const servers = await loadPluginLspServers(plugin, []);
-        if (servers) plugin.lspServers = servers;
-      }
-    }));
     logPluginsEnabledForSession(enabled, managedNames, getPluginSeedDirs());
     logPluginLoadErrors(errors, managedNames);
   }).catch(err => logError(err));
@@ -358,11 +338,9 @@ function getCertEnvVarTelemetry(): Record<string, boolean> {
   }
   return result;
 }
-async function logStartupTelemetry(globalConfig: ReturnType<typeof getGlobalConfig>): Promise<void> {
+async function logStartupTelemetry(): Promise<void> {
   if (isAnalyticsDisabled()) return;
   const [isGit, worktreeCount, ghAuthStatus] = await Promise.all([getIsGit(), getWorktreeCount(), getGhAuthStatus()]);
-  const setEnvVars = collectSetEnvVars();
-  const nonDefaultSettings = collectNonDefaultSettings(globalConfig);
   logEvent('tengu_startup_telemetry', {
     is_git: isGit,
     worktree_count: worktreeCount,
@@ -372,11 +350,6 @@ async function logStartupTelemetry(globalConfig: ReturnType<typeof getGlobalConf
     is_auto_bash_allowed_if_sandbox_enabled: SandboxManager.isAutoAllowBashIfSandboxedEnabled(),
     auto_updater_disabled: isAutoUpdaterDisabled(),
     prefers_reduced_motion: getInitialSettings().prefersReducedMotion ?? false,
-    theme: globalConfig.theme,
-    set_env_var_count: setEnvVars.length,
-    set_env_vars: setEnvVars.join(','),
-    nondefault_setting_count: nonDefaultSettings.length,
-    nondefault_settings: nonDefaultSettings.join(','),
     ...getCertEnvVarTelemetry()
   });
 }
@@ -468,9 +441,6 @@ export function startDeferredPrefetches(): void {
   prefetchSystemContextIfSafe();
   void getRelevantTips();
   if (isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK) && !isEnvTruthy(process.env.CLAUDE_CODE_SKIP_BEDROCK_AUTH)) {
-    void prefetchAwsCredentialsAndBedRockInfoIfSafe();
-  }
-  if (isEnvTruthy(process.env.CLAUDE_CODE_USE_ANTHROPIC_AWS) && !isEnvTruthy(process.env.CLAUDE_CODE_SKIP_ANTHROPIC_AWS_AUTH)) {
     void prefetchAwsCredentialsAndBedRockInfoIfSafe();
   }
   if (isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX) && !isEnvTruthy(process.env.CLAUDE_CODE_SKIP_VERTEX_AUTH)) {
@@ -638,29 +608,6 @@ function initializeEntrypoint(isNonInteractive: boolean): void {
 
   // Set based on interactive status
   process.env.CLAUDE_CODE_ENTRYPOINT = isNonInteractive ? 'sdk-cli' : 'cli';
-}
-
-function parseSessionStartType(
-  args: string[],
-): 'fresh' | 'resume' | 'continue' {
-  const delimiterIndex = args.indexOf('--')
-  const cliArgs =
-    delimiterIndex === -1 ? args : args.slice(0, delimiterIndex)
-
-  if (
-    cliArgs.includes('-r') ||
-    cliArgs.includes('--resume') ||
-    cliArgs.includes('--from-pr') ||
-    cliArgs.some(
-      arg => arg.startsWith('--resume=') || arg.startsWith('--from-pr='),
-    )
-  ) {
-    return 'resume'
-  }
-  if (cliArgs.includes('-c') || cliArgs.includes('--continue')) {
-    return 'continue'
-  }
-  return 'fresh'
 }
 
 // Set by early argv processing when `claude open <url>` is detected (interactive mode only)
@@ -1140,7 +1087,6 @@ async function run(): Promise<CommanderCommand> {
     }
     profileCheckpoint('preAction_after_settings_sync');
   });
-  program.addOption(new Option('--session-mirror', 'Emit transcript_mirror frames on stdout (SDK-internal; set by ProcessTransport when sessionStore is configured)').hideHelp());
   program.name('claude').description(`Claude Code - starts an interactive session by default, use -p/--print for non-interactive output`).argument('[prompt]', 'Your prompt', String)
   // Subcommands inherit helpOption via commander's copyInheritedSettings —
   // setting it once here covers mcp, plugin, auth, and all other subcommands.
@@ -1164,8 +1110,7 @@ async function run(): Promise<CommanderCommand> {
   }).hideHelp()).option('--replay-user-messages', 'Re-emit user messages from stdin back on stdout for acknowledgment (only works with --input-format=stream-json and --output-format=stream-json)', () => true).addOption(new Option('--enable-auth-status', 'Enable auth status messages in SDK mode').default(false).hideHelp()).option('--allowedTools, --allowed-tools <tools...>', 'Comma or space-separated list of tool names to allow (e.g. "Bash(git:*) Edit")').option('--tools <tools...>', 'Specify the list of available tools from the built-in set. Use "" to disable all tools, "default" to use all tools, or specify tool names (e.g. "Bash,Edit,Read").').option('--disallowedTools, --disallowed-tools <tools...>', 'Comma or space-separated list of tool names to deny (e.g. "Bash(git:*) Edit")').option('--mcp-config <configs...>', 'Load MCP servers from JSON files or strings (space-separated)').addOption(new Option('--permission-prompt-tool <tool>', 'MCP tool to use for permission prompts (only works with --print)').argParser(String).hideHelp()).addOption(new Option('--system-prompt <prompt>', 'System prompt to use for the session').argParser(String)).addOption(new Option('--system-prompt-file <file>', 'Read system prompt from a file').argParser(String).hideHelp()).addOption(new Option('--append-system-prompt <prompt>', 'Append a system prompt to the default system prompt').argParser(String)).addOption(new Option('--append-system-prompt-file <file>', 'Read system prompt from a file and append to the default system prompt').argParser(String).hideHelp()).addOption(new Option('--plan-mode-instructions <instructions>', 'Custom workflow body for plan mode. Replaces the default code-implementation phases in the plan-mode system reminder; the read-only enforcement preamble and ExitPlanMode protocol footer are always kept.').argParser(String).hideHelp()).addOption(new Option('--exclude-dynamic-system-prompt-sections', 'Move per-machine sections (cwd, env info, memory paths, git status) from the system prompt into the first user message. Improves cross-user prompt-cache reuse. Only applies with the default system prompt (ignored with --system-prompt).').default(false)).addOption(new Option('--permission-mode <mode>', 'Permission mode to use for the session').argParser(String).choices(PERMISSION_MODES)).option('-c, --continue', 'Continue the most recent conversation in the current directory', () => true).option('-r, --resume [value]', 'Resume a conversation by session ID, or open interactive picker with optional search term', value => value || true).option('--fork-session', 'When resuming, create a new session ID instead of reusing the original (use with --resume or --continue)', () => true).addOption(new Option('--prefill <text>', 'Pre-fill the prompt input with text without submitting it').hideHelp()).addOption(new Option('--prefill-b64 <b64>').argParser(value => Buffer.from(value, 'base64url').toString('utf8')).hideHelp()).addOption(new Option('--deep-link-origin', 'Signal that this session was launched from a deep link').hideHelp()).addOption(new Option('--deep-link-cwd-b64 <b64>').argParser(value => Buffer.from(value, 'base64url').toString('utf8')).hideHelp()).addOption(new Option('--deep-link-repo <slug>', 'Repo slug the deep link ?repo= parameter resolved to the current cwd').hideHelp()).addOption(new Option('--deep-link-last-fetch <ms>', 'FETCH_HEAD mtime in epoch ms, precomputed by the deep link trampoline').argParser(v => {
     const n = Number(v);
     return Number.isFinite(n) ? n : undefined;
-  }).hideHelp()).addOption(new Option('--prefill-b64 <b64>', 'Base64url-encoded --prefill value (deep-link shell-safe launch paths)').argParser(value => Buffer.from(value, 'base64url').toString('utf8')).hideHelp()).addOption(new Option('--deep-link-cwd-b64 <b64>', 'Base64url-encoded working directory (deep-link shell-safe launch paths)').argParser(value => Buffer.from(value, 'base64url').toString('utf8')).hideHelp()).option('--from-pr [value]', 'Resume a session linked to a PR by PR number/URL, or open interactive picker with optional search term', value => value || true).option('--no-session-persistence', 'Disable session persistence - sessions will not be saved to disk and cannot be resumed (only works with --print)').addOption(new Option('--resume-session-at <message id>', 'When resuming, only messages up to and including the assistant message with <message.id> (use with --resume in print mode)').argParser(String).hideHelp()).addOption(new Option('--rewind-files <user-message-id>', 'Restore files to state at the specified user message and exit (requires --resume)').hideHelp())
-  .option('--exclude-dynamic-system-prompt-sections', 'Move per-machine sections (cwd, env info, memory paths, git status) from the system prompt into the first user message. Improves cross-user prompt-cache reuse. Only applies with the default system prompt (ignored with --system-prompt).').default(false)
+  }).hideHelp()).option('--from-pr [value]', 'Resume a session linked to a PR by PR number/URL, or open interactive picker with optional search term', value => value || true).option('--no-session-persistence', 'Disable session persistence - sessions will not be saved to disk and cannot be resumed (only works with --print)').addOption(new Option('--resume-session-at <message id>', 'When resuming, only messages up to and including the assistant message with <message.id> (use with --resume in print mode)').argParser(String).hideHelp()).addOption(new Option('--rewind-files <user-message-id>', 'Restore files to state at the specified user message and exit (requires --resume)').hideHelp())
   // @[MODEL LAUNCH]: Update the example model ID in the --model help text.
   .option('--model <model>', `Model for the current session. Provide an alias for the latest model (e.g. 'sonnet' or 'opus') or a model's full name (e.g. 'claude-sonnet-4-6').`).addOption(new Option('--effort <level>', `Effort level for the current session (low, medium, high, xhigh, max)`).argParser((rawValue: string) => {
     const value = rawValue.toLowerCase();
@@ -2476,7 +2421,6 @@ async function run(): Promise<CommanderCommand> {
     let stats!: StatsStore;
 
     // Show setup screens after commands are loaded
-    let onboardingShown = false;
     if (!isNonInteractiveSession) {
       const ctx = getRenderContext(false);
       getFpsMetrics = ctx.getFpsMetrics;
@@ -2500,28 +2444,19 @@ async function run(): Promise<CommanderCommand> {
       });
       logForDebugging('[STARTUP] Running showSetupScreens()...');
       const setupScreensStart = Date.now();
-      onboardingShown = await showSetupScreens(root, permissionMode, allowDangerouslySkipPermissions, commands, enableClaudeInChrome, devChannels);
+      const onboardingShown = await showSetupScreens(root, permissionMode, allowDangerouslySkipPermissions, commands, enableClaudeInChrome, devChannels);
       logForDebugging(`[STARTUP] showSetupScreens() completed in ${Date.now() - setupScreensStart}ms`);
 
       // Now that trust is established and GrowthBook has auth headers,
       // resolve the --remote-control / --rc entitlement gate.
       if (feature('BRIDGE_MODE') && remoteControlOption !== undefined) {
-        let disabledReason: string | null;
-        if (remote !== null) {
-          disabledReason = 'Remote Control is not available inside --remote sessions.';
-        } else if (teleport) {
-          disabledReason = '--teleport sessions start without Remote Control. Use /remote-control to enable it.';
-        } else {
-          const {
-            getBridgeDisabledReason
-          } = await import('./bridge/bridgeEnabled.js');
-          disabledReason = await getBridgeDisabledReason();
-        }
+        const {
+          getBridgeDisabledReason
+        } = await import('./bridge/bridgeEnabled.js');
+        const disabledReason = await getBridgeDisabledReason();
         remoteControl = disabledReason === null;
         if (disabledReason) {
           process.stderr.write(chalk.yellow(`${disabledReason}\n--rc flag ignored.\n`));
-        } else {
-          markRemoteControlUsed();
         }
       }
 
@@ -2939,8 +2874,7 @@ async function run(): Promise<CommanderCommand> {
       };
 
       // Init app state
-      const sessionState = new SessionStateManager();
-      const headlessStore = createStore(headlessInitialState, event => onChangeAppState(event, sessionState));
+      const headlessStore = createStore(headlessInitialState, onChangeAppState);
 
       // Check if bypassPermissions should be disabled based on Statsig gate
       // This runs in parallel to the code below, to avoid blocking the main loop.
@@ -2995,7 +2929,6 @@ async function run(): Promise<CommanderCommand> {
       await headlessMcp.connect();
       recordRemoteStartupPhase('mcp_connect_ms', performance.now() - mcpConnectStartedAt);
       profileCheckpoint('after_connectMcp_claudeai');
-      }
 
       // In headless mode, start deferred prefetches immediately (no user typing delay)
       // --bare / SIMPLE: startDeferredPrefetches early-returns internally.
@@ -3048,8 +2981,7 @@ async function run(): Promise<CommanderCommand> {
         agent: agentCli,
         workload: options.workload,
         setupTrigger: setupTrigger ?? undefined,
-        sessionStartHooksPromise,
-        sessionState
+        sessionStartHooksPromise
       });
       return;
     }
@@ -3139,7 +3071,6 @@ async function run(): Promise<CommanderCommand> {
       toolPermissionContext: effectiveToolPermissionContext,
       agent: mainThreadAgentDefinition?.agentType,
       agentDefinitions,
-      skillTruncationStats: null,
       mcp: {
         clients: [],
         tools: [],
@@ -3227,12 +3158,6 @@ async function run(): Promise<CommanderCommand> {
       effortValue: getInitialEffortSetting(options.effort),
       activeOverlays: new Set<string>(),
       fastMode: getInitialFastModeSetting(resolvedInitialModel),
-      storedImagePaths: new Map<number, string>(),
-      imageDescriptions: new Map<number, string>(),
-      classifierApprovals: {
-        approvals: new Map(),
-        checking: new Set(),
-      },
       ...(isAdvisorEnabled() && advisorModel && {
         advisorModel
       }),
@@ -3258,7 +3183,7 @@ async function run(): Promise<CommanderCommand> {
       numStartups: (current.numStartups ?? 0) + 1
     }));
     setImmediate(() => {
-      void logStartupTelemetry(getGlobalConfig());
+      void logStartupTelemetry();
       logSessionTelemetry();
     });
 
@@ -3305,8 +3230,7 @@ async function run(): Promise<CommanderCommand> {
       agentDefinitions,
       currentCwd,
       cliAgents,
-      initialState,
-      permissionModeCliSet: permissionModeCli !== undefined || Boolean(dangerouslySkipPermissions)
+      initialState
     };
     if (options.continue) {
       // Continue the most recent conversation directly
@@ -4126,7 +4050,7 @@ async function run(): Promise<CommanderCommand> {
 
   // Enable teleport/remote flags for all builds but keep them undocumented until GA
   program.addOption(new Option('--teleport [session]', 'Resume a teleport session, optionally specify session ID').hideHelp());
-  program.addOption(new Option('--remote [description|session_id|url]', 'Create a remote session with the given description, or attach to an existing one by session ID or claude.ai/code URL').hideHelp());
+  program.addOption(new Option('--remote [description]', 'Create a remote session with the given description').hideHelp());
   if (feature('BRIDGE_MODE')) {
     program.addOption(new Option('--remote-control [name]', 'Start an interactive session with Remote Control enabled (optionally named)').argParser(value => value || true).hideHelp());
     program.addOption(new Option('--rc [name]', 'Alias for --remote-control').argParser(value => value || true).hideHelp());
@@ -4388,19 +4312,16 @@ async function run(): Promise<CommanderCommand> {
     json?: boolean;
     text?: boolean;
   }) => {
-    const [{ authStatus }, { createSubcommandRoot }] = await Promise.all([
-      import('./cli/handlers/auth.js'),
-      import('./cli/handlers/util.js')
-    ]);
-    await authStatus(await createSubcommandRoot(), opts);
+    const {
+      authStatus
+    } = await import('./cli/handlers/auth.js');
+    await authStatus(opts);
   });
   auth.command('logout').description('Log out from your Anthropic account').action(async () => {
-    const [{ authLogout }, { createSubcommandRoot }] = await Promise.all([
-      import('./cli/handlers/auth.js'),
-      import('./cli/handlers/util.js')
-    ]);
-    await authLogout(await createSubcommandRoot());
-    process.exit(0);
+    const {
+      authLogout
+    } = await import('./cli/handlers/auth.js');
+    await authLogout();
   });
 
   /**
@@ -4417,12 +4338,10 @@ async function run(): Promise<CommanderCommand> {
   pluginCmd.command('validate <path>').description('Validate a plugin or marketplace manifest').addOption(coworkOption()).action(async (manifestPath: string, options: {
     cowork?: boolean;
   }) => {
-    const [{ pluginValidateHandler }, { createSubcommandRoot }] =
-      await Promise.all([
-        import('./cli/handlers/plugins.js'),
-        import('./cli/handlers/util.js'),
-      ]);
-    await pluginValidateHandler(await createSubcommandRoot(), manifestPath, options);
+    const {
+      pluginValidateHandler
+    } = await import('./cli/handlers/plugins.js');
+    await pluginValidateHandler(manifestPath, options);
   });
 
   pluginCmd.command('tag [path]').description('Create a {name}--v{version} git tag for a plugin release, validating that plugin.json and any enclosing marketplace entry agree').option('--push', 'Push the tag to --remote after creating it').option('--dry-run', 'Print what would be tagged without creating it').option('-f, --force', 'Skip the dirty-working-tree and tag-already-exists checks').option('-m, --message <msg>', 'Tag annotation message (use %s for the version)').option('--remote <name>', 'Remote to push to with --push', 'origin').action(async (pluginPath: string | undefined, options: {
@@ -4446,12 +4365,10 @@ async function run(): Promise<CommanderCommand> {
     available?: boolean;
     cowork?: boolean;
   }) => {
-    const [{ pluginListHandler }, { createSubcommandRoot }] = await Promise.all([
-      import('./cli/handlers/plugins.js'),
-      import('./cli/handlers/util.js'),
-    ]);
-    await pluginListHandler(await createSubcommandRoot(), options);
-    process.exit(0);
+    const {
+      pluginListHandler
+    } = await import('./cli/handlers/plugins.js');
+    await pluginListHandler(options);
   });
 
   // Marketplace subcommands
@@ -4461,45 +4378,35 @@ async function run(): Promise<CommanderCommand> {
     sparse?: string[];
     scope?: string;
   }) => {
-    const [{ marketplaceAddHandler }, { createSubcommandRoot }] =
-      await Promise.all([
-        import('./cli/handlers/plugins.js'),
-        import('./cli/handlers/util.js'),
-      ]);
-    await marketplaceAddHandler(await createSubcommandRoot(), source, options);
+    const {
+      marketplaceAddHandler
+    } = await import('./cli/handlers/plugins.js');
+    await marketplaceAddHandler(source, options);
   });
   marketplaceCmd.command('list').description('List all configured marketplaces').option('--json', 'Output as JSON').addOption(coworkOption()).action(async (options: {
     json?: boolean;
     cowork?: boolean;
   }) => {
-    const [{ marketplaceListHandler }, { createSubcommandRoot }] =
-      await Promise.all([
-        import('./cli/handlers/plugins.js'),
-        import('./cli/handlers/util.js'),
-      ]);
-    await marketplaceListHandler(await createSubcommandRoot(), options);
-    process.exit(0);
+    const {
+      marketplaceListHandler
+    } = await import('./cli/handlers/plugins.js');
+    await marketplaceListHandler(options);
   });
   marketplaceCmd.command('remove <name>').alias('rm').description('Remove a configured marketplace').addOption(coworkOption()).action(async (name: string, options: {
     cowork?: boolean;
   }) => {
-    const [{ marketplaceRemoveHandler }, { createSubcommandRoot }] =
-      await Promise.all([
-        import('./cli/handlers/plugins.js'),
-        import('./cli/handlers/util.js'),
-      ]);
-    await marketplaceRemoveHandler(await createSubcommandRoot(), name, options);
-    process.exit(0);
+    const {
+      marketplaceRemoveHandler
+    } = await import('./cli/handlers/plugins.js');
+    await marketplaceRemoveHandler(name, options);
   });
   marketplaceCmd.command('update [name]').description('Update marketplace(s) from their source - updates all if no name specified').addOption(coworkOption()).action(async (name: string | undefined, options: {
     cowork?: boolean;
   }) => {
-    const [{ marketplaceUpdateHandler }, { createSubcommandRoot }] =
-      await Promise.all([
-        import('./cli/handlers/plugins.js'),
-        import('./cli/handlers/util.js'),
-      ]);
-    await marketplaceUpdateHandler(await createSubcommandRoot(), name, options);
+    const {
+      marketplaceUpdateHandler
+    } = await import('./cli/handlers/plugins.js');
+    await marketplaceUpdateHandler(name, options);
   });
 
   // Plugin install command
@@ -4507,12 +4414,10 @@ async function run(): Promise<CommanderCommand> {
     scope?: string;
     cowork?: boolean;
   }) => {
-    const [{ pluginInstallHandler }, { createSubcommandRoot }] =
-      await Promise.all([
-        import('./cli/handlers/plugins.js'),
-        import('./cli/handlers/util.js'),
-      ]);
-    await pluginInstallHandler(await createSubcommandRoot(), plugin, options);
+    const {
+      pluginInstallHandler
+    } = await import('./cli/handlers/plugins.js');
+    await pluginInstallHandler(plugin, options);
   });
 
   // Plugin uninstall command
@@ -4523,12 +4428,10 @@ async function run(): Promise<CommanderCommand> {
     prune?: boolean;
     yes?: boolean;
   }) => {
-    const [{ pluginUninstallHandler }, { createSubcommandRoot }] =
-      await Promise.all([
-        import('./cli/handlers/plugins.js'),
-        import('./cli/handlers/util.js'),
-      ]);
-    await pluginUninstallHandler(await createSubcommandRoot(), plugin, options);
+    const {
+      pluginUninstallHandler
+    } = await import('./cli/handlers/plugins.js');
+    await pluginUninstallHandler(plugin, options);
   });
 
   pluginCmd.command('prune').alias('autoremove').description('Remove auto-installed dependencies that are no longer needed').option('-s, --scope <scope>', 'Prune at scope: user, project, or local', 'user').option('--dry-run', 'List what would be removed without removing').option('-y, --yes', 'Skip the confirmation prompt (required when stdin is not a TTY)').addOption(coworkOption()).action(async (options: {
@@ -4548,13 +4451,10 @@ async function run(): Promise<CommanderCommand> {
     scope?: string;
     cowork?: boolean;
   }) => {
-    const [{ pluginEnableHandler }, { createSubcommandRoot }] =
-      await Promise.all([
-        import('./cli/handlers/plugins.js'),
-        import('./cli/handlers/util.js'),
-      ]);
-    await pluginEnableHandler(await createSubcommandRoot(), plugin, options);
-    process.exit(0);
+    const {
+      pluginEnableHandler
+    } = await import('./cli/handlers/plugins.js');
+    await pluginEnableHandler(plugin, options);
   });
 
   // Plugin disable command
@@ -4563,12 +4463,10 @@ async function run(): Promise<CommanderCommand> {
     cowork?: boolean;
     all?: boolean;
   }) => {
-    const [{ pluginDisableHandler }, { createSubcommandRoot }] =
-      await Promise.all([
-        import('./cli/handlers/plugins.js'),
-        import('./cli/handlers/util.js'),
-      ]);
-    await pluginDisableHandler(await createSubcommandRoot(), plugin, options);
+    const {
+      pluginDisableHandler
+    } = await import('./cli/handlers/plugins.js');
+    await pluginDisableHandler(plugin, options);
   });
 
   // Plugin update command
@@ -4576,7 +4474,9 @@ async function run(): Promise<CommanderCommand> {
     scope?: string;
     cowork?: boolean;
   }) => {
-    const { pluginUpdateHandler } = await import('./cli/handlers/plugins.js');
+    const {
+      pluginUpdateHandler
+    } = await import('./cli/handlers/plugins.js');
     await pluginUpdateHandler(plugin, options);
   });
   // END ANT-ONLY
@@ -4616,30 +4516,24 @@ async function run(): Promise<CommanderCommand> {
     if (getAutoModeEnabledStateIfCached() !== 'disabled') {
       const autoModeCmd = program.command('auto-mode').description('Inspect auto mode classifier configuration');
       autoModeCmd.command('defaults').description('Print the default auto mode environment, allow, and deny rules as JSON').action(async () => {
-        const [{
+        const {
           autoModeDefaultsHandler
-        }, {
-          createSubcommandRoot
-        }] = await Promise.all([import('./cli/handlers/autoMode.js'), import('./cli/handlers/util.js')]);
-        await autoModeDefaultsHandler(await createSubcommandRoot());
+        } = await import('./cli/handlers/autoMode.js');
+        autoModeDefaultsHandler();
         process.exit(0);
       });
       autoModeCmd.command('config').description('Print the effective auto mode config as JSON: your settings where set, defaults otherwise').action(async () => {
-        const [{
+        const {
           autoModeConfigHandler
-        }, {
-          createSubcommandRoot
-        }] = await Promise.all([import('./cli/handlers/autoMode.js'), import('./cli/handlers/util.js')]);
-        await autoModeConfigHandler(await createSubcommandRoot());
+        } = await import('./cli/handlers/autoMode.js');
+        autoModeConfigHandler();
         process.exit(0);
       });
       autoModeCmd.command('critique').description('Get AI feedback on your custom auto mode rules').option('--model <model>', 'Override which model is used').action(async options => {
-        const [{
+        const {
           autoModeCritiqueHandler
-        }, {
-          createSubcommandRoot
-        }] = await Promise.all([import('./cli/handlers/autoMode.js'), import('./cli/handlers/util.js')]);
-        await autoModeCritiqueHandler(await createSubcommandRoot(), options);
+        } = await import('./cli/handlers/autoMode.js');
+        await autoModeCritiqueHandler(options);
         process.exit();
       });
     }
@@ -4895,7 +4789,6 @@ async function logTenguInit({
   try {
     const noFlickerEnvVar = getNoFlickerEnvVar();
     logEvent('tengu_init', {
-      ...getCooMetadataForAnalytics(),
       entrypoint: 'claude' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       hasInitialPrompt,
       hasStdin,
@@ -4917,9 +4810,6 @@ async function logTenguInit({
       permissionMode: permissionMode as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       modeIsBypass,
       inProtectedNamespace: isInProtectedNamespace(),
-      apiKeySource: getAnthropicApiKeyWithSource({
-        skipRetrievingKeyFromApiKeyHelper: true,
-      }).source,
       allowDangerouslySkipPermissionsPassed,
       thinkingType: thinkingConfig.type as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       ...(systemPromptFlag && {

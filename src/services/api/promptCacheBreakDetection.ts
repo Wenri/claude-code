@@ -235,55 +235,6 @@ const MIN_CACHE_MISS_TOKENS = 2_000
 // rather than client-side changes.
 const CACHE_TTL_5MIN_MS = 5 * 60 * 1000
 export const CACHE_TTL_1HOUR_MS = 60 * 60 * 1000
-const BILLING_HEADER_PREFIX = 'x-anthropic-billing-header:'
-
-function shouldPersistState(): boolean {
-  return isEnvTruthy(process.env.CLAUDE_CODE_IS_COWORK)
-}
-
-function getPersistedStatePath(): string {
-  return join(getClaudeTempDir(), `cache-break-state-${getSessionId()}.json`)
-}
-
-function loadPersistedState(): void {
-  if (persistedStateLoaded || !shouldPersistState()) return
-  persistedStateLoaded = true
-  try {
-    const parsed = persistedStateSchema.safeParse(
-      JSON.parse(readFileSync(getPersistedStatePath(), 'utf8')),
-    )
-    if (!parsed.success) return
-    for (const [key, state] of Object.entries(parsed.data)) {
-      if (previousStateBySource.has(key)) continue
-      previousStateBySource.set(key, {
-        ...state,
-        pendingChanges: null,
-        buildDiffableContent: () => '',
-      })
-    }
-  } catch {}
-}
-
-function persistState(): void {
-  if (!shouldPersistState()) return
-  try {
-    const serialized: Record<string, unknown> = {}
-    for (const [key, state] of previousStateBySource) {
-      const {
-        buildDiffableContent: _,
-        pendingChanges: __,
-        ...persisted
-      } = state
-      serialized[key] = persisted
-    }
-    const statePath = getPersistedStatePath()
-    const contents = jsonStringify(serialized)
-    persistQueue = persistQueue
-      .then(() => mkdir(getClaudeTempDir(), { recursive: true }))
-      .then(() => writeFile(statePath, contents))
-      .catch(() => {})
-  } catch {}
-}
 
 // Models to exclude from cache break detection (e.g., haiku has different caching behavior)
 function isExcludedModel(model: string): boolean {
@@ -777,16 +728,16 @@ export async function checkResponseForCacheBreak(
   requestId?: string | null,
   previousMessageId?: string,
 ): Promise<void> {
-  const key = getTrackingKey(querySource, agentId)
-  if (!key) return
-
-  const state = previousStateBySource.get(key)
-  if (!state) return
-
-  // Skip excluded models (e.g., haiku has different caching behavior)
-  if (isExcludedModel(state.model)) return
-
   try {
+    const key = getTrackingKey(querySource, agentId)
+    if (!key) return
+
+    const state = previousStateBySource.get(key)
+    if (!state) return
+
+    // Skip excluded models (e.g., haiku has different caching behavior)
+    if (isExcludedModel(state.model)) return
+
     const prevCacheRead = state.prevCacheReadTokens
     state.prevCacheReadTokens = cacheReadTokens
 

@@ -1,5 +1,6 @@
 import { feature } from 'bun:bundle'
 import type {
+  Base64ImageSource,
   ContentBlockParam,
   MessageParam,
 } from '@anthropic-ai/sdk/resources/index.mjs'
@@ -21,7 +22,6 @@ import {
 import {
   CallToolResultSchema,
   ElicitRequestSchema,
-  ElicitRequestURLParamsSchema,
   type ElicitRequestURLParams,
   type ElicitResult,
   ErrorCode,
@@ -54,10 +54,7 @@ import {
 } from '../../Tool.js'
 import { ListMcpResourcesTool } from '../../tools/ListMcpResourcesTool/ListMcpResourcesTool.js'
 import { type MCPProgress, MCPTool } from '../../tools/MCPTool/MCPTool.js'
-import {
-  createMcpAuthTool,
-  createMcpCompleteAuthenticationTool,
-} from '../../tools/McpAuthTool/McpAuthTool.js'
+import { createMcpAuthTool } from '../../tools/McpAuthTool/McpAuthTool.js'
 import { ReadMcpResourceTool } from '../../tools/ReadMcpResourceTool/ReadMcpResourceTool.js'
 import { createAbortController } from '../../utils/abortController.js'
 import { count } from '../../utils/array.js'
@@ -89,7 +86,6 @@ import {
   getLargeOutputInstructions,
   isMcpSubagentPromptEnabled,
   persistBinaryContent,
-  shouldUseMcpSubagentPrompt,
 } from '../../utils/mcpOutputStorage.js'
 import {
   getContentSizeEstimate,
@@ -146,7 +142,6 @@ import { clearKeychainCache } from '../../utils/secureStorage/macOsKeychainHelpe
 import { sleep } from '../../utils/sleep.js'
 import {
   ClaudeAuthProvider,
-  clearMcpOAuthEntryIfNoTokens,
   hasMcpDiscoveryButNoToken,
   wrapFetchWithStepUpDetection,
 } from './auth.js'
@@ -187,38 +182,6 @@ export class McpSessionExpiredError extends Error {
     super(`MCP server "${serverName}" session expired`)
     this.name = 'McpSessionExpiredError'
   }
-}
-
-/** Update an already-connected MCP client after an authentication failure. */
-export function markMcpServerNeedsAuth(
-  serverName: string,
-  setAppState: (f: (prev: AppState) => AppState) => void,
-): void {
-  setAppState(prevState => {
-    const existingClientIndex = prevState.mcp.clients.findIndex(
-      client => client.name === serverName,
-    )
-    if (existingClientIndex === -1) return prevState
-
-    const existingClient = prevState.mcp.clients[existingClientIndex]
-    if (!existingClient || existingClient.type !== 'connected') {
-      return prevState
-    }
-
-    const updatedClients = [...prevState.mcp.clients]
-    updatedClients[existingClientIndex] = {
-      name: serverName,
-      type: 'needs-auth' as const,
-      config: existingClient.config,
-    }
-    return {
-      ...prevState,
-      mcp: {
-        ...prevState.mcp,
-        clients: updatedClients,
-      },
-    }
-  })
 }
 
 /**
@@ -404,29 +367,6 @@ function mcpBaseUrlAnalytics(serverRef: ScopedMcpServerConfig): {
           url as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
       }
     : {}
-}
-
-function logMcpServerConnection(
-  name: string,
-  serverRef: ScopedMcpServerConfig,
-  values: {
-    status: 'connected' | 'failed' | 'disconnected'
-    durationMs: number
-    errorCode?: string
-    error?: string
-  },
-): void {
-  void logOTelEvent('mcp_server_connection', {
-    status: values.status,
-    transport_type: serverRef.type ?? 'stdio',
-    server_scope: serverRef.scope,
-    duration_ms: String(Math.round(values.durationMs)),
-    ...(values.errorCode && { error_code: values.errorCode }),
-    ...(isToolDetailsLoggingEnabled() && {
-      server_name: name,
-      ...(values.error && { error: values.error }),
-    }),
-  })
 }
 
 /**
@@ -1557,10 +1497,6 @@ export const connectToServer = memoize(
           name,
           `${transportType.toUpperCase()} connection closed after ${Math.floor(uptime / 1000)}s (${hasErrorOccurred ? 'with errors' : 'cleanly'})`,
         )
-        logMcpServerConnection(name, serverRef, {
-          status: 'disconnected',
-          durationMs: uptime,
-        })
 
         // Clear the memoization cache so next operation reconnects
         const key = getServerCacheKey(name, serverRef)
@@ -1762,10 +1698,6 @@ export const connectToServer = memoize(
       }
 
       const connectionDurationMs = Date.now() - connectStartTime
-      logMcpServerConnection(name, serverRef, {
-        status: 'connected',
-        durationMs: connectionDurationMs,
-      })
       logEvent('tengu_mcp_server_connection_succeeded', {
         connectionDurationMs,
         transportType: (serverRef.type ??
@@ -2479,20 +2411,7 @@ export async function reconnectMcpServerImpl(
     clearKeychainCache()
 
     await clearServerCache(name, config)
-    let client = await connectToServer(name, config)
-
-    // A reconnect can discover that credentials were removed only after the
-    // first connection attempt. Drop that freshly memoized needs-auth result
-    // and retry once so a concurrent credential refresh can take effect.
-    if (client.type === 'needs-auth') {
-      logMCPDebug(
-        name,
-        `Reconnect returned 'needs-auth'; retrying once after cache clear`,
-      )
-      const key = getServerCacheKey(name, config)
-      connectToServer.cache.delete(key)
-      client = await connectToServer(name, config)
-    }
+    const client = await connectToServer(name, config)
 
     if (client.type !== 'connected') {
       return {
@@ -2660,10 +2579,7 @@ export async function getMcpToolsCommandsAndResources(
         logMCPDebug(name, `Skipping connection (cached needs-auth)`)
         onConnectionAttempt({
           client: { name, type: 'needs-auth' as const, config },
-          tools: [
-            createMcpAuthTool(name, config),
-            createMcpCompleteAuthenticationTool(name),
-          ],
+          tools: [createMcpAuthTool(name, config)],
           commands: [],
         })
         return
@@ -2676,10 +2592,7 @@ export async function getMcpToolsCommandsAndResources(
           client,
           tools:
             client.type === 'needs-auth'
-              ? [
-                  createMcpAuthTool(name, config),
-                  createMcpCompleteAuthenticationTool(name),
-                ]
+              ? [createMcpAuthTool(name, config)]
               : [],
           commands: [],
         })
@@ -2907,7 +2820,15 @@ export async function transformResultContent(
               text: prefix,
             })
           }
-          content.push(resized.block)
+          content.push({
+            type: 'image',
+            source: {
+              data: resized.buffer.toString('base64'),
+              media_type:
+                `image/${resized.mediaType}` as Base64ImageSource['media_type'],
+              type: 'base64',
+            },
+          })
           return content
         } else {
           return await persistBlobToTextBlock(
@@ -3087,10 +3008,6 @@ export async function processMCPResult(
     return content
   }
 
-  if (hasResultSizeAnnotation && !contentContainsImages(content)) {
-    return content
-  }
-
   // Check if content needs truncation (i.e., is too large)
   if (!(await mcpContentNeedsTruncation(content))) {
     return content
@@ -3222,8 +3139,6 @@ export async function callMCPToolWithUrlElicitationRetry({
   imageLimits,
   callToolFn = callMCPTool,
   handleElicitation,
-  hasResultSizeAnnotation = false,
-  imageLimits = getCurrentImageLimits(),
 }: {
   client: ConnectedMCPServer
   clientConnection: MCPServerConnection
@@ -3251,8 +3166,6 @@ export async function callMCPToolWithUrlElicitationRetry({
     params: ElicitRequestURLParams,
     signal: AbortSignal,
   ) => Promise<ElicitResult>
-  hasResultSizeAnnotation?: boolean
-  imageLimits?: ImageLimits
 }): Promise<MCPToolCallResult> {
   const MAX_URL_ELICITATION_RETRIES = 3
   for (let attempt = 0; ; attempt++) {
@@ -3281,7 +3194,28 @@ export async function callMCPToolWithUrlElicitationRetry({
         throw error
       }
 
-      const elicitations = extractUrlElicitations(error)
+      const errorData = error.data
+      const rawElicitations =
+        errorData != null &&
+        typeof errorData === 'object' &&
+        'elicitations' in errorData &&
+        Array.isArray(errorData.elicitations)
+          ? (errorData.elicitations as unknown[])
+          : []
+
+      // Validate each element has the required fields for ElicitRequestURLParams
+      const elicitations = rawElicitations.filter(
+        (e): e is ElicitRequestURLParams => {
+          if (e == null || typeof e !== 'object') return false
+          const obj = e as Record<string, unknown>
+          return (
+            obj.mode === 'url' &&
+            typeof obj.url === 'string' &&
+            typeof obj.elicitationId === 'string' &&
+            typeof obj.message === 'string'
+          )
+        },
+      )
 
       const serverName =
         clientConnection.type === 'connected'

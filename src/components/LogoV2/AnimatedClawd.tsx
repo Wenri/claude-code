@@ -58,18 +58,6 @@ const NAMED_SEQUENCES = {
 const FRAME_MS = 60;
 const incrementFrame = (i: number) => i + 1;
 const CLAWD_HEIGHT = 3;
-const CELEBRATE: readonly Frame[] = [...JUMP_WAVE, ...hold('default', 1, 3)];
-const ANIMATION_SEQUENCES = {
-  jump: JUMP_WAVE,
-  look: LOOK_AROUND,
-  celebrate: CELEBRATE
-} as const;
-
-export type AnimatedClawdProps = {
-  autoplay?: boolean;
-  sequence?: keyof typeof ANIMATION_SEQUENCES;
-  onComplete?: () => void;
-};
 
 /**
  * Clawd with click-triggered animations (crouch-jump with arms up, or
