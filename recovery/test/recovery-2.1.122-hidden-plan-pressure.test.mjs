@@ -141,7 +141,7 @@ test('source threads the target pressure state through all active consumers', ()
     query.includes(
       compact(`
         toolUseContext.options.mainLoopModel,
-        toolUseContext.getAppState().autoCompactWindow,
+        toolUseContext.getAutoCompactWindow(),
       )
       if (pressure.level === 'blocked')
       `),
