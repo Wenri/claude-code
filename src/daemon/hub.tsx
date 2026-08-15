@@ -90,8 +90,7 @@ async function readDaemonWorkerStatus(): Promise<DaemonWorkerStatus | null> {
     if (
       typeof parsed.supervisorPid !== 'number' ||
       !parsed.workers ||
-      typeof parsed.workers !== 'object' ||
-      Array.isArray(parsed.workers)
+      typeof parsed.workers !== 'object'
     ) {
       return null
     }

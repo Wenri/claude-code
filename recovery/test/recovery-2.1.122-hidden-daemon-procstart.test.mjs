@@ -85,6 +85,7 @@ test('source writes and validates supervisor process birth tokens', () => {
     reader,
     /processStartTokenMatches\( parsed\.supervisorPid, supervisorProcStart, \)/,
   )
+  assert.doesNotMatch(reader, /Array\.isArray\(parsed\.workers\)/)
 })
 
 test('source writes and validates scheduled worker process birth tokens', () => {
