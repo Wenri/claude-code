@@ -1,5 +1,7 @@
 import { feature } from 'bun:bundle'
 import { APIUserAbortError } from '@anthropic-ai/sdk'
+import { realpath } from 'fs/promises'
+import { isAbsolute, resolve } from 'path'
 import type { z } from 'zod/v4'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../../services/analytics/growthbook.js'
 import {
@@ -74,7 +76,11 @@ import {
   stripSafeHeredocSubstitutions,
 } from './bashSecurity.js'
 import { checkPermissionMode } from './modeValidation.js'
-import { checkPathConstraints } from './pathValidation.js'
+import {
+  checkDangerousRemovalPaths,
+  checkPathConstraints,
+  stripWrappersFromArgv as stripPathWrappersFromArgv,
+} from './pathValidation.js'
 import { checkSedConstraints } from './sedValidation.js'
 import { shouldUseSandbox } from './shouldUseSandbox.js'
 
@@ -108,6 +114,110 @@ export const MAX_SUBCOMMANDS_FOR_SECURITY_CHECK = 50
 // is more likely noise than intent. Users chaining this many write commands
 // in one && list are rare; they can always approve once and add rules manually.
 export const MAX_SUGGESTED_RULES_FOR_COMPOUND = 5
+
+async function canonicalDirectory(path: string): Promise<string | null> {
+  const canonical = await realpath(path).catch(() => null)
+  if (canonical === null) return null
+  return getPlatform() === 'windows' ? canonical.toLowerCase() : canonical
+}
+
+function extractStaticCdTarget(command: string): string | null {
+  const trimmed = command.trim()
+  if (!trimmed.startsWith('cd ')) return null
+  const argument = trimmed.slice(3).trim()
+  if (argument.length === 0) return null
+
+  const quote = argument[0]
+  if (quote === '"' || quote === "'") {
+    if (argument.length < 2 || argument.at(-1) !== quote) return null
+    const target = argument.slice(1, -1)
+    if (target.includes(quote)) return null
+    return target
+  }
+  if (/\s/.test(argument)) return null
+  return argument
+}
+
+function isExplicitPath(path: string): boolean {
+  return (
+    isAbsolute(path) ||
+    path.startsWith('./') ||
+    path.startsWith('../') ||
+    path === '.' ||
+    path === '..'
+  )
+}
+
+async function cdTargetResolvesToCurrentDirectory(
+  target: string,
+  cwd: string,
+  canonicalCwd: string,
+): Promise<boolean> {
+  if (target.startsWith('-') || !isExplicitPath(target)) return false
+  if (
+    target.includes('$') ||
+    /[*?[]/.test(target) ||
+    (getPlatform() === 'windows' && target.includes('%'))
+  ) {
+    return false
+  }
+  const targetPath = isAbsolute(target) ? target : resolve(cwd, target)
+  return (await canonicalDirectory(targetPath)) === canonicalCwd
+}
+
+async function stringCdCommandsAreNoOps(
+  commands: string[],
+  cwd: string,
+): Promise<boolean> {
+  const canonicalCwd = await canonicalDirectory(cwd)
+  if (canonicalCwd === null) return false
+  let foundCd = false
+  for (const command of commands) {
+    const trimmed = command.trim()
+    if (!isNormalizedCdCommand(trimmed)) continue
+    foundCd = true
+    const target = extractStaticCdTarget(trimmed)
+    if (
+      target === null ||
+      !(await cdTargetResolvesToCurrentDirectory(target, cwd, canonicalCwd))
+    ) {
+      return false
+    }
+  }
+  return foundCd
+}
+
+async function parsedCdCommandsAreNoOps(
+  parsedCommands: SimpleCommand[],
+  commands: string[],
+  cwd: string,
+): Promise<boolean> {
+  const canonicalCwd = await canonicalDirectory(cwd)
+  if (canonicalCwd === null) return false
+  let foundCd = false
+  for (let index = 0; index < commands.length; index += 1) {
+    if (!isNormalizedCdCommand(commands[index]!)) continue
+    foundCd = true
+    const parsed = parsedCommands[index]
+    if (
+      !parsed ||
+      parsed.envVars.length > 0 ||
+      parsed.redirects.length > 0 ||
+      parsed.argv.length !== 2 ||
+      parsed.argv[0] !== 'cd'
+    ) {
+      return false
+    }
+    const target = extractStaticCdTarget(commands[index]!)
+    if (
+      target === null ||
+      !(await cdTargetResolvesToCurrentDirectory(target, cwd, canonicalCwd))
+    ) {
+      return false
+    }
+  }
+  return foundCd
+}
 
 /**
  * [ANT-ONLY] Log classifier evaluation results for analysis.
@@ -427,6 +537,13 @@ const SAFE_ENV_VARS = new Set([
   'TIME_STYLE', // time display format for ls
   'BLOCK_SIZE', // block size for du/df
   'BLOCKSIZE', // alternative block size
+  'COLUMNS',
+  'LINES',
+  'CLICOLOR',
+  'CLICOLOR_FORCE',
+  'CI',
+  'DEBIAN_FRONTEND',
+  'GIT_TERMINAL_PROMPT',
 ])
 
 /**
@@ -1036,6 +1153,7 @@ export const bashToolCheckExactMatchPermission = (
   const decisionReason = {
     type: 'other' as const,
     reason: 'This command requires approval',
+    bashMissKind: 'no-rule-match',
   }
   return {
     behavior: 'passthrough',
@@ -1166,6 +1284,7 @@ export const bashToolCheckPermission = (
   const decisionReason = {
     type: 'other' as const,
     reason: 'This command requires approval',
+    bashMissKind: 'no-rule-match',
   }
   return {
     behavior: 'passthrough',
@@ -1356,6 +1475,59 @@ function checkSandboxAutoAllow(
       reason: 'Auto-allowed with sandbox (autoAllowBashIfSandboxed enabled)',
     },
   }
+}
+
+function checkSandboxAutoAllowWithParsedCommands(
+  input: z.infer<typeof BashTool.inputSchema>,
+  toolPermissionContext: ToolPermissionContext,
+  commands: SimpleCommand[],
+): PermissionResult | null {
+  if (
+    !SandboxManager.isSandboxingEnabled() ||
+    !SandboxManager.isAutoAllowBashIfSandboxedEnabled() ||
+    !shouldUseSandbox(input)
+  ) {
+    return null
+  }
+
+  const result = checkSandboxAutoAllow(input, toolPermissionContext)
+  if (result.behavior === 'passthrough') return null
+
+  const assignment = /^([A-Za-z_][A-Za-z0-9_]*)\+?=/
+  const hasUnsafeEnvironment = commands.some(
+    command =>
+      command.envVars.some(variable => !SAFE_ENV_VARS.has(variable.name)) ||
+      command.argv.some(argument => {
+        const match = argument.match(assignment)
+        return match !== null && !SAFE_ENV_VARS.has(match[1]!)
+      }),
+  )
+  const hasNetworkRedirect = commands.some(command =>
+    command.redirects.some(redirect =>
+      /^\/dev\/(tcp|udp)\//.test(redirect.target),
+    ),
+  )
+  if (hasUnsafeEnvironment || hasNetworkRedirect) return null
+
+  let hasCd = false
+  let hasRemoval = false
+  for (const command of commands) {
+    const [baseCommand, ...args] = stripPathWrappersFromArgv(command.argv)
+    if (baseCommand === 'cd') {
+      hasCd = true
+      continue
+    }
+    if (baseCommand !== 'rm' && baseCommand !== 'rmdir') continue
+    hasRemoval = true
+    if (
+      checkDangerousRemovalPaths(baseCommand, args, getCwd()).behavior !==
+      'passthrough'
+    ) {
+      return null
+    }
+  }
+  if (hasCd && hasRemoval) return null
+  return result
 }
 
 /**
@@ -1748,6 +1920,7 @@ export async function bashToolHasPermission(
     const decisionReason: PermissionDecisionReason = {
       type: 'other' as const,
       reason: astResult.reason,
+      bashMissKind: 'too-complex',
     }
     logEvent('tengu_bash_ast_too_complex', {
       nodeTypeId: nodeTypeId(astResult.nodeType),
@@ -1781,9 +1954,18 @@ export async function bashToolHasPermission(
         astResult.commands,
       )
       if (earlyExit !== null) return earlyExit
+      if (sem.kind === 'newline-hash') {
+        const sandboxResult = checkSandboxAutoAllowWithParsedCommands(
+          input,
+          appState.toolPermissionContext,
+          astResult.commands,
+        )
+        if (sandboxResult !== null) return sandboxResult
+      }
       const decisionReason: PermissionDecisionReason = {
         type: 'other' as const,
         reason: sem.reason,
+        bashMissKind: 'semantics',
       }
       return {
         behavior: 'ask',
@@ -1826,21 +2008,12 @@ export async function bashToolHasPermission(
     }
   }
 
-  // Check sandbox auto-allow (which respects explicit deny/ask rules)
-  // Only call this if sandboxing and auto-allow are both enabled
-  if (
-    SandboxManager.isSandboxingEnabled() &&
-    SandboxManager.isAutoAllowBashIfSandboxedEnabled() &&
-    shouldUseSandbox(input)
-  ) {
-    const sandboxAutoAllowResult = checkSandboxAutoAllow(
-      input,
-      appState.toolPermissionContext,
-    )
-    if (sandboxAutoAllowResult.behavior !== 'passthrough') {
-      return sandboxAutoAllowResult
-    }
-  }
+  const sandboxAutoAllowResult = checkSandboxAutoAllowWithParsedCommands(
+    input,
+    appState.toolPermissionContext,
+    astCommands ?? [],
+  )
+  if (sandboxAutoAllowResult !== null) return sandboxAutoAllowResult
 
   // Check exact match first
   const exactMatchResult = bashToolCheckExactMatchPermission(
@@ -1955,6 +2128,7 @@ export async function bashToolHasPermission(
           decisionReason: {
             type: 'other',
             reason: `Required by Bash prompt rule: "${askResult.matchedDescription}"`,
+            bashMissKind: 'prompt-ask-rule',
           },
           suggestions,
           ...(feature('BASH_CLASSIFIER')
@@ -1979,6 +2153,7 @@ export async function bashToolHasPermission(
       bashToolHasPermission(i, context, getCommandSubcommandPrefixFn),
     { isNormalizedCdCommand, isNormalizedGitCommand },
     astRoot,
+    commands => stringCdCommandsAreNoOps(commands, getCwd()),
   )
   if (commandOperatorResult.behavior !== 'passthrough') {
     // SECURITY FIX: When pipe segment processing returns 'allow', we must still validate
@@ -2187,6 +2362,7 @@ export async function bashToolHasPermission(
       type: 'other' as const,
       reason:
         'Multiple directory changes in one command require approval for clarity',
+      bashMissKind: 'multi-cd',
     }
     return {
       behavior: 'ask',
@@ -2210,11 +2386,19 @@ export async function bashToolHasPermission(
     const hasGitCommand = subcommands.some(cmd =>
       isNormalizedGitCommand(cmd.trim()),
     )
-    if (hasGitCommand) {
+    if (
+      hasGitCommand &&
+      !(await parsedCdCommandsAreNoOps(
+        astCommands ?? [],
+        subcommands,
+        getCwd(),
+      ))
+    ) {
       const decisionReason = {
         type: 'other' as const,
         reason:
-          'Compound commands with cd and git require approval to prevent bare repository attacks',
+          'This command changes directory before running git, which can execute untrusted hooks from the target directory. Approve only if you trust it.',
+        bashMissKind: 'cd-git-compound',
       }
       return {
         behavior: 'ask',

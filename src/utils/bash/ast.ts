@@ -2310,7 +2310,9 @@ const PROC_ENVIRON_RE = /\/proc\/.*\/environ/
  */
 const NEWLINE_HASH_RE = /\n[ \t]*#/
 
-export type SemanticCheckResult = { ok: true } | { ok: false; reason: string }
+export type SemanticCheckResult =
+  | { ok: true }
+  | { ok: false; reason: string; kind?: 'newline-hash' }
 
 /**
  * Post-argv semantic checks. Run after parseForSecurity returns 'simple' to
@@ -2693,6 +2695,7 @@ export function checkSemantics(commands: SimpleCommand[]): SemanticCheckResult {
       if (arg.includes('\n') && NEWLINE_HASH_RE.test(arg)) {
         return {
           ok: false,
+          kind: 'newline-hash',
           reason:
             'Newline followed by # inside a quoted argument can hide arguments from path validation',
         }
@@ -2702,6 +2705,7 @@ export function checkSemantics(commands: SimpleCommand[]): SemanticCheckResult {
       if (ev.value.includes('\n') && NEWLINE_HASH_RE.test(ev.value)) {
         return {
           ok: false,
+          kind: 'newline-hash',
           reason:
             'Newline followed by # inside an env var value can hide arguments from path validation',
         }
@@ -2711,6 +2715,7 @@ export function checkSemantics(commands: SimpleCommand[]): SemanticCheckResult {
       if (r.target.includes('\n') && NEWLINE_HASH_RE.test(r.target)) {
         return {
           ok: false,
+          kind: 'newline-hash',
           reason:
             'Newline followed by # inside a redirect target can hide arguments from path validation',
         }

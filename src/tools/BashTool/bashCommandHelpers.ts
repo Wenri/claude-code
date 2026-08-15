@@ -13,7 +13,6 @@ import type { PermissionResult } from '../../utils/permissions/PermissionResult.
 import type { PermissionUpdate } from '../../utils/permissions/PermissionUpdateSchema.js'
 import { createPermissionRequestMessage } from '../../utils/permissions/permissions.js'
 import { BashTool } from './BashTool.js'
-import { bashCommandIsSafeAsync_DEPRECATED } from './bashSecurity.js'
 
 export type CommandIdentityCheckers = {
   isNormalizedCdCommand: (command: string) => boolean
@@ -27,60 +26,8 @@ async function segmentedCommandPermissionResult(
     input: z.infer<typeof BashTool.inputSchema>,
   ) => Promise<PermissionResult>,
   checkers: CommandIdentityCheckers,
+  cdCommandsAreNoOps?: (commands: string[]) => Promise<boolean>,
 ): Promise<PermissionResult> {
-  // Check for multiple cd commands across all segments
-  const cdCommands = segments.filter(segment => {
-    const trimmed = segment.trim()
-    return checkers.isNormalizedCdCommand(trimmed)
-  })
-  if (cdCommands.length > 1) {
-    const decisionReason = {
-      type: 'other' as const,
-      reason:
-        'Multiple directory changes in one command require approval for clarity',
-    }
-    return {
-      behavior: 'ask',
-      decisionReason,
-      message: createPermissionRequestMessage(BashTool.name, decisionReason),
-    }
-  }
-
-  // SECURITY: Check for cd+git across pipe segments to prevent bare repo fsmonitor bypass.
-  // When cd and git are in different pipe segments (e.g., "cd sub && echo | git status"),
-  // each segment is checked independently and neither triggers the cd+git check in
-  // bashPermissions.ts. We must detect this cross-segment pattern here.
-  // Each pipe segment can itself be a compound command (e.g., "cd sub && echo"),
-  // so we split each segment into subcommands before checking.
-  {
-    let hasCd = false
-    let hasGit = false
-    for (const segment of segments) {
-      const subcommands = splitCommand_DEPRECATED(segment)
-      for (const sub of subcommands) {
-        const trimmed = sub.trim()
-        if (checkers.isNormalizedCdCommand(trimmed)) {
-          hasCd = true
-        }
-        if (checkers.isNormalizedGitCommand(trimmed)) {
-          hasGit = true
-        }
-      }
-    }
-    if (hasCd && hasGit) {
-      const decisionReason = {
-        type: 'other' as const,
-        reason:
-          'Compound commands with cd and git require approval to prevent bare repository attacks',
-      }
-      return {
-        behavior: 'ask',
-        decisionReason,
-        message: createPermissionRequestMessage(BashTool.name, decisionReason),
-      }
-    }
-  }
-
   const segmentResults = new Map<string, PermissionResult>()
 
   // Check each segment through the full permission system
@@ -112,6 +59,60 @@ async function segmentedCommandPermissionResult(
         type: 'subcommandResults',
         reasons: segmentResults,
       },
+    }
+  }
+
+  // Check for multiple cd commands across all segments after explicit denials
+  // have had a chance to win.
+  const cdCommands = segments.filter(segment => {
+    const trimmed = segment.trim()
+    return checkers.isNormalizedCdCommand(trimmed)
+  })
+  if (cdCommands.length > 1) {
+    const decisionReason = {
+      type: 'other' as const,
+      reason:
+        'Multiple directory changes in one command require approval for clarity',
+      bashMissKind: 'multi-cd',
+    }
+    return {
+      behavior: 'ask',
+      decisionReason,
+      message: createPermissionRequestMessage(BashTool.name, decisionReason),
+    }
+  }
+
+  // SECURITY: Check for cd+git across pipe segments to prevent execution of
+  // untrusted hooks after changing directory. A statically-provable no-op cd
+  // (for example `cd .`) is safe and does not need this extra prompt.
+  {
+    let hasCd = false
+    let hasGit = false
+    const subcommands: string[] = []
+    for (const segment of segments) {
+      for (const sub of splitCommand_DEPRECATED(segment)) {
+        const trimmed = sub.trim()
+        subcommands.push(trimmed)
+        if (checkers.isNormalizedCdCommand(trimmed)) hasCd = true
+        if (checkers.isNormalizedGitCommand(trimmed)) hasGit = true
+      }
+    }
+    if (
+      hasCd &&
+      hasGit &&
+      !(cdCommandsAreNoOps ? await cdCommandsAreNoOps(subcommands) : false)
+    ) {
+      const decisionReason = {
+        type: 'other' as const,
+        reason:
+          'This command changes directory before running git, which can execute untrusted hooks from the target directory. Approve only if you trust it.',
+        bashMissKind: 'cd-git-compound',
+      }
+      return {
+        behavior: 'ask',
+        decisionReason,
+        message: createPermissionRequestMessage(BashTool.name, decisionReason),
+      }
     }
   }
 
@@ -185,6 +186,7 @@ export async function checkCommandOperatorPermissions(
   ) => Promise<PermissionResult>,
   checkers: CommandIdentityCheckers,
   astRoot: Node | null | typeof PARSE_ABORTED,
+  cdCommandsAreNoOps?: (commands: string[]) => Promise<boolean>,
 ): Promise<PermissionResult> {
   const parsed =
     astRoot && astRoot !== PARSE_ABORTED
@@ -198,6 +200,7 @@ export async function checkCommandOperatorPermissions(
     bashToolHasPermissionFn,
     checkers,
     parsed,
+    cdCommandsAreNoOps,
   )
 }
 
@@ -212,6 +215,7 @@ async function bashToolCheckCommandOperatorPermissions(
   ) => Promise<PermissionResult>,
   checkers: CommandIdentityCheckers,
   parsed: IParsedCommand,
+  cdCommandsAreNoOps?: (commands: string[]) => Promise<boolean>,
 ): Promise<PermissionResult> {
   // 1. Check for unsafe compound commands (subshells, command groups).
   const tsAnalysis = parsed.getTreeSitterAnalysis()
@@ -220,16 +224,11 @@ async function bashToolCheckCommandOperatorPermissions(
       tsAnalysis.compoundStructure.hasCommandGroup
     : isUnsafeCompoundCommand_DEPRECATED(input.command)
   if (isUnsafeCompound) {
-    // This command contains an operator like `>` that we don't support as a subcommand separator
-    // Check if bashCommandIsSafe_DEPRECATED has a more specific message
-    const safetyResult = await bashCommandIsSafeAsync_DEPRECATED(input.command)
-
     const decisionReason = {
       type: 'other' as const,
       reason:
-        safetyResult.behavior === 'ask' && safetyResult.message
-          ? safetyResult.message
-          : 'This command uses shell operators that require approval for safety',
+        'This command uses shell operators that require approval for safety',
+      bashMissKind: 'shell-operators',
     }
     return {
       behavior: 'ask',
@@ -261,5 +260,6 @@ async function bashToolCheckCommandOperatorPermissions(
     segments,
     bashToolHasPermissionFn,
     checkers,
+    cdCommandsAreNoOps,
   )
 }
