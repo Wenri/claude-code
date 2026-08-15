@@ -41,8 +41,13 @@ import { createBashShellProvider } from './shell/bashProvider.js'
 import { getCachedPowerShellPath } from './shell/powershellDetection.js'
 import { createPowerShellProvider } from './shell/powershellProvider.js'
 import type { ShellProvider, ShellType } from './shell/shellProvider.js'
-import { subprocessEnv } from './subprocessEnv.js'
+import {
+  enforceScriptCaps,
+  isSubprocessEnvScrubEnabled,
+  subprocessEnv,
+} from './subprocessEnv.js'
 import { posixPathToWindowsPath } from './windowsPaths.js'
+import { parseForSecurity } from './bash/ast.js'
 
 const DEFAULT_TIMEOUT = 30 * 60 * 1000 // 30 minutes
 
@@ -315,6 +320,15 @@ export async function exec(
   // /bin/sh exists on every platform where sandbox is supported.
   const isSandboxedPowerShell = shouldUseSandbox && shellType === 'powershell'
   const sandboxBinShell = isSandboxedPowerShell ? '/bin/sh' : binShell
+
+  if (isSubprocessEnvScrubEnabled()) {
+    const parsed = await parseForSecurity(command)
+    const commandForCaps =
+      parsed.kind === 'simple'
+        ? parsed.commands.map(item => item.text).join('\n')
+        : command
+    enforceScriptCaps(commandForCaps)
+  }
 
   if (shouldUseSandbox) {
     commandString = await SandboxManager.wrapWithSandbox(

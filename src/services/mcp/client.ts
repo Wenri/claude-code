@@ -108,7 +108,7 @@ import {
 } from '../../utils/proxy.js'
 import { recursivelySanitizeUnicode } from '../../utils/sanitization.js'
 import { getSessionIngressAuthToken } from '../../utils/sessionIngressAuth.js'
-import { subprocessEnv } from '../../utils/subprocessEnv.js'
+import { mcpSubprocessEnv } from '../../utils/subprocessEnv.js'
 import {
   isPersistError,
   persistToolResult,
@@ -1012,7 +1012,7 @@ export const connectToServer = memoize(
           command: finalCommand,
           args: finalArgs,
           env: {
-            ...subprocessEnv(),
+            ...mcpSubprocessEnv(),
             ...serverRef.env,
           } as Record<string, string>,
           stderr: 'pipe', // prevents error output from the MCP server from printing to the UI
