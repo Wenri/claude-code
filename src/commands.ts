@@ -3,6 +3,10 @@ import addDir from './commands/add-dir/index.js'
 import autofixPrStub from './commands/autofix-pr/index.js'
 import autofixPr from './commands/autofix-pr/command.js'
 import backfillSessions from './commands/backfill-sessions/index.js'
+import {
+  autocompact,
+  autocompactNonInteractive,
+} from './commands/autocompact/index.js'
 import btw from './commands/btw/index.js'
 import goodClaude from './commands/good-claude/index.js'
 import issue from './commands/issue/index.js'
@@ -278,6 +282,7 @@ const COMMANDS = memoize((): Command[] => [
   addDir,
   advisor,
   agents,
+  autocompact,
   branch,
   btw,
   chrome,
@@ -647,23 +652,38 @@ export const getSlashCommandToolSkills = memoize(
 export const REMOTE_SAFE_COMMANDS: Set<Command> = new Set([
   session, // Shows QR code / URL for remote session
   exit, // Exit the TUI
-  clear, // Clear screen
   help, // Show help
   theme, // Change terminal theme
   color, // Change agent color
+  usage, // Show usage info (including the /cost and /stats aliases)
+  copy, // Copy last message
+  feedback, // Send feedback
+  mobile, // Mobile QR code
+  releaseNotes, // Show changelog
+  exportCommand, // Export the conversation
+  doctor, // Diagnose installation and configuration
+  terminalSetup, // Configure terminal integration
+  privacySettings, // Manage privacy settings
+  focus, // Enter focus mode
+  powerup, // Interactive feature lessons
+  passes, // Manage passes
+  extraUsage, // Manage extra usage
+  ...(daemonCommand ? [daemonCommand] : []),
+  rename, // Rename the session
+  btw, // Quick note
+  context, // Show context usage
+  plan, // Plan mode toggle
   effort, // Change reasoning effort
   fast, // Toggle fast mode
   model, // Change model
-  usage, // Show usage info (including the /cost and /stats aliases)
-  copy, // Copy last message
-  btw, // Quick note
-  feedback, // Send feedback
-  plan, // Plan mode toggle
-  powerup, // Interactive feature lessons
-  keybindings, // Keybinding management
-  statusline, // Status line toggle
+  version, // Show the CLI version
+  clear, // Clear screen
+  compact, // Compact the conversation
+  summary, // DCE-compatible internal stub
   stickers, // Stickers
-  mobile, // Mobile QR code
+  toggleMemory, // Toggle memory
+  reloadPlugins, // Reload plugins
+  recap, // Generate a session recap
 ])
 
 /**
@@ -681,17 +701,23 @@ export const REMOTE_SAFE_COMMANDS: Set<Command> = new Set([
 export const BRIDGE_SAFE_COMMANDS: Set<Command> = new Set(
   [
     compact, // Shrink context — useful mid-session from a phone
+    autocompactNonInteractive, // Configure auto-compact window
     clear, // Wipe transcript
     usageNonInteractive, // Show usage and session cost
     contextNonInteractive,
     summary, // Summarize conversation
-    releaseNotes, // Show changelog
-    reloadPlugins,
     exitNonInteractive,
     stopNonInteractive,
+    versionNonInteractive,
+    extraUsageNonInteractive,
+    renameNonInteractive,
+    colorNonInteractive,
     effortNonInteractive,
     fastNonInteractive,
     modelNonInteractive,
+    recap,
+    reloadPlugins,
+    update,
   ].filter((c): c is Command => c !== null),
 )
 
