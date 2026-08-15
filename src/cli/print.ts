@@ -386,6 +386,7 @@ import {
   headlessProfilerCheckpoint,
   logHeadlessProfilerTurn,
 } from 'src/utils/headlessProfiler.js'
+import { recordRemoteStartupPhase } from 'src/bridge/startupTiming.js'
 import {
   startQueryProfile,
   logQueryProfileReport,
@@ -2126,10 +2127,17 @@ function runHeadlessStreaming(
       pluginsInstalled = await installPluginsForHeadless()
 
       if (pluginsInstalled) {
+        const reconcileStartedAt = performance.now()
         await applyPluginMcpDiff(
           existingMcpServerNames,
           'plugin_install_diff',
         )
+        if (isEnvTruthy(process.env.CLAUDE_CODE_SYNC_PLUGIN_INSTALL)) {
+          recordRemoteStartupPhase(
+            'plugin_mcp_reconcile_ms',
+            performance.now() - reconcileStartedAt,
+          )
+        }
       }
     } catch (error) {
       logError(error)
@@ -2305,6 +2313,7 @@ function runHeadlessStreaming(
     idleTimeout.stop()
 
     headlessProfilerCheckpoint('run_entry')
+    recordRemoteStartupPhase('first_message_read_ms', performance.now())
     // TODO(custom-tool-refactor): Should move to the init message, like browser
 
     await updateSdkMcp()
@@ -2316,6 +2325,7 @@ function runHeadlessStreaming(
     // If CLAUDE_CODE_SYNC_PLUGIN_INSTALL_TIMEOUT_MS is set, races against that
     // deadline and proceeds without plugins on timeout (logging an error).
     if (pluginInstallPromise) {
+      const pluginInstallStartedAt = performance.now()
       const timeoutMs = parseInt(
         process.env.CLAUDE_CODE_SYNC_PLUGIN_INSTALL_TIMEOUT_MS || '',
         10,
@@ -2336,6 +2346,10 @@ function runHeadlessStreaming(
       } else {
         await pluginInstallPromise
       }
+      recordRemoteStartupPhase(
+        'plugin_install_ms',
+        performance.now() - pluginInstallStartedAt,
+      )
       pluginInstallPromise = null
 
       // Refresh commands, agents, and hooks now that plugins are installed

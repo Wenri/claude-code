@@ -64,7 +64,7 @@ import { getSessionIngressAuthToken } from './utils/sessionIngressAuth.js';
 import { settingsChangeDetector } from './utils/settings/changeDetector.js';
 import { getConfigValue, SETTINGS_BACKED_CONFIG_KEYS } from './utils/settings/configSettings.js';
 import { skillChangeDetector } from './utils/skills/skillChangeDetector.js';
-import { sleep } from './utils/sleep.js';
+import { sleep, withTimeout } from './utils/sleep.js';
 import { findClosestCommand } from './utils/suggestions/commandSuggestions.js';
 import { jsonParse, writeFileSync_DEPRECATED } from './utils/slowOperations.js';
 import { computeInitialTeamContext } from './utils/swarm/reconnection.js';
@@ -2165,43 +2165,12 @@ async function run(): Promise<CommanderCommand> {
     let inputPrompt = await getInputPrompt(effectivePrompt, (inputFormat ?? 'text') as 'text' | 'stream-json');
     profileCheckpoint('action_after_input_prompt');
 
-    // Activate proactive mode BEFORE getTools() so SleepTool.isEnabled()
-    // (which returns isProactiveActive()) passes and Sleep is included.
-    // The later REPL-path maybeActivateProactive() calls are idempotent.
-    maybeActivateProactive(options);
-    let tools = getTools(toolPermissionContext);
-
-    // Apply coordinator mode tool filtering for headless path
-    // (mirrors useMergedTools.ts filtering for REPL/interactive path)
-    if (feature('COORDINATOR_MODE') && isEnvTruthy(process.env.CLAUDE_CODE_COORDINATOR_MODE)) {
-      const {
-        applyCoordinatorToolFilter
-      } = await import('./utils/toolPool.js');
-      tools = applyCoordinatorToolFilter(tools);
-    }
-    profileCheckpoint('action_tools_loaded');
+    let tools: ReturnType<typeof getTools>
     let jsonSchema: ToolInputJSONSchema | undefined;
     if (isSyntheticOutputToolEnabled({
       isNonInteractiveSession
     }) && options.jsonSchema) {
       jsonSchema = jsonParse(options.jsonSchema) as ToolInputJSONSchema;
-    }
-    if (jsonSchema) {
-      const syntheticOutputResult = createSyntheticOutputTool(jsonSchema);
-      if ('tool' in syntheticOutputResult) {
-        // Add SyntheticOutputTool to the tools array AFTER getTools() filtering.
-        // This tool is excluded from normal filtering (see tools.ts) because it's
-        // an implementation detail for structured output, not a user-controlled tool.
-        tools = [...tools, syntheticOutputResult.tool];
-        logEvent('tengu_structured_output_enabled', {
-          schema_property_count: Object.keys(jsonSchema.properties as Record<string, unknown> || {}).length as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          has_required_fields: Boolean(jsonSchema.required) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-        });
-      } else {
-        logEvent('tengu_structured_output_failure', {
-          error: 'Invalid JSON schema' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-        });
-      }
     }
 
     // IMPORTANT: setup() must be called before any other code that depends on the cwd or worktree setup
@@ -2238,6 +2207,55 @@ async function run(): Promise<CommanderCommand> {
     await setupPromise;
     logForDebugging(`[STARTUP] setup() completed in ${Date.now() - setupStart}ms`);
     profileCheckpoint('action_after_setup');
+
+    // The tool registry consults GrowthBook-backed gates. On a cold first-party
+    // launch, give remote evaluation a bounded opportunity to hydrate before
+    // constructing the one-time tool list. Third-party/opted-out environments
+    // do not initialize GrowthBook.
+    if (
+      !isAnalyticsDisabled() &&
+      Object.keys(getGlobalConfig().cachedGrowthBookFeatures ?? {}).length === 0
+    ) {
+      await withTimeout(
+        initializeGrowthBook(),
+        1500,
+        'gb-before-tools',
+      ).catch(() => {})
+    }
+
+    // Activate proactive mode BEFORE getTools() so SleepTool.isEnabled()
+    // (which returns isProactiveActive()) passes and Sleep is included.
+    // The later REPL-path maybeActivateProactive() calls are idempotent.
+    maybeActivateProactive(options);
+    tools = getTools(toolPermissionContext);
+
+    // Apply coordinator mode tool filtering for headless path
+    // (mirrors useMergedTools.ts filtering for REPL/interactive path)
+    if (feature('COORDINATOR_MODE') && isEnvTruthy(process.env.CLAUDE_CODE_COORDINATOR_MODE)) {
+      const {
+        applyCoordinatorToolFilter
+      } = await import('./utils/toolPool.js');
+      tools = applyCoordinatorToolFilter(tools);
+    }
+    profileCheckpoint('action_tools_loaded');
+
+    if (jsonSchema) {
+      const syntheticOutputResult = createSyntheticOutputTool(jsonSchema);
+      if ('tool' in syntheticOutputResult) {
+        // Add SyntheticOutputTool to the tools array AFTER getTools() filtering.
+        // This tool is excluded from normal filtering (see tools.ts) because it's
+        // an implementation detail for structured output, not a user-controlled tool.
+        tools = [...tools, syntheticOutputResult.tool];
+        logEvent('tengu_structured_output_enabled', {
+          schema_property_count: Object.keys(jsonSchema.properties as Record<string, unknown> || {}).length as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+          has_required_fields: Boolean(jsonSchema.required) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+        });
+      } else {
+        logEvent('tengu_structured_output_failure', {
+          error: 'Invalid JSON schema' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
+        });
+      }
+    }
 
     // Replay user messages into stream-json only when the socket was
     // explicitly requested. The auto-generated socket is passive — it
