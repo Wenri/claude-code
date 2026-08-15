@@ -118,12 +118,41 @@ type Transcript = (
   | SystemMessage
 )[]
 
+export const ENTRY_APPEND_POLICY = {
+  user: 'dedup-transcript',
+  assistant: 'dedup-transcript',
+  attachment: 'dedup-transcript',
+  system: 'dedup-transcript',
+  progress: 'dedup-transcript',
+  summary: 'always',
+  'custom-title': 'always',
+  'ai-title': 'always',
+  'last-prompt': 'always',
+  tag: 'always',
+  'agent-name': 'always',
+  'agent-color': 'always',
+  'agent-setting': 'always',
+  'pr-link': 'always',
+  'frame-link': 'always',
+  'file-history-snapshot': 'always',
+  'attribution-snapshot': 'always',
+  'speculation-accept': 'always',
+  mode: 'always',
+  'permission-mode': 'always',
+  'worktree-state': 'always',
+  'queue-operation': 'always',
+  'marble-origami-commit': 'always',
+  'marble-origami-snapshot': 'always',
+  'content-replacement': 'route-by-agent',
+  'fork-context-ref': 'route-by-agent',
+} as const
+
 /**
  * Finds the most recent deferred tool call that has not subsequently received
  * a tool_result. Only the final MiB is inspected because the marker and its
  * potential result are both at the active transcript tail.
  */
-export async function findLastDeferredToolUse(
+export async function findDeferredToolMarkerInTranscript(
   transcriptPath: string,
 ): Promise<HookDeferredToolAttachment | null> {
   try {
@@ -163,6 +192,8 @@ export async function findLastDeferredToolUse(
     return null
   }
 }
+
+export const findLastDeferredToolUse = findDeferredToolMarkerInTranscript
 
 // Use getOriginalCwd() at each call site instead of capturing at module load
 // time. getCwd() at import time may run before bootstrap resolves symlinks via
@@ -342,7 +373,7 @@ export function getAgentTranscriptPath(agentId: AgentId): string {
   return join(base, `agent-${agentId}.jsonl`)
 }
 
-export async function listLocalAgentIds(): Promise<string[]> {
+export async function listSubagentIdsFromDisk(): Promise<string[]> {
   const projectDir = getSessionProjectDir() ?? getProjectDir(getOriginalCwd())
   const subagentsDir = join(projectDir, getSessionId(), 'subagents')
   let entries: Dirent[]
@@ -360,6 +391,8 @@ export async function listLocalAgentIds(): Promise<string[]> {
     )
     .map(entry => entry.name.slice(6, -6))
 }
+
+export const listLocalAgentIds = listSubagentIdsFromDisk
 
 function getAgentMetadataPath(agentId: AgentId): string {
   return getAgentTranscriptPath(agentId).replace(/\.jsonl$/, '.meta.json')
@@ -740,9 +773,11 @@ export function setRemoteIngressUrlForTesting(url: string): void {
 
 export type SessionMirror = (filePath: string, entries: unknown[]) => void
 
-export function registerSessionMirror(mirror: SessionMirror): void {
+export function addSessionMirror(mirror: SessionMirror): void {
   getProject().addMirror(mirror)
 }
+
+export const registerSessionMirror = addSessionMirror
 
 export function fireSessionMirror(filePath: string, entries: unknown[]): void {
   getProject().fireMirror(filePath, entries)
@@ -3091,6 +3126,20 @@ function appendEntryToFile(
   fireSessionMirror(fullPath, [entry])
 }
 
+export async function appendEntryToFileAsync(
+  fullPath: string,
+  entry: Record<string, unknown>,
+): Promise<void> {
+  const line = jsonStringify(entry) + '\n'
+  try {
+    await fsAppendFile(fullPath, line, { mode: 0o600 })
+  } catch {
+    await mkdir(dirname(fullPath), { recursive: true, mode: 0o700 })
+    await fsAppendFile(fullPath, line, { mode: 0o600 })
+  }
+  fireSessionMirror(fullPath, [entry])
+}
+
 /**
  * Sync tail read for reAppendSessionMetadata's external-writer check.
  * fstat on the already-open fd (no extra path lookup); reads the same
@@ -5313,25 +5362,7 @@ export async function loadSubagentTranscripts(
 export async function loadAllSubagentTranscriptsFromDisk(): Promise<{
   [agentId: string]: Message[]
 }> {
-  const subagentsDir = join(
-    getSessionProjectDir() ?? getProjectDir(getOriginalCwd()),
-    getSessionId(),
-    'subagents',
-  )
-  let entries: Dirent[]
-  try {
-    entries = await readdir(subagentsDir, { withFileTypes: true })
-  } catch {
-    return {}
-  }
-  // Filename format is the inverse of getAgentTranscriptPath() — keep in sync.
-  const agentIds = entries
-    .filter(
-      d =>
-        d.isFile() && d.name.startsWith('agent-') && d.name.endsWith('.jsonl'),
-    )
-    .map(d => d.name.slice('agent-'.length, -'.jsonl'.length))
-  return loadSubagentTranscripts(agentIds)
+  return loadSubagentTranscripts(await listSubagentIdsFromDisk())
 }
 
 // Exported so useLogMessages can sync-compute the last loggable uuid

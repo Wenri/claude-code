@@ -47,7 +47,7 @@ import {
   checkResumeConsistency,
   getLastSessionLog,
   getSessionIdFromLog,
-  findLastDeferredToolUse,
+  findDeferredToolMarkerInTranscript,
   isLiteLog,
   loadFullLog,
   loadMessageLogs,
@@ -587,7 +587,8 @@ export async function loadConversationForResume(
 
     const transcriptPath = log?.fullPath ?? sourceJsonlFile
     const deferredToolUse = transcriptPath
-      ? ((await findLastDeferredToolUse(transcriptPath)) ?? undefined)
+      ? ((await findDeferredToolMarkerInTranscript(transcriptPath)) ??
+        undefined)
       : undefined
 
     // Deserialize messages to handle unresolved tool uses and ensure proper format

@@ -53,7 +53,7 @@ import {
   getCurrentSessionAgentColor,
   getCurrentSessionAiTitle,
   getCurrentSessionTitle,
-  listLocalAgentIds,
+  listSubagentIdsFromDisk,
   saveCustomTitle,
   setInternalEventReader,
   setInternalEventWriter,
@@ -187,7 +187,7 @@ export async function initReplBridge(
       const generation = ++persistenceGeneration
       void (async () => {
         try {
-          const agentIds = await listLocalAgentIds()
+          const agentIds = await listSubagentIdsFromDisk()
           await syncLocalTranscriptEvents(writer, readers, agentIds)
         } catch (error) {
           logForDebugging(

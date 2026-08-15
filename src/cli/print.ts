@@ -254,7 +254,7 @@ import {
   getSessionIdFromLog,
   searchSessionsByCustomTitle,
   restoreSessionMetadata,
-  registerSessionMirror,
+  addSessionMirror,
   flushSessionStorage,
 } from 'src/utils/sessionStorage.js'
 import { incrementPromptCount } from 'src/utils/commitAttribution.js'
@@ -1333,7 +1333,7 @@ function runHeadlessStreaming(
   const output = structuredIO.outbound
 
   if (options.outputFormat === 'stream-json' && options.sessionMirror) {
-    registerSessionMirror((filePath, entries) =>
+    addSessionMirror((filePath, entries) =>
       structuredIO.write({
         type: 'transcript_mirror',
         filePath,
