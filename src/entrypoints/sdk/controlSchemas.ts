@@ -112,6 +112,12 @@ export const SDKControlInitializeRequestSchema = lazySchema(() =>
         .describe(
           'When provided, only skills whose names match an entry are loaded into the main session system prompt, using the same rules as AgentDefinition.skills: exact name, plugin-qualified name, or ":name" suffix. Omit to load every discovered skill. Applies to the main session only; subagents use AgentDefinition.skills.',
         ),
+      webSearchIsolationExemptMcpServers: z
+        .array(z.string())
+        .optional()
+        .describe(
+          '@internal Additional MCP server names exempt from the web search / connector isolation latch. Unioned with the built-in infra-server list.',
+        ),
       promptSuggestions: z.boolean().optional(),
       agentProgressSummaries: z.boolean().optional(),
       forwardSubagentText: z.boolean().optional(),

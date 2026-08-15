@@ -102,6 +102,7 @@ import { validateUuid } from 'src/utils/uuid.js'
 import { fromArray } from 'src/utils/generators.js'
 import { ask } from 'src/QueryEngine.js'
 import {
+  addWebSearchIsolationExemptMcpServers,
   createToolIsolationLatch,
   getIsolationClassFromMessages,
 } from 'src/services/tools/toolIsolation.js'
@@ -3282,6 +3283,13 @@ function runHeadlessStreaming(
                 name: serverName,
               }
             }
+          }
+
+          if (message.request.webSearchIsolationExemptMcpServers) {
+            addWebSearchIsolationExemptMcpServers(
+              isolationLatch,
+              message.request.webSearchIsolationExemptMcpServers,
+            )
           }
 
           await handleInitializeRequest(
