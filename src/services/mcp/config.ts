@@ -38,6 +38,7 @@ import {
 } from '../../utils/settings/types.js'
 import type { ValidationError } from '../../utils/settings/validation.js'
 import { jsonStringify } from '../../utils/slowOperations.js'
+import { urlMatchesPattern } from '../../utils/urlPattern.js'
 import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
@@ -399,30 +400,6 @@ export function dedupClaudeAiMcpServers(
     servers[name] = config
   }
   return { servers, suppressed }
-}
-
-/**
- * Convert a URL pattern with wildcards to a RegExp
- * Supports * as wildcard matching any characters
- * Examples:
- *   "https://example.com/*" matches "https://example.com/api/v1"
- *   "https://*.example.com/*" matches "https://api.example.com/path"
- *   "https://example.com:*\/*" matches any port
- */
-function urlPatternToRegex(pattern: string): RegExp {
-  // Escape regex special characters except *
-  const escaped = pattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&')
-  // Replace * with regex equivalent (match any characters)
-  const regexStr = escaped.replace(/\*/g, '.*')
-  return new RegExp(`^${regexStr}$`)
-}
-
-/**
- * Check if a URL matches a pattern with wildcard support
- */
-function urlMatchesPattern(url: string, pattern: string): boolean {
-  const regex = urlPatternToRegex(pattern)
-  return regex.test(url)
 }
 
 /**
