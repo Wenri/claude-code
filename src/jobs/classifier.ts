@@ -646,6 +646,7 @@ export type ClassifierJobState = {
   lastClassifyAt: number
   capturedIntent: string
   inFlight: Promise<void> | null
+  nameInFlight: boolean
   dispatchEmitted: boolean
   latestAsk: string
   kicked: boolean
@@ -664,6 +665,7 @@ export function createClassifierJobState(): ClassifierJobState {
     lastClassifyAt: 0,
     capturedIntent: '',
     inFlight: null,
+    nameInFlight: false,
     dispatchEmitted: false,
     latestAsk: '',
     kicked: false,
@@ -1228,7 +1230,12 @@ export async function classifyAndPush(
       'utf8',
     ).catch(() => {})
     const intent = current?.intent || fallbackIntent || state.capturedIntent
-    if (!current?.name && intent && engine === 'llm') {
+    if (
+      !current?.name &&
+      intent &&
+      engine === 'llm' &&
+      !state.nameInFlight
+    ) {
       const firstAssistantText = messages
         .map(message => assistantText([message]))
         .find(Boolean)
@@ -1239,7 +1246,12 @@ export async function classifyAndPush(
           .trim(),
         500,
       )
-      void generateJobName(jobDir, intent, context).catch(() => {})
+      state.nameInFlight = true
+      void generateJobName(jobDir, intent, context)
+        .catch(() => {})
+        .finally(() => {
+          state.nameInFlight = false
+        })
     }
     logForDebugging(
       `[classifier] ${state.prevState} · ${classified.detail}${needs ? ` · needs: ${needs}` : ''}`,
