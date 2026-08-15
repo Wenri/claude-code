@@ -119,3 +119,56 @@ test('source preserves file-mode API bodies and guarded user email context', () 
     "userEmail: `The user's email address is ${userEmail}.`",
   ])
 })
+
+test('authenticates retained analytics dimensions and plugin theme count', () => {
+  for (const release of releases) {
+    const bundle = readBundle(release)
+    assert.equal(
+      occurrences(bundle, 'coach_mode'),
+      1,
+      `${release.version}: coach mode mapping`,
+    )
+    assert.equal(
+      occurrences(bundle, 'session_kind'),
+      1,
+      `${release.version}: session kind mapping`,
+    )
+    assert.equal(
+      occurrences(bundle, 'theme_count'),
+      2,
+      `${release.version}: success and failure theme counts`,
+    )
+    assert.match(
+      bundle,
+      /skill_mode:[A-Za-z_$][\w$]*},\.\.\.[A-Za-z_$][\w$]*&&\{coach_mode:[A-Za-z_$][\w$]*},\.\.\.[A-Za-z_$][\w$]*&&\{observer_mode:[A-Za-z_$][\w$]*},\.\.\.[A-Za-z_$][\w$]*&&\{session_kind:[A-Za-z_$][\w$]*}/,
+      `${release.version}: ordered 1P mappings`,
+    )
+    assert.match(
+      bundle,
+      /lsp_count:0,theme_count:0,load_failed:!0/,
+      `${release.version}: plugin failure metrics`,
+    )
+  }
+})
+
+test('source maps session dimensions and loads plugin themes before metrics', () => {
+  const metadata = source('src/services/analytics/metadata.ts')
+  includesAll(metadata, [
+    'const sessionKind = getSessionKind()',
+    '...(sessionKind && { sessionKind })',
+    'coachMode, observerMode, sessionKind, ...coreFields',
+    '...(coachMode && { coach_mode: coachMode })',
+    '...(sessionKind && { session_kind: sessionKind })',
+  ])
+
+  const plugins = source('src/hooks/useManagePlugins.ts')
+  includesAll(plugins, [
+    'reinitializeLspServerManager() const theme_count = (await loadPluginThemes(enabled)).length',
+    'mcp_count, lsp_count, theme_count,',
+    'lsp_count: 0, theme_count: 0, load_failed: true',
+  ])
+  includesAll(source('src/utils/plugins/loadPluginThemes.ts'), [
+    'plugins?: LoadedPlugin[]',
+    'const enabled = plugins ?? (await loadAllPluginsCacheOnly()).enabled',
+  ])
+})

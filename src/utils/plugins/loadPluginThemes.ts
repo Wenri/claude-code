@@ -1,4 +1,5 @@
 import type { CustomTheme } from '../theme.js'
+import type { LoadedPlugin } from '../../types/plugin.js'
 import {
   loadThemePath,
   registerPluginThemeBases,
@@ -6,8 +7,10 @@ import {
 import { loadAllPluginsCacheOnly } from './pluginLoader.js'
 
 /** Load and publish custom themes from all enabled plugins. */
-export async function loadPluginThemes(): Promise<CustomTheme[]> {
-  const { enabled } = await loadAllPluginsCacheOnly()
+export async function loadPluginThemes(
+  plugins?: LoadedPlugin[],
+): Promise<CustomTheme[]> {
+  const enabled = plugins ?? (await loadAllPluginsCacheOnly()).enabled
   const themes: CustomTheme[] = []
   for (const plugin of enabled) {
     const source = { plugin: plugin.name }

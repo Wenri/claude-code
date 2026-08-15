@@ -18,6 +18,7 @@ import { getPluginCommands } from '../utils/plugins/loadPluginCommands.js'
 import { loadPluginHooks } from '../utils/plugins/loadPluginHooks.js'
 import { loadPluginLspServers } from '../utils/plugins/lspPluginIntegration.js'
 import { loadPluginMcpServers } from '../utils/plugins/mcpPluginIntegration.js'
+import { loadPluginThemes } from '../utils/plugins/loadPluginThemes.js'
 import { detectAndUninstallDelistedPlugins } from '../utils/plugins/pluginBlocklist.js'
 import { getFlaggedPlugins } from '../utils/plugins/pluginFlagging.js'
 import { loadAllPlugins } from '../utils/plugins/pluginLoader.js'
@@ -143,6 +144,7 @@ export function useManagePlugins({
       )
       const lsp_count = lspServerCounts.reduce((sum, n) => sum + n, 0)
       reinitializeLspServerManager()
+      const theme_count = (await loadPluginThemes(enabled)).length
 
       // Update AppState - merge errors to preserve LSP errors
       setAppState(prevState => {
@@ -207,6 +209,7 @@ export function useManagePlugins({
         hook_count,
         mcp_count,
         lsp_count,
+        theme_count,
         // Ant-only: which plugins are enabled, to correlate with RSS/FPS.
         // Kept separate from base metrics so it doesn't flow into
         // logForDiagnosticsNoPII.
@@ -259,6 +262,7 @@ export function useManagePlugins({
         hook_count: 0,
         mcp_count: 0,
         lsp_count: 0,
+        theme_count: 0,
         load_failed: true,
         ant_enabled_names: undefined,
       }
