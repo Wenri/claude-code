@@ -767,6 +767,7 @@ export const BashTool = buildTool({
       result = generatorResult.value;
       trackGitOperations(input.command, result.code, result.stdout);
       const isInterrupt = result.interrupted && abortController.signal.reason === 'interrupt';
+      const isUserCancel = result.interrupted && (abortController.signal.reason === 'interrupt' || abortController.signal.reason === 'user-cancel');
 
       // stderr is interleaved in stdout (merged fd) — result.stdout has both
       stdoutAccumulator.append((result.stdout || '').trimEnd() + EOL);
@@ -792,7 +793,8 @@ export const BashTool = buildTool({
       }
 
       // Annotate output with sandbox violations if any (stderr is in stdout)
-      const outputWithSbFailures = SandboxManager.annotateStderrWithSandboxFailures(input.command, result.stdout || '');
+      const rawOutput = result.stdout || '';
+      const outputWithSbFailures = SandboxManager.annotateStderrWithSandboxFailures(input.command, rawOutput);
       if (result.preSpawnError) {
         throw new Error(result.preSpawnError);
       }
@@ -800,7 +802,7 @@ export const BashTool = buildTool({
         // stderr is merged into stdout (merged fd); outputWithSbFailures
         // already has the full output. Pass '' for stdout to avoid
         // duplication in getErrorParts() and processBashCommand.
-        throw new ShellError('', outputWithSbFailures, result.code, result.interrupted);
+        throw new ShellError('', outputWithSbFailures, result.code, isUserCancel, outputWithSbFailures !== rawOutput);
       }
       wasInterrupted = result.interrupted;
     } finally {

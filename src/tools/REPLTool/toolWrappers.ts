@@ -5,6 +5,7 @@ import {
   logEvent,
 } from '../../services/analytics/index.js'
 import { sanitizeToolNameForAnalytics } from '../../services/analytics/metadata.js'
+import { BASH_TOOL_NAME } from '../BashTool/toolName.js'
 import {
   resolveHookPermissionDecision,
   runPostToolUseFailureHooks,
@@ -22,8 +23,10 @@ import type {
   ToolCallProgress,
   ToolUseContext,
 } from '../../Tool.js'
-import { isAbortError } from '../../utils/errors.js'
+import { isAbortError, ShellError } from '../../utils/errors.js'
+import { logForDebugging } from '../../utils/debug.js'
 import { createAssistantMessage } from '../../utils/messages.js'
+import { SandboxManager } from '../../utils/sandbox/sandbox-adapter.js'
 import { formatError } from '../../utils/toolErrors.js'
 import type {
   ReplProgressEvent,
@@ -96,7 +99,10 @@ export function createToolWrappers(
   > = {}
 
   for (const tool of tools) {
-    wrappers[tool.name] = async (input, options) => {
+    const callTool = async (
+      input: Record<string, unknown>,
+      options?: { toolUseID?: string },
+    ): Promise<unknown> => {
       const toolUseID = options?.toolUseID ?? `repl_${randomUUID()}`
       let processedInput: Record<string, unknown> = input
       const fail = (message: string): { error: string } => {
@@ -291,7 +297,6 @@ export function createToolWrappers(
           }
         }
 
-        innerCalls.push({ id: toolUseID, name: tool.name, input: processedInput })
         onProgress?.({
           toolUseID,
           data: {
@@ -358,9 +363,27 @@ export function createToolWrappers(
             error: message,
           },
         })
+        if (
+          tool.name === BASH_TOOL_NAME &&
+          error instanceof ShellError &&
+          error.hadSandboxViolation &&
+          input.dangerouslyDisableSandbox !== true &&
+          SandboxManager.isSandboxingEnabled() &&
+          SandboxManager.areUnsandboxedCommandsAllowed()
+        ) {
+          logForDebugging(
+            'REPL Bash sandbox violation — auto-retrying unsandboxed',
+          )
+          return callTool(
+            { ...input, dangerouslyDisableSandbox: true },
+            { toolUseID },
+          )
+        }
+        innerCalls.push({ id: toolUseID, name: tool.name, input: processedInput })
         return errorResult(message)
       }
     }
+    wrappers[tool.name] = callTool
   }
 
   return wrappers

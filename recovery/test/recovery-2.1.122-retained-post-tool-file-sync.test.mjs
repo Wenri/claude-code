@@ -13,6 +13,7 @@ const releases = [
     bytes: 13_908_188,
     sha256:
       '783221adb53c27180d0439b86c3eb7fef2bd7ab6cd8d9cd5dfafca301d0e766a',
+    userCancelInterruptCount: 0,
   },
   {
     version: '2.1.122',
@@ -20,6 +21,7 @@ const releases = [
     bytes: 13_949_544,
     sha256:
       'b4266d7ac18a537d67e3a503c572386f3f8bd11ae75f9485d4505cea10f6833c',
+    userCancelInterruptCount: 2,
   },
 ]
 
@@ -54,6 +56,35 @@ test('authenticated adjacent bundles retain hash-backed formatter re-sync', () =
     assert.equal(occurrences(bundle, 'PostToolUse hook modified '), 2)
     assert.equal(occurrences(bundle, 're-synced readFileState'), 1)
     assert.equal(occurrences(bundle, 'after your edit (likely a formatter)'), 1)
+    assert.equal(occurrences(bundle, 'hadSandboxViolation'), 3)
+    assert.equal(occurrences(bundle, 'auto-retrying unsandboxed'), 1)
+    assert.equal(
+      bundle.match(/hadSandboxViolation;constructor\([^)]*,[^)]*=!1\)/g)
+        ?.length,
+      1,
+      `${release.version}: ShellError violation flag`,
+    )
+    assert.equal(
+      bundle.match(
+        /new [\w$]+\("",[\w$]+,[\w$]+\.code,(?:[\w$]+\.interrupted|[\w$]+),[\w$]+!==[\w$]+\)/g,
+      )?.length,
+      1,
+      `${release.version}: Bash violation propagation`,
+    )
+    assert.equal(
+      bundle.match(
+        /[\w$]+ instanceof [\w$]+&&[\w$]+\.hadSandboxViolation&&[\w$]+\?\.dangerouslyDisableSandbox!==!0&&[\w$]+\.isSandboxingEnabled\(\)&&[\w$]+\.areUnsandboxedCommandsAllowed\(\)/g,
+      )?.length,
+      1,
+      `${release.version}: guarded REPL fallback`,
+    )
+    assert.equal(
+      bundle.match(
+        /interrupted&&[\w$]+\.signal\.reason==="interrupt",[\w$]+=[\w$]+\.interrupted&&\([\w$]+\.signal\.reason==="interrupt"\|\|[\w$]+\.signal\.reason==="user-cancel"\)/g,
+      )?.length ?? 0,
+      release.userCancelInterruptCount,
+      `${release.version}: narrowed user-cancel ShellError state`,
+    )
     assert.equal(
       bundle.match(
         /function [\w$]+\(H,\$\)\{if\(H\.contentHash!==void 0\)return H\.contentHash===/g,
@@ -120,6 +151,24 @@ test('source reconstructs cache retention, staleness checks, and both hook paths
   const repl = source('src/tools/REPLTool/toolWrappers.ts')
   assert.match(execution, /postToolUseHooksRan = true[\s\S]+resyncReadFileStateAfterPostToolUse\([\s\S]+hookResults\.push\(\{ message: fileSyncMessage \}\)/)
   assert.match(repl, /postToolUseHooksRan = true[\s\S]+resyncReadFileStateAfterPostToolUse\([\s\S]+context\.readFileState/)
+  for (const fragment of [
+    'error instanceof ShellError',
+    'error.hadSandboxViolation',
+    'input.dangerouslyDisableSandbox !== true',
+    'SandboxManager.isSandboxingEnabled()',
+    'SandboxManager.areUnsandboxedCommandsAllowed()',
+    'REPL Bash sandbox violation — auto-retrying unsandboxed',
+    '{ ...input, dangerouslyDisableSandbox: true }',
+    '{ toolUseID }',
+  ]) {
+    assert.ok(repl.includes(fragment), fragment)
+  }
+
+  const errors = source('src/utils/errors.ts')
+  assert.ok(errors.includes('public readonly hadSandboxViolation: boolean = false'))
+  const bash = source('src/tools/BashTool/BashTool.tsx')
+  assert.ok(bash.includes("abortController.signal.reason === 'user-cancel'"))
+  assert.ok(bash.includes('outputWithSbFailures !== rawOutput'))
 
   for (const relativePath of [
     'src/tools/FileEditTool/FileEditTool.ts',
