@@ -12,6 +12,7 @@ import { getCwd } from '../utils/cwd.js'
 import { logForDebugging } from '../utils/debug.js'
 import { bgSupervisorNoun } from '../utils/agentsFleet.js'
 import { formatRelativeTime } from '../utils/format.js'
+import { processStartTokenMatches } from '../utils/genericProcessUtils.js'
 import { getModelOptions } from '../utils/model/modelOptions.js'
 import { getBaseRenderOptions } from '../utils/renderOptions.js'
 import {
@@ -57,6 +58,7 @@ export type HubData = {
 
 type DaemonWorkerStatus = {
   supervisorPid: number
+  supervisorProcStart?: string
   workers: Record<string, { pid: number; startedAt: number }>
 }
 
@@ -94,6 +96,18 @@ async function readDaemonWorkerStatus(): Promise<DaemonWorkerStatus | null> {
       return null
     }
     process.kill(parsed.supervisorPid, 0)
+    const supervisorProcStart =
+      typeof parsed.supervisorProcStart === 'string'
+        ? parsed.supervisorProcStart
+        : undefined
+    if (
+      !(await processStartTokenMatches(
+        parsed.supervisorPid,
+        supervisorProcStart,
+      ))
+    ) {
+      return null
+    }
     return parsed as DaemonWorkerStatus
   } catch {
     return null

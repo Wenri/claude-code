@@ -36,7 +36,10 @@ import {
   type RelaunchLauncher,
 } from '../utils/relaunch.js'
 import { sleep } from '../utils/sleep.js'
-import { getProcessStartTokenAsync } from '../utils/genericProcessUtils.js'
+import {
+  getCurrentProcessStartToken,
+  getProcessStartTokenAsync,
+} from '../utils/genericProcessUtils.js'
 import { getXDGDataHome } from '../utils/xdg.js'
 import {
   createDaemonLock,
@@ -694,6 +697,7 @@ async function writeDaemonStatus(
   const path = getDaemonStatusPath()
   const status = {
     supervisorPid: process.pid,
+    supervisorProcStart: getCurrentProcessStartToken(),
     writtenAt: Date.now(),
     workers,
   }

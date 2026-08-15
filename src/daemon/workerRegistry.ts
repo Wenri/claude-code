@@ -10,6 +10,10 @@ import {
   jitteredNextCronRunMs,
 } from '../utils/cronTasks.js'
 import { lazySchema } from '../utils/lazySchema.js'
+import {
+  getCurrentProcessStartToken,
+  processStartTokenMatches,
+} from '../utils/genericProcessUtils.js'
 import { WORKLOAD_CRON } from '../utils/workloadContext.js'
 import { getScheduledStatusPath } from './paths.js'
 import {
@@ -106,6 +110,7 @@ type ScheduledTask = z.infer<ReturnType<typeof scheduledTaskSchema>>
 
 export interface ScheduledWorkerStatus {
   workerPid: number
+  workerProcStart?: string
   writtenAt: number
   tasks: Record<string, { running: boolean; lastFiredAt?: number }>
 }
@@ -116,6 +121,7 @@ async function writeScheduledStatus(
   const path = getScheduledStatusPath()
   const status: ScheduledWorkerStatus = {
     workerPid: process.pid,
+    workerProcStart: getCurrentProcessStartToken(),
     writtenAt: Date.now(),
     tasks,
   }
@@ -144,6 +150,14 @@ export async function readScheduledStatus(): Promise<ScheduledWorkerStatus | nul
   try {
     process.kill((parsed as ScheduledWorkerStatus).workerPid, 0)
   } catch {
+    return null
+  }
+  if (
+    !(await processStartTokenMatches(
+      (parsed as ScheduledWorkerStatus).workerPid,
+      (parsed as ScheduledWorkerStatus).workerProcStart,
+    ))
+  ) {
     return null
   }
   return parsed as ScheduledWorkerStatus
