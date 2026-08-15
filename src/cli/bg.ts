@@ -47,6 +47,12 @@ import { errorMessage } from '../utils/errors.js'
 import { registerCleanup } from '../utils/cleanupRegistry.js'
 import { relaunch } from '../utils/relaunch.js'
 import { withTimeout } from '../utils/sleep.js'
+import { peekForStdinData } from '../utils/process.js'
+import { getGlobalConfig } from '../utils/config.js'
+import {
+  hasAutoModeOptIn,
+  hasSkipDangerousModePermissionPrompt,
+} from '../utils/settings/settings.js'
 import { hasTranscriptMessages } from '../utils/transcriptValidation.js'
 import {
   CURSOR_HOME,
@@ -212,7 +218,7 @@ export interface SpawnBgOptions {
 }
 
 export type SpawnBgResult =
-  | { ok: true; short: string; sessionId: string }
+  | { ok: true; short: string; sessionId: string; idle: boolean }
   | { ok: false; error: string }
 
 function inheritedEnv(): Record<string, string> {
@@ -268,11 +274,13 @@ const RESPAWN_VALUE_FLAGS = new Set([
   '-m',
   '--permission-mode',
   '--agent',
+  '--agents',
   '--routine',
   '--effort',
   '--add-dir',
   '--mcp-config',
   '--settings',
+  '--setting-sources',
   '--system-prompt',
   '--system-prompt-file',
   '--append-system-prompt',
@@ -283,8 +291,24 @@ const RESPAWN_VALUE_FLAGS = new Set([
   '--allowedTools',
   '--disallowed-tools',
   '--disallowedTools',
+  '--tools',
   '--session-id',
   '--debug-file',
+  '-n',
+  '--name',
+  '--autocompact',
+  '--betas',
+  '--file',
+  '--max-budget-usd',
+  '--max-thinking-tokens',
+  '--max-turns',
+  '--task-budget',
+  '--plan-mode-instructions',
+  '--plugin-dir',
+  '--resume-session-at',
+  '--rewind-files',
+  '--thinking',
+  '--thinking-display',
 ])
 
 function persistentRespawnFlags(args: string[]): string[] {
@@ -337,6 +361,27 @@ function optionValue(name: string, args: string[]): string | undefined {
     if (arg === name && index + 1 < args.length) return args[index + 1]
   }
   return undefined
+}
+
+function getBackgroundLaunchSafetyError(args: string[]): string | null {
+  const separator = args.indexOf('--')
+  const beforeSeparator = separator >= 0 ? args.slice(0, separator) : args
+  const permissionMode = optionValue('--permission-mode', beforeSeparator)
+  const requestsBypass =
+    permissionMode === 'bypassPermissions' ||
+    beforeSeparator.includes('--dangerously-skip-permissions') ||
+    beforeSeparator.includes('--allow-dangerously-skip-permissions')
+  if (
+    requestsBypass &&
+    !hasSkipDangerousModePermissionPrompt() &&
+    !getGlobalConfig().bypassPermissionsModeAccepted
+  ) {
+    return '--bg with bypassPermissions requires accepting the disclaimer first. Run `claude --dangerously-skip-permissions` once interactively.'
+  }
+  if (permissionMode === 'auto' && !hasAutoModeOptIn()) {
+    return '--bg with auto mode requires opting in first. Run `claude --permission-mode auto` once interactively.'
+  }
+  return null
 }
 
 export async function preSeedReplBgJob(
@@ -542,6 +587,8 @@ export async function spawnBgSession(
   options?: SpawnBgOptions,
   reattachEnv?: Record<string, string>,
 ): Promise<SpawnBgResult> {
+  const safetyError = getBackgroundLaunchSafetyError(args)
+  if (safetyError) return { ok: false, error: safetyError }
   const sessionId = suppliedSessionId ?? randomUUID()
   const short = sessionId.slice(0, 8)
   const jobDir = getJobDir(short)
@@ -601,13 +648,13 @@ export async function spawnBgSession(
       separator >= 0
         ? rawRespawnFlags
         : persistentRespawnFlags(rawRespawnFlags)
+    const intent = options?.intent ?? inferredIntent ?? ''
+    const idle = !agentName && intent === '' && !options?.detail
     let seeded = false
     let seedWrite: Promise<void> | undefined
     const freshDir = suppliedSessionId === undefined
     const existingState = freshDir ? null : await readJobState(jobDir)
     if (source !== 'fleet' && existingState === null) {
-      const intent = options?.intent ?? inferredIntent ?? ''
-      const idle = !agentName && intent === '' && !options?.detail
       seedWrite = writeJobState(
         jobDir,
         createInitialJobState({
@@ -717,7 +764,7 @@ export async function spawnBgSession(
             return
           }
         }
-        if (seeded) await rm(jobDir, { recursive: true, force: false }).catch(() => {})
+        if (seeded) await rm(jobDir, { recursive: true, force: true }).catch(() => {})
         if (result.reason === 'stale-short') {
           throw new Error('Previous session is still shutting down — try again in a moment')
         }
@@ -726,10 +773,10 @@ export async function spawnBgSession(
         )
       },
     )
-    return { ok: true, short, sessionId }
+    return { ok: true, short, sessionId, idle }
   } catch (error) {
     if (source !== 'fleet') {
-      await rm(jobDir, { recursive: true, force: false }).catch(() => {})
+      await rm(jobDir, { recursive: true, force: true }).catch(() => {})
     }
     return {
       ok: false,
@@ -936,14 +983,86 @@ export function formatBgHints(short: string, name?: string): string {
   ].join('\n')
 }
 
+const MAX_BACKGROUND_STDIN_BYTES = 1_048_576
+
+export async function readBgStdin(
+  stdin: typeof process.stdin = process.stdin,
+): Promise<string> {
+  if (stdin.isTTY) return ''
+  stdin.setEncoding('utf8')
+  let input = ''
+  let truncated = false
+  const onData = (chunk: string) => {
+    if (truncated) return
+    if (input.length + chunk.length > MAX_BACKGROUND_STDIN_BYTES) {
+      input += chunk.slice(0, MAX_BACKGROUND_STDIN_BYTES - input.length)
+      truncated = true
+      return
+    }
+    input += chunk
+  }
+  stdin.on('data', onData)
+  const timedOut = await peekForStdinData(stdin, 3_000)
+  stdin.off('data', onData)
+  if (timedOut) return ''
+  if (truncated) {
+    process.stderr.write(
+      `warning: piped stdin exceeds ${MAX_BACKGROUND_STDIN_BYTES} bytes, truncated\n`,
+    )
+  }
+  return input.replace(/\r?\n$/, '')
+}
+
+export function withStdinPositional(args: string[], stdin: string): string[] {
+  const separator = args.indexOf('--')
+  if (separator >= 0) {
+    const positional = args.slice(separator + 1).join(' ')
+    return [
+      ...args.slice(0, separator),
+      '--',
+      positional ? `${positional}\n${stdin}` : stdin,
+    ]
+  }
+  let positionalIndex = -1
+  for (let index = 0; index < args.length; index++) {
+    const arg = args[index]!
+    if (arg.startsWith('-')) {
+      const next = args[index + 1]
+      if (
+        next !== undefined &&
+        (RESPAWN_VALUE_FLAGS.has(arg) || !next.startsWith('-'))
+      ) {
+        index++
+      }
+      continue
+    }
+    positionalIndex = index
+  }
+  if (positionalIndex >= 0) {
+    const combined = [...args]
+    combined[positionalIndex] = `${args[positionalIndex]}\n${stdin}`
+    return combined
+  }
+  return [...args, '--', stdin]
+}
+
 export async function handleBgFlag(args: string[]): Promise<void> {
-  const result = await spawnBgSession(args.filter((arg) => !BG_FLAGS.includes(arg)))
+  const filteredArgs = args.filter((arg) => !BG_FLAGS.includes(arg))
+  const stdin = await readBgStdin()
+  const result = await spawnBgSession(
+    stdin ? withStdinPositional(filteredArgs, stdin) : filteredArgs,
+  )
   if (!result.ok) {
     process.stderr.write(`${result.error}\n`)
     process.exit(1)
     return
   }
-  process.stdout.write(`${formatBgHints(result.short)}\n`)
+  process.stdout.write(
+    `${formatBgHints(
+      result.short,
+      result.idle ? '(idle — attach to send a prompt)' : undefined,
+    )}\n`,
+  )
 }
 
 async function resolveJobPrefix(
