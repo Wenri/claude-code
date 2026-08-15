@@ -38,6 +38,7 @@ const LOCK_OPTIONS = {
     minTimeout: 5,
     maxTimeout: 100,
   },
+  onCompromised: (error: Error) => logError(error),
 }
 
 export type TeammateMessage = {
@@ -351,11 +352,15 @@ export async function clearMailbox(
   teamName?: string,
 ): Promise<void> {
   const inboxPath = getInboxPath(agentName, teamName)
+  const lockFilePath = `${inboxPath}.lock`
+  let release: (() => Promise<void>) | undefined
 
   try {
-    // flag 'r+' throws ENOENT if the file doesn't exist, so we don't
-    // accidentally create an inbox file that wasn't there.
-    await writeFile(inboxPath, '[]', { encoding: 'utf-8', flag: 'r+' })
+    release = await lockfile.lock(inboxPath, {
+      lockfilePath: lockFilePath,
+      ...LOCK_OPTIONS,
+    })
+    await writeFile(inboxPath, '[]', { encoding: 'utf-8' })
     logForDebugging(`[TeammateMailbox] Cleared inbox for ${agentName}`)
   } catch (error) {
     const code = getErrnoCode(error)
@@ -364,6 +369,8 @@ export async function clearMailbox(
     }
     logForDebugging(`Failed to clear inbox for ${agentName}: ${error}`)
     logError(error)
+  } finally {
+    await release?.()
   }
 }
 
