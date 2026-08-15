@@ -915,6 +915,17 @@ async function execCommandHook(
   // entered value containing the literal text ${CLAUDE_PLUGIN_ROOT} is treated
   // as opaque — not re-interpreted as a template.
   let command = hook.command
+  for (const [name, resolvedPath] of [
+    ['CLAUDE_PLUGIN_ROOT', pluginRoot || skillRoot],
+    ['CLAUDE_PLUGIN_DATA', pluginRoot],
+  ] as const) {
+    if (resolvedPath || !command.includes('${' + name + '}')) continue
+    throw new Error(
+      skillRoot
+        ? `Hook command references \${${name}} but only \${CLAUDE_PLUGIN_ROOT} is available for skill hooks (\${CLAUDE_PLUGIN_DATA} is plugin-only). Command: ${command}`
+        : `Hook command references \${${name}} but the hook is not associated with a plugin. This variable is only available in hooks defined in a plugin's hooks/hooks.json file, not in settings.json. Command: ${command}`,
+    )
+  }
   let pluginOpts: ReturnType<typeof loadPluginOptions> | undefined
   if (pluginRoot) {
     // Plugin directory gone (orphan GC race, concurrent session deleted it):
@@ -4367,7 +4378,7 @@ export async function applyHookSessionTitle(title: string): Promise<void> {
   }
 
   logForDebugging(
-    `Applying session title from UserPromptSubmit hook (${[...sanitized].length} chars)`,
+    `Hook sessionTitle applied (${[...sanitized].length} chars)`,
   )
   await saveCustomTitle(sessionId, sanitized, undefined, 'hook')
   await saveAgentName(sessionId, sanitized, undefined, 'hook')

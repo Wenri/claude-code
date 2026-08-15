@@ -404,7 +404,8 @@ function connectRendezvous(
       try {
         socket.write(`${JSON.stringify(message)}\n`)
         return true
-      } catch {
+      } catch (error) {
+        logForDebugging(`[bg-rv] send failed: ${String(error)}`)
         return false
       }
     },

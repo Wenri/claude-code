@@ -72,7 +72,7 @@ test('source applies a hook title to transcript and daemon job state', () => {
     applyTitle,
     'sanitizeHookSessionTitle(title)',
     'getCurrentSessionTitle(sessionId)',
-    'Applying session title from UserPromptSubmit hook',
+    'Hook sessionTitle applied (',
     "await saveCustomTitle(sessionId, sanitized, undefined, 'hook')",
     "await saveAgentName(sessionId, sanitized, undefined, 'hook')",
     "await renameJob(sessionId, sanitized, 'user')",
