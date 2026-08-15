@@ -11,6 +11,7 @@ import AppContext from '../ink/components/AppContext.js';
 import type { DOMElement } from '../ink/dom.js';
 import type { KeyboardEvent } from '../ink/events/keyboard-event.js';
 import instances from '../ink/instances.js';
+import { DECSTBM_SAFE } from '../ink/terminal.js';
 import { Box, Text } from '../ink.js';
 import type { Message } from '../types/message.js';
 import { openBrowser, openPath } from '../utils/browser.js';
@@ -18,6 +19,7 @@ import { isFullscreenEnvEnabled } from '../utils/fullscreen.js';
 import { plural } from '../utils/stringUtils.js';
 import { isNullRenderingAttachment } from './messages/nullRenderingAttachments.js';
 import { Label } from './design-system/Label.js';
+import { NativeScrollLayout } from './NativeScrollLayout.js';
 import PromptInputFooterSuggestions from './PromptInput/PromptInputFooterSuggestions.js';
 import type { StickyPrompt } from './VirtualMessageList.js';
 
@@ -449,6 +451,35 @@ export function FullscreenLayout(t0) {
       t19 = $[41];
     }
     return t19;
+  }
+  if (DECSTBM_SAFE) {
+    const nativeScrollable = <ScrollChromeContext value={chromeCtx}>{scrollable}</ScrollChromeContext>;
+    const pushUp = overlay != null ? <Box flexDirection="column" flexShrink={0}>
+        <Text color="permission">{"\u2594".repeat(columns)}</Text>
+        {overlay}
+      </Box> : null;
+    const nativeBottom = <>
+        <SuggestionsOverlay />
+        <DialogOverlay />
+        {bottom}
+      </>;
+    const nativeModal = modal != null ? <ModalContext value={{
+      rows: terminalRows - MODAL_TRANSCRIPT_PEEK - 1,
+      columns: columns - 4,
+      scrollRef: modalScrollRef ?? null,
+      claimScrollBox: null
+    }}>
+        <Box flexDirection="column" paddingX={2}>{modal}</Box>
+      </ModalContext> : null;
+    return <PromptOverlayProvider>
+        <NativeScrollLayout
+          scrollRef={scrollRef}
+          scrollable={nativeScrollable}
+          pushUp={pushUp}
+          bottom={nativeBottom}
+          overlay={nativeModal}
+        />
+      </PromptOverlayProvider>;
   }
   let t8;
   if ($[42] !== bottom || $[43] !== modal || $[44] !== overlay || $[45] !== scrollable) {

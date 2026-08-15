@@ -1471,7 +1471,7 @@ function renderScrolledChildren(
   }
 }
 
-function dropSubtreeCache(node: DOMElement): void {
+export function dropSubtreeCache(node: DOMElement): void {
   nodeCache.delete(node)
   for (const child of node.childNodes) {
     if (child.nodeName !== '#text') {

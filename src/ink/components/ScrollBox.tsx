@@ -59,6 +59,8 @@ export type ScrollBoxHandle = {
    * cold start).
    */
   setClampBounds: (min: number | undefined, max: number | undefined) => void;
+  /** Return the backing Ink DOM node for renderer-level integrations. */
+  getDomElement: () => DOMElement | null;
 };
 export type ScrollBoxProps = Except<Styles, 'textWrap' | 'overflow' | 'overflowX' | 'overflowY'> & {
   ref?: Ref<ScrollBoxHandle>;
@@ -195,6 +197,9 @@ function ScrollBox({
       if (!el) return;
       el.scrollClampMin = min;
       el.scrollClampMax = max;
+    },
+    getDomElement() {
+      return domRef.current;
     }
   }),
   // notify/scrollMutated are inline (no useCallback) but only close over

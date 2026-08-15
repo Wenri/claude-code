@@ -140,6 +140,12 @@ export default class Ink {
     rowOffset: number;
     currentIdx: number;
   } | null = null;
+  /**
+   * Optional main-screen frame consumer. The native-scroll layout installs
+   * this to serialize a rendered frame directly to DECSTBM-managed terminal
+   * regions instead of routing it through LogUpdate.
+   */
+  frameSink: ((frame: Frame, stylePool: StylePool) => boolean | 'tick') | null = null;
   // React-land subscribers for selection state changes (useHasSelection).
   // Fired alongside the terminal repaint whenever the selection mutates
   // so UI (e.g. footer hints) can react to selection appearing/clearing.
@@ -473,6 +479,23 @@ export default class Ink {
       overlayActive
     });
     const rendererMs = performance.now() - renderStart;
+
+    if (this.frameSink) {
+      const consumed = this.frameSink(frame, this.stylePool);
+      if (consumed) {
+        this.backFrame = this.frontFrame;
+        this.frontFrame = frame;
+        this.prevFrameContaminated = false;
+        if (consumed === 'tick') {
+          this.drainTimer = setTimeout(() => this.onRender(), FRAME_INTERVAL_MS >> 2);
+        }
+        this.options.onFrame?.({
+          durationMs: performance.now() - renderStart,
+          flickers: []
+        });
+        return;
+      }
+    }
 
     // Sticky/auto-follow scrolled the ScrollBox this frame. Translate the
     // selection by the same delta so the highlight stays anchored to the
@@ -908,6 +931,18 @@ export default class Ink {
   }
   get isAltScreenActive(): boolean {
     return this.altScreenActive;
+  }
+
+  getStylePool(): StylePool {
+    return this.stylePool;
+  }
+
+  getCharPool(): CharPool {
+    return this.charPool;
+  }
+
+  getHyperlinkPool(): HyperlinkPool {
+    return this.hyperlinkPool;
   }
 
   /**
