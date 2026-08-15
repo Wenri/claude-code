@@ -23,9 +23,11 @@ const CAFFEINATE_TIMEOUT_SECONDS = 300 // 5 minutes
 // Restart interval - restart caffeinate before it expires.
 // Use 4 minutes to give plenty of buffer before the 5 minute timeout.
 const RESTART_INTERVAL_MS = 4 * 60 * 1000
+const STOP_GRACE_PERIOD_MS = 30 * 1000
 
 let caffeinateProcess: ChildProcess | null = null
 let restartInterval: ReturnType<typeof setInterval> | null = null
+let pendingStopTimeout: ReturnType<typeof setTimeout> | null = null
 let refCount = 0
 let cleanupRegistered = false
 
@@ -37,6 +39,10 @@ export function startPreventSleep(): void {
   refCount++
 
   if (refCount === 1) {
+    if (pendingStopTimeout !== null) {
+      clearTimeout(pendingStopTimeout)
+      pendingStopTimeout = null
+    }
     spawnCaffeinate()
     startRestartInterval()
   }
@@ -51,9 +57,13 @@ export function stopPreventSleep(): void {
     refCount--
   }
 
-  if (refCount === 0) {
-    stopRestartInterval()
-    killCaffeinate()
+  if (refCount === 0 && pendingStopTimeout === null) {
+    pendingStopTimeout = setTimeout(() => {
+      pendingStopTimeout = null
+      stopRestartInterval()
+      killCaffeinate()
+    }, STOP_GRACE_PERIOD_MS)
+    pendingStopTimeout.unref()
   }
 }
 
@@ -63,6 +73,10 @@ export function stopPreventSleep(): void {
  */
 export function forceStopPreventSleep(): void {
   refCount = 0
+  if (pendingStopTimeout !== null) {
+    clearTimeout(pendingStopTimeout)
+    pendingStopTimeout = null
+  }
   stopRestartInterval()
   killCaffeinate()
 }
@@ -80,8 +94,8 @@ function startRestartInterval(): void {
 
   restartInterval = setInterval(() => {
     // Only restart if we still need sleep prevention
-    if (refCount > 0) {
-      logForDebugging('Restarting caffeinate to maintain sleep prevention')
+    if (refCount > 0 || pendingStopTimeout !== null) {
+      logForDebugging('Restarting sleep inhibitor to maintain prevention')
       killCaffeinate()
       spawnCaffeinate()
     }
@@ -127,6 +141,7 @@ function spawnCaffeinate(): void {
       ['-i', '-t', String(CAFFEINATE_TIMEOUT_SECONDS)],
       {
         stdio: 'ignore',
+        windowsHide: true,
       },
     )
 
@@ -135,7 +150,7 @@ function spawnCaffeinate(): void {
 
     const thisProc = caffeinateProcess
     caffeinateProcess.on('error', err => {
-      logForDebugging(`caffeinate spawn error: ${err.message}`)
+      logForDebugging(`sleep inhibitor spawn error: ${err.message}`)
       if (caffeinateProcess === thisProc) caffeinateProcess = null
     })
 
@@ -157,7 +172,7 @@ function killCaffeinate(): void {
     try {
       // SIGKILL for immediate termination - SIGTERM could be delayed
       proc.kill('SIGKILL')
-      logForDebugging('Stopped caffeinate, allowing sleep')
+      logForDebugging('Stopped sleep inhibitor, allowing sleep')
     } catch {
       // Process may have already exited
     }
