@@ -298,6 +298,10 @@ export type SubagentContextOverrides = {
   abortController?: AbortController
   /** Override the getAppState function */
   getAppState?: ToolUseContext['getAppState']
+  /** Override the direct permission-context getter. */
+  getToolPermissionContext?: ToolUseContext['getToolPermissionContext']
+  /** Override the effective effort for this subagent. */
+  getEffortValue?: ToolUseContext['getEffortValue']
   /** Share or override the session-scoped REPL isolation latch. */
   isolationLatch?: ToolUseContext['isolationLatch']
 
@@ -401,6 +405,17 @@ export function createSubagentContext(
           }
         }
 
+  const getToolPermissionContext: ToolUseContext['getToolPermissionContext'] =
+    overrides?.getToolPermissionContext
+      ? overrides.getToolPermissionContext
+      : overrides?.shareAbortController
+        ? parentContext.getToolPermissionContext
+        : () => {
+            const context = parentContext.getToolPermissionContext()
+            if (context.shouldAvoidPermissionPrompts) return context
+            return { ...context, shouldAvoidPermissionPrompts: true }
+          }
+
   return {
     // Mutable state - cloned by default to maintain isolation
     // Clone overrides.readFileState if provided, otherwise clone from parent
@@ -440,8 +455,17 @@ export function createSubagentContext(
 
     // AppState access
     getAppState,
+    getToolPermissionContext,
+    getEffortValue:
+      overrides?.getEffortValue ?? parentContext.getEffortValue,
+    getAutoCompactWindow: parentContext.getAutoCompactWindow,
+    getFastMode: parentContext.getFastMode,
+    getCacheBreakerPhrase: parentContext.getCacheBreakerPhrase,
     setAppState: overrides?.shareSetAppState
       ? parentContext.setAppState
+      : () => {},
+    setToolPermissionContext: overrides?.shareSetAppState
+      ? parentContext.setToolPermissionContext
       : () => {},
     // Task registration/kill must always reach the root store, even when
     // setAppState is a no-op — otherwise async agents' background bash tasks
@@ -486,6 +510,7 @@ export function createSubagentContext(
     // Fields that can be overridden or copied from parent
     options: overrides?.options ?? parentContext.options,
     messages: overrides?.messages ?? parentContext.messages,
+    turnStartIndex: 0,
     // Generate new agentId for subagents (each subagent should have its own ID)
     agentId: overrides?.agentId ?? createAgentId(),
     agentType: overrides?.agentType,

@@ -371,7 +371,7 @@ async function buildCacheSafeParams(
       [],
     ),
     getUserContext(),
-    getSystemContext(),
+    getSystemContext(context.getAppState().cacheBreakerPhrase),
   ])
   return {
     systemPrompt: asSystemPrompt(rawSystemPrompt),

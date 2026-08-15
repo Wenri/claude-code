@@ -355,11 +355,11 @@ export const ExitPlanModeV2Tool: Tool<InputSchema, Output> = buildTool({
       })
     }
 
-    context.setAppState(prev => {
-      if (prev.toolPermissionContext.mode !== 'plan') return prev
+    context.setToolPermissionContext(previous => {
+      if (previous.mode !== 'plan') return previous
       setHasExitedPlanMode(true)
       setNeedsPlanModeExitAttachment(true)
-      let restoreMode = prev.toolPermissionContext.prePlanMode ?? 'default'
+      let restoreMode = previous.prePlanMode ?? 'default'
       if (feature('TRANSCRIPT_CLASSIFIER')) {
         if (
           restoreMode === 'auto' &&
@@ -382,13 +382,13 @@ export const ExitPlanModeV2Tool: Tool<InputSchema, Output> = buildTool({
       // from entering plan from auto, or from shouldPlanUseAutoMode),
       // restore them. If restoring to auto, keep them stripped.
       const restoringToAuto = restoreMode === 'auto'
-      let baseContext = prev.toolPermissionContext
+      let baseContext = previous
       if (restoringToAuto) {
         baseContext =
           permissionSetupModule?.stripDangerousPermissionsForAutoMode(
             baseContext,
           ) ?? baseContext
-      } else if (prev.toolPermissionContext.strippedDangerousRules) {
+      } else if (previous.strippedDangerousRules) {
         baseContext =
           permissionSetupModule?.restoreDangerousPermissions(baseContext) ??
           baseContext
@@ -399,12 +399,9 @@ export const ExitPlanModeV2Tool: Tool<InputSchema, Output> = buildTool({
         trigger: 'exit_plan_mode',
       })
       return {
-        ...prev,
-        toolPermissionContext: {
-          ...baseContext,
-          mode: restoreMode,
-          prePlanMode: undefined,
-        },
+        ...baseContext,
+        mode: restoreMode,
+        prePlanMode: undefined,
       }
     })
 

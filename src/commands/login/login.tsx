@@ -46,10 +46,10 @@ export async function call(onDone: LocalJSXCommandOnDone, context: LocalJSXComma
       // Reset killswitch gate checks and re-run with new org
       resetBypassPermissionsCheck();
       const appState = context.getAppState();
-      void checkAndDisableBypassPermissionsIfNeeded(appState.toolPermissionContext, context.setAppState);
+      void checkAndDisableBypassPermissionsIfNeeded(appState.toolPermissionContext, context.setToolPermissionContext);
       if (feature('TRANSCRIPT_CLASSIFIER')) {
         resetAutoModeGateCheck();
-        void checkAndDisableAutoModeIfNeeded(appState.toolPermissionContext, context.setAppState, appState.fastMode);
+        void checkAndDisableAutoModeIfNeeded(appState.toolPermissionContext, context.setAppState, context.getFastMode());
       }
       // Increment authVersion to trigger re-fetching of auth-dependent data in hooks (e.g., MCP servers)
       context.setAppState(prev => ({

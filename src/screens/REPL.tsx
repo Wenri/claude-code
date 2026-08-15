@@ -2733,7 +2733,21 @@ export function REPL({
       },
       getAppState: () => store.getState(),
       getToolPermissionContext: () => store.getState().toolPermissionContext,
+      getEffortValue: () => store.getState().effortValue,
+      getAutoCompactWindow: () => store.getState().autoCompactWindow,
+      getFastMode: () => store.getState().fastMode,
+      getCacheBreakerPhrase: () => store.getState().cacheBreakerPhrase,
       setAppState,
+      setToolPermissionContext: value =>
+        setAppState(previous => {
+          const next =
+            typeof value === 'function'
+              ? value(previous.toolPermissionContext)
+              : value
+          return next === previous.toolPermissionContext
+            ? previous
+            : { ...previous, toolPermissionContext: next }
+        }),
       setClassifierApprovals: makeSetClassifierApprovals(setAppState),
       setReplContext: makeSetReplContext(setAppState),
       agentLifecycle: createAgentLifecycle(setAppState),
@@ -2846,7 +2860,7 @@ export function REPL({
     const removedNotifications = removeByFilter(cmd => cmd.mode === 'task-notification');
     void (async () => {
       const toolUseContext = getToolUseContext(messagesRef.current, [], new AbortController(), mainLoopModel);
-      const [defaultSystemPrompt, userContext, systemContext] = await Promise.all([getSystemPrompt(toolUseContext.options.tools, mainLoopModel, Array.from(toolPermissionContext.additionalWorkingDirectories.keys()), toolUseContext.options.mcpClients), getUserContext(), getSystemContext()]);
+      const [defaultSystemPrompt, userContext, systemContext] = await Promise.all([getSystemPrompt(toolUseContext.options.tools, mainLoopModel, Array.from(toolPermissionContext.additionalWorkingDirectories.keys()), toolUseContext.options.mcpClients), getUserContext(), getSystemContext(toolUseContext.getCacheBreakerPhrase())]);
       const systemPrompt = buildEffectiveSystemPrompt({
         mainThreadAgentDefinition,
         toolUseContext,
@@ -3086,21 +3100,17 @@ export function REPL({
     } = toolUseContext.options;
 
     // Scope the skill's effort override to this turn's context only —
-    // wrapping getAppState keeps the override out of the global store so
+    // Overriding getEffortValue keeps the override out of the global store so
     // background agents and UI subscribers (Spinner, LogoV2) never see it.
     if (effort !== undefined) {
-      const previousGetAppState = toolUseContext.getAppState;
-      toolUseContext.getAppState = () => ({
-        ...previousGetAppState(),
-        effortValue: effort
-      });
+      toolUseContext.getEffortValue = () => effort;
     }
     queryCheckpoint('query_context_loading_start');
     const [,, defaultSystemPrompt, baseUserContext, systemContext] = await Promise.all([
     // IMPORTANT: do this after setMessages() above, to avoid UI jank
-    checkAndDisableBypassPermissionsIfNeeded(toolPermissionContext, setAppState),
+    checkAndDisableBypassPermissionsIfNeeded(toolPermissionContext, toolUseContext.setToolPermissionContext),
     // Gated on TRANSCRIPT_CLASSIFIER so GrowthBook kill switch runs wherever auto mode is built in
-    feature('TRANSCRIPT_CLASSIFIER') ? checkAndDisableAutoModeIfNeeded(toolPermissionContext, setAppState, store.getState().fastMode) : undefined, getSystemPrompt(freshTools, mainLoopModelParam, Array.from(toolPermissionContext.additionalWorkingDirectories.keys()), freshMcpClients), getUserContext(), getSystemContext()]);
+    feature('TRANSCRIPT_CLASSIFIER') ? checkAndDisableAutoModeIfNeeded(toolPermissionContext, setAppState, toolUseContext.getFastMode()) : undefined, getSystemPrompt(freshTools, mainLoopModelParam, Array.from(toolPermissionContext.additionalWorkingDirectories.keys()), freshMcpClients), getUserContext(), getSystemContext(toolUseContext.getCacheBreakerPhrase())]);
     const userContext = {
       ...baseUserContext,
       ...getCoordinatorUserContext(freshMcpClients, isScratchpadEnabled() ? getScratchpadDir() : undefined),
@@ -5426,7 +5436,7 @@ export function REPL({
               defaultSystemPrompt: defaultSysPrompt,
               appendSystemPrompt: context.options.appendSystemPrompt
             });
-            const [userContext, systemContext] = await Promise.all([getUserContext(), getSystemContext()]);
+            const [userContext, systemContext] = await Promise.all([getUserContext(), getSystemContext(appState.cacheBreakerPhrase)]);
             const result = await partialCompactConversation(compactMessages, messageIndex, context, {
               systemPrompt,
               userContext,

@@ -463,13 +463,9 @@ async function runPermissionRequestHooksForHeadlessAgent(
         // Persist permission updates if provided
         if (decision.updatedPermissions?.length) {
           persistPermissionUpdates(decision.updatedPermissions)
-          context.setAppState(prev => ({
-            ...prev,
-            toolPermissionContext: applyPermissionUpdates(
-              prev.toolPermissionContext,
-              decision.updatedPermissions!,
-            ),
-          }))
+          context.setToolPermissionContext(previous =>
+            applyPermissionUpdates(previous, decision.updatedPermissions!),
+          )
         }
         return {
           behavior: 'allow',

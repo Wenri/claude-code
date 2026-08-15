@@ -295,13 +295,9 @@ export async function* handleOrphanedPermission(
     const updatedPermissions = permissionResult.updatedPermissions
     if (Array.isArray(updatedPermissions)) {
       try {
-        processUserInputContext.setAppState(prev => ({
-          ...prev,
-          toolPermissionContext: applyPermissionUpdates(
-            prev.toolPermissionContext,
-            updatedPermissions,
-          ),
-        }))
+        processUserInputContext.setToolPermissionContext(previous =>
+          applyPermissionUpdates(previous, updatedPermissions),
+        )
         persistPermissionUpdates(updatedPermissions)
       } catch (error) {
         logForDebugging(

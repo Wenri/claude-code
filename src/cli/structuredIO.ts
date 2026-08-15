@@ -1055,15 +1055,9 @@ async function executePermissionRequestHooksForSDK(
         const permissionUpdates = decision.updatedPermissions ?? []
         if (permissionUpdates.length > 0) {
           persistPermissionUpdates(permissionUpdates)
-          toolUseContext.setAppState(prev => {
-            const updatedContext = applyPermissionUpdates(
-              prev.toolPermissionContext,
-              permissionUpdates,
-            )
-            return updatedContext === prev.toolPermissionContext
-              ? prev
-              : { ...prev, toolPermissionContext: updatedContext }
-          })
+          toolUseContext.setToolPermissionContext(previous =>
+            applyPermissionUpdates(previous, permissionUpdates),
+          )
         }
 
         return {

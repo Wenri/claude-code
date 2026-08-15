@@ -55,6 +55,7 @@ export async function fetchSystemPromptParts({
   mcpClients,
   customSystemPrompt,
   excludeDynamicSections,
+  cacheBreakerPhrase,
 }: {
   tools: Tools
   mainLoopModel: string
@@ -62,6 +63,7 @@ export async function fetchSystemPromptParts({
   mcpClients: MCPServerConnection[]
   customSystemPrompt: string | string[] | undefined
   excludeDynamicSections?: boolean
+  cacheBreakerPhrase?: string
 }): Promise<{
   defaultSystemPrompt: string[]
   userContext: { [k: string]: string }
@@ -79,7 +81,9 @@ export async function fetchSystemPromptParts({
           { excludeDynamicSections },
         ),
     getUserContext(),
-    customSystemPrompt !== undefined ? Promise.resolve({}) : getSystemContext(),
+    customSystemPrompt !== undefined
+      ? Promise.resolve({})
+      : getSystemContext(cacheBreakerPhrase),
     excludeDynamicSections && customSystemPrompt === undefined
       ? getExcludedDynamicSectionsContent(
           mainLoopModel,
@@ -151,6 +155,7 @@ export async function buildSideQuestionFallbackParams({
       mcpClients,
       customSystemPrompt,
       excludeDynamicSections,
+      cacheBreakerPhrase: appState.cacheBreakerPhrase,
     })
 
   const systemPrompt = asSystemPrompt([
@@ -194,7 +199,22 @@ export async function buildSideQuestionFallbackParams({
     abortController: createAbortController(),
     readFileState,
     getAppState,
+    getToolPermissionContext: () => getAppState().toolPermissionContext,
+    getEffortValue: () => getAppState().effortValue,
+    getAutoCompactWindow: () => getAppState().autoCompactWindow,
+    getFastMode: () => getAppState().fastMode,
+    getCacheBreakerPhrase: () => getAppState().cacheBreakerPhrase,
     setAppState,
+    setToolPermissionContext: value =>
+      setAppState(previous => {
+        const next =
+          typeof value === 'function'
+            ? value(previous.toolPermissionContext)
+            : value
+        return next === previous.toolPermissionContext
+          ? previous
+          : { ...previous, toolPermissionContext: next }
+      }),
     setClassifierApprovals: makeSetClassifierApprovals(setAppState),
     setReplContext: makeSetReplContext(setAppState),
     agentLifecycle: createAgentLifecycle(setAppState),

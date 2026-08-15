@@ -756,7 +756,7 @@ async function* queryLoop(
       const pressure = calculateTokenWarningState(
         tokenCountWithEstimation(messagesForQuery) - snipTokensFreed,
         toolUseContext.options.mainLoopModel,
-        toolUseContext.getAppState().autoCompactWindow,
+        toolUseContext.getAutoCompactWindow(),
       )
       if (pressure.level === 'blocked') {
         logEvent('tengu_ptl_surfaced_to_user', {
@@ -794,7 +794,7 @@ async function* queryLoop(
               },
               model: currentModel,
               ...(config.gates.fastModeEnabled && {
-                fastMode: appState.fastMode,
+                fastMode: toolUseContext.getFastMode(),
               }),
               toolChoice: undefined,
               isNonInteractiveSession:
@@ -851,7 +851,7 @@ async function* queryLoop(
                 c => c.type === 'pending',
               ),
               queryTracking,
-              effortValue: appState.effortValue,
+              effortValue: toolUseContext.getEffortValue(),
               advisorModel: appState.advisorModel,
               skipCacheWrite,
               agentId: toolUseContext.agentId,

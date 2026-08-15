@@ -130,6 +130,8 @@ export type AppState = DeepImmutable<{
   briefTranscript: boolean
   awaySummaryEnabled: boolean
   autoCompactWindow: number | undefined
+  /** Ant-only cache-busting phrase threaded through per-query context. */
+  cacheBreakerPhrase?: string
   // Optional - only present when ENABLE_AGENT_SWARMS is true (for dead code elimination)
   showTeammateMessagePreview?: boolean
   selectedIPAgentIndex: number

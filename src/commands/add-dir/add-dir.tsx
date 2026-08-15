@@ -78,12 +78,9 @@ export async function call(onDone: LocalJSXCommandOnDone, context: LocalJSXComma
     };
 
     // Apply to session context
-    const latestAppState = context.getAppState();
-    const updatedContext = applyPermissionUpdate(latestAppState.toolPermissionContext, permissionUpdate);
-    context.setAppState(prev => ({
-      ...prev,
-      toolPermissionContext: updatedContext
-    }));
+    context.setToolPermissionContext(previous =>
+      applyPermissionUpdate(previous, permissionUpdate),
+    );
 
     // Update sandbox config so Bash commands can access the new directory.
     // Bootstrap state is the source of truth for session-only dirs; persisted

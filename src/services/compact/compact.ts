@@ -1487,7 +1487,7 @@ async function streamCompactSummary({
           querySource: 'compact',
           agents: context.options.agentDefinitions.activeAgents,
           mcpTools: [],
-          effortValue: appState.effortValue,
+          effortValue: context.getEffortValue(),
         },
       })
       const streamIter = streamingGen[Symbol.asyncIterator]()

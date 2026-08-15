@@ -406,6 +406,7 @@ export class QueryEngine {
       mcpClients,
       customSystemPrompt,
       excludeDynamicSections,
+      cacheBreakerPhrase: initialAppState.cacheBreakerPhrase,
     })
     headlessProfilerCheckpoint('after_getSystemPrompt')
     const userContext = {
@@ -496,7 +497,21 @@ export class QueryEngine {
       },
       getAppState,
       getToolPermissionContext: () => getAppState().toolPermissionContext,
+      getEffortValue: () => getAppState().effortValue,
+      getAutoCompactWindow: () => getAppState().autoCompactWindow,
+      getFastMode: () => getAppState().fastMode,
+      getCacheBreakerPhrase: () => getAppState().cacheBreakerPhrase,
       setAppState,
+      setToolPermissionContext: value =>
+        setAppState(previous => {
+          const next =
+            typeof value === 'function'
+              ? value(previous.toolPermissionContext)
+              : value
+          return next === previous.toolPermissionContext
+            ? previous
+            : { ...previous, toolPermissionContext: next }
+        }),
       setClassifierApprovals: makeSetClassifierApprovals(setAppState),
       setReplContext: makeSetReplContext(setAppState),
       agentLifecycle: createAgentLifecycle(setAppState),
@@ -795,7 +810,21 @@ export class QueryEngine {
       },
       getAppState,
       getToolPermissionContext: () => getAppState().toolPermissionContext,
+      getEffortValue: () => getAppState().effortValue,
+      getAutoCompactWindow: () => getAppState().autoCompactWindow,
+      getFastMode: () => getAppState().fastMode,
+      getCacheBreakerPhrase: () => getAppState().cacheBreakerPhrase,
       setAppState,
+      setToolPermissionContext: value =>
+        setAppState(previous => {
+          const next =
+            typeof value === 'function'
+              ? value(previous.toolPermissionContext)
+              : value
+          return next === previous.toolPermissionContext
+            ? previous
+            : { ...previous, toolPermissionContext: next }
+        }),
       setClassifierApprovals: makeSetClassifierApprovals(setAppState),
       setReplContext: makeSetReplContext(setAppState),
       agentLifecycle: createAgentLifecycle(setAppState),

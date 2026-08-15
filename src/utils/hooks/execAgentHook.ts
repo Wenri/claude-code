@@ -134,6 +134,19 @@ When done, return your result using the ${SYNTHETIC_OUTPUT_TOOL_NAME} tool with:
           thinkingConfig: { type: 'disabled' as const },
         },
         setInProgressToolUseIDs: () => {},
+        getToolPermissionContext() {
+          const permissionContext = toolUseContext.getToolPermissionContext()
+          const existingSessionRules =
+            permissionContext.alwaysAllowRules.session ?? []
+          return {
+            ...permissionContext,
+            mode: 'dontAsk' as const,
+            alwaysAllowRules: {
+              ...permissionContext.alwaysAllowRules,
+              session: [...existingSessionRules, `Read(/${transcriptPath})`],
+            },
+          }
+        },
         getAppState() {
           const appState = toolUseContext.getAppState()
           // Add session rule to allow reading transcript file

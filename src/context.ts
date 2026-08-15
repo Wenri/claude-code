@@ -121,7 +121,7 @@ export const getGitStatus = memoize(async (): Promise<string | null> => {
  * This context is prepended to each conversation, and cached for the duration of the conversation.
  */
 export const getSystemContext = memoize(
-  async (): Promise<{
+  async (cacheBreakerPhrase?: string): Promise<{
     [k: string]: string
   }> => {
     const startTime = Date.now()
@@ -136,7 +136,7 @@ export const getSystemContext = memoize(
 
     // Include system prompt injection if set (for cache breaking, ant-only)
     const injection = feature('BREAK_CACHE_COMMAND')
-      ? getSystemPromptInjection()
+      ? (cacheBreakerPhrase ?? getSystemPromptInjection())
       : null
 
     logForDiagnosticsNoPII('info', 'system_context_completed', {

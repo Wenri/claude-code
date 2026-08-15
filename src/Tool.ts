@@ -63,6 +63,7 @@ import type {
   WebSearchProgress,
 } from './types/tools.js'
 import type { FileStateCache } from './utils/fileStateCache.js'
+import type { EffortValue } from './utils/effort.js'
 import type { MemorySelector } from './memdir/findRelevantMemories.js'
 import type { DenialTrackingState } from './utils/permissions/denialTracking.js'
 import type { ResultDedupState } from './services/tools/resultDedup.js'
@@ -247,7 +248,16 @@ export type ToolUseContext = {
   readFileState: FileStateCache
   getAppState(): AppState
   getToolPermissionContext(): ToolPermissionContext
+  getEffortValue(): EffortValue | undefined
+  getAutoCompactWindow(): number | undefined
+  getFastMode(): boolean | undefined
+  getCacheBreakerPhrase(): string | undefined
   setAppState(f: (prev: AppState) => AppState): void
+  setToolPermissionContext(
+    context:
+      | ToolPermissionContext
+      | ((previous: ToolPermissionContext) => ToolPermissionContext),
+  ): void
   setClassifierApprovals: SetClassifierApprovals
   /** Per-session metadata transport used by SDK/CCR entrypoints. */
   sessionState?: SessionStateManager

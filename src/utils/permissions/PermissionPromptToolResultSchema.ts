@@ -95,13 +95,9 @@ export function permissionPromptToolResultToPermissionDecision(
   if (result.behavior === 'allow') {
     const updatedPermissions = result.updatedPermissions
     if (updatedPermissions) {
-      toolUseContext.setAppState(prev => ({
-        ...prev,
-        toolPermissionContext: applyPermissionUpdates(
-          prev.toolPermissionContext,
-          updatedPermissions,
-        ),
-      }))
+      toolUseContext.setToolPermissionContext(previous =>
+        applyPermissionUpdates(previous, updatedPermissions),
+      )
       persistPermissionUpdates(updatedPermissions)
     }
     // Mobile clients responding from a push notification don't have the

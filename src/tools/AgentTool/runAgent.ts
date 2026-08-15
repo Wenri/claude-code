@@ -33,7 +33,12 @@ import type {
   MCPServerConnection,
   ScopedMcpServerConfig,
 } from '../../services/mcp/types.js'
-import type { Tool, Tools, ToolUseContext } from '../../Tool.js'
+import type {
+  Tool,
+  Tools,
+  ToolPermissionContext,
+  ToolUseContext,
+} from '../../Tool.js'
 import { hasAgentKeepalive } from '../../tasks/LocalAgentTask/LocalAgentTask.js'
 import { killShellTasksForAgent } from '../../tasks/LocalShellTask/killShellTasks.js'
 import type { Command } from '../../types/command.js'
@@ -428,7 +433,8 @@ export async function* runAgent({
 
   const [baseUserContext, baseSystemContext] = await Promise.all([
     override?.userContext ?? getUserContext(),
-    override?.systemContext ?? getSystemContext(),
+    override?.systemContext ??
+      getSystemContext(toolUseContext.getAppState().cacheBreakerPhrase),
   ])
 
   // Read-only agents (Explore, Plan) don't act on commit/PR/lint rules from
@@ -462,18 +468,28 @@ export async function* runAgent({
   // However, don't override if parent is in bypassPermissions or acceptEdits mode - those should always take precedence
   // For async agents, also set shouldAvoidPermissionPrompts since they can't show UI
   const agentPermissionMode = agentDefinition.permissionMode
-  const agentGetAppState = () => {
-    const state = toolUseContext.getAppState()
-    let toolPermissionContext = state.toolPermissionContext
+  let lastParentPermissionContext: ToolPermissionContext | undefined
+  let lastAgentPermissionContext: ToolPermissionContext | undefined
+  const resolveAgentPermissionContext = (
+    parentContext: ToolPermissionContext,
+  ): ToolPermissionContext => {
+    if (
+      parentContext === lastParentPermissionContext &&
+      lastAgentPermissionContext
+    ) {
+      return lastAgentPermissionContext
+    }
+    lastParentPermissionContext = parentContext
+    let toolPermissionContext = parentContext
 
     // Override permission mode if agent defines one (unless parent is bypassPermissions, acceptEdits, or auto)
     if (
       agentPermissionMode &&
-      state.toolPermissionContext.mode !== 'bypassPermissions' &&
-      state.toolPermissionContext.mode !== 'acceptEdits' &&
+      parentContext.mode !== 'bypassPermissions' &&
+      parentContext.mode !== 'acceptEdits' &&
       !(
         feature('TRANSCRIPT_CLASSIFIER') &&
-        state.toolPermissionContext.mode === 'auto'
+        parentContext.mode === 'auto'
       )
     ) {
       toolPermissionContext = {
@@ -520,31 +536,33 @@ export async function* runAgent({
         ...toolPermissionContext,
         alwaysAllowRules: {
           // Preserve SDK-level permissions from --allowedTools
-          cliArg: state.toolPermissionContext.alwaysAllowRules.cliArg,
+          cliArg: parentContext.alwaysAllowRules.cliArg,
           // Use the provided allowedTools as session-level permissions
           session: [...allowedTools],
         },
       }
     }
 
-    // Override effort level if agent defines one
-    const effortValue =
-      agentDefinition.effort !== undefined
-        ? agentDefinition.effort
-        : state.effortValue
-
-    if (
-      toolPermissionContext === state.toolPermissionContext &&
-      effortValue === state.effortValue
-    ) {
-      return state
-    }
+    lastAgentPermissionContext = toolPermissionContext
+    return toolPermissionContext
+  }
+  const agentGetToolPermissionContext = () =>
+    resolveAgentPermissionContext(toolUseContext.getToolPermissionContext())
+  const agentGetAppState = () => {
+    const state = toolUseContext.getAppState()
+    const toolPermissionContext = resolveAgentPermissionContext(
+      state.toolPermissionContext,
+    )
+    if (toolPermissionContext === state.toolPermissionContext) return state
     return {
       ...state,
       toolPermissionContext,
-      effortValue,
     }
   }
+  const agentGetEffortValue =
+    agentDefinition.effort !== undefined
+      ? () => agentDefinition.effort
+      : toolUseContext.getEffortValue
 
   const baseResolvedTools = useExactTools
     ? availableTools
@@ -773,6 +791,8 @@ export async function* runAgent({
     readFileState: agentReadFileState,
     abortController: agentAbortController,
     getAppState: agentGetAppState,
+    getToolPermissionContext: agentGetToolPermissionContext,
+    getEffortValue: agentGetEffortValue,
     // Sync agents share these callbacks with parent
     shareSetAppState: !isAsync,
     shareSetResponseLength: true, // Both sync and async contribute to response metrics
