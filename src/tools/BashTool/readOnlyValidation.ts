@@ -1578,6 +1578,8 @@ const FIND_ARGUMENT_PREDICATES = new Set([
   '-regextype',
   '-printf',
   '-D',
+  '-files0-from',
+  '-xattrname',
 ])
 
 const TEST_ARITHMETIC_COMPARISON_OPERATORS = new Set([

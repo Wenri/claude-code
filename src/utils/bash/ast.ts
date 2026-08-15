@@ -2141,9 +2141,9 @@ const EVAL_LIKE_BUILTINS = new Set([
  * Maps: builtin name → set of flags whose next argument is a NAME.
  */
 const SUBSCRIPT_EVAL_FLAGS: Record<string, Set<string>> = {
-  test: new Set(['-v', '-R']),
-  '[': new Set(['-v', '-R']),
-  '[[': new Set(['-v', '-R']),
+  test: new Set(['-v', '-R', '-t']),
+  '[': new Set(['-v', '-R', '-t']),
+  '[[': new Set(['-v', '-R', '-t']),
   printf: new Set(['-v']),
   read: new Set(['-a']),
   unset: new Set(['-v']),
@@ -2167,6 +2167,80 @@ const SUBSCRIPT_EVAL_FLAGS: Record<string, Set<string>> = {
  * both forms, so they get this check too — mild over-blocking, safe side.
  */
 const TEST_ARITH_CMP_OPS = new Set(['-eq', '-ne', '-lt', '-le', '-gt', '-ge'])
+
+/**
+ * Numeric literals accepted by test/[ and [[ arithmetic operands. Reject
+ * identifiers and dynamic values because zsh and bash can recursively expand
+ * them as arithmetic expressions (including command substitutions hidden in
+ * array subscripts).
+ */
+const TEST_ARITH_LITERAL_RE =
+  /^-?(0[xX][0-9a-fA-F]+|[0-9]+#[0-9a-zA-Z]+|[0-9]+)$/
+
+/**
+ * find predicates whose next argv item is data. Action-looking text in that
+ * data position is not itself an action and must be skipped by the scanner.
+ */
+const FIND_ARGUMENT_PREDICATES = new Set([
+  '-name',
+  '-iname',
+  '-path',
+  '-ipath',
+  '-wholename',
+  '-iwholename',
+  '-lname',
+  '-ilname',
+  '-regex',
+  '-iregex',
+  '-newer',
+  '-anewer',
+  '-cnewer',
+  '-user',
+  '-group',
+  '-uid',
+  '-gid',
+  '-perm',
+  '-type',
+  '-xtype',
+  '-size',
+  '-inum',
+  '-links',
+  '-used',
+  '-fstype',
+  '-context',
+  '-mtime',
+  '-atime',
+  '-ctime',
+  '-mmin',
+  '-amin',
+  '-cmin',
+  '-mindepth',
+  '-maxdepth',
+  '-printf',
+  '-regextype',
+  '-D',
+  '-f',
+  '-flags',
+  '-Bnewer',
+  '-Btime',
+  '-Bmin',
+  '-files0-from',
+  '-xattrname',
+])
+
+const FIND_NEWER_PREDICATE_RE = /^-newer[aBcm][aBcmt]$/
+
+const FIND_DANGEROUS_ACTIONS = new Set([
+  '-exec',
+  '-execdir',
+  '-ok',
+  '-okdir',
+  '-delete',
+  '-fprint',
+  '-fprint0',
+  '-fprintf',
+  '-fls',
+])
 
 /**
  * Builtins where EVERY non-flag positional argument is a NAME that bash
@@ -2426,15 +2500,34 @@ export function checkSemantics(commands: SimpleCommand[]): SemanticCheckResult {
     // separate (`printf -v NAME`) and fused (`printf -vNAME`, getopt-style).
     // `printf '[%s]' x` stays safe — `[` in format string, not after `-v`.
     const dangerFlags = SUBSCRIPT_EVAL_FLAGS[name]
+    const isTestLike = name === 'test' || name === '[' || name === '[['
     if (dangerFlags !== undefined) {
       for (let i = 1; i < a.length; i++) {
         const arg = a[i]!
+        const nextArg = a[i + 1]
         // Separate form: `-v` then NAME in next arg.
-        if (dangerFlags.has(arg) && a[i + 1]?.includes('[')) {
+        if (
+          dangerFlags.has(arg) &&
+          nextArg !== undefined &&
+          (nextArg.includes('[') || containsAnyPlaceholder(nextArg))
+        ) {
           return {
             ok: false,
-            reason: `'${name} ${arg}' operand contains array subscript — bash evaluates $(cmd) in subscripts`,
+            reason: `'${name} ${arg}' operand contains array subscript or runtime-determined value — bash evaluates $(cmd) in subscripts`,
           }
+        }
+        if (isTestLike) {
+          if (
+            arg === '-t' &&
+            nextArg !== undefined &&
+            !TEST_ARITH_LITERAL_RE.test(nextArg)
+          ) {
+            return {
+              ok: false,
+              reason: `'${name} -t' operand is non-numeric — zsh arith-evals identifiers (may run $(cmd))`,
+            }
+          }
+          continue
         }
         // Combined short flags: `-ra` is bash shorthand for `-r -a`.
         // Check if any danger flag character appears in a combined flag
@@ -2481,15 +2574,21 @@ export function checkSemantics(commands: SimpleCommand[]): SemanticCheckResult {
     // SUBSCRIPT_EVAL_FLAGS's "flag then next-arg" pattern can't express
     // "either side of a binary op". String comparisons (==/!=/=~) do NOT
     // trigger arithmetic eval — `[[ 'a[x]' == y ]]` is a literal string cmp.
-    if (name === '[[') {
+    if (isTestLike) {
       // i starts at 2: a[0]='[[' (contains '['), a[1] is the first real
       // operand. A binary op can't appear before index 2.
       for (let i = 2; i < a.length; i++) {
         if (!TEST_ARITH_CMP_OPS.has(a[i]!)) continue
-        if (a[i - 1]?.includes('[') || a[i + 1]?.includes('[')) {
-          return {
-            ok: false,
-            reason: `'[[ ... ${a[i]} ... ]]' operand contains array subscript — bash arithmetically evaluates $(cmd) in subscripts`,
+        for (const operand of [a[i - 1], a[i + 1]]) {
+          if (operand === undefined) continue
+          if (
+            operand.includes('[') ||
+            !TEST_ARITH_LITERAL_RE.test(operand)
+          ) {
+            return {
+              ok: false,
+              reason: `'${name} ... ${a[i]} ...' operand is non-numeric — bash arithmetically evaluates identifiers/subscripts (may run $(cmd))`,
+            }
           }
         }
       }
@@ -2612,6 +2711,32 @@ export function checkSemantics(commands: SimpleCommand[]): SemanticCheckResult {
           ok: false,
           reason:
             'jq command contains dangerous flags that could execute code or read arbitrary files',
+        }
+      }
+    }
+
+    if (name === 'find') {
+      for (let i = 1; i < a.length; i++) {
+        const arg = a[i]!
+        if (
+          FIND_ARGUMENT_PREDICATES.has(arg) ||
+          FIND_NEWER_PREDICATE_RE.test(arg)
+        ) {
+          i++
+          continue
+        }
+        if (containsAnyPlaceholder(arg)) {
+          return {
+            ok: false,
+            reason:
+              'find argument is runtime-determined — could resolve to a dangerous action',
+          }
+        }
+        if (FIND_DANGEROUS_ACTIONS.has(arg)) {
+          return {
+            ok: false,
+            reason: `find with '${arg}' executes commands or modifies files — cannot be auto-allowed by a Bash(find:*) prefix rule`,
+          }
         }
       }
     }
