@@ -23,11 +23,28 @@ export type ResolvedAttachment = {
   file_uuid?: string
 }
 
+export type PreResolvedAttachment = {
+  file_uuid: string
+  file_name: string
+  size: number
+  is_image: boolean
+}
+
+export type AttachmentInput = string | PreResolvedAttachment
+
+function isPreResolvedAttachment(
+  attachment: AttachmentInput,
+): attachment is PreResolvedAttachment {
+  return typeof attachment !== 'string'
+}
+
 export async function validateAttachmentPaths(
-  rawPaths: string[],
+  attachments: AttachmentInput[],
 ): Promise<ValidationResult> {
   const cwd = getCwd()
-  for (const rawPath of rawPaths) {
+  for (const attachment of attachments) {
+    if (isPreResolvedAttachment(attachment)) continue
+    const rawPath = attachment
     const fullPath = expandPath(rawPath)
     try {
       const stats = await stat(fullPath)
@@ -61,25 +78,38 @@ export async function validateAttachmentPaths(
 }
 
 export async function resolveAttachments(
-  rawPaths: string[],
+  attachments: AttachmentInput[],
   uploadCtx: { replBridgeEnabled: boolean; signal?: AbortSignal },
 ): Promise<ResolvedAttachment[]> {
   // Stat serially (local, fast) to keep ordering deterministic, then upload
   // in parallel (network, slow). Upload failures resolve undefined — the
   // attachment still carries {path, size, isImage} for local renderers.
   const stated: ResolvedAttachment[] = []
-  for (const rawPath of rawPaths) {
+  const uploadIndices: number[] = []
+  for (const attachment of attachments) {
+    if (isPreResolvedAttachment(attachment)) {
+      stated.push({
+        path: attachment.file_name,
+        size: attachment.size,
+        isImage: attachment.is_image,
+        file_uuid: attachment.file_uuid,
+      })
+      continue
+    }
+    const rawPath = attachment
     const fullPath = expandPath(rawPath)
     // Single stat — we need size, so this is the operation, not a guard.
     // validateInput ran before us, but the file could have moved since
     // (TOCTOU); if it did, let the error propagate so the model sees it.
     const stats = await stat(fullPath)
+    uploadIndices.push(stated.length)
     stated.push({
       path: fullPath,
       size: stats.size,
       isImage: IMAGE_EXTENSION_REGEX.test(fullPath),
     })
   }
+  if (uploadIndices.length === 0) return stated
   // Dynamic import inside the feature() guard so upload.ts (axios, crypto,
   // zod, auth utils, MIME map) is fully eliminated from non-BRIDGE_MODE
   // builds. A static import would force module-scope evaluation regardless
@@ -92,19 +122,23 @@ export async function resolveAttachments(
     // which already passes CLAUDE_CODE_OAUTH_TOKEN for auth.
     const shouldUpload =
       uploadCtx.replBridgeEnabled ||
-      isEnvTruthy(process.env.CLAUDE_CODE_BRIEF_UPLOAD)
+      isEnvTruthy(process.env.CLAUDE_CODE_BRIEF_UPLOAD) ||
+      Boolean(process.env.CLAUDE_CODE_REMOTE_ENVIRONMENT_TYPE)
     const { uploadBriefAttachment } = await import('./upload.js')
     const uuids = await Promise.all(
-      stated.map(a =>
-        uploadBriefAttachment(a.path, a.size, {
+      uploadIndices.map(index =>
+        uploadBriefAttachment(stated[index]!.path, stated[index]!.size, {
           replBridgeEnabled: shouldUpload,
           signal: uploadCtx.signal,
         }),
       ),
     )
-    return stated.map((a, i) =>
-      uuids[i] === undefined ? a : { ...a, file_uuid: uuids[i] },
-    )
+    uploadIndices.forEach((index, uuidIndex) => {
+      const uuid = uuids[uuidIndex]
+      if (uuid !== undefined) {
+        stated[index] = { ...stated[index]!, file_uuid: uuid }
+      }
+    })
   }
   return stated
 }
