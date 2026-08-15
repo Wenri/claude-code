@@ -4,17 +4,20 @@ import { homedir } from 'os'
 import React, { useEffect, useMemo, useState } from 'react'
 import { installAssistant } from '../assistant/install.js'
 import { logEvent } from '../services/analytics/index.js'
+import { StatusIcon } from '../components/design-system/StatusIcon.js'
 import { clearTerminal } from '../ink/clearTerminal.js'
 import { Box, Text, createRoot, useInput } from '../ink.js'
 import { isPathTrusted, setPathTrusted } from '../utils/config.js'
 import { computeNextCronRun, cronToHuman, parseCronExpression } from '../utils/cron.js'
 import { getCwd } from '../utils/cwd.js'
-import { logForDebugging } from '../utils/debug.js'
 import { bgSupervisorNoun } from '../utils/agentsFleet.js'
+import { errorMessage } from '../utils/errors.js'
 import { formatRelativeTime } from '../utils/format.js'
 import { processStartTokenMatches } from '../utils/genericProcessUtils.js'
+import { logError } from '../utils/log.js'
 import { getModelOptions } from '../utils/model/modelOptions.js'
 import { getBaseRenderOptions } from '../utils/renderOptions.js'
+import { truncateStartToWidth } from '../utils/truncate.js'
 import {
   deriveScheduledTaskId,
   parseSchedule,
@@ -36,8 +39,6 @@ import { ManifestSchema } from './protocol.js'
 import {
   controlDaemonService,
   getDefaultDaemonConfigPath,
-  getDefaultDaemonLogPath,
-  installDaemonService,
   isDaemonServiceInstalled,
   isServiceInstallSupported,
   uninstallDaemonService,
@@ -144,34 +145,38 @@ export async function loadDaemonHubData(
   }
 }
 
-function serviceActions(data: HubData): Array<'install' | 'uninstall' | 'start' | 'stop' | 'restart'> {
-  if (!data.serviceSupported) return []
-  if (!data.serviceInstalled) return ['install']
-  if (!data.lock) return ['start', 'uninstall']
-  return ['restart', 'stop', 'uninstall']
+type ServiceAction = 'uninstall' | 'stop'
+
+function serviceActions(data: HubData): ServiceAction[] {
+  if (!data.serviceSupported || !data.serviceInstalled) return []
+  if (!data.lock) return ['uninstall']
+  return ['stop', 'uninstall']
 }
 
-function serviceLabel(action: string): string {
+function serviceLabel(action: ServiceAction): string {
   return {
-    install: 'Install service',
     uninstall: 'Uninstall service',
-    start: 'Start',
     stop: 'Stop',
-    restart: 'Restart',
   }[action] ?? action
 }
 
 function daemonStatus(data: HubData, message: string | null): string {
   if (message) return message
   if (!data.serviceSupported) return 'not supported on this platform'
-  if (!data.lock) return data.serviceInstalled ? 'installed · not running' : 'not installed'
+  if (!data.lock) {
+    return data.serviceInstalled
+      ? 'installed · not running'
+      : 'not installed (runs on demand)'
+  }
   const pieces = [
     'running',
     `pid ${data.lock.pid}`,
     `v${data.lock.version}`,
     data.bgCount > 0 ? `${data.bgCount} background session${data.bgCount === 1 ? '' : 's'}` : '',
     !data.serviceInstalled ? 'not installed as service' : '',
-    data.lock.version !== MACRO.VERSION ? 'restart to update' : '',
+    data.status === null || data.lock.version !== MACRO.VERSION
+      ? 'restart to update'
+      : '',
   ]
   return pieces.filter(Boolean).join(' · ')
 }
@@ -194,6 +199,7 @@ function resolveUserPath(value: string): string {
 
 function HubList({
   data,
+  now,
   tab,
   setTab,
   onScreen,
@@ -203,11 +209,12 @@ function HubList({
   message,
 }: {
   data: HubData
+  now: number
   tab: HubTab
   setTab: (tab: HubTab) => void
   onScreen: (screen: Screen) => void
   onDone: () => void
-  onService: (action: 'install' | 'uninstall' | 'start' | 'stop' | 'restart') => void
+  onService: (action: ServiceAction) => void
   busy: boolean
   message: string | null
 }): React.ReactNode {
@@ -241,7 +248,7 @@ function HubList({
     }
     onService(actions[focus - rows.length - 1]!)
   })
-  const now = new Date()
+  const nowDate = new Date(now)
   return (
     <Box flexDirection="column" paddingX={1}>
       <Text bold color="permission">Claude Daemon</Text>
@@ -261,7 +268,7 @@ function HubList({
             const pid = status?.running ? workerPid : undefined
             return (
               <Text key={task.id} color={focus === index ? 'suggestion' : undefined} bold={focus === index}>
-                {focus === index ? '❯' : ' '} {task.id} · {cronToHuman(task.cron)} · {data.lock ? (status?.running ? 'running' : nextRun(task, now)) : 'daemon stopped'} · {status?.lastFiredAt ? formatRelativeTime(new Date(status.lastFiredAt), { now }) : '—'} · {pid ?? '—'}
+                {focus === index ? '❯' : ' '} {task.id} · {cronToHuman(task.cron)} · {data.lock ? (status?.running ? 'running' : nextRun(task, nowDate)) : 'daemon stopped'} · {status?.lastFiredAt ? formatRelativeTime(new Date(status.lastFiredAt), { now: nowDate }) : '—'} · {pid ?? '—'}
               </Text>
             )
           })}
@@ -275,7 +282,7 @@ function HubList({
             const running = Boolean(data.lock) && (data.status === null || pid !== undefined)
             return (
               <Text key={server.dir} color={focus === index ? 'suggestion' : undefined} bold={focus === index}>
-                {focus === index ? '❯' : ' '} {server.name ?? basename(server.dir)} · {server.dir} · {running ? 'running' : 'stopped'} · {pid ?? (running ? '—' : '')}
+                {focus === index ? '❯' : ' '} {server.name ?? basename(server.dir)} · {truncateStartToWidth(server.dir, 40)} · {running ? 'running' : 'stopped'} · {pid ?? (running ? '—' : '')}
               </Text>
             )
           })}
@@ -483,7 +490,8 @@ function ScheduledForm({ task, existingIds, configPath, onBack, onDone, onSaved 
       await saveScheduledTask({ id, cron: parsed.cron, prompt: values.prompt!.trim(), directory, enabled: task?.enabled ?? true, permissionMode: values.permissionMode as ScheduledTask['permissionMode'], runTimeoutMinutes: task?.runTimeoutMinutes ?? 30, maxQueued: task?.maxQueued ?? 1, ...(values.model?.trim() ? { model: values.model.trim() } : {}) }, configPath)
       await onSaved()
     } catch (caught) {
-      onDone(`Save failed: ${caught instanceof Error ? caught.message : String(caught)}`)
+      logError(caught)
+      onDone(`Save failed: ${errorMessage(caught)}`)
     }
   }} />
 }
@@ -502,7 +510,8 @@ function ScheduledDetail({ task, configPath, onBack, onEdit, onDone, refresh }: 
       await refresh()
       onDone(`${task.enabled ? 'Disabled' : 'Enabled'} scheduled task '${task.id}'.`)
     } catch (caught) {
-      onDone(`Toggle failed: ${caught instanceof Error ? caught.message : String(caught)}`)
+      logError(caught)
+      onDone(`Toggle failed: ${errorMessage(caught)}`)
     }
   }
   const remove = async (): Promise<void> => {
@@ -513,7 +522,8 @@ function ScheduledDetail({ task, configPath, onBack, onEdit, onDone, refresh }: 
       await refresh()
       onDone(`Removed scheduled task '${task.id}'.`)
     } catch (caught) {
-      onDone(`Remove failed: ${caught instanceof Error ? caught.message : String(caught)}`)
+      logError(caught)
+      onDone(`Remove failed: ${errorMessage(caught)}`)
     }
   }
   useInput((_input, key) => {
@@ -547,7 +557,7 @@ function ScheduledDetail({ task, configPath, onBack, onEdit, onDone, refresh }: 
   if (confirmRemove) {
     return <Box flexDirection="column" paddingX={1}><Text bold color="error">Remove task?</Text><Text dimColor>Delete '{task.id}' from daemon.json. The daemon will stop firing it on its next reconcile.</Text><Text bold={confirmFocus === 'cancel'} color={confirmFocus === 'cancel' ? 'suggestion' : undefined}>{confirmFocus === 'cancel' ? '❯ ' : '  '}No, cancel</Text><Text bold={confirmFocus === 'confirm'} color={confirmFocus === 'confirm' ? 'error' : undefined}>{confirmFocus === 'confirm' ? '❯ ' : '  '}Yes, remove</Text></Box>
   }
-  return <Box flexDirection="column" paddingX={1}><Text bold color="permission">{task.id}</Text><Text dimColor>Cron {task.cron} ({cronToHuman(task.cron)})</Text><Text dimColor>Directory {task.directory}</Text><Text dimColor>Prompt {task.prompt}</Text><Text dimColor>Status {task.enabled ? 'enabled' : 'disabled'}</Text><Text dimColor>Mode {task.permissionMode}</Text>{task.model ? <Text dimColor>Model {task.model}</Text> : null}<Text dimColor>Timeout {task.runTimeoutMinutes}m</Text><Text dimColor>Max queue {task.maxQueued}</Text>{actions.map((action, index) => <Text key={action} color={focus === index ? (action === 'Remove' ? 'error' : 'suggestion') : undefined} bold={focus === index}>{focus === index ? '❯' : ' '} {action}</Text>)}</Box>
+  return <Box flexDirection="column" paddingX={1}><Text bold color="permission">{task.id}</Text><Text dimColor>Cron {task.cron} ({cronToHuman(task.cron)})</Text><Text dimColor>Directory {task.directory}</Text><Text dimColor>Prompt {task.prompt}</Text><Text dimColor>Status <StatusIcon status={task.enabled ? 'success' : 'pending'} withSpace />{task.enabled ? 'enabled' : 'disabled'}</Text><Text dimColor>Mode {task.permissionMode}</Text>{task.model ? <Text dimColor>Model {task.model}</Text> : null}<Text dimColor>Timeout {task.runTimeoutMinutes}m</Text><Text dimColor>Max queue {task.maxQueued}</Text>{actions.map((action, index) => <Text key={action} color={focus === index ? (action === 'Remove' ? 'error' : 'suggestion') : undefined} bold={focus === index}>{focus === index ? '❯' : ' '} {action}</Text>)}</Box>
 }
 
 function RemoteForm({ configPath, onBack, onSaved }: { configPath: string; onBack: () => void; onSaved: () => Promise<void> }): React.ReactNode {
@@ -587,9 +597,7 @@ function RemoteForm({ configPath, onBack, onSaved }: { configPath: string; onBac
       void upsertRemoteControl(item, configPath)
         .then(onSaved)
         .catch(caught => {
-          logForDebugging(`remote-control add failed: ${String(caught)}`, {
-            level: 'error',
-          })
+          logError(caught)
           setAdding(false)
           onBack()
         })
@@ -619,9 +627,7 @@ function RemoteForm({ configPath, onBack, onSaved }: { configPath: string; onBac
       await upsertRemoteControl(item, configPath)
       await onSaved()
     } catch (caught) {
-      logForDebugging(`remote-control add failed: ${String(caught)}`, {
-        level: 'error',
-      })
+      logError(caught)
       setAdding(false)
       onBack()
     }
@@ -629,7 +635,7 @@ function RemoteForm({ configPath, onBack, onSaved }: { configPath: string; onBac
 }
 
 function RemoteDetail({ server, configPath, isRunning, onBack, refresh, onDone }: { server: RemoteControlConfig; configPath: string; isRunning: boolean; onBack: () => void; refresh: () => Promise<void>; onDone: (message: string) => void }): React.ReactNode {
-  const actions = ['Restart daemon', 'Remove', 'Back']
+  const actions = [`Restart ${bgSupervisorNoun()}`, 'Remove', 'Back']
   const [focus, setFocus] = useState(0)
   const [busy, setBusy] = useState(false)
   const [confirmRemove, setConfirmRemove] = useState(false)
@@ -646,7 +652,8 @@ function RemoteDetail({ server, configPath, isRunning, onBack, refresh, onDone }
         onDone('The background server picks up config changes automatically — no restart needed.')
       }
     } catch (caught) {
-      onDone(`Action failed: ${caught instanceof Error ? caught.message : String(caught)}`)
+      logError(caught)
+      onDone(`Action failed: ${errorMessage(caught)}`)
     }
   }
   useInput((_input, key) => {
@@ -675,7 +682,7 @@ function RemoteDetail({ server, configPath, isRunning, onBack, refresh, onDone }
   if (confirmRemove) {
     return <Box flexDirection="column" paddingX={1}><Text bold color="error">Remove server?</Text><Text dimColor>Stop serving {server.dir} to claude.ai. The {bgSupervisorNoun()} will stop the worker on its next reconcile.</Text><Text bold={confirmFocus === 'cancel'} color={confirmFocus === 'cancel' ? 'suggestion' : undefined}>{confirmFocus === 'cancel' ? '❯ ' : '  '}No, cancel</Text><Text bold={confirmFocus === 'confirm'} color={confirmFocus === 'confirm' ? 'error' : undefined}>{confirmFocus === 'confirm' ? '❯ ' : '  '}Yes, remove</Text></Box>
   }
-  return <Box flexDirection="column" paddingX={1}><Text bold color="permission">{server.name ?? basename(server.dir)}</Text><Text dimColor>Directory {server.dir}</Text><Text dimColor>Spawn mode {server.spawnMode ?? 'same-dir'}</Text><Text dimColor>Status     {isRunning ? 'running' : 'not running'}</Text>{actions.map((action, index) => <Text key={action} color={focus === index ? (action === 'Remove' ? 'error' : 'suggestion') : undefined} bold={focus === index}>{focus === index ? '❯' : ' '} {action}</Text>)}</Box>
+  return <Box flexDirection="column" paddingX={1}><Text bold color="permission">{server.name ?? basename(server.dir)}</Text><Text dimColor>Directory {server.dir}</Text><Text dimColor>Spawn mode {server.spawnMode ?? 'same-dir'}</Text><Text dimColor>Status     <StatusIcon status={isRunning ? 'success' : 'pending'} withSpace />{isRunning ? 'running' : 'not running'}</Text>{actions.map((action, index) => <Text key={action} color={focus === index ? (action === 'Remove' ? 'error' : 'suggestion') : undefined} bold={focus === index}>{focus === index ? '❯' : ' '} {action}</Text>)}</Box>
 }
 
 /** Source-authored assistant installer screen retained behind the target build gate. */
@@ -696,6 +703,7 @@ export function AssistantInstallForm({ configPath = getDefaultDaemonConfigPath()
 
 export function DaemonHub({ initialData, configPath, onDone }: { initialData: HubData; configPath: string; onDone: (message?: string) => void }): React.ReactNode {
   const [data, setData] = useState(initialData)
+  const [now, setNow] = useState(() => Date.now())
   const [tab, setTab] = useState<HubTab>('scheduled')
   const [screen, setScreen] = useState<Screen>({ type: 'hub' })
   const [busy, setBusy] = useState(false)
@@ -705,8 +713,8 @@ export function DaemonHub({ initialData, configPath, onDone }: { initialData: Hu
     if (screen.type !== 'hub') return
     let ticks = 0
     const timer = setInterval(() => {
-      ticks++
-      if (ticks % 2 === 0) void refresh()
+      setNow(Date.now())
+      if (ticks++ % 2 === 0) void refresh()
     }, 1000)
     return () => clearInterval(timer)
   }, [screen.type, configPath])
@@ -718,21 +726,24 @@ export function DaemonHub({ initialData, configPath, onDone }: { initialData: Hu
     return <RemoteDetail server={screen.server} configPath={configPath} isRunning={Boolean(data.lock)} onBack={back} refresh={refresh} onDone={text => onDone(text)} />
   }
   if (screen.type === 'assistant-form') return <AssistantInstallForm configPath={configPath} onBack={back} onSaved={async () => { await refresh(); setScreen({ type: 'hub' }) }} />
-  const performService = async (action: 'install' | 'uninstall' | 'start' | 'stop' | 'restart') => {
+  const performService = async (action: ServiceAction) => {
     if (busy) return
     setBusy(true)
     setMessage(null)
     try {
-      const result = action === 'install'
-        ? await installDaemonService({ jsonPath: configPath, logPath: getDefaultDaemonLogPath() })
-        : action === 'uninstall'
+      const result =
+        action === 'uninstall'
           ? await uninstallDaemonService()
-          : await controlDaemonService(action)
+          : await controlDaemonService('stop')
       if (!result.ok) setMessage(`${action} failed: ${result.error}`)
-      await refresh()
-    } finally { setBusy(false) }
+    } finally {
+      try {
+        await refresh()
+      } catch {}
+      setBusy(false)
+    }
   }
-  return <HubList data={data} tab={tab} setTab={setTab} onScreen={setScreen} onDone={() => onDone()} onService={action => void performService(action)} busy={busy} message={message} />
+  return <HubList data={data} now={now} tab={tab} setTab={setTab} onScreen={setScreen} onDone={() => onDone()} onService={action => void performService(action)} busy={busy} message={message} />
 }
 
 export async function renderDaemonHubStandalone(
