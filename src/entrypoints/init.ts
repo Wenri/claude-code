@@ -15,6 +15,7 @@ import { populateOAuthAccountInfoIfNeeded } from '../services/oauth/client.js'
 import {
   initializePolicyLimitsLoadingPromise,
   isPolicyLimitsEligible,
+  maybeLoadPolicyLimitsAfterGrowthBookInit,
 } from '../services/policyLimits/index.js'
 import {
   initializeRemoteManagedSettingsLoadingPromise,
@@ -113,6 +114,7 @@ export const init = memoize(async (): Promise<void> => {
       // unchanged refreshes are no-ops.
       gb.onGrowthBookRefresh(() => {
         void fp.reinitialize1PEventLoggingIfConfigChanged()
+        maybeLoadPolicyLimitsAfterGrowthBookInit()
       })
     })
     profileCheckpoint('init_after_1p_event_logging')
