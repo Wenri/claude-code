@@ -18,6 +18,7 @@ import {
   getPipelineSegments,
   isNullRedirectionTarget,
   isPowerShellParameter,
+  PS_TOKENIZER_DASH_CHARS,
 } from '../../utils/powershell/parser.js'
 import type { ExternalCommandConfig } from '../../utils/shell/readOnlyCommandValidation.js'
 import {
@@ -28,6 +29,57 @@ import {
   validateFlags,
 } from '../../utils/shell/readOnlyCommandValidation.js'
 import { COMMON_PARAMETERS } from './commonParameters.js'
+
+const ACTION_PREFERENCE_PARAMETERS = [
+  '-erroraction',
+  '-warningaction',
+  '-informationaction',
+  '-progressaction',
+]
+const ACTION_PREFERENCE_ALIASES = ['-ea', '-wa', '-infa', '-proga']
+const SAFE_ACTION_PREFERENCE_VALUES = new Set([
+  'silentlycontinue',
+  '0',
+  'stop',
+  '1',
+  'continue',
+  '2',
+  'ignore',
+  '4',
+])
+
+function matchesActionPreferenceParameter(parameter: string): boolean {
+  if (parameter.length < 2) return false
+  return (
+    ACTION_PREFERENCE_ALIASES.includes(parameter) ||
+    ACTION_PREFERENCE_PARAMETERS.some(full => full.startsWith(parameter))
+  )
+}
+
+function hasDangerousActionPreferenceValue(args: string[]): boolean {
+  for (let index = 0; index < args.length; index++) {
+    const raw = args[index]!
+    if (!PS_TOKENIZER_DASH_CHARS.has(raw[0] ?? '')) continue
+    const normalized = raw[0] === '-' ? raw : `-${raw.slice(1)}`
+    const colonIndex = normalized.indexOf(':')
+    const parameter = (
+      colonIndex > 0 ? normalized.slice(0, colonIndex) : normalized
+    ).toLowerCase()
+    if (!matchesActionPreferenceParameter(parameter)) continue
+    const value = (
+      colonIndex > 0
+        ? normalized.slice(colonIndex + 1)
+        : (args[index + 1] ?? '')
+    )
+      .toLowerCase()
+      .replace(/^['"]|['"]$/g, '')
+      .trim()
+    if (value.length > 0 && !SAFE_ACTION_PREFERENCE_VALUES.has(value)) {
+      return true
+    }
+  }
+  return false
+}
 
 const DOTNET_READ_ONLY_FLAGS = new Set([
   '--version',
@@ -1420,6 +1472,10 @@ export function isAllowlistedCommand(
   // not a flag. We detect cmdlets by checking if the command resolves to a
   // Verb-Noun canonical name (either directly or via alias).
   const isCmdlet = canonical.includes('-')
+
+  if (isCmdlet && hasDangerousActionPreferenceValue(cmd.args)) {
+    return false
+  }
 
   // SECURITY: if allowAllFlags is set, skip flag validation (command's entire
   // flag surface is read-only). Otherwise, missing/empty safeFlags means
