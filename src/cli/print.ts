@@ -814,6 +814,26 @@ export async function runHeadless(
   const sandboxUnavailableReason = SandboxManager.getSandboxUnavailableReason()
   if (sandboxUnavailableReason) {
     if (SandboxManager.isSandboxRequired()) {
+      if (options.outputFormat === 'stream-json') {
+        await structuredIO.write({
+          type: 'result',
+          subtype: 'error_during_execution',
+          duration_ms: 0,
+          duration_api_ms: 0,
+          is_error: true,
+          num_turns: 0,
+          stop_reason: null,
+          session_id: getSessionId(),
+          total_cost_usd: 0,
+          usage: EMPTY_USAGE,
+          modelUsage: {},
+          permission_denials: [],
+          uuid: randomUUID(),
+          errors: [
+            `Sandbox required but unavailable: ${sandboxUnavailableReason}. Set sandbox.failIfUnavailable=false to allow unsandboxed execution.`,
+          ],
+        })
+      }
       process.stderr.write(
         `\nError: sandbox required but unavailable: ${sandboxUnavailableReason}\n` +
           `  sandbox.failIfUnavailable is set — refusing to start without a working sandbox.\n\n`,
@@ -3292,6 +3312,25 @@ function runHeadlessStreaming(
         void run()
       }
     })
+  }
+
+  subscribeToCommandQueue(() => {
+    if (!running && !inputClosed && peek(isMainThread) !== undefined) {
+      void run()
+    }
+  })
+
+  if (deferredToolUse) {
+    logForDebugging(
+      `[print.ts] Auto-resuming deferred tool: ${deferredToolUse.toolName} (${deferredToolUse.toolUseID})`,
+    )
+    enqueue({
+      mode: 'prompt',
+      value: 'Continue from where you left off.',
+      uuid: randomUUID(),
+      isMeta: true,
+    })
+    void run()
   }
 
   // Cron scheduler: runs scheduled_tasks.json tasks in SDK/-p mode.
