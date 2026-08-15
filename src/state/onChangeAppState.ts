@@ -3,6 +3,7 @@ import {
   clearApiKeyHelperCache,
   clearAwsCredentialsCache,
   clearGcpCredentialsCache,
+  resetAwsAuthRefreshCooldown,
 } from '../utils/auth.js'
 import { getGlobalConfig, saveGlobalConfig } from '../utils/config.js'
 import { toError } from '../utils/errors.js'
@@ -227,6 +228,7 @@ export function onChangeAppState({
     try {
       clearApiKeyHelperCache()
       clearAwsCredentialsCache()
+      resetAwsAuthRefreshCooldown()
       clearGcpCredentialsCache()
 
       // Re-apply environment variables when settings.env changes

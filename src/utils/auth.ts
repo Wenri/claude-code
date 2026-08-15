@@ -672,6 +672,7 @@ const DEFAULT_AWS_STS_TTL = 60 * 60 * 1000
  */
 async function runAwsAuthRefresh(): Promise<boolean> {
   const awsAuthRefresh = getConfiguredAwsAuthRefresh()
+  const refreshEpoch = awsAuthRefreshEpoch
 
   if (!awsAuthRefresh) {
     return false // Not configured, treat as success
@@ -691,6 +692,8 @@ async function runAwsAuthRefresh(): Promise<boolean> {
     }
   }
 
+  if (awsAuthRefreshInFlight) return awsAuthRefreshInFlight
+
   try {
     logForDebugging('Fetching AWS caller identity for AWS auth refresh command')
     await checkStsCallerIdentity()
@@ -699,14 +702,42 @@ async function runAwsAuthRefresh(): Promise<boolean> {
     )
     return false
   } catch {
-    // only actually do the refresh if caller-identity calls
-    return refreshAwsAuth(awsAuthRefresh)
+    // Only actually run the refresh if caller-identity fails. Concurrent
+    // callers share one refresh, and a short cooldown prevents repeated
+    // browser/SSO prompts while credentials propagate.
+    if (awsAuthRefreshInFlight) return awsAuthRefreshInFlight
+    if (
+      lastAwsAuthRefreshAt !== null &&
+      Date.now() - lastAwsAuthRefreshAt < AWS_AUTH_REFRESH_COOLDOWN_MS
+    ) {
+      return false
+    }
+    awsAuthRefreshInFlight = (async () => {
+      try {
+        return await refreshAwsAuth(awsAuthRefresh)
+      } finally {
+        if (refreshEpoch === awsAuthRefreshEpoch) {
+          lastAwsAuthRefreshAt = Date.now()
+        }
+        awsAuthRefreshInFlight = null
+      }
+    })()
+    return awsAuthRefreshInFlight
   }
 }
 
 // Timeout for AWS auth refresh command (3 minutes).
 // Long enough for browser-based SSO flows, short enough to prevent indefinite hangs.
 const AWS_AUTH_REFRESH_TIMEOUT_MS = 3 * 60 * 1000
+const AWS_AUTH_REFRESH_COOLDOWN_MS = 30 * 1000
+let lastAwsAuthRefreshAt: number | null = null
+let awsAuthRefreshInFlight: Promise<boolean> | null = null
+let awsAuthRefreshEpoch = 0
+
+export function resetAwsAuthRefreshCooldown(): void {
+  lastAwsAuthRefreshAt = null
+  awsAuthRefreshEpoch++
+}
 
 export function refreshAwsAuth(awsAuthRefresh: string): Promise<boolean> {
   logForDebugging('Running AWS auth refresh command')
