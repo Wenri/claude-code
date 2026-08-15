@@ -194,6 +194,8 @@ export type ParsedPowerShellCommand = {
    * `#Requires -Modules <name>` triggers module loading from PSModulePath.
    */
   hasScriptRequirements?: boolean
+  /** Whether a pipeline uses PowerShell's background job operator (`&`). */
+  hasBackgroundJob?: boolean
 }
 
 // ---------------------------------------------------------------------------
@@ -271,6 +273,7 @@ type RawParsedOutput = {
   typeLiterals?: string[]
   hasUsingStatements?: boolean
   hasScriptRequirements?: boolean
+  hasBackgroundJob?: boolean
 }
 
 // This is the canonical copy of the parse script. There is no separate .ps1 file.
@@ -408,6 +411,10 @@ foreach ($tok in $tokens) {
 }
 
 $statements = [System.Collections.ArrayList]::new()
+$script:hasBg = $false
+foreach ($p in $ast.FindAll({param($n) $n -is [System.Management.Automation.Language.PipelineBaseAst]}, $true)) {
+    if ($p.PSObject.Properties['Background'] -and $p.Background) { $script:hasBg = $true; break }
+}
 
 function Process-BlockStatements {
     param($Block)
@@ -562,6 +569,7 @@ $output = @{
     typeLiterals = @($typeLiterals)
     hasUsingStatements = [bool]$hasUsingStatements
     hasScriptRequirements = [bool]$hasScriptRequirements
+    hasBackgroundJob = [bool]$script:hasBg
 }
 
 $output | ConvertTo-Json -Depth 10 -Compress
@@ -1121,6 +1129,9 @@ function transformRawOutput(raw: RawParsedOutput): ParsedPowerShellCommand {
   }
   if (raw.hasScriptRequirements) {
     result.hasScriptRequirements = true
+  }
+  if (raw.hasBackgroundJob) {
+    result.hasBackgroundJob = true
   }
   return result
 }

@@ -1036,6 +1036,18 @@ function validatePath(
   // are correctly detected.
   const normalizedPath = cleanPath.replace(/\\/g, '/')
 
+  if (/^~[^/]/.test(normalizedPath)) {
+    return {
+      allowed: false,
+      resolvedPath: normalizedPath,
+      decisionReason: {
+        type: 'other',
+        reason:
+          'Paths beginning with ~user cannot be statically validated and require manual approval',
+      },
+    }
+  }
+
   // SECURITY: Backtick (`) is PowerShell's escape character. It is a no-op in
   // many positions (e.g., `/ === /) but defeats Node.js path checks like
   // isAbsolute(). Redirection targets use raw .Extent.Text which preserves
