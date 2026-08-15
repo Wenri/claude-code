@@ -5818,6 +5818,11 @@ async function loadInitialMessages(
     try {
       logEvent('tengu_continue_print', {})
 
+      const { clearSessionCaches } = await import(
+        '../commands/clear/caches.js'
+      )
+      clearSessionCaches()
+
       const result = await loadConversationForResume(
         undefined /* sessionId */,
         undefined /* file path */,
@@ -5910,6 +5915,11 @@ async function loadInitialMessages(
         throw new Error('No session ID provided for teleport')
       }
 
+      const { clearSessionCaches } = await import(
+        '../commands/clear/caches.js'
+      )
+      clearSessionCaches()
+
       const {
         checkOutTeleportedSessionBranch,
         processMessagesForTeleportResume,
@@ -5990,6 +6000,11 @@ async function loadInitialMessages(
         gracefulShutdownSync(1)
         return { messages: [] }
       }
+
+      const { clearSessionCaches } = await import(
+        '../commands/clear/caches.js'
+      )
+      clearSessionCaches()
 
       // Hydrate local transcript from remote before loading
       if (isEnvTruthy(process.env.CLAUDE_CODE_USE_CCR_V2)) {
