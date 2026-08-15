@@ -24,6 +24,7 @@ import { logForDiagnosticsNoPII } from '../../diagLogs.js'
 import { readFileSync } from '../../fileRead.js'
 import { getFsImplementation } from '../../fsOperations.js'
 import { safeParseJSON } from '../../json.js'
+import { clone } from '../../slowOperations.js'
 import { profileCheckpoint } from '../../startupProfiler.js'
 import {
   getManagedFilePath,
@@ -390,7 +391,7 @@ function hasManagedSettingsFileAt(root: string): boolean {
     const filePath = join(root, 'managed-settings.json')
     const content = readFileSync(filePath)
     const data = safeParseJSON(content, false)
-    if (settingsObjectHasPolicyContent(data)) {
+    if (settingsObjectHasPolicyContent(data, filePath)) {
       return true
     }
   } catch {
@@ -408,9 +409,10 @@ function hasManagedSettingsFileAt(root: string): boolean {
         continue
       }
       try {
-        const content = readFileSync(join(dropInDir, d.name))
+        const filePath = join(dropInDir, d.name)
+        const content = readFileSync(filePath)
         const data = safeParseJSON(content, false)
-        if (settingsObjectHasPolicyContent(data)) {
+        if (settingsObjectHasPolicyContent(data, filePath)) {
           return true
         }
       } catch {
@@ -423,9 +425,14 @@ function hasManagedSettingsFileAt(root: string): boolean {
   return false
 }
 
-function settingsObjectHasPolicyContent(data: unknown): boolean {
+function settingsObjectHasPolicyContent(
+  data: unknown,
+  sourcePath: string,
+): boolean {
   if (!data || typeof data !== 'object' || Array.isArray(data)) return false
-  const { wslInheritsWindowsSettings: _, ...settings } = data as Record<
+  const sanitized = clone(data) as Record<string, unknown>
+  filterInvalidSettingsEntries(sanitized, sourcePath)
+  const { wslInheritsWindowsSettings: _, ...settings } = sanitized as Record<
     string,
     unknown
   >

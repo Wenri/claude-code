@@ -111,7 +111,11 @@ test('source restores target image, idle-render, brief-view, and Caps Lock behav
   ]) {
     assert.ok(bridge.includes(fragment), fragment)
   }
-  assert.equal(count(bridge, 'idleStatusRendered = false'), 2)
+  assert.equal(count(bridge, 'idleStatusRendered = false'), 3)
+  assert.ok(
+    bridge.indexOf('idleStatusRendered = false', bridge.indexOf('tengu_bridge_reconnected')) >
+      bridge.indexOf('tengu_bridge_reconnected'),
+  )
 
   const keybindings = source('src/hooks/useGlobalKeybindings.tsx')
   for (const fragment of [
@@ -162,6 +166,8 @@ test('all settings sources fail open around malformed hook entries', () => {
 
   const mdm = source('src/utils/settings/mdm/settings.ts')
   assert.ok(mdm.includes('filterInvalidSettingsEntries(data, sourcePath)'))
+  assert.ok(mdm.includes('filterInvalidSettingsEntries(sanitized, sourcePath)'))
+  assert.equal(count(mdm, 'settingsObjectHasPolicyContent(data, filePath)'), 2)
 
   const remote = source('src/services/remoteManagedSettings/index.ts')
   for (const fragment of [
