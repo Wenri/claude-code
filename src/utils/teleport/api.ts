@@ -430,6 +430,60 @@ export type RemoteMessageContent =
   | string
   | Array<{ type: string; [key: string]: unknown }>
 
+export type RemoteBashCommand = {
+  command: string
+  cwd?: string
+}
+
+type RemoteEventResult = { ok: true } | { ok: false; reason: string }
+
+async function sendRemoteSessionEvent(
+  sessionId: string,
+  payload: Record<string, unknown>,
+  logPrefix: string,
+): Promise<RemoteEventResult> {
+  try {
+    const { accessToken } = await prepareApiRequest()
+
+    const url = `${getOauthConfig().BASE_API_URL}/v1/code/sessions/${sessionId}/events`
+    const headers = getOAuthHeaders(accessToken)
+
+    logForDebugging(`${logPrefix} Sending event to session ${sessionId}`)
+    const response = await axios.post(
+      url,
+      { events: [{ payload }] },
+      {
+        headers,
+        validateStatus: status => status < 500,
+        timeout: 30000,
+      },
+    )
+
+    if (response.status === 200 || response.status === 201) {
+      logForDebugging(
+        `${logPrefix} Successfully sent event to session ${sessionId}`,
+      )
+      return { ok: true }
+    }
+
+    logForDebugging(
+      `${logPrefix} Failed with status ${response.status}: ${jsonStringify(response.data)}`,
+    )
+    const errorData = response.data as { error?: { message?: unknown } }
+    const apiMessage = errorData?.error?.message
+    return {
+      ok: false,
+      reason:
+        typeof apiMessage === 'string'
+          ? `${apiMessage} (HTTP ${response.status})`
+          : `HTTP ${response.status}`,
+    }
+  } catch (error) {
+    logForDebugging(`${logPrefix} Error: ${errorMessage(error)}`)
+    return { ok: false, reason: errorMessage(error) }
+  }
+}
+
 /**
  * Sends a user message event to an existing remote session via the Sessions API
  * @param sessionId The session ID to send the event to
@@ -442,14 +496,10 @@ export async function sendEventToRemoteSession(
   sessionId: string,
   messageContent: RemoteMessageContent,
   opts?: { uuid?: string },
-): Promise<{ ok: true } | { ok: false; reason: string }> {
-  try {
-    const { accessToken } = await prepareApiRequest()
-
-    const url = `${getOauthConfig().BASE_API_URL}/v1/code/sessions/${sessionId}/events`
-    const headers = getOAuthHeaders(accessToken)
-
-    const userEvent = {
+): Promise<RemoteEventResult> {
+  return sendRemoteSessionEvent(
+    sessionId,
+    {
       uuid: opts?.uuid ?? randomUUID(),
       session_id: sessionId,
       type: 'user',
@@ -458,44 +508,27 @@ export async function sendEventToRemoteSession(
         role: 'user',
         content: messageContent,
       },
-    }
+    },
+    '[sendEventToRemoteSession]',
+  )
+}
 
-    const requestBody = { events: [{ payload: userEvent }] }
-
-    logForDebugging(
-      `[sendEventToRemoteSession] Sending event to session ${sessionId}`,
-    )
-    // The endpoint may block until the CCR worker is ready. Observed ~2.6s
-    // in normal cases; allow a generous margin for cold-start containers.
-    const response = await axios.post(url, requestBody, {
-      headers,
-      validateStatus: status => status < 500,
-      timeout: 30000,
-    })
-
-    if (response.status === 200 || response.status === 201) {
-      logForDebugging(
-        `[sendEventToRemoteSession] Successfully sent event to session ${sessionId}`,
-      )
-      return { ok: true }
-    }
-
-    logForDebugging(
-      `[sendEventToRemoteSession] Failed with status ${response.status}: ${jsonStringify(response.data)}`,
-    )
-    const errorData = response.data as { error?: { message?: unknown } }
-    const apiMessage = errorData?.error?.message
-    return {
-      ok: false,
-      reason:
-        typeof apiMessage === 'string'
-          ? `${apiMessage} (HTTP ${response.status})`
-          : `HTTP ${response.status}`,
-    }
-  } catch (error) {
-    logForDebugging(`[sendEventToRemoteSession] Error: ${errorMessage(error)}`)
-    return { ok: false, reason: errorMessage(error) }
-  }
+export async function sendBashCommandToRemoteSession(
+  sessionId: string,
+  command: RemoteBashCommand,
+  opts?: { uuid?: string },
+): Promise<RemoteEventResult> {
+  return sendRemoteSessionEvent(
+    sessionId,
+    {
+      uuid: opts?.uuid ?? randomUUID(),
+      session_id: sessionId,
+      type: 'bash_command',
+      command: command.command,
+      ...(command.cwd !== undefined && { cwd: command.cwd }),
+    },
+    '[sendBashCommandToRemoteSession]',
+  )
 }
 
 /**

@@ -1399,6 +1399,24 @@ export const SDKStatusSchema = lazySchema(() =>
   z.union([z.literal('compacting'), z.null()]),
 )
 
+export const SDKMessageOriginSchema = lazySchema(() =>
+  z
+    .discriminatedUnion('kind', [
+      z.object({ kind: z.literal('human') }),
+      z.object({ kind: z.literal('channel'), server: z.string() }),
+      z.object({
+        kind: z.literal('peer'),
+        from: z.string(),
+        name: z.string().optional(),
+      }),
+      z.object({ kind: z.literal('task-notification') }),
+      z.object({ kind: z.literal('coordinator') }),
+    ])
+    .describe(
+      'Provenance of a user-role message (peer session, team lead, channel). Absent or `human` means keyboard input from the user.',
+    ),
+)
+
 // SDKUserMessage content without uuid/session_id
 const SDKUserMessageContentSchema = lazySchema(() =>
   z.object({
@@ -1408,11 +1426,18 @@ const SDKUserMessageContentSchema = lazySchema(() =>
     isSynthetic: z.boolean().optional(),
     tool_use_result: z.unknown().optional(),
     priority: z.enum(['now', 'next', 'later']).optional(),
+    origin: SDKMessageOriginSchema().optional(),
     client_platform: z
       .string()
       .optional()
       .describe(
         '@internal The `anthropic-client-platform` value of the client that sent this message (e.g. `ios`, `android`, `web_claude_ai`, `desktop_app`). Injected server-side by CCR ingress from the request header.',
+      ),
+    shouldQuery: z
+      .boolean()
+      .optional()
+      .describe(
+        'When false, the message is appended to the transcript without triggering an assistant turn. It will be merged into the next user message that does query.',
       ),
     timestamp: z
       .string()
@@ -1435,7 +1460,31 @@ export const SDKUserMessageReplaySchema = lazySchema(() =>
     uuid: UUIDPlaceholder(),
     session_id: z.string(),
     isReplay: z.literal(true),
+    file_attachments: z.array(z.unknown()).optional(),
   }),
+)
+
+export const SDKBashCommandSchema = lazySchema(() =>
+  z
+    .object({
+      type: z.literal('bash_command'),
+      command: z
+        .string()
+        .describe(
+          'Shell command to execute verbatim via a one-shot `/bin/sh -c` (or `pwsh`) subprocess, bypassing the model. Trust model matches the local TUI `!cmd` path (no sandbox, no per-command prompt); unlike `!cmd`, output is not appended to the conversation transcript and there is no persistent shell state across calls.',
+        ),
+      cwd: z
+        .string()
+        .optional()
+        .describe(
+          'Working directory for the command. Falls back to the session cwd when omitted.',
+        ),
+      uuid: UUIDPlaceholder().optional(),
+      session_id: z.string().optional(),
+    })
+    .describe(
+      '@internal A user-initiated shell command dispatched to a one-shot shell subprocess with no model turn. Input-only — sent by CCR clients that surface a dedicated terminal UI; never emitted on stdout.',
+    ),
 )
 
 export const SDKRateLimitInfoSchema = lazySchema(() =>

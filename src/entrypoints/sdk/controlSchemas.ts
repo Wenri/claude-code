@@ -23,6 +23,7 @@ import {
   PermissionUpdateSchema,
   SDKMessageSchema,
   SDKPostTurnSummaryMessageSchema,
+  SDKBashCommandSchema,
   SDKTranscriptMirrorMessageSchema,
   SDKStreamlinedTextMessageSchema,
   SDKStreamlinedToolUseSummaryMessageSchema,
@@ -1074,6 +1075,7 @@ export const StdoutMessageSchema = lazySchema(() =>
 export const StdinMessageSchema = lazySchema(() =>
   z.union([
     SDKUserMessageSchema(),
+    SDKBashCommandSchema(),
     SDKControlRequestSchema(),
     SDKControlResponseSchema(),
     SDKKeepAliveMessageSchema(),

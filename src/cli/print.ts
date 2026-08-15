@@ -154,7 +154,10 @@ import type { ReplBridgeHandle } from 'src/bridge/replBridge.js'
 import { getRemoteSessionUrl } from 'src/constants/product.js'
 import { buildBridgeConnectUrl } from 'src/bridge/bridgeStatusUtil.js'
 import { extractInboundMessageFields } from 'src/bridge/inboundMessages.js'
-import { resolveAndPrepend } from 'src/bridge/inboundAttachments.js'
+import {
+  extractInboundAttachments,
+  resolveAndPrepend,
+} from 'src/bridge/inboundAttachments.js'
 import type { CanUseToolFn } from 'src/hooks/useCanUseTool.js'
 import { hasPermissionsToUseTool } from 'src/utils/permissions/permissions.js'
 import { safeParseJSON } from 'src/utils/json.js'
@@ -182,12 +185,14 @@ import {
 } from 'src/constants/outputStyles.js'
 import {
   BASH_INPUT_TAG,
+  BASH_STDERR_TAG,
   COMMAND_MESSAGE_TAG,
   COMMAND_NAME_TAG,
   LOCAL_COMMAND_STDOUT_TAG,
   TEAMMATE_MESSAGE_TAG,
   TICK_TAG,
 } from 'src/constants/xml.js'
+import { escapeXml } from 'src/utils/xml.js'
 import {
   getSettings_DEPRECATED,
   getSettingsWithErrors,
@@ -518,8 +523,26 @@ export function canBatchWith(
     next !== undefined &&
     next.mode === 'prompt' &&
     next.workload === head.workload &&
-    next.isMeta === head.isMeta
+    next.isMeta === head.isMeta &&
+    next.shouldQuery === head.shouldQuery &&
+    originsEqual(head.origin, next.origin)
   )
+}
+
+function originsEqual(
+  left: QueuedCommand['origin'],
+  right: QueuedCommand['origin'],
+): boolean {
+  if (left === right) return true
+  if (!left || !right) return false
+  if (left.kind !== right.kind) return false
+  if (left.kind === 'peer' && right.kind === 'peer') {
+    return left.from === right.from
+  }
+  if (left.kind === 'channel' && right.kind === 'channel') {
+    return left.server === right.server
+  }
+  return true
 }
 
 function isSyntheticSessionTitleInput(text: string): boolean {
@@ -1218,6 +1241,7 @@ function runHeadlessStreaming(
   let heldBackResult: StdoutMessage | null = null
   let abortController: AbortController | undefined
   const controlRequestAbortController = createAbortController(500)
+  const pendingBashCommands = new Set<Promise<void>>()
   // Same queue sendRequest() enqueues to — one FIFO for everything.
   const output = structuredIO.outbound
 
@@ -2277,6 +2301,9 @@ function runHeadlessStreaming(
                 ...command,
                 value: joinPromptValues(batch.map(c => c.value)),
                 uuid: batch.findLast(c => c.uuid)?.uuid ?? command.uuid,
+                fileAttachments: batch.flatMap(
+                  c => c.fileAttachments ?? [],
+                ),
                 clientPlatform:
                   batch.find(c => c.clientPlatform)?.clientPlatform ??
                   command.clientPlatform,
@@ -2300,6 +2327,10 @@ function runHeadlessStreaming(
                   parent_tool_use_id: null,
                   uuid: c.uuid,
                   isReplay: true,
+                  ...(c.fileAttachments?.length
+                    ? { file_attachments: c.fileAttachments }
+                    : {}),
+                  ...(c.origin ? { origin: c.origin } : {}),
                 } satisfies SDKUserMessageReplay)
               }
             }
@@ -2430,32 +2461,34 @@ function runHeadlessStreaming(
             })
           }
 
-          // Abort any in-flight suggestion generation and track acceptance
-          suggestionState.abortController?.abort()
-          suggestionState.abortController = null
-          suggestionState.pendingSuggestion = null
-          suggestionState.pendingLastEmittedEntry = null
-          if (suggestionState.lastEmitted) {
-            if (command.mode === 'prompt') {
-              // SDK user messages enqueue ContentBlockParam[], not a plain string
-              const inputText =
-                typeof input === 'string'
-                  ? input
-                  : (
-                      input.find(b => b.type === 'text') as
-                        | { type: 'text'; text: string }
-                        | undefined
-                    )?.text
-              if (typeof inputText === 'string') {
-                logSuggestionOutcome(
-                  suggestionState.lastEmitted.text,
-                  inputText,
-                  suggestionState.lastEmitted.emittedAt,
-                  suggestionState.lastEmitted.promptId,
-                  suggestionState.lastEmitted.generationRequestId,
-                )
+          if (command.shouldQuery !== false) {
+            // Abort any in-flight suggestion generation and track acceptance
+            suggestionState.abortController?.abort()
+            suggestionState.abortController = null
+            suggestionState.pendingSuggestion = null
+            suggestionState.pendingLastEmittedEntry = null
+            if (suggestionState.lastEmitted) {
+              if (command.mode === 'prompt') {
+                // SDK user messages enqueue ContentBlockParam[], not a plain string
+                const inputText =
+                  typeof input === 'string'
+                    ? input
+                    : (
+                        input.find(b => b.type === 'text') as
+                          | { type: 'text'; text: string }
+                          | undefined
+                      )?.text
+                if (typeof inputText === 'string') {
+                  logSuggestionOutcome(
+                    suggestionState.lastEmitted.text,
+                    inputText,
+                    suggestionState.lastEmitted.emittedAt,
+                    suggestionState.lastEmitted.promptId,
+                    suggestionState.lastEmitted.generationRequestId,
+                  )
+                }
+                suggestionState.lastEmitted = null
               }
-              suggestionState.lastEmitted = null
             }
           }
 
@@ -2481,6 +2514,14 @@ function runHeadlessStreaming(
               prompt: input,
               promptUuid: cmd.uuid,
               isMeta: cmd.isMeta,
+              shouldQuery: cmd.shouldQuery,
+              stopHookActive: cmd.stopHookActive,
+              fileAttachments: cmd.fileAttachments,
+              origin:
+                cmd.origin ??
+                (cmd.mode === 'task-notification'
+                  ? { kind: 'task-notification' }
+                  : undefined),
               clientPlatform: cmd.clientPlatform,
               cwd: cwd(),
               tools: allTools,
@@ -2558,23 +2599,31 @@ function runHeadlessStreaming(
                   output.enqueue(event)
                 }
 
-                // Hold-back: don't emit result while background agents are running
-                const currentState = getAppState()
-                if (
-                  getRunningTasks(currentState).some(
-                    t =>
-                      (t.type === 'local_agent' ||
-                        t.type === 'local_workflow') &&
-                      isBackgroundTask(t),
-                  )
-                ) {
-                  heldBackResult = message
-                } else {
-                  heldBackResult = null
+                // Non-query transcript appends must acknowledge immediately;
+                // only real turns can be held behind background agents.
+                if (cmd.shouldQuery === false) {
                   if (options.sessionMirror) {
                     await flushSessionStorage()
                   }
                   output.enqueue(message)
+                } else {
+                  const currentState = getAppState()
+                  if (
+                    getRunningTasks(currentState).some(
+                      t =>
+                        (t.type === 'local_agent' ||
+                          t.type === 'local_workflow') &&
+                        isBackgroundTask(t),
+                    )
+                  ) {
+                    heldBackResult = message
+                  } else {
+                    heldBackResult = null
+                    if (options.sessionMirror) {
+                      await flushSessionStorage()
+                    }
+                    output.enqueue(message)
+                  }
                 }
               } else {
                 // Flush SDK events (task_started, task_progress) so background
@@ -2616,6 +2665,7 @@ function runHeadlessStreaming(
           // Generate and emit prompt suggestion for SDK consumers
           if (
             options.promptSuggestions &&
+            cmd.shouldQuery !== false &&
             !isEnvDefinedFalsy(process.env.CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION)
           ) {
             // TS narrows suggestionState to never in the while loop body;
@@ -3168,6 +3218,7 @@ function runHeadlessStreaming(
       if (
         eventId &&
         message.type !== 'user' &&
+        message.type !== 'bash_command' &&
         message.type !== 'control_response'
       ) {
         notifyCommandLifecycle(eventId, 'completed')
@@ -4293,9 +4344,22 @@ function runHeadlessStreaming(
           const newModel = getMainLoopModel()
           if (newModel !== prevModel) {
             activeUserSpecifiedModel = newModel
+            setAppState(prev => ({
+              ...prev,
+              mainLoopModelForSession: newModel,
+            }))
             const modelArg = incoming.model ? String(incoming.model) : 'default'
             notifySessionMetadataChanged({ model: newModel })
             injectModelSwitchBreadcrumbs(modelArg, newModel)
+          }
+
+          if ('effortLevel' in incoming) {
+            notifySessionMetadataChanged({
+              effort_level:
+                incoming.effortLevel == null
+                  ? null
+                  : String(incoming.effortLevel),
+            })
           }
 
           sendControlResponseSuccess(message)
@@ -4698,6 +4762,89 @@ function runHeadlessStreaming(
         }
         continue
       }
+      if (message.type === 'bash_command') {
+        const sessionId = getSessionId() as UUID
+        if (message.uuid) {
+          if (receivedMessageUuids.has(message.uuid)) {
+            logForDebugging(
+              `Skipping duplicate bash_command message: ${message.uuid}`,
+            )
+            continue
+          }
+          trackReceivedMessageUuid(message.uuid)
+        }
+        if (typeof message.command !== 'string') {
+          output.enqueue({
+            type: 'user',
+            message: {
+              role: 'user',
+              content: `<${BASH_STDERR_TAG}>Command failed: missing command</${BASH_STDERR_TAG}>`,
+            },
+            session_id: sessionId,
+            parent_tool_use_id: null,
+            uuid: randomUUID(),
+            timestamp: new Date().toISOString(),
+            isReplay: true,
+          } as SDKUserMessageReplay)
+          if (message.uuid) {
+            notifyCommandLifecycle(message.uuid, 'completed')
+          }
+          continue
+        }
+        output.enqueue({
+          type: 'user',
+          message: {
+            role: 'user',
+            content: `<${BASH_INPUT_TAG}>${escapeXml(message.command)}</${BASH_INPUT_TAG}>`,
+          },
+          session_id: sessionId,
+          parent_tool_use_id: null,
+          uuid: randomUUID(),
+          timestamp: new Date().toISOString(),
+          isReplay: true,
+        } as SDKUserMessageReplay)
+        const pending = (async () => {
+          try {
+            const { runHeadlessBashCommand } = await import(
+              './headlessBashCommand.js'
+            )
+            const result = await runHeadlessBashCommand({
+              command: message.command,
+              cwd: message.cwd,
+              abortSignal: controlRequestAbortController.signal,
+            })
+            output.enqueue({
+              type: 'user',
+              message: { role: 'user', content: result.outputText },
+              session_id: sessionId,
+              parent_tool_use_id: null,
+              uuid: result.outputUuid,
+              timestamp: new Date().toISOString(),
+              isReplay: true,
+            } as SDKUserMessageReplay)
+          } catch (error) {
+            logError(toError(error))
+            output.enqueue({
+              type: 'user',
+              message: {
+                role: 'user',
+                content: `<${BASH_STDERR_TAG}>Command failed: ${escapeXml(errorMessage(error))}</${BASH_STDERR_TAG}>`,
+              },
+              session_id: sessionId,
+              parent_tool_use_id: null,
+              uuid: randomUUID(),
+              timestamp: new Date().toISOString(),
+              isReplay: true,
+            } as SDKUserMessageReplay)
+          }
+          if (message.uuid) {
+            notifyCommandLifecycle(message.uuid, 'completed')
+          }
+        })()
+        pendingBashCommands.add(pending)
+        void pending.finally(() => pendingBashCommands.delete(pending))
+        continue
+      }
       // After handling control, keep-alive, env-var, assistant, and system
       // messages above, only user messages should remain.
       if (message.type !== 'user') {
@@ -4723,6 +4870,7 @@ function runHeadlessStreaming(
             logForDebugging(
               `Sending acknowledgment for duplicate user message: ${message.uuid}`,
             )
+            const fileAttachments = extractInboundAttachments(message)
             output.enqueue({
               type: 'user',
               message: message.message,
@@ -4731,6 +4879,9 @@ function runHeadlessStreaming(
               uuid: message.uuid,
               timestamp: message.timestamp,
               isReplay: true,
+              ...(fileAttachments.length > 0
+                ? { file_attachments: fileAttachments }
+                : {}),
             } as SDKUserMessageReplay)
           }
           // Historical dup = transcript already has this turn's output, so it
@@ -4750,11 +4901,7 @@ function runHeadlessStreaming(
       // Generate a title once from the first real prompt. This mirrors the
       // interactive REPL, while honoring the nonessential-traffic and terminal
       // title opt-outs before any Haiku request is made.
-      if (
-        !autoTitleAttempted &&
-        (message as typeof message & { shouldQuery?: boolean }).shouldQuery !==
-          false
-      ) {
+      if (!autoTitleAttempted && message.shouldQuery !== false) {
         const text = getContentText(message.message.content)
         if (text && !isSyntheticSessionTitleInput(text)) {
           autoTitleAttempted = true
@@ -4787,6 +4934,7 @@ function runHeadlessStreaming(
         }
       }
 
+      const fileAttachments = extractInboundAttachments(message)
       enqueue({
         mode: 'prompt' as const,
         // file_attachments rides the protobuf catchall from the web composer.
@@ -4794,7 +4942,9 @@ function runHeadlessStreaming(
         value: await resolveAndPrepend(message, message.message.content),
         uuid: message.uuid,
         priority: message.priority,
+        shouldQuery: message.shouldQuery,
         clientPlatform: message.client_platform,
+        ...(fileAttachments.length > 0 ? { fileAttachments } : {}),
       })
       // Increment prompt count for attribution tracking and save snapshot
       // The snapshot persists promptCount so it survives compaction
@@ -4821,6 +4971,9 @@ function runHeadlessStreaming(
       }
       suggestionState.abortController?.abort()
       suggestionState.abortController = null
+      if (pendingBashCommands.size > 0) {
+        await Promise.allSettled(pendingBashCommands)
+      }
       await finalizePendingAsyncHooks()
       unsubscribeSkillChanges()
       unsubscribeAuthStatus?.()

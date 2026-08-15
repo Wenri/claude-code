@@ -47,7 +47,7 @@ import type { AgentDefinition } from './tools/AgentTool/loadAgentsDir.js'
 import { createBashRerunAliases } from './tools/BashTool/rerun.js'
 import type { ReplIsolationLatch } from './tools/REPLTool/types.js'
 import { SYNTHETIC_OUTPUT_TOOL_NAME } from './tools/SyntheticOutputTool/SyntheticOutputTool.js'
-import type { Message } from './types/message.js'
+import type { Message, MessageOrigin } from './types/message.js'
 import type { OrphanedPermission } from './types/textInputTypes.js'
 import {
   getPluginErrorMessage,
@@ -258,7 +258,15 @@ export class QueryEngine {
 
   async *submitMessage(
     prompt: string | ContentBlockParam[],
-    options?: { uuid?: string; isMeta?: boolean; clientPlatform?: string },
+    options?: {
+      uuid?: string
+      isMeta?: boolean
+      shouldQuery?: boolean
+      stopHookActive?: boolean
+      fileAttachments?: unknown[]
+      origin?: MessageOrigin
+      clientPlatform?: string
+    },
   ): AsyncGenerator<SDKMessage, void, unknown> {
     const {
       cwd,
@@ -561,7 +569,7 @@ export class QueryEngine {
 
     const {
       messages: messagesFromUserInput,
-      shouldQuery,
+      shouldQuery: processedShouldQuery,
       allowedTools,
       model: modelFromUserInput,
       resultText,
@@ -576,8 +584,18 @@ export class QueryEngine {
       messages: this.mutableMessages,
       uuid: options?.uuid,
       isMeta: options?.isMeta,
+      shouldQuery: options?.shouldQuery,
       querySource: 'sdk',
     })
+
+    const shouldQuery =
+      processedShouldQuery && options?.shouldQuery !== false
+
+    if (options?.origin) {
+      for (const message of messagesFromUserInput) {
+        if (message.type === 'user') message.origin = options.origin
+      }
+    }
 
     // Push new messages, including user input and any attachments
     this.mutableMessages.push(...messagesFromUserInput)
@@ -811,13 +829,35 @@ export class QueryEngine {
         }
       }
 
+      for (const msg of options?.shouldQuery === false ? messagesToAck : []) {
+        if (msg.type === 'user') {
+          const fileAttachments =
+            options?.uuid && msg.uuid === options.uuid
+              ? options.fileAttachments
+              : undefined
+          yield {
+            type: 'user',
+            message: msg.message,
+            session_id: getSessionId(),
+            parent_tool_use_id: null,
+            uuid: msg.uuid,
+            timestamp: msg.timestamp,
+            isReplay: true,
+            ...(fileAttachments && fileAttachments.length > 0
+              ? { file_attachments: fileAttachments }
+              : {}),
+            ...(msg.origin ? { origin: msg.origin } : {}),
+          } as SDKUserMessageReplay
+        }
+      }
+
       yield {
         type: 'result',
         subtype: 'success',
         is_error: false,
         duration_ms: Date.now() - startTime,
         duration_api_ms: getTotalAPIDuration(),
-        num_turns: messages.length - 1,
+        num_turns: 0,
         result: resultText ?? '',
         stop_reason: null,
         session_id: getSessionId(),
@@ -887,6 +927,7 @@ export class QueryEngine {
         querySource: 'sdk',
         maxTurns,
         taskBudget,
+        stopHookActive: options?.stopHookActive,
       }),
       queryTerminalState,
     )) {
@@ -944,6 +985,10 @@ export class QueryEngine {
           hasAcknowledgedInitialMessages = true
           for (const msgToAck of messagesToAck) {
             if (msgToAck.type === 'user') {
+              const fileAttachments =
+                options?.uuid && msgToAck.uuid === options.uuid
+                  ? options.fileAttachments
+                  : undefined
               yield {
                 type: 'user',
                 message: msgToAck.message,
@@ -952,6 +997,10 @@ export class QueryEngine {
                 uuid: msgToAck.uuid,
                 timestamp: msgToAck.timestamp,
                 isReplay: true,
+                ...(fileAttachments && fileAttachments.length > 0
+                  ? { file_attachments: fileAttachments }
+                  : {}),
+                ...(msgToAck.origin ? { origin: msgToAck.origin } : {}),
               } as SDKUserMessageReplay
             }
           }
@@ -1076,6 +1125,12 @@ export class QueryEngine {
               uuid: message.attachment.source_uuid || message.uuid,
               timestamp: message.timestamp,
               isReplay: true,
+              ...(message.attachment.fileAttachments?.length
+                ? { file_attachments: message.attachment.fileAttachments }
+                : {}),
+              ...(message.attachment.origin
+                ? { origin: message.attachment.origin }
+                : {}),
             } as SDKUserMessageReplay
           }
           break
@@ -1440,6 +1495,10 @@ export async function* ask({
   prompt,
   promptUuid,
   isMeta,
+  shouldQuery,
+  stopHookActive,
+  fileAttachments,
+  origin,
   clientPlatform,
   cwd,
   tools,
@@ -1479,6 +1538,10 @@ export async function* ask({
   prompt: string | Array<ContentBlockParam>
   promptUuid?: string
   isMeta?: boolean
+  shouldQuery?: boolean
+  stopHookActive?: boolean
+  fileAttachments?: unknown[]
+  origin?: MessageOrigin
   clientPlatform?: string
   cwd: string
   tools: Tools
@@ -1563,6 +1626,10 @@ export async function* ask({
     yield* engine.submitMessage(prompt, {
       uuid: promptUuid,
       isMeta,
+      shouldQuery,
+      stopHookActive,
+      fileAttachments,
+      origin,
       clientPlatform,
     })
   } finally {

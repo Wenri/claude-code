@@ -573,6 +573,8 @@ export type Attachment =
       commandMode?: string
       /** Provenance carried from QueuedCommand so mid-turn drains preserve it */
       origin?: MessageOrigin
+      /** Inbound remote attachments preserved for SDK replay output */
+      fileAttachments?: unknown[]
       /** Carried from QueuedCommand.isMeta — distinguishes human-typed from system-injected */
       isMeta?: boolean
     }
@@ -1111,6 +1113,7 @@ export async function getQueuedCommandAttachments(
         prompt,
         source_uuid: _.uuid,
         imagePasteIds: getImagePasteIds(_.pastedContents),
+        fileAttachments: _.fileAttachments,
         commandMode: _.mode,
         origin: _.origin,
         isMeta: _.isMeta,

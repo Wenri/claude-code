@@ -312,6 +312,12 @@ export type QueuedCommand = {
   /** Defaults to the priority implied by `mode` when enqueued. */
   priority?: QueuePriority
   clientPlatform?: string
+  /** Append this message without starting a model turn. */
+  shouldQuery?: boolean
+  /** Inbound remote attachments echoed with SDK replay messages. */
+  fileAttachments?: unknown[]
+  /** Preserve the stop-hook latch when an async stop-hook response is queued. */
+  stopHookActive?: boolean
   uuid?: UUID
   orphanedPermission?: OrphanedPermission
   /** Raw pasted contents including images. Images are resized at execution time. */
