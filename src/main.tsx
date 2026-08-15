@@ -3358,7 +3358,8 @@ async function run(): Promise<CommanderCommand> {
       agentDefinitions,
       currentCwd,
       cliAgents,
-      initialState
+      initialState,
+      permissionModeCliSet: permissionModeCli !== undefined || Boolean(dangerouslySkipPermissions)
     };
     if (options.continue) {
       // Continue the most recent conversation directly
