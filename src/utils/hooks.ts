@@ -437,11 +437,31 @@ function validateHookJson(
     logForDebugging('Successfully parsed and validated hook JSON output')
     return { json: validation.data }
   }
-  const errors = validation.error.issues
-    .map(err => `  - ${err.path.join('.')}: ${err.message}`)
+  const issues = validation.error.issues
+  const firstIssue = issues[0]
+  let firstError = firstIssue
+    ? `${firstIssue.path.join('.') || '(root)'}: ${firstIssue.message}`
+    : 'unknown error'
+
+  if (
+    parsed &&
+    typeof parsed === 'object' &&
+    'hookSpecificOutput' in parsed &&
+    parsed.hookSpecificOutput &&
+    typeof parsed.hookSpecificOutput === 'object' &&
+    !Array.isArray(parsed.hookSpecificOutput) &&
+    !('hookEventName' in parsed.hookSpecificOutput)
+  ) {
+    firstError =
+      'hookSpecificOutput is missing required field "hookEventName"'
+  }
+
+  const additionalErrors = issues
+    .slice(1)
+    .map(err => `  - ${err.path.join('.') || '(root)'}: ${err.message}`)
     .join('\n')
   return {
-    validationError: `Hook JSON output validation failed:\n${errors}\n\nThe hook's output was: ${jsonStringify(parsed, null, 2)}`,
+    validationError: `Hook JSON output validation failed \u2014 ${firstError}${additionalErrors ? `\n${additionalErrors}` : ''}\n\nThe hook's output was: ${jsonStringify(parsed, null, 2)}`,
   }
 }
 
