@@ -1,11 +1,13 @@
 import {
-  MEMORY_DRIFT_CAVEAT,
   maybeCompactTypesSection,
   TRUSTING_RECALL_SECTION,
   WHAT_NOT_TO_SAVE_SECTION,
 } from './memoryTypes.js'
 
 const TINY_MEMORY_TYPES = ['user', 'feedback', 'project'] as const
+
+const TINY_MEMORY_DRIFT_CAVEAT =
+  '- Memory records can become stale over time. Use memory as context for what was true at a given point in time. Before answering the user or building assumptions based solely on information in memory records, verify that the memory is still correct and up-to-date by reading the current state of the files or resources. If a recalled memory conflicts with current information, trust what you observe now — and delete the stale memory file (saving a fresh one if you still need the information) rather than acting on it.'
 
 const TINY_MEMORY_FRONTMATTER_EXAMPLE: readonly string[] = [
   '```markdown',
@@ -23,7 +25,7 @@ const TINY_WHEN_TO_ACCESS_SECTION: readonly string[] = [
   '- When memories seem relevant, or the user references prior-conversation work.',
   '- You MUST access memory when the user explicitly asks you to check, recall, or remember.',
   '- If the user says to *ignore* or *not use* memory: Do not apply remembered facts, cite, compare against, or mention memory content.',
-  MEMORY_DRIFT_CAVEAT,
+  TINY_MEMORY_DRIFT_CAVEAT,
 ]
 
 const TINY_RECALLED_MEMORIES_SECTION: readonly string[] = [

@@ -29,6 +29,8 @@ const recalledGuidance =
   'Tool results may include additional `<system-reminder>` blocks containing context automatically recalled from your persistent memory system based on the current conversation. Treat these as background information surfaced for you'
 const granularityGuidance =
   "Each memory file should contain one paragraph about a single fact that you'd like to remember for future sessions. If you wish to record multiple facts, save these into separate memory files."
+const tinyDriftGuidance =
+  'If a recalled memory conflicts with current information, trust what you observe now \\u2014 and delete the stale memory file (saving a fresh one if you still need the information) rather than acting on it.'
 const singleIndexGuidance =
   'indexes both private and team memories \\u2014 use a path like'
 
@@ -65,6 +67,7 @@ test('authenticated adjacent bundles retain tiny-memory builders and routing', (
       filenameGuidance,
       recalledGuidance,
       granularityGuidance,
+      tinyDriftGuidance,
       singleIndexGuidance,
       'Memory files should be treated as immutable.',
       'type: {{${',
@@ -103,6 +106,7 @@ test('source reconstructs tiny-memory prompts and retained normal builder detail
     filenameGuidance,
     recalledGuidance,
     granularityGuidance,
+    tinyDriftGuidance.replace('\\u2014', '—'),
     'Memory files should be treated as immutable.',
     'TINY_MEMORY_TYPES =',
     'TINY_TYPES_SECTION_INDIVIDUAL',
