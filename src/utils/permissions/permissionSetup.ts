@@ -64,6 +64,7 @@ import { getMainLoopModel } from '../model/model.js'
 import { getPlatform } from '../platform.js'
 import { isBashToolEnabled } from '../shell/shellToolUtils.js'
 import { isSubprocessEnvScrubEnabled } from '../subprocessEnv.js'
+import { getLeaderToolUseConfirmQueue } from '../swarm/leaderPermissionBridge.js'
 import { logPermissionModeChanged } from '../telemetry/events.js'
 import {
   CROSS_PLATFORM_CODE_EXEC,
@@ -650,6 +651,69 @@ export function transitionPermissionMode(
   }
 
   return context
+}
+
+export type SetPermissionModeWithGuardsResult =
+  | { ok: true; mode: PermissionMode }
+  | { ok: false; error: string }
+
+/**
+ * Validate and apply an externally requested permission-mode transition.
+ * The context setter is injectable so non-React entrypoints can retain the
+ * same policy guards and queued-permission refresh behavior.
+ */
+export function setPermissionModeWithGuards(
+  mode: PermissionMode,
+  initialContext: ToolPermissionContext,
+  setToolPermissionContext: (
+    updater: (context: ToolPermissionContext) => ToolPermissionContext,
+  ) => void,
+): SetPermissionModeWithGuardsResult {
+  if (mode === 'bypassPermissions') {
+    if (isBypassPermissionsModeDisabled()) {
+      return {
+        ok: false,
+        error:
+          'Cannot set permission mode to bypassPermissions because it is disabled by settings or configuration',
+      }
+    }
+    if (!initialContext.isBypassPermissionsModeAvailable) {
+      return {
+        ok: false,
+        error:
+          'Cannot set permission mode to bypassPermissions because the session was not launched with --dangerously-skip-permissions',
+      }
+    }
+  }
+
+  if (mode === 'auto' && !isAutoModeGateEnabled()) {
+    const reason = getAutoModeUnavailableReason()
+    return {
+      ok: false,
+      error: reason
+        ? `Cannot set permission mode to auto: ${getAutoModeUnavailableNotification(reason)}`
+        : 'Cannot set permission mode to auto',
+    }
+  }
+
+  setToolPermissionContext(context => {
+    if (context.mode === mode) return context
+    return {
+      ...transitionPermissionMode(context.mode, mode, context),
+      mode,
+    }
+  })
+
+  setImmediate(() => {
+    getLeaderToolUseConfirmQueue()?.(queue => {
+      queue.forEach(item => {
+        void item.recheckPermission()
+      })
+      return queue
+    })
+  })
+
+  return { ok: true, mode }
 }
 
 /**
