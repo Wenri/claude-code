@@ -4201,7 +4201,7 @@ export function REPL({
   // Don't record conversation if we only have initial messages; optimizes
   // the case where user resumes a conversation then quites before doing
   // anything else
-  useLogMessages(messages, messages.length === initialMessages?.length);
+  useLogMessages(messages, messages.length === initialMessages?.length, isLoading);
 
   // REPL Bridge: replicate user/assistant messages to the bridge session
   // for remote access via claude.ai. No-op in external builds or when not enabled.

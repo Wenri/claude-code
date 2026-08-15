@@ -218,6 +218,24 @@ export function isChainParticipant(m: Pick<Message, 'type'>): boolean {
   return m.type !== 'progress'
 }
 
+export function transcriptCursorEnd(
+  messages: Message[],
+  start: number,
+  deferIncompleteAssistant: boolean,
+): number {
+  if (!deferIncompleteAssistant) return messages.length
+  for (let index = start; index < messages.length; index++) {
+    const message = messages[index]!
+    if (
+      message.type === 'assistant' &&
+      message.message.stop_reason === null
+    ) {
+      return index
+    }
+  }
+  return messages.length
+}
+
 type LegacyProgressEntry = {
   type: 'progress'
   uuid: UUID

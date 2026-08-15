@@ -98,6 +98,7 @@ import {
   isChainParticipant,
   isLoggableMessage,
   recordTranscript,
+  transcriptCursorEnd,
 } from './utils/sessionStorage.js'
 import { asSystemPrompt } from './utils/systemPromptType.js'
 import { resolveThemeSetting } from './utils/systemTheme.js'
@@ -665,12 +666,23 @@ export class QueryEngine {
     const messages = [...this.mutableMessages]
     let transcriptCursor = 0
     let lastRecordedUuid: UUID | undefined
-    const recordNewMessages = (): Promise<UUID | null> => {
+    const initialTranscriptLength = messages.length
+    const recordNewMessages = (
+      forceIncompleteAssistant: boolean = false,
+    ): Promise<UUID | null> => {
       const start = transcriptCursor
-      if (start >= messages.length) return Promise.resolve(null)
+      const end = transcriptCursorEnd(
+        messages,
+        Math.max(start, initialTranscriptLength),
+        !forceIncompleteAssistant,
+      )
+      if (start >= end) return Promise.resolve(null)
 
-      const newMessages = start === 0 ? messages : messages.slice(start)
-      transcriptCursor = messages.length
+      const newMessages =
+        start === 0 && end === messages.length
+          ? messages
+          : messages.slice(start, end)
+      transcriptCursor = end
       const startingParentUuid = lastRecordedUuid
       for (let index = newMessages.length - 1; index >= 0; index--) {
         const message = newMessages[index]!
@@ -1137,6 +1149,7 @@ export class QueryEngine {
             if (message.event.delta.stop_reason != null) {
               lastStopReason = message.event.delta.stop_reason
             }
+            if (persistSession) void recordNewMessages()
           }
           if (message.event.type === 'message_stop') {
             // Accumulate current message usage into total
@@ -1303,6 +1316,7 @@ export class QueryEngine {
       // Check if USD budget has been exceeded
       if (maxBudgetUsd !== undefined && getTotalCost() >= maxBudgetUsd) {
         if (persistSession) {
+          await recordNewMessages(true)
           if (
             isEnvTruthy(process.env.CLAUDE_CODE_EAGER_FLUSH) ||
             isEnvTruthy(process.env.CLAUDE_CODE_IS_COWORK)
@@ -1346,6 +1360,7 @@ export class QueryEngine {
         )
         if (callsThisQuery >= maxRetries) {
           if (persistSession) {
+            await recordNewMessages(true)
             if (
               isEnvTruthy(process.env.CLAUDE_CODE_EAGER_FLUSH) ||
               isEnvTruthy(process.env.CLAUDE_CODE_IS_COWORK)
@@ -1403,6 +1418,7 @@ export class QueryEngine {
     // The desktop app kills the CLI process immediately after receiving the
     // result message, so any unflushed writes would be lost.
     if (persistSession) {
+      await recordNewMessages(true)
       if (
         isEnvTruthy(process.env.CLAUDE_CODE_EAGER_FLUSH) ||
         isEnvTruthy(process.env.CLAUDE_CODE_IS_COWORK)
