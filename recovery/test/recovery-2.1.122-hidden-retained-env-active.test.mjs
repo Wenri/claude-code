@@ -109,7 +109,7 @@ test('source tracks background completion and refreshes once before a turn', () 
     'return pluginsInstalled',
     'const state={needsRefresh:false}',
     'state.needsRefresh=needsRefresh',
-    'backgroundPluginRefresh=trackBackgroundPluginRefresh(installPluginsAndApplyMcpInBackground,)',
+    'backgroundPluginRefresh=kickOffBackgroundPluginInstall(installPluginsAndApplyMcpInBackground,)',
     'process.env.CLAUDE_CODE_ENABLE_BACKGROUND_PLUGIN_REFRESH',
     'backgroundPluginRefresh?.needsRefresh',
     'backgroundPluginRefresh.needsRefresh=false',
