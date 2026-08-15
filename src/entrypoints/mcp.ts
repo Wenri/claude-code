@@ -136,7 +136,8 @@ export async function startMCPServer(
         turnStartIndex: 0,
         readFileState: readFileStateCache,
         setInProgressToolUseIDs: () => {},
-        setResponseLength: () => {},
+        addResponseLength: () => {},
+        resetResponseLength: () => {},
         updateFileHistoryState: () => {},
         updateAttributionState: () => {},
       }

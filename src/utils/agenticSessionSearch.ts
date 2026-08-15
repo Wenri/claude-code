@@ -95,7 +95,8 @@ function createSearchContext(
     messages: initialMessages,
     turnStartIndex: 0,
     setInProgressToolUseIDs: () => {},
-    setResponseLength: () => {},
+    addResponseLength: () => {},
+    resetResponseLength: () => {},
     updateFileHistoryState: () => {},
     updateAttributionState: () => {},
   }

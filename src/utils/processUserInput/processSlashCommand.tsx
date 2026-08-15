@@ -265,7 +265,7 @@ async function executeForkedSlashCommand(command: CommandBase & PromptCommand, a
         // Increment token count in spinner for assistant messages
         const contentLength = getAssistantMessageContentLength(message);
         if (contentLength > 0) {
-          context.setResponseLength(len => len + contentLength);
+          context.addResponseLength(contentLength);
         }
         const normalizedMsg = normalizedNew[0];
         if (normalizedMsg && normalizedMsg.type === 'assistant') {

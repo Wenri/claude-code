@@ -555,7 +555,7 @@ export async function compactConversation(
 
     // Show requesting mode with up arrow and custom message
     context.setStreamMode?.('requesting')
-    context.setResponseLength?.(() => 0)
+    context.resetResponseLength?.()
     context.onCompactProgress?.({
       type: 'compact_start',
       hintText: compactingHintText,
@@ -893,7 +893,7 @@ export async function compactConversation(
     throw error
   } finally {
     context.setStreamMode?.('requesting')
-    context.setResponseLength?.(() => 0)
+    context.resetResponseLength?.()
     context.onCompactProgress?.({ type: 'compact_end' })
     context.setSDKStatus?.(null, {
       compactResult: compactError ? 'failed' : 'success',
@@ -976,7 +976,7 @@ export async function partialCompactConversation(
     }
 
     context.setStreamMode?.('requesting')
-    context.setResponseLength?.(() => 0)
+    context.resetResponseLength?.()
     context.onCompactProgress?.({ type: 'compact_start' })
 
     const compactPrompt = getPartialCompactPrompt(customInstructions, direction)
@@ -1244,7 +1244,7 @@ export async function partialCompactConversation(
     throw error
   } finally {
     context.setStreamMode?.('requesting')
-    context.setResponseLength?.(() => 0)
+    context.resetResponseLength?.()
     context.onCompactProgress?.({ type: 'compact_end' })
     context.setSDKStatus?.(null, {
       compactResult: compactError ? 'failed' : 'success',
@@ -1411,7 +1411,7 @@ async function streamCompactSummary({
       // Reset state for retry
       let hasStartedStreaming = false
       let response: AssistantMessage | undefined
-      context.setResponseLength?.(() => 0)
+      context.resetResponseLength?.()
 
       // Check if tool search is enabled using the main loop's tools list.
       // context.options.tools includes MCP tools merged via useMergedTools.
@@ -1512,7 +1512,7 @@ async function streamCompactSummary({
           event.event.delta.type === 'text_delta'
         ) {
           const charactersStreamed = event.event.delta.text.length
-          context.setResponseLength?.(length => length + charactersStreamed)
+          context.addResponseLength?.(charactersStreamed)
         }
 
         if (event.type === 'assistant') {

@@ -1120,7 +1120,7 @@ export const AgentTool = buildTool({
             if (message.type === 'assistant') {
               const contentLength = getAssistantMessageContentLength(message);
               if (contentLength > 0) {
-                toolUseContext.setResponseLength(len => len + contentLength);
+                toolUseContext.addResponseLength(contentLength);
               }
             }
             const normalizedNew = normalizeMessages([message]);

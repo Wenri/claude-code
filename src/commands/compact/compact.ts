@@ -192,7 +192,7 @@ async function compactViaReactive(
     )
 
     context.setStreamMode?.('requesting')
-    context.setResponseLength?.(() => 0)
+    context.resetResponseLength?.()
     context.onCompactProgress?.({ type: 'compact_start' })
 
     const outcome = await reactive.reactiveCompactOnPromptTooLong(
@@ -263,7 +263,7 @@ async function compactViaReactive(
     throw error
   } finally {
     context.setStreamMode?.('requesting')
-    context.setResponseLength?.(() => 0)
+    context.resetResponseLength?.()
     context.onCompactProgress?.({ type: 'compact_end' })
     reactive.recordCompactionTelemetry({
       trigger: 'manual',

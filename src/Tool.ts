@@ -20,6 +20,10 @@ export type ToolInputJSONSchema = {
   }
 }
 
+export type ApiMetricsEvent =
+  | { type: 'start'; ttftMs: number; id?: string }
+  | { type: 'end'; outputTokens: number; id?: string }
+
 import type { Notification } from './context/notifications.js'
 import type {
   MCPServerConnection,
@@ -314,10 +318,10 @@ export type ToolUseContext = {
   setInProgressToolUseIDs: (f: (prev: Set<string>) => Set<string>) => void
   /** Only wired in interactive (REPL) contexts; SDK/QueryEngine don't set this. */
   setHasInterruptibleToolInProgress?: (v: boolean) => void
-  setResponseLength: (f: (prev: number) => number) => void
-  /** Ant-only: push a new API metrics entry for OTPS tracking.
-   *  Called by subagent streaming when a new API request starts. */
-  pushApiMetricsEntry?: (ttftMs: number) => void
+  addResponseLength: (length: number) => void
+  resetResponseLength: () => void
+  /** Ant-only: record an API request lifecycle event for OTPS tracking. */
+  pushApiMetricsEntry?: (event: ApiMetricsEvent) => void
   setStreamMode?: (mode: SpinnerMode) => void
   onCompactProgress?: (event: CompactProgressEvent) => void
   setSDKStatus?: SetSDKStatus

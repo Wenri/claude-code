@@ -763,7 +763,7 @@ export async function* runAgent({
   }
 
   // Create subagent context using shared helper
-  // - Sync agents share setAppState, setResponseLength, abortController with parent
+  // - Sync agents share setAppState, response-length callbacks, abortController with parent
   // - Async agents are fully isolated (but with explicit unlinked abortController)
   const agentToolUseContext = createSubagentContext(toolUseContext, {
     options: agentOptions,
@@ -849,6 +849,7 @@ export async function* runAgent({
   let lastRecordedUuid: UUID | null =
     messagesToPersist.at(-1)?.uuid ?? startingParentUuid
   let completedNormally = false
+  let currentApiMetricsId: UUID | undefined
 
   try {
     for await (const message of query({
@@ -870,8 +871,27 @@ export async function* runAgent({
         message.event.type === 'message_start' &&
         message.ttftMs != null
       ) {
-        toolUseContext.pushApiMetricsEntry?.(message.ttftMs)
+        currentApiMetricsId = randomUUID()
+        toolUseContext.pushApiMetricsEntry?.({
+          type: 'start',
+          ttftMs: message.ttftMs,
+          id: currentApiMetricsId,
+        })
         continue
+      }
+
+      if (
+        message.type === 'stream_event' &&
+        message.event.type === 'message_delta' &&
+        message.event.usage.output_tokens != null &&
+        currentApiMetricsId != null
+      ) {
+        toolUseContext.pushApiMetricsEntry?.({
+          type: 'end',
+          outputTokens: message.event.usage.output_tokens,
+          id: currentApiMetricsId,
+        })
+        currentApiMetricsId = undefined
       }
 
       // Yield attachment messages (e.g., structured_output) without recording them

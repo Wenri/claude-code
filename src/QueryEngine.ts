@@ -476,7 +476,8 @@ export class QueryEngine {
       discoveredRemoteSkills: this.discoveredRemoteSkills,
       bashRerunAliases: this.bashRerunAliases,
       setInProgressToolUseIDs: () => {},
-      setResponseLength: () => {},
+      addResponseLength: () => {},
+      resetResponseLength: () => {},
       updateFileHistoryState: (
         updater: (prev: FileHistoryState) => FileHistoryState,
       ) => {
@@ -762,7 +763,8 @@ export class QueryEngine {
       discoveredRemoteSkills: this.discoveredRemoteSkills,
       bashRerunAliases: this.bashRerunAliases,
       setInProgressToolUseIDs: () => {},
-      setResponseLength: () => {},
+      addResponseLength: () => {},
+      resetResponseLength: () => {},
       updateFileHistoryState: processUserInputContext.updateFileHistoryState,
       updateAttributionState: processUserInputContext.updateAttributionState,
       setSDKStatus,

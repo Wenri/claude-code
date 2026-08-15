@@ -36,7 +36,7 @@ import {
   getPdfTooLargeErrorMessage,
   getRequestTooLargeErrorMessage,
 } from '../services/api/errors.js'
-import type { AnyObject, Progress } from '../Tool.js'
+import type { AnyObject, ApiMetricsEvent, Progress } from '../Tool.js'
 import { isConnectorTextBlock } from '../types/connectorText.js'
 import type {
   AssistantMessage,
@@ -2949,6 +2949,10 @@ export type StreamingThinking = {
   streamingEndedAt?: number
 }
 
+function estimateBase64DecodedSize(encodedLength: number): number {
+  return Math.round(encodedLength * 0.75)
+}
+
 /**
  * Handles messages from a stream, updating response length for deltas and appending completed messages
  */
@@ -2960,7 +2964,7 @@ export function handleMessageFromStream(
     | RequestStartEvent
     | ToolUseSummaryMessage,
   onMessage: (message: Message) => void,
-  onUpdateLength: (newContent: string) => void,
+  onUpdateLength: (length: number) => void,
   onSetStreamMode: (mode: SpinnerMode) => void,
   onStreamingToolUses: (
     f: (streamingToolUse: StreamingToolUse[]) => StreamingToolUse[],
@@ -2969,7 +2973,7 @@ export function handleMessageFromStream(
   onStreamingThinking?: (
     f: (current: StreamingThinking | null) => StreamingThinking | null,
   ) => void,
-  onApiMetrics?: (metrics: { ttftMs: number }) => void,
+  onApiMetrics?: (event: ApiMetricsEvent) => void,
   onStreamingText?: (f: (current: string | null) => string | null) => void,
 ): void {
   if (
@@ -3013,8 +3017,10 @@ export function handleMessageFromStream(
 
   if (message.event.type === 'message_start') {
     if (message.ttftMs != null) {
-      onApiMetrics?.({ ttftMs: message.ttftMs })
+      onApiMetrics?.({ type: 'start', ttftMs: message.ttftMs })
     }
+    onStreamingToolUses(current => (current.length > 0 ? [] : current))
+    onStreamingText?.(current => (current !== null ? null : current))
   }
 
   if (message.event.type === 'message_stop') {
@@ -3045,14 +3051,13 @@ export function handleMessageFromStream(
           onSetStreamMode('tool-input')
           const contentBlock = message.event.content_block
           const index = message.event.index
-          onStreamingToolUses(_ => [
-            ..._,
-            {
-              index,
-              contentBlock,
-              unparsedToolInput: '',
-            },
-          ])
+          onStreamingToolUses(current => {
+            const existingIndex = current.findIndex(item => item.index === index)
+            const next = { index, contentBlock, unparsedToolInput: '' }
+            return existingIndex === -1
+              ? [...current, next]
+              : current.with(existingIndex, next)
+          })
           return
         }
         case 'server_tool_use':
@@ -3074,14 +3079,14 @@ export function handleMessageFromStream(
       switch (message.event.delta.type) {
         case 'text_delta': {
           const deltaText = message.event.delta.text
-          onUpdateLength(deltaText)
+          onUpdateLength(deltaText.length)
           onStreamingText?.(text => (text ?? '') + deltaText)
           return
         }
         case 'input_json_delta': {
           const delta = message.event.delta.partial_json
           const index = message.event.index
-          onUpdateLength(delta)
+          onUpdateLength(delta.length)
           onStreamingToolUses(_ => {
             const element = _.find(_ => _.index === index)
             if (!element) {
@@ -3098,12 +3103,11 @@ export function handleMessageFromStream(
           return
         }
         case 'thinking_delta':
-          onUpdateLength(message.event.delta.thinking)
           return
         case 'signature_delta':
-          // Signatures are cryptographic authentication strings, not model
-          // output. Excluding them from onUpdateLength prevents them from
-          // inflating the OTPS metric and the animated token counter.
+          onUpdateLength(
+            estimateBase64DecodedSize(message.event.delta.signature.length),
+          )
           return
         default:
           return
@@ -3112,6 +3116,12 @@ export function handleMessageFromStream(
       return
     case 'message_delta':
       onSetStreamMode('responding')
+      if (message.event.usage.output_tokens != null) {
+        onApiMetrics?.({
+          type: 'end',
+          outputTokens: message.event.usage.output_tokens,
+        })
+      }
       return
     default:
       onSetStreamMode('responding')

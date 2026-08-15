@@ -19,7 +19,7 @@ import {
 } from '../remote/sdkMessageAdapter.js'
 import { useSetAppState } from '../state/AppState.js'
 import type { AppState } from '../state/AppStateStore.js'
-import type { Tool } from '../Tool.js'
+import type { ApiMetricsEvent, Tool } from '../Tool.js'
 import type { SDKControlRequestInner } from '../entrypoints/sdk/controlTypes.js'
 import { findToolByName } from '../Tool.js'
 import type { Message as MessageType } from '../types/message.js'
@@ -60,6 +60,7 @@ type UseRemoteSessionProps = {
   >
   setStreamMode?: React.Dispatch<React.SetStateAction<SpinnerMode>>
   setInProgressToolUseIDs?: (f: (prev: Set<string>) => Set<string>) => void
+  recordApiMetricsEvent?: (event: ApiMetricsEvent) => void
   permissionMode: AppState['toolPermissionContext']['mode']
 }
 
@@ -95,6 +96,7 @@ export function useRemoteSession({
   setStreamingToolUses,
   setStreamMode,
   setInProgressToolUseIDs,
+  recordApiMetricsEvent,
   permissionMode,
 }: UseRemoteSessionProps): UseRemoteSessionResult {
   const isRemoteMode = !!config
@@ -366,6 +368,9 @@ export function useRemoteSession({
               },
               setStreamMode,
               setStreamingToolUses,
+              undefined,
+              undefined,
+              recordApiMetricsEvent,
             )
           } else {
             logForDebugging(
@@ -556,6 +561,7 @@ export function useRemoteSession({
     setStreamingToolUses,
     setStreamMode,
     setInProgressToolUseIDs,
+    recordApiMetricsEvent,
     setConnStatus,
     writeTaskCount,
   ])

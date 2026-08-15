@@ -287,7 +287,7 @@ export type SubagentContextOverrides = {
    */
   shareSetAppState?: boolean
   /**
-   * Explicit opt-in to share parent's setResponseLength callback.
+   * Explicit opt-in to share parent's response-length callbacks.
    * Use for subagents that contribute to parent's response metrics.
    * @default false (isolated no-op)
    */
@@ -440,8 +440,11 @@ export function createSubagentContext(
 
     // Mutation callbacks - no-op by default
     setInProgressToolUseIDs: () => {},
-    setResponseLength: overrides?.shareSetResponseLength
-      ? parentContext.setResponseLength
+    addResponseLength: overrides?.shareSetResponseLength
+      ? parentContext.addResponseLength
+      : () => {},
+    resetResponseLength: overrides?.shareSetResponseLength
+      ? parentContext.resetResponseLength
       : () => {},
     pushApiMetricsEntry: overrides?.shareSetResponseLength
       ? parentContext.pushApiMetricsEntry

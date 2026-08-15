@@ -128,7 +128,7 @@ const getCoordinatorUserContext: (mcpClients: ReadonlyArray<{
 } = feature('COORDINATOR_MODE') ? require('../coordinator/coordinatorMode.js').getCoordinatorUserContext : () => ({});
 /* eslint-enable custom-rules/no-process-env-top-level, @typescript-eslint/no-require-imports */
 import useCanUseTool from '../hooks/useCanUseTool.js';
-import type { ToolPermissionContext, Tool, ToolProgressEvent } from '../Tool.js';
+import type { ApiMetricsEvent, ToolPermissionContext, Tool, ToolProgressEvent } from '../Tool.js';
 import { renderToolProgress } from '../components/ToolProgress.js';
 import { applyPermissionUpdate, applyPermissionUpdates, persistPermissionUpdate } from '../utils/permissions/PermissionUpdate.js';
 import { buildPermissionUpdates } from '../components/permissions/ExitPlanModePermissionRequest/ExitPlanModePermissionRequest.js';
@@ -1554,6 +1554,64 @@ export function REPL({
   const [inProgressToolUseIDs, setInProgressToolUseIDs] = useState<Set<string>>(new Set());
   const hasInterruptibleToolInProgressRef = useRef(false);
 
+  // Ref instead of state to avoid triggering React re-renders on every
+  // streaming text_delta. The spinner reads this via its animation timer.
+  const responseLengthRef = useRef(0);
+  // API performance metrics ref for ant-only spinner display (TTFT/OTPS).
+  // Accumulates metrics from all API requests in a turn for P50 aggregation.
+  const apiMetricsRef = useRef<Array<{
+    id?: string;
+    ttftMs: number;
+    firstTokenTime: number;
+    lastTokenTime: number;
+    responseLengthBaseline: number;
+    endResponseLength: number;
+    outputTokens?: number;
+  }>>([]);
+  const addResponseLength = useCallback((length: number) => {
+    responseLengthRef.current += length;
+    const entries = apiMetricsRef.current;
+    if (length > 0 && entries.length > 0) {
+      const lastEntry = entries.at(-1)!;
+      if (lastEntry.outputTokens == null) {
+        lastEntry.lastTokenTime = Date.now();
+        lastEntry.endResponseLength = responseLengthRef.current;
+      }
+    }
+  }, []);
+  const resetResponseLength = useCallback(() => {
+    responseLengthRef.current = 0;
+  }, []);
+  const recordApiMetricsEvent = useCallback((event: ApiMetricsEvent) => {
+    if (event.type === 'start') {
+      const now = Date.now();
+      const baseline = responseLengthRef.current;
+      apiMetricsRef.current.push({
+        id: event.id,
+        ttftMs: event.ttftMs,
+        firstTokenTime: now,
+        lastTokenTime: now,
+        responseLengthBaseline: baseline,
+        endResponseLength: baseline
+      });
+      return;
+    }
+
+    const entry = event.id != null
+      ? apiMetricsRef.current.find(candidate => candidate.id === event.id)
+      : apiMetricsRef.current.findLast(candidate => candidate.id == null);
+    if (entry) {
+      entry.outputTokens = event.outputTokens;
+      entry.lastTokenTime = Date.now();
+      if (event.id == null) {
+        responseLengthRef.current = Math.max(
+          responseLengthRef.current,
+          entry.responseLengthBaseline + event.outputTokens * 4
+        );
+      }
+    }
+  }, []);
+
   // Remote session hook - manages WebSocket connection and message handling for --remote mode
   const remoteSession = useRemoteSession({
     config: remoteSessionConfig,
@@ -1565,6 +1623,7 @@ export function REPL({
     setStreamingToolUses,
     setStreamMode,
     setInProgressToolUseIDs,
+    recordApiMetricsEvent,
     permissionMode: toolPermissionContext.mode
   });
 
@@ -1611,38 +1670,6 @@ export function REPL({
   }, [activeRemoteControlTransport]);
   const [pastedContents, setPastedContents] = useState<Record<number, PastedContent>>({});
   const [submitCount, setSubmitCount] = useState(0);
-  // Ref instead of state to avoid triggering React re-renders on every
-  // streaming text_delta. The spinner reads this via its animation timer.
-  const responseLengthRef = useRef(0);
-  // API performance metrics ref for ant-only spinner display (TTFT/OTPS).
-  // Accumulates metrics from all API requests in a turn for P50 aggregation.
-  const apiMetricsRef = useRef<Array<{
-    ttftMs: number;
-    firstTokenTime: number;
-    lastTokenTime: number;
-    responseLengthBaseline: number;
-    // Tracks responseLengthRef at the time of the last content addition.
-    // Updated by both streaming deltas and subagent message content.
-    // lastTokenTime is also updated at the same time, so the OTPS
-    // denominator correctly includes subagent processing time.
-    endResponseLength: number;
-  }>>([]);
-  const setResponseLength = useCallback((f: (prev: number) => number) => {
-    const prev = responseLengthRef.current;
-    responseLengthRef.current = f(prev);
-    // When content is added (not a compaction reset), update the latest
-    // metrics entry so OTPS reflects all content generation activity.
-    // Updating lastTokenTime here ensures the denominator includes both
-    // streaming time AND subagent execution time, preventing inflation.
-    if (responseLengthRef.current > prev) {
-      const entries = apiMetricsRef.current;
-      if (entries.length > 0) {
-        const lastEntry = entries.at(-1)!;
-        lastEntry.lastTokenTime = Date.now();
-        lastEntry.endResponseLength = responseLengthRef.current;
-      }
-    }
-  }, []);
 
   // Streaming text display: set state directly per delta (Ink's 16ms render
   // throttle batches rapid updates). Cleared on message arrival (messages.ts)
@@ -2755,18 +2782,9 @@ export function REPL({
       discoveredSkillNames: discoveredSkillNamesRef.current,
       discoveredRemoteSkills: discoveredRemoteSkillsRef.current,
       bashRerunAliases: bashRerunAliasesRef.current,
-      setResponseLength,
-      pushApiMetricsEntry: "external" === 'ant' ? (ttftMs: number) => {
-        const now = Date.now();
-        const baseline = responseLengthRef.current;
-        apiMetricsRef.current.push({
-          ttftMs,
-          firstTokenTime: now,
-          lastTokenTime: now,
-          responseLengthBaseline: baseline,
-          endResponseLength: baseline
-        });
-      } : undefined,
+      addResponseLength,
+      resetResponseLength,
+      pushApiMetricsEntry: "external" === 'ant' ? recordApiMetricsEvent : undefined,
       setStreamMode,
       onCompactProgress: event => {
         switch (event.type) {
@@ -2799,7 +2817,7 @@ export function REPL({
       contentReplacementState: contentReplacementStateRef.current,
       resultDedupState: resultDedupStateRef.current
     };
-  }, [commands, combinedInitialTools, mainThreadAgentDefinition, debug, initialMcpClients, ideInstallationStatus, dynamicMcpConfig, theme, allowedAgentTypes, store, setAppState, teammateColors, reverify, addNotification, setMessages, applyMessageOp, setToolJSX, emitToolProgress, onChangeDynamicMcpConfig, resume, requestPrompt, disabled, customSystemPrompt, appendSystemPrompt, setConversationId]);
+  }, [commands, combinedInitialTools, mainThreadAgentDefinition, debug, initialMcpClients, ideInstallationStatus, dynamicMcpConfig, theme, allowedAgentTypes, store, setAppState, teammateColors, reverify, addNotification, setMessages, applyMessageOp, setToolJSX, emitToolProgress, onChangeDynamicMcpConfig, resume, requestPrompt, disabled, customSystemPrompt, appendSystemPrompt, setConversationId, addResponseLength, resetResponseLength, recordApiMetricsEvent]);
 
   // Session backgrounding (Ctrl+B to background/foreground)
   const handleBackgroundQuery = useCallback(() => {
@@ -2934,29 +2952,14 @@ export function REPL({
           proactiveModule?.setContextBlocked(false);
         }
       }
-    }, newContent => {
-      // setResponseLength handles updating both responseLengthRef (for
-      // spinner animation) and apiMetricsRef (endResponseLength/lastTokenTime
-      // for OTPS). No separate metrics update needed here.
-      setResponseLength(length => length + newContent.length);
-    }, setStreamMode, setStreamingToolUses, tombstonedMessage => {
+    }, addResponseLength, setStreamMode, setStreamingToolUses, tombstonedMessage => {
       applyMessageOp({
         type: 'remove-by-uuid',
         uuid: tombstonedMessage.uuid
       });
       void removeTranscriptMessage(tombstonedMessage.uuid);
-    }, setStreamingThinking, metrics => {
-      const now = Date.now();
-      const baseline = responseLengthRef.current;
-      apiMetricsRef.current.push({
-        ...metrics,
-        firstTokenTime: now,
-        lastTokenTime: now,
-        responseLengthBaseline: baseline,
-        endResponseLength: baseline
-      });
-    }, onStreamingText);
-  }, [applyMessageOp, setResponseLength, setStreamMode, setStreamingToolUses, setStreamingThinking, onStreamingText]);
+    }, setStreamingThinking, recordApiMetricsEvent, onStreamingText);
+  }, [applyMessageOp, addResponseLength, setStreamMode, setStreamingToolUses, setStreamingThinking, recordApiMetricsEvent, onStreamingText]);
   const onQueryImpl = useCallback(async (messagesIncludingNewMessages: MessageType[], newMessages: MessageType[], abortController: AbortController, shouldQuery: boolean, additionalAllowedTools: string[], mainLoopModelParam: string, effort?: EffortValue, clientPlatform?: string, activeSkill?: string) => {
     // Prepare IDE integration for new prompt. Read mcpClients fresh from
     // store — useManageMCPConnections may have populated it since the
@@ -3129,7 +3132,7 @@ export function REPL({
       // streaming-only content. endResponseLength tracks content added by
       // streaming deltas only, excluding subagent/compaction inflation.
       const otpsValues = entries.map(e => {
-        const delta = Math.round((e.endResponseLength - e.responseLengthBaseline) / 4);
+        const delta = e.outputTokens ?? Math.round((e.endResponseLength - e.responseLengthBaseline) / 4);
         const samplingMs = e.lastTokenTime - e.firstTokenTime;
         return samplingMs > 0 ? Math.round(delta / (samplingMs / 1000)) : 0;
       });

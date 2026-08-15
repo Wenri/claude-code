@@ -177,10 +177,7 @@ When done, return your result using the ${SYNTHETIC_OUTPUT_TOOL_NAME} tool with:
         handleMessageFromStream(
           message,
           () => {}, // onMessage - we handle messages below
-          newContent =>
-            toolUseContext.setResponseLength(
-              length => length + newContent.length,
-            ),
+          toolUseContext.addResponseLength,
           toolUseContext.setStreamMode ?? (() => {}),
           () => {}, // onStreamingToolUses - not needed for hooks
         )

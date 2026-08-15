@@ -201,7 +201,8 @@ export async function buildSideQuestionFallbackParams({
     messages: forkContextMessages,
     turnStartIndex: 0,
     setInProgressToolUseIDs: () => {},
-    setResponseLength: () => {},
+    addResponseLength: () => {},
+    resetResponseLength: () => {},
     updateFileHistoryState: () => {},
     updateAttributionState: () => {},
   }

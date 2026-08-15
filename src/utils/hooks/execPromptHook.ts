@@ -247,7 +247,7 @@ Always include a "reason" field.`,
       const content = extractTextContent(response.message.content)
 
       // Update response length for spinner display
-      toolUseContext.setResponseLength(length => length + content.length)
+      toolUseContext.addResponseLength(content.length)
 
       const fullResponse = content.trim()
       logForDebugging(`Hooks: Model response: ${fullResponse}`)
