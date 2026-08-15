@@ -64,7 +64,10 @@ import {
 } from '../../utils/forkedAgent.js'
 import { registerFrontmatterHooks } from '../../utils/hooks/registerFrontmatterHooks.js'
 import { clearSessionHooks } from '../../utils/hooks/sessionHooks.js'
-import { executeSubagentStartHooks } from '../../utils/hooks.js'
+import {
+  executeStopHooks,
+  executeSubagentStartHooks,
+} from '../../utils/hooks.js'
 import { createUserMessage } from '../../utils/messages.js'
 import { getAgentModel } from '../../utils/model/agent.js'
 import type { ModelAlias } from '../../utils/model/aliases.js'
@@ -925,6 +928,29 @@ export async function* runAgent({
       completedNormally &&
       !agentAbortController.signal.aborted &&
       hasAgentKeepalive(agentId, toolUseContext.getAppState)
+    // An interrupted/erroring query never reaches query()'s normal
+    // SubagentStop path. Give those hooks one final, un-aborted 5s window
+    // before tearing down the agent-scoped hook registry.
+    if (!completedNormally) {
+      try {
+        for await (const _hookResult of executeStopHooks(
+          undefined,
+          undefined,
+          5_000,
+          false,
+          agentId,
+          agentToolUseContext,
+          undefined,
+          agentDefinition.agentType,
+        )) {
+          // Cleanup hooks are drained for their side effects only.
+        }
+      } catch (error) {
+        logForDebugging(
+          `[runAgent] SubagentStop on interrupted query failed: ${error}`,
+        )
+      }
+    }
     // Clean up agent-specific MCP servers (runs on normal completion, abort, or error)
     await mcpCleanup()
     // Clean up agent's session hooks
