@@ -26,6 +26,7 @@ import type { MemoryWriteSurveyRecord } from '../memdir/memoryWriteSurvey.js'
 import type { LoadedPlugin, PluginError } from '../types/plugin.js'
 import type { DeepImmutable } from '../types/utils.js'
 import type { AutoUpdaterResult } from '../utils/autoUpdater.js'
+import type { ClassifierApprovalsState } from '../utils/classifierApprovals.js'
 import {
   type AttributionState,
   createEmptyAttributionState,
@@ -356,6 +357,7 @@ export type AppState = DeepImmutable<{
   // background disk write finishes and injected stores preserve the same view.
   storedImagePaths: Map<number, string>
   imageDescriptions: Map<number, string>
+  classifierApprovals: ClassifierApprovalsState
   teamContext?: {
     teamName: string
     teamFilePath: string
@@ -576,6 +578,7 @@ export function getDefaultAppState(): AppState {
     replContexts: {},
     storedImagePaths: new Map(),
     imageDescriptions: new Map(),
+    classifierApprovals: { approvals: new Map(), checking: new Set() },
     showRemoteCallout: false,
     toolPermissionContext: {
       ...getEmptyToolPermissionContext(),

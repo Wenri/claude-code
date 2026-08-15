@@ -1,88 +1,138 @@
 /**
  * Tracks which tool uses were auto-approved by classifiers.
- * Populated from useCanUseTool.ts and permissions.ts, read from UserToolSuccessMessage.tsx.
+ * State lives in AppState so parallel/injected sessions remain isolated.
  */
 
 import { feature } from 'bun:bundle'
-import { createSignal } from './signal.js'
+import type { AppState } from '../state/AppStateStore.js'
 
-type ClassifierApproval = {
+export type ClassifierApproval = {
   classifier: 'bash' | 'auto-mode'
   matchedRule?: string
   reason?: string
 }
 
-const CLASSIFIER_APPROVALS = new Map<string, ClassifierApproval>()
-const CLASSIFIER_CHECKING = new Set<string>()
-const classifierChecking = createSignal()
+export type ClassifierApprovalsState = {
+  approvals: Map<string, ClassifierApproval>
+  checking: Set<string>
+}
+
+export type SetClassifierApprovals = (
+  updater: (prev: ClassifierApprovalsState) => ClassifierApprovalsState,
+) => void
+
+export function makeSetClassifierApprovals(
+  setAppState: (updater: (prev: AppState) => AppState) => void,
+): SetClassifierApprovals {
+  return updater =>
+    setAppState(prev => {
+      const classifierApprovals = updater(prev.classifierApprovals)
+      return classifierApprovals === prev.classifierApprovals
+        ? prev
+        : { ...prev, classifierApprovals }
+    })
+}
+
+export const NOOP_SET_CLASSIFIER_APPROVALS: SetClassifierApprovals = () => {}
 
 export function setClassifierApproval(
+  setApprovals: SetClassifierApprovals,
   toolUseID: string,
   matchedRule: string,
 ): void {
-  if (!feature('BASH_CLASSIFIER')) {
-    return
-  }
-  CLASSIFIER_APPROVALS.set(toolUseID, {
-    classifier: 'bash',
-    matchedRule,
+  if (!feature('BASH_CLASSIFIER')) return
+  setApprovals(prev => {
+    const existing = prev.approvals.get(toolUseID)
+    if (existing?.classifier === 'bash' && existing.matchedRule === matchedRule) {
+      return prev
+    }
+    const approvals = new Map(prev.approvals)
+    approvals.set(toolUseID, { classifier: 'bash', matchedRule })
+    return { ...prev, approvals }
   })
 }
 
-export function getClassifierApproval(toolUseID: string): string | undefined {
-  if (!feature('BASH_CLASSIFIER')) {
-    return undefined
-  }
-  const approval = CLASSIFIER_APPROVALS.get(toolUseID)
+export function getClassifierApproval(
+  state: AppState,
+  toolUseID: string,
+): string | undefined {
+  if (!feature('BASH_CLASSIFIER')) return undefined
+  const approval = state.classifierApprovals.approvals.get(toolUseID)
   if (!approval || approval.classifier !== 'bash') return undefined
   return approval.matchedRule
 }
 
 export function setYoloClassifierApproval(
+  setApprovals: SetClassifierApprovals,
   toolUseID: string,
   reason: string,
 ): void {
-  if (!feature('TRANSCRIPT_CLASSIFIER')) {
-    return
-  }
-  CLASSIFIER_APPROVALS.set(toolUseID, { classifier: 'auto-mode', reason })
+  if (!feature('TRANSCRIPT_CLASSIFIER')) return
+  setApprovals(prev => {
+    const existing = prev.approvals.get(toolUseID)
+    if (existing?.classifier === 'auto-mode' && existing.reason === reason) {
+      return prev
+    }
+    const approvals = new Map(prev.approvals)
+    approvals.set(toolUseID, { classifier: 'auto-mode', reason })
+    return { ...prev, approvals }
+  })
 }
 
 export function getYoloClassifierApproval(
+  state: AppState,
   toolUseID: string,
 ): string | undefined {
-  if (!feature('TRANSCRIPT_CLASSIFIER')) {
-    return undefined
-  }
-  const approval = CLASSIFIER_APPROVALS.get(toolUseID)
+  if (!feature('TRANSCRIPT_CLASSIFIER')) return undefined
+  const approval = state.classifierApprovals.approvals.get(toolUseID)
   if (!approval || approval.classifier !== 'auto-mode') return undefined
   return approval.reason
 }
 
-export function setClassifierChecking(toolUseID: string): void {
+export function setClassifierChecking(
+  setApprovals: SetClassifierApprovals,
+  toolUseID: string,
+): void {
   if (!feature('BASH_CLASSIFIER') && !feature('TRANSCRIPT_CLASSIFIER')) return
-  CLASSIFIER_CHECKING.add(toolUseID)
-  classifierChecking.emit()
+  setApprovals(prev => {
+    if (prev.checking.has(toolUseID)) return prev
+    const checking = new Set(prev.checking)
+    checking.add(toolUseID)
+    return { ...prev, checking }
+  })
 }
 
-export function clearClassifierChecking(toolUseID: string): void {
+export function clearClassifierChecking(
+  setApprovals: SetClassifierApprovals,
+  toolUseID: string,
+): void {
   if (!feature('BASH_CLASSIFIER') && !feature('TRANSCRIPT_CLASSIFIER')) return
-  CLASSIFIER_CHECKING.delete(toolUseID)
-  classifierChecking.emit()
+  setApprovals(prev => {
+    if (!prev.checking.has(toolUseID)) return prev
+    const checking = new Set(prev.checking)
+    checking.delete(toolUseID)
+    return { ...prev, checking }
+  })
 }
 
-export const subscribeClassifierChecking = classifierChecking.subscribe
-
-export function isClassifierChecking(toolUseID: string): boolean {
-  return CLASSIFIER_CHECKING.has(toolUseID)
+export function deleteClassifierApproval(
+  setApprovals: SetClassifierApprovals,
+  toolUseID: string,
+): void {
+  setApprovals(prev => {
+    if (!prev.approvals.has(toolUseID)) return prev
+    const approvals = new Map(prev.approvals)
+    approvals.delete(toolUseID)
+    return { ...prev, approvals }
+  })
 }
 
-export function deleteClassifierApproval(toolUseID: string): void {
-  CLASSIFIER_APPROVALS.delete(toolUseID)
-}
-
-export function clearClassifierApprovals(): void {
-  CLASSIFIER_APPROVALS.clear()
-  CLASSIFIER_CHECKING.clear()
-  classifierChecking.emit()
+export function clearClassifierApprovals(
+  setApprovals: SetClassifierApprovals | undefined,
+): void {
+  if (!setApprovals) return
+  setApprovals(prev => {
+    if (prev.approvals.size === 0 && prev.checking.size === 0) return prev
+    return { approvals: new Map(), checking: new Set() }
+  })
 }

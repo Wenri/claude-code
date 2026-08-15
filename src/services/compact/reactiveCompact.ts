@@ -770,6 +770,7 @@ export async function tryReactiveCompact({
   setLastSummarizedMessageId(undefined)
   runPostCompactCleanup(
     querySource,
+    toolUseContext.setAppState,
     toolUseContext.resultDedupState,
   )
   suppressCompactWarning()

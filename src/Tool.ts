@@ -67,6 +67,7 @@ import type { SystemPrompt } from './utils/systemPromptType.js'
 import type { ContentReplacementState } from './utils/toolResultStorage.js'
 import type { SessionStateManager } from './utils/sessionState.js'
 import type { AgentLifecycle } from './utils/agentLifecycle.js'
+import type { SetClassifierApprovals } from './utils/classifierApprovals.js'
 
 // Re-export progress types for backwards compatibility
 export type {
@@ -241,6 +242,7 @@ export type ToolUseContext = {
   getAppState(): AppState
   getToolPermissionContext(): ToolPermissionContext
   setAppState(f: (prev: AppState) => AppState): void
+  setClassifierApprovals: SetClassifierApprovals
   /** Per-session metadata transport used by SDK/CCR entrypoints. */
   sessionState?: SessionStateManager
   /** Reports command delivery progress to the owning SDK/CCR transport. */

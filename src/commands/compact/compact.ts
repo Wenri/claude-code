@@ -62,7 +62,11 @@ export const call: LocalCommandCall = async (args, context) => {
       )
       if (sessionMemoryResult) {
         getUserContext.cache.clear?.()
-        runPostCompactCleanup(undefined, context.resultDedupState)
+        runPostCompactCleanup(
+          undefined,
+          context.setAppState,
+          context.resultDedupState,
+        )
         // Reset cache read baseline so the post-compact drop isn't flagged
         // as a break. compactConversation does this internally; SM-compact doesn't.
         if (shouldTrackPromptCacheBreaks()) {
@@ -118,7 +122,11 @@ export const call: LocalCommandCall = async (args, context) => {
     suppressCompactWarning()
 
     getUserContext.cache.clear?.()
-    runPostCompactCleanup(undefined, context.resultDedupState)
+    runPostCompactCleanup(
+      undefined,
+      context.setAppState,
+      context.resultDedupState,
+    )
 
     return {
       type: 'compact',
@@ -221,7 +229,11 @@ async function compactViaReactive(
     // resetMicrocompactState — processSlashCommand calls that for all
     // type:'compact' results.
     setLastSummarizedMessageId(undefined)
-    runPostCompactCleanup(undefined, context.resultDedupState)
+    runPostCompactCleanup(
+      undefined,
+      context.setAppState,
+      context.resultDedupState,
+    )
     suppressCompactWarning()
     getUserContext.cache.clear?.()
 

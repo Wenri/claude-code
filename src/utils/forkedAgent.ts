@@ -427,6 +427,7 @@ export function createSubagentContext(
     // are never registered and never killed (PPID=1 zombie).
     setAppStateForTasks:
       parentContext.setAppStateForTasks ?? parentContext.setAppState,
+    setClassifierApprovals: parentContext.setClassifierApprovals,
     setReplContext: parentContext.setReplContext,
     agentLifecycle: parentContext.agentLifecycle,
     isolationLatch: overrides?.isolationLatch ?? parentContext.isolationLatch,

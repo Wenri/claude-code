@@ -74,6 +74,7 @@ import { getSystemContext, getUserContext } from '../context.js';
 import { getMemoryFiles } from '../utils/claudemd.js';
 import { createMemorySelector } from '../memdir/findRelevantMemories.js';
 import { createAgentLifecycle } from '../utils/agentLifecycle.js';
+import { makeSetClassifierApprovals } from '../utils/classifierApprovals.js';
 import { startBackgroundHousekeeping } from '../utils/backgroundHousekeeping.js';
 import { getTotalCost, saveCurrentSessionCosts, resetCostState, getStoredSessionCosts } from '../cost-tracker.js';
 import { useCostSummary } from '../costHook.js';
@@ -2688,6 +2689,7 @@ export function REPL({
       getAppState: () => store.getState(),
       getToolPermissionContext: () => store.getState().toolPermissionContext,
       setAppState,
+      setClassifierApprovals: makeSetClassifierApprovals(setAppState),
       setReplContext: makeSetReplContext(setAppState),
       agentLifecycle: createAgentLifecycle(setAppState),
       replHydration: {
@@ -5430,7 +5432,7 @@ export function REPL({
               proactiveModule?.setContextBlocked(false);
             }
             setConversationId(randomUUID());
-            runPostCompactCleanup(context.options.querySource, context.resultDedupState);
+            runPostCompactCleanup(context.options.querySource, context.setAppState, context.resultDedupState);
             if (direction === 'from') {
               const r = textForResubmit(message);
               if (r) {

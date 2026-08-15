@@ -18,6 +18,7 @@ import {
 import { getTools } from '../tools.js'
 import { createAbortController } from '../utils/abortController.js'
 import { NOOP_AGENT_LIFECYCLE } from '../utils/agentLifecycle.js'
+import { NOOP_SET_CLASSIFIER_APPROVALS } from '../utils/classifierApprovals.js'
 import { createFileStateCacheWithSizeLimit } from '../utils/fileStateCache.js'
 import { logError } from '../utils/log.js'
 import { createAssistantMessage } from '../utils/messages.js'
@@ -126,6 +127,7 @@ export async function startMCPServer(
         },
         getAppState: () => getDefaultAppState(),
         setAppState: () => {},
+        setClassifierApprovals: NOOP_SET_CLASSIFIER_APPROVALS,
         setReplContext: () => {},
         agentLifecycle: NOOP_AGENT_LIFECYCLE,
         messages: [],

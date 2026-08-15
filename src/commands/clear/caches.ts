@@ -72,7 +72,7 @@ export function clearSessionCaches(
   // Run post-compaction cleanup (clears system prompt sections, microcompact tracking,
   // classifier approvals, speculative checks, and — for main-thread compacts — memory
   // files cache with load_reason 'compact').
-  runPostCompactCleanup()
+  runPostCompactCleanup(undefined, setAppState)
   // Reset sent skill names so the skill listing is re-sent after /clear.
   // runPostCompactCleanup intentionally does NOT reset this (post-compact
   // re-injection costs ~4K tokens), but /clear wipes messages entirely so

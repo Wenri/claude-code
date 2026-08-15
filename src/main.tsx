@@ -3255,6 +3255,10 @@ async function run(): Promise<CommanderCommand> {
       remoteAgentTaskSuggestions: [],
       storedImagePaths: new Map(),
       imageDescriptions: new Map(),
+      classifierApprovals: {
+        approvals: new Map(),
+        checking: new Set()
+      },
       fileHistory: {
         snapshots: [],
         trackedFiles: new Set(),

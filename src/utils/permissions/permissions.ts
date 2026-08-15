@@ -693,7 +693,7 @@ export const hasPermissionsToUseTool: CanUseToolFn = async (
 
       // Run the auto mode classifier
       const action = formatActionForClassifier(tool.name, input)
-      setClassifierChecking(toolUseID)
+      setClassifierChecking(context.setClassifierApprovals, toolUseID)
       let classifierResult
       try {
         classifierResult = await classifyYoloAction(
@@ -704,7 +704,7 @@ export const hasPermissionsToUseTool: CanUseToolFn = async (
           context.abortController.signal,
         )
       } finally {
-        clearClassifierChecking(toolUseID)
+        clearClassifierChecking(context.setClassifierApprovals, toolUseID)
       }
 
       // Notify ants when classifier error dumped prompts (will be in /share)
