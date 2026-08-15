@@ -1,7 +1,11 @@
 import { feature } from 'bun:bundle'
 import { join } from 'path'
 import { getFsImplementation } from '../utils/fsOperations.js'
-import { getAutoMemPath, isAutoMemoryEnabled } from './paths.js'
+import {
+  getAutoMemPath,
+  isAutoMemoryEnabled,
+  isTinyMemoryEnabled,
+} from './paths.js'
 
 /* eslint-disable @typescript-eslint/no-require-imports */
 const teamMemPaths = feature('TEAMMEM')
@@ -32,6 +36,10 @@ import {
   WHAT_NOT_TO_SAVE_SECTION,
   WHEN_TO_ACCESS_SECTION,
 } from './memoryTypes.js'
+import {
+  buildTinyCombinedMemoryPrompt,
+  buildTinyMemoryLines,
+} from './tinyMemoryPrompts.js'
 
 export const ENTRYPOINT_NAME = 'MEMORY.md'
 export const MAX_ENTRYPOINT_LINES = 200
@@ -203,6 +211,7 @@ export function buildMemoryLines(
   memoryDir: string | null,
   extraGuidelines?: string[],
   skipIndex = false,
+  forceFullTypes = false,
 ): string[] {
   const howToSave = skipIndex
     ? [
@@ -246,7 +255,9 @@ export function buildMemoryLines(
     '',
     'If the user explicitly asks you to remember something, save it immediately as whichever type fits best. If they ask you to forget something, find and remove the relevant entry.',
     '',
-    ...maybeCompactTypesSection(TYPES_SECTION_INDIVIDUAL),
+    ...(forceFullTypes
+      ? TYPES_SECTION_INDIVIDUAL
+      : maybeCompactTypesSection(TYPES_SECTION_INDIVIDUAL)),
     ...WHAT_NOT_TO_SAVE_SECTION,
     '',
     ...howToSave,
@@ -344,7 +355,13 @@ export function buildMemoryPrompt(params: {
     // No memory file yet
   }
 
-  const lines = buildMemoryLines(displayName, memoryDir, extraGuidelines)
+  const lines = buildMemoryLines(
+    displayName,
+    memoryDir,
+    extraGuidelines,
+    false,
+    true,
+  )
 
   if (entrypointContent.trim()) {
     const t = truncateEntrypointContent(entrypointContent)
@@ -509,6 +526,40 @@ export async function loadMemoryPrompt(model: string): Promise<string | null> {
       ? [coworkExtraGuidelines]
       : undefined
 
+  if (autoEnabled && isTinyMemoryEnabled()) {
+    const autoDir = getAutoMemPath()
+    const searchSection = buildSearchingPastContextSection(autoDir)
+    if (feature('TEAMMEM') && teamMemPaths!.isTeamMemoryEnabled()) {
+      const teamDir = teamMemPaths!.getTeamMemPath()
+      await ensureMemoryDirExists(teamDir)
+      logMemoryDirCounts(autoDir, {
+        memory_type:
+          'auto' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      })
+      logMemoryDirCounts(teamDir, {
+        memory_type:
+          'team' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      })
+      return buildTinyCombinedMemoryPrompt(
+        autoDir,
+        teamDir,
+        searchSection,
+        extraGuidelines,
+      )
+    }
+    await ensureMemoryDirExists(autoDir)
+    logMemoryDirCounts(autoDir, {
+      memory_type:
+        'auto' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    })
+    return buildTinyMemoryLines(
+      AUTO_MEM_DISPLAY_NAME,
+      autoDir,
+      searchSection,
+      extraGuidelines,
+    ).join('\n')
+  }
+
   if (
     autoEnabled &&
     !(feature('KAIROS') && getKairosActive()) &&
@@ -603,6 +654,7 @@ export async function loadMemoryPrompt(model: string): Promise<string | null> {
 function canSplitMemoryPrompt(model: string): boolean {
   if (!isAutoMemoryEnabled()) return false
   if (feature('KAIROS') && getKairosActive()) return false
+  if (isTinyMemoryEnabled()) return false
   if (feature('TEAMMEM') && teamMemPaths!.isTeamMemoryEnabled()) return false
   if (isLeanPromptEnabled(model)) return false
   return true
