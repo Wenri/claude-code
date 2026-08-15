@@ -1128,8 +1128,11 @@ export function FleetView({
   const focusedJobId = useRef<string | null>(null)
   const [detail, setDetail] = useState(false)
   const [reply, setReply] = useState('')
+  const replyRef = useRef('')
   const [replyCursor, setReplyCursor] = useState(0)
   const [replyMode, setReplyMode] = useState<'prompt' | 'bash'>('prompt')
+  const replyModeRef = useRef<'prompt' | 'bash'>('prompt')
+  const replyInFlight = useRef(false)
   const [replyError, setReplyError] = useState<string | null>(null)
   const [showHelp, setShowHelp] = useState(false)
   const replyDrafts = useRef(new Map<string, string>())
@@ -1515,9 +1518,14 @@ export function FleetView({
   useEffect(() => {
     if (!detail || !selected) return
     const draft = replyDrafts.current.get(selected.id) ?? ''
-    setReply(draft.startsWith('!') ? draft.slice(1) : draft)
+    const draftText = draft.startsWith('!') ? draft.slice(1) : draft
+    const draftMode = draft.startsWith('!') ? 'bash' : 'prompt'
+    replyRef.current = draftText
+    setReply(draftText)
     setReplyCursor(draft.startsWith('!') ? draft.length - 1 : draft.length)
-    setReplyMode(draft.startsWith('!') ? 'bash' : 'prompt')
+    replyModeRef.current = draftMode
+    setReplyMode(draftMode)
+    replyInFlight.current = false
     setReplyError(null)
   }, [detail, selected?.id])
 
@@ -1778,19 +1786,30 @@ export function FleetView({
     insertQueryText(text)
   }
 
+  const attachSelectedFromReply = (): void => {
+    if (!selected || replyInFlight.current) return
+    replyInFlight.current = true
+    setDetail(false)
+    openJob(selected)
+  }
+
   const submitReply = (value: string): void => {
-    if (!selected) return
+    if (replyInFlight.current) return
     const text = value.trim()
     if (!text && replyMode === 'prompt') {
-      openJob(selected)
+      attachSelectedFromReply()
       return
     }
+    if (!selected) return
     if (!text) return
     const mode = replyMode
     const outgoing = mode === 'bash' ? `!${text}` : text
+    replyInFlight.current = true
+    replyRef.current = ''
     replyDrafts.current.delete(selected.id)
     setReply('')
     setReplyCursor(0)
+    replyModeRef.current = 'prompt'
     setReplyMode('prompt')
     setReplyError(null)
     setBusy(current => new Set(current).add(selected.id))
@@ -1801,6 +1820,18 @@ export function FleetView({
         return { ...job, state, activity: deriveActivity(state) }
       }) ?? current,
     )
+    const restoreReply = (): void => {
+      if (replyRef.current === '') {
+        replyDrafts.current.set(selected.id, outgoing)
+        replyRef.current = text
+        setReply(text)
+        setReplyCursor(text.length)
+      }
+      if (replyModeRef.current === 'prompt') {
+        replyModeRef.current = mode
+        setReplyMode(mode)
+      }
+    }
     void sendJobReply(selected.id, outgoing, selected.state)
       .then(async result => {
         if (
@@ -1815,24 +1846,27 @@ export function FleetView({
         }
         return result
       })
-      .then(result => {
-        if (result) {
-          replyDrafts.current.set(selected.id, outgoing)
-          setReply(outgoing.startsWith('!') ? outgoing.slice(1) : outgoing)
-          setReplyCursor(outgoing.startsWith('!') ? outgoing.length - 1 : outgoing.length)
-          setReplyMode(outgoing.startsWith('!') ? 'bash' : 'prompt')
-          setReplyError(result)
-        }
-        return poll()
-      })
-      .catch(caught => setReplyError(String(caught)))
-      .finally(() =>
+      .then(
+        result => {
+          if (result) {
+            restoreReply()
+            setReplyError(result)
+          }
+          void poll()
+        },
+        caught => {
+          restoreReply()
+          setReplyError(errorMessage(caught))
+        },
+      )
+      .finally(() => {
+        replyInFlight.current = false
         setBusy(current => {
           const next = new Set(current)
           next.delete(selected.id)
           return next
-        }),
-      )
+        })
+      })
   }
 
   useInput((input, key) => {
@@ -1918,7 +1952,7 @@ export function FleetView({
         return
       }
       if (key.rightArrow && !reply && replyMode === 'prompt') {
-        if (selected) openJob(selected)
+        attachSelectedFromReply()
         return
       }
       // The focused shared TextInput owns editing, paste, cursor movement,
@@ -2408,7 +2442,10 @@ export function FleetView({
             <Text>{replyMode === 'bash' ? 'bash› ' : 'reply› '}</Text>
             <TextInput
               value={reply}
-              onChange={setReply}
+              onChange={value => {
+                replyRef.current = value
+                setReply(value)
+              }}
               onSubmit={submitReply}
               cursorOffset={replyCursor}
               onChangeCursorOffset={setReplyCursor}
@@ -2422,20 +2459,23 @@ export function FleetView({
                 const text = stripAnsi(rawText)
                   .replace(/\r\n|\r/g, '\n')
                   .replaceAll('\t', '    ')
-                setReply(value =>
-                  value.slice(0, replyCursor) +
+                const value =
+                  reply.slice(0, replyCursor) +
                   text +
-                  value.slice(replyCursor),
-                )
+                  reply.slice(replyCursor)
+                replyRef.current = value
+                setReply(value)
                 setReplyCursor(replyCursor + text.length)
               }}
               inputFilter={(value, key) => {
                 if (key.ctrl || key.escape) return ''
                 if (replyMode === 'prompt' && value === '!' && !reply) {
+                  replyModeRef.current = 'bash'
                   setReplyMode('bash')
                   return ''
                 }
                 if (replyMode === 'bash' && key.backspace && !reply) {
+                  replyModeRef.current = 'prompt'
                   setReplyMode('prompt')
                   return ''
                 }
