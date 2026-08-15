@@ -328,6 +328,17 @@ const BARE_SHELL_PREFIXES = new Set([
   'nohup',
   'timeout',
   'time',
+  'watch',
+  'ionice',
+  'chrt',
+  'setsid',
+  'taskset',
+  'strace',
+  'ltrace',
+  'script',
+  'flock',
+  'unshare',
+  'nsenter',
   // privilege escalation — sudo:* from `sudo -u foo ...` would auto-approve
   // any future sudo invocation
   'sudo',
@@ -817,6 +828,308 @@ export function stripWrappersFromArgv(argv: string[]): string[] {
   }
 }
 
+const COMMAND_WRAPPER_VALUE_OPTIONS: Readonly<
+  Record<string, ReadonlySet<string>>
+> = {
+  env: new Set(['-u', '-C', '--unset', '--chdir']),
+  sudo: new Set([
+    '-u',
+    '-g',
+    '-U',
+    '-C',
+    '-D',
+    '-h',
+    '-p',
+    '-r',
+    '-R',
+    '-t',
+    '-T',
+    '--user',
+    '--group',
+    '--other-user',
+    '--close-from',
+    '--chdir',
+    '--host',
+    '--prompt',
+    '--role',
+    '--chroot',
+    '--type',
+    '--command-timeout',
+    '-a',
+    '--auth-type',
+  ]),
+  doas: new Set(['-a', '-u', '-C']),
+  pkexec: new Set(['--user']),
+  watch: new Set(['-n', '--interval', '--equexit']),
+  ionice: new Set([
+    '-c',
+    '-n',
+    '-p',
+    '-P',
+    '-u',
+    '--class',
+    '--classdata',
+    '--pid',
+    '--pgid',
+    '--uid',
+  ]),
+  setsid: new Set(),
+  taskset: new Set(['-c', '--cpu-list']),
+  chrt: new Set([
+    '-p',
+    '--pid',
+    '-T',
+    '-P',
+    '-D',
+    '--sched-runtime',
+    '--sched-period',
+    '--sched-deadline',
+  ]),
+  strace: new Set([
+    '-e',
+    '-o',
+    '-p',
+    '-s',
+    '-E',
+    '-P',
+    '-S',
+    '-a',
+    '-b',
+    '-I',
+    '-u',
+    '-X',
+    '-O',
+    '-U',
+    '--output',
+    '--trace',
+    '--expr',
+    '--attach',
+    '--string-limit',
+    '--env',
+    '--trace-path',
+    '--columns',
+    '--user',
+    '--interruptible',
+    '--detach-on',
+    '--const-print-style',
+    '--summary-sort-by',
+    '--summary-syscall-overhead',
+    '--summary-columns',
+  ]),
+  ltrace: new Set([
+    '-a',
+    '-A',
+    '-e',
+    '-l',
+    '-n',
+    '-o',
+    '-p',
+    '-s',
+    '-u',
+    '-x',
+    '-D',
+    '-F',
+    '--align',
+    '--config',
+    '--debug',
+    '--indent',
+    '--library',
+    '--output',
+    '--string-max',
+    '-w',
+    '--where',
+  ]),
+  flock: new Set(['-w', '-E', '--timeout', '--wait', '--conflict-exit-code']),
+  script: new Set([
+    '-E',
+    '-T',
+    '-m',
+    '-o',
+    '-O',
+    '-B',
+    '-I',
+    '--echo',
+    '--log-timing',
+    '--logging-format',
+    '--output-limit',
+    '--log-out',
+    '--log-io',
+    '--log-in',
+  ]),
+  unshare: new Set([
+    '-R',
+    '-w',
+    '-S',
+    '-G',
+    '--setuid',
+    '--setgid',
+    '--root',
+    '--wd',
+    '--propagation',
+    '--setgroups',
+    '--monotonic',
+    '--boottime',
+  ]),
+  nsenter: new Set(['-t', '-S', '-G', '--target', '--setuid', '--setgid']),
+  exec: new Set(['-a']),
+  command: new Set(),
+}
+
+const COMMAND_WRAPPER_COMMAND_OPTIONS: Readonly<
+  Record<string, ReadonlySet<string>>
+> = {
+  env: new Set(['-S', '--split-string']),
+  flock: new Set(['-c', '--command']),
+  script: new Set(['-c', '--command']),
+}
+
+const ARGV_ENV_ASSIGNMENT_RE = /^[A-Za-z_][A-Za-z0-9_]*\+?=/
+
+/**
+ * Peel command-launching wrappers from a parsed argv for deny/ask matching.
+ * Value-taking options are skipped without mistaking their values for the
+ * command; options such as `flock -c` that contain a command restart parsing
+ * from the embedded command string.
+ */
+function stripCommandWrappersFromArgv(argv: string[]): string[] {
+  let args = argv.slice()
+
+  for (;;) {
+    while (args[0] !== undefined && ARGV_ENV_ASSIGNMENT_RE.test(args[0])) {
+      args = args.slice(1)
+    }
+
+    args = stripWrappersFromArgv(args)
+    const wrapper = args[0]
+    if (wrapper === undefined) return args
+
+    const valueOptions = COMMAND_WRAPPER_VALUE_OPTIONS[wrapper]
+    if (valueOptions === undefined) return args
+
+    const commandOptions = COMMAND_WRAPPER_COMMAND_OPTIONS[wrapper]
+    const positionalArgument =
+      wrapper === 'chrt'
+        ? (value: string) => /^\d+$/.test(value)
+        : wrapper === 'taskset'
+          ? (value: string) => /^(0x[\da-f]+|\d+)$/i.test(value)
+          : wrapper === 'flock' || wrapper === 'script'
+            ? () => true
+            : undefined
+
+    let index = 1
+    let embeddedCommand: string | undefined
+    let consumedPositionalArgument = false
+
+    while (index < args.length) {
+      const argument = args[index]!
+
+      if (argument === '--') {
+        index++
+        if (
+          !consumedPositionalArgument &&
+          positionalArgument !== undefined &&
+          index + 1 < args.length &&
+          positionalArgument(args[index]!)
+        ) {
+          consumedPositionalArgument = true
+          index++
+          continue
+        }
+        break
+      }
+
+      if (commandOptions !== undefined) {
+        if (commandOptions.has(argument) && args[index + 1] !== undefined) {
+          const command = args[index + 1]!.trim()
+          if (command !== '') {
+            embeddedCommand = command
+            break
+          }
+          index += 2
+          continue
+        }
+
+        const equalsIndex = argument.indexOf('=')
+        if (
+          equalsIndex > 0 &&
+          commandOptions.has(argument.slice(0, equalsIndex))
+        ) {
+          const command = argument.slice(equalsIndex + 1).trim()
+          if (command !== '') {
+            embeddedCommand = command
+            break
+          }
+          index++
+          continue
+        }
+
+        if (
+          argument.length > 2 &&
+          argument[1] !== '-' &&
+          commandOptions.has(argument.slice(0, 2))
+        ) {
+          const command = argument.slice(2).trim()
+          if (command !== '') {
+            embeddedCommand = command
+            break
+          }
+          index++
+          continue
+        }
+      }
+
+      if (
+        argument.startsWith('-') &&
+        (argument !== '-' || positionalArgument === undefined)
+      ) {
+        if (wrapper === 'command' && (argument === '-v' || argument === '-V')) {
+          return args
+        }
+        index +=
+          valueOptions.has(argument) && args[index + 1] !== undefined ? 2 : 1
+        continue
+      }
+
+      if (wrapper === 'env' && ARGV_ENV_ASSIGNMENT_RE.test(argument)) {
+        index++
+        continue
+      }
+
+      if (
+        !consumedPositionalArgument &&
+        positionalArgument?.(argument) &&
+        index + 1 < args.length
+      ) {
+        consumedPositionalArgument = true
+        index++
+        continue
+      }
+
+      break
+    }
+
+    if (embeddedCommand !== undefined) {
+      args = embeddedCommand.trim().split(/\s+/)
+      if (args.length === 0 || args[0] === '') return argv.slice()
+      continue
+    }
+
+    if (index >= args.length) return args
+    args = args.slice(index)
+  }
+}
+
+function parseLiteralCommandArgv(command: string): string[] {
+  const parsed = tryParseShellCommand(command)
+  if (
+    !parsed.success ||
+    !parsed.tokens.every((token) => typeof token === 'string')
+  ) {
+    return []
+  }
+  return parsed.tokens as string[]
+}
+
 /**
  * Env vars that make a *different binary* run (injection or resolution hijack).
  * Heuristic only — export-&& form bypasses this, and excludedCommands isn't a
@@ -899,7 +1212,12 @@ function filterRulesByContentsMatchingInput(
   {
     stripAllEnvVars = false,
     skipCompoundCheck = false,
-  }: { stripAllEnvVars?: boolean; skipCompoundCheck?: boolean } = {},
+    astCommand,
+  }: {
+    stripAllEnvVars?: boolean
+    skipCompoundCheck?: boolean
+    astCommand?: SimpleCommand
+  } = {},
 ): PermissionRule[] {
   const command = input.command.trim()
 
@@ -941,6 +1259,17 @@ function filterRulesByContentsMatchingInput(
   //
   // Without iteration, single-pass compositions miss multi-layer interleaving.
   if (stripAllEnvVars) {
+    const argv =
+      astCommand?.argv ?? parseLiteralCommandArgv(commandWithoutRedirections)
+    const unwrappedArgv = stripCommandWrappersFromArgv(argv)
+    if (
+      unwrappedArgv.length > 0 &&
+      unwrappedArgv[0] !== undefined &&
+      unwrappedArgv[0] !== argv[0]
+    ) {
+      commandsToTry.push(unwrappedArgv.join(' '))
+    }
+
     const seen = new Set(commandsToTry)
     let startIdx = 0
 
@@ -1055,7 +1384,10 @@ function matchingRulesForInput(
   input: z.infer<typeof BashTool.inputSchema>,
   toolPermissionContext: ToolPermissionContext,
   matchMode: 'exact' | 'prefix',
-  { skipCompoundCheck = false }: { skipCompoundCheck?: boolean } = {},
+  {
+    skipCompoundCheck = false,
+    astCommand,
+  }: { skipCompoundCheck?: boolean; astCommand?: SimpleCommand } = {},
 ) {
   const denyRuleByContents = getRuleByContentsForTool(
     toolPermissionContext,
@@ -1068,7 +1400,7 @@ function matchingRulesForInput(
     input,
     denyRuleByContents,
     matchMode,
-    { stripAllEnvVars: true, skipCompoundCheck: true },
+    { stripAllEnvVars: true, skipCompoundCheck: true, astCommand },
   )
 
   const askRuleByContents = getRuleByContentsForTool(
@@ -1080,7 +1412,7 @@ function matchingRulesForInput(
     input,
     askRuleByContents,
     matchMode,
-    { stripAllEnvVars: true, skipCompoundCheck: true },
+    { stripAllEnvVars: true, skipCompoundCheck: true, astCommand },
   )
 
   const allowRuleByContents = getRuleByContentsForTool(
@@ -1195,6 +1527,7 @@ export const bashToolCheckPermission = (
   const { matchingDenyRules, matchingAskRules, matchingAllowRules } =
     matchingRulesForInput(input, toolPermissionContext, 'prefix', {
       skipCompoundCheck: astCommand !== undefined,
+      astCommand,
     })
 
   // 2a. Deny if command has a deny rule
@@ -1304,7 +1637,7 @@ export async function checkCommandAndSuggestRules(
   toolPermissionContext: ToolPermissionContext,
   commandPrefixResult: CommandPrefixResult | null | undefined,
   compoundCommandHasCd?: boolean,
-  astParseSucceeded?: boolean,
+  astCommand?: SimpleCommand,
 ): Promise<PermissionResult> {
   // 1. Check exact match first
   const exactMatchResult = bashToolCheckExactMatchPermission(
@@ -1320,6 +1653,7 @@ export async function checkCommandAndSuggestRules(
     input,
     toolPermissionContext,
     compoundCommandHasCd,
+    astCommand,
   )
   // 2a. Deny/ask if command was explictly denied/asked
   if (
@@ -1334,7 +1668,7 @@ export async function checkCommandAndSuggestRules(
   // hidden substitutions or structural tricks, so the legacy regex-based
   // validators (backslash-escaped operators, etc.) would only add FPs.
   if (
-    !astParseSucceeded &&
+    astCommand === undefined &&
     !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_COMMAND_INJECTION_CHECK)
   ) {
     const safetyResult = await bashCommandIsSafeAsync(input.command)
@@ -1389,6 +1723,7 @@ export async function checkCommandAndSuggestRules(
 function checkSandboxAutoAllow(
   input: z.infer<typeof BashTool.inputSchema>,
   toolPermissionContext: ToolPermissionContext,
+  parsedCommands: SimpleCommand[],
 ): PermissionResult {
   const command = input.command.trim()
 
@@ -1397,6 +1732,9 @@ function checkSandboxAutoAllow(
     input,
     toolPermissionContext,
     'prefix',
+    {
+      astCommand: parsedCommands.length === 1 ? parsedCommands[0] : undefined,
+    },
   )
 
   // Return immediately if there's an explicit deny rule on the full command
@@ -1419,14 +1757,19 @@ function checkSandboxAutoAllow(
   // Otherwise a wildcard ask rule matching the full command (e.g., Bash(*echo*))
   // would return 'ask' before a prefix deny rule on a subcommand (e.g., Bash(rm:*))
   // gets checked, downgrading a deny to an ask.
-  const subcommands = splitCommand(command)
+  const subcommands =
+    parsedCommands.length > 1
+      ? parsedCommands.map((parsedCommand) => parsedCommand.text)
+      : splitCommand(command)
   if (subcommands.length > 1) {
     let firstAskRule: PermissionRule | undefined
-    for (const sub of subcommands) {
+    for (let index = 0; index < subcommands.length; index++) {
+      const sub = subcommands[index]!
       const subResult = matchingRulesForInput(
         { command: sub },
         toolPermissionContext,
         'prefix',
+        { astCommand: parsedCommands[index] },
       )
       // Deny takes priority — return immediately
       if (subResult.matchingDenyRules[0] !== undefined) {
@@ -1490,7 +1833,7 @@ function checkSandboxAutoAllowWithParsedCommands(
     return null
   }
 
-  const result = checkSandboxAutoAllow(input, toolPermissionContext)
+  const result = checkSandboxAutoAllow(input, toolPermissionContext, commands)
   if (result.behavior === 'passthrough') return null
 
   const assignment = /^([A-Za-z_][A-Za-z0-9_]*)\+?=/
@@ -1603,7 +1946,7 @@ function checkEarlyExitDeny(
 function checkSemanticsDeny(
   input: z.infer<typeof BashTool.inputSchema>,
   toolPermissionContext: ToolPermissionContext,
-  commands: readonly { text: string }[],
+  commands: readonly SimpleCommand[],
 ): PermissionResult | null {
   const fullCmd = checkEarlyExitDeny(input, toolPermissionContext)
   if (fullCmd !== null) return fullCmd
@@ -1612,6 +1955,7 @@ function checkSemanticsDeny(
       { ...input, command: cmd.text },
       toolPermissionContext,
       'prefix',
+      { astCommand: cmd },
     ).matchingDenyRules[0]
     if (subDeny !== undefined) {
       return {
@@ -2593,7 +2937,7 @@ export async function bashToolHasPermission(
       appState.toolPermissionContext,
       commandSubcommandPrefix,
       compoundCommandHasCd,
-      astSubcommands !== null,
+      astCommandsByIdx[0],
     )
     // If command wasn't allowed, attach pending classifier check.
     // At this point, 'ask' can only come from bashCommandIsSafe (security check inside
@@ -2617,7 +2961,8 @@ export async function bashToolHasPermission(
 
   // Check subcommand permission results
   const subcommandResults: Map<string, PermissionResult> = new Map()
-  for (const subcommand of subcommands) {
+  for (let index = 0; index < subcommands.length; index++) {
+    const subcommand = subcommands[index]!
     subcommandResults.set(
       subcommand,
       await checkCommandAndSuggestRules(
@@ -2629,7 +2974,7 @@ export async function bashToolHasPermission(
         appState.toolPermissionContext,
         commandSubcommandPrefix?.subcommandPrefixes.get(subcommand),
         compoundCommandHasCd,
-        astSubcommands !== null,
+        astCommandsByIdx[index],
       ),
     )
   }
